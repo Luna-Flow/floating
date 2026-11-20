@@ -13,8 +13,10 @@ function of its arguments. The package raises no condition and has no notion of
 a rounding mode, a context or a flag; those belong to `bin_float`.
 It is an internal package: code outside `Luna-Flow/floating` cannot import it.
 The public coefficient type `BinCoeff` of `bin_float` is a newtype over `Coeff`
-and forwards each of its methods, so `Coeff` never appears in a public
-interface. See the [tutorial](../../tutorial/internal/bin_kernel.md) and the
+whose methods (construction, conversion, comparison and queries) forward to
+this package; the arithmetic exists only here. The name `Coeff` appears in the
+interface of `BinCoeff`, but a user outside the module cannot import this
+package and so cannot call or compare anything on it. See the [tutorial](../../tutorial/internal/bin_kernel.md) and the
 [design page](../../design/internal/bin_kernel.md).
 
 ## Importing

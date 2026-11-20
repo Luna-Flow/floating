@@ -4,6 +4,7 @@ package "Luna-Flow/floating/bin_float"
 import {
   "Luna-Flow/arithmetic",
   "Luna-Flow/floating/def",
+  "Luna-Flow/floating/internal/bin_kernel",
   "moonbitlang/core/debug",
 }
 
@@ -17,22 +18,13 @@ pub let binary_precision_max : Int32
 // Errors
 
 // Types and methods
-#derive(@debug.Debug)
-type BinCoeff
-pub fn BinCoeff::add(Self, Self) -> Self
-pub fn BinCoeff::bit_and(Self, Self) -> Self
+pub(all) struct BinCoeff(@bin_kernel.Coeff)
 pub fn BinCoeff::bit_length(Self) -> Int32
-pub fn BinCoeff::bit_or(Self, Self) -> Self
-pub fn BinCoeff::bit_xor(Self, Self) -> Self
 pub fn BinCoeff::compare(Self, Self) -> Int32
-pub fn BinCoeff::ctz(Self) -> Int32
-pub fn BinCoeff::div_rem_checked(Self, Self) -> Result[(Self, Self), String]
 pub fn BinCoeff::equal(Self, Self) -> Bool
 pub fn BinCoeff::from_bytes_be(BytesView) -> Self
 pub fn BinCoeff::from_uint64(UInt64) -> Self
-pub fn BinCoeff::gcd(Self, Self) -> Self
 pub fn BinCoeff::is_zero(Self) -> Bool
-pub fn BinCoeff::mul(Self, Self) -> Self
 pub fn BinCoeff::not_equal(Self, Self) -> Bool
 pub fn BinCoeff::one() -> Self
 pub fn BinCoeff::op_ge(Self, Self) -> Bool
@@ -41,27 +33,16 @@ pub fn BinCoeff::op_le(Self, Self) -> Bool
 pub fn BinCoeff::op_lt(Self, Self) -> Bool
 pub fn BinCoeff::output(Self, &Logger) -> Unit
 pub fn BinCoeff::parse(String, radix? : Int32) -> Result[Self, String]
-pub fn BinCoeff::pow_nat(Self, UInt32) -> Self
-pub fn BinCoeff::shift_left(Self, Int32) -> Self
-pub fn BinCoeff::shift_right(Self, Int32) -> Self
-pub fn BinCoeff::shl(Self, Int32) -> Self
-pub fn BinCoeff::shr(Self, Int32) -> Self
-pub fn BinCoeff::square(Self) -> Self
-pub fn BinCoeff::sub_checked(Self, Self) -> Result[Self, String]
-pub fn BinCoeff::test_bit(Self, Int32) -> Bool
 pub fn BinCoeff::to_bytes_be(Self) -> Bytes
 pub fn BinCoeff::to_radix_string(Self, Int32) -> String
 pub fn BinCoeff::to_repr(Self) -> @debug.Repr
 pub fn BinCoeff::to_string(Self) -> String
 pub fn BinCoeff::to_uint64(Self) -> UInt64?
 pub fn BinCoeff::zero() -> Self
-pub impl Add for BinCoeff
 pub impl Compare for BinCoeff
 pub impl Eq for BinCoeff
-pub impl Mul for BinCoeff
-pub impl Shl for BinCoeff
 pub impl Show for BinCoeff
-pub impl Shr for BinCoeff
+pub impl @debug.Debug for BinCoeff
 
 #derive(Eq, @debug.Debug)
 pub struct BinFloat {

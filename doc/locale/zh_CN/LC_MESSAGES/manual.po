@@ -117,7 +117,7 @@ msgstr "目前代码会丢失部分输入集合、无谓地放宽结果，或对
 #: manual/api/frontend/mpfr_expr.md:15
 #: manual/api/frontend/testfloat_expr.md:15
 #: manual/api/internal.md:56
-#: manual/api/internal/bin_kernel.md:20
+#: manual/api/internal/bin_kernel.md:22
 #: manual/api/internal/conformance.md:15
 #: manual/api/internal/decimal_kernel.md:18
 #: manual/api/internal/runner_cli.md:14
@@ -583,7 +583,7 @@ msgstr "除数 $\\boldsymbol{y}$"
 #: manual/api/decimal_checked.md:281
 #: manual/conformance/bin_float.md:107
 #: manual/design/bin_float_checked.md:175
-#: manual/performance_audit.md:123
+#: manual/performance_audit.md:122
 msgid "Result"
 msgstr "结果"
 
@@ -661,7 +661,7 @@ msgstr "`minimum` 为 $[\\min(\\underline{x}, \\underline{y}), \\min(\\overline{
 
 #: manual/api/ball_float.md:875
 #: manual/api/ball_float_checked.md:313
-#: manual/api/bin_float.md:1499
+#: manual/api/bin_float.md:1432
 #: manual/api/bin_float_checked.md:489
 #: manual/api/decimal.md:1471
 #: manual/api/frontend/mpfr_expr.md:156
@@ -1012,7 +1012,7 @@ msgstr "NaI 仍为 NaI，并带上上下文精度。"
 
 #: manual/api/ball_float.md:1565
 #: manual/api/ball_float_checked.md:398
-#: manual/api/bin_float.md:2298
+#: manual/api/bin_float.md:2231
 #: manual/api/bin_float_checked.md:817
 #: manual/api/decimal.md:2109
 #: manual/api/decimal_gda.md:1817
@@ -1087,11 +1087,11 @@ msgstr "只使用 `ctx.precision`：操作数先用 `with_precision` 重新舍�
 #: manual/api/ball_float_checked.md:425
 #: manual/api/bench.md:216
 #: manual/api/bench/ball_float.md:43
-#: manual/api/bench/bin_float.md:45
+#: manual/api/bench/bin_float.md:44
 #: manual/api/bench/decimal.md:42
 #: manual/api/bench/decimal_gda.md:42
 #: manual/api/bench/external.md:68
-#: manual/api/bin_float.md:2511
+#: manual/api/bin_float.md:2440
 #: manual/api/bin_float_checked.md:837
 #: manual/api/cli.md:80
 #: manual/api/cli/dispatch.md:38
@@ -1113,7 +1113,7 @@ msgstr "只使用 `ctx.precision`：操作数先用 `with_precision` 重新舍�
 #: manual/api/frontend/mpfr_expr.md:536
 #: manual/api/frontend/testfloat_expr.md:407
 #: manual/api/internal.md:506
-#: manual/api/internal/bin_kernel.md:77
+#: manual/api/internal/bin_kernel.md:79
 #: manual/api/internal/conformance.md:353
 #: manual/api/internal/decimal_kernel.md:92
 #: manual/api/internal/runner_cli.md:209
@@ -1130,7 +1130,7 @@ msgstr "完整公共接口"
 #: manual/api/frontend/mpfr_expr.md:538
 #: manual/api/frontend/testfloat_expr.md:409
 #: manual/api/internal.md:508
-#: manual/api/internal/bin_kernel.md:79
+#: manual/api/internal/bin_kernel.md:81
 #: manual/api/internal/conformance.md:355
 #: manual/api/internal/decimal_kernel.md:94
 #: manual/api/internal/runner_cli.md:211
@@ -1535,7 +1535,7 @@ msgid "Every specification has a plan test that runs in normal test runs and che
 msgstr "每个规格都有一个计划测试，它在常规测试运行中执行并检查规格能否编译（`ball benchmark plans compile`），还有一个标记为 `#skip(\"performance benchmark\")` 的性能测试，只有 `tools/benchmark.py` 会运行它。在报告的行中，`DATASET` 是数据集列中从 0 开始的索引。性能测试将每个观测以 `MAREMARK_JSONL=` 行的形式输出，并将归约结果打印为 `MAREMARK_HOTSPOT=ball-float/OP/DATASET core_pct=… full_pct=…`。"
 
 #: manual/api/bench/ball_float.md:45
-#: manual/api/bench/bin_float.md:47
+#: manual/api/bench/bin_float.md:46
 #: manual/api/bench/decimal.md:44
 #: manual/api/bench/decimal_gda.md:44
 #: manual/api/bench/external.md:70
@@ -1551,13 +1551,13 @@ msgid "bench/bin_float API"
 msgstr "bench/bin_float API"
 
 #: manual/api/bench/bin_float.md:5
-msgid "`bench/bin_float` holds the binary arithmetic and elementary-function benchmarks and the square auto-tune experiment of `floating`. It is a test-only package: all content is in `*_test.mbt` files built on the [`bench`](../bench.md) toolkit, and it exports no MoonBit items. This page records the benchmark cases it defines; the [tutorial](../../tutorial/bench/bin_float.md) shows how to run them and the [design page](../../design/bench/bin_float.md) explains the workloads."
-msgstr "`bench/bin_float` 包含 `floating` 的二进制算术与初等函数基准测试，以及平方运算的自动调优实验。它是一个仅用于测试的包：所有内容都位于基于 [`bench`](../bench.md) 工具包的 `*_test.mbt` 文件中，不导出任何 MoonBit 项。本页记录它定义的基准用例；[教程](../../tutorial/bench/bin_float.md)介绍如何运行它们，[设计页面](../../design/bench/bin_float.md)解释其工作负载。"
+msgid "`bench/bin_float` holds the binary arithmetic and elementary-function benchmarks of `floating`. It is a test-only package: all content is in `*_test.mbt` files built on the [`bench`](../bench.md) toolkit, and it exports no MoonBit items. This page records the benchmark cases it defines; the [tutorial](../../tutorial/bench/bin_float.md) shows how to run them and the [design page](../../design/bench/bin_float.md) explains the workloads."
+msgstr "`bench/bin_float` 收录 `floating` 的二进制算术和初等函数基准。它是纯测试包：所有内容都在基于 [`bench`](../bench.md) 工具集的 `*_test.mbt` 文件中，不导出任何 MoonBit 项。本页记录它定义的基准用例；[教程](../../tutorial/bench/bin_float.md)说明如何运行，[设计页](../../design/bench/bin_float.md)解释工作负载。"
 
 #: manual/api/bench/bin_float.md:34
 #: manual/design/bench/bin_float.md:35
-msgid "`kernel/coefficient` (`BinCoeff`), `core/bin-float` (`BinFloat` operators), `full/checked` (`BinFloatResult`)"
-msgstr "`kernel/coefficient`（`BinCoeff`）、`core/bin-float`（`BinFloat` 运算符）、`full/checked`（`BinFloatResult`）"
+msgid "`kernel/coefficient` (`BigInt`), `core/bin-float` (`BinFloat` operators), `full/checked` (`BinFloatResult`)"
+msgstr "`kernel/coefficient`（`BigInt`）、`core/bin-float`（`BinFloat` 运算符）、`full/checked`（`BinFloatResult`）"
 
 #: manual/api/bench/bin_float.md:35
 #: manual/design/bench/bin_float.md:36
@@ -1574,19 +1574,9 @@ msgstr "53、128、512 位精度"
 msgid "`core/bin-float` (aborting methods), `full/checked` (`BinFloatResult`)"
 msgstr "`core/bin-float`（会中止的方法）、`full/checked`（`BinFloatResult`）"
 
-#: manual/api/bench/bin_float.md:36
-#: manual/design/bench/bin_float.md:37
-msgid "4, 8, 16, …, 1024 limbs of 32 bits"
-msgstr "4、8、16、…、1024 个 32 位的 limb"
-
-#: manual/api/bench/bin_float.md:36
-#: manual/design/bench/bin_float.md:37
-msgid "`mul-self` (`x.mul(x)`), `square` (`x.square()`) on `BinCoeff`"
-msgstr "`BinCoeff` 上的 `mul-self`（`x.mul(x)`）与 `square`（`x.square()`）"
-
-#: manual/api/bench/bin_float.md:38
-msgid "Every specification has a plan test that runs in normal test runs and checks that it compiles (`binary benchmark plans compile`, `elementary benchmark plans compile`, `binary auto tune plan compiles`), and a performance test marked `#skip(\"performance benchmark\")` that only `tools/benchmark.py` runs. In the reported lines `DATASET` is the 0-based index into the datasets column. The performance tests stream every observation as a `MAREMARK_JSONL=` line and print the reduced results as `MAREMARK_HOTSPOT=bin-float/OP/DATASET core_pct=… full_pct=…` for arithmetic, `MAREMARK_HOTSPOT=bin-float/elementary/OP/DATASET full_pct=…` for elementary functions, and `MAREMARK_TUNE`, `MAREMARK_CROSSOVER` and `MAREMARK_POLICY` lines for the square experiment."
-msgstr "每个规格都有一个计划测试，它在常规测试运行中执行并检查规格能否编译（`binary benchmark plans compile`、`elementary benchmark plans compile`、`binary auto tune plan compiles`），还有一个标记为 `#skip(\"performance benchmark\")` 的性能测试，只有 `tools/benchmark.py` 会运行它。在报告的行中，`DATASET` 是数据集列中从 0 开始的索引。性能测试将每个观测以 `MAREMARK_JSONL=` 行的形式输出，并打印归约结果：算术运算为 `MAREMARK_HOTSPOT=bin-float/OP/DATASET core_pct=… full_pct=…`，初等函数为 `MAREMARK_HOTSPOT=bin-float/elementary/OP/DATASET full_pct=…`，平方实验则为 `MAREMARK_TUNE`、`MAREMARK_CROSSOVER` 和 `MAREMARK_POLICY` 行。"
+#: manual/api/bench/bin_float.md:37
+msgid "Every specification has a plan test that runs in normal test runs and checks that it compiles (`binary benchmark plans compile`, `elementary benchmark plans compile`, `binary auto tune plan compiles`), and a performance test marked `#skip(\"performance benchmark\")` that only `tools/benchmark.py` runs. In the reported lines `DATASET` is the 0-based index into the datasets column. The performance tests stream every observation as a `MAREMARK_JSONL=` line and print the reduced results as `MAREMARK_HOTSPOT=bin-float/OP/DATASET core_pct=… full_pct=…` for arithmetic, `MAREMARK_HOTSPOT=bin-float/elementary/OP/DATASET full_pct=…` for elementary functions."
+msgstr "每个规格都有一个在常规测试运行中执行的计划测试，用于检查它能编译（`binary benchmark plans compile`、`elementary benchmark plans compile`），以及一个标记为 `#skip(\"performance benchmark\")` 的性能测试，只有 `tools/benchmark.py` 会运行它。在报告的行中，`DATASET` 是数据集列的从 0 开始的索引。性能测试把每个观测值以 `MAREMARK_JSONL=` 行流式输出，并打印归约后的结果：算术用 `MAREMARK_HOTSPOT=bin-float/OP/DATASET core_pct=… full_pct=…`，初等函数用 `MAREMARK_HOTSPOT=bin-float/elementary/OP/DATASET full_pct=…`。"
 
 #: manual/api/bench/decimal.md:1
 msgid "bench/decimal API"
@@ -1769,7 +1759,7 @@ msgid "Example"
 msgstr "示例"
 
 #: manual/api/bin_float.md:46
-#: manual/api/bin_float.md:741
+#: manual/api/bin_float.md:674
 #: manual/api/decimal.md:499
 #: manual/api/decimal_gda.md:449
 msgid "Context"
@@ -1841,211 +1831,167 @@ msgid "A non-negative arbitrary-precision integer, used as the coefficient of a 
 msgstr "一个非负的任意精度整数，用作 `BinFloat` 的系数以及交换编码的位模式。"
 
 #: manual/api/bin_float.md:97
-msgid "All arithmetic on `BinCoeff` is exact. On the native, LLVM and Wasm targets the value is an inline 64- or 128-bit word or an array of 32-bit limbs; on JavaScript it is a host `bigint`. The representation is not observable, and the algorithm selection (schoolbook, Karatsuba, Toom-3, number-theoretic transform, staged division) is described in the [design page](../design/bin_float.md#the-coefficient-kernel). Operations whose mathematical result could be negative or undefined are checked and return `Err` with a message instead."
-msgstr "`BinCoeff` 上的所有算术都是精确的。在 native、LLVM 和 Wasm 目标上，该值是内联的 64 位或 128 位字，或 32 位 limb 数组；在 JavaScript 上则是宿主的 `bigint`。表示方式不可观察，算法选择（教科书算法、Karatsuba、Toom-3、数论变换、分阶段除法）见[设计文档](../design/bin_float.md#the-coefficient-kernel)。数学结果可能为负或无定义的运算会进行检查，并以带消息的 `Err` 代替返回。"
+msgid "The inner type `@bin_kernel.Coeff` belongs to the internal package `internal/bin_kernel`, which only code inside `Luna-Flow/floating` can import. It carries no compatibility promise and a user cannot call a method on it, read it, compare it or build one: from outside the module a `BinCoeff` is opaque, and the field is public only so that the other packages of the library can unwrap it. The value is exact: on the native, LLVM and Wasm targets an inline 64- or 128-bit word or an array of 64-bit limbs, on JavaScript a host `bigint`; the representation is not observable, and the algorithm selection (schoolbook, Karatsuba, Toom-3, number-theoretic transform, staged division) is described in the [design page](../design/bin_float.md#the-coefficient-kernel). `Debug` prints the integer value."
+msgstr "内部类型 `@bin_kernel.Coeff` 属于内部包 `internal/bin_kernel`，只有 `Luna-Flow/floating` 内部的代码才能导入它。它不带任何兼容性承诺，用户也无法对它调用方法、读取、比较或构造：在模块之外，`BinCoeff` 是不透明的，字段是公开的只是为了让库的其他包能够解包。其值是精确的：在 Native、LLVM 和 Wasm 目标上是内联的 64 位或 128 位字，或 64 位肢的数组；在 JavaScript 上是宿主 `bigint`；表示不可观察，算法选择（朴素乘法、Karatsuba、Toom-3、数论变换、分阶段除法）见[设计页](../design/bin_float.md#the-coefficient-kernel)。`Debug` 打印整数值。"
 
-#: manual/api/bin_float.md:108
+#: manual/api/bin_float.md:111
 msgid "Build a coefficient from a machine value."
 msgstr "由机器值构建系数。"
 
-#: manual/api/bin_float.md:118
+#: manual/api/bin_float.md:121
 msgid "Convert between a coefficient and digits."
 msgstr "在系数与数字串之间转换。"
 
-#: manual/api/bin_float.md:126
+#: manual/api/bin_float.md:129
 msgid "`parse` reads a digit string in base `radix` (default 10, letters for digits above 9, an optional leading `+`); an empty string, a `-` sign, a digit outside the radix or a radix outside $[2, 36]$ is an `Err`. `to_string` prints base 10 and `to_radix_string` any radix in $[2, 36]$, in lower case without a prefix; it aborts for another radix."
 msgstr "`parse` 读取以 `radix` 为基数的数字串（默认 10，大于 9 的数字用字母表示，可带一个前导 `+`）；空串、`-` 号、超出基数的数字或不在 $[2, 36]$ 内的基数均为 `Err`。`to_string` 输出十进制，`to_radix_string` 输出 $[2, 36]$ 内任意基数，使用小写且不带前缀；对其他基数它会中止。"
 
-#: manual/api/bin_float.md:134
+#: manual/api/bin_float.md:137
 msgid "Convert between a coefficient and big-endian bytes."
 msgstr "在系数与大端字节序列之间转换。"
 
-#: manual/api/bin_float.md:141
+#: manual/api/bin_float.md:144
 msgid "`to_bytes_be` uses the minimal number of bytes; leading zero bytes are ignored by `from_bytes_be`."
 msgstr "`to_bytes_be` 使用最少的字节数；`from_bytes_be` 忽略前导零字节。"
 
-#: manual/api/bin_float.md:146
+#: manual/api/bin_float.md:149
 msgid "Returns the value as a `UInt64`, or `None` when it needs more than 64 bits."
 msgstr "以 `UInt64` 返回该值；若需要多于 64 位则返回 `None`。"
 
-#: manual/api/bin_float.md:154
-msgid "Bit-level queries."
-msgstr "位级查询。"
+#: manual/api/bin_float.md:157
+msgid "Queries."
+msgstr "查询。"
 
-#: manual/api/bin_float.md:163
-msgid ""
-"`bit_length` is $\\lfloor \\log_2 c \\rfloor + 1$ for $c > 0$ and $0$ for zero. `ctz` counts trailing zero bits (the 2-adic valuation $\\n"
-"u_2(c)$). `test_bit(i)` is bit $i$, counting from the least significant bit $0$."
-msgstr ""
-"对 $c > 0$，`bit_length` 为 $\\lfloor \\log_2 c \\rfloor + 1$，对零为 $0$。`ctz` 统计末尾零位的个数（即 2-adic 赋值 $\\n"
-"u_2(c)$）。`test_bit(i)` 是第 $i$ 位，从最低有效位 $0$ 开始计数。"
+#: manual/api/bin_float.md:164
+msgid "`bit_length` is $\\lfloor \\log_2 c \\rfloor + 1$ for $c > 0$ and $0$ for zero."
+msgstr "对 $c > 0$，`bit_length` 是 $\\lfloor \\log_2 c \\rfloor + 1$；对零是 $0$。"
 
-#: manual/api/bin_float.md:169
+#: manual/api/bin_float.md:168
 msgid "Exact comparison."
 msgstr "精确比较。"
 
-#: manual/api/bin_float.md:176
+#: manual/api/bin_float.md:175
 msgid "`compare` returns $-1$, $0$ or $1$; `equal` is numerical equality, which for natural numbers is the same as equality of representations. The operators `<`, `<=`, `>`, `>=`, `==` and `!=` use them (see [Trait implementations](#trait-implementations))."
 msgstr "`compare` 返回 $-1$、$0$ 或 $1$；`equal` 是数值相等，对自然数而言与表示相等相同。运算符 `<`、`<=`、`>`、`>=`、`==` 和 `!=` 使用它们（参见 [trait 实现](#trait-implementations)）。"
 
-#: manual/api/bin_float.md:183
-msgid "Exact addition, multiplication, squaring and powers."
-msgstr "精确的加法、乘法、平方与幂。"
+#: manual/api/bin_float.md:180
+msgid "`BinCoeff` also implements `Eq`, `Compare`, `Show` and `Debug`; the promoted trait methods are listed under [Trait implementations](#trait-implementations). It has no arithmetic, shifts, bit operations or GCD: they are internal to the library (the package `internal/bin_kernel`), and arithmetic on values is done with `BinFloat` or, on a coefficient read with `coefficient()`, after converting it with `to_string` or `to_bytes_be`."
+msgstr "`BinCoeff` 还实现了 `Eq`、`Compare`、`Show` 和 `Debug`；提升后的 trait 方法列在 [Trait 实现](#trait-implementations)下。它没有算术、移位、位运算或 GCD：这些是库的内部功能（包 `internal/bin_kernel`），对值的算术请用 `BinFloat`，或者对用 `coefficient()` 读出的系数，先用 `to_string` 或 `to_bytes_be` 转换。"
 
-#: manual/api/bin_float.md:192
-msgid "`square` uses a dedicated kernel that exploits the symmetry of the cross products. `pow_nat(0)` is one, including $0^0$."
-msgstr "`square` 使用专门的内核，利用交叉乘积的对称性。`pow_nat(0)` 为一，包括 $0^0$。"
-
-#: manual/api/bin_float.md:197
-msgid "Subtraction and Euclidean division, which can fail on a natural number."
-msgstr "减法与欧几里得除法，在自然数上可能失败。"
-
-#: manual/api/bin_float.md:204
-msgid "`a.sub_checked(b)` is `Err` when $b > a$. `n.div_rem_checked(d)` returns $(q, r)$ with $n = qd + r$ and $0 \\le r < d$, and is `Err` when $d = 0$."
-msgstr "当 $b > a$ 时，`a.sub_checked(b)` 为 `Err`。`n.div_rem_checked(d)` 返回满足 $n = qd + r$ 且 $0 \\le r < d$ 的 $(q, r)$，当 $d = 0$ 时为 `Err`。"
-
-#: manual/api/bin_float.md:209
-msgid "Returns the greatest common divisor."
-msgstr "返回最大公约数。"
-
-#: manual/api/bin_float.md:215
-msgid "$\\gcd(a, 0) = a$ and $\\gcd(0, 0) = 0$."
-msgstr "$\\gcd(a, 0) = a$，$\\gcd(0, 0) = 0$。"
-
-#: manual/api/bin_float.md:217
-msgid "Operands that both fit in four 32-bit limbs use the binary (Stein) algorithm. Larger operands use Lehmer rounds: each runs Euclid on the leading 63 bits of the larger operand and the bits of the smaller one in the same window, and takes one plain division step instead when the smaller operand has no bits in that window or the cofactors would not shrink the pair. A long operand is therefore reduced modulo a much shorter one in one step, and operands of any lengths finish. Below eight limbs of the smaller operand the loop continues with plain Euclid. JavaScript uses the host `BigInt`."
-msgstr "两个操作数都能放入四个 32 位 limb 时，使用二进制（Stein）算法。更大的操作数使用 Lehmer 轮：每一轮对较大操作数的前 63 位以及较小操作数在同一窗口中的位运行欧几里得算法；当较小操作数在该窗口中没有任何位，或余因子不会使这对操作数缩小时，则改为执行一次普通除法步骤。因此，长操作数会在一步之内对短得多的操作数取模约简，任意长度的操作数都能终止。当较小操作数少于八个 limb 时，循环改用普通欧几里得算法继续。JavaScript 使用宿主的 `BigInt`。"
-
-#: manual/api/bin_float.md:228
-msgid "Multiply by $2^k$ or divide by $2^k$ rounding toward zero."
-msgstr "乘以 $2^k$，或除以 $2^k$ 并向零舍入。"
-
-#: manual/api/bin_float.md:237
-msgid "`shl` and `shr` are the `Shl`/`Shr` trait methods behind `<<` and `>>`. A negative shift count aborts."
-msgstr "`shl` 和 `shr` 是 `<<` 与 `>>` 背后的 `Shl`/`Shr` trait 方法。负的移位计数会中止。"
-
-#: manual/api/bin_float.md:242
-msgid "Bitwise operations on the binary expansions."
-msgstr "对二进制展开进行按位运算。"
-
-#: manual/api/bin_float.md:250
-msgid "`BinCoeff` also implements `Add`, `Mul`, `Shl`, `Shr`, `Eq`, `Compare`, `Show` and `Debug`; the promoted trait methods are listed under [Trait implementations](#trait-implementations)."
-msgstr "`BinCoeff` 还实现了 `Add`、`Mul`、`Shl`、`Shr`、`Eq`、`Compare`、`Show` 和 `Debug`；被提升的 trait 方法列于 [trait 实现](#trait-implementations)之下。"
-
-#: manual/api/bin_float.md:266
+#: manual/api/bin_float.md:199
 msgid "The value type"
 msgstr "值类型"
 
-#: manual/api/bin_float.md:270
+#: manual/api/bin_float.md:203
 msgid "A binary floating-point value: a finite dyadic number, a signed infinity or a NaN, with a working precision."
 msgstr "二进制浮点值：有限二进有理数、带符号无穷或 NaN，并带有工作精度。"
 
-#: manual/api/bin_float.md:279
+#: manual/api/bin_float.md:212
 msgid "A finite value is $(-1)^s \\cdot c \\cdot 2^{e}$ with $s$ the sign bit, $c$ a `BinCoeff` and $e$ = `exponent2()`. Every value built through this API is normalized: a nonzero $c$ is odd (factors of two are moved into $e$), a zero has $c = 0$ and $e = 0$ and keeps its sign, and $c$ has at most `precision()` bits. The precision is an attribute of the value: plain operations work at the larger precision of their operands, and contextual operations stamp the context precision on their result."
 msgstr "有限值为 $(-1)^s \\cdot c \\cdot 2^{e}$，其中 $s$ 为符号位，$c$ 为 `BinCoeff`，$e$ = `exponent2()`。通过本 API 构建的每个值都是规范化的：非零的 $c$ 是奇数（2 的因子移入 $e$），零具有 $c = 0$ 和 $e = 0$ 并保留其符号，且 $c$ 至多有 `precision()` 位。精度是值的属性：普通运算以其操作数中较大的精度工作，上下文式运算则将上下文精度标记到结果上。"
 
-#: manual/api/bin_float.md:287
+#: manual/api/bin_float.md:220
 msgid "The derived `Eq` is structural, not numerical. Two values are `==` when sign, class, coefficient, exponent, precision and NaN state all agree, so `one(precision=53) != one(precision=24)`, `-0 != +0`, and a NaN is `==` to an identical NaN. Use `compare`, `compare_quiet` or `total_order` for numerical questions."
 msgstr "派生的 `Eq` 是结构相等，而不是数值相等。只有当符号、类别、系数、指数、精度和 NaN 状态全部一致时，两个值才 `==`，因此 `one(precision=53) != one(precision=24)`，`-0 != +0`，而一个 NaN 与完全相同的 NaN `==`。数值问题请使用 `compare`、`compare_quiet` 或 `total_order`。"
 
-#: manual/api/bin_float.md:295
+#: manual/api/bin_float.md:228
 msgid "Builds a finite value $(-1)^{\\text{negative}} \\cdot c \\cdot 2^{e}$ rounded to `precision` bits."
 msgstr "构建舍入到 `precision` 位的有限值 $(-1)^{\\text{negative}} \\cdot c \\cdot 2^{e}$。"
 
-#: manual/api/bin_float.md:302
+#: manual/api/bin_float.md:235
 msgid "The arguments are the coefficient, the exponent $e$ and the precision. When the coefficient has more significant bits than the precision it is rounded with `mode` (default `ToNearestEven`). The result is normalized. A precision below 1 is treated as 1. A value outside the implementation exponent range is replaced as an overflow or underflow would be: above it by $\\pm\\infty$ or, for a mode that rounds toward zero, the largest finite magnitude $(2^p - 1)\\,2^{e_{\\max} - p + 1}$; below the smallest implementation subnormal $2^{e_{\\min} - p + 1}$ by $\\pm 0$ or, for a mode that rounds away from zero (and for nearest when the value exceeds half of it), by that subnormal. `make` rounds precision and range together, in `mode`: a value between the smallest subnormal and $2^{e_{\\min}}$ keeps only the bits on the subnormal grid $2^{e_{\\min} - p + 1}$ (at least one), so the stored value never has a bit below that grid. This matters only at magnitudes near $2^{-2^{30}}$; `round_ctx` additionally reports the flags."
 msgstr "参数依次为系数、指数 $e$ 和精度。当系数的有效位数多于精度时，按 `mode`（默认为 `ToNearestEven`）舍入。结果是规范化的。小于 1 的精度按 1 处理。超出实现指数范围的值会像发生上溢或下溢时那样被替换：高于该范围时替换为 $\\pm\\infty$，或者对向零舍入的模式替换为最大有限绝对值 $(2^p - 1)\\,2^{e_{\\max} - p + 1}$；低于实现的最小次正规数 $2^{e_{\\min} - p + 1}$ 时替换为 $\\pm 0$，或者对远离零舍入的模式（以及值超过其一半时的就近舍入）替换为该次正规数。`make` 把精度和范围放在一起舍入，按 `mode`：介于最小次正规数与 $2^{e_{\\min}}$ 之间的值只保留次正规网格 $2^{e_{\\min} - p + 1}$ 上的位（至少一位），所以存储的值在该网格之下没有任何位。这只在绝对值接近 $2^{-2^{30}}$ 时才有影响；`round_ctx` 还会额外报告标志。"
 
-#: manual/api/bin_float.md:319
+#: manual/api/bin_float.md:252
 msgid "Build a value from an integer."
 msgstr "由整数构建值。"
 
-#: manual/api/bin_float.md:326
+#: manual/api/bin_float.md:259
 msgid "The default precision is 53. The integer is rounded to nearest-even when it has more significant bits than the precision; `from_int(n)` is exact for every `Int` at the default precision."
 msgstr "默认精度为 53。当整数的有效位多于精度时，按就近舍入（偶数优先）处理；在默认精度下，`from_int(n)` 对每个 `Int` 都是精确的。"
 
-#: manual/api/bin_float.md:332
+#: manual/api/bin_float.md:265
 msgid "Decode a host binary64 or binary32 value exactly."
 msgstr "精确解码宿主的 binary64 或 binary32 值。"
 
-#: manual/api/bin_float.md:339
+#: manual/api/bin_float.md:272
 msgid "The defaults are 53 and 24 bits, so the conversion is exact. `from_double` preserves signed zeros, infinities, the NaN sign, the quiet/signaling distinction and the NaN payload (the fraction field without the quiet bit). `from_float` first widens the `Float` to a `Double` on the host and then decodes that: numbers, zeros and infinities are unaffected, but a NaN keeps the payload of the widened binary64 encoding (the binary32 payload times $2^{29}$), and on the native target a signaling `Float` NaN arrives as a quiet NaN. Use `BinaryInterchange::from_hex` with `Binary32` to decode binary32 NaNs bit-exactly. The value is the one the host already rounded: `from_double(0.1)` is $3602879701896397 \\cdot 2^{-55}$, not one tenth. Use `from_string` to round a decimal literal directly."
 msgstr "默认值分别为 53 位和 24 位，因此转换是精确的。`from_double` 保留有符号零、无穷、NaN 的符号、静默/信号之分以及 NaN 载荷（不含 quiet 位的小数字段）。`from_float` 先在宿主上将 `Float` 扩宽为 `Double`，再对其解码：数值、零和无穷不受影响，但 NaN 保留的是扩宽后 binary64 编码的载荷（binary32 载荷乘以 $2^{29}$），并且在 native 目标上，信号 `Float` NaN 到达时已成为静默 NaN。若要逐位精确地解码 binary32 NaN，请将 `BinaryInterchange::from_hex` 与 `Binary32` 一起使用。所得的值是宿主已经舍入过的值：`from_double(0.1)` 为 $3602879701896397 \\cdot 2^{-55}$，而不是十分之一。若要直接舍入十进制字面量，请使用 `from_string`。"
 
-#: manual/api/bin_float.md:353
+#: manual/api/bin_float.md:286
 msgid "Build the constants $+0$, $-0$, $1$ and $\\pm\\infty$."
 msgstr "构建常量 $+0$、$-0$、$1$ 和 $\\pm\\infty$。"
 
-#: manual/api/bin_float.md:362
+#: manual/api/bin_float.md:295
 msgid "The default precision is 53. `inf(Sign::Negative)` is $-\\infty$; any other sign gives $+\\infty$."
 msgstr "默认精度为 53。`inf(Sign::Negative)` 为 $-\\infty$；任何其他符号都给出 $+\\infty$。"
 
-#: manual/api/bin_float.md:367
+#: manual/api/bin_float.md:300
 msgid "Build NaNs."
 msgstr "构建 NaN。"
 
-#: manual/api/bin_float.md:375
+#: manual/api/bin_float.md:308
 msgid "`nan()` is a positive quiet NaN with payload 0. A signaling NaN always has a nonzero payload (the default and a requested 0 both become 1). Payloads are carried through operations and are truncated to the payload field only when a value is encoded in an interchange format."
 msgstr "`nan()` 是 payload 为 0 的正静默 NaN。信号 NaN 的 payload 总是非零（默认值和请求的 0 都会变为 1）。payload 在运算中传递，仅当值被编码为交换格式时才被截断到 payload 字段。"
 
-#: manual/api/bin_float.md:380
+#: manual/api/bin_float.md:313
 #: manual/api/decimal_gda.md:237
 msgid "Observing a value"
 msgstr "观察值"
 
-#: manual/api/bin_float.md:384
+#: manual/api/bin_float.md:317
 msgid "Report the class and sign of a value."
 msgstr "报告值的类别和符号。"
 
-#: manual/api/bin_float.md:392
+#: manual/api/bin_float.md:325
 msgid "`classify` returns `Finite`, `Infinity` or `NaN` (zeros are `Finite`). `sign` is `Zero` for every zero and every NaN, and `Positive` or `Negative` otherwise. `is_negative` returns the sign bit itself, which is set for $-0$, $-\\infty$ and negative NaNs. `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and `@def.is_zero` work on `BinFloat` through the `Floating` trait; the methods of the next section give the same answers without the trait."
 msgstr "`classify` 返回 `Finite`、`Infinity` 或 `NaN`（零属于 `Finite`）。`sign` 对所有零和所有 NaN 为 `Zero`，否则为 `Positive` 或 `Negative`。`is_negative` 返回符号位本身，它对 $-0$、$-\\infty$ 和负 NaN 是置位的。`@def.is_finite`、`@def.is_nan`、`@def.is_infinite` 和 `@def.is_zero` 通过 `Floating` trait 作用于 `BinFloat`；下一节的方法不经过 trait 给出相同的答案。"
 
-#: manual/api/bin_float.md:401
+#: manual/api/bin_float.md:334
 msgid "The ten-valued class of IEEE 754-2019 clause 5.7.2 and its predicates."
 msgstr "IEEE 754-2019 第 5.7.2 条的十值类别及其谓词。"
 
-#: manual/api/bin_float.md:412
+#: manual/api/bin_float.md:345
 msgid "`class_of` returns one of the ten values of [`IeeeClass`](def.md#ieeeclass): `SignalingNaN`, `QuietNaN`, `NegativeInfinity`, `NegativeNormal`, `NegativeSubnormal`, `NegativeZero`, `PositiveZero`, `PositiveSubnormal`, `PositiveNormal` and `PositiveInfinity`. A nonzero finite value is normal when the exponent of its leading bit is at least the context's $e_{\\min}$ and subnormal when it is below; a `BinFloat` carries no format, so the context decides, and `BinaryInterchangeFormat::context` gives the one of a binary interchange format. A context without `e_min` uses the implementation limit `binary_implementation_e_min`. `is_normal` and `is_subnormal` are true exactly for the normal and subnormal classes; `is_finite` is true for zeros, subnormals and normals, `is_infinite` for the two infinities and `is_nan` for both NaNs. None of them rounds or raises a flag, and `classify` keeps its three-valued meaning."
 msgstr "`class_of` 返回 [`IeeeClass`](def.md#ieeeclass) 十个值之一：`SignalingNaN`、`QuietNaN`、`NegativeInfinity`、`NegativeNormal`、`NegativeSubnormal`、`NegativeZero`、`PositiveZero`、`PositiveSubnormal`、`PositiveNormal` 和 `PositiveInfinity`。非零有限值在其最高位的指数不小于上下文的 $e_{\\min}$ 时是正规数，小于时是次正规数；`BinFloat` 不带格式，所以由上下文决定，二进制交换格式对应的上下文由 `BinaryInterchangeFormat::context` 给出。没有 `e_min` 的上下文使用实现极限 `binary_implementation_e_min`。`is_normal` 和 `is_subnormal` 恰好对正规类和次正规类为真；`is_finite` 对零、次正规数和正规数为真，`is_infinite` 对两个无穷为真，`is_nan` 对两种 NaN 为真。它们都不舍入，也不产生标志，`classify` 仍是三值的含义。"
 
-#: manual/api/bin_float.md:428
+#: manual/api/bin_float.md:361
 msgid "Special-value predicates."
 msgstr "特殊值谓词。"
 
-#: manual/api/bin_float.md:438
+#: manual/api/bin_float.md:371
 msgid "`nan_payload` is zero for a value that is not a NaN."
 msgstr "对非 NaN 的值，`nan_payload` 为零。"
 
-#: manual/api/bin_float.md:442
+#: manual/api/bin_float.md:375
 msgid "Return the stored representation."
 msgstr "返回存储的表示。"
 
-#: manual/api/bin_float.md:450
+#: manual/api/bin_float.md:383
 msgid "For a finite value the number is `coefficient()` $\\times 2^{\\texttt{exponent2()}}$ with the sign applied. The coefficient and exponent of an infinity or NaN carry no meaning."
 msgstr "对有限值，其数值为 `coefficient()` $\\times 2^{\\texttt{exponent2()}}$ 再带上符号。无穷或 NaN 的系数和指数没有意义。"
 
-#: manual/api/bin_float.md:456
+#: manual/api/bin_float.md:389
 msgid "Returns the canonical representation of a finite value at its own precision."
 msgstr "返回有限值在其自身精度下的规范表示。"
 
-#: manual/api/bin_float.md:462
+#: manual/api/bin_float.md:395
 msgid "Values built through the public API are already canonical, so this is the identity on them; infinities and NaNs are returned unchanged."
 msgstr "通过公共 API 构建的值已经是规范的，因此对它们而言这是恒等操作；无穷和 NaN 原样返回。"
 
-#: manual/api/bin_float.md:467
+#: manual/api/bin_float.md:400
 msgid "Rounds a value to a new working precision."
 msgstr "将值舍入到新的工作精度。"
 
-#: manual/api/bin_float.md:473
+#: manual/api/bin_float.md:406
 msgid "A finite value with more significant bits than the new precision is rounded in the given direction (`@lf_arith.RoundingMode` has no ties-to-away mode; use `round_ctx` for it). Zeros, infinities and NaNs only change their precision attribute. No flags are reported; use `round_ctx` when they matter."
 msgstr "有效位多于新精度的有限值按给定方向舍入（`@lf_arith.RoundingMode` 没有 ties-to-away 模式；如需该模式请使用 `round_ctx`）。零、无穷和 NaN 只改变其精度属性。不报告标志；需要标志时请使用 `round_ctx`。"
 
-#: manual/api/bin_float.md:480
+#: manual/api/bin_float.md:413
 msgid "Returns the unit in the last place of a finite value at its own precision."
 msgstr "返回有限值在其自身精度下的最后一位单位（ulp）。"
 
-#: manual/api/bin_float.md:486
+#: manual/api/bin_float.md:419
 msgid ""
 "For $x \\n"
 "e 0$ with leading-bit exponent $t = \\lfloor \\log_2 |x| \\rfloor$ the result is $2^{t-p+1}$. For zero it is $2^{1-p}$, and for an infinity or NaN it is a quiet NaN. The spacing ignores any context exponent range, so it is not the subnormal spacing of an IEEE format."
@@ -2053,394 +1999,394 @@ msgstr ""
 "对于 $x \\n"
 "e 0$，记最高位指数为 $t = \\lfloor \\log_2 |x| \\rfloor$，结果为 $2^{t-p+1}$。对零为 $2^{1-p}$，对无穷或 NaN 为静默 NaN。该间距忽略任何上下文指数范围，因此它不是 IEEE 格式中的次正规间距。"
 
-#: manual/api/bin_float.md:514
+#: manual/api/bin_float.md:447
 msgid "Plain arithmetic"
 msgstr "普通算术"
 
-#: manual/api/bin_float.md:518
+#: manual/api/bin_float.md:451
 msgid "The four operations and negation, also available as `+`, `-`, `*`, `/` and unary `-`."
 msgstr "四则运算与取负，也可以通过 `+`、`-`、`*`、`/` 和一元 `-` 使用。"
 
-#: manual/api/bin_float.md:534
+#: manual/api/bin_float.md:467
 msgid "The result is the exact sum, difference, product or quotient rounded once to nearest-even at the larger operand precision, with the implementation exponent range. Special values follow IEEE 754: NaNs propagate (the first NaN operand, quieted), $\\infty - \\infty$, $0 \\cdot \\infty$, $0/0$ and $\\infty/\\infty$ are NaN, and a nonzero number divided by zero is a signed infinity. Flags are discarded; use the [contextual forms](#contextual-arithmetic) to observe them. `neg` flips the sign bit of every value, including zeros and NaNs, and never rounds."
 msgstr "结果是精确的和、差、积或商，以较大的操作数精度、在实现指数范围内就近舍入（偶数优先）一次。特殊值遵循 IEEE 754：NaN 会传播（取第一个 NaN 操作数并静默化），$\\infty - \\infty$、$0 \\cdot \\infty$、$0/0$ 和 $\\infty/\\infty$ 为 NaN，非零数除以零得到带符号无穷。标志被丢弃；要观察标志请使用[上下文式形式](#contextual-arithmetic)。`neg` 翻转每个值的符号位，包括零和 NaN，并且从不舍入。"
 
-#: manual/api/bin_float.md:545
+#: manual/api/bin_float.md:478
 msgid "Clear or copy the sign bit."
 msgstr "清除或复制符号位。"
 
-#: manual/api/bin_float.md:552
+#: manual/api/bin_float.md:485
 msgid "Both are quiet IEEE sign-bit operations: they never round, never raise a flag and keep NaN payloads. `x.copy_sign(y)` has the magnitude of `x` and the sign bit of `y`."
 msgstr "二者都是静默的 IEEE 符号位运算：从不舍入，从不触发标志，并保留 NaN payload。`x.copy_sign(y)` 具有 `x` 的绝对值和 `y` 的符号位。"
 
-#: manual/api/bin_float.md:558
+#: manual/api/bin_float.md:491
 msgid "Divides, returning an error for an invalid operation or a division by zero."
 msgstr "做除法，遇到无效运算或除以零时返回错误。"
 
-#: manual/api/bin_float.md:564
+#: manual/api/bin_float.md:497
 msgid "The result is that of `div`, except for the two IEEE 754-2019 exceptions without a usable value: an invalid operation (§7.2: $0/0$, $\\infty/\\infty$ or a signaling NaN operand) is a `domain_error`, and a finite non-zero dividend over a signed zero (§7.3) is a `division_by_zero` error. A quiet NaN operand gives `Ok` of a quiet NaN (§6.2), and $\\pm\\infty/0$ gives `Ok` of the signed infinity."
 msgstr "结果与 `div` 相同，只有两种没有可用值的 IEEE 754-2019 异常除外：无效运算（§7.2：$0/0$、$\\infty/\\infty$ 或信号 NaN 操作数）为 `domain_error`，有限非零被除数除以带符号零（§7.3）为 `division_by_zero` 错误。静默 NaN 操作数给出静默 NaN 的 `Ok`（§6.2），$\\pm\\infty/0$ 给出带符号无穷的 `Ok`。"
 
-#: manual/api/bin_float.md:573
+#: manual/api/bin_float.md:506
 msgid "Correctly rounded square root."
 msgstr "正确舍入的平方根。"
 
-#: manual/api/bin_float.md:579
+#: manual/api/bin_float.md:512
 msgid "`x.sqrt()` rounds $\\sqrt{x}$ to nearest-even at the precision of `x`. It returns a `domain_error` for an invalid operation: a negative nonzero argument (including $-\\infty$) or a signaling NaN. $\\sqrt{-0} = -0$, and a quiet NaN of either sign gives `Ok` of a quiet NaN. For a square root at another precision or rounding direction use `sqrt_ctx`; its results under `RoundTowardNegative` and `RoundTowardPositive` enclose $\\sqrt{x}$ and coincide when the root is exact."
 msgstr "`x.sqrt()` 以 `x` 的精度将 $\\sqrt{x}$ 就近舍入（偶数优先）。对无效运算，即负的非零参数（包括 $-\\infty$）或信号 NaN，它返回 `domain_error`。$\\sqrt{-0} = -0$，任一符号的静默 NaN 给出静默 NaN 的 `Ok`。需要其他精度或舍入方向的平方根时使用 `sqrt_ctx`：它在 `RoundTowardNegative` 与 `RoundTowardPositive` 下的结果夹住 $\\sqrt{x}$，平方根精确时两者相等。"
 
-#: manual/api/bin_float.md:589
+#: manual/api/bin_float.md:522
 msgid "Raise a value to an integer power."
 msgstr "计算值的整数次幂。"
 
-#: manual/api/bin_float.md:595
+#: manual/api/bin_float.md:528
 msgid "The result is $x^n$ correctly rounded to nearest-even at the precision of `x`, computed as in `pown_ctx`. A zero base with a negative exponent is a `division_by_zero` error, and a signaling NaN base a `domain_error` for every exponent, zero included (IEEE 754-2019 §9.2.1 excludes it from $x^0 = 1$); $x^0 = 1$ for every other $x$, a quiet NaN included."
 msgstr "结果是以 `x` 的精度就近舍入（偶数优先）的正确舍入 $x^n$，计算方式同 `pown_ctx`。零底数配负指数为 `division_by_zero` 错误，信号 NaN 底数对任意指数（包括零）都为 `domain_error`（IEEE 754-2019 §9.2.1 将其排除在 $x^0 = 1$ 之外）；对其余任意 $x$（包括静默 NaN），$x^0 = 1$。"
 
-#: manual/api/bin_float.md:604
+#: manual/api/bin_float.md:537
 msgid "Fused multiply-add: $x \\cdot y + z$ with a single rounding."
 msgstr "融合乘加：只舍入一次的 $x \\cdot y + z$。"
 
-#: manual/api/bin_float.md:610
+#: manual/api/bin_float.md:543
 msgid "The precision is the largest of the three operand precisions. See [`fma_ctx`](#binfloatfma_ctx) for the special cases."
 msgstr "精度为三个操作数精度中的最大者。特殊情形参见 [`fma_ctx`](#binfloatfma_ctx)。"
 
-#: manual/api/bin_float.md:615
+#: manual/api/bin_float.md:548
 msgid "IEEE 754 remainder $x - n y$, where $n$ is the integer nearest $x/y$ with ties to even."
 msgstr "IEEE 754 余数 $x - n y$，其中 $n$ 是最接近 $x/y$ 的整数，平局时取偶数。"
 
-#: manual/api/bin_float.md:622
+#: manual/api/bin_float.md:555
 msgid "The result is exact whenever it fits the larger operand precision, which is always the case for operands of that precision (the proof is on the [design page](../design/bin_float.md#ieee-remainder-is-exact)). See [`remainder_ctx`](#binfloatremainder_ctx)."
 msgstr "只要结果能以较大的操作数精度表示，它就是精确的；对于该精度的操作数，这总是成立（证明见[设计文档](../design/bin_float.md#ieee-remainder-is-exact)）。参见 [`remainder_ctx`](#binfloatremainder_ctx)。"
 
-#: manual/api/bin_float.md:641
+#: manual/api/bin_float.md:574
 msgid "Contexts, rounding and flags"
 msgstr "上下文、舍入与标志"
 
-#: manual/api/bin_float.md:645
+#: manual/api/bin_float.md:578
 msgid "The rounding-direction attribute of a context."
 msgstr "上下文的舍入方向属性。"
 
-#: manual/api/bin_float.md:658
+#: manual/api/bin_float.md:591
 msgid "The first five are the IEEE 754-2019 rounding directions (clause 4.3). `RoundAwayFromZero` is an extra directed mode (round the magnitude up), used by the GDA-style `@lf_arith.RoundingMode::AwayFromZero`. Each mode is a monotone map $\\mathbb{R} \\to F \\cup \\{\\pm\\infty\\}$; the [design page](../design/bin_float.md#rounding-functions) defines them."
 msgstr "前五个是 IEEE 754-2019 的舍入方向（第 4.3 条）。`RoundAwayFromZero` 是一个额外的定向模式（将绝对值向上舍入），供 GDA 风格的 `@lf_arith.RoundingMode::AwayFromZero` 使用。每种模式都是一个单调映射 $\\mathbb{R} \\to F \\cup \\{\\pm\\infty\\}$；[设计文档](../design/bin_float.md#rounding-functions)给出了它们的定义。"
 
-#: manual/api/bin_float.md:666
+#: manual/api/bin_float.md:599
 msgid "Convert to and from `@lf_arith.RoundingMode`."
 msgstr "与 `@lf_arith.RoundingMode` 相互转换。"
 
-#: manual/api/bin_float.md:673
+#: manual/api/bin_float.md:606
 msgid "`to_arithmetic(RoundTiesToAway)` is `None`, because `@lf_arith.RoundingMode` has no ties-to-away mode; the other modes map one to one."
 msgstr "`to_arithmetic(RoundTiesToAway)` 为 `None`，因为 `@lf_arith.RoundingMode` 没有 ties-to-away 模式；其他模式一一对应。"
 
-#: manual/api/bin_float.md:678
+#: manual/api/bin_float.md:611
 msgid "When a nonzero result counts as tiny for the underflow flag."
 msgstr "非零结果在何种情况下对下溢标志而言算作微小。"
 
-#: manual/api/bin_float.md:687
+#: manual/api/bin_float.md:620
 msgid "`BeforeRounding` calls a result tiny when the exact value has $|x| < 2^{e_{\\min}}$. `AfterRounding` calls it tiny when $x$ rounded to $p$ bits with an unbounded exponent range has magnitude below $2^{e_{\\min}}$ (IEEE 754-2019 clause 7.5). The default is `AfterRounding`. Underflow is signaled only for a tiny result that is also inexact."
 msgstr "`BeforeRounding` 在精确值满足 $|x| < 2^{e_{\\min}}$ 时认为结果微小。`AfterRounding` 在 $x$ 以无界指数范围舍入到 $p$ 位后绝对值低于 $2^{e_{\\min}}$ 时认为结果微小（IEEE 754-2019 第 7.5 条）。默认为 `AfterRounding`。只有既微小又不精确的结果才会触发下溢。"
 
-#: manual/api/bin_float.md:695
+#: manual/api/bin_float.md:628
 msgid "The precision, rounding direction, exponent range and tininess rule of one operation."
 msgstr "单次运算的精度、舍入方向、指数范围与微小性规则。"
 
-#: manual/api/bin_float.md:704
+#: manual/api/bin_float.md:637
 msgid "A context is an immutable value; there is no global or thread state. $e_{\\min}$ and $e_{\\max}$ are exponents of the leading bit, as in IEEE 754: a normal number satisfies $2^{e_{\\min}} \\le |x| < 2^{e_{\\max}+1}$, the largest finite value is $(2 - 2^{1-p})\\,2^{e_{\\max}}$ and the smallest positive subnormal is $2^{e_{\\min}-p+1}$. A missing bound means the implementation bound."
 msgstr "上下文是不可变的值；不存在全局或线程状态。与 IEEE 754 一样，$e_{\\min}$ 和 $e_{\\max}$ 是最高位的指数：正规数满足 $2^{e_{\\min}} \\le |x| < 2^{e_{\\max}+1}$，最大有限值为 $(2 - 2^{1-p})\\,2^{e_{\\max}}$，最小正次正规数为 $2^{e_{\\min}-p+1}$。缺省的边界即实现边界。"
 
-#: manual/api/bin_float.md:713
+#: manual/api/bin_float.md:646
 msgid "Build a context."
 msgstr "构建上下文。"
 
-#: manual/api/bin_float.md:721
+#: manual/api/bin_float.md:654
 msgid "The first argument is the precision $p$. Defaults: `RoundTiesToEven`, no explicit exponent bounds, `AfterRounding`. `new` aborts when $p \\le 0$, $p >$ `binary_precision_max`, or both bounds are given with $e_{\\min} > e_{\\max}$; `try_new` returns a `domain_error` in those cases. `unbounded(p)` has no explicit bounds, so only the implementation range applies."
 msgstr "第一个参数是精度 $p$。默认值：`RoundTiesToEven`、无显式指数边界、`AfterRounding`。当 $p \\le 0$、$p >$ `binary_precision_max`，或同时给出两个边界且 $e_{\\min} > e_{\\max}$ 时，`new` 中止；在这些情况下 `try_new` 返回 `domain_error`。`unbounded(p)` 没有显式边界，因此只适用实现范围。"
 
-#: manual/api/bin_float.md:730
+#: manual/api/bin_float.md:663
 msgid "Contexts of the IEEE 754 interchange formats."
 msgstr "IEEE 754 交换格式的上下文。"
 
-#: manual/api/bin_float.md:739
+#: manual/api/bin_float.md:672
 msgid "Each is `BinaryInterchangeFormat::context` of the format:"
 msgstr "每个都是相应格式的 `BinaryInterchangeFormat::context`："
 
-#: manual/api/bin_float.md:750
+#: manual/api/bin_float.md:683
 msgid "Converts an `@lf_arith.ArithmeticContext`."
 msgstr "转换一个 `@lf_arith.ArithmeticContext`。"
 
-#: manual/api/bin_float.md:756
+#: manual/api/bin_float.md:689
 msgid "Precision, rounding and the optional bounds are copied; the `clamp` field has no binary meaning and is ignored; tininess is `AfterRounding`. A precision outside $[1, 2^{28}]$ aborts, as in `new`."
 msgstr "精度、舍入方式和可选边界会被复制；`clamp` 字段在二进制下没有意义，因此被忽略；微小性规则为 `AfterRounding`。超出 $[1, 2^{28}]$ 的精度会中止，与 `new` 相同。"
 
-#: manual/api/bin_float.md:762
+#: manual/api/bin_float.md:695
 msgid "Read the fields of a context."
 msgstr "读取上下文的字段。"
 
-#: manual/api/bin_float.md:772
+#: manual/api/bin_float.md:705
 msgid "`e_min` and `e_max` return the bounds as given (`None` for an unbounded side), not intersected with the implementation range."
 msgstr "`e_min` 和 `e_max` 按给定值返回边界（无界一侧为 `None`），不与实现范围取交。"
 
-#: manual/api/bin_float.md:777
+#: manual/api/bin_float.md:710
 #: manual/api/decimal.md:580
 #: manual/api/decimal_gda.md:1336
 msgid "Read and set the refinement limit of the certified elementary functions."
 msgstr "读取和设置认证初等函数的细化限制。"
 
-#: manual/api/bin_float.md:784
+#: manual/api/bin_float.md:717
 msgid "Every certified elementary function (`exp`, `ln`, the trigonometric, hyperbolic and inverse functions, `pow`, `rootn`, `hypot`, `atan2` and their `try_*_ctx` forms) evaluates an enclosure at a growing working precision until both ends round alike. The limit is the number of refinement steps: `Some(n)` allows `n` of them (a value below 1 counts as 1), the default is `Some(12)`, and `None` removes the count limit. When the limit is reached without a decision, `try_*_ctx` returns the `CertificationFailure` error with the refinement count, as before, and the plain and `*_ctx` forms return a quiet NaN with `invalid_operation`. With `None` the loop still stops when the working precision passes a cap, the larger of 8,000,000 bits and 256 times the first working precision, and the trigonometric work limit of 8,000,000 bits still refuses an argument that would need more. The default changes no result. The field takes part in `==`: two contexts that differ only in the limit are different."
 msgstr "每个认证初等函数（`exp`、`ln`、三角函数、双曲函数和反函数、`pow`、`rootn`、`hypot`、`atan2` 及其 `try_*_ctx` 形式）都在不断增大的工作精度下求包络，直到两端舍入结果相同。该限制是细化步数：`Some(n)` 允许 `n` 步（小于 1 的值按 1 计），默认为 `Some(12)`，`None` 则取消步数限制。达到限制仍未能判定时，`try_*_ctx` 像以前一样返回带细化次数的 `CertificationFailure` 错误，普通形式和 `*_ctx` 形式返回带 `invalid_operation` 的静默 NaN。使用 `None` 时，循环仍会在工作精度超过上限时停止，该上限取 8,000,000 位与首个工作精度的 256 倍中较大者；三角函数 8,000,000 位的工作上限仍会拒绝需要更多位的参数。默认值不改变任何结果。该字段参与 `==`：仅限制不同的两个上下文是不同的。"
 
-#: manual/api/bin_float.md:818
+#: manual/api/bin_float.md:751
 msgid "The five IEEE 754 exception flags raised by one or more operations."
 msgstr "由一个或多个运算触发的五个 IEEE 754 异常标志。"
 
-#: manual/api/bin_float.md:826
+#: manual/api/bin_float.md:759
 msgid "Two flag sets are `==` when all five flags agree."
 msgstr "当五个标志全部一致时，两个标志集 `==`。"
 
-#: manual/api/bin_float.md:830
+#: manual/api/bin_float.md:763
 msgid "Build an empty flag set and read the individual flags."
 msgstr "构建空的标志集并读取各个标志。"
 
-#: manual/api/bin_float.md:841
+#: manual/api/bin_float.md:774
 msgid "`new()` has every flag clear. A contextual operation returns only the flags it raised itself; nothing is sticky until you combine flags. The flags mean: `inexact`, the returned value differs from the exact result; `underflow`, the result is tiny and inexact; `overflow`, the rounded result exceeded the largest finite value (always together with `inexact`); `division_by_zero`, an exact infinite result from finite operands (such as $1/0$ or $\\log 0$); `invalid_operation`, no useful real result exists and a quiet NaN was returned, or a signaling NaN was an operand. The non-`try` elementary functions also raise it when they return NaN for a domain error or a certification failure."
 msgstr "`new()` 的所有标志均为清除状态。上下文式运算只返回它自身触发的标志；在你组合标志之前，没有任何标志是粘滞的。各标志含义如下：`inexact`，返回值与精确结果不同；`underflow`，结果微小且不精确；`overflow`，舍入后的结果超过最大有限值（总是与 `inexact` 一同出现）；`division_by_zero`，有限操作数得到精确的无穷结果（如 $1/0$ 或 $\\log 0$）；`invalid_operation`，不存在有意义的实数结果并返回了静默 NaN，或者某个操作数是信号 NaN。非 `try` 的初等函数在因定义域错误或认证失败而返回 NaN 时也会触发它。"
 
-#: manual/api/bin_float.md:854
+#: manual/api/bin_float.md:787
 msgid "Returns the union of two flag sets."
 msgstr "返回两个标志集合的并。"
 
-#: manual/api/bin_float.md:860
+#: manual/api/bin_float.md:793
 msgid "`combine` is a bitwise OR: associative, commutative and idempotent with `new()` as identity, so the flags of a computation can be accumulated in any order."
 msgstr "`combine` 是按位或：满足结合律、交换律和幂等律，并以 `new()` 为单位元，因此一次计算的标志可以按任意顺序累积。"
 
-#: manual/api/bin_float.md:864
+#: manual/api/bin_float.md:797
 #: manual/api/bin_float_checked.md:263
 msgid "Contextual arithmetic"
 msgstr "上下文式算术"
 
-#: manual/api/bin_float.md:866
+#: manual/api/bin_float.md:799
 msgid "Every method in this group returns `(value, flags)`, rounds the exact result once under the context, and applies the context exponent range: an overflow returns $\\pm\\infty$ or the largest finite magnitude depending on the rounding direction, and a tiny result is rounded on the subnormal grid with quantum $2^{e_{\\min}-p+1}$. The returned value carries the context precision. A NaN operand produces the first NaN operand quieted, with its sign and payload, and `invalid_operation` only when some operand was a signaling NaN."
 msgstr "本组中的每个方法都返回 `(value, flags)`，在上下文下对精确结果只舍入一次，并施加上下文的指数范围：上溢时根据舍入方向返回 $\\pm\\infty$ 或最大有限绝对值，微小结果在量子为 $2^{e_{\\min}-p+1}$ 的次正规网格上舍入。返回值带有上下文精度。NaN 操作数产生静默化后的第一个 NaN 操作数（保留其符号和 payload），并且仅当某个操作数为信号 NaN 时才触发 `invalid_operation`。"
 
-#: manual/api/bin_float.md:876
+#: manual/api/bin_float.md:809
 msgid "Rounds a value into a context."
 msgstr "将值舍入到上下文中。"
 
-#: manual/api/bin_float.md:882
+#: manual/api/bin_float.md:815
 msgid "This is the IEEE conversion of a wider value to a narrower format. Finite values are rounded with the full overflow, subnormal and tininess rules; infinities are kept; a signaling NaN is quieted with `invalid_operation`."
 msgstr "这是 IEEE 中将较宽的值转换为较窄格式的操作。有限值按完整的上溢、次正规和微小性规则舍入；无穷保持不变；信号 NaN 被静默化并触发 `invalid_operation`。"
 
-#: manual/api/bin_float.md:888
+#: manual/api/bin_float.md:821
 msgid "The four operations under a context."
 msgstr "上下文下的四则运算。"
 
-#: manual/api/bin_float.md:901
+#: manual/api/bin_float.md:834
 msgid "Invalid operations ($\\infty - \\infty$ with equal signs after `sub`'s negation, $0 \\cdot \\infty$, $0/0$, $\\infty/\\infty$) give a quiet NaN with `invalid_operation`; a nonzero finite number divided by zero gives a signed infinity with `division_by_zero`. An exact zero sum of operands with opposite signs is $+0$, except $-0$ under `RoundTowardNegative`; $(-0) + (-0) = -0$ (IEEE 754-2019 clause 6.3)."
 msgstr "无效运算（`sub` 取负后符号相同的 $\\infty - \\infty$、$0 \\cdot \\infty$、$0/0$、$\\infty/\\infty$）给出静默 NaN 并触发 `invalid_operation`；非零有限数除以零给出带符号无穷并触发 `division_by_zero`。符号相反的操作数的精确零和为 $+0$，但在 `RoundTowardNegative` 下为 $-0$；$(-0) + (-0) = -0$（IEEE 754-2019 第 6.3 条）。"
 
-#: manual/api/bin_float.md:910
+#: manual/api/bin_float.md:843
 msgid "Square root under a context."
 msgstr "上下文下的平方根。"
 
-#: manual/api/bin_float.md:916
+#: manual/api/bin_float.md:849
 msgid "$\\sqrt{\\pm 0} = \\pm 0$, $\\sqrt{+\\infty} = +\\infty$, and a negative nonzero argument gives a quiet NaN with `invalid_operation`."
 msgstr "$\\sqrt{\\pm 0} = \\pm 0$，$\\sqrt{+\\infty} = +\\infty$，负的非零参数给出静默 NaN 并触发 `invalid_operation`。"
 
-#: manual/api/bin_float.md:921
+#: manual/api/bin_float.md:854
 msgid "Fused multiply-add $\\circ(x \\cdot y + z)$ under a context."
 msgstr "上下文下的融合乘加 $\\circ(x \\cdot y + z)$。"
 
-#: manual/api/bin_float.md:927
+#: manual/api/bin_float.md:860
 msgid "The product is formed exactly and the sum is rounded once (IEEE 754-2019 clause 5.4.1). A NaN operand propagates the first NaN of `self`, multiplier, addend. `invalid_operation` is raised for a signaling NaN, for $\\infty \\cdot 0$ (also when the addend is a quiet NaN, as SoftFloat does), and for $\\pm\\infty \\cdot y + (\\mp\\infty)$."
 msgstr "乘积被精确构成，和只舍入一次（IEEE 754-2019 第 5.4.1 条）。NaN 操作数按 `self`、乘数、加数的顺序传播第一个 NaN。以下情况触发 `invalid_operation`：信号 NaN；$\\infty \\cdot 0$（与 SoftFloat 一样，加数为静默 NaN 时也是如此）；$\\pm\\infty \\cdot y + (\\mp\\infty)$。"
 
-#: manual/api/bin_float.md:935
+#: manual/api/bin_float.md:868
 msgid "IEEE 754 remainder under a context."
 msgstr "上下文下的 IEEE 754 余数。"
 
-#: manual/api/bin_float.md:941
+#: manual/api/bin_float.md:874
 msgid "The result is $r = x - n y$ with $n = \\operatorname{round\\_ties\\_even}(x/y)$, so $|r| \\le |y|/2$. A zero result has the sign of $x$. $x = \\pm\\infty$ or $y = 0$ gives a quiet NaN with `invalid_operation`; $y = \\pm\\infty$ or $x = 0$ returns $x$ rounded into the context. The exact $r$ is then rounded; for operands representable in the context this rounding is exact and no flag is raised. The quotient is never formed: the operands are reduced modulo $2y$, so huge exponent gaps cost $O(\\log)$ multiplications."
 msgstr "结果为 $r = x - n y$，其中 $n = \\operatorname{round\\_ties\\_even}(x/y)$，因此 $|r| \\le |y|/2$。零结果带有 $x$ 的符号。$x = \\pm\\infty$ 或 $y = 0$ 给出静默 NaN 并触发 `invalid_operation`；$y = \\pm\\infty$ 或 $x = 0$ 时返回舍入到上下文中的 $x$。随后对精确的 $r$ 进行舍入；对于可在上下文中表示的操作数，这次舍入是精确的，不触发任何标志。商从不被显式构成：操作数按模 $2y$ 约简，因此巨大的指数差距只需 $O(\\log)$ 次乘法。"
 
-#: manual/api/bin_float.md:951
+#: manual/api/bin_float.md:884
 msgid "Integer power $\\circ(x^n)$ under a context."
 msgstr "上下文下的整数次幂 $\\circ(x^n)$。"
 
-#: manual/api/bin_float.md:957
+#: manual/api/bin_float.md:890
 msgid "This is IEEE 754 `pown`. $x^0 = 1$ without a flag for every $x$ except a signaling NaN (a quiet NaN included); a signaling NaN base gives a quiet NaN with its payload and `invalid_operation` for every exponent, zero included (§9.2.1, §7.2 a); $(\\pm 0)^{n<0} = \\pm\\infty$ (sign for odd $n$) with `division_by_zero`; $(\\pm\\infty)^n$ is an infinity or zero with the sign of an odd power. Small powers are computed exactly; otherwise a Ziv loop rounds an enclosure, with an exact fallback, so the result is always correctly rounded."
 msgstr "这是 IEEE 754 的 `pown`。除信号 NaN 外，对任意 $x$（包括静默 NaN），$x^0 = 1$ 且不触发标志；信号 NaN 底数对任意指数（包括零）都给出保留载荷的静默 NaN，并触发 `invalid_operation`（§9.2.1、§7.2 a）；$(\\pm 0)^{n<0} = \\pm\\infty$（奇数 $n$ 时保留符号）并触发 `division_by_zero`；$(\\pm\\infty)^n$ 是无穷或零，符号按奇次幂规则确定。小次幂精确计算；否则用 Ziv 循环对包络进行舍入，并有精确回退，因此结果总是正确舍入的。"
 
-#: manual/api/bin_float.md:978
+#: manual/api/bin_float.md:911
 msgid "IEEE 754 operations"
 msgstr "IEEE 754 运算"
 
-#: manual/api/bin_float.md:982
+#: manual/api/bin_float.md:915
 msgid "Round to an integral value in the context's rounding direction."
 msgstr "按上下文的舍入方向舍入为整数值。"
 
-#: manual/api/bin_float.md:989
+#: manual/api/bin_float.md:922
 msgid "These are IEEE `roundToIntegral` (in the context's direction) and `roundToIntegralExact`. Only the rounding direction of the context is used; the result keeps the operand's precision and the sign of a zero result. `to_integral_exact_ctx` raises `inexact` when the value changed; `to_integral_value_ctx` never raises it. Infinities are returned unchanged and a signaling NaN is quieted with `invalid_operation`."
 msgstr "它们是 IEEE 的 `roundToIntegral`（按上下文方向）和 `roundToIntegralExact`。只使用上下文的舍入方向；结果保留操作数的精度以及零结果的符号。值发生改变时，`to_integral_exact_ctx` 触发 `inexact`；`to_integral_value_ctx` 从不触发它。无穷原样返回，信号 NaN 被静默化并触发 `invalid_operation`。"
 
-#: manual/api/bin_float.md:998
+#: manual/api/bin_float.md:931
 msgid "Round to an integral value in a fixed direction."
 msgstr "按固定方向舍入为整数值。"
 
-#: manual/api/bin_float.md:1008
+#: manual/api/bin_float.md:941
 msgid "They are `roundToIntegralTowardNegative`, `…TowardPositive`, `…TowardZero`, `…TiesToAway` and `…TiesToEven`. `round` rounds halfway cases away from zero: `round(-2.5) = -3`, while `round_ties_even(-2.5) = -2`."
 msgstr "它们是 `roundToIntegralTowardNegative`、`…TowardPositive`、`…TowardZero`、`…TiesToAway` 和 `…TiesToEven`。`round` 将正好居中的情形向远离零的方向舍入：`round(-2.5) = -3`，而 `round_ties_even(-2.5) = -2`。"
 
-#: manual/api/bin_float.md:1014
+#: manual/api/bin_float.md:947
 msgid "IEEE `convertToInteger` to a machine integer, rounding in the context's direction."
 msgstr "IEEE `convertToInteger`：按上下文的舍入方向转换为机器整数。"
 
-#: manual/api/bin_float.md:1024
+#: manual/api/bin_float.md:957
 msgid "The value is first rounded to an integer. If that integer fits the target type the result is `Some`; with `exact=true` (`convertToIntegerExact`) `inexact` is raised when rounding changed the value. A NaN, an infinity or an integer outside the target range gives `None` with `invalid_operation`, where a C implementation would return an unspecified sentinel. A negative value that rounds to zero converts to `0` for the unsigned targets."
 msgstr "值先被舍入为整数。若该整数在目标类型范围内，结果为 `Some`；使用 `exact=true`（`convertToIntegerExact`）时，若舍入改变了值则触发 `inexact`。NaN、无穷或超出目标范围的整数给出 `None` 并触发 `invalid_operation`，而 C 实现在此会返回未指定的哨兵值。对无符号目标，舍入为零的负值转换为 `0`。"
 
-#: manual/api/bin_float.md:1033
+#: manual/api/bin_float.md:966
 msgid "IEEE `nextUp` and `nextDown` in the context's format."
 msgstr "上下文格式中的 IEEE `nextUp` 和 `nextDown`。"
 
-#: manual/api/bin_float.md:1040
+#: manual/api/bin_float.md:973
 msgid "`next_up_ctx(x)` is the least value of the context's format (precision and exponent range, subnormals included) that is greater than $x$; `next_down_ctx` is $-\\texttt{next\\_up}(-x)$. The context's rounding direction is ignored. The operations are quiet: $\\operatorname{nextUp}(\\pm 0)$ is the smallest positive subnormal, $\\operatorname{nextUp}(-\\infty)$ is the most negative finite value, $\\operatorname{nextUp}(\\Omega) = +\\infty$ with no overflow flag, and only a signaling NaN raises `invalid_operation`. An operand with more bits than the context precision is accepted."
 msgstr "`next_up_ctx(x)` 是上下文格式（精度和指数范围，包括次正规数）中大于 $x$ 的最小值；`next_down_ctx` 为 $-\\texttt{next\\_up}(-x)$。上下文的舍入方向被忽略。这些运算是静默的：$\\operatorname{nextUp}(\\pm 0)$ 是最小正次正规数，$\\operatorname{nextUp}(-\\infty)$ 是最负的有限值，$\\operatorname{nextUp}(\\Omega) = +\\infty$ 且不触发上溢标志，只有信号 NaN 会触发 `invalid_operation`。位数多于上下文精度的操作数也被接受。"
 
-#: manual/api/bin_float.md:1051
+#: manual/api/bin_float.md:984
 msgid "IEEE `scaleB` and `logB`."
 msgstr "IEEE `scaleB` 与 `logB`。"
 
-#: manual/api/bin_float.md:1058
+#: manual/api/bin_float.md:991
 msgid "`x.scaleb_ctx(n, ctx)` is $\\circ(x \\cdot 2^n)$ with the usual overflow and underflow handling; it is exact unless the result leaves the normal range. `x.logb_ctx(ctx)` is $\\lfloor \\log_2 |x| \\rfloor$ as an exact integral value (also for subnormal $x$): $\\operatorname{logB}(0) = -\\infty$ with `division_by_zero`, $\\operatorname{logB}(\\pm\\infty) = +\\infty$, and a NaN propagates."
 msgstr "`x.scaleb_ctx(n, ctx)` 为 $\\circ(x \\cdot 2^n)$，按常规方式处理上溢和下溢；除非结果离开正规范围，否则它是精确的。`x.logb_ctx(ctx)` 是作为精确整数值的 $\\lfloor \\log_2 |x| \\rfloor$（对次正规的 $x$ 同样如此）：$\\operatorname{logB}(0) = -\\infty$ 并触发 `division_by_zero`，$\\operatorname{logB}(\\pm\\infty) = +\\infty$，NaN 会传播。"
 
-#: manual/api/bin_float.md:1083
+#: manual/api/bin_float.md:1016
 #: manual/api/decimal.md:1309
 msgid "Comparison and ordering"
 msgstr "比较与排序"
 
-#: manual/api/bin_float.md:1087
+#: manual/api/bin_float.md:1020
 msgid "Numerical three-way comparison that is total on every value."
 msgstr "在所有值上都为全的数值三路比较。"
 
-#: manual/api/bin_float.md:1094
+#: manual/api/bin_float.md:1027
 msgid "`compare` returns $-1$, $0$ or $1$ by numerical value, with $-0 = +0$ and precision ignored. NaN has no numerical order, so `compare` places every NaN equal to every other NaN and above every non-NaN value; it never aborts. The result is a total preorder, which is what `Compare` (and sorting) needs, but it is not the IEEE comparison: under it `nan > 1` holds. The operators `<`, `<=`, `>`, `>=` and the promoted `op_*` methods use `compare`. For IEEE semantics use `compare_checked`, the quiet and signaling predicates below, or `total_order`. The [design page](../design/bin_float.md#ordering-nan-in-compare) explains the choice."
 msgstr "`compare` 按数值返回 $-1$、$0$ 或 $1$，其中 $-0 = +0$，并忽略精度。NaN 没有数值顺序，因此 `compare` 将所有 NaN 视为彼此相等，并大于所有非 NaN 值；它从不中止。结果是一个全预序，这正是 `Compare`（以及排序）所需要的，但它不是 IEEE 比较：在它之下 `nan > 1` 成立。运算符 `<`、`<=`、`>`、`>=` 以及被提升的 `op_*` 方法使用 `compare`。若需要 IEEE 语义，请使用 `compare_checked`、下文的静默与信号谓词，或 `total_order`。[设计文档](../design/bin_float.md#ordering-nan-in-compare)解释了这一选择。"
 
-#: manual/api/bin_float.md:1106
+#: manual/api/bin_float.md:1039
 msgid "Numerical comparison that rejects NaN."
 msgstr "拒绝 NaN 的数值比较。"
 
-#: manual/api/bin_float.md:1113
+#: manual/api/bin_float.md:1046
 msgid "Returns the same value as `compare` when neither operand is a NaN, and an `unordered_comparison` error otherwise."
 msgstr "当两个操作数都不是 NaN 时返回与 `compare` 相同的值，否则返回 `unordered_comparison` 错误。"
 
-#: manual/api/bin_float.md:1118
+#: manual/api/bin_float.md:1051
 msgid "IEEE comparison as a four-valued relation with flags."
 msgstr "带标志的四值关系形式的 IEEE 比较。"
 
-#: manual/api/bin_float.md:1125
+#: manual/api/bin_float.md:1058
 msgid "The relation is `Less`, `Equal`, `Greater` or `Unordered` (some operand is a NaN), with $-0 = +0$. The quiet form raises `invalid_operation` only for a signaling NaN; the signaling form raises it for every unordered comparison (IEEE 754-2019 clause 5.11)."
 msgstr "关系为 `Less`、`Equal`、`Greater` 或 `Unordered`（某个操作数为 NaN），其中 $-0 = +0$。静默形式只对信号 NaN 触发 `invalid_operation`；信号形式对每次无序比较都触发它（IEEE 754-2019 第 5.11 条）。"
 
-#: manual/api/bin_float.md:1132
+#: manual/api/bin_float.md:1065
 msgid "The IEEE comparison predicates."
 msgstr "IEEE 比较谓词。"
 
-#: manual/api/bin_float.md:1144
+#: manual/api/bin_float.md:1077
 msgid "`compareQuietEqual`, `compareQuietLess`, `compareQuietLessEqual`, `compareQuietUnordered` and the signaling `Equal`, `Less`, `LessEqual`. Each is derived from `compare_quiet` or `compare_signaling` and returns its flags; every predicate except `compare_quiet_unordered` is false on an unordered pair."
 msgstr "即 `compareQuietEqual`、`compareQuietLess`、`compareQuietLessEqual`、`compareQuietUnordered` 以及信号版本的 `Equal`、`Less`、`LessEqual`。每个谓词都由 `compare_quiet` 或 `compare_signaling` 派生并返回其标志；除 `compare_quiet_unordered` 外，每个谓词在无序对上都为假。"
 
-#: manual/api/bin_float.md:1151
+#: manual/api/bin_float.md:1084
 msgid "The IEEE 754 `totalOrder` relation."
 msgstr "IEEE 754 的 `totalOrder` 关系。"
 
-#: manual/api/bin_float.md:1159
+#: manual/api/bin_float.md:1092
 msgid "`total_order_compare` orders all values as"
 msgstr "`total_order_compare` 将所有值排序为"
 
-#: manual/api/bin_float.md:1165
+#: manual/api/bin_float.md:1098
 msgid "with NaNs of one sign and kind ordered by payload (reversed for the negative side). `x.total_order(y)` is `total_order_compare(x, y) <= 0` and `total_order_mag` compares absolute values. Values that are numerically equal but differ in precision compare equal. The operations are quiet."
 msgstr "同一符号和种类的 NaN 按 payload 排序（负侧顺序相反）。`x.total_order(y)` 即 `total_order_compare(x, y) <= 0`，`total_order_mag` 比较绝对值。数值相等但精度不同的值比较为相等。这些运算是静默的。"
 
-#: manual/api/bin_float.md:1172
+#: manual/api/bin_float.md:1105
 msgid "The smaller or larger of two values, ignoring a NaN operand."
 msgstr "两个值中较小或较大的一个，忽略 NaN 操作数。"
 
-#: manual/api/bin_float.md:1179
+#: manual/api/bin_float.md:1112
 msgid "When exactly one operand is a NaN the other is returned (the IEEE 754-2008 `minNum`/`maxNum` convention for quiet NaNs); a signaling NaN is ignored in the same way, without quieting or a flag, and two NaNs give the argument. When the operands compare equal under `compare` (for example $-0$ and $+0$) the receiver is returned. No flags are produced."
 msgstr "当恰有一个操作数为 NaN 时，返回另一个（即 IEEE 754-2008 中针对静默 NaN 的 `minNum`/`maxNum` 约定）；信号 NaN 也以同样方式被忽略，不会被静默化，也不触发标志；两个都是 NaN 时返回参数。当两个操作数在 `compare` 下相等时（例如 $-0$ 和 $+0$），返回接收者。不产生标志。"
 
-#: manual/api/bin_float.md:1187
+#: manual/api/bin_float.md:1120
 msgid "Restrict a value to `[min, max]`."
 msgstr "将值限制在 `[min, max]` 内。"
 
-#: manual/api/bin_float.md:1194
+#: manual/api/bin_float.md:1127
 msgid "A NaN receiver is returned unchanged. `clamp` aborts when a bound is a NaN or `min > max`; `clamp_checked` returns a `domain_error` in those cases."
 msgstr "NaN 接收者原样返回。当某个边界为 NaN 或 `min > max` 时，`clamp` 中止；在这些情况下 `clamp_checked` 返回 `domain_error`。"
 
-#: manual/api/bin_float.md:1216
+#: manual/api/bin_float.md:1149
 msgid "Text and hexadecimal conversion"
 msgstr "文本与十六进制转换"
 
-#: manual/api/bin_float.md:1220
+#: manual/api/bin_float.md:1153
 msgid "Prints the exact stored value as `coefficient p exponent`."
 msgstr "以 `coefficient p exponent` 形式输出精确的存储值。"
 
-#: manual/api/bin_float.md:1227
+#: manual/api/bin_float.md:1160
 msgid "A finite nonzero value prints as `[-]<c>p<e>` with $c$ in decimal, meaning $c \\cdot 2^e$ (for example `3p-1` is $1.5$). Zeros print as `0` and `-0`, infinities as `inf` and `-inf`, and every NaN as `nan`. The form is exact and unambiguous but not a decimal rendering; use `to_shortest_string` for that."
 msgstr "有限非零值输出为 `[-]<c>p<e>`，其中 $c$ 以十进制表示，含义为 $c \\cdot 2^e$（例如 `3p-1` 为 $1.5$）。零输出为 `0` 和 `-0`，无穷输出为 `inf` 和 `-inf`，所有 NaN 输出为 `nan`。该形式精确且无歧义，但不是十进制表示；如需十进制表示请使用 `to_shortest_string`。"
 
-#: manual/api/bin_float.md:1234
+#: manual/api/bin_float.md:1167
 msgid "Parse a decimal literal with correct rounding (IEEE `convertFromDecimalCharacter`)."
 msgstr "以正确舍入解析十进制字面量（IEEE `convertFromDecimalCharacter`）。"
 
-#: manual/api/bin_float.md:1242
+#: manual/api/bin_float.md:1175
 msgid "The accepted syntax is `[+-]digits[.digits][e[+-]digits]` (a leading or trailing point is allowed, the exponent marker is `e` or `E`), and the case-insensitive words `inf`, `infinity`, `nan`, `qnan` and `snan`, with surrounding whitespace ignored. Anything else is a `parse_error`. The exact decimal value $D \\cdot 10^k$ is rounded once under the context, for any number of digits and any exponent; overflow, underflow and inexact are reported as for arithmetic. `from_string(s, precision=p)` uses `unbounded(p)` (default 53) and drops the flags."
 msgstr "接受的语法为 `[+-]digits[.digits][e[+-]digits]`（允许前导或末尾的小数点，指数标记为 `e` 或 `E`），以及不区分大小写的单词 `inf`、`infinity`、`nan`、`qnan` 和 `snan`，两侧空白被忽略。其他任何内容都是 `parse_error`。精确的十进制值 $D \\cdot 10^k$ 在上下文下只舍入一次，无论位数多少、指数多大；上溢、下溢和不精确与算术运算一样报告。`from_string(s, precision=p)` 使用 `unbounded(p)`（默认 53）并丢弃标志。"
 
-#: manual/api/bin_float.md:1253
+#: manual/api/bin_float.md:1186
 msgid "Formats a value with a fixed number of significant decimal digits (IEEE `convertToDecimalCharacter`)."
 msgstr "以固定的十进制有效位数格式化值（IEEE `convertToDecimalCharacter`）。"
 
-#: manual/api/bin_float.md:1260
+#: manual/api/bin_float.md:1193
 msgid "The output is `[-]d.ddd…e±x` with exactly `digits` significant digits (at least 1), correctly rounded in the context's rounding direction; `inexact` is raised when nonzero digits were dropped. Only the rounding direction of the context is used. Zero prints as `0.00…e+0` with its sign, infinities as `inf`/`-inf`, NaNs as `nan`/`snan` with their sign. The text parses back with `from_string_ctx`."
 msgstr "输出为 `[-]d.ddd…e±x`，恰有 `digits` 位有效数字（至少 1 位），按上下文的舍入方向正确舍入；丢弃了非零数字时触发 `inexact`。只使用上下文的舍入方向。零输出为带符号的 `0.00…e+0`，无穷输出为 `inf`/`-inf`，NaN 输出为带符号的 `nan`/`snan`。该文本可用 `from_string_ctx` 解析回来。"
 
-#: manual/api/bin_float.md:1269
+#: manual/api/bin_float.md:1202
 msgid "Formats the shortest decimal that reads back as the same value."
 msgstr "格式化为能读回同一值的最短十进制数。"
 
-#: manual/api/bin_float.md:1276
+#: manual/api/bin_float.md:1209
 msgid "`to_shortest_string_ctx(x, ctx)` returns the decimal with the fewest significant digits that `from_string_ctx(_, ctx)` maps back to $x$ under round-to-nearest-even (the context's own rounding direction is ignored). When two candidates of that length read back, the nearer one is chosen, then the one with an even last digit. The layout follows ECMAScript `Number#toString`: positional notation for decimal exponents in $[-6, 21)$, otherwise `d.ddde±x`; unlike ECMAScript, $-0$ prints as `-0`. For binary64 values in `BinaryContext::binary64()` the result equals the host `Double` formatter. `to_shortest_string()` uses `unbounded(precision())`, so it is the shortest string that `from_string(text, precision=x.precision())` maps back to `x`. The operand should be representable in the context."
 msgstr "`to_shortest_string_ctx(x, ctx)` 返回有效位数最少、且在就近舍入（偶数优先）下经 `from_string_ctx(_, ctx)` 映射回 $x$ 的十进制数（上下文自身的舍入方向被忽略）。当该长度下有两个候选都能读回时，选择较近的那个，其次选择末位为偶数的那个。版式遵循 ECMAScript `Number#toString`：十进制指数在 $[-6, 21)$ 内时使用定点记法，否则使用 `d.ddde±x`；与 ECMAScript 不同，$-0$ 输出为 `-0`。对于 `BinaryContext::binary64()` 中的 binary64 值，结果与宿主 `Double` 的格式化器一致。`to_shortest_string()` 使用 `unbounded(precision())`，因此它是 `from_string(text, precision=x.precision())` 能映射回 `x` 的最短字符串。操作数应当可在该上下文中表示。"
 
-#: manual/api/bin_float.md:1290
+#: manual/api/bin_float.md:1223
 msgid "Read and write the exact value with a hexadecimal coefficient."
 msgstr "以十六进制系数读写精确值。"
 
-#: manual/api/bin_float.md:1298
+#: manual/api/bin_float.md:1231
 msgid "The syntax is the IEEE 754-2019 §5.12.3 hexSequence: an optional sign, `0x` or `0X`, hexadecimal digits with at most one point (`1.8`, `.8` or `1.`), and a required `p` or `P` exponent with an optional sign and decimal digits. The value is the hexadecimal significand times $2^{\\text{exponent}}$, so `0x3p-1` and `0x1.8p0` are both $1.5$. `from_hex(s, p)` rounds once to precision `p` with nearest-even and reports no flags. `from_hex_ctx(s, context)` is the §5.12.3 conversion: it rounds the exact value once under the rounding direction, precision, exponent range and tininess rule of `context` and returns the `inexact`, `underflow` and `overflow` flags, like `from_string_ctx`. An exponent outside the 32-bit range overflows or underflows there instead of being a parse error. Both accept `inf`, `infinity`, `nan` and `snan` in any case with an optional sign (§5.12.1); `snan` gives a signaling NaN. Surrounding whitespace is trimmed; any other text is a `parse_error`. `to_hex` prints the stored coefficient in lower case, `0x0p0` or `-0x0p0` for a zero, and `nan`/`inf` with a sign."
 msgstr "语法为 IEEE 754-2019 §5.12.3 的 hexSequence：可选符号、`0x` 或 `0X`、最多含一个小数点的十六进制数字（`1.8`、`.8` 或 `1.`），以及必需的 `p` 或 `P` 指数，指数带可选符号、由十进制数字组成。其值为十六进制有效数乘以 $2^{\\text{exponent}}$，因此 `0x3p-1` 和 `0x1.8p0` 都是 $1.5$。`from_hex(s, p)` 以就近舍入（偶数优先）一次舍入到精度 `p`，不报告标志。`from_hex_ctx(s, context)` 是 §5.12.3 的转换：它按 `context` 的舍入方向、精度、指数范围和 tininess 规则把精确值一次舍入，并像 `from_string_ctx` 一样返回 `inexact`、`underflow` 和 `overflow` 标志；超出 32 位范围的指数在这里会上溢或下溢，而不是解析错误。两者都接受任意大小写、带可选符号的 `inf`、`infinity`、`nan` 和 `snan`（§5.12.1）；`snan` 得到 signaling NaN。首尾空白会被去掉；其他任何文本都是 `parse_error`。`to_hex` 以小写输出存储的系数，零输出为 `0x0p0` 或 `-0x0p0`，`nan`/`inf` 带符号输出。"
 
-#: manual/api/bin_float.md:1334
+#: manual/api/bin_float.md:1267
 #: manual/api/decimal_gda.md:1695
 #: manual/design/decimal.md:687
 #: manual/tutorial/decimal_gda.md:346
 msgid "Interchange encodings"
 msgstr "交换编码"
 
-#: manual/api/bin_float.md:1338
+#: manual/api/bin_float.md:1271
 msgid "The four IEEE 754 binary interchange formats."
 msgstr "四种 IEEE 754 二进制交换格式。"
 
-#: manual/api/bin_float.md:1351
+#: manual/api/bin_float.md:1284
 msgid "The parameters of a format."
 msgstr "格式的参数。"
 
-#: manual/api/bin_float.md:1363
+#: manual/api/bin_float.md:1296
 #: manual/api/cli/mpfr_expr_cli.md:46
 #: manual/design/bin_float.md:77
 #: manual/design/decimal.md:87
@@ -2449,75 +2395,75 @@ msgstr "格式的参数。"
 msgid "Format"
 msgstr "格式"
 
-#: manual/api/bin_float.md:1372
+#: manual/api/bin_float.md:1305
 msgid "Returns the `BinaryContext` of the format."
 msgstr "返回该格式的 `BinaryContext`。"
 
-#: manual/api/bin_float.md:1380
+#: manual/api/bin_float.md:1313
 msgid "An encoded value: a format and its bit pattern."
 msgstr "一个编码值：格式及其位模式。"
 
-#: manual/api/bin_float.md:1388
+#: manual/api/bin_float.md:1321
 msgid "Equality compares the format and the bits, so two encodings of NaN with different payloads differ and $\\pm 0$ differ."
 msgstr "相等性比较格式和位，因此 payload 不同的两个 NaN 编码不相等，$\\pm 0$ 也不相等。"
 
-#: manual/api/bin_float.md:1393
+#: manual/api/bin_float.md:1326
 msgid "Return the format and the bit pattern of an encoding."
 msgstr "返回编码的格式和位模式。"
 
-#: manual/api/bin_float.md:1400
+#: manual/api/bin_float.md:1333
 msgid "`bits()` is the encoding as a natural number below $2^k$, $k$ = `total_bits`: the sign bit is bit $k-1$, the biased exponent field the next $w$ bits and the trailing significand field the low $p-1$ bits."
 msgstr "`bits()` 是将编码视为小于 $2^k$ 的自然数的值，其中 $k$ = `total_bits`：符号位为第 $k-1$ 位，接下来的 $w$ 位为带偏置的指数字段，低 $p-1$ 位为尾随有效数字段。"
 
-#: manual/api/bin_float.md:1406
+#: manual/api/bin_float.md:1339
 msgid "Build or print an encoding."
 msgstr "构建或输出编码。"
 
-#: manual/api/bin_float.md:1414
+#: manual/api/bin_float.md:1347
 msgid "`from_bits` keeps the low `total_bits` bits. `from_hex` needs exactly `total_bits / 4` hexadecimal digits, optionally prefixed with `0x` or `#`, and returns `None` otherwise. `to_hex` prints upper-case digits padded to the full width."
 msgstr "`from_bits` 保留低 `total_bits` 位。`from_hex` 需要恰好 `total_bits / 4` 个十六进制数字，可带 `0x` 或 `#` 前缀，否则返回 `None`。`to_hex` 输出补齐到完整宽度的大写数字。"
 
-#: manual/api/bin_float.md:1421
+#: manual/api/bin_float.md:1354
 msgid "Decodes an encoding exactly."
 msgstr "精确解码一个编码。"
 
-#: manual/api/bin_float.md:1427
+#: manual/api/bin_float.md:1360
 msgid "The result has the format precision. Normal and subnormal numbers, signed zeros and infinities decode exactly; a NaN keeps its sign and payload (the fraction without the quiet bit), and a signaling NaN stays signaling. No host `Float` or `Double` is involved."
 msgstr "结果具有该格式的精度。正规数、次正规数、带符号零和无穷都被精确解码；NaN 保留其符号和 payload（不含静默位的尾数），信号 NaN 仍为信号 NaN。整个过程不涉及宿主的 `Float` 或 `Double`。"
 
-#: manual/api/bin_float.md:1434
+#: manual/api/bin_float.md:1367
 msgid "Convert a value to a binary interchange format and return it as a `BinFloat`."
 msgstr "把一个值转换为二进制交换格式，并以 `BinFloat` 返回。"
 
-#: manual/api/bin_float.md:1440
+#: manual/api/bin_float.md:1373
 msgid "The IEEE 754-2019 §5.4.2 formatOf-convertFormat operation, with the parameters of `to_interchange` and the value instead of the encoding. A conversion to a wider precision and range is exact and raises nothing; to a narrower one the value is rounded under `rounding` and `tininess` with `inexact`, `underflow` and `overflow`. A signaling NaN gives a quiet NaN and `invalid_operation`, also when the source already has the destination's precision (the canonicalizing conversion). A NaN payload is kept when the destination holds it and truncated to its low bits otherwise (§6.2.3), so the result is exactly what decoding `to_interchange` returns. `round_ctx` and `to_interchange` stay."
 msgstr "IEEE 754-2019 §5.4.2 的 formatOf-convertFormat 运算，参数与 `to_interchange` 相同，返回值而不是编码。转换到精度和范围都更大的格式是精确的，不产生任何标志；转换到更窄的格式则按 `rounding` 和 `tininess` 舍入，并给出 `inexact`、`underflow` 和 `overflow`。signaling NaN 得到 quiet NaN 和 `invalid_operation`，即使源的精度已经等于目标格式的精度（规范化转换）。NaN 的载荷在目标格式能容纳时保留，否则截断为其低位（§6.2.3），所以结果恰好是对 `to_interchange` 解码所得的值。`round_ctx` 和 `to_interchange` 保持不变。"
 
-#: manual/api/bin_float.md:1468
+#: manual/api/bin_float.md:1401
 msgid "Round a value into a format and encode it."
 msgstr "将值舍入到某格式并编码。"
 
-#: manual/api/bin_float.md:1475
+#: manual/api/bin_float.md:1408
 msgid "The two are the same operation: `round_ctx` with the format's context, then encoding. A signaling NaN is encoded as a quiet NaN with `invalid_operation`, and a payload is truncated to the payload field."
 msgstr "二者是同一个操作：先以该格式的上下文执行 `round_ctx`，再编码。信号 NaN 被编码为静默 NaN 并触发 `invalid_operation`，payload 被截断到 payload 字段。"
 
-#: manual/api/bin_float.md:1501
+#: manual/api/bin_float.md:1434
 msgid "Each elementary function has three forms:"
 msgstr "每个初等函数都有三种形式："
 
-#: manual/api/bin_float.md:1503
+#: manual/api/bin_float.md:1436
 msgid "`f(x)` rounds to nearest-even at the precision of `x` (the larger precision for two operands) with the implementation exponent range;"
 msgstr "`f(x)` 以 `x` 的精度（两个操作数时取较大精度）在实现指数范围内就近舍入（偶数优先）；"
 
-#: manual/api/bin_float.md:1505
+#: manual/api/bin_float.md:1438
 msgid "`f_ctx(x, ctx)` rounds under `ctx` and returns `(value, flags)`;"
 msgstr "`f_ctx(x, ctx)` 在 `ctx` 下舍入并返回 `(value, flags)`；"
 
-#: manual/api/bin_float.md:1506
+#: manual/api/bin_float.md:1439
 msgid "`try_f_ctx(x, ctx)` returns the same pair in `Ok`, or an `@lf_arith.ArithmeticError`."
 msgstr "`try_f_ctx(x, ctx)` 在 `Ok` 中返回同样的值对，或返回 `@lf_arith.ArithmeticError`。"
 
-#: manual/api/bin_float.md:1509
+#: manual/api/bin_float.md:1442
 msgid ""
 "All three run the same certified algorithm. It computes an enclosure $[L, U] \\n"
 "i f(x)$ whose every internal operation is rounded downward for $L$ and upward for $U$, at a working precision $w$ that starts at $p + 64$ bits (or at the operand precision plus 16 when that is larger, for `rootn`, the inverse trigonometric and the hyperbolic functions). If $L$ and $U$ round to the same value with the same flags, that value is returned; otherwise $w$ grows by $\\max(32, \\lfloor w/2 \\rfloor)$, for at most 12 attempts. Because rounding is monotone, a returned value is the correctly rounded result $\\circ(f(x))$, never an uncertified approximation; the [design page](../design/bin_float.md#certified-elementary-functions) gives the argument for the value and the flags."
@@ -2525,366 +2471,366 @@ msgstr ""
 "三者运行同一个认证算法。它计算包络 $[L, U] \\n"
 "i f(x)$，其中每个内部运算对 $L$ 向下舍入、对 $U$ 向上舍入，工作精度 $w$ 从 $p + 64$ 位开始（对 `rootn`、反三角函数和双曲函数，若操作数精度加 16 更大则从该值开始）。若 $L$ 与 $U$ 以相同的标志舍入为相同的值，则返回该值；否则 $w$ 增加 $\\max(32, \\lfloor w/2 \\rfloor)$，最多尝试 12 次。由于舍入是单调的，返回值就是正确舍入的结果 $\\circ(f(x))$，绝不是未经认证的近似值；[设计文档](../design/bin_float.md#certified-elementary-functions)给出了关于该值及标志的论证。"
 
-#: manual/api/bin_float.md:1521
+#: manual/api/bin_float.md:1454
 msgid "When the attempts run out, `try_f_ctx` returns a `certification_failure` error whose `CertificationFailureDetail` names the operation, the stage (`RangeReduction` or `TargetRounding`), the reason and the last working precision. An argument outside the real domain gives a `domain_error` from `try_f_ctx`. The non-`try` forms turn both kinds of error into a quiet NaN with `invalid_operation`. NaN operands propagate quietly (a signaling NaN raises `invalid_operation`), and poles return a signed infinity with `division_by_zero` (for example $\\ln 0 = -\\infty$, $\\operatorname{atanh}(1) = +\\infty$). Exactly representable results that an enclosure cannot isolate are detected before the loop, for example $\\log_2 2^k = k$, $2^n$ for integral $n$, $10^n$ for integral $n \\ge 0$, dyadic powers such as $16^{3/4} = 8$, exact roots such as $\\operatorname{rootn}(8, -3) = 1/2$, $\\sin(\\pm 0) = \\pm 0$ and $\\operatorname{sinpi}(1/2) = 1$; each function lists its own cases below. They are rounded once from their exact value, so their flags are right in every rounding mode."
 msgstr "当尝试次数用完时，`try_f_ctx` 返回 `certification_failure` 错误，其 `CertificationFailureDetail` 指明运算、阶段（`RangeReduction` 或 `TargetRounding`）、原因以及最后的工作精度。超出实定义域的参数使 `try_f_ctx` 给出 `domain_error`。非 `try` 形式将这两类错误都转为静默 NaN 并触发 `invalid_operation`。NaN 操作数静默传播（信号 NaN 触发 `invalid_operation`），极点返回带符号无穷并触发 `division_by_zero`（例如 $\\ln 0 = -\\infty$，$\\operatorname{atanh}(1) = +\\infty$）。包络无法分离的可精确表示结果会在循环之前被检测出来，例如 $\\log_2 2^k = k$、整数 $n$ 的 $2^n$、整数 $n \\ge 0$ 的 $10^n$、诸如 $16^{3/4} = 8$ 的二进有理幂、诸如 $\\operatorname{rootn}(8, -3) = 1/2$ 的精确根、$\\sin(\\pm 0) = \\pm 0$ 以及 $\\operatorname{sinpi}(1/2) = 1$；各函数在下文列出各自的情形。这些结果由其精确值只舍入一次，因此在任何舍入模式下其标志都是正确的。"
 
-#: manual/api/bin_float.md:1538
+#: manual/api/bin_float.md:1471
 msgid "Every result that reaches the loop is not a rounding breakpoint, so an enclosure end that is itself representable (such as $1$ for $e^x$ or $x$ for $\\sin x$ at a tiny $x$) cannot be the result. The functions other than `rootn` move such an end just inside the enclosure before rounding it; `pow` does so once its exactness test has excluded a breakpoint. In addition, `sin`, `tan`, `asin`, `sinh`, `tanh`, `asinh` and `atanh` decide an argument with $|x|^3$ below the target spacing at $x$ directly from $|f(x) - x| \\le |x|^3$, and `cos`, `cosh`, `expm1` and `log1p` do the same with $x^2$ (around $1$ for `cos` and `cosh`, around $x$ for the others), before the loop. Tiny arguments are therefore certified in every rounding mode: `sin` of $2^{-6000}$ at 53 bits is $2^{-6000}$ with `inexact`, and $e^{2^{-20000}}$ rounded toward zero is $1$ with `inexact`."
 msgstr "到达循环的结果都不是舍入断点，因此本身可表示的包络端点（例如 $e^x$ 的 $1$，或极小 $x$ 处 $\\sin x$ 的 $x$）不可能是结果。除 `rootn` 之外的函数在舍入之前会把这样的端点移到包络内侧紧邻处；`pow` 在其精确性检测排除舍入断点之后也会这样做。此外，在进入循环之前，`sin`、`tan`、`asin`、`sinh`、`tanh`、`asinh` 和 `atanh` 对 $|x|^3$ 低于 $x$ 处目标间距的参数，直接由 $|f(x) - x| \\le |x|^3$ 判定结果；`cos`、`cosh`、`expm1` 和 `log1p` 则以 $x^2$ 做同样的判定（`cos` 和 `cosh` 在 $1$ 附近，其他函数在 $x$ 附近）。因此极小参数在任何舍入模式下都能得到认证：在 53 位下，$2^{-6000}$ 的 `sin` 为 $2^{-6000}$ 并触发 `inexact`，向零舍入的 $e^{2^{-20000}}$ 为 $1$ 并触发 `inexact`。"
 
-#: manual/api/bin_float.md:1553
+#: manual/api/bin_float.md:1486
 msgid "The exponential $e^x$."
 msgstr "指数函数 $e^x$。"
 
-#: manual/api/bin_float.md:1561
+#: manual/api/bin_float.md:1494
 msgid "Defined on all of $\\mathbb{R}$: $e^{\\pm 0} = 1$ exactly, $e^{-\\infty} = +0$ and $e^{+\\infty} = +\\infty$. Results certainly beyond the exponent range are decided from certified bounds on $\\log_2 e$ before the main loop, so huge arguments overflow or underflow with the correct flags instead of failing."
 msgstr "在整个 $\\mathbb{R}$ 上有定义：$e^{\\pm 0} = 1$ 精确成立，$e^{-\\infty} = +0$，$e^{+\\infty} = +\\infty$。确定超出指数范围的结果会在主循环之前由 $\\log_2 e$ 的认证界判定，因此巨大的参数会带着正确的标志上溢或下溢，而不会失败。"
 
-#: manual/api/bin_float.md:1568
+#: manual/api/bin_float.md:1501
 msgid "$e^x - 1$ without the cancellation of `exp(x) - 1` near zero."
 msgstr "$e^x - 1$，避免了 `exp(x) - 1` 在零附近的抵消。"
 
-#: manual/api/bin_float.md:1576
+#: manual/api/bin_float.md:1509
 msgid "$\\operatorname{expm1}(\\pm 0) = \\pm 0$, $\\operatorname{expm1}(-\\infty) = -1$ and $\\operatorname{expm1}(+\\infty) = +\\infty$. For $x \\le -(p+3)\\ln 2$ the value lies within $2^{-(p+3)}$ above $-1$, and the result is decided from the rounding direction alone: $-1$, or $-(1 - 2^{-p})$ when rounding toward zero or $+\\infty$, always inexact."
 msgstr "$\\operatorname{expm1}(\\pm 0) = \\pm 0$，$\\operatorname{expm1}(-\\infty) = -1$，$\\operatorname{expm1}(+\\infty) = +\\infty$。当 $x \\le -(p+3)\\ln 2$ 时，值位于 $-1$ 上方 $2^{-(p+3)}$ 以内，结果仅由舍入方向决定：为 $-1$，或者在向零或向 $+\\infty$ 舍入时为 $-(1 - 2^{-p})$，且总是不精确的。"
 
-#: manual/api/bin_float.md:1584
+#: manual/api/bin_float.md:1517
 msgid "$2^x - 1$ without the cancellation of `exp2(x) - 1` near zero."
 msgstr "$2^x - 1$，避免了 `exp2(x) - 1` 在零附近的抵消。"
 
-#: manual/api/bin_float.md:1592
+#: manual/api/bin_float.md:1525
 msgid "IEEE 754-2019 §9.2: $\\operatorname{exp2m1}(\\pm 0) = \\pm 0$, $\\operatorname{exp2m1}(-\\infty) = -1$ and $\\operatorname{exp2m1}(+\\infty) = +\\infty$, with no exception. An integral $x$ gives the exact integer $2^x - 1$ (or $-(1 - 2^{x})$ for $x < 0$), rounded as a dyadic: exact or a rounding tie while it has at most $p + 1$ bits, and otherwise the neighbour of $2^x$ chosen by the rounding direction without forming $2^x - 1$. For $x \\le -(p + 3)$ the value lies within $2^{-(p+3)}$ above $-1$ and the rounding direction alone decides (as for `expm1`). A result certainly beyond the exponent range is decided before the main loop, so $x$ near $e_{\\max} + 1$ overflows with the correct flags."
 msgstr "IEEE 754-2019 §9.2：$\\operatorname{exp2m1}(\\pm 0) = \\pm 0$、$\\operatorname{exp2m1}(-\\infty) = -1$、$\\operatorname{exp2m1}(+\\infty) = +\\infty$，均无异常。整数 $x$ 给出精确的整数 $2^x - 1$（$x < 0$ 时为 $-(1 - 2^{x})$），并作为二进有理数舍入：当它至多有 $p + 1$ 位时精确或恰为舍入平局，否则由舍入方向在 $2^x$ 的邻点中选择，而不构造 $2^x - 1$。对 $x \\le -(p + 3)$，值位于 $-1$ 之上 $2^{-(p+3)}$ 以内，仅由舍入方向决定（与 `expm1` 相同）。必然超出指数范围的结果在主循环之前就已判定，因此 $x$ 接近 $e_{\\max} + 1$ 时会带着正确的标志上溢。"
 
-#: manual/api/bin_float.md:1604
+#: manual/api/bin_float.md:1537
 msgid "$10^x - 1$ without the cancellation of `exp10(x) - 1` near zero."
 msgstr "$10^x - 1$，避免了 `exp10(x) - 1` 在零附近的抵消。"
 
-#: manual/api/bin_float.md:1612
+#: manual/api/bin_float.md:1545
 msgid "IEEE 754-2019 §9.2: the special values of `exp2m1`. A positive integer $x \\le \\max(4096, p)$ gives the exact integer $10^x - 1$, rounded as a dyadic. Saturation towards $-1$ and the overflow decision follow `exp2m1`, with $\\log_2 10$ in place of 1."
 msgstr "IEEE 754-2019 §9.2：特殊值与 `exp2m1` 相同。不超过 $\\max(4096, p)$ 的正整数 $x$ 给出精确的整数 $10^x - 1$，并作为二进有理数舍入。向 $-1$ 的饱和与上溢判定同 `exp2m1`，只是以 $\\log_2 10$ 代替 1。"
 
-#: manual/api/bin_float.md:1619
+#: manual/api/bin_float.md:1552
 msgid "The power of two $2^x$."
 msgstr "2 的幂 $2^x$。"
 
-#: manual/api/bin_float.md:1627
+#: manual/api/bin_float.md:1560
 msgid "An integral $x$ with $|x| < 2^{31}$ gives the exact $2^x$, rounded into the context only when it leaves the exponent range. The other special values are those of `exp`."
 msgstr "满足 $|x| < 2^{31}$ 的整数 $x$ 给出精确的 $2^x$，仅当其超出指数范围时才舍入到上下文中。其他特殊值与 `exp` 相同。"
 
-#: manual/api/bin_float.md:1633
+#: manual/api/bin_float.md:1566
 msgid "The power of ten $10^x$."
 msgstr "10 的幂 $10^x$。"
 
-#: manual/api/bin_float.md:1641
+#: manual/api/bin_float.md:1574
 msgid "An integral $x$ in $[0, \\max(4096, p)]$ gives the exact $10^x = 5^x 2^x$, rounded once. For a larger integral $x$ the odd part $5^x$ has more than $p + 1$ bits, so the result is neither representable nor a midpoint, and a negative integral $x$ gives a value that is never dyadic; both are always inexact. The other special values are those of `exp`."
 msgstr "$[0, \\max(4096, p)]$ 中的整数 $x$ 给出精确的 $10^x = 5^x 2^x$，只舍入一次。对更大的整数 $x$，奇数部分 $5^x$ 多于 $p + 1$ 位，因此结果既不可表示也不是中点；负整数 $x$ 给出的值永远不是二进有理数。这两种情形总是不精确的。其他特殊值与 `exp` 相同。"
 
-#: manual/api/bin_float.md:1649
+#: manual/api/bin_float.md:1582
 msgid "The natural logarithm $\\ln x$."
 msgstr "自然对数 $\\ln x$。"
 
-#: manual/api/bin_float.md:1657
+#: manual/api/bin_float.md:1590
 msgid "The domain is $x > 0$. $\\ln 1 = +0$ exactly; $\\ln(\\pm 0) = -\\infty$ with `division_by_zero`; $\\ln(+\\infty) = +\\infty$. A negative finite argument is a `domain_error`, while $-\\infty$ gives a quiet NaN with `invalid_operation` also from `try_ln_ctx`."
 msgstr "定义域为 $x > 0$。$\\ln 1 = +0$ 精确成立；$\\ln(\\pm 0) = -\\infty$ 并触发 `division_by_zero`；$\\ln(+\\infty) = +\\infty$。负的有限参数为 `domain_error`，而 $-\\infty$ 即使在 `try_ln_ctx` 中也给出静默 NaN 并触发 `invalid_operation`。"
 
-#: manual/api/bin_float.md:1664
+#: manual/api/bin_float.md:1597
 msgid "$\\ln(1 + x)$ without the rounding of `1 + x`."
 msgstr "$\\ln(1 + x)$，避免了 `1 + x` 的舍入。"
 
-#: manual/api/bin_float.md:1672
+#: manual/api/bin_float.md:1605
 msgid "The domain is $x > -1$. $\\operatorname{log1p}(\\pm 0) = \\pm 0$, $\\operatorname{log1p}(-1) = -\\infty$ with `division_by_zero`, a finite $x < -1$ is a `domain_error`, and $-\\infty$ gives a quiet NaN with `invalid_operation`."
 msgstr "定义域为 $x > -1$。$\\operatorname{log1p}(\\pm 0) = \\pm 0$，$\\operatorname{log1p}(-1) = -\\infty$ 并触发 `division_by_zero`，有限的 $x < -1$ 为 `domain_error`，$-\\infty$ 给出静默 NaN 并触发 `invalid_operation`。"
 
-#: manual/api/bin_float.md:1679
+#: manual/api/bin_float.md:1612
 msgid "$\\log_2(1 + x)$ without the rounding of `1 + x`."
 msgstr "$\\log_2(1 + x)$，不经过 `1 + x` 的舍入。"
 
-#: manual/api/bin_float.md:1687
+#: manual/api/bin_float.md:1620
 msgid "The domain is $x \\ge -1$ (Table 9.1). $\\operatorname{log2p1}(\\pm 0) = \\pm 0$, $\\operatorname{log2p1}(+\\infty) = +\\infty$, $\\operatorname{log2p1}(-1) = -\\infty$ with `division_by_zero`, a finite $x < -1$ is a `domain_error`, and $-\\infty$ gives a quiet NaN with `invalid_operation`. $x = 2^k - 1$ (and $x = -(1 - 2^{-k})$) gives the exact integer $k$ (and $-k$)."
 msgstr "定义域为 $x \\ge -1$（表 9.1）。$\\operatorname{log2p1}(\\pm 0) = \\pm 0$，$\\operatorname{log2p1}(+\\infty) = +\\infty$，$\\operatorname{log2p1}(-1) = -\\infty$ 并伴随 `division_by_zero`，有限的 $x < -1$ 是 `domain_error`，$-\\infty$ 给出带 `invalid_operation` 的安静 NaN。$x = 2^k - 1$（以及 $x = -(1 - 2^{-k})$）给出精确的整数 $k$（以及 $-k$）。"
 
-#: manual/api/bin_float.md:1695
+#: manual/api/bin_float.md:1628
 msgid "$\\log_{10}(1 + x)$ without the rounding of `1 + x`."
 msgstr "$\\log_{10}(1 + x)$，不经过 `1 + x` 的舍入。"
 
-#: manual/api/bin_float.md:1703
+#: manual/api/bin_float.md:1636
 msgid "The special values of `log2p1`. $x = 10^k - 1$ for an integer $k \\ge 1$ gives the exact integer $k$."
 msgstr "特殊值与 `log2p1` 相同。整数 $k \\ge 1$ 时，$x = 10^k - 1$ 给出精确的整数 $k$。"
 
-#: manual/api/bin_float.md:1708
+#: manual/api/bin_float.md:1641
 msgid "The binary logarithm $\\log_2 x$."
 msgstr "二进制对数 $\\log_2 x$。"
 
-#: manual/api/bin_float.md:1716
+#: manual/api/bin_float.md:1649
 msgid "Special values and domain as for `ln`. A power of two $2^k$ gives the exact integer $k$, rounded into the context."
 msgstr "特殊值和定义域同 `ln`。2 的幂 $2^k$ 给出精确整数 $k$，并舍入到上下文中。"
 
-#: manual/api/bin_float.md:1721
+#: manual/api/bin_float.md:1654
 msgid "The decimal logarithm $\\log_{10} x$."
 msgstr "十进制对数 $\\log_{10} x$。"
 
-#: manual/api/bin_float.md:1729
+#: manual/api/bin_float.md:1662
 msgid "Special values and domain as for `ln`. $x = 10^k$ with $k \\ge 1$ (stored as the coefficient $5^k$ and exponent $k$) gives the exact integer $k$, rounded into the context, at any precision that holds $10^k$."
 msgstr "特殊值和定义域同 `ln`。在能容纳 $10^k$ 的任何精度下，$k \\ge 1$ 的 $x = 10^k$（存储为系数 $5^k$ 和指数 $k$）给出精确整数 $k$，并舍入到上下文中。"
 
-#: manual/api/bin_float.md:1735
+#: manual/api/bin_float.md:1668
 msgid "The real power $x^y$."
 msgstr "实数幂 $x^y$。"
 
-#: manual/api/bin_float.md:1743
+#: manual/api/bin_float.md:1676
 msgid "The cases are tried in this order, as in IEEE 754-2019 §9.2.1:"
 msgstr "按以下顺序尝试各情形，与 IEEE 754-2019 §9.2.1 一致："
 
-#: manual/api/bin_float.md:1745
+#: manual/api/bin_float.md:1678
 msgid "$x^{\\pm 0} = 1$ for every $x$, and $1^y = 1$ for every $y$, NaN included (also a signaling NaN, without `invalid_operation`)."
 msgstr "对任意 $x$，$x^{\\pm 0} = 1$；对任意 $y$，$1^y = 1$，包括 NaN（信号 NaN 亦然，且不触发 `invalid_operation`）。"
 
-#: manual/api/bin_float.md:1747
+#: manual/api/bin_float.md:1680
 msgid "An integral $y$ with $|y| < 2^{31}$ is `pown_ctx(x, y)`."
 msgstr "满足 $|y| < 2^{31}$ 的整数 $y$ 即 `pown_ctx(x, y)`。"
 
-#: manual/api/bin_float.md:1748
+#: manual/api/bin_float.md:1681
 msgid "A NaN operand propagates."
 msgstr "NaN 操作数会传播。"
 
-#: manual/api/bin_float.md:1749
+#: manual/api/bin_float.md:1682
 msgid "An infinite $y$: $(\\pm 1)^{\\pm\\infty} = 1$; otherwise the result is $+\\infty$ when $|x| > 1$ and $y = +\\infty$ or $|x| < 1$ and $y = -\\infty$, and $+0$ in the other two cases, $x = \\pm 0$ included ($(\\pm 0)^{-\\infty} = +\\infty$). No flag is raised."
 msgstr "$y$ 为无穷：$(\\pm 1)^{\\pm\\infty} = 1$；否则，当 $|x| > 1$ 且 $y = +\\infty$，或 $|x| < 1$ 且 $y = -\\infty$ 时，结果为 $+\\infty$，其余两种情形为 $+0$，$x = \\pm 0$ 也包括在内（$(\\pm 0)^{-\\infty} = +\\infty$）。不触发任何标志。"
 
-#: manual/api/bin_float.md:1753
+#: manual/api/bin_float.md:1686
 msgid "An infinite $x$: $(\\pm\\infty)^{y < 0}$ is a zero and $(\\pm\\infty)^{y > 0}$ an infinity, negative only for $x = -\\infty$ and an odd integral $y$. No flag is raised."
 msgstr "$x$ 为无穷：$(\\pm\\infty)^{y < 0}$ 为零，$(\\pm\\infty)^{y > 0}$ 为无穷，仅当 $x = -\\infty$ 且 $y$ 为奇整数时为负。不触发任何标志。"
 
-#: manual/api/bin_float.md:1756
+#: manual/api/bin_float.md:1689
 msgid "A zero $x$: $(\\pm 0)^{y < 0}$ is an infinity with `division_by_zero` and $(\\pm 0)^{y > 0}$ a zero, negative only for $x = -0$ and an odd integral $y$; so $(-0)^{3/4} = +0$."
 msgstr "$x$ 为零：$(\\pm 0)^{y < 0}$ 为无穷并触发 `division_by_zero`，$(\\pm 0)^{y > 0}$ 为零，仅当 $x = -0$ 且 $y$ 为奇整数时为负；因此 $(-0)^{3/4} = +0$。"
 
-#: manual/api/bin_float.md:1759
+#: manual/api/bin_float.md:1692
 msgid "A negative finite $x$ with a non-integral $y$ is a `domain_error`. With an integral $y$ (here $|y| \\ge 2^{31}$) the result is $|x|^y$ for an even $y$ and $-|x|^y$ for an odd one, computed with the directed rounding modes swapped."
 msgstr "负的有限 $x$ 配非整数 $y$ 为 `domain_error`。对整数 $y$（此处 $|y| \\ge 2^{31}$），$y$ 为偶数时结果为 $|x|^y$，为奇数时为 $-|x|^y$，计算时交换两种定向舍入模式。"
 
-#: manual/api/bin_float.md:1763
+#: manual/api/bin_float.md:1696
 msgid "$y = \\pm 2^{-k}$ with $1 \\le k \\le 29$ is `try_rootn_ctx(x, \\pm 2^k)`."
 msgstr "满足 $1 \\le k \\le 29$ 的 $y = \\pm 2^{-k}$ 即 `try_rootn_ctx(x, \\pm 2^k)`。"
 
-#: manual/api/bin_float.md:1764
+#: manual/api/bin_float.md:1697
 msgid "A result certainly outside the exponent range is decided from certified bounds on $\\log_2 x$."
 msgstr "必然超出指数范围的结果由 $\\log_2 x$ 的认证界判定。"
 
-#: manual/api/bin_float.md:1766
+#: manual/api/bin_float.md:1699
 msgid "An exactly dyadic result is computed and rounded once. For $x = c \\cdot 2^e$ and $y = m / 2^k$ ($c$, $m$ odd, $1 \\le k \\le 30$) it exists exactly when $2^k$ divides $e$ and $c$ is a perfect $2^k$-th power $r$ (tested as for `rootn`, for coefficients of any size); then $x^y = r^m \\cdot 2^{me/2^k}$, which is dyadic for $m < 0$ only when $r = 1$. So $16^{3/4} = 8$ without `inexact`. A dyadic result whose odd part would need more than $2p + 64$ bits is not a rounding breakpoint and is left to the next step."
 msgstr "恰为二进有理数的结果会被精确计算并只舍入一次。对 $x = c \\cdot 2^e$ 和 $y = m / 2^k$（$c$、$m$ 为奇数，$1 \\le k \\le 30$），这样的结果存在当且仅当 $2^k$ 整除 $e$ 且 $c$ 是完全 $2^k$ 次幂 $r$（与 `rootn` 一样进行检验，适用于任意大小的系数）；此时 $x^y = r^m \\cdot 2^{me/2^k}$，当 $m < 0$ 时仅在 $r = 1$ 时为二进有理数。因此 $16^{3/4} = 8$ 不触发 `inexact`。奇数部分需要多于 $2p + 64$ 位的二进有理结果不是舍入断点，留给下一步处理。"
 
-#: manual/api/bin_float.md:1774
+#: manual/api/bin_float.md:1707
 msgid "Otherwise the value is certified from enclosures of $e^{y \\ln x}$."
 msgstr "否则，由 $e^{y \\ln x}$ 的包络认证该值。"
 
-#: manual/api/bin_float.md:1776
+#: manual/api/bin_float.md:1709
 msgid "Integrality and parity of $y$ are read from its odd coefficient: a finite nonzero $y$ is integral when `exponent2()` $\\ge 0$ and odd when it is $0$. When step 10 has shown that the result is not a rounding breakpoint, step 11 moves a representable enclosure end just inside before rounding, so an exponent so small that $x^y$ lies closer to $1$ than the target spacing is still certified: $2^{2^{-16000}}$ in `binary128()` is $1$ with `inexact`. A few results with a power-of-two base that step 10 cannot classify (an exponent of magnitude at least $2^{31}$, or a scale outside the 32-bit range) keep the plain test."
 msgstr "$y$ 的整数性和奇偶性由其奇数系数读出：有限非零的 $y$ 在 `exponent2()` $\\ge 0$ 时为整数，在其为 $0$ 时为奇数。当第 10 步已表明结果不是舍入断点时，第 11 步会在舍入之前把可表示的包络端点移到内侧紧邻处，因此即使指数小到 $x^y$ 距 $1$ 比目标间距还近，结果仍能得到认证：`binary128()` 中的 $2^{2^{-16000}}$ 为 $1$ 并触发 `inexact`。少数底数为 2 的幂、第 10 步无法分类的结果（指数的绝对值至少为 $2^{31}$，或缩放超出 32 位范围）保留普通测试。"
 
-#: manual/api/bin_float.md:1788
+#: manual/api/bin_float.md:1721
 msgid "The real $n$-th root $x^{1/n}$."
 msgstr "实数 $n$ 次方根 $x^{1/n}$。"
 
-#: manual/api/bin_float.md:1796
+#: manual/api/bin_float.md:1729
 msgid "$n = 0$ is a `domain_error`, an invalid operation, for every $x$, a quiet NaN and $\\pm 0$ included (IEEE 754-2019 Table 9.1, \"n = 0: invalid operation\"); it is not `division_by_zero`, which §7.3 keeps for an exact infinite result on finite operands, here $\\operatorname{rootn}(\\pm 0, n)$ with $n < 0$. `rootn_ctx` then returns a quiet NaN with `invalid`. Every other `Int` degree is supported, including `Int.min`; a NaN propagates. A negative $n$ gives $x^{-1/|n|}$."
 msgstr "$n = 0$ 为 `domain_error`，即无效操作，对任意 $x$ 都成立，安静 NaN 与 $\\pm 0$ 也不例外（IEEE 754-2019 表 9.1：“n = 0: invalid operation”）；它不是 `division_by_zero`，后者按 §7.3 只留给有限操作数上的精确无穷结果，这里即 $n < 0$ 的 $\\operatorname{rootn}(\\pm 0, n)$。此时 `rootn_ctx` 返回带 `invalid` 的安静 NaN。其他所有 `Int` 次数均受支持，包括 `Int.min`；NaN 会传播。负的 $n$ 给出 $x^{-1/|n|}$。"
 
-#: manual/api/bin_float.md:1799
+#: manual/api/bin_float.md:1732
 msgid "odd $n > 0$"
 msgstr "奇数 $n > 0$"
 
-#: manual/api/bin_float.md:1799
+#: manual/api/bin_float.md:1732
 msgid "even $n > 0$"
 msgstr "偶数 $n > 0$"
 
-#: manual/api/bin_float.md:1799
+#: manual/api/bin_float.md:1732
 msgid "odd $n < 0$"
 msgstr "奇数 $n < 0$"
 
-#: manual/api/bin_float.md:1799
+#: manual/api/bin_float.md:1732
 msgid "even $n < 0$"
 msgstr "偶数 $n < 0$"
 
-#: manual/api/bin_float.md:1805
+#: manual/api/bin_float.md:1738
 msgid "finite $x < 0$"
 msgstr "有限 $x < 0$"
 
-#: manual/api/bin_float.md:1807
+#: manual/api/bin_float.md:1740
 msgid "So $\\operatorname{rootn}(-8, 3) = -2$. $n = 1$ rounds $x$ into the context and $n = -1$ is the correctly rounded $1/x$. For any other degree an exact root is detected when $|n|$ divides the exponent of $x = c \\cdot 2^e$ and the odd coefficient $c$ (of any size) is a perfect $|n|$-th power $r$; the result is then $\\pm r \\cdot 2^{e/|n|}$ rounded once, or for $n < 0$ the correctly rounded reciprocal of it. So $\\operatorname{rootn}(8, -3) = 1/2$ without `inexact` in every rounding mode, and an exact square root of a 6001-bit coefficient is found as well."
 msgstr "因此 $\\operatorname{rootn}(-8, 3) = -2$。$n = 1$ 将 $x$ 舍入到上下文中，$n = -1$ 为正确舍入的 $1/x$。对其他任何次数，当 $|n|$ 整除 $x = c \\cdot 2^e$ 的指数，且奇数系数 $c$（任意大小）是完全 $|n|$ 次幂 $r$ 时，会检测到精确根；此时结果为只舍入一次的 $\\pm r \\cdot 2^{e/|n|}$，当 $n < 0$ 时则为其正确舍入的倒数。因此在任何舍入模式下 $\\operatorname{rootn}(8, -3) = 1/2$ 都不触发 `inexact`，6001 位系数的精确平方根也同样能被找到。"
 
-#: manual/api/bin_float.md:1818
+#: manual/api/bin_float.md:1751
 msgid "The reciprocal square root $1/\\sqrt{x}$ (`rSqrt` of IEEE 754-2019 §9.2)."
 msgstr "倒数平方根 $1/\\sqrt{x}$（IEEE 754-2019 §9.2 的 `rSqrt`）。"
 
-#: manual/api/bin_float.md:1826
+#: manual/api/bin_float.md:1759
 msgid "§9.2.1: $\\operatorname{rSqrt}(+\\infty) = +0$ with no exception and $\\operatorname{rSqrt}(\\pm 0) = \\pm\\infty$ with `division_by_zero`, so $\\operatorname{rSqrt}(-0) = -\\infty$ (MPFR's `mpfr_rec_sqrt` returns $+\\infty$ there by its own convention, and the oracle rows follow the standard). A negative finite $x$ and $-\\infty$ are a `domain_error` (Table 9.1, \"$x < 0$: invalid operation\"); a signaling NaN is invalid and a quiet NaN propagates. A positive finite $x$ is `rootn_ctx(x, -2)`: a power of four $4^k$ gives the exact $2^{-k}$ without `inexact`, and an exponent far outside the range is decided without forming the root."
 msgstr "§9.2.1：$\\operatorname{rSqrt}(+\\infty) = +0$，无异常；$\\operatorname{rSqrt}(\\pm 0) = \\pm\\infty$，并触发 `division_by_zero`，所以 $\\operatorname{rSqrt}(-0) = -\\infty$（MPFR 的 `mpfr_rec_sqrt` 按其自身约定在此返回 $+\\infty$，预言行遵循标准）。负的有限 $x$ 和 $-\\infty$ 是 `domain_error`（表 9.1，“$x < 0$：无效操作”）；信号 NaN 无效，安静 NaN 传播。正的有限 $x$ 即 `rootn_ctx(x, -2)`：4 的幂 $4^k$ 给出精确的 $2^{-k}$ 且不触发 `inexact`，指数远超范围时无需形成平方根即可判定。"
 
-#: manual/api/bin_float.md:1838
+#: manual/api/bin_float.md:1771
 msgid "The compound factor $(1 + x)^n$ for an integer $n$, with the exact sum $1 + x$ (interest and growth rates, without the rounding of `1 + x`)."
 msgstr "整数 $n$ 的复合因子 $(1 + x)^n$，使用精确的和 $1 + x$（利率与增长率，不经过 `1 + x` 的舍入）。"
 
-#: manual/api/bin_float.md:1847
+#: manual/api/bin_float.md:1780
 msgid "The special values of §9.2.1 are decided first, a signaling NaN before any of them:"
 msgstr "先判定 §9.2.1 的特殊值，信号 NaN 在所有特殊值之前："
 
-#: manual/api/bin_float.md:1852
+#: manual/api/bin_float.md:1785
 msgid "quiet NaN"
 msgstr "安静 NaN"
 
-#: manual/api/bin_float.md:1853
+#: manual/api/bin_float.md:1786
 msgid "$-\\infty$, finite $x < -1$"
 msgstr "$-\\infty$，有限的 $x < -1$"
 
-#: manual/api/bin_float.md:1858
+#: manual/api/bin_float.md:1791
 msgid "Otherwise $1 + x$ is formed exactly (for any operand up to $2^{26}$ bits) and the result is `pown_ctx(1 + x, n)`, so the exact cases, the range decision and the single rounding are those of `pown`. When $|n x|$ is below $2^{-(p + 9)}$ the result is the neighbour of $1$ (or $1$) that the rounding direction chooses, always inexact and never an underflow. A wider operand (beyond $2^{26}$ bits) is not representable in the context and is certified from $n \\cdot \\operatorname{log1p}(x)$."
 msgstr "否则精确地形成 $1 + x$（操作数不超过 $2^{26}$ 位时），结果为 `pown_ctx(1 + x, n)`，所以精确情形、范围判定和唯一一次舍入都与 `pown` 相同。当 $|n x|$ 小于 $2^{-(p + 9)}$ 时，结果是舍入方向所选的 $1$ 的邻值（或 $1$），总是不精确且从不下溢。更宽的操作数（超过 $2^{26}$ 位）无法在上下文中表示，由 $n \\cdot \\operatorname{log1p}(x)$ 认证。"
 
-#: manual/api/bin_float.md:1868
+#: manual/api/bin_float.md:1801
 msgid "The real power $x^y$ defined as $\\exp(y \\ln x)$, so that the domain excludes a negative $x$ (`powr` of IEEE 754-2019 §9.2)."
 msgstr "实数幂 $x^y$，定义为 $\\exp(y \\ln x)$，因此定义域不含负的 $x$（IEEE 754-2019 §9.2 的 `powr`）。"
 
-#: manual/api/bin_float.md:1877
+#: manual/api/bin_float.md:1810
 msgid "The cases are tried in this order, as in §9.2.1; every `domain_error` below is a quiet NaN with `invalid_operation` from `powr_ctx`:"
 msgstr "各情形按 §9.2.1 的顺序依次判定；下面每个 `domain_error` 在 `powr_ctx` 中都是带 `invalid_operation` 的安静 NaN："
 
-#: manual/api/bin_float.md:1880
+#: manual/api/bin_float.md:1813
 msgid "A signaling NaN operand is invalid; a quiet NaN base gives a quiet NaN."
 msgstr "信号 NaN 操作数无效；安静 NaN 底数给出安静 NaN。"
 
-#: manual/api/bin_float.md:1881
+#: manual/api/bin_float.md:1814
 msgid "A negative $x$ ($-\\infty$ included, a quiet NaN exponent too) is invalid: $\\operatorname{powr}(x, y)$ for $x < 0$ is never a real number."
 msgstr "负的 $x$（含 $-\\infty$，指数为安静 NaN 时也一样）无效：$x < 0$ 时 $\\operatorname{powr}(x, y)$ 永远不是实数。"
 
-#: manual/api/bin_float.md:1883
+#: manual/api/bin_float.md:1816
 msgid "A quiet NaN $y$ gives a quiet NaN."
 msgstr "安静 NaN 的 $y$ 给出安静 NaN。"
 
-#: manual/api/bin_float.md:1884
+#: manual/api/bin_float.md:1817
 msgid "$x = \\pm 0$: $y = \\pm 0$ is invalid; $y = -\\infty$ gives $+\\infty$ with no exception; a finite $y < 0$ gives $+\\infty$ with `division_by_zero`; $y > 0$ gives $+0$."
 msgstr "$x = \\pm 0$：$y = \\pm 0$ 无效；$y = -\\infty$ 给出 $+\\infty$，无异常；有限的 $y < 0$ 给出 $+\\infty$ 并触发 `division_by_zero`；$y > 0$ 给出 $+0$。"
 
-#: manual/api/bin_float.md:1887
+#: manual/api/bin_float.md:1820
 msgid "$x = +\\infty$: $y = \\pm 0$ is invalid; $y < 0$ gives $+0$; $y > 0$ gives $+\\infty$."
 msgstr "$x = +\\infty$：$y = \\pm 0$ 无效；$y < 0$ 给出 $+0$；$y > 0$ 给出 $+\\infty$。"
 
-#: manual/api/bin_float.md:1889
+#: manual/api/bin_float.md:1822
 msgid "$x = +1$: $\\pm\\infty$ is invalid, any other $y$ gives $1$."
 msgstr "$x = +1$：$\\pm\\infty$ 无效，其他任何 $y$ 给出 $1$。"
 
-#: manual/api/bin_float.md:1890
+#: manual/api/bin_float.md:1823
 msgid "$y = \\pm 0$ gives $1$."
 msgstr "$y = \\pm 0$ 给出 $1$。"
 
-#: manual/api/bin_float.md:1891
+#: manual/api/bin_float.md:1824
 msgid "Otherwise $x > 0$ and $y$ is finite and nonzero: `try_pow_ctx(x, y)`, which owns the exact dyadic cases, the range decision and the rounding."
 msgstr "否则 $x > 0$ 且 $y$ 为有限非零：`try_pow_ctx(x, y)`，由它负责精确的二进有理数情形、范围判定和舍入。"
 
-#: manual/api/bin_float.md:1894
+#: manual/api/bin_float.md:1827
 msgid "So $\\operatorname{powr}(\\pm 0, \\pm 0)$, $\\operatorname{powr}(+\\infty, \\pm 0)$ and $\\operatorname{powr}(1, \\pm\\infty)$ are invalid operations, where `pow` gives $1$ for the first two and for $1^{\\pm\\infty}$ (§9.2.1)."
 msgstr "所以 $\\operatorname{powr}(\\pm 0, \\pm 0)$、$\\operatorname{powr}(+\\infty, \\pm 0)$ 和 $\\operatorname{powr}(1, \\pm\\infty)$ 是无效操作，而 `pow` 对前两者以及 $1^{\\pm\\infty}$ 给出 $1$（§9.2.1）。"
 
-#: manual/api/bin_float.md:1900
+#: manual/api/bin_float.md:1833
 msgid "$\\sqrt{x^2 + y^2}$ without intermediate overflow or underflow."
 msgstr "$\\sqrt{x^2 + y^2}$，不会发生中间上溢或下溢。"
 
-#: manual/api/bin_float.md:1908
+#: manual/api/bin_float.md:1841
 msgid "The squares are formed exactly and one correctly rounded square root is taken, so the result is $\\circ(\\sqrt{x^2+y^2})$ and exact when the root is. $\\operatorname{hypot}(\\pm\\infty, y) = +\\infty$ even when $y$ is a NaN (`invalid_operation` is raised only for a signaling NaN). When the smaller operand $b$ is too small to move $\\sqrt{a^2 + b^2}$ past the next rounding breakpoint above $|a|$, it is replaced by a power of two that rounds the same way: for $|a| = c \\cdot 2^e$ with leading bit $2^t$ and $g = \\min(e, t - p - 1)$, every $|b| < 2^{g - 3}$ becomes $2^{g - 3}$. The exact sum stays small however far apart the exponents are: $\\operatorname{hypot}(1, 2^{-600000})$ is $1$ with `inexact`. The exact sum is refused with a `certification_failure` only when its two squares would still be shifted against each other by more than $10^6$ bits, which needs an operand or target precision near $500\\,000$ bits."
 msgstr "两个平方被精确构成，然后只取一次正确舍入的平方根，因此结果为 $\\circ(\\sqrt{x^2+y^2})$，且当平方根精确时结果也精确。即使 $y$ 为 NaN，$\\operatorname{hypot}(\\pm\\infty, y) = +\\infty$（仅对信号 NaN 触发 `invalid_operation`）。当较小的操作数 $b$ 小到不足以把 $\\sqrt{a^2 + b^2}$ 推过 $|a|$ 之上的下一个舍入断点时，它会被替换为一个舍入方式相同的 2 的幂：对首位为 $2^t$ 的 $|a| = c \\cdot 2^e$ 以及 $g = \\min(e, t - p - 1)$，所有 $|b| < 2^{g - 3}$ 都变为 $2^{g - 3}$。无论两个指数相差多远，精确和的规模都保持很小：$\\operatorname{hypot}(1, 2^{-600000})$ 为 $1$ 并触发 `inexact`。只有当两个平方之间仍需相互移位超过 $10^6$ 位时，精确和才会以 `certification_failure` 被拒绝，这需要操作数或目标精度接近 $500\\,000$ 位。"
 
-#: manual/api/bin_float.md:1924
+#: manual/api/bin_float.md:1857
 msgid "The sine of an argument in radians."
 msgstr "以弧度为参数的正弦。"
 
-#: manual/api/bin_float.md:1932
+#: manual/api/bin_float.md:1865
 msgid "$\\sin(\\pm 0) = \\pm 0$ exactly; an infinite argument is a `domain_error`. The argument is reduced by an enclosure of $\\pi/2$ computed at a working precision of at least $p + \\max(0, \\lfloor\\log_2|x|\\rfloor + 1) + 96$ bits, so the quadrant is certain for every finite input. When that starting precision exceeds $10^6$ bits, that is for $|x| \\ge 2^{10^6 - p - 96}$, the result is a `certification_failure` with stage `RangeReduction` and reason `ResourceLimit`, returned at once; no attempt goes beyond $10^6$ bits."
 msgstr "$\\sin(\\pm 0) = \\pm 0$ 精确成立；无穷参数为 `domain_error`。参数用在至少 $p + \\max(0, \\lfloor\\log_2|x|\\rfloor + 1) + 96$ 位的工作精度下计算的 $\\pi/2$ 包络进行约简，因此对每个有限输入，象限都是确定的。当该起始精度超过 $10^6$ 位，即 $|x| \\ge 2^{10^6 - p - 96}$ 时，立即返回阶段为 `RangeReduction`、原因为 `ResourceLimit` 的 `certification_failure`；任何尝试都不会超过 $10^6$ 位。"
 
-#: manual/api/bin_float.md:1942
+#: manual/api/bin_float.md:1875
 msgid "The cosine of an argument in radians."
 msgstr "以弧度为参数的余弦。"
 
-#: manual/api/bin_float.md:1950
+#: manual/api/bin_float.md:1883
 msgid "$\\cos(\\pm 0) = 1$ exactly. Reduction, domain and limits as for `sin`."
 msgstr "$\\cos(\\pm 0) = 1$ 精确成立。约简、定义域和限制同 `sin`。"
 
-#: manual/api/bin_float.md:1954
+#: manual/api/bin_float.md:1887
 msgid "The tangent of an argument in radians."
 msgstr "以弧度为参数的正切。"
 
-#: manual/api/bin_float.md:1962
+#: manual/api/bin_float.md:1895
 msgid "$\\tan(\\pm 0) = \\pm 0$ exactly. Reduction, domain and limits as for `sin`. No binary argument is an odd multiple of $\\pi/2$, so there is no pole; an enclosure of the cosine that contains zero is refined like any other."
 msgstr "$\\tan(\\pm 0) = \\pm 0$ 精确成立。约简、定义域和限制同 `sin`。没有任何二进制参数是 $\\pi/2$ 的奇数倍，因此不存在极点；包含零的余弦包络会像其他包络一样被细化。"
 
-#: manual/api/bin_float.md:1976
+#: manual/api/bin_float.md:1909
 msgid "The period is reduced exactly on the binary representation, so huge arguments cost nothing extra. For integral $n$, $\\operatorname{sinpi}(n)$ is $\\pm 0$ with the sign of $n$; at $n + \\frac12$ it is $\\pm 1$. An infinite argument is a `domain_error`. By Niven's theorem these are the only dyadic arguments with a dyadic result."
 msgstr "周期在二进制表示上被精确约简，因此巨大参数不会带来额外开销。对整数 $n$，$\\operatorname{sinpi}(n)$ 为 $\\pm 0$（符号与 $n$ 相同）；在 $n + \\frac12$ 处为 $\\pm 1$。无穷参数为 `domain_error`。由 Niven 定理，这些是仅有的给出二进有理数结果的二进有理数参数。"
 
-#: manual/api/bin_float.md:1992
+#: manual/api/bin_float.md:1925
 msgid "$\\operatorname{cospi}(n) = (-1)^n$ for integral $n$ and $\\operatorname{cospi}(n + \\frac12) = +0$. Reduction and domain as for `sinpi`."
 msgstr "对整数 $n$，$\\operatorname{cospi}(n) = (-1)^n$，且 $\\operatorname{cospi}(n + \\frac12) = +0$。约简和定义域同 `sinpi`。"
 
-#: manual/api/bin_float.md:2006
+#: manual/api/bin_float.md:1939
 msgid "For integral $n$, $\\operatorname{tanpi}(n)$ is a zero with the sign of $\\operatorname{sinpi}(n) / \\operatorname{cospi}(n)$: $-0$ for positive odd and negative even $n$ (including $-0$), $+0$ otherwise, so `tanpi(1)` is $-0$ and `tanpi(-1)` is $+0$. $\\operatorname{tanpi}(n + \\frac12)$ is $+\\infty$ for even $n$ and $-\\infty$ for odd $n$, with `division_by_zero`; $\\operatorname{tanpi}(n \\pm \\frac14) = \\pm 1$ exactly. Reduction and domain as for `sinpi`."
 msgstr "对整数 $n$，$\\operatorname{tanpi}(n)$ 为零，其符号同 $\\operatorname{sinpi}(n) / \\operatorname{cospi}(n)$：对正奇数和负偶数 $n$（包括 $-0$）为 $-0$，否则为 $+0$，因此 `tanpi(1)` 为 $-0$，`tanpi(-1)` 为 $+0$。$\\operatorname{tanpi}(n + \\frac12)$ 对偶数 $n$ 为 $+\\infty$，对奇数 $n$ 为 $-\\infty$，并触发 `division_by_zero`；$\\operatorname{tanpi}(n \\pm \\frac14) = \\pm 1$ 精确成立。约简和定义域同 `sinpi`。"
 
-#: manual/api/bin_float.md:2016
+#: manual/api/bin_float.md:1949
 msgid "The arcsine, with values in $[-\\pi/2, \\pi/2]$."
 msgstr "反正弦，取值于 $[-\\pi/2, \\pi/2]$。"
 
-#: manual/api/bin_float.md:2024
+#: manual/api/bin_float.md:1957
 msgid "The domain is $[-1, 1]$; a finite argument outside it and both infinities are a `domain_error`. $\\operatorname{asin}(\\pm 0) = \\pm 0$ and $\\operatorname{asin}(\\pm 1) = \\pm\\pi/2$ correctly rounded."
 msgstr "定义域为 $[-1, 1]$；其外的有限参数以及两个无穷都是 `domain_error`。$\\operatorname{asin}(\\pm 0) = \\pm 0$，$\\operatorname{asin}(\\pm 1) = \\pm\\pi/2$（正确舍入）。"
 
-#: manual/api/bin_float.md:2030
+#: manual/api/bin_float.md:1963
 msgid "The arccosine, with values in $[0, \\pi]$."
 msgstr "反余弦，取值于 $[0, \\pi]$。"
 
-#: manual/api/bin_float.md:2038
+#: manual/api/bin_float.md:1971
 msgid "The domain is $[-1, 1]$; a finite argument outside it and both infinities are a `domain_error`, and a NaN propagates as for `asin`. On $[-1, 1]$ the result is $\\pi/2 - \\operatorname{asin}(x)$ evaluated as one enclosure; $\\operatorname{acos}(1) = +0$ exactly and $\\operatorname{acos}(-1) = \\pi$ correctly rounded."
 msgstr "定义域为 $[-1, 1]$；其外的有限参数以及两个无穷都是 `domain_error`，NaN 与 `asin` 一样传播。在 $[-1, 1]$ 上，结果为作为一个包络求值的 $\\pi/2 - \\operatorname{asin}(x)$；$\\operatorname{acos}(1) = +0$ 精确成立，$\\operatorname{acos}(-1) = \\pi$（正确舍入）。"
 
-#: manual/api/bin_float.md:2046
+#: manual/api/bin_float.md:1979
 msgid "The arctangent, with values in $[-\\pi/2, \\pi/2]$."
 msgstr "反正切，取值于 $[-\\pi/2, \\pi/2]$。"
 
-#: manual/api/bin_float.md:2054
+#: manual/api/bin_float.md:1987
 msgid "Defined on all of $\\mathbb{R}$: $\\operatorname{atan}(\\pm 0) = \\pm 0$ and $\\operatorname{atan}(\\pm\\infty) = \\pm\\pi/2$ correctly rounded."
 msgstr "在整个 $\\mathbb{R}$ 上有定义：$\\operatorname{atan}(\\pm 0) = \\pm 0$，$\\operatorname{atan}(\\pm\\infty) = \\pm\\pi/2$（正确舍入）。"
 
-#: manual/api/bin_float.md:2059
+#: manual/api/bin_float.md:1992
 msgid "The angle of the point $(x, y)$ for `y.atan2(x)`, in $[-\\pi, \\pi]$."
 msgstr "`y.atan2(x)` 中点 $(x, y)$ 的辐角，取值于 $[-\\pi, \\pi]$。"
 
-#: manual/api/bin_float.md:2067
+#: manual/api/bin_float.md:2000
 msgid "The receiver is the ordinate $y$. The special cases follow IEEE 754-2019 §9.2.1; $x \\ge +0$ below means $+0$ or a positive $x$, $x \\le -0$ means $-0$ or a negative $x$, infinities included:"
 msgstr "接收者是纵坐标 $y$。特殊情形遵循 IEEE 754-2019 §9.2.1；下文中 $x \\ge +0$ 表示 $+0$ 或正的 $x$，$x \\le -0$ 表示 $-0$ 或负的 $x$，均包括无穷："
 
-#: manual/api/bin_float.md:2071
-#: manual/api/bin_float.md:2155
+#: manual/api/bin_float.md:2004
+#: manual/api/bin_float.md:2088
 msgid "result"
 msgstr "结果"
 
-#: manual/api/bin_float.md:2073
+#: manual/api/bin_float.md:2006
 msgid "$\\pm 0$ (exact)"
 msgstr "$\\pm 0$（精确）"
 
-#: manual/api/bin_float.md:2077
-#: manual/api/bin_float.md:2161
+#: manual/api/bin_float.md:2010
+#: manual/api/bin_float.md:2094
 msgid "finite"
 msgstr "有限"
 
-#: manual/api/bin_float.md:2078
-#: manual/api/bin_float.md:2079
-#: manual/api/bin_float.md:2080
-#: manual/api/bin_float.md:2162
-#: manual/api/bin_float.md:2163
-#: manual/api/bin_float.md:2164
+#: manual/api/bin_float.md:2011
+#: manual/api/bin_float.md:2012
+#: manual/api/bin_float.md:2013
+#: manual/api/bin_float.md:2095
+#: manual/api/bin_float.md:2096
+#: manual/api/bin_float.md:2097
 msgid ""
 "finite $y \\n"
 "e 0$"
@@ -2892,199 +2838,199 @@ msgstr ""
 "有限 $y \\n"
 "e 0$"
 
-#: manual/api/bin_float.md:2078
+#: manual/api/bin_float.md:2011
 msgid "$\\pm\\pi/2$ (sign of $y$)"
 msgstr "$\\pm\\pi/2$（符号同 $y$）"
 
-#: manual/api/bin_float.md:2079
+#: manual/api/bin_float.md:2012
 msgid "$\\pm 0$ (sign of $y$, exact)"
 msgstr "$\\pm 0$（符号同 $y$，精确）"
 
-#: manual/api/bin_float.md:2080
+#: manual/api/bin_float.md:2013
 msgid "$\\pm\\pi$ (sign of $y$)"
 msgstr "$\\pm\\pi$（符号同 $y$）"
 
-#: manual/api/bin_float.md:2082
+#: manual/api/bin_float.md:2015
 msgid "A NaN operand propagates. Multiples of $\\pi$ are correctly rounded and `inexact`. So $\\operatorname{atan2}(-0, -0) = -\\pi$ and $\\operatorname{atan2}(-0, +0) = -0$."
 msgstr "NaN 操作数会传播。$\\pi$ 的倍数经过正确舍入并且为 `inexact`。因此 $\\operatorname{atan2}(-0, -0) = -\\pi$，$\\operatorname{atan2}(-0, +0) = -0$。"
 
-#: manual/api/bin_float.md:2088
+#: manual/api/bin_float.md:2021
 msgid "$\\operatorname{asin}(x)/\\pi$, the angle in half-revolutions (`asinPi` of IEEE 754-2019 §9.2)."
 msgstr "$\\operatorname{asin}(x)/\\pi$，以半圈为单位的角度（IEEE 754-2019 §9.2 的 `asinPi`）。"
 
-#: manual/api/bin_float.md:2096
+#: manual/api/bin_float.md:2029
 msgid "The domain is $[-1, 1]$ (Table 9.1): $|x| > 1$ and $\\pm\\infty$ are a `domain_error` (a quiet NaN with `invalid_operation` from `asinpi_ctx`). $\\operatorname{asinPi}(\\pm 0) = \\pm 0$ with no exception, and $\\operatorname{asinPi}(\\pm 1) = \\pm 1/2$ exactly. $\\operatorname{asinPi}(\\pm 1/2) = \\pm 1/6$ is rational but not dyadic, so it is rounded and `inexact` like every other argument (by Niven's theorem these are the only rational values). For a tiny $x$ the result is $x/\\pi$ up to a relative error of order $x^2$ and is rounded from a certified enclosure whatever the exponent range, down to the implementation subnormal limit."
 msgstr "定义域为 $[-1, 1]$（表 9.1）：$|x| > 1$ 和 $\\pm\\infty$ 是 `domain_error`（`asinpi_ctx` 给出带 `invalid_operation` 的安静 NaN）。$\\operatorname{asinPi}(\\pm 0) = \\pm 0$，无异常；$\\operatorname{asinPi}(\\pm 1) = \\pm 1/2$，精确。$\\operatorname{asinPi}(\\pm 1/2) = \\pm 1/6$ 是有理数但不是二进有理数，所以和其他参数一样被舍入并触发 `inexact`（由 Niven 定理，这些是仅有的有理值）。对微小的 $x$，结果是 $x/\\pi$，相对误差为 $x^2$ 量级，无论指数范围如何，都由认证的包络舍入，直到实现的次正规数极限。"
 
-#: manual/api/bin_float.md:2116
+#: manual/api/bin_float.md:2049
 msgid "The domain is $[-1, 1]$ as for `asinpi`. $\\operatorname{acosPi}(1) = +0$, $\\operatorname{acosPi}(-1) = 1$ and $\\operatorname{acosPi}(\\pm 0) = 1/2$, exact and without exception (§9.2.1). For a tiny $|x|$ the result is $1/2 \\mp \\delta$ with $0 < \\delta < |x|/2$, so it clusters at the representable $1/2$: when $|x| < 2^{-(p + 4)}$ the rounding direction alone decides between $1/2$ and its neighbour on that side (below for $x > 0$, above for $x < 0$), before the main loop, and the result is always `inexact`."
 msgstr "定义域与 `asinpi` 相同，为 $[-1, 1]$。$\\operatorname{acosPi}(1) = +0$、$\\operatorname{acosPi}(-1) = 1$、$\\operatorname{acosPi}(\\pm 0) = 1/2$，均精确且无异常（§9.2.1）。对微小的 $|x|$，结果为 $1/2 \\mp \\delta$，$0 < \\delta < |x|/2$，所以聚集在可表示的 $1/2$ 处：当 $|x| < 2^{-(p + 4)}$ 时，在主循环之前仅由舍入方向决定结果是 $1/2$ 还是它在该侧的邻值（$x > 0$ 时在下方，$x < 0$ 时在上方），并且结果总是 `inexact`。"
 
-#: manual/api/bin_float.md:2134
+#: manual/api/bin_float.md:2067
 msgid "Defined on all of $\\mathbb{R}$. $\\operatorname{atanPi}(\\pm 0) = \\pm 0$ with no exception, $\\operatorname{atanPi}(\\pm\\infty) = \\pm 1/2$ with no exception (§9.2.1) and $\\operatorname{atanPi}(\\pm 1) = \\pm 1/4$ exactly. For $|x| \\ge 2^{p + 8}$ the result is $\\pm(1/2 - \\delta)$ with $0 < \\delta < 2^{-t}$ for $2^t \\le |x|$, so the rounding direction alone decides between $\\pm 1/2$ and its neighbour inside, without forming a value that close to $1/2$. A tiny $x$ gives $x/\\pi$ rounded from a certified enclosure (underflow with the flags of §7.5 and §7.6)."
 msgstr "在整个 $\\mathbb{R}$ 上有定义。$\\operatorname{atanPi}(\\pm 0) = \\pm 0$，无异常；$\\operatorname{atanPi}(\\pm\\infty) = \\pm 1/2$，无异常（§9.2.1）；$\\operatorname{atanPi}(\\pm 1) = \\pm 1/4$，精确。对 $|x| \\ge 2^{p + 8}$，结果为 $\\pm(1/2 - \\delta)$，其中 $2^t \\le |x|$ 时 $0 < \\delta < 2^{-t}$，所以仅由舍入方向决定结果是 $\\pm 1/2$ 还是它内侧的邻值，无需形成与 $1/2$ 如此接近的值。微小的 $x$ 给出 $x/\\pi$，由认证的包络舍入（按 §7.5 和 §7.6 的标志下溢）。"
 
-#: manual/api/bin_float.md:2144
+#: manual/api/bin_float.md:2077
 msgid "$\\operatorname{atan2}(y, x)/\\pi$ for `y.atan2pi(x)`, in $[-1, 1]$."
 msgstr "`y.atan2pi(x)` 的 $\\operatorname{atan2}(y, x)/\\pi$，范围为 $[-1, 1]$。"
 
-#: manual/api/bin_float.md:2152
+#: manual/api/bin_float.md:2085
 msgid "The receiver is the ordinate $y$. Every special case of §9.2.1 is an exact constant that signals no exception:"
 msgstr "接收者是纵坐标 $y$。§9.2.1 的每个特殊情形都是不触发任何异常的精确常量："
 
-#: manual/api/bin_float.md:2162
+#: manual/api/bin_float.md:2095
 msgid "$\\pm 1/2$ (sign of $y$)"
 msgstr "$\\pm 1/2$（$y$ 的符号）"
 
-#: manual/api/bin_float.md:2163
+#: manual/api/bin_float.md:2096
 msgid "$\\pm 0$ (sign of $y$)"
 msgstr "$\\pm 0$（$y$ 的符号）"
 
-#: manual/api/bin_float.md:2164
+#: manual/api/bin_float.md:2097
 msgid "$\\pm 1$ (sign of $y$)"
 msgstr "$\\pm 1$（$y$ 的符号）"
 
-#: manual/api/bin_float.md:2166
+#: manual/api/bin_float.md:2099
 msgid "For finite nonzero operands $\\operatorname{atan2Pi}(y, x)$ is $\\operatorname{atan}(|y/x|)/\\pi$ for $x > 0$ and $1 - \\operatorname{atan}(|y/x|)/\\pi$ for $x < 0$, with the sign of $y$. $|y| = |x|$ gives the exact $\\pm 1/4$ or $\\pm 3/4$. With $D$ the difference of the leading-bit exponents of $y$ and $x$ (so $2^{D-1} < |y/x| < 2^{D+1}$), an extreme ratio is decided from the anchors before the main loop, from $|D| \\ge p + 8$: $D \\ge p + 8$ gives $1/2 - \\delta$ ($1/2 + \\delta$ for $x < 0$) with $0 < \\delta < 2^{-D}$, and $D \\le -(p + 8)$ with $x < 0$ gives $1 - \\delta$ with $0 < \\delta < 2^{D}$, each rounded by direction alone. With $x > 0$ and a tiny ratio the result is $\\approx t/\\pi$; when $D$ is below a quarter of the smallest subnormal ($D \\le e_{\\min} - p - 1$) it is the tiny nonzero result of the direction with `underflow` and `inexact`. The ratio $y/x$ itself is never formed outside the range where it is representable, so operands at the two ends of the exponent range are handled."
 msgstr "对有限非零操作数，$\\operatorname{atan2Pi}(y, x)$ 在 $x > 0$ 时为 $\\operatorname{atan}(|y/x|)/\\pi$，在 $x < 0$ 时为 $1 - \\operatorname{atan}(|y/x|)/\\pi$，符号取 $y$ 的符号。$|y| = |x|$ 给出精确的 $\\pm 1/4$ 或 $\\pm 3/4$。设 $D$ 为 $y$ 与 $x$ 的最高位指数之差（于是 $2^{D-1} < |y/x| < 2^{D+1}$），极端比值在主循环之前由锚点决定，从 $|D| \\ge p + 8$ 起：$D \\ge p + 8$ 给出 $1/2 - \\delta$（$x < 0$ 时为 $1/2 + \\delta$），$0 < \\delta < 2^{-D}$；$x < 0$ 且 $D \\le -(p + 8)$ 给出 $1 - \\delta$，$0 < \\delta < 2^{D}$，均仅由方向舍入。$x > 0$ 且比值很小时结果约为 $t/\\pi$；当 $D$ 低于最小次正规数的四分之一（$D \\le e_{\\min} - p - 1$）时，结果是方向所决定的微小非零结果，并伴随 `underflow` 与 `inexact`。比值 $y/x$ 本身在不可表示的范围内从不被构造，所以位于指数范围两端的操作数也能处理。"
 
-#: manual/api/bin_float.md:2182
+#: manual/api/bin_float.md:2115
 msgid "The hyperbolic sine."
 msgstr "双曲正弦。"
 
-#: manual/api/bin_float.md:2190
+#: manual/api/bin_float.md:2123
 msgid "$\\sinh(\\pm 0) = \\pm 0$ and $\\sinh(\\pm\\infty) = \\pm\\infty$. Certain overflow is decided before the loop from $|\\sinh x| \\ge e^{|x|}/4$."
 msgstr "$\\sinh(\\pm 0) = \\pm 0$，$\\sinh(\\pm\\infty) = \\pm\\infty$。确定的上溢会在循环之前由 $|\\sinh x| \\ge e^{|x|}/4$ 判定。"
 
-#: manual/api/bin_float.md:2195
+#: manual/api/bin_float.md:2128
 msgid "The hyperbolic cosine."
 msgstr "双曲余弦。"
 
-#: manual/api/bin_float.md:2203
+#: manual/api/bin_float.md:2136
 msgid "$\\cosh(\\pm 0) = 1$ and $\\cosh(\\pm\\infty) = +\\infty$; certain overflow is decided as for `sinh`."
 msgstr "$\\cosh(\\pm 0) = 1$，$\\cosh(\\pm\\infty) = +\\infty$；确定的上溢按 `sinh` 的方式判定。"
 
-#: manual/api/bin_float.md:2208
+#: manual/api/bin_float.md:2141
 msgid "The hyperbolic tangent."
 msgstr "双曲正切。"
 
-#: manual/api/bin_float.md:2216
+#: manual/api/bin_float.md:2149
 msgid "$\\tanh(\\pm 0) = \\pm 0$ and $\\tanh(\\pm\\infty) = \\pm 1$ exactly."
 msgstr "$\\tanh(\\pm 0) = \\pm 0$，$\\tanh(\\pm\\infty) = \\pm 1$，均精确成立。"
 
-#: manual/api/bin_float.md:2220
+#: manual/api/bin_float.md:2153
 msgid "The inverse hyperbolic sine."
 msgstr "反双曲正弦。"
 
-#: manual/api/bin_float.md:2228
+#: manual/api/bin_float.md:2161
 msgid "Defined on all of $\\mathbb{R}$; $\\operatorname{asinh}(\\pm 0) = \\pm 0$ and $\\operatorname{asinh}(\\pm\\infty) = \\pm\\infty$."
 msgstr "在整个 $\\mathbb{R}$ 上有定义；$\\operatorname{asinh}(\\pm 0) = \\pm 0$，$\\operatorname{asinh}(\\pm\\infty) = \\pm\\infty$。"
 
-#: manual/api/bin_float.md:2233
+#: manual/api/bin_float.md:2166
 msgid "The inverse hyperbolic cosine."
 msgstr "反双曲余弦。"
 
-#: manual/api/bin_float.md:2241
+#: manual/api/bin_float.md:2174
 msgid "The domain is $x \\ge 1$; any smaller argument, $-\\infty$ included, is a `domain_error`. $\\operatorname{acosh}(1) = +0$ and $\\operatorname{acosh}(+\\infty) = +\\infty$."
 msgstr "定义域为 $x \\ge 1$；任何更小的参数（包括 $-\\infty$）都是 `domain_error`。$\\operatorname{acosh}(1) = +0$，$\\operatorname{acosh}(+\\infty) = +\\infty$。"
 
-#: manual/api/bin_float.md:2247
+#: manual/api/bin_float.md:2180
 msgid "The inverse hyperbolic tangent."
 msgstr "反双曲正切。"
 
-#: manual/api/bin_float.md:2255
+#: manual/api/bin_float.md:2188
 msgid "The domain is $|x| \\le 1$; outside it, infinities included, the result is a `domain_error`. $\\operatorname{atanh}(\\pm 0) = \\pm 0$ and $\\operatorname{atanh}(\\pm 1) = \\pm\\infty$ with `division_by_zero`."
 msgstr "定义域为 $|x| \\le 1$；在其之外（包括无穷）结果为 `domain_error`。$\\operatorname{atanh}(\\pm 0) = \\pm 0$，$\\operatorname{atanh}(\\pm 1) = \\pm\\infty$ 并触发 `division_by_zero`。"
 
-#: manual/api/bin_float.md:2302
+#: manual/api/bin_float.md:2235
 msgid "Structural equality, the derived `Eq`."
 msgstr "结构相等，即派生的 `Eq`。"
 
-#: manual/api/bin_float.md:2309
+#: manual/api/bin_float.md:2242
 msgid "See [`BinFloat`](#binfloat): this compares representations, not numbers, so `==` distinguishes $\\pm 0$ and precisions and identifies equal NaNs."
 msgstr "参见 [`BinFloat`](#binfloat)：它比较的是表示，而不是数值，因此 `==` 会区分 $\\pm 0$ 和精度，并将相同的 NaN 视为相等。"
 
-#: manual/api/bin_float.md:2314
+#: manual/api/bin_float.md:2247
 msgid "The `Compare` methods behind `<`, `<=`, `>` and `>=`."
 msgstr "`<`、`<=`、`>` 和 `>=` 背后的 `Compare` 方法。"
 
-#: manual/api/bin_float.md:2323
+#: manual/api/bin_float.md:2256
 msgid "They use [`compare`](#binfloatcompare), so NaN is greater than every number: `nan > x` is `true`. Use the [IEEE predicates](#binfloatcompare_quiet_equal-binfloatcompare_quiet_less-binfloatcompare_quiet_less_equal-binfloatcompare_quiet_unordered-binfloatcompare_signaling_equal-binfloatcompare_signaling_less-binfloatcompare_signaling_less_equal) when NaN must be unordered."
 msgstr "它们使用 [`compare`](#binfloatcompare)，因此 NaN 大于所有数：`nan > x` 为 `true`。当 NaN 必须是无序的时，请使用 [IEEE 谓词](#binfloatcompare_quiet_equal-binfloatcompare_quiet_less-binfloatcompare_quiet_less_equal-binfloatcompare_quiet_unordered-binfloatcompare_signaling_equal-binfloatcompare_signaling_less-binfloatcompare_signaling_less_equal)。"
 
-#: manual/api/bin_float.md:2329
+#: manual/api/bin_float.md:2262
 msgid "The `Show` and `Debug` methods."
 msgstr "`Show` 和 `Debug` 方法。"
 
-#: manual/api/bin_float.md:2336
+#: manual/api/bin_float.md:2269
 msgid "`output` writes the exact `c p e` form of [`to_string`](#binfloatto_string). `to_repr` (used by `debug_inspect`) shows every private field."
 msgstr "`output` 写出 [`to_string`](#binfloatto_string) 的精确 `c p e` 形式。`to_repr`（供 `debug_inspect` 使用）显示所有私有字段。"
 
-#: manual/api/bin_float.md:2341
+#: manual/api/bin_float.md:2274
 msgid "The shared floating-point vocabulary of `floating`."
 msgstr "`floating` 共享的浮点词汇。"
 
-#: manual/api/bin_float.md:2347
+#: manual/api/bin_float.md:2280
 msgid "`classify`, `sign`, `precision`, `with_precision` and `normalized` are the inherent methods above. Generic code uses `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and `@def.is_zero`."
 msgstr "`classify`、`sign`、`precision`、`with_precision` 和 `normalized` 即上文的固有方法。泛型代码使用 `@def.is_finite`、`@def.is_nan`、`@def.is_infinite` 和 `@def.is_zero`。"
 
-#: manual/api/bin_float.md:2353
+#: manual/api/bin_float.md:2286
 msgid "`@lf_arith` traits whose methods return `Result`."
 msgstr "方法返回 `Result` 的 `@lf_arith` trait。"
 
-#: manual/api/bin_float.md:2366
+#: manual/api/bin_float.md:2299
 msgid "Each converts the `ArithmeticContext` with `BinaryContext::from_arithmetic_context` (which aborts for a precision above `binary_precision_max`) and runs the contextual operation. The invalid flag becomes a `domain_error` and the division-by-zero flag a `division_by_zero` error; the other flags are dropped, so a NaN, an infinity, an overflow or an underflow is the IEEE 754-2019 default result in `Ok`, as for the `Double` instances of Luna-Flow/arithmetic. `sqrt_checked` is a `domain_error` for a negative nonzero argument (including $-\\infty$) and a signaling NaN; a quiet NaN of either sign is `Ok`. `DivChecked::div_checked` is a `domain_error` for $0/0$, $\\infty/\\infty$ and a signaling NaN operand, and a `division_by_zero` error for a finite non-zero dividend over a signed zero; NaN$/0$ and $\\infty/0$ are `Ok`. `pow_int_checked` is a `division_by_zero` error for a zero base with a negative exponent, and both powers are a `domain_error` for a signaling NaN base, zero exponent included. The trait's `div_checked(x, y, ctx)` takes a context; the inherent [`BinFloat::div_checked`](#binfloatdiv_checked) does not. `CompareChecked::compare_checked` is the inherent [`compare_checked`](#binfloatcompare_checked)."
 msgstr "每个方法都用 `BinaryContext::from_arithmetic_context`（当精度超过 `binary_precision_max` 时会中止）转换 `ArithmeticContext`，并运行上下文式运算。invalid 标志变为 `domain_error`，除以零标志变为 `division_by_zero` 错误；其余标志被丢弃，因此 NaN、无穷、上溢或下溢都是放在 `Ok` 中的 IEEE 754-2019 默认结果，与 Luna-Flow/arithmetic 的 `Double` 实例一致。`sqrt_checked` 对负的非零参数（包括 $-\\infty$）和信号 NaN 为 `domain_error`；任一符号的静默 NaN 为 `Ok`。`DivChecked::div_checked` 对 $0/0$、$\\infty/\\infty$ 和信号 NaN 操作数为 `domain_error`，对有限非零被除数除以带符号零为 `division_by_zero` 错误；NaN$/0$ 与 $\\infty/0$ 为 `Ok`。`pow_int_checked` 对零底数配负指数为 `division_by_zero` 错误，两种幂对信号 NaN 底数（包括零指数）都为 `domain_error`。trait 的 `div_checked(x, y, ctx)` 接受上下文；固有方法 [`BinFloat::div_checked`](#binfloatdiv_checked) 则不接受。`CompareChecked::compare_checked` 即固有方法 [`compare_checked`](#binfloatcompare_checked)。"
 
-#: manual/api/bin_float.md:2387
+#: manual/api/bin_float.md:2320
 msgid "`@lf_arith` traits that return an `ArithmeticOutcome` with diagnostics."
 msgstr "返回带诊断信息的 `ArithmeticOutcome` 的 `@lf_arith` trait。"
 
-#: manual/api/bin_float.md:2406
+#: manual/api/bin_float.md:2339
 msgid "Each runs the matching `*_ctx` method (for `abs`, `abs` followed by `round_ctx`; for `exp`, `try_exp_ctx`) under the converted context. A result with `division_by_zero` becomes a `division_by_zero` error and one with `invalid_operation` a `domain_error`; a certification failure of `exp` is returned as is. Otherwise the value is returned with `ArithmeticDiagnostics` whose `inexact` and `rounded` are the inexact flag and whose `overflow` and `underflow` are the matching flags."
 msgstr "每个方法都在转换后的上下文下运行对应的 `*_ctx` 方法（对 `abs` 为先 `abs` 再 `round_ctx`；对 `exp` 为 `try_exp_ctx`）。带有 `division_by_zero` 的结果变为 `division_by_zero` 错误，带有 `invalid_operation` 的结果变为 `domain_error`；`exp` 的认证失败原样返回。否则返回值以及 `ArithmeticDiagnostics`，其 `inexact` 和 `rounded` 为不精确标志，`overflow` 和 `underflow` 为相应的标志。"
 
-#: manual/api/bin_float.md:2416
+#: manual/api/bin_float.md:2349
 msgid "The `Compare` and `Eq` methods of `BinCoeff`, behind `<`, `<=`, `>`, `>=` and `!=`."
 msgstr "`BinCoeff` 的 `Compare` 和 `Eq` 方法，位于 `<`、`<=`、`>`、`>=` 和 `!=` 背后。"
 
-#: manual/api/bin_float.md:2434
-msgid "They agree with [`BinCoeff::compare`](#bincoeffcompare-bincoeffequal); `+`, `*`, `<<` and `>>` are `add`, `mul`, `shl` and `shr`."
-msgstr "它们与 [`BinCoeff::compare`](#bincoeffcompare-bincoeffequal) 一致；`+`、`*`、`<<` 和 `>>` 即 `add`、`mul`、`shl` 和 `shr`。"
+#: manual/api/bin_float.md:2364
+msgid "They agree with [`BinCoeff::compare`](#bincoeffcompare-bincoeffequal)."
+msgstr "它们与 [`BinCoeff::compare`](#bincoeffcompare-bincoeffequal) 一致。"
 
-#: manual/api/bin_float.md:2439
-msgid "The `Show` and `Debug` methods of `BinCoeff`."
-msgstr "`BinCoeff` 的 `Show` 和 `Debug` 方法。"
+#: manual/api/bin_float.md:2368
+msgid "The `Show` and `Debug` methods of `BinCoeff`; `to_repr` is the integer value."
+msgstr "`BinCoeff` 的 `Show` 和 `Debug` 方法；`to_repr` 是整数值。"
 
-#: manual/api/bin_float.md:2446
+#: manual/api/bin_float.md:2375
 msgid "`output` writes the decimal digits of [`to_string`](#bincoeffparse-bincoeffto_string-bincoeffto_radix_string)."
 msgstr "`output` 写出 [`to_string`](#bincoeffparse-bincoeffto_string-bincoeffto_radix_string) 的十进制数字。"
 
-#: manual/api/bin_float.md:2450
+#: manual/api/bin_float.md:2379
 msgid "The derived `Eq` and `Debug` methods of `BinaryRoundingMode`."
 msgstr "`BinaryRoundingMode` 派生的 `Eq` 和 `Debug` 方法。"
 
-#: manual/api/bin_float.md:2460
+#: manual/api/bin_float.md:2389
 msgid "The derived `Eq` and `Debug` methods of `TininessDetection`."
 msgstr "`TininessDetection` 派生的 `Eq` 和 `Debug` 方法。"
 
-#: manual/api/bin_float.md:2470
+#: manual/api/bin_float.md:2399
 msgid "The derived `Eq` and `Debug` methods of `BinaryContext`."
 msgstr "`BinaryContext` 派生的 `Eq` 和 `Debug` 方法。"
 
-#: manual/api/bin_float.md:2478
+#: manual/api/bin_float.md:2407
 msgid "Equality compares the fields as given: `BinaryContext::new(53)` is not equal to `BinaryContext::new(53, e_max=binary_implementation_e_max)` although the two behave identically."
 msgstr "相等比较按给定的字段进行：`BinaryContext::new(53)` 不等于 `BinaryContext::new(53, e_max=binary_implementation_e_max)`，尽管二者的行为完全相同。"
 
-#: manual/api/bin_float.md:2484
+#: manual/api/bin_float.md:2413
 msgid "The derived `Eq` and `Debug` methods of `BinaryFlags`."
 msgstr "`BinaryFlags` 派生的 `Eq` 和 `Debug` 方法。"
 
-#: manual/api/bin_float.md:2494
+#: manual/api/bin_float.md:2423
 msgid "The derived `Eq` and `Debug` methods of `BinaryInterchangeFormat`."
 msgstr "`BinaryInterchangeFormat` 派生的 `Eq` 和 `Debug` 方法。"
 
-#: manual/api/bin_float.md:2504
+#: manual/api/bin_float.md:2433
 msgid "The derived `Eq` of `BinaryInterchange`: format and bits must agree."
 msgstr "`BinaryInterchange` 派生的 `Eq`：格式和位必须一致。"
 
@@ -7342,7 +7288,7 @@ msgid "For valid inputs, `etiny` is $e_{\\min} - p + 1$ and `etop` is $e_{\\max}
 msgstr "对于有效输入，`etiny` 为 $e_{\\min} - p + 1$，`etop` 为 $e_{\\max} - p + 1$。对于无效输入，`is_valid()` 返回 `false`；为使此内部值对所有输入都有定义，返回的端点仅会在必要时钳制，调用方必须先拒绝无效上下文，不能使用这些端点。"
 
 #: manual/api/internal.md:58
-#: manual/api/internal/bin_kernel.md:22
+#: manual/api/internal/bin_kernel.md:24
 #: manual/api/internal/conformance.md:17
 #: manual/api/internal/decimal_kernel.md:20
 #: manual/api/internal/runner_cli.md:16
@@ -7563,82 +7509,82 @@ msgid "internal/bin_kernel API"
 msgstr "internal/bin_kernel API"
 
 #: manual/api/internal/bin_kernel.md:5
-msgid "`internal/bin_kernel` holds the integer arithmetic on the coefficients of `BinFloat`: a non-negative arbitrary-precision integer `Coeff`, its comparison, addition, subtraction, shifts and bit operations, the multiplication algorithms (schoolbook, Karatsuba, Toom-3 and the two-prime NTT), division (Knuth's algorithm D and Burnikel-Ziegler), the integer square root, the GCD, and the conversions to and from bytes and text in any radix, with the per-target thresholds that choose between the algorithms. Every function is an exact function of its arguments. The package raises no condition and has no notion of a rounding mode, a context or a flag; those belong to `bin_float`. It is an internal package: code outside `Luna-Flow/floating` cannot import it. The public coefficient type `BinCoeff` of `bin_float` is a newtype over `Coeff` and forwards each of its methods, so `Coeff` never appears in a public interface. See the [tutorial](../../tutorial/internal/bin_kernel.md) and the [design page](../../design/internal/bin_kernel.md)."
-msgstr "`internal/bin_kernel` 提供 `BinFloat` 系数所需的整数算术：非负任意精度整数 `Coeff`，及其比较、加法、减法、移位和位运算；乘法算法（朴素乘法、Karatsuba、Toom-3 和双素数 NTT）；除法（Knuth 算法 D 与 Burnikel-Ziegler）；整数平方根；GCD；以及与字节和任意进制文本之间的转换，并带有在各算法之间选择的分目标阈值。每个函数都是其参数的精确函数。本包不抛出任何状况，也没有舍入模式、上下文或标志的概念，这些都属于 `bin_float`。它是内部包：`Luna-Flow/floating` 之外的代码无法导入。`bin_float` 的公共系数类型 `BinCoeff` 是 `Coeff` 之上的 newtype，并转发其每个方法，因此 `Coeff` 不会出现在任何公共接口中。参见[教程](../../tutorial/internal/bin_kernel.md)和[设计页](../../design/internal/bin_kernel.md)。"
+msgid "`internal/bin_kernel` holds the integer arithmetic on the coefficients of `BinFloat`: a non-negative arbitrary-precision integer `Coeff`, its comparison, addition, subtraction, shifts and bit operations, the multiplication algorithms (schoolbook, Karatsuba, Toom-3 and the two-prime NTT), division (Knuth's algorithm D and Burnikel-Ziegler), the integer square root, the GCD, and the conversions to and from bytes and text in any radix, with the per-target thresholds that choose between the algorithms. Every function is an exact function of its arguments. The package raises no condition and has no notion of a rounding mode, a context or a flag; those belong to `bin_float`. It is an internal package: code outside `Luna-Flow/floating` cannot import it. The public coefficient type `BinCoeff` of `bin_float` is a newtype over `Coeff` whose methods (construction, conversion, comparison and queries) forward to this package; the arithmetic exists only here. The name `Coeff` appears in the interface of `BinCoeff`, but a user outside the module cannot import this package and so cannot call or compare anything on it. See the [tutorial](../../tutorial/internal/bin_kernel.md) and the [design page](../../design/internal/bin_kernel.md)."
+msgstr "`internal/bin_kernel` 提供 `BinFloat` 系数所需的整数算术：非负任意精度整数 `Coeff`，及其比较、加法、减法、移位和位运算；乘法算法（朴素乘法、Karatsuba、Toom-3 和双素数 NTT）；除法（Knuth 算法 D 与 Burnikel-Ziegler）；整数平方根；GCD；以及与字节和任意进制文本之间的转换，并带有在各算法之间选择的分目标阈值。每个函数都是其参数的精确函数。本包不抛出任何状况，也没有舍入模式、上下文或标志的概念，这些都属于 `bin_float`。它是内部包：`Luna-Flow/floating` 之外的代码无法导入。`bin_float` 的公共系数类型 `BinCoeff` 是 `Coeff` 之上的 newtype，其方法（构造、转换、比较和查询）转发到本包；算术只存在于这里。`Coeff` 这个名字出现在 `BinCoeff` 的接口中，但模块之外的用户无法导入本包，因此无法对它调用或比较任何东西。参见[教程](../../tutorial/internal/bin_kernel.md)和[设计页](../../design/internal/bin_kernel.md)。"
 
-#: manual/api/internal/bin_kernel.md:30
+#: manual/api/internal/bin_kernel.md:32
 #: manual/api/internal/decimal_kernel.md:28
 msgid "and bring the names a package uses into scope once, for example in a file of its own:"
 msgstr "然后把包用到的名字一次性引入作用域，例如放在单独的文件里："
 
-#: manual/api/internal/bin_kernel.md:38
+#: manual/api/internal/bin_kernel.md:40
 #: manual/api/internal/decimal_kernel.md:40
 msgid "The manual's example checker has no alias for internal subpackages, so the examples are marked `nocheck`."
 msgstr "本手册的示例检查器没有内部子包的别名，所以这些示例标为 `nocheck`。"
 
-#: manual/api/internal/bin_kernel.md:41
+#: manual/api/internal/bin_kernel.md:43
 #: manual/api/internal/decimal_kernel.md:43
 msgid "The coefficient type"
 msgstr "系数类型"
 
-#: manual/api/internal/bin_kernel.md:45
+#: manual/api/internal/bin_kernel.md:47
 msgid "A non-negative integer. On Native, LLVM, Wasm and Wasm-GC it is a newtype over `CoeffRepr`; on JavaScript it is a host `bigint`. The value is persistent: no function mutates an operand."
 msgstr "非负整数。在 Native、LLVM、Wasm 和 Wasm-GC 上它是 `CoeffRepr` 之上的 newtype；在 JavaScript 上它是宿主 `bigint`。值是持久的：没有任何函数会修改操作数。"
 
-#: manual/api/internal/bin_kernel.md:51
+#: manual/api/internal/bin_kernel.md:53
 msgid "The storage on the targets that are not JavaScript: `Inline64(low)` and `Inline128(high, low)` for values below $2^{64}$ and $2^{128}$, and `Heap(words, len)` for larger ones, with `len` little-endian 64-bit limbs of which the top one is nonzero. The constructors are readable because the word-sized fast paths of `bin_float` pattern-match on them; build values with the functions below."
 msgstr "非 JavaScript 目标上的存储：低于 $2^{64}$ 和 $2^{128}$ 的值分别用 `Inline64(low)` 和 `Inline128(high, low)`，更大的值用 `Heap(words, len)`，其中有 `len` 个小端 64 位肢，最高肢非零。构造器可读是因为 `bin_float` 的单字快速路径会对它们做模式匹配；构造值请使用下面的函数。"
 
-#: manual/api/internal/bin_kernel.md:58
+#: manual/api/internal/bin_kernel.md:60
 #: manual/api/internal/decimal_kernel.md:67
 msgid "Function families"
 msgstr "函数族"
 
-#: manual/api/internal/bin_kernel.md:60
+#: manual/api/internal/bin_kernel.md:62
 #: manual/api/internal/decimal_kernel.md:73
 msgid "Family"
 msgstr "族"
 
-#: manual/api/internal/bin_kernel.md:60
+#: manual/api/internal/bin_kernel.md:62
 #: manual/api/internal/decimal_kernel.md:73
 msgid "Functions"
 msgstr "函数"
 
-#: manual/api/internal/bin_kernel.md:62
+#: manual/api/internal/bin_kernel.md:64
 #: manual/api/internal/decimal_kernel.md:75
 msgid "build and convert"
 msgstr "构造与转换"
 
-#: manual/api/internal/bin_kernel.md:63
+#: manual/api/internal/bin_kernel.md:65
 #: manual/api/internal/decimal_kernel.md:76
 msgid "shape"
 msgstr "形态查询"
 
-#: manual/api/internal/bin_kernel.md:64
+#: manual/api/internal/bin_kernel.md:66
 msgid "compare"
 msgstr "比较"
 
-#: manual/api/internal/bin_kernel.md:65
+#: manual/api/internal/bin_kernel.md:67
 msgid "add, subtract, shift"
 msgstr "加、减、移位"
 
-#: manual/api/internal/bin_kernel.md:66
+#: manual/api/internal/bin_kernel.md:68
 msgid "bit operations"
 msgstr "位运算"
 
-#: manual/api/internal/bin_kernel.md:67
+#: manual/api/internal/bin_kernel.md:69
 msgid "multiply and divide"
 msgstr "乘与除"
 
-#: manual/api/internal/bin_kernel.md:68
+#: manual/api/internal/bin_kernel.md:70
 msgid "number theory and roots"
 msgstr "数论与开方"
 
-#: manual/api/internal/bin_kernel.md:69
+#: manual/api/internal/bin_kernel.md:71
 msgid "machine words"
 msgstr "机器字"
 
-#: manual/api/internal/bin_kernel.md:71
+#: manual/api/internal/bin_kernel.md:73
 msgid "The per-target thresholds (`bin_coeff_*_min_words`, `*_words`, `*_cutoff`) are private: they live in `coeff_thresholds_<target>.mbt` and are selected by `moon.pkg`. Preconditions are checked with `abort` (a negative shift count, a zero divisor): they are programmer errors of the caller, never conditions of an operation."
 msgstr "分目标阈值（`bin_coeff_*_min_words`、`*_words`、`*_cutoff`）是私有的：它们位于 `coeff_thresholds_<target>.mbt`，由 `moon.pkg` 选择。前置条件用 `abort` 检查（负的移位量、零除数）：它们是调用者的编程错误，而不是运算的状况。"
 
@@ -8377,7 +8323,7 @@ msgstr "共享辅助函数、汇总、分片、文件、JSON 与文本输出、�
 #: manual/conformance/decimal.md:42
 #: manual/conformance/decimal_gda.md:15
 #: manual/index.md:69
-#: manual/performance_audit.md:155
+#: manual/performance_audit.md:154
 msgid "Evidence"
 msgstr "证据"
 
@@ -8637,7 +8583,7 @@ msgid "`internal` and `internal/*`, `cli` and `cli/*`, `bench` and `bench/*`, `c
 msgstr "`internal` 与 `internal/*`、`cli` 与 `cli/*`、`bench` 与 `bench/*`、`consistency` 以及 `doc_examples` 属于实现与验证基础设施。某个符号出现在 `pkg.generated.mbti` 中，并不意味着它成为长期的应用契约；依赖它之前请先阅读该包的设计页面。"
 
 #: manual/architecture.md:274
-#: manual/design/internal/bin_kernel.md:51
+#: manual/design/internal/bin_kernel.md:52
 msgid "Invariants"
 msgstr "不变量"
 
@@ -8698,7 +8644,7 @@ msgid "ball_float conformance"
 msgstr "ball_float 符合性"
 
 #: manual/conformance/ball_float.md:3
-#: manual/performance_audit.md:155
+#: manual/performance_audit.md:154
 msgid "Claim"
 msgstr "声明"
 
@@ -8749,7 +8695,7 @@ msgstr "API"
 #: manual/conformance/bin_float.md:71
 #: manual/conformance/decimal.md:42
 #: manual/conformance/decimal_gda.md:15
-#: manual/performance_audit.md:155
+#: manual/performance_audit.md:154
 msgid "Status"
 msgstr "状态"
 
@@ -9929,9 +9875,9 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 #: manual/conformance/decimal_gda.md:61
 #: manual/design/ball_float.md:879
 #: manual/design/ball_float_checked.md:170
-#: manual/design/bench.md:244
+#: manual/design/bench.md:243
 #: manual/design/bench/ball_float.md:67
-#: manual/design/bench/bin_float.md:69
+#: manual/design/bench/bin_float.md:68
 #: manual/design/bench/decimal.md:67
 #: manual/design/bench/decimal_gda.md:64
 #: manual/design/bench/external.md:124
@@ -11116,9 +11062,9 @@ msgstr "每个区间都携带一个精度标签；二元运算使用较大的标
 
 #: manual/design/ball_float.md:805
 #: manual/design/ball_float_checked.md:137
-#: manual/design/bench.md:218
+#: manual/design/bench.md:217
 #: manual/design/bench/ball_float.md:51
-#: manual/design/bench/bin_float.md:53
+#: manual/design/bench/bin_float.md:52
 #: manual/design/bench/decimal.md:51
 #: manual/design/bench/decimal_gda.md:48
 #: manual/design/bench/external.md:105
@@ -11196,9 +11142,9 @@ msgstr "目前没有未解决的限制。负次数的装饰 `rootn` 在参数含
 
 #: manual/design/ball_float.md:860
 #: manual/design/ball_float_checked.md:157
-#: manual/design/bench.md:235
+#: manual/design/bench.md:234
 #: manual/design/bench/ball_float.md:60
-#: manual/design/bench/bin_float.md:62
+#: manual/design/bench/bin_float.md:61
 #: manual/design/bench/decimal.md:60
 #: manual/design/bench/decimal_gda.md:57
 #: manual/design/bench/external.md:114
@@ -11603,65 +11549,65 @@ msgstr "`tune_dataset` 以每个候选的有效确认样本的中位数 $\\mu_c$
 
 #: manual/design/bench.md:188
 msgid ""
-"The auto-tune suite turns the per-dataset winners $\\ell_1, \\dots, \\ell_S$ (ordered by scale) into a crossover with `@experiment.crossover_from_labels`: it counts the indices $i$ with $\\ell_i \\n"
-"e \\ell_{i-1}$. No change gives `NoCrossover`, exactly one change at $i$ gives `Found` with `below` $= $ scale $i - 1$ and `at_or_above` $=$ scale $i$, and more than one gives `NonMonotonic`, for which the suite prints a plain lookup table instead of a piecewise policy. Because the winner of each dataset is decided by the median and, within the practical threshold, by the spread, noise between two nearly equal candidates can still produce several changes."
+"An auto-tune run turns the per-dataset winners $\\ell_1, \\dots, \\ell_S$ (ordered by scale) into a crossover with `@experiment.crossover_from_labels`: it counts the indices $i$ with $\\ell_i \\n"
+"e \\ell_{i-1}$. No change gives `NoCrossover`, exactly one change at $i$ gives `Found` with `below` $= $ scale $i - 1$ and `at_or_above` $=$ scale $i$, and more than one gives `NonMonotonic`, for which a plain lookup table is printed instead of a piecewise policy. Because the winner of each dataset is decided by the median and, within the practical threshold, by the spread, noise between two nearly equal candidates can still produce several changes."
 msgstr ""
-"自动调优套件用 `@experiment.crossover_from_labels` 把各数据集的胜者 $\\ell_1, \\dots, \\ell_S$（按规模排序）转换为一个交叉点：它统计满足 $\\ell_i \\n"
-"e \\ell_{i-1}$ 的下标 $i$ 的个数。没有变化给出 `NoCrossover`；恰好在 $i$ 处有一次变化给出 `Found`，其中 `below` $= $ 规模 $i - 1$，`at_or_above` $=$ 规模 $i$；多于一次变化给出 `NonMonotonic`，此时套件打印一张普通查找表，而不是分段策略。由于每个数据集的胜者由中位数决定，并在实用阈值内由离散程度决定，两个几乎相等的候选之间的噪声仍可能产生多次变化。"
+"自动调优运行把各数据集的优胜者 $\\ell_1, \\dots, \\ell_S$（按规模排序）用 `@experiment.crossover_from_labels` 变成分界点：它统计满足 $\\ell_i \\n"
+"e \\ell_{i-1}$ 的下标 $i$ 的个数。没有变化给出 `NoCrossover`，在 $i$ 处恰好变化一次给出 `Found`，其 `below` $= $ 规模 $i - 1$，`at_or_above` $=$ 规模 $i$；多于一次则给出 `NonMonotonic`，此时打印的是普通查找表而不是分段策略。由于每个数据集的优胜者由中位数决定，并在实用阈值内由离散程度决定，两个几乎相等的候选之间的噪声仍可能产生多次变化。"
 
-#: manual/design/bench.md:199
+#: manual/design/bench.md:198
 msgid "Immutable fixtures with an oracle"
 msgstr "带预言的不可变夹具"
 
-#: manual/design/bench.md:201
+#: manual/design/bench.md:200
 msgid "`immutable_bench` generates each input once per scale and checks every output against a reference. A faster implementation that computes the wrong result fails the run instead of winning a comparison. The reference is only as independent as the suite makes it: the arithmetic suites of `bin_float` and `decimal` compare with the exact coefficient result, while the elementary-function and `decimal_gda` suites use the core path itself as the reference (so they check that the checked path agrees with the core) and the `ball_float` suite uses the `BinFloat` kernel result."
 msgstr "`immutable_bench` 对每个规模只生成一次输入，并将每个输出与参考值比对。计算出错误结果的更快实现会使运行失败，而不是在比较中胜出。参考值的独立程度取决于套件的设定：`bin_float` 和 `decimal` 的算术套件与精确系数结果比较，而初等函数套件和 `decimal_gda` 套件以核心路径本身作为参考（因此它们检查的是 checked 路径与核心是否一致），`ball_float` 套件则使用 `BinFloat` 内核的结果。"
 
-#: manual/design/bench.md:210
+#: manual/design/bench.md:209
 msgid "Environment as data"
 msgstr "环境即数据"
 
-#: manual/design/bench.md:212
+#: manual/design/bench.md:211
 msgid "`environment` records the target, profile and a data-type label with every run, and marks what only the outer tool knows (machine, frequency policy, commit) as `external-metadata`. A reader of two artifacts can then tell whether their numbers are comparable; the package itself does not compare runs across environments."
 msgstr "`environment` 在每次运行中记录目标、配置文件和数据类型标签，并将只有外部工具才知道的信息（机器、频率策略、提交）标记为 `external-metadata`。这样，阅读两份产物的人就能判断它们的数据是否可比；本包自身不会跨环境比较运行。"
 
-#: manual/design/bench.md:220
+#: manual/design/bench.md:219
 msgid "**Determinism of the reduction.** For fixed observations and seed, `paired_hotspot`, `confirmatory_regression` and `tune_dataset` return the same values on every run (sorting by block id, seeded generator, deterministic tie-breaking)."
 msgstr "**归约的确定性。** 对于固定的观测和种子，`paired_hotspot`、`confirmatory_regression` 和 `tune_dataset` 每次运行都返回相同的值（按区块 id 排序、带种子的生成器、确定性的平局决胜）。"
 
-#: manual/design/bench.md:224
+#: manual/design/bench.md:223
 msgid "**Pairing.** Samples are paired by block order. Unequal sample counts are an error (`MismatchedPairs`), never a silent truncation. Pairing is by position, not by block id, so if both implementations lose one invalid observation in different blocks the later pairs are formed across blocks."
 msgstr "**配对。** 样本按区块顺序配对。样本数不相等是一个错误（`MismatchedPairs`），绝不会被静默截断。配对按位置而非区块 id 进行，因此若两个实现在不同区块中各丢失一个无效观测，之后的配对就会跨区块形成。"
 
-#: manual/design/bench.md:228
+#: manual/design/bench.md:227
 msgid "**Interval ordering.** $L \\le U$, because $Q^{*}$ is monotone in its argument and $\\alpha < 1 - \\alpha$ for $c > 0$."
 msgstr "**区间有序性。** $L \\le U$，因为 $Q^{*}$ 关于其参数单调，且当 $c > 0$ 时 $\\alpha < 1 - \\alpha$。"
 
-#: manual/design/bench.md:230
+#: manual/design/bench.md:229
 msgid "**Scale invariance.** Multiplying all samples by a constant $\\lambda > 0$ multiplies $\\operatorname{med}(d)$, $L$ and $U$ by $\\lambda$ and leaves $\\Delta_{\\%}$, the decision and the verdict unchanged, so the unit of time does not matter."
 msgstr "**尺度不变性。** 将所有样本乘以常数 $\\lambda > 0$ 会使 $\\operatorname{med}(d)$、$L$ 和 $U$ 都乘以 $\\lambda$，而 $\\Delta_{\\%}$、判定和结论保持不变，因此时间单位无关紧要。"
 
-#: manual/design/bench.md:237
+#: manual/design/bench.md:236
 msgid "**Discarding outliers before averaging.** Any fence needs a tuning constant and silently changes the sample; the median makes it unnecessary."
 msgstr "**取平均前丢弃离群值。** 任何栅栏都需要一个调节常数，并且会静默改变样本；中位数使其变得不必要。"
 
-#: manual/design/bench.md:239
+#: manual/design/bench.md:238
 msgid "**Unpaired comparison of two sample sets.** Drift between the measurement of $B$ and $C$ would enter the difference directly."
 msgstr "**两组样本的非配对比较。** 测量 $B$ 与 $C$ 之间的漂移会直接进入差值。"
 
-#: manual/design/bench.md:241
+#: manual/design/bench.md:240
 msgid "**Normal-theory intervals.** They assume symmetric errors that timing data does not have."
 msgstr "**基于正态理论的区间。** 它们假设误差对称，而计时数据并不具备这一性质。"
 
-#: manual/design/bench.md:246
+#: manual/design/bench.md:245
 msgid "No timing, process control or file output: Maremark's runner and `tools/benchmark.py` do that."
 msgstr "不负责计时、进程控制或文件输出：这些由 Maremark 的运行器和 `tools/benchmark.py` 完成。"
 
-#: manual/design/bench.md:248
+#: manual/design/bench.md:247
 msgid "No absolute performance targets; thresholds apply to relative differences."
 msgstr "没有绝对性能目标；阈值适用于相对差异。"
 
-#: manual/design/bench.md:249
+#: manual/design/bench.md:248
 msgid "Performance results never change correctness claims, and the benchmarks run only on the native target."
 msgstr "性能结果从不改变正确性结论，且基准只在 native 目标上运行。"
 
@@ -11701,7 +11647,7 @@ msgid "Inputs are exact singleton intervals built from fixed bit patterns; the p
 msgstr "输入是由固定位模式构造的精确单点区间；精度为各操作数位长之和加 4，`div` 的被除数为这些模式的乘积，因此每个结果都是精确的，每个区间结果都必须保持为单点区间。"
 
 #: manual/design/bench/ball_float.md:39
-#: manual/design/bench/bin_float.md:41
+#: manual/design/bench/bin_float.md:40
 #: manual/design/bench/decimal.md:39
 #: manual/design/bench/decimal_gda.md:36
 msgid "Correctness oracle"
@@ -11712,70 +11658,70 @@ msgid "The reference is the `BinFloat` kernel result itself, which is exact for 
 msgstr "参考值就是 `BinFloat` 内核的结果本身，对这些输入它是精确的；内核输出必须等于它，区间输出必须是中心等于它的单点集。与预言机不符的输出计为失败，且性能测试断言不存在失败，因此比较永远不会发生在计算不同结果的路径之间。"
 
 #: manual/design/bench/ball_float.md:45
-#: manual/design/bench/bin_float.md:47
+#: manual/design/bench/bin_float.md:46
 #: manual/design/bench/decimal.md:45
 #: manual/design/bench/decimal_gda.md:42
 msgid "Exact inputs"
 msgstr "精确输入"
 
 #: manual/design/bench/ball_float.md:47
-#: manual/design/bench/bin_float.md:49
+#: manual/design/bench/bin_float.md:48
 #: manual/design/bench/decimal.md:47
 #: manual/design/bench/decimal_gda.md:44
 msgid "Exact results make the arithmetic work identical across paths: no path can win by rounding earlier, and the measured difference is the cost of representation, context handling and checking."
 msgstr "精确结果使各路径的算术工作完全相同：没有哪条路径能靠更早舍入而胜出，测得的差异即表示、上下文处理和检查的开销。"
 
 #: manual/design/bench/ball_float.md:53
-#: manual/design/bench/bin_float.md:55
+#: manual/design/bench/bin_float.md:54
 #: manual/design/bench/decimal.md:53
 #: manual/design/bench/decimal_gda.md:50
 msgid "Plan tests compile every specification in ordinary test runs, so the benchmarks cannot rot unnoticed."
 msgstr "计划测试在普通测试运行中编译每个规格，因此基准不会在无人察觉的情况下失效。"
 
 #: manual/design/bench/ball_float.md:55
-#: manual/design/bench/bin_float.md:57
+#: manual/design/bench/bin_float.md:56
 #: manual/design/bench/decimal.md:55
 #: manual/design/bench/decimal_gda.md:52
 msgid "Performance tests assert `failed_count == 0`: every output matched its oracle."
 msgstr "性能测试断言 `failed_count == 0`：每个输出都与其预言一致。"
 
 #: manual/design/bench/ball_float.md:57
-#: manual/design/bench/bin_float.md:59
+#: manual/design/bench/bin_float.md:58
 #: manual/design/bench/decimal.md:57
 #: manual/design/bench/decimal_gda.md:54
 msgid "Seeds are fixed (`20260715`), so the measurement order and the bootstrap resamples are reproducible."
 msgstr "种子是固定的（`20260715`），因此测量顺序和 bootstrap 重抽样都可复现。"
 
 #: manual/design/bench/ball_float.md:62
-#: manual/design/bench/bin_float.md:64
+#: manual/design/bench/bin_float.md:63
 #: manual/design/bench/decimal.md:62
 #: manual/design/bench/decimal_gda.md:59
 msgid "**Random inputs per sample.** They would mix input variance into timing variance; fixed patterns per dataset isolate the cost of the code."
 msgstr "**每个样本使用随机输入。** 这会把输入方差混入计时方差；每个数据集使用固定模式可以隔离代码本身的开销。"
 
 #: manual/design/bench/ball_float.md:64
-#: manual/design/bench/bin_float.md:66
+#: manual/design/bench/bin_float.md:65
 #: manual/design/bench/decimal.md:64
 #: manual/design/bench/decimal_gda.md:61
 msgid "**Only end-to-end timings.** A single number cannot tell whether a regression is in the kernel, the core or the checked wrapper."
 msgstr "**只做端到端计时。** 单个数字无法分辨回归发生在 kernel、core 还是 checked 包装层。"
 
 #: manual/design/bench/ball_float.md:69
-#: manual/design/bench/bin_float.md:71
+#: manual/design/bench/bin_float.md:70
 #: manual/design/bench/decimal.md:69
 #: manual/design/bench/decimal_gda.md:66
 msgid "Native target only; no claims for other targets."
 msgstr "仅限 native 目标；不对其他目标作任何结论。"
 
 #: manual/design/bench/ball_float.md:70
-#: manual/design/bench/bin_float.md:72
+#: manual/design/bench/bin_float.md:71
 #: manual/design/bench/decimal.md:70
 #: manual/design/bench/decimal_gda.md:67
 msgid "No public API; the package exists for `tools/benchmark.py`."
 msgstr "没有公共 API；该包为 `tools/benchmark.py` 而存在。"
 
 #: manual/design/bench/ball_float.md:71
-#: manual/design/bench/bin_float.md:73
+#: manual/design/bench/bin_float.md:72
 #: manual/design/bench/decimal.md:71
 #: manual/design/bench/decimal_gda.md:68
 msgid "Measurements are evidence for the performance pages, never for correctness."
@@ -11789,13 +11735,13 @@ msgstr "bench/bin_float 设计"
 msgid "Measure the cost of each layer of the binary stack separately, on inputs where all layers must produce the same result, so that a change in one layer shows up as a change in one reported percentage."
 msgstr "分别测量二进制栈每一层的开销，所用输入使所有层都必须得到相同结果，这样某一层的变化就会体现为某一个报告百分比的变化。"
 
-#: manual/design/bench/bin_float.md:39
-msgid "Arithmetic inputs are fixed bit patterns with the top and bottom bits set; the precision is the sum of the operand bit lengths plus 4, and for `div` the dividend is the product of the two patterns, so every result is exact and every path computes the same number. Elementary inputs are 1.25, 0.5 and 0.25 at the dataset precision, each inside the domain of the functions it is used with. The square inputs are patterns of the given limb count; the experiment picks the faster of two equivalent algorithms per size and reports the crossover size."
-msgstr "算术输入是最高位和最低位都置位的固定位模式；精度为各操作数位长之和加 4，`div` 的被除数为两个模式的乘积，因此每个结果都是精确的，每条路径计算的都是同一个数。初等函数的输入是数据集精度下的 1.25、0.5 和 0.25，各自位于其所用函数的定义域内。平方运算的输入是给定 limb 数的模式；该实验针对每个规模在两种等价算法中选择较快者，并报告交叉点规模。"
+#: manual/design/bench/bin_float.md:38
+msgid "Arithmetic inputs are fixed bit patterns with the top and bottom bits set; the precision is the sum of the operand bit lengths plus 4, and for `div` the dividend is the product of the two patterns, so every result is exact and every path computes the same number. Elementary inputs are 1.25, 0.5 and 0.25 at the dataset precision, each inside the domain of the functions it is used with."
+msgstr "算术输入是最高位和最低位均置位的固定位模式；精度是两个操作数位长之和加 4，对 `div`，被除数是两个模式的乘积，因此每个结果都是精确的，每条路径计算的是同一个数。初等函数的输入是在数据集精度下的 1.25、0.5 和 0.25，各自都在所用函数的定义域之内。"
 
-#: manual/design/bench/bin_float.md:43
-msgid "Arithmetic outputs are checked against the exact `BinCoeff` result, elementary outputs against the core result (so the checked path must agree with the core), and square outputs against `x.square()`. An output that disagrees with the oracle is counted as a failure and the performance test asserts that there is none, so a comparison is never between paths that compute different things."
-msgstr "算术输出与精确的 `BinCoeff` 结果核对，初等函数输出与 core 结果核对（因此 checked 路径必须与 core 一致），平方输出与 `x.square()` 核对。与预言不符的输出计为失败，且性能测试断言不存在失败，因此比较永远不会发生在计算不同结果的路径之间。"
+#: manual/design/bench/bin_float.md:42
+msgid "Arithmetic outputs are checked against the exact `BigInt` result, and elementary outputs against the core result (so the checked path must agree with the core). An output that disagrees with the oracle is counted as a failure and the performance test asserts that there is none, so a comparison is never between paths that compute different things."
+msgstr "算术输出与精确的 `BigInt` 结果核对，初等函数输出与核心结果核对（因此带检查的路径必须与核心一致）。与预言结果不一致的输出会被计为失败，性能测试断言没有失败，因此比较永远不会发生在计算不同东西的路径之间。"
 
 #: manual/design/bench/decimal.md:1
 msgid "bench/decimal design"
@@ -17307,73 +17253,85 @@ msgid "A re-export of an internal type (`pub using`) does not give another modul
 msgstr "对内部类型的重新导出（`pub using`）不会让另一个模块（工具模块）获得该类型的方法；newtype 可以，而且它会被擦除。"
 
 #: manual/design/internal/bin_kernel.md:38
+msgid "Unwrapping"
+msgstr "解包"
+
+#: manual/design/internal/bin_kernel.md:38
+msgid "`pub(all) struct BinCoeff(@bin_kernel.Coeff)`; `BinCoeff` has no arithmetic"
+msgstr "`pub(all) struct BinCoeff(@bin_kernel.Coeff)`；`BinCoeff` 没有算术"
+
+#: manual/design/internal/bin_kernel.md:38
+msgid "The other library packages (`ball_float`, `decimal`) do arithmetic on coefficients: `value.0` gives them the kernel type and `BinCoeff(c)` wraps a result. Outside the module the inner type is inert: a method call, `==` and a qualified call on it are compile errors, and the import is refused by the solver, so the public field exposes no operation and no compatibility promise."
+msgstr "库的其他包（`ball_float`、`decimal`）要对系数做算术：`value.0` 给它们内核类型，`BinCoeff(c)` 包装结果。在模块之外，内部类型是惰性的：对它调用方法、使用 `==` 以及带限定的调用都是编译错误，导入则被求解器拒绝，因此公开的字段不暴露任何操作，也没有兼容性承诺。"
+
+#: manual/design/internal/bin_kernel.md:39
 msgid "Why not a record wrapper"
 msgstr "为什么不用记录包装"
 
-#: manual/design/internal/bin_kernel.md:38
+#: manual/design/internal/bin_kernel.md:39
 msgid "A newtype, never `struct BinCoeff { kernel : Coeff }`"
 msgstr "使用 newtype，绝不用 `struct BinCoeff { kernel : Coeff }`"
 
-#: manual/design/internal/bin_kernel.md:38
+#: manual/design/internal/bin_kernel.md:39
 msgid "A record wrapper allocates a second object per value: +49% retired instructions on a small `add` in the throwaway measurement. A newtype and a call across the package boundary cost nothing measurable."
 msgstr "记录包装会为每个值多分配一个对象：在一次性测量中，一次小数 `add` 多出 49% 的已退休指令。newtype 以及跨包边界的调用没有可测量的开销。"
 
-#: manual/design/internal/bin_kernel.md:39
+#: manual/design/internal/bin_kernel.md:40
 #: manual/performance/bin_float.md:10
 msgid "Representation"
 msgstr "Context、flags 与 interchange"
 
-#: manual/design/internal/bin_kernel.md:39
+#: manual/design/internal/bin_kernel.md:40
 msgid "`Coeff` is a newtype over a three-case enum (`Inline64`, `Inline128`, `Heap`); `BinFloat` stores it directly"
 msgstr "`Coeff` 是三种情形枚举（`Inline64`、`Inline128`、`Heap`）之上的 newtype；`BinFloat` 直接存储它"
 
-#: manual/design/internal/bin_kernel.md:39
+#: manual/design/internal/bin_kernel.md:40
 msgid "One allocation per coefficient instead of two (10 to 15% fewer instructions per `BinFloat` operation at 53 to 512 bits, [#427](https://github.com/Luna-Flow/floating/pull/427))."
 msgstr "每个系数一次分配而不是两次（在 53 到 512 位时每个 `BinFloat` 运算少 10% 到 15% 的指令，[#427](https://github.com/Luna-Flow/floating/pull/427)）。"
 
-#: manual/design/internal/bin_kernel.md:40
+#: manual/design/internal/bin_kernel.md:41
 #: manual/verification.md:202
 #: manual/verification.md:245
 msgid "JavaScript"
 msgstr "JavaScript"
 
-#: manual/design/internal/bin_kernel.md:40
+#: manual/design/internal/bin_kernel.md:41
 msgid "`Coeff` is a host `bigint` (`coeff_js.mbt`); no kernel algorithms"
 msgstr "`Coeff` 是宿主 `bigint`（`coeff_js.mbt`）；没有内核算法"
 
-#: manual/design/internal/bin_kernel.md:40
+#: manual/design/internal/bin_kernel.md:41
 msgid "The host's arbitrary-precision integers are the kernel there."
 msgstr "宿主的任意精度整数在那里就是内核。"
 
-#: manual/design/internal/bin_kernel.md:41
+#: manual/design/internal/bin_kernel.md:42
 msgid "Machine words"
 msgstr "机器字"
 
-#: manual/design/internal/bin_kernel.md:41
+#: manual/design/internal/bin_kernel.md:42
 msgid "`binary_fast_*` live here"
 msgstr "`binary_fast_*` 位于此处"
 
-#: manual/design/internal/bin_kernel.md:41
+#: manual/design/internal/bin_kernel.md:42
 msgid "The word-wide `mul_high` and `div_wide` are used by the kernel and by the single-word paths of `bin_float`."
 msgstr "字宽的 `mul_high` 和 `div_wide` 由内核和 `bin_float` 的单字路径共同使用。"
 
-#: manual/design/internal/bin_kernel.md:43
+#: manual/design/internal/bin_kernel.md:44
 msgid "Thresholds"
 msgstr "阈值"
 
-#: manual/design/internal/bin_kernel.md:45
+#: manual/design/internal/bin_kernel.md:46
 msgid "The cutoffs are named `*_min_words` or `*_words` (64-bit limbs) and chosen per target in `coeff_thresholds_<target>.mbt`. They are policy, not semantics: the dispatch tests cross every one of them and compare with the schoolbook result. The cutoffs of the elementary functions are not kernel policy and stay in `bin_float`."
 msgstr "分界点命名为 `*_min_words` 或 `*_words`（64 位肢），按目标在 `coeff_thresholds_<target>.mbt` 中选择。它们是策略而非语义：分派测试会恰好跨过每一个分界点，并与朴素乘法的结果比较。初等函数的分界点不是内核策略，仍留在 `bin_float`。"
 
-#: manual/design/internal/bin_kernel.md:53
+#: manual/design/internal/bin_kernel.md:54
 msgid "A `Heap` coefficient has `len >= 3` limbs, the top limb is nonzero, and no function mutates the array of an operand."
 msgstr "`Heap` 系数有 `len >= 3` 个肢，最高肢非零，且没有函数会修改操作数的数组。"
 
-#: manual/design/internal/bin_kernel.md:55
+#: manual/design/internal/bin_kernel.md:56
 msgid "`Inline64` and `Inline128` are the only representations of values below $2^{128}$; `bin_coeff_from_words` normalizes."
 msgstr "`Inline64` 和 `Inline128` 是低于 $2^{128}$ 的值的唯一表示；`bin_coeff_from_words` 会做规范化。"
 
-#: manual/design/internal/bin_kernel.md:57
+#: manual/design/internal/bin_kernel.md:58
 msgid "No function aborts except on a violated precondition (a zero divisor, a negative shift)."
 msgstr "除违反前置条件（零除数、负移位）外，没有函数会中止。"
 
@@ -21080,194 +21038,186 @@ msgid "all four Maremark suites produced valid artifacts"
 msgstr "四套 Maremark 基准都生成了有效的产物"
 
 #: manual/performance_audit.md:111
-msgid "binary square policy"
-msgstr "二进制平方策略"
-
-#: manual/performance_audit.md:111
-msgid "a target-specific policy artifact; raw observations can be non-monotonic and are not a universal threshold"
-msgstr "一份针对特定目标的策略产物；原始观测可能非单调，并不构成通用阈值"
-
-#: manual/performance_audit.md:112
 msgid "IEEE and GDA fast paths"
 msgstr "IEEE 与 GDA 快路径"
 
-#: manual/performance_audit.md:112
+#: manual/performance_audit.md:111
 msgid "benchmark package tests plus the conformance gates"
 msgstr "基准测试包的测试以及符合性关卡"
 
-#: manual/performance_audit.md:112
+#: manual/performance_audit.md:111
 msgid "a fast route is admissible only while the semantic oracle stays green"
 msgstr "只有在语义判定（oracle）保持全部通过时，快路线才可采用"
 
-#: manual/performance_audit.md:113
+#: manual/performance_audit.md:112
 msgid "interval endpoint dispatch"
 msgstr "区间端点分派"
 
-#: manual/performance_audit.md:113
+#: manual/performance_audit.md:112
 msgid "`tooling/src/bench/ball_float` and strict ITF1788"
 msgstr "`tooling/src/bench/ball_float` 与 strict ITF1788"
 
-#: manual/performance_audit.md:113
+#: manual/performance_audit.md:112
 msgid "lower cost is acceptable only with ordered, outward-rounded enclosures"
 msgstr "只有有序且向外舍入的包络成立时，降低成本才可接受"
 
-#: manual/performance_audit.md:114
+#: manual/performance_audit.md:113
 msgid "external comparison"
 msgstr "外部比较"
 
-#: manual/performance_audit.md:114
+#: manual/performance_audit.md:113
 msgid "`just bench external run` ([results](performance/bench/external.md))"
 msgstr "`just bench external run`（[结果](performance/bench/external.md)）"
 
-#: manual/performance_audit.md:114
+#: manual/performance_audit.md:113
 msgid "`floating` timed against MPFR and libmpdec on the same operands; slower in every measured cell, by 1.8 to 2554 times"
 msgstr "`floating` 与 MPFR 和 libmpdec 在相同操作数上的计时对比；在每个测量单元格中都更慢，慢 1.8 到 2554 倍"
 
-#: manual/performance_audit.md:116
+#: manual/performance_audit.md:115
 msgid "Generated artifacts live under `.tmp/bench/` and are not published as API data. Re-run the commands on the target hardware before promoting a crossover. The workload is evidence about the audited tree; it does not prove a speedup for every release, equivalence across targets, or a latency bound."
 msgstr "生成的产物位于 `.tmp/bench/` 之下，不作为 API 数据发布。在提升交叉点阈值之前，请在目标硬件上重新运行这些命令。该工作负载只是关于被审计代码树的证据；它并不证明每个发布版本都有加速、不同目标之间性能等价，也不提供延迟上界。"
 
-#: manual/performance_audit.md:121
+#: manual/performance_audit.md:120
 msgid "Acceptance matrix"
 msgstr "验收矩阵"
 
-#: manual/performance_audit.md:123
+#: manual/performance_audit.md:122
 msgid "Check"
 msgstr "检查"
 
-#: manual/performance_audit.md:125
+#: manual/performance_audit.md:124
 msgid "93/93 passed"
 msgstr "93/93 通过"
 
-#: manual/performance_audit.md:126
+#: manual/performance_audit.md:125
 msgid "94/94 passed"
 msgstr "94/94 通过"
 
-#: manual/performance_audit.md:127
+#: manual/performance_audit.md:126
 msgid "68/68 passed"
 msgstr "68/68 通过"
 
-#: manual/performance_audit.md:128
+#: manual/performance_audit.md:127
 msgid "42/42 passed"
 msgstr "42/42 通过"
 
-#: manual/performance_audit.md:129
+#: manual/performance_audit.md:128
 msgid "7,464,503/7,464,503 passed"
 msgstr "7,464,503/7,464,503 通过"
 
-#: manual/performance_audit.md:130
+#: manual/performance_audit.md:129
 msgid "15,763/15,763 passed"
 msgstr "15,763/15,763 通过"
 
-#: manual/performance_audit.md:131
+#: manual/performance_audit.md:130
 msgid "64,986/64,986 and 16,124/16,124 passed"
 msgstr "64,986/64,986 与 16,124/16,124 通过"
 
-#: manual/performance_audit.md:132
+#: manual/performance_audit.md:131
 msgid "4,656/4,656 passed"
 msgstr "4,656/4,656 通过"
 
-#: manual/performance_audit.md:133
+#: manual/performance_audit.md:132
 msgid "passed"
 msgstr "通过"
 
-#: manual/performance_audit.md:135
+#: manual/performance_audit.md:134
 msgid "These counts describe the audited tree. The gates have grown since (the binary gate now runs the full IEEE operation matrix); [verification](./verification.md) lists the current claims."
 msgstr "这些计数描述的是被审计的代码树。此后各关卡已有扩展（二进制关卡现已运行完整的 IEEE 运算矩阵）；当前的结论见[验证](./verification.md)。"
 
-#: manual/performance_audit.md:139
+#: manual/performance_audit.md:138
 msgid "Reviewer self-review"
 msgstr "评审者自查"
 
-#: manual/performance_audit.md:141
+#: manual/performance_audit.md:140
 msgid "Contribution: pass. The audit records concrete optimization boundaries and a repaired semantic failure instead of an unexplained speedup."
 msgstr "贡献：通过。审计记录了具体的优化边界和一个已修复的语义故障，而非无法解释的加速。"
 
-#: manual/performance_audit.md:143
+#: manual/performance_audit.md:142
 msgid "Clarity: pass. Each proof separates representation, monotonicity, rounding direction and evidence."
 msgstr "清晰度：通过。每个证明都分别说明表示、单调性、舍入方向和证据。"
 
-#: manual/performance_audit.md:145
-msgid "Experimental strength: needs replication. The native artifacts are valid, but noisy auto-tune observations should be repeated before a threshold is promoted."
-msgstr "实验强度：需要复现。原生产物有效，但在提升阈值之前，应重复那些噪声较大的自动调优观测。"
+#: manual/performance_audit.md:144
+msgid "Experimental strength: needs replication. The native artifacts are valid, but noisy benchmark observations should be repeated before a threshold is promoted."
+msgstr "实验强度：需要复现。原生产物有效，但在提升阈值之前应重复嘈杂的基准观测。"
 
-#: manual/performance_audit.md:148
+#: manual/performance_audit.md:147
 msgid "Completeness: pass for the declared pinned corpora; it does not cover every standard operation or every real input."
 msgstr "完整性：对声明的固定语料通过；它并未覆盖每一个标准运算或每一种实数输入。"
 
-#: manual/performance_audit.md:150
+#: manual/performance_audit.md:149
 msgid "Soundness: pass for the covered branches after the negative-half-axis regression fix and the full IEEE 1788 gate."
 msgstr "可靠性：在修复负半轴回归并通过完整的 IEEE 1788 关卡之后，对所覆盖的分支通过。"
 
-#: manual/performance_audit.md:153
+#: manual/performance_audit.md:152
 msgid "Claim–evidence map"
 msgstr "结论与证据对照"
 
-#: manual/performance_audit.md:157
+#: manual/performance_audit.md:156
 msgid "fast coefficient routes preserve the declared numerical results"
 msgstr "快速系数路线保持所声明的数值结果"
 
-#: manual/performance_audit.md:157
+#: manual/performance_audit.md:156
 msgid "exact-kernel identities, package tests, IEEE and GDA conformance"
 msgstr "精确内核恒等式、包测试、IEEE 与 GDA 符合性"
 
-#: manual/performance_audit.md:157
+#: manual/performance_audit.md:156
 msgid "supported within the declared APIs and preconditions"
 msgstr "在声明 API 与前置条件内支持"
 
-#: manual/performance_audit.md:158
+#: manual/performance_audit.md:157
 msgid "interval `pown` keeps ordered outward enclosures"
 msgstr "区间 `pown` 保持有序的向外包络"
 
-#: manual/performance_audit.md:158
+#: manual/performance_audit.md:157
 msgid "monotonicity table, negative-half-axis regression, 4,656 strict ITF1788 cases"
 msgstr "单调性表、负半轴回归、4,656 条 strict ITF1788"
 
-#: manual/performance_audit.md:158
+#: manual/performance_audit.md:157
 msgid "supported for the declared forward interval operations"
 msgstr "对所声明的正向区间运算成立"
 
-#: manual/performance_audit.md:159
+#: manual/performance_audit.md:158
 msgid "the optimized paths are performance-audited"
 msgstr "优化路径已经过性能审计"
 
-#: manual/performance_audit.md:159
-msgid "native Maremark `all` and `auto-tune` artifacts"
-msgstr "native Maremark `all` 与 `auto-tune` artifact"
+#: manual/performance_audit.md:158
+msgid "native Maremark `all` artifacts"
+msgstr "原生 Maremark `all` 产物"
 
-#: manual/performance_audit.md:159
+#: manual/performance_audit.md:158
 msgid "supported as measurement evidence, not a universal speed claim"
 msgstr "作为测量证据成立，而非通用的速度结论"
 
-#: manual/performance_audit.md:160
+#: manual/performance_audit.md:159
 msgid "every target and operation has equivalent performance"
 msgstr "所有目标和运算都具有等价的性能"
 
-#: manual/performance_audit.md:160
+#: manual/performance_audit.md:159
 msgid "no paired cross-target artifact"
 msgstr "没有成对的跨目标产物"
 
-#: manual/performance_audit.md:160
+#: manual/performance_audit.md:159
 msgid "not claimed"
 msgstr "不作此结论"
 
-#: manual/performance_audit.md:161
+#: manual/performance_audit.md:160
 msgid "`floating` is competitive with MPFR and libmpdec"
 msgstr "`floating` 与 MPFR 和 libmpdec 相比具有竞争力"
 
-#: manual/performance_audit.md:161
+#: manual/performance_audit.md:160
 msgid "[external baseline](performance/bench/external.md): slower in all 59 measured cells on native"
 msgstr "[外部基线](performance/bench/external.md)：在 native 上全部 59 个测量单元格中都更慢"
 
-#: manual/performance_audit.md:161
+#: manual/performance_audit.md:160
 msgid "refuted for the measured operations; the ratios are tracked per release"
 msgstr "对被测量的操作而言已被推翻；比值按版本跟踪"
 
-#: manual/performance_audit.md:163
+#: manual/performance_audit.md:162
 msgid "Limits"
 msgstr "限制"
 
-#: manual/performance_audit.md:165
+#: manual/performance_audit.md:164
 msgid "The semantic claims are bounded by the pinned corpora, the public operations, target-specific precision rules and the explicit fallback contracts. The 0.6.1 elementary manifest remains the comparison baseline of the elementary performance gate, with 0.7.1 as its candidate. No public API, rounding rule, error signal or enclosure contract is changed merely to improve a benchmark."
 msgstr "语义结论受限于固定语料、公开运算、特定目标的精度规则以及显式的回退契约。0.6.1 的初等函数清单仍是初等函数性能关卡的比较基线，0.7.1 是其候选版本。不会仅为改善某个基准测试而更改任何公开 API、舍入规则、错误信号或包络契约。"
 
@@ -21427,7 +21377,7 @@ msgstr "报告多步计算中的第一个失败"
 
 #: manual/tutorial/ball_float.md:23
 #: manual/tutorial/ball_float_checked.md:21
-#: manual/tutorial/bench.md:18
+#: manual/tutorial/bench.md:17
 #: manual/tutorial/bench/ball_float.md:16
 #: manual/tutorial/bench/bin_float.md:17
 #: manual/tutorial/bench/decimal.md:16
@@ -21489,9 +21439,9 @@ msgstr "没有任何 53 位的 `BinFloat` 等于 $1/3$，因此结果是包含�
 
 #: manual/tutorial/ball_float.md:87
 #: manual/tutorial/ball_float_checked.md:60
-#: manual/tutorial/bench.md:75
+#: manual/tutorial/bench.md:74
 #: manual/tutorial/bench/ball_float.md:31
-#: manual/tutorial/bench/bin_float.md:34
+#: manual/tutorial/bench/bin_float.md:33
 #: manual/tutorial/bench/decimal.md:31
 #: manual/tutorial/bench/decimal_gda.md:31
 #: manual/tutorial/bench/external.md:47
@@ -21594,9 +21544,9 @@ msgstr "`BallContext` 描述一种二进制格式（精度和指数范围）。`
 
 #: manual/tutorial/ball_float.md:283
 #: manual/tutorial/ball_float_checked.md:168
-#: manual/tutorial/bench.md:194
+#: manual/tutorial/bench.md:173
 #: manual/tutorial/bench/ball_float.md:48
-#: manual/tutorial/bench/bin_float.md:51
+#: manual/tutorial/bench/bin_float.md:50
 #: manual/tutorial/bench/decimal.md:48
 #: manual/tutorial/bench/decimal_gda.md:50
 #: manual/tutorial/bench/external.md:116
@@ -21667,9 +21617,9 @@ msgstr "每个区间都带有以位为单位的工作 `precision`；二元运算
 
 #: manual/tutorial/ball_float.md:375
 #: manual/tutorial/ball_float_checked.md:239
-#: manual/tutorial/bench.md:206
+#: manual/tutorial/bench.md:185
 #: manual/tutorial/bench/ball_float.md:56
-#: manual/tutorial/bench/bin_float.md:59
+#: manual/tutorial/bench/bin_float.md:58
 #: manual/tutorial/bench/decimal.md:56
 #: manual/tutorial/bench/decimal_gda.md:58
 #: manual/tutorial/bench/external.md:128
@@ -21740,9 +21690,9 @@ msgstr "**来自 `Double` 的输入。** `from_double(x)` 精确包络 `x` 的�
 
 #: manual/tutorial/ball_float.md:433
 #: manual/tutorial/ball_float_checked.md:257
-#: manual/tutorial/bench.md:222
+#: manual/tutorial/bench.md:201
 #: manual/tutorial/bench/ball_float.md:62
-#: manual/tutorial/bench/bin_float.md:65
+#: manual/tutorial/bench/bin_float.md:64
 #: manual/tutorial/bench/decimal.md:62
 #: manual/tutorial/bench/decimal_gda.md:64
 #: manual/tutorial/bench/external.md:137
@@ -21984,18 +21934,14 @@ msgid "read the hotspot lines"
 msgstr "阅读热点行"
 
 #: manual/tutorial/bench.md:13
-msgid "read the square auto-tune result"
-msgstr "阅读平方自动调优结果"
-
-#: manual/tutorial/bench.md:14
 msgid "decide whether a change is a regression"
 msgstr "判断某项改动是否构成回归"
 
-#: manual/tutorial/bench.md:15
+#: manual/tutorial/bench.md:14
 msgid "add a benchmark"
 msgstr "添加基准测试"
 
-#: manual/tutorial/bench.md:16
+#: manual/tutorial/bench.md:15
 #: manual/tutorial/bench/ball_float.md:14
 #: manual/tutorial/bench/bin_float.md:15
 #: manual/tutorial/bench/decimal.md:14
@@ -22003,140 +21949,124 @@ msgstr "添加基准测试"
 msgid "understand the statistics"
 msgstr "理解统计方法"
 
-#: manual/tutorial/bench.md:16
-#: manual/tutorial/bench.md:225
+#: manual/tutorial/bench.md:15
+#: manual/tutorial/bench.md:204
 msgid "[bench design](../design/bench.md)"
 msgstr "[bench 设计](../design/bench.md)"
 
-#: manual/tutorial/bench.md:20
+#: manual/tutorial/bench.md:19
 msgid "To use the reduction functions in your own module, import the package in `moon.pkg`. The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`."
 msgstr "要在你自己的模块中使用这些归约函数，请在 `moon.pkg` 中导入该包。该包属于工具模块 `Luna-Flow/floating-tools`（仓库中的 `tooling/` 目录，与库同版本），而不属于已发布的库。请把你的代码写成本工作区中的一个包；工具模块发布后，也可以运行 `moon add Luna-Flow/floating-tools@0.11.0`。"
 
-#: manual/tutorial/bench.md:29
+#: manual/tutorial/bench.md:28
 msgid "The smallest useful program compares two paired sample arrays, for example per-call times measured before and after a change in the same ten blocks:"
 msgstr "最小的实用程序比较两个配对的样本数组，例如在同样十个区块中测得的改动前后的单次调用耗时："
 
-#: manual/tutorial/bench.md:43
+#: manual/tutorial/bench.md:42
 msgid "An 8 % slowdown is above the 3 % practical threshold, and every paired difference is positive, so the 95 % interval of the median difference lies above zero."
 msgstr "8 % 的变慢超过了 3 % 的实际阈值，而且每个配对差值都为正，因此中位差的 95 % 区间位于零之上。"
 
-#: manual/tutorial/bench.md:47
+#: manual/tutorial/bench.md:46
 msgid "The `floating` suites themselves run from a checkout of the repository. Run one suite from the repository root:"
 msgstr "`floating` 自身的基准套件需要从仓库的检出副本运行。在仓库根目录下运行一个套件："
 
-#: manual/tutorial/bench.md:54
+#: manual/tutorial/bench.md:53
 msgid "The command runs the skipped performance tests of `tooling/src/bench/bin_float` in release mode on the native target, then writes"
 msgstr "该命令以 release 模式在 native 目标上运行 `tooling/src/bench/bin_float` 中被跳过的性能测试，然后写出"
 
-#: manual/tutorial/bench.md:62
+#: manual/tutorial/bench.md:61
 msgid "The `.jsonl` file holds one versioned (`mmka_1`) event per line: every observation, the environment and the run summary. The `.analysis.txt` file holds the reduced results, one line per comparison, for example"
 msgstr "`.jsonl` 文件每行保存一个带版本（`mmka_1`）的事件：每次观测、环境信息和运行汇总。`.analysis.txt` 文件保存精简后的结果，每个比较一行，例如"
 
-#: manual/tutorial/bench.md:70
+#: manual/tutorial/bench.md:69
 msgid "meaning: for dataset 2 of `bin-float/mul`, the median paired difference between the `core/bin-float` path and the coefficient kernel is `core_pct` percent of the kernel's median per-call time (negative when the core is faster), and `full_pct` is the same for the checked path against the core."
 msgstr "含义是：对于 `bin-float/mul` 的数据集 2，`core/bin-float` 路径与系数内核之间配对差值的中位数，等于内核每次调用中位耗时的 `core_pct` 百分比（core 更快时为负）；`full_pct` 同理，是 checked 路径相对 core 路径的值。"
 
-#: manual/tutorial/bench.md:77
+#: manual/tutorial/bench.md:76
 msgid "Choose a suite"
 msgstr "选择套件"
 
-#: manual/tutorial/bench.md:79
+#: manual/tutorial/bench.md:78
 msgid "Suite"
 msgstr "套件"
 
-#: manual/tutorial/bench.md:79
+#: manual/tutorial/bench.md:78
 msgid "Runs"
 msgstr "运行内容"
 
-#: manual/tutorial/bench.md:81
-msgid "all tests of `tooling/src/bench/bin_float` (arithmetic, elementary functions, square auto-tune)"
-msgstr "`tooling/src/bench/bin_float` 的全部测试（算术、初等函数、平方自动调优）"
+#: manual/tutorial/bench.md:80
+msgid "all tests of `tooling/src/bench/bin_float` (arithmetic, elementary functions)"
+msgstr "`tooling/src/bench/bin_float` 的所有测试（算术、初等函数）"
 
-#: manual/tutorial/bench.md:82
+#: manual/tutorial/bench.md:81
 msgid "only the binary elementary-function benchmark"
 msgstr "仅二进制初等函数基准测试"
 
-#: manual/tutorial/bench.md:83
-msgid "only the `mul(x, x)` versus `square(x)` crossover"
-msgstr "仅 `mul(x, x)` 与 `square(x)` 的交叉点"
-
-#: manual/tutorial/bench.md:87
+#: manual/tutorial/bench.md:85
 msgid "the four package suites"
 msgstr "四个包的套件"
 
-#: manual/tutorial/bench.md:89
+#: manual/tutorial/bench.md:87
 msgid "Add `--output PATH` to choose the artifact path or `--dry-run` to print the `moon test` commands without running them."
 msgstr "添加 `--output PATH` 可选择产物路径，添加 `--dry-run` 则只打印 `moon test` 命令而不运行。"
 
-#: manual/tutorial/bench.md:92
-msgid "Read an auto-tune result"
-msgstr "阅读自动调优结果"
-
-#: manual/tutorial/bench.md:94
-msgid "The auto-tune suite prints one decision per dataset and a crossover:"
-msgstr "自动调优套件为每个数据集打印一个决策，并打印一个交叉点："
-
-#: manual/tutorial/bench.md:102
-msgid "`candidate` is the implementation with the smallest median per-call time on that dataset, and `samples` the number of valid confirmatory observations behind it. When the winner changes exactly once along the scales, the crossover line gives the last scale `below` the change and the first scale `at_or_above` it, and the policy line is the per-scale lookup table a kernel can embed. When it changes more than once the suite prints `MAREMARK_CROSSOVER=non-monotonic` and a `MAREMARK_POLICY=lookup` line; when it never changes, `MAREMARK_CROSSOVER=none` and no policy line."
-msgstr "`candidate` 是该数据集上每次调用中位耗时最小的实现，`samples` 是其背后的有效确认性观测次数。当胜出者沿规模恰好变化一次时，交叉点行给出变化前的最后一个规模 `below` 和变化后的第一个规模 `at_or_above`，策略行则是内核可以嵌入的按规模查找表。当胜出者变化不止一次时，套件打印 `MAREMARK_CROSSOVER=non-monotonic` 和一行 `MAREMARK_POLICY=lookup`；当胜出者从不变化时，打印 `MAREMARK_CROSSOVER=none`，且没有策略行。"
-
-#: manual/tutorial/bench.md:111
+#: manual/tutorial/bench.md:90
 msgid "Check a regression in code"
 msgstr "在代码中检查性能退化"
 
-#: manual/tutorial/bench.md:113
+#: manual/tutorial/bench.md:92
 msgid "`confirmatory_regression` compares paired samples (same order, same blocks) and `is_significant_regression` applies the verdict:"
 msgstr "`confirmatory_regression` 比较配对样本（相同顺序、相同分块），`is_significant_regression` 则给出判定："
 
-#: manual/tutorial/bench.md:126
+#: manual/tutorial/bench.md:105
 msgid "A change of about 0.5 % is below the 3 % practical threshold, so it is not a regression even if it were statistically clear."
 msgstr "约 0.5 % 的变化低于 3 % 的实际阈值，因此即使它在统计上是明确的，也不算性能退化。"
 
-#: manual/tutorial/bench.md:129
+#: manual/tutorial/bench.md:108
 msgid "Write a new benchmark"
 msgstr "编写新的基准测试"
 
-#: manual/tutorial/bench.md:131
+#: manual/tutorial/bench.md:110
 msgid "A benchmark is an `immutable_bench` specification plus a skipped async test that runs it and prints Maremark lines. The pattern used by every suite:"
 msgstr "一个基准测试由一个 `immutable_bench` 规格加上一个被跳过的异步测试组成，该测试运行规格并打印 Maremark 行。所有套件都采用如下模式："
 
-#: manual/tutorial/bench.md:190
+#: manual/tutorial/bench.md:169
 msgid "Keep the plan-compiles test unskipped: it checks the specification in every normal test run. Register the package in `tools/benchmark.py` so `just bench` collects its output."
 msgstr "保持 plan-compiles 测试不被跳过：它会在每次常规测试运行中检查规格。在 `tools/benchmark.py` 中注册该包，以便 `just bench` 收集其输出。"
 
-#: manual/tutorial/bench.md:196
-msgid "The protocol presets of Maremark fix warm-up, batch calibration, sample counts and order: `QuickCheck` (3 confirmatory blocks), `Development` (10 blocks, used by the suites) and `RegressionGate` (20 blocks, used by the auto-tune suite). See the [Maremark documentation](https://lunaflow.cn/en/mare_mark/)."
-msgstr "Maremark 的协议预设固定了预热、批次校准、样本数和顺序：`QuickCheck`（3 个确认性分块）、`Development`（10 个分块，各套件使用）和 `RegressionGate`（20 个分块，自动调优套件使用）。参见 [Maremark 文档](https://lunaflow.cn/en/mare_mark/)。"
+#: manual/tutorial/bench.md:175
+msgid "The protocol presets of Maremark fix warm-up, batch calibration, sample counts and order: `QuickCheck` (3 confirmatory blocks), `Development` (10 blocks, used by the suites) and `RegressionGate` (20 blocks, for regression checks). See the [Maremark documentation](https://lunaflow.cn/en/mare_mark/)."
+msgstr "Maremark 的协议预设固定预热、批量校准、样本数和顺序：`QuickCheck`（3 个确认块）、`Development`（10 个块，各套件使用）和 `RegressionGate`（20 个块，用于回归检查）。参见 [Maremark 文档](https://lunaflow.cn/en/mare_mark/)。"
 
-#: manual/tutorial/bench.md:201
+#: manual/tutorial/bench.md:180
 msgid "[bench design](../design/bench.md) explains the estimators and the confidence interval."
 msgstr "[bench 设计](../design/bench.md) 解释了估计量和置信区间。"
 
-#: manual/tutorial/bench.md:203
+#: manual/tutorial/bench.md:182
 msgid "[Performance audit](../performance_audit.md) and the `performance/` pages record measured results."
 msgstr "[性能审计](../performance_audit.md) 和 `performance/` 页面记录了实测结果。"
 
-#: manual/tutorial/bench.md:208
+#: manual/tutorial/bench.md:187
 msgid "**Benchmarks are skipped by default.** `moon test` runs only the plan-compiles tests; use `just bench` (it passes `--include-skipped`, `--release` and `--no-parallelize`)."
 msgstr "**基准测试默认被跳过。** `moon test` 只运行 plan-compiles 测试；请使用 `just bench`（它会传入 `--include-skipped`、`--release` 和 `--no-parallelize`）。"
 
-#: manual/tutorial/bench.md:211
+#: manual/tutorial/bench.md:190
 msgid "**Native only.** `tools/benchmark.py` accepts only the native target."
 msgstr "**仅限 native。** `tools/benchmark.py` 只接受 native 目标。"
 
-#: manual/tutorial/bench.md:212
+#: manual/tutorial/bench.md:191
 msgid "**Pairing needs equal sample counts.** Both implementations of a comparison must have the same number of valid confirmatory observations; otherwise `paired_hotspot` returns `MismatchedPairs`."
 msgstr "**配对需要相等的样本数。** 一次比较中的两个实现必须具有相同数量的有效确认性观测；否则 `paired_hotspot` 返回 `MismatchedPairs`。"
 
-#: manual/tutorial/bench.md:215
+#: manual/tutorial/bench.md:194
 msgid "**Near ties go to the steadier candidate, not the faster one.** `tune_dataset` treats candidates within `practical_delta_pct` percent of the smallest median as tied and picks the one with the smaller interquartile range (then the smaller id), so a candidate whose median is slightly higher can win when its timings are less spread out. Use `0.0` to always take the smallest median."
 msgstr "**近似平局时选更稳定者，而不是更快者。** `tune_dataset` 把与最小中位数相差不超过 `practical_delta_pct` 百分比的候选视为持平，并选择四分位距较小者（再按较小的 id），因此中位数略高的候选在其耗时波动更小时可能获胜。要始终取最小中位数，请使用 `0.0`。"
 
-#: manual/tutorial/bench.md:224
+#: manual/tutorial/bench.md:203
 msgid "[bench API](../api/bench.md)"
 msgstr "[bench API](../api/bench.md)"
 
-#: manual/tutorial/bench.md:226
+#: manual/tutorial/bench.md:205
 msgid "Per-core suites: [bin_float](bench/bin_float.md), [decimal](bench/decimal.md), [decimal_gda](bench/decimal_gda.md), [ball_float](bench/ball_float.md)."
 msgstr "各核心的套件：[bin_float](bench/bin_float.md)、[decimal](bench/decimal.md)、[decimal_gda](bench/decimal_gda.md)、[ball_float](bench/ball_float.md)。"
 
@@ -22216,7 +22146,7 @@ msgid "The runner executes the skipped performance tests of `tooling/src/bench/b
 msgstr "运行器以 release 模式在 native 目标上执行 `tooling/src/bench/ball_float` 中被跳过的性能测试，并写出 `.tmp/bench/SUITE.jsonl`（全部观测）和 `.tmp/bench/SUITE.analysis.txt`（精简后的行），其中 `SUITE` 是传给 `just bench` 的名称。"
 
 #: manual/tutorial/bench/ball_float.md:33
-#: manual/tutorial/bench/bin_float.md:36
+#: manual/tutorial/bench/bin_float.md:35
 #: manual/tutorial/bench/decimal.md:33
 #: manual/tutorial/bench/decimal_gda.md:33
 msgid "Read the analysis lines"
@@ -22227,49 +22157,49 @@ msgid "The analysis file contains `MAREMARK_HOTSPOT=ball-float/OP/DATASET core_p
 msgstr "分析文件包含 `MAREMARK_HOTSPOT=ball-float/OP/DATASET core_pct=… full_pct=…`。`core_pct` 值是核心路径与内核之间配对差值的中位数，以内核中位时间的百分比表示；`full_pct` 是 checked 路径相对于核心路径的同类数值。正值表示较高层更慢。"
 
 #: manual/tutorial/bench/ball_float.md:40
-#: manual/tutorial/bench/bin_float.md:43
+#: manual/tutorial/bench/bin_float.md:42
 #: manual/tutorial/bench/decimal.md:40
 #: manual/tutorial/bench/decimal_gda.md:42
 msgid "Check the plans without measuring"
 msgstr "只检查计划而不测量"
 
 #: manual/tutorial/bench/ball_float.md:46
-#: manual/tutorial/bench/bin_float.md:49
+#: manual/tutorial/bench/bin_float.md:48
 #: manual/tutorial/bench/decimal.md:46
 #: manual/tutorial/bench/decimal_gda.md:48
 msgid "runs only the plan tests, which compile every specification."
 msgstr "只运行计划测试，这些测试会编译每个规格。"
 
 #: manual/tutorial/bench/ball_float.md:50
-#: manual/tutorial/bench/bin_float.md:53
+#: manual/tutorial/bench/bin_float.md:52
 #: manual/tutorial/bench/decimal.md:50
 #: manual/tutorial/bench/decimal_gda.md:52
 msgid "Change datasets or implementations in the `*_test.mbt` files; keep the reference oracle so a faster but wrong path fails the run."
 msgstr "在 `*_test.mbt` 文件中修改数据集或实现；请保留参考预言机，使更快但错误的路径导致运行失败。"
 
 #: manual/tutorial/bench/ball_float.md:52
-#: manual/tutorial/bench/bin_float.md:55
+#: manual/tutorial/bench/bin_float.md:54
 #: manual/tutorial/bench/decimal.md:52
 #: manual/tutorial/bench/decimal_gda.md:54
 msgid "Compare two runs only when their recorded environments agree."
 msgstr "仅当两次运行记录的环境一致时才比较它们。"
 
 #: manual/tutorial/bench/ball_float.md:53
-#: manual/tutorial/bench/bin_float.md:56
+#: manual/tutorial/bench/bin_float.md:55
 #: manual/tutorial/bench/decimal.md:53
 #: manual/tutorial/bench/decimal_gda.md:55
 msgid "The [performance audit](../../performance_audit.md) and the `performance/` pages summarize measured results."
 msgstr "[性能审计](../../performance_audit.md) 和 `performance/` 页面汇总了实测结果。"
 
 #: manual/tutorial/bench/ball_float.md:58
-#: manual/tutorial/bench/bin_float.md:61
+#: manual/tutorial/bench/bin_float.md:60
 #: manual/tutorial/bench/decimal.md:58
 #: manual/tutorial/bench/decimal_gda.md:60
 msgid "Benchmarks are skipped in normal `moon test` runs; use `just bench`."
 msgstr "基准测试在常规 `moon test` 运行中被跳过；请使用 `just bench`。"
 
 #: manual/tutorial/bench/ball_float.md:59
-#: manual/tutorial/bench/bin_float.md:62
+#: manual/tutorial/bench/bin_float.md:61
 #: manual/tutorial/bench/decimal.md:59
 #: manual/tutorial/bench/decimal_gda.md:61
 msgid "Results depend on the machine; percentages are more stable than absolute microseconds."
@@ -22284,7 +22214,7 @@ msgid "[bench/ball_float design](../../design/bench/ball_float.md)"
 msgstr "[bench/ball_float 设计](../../design/bench/ball_float.md)"
 
 #: manual/tutorial/bench/ball_float.md:66
-#: manual/tutorial/bench/bin_float.md:69
+#: manual/tutorial/bench/bin_float.md:68
 #: manual/tutorial/bench/decimal.md:66
 #: manual/tutorial/bench/decimal_gda.md:68
 msgid "[bench design](../../design/bench.md) for the statistics."
@@ -22295,26 +22225,26 @@ msgid "bench/bin_float tutorial"
 msgstr "bench/bin_float 教程"
 
 #: manual/tutorial/bench/bin_float.md:3
-msgid "This page shows how to run the binary arithmetic and elementary-function benchmarks and the square auto-tune experiment and how to read their output. The suite compares implementation paths on identical inputs with paired measurements; see the [bench tutorial](../bench.md) for the toolkit and the artifact format."
-msgstr "本页介绍如何运行二进制算术与初等函数基准测试以及平方自动调优实验，并说明如何解读其输出。该套件在相同输入上以配对测量比较不同的实现路径；工具集与产物格式见 [bench 教程](../bench.md)。"
+msgid "This page shows how to run the binary arithmetic and elementary-function benchmarks and how to read their output. The suite compares implementation paths on identical inputs with paired measurements; see the [bench tutorial](../bench.md) for the toolkit and the artifact format."
+msgstr "本页说明如何运行二进制算术和初等函数基准，以及如何阅读其输出。该套件用配对测量在相同输入上比较各实现路径；工具集和产物格式参见[基准教程](../bench.md)。"
 
 #: manual/tutorial/bench/bin_float.md:11
-msgid "run only the elementary functions or the auto-tune"
-msgstr "只运行初等函数或自动调优"
+msgid "run only the elementary functions"
+msgstr "只运行初等函数"
 
-#: manual/tutorial/bench/bin_float.md:29
+#: manual/tutorial/bench/bin_float.md:28
 msgid "The runner executes the skipped performance tests of `tooling/src/bench/bin_float` on the native target in release mode and writes `.tmp/bench/SUITE.jsonl` (all observations) and `.tmp/bench/SUITE.analysis.txt` (the reduced lines), where `SUITE` is the name given to `just bench`."
 msgstr "运行器在 native 目标上以 release 模式执行 `tooling/src/bench/bin_float` 中被跳过的性能测试，并写出 `.tmp/bench/SUITE.jsonl`（全部观测值）和 `.tmp/bench/SUITE.analysis.txt`（归约后的行），其中 `SUITE` 是传给 `just bench` 的名称。"
 
-#: manual/tutorial/bench/bin_float.md:38
-msgid "The analysis file contains `MAREMARK_HOTSPOT=bin-float/OP/DATASET core_pct=… full_pct=…` for arithmetic, `MAREMARK_HOTSPOT=bin-float/elementary/OP/DATASET full_pct=…` for elementary functions, and `MAREMARK_TUNE`, `MAREMARK_CROSSOVER` and `MAREMARK_POLICY` lines for the square experiment. A `core_pct` value is the median paired difference between the core path and the kernel, in percent of the kernel's median time; `full_pct` is the same for the checked path against the core path. Positive values mean the higher layer is slower."
-msgstr "分析文件中，算术部分为 `MAREMARK_HOTSPOT=bin-float/OP/DATASET core_pct=… full_pct=…` 行，初等函数部分为 `MAREMARK_HOTSPOT=bin-float/elementary/OP/DATASET full_pct=…` 行，平方实验则为 `MAREMARK_TUNE`、`MAREMARK_CROSSOVER` 和 `MAREMARK_POLICY` 行。`core_pct` 值是 core 路径与内核之间配对差值的中位数，以内核中位耗时的百分比表示；`full_pct` 同理，是 checked 路径相对 core 路径的差值。正值表示较高层更慢。"
+#: manual/tutorial/bench/bin_float.md:37
+msgid "The analysis file contains `MAREMARK_HOTSPOT=bin-float/OP/DATASET core_pct=… full_pct=…` for arithmetic, `MAREMARK_HOTSPOT=bin-float/elementary/OP/DATASET full_pct=…` for elementary functions. A `core_pct` value is the median paired difference between the core path and the kernel, in percent of the kernel's median time; `full_pct` is the same for the checked path against the core path. Positive values mean the higher layer is slower."
+msgstr "分析文件包含：算术的 `MAREMARK_HOTSPOT=bin-float/OP/DATASET core_pct=… full_pct=…`，以及初等函数的 `MAREMARK_HOTSPOT=bin-float/elementary/OP/DATASET full_pct=…`。`core_pct` 值是核心路径相对内核的配对差中位数，以内核中位时间的百分比表示；`full_pct` 是带检查路径相对核心路径的同类差值。正值表示更高的层更慢。"
 
-#: manual/tutorial/bench/bin_float.md:67
+#: manual/tutorial/bench/bin_float.md:66
 msgid "[bench/bin_float API](../../api/bench/bin_float.md)"
 msgstr "[bench/bin_float API](../../api/bench/bin_float.md)"
 
-#: manual/tutorial/bench/bin_float.md:68
+#: manual/tutorial/bench/bin_float.md:67
 msgid "[bench/bin_float design](../../design/bench/bin_float.md)"
 msgstr "[bench/bin_float 设计](../../design/bench/bin_float.md)"
 
@@ -25613,54 +25543,54 @@ msgid "`bin_float` imports the kernel and brings the names it uses into scope wi
 msgstr "`bin_float` 导入内核，并用 `using` 把用到的名字带入作用域（在 `kernel_imports.mbt` 中；只在系数有 64 位肢时才存在的名字在 `kernel_imports_nonjs.mbt` 中）："
 
 #: manual/tutorial/internal/bin_kernel.md:28
-msgid "A `BinFloat` stores its coefficient as a private `Coeff` field. The public type `BinCoeff` is a newtype over it, so the kernel type never appears in a public interface, and the wrapping costs neither an allocation nor a call. A typical use computes the exact quotient and remainder and leaves rounding to `bin_float`:"
-msgstr "`BinFloat` 把系数存为私有的 `Coeff` 字段。公共类型 `BinCoeff` 是其上的 newtype，因此内核类型从不出现在公共接口中，而且包装既不产生分配也不产生调用。典型用法是计算精确的商和余数，把舍入留给 `bin_float`："
+msgid "A `BinFloat` stores its coefficient as a private `Coeff` field. The public type `BinCoeff` is a newtype over it (`value.0` unwraps it and `BinCoeff(c)` wraps a result), so the kernel type shows in a public interface only as the field of `BinCoeff`, which is opaque outside the module, and the wrapping costs neither an allocation nor a call. A typical use computes the exact quotient and remainder and leaves rounding to `bin_float`:"
+msgstr "`BinFloat` 把系数存为私有的 `Coeff` 字段。公共类型 `BinCoeff` 是其上的 newtype（`value.0` 解包，`BinCoeff(c)` 包装结果），因此内核类型在公共接口中只作为 `BinCoeff` 的字段出现，而它在模块之外是不透明的，并且包装既不产生分配也不产生调用。典型用法是计算精确的商和余数，把舍入留给 `bin_float`："
 
-#: manual/tutorial/internal/bin_kernel.md:42
+#: manual/tutorial/internal/bin_kernel.md:44
 #: manual/tutorial/internal/decimal_kernel.md:43
 msgid "Decide where new code belongs"
 msgstr "决定新代码该放在哪里"
 
-#: manual/tutorial/internal/bin_kernel.md:44
+#: manual/tutorial/internal/bin_kernel.md:46
 msgid "Put code in the kernel when it is a function from coefficients (and plain integers) to coefficients or integers. Keep it in `bin_float` when it mentions a rounding mode, a precision, an exponent, a class, a flag or a `BinFloat`. The test is simple: the function must give the same answer for the same integers whoever calls it. `tools/check_imports.py` enforces the dependency half of the rule: the kernel imports nothing of this module."
 msgstr "当代码是从系数（和普通整数）到系数或整数的函数时，放进内核。当它涉及舍入模式、精度、指数、类别、标志或 `BinFloat` 时，留在 `bin_float`。判断很简单：无论谁调用，对相同的整数函数必须给出相同的答案。`tools/check_imports.py` 强制执行规则的依赖部分：内核不导入本模块的任何东西。"
 
-#: manual/tutorial/internal/bin_kernel.md:51
+#: manual/tutorial/internal/bin_kernel.md:53
 #: manual/tutorial/internal/decimal_kernel.md:54
 msgid "Change the kernel"
 msgstr "修改内核"
 
-#: manual/tutorial/internal/bin_kernel.md:53
+#: manual/tutorial/internal/bin_kernel.md:55
 msgid "Write the change as an exact integer function."
 msgstr "把修改写成精确的整数函数。"
 
-#: manual/tutorial/internal/bin_kernel.md:54
+#: manual/tutorial/internal/bin_kernel.md:56
 msgid "Add or extend a white-box test next to the others in the package that compares the result with `BigInt` at the limb boundaries (64, 128 and 192 bits), at the threshold lengths of every target, and on operands of ones, powers of two and sparse limbs."
 msgstr "在包内与其他测试放在一起添加或扩展白盒测试：在肢边界（64、128 和 192 位）、每个目标的阈值长度处，以及全 1、2 的幂和稀疏肢的操作数上，与 `BigInt` 比较结果。"
 
-#: manual/tutorial/internal/bin_kernel.md:58
+#: manual/tutorial/internal/bin_kernel.md:60
 msgid "Run `just bin-kernel-ci`, then `just gate binary 3` and `just gate interval 3`."
 msgstr "运行 `just bin-kernel-ci`，然后运行 `just gate binary 3` 和 `just gate interval 3`。"
 
-#: manual/tutorial/internal/bin_kernel.md:59
+#: manual/tutorial/internal/bin_kernel.md:61
 msgid "Measure retired instructions with the benchmark rows of the pull request against the previous build; a change that helps one operation and slows another needs a reason in the pull request."
 msgstr "用拉取请求的基准行与之前的构建比较已退休指令数；若修改使一个运算变快而另一个变慢，需要在拉取请求中说明原因。"
 
-#: manual/tutorial/internal/bin_kernel.md:63
+#: manual/tutorial/internal/bin_kernel.md:65
 #: manual/tutorial/internal/decimal_kernel.md:67
 msgid "Tune a threshold"
 msgstr "调整阈值"
 
-#: manual/tutorial/internal/bin_kernel.md:65
+#: manual/tutorial/internal/bin_kernel.md:67
 msgid "The crossovers between schoolbook, Karatsuba, Toom-3, the NTT, Knuth's division and Burnikel-Ziegler live in `coeff_thresholds_native.mbt`, `_llvm`, `_wasm` and `_wasm_gc`; `moon.pkg` selects the file by target. JavaScript has no kernel: its `Coeff` is a host `bigint`. A threshold only changes which exact algorithm runs. Change it with paired old and new builds on the target, and keep the dispatch tests that cross every threshold exactly. The cutoffs of the elementary functions (`binary_exp_burst_min_precision` and its siblings) are thresholds of `bin_float`, in `elementary_thresholds_<target>.mbt`."
 msgstr "朴素乘法、Karatsuba、Toom-3、NTT、Knuth 除法和 Burnikel-Ziegler 之间的分界点位于 `coeff_thresholds_native.mbt`、`_llvm`、`_wasm` 和 `_wasm_gc` 中；`moon.pkg` 按目标选择文件。JavaScript 没有内核：它的 `Coeff` 是宿主 `bigint`。阈值只改变运行哪个精确算法。请在目标上用新旧构建配对来修改，并保留恰好跨过每个阈值的分派测试。初等函数的分界点（`binary_exp_burst_min_precision` 及其同类）是 `bin_float` 的阈值，位于 `elementary_thresholds_<target>.mbt`。"
 
-#: manual/tutorial/internal/bin_kernel.md:74
+#: manual/tutorial/internal/bin_kernel.md:76
 #: manual/tutorial/internal/decimal_kernel.md:76
 msgid "Run the tests"
 msgstr "运行测试"
 
-#: manual/tutorial/internal/bin_kernel.md:81
+#: manual/tutorial/internal/bin_kernel.md:83
 msgid "The `internal/bin_kernel` tests carry the algorithm cross-checks, the dispatch tests and the regression digests that used to live in `bin_float`. `bin_float` keeps the tests that need a `BinFloat`."
 msgstr "`internal/bin_kernel` 的测试包含原先位于 `bin_float` 的算法交叉检查、分派测试和回归摘要。`bin_float` 保留需要 `BinFloat` 的测试。"
 
@@ -27386,6 +27316,76 @@ msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 #: manual/verification.md:707
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "4, 8, 16, …, 1024 limbs of 32 bits"
+#~ msgstr "4、8、16、…、1024 个 32 位的 limb"
+
+#~ msgid "`mul-self` (`x.mul(x)`), `square` (`x.square()`) on `BinCoeff`"
+#~ msgstr "`BinCoeff` 上的 `mul-self`（`x.mul(x)`）与 `square`（`x.square()`）"
+
+#~ msgid "Bit-level queries."
+#~ msgstr "位级查询。"
+
+#~ msgid ""
+#~ "`bit_length` is $\\lfloor \\log_2 c \\rfloor + 1$ for $c > 0$ and $0$ for zero. `ctz` counts trailing zero bits (the 2-adic valuation $\\n"
+#~ "u_2(c)$). `test_bit(i)` is bit $i$, counting from the least significant bit $0$."
+#~ msgstr ""
+#~ "对 $c > 0$，`bit_length` 为 $\\lfloor \\log_2 c \\rfloor + 1$，对零为 $0$。`ctz` 统计末尾零位的个数（即 2-adic 赋值 $\\n"
+#~ "u_2(c)$）。`test_bit(i)` 是第 $i$ 位，从最低有效位 $0$ 开始计数。"
+
+#~ msgid "Exact addition, multiplication, squaring and powers."
+#~ msgstr "精确的加法、乘法、平方与幂。"
+
+#~ msgid "`square` uses a dedicated kernel that exploits the symmetry of the cross products. `pow_nat(0)` is one, including $0^0$."
+#~ msgstr "`square` 使用专门的内核，利用交叉乘积的对称性。`pow_nat(0)` 为一，包括 $0^0$。"
+
+#~ msgid "Subtraction and Euclidean division, which can fail on a natural number."
+#~ msgstr "减法与欧几里得除法，在自然数上可能失败。"
+
+#~ msgid "`a.sub_checked(b)` is `Err` when $b > a$. `n.div_rem_checked(d)` returns $(q, r)$ with $n = qd + r$ and $0 \\le r < d$, and is `Err` when $d = 0$."
+#~ msgstr "当 $b > a$ 时，`a.sub_checked(b)` 为 `Err`。`n.div_rem_checked(d)` 返回满足 $n = qd + r$ 且 $0 \\le r < d$ 的 $(q, r)$，当 $d = 0$ 时为 `Err`。"
+
+#~ msgid "Returns the greatest common divisor."
+#~ msgstr "返回最大公约数。"
+
+#~ msgid "$\\gcd(a, 0) = a$ and $\\gcd(0, 0) = 0$."
+#~ msgstr "$\\gcd(a, 0) = a$，$\\gcd(0, 0) = 0$。"
+
+#~ msgid "Operands that both fit in four 32-bit limbs use the binary (Stein) algorithm. Larger operands use Lehmer rounds: each runs Euclid on the leading 63 bits of the larger operand and the bits of the smaller one in the same window, and takes one plain division step instead when the smaller operand has no bits in that window or the cofactors would not shrink the pair. A long operand is therefore reduced modulo a much shorter one in one step, and operands of any lengths finish. Below eight limbs of the smaller operand the loop continues with plain Euclid. JavaScript uses the host `BigInt`."
+#~ msgstr "两个操作数都能放入四个 32 位 limb 时，使用二进制（Stein）算法。更大的操作数使用 Lehmer 轮：每一轮对较大操作数的前 63 位以及较小操作数在同一窗口中的位运行欧几里得算法；当较小操作数在该窗口中没有任何位，或余因子不会使这对操作数缩小时，则改为执行一次普通除法步骤。因此，长操作数会在一步之内对短得多的操作数取模约简，任意长度的操作数都能终止。当较小操作数少于八个 limb 时，循环改用普通欧几里得算法继续。JavaScript 使用宿主的 `BigInt`。"
+
+#~ msgid "Multiply by $2^k$ or divide by $2^k$ rounding toward zero."
+#~ msgstr "乘以 $2^k$，或除以 $2^k$ 并向零舍入。"
+
+#~ msgid "`shl` and `shr` are the `Shl`/`Shr` trait methods behind `<<` and `>>`. A negative shift count aborts."
+#~ msgstr "`shl` 和 `shr` 是 `<<` 与 `>>` 背后的 `Shl`/`Shr` trait 方法。负的移位计数会中止。"
+
+#~ msgid "Bitwise operations on the binary expansions."
+#~ msgstr "对二进制展开进行按位运算。"
+
+#~ msgid "`BinCoeff` also implements `Add`, `Mul`, `Shl`, `Shr`, `Eq`, `Compare`, `Show` and `Debug`; the promoted trait methods are listed under [Trait implementations](#trait-implementations)."
+#~ msgstr "`BinCoeff` 还实现了 `Add`、`Mul`、`Shl`、`Shr`、`Eq`、`Compare`、`Show` 和 `Debug`；被提升的 trait 方法列于 [trait 实现](#trait-implementations)之下。"
+
+#~ msgid "binary square policy"
+#~ msgstr "二进制平方策略"
+
+#~ msgid "a target-specific policy artifact; raw observations can be non-monotonic and are not a universal threshold"
+#~ msgstr "一份针对特定目标的策略产物；原始观测可能非单调，并不构成通用阈值"
+
+#~ msgid "read the square auto-tune result"
+#~ msgstr "阅读平方自动调优结果"
+
+#~ msgid "only the `mul(x, x)` versus `square(x)` crossover"
+#~ msgstr "仅 `mul(x, x)` 与 `square(x)` 的交叉点"
+
+#~ msgid "Read an auto-tune result"
+#~ msgstr "阅读自动调优结果"
+
+#~ msgid "The auto-tune suite prints one decision per dataset and a crossover:"
+#~ msgstr "自动调优套件为每个数据集打印一个决策，并打印一个交叉点："
+
+#~ msgid "`candidate` is the implementation with the smallest median per-call time on that dataset, and `samples` the number of valid confirmatory observations behind it. When the winner changes exactly once along the scales, the crossover line gives the last scale `below` the change and the first scale `at_or_above` it, and the policy line is the per-scale lookup table a kernel can embed. When it changes more than once the suite prints `MAREMARK_CROSSOVER=non-monotonic` and a `MAREMARK_POLICY=lookup` line; when it never changes, `MAREMARK_CROSSOVER=none` and no policy line."
+#~ msgstr "`candidate` 是该数据集上每次调用中位耗时最小的实现，`samples` 是其背后的有效确认性观测次数。当胜出者沿规模恰好变化一次时，交叉点行给出变化前的最后一个规模 `below` 和变化后的第一个规模 `at_or_above`，策略行则是内核可以嵌入的按规模查找表。当胜出者变化不止一次时，套件打印 `MAREMARK_CROSSOVER=non-monotonic` 和一行 `MAREMARK_POLICY=lookup`；当胜出者从不变化时，打印 `MAREMARK_CROSSOVER=none`，且没有策略行。"
 
 #~ msgid "in `decimal_gda`, also `rescale` and the `logical_` prefix."
 #~ msgstr "在 `decimal_gda` 中，还有 `rescale` 和 `logical_` 前缀。"

@@ -82,7 +82,7 @@ test "convert_format: binary64 to binary32 rounds, with inexact" {
 test "convert_format: overflow and underflow of binary32 in every direction" {
   let b32 = BinaryInterchangeFormat::Binary32
   // 2^128 is the first power of two above the largest binary32 number.
-  let big = BinFloat::make(BinCoeff::one(), 128, 64)
+  let big = BinFloat::make_coeff(Coeff::one(), 128, 64)
   let (rne, rne_flags) = big.convert_format(b32)
   assert_eq(rne.classify() == FpClass::Infinity, true)
   assert_eq(e2s_flags(rne_flags), "I-O")
@@ -93,7 +93,7 @@ test "convert_format: overflow and underflow of binary32 in every direction" {
   assert_eq(rtz.to_hex(), "0xffffffp104")
   assert_eq(e2s_flags(rtz_flags), "I-O")
   // 2^-150 is half of the smallest binary32 subnormal 2^-149: a tie that goes to zero.
-  let small = BinFloat::make(BinCoeff::one(), -150, 64)
+  let small = BinFloat::make_coeff(Coeff::one(), -150, 64)
   let (zero, zero_flags) = small.convert_format(b32)
   assert_eq(zero.is_zero(), true)
   assert_eq(e2s_flags(zero_flags), "IU-")
@@ -104,7 +104,7 @@ test "convert_format: overflow and underflow of binary32 in every direction" {
   assert_eq(up.to_hex(), "0x1p-149")
   assert_eq(e2s_flags(up_flags), "IU-")
   // the smallest subnormal itself is exact
-  let (exact, exact_flags) = BinFloat::make(BinCoeff::one(), -149, 64).convert_format(
+  let (exact, exact_flags) = BinFloat::make_coeff(Coeff::one(), -149, 64).convert_format(
     b32,
   )
   assert_eq(exact.to_hex(), "0x1p-149")
@@ -116,8 +116,8 @@ test "convert_format: the tininess rule changes underflow at the boundary" {
   // The binary32 value just below 2^-126 that rounds up to 2^-126: tiny before
   // rounding, not tiny after rounding (7.5).
   let b32 = BinaryInterchangeFormat::Binary32
-  let value = BinFloat::make(
-    BinCoeff::one().shift_left(25).sub_checked(BinCoeff::one()).unwrap(),
+  let value = BinFloat::make_coeff(
+    Coeff::one().shift_left(25).sub_checked(Coeff::one()).unwrap(),
     -151,
     64,
   )
@@ -167,8 +167,8 @@ test "convert_format: NaN payloads (6.2.3)" {
     let (up, _) = narrow.convert_format(wider)
     let (back, _) = up.convert_format(BinaryInterchangeFormat::Binary16)
     assert_eq(
-      back.nan_payload().to_radix_string(16),
-      narrow.nan_payload().to_radix_string(16),
+      back.nan_payload_coeff().to_radix_string(16),
+      narrow.nan_payload_coeff().to_radix_string(16),
     )
     assert_eq(
       BinaryInterchange::from_bin_float(back, BinaryInterchangeFormat::Binary16).0.to_hex(),

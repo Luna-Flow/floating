@@ -32,15 +32,14 @@ estimators, the pairing and the bootstrap interval are derived in the
 
 | Case | Datasets | Implementations | Protocol |
 | --- | --- | --- | --- |
-| `bin-float/add`, `bin-float/mul`, `bin-float/div` | 53, 128, 512, 2048 bits | `kernel/coefficient` (`BinCoeff`), `core/bin-float` (`BinFloat` operators), `full/checked` (`BinFloatResult`) | `Development` |
+| `bin-float/add`, `bin-float/mul`, `bin-float/div` | 53, 128, 512, 2048 bits | `kernel/coefficient` (`BigInt`), `core/bin-float` (`BinFloat` operators), `full/checked` (`BinFloatResult`) | `Development` |
 | `bin-float/elementary/OP` for 28 functions (`exp`, `exp2`, `exp10`, `expm1`, `ln`, `log2`, `log10`, `log1p`, `sqrt`, `rootn`, `pow`, `hypot`, `sin`, `cos`, `tan`, `sinpi`, `cospi`, `tanpi`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`) | 53, 128, 512 bits of precision | `core/bin-float` (aborting methods), `full/checked` (`BinFloatResult`) | `Development` |
-| `bin-float/autotune/square` | 4, 8, 16, …, 1024 limbs of 32 bits | `mul-self` (`x.mul(x)`), `square` (`x.square()`) on `BinCoeff` | `RegressionGate` |
 
-Arithmetic inputs are fixed bit patterns with the top and bottom bits set; the precision is the sum of the operand bit lengths plus 4, and for `div` the dividend is the product of the two patterns, so every result is exact and every path computes the same number. Elementary inputs are 1.25, 0.5 and 0.25 at the dataset precision, each inside the domain of the functions it is used with. The square inputs are patterns of the given limb count; the experiment picks the faster of two equivalent algorithms per size and reports the crossover size.
+Arithmetic inputs are fixed bit patterns with the top and bottom bits set; the precision is the sum of the operand bit lengths plus 4, and for `div` the dividend is the product of the two patterns, so every result is exact and every path computes the same number. Elementary inputs are 1.25, 0.5 and 0.25 at the dataset precision, each inside the domain of the functions it is used with.
 
 ### Correctness oracle
 
-Arithmetic outputs are checked against the exact `BinCoeff` result, elementary outputs against the core result (so the checked path must agree with the core), and square outputs against `x.square()`. An output that disagrees with the oracle is counted as a
+Arithmetic outputs are checked against the exact `BigInt` result, and elementary outputs against the core result (so the checked path must agree with the core). An output that disagrees with the oracle is counted as a
 failure and the performance test asserts that there is none, so a comparison
 is never between paths that compute different things.
 

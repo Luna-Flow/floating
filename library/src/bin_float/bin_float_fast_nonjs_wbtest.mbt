@@ -38,7 +38,12 @@ fn fast_test_operand(random : FastTestRandom, around : Int32) -> BinFloat {
   if random.below(60) == 0 {
     BinFloat::zero(precision~)
   } else {
-    BinFloat::make(BinCoeff::from_uint64(word), exponent, precision, negative~)
+    BinFloat::make_coeff(
+      Coeff::from_uint64(word),
+      exponent,
+      precision,
+      negative~,
+    )
   }
 }
 
@@ -129,8 +134,8 @@ test "one-word div equals the general path" {
 ///|
 test "one-word paths decline what they do not cover" {
   let one = BinFloat::from_int(1, precision=53)
-  let big = BinFloat::make(
-    BinCoeff::one().shift_left(100).add(BinCoeff::one()),
+  let big = BinFloat::make_coeff(
+    Coeff::one().shift_left(100).add(Coeff::one()),
     0,
     128,
   )
@@ -144,10 +149,10 @@ test "one-word paths decline what they do not cover" {
   // an exact zero sum
   assert_true(binary_fast_add(one, one.neg()) is None)
   // exponents near the implementation limits
-  let far = BinFloat::make(BinCoeff::one(), 400000000, 53)
+  let far = BinFloat::make_coeff(Coeff::one(), 400000000, 53)
   assert_true(binary_fast_mul(far, far) is None)
   // far apart operands use the general path
-  let tiny = BinFloat::make(BinCoeff::one(), -200, 53)
+  let tiny = BinFloat::make_coeff(Coeff::one(), -200, 53)
   assert_true(binary_fast_add(one, tiny) is None)
   assert_true(
     fast_test_same(
@@ -162,23 +167,27 @@ test "one-word paths handle ties, carries and cancellation" {
   // 1 + 2^-53 is a tie at 53 bits (round to even keeps 1); 1 + 3 * 2^-54 rounds up
   let one = BinFloat::from_int(1, precision=53)
   for tail in [1, 3, 5, 7] {
-    let small = BinFloat::make(BinCoeff::from_uint64(tail.to_uint64()), -55, 53)
+    let small = BinFloat::make_coeff(
+      Coeff::from_uint64(tail.to_uint64()),
+      -55,
+      53,
+    )
     let general = one.add_ctx(small, BinaryContext::unbounded(53)).0
     assert_true(fast_test_same(one.add(small), general))
     let general_sub = one.add_ctx(small.neg(), BinaryContext::unbounded(53)).0
     assert_true(fast_test_same(one.sub(small), general_sub))
   }
   // all ones plus one carries into a new bit
-  let ones = BinFloat::make(
-    BinCoeff::one().shift_left(53).sub_checked(BinCoeff::one()).unwrap(),
+  let ones = BinFloat::make_coeff(
+    Coeff::one().shift_left(53).sub_checked(Coeff::one()).unwrap(),
     0,
     53,
   )
   let general = ones.add_ctx(one, BinaryContext::unbounded(53)).0
   assert_true(fast_test_same(ones.add(one), general))
   // heavy cancellation
-  let near = BinFloat::make(
-    BinCoeff::one().shift_left(53).add(BinCoeff::one()),
+  let near = BinFloat::make_coeff(
+    Coeff::one().shift_left(53).add(Coeff::one()),
     -53,
     54,
   )
@@ -216,8 +225,8 @@ test "one-word sqrt handles perfect squares, powers of two and odd exponents" {
         1UL, 3UL, 9UL, 25UL, 0xFFFFFFFFUL, 0xFFFFFFFFFFFFFFFFUL, 0x4000000000000001UL,
       ] {
       for exponent in [-7, -6, -1, 0, 1, 2, 3, 100, 101] {
-        let value = BinFloat::make(
-          BinCoeff::from_uint64(word),
+        let value = BinFloat::make_coeff(
+          Coeff::from_uint64(word),
           exponent,
           precision,
         )

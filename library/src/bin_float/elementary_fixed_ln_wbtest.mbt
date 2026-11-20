@@ -42,8 +42,8 @@ fn binary_ln_unit_series_reference(
   let mut sum_lower = BinFloat::zero(precision=work_precision)
   let mut sum_upper = sum_lower
   let mut denominator = 1
-  let threshold = BinFloat::make(
-    BinCoeff::one(),
+  let threshold = BinFloat::make_coeff(
+    Coeff::one(),
     -(work_precision + 8),
     work_precision,
   )
@@ -85,9 +85,9 @@ fn binary_ln_bounds_series_reference(
   guard value.classify() == FpClass::Finite && value.sign() == Sign::Positive else {
     return None
   }
-  let coefficient_bits = value.coefficient().bit_length()
-  let normalized = BinFloat::make(
-    value.coefficient(),
+  let coefficient_bits = value.coefficient_.bit_length()
+  let normalized = BinFloat::make_coeff(
+    value.coefficient_,
     -(coefficient_bits - 1),
     Int32::max(work_precision, coefficient_bits),
   )
@@ -141,25 +141,27 @@ fn binary_ln_fixed_test_values() -> Array[BinFloat] {
   for index in 0..<60 {
     state = state * 6364136223846793005UL + 1442695040888963407UL
     let bits = Int32::max(2, 2 + index % 52)
-    let mantissa = BinCoeff::from_uint64((state >> 11) | 1UL)
+    let mantissa = Coeff::from_uint64((state >> 11) | 1UL)
       .shift_right(64 - bits)
       .shift_left(1)
-      .add(BinCoeff::one())
-    values.push(BinFloat::make(mantissa, -(bits + 1) - index * 5 % 30 + 20, 53))
+      .add(Coeff::one())
+    values.push(
+      BinFloat::make_coeff(mantissa, -(bits + 1) - index * 5 % 30 + 20, 53),
+    )
   }
   let near_one = [
-    BinCoeff::one().shift_left(40).add(BinCoeff::one()), // 1 + 2^-40
-    BinCoeff::one().shift_left(200).add(BinCoeff::one()), // 1 + 2^-200
-    BinCoeff::one().shift_left(53).sub_checked(BinCoeff::one()).unwrap(), // 1 - 2^-53
+    Coeff::one().shift_left(40).add(Coeff::one()), // 1 + 2^-40
+    Coeff::one().shift_left(200).add(Coeff::one()), // 1 + 2^-200
+    Coeff::one().shift_left(53).sub_checked(Coeff::one()).unwrap(), // 1 - 2^-53
   ]
-  values.push(BinFloat::make(near_one[0], -40, 64))
-  values.push(BinFloat::make(near_one[1], -200, 256))
-  values.push(BinFloat::make(near_one[2], -53, 53))
+  values.push(BinFloat::make_coeff(near_one[0], -40, 64))
+  values.push(BinFloat::make_coeff(near_one[1], -200, 256))
+  values.push(BinFloat::make_coeff(near_one[2], -53, 53))
   values.push(BinFloat::from_int(2))
   values.push(BinFloat::from_int(3))
-  values.push(BinFloat::make(BinCoeff::one(), -1, 53))
-  values.push(BinFloat::make(BinCoeff::one(), 40, 53))
-  values.push(BinFloat::make(BinCoeff::one(), -70, 53))
+  values.push(BinFloat::make_coeff(Coeff::one(), -1, 53))
+  values.push(BinFloat::make_coeff(Coeff::one(), 40, 53))
+  values.push(BinFloat::make_coeff(Coeff::one(), -70, 53))
   values.push(BinFloat::from_double(0.9999999, precision=53))
   values.push(BinFloat::from_double(1.0000001, precision=53))
   values
@@ -178,15 +180,15 @@ test "fixed-point ln enclosure contains a tighter series enclosure and is not lo
         value.compare(BinFloat::from_int(2)) <= 0 {
         value
       } else {
-        BinFloat::make(
-          value.coefficient(),
-          -(value.coefficient().bit_length() - 1),
-          Int32::max(value.coefficient().bit_length(), 2),
+        BinFloat::make_coeff(
+          value.coefficient_,
+          -(value.coefficient_.bit_length() - 1),
+          Int32::max(value.coefficient_.bit_length(), 2),
         )
       }
       let fixed = binary_ln_unit_fixed_bounds(unit, work)
       if unit.compare(BinFloat::one()) > 0 &&
-        unit.coefficient().bit_length() <= work &&
+        unit.coefficient_.bit_length() <= work &&
         unit.exponent2() > -4 * work {
         assert_true(fixed is Some(_))
       }
@@ -271,8 +273,8 @@ test "fixed-point ln path declines arguments it does not cover" {
   assert_true(binary_ln_unit_fixed_bounds(BinFloat::zero(), work) is None)
   assert_true(binary_ln_unit_fixed_bounds(BinFloat::nan(), work) is None)
   // not exact at the working precision
-  let wide = BinFloat::make(
-    BinCoeff::one().shift_left(150).add(BinCoeff::one()),
+  let wide = BinFloat::make_coeff(
+    Coeff::one().shift_left(150).add(Coeff::one()),
     -150,
     160,
   )

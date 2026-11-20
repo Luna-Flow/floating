@@ -117,7 +117,7 @@ msgstr ""
 #: manual/api/frontend/mpfr_expr.md:15
 #: manual/api/frontend/testfloat_expr.md:15
 #: manual/api/internal.md:56
-#: manual/api/internal/bin_kernel.md:20
+#: manual/api/internal/bin_kernel.md:22
 #: manual/api/internal/conformance.md:15
 #: manual/api/internal/decimal_kernel.md:18
 #: manual/api/internal/runner_cli.md:14
@@ -579,7 +579,7 @@ msgstr ""
 #: manual/api/decimal_checked.md:281
 #: manual/conformance/bin_float.md:107
 #: manual/design/bin_float_checked.md:175
-#: manual/performance_audit.md:123
+#: manual/performance_audit.md:122
 msgid "Result"
 msgstr ""
 
@@ -657,7 +657,7 @@ msgstr ""
 
 #: manual/api/ball_float.md:875
 #: manual/api/ball_float_checked.md:313
-#: manual/api/bin_float.md:1499
+#: manual/api/bin_float.md:1432
 #: manual/api/bin_float_checked.md:489
 #: manual/api/decimal.md:1471
 #: manual/api/frontend/mpfr_expr.md:156
@@ -1006,7 +1006,7 @@ msgstr ""
 
 #: manual/api/ball_float.md:1565
 #: manual/api/ball_float_checked.md:398
-#: manual/api/bin_float.md:2298
+#: manual/api/bin_float.md:2231
 #: manual/api/bin_float_checked.md:817
 #: manual/api/decimal.md:2109
 #: manual/api/decimal_gda.md:1817
@@ -1081,11 +1081,11 @@ msgstr ""
 #: manual/api/ball_float_checked.md:425
 #: manual/api/bench.md:216
 #: manual/api/bench/ball_float.md:43
-#: manual/api/bench/bin_float.md:45
+#: manual/api/bench/bin_float.md:44
 #: manual/api/bench/decimal.md:42
 #: manual/api/bench/decimal_gda.md:42
 #: manual/api/bench/external.md:68
-#: manual/api/bin_float.md:2511
+#: manual/api/bin_float.md:2440
 #: manual/api/bin_float_checked.md:837
 #: manual/api/cli.md:80
 #: manual/api/cli/dispatch.md:38
@@ -1107,7 +1107,7 @@ msgstr ""
 #: manual/api/frontend/mpfr_expr.md:536
 #: manual/api/frontend/testfloat_expr.md:407
 #: manual/api/internal.md:506
-#: manual/api/internal/bin_kernel.md:77
+#: manual/api/internal/bin_kernel.md:79
 #: manual/api/internal/conformance.md:353
 #: manual/api/internal/decimal_kernel.md:92
 #: manual/api/internal/runner_cli.md:209
@@ -1124,7 +1124,7 @@ msgstr ""
 #: manual/api/frontend/mpfr_expr.md:538
 #: manual/api/frontend/testfloat_expr.md:409
 #: manual/api/internal.md:508
-#: manual/api/internal/bin_kernel.md:79
+#: manual/api/internal/bin_kernel.md:81
 #: manual/api/internal/conformance.md:355
 #: manual/api/internal/decimal_kernel.md:94
 #: manual/api/internal/runner_cli.md:211
@@ -1529,7 +1529,7 @@ msgid "Every specification has a plan test that runs in normal test runs and che
 msgstr ""
 
 #: manual/api/bench/ball_float.md:45
-#: manual/api/bench/bin_float.md:47
+#: manual/api/bench/bin_float.md:46
 #: manual/api/bench/decimal.md:44
 #: manual/api/bench/decimal_gda.md:44
 #: manual/api/bench/external.md:70
@@ -1545,12 +1545,12 @@ msgid "bench/bin_float API"
 msgstr ""
 
 #: manual/api/bench/bin_float.md:5
-msgid "`bench/bin_float` holds the binary arithmetic and elementary-function benchmarks and the square auto-tune experiment of `floating`. It is a test-only package: all content is in `*_test.mbt` files built on the [`bench`](../bench.md) toolkit, and it exports no MoonBit items. This page records the benchmark cases it defines; the [tutorial](../../tutorial/bench/bin_float.md) shows how to run them and the [design page](../../design/bench/bin_float.md) explains the workloads."
+msgid "`bench/bin_float` holds the binary arithmetic and elementary-function benchmarks of `floating`. It is a test-only package: all content is in `*_test.mbt` files built on the [`bench`](../bench.md) toolkit, and it exports no MoonBit items. This page records the benchmark cases it defines; the [tutorial](../../tutorial/bench/bin_float.md) shows how to run them and the [design page](../../design/bench/bin_float.md) explains the workloads."
 msgstr ""
 
 #: manual/api/bench/bin_float.md:34
 #: manual/design/bench/bin_float.md:35
-msgid "`kernel/coefficient` (`BinCoeff`), `core/bin-float` (`BinFloat` operators), `full/checked` (`BinFloatResult`)"
+msgid "`kernel/coefficient` (`BigInt`), `core/bin-float` (`BinFloat` operators), `full/checked` (`BinFloatResult`)"
 msgstr ""
 
 #: manual/api/bench/bin_float.md:35
@@ -1568,18 +1568,8 @@ msgstr ""
 msgid "`core/bin-float` (aborting methods), `full/checked` (`BinFloatResult`)"
 msgstr ""
 
-#: manual/api/bench/bin_float.md:36
-#: manual/design/bench/bin_float.md:37
-msgid "4, 8, 16, …, 1024 limbs of 32 bits"
-msgstr ""
-
-#: manual/api/bench/bin_float.md:36
-#: manual/design/bench/bin_float.md:37
-msgid "`mul-self` (`x.mul(x)`), `square` (`x.square()`) on `BinCoeff`"
-msgstr ""
-
-#: manual/api/bench/bin_float.md:38
-msgid "Every specification has a plan test that runs in normal test runs and checks that it compiles (`binary benchmark plans compile`, `elementary benchmark plans compile`, `binary auto tune plan compiles`), and a performance test marked `#skip(\"performance benchmark\")` that only `tools/benchmark.py` runs. In the reported lines `DATASET` is the 0-based index into the datasets column. The performance tests stream every observation as a `MAREMARK_JSONL=` line and print the reduced results as `MAREMARK_HOTSPOT=bin-float/OP/DATASET core_pct=… full_pct=…` for arithmetic, `MAREMARK_HOTSPOT=bin-float/elementary/OP/DATASET full_pct=…` for elementary functions, and `MAREMARK_TUNE`, `MAREMARK_CROSSOVER` and `MAREMARK_POLICY` lines for the square experiment."
+#: manual/api/bench/bin_float.md:37
+msgid "Every specification has a plan test that runs in normal test runs and checks that it compiles (`binary benchmark plans compile`, `elementary benchmark plans compile`, `binary auto tune plan compiles`), and a performance test marked `#skip(\"performance benchmark\")` that only `tools/benchmark.py` runs. In the reported lines `DATASET` is the 0-based index into the datasets column. The performance tests stream every observation as a `MAREMARK_JSONL=` line and print the reduced results as `MAREMARK_HOTSPOT=bin-float/OP/DATASET core_pct=… full_pct=…` for arithmetic, `MAREMARK_HOTSPOT=bin-float/elementary/OP/DATASET full_pct=…` for elementary functions."
 msgstr ""
 
 #: manual/api/bench/decimal.md:1
@@ -1763,7 +1753,7 @@ msgid "Example"
 msgstr ""
 
 #: manual/api/bin_float.md:46
-#: manual/api/bin_float.md:741
+#: manual/api/bin_float.md:674
 #: manual/api/decimal.md:499
 #: manual/api/decimal_gda.md:449
 msgid "Context"
@@ -1835,602 +1825,560 @@ msgid "A non-negative arbitrary-precision integer, used as the coefficient of a 
 msgstr ""
 
 #: manual/api/bin_float.md:97
-msgid "All arithmetic on `BinCoeff` is exact. On the native, LLVM and Wasm targets the value is an inline 64- or 128-bit word or an array of 32-bit limbs; on JavaScript it is a host `bigint`. The representation is not observable, and the algorithm selection (schoolbook, Karatsuba, Toom-3, number-theoretic transform, staged division) is described in the [design page](../design/bin_float.md#the-coefficient-kernel). Operations whose mathematical result could be negative or undefined are checked and return `Err` with a message instead."
+msgid "The inner type `@bin_kernel.Coeff` belongs to the internal package `internal/bin_kernel`, which only code inside `Luna-Flow/floating` can import. It carries no compatibility promise and a user cannot call a method on it, read it, compare it or build one: from outside the module a `BinCoeff` is opaque, and the field is public only so that the other packages of the library can unwrap it. The value is exact: on the native, LLVM and Wasm targets an inline 64- or 128-bit word or an array of 64-bit limbs, on JavaScript a host `bigint`; the representation is not observable, and the algorithm selection (schoolbook, Karatsuba, Toom-3, number-theoretic transform, staged division) is described in the [design page](../design/bin_float.md#the-coefficient-kernel). `Debug` prints the integer value."
 msgstr ""
 
-#: manual/api/bin_float.md:108
+#: manual/api/bin_float.md:111
 msgid "Build a coefficient from a machine value."
 msgstr ""
 
-#: manual/api/bin_float.md:118
+#: manual/api/bin_float.md:121
 msgid "Convert between a coefficient and digits."
 msgstr ""
 
-#: manual/api/bin_float.md:126
+#: manual/api/bin_float.md:129
 msgid "`parse` reads a digit string in base `radix` (default 10, letters for digits above 9, an optional leading `+`); an empty string, a `-` sign, a digit outside the radix or a radix outside $[2, 36]$ is an `Err`. `to_string` prints base 10 and `to_radix_string` any radix in $[2, 36]$, in lower case without a prefix; it aborts for another radix."
 msgstr ""
 
-#: manual/api/bin_float.md:134
+#: manual/api/bin_float.md:137
 msgid "Convert between a coefficient and big-endian bytes."
 msgstr ""
 
-#: manual/api/bin_float.md:141
+#: manual/api/bin_float.md:144
 msgid "`to_bytes_be` uses the minimal number of bytes; leading zero bytes are ignored by `from_bytes_be`."
 msgstr ""
 
-#: manual/api/bin_float.md:146
+#: manual/api/bin_float.md:149
 msgid "Returns the value as a `UInt64`, or `None` when it needs more than 64 bits."
 msgstr ""
 
-#: manual/api/bin_float.md:154
-msgid "Bit-level queries."
+#: manual/api/bin_float.md:157
+msgid "Queries."
 msgstr ""
 
-#: manual/api/bin_float.md:163
-msgid ""
-"`bit_length` is $\\lfloor \\log_2 c \\rfloor + 1$ for $c > 0$ and $0$ for zero. `ctz` counts trailing zero bits (the 2-adic valuation $\\n"
-"u_2(c)$). `test_bit(i)` is bit $i$, counting from the least significant bit $0$."
+#: manual/api/bin_float.md:164
+msgid "`bit_length` is $\\lfloor \\log_2 c \\rfloor + 1$ for $c > 0$ and $0$ for zero."
 msgstr ""
 
-#: manual/api/bin_float.md:169
+#: manual/api/bin_float.md:168
 msgid "Exact comparison."
 msgstr ""
 
-#: manual/api/bin_float.md:176
+#: manual/api/bin_float.md:175
 msgid "`compare` returns $-1$, $0$ or $1$; `equal` is numerical equality, which for natural numbers is the same as equality of representations. The operators `<`, `<=`, `>`, `>=`, `==` and `!=` use them (see [Trait implementations](#trait-implementations))."
 msgstr ""
 
-#: manual/api/bin_float.md:183
-msgid "Exact addition, multiplication, squaring and powers."
+#: manual/api/bin_float.md:180
+msgid "`BinCoeff` also implements `Eq`, `Compare`, `Show` and `Debug`; the promoted trait methods are listed under [Trait implementations](#trait-implementations). It has no arithmetic, shifts, bit operations or GCD: they are internal to the library (the package `internal/bin_kernel`), and arithmetic on values is done with `BinFloat` or, on a coefficient read with `coefficient()`, after converting it with `to_string` or `to_bytes_be`."
 msgstr ""
 
-#: manual/api/bin_float.md:192
-msgid "`square` uses a dedicated kernel that exploits the symmetry of the cross products. `pow_nat(0)` is one, including $0^0$."
-msgstr ""
-
-#: manual/api/bin_float.md:197
-msgid "Subtraction and Euclidean division, which can fail on a natural number."
-msgstr ""
-
-#: manual/api/bin_float.md:204
-msgid "`a.sub_checked(b)` is `Err` when $b > a$. `n.div_rem_checked(d)` returns $(q, r)$ with $n = qd + r$ and $0 \\le r < d$, and is `Err` when $d = 0$."
-msgstr ""
-
-#: manual/api/bin_float.md:209
-msgid "Returns the greatest common divisor."
-msgstr ""
-
-#: manual/api/bin_float.md:215
-msgid "$\\gcd(a, 0) = a$ and $\\gcd(0, 0) = 0$."
-msgstr ""
-
-#: manual/api/bin_float.md:217
-msgid "Operands that both fit in four 32-bit limbs use the binary (Stein) algorithm. Larger operands use Lehmer rounds: each runs Euclid on the leading 63 bits of the larger operand and the bits of the smaller one in the same window, and takes one plain division step instead when the smaller operand has no bits in that window or the cofactors would not shrink the pair. A long operand is therefore reduced modulo a much shorter one in one step, and operands of any lengths finish. Below eight limbs of the smaller operand the loop continues with plain Euclid. JavaScript uses the host `BigInt`."
-msgstr ""
-
-#: manual/api/bin_float.md:228
-msgid "Multiply by $2^k$ or divide by $2^k$ rounding toward zero."
-msgstr ""
-
-#: manual/api/bin_float.md:237
-msgid "`shl` and `shr` are the `Shl`/`Shr` trait methods behind `<<` and `>>`. A negative shift count aborts."
-msgstr ""
-
-#: manual/api/bin_float.md:242
-msgid "Bitwise operations on the binary expansions."
-msgstr ""
-
-#: manual/api/bin_float.md:250
-msgid "`BinCoeff` also implements `Add`, `Mul`, `Shl`, `Shr`, `Eq`, `Compare`, `Show` and `Debug`; the promoted trait methods are listed under [Trait implementations](#trait-implementations)."
-msgstr ""
-
-#: manual/api/bin_float.md:266
+#: manual/api/bin_float.md:199
 msgid "The value type"
 msgstr ""
 
-#: manual/api/bin_float.md:270
+#: manual/api/bin_float.md:203
 msgid "A binary floating-point value: a finite dyadic number, a signed infinity or a NaN, with a working precision."
 msgstr ""
 
-#: manual/api/bin_float.md:279
+#: manual/api/bin_float.md:212
 msgid "A finite value is $(-1)^s \\cdot c \\cdot 2^{e}$ with $s$ the sign bit, $c$ a `BinCoeff` and $e$ = `exponent2()`. Every value built through this API is normalized: a nonzero $c$ is odd (factors of two are moved into $e$), a zero has $c = 0$ and $e = 0$ and keeps its sign, and $c$ has at most `precision()` bits. The precision is an attribute of the value: plain operations work at the larger precision of their operands, and contextual operations stamp the context precision on their result."
 msgstr ""
 
-#: manual/api/bin_float.md:287
+#: manual/api/bin_float.md:220
 msgid "The derived `Eq` is structural, not numerical. Two values are `==` when sign, class, coefficient, exponent, precision and NaN state all agree, so `one(precision=53) != one(precision=24)`, `-0 != +0`, and a NaN is `==` to an identical NaN. Use `compare`, `compare_quiet` or `total_order` for numerical questions."
 msgstr ""
 
-#: manual/api/bin_float.md:295
+#: manual/api/bin_float.md:228
 msgid "Builds a finite value $(-1)^{\\text{negative}} \\cdot c \\cdot 2^{e}$ rounded to `precision` bits."
 msgstr ""
 
-#: manual/api/bin_float.md:302
+#: manual/api/bin_float.md:235
 msgid "The arguments are the coefficient, the exponent $e$ and the precision. When the coefficient has more significant bits than the precision it is rounded with `mode` (default `ToNearestEven`). The result is normalized. A precision below 1 is treated as 1. A value outside the implementation exponent range is replaced as an overflow or underflow would be: above it by $\\pm\\infty$ or, for a mode that rounds toward zero, the largest finite magnitude $(2^p - 1)\\,2^{e_{\\max} - p + 1}$; below the smallest implementation subnormal $2^{e_{\\min} - p + 1}$ by $\\pm 0$ or, for a mode that rounds away from zero (and for nearest when the value exceeds half of it), by that subnormal. `make` rounds precision and range together, in `mode`: a value between the smallest subnormal and $2^{e_{\\min}}$ keeps only the bits on the subnormal grid $2^{e_{\\min} - p + 1}$ (at least one), so the stored value never has a bit below that grid. This matters only at magnitudes near $2^{-2^{30}}$; `round_ctx` additionally reports the flags."
 msgstr ""
 
-#: manual/api/bin_float.md:319
+#: manual/api/bin_float.md:252
 msgid "Build a value from an integer."
 msgstr ""
 
-#: manual/api/bin_float.md:326
+#: manual/api/bin_float.md:259
 msgid "The default precision is 53. The integer is rounded to nearest-even when it has more significant bits than the precision; `from_int(n)` is exact for every `Int` at the default precision."
 msgstr ""
 
-#: manual/api/bin_float.md:332
+#: manual/api/bin_float.md:265
 msgid "Decode a host binary64 or binary32 value exactly."
 msgstr ""
 
-#: manual/api/bin_float.md:339
+#: manual/api/bin_float.md:272
 msgid "The defaults are 53 and 24 bits, so the conversion is exact. `from_double` preserves signed zeros, infinities, the NaN sign, the quiet/signaling distinction and the NaN payload (the fraction field without the quiet bit). `from_float` first widens the `Float` to a `Double` on the host and then decodes that: numbers, zeros and infinities are unaffected, but a NaN keeps the payload of the widened binary64 encoding (the binary32 payload times $2^{29}$), and on the native target a signaling `Float` NaN arrives as a quiet NaN. Use `BinaryInterchange::from_hex` with `Binary32` to decode binary32 NaNs bit-exactly. The value is the one the host already rounded: `from_double(0.1)` is $3602879701896397 \\cdot 2^{-55}$, not one tenth. Use `from_string` to round a decimal literal directly."
 msgstr ""
 
-#: manual/api/bin_float.md:353
+#: manual/api/bin_float.md:286
 msgid "Build the constants $+0$, $-0$, $1$ and $\\pm\\infty$."
 msgstr ""
 
-#: manual/api/bin_float.md:362
+#: manual/api/bin_float.md:295
 msgid "The default precision is 53. `inf(Sign::Negative)` is $-\\infty$; any other sign gives $+\\infty$."
 msgstr ""
 
-#: manual/api/bin_float.md:367
+#: manual/api/bin_float.md:300
 msgid "Build NaNs."
 msgstr ""
 
-#: manual/api/bin_float.md:375
+#: manual/api/bin_float.md:308
 msgid "`nan()` is a positive quiet NaN with payload 0. A signaling NaN always has a nonzero payload (the default and a requested 0 both become 1). Payloads are carried through operations and are truncated to the payload field only when a value is encoded in an interchange format."
 msgstr ""
 
-#: manual/api/bin_float.md:380
+#: manual/api/bin_float.md:313
 #: manual/api/decimal_gda.md:237
 msgid "Observing a value"
 msgstr ""
 
-#: manual/api/bin_float.md:384
+#: manual/api/bin_float.md:317
 msgid "Report the class and sign of a value."
 msgstr ""
 
-#: manual/api/bin_float.md:392
+#: manual/api/bin_float.md:325
 msgid "`classify` returns `Finite`, `Infinity` or `NaN` (zeros are `Finite`). `sign` is `Zero` for every zero and every NaN, and `Positive` or `Negative` otherwise. `is_negative` returns the sign bit itself, which is set for $-0$, $-\\infty$ and negative NaNs. `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and `@def.is_zero` work on `BinFloat` through the `Floating` trait; the methods of the next section give the same answers without the trait."
 msgstr ""
 
-#: manual/api/bin_float.md:401
+#: manual/api/bin_float.md:334
 msgid "The ten-valued class of IEEE 754-2019 clause 5.7.2 and its predicates."
 msgstr ""
 
-#: manual/api/bin_float.md:412
+#: manual/api/bin_float.md:345
 msgid "`class_of` returns one of the ten values of [`IeeeClass`](def.md#ieeeclass): `SignalingNaN`, `QuietNaN`, `NegativeInfinity`, `NegativeNormal`, `NegativeSubnormal`, `NegativeZero`, `PositiveZero`, `PositiveSubnormal`, `PositiveNormal` and `PositiveInfinity`. A nonzero finite value is normal when the exponent of its leading bit is at least the context's $e_{\\min}$ and subnormal when it is below; a `BinFloat` carries no format, so the context decides, and `BinaryInterchangeFormat::context` gives the one of a binary interchange format. A context without `e_min` uses the implementation limit `binary_implementation_e_min`. `is_normal` and `is_subnormal` are true exactly for the normal and subnormal classes; `is_finite` is true for zeros, subnormals and normals, `is_infinite` for the two infinities and `is_nan` for both NaNs. None of them rounds or raises a flag, and `classify` keeps its three-valued meaning."
 msgstr ""
 
-#: manual/api/bin_float.md:428
+#: manual/api/bin_float.md:361
 msgid "Special-value predicates."
 msgstr ""
 
-#: manual/api/bin_float.md:438
+#: manual/api/bin_float.md:371
 msgid "`nan_payload` is zero for a value that is not a NaN."
 msgstr ""
 
-#: manual/api/bin_float.md:442
+#: manual/api/bin_float.md:375
 msgid "Return the stored representation."
 msgstr ""
 
-#: manual/api/bin_float.md:450
+#: manual/api/bin_float.md:383
 msgid "For a finite value the number is `coefficient()` $\\times 2^{\\texttt{exponent2()}}$ with the sign applied. The coefficient and exponent of an infinity or NaN carry no meaning."
 msgstr ""
 
-#: manual/api/bin_float.md:456
+#: manual/api/bin_float.md:389
 msgid "Returns the canonical representation of a finite value at its own precision."
 msgstr ""
 
-#: manual/api/bin_float.md:462
+#: manual/api/bin_float.md:395
 msgid "Values built through the public API are already canonical, so this is the identity on them; infinities and NaNs are returned unchanged."
 msgstr ""
 
-#: manual/api/bin_float.md:467
+#: manual/api/bin_float.md:400
 msgid "Rounds a value to a new working precision."
 msgstr ""
 
-#: manual/api/bin_float.md:473
+#: manual/api/bin_float.md:406
 msgid "A finite value with more significant bits than the new precision is rounded in the given direction (`@lf_arith.RoundingMode` has no ties-to-away mode; use `round_ctx` for it). Zeros, infinities and NaNs only change their precision attribute. No flags are reported; use `round_ctx` when they matter."
 msgstr ""
 
-#: manual/api/bin_float.md:480
+#: manual/api/bin_float.md:413
 msgid "Returns the unit in the last place of a finite value at its own precision."
 msgstr ""
 
-#: manual/api/bin_float.md:486
+#: manual/api/bin_float.md:419
 msgid ""
 "For $x \\n"
 "e 0$ with leading-bit exponent $t = \\lfloor \\log_2 |x| \\rfloor$ the result is $2^{t-p+1}$. For zero it is $2^{1-p}$, and for an infinity or NaN it is a quiet NaN. The spacing ignores any context exponent range, so it is not the subnormal spacing of an IEEE format."
 msgstr ""
 
-#: manual/api/bin_float.md:514
+#: manual/api/bin_float.md:447
 msgid "Plain arithmetic"
 msgstr ""
 
-#: manual/api/bin_float.md:518
+#: manual/api/bin_float.md:451
 msgid "The four operations and negation, also available as `+`, `-`, `*`, `/` and unary `-`."
 msgstr ""
 
-#: manual/api/bin_float.md:534
+#: manual/api/bin_float.md:467
 msgid "The result is the exact sum, difference, product or quotient rounded once to nearest-even at the larger operand precision, with the implementation exponent range. Special values follow IEEE 754: NaNs propagate (the first NaN operand, quieted), $\\infty - \\infty$, $0 \\cdot \\infty$, $0/0$ and $\\infty/\\infty$ are NaN, and a nonzero number divided by zero is a signed infinity. Flags are discarded; use the [contextual forms](#contextual-arithmetic) to observe them. `neg` flips the sign bit of every value, including zeros and NaNs, and never rounds."
 msgstr ""
 
-#: manual/api/bin_float.md:545
+#: manual/api/bin_float.md:478
 msgid "Clear or copy the sign bit."
 msgstr ""
 
-#: manual/api/bin_float.md:552
+#: manual/api/bin_float.md:485
 msgid "Both are quiet IEEE sign-bit operations: they never round, never raise a flag and keep NaN payloads. `x.copy_sign(y)` has the magnitude of `x` and the sign bit of `y`."
 msgstr ""
 
-#: manual/api/bin_float.md:558
+#: manual/api/bin_float.md:491
 msgid "Divides, returning an error for an invalid operation or a division by zero."
 msgstr ""
 
-#: manual/api/bin_float.md:564
+#: manual/api/bin_float.md:497
 msgid "The result is that of `div`, except for the two IEEE 754-2019 exceptions without a usable value: an invalid operation (§7.2: $0/0$, $\\infty/\\infty$ or a signaling NaN operand) is a `domain_error`, and a finite non-zero dividend over a signed zero (§7.3) is a `division_by_zero` error. A quiet NaN operand gives `Ok` of a quiet NaN (§6.2), and $\\pm\\infty/0$ gives `Ok` of the signed infinity."
 msgstr ""
 
-#: manual/api/bin_float.md:573
+#: manual/api/bin_float.md:506
 msgid "Correctly rounded square root."
 msgstr ""
 
-#: manual/api/bin_float.md:579
+#: manual/api/bin_float.md:512
 msgid "`x.sqrt()` rounds $\\sqrt{x}$ to nearest-even at the precision of `x`. It returns a `domain_error` for an invalid operation: a negative nonzero argument (including $-\\infty$) or a signaling NaN. $\\sqrt{-0} = -0$, and a quiet NaN of either sign gives `Ok` of a quiet NaN. For a square root at another precision or rounding direction use `sqrt_ctx`; its results under `RoundTowardNegative` and `RoundTowardPositive` enclose $\\sqrt{x}$ and coincide when the root is exact."
 msgstr ""
 
-#: manual/api/bin_float.md:589
+#: manual/api/bin_float.md:522
 msgid "Raise a value to an integer power."
 msgstr ""
 
-#: manual/api/bin_float.md:595
+#: manual/api/bin_float.md:528
 msgid "The result is $x^n$ correctly rounded to nearest-even at the precision of `x`, computed as in `pown_ctx`. A zero base with a negative exponent is a `division_by_zero` error, and a signaling NaN base a `domain_error` for every exponent, zero included (IEEE 754-2019 §9.2.1 excludes it from $x^0 = 1$); $x^0 = 1$ for every other $x$, a quiet NaN included."
 msgstr ""
 
-#: manual/api/bin_float.md:604
+#: manual/api/bin_float.md:537
 msgid "Fused multiply-add: $x \\cdot y + z$ with a single rounding."
 msgstr ""
 
-#: manual/api/bin_float.md:610
+#: manual/api/bin_float.md:543
 msgid "The precision is the largest of the three operand precisions. See [`fma_ctx`](#binfloatfma_ctx) for the special cases."
 msgstr ""
 
-#: manual/api/bin_float.md:615
+#: manual/api/bin_float.md:548
 msgid "IEEE 754 remainder $x - n y$, where $n$ is the integer nearest $x/y$ with ties to even."
 msgstr ""
 
-#: manual/api/bin_float.md:622
+#: manual/api/bin_float.md:555
 msgid "The result is exact whenever it fits the larger operand precision, which is always the case for operands of that precision (the proof is on the [design page](../design/bin_float.md#ieee-remainder-is-exact)). See [`remainder_ctx`](#binfloatremainder_ctx)."
 msgstr ""
 
-#: manual/api/bin_float.md:641
+#: manual/api/bin_float.md:574
 msgid "Contexts, rounding and flags"
 msgstr ""
 
-#: manual/api/bin_float.md:645
+#: manual/api/bin_float.md:578
 msgid "The rounding-direction attribute of a context."
 msgstr ""
 
-#: manual/api/bin_float.md:658
+#: manual/api/bin_float.md:591
 msgid "The first five are the IEEE 754-2019 rounding directions (clause 4.3). `RoundAwayFromZero` is an extra directed mode (round the magnitude up), used by the GDA-style `@lf_arith.RoundingMode::AwayFromZero`. Each mode is a monotone map $\\mathbb{R} \\to F \\cup \\{\\pm\\infty\\}$; the [design page](../design/bin_float.md#rounding-functions) defines them."
 msgstr ""
 
-#: manual/api/bin_float.md:666
+#: manual/api/bin_float.md:599
 msgid "Convert to and from `@lf_arith.RoundingMode`."
 msgstr ""
 
-#: manual/api/bin_float.md:673
+#: manual/api/bin_float.md:606
 msgid "`to_arithmetic(RoundTiesToAway)` is `None`, because `@lf_arith.RoundingMode` has no ties-to-away mode; the other modes map one to one."
 msgstr ""
 
-#: manual/api/bin_float.md:678
+#: manual/api/bin_float.md:611
 msgid "When a nonzero result counts as tiny for the underflow flag."
 msgstr ""
 
-#: manual/api/bin_float.md:687
+#: manual/api/bin_float.md:620
 msgid "`BeforeRounding` calls a result tiny when the exact value has $|x| < 2^{e_{\\min}}$. `AfterRounding` calls it tiny when $x$ rounded to $p$ bits with an unbounded exponent range has magnitude below $2^{e_{\\min}}$ (IEEE 754-2019 clause 7.5). The default is `AfterRounding`. Underflow is signaled only for a tiny result that is also inexact."
 msgstr ""
 
-#: manual/api/bin_float.md:695
+#: manual/api/bin_float.md:628
 msgid "The precision, rounding direction, exponent range and tininess rule of one operation."
 msgstr ""
 
-#: manual/api/bin_float.md:704
+#: manual/api/bin_float.md:637
 msgid "A context is an immutable value; there is no global or thread state. $e_{\\min}$ and $e_{\\max}$ are exponents of the leading bit, as in IEEE 754: a normal number satisfies $2^{e_{\\min}} \\le |x| < 2^{e_{\\max}+1}$, the largest finite value is $(2 - 2^{1-p})\\,2^{e_{\\max}}$ and the smallest positive subnormal is $2^{e_{\\min}-p+1}$. A missing bound means the implementation bound."
 msgstr ""
 
-#: manual/api/bin_float.md:713
+#: manual/api/bin_float.md:646
 msgid "Build a context."
 msgstr ""
 
-#: manual/api/bin_float.md:721
+#: manual/api/bin_float.md:654
 msgid "The first argument is the precision $p$. Defaults: `RoundTiesToEven`, no explicit exponent bounds, `AfterRounding`. `new` aborts when $p \\le 0$, $p >$ `binary_precision_max`, or both bounds are given with $e_{\\min} > e_{\\max}$; `try_new` returns a `domain_error` in those cases. `unbounded(p)` has no explicit bounds, so only the implementation range applies."
 msgstr ""
 
-#: manual/api/bin_float.md:730
+#: manual/api/bin_float.md:663
 msgid "Contexts of the IEEE 754 interchange formats."
 msgstr ""
 
-#: manual/api/bin_float.md:739
+#: manual/api/bin_float.md:672
 msgid "Each is `BinaryInterchangeFormat::context` of the format:"
 msgstr ""
 
-#: manual/api/bin_float.md:750
+#: manual/api/bin_float.md:683
 msgid "Converts an `@lf_arith.ArithmeticContext`."
 msgstr ""
 
-#: manual/api/bin_float.md:756
+#: manual/api/bin_float.md:689
 msgid "Precision, rounding and the optional bounds are copied; the `clamp` field has no binary meaning and is ignored; tininess is `AfterRounding`. A precision outside $[1, 2^{28}]$ aborts, as in `new`."
 msgstr ""
 
-#: manual/api/bin_float.md:762
+#: manual/api/bin_float.md:695
 msgid "Read the fields of a context."
 msgstr ""
 
-#: manual/api/bin_float.md:772
+#: manual/api/bin_float.md:705
 msgid "`e_min` and `e_max` return the bounds as given (`None` for an unbounded side), not intersected with the implementation range."
 msgstr ""
 
-#: manual/api/bin_float.md:777
+#: manual/api/bin_float.md:710
 #: manual/api/decimal.md:580
 #: manual/api/decimal_gda.md:1336
 msgid "Read and set the refinement limit of the certified elementary functions."
 msgstr ""
 
-#: manual/api/bin_float.md:784
+#: manual/api/bin_float.md:717
 msgid "Every certified elementary function (`exp`, `ln`, the trigonometric, hyperbolic and inverse functions, `pow`, `rootn`, `hypot`, `atan2` and their `try_*_ctx` forms) evaluates an enclosure at a growing working precision until both ends round alike. The limit is the number of refinement steps: `Some(n)` allows `n` of them (a value below 1 counts as 1), the default is `Some(12)`, and `None` removes the count limit. When the limit is reached without a decision, `try_*_ctx` returns the `CertificationFailure` error with the refinement count, as before, and the plain and `*_ctx` forms return a quiet NaN with `invalid_operation`. With `None` the loop still stops when the working precision passes a cap, the larger of 8,000,000 bits and 256 times the first working precision, and the trigonometric work limit of 8,000,000 bits still refuses an argument that would need more. The default changes no result. The field takes part in `==`: two contexts that differ only in the limit are different."
 msgstr ""
 
-#: manual/api/bin_float.md:818
+#: manual/api/bin_float.md:751
 msgid "The five IEEE 754 exception flags raised by one or more operations."
 msgstr ""
 
-#: manual/api/bin_float.md:826
+#: manual/api/bin_float.md:759
 msgid "Two flag sets are `==` when all five flags agree."
 msgstr ""
 
-#: manual/api/bin_float.md:830
+#: manual/api/bin_float.md:763
 msgid "Build an empty flag set and read the individual flags."
 msgstr ""
 
-#: manual/api/bin_float.md:841
+#: manual/api/bin_float.md:774
 msgid "`new()` has every flag clear. A contextual operation returns only the flags it raised itself; nothing is sticky until you combine flags. The flags mean: `inexact`, the returned value differs from the exact result; `underflow`, the result is tiny and inexact; `overflow`, the rounded result exceeded the largest finite value (always together with `inexact`); `division_by_zero`, an exact infinite result from finite operands (such as $1/0$ or $\\log 0$); `invalid_operation`, no useful real result exists and a quiet NaN was returned, or a signaling NaN was an operand. The non-`try` elementary functions also raise it when they return NaN for a domain error or a certification failure."
 msgstr ""
 
-#: manual/api/bin_float.md:854
+#: manual/api/bin_float.md:787
 msgid "Returns the union of two flag sets."
 msgstr ""
 
-#: manual/api/bin_float.md:860
+#: manual/api/bin_float.md:793
 msgid "`combine` is a bitwise OR: associative, commutative and idempotent with `new()` as identity, so the flags of a computation can be accumulated in any order."
 msgstr ""
 
-#: manual/api/bin_float.md:864
+#: manual/api/bin_float.md:797
 #: manual/api/bin_float_checked.md:263
 msgid "Contextual arithmetic"
 msgstr ""
 
-#: manual/api/bin_float.md:866
+#: manual/api/bin_float.md:799
 msgid "Every method in this group returns `(value, flags)`, rounds the exact result once under the context, and applies the context exponent range: an overflow returns $\\pm\\infty$ or the largest finite magnitude depending on the rounding direction, and a tiny result is rounded on the subnormal grid with quantum $2^{e_{\\min}-p+1}$. The returned value carries the context precision. A NaN operand produces the first NaN operand quieted, with its sign and payload, and `invalid_operation` only when some operand was a signaling NaN."
 msgstr ""
 
-#: manual/api/bin_float.md:876
+#: manual/api/bin_float.md:809
 msgid "Rounds a value into a context."
 msgstr ""
 
-#: manual/api/bin_float.md:882
+#: manual/api/bin_float.md:815
 msgid "This is the IEEE conversion of a wider value to a narrower format. Finite values are rounded with the full overflow, subnormal and tininess rules; infinities are kept; a signaling NaN is quieted with `invalid_operation`."
 msgstr ""
 
-#: manual/api/bin_float.md:888
+#: manual/api/bin_float.md:821
 msgid "The four operations under a context."
 msgstr ""
 
-#: manual/api/bin_float.md:901
+#: manual/api/bin_float.md:834
 msgid "Invalid operations ($\\infty - \\infty$ with equal signs after `sub`'s negation, $0 \\cdot \\infty$, $0/0$, $\\infty/\\infty$) give a quiet NaN with `invalid_operation`; a nonzero finite number divided by zero gives a signed infinity with `division_by_zero`. An exact zero sum of operands with opposite signs is $+0$, except $-0$ under `RoundTowardNegative`; $(-0) + (-0) = -0$ (IEEE 754-2019 clause 6.3)."
 msgstr ""
 
-#: manual/api/bin_float.md:910
+#: manual/api/bin_float.md:843
 msgid "Square root under a context."
 msgstr ""
 
-#: manual/api/bin_float.md:916
+#: manual/api/bin_float.md:849
 msgid "$\\sqrt{\\pm 0} = \\pm 0$, $\\sqrt{+\\infty} = +\\infty$, and a negative nonzero argument gives a quiet NaN with `invalid_operation`."
 msgstr ""
 
-#: manual/api/bin_float.md:921
+#: manual/api/bin_float.md:854
 msgid "Fused multiply-add $\\circ(x \\cdot y + z)$ under a context."
 msgstr ""
 
-#: manual/api/bin_float.md:927
+#: manual/api/bin_float.md:860
 msgid "The product is formed exactly and the sum is rounded once (IEEE 754-2019 clause 5.4.1). A NaN operand propagates the first NaN of `self`, multiplier, addend. `invalid_operation` is raised for a signaling NaN, for $\\infty \\cdot 0$ (also when the addend is a quiet NaN, as SoftFloat does), and for $\\pm\\infty \\cdot y + (\\mp\\infty)$."
 msgstr ""
 
-#: manual/api/bin_float.md:935
+#: manual/api/bin_float.md:868
 msgid "IEEE 754 remainder under a context."
 msgstr ""
 
-#: manual/api/bin_float.md:941
+#: manual/api/bin_float.md:874
 msgid "The result is $r = x - n y$ with $n = \\operatorname{round\\_ties\\_even}(x/y)$, so $|r| \\le |y|/2$. A zero result has the sign of $x$. $x = \\pm\\infty$ or $y = 0$ gives a quiet NaN with `invalid_operation`; $y = \\pm\\infty$ or $x = 0$ returns $x$ rounded into the context. The exact $r$ is then rounded; for operands representable in the context this rounding is exact and no flag is raised. The quotient is never formed: the operands are reduced modulo $2y$, so huge exponent gaps cost $O(\\log)$ multiplications."
 msgstr ""
 
-#: manual/api/bin_float.md:951
+#: manual/api/bin_float.md:884
 msgid "Integer power $\\circ(x^n)$ under a context."
 msgstr ""
 
-#: manual/api/bin_float.md:957
+#: manual/api/bin_float.md:890
 msgid "This is IEEE 754 `pown`. $x^0 = 1$ without a flag for every $x$ except a signaling NaN (a quiet NaN included); a signaling NaN base gives a quiet NaN with its payload and `invalid_operation` for every exponent, zero included (§9.2.1, §7.2 a); $(\\pm 0)^{n<0} = \\pm\\infty$ (sign for odd $n$) with `division_by_zero`; $(\\pm\\infty)^n$ is an infinity or zero with the sign of an odd power. Small powers are computed exactly; otherwise a Ziv loop rounds an enclosure, with an exact fallback, so the result is always correctly rounded."
 msgstr ""
 
-#: manual/api/bin_float.md:978
+#: manual/api/bin_float.md:911
 msgid "IEEE 754 operations"
 msgstr ""
 
-#: manual/api/bin_float.md:982
+#: manual/api/bin_float.md:915
 msgid "Round to an integral value in the context's rounding direction."
 msgstr ""
 
-#: manual/api/bin_float.md:989
+#: manual/api/bin_float.md:922
 msgid "These are IEEE `roundToIntegral` (in the context's direction) and `roundToIntegralExact`. Only the rounding direction of the context is used; the result keeps the operand's precision and the sign of a zero result. `to_integral_exact_ctx` raises `inexact` when the value changed; `to_integral_value_ctx` never raises it. Infinities are returned unchanged and a signaling NaN is quieted with `invalid_operation`."
 msgstr ""
 
-#: manual/api/bin_float.md:998
+#: manual/api/bin_float.md:931
 msgid "Round to an integral value in a fixed direction."
 msgstr ""
 
-#: manual/api/bin_float.md:1008
+#: manual/api/bin_float.md:941
 msgid "They are `roundToIntegralTowardNegative`, `…TowardPositive`, `…TowardZero`, `…TiesToAway` and `…TiesToEven`. `round` rounds halfway cases away from zero: `round(-2.5) = -3`, while `round_ties_even(-2.5) = -2`."
 msgstr ""
 
-#: manual/api/bin_float.md:1014
+#: manual/api/bin_float.md:947
 msgid "IEEE `convertToInteger` to a machine integer, rounding in the context's direction."
 msgstr ""
 
-#: manual/api/bin_float.md:1024
+#: manual/api/bin_float.md:957
 msgid "The value is first rounded to an integer. If that integer fits the target type the result is `Some`; with `exact=true` (`convertToIntegerExact`) `inexact` is raised when rounding changed the value. A NaN, an infinity or an integer outside the target range gives `None` with `invalid_operation`, where a C implementation would return an unspecified sentinel. A negative value that rounds to zero converts to `0` for the unsigned targets."
 msgstr ""
 
-#: manual/api/bin_float.md:1033
+#: manual/api/bin_float.md:966
 msgid "IEEE `nextUp` and `nextDown` in the context's format."
 msgstr ""
 
-#: manual/api/bin_float.md:1040
+#: manual/api/bin_float.md:973
 msgid "`next_up_ctx(x)` is the least value of the context's format (precision and exponent range, subnormals included) that is greater than $x$; `next_down_ctx` is $-\\texttt{next\\_up}(-x)$. The context's rounding direction is ignored. The operations are quiet: $\\operatorname{nextUp}(\\pm 0)$ is the smallest positive subnormal, $\\operatorname{nextUp}(-\\infty)$ is the most negative finite value, $\\operatorname{nextUp}(\\Omega) = +\\infty$ with no overflow flag, and only a signaling NaN raises `invalid_operation`. An operand with more bits than the context precision is accepted."
 msgstr ""
 
-#: manual/api/bin_float.md:1051
+#: manual/api/bin_float.md:984
 msgid "IEEE `scaleB` and `logB`."
 msgstr ""
 
-#: manual/api/bin_float.md:1058
+#: manual/api/bin_float.md:991
 msgid "`x.scaleb_ctx(n, ctx)` is $\\circ(x \\cdot 2^n)$ with the usual overflow and underflow handling; it is exact unless the result leaves the normal range. `x.logb_ctx(ctx)` is $\\lfloor \\log_2 |x| \\rfloor$ as an exact integral value (also for subnormal $x$): $\\operatorname{logB}(0) = -\\infty$ with `division_by_zero`, $\\operatorname{logB}(\\pm\\infty) = +\\infty$, and a NaN propagates."
 msgstr ""
 
-#: manual/api/bin_float.md:1083
+#: manual/api/bin_float.md:1016
 #: manual/api/decimal.md:1309
 msgid "Comparison and ordering"
 msgstr ""
 
-#: manual/api/bin_float.md:1087
+#: manual/api/bin_float.md:1020
 msgid "Numerical three-way comparison that is total on every value."
 msgstr ""
 
-#: manual/api/bin_float.md:1094
+#: manual/api/bin_float.md:1027
 msgid "`compare` returns $-1$, $0$ or $1$ by numerical value, with $-0 = +0$ and precision ignored. NaN has no numerical order, so `compare` places every NaN equal to every other NaN and above every non-NaN value; it never aborts. The result is a total preorder, which is what `Compare` (and sorting) needs, but it is not the IEEE comparison: under it `nan > 1` holds. The operators `<`, `<=`, `>`, `>=` and the promoted `op_*` methods use `compare`. For IEEE semantics use `compare_checked`, the quiet and signaling predicates below, or `total_order`. The [design page](../design/bin_float.md#ordering-nan-in-compare) explains the choice."
 msgstr ""
 
-#: manual/api/bin_float.md:1106
+#: manual/api/bin_float.md:1039
 msgid "Numerical comparison that rejects NaN."
 msgstr ""
 
-#: manual/api/bin_float.md:1113
+#: manual/api/bin_float.md:1046
 msgid "Returns the same value as `compare` when neither operand is a NaN, and an `unordered_comparison` error otherwise."
 msgstr ""
 
-#: manual/api/bin_float.md:1118
+#: manual/api/bin_float.md:1051
 msgid "IEEE comparison as a four-valued relation with flags."
 msgstr ""
 
-#: manual/api/bin_float.md:1125
+#: manual/api/bin_float.md:1058
 msgid "The relation is `Less`, `Equal`, `Greater` or `Unordered` (some operand is a NaN), with $-0 = +0$. The quiet form raises `invalid_operation` only for a signaling NaN; the signaling form raises it for every unordered comparison (IEEE 754-2019 clause 5.11)."
 msgstr ""
 
-#: manual/api/bin_float.md:1132
+#: manual/api/bin_float.md:1065
 msgid "The IEEE comparison predicates."
 msgstr ""
 
-#: manual/api/bin_float.md:1144
+#: manual/api/bin_float.md:1077
 msgid "`compareQuietEqual`, `compareQuietLess`, `compareQuietLessEqual`, `compareQuietUnordered` and the signaling `Equal`, `Less`, `LessEqual`. Each is derived from `compare_quiet` or `compare_signaling` and returns its flags; every predicate except `compare_quiet_unordered` is false on an unordered pair."
 msgstr ""
 
-#: manual/api/bin_float.md:1151
+#: manual/api/bin_float.md:1084
 msgid "The IEEE 754 `totalOrder` relation."
 msgstr ""
 
-#: manual/api/bin_float.md:1159
+#: manual/api/bin_float.md:1092
 msgid "`total_order_compare` orders all values as"
 msgstr ""
 
-#: manual/api/bin_float.md:1165
+#: manual/api/bin_float.md:1098
 msgid "with NaNs of one sign and kind ordered by payload (reversed for the negative side). `x.total_order(y)` is `total_order_compare(x, y) <= 0` and `total_order_mag` compares absolute values. Values that are numerically equal but differ in precision compare equal. The operations are quiet."
 msgstr ""
 
-#: manual/api/bin_float.md:1172
+#: manual/api/bin_float.md:1105
 msgid "The smaller or larger of two values, ignoring a NaN operand."
 msgstr ""
 
-#: manual/api/bin_float.md:1179
+#: manual/api/bin_float.md:1112
 msgid "When exactly one operand is a NaN the other is returned (the IEEE 754-2008 `minNum`/`maxNum` convention for quiet NaNs); a signaling NaN is ignored in the same way, without quieting or a flag, and two NaNs give the argument. When the operands compare equal under `compare` (for example $-0$ and $+0$) the receiver is returned. No flags are produced."
 msgstr ""
 
-#: manual/api/bin_float.md:1187
+#: manual/api/bin_float.md:1120
 msgid "Restrict a value to `[min, max]`."
 msgstr ""
 
-#: manual/api/bin_float.md:1194
+#: manual/api/bin_float.md:1127
 msgid "A NaN receiver is returned unchanged. `clamp` aborts when a bound is a NaN or `min > max`; `clamp_checked` returns a `domain_error` in those cases."
 msgstr ""
 
-#: manual/api/bin_float.md:1216
+#: manual/api/bin_float.md:1149
 msgid "Text and hexadecimal conversion"
 msgstr ""
 
-#: manual/api/bin_float.md:1220
+#: manual/api/bin_float.md:1153
 msgid "Prints the exact stored value as `coefficient p exponent`."
 msgstr ""
 
-#: manual/api/bin_float.md:1227
+#: manual/api/bin_float.md:1160
 msgid "A finite nonzero value prints as `[-]<c>p<e>` with $c$ in decimal, meaning $c \\cdot 2^e$ (for example `3p-1` is $1.5$). Zeros print as `0` and `-0`, infinities as `inf` and `-inf`, and every NaN as `nan`. The form is exact and unambiguous but not a decimal rendering; use `to_shortest_string` for that."
 msgstr ""
 
-#: manual/api/bin_float.md:1234
+#: manual/api/bin_float.md:1167
 msgid "Parse a decimal literal with correct rounding (IEEE `convertFromDecimalCharacter`)."
 msgstr ""
 
-#: manual/api/bin_float.md:1242
+#: manual/api/bin_float.md:1175
 msgid "The accepted syntax is `[+-]digits[.digits][e[+-]digits]` (a leading or trailing point is allowed, the exponent marker is `e` or `E`), and the case-insensitive words `inf`, `infinity`, `nan`, `qnan` and `snan`, with surrounding whitespace ignored. Anything else is a `parse_error`. The exact decimal value $D \\cdot 10^k$ is rounded once under the context, for any number of digits and any exponent; overflow, underflow and inexact are reported as for arithmetic. `from_string(s, precision=p)` uses `unbounded(p)` (default 53) and drops the flags."
 msgstr ""
 
-#: manual/api/bin_float.md:1253
+#: manual/api/bin_float.md:1186
 msgid "Formats a value with a fixed number of significant decimal digits (IEEE `convertToDecimalCharacter`)."
 msgstr ""
 
-#: manual/api/bin_float.md:1260
+#: manual/api/bin_float.md:1193
 msgid "The output is `[-]d.ddd…e±x` with exactly `digits` significant digits (at least 1), correctly rounded in the context's rounding direction; `inexact` is raised when nonzero digits were dropped. Only the rounding direction of the context is used. Zero prints as `0.00…e+0` with its sign, infinities as `inf`/`-inf`, NaNs as `nan`/`snan` with their sign. The text parses back with `from_string_ctx`."
 msgstr ""
 
-#: manual/api/bin_float.md:1269
+#: manual/api/bin_float.md:1202
 msgid "Formats the shortest decimal that reads back as the same value."
 msgstr ""
 
-#: manual/api/bin_float.md:1276
+#: manual/api/bin_float.md:1209
 msgid "`to_shortest_string_ctx(x, ctx)` returns the decimal with the fewest significant digits that `from_string_ctx(_, ctx)` maps back to $x$ under round-to-nearest-even (the context's own rounding direction is ignored). When two candidates of that length read back, the nearer one is chosen, then the one with an even last digit. The layout follows ECMAScript `Number#toString`: positional notation for decimal exponents in $[-6, 21)$, otherwise `d.ddde±x`; unlike ECMAScript, $-0$ prints as `-0`. For binary64 values in `BinaryContext::binary64()` the result equals the host `Double` formatter. `to_shortest_string()` uses `unbounded(precision())`, so it is the shortest string that `from_string(text, precision=x.precision())` maps back to `x`. The operand should be representable in the context."
 msgstr ""
 
-#: manual/api/bin_float.md:1290
+#: manual/api/bin_float.md:1223
 msgid "Read and write the exact value with a hexadecimal coefficient."
 msgstr ""
 
-#: manual/api/bin_float.md:1298
+#: manual/api/bin_float.md:1231
 msgid "The syntax is the IEEE 754-2019 §5.12.3 hexSequence: an optional sign, `0x` or `0X`, hexadecimal digits with at most one point (`1.8`, `.8` or `1.`), and a required `p` or `P` exponent with an optional sign and decimal digits. The value is the hexadecimal significand times $2^{\\text{exponent}}$, so `0x3p-1` and `0x1.8p0` are both $1.5$. `from_hex(s, p)` rounds once to precision `p` with nearest-even and reports no flags. `from_hex_ctx(s, context)` is the §5.12.3 conversion: it rounds the exact value once under the rounding direction, precision, exponent range and tininess rule of `context` and returns the `inexact`, `underflow` and `overflow` flags, like `from_string_ctx`. An exponent outside the 32-bit range overflows or underflows there instead of being a parse error. Both accept `inf`, `infinity`, `nan` and `snan` in any case with an optional sign (§5.12.1); `snan` gives a signaling NaN. Surrounding whitespace is trimmed; any other text is a `parse_error`. `to_hex` prints the stored coefficient in lower case, `0x0p0` or `-0x0p0` for a zero, and `nan`/`inf` with a sign."
 msgstr ""
 
-#: manual/api/bin_float.md:1334
+#: manual/api/bin_float.md:1267
 #: manual/api/decimal_gda.md:1695
 #: manual/design/decimal.md:687
 #: manual/tutorial/decimal_gda.md:346
 msgid "Interchange encodings"
 msgstr ""
 
-#: manual/api/bin_float.md:1338
+#: manual/api/bin_float.md:1271
 msgid "The four IEEE 754 binary interchange formats."
 msgstr ""
 
-#: manual/api/bin_float.md:1351
+#: manual/api/bin_float.md:1284
 msgid "The parameters of a format."
 msgstr ""
 
-#: manual/api/bin_float.md:1363
+#: manual/api/bin_float.md:1296
 #: manual/api/cli/mpfr_expr_cli.md:46
 #: manual/design/bin_float.md:77
 #: manual/design/decimal.md:87
@@ -2439,638 +2387,638 @@ msgstr ""
 msgid "Format"
 msgstr ""
 
-#: manual/api/bin_float.md:1372
+#: manual/api/bin_float.md:1305
 msgid "Returns the `BinaryContext` of the format."
 msgstr ""
 
-#: manual/api/bin_float.md:1380
+#: manual/api/bin_float.md:1313
 msgid "An encoded value: a format and its bit pattern."
 msgstr ""
 
-#: manual/api/bin_float.md:1388
+#: manual/api/bin_float.md:1321
 msgid "Equality compares the format and the bits, so two encodings of NaN with different payloads differ and $\\pm 0$ differ."
 msgstr ""
 
-#: manual/api/bin_float.md:1393
+#: manual/api/bin_float.md:1326
 msgid "Return the format and the bit pattern of an encoding."
 msgstr ""
 
-#: manual/api/bin_float.md:1400
+#: manual/api/bin_float.md:1333
 msgid "`bits()` is the encoding as a natural number below $2^k$, $k$ = `total_bits`: the sign bit is bit $k-1$, the biased exponent field the next $w$ bits and the trailing significand field the low $p-1$ bits."
 msgstr ""
 
-#: manual/api/bin_float.md:1406
+#: manual/api/bin_float.md:1339
 msgid "Build or print an encoding."
 msgstr ""
 
-#: manual/api/bin_float.md:1414
+#: manual/api/bin_float.md:1347
 msgid "`from_bits` keeps the low `total_bits` bits. `from_hex` needs exactly `total_bits / 4` hexadecimal digits, optionally prefixed with `0x` or `#`, and returns `None` otherwise. `to_hex` prints upper-case digits padded to the full width."
 msgstr ""
 
-#: manual/api/bin_float.md:1421
+#: manual/api/bin_float.md:1354
 msgid "Decodes an encoding exactly."
 msgstr ""
 
-#: manual/api/bin_float.md:1427
+#: manual/api/bin_float.md:1360
 msgid "The result has the format precision. Normal and subnormal numbers, signed zeros and infinities decode exactly; a NaN keeps its sign and payload (the fraction without the quiet bit), and a signaling NaN stays signaling. No host `Float` or `Double` is involved."
 msgstr ""
 
-#: manual/api/bin_float.md:1434
+#: manual/api/bin_float.md:1367
 msgid "Convert a value to a binary interchange format and return it as a `BinFloat`."
 msgstr ""
 
-#: manual/api/bin_float.md:1440
+#: manual/api/bin_float.md:1373
 msgid "The IEEE 754-2019 §5.4.2 formatOf-convertFormat operation, with the parameters of `to_interchange` and the value instead of the encoding. A conversion to a wider precision and range is exact and raises nothing; to a narrower one the value is rounded under `rounding` and `tininess` with `inexact`, `underflow` and `overflow`. A signaling NaN gives a quiet NaN and `invalid_operation`, also when the source already has the destination's precision (the canonicalizing conversion). A NaN payload is kept when the destination holds it and truncated to its low bits otherwise (§6.2.3), so the result is exactly what decoding `to_interchange` returns. `round_ctx` and `to_interchange` stay."
 msgstr ""
 
-#: manual/api/bin_float.md:1468
+#: manual/api/bin_float.md:1401
 msgid "Round a value into a format and encode it."
 msgstr ""
 
-#: manual/api/bin_float.md:1475
+#: manual/api/bin_float.md:1408
 msgid "The two are the same operation: `round_ctx` with the format's context, then encoding. A signaling NaN is encoded as a quiet NaN with `invalid_operation`, and a payload is truncated to the payload field."
 msgstr ""
 
-#: manual/api/bin_float.md:1501
+#: manual/api/bin_float.md:1434
 msgid "Each elementary function has three forms:"
 msgstr ""
 
-#: manual/api/bin_float.md:1503
+#: manual/api/bin_float.md:1436
 msgid "`f(x)` rounds to nearest-even at the precision of `x` (the larger precision for two operands) with the implementation exponent range;"
 msgstr ""
 
-#: manual/api/bin_float.md:1505
+#: manual/api/bin_float.md:1438
 msgid "`f_ctx(x, ctx)` rounds under `ctx` and returns `(value, flags)`;"
 msgstr ""
 
-#: manual/api/bin_float.md:1506
+#: manual/api/bin_float.md:1439
 msgid "`try_f_ctx(x, ctx)` returns the same pair in `Ok`, or an `@lf_arith.ArithmeticError`."
 msgstr ""
 
-#: manual/api/bin_float.md:1509
+#: manual/api/bin_float.md:1442
 msgid ""
 "All three run the same certified algorithm. It computes an enclosure $[L, U] \\n"
 "i f(x)$ whose every internal operation is rounded downward for $L$ and upward for $U$, at a working precision $w$ that starts at $p + 64$ bits (or at the operand precision plus 16 when that is larger, for `rootn`, the inverse trigonometric and the hyperbolic functions). If $L$ and $U$ round to the same value with the same flags, that value is returned; otherwise $w$ grows by $\\max(32, \\lfloor w/2 \\rfloor)$, for at most 12 attempts. Because rounding is monotone, a returned value is the correctly rounded result $\\circ(f(x))$, never an uncertified approximation; the [design page](../design/bin_float.md#certified-elementary-functions) gives the argument for the value and the flags."
 msgstr ""
 
-#: manual/api/bin_float.md:1521
+#: manual/api/bin_float.md:1454
 msgid "When the attempts run out, `try_f_ctx` returns a `certification_failure` error whose `CertificationFailureDetail` names the operation, the stage (`RangeReduction` or `TargetRounding`), the reason and the last working precision. An argument outside the real domain gives a `domain_error` from `try_f_ctx`. The non-`try` forms turn both kinds of error into a quiet NaN with `invalid_operation`. NaN operands propagate quietly (a signaling NaN raises `invalid_operation`), and poles return a signed infinity with `division_by_zero` (for example $\\ln 0 = -\\infty$, $\\operatorname{atanh}(1) = +\\infty$). Exactly representable results that an enclosure cannot isolate are detected before the loop, for example $\\log_2 2^k = k$, $2^n$ for integral $n$, $10^n$ for integral $n \\ge 0$, dyadic powers such as $16^{3/4} = 8$, exact roots such as $\\operatorname{rootn}(8, -3) = 1/2$, $\\sin(\\pm 0) = \\pm 0$ and $\\operatorname{sinpi}(1/2) = 1$; each function lists its own cases below. They are rounded once from their exact value, so their flags are right in every rounding mode."
 msgstr ""
 
-#: manual/api/bin_float.md:1538
+#: manual/api/bin_float.md:1471
 msgid "Every result that reaches the loop is not a rounding breakpoint, so an enclosure end that is itself representable (such as $1$ for $e^x$ or $x$ for $\\sin x$ at a tiny $x$) cannot be the result. The functions other than `rootn` move such an end just inside the enclosure before rounding it; `pow` does so once its exactness test has excluded a breakpoint. In addition, `sin`, `tan`, `asin`, `sinh`, `tanh`, `asinh` and `atanh` decide an argument with $|x|^3$ below the target spacing at $x$ directly from $|f(x) - x| \\le |x|^3$, and `cos`, `cosh`, `expm1` and `log1p` do the same with $x^2$ (around $1$ for `cos` and `cosh`, around $x$ for the others), before the loop. Tiny arguments are therefore certified in every rounding mode: `sin` of $2^{-6000}$ at 53 bits is $2^{-6000}$ with `inexact`, and $e^{2^{-20000}}$ rounded toward zero is $1$ with `inexact`."
 msgstr ""
 
-#: manual/api/bin_float.md:1553
+#: manual/api/bin_float.md:1486
 msgid "The exponential $e^x$."
 msgstr ""
 
-#: manual/api/bin_float.md:1561
+#: manual/api/bin_float.md:1494
 msgid "Defined on all of $\\mathbb{R}$: $e^{\\pm 0} = 1$ exactly, $e^{-\\infty} = +0$ and $e^{+\\infty} = +\\infty$. Results certainly beyond the exponent range are decided from certified bounds on $\\log_2 e$ before the main loop, so huge arguments overflow or underflow with the correct flags instead of failing."
 msgstr ""
 
-#: manual/api/bin_float.md:1568
+#: manual/api/bin_float.md:1501
 msgid "$e^x - 1$ without the cancellation of `exp(x) - 1` near zero."
 msgstr ""
 
-#: manual/api/bin_float.md:1576
+#: manual/api/bin_float.md:1509
 msgid "$\\operatorname{expm1}(\\pm 0) = \\pm 0$, $\\operatorname{expm1}(-\\infty) = -1$ and $\\operatorname{expm1}(+\\infty) = +\\infty$. For $x \\le -(p+3)\\ln 2$ the value lies within $2^{-(p+3)}$ above $-1$, and the result is decided from the rounding direction alone: $-1$, or $-(1 - 2^{-p})$ when rounding toward zero or $+\\infty$, always inexact."
 msgstr ""
 
-#: manual/api/bin_float.md:1584
+#: manual/api/bin_float.md:1517
 msgid "$2^x - 1$ without the cancellation of `exp2(x) - 1` near zero."
 msgstr ""
 
-#: manual/api/bin_float.md:1592
+#: manual/api/bin_float.md:1525
 msgid "IEEE 754-2019 §9.2: $\\operatorname{exp2m1}(\\pm 0) = \\pm 0$, $\\operatorname{exp2m1}(-\\infty) = -1$ and $\\operatorname{exp2m1}(+\\infty) = +\\infty$, with no exception. An integral $x$ gives the exact integer $2^x - 1$ (or $-(1 - 2^{x})$ for $x < 0$), rounded as a dyadic: exact or a rounding tie while it has at most $p + 1$ bits, and otherwise the neighbour of $2^x$ chosen by the rounding direction without forming $2^x - 1$. For $x \\le -(p + 3)$ the value lies within $2^{-(p+3)}$ above $-1$ and the rounding direction alone decides (as for `expm1`). A result certainly beyond the exponent range is decided before the main loop, so $x$ near $e_{\\max} + 1$ overflows with the correct flags."
 msgstr ""
 
-#: manual/api/bin_float.md:1604
+#: manual/api/bin_float.md:1537
 msgid "$10^x - 1$ without the cancellation of `exp10(x) - 1` near zero."
 msgstr ""
 
-#: manual/api/bin_float.md:1612
+#: manual/api/bin_float.md:1545
 msgid "IEEE 754-2019 §9.2: the special values of `exp2m1`. A positive integer $x \\le \\max(4096, p)$ gives the exact integer $10^x - 1$, rounded as a dyadic. Saturation towards $-1$ and the overflow decision follow `exp2m1`, with $\\log_2 10$ in place of 1."
 msgstr ""
 
-#: manual/api/bin_float.md:1619
+#: manual/api/bin_float.md:1552
 msgid "The power of two $2^x$."
 msgstr ""
 
-#: manual/api/bin_float.md:1627
+#: manual/api/bin_float.md:1560
 msgid "An integral $x$ with $|x| < 2^{31}$ gives the exact $2^x$, rounded into the context only when it leaves the exponent range. The other special values are those of `exp`."
 msgstr ""
 
-#: manual/api/bin_float.md:1633
+#: manual/api/bin_float.md:1566
 msgid "The power of ten $10^x$."
 msgstr ""
 
-#: manual/api/bin_float.md:1641
+#: manual/api/bin_float.md:1574
 msgid "An integral $x$ in $[0, \\max(4096, p)]$ gives the exact $10^x = 5^x 2^x$, rounded once. For a larger integral $x$ the odd part $5^x$ has more than $p + 1$ bits, so the result is neither representable nor a midpoint, and a negative integral $x$ gives a value that is never dyadic; both are always inexact. The other special values are those of `exp`."
 msgstr ""
 
-#: manual/api/bin_float.md:1649
+#: manual/api/bin_float.md:1582
 msgid "The natural logarithm $\\ln x$."
 msgstr ""
 
-#: manual/api/bin_float.md:1657
+#: manual/api/bin_float.md:1590
 msgid "The domain is $x > 0$. $\\ln 1 = +0$ exactly; $\\ln(\\pm 0) = -\\infty$ with `division_by_zero`; $\\ln(+\\infty) = +\\infty$. A negative finite argument is a `domain_error`, while $-\\infty$ gives a quiet NaN with `invalid_operation` also from `try_ln_ctx`."
 msgstr ""
 
-#: manual/api/bin_float.md:1664
+#: manual/api/bin_float.md:1597
 msgid "$\\ln(1 + x)$ without the rounding of `1 + x`."
 msgstr ""
 
-#: manual/api/bin_float.md:1672
+#: manual/api/bin_float.md:1605
 msgid "The domain is $x > -1$. $\\operatorname{log1p}(\\pm 0) = \\pm 0$, $\\operatorname{log1p}(-1) = -\\infty$ with `division_by_zero`, a finite $x < -1$ is a `domain_error`, and $-\\infty$ gives a quiet NaN with `invalid_operation`."
 msgstr ""
 
-#: manual/api/bin_float.md:1679
+#: manual/api/bin_float.md:1612
 msgid "$\\log_2(1 + x)$ without the rounding of `1 + x`."
 msgstr ""
 
-#: manual/api/bin_float.md:1687
+#: manual/api/bin_float.md:1620
 msgid "The domain is $x \\ge -1$ (Table 9.1). $\\operatorname{log2p1}(\\pm 0) = \\pm 0$, $\\operatorname{log2p1}(+\\infty) = +\\infty$, $\\operatorname{log2p1}(-1) = -\\infty$ with `division_by_zero`, a finite $x < -1$ is a `domain_error`, and $-\\infty$ gives a quiet NaN with `invalid_operation`. $x = 2^k - 1$ (and $x = -(1 - 2^{-k})$) gives the exact integer $k$ (and $-k$)."
 msgstr ""
 
-#: manual/api/bin_float.md:1695
+#: manual/api/bin_float.md:1628
 msgid "$\\log_{10}(1 + x)$ without the rounding of `1 + x`."
 msgstr ""
 
-#: manual/api/bin_float.md:1703
+#: manual/api/bin_float.md:1636
 msgid "The special values of `log2p1`. $x = 10^k - 1$ for an integer $k \\ge 1$ gives the exact integer $k$."
 msgstr ""
 
-#: manual/api/bin_float.md:1708
+#: manual/api/bin_float.md:1641
 msgid "The binary logarithm $\\log_2 x$."
 msgstr ""
 
-#: manual/api/bin_float.md:1716
+#: manual/api/bin_float.md:1649
 msgid "Special values and domain as for `ln`. A power of two $2^k$ gives the exact integer $k$, rounded into the context."
 msgstr ""
 
-#: manual/api/bin_float.md:1721
+#: manual/api/bin_float.md:1654
 msgid "The decimal logarithm $\\log_{10} x$."
 msgstr ""
 
-#: manual/api/bin_float.md:1729
+#: manual/api/bin_float.md:1662
 msgid "Special values and domain as for `ln`. $x = 10^k$ with $k \\ge 1$ (stored as the coefficient $5^k$ and exponent $k$) gives the exact integer $k$, rounded into the context, at any precision that holds $10^k$."
 msgstr ""
 
-#: manual/api/bin_float.md:1735
+#: manual/api/bin_float.md:1668
 msgid "The real power $x^y$."
 msgstr ""
 
-#: manual/api/bin_float.md:1743
+#: manual/api/bin_float.md:1676
 msgid "The cases are tried in this order, as in IEEE 754-2019 §9.2.1:"
 msgstr ""
 
-#: manual/api/bin_float.md:1745
+#: manual/api/bin_float.md:1678
 msgid "$x^{\\pm 0} = 1$ for every $x$, and $1^y = 1$ for every $y$, NaN included (also a signaling NaN, without `invalid_operation`)."
 msgstr ""
 
-#: manual/api/bin_float.md:1747
+#: manual/api/bin_float.md:1680
 msgid "An integral $y$ with $|y| < 2^{31}$ is `pown_ctx(x, y)`."
 msgstr ""
 
-#: manual/api/bin_float.md:1748
+#: manual/api/bin_float.md:1681
 msgid "A NaN operand propagates."
 msgstr ""
 
-#: manual/api/bin_float.md:1749
+#: manual/api/bin_float.md:1682
 msgid "An infinite $y$: $(\\pm 1)^{\\pm\\infty} = 1$; otherwise the result is $+\\infty$ when $|x| > 1$ and $y = +\\infty$ or $|x| < 1$ and $y = -\\infty$, and $+0$ in the other two cases, $x = \\pm 0$ included ($(\\pm 0)^{-\\infty} = +\\infty$). No flag is raised."
 msgstr ""
 
-#: manual/api/bin_float.md:1753
+#: manual/api/bin_float.md:1686
 msgid "An infinite $x$: $(\\pm\\infty)^{y < 0}$ is a zero and $(\\pm\\infty)^{y > 0}$ an infinity, negative only for $x = -\\infty$ and an odd integral $y$. No flag is raised."
 msgstr ""
 
-#: manual/api/bin_float.md:1756
+#: manual/api/bin_float.md:1689
 msgid "A zero $x$: $(\\pm 0)^{y < 0}$ is an infinity with `division_by_zero` and $(\\pm 0)^{y > 0}$ a zero, negative only for $x = -0$ and an odd integral $y$; so $(-0)^{3/4} = +0$."
 msgstr ""
 
-#: manual/api/bin_float.md:1759
+#: manual/api/bin_float.md:1692
 msgid "A negative finite $x$ with a non-integral $y$ is a `domain_error`. With an integral $y$ (here $|y| \\ge 2^{31}$) the result is $|x|^y$ for an even $y$ and $-|x|^y$ for an odd one, computed with the directed rounding modes swapped."
 msgstr ""
 
-#: manual/api/bin_float.md:1763
+#: manual/api/bin_float.md:1696
 msgid "$y = \\pm 2^{-k}$ with $1 \\le k \\le 29$ is `try_rootn_ctx(x, \\pm 2^k)`."
 msgstr ""
 
-#: manual/api/bin_float.md:1764
+#: manual/api/bin_float.md:1697
 msgid "A result certainly outside the exponent range is decided from certified bounds on $\\log_2 x$."
 msgstr ""
 
-#: manual/api/bin_float.md:1766
+#: manual/api/bin_float.md:1699
 msgid "An exactly dyadic result is computed and rounded once. For $x = c \\cdot 2^e$ and $y = m / 2^k$ ($c$, $m$ odd, $1 \\le k \\le 30$) it exists exactly when $2^k$ divides $e$ and $c$ is a perfect $2^k$-th power $r$ (tested as for `rootn`, for coefficients of any size); then $x^y = r^m \\cdot 2^{me/2^k}$, which is dyadic for $m < 0$ only when $r = 1$. So $16^{3/4} = 8$ without `inexact`. A dyadic result whose odd part would need more than $2p + 64$ bits is not a rounding breakpoint and is left to the next step."
 msgstr ""
 
-#: manual/api/bin_float.md:1774
+#: manual/api/bin_float.md:1707
 msgid "Otherwise the value is certified from enclosures of $e^{y \\ln x}$."
 msgstr ""
 
-#: manual/api/bin_float.md:1776
+#: manual/api/bin_float.md:1709
 msgid "Integrality and parity of $y$ are read from its odd coefficient: a finite nonzero $y$ is integral when `exponent2()` $\\ge 0$ and odd when it is $0$. When step 10 has shown that the result is not a rounding breakpoint, step 11 moves a representable enclosure end just inside before rounding, so an exponent so small that $x^y$ lies closer to $1$ than the target spacing is still certified: $2^{2^{-16000}}$ in `binary128()` is $1$ with `inexact`. A few results with a power-of-two base that step 10 cannot classify (an exponent of magnitude at least $2^{31}$, or a scale outside the 32-bit range) keep the plain test."
 msgstr ""
 
-#: manual/api/bin_float.md:1788
+#: manual/api/bin_float.md:1721
 msgid "The real $n$-th root $x^{1/n}$."
 msgstr ""
 
-#: manual/api/bin_float.md:1796
+#: manual/api/bin_float.md:1729
 msgid "$n = 0$ is a `domain_error`, an invalid operation, for every $x$, a quiet NaN and $\\pm 0$ included (IEEE 754-2019 Table 9.1, \"n = 0: invalid operation\"); it is not `division_by_zero`, which §7.3 keeps for an exact infinite result on finite operands, here $\\operatorname{rootn}(\\pm 0, n)$ with $n < 0$. `rootn_ctx` then returns a quiet NaN with `invalid`. Every other `Int` degree is supported, including `Int.min`; a NaN propagates. A negative $n$ gives $x^{-1/|n|}$."
 msgstr ""
 
-#: manual/api/bin_float.md:1799
+#: manual/api/bin_float.md:1732
 msgid "odd $n > 0$"
 msgstr ""
 
-#: manual/api/bin_float.md:1799
+#: manual/api/bin_float.md:1732
 msgid "even $n > 0$"
 msgstr ""
 
-#: manual/api/bin_float.md:1799
+#: manual/api/bin_float.md:1732
 msgid "odd $n < 0$"
 msgstr ""
 
-#: manual/api/bin_float.md:1799
+#: manual/api/bin_float.md:1732
 msgid "even $n < 0$"
 msgstr ""
 
-#: manual/api/bin_float.md:1805
+#: manual/api/bin_float.md:1738
 msgid "finite $x < 0$"
 msgstr ""
 
-#: manual/api/bin_float.md:1807
+#: manual/api/bin_float.md:1740
 msgid "So $\\operatorname{rootn}(-8, 3) = -2$. $n = 1$ rounds $x$ into the context and $n = -1$ is the correctly rounded $1/x$. For any other degree an exact root is detected when $|n|$ divides the exponent of $x = c \\cdot 2^e$ and the odd coefficient $c$ (of any size) is a perfect $|n|$-th power $r$; the result is then $\\pm r \\cdot 2^{e/|n|}$ rounded once, or for $n < 0$ the correctly rounded reciprocal of it. So $\\operatorname{rootn}(8, -3) = 1/2$ without `inexact` in every rounding mode, and an exact square root of a 6001-bit coefficient is found as well."
 msgstr ""
 
-#: manual/api/bin_float.md:1818
+#: manual/api/bin_float.md:1751
 msgid "The reciprocal square root $1/\\sqrt{x}$ (`rSqrt` of IEEE 754-2019 §9.2)."
 msgstr ""
 
-#: manual/api/bin_float.md:1826
+#: manual/api/bin_float.md:1759
 msgid "§9.2.1: $\\operatorname{rSqrt}(+\\infty) = +0$ with no exception and $\\operatorname{rSqrt}(\\pm 0) = \\pm\\infty$ with `division_by_zero`, so $\\operatorname{rSqrt}(-0) = -\\infty$ (MPFR's `mpfr_rec_sqrt` returns $+\\infty$ there by its own convention, and the oracle rows follow the standard). A negative finite $x$ and $-\\infty$ are a `domain_error` (Table 9.1, \"$x < 0$: invalid operation\"); a signaling NaN is invalid and a quiet NaN propagates. A positive finite $x$ is `rootn_ctx(x, -2)`: a power of four $4^k$ gives the exact $2^{-k}$ without `inexact`, and an exponent far outside the range is decided without forming the root."
 msgstr ""
 
-#: manual/api/bin_float.md:1838
+#: manual/api/bin_float.md:1771
 msgid "The compound factor $(1 + x)^n$ for an integer $n$, with the exact sum $1 + x$ (interest and growth rates, without the rounding of `1 + x`)."
 msgstr ""
 
-#: manual/api/bin_float.md:1847
+#: manual/api/bin_float.md:1780
 msgid "The special values of §9.2.1 are decided first, a signaling NaN before any of them:"
 msgstr ""
 
-#: manual/api/bin_float.md:1852
+#: manual/api/bin_float.md:1785
 msgid "quiet NaN"
 msgstr ""
 
-#: manual/api/bin_float.md:1853
+#: manual/api/bin_float.md:1786
 msgid "$-\\infty$, finite $x < -1$"
 msgstr ""
 
-#: manual/api/bin_float.md:1858
+#: manual/api/bin_float.md:1791
 msgid "Otherwise $1 + x$ is formed exactly (for any operand up to $2^{26}$ bits) and the result is `pown_ctx(1 + x, n)`, so the exact cases, the range decision and the single rounding are those of `pown`. When $|n x|$ is below $2^{-(p + 9)}$ the result is the neighbour of $1$ (or $1$) that the rounding direction chooses, always inexact and never an underflow. A wider operand (beyond $2^{26}$ bits) is not representable in the context and is certified from $n \\cdot \\operatorname{log1p}(x)$."
 msgstr ""
 
-#: manual/api/bin_float.md:1868
+#: manual/api/bin_float.md:1801
 msgid "The real power $x^y$ defined as $\\exp(y \\ln x)$, so that the domain excludes a negative $x$ (`powr` of IEEE 754-2019 §9.2)."
 msgstr ""
 
-#: manual/api/bin_float.md:1877
+#: manual/api/bin_float.md:1810
 msgid "The cases are tried in this order, as in §9.2.1; every `domain_error` below is a quiet NaN with `invalid_operation` from `powr_ctx`:"
 msgstr ""
 
-#: manual/api/bin_float.md:1880
+#: manual/api/bin_float.md:1813
 msgid "A signaling NaN operand is invalid; a quiet NaN base gives a quiet NaN."
 msgstr ""
 
-#: manual/api/bin_float.md:1881
+#: manual/api/bin_float.md:1814
 msgid "A negative $x$ ($-\\infty$ included, a quiet NaN exponent too) is invalid: $\\operatorname{powr}(x, y)$ for $x < 0$ is never a real number."
 msgstr ""
 
-#: manual/api/bin_float.md:1883
+#: manual/api/bin_float.md:1816
 msgid "A quiet NaN $y$ gives a quiet NaN."
 msgstr ""
 
-#: manual/api/bin_float.md:1884
+#: manual/api/bin_float.md:1817
 msgid "$x = \\pm 0$: $y = \\pm 0$ is invalid; $y = -\\infty$ gives $+\\infty$ with no exception; a finite $y < 0$ gives $+\\infty$ with `division_by_zero`; $y > 0$ gives $+0$."
 msgstr ""
 
-#: manual/api/bin_float.md:1887
+#: manual/api/bin_float.md:1820
 msgid "$x = +\\infty$: $y = \\pm 0$ is invalid; $y < 0$ gives $+0$; $y > 0$ gives $+\\infty$."
 msgstr ""
 
-#: manual/api/bin_float.md:1889
+#: manual/api/bin_float.md:1822
 msgid "$x = +1$: $\\pm\\infty$ is invalid, any other $y$ gives $1$."
 msgstr ""
 
-#: manual/api/bin_float.md:1890
+#: manual/api/bin_float.md:1823
 msgid "$y = \\pm 0$ gives $1$."
 msgstr ""
 
-#: manual/api/bin_float.md:1891
+#: manual/api/bin_float.md:1824
 msgid "Otherwise $x > 0$ and $y$ is finite and nonzero: `try_pow_ctx(x, y)`, which owns the exact dyadic cases, the range decision and the rounding."
 msgstr ""
 
-#: manual/api/bin_float.md:1894
+#: manual/api/bin_float.md:1827
 msgid "So $\\operatorname{powr}(\\pm 0, \\pm 0)$, $\\operatorname{powr}(+\\infty, \\pm 0)$ and $\\operatorname{powr}(1, \\pm\\infty)$ are invalid operations, where `pow` gives $1$ for the first two and for $1^{\\pm\\infty}$ (§9.2.1)."
 msgstr ""
 
-#: manual/api/bin_float.md:1900
+#: manual/api/bin_float.md:1833
 msgid "$\\sqrt{x^2 + y^2}$ without intermediate overflow or underflow."
 msgstr ""
 
-#: manual/api/bin_float.md:1908
+#: manual/api/bin_float.md:1841
 msgid "The squares are formed exactly and one correctly rounded square root is taken, so the result is $\\circ(\\sqrt{x^2+y^2})$ and exact when the root is. $\\operatorname{hypot}(\\pm\\infty, y) = +\\infty$ even when $y$ is a NaN (`invalid_operation` is raised only for a signaling NaN). When the smaller operand $b$ is too small to move $\\sqrt{a^2 + b^2}$ past the next rounding breakpoint above $|a|$, it is replaced by a power of two that rounds the same way: for $|a| = c \\cdot 2^e$ with leading bit $2^t$ and $g = \\min(e, t - p - 1)$, every $|b| < 2^{g - 3}$ becomes $2^{g - 3}$. The exact sum stays small however far apart the exponents are: $\\operatorname{hypot}(1, 2^{-600000})$ is $1$ with `inexact`. The exact sum is refused with a `certification_failure` only when its two squares would still be shifted against each other by more than $10^6$ bits, which needs an operand or target precision near $500\\,000$ bits."
 msgstr ""
 
-#: manual/api/bin_float.md:1924
+#: manual/api/bin_float.md:1857
 msgid "The sine of an argument in radians."
 msgstr ""
 
-#: manual/api/bin_float.md:1932
+#: manual/api/bin_float.md:1865
 msgid "$\\sin(\\pm 0) = \\pm 0$ exactly; an infinite argument is a `domain_error`. The argument is reduced by an enclosure of $\\pi/2$ computed at a working precision of at least $p + \\max(0, \\lfloor\\log_2|x|\\rfloor + 1) + 96$ bits, so the quadrant is certain for every finite input. When that starting precision exceeds $10^6$ bits, that is for $|x| \\ge 2^{10^6 - p - 96}$, the result is a `certification_failure` with stage `RangeReduction` and reason `ResourceLimit`, returned at once; no attempt goes beyond $10^6$ bits."
 msgstr ""
 
-#: manual/api/bin_float.md:1942
+#: manual/api/bin_float.md:1875
 msgid "The cosine of an argument in radians."
 msgstr ""
 
-#: manual/api/bin_float.md:1950
+#: manual/api/bin_float.md:1883
 msgid "$\\cos(\\pm 0) = 1$ exactly. Reduction, domain and limits as for `sin`."
 msgstr ""
 
-#: manual/api/bin_float.md:1954
+#: manual/api/bin_float.md:1887
 msgid "The tangent of an argument in radians."
 msgstr ""
 
-#: manual/api/bin_float.md:1962
+#: manual/api/bin_float.md:1895
 msgid "$\\tan(\\pm 0) = \\pm 0$ exactly. Reduction, domain and limits as for `sin`. No binary argument is an odd multiple of $\\pi/2$, so there is no pole; an enclosure of the cosine that contains zero is refined like any other."
 msgstr ""
 
-#: manual/api/bin_float.md:1976
+#: manual/api/bin_float.md:1909
 msgid "The period is reduced exactly on the binary representation, so huge arguments cost nothing extra. For integral $n$, $\\operatorname{sinpi}(n)$ is $\\pm 0$ with the sign of $n$; at $n + \\frac12$ it is $\\pm 1$. An infinite argument is a `domain_error`. By Niven's theorem these are the only dyadic arguments with a dyadic result."
 msgstr ""
 
-#: manual/api/bin_float.md:1992
+#: manual/api/bin_float.md:1925
 msgid "$\\operatorname{cospi}(n) = (-1)^n$ for integral $n$ and $\\operatorname{cospi}(n + \\frac12) = +0$. Reduction and domain as for `sinpi`."
 msgstr ""
 
-#: manual/api/bin_float.md:2006
+#: manual/api/bin_float.md:1939
 msgid "For integral $n$, $\\operatorname{tanpi}(n)$ is a zero with the sign of $\\operatorname{sinpi}(n) / \\operatorname{cospi}(n)$: $-0$ for positive odd and negative even $n$ (including $-0$), $+0$ otherwise, so `tanpi(1)` is $-0$ and `tanpi(-1)` is $+0$. $\\operatorname{tanpi}(n + \\frac12)$ is $+\\infty$ for even $n$ and $-\\infty$ for odd $n$, with `division_by_zero`; $\\operatorname{tanpi}(n \\pm \\frac14) = \\pm 1$ exactly. Reduction and domain as for `sinpi`."
 msgstr ""
 
-#: manual/api/bin_float.md:2016
+#: manual/api/bin_float.md:1949
 msgid "The arcsine, with values in $[-\\pi/2, \\pi/2]$."
 msgstr ""
 
-#: manual/api/bin_float.md:2024
+#: manual/api/bin_float.md:1957
 msgid "The domain is $[-1, 1]$; a finite argument outside it and both infinities are a `domain_error`. $\\operatorname{asin}(\\pm 0) = \\pm 0$ and $\\operatorname{asin}(\\pm 1) = \\pm\\pi/2$ correctly rounded."
 msgstr ""
 
-#: manual/api/bin_float.md:2030
+#: manual/api/bin_float.md:1963
 msgid "The arccosine, with values in $[0, \\pi]$."
 msgstr ""
 
-#: manual/api/bin_float.md:2038
+#: manual/api/bin_float.md:1971
 msgid "The domain is $[-1, 1]$; a finite argument outside it and both infinities are a `domain_error`, and a NaN propagates as for `asin`. On $[-1, 1]$ the result is $\\pi/2 - \\operatorname{asin}(x)$ evaluated as one enclosure; $\\operatorname{acos}(1) = +0$ exactly and $\\operatorname{acos}(-1) = \\pi$ correctly rounded."
 msgstr ""
 
-#: manual/api/bin_float.md:2046
+#: manual/api/bin_float.md:1979
 msgid "The arctangent, with values in $[-\\pi/2, \\pi/2]$."
 msgstr ""
 
-#: manual/api/bin_float.md:2054
+#: manual/api/bin_float.md:1987
 msgid "Defined on all of $\\mathbb{R}$: $\\operatorname{atan}(\\pm 0) = \\pm 0$ and $\\operatorname{atan}(\\pm\\infty) = \\pm\\pi/2$ correctly rounded."
 msgstr ""
 
-#: manual/api/bin_float.md:2059
+#: manual/api/bin_float.md:1992
 msgid "The angle of the point $(x, y)$ for `y.atan2(x)`, in $[-\\pi, \\pi]$."
 msgstr ""
 
-#: manual/api/bin_float.md:2067
+#: manual/api/bin_float.md:2000
 msgid "The receiver is the ordinate $y$. The special cases follow IEEE 754-2019 §9.2.1; $x \\ge +0$ below means $+0$ or a positive $x$, $x \\le -0$ means $-0$ or a negative $x$, infinities included:"
 msgstr ""
 
-#: manual/api/bin_float.md:2071
-#: manual/api/bin_float.md:2155
+#: manual/api/bin_float.md:2004
+#: manual/api/bin_float.md:2088
 msgid "result"
 msgstr ""
 
-#: manual/api/bin_float.md:2073
+#: manual/api/bin_float.md:2006
 msgid "$\\pm 0$ (exact)"
 msgstr ""
 
-#: manual/api/bin_float.md:2077
-#: manual/api/bin_float.md:2161
+#: manual/api/bin_float.md:2010
+#: manual/api/bin_float.md:2094
 msgid "finite"
 msgstr ""
 
-#: manual/api/bin_float.md:2078
-#: manual/api/bin_float.md:2079
-#: manual/api/bin_float.md:2080
-#: manual/api/bin_float.md:2162
-#: manual/api/bin_float.md:2163
-#: manual/api/bin_float.md:2164
+#: manual/api/bin_float.md:2011
+#: manual/api/bin_float.md:2012
+#: manual/api/bin_float.md:2013
+#: manual/api/bin_float.md:2095
+#: manual/api/bin_float.md:2096
+#: manual/api/bin_float.md:2097
 msgid ""
 "finite $y \\n"
 "e 0$"
 msgstr ""
 
-#: manual/api/bin_float.md:2078
+#: manual/api/bin_float.md:2011
 msgid "$\\pm\\pi/2$ (sign of $y$)"
 msgstr ""
 
-#: manual/api/bin_float.md:2079
+#: manual/api/bin_float.md:2012
 msgid "$\\pm 0$ (sign of $y$, exact)"
 msgstr ""
 
-#: manual/api/bin_float.md:2080
+#: manual/api/bin_float.md:2013
 msgid "$\\pm\\pi$ (sign of $y$)"
 msgstr ""
 
-#: manual/api/bin_float.md:2082
+#: manual/api/bin_float.md:2015
 msgid "A NaN operand propagates. Multiples of $\\pi$ are correctly rounded and `inexact`. So $\\operatorname{atan2}(-0, -0) = -\\pi$ and $\\operatorname{atan2}(-0, +0) = -0$."
 msgstr ""
 
-#: manual/api/bin_float.md:2088
+#: manual/api/bin_float.md:2021
 msgid "$\\operatorname{asin}(x)/\\pi$, the angle in half-revolutions (`asinPi` of IEEE 754-2019 §9.2)."
 msgstr ""
 
-#: manual/api/bin_float.md:2096
+#: manual/api/bin_float.md:2029
 msgid "The domain is $[-1, 1]$ (Table 9.1): $|x| > 1$ and $\\pm\\infty$ are a `domain_error` (a quiet NaN with `invalid_operation` from `asinpi_ctx`). $\\operatorname{asinPi}(\\pm 0) = \\pm 0$ with no exception, and $\\operatorname{asinPi}(\\pm 1) = \\pm 1/2$ exactly. $\\operatorname{asinPi}(\\pm 1/2) = \\pm 1/6$ is rational but not dyadic, so it is rounded and `inexact` like every other argument (by Niven's theorem these are the only rational values). For a tiny $x$ the result is $x/\\pi$ up to a relative error of order $x^2$ and is rounded from a certified enclosure whatever the exponent range, down to the implementation subnormal limit."
 msgstr ""
 
-#: manual/api/bin_float.md:2116
+#: manual/api/bin_float.md:2049
 msgid "The domain is $[-1, 1]$ as for `asinpi`. $\\operatorname{acosPi}(1) = +0$, $\\operatorname{acosPi}(-1) = 1$ and $\\operatorname{acosPi}(\\pm 0) = 1/2$, exact and without exception (§9.2.1). For a tiny $|x|$ the result is $1/2 \\mp \\delta$ with $0 < \\delta < |x|/2$, so it clusters at the representable $1/2$: when $|x| < 2^{-(p + 4)}$ the rounding direction alone decides between $1/2$ and its neighbour on that side (below for $x > 0$, above for $x < 0$), before the main loop, and the result is always `inexact`."
 msgstr ""
 
-#: manual/api/bin_float.md:2134
+#: manual/api/bin_float.md:2067
 msgid "Defined on all of $\\mathbb{R}$. $\\operatorname{atanPi}(\\pm 0) = \\pm 0$ with no exception, $\\operatorname{atanPi}(\\pm\\infty) = \\pm 1/2$ with no exception (§9.2.1) and $\\operatorname{atanPi}(\\pm 1) = \\pm 1/4$ exactly. For $|x| \\ge 2^{p + 8}$ the result is $\\pm(1/2 - \\delta)$ with $0 < \\delta < 2^{-t}$ for $2^t \\le |x|$, so the rounding direction alone decides between $\\pm 1/2$ and its neighbour inside, without forming a value that close to $1/2$. A tiny $x$ gives $x/\\pi$ rounded from a certified enclosure (underflow with the flags of §7.5 and §7.6)."
 msgstr ""
 
-#: manual/api/bin_float.md:2144
+#: manual/api/bin_float.md:2077
 msgid "$\\operatorname{atan2}(y, x)/\\pi$ for `y.atan2pi(x)`, in $[-1, 1]$."
 msgstr ""
 
-#: manual/api/bin_float.md:2152
+#: manual/api/bin_float.md:2085
 msgid "The receiver is the ordinate $y$. Every special case of §9.2.1 is an exact constant that signals no exception:"
 msgstr ""
 
-#: manual/api/bin_float.md:2162
+#: manual/api/bin_float.md:2095
 msgid "$\\pm 1/2$ (sign of $y$)"
 msgstr ""
 
-#: manual/api/bin_float.md:2163
+#: manual/api/bin_float.md:2096
 msgid "$\\pm 0$ (sign of $y$)"
 msgstr ""
 
-#: manual/api/bin_float.md:2164
+#: manual/api/bin_float.md:2097
 msgid "$\\pm 1$ (sign of $y$)"
 msgstr ""
 
-#: manual/api/bin_float.md:2166
+#: manual/api/bin_float.md:2099
 msgid "For finite nonzero operands $\\operatorname{atan2Pi}(y, x)$ is $\\operatorname{atan}(|y/x|)/\\pi$ for $x > 0$ and $1 - \\operatorname{atan}(|y/x|)/\\pi$ for $x < 0$, with the sign of $y$. $|y| = |x|$ gives the exact $\\pm 1/4$ or $\\pm 3/4$. With $D$ the difference of the leading-bit exponents of $y$ and $x$ (so $2^{D-1} < |y/x| < 2^{D+1}$), an extreme ratio is decided from the anchors before the main loop, from $|D| \\ge p + 8$: $D \\ge p + 8$ gives $1/2 - \\delta$ ($1/2 + \\delta$ for $x < 0$) with $0 < \\delta < 2^{-D}$, and $D \\le -(p + 8)$ with $x < 0$ gives $1 - \\delta$ with $0 < \\delta < 2^{D}$, each rounded by direction alone. With $x > 0$ and a tiny ratio the result is $\\approx t/\\pi$; when $D$ is below a quarter of the smallest subnormal ($D \\le e_{\\min} - p - 1$) it is the tiny nonzero result of the direction with `underflow` and `inexact`. The ratio $y/x$ itself is never formed outside the range where it is representable, so operands at the two ends of the exponent range are handled."
 msgstr ""
 
-#: manual/api/bin_float.md:2182
+#: manual/api/bin_float.md:2115
 msgid "The hyperbolic sine."
 msgstr ""
 
-#: manual/api/bin_float.md:2190
+#: manual/api/bin_float.md:2123
 msgid "$\\sinh(\\pm 0) = \\pm 0$ and $\\sinh(\\pm\\infty) = \\pm\\infty$. Certain overflow is decided before the loop from $|\\sinh x| \\ge e^{|x|}/4$."
 msgstr ""
 
-#: manual/api/bin_float.md:2195
+#: manual/api/bin_float.md:2128
 msgid "The hyperbolic cosine."
 msgstr ""
 
-#: manual/api/bin_float.md:2203
+#: manual/api/bin_float.md:2136
 msgid "$\\cosh(\\pm 0) = 1$ and $\\cosh(\\pm\\infty) = +\\infty$; certain overflow is decided as for `sinh`."
 msgstr ""
 
-#: manual/api/bin_float.md:2208
+#: manual/api/bin_float.md:2141
 msgid "The hyperbolic tangent."
 msgstr ""
 
-#: manual/api/bin_float.md:2216
+#: manual/api/bin_float.md:2149
 msgid "$\\tanh(\\pm 0) = \\pm 0$ and $\\tanh(\\pm\\infty) = \\pm 1$ exactly."
 msgstr ""
 
-#: manual/api/bin_float.md:2220
+#: manual/api/bin_float.md:2153
 msgid "The inverse hyperbolic sine."
 msgstr ""
 
-#: manual/api/bin_float.md:2228
+#: manual/api/bin_float.md:2161
 msgid "Defined on all of $\\mathbb{R}$; $\\operatorname{asinh}(\\pm 0) = \\pm 0$ and $\\operatorname{asinh}(\\pm\\infty) = \\pm\\infty$."
 msgstr ""
 
-#: manual/api/bin_float.md:2233
+#: manual/api/bin_float.md:2166
 msgid "The inverse hyperbolic cosine."
 msgstr ""
 
-#: manual/api/bin_float.md:2241
+#: manual/api/bin_float.md:2174
 msgid "The domain is $x \\ge 1$; any smaller argument, $-\\infty$ included, is a `domain_error`. $\\operatorname{acosh}(1) = +0$ and $\\operatorname{acosh}(+\\infty) = +\\infty$."
 msgstr ""
 
-#: manual/api/bin_float.md:2247
+#: manual/api/bin_float.md:2180
 msgid "The inverse hyperbolic tangent."
 msgstr ""
 
-#: manual/api/bin_float.md:2255
+#: manual/api/bin_float.md:2188
 msgid "The domain is $|x| \\le 1$; outside it, infinities included, the result is a `domain_error`. $\\operatorname{atanh}(\\pm 0) = \\pm 0$ and $\\operatorname{atanh}(\\pm 1) = \\pm\\infty$ with `division_by_zero`."
 msgstr ""
 
-#: manual/api/bin_float.md:2302
+#: manual/api/bin_float.md:2235
 msgid "Structural equality, the derived `Eq`."
 msgstr ""
 
-#: manual/api/bin_float.md:2309
+#: manual/api/bin_float.md:2242
 msgid "See [`BinFloat`](#binfloat): this compares representations, not numbers, so `==` distinguishes $\\pm 0$ and precisions and identifies equal NaNs."
 msgstr ""
 
-#: manual/api/bin_float.md:2314
+#: manual/api/bin_float.md:2247
 msgid "The `Compare` methods behind `<`, `<=`, `>` and `>=`."
 msgstr ""
 
-#: manual/api/bin_float.md:2323
+#: manual/api/bin_float.md:2256
 msgid "They use [`compare`](#binfloatcompare), so NaN is greater than every number: `nan > x` is `true`. Use the [IEEE predicates](#binfloatcompare_quiet_equal-binfloatcompare_quiet_less-binfloatcompare_quiet_less_equal-binfloatcompare_quiet_unordered-binfloatcompare_signaling_equal-binfloatcompare_signaling_less-binfloatcompare_signaling_less_equal) when NaN must be unordered."
 msgstr ""
 
-#: manual/api/bin_float.md:2329
+#: manual/api/bin_float.md:2262
 msgid "The `Show` and `Debug` methods."
 msgstr ""
 
-#: manual/api/bin_float.md:2336
+#: manual/api/bin_float.md:2269
 msgid "`output` writes the exact `c p e` form of [`to_string`](#binfloatto_string). `to_repr` (used by `debug_inspect`) shows every private field."
 msgstr ""
 
-#: manual/api/bin_float.md:2341
+#: manual/api/bin_float.md:2274
 msgid "The shared floating-point vocabulary of `floating`."
 msgstr ""
 
-#: manual/api/bin_float.md:2347
+#: manual/api/bin_float.md:2280
 msgid "`classify`, `sign`, `precision`, `with_precision` and `normalized` are the inherent methods above. Generic code uses `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and `@def.is_zero`."
 msgstr ""
 
-#: manual/api/bin_float.md:2353
+#: manual/api/bin_float.md:2286
 msgid "`@lf_arith` traits whose methods return `Result`."
 msgstr ""
 
-#: manual/api/bin_float.md:2366
+#: manual/api/bin_float.md:2299
 msgid "Each converts the `ArithmeticContext` with `BinaryContext::from_arithmetic_context` (which aborts for a precision above `binary_precision_max`) and runs the contextual operation. The invalid flag becomes a `domain_error` and the division-by-zero flag a `division_by_zero` error; the other flags are dropped, so a NaN, an infinity, an overflow or an underflow is the IEEE 754-2019 default result in `Ok`, as for the `Double` instances of Luna-Flow/arithmetic. `sqrt_checked` is a `domain_error` for a negative nonzero argument (including $-\\infty$) and a signaling NaN; a quiet NaN of either sign is `Ok`. `DivChecked::div_checked` is a `domain_error` for $0/0$, $\\infty/\\infty$ and a signaling NaN operand, and a `division_by_zero` error for a finite non-zero dividend over a signed zero; NaN$/0$ and $\\infty/0$ are `Ok`. `pow_int_checked` is a `division_by_zero` error for a zero base with a negative exponent, and both powers are a `domain_error` for a signaling NaN base, zero exponent included. The trait's `div_checked(x, y, ctx)` takes a context; the inherent [`BinFloat::div_checked`](#binfloatdiv_checked) does not. `CompareChecked::compare_checked` is the inherent [`compare_checked`](#binfloatcompare_checked)."
 msgstr ""
 
-#: manual/api/bin_float.md:2387
+#: manual/api/bin_float.md:2320
 msgid "`@lf_arith` traits that return an `ArithmeticOutcome` with diagnostics."
 msgstr ""
 
-#: manual/api/bin_float.md:2406
+#: manual/api/bin_float.md:2339
 msgid "Each runs the matching `*_ctx` method (for `abs`, `abs` followed by `round_ctx`; for `exp`, `try_exp_ctx`) under the converted context. A result with `division_by_zero` becomes a `division_by_zero` error and one with `invalid_operation` a `domain_error`; a certification failure of `exp` is returned as is. Otherwise the value is returned with `ArithmeticDiagnostics` whose `inexact` and `rounded` are the inexact flag and whose `overflow` and `underflow` are the matching flags."
 msgstr ""
 
-#: manual/api/bin_float.md:2416
+#: manual/api/bin_float.md:2349
 msgid "The `Compare` and `Eq` methods of `BinCoeff`, behind `<`, `<=`, `>`, `>=` and `!=`."
 msgstr ""
 
-#: manual/api/bin_float.md:2434
-msgid "They agree with [`BinCoeff::compare`](#bincoeffcompare-bincoeffequal); `+`, `*`, `<<` and `>>` are `add`, `mul`, `shl` and `shr`."
+#: manual/api/bin_float.md:2364
+msgid "They agree with [`BinCoeff::compare`](#bincoeffcompare-bincoeffequal)."
 msgstr ""
 
-#: manual/api/bin_float.md:2439
-msgid "The `Show` and `Debug` methods of `BinCoeff`."
+#: manual/api/bin_float.md:2368
+msgid "The `Show` and `Debug` methods of `BinCoeff`; `to_repr` is the integer value."
 msgstr ""
 
-#: manual/api/bin_float.md:2446
+#: manual/api/bin_float.md:2375
 msgid "`output` writes the decimal digits of [`to_string`](#bincoeffparse-bincoeffto_string-bincoeffto_radix_string)."
 msgstr ""
 
-#: manual/api/bin_float.md:2450
+#: manual/api/bin_float.md:2379
 msgid "The derived `Eq` and `Debug` methods of `BinaryRoundingMode`."
 msgstr ""
 
-#: manual/api/bin_float.md:2460
+#: manual/api/bin_float.md:2389
 msgid "The derived `Eq` and `Debug` methods of `TininessDetection`."
 msgstr ""
 
-#: manual/api/bin_float.md:2470
+#: manual/api/bin_float.md:2399
 msgid "The derived `Eq` and `Debug` methods of `BinaryContext`."
 msgstr ""
 
-#: manual/api/bin_float.md:2478
+#: manual/api/bin_float.md:2407
 msgid "Equality compares the fields as given: `BinaryContext::new(53)` is not equal to `BinaryContext::new(53, e_max=binary_implementation_e_max)` although the two behave identically."
 msgstr ""
 
-#: manual/api/bin_float.md:2484
+#: manual/api/bin_float.md:2413
 msgid "The derived `Eq` and `Debug` methods of `BinaryFlags`."
 msgstr ""
 
-#: manual/api/bin_float.md:2494
+#: manual/api/bin_float.md:2423
 msgid "The derived `Eq` and `Debug` methods of `BinaryInterchangeFormat`."
 msgstr ""
 
-#: manual/api/bin_float.md:2504
+#: manual/api/bin_float.md:2433
 msgid "The derived `Eq` of `BinaryInterchange`: format and bits must agree."
 msgstr ""
 
@@ -7322,7 +7270,7 @@ msgid "For valid inputs, `etiny` is $e_{\\min} - p + 1$ and `etop` is $e_{\\max}
 msgstr ""
 
 #: manual/api/internal.md:58
-#: manual/api/internal/bin_kernel.md:22
+#: manual/api/internal/bin_kernel.md:24
 #: manual/api/internal/conformance.md:17
 #: manual/api/internal/decimal_kernel.md:20
 #: manual/api/internal/runner_cli.md:16
@@ -7541,82 +7489,82 @@ msgid "internal/bin_kernel API"
 msgstr ""
 
 #: manual/api/internal/bin_kernel.md:5
-msgid "`internal/bin_kernel` holds the integer arithmetic on the coefficients of `BinFloat`: a non-negative arbitrary-precision integer `Coeff`, its comparison, addition, subtraction, shifts and bit operations, the multiplication algorithms (schoolbook, Karatsuba, Toom-3 and the two-prime NTT), division (Knuth's algorithm D and Burnikel-Ziegler), the integer square root, the GCD, and the conversions to and from bytes and text in any radix, with the per-target thresholds that choose between the algorithms. Every function is an exact function of its arguments. The package raises no condition and has no notion of a rounding mode, a context or a flag; those belong to `bin_float`. It is an internal package: code outside `Luna-Flow/floating` cannot import it. The public coefficient type `BinCoeff` of `bin_float` is a newtype over `Coeff` and forwards each of its methods, so `Coeff` never appears in a public interface. See the [tutorial](../../tutorial/internal/bin_kernel.md) and the [design page](../../design/internal/bin_kernel.md)."
+msgid "`internal/bin_kernel` holds the integer arithmetic on the coefficients of `BinFloat`: a non-negative arbitrary-precision integer `Coeff`, its comparison, addition, subtraction, shifts and bit operations, the multiplication algorithms (schoolbook, Karatsuba, Toom-3 and the two-prime NTT), division (Knuth's algorithm D and Burnikel-Ziegler), the integer square root, the GCD, and the conversions to and from bytes and text in any radix, with the per-target thresholds that choose between the algorithms. Every function is an exact function of its arguments. The package raises no condition and has no notion of a rounding mode, a context or a flag; those belong to `bin_float`. It is an internal package: code outside `Luna-Flow/floating` cannot import it. The public coefficient type `BinCoeff` of `bin_float` is a newtype over `Coeff` whose methods (construction, conversion, comparison and queries) forward to this package; the arithmetic exists only here. The name `Coeff` appears in the interface of `BinCoeff`, but a user outside the module cannot import this package and so cannot call or compare anything on it. See the [tutorial](../../tutorial/internal/bin_kernel.md) and the [design page](../../design/internal/bin_kernel.md)."
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:30
+#: manual/api/internal/bin_kernel.md:32
 #: manual/api/internal/decimal_kernel.md:28
 msgid "and bring the names a package uses into scope once, for example in a file of its own:"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:38
+#: manual/api/internal/bin_kernel.md:40
 #: manual/api/internal/decimal_kernel.md:40
 msgid "The manual's example checker has no alias for internal subpackages, so the examples are marked `nocheck`."
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:41
+#: manual/api/internal/bin_kernel.md:43
 #: manual/api/internal/decimal_kernel.md:43
 msgid "The coefficient type"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:45
+#: manual/api/internal/bin_kernel.md:47
 msgid "A non-negative integer. On Native, LLVM, Wasm and Wasm-GC it is a newtype over `CoeffRepr`; on JavaScript it is a host `bigint`. The value is persistent: no function mutates an operand."
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:51
+#: manual/api/internal/bin_kernel.md:53
 msgid "The storage on the targets that are not JavaScript: `Inline64(low)` and `Inline128(high, low)` for values below $2^{64}$ and $2^{128}$, and `Heap(words, len)` for larger ones, with `len` little-endian 64-bit limbs of which the top one is nonzero. The constructors are readable because the word-sized fast paths of `bin_float` pattern-match on them; build values with the functions below."
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:58
+#: manual/api/internal/bin_kernel.md:60
 #: manual/api/internal/decimal_kernel.md:67
 msgid "Function families"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:60
+#: manual/api/internal/bin_kernel.md:62
 #: manual/api/internal/decimal_kernel.md:73
 msgid "Family"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:60
+#: manual/api/internal/bin_kernel.md:62
 #: manual/api/internal/decimal_kernel.md:73
 msgid "Functions"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:62
+#: manual/api/internal/bin_kernel.md:64
 #: manual/api/internal/decimal_kernel.md:75
 msgid "build and convert"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:63
+#: manual/api/internal/bin_kernel.md:65
 #: manual/api/internal/decimal_kernel.md:76
 msgid "shape"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:64
+#: manual/api/internal/bin_kernel.md:66
 msgid "compare"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:65
+#: manual/api/internal/bin_kernel.md:67
 msgid "add, subtract, shift"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:66
+#: manual/api/internal/bin_kernel.md:68
 msgid "bit operations"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:67
+#: manual/api/internal/bin_kernel.md:69
 msgid "multiply and divide"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:68
+#: manual/api/internal/bin_kernel.md:70
 msgid "number theory and roots"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:69
+#: manual/api/internal/bin_kernel.md:71
 msgid "machine words"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:71
+#: manual/api/internal/bin_kernel.md:73
 msgid "The per-target thresholds (`bin_coeff_*_min_words`, `*_words`, `*_cutoff`) are private: they live in `coeff_thresholds_<target>.mbt` and are selected by `moon.pkg`. Preconditions are checked with `abort` (a negative shift count, a zero divisor): they are programmer errors of the caller, never conditions of an operation."
 msgstr ""
 
@@ -8355,7 +8303,7 @@ msgstr ""
 #: manual/conformance/decimal.md:42
 #: manual/conformance/decimal_gda.md:15
 #: manual/index.md:69
-#: manual/performance_audit.md:155
+#: manual/performance_audit.md:154
 msgid "Evidence"
 msgstr ""
 
@@ -8615,7 +8563,7 @@ msgid "`internal` and `internal/*`, `cli` and `cli/*`, `bench` and `bench/*`, `c
 msgstr ""
 
 #: manual/architecture.md:274
-#: manual/design/internal/bin_kernel.md:51
+#: manual/design/internal/bin_kernel.md:52
 msgid "Invariants"
 msgstr ""
 
@@ -8676,7 +8624,7 @@ msgid "ball_float conformance"
 msgstr ""
 
 #: manual/conformance/ball_float.md:3
-#: manual/performance_audit.md:155
+#: manual/performance_audit.md:154
 msgid "Claim"
 msgstr ""
 
@@ -8727,7 +8675,7 @@ msgstr ""
 #: manual/conformance/bin_float.md:71
 #: manual/conformance/decimal.md:42
 #: manual/conformance/decimal_gda.md:15
-#: manual/performance_audit.md:155
+#: manual/performance_audit.md:154
 msgid "Status"
 msgstr ""
 
@@ -9907,9 +9855,9 @@ msgstr ""
 #: manual/conformance/decimal_gda.md:61
 #: manual/design/ball_float.md:879
 #: manual/design/ball_float_checked.md:170
-#: manual/design/bench.md:244
+#: manual/design/bench.md:243
 #: manual/design/bench/ball_float.md:67
-#: manual/design/bench/bin_float.md:69
+#: manual/design/bench/bin_float.md:68
 #: manual/design/bench/decimal.md:67
 #: manual/design/bench/decimal_gda.md:64
 #: manual/design/bench/external.md:124
@@ -11075,9 +11023,9 @@ msgstr ""
 
 #: manual/design/ball_float.md:805
 #: manual/design/ball_float_checked.md:137
-#: manual/design/bench.md:218
+#: manual/design/bench.md:217
 #: manual/design/bench/ball_float.md:51
-#: manual/design/bench/bin_float.md:53
+#: manual/design/bench/bin_float.md:52
 #: manual/design/bench/decimal.md:51
 #: manual/design/bench/decimal_gda.md:48
 #: manual/design/bench/external.md:105
@@ -11152,9 +11100,9 @@ msgstr ""
 
 #: manual/design/ball_float.md:860
 #: manual/design/ball_float_checked.md:157
-#: manual/design/bench.md:235
+#: manual/design/bench.md:234
 #: manual/design/bench/ball_float.md:60
-#: manual/design/bench/bin_float.md:62
+#: manual/design/bench/bin_float.md:61
 #: manual/design/bench/decimal.md:60
 #: manual/design/bench/decimal_gda.md:57
 #: manual/design/bench/external.md:114
@@ -11559,63 +11507,63 @@ msgstr ""
 
 #: manual/design/bench.md:188
 msgid ""
-"The auto-tune suite turns the per-dataset winners $\\ell_1, \\dots, \\ell_S$ (ordered by scale) into a crossover with `@experiment.crossover_from_labels`: it counts the indices $i$ with $\\ell_i \\n"
-"e \\ell_{i-1}$. No change gives `NoCrossover`, exactly one change at $i$ gives `Found` with `below` $= $ scale $i - 1$ and `at_or_above` $=$ scale $i$, and more than one gives `NonMonotonic`, for which the suite prints a plain lookup table instead of a piecewise policy. Because the winner of each dataset is decided by the median and, within the practical threshold, by the spread, noise between two nearly equal candidates can still produce several changes."
+"An auto-tune run turns the per-dataset winners $\\ell_1, \\dots, \\ell_S$ (ordered by scale) into a crossover with `@experiment.crossover_from_labels`: it counts the indices $i$ with $\\ell_i \\n"
+"e \\ell_{i-1}$. No change gives `NoCrossover`, exactly one change at $i$ gives `Found` with `below` $= $ scale $i - 1$ and `at_or_above` $=$ scale $i$, and more than one gives `NonMonotonic`, for which a plain lookup table is printed instead of a piecewise policy. Because the winner of each dataset is decided by the median and, within the practical threshold, by the spread, noise between two nearly equal candidates can still produce several changes."
 msgstr ""
 
-#: manual/design/bench.md:199
+#: manual/design/bench.md:198
 msgid "Immutable fixtures with an oracle"
 msgstr ""
 
-#: manual/design/bench.md:201
+#: manual/design/bench.md:200
 msgid "`immutable_bench` generates each input once per scale and checks every output against a reference. A faster implementation that computes the wrong result fails the run instead of winning a comparison. The reference is only as independent as the suite makes it: the arithmetic suites of `bin_float` and `decimal` compare with the exact coefficient result, while the elementary-function and `decimal_gda` suites use the core path itself as the reference (so they check that the checked path agrees with the core) and the `ball_float` suite uses the `BinFloat` kernel result."
 msgstr ""
 
-#: manual/design/bench.md:210
+#: manual/design/bench.md:209
 msgid "Environment as data"
 msgstr ""
 
-#: manual/design/bench.md:212
+#: manual/design/bench.md:211
 msgid "`environment` records the target, profile and a data-type label with every run, and marks what only the outer tool knows (machine, frequency policy, commit) as `external-metadata`. A reader of two artifacts can then tell whether their numbers are comparable; the package itself does not compare runs across environments."
 msgstr ""
 
-#: manual/design/bench.md:220
+#: manual/design/bench.md:219
 msgid "**Determinism of the reduction.** For fixed observations and seed, `paired_hotspot`, `confirmatory_regression` and `tune_dataset` return the same values on every run (sorting by block id, seeded generator, deterministic tie-breaking)."
 msgstr ""
 
-#: manual/design/bench.md:224
+#: manual/design/bench.md:223
 msgid "**Pairing.** Samples are paired by block order. Unequal sample counts are an error (`MismatchedPairs`), never a silent truncation. Pairing is by position, not by block id, so if both implementations lose one invalid observation in different blocks the later pairs are formed across blocks."
 msgstr ""
 
-#: manual/design/bench.md:228
+#: manual/design/bench.md:227
 msgid "**Interval ordering.** $L \\le U$, because $Q^{*}$ is monotone in its argument and $\\alpha < 1 - \\alpha$ for $c > 0$."
 msgstr ""
 
-#: manual/design/bench.md:230
+#: manual/design/bench.md:229
 msgid "**Scale invariance.** Multiplying all samples by a constant $\\lambda > 0$ multiplies $\\operatorname{med}(d)$, $L$ and $U$ by $\\lambda$ and leaves $\\Delta_{\\%}$, the decision and the verdict unchanged, so the unit of time does not matter."
 msgstr ""
 
-#: manual/design/bench.md:237
+#: manual/design/bench.md:236
 msgid "**Discarding outliers before averaging.** Any fence needs a tuning constant and silently changes the sample; the median makes it unnecessary."
 msgstr ""
 
-#: manual/design/bench.md:239
+#: manual/design/bench.md:238
 msgid "**Unpaired comparison of two sample sets.** Drift between the measurement of $B$ and $C$ would enter the difference directly."
 msgstr ""
 
-#: manual/design/bench.md:241
+#: manual/design/bench.md:240
 msgid "**Normal-theory intervals.** They assume symmetric errors that timing data does not have."
 msgstr ""
 
-#: manual/design/bench.md:246
+#: manual/design/bench.md:245
 msgid "No timing, process control or file output: Maremark's runner and `tools/benchmark.py` do that."
 msgstr ""
 
-#: manual/design/bench.md:248
+#: manual/design/bench.md:247
 msgid "No absolute performance targets; thresholds apply to relative differences."
 msgstr ""
 
-#: manual/design/bench.md:249
+#: manual/design/bench.md:248
 msgid "Performance results never change correctness claims, and the benchmarks run only on the native target."
 msgstr ""
 
@@ -11653,7 +11601,7 @@ msgid "Inputs are exact singleton intervals built from fixed bit patterns; the p
 msgstr ""
 
 #: manual/design/bench/ball_float.md:39
-#: manual/design/bench/bin_float.md:41
+#: manual/design/bench/bin_float.md:40
 #: manual/design/bench/decimal.md:39
 #: manual/design/bench/decimal_gda.md:36
 msgid "Correctness oracle"
@@ -11664,70 +11612,70 @@ msgid "The reference is the `BinFloat` kernel result itself, which is exact for 
 msgstr ""
 
 #: manual/design/bench/ball_float.md:45
-#: manual/design/bench/bin_float.md:47
+#: manual/design/bench/bin_float.md:46
 #: manual/design/bench/decimal.md:45
 #: manual/design/bench/decimal_gda.md:42
 msgid "Exact inputs"
 msgstr ""
 
 #: manual/design/bench/ball_float.md:47
-#: manual/design/bench/bin_float.md:49
+#: manual/design/bench/bin_float.md:48
 #: manual/design/bench/decimal.md:47
 #: manual/design/bench/decimal_gda.md:44
 msgid "Exact results make the arithmetic work identical across paths: no path can win by rounding earlier, and the measured difference is the cost of representation, context handling and checking."
 msgstr ""
 
 #: manual/design/bench/ball_float.md:53
-#: manual/design/bench/bin_float.md:55
+#: manual/design/bench/bin_float.md:54
 #: manual/design/bench/decimal.md:53
 #: manual/design/bench/decimal_gda.md:50
 msgid "Plan tests compile every specification in ordinary test runs, so the benchmarks cannot rot unnoticed."
 msgstr ""
 
 #: manual/design/bench/ball_float.md:55
-#: manual/design/bench/bin_float.md:57
+#: manual/design/bench/bin_float.md:56
 #: manual/design/bench/decimal.md:55
 #: manual/design/bench/decimal_gda.md:52
 msgid "Performance tests assert `failed_count == 0`: every output matched its oracle."
 msgstr ""
 
 #: manual/design/bench/ball_float.md:57
-#: manual/design/bench/bin_float.md:59
+#: manual/design/bench/bin_float.md:58
 #: manual/design/bench/decimal.md:57
 #: manual/design/bench/decimal_gda.md:54
 msgid "Seeds are fixed (`20260715`), so the measurement order and the bootstrap resamples are reproducible."
 msgstr ""
 
 #: manual/design/bench/ball_float.md:62
-#: manual/design/bench/bin_float.md:64
+#: manual/design/bench/bin_float.md:63
 #: manual/design/bench/decimal.md:62
 #: manual/design/bench/decimal_gda.md:59
 msgid "**Random inputs per sample.** They would mix input variance into timing variance; fixed patterns per dataset isolate the cost of the code."
 msgstr ""
 
 #: manual/design/bench/ball_float.md:64
-#: manual/design/bench/bin_float.md:66
+#: manual/design/bench/bin_float.md:65
 #: manual/design/bench/decimal.md:64
 #: manual/design/bench/decimal_gda.md:61
 msgid "**Only end-to-end timings.** A single number cannot tell whether a regression is in the kernel, the core or the checked wrapper."
 msgstr ""
 
 #: manual/design/bench/ball_float.md:69
-#: manual/design/bench/bin_float.md:71
+#: manual/design/bench/bin_float.md:70
 #: manual/design/bench/decimal.md:69
 #: manual/design/bench/decimal_gda.md:66
 msgid "Native target only; no claims for other targets."
 msgstr ""
 
 #: manual/design/bench/ball_float.md:70
-#: manual/design/bench/bin_float.md:72
+#: manual/design/bench/bin_float.md:71
 #: manual/design/bench/decimal.md:70
 #: manual/design/bench/decimal_gda.md:67
 msgid "No public API; the package exists for `tools/benchmark.py`."
 msgstr ""
 
 #: manual/design/bench/ball_float.md:71
-#: manual/design/bench/bin_float.md:73
+#: manual/design/bench/bin_float.md:72
 #: manual/design/bench/decimal.md:71
 #: manual/design/bench/decimal_gda.md:68
 msgid "Measurements are evidence for the performance pages, never for correctness."
@@ -11741,12 +11689,12 @@ msgstr ""
 msgid "Measure the cost of each layer of the binary stack separately, on inputs where all layers must produce the same result, so that a change in one layer shows up as a change in one reported percentage."
 msgstr ""
 
-#: manual/design/bench/bin_float.md:39
-msgid "Arithmetic inputs are fixed bit patterns with the top and bottom bits set; the precision is the sum of the operand bit lengths plus 4, and for `div` the dividend is the product of the two patterns, so every result is exact and every path computes the same number. Elementary inputs are 1.25, 0.5 and 0.25 at the dataset precision, each inside the domain of the functions it is used with. The square inputs are patterns of the given limb count; the experiment picks the faster of two equivalent algorithms per size and reports the crossover size."
+#: manual/design/bench/bin_float.md:38
+msgid "Arithmetic inputs are fixed bit patterns with the top and bottom bits set; the precision is the sum of the operand bit lengths plus 4, and for `div` the dividend is the product of the two patterns, so every result is exact and every path computes the same number. Elementary inputs are 1.25, 0.5 and 0.25 at the dataset precision, each inside the domain of the functions it is used with."
 msgstr ""
 
-#: manual/design/bench/bin_float.md:43
-msgid "Arithmetic outputs are checked against the exact `BinCoeff` result, elementary outputs against the core result (so the checked path must agree with the core), and square outputs against `x.square()`. An output that disagrees with the oracle is counted as a failure and the performance test asserts that there is none, so a comparison is never between paths that compute different things."
+#: manual/design/bench/bin_float.md:42
+msgid "Arithmetic outputs are checked against the exact `BigInt` result, and elementary outputs against the core result (so the checked path must agree with the core). An output that disagrees with the oracle is counted as a failure and the performance test asserts that there is none, so a comparison is never between paths that compute different things."
 msgstr ""
 
 #: manual/design/bench/decimal.md:1
@@ -17190,73 +17138,85 @@ msgid "A re-export of an internal type (`pub using`) does not give another modul
 msgstr ""
 
 #: manual/design/internal/bin_kernel.md:38
-msgid "Why not a record wrapper"
+msgid "Unwrapping"
 msgstr ""
 
 #: manual/design/internal/bin_kernel.md:38
-msgid "A newtype, never `struct BinCoeff { kernel : Coeff }`"
+msgid "`pub(all) struct BinCoeff(@bin_kernel.Coeff)`; `BinCoeff` has no arithmetic"
 msgstr ""
 
 #: manual/design/internal/bin_kernel.md:38
-msgid "A record wrapper allocates a second object per value: +49% retired instructions on a small `add` in the throwaway measurement. A newtype and a call across the package boundary cost nothing measurable."
+msgid "The other library packages (`ball_float`, `decimal`) do arithmetic on coefficients: `value.0` gives them the kernel type and `BinCoeff(c)` wraps a result. Outside the module the inner type is inert: a method call, `==` and a qualified call on it are compile errors, and the import is refused by the solver, so the public field exposes no operation and no compatibility promise."
 msgstr ""
 
 #: manual/design/internal/bin_kernel.md:39
+msgid "Why not a record wrapper"
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:39
+msgid "A newtype, never `struct BinCoeff { kernel : Coeff }`"
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:39
+msgid "A record wrapper allocates a second object per value: +49% retired instructions on a small `add` in the throwaway measurement. A newtype and a call across the package boundary cost nothing measurable."
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:40
 #: manual/performance/bin_float.md:10
 msgid "Representation"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:39
+#: manual/design/internal/bin_kernel.md:40
 msgid "`Coeff` is a newtype over a three-case enum (`Inline64`, `Inline128`, `Heap`); `BinFloat` stores it directly"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:39
+#: manual/design/internal/bin_kernel.md:40
 msgid "One allocation per coefficient instead of two (10 to 15% fewer instructions per `BinFloat` operation at 53 to 512 bits, [#427](https://github.com/Luna-Flow/floating/pull/427))."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:40
+#: manual/design/internal/bin_kernel.md:41
 #: manual/verification.md:202
 #: manual/verification.md:245
 msgid "JavaScript"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:40
+#: manual/design/internal/bin_kernel.md:41
 msgid "`Coeff` is a host `bigint` (`coeff_js.mbt`); no kernel algorithms"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:40
+#: manual/design/internal/bin_kernel.md:41
 msgid "The host's arbitrary-precision integers are the kernel there."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:41
+#: manual/design/internal/bin_kernel.md:42
 msgid "Machine words"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:41
+#: manual/design/internal/bin_kernel.md:42
 msgid "`binary_fast_*` live here"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:41
+#: manual/design/internal/bin_kernel.md:42
 msgid "The word-wide `mul_high` and `div_wide` are used by the kernel and by the single-word paths of `bin_float`."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:43
+#: manual/design/internal/bin_kernel.md:44
 msgid "Thresholds"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:45
+#: manual/design/internal/bin_kernel.md:46
 msgid "The cutoffs are named `*_min_words` or `*_words` (64-bit limbs) and chosen per target in `coeff_thresholds_<target>.mbt`. They are policy, not semantics: the dispatch tests cross every one of them and compare with the schoolbook result. The cutoffs of the elementary functions are not kernel policy and stay in `bin_float`."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:53
+#: manual/design/internal/bin_kernel.md:54
 msgid "A `Heap` coefficient has `len >= 3` limbs, the top limb is nonzero, and no function mutates the array of an operand."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:55
+#: manual/design/internal/bin_kernel.md:56
 msgid "`Inline64` and `Inline128` are the only representations of values below $2^{128}$; `bin_coeff_from_words` normalizes."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:57
+#: manual/design/internal/bin_kernel.md:58
 msgid "No function aborts except on a violated precondition (a zero divisor, a negative shift)."
 msgstr ""
 
@@ -20959,194 +20919,186 @@ msgid "all four Maremark suites produced valid artifacts"
 msgstr ""
 
 #: manual/performance_audit.md:111
-msgid "binary square policy"
-msgstr ""
-
-#: manual/performance_audit.md:111
-msgid "a target-specific policy artifact; raw observations can be non-monotonic and are not a universal threshold"
-msgstr ""
-
-#: manual/performance_audit.md:112
 msgid "IEEE and GDA fast paths"
 msgstr ""
 
-#: manual/performance_audit.md:112
+#: manual/performance_audit.md:111
 msgid "benchmark package tests plus the conformance gates"
 msgstr ""
 
-#: manual/performance_audit.md:112
+#: manual/performance_audit.md:111
 msgid "a fast route is admissible only while the semantic oracle stays green"
 msgstr ""
 
-#: manual/performance_audit.md:113
+#: manual/performance_audit.md:112
 msgid "interval endpoint dispatch"
 msgstr ""
 
-#: manual/performance_audit.md:113
+#: manual/performance_audit.md:112
 msgid "`tooling/src/bench/ball_float` and strict ITF1788"
 msgstr ""
 
-#: manual/performance_audit.md:113
+#: manual/performance_audit.md:112
 msgid "lower cost is acceptable only with ordered, outward-rounded enclosures"
 msgstr ""
 
-#: manual/performance_audit.md:114
+#: manual/performance_audit.md:113
 msgid "external comparison"
 msgstr ""
 
-#: manual/performance_audit.md:114
+#: manual/performance_audit.md:113
 msgid "`just bench external run` ([results](performance/bench/external.md))"
 msgstr ""
 
-#: manual/performance_audit.md:114
+#: manual/performance_audit.md:113
 msgid "`floating` timed against MPFR and libmpdec on the same operands; slower in every measured cell, by 1.8 to 2554 times"
 msgstr ""
 
-#: manual/performance_audit.md:116
+#: manual/performance_audit.md:115
 msgid "Generated artifacts live under `.tmp/bench/` and are not published as API data. Re-run the commands on the target hardware before promoting a crossover. The workload is evidence about the audited tree; it does not prove a speedup for every release, equivalence across targets, or a latency bound."
 msgstr ""
 
-#: manual/performance_audit.md:121
+#: manual/performance_audit.md:120
 msgid "Acceptance matrix"
 msgstr ""
 
-#: manual/performance_audit.md:123
+#: manual/performance_audit.md:122
 msgid "Check"
 msgstr ""
 
-#: manual/performance_audit.md:125
+#: manual/performance_audit.md:124
 msgid "93/93 passed"
 msgstr ""
 
-#: manual/performance_audit.md:126
+#: manual/performance_audit.md:125
 msgid "94/94 passed"
 msgstr ""
 
-#: manual/performance_audit.md:127
+#: manual/performance_audit.md:126
 msgid "68/68 passed"
 msgstr ""
 
-#: manual/performance_audit.md:128
+#: manual/performance_audit.md:127
 msgid "42/42 passed"
 msgstr ""
 
-#: manual/performance_audit.md:129
+#: manual/performance_audit.md:128
 msgid "7,464,503/7,464,503 passed"
 msgstr ""
 
-#: manual/performance_audit.md:130
+#: manual/performance_audit.md:129
 msgid "15,763/15,763 passed"
 msgstr ""
 
-#: manual/performance_audit.md:131
+#: manual/performance_audit.md:130
 msgid "64,986/64,986 and 16,124/16,124 passed"
 msgstr ""
 
-#: manual/performance_audit.md:132
+#: manual/performance_audit.md:131
 msgid "4,656/4,656 passed"
 msgstr ""
 
-#: manual/performance_audit.md:133
+#: manual/performance_audit.md:132
 msgid "passed"
 msgstr ""
 
-#: manual/performance_audit.md:135
+#: manual/performance_audit.md:134
 msgid "These counts describe the audited tree. The gates have grown since (the binary gate now runs the full IEEE operation matrix); [verification](./verification.md) lists the current claims."
 msgstr ""
 
-#: manual/performance_audit.md:139
+#: manual/performance_audit.md:138
 msgid "Reviewer self-review"
 msgstr ""
 
-#: manual/performance_audit.md:141
+#: manual/performance_audit.md:140
 msgid "Contribution: pass. The audit records concrete optimization boundaries and a repaired semantic failure instead of an unexplained speedup."
 msgstr ""
 
-#: manual/performance_audit.md:143
+#: manual/performance_audit.md:142
 msgid "Clarity: pass. Each proof separates representation, monotonicity, rounding direction and evidence."
 msgstr ""
 
-#: manual/performance_audit.md:145
-msgid "Experimental strength: needs replication. The native artifacts are valid, but noisy auto-tune observations should be repeated before a threshold is promoted."
+#: manual/performance_audit.md:144
+msgid "Experimental strength: needs replication. The native artifacts are valid, but noisy benchmark observations should be repeated before a threshold is promoted."
 msgstr ""
 
-#: manual/performance_audit.md:148
+#: manual/performance_audit.md:147
 msgid "Completeness: pass for the declared pinned corpora; it does not cover every standard operation or every real input."
 msgstr ""
 
-#: manual/performance_audit.md:150
+#: manual/performance_audit.md:149
 msgid "Soundness: pass for the covered branches after the negative-half-axis regression fix and the full IEEE 1788 gate."
 msgstr ""
 
-#: manual/performance_audit.md:153
+#: manual/performance_audit.md:152
 msgid "Claim–evidence map"
 msgstr ""
 
-#: manual/performance_audit.md:157
+#: manual/performance_audit.md:156
 msgid "fast coefficient routes preserve the declared numerical results"
 msgstr ""
 
-#: manual/performance_audit.md:157
+#: manual/performance_audit.md:156
 msgid "exact-kernel identities, package tests, IEEE and GDA conformance"
 msgstr ""
 
-#: manual/performance_audit.md:157
+#: manual/performance_audit.md:156
 msgid "supported within the declared APIs and preconditions"
 msgstr ""
 
-#: manual/performance_audit.md:158
+#: manual/performance_audit.md:157
 msgid "interval `pown` keeps ordered outward enclosures"
 msgstr ""
 
-#: manual/performance_audit.md:158
+#: manual/performance_audit.md:157
 msgid "monotonicity table, negative-half-axis regression, 4,656 strict ITF1788 cases"
 msgstr ""
 
-#: manual/performance_audit.md:158
+#: manual/performance_audit.md:157
 msgid "supported for the declared forward interval operations"
 msgstr ""
 
-#: manual/performance_audit.md:159
+#: manual/performance_audit.md:158
 msgid "the optimized paths are performance-audited"
 msgstr ""
 
-#: manual/performance_audit.md:159
-msgid "native Maremark `all` and `auto-tune` artifacts"
+#: manual/performance_audit.md:158
+msgid "native Maremark `all` artifacts"
 msgstr ""
 
-#: manual/performance_audit.md:159
+#: manual/performance_audit.md:158
 msgid "supported as measurement evidence, not a universal speed claim"
 msgstr ""
 
-#: manual/performance_audit.md:160
+#: manual/performance_audit.md:159
 msgid "every target and operation has equivalent performance"
 msgstr ""
 
-#: manual/performance_audit.md:160
+#: manual/performance_audit.md:159
 msgid "no paired cross-target artifact"
 msgstr ""
 
-#: manual/performance_audit.md:160
+#: manual/performance_audit.md:159
 msgid "not claimed"
 msgstr ""
 
-#: manual/performance_audit.md:161
+#: manual/performance_audit.md:160
 msgid "`floating` is competitive with MPFR and libmpdec"
 msgstr ""
 
-#: manual/performance_audit.md:161
+#: manual/performance_audit.md:160
 msgid "[external baseline](performance/bench/external.md): slower in all 59 measured cells on native"
 msgstr ""
 
-#: manual/performance_audit.md:161
+#: manual/performance_audit.md:160
 msgid "refuted for the measured operations; the ratios are tracked per release"
 msgstr ""
 
-#: manual/performance_audit.md:163
+#: manual/performance_audit.md:162
 msgid "Limits"
 msgstr ""
 
-#: manual/performance_audit.md:165
+#: manual/performance_audit.md:164
 msgid "The semantic claims are bounded by the pinned corpora, the public operations, target-specific precision rules and the explicit fallback contracts. The 0.6.1 elementary manifest remains the comparison baseline of the elementary performance gate, with 0.7.1 as its candidate. No public API, rounding rule, error signal or enclosure contract is changed merely to improve a benchmark."
 msgstr ""
 
@@ -21306,7 +21258,7 @@ msgstr ""
 
 #: manual/tutorial/ball_float.md:23
 #: manual/tutorial/ball_float_checked.md:21
-#: manual/tutorial/bench.md:18
+#: manual/tutorial/bench.md:17
 #: manual/tutorial/bench/ball_float.md:16
 #: manual/tutorial/bench/bin_float.md:17
 #: manual/tutorial/bench/decimal.md:16
@@ -21368,9 +21320,9 @@ msgstr ""
 
 #: manual/tutorial/ball_float.md:87
 #: manual/tutorial/ball_float_checked.md:60
-#: manual/tutorial/bench.md:75
+#: manual/tutorial/bench.md:74
 #: manual/tutorial/bench/ball_float.md:31
-#: manual/tutorial/bench/bin_float.md:34
+#: manual/tutorial/bench/bin_float.md:33
 #: manual/tutorial/bench/decimal.md:31
 #: manual/tutorial/bench/decimal_gda.md:31
 #: manual/tutorial/bench/external.md:47
@@ -21473,9 +21425,9 @@ msgstr ""
 
 #: manual/tutorial/ball_float.md:283
 #: manual/tutorial/ball_float_checked.md:168
-#: manual/tutorial/bench.md:194
+#: manual/tutorial/bench.md:173
 #: manual/tutorial/bench/ball_float.md:48
-#: manual/tutorial/bench/bin_float.md:51
+#: manual/tutorial/bench/bin_float.md:50
 #: manual/tutorial/bench/decimal.md:48
 #: manual/tutorial/bench/decimal_gda.md:50
 #: manual/tutorial/bench/external.md:116
@@ -21546,9 +21498,9 @@ msgstr ""
 
 #: manual/tutorial/ball_float.md:375
 #: manual/tutorial/ball_float_checked.md:239
-#: manual/tutorial/bench.md:206
+#: manual/tutorial/bench.md:185
 #: manual/tutorial/bench/ball_float.md:56
-#: manual/tutorial/bench/bin_float.md:59
+#: manual/tutorial/bench/bin_float.md:58
 #: manual/tutorial/bench/decimal.md:56
 #: manual/tutorial/bench/decimal_gda.md:58
 #: manual/tutorial/bench/external.md:128
@@ -21619,9 +21571,9 @@ msgstr ""
 
 #: manual/tutorial/ball_float.md:433
 #: manual/tutorial/ball_float_checked.md:257
-#: manual/tutorial/bench.md:222
+#: manual/tutorial/bench.md:201
 #: manual/tutorial/bench/ball_float.md:62
-#: manual/tutorial/bench/bin_float.md:65
+#: manual/tutorial/bench/bin_float.md:64
 #: manual/tutorial/bench/decimal.md:62
 #: manual/tutorial/bench/decimal_gda.md:64
 #: manual/tutorial/bench/external.md:137
@@ -21863,18 +21815,14 @@ msgid "read the hotspot lines"
 msgstr ""
 
 #: manual/tutorial/bench.md:13
-msgid "read the square auto-tune result"
-msgstr ""
-
-#: manual/tutorial/bench.md:14
 msgid "decide whether a change is a regression"
 msgstr ""
 
-#: manual/tutorial/bench.md:15
+#: manual/tutorial/bench.md:14
 msgid "add a benchmark"
 msgstr ""
 
-#: manual/tutorial/bench.md:16
+#: manual/tutorial/bench.md:15
 #: manual/tutorial/bench/ball_float.md:14
 #: manual/tutorial/bench/bin_float.md:15
 #: manual/tutorial/bench/decimal.md:14
@@ -21882,140 +21830,124 @@ msgstr ""
 msgid "understand the statistics"
 msgstr ""
 
-#: manual/tutorial/bench.md:16
-#: manual/tutorial/bench.md:225
+#: manual/tutorial/bench.md:15
+#: manual/tutorial/bench.md:204
 msgid "[bench design](../design/bench.md)"
 msgstr ""
 
-#: manual/tutorial/bench.md:20
+#: manual/tutorial/bench.md:19
 msgid "To use the reduction functions in your own module, import the package in `moon.pkg`. The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`."
 msgstr ""
 
-#: manual/tutorial/bench.md:29
+#: manual/tutorial/bench.md:28
 msgid "The smallest useful program compares two paired sample arrays, for example per-call times measured before and after a change in the same ten blocks:"
 msgstr ""
 
-#: manual/tutorial/bench.md:43
+#: manual/tutorial/bench.md:42
 msgid "An 8 % slowdown is above the 3 % practical threshold, and every paired difference is positive, so the 95 % interval of the median difference lies above zero."
 msgstr ""
 
-#: manual/tutorial/bench.md:47
+#: manual/tutorial/bench.md:46
 msgid "The `floating` suites themselves run from a checkout of the repository. Run one suite from the repository root:"
 msgstr ""
 
-#: manual/tutorial/bench.md:54
+#: manual/tutorial/bench.md:53
 msgid "The command runs the skipped performance tests of `tooling/src/bench/bin_float` in release mode on the native target, then writes"
 msgstr ""
 
-#: manual/tutorial/bench.md:62
+#: manual/tutorial/bench.md:61
 msgid "The `.jsonl` file holds one versioned (`mmka_1`) event per line: every observation, the environment and the run summary. The `.analysis.txt` file holds the reduced results, one line per comparison, for example"
 msgstr ""
 
-#: manual/tutorial/bench.md:70
+#: manual/tutorial/bench.md:69
 msgid "meaning: for dataset 2 of `bin-float/mul`, the median paired difference between the `core/bin-float` path and the coefficient kernel is `core_pct` percent of the kernel's median per-call time (negative when the core is faster), and `full_pct` is the same for the checked path against the core."
 msgstr ""
 
-#: manual/tutorial/bench.md:77
+#: manual/tutorial/bench.md:76
 msgid "Choose a suite"
 msgstr ""
 
-#: manual/tutorial/bench.md:79
+#: manual/tutorial/bench.md:78
 msgid "Suite"
 msgstr ""
 
-#: manual/tutorial/bench.md:79
+#: manual/tutorial/bench.md:78
 msgid "Runs"
 msgstr ""
 
-#: manual/tutorial/bench.md:81
-msgid "all tests of `tooling/src/bench/bin_float` (arithmetic, elementary functions, square auto-tune)"
+#: manual/tutorial/bench.md:80
+msgid "all tests of `tooling/src/bench/bin_float` (arithmetic, elementary functions)"
 msgstr ""
 
-#: manual/tutorial/bench.md:82
+#: manual/tutorial/bench.md:81
 msgid "only the binary elementary-function benchmark"
 msgstr ""
 
-#: manual/tutorial/bench.md:83
-msgid "only the `mul(x, x)` versus `square(x)` crossover"
-msgstr ""
-
-#: manual/tutorial/bench.md:87
+#: manual/tutorial/bench.md:85
 msgid "the four package suites"
 msgstr ""
 
-#: manual/tutorial/bench.md:89
+#: manual/tutorial/bench.md:87
 msgid "Add `--output PATH` to choose the artifact path or `--dry-run` to print the `moon test` commands without running them."
 msgstr ""
 
-#: manual/tutorial/bench.md:92
-msgid "Read an auto-tune result"
-msgstr ""
-
-#: manual/tutorial/bench.md:94
-msgid "The auto-tune suite prints one decision per dataset and a crossover:"
-msgstr ""
-
-#: manual/tutorial/bench.md:102
-msgid "`candidate` is the implementation with the smallest median per-call time on that dataset, and `samples` the number of valid confirmatory observations behind it. When the winner changes exactly once along the scales, the crossover line gives the last scale `below` the change and the first scale `at_or_above` it, and the policy line is the per-scale lookup table a kernel can embed. When it changes more than once the suite prints `MAREMARK_CROSSOVER=non-monotonic` and a `MAREMARK_POLICY=lookup` line; when it never changes, `MAREMARK_CROSSOVER=none` and no policy line."
-msgstr ""
-
-#: manual/tutorial/bench.md:111
+#: manual/tutorial/bench.md:90
 msgid "Check a regression in code"
 msgstr ""
 
-#: manual/tutorial/bench.md:113
+#: manual/tutorial/bench.md:92
 msgid "`confirmatory_regression` compares paired samples (same order, same blocks) and `is_significant_regression` applies the verdict:"
 msgstr ""
 
-#: manual/tutorial/bench.md:126
+#: manual/tutorial/bench.md:105
 msgid "A change of about 0.5 % is below the 3 % practical threshold, so it is not a regression even if it were statistically clear."
 msgstr ""
 
-#: manual/tutorial/bench.md:129
+#: manual/tutorial/bench.md:108
 msgid "Write a new benchmark"
 msgstr ""
 
-#: manual/tutorial/bench.md:131
+#: manual/tutorial/bench.md:110
 msgid "A benchmark is an `immutable_bench` specification plus a skipped async test that runs it and prints Maremark lines. The pattern used by every suite:"
 msgstr ""
 
-#: manual/tutorial/bench.md:190
+#: manual/tutorial/bench.md:169
 msgid "Keep the plan-compiles test unskipped: it checks the specification in every normal test run. Register the package in `tools/benchmark.py` so `just bench` collects its output."
 msgstr ""
 
-#: manual/tutorial/bench.md:196
-msgid "The protocol presets of Maremark fix warm-up, batch calibration, sample counts and order: `QuickCheck` (3 confirmatory blocks), `Development` (10 blocks, used by the suites) and `RegressionGate` (20 blocks, used by the auto-tune suite). See the [Maremark documentation](https://lunaflow.cn/en/mare_mark/)."
+#: manual/tutorial/bench.md:175
+msgid "The protocol presets of Maremark fix warm-up, batch calibration, sample counts and order: `QuickCheck` (3 confirmatory blocks), `Development` (10 blocks, used by the suites) and `RegressionGate` (20 blocks, for regression checks). See the [Maremark documentation](https://lunaflow.cn/en/mare_mark/)."
 msgstr ""
 
-#: manual/tutorial/bench.md:201
+#: manual/tutorial/bench.md:180
 msgid "[bench design](../design/bench.md) explains the estimators and the confidence interval."
 msgstr ""
 
-#: manual/tutorial/bench.md:203
+#: manual/tutorial/bench.md:182
 msgid "[Performance audit](../performance_audit.md) and the `performance/` pages record measured results."
 msgstr ""
 
-#: manual/tutorial/bench.md:208
+#: manual/tutorial/bench.md:187
 msgid "**Benchmarks are skipped by default.** `moon test` runs only the plan-compiles tests; use `just bench` (it passes `--include-skipped`, `--release` and `--no-parallelize`)."
 msgstr ""
 
-#: manual/tutorial/bench.md:211
+#: manual/tutorial/bench.md:190
 msgid "**Native only.** `tools/benchmark.py` accepts only the native target."
 msgstr ""
 
-#: manual/tutorial/bench.md:212
+#: manual/tutorial/bench.md:191
 msgid "**Pairing needs equal sample counts.** Both implementations of a comparison must have the same number of valid confirmatory observations; otherwise `paired_hotspot` returns `MismatchedPairs`."
 msgstr ""
 
-#: manual/tutorial/bench.md:215
+#: manual/tutorial/bench.md:194
 msgid "**Near ties go to the steadier candidate, not the faster one.** `tune_dataset` treats candidates within `practical_delta_pct` percent of the smallest median as tied and picks the one with the smaller interquartile range (then the smaller id), so a candidate whose median is slightly higher can win when its timings are less spread out. Use `0.0` to always take the smallest median."
 msgstr ""
 
-#: manual/tutorial/bench.md:224
+#: manual/tutorial/bench.md:203
 msgid "[bench API](../api/bench.md)"
 msgstr ""
 
-#: manual/tutorial/bench.md:226
+#: manual/tutorial/bench.md:205
 msgid "Per-core suites: [bin_float](bench/bin_float.md), [decimal](bench/decimal.md), [decimal_gda](bench/decimal_gda.md), [ball_float](bench/ball_float.md)."
 msgstr ""
 
@@ -22095,7 +22027,7 @@ msgid "The runner executes the skipped performance tests of `tooling/src/bench/b
 msgstr ""
 
 #: manual/tutorial/bench/ball_float.md:33
-#: manual/tutorial/bench/bin_float.md:36
+#: manual/tutorial/bench/bin_float.md:35
 #: manual/tutorial/bench/decimal.md:33
 #: manual/tutorial/bench/decimal_gda.md:33
 msgid "Read the analysis lines"
@@ -22106,49 +22038,49 @@ msgid "The analysis file contains `MAREMARK_HOTSPOT=ball-float/OP/DATASET core_p
 msgstr ""
 
 #: manual/tutorial/bench/ball_float.md:40
-#: manual/tutorial/bench/bin_float.md:43
+#: manual/tutorial/bench/bin_float.md:42
 #: manual/tutorial/bench/decimal.md:40
 #: manual/tutorial/bench/decimal_gda.md:42
 msgid "Check the plans without measuring"
 msgstr ""
 
 #: manual/tutorial/bench/ball_float.md:46
-#: manual/tutorial/bench/bin_float.md:49
+#: manual/tutorial/bench/bin_float.md:48
 #: manual/tutorial/bench/decimal.md:46
 #: manual/tutorial/bench/decimal_gda.md:48
 msgid "runs only the plan tests, which compile every specification."
 msgstr ""
 
 #: manual/tutorial/bench/ball_float.md:50
-#: manual/tutorial/bench/bin_float.md:53
+#: manual/tutorial/bench/bin_float.md:52
 #: manual/tutorial/bench/decimal.md:50
 #: manual/tutorial/bench/decimal_gda.md:52
 msgid "Change datasets or implementations in the `*_test.mbt` files; keep the reference oracle so a faster but wrong path fails the run."
 msgstr ""
 
 #: manual/tutorial/bench/ball_float.md:52
-#: manual/tutorial/bench/bin_float.md:55
+#: manual/tutorial/bench/bin_float.md:54
 #: manual/tutorial/bench/decimal.md:52
 #: manual/tutorial/bench/decimal_gda.md:54
 msgid "Compare two runs only when their recorded environments agree."
 msgstr ""
 
 #: manual/tutorial/bench/ball_float.md:53
-#: manual/tutorial/bench/bin_float.md:56
+#: manual/tutorial/bench/bin_float.md:55
 #: manual/tutorial/bench/decimal.md:53
 #: manual/tutorial/bench/decimal_gda.md:55
 msgid "The [performance audit](../../performance_audit.md) and the `performance/` pages summarize measured results."
 msgstr ""
 
 #: manual/tutorial/bench/ball_float.md:58
-#: manual/tutorial/bench/bin_float.md:61
+#: manual/tutorial/bench/bin_float.md:60
 #: manual/tutorial/bench/decimal.md:58
 #: manual/tutorial/bench/decimal_gda.md:60
 msgid "Benchmarks are skipped in normal `moon test` runs; use `just bench`."
 msgstr ""
 
 #: manual/tutorial/bench/ball_float.md:59
-#: manual/tutorial/bench/bin_float.md:62
+#: manual/tutorial/bench/bin_float.md:61
 #: manual/tutorial/bench/decimal.md:59
 #: manual/tutorial/bench/decimal_gda.md:61
 msgid "Results depend on the machine; percentages are more stable than absolute microseconds."
@@ -22163,7 +22095,7 @@ msgid "[bench/ball_float design](../../design/bench/ball_float.md)"
 msgstr ""
 
 #: manual/tutorial/bench/ball_float.md:66
-#: manual/tutorial/bench/bin_float.md:69
+#: manual/tutorial/bench/bin_float.md:68
 #: manual/tutorial/bench/decimal.md:66
 #: manual/tutorial/bench/decimal_gda.md:68
 msgid "[bench design](../../design/bench.md) for the statistics."
@@ -22174,26 +22106,26 @@ msgid "bench/bin_float tutorial"
 msgstr ""
 
 #: manual/tutorial/bench/bin_float.md:3
-msgid "This page shows how to run the binary arithmetic and elementary-function benchmarks and the square auto-tune experiment and how to read their output. The suite compares implementation paths on identical inputs with paired measurements; see the [bench tutorial](../bench.md) for the toolkit and the artifact format."
+msgid "This page shows how to run the binary arithmetic and elementary-function benchmarks and how to read their output. The suite compares implementation paths on identical inputs with paired measurements; see the [bench tutorial](../bench.md) for the toolkit and the artifact format."
 msgstr ""
 
 #: manual/tutorial/bench/bin_float.md:11
-msgid "run only the elementary functions or the auto-tune"
+msgid "run only the elementary functions"
 msgstr ""
 
-#: manual/tutorial/bench/bin_float.md:29
+#: manual/tutorial/bench/bin_float.md:28
 msgid "The runner executes the skipped performance tests of `tooling/src/bench/bin_float` on the native target in release mode and writes `.tmp/bench/SUITE.jsonl` (all observations) and `.tmp/bench/SUITE.analysis.txt` (the reduced lines), where `SUITE` is the name given to `just bench`."
 msgstr ""
 
-#: manual/tutorial/bench/bin_float.md:38
-msgid "The analysis file contains `MAREMARK_HOTSPOT=bin-float/OP/DATASET core_pct=… full_pct=…` for arithmetic, `MAREMARK_HOTSPOT=bin-float/elementary/OP/DATASET full_pct=…` for elementary functions, and `MAREMARK_TUNE`, `MAREMARK_CROSSOVER` and `MAREMARK_POLICY` lines for the square experiment. A `core_pct` value is the median paired difference between the core path and the kernel, in percent of the kernel's median time; `full_pct` is the same for the checked path against the core path. Positive values mean the higher layer is slower."
+#: manual/tutorial/bench/bin_float.md:37
+msgid "The analysis file contains `MAREMARK_HOTSPOT=bin-float/OP/DATASET core_pct=… full_pct=…` for arithmetic, `MAREMARK_HOTSPOT=bin-float/elementary/OP/DATASET full_pct=…` for elementary functions. A `core_pct` value is the median paired difference between the core path and the kernel, in percent of the kernel's median time; `full_pct` is the same for the checked path against the core path. Positive values mean the higher layer is slower."
 msgstr ""
 
-#: manual/tutorial/bench/bin_float.md:67
+#: manual/tutorial/bench/bin_float.md:66
 msgid "[bench/bin_float API](../../api/bench/bin_float.md)"
 msgstr ""
 
-#: manual/tutorial/bench/bin_float.md:68
+#: manual/tutorial/bench/bin_float.md:67
 msgid "[bench/bin_float design](../../design/bench/bin_float.md)"
 msgstr ""
 
@@ -25490,54 +25422,54 @@ msgid "`bin_float` imports the kernel and brings the names it uses into scope wi
 msgstr ""
 
 #: manual/tutorial/internal/bin_kernel.md:28
-msgid "A `BinFloat` stores its coefficient as a private `Coeff` field. The public type `BinCoeff` is a newtype over it, so the kernel type never appears in a public interface, and the wrapping costs neither an allocation nor a call. A typical use computes the exact quotient and remainder and leaves rounding to `bin_float`:"
+msgid "A `BinFloat` stores its coefficient as a private `Coeff` field. The public type `BinCoeff` is a newtype over it (`value.0` unwraps it and `BinCoeff(c)` wraps a result), so the kernel type shows in a public interface only as the field of `BinCoeff`, which is opaque outside the module, and the wrapping costs neither an allocation nor a call. A typical use computes the exact quotient and remainder and leaves rounding to `bin_float`:"
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:42
+#: manual/tutorial/internal/bin_kernel.md:44
 #: manual/tutorial/internal/decimal_kernel.md:43
 msgid "Decide where new code belongs"
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:44
+#: manual/tutorial/internal/bin_kernel.md:46
 msgid "Put code in the kernel when it is a function from coefficients (and plain integers) to coefficients or integers. Keep it in `bin_float` when it mentions a rounding mode, a precision, an exponent, a class, a flag or a `BinFloat`. The test is simple: the function must give the same answer for the same integers whoever calls it. `tools/check_imports.py` enforces the dependency half of the rule: the kernel imports nothing of this module."
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:51
+#: manual/tutorial/internal/bin_kernel.md:53
 #: manual/tutorial/internal/decimal_kernel.md:54
 msgid "Change the kernel"
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:53
+#: manual/tutorial/internal/bin_kernel.md:55
 msgid "Write the change as an exact integer function."
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:54
+#: manual/tutorial/internal/bin_kernel.md:56
 msgid "Add or extend a white-box test next to the others in the package that compares the result with `BigInt` at the limb boundaries (64, 128 and 192 bits), at the threshold lengths of every target, and on operands of ones, powers of two and sparse limbs."
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:58
+#: manual/tutorial/internal/bin_kernel.md:60
 msgid "Run `just bin-kernel-ci`, then `just gate binary 3` and `just gate interval 3`."
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:59
+#: manual/tutorial/internal/bin_kernel.md:61
 msgid "Measure retired instructions with the benchmark rows of the pull request against the previous build; a change that helps one operation and slows another needs a reason in the pull request."
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:63
+#: manual/tutorial/internal/bin_kernel.md:65
 #: manual/tutorial/internal/decimal_kernel.md:67
 msgid "Tune a threshold"
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:65
+#: manual/tutorial/internal/bin_kernel.md:67
 msgid "The crossovers between schoolbook, Karatsuba, Toom-3, the NTT, Knuth's division and Burnikel-Ziegler live in `coeff_thresholds_native.mbt`, `_llvm`, `_wasm` and `_wasm_gc`; `moon.pkg` selects the file by target. JavaScript has no kernel: its `Coeff` is a host `bigint`. A threshold only changes which exact algorithm runs. Change it with paired old and new builds on the target, and keep the dispatch tests that cross every threshold exactly. The cutoffs of the elementary functions (`binary_exp_burst_min_precision` and its siblings) are thresholds of `bin_float`, in `elementary_thresholds_<target>.mbt`."
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:74
+#: manual/tutorial/internal/bin_kernel.md:76
 #: manual/tutorial/internal/decimal_kernel.md:76
 msgid "Run the tests"
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:81
+#: manual/tutorial/internal/bin_kernel.md:83
 msgid "The `internal/bin_kernel` tests carry the algorithm cross-checks, the dispatch tests and the regression digests that used to live in `bin_float`. `bin_float` keeps the tests that need a `BinFloat`."
 msgstr ""
 

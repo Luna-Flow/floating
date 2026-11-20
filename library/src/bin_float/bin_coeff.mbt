@@ -1,11 +1,11 @@
 ///|
 /// A non-negative arbitrary-precision integer, used as the coefficient of a
 /// `BinFloat` and as the bit pattern of an interchange encoding. The type is
-/// opaque; the arithmetic lives in the internal kernel package
+/// opaque to its users: the inner type is internal and carries no compatibility
+/// promise, and the arithmetic lives in the internal kernel package
 /// `Luna-Flow/floating/internal/bin_kernel`, and each method here forwards to
 /// it (a newtype costs nothing: no extra allocation and no extra call).
-#derive(Debug)
-struct BinCoeff(@bin_kernel.Coeff)
+pub(all) struct BinCoeff(@bin_kernel.Coeff)
 
 ///|
 pub fn BinCoeff::zero() -> BinCoeff {
@@ -38,18 +38,8 @@ pub fn BinCoeff::bit_length(self : BinCoeff) -> Int32 {
 }
 
 ///|
-pub fn BinCoeff::ctz(self : BinCoeff) -> Int32 {
-  self.0.ctz()
-}
-
-///|
 pub fn BinCoeff::to_uint64(self : BinCoeff) -> UInt64? {
   self.0.to_uint64()
-}
-
-///|
-pub fn BinCoeff::test_bit(self : BinCoeff, index : Int32) -> Bool {
-  self.0.test_bit(index)
 }
 
 ///|
@@ -65,74 +55,6 @@ pub fn BinCoeff::to_radix_string(self : BinCoeff, radix : Int32) -> String {
 ///|
 pub fn BinCoeff::compare(self : BinCoeff, other : BinCoeff) -> Int32 {
   self.0.compare(other.0)
-}
-
-///|
-pub fn BinCoeff::add(self : BinCoeff, other : BinCoeff) -> BinCoeff {
-  BinCoeff(self.0.add(other.0))
-}
-
-///|
-pub fn BinCoeff::mul(self : BinCoeff, other : BinCoeff) -> BinCoeff {
-  BinCoeff(self.0.mul(other.0))
-}
-
-///|
-pub fn BinCoeff::sub_checked(
-  self : BinCoeff,
-  other : BinCoeff,
-) -> Result[BinCoeff, String] {
-  self.0.sub_checked(other.0).map(fn(value) { BinCoeff(value) })
-}
-
-///|
-pub fn BinCoeff::square(self : BinCoeff) -> BinCoeff {
-  BinCoeff(self.0.square())
-}
-
-///|
-pub fn BinCoeff::shift_left(self : BinCoeff, shift : Int32) -> BinCoeff {
-  BinCoeff(self.0.shift_left(shift))
-}
-
-///|
-pub fn BinCoeff::shift_right(self : BinCoeff, shift : Int32) -> BinCoeff {
-  BinCoeff(self.0.shift_right(shift))
-}
-
-///|
-pub fn BinCoeff::bit_and(self : BinCoeff, other : BinCoeff) -> BinCoeff {
-  BinCoeff(self.0.bit_and(other.0))
-}
-
-///|
-pub fn BinCoeff::bit_or(self : BinCoeff, other : BinCoeff) -> BinCoeff {
-  BinCoeff(self.0.bit_or(other.0))
-}
-
-///|
-pub fn BinCoeff::bit_xor(self : BinCoeff, other : BinCoeff) -> BinCoeff {
-  BinCoeff(self.0.bit_xor(other.0))
-}
-
-///|
-pub fn BinCoeff::div_rem_checked(
-  self : BinCoeff,
-  other : BinCoeff,
-) -> Result[(BinCoeff, BinCoeff), String] {
-  self.0
-  .div_rem_checked(other.0)
-  .map(fn(pair) { (BinCoeff(pair.0), BinCoeff(pair.1)) })
-}
-
-///|
-pub fn BinCoeff::gcd(self : BinCoeff, other : BinCoeff) -> BinCoeff {
-  BinCoeff(self.0.gcd(other.0))
-}
-
-///|
-pub fn BinCoeff::pow_nat(self : BinCoeff, exponent : UInt32) -> BinCoeff {
-  BinCoeff(self.0.pow_nat(exponent))
 }
 
 ///|
@@ -162,23 +84,8 @@ pub impl Show for BinCoeff with fn to_string(self) {
 pub extend BinCoeff with Show::{to_string}
 
 ///|
-pub impl Add for BinCoeff with fn add(self, other) {
-  BinCoeff::add(self, other)
-}
-
-///|
-pub impl Mul for BinCoeff with fn mul(self, other) {
-  BinCoeff::mul(self, other)
-}
-
-///|
-pub impl Shl for BinCoeff with fn shl(self, shift) {
-  self.shift_left(shift)
-}
-
-///|
-pub impl Shr for BinCoeff with fn shr(self, shift) {
-  self.shift_right(shift)
+pub impl Debug for BinCoeff with fn to_repr(self) {
+  @debug.Repr::integer(self.0.to_string())
 }
 
 ///|
@@ -192,9 +99,3 @@ pub extend BinCoeff with Compare::{op_lt, op_le, op_ge, op_gt}
 
 ///|
 pub extend BinCoeff with Show::{output}
-
-///|
-pub extend BinCoeff with Shl::{shl}
-
-///|
-pub extend BinCoeff with Shr::{shr}

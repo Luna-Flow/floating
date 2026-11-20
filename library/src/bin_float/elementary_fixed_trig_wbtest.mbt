@@ -40,8 +40,8 @@ fn binary_sin_cos_series_reference(
   let mut sum_upper = term_upper
   let mut bracket_lower = term_lower
   let mut bracket_upper = term_upper
-  let threshold = BinFloat::make(
-    BinCoeff::one(),
+  let threshold = BinFloat::make_coeff(
+    Coeff::one(),
     -(work_precision + 12),
     work_precision,
   )
@@ -105,19 +105,21 @@ fn binary_sin_cos_fixed_test_values() -> Array[BinFloat] {
   for index in 0..<50 {
     state = state * 6364136223846793005UL + 1442695040888963407UL
     let bits = 2 + index % 52
-    let mantissa = BinCoeff::from_uint64((state >> 11) | 1UL)
+    let mantissa = Coeff::from_uint64((state >> 11) | 1UL)
       .shift_right(64 - bits)
       .shift_left(1)
-      .add(BinCoeff::one())
+      .add(Coeff::one())
     // magnitudes from about 2^-40 up to 1, both signs
     let exponent = -(bits + 1) - index * 3 % 40
-    values.push(BinFloat::make(mantissa, exponent, 53, negative=index % 2 == 0))
+    values.push(
+      BinFloat::make_coeff(mantissa, exponent, 53, negative=index % 2 == 0),
+    )
   }
-  values.push(BinFloat::make(BinCoeff::one(), -1, 53))
-  values.push(BinFloat::make(BinCoeff::one(), -1, 53, negative=true))
-  values.push(BinFloat::make(BinCoeff::one(), -300, 53))
-  values.push(BinFloat::make(BinCoeff::one(), 0, 53)) // exactly 1
-  values.push(BinFloat::make(BinCoeff::one(), 0, 53, negative=true))
+  values.push(BinFloat::make_coeff(Coeff::one(), -1, 53))
+  values.push(BinFloat::make_coeff(Coeff::one(), -1, 53, negative=true))
+  values.push(BinFloat::make_coeff(Coeff::one(), -300, 53))
+  values.push(BinFloat::make_coeff(Coeff::one(), 0, 53)) // exactly 1
+  values.push(BinFloat::make_coeff(Coeff::one(), 0, 53, negative=true))
   values.push(BinFloat::from_double(0.7853981633974483, precision=53))
   values.push(BinFloat::from_double(-0.7853981633974483, precision=53))
   values.push(BinFloat::from_double(0.9999999999999999, precision=53))
@@ -133,12 +135,12 @@ test "fixed-point sine and cosine enclosures contain a tighter series enclosure"
         // Covered unless the cosine argument has bits below the fixed-point
         // unit (then the general series runs) or the sine argument is so
         // small that its guard bits would exceed four times the precision.
-        let covered = value.coefficient().bit_length() <= work &&
+        let covered = value.coefficient_.bit_length() <= work &&
           (
             (cosine && work + 20 + value.exponent2() >= 0) ||
             (
               !cosine &&
-              -(value.exponent2() + value.coefficient().bit_length() - 1) <=
+              -(value.exponent2() + value.coefficient_.bit_length() - 1) <=
               4 * work + 64
             )
           )
@@ -189,8 +191,8 @@ test "fixed-point sine and cosine decline arguments they do not cover" {
     )
     is None,
   )
-  let wide = BinFloat::make(
-    BinCoeff::one().shift_left(150).add(BinCoeff::one()),
+  let wide = BinFloat::make_coeff(
+    Coeff::one().shift_left(150).add(Coeff::one()),
     -152,
     160,
   )
@@ -207,7 +209,7 @@ test "sine and cosine agree with their identities after the fixed-point path" {
     let norm = sine.mul(sine).add(cosine.mul(cosine))
     assert_true(
       norm.sub(BinFloat::one()).abs() <
-      BinFloat::make(BinCoeff::one(), -95, 100),
+      BinFloat::make_coeff(Coeff::one(), -95, 100),
     )
     let (odd, _) = value.neg().sin_ctx(context)
     assert_eq(odd, sine.neg())

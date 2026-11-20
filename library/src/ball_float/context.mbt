@@ -123,10 +123,10 @@ fn finite_adjusted_exponent(value : @bin_float.BinFloat) -> Int32 {
 
 ///|
 fn context_max_finite(ctx : BallContext) -> @bin_float.BinFloat {
-  let coefficient = @bin_float.BinCoeff::one()
-    .shift_left(ctx.precision)
-    .sub_checked(@bin_float.BinCoeff::one())
-    .unwrap()
+  let coefficient = coeff_sub(
+    coeff_shift_left(coeff_one(), ctx.precision),
+    coeff_one(),
+  )
   @bin_float.BinFloat::make(
     coefficient,
     ctx.e_max - ctx.precision + 1,
@@ -144,8 +144,8 @@ fn ball_round_shift(
   if shift <= 0 {
     return magnitude
   }
-  let quotient = magnitude.shift_right(shift)
-  let remainder = magnitude.sub_checked(quotient.shift_left(shift)).unwrap()
+  let quotient = coeff_shift_right(magnitude, shift)
+  let remainder = coeff_sub(magnitude, coeff_shift_left(quotient, shift))
   if remainder.is_zero() {
     return quotient
   }
@@ -155,14 +155,14 @@ fn ball_round_shift(
     RoundingMode::TowardNegative => negative
     RoundingMode::AwayFromZero => true
     RoundingMode::ToNearestEven => {
-      let comparison = remainder
-        .shift_left(1)
-        .compare(@bin_float.BinCoeff::one().shift_left(shift))
-      comparison > 0 || (comparison == 0 && quotient.test_bit(0))
+      let comparison = coeff_shift_left(remainder, 1).compare(
+        coeff_shift_left(coeff_one(), shift),
+      )
+      comparison > 0 || (comparison == 0 && coeff_test_bit(quotient, 0))
     }
   }
   if increment {
-    quotient.add(@bin_float.BinCoeff::one())
+    coeff_increment(quotient)
   } else {
     quotient
   }

@@ -86,7 +86,7 @@ fn e2s_round_up(mode : BinaryRoundingMode, above_half : Bool?) -> Bool {
 
 ///|
 fn e2s_pow2(n : Int32, p : Int32) -> BinFloat {
-  BinFloat::make(BinCoeff::one(), n, p)
+  BinFloat::make_coeff(Coeff::one(), n, p)
 }
 
 ///|
@@ -108,8 +108,8 @@ fn e2s_model(
     let value = if to_infinity {
       BinFloat::inf(Sign::Positive, precision=p)
     } else {
-      BinFloat::make(
-        BinCoeff::one().shift_left(p).sub_checked(BinCoeff::one()).unwrap(),
+      BinFloat::make_coeff(
+        Coeff::one().shift_left(p).sub_checked(Coeff::one()).unwrap(),
         e_max - (p - 1),
         p,
       )
@@ -230,7 +230,7 @@ fn e2s_shifted(n : Int32, numerator : Int32) -> BinFloat {
   // Exactly n + numerator * 2^-20.
   e2s_arg(n).add_ctx(
     e2s_arg(numerator).mul_ctx(
-      BinFloat::make(BinCoeff::one(), -20, 64),
+      BinFloat::make_coeff(Coeff::one(), -20, 64),
       BinaryContext::unbounded(128),
     ).0,
     BinaryContext::unbounded(128),
@@ -317,7 +317,7 @@ test "exp2 true underflow to zero threshold carries inexact and underflow" {
     }
   }
   // 2^-2^40: beyond the 32-bit exponent field of the implementation.
-  let huge = BinFloat::make(BinCoeff::one(), 40, 64).neg()
+  let huge = BinFloat::make_coeff(Coeff::one(), 40, 64).neg()
   let (value, flags) = huge.exp2_ctx(BinaryContext::unbounded(53))
   assert_eq("\{value} \{e2s_flags(flags)}", "0 IU-")
 }

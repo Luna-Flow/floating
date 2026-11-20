@@ -185,13 +185,12 @@ practical threshold ties with the fastest are thus decided by stability, and
 $\delta = 0$ keeps only the fastest medians. The result does not depend on the
 order of `candidate_ids`.
 
-The auto-tune suite turns the per-dataset winners $\ell_1, \dots, \ell_S$
+An auto-tune run turns the per-dataset winners $\ell_1, \dots, \ell_S$
 (ordered by scale) into a crossover with
 `@experiment.crossover_from_labels`: it counts the indices $i$ with
 $\ell_i \ne \ell_{i-1}$. No change gives `NoCrossover`, exactly one change at
 $i$ gives `Found` with `below` $= $ scale $i - 1$ and `at_or_above` $=$ scale
-$i$, and more than one gives `NonMonotonic`, for which the suite prints a
-plain lookup table instead of a piecewise policy. Because the winner of each
+$i$, and more than one gives `NonMonotonic`, for which a plain lookup table is printed instead of a piecewise policy. Because the winner of each
 dataset is decided by the median and, within the practical threshold, by
 the spread, noise between two nearly equal candidates can still produce several
 changes.
