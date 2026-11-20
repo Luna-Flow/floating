@@ -24,16 +24,16 @@ release builds only.
 | CPU | Apple M4, 10 logical cores (4 performance, 6 efficiency), 16 GiB |
 | OS | Darwin 27.2.1 (Darwin kernel 27.2.0) |
 | Power | AC power at start and end of the run; no frequency pinning, no core pinning |
-| Other load | the runner waits for the other processes to use under 150% CPU (1.5 cores) before each timed side; at the start of each side they used 30% to 91%, mostly the window server and desktop applications |
-| MoonBit | moon 0.1.20261117 (eb64713 2026-11-17), v0.10.21+06da1ed44 (2026-11-16) |
+| Other load | the runner waits for the other processes to use under 150% CPU (1.5 cores) before each timed side; at the start of each side they used 8% to 34% (122% once, before the floating side of one round) |
+| MoonBit | moon 0.1.20261119 (738607b 2026-11-19), v0.10.22+124d61d05 (2026-11-19) |
 | `floating` build | `moon test --release --target native`; moon compiles the generated C with `/usr/bin/cc -fwrapv -fno-strict-aliasing -ffp-contract=off -Wno-unused-value -O2 -DMOONBIT_ALLOCATOR=MOONBIT_ALLOCATOR_MIMALLOC` (reference-counted memory management, mimalloc allocator) |
 | C compiler of the harness | Apple clang 21.0.0 (Xcode command line tools), flags `-O2` |
 | MPFR | 4.2.2 (Homebrew bottle, thread-local storage on, no shared cache) |
 | GMP | 6.3.0 (Homebrew bottle, built with `clang -O2 -pedantic -march=armv8-a`) |
 | mpdecimal | 4.0.1 (Homebrew bottle) |
-| Library revision | `2938f6ce6ab6` plus documentation-only edits; no library source differs from the commit |
-| Run | 2026-11-18T12:03:10Z, `just bench external run` with the `standard` preset |
-| Operand and reference files | SHA-256 `4be4d4ca88128cad` and `f5ee544a4698cfac` (seed 20261118) |
+| Library revision | `4a052ed42f18`, clean working tree |
+| Run | 2026-11-20T07:43:31Z, `just bench external run` with the `standard` preset |
+| Operand and reference files | SHA-256 `e05e3284482dab5f` and `7ee258b310849477` (seed 20261118) |
 
 ## What is timed
 
@@ -87,43 +87,45 @@ their batch is a single pass.
 
 ## Results
 
+The tables are the output of `just bench external publish` for this run (`testdata/external_baseline/summary.md` and `summary-0.11.0.json`), copied without editing.
+
 ### Binary: floating `bin_float` against MPFR
 
 Ratio floating / MPFR (median time, 95% bootstrap interval; above 1 means floating is slower)
 
 | op | 53 bits | 128 bits | 512 bits | 2048 bits | 8192 bits |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| add | 22.13 [22.02, 22.24] | 21.22 [20.97, 21.49] | 18.06 [17.90, 18.45] | 16.36 [16.24, 16.49] | 15.59 [15.56, 15.61] |
-| mul | 20.02 [19.85, 20.15] | 13.27 [13.22, 13.33] | 10.66 [10.60, 10.75] | 10.93 [10.89, 10.96] | 12.76 [12.73, 12.80] |
-| div | 33.35 [33.17, 33.47] | 8.94 [8.87, 9.00] | 6.20 [6.15, 6.29] | 8.59 [8.56, 8.63] | 13.80 [13.76, 13.84] |
-| sqrt | 39.53 [39.30, 39.80] | 7.84 [7.78, 7.86] | 49.87 [49.49, 50.31] | 27.81 [27.70, 27.96] | 27.87 [27.72, 28.03] |
-| exp | 65.06 [64.66, 65.49] | 77.14 [76.66, 77.79] | 102 [102, 103] | 187 [186, 187] | 411 [410, 412] |
-| ln | 141 [141, 142] | 107 [107, 108] | 155 [155, 156] | 561 [559, 563] | 2472 [2460, 2475] |
-| sin | 435 [433, 436] | 433 [431, 435] | 577 [575, 582] | 1214 [1210, 1217] | 2554 [2548, 2561] |
+| add | 8.74 [8.66, 8.84] | 6.41 [6.32, 6.59] | 6.96 [6.90, 7.04] | 6.34 [6.23, 6.51] | 5.15 [5.11, 5.18] |
+| mul | 7.58 [7.51, 7.65] | 3.98 [3.93, 4.07] | 3.79\* [3.72, 3.82] | 3.93 [3.90, 3.96] | 3.92 [3.92, 3.93] |
+| div | 7.94 [7.92, 8.06] | 5.88 [5.83, 5.93] | 3.19 [3.17, 3.24] | 3.70 [3.66, 3.73] | 4.76 [4.75, 4.77] |
+| sqrt | 10.12 [9.99, 10.22] | 1.90 [1.90, 1.92] | 4.60 [4.56, 4.68] | 4.12 [4.06, 4.18] | 4.28 [4.24, 4.37] |
+| exp | 3.09 [3.06, 3.13] | 2.52 [2.51, 2.54] | 2.50 [2.48, 2.52] | 5.23 [5.17, 5.29] | 2.99 [2.96, 3.02] |
+| ln | 6.92 [6.89, 7.09] | 4.60 [4.55, 4.64] | 6.20 [6.16, 6.23] | 10.87 [10.80, 10.94] | 9.54 [9.45, 9.58] |
+| sin | 8.84 [8.76, 8.93] | 7.70 [7.61, 7.76] | 7.26 [7.23, 7.31] | 10.13 [10.08, 10.22] | 5.24 [5.18, 5.26] |
 
 Median ns per operation, MPFR
 
 | op | 53 bits | 128 bits | 512 bits | 2048 bits | 8192 bits |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| add | 4.57 ns | 6 ns | 12.4 ns | 21.8 ns | 85.9 ns |
-| mul | 5.01 ns | 10.1 ns | 32 ns | 232 ns | 2.14 us |
-| div | 5.4 ns | 26.4 ns | 108 ns | 514 ns | 4.07 us |
-| sqrt | 5.65 ns | 62.9 ns | 166 ns | 522 ns | 2.97 us |
-| exp | 559 ns | 851 ns | 2.38 us | 17 us | 213 us |
-| ln | 388 ns | 1.1 us | 3.45 us | 15.1 us | 116 us |
-| sin | 503 ns | 803 ns | 2.23 us | 14.2 us | 198 us |
+| add | 4.59 ns | 6 ns | 12.4 ns | 21.7 ns | 85.6 ns |
+| mul | 5 ns | 10.1 ns | 32 ns | 231 ns | 2.13 us |
+| div | 5.38 ns | 26.3 ns | 106 ns | 498 ns | 4 us |
+| sqrt | 5.64 ns | 62.3 ns | 162 ns | 509 ns | 2.83 us |
+| exp | 557 ns | 846 ns | 2.35 us | 16.8 us | 208 us |
+| ln | 388 ns | 1.09 us | 3.41 us | 14.9 us | 116 us |
+| sin | 496 ns | 792 ns | 2.22 us | 14.1 us | 197 us |
 
 Median ns per operation, floating
 
 | op | 53 bits | 128 bits | 512 bits | 2048 bits | 8192 bits |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| add | 101 ns | 127 ns | 225 ns | 357 ns | 1.34 us |
-| mul | 100 ns | 134 ns | 341 ns | 2.54 us | 27.3 us |
-| div | 180 ns | 236 ns | 668 ns | 4.42 us | 56.2 us |
-| sqrt | 223 ns | 493 ns | 8.26 us | 14.5 us | 82.7 us |
-| exp | 36.4 us | 65.7 us | 244 us | 3.18 ms | 87.4 ms |
-| ln | 54.7 us | 118 us | 536 us | 8.47 ms | 286 ms |
-| sin | 218 us | 348 us | 1.29 ms | 17.3 ms | 507 ms |
+| add | 40.1 ns | 38.5 ns | 86.2 ns | 138 ns | 441 ns |
+| mul | 37.9 ns | 40 ns | 121 ns | 910 ns | 8.34 us |
+| div | 42.8 ns | 154 ns | 340 ns | 1.84 us | 19 us |
+| sqrt | 57.1 ns | 119 ns | 745 ns | 2.1 us | 12.1 us |
+| exp | 1.72 us | 2.13 us | 5.89 us | 87.7 us | 619 us |
+| ln | 2.69 us | 4.99 us | 21.2 us | 162 us | 1.11 ms |
+| sin | 4.38 us | 6.1 us | 16.1 us | 143 us | 1.03 ms |
 
 ### Decimal GDA: floating `decimal_gda` against libmpdec
 
@@ -131,143 +133,135 @@ Ratio floating / libmpdec (median time, 95% bootstrap interval; above 1 means fl
 
 | op | 16 digits | 34 digits | 100 digits | 1000 digits |
 | --- | ---: | ---: | ---: | ---: |
-| add | 16.01 [15.87, 16.23] | 11.57 [11.44, 11.70] | 8.58 [8.33, 8.68] | 6.67 [6.62, 6.72] |
-| mul | 16.04 [15.87, 16.14] | 6.37 [6.11, 6.47] | 3.13 [3.08, 3.18] | 1.77 [1.74, 1.81] |
-| div | 22.11 [21.84, 22.27] | 8.02 [7.91, 8.14] | 4.73 [4.68, 4.83] | 3.14 [3.04, 3.20] |
-| sqrt | 5.95 [5.81, 6.02] | 4.34 [4.32, 4.39] | 2.77 [2.73, 2.82] | 2.11 [2.03, 2.15] |
-| exp | 86.94 [86.35, 87.29] | 36.54\* [36.29, 36.79] | 95.74 [95.46, 96.24] | 65.62 [64.19, 67.00] |
-| ln | 22.42 [22.31, 22.54] | 22.36 [22.24, 22.65] | 24.46 [24.33, 24.70] | 15.02 [14.68, 15.24] |
+| add | 3.63 [3.60, 3.67] | 11.39 [11.23, 11.55] | 8.71 [8.61, 8.83] | 6.01 [5.89, 6.13] |
+| mul | 4.25 [4.20, 4.30] | 5.41 [5.27, 5.63] | 3.03 [3.00, 3.06] | 1.74 [1.72, 1.77] |
+| div | 2.95 [2.90, 2.98] | 6.15 [6.09, 6.25] | 4.33 [4.28, 4.37] | 3.09 [3.07, 3.11] |
+| sqrt | 5.31 [5.28, 5.35] | 4.27 [4.24, 4.31] | 2.77 [2.75, 2.78] | 2.12 [2.10, 2.13] |
+| exp | 2.92 [2.88, 2.95] | 1.53 [1.52, 1.55] | 1.39 [1.38, 1.41] | 0.11 [0.11, 0.11] |
+| ln | 1.28 [1.27, 1.29] | 0.96 [0.96, 0.98] | 1.17 [1.16, 1.18] | 0.28 [0.27, 0.28] |
 
 Median ns per operation, libmpdec
 
 | op | 16 digits | 34 digits | 100 digits | 1000 digits |
 | --- | ---: | ---: | ---: | ---: |
-| add | 19.2 ns | 23.5 ns | 43.2 ns | 160 ns |
-| mul | 18.4 ns | 47.5 ns | 142 ns | 9.68 us |
-| div | 30.1 ns | 119 ns | 343 ns | 15.3 us |
-| sqrt | 289 ns | 1.09 us | 4.13 us | 211 us |
-| exp | 2.85 us | 8.01 us | 17.6 us | 4.98 ms |
-| ln | 9.87 us | 15.8 us | 40.7 us | 5.95 ms |
+| add | 20 ns | 21.9 ns | 35.1 ns | 171 ns |
+| mul | 19.4 ns | 48.7 ns | 136 ns | 9.05 us |
+| div | 31.6 ns | 122 ns | 328 ns | 14.5 us |
+| sqrt | 307 ns | 1.07 us | 4.03 us | 213 us |
+| exp | 2.97 us | 7.97 us | 17.5 us | 4.69 ms |
+| ln | 9.94 us | 18 us | 43.2 us | 5.24 ms |
 
 Median ns per operation, floating
 
 | op | 16 digits | 34 digits | 100 digits | 1000 digits |
 | --- | ---: | ---: | ---: | ---: |
-| add | 307 ns | 273 ns | 371 ns | 1.07 us |
-| mul | 296 ns | 303 ns | 446 ns | 17.2 us |
-| div | 666 ns | 955 ns | 1.62 us | 47.9 us |
-| sqrt | 1.72 us | 4.71 us | 11.4 us | 445 us |
-| exp | 248 us | 293 us | 1.69 ms | 327 ms |
-| ln | 221 us | 353 us | 996 us | 89.4 ms |
+| add | 72.5 ns | 249 ns | 306 ns | 1.03 us |
+| mul | 82.6 ns | 264 ns | 413 ns | 15.7 us |
+| div | 93.3 ns | 750 ns | 1.42 us | 44.8 us |
+| sqrt | 1.63 us | 4.55 us | 11.2 us | 451 us |
+| exp | 8.67 us | 12.2 us | 24.3 us | 523 us |
+| ln | 12.7 us | 17.4 us | 50.4 us | 1.45 ms |
 
 ### Harness overhead of the floating side
 
 | case | ns per operation (loop and result store only) |
 | --- | ---: |
-| `binary/null/53` | 9.28 ns [9.23 ns, 9.4 ns] |
-| `decimal_gda/null/16` | 9.36 ns [9.28 ns, 9.48 ns] |
+| `binary/null/53` | 9.21 ns [9.15 ns, 9.26 ns] |
+| `decimal_gda/null/16` | 9.21 ns [9.14 ns, 9.32 ns] |
 
-Cells marked with an asterisk exceeded a dispersion threshold (CI half-width over 5% of the median, or round medians spread by over 10%): `decimal_gda/exp/34`.
+Cells marked with an asterisk exceeded a dispersion threshold (CI half-width over 5% of the median, or round medians spread by over 10%): `binary/mul/512`.
 
 ## What the numbers say
 
 Everything below is read from the tables above; ratios are rounded and the
 intervals are in the tables.
 
-**`floating` is slower than both C libraries in every one of the 59 cells.**
-The smallest ratio is 1.77 (`decimal_gda` multiplication at 1000 digits) and the
-largest 2554 (binary `sin` at 8192 bits).
+**`floating` is slower than the reference in 56 of the 59 cells and faster in
+three, all `decimal_gda`.** Excluding those, the smallest ratio is 1.28
+(`decimal_gda` `ln` at 16 digits) and the largest 11.4 (`decimal_gda` addition
+at 34 digits). Four cells are above 10: binary `sqrt` at 53 bits (10.1), binary
+`ln` and `sin` at 2048 bits (10.9 and 10.1), and `decimal_gda` addition at 34
+digits (11.4). Where `floating` is faster, it is `exp` at 1000 digits (0.11,
+that is 9 times faster: 523 us against 4.69 ms), `ln` at 1000 digits (0.28,
+3.6 times faster: 1.45 ms against 5.24 ms) and `ln` at 34 digits (0.96, a
+difference of 4%, with the interval [0.96, 0.98] below 1).
 
-**Basic binary arithmetic: roughly 6 to 40 times slower.** Addition costs
-15.6 to 22 times MPFR's time at every precision, and multiplication 10.7 to 20
-times. The gap is widest at 53 bits, where MPFR needs 4.6 ns for an addition
-and `floating` 101 ns; about 9 ns of that is the harness (see the `null`
-row), the rest is allocation and normalisation of an immutable result.
-Division is 6.2 times slower at 512 bits but 33 times at 53 bits and 13.8 times
-at 8192 bits. At 8192 bits multiplication takes 27.3 us against 2.14 us
-(12.8 times); 8192 bits is 256 limbs of 32 bits, in the Karatsuba range,
-against GMP's 64-bit limbs with assembly kernels.
+**Basic binary arithmetic: roughly 3 to 9 times slower.** Addition costs 5.2
+to 8.7 times MPFR's time at every precision, multiplication 3.8 to 7.6, division
+3.2 to 7.9. The gap is widest at 53 bits, where MPFR needs 4.6 ns for an
+addition and `floating` 40.1 ns; about 9.2 ns of that is the harness (see the
+`null` row), the rest is allocation and normalisation of an immutable result. At
+128 bits and above multiplication stays at 3.8 to 4.0 times (8192 bits: 8.34 us
+against 2.13 us).
 
-**Square root is not smooth in precision.** The ratio is 7.8 at 128 bits, 49.9
-at 512 bits and 27.8 at 2048 and 8192 bits. At 512 bits `floating` takes 8.26
-us, 17 times its time at 128 bits for 4 times the width, where MPFR's time grows
-2.6 times. The change of algorithm at 512 bits (fixed-width kernels below,
-divide and conquer above) is the likely cause; see the follow-up list.
+**Square root is not smooth in precision.** The ratio is 10.1 at 53 bits, 1.9
+at 128 bits, 4.6 at 512 bits and 4.1 to 4.3 at 2048 and 8192 bits. From 128 to
+512 bits, 4 times the width, the time of `floating` grows from 119 ns to 745
+ns (6.3 times) and MPFR's from 62.3 ns to 162 ns (2.6 times).
 
-**Elementary functions: 65 to 2554 times slower, and the gap grows with
-precision.** `exp` is 65 times slower at 53 bits and 411 times at 8192 bits;
-`ln` 141 and 2472 times; `sin` 435 and 2554 times. At 53 bits a `sin` takes
-218 us in `floating` and 0.5 us in MPFR. Both are correctly rounded, so the
-work is equal in specification but not in method: `floating` certifies each
-result by interval arithmetic and a Ziv refinement loop, and the cost grows
-faster than MPFR's with the precision. `exp` at 8192 bits (87 ms against
-213 us) and `ln` and `sin` at 8192 bits (286 ms and 507 ms) are among the
-slowest operations measured.
+**Elementary functions: 2.5 to 11 times slower than MPFR in binary.** `exp` is
+2.5 to 5.2 times slower at every precision (3.1 at 53 bits, 5.2 at 2048 bits,
+3.0 at 8192 bits), `ln` 4.6 to 10.9 times and `sin` 5.2 to 10.1 times. These
+three have their largest ratios at 2048 bits (5.2, 10.9, 10.1), not at 8192 bits
+(3.0, 9.5, 5.2); the cost is not a smooth function of the precision. Both
+libraries are correctly rounded, so the work is equal in specification but not
+in method. The slowest binary operations measured are `ln` and `sin` at 8192
+bits (1.11 ms and 1.03 ms against 116 us and 197 us in MPFR).
 
-**`decimal_gda`: closer, but still slower everywhere.** Against libmpdec, addition is
-6.7 to 16 times slower, multiplication 1.8 to 16, division 3.1 to 22 and square
-root 2.1 to 6.0. The gap narrows with the digit count for these four
-operations: at 1000 digits multiplication is 1.8 times, square root 2.1 and
-division 3.1 times libmpdec. `ln` is 15 to 24 times slower and `exp` 37 to 96
-times. The `exp` ratio is not monotone in the digit count: `floating` takes
-about 250 to 290 us at 16 and 34 digits, a floor that does not shrink with
-fewer digits, while libmpdec's time grows from 2.9 us to 8.0 us.
+**`decimal_gda`: slower for the four basic operations, at par or faster for
+`exp` and `ln` from about 34 digits.** Against libmpdec, addition is 3.6 to 11.4
+times slower, multiplication 1.7 to 5.4, division 3.0 to 6.2 and square root
+2.1 to 5.3. Multiplication, division and square root narrow towards the large
+size: at 1000 digits they are 1.7, 3.1 and 2.1 times libmpdec. `exp` is 2.9, 1.5
+and 1.4 times slower at 16, 34 and 100 digits and 0.11 at 1000 digits; `ln` is
+1.28, 0.96, 1.17 and 0.28. This comes from libmpdec's side: from 100 to 1000
+digits its `exp` time grows 268 times (17.5 us to 4.69 ms) and its `ln` time
+121 times (43.2 us to 5.24 ms), against 21.5 times (24.3 us to 523 us) and 29
+times (50.4 us to 1.45 ms) for `floating`. These are the measured times; the
+cause in libmpdec was not investigated here. For scale, against MPFR at binary
+sizes near 1000 decimal digits (2048 and 8192 bits), the binary `floating`
+`exp` is 5.2 and 3.0 times slower and `ln` 10.9 and 9.5 times slower, so the
+`floating` advantage over libmpdec at 1000 digits is not an advantage over a
+binary library of the same size class.
 
 **Harness overhead.** The `null` rows show that the timed loop of the
-`floating` side costs 9.3 ns per operation with the arithmetic removed. That
-is 9% of the 101 ns of a 53-bit addition and under 1% of anything above 1 us;
-it is not subtracted. The C side's loop overhead is below the clock
-resolution.
+`floating` side costs 9.2 ns per operation with the arithmetic removed. That
+is 23% of the 40.1 ns of a 53-bit addition and 16% of the 57.1 ns of a 53-bit
+square root, about 1% of 1 us and less above it; it is not subtracted. The C
+side's loop overhead is below the clock resolution.
 
-**Dispersion.** Within a process the 20 ms batches vary by under 3% (largest
-median absolute deviation 1.9% for `floating` and 2.9% for the references). Between the seven rounds the medians of one
-cell spread by at most 8.7% for the references and 10.4% for `floating`; the
-bootstrap intervals therefore cover whole-process variation, and their
-half-widths are at most 1.9% of the median. One cell exceeds a dispersion
-threshold (marked in the table): `decimal_gda/exp/34`, whose round medians for
-`floating` spread by 10.4%.
+**Dispersion.** Within a process the 20 ms batches vary by under 3.1% (largest
+median absolute deviation 1.5% for `floating` and 3.1% for the references).
+Between the seven rounds the medians of one cell spread by at most 6.0% for
+`floating` and 25.3% for the references (the reference side of `binary/mul/512`,
+the one cell marked in the table); the bootstrap intervals therefore cover
+whole-process variation, and the half-widths of the medians are at most 1.7%
+for `floating` and 3.1% for the references, and at most 3.3% for a ratio.
 
-**Measurement history.** A first five-round run was discarded, not selected
-against: the machine switched from battery to AC power during it and another
-session on the same machine kept about six processes at full CPU, and round medians of
-one cell differed by up to a factor of two, so every cell was marked noisy.
-Its ratios differ from this run's by 21% in the median cell and by up to 49%
-(`decimal_gda/ln/16`), and its intervals are 7 to 250 times wider (median 62 times). The reported run added the
-quiet-machine gate, the power-source check, and a larger number of shorter
-rounds.
+**Repeatability.** The run was repeated once on the same commit `4a052ed` with a
+different round-order seed. The run published here is the first one, with the
+quieter machine: the other processes used 8% to 34% of the CPU before the timed
+sides (once 122%), against 26% to 110% in the second run. Over the 59 cases the
+medians of `floating` moved by 0.43% in the median and 2.1% at most, and the
+ratios by 0.72% in the median. Two ratios moved by more than 3%:
+`binary/mul/8192` (3.92 to 3.41, entirely on the MPFR side, which was 15% slower
+in the second run) and `decimal_gda/mul/34` (5.41 to 5.59). Neither run had a
+validation failure. The second run is not published.
 
 ## Follow-ups (not fixed here)
 
-A short `sample` profile of the `floating` test binary (4 seconds on
-`binary/sqrt/512` and on `binary/sin/128`; indicative, not a rigorous
-profile) shows the following. No library code was changed for this baseline.
+No profile was taken for this run, so the list is read from the ratios only and
+names where the largest gaps are, not their cause.
 
-- **Allocation and reference counting dominate the small cases.** The top
-  frames are `moonbit_drop_object`, `mi_malloc`, `moonbit_make_int32_array`
-  and, for the elementary functions, `scan_regular_object` (the cycle scan of
-  the reference counter) and thread-local lookups of the allocator. Every
-  `BinCoeff` intermediate is a heap array of 32-bit limbs. Fewer intermediate
-  `BinCoeff` values in the contextual rounding path (`binary_round_rational`,
-  `normalize_finite`, `add_heap`) would help add, mul and div at 53 to 512
-  bits, where `floating` is 10 to 33 times slower.
-- **`sqrt` at 512 bits.** The profile is led by `compare`, `shift_left` and
-  `test_bit` inside `bin_coeff_sqrt_rem_divide_conquer`: bit-level work on
-  heap coefficients. The jump from 493 ns at 128 bits to 8.26 us at 512 bits
-  suggests the divide-and-conquer threshold is too low, or its base case too
-  slow, at this size.
-- **Elementary functions.** The start precision of the certification loop is
-  at least 128 bits (`max(128, 4D + 64)` for `decimal_gda`), which puts a floor of
-  roughly 220 to 350 us on `decimal_gda` `exp` and `ln` at 16 and 34 digits and 36 to 55 us
-  on binary `exp` and `ln` at 53 bits, where MPFR needs 0.4 to 0.6 us. A
-  cheaper first attempt at the target precision plus a few guard bits, falling
-  back to the existing loop, would address the low-precision end. The growth
-  towards 8192 bits needs a different algorithm (argument reduction and
-  series evaluation on `BinCoeff` with bit-burst or binary splitting) and is a
-  larger piece of work.
-- **Multiplication at 8192 bits.** 27.3 us against 2.14 us; 8192 bits is 256
-  limbs of 32 bits, below the native Toom-3 and transform thresholds (2048
-  limbs), so the Karatsuba range and its allocations are where the time goes.
-  This is an inference from the thresholds, not a measurement.
+- **Small binary cases.** At 53 bits `floating` takes 38 to 57 ns for add, mul, div
+  and `sqrt`, 7.6 to 10.1 times MPFR, with 9.2 ns of the
+  harness included; `sqrt` at 53 bits (10.1) stands out against 1.9 at 128 bits.
+- **`ln` and `sin` at 2048 bits and 8192 bits.** Ratios of 10.9 and 10.1 at
+  2048 bits and 9.5 at 8192 bits for `ln`, the largest elementary ratios; `exp`
+  is at 2.5 to 5.2 at all sizes.
+- **`sqrt` at 512 bits.** 4.6 times MPFR against 1.9 at 128 bits.
+- **`decimal_gda` addition at 34 and 100 digits.** 11.4 and 8.7 times, against
+  3.6 at 16 digits; the largest basic-operation ratios of the decimal side.
 
 ## What is not measured
 
@@ -304,7 +298,7 @@ just bench external publish
 `run` writes the inputs, the reference results, the raw rounds and the
 summary under `.tmp/external`; `publish` copies the compact summary to
 `testdata/external_baseline/summary-VERSION.json`. The raw JSONL of the run
-reported here (about 12 MB, 2.4 MB compressed) is not committed; its checksums and the
+reported here (about 12 MB) is not committed; its checksums and the
 checksums of the operand and reference files are in the published summary.
 `just bench external compare OLD NEW` compares two summaries; see the
 [tutorial](../../tutorial/bench/external.md) for the commands and the
