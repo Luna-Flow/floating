@@ -377,7 +377,7 @@ pub impl Ring for Decimal
 
 ///|
 pub impl Add for Decimal with fn add(self, other) {
-  add_decimal_impl(self, other)
+  Decimal::add(self, other)
 }
 
 ///|
@@ -387,12 +387,12 @@ pub impl Sub for Decimal with fn sub(self, other) {
 
 ///|
 pub impl Mul for Decimal with fn mul(self, other) {
-  mul_decimal_impl(self, other)
+  Decimal::mul(self, other)
 }
 
 ///|
 pub impl Div for Decimal with fn div(self, other) {
-  div_decimal_impl(self, other)
+  Decimal::div(self, other)
 }
 
 ///|

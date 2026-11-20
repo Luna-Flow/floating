@@ -123,26 +123,54 @@ test "products and quotients of extreme exponents do not wrap" {
   )
   inspect(big * big, content="inf")
   inspect(-big * big, content="-inf")
-  inspect(small * small, content="0E-2147483648")
-  inspect(-small * small, content="-0E-2147483648")
+  inspect(small * small, content="0E-2147483645")
+  inspect(-small * small, content="-0E-2147483645")
   inspect(big / small, content="inf")
-  inspect(small / big, content="0")
+  inspect(small / big, content="0E-2147483645")
   inspect(big * small, content="1")
-  // Below the exponent range the result is rounded half-even to the smallest
-  // exponent (gradual underflow), not replaced by zero.
+  // Below the range of the working context of the plain operators (smallest
+  // exponent -2147483645) the result is rounded half-even to that exponent,
+  // here to a zero: the plain operator is the `_ctx` operation in that context.
   let d = fn(s : String) { Decimal::from_string(s).unwrap() }
-  inspect(d("123E-2147483640") * d("1E-10"), content="1E-2147483648")
-  inspect(d("10E-2147483640") * d("1E-9"), content="1E-2147483648")
-  inspect(d("3E-2147483640") / d("2E+8"), content="2E-2147483648")
-  inspect(d("1E-2147483640") / d("3E+7"), content="3E-2147483648")
-  inspect(d("-1E-2147483640") / d("3E+9"), content="-0")
-  // A sum that rounds up past the largest exponent overflows.
+  inspect(
+    d("123E-2147483640") * d("1E-10"),
+    content=(
+      #|0E-2147483645
+    ),
+  )
+  inspect(
+    d("10E-2147483640") * d("1E-9"),
+    content=(
+      #|0E-2147483645
+    ),
+  )
+  inspect(
+    d("3E-2147483640") / d("2E+8"),
+    content=(
+      #|0E-2147483645
+    ),
+  )
+  inspect(
+    d("1E-2147483640") / d("3E+7"),
+    content=(
+      #|0E-2147483645
+    ),
+  )
+  inspect(
+    d("-1E-2147483640") / d("3E+9"),
+    content=(
+      #|-0E-2147483645
+    ),
+  )
+  // A sum that rounds up past the largest adjusted exponent (2147483646) overflows.
   let nines = d("9999999999999999999999999999999999E+2147483614")
   inspect(nines + d("5E+2147483613"), content="inf")
   inspect(-nines - d("5E+2147483613"), content="-inf")
   inspect(
     nines + d("4E+2147483613"),
-    content="9.999999999999999999999999999999999E+2147483647",
+    content=(
+      #|inf
+    ),
   )
   // Rounding at the top of the range overflows according to the mode.
   let top = d("9999E+2147483644")

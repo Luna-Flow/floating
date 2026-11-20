@@ -510,7 +510,8 @@ test "decimal zero arithmetic preserves meaningful result signs" {
   assert_false((pos + neg).is_negative_zero())
   assert_true((neg * two).is_negative_zero())
   assert_true((two * neg).is_negative_zero())
-  assert_false((neg_two * pos).is_negative_zero())
+  // IEEE 754-2019 6.3: the sign of a zero product is the xor of the signs
+  assert_true((neg_two * pos).is_negative_zero())
   assert_true((neg / two).is_negative_zero())
 }
 

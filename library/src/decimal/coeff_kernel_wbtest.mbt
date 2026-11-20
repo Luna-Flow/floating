@@ -262,12 +262,13 @@ test "decimal exact aligned sum keeps GDA unit accumulator representation" {
 }
 
 ///|
-test "decimal plain add normalizes the GDA unit accumulator directly" {
+test "decimal plain add keeps the preferred exponent of an exact sum" {
   let sum = Decimal::from_string("999.999", precision=7)
     .unwrap()
     .add(Decimal::from_string("0.001", precision=7).unwrap())
-  assert_eq(sum.coefficient.to_bigint(), 1N)
-  assert_eq(sum.exponent10, 3)
+  // The sum keeps the preferred exponent min(-3, -3): it is not reduced.
+  assert_eq(sum.coefficient.to_bigint(), 1000000N)
+  assert_eq(sum.exponent10, -3)
   assert_false(sum.negative)
 
   let cancellation = Decimal::from_string("1.20", precision=7)

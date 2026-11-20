@@ -334,14 +334,16 @@ fn[T : @lf_alg.Ring] dot(xs : Array[T], ys : Array[T]) -> T {
 ///|
 test "decimal in generic ring code" {
   let d = fn(s : String) { @decimal.Decimal::from_string(s).unwrap() }
-  inspect(dot([d("1.5"), d("2.25")], [d("4"), d("0.2")]), content="6.45")
+  inspect(dot([d("1.5"), d("2.25")], [d("4"), d("0.2")]), content="6.450")
 }
 ```
 
-The plain operators have no context: `*` is exact, `+` rounds to the larger
-operand precision (34 digits by default) and returns the shortest cohort
-member. Code that needs a precision, an exponent range or flags should take a
-`DecimalContext` and call the `*_ctx` operations.
+The plain operators have no context argument: each is the matching `*_ctx`
+operation in a private context of the larger operand precision (34 digits by
+default), round half even, with the storage range of a value, and returns the
+cohort member IEEE 754-2019 asks for (`1.20 + 3.40` is `4.60`). Code that needs
+a precision, an exponent range or flags should take a `DecimalContext` and call
+the `*_ctx` operations.
 
 ### The shared contextual traits
 
@@ -402,10 +404,11 @@ test "decimal total order separates cohorts" {
   a context with `e_max` above 999,999, or a precision of 1000 digits or more
   with the default range, makes them return NaN with `invalid_operation`. Use
   `decimal32()`/`decimal64()`/`decimal128()` or pass `e_max` up to 999,999.
-- **Operators are not context operations.** `*` never rounds, so repeated
-  products grow without bound; `/` rounds half-even to the operand precision
-  and applies no exponent range. Use `mul_ctx` and `div_ctx` when the result
-  must be bounded, rounded in another mode, or reported through flags.
+- **Operators are not context operations.** They round half-even to the larger
+  operand precision and apply only the storage range of a value, so a result
+  beyond it is an infinity or a zero. Use `mul_ctx` and `div_ctx` when the
+  result must be bounded by a format, rounded in another mode, or reported
+  through flags.
 - **`==` is not IEEE equality.** `Eq` and `compare` treat every NaN as equal
   to every NaN and greater than every number, so sorting works. Use
   `compare_checked` or `is_nan` when a NaN must be unordered.
