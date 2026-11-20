@@ -54,6 +54,7 @@ pub fn BallFloatResult::from_double(Double, precision? : Int32) -> Self
 pub fn BallFloatResult::from_float(Float, precision? : Int32) -> Self
 pub fn BallFloatResult::from_int(Int32, precision? : Int32) -> Self
 pub fn BallFloatResult::from_result(Result[@ball_float.BallFloat, @arithmetic.ArithmeticError]) -> Self
+pub fn BallFloatResult::from_string(String, precision? : Int32) -> Self
 pub fn BallFloatResult::hypot(Self, Self) -> Self
 pub fn BallFloatResult::intersection(Self, Self) -> Self
 pub fn BallFloatResult::is_err(Self) -> Bool

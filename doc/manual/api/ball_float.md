@@ -264,6 +264,67 @@ the center is added to the radius on *both* sides, so the interval is wider
 than $[\operatorname{RD}_p(c - r), \operatorname{RU}_p(c + r)]$; use
 `from_bounds` for the tightest enclosure of known bounds.
 
+### `BallFloat::from_string` and `BallFloatDecorated::from_string`
+
+IEEE 1788-2015 `textToInterval` (10.5.8, 12.12.7, 13.2): the interval literal `s`, as the hull of its
+value at `precision` bits.
+
+```mbti
+pub let interval_literal_max_length : Int
+pub fn BallFloat::from_string(String, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloatDecorated::from_string(String, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
+```
+
+The portable literals of 12.11 are accepted, with the case ignored and no whitespace except the spaces and tabs
+the grammar allows inside the brackets:
+
+| Form | Examples |
+| --- | --- |
+| number literals | `3.56`, `1.e-3`, `-0x1.3p-1`, `2/3`, `inf`, `-Infinity` |
+| inf-sup | `[1.5, 2.5]`, `[-Inf, 2/3]`, `[0x1.3p-1,]` (the omitted bound is infinite), `[,]` (Entire) |
+| point | `[3.56]` |
+| uncertain `m?rve` | `3.56?1` ($[3.55, 3.57]$), `3.56?1e2` ($[355, 357]$), `3.560?2u`, `-10?` (half an ulp), `-10??u` ($[-10, +\infty]$), `-10??` (Entire) |
+| special | `[]`, `[empty]`, `[entire]` |
+| decorated | `[1,2]_com`, `3.56?1_def`, `[nai]` |
+
+The bounds are parsed exactly (the decimal, hexadecimal and rational value, the ulp of the last place of an uncertain
+form) and rounded outward: the lower bound down and the upper bound up. The comparison $l \le u$ is decided from
+the exact values, so a literal is never rejected or emptied by rounding; a decimal exponent or a binary exponent beyond
+the range is decided from the exponent and the digits without forming the value (a lower bound above the range is the
+largest finite float and an upper bound is $+\infty$; below the smallest stored value they are 0 and the smallest
+positive stored value). Only two finite bounds of different radices that are equal to the working size and have an
+exponent beyond 65,536 cannot be ordered; then (12.12.7 case (b), `PossiblyUndefinedOperation`) the result contains
+both bounds.
+
+`Err` is the failed call of the standard (the result Empty for a bare literal, NaI for a decorated one, and the
+exception `UndefinedOperation`). It is an `ArithmeticError` of the parse kind whose message names the rule that was
+broken (for example "the lower bound is greater than the upper bound (l <= u is required)", "rational literal: the
+denominator must be a positive natural number", "the decoration com needs a bounded interval (11.4)"). A decoration
+or `[nai]` in a bare literal is such a failure for `BallFloat::from_string`. `BallFloatDecorated::from_string` accepts
+a bare literal (decorated by `newDec`, so `com` for a bounded interval and `dac` otherwise), `bare_dec`, and `[nai]`,
+which is `Ok(NaI)`; a decoration not permitted for the value (11.4: only `trv` for Empty, `com` only for a bounded
+interval) is an `Err`, and `com` becomes `dac` if the rounding of a bounded literal overflowed. A string longer than
+`interval_literal_max_length` (65,536 characters) is not parsed: 12.11.5 allows an implementation to "restrict support
+of some input strings (too long strings or strings with a rational number literal)" and then requires that the
+constructor "shall always return a Level 2 interval (possibly Entire in this case) that contains the Level 1 interval",
+so the result is Entire (decorated: `dac`, or the `trv` or `def` the string ends with).
+
+```moonbit
+///|
+test "from_string" {
+  // 3.56?1 is [3.55, 3.57]: each bound is rounded outward
+  let u = @ball_float.BallFloat::from_string("3.56?1").unwrap()
+  assert_true(u.lower_bound().compare(@bin_float.BinFloat::from_double(3.55)) <= 0)
+  // [0x1.3p-1,] is [19/32, +inf), exact
+  let r = @ball_float.BallFloat::from_string("[0x1.3p-1,]").unwrap()
+  assert_true(r.lower_bound().compare(@bin_float.BinFloat::from_double(19.0 / 32.0)) == 0)
+  // the failed call is an Err that names the rule
+  assert_true(@ball_float.BallFloat::from_string("[2,1]") is Err(_))
+  // [nai] is NaI for the decorated form
+  assert_true(@ball_float.BallFloatDecorated::from_string("[nai]").unwrap().is_nai())
+}
+```
+
 ### `BallFloat::from_bounds` and `BallFloat::try_from_bounds`
 
 `BallFloat::from_bounds` builds the interval $[\underline{x}, \overline{x}]$
@@ -2122,6 +2183,7 @@ import {
 }
 
 // Values
+pub let interval_literal_max_length : Int32
 
 // Errors
 
@@ -2197,6 +2259,7 @@ pub fn BallFloat::from_coefficient(@bin_float.BinCoeff, precision? : Int32, nega
 pub fn BallFloat::from_double(Double, precision? : Int32) -> Self
 pub fn BallFloat::from_float(Float, precision? : Int32) -> Self
 pub fn BallFloat::from_int(Int32, precision~ : Int32) -> Self
+pub fn BallFloat::from_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::hypot(Self, Self) -> Self
 pub fn BallFloat::identical(Self, Self) -> Bool
 pub fn BallFloat::interior(Self, Self) -> Bool
@@ -2346,6 +2409,7 @@ pub fn BallFloatDecorated::exp2(Self) -> Self
 pub fn BallFloatDecorated::expm1(Self) -> Self
 pub fn BallFloatDecorated::floor(Self) -> Self
 pub fn BallFloatDecorated::fma(Self, Self, Self) -> Self
+pub fn BallFloatDecorated::from_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloatDecorated::hypot(Self, Self) -> Self
 pub fn BallFloatDecorated::identical(Self, Self) -> Bool
 pub fn BallFloatDecorated::interior(Self, Self) -> Bool

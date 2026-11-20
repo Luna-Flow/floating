@@ -316,6 +316,14 @@ pub fn BallFloatResult::atan2_rev1(Self, Self, x? : Self) -> Self
 pub fn BallFloatResult::atan2_rev2(Self, Self, x? : Self) -> Self
 ```
 
+### `BallFloatResult::from_string`
+
+`BallFloat::from_string` (see the [`ball_float` page](ball_float.md#ballfloatfrom_string-and-ballfloatdecoratedfrom_string)) as a result: the failed call is the failure of the result.
+
+```mbti
+pub fn BallFloatResult::from_string(String, precision? : Int32) -> Self
+```
+
 ### `BallFloatResult::mul_rev` and `BallFloatResult::mul_rev_to_pair`
 
 These methods apply `BallFloat::mul_rev` and `BallFloat::mul_rev_to_pair` to
@@ -579,6 +587,7 @@ pub fn BallFloatResult::from_double(Double, precision? : Int32) -> Self
 pub fn BallFloatResult::from_float(Float, precision? : Int32) -> Self
 pub fn BallFloatResult::from_int(Int32, precision? : Int32) -> Self
 pub fn BallFloatResult::from_result(Result[@ball_float.BallFloat, @arithmetic.ArithmeticError]) -> Self
+pub fn BallFloatResult::from_string(String, precision? : Int32) -> Self
 pub fn BallFloatResult::hypot(Self, Self) -> Self
 pub fn BallFloatResult::intersection(Self, Self) -> Self
 pub fn BallFloatResult::is_err(Self) -> Bool

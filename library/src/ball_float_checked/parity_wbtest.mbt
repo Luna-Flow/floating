@@ -216,3 +216,17 @@ test "atan2_rev2 exists on the checked tier and agrees with the plain tier" {
   assert_true(rb.atan2_rev2(failed).result() is Err(_))
   assert_true(rb.atan2_rev2(rc, x=failed).result() is Err(_))
 }
+
+///|
+test "from_string exists on the checked tier and agrees with the plain tier" {
+  let ok = BallFloatResult::from_string("[1.5, 2.5]")
+  assert_true(ok.result() is Ok(_))
+  assert_true(
+    parity_value(ok) ==
+    @ball_float.BallFloat::from_string("[1.5, 2.5]").unwrap(),
+  )
+  assert_true(BallFloatResult::from_string("[2,1]").result() is Err(_))
+  assert_true(
+    BallFloatResult::from_string("[1]", precision=0).result() is Err(_),
+  )
+}
