@@ -97,8 +97,12 @@ pub fn GdaFlags::new() -> GdaFlags {
 }
 
 ///|
-/// The empty flag set, built once: the record is immutable, so every
-/// `GdaFlags::new()` shares it instead of allocating 13 fields.
+/// The empty flag set, built once. Invariant: `GdaFlags` is an immutable record
+/// compared by value (no `mut` field, no setter, every "update" is a copy
+/// `{ ..flags, field: v }`), so every `GdaFlags::new()` may share this one value
+/// instead of allocating 13 fields, and `combine` may return one of its
+/// operands when the other is clear. The test "shared empty flag sets are
+/// never written" pins it.
 let gda_flags_none_value : GdaFlags = {
   conversion_syntax: false,
   division_by_zero: false,
@@ -220,6 +224,12 @@ pub fn GdaFlags::contains(self : GdaFlags, signal : GdaSignal) -> Bool {
 
 ///|
 pub fn GdaFlags::combine(self : GdaFlags, other : GdaFlags) -> GdaFlags {
+  if gda_flags_are_clear(other) {
+    return self
+  }
+  if gda_flags_are_clear(self) {
+    return other
+  }
   {
     conversion_syntax: self.conversion_syntax || other.conversion_syntax,
     division_by_zero: self.division_by_zero || other.division_by_zero,
@@ -845,17 +855,53 @@ fn[T] complete_gda_raised(
   context : GdaContext,
   raised : GdaFlags,
 ) -> GdaOutcome[T] {
-  let next_context = {
-    ..context,
-    status_: if gda_flags_are_clear(context.status_) {
-      raised
-    } else {
-      context.status_.combine(raised)
-    },
-  }
+  let next_context = gda_context_with_status(context, raised)
   match trapped_signal(raised, context.traps_) {
     Some(signal) => Trapped(signal, value, next_context, raised)
     None => Completed(value, next_context, raised)
+  }
+}
+
+///|
+/// Whether every condition of `delta` is already in `status`.
+fn gda_flags_include(status : GdaFlags, delta : GdaFlags) -> Bool {
+  (!delta.conversion_syntax || status.conversion_syntax) &&
+  (!delta.division_by_zero || status.division_by_zero) &&
+  (!delta.division_impossible || status.division_impossible) &&
+  (!delta.division_undefined || status.division_undefined) &&
+  (!delta.invalid_context || status.invalid_context) &&
+  (!delta.invalid_operation || status.invalid_operation) &&
+  (!delta.overflow || status.overflow) &&
+  (!delta.underflow || status.underflow) &&
+  (!delta.subnormal || status.subnormal) &&
+  (!delta.inexact || status.inexact) &&
+  (!delta.rounded || status.rounded) &&
+  (!delta.clamped || status.clamped) &&
+  (!delta.lost_digits || status.lost_digits)
+}
+
+///|
+/// The context after an operation that raised `delta`: its status is the union
+/// of the old status and `delta`. When the status already contains `delta` (the
+/// steady state of a loop of operations that raise the same conditions) the
+/// context itself is returned and no record is built; contexts are immutable
+/// values compared by value, so sharing the input is not observable. A clear
+/// status takes `delta` itself instead of a 13-field union.
+fn gda_context_with_status(
+  context : GdaContext,
+  delta : GdaFlags,
+) -> GdaContext {
+  if gda_flags_include(context.status_, delta) {
+    context
+  } else {
+    {
+      ..context,
+      status_: if gda_flags_are_clear(context.status_) {
+        delta
+      } else {
+        context.status_.combine(delta)
+      },
+    }
   }
 }
 
@@ -891,14 +937,7 @@ fn[T] complete_gda(
   } else {
     raised
   }
-  let next_context = {
-    ..context,
-    status_: if gda_flags_are_clear(context.status_) {
-      status_delta
-    } else {
-      context.status_.combine(status_delta)
-    },
-  }
+  let next_context = gda_context_with_status(context, status_delta)
   match trapped_signal(raised, context.traps_) {
     Some(signal) => Trapped(signal, value, next_context, raised)
     None => Completed(value, next_context, raised)

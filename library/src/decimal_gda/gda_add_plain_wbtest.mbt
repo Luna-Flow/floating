@@ -141,8 +141,10 @@ fn add_plain_context(state : Ref[UInt64]) -> GdaContext {
     1UL => GdaTrapSet::new().with_signal(Rounded)
     _ => GdaTrapSet::new()
   }
+  let extended = add_plain_next(state) % 6UL != 0UL
   GdaContext::new(
     precision~,
+    extended~,
     rounding=mode,
     e_min=if tight { -100 } else { -999999 },
     e_max=if tight { 100 } else { 999999 },
@@ -231,4 +233,108 @@ test "add and subtract plain path, carries into the next digit" {
       }
     }
   }
+}
+
+///|
+test "add and subtract plain path, chained contexts" {
+  // the status of the context accumulates over a chain of operations; both
+  // routes are fed their own copy of the chain and must agree at every step
+  let state = Ref(0x94D049BB133111EBUL)
+  for _ in 0..<add_plain_cases {
+    let first = add_plain_context(state)
+    let mut plain_ctx = first
+    let mut general_ctx = first
+    let mut acc_plain = add_plain_operand("1", 0, false)
+    let mut acc_general = acc_plain
+    for _ in 0..<5 {
+      let digits = add_plain_digits(state, add_plain_range(state, 1, 45))
+      let operand = add_plain_operand(
+        digits,
+        add_plain_range(state, -30, 30),
+        add_plain_next(state) % 2UL == 0UL,
+      )
+      let subtract_it = add_plain_next(state) % 2UL == 0UL
+      let outcome = if subtract_it {
+        subtract(acc_plain, operand, plain_ctx)
+      } else {
+        add(acc_plain, operand, plain_ctx)
+      }
+      let (value, flags) = if subtract_it {
+        acc_general.sub_ctx(operand, general_ctx.decimal_context())
+      } else {
+        acc_general.add_ctx(operand, general_ctx.decimal_context())
+      }
+      let expected = complete_decimal_gda(value, general_ctx, flags)
+      if !add_plain_same_outcome(outcome, expected) {
+        fail("chained add or subtract differs")
+      }
+      acc_plain = outcome.value()
+      acc_general = expected.value()
+      plain_ctx = outcome.next_context()
+      general_ctx = expected.next_context()
+      if plain_ctx.status_ != general_ctx.status_ {
+        fail("chained status differs")
+      }
+    }
+  }
+}
+
+///|
+test "shared empty flag sets are never written" {
+  let none = GdaFlags::new()
+  let decimal_none = DecimalFlags::new()
+  let fresh_gda : GdaFlags = {
+    conversion_syntax: false,
+    division_by_zero: false,
+    division_impossible: false,
+    division_undefined: false,
+    invalid_context: false,
+    invalid_operation: false,
+    overflow: false,
+    underflow: false,
+    subnormal: false,
+    inexact: false,
+    rounded: false,
+    clamped: false,
+    lost_digits: false,
+  }
+  // every path that builds a changed copy
+  let updated = { ..none, rounded: true, inexact: true, }
+  assert_true(updated != none)
+  let combined = none.combine(updated).combine(none)
+  assert_true(combined == updated)
+  let decimal_updated = { ..decimal_none, rounded: true, }
+  assert_true(decimal_updated != decimal_none)
+  assert_true(decimal_none.combine(decimal_updated) == decimal_updated)
+  let ctx = GdaContext::new(precision=7)
+    .trap(Inexact)
+    .trap(Rounded, enabled=false)
+    .clear_status()
+    .reset()
+  assert_true(ctx.status_ == fresh_gda)
+  // operations that raise flags on a context whose status is the shared value
+  let wide = GdaContext::new(precision=400)
+  let a = to_number("1234567890123456789012345678901234567", wide).value()
+  let b = to_number("9.87654321E-3", wide).value()
+  let narrow = GdaContext::new(precision=12)
+  let mut chained = narrow
+  for _ in 0..<4 {
+    let outcome = add(a, b, chained)
+    assert_true(outcome.raised().rounded())
+    chained = outcome.next_context()
+    ignore(subtract(a, b, chained))
+    ignore(multiply(a, b, chained))
+    ignore(divide(a, b, chained))
+  }
+  assert_true(GdaFlags::new() == fresh_gda)
+  assert_true(GdaFlags::new() == none)
+  assert_true(GdaContext::new(precision=3).status_ == fresh_gda)
+  assert_true(
+    gda_flags_rounded_only.rounded() && !gda_flags_rounded_only.inexact(),
+  )
+  assert_true(
+    gda_flags_rounded_inexact.rounded() && gda_flags_rounded_inexact.inexact(),
+  )
+  assert_true(gda_flags_are_clear(GdaFlags::new()))
+  assert_true(decimal_flags_are_clear(DecimalFlags::new()))
 }

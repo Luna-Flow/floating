@@ -113,8 +113,11 @@ fn DecimalFlags::new() -> DecimalFlags {
 }
 
 ///|
-/// The empty flag set, built once: the record is immutable, so every
-/// `DecimalFlags::new()` shares it instead of allocating 13 fields.
+/// The empty flag set, built once. Invariant: `DecimalFlags` is an immutable
+/// record compared by value (no `mut` field, every "update" is a copy
+/// `{ ..flags, field: v }`), so every `DecimalFlags::new()` may share this one
+/// value instead of allocating 13 fields. The test "shared empty flag sets are
+/// never written" pins it.
 let decimal_flags_none_value : DecimalFlags = {
   inexact: false,
   rounded: false,
@@ -136,6 +139,12 @@ fn DecimalFlags::combine(
   self : DecimalFlags,
   other : DecimalFlags,
 ) -> DecimalFlags {
+  if decimal_flags_are_clear(other) {
+    return self
+  }
+  if decimal_flags_are_clear(self) {
+    return other
+  }
   {
     inexact: self.inexact || other.inexact,
     rounded: self.rounded || other.rounded,
