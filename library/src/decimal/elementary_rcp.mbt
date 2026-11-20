@@ -177,44 +177,38 @@ pub fn Decimal::try_rsqrt_ctx(
   if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
     return Ok(invalid_context_result(ctx))
   }
-  let (value, operand_flags) = prepare_operand_for_context(self, ctx)
-  let finish = fn(result : (Decimal, DecimalFlags)) {
-    (result.0, operand_flags.combine(result.1))
+  if self.class == FpClass::NaN {
+    return Ok(quiet_nan_operand(self, ctx))
   }
-  if value.class == FpClass::NaN {
-    return Ok(finish(quiet_nan_operand(value, ctx)))
-  }
-  if value.class == FpClass::Infinity {
+  if self.class == FpClass::Infinity {
     // 9.2.1: rSqrt(+inf) is +0 with no exception; -inf is outside the domain
     // [0, +inf] (Table 9.1: x < 0 is invalid).
     return Ok(
-      finish(
-        if value.negative {
-          decimal_elementary_invalid(ctx)
-        } else {
-          decimal_elementary_zero(false, ctx)
-        },
-      ),
+      if self.negative {
+        decimal_elementary_invalid(ctx)
+      } else {
+        decimal_elementary_zero(false, ctx)
+      },
     )
   }
-  if value.coefficient.is_zero() {
+  if self.coefficient.is_zero() {
     // 9.2.1: rSqrt(+-0) is +-inf and signals divideByZero.
-    let sign = if value.negative { Sign::Negative } else { Sign::Positive }
-    return Ok(finish(decimal_elementary_division_by_zero(sign, ctx)))
+    let sign = if self.negative { Sign::Negative } else { Sign::Positive }
+    return Ok(decimal_elementary_division_by_zero(sign, ctx))
   }
-  if value.negative {
-    return Ok(finish(decimal_elementary_invalid(ctx)))
+  if self.negative {
+    return Ok(decimal_elementary_invalid(ctx))
   }
-  match decimal_rsqrt_exact_result(value, ctx) {
-    Some(result) => return Ok(finish(result))
+  match decimal_rsqrt_exact_result(self, ctx) {
+    Some(result) => return Ok(result)
     None => ()
   }
   // x = s 10^(2k) with s = x 10^(-2k) in [1, 100): 1/sqrt(x) = 10^-k / sqrt(s).
-  let adjusted = adjusted_exponent64(value)
+  let adjusted = adjusted_exponent64(self)
   let even = adjusted - (adjusted % 2L + 2L) % 2L
   let scaled = {
-    ..value,
-    exponent10: (value.exponent10.to_int64() - even).to_int(),
+    ..self,
+    exponent10: (self.exponent10.to_int64() - even).to_int(),
   }
   decimal_certified_scaled_result(
     scaled,
@@ -222,7 +216,7 @@ pub fn Decimal::try_rsqrt_ctx(
     ctx,
     "rsqrt",
     fn(input) { Ok(input.sqrt().recip()) },
-  ).map(finish)
+  )
 }
 
 ///|
@@ -254,65 +248,57 @@ pub fn Decimal::try_compound_ctx(
   if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
     return Ok(invalid_context_result(ctx))
   }
-  let (value, operand_flags) = prepare_operand_for_context(self, ctx)
-  let finish = fn(result : (Decimal, DecimalFlags)) {
-    (result.0, operand_flags.combine(result.1))
-  }
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   // 9.2: a signaling NaN signals invalid; 9.2.1: "compound(x, 0) is 1 for
   // x >= -1 or quiet NaN", "compound(qNaN, n) is qNaN for n != 0".
-  if value.class == FpClass::NaN {
-    if value.is_signaling_nan() || n != 0 {
-      return Ok(finish(quiet_nan_operand(value, ctx)))
+  if self.class == FpClass::NaN {
+    if self.is_signaling_nan() || n != 0 {
+      return Ok(quiet_nan_operand(self, ctx))
     }
-    return Ok(finish(decimal_compound_one(0L, ctx)))
+    return Ok(decimal_compound_one(0L, ctx))
   }
   // Table 9.1: the domain is [-1, +inf] x Z; "compound(x, n) is qNaN and
   // signals the invalid operation exception for x < -1" (n = 0 included).
-  if value.negative &&
+  if self.negative &&
     (
-      value.class == FpClass::Infinity ||
-      value.compare(Decimal::from_int(-1, precision=1)) < 0
+      self.class == FpClass::Infinity ||
+      self.compare(Decimal::from_int(-1, precision=1)) < 0
     ) {
-    return Ok(finish(decimal_elementary_invalid(ctx)))
+    return Ok(decimal_elementary_invalid(ctx))
   }
   // Q(compound(x, n)) is floor(n * min(0, Q(x))) (9.2.2); Q(+inf) = +inf.
-  let quantum = if value.class == FpClass::Finite {
-    Int64::min(0L, value.exponent10.to_int64())
+  let quantum = if self.class == FpClass::Finite {
+    Int64::min(0L, self.exponent10.to_int64())
   } else {
     0L
   }
   let preferred = n.to_int64() * quantum
   if n == 0 {
-    return Ok(finish(decimal_compound_one(0L, ctx)))
+    return Ok(decimal_compound_one(0L, ctx))
   }
-  if value.class == FpClass::Infinity {
+  if self.class == FpClass::Infinity {
     // "compound(+inf, n) is +inf for n > 0", "+0 for n < 0".
     return Ok(
-      finish(
-        if n > 0 {
-          (Decimal::inf(precision~), DecimalFlags::new())
-        } else {
-          decimal_elementary_zero(false, ctx)
-        },
-      ),
+      if n > 0 {
+        (Decimal::inf(precision~), DecimalFlags::new())
+      } else {
+        decimal_elementary_zero(false, ctx)
+      },
     )
   }
-  if value.coefficient.is_zero() {
+  if self.coefficient.is_zero() {
     // "compound(+-0, n) is 1".
-    return Ok(finish(decimal_compound_one(preferred, ctx)))
+    return Ok(decimal_compound_one(preferred, ctx))
   }
-  if value.compare(Decimal::from_int(-1, precision=1)) == 0 {
+  if self.compare(Decimal::from_int(-1, precision=1)) == 0 {
     // "compound(-1, n) is +inf and signals the divideByZero exception for
     // n < 0", "compound(-1, n) is +0 for n > 0".
     return Ok(
-      finish(
-        if n < 0 {
-          decimal_elementary_division_by_zero(Sign::Positive, ctx)
-        } else {
-          decimal_elementary_zero(false, ctx)
-        },
-      ),
+      if n < 0 {
+        decimal_elementary_division_by_zero(Sign::Positive, ctx)
+      } else {
+        decimal_elementary_zero(false, ctx)
+      },
     )
   }
   // Tiny x: (1 + x)^n - 1 has the sign of n x and |(1 + x)^n - 1| <=
@@ -320,26 +306,26 @@ pub fn Decimal::try_compound_ctx(
   // one-sided neighbour of the anchor 1 when that bound is far below its ulp;
   // 1 + x (up to two million digits) is never formed.
   let one = Decimal::one(precision~)
-  let error_exponent = adjusted_exponent64(value) + 12L
+  let error_exponent = adjusted_exponent64(self) + 12L
   if error_exponent < -(decimal_math_target_precision(ctx).to_int64() + 3L) {
     match
       decimal_tiny_argument_result(
         one,
-        (n > 0) == !value.negative,
+        (n > 0) == !self.negative,
         error_exponent,
         ctx,
       ) {
-      Some(result) => return Ok(finish(result))
+      Some(result) => return Ok(result)
       None => ()
     }
   }
   // Otherwise the exact power when it is short enough to sit on a rounding
   // boundary, else the certified exp(n log1p(x)).
-  match decimal_compound_exact_result(value, n, preferred, ctx) {
-    Some(result) => return Ok(finish(result))
+  match decimal_compound_exact_result(self, n, preferred, ctx) {
+    Some(result) => return Ok(result)
     None => ()
   }
-  decimal_compound_certified(value, n, ctx).map(finish)
+  decimal_compound_certified(self, n, ctx)
 }
 
 ///|
@@ -535,40 +521,35 @@ pub fn Decimal::try_powr_ctx(
   if gda_context_is_restricted(ctx) {
     return Ok(invalid_context_result(ctx))
   }
-  let (x, y, operand_flags) = prepare_binary_operands_for_context(
-    self, exponent, ctx,
-  )
-  let finish = fn(result : (Decimal, DecimalFlags)) {
-    (result.0, operand_flags.combine(result.1))
-  }
   // 9.2: a signaling NaN operand signals invalid and gives a quiet NaN.
-  if x.is_signaling_nan() || y.is_signaling_nan() {
-    match quiet_nan_pair(x, y, ctx) {
-      Some(result) => return Ok(finish(result))
+  if self.is_signaling_nan() || exponent.is_signaling_nan() {
+    match quiet_nan_pair(self, exponent, ctx) {
+      Some(result) => return Ok(result)
       None => ()
     }
   }
-  let x_zero = x.class == FpClass::Finite && x.coefficient.is_zero()
-  let y_zero = y.class == FpClass::Finite && y.coefficient.is_zero()
+  let x_zero = self.class == FpClass::Finite && self.coefficient.is_zero()
+  let y_zero = exponent.class == FpClass::Finite &&
+    exponent.coefficient.is_zero()
   // 9.2.1: "powr(x, y) signals the invalid operation exception for x < 0"
   // (-0 is not below 0). Before the NaN rule: "powr(x, qNaN) is qNaN for
   // x >= 0" leaves x < 0 to the invalid rule [ambiguous, #236 design note].
-  if x.class != FpClass::NaN && x.negative && !x_zero {
-    return Ok(finish(decimal_elementary_invalid(ctx)))
+  if self.class != FpClass::NaN && self.negative && !x_zero {
+    return Ok(decimal_elementary_invalid(ctx))
   }
   // "powr(x, qNaN) is qNaN for x >= 0", "powr(qNaN, y) is qNaN" (also for
   // y = +-0, unlike pow).
-  match quiet_nan_pair(x, y, ctx) {
-    Some(result) => return Ok(finish(result))
+  match quiet_nan_pair(self, exponent, ctx) {
+    Some(result) => return Ok(result)
     None => ()
   }
   // "powr(+-0, +-0)", "powr(+inf, +-0)" and "powr(+1, +-inf)" signal the
   // invalid operation exception.
-  let x_one = x.class == FpClass::Finite && is_finite_decimal_one(x)
+  let x_one = self.class == FpClass::Finite && is_finite_decimal_one(self)
   if (x_zero && y_zero) ||
-    (x.class == FpClass::Infinity && y_zero) ||
-    (x_one && y.class == FpClass::Infinity) {
-    return Ok(finish(decimal_elementary_invalid(ctx)))
+    (self.class == FpClass::Infinity && y_zero) ||
+    (x_one && exponent.class == FpClass::Infinity) {
+    return Ok(decimal_elementary_invalid(ctx))
   }
   // Every remaining pair has x >= 0, and powr agrees with pow there: the
   // listed rows (x^+-0 = 1 for finite x > 0, +-0^y = +inf with divideByZero
@@ -578,8 +559,8 @@ pub fn Decimal::try_powr_ctx(
   // [ambiguous, #236 design note]; Q(powr) = Q(pow) = floor(y Q(x))
   // (9.2.2). -0 is passed as +0, where pow would apply its odd-integer sign
   // rule.
-  let base = if x_zero { { ..x, negative: false, } } else { x }
-  base.try_pow_ctx(y, ctx).map(finish)
+  let base = if x_zero { { ..self, negative: false, } } else { self }
+  base.try_pow_ctx(exponent, ctx)
 }
 
 ///|

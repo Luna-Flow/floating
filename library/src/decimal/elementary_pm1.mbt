@@ -447,47 +447,43 @@ fn Decimal::try_pm1_ctx(
   if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
     return Ok(invalid_context_result(ctx))
   }
-  let (value, operand_flags) = prepare_operand_for_context(self, ctx)
-  let finish = fn(result : (Decimal, DecimalFlags)) {
-    (result.0, operand_flags.combine(result.1))
-  }
   // 9.2: a signaling NaN signals invalid and gives a quiet NaN; a quiet NaN
   // propagates (payload and sign kept) with no exception.
-  if value.class == FpClass::NaN {
-    return Ok(finish(quiet_nan_operand(value, ctx)))
+  if self.class == FpClass::NaN {
+    return Ok(quiet_nan_operand(self, ctx))
   }
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
-  if value.class == FpClass::Infinity {
+  if self.class == FpClass::Infinity {
     // 9.2.1: exp2m1 and exp10m1 of +inf are +inf and of -inf are -1, log2p1
     // and log10p1 of +inf are +inf, all with no exception; -inf is outside
     // the domain [-1, +inf] of log2p1 and log10p1.
-    let result = if !value.negative {
+    let result = if !self.negative {
       (Decimal::inf(precision~), DecimalFlags::new())
     } else if operation.is_exp() {
       (Decimal::from_int(-1, precision~), DecimalFlags::new())
     } else {
       decimal_elementary_invalid(ctx)
     }
-    return Ok(finish(result))
+    return Ok(result)
   }
   // 9.2.1: f(+0) is +0 and f(-0) is -0 with no exception.
-  if value.coefficient.is_zero() {
-    return Ok(finish(decimal_elementary_zero(value.negative, ctx)))
+  if self.coefficient.is_zero() {
+    return Ok(decimal_elementary_zero(self.negative, ctx))
   }
-  match decimal_pm1_below_subnormal_range(value, ctx) {
-    Some(result) => return Ok(finish(result))
+  match decimal_pm1_below_subnormal_range(self, ctx) {
+    Some(result) => return Ok(result)
     None => ()
   }
-  match decimal_pm1_tiny_scaled(value, operation, ctx) {
-    Some(result) => return Ok(finish(result))
+  match decimal_pm1_tiny_scaled(self, operation, ctx) {
+    Some(result) => return Ok(result)
     None => ()
   }
   let result = if operation.is_exp() {
-    decimal_exp_m1_finite(value, operation, ctx)
+    decimal_exp_m1_finite(self, operation, ctx)
   } else {
-    decimal_log_p1_finite(value, operation, ctx)
+    decimal_log_p1_finite(self, operation, ctx)
   }
-  result.map(finish)
+  result
 }
 
 ///|

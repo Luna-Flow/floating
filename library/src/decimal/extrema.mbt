@@ -18,16 +18,13 @@ fn decimal_selected_extrema_result(
 
 ///|
 fn decimal_ieee_extrema_ctx(
-  lhs0 : Decimal,
-  rhs0 : Decimal,
+  lhs : Decimal,
+  rhs : Decimal,
   ctx : DecimalContext,
   magnitude : Bool,
   select_minimum : Bool,
   number_variant : Bool,
 ) -> (Decimal, DecimalFlags) {
-  let (lhs, rhs, operand_flags) = prepare_binary_operands_for_context(
-    lhs0, rhs0, ctx,
-  )
   let lhs_nan = lhs.is_nan()
   let rhs_nan = rhs.is_nan()
   if lhs_nan || rhs_nan {
@@ -37,26 +34,22 @@ fn decimal_ieee_extrema_ctx(
       let (value, flags) = decimal_selected_extrema_result(selected, ctx)
       return (
         value,
-        operand_flags.combine(
-          if has_signaling {
-            { ..flags, invalid_operation: true, }
-          } else {
-            flags
-          },
-        ),
+        if has_signaling {
+          { ..flags, invalid_operation: true, }
+        } else {
+          flags
+        },
       )
     }
     let selected_nan = if lhs_nan { lhs } else { rhs }
     let (value, flags) = quiet_nan_operand(selected_nan, ctx)
     return (
       value,
-      operand_flags.combine(
-        if has_signaling {
-          { ..flags, invalid_operation: true, }
-        } else {
-          flags
-        },
-      ),
+      if has_signaling {
+        { ..flags, invalid_operation: true, }
+      } else {
+        flags
+      },
     )
   }
   let cmp = if magnitude {
@@ -91,7 +84,7 @@ fn decimal_ieee_extrema_ctx(
     }
   }
   let (value, flags) = decimal_selected_extrema_result(selected, ctx)
-  (value, operand_flags.combine(flags))
+  (value, flags)
 }
 
 ///|

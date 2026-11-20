@@ -167,46 +167,38 @@ fn Decimal::pi_asin_like(
   if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
     return Ok(invalid_context_result(ctx))
   }
-  let (value, operand_flags) = prepare_operand_for_context(self, ctx)
-  let finish = fn(result : (Decimal, DecimalFlags)) {
-    (result.0, operand_flags.combine(result.1))
-  }
-  if value.class == FpClass::NaN {
-    return Ok(finish(quiet_nan_operand(value, ctx)))
+  if self.class == FpClass::NaN {
+    return Ok(quiet_nan_operand(self, ctx))
   }
   // Table 9.1: |x| > 1 (infinities included) is invalid.
-  if value.class == FpClass::Infinity {
-    return Ok(finish(decimal_elementary_invalid(ctx)))
+  if self.class == FpClass::Infinity {
+    return Ok(decimal_elementary_invalid(ctx))
   }
   let one = Decimal::from_int(1, precision=1)
-  let comparison = value.abs_ctx(decimal_exact_work_context()).0.compare(one)
+  let comparison = self.abs_ctx(decimal_exact_work_context()).0.compare(one)
   if comparison > 0 {
-    return Ok(finish(decimal_elementary_invalid(ctx)))
+    return Ok(decimal_elementary_invalid(ctx))
   }
-  if value.coefficient.is_zero() {
+  if self.coefficient.is_zero() {
     return Ok(
-      finish(
-        if acos {
-          decimal_pi_constant(false, 5, -1, ctx)
-        } else {
-          decimal_elementary_zero(value.negative, ctx)
-        },
-      ),
+      if acos {
+        decimal_pi_constant(false, 5, -1, ctx)
+      } else {
+        decimal_elementary_zero(self.negative, ctx)
+      },
     )
   }
   if comparison == 0 {
     return Ok(
-      finish(
-        if acos {
-          if value.negative {
-            decimal_pi_constant(false, 1, 0, ctx)
-          } else {
-            decimal_elementary_zero(false, ctx)
-          }
+      if acos {
+        if self.negative {
+          decimal_pi_constant(false, 1, 0, ctx)
         } else {
-          decimal_pi_constant(value.negative, 5, -1, ctx)
-        },
-      ),
+          decimal_elementary_zero(false, ctx)
+        }
+      } else {
+        decimal_pi_constant(self.negative, 5, -1, ctx)
+      },
     )
   }
   if acos {
@@ -215,11 +207,11 @@ fn Decimal::pi_asin_like(
     match
       decimal_tiny_argument_result(
         decimal_pi_anchor(false, 5, -1),
-        value.negative,
-        adjusted_exponent64(value) + 1L,
+        self.negative,
+        adjusted_exponent64(self) + 1L,
         ctx,
       ) {
-      Some(result) => return Ok(finish(result))
+      Some(result) => return Ok(result)
       None => ()
     }
   }
@@ -228,9 +220,9 @@ fn Decimal::pi_asin_like(
   // 0 <= e <= x^2, so the loop encloses a moderate value and shifts it; the
   // exact decimal endpoints of a result near 10^-2,000,000 are never formed.
   if !acos {
-    let t = -(2L * adjusted_exponent64(value) + 2L)
-    if decimal_pi_tiny_enough(t, value.coefficient.digits10(), ctx) {
-      let (scaled, shift) = decimal_pi_scale_to_unit(value)
+    let t = -(2L * adjusted_exponent64(self) + 2L)
+    if decimal_pi_tiny_enough(t, self.coefficient.digits10(), ctx) {
+      let (scaled, shift) = decimal_pi_scale_to_unit(self)
       return decimal_certified_scaled_result(scaled, shift, ctx, name, fn(
         input,
       ) {
@@ -239,13 +231,13 @@ fn Decimal::pi_asin_like(
           .div(decimal_pi_ball(input.precision()))
           .mul(decimal_pi_tiny_factor(true, t, input.precision())),
         )
-      }).map(finish)
+      })
     }
   }
-  decimal_certified_unary_result(value, ctx, name, fn(input) {
+  decimal_certified_unary_result(self, ctx, name, fn(input) {
     let angle = if acos { input.try_acos() } else { input.try_asin() }
     angle.map(fn(a) { a.div(decimal_pi_ball(input.precision())) })
-  }).map(finish)
+  })
 }
 
 ///|
@@ -294,38 +286,34 @@ pub fn Decimal::try_atanpi_ctx(
   if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
     return Ok(invalid_context_result(ctx))
   }
-  let (value, operand_flags) = prepare_operand_for_context(self, ctx)
-  let finish = fn(result : (Decimal, DecimalFlags)) {
-    (result.0, operand_flags.combine(result.1))
-  }
-  if value.class == FpClass::NaN {
-    return Ok(finish(quiet_nan_operand(value, ctx)))
+  if self.class == FpClass::NaN {
+    return Ok(quiet_nan_operand(self, ctx))
   }
   // 9.2.1: "atanPi(+-inf) is +-1/2 with no exception."
-  if value.class == FpClass::Infinity {
-    return Ok(finish(decimal_pi_constant(value.negative, 5, -1, ctx)))
+  if self.class == FpClass::Infinity {
+    return Ok(decimal_pi_constant(self.negative, 5, -1, ctx))
   }
-  if value.coefficient.is_zero() {
-    return Ok(finish(decimal_elementary_zero(value.negative, ctx)))
+  if self.coefficient.is_zero() {
+    return Ok(decimal_elementary_zero(self.negative, ctx))
   }
   // atanPi(+-1) = +-1/4.
-  if decimal_pi_is_unit(value) {
-    return Ok(finish(decimal_pi_constant(value.negative, 25, -2, ctx)))
+  if decimal_pi_is_unit(self) {
+    return Ok(decimal_pi_constant(self.negative, 25, -2, ctx))
   }
   // |x| >= 10^a: atanPi(x) = +-(1/2 - d) with 0 < d < 1/(pi |x|) < 10^(-a).
   match
     decimal_tiny_argument_result(
-      decimal_pi_anchor(value.negative, 5, -1),
-      value.negative,
-      -adjusted_exponent64(value),
+      decimal_pi_anchor(self.negative, 5, -1),
+      self.negative,
+      -adjusted_exponent64(self),
       ctx,
     ) {
-    Some(result) => return Ok(finish(result))
+    Some(result) => return Ok(result)
     None => ()
   }
-  let t = -(2L * adjusted_exponent64(value) + 2L)
-  if decimal_pi_tiny_enough(t, value.coefficient.digits10(), ctx) {
-    let (scaled, shift) = decimal_pi_scale_to_unit(value)
+  let t = -(2L * adjusted_exponent64(self) + 2L)
+  if decimal_pi_tiny_enough(t, self.coefficient.digits10(), ctx) {
+    let (scaled, shift) = decimal_pi_scale_to_unit(self)
     return decimal_certified_scaled_result(scaled, shift, ctx, "atanpi", fn(
       input,
     ) {
@@ -334,11 +322,11 @@ pub fn Decimal::try_atanpi_ctx(
         .div(decimal_pi_ball(input.precision()))
         .mul(decimal_pi_tiny_factor(false, t, input.precision())),
       )
-    }).map(finish)
+    })
   }
-  decimal_certified_unary_result(value, ctx, "atanpi", fn(input) {
+  decimal_certified_unary_result(self, ctx, "atanpi", fn(input) {
     input.try_atan().map(fn(a) { a.div(decimal_pi_ball(input.precision())) })
-  }).map(finish)
+  })
 }
 
 ///|
@@ -363,82 +351,69 @@ pub fn Decimal::try_atan2pi_ctx(
     decimal_math_operand_out_of_range(abscissa) {
     return Ok(invalid_context_result(ctx))
   }
-  let (ordinate, x, operand_flags) = prepare_binary_operands_for_context(
-    self, abscissa, ctx,
-  )
-  let finish = fn(result : (Decimal, DecimalFlags)) {
-    (result.0, operand_flags.combine(result.1))
-  }
-  match quiet_nan_pair(ordinate, x, ctx) {
-    Some(result) => return Ok(finish(result))
+  match quiet_nan_pair(self, abscissa, ctx) {
+    Some(result) => return Ok(result)
     None => ()
   }
-  let negative = ordinate.negative
-  let behind = x.negative
-  let ordinate_zero = ordinate.class == FpClass::Finite &&
-    ordinate.coefficient.is_zero()
-  let x_zero = x.class == FpClass::Finite && x.coefficient.is_zero()
+  let negative = self.negative
+  let behind = abscissa.negative
+  let ordinate_zero = self.class == FpClass::Finite &&
+    self.coefficient.is_zero()
+  let x_zero = abscissa.class == FpClass::Finite &&
+    abscissa.coefficient.is_zero()
   // The exact rows of 9.2.1 (the sign bit of a zero abscissa chooses the
   // half-plane; the sign of the ordinate is the sign of the result).
   if ordinate_zero {
     return Ok(
-      finish(
-        if behind {
-          decimal_pi_constant(negative, 1, 0, ctx)
-        } else {
-          decimal_elementary_zero(negative, ctx)
-        },
-      ),
+      if behind {
+        decimal_pi_constant(negative, 1, 0, ctx)
+      } else {
+        decimal_elementary_zero(negative, ctx)
+      },
     )
   }
-  if ordinate.class == FpClass::Infinity {
+  if self.class == FpClass::Infinity {
     return Ok(
-      finish(
-        if x.class == FpClass::Infinity {
-          if behind {
-            decimal_pi_constant(negative, 75, -2, ctx)
-          } else {
-            decimal_pi_constant(negative, 25, -2, ctx)
-          }
+      if abscissa.class == FpClass::Infinity {
+        if behind {
+          decimal_pi_constant(negative, 75, -2, ctx)
         } else {
-          decimal_pi_constant(negative, 5, -1, ctx)
-        },
-      ),
+          decimal_pi_constant(negative, 25, -2, ctx)
+        }
+      } else {
+        decimal_pi_constant(negative, 5, -1, ctx)
+      },
     )
   }
   if x_zero {
-    return Ok(finish(decimal_pi_constant(negative, 5, -1, ctx)))
+    return Ok(decimal_pi_constant(negative, 5, -1, ctx))
   }
-  if x.class == FpClass::Infinity {
+  if abscissa.class == FpClass::Infinity {
     return Ok(
-      finish(
-        if behind {
-          decimal_pi_constant(negative, 1, 0, ctx)
-        } else {
-          decimal_elementary_zero(negative, ctx)
-        },
-      ),
+      if behind {
+        decimal_pi_constant(negative, 1, 0, ctx)
+      } else {
+        decimal_elementary_zero(negative, ctx)
+      },
     )
   }
   // Finite nonzero operands: |y| = |x| is the only exact angle.
-  let magnitude_y = { ..ordinate, negative: false, }
-  let magnitude_x = { ..x, negative: false, }
+  let magnitude_y = { ..self, negative: false, }
+  let magnitude_x = { ..abscissa, negative: false, }
   // Equal magnitudes have equal adjusted exponents; comparing first spares
   // the alignment of operands whose exponents differ by millions.
   if adjusted_exponent64(magnitude_y) == adjusted_exponent64(magnitude_x) &&
     magnitude_y.compare(magnitude_x) == 0 {
     return Ok(
-      finish(
-        if behind {
-          decimal_pi_constant(negative, 75, -2, ctx)
-        } else {
-          decimal_pi_constant(negative, 25, -2, ctx)
-        },
-      ),
+      if behind {
+        decimal_pi_constant(negative, 75, -2, ctx)
+      } else {
+        decimal_pi_constant(negative, 25, -2, ctx)
+      },
     )
   }
   // With D = adjusted(y) - adjusted(x): 10^(D-1) < |y/x| < 10^(D+1).
-  let distance = adjusted_exponent64(ordinate) - adjusted_exponent64(x)
+  let distance = adjusted_exponent64(self) - adjusted_exponent64(abscissa)
   // Large ratio: 1/2 -+ d with 0 < d < 1/(pi |y/x|) < 10^(1 - D), below 1/2 in
   // magnitude for x > 0 and above it for x < 0.
   match
@@ -448,7 +423,7 @@ pub fn Decimal::try_atan2pi_ctx(
       1L - distance,
       ctx,
     ) {
-    Some(result) => return Ok(finish(result))
+    Some(result) => return Ok(result)
     None => ()
   }
   // Small ratio with x < 0: 1 - d with 0 < d < |y/x|/pi < 10^(D + 1).
@@ -460,16 +435,16 @@ pub fn Decimal::try_atan2pi_ctx(
         distance + 1L,
         ctx,
       ) {
-      Some(result) => return Ok(finish(result))
+      Some(result) => return Ok(result)
       None => ()
     }
   }
   // atan2 depends on the ratio only: scaling both operands by 10^-adjusted(x)
   // keeps it, leaves x in [1, 10) and spares the conversion of operands with
   // exponents of millions of digits (`1E-1999996` against `1`).
-  let x_shift = adjusted_exponent64(x).to_int()
-  let ordinate = { ..ordinate, exponent10: ordinate.exponent10 - x_shift, }
-  let x = { ..x, exponent10: x.exponent10 - x_shift, }
+  let x_shift = adjusted_exponent64(abscissa).to_int()
+  let self = { ..self, exponent10: self.exponent10 - x_shift, }
+  let abscissa = { ..abscissa, exponent10: abscissa.exponent10 - x_shift, }
   let finalize = fn(result : (Decimal, DecimalFlags)) {
     // A result that rounds to zero keeps the exponent of the rounding; only the
     // sign of the ordinate is imposed (as for atan2, #332).
@@ -478,7 +453,7 @@ pub fn Decimal::try_atan2pi_ctx(
     } else {
       result.0
     }
-    finish((value, result.1))
+    (value, result.1)
   }
   // Small ratio with x > 0: atan2(y, x) / pi = (r / pi) (1 - e) with
   // r = |y / x| = (sy / sx) 10^D, sy and sx the operands scaled to [1, 10),
@@ -489,12 +464,12 @@ pub fn Decimal::try_atan2pi_ctx(
   if !behind {
     let t = -(2L * distance + 2L)
     let digits = Int32::max(
-      ordinate.coefficient.digits10(),
-      x.coefficient.digits10(),
+      self.coefficient.digits10(),
+      abscissa.coefficient.digits10(),
     )
     if decimal_pi_tiny_enough(t, digits, ctx) {
-      let (scaled_y, _) = decimal_pi_scale_to_unit(ordinate)
-      let (scaled_x, _) = decimal_pi_scale_to_unit(x)
+      let (scaled_y, _) = decimal_pi_scale_to_unit(self)
+      let (scaled_x, _) = decimal_pi_scale_to_unit(abscissa)
       return decimal_certified_scaled_loop(
         Int32::max(
           decimal_certified_work_precision(scaled_y, ctx),
@@ -514,7 +489,7 @@ pub fn Decimal::try_atan2pi_ctx(
       ).map(finalize)
     }
   }
-  decimal_certified_binary_result(ordinate, x, ctx, "atan2pi", fn(
+  decimal_certified_binary_result(self, abscissa, ctx, "atan2pi", fn(
     y,
     x_interval,
   ) {

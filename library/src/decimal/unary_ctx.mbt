@@ -5,39 +5,38 @@ fn Decimal::plus_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let (operand, operand_flags) = prepare_operand_for_context(self, ctx)
-  let result = match operand.class {
-    FpClass::NaN => quiet_nan_operand(operand, ctx)
+  let result = match self.class {
+    FpClass::NaN => quiet_nan_operand(self, ctx)
     FpClass::Infinity =>
       (
-        operand.with_precision_round(
+        self.with_precision_round(
           finite_precision_for(bigint_zero(), ctx),
           ctx.decimal_rounding,
         ),
         DecimalFlags::new(),
       )
     FpClass::Finite =>
-      if operand.coefficient.is_zero() {
+      if self.coefficient.is_zero() {
         // plus(x) is add(0, x) with the zero taking x's exponent, so
         // plus(-0) adds zeros of opposite signs: -0 under Floor
         // (roundTowardNegative), else +0.
         normalize_decimal_parts_ctx_repr(
-          operand.negative && ctx.decimal_rounding == DecimalRound::Floor,
-          operand.coefficient,
-          operand.exponent10,
+          self.negative && ctx.decimal_rounding == DecimalRound::Floor,
+          self.coefficient,
+          self.exponent10,
           ctx,
         )
       } else {
         let (value, flags) = normalize_decimal_parts_ctx_repr(
-          operand.negative,
-          operand.coefficient,
-          operand.exponent10,
+          self.negative,
+          self.coefficient,
+          self.exponent10,
           ctx,
         )
         (value, flags)
       }
   }
-  (result.0, operand_flags.combine(result.1))
+  result
 }
 
 ///|
@@ -80,10 +79,9 @@ pub fn Decimal::abs_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let (operand, operand_flags) = prepare_operand_for_context(self, ctx)
-  let result = match operand.class {
-    FpClass::NaN => quiet_nan_operand(operand, ctx)
-    _ => operand.abs().plus_ctx(ctx)
+  let result = match self.class {
+    FpClass::NaN => quiet_nan_operand(self, ctx)
+    _ => self.abs().plus_ctx(ctx)
   }
-  (result.0, operand_flags.combine(result.1))
+  result
 }

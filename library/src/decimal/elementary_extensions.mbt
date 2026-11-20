@@ -366,20 +366,16 @@ fn Decimal::try_unary_elementary_ctx(
   if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
     return Ok(invalid_context_result(ctx))
   }
-  let (value, operand_flags) = prepare_operand_for_context(self, ctx)
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
-  let finish = fn(result : (Decimal, DecimalFlags)) {
-    (result.0, operand_flags.combine(result.1))
+  if self.class == FpClass::NaN {
+    return Ok(quiet_nan_operand(self, ctx))
   }
-  if value.class == FpClass::NaN {
-    return Ok(finish(quiet_nan_operand(value, ctx)))
-  }
-  if value.class == FpClass::Infinity {
+  if self.class == FpClass::Infinity {
     let result = match operation {
       Exp2 | Exp10 =>
         Ok(
           (
-            if value.negative {
+            if self.negative {
               Decimal::zero(precision~)
             } else {
               Decimal::inf(precision~)
@@ -390,7 +386,7 @@ fn Decimal::try_unary_elementary_ctx(
       Expm1 =>
         Ok(
           (
-            if value.negative {
+            if self.negative {
               Decimal::from_int(-1, precision~)
             } else {
               Decimal::inf(precision~)
@@ -400,7 +396,7 @@ fn Decimal::try_unary_elementary_ctx(
         )
       Log2 | Log1p =>
         Ok(
-          if value.negative {
+          if self.negative {
             decimal_elementary_invalid(ctx)
           } else {
             (Decimal::inf(precision~), DecimalFlags::new())
@@ -408,18 +404,18 @@ fn Decimal::try_unary_elementary_ctx(
         )
       Asin | Acos | Atanh | Sin | Cos | Tan | SinPi | CosPi | TanPi =>
         Ok(decimal_elementary_invalid(ctx))
-      Atan => decimal_certified_atan_infinity(value.negative, ctx)
+      Atan => decimal_certified_atan_infinity(self.negative, ctx)
       Sinh | Asinh =>
         Ok(
           (
-            Decimal::inf(negative=value.is_negative(), precision~),
+            Decimal::inf(negative=self.is_negative(), precision~),
             DecimalFlags::new(),
           ),
         )
       Cosh => Ok((Decimal::inf(precision~), DecimalFlags::new()))
       Acosh =>
         Ok(
-          if value.negative {
+          if self.negative {
             decimal_elementary_invalid(ctx)
           } else {
             (Decimal::inf(precision~), DecimalFlags::new())
@@ -428,30 +424,30 @@ fn Decimal::try_unary_elementary_ctx(
       Tanh =>
         Ok(
           (
-            Decimal::from_int(if value.negative { -1 } else { 1 }, precision~),
+            Decimal::from_int(if self.negative { -1 } else { 1 }, precision~),
             DecimalFlags::new(),
           ),
         )
       Rootn(degree) =>
-        if degree == 0 || (value.negative && degree % 2 == 0) {
+        if degree == 0 || (self.negative && degree % 2 == 0) {
           Ok(decimal_elementary_invalid(ctx))
         } else if degree < 0 {
-          Ok(decimal_elementary_zero(value.negative && degree % 2 != 0, ctx))
+          Ok(decimal_elementary_zero(self.negative && degree % 2 != 0, ctx))
         } else {
           Ok(
             (
-              Decimal::inf(negative=value.negative, precision~),
+              Decimal::inf(negative=self.negative, precision~),
               DecimalFlags::new(),
             ),
           )
         }
     }
-    return result.map(finish)
+    return result
   }
-  let zero = Decimal::zero(precision=value.precision_)
-  let one = Decimal::one(precision=value.precision_)
-  let minus_one = Decimal::from_int(-1, precision=value.precision_)
-  if value.coefficient.is_zero() {
+  let zero = Decimal::zero(precision=self.precision_)
+  let one = Decimal::one(precision=self.precision_)
+  let minus_one = Decimal::from_int(-1, precision=self.precision_)
+  if self.coefficient.is_zero() {
     let exact = match operation {
       Exp2 | Exp10 | Cos | CosPi | Cosh =>
         Some((Decimal::one(precision~), DecimalFlags::new()))
@@ -466,14 +462,14 @@ fn Decimal::try_unary_elementary_ctx(
       | Sinh
       | Tanh
       | Asinh
-      | Atanh => Some(decimal_elementary_zero(value.negative, ctx))
+      | Atanh => Some(decimal_elementary_zero(self.negative, ctx))
       Log2 => Some(decimal_elementary_division_by_zero(Sign::Negative, ctx))
       Acosh => Some(decimal_elementary_invalid(ctx))
       Rootn(degree) if degree == 0 => Some(decimal_elementary_invalid(ctx))
       Rootn(degree) if degree < 0 =>
         Some(
           decimal_elementary_division_by_zero(
-            if value.negative && degree % 2 != 0 {
+            if self.negative && degree % 2 != 0 {
               Sign::Negative
             } else {
               Sign::Positive
@@ -484,20 +480,20 @@ fn Decimal::try_unary_elementary_ctx(
       // rootn(+-0, n) is +-0 for odd n > 0 and +0 for even n > 0 (IEEE 754-2019
       // 9.2.1).
       Rootn(degree) =>
-        Some(decimal_elementary_zero(value.negative && degree % 2 != 0, ctx))
+        Some(decimal_elementary_zero(self.negative && degree % 2 != 0, ctx))
       Acos => None
     }
     match exact {
-      Some(result) => return Ok(finish(result))
+      Some(result) => return Ok(result)
       None => ()
     }
   }
-  match decimal_pi_scaled_exact(value, operation, ctx) {
-    Some(result) => return Ok(finish(result))
+  match decimal_pi_scaled_exact(self, operation, ctx) {
+    Some(result) => return Ok(result)
     None => ()
   }
   if operation == Exp2 || operation == Exp10 {
-    match decimal_power_integer_is_odd(value) {
+    match decimal_power_integer_is_odd(self) {
       Some(_) => {
         let base = Decimal::from_int(
           if operation == Exp2 {
@@ -507,7 +503,7 @@ fn Decimal::try_unary_elementary_ctx(
           },
           precision~,
         )
-        return Ok(finish(base.pow_ctx(value, ctx)))
+        return Ok(base.pow_ctx(self, ctx))
       }
       None => ()
     }
@@ -515,62 +511,61 @@ fn Decimal::try_unary_elementary_ctx(
   // exp2 and exp10 far outside the representable range (#363).
   match operation {
     Exp2 =>
-      match decimal_exponential_coarse_extreme_result(Two, value, ctx) {
-        Some(result) => return Ok(finish(result))
+      match decimal_exponential_coarse_extreme_result(Two, self, ctx) {
+        Some(result) => return Ok(result)
         None => ()
       }
     Exp10 =>
-      match decimal_exponential_coarse_extreme_result(Ten, value, ctx) {
-        Some(result) => return Ok(finish(result))
+      match decimal_exponential_coarse_extreme_result(Ten, self, ctx) {
+        Some(result) => return Ok(result)
         None => ()
       }
     _ => ()
   }
   let invalid_domain = match operation {
-    Log2 => value.compare(zero) <= 0
-    Log1p => value.compare(minus_one) < 0
-    Asin | Acos =>
-      value.abs_ctx(decimal_exact_work_context()).0.compare(one) > 0
-    Acosh => value.compare(one) < 0
-    Atanh => value.abs_ctx(decimal_exact_work_context()).0.compare(one) > 0
-    Rootn(degree) => degree == 0 || (value.negative && degree % 2 == 0)
+    Log2 => self.compare(zero) <= 0
+    Log1p => self.compare(minus_one) < 0
+    Asin | Acos => self.abs_ctx(decimal_exact_work_context()).0.compare(one) > 0
+    Acosh => self.compare(one) < 0
+    Atanh => self.abs_ctx(decimal_exact_work_context()).0.compare(one) > 0
+    Rootn(degree) => degree == 0 || (self.negative && degree % 2 == 0)
     _ => false
   }
   if invalid_domain {
-    return Ok(finish(decimal_elementary_invalid(ctx)))
+    return Ok(decimal_elementary_invalid(ctx))
   }
-  match decimal_certified_saturated_unary_result(value, operation, ctx) {
-    Some(result) => return Ok(finish(result))
+  match decimal_certified_saturated_unary_result(self, operation, ctx) {
+    Some(result) => return Ok(result)
     None => ()
   }
-  match decimal_tiny_unary_result(value, operation, ctx) {
-    Some(result) => return Ok(finish(result))
+  match decimal_tiny_unary_result(self, operation, ctx) {
+    Some(result) => return Ok(result)
     None => ()
   }
   // exp2(x) = 1 + c x (1 + d) and exp10(x), exp(x) likewise (c = ln 2, ln 10,
   // 1): for |x| < 10^top, |f(x) - 1| < 10^(top + 1) with the sign of x, so a
   // tiny x puts f(x) next to the representable 1 on one side.
   if operation == Exp2 || operation == Exp10 {
-    match decimal_exp_tiny_result(value, ctx) {
-      Some(result) => return Ok(finish(result))
+    match decimal_exp_tiny_result(self, ctx) {
+      Some(result) => return Ok(result)
       None => ()
     }
   }
-  if operation == Log1p && value.compare(minus_one) == 0 {
-    return Ok(finish(decimal_elementary_division_by_zero(Sign::Negative, ctx)))
+  if operation == Log1p && self.compare(minus_one) == 0 {
+    return Ok(decimal_elementary_division_by_zero(Sign::Negative, ctx))
   }
   if operation == Atanh &&
-    value.abs_ctx(decimal_exact_work_context()).0.compare(one) == 0 {
-    return Ok(finish(decimal_elementary_division_by_zero(value.sign(), ctx)))
+    self.abs_ctx(decimal_exact_work_context()).0.compare(one) == 0 {
+    return Ok(decimal_elementary_division_by_zero(self.sign(), ctx))
   }
-  if (operation == Log2 && value.compare(one) == 0) ||
-    (operation == Acosh && value.compare(one) == 0) {
-    return Ok(finish(decimal_elementary_zero(false, ctx)))
+  if (operation == Log2 && self.compare(one) == 0) ||
+    (operation == Acosh && self.compare(one) == 0) {
+    return Ok(decimal_elementary_zero(false, ctx))
   }
   match operation {
     Rootn(degree) =>
-      match decimal_rootn_exact_result(value, degree, ctx) {
-        Some(result) => return Ok(finish(result))
+      match decimal_rootn_exact_result(self, degree, ctx) {
+        Some(result) => return Ok(result)
         None => ()
       }
     _ => ()
@@ -583,18 +578,18 @@ fn Decimal::try_unary_elementary_ctx(
   // fractional part is not a dyadic rational: its ball precision starts at its
   // binary magnitude plus the target instead.
   let huge = match operation {
-    Sin | Cos | Tan if value.class == FpClass::Finite =>
-      adjusted_exponent64(value) >= 32L
+    Sin | Cos | Tan if self.class == FpClass::Finite =>
+      adjusted_exponent64(self) >= 32L
     _ => false
   }
-  let exact_evaluate = if huge && value.exponent10 >= 0 {
+  let exact_evaluate = if huge && self.exponent10 >= 0 {
     let bits = ((
-      value.coefficient.digits10().to_int64() + value.exponent10.to_int64()
+      self.coefficient.digits10().to_int64() + self.exponent10.to_int64()
     ) *
     3_321_929L /
     1_000_000L +
     16L).to_int()
-    let (lower, upper) = value.to_bin_float_bounds(bits)
+    let (lower, upper) = self.to_bin_float_bounds(bits)
     if lower.compare(upper) == 0 {
       Some(fn(precision : Int32) {
         let downward = @bin_float.BinaryContext::new(
@@ -628,18 +623,18 @@ fn Decimal::try_unary_elementary_ctx(
     None
   }
   let extra_bits = if huge && exact_evaluate is None {
-    (adjusted_exponent64(value) + 1L) * 3_321_929L / 1_000_000L
+    (adjusted_exponent64(self) + 1L) * 3_321_929L / 1_000_000L
   } else {
     0L
   }
   decimal_certified_unary_result(
-    value,
+    self,
     ctx,
     operation.name(),
     fn(input) { operation.evaluate(input) },
     extra_bits=extra_bits.to_int(),
     exact_evaluate~,
-  ).map(finish)
+  )
 }
 
 ///|
@@ -1150,18 +1145,15 @@ pub fn Decimal::try_hypot_ctx(
     decimal_math_operand_out_of_range(other) {
     return Ok(invalid_context_result(ctx))
   }
-  let (left, right, operand_flags) = prepare_binary_operands_for_context(
-    self, other, ctx,
-  )
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
-  let nan_result = quiet_nan_pair(left, right, ctx)
-  if left.class == FpClass::Infinity || right.class == FpClass::Infinity {
+  let nan_result = quiet_nan_pair(self, other, ctx)
+  if self.class == FpClass::Infinity || other.class == FpClass::Infinity {
     // hypot(+-inf, y) is +inf for every y, even a quiet NaN. A signaling NaN
     // is not exempt: it signals invalid and the result is a quiet NaN
     // (IEEE 754-2019 6.2, 7.2, 9.2.1).
-    if left.is_signaling_nan() || right.is_signaling_nan() {
+    if self.is_signaling_nan() || other.is_signaling_nan() {
       match nan_result {
-        Some(result) => return Ok((result.0, operand_flags.combine(result.1)))
+        Some(result) => return Ok(result)
         None => ()
       }
     }
@@ -1169,23 +1161,23 @@ pub fn Decimal::try_hypot_ctx(
       Some(result) => result.1
       None => DecimalFlags::new()
     }
-    return Ok((Decimal::inf(precision~), operand_flags.combine(nan_flags)))
+    return Ok((Decimal::inf(precision~), nan_flags))
   }
   match nan_result {
-    Some(result) => return Ok((result.0, operand_flags.combine(result.1)))
+    Some(result) => return Ok(result)
     None => ()
   }
-  if left.coefficient.is_zero() && right.coefficient.is_zero() {
-    return Ok((Decimal::zero(precision~), operand_flags))
+  if self.coefficient.is_zero() && other.coefficient.is_zero() {
+    return Ok((Decimal::zero(precision~), DecimalFlags::new()))
   }
-  match decimal_hypot_exact_result(left, right, ctx) {
-    Some(result) => return Ok((result.0, operand_flags.combine(result.1)))
+  match decimal_hypot_exact_result(self, other, ctx) {
+    Some(result) => return Ok(result)
     None => ()
   }
-  let (large, small) = if adjusted_exponent(left) >= adjusted_exponent(right) {
-    (left, right)
+  let (large, small) = if adjusted_exponent(self) >= adjusted_exponent(other) {
+    (self, other)
   } else {
-    (right, left)
+    (other, self)
   }
   if !small.coefficient.is_zero() {
     let large = { ..large, negative: false, }
@@ -1194,13 +1186,13 @@ pub fn Decimal::try_hypot_ctx(
       (small.exponent10.to_int64() + small.coefficient.digits10().to_int64()) -
       adjusted_exponent(large).to_int64()
     match decimal_tiny_argument_result(large, true, error_exponent, ctx) {
-      Some(result) => return Ok((result.0, operand_flags.combine(result.1)))
+      Some(result) => return Ok(result)
       None => ()
     }
   }
-  decimal_certified_binary_result(left, right, ctx, "hypot", fn(lhs, rhs) {
+  decimal_certified_binary_result(self, other, ctx, "hypot", fn(lhs, rhs) {
     lhs.try_hypot(rhs)
-  }).map(fn(result) { (result.0, operand_flags.combine(result.1)) })
+  })
 }
 
 ///|
@@ -1226,28 +1218,26 @@ pub fn Decimal::try_atan2_ctx(
     decimal_math_operand_out_of_range(abscissa) {
     return Ok(invalid_context_result(ctx))
   }
-  let (ordinate, x, operand_flags) = prepare_binary_operands_for_context(
-    self, abscissa, ctx,
-  )
-  match quiet_nan_pair(ordinate, x, ctx) {
-    Some(result) => return Ok((result.0, operand_flags.combine(result.1)))
+  match quiet_nan_pair(self, abscissa, ctx) {
+    Some(result) => return Ok(result)
     None => ()
   }
   // IEEE 754-2019 9.2.1: a zero or infinite operand selects an exact zero
   // or a multiple of pi/4 whose sign is that of the ordinate.
-  let ordinate_zero = ordinate.class == FpClass::Finite &&
-    ordinate.coefficient.is_zero()
-  let x_zero = x.class == FpClass::Finite && x.coefficient.is_zero()
-  let quarters = if ordinate.class == FpClass::Infinity {
-    if x.class == FpClass::Infinity {
-      Some(if x.negative { 3 } else { 1 })
+  let ordinate_zero = self.class == FpClass::Finite &&
+    self.coefficient.is_zero()
+  let x_zero = abscissa.class == FpClass::Finite &&
+    abscissa.coefficient.is_zero()
+  let quarters = if self.class == FpClass::Infinity {
+    if abscissa.class == FpClass::Infinity {
+      Some(if abscissa.negative { 3 } else { 1 })
     } else {
       Some(2)
     }
-  } else if ordinate_zero || x.class == FpClass::Infinity {
+  } else if ordinate_zero || abscissa.class == FpClass::Infinity {
     // atan2(+-0, x) and atan2(y, +-inf) for finite y: the ordinate is
     // negligible against the abscissa, so only the abscissa's sign matters.
-    Some(if x.negative { 4 } else { 0 })
+    Some(if abscissa.negative { 4 } else { 0 })
   } else if x_zero {
     Some(2)
   } else {
@@ -1256,28 +1246,32 @@ pub fn Decimal::try_atan2_ctx(
   match quarters {
     Some(0) =>
       return Ok(
-        (decimal_elementary_zero(ordinate.negative, ctx).0, operand_flags),
+        (decimal_elementary_zero(self.negative, ctx).0, DecimalFlags::new()),
       )
     Some(count) =>
       return decimal_certified_quarter_pi_multiple(
         count,
-        ordinate.negative,
+        self.negative,
         ctx,
         "atan2",
-      ).map(fn(result) { (result.0, operand_flags.combine(result.1)) })
+      )
     None => ()
   }
   // The tiny-argument decision below needs `3 top < adjusted(ratio) - p - 3`,
   // with top = adjusted(ratio) + 1 and adjusted(ratio) >= D - 1 for
   // D = adjusted(y) - adjusted(x): that is `2 D < -(p + 4)` at the most, so no
   // other ratio is formed (the exact division costs a gcd and two powers).
-  let distance = adjusted_exponent64(ordinate) - adjusted_exponent64(x)
-  if !x.negative &&
-    !ordinate.coefficient.is_zero() &&
-    !x.coefficient.is_zero() &&
+  let distance = adjusted_exponent64(self) - adjusted_exponent64(abscissa)
+  if !abscissa.negative &&
+    !self.coefficient.is_zero() &&
+    !abscissa.coefficient.is_zero() &&
     2L * distance < -(ctx.precision.to_int64() + 4L) {
     match
-      exact_decimal_division_result(ordinate, x, decimal_exact_work_context()) {
+      exact_decimal_division_result(
+        self,
+        abscissa,
+        decimal_exact_work_context(),
+      ) {
       Some((ratio, _)) => {
         let magnitude = { ..ratio, negative: false, }
         if magnitude.compare(decimal_half_constant) < 0 {
@@ -1285,8 +1279,7 @@ pub fn Decimal::try_atan2_ctx(
             ratio.coefficient.digits10().to_int64()
           match
             decimal_tiny_argument_result(ratio, ratio.negative, 3L * top, ctx) {
-            Some(result) =>
-              return Ok((result.0, operand_flags.combine(result.1)))
+            Some(result) => return Ok(result)
             None => ()
           }
         }
@@ -1294,18 +1287,21 @@ pub fn Decimal::try_atan2_ctx(
       None => ()
     }
   }
-  decimal_certified_binary_result(ordinate, x, ctx, "atan2", fn(y, x_interval) {
+  decimal_certified_binary_result(self, abscissa, ctx, "atan2", fn(
+    y,
+    x_interval,
+  ) {
     y.try_atan2(x_interval)
   }).map(fn(result) {
     // A result that rounds to zero keeps the exponent of the rounding (the
     // cohort member of least possible exponent, IEEE 754-2019 5.2, as for
     // every other function); only the sign of the ordinate is imposed (#332).
     let value = if result.0.is_zero() {
-      { ..result.0, negative: ordinate.negative, }
+      { ..result.0, negative: self.negative, }
     } else {
       result.0
     }
-    (value, operand_flags.combine(result.1))
+    (value, result.1)
   })
 }
 
