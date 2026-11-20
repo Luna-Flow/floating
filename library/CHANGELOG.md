@@ -155,6 +155,7 @@ notes live in this file.
 - `decimal`, `decimal_gda`: rounding a multi-limb coefficient by a power of ten (every inexact add, multiplication, division) shifts, reads the rounding digit and the sticky digits and adds the rounding unit in one pass into one new array, instead of four allocations and about five passes; the kernel also offers the same rounding in place for a caller that owns the limb array. About 1.33 times fewer instructions for `add` at 34 digits, 1.17 for `multiply`, 1.10 for `divide`; results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).
 
 - `bin_float`: `div` and `sqrt` at precision 53 form the quotient or root of the two coefficients (at most 53 bits, exact in binary64) with one binary64 division or square root, which IEEE 754 rounds to nearest even exactly as the general path does. Results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).
+- `bin_float`: `ln` at working precisions from 384 to 1151 bits starts with the verified Newton step, whose `exp` runs on the table kernel (the step called the bit-burst kernel directly and was enabled from 1152 bits only). 9 to 21 percent fewer instructions for `ln` at 320 to 1024 bits; 1152 bits and above, and the nested steps, are unchanged. Results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).
 
 ## 0.11.0 - 2026-11-20
 

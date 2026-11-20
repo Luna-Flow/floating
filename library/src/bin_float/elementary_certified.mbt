@@ -401,8 +401,17 @@ fn binary_exp_bounds_series(
 fn binary_ln_unit_bounds(
   value : BinFloat,
   work_precision : Int32,
+  entry~ : Bool = false,
 ) -> (BinFloat, BinFloat)? {
-  if work_precision >= binary_ln_burst_min_precision {
+  // The step of the outermost call may start lower than the nested ones: one
+  // step on the table kernel beats the series from `binary_ln_entry_min_precision`
+  // on, but a second step below it costs more than the series it replaces.
+  let threshold = if entry {
+    binary_ln_entry_min_precision
+  } else {
+    binary_ln_burst_min_precision
+  }
+  if work_precision >= threshold {
     match binary_ln_unit_burst_bounds(value, work_precision) {
       Some(bounds) => return Some(bounds)
       None => ()
@@ -764,7 +773,7 @@ fn binary_ln_bounds(
   let unit_bounds = if series_only {
     binary_ln_unit_bounds_series(normalized, work_precision)
   } else {
-    binary_ln_unit_bounds(normalized, work_precision)
+    binary_ln_unit_bounds(normalized, work_precision, entry=true)
   }
   match (unit_bounds, binary_ln2_bounds(work_precision)) {
     (Some(unit), Some(ln2)) => {
