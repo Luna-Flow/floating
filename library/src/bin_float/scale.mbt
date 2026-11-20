@@ -6,11 +6,11 @@ pub fn BinFloat::scaleb_ctx(
   n : Int32,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  match self.class {
+  match self.class() {
     FpClass::NaN =>
       (
         binary_quiet_nan(self, context.precision),
-        if self.signaling_nan {
+        if self.signaling() {
           binary_invalid_flags()
         } else {
           BinaryFlags::new()
@@ -18,13 +18,13 @@ pub fn BinFloat::scaleb_ctx(
       )
     FpClass::Infinity => (self, BinaryFlags::new())
     FpClass::Finite =>
-      if self.coefficient_.is_zero() {
-        (finite_zero(self.negative, context.precision), BinaryFlags::new())
+      if self.coefficient_().is_zero() {
+        (finite_zero(self.negative(), context.precision), BinaryFlags::new())
       } else {
         binary_round_dyadic(
-          self.negative,
-          self.coefficient_,
-          binary_add_sat(self.exponent2, n),
+          self.negative(),
+          self.coefficient_(),
+          binary_add_sat(self.exponent2_(), n),
           context,
         )
       }
@@ -39,11 +39,11 @@ pub fn BinFloat::logb_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  match self.class {
+  match self.class() {
     FpClass::NaN =>
       (
         binary_quiet_nan(self, context.precision),
-        if self.signaling_nan {
+        if self.signaling() {
           binary_invalid_flags()
         } else {
           BinaryFlags::new()
@@ -55,7 +55,7 @@ pub fn BinFloat::logb_ctx(
         BinaryFlags::new(),
       )
     FpClass::Finite =>
-      if self.coefficient_.is_zero() {
+      if self.coefficient_().is_zero() {
         (
           BinFloat::inf_raw(Sign::Negative, precision=context.precision),
           binary_division_by_zero_flags(),
@@ -64,7 +64,7 @@ pub fn BinFloat::logb_ctx(
         // An Int needs at most 32 bits, so the result is exact.
         (
           BinFloat::from_int_raw(
-            binary_exact_top(self.coefficient_, self.exponent2),
+            binary_exact_top(self.coefficient_(), self.exponent2_()),
             precision=Int32::max(context.precision, 32),
           ),
           BinaryFlags::new(),

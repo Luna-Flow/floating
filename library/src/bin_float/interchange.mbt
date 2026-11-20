@@ -231,12 +231,12 @@ fn binary_encode_rounded(
   value : BinFloat,
   format : BinaryInterchangeFormat,
 ) -> Coeff {
-  let sign = if value.negative {
+  let sign = if value.negative() {
     binary_sign_mask(format)
   } else {
     Coeff::zero()
   }
-  match value.class {
+  match value.class() {
     FpClass::Infinity =>
       sign.bit_or(
         binary_exponent_mask(format).shift_left(format.fraction_bits()),
@@ -244,7 +244,7 @@ fn binary_encode_rounded(
     FpClass::NaN => {
       let quiet_bit = Coeff::one().shift_left(format.fraction_bits() - 1)
       let payload_mask = quiet_bit.sub_checked(Coeff::one()).unwrap()
-      let payload = value.nan_payload.bit_and(payload_mask)
+      let payload = value.payload_().bit_and(payload_mask)
       sign
       .bit_or(binary_exponent_mask(format).shift_left(format.fraction_bits()))
       .bit_or(quiet_bit)
@@ -252,11 +252,11 @@ fn binary_encode_rounded(
     }
     FpClass::Finite if value.is_zero() => sign
     FpClass::Finite => {
-      let magnitude = value.coefficient_
-      let top = binary_exact_top(magnitude, value.exponent2)
+      let magnitude = value.coefficient_()
+      let top = binary_exact_top(magnitude, value.exponent2_())
       if top < format.e_min() {
         let quantum = format.e_min() - format.fraction_bits()
-        sign.bit_or(magnitude.shift_left(value.exponent2 - quantum))
+        sign.bit_or(magnitude.shift_left(value.exponent2_() - quantum))
       } else {
         let coefficient = magnitude.shift_left(
           format.precision() - magnitude.bit_length(),
@@ -317,7 +317,7 @@ pub fn BinFloat::convert_format(
   tininess~ : TininessDetection = TininessDetection::AfterRounding,
 ) -> (BinFloat, BinaryFlags) {
   let (value, flags) = self.round_ctx(format.context(rounding~, tininess~))
-  if value.class == FpClass::NaN {
+  if value.class() == FpClass::NaN {
     // The payload field of the format has precision - 2 bits below the quiet bit.
     let payload_mask = Coeff::one()
       .shift_left(format.fraction_bits() - 1)
@@ -325,8 +325,8 @@ pub fn BinFloat::convert_format(
       .unwrap()
     return (
       BinFloat::quiet_nan(
-        payload=value.nan_payload.bit_and(payload_mask),
-        negative=value.negative,
+        payload=value.payload_().bit_and(payload_mask),
+        negative=value.negative(),
         precision=format.precision(),
       ),
       flags,

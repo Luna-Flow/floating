@@ -293,8 +293,8 @@ test "sqrt_ctx on finite values equals the reference through BinFloat" {
           let value = finite_from_parts(false, odd, exponent, precision)
           let (actual, actual_flags) = value.sqrt_ctx(context)
           let (expected, expected_flags) = sqctx_round_reference(
-            value.coefficient_,
-            value.exponent2,
+            value.coefficient_(),
+            value.exponent2_(),
             context,
           )
           assert_eq(actual, expected)

@@ -10,22 +10,22 @@ fn binary_to_integer_parts(
   negative_limit : UInt64,
   positive_limit : UInt64,
 ) -> ((Bool, UInt64)?, BinaryFlags) {
-  guard value.class == FpClass::Finite else {
+  guard value.class() == FpClass::Finite else {
     return (None, binary_invalid_flags())
   }
   let (integral, changed) = binary_round_to_integral(value, context.rounding)
-  let magnitude = if integral.coefficient_.is_zero() {
+  let magnitude = if integral.coefficient_().is_zero() {
     Some(0UL)
-  } else if integral.exponent2 + integral.coefficient_.bit_length() > 64 {
+  } else if integral.exponent2_() + integral.coefficient_().bit_length() > 64 {
     None
   } else {
-    integral.coefficient_.shift_left(integral.exponent2).to_uint64()
+    integral.coefficient_().shift_left(integral.exponent2_()).to_uint64()
   }
-  let limit = if integral.negative { negative_limit } else { positive_limit }
+  let limit = if integral.negative() { negative_limit } else { positive_limit }
   match magnitude {
     Some(magnitude) if magnitude <= limit =>
       (
-        Some((integral.negative && magnitude != 0UL, magnitude)),
+        Some((integral.negative() && magnitude != 0UL, magnitude)),
         if exact && changed {
           binary_inexact_flags(false)
         } else {

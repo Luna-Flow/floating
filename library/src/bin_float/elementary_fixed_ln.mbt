@@ -36,7 +36,7 @@ fn binary_ln_unit_fixed_bounds(
     value.compare(BinFloat::from_int_raw(2, precision=work_precision)) <= 0 else {
     return None
   }
-  let coefficient = value.coefficient_
+  let coefficient = value.coefficient_()
   let exponent = value.exponent2()
   let (scaled_value, unit_shift) = if exponent >= 0 {
     (coefficient.shift_left(exponent), 0)

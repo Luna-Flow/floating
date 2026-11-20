@@ -117,10 +117,12 @@ fn binary_add_aligned_legacy_for_test(
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
   let target = Int32::min(left.exponent2(), right.exponent2())
-  let left_coefficient = left.coefficient_.shift_left(left.exponent2() - target)
-  let right_coefficient = right.coefficient_.shift_left(
-    right.exponent2() - target,
-  )
+  let left_coefficient = left
+    .coefficient_()
+    .shift_left(left.exponent2() - target)
+  let right_coefficient = right
+    .coefficient_()
+    .shift_left(right.exponent2() - target)
   if left.is_negative() == right.is_negative() {
     let (sum, normalization_shift) = bin_coeff_add_normalized_odd(
       left_coefficient, right_coefficient,
@@ -274,7 +276,7 @@ test "wide exponent gaps stay on bounded coefficient paths" {
       rounding=BinaryRoundingMode::RoundTowardPositive,
     ),
   )
-  assert_eq(upward.0.coefficient_, Coeff::from_uint64(5UL))
+  assert_eq(upward.0.coefficient_(), Coeff::from_uint64(5UL))
   assert_eq(upward.0.exponent2(), -2)
   assert_true(upward.1.inexact())
 }

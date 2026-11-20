@@ -243,14 +243,14 @@ test "finite normalization never wraps extreme exponents" {
     binary_implementation_e_max - 1,
     53,
   )
-  assert_eq(maximum.coefficient_, Coeff::one())
+  assert_eq(maximum.coefficient_(), Coeff::one())
   assert_eq(maximum.exponent2(), binary_implementation_e_max)
   let minimum = BinFloat::make_coeff(
     Coeff::from_uint64(4UL),
     binary_implementation_e_min - 54,
     53,
   )
-  assert_eq(minimum.coefficient_, Coeff::one())
+  assert_eq(minimum.coefficient_(), Coeff::one())
   assert_eq(minimum.exponent2(), binary_implementation_e_min - 52)
   // Beyond the implementation range the value is classified, not wrapped.
   let over = BinFloat::make_coeff(Coeff::from_uint64(2UL), 2147483647, 53)
@@ -276,7 +276,7 @@ test "addition compresses extreme exponent gaps without losing direction" {
     rounding=BinaryRoundingMode::RoundTowardPositive,
   )
   let (upward_sum, upward_sum_flags) = one.add_ctx(tiny, upward_context)
-  assert_eq(upward_sum.coefficient_, Coeff::from_uint64(5UL))
+  assert_eq(upward_sum.coefficient_(), Coeff::from_uint64(5UL))
   assert_eq(upward_sum.exponent2(), -2)
   assert_true(upward_sum_flags.inexact())
   let downward_context = BinaryContext::new(
@@ -286,7 +286,7 @@ test "addition compresses extreme exponent gaps without losing direction" {
   let (downward_difference, downward_difference_flags) = one.sub_ctx(
     tiny, downward_context,
   )
-  assert_eq(downward_difference.coefficient_, Coeff::from_uint64(7UL))
+  assert_eq(downward_difference.coefficient_(), Coeff::from_uint64(7UL))
   assert_eq(downward_difference.exponent2(), -3)
   assert_true(downward_difference_flags.inexact())
 }
@@ -296,7 +296,7 @@ test "sqrt preserves exact roots when the scaled radicand is fractional" {
   let context = BinaryContext::new(precision=11)
   let exact_input = BinFloat::make_coeff(Coeff::from_uint64(9UL), 100, 128)
   let (exact_root, exact_flags) = exact_input.sqrt_ctx(context)
-  assert_eq(exact_root.coefficient_, Coeff::from_uint64(3UL))
+  assert_eq(exact_root.coefficient_(), Coeff::from_uint64(3UL))
   assert_eq(exact_root.exponent2(), 50)
   assert_eq(exact_flags.to_testfloat_bits(), 0)
   let inexact_input = BinFloat::make_coeff(Coeff::from_uint64(10UL), 100, 128)

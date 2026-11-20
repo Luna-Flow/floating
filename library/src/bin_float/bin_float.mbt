@@ -1,25 +1,61 @@
 ///|
 #derive(Eq, Debug)
 pub struct BinFloat {
-  priv class : FpClass
-  priv negative : Bool
-  priv coefficient_ : Coeff
-  priv exponent2 : Int32
-  priv precision_ : Int32
-  priv signaling_nan : Bool
-  priv nan_payload : Coeff
+  priv f_class : FpClass
+  priv f_negative : Bool
+  priv f_coefficient : Coeff
+  priv f_exponent2 : Int32
+  priv f_precision : Int32
+  priv f_signaling : Bool
+  priv f_payload : Coeff
+}
+
+///|
+/// Accessors of the representation: the only readers of the fields.
+fn BinFloat::class(self : BinFloat) -> FpClass {
+  self.f_class
+}
+
+///|
+fn BinFloat::negative(self : BinFloat) -> Bool {
+  self.f_negative
+}
+
+///|
+fn BinFloat::coefficient_(self : BinFloat) -> Coeff {
+  self.f_coefficient
+}
+
+///|
+fn BinFloat::exponent2_(self : BinFloat) -> Int32 {
+  self.f_exponent2
+}
+
+///|
+fn BinFloat::precision_(self : BinFloat) -> Int32 {
+  self.f_precision
+}
+
+///|
+fn BinFloat::signaling(self : BinFloat) -> Bool {
+  self.f_signaling
+}
+
+///|
+fn BinFloat::payload_(self : BinFloat) -> Coeff {
+  self.f_payload
 }
 
 ///|
 fn finite_zero(negative : Bool, precision : Int32) -> BinFloat {
   {
-    class: FpClass::Finite,
-    negative,
-    coefficient_: Coeff::zero(),
-    exponent2: 0,
-    precision_: Int32::max(1, precision),
-    signaling_nan: false,
-    nan_payload: Coeff::zero(),
+    f_class: FpClass::Finite,
+    f_negative: negative,
+    f_coefficient: Coeff::zero(),
+    f_exponent2: 0,
+    f_precision: Int32::max(1, precision),
+    f_signaling: false,
+    f_payload: Coeff::zero(),
   }
 }
 
@@ -31,13 +67,13 @@ fn finite_normalized(
   precision : Int32,
 ) -> BinFloat {
   {
-    class: FpClass::Finite,
-    negative,
-    coefficient_: coefficient,
-    exponent2,
-    precision_: Int32::max(1, precision),
-    signaling_nan: false,
-    nan_payload: Coeff::zero(),
+    f_class: FpClass::Finite,
+    f_negative: negative,
+    f_coefficient: coefficient,
+    f_exponent2: exponent2,
+    f_precision: Int32::max(1, precision),
+    f_signaling: false,
+    f_payload: Coeff::zero(),
   }
 }
 
@@ -276,25 +312,25 @@ fn finite_from_uint64(
 
 ///|
 fn max_precision(a : BinFloat, b : BinFloat) -> Int32 {
-  Int32::max(a.precision_, b.precision_)
+  Int32::max(a.precision_(), b.precision_())
 }
 
 ///|
 fn compare_finite(a : BinFloat, b : BinFloat) -> Int32 {
-  if a.coefficient_.is_zero() && b.coefficient_.is_zero() {
+  if a.coefficient_().is_zero() && b.coefficient_().is_zero() {
     return 0
   }
-  if a.negative != b.negative {
-    return if a.negative { -1 } else { 1 }
+  if a.negative() != b.negative() {
+    return if a.negative() { -1 } else { 1 }
   }
-  let ea = a.exponent2
-  let eb = b.exponent2
+  let ea = a.exponent2_()
+  let eb = b.exponent2_()
   let magnitude_comparison = if ea == eb {
-    a.coefficient_.compare(b.coefficient_)
+    a.coefficient_().compare(b.coefficient_())
   } else {
-    binary_compare_shifted(a.coefficient_, ea, b.coefficient_, eb)
+    binary_compare_shifted(a.coefficient_(), ea, b.coefficient_(), eb)
   }
-  if a.negative {
+  if a.negative() {
     -magnitude_comparison
   } else {
     magnitude_comparison
@@ -428,13 +464,13 @@ fn binary_nan_raw(
   precision : Int32,
 ) -> BinFloat {
   {
-    class: FpClass::NaN,
-    negative,
-    coefficient_: Coeff::zero(),
-    exponent2: 0,
-    precision_: precision,
-    signaling_nan: signaling,
-    nan_payload: payload,
+    f_class: FpClass::NaN,
+    f_negative: negative,
+    f_coefficient: Coeff::zero(),
+    f_exponent2: 0,
+    f_precision: precision,
+    f_signaling: signaling,
+    f_payload: payload,
   }
 }
 
@@ -527,13 +563,13 @@ pub fn BinFloat::inf(sign : Sign, precision~ : Int32 = 53) -> BinFloat {
 fn BinFloat::inf_raw(sign : Sign, precision~ : Int32 = 53) -> BinFloat {
   let negative = sign == Sign::Negative
   {
-    class: FpClass::Infinity,
-    negative,
-    coefficient_: Coeff::one(),
-    exponent2: 0,
-    precision_: precision,
-    signaling_nan: false,
-    nan_payload: Coeff::zero(),
+    f_class: FpClass::Infinity,
+    f_negative: negative,
+    f_coefficient: Coeff::one(),
+    f_exponent2: 0,
+    f_precision: precision,
+    f_signaling: false,
+    f_payload: Coeff::zero(),
   }
 }
 
@@ -699,39 +735,41 @@ pub fn BinFloat::from_float(x : Float, precision~ : Int32 = 24) -> BinFloat {
 
 ///|
 pub fn BinFloat::classify(self : BinFloat) -> FpClass {
-  self.class
+  self.class()
 }
 
 ///|
 pub fn BinFloat::is_finite(self : BinFloat) -> Bool {
-  self.class == FpClass::Finite
+  self.class() == FpClass::Finite
 }
 
 ///|
 pub fn BinFloat::is_infinite(self : BinFloat) -> Bool {
-  self.class == FpClass::Infinity
+  self.class() == FpClass::Infinity
 }
 
 ///|
 pub fn BinFloat::is_nan(self : BinFloat) -> Bool {
-  self.class == FpClass::NaN
+  self.class() == FpClass::NaN
 }
 
 ///|
 /// True for a nonzero finite value whose leading-bit exponent is below the
 /// context's smallest normal exponent (IEEE 754-2019 clause 5.7.2).
 pub fn BinFloat::is_subnormal(self : BinFloat, context : BinaryContext) -> Bool {
-  self.class == FpClass::Finite &&
-  !self.coefficient_.is_zero() &&
-  binary_exact_top(self.coefficient_, self.exponent2) < context.range_e_min()
+  self.class() == FpClass::Finite &&
+  !self.coefficient_().is_zero() &&
+  binary_exact_top(self.coefficient_(), self.exponent2_()) <
+  context.range_e_min()
 }
 
 ///|
 /// True for a nonzero finite value that is not subnormal in `context`.
 pub fn BinFloat::is_normal(self : BinFloat, context : BinaryContext) -> Bool {
-  self.class == FpClass::Finite &&
-  !self.coefficient_.is_zero() &&
-  binary_exact_top(self.coefficient_, self.exponent2) >= context.range_e_min()
+  self.class() == FpClass::Finite &&
+  !self.coefficient_().is_zero() &&
+  binary_exact_top(self.coefficient_(), self.exponent2_()) >=
+  context.range_e_min()
 }
 
 ///|
@@ -740,28 +778,28 @@ pub fn BinFloat::class_of(
   self : BinFloat,
   context : BinaryContext,
 ) -> IeeeClass {
-  match self.class {
-    FpClass::NaN => if self.signaling_nan { SignalingNaN } else { QuietNaN }
+  match self.class() {
+    FpClass::NaN => if self.signaling() { SignalingNaN } else { QuietNaN }
     FpClass::Infinity =>
-      if self.negative {
+      if self.negative() {
         NegativeInfinity
       } else {
         PositiveInfinity
       }
     FpClass::Finite =>
-      if self.coefficient_.is_zero() {
-        if self.negative {
+      if self.coefficient_().is_zero() {
+        if self.negative() {
           NegativeZero
         } else {
           PositiveZero
         }
       } else if self.is_subnormal(context) {
-        if self.negative {
+        if self.negative() {
           NegativeSubnormal
         } else {
           PositiveSubnormal
         }
-      } else if self.negative {
+      } else if self.negative() {
         NegativeNormal
       } else {
         PositiveNormal
@@ -771,36 +809,36 @@ pub fn BinFloat::class_of(
 
 ///|
 pub fn BinFloat::precision(self : BinFloat) -> Int32 {
-  self.precision_
+  self.precision_()
 }
 
 ///|
 pub fn BinFloat::sign(self : BinFloat) -> Sign {
-  match self.class {
+  match self.class() {
     FpClass::NaN => Sign::Zero
-    FpClass::Finite if self.coefficient_.is_zero() => Sign::Zero
-    _ => if self.negative { Sign::Negative } else { Sign::Positive }
+    FpClass::Finite if self.coefficient_().is_zero() => Sign::Zero
+    _ => if self.negative() { Sign::Negative } else { Sign::Positive }
   }
 }
 
 ///|
 pub fn BinFloat::is_negative(self : BinFloat) -> Bool {
-  self.negative
+  self.negative()
 }
 
 ///|
 pub fn BinFloat::is_negative_zero(self : BinFloat) -> Bool {
-  self.is_zero() && self.negative
+  self.is_zero() && self.negative()
 }
 
 ///|
 pub fn BinFloat::is_quiet_nan(self : BinFloat) -> Bool {
-  self.class == FpClass::NaN && !self.signaling_nan
+  self.class() == FpClass::NaN && !self.signaling()
 }
 
 ///|
 pub fn BinFloat::is_signaling_nan(self : BinFloat) -> Bool {
-  self.class == FpClass::NaN && self.signaling_nan
+  self.class() == FpClass::NaN && self.signaling()
 }
 
 ///|
@@ -810,8 +848,8 @@ pub fn BinFloat::nan_payload(self : BinFloat) -> BinCoeff {
 
 ///|
 fn BinFloat::nan_payload_coeff(self : BinFloat) -> Coeff {
-  if self.class == FpClass::NaN {
-    self.nan_payload
+  if self.class() == FpClass::NaN {
+    self.payload_()
   } else {
     Coeff::zero()
   }
@@ -819,23 +857,23 @@ fn BinFloat::nan_payload_coeff(self : BinFloat) -> Coeff {
 
 ///|
 pub fn BinFloat::coefficient(self : BinFloat) -> BinCoeff {
-  BinCoeff(self.coefficient_)
+  BinCoeff(self.coefficient_())
 }
 
 ///|
 pub fn BinFloat::exponent2(self : BinFloat) -> Int32 {
-  self.exponent2
+  self.exponent2_()
 }
 
 ///|
 pub fn BinFloat::normalized(self : BinFloat) -> BinFloat {
-  match self.class {
+  match self.class() {
     FpClass::Finite =>
       finite_from_parts(
-        self.negative,
-        self.coefficient_,
-        self.exponent2,
-        self.precision_,
+        self.negative(),
+        self.coefficient_(),
+        self.exponent2_(),
+        self.precision_(),
       )
     _ => self
   }
@@ -857,25 +895,25 @@ fn BinFloat::with_precision_raw(
   precision : Int32,
   mode : BinaryRoundingMode,
 ) -> BinFloat {
-  match self.class {
+  match self.class() {
     FpClass::Finite =>
       if self.is_zero() {
-        finite_from_parts(self.negative, Coeff::zero(), 0, precision)
+        finite_from_parts(self.negative(), Coeff::zero(), 0, precision)
       } else {
         BinFloat::make_coeff(
-          self.coefficient_,
-          self.exponent2,
+          self.coefficient_(),
+          self.exponent2_(),
           precision,
-          negative=self.negative,
+          negative=self.negative(),
           mode~,
         )
       }
-    FpClass::Infinity => { ..self, precision_: precision, }
+    FpClass::Infinity => { ..self, f_precision: precision, }
     FpClass::NaN =>
       binary_convert_nan(
-        self.negative,
-        self.signaling_nan,
-        self.nan_payload,
+        self.negative(),
+        self.signaling(),
+        self.payload_(),
         precision,
       )
   }
@@ -883,12 +921,12 @@ fn BinFloat::with_precision_raw(
 
 ///|
 pub fn BinFloat::neg(self : BinFloat) -> BinFloat {
-  { ..self, negative: !self.negative, }
+  { ..self, f_negative: !self.negative(), }
 }
 
 ///|
 pub fn BinFloat::abs(self : BinFloat) -> BinFloat {
-  if self.negative {
+  if self.negative() {
     self.neg()
   } else {
     self
@@ -897,7 +935,7 @@ pub fn BinFloat::abs(self : BinFloat) -> BinFloat {
 
 ///|
 pub fn BinFloat::is_zero(self : BinFloat) -> Bool {
-  self.class == FpClass::Finite && self.coefficient_.is_zero()
+  self.class() == FpClass::Finite && self.coefficient_().is_zero()
 }
 
 ///|
@@ -905,15 +943,15 @@ pub fn BinFloat::compare_checked(
   self : BinFloat,
   other : BinFloat,
 ) -> Result[Int32, @def.ArithmeticError] {
-  guard self.class != FpClass::NaN && other.class != FpClass::NaN else {
+  guard self.class() != FpClass::NaN && other.class() != FpClass::NaN else {
     return Err(@def.ArithmeticError::unordered_comparison("NaN is unordered"))
   }
   Ok(
-    match (self.class, other.class) {
+    match (self.class(), other.class()) {
       (FpClass::Infinity, FpClass::Infinity) =>
-        if self.negative == other.negative {
+        if self.negative() == other.negative() {
           0
-        } else if self.negative {
+        } else if self.negative() {
           -1
         } else {
           1
@@ -942,17 +980,17 @@ pub fn BinFloat::compare_checked(
 /// NaN compares equal to every other NaN and greater than every non-NaN.
 /// Use the quiet/signaling predicates or `compare_checked` for IEEE semantics.
 pub fn BinFloat::compare(self : BinFloat, other : BinFloat) -> Int32 {
-  match (self.class == FpClass::NaN, other.class == FpClass::NaN) {
+  match (self.class() == FpClass::NaN, other.class() == FpClass::NaN) {
     (true, true) => return 0
     (true, false) => return 1
     (false, true) => return -1
     (false, false) => ()
   }
-  match (self.class, other.class) {
+  match (self.class(), other.class()) {
     (FpClass::Infinity, FpClass::Infinity) =>
-      if self.negative == other.negative {
+      if self.negative() == other.negative() {
         0
-      } else if self.negative {
+      } else if self.negative() {
         -1
       } else {
         1
@@ -1035,23 +1073,23 @@ pub fn BinFloat::clamp_checked(
 
 ///|
 pub fn BinFloat::ulp(self : BinFloat) -> BinFloat {
-  match self.class {
+  match self.class() {
     FpClass::Finite =>
-      if self.coefficient_.is_zero() {
+      if self.coefficient_().is_zero() {
         BinFloat::make_coeff(
           Coeff::one(),
-          -(self.precision_ - 1),
-          self.precision_,
+          -(self.precision_() - 1),
+          self.precision_(),
         )
       } else {
-        let mag_bits = self.coefficient_.bit_length()
+        let mag_bits = self.coefficient_().bit_length()
         BinFloat::make_coeff(
           Coeff::one(),
-          self.exponent2 + mag_bits - self.precision_,
-          self.precision_,
+          self.exponent2_() + mag_bits - self.precision_(),
+          self.precision_(),
         )
       }
-    _ => BinFloat::nan_raw(precision=self.precision_)
+    _ => BinFloat::nan_raw(precision=self.precision_())
   }
 }
 
@@ -1095,7 +1133,7 @@ pub fn BinFloat::sqrt(
     None =>
       match binary_coeff_fast_sqrt(self) {
         Some(result) => Ok(result)
-        None => sqrt_for_precision(self, self.precision_)
+        None => sqrt_for_precision(self, self.precision_())
       }
   }
 }
@@ -1106,7 +1144,7 @@ pub fn BinFloat::pown(
   exponent : Int32,
 ) -> Result[BinFloat, @def.ArithmeticError] {
   binary_checked_result(
-    self.pown_ctx(exponent, binary_working_context(self.precision_)),
+    self.pown_ctx(exponent, binary_working_context(self.precision_())),
     "invalid power",
     division_by_zero_message="negative exponent requires a non-zero base",
   )
@@ -1232,7 +1270,7 @@ pub impl @def.Floating for BinFloat with fn normalized(self) {
 
 ///|
 pub impl Show for BinFloat with fn to_string(self) {
-  match self.class {
+  match self.class() {
     FpClass::NaN => "nan"
     FpClass::Infinity =>
       if self.sign() == Sign::Negative {
@@ -1241,17 +1279,17 @@ pub impl Show for BinFloat with fn to_string(self) {
         "inf"
       }
     FpClass::Finite =>
-      if self.coefficient_.is_zero() {
-        if self.negative {
+      if self.coefficient_().is_zero() {
+        if self.negative() {
           "-0"
         } else {
           "0"
         }
       } else {
-        (if self.negative { "-" } else { "" }) +
-        self.coefficient_.to_string() +
+        (if self.negative() { "-" } else { "" }) +
+        self.coefficient_().to_string() +
         "p" +
-        self.exponent2.to_string()
+        self.exponent2_().to_string()
       }
   }
 }

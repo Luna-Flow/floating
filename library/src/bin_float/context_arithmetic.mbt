@@ -595,7 +595,7 @@ fn binary_round_sqrt(
 
 ///|
 fn binary_quiet_nan(value : BinFloat, precision : Int32) -> BinFloat {
-  binary_convert_nan(value.negative, false, value.nan_payload, precision)
+  binary_convert_nan(value.negative(), false, value.payload_(), precision)
 }
 
 ///|
@@ -604,8 +604,8 @@ fn binary_nan_pair(
   right : BinFloat,
   precision : Int32,
 ) -> (BinFloat, BinaryFlags)? {
-  if left.class == FpClass::NaN || right.class == FpClass::NaN {
-    let source = if left.class == FpClass::NaN { left } else { right }
+  if left.class() == FpClass::NaN || right.class() == FpClass::NaN {
+    let source = if left.class() == FpClass::NaN { left } else { right }
     let invalid = left.is_signaling_nan() || right.is_signaling_nan()
     Some(
       (
@@ -628,8 +628,8 @@ fn binary_exact_sum_zero_sign(
   right : BinFloat,
   mode : BinaryRoundingMode,
 ) -> Bool {
-  if left.is_zero() && right.is_zero() && left.negative == right.negative {
-    left.negative
+  if left.is_zero() && right.is_zero() && left.negative() == right.negative() {
+    left.negative()
   } else {
     mode == BinaryRoundingMode::RoundTowardNegative
   }
@@ -641,8 +641,8 @@ fn binary_add_far_exponents(
   right : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  let left_top = binary_exact_top(left.coefficient_, left.exponent2)
-  let right_top = binary_exact_top(right.coefficient_, right.exponent2)
+  let left_top = binary_exact_top(left.coefficient_(), left.exponent2_())
+  let right_top = binary_exact_top(right.coefficient_(), right.exponent2_())
   let (high, low) = if left_top >= right_top {
     (left, right)
   } else {
@@ -650,39 +650,39 @@ fn binary_add_far_exponents(
   }
   if high.is_zero() {
     return binary_round_dyadic(
-      low.negative,
-      low.coefficient_,
-      low.exponent2,
+      low.negative(),
+      low.coefficient_(),
+      low.exponent2_(),
       context,
     )
   }
   if low.is_zero() {
     return binary_round_dyadic(
-      high.negative,
-      high.coefficient_,
-      high.exponent2,
+      high.negative(),
+      high.coefficient_(),
+      high.exponent2_(),
       context,
     )
   }
   let compression_shift = binary_add_sat(context.precision, 3)
-  let high_magnitude = high.coefficient_.shift_left(compression_shift)
-  let relative_shift = low.exponent2.to_int64() -
-    high.exponent2.to_int64() +
+  let high_magnitude = high.coefficient_().shift_left(compression_shift)
+  let relative_shift = low.exponent2_().to_int64() -
+    high.exponent2_().to_int64() +
     compression_shift.to_int64()
   let (low_prefix, low_discarded) = if relative_shift > 2147483647L {
     (Coeff::zero(), true)
   } else if relative_shift >= 0L {
-    (low.coefficient_.shift_left(relative_shift.to_int()), false)
+    (low.coefficient_().shift_left(relative_shift.to_int()), false)
   } else if relative_shift < -2147483647L {
     (Coeff::zero(), true)
   } else {
     let (prefix, round_bit, sticky) = binary_split_shift(
-      low.coefficient_,
+      low.coefficient_(),
       (-relative_shift).to_int(),
     )
     (prefix, round_bit || sticky)
   }
-  let (magnitude, extra_shift) = if high.negative == low.negative {
+  let (magnitude, extra_shift) = if high.negative() == low.negative() {
     let integral = high_magnitude.add(low_prefix)
     if low_discarded {
       (integral.shift_left(1).add(Coeff::one()), 1)
@@ -705,10 +705,10 @@ fn binary_add_far_exponents(
     }
   }
   binary_round_dyadic(
-    high.negative,
+    high.negative(),
     magnitude,
     binary_sub_sat(
-      binary_sub_sat(high.exponent2, compression_shift),
+      binary_sub_sat(high.exponent2_(), compression_shift),
       extra_shift,
     ),
     context,
@@ -720,11 +720,11 @@ pub fn BinFloat::round_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  match self.class {
+  match self.class() {
     FpClass::NaN =>
       (
         binary_quiet_nan(self, context.precision),
-        if self.signaling_nan {
+        if self.signaling() {
           binary_invalid_flags()
         } else {
           BinaryFlags::new()
@@ -733,7 +733,7 @@ pub fn BinFloat::round_ctx(
     FpClass::Infinity =>
       (
         BinFloat::inf_raw(
-          if self.negative {
+          if self.negative() {
             Sign::Negative
           } else {
             Sign::Positive
@@ -744,9 +744,9 @@ pub fn BinFloat::round_ctx(
       )
     FpClass::Finite =>
       binary_round_dyadic(
-        self.negative,
-        self.coefficient_,
-        self.exponent2,
+        self.negative(),
+        self.coefficient_(),
+        self.exponent2_(),
         context,
       )
   }
@@ -762,12 +762,12 @@ pub fn BinFloat::add_ctx(
     Some(result) => return result
     None => ()
   }
-  match (self.class, other.class) {
+  match (self.class(), other.class()) {
     (FpClass::Infinity, FpClass::Infinity) =>
-      if self.negative == other.negative {
+      if self.negative() == other.negative() {
         (
           BinFloat::inf_raw(
-            if self.negative {
+            if self.negative() {
               Sign::Negative
             } else {
               Sign::Positive
@@ -782,7 +782,7 @@ pub fn BinFloat::add_ctx(
     (FpClass::Infinity, _) =>
       (
         BinFloat::inf_raw(
-          if self.negative {
+          if self.negative() {
             Sign::Negative
           } else {
             Sign::Positive
@@ -794,7 +794,7 @@ pub fn BinFloat::add_ctx(
     (_, FpClass::Infinity) =>
       (
         BinFloat::inf_raw(
-          if other.negative {
+          if other.negative() {
             Sign::Negative
           } else {
             Sign::Positive
@@ -804,26 +804,26 @@ pub fn BinFloat::add_ctx(
         BinaryFlags::new(),
       )
     (FpClass::Finite, FpClass::Finite) => {
-      let self_top = binary_exact_top(self.coefficient_, self.exponent2)
-      let other_top = binary_exact_top(other.coefficient_, other.exponent2)
+      let self_top = binary_exact_top(self.coefficient_(), self.exponent2_())
+      let other_top = binary_exact_top(other.coefficient_(), other.exponent2_())
       let top_gap = self_top.to_int64() - other_top.to_int64()
       let far_threshold = binary_add_sat(context.precision, 3).to_int64()
       if top_gap > far_threshold || top_gap < -far_threshold {
         return binary_add_far_exponents(self, other, context)
       }
-      let target = Int32::min(self.exponent2, other.exponent2)
-      let left = self.coefficient_.shift_left(
-        binary_sub_sat(self.exponent2, target),
-      )
-      let right = other.coefficient_.shift_left(
-        binary_sub_sat(other.exponent2, target),
-      )
-      if self.negative == other.negative {
+      let target = Int32::min(self.exponent2_(), other.exponent2_())
+      let left = self
+        .coefficient_()
+        .shift_left(binary_sub_sat(self.exponent2_(), target))
+      let right = other
+        .coefficient_()
+        .shift_left(binary_sub_sat(other.exponent2_(), target))
+      if self.negative() == other.negative() {
         let (sum, normalization_shift) = bin_coeff_add_normalized_odd(
           left, right,
         )
         binary_round_dyadic(
-          self.negative,
+          self.negative(),
           sum,
           binary_add_sat(target, normalization_shift),
           context,
@@ -845,7 +845,7 @@ pub fn BinFloat::add_ctx(
             left, right,
           )
           binary_round_dyadic(
-            self.negative,
+            self.negative(),
             difference,
             binary_add_sat(target, normalization_shift),
             context,
@@ -855,7 +855,7 @@ pub fn BinFloat::add_ctx(
             right, left,
           )
           binary_round_dyadic(
-            other.negative,
+            other.negative(),
             difference,
             binary_add_sat(target, normalization_shift),
             context,
@@ -886,8 +886,8 @@ pub fn BinFloat::mul_ctx(
     Some(result) => return result
     None => ()
   }
-  let negative = self.negative != other.negative
-  match (self.class, other.class) {
+  let negative = self.negative() != other.negative()
+  match (self.class(), other.class()) {
     (FpClass::Infinity, FpClass::Finite)
     | (FpClass::Finite, FpClass::Infinity) if self.is_zero() || other.is_zero() =>
       (BinFloat::nan_raw(precision=context.precision), binary_invalid_flags())
@@ -906,8 +906,8 @@ pub fn BinFloat::mul_ctx(
     (FpClass::Finite, FpClass::Finite) =>
       binary_round_dyadic(
         negative,
-        self.coefficient_.mul(other.coefficient_),
-        binary_add_sat(self.exponent2, other.exponent2),
+        self.coefficient_().mul(other.coefficient_()),
+        binary_add_sat(self.exponent2_(), other.exponent2_()),
         context,
       )
     _ => abort("unreachable BinFloat::mul_ctx class pair")
@@ -924,8 +924,8 @@ pub fn BinFloat::div_ctx(
     Some(result) => return result
     None => ()
   }
-  let negative = self.negative != other.negative
-  match (self.class, other.class) {
+  let negative = self.negative() != other.negative()
+  match (self.class(), other.class()) {
     (FpClass::Infinity, FpClass::Infinity) =>
       (BinFloat::nan_raw(precision=context.precision), binary_invalid_flags())
     (FpClass::Finite, FpClass::Finite) if self.is_zero() && other.is_zero() =>
@@ -967,9 +967,9 @@ pub fn BinFloat::div_ctx(
     (FpClass::Finite, FpClass::Finite) =>
       binary_round_rational(
         negative,
-        self.coefficient_,
-        other.coefficient_,
-        binary_sub_sat(self.exponent2, other.exponent2),
+        self.coefficient_(),
+        other.coefficient_(),
+        binary_sub_sat(self.exponent2_(), other.exponent2_()),
         context,
       )
     _ => abort("unreachable BinFloat::div_ctx class pair")
@@ -981,18 +981,18 @@ pub fn BinFloat::sqrt_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  match self.class {
+  match self.class() {
     FpClass::NaN =>
       (
         binary_quiet_nan(self, context.precision),
-        if self.signaling_nan {
+        if self.signaling() {
           binary_invalid_flags()
         } else {
           BinaryFlags::new()
         },
       )
     FpClass::Infinity =>
-      if self.negative {
+      if self.negative() {
         (BinFloat::nan_raw(precision=context.precision), binary_invalid_flags())
       } else {
         (
@@ -1002,13 +1002,13 @@ pub fn BinFloat::sqrt_ctx(
       }
     FpClass::Finite if self.is_zero() =>
       (
-        finite_from_parts(self.negative, Coeff::zero(), 0, context.precision),
+        finite_from_parts(self.negative(), Coeff::zero(), 0, context.precision),
         BinaryFlags::new(),
       )
-    FpClass::Finite if self.negative =>
+    FpClass::Finite if self.negative() =>
       (BinFloat::nan_raw(precision=context.precision), binary_invalid_flags())
     FpClass::Finite =>
-      binary_round_sqrt(self.coefficient_, self.exponent2, context)
+      binary_round_sqrt(self.coefficient_(), self.exponent2_(), context)
   }
 }
 
@@ -1069,9 +1069,9 @@ fn binary_pow_exact_magnitude(
   reciprocal : Bool,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  let negative = base.negative && (exponent & 1U) != 0U
-  let powered = base.coefficient_.pow_nat(exponent)
-  let powered_exponent = binary_mul_int_uint_sat(base.exponent2, exponent)
+  let negative = base.negative() && (exponent & 1U) != 0U
+  let powered = base.coefficient_().pow_nat(exponent)
+  let powered_exponent = binary_mul_int_uint_sat(base.exponent2_(), exponent)
   if reciprocal {
     binary_round_rational(
       negative,
@@ -1170,27 +1170,27 @@ fn binary_pow_interval(
   error_shift : Int32,
 ) -> (BinFloat, BinFloat)? {
   let radius = Coeff::one().shift_left(error_shift)
-  if approximation.coefficient_.compare(radius) <= 0 {
+  if approximation.coefficient_().compare(radius) <= 0 {
     return None
   }
-  let lower = approximation.coefficient_.sub_checked(radius).unwrap()
-  let upper = approximation.coefficient_.add(radius)
+  let lower = approximation.coefficient_().sub_checked(radius).unwrap()
+  let upper = approximation.coefficient_().add(radius)
   // The endpoints keep the precision of the approximation: built at their own
   // bit length, an endpoint in the implementation subnormal range would be
   // flushed to zero or to the smallest value of that width.
-  let precision = approximation.precision_
+  let precision = approximation.precision_()
   Some(
     (
       finite_from_parts(
         false,
         lower,
-        approximation.exponent2,
+        approximation.exponent2_(),
         Int32::max(precision, lower.bit_length()),
       ),
       finite_from_parts(
         false,
         upper,
-        approximation.exponent2,
+        approximation.exponent2_(),
         Int32::max(precision, upper.bit_length()),
       ),
     ),
@@ -1205,22 +1205,25 @@ fn binary_round_precision_only(
   value : BinFloat,
   context : BinaryContext,
 ) -> (Coeff, Int32) {
-  let shift = Int32::max(0, value.coefficient_.bit_length() - context.precision)
+  let shift = Int32::max(
+    0,
+    value.coefficient_().bit_length() - context.precision,
+  )
   let (retained, round_bit, sticky) = binary_split_shift(
-    value.coefficient_,
+    value.coefficient_(),
     shift,
   )
   let rounded = binary_apply_round_bits(
     retained,
     round_bit,
     sticky,
-    value.negative,
+    value.negative(),
     context.rounding,
   )
   let trailing = rounded.ctz()
   (
     rounded.shift_right(trailing),
-    binary_add_sat(binary_add_sat(value.exponent2, shift), trailing),
+    binary_add_sat(binary_add_sat(value.exponent2_(), shift), trailing),
   )
 }
 
@@ -1236,8 +1239,8 @@ fn binary_pow_can_round_interval(
   if lower.is_zero() || upper.is_zero() {
     return None
   }
-  let lower_top = binary_exact_top(lower.coefficient_, lower.exponent2)
-  let upper_top = binary_exact_top(upper.coefficient_, upper.exponent2)
+  let lower_top = binary_exact_top(lower.coefficient_(), lower.exponent2_())
+  let upper_top = binary_exact_top(upper.coefficient_(), upper.exponent2_())
   if lower_top != upper_top {
     return None
   }
@@ -1271,9 +1274,9 @@ fn binary_pow_can_round_interval(
   )
   Some(
     binary_finalize_rounded(
-      rounded.negative,
-      rounded.coefficient_,
-      rounded.exponent2,
+      rounded.negative(),
+      rounded.coefficient_(),
+      rounded.exponent2_(),
       true,
       lower_top,
       unbounded_top,
@@ -1300,7 +1303,7 @@ fn binary_pow_exact_positive_if_small(
   exponent : UInt32,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags)? {
-  let odd_bits = base.coefficient_.bit_length()
+  let odd_bits = base.coefficient_().bit_length()
   if odd_bits <= 1 {
     return None
   }
@@ -1311,12 +1314,12 @@ fn binary_pow_exact_positive_if_small(
     (available / growth).reinterpret_as_uint().to_uint64() {
     return None
   }
-  let powered = base.coefficient_.pow_nat(exponent)
+  let powered = base.coefficient_().pow_nat(exponent)
   if powered.bit_length() > context.precision {
     return None
   }
-  let negative = base.negative && (exponent & 1U) != 0U
-  let powered_exponent = binary_mul_int_uint_sat(base.exponent2, exponent)
+  let negative = base.negative() && (exponent & 1U) != 0U
+  let powered_exponent = binary_mul_int_uint_sat(base.exponent2_(), exponent)
   Some(binary_round_dyadic(negative, powered, powered_exponent, context))
 }
 
@@ -1328,7 +1331,7 @@ fn binary_pow_ziv(
   context : BinaryContext,
 ) -> ((BinFloat, BinaryFlags)?, BinaryPowStats) {
   let stats = binary_pow_stats_new()
-  let negative = base.negative && (exponent & 1U) != 0U
+  let negative = base.negative() && (exponent & 1U) != 0U
   let mut work = binary_pow_initial_work_precision(context.precision, exponent)
   for _ in 0..<12 {
     stats.ziv_rounds += 1
@@ -1375,10 +1378,10 @@ fn binary_pow_ziv(
 
 ///|
 fn binary_pow_is_power_of_two(base : BinFloat) -> Bool {
-  if base.coefficient_.is_zero() {
+  if base.coefficient_().is_zero() {
     return false
   }
-  base.coefficient_.shift_right(base.coefficient_.ctz()) == Coeff::one()
+  base.coefficient_().shift_right(base.coefficient_().ctz()) == Coeff::one()
 }
 
 ///|
@@ -1391,11 +1394,11 @@ fn binary_pow_out_of_range(
   reciprocal : Bool,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags)? {
-  let negative = base.negative && (exponent & 1U) != 0U
+  let negative = base.negative() && (exponent & 1U) != 0U
   let overflow_log = context.range_e_max().to_int64() + 1L
   let tiny_log = context.range_e_min().to_int64() - context.precision.to_int64()
   // |base| lies in [2^top, 2^(top + 1)), which gives a cheap first bound.
-  let top = binary_exact_top(base.coefficient_, base.exponent2).to_int64()
+  let top = binary_exact_top(base.coefficient_(), base.exponent2_()).to_int64()
   let n = exponent.to_uint64().reinterpret_as_int64()
   let (low, high) = if reciprocal {
     (-(top + 1L) * n, -top * n)
@@ -1497,7 +1500,7 @@ fn binary_pow_should_use_exact_fast(
   if reciprocal || exponent == 0U {
     return false
   }
-  let coefficient_bits = base.coefficient_.bit_length()
+  let coefficient_bits = base.coefficient_().bit_length()
   coefficient_bits > 0 &&
   exponent.to_uint64() <=
   (2048 / coefficient_bits).reinterpret_as_uint().to_uint64()
@@ -1510,13 +1513,13 @@ fn binary_pow_power_of_two_normalized(
   reciprocal : Bool,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  let shift = base.coefficient_.ctz()
-  let normalized_exponent = binary_add_sat(base.exponent2, shift)
+  let shift = base.coefficient_().ctz()
+  let normalized_exponent = binary_add_sat(base.exponent2_(), shift)
   let normalized = finite_from_parts(
-    base.negative,
+    base.negative(),
     Coeff::one(),
     normalized_exponent,
-    base.precision_,
+    base.precision_(),
   )
   binary_pow_power_of_two(normalized, exponent, reciprocal, context)
 }
@@ -1544,8 +1547,8 @@ fn binary_pow_power_of_two(
   reciprocal : Bool,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  let negative = base.negative && (exponent & 1U) != 0U
-  let magnitude_product = base.exponent2.to_int64() *
+  let negative = base.negative() && (exponent & 1U) != 0U
+  let magnitude_product = base.exponent2_().to_int64() *
     exponent.to_uint64().reinterpret_as_int64()
   let product = if reciprocal { -magnitude_product } else { magnitude_product }
   if product > 2147483647L {
@@ -1565,13 +1568,13 @@ pub fn BinFloat::pown_ctx(
 ) -> (BinFloat, BinaryFlags) {
   // IEEE 754-2019 9.2.1: pown(x, 0) is 1 if x is not a signaling NaN; a
   // signaling NaN is an invalid operation (7.2 a), handled below (#286).
-  if exponent == 0 && !self.signaling_nan {
+  if exponent == 0 && !self.signaling() {
     return (BinFloat::one_raw(precision=context.precision), BinaryFlags::new())
   }
-  if self.class == FpClass::NaN {
+  if self.class() == FpClass::NaN {
     return (
       binary_quiet_nan(self, context.precision),
-      if self.signaling_nan {
+      if self.signaling() {
         binary_invalid_flags()
       } else {
         BinaryFlags::new()
@@ -1581,8 +1584,8 @@ pub fn BinFloat::pown_ctx(
   let magnitude = binary_exponent_magnitude(exponent)
   let reciprocal = exponent < 0
   let odd = (magnitude & 1U) != 0U
-  let negative = self.negative && odd
-  match self.class {
+  let negative = self.negative() && odd
+  match self.class() {
     FpClass::Infinity =>
       if exponent < 0 {
         (
@@ -1654,21 +1657,21 @@ fn BinFloat::pow_nat_ctx(
 ) -> (BinFloat, BinaryFlags) {
   // IEEE 754-2019 9.2.1: pown(x, 0) is 1 if x is not a signaling NaN; a
   // signaling NaN is an invalid operation (7.2 a), handled below (#286).
-  if exponent == 0U && !self.signaling_nan {
+  if exponent == 0U && !self.signaling() {
     return (BinFloat::one_raw(precision=context.precision), BinaryFlags::new())
   }
-  if self.class == FpClass::NaN {
+  if self.class() == FpClass::NaN {
     return (
       binary_quiet_nan(self, context.precision),
-      if self.signaling_nan {
+      if self.signaling() {
         binary_invalid_flags()
       } else {
         BinaryFlags::new()
       },
     )
   }
-  let negative = self.negative && (exponent & 1U) != 0U
-  match self.class {
+  let negative = self.negative() && (exponent & 1U) != 0U
+  match self.class() {
     FpClass::Infinity =>
       (
         BinFloat::inf_raw(

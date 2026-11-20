@@ -21,7 +21,7 @@ fn fixed_scaled_exact(value : BinFloat, shift : Int32) -> Coeff? {
   }
   let total = value.exponent2() + shift
   if total >= 0 {
-    Some(value.coefficient_.shift_left(total))
+    Some(value.coefficient_().shift_left(total))
   } else {
     None
   }
@@ -35,7 +35,7 @@ fn fixed_scaled_floor(value : BinFloat, shift : Int32) -> Coeff {
   if value.is_zero() {
     return Coeff::zero()
   }
-  fixed_shift(value.coefficient_, value.exponent2() + shift)
+  fixed_shift(value.coefficient_(), value.exponent2() + shift)
 }
 
 ///|

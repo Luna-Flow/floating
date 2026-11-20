@@ -39,7 +39,7 @@ fn pi_tiny_model(
   let factor = if kind == 0 { below } else { above }
   binary_round_dyadic(
     x.is_negative(),
-    product.coefficient_.mul(factor),
+    product.coefficient_().mul(factor),
     product.exponent2() - 300,
     ctx,
   )

@@ -2,17 +2,17 @@
 /// IEEE 754 copySign: `self` with the sign bit of `sign_source`. Quiet for
 /// every operand, including NaNs, whose payload is kept.
 pub fn BinFloat::copy_sign(self : BinFloat, sign_source : BinFloat) -> BinFloat {
-  { ..self, negative: sign_source.negative, }
+  { ..self, f_negative: sign_source.negative(), }
 }
 
 ///|
 /// Rank of the non-finite and finite classes for one sign in the total order:
 /// finite (including zero) < infinity < signaling NaN < quiet NaN.
 fn binary_total_order_rank(value : BinFloat) -> Int32 {
-  match value.class {
+  match value.class() {
     FpClass::Finite => 0
     FpClass::Infinity => 1
-    FpClass::NaN => if value.signaling_nan { 2 } else { 3 }
+    FpClass::NaN => if value.signaling() { 2 } else { 3 }
   }
 }
 
@@ -23,20 +23,20 @@ fn binary_total_order_magnitude(left : BinFloat, right : BinFloat) -> Int32 {
   if rank != 0 {
     return if rank < 0 { -1 } else { 1 }
   }
-  match left.class {
+  match left.class() {
     FpClass::Finite =>
-      if left.coefficient_.is_zero() || right.coefficient_.is_zero() {
-        left.coefficient_.compare(right.coefficient_)
+      if left.coefficient_().is_zero() || right.coefficient_().is_zero() {
+        left.coefficient_().compare(right.coefficient_())
       } else {
         binary_compare_shifted(
-          left.coefficient_,
-          left.exponent2,
-          right.coefficient_,
-          right.exponent2,
+          left.coefficient_(),
+          left.exponent2_(),
+          right.coefficient_(),
+          right.exponent2_(),
         )
       }
     FpClass::Infinity => 0
-    FpClass::NaN => left.nan_payload.compare(right.nan_payload)
+    FpClass::NaN => left.payload_().compare(right.payload_())
   }
 }
 
@@ -48,11 +48,11 @@ pub fn BinFloat::total_order_compare(
   self : BinFloat,
   other : BinFloat,
 ) -> Int32 {
-  if self.negative != other.negative {
-    return if self.negative { -1 } else { 1 }
+  if self.negative() != other.negative() {
+    return if self.negative() { -1 } else { 1 }
   }
   let magnitude = binary_total_order_magnitude(self, other)
-  if self.negative {
+  if self.negative() {
     -magnitude
   } else {
     magnitude
@@ -76,7 +76,7 @@ fn binary_compare_relation(
   left : BinFloat,
   right : BinFloat,
 ) -> @def.PartialOrder {
-  if left.class == FpClass::NaN || right.class == FpClass::NaN {
+  if left.class() == FpClass::NaN || right.class() == FpClass::NaN {
     return @def.PartialOrder::Unordered
   }
   let comparison = left.compare(right)

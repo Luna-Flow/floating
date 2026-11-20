@@ -13,7 +13,7 @@ fn bin_coeff_pow10(exponent : Int32) -> Coeff {
 /// nonzero value. Starts from a binary estimate and corrects it exactly or with
 /// directed bounds.
 fn binary_decimal_exponent(value : BinFloat) -> Int32 {
-  let top = binary_exact_top(value.coefficient_, value.exponent2)
+  let top = binary_exact_top(value.coefficient_(), value.exponent2_())
   // log10(2) = 0.30102999566...; the estimate is within one of the answer.
   let estimate = (top.to_double() * 0.30102999566398120).floor().to_int()
   let magnitude = value.abs()
@@ -39,17 +39,17 @@ fn binary_decimal_exponent(value : BinFloat) -> Int32 {
     let scale = if next >= 0 { next } else { -next }
     let power = bin_coeff_pow10(scale)
     let (left, right) = if next >= 0 {
-      if magnitude.exponent2 >= 0 {
-        (magnitude.coefficient_.shift_left(magnitude.exponent2), power)
+      if magnitude.exponent2_() >= 0 {
+        (magnitude.coefficient_().shift_left(magnitude.exponent2_()), power)
       } else {
-        (magnitude.coefficient_, power.shift_left(-magnitude.exponent2))
+        (magnitude.coefficient_(), power.shift_left(-magnitude.exponent2_()))
       }
     } else {
-      let scaled = magnitude.coefficient_.mul(power)
-      if magnitude.exponent2 >= 0 {
-        (scaled.shift_left(magnitude.exponent2), Coeff::one())
+      let scaled = magnitude.coefficient_().mul(power)
+      if magnitude.exponent2_() >= 0 {
+        (scaled.shift_left(magnitude.exponent2_()), Coeff::one())
       } else {
-        (scaled, Coeff::one().shift_left(-magnitude.exponent2))
+        (scaled, Coeff::one().shift_left(-magnitude.exponent2_()))
       }
     }
     if left.compare(right) < 0 {
@@ -70,8 +70,8 @@ fn binary_scaled_decimal_integer(
   digits : Int32,
 ) -> (Coeff, Bool) {
   // value / 10^scale = c * 2^(e - scale) * 5^(-scale).
-  let coefficient = value.coefficient_
-  let exponent = value.exponent2.to_int64() - scale.to_int64()
+  let coefficient = value.coefficient_()
+  let exponent = value.exponent2_().to_int64() - scale.to_int64()
   let five_bits = (if scale < 0 { -scale } else { scale }).to_int64() * 7L / 3L
   let width = coefficient.bit_length().to_int64() +
     (if exponent < 0L { -exponent } else { exponent }) +
@@ -96,7 +96,7 @@ fn binary_scaled_decimal_integer(
       quotient,
       half >= 0,
       !remainder.is_zero() && half != 0,
-      value.negative,
+      value.negative(),
       mode,
     )
     return (rounded, !remainder.is_zero())
@@ -128,7 +128,7 @@ fn binary_scaled_decimal_integer(
         high_value.mul_ctx(ten.pown_ctx(-scale, up).0, up).0,
       )
     }
-    let (signed_low, signed_high) = if value.negative {
+    let (signed_low, signed_high) = if value.negative() {
       (high.neg(), low.neg())
     } else {
       (low, high)
@@ -137,10 +137,10 @@ fn binary_scaled_decimal_integer(
     let rounded_high = binary_round_to_integral(signed_high, mode).0
     if rounded_low.compare(rounded_high) == 0 {
       let integral = rounded_low.abs()
-      let magnitude = if integral.coefficient_.is_zero() {
+      let magnitude = if integral.coefficient_().is_zero() {
         Coeff::zero()
       } else {
-        integral.coefficient_.shift_left(integral.exponent2)
+        integral.coefficient_().shift_left(integral.exponent2_())
       }
       return (magnitude, true)
     }
@@ -178,11 +178,11 @@ fn binary_decimal_digits(
 
 ///|
 fn binary_special_string(value : BinFloat) -> String? {
-  let sign = if value.negative { "-" } else { "" }
-  match value.class {
+  let sign = if value.negative() { "-" } else { "" }
+  match value.class() {
     FpClass::Infinity => Some(sign + "inf")
     FpClass::NaN =>
-      Some(sign + (if value.signaling_nan { "snan" } else { "nan" }))
+      Some(sign + (if value.signaling() { "snan" } else { "nan" }))
     FpClass::Finite => None
   }
 }
@@ -203,8 +203,8 @@ pub fn BinFloat::to_decimal_string_ctx(
     None => ()
   }
   let digits = Int32::max(1, digits)
-  let sign = if self.negative { "-" } else { "" }
-  let (text, exponent, inexact) = if self.coefficient_.is_zero() {
+  let sign = if self.negative() { "-" } else { "" }
+  let (text, exponent, inexact) = if self.coefficient_().is_zero() {
     ("0".repeat(digits), 0, false)
   } else {
     binary_decimal_digits(self, digits, context.rounding)
@@ -259,14 +259,14 @@ fn binary_shortest_digits(
     let (up, up_exponent, _) = binary_decimal_digits(
       value,
       digits,
-      if value.negative {
+      if value.negative() {
         RoundTowardNegative
       } else {
         RoundTowardPositive
       },
     )
     let render = fn(text : String, exponent : Int32) {
-      (if value.negative { "-" } else { "" }) +
+      (if value.negative() { "-" } else { "" }) +
       text +
       "e" +
       (exponent - text.length() + 1).to_string()
@@ -348,8 +348,8 @@ pub fn BinFloat::to_shortest_string_ctx(
     Some(text) => return text
     None => ()
   }
-  let sign = if self.negative { "-" } else { "" }
-  if self.coefficient_.is_zero() {
+  let sign = if self.negative() { "-" } else { "" }
+  if self.coefficient_().is_zero() {
     return sign + "0"
   }
   let (digits, exponent) = binary_shortest_digits(self, context)
@@ -385,5 +385,5 @@ pub fn BinFloat::to_shortest_string_ctx(
 /// exponent range: `from_string(text, precision=self.precision())` returns
 /// this value. See `to_shortest_string_ctx` for IEEE formats with subnormals.
 pub fn BinFloat::to_shortest_string(self : BinFloat) -> String {
-  self.to_shortest_string_ctx(binary_working_context(self.precision_))
+  self.to_shortest_string_ctx(binary_working_context(self.precision_()))
 }

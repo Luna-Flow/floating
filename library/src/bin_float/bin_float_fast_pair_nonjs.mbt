@@ -17,8 +17,8 @@ let binary_pair_precision_limit : Int32 = 128
 /// The words come from `binary_pair_high_of` and `binary_pair_low_of`: an
 /// option of a tuple would allocate two objects per operand.
 fn binary_pair_is_words(value : BinFloat) -> Bool {
-  value.class == FpClass::Finite &&
-  (match value.coefficient_.0 {
+  value.class() == FpClass::Finite &&
+  (match value.coefficient_().0 {
     Inline64(low) => low != 0UL
     Inline128(_, _) => true
     Heap(_, _) => false
@@ -27,7 +27,7 @@ fn binary_pair_is_words(value : BinFloat) -> Bool {
 
 ///|
 fn binary_pair_high_of(value : BinFloat) -> UInt64 {
-  match value.coefficient_.0 {
+  match value.coefficient_().0 {
     Inline128(high, _) => high
     _ => 0UL
   }
@@ -35,7 +35,7 @@ fn binary_pair_high_of(value : BinFloat) -> UInt64 {
 
 ///|
 fn binary_pair_low_of(value : BinFloat) -> UInt64 {
-  match value.coefficient_.0 {
+  match value.coefficient_().0 {
     Inline64(low) => low
     Inline128(_, low) => low
     Heap(_, _) => 0UL
@@ -231,8 +231,8 @@ fn binary_pair_add_signed(
   flip : Bool,
 ) -> BinFloat? {
   // `right` with its sign flipped when `flip` (a subtraction), without a new value
-  let right_negative = right.negative != flip
-  let precision = Int32::max(left.precision_, right.precision_)
+  let right_negative = right.negative() != flip
+  let precision = Int32::max(left.precision_(), right.precision_())
   guard precision <= binary_pair_precision_limit else { return None }
   guard binary_pair_is_words(left) && binary_pair_is_words(right) else {
     return None
@@ -241,8 +241,8 @@ fn binary_pair_add_signed(
   let left_low = binary_pair_low_of(left)
   let right_high = binary_pair_high_of(right)
   let right_low = binary_pair_low_of(right)
-  let left_exponent = left.exponent2
-  let right_exponent = right.exponent2
+  let left_exponent = left.exponent2_()
+  let right_exponent = right.exponent2_()
   guard left_exponent <= binary_fast_exponent_limit &&
     left_exponent >= -binary_fast_exponent_limit &&
     right_exponent <= binary_fast_exponent_limit &&
@@ -303,7 +303,7 @@ fn binary_pair_add_signed(
       right0 = binary_pair_shl_word(right_high, right_low, right_shift, 0)
     }
   }
-  if left.negative == right_negative {
+  if left.negative() == right_negative {
     let word0 = left0 + right0
     let carry0 = if word0 < left0 { 1UL } else { 0UL }
     let partial1 = left1 + right1
@@ -313,7 +313,7 @@ fn binary_pair_add_signed(
     let word2 = left2 + right2 + carry1a + carry1b
     Some(
       binary_pair_round(
-        left.negative,
+        left.negative(),
         0UL,
         word2,
         word1,
@@ -341,7 +341,7 @@ fn binary_pair_add_signed(
       let word2 = left2 - right2 - borrow1a - borrow1b
       Some(
         binary_pair_round(
-          left.negative,
+          left.negative(),
           0UL,
           word2,
           word1,
@@ -369,7 +369,7 @@ fn binary_pair_add_signed(
 
 ///|
 fn binary_pair_mul(left : BinFloat, right : BinFloat) -> BinFloat? {
-  let precision = Int32::max(left.precision_, right.precision_)
+  let precision = Int32::max(left.precision_(), right.precision_())
   guard precision <= binary_pair_precision_limit else { return None }
   guard binary_pair_is_words(left) && binary_pair_is_words(right) else {
     return None
@@ -378,8 +378,8 @@ fn binary_pair_mul(left : BinFloat, right : BinFloat) -> BinFloat? {
   let left_low = binary_pair_low_of(left)
   let right_high = binary_pair_high_of(right)
   let right_low = binary_pair_low_of(right)
-  let left_exponent = left.exponent2
-  let right_exponent = right.exponent2
+  let left_exponent = left.exponent2_()
+  let right_exponent = right.exponent2_()
   guard left_exponent <= binary_fast_exponent_limit &&
     left_exponent >= -binary_fast_exponent_limit &&
     right_exponent <= binary_fast_exponent_limit &&
@@ -430,7 +430,7 @@ fn binary_pair_mul(left : BinFloat, right : BinFloat) -> BinFloat? {
   }
   Some(
     binary_pair_round(
-      left.negative != right.negative,
+      left.negative() != right.negative(),
       word3,
       word2,
       word1,
@@ -471,14 +471,14 @@ fn binary_pair_shl_word5(
 /// by two. The remainder is only tested against zero (one sticky bit under the
 /// quotient), as in `binary_fast_div`. Nothing is allocated but the result.
 fn binary_pair_div(left : BinFloat, right : BinFloat) -> BinFloat? {
-  let precision = Int32::max(left.precision_, right.precision_)
+  let precision = Int32::max(left.precision_(), right.precision_())
   guard precision <= binary_pair_precision_limit else { return None }
-  guard left.class == FpClass::Finite && right.class == FpClass::Finite else {
+  guard left.class() == FpClass::Finite && right.class() == FpClass::Finite else {
     return None
   }
   let mut dividend_high = 0UL
   let mut dividend_low = 0UL
-  match left.coefficient_.0 {
+  match left.coefficient_().0 {
     Inline64(word) => dividend_low = word
     Inline128(high, low) => {
       dividend_high = high
@@ -488,7 +488,7 @@ fn binary_pair_div(left : BinFloat, right : BinFloat) -> BinFloat? {
   }
   let mut divisor_high = 0UL
   let mut divisor_low = 0UL
-  match right.coefficient_.0 {
+  match right.coefficient_().0 {
     Inline64(word) => divisor_low = word
     Inline128(high, low) => {
       divisor_high = high
@@ -500,8 +500,8 @@ fn binary_pair_div(left : BinFloat, right : BinFloat) -> BinFloat? {
     (divisor_high != 0UL || divisor_low != 0UL) else {
     return None
   }
-  let left_exponent = left.exponent2
-  let right_exponent = right.exponent2
+  let left_exponent = left.exponent2_()
+  let right_exponent = right.exponent2_()
   guard left_exponent <= binary_fast_exponent_limit &&
     left_exponent >= -binary_fast_exponent_limit &&
     right_exponent <= binary_fast_exponent_limit &&
@@ -604,7 +604,7 @@ fn binary_pair_div(left : BinFloat, right : BinFloat) -> BinFloat? {
   // one more low bit stands for "the remainder is not zero"
   Some(
     binary_pair_round(
-      left.negative != right.negative,
+      left.negative() != right.negative(),
       q2 >> 63,
       (q2 << 1) | (q1 >> 63),
       (q1 << 1) | (q0 >> 63),

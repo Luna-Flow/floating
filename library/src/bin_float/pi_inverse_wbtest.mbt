@@ -439,7 +439,7 @@ fn pi_inverse_tiny_model(
   let product = x.abs().mul_ctx(reciprocal, BinaryContext::new(precision=900)).0
   binary_round_dyadic(
     x.is_negative(),
-    product.coefficient_.mul(factor),
+    product.coefficient_().mul(factor),
     product.exponent2() - 300,
     ctx,
   )
@@ -453,7 +453,7 @@ fn pi_reference(
   is_asin : Bool,
   ctx : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  if x.exponent2().to_int64() + (x.coefficient_.bit_length() - 1).to_int64() <
+  if x.exponent2().to_int64() + (x.coefficient_().bit_length() - 1).to_int64() <
     -152L {
     pi_inverse_tiny_model(x, is_asin, ctx)
   } else {

@@ -29,7 +29,7 @@ fn binary_exp_small_fixed_bounds(
   }
   let shift = -value.exponent2()
   guard shift >= 3 else { return None }
-  let magnitude = value.coefficient_
+  let magnitude = value.coefficient_()
   guard magnitude.bit_length() <= shift - 2 else { return None }
   let fractional = work_precision + binary_exp_fixed_guard_bits
   guard fixed_exp_series(magnitude, shift, fractional, 10000)

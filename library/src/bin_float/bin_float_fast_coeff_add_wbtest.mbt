@@ -40,12 +40,12 @@ fn ref_add_wide(
   right_shift : Int32,
   precision : Int32,
 ) -> BinFloat? {
-  let aligned_left = left.coefficient_.shift_left(left_shift)
-  let aligned_right = right.coefficient_.shift_left(right_shift)
-  if left.negative == right.negative {
+  let aligned_left = left.coefficient_().shift_left(left_shift)
+  let aligned_right = right.coefficient_().shift_left(right_shift)
+  if left.negative() == right.negative() {
     return Some(
       ref_finish(
-        left.negative,
+        left.negative(),
         aligned_left.add(aligned_right),
         target,
         precision,
@@ -59,7 +59,7 @@ fn ref_add_wide(
   } else if comparison > 0 {
     Some(
       ref_finish(
-        left.negative,
+        left.negative(),
         aligned_left.sub_checked(aligned_right).unwrap(),
         target,
         precision,
@@ -69,7 +69,7 @@ fn ref_add_wide(
   } else {
     Some(
       ref_finish(
-        right.negative,
+        right.negative(),
         aligned_right.sub_checked(aligned_left).unwrap(),
         target,
         precision,
@@ -82,15 +82,15 @@ fn ref_add_wide(
 ///|
 fn ref_add(left : BinFloat, right : BinFloat) -> BinFloat? {
   guard binary_coeff_fast_operands_ok(left, right) else { return None }
-  let precision = Int32::max(left.precision_, right.precision_)
-  let left_bits = left.coefficient_.bit_length()
-  let right_bits = right.coefficient_.bit_length()
+  let precision = Int32::max(left.precision_(), right.precision_())
+  let left_bits = left.coefficient_().bit_length()
+  let right_bits = right.coefficient_().bit_length()
   guard left_bits <= binary_coeff_fast_bits_limit &&
     right_bits <= binary_coeff_fast_bits_limit else {
     return None
   }
-  let left_exponent = left.exponent2
-  let right_exponent = right.exponent2
+  let left_exponent = left.exponent2_()
+  let right_exponent = right.exponent2_()
   let gap = (left_exponent + left_bits - right_exponent - right_bits).to_int64()
   let far = (precision + 3).to_int64()
   guard gap <= far && gap >= -far else { return None }
@@ -104,11 +104,11 @@ fn ref_add(left : BinFloat, right : BinFloat) -> BinFloat? {
     return ref_add_wide(left, right, target, left_shift, right_shift, precision)
   }
   let words = FixedArray::make(count, 0UL)
-  let left_words = binary_coeff_fast_array(left.coefficient_)
-  let left_len = binary_coeff_fast_len(left.coefficient_)
-  let right_words = binary_coeff_fast_array(right.coefficient_)
-  let right_len = binary_coeff_fast_len(right.coefficient_)
-  if left.negative == right.negative {
+  let left_words = binary_coeff_fast_array(left.coefficient_())
+  let left_len = binary_coeff_fast_len(left.coefficient_())
+  let right_words = binary_coeff_fast_array(right.coefficient_())
+  let right_len = binary_coeff_fast_len(right.coefficient_())
+  if left.negative() == right.negative() {
     let mut carry = 0UL
     for index in 0..<count {
       let a = ref_aligned_word(left_words, left_len, left_shift, index)
@@ -120,7 +120,7 @@ fn ref_add(left : BinFloat, right : BinFloat) -> BinFloat? {
     }
     return Some(
       ref_finish(
-        left.negative,
+        left.negative(),
         bin_coeff_from_words(words, count),
         target,
         precision,
@@ -150,7 +150,7 @@ fn ref_add(left : BinFloat, right : BinFloat) -> BinFloat? {
   if comparison == 0 {
     return None
   }
-  let negative = if comparison > 0 { left.negative } else { right.negative }
+  let negative = if comparison > 0 { left.negative() } else { right.negative() }
   let mut borrow = 0UL
   for index in 0..<count {
     let left_word = ref_aligned_word(left_words, left_len, left_shift, index)
@@ -194,12 +194,12 @@ fn add_test_float(
 ///|
 /// The same value moved so that its top bit is `top`.
 fn add_test_with_top(value : BinFloat, top : Int32) -> BinFloat {
-  let bits = value.coefficient_.bit_length()
+  let bits = value.coefficient_().bit_length()
   BinFloat::make_coeff(
-    value.coefficient_,
+    value.coefficient_(),
     top - bits,
-    value.precision_,
-    negative=value.negative,
+    value.precision_(),
+    negative=value.negative(),
   )
 }
 
@@ -241,7 +241,7 @@ fn add_test_pair_gap(
     0,
     random.below(2) == 0,
   )
-  let actual_left_top = left.exponent2 + left.coefficient_.bit_length()
+  let actual_left_top = left.exponent2_() + left.coefficient_().bit_length()
   (left, add_test_with_top(right, actual_left_top - gap))
 }
 
@@ -259,7 +259,7 @@ fn add_test_pair_cancel(
     random.below(200) - 100,
     false,
   )
-  let coefficient = left.coefficient_
+  let coefficient = left.coefficient_()
   let delta = match random.below(4) {
     0 => Coeff::one()
     1 => Coeff::from_uint64(2UL + random.next() % 1000UL)
@@ -277,9 +277,9 @@ fn add_test_pair_cancel(
   }
   let right = BinFloat::make_coeff(
     other,
-    left.exponent2,
+    left.exponent2_(),
     precision,
-    negative=!left.negative,
+    negative=!left.negative(),
   )
   (left, right)
 }
@@ -299,7 +299,7 @@ fn add_test_pair_tie(
     random.below(200) - 100,
     random.below(2) == 0,
   )
-  let top = left.exponent2 + left.coefficient_.bit_length()
+  let top = left.exponent2_() + left.coefficient_().bit_length()
   let right = BinFloat::make_coeff(
     Coeff::one(),
     top - precision - 1,
@@ -325,7 +325,7 @@ fn add_test_pair_deep_tie(
     random.below(200) - 100,
     random.below(2) == 0,
   )
-  let top = left.exponent2 + left.coefficient_.bit_length()
+  let top = left.exponent2_() + left.coefficient_().bit_length()
   let m = 3 + random.below(40)
   let right = BinFloat::make_coeff(
     Coeff::one().shift_left(m).add(Coeff::one()),
@@ -338,7 +338,7 @@ fn add_test_pair_deep_tie(
 
 ///|
 fn add_test_check(left : BinFloat, right : BinFloat) -> Int32 raise {
-  assert_true(left.coefficient_.is_odd() && right.coefficient_.is_odd())
+  assert_true(left.coefficient_().is_odd() && right.coefficient_().is_odd())
   let context = BinaryContext::new(precision=max_precision(left, right))
   let general = left.add_ctx(right, context).0
   let reference = ref_add(left, right)

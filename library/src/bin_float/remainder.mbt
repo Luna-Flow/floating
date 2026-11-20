@@ -36,47 +36,50 @@ pub fn BinFloat::remainder_ctx(
     Some(result) => return result
     None => ()
   }
-  if self.class == FpClass::Infinity ||
-    (divisor.class == FpClass::Finite && divisor.coefficient_.is_zero()) {
+  if self.class() == FpClass::Infinity ||
+    (divisor.class() == FpClass::Finite && divisor.coefficient_().is_zero()) {
     return (
       BinFloat::nan_raw(precision=context.precision),
       binary_invalid_flags(),
     )
   }
-  if divisor.class == FpClass::Infinity || self.coefficient_.is_zero() {
+  if divisor.class() == FpClass::Infinity || self.coefficient_().is_zero() {
     return self.round_ctx(context)
   }
-  let top = binary_exact_top(self.coefficient_, self.exponent2)
-  let divisor_top = binary_exact_top(divisor.coefficient_, divisor.exponent2)
+  let top = binary_exact_top(self.coefficient_(), self.exponent2_())
+  let divisor_top = binary_exact_top(
+    divisor.coefficient_(),
+    divisor.exponent2_(),
+  )
   // |self| < 2^(top + 1) <= |divisor| / 2: the nearest multiple is zero.
   if top.to_int64() + 1L < divisor_top.to_int64() {
     return self.round_ctx(context)
   }
   // Scale both magnitudes by 2^-e, e = min exponent: X = dividend, Y = divisor.
-  let (dividend_mod_twice, modulus, exponent) = if self.exponent2 >=
-    divisor.exponent2 {
+  let (dividend_mod_twice, modulus, exponent) = if self.exponent2_() >=
+    divisor.exponent2_() {
     // X = cx * 2^(ex - ey) can be astronomically large; reduce it modulo 2Y.
-    let modulus = divisor.coefficient_
+    let modulus = divisor.coefficient_()
     let twice = modulus.shift_left(1)
     let reduced = bin_coeff_mod(
-      bin_coeff_mod(self.coefficient_, twice).mul(
+      bin_coeff_mod(self.coefficient_(), twice).mul(
         bin_coeff_pow2_mod(
-          self.exponent2.to_int64() - divisor.exponent2.to_int64(),
+          self.exponent2_().to_int64() - divisor.exponent2_().to_int64(),
           twice,
         ),
       ),
       twice,
     )
-    (reduced, modulus, divisor.exponent2)
+    (reduced, modulus, divisor.exponent2_())
   } else {
     // ey - ex <= bits(cx) here, because top >= divisor_top - 1.
-    let modulus = divisor.coefficient_.shift_left(
-      divisor.exponent2 - self.exponent2,
-    )
+    let modulus = divisor
+      .coefficient_()
+      .shift_left(divisor.exponent2_() - self.exponent2_())
     (
-      bin_coeff_mod(self.coefficient_, modulus.shift_left(1)),
+      bin_coeff_mod(self.coefficient_(), modulus.shift_left(1)),
       modulus,
-      self.exponent2,
+      self.exponent2_(),
     )
   }
   // X mod 2Y gives both X mod Y and the parity of floor(X / Y).
@@ -89,12 +92,12 @@ pub fn BinFloat::remainder_ctx(
   let half_comparison = remainder.shift_left(1).compare(modulus)
   let round_up = half_comparison > 0 || (half_comparison == 0 && quotient_odd)
   let (negative, magnitude) = if round_up {
-    (!self.negative, modulus.sub_checked(remainder).unwrap())
+    (!self.negative(), modulus.sub_checked(remainder).unwrap())
   } else {
-    (self.negative, remainder)
+    (self.negative(), remainder)
   }
   if magnitude.is_zero() {
-    return (finite_zero(self.negative, context.precision), BinaryFlags::new())
+    return (finite_zero(self.negative(), context.precision), BinaryFlags::new())
   }
   binary_round_dyadic(negative, magnitude, exponent, context)
 }
@@ -105,6 +108,6 @@ pub fn BinFloat::remainder_ctx(
 pub fn BinFloat::remainder(self : BinFloat, divisor : BinFloat) -> BinFloat {
   self.remainder_ctx(
     divisor,
-    binary_working_context(Int32::max(self.precision_, divisor.precision_)),
+    binary_working_context(Int32::max(self.precision_(), divisor.precision_())),
   ).0
 }

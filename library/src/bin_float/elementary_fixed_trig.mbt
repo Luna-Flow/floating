@@ -34,7 +34,7 @@ fn binary_sin_cos_fixed_series(
     BinaryRoundingMode::RoundTowardNegative,
   )
   guard rounded.compare(value) == 0 else { return None }
-  let coefficient = value.coefficient_
+  let coefficient = value.coefficient_()
   let exponent = value.exponent2()
   let top = exponent + coefficient.bit_length() - 1
   guard top <= 0 else { return None }
