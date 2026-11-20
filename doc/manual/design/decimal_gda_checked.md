@@ -120,8 +120,8 @@ latest signals and whether a trap fired.
 
 **Choice.** `GdaDecimalChecked` stores one `GdaOutcome` and nothing else, so
 it is the outcome type of `decimal_gda` closed under its operations. Every
-observation (`value`, `context`, `raised`, `status`, `is_trapped`,
-`trapped_signal`) is a projection of the outcome, and `from_outcome` /
+observation (`value`, `context`, `raised`, `status`, `error`, `result`,
+`is_ok`, `is_err`) is a projection of the outcome, and `from_outcome` /
 `outcome` convert in both directions without loss.
 
 ### A trap is a stop, not an error
@@ -159,24 +159,38 @@ again. Only the per-step `raised` and the trap marker are dropped.
 ///|
 test "resume keeps status and traps and is idempotent" {
   let ctx = @decimal_gda.GdaContext::basic_default()
+  let d = fn(v : @decimal_gda.Decimal) {
+    @decimal_gda_checked.GdaDecimalChecked::from_decimal(v, ctx)
+  }
   let zero = @decimal_gda.Decimal::zero()
-  let trapped = @decimal_gda_checked.GdaDecimalChecked::parse("1", ctx).divide(zero)
+  let trapped = @decimal_gda_checked.GdaDecimalChecked::to_number("1", ctx).divide(d(zero))
   let once = trapped.resume_defined()
   let twice = once.resume_defined()
   inspect(once.status() == trapped.status(), content="true")
   inspect(twice.status() == once.status(), content="true")
   inspect(twice.value().to_string() == once.value().to_string(), content="true")
   // the context after resuming still traps division by zero
-  let again = @decimal_gda_checked.GdaDecimalChecked::parse("2", once.context()).divide(zero)
-  inspect(again.is_trapped(), content="true")
+  let again = @decimal_gda_checked.GdaDecimalChecked::to_number("2", once.context()).divide(d(zero))
+  inspect(again.is_err(), content="true")
 }
 ```
 
-### Plain operands and no context merging
+### The right operand is a pipeline, and one context decides
 
-The second operand of every binary method is a plain `Decimal`. Two pipelines
-would carry two sticky statuses and two trap sets; merging them has no
-specified meaning in GDA, where a computation has one current context.
+The right operand of every binary method is a pipeline (`Self`), so that the
+conditions and the trap of the computation that produced it are not lost. Two
+pipelines carry two sticky statuses and two trap sets, and GDA has one current
+context per computation. The rule keeps that: the context of the left pipeline
+decides the operation (its precision, rounding, exponent range and traps). The
+conditions the right pipeline raised join the `raised` set and the status of
+the result (`GdaOutcome::absorb`), and a trap of the right pipeline short-circuits
+the operation, as a trap of the left one does. The traps of the left context are
+not tested against the conditions of the right pipeline: the right pipeline
+decided its own traps when it ran. In the model above, with $r_b$ the raised
+set of the right pipeline, the step is
+$(v, c) \mapsto (\mathrm{op}(v, v_b, c))$ with $r$ replaced by $r \cup r_b$ and
+$S$ by $S \cup \delta(r_b)$; a trapped $b$ replaces the step by the identity
+with the trap of $b$.
 
 ### Relation to Luna-Flow/arithmetic
 
@@ -248,10 +262,12 @@ When the operation raises nothing, the context is passed on unchanged.
 ## Boundaries
 
 - No arithmetic of its own; every operation comes from `decimal_gda`.
-- Only the operation set in the generated interface has pipeline methods;
-  other `decimal_gda` operations are run on `value()` / `context()` and
+- Every `decimal_gda` operation that returns a number has a pipeline method;
+  the functions that return a string, a boolean or an integer, and the `try_`
+  forms, are run on `value()` / `context()` and, for a `try_` form,
   re-wrapped with `from_outcome`.
 - No `ArithmeticError`, no IEEE flags; IEEE-style flag accumulation is
   the [`decimal_checked`](decimal_checked.md) contract.
-- No merging of pipelines, no implicit recovery, no changes to the trap set
-  during a pipeline.
+- No implicit recovery and no changes to the trap set during a pipeline; the
+  right operand of a binary operation contributes its conditions and its trap,
+  not its context.

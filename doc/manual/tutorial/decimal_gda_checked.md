@@ -12,12 +12,12 @@ the [API reference](../api/decimal_gda_checked.md) lists every method.
 
 | I want to | Use |
 | --- | --- |
-| Start a pipeline from text or a value | [`GdaDecimalChecked::parse`, `from_decimal`](#quick-start) |
+| Start a pipeline from text or a value | [`GdaDecimalChecked::to_number`, `from_decimal`](#quick-start) |
 | Decide which conditions stop the calculation | [`GdaContext::trap`](#choose-the-traps) |
 | See what the latest step raised and what happened so far | [`raised()`, `status()`](#read-the-sticky-status) |
-| Find the step that trapped | [`is_trapped()`, `trapped_signal()`](#nothing-runs-after-a-trap) |
+| Find the step that trapped | [`is_err()`, `error()`, `result()`](#nothing-runs-after-a-trap) |
 | Continue with the defined result after a trap | [`resume_defined()`](#resume-deliberately) |
-| Run an operation that has no pipeline method | [`from_outcome`](#combine-with-the-plain-gda-functions) |
+| Run a function that returns no number, or a `try_` form | [`value()` and `context()`, `from_outcome`](#combine-with-the-plain-gda-functions) |
 
 ## Quick start
 
@@ -42,12 +42,14 @@ Divide under the GDA *basic* context, which traps division by zero:
 ///|
 test "quick start: a trapped division" {
   let ctx = @decimal_gda.GdaContext::basic_default()
-  let r = @decimal_gda_checked.GdaDecimalChecked::parse("1", ctx).divide(
-    @decimal_gda.Decimal::zero(),
+  let d = fn(v : @decimal_gda.Decimal) {
+    @decimal_gda_checked.GdaDecimalChecked::from_decimal(v, ctx)
+  }
+  let r = @decimal_gda_checked.GdaDecimalChecked::to_number("1", ctx).divide(d(@decimal_gda.Decimal::zero()),
   )
-  inspect(r.is_trapped(), content="true")
+  inspect(r.is_err(), content="true")
   inspect(
-    r.trapped_signal() == Some(@decimal_gda.GdaSignal::DivisionByZero),
+    r.error() == Some(@decimal_gda.GdaSignal::DivisionByZero),
     content="true",
   )
 }
@@ -87,17 +89,18 @@ test "trap inexact results" {
   let exact_only = @decimal_gda.GdaContext::decimal64().trap(
     @decimal_gda.GdaSignal::Inexact,
   )
-  let ok = @decimal_gda_checked.GdaDecimalChecked::parse("10", exact_only).divide(
-    @decimal_gda.Decimal::from_int(4),
+  let d = fn(v : @decimal_gda.Decimal) {
+    @decimal_gda_checked.GdaDecimalChecked::from_decimal(v, exact_only)
+  }
+  let ok = @decimal_gda_checked.GdaDecimalChecked::to_number("10", exact_only).divide(d(@decimal_gda.Decimal::from_int(4)),
   )
-  inspect(ok.is_trapped(), content="false")
+  inspect(ok.is_err(), content="false")
   inspect(ok.value().to_string(), content="2.5")
-  let stopped = @decimal_gda_checked.GdaDecimalChecked::parse("10", exact_only).divide(
-    @decimal_gda.Decimal::from_int(3),
+  let stopped = @decimal_gda_checked.GdaDecimalChecked::to_number("10", exact_only).divide(d(@decimal_gda.Decimal::from_int(3)),
   )
-  inspect(stopped.is_trapped(), content="true")
+  inspect(stopped.is_err(), content="true")
   inspect(
-    stopped.trapped_signal() == Some(@decimal_gda.GdaSignal::Inexact),
+    stopped.error() == Some(@decimal_gda.GdaSignal::Inexact),
     content="true",
   )
 }
@@ -112,9 +115,12 @@ since the context was created or its status was last cleared:
 ///|
 test "status is sticky" {
   let ctx = @decimal_gda.GdaContext::new(precision=5)
-  let r = @decimal_gda_checked.GdaDecimalChecked::parse("1.234567", ctx)
-    .add(@decimal_gda.Decimal::one())
-    .multiply(@decimal_gda.Decimal::from_int(2))
+  let d = fn(v : @decimal_gda.Decimal) {
+    @decimal_gda_checked.GdaDecimalChecked::from_decimal(v, ctx)
+  }
+  let r = @decimal_gda_checked.GdaDecimalChecked::to_number("1.234567", ctx)
+    .add(d(@decimal_gda.Decimal::one()))
+    .multiply(d(@decimal_gda.Decimal::from_int(2)))
   inspect(r.value().to_string(), content="4.4692")
   inspect(gda_flags(r.raised()), content="")
   inspect(gda_flags(r.status()), content="inexact,rounded")
@@ -130,11 +136,14 @@ value is the defined result of the trapped step:
 ///|
 test "short circuit after a trap" {
   let ctx = @decimal_gda.GdaContext::basic_default()
-  let r = @decimal_gda_checked.GdaDecimalChecked::parse("1", ctx)
-    .divide(@decimal_gda.Decimal::zero())
-    .add(@decimal_gda.Decimal::one())
-    .multiply(@decimal_gda.Decimal::from_int(5))
-  inspect(r.is_trapped(), content="true")
+  let d = fn(v : @decimal_gda.Decimal) {
+    @decimal_gda_checked.GdaDecimalChecked::from_decimal(v, ctx)
+  }
+  let r = @decimal_gda_checked.GdaDecimalChecked::to_number("1", ctx)
+    .divide(d(@decimal_gda.Decimal::zero()))
+    .add(d(@decimal_gda.Decimal::one()))
+    .multiply(d(@decimal_gda.Decimal::from_int(5)))
+  inspect(r.is_err(), content="true")
   inspect(r.value().to_string(), content="inf")
 }
 ```
@@ -148,11 +157,14 @@ records the trapped signal, so the decision is visible afterwards:
 ///|
 test "resume with the defined result" {
   let ctx = @decimal_gda.GdaContext::basic_default()
-  let trapped = @decimal_gda_checked.GdaDecimalChecked::parse("1", ctx).divide(
-    @decimal_gda.Decimal::zero(),
+  let d = fn(v : @decimal_gda.Decimal) {
+    @decimal_gda_checked.GdaDecimalChecked::from_decimal(v, ctx)
+  }
+  let trapped = @decimal_gda_checked.GdaDecimalChecked::to_number("1", ctx).divide(
+    d(@decimal_gda.Decimal::zero()),
   )
   let resumed = trapped.resume_defined().minus()
-  inspect(resumed.is_trapped(), content="false")
+  inspect(resumed.is_err(), content="false")
   inspect(resumed.value().to_string(), content="-inf")
   inspect(gda_flags(resumed.status()), content="division_by_zero")
 }
@@ -173,13 +185,13 @@ contexts as *invalid-operation conditions*. A context that traps
 ```moonbit
 ///|
 test "a malformed literal" {
-  let r = @decimal_gda_checked.GdaDecimalChecked::parse(
+  let r = @decimal_gda_checked.GdaDecimalChecked::to_number(
     "12,5",
     @decimal_gda.GdaContext::basic_default(),
   )
-  inspect(r.is_trapped(), content="true")
+  inspect(r.is_err(), content="true")
   inspect(
-    r.trapped_signal() == Some(@decimal_gda.GdaSignal::InvalidOperation),
+    r.error() == Some(@decimal_gda.GdaSignal::InvalidOperation),
     content="true",
   )
   inspect(gda_flags(r.status()), content="invalid_operation,conversion_syntax")
@@ -197,12 +209,12 @@ return NaN with `invalid_context` (which traps under `InvalidOperation`):
 ```moonbit
 ///|
 test "exp needs a bounded context" {
-  let good = @decimal_gda_checked.GdaDecimalChecked::parse(
+  let good = @decimal_gda_checked.GdaDecimalChecked::to_number(
     "2",
     @decimal_gda.GdaContext::decimal64(),
   ).exp()
   inspect(good.value().to_string(), content="7.389056098930650")
-  let bad = @decimal_gda_checked.GdaDecimalChecked::parse(
+  let bad = @decimal_gda_checked.GdaDecimalChecked::to_number(
     "2",
     @decimal_gda.GdaContext::new(precision=16),
   ).exp()
@@ -213,18 +225,26 @@ test "exp needs a bounded context" {
 
 ### Combine with the plain GDA functions
 
-Any `decimal_gda` operation returns a `GdaOutcome`. When the pipeline has no
-method for it, run it on `value()` and `context()` and wrap the outcome:
+Every `decimal_gda` operation that returns a number has a pipeline method. The
+functions that return a string, a boolean or an integer (`class_name`,
+`is_normal`, `is_subnormal`, `compare_total`) and the `try_` forms do not: run
+them on `value()` and `context()`, and wrap the outcome of a `try_` form with
+`from_outcome`:
 
 ```moonbit
 ///|
-test "use an operation without a pipeline method" {
+test "use a function that returns no number" {
   let ctx = @decimal_gda.GdaContext::decimal64()
-  let start = @decimal_gda_checked.GdaDecimalChecked::parse("7.5", ctx)
-  let rounded = @decimal_gda_checked.GdaDecimalChecked::from_outcome(
-    @decimal_gda.round_to_integral_value(start.value(), start.context()),
+  let start = @decimal_gda_checked.GdaDecimalChecked::to_number("7.5", ctx)
+  inspect(@decimal_gda.is_normal(start.value(), start.context()).value(), content="true")
+  inspect(
+    @decimal_gda.class_name(start.value(), start.context()).value(),
+    content="+Normal",
   )
-  inspect(rounded.value().to_string(), content="8")
+  let exp = @decimal_gda_checked.GdaDecimalChecked::from_outcome(
+    @decimal_gda.try_exp(start.value(), start.context()).unwrap(),
+  )
+  inspect(exp.is_ok(), content="true")
 }
 ```
 
@@ -233,14 +253,14 @@ the previous state.
 
 ## Common pitfalls
 
-- **`default()` traps, `new()` does not.** Choose the context deliberately.
+- **`basic_default()` traps, `new()` does not.** Choose the context deliberately.
 - **`raised()` versus `status()`.** The first is the latest step, the second
   the sticky history.
 - **`resume_defined` keeps the status and the traps.** It clears only the
   trap marker and `raised()`. Clear the status with
   `GdaContext::clear_status` on a context and start a new pipeline if needed.
 - **No errors.** Traps are not converted to `ArithmeticError`; check
-  `is_trapped()`.
+  `is_err()`.
 - **Two decimal packages.** `decimal_gda.Decimal` is not
   `decimal.Decimal`; IEEE-style flag accumulation without traps is
   [`decimal_checked`](decimal_checked.md).

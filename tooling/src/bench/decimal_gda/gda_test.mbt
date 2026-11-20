@@ -29,6 +29,8 @@ struct GdaInput {
   addend : @gda.Decimal
   context : @gda.GdaContext
   left_checked : @checked.GdaDecimalChecked
+  right_checked : @checked.GdaDecimalChecked
+  addend_checked : @checked.GdaDecimalChecked
 }
 
 ///|
@@ -66,6 +68,8 @@ fn gda_input(digits : Int32) -> GdaInput {
     addend,
     context,
     left_checked: @checked.GdaDecimalChecked::from_decimal(left, context),
+    right_checked: @checked.GdaDecimalChecked::from_decimal(right, context),
+    addend_checked: @checked.GdaDecimalChecked::from_decimal(addend, context),
   }
 }
 
@@ -88,12 +92,12 @@ fn gda_checked(
   input : GdaInput,
 ) -> @checked.GdaDecimalChecked {
   match operation {
-    Add => input.left_checked.add(input.right)
-    Sub => input.left_checked.subtract(input.right)
-    Mul => input.left_checked.multiply(input.right)
-    Div => input.left_checked.divide(input.right)
-    Fma => input.left_checked.fma(input.right, input.addend)
-    Parse => @checked.GdaDecimalChecked::parse(input.source, input.context)
+    Add => input.left_checked.add(input.right_checked)
+    Sub => input.left_checked.subtract(input.right_checked)
+    Mul => input.left_checked.multiply(input.right_checked)
+    Div => input.left_checked.divide(input.right_checked)
+    Fma => input.left_checked.fma(input.right_checked, input.addend_checked)
+    Parse => @checked.GdaDecimalChecked::to_number(input.source, input.context)
   }
 }
 

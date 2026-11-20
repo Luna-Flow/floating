@@ -231,6 +231,19 @@ notes live in this file.
   | `OverlapState::Undefined` | none | not a state; see the next row |
   | `BallFloatDecorated::overlap(x, y) -> OverlapState`, `Undefined` for NaI | `-> OverlapState?`, `None` for NaI | `Some(state)` otherwise |
 
+- `decimal_gda_checked`: the right operand of a binary operation is a pipeline, one set of exits, every operation that returns a number has a method ([#438](https://github.com/Luna-Flow/floating/issues/438), item S9). The right operand was a plain `Decimal`, so the conditions and the trap of the computation that produced it could not reach the result; the exits were `is_trapped` and `trapped_signal` where `DecimalChecked` has `is_ok`, `is_err`, `error` and `result`. The result context is the one of the left pipeline; the conditions of the right pipeline join `raised` and the status, and its trap short-circuits (new `GdaOutcome::absorb` and `GdaOutcome::completed` in `decimal_gda`).
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `p.add(x)` with `x : Decimal` (also `subtract`, `multiply`, `divide`, `power`, `quantize`, `remainder`, `next_toward`) | `p.add(q)` with `q : GdaDecimalChecked` | `GdaDecimalChecked::from_decimal(x, ctx)` to wrap a value |
+  | `p.fma(b, c)` with two `Decimal` | `p.fma(b, c)` with two pipelines | |
+  | `p.is_trapped()` | `p.is_err()` | `is_ok()` is the opposite |
+  | `p.trapped_signal()` | `p.error()` | `Some(signal)` for a trapped pipeline |
+  | (new) | `p.result()` | `Ok(value)` or `Err(signal)` |
+  | `GdaDecimalChecked::parse(s, ctx)` | `GdaDecimalChecked::to_number(s, ctx)` | the GDA name |
+  | (new) | `divide_integer`, `remainder_near`, `rescale`, `round_to_integral_exact`, `round_to_integral_value`, `scaleb`, `shift`, `rotate`, `logb`, `logical_and`, `logical_or`, `logical_xor`, `logical_invert`, `max`, `min`, `max_magnitude`, `min_magnitude`, `compare`, `compare_signal` | the 19 operations that had no method; the functions that return a string, a boolean or an integer stay on `value()` and `context()` |
+  | priority order of the trapped signal | `InvalidOperation`, `DivisionByZero`, `Overflow`, `Underflow`, `Subnormal`, `Inexact`, `Rounded`, `Clamped`, `LostDigits` | the nine signals (previous change) |
+
 ### Fixed
 
 - `ball_float`: the total elementary forms (`exp_interval`, `exp2_interval`, `exp10_interval`, `ln_interval`, `log2_interval`, `log10_interval`, `sin_interval`, `cos_interval`, `tan_interval`, `asin_interval`, `acos_interval`, `atan_interval`, the six hyperbolic functions and their inverses, `pow_interval`, `rootn`) are now the `try_` form with a fallback, one kernel instead of two ([#449](https://github.com/Luna-Flow/floating/issues/449); Closes #449). They used an exact-rational series of their own that aborted ("certified log series did not converge") from about 32,000 bits for `ln_interval` (about 150,000 for `exp_interval`, about 200,000 for `atan_interval`), and that lost all relative accuracy for a tiny argument in `sinh`, `tanh`, `asinh` and `atanh` (`sinh_interval` of `2^-300` at 53 bits was `[0, 3 * 2^-246]`, now two ulps wide). The `try_` forms used the `bin_float` kernels and had neither limit. Whenever the `try_` form succeeds, the total form returns the same interval; when it reports a certification failure the total form returns the range of the function over its domain (`[0, +inf)` for `exp`, `[-1, 1]` for `sin`, `[-pi/2, pi/2]` for `atan`, Entire for `ln`, and so on; the table is in the API page), which is valid at every precision and cannot itself fail. An argument outside the domain still gives Empty, decided before the kernel runs. Results of these functions can differ from the previous release in the last bit (the `try_` kernels round each endpoint directly); all 4,656 strict ITF1788 cases pass.

@@ -649,7 +649,8 @@ Both variants carry the GDA-defined result, the next context and the
 conditions raised by this operation; `Trapped` also names the trap that fired.
 
 The enum is read-only outside the package: a caller can `match` on it and use
-the accessors, but only the GDA operations construct an outcome. To turn a
+the accessors, but only the GDA operations, `GdaOutcome::completed` and
+`GdaOutcome::absorb` construct an outcome. To turn a
 trapped outcome into its defined result, use `GdaOutcome::resume_defined`.
 
 ### `GdaOutcome::value`, `GdaOutcome::next_context`, `GdaOutcome::raised`
@@ -664,6 +665,24 @@ pub fn[T] GdaOutcome::raised(Self[T]) -> GdaFlags
 
 `value` is the defined result also for `Trapped`, `next_context` the context
 with the updated status, and `raised` the conditions of this operation only.
+
+### `GdaOutcome::completed`, `GdaOutcome::absorb`
+
+These build the outcomes a pipeline needs.
+
+```mbti
+pub fn[T] GdaOutcome::completed(T, GdaContext) -> Self[T]
+pub fn[T, U] GdaOutcome::absorb(Self[T], Self[U]) -> Self[T]
+```
+
+`completed(v, c)` is the outcome of an operation that raised nothing: `v` and `c`
+unchanged, empty `raised`. `a.absorb(b)` keeps the value, the context (traps
+included) and the trap of `a`; the conditions that `b` raised join `raised` and the
+sticky status of the next context (with `invalid_operation` set when one of the
+four detailed invalid conditions is among them); when `a` completed and `b`
+trapped, the result is `Trapped` with the signal of `b`. The traps of `a` are not
+tested against the conditions of `b`. [`GdaDecimalChecked`](decimal_gda_checked.md)
+uses it for the right operand of a binary operation.
 
 ### `GdaOutcome::resume_defined`
 
@@ -1877,6 +1896,8 @@ pub enum GdaOutcome[T] {
   Completed(T, GdaContext, GdaFlags)
   Trapped(GdaSignal, T, GdaContext, GdaFlags)
 }
+pub fn[T, U] GdaOutcome::absorb(Self[T], Self[U]) -> Self[T]
+pub fn[T] GdaOutcome::completed(T, GdaContext) -> Self[T]
 pub fn[T] GdaOutcome::next_context(Self[T]) -> GdaContext
 pub fn[T] GdaOutcome::raised(Self[T]) -> GdaFlags
 pub fn[T] GdaOutcome::resume_defined(Self[T]) -> Self[T]

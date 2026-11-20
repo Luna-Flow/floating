@@ -80,12 +80,12 @@ test "checked pipelines preserve their domain state" {
   ).sqrt()
   inspect(decimal.value().to_string(), content="3")
   inspect(decimal.flags().has_error(), content="false")
-  let gda = @decimal_gda_checked.GdaDecimalChecked::parse(
+  let gda = @decimal_gda_checked.GdaDecimalChecked::to_number(
     "9",
     @decimal_gda.GdaContext::decimal64(),
   ).sqrt()
   inspect(gda.value().to_string(), content="3")
-  inspect(gda.is_trapped(), content="false")
+  inspect(gda.is_err(), content="false")
   let interval = @ball_float_checked.BallFloatResult::from_int(4).pown(-1)
   inspect(interval.result() is Ok(_), content="true")
 }
