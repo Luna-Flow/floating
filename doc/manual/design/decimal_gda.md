@@ -570,6 +570,30 @@ for `add` and `subtract` on random operands of 1 to 120 digits with mixed signs,
 cancellations and exponent gaps, at nine precisions and all eight rounding
 modes, with tight and wide exponent ranges, clamping and trapped signals.
 
+*Plain products and quotients.* `multiply` and `divide` take the same kind of
+shortcut as the plain sums, under the same predicates (an extended context
+without clamping, finite nonzero operands, a result whose adjusted exponent
+lies in $[e_{\min}, e_{\max} - 1]$, so that it can neither overflow, nor be
+subnormal, nor change exponent for the exponent range). A product is the exact
+product rounded once to $p$ digits at the exponent $e_1 + e_2$ plus the digits
+discarded. A quotient is formed by one division of $a \cdot 10^{k}$ with
+$k = \max(0, p + 2 + n_b - n_a)$ ($n_a$, $n_b$ the digit counts of the
+coefficients), which gives at least $p + 2$ digits, rounded with `ZeroFiveUp` so
+that a nonzero remainder leaves the last digit off 0 and 5, and then rounded
+once to $p$ digits; `rounded` and `inexact` are raised. A quotient with a
+finite decimal expansion (the remainder test of the same division) is left to
+the general route, because its exponent follows the ideal-exponent rules. The
+general route scales the dividend by $10^{p + n_b + 2}$ whatever $n_a$ is, which
+makes the quotient about twice as long as it must be; the value, the exponent
+and the flags of an inexact quotient do not depend on the number of guard
+digits beyond $p + 2$ (rounding sees the discarded part only through its
+position relative to the midpoints, and `ZeroFiveUp` preserves that), so the
+plain path uses the shorter scale. The white-box test compares both routes for
+`multiply` and `divide` on random operands of 1 to 120 digits, with exact
+quotients (a product divided by one of its factors, divisors $2^a 5^b$), short
+divisors with repeating expansions, carries into $10^p$, chained contexts and
+all rounding modes.
+
 ### Division
 
 `divide` handles $0$, $\infty$ and exact divisions by powers of ten and by

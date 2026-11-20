@@ -199,6 +199,11 @@ The same release removed an allocation per carrying limb from
 `dec_coeff_unit_add_sub`: the helper that split a carry into a digit and the
 next carry returned a tuple and is now two scalar expressions.
 
+For a coefficient that the caller does not own (a product or a quotient that
+may be shared), `dec_coeff_round_pow10_coeff` is the same one-pass rounding into
+a new array and `dec_coeff_discards_nonzero` reads the discarded digits only;
+both return one scalar or coefficient and allocate no tuple.
+
 ## Correctness and invariants
 
 - **Canonical form.** A `Limbs` value has no leading zero limb and is at least
