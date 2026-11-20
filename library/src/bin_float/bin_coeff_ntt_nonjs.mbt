@@ -392,7 +392,29 @@ fn bin_coeff_ntt_transform_length(coefficient_count : Int32) -> Int32 {
 }
 
 ///|
+/// The digits of `value` as Montgomery residues: on 64-bit limbs, or on the
+/// 32-bit view where `bin_coeff_ntt_limb32_conversion` is set (Wasm).
 fn bin_coeff_ntt_fill(
+  destination : FixedArray[UInt32],
+  value : BinCoeff,
+  digit_length : Int32,
+  prime : UInt64,
+  nprime : UInt64,
+  r2 : UInt64,
+) -> Unit {
+  if bin_coeff_ntt_limb32_conversion {
+    bin_coeff_ntt_fill_limb32(
+      destination, value, digit_length, prime, nprime, r2,
+    )
+  } else {
+    bin_coeff_ntt_fill_words(
+      destination, value, digit_length, prime, nprime, r2,
+    )
+  }
+}
+
+///|
+fn bin_coeff_ntt_fill_words(
   destination : FixedArray[UInt32],
   value : BinCoeff,
   digit_length : Int32,
@@ -529,7 +551,7 @@ fn bin_coeff_ntt_crt(residue1 : UInt64, residue2 : UInt64) -> UInt64 {
 /// The product from the two residue arrays: the digit convolution is
 /// reassembled with carries into 16-bit digits written straight into 64-bit
 /// limbs (`maximum_words` bounds the product).
-fn bin_coeff_ntt_reconstruct(
+fn bin_coeff_ntt_reconstruct_words(
   residues1 : FixedArray[UInt32],
   residues2 : FixedArray[UInt32],
   coefficient_count : Int32,
@@ -569,6 +591,32 @@ fn bin_coeff_ntt_reconstruct(
 }
 
 ///|
+/// The product from the two residue arrays (see `bin_coeff_ntt_fill`).
+fn bin_coeff_ntt_reconstruct(
+  residues1 : FixedArray[UInt32],
+  residues2 : FixedArray[UInt32],
+  coefficient_count : Int32,
+  left : BinCoeff,
+  right : BinCoeff,
+) -> BinCoeff {
+  if bin_coeff_ntt_limb32_conversion {
+    bin_coeff_ntt_reconstruct_limb32(
+      residues1,
+      residues2,
+      coefficient_count,
+      bin_coeff_limb_len(left) + bin_coeff_limb_len(right),
+    )
+  } else {
+    bin_coeff_ntt_reconstruct_words(
+      residues1,
+      residues2,
+      coefficient_count,
+      bin_coeff_word_len(left) + bin_coeff_word_len(right),
+    )
+  }
+}
+
+///|
 fn bin_coeff_ntt_fits(left : BinCoeff, right : BinCoeff) -> Bool {
   let coefficient_count = bin_coeff_ntt_digit_length(left) +
     bin_coeff_ntt_digit_length(right) -
@@ -600,10 +648,7 @@ fn bin_coeff_ntt_product(
     bin_coeff_ntt_root2, bin_coeff_ntt_nprime2, bin_coeff_ntt_r2_prime2, bin_coeff_ntt_r_prime2,
   )
   bin_coeff_ntt_reconstruct(
-    residues1,
-    residues2,
-    coefficient_count,
-    bin_coeff_word_len(left) + bin_coeff_word_len(right),
+    residues1, residues2, coefficient_count, left, right,
   )
 }
 
