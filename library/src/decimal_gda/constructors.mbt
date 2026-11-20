@@ -372,11 +372,8 @@ fn Decimal::from_float_raw(x : Float, precision~ : Int32 = 34) -> Decimal {
 fn decimal_to_bin_float_out_of_range(
   value : Decimal,
   precision : Int32,
-  binary_mode : @bin_float.BinaryRoundingMode,
+  mode : @bin_float.BinaryRoundingMode,
 ) -> @bin_float.BinFloat? {
-  // ties-to-away rounds like ties-to-even where nothing but the direction of
-  // an overflow or underflow is decided
-  let mode = binary_mode.to_arithmetic().unwrap_or(RoundingMode::ToNearestEven)
   let adjusted = adjusted_exponent64(value)
   let e_max = @bin_float.binary_implementation_e_max.to_int64()
   let e_min = @bin_float.binary_implementation_e_min.to_int64()
@@ -390,7 +387,7 @@ fn decimal_to_bin_float_out_of_range(
         e_max.to_int() + 4,
         precision,
         negative~,
-        mode=bin_mode(mode, negative),
+        mode~,
       ),
     )
   } else if adjusted + 1L < below {
@@ -400,7 +397,7 @@ fn decimal_to_bin_float_out_of_range(
         e_min.to_int() - precision - 8,
         precision,
         negative~,
-        mode=bin_mode(mode, negative),
+        mode~,
       ),
     )
   } else {
@@ -442,18 +439,6 @@ fn decimal_to_bin_float_through_parser(
 }
 
 ///|
-/// `BinFloat::make` in a rounding mode of IEEE 754-2019 4.3.
-fn decimal_bin_float_make(
-  coefficient : @bin_float.BinCoeff,
-  exponent2 : Int32,
-  precision : Int32,
-  negative : Bool,
-  mode : @bin_float.BinaryRoundingMode,
-) -> @bin_float.BinFloat {
-  @bin_float.BinFloat::make(coefficient, exponent2, precision, negative~, mode~)
-}
-
-///|
 fn Decimal::to_bin_float_raw(
   self : Decimal,
   precision~ : Int32 = self.precision_,
@@ -479,12 +464,12 @@ fn Decimal::to_bin_float_raw(
       }
       if self.exponent10 >= 0 {
         let magnitude = coeff_bigint(self.coefficient) * pow5(self.exponent10)
-        return decimal_bin_float_make(
+        return @bin_float.BinFloat::make(
           @bin_float.BinCoeff::from_bytes_be(magnitude.to_octets()),
           self.exponent10,
           precision,
-          self.negative,
-          mode,
+          negative=self.negative,
+          mode~,
         )
       }
       let scale = -self.exponent10
@@ -504,12 +489,12 @@ fn Decimal::to_bin_float_raw(
       } else {
         truncated | bigint_one()
       }
-      decimal_bin_float_make(
+      @bin_float.BinFloat::make(
         @bin_float.BinCoeff::from_bytes_be(q.to_octets()),
         -binary_shift,
         precision,
-        self.sign() == Sign::Negative,
-        mode,
+        negative=self.sign() == Sign::Negative,
+        mode~,
       )
     }
   }
@@ -674,28 +659,3 @@ fn Decimal::from_bin_float_raw(
 }
 
 ///|
-
-///|
-/// The IEEE 754-2019 attribute of an `@arithmetic` mode for a value of the
-/// given sign (`AwayFromZero` is the direction of the sign).
-fn bin_mode(
-  mode : @def.RoundingMode,
-  negative : Bool,
-) -> @bin_float.BinaryRoundingMode {
-  match mode {
-    @def.RoundingMode::ToNearestEven =>
-      @bin_float.BinaryRoundingMode::RoundTiesToEven
-    @def.RoundingMode::TowardZero =>
-      @bin_float.BinaryRoundingMode::RoundTowardZero
-    @def.RoundingMode::TowardPositive =>
-      @bin_float.BinaryRoundingMode::RoundTowardPositive
-    @def.RoundingMode::TowardNegative =>
-      @bin_float.BinaryRoundingMode::RoundTowardNegative
-    @def.RoundingMode::AwayFromZero =>
-      if negative {
-        @bin_float.BinaryRoundingMode::RoundTowardNegative
-      } else {
-        @bin_float.BinaryRoundingMode::RoundTowardPositive
-      }
-  }
-}

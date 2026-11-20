@@ -312,6 +312,8 @@ pub enum GdaOutcome[T] {
   Completed(T, GdaContext, GdaFlags)
   Trapped(GdaSignal, T, GdaContext, GdaFlags)
 }
+pub fn[T, U] GdaOutcome::absorb(Self[T], Self[U]) -> Self[T]
+pub fn[T] GdaOutcome::completed(T, GdaContext) -> Self[T]
 pub fn[T] GdaOutcome::next_context(Self[T]) -> GdaContext
 pub fn[T] GdaOutcome::raised(Self[T]) -> GdaFlags
 pub fn[T] GdaOutcome::resume_defined(Self[T]) -> Self[T]

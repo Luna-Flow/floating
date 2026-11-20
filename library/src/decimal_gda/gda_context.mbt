@@ -945,6 +945,55 @@ fn[T] complete_gda(
 }
 
 ///|
+/// The outcome of an operation that raised nothing: `value` and `context`
+/// unchanged. It is the starting point of a pipeline and the identity of
+/// `absorb`.
+pub fn[T] GdaOutcome::completed(
+  value : T,
+  context : GdaContext,
+) -> GdaOutcome[T] {
+  Completed(value, context, GdaFlags::new())
+}
+
+///|
+/// The outcome of an operation after the flags and the trap of another outcome
+/// are merged in: `self` keeps its value, its context (traps included) and its
+/// own trap; the conditions that `other` raised join `raised` and the sticky
+/// status of the next context; when `self` completed and `other` trapped, the
+/// result is `Trapped` with the signal of `other`. The traps of `self` are not
+/// tested against the conditions of `other`: `other` decided its own traps. It is
+/// the merge that a checked pipeline needs when its right operand is a pipeline
+/// too (`GdaDecimalChecked`).
+pub fn[T, U] GdaOutcome::absorb(
+  self : GdaOutcome[T],
+  other : GdaOutcome[U],
+) -> GdaOutcome[T] {
+  let extra = other.raised()
+  let status_delta = if extra.contains(GdaSignal::InvalidOperation) {
+    { ..extra, invalid_operation: true, }
+  } else {
+    extra
+  }
+  match self {
+    Completed(value, context, raised) => {
+      let next = { ..context, status_: context.status_.combine(status_delta), }
+      let merged = raised.combine(extra)
+      match other {
+        Trapped(signal, _, _, _) => Trapped(signal, value, next, merged)
+        Completed(_, _, _) => Completed(value, next, merged)
+      }
+    }
+    Trapped(signal, value, context, raised) =>
+      Trapped(
+        signal,
+        value,
+        { ..context, status_: context.status_.combine(status_delta), },
+        raised.combine(extra),
+      )
+  }
+}
+
+///|
 pub fn[T] GdaOutcome::value(self : GdaOutcome[T]) -> T {
   match self {
     Completed(value, _, _) | Trapped(_, value, _, _) => value

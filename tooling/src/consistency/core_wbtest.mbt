@@ -5895,16 +5895,15 @@ test "decimal_gda_checked threads context and short-circuits traps" {
   let context = @decimal_gda.GdaContext::decimal64().trap(
     @decimal_gda.GdaSignal::DivisionByZero,
   )
-  let trapped = @decimal_gda_checked.GdaDecimalChecked::from_decimal(
-    @decimal_gda.Decimal::one(),
-    context,
-  ).divide(@decimal_gda.Decimal::zero())
-  assert_true(trapped.is_trapped())
+  let pipe = fn(value : @decimal_gda.Decimal) {
+    @decimal_gda_checked.GdaDecimalChecked::from_decimal(value, context)
+  }
+  let one = pipe(@decimal_gda.Decimal::one())
+  let trapped = one.divide(pipe(@decimal_gda.Decimal::zero()))
+  assert_true(trapped.is_err())
   assert_true(trapped.value().is_infinite())
-  assert_true(trapped.add(@decimal_gda.Decimal::one()).is_trapped())
-  assert_false(
-    trapped.resume_defined().add(@decimal_gda.Decimal::one()).is_trapped(),
-  )
+  assert_true(trapped.add(one).is_err())
+  assert_false(trapped.resume_defined().add(one).is_err())
 }
 
 ///|

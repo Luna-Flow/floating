@@ -280,11 +280,12 @@ sticky context for you and stops after the first trap:
 ///|
 test "a checked GDA pipeline" {
   let ctx = @decimal_gda.GdaContext::decimal64()
-  let checked = @decimal_gda_checked.GdaDecimalChecked::parse("2", ctx)
+  let ten = @decimal_gda_checked.GdaDecimalChecked::to_number("10", ctx)
+  let checked = @decimal_gda_checked.GdaDecimalChecked::to_number("2", ctx)
     .sqrt()
-    .multiply(@decimal_gda.Decimal::from_string("10").unwrap())
+    .multiply(ten)
   inspect(checked.value(), content="14.14213562373095")
-  inspect(checked.is_trapped(), content="false")
+  inspect(checked.is_err(), content="false")
   inspect(checked.status().contains(Inexact), content="true")
 }
 ```

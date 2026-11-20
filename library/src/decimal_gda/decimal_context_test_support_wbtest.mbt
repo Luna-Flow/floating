@@ -88,3 +88,28 @@ fn normalize_decimal_parts_gda(
     mode,
   )
 }
+
+///|
+/// (tests only) The IEEE 754-2019 attribute of an `@arithmetic` mode for a value of the
+/// given sign (`AwayFromZero` is the direction of the sign).
+fn bin_mode(
+  mode : @def.RoundingMode,
+  negative : Bool,
+) -> @bin_float.BinaryRoundingMode {
+  match mode {
+    @def.RoundingMode::ToNearestEven =>
+      @bin_float.BinaryRoundingMode::RoundTiesToEven
+    @def.RoundingMode::TowardZero =>
+      @bin_float.BinaryRoundingMode::RoundTowardZero
+    @def.RoundingMode::TowardPositive =>
+      @bin_float.BinaryRoundingMode::RoundTowardPositive
+    @def.RoundingMode::TowardNegative =>
+      @bin_float.BinaryRoundingMode::RoundTowardNegative
+    @def.RoundingMode::AwayFromZero =>
+      if negative {
+        @bin_float.BinaryRoundingMode::RoundTowardNegative
+      } else {
+        @bin_float.BinaryRoundingMode::RoundTowardPositive
+      }
+  }
+}
