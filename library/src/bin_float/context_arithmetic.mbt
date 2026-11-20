@@ -490,14 +490,24 @@ fn binary_round_rational(
 ///|
 fn binary_sqrt_split(magnitude : Coeff, scale : Int32) -> (Coeff, Bool, Int32) {
   if scale >= 0 {
-    let radicand = magnitude.shift_left(scale)
-    let (root, remainder) = bin_coeff_sqrt_rem_kernel(radicand)
-    let exact = remainder.is_zero()
-    let midpoint = root.shift_left(1).add(Coeff::one()).square()
+    // `root` and `remainder` are those of `N = magnitude * 2^scale`:
+    // `N = root^2 + remainder`, `0 <= remainder <= 2 root`. The comparison of
+    // `sqrt(N)` with the midpoint `root + 1/2` is made at that scale, on the
+    // remainder: `sqrt(N) > root + 1/2` iff `N > root^2 + root + 1/4` iff
+    // `remainder > root` (the integers `N - root^2` and `root` against the
+    // non-integer `root + 1/4`). `sqrt(N) = root + 1/2` is impossible,
+    // because it would need `N = root^2 + root + 1/4`, which is not an
+    // integer; so there is no tie to round, and the three outcomes (exact
+    // when `remainder = 0`, below the midpoint, above it) are complete.
+    let (root, remainder) = binary_sqrt_rem_scaled(magnitude, scale)
     (
       root,
-      exact,
-      magnitude.shift_left(binary_add_sat(scale, 2)).compare(midpoint),
+      remainder.is_zero(),
+      if remainder.compare(root) > 0 {
+        1
+      } else {
+        -1
+      },
     )
   } else if scale == binary_int_min {
     (Coeff::zero(), false, -1)

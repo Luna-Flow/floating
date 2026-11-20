@@ -46,6 +46,14 @@ fn binary_coeff_fast_div(_left : BinFloat, _right : BinFloat) -> BinFloat? {
 }
 
 ///|
+/// `(root, remainder)` of `magnitude * 2^scale` (`scale >= 0`): the shifted
+/// radicand through the host-bigint kernel, as the split did before the
+/// scaled kernel existed.
+fn binary_sqrt_rem_scaled(magnitude : Coeff, scale : Int32) -> (Coeff, Coeff) {
+  bin_coeff_sqrt_rem_kernel(magnitude.shift_left(scale))
+}
+
+///|
 fn binary_coeff_fast_sqrt(_value : BinFloat) -> BinFloat? {
   None
 }
