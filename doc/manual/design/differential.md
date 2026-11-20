@@ -70,9 +70,9 @@ Both oracles are implementations, not specifications.
     $10^{e_{\min}}$ while libmpdec's rounded result is $10^{e_{\min}}$ itself,
     the row expects Subnormal and Underflow added to libmpdec's conditions.
 
-  The rows with an exponent of zero in a clamped context are not registered:
-  the library folds `x ** 0` down while decNumber and libmpdec do not, and
-  the library does not fold `1 ** n`, so its own two paths disagree (issue 405).
+  Rows with an exponent of zero in a clamped context were a defect of this
+  library (`power(x, 0)` was folded down, which decNumber and libmpdec do not
+  do), fixed in the pull request of issue 405; they need no registration.
 - **IEEE decimal elementary functions.** The IEEE `decimal` package has
   functions (`exp`, `atan2`, `pown`, ...) that libmpdec either lacks or answers
   only to nearest-even, so their oracle is MPFR through its *enclosure*, not

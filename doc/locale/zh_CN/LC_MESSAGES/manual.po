@@ -15841,8 +15841,8 @@ msgid "`subnormal-before-rounding`: GDA 1.70, Subnormal: the adjusted exponent i
 msgstr "`subnormal-before-rounding`：GDA 1.70，Subnormal：调整指数小于 Emin 是“在任何舍入之前”判断的，libmpdec 则按舍入后的结果判断。对于一个整数幂，其精确值（精确求得）低于 $10^{e_{\\min}}$，而 libmpdec 舍入后的结果恰为 $10^{e_{\\min}}$，该行期望在 libmpdec 的条件上加 Subnormal 和 Underflow。"
 
 #: manual/design/differential.md:73
-msgid "The rows with an exponent of zero in a clamped context are not registered: the library folds `x ** 0` down while decNumber and libmpdec do not, and the library does not fold `1 ** n`, so its own two paths disagree (issue 405)."
-msgstr "在 clamp 上下文中指数为零的行没有登记：本库把 `x ** 0` 折叠，而 decNumber 和 libmpdec 不折叠；本库又不折叠 `1 ** n`，所以它自己的两条路径互相矛盾（issue 405）。"
+msgid "Rows with an exponent of zero in a clamped context were a defect of this library (`power(x, 0)` was folded down, which decNumber and libmpdec do not do), fixed in the pull request of issue 405; they need no registration."
+msgstr "在 clamp 上下文中指数为零的行曾是本库的缺陷（`power(x, 0)` 被折叠，而 decNumber 和 libmpdec 不折叠），已在 issue 405 的拉取请求中修复；它们不需要登记。"
 
 #: manual/design/differential.md:76
 msgid "**IEEE decimal elementary functions.** The IEEE `decimal` package has functions (`exp`, `atan2`, `pown`, ...) that libmpdec either lacks or answers only to nearest-even, so their oracle is MPFR through its *enclosure*, not through one result: each decimal operand is bracketed by 2048-bit directed bounds, the function is evaluated at 768 bits in both directions on every corner, the enclosure is widened by one ulp, and both endpoints are rounded to the decimal context with Python `decimal`. A case becomes a row only if the endpoints round to one representation with one flag set and the rounded value lies outside the enclosure, which also makes the inexact flag certain. Underflow and Subnormal are recomputed for both tininess rules from the same endpoints, because libmpdec knows only one. Exact results (an enclosure that contains the rounded value) are not sampled; they belong to the white-box tests of each function."
@@ -26596,6 +26596,9 @@ msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 #: manual/verification.md:707
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "The rows with an exponent of zero in a clamped context are not registered: the library folds `x ** 0` down while decNumber and libmpdec do not, and the library does not fold `1 ** n`, so its own two paths disagree (issue 405)."
+#~ msgstr "在 clamp 上下文中指数为零的行没有登记：本库把 `x ** 0` 折叠，而 decNumber 和 libmpdec 不折叠；本库又不折叠 `1 ** n`，所以它自己的两条路径互相矛盾（issue 405）。"
 
 #~ msgid "The result has the context's precision, rounding direction and exponent range, with IEEE overflow, underflow and subnormal handling. The `BinaryFlags` of the step are **discarded**, and IEEE exceptional cases are successful values: `div_ctx` by zero returns $\\pm\\infty$ (or NaN for $0/0$) where `div` returns an error. Use `bin_float` directly when the flags matter."
 #~ msgstr "结果具有上下文的精度、舍入方向和指数范围，并按 IEEE 处理上溢、下溢和次正规数。该步骤的 `BinaryFlags` 会被**丢弃**，IEEE 异常情形均为成功值：`div_ctx` 除以零返回 $\\pm\\infty$（$0/0$ 则为 NaN），而 `div` 返回错误。若需要标志，请直接使用 `bin_float`。"
