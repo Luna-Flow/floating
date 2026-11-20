@@ -444,8 +444,24 @@ fn decimal_from_integer_parts(
   precision : Int32,
   mode~ : DecimalRoundingMode = DecimalRoundingMode::HalfEven,
 ) -> Decimal {
-  let negative = value < bigint_zero()
-  let magnitude = coeff_from_bigint(abs_bigint(value))
+  decimal_from_coeff_parts(
+    value < bigint_zero(),
+    coeff_from_bigint(abs_bigint(value)),
+    exponent10,
+    precision,
+    mode~,
+  )
+}
+
+///|
+/// `decimal_from_integer_parts` for a magnitude already in decimal limbs.
+fn decimal_from_coeff_parts(
+  negative : Bool,
+  magnitude : DecCoeff,
+  exponent10 : Int32,
+  precision : Int32,
+  mode~ : DecimalRoundingMode = DecimalRoundingMode::HalfEven,
+) -> Decimal {
   let precision = Int32::max(1, precision)
   if magnitude.is_zero() {
     return finite_with_exponent_repr(negative, magnitude, 0, precision)
@@ -747,37 +763,30 @@ fn Decimal::from_bin_float_raw(
       } else if decimal_from_bin_float_is_bounded(x, precision) {
         decimal_from_bin_float_surrogate(x, precision, mode)
       } else {
-        let coefficient = BigInt::from_octets(x.coefficient().to_bytes_be())
-        let signed = if x.is_negative() { -coefficient } else { coefficient }
-        if x.exponent2() >= 0 {
-          decimal_from_integer_parts(
-            signed << x.exponent2(),
-            0,
-            precision,
-            mode~,
-          )
+        // the exact value `c * 2^e2` as a decimal coefficient and exponent,
+        // in the decimal kernel: no big integer and no second conversion
+        let c = decimal_coeff_from_be_bytes(x.coefficient().to_bytes_be())
+        let negative = x.is_negative()
+        let e2 = x.exponent2()
+        if e2 >= 0 {
+          let magnitude = if e2 == 0 {
+            c
+          } else {
+            dec_coeff_multiply_repr(c, dec_coeff_pow_unit_repr(2, e2))
+          }
+          decimal_from_coeff_parts(negative, magnitude, 0, precision, mode~)
         } else {
           // c * 2^-k = c * 5^k * 10^-k; an exact result takes the exponent
           // closest to 0, so trailing zeros go but never past exponent 0.
-          let k = -x.exponent2()
-          let mut magnitude = coeff_from_bigint(abs_bigint(signed * pow5(k)))
-          let mut exponent = -k
-          while exponent < 0 {
-            let (quotient, remainder) = dec_coeff_div_rem_by_unit_repr(
-              magnitude, 10,
-            )
-            if remainder != 0 {
-              break
-            }
-            magnitude = quotient
-            exponent = exponent + 1
-          }
-          decimal_from_integer_parts(
-            if x.is_negative() {
-              -coeff_bigint(magnitude)
-            } else {
-              coeff_bigint(magnitude)
-            },
+          let k = -e2
+          let (magnitude, exponent, _) = trim_trailing_decimal_zeros_repr(
+            dec_coeff_multiply_repr(c, dec_coeff_pow_unit_repr(5, k)),
+            -k,
+            max_drop=k,
+          )
+          decimal_from_coeff_parts(
+            negative,
+            magnitude,
             exponent,
             precision,
             mode~,
