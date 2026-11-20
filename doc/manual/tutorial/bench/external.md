@@ -18,6 +18,7 @@ toolkit and the statistics are in the [bench tutorial](../bench.md).
 | measure the floating side on wasm or js | [`--target wasm`, `--target js`](#choose-a-configuration) |
 | fix the warm-up of a runtime | [`just bench external warmup`](#calibrate-the-warm-up-of-a-runtime) |
 | see how the ratios moved since a release | [`just bench external compare OLD NEW`](#compare-two-releases) |
+| a table of a run beside an earlier release, as Markdown and CSV | [`just bench external table OLD NEW...`](#table-of-a-run-beside-a-release) |
 | understand what is timed | [performance page](../../performance/bench/external.md#what-is-timed) |
 
 ## Quick start
@@ -158,6 +159,56 @@ the raw ratios otherwise (a v1 summary has only raw ratios). A line says when th
 two summaries are of different configurations. Ratios, not absolute times, are
 compared, so a faster machine does not hide a regression; the two runs should
 still come from the same machine class.
+
+### Table of a run beside a release
+
+```bash
+just bench external table testdata/external_baseline/summary-0.11.0.json \
+  .tmp/ext-native/results.json .tmp/ext-portable/results.json \
+  --markdown .tmp/table.md --csv .tmp/table.csv
+```
+
+writes one table per new summary, that is per configuration, with a heading that
+names the bounds of the criterion and a line of counts (met, tolerated, not met,
+unresolved). A row has the case, the time of the reference and of `floating` (the
+net times of the new summary), the ratio of the old summary, the net ratio of the
+new one with its 95% interval, the verdict against the bounds recorded in the new
+summary, the quotient new over old (below 1 is faster) and the quotient of the raw
+ratios, new raw over old raw. The rows are sorted by
+package (`bin_float`, then `decimal_gda`), precision and operation. Without
+`--markdown` the Markdown goes to standard output; the CSV has the same rows for
+all configurations in one file, with a `configuration` column and plain numbers
+(nanoseconds and ratios), meant for a chart.
+
+The old summary may be of schema v1 (the 0.11.0 baseline) or v2. A v1 ratio is a
+ratio of medians (marked `(raw)`): the loop floor of the timing harness is in both
+of its times. The new net ratio has the floor subtracted on both sides, so the two
+are not the same quantity and the quotient new over old is indicative, above all for
+the small cases whose time is mostly floor. The column `raw new / old` divides the raw
+ratio of the new summary (every v2 case has one) by the raw ratio of the old one: the
+same quantity on both sides, medians with the floor in both times, so it is the
+like-for-like change since the old release; it is empty when either raw ratio is
+missing. The verdict is made on the net ratio, not on this quotient. An unresolved case shows its raw ratio, marked
+`(raw)`, and the verdict `unresolved (raw met)` or the like. The same old summary is
+used for every configuration; the heading of each section names the configuration of
+the new summary.
+
+The three states of the native limb primitives are three runs with their own
+output directory, each with an explicit configuration name and environment, so that
+their summaries sit side by side in one table (a name outside the table of criteria
+is judged like its target, here `native`, bound 3):
+
+```bash
+just bench external run --out .tmp/ext-native                                            # default state, configuration native
+just bench external run --out .tmp/ext-native-c --configuration native-c --moon-env LUNA_FLOATING_LIMBS=c
+just bench external run --out .tmp/ext-portable --configuration native-portable --moon-env LUNA_FLOATING_PORTABLE=1
+just bench external table testdata/external_baseline/summary-0.11.0.json \
+  .tmp/ext-native/results.json .tmp/ext-native-c/results.json .tmp/ext-portable/results.json
+```
+
+The configuration name is recorded in the summary and is the heading of its section;
+`native-c` is a name of this example, any lower-case name with letters, digits and
+hyphens is accepted. Use the same `--seed` and preset for all of them.
 
 ### Read a ratio
 

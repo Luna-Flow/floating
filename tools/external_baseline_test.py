@@ -746,5 +746,122 @@ class PageCompositionTests(unittest.TestCase):
                 self.assertEqual(eb.published_summaries("wasm"), {})
 
 
+class TableTests(unittest.TestCase):
+    """The comparison table: a v1 summary beside v2 summaries, on two small fixtures."""
+
+    @staticmethod
+    def v1_case(case: str, reference: float, floating: float) -> dict[str, object]:
+        ratio = floating / reference
+        return {"case": case, "reference": {"median_ns": reference}, "floating": {"median_ns": floating}, "ratio": {"ratio": ratio, "ci_low": ratio, "ci_high": ratio}}
+
+    @staticmethod
+    def v2_case(case: str, reference: float, floating: float, status: str, low: float, high: float, raw_status: str = "met") -> dict[str, object]:
+        ratio = floating / reference
+        return {
+            "case": case,
+            "reference": {"net": {"net_ns": reference}},
+            "floating": {"net": {"net_ns": floating}},
+            "status": status,
+            "raw_status": raw_status,
+            "ratio_net": {"ratio": ratio, "ci_low": low, "ci_high": high},
+            "ratio_raw": {"ratio": ratio * 1.5, "ci_low": ratio, "ci_high": ratio * 2.0},
+        }
+
+    def old(self) -> dict[str, object]:
+        cases = [self.v1_case("decimal_gda/add/34", 20.0, 100.0), self.v1_case("binary/mul/256", 10.0, 40.0), self.v1_case("binary/add/53", 5.0, 40.0)]
+        return {"schema": eb.SCHEMA_V1, "cases": cases}
+
+    def new(self, configuration: str, bounds: tuple[float, float]) -> dict[str, object]:
+        cases = [
+            self.v2_case("binary/mul/256", 8.0, 24.0, stats.MET, 2.9, 3.0),  # the case order of a run is not the order of the table
+            self.v2_case("decimal_gda/add/34", 19.0, 120.0, "tolerated", 5.5, 6.0),
+            self.v2_case("binary/add/53", 4.0, 90.0, stats.UNRESOLVED, 1.0, 50.0, raw_status=stats.NOT_MET),
+            self.v2_case("binary/sqrt/53", 4.0, 12.0, stats.NOT_MET, 2.9, 3.2),  # no old case
+        ]
+        protocol = {"floating_configuration": configuration, "target_ratio": bounds[0], "limit_ratio": bounds[1]}
+        return {"schema": eb.SCHEMA, "protocol": protocol, "cases": cases}
+
+    def test_rows_are_sorted_by_package_then_precision_and_carry_the_quotient(self) -> None:
+        section = eb.table_section(self.old(), self.new("native", (3.0, 3.0)))
+        self.assertEqual([row.case for row in section.rows], ["binary/add/53", "binary/sqrt/53", "binary/mul/256", "decimal_gda/add/34"])
+        add, sqrt, mul, decimal = section.rows
+        self.assertEqual((mul.old_ratio, mul.old_basis, mul.new_ratio, mul.new_basis), (4.0, "raw", 3.0, "net"))
+        self.assertAlmostEqual(mul.quotient or 0.0, 0.75)
+        self.assertIsNone(sqrt.old_ratio)
+        self.assertIsNone(sqrt.quotient)
+        self.assertEqual((add.new_basis, add.verdict, add.new_ratio), ("raw", "unresolved (raw not_met)", 90.0 / 4.0 * 1.5))  # the raw ratio of an unresolved case
+        self.assertEqual((decimal.reference_ns, decimal.floating_ns), (19.0, 120.0))
+
+    def test_counts_per_configuration_and_the_bounds_line(self) -> None:
+        native = eb.table_section(self.old(), self.new("native", (3.0, 3.0)))
+        wasm = eb.table_section(self.old(), self.new("wasm", (5.0, 10.0)))
+        self.assertEqual({k: v for k, v in native.counts.items() if v}, {"met": 1, "tolerated": 1, "not_met": 1, "unresolved": 1})
+        text = eb.render_table_markdown([native, wasm], "summary-0.11.0.json")
+        self.assertIn("### Configuration `native` (target 3)", text)
+        self.assertIn("### Configuration `wasm` (target 5, limit 10)", text)
+        self.assertIn("1 met, 1 tolerated, 1 not met, 1 unresolved of 4 cases.", text)
+        self.assertIn("not the same quantity", text)
+        self.assertIn("the same quantity on both sides", text)
+        self.assertIn("| `binary/mul/256` | 8 ns | 24 ns | 4.00 (raw) | 3.00 [2.90, 3.00] | met | 0.75 | 1.12 |", text)
+        self.assertIn("(raw not_met)", text)
+        self.assertIn("| n/a |", text)  # the case without an old ratio
+
+    def test_a_v1_summary_in_the_new_position_has_no_verdict(self) -> None:
+        section = eb.table_section(self.old(), self.old())
+        self.assertIsNone(section.target)
+        self.assertEqual({row.verdict for row in section.rows}, {stats.NOT_APPLICABLE})
+        self.assertIn("3 cases, no verdict.", eb.render_table_markdown([section]))
+
+    def test_the_csv_has_one_row_per_case_and_plain_numbers(self) -> None:
+        import csv
+        import io
+
+        sections = [eb.table_section(self.old(), self.new("native", (3.0, 3.0))), eb.table_section(self.old(), self.new("wasm", (5.0, 10.0)))]
+        rows = list(csv.DictReader(io.StringIO(eb.render_table_csv(sections))))
+        self.assertEqual(len(rows), 8)
+        self.assertEqual(tuple(rows[0]), eb.TABLE_COLUMNS)
+        mul = next(r for r in rows if r["configuration"] == "wasm" and r["case"] == "binary/mul/256")
+        self.assertEqual((mul["package"], mul["size"], mul["op"], mul["old_basis"], mul["new_basis"], mul["verdict"]), ("bin_float", "256", "mul", "raw", "net", "met"))
+        self.assertEqual((float(mul["old_ratio"]), float(mul["new_ratio"]), float(mul["quotient"])), (4.0, 3.0, 0.75))
+        sqrt = next(r for r in rows if r["case"] == "binary/sqrt/53")
+        self.assertEqual((sqrt["old_ratio"], sqrt["old_basis"], sqrt["quotient"]), ("", "", ""))
+        self.assertEqual((float(mul["new_raw_ratio"]), float(mul["old_raw_ratio"]), float(mul["quotient_raw"])), (4.5, 4.0, 1.125))  # 1.5 times the net ratio 3, over the v1 ratio 4
+        self.assertEqual((sqrt["old_raw_ratio"], sqrt["quotient_raw"]), ("", ""))
+        self.assertNotEqual(sqrt["new_raw_ratio"], "")
+
+    def test_the_raw_quotient_compares_medians_on_both_sides(self) -> None:
+        section = eb.table_section(self.old(), self.new("native", (3.0, 3.0)))
+        add, sqrt, mul, decimal = section.rows
+        self.assertAlmostEqual(mul.quotient_raw or 0.0, 4.5 / 4.0)  # new raw = 1.5 x the net ratio of the fixture
+        self.assertAlmostEqual(decimal.quotient_raw or 0.0, (120.0 / 19.0 * 1.5) / 5.0)
+        self.assertAlmostEqual(add.quotient_raw or 0.0, (90.0 / 4.0 * 1.5) / 8.0)  # an unresolved case has its raw quotient as well
+        self.assertIsNone(sqrt.quotient_raw)  # no old case
+        v2_old = self.new("native", (3.0, 3.0))
+        again = eb.table_section(v2_old, v2_old)
+        self.assertEqual({row.quotient_raw for row in again.rows}, {1.0})  # a v2 summary against itself: raw over raw
+        v1 = eb.table_section(self.old(), self.old())
+        self.assertEqual({row.quotient_raw for row in v1.rows}, {1.0})
+
+    def test_a_v2_summary_without_a_limit_reads_the_limit_as_the_target(self) -> None:
+        new = self.new("native", (3.0, 3.0))
+        del new["protocol"]["limit_ratio"]  # type: ignore[index]
+        section = eb.table_section(self.old(), new)
+        self.assertEqual((section.target, section.limit), (3.0, 3.0))
+
+    def test_the_command_writes_markdown_and_csv(self) -> None:
+        import json
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "old.json").write_text(json.dumps(self.old()), encoding="utf-8")
+            (root / "native.json").write_text(json.dumps(self.new("native", (3.0, 3.0))), encoding="utf-8")
+            (root / "wasm.json").write_text(json.dumps(self.new("wasm", (5.0, 10.0))), encoding="utf-8")
+            arguments = ["table", str(root / "old.json"), str(root / "native.json"), str(root / "wasm.json"), "--markdown", str(root / "t.md"), "--csv", str(root / "t.csv")]
+            self.assertEqual(eb.main(arguments), 0)
+            self.assertIn("Configuration `wasm`", (root / "t.md").read_text(encoding="utf-8"))
+            self.assertEqual(len((root / "t.csv").read_text(encoding="utf-8").splitlines()), 9)
+
+
 if __name__ == "__main__":
     unittest.main()

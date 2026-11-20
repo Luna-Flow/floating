@@ -3952,13 +3952,13 @@ msgid "Test files"
 msgstr "测试文件"
 
 #: manual/api/consistency.md:41
-#: manual/tutorial/bench/external.md:44
+#: manual/tutorial/bench/external.md:45
 msgid "File"
 msgstr "文件"
 
 #: manual/api/consistency.md:41
 #: manual/api/differential.md:66
-#: manual/tutorial/bench/external.md:44
+#: manual/tutorial/bench/external.md:45
 msgid "Content"
 msgstr "内容"
 
@@ -21199,8 +21199,8 @@ msgid "Reproduce"
 msgstr "复现"
 
 #: manual/performance/bench/external.md:401
-msgid "`run` writes the inputs, the reference results, the raw rounds, the summary and the samples under `.tmp/external`; `publish` copies the compact summary to `testdata/external_baseline/summary-VERSION-CONFIGURATION.json`, the samples (the pairs of every case) to `samples-VERSION-CONFIGURATION.json.gz`, the tables to `summary-CONFIGURATION.md`, and regenerates the tables of that configuration on this page. The raw JSONL (about 12 MB) is not committed; its checksums and the checksums of the operand and reference files are in the published summary. `just bench external recompute SUMMARY SAMPLES` recomputes a summary from its samples; `just bench external compare OLD NEW` compares two summaries (net ratios when both are resolved, raw ratios otherwise); see the [tutorial](../../tutorial/bench/external.md) for the commands and the [API page](../../api/bench/external.md) for the benchmark cases."
-msgstr "`run` 在 `.tmp/external` 下写出输入、参考结果、原始各轮、汇总和样本；`publish` 把紧凑的汇总复制到 `testdata/external_baseline/summary-VERSION-CONFIGURATION.json`，把样本（每个用例的配对）复制到 `samples-VERSION-CONFIGURATION.json.gz`，把表复制到 `summary-CONFIGURATION.md`，并重新生成本页中该配置的表。原始 JSONL（约 12 MB）不提交；其校验和以及操作数文件和参考文件的校验和都在已发布的汇总中。`just bench external recompute SUMMARY SAMPLES` 由样本重新计算一份汇总；`just bench external compare OLD NEW` 比较两份汇总（两者都已判定时比较净比值，否则比较原始比值）；命令见[教程](../../tutorial/bench/external.md)，基准测试用例见 [API 页面](../../api/bench/external.md)。"
+msgid "`run` writes the inputs, the reference results, the raw rounds, the summary and the samples under `.tmp/external`; `publish` copies the compact summary to `testdata/external_baseline/summary-VERSION-CONFIGURATION.json`, the samples (the pairs of every case) to `samples-VERSION-CONFIGURATION.json.gz`, the tables to `summary-CONFIGURATION.md`, and regenerates the tables of that configuration on this page. The raw JSONL (about 12 MB) is not committed; its checksums and the checksums of the operand and reference files are in the published summary. `just bench external recompute SUMMARY SAMPLES` recomputes a summary from its samples; `just bench external compare OLD NEW` compares two summaries (net ratios when both are resolved, raw ratios otherwise) and `just bench external table OLD NEW...` writes the table of a run beside a release, as Markdown and CSV, one section per configuration; see the [tutorial](../../tutorial/bench/external.md) for the commands and the [API page](../../api/bench/external.md) for the benchmark cases."
+msgstr "`run` 在 `.tmp/external` 下写出输入、参考结果、原始各轮、汇总和样本；`publish` 把紧凑的汇总复制到 `testdata/external_baseline/summary-VERSION-CONFIGURATION.json`，把样本（每个用例的配对）复制到 `samples-VERSION-CONFIGURATION.json.gz`，把表复制到 `summary-CONFIGURATION.md`，并重新生成本页中该配置的表。原始 JSONL（约 12 MB）不提交；其校验和以及操作数文件和参考文件的校验和都在已发布的汇总中。`just bench external recompute SUMMARY SAMPLES` 由样本重新计算一份汇总；`just bench external compare OLD NEW` 比较两份汇总（两者都已判定时比较净比值，否则比较原始比值），`just bench external table OLD NEW...` 写出一次运行与某个发布并列的表（Markdown 和 CSV，每种配置一节）；命令见[教程](../../tutorial/bench/external.md)，基准测试用例见 [API 页面](../../api/bench/external.md)。"
 
 #: manual/performance/bin_float.md:1
 msgid "bin_float performance"
@@ -22011,7 +22011,7 @@ msgstr "报告多步计算中的第一个失败"
 #: manual/tutorial/bench/bin_float.md:17
 #: manual/tutorial/bench/decimal.md:16
 #: manual/tutorial/bench/decimal_gda.md:16
-#: manual/tutorial/bench/external.md:23
+#: manual/tutorial/bench/external.md:24
 #: manual/tutorial/bin_float.md:26
 #: manual/tutorial/bin_float_checked.md:21
 #: manual/tutorial/cli.md:15
@@ -22073,7 +22073,7 @@ msgstr "没有任何 53 位的 `BinFloat` 等于 $1/3$，因此结果是包含�
 #: manual/tutorial/bench/bin_float.md:33
 #: manual/tutorial/bench/decimal.md:31
 #: manual/tutorial/bench/decimal_gda.md:31
-#: manual/tutorial/bench/external.md:53
+#: manual/tutorial/bench/external.md:54
 #: manual/tutorial/bin_float.md:64
 #: manual/tutorial/bin_float_checked.md:57
 #: manual/tutorial/cli.md:38
@@ -22178,7 +22178,7 @@ msgstr "`BallContext` 描述一种二进制格式（精度和指数范围）。`
 #: manual/tutorial/bench/bin_float.md:50
 #: manual/tutorial/bench/decimal.md:48
 #: manual/tutorial/bench/decimal_gda.md:50
-#: manual/tutorial/bench/external.md:174
+#: manual/tutorial/bench/external.md:225
 #: manual/tutorial/bin_float.md:260
 #: manual/tutorial/bin_float_checked.md:177
 #: manual/tutorial/cli.md:73
@@ -22251,7 +22251,7 @@ msgstr "每个区间带有一个以位计的工作 `precision`；二元运算的
 #: manual/tutorial/bench/bin_float.md:58
 #: manual/tutorial/bench/decimal.md:56
 #: manual/tutorial/bench/decimal_gda.md:58
-#: manual/tutorial/bench/external.md:187
+#: manual/tutorial/bench/external.md:238
 #: manual/tutorial/bin_float.md:394
 #: manual/tutorial/bin_float_checked.md:235
 #: manual/tutorial/cli.md:82
@@ -22320,7 +22320,7 @@ msgstr "**来自 `Double` 的输入。** `from_double(x)` 精确包络 `x` 的�
 #: manual/tutorial/bench/bin_float.md:64
 #: manual/tutorial/bench/decimal.md:62
 #: manual/tutorial/bench/decimal_gda.md:64
-#: manual/tutorial/bench/external.md:196
+#: manual/tutorial/bench/external.md:247
 #: manual/tutorial/bin_float.md:422
 #: manual/tutorial/bin_float_checked.md:258
 #: manual/tutorial/cli.md:94
@@ -22970,150 +22970,174 @@ msgid "see how the ratios moved since a release"
 msgstr "查看自某个版本以来比值如何变化"
 
 #: manual/tutorial/bench/external.md:21
+msgid "a table of a run beside an earlier release, as Markdown and CSV"
+msgstr "把一次运行与较早的发布放在一起的表，Markdown 和 CSV 两种格式"
+
+#: manual/tutorial/bench/external.md:22
 msgid "understand what is timed"
 msgstr "了解计时的内容"
 
-#: manual/tutorial/bench/external.md:21
+#: manual/tutorial/bench/external.md:22
 msgid "[performance page](../../performance/bench/external.md#what-is-timed)"
 msgstr "[性能页面](../../performance/bench/external.md#what-is-timed)"
 
-#: manual/tutorial/bench/external.md:25
+#: manual/tutorial/bench/external.md:26
 msgid "The baseline needs a C compiler and the headers and libraries of MPFR, GMP and mpdecimal. The runner looks for them under `/opt/homebrew`; set `--prefix` or `EXTBENCH_PREFIX` for another location. From the repository root:"
 msgstr "基线需要 C 编译器以及 MPFR、GMP 和 mpdecimal 的头文件和库。运行器在 `/opt/homebrew` 下查找它们；对其他位置请设置 `--prefix` 或 `EXTBENCH_PREFIX`。在仓库根目录执行："
 
-#: manual/tutorial/bench/external.md:33
+#: manual/tutorial/bench/external.md:34
 msgid "The run builds `tools/external_baseline.c`, writes the operand file, asks the C harness for the reference results, checks `floating` against them while it is timed, and alternates the two sides over seven rounds, waiting before each side until the machine is quiet (under 150% CPU used by other processes; `--no-gate` turns this off). Every block is a pair of the case and its null, so a run takes about twice as long as it did before the net-ratio method (about 40 minutes then), because the slowest cases (elementary functions at 8192 bits and 1000 digits) run for hundreds of milliseconds per operation. Run it on AC power and close other heavy work: the load of other processes is the main source of noise. The files land in `.tmp/external`:"
 msgstr "运行会构建 `tools/external_baseline.c`，写出操作数文件，向 C 测试程序索取参考结果，在计时的同时把 `floating` 与之核对，并在七轮中让两侧交替，每一侧开始前等待机器安静（其他进程使用的 CPU 低于 150%；`--no-gate` 可关闭）。每个块都是用例与其 null 的一个配对，所以一次运行耗时约为净比值方法之前的两倍（当时约 40 分钟），因为最慢的用例（8192 位和 1000 位的初等函数）每次运算要运行数百毫秒。请在接通电源时运行，并关闭其他繁重的工作：其他进程的负载是噪声的主要来源。文件落在 `.tmp/external`："
 
-#: manual/tutorial/bench/external.md:46
+#: manual/tutorial/bench/external.md:47
 msgid "the operands both sides read"
 msgstr "两侧读取的操作数"
 
-#: manual/tutorial/bench/external.md:47
+#: manual/tutorial/bench/external.md:48
 msgid "MPFR and libmpdec results for those operands"
 msgstr "这些操作数的 MPFR 和 libmpdec 结果"
 
-#: manual/tutorial/bench/external.md:48
+#: manual/tutorial/bench/external.md:49
 msgid "CPU, OS, compiler, library, `moon` and `moonc` versions, revision, checksums of the two files above"
 msgstr "CPU、操作系统、编译器、库、`moon` 和 `moonc` 的版本，修订版本，以及上面两个文件的校验和"
 
-#: manual/tutorial/bench/external.md:49
+#: manual/tutorial/bench/external.md:50
 msgid "raw observations of each round"
 msgstr "每一轮的原始观测值"
 
-#: manual/tutorial/bench/external.md:50
+#: manual/tutorial/bench/external.md:51
 msgid "raw and net times, null times, intervals, ratios, verdicts (schema `external-baseline-v2`)"
 msgstr "原始时间与净时间、null 时间、区间、比值、判定（schema `external-baseline-v2`）"
 
-#: manual/tutorial/bench/external.md:51
+#: manual/tutorial/bench/external.md:52
 msgid "the pairs of case and null blocks of every case, per side and round: everything `results.json` is computed from"
 msgstr "每个用例按侧和轮次的用例块与 null 块的配对：`results.json` 由它们计算而来"
 
-#: manual/tutorial/bench/external.md:55
+#: manual/tutorial/bench/external.md:56
 msgid "Restrict the matrix"
 msgstr "限制矩阵范围"
 
-#: manual/tutorial/bench/external.md:61
+#: manual/tutorial/bench/external.md:62
 msgid "A restricted run writes its own directory, so it never mixes with a full run."
 msgstr "受限的运行写入它自己的目录，因此绝不会与完整运行混在一起。"
 
-#: manual/tutorial/bench/external.md:63
+#: manual/tutorial/bench/external.md:64
 msgid "Try a run quickly"
 msgstr "快速试跑"
 
-#: manual/tutorial/bench/external.md:69
+#: manual/tutorial/bench/external.md:70
 msgid "The `quick` preset uses short batches and two rounds, and is far noisier than the `standard` one. It exercises every path but is not a measurement to publish."
 msgstr "`quick` 预设使用较短的批次和两轮，噪声远大于 `standard` 预设。它会走遍每条路径，但不是可以发布的测量。"
 
-#: manual/tutorial/bench/external.md:72
+#: manual/tutorial/bench/external.md:73
 msgid "Check the gaps quickly"
 msgstr "快速检查差距"
 
-#: manual/tutorial/bench/external.md:78
+#: manual/tutorial/bench/external.md:79
 msgid "`quick` times only `floating`, in two rounds with short batches, and divides by the MPFR and libmpdec medians stored in `testdata/external_baseline/summary-0.11.0.json` (`--stored` names another summary). Those reference timings do not change, so the C side is not built or run, and the runner does not wait for a quiet machine. The table shows the time of `floating`, the stored reference time, the ratio, the ratio of the stored run and a flag for ratios above `--flag-above` (10 by default). The machine state of the stored run differs from today's, so read a single absolute ratio as a guide and decide a change by timing the old and the new build alternately on the same machine. The floating results are checked against an untimed pass of the same function, not against the C library; only `run` validates against MPFR and libmpdec."
 msgstr "`quick` 只对 `floating` 计时，用两轮短批，并除以存放在 `testdata/external_baseline/summary-0.11.0.json` 中的 MPFR 和 libmpdec 中位数（`--stored` 指定另一份汇总）。这些参考计时不会变化，所以不构建也不运行 C 一侧，运行器也不等待机器安静。表中显示 `floating` 的时间、存放的参考时间、比值、存放那次运行的比值，以及对高于 `--flag-above`（默认 10）的比值的标记。存放那次运行的机器状态与今天不同，所以单个绝对比值只能当作参考，要判断一次改动，请在同一台机器上交替对旧构建和新构建计时。`floating` 的结果是与同一函数的一次不计时的运行核对，而不是与 C 库核对；只有 `run` 会与 MPFR 和 libmpdec 验证。"
 
-#: manual/tutorial/bench/external.md:90
+#: manual/tutorial/bench/external.md:91
 msgid "Re-reduce and publish"
 msgstr "重新归约与发布"
 
-#: manual/tutorial/bench/external.md:97
+#: manual/tutorial/bench/external.md:98
 msgid "`report` reduces the raw rounds in `.tmp/external` again, for example after a change of the statistics, without measuring (the rounds must come from a harness that writes null blocks). `publish` copies the compact summary into `testdata/external_baseline` as `summary-VERSION-CONFIGURATION.json`, one file per release and configuration, the samples as `samples-VERSION-CONFIGURATION.json.gz`, the tables as `summary-CONFIGURATION.md`, and regenerates the tables of that configuration in the [performance page](../../performance/bench/external.md); the raw JSONL stays out of the repository. The summaries of earlier releases (schema v1) keep their names."
 msgstr "`report` 在不测量的情况下重新归约 `.tmp/external` 中的原始各轮，例如在统计方法改动之后（这些轮次必须来自会写出 null 块的测试程序）。`publish` 把紧凑的汇总复制到 `testdata/external_baseline`，命名为 `summary-VERSION-CONFIGURATION.json`，每个版本每种配置一个文件；把样本复制为 `samples-VERSION-CONFIGURATION.json.gz`，把表复制为 `summary-CONFIGURATION.md`，并重新生成[性能页面](../../performance/bench/external.md)中该配置的表；原始 JSONL 不进入仓库。早期版本的汇总（schema v1）保持原名。"
 
-#: manual/tutorial/bench/external.md:107
+#: manual/tutorial/bench/external.md:108
 msgid "Choose a configuration"
 msgstr "选择配置"
 
-#: manual/tutorial/bench/external.md:115
+#: manual/tutorial/bench/external.md:116
 msgid "`--target` chooses the `moon` target the floating side is built and run for (`native`, `wasm` under `moonrun`, `js` under node; the reference side stays the native C process), `--warmup-us` overrides the warm-up time, and `--configuration` names the build configuration of the floating side (lower-case letters, digits and hyphens; `native` for the native target and the target's name otherwise) and is recorded in the summary and in the names of the published files. `--moon-env` passes an environment variable to the `moon` process that builds and runs the floating side and can be repeated; how a configuration is selected, for example how the portable path is forced, is defined by the kernel work, not by the benchmark."
 msgstr "`--target` 选择构建并运行 `floating` 一侧所用的 `moon` 目标（`native`，`wasm` 在 `moonrun` 下，`js` 在 node 下；参考侧仍是原生 C 进程），`--warmup-us` 覆盖预热时间，`--configuration` 给 `floating` 一侧的构建配置命名（小写字母、数字和连字符；原生目标为 `native`，其他目标为目标名），并记录在汇总和发布文件的名字中。`--moon-env` 向构建并运行 `floating` 一侧的 `moon` 进程传入环境变量，可重复使用；配置如何选择，例如如何强制使用可移植路径，由内核工作定义，而不是由基准测试定义。"
 
-#: manual/tutorial/bench/external.md:125
+#: manual/tutorial/bench/external.md:126
 msgid "Calibrate the warm-up of a runtime"
 msgstr "校准运行时的预热"
 
-#: manual/tutorial/bench/external.md:131
+#: manual/tutorial/bench/external.md:132
 msgid "runs the calibration experiment of the [design page](../../design/bench/external.md#the-calibration-experiment-of-the-warm-up) on the floating side only (nothing is published): the warm-up drift of every case, warm-up time and repeat, and the smallest warm-up within the limit. It writes `warmup-<target>.json` under `--out`. It is run once per runtime, before any cell is measured, in the same bench window as the measurement."
 msgstr "只在 `floating` 一侧运行[设计页面](../../design/bench/external.md#the-calibration-experiment-of-the-warm-up)的校准实验（不发布任何东西）：输出每个用例、预热时间和重复的预热漂移，以及处于限度之内的最小预热。它在 `--out` 下写出 `warmup-<target>.json`。每种运行时在测量任何单元格之前运行一次，与测量在同一个基准测试窗口中。"
 
-#: manual/tutorial/bench/external.md:137
+#: manual/tutorial/bench/external.md:138
 msgid "Recompute a summary"
 msgstr "重新计算汇总"
 
-#: manual/tutorial/bench/external.md:143
+#: manual/tutorial/bench/external.md:144
 msgid "recomputes every case from the samples and the protocol of the summary and says how many cases agree with the stored numbers (the exit status is 1 when one differs)."
 msgstr "由样本和汇总的 protocol 重新计算每个用例，并说明有多少个用例与已存数字一致（有任何一个不同时退出状态为 1）。"
 
-#: manual/tutorial/bench/external.md:147
+#: manual/tutorial/bench/external.md:148
 msgid "Compare two releases"
 msgstr "比较两个版本"
 
-#: manual/tutorial/bench/external.md:153
+#: manual/tutorial/bench/external.md:154
 msgid "prints the ratio of every case in both files, the change in percent, a verdict: `slower` when the interval of the new ratio lies entirely above the old one, `faster` when it lies entirely below, `same` otherwise, and which ratio was compared: the net ratios when both summaries are resolved v2 results of the case, the raw ratios otherwise (a v1 summary has only raw ratios). A line says when the two summaries are of different configurations. Ratios, not absolute times, are compared, so a faster machine does not hide a regression; the two runs should still come from the same machine class."
 msgstr "打印两个文件中每个用例的比值、变化的百分比，以及判定：新比值的区间整体高于旧区间时为 `slower`，整体低于时为 `faster`，否则为 `same`；还有所比较的是哪一种比值：当两份汇总中该用例都是已判定的 v2 结果时比较净比值，否则比较原始比值（v1 汇总只有原始比值）。当两份汇总属于不同配置时，会有一行说明。比较的是比值而不是绝对时间，所以更快的机器不会掩盖退化；这两次运行仍应来自同一类机器。"
 
-#: manual/tutorial/bench/external.md:162
+#: manual/tutorial/bench/external.md:163
+msgid "Table of a run beside a release"
+msgstr "一次运行与某个发布并列的表"
+
+#: manual/tutorial/bench/external.md:171
+msgid "writes one table per new summary, that is per configuration, with a heading that names the bounds of the criterion and a line of counts (met, tolerated, not met, unresolved). A row has the case, the time of the reference and of `floating` (the net times of the new summary), the ratio of the old summary, the net ratio of the new one with its 95% interval, the verdict against the bounds recorded in the new summary, the quotient new over old (below 1 is faster) and the quotient of the raw ratios, new raw over old raw. The rows are sorted by package (`bin_float`, then `decimal_gda`), precision and operation. Without `--markdown` the Markdown goes to standard output; the CSV has the same rows for all configurations in one file, with a `configuration` column and plain numbers (nanoseconds and ratios), meant for a chart."
+msgstr "为每份新汇总（即每种配置）写出一张表，标题写明判据的界限，并有一行计数（达标、容许、未达标、未决）。每一行有：用例，参考和 `floating` 的时间（新汇总的净时间），旧汇总的比值，新汇总的净比值及其 95% 区间，按新汇总中记录的界限给出的判定，新比旧的商（低于 1 表示更快），以及原始比值之商，即新原始比值除以旧原始比值。各行按包（先 `bin_float`，后 `decimal_gda`）、精度和运算排序。不带 `--markdown` 时 Markdown 输出到标准输出；CSV 把所有配置的行放在同一个文件里，带 `configuration` 列和纯数值（纳秒和比值），用于画图。"
+
+#: manual/tutorial/bench/external.md:183
+msgid "The old summary may be of schema v1 (the 0.11.0 baseline) or v2. A v1 ratio is a ratio of medians (marked `(raw)`): the loop floor of the timing harness is in both of its times. The new net ratio has the floor subtracted on both sides, so the two are not the same quantity and the quotient new over old is indicative, above all for the small cases whose time is mostly floor. The column `raw new / old` divides the raw ratio of the new summary (every v2 case has one) by the raw ratio of the old one: the same quantity on both sides, medians with the floor in both times, so it is the like-for-like change since the old release; it is empty when either raw ratio is missing. The verdict is made on the net ratio, not on this quotient. An unresolved case shows its raw ratio, marked `(raw)`, and the verdict `unresolved (raw met)` or the like. The same old summary is used for every configuration; the heading of each section names the configuration of the new summary."
+msgstr "旧汇总可以是 schema v1（0.11.0 的基线）或 v2。v1 的比值是中位数之比（标为 `(raw)`）：计时框架的循环底噪同时在它的两个时间里。新的净比值在两侧都扣除了底噪，所以二者不是同一个量，新比旧的商只具有指示性，对时间主要是底噪的小用例尤其如此。`raw new / old` 一列用新汇总的原始比值（每个 v2 用例都有）除以旧汇总的原始比值：两侧是同一个量，即中位数之比，底噪都在两个时间里，所以它是相对旧发布的同口径变化；任一原始比值缺失时为空。判定依据的是净比值，而不是这个商。未决用例显示它的原始比值，标为 `(raw)`，判定为 `unresolved (raw met)` 之类。每种配置使用同一份旧汇总；每一节的标题写明新汇总的配置。"
+
+#: manual/tutorial/bench/external.md:196
+msgid "The three states of the native limb primitives are three runs with their own output directory, each with an explicit configuration name and environment, so that their summaries sit side by side in one table (a name outside the table of criteria is judged like its target, here `native`, bound 3):"
+msgstr "原生 limb 原语的三种状态是三次运行，各有自己的输出目录，并明确给出配置名和环境变量，这样它们的汇总可以并排放在一张表里（不在判据表中的名字按其目标来判定，这里是 `native`，界限 3）："
+
+#: manual/tutorial/bench/external.md:209
+msgid "The configuration name is recorded in the summary and is the heading of its section; `native-c` is a name of this example, any lower-case name with letters, digits and hyphens is accepted. Use the same `--seed` and preset for all of them."
+msgstr "配置名记录在汇总中，也是它那一节的标题；`native-c` 只是本例的名字，任何由小写字母、数字和连字符组成的名字都可以。所有运行使用相同的 `--seed` 和预设。"
+
+#: manual/tutorial/bench/external.md:213
 msgid "Read a ratio"
 msgstr "阅读比值"
 
-#: manual/tutorial/bench/external.md:164
+#: manual/tutorial/bench/external.md:215
 msgid "A cell of the net table such as `2.80 [2.71, 2.93] met` is the net time of `floating` divided by the net time of the reference library, with a 95% bootstrap interval; above 1 means `floating` is slower. `met` says the upper end is at most 3. `unresolved, raw 3.77 not met` says the net ratio could not be resolved (the reason is listed under the tables) and the raw ratio, shown in its own table, decides. `d` and `o` after a cell flag a drift of the null time between rounds and an order effect; an asterisk after a net ratio says the interval contains the target, after a raw ratio that the cell spread more than the dispersion thresholds on the performance page."
 msgstr "净比值表中形如 `2.80 [2.71, 2.93] met` 的单元格，是 `floating` 的净时间除以参考库的净时间，附带 95% 自助区间；大于 1 表示 `floating` 更慢。`met` 表示上端不大于 3。`unresolved, raw 3.77 not met` 表示净比值无法判定（原因列在表下），由单独表格中的原始比值决定。单元格后的 `d` 和 `o` 标记 null 时间在轮次之间的漂移和顺序效应；净比值后的星号表示区间包含目标值，原始比值后的星号表示该单元格的离散超过了性能页面上的离散阈值。"
 
-#: manual/tutorial/bench/external.md:176
+#: manual/tutorial/bench/external.md:227
 msgid "Add a case: extend the matrix constants of `tools/external_baseline.py` (for example `BINARY_PRECISIONS`) and the matching benchmark of `tooling/src/bench/external`; the operand file is read by both sides, so the new case is measured on the same inputs."
 msgstr "添加一个用例：扩展 `tools/external_baseline.py` 的矩阵常量（例如 `BINARY_PRECISIONS`）以及 `tooling/src/bench/external` 中对应的基准；两侧读取同一个操作数文件，因此新用例在相同输入上测量。"
 
-#: manual/tutorial/bench/external.md:180
+#: manual/tutorial/bench/external.md:231
 msgid "Understand the protocol: [bench/external design](../../design/bench/external.md) states why the sides alternate and defines the net ratio, the null and the rules of the verdict."
 msgstr "理解协议：[bench/external 设计](../../design/bench/external.md)说明了两侧为何交替，并定义了净比值、null 和判定规则。"
 
-#: manual/tutorial/bench/external.md:183
+#: manual/tutorial/bench/external.md:234
 msgid "Read the numbers: [external baseline](../../performance/bench/external.md) records the machine, the method and the ratios of the latest published release."
 msgstr "阅读数字：[外部基线](../../performance/bench/external.md)记录了机器、方法以及最新已发布版本的比值。"
 
-#: manual/tutorial/bench/external.md:189
+#: manual/tutorial/bench/external.md:240
 msgid "Compare runs only when `machine.json` agrees on CPU, compilers and library versions."
 msgstr "只有当 `machine.json` 在 CPU、编译器和库版本上一致时，才比较不同的运行。"
 
-#: manual/tutorial/bench/external.md:191
+#: manual/tutorial/bench/external.md:242
 msgid "A validation failure is reported but does not stop the timing: look for `WARNING` lines and `validation_failed_cases` in `results.json`."
 msgstr "验证失败会被报告，但不会中止计时：请查看 `WARNING` 行和 `results.json` 中的 `validation_failed_cases`。"
 
-#: manual/tutorial/bench/external.md:193
+#: manual/tutorial/bench/external.md:244
 msgid "Do not run other heavy work during a measurement; the load average is recorded at the start only."
 msgstr "测量期间不要运行其他重负载的工作；平均负载只在开始时记录。"
 
-#: manual/tutorial/bench/external.md:198
+#: manual/tutorial/bench/external.md:249
 msgid "[bench/external API](../../api/bench/external.md)"
 msgstr "[bench/external API](../../api/bench/external.md)"
 
-#: manual/tutorial/bench/external.md:199
+#: manual/tutorial/bench/external.md:250
 msgid "[bench/external design](../../design/bench/external.md)"
 msgstr "[bench/external 设计](../../design/bench/external.md)"
 
-#: manual/tutorial/bench/external.md:200
+#: manual/tutorial/bench/external.md:251
 msgid "[External baseline results](../../performance/bench/external.md)"
 msgstr "[外部基线结果](../../performance/bench/external.md)"
 
