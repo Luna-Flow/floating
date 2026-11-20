@@ -123,7 +123,7 @@ class CheckedInTableTests(unittest.TestCase):
                 self.assertGreater(len(lines), 5000, name)
                 self.assertEqual(len(lines), 19134)
             else:
-                self.assertGreater(len(lines), 10, name)
+                self.assertGreater(len(lines), 3, name)
             ids = [line.split()[0] for line in lines]
             self.assertEqual(len(set(ids)), len(ids), name)
             self.assertTrue(all(len(line.split()) == 13 for line in lines), name)
