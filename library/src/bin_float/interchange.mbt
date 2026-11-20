@@ -182,7 +182,7 @@ pub fn BinaryInterchange::to_bin_float(self : BinaryInterchange) -> BinFloat {
   let max_exponent_field = (1 << format.exponent_bits()) - 1
   if exponent_field == max_exponent_field {
     if fraction.is_zero() {
-      return BinFloat::inf(
+      return BinFloat::inf_raw(
         if negative {
           Sign::Negative
         } else {
@@ -206,9 +206,9 @@ pub fn BinaryInterchange::to_bin_float(self : BinaryInterchange) -> BinFloat {
   if exponent_field == 0 {
     if fraction.is_zero() {
       return if negative {
-        BinFloat::negative_zero(precision=format.precision())
+        BinFloat::negative_zero_raw(precision=format.precision())
       } else {
-        BinFloat::zero(precision=format.precision())
+        BinFloat::zero_raw(precision=format.precision())
       }
     }
     return finite_from_parts(

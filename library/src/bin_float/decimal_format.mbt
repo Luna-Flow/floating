@@ -17,7 +17,7 @@ fn binary_decimal_exponent(value : BinFloat) -> Int32 {
   // log10(2) = 0.30102999566...; the estimate is within one of the answer.
   let estimate = (top.to_double() * 0.30102999566398120).floor().to_int()
   let magnitude = value.abs()
-  let ten = BinFloat::from_int(10, precision=64)
+  let ten = BinFloat::from_int_raw(10, precision=64)
   let mut exponent = estimate - 1
   for _ in 0..<4 {
     // Is |value| >= 10^(exponent + 1)? Decide with directed bounds of the power.
@@ -104,13 +104,16 @@ fn binary_scaled_decimal_integer(
   // No tie and no exact result at this width: enclose and widen until both
   // ends round to one integer.
   let mut work = digits * 4 + 64
-  let ten = BinFloat::from_int(10, precision=work)
+  let ten = BinFloat::from_int_raw(10, precision=work)
   while true {
     let down = BinaryContext::unbounded(work, rounding=RoundTowardNegative)
     let up = BinaryContext::unbounded(work, rounding=RoundTowardPositive)
     let magnitude = value.abs()
-    let low_value = magnitude.with_precision(work, RoundingMode::TowardNegative)
-    let high_value = magnitude.with_precision(
+    let low_value = magnitude.with_precision_raw(
+      work,
+      RoundingMode::TowardNegative,
+    )
+    let high_value = magnitude.with_precision_raw(
       work,
       RoundingMode::TowardPositive,
     )

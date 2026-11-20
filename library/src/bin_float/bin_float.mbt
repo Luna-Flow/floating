@@ -138,7 +138,7 @@ fn implementation_overflow(
     RoundingMode::TowardNegative => negative
   }
   if to_infinity {
-    BinFloat::inf(
+    BinFloat::inf_raw(
       if negative {
         Sign::Negative
       } else {
@@ -374,6 +374,77 @@ fn binary_checked_result(
 }
 
 ///|
+fn binary_precision_error(
+  operation : String,
+  precision : Int32,
+) -> @def.ArithmeticError {
+  @def.ArithmeticError::domain_error(
+    "\{operation}: precision must be within 1..=\{binary_precision_max} (got \{precision})",
+  )
+}
+
+///|
+/// Aborts unless `1 <= precision <= binary_precision_max`: the precision of a
+/// value is checked where the value is made, so that no later operation can
+/// abort because of it.
+fn binary_check_precision(operation : String, precision : Int32) -> Unit {
+  if precision < 1 || precision > binary_precision_max {
+    abort(
+      "\{operation}: precision must be within 1..=\{binary_precision_max} (got \{precision})",
+    )
+  }
+}
+
+///|
+/// The number of payload bits of a NaN of precision `precision` (IEEE 754-2019
+/// 6.2.1: the trailing significand field has `precision - 1` bits and the
+/// first of them is the quiet bit).
+fn binary_nan_payload_bits(precision : Int32) -> Int32 {
+  Int32::max(precision - 2, 0)
+}
+
+///|
+fn binary_nan_raw(
+  negative : Bool,
+  signaling : Bool,
+  payload : Coeff,
+  precision : Int32,
+) -> BinFloat {
+  {
+    class: FpClass::NaN,
+    negative,
+    coefficient_: Coeff::zero(),
+    exponent2: 0,
+    precision_: precision,
+    signaling_nan: signaling,
+    nan_payload: payload,
+  }
+}
+
+///|
+/// A NaN as a conversion delivers it (IEEE 754-2019 6.2.3): the payload is
+/// kept in its low `precision - 2` bits, and a signaling NaN whose payload
+/// does not survive (or whose format has no room for one) is quiet.
+fn binary_convert_nan(
+  negative : Bool,
+  signaling : Bool,
+  payload : Coeff,
+  precision : Int32,
+) -> BinFloat {
+  let bits = binary_nan_payload_bits(precision)
+  let kept = if payload.bit_length() <= bits {
+    payload
+  } else if bits == 0 {
+    Coeff::zero()
+  } else {
+    payload.bit_and(
+      Coeff::one().shift_left(bits).sub_checked(Coeff::one()).unwrap(),
+    )
+  }
+  binary_nan_raw(negative, signaling && !kept.is_zero(), kept, precision)
+}
+
+///|
 pub fn BinFloat::make(
   coefficient : BinCoeff,
   exponent2 : Int32,
@@ -381,6 +452,7 @@ pub fn BinFloat::make(
   negative~ : Bool = false,
   mode~ : RoundingMode = RoundingMode::ToNearestEven,
 ) -> BinFloat {
+  binary_check_precision("BinFloat::make", precision)
   BinFloat::make_coeff(coefficient.0, exponent2, precision, negative~, mode~)
 }
 
@@ -397,28 +469,52 @@ fn BinFloat::make_coeff(
 
 ///|
 pub fn BinFloat::zero(precision~ : Int32 = 53) -> BinFloat {
+  binary_check_precision("BinFloat::zero", precision)
+  BinFloat::zero_raw(precision~)
+}
+
+///|
+fn BinFloat::zero_raw(precision~ : Int32 = 53) -> BinFloat {
   finite_zero(false, precision)
 }
 
 ///|
 pub fn BinFloat::negative_zero(precision~ : Int32 = 53) -> BinFloat {
+  binary_check_precision("BinFloat::negative_zero", precision)
+  BinFloat::negative_zero_raw(precision~)
+}
+
+///|
+fn BinFloat::negative_zero_raw(precision~ : Int32 = 53) -> BinFloat {
   finite_zero(true, precision)
 }
 
 ///|
 pub fn BinFloat::one(precision~ : Int32 = 53) -> BinFloat {
+  binary_check_precision("BinFloat::one", precision)
+  BinFloat::one_raw(precision~)
+}
+
+///|
+fn BinFloat::one_raw(precision~ : Int32 = 53) -> BinFloat {
   finite_normalized(false, Coeff::one(), 0, precision)
 }
 
 ///|
 pub fn BinFloat::inf(sign : Sign, precision~ : Int32 = 53) -> BinFloat {
+  binary_check_precision("BinFloat::inf", precision)
+  BinFloat::inf_raw(sign, precision~)
+}
+
+///|
+fn BinFloat::inf_raw(sign : Sign, precision~ : Int32 = 53) -> BinFloat {
   let negative = sign == Sign::Negative
   {
     class: FpClass::Infinity,
     negative,
     coefficient_: Coeff::one(),
     exponent2: 0,
-    precision_: Int32::max(1, precision),
+    precision_: precision,
     signaling_nan: false,
     nan_payload: Coeff::zero(),
   }
@@ -426,57 +522,79 @@ pub fn BinFloat::inf(sign : Sign, precision~ : Int32 = 53) -> BinFloat {
 
 ///|
 pub fn BinFloat::nan(precision~ : Int32 = 53) -> BinFloat {
-  BinFloat::quiet_nan(precision~)
+  binary_check_precision("BinFloat::nan", precision)
+  BinFloat::nan_raw(precision~)
 }
 
 ///|
+fn BinFloat::nan_raw(precision~ : Int32 = 53) -> BinFloat {
+  binary_nan_raw(false, false, Coeff::zero(), precision)
+}
+
+///|
+/// A quiet NaN. The payload must fit the `precision - 2` bits that a NaN of
+/// that precision has (IEEE 754-2019 6.2.1); a wider payload aborts.
 pub fn BinFloat::quiet_nan(
   payload? : BinCoeff,
   negative~ : Bool = false,
   precision~ : Int32 = 53,
 ) -> BinFloat {
+  binary_check_precision("BinFloat::quiet_nan", precision)
   let payload : Coeff = match payload {
     Some(value) => value.0
     None => Coeff::zero()
   }
-  {
-    class: FpClass::NaN,
-    negative,
-    coefficient_: Coeff::zero(),
-    exponent2: 0,
-    precision_: Int32::max(1, precision),
-    signaling_nan: false,
-    nan_payload: payload,
-  }
+  binary_check_payload("BinFloat::quiet_nan", payload, precision)
+  binary_nan_raw(negative, false, payload, precision)
 }
 
 ///|
+/// A signaling NaN. Its payload is non-zero (a zero payload is replaced by 1,
+/// because a signaling NaN with payload 0 is the encoding of infinity) and
+/// fits `precision - 2` bits, so the precision is at least 3; otherwise this
+/// aborts (IEEE 754-2019 6.2.1).
 pub fn BinFloat::signaling_nan(
   payload? : BinCoeff,
   negative~ : Bool = false,
   precision~ : Int32 = 53,
 ) -> BinFloat {
+  binary_check_precision("BinFloat::signaling_nan", precision)
   let payload : Coeff = match payload {
     Some(value) => value.0
     None => Coeff::one()
   }
-  {
-    class: FpClass::NaN,
-    negative,
-    coefficient_: Coeff::zero(),
-    exponent2: 0,
-    precision_: Int32::max(1, precision),
-    signaling_nan: true,
-    nan_payload: if payload.is_zero() {
-      Coeff::one()
-    } else {
-      payload
-    },
+  let payload = if payload.is_zero() { Coeff::one() } else { payload }
+  if precision < 3 {
+    abort(
+      "BinFloat::signaling_nan: a signaling NaN needs a precision of at least 3 (got \{precision})",
+    )
+  }
+  binary_check_payload("BinFloat::signaling_nan", payload, precision)
+  binary_nan_raw(negative, true, payload, precision)
+}
+
+///|
+fn binary_check_payload(
+  operation : String,
+  payload : Coeff,
+  precision : Int32,
+) -> Unit {
+  let bits = binary_nan_payload_bits(precision)
+  if payload.bit_length() > bits {
+    abort(
+      "\{operation}: the payload needs \{payload.bit_length()} bits, a NaN of precision \{precision} has \{bits}",
+    )
   }
 }
 
 ///|
 pub fn BinFloat::from_int(n : Int32, precision~ : Int32 = 53) -> BinFloat {
+  binary_check_precision("BinFloat::from_int", precision)
+  BinFloat::from_int_raw(n, precision~)
+}
+
+///|
+fn BinFloat::from_int_raw(n : Int32, precision~ : Int32 = 53) -> BinFloat {
   let negative = n < 0
   let magnitude = if negative {
     (-(n + 1)).to_uint64() + 1UL
@@ -492,12 +610,22 @@ pub fn BinFloat::from_coefficient(
   precision~ : Int32 = 53,
   negative~ : Bool = false,
 ) -> BinFloat {
+  binary_check_precision("BinFloat::from_coefficient", precision)
+  BinFloat::from_coefficient_raw(coefficient, precision~, negative~)
+}
+
+///|
+fn BinFloat::from_coefficient_raw(
+  coefficient : BinCoeff,
+  precision~ : Int32 = 53,
+  negative~ : Bool = false,
+) -> BinFloat {
   BinFloat::make_coeff(coefficient.0, 0, precision, negative~)
 }
 
 ///|
 pub fn BinFloat::from_double(x : Double, precision~ : Int32 = 53) -> BinFloat {
-  let precision = Int32::max(1, precision)
+  binary_check_precision("BinFloat::from_double", precision)
   let bits = x.reinterpret_as_uint64()
   let negative = bits >> 63 != 0UL
   let exponent_bits = ((bits >> 52) & 0x7ffUL).to_int()
@@ -505,7 +633,7 @@ pub fn BinFloat::from_double(x : Double, precision~ : Int32 = 53) -> BinFloat {
   let quiet_bit = 1UL << 51
   if exponent_bits == 0x7ff {
     if fraction_bits == 0UL {
-      return BinFloat::inf(
+      return BinFloat::inf_raw(
         if negative {
           Sign::Negative
         } else {
@@ -514,26 +642,22 @@ pub fn BinFloat::from_double(x : Double, precision~ : Int32 = 53) -> BinFloat {
         precision~,
       )
     }
-    return if (fraction_bits & quiet_bit) == 0UL {
-      BinFloat::signaling_nan(
-        payload=Coeff::from_uint64(fraction_bits),
-        negative~,
-        precision~,
-      )
-    } else {
-      BinFloat::quiet_nan(
-        payload=Coeff::from_uint64(fraction_bits & (quiet_bit - 1UL)),
-        negative~,
-        precision~,
-      )
-    }
+    // A NaN of another precision keeps the low `precision - 2` bits of its
+    // payload (IEEE 754-2019 6.2.3); a signaling NaN that cannot keep a
+    // non-zero payload becomes quiet.
+    return binary_convert_nan(
+      negative,
+      (fraction_bits & quiet_bit) == 0UL,
+      Coeff::from_uint64(fraction_bits & (quiet_bit - 1UL)),
+      precision,
+    )
   }
   if exponent_bits == 0 {
     if fraction_bits == 0UL {
       return if negative {
-        BinFloat::negative_zero(precision~)
+        BinFloat::negative_zero_raw(precision~)
       } else {
-        BinFloat::zero(precision~)
+        BinFloat::zero_raw(precision~)
       }
     }
     return BinFloat::make_coeff(
@@ -706,6 +830,16 @@ pub fn BinFloat::with_precision(
   precision : Int32,
   mode : RoundingMode,
 ) -> BinFloat {
+  binary_check_precision("BinFloat::with_precision", precision)
+  BinFloat::with_precision_raw(self, precision, mode)
+}
+
+///|
+fn BinFloat::with_precision_raw(
+  self : BinFloat,
+  precision : Int32,
+  mode : RoundingMode,
+) -> BinFloat {
   match self.class {
     FpClass::Finite =>
       if self.is_zero() {
@@ -719,8 +853,14 @@ pub fn BinFloat::with_precision(
           mode~,
         )
       }
-    FpClass::Infinity => { ..self, precision_: Int32::max(1, precision), }
-    FpClass::NaN => { ..self, precision_: Int32::max(1, precision), }
+    FpClass::Infinity => { ..self, precision_: precision, }
+    FpClass::NaN =>
+      binary_convert_nan(
+        self.negative,
+        self.signaling_nan,
+        self.nan_payload,
+        precision,
+      )
   }
 }
 
@@ -894,7 +1034,7 @@ pub fn BinFloat::ulp(self : BinFloat) -> BinFloat {
           self.precision_,
         )
       }
-    _ => BinFloat::nan(precision=self.precision_)
+    _ => BinFloat::nan_raw(precision=self.precision_)
   }
 }
 

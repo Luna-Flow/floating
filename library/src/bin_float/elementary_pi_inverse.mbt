@@ -86,9 +86,9 @@ fn binary_pi_signed_zero(
 ) -> (BinFloat, BinaryFlags) {
   (
     if negative {
-      BinFloat::negative_zero(precision=context.precision)
+      BinFloat::negative_zero_raw(precision=context.precision)
     } else {
-      BinFloat::zero(precision=context.precision)
+      BinFloat::zero_raw(precision=context.precision)
     },
     BinaryFlags::new(),
   )
@@ -125,7 +125,9 @@ pub fn BinFloat::try_asinpi_ctx(
   if self.classify() == FpClass::Infinity {
     return binary_invalid_domain("asinpi requires an input in [-1, 1]")
   }
-  let comparison = self.abs().compare(BinFloat::one(precision=self.precision()))
+  let comparison = self
+    .abs()
+    .compare(BinFloat::one_raw(precision=self.precision()))
   if comparison > 0 {
     return binary_invalid_domain("asinpi requires an input in [-1, 1]")
   }
@@ -172,7 +174,9 @@ pub fn BinFloat::try_acospi_ctx(
   if self.classify() == FpClass::Infinity {
     return binary_invalid_domain("acospi requires an input in [-1, 1]")
   }
-  let comparison = self.abs().compare(BinFloat::one(precision=self.precision()))
+  let comparison = self
+    .abs()
+    .compare(BinFloat::one_raw(precision=self.precision()))
   if comparison > 0 {
     return binary_invalid_domain("acospi requires an input in [-1, 1]")
   }
@@ -255,7 +259,7 @@ pub fn BinFloat::try_atanpi_ctx(
     return Ok(self.round_ctx(context))
   }
   // atanPi(±1) = ±1/4.
-  if self.abs().compare(BinFloat::one(precision=self.precision())) == 0 {
+  if self.abs().compare(BinFloat::one_raw(precision=self.precision())) == 0 {
     return Ok(binary_pi_constant(self.is_negative(), 1UL, -2, context))
   }
   // 2^top <= |x| huge: atanPi(x) = ±(1/2 − δ), 0 < δ < 1/(π |x|) < 2^(-top).
@@ -377,7 +381,7 @@ pub fn BinFloat::try_atan2pi_ctx(
     if behind {
       // 1 − δ with 0 < δ < t/π < 2^D.
       if binary_tiny_argument_result(
-          BinFloat::one(precision=2).copy_sign(self),
+          BinFloat::one_raw(precision=2).copy_sign(self),
           negative,
           distance,
           context,
@@ -407,7 +411,7 @@ pub fn BinFloat::try_atan2pi_ctx(
       (Some(angle), Some(pi)) => {
         let fraction = binary_pi_scaled_enclosure(angle, pi, w)
         let magnitude = if behind {
-          let one = BinFloat::one(precision=w)
+          let one = BinFloat::one_raw(precision=w)
           (
             one.sub_ctx(fraction.1, downward).0,
             one.sub_ctx(fraction.0, upward).0,

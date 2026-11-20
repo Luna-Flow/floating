@@ -42,7 +42,7 @@ fn binary_pole_result(
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
   (
-    BinFloat::inf(
+    BinFloat::inf_raw(
       if negative {
         Sign::Negative
       } else {
@@ -97,7 +97,7 @@ fn binary_saturated_minus_one(
       context.precision,
     )
   } else {
-    BinFloat::one(precision=context.precision).neg()
+    BinFloat::one_raw(precision=context.precision).neg()
   }
   (result, binary_inexact_flags(false))
 }
@@ -149,10 +149,10 @@ fn binary_positive_exp_minus_one_overflow(
   base_is_two : Bool,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags)? {
-  if value.is_negative() || value.compare(BinFloat::one()) < 0 {
+  if value.is_negative() || value.compare(BinFloat::one_raw()) < 0 {
     return None
   }
-  if value.compare(BinFloat::from_int(64, precision=7)) >= 0 {
+  if value.compare(BinFloat::from_int_raw(64, precision=7)) >= 0 {
     // Base 2, L = e_max + 1 >= 64 and x > L with x - L >= 2^(-L + 1) (a
     // multiple of 2^exponent2(x)): 2^x - 1 >= 2^L (1 + 2^(-L + 1) ln 2) - 1 >
     // 2^L, so the result is beyond the range. This decides x = L + tiny, which
@@ -160,7 +160,7 @@ fn binary_positive_exp_minus_one_overflow(
     if base_is_two {
       let limit = context.range_e_max() + 1
       if limit >= 64 &&
-        value.compare(BinFloat::from_int(limit, precision=53)) > 0 &&
+        value.compare(BinFloat::from_int_raw(limit, precision=53)) > 0 &&
         value.exponent2() > -limit {
         return Some(binary_overflow_result(false, context))
       }

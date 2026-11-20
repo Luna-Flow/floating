@@ -39,10 +39,32 @@ pub fn BinFloatResult::err(err : @def.ArithmeticError) -> BinFloatResult {
 }
 
 ///|
+fn bin_result_precision_error(
+  operation : String,
+  precision : Int32,
+) -> BinFloatResult? {
+  if precision < 1 || precision > @bin_float.binary_precision_max {
+    Some(
+      BinFloatResult::err(
+        @def.ArithmeticError::domain_error(
+          "\{operation}: precision must be within 1..=\{@bin_float.binary_precision_max} (got \{precision})",
+        ),
+      ),
+    )
+  } else {
+    None
+  }
+}
+
+///|
 pub fn BinFloatResult::from_int(
   value : Int32,
   precision~ : Int32 = 53,
 ) -> BinFloatResult {
+  if bin_result_precision_error("BinFloatResult::from_int", precision)
+    is Some(failure) {
+    return failure
+  }
   BinFloatResult::ok(@bin_float.BinFloat::from_int(value, precision~))
 }
 
@@ -52,6 +74,10 @@ pub fn BinFloatResult::from_coefficient(
   precision~ : Int32 = 53,
   negative~ : Bool = false,
 ) -> BinFloatResult {
+  if bin_result_precision_error("BinFloatResult::from_coefficient", precision)
+    is Some(failure) {
+    return failure
+  }
   BinFloatResult::ok(
     @bin_float.BinFloat::from_coefficient(value, precision~, negative~),
   )
@@ -62,6 +88,10 @@ pub fn BinFloatResult::from_double(
   value : Double,
   precision~ : Int32 = 53,
 ) -> BinFloatResult {
+  if bin_result_precision_error("BinFloatResult::from_double", precision)
+    is Some(failure) {
+    return failure
+  }
   BinFloatResult::ok(@bin_float.BinFloat::from_double(value, precision~))
 }
 
@@ -70,6 +100,10 @@ pub fn BinFloatResult::from_float(
   value : Float,
   precision~ : Int32 = 24,
 ) -> BinFloatResult {
+  if bin_result_precision_error("BinFloatResult::from_float", precision)
+    is Some(failure) {
+    return failure
+  }
   BinFloatResult::ok(@bin_float.BinFloat::from_float(value, precision~))
 }
 

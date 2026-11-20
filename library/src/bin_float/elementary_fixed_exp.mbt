@@ -52,7 +52,7 @@ fn binary_exp_small_fixed_bounds(
   if !value.is_negative() {
     return Some((lower, upper))
   }
-  let one = BinFloat::one(precision=work_precision)
+  let one = BinFloat::one_raw(precision=work_precision)
   Some(
     (
       one.div_ctx(
@@ -82,7 +82,10 @@ fn binary_exp_bounds_fixed(
   guard value.classify() == FpClass::Finite && !value.is_zero() else {
     return None
   }
-  let lower = value.with_precision(work_precision, RoundingMode::TowardNegative)
+  let lower = value.with_precision_raw(
+    work_precision,
+    RoundingMode::TowardNegative,
+  )
   guard lower.compare(value) == 0 else { return None }
   let downward = BinaryContext::unbounded(
     work_precision,

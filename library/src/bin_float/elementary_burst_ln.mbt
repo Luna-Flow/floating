@@ -51,7 +51,7 @@ fn binary_ln_unit_burst_bounds(
     !value.is_negative() else {
     return None
   }
-  let two = BinFloat::from_int(2, precision=2)
+  let two = BinFloat::from_int_raw(2, precision=2)
   let near_one = BinFloat::make_coeff(
     Coeff::one().shift_left(binary_ln_burst_near_one_bits).add(Coeff::one()),
     -binary_ln_burst_near_one_bits,
@@ -63,14 +63,14 @@ fn binary_ln_unit_burst_bounds(
   // `d = v - 1 >= 2^-16` and `ln v >= d / 2 >= 2^(top(d) - 2)`: work this many
   // bits more so that the result keeps `work_precision` significant bits.
   let difference = value.sub_ctx(
-      BinFloat::one(precision=2),
+      BinFloat::one_raw(precision=2),
       BinaryContext::unbounded(value.coefficient_.bit_length() + 8),
     ).0
   let lead = binary_top_bound(difference).to_int()
   let inner = work_precision + Int32::max(0, 2 - lead)
   let start_precision = inner / 2 + 16 - mutation.start_bits_drop
   guard start_precision >= 64 else { return None }
-  let rounded = value.with_precision(
+  let rounded = value.with_precision_raw(
     start_precision,
     RoundingMode::ToNearestEven,
   )
@@ -86,7 +86,7 @@ fn binary_ln_unit_burst_bounds(
     rounding=RoundTowardNegative,
   )
   let upward = BinaryContext::unbounded(precision, rounding=RoundTowardPositive)
-  let one = BinFloat::one(precision~)
+  let one = BinFloat::one_raw(precision~)
   let half = BinFloat::make_coeff(Coeff::one(), -1, 1)
   let three_halves = BinFloat::make_coeff(Coeff::from_uint64(3UL), -1, 2)
   let quotient_low = value.div_ctx(exp_high, downward).0
@@ -119,8 +119,8 @@ fn binary_ln_unit_burst_bounds(
   guard width.compare(limit) <= 0 else { return None }
   Some(
     (
-      low.with_precision(work_precision, RoundingMode::TowardNegative),
-      high.with_precision(work_precision, RoundingMode::TowardPositive),
+      low.with_precision_raw(work_precision, RoundingMode::TowardNegative),
+      high.with_precision_raw(work_precision, RoundingMode::TowardPositive),
     ),
   )
 }

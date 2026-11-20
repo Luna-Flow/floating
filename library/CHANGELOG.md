@@ -57,6 +57,21 @@ notes live in this file.
 
 - `ball_float`: the total elementary forms (`exp_interval`, `exp2_interval`, `exp10_interval`, `ln_interval`, `log2_interval`, `log10_interval`, `sin_interval`, `cos_interval`, `tan_interval`, `asin_interval`, `acos_interval`, `atan_interval`, the six hyperbolic functions and their inverses, `pow_interval`, `rootn`) are now the `try_` form with a fallback, one kernel instead of two ([#449](https://github.com/Luna-Flow/floating/issues/449); Closes #449). They used an exact-rational series of their own that aborted ("certified log series did not converge") from about 32,000 bits for `ln_interval` (about 150,000 for `exp_interval`, about 200,000 for `atan_interval`), and that lost all relative accuracy for a tiny argument in `sinh`, `tanh`, `asinh` and `atanh` (`sinh_interval` of `2^-300` at 53 bits was `[0, 3 * 2^-246]`, now two ulps wide). The `try_` forms used the `bin_float` kernels and had neither limit. Whenever the `try_` form succeeds, the total form returns the same interval; when it reports a certification failure the total form returns the range of the function over its domain (`[0, +inf)` for `exp`, `[-1, 1]` for `sin`, `[-pi/2, pi/2]` for `atan`, Entire for `ln`, and so on; the table is in the API page), which is valid at every precision and cannot itself fail. An argument outside the domain still gives Empty, decided before the kernel runs. Results of these functions can differ from the previous release in the last bit (the `try_` kernels round each endpoint directly); all 4,656 strict ITF1788 cases pass.
 - `ball_float`: `try_atanh_interval` (and so `atanh_interval`) aborted ("ball lower bound must not be positive infinity") for an interval whose only point in the closure of the domain is `1` or `-1` (`[1, 1]`, `[1, +inf]`, `[-inf, -1]`). The open domain leaves nothing, so the result is Empty.
+- `bin_float`, `bin_float_checked`: the precision of a value is checked where the value is made ([#442](https://github.com/Luna-Flow/floating/issues/442); step S5 of [#438](https://github.com/Luna-Flow/floating/issues/438)). A precision outside `1..=binary_precision_max` was replaced by 1 in most constructors, accepted above the limit (later operations aborted), and aborted inside `BinFloat::from_string`. A value-returning constructor now aborts with a message naming the constructor, the range and the value; `from_string`, `from_hex` and the constructors of `BinFloatResult` return an `Err`.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `BinFloat::from_int(3, precision=0)` is the value `4` at precision 1 | aborts | the same for `make`, `from_coefficient`, `from_double`, `from_float`, `zero`, `negative_zero`, `one`, `inf`, `nan`, `quiet_nan`, `signaling_nan` and `with_precision` |
+  | a precision above `binary_precision_max` accepted | aborts | the check is on the constructors; operations on an existing value no longer build a context from an unchecked precision |
+  | `BinFloat::from_string(s, precision=0)` aborted | `Err(DomainError)` | `from_hex` likewise, also for a precision above the limit |
+  | `BinFloatResult::from_int(3, precision=0)` is `Ok` | `Err(DomainError)` | the four constructors of the checked tier |
+
+- `bin_float`: the payload of a NaN is checked at construction and truncated only by conversions (step S6 of [#438](https://github.com/Luna-Flow/floating/issues/438), IEEE 754-2019 6.2.1 and 6.2.3). A NaN of precision `p` has `p - 2` payload bits.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `quiet_nan(payload=wide)` accepted any width | aborts when the payload needs more than `p - 2` bits | `signaling_nan` also aborts below `p = 3`, where no signaling NaN exists |
+  | `with_precision`, `from_double`, `from_hex` and every operation under a context copied the whole payload | the payload keeps its low `p - 2` bits | a signaling NaN whose payload does not survive becomes quiet; a context of precision 2 or less gives payload 0 |
 
 ## 0.11.0 - 2026-11-20
 

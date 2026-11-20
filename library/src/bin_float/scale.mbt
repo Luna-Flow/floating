@@ -51,19 +51,19 @@ pub fn BinFloat::logb_ctx(
       )
     FpClass::Infinity =>
       (
-        BinFloat::inf(Sign::Positive, precision=context.precision),
+        BinFloat::inf_raw(Sign::Positive, precision=context.precision),
         BinaryFlags::new(),
       )
     FpClass::Finite =>
       if self.coefficient_.is_zero() {
         (
-          BinFloat::inf(Sign::Negative, precision=context.precision),
+          BinFloat::inf_raw(Sign::Negative, precision=context.precision),
           binary_division_by_zero_flags(),
         )
       } else {
         // An Int needs at most 32 bits, so the result is exact.
         (
-          BinFloat::from_int(
+          BinFloat::from_int_raw(
             binary_exact_top(self.coefficient_, self.exponent2),
             precision=Int32::max(context.precision, 32),
           ),

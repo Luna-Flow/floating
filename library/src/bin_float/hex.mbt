@@ -125,11 +125,14 @@ pub fn BinFloat::from_hex(
   source : String,
   precision : Int32,
 ) -> Result[BinFloat, @def.ArithmeticError] {
+  if precision < 1 || precision > binary_precision_max {
+    return Err(binary_precision_error("BinFloat::from_hex", precision))
+  }
   binary_parse_hex(source).bind(fn(parsed) {
     match parsed {
       Infinite(negative~) =>
         Ok(
-          BinFloat::inf(
+          BinFloat::inf_raw(
             if negative {
               Sign::Negative
             } else {
@@ -138,16 +141,17 @@ pub fn BinFloat::from_hex(
             precision~,
           ),
         )
-      QuietNaN(negative~) => Ok(BinFloat::quiet_nan(negative~, precision~))
+      QuietNaN(negative~) =>
+        Ok(binary_convert_nan(negative, false, Coeff::zero(), precision))
       SignalingNaN(negative~) =>
-        Ok(BinFloat::signaling_nan(negative~, precision~))
+        Ok(binary_convert_nan(negative, true, Coeff::one(), precision))
       Finite(negative~, magnitude~, exponent2~) => {
         if magnitude.is_zero() {
           return Ok(
             if negative {
-              BinFloat::negative_zero(precision~)
+              BinFloat::negative_zero_raw(precision~)
             } else {
-              BinFloat::zero(precision~)
+              BinFloat::zero_raw(precision~)
             },
           )
         }
@@ -186,7 +190,7 @@ pub fn BinFloat::from_hex_ctx(
     match parsed {
       Infinite(negative~) =>
         (
-          BinFloat::inf(
+          BinFloat::inf_raw(
             if negative {
               Sign::Negative
             } else {
@@ -203,7 +207,7 @@ pub fn BinFloat::from_hex_ctx(
         )
       SignalingNaN(negative~) =>
         (
-          BinFloat::signaling_nan(negative~, precision=context.precision),
+          binary_convert_nan(negative, true, Coeff::one(), context.precision),
           BinaryFlags::new(),
         )
       Finite(negative~, magnitude~, exponent2~) => {

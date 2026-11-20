@@ -212,7 +212,7 @@ fn binary_round_decimal(
   while true {
     let down = BinaryContext::unbounded(work, rounding=RoundTowardNegative)
     let up = BinaryContext::unbounded(work, rounding=RoundTowardPositive)
-    let five = BinFloat::from_int(5, precision=work)
+    let five = BinFloat::from_int_raw(5, precision=work)
     let power_low = five.pown_ctx(scale_int, down).0
     let power_high = five.pown_ctx(scale_int, up).0
     let digits_low = BinFloat::make_coeff(
@@ -268,7 +268,7 @@ pub fn BinFloat::from_string_ctx(
       Finite(literal) => binary_round_decimal(literal, context)
       Infinite(negative) =>
         (
-          BinFloat::inf(
+          BinFloat::inf_raw(
             if negative {
               Sign::Negative
             } else {
@@ -298,6 +298,9 @@ pub fn BinFloat::from_string(
   source : String,
   precision~ : Int32 = 53,
 ) -> Result[BinFloat, @def.ArithmeticError] {
+  if precision < 1 || precision > binary_precision_max {
+    return Err(binary_precision_error("BinFloat::from_string", precision))
+  }
   BinFloat::from_string_ctx(source, BinaryContext::unbounded(precision)).map(fn(
     result,
   ) {
