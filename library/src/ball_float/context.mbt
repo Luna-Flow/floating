@@ -311,6 +311,12 @@ pub fn BallFloat::apply_ctx(
 }
 
 ///|
+/// `midpoint` in the format of `ctx`. When the precision of `ctx` is lower than
+/// the number of bits of the endpoints the rounded midpoint can lie outside the
+/// interval: the format is then not compatible with the interval (the NOTE of
+/// IEEE 1788-2015 12.12.8: for `[1 + u, 1 + 2u]` of binary64 in binary32 no
+/// F-number lies in the interval and `mid` is 1). With the precision of the
+/// interval (`midpoint`) the midpoint is a member.
 pub fn BallFloat::midpoint_ctx(
   self : BallFloat,
   ctx : BallContext,
