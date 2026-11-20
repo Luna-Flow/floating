@@ -31,20 +31,48 @@ Both oracles are implementations, not specifications.
   text. Two things differ and are handled in the generator, not by ignoring
   rows: libmpdec lumps `Division_undefined` into `Invalid_operation`, and the
   GDA `tosci` and `toeng` rows apply the context precision to their operand
-  (dtfile.html, "Processing of a test case line"). A third difference is
-  registered as an expected difference of the `decimal_gda-power` family:
-  `power(10^k, y)` with a non-integral `y` and an integral `k*y`. GDA 1.70
-  allows an inexact result to be up to one unit in the last place in error and
-  the library returns the exact value $10^{ky}$ in every rounding mode, while
-  libmpdec can be one unit in the last place away in a directed mode (and flags
-  Subnormal for an exact result at the smallest normal number). The generator
-  does not skip those rows: it computes the library's result from the rule,
-  checks that libmpdec's result is the exact value or within one unit in the
-  last place of it (an error otherwise), writes the row with the library's
-  result and a comment line `expected-difference power-of-ten #351` that
-  names libmpdec's result. The family draws about one case in 25 from this
-  class, with a random rounding mode, because its other rows are nearest-even
-  only.
+  (dtfile.html, "Processing of a test case line"). Further differences of the
+  `power` operation are registered as named expected differences of the
+  `decimal_gda-power` family. Such a row is never skipped: the generator derives
+  what this library returns from the rule of the class, checks the facts the
+  class stands on, writes the row with that result and a comment line
+  `expected-difference <class>: libmpdec gives ...`, and a row outside every
+  shape keeps libmpdec's result and fails when the two differ.
+  - `power-of-ten #351`: `power(10^k, y)` with a non-integral `y` and an
+    integral `k*y`. GDA 1.70 allows an inexact result to be up to one unit in
+    the last place in error; the library returns the exact value $10^{ky}$ in
+    every rounding mode, libmpdec can be one unit in the last place away
+    (and flags Subnormal for an exact result at the smallest normal number).
+    Checked: libmpdec's value is within one unit in the last place of the exact
+    one. The family draws about one case in 25 from this class, with a random
+    rounding mode, because its other rows are nearest-even only.
+  - `integer-power-accuracy`: an integral exponent, the result one unit in the
+    last place from libmpdec's. libmpdec rounds correctly; the library follows
+    the decNumber algorithm (working precision `digits + digits(n) + 2`,
+    half-even, the base inverted first for a negative exponent), whose error is
+    below 0.55 units in the last place (0.6 for a negative exponent), and
+    `power.decTest` pins a result that is not within 0.5 units (powx1215, "A
+    (rare) case where the last digit is not within 0.5 ULP"). The generator
+    reproduces that algorithm in Python and checks that its value is within 0.6
+    units of the exact power, formed exactly, and libmpdec's within one.
+  - `noninteger-power-rounding`: a non-integral exponent where libmpdec is not
+    the correctly rounded value and the library is. The expected value is the
+    correct rounding recomputed at `precision + 60` digits, used only when the
+    bounds of that value round alike; libmpdec's must be within one unit of it.
+  - `underflow-with-inexact-subnormal`: libmpdec reports Inexact and Subnormal
+    without Underflow. GDA 1.70, Underflow: "the result is both inexact and
+    subnormal" (and `power.decTest` powx392 expects `Underflow Subnormal Inexact
+    Rounded`). The row expects libmpdec's conditions plus Underflow, only for
+    that shape.
+  - `subnormal-before-rounding`: GDA 1.70, Subnormal: the adjusted exponent is
+    less than Emin "before any rounding", libmpdec decides it on the rounded
+    result. For an integral power whose exact value, formed exactly, is below
+    $10^{e_{\min}}$ while libmpdec's rounded result is $10^{e_{\min}}$ itself,
+    the row expects Subnormal and Underflow added to libmpdec's conditions.
+
+  The rows with an exponent of zero in a clamped context are not registered:
+  the library folds `x ** 0` down while decNumber and libmpdec do not, and
+  the library does not fold `1 ** n`, so its own two paths disagree (issue 405).
 - **IEEE decimal elementary functions.** The IEEE `decimal` package has
   functions (`exp`, `atan2`, `pown`, ...) that libmpdec either lacks or answers
   only to nearest-even, so their oracle is MPFR through its *enclosure*, not

@@ -455,7 +455,7 @@ row's own range, so those limits are compared); NaN payloads are not compared;
 the decimal elementary functions answer `Invalid_context` when |Emax| or |Emin|
 reaches 10^6 (the decNumber `DEC_MAX_MATH` limit the package adopts as a deliberate implementation limit, which decTest requires and GDA 1.70's Invalid context condition permits, but which the operation text does not state; opt-in
 `decimal_gda-*wide` families sample those contexts); libmpdec decides Subnormal and
-Underflow of `exp`, `ln` and `log10` after rounding where GDA 1.70 says before
+Underflow of `exp`, `ln`, `log10` and `power` after rounding where GDA 1.70 says before
 any rounding, so elementary rows keep Emin below 0; `apply` of a signaling NaN
 is not specified; `tosci` and `toeng` apply the context precision as decTest
 specifies.
