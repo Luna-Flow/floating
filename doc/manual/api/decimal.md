@@ -276,6 +276,42 @@ so this direction is usually inexact; converting with `TowardNegative` and
 `TowardPositive` gives a binary enclosure of the decimal value. Zeros keep
 their sign and NaN payloads are not kept.
 
+### `Decimal::convert_format`, `from_bin_float_ctx`, `to_bin_float_ctx`
+
+These functions are IEEE 754-2019 convertFormat (§5.4.2) with the flags, for
+the conversions between decimal formats and between the radices.
+
+```mbti
+pub fn Decimal::convert_format(Self, DecimalInterchangeFormat) -> (Self, DecimalFlags)
+pub fn Decimal::from_bin_float_ctx(@bin_float.BinFloat, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::to_bin_float_ctx(Self, @bin_float.BinaryContext) -> (@bin_float.BinFloat, @bin_float.BinaryFlags)
+```
+
+`convert_format(format)` converts to decimal32, decimal64 or decimal128: the
+value is rounded once, to nearest even, to the precision and exponent range of
+the format, with the flags of that rounding. The preferred exponent is the
+quantum of the source ("For conversions between decimal formats, the preferred
+exponent is Q(source)"): a conversion to a wider format is exact and keeps the
+cohort member, a narrower one rounds, can overflow or underflow, and folds a
+large exponent down with `clamped`.
+`from_bin_float_ctx(x, ctx)` rounds the exact value of a binary float once
+under the decimal context (precision, exponent range, direction) with the flags
+of the rounding: an exact conversion has the preferred exponent 0 (the
+exponent closest to 0 that holds the digits: `0.5` is `5E-1`, `96` is `96`), an
+inexact one has `precision` digits ("the preferred exponent is the least
+possible"). A value beyond the exponent range, or far below it, overflows or
+underflows without its digits being formed; a binary exponent beyond $2^{22}$
+that the context does not take out of range by itself is refused with NaN and
+`invalid_context`. `to_bin_float_ctx(ctx)` rounds the exact decimal value once
+under a `BinaryContext` (binary16 to binary128, or any precision and range)
+and returns the `BinaryFlags` (inexact, overflow, underflow); it is the
+conversion of `BinFloat::from_string_ctx`, correctly rounded for any exponent.
+A zero keeps its sign in every direction. A signaling NaN gives a quiet NaN
+and the invalid operation exception; the sign of a NaN is kept, and so is its
+payload when the destination holds it (§6.2.3): `p - 1` digits for the decimal
+formats and `p - 2` bits for a binary format, otherwise the low digits or bits.
+`from_bin_float` and `to_bin_float` are unchanged.
+
 ### `Decimal::from_natural`, `from_integer`
 
 These functions are the canonical maps out of the naturals and the integers.
@@ -2306,6 +2342,7 @@ pub fn Decimal::compare_total_ctx(Self, Self, DecimalContext) -> (Int32, Decimal
 pub fn Decimal::compare_total_magnitude(Self, Self) -> Int32
 pub fn Decimal::compare_total_magnitude_ctx(Self, Self, DecimalContext) -> (Int32, DecimalFlags)
 pub fn Decimal::compound_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::convert_format(Self, DecimalInterchangeFormat) -> (Self, DecimalFlags)
 pub fn Decimal::copy(Self) -> Self
 pub fn Decimal::copy_abs(Self) -> Self
 pub fn Decimal::copy_negate(Self) -> Self
@@ -2331,6 +2368,7 @@ pub fn Decimal::exponent10(Self) -> Int32
 pub fn Decimal::fma_ctx(Self, Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::from_bigint(@bigint.BigInt, precision? : Int32) -> Self
 pub fn Decimal::from_bin_float(@bin_float.BinFloat, precision? : Int32) -> Self
+pub fn Decimal::from_bin_float_ctx(@bin_float.BinFloat, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::from_double(Double, precision? : Int32) -> Self
 pub fn Decimal::from_float(Float, precision? : Int32) -> Self
 pub fn Decimal::from_int(Int32, precision? : Int32) -> Self
@@ -2452,6 +2490,7 @@ pub fn Decimal::tan_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::tanh_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::tanpi_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::to_bin_float(Self, precision? : Int32, mode? : @arithmetic.RoundingMode) -> @bin_float.BinFloat
+pub fn Decimal::to_bin_float_ctx(Self, @bin_float.BinaryContext) -> (@bin_float.BinFloat, @bin_float.BinaryFlags)
 pub fn Decimal::to_eng_string(String, DecimalContext) -> (String, DecimalFlags)
 pub fn Decimal::to_int64_ctx(Self, DecimalContext, exact? : Bool) -> (Int64?, DecimalFlags)
 pub fn Decimal::to_int_ctx(Self, DecimalContext, exact? : Bool) -> (Int32?, DecimalFlags)

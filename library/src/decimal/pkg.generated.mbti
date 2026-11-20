@@ -52,6 +52,7 @@ pub fn Decimal::compare_total_ctx(Self, Self, DecimalContext) -> (Int32, Decimal
 pub fn Decimal::compare_total_magnitude(Self, Self) -> Int32
 pub fn Decimal::compare_total_magnitude_ctx(Self, Self, DecimalContext) -> (Int32, DecimalFlags)
 pub fn Decimal::compound_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::convert_format(Self, DecimalInterchangeFormat) -> (Self, DecimalFlags)
 pub fn Decimal::copy(Self) -> Self
 pub fn Decimal::copy_abs(Self) -> Self
 pub fn Decimal::copy_negate(Self) -> Self
@@ -77,6 +78,7 @@ pub fn Decimal::exponent10(Self) -> Int32
 pub fn Decimal::fma_ctx(Self, Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::from_bigint(@bigint.BigInt, precision? : Int32) -> Self
 pub fn Decimal::from_bin_float(@bin_float.BinFloat, precision? : Int32) -> Self
+pub fn Decimal::from_bin_float_ctx(@bin_float.BinFloat, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::from_double(Double, precision? : Int32) -> Self
 pub fn Decimal::from_float(Float, precision? : Int32) -> Self
 pub fn Decimal::from_int(Int32, precision? : Int32) -> Self
@@ -198,6 +200,7 @@ pub fn Decimal::tan_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::tanh_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::tanpi_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::to_bin_float(Self, precision? : Int32, mode? : @arithmetic.RoundingMode) -> @bin_float.BinFloat
+pub fn Decimal::to_bin_float_ctx(Self, @bin_float.BinaryContext) -> (@bin_float.BinFloat, @bin_float.BinaryFlags)
 pub fn Decimal::to_eng_string(String, DecimalContext) -> (String, DecimalFlags)
 pub fn Decimal::to_int64_ctx(Self, DecimalContext, exact? : Bool) -> (Int64?, DecimalFlags)
 pub fn Decimal::to_int_ctx(Self, DecimalContext, exact? : Bool) -> (Int32?, DecimalFlags)

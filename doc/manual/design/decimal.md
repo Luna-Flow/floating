@@ -637,6 +637,29 @@ when `changed`, nothing else is ever raised (no `rounded`, no clamping: the
 result is not a decimal), and a negative value that rounds to zero converts to
 `0`.
 
+### Conversions between formats
+
+`convert_format`, `from_bin_float_ctx` and `to_bin_float_ctx` (IEEE 754-2019
+§5.4.2) are thin on purpose: each rounds the exact source value once, in the
+destination's context, and returns the flags of that rounding.
+Decimal to decimal is `apply_ctx` of the format's context, so the preferred
+exponent $Q(\text{source})$ is the one the normalization keeps when the value
+fits. Binary to decimal forms the exact decimal expansion $c\,2^e$ with $c$
+odd ($c \cdot 5^{k}\cdot 10^{-k}$ for $e = -k < 0$: no trailing zero, so it is
+the exponent closest to 0 that holds the digits, and an integer keeps exponent
+0) and rounds it with `apply_ctx`; the digits are not formed for a value whose
+estimate $\lfloor 0.30103\,(\operatorname{bits} + e)\rfloor$ lies more than two
+beyond $e_{\max}$ or three below $E_{\text{tiny}}$, which stands for every such
+value in the rounding (overflow, or a result of zero or the least subnormal),
+and a binary exponent beyond $2^{22}$ that the range does not decide is
+refused. Decimal to binary is the exact decimal text rounded by
+`BinFloat::from_string_ctx`, which is correctly rounded for any exponent and is
+checked against MPFR; the corpus runs both directions through the MPFR rows of
+`mpfr_strtofr` and `mpfr_get_str` and through exact rows for every pair of
+decimal32/64/128 and binary16/32/64/128 (`tools/generate_decimal_conversion_rows.py`).
+A NaN keeps its sign and the payload it can hold ($p - 1$ digits, $p - 2$ bits),
+and a signaling NaN is quieted with the invalid operation exception.
+
 ### Interchange encodings
 
 All three formats share one layout: a sign bit, a 5-bit *combination field*

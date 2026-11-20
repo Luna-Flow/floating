@@ -160,6 +160,30 @@ test "decimal convert to integer" {
 }
 ```
 
+### Convert between formats
+
+`convert_format` moves a value to another decimal interchange format and
+`to_bin_float_ctx` and `from_bin_float_ctx` cross to and from the binary
+formats, all with the flags of the rounding:
+
+```moonbit
+///|
+test "decimal convert between formats" {
+  let d = fn(s : String) { @decimal.Decimal::from_string(s, precision=34).unwrap() }
+  let (narrow, flags) = d("1.2345678901234567").convert_format(Decimal32)
+  inspect(narrow, content="1.234568")
+  assert_true(flags.inexact)
+  let (bits, flags) = d("0.1").to_bin_float_ctx(@bin_float.BinaryContext::binary32())
+  assert_true(flags.inexact())
+  inspect(bits.to_hex(), content="0xcccccdp-27")
+  let (back, _) = @decimal.Decimal::from_bin_float_ctx(
+    @bin_float.BinFloat::from_double(0.5),
+    @decimal.DecimalContext::decimal64(),
+  )
+  inspect(back, content="0.5")
+}
+```
+
 ### Bound a result from both sides
 
 Directed rounding gives guaranteed bounds. Rounding the same quotient toward
