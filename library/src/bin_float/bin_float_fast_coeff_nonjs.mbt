@@ -17,13 +17,14 @@
 ///|
 using @bin_kernel {
   bin_coeff_sqrt_rem_scaled,
-  bin_coeff_sqrt_scaled_rounded,
+  bin_words_sqrt_scaled_rounded,
   bin_coeff_div_scaled_ok,
   bin_coeff_div_short_ok,
-  bin_coeff_div_short_quotient,
+  bin_words_div_short_quotient,
   bin_coeff_short_division_guard_bits,
-  bin_coeff_div_scaled_quotient,
-  bin_coeff_mul_short,
+  bin_words_div_scaled_quotient,
+  bin_words_mul,
+  bin_words_mul_short,
   bin_coeff_mul_short_ok,
   bin_coeff_short_product_limbs,
 }
@@ -80,34 +81,41 @@ fn binary_coeff_fast_finish(
 }
 
 ///|
-/// `binary_coeff_fast_finish` for a magnitude produced by the kernel: a heap
-/// coefficient returned by `Coeff::mul`, `bin_coeff_div_scaled_quotient`,
-/// `bin_coeff_div_short_quotient` or `bin_coeff_sqrt_scaled_rounded` owns its
-/// array (the contract in the kernel design page), so it is rounded in place
-/// without the copy; shorter results have no array.
-fn binary_coeff_fast_finish_owned(
+/// Rounds a kernel result that is an array (the first `count` limbs, the top
+/// ones possibly zero) to `precision` bits and builds the value: rounded in place, no
+/// coefficient box between the kernel and the result. The array must be fresh
+/// (the array forms of the kernel guarantee it).
+fn binary_coeff_fast_finish_array(
   negative : Bool,
-  magnitude : Coeff,
+  words : FixedArray[UInt64],
+  count : Int32,
   exponent : Int32,
   precision : Int32,
   inexact : Bool,
 ) -> BinFloat {
-  match magnitude.0 {
-    Heap(words, len) =>
-      bin_finish_words(
-        negative,
-        words,
-        len,
-        exponent,
-        precision,
-        inexact,
-        BinaryRoundingMode::RoundTiesToEven,
-      )
-    _ =>
-      binary_coeff_fast_finish(
-        negative, magnitude, exponent, precision, inexact,
-      )
+  bin_finish_words(
+    negative,
+    words,
+    count,
+    exponent,
+    precision,
+    inexact,
+    BinaryRoundingMode::RoundTiesToEven,
+  )
+}
+
+///|
+/// The bit length of the value in the first `count` limbs of `words` (not all
+/// zero).
+fn binary_coeff_fast_words_bits(
+  words : FixedArray[UInt64],
+  count : Int32,
+) -> Int32 {
+  let mut top = count - 1
+  while words.unsafe_get(top) == 0UL {
+    top -= 1
   }
+  64 * top + binary_fast_bits(words.unsafe_get(top))
 }
 
 ///|
@@ -418,15 +426,16 @@ fn binary_coeff_fast_mul_parts(
   let exponent = left_exponent + right_exponent
   // short product: the high limbs only, used when its rounding is certain
   if bin_coeff_mul_short_ok(left_coefficient, right_coefficient, precision) {
-    let approximate = bin_coeff_mul_short(
+    let approximate = bin_words_mul_short(
       left_coefficient, right_coefficient, precision,
     )
-    if !approximate.is_zero() {
-      // a fresh array (`bin_coeff_mul_short`), rounded in place
+    if approximate.length() > 0 {
+      // a fresh array (`bin_words_mul_short`), rounded in place
       return Some(
-        binary_coeff_fast_finish_owned(
+        binary_coeff_fast_finish_array(
           negative,
           approximate,
+          bin_coeff_short_product_limbs(precision),
           exponent +
           left_bits +
           right_bits -
@@ -437,10 +446,12 @@ fn binary_coeff_fast_mul_parts(
       )
     }
   }
+  let product = bin_words_mul(left_coefficient, right_coefficient)
   Some(
-    binary_coeff_fast_finish_owned(
+    binary_coeff_fast_finish_array(
       negative,
-      left_coefficient.mul(right_coefficient),
+      product,
+      product.length(),
       exponent,
       precision,
       false,
@@ -523,14 +534,15 @@ fn binary_coeff_fast_div_parts(
   // its rounding is certain (the exact division handles every other case)
   let short_scale = scale + bin_coeff_short_division_guard_bits
   if bin_coeff_div_short_ok(dividend, short_scale, divisor) {
-    let approximate = bin_coeff_div_short_quotient(
+    let approximate = bin_words_div_short_quotient(
       dividend, short_scale, divisor, precision,
     )
-    if !approximate.is_zero() {
+    if approximate.length() > 0 {
       return Some(
-        binary_coeff_fast_finish_owned(
+        binary_coeff_fast_finish_array(
           negative,
           approximate,
+          approximate.length(),
           exponent - short_scale,
           precision,
           false,
@@ -540,10 +552,12 @@ fn binary_coeff_fast_div_parts(
   }
   if bin_coeff_div_scaled_ok(dividend, scale, divisor) {
     // the lowest bit of the quotient is the inexact flag
+    let packed = bin_words_div_scaled_quotient(dividend, scale, divisor)
     return Some(
-      binary_coeff_fast_finish_owned(
+      binary_coeff_fast_finish_array(
         negative,
-        bin_coeff_div_scaled_quotient(dividend, scale, divisor),
+        packed,
+        packed.length(),
         exponent - scale - 1,
         precision,
         false,
@@ -606,18 +620,24 @@ fn binary_coeff_fast_sqrt(value : BinFloat) -> BinFloat? {
   if (exponent - scale) % 2 != 0 {
     scale += 1
   }
-  let packed = bin_coeff_sqrt_scaled_rounded(
+  let packed = bin_words_sqrt_scaled_rounded(
     value.coefficient_(),
     scale,
     precision,
   )
   // a root of exactly `precision` bits comes back rounded, at its own
   // exponent; a longer one carries its round and sticky bits two below it
-  let adjust = if packed.bit_length() <= precision + 1 { 0 } else { -2 }
+  let adjust = if binary_coeff_fast_words_bits(packed, packed.length()) <=
+    precision + 1 {
+    0
+  } else {
+    -2
+  }
   Some(
-    binary_coeff_fast_finish_owned(
+    binary_coeff_fast_finish_array(
       false,
       packed,
+      packed.length(),
       (exponent - scale) / 2 + adjust,
       precision,
       false,

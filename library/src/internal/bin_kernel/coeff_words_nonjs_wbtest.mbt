@@ -558,3 +558,154 @@ test "the limb product writes every result limb: dirty result, one-limb operands
     }
   }
 }
+
+///|
+/// The coefficient of an array form: the first `count` limbs.
+fn array_form_coeff(words : FixedArray[UInt64], count : Int32) -> Coeff {
+  bin_coeff_from_words(words, count)
+}
+
+///|
+// Oracle: level E (the coefficient form this array form wraps). Underneath: the
+// kernel's grade-school references (level B, they share only the limb
+// primitives) and the TestFloat and MPFR corpora of `just gate binary 3` (level A).
+test "bin_words_mul equals Coeff::mul: every route, sparse and dense operands, any lengths" {
+  let random = { words_state: 0x71D6_7FFF_EDA6_0000UL, }
+  for
+    left_len in [1, 2, 3, 4, 5, 8, 9, 20, 31, 32, 33, 47, 48, 49, 64, 100, 130] {
+    for right_len in [3, 4, 5, 8, 9, 31, 33, 48, 49, 64, 130, 200] {
+      for pattern in [0, 1, 2, 3, 4] {
+        let left = dispatch_test_value(random, left_len, pattern)
+        let right = dispatch_test_value(random, right_len, (pattern + 1) % 5)
+        // the contract: nonzero operands, at least one of them wider than 128 bits
+        if left.bit_length() > 128 || right.bit_length() > 128 {
+          let words = bin_words_mul(left, right)
+          assert_eq(array_form_coeff(words, words.length()), left.mul(right))
+        }
+      }
+    }
+  }
+  // sparse operands (the sparse route keeps its coefficient)
+  for len in [8, 33, 100] {
+    let left = dispatch_test_sparse(random, len, 2)
+    let right = dispatch_test_sparse(random, len + 3, 3)
+    let words = bin_words_mul(left, right)
+    assert_eq(array_form_coeff(words, words.length()), left.mul(right))
+  }
+}
+
+///|
+// Oracle: level E (the coefficient forms the array forms wrap). Underneath: the
+// kernel's grade-school references (level B) and the TestFloat and MPFR corpora
+// of `just gate binary 3` (level A).
+test "the array forms of the short product, the short and the exact scaled division and the root equal their coefficient forms" {
+  let random = { words_state: 0x2F6A_1C9E_B3D5_8407UL, }
+  // short product
+  for precision in [700, 1000, 1500, 2048, 3000] {
+    for trim in [0, 1, 17, 63] {
+      for pattern in [0, 1, 4] {
+        let left_len = (precision - trim + 63) / 64
+        let left = dispatch_test_value(random, left_len, pattern)
+        let right = dispatch_test_value(random, left_len, (pattern + 2) % 5)
+        if bin_coeff_mul_short_ok(left, right, precision) {
+          let words = bin_words_mul_short(left, right, precision)
+          let coefficient = bin_coeff_mul_short(left, right, precision)
+          if words.length() == 0 {
+            assert_true(coefficient.is_zero())
+          } else {
+            let limbs = bin_coeff_short_product_limbs(precision)
+            assert_eq(array_form_coeff(words, limbs), coefficient)
+          }
+        }
+      }
+    }
+  }
+  // short and exact division
+  for divisor_len in [2, 3, 8, 20, 60, 90] {
+    for extra in [0, 1, 7, 30] {
+      for pattern in [0, 1, 4] {
+        let divisor = dispatch_test_value(random, divisor_len, pattern)
+        let dividend = dispatch_test_value(
+          random,
+          divisor_len + extra,
+          (pattern + 1) % 5,
+        )
+        for scale in [0, 5, 70, 300, 1000] {
+          if bin_coeff_div_short_ok(dividend, scale + 32, divisor) {
+            for precision in [100, 600, 2000] {
+              let words = bin_words_div_short_quotient(
+                dividend,
+                scale + 32,
+                divisor,
+                precision,
+              )
+              let coefficient = bin_coeff_div_short_quotient(
+                dividend,
+                scale + 32,
+                divisor,
+                precision,
+              )
+              if words.length() == 0 {
+                assert_true(coefficient.is_zero())
+              } else {
+                assert_eq(array_form_coeff(words, words.length()), coefficient)
+              }
+            }
+          }
+          if bin_coeff_div_scaled_ok(dividend, scale, divisor) {
+            let words = bin_words_div_scaled_quotient(dividend, scale, divisor)
+            assert_eq(
+              array_form_coeff(words, words.length()),
+              bin_coeff_div_scaled_quotient(dividend, scale, divisor),
+            )
+          }
+        }
+      }
+    }
+  }
+  // the root
+  for len in [3, 5, 9, 17, 40, 80] {
+    for scale in [0, 2, 64, 130, 400] {
+      for pattern in [0, 1, 4] {
+        let value = dispatch_test_value(random, len, pattern)
+        let bits = value.bit_length() + scale
+        for precision in [bits / 2 - 1, bits / 2 - 2, bits / 2 - 70] {
+          if precision >= 129 {
+            let words = bin_words_sqrt_scaled_rounded(value, scale, precision)
+            assert_eq(
+              array_form_coeff(words, words.length()),
+              bin_coeff_sqrt_scaled_rounded(value, scale, precision),
+            )
+          }
+        }
+      }
+    }
+  }
+}
+
+///|
+// Oracle: level A (expected values written out in the test).
+test "bin_coeff_owned_words clears the limbs above a heap value: the array form never exposes scratch" {
+  // a heap coefficient over a longer array with a dirty tail, as
+  // `bin_coeff_mul_short` builds one (H in the first limbs, scratch above)
+  let array : FixedArray[UInt64] = [
+    0x1111UL, 0x2222UL, 0x3333UL, 0x4444UL, 0xDEAD_BEEFUL, 0xFFFF_FFFFUL, 0x7UL,
+  ]
+  let value = bin_coeff_from_words(array, 4)
+  let words = bin_coeff_owned_words(value)
+  assert_true(physical_equal(words, array))
+  assert_eq(words.length(), 7)
+  assert_eq(words[0], 0x1111UL)
+  assert_eq(words[3], 0x4444UL)
+  for index in 4..<7 {
+    assert_eq(words[index], 0UL)
+  }
+  // the value is unchanged
+  assert_eq(
+    value,
+    bin_coeff_from_words([0x1111UL, 0x2222UL, 0x3333UL, 0x4444UL], 4),
+  )
+  // small values give exact-size arrays
+  assert_eq(bin_coeff_owned_words(Coeff::from_uint64(5UL)), [5UL])
+  assert_eq(bin_coeff_owned_words(bin_coeff_inline(3UL, 9UL)), [9UL, 3UL])
+}

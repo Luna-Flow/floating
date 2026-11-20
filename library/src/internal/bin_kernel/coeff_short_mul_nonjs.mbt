@@ -37,6 +37,12 @@ pub fn bin_coeff_mul_short_ok(
 }
 
 ///|
+/// The shared empty array that the array forms of the approximate kernels
+/// return for "declined" (the caller then divides or multiplies exactly):
+/// recognise it by `length() == 0`. It is never written.
+pub let bin_decline_words : FixedArray[UInt64] = FixedArray::make(0, 0UL)
+
+///|
 /// An approximation `H` of the product `left * right` such that
 /// `left * right = H * 2^(bits(left) + bits(right) - 64 m)` up to the bound
 /// below, if its rounding to `precision` bits is certain; else
@@ -61,15 +67,22 @@ pub fn bin_coeff_mul_short_ok(
 /// between two grid points, the result is inexact, and its rounding in every
 /// mode is that of `H`.
 ///
+/// Array form: the result is the array `product` of `2 * limbs` limbs (`limbs =
+/// bin_coeff_short_product_limbs(precision)`) whose first `limbs` limbs are `H`
+/// (the rest is scratch the caller ignores), or `bin_decline_words`. The
+/// array is fresh: no operand and no other value refers to it, and the caller
+/// may keep, hand on or modify it. (`bin_coeff_mul_short` below returns the
+/// same as a coefficient.)
+///
 /// Ownership of the result: if it is `Heap(words, len)`, `words` is an array
 /// that no operand and no other value refers to (its length may exceed `len`),
 /// which the caller may keep, hand on or modify. `Coeff::zero()` is the shared
 /// constant that answers "declined"; recognise it with `is_zero()`.
-pub fn bin_coeff_mul_short(
+pub fn bin_words_mul_short(
   left : Coeff,
   right : Coeff,
   precision : Int32,
-) -> Coeff {
+) -> FixedArray[UInt64] {
   let limbs = bin_coeff_short_product_limbs(precision)
   let a = bin_coeff_words_shifted(left, 64 * limbs - left.bit_length(), limbs)
   let b = bin_coeff_words_shifted(right, 64 * limbs - right.bit_length(), limbs)
@@ -98,11 +111,11 @@ pub fn bin_coeff_mul_short(
   // H = product[limbs ..< 2 limbs); bit length, then the rounding window
   let top = product.unsafe_get(2 * limbs - 1)
   // the product of two left-aligned values has its top bit in the top limb
-  guard top != 0UL else { return Coeff::zero() }
+  guard top != 0UL else { return bin_decline_words }
   let bits = (limbs - 1) * 64 + bin_coeff_u64_bits(top)
   let spacing_bits = bits - precision - 1
   if spacing_bits < 62 {
-    return Coeff::zero()
+    return bin_decline_words
   }
   // r = H mod 2^spacing_bits must be nonzero and its complement at least
   // `limbs + 1`; H starts at `product[limbs]`
@@ -136,12 +149,29 @@ pub fn bin_coeff_mul_short(
     }
   }
   if !remainder_nonzero || !complement_large {
-    return Coeff::zero()
+    return bin_decline_words
   }
   // H as a coefficient: the high `limbs` limbs of `product`, moved down in
   // place (the array is ours and `from_words` keeps only the first `limbs`)
   for index in 0..<limbs {
     product.unsafe_set(index, product.unsafe_get(limbs + index))
   }
-  bin_coeff_from_words(product, limbs)
+  product
+}
+
+///|
+/// `bin_words_mul_short` as a coefficient: `Coeff::zero()` when it declines,
+/// else `H` of the first `bin_coeff_short_product_limbs(precision)` limbs of
+/// the array, with the ownership of `bin_words_mul_short`.
+pub fn bin_coeff_mul_short(
+  left : Coeff,
+  right : Coeff,
+  precision : Int32,
+) -> Coeff {
+  let words = bin_words_mul_short(left, right, precision)
+  if words.length() == 0 {
+    Coeff::zero()
+  } else {
+    bin_coeff_from_words(words, bin_coeff_short_product_limbs(precision))
+  }
 }

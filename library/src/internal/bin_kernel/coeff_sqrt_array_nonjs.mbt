@@ -322,6 +322,60 @@ pub fn bin_coeff_sqrt_scaled_rounded(
 }
 
 ///|
+/// `bin_coeff_sqrt_scaled_rounded` as a fresh array of limbs (the top limb may
+/// be zero), without the coefficient box that the packed value would be in:
+/// the same value, the same two cases (the root rounded to nearest when it has
+/// exactly `precision` bits, else `4 * root + 2 * b + s`), the same ownership
+/// (no operand and no other value refers to the array).
+pub fn bin_words_sqrt_scaled_rounded(
+  value : Coeff,
+  scale : Int32,
+  precision : Int32,
+) -> FixedArray[UInt64] {
+  let (root, remainder) = bin_coeff_sqrt_rem_scaled(value, scale)
+  let above_half = remainder.compare(root) > 0
+  if root.bit_length() == precision {
+    return bin_coeff_owned_words(
+      if above_half {
+        root.add(Coeff::one())
+      } else {
+        root
+      },
+    )
+  }
+  let low = if above_half {
+    3UL
+  } else if remainder.is_zero() {
+    0UL
+  } else {
+    1UL
+  }
+  bin_words_shift2_or(root, low)
+}
+
+///|
+/// `value * 4 + low` for `low < 4` as a fresh array (one limb more than the
+/// value; the top limb may be zero).
+fn bin_words_shift2_or(value : Coeff, low : UInt64) -> FixedArray[UInt64] {
+  match value.0 {
+    Inline64(word) => [(word << 2) | low, word >> 62]
+    Inline128(high, word) =>
+      [(word << 2) | low, (high << 2) | (word >> 62), high >> 62]
+    Heap(words, len) => {
+      let result = FixedArray::make(len + 1, 0UL)
+      let mut carry = low
+      for index in 0..<len {
+        let word = words.unsafe_get(index)
+        result.unsafe_set(index, (word << 2) | carry)
+        carry = word >> 62
+      }
+      result.unsafe_set(len, carry)
+      result
+    }
+  }
+}
+
+///|
 /// `value * 4 + low` for `low < 4`, built from the limbs without general `Coeff`
 /// arithmetic (a shift and an addition of a general `Coeff` allocate several
 /// temporaries, which costs more than the square root of a 128-bit radicand).
