@@ -10,7 +10,7 @@
 fn refinement_hard_input() -> BinFloat {
   let wide = BinaryContext::new(precision=330)
   let one = BinFloat::from_int(1, precision=330)
-  let step = one.scaleb_ctx(-53, wide).0
+  let step = one.scaleb_ctx(BinFloat::from_int(-53), wide).0
   let midpoint = one.add_ctx(step, wide).0
   midpoint.try_ln_ctx(wide).unwrap().0
 }
@@ -78,7 +78,7 @@ test "refinement limit: 0, 1 and negative limits are one step" {
   }
   // An exact-in-one-step case needs only one step: 1 + 2^-60 rounds at once.
   let easy = BinFloat::from_int(1, precision=53).scaleb_ctx(
-      -60,
+      BinFloat::from_int(-60),
       BinaryContext::new(precision=53),
     ).0
   let result = easy.try_exp_ctx(base.with_refinement_limit(Some(0)))

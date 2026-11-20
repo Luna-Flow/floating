@@ -25,6 +25,12 @@ notes live in this file.
 
   The MPFR corpora no longer contain rows that no IEEE 754-2019 context has: the generators draw only `emin = 1 - emax` ranges and the five attributes of clause 4.3, the committed corpora were regenerated (`mpfr-4.2.2-elementary`, `-strtofr`, `-decimal-output`, `-random`, `smoke/mpfr-pow-si.txt`), and 13 regression rows with an away-from-zero mode or a range of another shape were dropped from `random-regressions.txt`.
 
+- `bin_float`: the count of `scaleb_ctx` is a `BinFloat` ([#438](https://github.com/Luna-Flow/floating/issues/438), item N5). `BinFloat::scaleb_ctx` took an `Int32` while `Decimal::scaleb_ctx` and the `decimal_gda` `scaleb` take the value kind that `logb_ctx` returns; the three packages now agree.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `x.scaleb_ctx(n : Int32, ctx)` | `x.scaleb_ctx(BinFloat::from_int(n), ctx)` | an integer count only: a NaN count propagates, an infinite or non-integer count is a NaN with `invalid_operation`; an integer beyond the `Int32` range acts as the largest count of its sign |
+
 - The flag and trap types share one access style: methods ([#438](https://github.com/Luna-Flow/floating/issues/438), item A5). The fields of `decimal.DecimalFlags`, `decimal_gda.DecimalFlags`, `GdaFlags`, `GdaTrapSet` and `BallFlags` are private; each flag is read with a method of the same name, as `BinaryFlags` already did. `GdaFlags::none` and `GdaTrapSet::none` are `new`, like every other flag constructor. `contains` stays on the types of packages that have a signal enum (`decimal`, `decimal_gda`); `has_error` is unchanged (true for `invalid_operation`, `conversion_syntax`, `division_by_zero`, `division_undefined`, `division_impossible`, `invalid_context`; false for overflow, underflow, inexact and the other conditions, which deliver a usable result).
 
   | before | after |
