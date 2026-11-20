@@ -12,8 +12,16 @@ This runner executes `unittest discover -s tools -p "*_test.py"` and records eve
 write that goes through `pathlib`, `open`, `os` or `shutil` to a path below a
 protected directory, however briefly the file exists; it also compares
 `git status --porcelain --ignored` of `library/src` and `tooling/src` before and after
-the suite, which catches writes made by a subprocess. The cost is a patched write
-call (microseconds) and two `git status` runs of about 0.05 s.
+the suite, which catches writes made by a subprocess.
+
+The tree cannot say which process wrote a file, and another stage of the quick gate
+writes throwaway sources into the same trees concurrently (the manual examples, the
+IEEE smoke; #431). The paths of `tools/generated_paths.py`, the one list of those
+files, are therefore left out of the comparison; the in-process recorder does not
+leave them out, so a test that writes one itself is still reported. A subprocess of a
+test that writes a file with one of those names is the one case that goes unseen.
+The cost is a patched write call (microseconds) and two `git status` runs of about
+0.05 s.
 
     run_python_tests.py [unittest arguments]
 """
@@ -29,6 +37,8 @@ import unittest
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Iterator
+
+from generated_paths import is_generated_path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PROTECTED = ("library", "tooling", "doc", "testdata")
@@ -132,6 +142,20 @@ def record_protected_writes(
             setattr(owner, name, original)
 
 
+def status_difference(before: str, after: str) -> list[str]:
+    """Entries of `git status --porcelain` that differ, without the generated sources."""
+
+    def entries(status: str) -> set[str]:
+        return {
+            line
+            for line in status.splitlines()
+            if line.strip() and not is_generated_path(line[3:])
+        }
+
+    first, second = entries(before), entries(after)
+    return sorted(f"- {line}" for line in first - second) + sorted(f"+ {line}" for line in second - first)
+
+
 def git_status(root: Path = REPO_ROOT, paths: tuple[str, ...] = GIT_STATUS_PATHS) -> str:
     result = subprocess.run(
         ["git", "status", "--porcelain", "--untracked-files=all", "--ignored", "--", *paths],
@@ -161,9 +185,11 @@ def main(argv: list[str] | None = None) -> int:
         for line in sorted(set(hits)):
             print(f"  {line}", file=sys.stderr)
         status = 1
-    if before != after:
+    difference = status_difference(before, after)
+    if difference:
         print("run_python_tests: the content of library/src or tooling/src changed during the tests:", file=sys.stderr)
-        print(f"  before: {before.strip() or '(clean)'}\n  after:  {after.strip() or '(clean)'}", file=sys.stderr)
+        for line in difference:
+            print(f"  {line}", file=sys.stderr)
         status = 1
     return status
 
