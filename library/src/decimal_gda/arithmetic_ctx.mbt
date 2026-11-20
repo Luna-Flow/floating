@@ -1167,9 +1167,55 @@ fn decimal_sqrt_tiny_result(
 }
 
 ///|
+/// The general route of the square root of a finite positive nonzero operand
+/// that is not tiny: the exactness test on a root of the operand, then the
+/// rounded root. It is the definition of the behavior that `decimal_sqrt_plain`
+/// must agree with.
+fn decimal_sqrt_general(
+  operand : Decimal,
+  ctx : DecimalContext,
+  precision : Int32,
+) -> (Decimal, DecimalFlags) {
+  match exact_finite_sqrt(operand, precision) {
+    Some(root) => {
+      let (value, flags) = if root.coefficient.is_zero() {
+        finalize_finite_ctx(root, DecimalFlags::new(), ctx)
+      } else {
+        normalize_decimal_parts_ctx_repr(
+          root.negative,
+          root.coefficient,
+          root.exponent10,
+          ctx,
+        )
+      }
+      let ideal_exponent = operand.exponent10 >> 1
+      if value.class == FpClass::Finite &&
+        !value.coefficient.is_zero() &&
+        value.exponent10 > ideal_exponent {
+        (value, { ..flags, rounded: true, })
+      } else {
+        (value, flags)
+      }
+    }
+    None => decimal_sqrt_fixed_result(operand, ctx, precision)
+  }
+}
+
+///|
 fn Decimal::sqrt_ctx(
   self : Decimal,
   ctx : DecimalContext,
+) -> (Decimal, DecimalFlags) {
+  self.sqrt_ctx_impl(ctx, plain=true)
+}
+
+///|
+/// `sqrt_ctx`; with `plain=false` the plain case is not taken and the general
+/// route runs, the reference of the differential tests.
+fn Decimal::sqrt_ctx_impl(
+  self : Decimal,
+  ctx : DecimalContext,
+  plain~ : Bool,
 ) -> (Decimal, DecimalFlags) {
   let precision = finite_precision_for_default(ctx)
   let (operand, operand_flags) = prepare_operand_for_context(self, ctx)
@@ -1190,28 +1236,14 @@ fn Decimal::sqrt_ctx(
       } else if decimal_sqrt_tiny_result(operand, ctx) is Some(tiny) {
         tiny
       } else {
-        match exact_finite_sqrt(operand, precision) {
-          Some(root) => {
-            let (value, flags) = if root.coefficient.is_zero() {
-              finalize_finite_ctx(root, DecimalFlags::new(), ctx)
-            } else {
-              normalize_decimal_parts_ctx_repr(
-                root.negative,
-                root.coefficient,
-                root.exponent10,
-                ctx,
-              )
-            }
-            let ideal_exponent = operand.exponent10 >> 1
-            if value.class == FpClass::Finite &&
-              !value.coefficient.is_zero() &&
-              value.exponent10 > ideal_exponent {
-              (value, { ..flags, rounded: true, })
-            } else {
-              (value, flags)
-            }
-          }
-          None => decimal_sqrt_fixed_result(operand, ctx, precision)
+        let planned = if plain {
+          decimal_sqrt_plain(operand, ctx, precision)
+        } else {
+          None
+        }
+        match planned {
+          Some(result) => result
+          None => decimal_sqrt_general(operand, ctx, precision)
         }
       }
   }

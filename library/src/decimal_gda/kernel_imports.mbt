@@ -34,6 +34,7 @@ using @decimal_kernel {
   dec_coeff_magnitude_sub_repr,
   dec_coeff_magnitude_sub_unit,
   dec_coeff_matches_unit_repr,
+  dec_coeff_mod_unit,
   dec_coeff_multiply_by_unit_repr,
   dec_coeff_multiply_repr,
   dec_coeff_pow_unit_repr,
