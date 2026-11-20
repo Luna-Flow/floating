@@ -266,7 +266,7 @@ test "exp enclosure with a single series rounds like two series" {
 }
 
 ///|
-test "reduced trigonometric enclosures skip unused series and use one series per interval" {
+test "reduced trigonometric enclosures skip unused series without changing a bit" {
   let arguments = [
     (0.1, 0.1),
     (-0.1, -0.1),
@@ -290,17 +290,13 @@ test "reduced trigonometric enclosures skip unused series and use one series per
             BinaryTrigonometricOperation::Tan,
           ] {
           assert_true(
-            binary_reduced_agree(
+            binary_unused_series_same(
               binary_reduced_trigonometric_bounds(
                 lower, upper, quadrant, operation, work,
               ),
               binary_reduced_trigonometric_bounds_reference(
                 lower, upper, quadrant, operation, work,
               ),
-              lower,
-              upper,
-              work,
-              operation,
             ),
           )
         }
