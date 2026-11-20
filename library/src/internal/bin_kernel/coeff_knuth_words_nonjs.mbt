@@ -81,6 +81,128 @@ fn bin_coeff_div_rem_knuth_words(
 }
 
 ///|
+/// The digit estimate of Knuth's algorithm D for `high >= divisor_top` (so
+/// `high == divisor_top`): the digit is at most `B - 1`, and the correction
+/// compares `trial * divisor_next` with the remainder estimate and `after`.
+/// The loops used this estimate for every digit before the reciprocal
+/// (`bin_knuth_digit_3by2`); it stays for this rare case, where the
+/// three-by-two division does not apply (its precondition is `<high, next> <
+/// <divisor_top, divisor_next>`). The test file keeps the old estimate for
+/// `high < divisor_top` as the reference of the new one.
+fn bin_knuth_digit_top(
+  next : UInt64,
+  after : UInt64,
+  divisor_top : UInt64,
+  divisor_next : UInt64,
+) -> UInt64 {
+  let mut trial = 0xFFFF_FFFF_FFFF_FFFFUL
+  let mut trial_remainder = next + divisor_top
+  // the remainder estimate leaves 64 bits once it overflows: stop correcting
+  let mut remainder_overflow = trial_remainder < next
+  while !remainder_overflow {
+    let product_high = bin_coeff_mul_high(trial, divisor_next)
+    let product_low = trial * divisor_next
+    if product_high > trial_remainder ||
+      (product_high == trial_remainder && product_low > after) {
+      trial -= 1UL
+      trial_remainder += divisor_top
+      remainder_overflow = trial_remainder < divisor_top
+    } else {
+      break
+    }
+  }
+  trial
+}
+
+///|
+/// The reciprocal of the two-word divisor `<d1, d0>` (`d1 >= 2^63`) for
+/// `bin_knuth_digit_3by2`: `v = floor((B^3 - 1) / <d1, d0>) - B`, `B = 2^64`.
+/// Möller and Granlund, "Improved division by invariant integers", IEEE
+/// Transactions on Computers 60(2), 2011, Algorithm 6 (RECIPROCAL_WORD_3BY2), whose line 1 starts from a
+/// single-word reciprocal `v` of `d1` with `B^2 - d1 <= (B + v) d1 < B^2`. Here
+/// that `v` is the exact `floor((B^2 - 1) / d1) - B`, one division of
+/// `<B - 1 - d1, B - 1>` by `d1` (the high word is below `d1` because
+/// `d1 >= B / 2`), which satisfies it: `(B + v) d1` is the largest multiple of
+/// `d1` not above `B^2 - 1`. Lines 2 to 9 add `d0` to `(B + v) d1` (a carry out
+/// of the word is cancelled by subtracting `d1` once or twice from the
+/// reciprocal, the test `p >= d1` on the wrapped low word `p` being the excess
+/// over `B^2`), lines 10 to 15 add the product `v d0` to the result.
+fn bin_knuth_reciprocal_3by2(d1 : UInt64, d0 : UInt64) -> UInt64 {
+  let mut v = binary_fast_div_wide(
+    0xFFFF_FFFF_FFFF_FFFFUL - d1,
+    0xFFFF_FFFF_FFFF_FFFFUL,
+    d1,
+  )
+  let mut p = d1 * v + d0
+  if p < d0 {
+    v -= 1UL
+    if p >= d1 {
+      v -= 1UL
+      p -= d1
+    }
+    p -= d1
+  }
+  let t_low = v * d0
+  let t_high = bin_coeff_mul_high(v, d0)
+  p += t_high
+  if p < t_high {
+    v -= 1UL
+    if p > d1 || (p == d1 && t_low >= d0) {
+      v -= 1UL
+    }
+  }
+  v
+}
+
+///|
+/// `floor(<u2, u1, u0> / <d1, d0>)` for `d1 >= 2^63` and `<u2, u1> <
+/// <d1, d0>` (the quotient fits one word), with the reciprocal `v =
+/// bin_knuth_reciprocal_3by2(d1, d0)`. Möller and Granlund, "Improved division
+/// by invariant integers", IEEE Transactions on Computers 60(2), 2011,
+/// Algorithm 5 (DIV3BY2), Theorem 3: with `<q1, q0> = (B + v) u2 + u1`, the candidate `q1 + 1` has
+/// the remainder `re = U - (q1 + 1) D` in `c - B^2 <= re < c` for `c = max(B^2 -
+/// D, q0 B)`, so `re` is determined by its value modulo `B^2` and the
+/// comparison of its high word with `q0`: if `r1 >= q0` the candidate is one
+/// too large (`re` is negative, modulo `B^2` it is above `c`), and if `re >= D`
+/// (rarely) it is one too small. The two adjustments are written without
+/// branches on the unpredictable one.
+fn bin_knuth_digit_3by2(
+  u2 : UInt64,
+  u1 : UInt64,
+  u0 : UInt64,
+  d1 : UInt64,
+  d0 : UInt64,
+  v : UInt64,
+) -> UInt64 {
+  // line 1 and 2: <q1, q0> = v * u2 + <u2, u1>
+  let q_low_product = v * u2
+  let q_low = q_low_product + u1
+  let q_high = bin_coeff_mul_high(v, u2) +
+    u2 +
+    (if q_low < q_low_product { 1UL } else { 0UL })
+  // lines 3 to 5: <r1, r0> = (<u1 - q1 d1, u0> - q1 d0 - <d1, d0>) mod B^2
+  let t_low = d0 * q_high
+  let t_high = bin_coeff_mul_high(d0, q_high)
+  let r1_start = u1 - q_high * d1
+  let r0_first = u0 - t_low
+  let r1_first = r1_start - t_high - (if u0 < t_low { 1UL } else { 0UL })
+  let mut r0 = r0_first - d0
+  let mut r1 = r1_first - d1 - (if r0_first < d0 { 1UL } else { 0UL })
+  let mut q = q_high + 1UL
+  // lines 7 to 9: undo the increment when `r1 >= q0`
+  let mask = 0UL - (if r1 >= q_low { 1UL } else { 0UL })
+  q += mask
+  let r0_sum = r0 + (d0 & mask)
+  r1 = r1 + (d1 & mask) + (if r0_sum < r0 { 1UL } else { 0UL })
+  r0 = r0_sum
+  // lines 10 to 12: the unlikely second adjustment
+  if r1 > d1 || (r1 == d1 && r0 >= d0) {
+    q += 1UL
+  }
+  q
+}
+
+///|
 /// One multiply-subtract row of the quotient loop: `dividend[offset + skip ..<
 /// offset + n] -= trial * divisor[skip ..< n]` and the limb above it, where `n`
 /// is `denominator_len`. Returns whether the row borrowed out of the limb
@@ -129,34 +251,20 @@ fn bin_coeff_knuth_words_core(
 ) -> Unit {
   let divisor_top = divisor.unsafe_get(denominator_len - 1)
   let divisor_next = divisor.unsafe_get(denominator_len - 2)
+  let reciprocal = bin_knuth_reciprocal_3by2(divisor_top, divisor_next)
   let mut offset = quotient_len - 1
   while offset >= 0 {
     let high = dividend.unsafe_get(offset + denominator_len)
     let next = dividend.unsafe_get(offset + denominator_len - 1)
     let after = dividend.unsafe_get(offset + denominator_len - 2)
     let mut trial = 0UL
-    let mut trial_remainder = 0UL
-    // the remainder estimate leaves 64 bits once it overflows: stop correcting
-    let mut remainder_overflow = false
-    if high >= divisor_top {
-      trial = 0xFFFF_FFFF_FFFF_FFFFUL
-      trial_remainder = next + divisor_top
-      remainder_overflow = trial_remainder < next
+    if high < divisor_top {
+      // the quotient of the top three limbs by the top two of the divisor
+      trial = bin_knuth_digit_3by2(
+        high, next, after, divisor_top, divisor_next, reciprocal,
+      )
     } else {
-      trial = binary_fast_div_wide(high, next, divisor_top)
-      trial_remainder = next - trial * divisor_top
-    }
-    while !remainder_overflow {
-      let product_high = bin_coeff_mul_high(trial, divisor_next)
-      let product_low = trial * divisor_next
-      if product_high > trial_remainder ||
-        (product_high == trial_remainder && product_low > after) {
-        trial -= 1UL
-        trial_remainder += divisor_top
-        remainder_overflow = trial_remainder < divisor_top
-      } else {
-        break
-      }
+      trial = bin_knuth_digit_top(next, after, divisor_top, divisor_next)
     }
     // dividend[offset ..= offset + n] -= trial * divisor, one row
     let high_index = offset + denominator_len
@@ -312,33 +420,20 @@ fn bin_coeff_knuth_short_core(
 ) -> Unit {
   let divisor_top = divisor.unsafe_get(denominator_len - 1)
   let divisor_next = divisor.unsafe_get(denominator_len - 2)
+  let reciprocal = bin_knuth_reciprocal_3by2(divisor_top, divisor_next)
   let mut offset = quotient_len - 1
   while offset >= 0 {
     let high = dividend.unsafe_get(offset + denominator_len)
     let next = dividend.unsafe_get(offset + denominator_len - 1)
     let after = dividend.unsafe_get(offset + denominator_len - 2)
     let mut trial = 0UL
-    let mut trial_remainder = 0UL
-    let mut remainder_overflow = false
-    if high >= divisor_top {
-      trial = 0xFFFF_FFFF_FFFF_FFFFUL
-      trial_remainder = next + divisor_top
-      remainder_overflow = trial_remainder < next
+    if high < divisor_top {
+      // the quotient of the top three limbs by the top two of the divisor
+      trial = bin_knuth_digit_3by2(
+        high, next, after, divisor_top, divisor_next, reciprocal,
+      )
     } else {
-      trial = binary_fast_div_wide(high, next, divisor_top)
-      trial_remainder = next - trial * divisor_top
-    }
-    while !remainder_overflow {
-      let product_high = bin_coeff_mul_high(trial, divisor_next)
-      let product_low = trial * divisor_next
-      if product_high > trial_remainder ||
-        (product_high == trial_remainder && product_low > after) {
-        trial -= 1UL
-        trial_remainder += divisor_top
-        remainder_overflow = trial_remainder < divisor_top
-      } else {
-        break
-      }
+      trial = bin_knuth_digit_top(next, after, divisor_top, divisor_next)
     }
     // dividend[offset + skip ..= offset + n] -= trial * divisor[skip ..< n], one row
     let skip = Int32::max(0, denominator_len - 1 - offset)
