@@ -1215,8 +1215,13 @@ positional notation for decimal exponents in $[-6, 21)$, otherwise
 `d.ddde±x`; unlike ECMAScript, $-0$ prints as `-0`. For binary64 values in
 `BinaryContext::binary64()` the result equals the host `Double` formatter.
 `to_shortest_string()` uses `unbounded(precision())`, so it is the shortest
-string that `from_string(text, precision=x.precision())` maps back to `x`. The
-operand should be representable in the context.
+string that `from_string(text, precision=x.precision())` maps back to `x`. An
+operand that is not representable in the context is first rounded into it
+(`round_ctx`, in the rounding direction of the context, with the overflow and
+underflow of the context), and the result is the shortest string of that
+rounded value: `inf` or `-inf` on overflow, `0` or `-0` on underflow (the
+largest finite value for a direction that rounds toward zero). A value of the
+format prints as itself.
 
 ### `BinFloat::from_hex`, `BinFloat::from_hex_ctx`, `BinFloat::to_hex`
 
