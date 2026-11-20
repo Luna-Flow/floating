@@ -356,10 +356,18 @@ fn dec_coeff_division_algorithm(
   numerator : DecCoeff,
   denominator : DecCoeff,
 ) -> DecCoeffDivAlgorithm {
+  dec_coeff_division_algorithm_for(dec_coeff_unit_len(numerator), denominator)
+}
+
+///|
+fn dec_coeff_division_algorithm_for(
+  numerator_len : Int32,
+  denominator : DecCoeff,
+) -> DecCoeffDivAlgorithm {
   let length = dec_coeff_unit_len(denominator)
   if length == 1 {
     Word
-  } else if dec_coeff_unit_len(numerator) - length + 1 <= 1 {
+  } else if numerator_len - length + 1 <= 1 {
     Knuth
   } else if dec_coeff_newton_enabled && length >= dec_coeff_newton_threshold {
     Newton
