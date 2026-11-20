@@ -305,9 +305,9 @@ fn run_decimal_binary_conformance_case(
     Sqrt => fail("binary runner cannot execute unary case: " + id)
     Power => lhs.pow_ctx(rhs, ctx)
     Divide => lhs.div_ctx(rhs, ctx)
-    DivideInteger => lhs.divide_integer(rhs, ctx)
+    DivideInteger => lhs.divide_integer_ctx(rhs, ctx)
     Remainder => lhs.remainder_trunc_ctx(rhs, ctx)
-    Quantize => lhs.quantize(rhs, ctx)
+    Quantize => lhs.quantize_ctx(rhs, ctx)
     Fma | ToIntegralExact | Reduce =>
       fail("binary runner cannot execute unary/ternary case: " + id)
   }
@@ -382,7 +382,7 @@ fn run_decimal_unary_conformance_case(
   let operand = decimal_conformance_operand(id, operand_src)
   let (actual, flags) = match op {
     Sqrt => operand.sqrt_ctx(ctx)
-    ToIntegralExact => operand.to_integral_exact(ctx)
+    ToIntegralExact => operand.to_integral_exact_ctx(ctx)
     Reduce => operand.reduce_ctx(ctx)
     Add
     | Subtract
@@ -4219,7 +4219,7 @@ test "decimal quotient and remainder avoid huge scaling when quotient is zero" {
   )
   let tiny = @decimal.Decimal::from_string("0.100", precision=64).unwrap()
   let huge = @decimal.Decimal::from_string("9E+999999999", precision=64).unwrap()
-  let (quotient, quotient_flags) = tiny.divide_integer(huge, ctx)
+  let (quotient, quotient_flags) = tiny.divide_integer_ctx(huge, ctx)
   let (remainder, remainder_flags) = tiny.remainder_trunc_ctx(huge, ctx)
   let (near_remainder, near_remainder_flags) = tiny.remainder_ctx(huge, ctx)
   assert_eq(
@@ -4232,7 +4232,7 @@ test "decimal quotient and remainder avoid huge scaling when quotient is zero" {
   assert_eq(near_remainder.total_order_compare(tiny), 0)
   assert_false(near_remainder_flags.has_error())
   let negative_tiny = @decimal.Decimal::from_string("-0.100", precision=64).unwrap()
-  let (negative_quotient, negative_quotient_flags) = negative_tiny.divide_integer(
+  let (negative_quotient, negative_quotient_flags) = negative_tiny.divide_integer_ctx(
     huge, ctx,
   )
   let (tiny_remainder, tiny_remainder_flags) = @decimal.Decimal::from_string(
@@ -4283,10 +4283,10 @@ test "decimal divide_integer by zero returns signed infinity or division undefin
   let negative = @decimal.Decimal::from_string("-0.0001", precision=16).unwrap()
   let zero = @decimal.Decimal::zero(precision=16)
   let neg_zero = @decimal.Decimal::negative_zero(precision=16)
-  let (positive_inf, positive_flags) = positive.divide_integer(zero, ctx)
-  let (negative_inf, negative_flags) = negative.divide_integer(zero, ctx)
-  let (flipped_inf, flipped_flags) = positive.divide_integer(neg_zero, ctx)
-  let (undefined_result, undefined_flags) = zero.divide_integer(zero, ctx)
+  let (positive_inf, positive_flags) = positive.divide_integer_ctx(zero, ctx)
+  let (negative_inf, negative_flags) = negative.divide_integer_ctx(zero, ctx)
+  let (flipped_inf, flipped_flags) = positive.divide_integer_ctx(neg_zero, ctx)
+  let (undefined_result, undefined_flags) = zero.divide_integer_ctx(zero, ctx)
   assert_true(positive_inf.is_infinite())
   assert_false(positive_inf.is_negative())
   assert_true(negative_inf.is_infinite())
@@ -4317,9 +4317,11 @@ test "decimal divide_integer handles huge exponent boundaries without overflow" 
   let huge_dividend = @decimal.Decimal::from_string("9e999999999", precision=32).unwrap()
   let tiny_divisor = @decimal.Decimal::from_string("9e-999999999", precision=32).unwrap()
   let tenth = @decimal.Decimal::from_string("0.1", precision=32).unwrap()
-  let (under_one, under_one_flags) = one.divide_integer(huge_divisor, ctx)
-  let (too_wide, too_wide_flags) = huge_dividend.divide_integer(one, ctx)
-  let (tiny_scale, tiny_scale_flags) = tenth.divide_integer(tiny_divisor, ctx)
+  let (under_one, under_one_flags) = one.divide_integer_ctx(huge_divisor, ctx)
+  let (too_wide, too_wide_flags) = huge_dividend.divide_integer_ctx(one, ctx)
+  let (tiny_scale, tiny_scale_flags) = tenth.divide_integer_ctx(
+    tiny_divisor, ctx,
+  )
   assert_eq(
     under_one.total_order_compare(@decimal.Decimal::zero(precision=8)),
     0,
@@ -4345,8 +4347,12 @@ test "decimal subset divide_integer canonicalizes zero quotients" {
   let neg_one = @decimal.Decimal::from_string("-1", precision=16).unwrap()
   let two = @decimal.Decimal::from_int(2, precision=16)
   let neg_inf = @decimal.Decimal::inf(@def.Sign::Negative, precision=16)
-  let (finite_zero, finite_zero_flags) = neg_one.divide_integer(two, subset_ctx)
-  let (inf_zero, inf_zero_flags) = neg_one.divide_integer(neg_inf, subset_ctx)
+  let (finite_zero, finite_zero_flags) = neg_one.divide_integer_ctx(
+    two, subset_ctx,
+  )
+  let (inf_zero, inf_zero_flags) = neg_one.divide_integer_ctx(
+    neg_inf, subset_ctx,
+  )
   assert_eq(finite_zero.to_string(), "0")
   assert_false(finite_zero.is_negative_zero())
   assert_false(finite_zero_flags.has_error())
@@ -4364,7 +4370,7 @@ test "decimal divide_integer zero quotient preserves rounded-only flags" {
     e_max=999,
     extended=false,
   )
-  let (rounded_zero, rounded_zero_flags) = @decimal.Decimal::one(precision=32).divide_integer(
+  let (rounded_zero, rounded_zero_flags) = @decimal.Decimal::one(precision=32).divide_integer_ctx(
     @decimal.Decimal::from_string("12345678000", precision=32).unwrap(),
     ctx,
   )
@@ -4383,7 +4389,7 @@ test "decimal divide_integer zero quotient preserves rounded and inexact flags" 
     e_max=999,
     extended=false,
   )
-  let (inexact_zero, inexact_zero_flags) = @decimal.Decimal::one(precision=32).divide_integer(
+  let (inexact_zero, inexact_zero_flags) = @decimal.Decimal::one(precision=32).divide_integer_ctx(
     @decimal.Decimal::from_string("1234567891", precision=32).unwrap(),
     ctx,
   )
@@ -4404,7 +4410,7 @@ test "decimal divide_integer truncates sub-unit quotients above one half" {
   )
   let (value, flags) = @decimal.Decimal::from_string("0.9", precision=32)
     .unwrap()
-    .divide_integer(@decimal.Decimal::one(precision=32), ctx)
+    .divide_integer_ctx(@decimal.Decimal::one(precision=32), ctx)
   assert_eq(decimal_coeff_signed(value), 0N)
   assert_false(value.is_negative_zero())
   assert_false(flags.has_error())
@@ -4424,7 +4430,7 @@ test "decimal divide_integer huge zero quotient matches full official representa
       precision=64,
     )
     .unwrap()
-    .divide_integer(
+    .divide_integer_ctx(
       @decimal.Decimal::from_string("9E+999999999", precision=64).unwrap(),
       wide_ctx,
     )
@@ -4506,7 +4512,7 @@ test "decimal divide_integer matches official0 huge lost-digits representative" 
       precision=64,
     )
     .unwrap()
-    .divide_integer(
+    .divide_integer_ctx(
       @decimal.Decimal::from_string("9E+999999999", precision=64).unwrap(),
       huge_ctx,
     )
@@ -4530,7 +4536,7 @@ test "decimal divide_integer matches official0 huge impossible representative" {
       precision=64,
     )
     .unwrap()
-    .divide_integer(
+    .divide_integer_ctx(
       @decimal.Decimal::from_string("0.23456789012345", precision=64).unwrap(),
       huge_ctx,
     )
@@ -4548,7 +4554,7 @@ test "decimal divide_integer matches official0 lost-digits zero-quotient represe
     e_max=999,
     extended=false,
   )
-  let (rounded_zero, rounded_zero_flags) = @decimal.Decimal::one(precision=32).divide_integer(
+  let (rounded_zero, rounded_zero_flags) = @decimal.Decimal::one(precision=32).divide_integer_ctx(
     @decimal.Decimal::from_string("1234567891", precision=32).unwrap(),
     lostdigits_ctx,
   )
@@ -5773,13 +5779,13 @@ test "decimal logical operations require logical operands" {
   let bad_digit = @decimal.Decimal::from_string("102", precision=8).unwrap()
   let bad_sign = @decimal.Decimal::from_string("-101", precision=8).unwrap()
   let bad_exponent = @decimal.Decimal::from_string("10.0", precision=8).unwrap()
-  let (and_value, and_flags) = lhs.logical_and(rhs, ctx)
-  let (or_value, or_flags) = lhs.logical_or(rhs, ctx)
-  let (xor_value, xor_flags) = lhs.logical_xor(rhs, ctx)
-  let (invert_value, invert_flags) = zero.logical_invert(ctx)
-  let (bad_digit_value, bad_digit_flags) = bad_digit.logical_and(rhs, ctx)
-  let (bad_sign_value, bad_sign_flags) = bad_sign.logical_or(rhs, ctx)
-  let (bad_exponent_value, bad_exponent_flags) = bad_exponent.logical_xor(
+  let (and_value, and_flags) = lhs.logical_and_ctx(rhs, ctx)
+  let (or_value, or_flags) = lhs.logical_or_ctx(rhs, ctx)
+  let (xor_value, xor_flags) = lhs.logical_xor_ctx(rhs, ctx)
+  let (invert_value, invert_flags) = zero.logical_invert_ctx(ctx)
+  let (bad_digit_value, bad_digit_flags) = bad_digit.logical_and_ctx(rhs, ctx)
+  let (bad_sign_value, bad_sign_flags) = bad_sign.logical_or_ctx(rhs, ctx)
+  let (bad_exponent_value, bad_exponent_flags) = bad_exponent.logical_xor_ctx(
     rhs, ctx,
   )
   assert_eq(and_value.to_string(), "0")
@@ -5803,7 +5809,7 @@ test "decimal logical operations use context precision width" {
   let ctx = @decimal.DecimalContext::new(precision=9)
   let lhs = @decimal.Decimal::from_string("111111111111", precision=16).unwrap()
   let rhs = @decimal.Decimal::from_string("1111111111", precision=16).unwrap()
-  let (and_value, and_flags) = lhs.logical_and(rhs, ctx)
+  let (and_value, and_flags) = lhs.logical_and_ctx(rhs, ctx)
   assert_eq(and_value.to_string(), "111111111")
   assert_false(and_flags.rounded)
   assert_false(and_flags.inexact)
@@ -5814,7 +5820,7 @@ test "decimal quantize preserves requested quantum exponent" {
   let ctx = @decimal.DecimalContext::new(precision=8)
   let value = @decimal.Decimal::from_string("1.2", precision=8).unwrap()
   let quantum = @decimal.Decimal::from_string("0.01", precision=8).unwrap()
-  let (fixed, flags) = value.quantize(quantum, ctx)
+  let (fixed, flags) = value.quantize_ctx(quantum, ctx)
   assert_eq(fixed.to_string(), "1.20")
   assert_eq(fixed.exponent10(), -2)
   assert_true(fixed.same_quantum(quantum))
@@ -5828,8 +5834,8 @@ test "decimal quantize distinguishes rounded from inexact" {
   let quantum = @decimal.Decimal::from_string("0.01", precision=8).unwrap()
   let exact = @decimal.Decimal::from_string("1.230", precision=8).unwrap()
   let inexact = @decimal.Decimal::from_string("1.235", precision=8).unwrap()
-  let (exact_fixed, exact_flags) = exact.quantize(quantum, ctx)
-  let (inexact_fixed, inexact_flags) = inexact.quantize(quantum, ctx)
+  let (exact_fixed, exact_flags) = exact.quantize_ctx(quantum, ctx)
+  let (inexact_fixed, inexact_flags) = inexact.quantize_ctx(quantum, ctx)
   assert_eq(exact_fixed.to_string(), "1.23")
   assert_true(exact_flags.rounded)
   assert_false(exact_flags.inexact)
@@ -5843,7 +5849,7 @@ test "decimal quantize rejects coefficients beyond context precision" {
   let ctx = @decimal.DecimalContext::new(precision=3)
   let value = @decimal.Decimal::from_string("1234", precision=8).unwrap()
   let quantum = @decimal.Decimal::one(precision=8)
-  let (result, flags) = value.quantize(quantum, ctx)
+  let (result, flags) = value.quantize_ctx(quantum, ctx)
   assert_true(result.classify() == @lf_arith.FpClass::NaN)
   assert_true(flags.invalid_operation)
   assert_false(flags.rounded)
@@ -5860,8 +5866,8 @@ test "decimal quantize invalid precision overflow suppresses rounded flags" {
   let fung = @decimal.Decimal::from_string("0.9998", precision=16).unwrap()
   let quantum_tiny = @decimal.Decimal::from_string("1e-17", precision=16).unwrap()
   let mills = @decimal.Decimal::from_string("0.001", precision=16).unwrap()
-  let (tiny_result, tiny_flags) = tiny.quantize(quantum_tiny, ctx)
-  let (fung_result, fung_flags) = fung.quantize(mills, ctx)
+  let (tiny_result, tiny_flags) = tiny.quantize_ctx(quantum_tiny, ctx)
+  let (fung_result, fung_flags) = fung.quantize_ctx(mills, ctx)
   assert_true(tiny_result.classify() == @lf_arith.FpClass::NaN)
   assert_true(fung_result.classify() == @lf_arith.FpClass::NaN)
   assert_true(tiny_flags.invalid_operation)
@@ -5888,10 +5894,12 @@ test "decimal quantize propagates special operands with quieting semantics" {
   )
   let pos_inf = @decimal.Decimal::inf(@def.Sign::Positive, precision=16)
   let neg_inf = @decimal.Decimal::inf(@def.Sign::Negative, precision=16)
-  let (qnan_result, qnan_flags) = finite.quantize(qnan, ctx)
-  let (snan_result, snan_flags) = finite.quantize(snan, ctx)
-  let (inf_result, inf_flags) = pos_inf.quantize(pos_inf, ctx)
-  let (neg_quantum_inf, neg_quantum_inf_flags) = pos_inf.quantize(neg_inf, ctx)
+  let (qnan_result, qnan_flags) = finite.quantize_ctx(qnan, ctx)
+  let (snan_result, snan_flags) = finite.quantize_ctx(snan, ctx)
+  let (inf_result, inf_flags) = pos_inf.quantize_ctx(pos_inf, ctx)
+  let (neg_quantum_inf, neg_quantum_inf_flags) = pos_inf.quantize_ctx(
+    neg_inf, ctx,
+  )
   assert_true(qnan_result.is_quiet_nan())
   assert_true(qnan_result.is_negative())
   assert_eq(qnan_result.nan_payload(), 2345N)
@@ -5921,8 +5929,8 @@ test "decimal subset quantize canonicalizes zero results to positive zero" {
   let neg_tenth = @decimal.Decimal::from_string("-0.1", precision=16).unwrap()
   let units = @decimal.Decimal::one(precision=16)
   let hundreds = @decimal.Decimal::from_string("1E+2", precision=16).unwrap()
-  let (zero_units, zero_units_flags) = neg_zero.quantize(units, subset_ctx)
-  let (rounded_hundreds, rounded_hundreds_flags) = neg_tenth.quantize(
+  let (zero_units, zero_units_flags) = neg_zero.quantize_ctx(units, subset_ctx)
+  let (rounded_hundreds, rounded_hundreds_flags) = neg_tenth.quantize_ctx(
     hundreds, subset_ctx,
   )
   assert_eq(zero_units.to_string(), "0")
@@ -5956,24 +5964,24 @@ test "decimal rescale interprets rhs as target exponent count" {
     "0.02E+2",
     precision=16,
   ).unwrap()
-  let (upscaled, upscaled_flags) = tenth.rescale(plus_two, ctx)
-  let (fixed, fixed_flags) = two_point_seventeen.rescale(minus_two, ctx)
-  let (rounded, rounded_flags) = two_point_seventeen.rescale(
+  let (upscaled, upscaled_flags) = tenth.rescale_ctx(plus_two, ctx)
+  let (fixed, fixed_flags) = two_point_seventeen.rescale_ctx(minus_two, ctx)
+  let (rounded, rounded_flags) = two_point_seventeen.rescale_ctx(
     @decimal.Decimal::from_int(-1, precision=16),
     ctx,
   )
   let (integer_rhs, integer_rhs_flags) = @decimal.Decimal::from_int(
     222,
     precision=16,
-  ).rescale(plus_two_exact, ctx)
+  ).rescale_ctx(plus_two_exact, ctx)
   let (trailing_zero_rhs, trailing_zero_rhs_flags) = @decimal.Decimal::from_int(
     222,
     precision=16,
-  ).rescale(plus_two_trailing_zero, ctx)
+  ).rescale_ctx(plus_two_trailing_zero, ctx)
   let (scientific_rhs, scientific_rhs_flags) = @decimal.Decimal::from_int(
     222,
     precision=16,
-  ).rescale(plus_two_scientific, ctx)
+  ).rescale_ctx(plus_two_scientific, ctx)
   assert_eq(
     upscaled.total_order_compare(
       @decimal.Decimal::from_string("0E+2", precision=16).unwrap(),
@@ -6044,7 +6052,7 @@ test "decimal rescale accepts exact integer rhs across exponent encodings" {
     @decimal.Decimal::from_string("-0.02E+2", precision=16).unwrap(),
   ]
   for target in positive_targets {
-    let (result, flags) = value.rescale(target, ctx)
+    let (result, flags) = value.rescale_ctx(target, ctx)
     assert_eq(
       result.total_order_compare(
         @decimal.Decimal::from_string("0E+2", precision=16).unwrap(),
@@ -6055,7 +6063,7 @@ test "decimal rescale accepts exact integer rhs across exponent encodings" {
     assert_true(flags.inexact)
   }
   for target in negative_targets {
-    let (result, flags) = value.rescale(target, ctx)
+    let (result, flags) = value.rescale_ctx(target, ctx)
     assert_eq(
       result.total_order_compare(
         @decimal.Decimal::from_string("2.17", precision=16).unwrap(),
@@ -6083,11 +6091,13 @@ test "decimal rescale validates rhs integrality and infinity rules" {
     precision=16,
   ).unwrap()
   let huge_rhs = @decimal.Decimal::from_int(1000, precision=16)
-  let (bad_fraction, bad_fraction_flags) = finite.rescale(non_integer_rhs, ctx)
-  let (bad_range, bad_range_flags) = finite.rescale(huge_rhs, ctx)
-  let (finite_over_inf, finite_over_inf_flags) = finite.rescale(inf, ctx)
-  let (pos_inf_rescaled, pos_inf_flags) = inf.rescale(neg_inf, ctx)
-  let (neg_inf_rescaled, neg_inf_flags) = neg_inf.rescale(inf, ctx)
+  let (bad_fraction, bad_fraction_flags) = finite.rescale_ctx(
+    non_integer_rhs, ctx,
+  )
+  let (bad_range, bad_range_flags) = finite.rescale_ctx(huge_rhs, ctx)
+  let (finite_over_inf, finite_over_inf_flags) = finite.rescale_ctx(inf, ctx)
+  let (pos_inf_rescaled, pos_inf_flags) = inf.rescale_ctx(neg_inf, ctx)
+  let (neg_inf_rescaled, neg_inf_flags) = neg_inf.rescale_ctx(inf, ctx)
   assert_true(bad_fraction.is_quiet_nan())
   assert_true(bad_fraction_flags.invalid_operation)
   assert_true(bad_range.is_quiet_nan())
@@ -6125,22 +6135,22 @@ test "decimal quantize and rescale honor etiny fit window" {
     "1E-1006",
     precision=16,
   ).unwrap()
-  let (quantized_fit, quantized_fit_flags) = one_e_neg_999.quantize(
+  let (quantized_fit, quantized_fit_flags) = one_e_neg_999.quantize_ctx(
     quantum_e_neg_1005, ctx,
   )
-  let (quantized_subnormal, quantized_subnormal_flags) = one_e_neg_1000.quantize(
+  let (quantized_subnormal, quantized_subnormal_flags) = one_e_neg_1000.quantize_ctx(
     quantum_e_neg_1005, ctx,
   )
-  let (quantized_too_wide, quantized_too_wide_flags) = one_e_neg_998.quantize(
+  let (quantized_too_wide, quantized_too_wide_flags) = one_e_neg_998.quantize_ctx(
     quantum_e_neg_1005, ctx,
   )
-  let (quantized_below_etiny, quantized_below_etiny_flags) = one_e_neg_999.quantize(
+  let (quantized_below_etiny, quantized_below_etiny_flags) = one_e_neg_999.quantize_ctx(
     quantum_e_neg_1006, ctx,
   )
-  let (quantized_rounded_subnormal, quantized_rounded_subnormal_flags) = repeating_subnormal.quantize(
+  let (quantized_rounded_subnormal, quantized_rounded_subnormal_flags) = repeating_subnormal.quantize_ctx(
     quantum_e_neg_1005, ctx,
   )
-  let (rescaled_fit, rescaled_fit_flags) = one_e_neg_999.rescale(
+  let (rescaled_fit, rescaled_fit_flags) = one_e_neg_999.rescale_ctx(
     @decimal.Decimal::from_int(-1005, precision=16),
     ctx,
   )
@@ -6253,8 +6263,8 @@ test "decimal same_quantum covers official exponent matrix representatives" {
 test "decimal integral rounding distinguishes exact and value flags" {
   let ctx = @decimal.DecimalContext::new(precision=8)
   let value = @decimal.Decimal::from_string("2.5", precision=8).unwrap()
-  let (exact, exact_flags) = value.to_integral_exact(ctx)
-  let (quiet, quiet_flags) = value.to_integral_value(ctx)
+  let (exact, exact_flags) = value.to_integral_exact_ctx(ctx)
+  let (quiet, quiet_flags) = value.to_integral_value_ctx(ctx)
   assert_eq(exact.to_string(), "2")
   assert_eq(quiet.to_string(), "2")
   assert_true(exact_flags.rounded)
@@ -6271,11 +6281,11 @@ test "decimal to_integral_value preserves integral cohorts and special payloads"
   let neg_zero = @decimal.Decimal::from_string("-0E+5", precision=16).unwrap()
   let qnan = @decimal.Decimal::quiet_nan(payload=808N, precision=16)
   let snan = @decimal.Decimal::signaling_nan(payload=80N, precision=16)
-  let (huge_integral, huge_flags) = huge.to_integral_value(ctx)
-  let (pos_zero_integral, pos_zero_flags) = pos_zero.to_integral_value(ctx)
-  let (neg_zero_integral, neg_zero_flags) = neg_zero.to_integral_value(ctx)
-  let (qnan_integral, qnan_flags) = qnan.to_integral_value(ctx)
-  let (snan_integral, snan_flags) = snan.to_integral_value(ctx)
+  let (huge_integral, huge_flags) = huge.to_integral_value_ctx(ctx)
+  let (pos_zero_integral, pos_zero_flags) = pos_zero.to_integral_value_ctx(ctx)
+  let (neg_zero_integral, neg_zero_flags) = neg_zero.to_integral_value_ctx(ctx)
+  let (qnan_integral, qnan_flags) = qnan.to_integral_value_ctx(ctx)
+  let (snan_integral, snan_flags) = snan.to_integral_value_ctx(ctx)
   assert_eq(
     huge_integral.total_order_compare(
       @decimal.Decimal::from_string("1.0E+31", precision=16).unwrap(),
@@ -6314,12 +6324,12 @@ test "decimal to_integral_exact preserves integral cohorts and special payloads"
   let qnan = @decimal.Decimal::quiet_nan(payload=808N, precision=16)
   let snan = @decimal.Decimal::signaling_nan(payload=80N, precision=16)
   let inf = @decimal.Decimal::inf(@def.Sign::Positive, precision=16)
-  let (huge_integral, huge_flags) = huge.to_integral_exact(ctx)
-  let (pos_zero_integral, pos_zero_flags) = pos_zero.to_integral_exact(ctx)
-  let (neg_zero_integral, neg_zero_flags) = neg_zero.to_integral_exact(ctx)
-  let (qnan_integral, qnan_flags) = qnan.to_integral_exact(ctx)
-  let (snan_integral, snan_flags) = snan.to_integral_exact(ctx)
-  let (inf_integral, inf_flags) = inf.to_integral_exact(ctx)
+  let (huge_integral, huge_flags) = huge.to_integral_exact_ctx(ctx)
+  let (pos_zero_integral, pos_zero_flags) = pos_zero.to_integral_exact_ctx(ctx)
+  let (neg_zero_integral, neg_zero_flags) = neg_zero.to_integral_exact_ctx(ctx)
+  let (qnan_integral, qnan_flags) = qnan.to_integral_exact_ctx(ctx)
+  let (snan_integral, snan_flags) = snan.to_integral_exact_ctx(ctx)
+  let (inf_integral, inf_flags) = inf.to_integral_exact_ctx(ctx)
   assert_eq(
     huge_integral.total_order_compare(
       @decimal.Decimal::from_string("1.0E+31", precision=16).unwrap(),
@@ -6363,10 +6373,18 @@ test "decimal subset to_integral canonicalizes negative zero results" {
   )
   let neg_zero = @decimal.Decimal::from_string("-0E+5", precision=16).unwrap()
   let neg_tiny = @decimal.Decimal::from_string("-0.1", precision=16).unwrap()
-  let (exact_zero, exact_zero_flags) = neg_zero.to_integral_exact(subset_ctx)
-  let (value_zero, value_zero_flags) = neg_zero.to_integral_value(subset_ctx)
-  let (exact_tiny, exact_tiny_flags) = neg_tiny.to_integral_exact(subset_ctx)
-  let (value_tiny, value_tiny_flags) = neg_tiny.to_integral_value(subset_ctx)
+  let (exact_zero, exact_zero_flags) = neg_zero.to_integral_exact_ctx(
+    subset_ctx,
+  )
+  let (value_zero, value_zero_flags) = neg_zero.to_integral_value_ctx(
+    subset_ctx,
+  )
+  let (exact_tiny, exact_tiny_flags) = neg_tiny.to_integral_exact_ctx(
+    subset_ctx,
+  )
+  let (value_tiny, value_tiny_flags) = neg_tiny.to_integral_value_ctx(
+    subset_ctx,
+  )
   assert_eq(exact_zero.to_string(), "0")
   assert_false(exact_zero.is_negative_zero())
   assert_false(exact_zero_flags.has_error())
@@ -7766,7 +7784,7 @@ test "decimal integer quotient fast paths for power-of-ten divisors preserve res
       precision=32,
     )
     .unwrap()
-    .divide_integer(
+    .divide_integer_ctx(
       @decimal.Decimal::from_string("1E+3", precision=32).unwrap(),
       ctx,
     )

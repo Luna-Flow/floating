@@ -63,7 +63,7 @@ pub fn Decimal::div(Self, Self) -> Self
 pub fn Decimal::div_checked(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::div_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Decimal::div_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::divide_integer(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::divide_integer_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::epsilon_contextual(@arithmetic.ArithmeticContext) -> Self
 pub fn Decimal::equal(Self, Self) -> Bool
 pub fn Decimal::exp10_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
@@ -106,10 +106,10 @@ pub fn Decimal::log1p_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::log2_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::log2p1_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logb_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_and(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_invert(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_or(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_xor(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::logical_and_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::logical_invert_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::logical_or_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::logical_xor_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::make(@bigint.BigInt, Int32, Int32, mode? : @arithmetic.RoundingMode) -> Self
 pub fn Decimal::max(Self, Self) -> Self
 pub fn Decimal::max_finite_contextual(@arithmetic.ArithmeticContext) -> Self
@@ -152,13 +152,13 @@ pub fn Decimal::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> 
 pub fn Decimal::pown_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::powr_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::precision(Self) -> Int32
-pub fn Decimal::quantize(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::quantize_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::quantum(Self) -> Int32
 pub fn Decimal::quiet_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int32) -> Self
 pub fn Decimal::reduce_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::remainder_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::remainder_trunc_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::rescale(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::rescale_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rootn_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rotate_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rsqrt_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
@@ -187,8 +187,8 @@ pub fn Decimal::to_bin_float_ctx(Self, @bin_float.BinaryContext) -> (@bin_float.
 pub fn Decimal::to_eng_string(String, DecimalContext) -> (String, DecimalFlags)
 pub fn Decimal::to_int64_ctx(Self, DecimalContext, exact? : Bool) -> (Int64?, DecimalFlags)
 pub fn Decimal::to_int_ctx(Self, DecimalContext, exact? : Bool) -> (Int32?, DecimalFlags)
-pub fn Decimal::to_integral_exact(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::to_integral_value(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::to_integral_exact_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::to_integral_value_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::to_interchange_hex(Self, DecimalInterchangeFormat) -> (String, DecimalFlags)
 pub fn Decimal::to_interchange_hex_with_encoding(Self, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> (String, DecimalFlags)
 pub fn Decimal::to_repr(Self) -> @debug.Repr

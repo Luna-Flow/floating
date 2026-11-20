@@ -478,7 +478,7 @@ pub fn DecimalChecked::quantize(
   self : DecimalChecked,
   quantum : @decimal.Decimal,
 ) -> DecimalChecked {
-  self.record(self.value_.quantize(quantum, self.context_))
+  self.record(self.value_.quantize_ctx(quantum, self.context_))
 }
 
 ///|

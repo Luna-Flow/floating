@@ -15,7 +15,7 @@ test "divide_integer and remainder accept a zero dividend" {
     let (left, right, quotient, remainder) = entry
     let x = Decimal::from_string(left).unwrap()
     let y = Decimal::from_string(right).unwrap()
-    let (q, q_flags) = x.divide_integer(y, context)
+    let (q, q_flags) = x.divide_integer_ctx(y, context)
     assert_eq(q.to_string(), quotient)
     assert_true(q_flags == DecimalFlags::new())
     let (r, r_flags) = x.remainder_trunc_ctx(y, context)
@@ -32,7 +32,7 @@ test "divide_integer clamps a zero quotient exponent" {
   let ctx = DecimalContext::new(precision=9, e_min=0, e_max=1, clamp=true)
   let lhs = Decimal::from_string("-8.95E-6").unwrap()
   let rhs = Decimal::from_string("2.40E-5").unwrap()
-  let (value, flags) = lhs.divide_integer(rhs, ctx)
+  let (value, flags) = lhs.divide_integer_ctx(rhs, ctx)
   inspect(value.to_string(), content="-0E-7")
   inspect(flags.clamped, content="true")
 }
@@ -53,7 +53,7 @@ test "divide_integer clamps a zero quotient over an infinite divisor" {
     let (left, right, expected, remainder) = entry
     let x = Decimal::from_string(left).unwrap()
     let y = Decimal::from_string(right).unwrap()
-    let (q, flags) = x.divide_integer(y, ctx)
+    let (q, flags) = x.divide_integer_ctx(y, ctx)
     assert_eq(q.to_string(), expected)
     assert_true(flags == { ..DecimalFlags::new(), clamped: true, })
     // x rem Inf is x itself, whose exponent 0 the clamp folds to -7.
@@ -64,7 +64,7 @@ test "divide_integer clamps a zero quotient over an infinite divisor" {
   let unclamped = DecimalContext::new(precision=9, e_min=0, e_max=1)
   let (q, flags) = Decimal::from_string("-1")
     .unwrap()
-    .divide_integer(Decimal::from_string("Inf").unwrap(), unclamped)
+    .divide_integer_ctx(Decimal::from_string("Inf").unwrap(), unclamped)
   inspect(q.to_string(), content="-0")
   assert_true(flags == DecimalFlags::new())
 }

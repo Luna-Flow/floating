@@ -349,7 +349,7 @@ def render_moon_fixture_test() -> str:
         elif operation == "sqrt":
             call = "lhs.sqrt_ctx(ctx)"
         elif operation == "quantize":
-            call = f"lhs.quantize({rhs}, ctx)"
+            call = f"lhs.quantize_ctx({rhs}, ctx)"
         elif operation == "remainder":
             call = f"lhs.remainder_ctx({rhs}, ctx)"
         elif operation == "compare":

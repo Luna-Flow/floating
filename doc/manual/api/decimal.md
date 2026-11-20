@@ -542,7 +542,7 @@ pub fn DecimalContext::tininess(Self) -> DecimalTininessDetection
 
 ### `DecimalContext::clamp_fold`, `DecimalContext::with_clamp_fold`
 
-Read and set the opt-in fold-down of a zero `quantize` result.
+Read and set the opt-in fold-down of a zero `quantize_ctx` result.
 
 ```mbti
 pub fn DecimalContext::clamp_fold(Self) -> Bool
@@ -550,26 +550,26 @@ pub fn DecimalContext::with_clamp_fold(Self, Bool) -> Self
 ```
 
 Under `clamp` the largest encodable exponent is $e_{\max} - p + 1$ (369 in
-decimal64). IEEE 754-2019 §5.3.2 says nothing about a `quantize` result that is
+decimal64). IEEE 754-2019 §5.3.2 says nothing about a `quantize_ctx` result that is
 zero and whose requested exponent lies above it (the target must not exceed
 $e_{\max}$): by default the exponent asked for is returned and nothing is
-raised, as before (`quantize(0, 1E+380)` is `0E+380`). With
+raised, as before (`quantize_ctx(0, 1E+380)` is `0E+380`). With
 `with_clamp_fold(true)` that zero is folded down to $e_{\max} - p + 1$ and
 `clamped` is raised (`0E+369`), which is what decNumber does (`decQuantizeOp`
-calls `decFinalize` for a zero operand). `rescale` shares the path. The option
+calls `decFinalize` for a zero operand). `rescale_ctx` shares the path. The option
 is `false` by default and in every preset, has no effect without `clamp`, does
 not change a non-zero result, and takes part in `==`; every other operation that
 produces such a zero already folds, with or without it.
 
 ```moonbit
 ///|
-test "the clamp fold of a zero quantize result" {
+test "the clamp fold of a zero quantize_ctx result" {
   let d = fn(s : String) { @decimal.Decimal::from_string(s).unwrap() }
   let context = @decimal.DecimalContext::decimal64()
-  let (plain, flags) = d("0").quantize(d("1E+380"), context)
+  let (plain, flags) = d("0").quantize_ctx(d("1E+380"), context)
   inspect(plain, content="0E+380")
   assert_false(flags.clamped)
-  let (folded, flags) = d("0").quantize(d("1E+380"), context.with_clamp_fold(true))
+  let (folded, flags) = d("0").quantize_ctx(d("1E+380"), context.with_clamp_fold(true))
   inspect(folded, content="0E+369")
   assert_true(flags.clamped)
 }
@@ -1058,17 +1058,17 @@ when the zeros have opposite signs (`plus_ctx(-0)`, `minus_ctx(+0)`) and $+0$
 otherwise. `abs_ctx` is $|x|$ rounded to the context; signaling NaNs raise
 `invalid_operation`.
 
-### `Decimal::divide_integer`, `remainder_trunc_ctx`, `remainder_ctx`
+### `Decimal::divide_integer_ctx`, `remainder_trunc_ctx`, `remainder_ctx`
 
 These functions compute integer quotients and remainders.
 
 ```mbti
-pub fn Decimal::divide_integer(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::divide_integer_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::remainder_trunc_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::remainder_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
-`divide_integer(x, y)` is $\operatorname{trunc}(x/y)$ with preferred exponent 0. When
+`divide_integer_ctx(x, y)` is $\operatorname{trunc}(x/y)$ with preferred exponent 0. When
 the integer quotient needs more than $p$ digits, the result is NaN with
 `division_impossible` and `invalid_operation`. `remainder_trunc_ctx(x, y)` is
 $x - y\cdot\operatorname{trunc}(x/y)$ with the sign of $x$ (General Decimal
@@ -1080,7 +1080,7 @@ is zero. $x \operatorname{rem} 0$ and $\infty \operatorname{rem} y$ are invalid
 ($0 \operatorname{rem} 0$ also raises `division_undefined`);
 $x \operatorname{rem} \infty = x$.
 
-In an extended clamped context, a zero `divide_integer` result has its exponent folded
+In an extended clamped context, a zero `divide_integer_ctx` result has its exponent folded
 down to $e_{\max}-p+1$ when exponent 0 is larger; the `clamped` flag is
 raised. Its sign is still the sign of the exact quotient.
 
@@ -1095,7 +1095,7 @@ integer quotient does not contribute a `clamped` flag to the remainder.
 test "decimal remainders" {
   let ctx = @decimal.DecimalContext::decimal64()
   let d = fn(s : String) { @decimal.Decimal::from_string(s).unwrap() }
-  inspect(d("10").divide_integer(d("3"), ctx).0, content="3")
+  inspect(d("10").divide_integer_ctx(d("3"), ctx).0, content="3")
   inspect(d("10").remainder_trunc_ctx(d("3"), ctx).0, content="1")
   inspect(d("10").remainder_ctx(d("6"), ctx).0, content="-2")
   inspect(d("-7.5").remainder_trunc_ctx(d("2"), ctx).0, content="-1.5")
@@ -1104,15 +1104,15 @@ test "decimal remainders" {
 
 ## Quantum and exponent operations
 
-### `Decimal::quantize`
+### `Decimal::quantize_ctx`
 
-`quantize` rounds a value to the exponent of another value.
+`quantize_ctx` rounds a value to the exponent of another value.
 
 ```mbti
-pub fn Decimal::quantize(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::quantize_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
-`x.quantize(y, ctx)` returns the value of `x` with exponent $q_y$, rounding
+`x.quantize_ctx(y, ctx)` returns the value of `x` with exponent $q_y$, rounding
 with the context's mode when digits are dropped (raising `rounded`, and
 `inexact` if they were non-zero). The result is NaN with `invalid_operation`
 when the target exponent is outside $[E_{\text{tiny}}, e_{\max}]$, when the
@@ -1127,28 +1127,28 @@ to exponent $e_{\max}-p+1$ with `clamped`, like every other result
 
 ```moonbit
 ///|
-test "decimal quantize to cents" {
+test "decimal quantize_ctx to cents" {
   let ctx = @decimal.DecimalContext::decimal64()
   let d = fn(s : String) { @decimal.Decimal::from_string(s).unwrap() }
-  let (cents, flags) = d("12.3456").quantize(d("0.01"), ctx)
+  let (cents, flags) = d("12.3456").quantize_ctx(d("0.01"), ctx)
   inspect(cents, content="12.35")
   inspect(flags.inexact, content="true")
   let small = @decimal.DecimalContext::new(precision=3, e_min=-99, e_max=99)
-  let (bad, bad_flags) = d("999.9").quantize(d("0.1"), small)
+  let (bad, bad_flags) = d("999.9").quantize_ctx(d("0.1"), small)
   inspect(bad.is_nan(), content="true")
   inspect(bad_flags.invalid_operation, content="true")
 }
 ```
 
-### `Decimal::rescale`
+### `Decimal::rescale_ctx`
 
-`rescale` sets the exponent to an integer operand.
+`rescale_ctx` sets the exponent to an integer operand.
 
 ```mbti
-pub fn Decimal::rescale(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::rescale_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
-`x.rescale(n, ctx)` is `quantize` with target exponent $n$, where $n$ must be
+`x.rescale_ctx(n, ctx)` is `quantize_ctx` with target exponent $n$, where $n$ must be
 a finite integer; any other second operand gives NaN with
 `invalid_operation`.
 
@@ -1177,13 +1177,13 @@ exponent stays at most $e_{\max}$ (with `clamp`, at most $e_{\max}-p+1$). A
 zero becomes a zero with exponent 0 (keeping its sign in an extended
 context).
 
-### `Decimal::to_integral_exact`, `to_integral_value`
+### `Decimal::to_integral_exact_ctx`, `to_integral_value_ctx`
 
 These functions round to an integer.
 
 ```mbti
-pub fn Decimal::to_integral_exact(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::to_integral_value(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::to_integral_exact_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::to_integral_value_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
 A finite value with exponent $\ge 0$ is already an integer and is returned
@@ -1191,8 +1191,8 @@ unchanged, even when it is longer than $p$ digits (a `clamp` context still
 folds its exponent down). A value with negative exponent is quantized to
 exponent 0 with the context's rounding mode, at a working precision of
 $\max(p, \text{its digit count})$, so the integral part is never rounded to
-$p$ digits: at precision 3, `12345.6` gives `12346`. `to_integral_exact`
-reports `rounded`/`inexact` when digits are dropped; `to_integral_value`
+$p$ digits: at precision 3, `12345.6` gives `12346`. `to_integral_exact_ctx`
+reports `rounded`/`inexact` when digits are dropped; `to_integral_value_ctx`
 returns the same value with those two flags cleared. In a subset context the
 operand is first rounded to $p$ digits, with `lost_digits`. Infinities are
 returned unchanged; NaNs are quieted.
@@ -1436,16 +1436,16 @@ to the context.
 
 ## Digit-wise operations
 
-### `Decimal::logical_and`, `logical_or`, `logical_xor`, `logical_invert`
+### `Decimal::logical_and_ctx`, `logical_or_ctx`, `logical_xor_ctx`, `logical_invert_ctx`
 
 These functions apply Boolean operations digit by digit to *logical
 operands*.
 
 ```mbti
-pub fn Decimal::logical_and(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_or(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_xor(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_invert(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::logical_and_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::logical_or_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::logical_xor_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::logical_invert_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
 A logical operand is a finite, non-negative value with exponent 0 whose
@@ -2378,7 +2378,7 @@ pub fn Decimal::div(Self, Self) -> Self
 pub fn Decimal::div_checked(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::div_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Decimal::div_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::divide_integer(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::divide_integer_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::epsilon_contextual(@arithmetic.ArithmeticContext) -> Self
 pub fn Decimal::equal(Self, Self) -> Bool
 pub fn Decimal::exp10_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
@@ -2421,10 +2421,10 @@ pub fn Decimal::log1p_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::log2_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::log2p1_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logb_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_and(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_invert(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_or(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::logical_xor(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::logical_and_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::logical_invert_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::logical_or_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::logical_xor_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::make(@bigint.BigInt, Int32, Int32, mode? : @arithmetic.RoundingMode) -> Self
 pub fn Decimal::max(Self, Self) -> Self
 pub fn Decimal::max_finite_contextual(@arithmetic.ArithmeticContext) -> Self
@@ -2467,13 +2467,13 @@ pub fn Decimal::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> 
 pub fn Decimal::pown_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::powr_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::precision(Self) -> Int32
-pub fn Decimal::quantize(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::quantize_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::quantum(Self) -> Int32
 pub fn Decimal::quiet_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int32) -> Self
 pub fn Decimal::reduce_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::remainder_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::remainder_trunc_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::rescale(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::rescale_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rootn_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rotate_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rsqrt_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
@@ -2502,8 +2502,8 @@ pub fn Decimal::to_bin_float_ctx(Self, @bin_float.BinaryContext) -> (@bin_float.
 pub fn Decimal::to_eng_string(String, DecimalContext) -> (String, DecimalFlags)
 pub fn Decimal::to_int64_ctx(Self, DecimalContext, exact? : Bool) -> (Int64?, DecimalFlags)
 pub fn Decimal::to_int_ctx(Self, DecimalContext, exact? : Bool) -> (Int32?, DecimalFlags)
-pub fn Decimal::to_integral_exact(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::to_integral_value(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::to_integral_exact_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::to_integral_value_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::to_interchange_hex(Self, DecimalInterchangeFormat) -> (String, DecimalFlags)
 pub fn Decimal::to_interchange_hex_with_encoding(Self, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> (String, DecimalFlags)
 pub fn Decimal::to_repr(Self) -> @debug.Repr

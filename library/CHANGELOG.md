@@ -8,6 +8,15 @@ notes live in this file.
 
 ### Breaking
 
+- `decimal`: the `_ctx` suffix on the contextual operations ([#22](https://github.com/Luna-Flow/floating/issues/22), rows D14 and D15 of the naming decisions). `_ctx` marks a method that takes a context and returns the value with its flags; the nine methods below did, without the suffix. The checked tier keeps bare names (`DecimalChecked::quantize` is unchanged). No other change: same arguments, same results.
+
+  | before | after |
+  | --- | --- |
+  | `Decimal::quantize`, `rescale` | `quantize_ctx`, `rescale_ctx` |
+  | `Decimal::divide_integer` | `divide_integer_ctx` |
+  | `Decimal::to_integral_exact`, `to_integral_value` | `to_integral_exact_ctx`, `to_integral_value_ctx` (as in `bin_float`) |
+  | `Decimal::logical_and`, `logical_or`, `logical_xor`, `logical_invert` | `logical_and_ctx`, `logical_or_ctx`, `logical_xor_ctx`, `logical_invert_ctx` |
+
 - `decimal`, `decimal_checked`: IEEE names ([#22](https://github.com/Luna-Flow/floating/issues/22), rows D08 word order, D10 to D13 of the naming decisions). The names follow IEEE 754-2019; there are no aliases, and the calls in this release's library, tooling, tools and manual are migrated.
 
   | before | after | note |

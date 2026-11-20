@@ -57,7 +57,7 @@ test "quantize with extreme exponent distance returns invalid operation" {
   )
   let value = Decimal::make(1N, 1_999_999_996, 5)
   let quantum = Decimal::make(1N, -2_000_000_003, 5)
-  let (result, flags) = value.quantize(quantum, ctx)
+  let (result, flags) = value.quantize_ctx(quantum, ctx)
   assert_true(result.is_quiet_nan())
   assert_true(flags == { ..DecimalFlags::new(), invalid_operation: true, })
 }
@@ -209,7 +209,7 @@ test "huge quantize and to-integral shifts round to zero" {
     e_max=999_999_999,
   )
   let tiny = Decimal::make(1N, -2_147_483_648, 1)
-  let (quantized, quantize_flags) = tiny.quantize(
+  let (quantized, quantize_flags) = tiny.quantize_ctx(
     Decimal::make(1N, 999_999_999, 1),
     ctx,
   )
@@ -218,11 +218,11 @@ test "huge quantize and to-integral shifts round to zero" {
   assert_true(quantize_flags.inexact && quantize_flags.rounded)
   assert_false(quantize_flags.invalid_operation)
 
-  let (exact, exact_flags) = tiny.to_integral_exact(ctx)
+  let (exact, exact_flags) = tiny.to_integral_exact_ctx(ctx)
   assert_true(exact.is_zero())
   assert_eq(exact.exponent10, 0)
   assert_true(exact_flags.inexact && exact_flags.rounded)
-  let (silent, silent_flags) = tiny.to_integral_value(ctx)
+  let (silent, silent_flags) = tiny.to_integral_value_ctx(ctx)
   assert_true(silent.is_zero())
   assert_false(silent_flags.inexact || silent_flags.rounded)
 }
