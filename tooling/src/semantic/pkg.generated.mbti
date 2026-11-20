@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "Luna-Flow/floating/semantic"
+package "Luna-Flow/floating-tools/semantic"
 
 import {
   "Luna-Flow/arithmetic",
