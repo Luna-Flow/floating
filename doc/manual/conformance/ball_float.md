@@ -2,7 +2,7 @@
 
 ## Claim
 
-The current strict ITF1788 gate executes 4,799/4,799 selected cases with no failed, unsupported, or diagnostic rows. This is a claim about the pinned corpus revision, selected operation phases, and runner precision—not a claim of complete IEEE 1788 implementation.
+The current strict ITF1788 gate executes 5,332/5,332 selected cases with no failed, unsupported, or diagnostic rows. This is a claim about the pinned corpus revision, selected operation phases, and runner precision—not a claim of complete IEEE 1788 implementation.
 
 ## Clause traceability
 
@@ -10,12 +10,11 @@ IEEE Std 1788-2015 (set-based flavor) for `ball_float`. Status is `conforming` w
 
 | Clause | Level | API | Evidence | Status |
 | --- | --- | --- | --- | --- |
-| §4.2 set-based interval arithmetic flavor | required | `BallFloat`, `BallFloatDecorated` | ITF1788 strict gate (4,799 cases) | conforming for the selected phases |
+| §4.2 set-based interval arithmetic flavor | required | `BallFloat`, `BallFloatDecorated` | ITF1788 strict gate (5,332 cases) | conforming for the selected phases |
 | §4.2.2 compressed decorated interval arithmetic | optional | none | none | not implemented |
 | §9.1, §10.5.3 forward-mode arithmetic and elementary functions | required | `add`, `sub`, `mul`, `div`, `recip`, `sqr`, `sqrt`, `fma`, `pown`, `pow`, `rootn`, `exp`, `exp2`, `exp10`, `expm1`, `ln`, `log2`, `log10`, `log1p`, `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh` | ITF1788 phases: add/sub/mul/div 539, elementary core 107, exp/log 131, general power 1,428, trigonometric 176, `atan2` 375, hyperbolic 107, inverse trigonometric 61, FMA 567, integer power 174 | partial: the integer functions of Table 9.1 are not provided ([#257](https://github.com/Luna-Flow/floating/issues/257)); tightness per operation is in [Accuracy of operations](#accuracy-of-operations) |
-| §9.1 integer functions (Table 9.1) | required | `sign`, `ceil`, `floor`, `trunc`, `round_ties_to_even`, `round_ties_to_away` | ITF1788 integer-functions phase (143 cases); `library/src/ball_float/integer_functions_wbtest.mbt` | conforming |
-| §10.5.4 reverse-mode elementary functions | required | none | none | not implemented (issue [#21](https://github.com/Luna-Flow/floating/issues/21)) |
-| §10.5.5 two-output division | required | none | none | not implemented |
+| §10.5.4 reverse-mode elementary functions | required | `mul_rev` only | ITF1788 multiplicative-reverse phase (`mulRev`, `mulRevTen`); `library/src/ball_float/mul_rev_wbtest.mbt` | partial (`sqrRev`, `absRev`, `pownRev`, `sinRev`, `cosRev`, `tanRev`, `coshRev`, `powRev1`, `powRev2`, `atan2Rev1`, `atan2Rev2` are not implemented; issue [#230](https://github.com/Luna-Flow/floating/issues/230)) |
+| §10.5.5, §12.12.3 two-output division | required | `mul_rev_to_pair` | ITF1788 multiplicative-reverse phase (`mulRevToPair`, bare and decorated); `library/src/ball_float/mul_rev_wbtest.mbt` | conforming |
 | §9.2, §10.5.6 cancellative addition and subtraction | required | `cancel_plus`, `cancel_minus` | ITF1788 cancellation phase (242 cases) | conforming |
 | §9.3, §10.5.7 set operations | required | `intersection`, `convex_hull` | ITF1788 sets phase (20 cases) | conforming |
 | §9.8, §10.5.8 constructors | required | `from_bounds`, `new`, `exact`, `from_int`, `from_double`, `from_float` | ITF1788 sets phase; `library/src/ball_float/ieee1788_arithmetic_wbtest.mbt` | partial (no text-to-interval constructor) |
@@ -59,7 +58,7 @@ Expected results are compared by set meaning: endpoint containment, set relation
 
 ## Supported phases
 
-The strict matrix covers sets, relations, observations, cancellation, add/subtract/multiply/divide, elementary core, exponential/logarithmic functions, general power, trigonometric functions, `atan2`, hyperbolic functions, inverse trigonometric functions, FMA, integer power, extrema, and the integer functions. Phase operation sets are disjoint so a row is never counted twice.
+The strict matrix covers sets, relations, observations, cancellation, add/subtract/multiply/divide, elementary core, exponential/logarithmic functions, general power, trigonometric functions, `atan2`, hyperbolic functions, inverse trigonometric functions, FMA, integer power, extrema, and reverse multiplication (`mulRev`, `mulRevTen`, `mulRevToPair`). Phase operation sets are disjoint so a row is never counted twice.
 
 ## Decorations and fallbacks
 
@@ -67,7 +66,7 @@ Empty, Entire, and decorated NaI are separate states. Elementary kernels use dir
 
 ## Exclusions
 
-Reverse interval operations, every decoration rule outside the selected phases, arbitrary endpoint formats, and unpinned upstream revisions remain outside the claim.
+Reverse interval operations other than `mulRev` and `mulRevToPair`, every decoration rule outside the selected phases, arbitrary endpoint formats, and unpinned upstream revisions remain outside the claim.
 
 ## Reproduction
 

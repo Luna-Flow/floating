@@ -74,3 +74,26 @@ test "the integer functions of Table 9.1 exist on the checked tier and agree wit
   )
   assert_true(failed.ceil().result() is Err(_))
 }
+
+///|
+test "mul_rev and mul_rev_to_pair exist on the checked tier and agree with the plain tier" {
+  let b = parity_interval(-2, 4)
+  let c = parity_interval(3, 5)
+  let x = parity_interval(0, 9)
+  let rb = parity_result(-2, 4)
+  let rc = parity_result(3, 5)
+  let rx = parity_result(0, 9)
+  assert_true(parity_value(rb.mul_rev(rc)) == b.mul_rev(c))
+  assert_true(parity_value(rb.mul_rev(rc, x=rx)) == b.mul_rev(c, x~))
+  let (u, v) = rb.mul_rev_to_pair(rc)
+  let (pu, pv) = b.mul_rev_to_pair(c)
+  assert_true(parity_value(u) == pu)
+  assert_true(parity_value(v) == pv)
+  let failed = BallFloatResult::from_result(
+    Err(@def.ArithmeticError::domain_error("earlier failure")),
+  )
+  assert_true(failed.mul_rev(rc).result() is Err(_))
+  assert_true(rb.mul_rev(failed).result() is Err(_))
+  let (fu, fv) = failed.mul_rev_to_pair(rc)
+  assert_true(fu.result() is Err(_) && fv.result() is Err(_))
+}

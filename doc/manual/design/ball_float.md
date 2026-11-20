@@ -584,6 +584,40 @@ corpus's 55 decorated integer-function cases and the tests of the package
 (each function with the jump as the lower endpoint, the upper endpoint, a point
 box and in the interior) agree with this rule.
 
+#### Reverse multiplication and two-output division
+
+$\boldsymbol{c} /_{\text{set}} \boldsymbol{b}$ (IEEE 1788-2015 10.5.5) is
+computed by cases on whether $0 \in \boldsymbol{c}$ and $0 \in \boldsymbol{b}$.
+Both intervals are nonempty (otherwise the set is empty).
+
+| $0 \in \boldsymbol{c}$ | $0 \in \boldsymbol{b}$ | Set |
+| --- | --- | --- |
+| yes | yes | $\mathbb{R}$: $x \cdot 0 = 0 \in \boldsymbol{c}$ for every $x$ |
+| any | no | the interval quotient $\boldsymbol{c} / \boldsymbol{b}$ (closed endpoints; the endpoint 0 of an unattained limit is open when $0 \notin \boldsymbol{c}$) |
+| no | $\boldsymbol{b} = \{0\}$ | empty |
+| no | $0 \in \boldsymbol{b}$, $\boldsymbol{b} \ne \{0\}$ | only $y \ne 0$ contributes: one or two components below |
+
+In the last row let $n$ be the end of $\boldsymbol{c}$ nearest to zero. The
+divisor values $y \in [\underline{b}, 0)$ give $x \le n / \underline{b}$ when
+$\boldsymbol{c} > 0$ and $x \ge n / \underline{b}$ when $\boldsymbol{c} < 0$;
+the values $y \in (0, \overline{b}]$ give $x \ge n / \overline{b}$ when
+$\boldsymbol{c} > 0$ and $x \le n / \overline{b}$ when $\boldsymbol{c} < 0$.
+A divisor side exists only when $\underline{b} < 0$, respectively
+$\overline{b} > 0$. The quotient $n / \pm\infty$ is 0 and is the unattained
+end of the component, so that component is open there. Each finite quotient is
+rounded outward, which keeps the closure a valid enclosure and tight in the
+type (the exact endpoint is attained, because $y = \underline{b}$ or
+$\overline{b}$ is in $\boldsymbol{b}$).
+
+`mul_rev_to_pair` closes the components. `mul_rev(b, c, x)` intersects each
+component, with its open ends, with the closed interval $\boldsymbol{x}$ and
+takes the hull of what is nonempty (a lower end $L$ and upper end $U$ meet
+when $L < U$, or $L = U$ and both ends are closed). This is why the hull of
+the set and the intersection of $\boldsymbol{x}$ with its hull differ: for
+$\boldsymbol{b} = [-1, 1]$, $\boldsymbol{c} = [1, 1]$ the set avoids $(-1, 1)$,
+so the prior $[0, 0.5]$ gives Empty. All 533 corpus cases of `mulRev`,
+`mulRevTen` and `mulRevToPair` agree with the construction.
+
 ### Relations: certainly and possibly
 
 An interval stands for an unknown point, so a comparison of two intervals
@@ -835,7 +869,7 @@ trigonometric functions.
 
 **Evidence.** Package tests check directed endpoints, the far-addend and
 exponent-range cases, decorations and relations; the pinned ITF1788 corpus
-runs 4,799 cases in strict mode (see [conformance](../conformance/ball_float.md)).
+runs 5,332 cases in strict mode (see [conformance](../conformance/ball_float.md)).
 
 ### Known limitations
 
@@ -872,8 +906,8 @@ checks degrees `-1`, `-2` and `-3`.
 
 The package deliberately does not:
 
-- provide the IEEE 1788 reverse operations (`sqrRev`, `mulRevToPair`, …) or
-  two-output division;
+- provide the IEEE 1788 reverse operations other than `mulRev` and
+  `mulRevToPair` (`sqrRev`, `powRev1`, …; issue 230);
 - promise tight results: fallbacks and the dependency problem may widen
   enclosures arbitrarily;
 - define a total order on intervals, or treat `Eq` as set equality;

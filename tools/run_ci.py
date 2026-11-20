@@ -34,6 +34,7 @@ INTERVAL_PHASES = (
     "integer-power",
     "extrema",
     "integer-functions",
+    "multiplicative-reverse",
 )
 SUPPORTED_TARGETS = ("native", "wasm", "wasm-gc", "js")
 

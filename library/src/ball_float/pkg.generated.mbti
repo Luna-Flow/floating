@@ -100,6 +100,8 @@ pub fn BallFloat::midpoint_ctx(Self, BallContext) -> (@bin_float.BinFloat, BallF
 pub fn BallFloat::mignitude(Self) -> @bin_float.BinFloat
 pub fn BallFloat::min(Self, Self) -> Self
 pub fn BallFloat::mul(Self, Self) -> Self
+pub fn BallFloat::mul_rev(Self, Self, x? : Self) -> Self
+pub fn BallFloat::mul_rev_to_pair(Self, Self) -> (Self, Self)
 pub fn BallFloat::neg(Self) -> Self
 pub fn BallFloat::new(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Self
 pub fn BallFloat::normalized(Self) -> Self
@@ -233,6 +235,8 @@ pub fn BallFloatDecorated::log2(Self) -> Self
 pub fn BallFloatDecorated::max(Self, Self) -> Self
 pub fn BallFloatDecorated::min(Self, Self) -> Self
 pub fn BallFloatDecorated::mul(Self, Self) -> Self
+pub fn BallFloatDecorated::mul_rev(Self, Self, x? : Self) -> Self
+pub fn BallFloatDecorated::mul_rev_to_pair(Self, Self) -> (Self, Self)
 pub fn BallFloatDecorated::nai(precision? : Int32) -> Self
 pub fn BallFloatDecorated::neg(Self) -> Self
 pub fn BallFloatDecorated::new(BallFloat, decoration? : Decoration) -> Self

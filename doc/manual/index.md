@@ -217,7 +217,7 @@ and their design pages state narrower stability promises.
   binary16/32/64/128, including fused multiply-add, remainder, round to
   integral, integer conversions and the comparison predicates, plus pinned
   MPFR square-root and elementary-function witnesses.
-- The strict ITF1788 aggregate passes 4,799/4,799 selected interval cases.
+- The strict ITF1788 aggregate passes 5,332/5,332 selected interval cases.
 - The IEEE decimal gate covers decimal32/64/128 DPD and BID encodings, flags
   and arithmetic on four targets.
 

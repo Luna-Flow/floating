@@ -574,6 +574,11 @@ pub fn execute_case(case : ItlCase, precision~ : Int32 = 53) -> ItlResult {
   if case.operation_ == "fma" {
     return execute_fma_case(case, precision)
   }
+  if case.operation_ == "mulRev" ||
+    case.operation_ == "mulRevTen" ||
+    case.operation_ == "mulRevToPair" {
+    return execute_mul_rev_case(case, precision)
+  }
   if case.operation_ == "pown" {
     return execute_pown_case(case, precision)
   }
@@ -729,6 +734,94 @@ fn execute_fma_case(case : ItlCase, precision : Int32) -> ItlResult {
     } else {
       "expected " + expected.to_string() + ", got " + actual.to_string()
     },
+  }
+}
+
+///|
+/// `mulRev(b, c)`, `mulRevTen(b, c, x)` (the ternary form of the corpus) and
+/// `mulRevToPair(b, c)`, whose result is two intervals.
+fn execute_mul_rev_case(case : ItlCase, precision : Int32) -> ItlResult {
+  let ternary = case.operation_ == "mulRevTen"
+  let operands : Array[@ball_float.BallFloatDecorated] = []
+  for src in case.operands_ {
+    match parse_interval(src, precision) {
+      Some(value) => operands.push(value)
+      None =>
+        return {
+          id_: case.id_,
+          disposition_: Diagnostic("invalid reverse multiplication operand"),
+          passed_: false,
+          message_: src,
+        }
+    }
+  }
+  guard operands.length() == (if ternary { 3 } else { 2 }) else {
+    return {
+      id_: case.id_,
+      disposition_: Diagnostic("reverse multiplication arity"),
+      passed_: false,
+      message_: case.operation_,
+    }
+  }
+  let expected_words = split_words_preserving_intervals(case.expected_)
+  let want = if case.operation_ == "mulRevToPair" { 2 } else { 1 }
+  guard expected_words.length() == want else {
+    return {
+      id_: case.id_,
+      disposition_: Diagnostic("reverse multiplication result count"),
+      passed_: false,
+      message_: case.expected_,
+    }
+  }
+  let expected : Array[@ball_float.BallFloatDecorated] = []
+  for word in expected_words {
+    match parse_interval(word, precision) {
+      Some(value) => expected.push(value)
+      None =>
+        return {
+          id_: case.id_,
+          disposition_: Diagnostic(
+            "invalid reverse multiplication expected value",
+          ),
+          passed_: false,
+          message_: word,
+        }
+    }
+  }
+  let ctx = result_context(precision)
+  let actual : Array[@ball_float.BallFloatDecorated] = if ternary {
+    [operands[0].mul_rev(operands[1], x=operands[2]).apply_ctx(ctx).0]
+  } else if want == 1 {
+    [operands[0].mul_rev(operands[1]).apply_ctx(ctx).0]
+  } else {
+    let (u, v) = operands[0].mul_rev_to_pair(operands[1])
+    [u.apply_ctx(ctx).0, v.apply_ctx(ctx).0]
+  }
+  let mut passed = true
+  let mut message = ""
+  for index in 0..<want {
+    let ok = intervals_equal(
+      actual[index],
+      expected[index],
+      find_char(expected_words[index], '_') is Some(_),
+    )
+    if !ok {
+      passed = false
+      message = message +
+        "output " +
+        index.to_string() +
+        ": expected " +
+        expected[index].to_string() +
+        ", got " +
+        actual[index].to_string() +
+        "; "
+    }
+  }
+  {
+    id_: case.id_,
+    disposition_: Executable,
+    passed_: passed,
+    message_: message,
   }
 }
 
