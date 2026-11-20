@@ -160,7 +160,6 @@ fn classify_error(r : @bin_float_checked.BinFloatResult) -> String {
   match r.result() {
     Ok(_) => "ok"
     Err(e) if e.is_domain_error() => "domain"
-    Err(e) if e.is_certification_failure() => "certification"
     Err(e) if e.is_division_by_zero() => "division by zero"
     Err(_) => "other"
   }
@@ -170,14 +169,10 @@ fn classify_error(r : @bin_float_checked.BinFloatResult) -> String {
 test "error kinds" {
   let r = fn(n : Int) { @bin_float_checked.BinFloatResult::from_int(n) }
   inspect(classify_error(r(-1).sqrt()), content="domain")
-  inspect(classify_error(r(3).exp_ln()), content="certification")
   inspect(classify_error(r(1) / r(0)), content="division by zero")
   inspect(classify_error(r(2).sqrt()), content="ok")
 }
 ```
-
-`exp_ln` (the fused $\ln(\exp x)$) is certified only for $|x| \le 1/8$, so it
-fails for $3$; this is a certification limit, not a mathematical domain.
 
 ## Going further
 

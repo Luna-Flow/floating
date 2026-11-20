@@ -471,15 +471,6 @@ test "BinFloat trigonometric resource failure retains proof details" {
 }
 
 ///|
-test "BinFloat fused exp-ln rounds only once" {
-  let context = BinaryContext::binary64()
-  let value = BinFloat::from_double(0.0625, precision=53)
-  let (fused, flags) = value.exp_ln_ctx(context)
-  assert_eq(fused, value)
-  assert_false(flags.inexact())
-}
-
-///|
 test "BinFloat expm1 and log1p preserve tiny nonzero inputs" {
   let tiny = BinFloat::make(BinCoeff::one(), -200, 53)
   let positive_expm1 = tiny.expm1()
