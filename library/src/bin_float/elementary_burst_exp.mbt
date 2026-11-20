@@ -94,6 +94,26 @@ fn burst_split_stage(
 }
 
 ///|
+/// Folds a stage into the running pair `(L, U)` of units of `2^-f` with one full
+/// product: `(floor(L l / 2^f), floor(U u / 2^f) + 1)` where the stage is
+/// `[l, u]`. With `w = U - L` and `r = u - l` (both short), `U u = L l + L r + w u`
+/// exactly, so the upper end is formed from the product `P = L l` of the lower
+/// end plus two products by short numbers, instead of a second full product.
+/// The integers are those of the two separate products; no error term arises.
+fn burst_exp_fold(
+  lower : Coeff,
+  spread : Coeff,
+  stage_low : Coeff,
+  stage_spread : Coeff,
+  stage_high : Coeff,
+  f : Int32,
+) -> (Coeff, Coeff) {
+  let product = lower.mul(stage_low)
+  let total = product.add(lower.mul(stage_spread)).add(spread.mul(stage_high))
+  (product.shift_right(f), total.shift_right(f).add(Coeff::one()))
+}
+
+///|
 /// Enclosure of `exp(value)` for finite `value` with `2^-64 <= |value| < 2^30`
 /// by argument reduction with `ln 2` and bit-burst, `None` when a
 /// precondition fails (the caller then runs the series).
@@ -121,6 +141,7 @@ fn binary_exp_bounds_burst(
   // Chunks of the reduced argument.
   let mut lower = one_unit
   let mut upper = one_unit
+  let mut first = true
   let chunks_ok = fixed_burst_chunks(reduced, f, first_chunk, chunk_factor, fn(
     chunk,
     boundary,
@@ -132,8 +153,22 @@ fn binary_exp_bounds_burst(
       burst_fixed_stage(chunk, boundary, f, mutation)
     }
     guard stage is Some((stage_low, stage_high)) else { return false }
-    lower = lower.mul(stage_low).shift_right(f)
-    upper = upper.mul(stage_high).shift_right(f).add(Coeff::one())
+    if first {
+      // The running pair is `(2^f, 2^f)`: the products are the stage itself.
+      lower = stage_low
+      upper = stage_high.add(Coeff::one())
+      first = false
+      return true
+    }
+    guard upper.sub_checked(lower) is Ok(spread) &&
+      stage_high.sub_checked(stage_low) is Ok(stage_spread) else {
+      return false
+    }
+    let (new_lower, new_upper) = burst_exp_fold(
+      lower, spread, stage_low, stage_spread, stage_high, f,
+    )
+    lower = new_lower
+    upper = new_upper
     true
   })
   guard chunks_ok else { return None }

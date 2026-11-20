@@ -251,6 +251,41 @@ fn burst_trig_fold(
 }
 
 ///|
+/// The one component of `burst_trig_fold` that the caller reads: the sine
+/// `S' = S c + C s` (`sine`) or the cosine `C' = C c - S s`, with the same
+/// integers as in `burst_trig_fold`; the other component of the result is zero
+/// and must not be read. Two ball products instead of four.
+fn burst_trig_fold_one(
+  running : BurstRotation,
+  stage : BurstRotation,
+  f : Int32,
+  sine : Bool,
+) -> BurstRotation? {
+  let zero = { mid: Coeff::zero(), rad: Coeff::zero(), }
+  if sine {
+    let sin_cos = burst_ball_mul(running.sin, stage.cos, f)
+    let cos_sin = burst_ball_mul(running.cos, stage.sin, f)
+    Some({
+      cos: zero,
+      sin: {
+        mid: sin_cos.mid.add(cos_sin.mid),
+        rad: sin_cos.rad.add(cos_sin.rad),
+      },
+    })
+  } else {
+    let cos_cos = burst_ball_mul(running.cos, stage.cos, f)
+    let sin_sin = burst_ball_mul(running.sin, stage.sin, f)
+    guard cos_cos.mid.sub_checked(sin_sin.mid) is Ok(cos_mid) else {
+      return None
+    }
+    Some({
+      cos: { mid: cos_mid, rad: cos_cos.rad.add(sin_sin.rad), },
+      sin: zero,
+    })
+  }
+}
+
+///|
 /// Enclosure of `sin(value)` (`cosine = false`) or `cos(value)` for a finite
 /// nonzero `value` with `2^-64 <= |value| < 2^4096` by reduction with `pi / 2`
 /// and bit-burst, `None` when a precondition fails (the caller then runs the
@@ -310,6 +345,24 @@ fn binary_trig_bounds_burst(
   let f = work_precision + binary_exp_burst_guard_bits + lz
   let fraction = reduced.shift_right(g - f)
   guard !fraction.is_zero() else { return None }
+  // Map the sine and cosine of the reduced argument to the result.
+  let quarter = (if n.test_bit(0) { 1 } else { 0 }) +
+    (if n.test_bit(1) { 2 } else { 0 })
+  let (uses_sine, negative_quadrant) = if !cosine {
+    match quarter {
+      0 => (true, false)
+      1 => (false, false)
+      2 => (true, true)
+      _ => (false, true)
+    }
+  } else {
+    match quarter {
+      0 => (false, false)
+      1 => (true, true)
+      2 => (false, true)
+      _ => (true, false)
+    }
+  }
   // Chunks of R_t.
   let mut running : BurstRotation = {
     cos: { mid: Coeff::one().shift_left(f), rad: Coeff::zero(), },
@@ -332,32 +385,20 @@ fn binary_trig_bounds_burst(
       running = stage_rotation
       identity = false
     } else {
-      match burst_trig_fold(running, stage_rotation, f) {
-        Some(folded) => running = folded
+      // The last fold is needed in the one component the result reads.
+      let folded = if boundary == f {
+        burst_trig_fold_one(running, stage_rotation, f, uses_sine)
+      } else {
+        burst_trig_fold(running, stage_rotation, f)
+      }
+      match folded {
+        Some(value) => running = value
         None => return false
       }
     }
     true
   })
   guard chunks_ok else { return None }
-  // Map the sine and cosine of the reduced argument to the result.
-  let quarter = (if n.test_bit(0) { 1 } else { 0 }) +
-    (if n.test_bit(1) { 2 } else { 0 })
-  let (uses_sine, negative_quadrant) = if !cosine {
-    match quarter {
-      0 => (true, false)
-      1 => (false, false)
-      2 => (true, true)
-      _ => (false, true)
-    }
-  } else {
-    match quarter {
-      0 => (false, false)
-      1 => (true, true)
-      2 => (false, true)
-      _ => (true, false)
-    }
-  }
   let mut negative = negative_quadrant
   if !cosine && value.is_negative() {
     negative = !negative
