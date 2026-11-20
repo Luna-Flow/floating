@@ -33,6 +33,8 @@ import sys
 import zipfile
 from pathlib import Path
 
+from generated_paths import GENERATED_MARKERS, is_generated_path  # noqa: F401
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 ALLOWED_DEPENDENCIES = frozenset({"Luna-Flow/arithmetic", "Luna-Flow/luna-generic"})
 LIBRARY = "Luna-Flow/floating"
@@ -46,16 +48,14 @@ IMPORT_PATH = re.compile(r'"([^"\s]+)"')
 VERSION_LINE = re.compile(r'^version\s*=\s*"([^"]+)"', re.MULTILINE)
 
 
-# Throwaway sources that gates write into the source trees for the length of one run
-# (`tools/run_ieee_decimal.py`, `tools/check_doc_examples.py`, the retired decTest
-# generator). They are git-ignored, and a zip must never hold them even if an
-# interrupted gate left them behind.
-GENERATED_MARKERS = ("ieee_corpus_generated_", "_generated_doc_examples", ".generated_dectest", "_generated_dectest")
+# Throwaway sources that gates write into the source trees: the list is shared with
+# tools/run_python_tests.py (tools/generated_paths.py). A zip must never hold them even
+# if an interrupted gate left them behind.
 
 
 def generated_paths(names: list[str]) -> list[str]:
     """Packed paths that are throwaway generated sources."""
-    return [name for name in names if any(marker in name for marker in GENERATED_MARKERS)]
+    return [name for name in names if is_generated_path(name)]
 
 
 def unexpected_paths(names: list[str], top_level_files: frozenset[str]) -> list[str]:

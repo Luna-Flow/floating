@@ -25,6 +25,7 @@ Run them from the repository root, normally through `just`.
 | Script | Purpose |
 | --- | --- |
 | `run_python_tests.py` | the Python tooling tests (`TEST: Python tooling`) with a guard: it fails if a test writes into `library/`, `tooling/`, `doc/` or `testdata/` of the checkout, however briefly |
+| `generated_paths.py` | the one list of the throwaway sources that gate stages write into the source trees (the manual examples, the IEEE smoke); shared by the package check and the Python test guard |
 | `check_imports.py` | package independence, the library's dependencies, equal versions and identical `LICENSE` files |
 | `check_package_contents.py` | the shape of the zip of each module (`just publish`) |
 | `doc_quality.py`, `check_doc_examples.py`, `conformance_checklist.py` | the manual: sections, links, versions, API snapshots, runnable examples, the generated checklist |
