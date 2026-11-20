@@ -85,7 +85,14 @@ test "issue 467: the bounded form gives the result of the exact expansion" {
     for precision in [1, 2, 3, 5, 9, 17, 34, 100, 400] {
       let expected = old_from_bin_float(x, precision)
       inspect(
-        same_decimal(decimal_from_bin_float_surrogate(x, precision), expected),
+        same_decimal(
+          decimal_from_bin_float_surrogate(
+            x,
+            precision,
+            DecimalRoundingMode::HalfEven,
+          ),
+          expected,
+        ),
         content="true",
       )
       inspect(

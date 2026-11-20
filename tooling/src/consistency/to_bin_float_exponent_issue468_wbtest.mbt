@@ -29,7 +29,10 @@ test "issue 468: decimal_gda to_bin_float agrees with decimal at large exponents
         for mode in modes {
           for precision in [24, 53, 113] {
             let expected = ieee.to_bin_float(precision~, mode~)
-            let actual = gda.to_bin_float(precision~, mode~)
+            let actual = gda.to_bin_float(
+              precision~,
+              mode=@bin_float.BinaryRoundingMode::from_arithmetic(mode),
+            )
             inspect(actual.to_string() == expected.to_string(), content="true")
             inspect(
               actual.is_negative() == expected.is_negative(),

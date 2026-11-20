@@ -20,7 +20,10 @@ fn is_logical_operand(x : Decimal) -> Bool {
 
 ///|
 fn logical_invalid_result(ctx : DecimalContext) -> (Decimal, DecimalFlags) {
-  (Decimal::nan(precision=finite_precision_for_default(ctx)), invalid_flags())
+  (
+    Decimal::nan_raw(precision=finite_precision_for_default(ctx)),
+    invalid_flags(),
+  )
 }
 
 ///|
@@ -70,7 +73,7 @@ fn decimal_shift_rotate(
           match lhs.class {
             FpClass::Infinity =>
               (
-                lhs.with_precision(
+                lhs.with_precision_raw(
                   finite_precision_for_default(ctx),
                   ctx.rounding,
                 ),

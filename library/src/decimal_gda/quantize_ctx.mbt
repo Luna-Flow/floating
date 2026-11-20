@@ -36,7 +36,7 @@ fn Decimal::divide_integer_impl(
       match (self.class, other.class) {
         (FpClass::Infinity, FpClass::Finite) if other.is_zero() =>
           (
-            Decimal::inf(
+            Decimal::inf_with_sign(
               if self.negative != other.negative {
                 Sign::Negative
               } else {
@@ -48,10 +48,10 @@ fn Decimal::divide_integer_impl(
           )
         (_, FpClass::Finite) if other.is_zero() =>
           if self.is_zero() {
-            (Decimal::nan(precision~), div_zero_flags(true))
+            (Decimal::nan_raw(precision~), div_zero_flags(true))
           } else {
             (
-              Decimal::inf(
+              Decimal::inf_with_sign(
                 if self.negative != other.negative {
                   Sign::Negative
                 } else {
@@ -64,7 +64,7 @@ fn Decimal::divide_integer_impl(
           }
         (FpClass::Infinity, FpClass::Finite) =>
           (
-            Decimal::inf(
+            Decimal::inf_with_sign(
               if self.negative != other.negative {
                 Sign::Negative
               } else {
@@ -88,11 +88,11 @@ fn Decimal::divide_integer_impl(
           }
         }
         (FpClass::Infinity, FpClass::Infinity) =>
-          (Decimal::nan(precision~), invalid_flags())
+          (Decimal::nan_raw(precision~), invalid_flags())
         (FpClass::Finite, FpClass::Finite) =>
           decimal_integer_quotient(self, other, ctx)
         (FpClass::NaN, _) | (_, FpClass::NaN) =>
-          (Decimal::nan(precision~), invalid_flags())
+          (Decimal::nan_raw(precision~), invalid_flags())
       }
   }
 }
@@ -115,9 +115,12 @@ fn Decimal::remainder(
     rhs.is_zero() {
     let precision = finite_precision_for_default(ctx)
     return if lhs.is_zero() {
-      (Decimal::nan(precision~), operand_flags.combine(div_zero_flags(true)))
+      (
+        Decimal::nan_raw(precision~),
+        operand_flags.combine(div_zero_flags(true)),
+      )
     } else {
-      (Decimal::nan(precision~), operand_flags.combine(invalid_flags()))
+      (Decimal::nan_raw(precision~), operand_flags.combine(invalid_flags()))
     }
   }
   if lhs.class == FpClass::Finite && rhs.class == FpClass::Infinity {
@@ -130,7 +133,7 @@ fn Decimal::remainder(
   }
   if lhs.class == FpClass::Infinity {
     return (
-      Decimal::nan(precision=finite_precision_for_default(ctx)),
+      Decimal::nan_raw(precision=finite_precision_for_default(ctx)),
       operand_flags.combine(invalid_flags()),
     )
   }
@@ -168,7 +171,7 @@ fn Decimal::remainder(
       )
       if exact_magnitude.is_zero() && !ctx.extended {
         return (
-          Decimal::zero(precision=finite_precision_for_default(ctx)),
+          Decimal::zero_raw(precision=finite_precision_for_default(ctx)),
           operand_flags,
         )
       }
@@ -184,7 +187,7 @@ fn Decimal::remainder(
     }
     _ =>
       (
-        Decimal::nan(precision=finite_precision_for_default(ctx)),
+        Decimal::nan_raw(precision=finite_precision_for_default(ctx)),
         invalid_flags(),
       )
   }
@@ -208,9 +211,12 @@ fn Decimal::remainder_near(
     rhs.is_zero() {
     let precision = finite_precision_for_default(ctx)
     return if lhs.is_zero() {
-      (Decimal::nan(precision~), operand_flags.combine(div_zero_flags(true)))
+      (
+        Decimal::nan_raw(precision~),
+        operand_flags.combine(div_zero_flags(true)),
+      )
     } else {
-      (Decimal::nan(precision~), operand_flags.combine(invalid_flags()))
+      (Decimal::nan_raw(precision~), operand_flags.combine(invalid_flags()))
     }
   }
   if lhs.class == FpClass::Finite && rhs.class == FpClass::Infinity {
@@ -223,7 +229,7 @@ fn Decimal::remainder_near(
   }
   if lhs.class == FpClass::Infinity {
     return (
-      Decimal::nan(precision=finite_precision_for_default(ctx)),
+      Decimal::nan_raw(precision=finite_precision_for_default(ctx)),
       operand_flags.combine(invalid_flags()),
     )
   }
@@ -252,7 +258,7 @@ fn Decimal::remainder_near(
       )
       if exact_magnitude.is_zero() && !ctx.extended {
         return (
-          Decimal::zero(precision=finite_precision_for_default(ctx)),
+          Decimal::zero_raw(precision=finite_precision_for_default(ctx)),
           quotient_flags,
         )
       }
@@ -268,7 +274,7 @@ fn Decimal::remainder_near(
     }
     _ =>
       (
-        Decimal::nan(precision=finite_precision_for_default(ctx)),
+        Decimal::nan_raw(precision=finite_precision_for_default(ctx)),
         invalid_flags(),
       )
   }
@@ -300,9 +306,12 @@ fn Decimal::quantize_impl(
     None =>
       match (self.class, quantum.class) {
         (FpClass::Infinity, FpClass::Infinity) =>
-          (self.with_precision(precision, ctx.rounding), DecimalFlags::new())
+          (
+            self.with_precision_raw(precision, ctx.rounding),
+            DecimalFlags::new(),
+          )
         (FpClass::Infinity, _) | (_, FpClass::Infinity) =>
-          (Decimal::nan(precision~), invalid_flags())
+          (Decimal::nan_raw(precision~), invalid_flags())
         (FpClass::Finite, FpClass::Finite) => {
           let target = if !ctx.extended &&
             original_quantum.class == FpClass::Finite &&
@@ -315,7 +324,7 @@ fn Decimal::quantize_impl(
           quantize_finite_to_exponent(self, target, precision, ctx)
         }
         (FpClass::NaN, _) | (_, FpClass::NaN) =>
-          (Decimal::nan(precision~), invalid_flags())
+          (Decimal::nan_raw(precision~), invalid_flags())
       }
   }
 }
@@ -332,7 +341,7 @@ fn quantize_finite_to_exponent(
   }
   let lower = if ctx.extended { etiny(ctx) } else { ctx.e_min }
   guard target >= lower && target <= ctx.e_max else {
-    return (Decimal::nan(precision~), invalid_flags())
+    return (Decimal::nan_raw(precision~), invalid_flags())
   }
   let negative = value.negative
   if value.coefficient.is_zero() {
@@ -392,7 +401,7 @@ fn quantize_finite_to_exponent(
     let shift64 = -exponent_delta
     if ctx.precision > 0 &&
       shift64 > (ctx.precision - value.coefficient.digits10()).to_int64() {
-      return (Decimal::nan(precision~), invalid_flags())
+      return (Decimal::nan_raw(precision~), invalid_flags())
     }
     let shift = shift64.to_int()
     dec_coeff_shift_power10_repr(value.coefficient, shift)
@@ -400,10 +409,10 @@ fn quantize_finite_to_exponent(
     value.coefficient
   }
   if ctx.precision > 0 && coeff.digits10() > ctx.precision {
-    return (Decimal::nan(precision~), invalid_flags())
+    return (Decimal::nan_raw(precision~), invalid_flags())
   }
   if target.to_int64() > ctx.e_max.to_int64() - coeff.digits10().to_int64() + 1L {
-    return (Decimal::nan(precision~), invalid_flags())
+    return (Decimal::nan_raw(precision~), invalid_flags())
   }
   let (result, final_flags) = finalize_finite_ctx(
     finite_with_exponent_repr(negative, coeff, target, precision),
@@ -447,17 +456,20 @@ fn Decimal::rescale_impl(
     None =>
       match (self.class, quantum.class) {
         (FpClass::Infinity, FpClass::Infinity) =>
-          (self.with_precision(precision, ctx.rounding), DecimalFlags::new())
+          (
+            self.with_precision_raw(precision, ctx.rounding),
+            DecimalFlags::new(),
+          )
         (FpClass::Infinity, _) | (_, FpClass::Infinity) =>
-          (Decimal::nan(precision~), invalid_flags())
+          (Decimal::nan_raw(precision~), invalid_flags())
         (FpClass::Finite, FpClass::Finite) =>
           match decimal_power_gda_integer_count(original_quantum) {
             Some(target) =>
               quantize_finite_to_exponent(self, target, precision, ctx)
-            None => (Decimal::nan(precision~), invalid_flags())
+            None => (Decimal::nan_raw(precision~), invalid_flags())
           }
         (FpClass::NaN, _) | (_, FpClass::NaN) =>
-          (Decimal::nan(precision~), invalid_flags())
+          (Decimal::nan_raw(precision~), invalid_flags())
       }
   }
 }
@@ -471,13 +483,13 @@ fn Decimal::to_integral_exact(
     FpClass::NaN => quiet_nan_operand(self, ctx)
     FpClass::Infinity =>
       (
-        self.with_precision(finite_precision_for_default(ctx), ctx.rounding),
+        self.with_precision_raw(finite_precision_for_default(ctx), ctx.rounding),
         DecimalFlags::new(),
       )
     FpClass::Finite =>
       if !ctx.extended && self.coefficient.is_zero() {
         (
-          Decimal::zero(precision=finite_precision_for_default(ctx)),
+          Decimal::zero_raw(precision=finite_precision_for_default(ctx)),
           DecimalFlags::new(),
         )
       } else if !ctx.extended && self.exponent10 >= 0 {
@@ -528,7 +540,7 @@ fn to_integral_finite(
     ctx
   }
   let (result, flags) = operand.quantize(
-    Decimal::one(precision=finite_precision_for_default(ctx)),
+    Decimal::one_raw(precision=finite_precision_for_default(ctx)),
     work_ctx,
   )
   (result, operand_flags.combine(flags))
@@ -543,13 +555,13 @@ fn Decimal::to_integral_value(
     FpClass::NaN => quiet_nan_operand(self, ctx)
     FpClass::Infinity =>
       (
-        self.with_precision(finite_precision_for_default(ctx), ctx.rounding),
+        self.with_precision_raw(finite_precision_for_default(ctx), ctx.rounding),
         DecimalFlags::new(),
       )
     FpClass::Finite =>
       if !ctx.extended && self.coefficient.is_zero() {
         (
-          Decimal::zero(precision=finite_precision_for_default(ctx)),
+          Decimal::zero_raw(precision=finite_precision_for_default(ctx)),
           DecimalFlags::new(),
         )
       } else if !ctx.extended && self.exponent10 >= 0 {

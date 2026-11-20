@@ -1,8 +1,8 @@
 ///|
 fn extrema_test_operand(source : String) -> Decimal {
   match Decimal::from_string(source, precision=64) {
-    Some(value) => value
-    None => abort("expected decimal parse to succeed: " + source)
+    Ok(value) => value
+    Err(_) => abort("expected decimal parse to succeed: " + source)
   }
 }
 

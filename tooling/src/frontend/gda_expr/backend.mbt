@@ -267,6 +267,18 @@ fn saturate_operand_exponent(token : String) -> String {
 }
 
 ///|
+/// The interchange value of a hexadecimal operand, `None` for text that is not one.
+fn interchange_from_hex(
+  text : String,
+  format : @decimal_gda.GdaInterchangeFormat,
+) -> @decimal_gda.GdaInterchange? {
+  match @decimal_gda.GdaInterchange::from_hex(text, format) {
+    Ok(value) => Some(value)
+    Err(_) => None
+  }
+}
+
+///|
 fn decode_decimal_literal(
   token : String,
   context : GdaContext,
@@ -287,21 +299,26 @@ fn decode_decimal_literal(
   } else if normalized.has_prefix("#") {
     match interchange_format(context) {
       Some(format) =>
-        @decimal_gda.GdaInterchange::from_hex(normalized, format).map(fn(i) {
-          i.to_decimal()
-        })
+        match interchange_from_hex(normalized, format) {
+          Some(interchange) => Some(interchange.to_decimal())
+          None => None
+        }
       None => None
     }
   } else {
     // GDA operations take their operands exactly, so read every digit: the
     // token length bounds the number of significant digits.
-    @decimal_gda.Decimal::from_string(
-      normalized,
-      precision=Int32::max(
-        64,
-        Int32::max(context.precision(), normalized.length()),
-      ),
-    )
+    match
+      @decimal_gda.Decimal::from_string(
+        normalized,
+        precision=Int32::max(
+          64,
+          Int32::max(context.precision(), normalized.length()),
+        ),
+      ) {
+      Ok(value) => Some(value)
+      Err(_) => None
+    }
   }
 }
 
@@ -589,7 +606,7 @@ fn invoke_decimal_operation(
         return Err("interchange apply requires a concrete format")
       }
       let encoded = if raw.has_prefix("#") {
-        match @decimal_gda.GdaInterchange::from_hex(raw, format) {
+        match interchange_from_hex(raw, format) {
           Some(value) =>
             Some((value.canonical().to_hex(), RuntimeFlags::none()))
           None => None
@@ -612,7 +629,7 @@ fn invoke_decimal_operation(
     }
     if raw.has_prefix("#") {
       guard interchange_format(case.context()) is Some(format) &&
-        @decimal_gda.GdaInterchange::from_hex(raw, format) is Some(value) else {
+        interchange_from_hex(raw, format) is Some(value) else {
         return Err("invalid interchange apply operand")
       }
       let decimal = value.to_decimal()
@@ -628,7 +645,7 @@ fn invoke_decimal_operation(
     raws[0].has_prefix("#") &&
     case.expected().has_prefix("#") {
     guard interchange_format(case.context()) is Some(format) &&
-      @decimal_gda.GdaInterchange::from_hex(raws[0], format) is Some(raw) else {
+      interchange_from_hex(raws[0], format) is Some(raw) else {
       return Err("invalid interchange copy operand")
     }
     let copied = match op {
@@ -646,11 +663,11 @@ fn invoke_decimal_operation(
     raws[0].has_prefix("#") &&
     case.expected().has_prefix("#") {
     guard interchange_format(case.context()) is Some(format) &&
-      @decimal_gda.GdaInterchange::from_hex(raws[0], format) is Some(left) else {
+      interchange_from_hex(raws[0], format) is Some(left) else {
       return Err("invalid interchange copysign operand")
     }
     let right = if raws[1].has_prefix("#") {
-      @decimal_gda.GdaInterchange::from_hex(raws[1], format)
+      interchange_from_hex(raws[1], format)
     } else {
       match decimal_argument(values, 1) {
         Some(decimal) =>
@@ -929,7 +946,7 @@ fn invoke_decimal_operation(
         return Err("canonical requires an interchange operand and context")
       }
       let value = if raw.has_prefix("#") {
-        @decimal_gda.GdaInterchange::from_hex(raw, format)
+        interchange_from_hex(raw, format)
       } else {
         match decode_decimal(raw, case.context()) {
           Some(decimal) =>

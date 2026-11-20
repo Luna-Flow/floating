@@ -7,7 +7,7 @@
 /// `1.00E+5`, `9.9999` is `10.0`). Same behaviour as `decimal` (#178).
 test "decimal_gda parse keeps the rounded cohort for literals longer than the precision (#180)" {
   let p = fn(text : String, precision : Int32) {
-    Decimal::parse(text, precision~).unwrap().to_string()
+    Decimal::from_string(text, precision~).unwrap().to_string()
   }
   inspect(p("1.0001", 3), content="1.00")
   inspect(p("1.000", 3), content="1.00")

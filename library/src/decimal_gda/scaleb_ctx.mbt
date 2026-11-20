@@ -136,16 +136,20 @@ fn Decimal::scaleb_ctx(
     Some(result) => result
     None =>
       match (self.class, other.class) {
-        (_, FpClass::Infinity) => (Decimal::nan(precision~), invalid_flags())
+        (_, FpClass::Infinity) =>
+          (Decimal::nan_raw(precision~), invalid_flags())
         (FpClass::Infinity, FpClass::Finite) =>
-          (self.with_precision(precision, ctx.rounding), DecimalFlags::new())
+          (
+            self.with_precision_raw(precision, ctx.rounding),
+            DecimalFlags::new(),
+          )
         (FpClass::Finite, FpClass::Finite) =>
           match scaleb_count(other, ctx) {
-            None => (Decimal::nan(precision~), invalid_flags())
+            None => (Decimal::nan_raw(precision~), invalid_flags())
             Some(count) => scaleb_finite_result_ctx(self, count, ctx)
           }
         (FpClass::NaN, _) | (_, FpClass::NaN) =>
-          (Decimal::nan(precision~), invalid_flags())
+          (Decimal::nan_raw(precision~), invalid_flags())
       }
   }
 }

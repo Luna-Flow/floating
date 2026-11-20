@@ -88,7 +88,10 @@ test "issue 468: the parser path gives the result of the expansion in every mode
       for precision in [1, 2, 24, 53, 113, 300] {
         inspect(
           same_bin_float(
-            value.to_bin_float(precision~, mode~),
+            value.to_bin_float(
+              precision~,
+              mode=@bin_float.BinaryRoundingMode::from_arithmetic(mode),
+            ),
             old_to_bin_float(value, precision, mode),
           ),
           content="true",

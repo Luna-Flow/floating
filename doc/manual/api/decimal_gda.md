@@ -73,23 +73,29 @@ pub fn Decimal::negative_zero(precision? : Int) -> Self
 pub fn Decimal::one(precision? : Int) -> Self
 ```
 
-`precision` (default 34, clamped to at least 1) is only the stored precision
-attribute.
+`precision` (default 34) is the stored precision attribute: the number of digits
+the coefficient may have, from 1 to 999,999,999 (the limit a context has).
+A precision outside that range aborts and names the function and the argument;
+no constructor replaces it by 1. The same check applies to every constructor
+that takes a `precision`.
 
 ### `Decimal::inf`, `Decimal::nan`, `Decimal::quiet_nan`, `Decimal::signaling_nan`
 
 These build the special values.
 
 ```mbti
-pub fn Decimal::inf(@def.Sign, precision? : Int) -> Self
+pub fn Decimal::inf(negative? : Bool, precision? : Int) -> Self
 pub fn Decimal::nan(precision? : Int) -> Self
 pub fn Decimal::quiet_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int) -> Self
 pub fn Decimal::signaling_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int) -> Self
 ```
 
-`inf(Negative)` is $-\infty$; any other `Sign` gives $+\infty$. `nan()` is a
-positive quiet NaN with payload 0. The payload is stored as its absolute
-value. A signaling NaN raises `InvalidOperation` when an arithmetic operation
+`inf(negative=true)` is $-\infty$ and `inf()` is $+\infty$. `nan()` is a
+positive quiet NaN with payload 0. GDA 1.70 (page 11) says a payload is no
+larger than the coefficient can represent less one digit, so a payload has at
+most `precision - 1` digits: a negative payload, or one that is too wide for
+the `precision` given, aborts (at precision 1 only the payload 0 exists). A
+signaling NaN raises `InvalidOperation` when an arithmetic operation
 consumes it and is replaced by the quiet NaN with the same sign and payload.
 
 ### `Decimal::make`
@@ -98,11 +104,11 @@ consumes it and is replaced by the quiet NaN with the same sign and payload.
 with trailing zeros removed.
 
 ```mbti
-pub fn Decimal::make(@bigint.BigInt, Int, Int, mode? : @arithmetic.RoundingMode) -> Self
+pub fn Decimal::make(@bigint.BigInt, Int, Int, rounding? : GdaRoundingMode) -> Self
 ```
 
-The sign comes from the sign of `c`. Rounding uses `mode` (default
-`ToNearestEven`). Because trailing zeros are removed, `make(1200, 0, 34)` is
+The sign comes from the sign of `c`. Rounding uses `rounding` (default
+`HalfEven`), one of the eight modes of the context. Because trailing zeros are removed, `make(1200, 0, 34)` is
 `1.2E+3`; build from a string when the quantum matters. No flags are reported.
 
 ### `Decimal::from_int`, `Decimal::from_bigint`, `Decimal::from_double`, `Decimal::from_float`, `Decimal::from_bin_float`
@@ -110,18 +116,19 @@ The sign comes from the sign of `c`. Rounding uses `mode` (default
 These convert binary values to decimal. An integer of at most `precision`
 digits keeps exponent 0 and an exact binary fraction takes the exponent closest
 to 0 (trailing zeros are removed only down to exponent 0); a longer or inexact
-value is rounded half to even to exactly `precision` digits.
+value is rounded to exactly `precision` digits, half to even unless `rounding`
+(for `from_bin_float`) says otherwise.
 
 ```mbti
 pub fn Decimal::from_int(Int, precision? : Int) -> Self
 pub fn Decimal::from_bigint(@bigint.BigInt, precision? : Int) -> Self
 pub fn Decimal::from_double(Double, precision? : Int) -> Self
 pub fn Decimal::from_float(Float, precision? : Int) -> Self
-pub fn Decimal::from_bin_float(@bin_float.BinFloat, precision? : Int) -> Self
+pub fn Decimal::from_bin_float(@bin_float.BinFloat, precision~ : Int, rounding? : GdaRoundingMode) -> Self
 ```
 
-`precision` defaults to 34 (for `from_bin_float`, to the precision of the
-argument). A binary float $m \cdot 2^{k}$ with $k < 0$ is first written exactly
+`precision` defaults to 34 digits; for `from_bin_float` it is required and
+counts decimal digits, not the bits of the argument. A binary float $m \cdot 2^{k}$ with $k < 0$ is first written exactly
 as $m 5^{-k} \cdot 10^{k}$, so the conversion is exact whenever the result fits
 in `precision` digits; for example `from_double(0.1)` is the 34-digit
 rounding of the binary64 value nearest to $0.1$. NaNs become the quiet NaN
@@ -135,21 +142,23 @@ sign (`from_bin_float` returns $+0$). `from_int(100)` is `100` (exponent 0),
 significant bits.
 
 ```mbti
-pub fn Decimal::to_bin_float(Self, precision? : Int, mode? : @arithmetic.RoundingMode) -> @bin_float.BinFloat
+pub fn Decimal::to_bin_float(Self, precision~ : Int, mode? : @bin_float.BinaryRoundingMode) -> @bin_float.BinFloat
 ```
 
-`precision` defaults to the stored precision attribute and `mode` to
-`ToNearestEven`. With `TowardNegative` and `TowardPositive` the two results
+`precision` is required and counts bits, from 1 to
+`@bin_float.binary_precision_max` (outside that range the call aborts). `mode` is a
+rounding attribute of the radix of the result (IEEE 754-2019 4.3.1) and
+defaults to `RoundTiesToEven`; ties-to-away rounds the exact value once, too. With
+`RoundTowardNegative` and `RoundTowardPositive` the two results
 enclose the decimal value; the elementary functions use exactly this to build
 their certified input intervals. Zeros map to $+0$, NaNs to the binary NaN.
 
-### `Decimal::parse`, `Decimal::from_string`
+### `Decimal::from_string`
 
-These read a GDA numeric string without a GDA context.
+This reads a GDA numeric string without a GDA context.
 
 ```mbti
-pub fn Decimal::parse(String, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Decimal::from_string(String, precision? : Int) -> Self?
+pub fn Decimal::from_string(String, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 Accepted syntax is the GDA numeric-string grammar: an optional sign, digits
@@ -158,7 +167,9 @@ with an optional decimal point, an optional exponent `E±n`, or
 payload. The exponent is kept exactly, so `from_string("2.50")` has exponent
 $-2$. A literal with more than `precision` (default 34) significant digits is
 rounded half to even and its trailing zeros are removed. A malformed literal
-gives `Err(parse_error)` or `None`. No context exponent range applies, only
+gives `Err(parse_error)`; so does a precision outside `1..=999999999` (`Err` of
+the domain-error kind) and a NaN whose payload is wider than `precision - 1`
+digits (page 11). No context exponent range applies, only
 the limits of the representation (stored exponent at least $-2^{31}$,
 adjusted exponent at most $2^{31}-1$); as in the GDA to-number conversion, a
 numeric string beyond them still converts: `"1e3000000000"` is `inf` and
@@ -1287,18 +1298,26 @@ overflow, underflow and clamping flags) and encodes it. `to_decimal` decodes
 exactly, keeping the exponent and raising nothing; test the result with
 [`is_subnormal`](#class_name-is_normal-is_subnormal) when the flag is needed.
 
+A NaN is encoded with its sign, its signaling bit and its payload. The payload of
+a decimal32, decimal64 or decimal128 pattern has 6, 15 or 33 digits (the trailing
+significand field, IEEE 754-2019 3.5.2). A payload that is wider keeps its low
+digits and no flag is raised: IEEE 754-2019 6.2.3 asks that a conversion that
+cannot preserve the payload return a quiet NaN carrying some language-defined
+diagnostic information, and names no signal. The decTest interchange rows have
+no payload wider than their format.
+
 ### `GdaInterchange::from_hex`, `GdaInterchange::to_hex`
 
 These convert between a bit pattern and its hexadecimal text.
 
 ```mbti
-pub fn GdaInterchange::from_hex(String, GdaInterchangeFormat) -> Self?
+pub fn GdaInterchange::from_hex(String, GdaInterchangeFormat) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn GdaInterchange::to_hex(Self) -> String
 ```
 
 The text is `#` (optional on input) followed by exactly 8, 16 or 32
 hexadecimal digits; surrounding spaces are ignored and any other input gives
-`None`. `to_hex` prints `#` and uppercase digits.
+`Err(parse_error)`. `to_hex` prints `#` and uppercase digits.
 
 ### `GdaInterchange::canonical`, `GdaInterchange::is_canonical`
 
@@ -1683,12 +1702,12 @@ pub fn Decimal::equal(Self, Self) -> Bool
 pub fn Decimal::exp_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Decimal::exponent10(Self) -> Int32
 pub fn Decimal::from_bigint(@bigint.BigInt, precision? : Int32) -> Self
-pub fn Decimal::from_bin_float(@bin_float.BinFloat, precision? : Int32) -> Self
+pub fn Decimal::from_bin_float(@bin_float.BinFloat, precision~ : Int32, rounding? : GdaRoundingMode) -> Self
 pub fn Decimal::from_double(Double, precision? : Int32) -> Self
 pub fn Decimal::from_float(Float, precision? : Int32) -> Self
 pub fn Decimal::from_int(Int32, precision? : Int32) -> Self
-pub fn Decimal::from_string(String, precision? : Int32) -> Self?
-pub fn Decimal::inf(@def.Sign, precision? : Int32) -> Self
+pub fn Decimal::from_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Decimal::inf(negative? : Bool, precision? : Int32) -> Self
 pub fn Decimal::is_canonical(Self) -> Bool
 pub fn Decimal::is_finite(Self) -> Bool
 pub fn Decimal::is_infinite(Self) -> Bool
@@ -1698,7 +1717,7 @@ pub fn Decimal::is_qnan(Self) -> Bool
 pub fn Decimal::is_signed(Self) -> Bool
 pub fn Decimal::is_snan(Self) -> Bool
 pub fn Decimal::is_zero(Self) -> Bool
-pub fn Decimal::make(@bigint.BigInt, Int32, Int32, mode? : @arithmetic.RoundingMode) -> Self
+pub fn Decimal::make(@bigint.BigInt, Int32, Int32, rounding? : GdaRoundingMode) -> Self
 pub fn Decimal::max(Self, Self) -> Self
 pub fn Decimal::max_finite_contextual(@arithmetic.ArithmeticContext) -> Self
 pub fn Decimal::min(Self, Self) -> Self
@@ -1718,7 +1737,6 @@ pub fn Decimal::op_gt(Self, Self) -> Bool
 pub fn Decimal::op_le(Self, Self) -> Bool
 pub fn Decimal::op_lt(Self, Self) -> Bool
 pub fn Decimal::output(Self, &Logger) -> Unit
-pub fn Decimal::parse(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::parse_checked(String, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::pow_int_checked(Self, Int32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
@@ -1733,13 +1751,13 @@ pub fn Decimal::sqrt_checked(Self, @arithmetic.ArithmeticContext) -> Result[Self
 pub fn Decimal::sqrt_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Decimal::sub(Self, Self) -> Self
 pub fn Decimal::sub_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
-pub fn Decimal::to_bin_float(Self, precision? : Int32, mode? : @arithmetic.RoundingMode) -> @bin_float.BinFloat
+pub fn Decimal::to_bin_float(Self, precision~ : Int32, mode? : @bin_float.BinaryRoundingMode) -> @bin_float.BinFloat
 pub fn Decimal::to_eng_string(Self) -> String
 pub fn Decimal::to_repr(Self) -> @debug.Repr
 pub fn Decimal::to_sci_string(Self) -> String
 pub fn Decimal::to_string(Self) -> String
 pub fn Decimal::trim(Self) -> Self
-pub fn Decimal::with_precision(Self, Int32, @arithmetic.RoundingMode) -> Self
+pub fn Decimal::with_precision(Self, Int32, GdaRoundingMode) -> Self
 pub fn Decimal::zero(precision? : Int32) -> Self
 pub fn Decimal::zero_contextual(@arithmetic.ArithmeticContext) -> Self
 pub impl @arithmetic.AbsContextual for Decimal
@@ -1836,7 +1854,7 @@ pub fn GdaInterchange::copy_negate(Self) -> Self
 pub fn GdaInterchange::copy_sign(Self, Self) -> Self
 pub fn GdaInterchange::format(Self) -> GdaInterchangeFormat
 pub fn GdaInterchange::from_decimal(Decimal, GdaInterchangeFormat) -> (Self, GdaFlags)
-pub fn GdaInterchange::from_hex(String, GdaInterchangeFormat) -> Self?
+pub fn GdaInterchange::from_hex(String, GdaInterchangeFormat) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn GdaInterchange::is_canonical(Self) -> Bool
 pub fn GdaInterchange::to_decimal(Self) -> Decimal
 pub fn GdaInterchange::to_hex(Self) -> String

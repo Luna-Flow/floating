@@ -114,18 +114,25 @@ fn interchange_hex_string(
 }
 
 ///|
+/// The text is `#` (optional) followed by exactly 8, 16 or 32 hexadecimal digits
+/// for decimal32, decimal64 or decimal128; anything else is an `Err`.
 pub fn GdaInterchange::from_hex(
   src : String,
   format : GdaInterchangeFormat,
-) -> GdaInterchange? {
+) -> Result[GdaInterchange, @def.ArithmeticError] {
   let digits = decimal_interchange_hex_digits(format)
   match normalize_interchange_hex(src, digits) {
     Some(bits) =>
-      Some({
+      Ok({
         format,
         bits: bits % (decimal_interchange_mask(format) + bigint_one()),
       })
-    None => None
+    None =>
+      Err(
+        @def.ArithmeticError::parse_error(
+          "invalid interchange hexadecimal text for " + src,
+        ),
+      )
   }
 }
 
@@ -380,7 +387,7 @@ fn Decimal::from_interchange_hex_dpd(
   let coefficient_bits = bits % (bigint_one() << coeff_bits)
   if combination == 0b11110 {
     return Some(
-      Decimal::inf(
+      Decimal::inf_with_sign(
         if sign {
           Sign::Negative
         } else {
@@ -404,9 +411,9 @@ fn Decimal::from_interchange_hex_dpd(
       1
     return Some(
       if signaling {
-        Decimal::signaling_nan(payload~, negative=sign, precision~)
+        Decimal::signaling_nan_raw(payload~, negative=sign, precision~)
       } else {
-        Decimal::quiet_nan(payload~, negative=sign, precision~)
+        Decimal::quiet_nan_raw(payload~, negative=sign, precision~)
       },
     )
   }

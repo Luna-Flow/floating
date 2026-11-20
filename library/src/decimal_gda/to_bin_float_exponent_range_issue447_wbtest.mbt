@@ -41,7 +41,10 @@ test "issue 447: to_bin_float at both ends of the exponent range, every rounding
       for negative in [false, true] {
         let signed = if negative { -coefficient } else { coefficient }
         let value = Decimal::make(signed, exponent, 34)
-        let actual = value.to_bin_float(precision=53, mode~)
+        let actual = value.to_bin_float(
+          precision=53,
+          mode=@bin_float.BinaryRoundingMode::from_arithmetic(mode),
+        )
         let expected = oracle_to_bin_float(signed, exponent, 53, mode)
         inspect(actual.to_string() == expected.to_string(), content="true")
         inspect(actual.is_negative() == negative, content="true")
@@ -52,12 +55,13 @@ test "issue 447: to_bin_float at both ends of the exponent range, every rounding
 
 ///|
 test "issue 447: the reported cases do not panic" {
-  let tiny = Decimal::make(1N, -2147483648, 34).to_bin_float()
+  let tiny = Decimal::make(1N, -2147483648, 34).to_bin_float(precision=53)
   inspect(tiny.is_zero(), content="true")
-  let huge = Decimal::make(1N, 2147483647, 34).to_bin_float()
+  let huge = Decimal::make(1N, 2147483647, 34).to_bin_float(precision=53)
   inspect(@def.is_infinite(huge), content="true")
   let directed_up = Decimal::make(1N, -2147483648, 34).to_bin_float(
-    mode=RoundingMode::TowardPositive,
+    precision=53,
+    mode=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   inspect(directed_up.is_zero(), content="false")
   inspect(directed_up.is_negative(), content="false")

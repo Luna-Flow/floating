@@ -95,8 +95,14 @@ fn decimal_to_certified_ball(
   value : Decimal,
   precision : Int32,
 ) -> @ball_float.BallFloat {
-  let lower = value.to_bin_float(precision~, mode=RoundingMode::TowardNegative)
-  let upper = value.to_bin_float(precision~, mode=RoundingMode::TowardPositive)
+  let lower = value.to_bin_float_raw(
+    precision~,
+    mode=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+  )
+  let upper = value.to_bin_float_raw(
+    precision~,
+    mode=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+  )
   @ball_float.BallFloat::from_bounds(lower, upper, precision~)
 }
 
@@ -186,9 +192,9 @@ fn decimal_exact_dyadic_endpoint(
   if value.is_zero() {
     return Some(
       if value.is_negative_zero() {
-        Decimal::negative_zero(precision=1)
+        Decimal::negative_zero_raw(precision=1)
       } else {
-        Decimal::zero(precision=1)
+        Decimal::zero_raw(precision=1)
       },
     )
   }
@@ -424,7 +430,7 @@ fn decimal_ball_candidate(
   interval : @ball_float.BallFloat,
   ctx : DecimalContext,
 ) -> Decimal {
-  Decimal::from_bin_float(
+  Decimal::from_bin_float_raw(
     interval.midpoint(),
     precision=decimal_math_target_precision(ctx) + 8,
   )
@@ -468,7 +474,10 @@ fn decimal_exp_ball_candidate(
   if value.coefficient.digits10() + value.exponent10 > 3 {
     return decimal_exp_series_candidate(value, wanted)
   }
-  let candidate = Decimal::from_bin_float(interval.midpoint(), precision=wanted)
+  let candidate = Decimal::from_bin_float_raw(
+    interval.midpoint(),
+    precision=wanted,
+  )
   guard candidate.class == FpClass::Finite && !candidate.coefficient.is_zero() else {
     return candidate
   }

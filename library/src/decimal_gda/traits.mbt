@@ -171,14 +171,14 @@ pub impl @lf_arith.ExpContextual for Decimal with fn exp_contextual(
 pub impl @lf_arith.NumericFormatContextual for Decimal with fn zero_contextual(
   context,
 ) {
-  Decimal::zero(precision=context.precision)
+  Decimal::zero_raw(precision=context.precision)
 }
 
 ///|
 pub impl @lf_arith.NumericFormatContextual for Decimal with fn one_contextual(
   context,
 ) {
-  Decimal::one(precision=context.precision)
+  Decimal::one_raw(precision=context.precision)
 }
 
 ///|
@@ -187,12 +187,12 @@ pub impl @lf_arith.NumericFormatContextual for Decimal with fn epsilon_contextua
 ) {
   let decimal_context = match DecimalContext::from_arithmetic_context(context) {
     Err(_) =>
-      return Decimal::zero(
+      return Decimal::zero_raw(
         precision=Int32::max(1, Int32::min(context.precision, 999_999_999)),
       )
     Ok(dctx) => dctx
   }
-  let one = Decimal::one(precision=context.precision)
+  let one = Decimal::one_raw(precision=context.precision)
   one.next_plus(decimal_context).0.sub_ctx(one, decimal_context).0
 }
 
@@ -202,7 +202,7 @@ pub impl @lf_arith.NumericFormatContextual for Decimal with fn min_normal_contex
 ) {
   let decimal_context = match DecimalContext::from_arithmetic_context(context) {
     Err(_) =>
-      return Decimal::zero(
+      return Decimal::zero_raw(
         precision=Int32::max(1, Int32::min(context.precision, 999_999_999)),
       )
     Ok(dctx) => dctx
@@ -217,12 +217,12 @@ pub impl @lf_arith.NumericFormatContextual for Decimal with fn max_finite_contex
 ) {
   let decimal_context = match DecimalContext::from_arithmetic_context(context) {
     Err(_) =>
-      return Decimal::zero(
+      return Decimal::zero_raw(
         precision=Int32::max(1, Int32::min(context.precision, 999_999_999)),
       )
     Ok(dctx) => dctx
   }
-  Decimal::inf(Sign::Positive, precision=context.precision).next_minus(
+  Decimal::inf_with_sign(Sign::Positive, precision=context.precision).next_minus(
     decimal_context,
   ).0
 }
@@ -316,7 +316,7 @@ pub impl @lf_arith.PowNatChecked for Decimal with fn pow_nat_checked(
     Err(error) => return Err(error)
     Ok(dctx) => dctx
   }
-  let exponent_decimal = Decimal::from_bigint(
+  let exponent_decimal = Decimal::from_bigint_raw(
     BigInt::from_uint(exponent),
     precision=checked_power_exponent_precision(ctx),
   )
@@ -353,7 +353,7 @@ pub impl @lf_arith.PowIntChecked for Decimal with fn pow_int_checked(
     Err(error) => return Err(error)
     Ok(dctx) => dctx
   }
-  let exponent_decimal = Decimal::from_int(
+  let exponent_decimal = Decimal::from_int_raw(
     exponent,
     precision=checked_power_exponent_precision(ctx),
   )
@@ -378,13 +378,13 @@ pub impl @lf_arith.PowIntChecked for Decimal with fn pow_int_checked(
 /// `NatHomomorphism` with `FromNat`, which takes the `BigInt` representative
 /// directly instead of a generic source plus `normalize`.
 pub impl FromNat for Decimal with fn from_natural(value : BigInt) -> Decimal {
-  Decimal::from_bigint(value).normalized()
+  Decimal::from_bigint_raw(value).normalized()
 }
 
 ///|
 /// The unique homomorphism out of the integers; see `FromNat` above.
 pub impl FromInteger for Decimal with fn from_integer(value : BigInt) -> Decimal {
-  Decimal::from_bigint(value).normalized()
+  Decimal::from_bigint_raw(value).normalized()
 }
 
 ///|
@@ -400,12 +400,12 @@ pub impl Eq for Decimal with fn equal(self, other) {
 
 ///|
 pub impl Zero for Decimal with fn zero() {
-  Decimal::zero()
+  Decimal::zero_raw()
 }
 
 ///|
 pub impl One for Decimal with fn one() {
-  Decimal::one()
+  Decimal::one_raw()
 }
 
 ///|
@@ -470,7 +470,7 @@ pub impl @def.Floating for Decimal with fn precision(self) {
 
 ///|
 pub impl @def.Floating for Decimal with fn with_precision(self, precision) {
-  Decimal::with_precision(self, precision, RoundingMode::ToNearestEven)
+  Decimal::with_precision_raw(self, precision, RoundingMode::ToNearestEven)
 }
 
 ///|
