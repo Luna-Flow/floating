@@ -9,6 +9,7 @@ module goes here (see `CONTRIBUTING.md`, "Release Checklist").
 
 ## Unreleased
 
+- External baseline harness, step 2 of the net-ratio method ([#438](https://github.com/Luna-Flow/floating/issues/438), section 8): every case is timed as pairs of blocks, a case block and a null block (the same loop without the library call), on both sides. `bench/external` runs a second implementation `null` next to `floating` (Maremark interleaves the blocks); `tools/external_baseline.c` times `pass_null` interleaved with `pass`, each with its own calibrated batch, and writes `variant` and `null_first` on every line. The runner collects the pairs next to the raw samples; the summary and the tables are unchanged until the next step.
 - `frontend/gda_expr` reports an exponent range outside GDA 1.70 page 10 as a diagnostic row (invalid context); the frontend tests and the random-differential fixtures of `decimal_gda` use legal ranges (`tools/generate_libmpdec_random.py` validates every context it emits, and the fixture and regression rows were regenerated and rechecked against libmpdec).
 - `frontend/gda_expr` and the consistency tests call the GDA functions of `decimal_gda` only (the status-free engine is private there, [#438](https://github.com/Luna-Flow/floating/issues/438)); the corpus counts of the `decimal_gda` gate are unchanged.
 

@@ -339,6 +339,29 @@ static void pass(Prepared *p) {
   }
 }
 
+/*
+ * The null pass: the loop of `pass` with the library call removed.  It makes
+ * the same operand and result accesses (the three operand pointers of every
+ * row, and the context and status of the decimal calls) and hands them to an
+ * empty asm statement, so the compiler can neither drop the loads nor fuse the
+ * loop.  What it cannot remove is stated in the design page: the call and
+ * return of the library function stay in the net time of a case.
+ */
+static void pass_null(Prepared *p) {
+  size_t n = p->n;
+  if (p->is_binary) {
+    mpfr_t *a = p->ba, *b = p->bb, *r = p->br;
+    for (size_t i = 0; i < n; i++)
+      __asm__ volatile("" : : "r"(a[i]), "r"(b[i]), "r"(r[i]) : "memory");
+  } else {
+    mpd_t **a = p->da, **b = p->db, **r = p->dr;
+    mpd_context_t *ctx = &p->dctx;
+    uint32_t status = 0;
+    for (size_t i = 0; i < n; i++)
+      __asm__ volatile("" : : "r"(a[i]), "r"(b[i]), "r"(r[i]), "r"(ctx), "r"(&status) : "memory");
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /* Reference mode: print the correctly rounded results                */
 /* ------------------------------------------------------------------ */
@@ -376,15 +399,20 @@ typedef struct {
   int confirmatory;
 } Protocol;
 
-static double run_batch(Prepared *p, long iterations) {
+static double run_batch(Prepared *p, long iterations, int null_variant) {
   uint64_t start = now_ns();
-  for (long i = 0; i < iterations; i++) pass(p);
+  if (null_variant) {
+    for (long i = 0; i < iterations; i++) pass_null(p);
+  } else {
+    for (long i = 0; i < iterations; i++) pass(p);
+  }
   uint64_t end = now_ns();
   return (double)(end - start) / 1000.0;
 }
 
-static void time_case(FILE *out, const CaseId *id, Prepared *p, const Protocol *proto,
-                      int round) {
+/* Warm-up and calibration of one variant (the case itself, or its null). */
+static long calibrate(FILE *out, const CaseId *id, Prepared *p, const Protocol *proto, int round,
+                      int null_variant) {
   /* Warm-up: single passes until both the count and the time are reached. */
   int warmup_id = 0;
   double warmup_elapsed = 0.0;
@@ -393,7 +421,7 @@ static void time_case(FILE *out, const CaseId *id, Prepared *p, const Protocol *
                   : proto->max_batch_iterations;
   while ((warmup_id < proto->warmup_iterations || warmup_elapsed < proto->warmup_time_us) &&
          warmup_id < limit) {
-    warmup_elapsed += run_batch(p, 1);
+    warmup_elapsed += run_batch(p, 1, null_variant);
     warmup_id++;
   }
   /* Calibration: the Maremark rule (grow the batch towards the target time). */
@@ -401,7 +429,7 @@ static void time_case(FILE *out, const CaseId *id, Prepared *p, const Protocol *
   long iterations = proto->min_batch_iterations > 1 ? proto->min_batch_iterations : 1;
   if (iterations > maximum) iterations = maximum;
   long retries = 0;
-  double elapsed = run_batch(p, iterations);
+  double elapsed = run_batch(p, iterations, null_variant);
   while (elapsed < proto->target_batch_time_us && elapsed < proto->max_sample_time_us &&
          iterations < maximum) {
     long estimated = elapsed <= 0.0
@@ -412,24 +440,48 @@ static void time_case(FILE *out, const CaseId *id, Prepared *p, const Protocol *
     if (next == iterations) break;
     iterations = next;
     retries++;
-    elapsed = run_batch(p, iterations);
+    elapsed = run_batch(p, iterations, null_variant);
   }
   fprintf(out,
           "{\"type\":\"calibration\",\"tool\":\"%s\",\"round\":%d,\"case\":\"%s/%s/%d\","
-          "\"iterations\":%ld,\"elapsed_us\":%.3f,\"retries\":%ld}\n",
-          p->is_binary ? "mpfr" : "libmpdec", round, id->kind, id->op, id->size, iterations,
-          elapsed, retries);
+          "\"variant\":\"%s\",\"iterations\":%ld,\"elapsed_us\":%.3f,\"retries\":%ld}\n",
+          p->is_binary ? "mpfr" : "libmpdec", round, id->kind, id->op, id->size,
+          null_variant ? "null" : "case", iterations, elapsed, retries);
+  return iterations;
+}
+
+/*
+ * One case: each block is a pair, a block of the case and a block of its null
+ * (each with its own calibrated batch), run back to back.  The order inside a
+ * pair alternates with the block index and the round, so each order occurs
+ * equally often.  Both blocks of a pair are written with the same block
+ * number and the `null_first` flag.
+ */
+static void time_case(FILE *out, const CaseId *id, Prepared *p, const Protocol *proto,
+                      int round) {
+  long case_iterations = calibrate(out, id, p, proto, round, 0);
+  long null_iterations = calibrate(out, id, p, proto, round, 1);
   int blocks = proto->exploratory + proto->confirmatory;
   for (int block = 0; block < blocks; block++) {
-    double us = run_batch(p, iterations);
+    int null_first = (block + round) % 2;
+    double us[2] = {0.0, 0.0}; /* [0] case, [1] null */
+    for (int step = 0; step < 2; step++) {
+      int null_variant = null_first ? (step == 0) : (step == 1);
+      us[null_variant] = run_batch(p, null_variant ? null_iterations : case_iterations, null_variant);
+    }
     int exploratory = block < proto->exploratory;
-    fprintf(out,
-            "{\"type\":\"observation\",\"tool\":\"%s\",\"round\":%d,\"case\":\"%s/%s/%d\","
-            "\"phase\":\"%s\",\"block\":%d,\"iterations\":%ld,\"ops_per_iteration\":%zu,"
-            "\"elapsed_us\":%.3f}\n",
-            p->is_binary ? "mpfr" : "libmpdec", round, id->kind, id->op, id->size,
-            exploratory ? "exploratory" : "confirmatory",
-            exploratory ? block : block - proto->exploratory, iterations, p->n, us);
+    for (int null_variant = 0; null_variant < 2; null_variant++) {
+      fprintf(out,
+              "{\"type\":\"observation\",\"tool\":\"%s\",\"round\":%d,\"case\":\"%s/%s/%d\","
+              "\"variant\":\"%s\",\"null_first\":%s,"
+              "\"phase\":\"%s\",\"block\":%d,\"iterations\":%ld,\"ops_per_iteration\":%zu,"
+              "\"elapsed_us\":%.3f}\n",
+              p->is_binary ? "mpfr" : "libmpdec", round, id->kind, id->op, id->size,
+              null_variant ? "null" : "case", null_first ? "true" : "false",
+              exploratory ? "exploratory" : "confirmatory",
+              exploratory ? block : block - proto->exploratory,
+              null_variant ? null_iterations : case_iterations, p->n, us[null_variant]);
+    }
   }
   fflush(out);
 }
