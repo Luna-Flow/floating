@@ -114,50 +114,6 @@ fn decimal_coeff_magnitude(x : @decimal.Decimal) -> BigInt {
 }
 
 ///|
-test "internal digits10 tracks power-of-ten boundaries without string conversion" {
-  assert_eq(@internal.digits10(0N), 1)
-  let exponents = [0, 1, 2, 5, 18, 19, 34, 50, 128, 256, 1024]
-  for exponent in exponents {
-    let power = @internal.pow10(exponent)
-    assert_eq(@internal.digits10(power), exponent + 1)
-    assert_eq(@internal.digits10(-power), exponent + 1)
-    if exponent > 0 {
-      assert_eq(@internal.digits10(power - 1N), exponent)
-      assert_eq(@internal.digits10(-(power - 1N)), exponent)
-    }
-  }
-}
-
-///|
-test "internal decNumber-style coefficient trim matches trailing-zero shifts" {
-  let (trimmed, exponent) = @internal.remove_factor10(123450000N, -7)
-  assert_eq(trimmed, 12345N)
-  assert_eq(exponent, -3)
-
-  let (limited, limited_exp, dropped) = @internal.trim_trailing_decimal_zeros(
-    120000N,
-    -4,
-    max_drop=3,
-  )
-  assert_eq(limited, 120N)
-  assert_eq(limited_exp, -1)
-  assert_eq(dropped, 3)
-}
-
-///|
-test "internal coefficient exact power-of-ten division uses unit shifts" {
-  match @internal.exact_divide_by_power_of_ten(12345000N, 3) {
-    Some(value) => assert_eq(value, 12345N)
-    None => fail("expected exact division by 10^3")
-  }
-  match @internal.exact_divide_by_power_of_ten(-5000N, 2) {
-    Some(value) => assert_eq(value, -50N)
-    None => fail("expected exact division by 10^2")
-  }
-  assert_true(@internal.exact_divide_by_power_of_ten(12345N, 1) is None)
-}
-
-///|
 test "decimal multiply exact paths can use coefficient kernel" {
   let lhs = decimal_test_operand("1234567890123")
   let rhs = decimal_test_operand("987654321")

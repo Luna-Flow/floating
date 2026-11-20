@@ -10,7 +10,6 @@ import {
   "Luna-Flow/floating/ball_float",
   "Luna-Flow/floating/ball_float_checked",
   "Luna-Flow/floating/def",
-  "Luna-Flow/floating/internal",
   "Luna-Flow/floating/semantic",
   "moonbitlang/core/string",
 } for "wbtest"
