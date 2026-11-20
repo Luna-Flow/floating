@@ -1093,7 +1093,7 @@ msgstr ""
 #: manual/api/cli/itl_expr_cli.md:71
 #: manual/api/cli/mpfr_expr_cli.md:73
 #: manual/api/cli/testfloat_expr_cli.md:76
-#: manual/api/consistency.md:49
+#: manual/api/consistency.md:50
 #: manual/api/decimal.md:2310
 #: manual/api/decimal_checked.md:410
 #: manual/api/decimal_gda.md:2023
@@ -1534,7 +1534,7 @@ msgstr ""
 #: manual/api/bench/decimal_gda.md:44
 #: manual/api/bench/external.md:70
 #: manual/api/cli.md:82
-#: manual/api/consistency.md:51
+#: manual/api/consistency.md:52
 #: manual/api/differential.md:99
 #: manual/api/doc_examples.md:48
 msgid "The package exports no MoonBit items."
@@ -3778,37 +3778,37 @@ msgid "`consistency` is a white-box test package. It exports no MoonBit items; i
 msgstr ""
 
 #: manual/api/consistency.md:17
-msgid "Nothing can be imported from `consistency`. Its `moon.pkg` imports the cores for white-box tests only:"
+msgid "Nothing can be imported from `consistency`. It is a package of the tools module `Luna-Flow/floating-tools`; its `moon.pkg` imports the cores of the library for white-box tests only:"
 msgstr ""
 
-#: manual/api/consistency.md:38
+#: manual/api/consistency.md:39
 msgid "Test files"
 msgstr ""
 
-#: manual/api/consistency.md:40
+#: manual/api/consistency.md:41
 #: manual/tutorial/bench/external.md:39
 msgid "File"
 msgstr ""
 
-#: manual/api/consistency.md:40
+#: manual/api/consistency.md:41
 #: manual/api/differential.md:66
 #: manual/tutorial/bench/external.md:39
 msgid "Content"
 msgstr ""
 
-#: manual/api/consistency.md:42
+#: manual/api/consistency.md:43
 msgid "audits of public behaviour that spans packages: `def` predicates, `internal` rounding and parsing helpers, error and context types, the decimal interchange facade (bit-exact encodings, canonical predicates, sign operations), checked compare of `bin_float`, generic checked traits through `Luna-Flow/arithmetic`, and the `semantic` interpretation of binary, decimal and interval values"
 msgstr ""
 
-#: manual/api/consistency.md:43
+#: manual/api/consistency.md:44
 msgid "cross-package arithmetic laws: `internal` digit and trimming helpers against `BigInt`, `bin_float` exactness on dyadics and generic trait use, `decimal` and `decimal_gda` cohort, signed-zero and NaN-payload rules (many rows taken from the official decTest suite), `ball_float` enclosure properties, checked-pipeline closure, and total constructors"
 msgstr ""
 
-#: manual/api/consistency.md:44
+#: manual/api/consistency.md:45
 msgid "helpers that build `BinFloat` values from `BigInt` for the tests above"
 msgstr ""
 
-#: manual/api/consistency.md:46
+#: manual/api/consistency.md:47
 msgid "All tests are white-box (`*_wbtest.mbt`) and import every core package for `wbtest` only, so the package adds nothing to any build of the library."
 msgstr ""
 
@@ -8320,7 +8320,7 @@ msgid "Two modules"
 msgstr ""
 
 #: manual/architecture.md:33
-msgid "The repository is a `moon.work` workspace of two modules. The published library `Luna-Flow/floating` holds the shared vocabulary, the scalar and interval domains, the checked tiers, `semantic` and `consistency`; it depends on `Luna-Flow/arithmetic` and `Luna-Flow/luna-generic` only. The tools module `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds `numeric_expr`, the format frontends, the runtime adapters `internal/conformance` and `internal/runner_cli`, `cli`, `differential`, `bench` and `doc_examples`: everything that needs `mare_mark`, `async`, `x` or `type_theory`. The tools module imports the library from the same working tree, so a change to a numeric package is tested by the tools in the same commit."
+msgid "The repository is a `moon.work` workspace of two modules. The published library `Luna-Flow/floating` holds the shared vocabulary, the scalar and interval domains, the checked tiers and `semantic`; it depends on `Luna-Flow/arithmetic` and `Luna-Flow/luna-generic` only. The tools module `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds `numeric_expr`, the format frontends, the runtime adapters `internal/conformance` and `internal/runner_cli`, `cli`, `differential`, `bench`, `consistency` and `doc_examples`: everything that needs `mare_mark`, `async`, `x` or `type_theory`. The tools module imports the library from the same working tree, so a change to a numeric package is tested by the tools in the same commit."
 msgstr ""
 
 #: manual/architecture.md:45
@@ -8662,7 +8662,7 @@ msgstr ""
 #: manual/index.md:89
 #: manual/index.md:99
 #: manual/index.md:112
-#: manual/index.md:121
+#: manual/index.md:120
 #: manual/numeric_semantics.md:582
 msgid "API"
 msgstr ""
@@ -9768,11 +9768,11 @@ msgid "§5.7 class, isCanonical, radix"
 msgstr ""
 
 #: manual/conformance/decimal.md:60
-msgid "`library/src/decimal/class_of_wbtest.mbt` (all ten classes in decimal32, 64 and 128); `library/src/decimal/contextual_traits_wbtest.mbt`; `library/src/consistency/core_wbtest.mbt`"
+msgid "`library/src/decimal/class_of_wbtest.mbt` (all ten classes in decimal32, 64 and 128); `library/src/decimal/contextual_traits_wbtest.mbt`; `tooling/src/consistency/core_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/decimal.md:61
-msgid "`testdata/decimal/ieee/total_order.json`: every ordered pair of cohorts, signed zeros, subnormals, infinities and quiet and signaling NaNs with payloads in decimal32/64/128 (18,816 pairs), expected values from a transcription of §5.10 cross-checked with libmpdec, run on four targets in the `DECIMAL: IEEE 754` gate; NaN payloads order by value, reversed for a negative sign (implementation-defined by §5.10 d) 5) iii)); `library/src/consistency/core_wbtest.mbt`"
+msgid "`testdata/decimal/ieee/total_order.json`: every ordered pair of cohorts, signed zeros, subnormals, infinities and quiet and signaling NaNs with payloads in decimal32/64/128 (18,816 pairs), expected values from a transcription of §5.10 cross-checked with libmpdec, run on four targets in the `DECIMAL: IEEE 754` gate; NaN payloads order by value, reversed for a negative sign (implementation-defined by §5.10 d) 5) iii)); `tooling/src/consistency/core_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/decimal.md:62
@@ -10011,7 +10011,7 @@ msgid "canonical"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:33
-msgid "no decTest file; `library/src/consistency/api_audit_wbtest.mbt`"
+msgid "no decTest file; `tooling/src/consistency/api_audit_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:34
@@ -18167,7 +18167,7 @@ msgid "Modules"
 msgstr ""
 
 #: manual/index.md:49
-msgid "The repository is a workspace of two modules. `Luna-Flow/floating` (directory `library/`) is the library: the numerical cores, the checked wrappers, `def`, `semantic`, `consistency` and the `internal` helpers. `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds the developer tools: expressions and corpus frontends, the conformance command line, the differential harness, the benchmarks and the documentation examples. The sections below say which module a package belongs to; their package names are import paths below the module name, so `bin_float` is `Luna-Flow/floating/bin_float` and `frontend/gda_expr` is `Luna-Flow/floating-tools/frontend/gda_expr`."
+msgid "The repository is a workspace of two modules. `Luna-Flow/floating` (directory `library/`) is the library: the numerical cores, the checked wrappers, `def`, `semantic` and the `internal` helpers. `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds the developer tools: expressions and corpus frontends, the conformance command line, the differential harness, the benchmarks and the documentation examples. The sections below say which module a package belongs to; their package names are import paths below the module name, so `bin_float` is `Luna-Flow/floating/bin_float` and `frontend/gda_expr` is `Luna-Flow/floating-tools/frontend/gda_expr`."
 msgstr ""
 
 #: manual/index.md:60
@@ -18187,7 +18187,7 @@ msgstr ""
 #: manual/index.md:89
 #: manual/index.md:99
 #: manual/index.md:112
-#: manual/index.md:121
+#: manual/index.md:120
 msgid "Part"
 msgstr ""
 
@@ -18196,7 +18196,7 @@ msgstr ""
 #: manual/index.md:89
 #: manual/index.md:99
 #: manual/index.md:112
-#: manual/index.md:121
+#: manual/index.md:120
 msgid "Tutorial"
 msgstr ""
 
@@ -18205,7 +18205,7 @@ msgstr ""
 #: manual/index.md:89
 #: manual/index.md:99
 #: manual/index.md:112
-#: manual/index.md:121
+#: manual/index.md:120
 msgid "Design"
 msgstr ""
 
@@ -18657,56 +18657,56 @@ msgstr ""
 msgid "[design](design/internal/bin_kernel.md)"
 msgstr ""
 
-#: manual/index.md:117
-msgid "`consistency`: white-box cross-package laws and API audits"
-msgstr ""
-
-#: manual/index.md:117
-msgid "[tutorial](tutorial/consistency.md)"
-msgstr ""
-
-#: manual/index.md:117
-msgid "[API](api/consistency.md)"
-msgstr ""
-
-#: manual/index.md:117
-msgid "[design](design/consistency.md)"
-msgstr ""
-
-#: manual/index.md:119
+#: manual/index.md:118
 msgid "Tools module: infrastructure and evidence"
 msgstr ""
 
-#: manual/index.md:123
+#: manual/index.md:122
 msgid "`internal/conformance`: source locations, deterministic shards, case dispositions and summaries"
 msgstr ""
 
-#: manual/index.md:123
+#: manual/index.md:122
 msgid "[tutorial](tutorial/internal/conformance.md)"
 msgstr ""
 
-#: manual/index.md:123
+#: manual/index.md:122
 msgid "[API](api/internal/conformance.md)"
 msgstr ""
 
-#: manual/index.md:123
+#: manual/index.md:122
 msgid "[design](design/internal/conformance.md)"
 msgstr ""
 
-#: manual/index.md:124
+#: manual/index.md:123
 msgid "`internal/runner_cli`: shared command-line options, files, diagnostics and JSON"
 msgstr ""
 
-#: manual/index.md:124
+#: manual/index.md:123
 msgid "[tutorial](tutorial/internal/runner_cli.md)"
 msgstr ""
 
-#: manual/index.md:124
+#: manual/index.md:123
 msgid "[API](api/internal/runner_cli.md)"
 msgstr ""
 
-#: manual/index.md:124
+#: manual/index.md:123
 msgid "[design](design/internal/runner_cli.md)"
+msgstr ""
+
+#: manual/index.md:124
+msgid "`consistency`: white-box cross-package laws and API audits"
+msgstr ""
+
+#: manual/index.md:124
+msgid "[tutorial](tutorial/consistency.md)"
+msgstr ""
+
+#: manual/index.md:124
+msgid "[API](api/consistency.md)"
+msgstr ""
+
+#: manual/index.md:124
+msgid "[design](design/consistency.md)"
 msgstr ""
 
 #: manual/index.md:125

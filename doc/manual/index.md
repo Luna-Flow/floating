@@ -48,7 +48,7 @@ contextual traits) and `Luna-Flow/luna-generic` (algebraic traits); add
 
 The repository is a workspace of two modules. `Luna-Flow/floating` (directory
 `library/`) is the library: the numerical cores, the checked wrappers, `def`,
-`semantic`, `consistency` and the `internal` helpers. `Luna-Flow/floating-tools`
+`semantic` and the `internal` helpers. `Luna-Flow/floating-tools`
 (directory `tooling/`, versioned with the library) holds the developer tools:
 expressions and corpus frontends, the conformance command line, the
 differential harness, the benchmarks and the documentation examples. The
@@ -114,7 +114,6 @@ verified, and how) and a performance page (measurements and their method).
 | `internal`: exact rationals, big-integer, parsing, normalization and rounding helpers | [tutorial](tutorial/internal.md) | [API](api/internal.md) | [design](design/internal.md) |
 | `internal/decimal_kernel`: exact integer arithmetic on decimal coefficients, shared by `decimal` and `decimal_gda` | [tutorial](tutorial/internal/decimal_kernel.md) | [API](api/internal/decimal_kernel.md) | [design](design/internal/decimal_kernel.md) |
 | `internal/bin_kernel`: exact integer arithmetic on the coefficients of `bin_float` | [tutorial](tutorial/internal/bin_kernel.md) | [API](api/internal/bin_kernel.md) | [design](design/internal/bin_kernel.md) |
-| `consistency`: white-box cross-package laws and API audits | [tutorial](tutorial/consistency.md) | [API](api/consistency.md) | [design](design/consistency.md) |
 
 ### Tools module: infrastructure and evidence
 
@@ -122,6 +121,7 @@ verified, and how) and a performance page (measurements and their method).
 | --- | --- | --- | --- |
 | `internal/conformance`: source locations, deterministic shards, case dispositions and summaries | [tutorial](tutorial/internal/conformance.md) | [API](api/internal/conformance.md) | [design](design/internal/conformance.md) |
 | `internal/runner_cli`: shared command-line options, files, diagnostics and JSON | [tutorial](tutorial/internal/runner_cli.md) | [API](api/internal/runner_cli.md) | [design](design/internal/runner_cli.md) |
+| `consistency`: white-box cross-package laws and API audits | [tutorial](tutorial/consistency.md) | [API](api/consistency.md) | [design](design/consistency.md) |
 | `doc_examples`: executable documentation examples run by `just docs` | [tutorial](tutorial/doc_examples.md) | [API](api/doc_examples.md) | [design](design/doc_examples.md) |
 | `bench`: shared Maremark benchmark infrastructure | [tutorial](tutorial/bench.md) | [API](api/bench.md) | [design](design/bench.md) |
 | `bench/bin_float`: binary arithmetic and elementary-function benchmarks | [tutorial](tutorial/bench/bin_float.md) | [API](api/bench/bin_float.md) | [design](design/bench/bin_float.md) |

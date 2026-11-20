@@ -1099,7 +1099,7 @@ msgstr "只使用 `ctx.precision`：操作数先用 `with_precision` 重新舍�
 #: manual/api/cli/itl_expr_cli.md:71
 #: manual/api/cli/mpfr_expr_cli.md:73
 #: manual/api/cli/testfloat_expr_cli.md:76
-#: manual/api/consistency.md:49
+#: manual/api/consistency.md:50
 #: manual/api/decimal.md:2310
 #: manual/api/decimal_checked.md:410
 #: manual/api/decimal_gda.md:2023
@@ -1540,7 +1540,7 @@ msgstr "每个规格都有一个计划测试，它在常规测试运行中执行
 #: manual/api/bench/decimal_gda.md:44
 #: manual/api/bench/external.md:70
 #: manual/api/cli.md:82
-#: manual/api/consistency.md:51
+#: manual/api/consistency.md:52
 #: manual/api/differential.md:99
 #: manual/api/doc_examples.md:48
 msgid "The package exports no MoonBit items."
@@ -3790,37 +3790,37 @@ msgid "`consistency` is a white-box test package. It exports no MoonBit items; i
 msgstr "`consistency` 是一个白盒测试包。它不导出任何 MoonBit 项；其内容是一套约 250 个确定性测试（在当前分支上，`api_audit_wbtest.mbt` 中有 28 个，`core_wbtest.mbt` 中有 228 个），用于检查*跨越* `floating` 各包的规律：二进制、十进制、GDA 和区间核心，它们的 checked 包装，`semantic`，以及共享的 `internal` 辅助函数，彼此之间以及与精确的 `BigInt` 和有理数预言机之间是否一致。本页记录该包的作用及其（空的）接口；[教程](../tutorial/consistency.md)介绍如何运行和扩展它，[设计页面](../design/consistency.md)解释检查了哪些内容。"
 
 #: manual/api/consistency.md:17
-msgid "Nothing can be imported from `consistency`. Its `moon.pkg` imports the cores for white-box tests only:"
-msgstr "无法从 `consistency` 导入任何内容。它的 `moon.pkg` 仅为白盒测试导入各核心："
+msgid "Nothing can be imported from `consistency`. It is a package of the tools module `Luna-Flow/floating-tools`; its `moon.pkg` imports the cores of the library for white-box tests only:"
+msgstr "无法从 `consistency` 导入任何内容。它是工具模块 `Luna-Flow/floating-tools` 的一个包；其 `moon.pkg` 仅为白盒测试导入库的各核心："
 
-#: manual/api/consistency.md:38
+#: manual/api/consistency.md:39
 msgid "Test files"
 msgstr "测试文件"
 
-#: manual/api/consistency.md:40
+#: manual/api/consistency.md:41
 #: manual/tutorial/bench/external.md:39
 msgid "File"
 msgstr "文件"
 
-#: manual/api/consistency.md:40
+#: manual/api/consistency.md:41
 #: manual/api/differential.md:66
 #: manual/tutorial/bench/external.md:39
 msgid "Content"
 msgstr "内容"
 
-#: manual/api/consistency.md:42
+#: manual/api/consistency.md:43
 msgid "audits of public behaviour that spans packages: `def` predicates, `internal` rounding and parsing helpers, error and context types, the decimal interchange facade (bit-exact encodings, canonical predicates, sign operations), checked compare of `bin_float`, generic checked traits through `Luna-Flow/arithmetic`, and the `semantic` interpretation of binary, decimal and interval values"
 msgstr "对跨包公开行为的审计：`def` 谓词、`internal` 的舍入与解析辅助函数、错误与上下文类型、十进制交换格式门面（逐位精确的编码、规范性谓词、符号操作）、`bin_float` 的 checked 比较、通过 `Luna-Flow/arithmetic` 使用的泛型 checked trait，以及二进制、十进制和区间值的 `semantic` 解释"
 
-#: manual/api/consistency.md:43
+#: manual/api/consistency.md:44
 msgid "cross-package arithmetic laws: `internal` digit and trimming helpers against `BigInt`, `bin_float` exactness on dyadics and generic trait use, `decimal` and `decimal_gda` cohort, signed-zero and NaN-payload rules (many rows taken from the official decTest suite), `ball_float` enclosure properties, checked-pipeline closure, and total constructors"
 msgstr "跨包的算术规律：`internal` 的数字与截尾辅助函数对照 `BigInt` 的检验、`bin_float` 在二进有理数上的精确性及泛型 trait 用法、`decimal` 与 `decimal_gda` 的同值类（cohort）、有符号零及 NaN 载荷规则（许多行取自官方 decTest 套件）、`ball_float` 的包络性质、checked 流水线的封闭性，以及全域构造函数"
 
-#: manual/api/consistency.md:44
+#: manual/api/consistency.md:45
 msgid "helpers that build `BinFloat` values from `BigInt` for the tests above"
 msgstr "为上述测试从 `BigInt` 构建 `BinFloat` 值的辅助函数"
 
-#: manual/api/consistency.md:46
+#: manual/api/consistency.md:47
 msgid "All tests are white-box (`*_wbtest.mbt`) and import every core package for `wbtest` only, so the package adds nothing to any build of the library."
 msgstr "所有测试都是白盒测试（`*_wbtest.mbt`），且只在 `wbtest` 中导入各核心包，因此该包不会给库的任何构建增加内容。"
 
@@ -8340,8 +8340,8 @@ msgid "Two modules"
 msgstr "两个模块"
 
 #: manual/architecture.md:33
-msgid "The repository is a `moon.work` workspace of two modules. The published library `Luna-Flow/floating` holds the shared vocabulary, the scalar and interval domains, the checked tiers, `semantic` and `consistency`; it depends on `Luna-Flow/arithmetic` and `Luna-Flow/luna-generic` only. The tools module `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds `numeric_expr`, the format frontends, the runtime adapters `internal/conformance` and `internal/runner_cli`, `cli`, `differential`, `bench` and `doc_examples`: everything that needs `mare_mark`, `async`, `x` or `type_theory`. The tools module imports the library from the same working tree, so a change to a numeric package is tested by the tools in the same commit."
-msgstr "本仓库是由两个模块组成的 `moon.work` 工作区。已发布的库 `Luna-Flow/floating` 包含共享词汇、标量域与区间域、checked 层、`semantic` 和 `consistency`，只依赖 `Luna-Flow/arithmetic` 和 `Luna-Flow/luna-generic`。工具模块 `Luna-Flow/floating-tools`（目录 `tooling/`，与库同版本）包含 `numeric_expr`、各格式前端、运行时适配器 `internal/conformance` 和 `internal/runner_cli`、`cli`、`differential`、`bench` 以及 `doc_examples`：凡是需要 `mare_mark`、`async`、`x` 或 `type_theory` 的内容都放在这里。工具模块从同一个工作树导入库，因此对数值包的改动会在同一次提交中被工具测试。"
+msgid "The repository is a `moon.work` workspace of two modules. The published library `Luna-Flow/floating` holds the shared vocabulary, the scalar and interval domains, the checked tiers and `semantic`; it depends on `Luna-Flow/arithmetic` and `Luna-Flow/luna-generic` only. The tools module `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds `numeric_expr`, the format frontends, the runtime adapters `internal/conformance` and `internal/runner_cli`, `cli`, `differential`, `bench`, `consistency` and `doc_examples`: everything that needs `mare_mark`, `async`, `x` or `type_theory`. The tools module imports the library from the same working tree, so a change to a numeric package is tested by the tools in the same commit."
+msgstr "本仓库是由两个模块组成的 `moon.work` 工作区。已发布的库 `Luna-Flow/floating` 包含共享词汇、标量域与区间域、checked 层和 `semantic`，只依赖 `Luna-Flow/arithmetic` 和 `Luna-Flow/luna-generic`。工具模块 `Luna-Flow/floating-tools`（目录 `tooling/`，与库同版本）包含 `numeric_expr`、各格式前端、运行时适配器 `internal/conformance` 和 `internal/runner_cli`、`cli`、`differential`、`bench`、`consistency` 以及 `doc_examples`：凡是需要 `mare_mark`、`async`、`x` 或 `type_theory` 的内容都放在这里。工具模块从同一个工作树导入库，因此对数值包的改动会在同一次提交中被工具测试。"
 
 #: manual/architecture.md:45
 msgid "Standard boundaries"
@@ -8682,7 +8682,7 @@ msgstr "级别"
 #: manual/index.md:89
 #: manual/index.md:99
 #: manual/index.md:112
-#: manual/index.md:121
+#: manual/index.md:120
 #: manual/numeric_semantics.md:582
 msgid "API"
 msgstr "API"
@@ -9788,12 +9788,12 @@ msgid "§5.7 class, isCanonical, radix"
 msgstr "§5.7 class, isCanonical, radix"
 
 #: manual/conformance/decimal.md:60
-msgid "`library/src/decimal/class_of_wbtest.mbt` (all ten classes in decimal32, 64 and 128); `library/src/decimal/contextual_traits_wbtest.mbt`; `library/src/consistency/core_wbtest.mbt`"
-msgstr "`library/src/decimal/class_of_wbtest.mbt`（decimal32、64、128 中的全部十个类别）；`library/src/decimal/contextual_traits_wbtest.mbt`；`library/src/consistency/core_wbtest.mbt`"
+msgid "`library/src/decimal/class_of_wbtest.mbt` (all ten classes in decimal32, 64 and 128); `library/src/decimal/contextual_traits_wbtest.mbt`; `tooling/src/consistency/core_wbtest.mbt`"
+msgstr "`library/src/decimal/class_of_wbtest.mbt`（decimal32、64、128 中的全部十个类别）；`library/src/decimal/contextual_traits_wbtest.mbt`；`tooling/src/consistency/core_wbtest.mbt`"
 
 #: manual/conformance/decimal.md:61
-msgid "`testdata/decimal/ieee/total_order.json`: every ordered pair of cohorts, signed zeros, subnormals, infinities and quiet and signaling NaNs with payloads in decimal32/64/128 (18,816 pairs), expected values from a transcription of §5.10 cross-checked with libmpdec, run on four targets in the `DECIMAL: IEEE 754` gate; NaN payloads order by value, reversed for a negative sign (implementation-defined by §5.10 d) 5) iii)); `library/src/consistency/core_wbtest.mbt`"
-msgstr "`testdata/decimal/ieee/total_order.json`：decimal32/64/128 中 cohort、带符号零、次正规数、无穷以及带 payload 的 quiet 与 signaling NaN 的全部有序对（18,816 对），期望值来自对 §5.10 的逐条转写并与 libmpdec 交叉核对，在 `DECIMAL: IEEE 754` 门禁中于四个目标上运行；NaN 按 payload 数值排序，负号时反向（§5.10 d) 5) iii) 规定由实现定义）；`library/src/consistency/core_wbtest.mbt`"
+msgid "`testdata/decimal/ieee/total_order.json`: every ordered pair of cohorts, signed zeros, subnormals, infinities and quiet and signaling NaNs with payloads in decimal32/64/128 (18,816 pairs), expected values from a transcription of §5.10 cross-checked with libmpdec, run on four targets in the `DECIMAL: IEEE 754` gate; NaN payloads order by value, reversed for a negative sign (implementation-defined by §5.10 d) 5) iii)); `tooling/src/consistency/core_wbtest.mbt`"
+msgstr "`testdata/decimal/ieee/total_order.json`：decimal32/64/128 中 cohort、带符号零、次正规数、无穷以及带 payload 的 quiet 与 signaling NaN 的全部有序对（18,816 对），期望值来自对 §5.10 的逐条转写并与 libmpdec 交叉核对，在 `DECIMAL: IEEE 754` 门禁中于四个目标上运行；NaN 按 payload 数值排序，负号时反向（§5.10 d) 5) iii) 规定由实现定义）；`tooling/src/consistency/core_wbtest.mbt`"
 
 #: manual/conformance/decimal.md:62
 msgid "§5.12 decimal character conversion (decimal to decimal)"
@@ -10031,8 +10031,8 @@ msgid "canonical"
 msgstr "canonical"
 
 #: manual/conformance/decimal_gda.md:33
-msgid "no decTest file; `library/src/consistency/api_audit_wbtest.mbt`"
-msgstr "无 decTest 文件; `library/src/consistency/api_audit_wbtest.mbt`"
+msgid "no decTest file; `tooling/src/consistency/api_audit_wbtest.mbt`"
+msgstr "无 decTest 文件; `tooling/src/consistency/api_audit_wbtest.mbt`"
 
 #: manual/conformance/decimal_gda.md:34
 msgid "context: precision, rounding, clamp, exponent limits"
@@ -18286,8 +18286,8 @@ msgid "Modules"
 msgstr "模块"
 
 #: manual/index.md:49
-msgid "The repository is a workspace of two modules. `Luna-Flow/floating` (directory `library/`) is the library: the numerical cores, the checked wrappers, `def`, `semantic`, `consistency` and the `internal` helpers. `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds the developer tools: expressions and corpus frontends, the conformance command line, the differential harness, the benchmarks and the documentation examples. The sections below say which module a package belongs to; their package names are import paths below the module name, so `bin_float` is `Luna-Flow/floating/bin_float` and `frontend/gda_expr` is `Luna-Flow/floating-tools/frontend/gda_expr`."
-msgstr "本仓库是由两个模块组成的工作区。`Luna-Flow/floating`（目录 `library/`）是库：数值核心、checked 封装、`def`、`semantic`、`consistency` 以及 `internal` 辅助包。`Luna-Flow/floating-tools`（目录 `tooling/`，与库同版本）包含开发者工具：表达式与语料前端、一致性命令行、差分测试工具、基准测试和文档示例。下文各节说明每个包属于哪个模块；包名是模块名之下的导入路径，因此 `bin_float` 是 `Luna-Flow/floating/bin_float`，`frontend/gda_expr` 是 `Luna-Flow/floating-tools/frontend/gda_expr`。"
+msgid "The repository is a workspace of two modules. `Luna-Flow/floating` (directory `library/`) is the library: the numerical cores, the checked wrappers, `def`, `semantic` and the `internal` helpers. `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds the developer tools: expressions and corpus frontends, the conformance command line, the differential harness, the benchmarks and the documentation examples. The sections below say which module a package belongs to; their package names are import paths below the module name, so `bin_float` is `Luna-Flow/floating/bin_float` and `frontend/gda_expr` is `Luna-Flow/floating-tools/frontend/gda_expr`."
+msgstr "本仓库是由两个模块组成的工作区。`Luna-Flow/floating`（目录 `library/`）是库：数值核心、checked 封装、`def`、`semantic` 以及 `internal` 辅助包。`Luna-Flow/floating-tools`（目录 `tooling/`，与库同版本）包含开发者工具：表达式与语料前端、一致性命令行、差分测试工具、基准测试、跨包一致性测试和文档示例。下文各节说明每个包属于哪个模块；包名是模块名之下的导入路径，因此 `bin_float` 是 `Luna-Flow/floating/bin_float`，`frontend/gda_expr` 是 `Luna-Flow/floating-tools/frontend/gda_expr`。"
 
 #: manual/index.md:60
 msgid "Pages"
@@ -18306,7 +18306,7 @@ msgstr "数值核心"
 #: manual/index.md:89
 #: manual/index.md:99
 #: manual/index.md:112
-#: manual/index.md:121
+#: manual/index.md:120
 msgid "Part"
 msgstr "组成部分"
 
@@ -18315,7 +18315,7 @@ msgstr "组成部分"
 #: manual/index.md:89
 #: manual/index.md:99
 #: manual/index.md:112
-#: manual/index.md:121
+#: manual/index.md:120
 msgid "Tutorial"
 msgstr "教程"
 
@@ -18324,7 +18324,7 @@ msgstr "教程"
 #: manual/index.md:89
 #: manual/index.md:99
 #: manual/index.md:112
-#: manual/index.md:121
+#: manual/index.md:120
 msgid "Design"
 msgstr "设计"
 
@@ -18776,57 +18776,57 @@ msgstr "[API](api/internal/bin_kernel.md)"
 msgid "[design](design/internal/bin_kernel.md)"
 msgstr "[设计](design/internal/bin_kernel.md)"
 
-#: manual/index.md:117
-msgid "`consistency`: white-box cross-package laws and API audits"
-msgstr "`consistency`：白盒的跨包定律与 API 审计"
-
-#: manual/index.md:117
-msgid "[tutorial](tutorial/consistency.md)"
-msgstr "[教程](tutorial/consistency.md)"
-
-#: manual/index.md:117
-msgid "[API](api/consistency.md)"
-msgstr "[API](api/consistency.md)"
-
-#: manual/index.md:117
-msgid "[design](design/consistency.md)"
-msgstr "[设计](design/consistency.md)"
-
-#: manual/index.md:119
+#: manual/index.md:118
 msgid "Tools module: infrastructure and evidence"
 msgstr "工具模块：基础设施与证据"
 
-#: manual/index.md:123
+#: manual/index.md:122
 msgid "`internal/conformance`: source locations, deterministic shards, case dispositions and summaries"
 msgstr "`internal/conformance`：源位置、确定性分片、用例处置与汇总"
 
-#: manual/index.md:123
+#: manual/index.md:122
 msgid "[tutorial](tutorial/internal/conformance.md)"
 msgstr "[教程](tutorial/internal/conformance.md)"
 
-#: manual/index.md:123
+#: manual/index.md:122
 msgid "[API](api/internal/conformance.md)"
 msgstr "[API](api/internal/conformance.md)"
 
-#: manual/index.md:123
+#: manual/index.md:122
 msgid "[design](design/internal/conformance.md)"
 msgstr "[设计](design/internal/conformance.md)"
 
-#: manual/index.md:124
+#: manual/index.md:123
 msgid "`internal/runner_cli`: shared command-line options, files, diagnostics and JSON"
 msgstr "`internal/runner_cli`：共享的命令行选项、文件、诊断信息与 JSON"
 
-#: manual/index.md:124
+#: manual/index.md:123
 msgid "[tutorial](tutorial/internal/runner_cli.md)"
 msgstr "[教程](tutorial/internal/runner_cli.md)"
 
-#: manual/index.md:124
+#: manual/index.md:123
 msgid "[API](api/internal/runner_cli.md)"
 msgstr "[API](api/internal/runner_cli.md)"
 
-#: manual/index.md:124
+#: manual/index.md:123
 msgid "[design](design/internal/runner_cli.md)"
 msgstr "[设计](design/internal/runner_cli.md)"
+
+#: manual/index.md:124
+msgid "`consistency`: white-box cross-package laws and API audits"
+msgstr "`consistency`：白盒的跨包定律与 API 审计"
+
+#: manual/index.md:124
+msgid "[tutorial](tutorial/consistency.md)"
+msgstr "[教程](tutorial/consistency.md)"
+
+#: manual/index.md:124
+msgid "[API](api/consistency.md)"
+msgstr "[API](api/consistency.md)"
+
+#: manual/index.md:124
+msgid "[design](design/consistency.md)"
+msgstr "[设计](design/consistency.md)"
 
 #: manual/index.md:125
 msgid "`doc_examples`: executable documentation examples run by `just docs`"
