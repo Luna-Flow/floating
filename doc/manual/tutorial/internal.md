@@ -187,7 +187,7 @@ test "certified floor of 1/3" {
   shifts left. With a negative magnitude it floors instead of rounding the
   magnitude, so pass $|m|$ and the sign separately, as for
   `round_positive_div`.
-- **Zero loses its exponent.** `remove_factor2`, `remove_factor10` and
+- **Zero loses its exponent.** `remove_factor10` and
   `trim_trailing_decimal_zeros` return exponent 0 for a zero coefficient.
   Keep the original exponent yourself if the cohort of zero matters.
 - **Unnormalized dyadics.** `CertifiedDyadic` values with different scales may

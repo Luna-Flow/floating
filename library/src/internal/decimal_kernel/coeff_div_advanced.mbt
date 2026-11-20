@@ -1,8 +1,8 @@
 ///|
-pub let dec_coeff_bz_recursive_threshold = 16
+let dec_coeff_bz_recursive_threshold = 16
 
 ///|
-pub fn dec_coeff_owned(value : DecCoeff) -> DecCoeff {
+fn dec_coeff_owned(value : DecCoeff) -> DecCoeff {
   dec_coeff_from_unit_accumulator(
     dec_coeff_copy_limbs(value),
     dec_coeff_unit_len(value),
@@ -10,7 +10,7 @@ pub fn dec_coeff_owned(value : DecCoeff) -> DecCoeff {
 }
 
 ///|
-pub fn dec_coeff_div_rem_power_limbs(
+fn dec_coeff_div_rem_power_limbs(
   value : DecCoeff,
   shift : Int32,
 ) -> (DecCoeff, DecCoeff) {
@@ -31,7 +31,7 @@ pub fn dec_coeff_div_rem_power_limbs(
 }
 
 ///|
-pub fn dec_coeff_bz_max_quotient(block_len : Int32) -> DecCoeff {
+fn dec_coeff_bz_max_quotient(block_len : Int32) -> DecCoeff {
   guard block_len > 0 else {
     abort("Burnikel-Ziegler quotient block length must be positive")
   }
@@ -42,7 +42,7 @@ pub fn dec_coeff_bz_max_quotient(block_len : Int32) -> DecCoeff {
 }
 
 ///|
-pub fn dec_coeff_div_3n_2n_bz(
+fn dec_coeff_div_3n_2n_bz(
   numerator : DecCoeff,
   denominator : DecCoeff,
   half_len : Int32,
@@ -115,7 +115,7 @@ pub fn dec_coeff_div_3n_2n_bz(
 }
 
 ///|
-pub fn dec_coeff_div_2n_1n_bz(
+fn dec_coeff_div_2n_1n_bz(
   numerator : DecCoeff,
   denominator : DecCoeff,
   block_len : Int32,
@@ -161,7 +161,7 @@ pub fn dec_coeff_div_2n_1n_bz(
 }
 
 ///|
-pub fn dec_coeff_div_rem_bz_repr(
+fn dec_coeff_div_rem_bz_repr(
   numerator : DecCoeff,
   denominator : DecCoeff,
 ) -> (DecCoeff, DecCoeff) {
@@ -331,7 +331,7 @@ pub fn dec_coeff_div_rem_burnikel_ziegler(
 }
 
 ///|
-pub fn dec_coeff_div_rem_newton(
+fn dec_coeff_div_rem_newton(
   numerator : DecCoeff,
   denominator : DecCoeff,
 ) -> (DecCoeff, DecCoeff) {
@@ -344,7 +344,7 @@ pub fn dec_coeff_div_rem_newton(
 ///|
 #derive(Eq)
 #warnings("-unused_value")
-pub(all) enum DecCoeffDivAlgorithm {
+priv enum DecCoeffDivAlgorithm {
   Word
   Knuth
   BurnikelZiegler
@@ -352,7 +352,7 @@ pub(all) enum DecCoeffDivAlgorithm {
 }
 
 ///|
-pub fn dec_coeff_division_algorithm(
+fn dec_coeff_division_algorithm(
   numerator : DecCoeff,
   denominator : DecCoeff,
 ) -> DecCoeffDivAlgorithm {
@@ -371,7 +371,7 @@ pub fn dec_coeff_division_algorithm(
 }
 
 ///|
-pub fn dec_coeff_bz_profitable(denominator : DecCoeff) -> Bool {
+fn dec_coeff_bz_profitable(denominator : DecCoeff) -> Bool {
   let length = dec_coeff_unit_len(denominator)
   let mut block_length = 1
   while block_length < length {

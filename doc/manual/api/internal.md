@@ -22,11 +22,10 @@ code uses:
 | `semantic` | `ExactRat` |
 
 The binary and decimal cores round their own coefficients with their own
-kernels. The remaining helpers (`round_shift`, `remove_factor2`,
-`remove_factor10`, `trim_trailing_decimal_zeros`,
-`exact_divide_by_power_of_ten`, `compare_abs`, `sign_of_bigint`, `pow2`, the
-`CertifiedDyadic` family and the `result_lift2` combinators) are exercised by
-the `consistency` and package tests only.
+kernels. The remaining helpers (`round_shift`, `remove_factor10`,
+`trim_trailing_decimal_zeros`, `exact_divide_by_power_of_ten`, `compare_abs`
+and the `CertifiedDyadic` family) are exercised by the `consistency` and
+package tests only.
 
 ## Decimal exponent bounds
 
@@ -80,14 +79,12 @@ pub fn bigint_zero() -> @bigint.BigInt
 pub fn bigint_one() -> @bigint.BigInt
 ```
 
-### `abs_bigint`, `sign_of_bigint`, `compare_abs`
+### `abs_bigint`, `compare_abs`
 
-`abs_bigint(x)` is $|x|$, `sign_of_bigint(x)` is `Negative`, `Zero` or
-`Positive`, and `compare_abs(a, b)` compares $|a|$ with $|b|$.
+`abs_bigint(x)` is $|x|$, and `compare_abs(a, b)` compares $|a|$ with $|b|$.
 
 ```mbti
 pub fn abs_bigint(@bigint.BigInt) -> @bigint.BigInt
-pub fn sign_of_bigint(@bigint.BigInt) -> @def.Sign
 pub fn compare_abs(@bigint.BigInt, @bigint.BigInt) -> Int
 ```
 
@@ -98,24 +95,22 @@ pub fn compare_abs(@bigint.BigInt, @bigint.BigInt) -> Int
 ///|
 test "integer basics" {
   inspect(@internal.abs_bigint(-7N), content="7")
-  inspect(@internal.sign_of_bigint(0N) == @def.Sign::Zero, content="true")
   inspect(@internal.compare_abs(-3N, 2N) > 0, content="true")
 }
 ```
 
 ## Powers
 
-### `pow2`, `pow5`, `pow10`
+### `pow5`, `pow10`
 
-These functions return $2^n$, $5^n$ and $10^n$.
+These functions return $5^n$ and $10^n$.
 
 ```mbti
-pub fn pow2(Int) -> @bigint.BigInt
 pub fn pow5(Int) -> @bigint.BigInt
 pub fn pow10(Int) -> @bigint.BigInt
 ```
 
-They abort when $n < 0$. `pow2` is a shift. `pow5` and `pow10` read a
+They abort when $n < 0$. `pow5` and `pow10` read a
 process-wide cache that starts with $n \le 18$ and is extended on demand up to
 $n = 4096$; larger powers are computed each time without caching.
 
@@ -143,21 +138,6 @@ test "powers and digit counts" {
 ```
 
 ## Trailing factors
-
-### `remove_factor2`
-
-`remove_factor2(sig, exp)` removes all factors 2 from `sig`, adjusting the
-binary exponent.
-
-```mbti
-pub fn remove_factor2(@bigint.BigInt, Int) -> (@bigint.BigInt, Int)
-```
-
-For $\mathit{sig} \ne 0$ it returns $(\mathit{sig}/2^t, \mathit{exp} + t)$ with
-$t$ the number of trailing zero bits of $|\mathit{sig}|$, so
-$\mathit{sig} \cdot 2^{\mathit{exp}}$ is unchanged, the sign is kept and the
-new significand is odd. For $\mathit{sig} = 0$ it returns $(0, 0)$: the
-exponent of a zero is not kept.
 
 ### `remove_factor10`
 
@@ -203,7 +183,6 @@ coefficient a negative `shift` aborts.
 ```moonbit
 ///|
 test "trailing factors" {
-  debug_inspect(@internal.remove_factor2(-12N, 0), content="(-3, 2)")
   debug_inspect(@internal.remove_factor10(-1200N, 3), content="(-12, 5)")
   debug_inspect(
     @internal.trim_trailing_decimal_zeros(1000N, 0, max_drop=2),
@@ -310,31 +289,6 @@ test "split decimal string" {
   debug_inspect(@internal.split_decimal_string("1e"), content="None")
   debug_inspect(@internal.split_decimal_string("1e3000000000"), content="None")
   debug_inspect(@internal.split_decimal_string_wide("1e3000000000"), content="Some((false, \"1\", 3000000000))")
-}
-```
-
-## Result combinators
-
-### `result_lift2`, `result_lift2_checked`
-
-These functions combine two `Result`s, returning the first error.
-
-```mbti
-pub fn[A, B, E, C] result_lift2(Result[A, E], Result[B, E], (A, B) -> C) -> Result[C, E]
-pub fn[A, B, E, C] result_lift2_checked(Result[A, E], Result[B, E], (A, B) -> Result[C, E]) -> Result[C, E]
-```
-
-`result_lift2(Ok(a), Ok(b), f)` is `Ok(f(a, b))`; `result_lift2_checked`
-returns `f(a, b)` itself. If `left` is `Err`, that error is returned; otherwise
-an `Err` in `right` is returned. `f` runs only when both are `Ok`.
-
-```moonbit
-///|
-test "lift two results" {
-  let ok : Result[Int, String] = Ok(2)
-  let bad : Result[Int, String] = Err("left")
-  debug_inspect(@internal.result_lift2(ok, Ok(3), (a, b) => a * b), content="Ok(6)")
-  debug_inspect(@internal.result_lift2(bad, Err("right"), (a, b) => a * b), content="Err(\"left\")")
 }
 ```
 
@@ -606,7 +560,6 @@ package "Luna-Flow/floating/internal"
 
 import {
   "Luna-Flow/arithmetic",
-  "Luna-Flow/floating/def",
   "moonbitlang/core/bigint",
 }
 
@@ -635,23 +588,13 @@ pub fn exact_divide_by_power_of_ten(@bigint.BigInt, Int32) -> @bigint.BigInt?
 
 pub fn pow10(Int32) -> @bigint.BigInt
 
-pub fn pow2(Int32) -> @bigint.BigInt
-
 pub fn pow5(Int32) -> @bigint.BigInt
 
 pub fn remove_factor10(@bigint.BigInt, Int32) -> (@bigint.BigInt, Int32)
 
-pub fn remove_factor2(@bigint.BigInt, Int32) -> (@bigint.BigInt, Int32)
-
-pub fn[A, B, E, C] result_lift2(Result[A, E], Result[B, E], (A, B) -> C) -> Result[C, E]
-
-pub fn[A, B, E, C] result_lift2_checked(Result[A, E], Result[B, E], (A, B) -> Result[C, E]) -> Result[C, E]
-
 pub fn round_positive_div(@bigint.BigInt, @bigint.BigInt, Bool, @arithmetic.RoundingMode) -> @bigint.BigInt
 
 pub fn round_shift(@bigint.BigInt, Int32, Bool, @arithmetic.RoundingMode) -> @bigint.BigInt
-
-pub fn sign_of_bigint(@bigint.BigInt) -> @def.Sign
 
 pub fn split_decimal_string(String) -> (Bool, String, Int32)?
 

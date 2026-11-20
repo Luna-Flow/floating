@@ -1,26 +1,26 @@
 ///|
-pub let dec_coeff_ntt_prime1 = 998244353UL
+let dec_coeff_ntt_prime1 = 998244353UL
 
 ///|
-pub let dec_coeff_ntt_prime2 = 754974721UL
+let dec_coeff_ntt_prime2 = 754974721UL
 
 ///|
-pub let dec_coeff_ntt_root1 = 3UL
+let dec_coeff_ntt_root1 = 3UL
 
 ///|
-pub let dec_coeff_ntt_root2 = 11UL
+let dec_coeff_ntt_root2 = 11UL
 
 ///|
-pub let dec_coeff_ntt_crt_inverse = 416537774UL
+let dec_coeff_ntt_crt_inverse = 416537774UL
 
 ///|
-pub let dec_coeff_ntt_radix_digits = 5
+let dec_coeff_ntt_radix_digits = 5
 
 ///|
-pub let dec_coeff_ntt_radix = 100000UL
+let dec_coeff_ntt_radix = 100000UL
 
 ///|
-pub fn dec_coeff_ntt_pow_mod(
+fn dec_coeff_ntt_pow_mod(
   base : UInt64,
   exponent : UInt64,
   prime : UInt64,
@@ -39,7 +39,7 @@ pub fn dec_coeff_ntt_pow_mod(
 }
 
 ///|
-pub fn dec_coeff_ntt_transform(
+fn dec_coeff_ntt_transform(
   values : Array[UInt64],
   inverse : Bool,
   prime : UInt64,
@@ -104,13 +104,13 @@ pub fn dec_coeff_ntt_transform(
 }
 
 ///|
-pub fn dec_coeff_ntt_digit_len(value : DecCoeff) -> Int32 {
+fn dec_coeff_ntt_digit_len(value : DecCoeff) -> Int32 {
   (value.digits10() + dec_coeff_ntt_radix_digits - 1) /
   dec_coeff_ntt_radix_digits
 }
 
 ///|
-pub fn dec_coeff_ntt_digits(value : DecCoeff) -> Array[UInt64] {
+fn dec_coeff_ntt_digits(value : DecCoeff) -> Array[UInt64] {
   let length = dec_coeff_ntt_digit_len(value)
   let result = Array::make(length, 0UL)
   for index in 0..<length {
@@ -132,7 +132,7 @@ pub fn dec_coeff_ntt_digits(value : DecCoeff) -> Array[UInt64] {
 }
 
 ///|
-pub fn dec_coeff_ntt_next_power_of_two(value : Int32) -> Int32 {
+fn dec_coeff_ntt_next_power_of_two(value : Int32) -> Int32 {
   let mut result = 1
   while result < value {
     result = result << 1
@@ -141,7 +141,7 @@ pub fn dec_coeff_ntt_next_power_of_two(value : Int32) -> Int32 {
 }
 
 ///|
-pub fn dec_coeff_ntt_limits_fit(left_len : Int32, right_len : Int32) -> Bool {
+fn dec_coeff_ntt_limits_fit(left_len : Int32, right_len : Int32) -> Bool {
   if left_len <= 0 ||
     right_len <= 0 ||
     left_len.to_int64() + right_len.to_int64() - 1L > (1 << 23).to_int64() {
@@ -158,17 +158,14 @@ pub fn dec_coeff_ntt_limits_fit(left_len : Int32, right_len : Int32) -> Bool {
 }
 
 ///|
-pub fn dec_coeff_ntt_transform_length(
-  left : DecCoeff,
-  right : DecCoeff,
-) -> Int32 {
+fn dec_coeff_ntt_transform_length(left : DecCoeff, right : DecCoeff) -> Int32 {
   dec_coeff_ntt_next_power_of_two(
     dec_coeff_ntt_digit_len(left) + dec_coeff_ntt_digit_len(right) - 1,
   )
 }
 
 ///|
-pub fn dec_coeff_ntt_fits(left : DecCoeff, right : DecCoeff) -> Bool {
+fn dec_coeff_ntt_fits(left : DecCoeff, right : DecCoeff) -> Bool {
   dec_coeff_ntt_limits_fit(
     dec_coeff_ntt_digit_len(left),
     dec_coeff_ntt_digit_len(right),
@@ -176,7 +173,7 @@ pub fn dec_coeff_ntt_fits(left : DecCoeff, right : DecCoeff) -> Bool {
 }
 
 ///|
-pub fn dec_coeff_ntt_convolve(
+fn dec_coeff_ntt_convolve(
   left : Array[UInt64],
   right : Array[UInt64],
   prime : UInt64,
@@ -203,7 +200,7 @@ pub fn dec_coeff_ntt_convolve(
 }
 
 ///|
-pub fn dec_coeff_ntt_square_convolve(
+fn dec_coeff_ntt_square_convolve(
   value : Array[UInt64],
   prime : UInt64,
   root : UInt64,
@@ -222,7 +219,7 @@ pub fn dec_coeff_ntt_square_convolve(
 }
 
 ///|
-pub fn dec_coeff_ntt_crt(left : UInt64, right : UInt64) -> UInt64 {
+fn dec_coeff_ntt_crt(left : UInt64, right : UInt64) -> UInt64 {
   let difference = (right + dec_coeff_ntt_prime2 - left % dec_coeff_ntt_prime2) %
     dec_coeff_ntt_prime2
   let correction = difference * dec_coeff_ntt_crt_inverse % dec_coeff_ntt_prime2
@@ -230,7 +227,7 @@ pub fn dec_coeff_ntt_crt(left : UInt64, right : UInt64) -> UInt64 {
 }
 
 ///|
-pub fn dec_coeff_from_ntt_digits(digits : Array[UInt64]) -> DecCoeff {
+fn dec_coeff_from_ntt_digits(digits : Array[UInt64]) -> DecCoeff {
   let limb_len = (
       digits.length() * dec_coeff_ntt_radix_digits + dec_coeff_dpun - 1
     ) /
@@ -255,7 +252,7 @@ pub fn dec_coeff_from_ntt_digits(digits : Array[UInt64]) -> DecCoeff {
 }
 
 ///|
-pub fn dec_coeff_ntt_reconstruct(
+fn dec_coeff_ntt_reconstruct(
   first : Array[UInt64],
   second : Array[UInt64],
   length : Int32,
@@ -277,7 +274,7 @@ pub fn dec_coeff_ntt_reconstruct(
 }
 
 ///|
-pub fn dec_coeff_mul_ntt(left : DecCoeff, right : DecCoeff) -> DecCoeff {
+fn dec_coeff_mul_ntt(left : DecCoeff, right : DecCoeff) -> DecCoeff {
   if !dec_coeff_ntt_fits(left, right) {
     return dec_coeff_mul_toom3(left, right)
   }
@@ -294,7 +291,7 @@ pub fn dec_coeff_mul_ntt(left : DecCoeff, right : DecCoeff) -> DecCoeff {
 }
 
 ///|
-pub fn dec_coeff_square_ntt(value : DecCoeff) -> DecCoeff {
+fn dec_coeff_square_ntt(value : DecCoeff) -> DecCoeff {
   if !dec_coeff_ntt_fits(value, value) {
     return dec_coeff_mul_toom3(value, value)
   }

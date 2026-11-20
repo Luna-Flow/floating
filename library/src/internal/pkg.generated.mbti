@@ -3,7 +3,6 @@ package "Luna-Flow/floating/internal"
 
 import {
   "Luna-Flow/arithmetic",
-  "Luna-Flow/floating/def",
   "moonbitlang/core/bigint",
 }
 
@@ -32,23 +31,13 @@ pub fn exact_divide_by_power_of_ten(@bigint.BigInt, Int32) -> @bigint.BigInt?
 
 pub fn pow10(Int32) -> @bigint.BigInt
 
-pub fn pow2(Int32) -> @bigint.BigInt
-
 pub fn pow5(Int32) -> @bigint.BigInt
 
 pub fn remove_factor10(@bigint.BigInt, Int32) -> (@bigint.BigInt, Int32)
 
-pub fn remove_factor2(@bigint.BigInt, Int32) -> (@bigint.BigInt, Int32)
-
-pub fn[A, B, E, C] result_lift2(Result[A, E], Result[B, E], (A, B) -> C) -> Result[C, E]
-
-pub fn[A, B, E, C] result_lift2_checked(Result[A, E], Result[B, E], (A, B) -> Result[C, E]) -> Result[C, E]
-
 pub fn round_positive_div(@bigint.BigInt, @bigint.BigInt, Bool, @arithmetic.RoundingMode) -> @bigint.BigInt
 
 pub fn round_shift(@bigint.BigInt, Int32, Bool, @arithmetic.RoundingMode) -> @bigint.BigInt
-
-pub fn sign_of_bigint(@bigint.BigInt) -> @def.Sign
 
 pub fn split_decimal_string(String) -> (Bool, String, Int32)?
 
