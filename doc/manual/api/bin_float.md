@@ -750,6 +750,47 @@ pub fn BinaryContext::tininess(Self) -> TininessDetection
 `e_min` and `e_max` return the bounds as given (`None` for an unbounded side),
 not intersected with the implementation range.
 
+### `BinaryContext::refinement_limit`, `BinaryContext::with_refinement_limit`
+
+Read and set the refinement limit of the certified elementary functions.
+
+```mbti
+pub fn BinaryContext::refinement_limit(Self) -> Int32?
+pub fn BinaryContext::with_refinement_limit(Self, Int32?) -> Self
+```
+
+Every certified elementary function (`exp`, `ln`, the trigonometric,
+hyperbolic and inverse functions, `pow`, `rootn`, `hypot`, `atan2` and their
+`try_*_ctx` forms) evaluates an enclosure at a growing working precision until
+both ends round alike. The limit is the number of refinement steps: `Some(n)`
+allows `n` of them (a value below 1 counts as 1), the default is `Some(12)`,
+and `None` removes the count limit. When the limit is reached without a
+decision, `try_*_ctx` returns the `CertificationFailure` error with the
+refinement count, as before, and the plain and `*_ctx` forms return a quiet
+NaN with `invalid_operation`. With `None` the loop still stops when the working
+precision passes a cap, the larger of 8,000,000 bits and 256 times the first
+working precision, and the trigonometric work limit of 8,000,000 bits still
+refuses an argument that would need more. The default changes no result.
+The field takes part in `==`: two contexts that differ only in the limit are
+different.
+
+```moonbit
+///|
+test "a refinement limit makes a hard-to-round result fail" {
+  let wide = @bin_float.BinaryContext::unbounded(330)
+  let one = @bin_float.BinFloat::from_int(1, precision=330)
+  let midpoint = one.add_ctx(one.scaleb_ctx(-53, wide).0, wide).0
+  // exp(x) is within 2^-330 of the midpoint 1 + 2^-53.
+  let x = midpoint.try_ln_ctx(wide).unwrap().0
+  let context = @bin_float.BinaryContext::new(53)
+  inspect(context.refinement_limit() == Some(12), content="true")
+  let short = context.with_refinement_limit(Some(1))
+  inspect(x.try_exp_ctx(short) is Err(_), content="true")
+  let unlimited = context.with_refinement_limit(None)
+  inspect(x.try_exp_ctx(unlimited) is Ok(_), content="true")
+}
+```
+
 ### `BinaryFlags`
 
 The five IEEE 754 exception flags raised by one or more operations.
@@ -2781,11 +2822,13 @@ pub fn BinaryContext::from_arithmetic_context(@arithmetic.ArithmeticContext) -> 
 pub fn BinaryContext::new(Int32, rounding? : BinaryRoundingMode, e_min? : Int32, e_max? : Int32, tininess? : TininessDetection) -> Self
 pub fn BinaryContext::not_equal(Self, Self) -> Bool
 pub fn BinaryContext::precision(Self) -> Int32
+pub fn BinaryContext::refinement_limit(Self) -> Int32?
 pub fn BinaryContext::rounding(Self) -> BinaryRoundingMode
 pub fn BinaryContext::tininess(Self) -> TininessDetection
 pub fn BinaryContext::to_repr(Self) -> @debug.Repr
 pub fn BinaryContext::try_new(Int32, rounding? : BinaryRoundingMode, e_min? : Int32, e_max? : Int32, tininess? : TininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BinaryContext::unbounded(Int32, rounding? : BinaryRoundingMode) -> Self
+pub fn BinaryContext::with_refinement_limit(Self, Int32?) -> Self
 
 #derive(Eq, @debug.Debug)
 pub struct BinaryFlags {

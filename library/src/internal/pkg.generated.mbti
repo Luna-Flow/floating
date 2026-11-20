@@ -20,6 +20,10 @@ pub fn certified_dyadic_fraction(@bigint.BigInt, @bigint.BigInt, Int32) -> Resul
 
 pub fn certified_failure(String, @arithmetic.CertificationStage, @arithmetic.CertificationFailureReason, Int32, CertifiedRefinementBudget) -> @arithmetic.ArithmeticError
 
+pub fn certified_refinement_continues(Int32?, Int32, Int32, Int32) -> Bool
+
+pub fn certified_unbounded_work_cap(Int32) -> Int32
+
 pub fn compare_abs(@bigint.BigInt, @bigint.BigInt) -> Int32
 
 pub fn digits10(@bigint.BigInt) -> Int32
@@ -82,10 +86,11 @@ pub fn[T] CertifiedInterval::upper(Self[T]) -> T
 pub struct CertifiedRefinementBudget {
   work_precision : Int32
   refinements_ : Int32
-  limit_ : Int32
+  limit_ : Int32?
+  cap_ : Int32
 }
 pub fn CertifiedRefinementBudget::available(Self) -> Bool
-pub fn CertifiedRefinementBudget::new(Int32, limit? : Int32) -> Self
+pub fn CertifiedRefinementBudget::new(Int32, limit? : Int32?) -> Self
 pub fn CertifiedRefinementBudget::next(Self) -> Self
 pub fn CertifiedRefinementBudget::precision(Self) -> Int32
 pub fn CertifiedRefinementBudget::refinements(Self) -> Int32

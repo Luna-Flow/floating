@@ -864,7 +864,10 @@ fn decimal_certified_unary_candidate_result(
   let conservative_precision = decimal_certified_conservative_work_precision(
     value, ctx,
   )
-  let mut budget = CertifiedRefinementBudget::new(initial_precision)
+  let mut budget = CertifiedRefinementBudget::new(
+    initial_precision,
+    limit=ctx.refinement_limit,
+  )
   let mut fast_attempt = initial_precision < conservative_precision
   while budget.available() {
     let input = decimal_to_certified_ball(value, budget.precision())
@@ -881,7 +884,10 @@ fn decimal_certified_unary_candidate_result(
             ) {
             Some(result) => return Ok(result)
             None => {
-              budget = CertifiedRefinementBudget::new(conservative_precision)
+              budget = CertifiedRefinementBudget::new(
+                conservative_precision,
+                limit=ctx.refinement_limit,
+              )
               fast_attempt = false
             }
           }
@@ -894,7 +900,10 @@ fn decimal_certified_unary_candidate_result(
       Err(error) =>
         if error.certification_failure_detail() is Some(_) {
           if fast_attempt {
-            budget = CertifiedRefinementBudget::new(conservative_precision)
+            budget = CertifiedRefinementBudget::new(
+              conservative_precision,
+              limit=ctx.refinement_limit,
+            )
             fast_attempt = false
           } else {
             budget = budget.next()
@@ -965,7 +974,10 @@ fn decimal_certified_exp_result(
   let conservative_precision = decimal_certified_conservative_work_precision(
     value, ctx,
   )
-  let mut budget = CertifiedRefinementBudget::new(initial_precision)
+  let mut budget = CertifiedRefinementBudget::new(
+    initial_precision,
+    limit=ctx.refinement_limit,
+  )
   let mut fast_attempt = initial_precision < conservative_precision
   while budget.available() {
     let input = decimal_to_certified_ball(value, budget.precision())
@@ -988,7 +1000,10 @@ fn decimal_certified_exp_result(
           Some(result) => return Ok(result)
           None =>
             if fast_attempt {
-              budget = CertifiedRefinementBudget::new(conservative_precision)
+              budget = CertifiedRefinementBudget::new(
+                conservative_precision,
+                limit=ctx.refinement_limit,
+              )
               fast_attempt = false
             } else {
               match decimal_certified_target(interval, ctx) {
@@ -1001,7 +1016,10 @@ fn decimal_certified_exp_result(
       Err(error) =>
         if error.certification_failure_detail() is Some(_) {
           if fast_attempt {
-            budget = CertifiedRefinementBudget::new(conservative_precision)
+            budget = CertifiedRefinementBudget::new(
+              conservative_precision,
+              limit=ctx.refinement_limit,
+            )
             fast_attempt = false
           } else {
             budget = budget.next()
@@ -1053,6 +1071,7 @@ fn decimal_certified_power_result(
       decimal_certified_conservative_work_precision(base, ctx),
       decimal_certified_conservative_work_precision(exponent, ctx),
     ),
+    limit=ctx.refinement_limit,
   )
   while budget.available() {
     let candidate = decimal_power_candidate(

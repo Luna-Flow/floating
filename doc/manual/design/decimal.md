@@ -735,7 +735,13 @@ input $x$:
    round both with the target context. If both give the same representation
    (`compare_total` equal) and the same flags, return it.
 4. Otherwise increase $w \leftarrow w + \max(32, \lfloor w/2 \rfloor)$ and
-   repeat; after 12 evaluations report a certification failure.
+   repeat; after $L$ evaluations report a certification failure, where $L$ is
+   the refinement limit of the context (`DecimalContext::refinement_limit`,
+   twelve by default; a value below one counts as one). With
+   `with_refinement_limit(None)` the count is unbounded, but the loop stops, with
+   the same failure, when $w$ exceeds $\max(8\,000\,000,\ 256\,w_0)$ bits (at
+   most $10^9$), so the work and the memory stay bounded. The default changes no
+   result.
 
 The acceptance test is sound because rounding is monotone:
 $L \le f(x) \le U$ implies $\circ(L) \le \circ(f(x)) \le \circ(U)$, and if the
@@ -1320,8 +1326,8 @@ four targets).
   context that is not extended, or the exact flags of exact decimal results
   of non-integral powers (see [known deviations](#known-deviations));
 - guarantee that elementary-function certification succeeds: after the
-  refinement budget (which, at its last steps, works with very wide numbers
-  and can take a long time) it reports `CertificationFailure` (`try_*_ctx`) or NaN
+  refinement limit of the context (twelve by default, `with_refinement_limit`;
+  the last steps work with very wide numbers and can take a long time) it reports `CertificationFailure` (`try_*_ctx`) or NaN
   with `invalid_operation` (`*_ctx`);
 - evaluate elementary functions in contexts with precision or exponents above
   999,999;

@@ -197,7 +197,10 @@ fn binary_ziv_round(
   context : BinaryContext,
   bounds_at : (Int32) -> (BinFloat, BinFloat)?,
 ) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
-  let mut budget = CertifiedRefinementBudget::new(context.precision + 64)
+  let mut budget = CertifiedRefinementBudget::new(
+    context.precision + 64,
+    limit=context.refinement_limit,
+  )
   while budget.available() {
     match bounds_at(budget.precision()) {
       Some(bounds) => {

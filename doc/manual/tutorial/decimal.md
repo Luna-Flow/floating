@@ -232,7 +232,10 @@ test "decimal certified logarithm" {
 ```
 
 `try_ln_ctx` returns `Err` only if the result could not be certified within
-the refinement budget; `ln_ctx` turns that case into NaN with
+the refinement limit of the context (twelve steps by default;
+`ctx.with_refinement_limit(Some(24))` allows more and
+`ctx.with_refinement_limit(None)` removes the count limit, at the cost of a
+longer evaluation for a hard-to-round input); `ln_ctx` turns that case into NaN with
 `invalid_operation`. Exact results such as $\log_{10} 1000 = 3$ come back
 without `inexact`.
 

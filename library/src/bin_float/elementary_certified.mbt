@@ -1301,7 +1301,12 @@ pub fn BinFloat::try_exp_ctx(
       }
       let mut work = context.precision + 64
       let mut attempt = 0
-      while attempt < 12 {
+      while @internal.certified_refinement_continues(
+              context.refinement_limit,
+              attempt,
+              work,
+              context.precision,
+            ) {
         match binary_exp_bounds(self, work) {
           Some(bounds) => {
             let (result, unique, flags) = binary_certified_inexact_target_rounding(
@@ -1420,7 +1425,10 @@ pub fn BinFloat::try_expm1_ctx(
         is Some(result) {
         return Ok(result)
       }
-      let mut budget = CertifiedRefinementBudget::new(context.precision + 64)
+      let mut budget = CertifiedRefinementBudget::new(
+        context.precision + 64,
+        limit=context.refinement_limit,
+      )
       while budget.available() {
         match binary_expm1_bounds(self, budget.precision()) {
           Some(bounds) => {
@@ -1506,7 +1514,10 @@ pub fn BinFloat::try_log1p_ctx(
         is Some(result) {
         return Ok(result)
       }
-      let mut budget = CertifiedRefinementBudget::new(context.precision + 64)
+      let mut budget = CertifiedRefinementBudget::new(
+        context.precision + 64,
+        limit=context.refinement_limit,
+      )
       while budget.available() {
         match binary_log1p_bounds(self, budget.precision()) {
           Some(bounds) => {
@@ -1594,7 +1605,10 @@ pub fn BinFloat::try_exp2_ctx(
           )
         None => ()
       }
-      let mut budget = CertifiedRefinementBudget::new(context.precision + 64)
+      let mut budget = CertifiedRefinementBudget::new(
+        context.precision + 64,
+        limit=context.refinement_limit,
+      )
       while budget.available() {
         match binary_exp2_bounds(self, budget.precision()) {
           Some(bounds) => {
@@ -1671,7 +1685,10 @@ pub fn BinFloat::try_log2_ctx(
         let exact = BinFloat::from_int(self.exponent2(), precision=64)
         return Ok(exact.round_ctx(context))
       }
-      let mut budget = CertifiedRefinementBudget::new(context.precision + 64)
+      let mut budget = CertifiedRefinementBudget::new(
+        context.precision + 64,
+        limit=context.refinement_limit,
+      )
       while budget.available() {
         match binary_log2_bounds(self, budget.precision()) {
           Some(bounds) => {
@@ -1763,7 +1780,12 @@ pub fn BinFloat::try_exp10_ctx(
       }
       let mut work = context.precision + 64
       let mut attempt = 0
-      while attempt < 12 {
+      while @internal.certified_refinement_continues(
+              context.refinement_limit,
+              attempt,
+              work,
+              context.precision,
+            ) {
         match binary_ln10_bounds(work) {
           Some(ln10) => {
             let downward = BinaryContext::unbounded(
@@ -1896,7 +1918,12 @@ pub fn BinFloat::try_log10_ctx(
       }
       let mut work = context.precision + 64
       let mut attempt = 0
-      while attempt < 12 {
+      while @internal.certified_refinement_continues(
+              context.refinement_limit,
+              attempt,
+              work,
+              context.precision,
+            ) {
         match (binary_ln_bounds(self, work), binary_ln10_bounds(work)) {
           (Some(numerator), Some(denominator)) => {
             let downward = BinaryContext::unbounded(
@@ -2072,7 +2099,12 @@ pub fn BinFloat::try_ln_ctx(
     FpClass::Finite => {
       let mut work = context.precision + 64
       let mut attempt = 0
-      while attempt < 12 {
+      while @internal.certified_refinement_continues(
+              context.refinement_limit,
+              attempt,
+              work,
+              context.precision,
+            ) {
         match binary_ln_bounds(self, work) {
           Some(bounds) => {
             let (result, unique, flags) = binary_certified_inexact_target_rounding(
@@ -2492,7 +2524,12 @@ fn binary_rootn_certified_loop(
 ) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
   let mut work = Int32::max(context.precision + 64, positive.precision() + 16)
   let mut attempt = 0
-  while attempt < 12 {
+  while @internal.certified_refinement_continues(
+          context.refinement_limit,
+          attempt,
+          work,
+          context.precision,
+        ) {
     match binary_rootn_positive_bounds(positive, magnitude_degree, work) {
       Some(bounds) => {
         let signed_bounds = if original.negative {
@@ -3003,7 +3040,12 @@ pub fn BinFloat::try_pow_ctx(
     Int32::max(self.precision(), exponent.precision()) + 16,
   )
   let mut attempt = 0
-  while attempt < 12 {
+  while @internal.certified_refinement_continues(
+          context.refinement_limit,
+          attempt,
+          work,
+          context.precision,
+        ) {
     match binary_ln_bounds(self, work) {
       Some(logarithm) => {
         let downward = BinaryContext::unbounded(
@@ -3290,7 +3332,12 @@ fn BinFloat::try_hyperbolic_ctx(
       }
       let mut work = Int32::max(context.precision + 64, self.precision() + 16)
       let mut attempt = 0
-      while attempt < 12 {
+      while @internal.certified_refinement_continues(
+              context.refinement_limit,
+              attempt,
+              work,
+              context.precision,
+            ) {
         match binary_hyperbolic_bounds(self, operation, work) {
           Some(bounds) => {
             let (result, unique, flags) = binary_certified_inexact_target_rounding(
@@ -3634,7 +3681,12 @@ fn BinFloat::try_inverse_hyperbolic_ctx(
       }
       let mut work = Int32::max(context.precision + 64, self.precision() + 16)
       let mut attempt = 0
-      while attempt < 12 {
+      while @internal.certified_refinement_continues(
+              context.refinement_limit,
+              attempt,
+              work,
+              context.precision,
+            ) {
         let bounds = match operation {
           BinaryInverseHyperbolicOperation::Asinh =>
             match binary_asinh_positive_bounds(self.abs(), work) {
@@ -4185,7 +4237,12 @@ pub fn BinFloat::try_atan_ctx(
     FpClass::Infinity => {
       let mut work = context.precision + 64
       let mut attempt = 0
-      while attempt < 12 {
+      while @internal.certified_refinement_continues(
+              context.refinement_limit,
+              attempt,
+              work,
+              context.precision,
+            ) {
         match binary_pi_bounds(work) {
           Some(pi) => {
             let downward = BinaryContext::unbounded(
@@ -4228,7 +4285,12 @@ pub fn BinFloat::try_atan_ctx(
     FpClass::Finite => {
       let mut work = Int32::max(context.precision + 64, self.precision() + 16)
       let mut attempt = 0
-      while attempt < 12 {
+      while @internal.certified_refinement_continues(
+              context.refinement_limit,
+              attempt,
+              work,
+              context.precision,
+            ) {
         match binary_atan_finite_bounds(self, work) {
           Some(bounds) => {
             let (result, unique, flags) = binary_certified_inexact_target_rounding(
@@ -4379,7 +4441,12 @@ pub fn BinFloat::try_asin_ctx(
       if self.abs().compare(one) == 0 {
         let mut work = context.precision + 64
         let mut attempt = 0
-        while attempt < 12 {
+        while @internal.certified_refinement_continues(
+                context.refinement_limit,
+                attempt,
+                work,
+                context.precision,
+              ) {
           match binary_pi_bounds(work) {
             Some(pi) => {
               let downward = BinaryContext::unbounded(
@@ -4432,7 +4499,12 @@ pub fn BinFloat::try_asin_ctx(
       }
       let mut work = Int32::max(context.precision + 64, self.precision() + 16)
       let mut attempt = 0
-      while attempt < 12 {
+      while @internal.certified_refinement_continues(
+              context.refinement_limit,
+              attempt,
+              work,
+              context.precision,
+            ) {
         match binary_asin_bounds(self, work) {
           Some(bounds) => {
             let (result, unique, flags) = binary_certified_inexact_target_rounding(
@@ -4512,7 +4584,12 @@ pub fn BinFloat::try_acos_ctx(
       }
       let mut work = context.precision + 64
       let mut attempt = 0
-      while attempt < 12 {
+      while @internal.certified_refinement_continues(
+              context.refinement_limit,
+              attempt,
+              work,
+              context.precision,
+            ) {
         match binary_pi_bounds(work) {
           Some(pi) => {
             let downward = BinaryContext::unbounded(
@@ -4547,7 +4624,12 @@ pub fn BinFloat::try_acos_ctx(
   }
   let mut work = Int32::max(context.precision + 64, self.precision() + 16)
   let mut attempt = 0
-  while attempt < 12 {
+  while @internal.certified_refinement_continues(
+          context.refinement_limit,
+          attempt,
+          work,
+          context.precision,
+        ) {
     match (binary_asin_bounds(self, work), binary_pi_bounds(work)) {
       (Some(asin_bounds), Some(pi)) => {
         let downward = BinaryContext::unbounded(
@@ -4760,7 +4842,12 @@ pub fn BinFloat::try_atan2_ctx(
     Some((numerator, shift, negative)) => {
       let mut work = context.precision + 64
       let mut attempt = 0
-      while attempt < 12 {
+      while @internal.certified_refinement_continues(
+              context.refinement_limit,
+              attempt,
+              work,
+              context.precision,
+            ) {
         match binary_pi_fraction_bounds(numerator, shift, negative, work) {
           Some(bounds) => {
             let (result, unique, flags) = binary_certified_inexact_target_rounding(
@@ -4831,7 +4918,12 @@ pub fn BinFloat::try_atan2_ctx(
     Int32::max(self.precision(), abscissa.precision()) + 16,
   )
   let mut attempt = 0
-  while attempt < 12 {
+  while @internal.certified_refinement_continues(
+          context.refinement_limit,
+          attempt,
+          work,
+          context.precision,
+        ) {
     match binary_atan2_finite_bounds(self, abscissa, work) {
       Some(bounds) => {
         let (result, unique, flags) = binary_certified_inexact_target_rounding(
@@ -5402,6 +5494,7 @@ fn BinFloat::try_trigonometric_ctx(
       }
       let mut budget = CertifiedRefinementBudget::new(
         Int32::max(required.to_int(), self.precision() + 16),
+        limit=context.refinement_limit,
       )
       let mut certified_range = false
       while budget.available() && budget.precision() <= binary_trig_work_limit {

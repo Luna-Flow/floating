@@ -752,9 +752,11 @@ refinement loop.[^ziv] For $f(x)$:
    monotone, $\mathrm{round}(L) = \mathrm{round}(U) = r$ also proves
    $\mathrm{round}(f(x)) = r$.
 5. **Refine.** Otherwise the working precision grows,
-   $w \leftarrow w + \max(32, \lfloor w/2 \rfloor)$; at most twelve
-   evaluations are made, so the last one runs at roughly $1.5^{11} \approx 86$
-   times the starting precision.
+   $w \leftarrow w + \max(32, \lfloor w/2 \rfloor)$; at most $L$
+   evaluations are made, where $L$ is the refinement limit of the
+   `DecimalContext` (`DecimalContext::refinement_limit`, default twelve, so the
+   last evaluation runs at roughly $1.5^{11} \approx 86$ times the starting
+   precision).
 
 The starting precision is $w_0 = \max(128, 4D + 64)$ bits with
 $D = \max(d(c), p)$: four bits per decimal digit exceed
@@ -763,7 +765,11 @@ information and 64 guard bits remain. For arguments with $\hat e = 0$ in a
 wide, unclamped context with $p \le 64$, a cheaper first attempt uses about
 $\frac{10}{3} D + 12$ bits and falls back to $w_0$ if it cannot certify.
 
-The loop always stops, after at most twelve evaluations. It certifies a
+The loop always stops, after at most $L$ evaluations (twelve by default). With
+`with_refinement_limit(None)` the count is unbounded, but the loop still stops
+when the working precision passes $\max(8\,000\,000,\ 256\,w_0)$ bits (at most
+$10^9$), with the same certification failure, so the work and the memory stay
+bounded. It certifies a
 result whenever $f(x)$ is neither a representable number nor a midpoint (for
 the half modes) and the budget is large enough, because the enclosure shrinks
 to a point while $f(x)$ stays at a positive distance from every rounding

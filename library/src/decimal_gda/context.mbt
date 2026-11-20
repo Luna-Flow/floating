@@ -77,6 +77,7 @@ pub struct DecimalContext {
   priv clamp : Bool
   priv extended : Bool
   priv tininess : DecimalTininessDetection
+  priv refinement_limit : Int32?
 }
 
 ///|
@@ -246,6 +247,7 @@ pub fn DecimalContext::new(
     clamp,
     extended,
     tininess,
+    refinement_limit: Some(12),
   })
 }
 
@@ -337,6 +339,27 @@ pub fn DecimalContext::with_tininess(
 }
 
 ///|
+/// The number of refinement steps the certified elementary functions may take
+/// before they report a certification failure, `Some(12)` by default. `None`
+/// means no count limit; the work precision still stops at a resource bound
+/// (see `with_refinement_limit`).
+pub fn DecimalContext::refinement_limit(self : DecimalContext) -> Int32? {
+  self.refinement_limit
+}
+
+///|
+/// Returns a copy of the context with the refinement limit of the certified
+/// elementary functions set to `limit`. `None` removes the count limit; the work
+/// precision of each loop is then bounded (at least 8,000,000 bits, or 256 times
+/// the initial work precision). A limit below 1 is clamped to 1 refinement step.
+pub fn DecimalContext::with_refinement_limit(
+  self : DecimalContext,
+  limit : Int32?,
+) -> DecimalContext {
+  { ..self, refinement_limit: limit, }
+}
+
+///|
 fn decimal_exact_work_context() -> DecimalContext {
   {
     precision: 0,
@@ -347,6 +370,7 @@ fn decimal_exact_work_context() -> DecimalContext {
     clamp: false,
     extended: true,
     tininess: DecimalTininessDetection::BeforeRounding,
+    refinement_limit: Some(12),
   }
 }
 
