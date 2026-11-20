@@ -16,6 +16,7 @@
 
 ///|
 using @bin_kernel {
+  bin_coeff_sqrt_rem_scaled,
   bin_coeff_sqrt_scaled_rounded,
   bin_coeff_div_scaled_ok,
   bin_coeff_div_short_ok,
@@ -529,6 +530,13 @@ fn bin_coeff_short_div_rem_checked(
   } else {
     Some(bin_coeff_short_div_rem(numerator, denominator))
   }
+}
+
+///|
+/// `(root, remainder)` of `magnitude * 2^scale` (`scale >= 0`), the radicand
+/// shifted once into the limb array that the root recursion works on.
+fn binary_sqrt_rem_scaled(magnitude : Coeff, scale : Int32) -> (Coeff, Coeff) {
+  bin_coeff_sqrt_rem_scaled(magnitude, scale)
 }
 
 ///|
