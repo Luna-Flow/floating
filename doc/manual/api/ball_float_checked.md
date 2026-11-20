@@ -127,13 +127,13 @@ $\mathbb{R}$, so $[+\infty, +\infty]$ is not an interval), or when
 `lo > hi`. Infinite bounds on the open side are allowed: $[-\infty, 0]$ is
 valid.
 
-### `BallFloatResult::whole`
+### `BallFloatResult::entire`
 
-`whole(precision~)` is the entire real line $[-\infty, +\infty]$ (default
+`entire(precision~)` is the entire real line $[-\infty, +\infty]$ (default
 precision 53); it never fails.
 
 ```mbti
-pub fn BallFloatResult::whole(precision? : Int) -> Self
+pub fn BallFloatResult::entire(precision? : Int) -> Self
 ```
 
 ```moonbit
@@ -159,7 +159,7 @@ test "construction validates its inputs" {
     show(@ball_float_checked.BallFloatResult::from_bounds(infinity, infinity)),
     content="error: ball lower bound must not be positive infinity",
   )
-  inspect(show(@ball_float_checked.BallFloatResult::whole()), content="[-inf, inf]")
+  inspect(show(@ball_float_checked.BallFloatResult::entire()), content="[-inf, inf]")
 }
 ```
 
@@ -233,23 +233,23 @@ $\{\, s \circ t : s \in X, t \in Y \,\}$. Division by an interval that is
 exactly $\{0\}$ gives the empty set, and division by an interval that contains
 zero in its interior gives the whole line.
 
-### `BallFloatResult::pow_int`
+### `BallFloatResult::pown`
 
-`pow_int` raises an interval to an integer power through the
+`pown` raises an interval to an integer power through the
 Luna-Flow/arithmetic trait `PowIntChecked`.
 
 ```mbti
-pub fn BallFloatResult::pow_int(Self, Int) -> Self
+pub fn BallFloatResult::pown(Self, Int) -> Self
 ```
 
 The context is `ArithmeticContext::new(x.precision())`; `ball_float` uses only
 its precision, and re-rounds the base and the result outward with
-`with_precision`, which adds nothing when they are already representable. `pow_int` encloses $\{t^{n}\}$ with
-`BallFloat::pown`, which treats the base as one point (so `pow_int(2)` of
+`with_precision`, which adds nothing when they are already representable. `pown` encloses $\{t^{n}\}$ with
+`BallFloat::pown`, which treats the base as one point (so `pown(2)` of
 $[-1, 1]$ is $[0, 1]$, tighter than `x * x`, which is $[-1, 1]$). A zero base
 with a negative exponent gives the empty set. An empty base stays empty for
-every exponent, including `pow_int(0)`. There is no `pow_nat` here: a
-non-negative exponent is a `pow_int`, and the trait form
+every exponent, including `pown(0)`. There is no `pow_nat` here: a
+non-negative exponent is a `pown`, and the trait form
 `BallFloat::pow_nat_checked` takes a `UInt`.
 
 ### `BallFloatResult::rootn`
@@ -274,7 +274,7 @@ pub fn BallFloatResult::hypot(Self, Self) -> Self
 pub fn BallFloatResult::atan2(Self, Self) -> Self
 ```
 
-They call `try_pow_interval`, `try_hypot` and `try_atan2_interval`. Operand
+They call `try_pow`, `try_hypot` and `try_atan2`. Operand
 errors are taken left first; the operation can fail with a
 `CertificationFailure`. Points outside the real domain are dropped from the
 result set, so $(-2)^{0.5}$ is the empty interval.
@@ -287,12 +287,12 @@ test "interval arithmetic in the wrapper" {
     @bin_float.BinFloat::from_int(3),
   )
   inspect(show(x * x - x), content="3p0 +/- 5p0")
-  inspect(show(x.pow_int(2)), content="5p0 +/- 1p2")
+  inspect(show(x.pown(2)), content="5p0 +/- 1p2")
   let unit = @ball_float_checked.BallFloatResult::from_bounds(
     @bin_float.BinFloat::from_int(-1),
     @bin_float.BinFloat::from_int(1),
   )
-  inspect(show(unit.pow_int(2)), content="1p-1 +/- 1p-1")
+  inspect(show(unit.pown(2)), content="1p-1 +/- 1p-1")
   let one = @ball_float_checked.BallFloatResult::from_int(1)
   let zero = @ball_float_checked.BallFloatResult::from_int(0)
   inspect(show(one / zero), content="[empty]")
@@ -443,6 +443,7 @@ pub fn BallFloatResult::cos(Self) -> Self
 pub fn BallFloatResult::cosh(Self) -> Self
 pub fn BallFloatResult::cospi(Self) -> Self
 pub fn BallFloatResult::div(Self, Self) -> Self
+pub fn BallFloatResult::entire(precision? : Int32) -> Self
 pub fn BallFloatResult::err(@arithmetic.ArithmeticError) -> Self
 pub fn BallFloatResult::error(Self) -> @arithmetic.ArithmeticError?
 pub fn BallFloatResult::exact(@bin_float.BinFloat, precision? : Int32) -> Self
@@ -469,7 +470,7 @@ pub fn BallFloatResult::neg(Self) -> Self
 pub fn BallFloatResult::normalized(Self) -> Self
 pub fn BallFloatResult::ok(@ball_float.BallFloat) -> Self
 pub fn BallFloatResult::pow(Self, Self) -> Self
-pub fn BallFloatResult::pow_int(Self, Int32) -> Self
+pub fn BallFloatResult::pown(Self, Int32) -> Self
 pub fn BallFloatResult::result(Self) -> Result[@ball_float.BallFloat, @arithmetic.ArithmeticError]
 pub fn BallFloatResult::rootn(Self, Int32) -> Self
 pub fn BallFloatResult::sin(Self) -> Self
@@ -479,7 +480,6 @@ pub fn BallFloatResult::sub(Self, Self) -> Self
 pub fn BallFloatResult::tan(Self) -> Self
 pub fn BallFloatResult::tanh(Self) -> Self
 pub fn BallFloatResult::tanpi(Self) -> Self
-pub fn BallFloatResult::whole(precision? : Int32) -> Self
 pub fn BallFloatResult::with_precision(Self, Int32) -> Self
 pub impl Add for BallFloatResult
 pub impl Div for BallFloatResult

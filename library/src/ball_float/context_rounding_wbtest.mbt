@@ -81,7 +81,7 @@ test "apply_ctx does not raise underflow for exact tiny endpoints" {
   let ctx = BallContext::new(precision=4, e_min=-2, e_max=10)
   let tiny = endpoint_rounding_value(1UL, -5, 53)
   let (r, flags) = BallFloat::from_bounds(tiny, tiny).apply_ctx(ctx)
-  assert_true(r.contains(tiny))
+  assert_true(r.is_member(tiny))
   assert_true(flags == BallFlags::new())
   // An inexact endpoint in the normal range is not an underflow.
   let (_, normal_flags) = BallFloat::from_bounds(

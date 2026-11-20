@@ -79,7 +79,7 @@ are equal; an overlap case when the state names are equal.
 
 Each ITL operation maps to one public method of
 `@ball_float.BallFloatDecorated` (for example `add` to `+`, `sqrt` to
-`sqrt_interval`, `pown` to `pown`, `overlap` to `overlap_state`), and
+`sqrt`, `pown` to `pown`, `overlap` to `overlap_state`), and
 results are rounded with `BallContext::new(precision=p)`, the format the bounds
 were read in (binary64 for the default $p = 53$). Testing through the
 public API means the corpus checks exactly what users call, including the

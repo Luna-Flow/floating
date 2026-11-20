@@ -48,10 +48,10 @@ test "sin, cos, tan of 2^70000 are tight beyond the old cutoff" {
     -45,
     53,
   )
-  assert_true(huge_trig_encloses(x.try_sin_interval().unwrap(), sin))
-  assert_true(huge_trig_encloses(x.try_cos_interval().unwrap(), cos))
-  assert_true(huge_trig_encloses(x.try_tan_interval().unwrap(), tan))
-  assert_true(huge_trig_encloses(x.sin_interval(), sin))
-  assert_true(huge_trig_encloses(x.cos_interval(), cos))
-  assert_true(huge_trig_encloses(x.tan_interval(), tan))
+  assert_true(huge_trig_encloses(x.try_sin().unwrap(), sin))
+  assert_true(huge_trig_encloses(x.try_cos().unwrap(), cos))
+  assert_true(huge_trig_encloses(x.try_tan().unwrap(), tan))
+  assert_true(huge_trig_encloses(x.sin(), sin))
+  assert_true(huge_trig_encloses(x.cos(), cos))
+  assert_true(huge_trig_encloses(x.tan(), tan))
 }

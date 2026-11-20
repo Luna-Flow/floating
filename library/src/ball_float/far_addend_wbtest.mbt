@@ -13,7 +13,7 @@ test "far addends do not materialize the exponent gap" {
   // The exact sum lies strictly inside (2^1e9, 2^1e9 + ulp).
   assert_eq(sum.lower_bound(), big.lower_bound())
   assert_true(sum.upper_bound().compare(big.upper_bound()) > 0)
-  assert_true(sum.contains(big.lower_bound()) == true)
+  assert_true(sum.is_member(big.lower_bound()) == true)
   let difference = big.sub(tiny)
   assert_true(difference.lower_bound().compare(big.lower_bound()) < 0)
   assert_eq(difference.upper_bound(), big.upper_bound())

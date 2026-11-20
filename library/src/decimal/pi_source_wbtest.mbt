@@ -4,14 +4,14 @@
 /// the same interval bit for bit.
 fn old_decimal_pi_ball(precision : Int32) -> @ball_float.BallFloat {
   @ball_float.BallFloat::from_int(1, precision~)
-  .try_atan_interval()
+  .try_atan()
   .unwrap()
   .mul(@ball_float.BallFloat::from_int(4, precision~))
 }
 
 ///|
 fn old_decimal_quarter_pi_ball(precision : Int32) -> @ball_float.BallFloat {
-  @ball_float.BallFloat::from_int(1, precision~).atan_interval()
+  @ball_float.BallFloat::from_int(1, precision~).atan()
 }
 
 ///|

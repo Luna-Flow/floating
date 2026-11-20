@@ -908,7 +908,7 @@ Three kinds of inputs are decided outside the agreement test:
   evaluates $x^y = \exp(y \ln x)$ in interval arithmetic: one `ln` enclosure,
   one interval product and one `exp` enclosure, instead of the four corners
   times two directions (eight correctly rounded binary powers) of
-  `ball_float`'s `try_pow_interval`. The loop needs an enclosure, not tight
+  `ball_float`'s `try_pow`. The loop needs an enclosure, not tight
   endpoints, and correct rounding makes the delivered value independent of
   the enclosure's width, so the result, cohort and flags are those of the
   tighter evaluation. The composition loses about

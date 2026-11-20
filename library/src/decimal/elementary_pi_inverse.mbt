@@ -243,11 +243,7 @@ fn Decimal::pi_asin_like(
     }
   }
   decimal_certified_unary_result(value, ctx, name, fn(input) {
-    let angle = if acos {
-      input.try_acos_interval()
-    } else {
-      input.try_asin_interval()
-    }
+    let angle = if acos { input.try_acos() } else { input.try_asin() }
     angle.map(fn(a) { a.div(decimal_pi_ball(input.precision())) })
   }).map(finish)
 }
@@ -341,9 +337,7 @@ pub fn Decimal::try_atanpi_ctx(
     }).map(finish)
   }
   decimal_certified_unary_result(value, ctx, "atanpi", fn(input) {
-    input
-    .try_atan_interval()
-    .map(fn(a) { a.div(decimal_pi_ball(input.precision())) })
+    input.try_atan().map(fn(a) { a.div(decimal_pi_ball(input.precision())) })
   }).map(finish)
 }
 
@@ -531,7 +525,7 @@ pub fn Decimal::try_atan2pi_ctx(
     y
     .abs()
     .div(x_interval.abs())
-    .try_atan_interval()
+    .try_atan()
     .map(fn(angle) {
       let fraction = angle.div(decimal_pi_ball(angle.precision()))
       let magnitude = if behind {

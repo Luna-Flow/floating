@@ -1017,7 +1017,7 @@ pub fn BallFloat::try_from_float(
 }
 
 ///|
-pub fn BallFloat::whole(precision~ : Int32 = 53) -> BallFloat {
+pub fn BallFloat::entire(precision~ : Int32 = 53) -> BallFloat {
   whole_real(precision)
 }
 
@@ -1051,7 +1051,7 @@ fn BallFloat::contains_zero(self : BallFloat) -> Bool {
   if self.is_empty() {
     return false
   }
-  self.contains(@bin_float.BinFloat::zero(precision=self.precision_))
+  self.is_member(@bin_float.BinFloat::zero(precision=self.precision_))
 }
 
 ///|
@@ -1192,12 +1192,12 @@ pub fn BallFloat::abs(self : BallFloat) -> BallFloat {
 }
 
 ///|
-pub fn BallFloat::reciprocal(self : BallFloat) -> BallFloat {
+pub fn BallFloat::recip(self : BallFloat) -> BallFloat {
   BallFloat::from_int(1, precision=self.precision_) / self
 }
 
 ///|
-pub fn BallFloat::square(self : BallFloat) -> BallFloat {
+pub fn BallFloat::sqr(self : BallFloat) -> BallFloat {
   if self.is_empty() {
     return self
   }
@@ -1420,7 +1420,7 @@ pub fn BallFloat::pown(self : BallFloat, exponent : Int32) -> BallFloat {
 }
 
 ///|
-pub fn BallFloat::minimum(self : BallFloat, other : BallFloat) -> BallFloat {
+pub fn BallFloat::min(self : BallFloat, other : BallFloat) -> BallFloat {
   let precision = Int32::max(self.precision_, other.precision_)
   if self.is_empty() || other.is_empty() {
     return empty_interval(precision)
@@ -1433,7 +1433,7 @@ pub fn BallFloat::minimum(self : BallFloat, other : BallFloat) -> BallFloat {
 }
 
 ///|
-pub fn BallFloat::maximum(self : BallFloat, other : BallFloat) -> BallFloat {
+pub fn BallFloat::max(self : BallFloat, other : BallFloat) -> BallFloat {
   let precision = Int32::max(self.precision_, other.precision_)
   if self.is_empty() || other.is_empty() {
     return empty_interval(precision)
@@ -1463,7 +1463,7 @@ fn directed_sqrt(
 }
 
 ///|
-pub fn BallFloat::sqrt_interval(self : BallFloat) -> BallFloat {
+pub fn BallFloat::sqrt(self : BallFloat) -> BallFloat {
   if self.is_empty() {
     return self
   }
@@ -1484,7 +1484,7 @@ pub fn BallFloat::sqrt_interval(self : BallFloat) -> BallFloat {
 }
 
 ///|
-pub fn BallFloat::contains(self : BallFloat, x : @bin_float.BinFloat) -> Bool {
+pub fn BallFloat::is_member(self : BallFloat, x : @bin_float.BinFloat) -> Bool {
   if self.is_empty() {
     return false
   }
@@ -1540,7 +1540,7 @@ pub fn BallFloat::less(self : BallFloat, other : BallFloat) -> Bool {
 }
 
 ///|
-pub fn BallFloat::strictly_less(self : BallFloat, other : BallFloat) -> Bool {
+pub fn BallFloat::strict_less(self : BallFloat, other : BallFloat) -> Bool {
   if self.is_empty() || other.is_empty() {
     return self.is_empty() && other.is_empty()
   }
@@ -1557,10 +1557,7 @@ pub fn BallFloat::precedes(self : BallFloat, other : BallFloat) -> Bool {
 }
 
 ///|
-pub fn BallFloat::strictly_precedes(
-  self : BallFloat,
-  other : BallFloat,
-) -> Bool {
+pub fn BallFloat::strict_precedes(self : BallFloat, other : BallFloat) -> Bool {
   self.is_empty() || other.is_empty() || self.hi_.compare(other.lo_) < 0
 }
 
@@ -1670,10 +1667,7 @@ pub fn BallFloat::cancel_minus(
 }
 
 ///|
-pub fn BallFloat::overlap_state(
-  self : BallFloat,
-  other : BallFloat,
-) -> OverlapState {
+pub fn BallFloat::overlap(self : BallFloat, other : BallFloat) -> OverlapState {
   if self.is_empty() {
     return if other.is_empty() { BothEmpty } else { FirstEmpty }
   }

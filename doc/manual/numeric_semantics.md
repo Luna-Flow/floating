@@ -444,7 +444,7 @@ test "an enclosure contains every exact result" {
   let one = @ball_float.BallFloat::from_int(1, precision=53)
   let three = @ball_float.BallFloat::from_int(3, precision=53)
   let third = one.div(three)
-  inspect(third.contains(@bin_float.BinFloat::from_double(1.0 / 3.0)), content="true")
+  inspect(third.is_member(@bin_float.BinFloat::from_double(1.0 / 3.0)), content="true")
   let around_zero = @ball_float.BallFloat::from_bounds(
     @bin_float.BinFloat::from_int(-1),
     @bin_float.BinFloat::from_int(1),
@@ -457,7 +457,7 @@ test "an enclosure contains every exact result" {
     ),
   )
   inspect(partly_defined.decoration(), content="com")
-  inspect(partly_defined.sqrt_interval().decoration(), content="trv")
+  inspect(partly_defined.sqrt().decoration(), content="trv")
 }
 ```
 

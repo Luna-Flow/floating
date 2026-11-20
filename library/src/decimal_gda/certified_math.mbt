@@ -526,7 +526,7 @@ fn decimal_certified_ln10_interval(
   }
   let input = @ball_float.BallFloat::from_int(10, precision~)
   input
-  .try_ln_interval()
+  .try_ln()
   .map(fn(interval) {
     decimal_certified_ln10_cache.val = { precision, interval: Some(interval), }
     interval
@@ -760,7 +760,7 @@ fn decimal_certified_power_log_candidate(
   guard base_ball is Some(base_ball) && exponent_ball is Some(exponent_ball) else {
     return Ok(None)
   }
-  let log_base = match base_ball.try_ln_interval() {
+  let log_base = match base_ball.try_ln() {
     Ok(value) => value
     Err(error) => return Err(error)
   }
@@ -772,7 +772,7 @@ fn decimal_certified_power_log_candidate(
       boundary_precision,
     )
     guard boundary is Some(boundary) else { return Ok(None) }
-    let log_boundary = match boundary.try_ln_interval() {
+    let log_boundary = match boundary.try_ln() {
       Ok(value) => value
       Err(error) => return Err(error)
     }
@@ -791,7 +791,7 @@ fn decimal_certified_power_log_candidate(
       boundary_precision,
     )
     guard boundary is Some(boundary) else { return Ok(None) }
-    let log_boundary = match boundary.try_ln_interval() {
+    let log_boundary = match boundary.try_ln() {
       Ok(value) => value
       Err(error) => return Err(error)
     }
@@ -807,7 +807,7 @@ fn decimal_certified_power_log_candidate(
       boundary_precision,
     )
     guard boundary is Some(boundary) else { return Ok(None) }
-    let log_boundary = match boundary.try_ln_interval() {
+    let log_boundary = match boundary.try_ln() {
       Ok(value) => value
       Err(error) => return Err(error)
     }
@@ -821,7 +821,7 @@ fn decimal_certified_power_log_candidate(
     guard zero_boundary is Some(zero_boundary) else { return Ok(None) }
     let boundary = decimal_bounded_ball(zero_boundary, boundary_precision)
     guard boundary is Some(boundary) else { return Ok(None) }
-    let log_boundary = match boundary.try_ln_interval() {
+    let log_boundary = match boundary.try_ln() {
       Ok(value) => value
       Err(error) => return Err(error)
     }
@@ -843,11 +843,11 @@ fn decimal_certified_power_log_candidate(
   guard lower_ball is Some(lower_ball) && upper_ball is Some(upper_ball) else {
     return Ok(None)
   }
-  let log_lower = match lower_ball.try_ln_interval() {
+  let log_lower = match lower_ball.try_ln() {
     Ok(value) => value
     Err(error) => return Err(error)
   }
-  let log_upper = match upper_ball.try_ln_interval() {
+  let log_upper = match upper_ball.try_ln() {
     Ok(value) => value
     Err(error) => return Err(error)
   }
@@ -990,7 +990,7 @@ fn decimal_certified_exp_result(
   let mut fast_attempt = initial_precision < conservative_precision
   while budget.available() {
     let input = decimal_to_certified_ball(value, budget.precision())
-    match input.try_exp_interval() {
+    match input.try_exp() {
       Ok(interval) => {
         let candidate = decimal_exp_ball_candidate(
           value,
@@ -1047,7 +1047,7 @@ fn decimal_certified_ln_result(
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   decimal_certified_unary_candidate_result(value, ctx, "ln", fn(input) {
-    input.try_ln_interval()
+    input.try_ln()
   }).map(fn(result) { decimal_ln_subset_result(value, ctx, result) })
 }
 
@@ -1058,7 +1058,7 @@ fn decimal_certified_log10_result(
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   decimal_certified_unary_candidate_result(value, ctx, "log10", fn(input) {
     input
-    .try_ln_interval()
+    .try_ln()
     .bind(fn(natural_log) {
       decimal_certified_ln10_interval(input.lower_bound().precision()).map(fn(
         ln10,
@@ -1116,7 +1116,7 @@ fn decimal_certified_power_result(
     }
     let left = decimal_to_certified_ball(base, budget.precision())
     let right = decimal_to_certified_ball(exponent, budget.precision())
-    match left.try_pow_interval(right) {
+    match left.try_pow(right) {
       Ok(interval) =>
         match decimal_certified_target(interval, ctx) {
           Some(result) => return Ok(result)

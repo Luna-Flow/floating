@@ -18,9 +18,9 @@ test "ITF1788 minimal decorated set operations" {
   assert_eq(intersection.interval().upper_bound().compare(three), 0)
   let hull = left.convex_hull(right)
   assert_eq(hull.decoration(), Trv)
-  assert_true(hull.interval().contains(one))
+  assert_true(hull.interval().is_member(one))
   assert_true(
-    hull.interval().contains(@bin_float.BinFloat::from_int(4, precision=32)),
+    hull.interval().is_member(@bin_float.BinFloat::from_int(4, precision=32)),
   )
 }
 
@@ -38,16 +38,16 @@ test "decorated NaI propagates and empty canonicalizes" {
   assert_false(nai.is_entire())
   assert_false(nai.set_equal(nai))
   assert_false(nai.subset(value))
-  assert_true(nai.overlap_state(value) == Undefined)
+  assert_true(nai.overlap(value) == Undefined)
 }
 
 ///|
 test "decorated power and trigonometric functions preserve IEEE domain grades" {
   let entire = BallFloatDecorated::new(
-    BallFloat::whole(precision=53),
+    BallFloat::entire(precision=53),
     decoration=Def,
   )
-  let sine = entire.sin_interval()
+  let sine = entire.sin()
   assert_eq(sine.decoration(), Def)
   assert_true(
     sine
@@ -60,7 +60,7 @@ test "decorated power and trigonometric functions preserve IEEE domain grades" {
       ),
     ),
   )
-  assert_eq(entire.tan_interval().decoration(), Trv)
+  assert_eq(entire.tan().decoration(), Trv)
   let negative = BallFloatDecorated::new(
     BallFloat::from_bounds(
       @bin_float.BinFloat::from_int(-2, precision=53),
@@ -69,7 +69,7 @@ test "decorated power and trigonometric functions preserve IEEE domain grades" {
     ),
   )
   let exponent = BallFloatDecorated::new(BallFloat::from_int(2, precision=53))
-  let power = negative.pow_interval(exponent)
+  let power = negative.pow(exponent)
   assert_true(power.interval().is_empty())
   assert_eq(power.decoration(), Trv)
 }
@@ -94,8 +94,8 @@ test "decorated arithmetic applies operand and operation grades" {
   assert_eq((left - right).decoration(), Dac)
   assert_eq((left * right).decoration(), Dac)
   assert_eq((left / right).decoration(), Dac)
-  assert_eq(left.minimum(right).decoration(), Dac)
-  assert_eq(left.maximum(right).decoration(), Dac)
+  assert_eq(left.min(right).decoration(), Dac)
+  assert_eq(left.max(right).decoration(), Dac)
   assert_eq(left.fma(right, right).decoration(), Dac)
   assert_eq(left.intersection(right).decoration(), Trv)
   assert_eq(left.convex_hull(right).decoration(), Trv)
@@ -111,11 +111,11 @@ test "decorated unary domains downgrade without losing enclosures" {
       @bin_float.BinFloat::from_int(1, precision=53),
     ),
   )
-  assert_eq(crossing.reciprocal().decoration(), Trv)
-  assert_eq(crossing.sqrt_interval().decoration(), Trv)
-  assert_eq(crossing.ln_interval().decoration(), Trv)
-  assert_eq(crossing.log2_interval().decoration(), Trv)
-  assert_eq(crossing.log10_interval().decoration(), Trv)
+  assert_eq(crossing.recip().decoration(), Trv)
+  assert_eq(crossing.sqrt().decoration(), Trv)
+  assert_eq(crossing.ln().decoration(), Trv)
+  assert_eq(crossing.log2().decoration(), Trv)
+  assert_eq(crossing.log10().decoration(), Trv)
   assert_eq(crossing.pown(-2).decoration(), Trv)
   let positive = BallFloatDecorated::new(
     BallFloat::from_bounds(
@@ -127,22 +127,22 @@ test "decorated unary domains downgrade without losing enclosures" {
   assert_eq(positive.pos().decoration(), Def)
   assert_eq(positive.neg().decoration(), Def)
   assert_eq(positive.abs().decoration(), Def)
-  assert_eq(positive.square().decoration(), Def)
-  assert_eq(positive.exp_interval().decoration(), Def)
-  assert_eq(positive.exp2_interval().decoration(), Def)
-  assert_eq(positive.exp10_interval().decoration(), Def)
-  assert_eq(positive.sin_interval().decoration(), Def)
-  assert_eq(positive.cos_interval().decoration(), Def)
+  assert_eq(positive.sqr().decoration(), Def)
+  assert_eq(positive.exp().decoration(), Def)
+  assert_eq(positive.exp2().decoration(), Def)
+  assert_eq(positive.exp10().decoration(), Def)
+  assert_eq(positive.sin().decoration(), Def)
+  assert_eq(positive.cos().decoration(), Def)
 }
 
 ///|
 test "decorated NaI propagates through unary binary and ternary operations" {
   let nai = BallFloatDecorated::nai(precision=53)
   let value = BallFloatDecorated::new(BallFloat::from_int(2, precision=53))
-  assert_true(nai.reciprocal().is_nai())
-  assert_true(nai.sqrt_interval().is_nai())
-  assert_true(nai.pow_interval(value).is_nai())
-  assert_true(value.pow_interval(nai).is_nai())
+  assert_true(nai.recip().is_nai())
+  assert_true(nai.sqrt().is_nai())
+  assert_true(nai.pow(value).is_nai())
+  assert_true(value.pow(nai).is_nai())
   assert_true(nai.fma(value, value).is_nai())
   assert_true(value.fma(nai, value).is_nai())
   assert_true(value.fma(value, nai).is_nai())
@@ -223,24 +223,22 @@ test "decorated tanpi with a pole at an endpoint is trv" {
   let zero = @bin_float.BinFloat::zero(precision=53)
   let half = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -1, 53)
   let one = @bin_float.BinFloat::one(precision=53)
-  let lower_pole = decorated_test_interval(half, one).tanpi_interval()
+  let lower_pole = decorated_test_interval(half, one).tanpi()
   assert_true(
     lower_pole.interval().lower_bound().classify() == FpClass::Infinity,
   )
   assert_eq(lower_pole.decoration(), Trv)
-  let upper_pole = decorated_test_interval(zero, half).tanpi_interval()
+  let upper_pole = decorated_test_interval(zero, half).tanpi()
   assert_true(
     upper_pole.interval().upper_bound().classify() == FpClass::Infinity,
   )
   assert_eq(upper_pole.decoration(), Trv)
-  let interior_pole = decorated_test_interval(zero, one).tanpi_interval()
+  let interior_pole = decorated_test_interval(zero, one).tanpi()
   assert_eq(interior_pole.decoration(), Trv)
   // Without a pole the result is bounded and common.
   let quarter = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -2, 53)
   assert_eq(
-    decorated_test_interval(quarter.neg(), quarter)
-    .tanpi_interval()
-    .decoration(),
+    decorated_test_interval(quarter.neg(), quarter).tanpi().decoration(),
     Com,
   )
 }

@@ -5,19 +5,19 @@ test "certified atan2 handles axes and branch cut" {
   let minus_one = BallFloat::from_double(-1.0, precision=53)
   assert_true(
     one
-    .atan2_interval(zero)
-    .contains(@bin_float.BinFloat::from_double(1.5707963267948966)),
+    .atan2(zero)
+    .is_member(@bin_float.BinFloat::from_double(1.5707963267948966)),
   )
-  assert_true(zero.atan2_interval(one).contains(@bin_float.BinFloat::zero()))
+  assert_true(zero.atan2(one).is_member(@bin_float.BinFloat::zero()))
   let crossing = BallFloat::from_bounds(
     @bin_float.BinFloat::from_double(-1.0),
     @bin_float.BinFloat::from_double(1.0),
     precision=53,
-  ).atan2_interval(minus_one)
-  assert_true(crossing.contains(@bin_float.BinFloat::from_double(-3.0)))
-  assert_true(crossing.contains(@bin_float.BinFloat::from_double(3.0)))
-  assert_true(one.try_atan2_interval(zero) is Ok(_))
-  assert_true(crossing.try_atan2_interval(minus_one) is Ok(_))
+  ).atan2(minus_one)
+  assert_true(crossing.is_member(@bin_float.BinFloat::from_double(-3.0)))
+  assert_true(crossing.is_member(@bin_float.BinFloat::from_double(3.0)))
+  assert_true(one.try_atan2(zero) is Ok(_))
+  assert_true(crossing.try_atan2(minus_one) is Ok(_))
 }
 
 ///|
@@ -27,7 +27,7 @@ test "atan2 identifies signed zero endpoints with the real interval zero" {
     @bin_float.BinFloat::zero(precision=53),
     precision=53,
   )
-  let actual = ordinate.atan2_interval(BallFloat::whole(precision=53))
+  let actual = ordinate.atan2(BallFloat::entire(precision=53))
   let rounded = actual.apply_ctx(BallContext::binary64()).0
   assert_true(rounded.lower_bound().is_zero())
   assert_eq(
@@ -54,5 +54,5 @@ test "decorated atan2 downgrades an upper-side branch-cut touch" {
     ),
     decoration=Decoration::Com,
   )
-  assert_true(ordinate.atan2_interval(abscissa).decoration() == Decoration::Dac)
+  assert_true(ordinate.atan2(abscissa).decoration() == Decoration::Dac)
 }

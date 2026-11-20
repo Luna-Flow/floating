@@ -8,7 +8,7 @@ test "BallFloat::from_int contains integers wider than the precision" {
     let exact = @bin_float.BinFloat::from_int(n, precision=32)
     for precision in [16, 8, 24, 53] {
       let ball = BallFloat::from_int(n, precision~)
-      assert_true(ball.contains(exact))
+      assert_true(ball.is_member(exact))
     }
   }
 }
@@ -24,7 +24,7 @@ test "BallFloat::from_coefficient contains coefficients wider than the precision
     )
     for precision in [16, 8, 24] {
       let ball = BallFloat::from_coefficient(coefficient, precision~, negative~)
-      assert_true(ball.contains(exact))
+      assert_true(ball.is_member(exact))
     }
   }
 }

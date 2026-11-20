@@ -619,7 +619,7 @@ fn decimal_certified_exp_result(
     None => ()
   }
   decimal_certified_unary_result(value, ctx, "exp", fn(input) {
-    input.try_exp_interval()
+    input.try_exp()
   })
 }
 
@@ -628,9 +628,7 @@ fn decimal_certified_ln_result(
   value : Decimal,
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
-  decimal_certified_unary_result(value, ctx, "ln", fn(input) {
-    input.try_ln_interval()
-  })
+  decimal_certified_unary_result(value, ctx, "ln", fn(input) { input.try_ln() })
 }
 
 ///|
@@ -639,7 +637,7 @@ fn decimal_certified_log10_result(
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   decimal_certified_unary_result(value, ctx, "log10", fn(input) {
-    input.try_log10_interval()
+    input.try_log10()
   })
 }
 
@@ -750,7 +748,7 @@ fn decimal_certified_power_result(
   }
   // x^y = exp(y ln x) for x > 0, composed in interval arithmetic: one `ln`, one
   // product and one `exp` enclosure instead of the eight correctly rounded
-  // binary powers of `try_pow_interval` (#352). The composition loses about
+  // binary powers of `try_pow` (#352). The composition loses about
   // log2 |y ln x| bits of relative accuracy, added as guard bits so the
   // refinement loop starts at a sufficient precision. Correct rounding makes
   // the delivered result independent of the enclosure's width.
@@ -759,7 +757,7 @@ fn decimal_certified_power_result(
       left,
       right,
     ) {
-      left.try_pow_interval(right)
+      left.try_pow(right)
     })
   }
   decimal_certified_binary_result(
@@ -767,9 +765,7 @@ fn decimal_certified_power_result(
     exponent,
     ctx,
     "power",
-    fn(left, right) {
-      left.try_ln_interval().bind(fn(log) { right.mul(log).try_exp_interval() })
-    },
+    fn(left, right) { left.try_ln().bind(fn(log) { right.mul(log).try_exp() }) },
     guard_bits=decimal_power_guard_bits(base, exponent),
   )
 }

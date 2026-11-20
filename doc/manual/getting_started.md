@@ -88,7 +88,7 @@ test "first values" {
     @bin_float.BinFloat::from_int(1),
     @bin_float.BinFloat::from_int(2),
   )
-  inspect(interval.contains(binary), content="true")
+  inspect(interval.is_member(binary), content="true")
 }
 ```
 

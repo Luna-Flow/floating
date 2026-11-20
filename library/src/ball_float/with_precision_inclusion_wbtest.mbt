@@ -17,10 +17,10 @@ test "BallFloat::with_precision keeps a far lower endpoint" {
   let lo = with_precision_power(-200000, 53)
   let hi = @bin_float.BinFloat::one(precision=53)
   let x = BallFloat::from_bounds(lo, hi, precision=53)
-  assert_true(x.contains(lo))
+  assert_true(x.is_member(lo))
   let y = x.with_precision(70000)
-  assert_true(y.contains(lo))
-  assert_true(y.contains(hi))
+  assert_true(y.is_member(lo))
+  assert_true(y.is_member(hi))
   assert_eq(y.lower_bound().exponent2(), -200000)
 }
 
@@ -36,8 +36,8 @@ test "BallFloat::with_precision encloses across the far addend margin" {
       let x = BallFloat::from_bounds(low, high, precision=53)
       for precision in [1, 8, 53, 65535, 65536, 65539, 70000, 131072] {
         let y = x.with_precision(precision)
-        assert_true(y.contains(x.lower_bound()))
-        assert_true(y.contains(x.upper_bound()))
+        assert_true(y.is_member(x.lower_bound()))
+        assert_true(y.is_member(x.upper_bound()))
         assert_eq(y.precision(), Int32::max(1, precision))
       }
     }
@@ -105,5 +105,5 @@ test "BallFloat::with_precision keeps degenerate intervals" {
   )
   assert_true(x.with_precision(53).set_equal(x))
   assert_true(BallFloat::empty(precision=53).with_precision(70000).is_empty())
-  assert_true(BallFloat::whole(precision=53).with_precision(70000).is_entire())
+  assert_true(BallFloat::entire(precision=53).with_precision(70000).is_entire())
 }

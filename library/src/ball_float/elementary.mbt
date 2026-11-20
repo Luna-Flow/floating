@@ -104,10 +104,10 @@ fn rat_from_finite_bin(value : @bin_float.BinFloat) -> CertifiedRat {
 }
 
 ///|
-/// Total: the `try_exp_interval` form, or the range of the function when the kernel cannot
+/// Total: the `try_exp` form, or the range of the function when the kernel cannot
 /// certify a bound (issue 449).
-pub fn BallFloat::exp_interval(self : BallFloat) -> BallFloat {
-  match self.try_exp_interval() {
+pub fn BallFloat::exp(self : BallFloat) -> BallFloat {
+  match self.try_exp() {
     Ok(result) => result
     Err(_) =>
       store_interval(
@@ -119,10 +119,10 @@ pub fn BallFloat::exp_interval(self : BallFloat) -> BallFloat {
 }
 
 ///|
-/// Total: the `try_exp2_interval` form, or the range of the function when the kernel cannot
+/// Total: the `try_exp2` form, or the range of the function when the kernel cannot
 /// certify a bound (issue 449).
-pub fn BallFloat::exp2_interval(self : BallFloat) -> BallFloat {
-  match self.try_exp2_interval() {
+pub fn BallFloat::exp2(self : BallFloat) -> BallFloat {
+  match self.try_exp2() {
     Ok(result) => result
     Err(_) =>
       store_interval(
@@ -134,10 +134,10 @@ pub fn BallFloat::exp2_interval(self : BallFloat) -> BallFloat {
 }
 
 ///|
-/// Total: the `try_exp10_interval` form, or the range of the function when the kernel cannot
+/// Total: the `try_exp10` form, or the range of the function when the kernel cannot
 /// certify a bound (issue 449).
-pub fn BallFloat::exp10_interval(self : BallFloat) -> BallFloat {
-  match self.try_exp10_interval() {
+pub fn BallFloat::exp10(self : BallFloat) -> BallFloat {
+  match self.try_exp10() {
     Ok(result) => result
     Err(_) =>
       store_interval(
@@ -150,8 +150,8 @@ pub fn BallFloat::exp10_interval(self : BallFloat) -> BallFloat {
 
 ///|
 /// Certified interval for exp(x) - 1.
-pub fn BallFloat::expm1_interval(self : BallFloat) -> BallFloat {
-  match self.try_expm1_interval() {
+pub fn BallFloat::expm1(self : BallFloat) -> BallFloat {
+  match self.try_expm1() {
     Ok(result) => result
     Err(_) =>
       store_interval(
@@ -163,30 +163,30 @@ pub fn BallFloat::expm1_interval(self : BallFloat) -> BallFloat {
 }
 
 ///|
-/// Total: the `try_ln_interval` form, or the range of the function when the kernel cannot
+/// Total: the `try_ln` form, or the range of the function when the kernel cannot
 /// certify a bound (issue 449).
-pub fn BallFloat::ln_interval(self : BallFloat) -> BallFloat {
-  match self.try_ln_interval() {
+pub fn BallFloat::ln(self : BallFloat) -> BallFloat {
+  match self.try_ln() {
     Ok(result) => result
     Err(_) => whole_real(self.precision_)
   }
 }
 
 ///|
-/// Total: the `try_log2_interval` form, or the range of the function when the kernel cannot
+/// Total: the `try_log2` form, or the range of the function when the kernel cannot
 /// certify a bound (issue 449).
-pub fn BallFloat::log2_interval(self : BallFloat) -> BallFloat {
-  match self.try_log2_interval() {
+pub fn BallFloat::log2(self : BallFloat) -> BallFloat {
+  match self.try_log2() {
     Ok(result) => result
     Err(_) => whole_real(self.precision_)
   }
 }
 
 ///|
-/// Total: the `try_log10_interval` form, or the range of the function when the kernel cannot
+/// Total: the `try_log10` form, or the range of the function when the kernel cannot
 /// certify a bound (issue 449).
-pub fn BallFloat::log10_interval(self : BallFloat) -> BallFloat {
-  match self.try_log10_interval() {
+pub fn BallFloat::log10(self : BallFloat) -> BallFloat {
+  match self.try_log10() {
     Ok(result) => result
     Err(_) => whole_real(self.precision_)
   }
@@ -194,8 +194,8 @@ pub fn BallFloat::log10_interval(self : BallFloat) -> BallFloat {
 
 ///|
 /// Certified interval for ln(1 + x).
-pub fn BallFloat::log1p_interval(self : BallFloat) -> BallFloat {
-  match self.try_log1p_interval() {
+pub fn BallFloat::log1p(self : BallFloat) -> BallFloat {
+  match self.try_log1p() {
     Ok(result) => result
     Err(_) => whole_real(self.precision_)
   }
@@ -220,7 +220,7 @@ fn ball_range_resource_failure(
 }
 
 ///|
-pub fn BallFloat::try_exp_interval(
+pub fn BallFloat::try_exp(
   self : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
   self.try_certified_monotone(true, fn(value, context) {
@@ -229,7 +229,7 @@ pub fn BallFloat::try_exp_interval(
 }
 
 ///|
-pub fn BallFloat::try_expm1_interval(
+pub fn BallFloat::try_expm1(
   self : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
   if self.is_empty() {
@@ -261,7 +261,7 @@ pub fn BallFloat::try_expm1_interval(
 }
 
 ///|
-pub fn BallFloat::try_ln_interval(
+pub fn BallFloat::try_ln(
   self : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
   if self.is_empty() {
@@ -295,7 +295,7 @@ pub fn BallFloat::try_ln_interval(
 }
 
 ///|
-pub fn BallFloat::try_log1p_interval(
+pub fn BallFloat::try_log1p(
   self : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
   if self.is_empty() {
@@ -364,7 +364,7 @@ fn BallFloat::try_trig_point_interval(
 }
 
 ///|
-pub fn BallFloat::try_sin_interval(
+pub fn BallFloat::try_sin(
   self : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
   if self.is_empty() {
@@ -396,7 +396,7 @@ pub fn BallFloat::try_sin_interval(
 }
 
 ///|
-pub fn BallFloat::try_cos_interval(
+pub fn BallFloat::try_cos(
   self : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
   if self.is_empty() {
@@ -428,7 +428,7 @@ pub fn BallFloat::try_cos_interval(
 }
 
 ///|
-pub fn BallFloat::try_tan_interval(
+pub fn BallFloat::try_tan(
   self : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
   if self.is_empty() {

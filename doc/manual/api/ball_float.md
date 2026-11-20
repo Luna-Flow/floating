@@ -328,12 +328,12 @@ abort the plain forms and are domain errors for the `try_` forms. The result
 encloses the binary value, not the decimal literal it was written as:
 `from_double(0.1)` does not contain $1/10$.
 
-### `BallFloat::whole` and `BallFloat::empty`
+### `BallFloat::entire` and `BallFloat::empty`
 
-`BallFloat::whole` returns Entire and `BallFloat::empty` returns Empty.
+`BallFloat::entire` returns Entire and `BallFloat::empty` returns Empty.
 
 ```mbti
-pub fn BallFloat::whole(precision? : Int) -> Self
+pub fn BallFloat::entire(precision? : Int) -> Self
 pub fn BallFloat::empty(precision? : Int) -> Self
 ```
 
@@ -488,7 +488,7 @@ stays Empty with the new precision.
 > center, so at 53 bits $[1, 1 + 2^{-52}]$ became $[1 - 2^{-52}, 1 + 2^{-52}]$.
 > `normalized`, `convex_hull` with an Empty operand, the checked capabilities
 > (`div_checked`, `pow_nat_checked`, `pow_int_checked`) and the
-> `pow_nat`/`pow_int` methods of `ball_float_checked` round endpoints the same
+> `pow_nat`/`pown` methods of `ball_float_checked` round endpoints the same
 > way and do not widen a representable interval either.
 
 ```moonbit
@@ -589,12 +589,12 @@ test "set operations" {
 All relations are set relations of IEEE 1788; none of them is a total order.
 They never abort.
 
-### `BallFloat::contains`
+### `BallFloat::is_member`
 
 `contains` tests whether a point belongs to the interval.
 
 ```mbti
-pub fn BallFloat::contains(Self, @bin_float.BinFloat) -> Bool
+pub fn BallFloat::is_member(Self, @bin_float.BinFloat) -> Bool
 ```
 
 It returns false for Empty and for a non-finite point (an unbounded interval
@@ -624,15 +624,15 @@ $(a, +\infty)$, so Entire is interior to itself). Empty is a subset of,
 interior to and disjoint from every interval. `set_equal` ignores the
 precision tag and the representation of the endpoints.
 
-### `BallFloat::less`, `BallFloat::strictly_less`, `BallFloat::precedes`, `BallFloat::strictly_precedes`
+### `BallFloat::less`, `BallFloat::strict_less`, `BallFloat::precedes`, `BallFloat::strict_precedes`
 
 These are the order relations of IEEE 1788.
 
 ```mbti
 pub fn BallFloat::less(Self, Self) -> Bool
-pub fn BallFloat::strictly_less(Self, Self) -> Bool
+pub fn BallFloat::strict_less(Self, Self) -> Bool
 pub fn BallFloat::precedes(Self, Self) -> Bool
-pub fn BallFloat::strictly_precedes(Self, Self) -> Bool
+pub fn BallFloat::strict_precedes(Self, Self) -> Bool
 ```
 
 For non-empty operands:
@@ -647,12 +647,12 @@ For non-empty operands:
 With Empty: `less` and `strictly_less` hold only when both are Empty;
 `precedes` and `strictly_precedes` hold when either is Empty.
 
-### `BallFloat::overlap_state`
+### `BallFloat::overlap`
 
 `overlap_state` classifies the relative position of two intervals.
 
 ```mbti
-pub fn BallFloat::overlap_state(Self, Self) -> OverlapState
+pub fn BallFloat::overlap(Self, Self) -> OverlapState
 ```
 
 The result is one of the sixteen states of [`OverlapState`](#overlapstate)
@@ -667,13 +667,13 @@ test "relations" {
   let a = iv(1, 3)
   let b = iv(3, 6)
   inspect(a.precedes(b), content="true")
-  inspect(a.strictly_precedes(b), content="false")
+  inspect(a.strict_precedes(b), content="false")
   inspect(@lf_arith.DefinitelyLe::definitely_le(a, b), content="true")
   inspect(@lf_arith.MaybeEq::maybe_eq(a, b), content="true")
   inspect(iv(2, 3).interior(iv(1, 6)), content="true")
   inspect(iv(1, 3).interior(iv(1, 6)), content="false")
-  debug_inspect(a.overlap_state(b), content="Meets")
-  debug_inspect(iv(1, 6).overlap_state(iv(2, 3)), content="ContainsInterval")
+  debug_inspect(a.overlap(b), content="Meets")
+  debug_inspect(iv(1, 6).overlap(iv(2, 3)), content="ContainsInterval")
 }
 ```
 
@@ -756,25 +756,25 @@ pub fn BallFloat::abs(Self) -> Self
 $\overline{x} \le 0$, and $[0, \operatorname{mag}\boldsymbol{x}]$ otherwise.
 Both are exact. `neg` is also the unary operator `-`.
 
-### `BallFloat::reciprocal`
+### `BallFloat::recip`
 
 `reciprocal` returns $1/\boldsymbol{x}$ with the division rules above.
 
 ```mbti
-pub fn BallFloat::reciprocal(Self) -> Self
+pub fn BallFloat::recip(Self) -> Self
 ```
 
-### `BallFloat::square` and `BallFloat::pown`
+### `BallFloat::sqr` and `BallFloat::pown`
 
 `square` returns $\{\xi^2\}$ and `pown` returns $\{\xi^n\}$ for an integer
 exponent $n$.
 
 ```mbti
-pub fn BallFloat::square(Self) -> Self
+pub fn BallFloat::sqr(Self) -> Self
 pub fn BallFloat::pown(Self, Int) -> Self
 ```
 
-Unlike `x * x`, these use the same point twice, so `[-1, 2].square()` is
+Unlike `x * x`, these use the same point twice, so `[-1, 2].sqr()` is
 $[0, 4]$ (while `x * x` is $[-2, 4]$): `square` is
 $[\operatorname{mig}(\boldsymbol{x})^2, \operatorname{mag}(\boldsymbol{x})^2]$.
 `pown` evaluates the monotone pieces of $\xi^n$ at the endpoints with directed
@@ -791,7 +791,7 @@ for even $n$; this is a valid but not tight enclosure.
 ///|
 test "powers" {
   let x = iv(-1, 2)
-  inspect(fmt(x.square()), content="[0.00000e+0, 4.00000e+0]")
+  inspect(fmt(x.sqr()), content="[0.00000e+0, 4.00000e+0]")
   inspect(fmt(x.pown(3)), content="[-1.00000e+0, 8.00000e+0]")
   inspect(fmt(x.pown(-2)), content="[2.50000e-1, inf]")
   inspect(x.pown(-1).is_entire(), content="true")
@@ -812,14 +812,14 @@ The exact product bounds are computed as for `mul` and added to the endpoints
 of $\boldsymbol{z}$ before the final rounding, so the result is never wider
 than `x * y + z`.
 
-### `BallFloat::minimum` and `BallFloat::maximum`
+### `BallFloat::min` and `BallFloat::max`
 
 `minimum` and `maximum` return $\{\min(\xi, \eta)\}$ and
 $\{\max(\xi, \eta)\}$.
 
 ```mbti
-pub fn BallFloat::minimum(Self, Self) -> Self
-pub fn BallFloat::maximum(Self, Self) -> Self
+pub fn BallFloat::min(Self, Self) -> Self
+pub fn BallFloat::max(Self, Self) -> Self
 ```
 
 `minimum` is $[\min(\underline{x}, \underline{y}), \min(\overline{x},
@@ -835,11 +835,11 @@ $\boldsymbol{x} \cap D_f$ is empty. The result precision is the argument's
 precision.
 
 Functions come in two forms, and there is one kernel. The `try_` form
-(`try_exp_interval`, …) evaluates each endpoint with the corresponding
+(`try_exp`, …) evaluates each endpoint with the corresponding
 `bin_float` `try_*_ctx` function rounded toward $-\infty$ or $+\infty$, and
 returns `Err(ArithmeticError)` with a certification-failure detail naming the
 operation, stage and reason when that evaluation runs out of its work budget.
-The total form (`exp_interval`, `sin_interval`, …) is the `try_` form with a
+The total form (`exp`, `sin`, …) is the `try_` form with a
 fallback: it returns the same interval whenever the `try_` form succeeds, and
 otherwise the range of the function over its domain (the fallbacks are listed
 below), which is a valid but wide enclosure. A total form never aborts, at any
@@ -848,32 +848,32 @@ Empty), so an argument outside the domain and a certification failure give
 different results. Nothing is computed twice: the total form calls the `try_`
 form once.
 
-### `BallFloat::sqrt_interval`
+### `BallFloat::sqrt`
 
-`sqrt_interval` returns $\sqrt{\boldsymbol{x} \cap [0, +\infty)}$.
+`sqrt` returns $\sqrt{\boldsymbol{x} \cap [0, +\infty)}$.
 
 ```mbti
-pub fn BallFloat::sqrt_interval(Self) -> Self
+pub fn BallFloat::sqrt(Self) -> Self
 ```
 
 The endpoints are the downward and upward square roots at the interval's
 precision. Empty when $\overline{x} < 0$. There is no `try_` form: square
 root never fails.
 
-### `BallFloat::exp_interval`, `BallFloat::exp2_interval`, `BallFloat::exp10_interval`, `BallFloat::expm1_interval`, `BallFloat::try_exp_interval`, `BallFloat::try_exp2_interval`, `BallFloat::try_exp10_interval`, `BallFloat::try_expm1_interval`
+### `BallFloat::exp`, `BallFloat::exp2`, `BallFloat::exp10`, `BallFloat::expm1`, `BallFloat::try_exp`, `BallFloat::try_exp2`, `BallFloat::try_exp10`, `BallFloat::try_expm1`
 
 These return enclosures of $e^{\xi}$, $2^{\xi}$, $10^{\xi}$ and
 $e^{\xi} - 1$.
 
 ```mbti
-pub fn BallFloat::exp_interval(Self) -> Self
-pub fn BallFloat::exp2_interval(Self) -> Self
-pub fn BallFloat::exp10_interval(Self) -> Self
-pub fn BallFloat::expm1_interval(Self) -> Self
-pub fn BallFloat::try_exp_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_exp2_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_exp10_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_expm1_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::exp(Self) -> Self
+pub fn BallFloat::exp2(Self) -> Self
+pub fn BallFloat::exp10(Self) -> Self
+pub fn BallFloat::expm1(Self) -> Self
+pub fn BallFloat::try_exp(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_exp2(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_exp10(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_expm1(Self) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 All four are increasing, so the result is
@@ -881,36 +881,36 @@ $[\operatorname{RD} f(\underline{x}), \operatorname{RU} f(\overline{x})]$.
 For $|\xi| \ge 2^{30}$ the enclosure is $[\text{largest finite}, +\infty)$ or
 $[0, \text{smallest positive}]$, which is valid because $e^{2^{30}}$ exceeds
 $2^{e_{\max}+1}$ and $e^{-2^{30}}$ is below the smallest positive `BinFloat`
-at every precision. `exp2_interval` and `exp10_interval` return exact powers
+at every precision. `exp2` and `exp10` return exact powers
 for integer endpoints whose power is representable at the interval's precision
-(`exp2_interval` of $\{10\}$ is $\{1024\}$, `exp10_interval` of $\{3\}$ is
+(`exp2` of $\{10\}$ is $\{1024\}$, `exp10` of $\{3\}$ is
 $\{1000\}$); an integer endpoint outside the exponent range keeps the
-outward-rounded enclosure, so `exp2_interval` of $\{-1073742000\}$ is
+outward-rounded enclosure, so `exp2` of $\{-1073742000\}$ is
 $[0, \text{smallest positive}]$ and of $\{2^{30}\}$ is
 $[\text{largest finite}, +\infty)$. The fallback of the total forms is
 $[0, +\infty)$ for `exp`, `exp2` and `exp10` and $[-1, +\infty)$ for
 `expm1`.
 
-### `BallFloat::ln_interval`, `BallFloat::log2_interval`, `BallFloat::log10_interval`, `BallFloat::log1p_interval`, `BallFloat::try_ln_interval`, `BallFloat::try_log2_interval`, `BallFloat::try_log10_interval`, `BallFloat::try_log1p_interval`
+### `BallFloat::ln`, `BallFloat::log2`, `BallFloat::log10`, `BallFloat::log1p`, `BallFloat::try_ln`, `BallFloat::try_log2`, `BallFloat::try_log10`, `BallFloat::try_log1p`
 
 These return enclosures of $\ln \xi$, $\log_2 \xi$, $\log_{10} \xi$ and
 $\ln(1 + \xi)$ over their domains $(0, \infty)$ and $(-1, \infty)$.
 
 ```mbti
-pub fn BallFloat::ln_interval(Self) -> Self
-pub fn BallFloat::log2_interval(Self) -> Self
-pub fn BallFloat::log10_interval(Self) -> Self
-pub fn BallFloat::log1p_interval(Self) -> Self
-pub fn BallFloat::try_ln_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_log2_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_log10_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_log1p_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::ln(Self) -> Self
+pub fn BallFloat::log2(Self) -> Self
+pub fn BallFloat::log10(Self) -> Self
+pub fn BallFloat::log1p(Self) -> Self
+pub fn BallFloat::try_ln(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_log2(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_log10(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_log1p(Self) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 When the interval reaches the domain boundary ($\underline{x} \le 0$, or
 $\underline{x} \le -1$ for `log1p`) the lower endpoint is $-\infty$; when it
 lies entirely outside the domain ($\overline{x} \le 0$, or
-$\overline{x} < -1$ for `log1p`) the result is Empty. `log10_interval`
+$\overline{x} < -1$ for `log1p`) the result is Empty. `log10`
 returns exact integers at endpoints $10^k$, $0 \le k \le 9$. The fallback of
 the total forms is Entire (an endpoint at or below the domain boundary is
 decided before the kernel runs and is not a failure).
@@ -918,30 +918,30 @@ decided before the kernel runs and is not a failure).
 ```moonbit
 ///|
 test "exponentials and logarithms" {
-  inspect(fmt(iv(0, 1).exp_interval()), content="[1.00000e+0, 2.71829e+0]")
-  inspect(fmt(iv(-1, 10).exp2_interval()), content="[5.00000e-1, 1.02400e+3]")
-  inspect(fmt(iv(0, 4).ln_interval()), content="[-inf, 1.38630e+0]")
-  inspect(fmt(iv(1, 1000).log10_interval()), content="[0.00000e+0, 3.00000e+0]")
-  inspect(iv(-2, -1).ln_interval().is_empty(), content="true")
+  inspect(fmt(iv(0, 1).exp()), content="[1.00000e+0, 2.71829e+0]")
+  inspect(fmt(iv(-1, 10).exp2()), content="[5.00000e-1, 1.02400e+3]")
+  inspect(fmt(iv(0, 4).ln()), content="[-inf, 1.38630e+0]")
+  inspect(fmt(iv(1, 1000).log10()), content="[0.00000e+0, 3.00000e+0]")
+  inspect(iv(-2, -1).ln().is_empty(), content="true")
   // Integer endpoints outside the exponent range keep the outward-rounded enclosure.
-  let below = @ball_float.BallFloat::from_int(-1073742000, precision=53).exp2_interval()
+  let below = @ball_float.BallFloat::from_int(-1073742000, precision=53).exp2()
   inspect(below.lower_bound().to_string(), content="0")
   inspect(below.upper_bound().to_string(), content="1p-1073741875")
-  let above = @ball_float.BallFloat::from_int(1 << 30, precision=53).exp2_interval()
+  let above = @ball_float.BallFloat::from_int(1 << 30, precision=53).exp2()
   inspect(above.lower_bound().to_string(), content="9007199254740991p1073741771")
   inspect(above.upper_bound().to_string(), content="inf")
 }
 ```
 
-### `BallFloat::pow_interval` and `BallFloat::try_pow_interval`
+### `BallFloat::pow` and `BallFloat::try_pow`
 
-`pow_interval(x, y)` returns an enclosure of
+`pow(x, y)` returns an enclosure of
 $\{\xi^{\eta} : \xi \in \boldsymbol{x}, \eta \in \boldsymbol{y}\}$ over the
 IEEE 1788 domain of `pow`: $\xi > 0$, or $\xi = 0$ and $\eta > 0$.
 
 ```mbti
-pub fn BallFloat::pow_interval(Self, Self) -> Self
-pub fn BallFloat::try_pow_interval(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::pow(Self, Self) -> Self
+pub fn BallFloat::try_pow(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 Negative parts of the base are ignored (use `pown` or `rootn` for negative
@@ -952,7 +952,7 @@ $\to +\infty$ for $\eta < 0$, so the result is extended by 0 or $+\infty$
 accordingly. The code also adds the value 1 when the base interval contains
 1 or the exponent interval contains 0; it already lies between the corner
 values, so this changes nothing but is harmless. $0^{\eta}$ for $\eta \le 0$
-is excluded, so `pow_interval([0, 0], y)` is Empty when $\overline{y} \le 0$.
+is excluded, so `pow([0, 0], y)` is Empty when $\overline{y} \le 0$.
 The result precision is the larger operand precision. A corner whose power is
 representable at the result precision, such as $16^{3/4} = 8$, gives that
 power exactly. The total
@@ -970,7 +970,7 @@ pub fn BallFloat::try_rootn(Self, Int) -> Result[Self, @arithmetic.ArithmeticErr
 ```
 
 `rootn(x, 0)` and `rootn(x, Int min)` are Empty; `try_rootn(x, 0)` is a domain
-error. `rootn(x, 1)` is `x` and `rootn(x, 2)` is `sqrt_interval`. The total
+error. `rootn(x, 1)` is `x` and `rootn(x, 2)` is `sqrt`. The total
 form is `try_rootn` with a fallback ($[0, +\infty)$ for an even degree, Entire
 for an odd one). For negative $n$, `try_rootn` returns Entire when an odd
 root's argument contains 0. Exact roots are returned exactly for every degree, so
@@ -982,7 +982,7 @@ test "exact powers and roots" {
   let three_quarters = @ball_float.BallFloat::exact(
     @bin_float.BinFloat::make(@bin_float.BinCoeff::from_uint64(3UL), -2, 53),
   )
-  let p = iv(16, 16).pow_interval(three_quarters)
+  let p = iv(16, 16).pow(three_quarters)
   inspect(p.lower_bound().to_string() + " " + p.upper_bound().to_string(), content="1p3 1p3")
   let r = iv(8, 8).try_rootn(-3).unwrap()
   inspect(r.lower_bound().to_string() + " " + r.upper_bound().to_string(), content="1p-1 1p-1")
@@ -1002,20 +1002,20 @@ The function is increasing in $|\xi|$ and $|\eta|$, so the result is
 $[\operatorname{RD}\operatorname{hypot}(\operatorname{mig}\boldsymbol{x}, \operatorname{mig}\boldsymbol{y}),
 \operatorname{RU}\operatorname{hypot}(\operatorname{mag}\boldsymbol{x}, \operatorname{mag}\boldsymbol{y})]$,
 evaluated on the endpoints of `abs(x)` and `abs(y)`. The total form falls back
-to `sqrt_interval(square(x) + square(y))`.
+to `sqrt(sqr(x) + sqr(y))`.
 
-### `BallFloat::sin_interval`, `BallFloat::cos_interval`, `BallFloat::tan_interval`, `BallFloat::try_sin_interval`, `BallFloat::try_cos_interval`, `BallFloat::try_tan_interval`
+### `BallFloat::sin`, `BallFloat::cos`, `BallFloat::tan`, `BallFloat::try_sin`, `BallFloat::try_cos`, `BallFloat::try_tan`
 
 These return enclosures of $\sin$, $\cos$ and $\tan$ over the interval (in
 radians).
 
 ```mbti
-pub fn BallFloat::sin_interval(Self) -> Self
-pub fn BallFloat::cos_interval(Self) -> Self
-pub fn BallFloat::tan_interval(Self) -> Self
-pub fn BallFloat::try_sin_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_cos_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_tan_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::sin(Self) -> Self
+pub fn BallFloat::cos(Self) -> Self
+pub fn BallFloat::tan(Self) -> Self
+pub fn BallFloat::try_sin(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_cos(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_tan(Self) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 Both forms evaluate the `bin_float` functions at the endpoints (a point
@@ -1032,21 +1032,21 @@ without evaluating; the total forms return $[-1, 1]$ (Entire for `tan`), the
 same fallback they use when the certification budget (12 work precisions) is
 exhausted.
 
-### `BallFloat::sinpi_interval`, `BallFloat::cospi_interval`, `BallFloat::tanpi_interval`, `BallFloat::try_sinpi_interval`, `BallFloat::try_cospi_interval`, `BallFloat::try_tanpi_interval`
+### `BallFloat::sinpi`, `BallFloat::cospi`, `BallFloat::tanpi`, `BallFloat::try_sinpi`, `BallFloat::try_cospi`, `BallFloat::try_tanpi`
 
 These return enclosures of $\sin \pi\xi$, $\cos \pi\xi$ and $\tan \pi\xi$.
 
 ```mbti
-pub fn BallFloat::sinpi_interval(Self) -> Self
-pub fn BallFloat::cospi_interval(Self) -> Self
-pub fn BallFloat::tanpi_interval(Self) -> Self
-pub fn BallFloat::try_sinpi_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_cospi_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_tanpi_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::sinpi(Self) -> Self
+pub fn BallFloat::cospi(Self) -> Self
+pub fn BallFloat::tanpi(Self) -> Self
+pub fn BallFloat::try_sinpi(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_cospi(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_tanpi(Self) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 Here the critical points are the exact half-integers $k/2$, located from the
-dyadic endpoints without approximating $\pi$. `tanpi_interval` returns a
+dyadic endpoints without approximating $\pi$. `tanpi` returns a
 half-unbounded interval when a pole is exactly an endpoint and no other pole
 lies in the interval (for example $[1/2, 1]$ gives $(-\infty, 0]$, whose upper
 endpoint is $\tan \pi = -0$), Empty for
@@ -1056,28 +1056,28 @@ arguments and fallbacks give $[-1, 1]$ (Entire for `tanpi`).
 ```moonbit
 ///|
 test "trigonometric functions" {
-  inspect(fmt(iv(0, 4).sin_interval()), content="[-7.56803e-1, 1.00000e+0]")
-  inspect(fmt(iv(0, 4).cos_interval()), content="[-1.00000e+0, 1.00000e+0]")
-  inspect(iv(1, 2).tan_interval().is_entire(), content="true")
+  inspect(fmt(iv(0, 4).sin()), content="[-7.56803e-1, 1.00000e+0]")
+  inspect(fmt(iv(0, 4).cos()), content="[-1.00000e+0, 1.00000e+0]")
+  inspect(iv(1, 2).tan().is_entire(), content="true")
   let half = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -1, 53)
   let x = @ball_float.BallFloat::from_bounds(half, @bin_float.BinFloat::one(precision=53))
-  inspect(fmt(x.sinpi_interval()), content="[0.00000e+0, 1.00000e+0]")
-  inspect(fmt(x.tanpi_interval()), content="[-inf, -0.00000e+0]")
+  inspect(fmt(x.sinpi()), content="[0.00000e+0, 1.00000e+0]")
+  inspect(fmt(x.tanpi()), content="[-inf, -0.00000e+0]")
 }
 ```
 
-### `BallFloat::asin_interval`, `BallFloat::acos_interval`, `BallFloat::atan_interval`, `BallFloat::try_asin_interval`, `BallFloat::try_acos_interval`, `BallFloat::try_atan_interval`
+### `BallFloat::asin`, `BallFloat::acos`, `BallFloat::atan`, `BallFloat::try_asin`, `BallFloat::try_acos`, `BallFloat::try_atan`
 
 These return enclosures of $\arcsin$, $\arccos$ (over $[-1, 1]$) and
 $\arctan$.
 
 ```mbti
-pub fn BallFloat::asin_interval(Self) -> Self
-pub fn BallFloat::acos_interval(Self) -> Self
-pub fn BallFloat::atan_interval(Self) -> Self
-pub fn BallFloat::try_asin_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_acos_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_atan_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::asin(Self) -> Self
+pub fn BallFloat::acos(Self) -> Self
+pub fn BallFloat::atan(Self) -> Self
+pub fn BallFloat::try_asin(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_acos(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_atan(Self) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 `asin` and `atan` are increasing and `acos` is decreasing, so only endpoints
@@ -1086,15 +1086,15 @@ the total forms is $[-\pi/2, \pi/2]$ for `atan` and `asin` and $[0, \pi]$ for
 `acos`, with $\pi$ taken from a constant of at most 64 bits and rounded
 outward to the interval's precision, so the fallback itself cannot fail.
 
-### `BallFloat::atan2_interval` and `BallFloat::try_atan2_interval`
+### `BallFloat::atan2` and `BallFloat::try_atan2`
 
-`y.atan2_interval(x)` returns an enclosure of the angles
+`y.atan2(x)` returns an enclosure of the angles
 $\operatorname{atan2}(\eta, \xi) \in (-\pi, \pi]$ of the points
 $(\xi, \eta) \ne (0, 0)$ of the box $\boldsymbol{x} \times \boldsymbol{y}$.
 
 ```mbti
-pub fn BallFloat::atan2_interval(Self, Self) -> Self
-pub fn BallFloat::try_atan2_interval(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::atan2(Self, Self) -> Self
+pub fn BallFloat::try_atan2(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 The receiver is the ordinate. The result is the hull of the angles at the
@@ -1103,24 +1103,24 @@ crosses the branch cut ($\underline{x} < 0$ and
 $\underline{y} < 0 \le \overline{y}$) the result is $[-\pi, \pi]$. The box
 $\{(0, 0)\}$ gives Empty. The total form falls back to $[-\pi, \pi]$.
 
-### `BallFloat::sinh_interval`, `BallFloat::cosh_interval`, `BallFloat::tanh_interval`, `BallFloat::asinh_interval`, `BallFloat::acosh_interval`, `BallFloat::atanh_interval`, `BallFloat::try_sinh_interval`, `BallFloat::try_cosh_interval`, `BallFloat::try_tanh_interval`, `BallFloat::try_asinh_interval`, `BallFloat::try_acosh_interval`, `BallFloat::try_atanh_interval`
+### `BallFloat::sinh`, `BallFloat::cosh`, `BallFloat::tanh`, `BallFloat::asinh`, `BallFloat::acosh`, `BallFloat::atanh`, `BallFloat::try_sinh`, `BallFloat::try_cosh`, `BallFloat::try_tanh`, `BallFloat::try_asinh`, `BallFloat::try_acosh`, `BallFloat::try_atanh`
 
 These return enclosures of the hyperbolic functions and their inverses over
 their domains ($[1, \infty)$ for `acosh`, $(-1, 1)$ for `atanh`).
 
 ```mbti
-pub fn BallFloat::sinh_interval(Self) -> Self
-pub fn BallFloat::cosh_interval(Self) -> Self
-pub fn BallFloat::tanh_interval(Self) -> Self
-pub fn BallFloat::asinh_interval(Self) -> Self
-pub fn BallFloat::acosh_interval(Self) -> Self
-pub fn BallFloat::atanh_interval(Self) -> Self
-pub fn BallFloat::try_sinh_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_cosh_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_tanh_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_asinh_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_acosh_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_atanh_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::sinh(Self) -> Self
+pub fn BallFloat::cosh(Self) -> Self
+pub fn BallFloat::tanh(Self) -> Self
+pub fn BallFloat::asinh(Self) -> Self
+pub fn BallFloat::acosh(Self) -> Self
+pub fn BallFloat::atanh(Self) -> Self
+pub fn BallFloat::try_sinh(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_cosh(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_tanh(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_asinh(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_acosh(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_atanh(Self) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 `cosh` has its minimum 1 at 0; the others are monotone. `atanh` of an
@@ -1130,18 +1130,18 @@ the total forms is Entire for `sinh`, `asinh` and `atanh`, $[-1, 1]$ for
 `tanh`, $[1, +\infty)$ for `cosh` and $[0, +\infty)$ for `acosh`.
 
 The total forms keep their relative accuracy for a tiny argument, since they
-are the `bin_float` kernels: at 53 bits `sinh_interval` of $\{2^{-300}\}$ is
+are the `bin_float` kernels: at 53 bits `sinh` of $\{2^{-300}\}$ is
 the two-ulp interval $[2^{-300}, (1 + 2^{-52})\,2^{-300}]$.
 
 ```moonbit
 ///|
 test "inverse and hyperbolic functions" {
   let unit = iv(-1, 1)
-  inspect(fmt(unit.asin_interval()), content="[-1.57080e+0, 1.57080e+0]")
-  inspect(fmt(iv(-2, 2).acos_interval()), content="[0.00000e+0, 3.14160e+0]")
-  inspect(fmt(iv(1, 1).atan2_interval(iv(1, 1))), content="[7.85398e-1, 7.85399e-1]")
-  inspect(fmt(unit.cosh_interval()), content="[1.00000e+0, 1.54309e+0]")
-  inspect(fmt(unit.atanh_interval()), content="[-inf, inf]")
+  inspect(fmt(unit.asin()), content="[-1.57080e+0, 1.57080e+0]")
+  inspect(fmt(iv(-2, 2).acos()), content="[0.00000e+0, 3.14160e+0]")
+  inspect(fmt(iv(1, 1).atan2(iv(1, 1))), content="[7.85398e-1, 7.85399e-1]")
+  inspect(fmt(unit.cosh()), content="[1.00000e+0, 1.54309e+0]")
+  inspect(fmt(unit.atanh()), content="[-inf, inf]")
 }
 ```
 
@@ -1286,7 +1286,7 @@ pub fn BallFloatDecorated::new(BallFloat, decoration? : Decoration) -> Self
 The default decoration is `Com`. `new` is `setDec` of IEEE 1788-2015 11.5.2:
 the decoration `Ill` gives NaI for any interval, empty or not (at the
 precision of the interval, so the result equals `BallFloatDecorated::nai`);
-otherwise the decoration is made canonical, so `new(whole())` is decorated
+otherwise the decoration is made canonical, so `new(entire())` is decorated
 `Dac` and `new(empty())` is decorated `Trv`, as in IEEE 1788 `newDec`.
 
 ### `BallFloatDecorated::nai` and `BallFloatDecorated::is_nai`
@@ -1311,7 +1311,7 @@ pub fn BallFloatDecorated::interval(Self) -> BallFloat
 pub fn BallFloatDecorated::decoration(Self) -> Decoration
 ```
 
-### `BallFloatDecorated::is_empty`, `BallFloatDecorated::is_entire`, `BallFloatDecorated::is_common_interval`, `BallFloatDecorated::is_singleton`, `BallFloatDecorated::contains`
+### `BallFloatDecorated::is_empty`, `BallFloatDecorated::is_entire`, `BallFloatDecorated::is_common_interval`, `BallFloatDecorated::is_singleton`, `BallFloatDecorated::is_member`
 
 These predicates apply the bare predicate to the interval and return false for
 NaI.
@@ -1321,10 +1321,10 @@ pub fn BallFloatDecorated::is_empty(Self) -> Bool
 pub fn BallFloatDecorated::is_entire(Self) -> Bool
 pub fn BallFloatDecorated::is_common_interval(Self) -> Bool
 pub fn BallFloatDecorated::is_singleton(Self) -> Bool
-pub fn BallFloatDecorated::contains(Self, @bin_float.BinFloat) -> Bool
+pub fn BallFloatDecorated::is_member(Self, @bin_float.BinFloat) -> Bool
 ```
 
-### `BallFloatDecorated::set_equal`, `BallFloatDecorated::subset`, `BallFloatDecorated::interior`, `BallFloatDecorated::disjoint`, `BallFloatDecorated::less`, `BallFloatDecorated::strictly_less`, `BallFloatDecorated::precedes`, `BallFloatDecorated::strictly_precedes`, `BallFloatDecorated::overlap_state`
+### `BallFloatDecorated::set_equal`, `BallFloatDecorated::subset`, `BallFloatDecorated::interior`, `BallFloatDecorated::disjoint`, `BallFloatDecorated::less`, `BallFloatDecorated::strict_less`, `BallFloatDecorated::precedes`, `BallFloatDecorated::strict_precedes`, `BallFloatDecorated::overlap`
 
 These relations apply the bare relation to the intervals and return false
 when an operand is NaI.
@@ -1335,10 +1335,10 @@ pub fn BallFloatDecorated::subset(Self, Self) -> Bool
 pub fn BallFloatDecorated::interior(Self, Self) -> Bool
 pub fn BallFloatDecorated::disjoint(Self, Self) -> Bool
 pub fn BallFloatDecorated::less(Self, Self) -> Bool
-pub fn BallFloatDecorated::strictly_less(Self, Self) -> Bool
+pub fn BallFloatDecorated::strict_less(Self, Self) -> Bool
 pub fn BallFloatDecorated::precedes(Self, Self) -> Bool
-pub fn BallFloatDecorated::strictly_precedes(Self, Self) -> Bool
-pub fn BallFloatDecorated::overlap_state(Self, Self) -> OverlapState
+pub fn BallFloatDecorated::strict_precedes(Self, Self) -> Bool
+pub fn BallFloatDecorated::overlap(Self, Self) -> OverlapState
 ```
 
 `overlap_state` returns `Undefined` when an operand is NaI.
@@ -1356,7 +1356,7 @@ pub fn BallFloatDecorated::cancel_plus(Self, Self) -> Self
 pub fn BallFloatDecorated::cancel_minus(Self, Self) -> Self
 ```
 
-### `BallFloatDecorated::add`, `BallFloatDecorated::sub`, `BallFloatDecorated::mul`, `BallFloatDecorated::div`, `BallFloatDecorated::pos`, `BallFloatDecorated::neg`, `BallFloatDecorated::abs`, `BallFloatDecorated::reciprocal`, `BallFloatDecorated::square`, `BallFloatDecorated::pown`, `BallFloatDecorated::fma`, `BallFloatDecorated::minimum`, `BallFloatDecorated::maximum`
+### `BallFloatDecorated::add`, `BallFloatDecorated::sub`, `BallFloatDecorated::mul`, `BallFloatDecorated::div`, `BallFloatDecorated::pos`, `BallFloatDecorated::neg`, `BallFloatDecorated::abs`, `BallFloatDecorated::recip`, `BallFloatDecorated::sqr`, `BallFloatDecorated::pown`, `BallFloatDecorated::fma`, `BallFloatDecorated::min`, `BallFloatDecorated::max`
 
 The arithmetic operations apply the bare operation; their operation
 decoration is `Com` except where the table says otherwise.
@@ -1369,12 +1369,12 @@ pub fn BallFloatDecorated::div(Self, Self) -> Self
 pub fn BallFloatDecorated::pos(Self) -> Self
 pub fn BallFloatDecorated::neg(Self) -> Self
 pub fn BallFloatDecorated::abs(Self) -> Self
-pub fn BallFloatDecorated::reciprocal(Self) -> Self
-pub fn BallFloatDecorated::square(Self) -> Self
+pub fn BallFloatDecorated::recip(Self) -> Self
+pub fn BallFloatDecorated::sqr(Self) -> Self
 pub fn BallFloatDecorated::pown(Self, Int) -> Self
 pub fn BallFloatDecorated::fma(Self, Self, Self) -> Self
-pub fn BallFloatDecorated::minimum(Self, Self) -> Self
-pub fn BallFloatDecorated::maximum(Self, Self) -> Self
+pub fn BallFloatDecorated::min(Self, Self) -> Self
+pub fn BallFloatDecorated::max(Self, Self) -> Self
 ```
 
 | Operation | Operation decoration |
@@ -1384,7 +1384,7 @@ pub fn BallFloatDecorated::maximum(Self, Self) -> Self
 | `pos` | identity (IEEE 1788 `pos`) |
 | others | `Com` |
 
-### `BallFloatDecorated::sqrt_interval`, `BallFloatDecorated::exp_interval`, `BallFloatDecorated::exp2_interval`, `BallFloatDecorated::exp10_interval`, `BallFloatDecorated::expm1_interval`, `BallFloatDecorated::ln_interval`, `BallFloatDecorated::log2_interval`, `BallFloatDecorated::log10_interval`, `BallFloatDecorated::log1p_interval`, `BallFloatDecorated::pow_interval`, `BallFloatDecorated::rootn`, `BallFloatDecorated::hypot`
+### `BallFloatDecorated::sqrt`, `BallFloatDecorated::exp`, `BallFloatDecorated::exp2`, `BallFloatDecorated::exp10`, `BallFloatDecorated::expm1`, `BallFloatDecorated::ln`, `BallFloatDecorated::log2`, `BallFloatDecorated::log10`, `BallFloatDecorated::log1p`, `BallFloatDecorated::pow`, `BallFloatDecorated::rootn`, `BallFloatDecorated::hypot`
 
 The decorated elementary functions apply the bare total form (there are no
 decorated `try_` forms) and lower the decoration when the input leaves the
@@ -1394,65 +1394,65 @@ These are the decorated square root, exponentials, logarithms, powers and
 `hypot`.
 
 ```mbti
-pub fn BallFloatDecorated::sqrt_interval(Self) -> Self
-pub fn BallFloatDecorated::exp_interval(Self) -> Self
-pub fn BallFloatDecorated::exp2_interval(Self) -> Self
-pub fn BallFloatDecorated::exp10_interval(Self) -> Self
-pub fn BallFloatDecorated::expm1_interval(Self) -> Self
-pub fn BallFloatDecorated::ln_interval(Self) -> Self
-pub fn BallFloatDecorated::log2_interval(Self) -> Self
-pub fn BallFloatDecorated::log10_interval(Self) -> Self
-pub fn BallFloatDecorated::log1p_interval(Self) -> Self
-pub fn BallFloatDecorated::pow_interval(Self, Self) -> Self
+pub fn BallFloatDecorated::sqrt(Self) -> Self
+pub fn BallFloatDecorated::exp(Self) -> Self
+pub fn BallFloatDecorated::exp2(Self) -> Self
+pub fn BallFloatDecorated::exp10(Self) -> Self
+pub fn BallFloatDecorated::expm1(Self) -> Self
+pub fn BallFloatDecorated::ln(Self) -> Self
+pub fn BallFloatDecorated::log2(Self) -> Self
+pub fn BallFloatDecorated::log10(Self) -> Self
+pub fn BallFloatDecorated::log1p(Self) -> Self
+pub fn BallFloatDecorated::pow(Self, Self) -> Self
 pub fn BallFloatDecorated::rootn(Self, Int) -> Self
 pub fn BallFloatDecorated::hypot(Self, Self) -> Self
 ```
 
-### `BallFloatDecorated::sin_interval`, `BallFloatDecorated::cos_interval`, `BallFloatDecorated::tan_interval`, `BallFloatDecorated::sinpi_interval`, `BallFloatDecorated::cospi_interval`, `BallFloatDecorated::tanpi_interval`, `BallFloatDecorated::asin_interval`, `BallFloatDecorated::acos_interval`, `BallFloatDecorated::atan_interval`, `BallFloatDecorated::atan2_interval`
+### `BallFloatDecorated::sin`, `BallFloatDecorated::cos`, `BallFloatDecorated::tan`, `BallFloatDecorated::sinpi`, `BallFloatDecorated::cospi`, `BallFloatDecorated::tanpi`, `BallFloatDecorated::asin`, `BallFloatDecorated::acos`, `BallFloatDecorated::atan`, `BallFloatDecorated::atan2`
 
 These are the decorated trigonometric functions and their inverses.
 
 ```mbti
-pub fn BallFloatDecorated::sin_interval(Self) -> Self
-pub fn BallFloatDecorated::cos_interval(Self) -> Self
-pub fn BallFloatDecorated::tan_interval(Self) -> Self
-pub fn BallFloatDecorated::sinpi_interval(Self) -> Self
-pub fn BallFloatDecorated::cospi_interval(Self) -> Self
-pub fn BallFloatDecorated::tanpi_interval(Self) -> Self
-pub fn BallFloatDecorated::asin_interval(Self) -> Self
-pub fn BallFloatDecorated::acos_interval(Self) -> Self
-pub fn BallFloatDecorated::atan_interval(Self) -> Self
-pub fn BallFloatDecorated::atan2_interval(Self, Self) -> Self
+pub fn BallFloatDecorated::sin(Self) -> Self
+pub fn BallFloatDecorated::cos(Self) -> Self
+pub fn BallFloatDecorated::tan(Self) -> Self
+pub fn BallFloatDecorated::sinpi(Self) -> Self
+pub fn BallFloatDecorated::cospi(Self) -> Self
+pub fn BallFloatDecorated::tanpi(Self) -> Self
+pub fn BallFloatDecorated::asin(Self) -> Self
+pub fn BallFloatDecorated::acos(Self) -> Self
+pub fn BallFloatDecorated::atan(Self) -> Self
+pub fn BallFloatDecorated::atan2(Self, Self) -> Self
 ```
 
-### `BallFloatDecorated::sinh_interval`, `BallFloatDecorated::cosh_interval`, `BallFloatDecorated::tanh_interval`, `BallFloatDecorated::asinh_interval`, `BallFloatDecorated::acosh_interval`, `BallFloatDecorated::atanh_interval`
+### `BallFloatDecorated::sinh`, `BallFloatDecorated::cosh`, `BallFloatDecorated::tanh`, `BallFloatDecorated::asinh`, `BallFloatDecorated::acosh`, `BallFloatDecorated::atanh`
 
 These are the decorated hyperbolic functions and their inverses.
 
 ```mbti
-pub fn BallFloatDecorated::sinh_interval(Self) -> Self
-pub fn BallFloatDecorated::cosh_interval(Self) -> Self
-pub fn BallFloatDecorated::tanh_interval(Self) -> Self
-pub fn BallFloatDecorated::asinh_interval(Self) -> Self
-pub fn BallFloatDecorated::acosh_interval(Self) -> Self
-pub fn BallFloatDecorated::atanh_interval(Self) -> Self
+pub fn BallFloatDecorated::sinh(Self) -> Self
+pub fn BallFloatDecorated::cosh(Self) -> Self
+pub fn BallFloatDecorated::tanh(Self) -> Self
+pub fn BallFloatDecorated::asinh(Self) -> Self
+pub fn BallFloatDecorated::acosh(Self) -> Self
+pub fn BallFloatDecorated::atanh(Self) -> Self
 ```
 
 | Function | Operation decoration `Trv` when |
 | --- | --- |
-| `sqrt_interval` | $\underline{x} < 0$ (or the input is Empty) |
-| `ln_interval`, `log2_interval`, `log10_interval` | $\underline{x} \le 0$ |
-| `log1p_interval` | $\underline{x} \le -1$ |
-| `asin_interval`, `acos_interval` | $\boldsymbol{x} \not\subseteq [-1, 1]$ |
-| `acosh_interval` | $\underline{x} < 1$ |
-| `atanh_interval` | $\underline{x} \le -1$ or $\overline{x} \ge 1$ |
+| `sqrt` | $\underline{x} < 0$ (or the input is Empty) |
+| `ln`, `log2`, `log10` | $\underline{x} \le 0$ |
+| `log1p` | $\underline{x} \le -1$ |
+| `asin`, `acos` | $\boldsymbol{x} \not\subseteq [-1, 1]$ |
+| `acosh` | $\underline{x} < 1$ |
+| `atanh` | $\underline{x} \le -1$ or $\overline{x} \ge 1$ |
 | `rootn(x, n)` | $n = 0$, or $n$ even and $\underline{x} < 0$, or $n < 0$ and $0 \in \boldsymbol{x}$ |
-| `pow_interval(x, y)` | $\underline{x} < 0$, or $0 \in \boldsymbol{x}$ and $\underline{y} \le 0$, or the result is Empty |
-| `tan_interval` | the result is Entire (a pole may lie inside) |
-| `tanpi_interval` | the result is unbounded (a pole lies in the argument, possibly at an endpoint) |
-| `atan2_interval` | both operands contain 0 |
+| `pow(x, y)` | $\underline{x} < 0$, or $0 \in \boldsymbol{x}$ and $\underline{y} \le 0$, or the result is Empty |
+| `tan` | the result is Entire (a pole may lie inside) |
+| `tanpi` | the result is unbounded (a pole lies in the argument, possibly at an endpoint) |
+| `atan2` | both operands contain 0 |
 
-All other functions have operation decoration `Com`. For `y.atan2_interval(x)`
+All other functions have operation decoration `Com`. For `y.atan2(x)`
 the decoration is `Def` when the box crosses the branch cut
 ($\underline{x} < 0$, $\underline{y} < 0 \le \overline{y}$: the restriction
 jumps from $-\pi$ to $\pi$) and `Dac` when it touches the cut from above
@@ -1474,20 +1474,20 @@ NaI stays NaI, with the context precision.
 ///|
 test "decorated intervals" {
   let x = @ball_float.BallFloatDecorated::new(iv(-1, 4))
-  inspect(x.sqrt_interval().decoration(), content="trv")
-  inspect(x.exp_interval().decoration(), content="com")
+  inspect(x.sqrt().decoration(), content="trv")
+  inspect(x.exp().decoration(), content="com")
   inspect((x / x).decoration(), content="trv")
   inspect(@ball_float.BallFloatDecorated::new(iv(0, 4)).rootn(-2).decoration(), content="trv")
   let half = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -1, 53)
   let pole = @ball_float.BallFloatDecorated::new(
     @ball_float.BallFloat::from_bounds(half, @bin_float.BinFloat::one(precision=53)),
   )
-  inspect(pole.tanpi_interval().decoration(), content="trv")
-  let unbounded = @ball_float.BallFloatDecorated::new(@ball_float.BallFloat::whole())
+  inspect(pole.tanpi().decoration(), content="trv")
+  let unbounded = @ball_float.BallFloatDecorated::new(@ball_float.BallFloat::entire())
   inspect(unbounded.decoration(), content="dac")
   let nai = @ball_float.BallFloatDecorated::nai()
   inspect((x + nai).to_string(), content="[nai]")
-  debug_inspect(nai.overlap_state(x), content="Undefined")
+  debug_inspect(nai.overlap(x), content="Undefined")
 }
 ```
 
@@ -1538,7 +1538,7 @@ the decoration; NaI prints as `[nai]`.
 ///|
 test "show" {
   inspect(iv(1, 2).to_string(), content="3p-1 +/- 1p-1")
-  inspect(@ball_float.BallFloat::whole().to_string(), content="[-inf, inf]")
+  inspect(@ball_float.BallFloat::entire().to_string(), content="[-inf, inf]")
   inspect(@ball_float.BallFloatDecorated::new(iv(1, 2)).to_string(), content="3p-1 +/- 1p-1_com")
 }
 ```
@@ -1690,33 +1690,33 @@ pub struct BallFloat {
   // private fields
 }
 pub fn BallFloat::abs(Self) -> Self
-pub fn BallFloat::acos_interval(Self) -> Self
-pub fn BallFloat::acosh_interval(Self) -> Self
+pub fn BallFloat::acos(Self) -> Self
+pub fn BallFloat::acosh(Self) -> Self
 pub fn BallFloat::add(Self, Self) -> Self
 pub fn BallFloat::apply_ctx(Self, BallContext) -> (Self, BallFlags)
-pub fn BallFloat::asin_interval(Self) -> Self
-pub fn BallFloat::asinh_interval(Self) -> Self
-pub fn BallFloat::atan2_interval(Self, Self) -> Self
-pub fn BallFloat::atan_interval(Self) -> Self
-pub fn BallFloat::atanh_interval(Self) -> Self
+pub fn BallFloat::asin(Self) -> Self
+pub fn BallFloat::asinh(Self) -> Self
+pub fn BallFloat::atan(Self) -> Self
+pub fn BallFloat::atan2(Self, Self) -> Self
+pub fn BallFloat::atanh(Self) -> Self
 pub fn BallFloat::cancel_minus(Self, Self) -> Self
 pub fn BallFloat::cancel_plus(Self, Self) -> Self
 pub fn BallFloat::center(Self) -> @bin_float.BinFloat
-pub fn BallFloat::contains(Self, @bin_float.BinFloat) -> Bool
 pub fn BallFloat::convex_hull(Self, Self) -> Self
-pub fn BallFloat::cos_interval(Self) -> Self
-pub fn BallFloat::cosh_interval(Self) -> Self
-pub fn BallFloat::cospi_interval(Self) -> Self
+pub fn BallFloat::cos(Self) -> Self
+pub fn BallFloat::cosh(Self) -> Self
+pub fn BallFloat::cospi(Self) -> Self
 pub fn BallFloat::disjoint(Self, Self) -> Bool
 pub fn BallFloat::div(Self, Self) -> Self
 pub fn BallFloat::div_checked(Self, Self, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::empty(precision? : Int32) -> Self
+pub fn BallFloat::entire(precision? : Int32) -> Self
 pub fn BallFloat::equal(Self, Self) -> Bool
 pub fn BallFloat::exact(@bin_float.BinFloat, precision? : Int32) -> Self
-pub fn BallFloat::exp10_interval(Self) -> Self
-pub fn BallFloat::exp2_interval(Self) -> Self
-pub fn BallFloat::exp_interval(Self) -> Self
-pub fn BallFloat::expm1_interval(Self) -> Self
+pub fn BallFloat::exp(Self) -> Self
+pub fn BallFloat::exp10(Self) -> Self
+pub fn BallFloat::exp2(Self) -> Self
+pub fn BallFloat::expm1(Self) -> Self
 pub fn BallFloat::fma(Self, Self, Self) -> Self
 pub fn BallFloat::from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Self
 pub fn BallFloat::from_coefficient(@bin_float.BinCoeff, precision? : Int32, negative? : Bool) -> Self
@@ -1729,84 +1729,84 @@ pub fn BallFloat::intersection(Self, Self) -> Self
 pub fn BallFloat::is_common_interval(Self) -> Bool
 pub fn BallFloat::is_empty(Self) -> Bool
 pub fn BallFloat::is_entire(Self) -> Bool
+pub fn BallFloat::is_member(Self, @bin_float.BinFloat) -> Bool
 pub fn BallFloat::is_singleton(Self) -> Bool
 pub fn BallFloat::less(Self, Self) -> Bool
-pub fn BallFloat::ln_interval(Self) -> Self
-pub fn BallFloat::log10_interval(Self) -> Self
-pub fn BallFloat::log1p_interval(Self) -> Self
-pub fn BallFloat::log2_interval(Self) -> Self
+pub fn BallFloat::ln(Self) -> Self
+pub fn BallFloat::log10(Self) -> Self
+pub fn BallFloat::log1p(Self) -> Self
+pub fn BallFloat::log2(Self) -> Self
 pub fn BallFloat::lower_bound(Self) -> @bin_float.BinFloat
 pub fn BallFloat::magnitude(Self) -> @bin_float.BinFloat
-pub fn BallFloat::maximum(Self, Self) -> Self
+pub fn BallFloat::max(Self, Self) -> Self
 pub fn BallFloat::midpoint(Self) -> @bin_float.BinFloat
 pub fn BallFloat::midpoint_ctx(Self, BallContext) -> (@bin_float.BinFloat, BallFlags)
 pub fn BallFloat::mignitude(Self) -> @bin_float.BinFloat
-pub fn BallFloat::minimum(Self, Self) -> Self
+pub fn BallFloat::min(Self, Self) -> Self
 pub fn BallFloat::mul(Self, Self) -> Self
 pub fn BallFloat::neg(Self) -> Self
 pub fn BallFloat::new(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Self
 pub fn BallFloat::normalized(Self) -> Self
 pub fn BallFloat::not_equal(Self, Self) -> Bool
 pub fn BallFloat::output(Self, &Logger) -> Unit
-pub fn BallFloat::overlap_state(Self, Self) -> OverlapState
+pub fn BallFloat::overlap(Self, Self) -> OverlapState
+pub fn BallFloat::pow(Self, Self) -> Self
 pub fn BallFloat::pow_int_checked(Self, Int32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::pow_interval(Self, Self) -> Self
 pub fn BallFloat::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::pown(Self, Int32) -> Self
 pub fn BallFloat::precedes(Self, Self) -> Bool
 pub fn BallFloat::precision(Self) -> Int32
 pub fn BallFloat::radius(Self) -> @bin_float.BinFloat
 pub fn BallFloat::radius_extended(Self) -> @bin_float.BinFloat
-pub fn BallFloat::reciprocal(Self) -> Self
+pub fn BallFloat::recip(Self) -> Self
 pub fn BallFloat::rootn(Self, Int32) -> Self
 pub fn BallFloat::set_equal(Self, Self) -> Bool
-pub fn BallFloat::sin_interval(Self) -> Self
-pub fn BallFloat::sinh_interval(Self) -> Self
-pub fn BallFloat::sinpi_interval(Self) -> Self
-pub fn BallFloat::sqrt_interval(Self) -> Self
-pub fn BallFloat::square(Self) -> Self
-pub fn BallFloat::strictly_less(Self, Self) -> Bool
-pub fn BallFloat::strictly_precedes(Self, Self) -> Bool
+pub fn BallFloat::sin(Self) -> Self
+pub fn BallFloat::sinh(Self) -> Self
+pub fn BallFloat::sinpi(Self) -> Self
+pub fn BallFloat::sqr(Self) -> Self
+pub fn BallFloat::sqrt(Self) -> Self
+pub fn BallFloat::strict_less(Self, Self) -> Bool
+pub fn BallFloat::strict_precedes(Self, Self) -> Bool
 pub fn BallFloat::sub(Self, Self) -> Self
 pub fn BallFloat::subset(Self, Self) -> Bool
-pub fn BallFloat::tan_interval(Self) -> Self
-pub fn BallFloat::tanh_interval(Self) -> Self
-pub fn BallFloat::tanpi_interval(Self) -> Self
+pub fn BallFloat::tan(Self) -> Self
+pub fn BallFloat::tanh(Self) -> Self
+pub fn BallFloat::tanpi(Self) -> Self
 pub fn BallFloat::to_repr(Self) -> @debug.Repr
 pub fn BallFloat::to_string(Self) -> String
-pub fn BallFloat::try_acos_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_acosh_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_asin_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_asinh_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_atan2_interval(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_atan_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_atanh_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_cos_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_cosh_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_cospi_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_acos(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_acosh(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_asin(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_asinh(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_atan(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_atan2(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_atanh(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_cos(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_cosh(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_cospi(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_exact(@bin_float.BinFloat, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_exp10_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_exp2_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_exp_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_expm1_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_exp(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_exp10(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_exp2(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_expm1(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_from_double(Double, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_from_float(Float, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_hypot(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_ln_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_log10_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_log1p_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_log2_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_pow_interval(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_ln(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_log10(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_log1p(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_log2(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_pow(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_rootn(Self, Int32) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_sin_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_sinh_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_sinpi_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_tan_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_tanh_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::try_tanpi_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_sin(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_sinh(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_sinpi(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_tan(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_tanh(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_tanpi(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::upper_bound(Self) -> @bin_float.BinFloat
-pub fn BallFloat::whole(precision? : Int32) -> Self
 pub fn BallFloat::width(Self) -> @bin_float.BinFloat
 pub fn BallFloat::with_precision(Self, Int32) -> Self
 pub impl @arithmetic.Contains for BallFloat
@@ -1829,30 +1829,29 @@ pub struct BallFloatDecorated {
   // private fields
 }
 pub fn BallFloatDecorated::abs(Self) -> Self
-pub fn BallFloatDecorated::acos_interval(Self) -> Self
-pub fn BallFloatDecorated::acosh_interval(Self) -> Self
+pub fn BallFloatDecorated::acos(Self) -> Self
+pub fn BallFloatDecorated::acosh(Self) -> Self
 pub fn BallFloatDecorated::add(Self, Self) -> Self
 pub fn BallFloatDecorated::apply_ctx(Self, BallContext) -> (Self, BallFlags)
-pub fn BallFloatDecorated::asin_interval(Self) -> Self
-pub fn BallFloatDecorated::asinh_interval(Self) -> Self
-pub fn BallFloatDecorated::atan2_interval(Self, Self) -> Self
-pub fn BallFloatDecorated::atan_interval(Self) -> Self
-pub fn BallFloatDecorated::atanh_interval(Self) -> Self
+pub fn BallFloatDecorated::asin(Self) -> Self
+pub fn BallFloatDecorated::asinh(Self) -> Self
+pub fn BallFloatDecorated::atan(Self) -> Self
+pub fn BallFloatDecorated::atan2(Self, Self) -> Self
+pub fn BallFloatDecorated::atanh(Self) -> Self
 pub fn BallFloatDecorated::cancel_minus(Self, Self) -> Self
 pub fn BallFloatDecorated::cancel_plus(Self, Self) -> Self
-pub fn BallFloatDecorated::contains(Self, @bin_float.BinFloat) -> Bool
 pub fn BallFloatDecorated::convex_hull(Self, Self) -> Self
-pub fn BallFloatDecorated::cos_interval(Self) -> Self
-pub fn BallFloatDecorated::cosh_interval(Self) -> Self
-pub fn BallFloatDecorated::cospi_interval(Self) -> Self
+pub fn BallFloatDecorated::cos(Self) -> Self
+pub fn BallFloatDecorated::cosh(Self) -> Self
+pub fn BallFloatDecorated::cospi(Self) -> Self
 pub fn BallFloatDecorated::decoration(Self) -> Decoration
 pub fn BallFloatDecorated::disjoint(Self, Self) -> Bool
 pub fn BallFloatDecorated::div(Self, Self) -> Self
 pub fn BallFloatDecorated::equal(Self, Self) -> Bool
-pub fn BallFloatDecorated::exp10_interval(Self) -> Self
-pub fn BallFloatDecorated::exp2_interval(Self) -> Self
-pub fn BallFloatDecorated::exp_interval(Self) -> Self
-pub fn BallFloatDecorated::expm1_interval(Self) -> Self
+pub fn BallFloatDecorated::exp(Self) -> Self
+pub fn BallFloatDecorated::exp10(Self) -> Self
+pub fn BallFloatDecorated::exp2(Self) -> Self
+pub fn BallFloatDecorated::expm1(Self) -> Self
 pub fn BallFloatDecorated::fma(Self, Self, Self) -> Self
 pub fn BallFloatDecorated::hypot(Self, Self) -> Self
 pub fn BallFloatDecorated::interior(Self, Self) -> Bool
@@ -1861,41 +1860,42 @@ pub fn BallFloatDecorated::interval(Self) -> BallFloat
 pub fn BallFloatDecorated::is_common_interval(Self) -> Bool
 pub fn BallFloatDecorated::is_empty(Self) -> Bool
 pub fn BallFloatDecorated::is_entire(Self) -> Bool
+pub fn BallFloatDecorated::is_member(Self, @bin_float.BinFloat) -> Bool
 pub fn BallFloatDecorated::is_nai(Self) -> Bool
 pub fn BallFloatDecorated::is_singleton(Self) -> Bool
 pub fn BallFloatDecorated::less(Self, Self) -> Bool
-pub fn BallFloatDecorated::ln_interval(Self) -> Self
-pub fn BallFloatDecorated::log10_interval(Self) -> Self
-pub fn BallFloatDecorated::log1p_interval(Self) -> Self
-pub fn BallFloatDecorated::log2_interval(Self) -> Self
-pub fn BallFloatDecorated::maximum(Self, Self) -> Self
-pub fn BallFloatDecorated::minimum(Self, Self) -> Self
+pub fn BallFloatDecorated::ln(Self) -> Self
+pub fn BallFloatDecorated::log10(Self) -> Self
+pub fn BallFloatDecorated::log1p(Self) -> Self
+pub fn BallFloatDecorated::log2(Self) -> Self
+pub fn BallFloatDecorated::max(Self, Self) -> Self
+pub fn BallFloatDecorated::min(Self, Self) -> Self
 pub fn BallFloatDecorated::mul(Self, Self) -> Self
 pub fn BallFloatDecorated::nai(precision? : Int32) -> Self
 pub fn BallFloatDecorated::neg(Self) -> Self
 pub fn BallFloatDecorated::new(BallFloat, decoration? : Decoration) -> Self
 pub fn BallFloatDecorated::not_equal(Self, Self) -> Bool
 pub fn BallFloatDecorated::output(Self, &Logger) -> Unit
-pub fn BallFloatDecorated::overlap_state(Self, Self) -> OverlapState
+pub fn BallFloatDecorated::overlap(Self, Self) -> OverlapState
 pub fn BallFloatDecorated::pos(Self) -> Self
-pub fn BallFloatDecorated::pow_interval(Self, Self) -> Self
+pub fn BallFloatDecorated::pow(Self, Self) -> Self
 pub fn BallFloatDecorated::pown(Self, Int32) -> Self
 pub fn BallFloatDecorated::precedes(Self, Self) -> Bool
-pub fn BallFloatDecorated::reciprocal(Self) -> Self
+pub fn BallFloatDecorated::recip(Self) -> Self
 pub fn BallFloatDecorated::rootn(Self, Int32) -> Self
 pub fn BallFloatDecorated::set_equal(Self, Self) -> Bool
-pub fn BallFloatDecorated::sin_interval(Self) -> Self
-pub fn BallFloatDecorated::sinh_interval(Self) -> Self
-pub fn BallFloatDecorated::sinpi_interval(Self) -> Self
-pub fn BallFloatDecorated::sqrt_interval(Self) -> Self
-pub fn BallFloatDecorated::square(Self) -> Self
-pub fn BallFloatDecorated::strictly_less(Self, Self) -> Bool
-pub fn BallFloatDecorated::strictly_precedes(Self, Self) -> Bool
+pub fn BallFloatDecorated::sin(Self) -> Self
+pub fn BallFloatDecorated::sinh(Self) -> Self
+pub fn BallFloatDecorated::sinpi(Self) -> Self
+pub fn BallFloatDecorated::sqr(Self) -> Self
+pub fn BallFloatDecorated::sqrt(Self) -> Self
+pub fn BallFloatDecorated::strict_less(Self, Self) -> Bool
+pub fn BallFloatDecorated::strict_precedes(Self, Self) -> Bool
 pub fn BallFloatDecorated::sub(Self, Self) -> Self
 pub fn BallFloatDecorated::subset(Self, Self) -> Bool
-pub fn BallFloatDecorated::tan_interval(Self) -> Self
-pub fn BallFloatDecorated::tanh_interval(Self) -> Self
-pub fn BallFloatDecorated::tanpi_interval(Self) -> Self
+pub fn BallFloatDecorated::tan(Self) -> Self
+pub fn BallFloatDecorated::tanh(Self) -> Self
+pub fn BallFloatDecorated::tanpi(Self) -> Self
 pub fn BallFloatDecorated::to_string(Self) -> String
 pub impl Add for BallFloatDecorated
 pub impl Div for BallFloatDecorated

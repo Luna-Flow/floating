@@ -117,7 +117,7 @@ bounds, a non-finite point); their `try_` forms return the same condition as an
 `ArithmeticError`. `new(center, radius)` is a constructor view: the stored
 value is always the endpoint pair, and `center()` / `radius()` recompute the
 midpoint–radius form from it. The whole real line and the empty set are
-`BallFloat::whole()` and `BallFloat::empty()`.
+`BallFloat::entire()` and `BallFloat::empty()`.
 
 ### Enclose a decimal constant
 
@@ -207,8 +207,8 @@ test "relations" {
   inspect(@lf_arith.DefinitelyLt::definitely_lt(a, b), content="false") // not certain ...
   inspect(@lf_arith.MaybeEq::maybe_eq(a, b), content="true") // ... because they share points
   inspect(c.subset(b), content="true")
-  inspect(a.contains(@bin_float.BinFloat::from_int(10, precision=53)), content="true")
-  debug_inspect(a.overlap_state(b), content="OverlapsState")
+  inspect(a.is_member(@bin_float.BinFloat::from_int(10, precision=53)), content="true")
+  debug_inspect(a.overlap(b), content="OverlapsState")
 }
 ```
 
@@ -234,19 +234,19 @@ test "elementary functions" {
     @bin_float.BinFloat::from_int(4, precision=53),
   )
   // sin reaches its maximum 1 at pi/2, which lies inside [0, 4].
-  inspect(show(zero_to_four.sin_interval(), 6), content="[-7.56803e-1, 1.00000e+0]")
-  inspect(show(zero_to_four.exp_interval(), 6), content="[1.00000e+0, 5.45982e+1]")
+  inspect(show(zero_to_four.sin(), 6), content="[-7.56803e-1, 1.00000e+0]")
+  inspect(show(zero_to_four.exp(), 6), content="[1.00000e+0, 5.45982e+1]")
   // ln is undefined at 0; the result encloses ln over (0, 4].
-  inspect(show(zero_to_four.ln_interval(), 6), content="[-inf, 1.38630e+0]")
+  inspect(show(zero_to_four.ln(), 6), content="[-inf, 1.38630e+0]")
   // [1, 2] contains the pole pi/2 of tan.
   let one_to_two = @ball_float.BallFloat::from_bounds(
     @bin_float.BinFloat::from_int(1, precision=53),
     @bin_float.BinFloat::from_int(2, precision=53),
   )
-  inspect(one_to_two.tan_interval().is_entire(), content="true")
+  inspect(one_to_two.tan().is_entire(), content="true")
   // Outside the domain the result is the empty set.
   let negative = zero_to_four.neg() - one_to_two
-  inspect(negative.sqrt_interval().is_empty(), content="true")
+  inspect(negative.sqrt().is_empty(), content="true")
 }
 ```
 
@@ -254,7 +254,7 @@ Every `*_interval` function has a total form, which always returns a valid
 enclosure at any precision, and most also have a `try_*_interval` form. They
 use the same kernel and give the same interval whenever the certified
 evaluation succeeds. When it runs out of its work budget the total form widens
-to the range of the function (for example $[-1, 1]$ for `sin_interval`), and
+to the range of the function (for example $[-1, 1]$ for `sin`), and
 the `try_` form returns an `ArithmeticError` describing the failure.
 
 ### Round to a target format
@@ -305,7 +305,7 @@ test "decorated evaluation" {
   inspect(x.decoration(), content="com")
   // sqrt is only defined on part of [-1, 4]: the bare result [0, 2] is
   // correct, but the decoration drops to trv.
-  let root = x.sqrt_interval()
+  let root = x.sqrt()
   inspect(show(root.interval(), 3), content="[0.00e+0, 2.00e+0]")
   inspect(root.decoration(), content="trv")
   // Decorations only go down: later operations cannot restore com.
@@ -348,7 +348,7 @@ test "generic enclosure code" {
   })
   inspect(certainly_increasing(xs), content="true")
   // The trait form of contains tests set inclusion, unlike the
-  // point-taking method BallFloat::contains.
+  // point-taking method BallFloat::is_member.
   inspect(@lf_arith.Contains::contains(xs[2], xs[2]), content="true")
 }
 ```
@@ -379,7 +379,7 @@ that comes from the width of the inputs.
 
 **`x - x` is not zero.** Interval arithmetic treats the two operands as
 independent unknowns, so $[1, 2] - [1, 2] = [-1, 1]$. The same holds for
-`x * x`, which is wider than `x.square()` when `x` contains zero:
+`x * x`, which is wider than `x.sqr()` when `x` contains zero:
 
 ```moonbit
 ///|
@@ -390,7 +390,7 @@ test "dependency" {
   )
   inspect(show(x - x, 3), content="[-3.00e+0, 3.00e+0]")
   inspect(show(x * x, 3), content="[-2.00e+0, 4.00e+0]")
-  inspect(show(x.square(), 3), content="[0.00e+0, 4.00e+0]")
+  inspect(show(x.sqr(), 3), content="[0.00e+0, 4.00e+0]")
   inspect(show(x.pown(2), 3), content="[0.00e+0, 4.00e+0]")
 }
 ```
@@ -401,7 +401,7 @@ Rewrite expressions so that each uncertain quantity appears once, and prefer
 **`==` is not set equality.** `==` compares the stored representation,
 including the precision tag; use `set_equal` to compare sets.
 
-**`contains` takes a point.** The method `BallFloat::contains` tests a
+**`contains` takes a point.** The method `BallFloat::is_member` tests a
 `BinFloat` point. Set inclusion is `subset` (or the trait method
 `@lf_arith.Contains::contains`, which means "contains as a subset").
 

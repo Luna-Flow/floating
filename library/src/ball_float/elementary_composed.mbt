@@ -76,36 +76,36 @@ pub fn BallFloat::rootn(self : BallFloat, degree : Int32) -> BallFloat {
 pub fn BallFloat::hypot(self : BallFloat, other : BallFloat) -> BallFloat {
   match self.try_hypot(other) {
     Ok(result) => result
-    Err(_) => self.square().add(other.square()).sqrt_interval()
+    Err(_) => self.sqr().add(other.sqr()).sqrt()
   }
 }
 
 ///|
-pub fn BallFloat::sinpi_interval(self : BallFloat) -> BallFloat {
-  match self.try_sinpi_interval() {
+pub fn BallFloat::sinpi(self : BallFloat) -> BallFloat {
+  match self.try_sinpi() {
     Ok(result) => result
     Err(_) => unit_interval(self.precision_)
   }
 }
 
 ///|
-pub fn BallFloat::cospi_interval(self : BallFloat) -> BallFloat {
-  match self.try_cospi_interval() {
+pub fn BallFloat::cospi(self : BallFloat) -> BallFloat {
+  match self.try_cospi() {
     Ok(result) => result
     Err(_) => unit_interval(self.precision_)
   }
 }
 
 ///|
-pub fn BallFloat::tanpi_interval(self : BallFloat) -> BallFloat {
-  match self.try_tanpi_interval() {
+pub fn BallFloat::tanpi(self : BallFloat) -> BallFloat {
+  match self.try_tanpi() {
     Ok(result) => result
     Err(_) => whole_real(self.precision_)
   }
 }
 
 ///|
-pub fn BallFloat::try_exp2_interval(
+pub fn BallFloat::try_exp2(
   self : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
   self.try_certified_monotone(true, fn(value, context) {
@@ -114,7 +114,7 @@ pub fn BallFloat::try_exp2_interval(
 }
 
 ///|
-pub fn BallFloat::try_exp10_interval(
+pub fn BallFloat::try_exp10(
   self : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
   self.try_certified_monotone(true, fn(value, context) {
@@ -123,7 +123,7 @@ pub fn BallFloat::try_exp10_interval(
 }
 
 ///|
-pub fn BallFloat::try_log2_interval(
+pub fn BallFloat::try_log2(
   self : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
   if self.is_empty() {
@@ -142,7 +142,7 @@ pub fn BallFloat::try_log2_interval(
 }
 
 ///|
-pub fn BallFloat::try_log10_interval(
+pub fn BallFloat::try_log10(
   self : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
   if self.is_empty() {
@@ -258,7 +258,7 @@ fn try_pow_point_bounds(
 }
 
 ///|
-pub fn BallFloat::try_pow_interval(
+pub fn BallFloat::try_pow(
   self : BallFloat,
   exponent : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
@@ -326,7 +326,7 @@ pub fn BallFloat::try_pow_interval(
 }
 
 ///|
-pub fn BallFloat::try_sinpi_interval(
+pub fn BallFloat::try_sinpi(
   self : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
   if self.is_empty() {
@@ -341,7 +341,7 @@ pub fn BallFloat::try_sinpi_interval(
 }
 
 ///|
-pub fn BallFloat::try_cospi_interval(
+pub fn BallFloat::try_cospi(
   self : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
   if self.is_empty() {
@@ -356,7 +356,7 @@ pub fn BallFloat::try_cospi_interval(
 }
 
 ///|
-pub fn BallFloat::try_tanpi_interval(
+pub fn BallFloat::try_tanpi(
   self : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
   if self.is_empty() {
@@ -417,20 +417,20 @@ pub fn BallFloat::try_tanpi_interval(
 }
 
 ///|
-/// Total: the `try_sinh_interval` form, or the range of the function when the kernel cannot
+/// Total: the `try_sinh` form, or the range of the function when the kernel cannot
 /// certify a bound (issue 449).
-pub fn BallFloat::sinh_interval(self : BallFloat) -> BallFloat {
-  match self.try_sinh_interval() {
+pub fn BallFloat::sinh(self : BallFloat) -> BallFloat {
+  match self.try_sinh() {
     Ok(result) => result
     Err(_) => whole_real(self.precision_)
   }
 }
 
 ///|
-/// Total: the `try_cosh_interval` form, or the range of the function when the kernel cannot
+/// Total: the `try_cosh` form, or the range of the function when the kernel cannot
 /// certify a bound (issue 449).
-pub fn BallFloat::cosh_interval(self : BallFloat) -> BallFloat {
-  match self.try_cosh_interval() {
+pub fn BallFloat::cosh(self : BallFloat) -> BallFloat {
+  match self.try_cosh() {
     Ok(result) => result
     Err(_) =>
       store_interval(
@@ -442,30 +442,30 @@ pub fn BallFloat::cosh_interval(self : BallFloat) -> BallFloat {
 }
 
 ///|
-/// Total: the `try_tanh_interval` form, or the range of the function when the kernel cannot
+/// Total: the `try_tanh` form, or the range of the function when the kernel cannot
 /// certify a bound (issue 449).
-pub fn BallFloat::tanh_interval(self : BallFloat) -> BallFloat {
-  match self.try_tanh_interval() {
+pub fn BallFloat::tanh(self : BallFloat) -> BallFloat {
+  match self.try_tanh() {
     Ok(result) => result
     Err(_) => unit_interval(self.precision_)
   }
 }
 
 ///|
-/// Total: the `try_asinh_interval` form, or the range of the function when the kernel cannot
+/// Total: the `try_asinh` form, or the range of the function when the kernel cannot
 /// certify a bound (issue 449).
-pub fn BallFloat::asinh_interval(self : BallFloat) -> BallFloat {
-  match self.try_asinh_interval() {
+pub fn BallFloat::asinh(self : BallFloat) -> BallFloat {
+  match self.try_asinh() {
     Ok(result) => result
     Err(_) => whole_real(self.precision_)
   }
 }
 
 ///|
-/// Total: the `try_acosh_interval` form, or the range of the function when the kernel cannot
+/// Total: the `try_acosh` form, or the range of the function when the kernel cannot
 /// certify a bound (issue 449).
-pub fn BallFloat::acosh_interval(self : BallFloat) -> BallFloat {
-  match self.try_acosh_interval() {
+pub fn BallFloat::acosh(self : BallFloat) -> BallFloat {
+  match self.try_acosh() {
     Ok(result) => result
     Err(_) =>
       store_interval(
@@ -477,10 +477,10 @@ pub fn BallFloat::acosh_interval(self : BallFloat) -> BallFloat {
 }
 
 ///|
-/// Total: the `try_atanh_interval` form, or the range of the function when the kernel cannot
+/// Total: the `try_atanh` form, or the range of the function when the kernel cannot
 /// certify a bound (issue 449).
-pub fn BallFloat::atanh_interval(self : BallFloat) -> BallFloat {
-  match self.try_atanh_interval() {
+pub fn BallFloat::atanh(self : BallFloat) -> BallFloat {
+  match self.try_atanh() {
     Ok(result) => result
     Err(_) => whole_real(self.precision_)
   }

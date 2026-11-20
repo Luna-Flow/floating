@@ -63,7 +63,7 @@ test "interval and decorated semantics" {
     @bin_float.BinFloat::from_int(1),
     @bin_float.BinFloat::from_int(2),
   )
-  inspect(interval.contains(@bin_float.BinFloat::from_int(1)), content="true")
+  inspect(interval.is_member(@bin_float.BinFloat::from_int(1)), content="true")
   let decorated = @ball_float.BallFloatDecorated::new(interval)
   inspect(decorated.is_nai(), content="false")
 }
@@ -86,7 +86,7 @@ test "checked pipelines preserve their domain state" {
   ).sqrt()
   inspect(gda.value().to_string(), content="3")
   inspect(gda.is_trapped(), content="false")
-  let interval = @ball_float_checked.BallFloatResult::from_int(4).pow_int(-1)
+  let interval = @ball_float_checked.BallFloatResult::from_int(4).pown(-1)
   inspect(interval.result() is Ok(_), content="true")
 }
 ```

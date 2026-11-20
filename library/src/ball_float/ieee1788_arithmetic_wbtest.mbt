@@ -10,7 +10,7 @@ fn arithmetic_interval(lo : Int32, hi : Int32) -> BallFloat {
 ///|
 test "IEEE 1788 multiplication is tight for zero and unbounded intervals" {
   let zero = arithmetic_interval(0, 0)
-  let entire = BallFloat::whole(precision=53)
+  let entire = BallFloat::entire(precision=53)
   assert_true((zero * entire).set_equal(zero))
   let positive_half = BallFloat::from_bounds(
     @bin_float.BinFloat::one(precision=53),
