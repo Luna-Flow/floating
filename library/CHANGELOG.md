@@ -124,6 +124,8 @@ notes live in this file.
 
 - `decimal`, `decimal_gda`: the integer square root of the shared coefficient kernel starts from the exact root of the upper half of the digits and runs Newton's step from that overestimate (a word below 10^18 takes the hardware root), so the working size doubles per level instead of every step running at full size from a power of ten, and the division that ends the loop also yields the remainder, without a squaring. About 3.4 times fewer instructions for `sqrt` at 1000 digits, 1.4 to 1.9 times fewer at 16 to 100 digits; results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).
 
+- `decimal`, `decimal_gda`: rounding a multi-limb coefficient by a power of ten (every inexact add, multiplication, division) shifts, reads the rounding digit and the sticky digits and adds the rounding unit in one pass into one new array, instead of four allocations and about five passes; the kernel also offers the same rounding in place for a caller that owns the limb array. About 1.33 times fewer instructions for `add` at 34 digits, 1.17 for `multiply`, 1.10 for `divide`; results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).
+
 - `bin_float`: `div` and `sqrt` at precision 53 form the quotient or root of the two coefficients (at most 53 bits, exact in binary64) with one binary64 division or square root, which IEEE 754 rounds to nearest even exactly as the general path does. Results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).
 
 ## 0.11.0 - 2026-11-20
