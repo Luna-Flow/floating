@@ -61,6 +61,8 @@ pub fn BallFloatResult::map(Self, (@ball_float.BallFloat) -> @ball_float.BallFlo
 pub fn BallFloatResult::max(Self, Self) -> Self
 pub fn BallFloatResult::min(Self, Self) -> Self
 pub fn BallFloatResult::mul(Self, Self) -> Self
+pub fn BallFloatResult::mul_rev(Self, Self, x? : Self) -> Self
+pub fn BallFloatResult::mul_rev_to_pair(Self, Self) -> (Self, Self)
 pub fn BallFloatResult::neg(Self) -> Self
 pub fn BallFloatResult::normalized(Self) -> Self
 pub fn BallFloatResult::ok(@ball_float.BallFloat) -> Self

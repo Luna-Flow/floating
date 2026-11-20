@@ -214,6 +214,37 @@ pub fn BallFloatResult::round_ties_to_away(
 }
 
 ///|
+/// `mulRev(b, c, x)` of Table 10.1 on the interval parts; an interval
+/// operation never fails, so only an earlier failure is passed on. The prior
+/// `x` is optional (default Entire).
+pub fn BallFloatResult::mul_rev(
+  self : BallFloatResult,
+  c : BallFloatResult,
+  x? : BallFloatResult,
+) -> BallFloatResult {
+  match x {
+    Some(prior) =>
+      self.bind(fn(b) {
+        c.bind(fn(cc) { prior.map(fn(p) { b.mul_rev(cc, x=p) }) })
+      })
+    None => self.bind(fn(b) { c.map(fn(cc) { b.mul_rev(cc) }) })
+  }
+}
+
+///|
+/// `mulRevToPair(b, c)` of 10.5.5: the two components, each an `Err` when
+/// either input is.
+pub fn BallFloatResult::mul_rev_to_pair(
+  self : BallFloatResult,
+  c : BallFloatResult,
+) -> (BallFloatResult, BallFloatResult) {
+  (
+    self.bind(fn(b) { c.map(fn(cc) { b.mul_rev_to_pair(cc).0 }) }),
+    self.bind(fn(b) { c.map(fn(cc) { b.mul_rev_to_pair(cc).1 }) }),
+  )
+}
+
+///|
 pub fn BallFloatResult::recip(self : BallFloatResult) -> BallFloatResult {
   self.map(fn(value) { value.recip() })
 }

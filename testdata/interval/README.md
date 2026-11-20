@@ -31,7 +31,7 @@ arithmetic, numeric observations,
 cancellation, elementary-core, exponentials/logarithms, FMA, integer powers,
 and extrema. General power, trigonometric functions, and both pinned upstream
 `atan2` sources are included as strict
-phases; reverse operations remain unsupported.
+phases; the other reverse operations remain unsupported.
 
 `just gate interval` is the strict baseline (and accepts an optional worker count): 20 set cases, 567 relation cases,
 124 numeric observation cases, 242 cancellation cases, 539 add/sub/mul/div
@@ -40,8 +40,9 @@ general-power cases, 176 trigonometric cases, 567 FMA cases, and 174
 integer-power cases.
 The hyperbolic and inverse-trigonometric phases add 107 and 61 cases,
 respectively. The `atan2` phase adds 375 cases, the extrema phase 38 min/max
-cases and the integer-functions phase 143 cases (`sign`, `ceil`, `floor`, `trunc`,
-`roundTiesToEven`, `roundTiesToAway`), for an official aggregate of 4,799 cases. Every selected case must be executable;
+cases, the integer-functions phase 143 cases (`sign`, `ceil`, `floor`, `trunc`,
+`roundTiesToEven`, `roundTiesToAway`) and the multiplicative-reverse phase 533 cases
+(`mulRev`, `mulRevTen`, `mulRevToPair`), for an official aggregate of 5,332 cases. Every selected case must be executable;
 unsupported and diagnostic classifications fail the gate.
 
 The phase planner is part of the contract. A phase declares its operation set,
@@ -52,8 +53,8 @@ makes sharded summaries comparable with an unfiltered run.
 The `general-power` phase contains 1,428 `pow` cases and passes all cases on
 the native strict run. The `trigonometric` phase contains 176 `sin`, `cos`, and
 `tan` cases; the disjoint `atan2` phase contains 375 cases from the same pinned
-archive. Both pass the strict baseline. Reverse operations remain
-unsupported.
+archive. Both pass the strict baseline. Reverse operations other than the
+multiplicative ones remain unsupported.
 
 ## Interpreting Results
 

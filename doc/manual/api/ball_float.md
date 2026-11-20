@@ -881,6 +881,59 @@ test "integer functions" {
 }
 ```
 
+### `BallFloat::mul_rev_to_pair` and `BallFloat::mul_rev`
+
+IEEE 1788-2015 10.5.5 and Table 10.1. For intervals $\boldsymbol{b}$ and
+$\boldsymbol{c}$ the set
+
+$$
+\boldsymbol{c} \mathbin{/_{\text{set}}} \boldsymbol{b} = \{\, x \in \mathbb{R} \mid \exists\, y \in \boldsymbol{b} : x y \in \boldsymbol{c} \,\}
+$$
+
+has zero, one or two connected components, and is not always closed
+($[1, 1] /_{\text{set}} [1, +\infty) = (0, 1]$). `mul_rev_to_pair` returns the
+closures of the components, ordered, as a pair; `mul_rev` returns the hull of
+the part of the set that lies in the prior interval `x`.
+
+```mbti
+pub fn BallFloat::mul_rev_to_pair(Self, Self) -> (Self, Self)
+pub fn BallFloat::mul_rev(Self, Self, x? : Self) -> Self
+```
+
+`mul_rev_to_pair(b, c)` is `(Empty, Empty)` when there is no component,
+`(u, Empty)` for one, and `(u, v)` with $u < v$ for two. The two closures can
+share an endpoint: $[1, 1] /_{\text{set}} \text{Entire} = (-\infty, 0) \cup
+(0, +\infty)$ gives `([-inf, 0], [0, +inf])`. An Empty operand gives
+`(Empty, Empty)`. The receiver is $\boldsymbol{b}$ and the argument is
+$\boldsymbol{c}$, as in the standard's `mulRevToPair(b, c)`.
+
+`mul_rev(b, c, x?)` is $\operatorname{hull}\{x \in \boldsymbol{x} \mid
+\exists y \in \boldsymbol{b} : x y \in \boldsymbol{c}\}$ with the default
+$\boldsymbol{x} = $ Entire. The hull is of the set and not of its closure,
+and not the intersection of `x` with the hull of the set: with
+$\boldsymbol{b} = [-1, 1]$, $\boldsymbol{c} = [1, 1]$ and $\boldsymbol{x} =
+[0, 0.5]$ the result is Empty, whereas the hull of the set is Entire. An
+endpoint 0 that is the unattained limit of a quotient by an unbounded
+$\boldsymbol{b}$ counts as open, so `mul_rev([1, +inf), [1, 1], x=[-1, 0])` is
+Empty (the set is $(0, 1]$) and with $\boldsymbol{x} = [0, 0.5]$ it is
+$[0, 0.5]$. The endpoints of the components are quotients rounded outward, so
+the results are the tightest in the type. The result precision is the largest
+of the operands'.
+
+```moonbit
+///|
+test "mul_rev_to_pair and mul_rev" {
+  let b = @ball_float.BallFloat::from_bounds(
+    @bin_float.BinFloat::from_int(-1),
+    @bin_float.BinFloat::from_int(1),
+  )
+  let (u, v) = b.mul_rev_to_pair(iv(1, 1))
+  // (-inf, -1] and [1, +inf)
+  inspect(u.upper_bound().to_string() + " " + v.lower_bound().to_string(), content="-1p0 1p0")
+  assert_true(b.mul_rev(iv(1, 1), x=iv(0, 0)).is_empty())
+}
+```
+
 ## Elementary functions
 
 Each function $f$ returns an interval containing
@@ -1518,6 +1571,21 @@ pub fn BallFloatDecorated::round_ties_to_even(Self) -> Self
 pub fn BallFloatDecorated::round_ties_to_away(Self) -> Self
 ```
 
+### `BallFloatDecorated::mul_rev_to_pair` and `BallFloatDecorated::mul_rev`
+
+`mul_rev_to_pair` follows 12.12.3. If either input is NaI both outputs are NaI.
+Otherwise, when both are nonempty and $0 \notin \boldsymbol{b}$, the first
+output is the decorated quotient $\boldsymbol{c} / \boldsymbol{b}$ (the same
+decoration as `/`) and the second is Empty with `Trv`. Every other output,
+empty or not, is decorated `Trv`. `mul_rev` is a reverse-mode operation and has
+the trivial decorated version of 11.7.1: NaI if any input is NaI, else the bare
+result decorated `Trv`.
+
+```mbti
+pub fn BallFloatDecorated::mul_rev_to_pair(Self, Self) -> (Self, Self)
+pub fn BallFloatDecorated::mul_rev(Self, Self, x? : Self) -> Self
+```
+
 ### `BallFloatDecorated::sin`, `BallFloatDecorated::cos`, `BallFloatDecorated::tan`, `BallFloatDecorated::sinpi`, `BallFloatDecorated::cospi`, `BallFloatDecorated::tanpi`, `BallFloatDecorated::asin`, `BallFloatDecorated::acos`, `BallFloatDecorated::atan`, `BallFloatDecorated::atan2`
 
 These are the decorated trigonometric functions and their inverses.
@@ -1864,6 +1932,8 @@ pub fn BallFloat::midpoint_ctx(Self, BallContext) -> (@bin_float.BinFloat, BallF
 pub fn BallFloat::mignitude(Self) -> @bin_float.BinFloat
 pub fn BallFloat::min(Self, Self) -> Self
 pub fn BallFloat::mul(Self, Self) -> Self
+pub fn BallFloat::mul_rev(Self, Self, x? : Self) -> Self
+pub fn BallFloat::mul_rev_to_pair(Self, Self) -> (Self, Self)
 pub fn BallFloat::neg(Self) -> Self
 pub fn BallFloat::new(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Self
 pub fn BallFloat::normalized(Self) -> Self
@@ -1997,6 +2067,8 @@ pub fn BallFloatDecorated::log2(Self) -> Self
 pub fn BallFloatDecorated::max(Self, Self) -> Self
 pub fn BallFloatDecorated::min(Self, Self) -> Self
 pub fn BallFloatDecorated::mul(Self, Self) -> Self
+pub fn BallFloatDecorated::mul_rev(Self, Self, x? : Self) -> Self
+pub fn BallFloatDecorated::mul_rev_to_pair(Self, Self) -> (Self, Self)
 pub fn BallFloatDecorated::nai(precision? : Int32) -> Self
 pub fn BallFloatDecorated::neg(Self) -> Self
 pub fn BallFloatDecorated::new(BallFloat, decoration? : Decoration) -> Self

@@ -130,3 +130,31 @@ test "ITL integer functions of IEEE 1788-2015 Table 9.1 with their decorations" 
     assert_true(result.passed(), msg=case.id() + ": " + result.message())
   }
 }
+
+///|
+test "ITL reverse multiplication: one-output, ternary and two-output forms" {
+  let source =
+    #|testcase reverse_multiplication {
+    #|  mulRev [-2.0, 1.1] [-2.1, -0.4] = [entire];
+    #|  mulRevTen [-2.0, 1.1] [-2.1, -0.4] [-2.1, -0.4] = [-2.1, -0.4];
+    #|  mulRev [-2.0, -0.1]_dac [-2.1, -0.4]_dac = [0X1.999999999999AP-3, 0X1.5P+4]_trv;
+    #|  mulRevToPair [-2.0, 1.1] [-2.1, -0.4] = [-infinity, -0X1.745D1745D1745P-2] [0X1.999999999999AP-3, infinity];
+    #|  mulRevToPair [-2.0, -0.1]_com [-2.1, -0.4]_com = [0X1.999999999999AP-3, 0X1.5P+4]_com [empty];
+    #|  mulRevToPair [-2.0, 1.1]_com [-2.1, -0.4]_dac = [-infinity, -0X1.745D1745D1745P-2]_trv [0X1.999999999999AP-3, infinity]_trv;
+    #|}
+  let cases = @itl_expr.parse_itl(source).unwrap()
+  for case in cases {
+    let result = @itl_expr.execute_case(case)
+    assert_true(result.passed(), msg=case.id() + ": " + result.message())
+  }
+
+  // a wrong second output is reported
+  let wrong = @itl_expr.parse_itl(
+    (
+      #|testcase wrong {
+      #|  mulRevToPair [-2.0, 1.1] [-2.1, -0.4] = [-infinity, -0X1.745D1745D1745P-2] [empty];
+      #|}
+    ),
+  ).unwrap()
+  assert_false(@itl_expr.execute_case(wrong[0]).passed())
+}

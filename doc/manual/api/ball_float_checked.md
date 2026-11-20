@@ -261,6 +261,18 @@ pub fn BallFloatResult::round_ties_to_even(Self) -> Self
 pub fn BallFloatResult::round_ties_to_away(Self) -> Self
 ```
 
+### `BallFloatResult::mul_rev` and `BallFloatResult::mul_rev_to_pair`
+
+These methods apply `BallFloat::mul_rev` and `BallFloat::mul_rev_to_pair` to
+the interval parts (see the [`ball_float` page](ball_float.md#ballfloatmul_rev_to_pair-and-ballfloatmul_rev)).
+They cannot fail themselves; an earlier failure in an input is passed on, and
+for `mul_rev_to_pair` both outputs carry it. `x` is optional.
+
+```mbti
+pub fn BallFloatResult::mul_rev(Self, Self, x? : Self) -> Self
+pub fn BallFloatResult::mul_rev_to_pair(Self, Self) -> (Self, Self)
+```
+
 ### `BallFloatResult::min`, `BallFloatResult::max`, `BallFloatResult::fma`, `BallFloatResult::intersection`, `BallFloatResult::convex_hull`, `BallFloatResult::cancel_plus`, `BallFloatResult::cancel_minus`
 
 These methods combine two or three wrappers with the `BallFloat` method of the
@@ -519,6 +531,8 @@ pub fn BallFloatResult::map(Self, (@ball_float.BallFloat) -> @ball_float.BallFlo
 pub fn BallFloatResult::max(Self, Self) -> Self
 pub fn BallFloatResult::min(Self, Self) -> Self
 pub fn BallFloatResult::mul(Self, Self) -> Self
+pub fn BallFloatResult::mul_rev(Self, Self, x? : Self) -> Self
+pub fn BallFloatResult::mul_rev_to_pair(Self, Self) -> (Self, Self)
 pub fn BallFloatResult::neg(Self) -> Self
 pub fn BallFloatResult::normalized(Self) -> Self
 pub fn BallFloatResult::ok(@ball_float.BallFloat) -> Self

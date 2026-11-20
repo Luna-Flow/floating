@@ -134,7 +134,7 @@ diagnostic makes `success()` false:
 test "dispositions" {
   let source =
     #|testcase odd {
-    #|  mulRevToPair [1.0,2.0] [3.0,4.0] = [1.0,2.0];
+    #|  rsqrt [1.0,2.0] = [1.0,2.0];
     #|  sqrt [one,two] = [1.0,2.0];
     #|  nums2interval 1.0 2.0 = [1.0,2.0];
     #|}
