@@ -174,6 +174,11 @@ def moon_test_command(directories: list[Path], target: str) -> tuple[str, ...]:
     `moon test` takes several package paths, so the workspace is resolved and
     the test executables are linked in one invocation instead of one per page
     (about 50).
+
+    `--deny-warn` makes a warning of an example (a deprecated call, an unused
+    value) a failure of its page: the compiler names the page and the line, so no
+    output has to be searched for warnings, and the library packages that the pages
+    import are not affected (they are checked with `--deny-warn` by the other stages).
     """
     return (
         "sh",
@@ -182,6 +187,7 @@ def moon_test_command(directories: list[Path], target: str) -> tuple[str, ...]:
         *(str(directory.relative_to(REPO_ROOT)) for directory in directories),
         "--target",
         target,
+        "--deny-warn",
     )
 
 
