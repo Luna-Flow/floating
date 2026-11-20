@@ -12,6 +12,13 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  # The tier the default state of the arm64 job must report from the row primitives of
+  # `internal/bin_kernel`. Until the assembly tier is in, the build has only the C tier
+  # and reports `c` (or nothing, which `tools/check_limbs_tier.py` reads as `c`).
+  # When the assembly tier lands, change this one line to `asm`.
+  EXPECTED_DEFAULT_TIER: c
+
 jobs:
   conformance:
     name: ${{ matrix.scope }}
@@ -75,3 +82,115 @@ jobs:
           path: .tmp/**/summary.json
           if-no-files-found: ignore
           retention-days: 30
+
+  # The unit tests of the whole workspace on the targets that the pull-request gate only
+  # type-checks (`CHECK: other targets`): the per-target files (`*_js.mbt`, the
+  # `*_nonjs` side of every pair, the threshold files) are run here and nowhere else.
+  # Measured on main dbc9bc6a on a shared machine: js 29 s, wasm 87 s, wasm-gc 79 s. The
+  # pull-request gate does not run them (its budget is about 3 minutes); to run js there,
+  # change `QUICK_TEST_TARGETS` in `tools/run_ci.py` to `("js",)`: one line.
+  #
+  # wasm-gc runs the whole workspace except what needs `moonbitlang/async`: that package
+  # has no wasm-gc runtime. Its module initialiser (`internal/coroutine/scheduler.mbt`,
+  # 0.22.9) casts between its own `Scheduler` struct and the runtime's with `%identity`,
+  # which wasm-gc emits as a plain `ref.as_non_null`, and the runtime rejects the module at
+  # validation (`global.set[0] expected type (ref null ..), found ref.as_non_null of type
+  # (ref ..)`; it reproduces with that package alone). The benchmark drivers that use it
+  # (`tooling/src/bench/*`, `differential`) keep their async tests out of wasm-gc with the
+  # `targets` option of their `moon.pkg`, so the plain command below is the whole of what
+  # wasm-gc can run. See #544.
+  unit-tests:
+    name: unit tests ${{ matrix.target }}
+    runs-on: ubuntu-26.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - js
+          - wasm
+          - wasm-gc
+    steps:
+      - name: git initial branch
+        run: git config --global init.defaultBranch main
+
+      - name: checkout
+        uses: actions/checkout@v7
+
+      - name: install moonbit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: toolchain
+        run: moon version --all
+
+      - name: update registry
+        run: sh tools/run_moon_clean_exec.sh update
+
+      # The same two commands as the gate: an unfrozen check fetches the dependencies,
+      # the test run is frozen.
+      - name: fetch dependencies
+        run: sh tools/run_moon_clean_exec.sh check --target native --deny-warn
+
+      - name: test ${{ matrix.target }}
+        run: sh tools/run_moon_clean_exec.sh test --target ${{ matrix.target }} --deny-warn --frozen --jobs 4
+
+  # The native row primitives of `internal/bin_kernel` have per-architecture code (Apple
+  # arm64 inline assembly in `luna_limbs.c` once it is in). The Linux runner of the other
+  # jobs is gcc on x86-64 (`cc_id=2 arch_id=1`), so nothing there executes it: this job
+  # runs the tests of `internal/bin_kernel` and `bin_float` on an arm64 macOS runner in
+  # the three states of the primitives, and `tools/check_limbs_tier.py` fails when the
+  # runner is not arm64 or when a state reports another tier than it should (the expected
+  # tier of the default state is `EXPECTED_DEFAULT_TIER` at the top of this file).
+  arm64-native:
+    name: arm64 native ${{ matrix.state }}
+    runs-on: macos-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        state:
+          - portable # LUNA_FLOATING_PORTABLE=1: the portable loops
+          - c # LUNA_FLOATING_LIMBS=c: the C tier
+          - default # no variable: the best tier of the build
+    steps:
+      - name: git initial branch
+        run: git config --global init.defaultBranch main
+
+      - name: checkout
+        uses: actions/checkout@v7
+
+      - name: runner architecture
+        run: |
+          uname -m
+          test "$(uname -m)" = arm64
+
+      - name: install moonbit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: toolchain
+        run: moon version --all
+
+      - name: update registry
+        run: sh tools/run_moon_clean_exec.sh update
+
+      - name: fetch dependencies
+        run: sh tools/run_moon_clean_exec.sh check --target native --deny-warn
+
+      - name: test internal/bin_kernel and bin_float (${{ matrix.state }})
+        run: |
+          set -o pipefail
+          case "${{ matrix.state }}" in
+            portable) export LUNA_FLOATING_PORTABLE=1 ;;
+            c) export LUNA_FLOATING_LIMBS=c ;;
+            default) ;;
+          esac
+          sh tools/run_moon_clean_exec.sh test --target native --deny-warn --frozen --no-parallelize \
+            -p Luna-Flow/floating/internal/bin_kernel -p Luna-Flow/floating/bin_float 2>&1 | tee tier.log
+
+      - name: tier of the row primitives
+        run: python3 tools/check_limbs_tier.py --log tier.log --state ${{ matrix.state }} --expected "$EXPECTED_DEFAULT_TIER"
+

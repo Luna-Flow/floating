@@ -32,7 +32,19 @@ Translation catalogs are checked separately by `lunadoc check`, which the
   caches the SHA-256-pinned upstream corpora by manifest hash (the hashes are
   still verified after download) and uploads each `summary.json` as an
   artifact, so the published results are reproduced outside maintainers'
-  machines.
+  machines. It also runs the unit tests of the whole workspace on `js`, `wasm`
+  and `wasm-gc` (the pull-request gate tests native and only type-checks these;
+  `QUICK_TEST_TARGETS` in `tools/run_ci.py` is the one line that adds a target to
+  it),
+  and, on an arm64 macOS runner, the tests of `internal/bin_kernel` and
+  `bin_float` on native with the row primitives portable
+  (`LUNA_FLOATING_PORTABLE=1`), forced to the C tier (`LUNA_FLOATING_LIMBS=c`) and
+  in the default state; `tools/check_limbs_tier.py` fails the job when the runner
+  is not arm64 or a state reports another tier than expected. The Linux runner is
+  x86-64, so nothing else executes the arm64 code. `wasm-gc` runs the whole
+  workspace except what needs `moonbitlang/async`, which has no wasm-gc
+  runtime (its module initialiser is rejected by the runtime at validation); the
+  workflow states the reason next to the job.
 - `docs.yml` runs the organization's `lunadoc check` workflow.
 - `publish.yml` builds, runs the documentation gate, the format check, an
   all-target `--deny-warn` check and the tests, then publishes to mooncakes.

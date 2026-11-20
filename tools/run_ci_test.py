@@ -177,6 +177,25 @@ class RunCiTests(unittest.TestCase):
             if stage.lane == "python":
                 self.assertNotIn("run_moon_clean_exec.sh", " ".join(stage.command))
 
+    def test_the_quick_gate_tests_no_other_target_until_one_is_named(self) -> None:
+        self.assertEqual(run_ci.QUICK_TEST_TARGETS, ())
+        names = [stage.name for stage in run_ci.stages_for("quick", 4)]
+        self.assertFalse([name for name in names if name in ("TEST: js", "TEST: wasm", "TEST: wasm-gc")])
+
+    def test_naming_js_adds_its_frozen_test_stage_after_native_in_the_moon_lane(self) -> None:
+        from unittest.mock import patch
+
+        with patch.object(run_ci, "QUICK_TEST_TARGETS", ("js",)):
+            stages = run_ci.stages_for("quick", 4)
+        names = [stage.name for stage in stages]
+        self.assertEqual(names[names.index("TEST: native") + 1], "TEST: js")
+        stage = next(stage for stage in stages if stage.name == "TEST: js")
+        self.assertEqual(stage.lane, "moon")
+        self.assertEqual(stage.command[stage.command.index("--target") + 1], "js")
+        self.assertIn("--frozen", stage.command)
+        self.assertIn("--deny-warn", stage.command)
+        ci_schedule.validate_plan(stages)
+
     def test_every_quick_stage_has_a_lane_and_the_plan_is_complete(self) -> None:
         with self.assertRaises(ValueError):
             run_ci.assign_lanes([run_ci.Stage("UNKNOWN: stage", ("true",))])
