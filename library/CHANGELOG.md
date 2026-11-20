@@ -445,6 +445,17 @@ notes live in this file.
   | --- | --- | --- |
   | none | `b.atan2_rev1(c, x?)`, `a.atan2_rev2(c, x?)` | `BallFloat`, `BallFloatDecorated`, `BallFloatResult`; no `try_` form, no input fails |
 
+- `decimal`: a result the library cannot compute is `not_computed`, not `invalid_operation`, and the `try_` forms keep `Err` for it ([#438](https://github.com/Luna-Flow/floating/issues/438), item S4, `decimal`). Before, a context beyond the elementary kernels (`p` or `e_max` above 999,999, or `e_min` below -999,999), an operand beyond their range, an exact sum of operands with an exponent gap beyond the work bound, and a certification that did not conclude all gave a NaN with `invalid_operation`, the flag of a domain error, and the `try_` forms returned `Ok` for the first two kinds. `DecimalFlags::not_computed()` existed and was never raised. Now `invalid_operation` is raised only for a case for which IEEE 754-2019 defines an invalid result.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `x.exp_ctx(ctx)` (every plain elementary `_ctx`, 39 functions) in a restricted context or after a certification failure: NaN with `invalid_operation` | NaN with `not_computed`, without `invalid_operation` | the plain form without `_ctx` is the `.0` of it |
+  | `x.try_exp_ctx(ctx)` (every `try_*_ctx`, 39 functions) in a restricted context or for an operand out of range: `Ok((NaN, invalid_operation))` | `Err` of the certification-failure kind | `Err` now means only "could not compute"; domain cases stay `Ok((NaN, invalid_operation))` |
+  | `x.add_ctx(y, ctx)`, `sub_ctx` with an exponent gap beyond the work bound: NaN with `invalid_operation` | NaN with `not_computed` | |
+  | `Decimal::from_bin_float_ctx(x, ctx)` with an unlimited precision and a binary exponent beyond 2^22: NaN with `invalid_operation` | NaN with `not_computed` | |
+  | `*_contextual`, `*_checked`: a computation with `invalid_operation` or `not_computed`, `Err(domain_error)` | `invalid_operation` is `Err(domain_error)`, `not_computed` is `Err(certification_failure)` | the two kinds are told apart by `error.is_domain_error()` and `error.is_certification_failure()` |
+  | `DecimalChecked` elementary mirrors in a restricted context: a recorded NaN with `invalid_operation`, no error | `error()` is a certification failure | |
+
 ### Added
 
 - `bin_float`, `decimal`: every comparison predicate of IEEE 754-2019 5.11 has a function ([#438](https://github.com/Luna-Flow/floating/issues/438), item N6). The clause lists 22 predicates, 10 in Table 5.1 and 12 in Table 5.2; `bin_float` had 7 and `decimal` none. Both now have the 15 others, with the names of the first seven (`compare_quiet_*`, `compare_signaling_*`): `not_equal`, `greater`, `greater_equal`, `not_greater`, `less_unordered`, `not_less` and `greater_unordered` for both kinds, and `compare_quiet_ordered`. Each returns `(Bool, flags)`, is defined from `compare_quiet` or `compare_signaling` and raises invalid where the table says (a signaling NaN for the quiet ones, any NaN for the signaling ones). Nothing existing changes in `bin_float`.

@@ -236,7 +236,7 @@ fn add_finite_values_ctx(
     }
   }
   if exact_aligned_gap_too_large(lhs_value, rhs_value) {
-    return invalid_context_result(ctx)
+    return not_computed_result(ctx)
   }
   let target = Int32::min(lhs_value.exponent10, rhs_value.exponent10)
   let (exact_negative, exact_magnitude) = decimal_exact_aligned_sum_result(

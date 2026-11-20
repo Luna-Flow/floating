@@ -345,11 +345,12 @@ test "pm1 NaN operands: quiet NaN propagates, signaling NaN signals invalid" {
 }
 
 ///|
-test "pm1 restricted contexts and operands give invalid_context" {
+test "pm1 restricted contexts and operands are not computed" {
   // The decimal math functions share the decNumber limits: a precision or an
   // exponent bound beyond 999,999, or an operand outside
   // `decimal_math_operand_out_of_range` (adjusted exponent below -1,999,997 or
-  // above 999,999), is InvalidContext (as exp and ln).
+  // above 999,999), is not computed (S4): `Err` in the `try_` form (the
+  // `certification-failure` below), NaN with `not_computed` in the plain form.
   let wide = DecimalContext::new(precision=16, e_max=1_000_000)
   let ctx = DecimalContext::new(precision=16, e_max=999_999)
   let out = StringBuilder()
@@ -363,10 +364,10 @@ test "pm1 restricted contexts and operands give invalid_context" {
   inspect(
     out.to_string(),
     content=(
-      #|exp2m1 nan v nan v nan v -0E-1000013 xu
-      #|exp10m1 nan v nan v nan v -0E-1000013 xu
-      #|log2p1 nan v nan v nan v -0E-1000013 xu
-      #|log10p1 nan v nan v nan v -0E-1000013 xu
+      #|exp2m1 certification-failure certification-failure certification-failure -0E-1000013 xu
+      #|exp10m1 certification-failure certification-failure certification-failure -0E-1000013 xu
+      #|log2p1 certification-failure certification-failure certification-failure -0E-1000013 xu
+      #|log10p1 certification-failure certification-failure certification-failure -0E-1000013 xu
       #|
     ),
   )

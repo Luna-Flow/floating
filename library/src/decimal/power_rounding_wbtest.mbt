@@ -129,7 +129,8 @@ test "decimal power rejects contexts outside the math function range" {
   let default_e_min = DecimalContext::new(precision=34, e_max=1_000_000)
   let (value, flags) = d("4").pow_ctx(d("2048.5"), default_e_min)
   assert_true(value.is_nan())
-  assert_true(flags.invalid_operation())
+  // S4: a context beyond the kernels is not computed, which is not an invalid operation
+  assert_true(flags.not_computed() && !flags.invalid_operation())
   // An integral power is unaffected by the math function restriction.
   assert_eq(power_case(d("2").pow_ctx(d("10"), default_e_min)), "1024")
 }

@@ -175,7 +175,7 @@ pub fn Decimal::try_rsqrt_ctx(
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
-    return Ok(invalid_context_result(ctx))
+    return Err(decimal_context_limit("rsqrt", ctx))
   }
   if self.class == FpClass::NaN {
     return Ok(quiet_nan_operand(self, ctx))
@@ -226,7 +226,7 @@ pub fn Decimal::rsqrt_ctx(
 ) -> (Decimal, DecimalFlags) {
   match self.try_rsqrt_ctx(ctx) {
     Ok(result) => result
-    Err(_) => decimal_elementary_invalid(ctx)
+    Err(_) => not_computed_result(ctx)
   }
 }
 
@@ -246,7 +246,7 @@ pub fn Decimal::try_compound_ctx(
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
-    return Ok(invalid_context_result(ctx))
+    return Err(decimal_context_limit("compound", ctx))
   }
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   // 9.2: a signaling NaN signals invalid; 9.2.1: "compound(x, 0) is 1 for
@@ -508,7 +508,7 @@ pub fn Decimal::compound_ctx(
 ) -> (Decimal, DecimalFlags) {
   match self.try_compound_ctx(n, ctx) {
     Ok(result) => result
-    Err(_) => decimal_elementary_invalid(ctx)
+    Err(_) => not_computed_result(ctx)
   }
 }
 
@@ -519,7 +519,7 @@ pub fn Decimal::try_powr_ctx(
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   if gda_context_is_restricted(ctx) {
-    return Ok(invalid_context_result(ctx))
+    return Err(decimal_context_limit("powr", ctx))
   }
   // 9.2: a signaling NaN operand signals invalid and gives a quiet NaN.
   if self.is_signaling_nan() || exponent.is_signaling_nan() {
@@ -560,7 +560,7 @@ pub fn Decimal::try_powr_ctx(
   // (9.2.2). -0 is passed as +0, where pow would apply its odd-integer sign
   // rule.
   let base = if x_zero { { ..self, negative: false, } } else { self }
-  base.try_pow_ctx(exponent, ctx)
+  decimal_failure_of("powr", base.try_pow_ctx(exponent, ctx))
 }
 
 ///|
@@ -571,6 +571,6 @@ pub fn Decimal::powr_ctx(
 ) -> (Decimal, DecimalFlags) {
   match self.try_powr_ctx(exponent, ctx) {
     Ok(result) => result
-    Err(_) => decimal_elementary_invalid(ctx)
+    Err(_) => not_computed_result(ctx)
   }
 }

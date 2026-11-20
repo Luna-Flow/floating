@@ -244,9 +244,9 @@ test "decimal large integer powers enforce the expansion budget" {
   let (exp10, exp10_flags) = d("1E+9999999").exp10_ctx(context)
   // `exp2` and `exp10` reject such arguments before they reach `power_ctx`.
   assert_true(exp2.is_nan())
-  assert_true(exp2_flags.invalid_operation)
+  assert_true(exp2_flags.not_computed && !exp2_flags.invalid_operation)
   assert_true(exp10.is_nan())
-  assert_true(exp10_flags.invalid_operation)
+  assert_true(exp10_flags.not_computed && !exp10_flags.invalid_operation)
   let (small, small_flags) = d("0.5").pow_ctx(d("1E+9999999"), context)
   assert_true(small.is_zero())
   assert_true(small_flags.underflow && small_flags.inexact)

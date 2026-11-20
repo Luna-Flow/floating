@@ -226,7 +226,7 @@ pub fn DecimalFlags::has_error(self : DecimalFlags) -> Bool {
 ///|
 /// Largest `e_max` that `DecimalContext::try_new` accepts. The certified
 /// elementary functions accept a narrower range (`e_max <= 999999` and
-/// `p <= 999999`); outside it they return NaN with `invalid_context`. See
+/// `p <= 999999`); outside it they return NaN with `not_computed`. See
 /// "DecimalContext::new, try_new" in the `decimal` API manual
 /// (doc/manual/api/decimal.md).
 pub let decimal_implementation_e_max : Int32 = @internal.decimal_exponent_limit

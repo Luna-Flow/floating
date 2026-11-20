@@ -402,7 +402,7 @@ test "decimal total order separates cohorts" {
 - **Elementary functions need an exponent range within 999,999.**
   `DecimalContext::new()` is the format $(34,\ 999\,999)$, which they accept;
   a context with `e_max` above 999,999, or a precision of 1000 digits or more
-  with the default range, makes them return NaN with `invalid_operation`. Use
+  with the default range, makes them return NaN with `not_computed` (not `invalid_operation`, which is for results IEEE 754 defines as invalid). Use
   `decimal32()`/`decimal64()`/`decimal128()` or pass `e_max` up to 999,999.
 - **Operators are not context operations.** They round half-even to the larger
   operand precision and apply only the storage range of a value, so a result

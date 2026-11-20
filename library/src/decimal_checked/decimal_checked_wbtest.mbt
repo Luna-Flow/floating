@@ -176,3 +176,38 @@ test "decimal checked minimum_number and maximum_number order signed zeros and k
   assert_eq(tie_max.value().compare(one), 0)
   assert_true(tie_min.is_ok() && tie_max.is_ok())
 }
+
+///|
+/// S4: a case IEEE 754-2019 defines as invalid is a value with `invalid_operation`
+/// and no error; a context beyond the kernels is the error (the certification
+/// failure kind, not the domain error); an ordinary case has neither.
+test "decimal checked elementary: domain case, could-not-compute case and ordinary case" {
+  let context = @decimal.DecimalContext::decimal64()
+  let domain = DecimalChecked::from_decimal(
+    @decimal.Decimal::from_int(-1, precision=16),
+    context,
+  ).ln()
+  assert_true(domain.value().is_nan())
+  assert_true(domain.flags().invalid_operation())
+  assert_false(domain.flags().not_computed())
+  assert_true(domain.error() is None)
+  let restricted = DecimalChecked::from_decimal(
+    @decimal.Decimal::from_int(2, precision=16),
+    @decimal.DecimalContext::new(precision=34, e_max=1_000_000),
+  ).exp()
+  match restricted.error() {
+    Some(error) => {
+      assert_true(error.is_certification_failure())
+      assert_false(error.is_domain_error())
+    }
+    None => abort("a context beyond the kernels must be an error")
+  }
+  let ordinary = DecimalChecked::from_decimal(
+    @decimal.Decimal::from_int(1, precision=16),
+    context,
+  ).exp()
+  assert_true(ordinary.error() is None)
+  assert_false(
+    ordinary.flags().invalid_operation() || ordinary.flags().not_computed(),
+  )
+}

@@ -7,7 +7,7 @@ pub fn Decimal::log10_ctx(
 ) -> (Decimal, DecimalFlags) {
   match self.try_log10_ctx(ctx) {
     Ok(result) => result
-    Err(_) => decimal_elementary_invalid(ctx)
+    Err(_) => not_computed_result(ctx)
   }
 }
 
@@ -17,7 +17,7 @@ pub fn Decimal::try_log10_ctx(
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
-    return Ok(invalid_context_result(ctx))
+    return Err(decimal_context_limit("log10", ctx))
   }
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   match self.class {
@@ -51,7 +51,7 @@ pub fn Decimal::exp_ctx(
 ) -> (Decimal, DecimalFlags) {
   match self.try_exp_ctx(ctx) {
     Ok(result) => result
-    Err(_) => decimal_elementary_invalid(ctx)
+    Err(_) => not_computed_result(ctx)
   }
 }
 
@@ -61,7 +61,7 @@ pub fn Decimal::try_exp_ctx(
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
-    return Ok(invalid_context_result(ctx))
+    return Err(decimal_context_limit("exp", ctx))
   }
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   match self.class {
@@ -87,7 +87,7 @@ pub fn Decimal::ln_ctx(
 ) -> (Decimal, DecimalFlags) {
   match self.try_ln_ctx(ctx) {
     Ok(result) => result
-    Err(_) => decimal_elementary_invalid(ctx)
+    Err(_) => not_computed_result(ctx)
   }
 }
 
@@ -97,7 +97,7 @@ pub fn Decimal::try_ln_ctx(
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
-    return Ok(invalid_context_result(ctx))
+    return Err(decimal_context_limit("ln", ctx))
   }
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   match self.class {
@@ -129,7 +129,7 @@ pub fn Decimal::pow_ctx(
 ) -> (Decimal, DecimalFlags) {
   match self.try_pow_ctx(exponent, ctx) {
     Ok(result) => result
-    Err(_) => decimal_elementary_invalid(ctx)
+    Err(_) => not_computed_result(ctx)
   }
 }
 
@@ -140,7 +140,7 @@ pub fn Decimal::try_pow_ctx(
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   if gda_context_is_restricted(ctx) {
-    return Ok(invalid_context_result(ctx))
+    return Err(decimal_context_limit("pow", ctx))
   }
   let half = finite_with_exponent_repr(false, dec_coeff_from_int(5), -1, 1)
   if self.class == FpClass::Finite &&
@@ -215,7 +215,7 @@ pub fn Decimal::try_pow_ctx(
       decimal_power_one_finite_exponent_result(self, exponent, ctx) is Some(_)
     if !handled_before_certification {
       if math_context_is_restricted(ctx) {
-        return Ok(invalid_context_result(ctx))
+        return Err(decimal_context_limit("pow", ctx))
       }
       match decimal_power_adjacent_one_directed_result(self, exponent, ctx) {
         Some(result) => {
@@ -292,7 +292,7 @@ fn Decimal::power_ctx_impl(
   }
   if decimal_power_integer_is_odd(exponent) is None &&
     math_context_is_restricted(ctx) {
-    return invalid_context_result(ctx)
+    return not_computed_result(ctx)
   }
   match decimal_power_one_finite_exponent_result(self, exponent, ctx) {
     Some(result) => return result
