@@ -37,8 +37,6 @@ fn canonical_decoration(
     Trv
   } else if !interval.is_common_interval() && decoration == Com {
     Dac
-  } else if decoration == Ill {
-    Trv
   } else {
     decoration
   }
@@ -53,10 +51,16 @@ pub struct BallFloatDecorated {
 }
 
 ///|
+/// IEEE 1788-2015 11.5.2 `setDec`: the decoration `Ill` gives NaI for any
+/// interval, empty or not (at the precision of `interval`); an empty interval
+/// is decorated `Trv` and an unbounded one with `Com` is decorated `Dac`.
 pub fn BallFloatDecorated::new(
   interval : BallFloat,
   decoration~ : Decoration = Com,
 ) -> BallFloatDecorated {
+  if decoration == Ill {
+    return BallFloatDecorated::nai(precision=interval.precision())
+  }
   {
     interval_: interval,
     decoration_: canonical_decoration(interval, decoration),
