@@ -322,6 +322,19 @@ def render_moon_fixture_test() -> str:
         "  assert_eq(actual.invalid_operation(), expected.contains(\"InvalidOperation\"), msg=id + \" invalid_operation\")",
         "}",
         "",
+        "// The `compare` rows of the fixtures are the quiet relation of IEEE 754-2019 5.11:",
+        "// -1, 0, 1, or NaN for an unordered pair.",
+        "fn ieee_fixture_compare(lhs : Decimal, rhs : Decimal) -> (String, DecimalFlags) {",
+        "  let (relation, flags) = lhs.compare_quiet(rhs)",
+        "  let text = match relation {",
+        "    Less => \"-1\"",
+        "    Equal => \"0\"",
+        "    Greater => \"1\"",
+        "    Unordered => \"NaN\"",
+        "  }",
+        "  (text, flags)",
+        "}",
+        "",
     ]
     for format_name, row, encoding, path in rows:
         operation = row["op"]
@@ -347,7 +360,7 @@ def render_moon_fixture_test() -> str:
         elif operation == "remainder":
             call = f"lhs.remainder_ctx({rhs}, ctx)"
         elif operation == "compare":
-            call = f"lhs.compare_ctx({rhs}, ctx)"
+            call = f"ieee_fixture_compare(lhs, {rhs})"
         else:
             raise CorpusError(f"unsupported operation in {path}: {operation}")
         expected = ", ".join(_moon_string(item) for item in row["flags"] if item in IEEE_FLAGS)

@@ -120,30 +120,130 @@ pub fn Decimal::compare_checked(
 }
 
 ///|
-pub fn Decimal::compare_ctx(
-  self : Decimal,
-  other : Decimal,
-  ctx : DecimalContext,
-) -> (Decimal, DecimalFlags) {
-  match quiet_nan_pair(self, other, ctx) {
-    Some(result) => return result
-    None => ()
+fn decimal_compare_relation(lhs : Decimal, rhs : Decimal) -> @def.PartialOrder {
+  if lhs.class == FpClass::NaN || rhs.class == FpClass::NaN {
+    return @def.PartialOrder::Unordered
   }
-  (decimal_compare_result(self.compare(other), ctx), DecimalFlags::new())
+  let comparison = lhs.compare(rhs)
+  if comparison < 0 {
+    @def.PartialOrder::Less
+  } else if comparison > 0 {
+    @def.PartialOrder::Greater
+  } else {
+    @def.PartialOrder::Equal
+  }
 }
 
 ///|
-pub fn Decimal::compare_signal_ctx(
+/// IEEE 754-2019 5.11 quiet comparison: the relation of `self` to `other`,
+/// where `-0 == +0` (cohort members compare equal) and a NaN is unordered.
+/// Only a signaling NaN raises invalid.
+pub fn Decimal::compare_quiet(
   self : Decimal,
   other : Decimal,
-  ctx : DecimalContext,
-) -> (Decimal, DecimalFlags) {
-  match quiet_nan_pair(self, other, ctx) {
-    Some((value, flags)) =>
-      return (value, { ..flags, invalid_operation: true, })
-    None => ()
-  }
-  (decimal_compare_result(self.compare(other), ctx), DecimalFlags::new())
+) -> (@def.PartialOrder, DecimalFlags) {
+  (
+    decimal_compare_relation(self, other),
+    if self.is_signaling_nan() || other.is_signaling_nan() {
+      invalid_flags()
+    } else {
+      DecimalFlags::new()
+    },
+  )
+}
+
+///|
+/// IEEE 754-2019 5.11 signaling comparison: as `compare_quiet`, but any NaN
+/// operand raises invalid.
+pub fn Decimal::compare_signaling(
+  self : Decimal,
+  other : Decimal,
+) -> (@def.PartialOrder, DecimalFlags) {
+  let relation = decimal_compare_relation(self, other)
+  (
+    relation,
+    if relation == @def.PartialOrder::Unordered {
+      invalid_flags()
+    } else {
+      DecimalFlags::new()
+    },
+  )
+}
+
+///|
+/// compareQuietEqual (IEEE 754-2019 Table 5.1).
+pub fn Decimal::compare_quiet_equal(
+  self : Decimal,
+  other : Decimal,
+) -> (Bool, DecimalFlags) {
+  let (relation, flags) = self.compare_quiet(other)
+  (relation == @def.PartialOrder::Equal, flags)
+}
+
+///|
+/// compareSignalingEqual (IEEE 754-2019 Table 5.2).
+pub fn Decimal::compare_signaling_equal(
+  self : Decimal,
+  other : Decimal,
+) -> (Bool, DecimalFlags) {
+  let (relation, flags) = self.compare_signaling(other)
+  (relation == @def.PartialOrder::Equal, flags)
+}
+
+///|
+/// compareQuietLess (IEEE 754-2019 Table 5.2).
+pub fn Decimal::compare_quiet_less(
+  self : Decimal,
+  other : Decimal,
+) -> (Bool, DecimalFlags) {
+  let (relation, flags) = self.compare_quiet(other)
+  (relation == @def.PartialOrder::Less, flags)
+}
+
+///|
+/// compareSignalingLess (IEEE 754-2019 Table 5.1).
+pub fn Decimal::compare_signaling_less(
+  self : Decimal,
+  other : Decimal,
+) -> (Bool, DecimalFlags) {
+  let (relation, flags) = self.compare_signaling(other)
+  (relation == @def.PartialOrder::Less, flags)
+}
+
+///|
+/// compareQuietLessEqual (IEEE 754-2019 Table 5.2).
+pub fn Decimal::compare_quiet_less_equal(
+  self : Decimal,
+  other : Decimal,
+) -> (Bool, DecimalFlags) {
+  let (relation, flags) = self.compare_quiet(other)
+  (
+    relation == @def.PartialOrder::Less || relation == @def.PartialOrder::Equal,
+    flags,
+  )
+}
+
+///|
+/// compareSignalingLessEqual (IEEE 754-2019 Table 5.1).
+pub fn Decimal::compare_signaling_less_equal(
+  self : Decimal,
+  other : Decimal,
+) -> (Bool, DecimalFlags) {
+  let (relation, flags) = self.compare_signaling(other)
+  (
+    relation == @def.PartialOrder::Less || relation == @def.PartialOrder::Equal,
+    flags,
+  )
+}
+
+///|
+/// compareQuietUnordered (IEEE 754-2019 Table 5.2).
+pub fn Decimal::compare_quiet_unordered(
+  self : Decimal,
+  other : Decimal,
+) -> (Bool, DecimalFlags) {
+  let (relation, flags) = self.compare_quiet(other)
+  (relation == @def.PartialOrder::Unordered, flags)
 }
 
 ///|

@@ -1202,7 +1202,7 @@ members of a cohort equal. NaN has no numeric order, so that `Compare` stays a
 total preorder (sorting never aborts) every NaN compares equal to every other
 NaN and greater than every non-NaN. `equal` (`==`) agrees with `compare`:
 NaN `==` NaN is `true`. This is *not* IEEE equality; use
-[`compare_checked`](#decimalcompare_checked), `compare_ctx` or the NaN
+[`compare_checked`](#decimalcompare_checked), `compare_quiet` or the
 predicates when NaN must be unordered. The operator methods are listed under
 [trait implementations](#eq-and-compare-decimalequal-not_equal-op_lt-op_le-op_gt-op_ge).
 
@@ -1231,19 +1231,39 @@ It returns `Ok(compare(x, y))` when neither operand is a NaN and
 `Err(unordered_comparison)` otherwise. It is the `CompareChecked`
 implementation.
 
-### `Decimal::compare_ctx`, `compare_signal_ctx`
+### `Decimal::compare_quiet`, `compare_signaling`
 
-These functions are the General Decimal Arithmetic comparisons with a decimal
-result.
+IEEE 754-2019 5.11 comparison as a four-valued relation with flags.
 
 ```mbti
-pub fn Decimal::compare_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::compare_signal_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::compare_quiet(Self, Self) -> (@def.PartialOrder, DecimalFlags)
+pub fn Decimal::compare_signaling(Self, Self) -> (@def.PartialOrder, DecimalFlags)
 ```
 
-They return the `Decimal` $-1$, 0 or 1, or a quiet NaN when an operand is a
-NaN. `compare_ctx` raises `invalid_operation` only for a signaling NaN;
-`compare_signal_ctx` raises it for every NaN (IEEE *signaling* comparison).
+The relation is `Less`, `Equal`, `Greater` or `Unordered` (some operand is a
+NaN), with $-0 = +0$ and all members of a cohort equal. The quiet form raises
+`invalid_operation` only for a signaling NaN; the signaling form raises it for
+every unordered comparison. These are the functions of `BinFloat`; they replace
+`compare_ctx` and `compare_signal_ctx`, which returned the `Decimal` $-1$, 0, 1
+or a NaN, a General Decimal Arithmetic result and not an IEEE one.
+
+### `Decimal::compare_quiet_equal` and the other comparison predicates
+
+The predicates of IEEE 754-2019 Tables 5.1 and 5.2 that `BinFloat` has.
+
+```mbti
+pub fn Decimal::compare_quiet_equal(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_quiet_less(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_quiet_less_equal(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_quiet_unordered(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_signaling_equal(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_signaling_less(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_signaling_less_equal(Self, Self) -> (Bool, DecimalFlags)
+```
+
+Each is defined from `compare_quiet` or `compare_signaling` and returns its
+flags; every predicate except `compare_quiet_unordered` is false on an
+unordered pair.
 
 ### `Decimal::total_order`, `total_order_mag`, `total_order_compare`
 
@@ -2236,8 +2256,15 @@ pub fn Decimal::classify_contextual(Self) -> @arithmetic.FpClass
 pub fn Decimal::coefficient(Self) -> @bigint.BigInt
 pub fn Decimal::compare(Self, Self) -> Int32
 pub fn Decimal::compare_checked(Self, Self) -> Result[Int32, @arithmetic.ArithmeticError]
-pub fn Decimal::compare_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::compare_signal_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::compare_quiet(Self, Self) -> (@def.PartialOrder, DecimalFlags)
+pub fn Decimal::compare_quiet_equal(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_quiet_less(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_quiet_less_equal(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_quiet_unordered(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_signaling(Self, Self) -> (@def.PartialOrder, DecimalFlags)
+pub fn Decimal::compare_signaling_equal(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_signaling_less(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_signaling_less_equal(Self, Self) -> (Bool, DecimalFlags)
 pub fn Decimal::compound_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::convert_format(Self, DecimalInterchangeFormat) -> (Self, DecimalFlags)
 pub fn Decimal::copy(Self) -> Self

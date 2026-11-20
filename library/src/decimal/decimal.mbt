@@ -875,11 +875,6 @@ fn gda_context_is_restricted(ctx : DecimalContext) -> Bool {
 }
 
 ///|
-fn decimal_compare_result(value : Int32, ctx : DecimalContext) -> Decimal {
-  Decimal::from_int(value, precision=finite_precision_for(bigint_one(), ctx))
-}
-
-///|
 fn div_zero_flags(division_undefined : Bool) -> DecimalFlags {
   if division_undefined {
     { ..DecimalFlags::new(), invalid_operation: true, }
