@@ -4,18 +4,19 @@ fn bin_coeff_mod(value : Coeff, modulus : Coeff) -> Coeff {
 }
 
 ///|
-/// `2^exponent mod modulus` by square-and-multiply, for exponents up to the
-/// Int range without materializing `2^exponent`.
-fn bin_coeff_pow2_mod(exponent : Int32, modulus : Coeff) -> Coeff {
+/// `2^exponent mod modulus` by square-and-multiply, for non-negative exponents
+/// up to the Int64 range (the gap of two Int32 exponents exceeds the Int32
+/// range) without materializing `2^exponent`.
+fn bin_coeff_pow2_mod(exponent : Int64, modulus : Coeff) -> Coeff {
   let mut result = bin_coeff_mod(Coeff::one(), modulus)
   let mut base = bin_coeff_mod(Coeff::from_uint64(2UL), modulus)
   let mut remaining = exponent
-  while remaining > 0 {
-    if remaining % 2 == 1 {
+  while remaining > 0L {
+    if remaining % 2L == 1L {
       result = bin_coeff_mod(result.mul(base), modulus)
     }
     base = bin_coeff_mod(base.square(), modulus)
-    remaining = remaining / 2
+    remaining = remaining / 2L
   }
   result
 }
@@ -56,7 +57,10 @@ pub fn BinFloat::remainder_ctx(
     let twice = modulus.shift_left(1)
     let reduced = bin_coeff_mod(
       bin_coeff_mod(self.coefficient_, twice).mul(
-        bin_coeff_pow2_mod(self.exponent2 - divisor.exponent2, twice),
+        bin_coeff_pow2_mod(
+          self.exponent2.to_int64() - divisor.exponent2.to_int64(),
+          twice,
+        ),
       ),
       twice,
     )
