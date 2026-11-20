@@ -180,6 +180,42 @@ fn decimal_to_bin_float_out_of_range(
 }
 
 ///|
+/// The exponent magnitude from which `to_bin_float` converts through the exact
+/// decimal parser of `bin_float` instead of forming `5^e` or `10^scale` (#468).
+let decimal_parser_conversion_exponent : Int32 = 4096
+
+///|
+/// `to_bin_float` of a finite non-zero `value` through `BinFloat::from_string_ctx`,
+/// the exact decimal conversion of `bin_float` (correctly rounded for any precision
+/// and exponent, checked against MPFR), whose cost does not grow with the decimal
+/// exponent. `None` when the precision is outside the binary range (the caller
+/// then takes the expansion, which reports it as before).
+fn decimal_to_bin_float_through_parser(
+  value : Decimal,
+  precision : Int32,
+  mode : RoundingMode,
+) -> @bin_float.BinFloat? {
+  guard precision > 0 && precision <= @bin_float.binary_precision_max else {
+    return None
+  }
+  let text = (if value.negative { "-" } else { "" }) +
+    coeff_bigint(value.coefficient).to_string() +
+    "E" +
+    value.exponent10.to_string()
+  match
+    @bin_float.BinFloat::from_string_ctx(
+      text,
+      @bin_float.BinaryContext::unbounded(
+        precision,
+        rounding=@bin_float.BinaryRoundingMode::from_arithmetic(mode),
+      ),
+    ) {
+    Ok((result, _)) => Some(result)
+    Err(_) => None
+  }
+}
+
+///|
 pub fn Decimal::to_bin_float(
   self : Decimal,
   precision~ : Int32 = self.precision_,
@@ -195,6 +231,13 @@ pub fn Decimal::to_bin_float(
       match decimal_to_bin_float_out_of_range(self, precision, mode) {
         Some(result) => return result
         None => ()
+      }
+      if self.exponent10 >= decimal_parser_conversion_exponent ||
+        self.exponent10 <= -decimal_parser_conversion_exponent {
+        match decimal_to_bin_float_through_parser(self, precision, mode) {
+          Some(result) => return result
+          None => ()
+        }
       }
       if self.exponent10 >= 0 {
         let magnitude = coeff_bigint(self.coefficient) * pow5(self.exponent10)
