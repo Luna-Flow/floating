@@ -1,4 +1,7 @@
 ///|
+using @internal {digits10}
+
+///|
 fn normalize_decimal_parts_ctx(
   negative : Bool,
   magnitude : BigInt,

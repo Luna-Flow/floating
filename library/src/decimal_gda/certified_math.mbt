@@ -198,21 +198,80 @@ fn decimal_exact_dyadic_endpoint(
       },
     )
   }
-  let coefficient = BigInt::from_octets(value.coefficient().to_bytes_be())
+  // the binary coefficient is read into decimal limbs, and the power of two or
+  // five is applied there: no host big integer, and no conversion of the
+  // product from binary to decimal
+  let coefficient = decimal_coeff_from_be_bytes(
+    value.coefficient().to_bytes_be(),
+  )
   let (magnitude, exponent10) = if value.exponent2() >= 0 {
-    (coefficient << value.exponent2(), 0)
+    (
+      dec_coeff_multiply_repr(
+        coefficient,
+        dec_coeff_pow_unit_repr(2, value.exponent2()),
+      ),
+      0,
+    )
   } else {
     let shift = -value.exponent2()
-    (coefficient * pow5(shift), -shift)
+    (
+      dec_coeff_multiply_repr(coefficient, dec_coeff_pow_unit_repr(5, shift)),
+      -shift,
+    )
   }
   Some(
-    finite_with_exponent(
+    finite_with_exponent_repr(
       value.is_negative(),
       magnitude,
       exponent10,
-      digits10(magnitude),
+      magnitude.digits10(),
     ),
   )
+}
+
+///|
+/// The decimal limbs of the unsigned big-endian integer `bytes`: Horner by
+/// words of 32 bits, `limbs = limbs * 2^32 + word`, in base 10^9 (a limb times
+/// 2^32 is below 10^9 * 2^32 < 2^62, plus a carry below 2^32 and a word below
+/// 2^32). `O(words * limbs)`, with one limb array of the final size.
+fn decimal_coeff_from_be_bytes(bytes : Bytes) -> DecCoeff {
+  let length = bytes.length()
+  if length == 0 {
+    return dec_coeff_zero()
+  }
+  // at most `8 * length` bits: 0.30103 * bits / 9 limbs, one more for the carry
+  // The limb count is at most `floor(u / 9) + 1` for `u = 0.30103 * bits`
+  // digits, one more for the carry out of the top limb. In 64 bits: `length *
+  // 8 * 30103` wraps in 32 bits above 8,917 bytes.
+  let capacity = (length.to_int64() * 8L * 30103L / 100000L / 9L + 2L).to_int()
+  let limbs : Array[UInt32] = Array::make(capacity, 0U)
+  let mut used = 1
+  // words of 32 bits from the top: the first one holds `length mod 4` bytes
+  // when that is not 0
+  let head = length % 4
+  let words = (length + 3) / 4
+  let mut position = 0
+  for index in 0..<words {
+    let count = if index == 0 && head > 0 { head } else { 4 }
+    let mut word = 0UL
+    for _ in 0..<count {
+      word = (word << 8) | bytes[position].to_uint64()
+      position += 1
+    }
+    // limbs = limbs * 2^32 + word
+    let mut carry = word
+    for limb in 0..<used {
+      let current = limbs[limb].to_uint64() * 4294967296UL + carry
+      carry = current / 1000000000UL
+      limbs[limb] = (current - carry * 1000000000UL).to_uint()
+    }
+    while carry > 0UL {
+      limbs[used] = (carry % 1000000000UL).to_uint()
+      carry = carry / 1000000000UL
+      used += 1
+    }
+  }
+  dec_coeff_from_unit_accumulator(limbs, used)
 }
 
 ///|
