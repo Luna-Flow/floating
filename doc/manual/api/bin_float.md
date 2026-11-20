@@ -411,7 +411,9 @@ coefficient bits (the value stores its coefficient as one or two machine
 words), so it allocates there; for a wider value it returns the stored
 coefficient. A loop that reads the coefficient of many small values pays one
 allocation per call. `BinFloat` has no public word reader; the result's
-`BinCoeff::to_uint64` gives the value when it fits 64 bits.
+`BinCoeff::to_uint64` gives the value when it fits 64 bits. The exponent of the
+leading bit, which is what most callers read the coefficient for, is
+`ilogb()`, which does not allocate.
 
 ### `BinFloat::normalized`
 
@@ -1036,13 +1038,14 @@ $\operatorname{nextUp}(\Omega) = +\infty$ with no overflow flag, and only a
 signaling NaN raises `invalid_operation`. An operand with more bits than the
 context precision is accepted.
 
-### `BinFloat::scaleb_ctx`, `BinFloat::logb_ctx`
+### `BinFloat::scaleb_ctx`, `BinFloat::logb_ctx`, `BinFloat::ilogb`
 
 IEEE `scaleB` and `logB`.
 
 ```mbti
 pub fn BinFloat::scaleb_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::logb_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::ilogb(Self) -> Int32?
 ```
 
 `x.scaleb_ctx(n, ctx)` is $\circ(x \cdot 2^n)$ with the usual overflow and
@@ -1060,6 +1063,28 @@ NaN with `invalid_operation` is this library's choice, as in `decimal`.
 (also for subnormal $x$): $\operatorname{logB}(0) = -\infty$ with
 `division_by_zero`, $\operatorname{logB}(\pm\infty) = +\infty$, and a NaN
 propagates.
+
+`x.ilogb()` is the same exponent as an integer: the $e$ with
+$2^e \le |x| < 2^{e+1}$, that is $\texttt{exponent2()} +
+\texttt{coefficient().bit\_length()} - 1$, read from the value without
+building its coefficient. It is `logB` of IEEE 754-2019 5.3.3 with an integral
+`logBFormat`: the standard defines $\operatorname{logB}(x)$ as the exponent of
+$x$ "determined as though x were represented with infinite range and minimum
+exponent", so a subnormal $x$ gives the exponent of its leading bit. For
+$\operatorname{logB}(0)$, $\operatorname{logB}(\pm\infty)$ and
+$\operatorname{logB}(\text{NaN})$ with an integer `logBFormat` the standard
+returns language-defined values outside $\pm 2 (e_{\max} + p - 1)$ and signals
+the invalid operation exception (5.3.3 and 7.2); `ilogb` renders those three
+cases as `None` and raises no flag. `logb_ctx` is the operation with a
+floating-point `logBFormat` ($-\infty$ with `division_by_zero`, $+\infty$, NaN).
+
+```moonbit
+///|
+test "ilogb" {
+  inspect(@bin_float.BinFloat::from_int(12).ilogb().unwrap(), content="3")
+  inspect(@bin_float.BinFloat::zero().ilogb() is None, content="true")
+}
+```
 
 ```moonbit
 ///|
@@ -2722,6 +2747,7 @@ pub fn BinFloat::from_string(String, precision? : Int32) -> Result[Self, @arithm
 pub fn BinFloat::from_string_ctx(String, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::hypot(Self, Self) -> Self
 pub fn BinFloat::hypot_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::ilogb(Self) -> Int32?
 pub fn BinFloat::inf(@def.Sign, precision? : Int32) -> Self
 pub fn BinFloat::is_finite(Self) -> Bool
 pub fn BinFloat::is_infinite(Self) -> Bool

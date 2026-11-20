@@ -284,8 +284,7 @@ fn rev_quarter_window(
   if x.is_zero() {
     return (signed_coeff_from_int(0), signed_coeff_from_int(0))
   }
-  let adjusted = x.exponent2().to_int64() +
-    x.coefficient().bit_length().to_int64()
+  let adjusted = x.ilogb().unwrap().to_int64() + 1L
   if adjusted <= 0L {
     return if x.sign() == Sign::Negative {
       (signed_coeff_from_int(-1), signed_coeff_from_int(0))
@@ -432,9 +431,7 @@ fn rev_end_beyond_limit(x : @bin_float.BinFloat, precision : Int32) -> Bool {
   if x.is_zero() {
     return false
   }
-  let adjusted = x.exponent2().to_int64() +
-    x.coefficient().bit_length().to_int64() -
-    1L
+  let adjusted = x.ilogb().unwrap().to_int64()
   Int64::max(0L, adjusted) + precision.to_int64() + 96L > trig_work_limit
 }
 

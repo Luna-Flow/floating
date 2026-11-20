@@ -136,7 +136,10 @@ pub fn BallContext::binary128() -> BallContext {
 
 ///|
 fn finite_adjusted_exponent(value : @bin_float.BinFloat) -> Int32 {
-  value.exponent2() + value.coefficient().bit_length() - 1
+  match value.ilogb() {
+    Some(top) => top
+    None => value.exponent2() - 1
+  }
 }
 
 ///|
