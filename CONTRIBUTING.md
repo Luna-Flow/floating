@@ -1,7 +1,7 @@
 # Contribution Guidelines
 
 This guide tracks the current repository workflow and follows the current
-documentation baseline: **`0.10.2`**.
+documentation baseline: **`0.11.0`** (unreleased; the latest published release is `0.10.2`).
 
 ## To Contributors
 
@@ -44,7 +44,7 @@ The repository is a `moon.work` workspace of two modules, each in its own direct
 | Module | Directory | Contents | Dependencies |
 | --- | --- | --- | --- |
 | `Luna-Flow/floating` (published) | `library/` (`library/moon.mod`, `library/src/`) | the numeric packages: `def`, `internal`, `bin_float`, `decimal`, `decimal_gda`, `ball_float`, the `*_checked` tiers, `semantic`, `consistency` | `Luna-Flow/arithmetic`, `Luna-Flow/luna-generic` only |
-| `Luna-Flow/floating-tools` (not published) | `tooling/` (`tooling/moon.mod`, `tooling/src/`) | benchmarks (`bench`), command-line programs (`cli`), the differential harness (`differential`), frontends (`frontend`, `numeric_expr`), `internal/conformance`, `internal/runner_cli`, `doc_examples` | the library from this working tree, plus `mare_mark`, `async`, `x`, `type_theory` |
+| `Luna-Flow/floating-tools` (same version as the library) | `tooling/` (`tooling/moon.mod`, `tooling/src/`) | benchmarks (`bench`), command-line programs (`cli`), the differential harness (`differential`), frontends (`frontend`, `numeric_expr`), `internal/conformance`, `internal/runner_cli`, `doc_examples` | the library from this working tree, plus `mare_mark`, `async`, `x`, `type_theory` |
 
 A library package must never import the tools module or one of the tooling
 dependencies; `tools/check_imports.py` (stage "IMPORTS: package independence"
@@ -176,12 +176,14 @@ relative links out of the package.
 
 ## 6. Release Checklist
 
-- Before publishing to Mooncakes, make sure `library/moon.mod` has already been bumped to the intended release version.
+- A version bump changes both manifests together: the `version` of `library/moon.mod`, the `version` of `tooling/moon.mod` and the library version in the tools imports (`"Luna-Flow/floating@<version>"` in `tooling/moon.mod`) are always equal. The workspace resolves the library member whatever the import line says, so `tools/check_imports.py` (stage "IMPORTS: package independence" of `just pr`, and the first step of the publish workflow) fails when any of the three differs. There is no bump script: edit the three places, the changelog headings and the manual (`lunadoc update`) in one commit.
+- Changelogs: an entry that changes the library goes to `library/CHANGELOG.md` (its `## Unreleased` section); an entry that changes only the tools module (benchmarks, command-line programs, frontends, the differential harness, the documentation examples) goes to `tooling/CHANGELOG.md`. A change to both goes to both, each with its own wording.
+- Publishing: the publish workflow (`publish.yml`, input `module`) publishes `library` from `library/` or `tools` from `tooling/`, each after its package-contents check and `moon publish --dry-run`. A package is exactly its directory, so no ignore file is needed. Publish the library first: the tools module imports the library of its own version and the dry run resolves it against the registry. Whether and when the tools module is published is decided at release time. `just publish [library|tools|all]` builds the zip and checks it; it never publishes.
 - Update `library/README.md`, the root `README.md`, the `doc/manual` pages, and (with `lunadoc update`) the translation catalogs if the package overview or release notes no longer match the implementation.
 - Move superseded release notes to `library/CHANGELOG.md`; keep README files focused on the current baseline.
 - Run the quick `just pr` gate for ordinary changes and the complete `just ci`
   gate before publishing.
-- The GitHub Actions publish workflow reads the release version directly from `library/moon.mod`.
+- The GitHub Actions publish workflow reads the release version directly from the manifest of the selected module.
 - If Mooncakes reports a duplicate version, bump the version before retrying.
 
 ## 7. Code Review

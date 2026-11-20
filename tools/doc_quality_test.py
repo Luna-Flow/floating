@@ -170,6 +170,27 @@ class DocumentationQualityTests(unittest.TestCase):
                 ["CONTRIBUTING.md: stale 0.6.0 baseline; current is 0.6.1"],
             )
 
+    def test_the_latest_published_release_may_be_named_as_such(self) -> None:
+        with tempfile.TemporaryDirectory() as directory, ExitStack() as stack:
+            root = Path(directory)
+            (root / "doc" / "manual").mkdir(parents=True)
+            (root / "library").mkdir()
+            (root / "library" / "moon.mod").write_text('version = "0.7.0"\n', encoding="utf-8")
+            (root / "library" / "CHANGELOG.md").write_text("## Unreleased\n\n## 0.6.1\n", encoding="utf-8")
+            (root / "README.md").write_text(
+                "moon add Luna-Flow/floating@0.6.1\n"
+                "The latest published release is 0.6.1.\n"
+                "Baseline file summary-0.6.1.json.\n"
+                "The toolchain 0.6.10 and moonc v0.6.11 are not the version.\n",
+                encoding="utf-8",
+            )
+            (root / "CONTRIBUTING.md").write_text("The baseline is 0.6.1.\n", encoding="utf-8")
+            use_repo(stack, root)
+            self.assertEqual(
+                doc_quality.check_current_versions(),
+                ["CONTRIBUTING.md: stale 0.6.1 baseline; current is 0.7.0"],
+            )
+
     def test_translations_may_not_add_stale_versions(self) -> None:
         with tempfile.TemporaryDirectory() as directory, ExitStack() as stack:
             root = Path(directory)

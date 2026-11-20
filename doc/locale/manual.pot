@@ -8309,7 +8309,7 @@ msgid "Two modules"
 msgstr ""
 
 #: manual/architecture.md:33
-msgid "The repository is a `moon.work` workspace of two modules. The published library `Luna-Flow/floating` holds the shared vocabulary, the scalar and interval domains, the checked tiers, `semantic` and `consistency`; it depends on `Luna-Flow/arithmetic` and `Luna-Flow/luna-generic` only. The tools module `Luna-Flow/floating-tools` (directory `tooling/`, not published) holds `numeric_expr`, the format frontends, the runtime adapters `internal/conformance` and `internal/runner_cli`, `cli`, `differential`, `bench` and `doc_examples`: everything that needs `mare_mark`, `async`, `x` or `type_theory`. The tools module imports the library from the same working tree, so a change to a numeric package is tested by the tools in the same commit."
+msgid "The repository is a `moon.work` workspace of two modules. The published library `Luna-Flow/floating` holds the shared vocabulary, the scalar and interval domains, the checked tiers, `semantic` and `consistency`; it depends on `Luna-Flow/arithmetic` and `Luna-Flow/luna-generic` only. The tools module `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds `numeric_expr`, the format frontends, the runtime adapters `internal/conformance` and `internal/runner_cli`, `cli`, `differential`, `bench` and `doc_examples`: everything that needs `mare_mark`, `async`, `x` or `type_theory`. The tools module imports the library from the same working tree, so a change to a numeric package is tested by the tools in the same commit."
 msgstr ""
 
 #: manual/architecture.md:45
@@ -9125,7 +9125,7 @@ msgid "bin_float conformance"
 msgstr ""
 
 #: manual/conformance/bin_float.md:3
-msgid "This page records the `0.10.2` binary floating-point semantic and test boundary. It is evidence for a stated, finite corpus; it is not a proof that any implementation can be correct for every real input."
+msgid "This page records the `0.11.0` binary floating-point semantic and test boundary. It is evidence for a stated, finite corpus; it is not a proof that any implementation can be correct for every real input."
 msgstr ""
 
 #: manual/conformance/bin_float.md:7
@@ -10097,7 +10097,7 @@ msgid "Repository conventions"
 msgstr ""
 
 #: manual/conventions.md:3
-msgid "These rules add to the Luna-Flow documentation standard for `floating`; they never relax it. The manual describes the implementation on the current branch. The current release is **`0.10.2`**, the version in `library/moon.mod`."
+msgid "These rules add to the Luna-Flow documentation standard for `floating`; they never relax it. The manual describes the implementation on the current branch. The current version is **`0.11.0`**, the version in `library/moon.mod` and `tooling/moon.mod` (unreleased; the latest published release is `0.10.2`)."
 msgstr ""
 
 #: manual/conventions.md:7
@@ -17626,7 +17626,7 @@ msgid "floating"
 msgstr ""
 
 #: manual/index.md:3
-msgid "This manual documents the `main` branch of `Luna-Flow/floating`, which builds on the `0.10.2` release; the changes since that release are listed in the changelog."
+msgid "This manual documents the `main` branch of `Luna-Flow/floating`, which builds on the latest published release, `0.10.2`; the changes since that release are listed in the changelog."
 msgstr ""
 
 #: manual/index.md:7

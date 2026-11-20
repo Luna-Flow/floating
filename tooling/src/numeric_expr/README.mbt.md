@@ -1,6 +1,6 @@
 # `numeric_expr`
 
-This package documentation describes the current **`0.10.2`** baseline.
+This package documentation describes the current **`0.11.0`** baseline.
 
 `numeric_expr` is a host-language-independent numeric expression core. It
 represents literals and primitive applications today while keeping its syntax

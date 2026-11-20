@@ -76,7 +76,7 @@ and `enclosure` is a set of reals guaranteed to contain $1/3$.
 | [`semantic`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/semantic.md) | exact projection for comparing values across packages | exact rational, signed infinity or NaN |
 
 Expression, corpus-frontend, CLI, benchmark and differential-testing packages
-are not part of this module: they live in the unpublished module
+are not part of this module: they live in the separate module
 `Luna-Flow/floating-tools` of the same repository, next to the library. The
 [package map](https://github.com/Luna-Flow/floating/blob/main/doc/manual/index.md) lists every package with its tutorial,
 API and design pages; `consistency` and `internal/*` stay in this module as

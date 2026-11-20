@@ -11,7 +11,7 @@ conformance corpora and the scripts of the gates.
 | Directory | What it holds |
 | --- | --- |
 | [`library/`](./library/README.md) | the published module `Luna-Flow/floating` (`moon add Luna-Flow/floating`): the numeric packages, its README, LICENSE and CHANGELOG |
-| [`tooling/`](./tooling/moon.mod) | the unpublished module `Luna-Flow/floating-tools`: benchmarks, command-line programs, the differential harness, corpus frontends and the documentation examples |
+| [`tooling/`](./tooling/moon.mod) | the module `Luna-Flow/floating-tools`, versioned with the library: benchmarks, command-line programs, the differential harness, corpus frontends and the documentation examples |
 | [`doc/manual`](./doc/manual/index.md) | one manual for both modules (English source; Chinese and Japanese catalogs in `doc/locale`), also published at <https://lunaflow.cn/en/floating/> |
 | [`testdata/`](./testdata/) | pinned corpora and expected values, documented per directory |
 | [`tools/`](./tools/) | the Python and shell scripts of the gates, generators and checks |
