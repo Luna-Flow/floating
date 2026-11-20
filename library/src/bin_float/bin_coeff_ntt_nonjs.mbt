@@ -400,13 +400,23 @@ fn bin_coeff_ntt_fill(
   nprime : UInt64,
   r2 : UInt64,
 ) -> Unit {
-  for index in 0..<digit_length {
-    let word = bin_coeff_word(value, index / 4)
-    let digit = (word >> ((index & 3) * 16)) & 0xffffUL
-    destination.unsafe_set(
-      index,
-      bin_coeff_ntt_to_montgomery(digit, prime, nprime, r2).to_uint(),
-    )
+  // one limb fetch per four 16-bit digits
+  let mut index = 0
+  let mut word_index = 0
+  while index < digit_length {
+    let word = bin_coeff_word(value, word_index)
+    let end = Int32::min(index + 4, digit_length)
+    let mut shift = 0
+    while index < end {
+      let digit = (word >> shift) & 0xffffUL
+      destination.unsafe_set(
+        index,
+        bin_coeff_ntt_to_montgomery(digit, prime, nprime, r2).to_uint(),
+      )
+      index += 1
+      shift += 16
+    }
+    word_index += 1
   }
 }
 

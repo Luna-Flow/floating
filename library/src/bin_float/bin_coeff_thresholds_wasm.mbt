@@ -101,4 +101,4 @@ let bin_coeff_radix_format_dc_words = 64
 ///|
 /// Number of digit chunks from which `BinCoeff::parse` combines chunks by
 /// divide and conquer instead of accumulating them in place.
-let bin_coeff_radix_parse_dc_chunks = 64
+let bin_coeff_radix_parse_dc_chunks = 4608
