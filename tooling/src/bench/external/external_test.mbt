@@ -145,6 +145,14 @@ fn binary_function(
 }
 
 ///|
+/// The closure of the null implementation: the shape of the operation
+/// closures (an indirect call with two arguments), returning its first one.
+let binary_null : (@binary.BinFloat, @binary.BinFloat) -> @binary.BinFloat = (
+  x,
+  _,
+) => x
+
+///|
 fn binary_matches(
   expected : Array[@binary.BinFloat],
   actual : Array[@binary.BinFloat],
@@ -198,6 +206,15 @@ fn binary_spec(
         @runner.Implementation::stateless("floating", "0.11.0", input => {
           for i in 0..<input.count {
             input.out[i] = f(input.a[i], input.b[i])
+          }
+          @model.OperationResult::completed(input.out, ())
+        }),
+        // The null of the case: the same loop through the same closure call,
+        // with the library call removed. It reads `expected` instead of `a`
+        // (so that its output validates) and stores an existing value.
+        @runner.Implementation::stateless("null", "0.11.0", input => {
+          for i in 0..<input.count {
+            input.out[i] = binary_null(input.expected[i], input.b[i])
           }
           @model.OperationResult::completed(input.out, ())
         }),
@@ -276,6 +293,13 @@ fn decimal_function(
 }
 
 ///|
+let decimal_null : (@gda.Decimal, @gda.Decimal, @gda.GdaContext) -> @gda.Decimal = (
+  x,
+  _,
+  _,
+) => x
+
+///|
 fn decimal_matches(
   expected : Array[@gda.Decimal],
   actual : Array[@gda.Decimal],
@@ -331,6 +355,16 @@ fn decimal_spec(
         @runner.Implementation::stateless("floating", "0.11.0", input => {
           for i in 0..<input.count {
             input.out[i] = f(input.a[i], input.b[i], input.context)
+          }
+          @model.OperationResult::completed(input.out, ())
+        }),
+        @runner.Implementation::stateless("null", "0.11.0", input => {
+          for i in 0..<input.count {
+            input.out[i] = decimal_null(
+              input.expected[i],
+              input.b[i],
+              input.context,
+            )
           }
           @model.OperationResult::completed(input.out, ())
         }),

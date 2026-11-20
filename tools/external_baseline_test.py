@@ -2,6 +2,7 @@ import random
 import unittest
 
 import external_baseline as eb
+import external_stats as stats
 
 
 class GenerationTests(unittest.TestCase):
@@ -160,6 +161,49 @@ class ReductionTests(unittest.TestCase):
         eb.add_floating_events(collected, 3, events)
         self.assertEqual(collected.floating, {"binary/add/53": {3: [200.0]}})  # 1.6 us / 8 operations
         self.assertEqual(collected.floating_validation, {"binary/add/53": (1, 2)})
+
+    def test_reference_blocks_become_pairs_and_raw_samples_use_the_case_lines_only(self) -> None:
+        collected = eb.Collected()
+
+        def line(variant: str, block: int, us: float, null_first: bool) -> dict[str, object]:
+            return {"type": "observation", "case": "binary/add/53", "variant": variant, "null_first": null_first,
+                    "phase": "confirmatory", "block": block, "iterations": 1000, "ops_per_iteration": 8,
+                    "elapsed_us": us}  # fmt: skip
+
+        events = [
+            {"type": "calibration", "case": "binary/add/53", "variant": "null", "iterations": 9},
+            {"type": "calibration", "case": "binary/add/53", "variant": "case", "iterations": 7},
+            line("case", 0, 40.0, False), line("null", 0, 8.0, False),
+            line("case", 1, 48.0, True), line("null", 1, 16.0, True),
+            {"type": "observation", "case": "binary/add/53", "variant": "case", "null_first": False,
+             "phase": "exploratory", "block": 0, "iterations": 1000, "ops_per_iteration": 8, "elapsed_us": 1.0},
+        ]  # fmt: skip
+        eb.add_reference_events(collected, 2, events)
+        self.assertEqual(collected.reference, {"binary/add/53": {2: [5.0, 6.0]}})
+        self.assertEqual(collected.reference_iterations, {"binary/add/53": 7})
+        self.assertEqual(
+            collected.reference_pairs,
+            {"binary/add/53": {2: [stats.Pair(5.0, 1.0, False), stats.Pair(6.0, 2.0, True)]}},
+        )
+
+    def test_floating_blocks_become_pairs_in_line_order(self) -> None:
+        collected = eb.Collected()
+
+        def line(implementation: str, block_id: int, us: float, phase: str = "confirmatory") -> dict[str, object]:
+            return {"type": "observation", "case": "external/binary/add", "scale": "53bit", "implementation": implementation,
+                    "phase": phase, "block_id": block_id, "iterations": 100, "elapsed_us": us, "valid": True}  # fmt: skip
+
+        events = [
+            line("floating", 3, 3.2), line("null", 3, 0.8),  # the case ran first
+            line("null", 4, 0.8), line("floating", 4, 4.0),  # the null ran first
+            line("floating", 0, 9.0, "exploratory"), line("null", 0, 9.0, "exploratory"),
+        ]  # fmt: skip
+        eb.add_floating_events(collected, 1, events)
+        self.assertEqual(collected.floating, {"binary/add/53": {1: [400.0, 500.0]}})
+        self.assertEqual(
+            collected.floating_pairs,
+            {"binary/add/53": {1: [stats.Pair(400.0, 100.0, False), stats.Pair(500.0, 100.0, True)]}},
+        )
 
     def test_invalid_floating_observation_is_an_error(self) -> None:
         event = {"type": "observation", "case": "external/binary/add", "scale": "53bit",

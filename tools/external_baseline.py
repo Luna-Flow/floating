@@ -29,6 +29,8 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Callable, Iterable, Sequence
 
+import external_stats as stats
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 C_SOURCE = REPO_ROOT / "tools" / "external_baseline.c"
 DEFAULT_OUT = REPO_ROOT / ".tmp" / "external"
@@ -410,6 +412,9 @@ class Collected:
     reference_iterations: dict[str, int] = field(default_factory=dict)
     floating_iterations: dict[str, int] = field(default_factory=dict)
     floating_validation: dict[str, tuple[int, int]] = field(default_factory=dict)  # passed, failed
+    # Pairs of a case block and its null block, per case id and round (confirmatory blocks only).
+    reference_pairs: dict[str, stats.Pairs] = field(default_factory=dict)
+    floating_pairs: dict[str, stats.Pairs] = field(default_factory=dict)
     operands: int = OPERANDS_PER_CASE
 
 
@@ -429,16 +434,37 @@ def parse_jsonl(text: str, marker: str = "") -> list[dict[str, object]]:
 
 
 def add_reference_events(collected: Collected, round_index: int, events: Iterable[dict[str, object]]) -> None:
-    """C harness lines: ns/op of every confirmatory block."""
+    """C harness lines: ns/op of every confirmatory block.
+
+    Each block of the harness is a pair, a `case` line and a `null` line with
+    the same block number; the case lines alone give the raw samples, both
+    together the pairs.
+    """
+    halves: dict[tuple[str, int], dict[str, float]] = {}
+    null_first: dict[tuple[str, int], bool] = {}
     for event in events:
         case = str(event["case"])
+        variant = str(event.get("variant", "case"))
         if event["type"] == "calibration":
-            collected.reference_iterations.setdefault(case, int(event["iterations"]))  # type: ignore[call-overload]
+            if variant == "case":
+                collected.reference_iterations.setdefault(case, int(event["iterations"]))  # type: ignore[call-overload]
         elif event["type"] == "observation" and event["phase"] == "confirmatory":
             per_op = float(event["elapsed_us"]) * 1000.0 / (  # type: ignore[arg-type]
                 int(event["iterations"]) * int(event["ops_per_iteration"])  # type: ignore[call-overload]
             )
-            collected.reference.setdefault(case, {}).setdefault(round_index, []).append(per_op)
+            if variant == "case":
+                collected.reference.setdefault(case, {}).setdefault(round_index, []).append(per_op)
+            if "block" in event:
+                key = (case, int(event["block"]))  # type: ignore[call-overload]
+                halves.setdefault(key, {})[variant] = per_op
+                if "null_first" in event:
+                    null_first[key] = bool(event["null_first"])
+    for key in sorted(halves, key=lambda k: (k[0], k[1])):
+        half = halves[key]
+        if "case" in half and "null" in half:
+            collected.reference_pairs.setdefault(key[0], {}).setdefault(round_index, []).append(
+                stats.Pair(half["case"], half["null"], null_first.get(key, False))
+            )
 
 
 def _floating_case_id(event: dict[str, object]) -> str | None:
@@ -457,22 +483,39 @@ def add_floating_events(
 
     An observation's `elapsed_us` is the time of one iteration (one pass over
     the operand set), so ns per operation is `elapsed_us * 1000 / operands`.
+    Each case runs two implementations, `floating` and its `null`, block by
+    block; the order of the lines of one block says which ran first.
     """
+    halves: dict[tuple[str, int], dict[str, float]] = {}
+    first: dict[tuple[str, int], str] = {}
     for event in events:
         kind = event.get("type")
         case = _floating_case_id(event)
         if case is None:
             continue
+        implementation = str(event.get("implementation", "floating"))
         if kind == "observation":
             if event.get("valid") is False:
                 raise ValueError(f"invalid floating observation in {case}")
-            collected.floating_iterations.setdefault(case, int(event["iterations"]))  # type: ignore[call-overload]
+            if implementation == "floating":
+                collected.floating_iterations.setdefault(case, int(event["iterations"]))  # type: ignore[call-overload]
             if event.get("phase") == "confirmatory":
                 per_op = float(event["elapsed_us"]) * 1000.0 / collected.operands  # type: ignore[arg-type]
-                collected.floating.setdefault(case, {}).setdefault(round_index, []).append(per_op)
+                if implementation == "floating":
+                    collected.floating.setdefault(case, {}).setdefault(round_index, []).append(per_op)
+                if "block_id" in event:
+                    key = (case, int(event["block_id"]))  # type: ignore[call-overload]
+                    halves.setdefault(key, {})[implementation] = per_op
+                    first.setdefault(key, implementation)
         elif kind == "validation":
             passed, total = collected.floating_validation.get(case, (0, 0))
             collected.floating_validation[case] = (passed + (event.get("status") == "valid"), total + 1)
+    for key in sorted(halves, key=lambda k: (k[0], k[1])):
+        half = halves[key]
+        if "floating" in half and "null" in half:
+            collected.floating_pairs.setdefault(key[0], {}).setdefault(round_index, []).append(
+                stats.Pair(half["floating"], half["null"], first[key] == "null")
+            )
 
 
 # ---------------------------------------------------------------------------
