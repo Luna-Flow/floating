@@ -578,3 +578,22 @@ fn Decimal::to_integral_value(
       }
   }
 }
+
+///|
+/// The same datum: the same class, sign, coefficient and exponent (for a NaN: the
+/// same payload and the same kind, quiet or signaling) and the same precision
+/// attribute. Two members of one cohort (`2.5` and `2.50`) are equal by `==` and
+/// not identical; two NaNs with the same payload are identical although `==` and
+/// `compare` treat every NaN alike. It is `compare_total` being 0 together with
+/// equal precision attributes (GDA defines `compare_total` without a precision).
+/// The attribute is part of it because the plain operators round to the larger
+/// attribute of their operands: `identical(x, y)` implies the same result of every
+/// function.
+pub fn Decimal::identical(self : Decimal, other : Decimal) -> Bool {
+  self.class == other.class &&
+  self.negative == other.negative &&
+  self.signaling_nan == other.signaling_nan &&
+  self.exponent10 == other.exponent10 &&
+  self.precision_ == other.precision_ &&
+  dec_coeff_compare_repr(self.coefficient, other.coefficient) == 0
+}

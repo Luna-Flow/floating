@@ -370,6 +370,26 @@ the limit: for example `9999E+2147483643` rounded to 2 digits is `inf` in the
 modes that round away from zero or to nearest, and `9.9E+2147483646`, the
 largest finite value of that width, in the modes toward zero.
 
+### `Decimal::identical`
+
+`identical` is the relation "the same datum".
+
+```mbti
+pub fn Decimal::identical(Self, Self) -> Bool
+```
+
+It is true for two values with the same class, sign, coefficient and exponent,
+the same precision attribute and, for NaNs, the same payload and the same kind
+(quiet or signaling). `2.5` and `2.50` are equal by `==` and not identical; `0`
+and `-0` are equal and not identical; two NaNs with the same payload are
+identical although `==` and `compare` treat every NaN alike. It is
+`compare_total` being 0 together with equal precision attributes (GDA defines
+`compare_total` without a precision). The attribute is part of it because the
+plain operators round to the larger attribute of their operands: `1` with
+attribute 3 and `1` with attribute 34 are equal and have `compare_total` 0, but
+divided by `3` they give `0.333` and `0.3333333333333333333333333333333333`.
+Two identical values give the same result in every function.
+
 ### `Decimal::same_quantum`
 
 `same_quantum` tests whether two values have the same exponent.
@@ -1786,6 +1806,7 @@ pub fn Decimal::from_double(Double, precision? : Int32) -> Self
 pub fn Decimal::from_float(Float, precision? : Int32) -> Self
 pub fn Decimal::from_int(Int32, precision? : Int32) -> Self
 pub fn Decimal::from_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Decimal::identical(Self, Self) -> Bool
 pub fn Decimal::inf(negative? : Bool, precision? : Int32) -> Self
 pub fn Decimal::is_canonical(Self) -> Bool
 pub fn Decimal::is_finite(Self) -> Bool

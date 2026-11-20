@@ -351,6 +351,12 @@ notes live in this file.
   | `x.sqrt() -> Result[Decimal, ArithmeticError]` | `x.sqrt() -> Decimal` | a negative operand gives NaN; `sqrt_checked` and `sqrt_ctx` are unchanged |
   | (none) | `x.identical(y)` | every field of the representation, including the precision label |
 
+- `decimal_gda`: `Decimal::identical` is the relation "the same datum" ([#438](https://github.com/Luna-Flow/floating/issues/438)), as `BallFloat::identical`.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | none | `x.identical(y)` | the same datum: class, sign, coefficient, exponent (NaN: payload and kind) and precision attribute; `compare_total(x, y, ctx)` is 0 and the attributes are equal exactly then |
+
 ### Fixed
 
 - `ball_float`: the total elementary forms (`exp_interval`, `exp2_interval`, `exp10_interval`, `ln_interval`, `log2_interval`, `log10_interval`, `sin_interval`, `cos_interval`, `tan_interval`, `asin_interval`, `acos_interval`, `atan_interval`, the six hyperbolic functions and their inverses, `pow_interval`, `rootn`) are now the `try_` form with a fallback, one kernel instead of two ([#449](https://github.com/Luna-Flow/floating/issues/449); Closes #449). They used an exact-rational series of their own that aborted ("certified log series did not converge") from about 32,000 bits for `ln_interval` (about 150,000 for `exp_interval`, about 200,000 for `atan_interval`), and that lost all relative accuracy for a tiny argument in `sinh`, `tanh`, `asinh` and `atanh` (`sinh_interval` of `2^-300` at 53 bits was `[0, 3 * 2^-246]`, now two ulps wide). The `try_` forms used the `bin_float` kernels and had neither limit. Whenever the `try_` form succeeds, the total form returns the same interval; when it reports a certification failure the total form returns the range of the function over its domain (`[0, +inf)` for `exp`, `[-1, 1]` for `sin`, `[-pi/2, pi/2]` for `atan`, Entire for `ln`, and so on; the table is in the API page), which is valid at every precision and cannot itself fail. An argument outside the domain still gives Empty, decided before the kernel runs. Results of these functions can differ from the previous release in the last bit (the `try_` kernels round each endpoint directly); all 4,656 strict ITF1788 cases pass.

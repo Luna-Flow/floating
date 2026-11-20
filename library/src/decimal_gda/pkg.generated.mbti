@@ -149,6 +149,7 @@ pub fn Decimal::from_double(Double, precision? : Int32) -> Self
 pub fn Decimal::from_float(Float, precision? : Int32) -> Self
 pub fn Decimal::from_int(Int32, precision? : Int32) -> Self
 pub fn Decimal::from_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Decimal::identical(Self, Self) -> Bool
 pub fn Decimal::inf(negative? : Bool, precision? : Int32) -> Self
 pub fn Decimal::is_canonical(Self) -> Bool
 pub fn Decimal::is_finite(Self) -> Bool
