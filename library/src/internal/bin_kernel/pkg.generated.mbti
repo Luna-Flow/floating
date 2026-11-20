@@ -56,6 +56,7 @@ pub fn binary_fast_shl_low(UInt64, Int32) -> UInt64
 #derive(@debug.Debug)
 pub struct Coeff(CoeffRepr)
 pub fn Coeff::add(Self, Self) -> Self
+pub fn Coeff::add_shifted_left(Self, Int32, Self) -> Self
 pub fn Coeff::bit_and(Self, Self) -> Self
 pub fn Coeff::bit_length(Self) -> Int32
 pub fn Coeff::bit_or(Self, Self) -> Self

@@ -110,7 +110,6 @@ fn burst_trig_rotate(value : SplitInt, quarter_turns : Int32) -> SplitInt {
 /// `i^leaves_left`; this rotation is the only difference from `SplitState`, and
 /// the reason the state is not shared with it.
 priv struct SplitComplexState {
-  p : Coeff
   leaves : Int32
   q : Coeff
   q_shift : Int32
@@ -127,13 +126,13 @@ priv struct SplitComplexState {
 fn split_trig_state(
   from : Int32,
   to : Int32,
-  numerator : Coeff,
+  powers : SplitPowers,
   s : Int32,
 ) -> SplitComplexState {
+  let numerator = powers.numerator
   if to - from == 1 {
     if from == 0 {
       return {
-        p: Coeff::one(),
         leaves: 0,
         q: Coeff::one(),
         q_shift: 0,
@@ -142,7 +141,6 @@ fn split_trig_state(
       }
     }
     return {
-      p: numerator,
       leaves: 1,
       q: Coeff::from_uint64(from.to_uint64()),
       q_shift: s,
@@ -150,9 +148,22 @@ fn split_trig_state(
       im: SplitInt::make(false, numerator),
     }
   }
+  if to - from == 2 && from >= 1 {
+    // Two leaves directly (the merge below with the leaf states
+    // `re = 0, im = N`): the right leaf is rotated by `i`, so `re = -N N` and
+    // `im = N (from + 1) 2^s`, `q = from (from + 1)`, `q_shift = 2 s`.
+    let next = Coeff::from_uint64((from + 1).to_uint64())
+    return {
+      leaves: 2,
+      q: Coeff::from_uint64(from.to_uint64() * (from + 1).to_uint64()),
+      q_shift: 2 * s,
+      re: SplitInt::make(true, powers.get(2)),
+      im: SplitInt::make(false, numerator.mul(next).shift_left(s)),
+    }
+  }
   let middle = from + (to - from) / 2
-  let left = split_trig_state(from, middle, numerator, s)
-  let right = split_trig_state(middle, to, numerator, s)
+  let left = split_trig_state(from, middle, powers, s)
+  let right = split_trig_state(middle, to, powers, s)
   // i^m (a + b i) = (a + b i), (-b + a i), (-a - b i), (b - a i) for m = 0..3.
   let (rotated_re, rotated_im) = match left.leaves % 4 {
     0 => (right.re, right.im)
@@ -160,13 +171,13 @@ fn split_trig_state(
     2 => (burst_trig_rotate(right.re, 2), burst_trig_rotate(right.im, 2))
     _ => (right.im, burst_trig_rotate(right.re, 2))
   }
+  let left_power = powers.get(left.leaves)
   {
-    p: left.p.mul(right.p),
     leaves: left.leaves + right.leaves,
     q: left.q.mul(right.q),
     q_shift: left.q_shift + right.q_shift,
-    re: split_combine_t(left.re, left.p, rotated_re, right.q, right.q_shift),
-    im: split_combine_t(left.im, left.p, rotated_im, right.q, right.q_shift),
+    re: split_combine_t(left.re, left_power, rotated_re, right.q, right.q_shift),
+    im: split_combine_t(left.im, left_power, rotated_im, right.q, right.q_shift),
   }
 }
 
@@ -186,7 +197,7 @@ fn burst_trig_split_stage(
     2,
     fixed_split_terms(numerator, s, f) - mutation.split_reduce_terms,
   )
-  let state = split_trig_state(0, terms, numerator, s)
+  let state = split_trig_state(0, terms, SplitPowers::new(numerator, terms), s)
   guard !state.re.negative && !state.im.negative else { return None }
   let bias = burst_trig_bias(mutation)
   let ball = fn(value : Coeff) -> BurstBall {

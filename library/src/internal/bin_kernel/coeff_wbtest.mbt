@@ -356,3 +356,39 @@ fn bin_coeff_test_integer_sqrt_floor(value : BigInt) -> BigInt {
   }
   root
 }
+
+///|
+test "add_shifted_left equals shift_left then add" {
+  // Pseudo-random limbs, all-ones runs (carry chains), small and zero operands.
+  let mut state = 88172645463325252UL
+  let next = fn() -> UInt64 {
+    state = state ^ (state << 13)
+    state = state ^ (state >> 7)
+    state = state ^ (state << 17)
+    state
+  }
+  let make = fn(limbs : Int32, ones : Bool) -> Coeff {
+    let mut value = Coeff::zero()
+    for _ in 0..<limbs {
+      let limb = if ones { 18446744073709551615UL } else { next() }
+      value = value.shift_left(64).add(Coeff::from_uint64(limb))
+    }
+    value
+  }
+  let shapes = [0, 1, 2, 3, 5, 17, 40]
+  let shifts = [0, 1, 17, 63, 64, 65, 127, 128, 300, 1024, 1031]
+  for a_limbs in shapes {
+    for b_limbs in shapes {
+      for shift in shifts {
+        for ones in [false, true] {
+          let a = make(a_limbs, ones)
+          let b = make(b_limbs, ones)
+          assert_eq(
+            a.add_shifted_left(shift, b).compare(a.shift_left(shift).add(b)),
+            0,
+          )
+        }
+      }
+    }
+  }
+}

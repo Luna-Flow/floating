@@ -262,6 +262,15 @@ pub fn Coeff::shift_left(self : Coeff, shift : Int32) -> Coeff {
 }
 
 ///|
+pub fn Coeff::add_shifted_left(
+  self : Coeff,
+  shift : Int32,
+  other : Coeff,
+) -> Coeff {
+  self.shift_left(shift).add(other)
+}
+
+///|
 extern "js" fn bin_coeff_shift_right(value : Coeff, shift : Int32) -> Coeff =
   #|(value, shift) => value >> BigInt(shift)
 

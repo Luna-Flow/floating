@@ -906,6 +906,64 @@ pub fn Coeff::shift_left(self : Coeff, shift : Int32) -> Coeff {
 }
 
 ///|
+/// `(self << shift) + other` in one allocation: the shifted copy of `self` and
+/// the sum are formed in the same limb array, which the two calls
+/// `shift_left` and `add` would allocate twice. Equal to
+/// `self.shift_left(shift).add(other)` for every argument.
+pub fn Coeff::add_shifted_left(
+  self : Coeff,
+  shift : Int32,
+  other : Coeff,
+) -> Coeff {
+  if shift < 0 {
+    abort("Coeff shift count must be non-negative")
+  }
+  if shift == 0 || self.is_zero() || self.bit_length() + shift <= 128 {
+    return self.shift_left(shift).add(other)
+  }
+  let source_len = bin_coeff_word_len(self)
+  let other_len = bin_coeff_word_len(other)
+  let word_shift = shift / 64
+  let bit_shift = shift % 64
+  let shifted_len = source_len + word_shift + 1
+  let len = Int32::max(shifted_len, other_len) + 1
+  let words = FixedArray::make(len, 0UL)
+  if bit_shift == 0 {
+    for index in 0..<source_len {
+      words.unsafe_set(index + word_shift, bin_coeff_word(self, index))
+    }
+  } else {
+    let mut carry = 0UL
+    for index in 0..<source_len {
+      let word = bin_coeff_word(self, index)
+      words.unsafe_set(index + word_shift, (word << bit_shift) | carry)
+      carry = word >> (64 - bit_shift)
+    }
+    words.unsafe_set(source_len + word_shift, carry)
+  }
+  let mut carry = 0UL
+  for index in 0..<other_len {
+    let current = words.unsafe_get(index)
+    let addend = bin_coeff_word(other, index)
+    let sum = current + addend
+    let carry_one = if sum < current { 1UL } else { 0UL }
+    let total = sum + carry
+    let carry_two = if total < sum { 1UL } else { 0UL }
+    words.unsafe_set(index, total)
+    carry = carry_one + carry_two
+  }
+  let mut position = other_len
+  while carry != 0UL {
+    let current = words.unsafe_get(position)
+    let total = current + carry
+    words.unsafe_set(position, total)
+    carry = if total < current { 1UL } else { 0UL }
+    position += 1
+  }
+  bin_coeff_from_words(words, len)
+}
+
+///|
 /// A shift of zero, or a zero value, returns the receiver itself (the same
 /// array, not a copy); a shift of at least the bit length returns the shared
 /// `Coeff::zero()`; every other result is a new value as in `Coeff::mul`.
