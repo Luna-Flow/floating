@@ -349,7 +349,12 @@ fn outward_sum(
   precision : Int32,
 ) -> @bin_float.BinFloat {
   outward_round(
-    exact_add(a, b, mode=BinaryRoundingMode::RoundTowardPositive),
+    exact_add(
+      a,
+      b,
+      mode=BinaryRoundingMode::RoundTowardPositive,
+      exact_range=true,
+    ),
     precision,
   )
 }
@@ -390,15 +395,21 @@ fn quantize_center_radius(
   let center_error = difference.abs()
   let rounded_radius = outward_round(radius, precision)
   let total_radius = outward_sum(rounded_radius, center_error, precision)
+  // The endpoints are the exact `rounded_center -/+ total_radius` (they are not
+  // rounded to `precision` bits: later operations round to their own precision),
+  // made with `exact_range` so that a result of a few bits below the normal range
+  // is not rounded outward to the quantum of those few bits.
   let lo = exact_sub(
     rounded_center,
     total_radius,
     mode=BinaryRoundingMode::RoundTowardNegative,
+    exact_range=true,
   )
   let hi = exact_add(
     rounded_center,
     total_radius,
     mode=BinaryRoundingMode::RoundTowardPositive,
+    exact_range=true,
   )
   store_interval(lo, hi, precision)
 }
