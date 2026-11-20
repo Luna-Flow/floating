@@ -1380,6 +1380,142 @@ pub fn BinFloat::try_exp_ctx(
 }
 
 ///|
+/// The two directed roundings of a transcendental value from ONE certified
+/// enclosure: `(round toward negative, round toward positive)` at `precision`,
+/// what two calls `f(x, RoundTowardNegative)` and `f(x, RoundTowardPositive)`
+/// return in their values. `bounds_at(work)` is the enclosure of the function at
+/// the working precision `work` (the one the single-direction loop uses). The
+/// loop is the one of `try_exp_ctx`/`try_ln_ctx` (start `precision + 64`, growth
+/// `max(32, work / 2)`, the refinement limit of the contexts) and stops at the
+/// first working precision at which BOTH directed roundings are unique, so each
+/// end is the correctly rounded value of the exact result, the same value the
+/// single-direction call returns at its own (possibly earlier) attempt: a
+/// correctly rounded directed value does not depend on the working precision at
+/// which its uniqueness was certified. `None` whenever the ordinary route must
+/// decide: no enclosure, a refinement budget exhausted, or an overflow or
+/// underflow flag in either end (the contexts then matter).
+fn binary_directed_pair_from_bounds(
+  precision : Int32,
+  bounds_at : (Int32) -> (BinFloat, BinFloat)?,
+) -> (BinFloat, BinFloat)? {
+  let downward = BinaryContext::new(
+    precision~,
+    rounding=BinaryRoundingMode::RoundTowardNegative,
+  )
+  let upward = BinaryContext::new(
+    precision~,
+    rounding=BinaryRoundingMode::RoundTowardPositive,
+  )
+  let mut work = precision + 64
+  let mut attempt = 0
+  while @internal.certified_refinement_continues(
+          downward.refinement_limit,
+          attempt,
+          work,
+          precision,
+        ) {
+    guard bounds_at(work) is Some(bounds) else { return None }
+    let (low, low_unique, low_flags) = binary_certified_inexact_target_rounding(
+      bounds.0,
+      bounds.1,
+      downward,
+    )
+    let (high, high_unique, high_flags) = binary_certified_inexact_target_rounding(
+      bounds.0,
+      bounds.1,
+      upward,
+    )
+    if low_unique && high_unique {
+      if low_flags.overflow() ||
+        low_flags.underflow() ||
+        high_flags.overflow() ||
+        high_flags.underflow() {
+        return None
+      }
+      return Some((low, high))
+    }
+    work += Int32::max(32, work / 2)
+    attempt += 1
+  }
+  None
+}
+
+///|
+/// `x.try_exp_directed_pair(p)` is the pair of values of `x.try_exp_ctx` at
+/// precision `p` under `RoundTowardNegative` and under `RoundTowardPositive`,
+/// with the error of the first of the two calls that fails. For a finite
+/// nonzero `x` whose result is in range it takes both values from one certified
+/// enclosure (a correctly rounded directed value does not depend on the working
+/// precision at which it was certified), so it costs one evaluation instead of
+/// two; every other operand is answered by the two calls themselves.
+pub fn BinFloat::try_exp_directed_pair(
+  self : BinFloat,
+  precision : Int32,
+) -> Result[(BinFloat, BinFloat), @def.ArithmeticError] {
+  let downward = BinaryContext::new(
+    precision~,
+    rounding=BinaryRoundingMode::RoundTowardNegative,
+  )
+  let upward = BinaryContext::new(
+    precision~,
+    rounding=BinaryRoundingMode::RoundTowardPositive,
+  )
+  if self.class() == FpClass::Finite &&
+    !self.is_zero() &&
+    binary_log2_linear_out_of_range(
+      self, binary_log2_e_bounds, 2, 0, true, false, downward,
+    )
+    is None &&
+    binary_log2_linear_out_of_range(
+      self, binary_log2_e_bounds, 2, 0, true, false, upward,
+    )
+    is None &&
+    binary_directed_pair_from_bounds(precision, fn(work) {
+      binary_exp_bounds(self, work)
+    })
+    is Some(pair) {
+    return Ok(pair)
+  }
+  self
+  .try_exp_ctx(downward)
+  .bind(fn(low) { self.try_exp_ctx(upward).map(fn(high) { (low.0, high.0) }) })
+}
+
+///|
+/// `x.try_ln_directed_pair(p)` is the pair of values of `x.try_ln_ctx` at
+/// precision `p` under `RoundTowardNegative` and under `RoundTowardPositive`,
+/// with the error of the first of the two calls that fails. For a finite
+/// positive `x` other than 1 it takes both values from one certified enclosure
+/// (see `try_exp_directed_pair`); every other operand is answered by the two
+/// calls themselves.
+pub fn BinFloat::try_ln_directed_pair(
+  self : BinFloat,
+  precision : Int32,
+) -> Result[(BinFloat, BinFloat), @def.ArithmeticError] {
+  if self.class() == FpClass::Finite &&
+    !self.is_zero() &&
+    !self.negative() &&
+    self.compare(BinFloat::one_raw(precision=self.precision())) != 0 &&
+    binary_directed_pair_from_bounds(precision, fn(work) {
+      binary_ln_bounds(self, work)
+    })
+    is Some(pair) {
+    return Ok(pair)
+  }
+  let downward = BinaryContext::new(
+    precision~,
+    rounding=BinaryRoundingMode::RoundTowardNegative,
+  )
+  let upward = BinaryContext::new(
+    precision~,
+    rounding=BinaryRoundingMode::RoundTowardPositive,
+  )
+  self
+  .try_ln_ctx(downward)
+  .bind(fn(low) { self.try_ln_ctx(upward).map(fn(high) { (low.0, high.0) }) })
+}
+
+///|
 pub fn BinFloat::exp_ctx(
   self : BinFloat,
   context : BinaryContext,

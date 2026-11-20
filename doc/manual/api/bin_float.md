@@ -1748,6 +1748,17 @@ The domain is $x > 0$. $\ln 1 = +0$ exactly; $\ln(\pm 0) = -\infty$ with
 `domain_error`, while $-\infty$ gives a quiet NaN with `invalid_operation`
 also from `try_ln_ctx`.
 
+### `BinFloat::try_exp_directed_pair`, `BinFloat::try_ln_directed_pair`
+
+The two directed roundings of $e^x$ or $\ln x$ in one call, for the interval types.
+
+```mbti
+pub fn BinFloat::try_exp_directed_pair(Self, Int32) -> Result[(Self, Self), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_ln_directed_pair(Self, Int32) -> Result[(Self, Self), @arithmetic.ArithmeticError]
+```
+
+`x.try_exp_directed_pair(p)` returns the values of `x.try_exp_ctx` at precision $p$ under `RoundTowardNegative` and under `RoundTowardPositive`, as `(low, high)`, and the error of the first of the two calls that fails; `try_ln_directed_pair` is the same for `try_ln_ctx`. For every operand the result is exactly what the two calls give. Where one certified enclosure can decide both roundings (a finite $x \ne 0$ with an in-range result for `exp`, a finite positive $x \ne 1$ for `ln`) it costs one evaluation instead of two; every other operand is answered by the two calls themselves.
+
 ### `BinFloat::log1p`, `BinFloat::log1p_ctx`, `BinFloat::try_log1p_ctx`
 
 $\ln(1 + x)$ without the rounding of `1 + x`.
@@ -2870,9 +2881,11 @@ pub fn BinFloat::try_exp10m1_ctx(Self, BinaryContext) -> Result[(Self, BinaryFla
 pub fn BinFloat::try_exp2_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_exp2m1_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_exp_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_exp_directed_pair(Self, Int32) -> Result[(Self, Self), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_expm1_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_hypot_ctx(Self, Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_ln_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
+pub fn BinFloat::try_ln_directed_pair(Self, Int32) -> Result[(Self, Self), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_log10_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_log10p1_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_log1p_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]

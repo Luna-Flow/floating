@@ -684,6 +684,17 @@ notes live in this file.
 
 - `bin_float`: the limb pass of the wide sum (`add` and `sub` above two words, `binary_coeff_fast_add_parts`) is a row primitive of the kernel, `bin_limbs_window_combine`, with a C body (four limbs per iteration, one carry chain, one specialised loop per combination of shifted and unshifted operand) on the native tiers for windows of 14 limbs and more, and a rewritten portable body (one loop per combination of shifted operands) elsewhere; the results are those of the previous loop (differential test against it). There is no assembly body yet, so the assembly tier runs the C body. Instructions per call of `add` on native: 2,048 bits 1,971 / 1,773 (C and assembly tiers), 1,972 / 1,885 (portable loops); 8,192 bits 3,619 / 2,481 and 3,621 / 3,154; 512 bits 1,263 / 1,219 on all tiers; `sub` the same within 1 percent; the two-word path (128 bits) is unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438), section 8).
 
+- `ball_float`: `exp` and `ln` of a point ball (`lo == hi`) make one certified evaluation instead of two. `BinFloat::try_exp_directed_pair` and `BinFloat::try_ln_directed_pair` (new, public) return exactly the values of `try_exp_ctx` or `try_ln_ctx` under `RoundTowardNegative` and `RoundTowardPositive` for every operand (or the error of the first call that fails), taking both from one certified enclosure where one decides them (a correctly rounded directed value does not depend on the working precision at which it was certified) and answering every other operand with the two calls themselves; results are bit identical (checked against the kept two-call route on a corpus at several precisions). Instructions and allocations per call, same executable, two-count method, median of five runs (range in brackets), every difference at least 58 million instructions:
+
+  | call | precision | instructions before | instructions after | allocations before | allocations after |
+  | --- | --- | --- | --- | --- | --- |
+  | `BallFloat::try_exp` | 53 | 81,031 (80,744 to 82,902) | 44,356 (42,739 to 44,533) | 130 | 65 |
+  | `BallFloat::try_exp` | 256 | 162,270 (159,747 to 163,796) | 85,705 (85,644 to 85,896) | 233 | 122 |
+  | `BallFloat::try_exp` | 1024 | 618,906 (607,273 to 621,738) | 316,107 (312,217 to 317,505) | 487 | 249 |
+  | `BallFloat::try_ln` | 53 | 204,869 (204,271 to 205,450) | 106,633 (106,513 to 106,669) | 294 | 147 |
+  | `BallFloat::try_ln` | 256 | 564,721 (563,814 to 573,846) | 288,244 (286,092 to 295,024) | 801 | 406 |
+  | `BallFloat::try_ln` | 1024 | 1,107,675 (1,089,874 to 1,118,904) | 566,072 (564,804 to 567,397) | 1,401 | 706 |
+
 ## 0.11.0 - 2026-11-20
 
 0.11.0 is the performance round of the binary and decimal cores (64-bit coefficient limbs, the certified elementary functions, the shared decimal kernel), the conformance additions (the remaining IEEE 754-2019 §9.2 functions, `convert_format`, totalOrder, `class_of`, and the fixes that the differential campaigns found), and step B of [#22](https://github.com/Luna-Flow/floating/issues/22): the library module is split from the developer tools, public surfaces are narrowed and operations are named after their standards. The breaking changes come first, with their migration tables; 0.12 completes them ([#438](https://github.com/Luna-Flow/floating/issues/438)).

@@ -223,6 +223,12 @@ fn ball_range_resource_failure(
 pub fn BallFloat::try_exp(
   self : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
+  // A point ball: one certified enclosure gives both directed ends.
+  if !self.is_empty() && self.lo_.compare(self.hi_) == 0 {
+    return self.lo_
+      .try_exp_directed_pair(self.precision_)
+      .map(fn(pair) { store_interval(pair.0, pair.1, self.precision_) })
+  }
   self.try_certified_monotone(true, fn(value, context) {
     value.try_exp_ctx(context)
   })
@@ -270,6 +276,12 @@ pub fn BallFloat::try_ln(
   let zero = @bin_float.BinFloat::zero(precision=self.precision_)
   if self.hi_.compare(zero) <= 0 {
     return Ok(empty_interval(self.precision_))
+  }
+  // A point ball of a positive value: one certified enclosure gives both ends.
+  if self.lo_.compare(self.hi_) == 0 {
+    return self.lo_
+      .try_ln_directed_pair(self.precision_)
+      .map(fn(pair) { store_interval(pair.0, pair.1, self.precision_) })
   }
   let upward = @bin_float.BinaryContext::new(
     precision=self.precision_,
