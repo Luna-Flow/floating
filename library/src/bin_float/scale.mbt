@@ -18,7 +18,7 @@ pub fn BinFloat::scaleb_ctx(
       )
     FpClass::Infinity => (self, BinaryFlags::new())
     FpClass::Finite =>
-      if self.coefficient_().is_zero() {
+      if self.coefficient_is_zero() {
         (finite_zero(self.negative(), context.precision), BinaryFlags::new())
       } else {
         binary_round_dyadic(
@@ -55,7 +55,7 @@ pub fn BinFloat::logb_ctx(
         BinaryFlags::new(),
       )
     FpClass::Finite =>
-      if self.coefficient_().is_zero() {
+      if self.coefficient_is_zero() {
         (
           BinFloat::inf_raw(Sign::Negative, precision=context.precision),
           binary_division_by_zero_flags(),

@@ -137,7 +137,7 @@ fn binary_scaled_decimal_integer(
     let rounded_high = binary_round_to_integral(signed_high, mode).0
     if rounded_low.compare(rounded_high) == 0 {
       let integral = rounded_low.abs()
-      let magnitude = if integral.coefficient_().is_zero() {
+      let magnitude = if integral.coefficient_is_zero() {
         Coeff::zero()
       } else {
         integral.coefficient_().shift_left(integral.exponent2_())
@@ -204,7 +204,7 @@ pub fn BinFloat::to_decimal_string_ctx(
   }
   let digits = Int32::max(1, digits)
   let sign = if self.negative() { "-" } else { "" }
-  let (text, exponent, inexact) = if self.coefficient_().is_zero() {
+  let (text, exponent, inexact) = if self.coefficient_is_zero() {
     ("0".repeat(digits), 0, false)
   } else {
     binary_decimal_digits(self, digits, context.rounding)
@@ -349,7 +349,7 @@ pub fn BinFloat::to_shortest_string_ctx(
     None => ()
   }
   let sign = if self.negative() { "-" } else { "" }
-  if self.coefficient_().is_zero() {
+  if self.coefficient_is_zero() {
     return sign + "0"
   }
   let (digits, exponent) = binary_shortest_digits(self, context)

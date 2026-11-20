@@ -31,7 +31,7 @@ pub fn BinFloat::next_up_ctx(
       // it and rounding upward lands on the next representable value.
       let precision = context.precision.to_int64()
       let floor = context.range_e_min().to_int64() - precision
-      let position = if self.coefficient_().is_zero() {
+      let position = if self.coefficient_is_zero() {
         floor
       } else {
         let top = binary_exact_top(self.coefficient_(), self.exponent2_()).to_int64()

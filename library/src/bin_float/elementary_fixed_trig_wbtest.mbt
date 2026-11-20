@@ -135,12 +135,12 @@ test "fixed-point sine and cosine enclosures contain a tighter series enclosure"
         // Covered unless the cosine argument has bits below the fixed-point
         // unit (then the general series runs) or the sine argument is so
         // small that its guard bits would exceed four times the precision.
-        let covered = value.coefficient_().bit_length() <= work &&
+        let covered = value.coefficient_bits() <= work &&
           (
             (cosine && work + 20 + value.exponent2() >= 0) ||
             (
               !cosine &&
-              -(value.exponent2() + value.coefficient_().bit_length() - 1) <=
+              -(value.exponent2() + value.coefficient_bits() - 1) <=
               4 * work + 64
             )
           )

@@ -11,6 +11,7 @@ and the conversions to and from bytes and text in any radix, with the per-target
 thresholds that choose between the algorithms. Every function is an exact
 function of its arguments. The package raises no condition and has no notion of
 a rounding mode, a context or a flag; those belong to `bin_float`.
+`internal/bin_kernel` also declares the internal enum `BinRepr`, the representation of `BinFloat` (one file per target: `repr_nonjs.mbt` and `repr_js.mbt`); see the design page of `bin_float`, section "Representation of a value".
 It is an internal package: code outside `Luna-Flow/floating` cannot import it.
 The public coefficient type `BinCoeff` of `bin_float` is a newtype over `Coeff`
 whose methods (construction, conversion, comparison and queries) forward to
@@ -144,6 +145,15 @@ pub fn binary_fast_shl_low(UInt64, Int32) -> UInt64
 // Errors
 
 // Types and methods
+#derive(Eq, @debug.Debug)
+pub(all) enum BinRepr {
+  Fin64(negative~ : Bool, word~ : UInt64, exponent2~ : Int32, precision~ : Int32)
+  Fin128(negative~ : Bool, high~ : UInt64, low~ : UInt64, exponent2~ : Int32, precision~ : Int32)
+  FinBig(negative~ : Bool, coefficient~ : Coeff, exponent2~ : Int32, precision~ : Int32)
+  Inf(negative~ : Bool, precision~ : Int32)
+  NaN(negative~ : Bool, signaling~ : Bool, payload~ : Coeff, precision~ : Int32)
+}
+
 #derive(@debug.Debug)
 pub struct Coeff(CoeffRepr)
 pub fn Coeff::add(Self, Self) -> Self

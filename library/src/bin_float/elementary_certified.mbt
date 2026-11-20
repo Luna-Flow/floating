@@ -160,7 +160,7 @@ fn binary_tiny_argument_result(
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags)? {
   let anchor_top = anchor.exponent2().to_int64() +
-    (anchor.coefficient_().bit_length() - 1).to_int64()
+    (anchor.coefficient_bits() - 1).to_int64()
   let precision = context.precision.to_int64()
   guard scale < anchor_top - precision - 3L else { return None }
   let offset_exponent = Int64::max(scale, anchor_top - precision - 8L)
@@ -211,7 +211,7 @@ fn binary_tiny_argument_result(
 ///|
 /// Exponent bound of a finite nonzero value: |x| < 2^(binary_top_bound(x)).
 fn binary_top_bound(value : BinFloat) -> Int64 {
-  value.exponent2().to_int64() + value.coefficient_().bit_length().to_int64()
+  value.exponent2().to_int64() + value.coefficient_bits().to_int64()
 }
 
 ///|
@@ -773,7 +773,7 @@ fn binary_ln_bounds(
   guard value.classify() == FpClass::Finite && value.sign() == Sign::Positive else {
     return None
   }
-  let coefficient_bits = value.coefficient_().bit_length()
+  let coefficient_bits = value.coefficient_bits()
   let normalized = BinFloat::make_coeff(
     value.coefficient_(),
     -(coefficient_bits - 1),
@@ -1957,8 +1957,7 @@ pub fn BinFloat::try_log10_ctx(
     FpClass::Finite => {
       // x = 10^k = 5^k * 2^k needs an odd coefficient of more than k bits.
       let decimal_exponent = self.exponent2()
-      if decimal_exponent > 0 &&
-        decimal_exponent < self.coefficient_().bit_length() {
+      if decimal_exponent > 0 && decimal_exponent < self.coefficient_bits() {
         let expected_coefficient = Coeff::from_uint64(5UL).pow_nat(
           decimal_exponent.reinterpret_as_uint(),
         )
@@ -2157,9 +2156,9 @@ fn binary_hypot_negligible_operand(
     return None
   }
   let left_top = left.exponent2().to_int64() +
-    (left.coefficient_().bit_length() - 1).to_int64()
+    (left.coefficient_bits() - 1).to_int64()
   let right_top = right.exponent2().to_int64() +
-    (right.coefficient_().bit_length() - 1).to_int64()
+    (right.coefficient_bits() - 1).to_int64()
   let (large, large_top, small_top) = if left_top >= right_top {
     (left, left_top, right_top)
   } else {
@@ -2700,7 +2699,7 @@ fn binary_exact_bounded_int(value : BinFloat) -> Int32? {
   }
   guard value.exponent2() >= 0 &&
     value.exponent2() <= 30 &&
-    value.coefficient_().bit_length() + value.exponent2() <= 31 else {
+    value.coefficient_bits() + value.exponent2() <= 31 else {
     return None
   }
   match value.coefficient_().shift_left(value.exponent2()).to_uint64() {
@@ -5459,7 +5458,7 @@ fn BinFloat::try_trigonometric_ctx(
       )
     FpClass::Finite => {
       let adjusted_exponent = self.exponent2().to_int64() +
-        self.coefficient_().bit_length().to_int64()
+        self.coefficient_bits().to_int64()
       let required = context.precision.to_int64() +
         Int64::max(0L, adjusted_exponent) +
         96L

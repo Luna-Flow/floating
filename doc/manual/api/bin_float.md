@@ -211,12 +211,13 @@ test "BinCoeff converts and compares exact natural numbers" {
 ### `BinFloat`
 
 A binary floating-point value: a finite dyadic number, a signed infinity or a
-NaN, with a working precision.
+NaN, with a working precision. Its representation is an internal type
+(`@bin_kernel.BinRepr`, like the coefficient of `BinCoeff`) that carries no
+compatibility promise and is read only inside the package; a value is one heap
+object.
 
 ```mbti
-pub struct BinFloat {
-  // private fields
-} derive(Eq, @debug.Debug)
+pub struct BinFloat(@bin_kernel.BinRepr) derive(Eq, @debug.Debug)
 ```
 
 A finite value is $(-1)^s \cdot c \cdot 2^{e}$ with $s$ the sign bit, $c$ a
@@ -2537,9 +2538,7 @@ pub impl Show for BinCoeff
 pub impl @debug.Debug for BinCoeff
 
 #derive(Eq, @debug.Debug)
-pub struct BinFloat {
-  // private fields
-}
+pub struct BinFloat(@bin_kernel.BinRepr)
 pub fn BinFloat::abs(Self) -> Self
 pub fn BinFloat::abs_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn BinFloat::acos(Self) -> Self

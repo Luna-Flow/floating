@@ -21,20 +21,13 @@ let binary_fast_exponent_limit : Int32 = 268435456
 /// returning `UInt64?` allocates a box for the `Some`, so the test and the word
 /// are two functions that return scalars.
 fn binary_fast_is_word(value : BinFloat) -> Bool {
-  value.class() == FpClass::Finite &&
-  (match value.coefficient_().0 {
-    Inline64(word) => word != 0UL
-    _ => false
-  })
+  value.is_word()
 }
 
 ///|
 /// The one-word coefficient of a value for which `binary_fast_is_word` holds.
 fn binary_fast_word_of(value : BinFloat) -> UInt64 {
-  match value.coefficient_().0 {
-    Inline64(word) => word
-    _ => 0UL
-  }
+  value.word_()
 }
 
 ///|
@@ -84,12 +77,7 @@ fn binary_fast_round(
     result_exponent += shift
   }
   let zeros = quotient.reinterpret_as_int64().ctz()
-  finite_normalized(
-    negative,
-    Coeff::from_uint64(quotient >> zeros),
-    result_exponent + zeros,
-    precision,
-  )
+  bin_repr_word(negative, quotient >> zeros, result_exponent + zeros, precision)
 }
 
 ///|
@@ -336,9 +324,9 @@ fn binary_fast_from_double(
   let biased = ((bits >> 52) & 0x7ffUL).to_int()
   let mantissa = (bits & 0xf_ffff_ffff_ffffUL) | 0x10_0000_0000_0000UL
   let zeros = mantissa.reinterpret_as_int64().ctz()
-  finite_normalized(
+  bin_repr_word(
     negative,
-    Coeff::from_uint64(mantissa >> zeros),
+    mantissa >> zeros,
     exponent + (biased - 1075) + zeros,
     53,
   )

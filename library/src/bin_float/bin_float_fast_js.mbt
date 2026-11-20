@@ -76,3 +76,8 @@ fn binary_pair_div(_left : BinFloat, _right : BinFloat) -> BinFloat? {
 fn binary_pair_mul(_left : BinFloat, _right : BinFloat) -> BinFloat? {
   None
 }
+
+///|
+/// The two-word paths do not exist on this target; the limit is only read by the
+/// dispatch of the plain operations.
+let binary_pair_precision_limit : Int32 = 128

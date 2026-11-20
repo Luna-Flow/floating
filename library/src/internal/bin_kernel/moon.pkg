@@ -10,6 +10,8 @@ options(
   "native-stub": [ "luna_limbs.c" ],
   targets: {
     "coeff_js.mbt": [ "js" ],
+    "repr_js.mbt": [ "js" ],
+    "repr_nonjs.mbt": [ "not", "js" ],
     "coeff_advanced_nonjs.mbt": [ "not", "js" ],
     "coeff_division_nonjs.mbt": [ "not", "js" ],
     "coeff_division_nonjs_wbtest.mbt": [ "not", "js" ],

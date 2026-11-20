@@ -5,7 +5,7 @@ fn binary_round_to_integral(
   value : BinFloat,
   mode : BinaryRoundingMode,
 ) -> (BinFloat, Bool) {
-  if value.coefficient_().is_zero() || value.exponent2_() >= 0 {
+  if value.coefficient_is_zero() || value.exponent2_() >= 0 {
     return (value, false)
   }
   let (retained, round_bit, sticky) = binary_split_shift(

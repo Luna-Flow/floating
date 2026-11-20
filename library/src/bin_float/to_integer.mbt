@@ -14,9 +14,9 @@ fn binary_to_integer_parts(
     return (None, binary_invalid_flags())
   }
   let (integral, changed) = binary_round_to_integral(value, context.rounding)
-  let magnitude = if integral.coefficient_().is_zero() {
+  let magnitude = if integral.coefficient_is_zero() {
     Some(0UL)
-  } else if integral.exponent2_() + integral.coefficient_().bit_length() > 64 {
+  } else if integral.exponent2_() + integral.coefficient_bits() > 64 {
     None
   } else {
     integral.coefficient_().shift_left(integral.exponent2_()).to_uint64()

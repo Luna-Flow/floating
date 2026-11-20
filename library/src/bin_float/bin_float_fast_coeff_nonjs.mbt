@@ -132,20 +132,18 @@ fn binary_coeff_fast_len(value : Coeff) -> Int32 {
 }
 
 ///|
-/// Whether both operands are finite, nonzero, narrow enough, and have
-/// exponents far from the implementation limits. The precision of the result
-/// is the larger of the two (an option of a scalar would be a heap object).
-fn binary_coeff_fast_operands_ok(left : BinFloat, right : BinFloat) -> Bool {
-  let precision = Int32::max(left.precision_(), right.precision_())
+/// `binary_coeff_fast_operands_ok` on scalars already read: the precision of the
+/// result and the two exponents of finite non-zero operands.
+fn binary_coeff_fast_scalars_ok(
+  precision : Int32,
+  left_exponent : Int32,
+  right_exponent : Int32,
+) -> Bool {
   precision <= binary_coeff_fast_bits_limit &&
-  left.class() == FpClass::Finite &&
-  right.class() == FpClass::Finite &&
-  left.exponent2_() <= binary_fast_exponent_limit &&
-  left.exponent2_() >= -binary_fast_exponent_limit &&
-  right.exponent2_() <= binary_fast_exponent_limit &&
-  right.exponent2_() >= -binary_fast_exponent_limit &&
-  !left.coefficient_().is_zero() &&
-  !right.coefficient_().is_zero()
+  left_exponent <= binary_fast_exponent_limit &&
+  left_exponent >= -binary_fast_exponent_limit &&
+  right_exponent <= binary_fast_exponent_limit &&
+  right_exponent >= -binary_fast_exponent_limit
 }
 
 ///|
@@ -304,41 +302,94 @@ fn binary_coeff_fast_add_signed(
   right : BinFloat,
   flip : Bool,
 ) -> BinFloat? {
-  // `right` with its sign flipped when `flip` (a subtraction), without a new value
-  let right_negative = right.negative() != flip
-  guard binary_coeff_fast_operands_ok(left, right) else { return None }
-  let precision = Int32::max(left.precision_(), right.precision_())
-  let left_bits = left.coefficient_().bit_length()
-  let right_bits = right.coefficient_().bit_length()
+  // `right` with its sign flipped when `flip` (a subtraction), without a new value.
+  // Two wide operands are read by one match; any other pair through the
+  // accessors (a small operand builds its coefficient once).
+  match (left.0, right.0) {
+    (
+      FinBig(
+        negative=left_negative,
+        coefficient=left_coefficient,
+        exponent2=left_exponent,
+        precision=left_precision,
+      ),
+      FinBig(
+        negative=right_negative,
+        coefficient=right_coefficient,
+        exponent2=right_exponent,
+        precision=right_precision,
+      ),
+    ) =>
+      binary_coeff_fast_add_parts(
+        left_negative,
+        left_coefficient,
+        left_exponent,
+        left_precision,
+        right_negative != flip,
+        right_coefficient,
+        right_exponent,
+        right_precision,
+      )
+    _ => {
+      guard left.class() == FpClass::Finite && right.class() == FpClass::Finite else {
+        return None
+      }
+      guard !left.coefficient_is_zero() && !right.coefficient_is_zero() else {
+        return None
+      }
+      binary_coeff_fast_add_parts(
+        left.negative(),
+        left.coefficient_(),
+        left.exponent2_(),
+        left.precision_(),
+        right.negative() != flip,
+        right.coefficient_(),
+        right.exponent2_(),
+        right.precision_(),
+      )
+    }
+  }
+}
+
+///|
+/// The sum of two finite non-zero operands given by their parts.
+fn binary_coeff_fast_add_parts(
+  left_negative : Bool,
+  left_coefficient : Coeff,
+  left_exponent : Int32,
+  left_precision : Int32,
+  right_negative : Bool,
+  right_coefficient : Coeff,
+  right_exponent : Int32,
+  right_precision : Int32,
+) -> BinFloat? {
+  let precision = Int32::max(left_precision, right_precision)
+  guard binary_coeff_fast_scalars_ok(precision, left_exponent, right_exponent) else {
+    return None
+  }
+  let left_bits = left_coefficient.bit_length()
+  let right_bits = right_coefficient.bit_length()
   guard left_bits <= binary_coeff_fast_bits_limit &&
     right_bits <= binary_coeff_fast_bits_limit else {
     return None
   }
-  let left_top = left.exponent2_() + left_bits
-  let right_top = right.exponent2_() + right_bits
+  let left_top = left_exponent + left_bits
+  let right_top = right_exponent + right_bits
   let left_is_x = left_top >= right_top
   let x_coefficient = if left_is_x {
-    left.coefficient_()
+    left_coefficient
   } else {
-    right.coefficient_()
+    right_coefficient
   }
   let y_coefficient = if left_is_x {
-    right.coefficient_()
+    right_coefficient
   } else {
-    left.coefficient_()
+    left_coefficient
   }
-  let x_exponent = if left_is_x {
-    left.exponent2_()
-  } else {
-    right.exponent2_()
-  }
-  let y_exponent = if left_is_x {
-    right.exponent2_()
-  } else {
-    left.exponent2_()
-  }
-  let x_negative = if left_is_x { left.negative() } else { right_negative }
-  let y_negative = if left_is_x { right_negative } else { left.negative() }
+  let x_exponent = if left_is_x { left_exponent } else { right_exponent }
+  let y_exponent = if left_is_x { right_exponent } else { left_exponent }
+  let x_negative = if left_is_x { left_negative } else { right_negative }
+  let y_negative = if left_is_x { right_negative } else { left_negative }
   let top = Int32::max(left_top, right_top)
   let y_top = Int32::min(left_top, right_top)
   let base = Int32::max(
@@ -426,33 +477,86 @@ fn binary_coeff_fast_add_signed(
 
 ///|
 fn binary_coeff_fast_mul(left : BinFloat, right : BinFloat) -> BinFloat? {
-  guard binary_coeff_fast_operands_ok(left, right) else { return None }
-  let precision = Int32::max(left.precision_(), right.precision_())
-  guard left.coefficient_().bit_length() <= binary_coeff_fast_bits_limit &&
-    right.coefficient_().bit_length() <= binary_coeff_fast_bits_limit else {
+  match (left.0, right.0) {
+    (
+      FinBig(
+        negative=left_negative,
+        coefficient=left_coefficient,
+        exponent2=left_exponent,
+        precision=left_precision,
+      ),
+      FinBig(
+        negative=right_negative,
+        coefficient=right_coefficient,
+        exponent2=right_exponent,
+        precision=right_precision,
+      ),
+    ) =>
+      binary_coeff_fast_mul_parts(
+        left_negative != right_negative,
+        left_coefficient,
+        left_exponent,
+        left_precision,
+        right_coefficient,
+        right_exponent,
+        right_precision,
+      )
+    _ => {
+      guard left.class() == FpClass::Finite && right.class() == FpClass::Finite else {
+        return None
+      }
+      guard !left.coefficient_is_zero() && !right.coefficient_is_zero() else {
+        return None
+      }
+      binary_coeff_fast_mul_parts(
+        left.negative() != right.negative(),
+        left.coefficient_(),
+        left.exponent2_(),
+        left.precision_(),
+        right.coefficient_(),
+        right.exponent2_(),
+        right.precision_(),
+      )
+    }
+  }
+}
+
+///|
+/// The product of two finite non-zero operands given by their parts.
+fn binary_coeff_fast_mul_parts(
+  negative : Bool,
+  left_coefficient : Coeff,
+  left_exponent : Int32,
+  left_precision : Int32,
+  right_coefficient : Coeff,
+  right_exponent : Int32,
+  right_precision : Int32,
+) -> BinFloat? {
+  let precision = Int32::max(left_precision, right_precision)
+  guard binary_coeff_fast_scalars_ok(precision, left_exponent, right_exponent) else {
     return None
   }
+  let left_bits = left_coefficient.bit_length()
+  let right_bits = right_coefficient.bit_length()
+  guard left_bits <= binary_coeff_fast_bits_limit &&
+    right_bits <= binary_coeff_fast_bits_limit else {
+    return None
+  }
+  let exponent = left_exponent + right_exponent
   // short product: the high limbs only, used when its rounding is certain
-  if bin_coeff_mul_short_ok(
-      left.coefficient_(),
-      right.coefficient_(),
-      precision,
-    ) {
+  if bin_coeff_mul_short_ok(left_coefficient, right_coefficient, precision) {
     let approximate = bin_coeff_mul_short(
-      left.coefficient_(),
-      right.coefficient_(),
-      precision,
+      left_coefficient, right_coefficient, precision,
     )
     if !approximate.is_zero() {
       // a fresh array (`bin_coeff_mul_short`), rounded in place
       return Some(
         binary_coeff_fast_finish_owned(
-          left.negative() != right.negative(),
+          negative,
           approximate,
-          left.exponent2_() +
-          right.exponent2_() +
-          left.coefficient_().bit_length() +
-          right.coefficient_().bit_length() -
+          exponent +
+          left_bits +
+          right_bits -
           64 * bin_coeff_short_product_limbs(precision),
           precision,
           false,
@@ -462,9 +566,9 @@ fn binary_coeff_fast_mul(left : BinFloat, right : BinFloat) -> BinFloat? {
   }
   Some(
     binary_coeff_fast_finish_owned(
-      left.negative() != right.negative(),
-      left.coefficient_().mul(right.coefficient_()),
-      left.exponent2_() + right.exponent2_(),
+      negative,
+      left_coefficient.mul(right_coefficient),
+      exponent,
       precision,
       false,
     ),
@@ -473,10 +577,66 @@ fn binary_coeff_fast_mul(left : BinFloat, right : BinFloat) -> BinFloat? {
 
 ///|
 fn binary_coeff_fast_div(left : BinFloat, right : BinFloat) -> BinFloat? {
-  guard binary_coeff_fast_operands_ok(left, right) else { return None }
-  let precision = Int32::max(left.precision_(), right.precision_())
-  let dividend = left.coefficient_()
-  let divisor = right.coefficient_()
+  match (left.0, right.0) {
+    (
+      FinBig(
+        negative=left_negative,
+        coefficient=dividend,
+        exponent2=left_exponent,
+        precision=left_precision,
+      ),
+      FinBig(
+        negative=right_negative,
+        coefficient=divisor,
+        exponent2=right_exponent,
+        precision=right_precision,
+      ),
+    ) =>
+      binary_coeff_fast_div_parts(
+        left_negative != right_negative,
+        dividend,
+        left_exponent,
+        left_precision,
+        divisor,
+        right_exponent,
+        right_precision,
+      )
+    _ => {
+      guard left.class() == FpClass::Finite && right.class() == FpClass::Finite else {
+        return None
+      }
+      guard !left.coefficient_is_zero() && !right.coefficient_is_zero() else {
+        return None
+      }
+      binary_coeff_fast_div_parts(
+        left.negative() != right.negative(),
+        left.coefficient_(),
+        left.exponent2_(),
+        left.precision_(),
+        right.coefficient_(),
+        right.exponent2_(),
+        right.precision_(),
+      )
+    }
+  }
+}
+
+///|
+/// The quotient of two finite non-zero operands given by their parts.
+fn binary_coeff_fast_div_parts(
+  negative : Bool,
+  dividend : Coeff,
+  left_exponent : Int32,
+  left_precision : Int32,
+  divisor : Coeff,
+  right_exponent : Int32,
+  right_precision : Int32,
+) -> BinFloat? {
+  let precision = Int32::max(left_precision, right_precision)
+  guard binary_coeff_fast_scalars_ok(precision, left_exponent, right_exponent) else {
+    return None
+  }
+  let exponent = left_exponent - right_exponent
   let dividend_bits = dividend.bit_length()
   let divisor_bits = divisor.bit_length()
   guard dividend_bits <= binary_coeff_fast_bits_limit &&
@@ -496,9 +656,9 @@ fn binary_coeff_fast_div(left : BinFloat, right : BinFloat) -> BinFloat? {
     if !approximate.is_zero() {
       return Some(
         binary_coeff_fast_finish_owned(
-          left.negative() != right.negative(),
+          negative,
           approximate,
-          left.exponent2_() - right.exponent2_() - short_scale,
+          exponent - short_scale,
           precision,
           false,
         ),
@@ -509,9 +669,9 @@ fn binary_coeff_fast_div(left : BinFloat, right : BinFloat) -> BinFloat? {
     // the lowest bit of the quotient is the inexact flag
     return Some(
       binary_coeff_fast_finish_owned(
-        left.negative() != right.negative(),
+        negative,
         bin_coeff_div_scaled_quotient(dividend, scale, divisor),
-        left.exponent2_() - right.exponent2_() - scale - 1,
+        exponent - scale - 1,
         precision,
         false,
       ),
@@ -523,9 +683,9 @@ fn binary_coeff_fast_div(left : BinFloat, right : BinFloat) -> BinFloat? {
   }
   Some(
     binary_coeff_fast_finish(
-      left.negative() != right.negative(),
+      negative,
       quotient,
-      left.exponent2_() - right.exponent2_() - scale,
+      exponent - scale,
       precision,
       !remainder.is_zero(),
     ),
@@ -557,7 +717,7 @@ fn binary_coeff_fast_sqrt(value : BinFloat) -> BinFloat? {
   guard precision <= binary_coeff_fast_bits_limit &&
     value.class() == FpClass::Finite &&
     !value.negative() &&
-    !value.coefficient_().is_zero() else {
+    !value.coefficient_is_zero() else {
     return None
   }
   let exponent = value.exponent2_()
@@ -565,7 +725,7 @@ fn binary_coeff_fast_sqrt(value : BinFloat) -> BinFloat? {
     exponent >= -binary_fast_exponent_limit else {
     return None
   }
-  let bits = value.coefficient_().bit_length()
+  let bits = value.coefficient_bits()
   guard bits <= binary_coeff_fast_bits_limit else { return None }
   // radicand coefficient * 2^scale with an even exponent and at least
   // 2 * precision - 1 bits, so that the root has at least precision bits
