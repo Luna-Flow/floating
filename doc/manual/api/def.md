@@ -3,7 +3,7 @@
 ## Purpose
 
 `def` is the shared vocabulary of the `floating` packages. It defines the sign
-classification `Sign`, the four-way comparison result `PartialOrder`, the open
+classification `Sign`, the ten-valued IEEE class `IeeeClass`, the four-way comparison result `PartialOrder`, the open
 `Floating` trait that every scalar or interval representation of this
 repository implements, four generic predicates built on that trait, and
 re-exports the context, rounding, classification and error types of
@@ -57,6 +57,40 @@ test "Sign values" {
   inspect(s == @def.Sign::Negative, content="true")
   let z = @def.Floating::sign(@bin_float.BinFloat::from_double(-0.0))
   inspect(z == @def.Sign::Zero, content="true")
+}
+```
+
+### `IeeeClass`
+
+`IeeeClass` is the ten-valued `class` of IEEE 754-2019 clause 5.7.2. Unlike
+`FpClass` it separates the two NaNs, the sign of every class and the normal,
+subnormal and zero cases.
+
+```mbti
+pub(all) enum IeeeClass {
+  SignalingNaN
+  QuietNaN
+  NegativeInfinity
+  NegativeNormal
+  NegativeSubnormal
+  NegativeZero
+  PositiveZero
+  PositiveSubnormal
+  PositiveNormal
+  PositiveInfinity
+} derive(Eq)
+```
+
+`BinFloat::class_of` and `Decimal::class_of` return it. Normal and subnormal
+depend on the format's $e_{\min}$, so both take the context that fixes it.
+
+```moonbit
+///|
+test "IeeeClass of a binary32 value" {
+  let ctx = @bin_float.BinaryInterchangeFormat::Binary32.context()
+  let tiny = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -127, 24)
+  inspect(tiny.class_of(ctx) == @def.IeeeClass::PositiveSubnormal, content="true")
+  inspect(tiny.neg().class_of(ctx) == @def.IeeeClass::NegativeSubnormal, content="true")
 }
 ```
 
@@ -458,6 +492,20 @@ pub fn[F : Floating] is_zero(F) -> Bool
 // Errors
 
 // Types and methods
+#derive(Eq)
+pub(all) enum IeeeClass {
+  SignalingNaN
+  QuietNaN
+  NegativeInfinity
+  NegativeNormal
+  NegativeSubnormal
+  NegativeZero
+  PositiveZero
+  PositiveSubnormal
+  PositiveNormal
+  PositiveInfinity
+}
+
 #derive(Eq)
 pub(all) enum PartialOrder {
   Less

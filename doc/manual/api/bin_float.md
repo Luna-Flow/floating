@@ -393,7 +393,35 @@ pub fn BinFloat::is_negative(Self) -> Bool
 is `Zero` for every zero and every NaN, and `Positive` or `Negative` otherwise.
 `is_negative` returns the sign bit itself, which is set for $-0$, $-\infty$
 and negative NaNs. `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and
-`@def.is_zero` work on `BinFloat` through the `Floating` trait.
+`@def.is_zero` work on `BinFloat` through the `Floating` trait; the
+methods of the next section give the same answers without the trait.
+
+### `BinFloat::class_of`, `BinFloat::is_normal`, `BinFloat::is_subnormal`, `BinFloat::is_finite`, `BinFloat::is_infinite`, `BinFloat::is_nan`
+
+The ten-valued class of IEEE 754-2019 clause 5.7.2 and its predicates.
+
+```mbti
+pub fn BinFloat::class_of(Self, BinaryContext) -> @def.IeeeClass
+pub fn BinFloat::is_normal(Self, BinaryContext) -> Bool
+pub fn BinFloat::is_subnormal(Self, BinaryContext) -> Bool
+pub fn BinFloat::is_finite(Self) -> Bool
+pub fn BinFloat::is_infinite(Self) -> Bool
+pub fn BinFloat::is_nan(Self) -> Bool
+```
+
+`class_of` returns one of the ten values of [`IeeeClass`](def.md#ieeeclass):
+`SignalingNaN`, `QuietNaN`, `NegativeInfinity`, `NegativeNormal`,
+`NegativeSubnormal`, `NegativeZero`, `PositiveZero`, `PositiveSubnormal`,
+`PositiveNormal` and `PositiveInfinity`. A nonzero finite value is normal when
+the exponent of its leading bit is at least the context's $e_{\min}$ and
+subnormal when it is below; a `BinFloat` carries no format, so the context
+decides, and `BinaryInterchangeFormat::context` gives the one of a binary
+interchange format. A context without `e_min` uses the implementation limit
+`binary_implementation_e_min`. `is_normal` and `is_subnormal` are true exactly
+for the normal and subnormal classes; `is_finite` is true for zeros,
+subnormals and normals, `is_infinite` for the two infinities and `is_nan` for
+both NaNs. None of them rounds or raises a flag, and `classify` keeps its
+three-valued meaning.
 
 ### `BinFloat::is_zero`, `BinFloat::is_negative_zero`, `BinFloat::is_quiet_nan`, `BinFloat::is_signaling_nan`, `BinFloat::nan_payload`
 
@@ -2623,6 +2651,7 @@ pub fn BinFloat::atanpi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::ceil(Self) -> Self
 pub fn BinFloat::clamp(Self, min~ : Self, max~ : Self) -> Self
 pub fn BinFloat::clamp_checked(Self, min~ : Self, max~ : Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BinFloat::class_of(Self, BinaryContext) -> @def.IeeeClass
 pub fn BinFloat::classify(Self) -> @arithmetic.FpClass
 pub fn BinFloat::coefficient(Self) -> BinCoeff
 pub fn BinFloat::compare(Self, Self) -> Int32
@@ -2676,10 +2705,15 @@ pub fn BinFloat::from_string_ctx(String, BinaryContext) -> Result[(Self, BinaryF
 pub fn BinFloat::hypot(Self, Self) -> Self
 pub fn BinFloat::hypot_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::inf(@def.Sign, precision? : Int32) -> Self
+pub fn BinFloat::is_finite(Self) -> Bool
+pub fn BinFloat::is_infinite(Self) -> Bool
+pub fn BinFloat::is_nan(Self) -> Bool
 pub fn BinFloat::is_negative(Self) -> Bool
 pub fn BinFloat::is_negative_zero(Self) -> Bool
+pub fn BinFloat::is_normal(Self, BinaryContext) -> Bool
 pub fn BinFloat::is_quiet_nan(Self) -> Bool
 pub fn BinFloat::is_signaling_nan(Self) -> Bool
+pub fn BinFloat::is_subnormal(Self, BinaryContext) -> Bool
 pub fn BinFloat::is_zero(Self) -> Bool
 pub fn BinFloat::less_equal_quiet(Self, Self) -> (Bool, BinaryFlags)
 pub fn BinFloat::less_equal_signaling(Self, Self) -> (Bool, BinaryFlags)

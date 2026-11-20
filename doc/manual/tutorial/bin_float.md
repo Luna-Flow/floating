@@ -173,6 +173,29 @@ test "binary32 bits in and out" {
 Encoding rounds into the format, so it returns flags as well. Decoding is
 always exact.
 
+### Classify a value
+
+`class_of` returns the ten-valued class of IEEE 754-2019 clause 5.7.2. A
+`BinFloat` has no format of its own, so the context says where the subnormal
+range starts.
+
+```moonbit
+///|
+test "classify in binary32" {
+  let format = @bin_float.BinaryInterchangeFormat::Binary32
+  let ctx = format.context()
+  let smallest = @bin_float.BinaryInterchange::from_hex("00000001", format)
+    .unwrap()
+    .to_bin_float()
+  inspect(smallest.class_of(ctx) == @def.IeeeClass::PositiveSubnormal, content="true")
+  inspect(smallest.is_subnormal(ctx), content="true")
+  inspect(smallest.neg().class_of(ctx) == @def.IeeeClass::NegativeSubnormal, content="true")
+}
+```
+
+The same value is normal in a context with a lower `e_min`. `is_finite`,
+`is_infinite` and `is_nan` need no context.
+
 ### Print decimal text
 
 `to_shortest_string_ctx` gives the shortest decimal that reads back as the
