@@ -28,3 +28,44 @@ let binary_ln_entry_min_precision = 384
 /// Working precision from which the outermost `ln` call uses the arithmetic-geometric
 /// mean (measured crossover on this target).
 let binary_ln_agm_min_precision : Int32 = 640
+
+///|
+/// Chunk constants of the bit-burst kernels (`exp`, `sin`, `cos`) as functions of
+/// the working precision, measured on Native by instruction counts at 1024, 2048,
+/// 4096 and 8192 bits of precision (working precision + 64) on three arguments
+/// per size (a random value in [1, 2), one near 2^-9, one near the top of the
+/// reduced range). The constants of `elementary_burst_exp.mbt` (16, 4, 40) are the
+/// best at 8192 bits; below `binary_burst_small_work_max` a larger first chunk,
+/// factor 8 and 80 terms before the splitting win, between the two bounds the same
+/// with factor 4. No cell of the table is more than 1.01 of the old setting.
+let binary_burst_small_work_max : Int32 = 3000
+
+///|
+let binary_burst_mid_work_max : Int32 = 6000
+
+///|
+fn binary_burst_first_chunk(work : Int32) -> Int32 {
+  if work <= binary_burst_mid_work_max {
+    24
+  } else {
+    binary_exp_burst_first_chunk
+  }
+}
+
+///|
+fn binary_burst_chunk_factor(work : Int32) -> Int32 {
+  if work <= binary_burst_small_work_max {
+    8
+  } else {
+    binary_exp_burst_chunk_factor
+  }
+}
+
+///|
+fn binary_burst_split_min_terms(work : Int32) -> Int32 {
+  if work <= binary_burst_mid_work_max {
+    80
+  } else {
+    binary_exp_burst_split_min_terms
+  }
+}

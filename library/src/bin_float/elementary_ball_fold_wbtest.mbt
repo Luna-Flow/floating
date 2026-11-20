@@ -97,7 +97,13 @@ test "exp burst kernel equals the kernel with two products per chunk" {
           seed,
         )
         seed += 1UL
-        let new = binary_exp_bounds_burst(value, work)
+        let new = binary_exp_bounds_burst(
+          value,
+          work,
+          first_chunk=binary_exp_burst_first_chunk,
+          chunk_factor=binary_exp_burst_chunk_factor,
+          split_min_terms=binary_exp_burst_split_min_terms,
+        )
         let reference = binary_exp_bounds_burst_reference(value, work)
         match (new, reference) {
           (Some(a), Some(b)) => {

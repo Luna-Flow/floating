@@ -307,10 +307,19 @@ fn binary_trig_bounds_burst(
   cosine : Bool,
   work_precision : Int32,
   mutation~ : BurstTrigMutation = burst_trig_no_mutation,
-  first_chunk~ : Int32 = binary_exp_burst_first_chunk,
-  chunk_factor~ : Int32 = binary_exp_burst_chunk_factor,
-  split_min_terms~ : Int32 = binary_exp_burst_split_min_terms,
+  first_chunk? : Int32,
+  chunk_factor? : Int32,
+  split_min_terms? : Int32,
 ) -> (BinFloat, BinFloat)? {
+  let first_chunk = first_chunk.unwrap_or(
+    binary_burst_first_chunk(work_precision),
+  )
+  let chunk_factor = chunk_factor.unwrap_or(
+    binary_burst_chunk_factor(work_precision),
+  )
+  let split_min_terms = split_min_terms.unwrap_or(
+    binary_burst_split_min_terms(work_precision),
+  )
   guard value.classify() == FpClass::Finite && !value.is_zero() else {
     return None
   }

@@ -27,3 +27,21 @@ let binary_ln_entry_min_precision : Int32 = binary_ln_burst_min_precision
 /// Working precision from which the outermost `ln` call uses the arithmetic-geometric
 /// mean (not measured on this target: the kernel is off).
 let binary_ln_agm_min_precision : Int32 = 1073741824
+
+///|
+/// Chunk constants of the bit-burst kernels as functions of the working
+/// precision: not measured on this target, the constants of
+/// `elementary_burst_exp.mbt` at every precision.
+fn binary_burst_first_chunk(_work : Int32) -> Int32 {
+  binary_exp_burst_first_chunk
+}
+
+///|
+fn binary_burst_chunk_factor(_work : Int32) -> Int32 {
+  binary_exp_burst_chunk_factor
+}
+
+///|
+fn binary_burst_split_min_terms(_work : Int32) -> Int32 {
+  binary_exp_burst_split_min_terms
+}

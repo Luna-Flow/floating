@@ -155,7 +155,15 @@ test "mutated bit-burst sin and cos are caught by the containment test" {
     let biased = { mid_bias_bits: 64, split_reduce_terms: 0, pi_drop_bits: 0, }
     assert_true(
       burst_test_caught(
-        binary_trig_bounds_burst(value, cosine, work, mutation=biased),
+        binary_trig_bounds_burst(
+          value,
+          cosine,
+          work,
+          mutation=biased,
+          first_chunk=binary_exp_burst_first_chunk,
+          chunk_factor=binary_exp_burst_chunk_factor,
+          split_min_terms=binary_exp_burst_split_min_terms,
+        ),
         reference,
       ),
     )
@@ -166,7 +174,15 @@ test "mutated bit-burst sin and cos are caught by the containment test" {
     }
     assert_true(
       burst_test_caught(
-        binary_trig_bounds_burst(value, cosine, work, mutation=shortened),
+        binary_trig_bounds_burst(
+          value,
+          cosine,
+          work,
+          mutation=shortened,
+          first_chunk=binary_exp_burst_first_chunk,
+          chunk_factor=binary_exp_burst_chunk_factor,
+          split_min_terms=binary_exp_burst_split_min_terms,
+        ),
         reference,
       ),
     )
@@ -183,7 +199,15 @@ test "mutated bit-burst sin and cos are caught by the containment test" {
   let coarse = { mid_bias_bits: 0, split_reduce_terms: 0, pi_drop_bits: 200, }
   assert_true(
     burst_test_caught(
-      binary_trig_bounds_burst(large, false, work, mutation=coarse),
+      binary_trig_bounds_burst(
+        large,
+        false,
+        work,
+        mutation=coarse,
+        first_chunk=binary_exp_burst_first_chunk,
+        chunk_factor=binary_exp_burst_chunk_factor,
+        split_min_terms=binary_exp_burst_split_min_terms,
+      ),
       large_reference,
     ),
   )

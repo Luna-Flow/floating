@@ -320,7 +320,15 @@ fn toolkit_digest_rows() -> Array[String] {
     for value in values {
       table.add(binary_exp_bounds_table(value, work))
       fixed.add(binary_exp_bounds_fixed(value, work))
-      burst.add(binary_exp_bounds_burst(value, work))
+      burst.add(
+        binary_exp_bounds_burst(
+          value,
+          work,
+          first_chunk=binary_exp_burst_first_chunk,
+          chunk_factor=binary_exp_burst_chunk_factor,
+          split_min_terms=binary_exp_burst_split_min_terms,
+        ),
+      )
     }
     rows.push(table.row("exp_table", work))
     rows.push(fixed.row("exp_fixed", work))
@@ -353,8 +361,26 @@ fn toolkit_digest_rows() -> Array[String] {
   for work in [64, 128, 256, 512, 640, 1536, 2112, 3072] {
     let burst = ToolkitDigest::new()
     for value in toolkit_digest_trig_values(work) {
-      burst.add(binary_trig_bounds_burst(value, false, work))
-      burst.add(binary_trig_bounds_burst(value, true, work))
+      burst.add(
+        binary_trig_bounds_burst(
+          value,
+          false,
+          work,
+          first_chunk=binary_exp_burst_first_chunk,
+          chunk_factor=binary_exp_burst_chunk_factor,
+          split_min_terms=binary_exp_burst_split_min_terms,
+        ),
+      )
+      burst.add(
+        binary_trig_bounds_burst(
+          value,
+          true,
+          work,
+          first_chunk=binary_exp_burst_first_chunk,
+          chunk_factor=binary_exp_burst_chunk_factor,
+          split_min_terms=binary_exp_burst_split_min_terms,
+        ),
+      )
     }
     rows.push(burst.row("trig_burst", work))
   }
@@ -460,6 +486,22 @@ fn toolkit_digest_rows() -> Array[String] {
       agm.add(binary_ln_unit_agm_bounds(value, work))
     }
     rows.push(agm.row("ln_agm", work))
+  }
+  // the bit-burst kernels with the chunk constants of the working precision
+  for work in [1088, 2112, 3072, 4160, 6208] {
+    let burst = ToolkitDigest::new()
+    for value in toolkit_digest_exp_values(work) {
+      burst.add(binary_exp_bounds_burst(value, work))
+    }
+    rows.push(burst.row("exp_burst_default", work))
+  }
+  for work in [1536, 2112, 3072, 4160, 6208] {
+    let burst = ToolkitDigest::new()
+    for value in toolkit_digest_trig_values(work) {
+      burst.add(binary_trig_bounds_burst(value, false, work))
+      burst.add(binary_trig_bounds_burst(value, true, work))
+    }
+    rows.push(burst.row("trig_burst_default", work))
   }
   rows
 }
