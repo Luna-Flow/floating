@@ -227,9 +227,7 @@ test "IEEE BID format conversion detects tininess before rounding" {
     Decimal128,
     BID,
   ).unwrap()
-  let (rounded, flags) = value.apply_ctx(
-    Decimal64.context().with_tininess(DecimalTininessDetection::BeforeRounding),
-  )
+  let (rounded, flags) = value.apply_ctx(Decimal64.context())
   assert_true(flags.inexact)
   assert_true(flags.underflow)
   assert_true(flags.subnormal)

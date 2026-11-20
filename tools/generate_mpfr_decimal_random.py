@@ -41,6 +41,7 @@ from decimal import Decimal
 from fractions import Fraction
 from pathlib import Path
 
+import corpus_common
 import generate_libmpdec_random as base
 
 sys.set_int_max_str_digits(0)
@@ -107,7 +108,12 @@ class Context:
     emin: int
     emax: int
     clamp: int
-    tininess: str  # "a" or "b"
+    tininess: str  # always "b" (IEEE 754-2019 7.5)
+
+    def __post_init__(self) -> None:
+        corpus_common.check_ieee_decimal_context(
+            self.precision, self.rounding, self.emin, self.emax, self.clamp, self.tininess
+        )
 
     @property
     def etiny(self) -> int:
@@ -151,32 +157,25 @@ class Candidate:
 
 
 def pick_context(rng: base.Rng) -> Context:
-    rounding = base.ROUNDINGS[rng.range(0, 7)][0]
+    """A legal context: precision and emax, emin = 1 - emax, clamp, tininess b."""
+    rounding = corpus_common.IEEE_DECIMAL_ROUNDINGS[rng.range(0, 4)]
     kind = rng.range(0, 99)
     if kind < 30:
-        precision, emin, emax = IEEE_CONTEXTS[rng.range(0, 2)]
-        clamp = 1 if rng.chance(4, 5) else 0
+        precision, _, emax = IEEE_CONTEXTS[rng.range(0, 2)]
     elif kind < 50:
         precision = rng.range(1, 6)
-        emax = rng.range(0, 20)
-        emin = -rng.range(0, 30)
-        clamp = rng.range(0, 1)
+        emax = rng.range(1, 20)
     elif kind < 75:
         precision = rng.log(1, 120)
-        emax = rng.choice((0, 9, 99, 999, 9999))
-        emax = max(0, emax + rng.range(-3, 3))
-        emin = -emax - rng.range(-3, 5)
-        emin = min(emin, 0)
-        clamp = rng.range(0, 1)
+        emax = rng.choice((1, 9, 99, 999, 9999))
+        emax = max(1, emax + rng.range(-3, 3))
     elif kind < 90:
         precision = rng.range(1, 40)
-        emax = rng.range(0, WIDE_EXPONENT)
-        emin = -rng.range(0, WIDE_EXPONENT)
-        clamp = rng.range(0, 1)
+        emax = rng.range(1, WIDE_EXPONENT)
     else:
         precision = rng.choice((9, 9, 3, 28, 100))
-        emax, emin, clamp = 999, -999, 0
-    return Context(precision, rounding, emin, emax, clamp, "a" if rng.chance(1, 2) else "b")
+        emax = 999
+    return Context(precision, rounding, 1 - emax, emax, 1, "b")
 
 
 def digits(rng: base.Rng, length: int) -> str:

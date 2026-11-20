@@ -540,9 +540,10 @@ fn Decimal::try_unary_elementary_ctx(
   let invalid_domain = match operation {
     Log2 => value.compare(zero) <= 0
     Log1p => value.compare(minus_one) < 0
-    Asin | Acos => value.abs_ctx(DecimalContext::exact()).0.compare(one) > 0
+    Asin | Acos =>
+      value.abs_ctx(decimal_exact_work_context()).0.compare(one) > 0
     Acosh => value.compare(one) < 0
-    Atanh => value.abs_ctx(DecimalContext::exact()).0.compare(one) > 0
+    Atanh => value.abs_ctx(decimal_exact_work_context()).0.compare(one) > 0
     Rootn(degree) => degree == 0 || (value.negative && degree % 2 == 0)
     _ => false
   }
@@ -570,7 +571,7 @@ fn Decimal::try_unary_elementary_ctx(
     return Ok(finish(decimal_elementary_division_by_zero(Sign::Negative, ctx)))
   }
   if operation == Atanh &&
-    value.abs_ctx(DecimalContext::exact()).0.compare(one) == 0 {
+    value.abs_ctx(decimal_exact_work_context()).0.compare(one) == 0 {
     return Ok(finish(decimal_elementary_division_by_zero(value.sign(), ctx)))
   }
   if (operation == Log2 && value.compare(one) == 0) ||
@@ -1291,7 +1292,8 @@ pub fn Decimal::try_atan2_ctx(
     !ordinate.coefficient.is_zero() &&
     !x.coefficient.is_zero() &&
     2L * distance < -(ctx.precision.to_int64() + 4L) {
-    match exact_decimal_division_result(ordinate, x, DecimalContext::exact()) {
+    match
+      exact_decimal_division_result(ordinate, x, decimal_exact_work_context()) {
       Some((ratio, _)) => {
         let magnitude = { ..ratio, negative: false, }
         if magnitude.compare(decimal_half_constant) < 0 {

@@ -184,20 +184,24 @@ fn parse_decimal_random_row(
     Some(value) => value
     None => return Err("invalid decimal clamp " + tokens[6])
   }
-  let tininess = match tokens[7] {
-    "b" => @decimal.DecimalTininessDetection::BeforeRounding
-    "a" => @decimal.DecimalTininessDetection::AfterRounding
+  match tokens[7] {
+    "b" => ()
+    "a" =>
+      return Err(
+        "decimal tininess is detected before rounding (IEEE 754-2019 7.5): use b",
+      )
     _ => return Err("invalid decimal tininess " + tokens[7])
   }
+  // A context is the IEEE 754-2019 format of a precision and an `e_max`
+  // (3.3: `e_min = 1 - e_max`, every result a member of the format).
+  if !clamp {
+    return Err("decimal context must be an IEEE format: clamp must be 1")
+  }
+  if e_min != 1 - e_max {
+    return Err("decimal context must be an IEEE format: emin must be 1 - emax")
+  }
   let context = match
-    @decimal.DecimalContext::try_new(
-      precision~,
-      rounding~,
-      e_min~,
-      e_max~,
-      clamp~,
-      tininess~,
-    ) {
+    @decimal.DecimalContext::try_new(precision~, rounding~, e_max~) {
     Ok(context) => context
     Err(_) => return Err("invalid decimal context")
   }

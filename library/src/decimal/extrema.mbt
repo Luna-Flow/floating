@@ -5,9 +5,7 @@ fn decimal_selected_extrema_result(
   selected : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  if ctx.extended &&
-    selected.class == FpClass::Finite &&
-    selected.coefficient.is_zero() {
+  if selected.class == FpClass::Finite && selected.coefficient.is_zero() {
     return normalize_decimal_parts_ctx_repr(
       selected.negative,
       selected.coefficient,

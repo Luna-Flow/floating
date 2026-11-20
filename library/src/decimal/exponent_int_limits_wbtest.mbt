@@ -1,10 +1,6 @@
 ///|
 test "context exponent minimum near Int::min does not wrap etiny" {
-  let context = DecimalContext::new(
-    precision=34,
-    e_min=-999_999_999,
-    e_max=999_999_999,
-  )
+  let context = DecimalContext::new(precision=34, e_max=999_999_999)
   let (parsed, parse_flags) = Decimal::from_string_ctx("1", context)
   inspect(parsed.to_string(), content="1")
   inspect(parse_flags.inexact, content="false")
@@ -17,12 +13,7 @@ test "context exponent minimum near Int::min does not wrap etiny" {
 /// IEEE 754-2019 §§3.3 and 7.4: results beyond e_max overflow to infinity
 /// with Overflow, Inexact, and Rounded. next_up_ctx is exact.
 test "extreme e_max reports overflow without adjusted exponent wrap" {
-  let ctx = DecimalContext::new(
-    precision=3,
-    e_min=-999_999_999,
-    e_max=999_999_999,
-    clamp=true,
-  )
+  let ctx = DecimalContext::new(precision=3, e_max=999_999_999)
   let max = Decimal::make(999N, 999_999_997, 3)
 
   let (sum, sum_flags) = max.add_ctx(max, ctx)
@@ -49,12 +40,7 @@ test "extreme e_max reports overflow without adjusted exponent wrap" {
 /// IEEE 754-2019 §5.3.2: quantize returns NaN with InvalidOperation when its
 /// result cannot be represented; exponent distance must not wrap or abort.
 test "quantize with extreme exponent distance returns invalid operation" {
-  let ctx = DecimalContext::new(
-    precision=5,
-    e_min=-999_999_999,
-    e_max=999_999_999,
-    clamp=true,
-  )
+  let ctx = DecimalContext::new(precision=5, e_max=999_999_999)
   let value = Decimal::make(1N, 1_999_999_996, 5)
   let quantum = Decimal::make(1N, -2_000_000_003, 5)
   let (result, flags) = value.quantize_ctx(quantum, ctx)
@@ -63,133 +49,10 @@ test "quantize with extreme exponent distance returns invalid operation" {
 }
 
 ///|
-test "decimal context rejects out of range fields without aborting" {
-  assert_true(DecimalContext::try_new(precision=1) is Ok(_))
-  assert_true(DecimalContext::try_new(precision=0) is Err(_))
-  assert_true(DecimalContext::try_new(precision=999_999_999) is Ok(_))
-  assert_true(DecimalContext::try_new(e_min=-999_999_999) is Ok(_))
-  assert_true(DecimalContext::try_new(e_max=999_999_999) is Ok(_))
-  assert_true(DecimalContext::try_new(precision=1_000_000_000) is Err(_))
-  assert_true(DecimalContext::try_new(e_min=-1_000_000_000) is Err(_))
-  assert_true(DecimalContext::try_new(e_max=1_000_000_000) is Err(_))
-  match DecimalContext::try_new(precision=0) {
-    Err(error) =>
-      assert_eq(error.message, "precision must be within 1..=999999999")
-    Ok(_) => fail("zero precision must be rejected")
-  }
-  match DecimalContext::try_new(precision=1_000_000_000) {
-    Err(error) =>
-      assert_eq(error.message, "precision must be within 1..=999999999")
-    Ok(_) => fail("precision above the maximum must be rejected")
-  }
-  match DecimalContext::try_new(e_min=-1_000_000_000) {
-    Err(error) =>
-      assert_eq(error.message, "e_min must be within -999999999..=0")
-    Ok(_) => fail("e_min below the minimum must be rejected")
-  }
-  match DecimalContext::try_new(e_max=1_000_000_000) {
-    Err(error) => assert_eq(error.message, "e_max must be within 0..=999999999")
-    Ok(_) => fail("e_max above the maximum must be rejected")
-  }
-  for
-    (result, expected) in [
-      (DecimalContext::try_new(e_min=1), "e_min must be within -999999999..=0"),
-      (DecimalContext::try_new(e_max=-1), "e_max must be within 0..=999999999"),
-    ] {
-    match result {
-      Err(error) => assert_eq(error.message, expected)
-      Ok(_) => fail("invalid decimal context sign must be rejected")
-    }
-  }
-  for
-    (result, expected) in [
-      (
-        DecimalContext::try_new(precision=0),
-        "precision must be within 1..=999999999",
-      ),
-      (
-        DecimalContext::try_new(precision=1_000_000_000),
-        "precision must be within 1..=999999999",
-      ),
-      (
-        DecimalContext::try_new(e_min=-1_000_000_000),
-        "e_min must be within -999999999..=0",
-      ),
-      (DecimalContext::try_new(e_min=1), "e_min must be within -999999999..=0"),
-      (
-        DecimalContext::try_new(e_max=1_000_000_000),
-        "e_max must be within 0..=999999999",
-      ),
-      (DecimalContext::try_new(e_max=-1), "e_max must be within 0..=999999999"),
-    ] {
-    match result {
-      Err(error) => assert_eq(error.message, expected)
-      Ok(_) => fail("invalid decimal context must be rejected")
-    }
-  }
-  assert_true(DecimalContext::try_new(precision=1_000_000_000) is Err(_))
-  assert_true(DecimalContext::try_new(e_min=-1_000_000_000) is Err(_))
-  assert_true(DecimalContext::try_new(e_max=1_000_000_000) is Err(_))
-  for
-    (result, expected) in [
-      (
-        DecimalContext::try_new(precision=999_999_999, e_min=1),
-        "e_min must be within -999999999..=0",
-      ),
-      (
-        DecimalContext::try_new(e_min=0, e_max=-1),
-        "e_max must be within 0..=999999999",
-      ),
-      (
-        DecimalContext::try_new(precision=999_999_999, e_min=1),
-        "e_min must be within -999999999..=0",
-      ),
-      (
-        DecimalContext::try_new(e_min=0, e_max=-1),
-        "e_max must be within 0..=999999999",
-      ),
-    ] {
-    match result {
-      Err(error) => assert_eq(error.message, expected)
-      Ok(_) =>
-        fail("invalid decimal context boundary combination must be rejected")
-    }
-  }
-}
-
-///|
-/// GDA 1.70, Finite numbers; decNumber `decContext.h`: the adopted
-/// implementation bounds require `e_min <= 0 <= e_max`.  D-F1 keeps the GDA
-/// balance rule itself optional, so an asymmetric range such as -10..=10 is
-/// valid; only the signs at the two boundaries are constrained.
-test "decimal context rejects exponent bounds with invalid signs" {
-  assert_true(DecimalContext::try_new(e_min=0, e_max=0) is Ok(_))
-  assert_true(
-    DecimalContext::try_new(e_min=-999_999_999, e_max=999_999_999) is Ok(_),
-  )
-  assert_true(DecimalContext::try_new(e_min=-10, e_max=10) is Ok(_))
-  assert_true(DecimalContext::try_new(e_min=1, e_max=10) is Err(_))
-  assert_true(DecimalContext::try_new(e_min=-10, e_max=-1) is Err(_))
-  match DecimalContext::try_new(e_min=1, e_max=10) {
-    Err(error) =>
-      assert_eq(error.message, "e_min must be within -999999999..=0")
-    Ok(_) => fail("positive e_min must be rejected")
-  }
-  match DecimalContext::try_new(e_min=-10, e_max=-1) {
-    Err(error) => assert_eq(error.message, "e_max must be within 0..=999999999")
-    Ok(_) => fail("negative e_max must be rejected")
-  }
-}
-
-///|
 /// IEEE 754-2019 §9.2.1: fused multiply-add rounds the exact product-plus-sum
 /// once. An out-of-range product cannot be rescued by this negligible addend.
 test "fma with maximum context exponents reports overflow" {
-  let ctx = DecimalContext::new(
-    precision=34,
-    e_min=-999_999_999,
-    e_max=999_999_999,
-  )
+  let ctx = DecimalContext::new(precision=34, e_max=999_999_999)
   let (value, flags) = Decimal::make(1N, 999_999_999, 34).fma_ctx(
     Decimal::make(1N, 999_999_997, 34),
     Decimal::make(1N, -999_999_999, 34),
@@ -203,11 +66,7 @@ test "fma with maximum context exponents reports overflow" {
 /// GDA quantize and round-to-integral preserve their requested quantum. A
 /// shift beyond Int is necessarily sticky and rounds to zero at that quantum.
 test "huge quantize and to-integral shifts round to zero" {
-  let ctx = DecimalContext::new(
-    precision=1,
-    e_min=-999_999_999,
-    e_max=999_999_999,
-  )
+  let ctx = DecimalContext::new(precision=1, e_max=999_999_999)
   let tiny = Decimal::make(1N, -2_147_483_648, 1)
   let (quantized, quantize_flags) = tiny.quantize_ctx(
     Decimal::make(1N, 999_999_999, 1),
@@ -230,7 +89,7 @@ test "huge quantize and to-integral shifts round to zero" {
 ///|
 /// next* must handle an operand exponent at Int::min even when Etiny is zero.
 test "next operations handle Int minimum with zero etiny" {
-  let ctx = DecimalContext::new(precision=1, e_min=0, e_max=999_999_999)
+  let ctx = DecimalContext::new(precision=1, e_max=1)
   let tiny = Decimal::make(1N, -2_147_483_648, 34)
   let (plus, plus_flags) = tiny.next_up_ctx(ctx)
   assert_eq(plus.to_string(), "1")
@@ -247,11 +106,7 @@ test "next operations handle Int minimum with zero etiny" {
 
 ///|
 test "fma far gap uses sticky addend without aborting" {
-  let ctx = DecimalContext::new(
-    precision=34,
-    e_min=-999_999_999,
-    e_max=999_999_999,
-  )
+  let ctx = DecimalContext::new(precision=34, e_max=999_999_999)
   let (value, flags) = Decimal::make(1N, -999_999_999, 34).fma_ctx(
     Decimal::make(1N, -999_999_999, 34),
     Decimal::make(1N, 999_999_999, 34),
@@ -270,16 +125,15 @@ test "fma far gap uses sticky addend without aborting" {
 test "fma exact product boundary honors negative addend" {
   let ctx = DecimalContext::new(
     precision=2,
-    e_min=-999_999_999,
-    e_max=0,
+    e_max=1,
     rounding=DecimalRoundingMode::RoundTowardZero,
   )
-  let (value, flags) = Decimal::make(1N, 6, 2).fma_ctx(
+  let (value, flags) = Decimal::make(1N, 7, 2).fma_ctx(
     Decimal::make(1N, -5, 2),
-    Decimal::make(-9N, -4, 2),
+    Decimal::make(-9N, -3, 2),
     ctx,
   )
-  inspect(value.to_string(), content="9.9")
+  inspect(value.to_string(), content="99")
   inspect(flags.overflow, content="false")
   inspect(flags.inexact, content="true")
   inspect(flags.rounded, content="true")
@@ -289,16 +143,15 @@ test "fma exact product boundary honors negative addend" {
 test "fma exact product boundary follows floor without overflow" {
   let ctx = DecimalContext::new(
     precision=2,
-    e_min=-999_999_999,
-    e_max=0,
+    e_max=1,
     rounding=DecimalRoundingMode::RoundTowardNegative,
   )
-  let (value, flags) = Decimal::make(1N, 6, 2).fma_ctx(
+  let (value, flags) = Decimal::make(1N, 7, 2).fma_ctx(
     Decimal::make(1N, -5, 2),
-    Decimal::make(-9N, -4, 2),
+    Decimal::make(-9N, -3, 2),
     ctx,
   )
-  inspect(value.to_string(), content="9.9")
+  inspect(value.to_string(), content="99")
   inspect(flags.overflow, content="false")
   inspect(flags.inexact, content="true")
   inspect(flags.rounded, content="true")
@@ -306,11 +159,7 @@ test "fma exact product boundary follows floor without overflow" {
 
 ///|
 test "fma product below Int range uses a bounded sticky alignment" {
-  let ctx = DecimalContext::new(
-    precision=34,
-    e_min=-999_999_999,
-    e_max=999_999_999,
-  )
+  let ctx = DecimalContext::new(precision=34, e_max=999_999_999)
   let (value, flags) = Decimal::make(1N, -2_147_483_648, 34).fma_ctx(
     Decimal::make(1N, -2_147_483_648, 34),
     Decimal::make(1N, 999_999_999, 34),

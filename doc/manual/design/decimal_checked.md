@@ -140,14 +140,12 @@ converts it with `DecimalContext::from_arithmetic_context`, which maps
 | --- | --- |
 | `precision` | `precision` |
 | `rounding` | `rounding` (`DecimalRoundingMode::from_arithmetic`; `AwayFromZero` is an `Err`) |
-| `e_min`, `e_max` | the same, or $\mp 999\,999\,999$ when absent |
-| `clamp` | `clamp` |
+| `e_min`, `e_max` | `e_max` as given, `e_min` must be `1 - e_max` (alone: `e_max = 1 - e_min`), the default range of `DecimalContext::new` when absent |
+| `clamp` | ignored (every IEEE format clamps) |
 
-with `extended = true` and before-rounding tininess detection (IEEE 754-2019 §7.5). So the
+Before-rounding tininess detection (IEEE 754-2019 §7.5) is the only rule. So the
 predefined `ArithmeticContext::decimal64()` maps exactly to
-`DecimalContext::decimal64()`. The constructors pass the context through
-`DecimalContext::ieee754()`, the hook that selects the IEEE profile; on the
-current branch it returns the context unchanged.
+`DecimalContext::decimal64()`.
 
 The mathematical functions `exp`, `ln`, `log10` and `power` restrict their
 context to decNumber's range: precision and both exponent limits must lie

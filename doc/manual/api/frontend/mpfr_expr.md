@@ -352,7 +352,7 @@ is the first field of the row.
 one row per case for the IEEE decimal elementary functions (`exp exp2 exp10
 expm1 ln log2 log10 log1p sin cos tan sinpi cospi tanpi asin acos atan sinh cosh
 tanh asinh acosh atanh pow hypot atan2 rootn pown`), with a decimal context
-(precision, exponent range, clamp, tininess rule, one of the five IEEE rounding
+(precision and exponent range of an IEEE format, one of the five IEEE rounding
 directions: `half_even`, `half_up`, `down`, `ceiling`, `floor`), exact decimal operands and the expected value with its flags. The
 expected value is the rounding of a rigorous 768-bit MPFR enclosure, never one
 MPFR result, and a row exists only when both enclosure endpoints round alike and
@@ -371,10 +371,12 @@ pub fn parse_decimal_random_data(String, String) -> Result[MpfrDecimalRandomDocu
 
 Parses the text (the first argument names the source). Blank lines and lines
 starting with `#` are skipped. Every other line must have thirteen fields: a
-known operation, a rounding of `half_even half_up half_down down ceiling floor
-up 05up`, a positive precision, two integers `emin` and `emax` that form a valid
-`DecimalContext`, `clamp` `0` or `1`, `tininess` `b` (before rounding) or `a`
-(after rounding), one operand, a second operand or `-` (required by `pow`,
+known operation, a rounding of `half_even half_up down ceiling floor`
+(the five rounding-direction attributes of IEEE 754-2019 4.3), a positive
+precision, two integers `emin` and `emax` with `emin = 1 - emax` that form a
+valid `DecimalContext`, `clamp` `1`, `tininess` `b` (decimal formats detect
+tininess before rounding; the column is kept so that the row format is stable),
+one operand, a second operand or `-` (required by `pow`,
 `hypot` and `atan2`), an integer (`rootn` and `pown`; `0` otherwise), the
 expected value and `flags` equal to `-` or a subset of `xrosucvz` (inexact,
 rounded, overflow, subnormal, underflow, clamped, invalid operation, division by

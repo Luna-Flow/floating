@@ -27,9 +27,7 @@ fn issue348_flags_text(flags : DecimalFlags) -> String {
 
 ///|
 fn issue348_decimal64(mode : DecimalRound) -> DecimalContext {
-  DecimalContext::new(precision=16, e_min=-383, e_max=384, clamp=true).with_round(
-    mode,
-  )
+  DecimalContext::new(precision=16, e_max=384).with_round(mode)
 }
 
 ///|
@@ -244,7 +242,7 @@ test "issue 350: no clamped for an inexact pown result near 1" {
   let x = Decimal::from_string("1.000000000000000006354").unwrap()
   for row in rows {
     let (mode, expected) = row
-    let ctx = DecimalContext::new(precision=4, e_min=-10, e_max=0, clamp=true).with_round(
+    let ctx = DecimalContext::new(precision=4, e_max=11).with_round(
       issue348_mode(mode),
     )
     let (value, flags) = x.pown_ctx(-40, ctx)

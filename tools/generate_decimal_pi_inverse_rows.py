@@ -124,7 +124,7 @@ def build() -> Rows:
     # members of the operand (the result is always at exponent 0).
     units = ["1", "1.0", "1.000", "1E+0", "10E-1"]
     for precision in (1, 2, 3, 7, 16, 34):
-        spec = (precision, -999999, 999999, 0)
+        spec = (precision, -999998, 999999, 1)
         modes = ROUNDINGS if precision in (1, 2, 16) else ("half_even", "floor", "ceiling")
         for mode in modes:
             c = ctx(spec, mode)
@@ -144,7 +144,7 @@ def build() -> Rows:
     # Non-terminating rational values (never rounding breakpoints): +-1/6, 1/3,
     # 2/3 and the neighbours of the exact arguments.
     for precision in (1, 3, 7, 16, 34):
-        spec = (precision, -999999, 999999, 0)
+        spec = (precision, -999998, 999999, 1)
         for mode in ROUNDINGS:
             c = ctx(spec, mode)
             for x in ("0.5", "-0.5", "0.50", "0.866025403784438646763723170752936183", "-0.7071067811865475244"):
@@ -163,8 +163,8 @@ def build() -> Rows:
     # anchor threshold.
     for precision in (1, 3, 7, 16, 34):
         for mode in ROUNDINGS:
-            for tininess in (("b", "a") if precision == 3 else ("b",)):
-                c = ctx((precision, -999999, 999999, 0), mode, tininess)
+            for tininess in ("b",):
+                c = ctx((precision, -999998, 999999, 1), mode, tininess)
                 for k in (precision - 1, precision + 3, precision + 5, precision + 20, 400):
                     for m in ("1", "9.99"):
                         for s in ("", "-"):
@@ -184,7 +184,7 @@ def build() -> Rows:
         p, emin, emax = spec[0], spec[1], spec[2]
         etiny = emin - p + 1
         for mode in ROUNDINGS:
-            for tininess in ("b", "a"):
+            for tininess in ("b",):
                 c = ctx(spec, mode, tininess)
                 for k in (etiny - 2, etiny - 1, etiny, emin - 1, emin + p, -3 * p):
                     for m in ("1", "3", "9.99"):
@@ -206,10 +206,10 @@ def build() -> Rows:
     for precision in (*range(1, 61), 200, 220):
         for index, text in enumerate(samples):
             mode = ROUNDINGS[(precision + index) % len(ROUNDINGS)]
-            spec = (precision, -(precision + 400), precision + 400, (precision + index) % 2)
+            spec = (precision, -(precision + 399), precision + 400, 1)
             if index % 2:
-                spec = (precision, -999999, 999999, 0)
-            c = ctx(spec, mode, "ab"[(precision + index) % 2])
+                spec = (precision, -999998, 999999, 1)
+            c = ctx(spec, mode, "b")
             x = c.python().create_decimal(Decimal(text))
             if abs(x) <= 1:
                 rows.add("asinpi", c, x)

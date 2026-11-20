@@ -33,7 +33,7 @@ test "issue 446: plain add and sub with an exponent gap above 2^31 - 1 do not pa
 
 ///|
 test "issue 446: a gap below 2^31 - 1 costs nothing and rounds like add_ctx" {
-  let ctx = DecimalContext::new(precision=34, e_min=-999_999, e_max=999_999)
+  let ctx = DecimalContext::new(precision=34, e_max=999_999)
   // The same shape within the exponent range of a context: compare with add_ctx.
   let cases : Array[(BigInt, Int32, BigInt, Int32)] = [
     (1N, 900_000, 1N, -900_000),
@@ -146,9 +146,9 @@ test "issue 446: a gap above 2^31 - 1 between a small and a large exponent" {
 test "issue 446: the exact context cannot panic through the exponent gap" {
   let a = gap_value(1N, 1_100_000_000, 34)
   let b = gap_value(1N, -1_100_000_000, 34)
-  let (sum, flags) = a.add_ctx(b, DecimalContext::exact())
+  let (sum, flags) = a.add_ctx(b, decimal_exact_work_context())
   inspect(sum.is_nan(), content="true")
   inspect(flags.invalid_context, content="true")
-  let (difference, _) = a.sub_ctx(b, DecimalContext::exact())
+  let (difference, _) = a.sub_ctx(b, decimal_exact_work_context())
   inspect(difference.is_nan(), content="true")
 }

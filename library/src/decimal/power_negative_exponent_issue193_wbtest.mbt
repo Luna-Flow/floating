@@ -117,7 +117,7 @@ test "decimal power checks both sides across all rounding modes" {
     DecimalRound::Up,
     DecimalRound::ZeroFiveUp,
   ]
-  let p9 = DecimalContext::new(precision=9, e_min=-383, e_max=384)
+  let p9 = DecimalContext::new(precision=9, e_max=384)
   for mode in modes {
     let context = { ..p9, decimal_rounding: mode, }
     let (finite, finite_flags) = Decimal::from_string("0.9")
@@ -141,7 +141,7 @@ test "decimal power checks both sides across all rounding modes" {
       .pow_ctx(Decimal::from_string("-1280").unwrap(), context)
     assert_true(overflow_flags.overflow && !overflow.is_nan())
   }
-  let default_context = DecimalContext::new()
+  let default_context = DecimalContext::new(e_max=999_999_999)
   let (default_value, default_flags) = Decimal::from_string("0.5")
     .unwrap()
     .pow_ctx(Decimal::from_string("-1999999997").unwrap(), default_context)

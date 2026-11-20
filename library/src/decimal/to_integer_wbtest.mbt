@@ -70,7 +70,7 @@ test "convertToInteger rounds in every direction with the exact flags (IEEE 754-
   for row in issue226_rows {
     let (text, mode, i32, i64, u32, u64, changed) = row
     let value = Decimal::from_string(text).unwrap()
-    let ctx = DecimalContext::new(precision=16, e_min=-383, e_max=384).with_round(
+    let ctx = DecimalContext::new(precision=16, e_max=384).with_round(
       issue226_mode(mode),
     )
     for exact in [false, true] {

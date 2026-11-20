@@ -46,13 +46,6 @@ priv enum DecimalRound {
 
 ///|
 #derive(Eq)
-pub(all) enum DecimalTininessDetection {
-  BeforeRounding
-  AfterRounding
-}
-
-///|
-#derive(Eq)
 pub(all) enum DecimalSignal {
   ConversionSyntax
   DivisionByZero
@@ -98,11 +91,12 @@ pub struct DecimalContext {
   priv decimal_rounding : DecimalRound
   priv e_min : Int32
   priv e_max : Int32
+  // Whether finite results are members of the format of `precision` and
+  // `e_max` (the exponent `q` of a result is at most `e_max - p + 1`, IEEE
+  // 754-2019 3.3). Every public context sets it; the working contexts of the
+  // library clear it where the digits of a result must not be folded down.
   priv clamp : Bool
-  priv extended : Bool
-  priv tininess : DecimalTininessDetection
   priv refinement_limit : Int32?
-  priv clamp_fold : Bool
 }
 
 ///|
@@ -315,20 +309,19 @@ pub fn DecimalFlags::contains(
 }
 
 ///|
-/// Largest exponent bound that `DecimalContext::try_new` accepts for `e_max`
-/// (and, negated, the smallest for `e_min`). The context parameters are
-/// checked against these three constants, so the values cannot drift from the
-/// validation. The certified elementary functions accept a narrower range
-/// (`|e| <= 999999` and `p <= 999999`); outside it they return NaN with
-/// `invalid_context`. See "DecimalContext::new, try_new" in the `decimal` API
-/// manual (doc/manual/api/decimal.md).
+/// Largest `e_max` that `DecimalContext::try_new` accepts. The certified
+/// elementary functions accept a narrower range (`e_max <= 999999` and
+/// `p <= 999999`); outside it they return NaN with `invalid_context`. See
+/// "DecimalContext::new, try_new" in the `decimal` API manual
+/// (doc/manual/api/decimal.md).
 pub let decimal_implementation_e_max : Int32 = @internal.decimal_exponent_limit
 
 ///|
-/// Smallest `e_min` that `DecimalContext::try_new` accepts, the negation of
-/// `decimal_implementation_e_max`. The certified elementary functions have
-/// their own, narrower limit (see `decimal_implementation_e_max`).
-pub let decimal_implementation_e_min : Int32 = -@internal.decimal_exponent_limit
+/// Smallest `e_min` of a context, `1 - decimal_implementation_e_max`
+/// (IEEE 754-2019 3.3: `e_min = 1 - e_max`). The certified elementary
+/// functions have their own, narrower limit (see `decimal_implementation_e_max`).
+pub let decimal_implementation_e_min : Int32 = 1 -
+  @internal.decimal_exponent_limit
 
 ///|
 /// Largest precision that `DecimalContext::try_new` accepts. The certified
@@ -337,64 +330,85 @@ pub let decimal_implementation_e_min : Int32 = -@internal.decimal_exponent_limit
 pub let decimal_precision_max : Int32 = @internal.decimal_exponent_limit
 
 ///|
-fn DecimalContext::build(
-  precision~ : Int32 = 34,
-  rounding~ : DecimalRoundingMode = DecimalRoundingMode::RoundTiesToEven,
-  e_min~ : Int32 = decimal_implementation_e_min,
-  e_max~ : Int32 = decimal_implementation_e_max,
-  clamp~ : Bool = false,
-  extended~ : Bool = true,
-  tininess~ : DecimalTininessDetection = DecimalTininessDetection::BeforeRounding,
-) -> Result[DecimalContext, String] {
-  let bounds = @internal.DecimalExponentBounds::new(precision, e_min, e_max)
-  guard bounds.is_valid() else {
-    let reason = if precision <= 0 || precision > decimal_precision_max {
-      "precision must be within 1..=\{decimal_precision_max}"
-    } else if e_min < decimal_implementation_e_min || e_min > 0 {
-      "e_min must be within \{decimal_implementation_e_min}..=0"
-    } else if e_max < 0 || e_max > decimal_implementation_e_max {
-      "e_max must be within 0..=\{decimal_implementation_e_max}"
-    } else {
-      "e_min must not exceed e_max"
-    }
-    return Err(reason)
+/// The exponent range of a context given by its precision alone: the larger of
+/// 999,999 (the widest range in which every operation of the package runs) and
+/// `1000 p`, which IEEE 754-2019 3.7 requires of an extendable format given by
+/// `p` alone (`p` of at least 51 digits). `None` when that exceeds
+/// `decimal_implementation_e_max`.
+fn decimal_default_e_max(precision : Int32) -> Int32? {
+  let wanted = Int64::max(999_999L, precision.to_int64() * 1000L)
+  if wanted > decimal_implementation_e_max.to_int64() {
+    None
+  } else {
+    Some(wanted.to_int())
   }
-  Ok({
-    precision,
-    decimal_rounding: rounding.round(),
-    e_min,
-    e_max,
-    clamp,
-    extended,
-    tininess,
-    refinement_limit: Some(12),
-    clamp_fold: false,
-  })
 }
 
 ///|
-/// Builds a context, or aborts with the message that names the invalid
-/// parameter (like `BinaryContext::new`). `try_new` returns the same check as
-/// an `Err` instead.
+/// A context without validation, for the working contexts of the library.
+fn DecimalContext::raw(
+  precision : Int32,
+  e_min : Int32,
+  e_max : Int32,
+  clamp~ : Bool = false,
+  round~ : DecimalRound = DecimalRound::HalfEven,
+) -> DecimalContext {
+  {
+    precision,
+    decimal_rounding: round,
+    e_min,
+    e_max,
+    clamp,
+    refinement_limit: Some(12),
+  }
+}
+
+///|
+fn DecimalContext::build(
+  precision~ : Int32,
+  rounding~ : DecimalRoundingMode,
+  e_max? : Int32,
+) -> Result[DecimalContext, String] {
+  guard precision >= 1 && precision <= decimal_precision_max else {
+    return Err("precision must be within 1..=\{decimal_precision_max}")
+  }
+  let e_max = match e_max {
+    Some(value) => value
+    None =>
+      match decimal_default_e_max(precision) {
+        Some(value) => value
+        None =>
+          return Err(
+            "e_max must be given for precision \{precision}: 1000 * precision exceeds \{decimal_implementation_e_max}",
+          )
+      }
+  }
+  guard e_max >= 1 && e_max <= decimal_implementation_e_max else {
+    return Err("e_max must be within 1..=\{decimal_implementation_e_max}")
+  }
+  Ok(
+    DecimalContext::raw(
+      precision,
+      1 - e_max,
+      e_max,
+      clamp=true,
+      round=rounding.round(),
+    ),
+  )
+}
+
+///|
+/// Builds the context of an IEEE 754-2019 decimal format with `precision`
+/// digits and the exponent range `[1 - e_max, e_max]` (3.3), or aborts with the
+/// message that names the invalid parameter (like `BinaryContext::new`).
+/// Without `e_max` the range is `max(999999, 1000 * precision)`. `try_new`
+/// returns the same check as an `Err` instead.
 pub fn DecimalContext::new(
   precision~ : Int32 = 34,
+  e_max? : Int32,
   rounding~ : DecimalRoundingMode = DecimalRoundingMode::RoundTiesToEven,
-  e_min~ : Int32 = decimal_implementation_e_min,
-  e_max~ : Int32 = decimal_implementation_e_max,
-  clamp~ : Bool = false,
-  extended~ : Bool = true,
-  tininess~ : DecimalTininessDetection = DecimalTininessDetection::BeforeRounding,
 ) -> DecimalContext {
-  match
-    DecimalContext::build(
-      precision~,
-      rounding~,
-      e_min~,
-      e_max~,
-      clamp~,
-      extended~,
-      tininess~,
-    ) {
+  match DecimalContext::build(precision~, rounding~, e_max?) {
     Ok(context) => context
     Err(reason) => abort("DecimalContext::new: " + reason)
   }
@@ -403,23 +417,10 @@ pub fn DecimalContext::new(
 ///|
 pub fn DecimalContext::try_new(
   precision~ : Int32 = 34,
+  e_max? : Int32,
   rounding~ : DecimalRoundingMode = DecimalRoundingMode::RoundTiesToEven,
-  e_min~ : Int32 = decimal_implementation_e_min,
-  e_max~ : Int32 = decimal_implementation_e_max,
-  clamp~ : Bool = false,
-  extended~ : Bool = true,
-  tininess~ : DecimalTininessDetection = DecimalTininessDetection::BeforeRounding,
 ) -> Result[DecimalContext, @def.ArithmeticError] {
-  match
-    DecimalContext::build(
-      precision~,
-      rounding~,
-      e_min~,
-      e_max~,
-      clamp~,
-      extended~,
-      tininess~,
-    ) {
+  match DecimalContext::build(precision~, rounding~, e_max?) {
     Ok(context) => Ok(context)
     Err(reason) => Err(@def.ArithmeticError::domain_error(reason))
   }
@@ -462,8 +463,18 @@ pub fn DecimalContext::with_precision(
 }
 
 ///|
-pub fn DecimalContext::is754version2019(_self : DecimalContext) -> Bool {
-  true
+/// The same context with the exponent range `[1 - e_max, e_max]`. Aborts when
+/// `e_max` is outside `1..=decimal_implementation_e_max`, like `new`.
+pub fn DecimalContext::with_e_max(
+  self : DecimalContext,
+  e_max : Int32,
+) -> DecimalContext {
+  guard e_max >= 1 && e_max <= decimal_implementation_e_max else {
+    abort(
+      "DecimalContext::with_e_max: e_max must be within 1..=\{decimal_implementation_e_max}",
+    )
+  }
+  { ..self, e_min: 1 - e_max, e_max, }
 }
 
 ///|
@@ -474,31 +485,6 @@ pub fn DecimalContext::e_min(self : DecimalContext) -> Int32 {
 ///|
 pub fn DecimalContext::e_max(self : DecimalContext) -> Int32 {
   self.e_max
-}
-
-///|
-pub fn DecimalContext::clamp(self : DecimalContext) -> Bool {
-  self.clamp
-}
-
-///|
-pub fn DecimalContext::extended(self : DecimalContext) -> Bool {
-  self.extended
-}
-
-///|
-pub fn DecimalContext::tininess(
-  self : DecimalContext,
-) -> DecimalTininessDetection {
-  self.tininess
-}
-
-///|
-pub fn DecimalContext::with_tininess(
-  self : DecimalContext,
-  tininess : DecimalTininessDetection,
-) -> DecimalContext {
-  { ..self, tininess, }
 }
 
 ///|
@@ -523,84 +509,33 @@ pub fn DecimalContext::with_refinement_limit(
 }
 
 ///|
-/// Whether a zero `quantize` result above `e_max - precision + 1` is folded
-/// down to that exponent with `clamped` under `clamp`, `false` by default and in
-/// every preset (see `with_clamp_fold`).
-pub fn DecimalContext::clamp_fold(self : DecimalContext) -> Bool {
-  self.clamp_fold
-}
-
-///|
-/// Returns a copy of the context with the clamp fold-down of zero `quantize`
-/// results set to `fold`. IEEE 754-2019 §5.3.2 says nothing about a zero result
-/// whose exponent cannot be encoded (above `e_max - precision + 1`, 369 in
-/// decimal64): by default `quantize` returns the exponent asked for, as before.
-/// With `fold` and `clamp`, the exponent is folded down to the largest encodable
-/// one and `clamped` is raised, as `decFinalize` of decNumber does for a zero
-/// result. Non-zero results and contexts without `clamp` are not affected.
-pub fn DecimalContext::with_clamp_fold(
-  self : DecimalContext,
-  fold : Bool,
-) -> DecimalContext {
-  { ..self, clamp_fold: fold, }
-}
-
-///|
-pub fn DecimalContext::ieee754(self : DecimalContext) -> DecimalContext {
-  self
-}
-
-///|
+/// The working context of the exact steps of the library: precision 0 means
+/// "every digit". Not a context of any IEEE format and not public.
 fn decimal_exact_work_context() -> DecimalContext {
-  {
-    precision: 0,
-    decimal_rounding: DecimalRound::HalfEven,
-    e_min: decimal_implementation_e_min,
-    e_max: decimal_implementation_e_max,
-    clamp: false,
-    extended: true,
-    tininess: DecimalTininessDetection::BeforeRounding,
-    refinement_limit: Some(12),
-    clamp_fold: false,
-  }
-}
-
-///|
-pub fn DecimalContext::exact() -> DecimalContext {
-  decimal_exact_work_context()
+  DecimalContext::raw(
+    0, decimal_implementation_e_min, decimal_implementation_e_max,
+  )
 }
 
 ///|
 pub fn DecimalContext::decimal32(
   rounding~ : DecimalRoundingMode = DecimalRoundingMode::RoundTiesToEven,
 ) -> DecimalContext {
-  DecimalContext::new(precision=7, rounding~, e_min=-95, e_max=96, clamp=true)
+  DecimalContext::new(precision=7, e_max=96, rounding~)
 }
 
 ///|
 pub fn DecimalContext::decimal64(
   rounding~ : DecimalRoundingMode = DecimalRoundingMode::RoundTiesToEven,
 ) -> DecimalContext {
-  DecimalContext::new(
-    precision=16,
-    rounding~,
-    e_min=-383,
-    e_max=384,
-    clamp=true,
-  )
+  DecimalContext::new(precision=16, e_max=384, rounding~)
 }
 
 ///|
 pub fn DecimalContext::decimal128(
   rounding~ : DecimalRoundingMode = DecimalRoundingMode::RoundTiesToEven,
 ) -> DecimalContext {
-  DecimalContext::new(
-    precision=34,
-    rounding~,
-    e_min=-6143,
-    e_max=6144,
-    clamp=true,
-  )
+  DecimalContext::new(precision=34, e_max=6144, rounding~)
 }
 
 ///|
@@ -616,13 +551,24 @@ pub fn DecimalContext::from_arithmetic_context(
         ),
       )
   }
-  DecimalContext::try_new(
-    precision=ctx.precision,
-    rounding~,
-    e_min=ctx.e_min.unwrap_or(decimal_implementation_e_min),
-    e_max=ctx.e_max.unwrap_or(decimal_implementation_e_max),
-    clamp=ctx.clamp,
-  )
+  // `clamp` is a property of every IEEE format, not an option: it is ignored.
+  let e_max = match (ctx.e_min, ctx.e_max) {
+    (_, Some(e_max)) => {
+      match ctx.e_min {
+        Some(e_min) if e_min != 1 - e_max =>
+          return Err(
+            @def.ArithmeticError::domain_error(
+              "e_min must be 1 - e_max (IEEE 754-2019 3.3)",
+            ),
+          )
+        _ => ()
+      }
+      Some(e_max)
+    }
+    (Some(e_min), None) => Some(1 - e_min)
+    (None, None) => None
+  }
+  DecimalContext::try_new(precision=ctx.precision, e_max?, rounding~)
 }
 
 ///|
@@ -630,9 +576,9 @@ pub fn DecimalInterchangeFormat::context(
   self : DecimalInterchangeFormat,
 ) -> DecimalContext {
   match self {
-    Decimal32 => DecimalContext::decimal32().ieee754()
-    Decimal64 => DecimalContext::decimal64().ieee754()
-    Decimal128 => DecimalContext::decimal128().ieee754()
+    Decimal32 => DecimalContext::decimal32()
+    Decimal64 => DecimalContext::decimal64()
+    Decimal128 => DecimalContext::decimal128()
   }
 }
 
@@ -693,9 +639,6 @@ pub extend Decimal with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub extend DecimalRoundingMode with Eq::{not_equal, equal}
-
-///|
-pub extend DecimalTininessDetection with Eq::{not_equal, equal}
 
 ///|
 pub extend DecimalSignal with Eq::{not_equal, equal}

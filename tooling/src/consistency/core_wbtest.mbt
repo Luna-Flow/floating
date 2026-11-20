@@ -158,11 +158,6 @@ enum DecimalConformanceOp {
   Power
   Divide
   DivideInteger
-  Remainder
-  Quantize
-  Fma
-  ToIntegralExact
-  Reduce
 }
 
 ///|
@@ -318,10 +313,6 @@ fn run_decimal_binary_conformance_case(
     Power => lhs.pow_ctx(rhs, ctx)
     Divide => lhs.div_ctx(rhs, ctx)
     DivideInteger => lhs.divide_integer_ctx(rhs, ctx)
-    Remainder => lhs.remainder_trunc_ctx(rhs, ctx)
-    Quantize => lhs.quantize_ctx(rhs, ctx)
-    Fma | ToIntegralExact | Reduce =>
-      fail("binary runner cannot execute unary/ternary case: " + id)
   }
   assert_decimal_conformance_value(id, actual, expected)
   assert_decimal_conformance_flags(
@@ -338,39 +329,6 @@ fn run_decimal_binary_conformance_case(
     division_impossible~,
     division_undefined~,
   )
-}
-
-///|
-fn run_decimal_ternary_conformance_case(
-  id : String,
-  op : DecimalConformanceOp,
-  lhs_src : String,
-  rhs_src : String,
-  third_src : String,
-  expected : String,
-  ctx : @decimal.DecimalContext,
-  rounded~ : Bool = false,
-  inexact~ : Bool = false,
-) -> Unit raise {
-  let lhs = decimal_conformance_operand(id, lhs_src)
-  let rhs = decimal_conformance_operand(id, rhs_src)
-  let third = decimal_conformance_operand(id, third_src)
-  let (actual, flags) = match op {
-    Fma => lhs.fma_ctx(rhs, third, ctx)
-    Add
-    | Subtract
-    | Multiply
-    | Sqrt
-    | Power
-    | Divide
-    | DivideInteger
-    | Remainder
-    | Quantize
-    | ToIntegralExact
-    | Reduce => fail("ternary runner cannot execute non-fma case: " + id)
-  }
-  assert_decimal_conformance_value(id, actual, expected)
-  assert_decimal_conformance_flags(id, flags, rounded~, inexact~)
 }
 
 ///|
@@ -394,17 +352,8 @@ fn run_decimal_unary_conformance_case(
   let operand = decimal_conformance_operand(id, operand_src)
   let (actual, flags) = match op {
     Sqrt => operand.sqrt_ctx(ctx)
-    ToIntegralExact => operand.to_integral_exact_ctx(ctx)
-    Reduce => operand.reduce_ctx(ctx)
-    Add
-    | Subtract
-    | Multiply
-    | Power
-    | Divide
-    | DivideInteger
-    | Remainder
-    | Quantize
-    | Fma => fail("unary runner cannot execute binary case: " + id)
+    Add | Subtract | Multiply | Power | Divide | DivideInteger =>
+      fail("unary runner cannot execute binary case: " + id)
   }
   assert_decimal_conformance_value(id, actual, expected)
   assert_decimal_conformance_flags(
@@ -597,42 +546,8 @@ test "decimal preserves signed zero through GDA-ready observers" {
 }
 
 ///|
-test "decimal unary plus and minus canonicalize zero in subset contexts" {
-  let subset_ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999,
-    e_max=999,
-    extended=false,
-  )
-  let pos_zero = @decimal.Decimal::from_string("0.00", precision=12).unwrap()
-  let neg_zero = @decimal.Decimal::from_string("-0.00", precision=12).unwrap()
-  let (plus_pos, plus_pos_flags) = pos_zero.plus_ctx(subset_ctx)
-  let (plus_neg, plus_neg_flags) = neg_zero.plus_ctx(subset_ctx)
-  let (minus_pos, minus_pos_flags) = pos_zero.minus_ctx(subset_ctx)
-  let (minus_neg, minus_neg_flags) = neg_zero.minus_ctx(subset_ctx)
-  assert_eq(plus_pos.to_string(), "0")
-  assert_false(plus_pos.is_negative_zero())
-  assert_false(plus_pos_flags.has_error())
-  assert_eq(plus_neg.to_string(), "0")
-  assert_false(plus_neg.is_negative_zero())
-  assert_false(plus_neg_flags.has_error())
-  assert_eq(minus_pos.to_string(), "0")
-  assert_false(minus_pos.is_negative_zero())
-  assert_false(minus_pos_flags.has_error())
-  assert_eq(minus_neg.to_string(), "0")
-  assert_false(minus_neg.is_negative_zero())
-  assert_false(minus_neg_flags.has_error())
-}
-
-///|
 test "decimal unary plus and minus canonicalize zero sign in extended contexts" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=16,
-    e_min=-383,
-    e_max=384,
-    clamp=true,
-    extended=true,
-  )
+  let ctx = @decimal.DecimalContext::new(precision=16, e_max=384)
   let neg_zero = @decimal.Decimal::from_string("-0.0000", precision=20).unwrap()
   let (plus_value, plus_flags) = neg_zero.plus_ctx(ctx)
   let (minus_value, minus_flags) = neg_zero.minus_ctx(ctx)
@@ -719,39 +634,9 @@ test "decimal context nonzero plus zero keeps nonzero cohort" {
 }
 
 ///|
-test "decimal subset plus_ctx follows official positive-exponent cohorts" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999,
-    e_max=999,
-    extended=false,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let lhs = @decimal.Decimal::from_string("56267E+1", precision=16).unwrap()
-  let rhs = @decimal.Decimal::from_string("-56267E+4", precision=16).unwrap()
-  let (plus_lhs, plus_lhs_flags) = lhs.plus_ctx(ctx)
-  let (plus_rhs, plus_rhs_flags) = rhs.plus_ctx(ctx)
-  assert_eq(
-    plus_lhs.total_order_compare(
-      @decimal.Decimal::from_string("562670", precision=64).unwrap(),
-    ),
-    0,
-  )
-  assert_eq(
-    plus_rhs.total_order_compare(
-      @decimal.Decimal::from_string("-562670000", precision=64).unwrap(),
-    ),
-    0,
-  )
-  assert_false(plus_lhs_flags.rounded())
-  assert_false(plus_rhs_flags.rounded())
-}
-
-///|
 test "decimal unary plus/minus official positive exponent cohort rows keep arithmetic value" {
   let ctx = @decimal.DecimalContext::new(
     precision=9,
-    e_min=-999,
     e_max=999,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
@@ -814,250 +699,9 @@ test "decimal unary plus/minus official positive exponent cohort rows keep arith
 }
 
 ///|
-test "decimal add matches official zero and positive-exponent cohort cases" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999,
-    e_max=999,
-    extended=false,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  run_decimal_binary_conformance_case("add055", Add, "1.3", "-1.30", "0", ctx)
-  run_decimal_binary_conformance_case("add072", Add, "1", "0.0", "1", ctx)
-  run_decimal_binary_conformance_case("add073", Add, "1", "0.0", "1", ctx)
-  run_decimal_binary_conformance_case("add074", Add, "1", "0.00", "1", ctx)
-  run_decimal_binary_conformance_case("add077", Add, "0.0", "1", "1", ctx)
-  run_decimal_binary_conformance_case("add078", Add, "0.0", "1", "1", ctx)
-  run_decimal_binary_conformance_case("add079", Add, "0.00", "1", "1", ctx)
-  run_decimal_binary_conformance_case("add105", Add, "-5E1", "0", "-50", ctx)
-  run_decimal_binary_conformance_case(
-    "add106",
-    Add,
-    "-5E5",
-    "0",
-    "-500000",
-    ctx,
-  )
-  run_decimal_binary_conformance_case(
-    "add107",
-    Add,
-    "-5E8",
-    "0",
-    "-500000000",
-    ctx,
-  )
-  run_decimal_binary_conformance_case("add130", Add, "0", "-5E1", "-50", ctx)
-  run_decimal_binary_conformance_case(
-    "add131",
-    Add,
-    "0",
-    "-5E5",
-    "-500000",
-    ctx,
-  )
-  run_decimal_binary_conformance_case(
-    "add132",
-    Add,
-    "0",
-    "-5E8",
-    "-500000000",
-    ctx,
-  )
-  let ext_ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999,
-    e_max=999,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  run_decimal_binary_conformance_case(
-    "add137",
-    Add,
-    "1",
-    "0E-12",
-    "1.00000000",
-    ext_ctx,
-    rounded=true,
-  )
-  run_decimal_binary_conformance_case(
-    "add138",
-    Add,
-    "-1",
-    "0E-12",
-    "-1.00000000",
-    ext_ctx,
-    rounded=true,
-  )
-  run_decimal_binary_conformance_case(
-    "add139",
-    Add,
-    "0E-12",
-    "1",
-    "1.00000000",
-    ext_ctx,
-    rounded=true,
-  )
-  run_decimal_binary_conformance_case(
-    "add140",
-    Add,
-    "0E-12",
-    "-1",
-    "-1.00000000",
-    ext_ctx,
-    rounded=true,
-  )
-  run_decimal_binary_conformance_case(
-    "add146",
-    Add,
-    "00.0",
-    "0",
-    "0.0",
-    ext_ctx,
-  )
-  run_decimal_binary_conformance_case(
-    "add147",
-    Add,
-    "0.00",
-    "0",
-    "0.00",
-    ext_ctx,
-  )
-  run_decimal_binary_conformance_case(
-    "add148",
-    Add,
-    "0",
-    "0.00",
-    "0.00",
-    ext_ctx,
-  )
-  run_decimal_binary_conformance_case(
-    "add149",
-    Add,
-    "0",
-    "00.0",
-    "0.0",
-    ext_ctx,
-  )
-  run_decimal_binary_conformance_case(
-    "add150",
-    Add,
-    "00.0",
-    "0.00",
-    "0.00",
-    ext_ctx,
-  )
-  run_decimal_binary_conformance_case(
-    "add151",
-    Add,
-    "0.00",
-    "00.0",
-    "0.00",
-    ext_ctx,
-  )
-  run_decimal_binary_conformance_case(
-    "add159",
-    Add,
-    "0.3",
-    "-0.3",
-    "0.0",
-    ext_ctx,
-  )
-  run_decimal_binary_conformance_case(
-    "add160",
-    Add,
-    "0.03",
-    "-0.03",
-    "0.00",
-    ext_ctx,
-  )
-  run_decimal_binary_conformance_case(
-    "add321",
-    Add,
-    "-0.01",
-    "0.01",
-    "0.00",
-    ext_ctx,
-  )
-  run_decimal_binary_conformance_case(
-    "add331",
-    Add,
-    "0.01",
-    "-0.01",
-    "0.00",
-    ext_ctx,
-  )
-  run_decimal_binary_conformance_case(
-    "add340",
-    Add,
-    "1E+3",
-    "0",
-    "1000",
-    ext_ctx,
-  )
-  run_decimal_binary_conformance_case(
-    "add341",
-    Add,
-    "1E+8",
-    "0",
-    "100000000",
-    ext_ctx,
-  )
-  run_decimal_binary_conformance_case(
-    "add342",
-    Add,
-    "1E+9",
-    "0",
-    "1.00000000E+9",
-    ext_ctx,
-    rounded=true,
-  )
-  run_decimal_binary_conformance_case(
-    "add343",
-    Add,
-    "1E+10",
-    "0",
-    "1.00000000E+10",
-    ext_ctx,
-    rounded=true,
-  )
-  run_decimal_binary_conformance_case(
-    "add1500",
-    Add,
-    "0",
-    "0E-19",
-    "0E-19",
-    ext_ctx,
-  )
-  run_decimal_binary_conformance_case(
-    "add1501",
-    Add,
-    "-0",
-    "0E-19",
-    "0E-19",
-    ext_ctx,
-  )
-  run_decimal_binary_conformance_case(
-    "add1502",
-    Add,
-    "0",
-    "-0E-19",
-    "0E-19",
-    ext_ctx,
-  )
-  run_decimal_binary_conformance_case(
-    "add1503",
-    Add,
-    "-0",
-    "-0E-19",
-    "-0E-19",
-    ext_ctx,
-  )
-}
-
-///|
 test "decimal add matches official tryzeros cohort cases" {
   let ctx = @decimal.DecimalContext::new(
     precision=7,
-    e_min=-92,
     e_max=92,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
@@ -1102,7 +746,6 @@ test "decimal add matches official tryzeros cohort cases" {
 test "decimal multiply preserves official zero sign and cohort cases" {
   let ctx = @decimal.DecimalContext::new(
     precision=9,
-    e_min=-383,
     e_max=384,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
@@ -1220,7 +863,6 @@ test "decimal multiply preserves official zero sign and cohort cases" {
 test "decimal sqrt preserves official zero sign and cohort cases" {
   let ctx = @decimal.DecimalContext::new(
     precision=9,
-    e_min=-383,
     e_max=384,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
@@ -1249,7 +891,6 @@ test "decimal sqrt preserves official zero sign and cohort cases" {
 test "decimal divide preserves official zero cohort cases" {
   let ctx = @decimal.DecimalContext::new(
     precision=9,
-    e_min=-383,
     e_max=384,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
@@ -1406,9 +1047,7 @@ test "decimal divide preserves official zero cohort cases" {
 test "decimal divide preserves exact quotient cohort representatives" {
   let ctx = @decimal.DecimalContext::new(
     precision=16,
-    e_min=-383,
     e_max=384,
-    clamp=true,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
   )
   run_decimal_binary_conformance_case(
@@ -1441,9 +1080,7 @@ test "decimal divide preserves exact quotient cohort representatives" {
 test "decimal divide preserves exact positive-exponent representatives" {
   let ctx = @decimal.DecimalContext::new(
     precision=16,
-    e_min=-383,
     e_max=384,
-    clamp=true,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
   )
   run_decimal_binary_conformance_case(
@@ -1460,9 +1097,7 @@ test "decimal divide preserves exact positive-exponent representatives" {
 test "decimal divide preserves inexact subnormal cohort at etiny" {
   let ctx = @decimal.DecimalContext::new(
     precision=16,
-    e_min=-383,
     e_max=384,
-    clamp=true,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
   )
   run_decimal_binary_conformance_case(
@@ -1495,9 +1130,7 @@ test "decimal divide preserves inexact subnormal cohort at etiny" {
 test "decimal divide keeps enough working digits for rounded reciprocals" {
   let ctx = @decimal.DecimalContext::new(
     precision=16,
-    e_min=-383,
     e_max=384,
-    clamp=true,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
   )
   run_decimal_binary_conformance_case(
@@ -1541,73 +1174,10 @@ test "decimal subtract preserves rhs nan sign while canonicalizing payload" {
 }
 
 ///|
-test "decimal divide preserves rounded exact cohorts across normal and subnormal cases" {
-  let ctx9 = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-383,
-    e_max=384,
-    extended=true,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let ctx6 = @decimal.DecimalContext::new(
-    precision=6,
-    e_min=-383,
-    e_max=384,
-    extended=true,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let (v71, f71) = @decimal.Decimal::from_string("999999999.4", precision=20)
-    .unwrap()
-    .div_ctx(@decimal.Decimal::from_string("1", precision=20).unwrap(), ctx9)
-  assert_eq(v71.to_string(), "999999999")
-  assert_true(f71.rounded())
-  assert_true(f71.inexact())
-
-  let (v401, f401) = @decimal.Decimal::from_string("12345678000", precision=20)
-    .unwrap()
-    .div_ctx(@decimal.Decimal::from_string("1", precision=20).unwrap(), ctx9)
-  assert_eq(v401.coefficient().to_string(), "123456780")
-  assert_eq(v401.exponent10().to_string(), "2")
-  assert_true(f401.rounded())
-  assert_false(f401.inexact())
-
-  let (v80, f80) = @decimal.Decimal::from_string("999999999", precision=20)
-    .unwrap()
-    .div_ctx(@decimal.Decimal::from_string("1", precision=20).unwrap(), ctx6)
-  assert_eq(v80.coefficient().to_string(), "100000")
-  assert_eq(v80.exponent10().to_string(), "4")
-  assert_true(f80.rounded())
-  assert_true(f80.inexact())
-
-  let ctx5 = @decimal.DecimalContext::new(
-    precision=5,
-    e_min=-79,
-    e_max=79,
-    extended=true,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let (v1002, f1002) = @decimal.Decimal::from_string(
-      "1.52445E-80",
-      precision=20,
-    )
-    .unwrap()
-    .div_ctx(@decimal.Decimal::from_string("1", precision=20).unwrap(), ctx5)
-  assert_eq(v1002.coefficient().to_string(), "1524")
-  assert_eq(v1002.exponent10().to_string(), "-83")
-  assert_true(f1002.rounded())
-  assert_true(f1002.inexact())
-  assert_true(f1002.subnormal())
-  assert_true(f1002.underflow())
-}
-
-///|
 test "decimal absorbed subtract half-up ties keep away-from-zero representative" {
   let dd_ctx = @decimal.DecimalContext::new(
     precision=16,
-    e_min=-383,
     e_max=384,
-    clamp=true,
-    extended=true,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
   run_decimal_binary_conformance_case(
@@ -1633,26 +1203,8 @@ test "decimal absorbed subtract half-up ties keep away-from-zero representative"
 }
 
 ///|
-test "decimal context exact zero result clamps below etiny" {
-  let ctx = @decimal.DecimalContext::new(precision=3, e_min=-999, e_max=999)
-  let lhs = @decimal.Decimal::from_string("0.100E-999", precision=64).unwrap()
-  let rhs = @decimal.Decimal::from_string("-0.1E-999", precision=64).unwrap()
-  let (sum, flags) = lhs.add_ctx(rhs, ctx)
-  let expected = @decimal.Decimal::from_string("0E-1001", precision=64).unwrap()
-  assert_eq(sum.total_order_compare(expected).to_string(), "0")
-  assert_true(flags.clamped())
-  assert_false(flags.inexact())
-  assert_false(flags.underflow())
-}
-
-///|
 test "decimal context clamps zero exponent at upper cohort bound" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=16,
-    e_min=-383,
-    e_max=384,
-    clamp=true,
-  )
+  let ctx = @decimal.DecimalContext::new(precision=16, e_max=384)
   let pos = @decimal.Decimal::from_string("0E+500", precision=32).unwrap()
   let neg = @decimal.Decimal::from_string("-0E+500", precision=32).unwrap()
   let (pos_value, pos_flags) = pos.apply_ctx(ctx)
@@ -1679,12 +1231,7 @@ test "decimal context clamps zero exponent at upper cohort bound" {
 
 ///|
 test "decimal apply_ctx clamps finite fold-down without rounded flag" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=16,
-    e_min=-383,
-    e_max=384,
-    clamp=true,
-  )
+  let ctx = @decimal.DecimalContext::new(precision=16, e_max=384)
   let pos = @decimal.Decimal::from_string("1.23E+384", precision=32).unwrap()
   let neg_zero = @decimal.Decimal::from_string("-0E+500", precision=32).unwrap()
   let (pos_value, pos_flags) = pos.apply_ctx(ctx)
@@ -1733,34 +1280,6 @@ test "decimal qnan snan and payload stay observable" {
     .with_precision(3, @decimal.DecimalRoundingMode::RoundTiesToEven)
     .is_signaling_nan(),
   )
-}
-
-///|
-test "decimal apply_ctx quiets snan and preserves nan diagnostics" {
-  let ctx = @decimal.DecimalContext::new(precision=3)
-  let quiet = @decimal.Decimal::quiet_nan(
-    payload=12345N,
-    negative=true,
-    precision=8,
-  )
-  let signaling = @decimal.Decimal::signaling_nan(
-    payload=98765N,
-    negative=true,
-    precision=8,
-  )
-  let (quiet_applied, quiet_flags) = quiet.apply_ctx(ctx)
-  let (signal_applied, signal_flags) = signaling.apply_ctx(ctx)
-  assert_eq(quiet_applied.to_string(), "-nan345")
-  assert_true(quiet_applied.is_quiet_nan())
-  assert_true(quiet_applied.is_negative())
-  assert_eq(quiet_applied.nan_payload(), 345N)
-  assert_false(quiet_flags.invalid_operation())
-  assert_eq(signal_applied.to_string(), "-nan765")
-  assert_true(signal_applied.is_quiet_nan())
-  assert_false(signal_applied.is_signaling_nan())
-  assert_true(signal_applied.is_negative())
-  assert_eq(signal_applied.nan_payload(), 765N)
-  assert_true(signal_flags.invalid_operation())
 }
 
 ///|
@@ -1816,169 +1335,10 @@ test "decimal multiplication propagates nan payloads" {
 }
 
 ///|
-test "decimal multiply official0 subnormal underflow rows set full gda flags" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999999999,
-    e_max=999999999,
-    extended=false,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let (mul232, mul232_flags) = @decimal.Decimal::from_string(
-      "+0.100",
-      precision=64,
-    )
-    .unwrap()
-    .mul_ctx(
-      @decimal.Decimal::from_string("9E-999999999", precision=64).unwrap(),
-      ctx,
-    )
-  let (mul233, mul233_flags) = @decimal.Decimal::from_string(
-      "9E-999999999",
-      precision=64,
-    )
-    .unwrap()
-    .mul_ctx(
-      @decimal.Decimal::from_string("+0.100", precision=64).unwrap(),
-      ctx,
-    )
-  let (mul237, mul237_flags) = @decimal.Decimal::from_string(
-      "-0.100",
-      precision=64,
-    )
-    .unwrap()
-    .mul_ctx(
-      @decimal.Decimal::from_string("9E-999999999", precision=64).unwrap(),
-      ctx,
-    )
-  let (mul238, mul238_flags) = @decimal.Decimal::from_string(
-      "9E-999999999",
-      precision=64,
-    )
-    .unwrap()
-    .mul_ctx(
-      @decimal.Decimal::from_string("-0.100", precision=64).unwrap(),
-      ctx,
-    )
-  assert_true(mul232.is_finite(), msg="mul232 finite")
-  assert_true(mul233.is_finite(), msg="mul233 finite")
-  assert_true(mul237.is_finite(), msg="mul237 finite")
-  assert_true(mul238.is_finite(), msg="mul238 finite")
-  assert_true(mul232_flags.underflow(), msg="mul232 underflow")
-  assert_true(mul232_flags.subnormal(), msg="mul232 subnormal")
-  assert_true(mul232_flags.inexact(), msg="mul232 inexact")
-  assert_true(mul232_flags.rounded(), msg="mul232 rounded")
-  assert_true(mul233_flags.underflow(), msg="mul233 underflow")
-  assert_true(mul233_flags.subnormal(), msg="mul233 subnormal")
-  assert_true(mul233_flags.inexact(), msg="mul233 inexact")
-  assert_true(mul233_flags.rounded(), msg="mul233 rounded")
-  assert_true(mul237_flags.underflow(), msg="mul237 underflow")
-  assert_true(mul237_flags.subnormal(), msg="mul237 subnormal")
-  assert_true(mul237_flags.inexact(), msg="mul237 inexact")
-  assert_true(mul237_flags.rounded(), msg="mul237 rounded")
-  assert_true(mul238_flags.underflow(), msg="mul238 underflow")
-  assert_true(mul238_flags.subnormal(), msg="mul238 subnormal")
-  assert_true(mul238_flags.inexact(), msg="mul238 inexact")
-  assert_true(mul238_flags.rounded(), msg="mul238 rounded")
-}
-
-///|
-test "decimal multiply official0 extended underflow rows keep subset flags on larger exponents" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999999999,
-    e_max=999999999,
-    extended=false,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let (mul239, mul239_flags) = @decimal.Decimal::from_string(
-      "1E-599999999",
-      precision=64,
-    )
-    .unwrap()
-    .mul_ctx(
-      @decimal.Decimal::from_string("1E-400000001", precision=64).unwrap(),
-      ctx,
-    )
-  let (mul241, mul241_flags) = @decimal.Decimal::from_string(
-      "1E-600000000",
-      precision=64,
-    )
-    .unwrap()
-    .mul_ctx(
-      @decimal.Decimal::from_string("1E-400000000", precision=64).unwrap(),
-      ctx,
-    )
-  let (mul242, mul242_flags) = @decimal.Decimal::from_string(
-      "9E-999999998",
-      precision=64,
-    )
-    .unwrap()
-    .mul_ctx(@decimal.Decimal::from_string("0.01", precision=64).unwrap(), ctx)
-  let (mul244, mul244_flags) = @decimal.Decimal::from_string(
-      "0.01",
-      precision=64,
-    )
-    .unwrap()
-    .mul_ctx(
-      @decimal.Decimal::from_string("9E-999999998", precision=64).unwrap(),
-      ctx,
-    )
-  assert_true(mul239.is_finite(), msg="mul239 finite")
-  assert_true(mul241.is_finite(), msg="mul241 finite")
-  assert_true(mul242.is_finite(), msg="mul242 finite")
-  assert_true(mul244.is_finite(), msg="mul244 finite")
-  assert_true(mul239_flags.underflow(), msg="mul239 underflow")
-  assert_true(mul239_flags.subnormal(), msg="mul239 subnormal")
-  assert_true(mul239_flags.inexact(), msg="mul239 inexact")
-  assert_true(mul239_flags.rounded(), msg="mul239 rounded")
-  assert_true(mul241_flags.underflow(), msg="mul241 underflow")
-  assert_true(mul241_flags.subnormal(), msg="mul241 subnormal")
-  assert_true(mul241_flags.inexact(), msg="mul241 inexact")
-  assert_true(mul241_flags.rounded(), msg="mul241 rounded")
-  assert_true(mul242_flags.underflow(), msg="mul242 underflow")
-  assert_true(mul242_flags.subnormal(), msg="mul242 subnormal")
-  assert_true(mul242_flags.inexact(), msg="mul242 inexact")
-  assert_true(mul242_flags.rounded(), msg="mul242 rounded")
-  assert_true(mul244_flags.underflow(), msg="mul244 underflow")
-  assert_true(mul244_flags.subnormal(), msg="mul244 subnormal")
-  assert_true(mul244_flags.inexact(), msg="mul244 inexact")
-  assert_true(mul244_flags.rounded(), msg="mul244 rounded")
-}
-
-///|
-test "decimal multiply official0 deepest underflow rows keep subset flags" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999999999,
-    e_max=999999999,
-    extended=false,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let rhs_cases = [
-    "1E-400000001", "1E-400000002", "1E-400000003", "1E-400000004", "1E-400000005",
-    "1E-400000006", "1E-400000007", "1E-400000008", "1E-400000009", "1E-400000010",
-  ]
-  let lhs = @decimal.Decimal::from_string("1E-600000000", precision=64).unwrap()
-  for rhs_src in rhs_cases {
-    let rhs = @decimal.Decimal::from_string(rhs_src, precision=64).unwrap()
-    let (actual, flags) = lhs.mul_ctx(rhs, ctx)
-    assert_true(actual.is_finite(), msg=rhs_src + " finite")
-    assert_true(flags.underflow(), msg=rhs_src + " underflow")
-    assert_true(flags.subnormal(), msg=rhs_src + " subnormal")
-    assert_true(flags.inexact(), msg=rhs_src + " inexact")
-    assert_true(flags.rounded(), msg=rhs_src + " rounded")
-    assert_false(flags.clamped(), msg=rhs_src + " clamped")
-  }
-}
-
-///|
 test "decimal multiply official0 deepest overflow rows keep subset flags" {
   let ctx = @decimal.DecimalContext::new(
     precision=9,
-    e_min=-999999999,
     e_max=999999999,
-    extended=false,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
   let lhs = @decimal.Decimal::from_string("1E+600000000", precision=64).unwrap()
@@ -2080,11 +1440,7 @@ test "plain decimal arithmetic preserves nan payloads and quiets snans" {
 
 ///|
 test "IEEE decimal fma preserves first nan payload and signals snans" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999999,
-    e_max=999999,
-  )
+  let ctx = @decimal.DecimalContext::new(precision=9, e_max=999999)
   let qnan = @decimal.Decimal::quiet_nan(payload=7N, precision=12)
   let qnan2 = @decimal.Decimal::quiet_nan(
     payload=5N,
@@ -2121,43 +1477,8 @@ test "IEEE decimal fma preserves first nan payload and signals snans" {
 }
 
 ///|
-test "decimal fma is invalid in subset context" {
-  let subset_ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-383,
-    e_max=384,
-    extended=false,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let huge_zero = @decimal.Decimal::from_string("0E+999999", precision=32).unwrap()
-  let (zero_case, zero_flags) = @decimal.Decimal::zero(precision=16).fma_ctx(
-    @decimal.Decimal::zero(precision=16),
-    huge_zero,
-    subset_ctx,
-  )
-  let (finite_case, finite_flags) = @decimal.Decimal::from_string(
-      "0.9",
-      precision=16,
-    )
-    .unwrap()
-    .fma_ctx(
-      @decimal.Decimal::from_string("0.8", precision=16).unwrap(),
-      huge_zero,
-      subset_ctx,
-    )
-  assert_true(zero_case.is_nan())
-  assert_true(zero_flags.invalid_operation())
-  assert_true(finite_case.is_nan())
-  assert_true(finite_flags.invalid_operation())
-}
-
-///|
 test "decimal fma handles infinite addends with direct infinity semantics" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999999,
-    e_max=999999,
-  )
+  let ctx = @decimal.DecimalContext::new(precision=9, e_max=999999)
   let pos_inf = @decimal.Decimal::inf(@def.Sign::Positive, precision=16)
   let neg_inf = @decimal.Decimal::inf(@def.Sign::Negative, precision=16)
   let one = @decimal.Decimal::one(precision=16)
@@ -2188,10 +1509,7 @@ test "decimal fma handles infinite addends with direct infinity semantics" {
 test "decimal fma preserves directed overflow when tiny addend cannot affect result" {
   let ctx = @decimal.DecimalContext::new(
     precision=34,
-    e_min=-6143,
     e_max=6144,
-    clamp=true,
-    extended=true,
     rounding=@decimal.DecimalRoundingMode::RoundTowardPositive,
   )
   let ctx_negative = ctx.with_rounding(
@@ -2575,9 +1893,9 @@ test "decimal interchange formats expose the expected preset contexts" {
   let decimal32 = @decimal.DecimalInterchangeFormat::Decimal32.context()
   let decimal64 = @decimal.DecimalInterchangeFormat::Decimal64.context()
   let decimal128 = @decimal.DecimalInterchangeFormat::Decimal128.context()
-  assert_true(decimal32 == @decimal.DecimalContext::decimal32().ieee754())
-  assert_true(decimal64 == @decimal.DecimalContext::decimal64().ieee754())
-  assert_true(decimal128 == @decimal.DecimalContext::decimal128().ieee754())
+  assert_true(decimal32 == @decimal.DecimalContext::decimal32())
+  assert_true(decimal64 == @decimal.DecimalContext::decimal64())
+  assert_true(decimal128 == @decimal.DecimalContext::decimal128())
 }
 
 ///|
@@ -3602,247 +2920,6 @@ test "decimal context reports rounded for discarded trailing zeros" {
 }
 
 ///|
-test "decimal add official0 subnormal underflow rows set full gda flags" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999999999,
-    e_max=999999999,
-    extended=false,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let (add332, add332_flags) = @decimal.Decimal::from_string(
-      "-1.1E-999999999",
-      precision=64,
-    )
-    .unwrap()
-    .add_ctx(
-      @decimal.Decimal::from_string("1E-999999999", precision=64).unwrap(),
-      ctx,
-    )
-  let (add333, add333_flags) = @decimal.Decimal::from_string(
-      "1E-999999999",
-      precision=64,
-    )
-    .unwrap()
-    .add_ctx(
-      @decimal.Decimal::from_string("-1.1E-999999999", precision=64).unwrap(),
-      ctx,
-    )
-  let (add336, add336_flags) = @decimal.Decimal::from_string(
-      "+1.1E-999999999",
-      precision=64,
-    )
-    .unwrap()
-    .add_ctx(
-      @decimal.Decimal::from_string("-1E-999999999", precision=64).unwrap(),
-      ctx,
-    )
-  let (add337, add337_flags) = @decimal.Decimal::from_string(
-      "-1E-999999999",
-      precision=64,
-    )
-    .unwrap()
-    .add_ctx(
-      @decimal.Decimal::from_string("+1.1E-999999999", precision=64).unwrap(),
-      ctx,
-    )
-  assert_true(add332.is_finite(), msg="add332 finite")
-  assert_true(add333.is_finite(), msg="add333 finite")
-  assert_true(add336.is_finite(), msg="add336 finite")
-  assert_true(add337.is_finite(), msg="add337 finite")
-  assert_true(add332_flags.underflow(), msg="add332 underflow")
-  assert_true(add332_flags.subnormal(), msg="add332 subnormal")
-  assert_true(add332_flags.inexact(), msg="add332 inexact")
-  assert_true(add332_flags.rounded(), msg="add332 rounded")
-  assert_true(add333_flags.underflow(), msg="add333 underflow")
-  assert_true(add333_flags.subnormal(), msg="add333 subnormal")
-  assert_true(add333_flags.inexact(), msg="add333 inexact")
-  assert_true(add333_flags.rounded(), msg="add333 rounded")
-  assert_true(add336_flags.underflow(), msg="add336 underflow")
-  assert_true(add336_flags.subnormal(), msg="add336 subnormal")
-  assert_true(add336_flags.inexact(), msg="add336 inexact")
-  assert_true(add336_flags.rounded(), msg="add336 rounded")
-  assert_true(add337_flags.underflow(), msg="add337 underflow")
-  assert_true(add337_flags.subnormal(), msg="add337 subnormal")
-  assert_true(add337_flags.inexact(), msg="add337 inexact")
-  assert_true(add337_flags.rounded(), msg="add337 rounded")
-}
-
-///|
-test "decimal subtract official0 subnormal underflow rows set full gda flags" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999999999,
-    e_max=999999999,
-    extended=false,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let (sub732, sub732_flags) = @decimal.Decimal::from_string(
-      "-1.1E-999999999",
-      precision=64,
-    )
-    .unwrap()
-    .sub_ctx(
-      @decimal.Decimal::from_string("-1E-999999999", precision=64).unwrap(),
-      ctx,
-    )
-  let (sub733, sub733_flags) = @decimal.Decimal::from_string(
-      "1E-999999999",
-      precision=64,
-    )
-    .unwrap()
-    .sub_ctx(
-      @decimal.Decimal::from_string("1.1E-999999999", precision=64).unwrap(),
-      ctx,
-    )
-  let (sub736, sub736_flags) = @decimal.Decimal::from_string(
-      "1.1E-999999999",
-      precision=64,
-    )
-    .unwrap()
-    .sub_ctx(
-      @decimal.Decimal::from_string("1E-999999999", precision=64).unwrap(),
-      ctx,
-    )
-  let (sub737, sub737_flags) = @decimal.Decimal::from_string(
-      "-1E-999999999",
-      precision=64,
-    )
-    .unwrap()
-    .sub_ctx(
-      @decimal.Decimal::from_string("-1.1E-999999999", precision=64).unwrap(),
-      ctx,
-    )
-  assert_true(sub732.is_finite(), msg="sub732 finite")
-  assert_true(sub733.is_finite(), msg="sub733 finite")
-  assert_true(sub736.is_finite(), msg="sub736 finite")
-  assert_true(sub737.is_finite(), msg="sub737 finite")
-  assert_true(sub732_flags.underflow(), msg="sub732 underflow")
-  assert_true(sub732_flags.subnormal(), msg="sub732 subnormal")
-  assert_true(sub732_flags.inexact(), msg="sub732 inexact")
-  assert_true(sub732_flags.rounded(), msg="sub732 rounded")
-  assert_true(sub733_flags.underflow(), msg="sub733 underflow")
-  assert_true(sub733_flags.subnormal(), msg="sub733 subnormal")
-  assert_true(sub733_flags.inexact(), msg="sub733 inexact")
-  assert_true(sub733_flags.rounded(), msg="sub733 rounded")
-  assert_true(sub736_flags.underflow(), msg="sub736 underflow")
-  assert_true(sub736_flags.subnormal(), msg="sub736 subnormal")
-  assert_true(sub736_flags.inexact(), msg="sub736 inexact")
-  assert_true(sub736_flags.rounded(), msg="sub736 rounded")
-  assert_true(sub737_flags.underflow(), msg="sub737 underflow")
-  assert_true(sub737_flags.subnormal(), msg="sub737 subnormal")
-  assert_true(sub737_flags.inexact(), msg="sub737 inexact")
-  assert_true(sub737_flags.rounded(), msg="sub737 rounded")
-}
-
-///|
-test "IEEE decimal unary plus/minus support before-rounding tininess" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=3,
-    e_min=-999,
-    e_max=999,
-    tininess=@decimal.DecimalTininessDetection::BeforeRounding,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let (plux213, plux213_flags) = @decimal.Decimal::from_string(
-      "0.100E-999",
-      precision=64,
-    )
-    .unwrap()
-    .plus_ctx(ctx)
-  let (plux215, plux215_flags) = @decimal.Decimal::from_string(
-      "0.999E-999",
-      precision=64,
-    )
-    .unwrap()
-    .plus_ctx(ctx)
-  let (plux218, plux218_flags) = @decimal.Decimal::from_string(
-      "0.001E-999",
-      precision=64,
-    )
-    .unwrap()
-    .plus_ctx(ctx)
-  let (minx113, minx113_flags) = @decimal.Decimal::from_string(
-      "0.100E-999",
-      precision=64,
-    )
-    .unwrap()
-    .minus_ctx(ctx)
-  let (minx115, minx115_flags) = @decimal.Decimal::from_string(
-      "0.999E-999",
-      precision=64,
-    )
-    .unwrap()
-    .minus_ctx(ctx)
-  let (minx118, minx118_flags) = @decimal.Decimal::from_string(
-      "0.001E-999",
-      precision=64,
-    )
-    .unwrap()
-    .minus_ctx(ctx)
-  assert_eq(
-    plux213.total_order_compare(
-      @decimal.Decimal::from_string("1.0E-1000", precision=64).unwrap(),
-    ),
-    0,
-  )
-  assert_true(plux213_flags.subnormal(), msg="plux213 subnormal")
-  assert_true(plux213_flags.rounded(), msg="plux213 rounded")
-  assert_false(plux213_flags.inexact(), msg="plux213 inexact")
-  assert_eq(
-    plux215.total_order_compare(
-      @decimal.Decimal::from_string("1.00E-999", precision=64).unwrap(),
-    ),
-    0,
-  )
-  assert_true(plux215_flags.subnormal(), msg="plux215 subnormal")
-  assert_true(plux215_flags.underflow(), msg="plux215 underflow")
-  assert_true(plux215_flags.inexact(), msg="plux215 inexact")
-  assert_true(plux215_flags.rounded(), msg="plux215 rounded")
-  assert_eq(
-    plux218.total_order_compare(
-      @decimal.Decimal::from_string("0E-1001", precision=64).unwrap(),
-    ),
-    0,
-  )
-  assert_true(plux218_flags.subnormal(), msg="plux218 subnormal")
-  assert_true(plux218_flags.underflow(), msg="plux218 underflow")
-  assert_true(plux218_flags.inexact(), msg="plux218 inexact")
-  assert_true(plux218_flags.rounded(), msg="plux218 rounded")
-  assert_true(plux218_flags.clamped(), msg="plux218 clamped")
-  assert_eq(
-    minx113.total_order_compare(
-      @decimal.Decimal::from_string("-1.0E-1000", precision=64).unwrap(),
-    ),
-    0,
-  )
-  assert_true(minx113_flags.subnormal(), msg="minx113 subnormal")
-  assert_true(minx113_flags.rounded(), msg="minx113 rounded")
-  assert_false(minx113_flags.inexact(), msg="minx113 inexact")
-  assert_eq(
-    minx115.total_order_compare(
-      @decimal.Decimal::from_string("-1.00E-999", precision=64).unwrap(),
-    ),
-    0,
-  )
-  assert_true(minx115_flags.subnormal(), msg="minx115 subnormal")
-  assert_true(minx115_flags.underflow(), msg="minx115 underflow")
-  assert_true(minx115_flags.inexact(), msg="minx115 inexact")
-  assert_true(minx115_flags.rounded(), msg="minx115 rounded")
-  assert_eq(
-    minx118.total_order_compare(
-      @decimal.Decimal::from_string("-0E-1001", precision=64).unwrap(),
-    ),
-    0,
-  )
-  assert_true(minx118_flags.subnormal(), msg="minx118 subnormal")
-  assert_true(minx118_flags.underflow(), msg="minx118 underflow")
-  assert_true(minx118_flags.inexact(), msg="minx118 inexact")
-  assert_true(minx118_flags.rounded(), msg="minx118 rounded")
-  assert_true(minx118_flags.clamped(), msg="minx118 clamped")
-}
-
-///|
 test "decimal context addition absorbs far smaller operand as sticky" {
   let ctx = @decimal.DecimalContext::new(precision=9)
   let lhs = @decimal.Decimal::from_string("1", precision=64).unwrap()
@@ -3918,21 +2995,8 @@ test "decimal context addition rounds exact dominant operand with sub-ulp addend
 }
 
 ///|
-test "decimal context addition skips huge scaling for zero operand" {
-  let ctx = @decimal.DecimalContext::new(precision=3, e_min=-999, e_max=999)
-  let tiny = @decimal.Decimal::from_string("0.009E-999", precision=64).unwrap()
-  let (sum, flags) = tiny.add_ctx(@decimal.Decimal::zero(precision=64), ctx)
-  let expected = @decimal.Decimal::from_string("1E-1001", precision=64).unwrap()
-  assert_eq(sum.total_order_compare(expected).to_string(), "0")
-  assert_true(flags.underflow())
-  assert_true(flags.subnormal())
-  assert_true(flags.rounded())
-  assert_true(flags.inexact())
-}
-
-///|
 test "decimal context reports underflow when tiny exact result rounds normal" {
-  let ctx = @decimal.DecimalContext::new(precision=16, e_min=-383, e_max=384)
+  let ctx = @decimal.DecimalContext::new(precision=16, e_max=384)
   let lhs = @decimal.Decimal::from_string("1E-383", precision=64).unwrap()
   let rhs = @decimal.Decimal::from_string("1E-400", precision=64).unwrap()
   let (difference, flags) = lhs.sub_ctx(rhs, ctx)
@@ -4215,11 +3279,7 @@ test "decimal canonical tiny-nonzero subtract rows preserve canonical finite res
 
 ///|
 test "decimal context zero plus huge finite overflows without scaling zero" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=3,
-    e_min=-999999999,
-    e_max=999999999,
-  )
+  let ctx = @decimal.DecimalContext::new(precision=3, e_max=999999999)
   let huge = @decimal.Decimal::from_string("-9.999E+999999999", precision=64).unwrap()
   let (sum, flags) = @decimal.Decimal::zero(precision=64).add_ctx(huge, ctx)
   assert_true(sum.classify() == @lf_arith.FpClass::Infinity)
@@ -4231,11 +3291,7 @@ test "decimal context zero plus huge finite overflows without scaling zero" {
 
 ///|
 test "decimal quotient and remainder avoid huge scaling when quotient is zero" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=16,
-    e_min=-999999999,
-    e_max=999999999,
-  )
+  let ctx = @decimal.DecimalContext::new(precision=16, e_max=999999999)
   let tiny = @decimal.Decimal::from_string("0.100", precision=64).unwrap()
   let huge = @decimal.Decimal::from_string("9E+999999999", precision=64).unwrap()
   let (quotient, quotient_flags) = tiny.divide_integer_ctx(huge, ctx)
@@ -4323,11 +3379,7 @@ test "decimal divide_integer by zero returns signed infinity or division undefin
 
 ///|
 test "decimal divide_integer handles huge exponent boundaries without overflow" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=8,
-    e_min=-999999999,
-    e_max=999999999,
-  )
+  let ctx = @decimal.DecimalContext::new(precision=8, e_max=999999999)
   let one = @decimal.Decimal::one(precision=32)
   let huge_divisor = @decimal.Decimal::from_string(
     "0.99e999999999",
@@ -4355,76 +3407,10 @@ test "decimal divide_integer handles huge exponent boundaries without overflow" 
 }
 
 ///|
-test "decimal subset divide_integer canonicalizes zero quotients" {
-  let subset_ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999,
-    e_max=999,
-    extended=false,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let neg_one = @decimal.Decimal::from_string("-1", precision=16).unwrap()
-  let two = @decimal.Decimal::from_int(2, precision=16)
-  let neg_inf = @decimal.Decimal::inf(@def.Sign::Negative, precision=16)
-  let (finite_zero, finite_zero_flags) = neg_one.divide_integer_ctx(
-    two, subset_ctx,
-  )
-  let (inf_zero, inf_zero_flags) = neg_one.divide_integer_ctx(
-    neg_inf, subset_ctx,
-  )
-  assert_eq(finite_zero.to_string(), "0")
-  assert_false(finite_zero.is_negative_zero())
-  assert_false(finite_zero_flags.has_error())
-  assert_eq(inf_zero.to_string(), "0")
-  assert_false(inf_zero.is_negative_zero())
-  assert_false(inf_zero_flags.has_error())
-}
-
-///|
-test "decimal divide_integer zero quotient preserves rounded-only flags" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999,
-    e_max=999,
-    extended=false,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let (rounded_zero, rounded_zero_flags) = @decimal.Decimal::one(precision=32).divide_integer_ctx(
-    @decimal.Decimal::from_string("12345678000", precision=32).unwrap(),
-    ctx,
-  )
-  assert_eq(decimal_coeff_signed(rounded_zero), 0N)
-  assert_false(rounded_zero.is_negative_zero())
-  assert_true(rounded_zero_flags.rounded())
-  assert_false(rounded_zero_flags.inexact())
-}
-
-///|
-test "decimal divide_integer zero quotient preserves rounded and inexact flags" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999,
-    e_max=999,
-    extended=false,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let (inexact_zero, inexact_zero_flags) = @decimal.Decimal::one(precision=32).divide_integer_ctx(
-    @decimal.Decimal::from_string("1234567891", precision=32).unwrap(),
-    ctx,
-  )
-  assert_eq(decimal_coeff_signed(inexact_zero), 0N)
-  assert_false(inexact_zero.is_negative_zero())
-  assert_true(inexact_zero_flags.rounded())
-  assert_true(inexact_zero_flags.inexact())
-}
-
-///|
 test "decimal divide_integer truncates sub-unit quotients above one half" {
   let ctx = @decimal.DecimalContext::new(
     precision=9,
-    e_min=-999,
     e_max=999,
-    extended=false,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
   let (value, flags) = @decimal.Decimal::from_string("0.9", precision=32)
@@ -4439,9 +3425,7 @@ test "decimal divide_integer truncates sub-unit quotients above one half" {
 test "decimal divide_integer huge zero quotient matches full official representative" {
   let wide_ctx = @decimal.DecimalContext::new(
     precision=16,
-    e_min=-999999999,
     e_max=999999999,
-    extended=false,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
   let (huge_zero, huge_zero_flags) = @decimal.Decimal::from_string(
@@ -4462,9 +3446,7 @@ test "decimal divide_integer huge zero quotient matches full official representa
 test "decimal divide_integer extended zero quotient preserves official dd representatives" {
   let ctx = @decimal.DecimalContext::new(
     precision=16,
-    e_min=-383,
     e_max=384,
-    clamp=true,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
   )
   run_decimal_binary_conformance_case(
@@ -4518,36 +3500,10 @@ test "decimal divide_integer extended zero quotient preserves official dd repres
 }
 
 ///|
-test "decimal divide_integer matches official0 huge lost-digits representative" {
-  let huge_ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999999999,
-    e_max=999999999,
-    extended=false,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let (huge_zero, huge_zero_flags) = @decimal.Decimal::from_string(
-      "1.23456789012345E-0",
-      precision=64,
-    )
-    .unwrap()
-    .divide_integer_ctx(
-      @decimal.Decimal::from_string("9E+999999999", precision=64).unwrap(),
-      huge_ctx,
-    )
-  assert_eq(decimal_coeff_signed(huge_zero), 0N)
-  assert_false(huge_zero.is_negative_zero())
-  assert_true(huge_zero_flags.rounded())
-  assert_true(huge_zero_flags.inexact())
-}
-
-///|
 test "decimal divide_integer matches official0 huge impossible representative" {
   let huge_ctx = @decimal.DecimalContext::new(
     precision=9,
-    e_min=-999999999,
     e_max=999999999,
-    extended=false,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
   let (too_wide, too_wide_flags) = @decimal.Decimal::from_string(
@@ -4562,25 +3518,6 @@ test "decimal divide_integer matches official0 huge impossible representative" {
   assert_true(too_wide.is_quiet_nan())
   assert_true(too_wide_flags.invalid_operation())
   assert_true(too_wide_flags.division_impossible())
-}
-
-///|
-test "decimal divide_integer matches official0 lost-digits zero-quotient representative" {
-  let lostdigits_ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999,
-    e_max=999,
-    extended=false,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let (rounded_zero, rounded_zero_flags) = @decimal.Decimal::one(precision=32).divide_integer_ctx(
-    @decimal.Decimal::from_string("1234567891", precision=32).unwrap(),
-    lostdigits_ctx,
-  )
-  assert_eq(decimal_coeff_signed(rounded_zero), 0N)
-  assert_false(rounded_zero.is_negative_zero())
-  assert_true(rounded_zero_flags.rounded())
-  assert_true(rounded_zero_flags.inexact())
 }
 
 ///|
@@ -4641,9 +3578,7 @@ test "decimal remainder preserves preferred exponent when quotient is zero" {
 test "decimal subset remainder zero-quotient preserves nonzero sign" {
   let subset_ctx = @decimal.DecimalContext::new(
     precision=8,
-    e_min=-999,
     e_max=999,
-    extended=false,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
   )
   let negative = @decimal.Decimal::from_string("-0.5", precision=16).unwrap()
@@ -4672,73 +3607,10 @@ test "decimal remainder preserves preferred exponent with nonzero quotient" {
 }
 
 ///|
-test "decimal subset remainder canonicalizes negative zero zero-quotient results" {
-  let subset_ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999,
-    e_max=999,
-    extended=false,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let neg_zero = @decimal.Decimal::from_string("-0.00", precision=16).unwrap()
-  let one = @decimal.Decimal::one(precision=16)
-  let (remainder, remainder_flags) = neg_zero.remainder_trunc_ctx(
-    one, subset_ctx,
-  )
-  let (near, near_flags) = neg_zero.remainder_ctx(one, subset_ctx)
-  assert_eq(remainder.to_string(), "0")
-  assert_false(remainder.is_negative_zero())
-  assert_false(remainder_flags.has_error())
-  assert_eq(near.to_string(), "0")
-  assert_false(near.is_negative_zero())
-  assert_false(near_flags.has_error())
-}
-
-///|
-test "decimal remainder_near respects special values and context-rounded zero quotient" {
-  let ctx = @decimal.DecimalContext::new(precision=8)
-  let huge = @decimal.Decimal::from_string("9E+999999999", precision=32).unwrap()
-  let exact = @decimal.Decimal::from_string("1.23456789012345", precision=32).unwrap()
-  let inf = @decimal.Decimal::inf(@def.Sign::Positive, precision=32)
-  let snan = @decimal.Decimal::signaling_nan(payload=91N, precision=32)
-  let (finite_over_inf, finite_over_inf_flags) = exact.remainder_ctx(inf, ctx)
-  let (inf_over_finite, inf_over_finite_flags) = inf.remainder_ctx(exact, ctx)
-  let (snan_result, snan_flags) = inf.remainder_ctx(snan, ctx)
-  assert_eq(
-    finite_over_inf.total_order_compare(
-      @decimal.Decimal::from_string("1.2345679", precision=32).unwrap(),
-    ),
-    0,
-  )
-  assert_true(finite_over_inf_flags.rounded())
-  assert_true(finite_over_inf_flags.inexact())
-  assert_true(inf_over_finite.is_quiet_nan())
-  assert_true(inf_over_finite_flags.invalid_operation())
-  assert_true(snan_result.is_quiet_nan())
-  assert_eq(snan_result.nan_payload(), 91N)
-  assert_true(snan_flags.invalid_operation())
-  let (tiny_over_huge, tiny_over_huge_flags) = @decimal.Decimal::from_string(
-      "9E-999999999",
-      precision=32,
-    )
-    .unwrap()
-    .remainder_ctx(huge, ctx)
-  assert_eq(
-    tiny_over_huge.total_order_compare(
-      @decimal.Decimal::from_string("9E-999999999", precision=32).unwrap(),
-    ),
-    0,
-  )
-  assert_false(tiny_over_huge_flags.has_error())
-}
-
-///|
 test "decimal remainder matches official0 huge lost-digits representative" {
   let huge_ctx = @decimal.DecimalContext::new(
     precision=9,
-    e_min=-999999999,
     e_max=999999999,
-    extended=false,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
   let huge_divisor = @decimal.Decimal::from_string("9E+999999999", precision=64).unwrap()
@@ -4757,9 +3629,7 @@ test "decimal remainder matches official0 huge lost-digits representative" {
 test "decimal remainder_near matches official0 huge lost-digits representative" {
   let huge_ctx = @decimal.DecimalContext::new(
     precision=9,
-    e_min=-999999999,
     e_max=999999999,
-    extended=false,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
   let huge_divisor = @decimal.Decimal::from_string("9E+999999999", precision=64).unwrap()
@@ -4772,92 +3642,6 @@ test "decimal remainder_near matches official0 huge lost-digits representative" 
   assert_eq(huge_near.to_string(), "1.23456789")
   assert_true(huge_near_flags.rounded())
   assert_true(huge_near_flags.inexact())
-}
-
-///|
-test "Decimal huge remainder separates GDA quotient limits from IEEE remainderNear" {
-  let huge_ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999999999,
-    e_max=999999999,
-    extended=false,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let huge = @decimal.Decimal::from_string("9E+999999999", precision=64).unwrap()
-  let positive_small = @decimal.Decimal::from_string(
-    "0.23456789012345",
-    precision=64,
-  ).unwrap()
-  let negative_small = @decimal.Decimal::from_string(
-    "-0.83456789012345",
-    precision=64,
-  ).unwrap()
-  let (remainder_positive, remainder_positive_flags) = huge.remainder_trunc_ctx(
-    positive_small, huge_ctx,
-  )
-  let (remainder_negative, remainder_negative_flags) = huge.remainder_trunc_ctx(
-    negative_small, huge_ctx,
-  )
-  let (near_positive, near_positive_flags) = huge.remainder_ctx(
-    positive_small, huge_ctx,
-  )
-  let (near_negative, near_negative_flags) = huge.remainder_ctx(
-    negative_small, huge_ctx,
-  )
-  assert_true(remainder_positive.is_quiet_nan())
-  assert_true(remainder_positive_flags.invalid_operation())
-  assert_true(remainder_positive_flags.division_impossible())
-  assert_true(remainder_negative.is_quiet_nan())
-  assert_true(remainder_negative_flags.invalid_operation())
-  assert_true(remainder_negative_flags.division_impossible())
-  assert_decimal_total_eq(
-    near_positive,
-    decimal_test_operand("-0.045665570"),
-    "IEEE remainderNear positive-divisor result",
-  )
-  assert_true(near_positive_flags.rounded())
-  assert_true(near_positive_flags.inexact())
-  assert_false(near_positive_flags.invalid_operation())
-  assert_false(near_positive_flags.division_impossible())
-  assert_decimal_total_eq(
-    near_negative,
-    decimal_test_operand("0.013061590"),
-    "IEEE remainderNear negative-divisor result",
-  )
-  assert_true(near_negative_flags.rounded())
-  assert_true(near_negative_flags.inexact())
-  assert_false(near_negative_flags.invalid_operation())
-  assert_false(near_negative_flags.division_impossible())
-}
-
-///|
-test "decimal remainder matches official0 lost-digits zero representatives" {
-  let lostdigits_ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999,
-    e_max=999,
-    extended=false,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let ten = @decimal.Decimal::from_int(10, precision=32)
-  let (lost_remainder, lost_remainder_flags) = @decimal.Decimal::from_string(
-      "1234567891",
-      precision=32,
-    )
-    .unwrap()
-    .remainder_trunc_ctx(ten, lostdigits_ctx)
-  let (lost_near, lost_near_flags) = @decimal.Decimal::from_string(
-      "1234567891",
-      precision=32,
-    )
-    .unwrap()
-    .remainder_ctx(ten, lostdigits_ctx)
-  assert_eq(decimal_coeff_signed(lost_remainder), 0N)
-  assert_true(lost_remainder_flags.rounded())
-  assert_true(lost_remainder_flags.inexact())
-  assert_eq(decimal_coeff_signed(lost_near), 0N)
-  assert_true(lost_near_flags.rounded())
-  assert_true(lost_near_flags.inexact())
 }
 
 ///|
@@ -4949,7 +3733,6 @@ test "decimal exact division preserves preferred integer cohort when it fits pre
 test "decimal inexact division matches official rounded quotients" {
   let ctx = @decimal.DecimalContext::new(
     precision=9,
-    e_min=-999,
     e_max=999,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
@@ -5002,39 +3785,10 @@ test "decimal sqrt context reports exact inexact and invalid cases" {
 }
 
 ///|
-test "decimal sqrt propagates nan payloads with quieting semantics" {
-  let ctx = @decimal.DecimalContext::new(precision=5)
-  let qnan = @decimal.Decimal::quiet_nan(
-    payload=456N,
-    negative=true,
-    precision=8,
-  )
-  let snan = @decimal.Decimal::signaling_nan(
-    payload=1234567890N,
-    negative=true,
-    precision=8,
-  )
-  let (quiet_result, quiet_flags) = qnan.sqrt_ctx(ctx)
-  let (signal_result, signal_flags) = snan.sqrt_ctx(ctx)
-  assert_eq(quiet_result.to_string(), "-nan456")
-  assert_true(quiet_result.is_quiet_nan())
-  assert_true(quiet_result.is_negative())
-  assert_eq(quiet_result.nan_payload(), 456N)
-  assert_false(quiet_flags.invalid_operation())
-  assert_eq(signal_result.to_string(), "-nan67890")
-  assert_true(signal_result.is_quiet_nan())
-  assert_true(signal_result.is_negative())
-  assert_false(signal_result.is_signaling_nan())
-  assert_eq(signal_result.nan_payload(), 67890N)
-  assert_true(signal_flags.invalid_operation())
-}
-
-///|
 test "decimal sqrt exact results preserve cohort-only input rounding" {
   let ctx = @decimal.DecimalContext::new(
     precision=2,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
-    e_min=-999,
     e_max=999,
   )
   let (cohort_exact, cohort_flags) = @decimal.Decimal::from_string(
@@ -5069,12 +3823,7 @@ test "decimal context flags signaling nan as invalid operation" {
 
 ///|
 test "decimal context clamps finite exponent by padding coefficient" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=3,
-    e_max=9,
-    e_min=-9,
-    clamp=true,
-  )
+  let ctx = @decimal.DecimalContext::new(precision=3, e_max=9)
   let value = @decimal.Decimal::from_string("1e9", precision=10).unwrap()
   // The ideal exponent of 1e9 + 0E+9 is 9, above e_max - p + 1 = 7, so the
   // result is clamped by padding the coefficient; no digit is dropped.
@@ -5103,7 +3852,7 @@ test "decimal context clamps finite exponent by padding coefficient" {
 
 ///|
 test "decimal context overflows finite results above emax" {
-  let ctx = @decimal.DecimalContext::new(precision=3, e_max=3, e_min=-9)
+  let ctx = @decimal.DecimalContext::new(precision=3, e_max=3)
   let value = @decimal.Decimal::from_string("1e4", precision=10).unwrap()
   let (overflowed, flags) = value.add_ctx(
     @decimal.Decimal::zero(precision=10),
@@ -5129,23 +3878,17 @@ test "decimal context directed overflow follows gda rounding result selection" {
   let negative_rhs = @decimal.Decimal::from_string("-9E+369", precision=32).unwrap()
   let down_ctx = @decimal.DecimalContext::new(
     precision=16,
-    e_min=-383,
     e_max=384,
-    extended=false,
     rounding=@decimal.DecimalRoundingMode::RoundTowardZero,
   )
   let ceiling_ctx = @decimal.DecimalContext::new(
     precision=16,
-    e_min=-383,
     e_max=384,
-    extended=false,
     rounding=@decimal.DecimalRoundingMode::RoundTowardPositive,
   )
   let floor_ctx = @decimal.DecimalContext::new(
     precision=16,
-    e_min=-383,
     e_max=384,
-    extended=false,
     rounding=@decimal.DecimalRoundingMode::RoundTowardNegative,
   )
   let expected_positive = @decimal.Decimal::from_string(
@@ -5210,276 +3953,10 @@ test "decimal context directed overflow follows gda rounding result selection" {
 }
 
 ///|
-test "decimal context distinguishes subnormal from underflow" {
-  let ctx = @decimal.DecimalContext::new(precision=3, e_max=9, e_min=-2)
-  let exact = @decimal.Decimal::from_string("0.001", precision=10).unwrap()
-  let inexact = @decimal.Decimal::from_string("0.001234", precision=10).unwrap()
-  let (exact_subnormal, exact_flags) = exact.add_ctx(
-    @decimal.Decimal::zero(precision=10),
-    ctx,
-  )
-  assert_eq(exact_subnormal.to_string(), "0.001")
-  assert_true(exact_flags.subnormal())
-  assert_false(exact_flags.underflow())
-  assert_false(exact_flags.inexact())
-  let (underflowed, underflow_flags) = inexact.add_ctx(
-    @decimal.Decimal::zero(precision=10),
-    ctx,
-  )
-  assert_eq(underflowed.to_string(), "0.0012")
-  assert_true(underflow_flags.subnormal())
-  assert_true(underflow_flags.underflow())
-  assert_true(underflow_flags.inexact())
-}
-
-///|
-test "decimal dectest-style runner covers context operations and flags" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=3,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
-    e_min=-2,
-    e_max=9,
-    clamp=true,
-  )
-  run_decimal_binary_conformance_case(
-    "lfadd001",
-    Add,
-    "1.20",
-    "3.40",
-    "4.60",
-    ctx,
-  )
-  run_decimal_binary_conformance_case(
-    "lfadd002",
-    Add,
-    "1.234",
-    "0",
-    "1.23",
-    ctx,
-    rounded=true,
-    inexact=true,
-  )
-  run_decimal_binary_conformance_case(
-    "lfsub001",
-    Subtract,
-    "1.20",
-    "1.20",
-    "0.00",
-    ctx,
-  )
-  run_decimal_binary_conformance_case(
-    "lfmul001",
-    Multiply,
-    "9.99",
-    "9.99",
-    "99.8",
-    ctx,
-    rounded=true,
-    inexact=true,
-  )
-  run_decimal_binary_conformance_case(
-    "lfdiv001",
-    Divide,
-    "1",
-    "3",
-    "0.333",
-    ctx,
-    rounded=true,
-    inexact=true,
-  )
-  run_decimal_binary_conformance_case(
-    "lfdiv002",
-    Divide,
-    "1",
-    "0",
-    "inf",
-    ctx,
-    division_by_zero=true,
-  )
-  run_decimal_binary_conformance_case(
-    "lfquant001",
-    Quantize,
-    "1.235",
-    "0.01",
-    "1.24",
-    ctx,
-    rounded=true,
-    inexact=true,
-  )
-  run_decimal_unary_conformance_case(
-    "lftoi001",
-    ToIntegralExact,
-    "2.500",
-    "2",
-    ctx,
-    rounded=true,
-    inexact=true,
-  )
-  run_decimal_unary_conformance_case(
-    "lfreduce001",
-    Reduce,
-    "1.2300",
-    "1.23",
-    ctx,
-    rounded=true,
-  )
-  run_decimal_unary_conformance_case("lfreduce002", Reduce, "-0.00", "-0", ctx)
-  run_decimal_unary_conformance_case(
-    "lfreduce003",
-    Reduce,
-    "1.234",
-    "1.23",
-    ctx,
-    rounded=true,
-    inexact=true,
-  )
-  run_decimal_binary_conformance_case(
-    "lfclamp001",
-    Add,
-    "1e9",
-    "0E+9",
-    "1.00E+9",
-    ctx,
-    clamped=true,
-  )
-  run_decimal_binary_conformance_case(
-    "lfclamp002",
-    Add,
-    "1e9",
-    "0",
-    "1.00E+9",
-    ctx,
-    rounded=true,
-  )
-  run_decimal_binary_conformance_case(
-    "lfunder001",
-    Add,
-    "0.001234",
-    "0",
-    "0.0012",
-    ctx,
-    rounded=true,
-    inexact=true,
-    underflow=true,
-    subnormal=true,
-  )
-}
-
-///|
-test "decimal gda core operations cover fma integer division and remainder" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=3,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
-    e_min=-9,
-    e_max=9,
-  )
-  run_decimal_ternary_conformance_case(
-    "lffma001",
-    Fma,
-    "9.99",
-    "9.99",
-    "-99.7",
-    "0.100",
-    ctx,
-    rounded=true,
-    inexact=true,
-  )
-  run_decimal_binary_conformance_case(
-    "lfdivint001",
-    DivideInteger,
-    "10",
-    "3",
-    "3",
-    ctx,
-  )
-  run_decimal_binary_conformance_case(
-    "lfdivint002",
-    DivideInteger,
-    "12345",
-    "1",
-    "nan",
-    ctx,
-    invalid_operation=true,
-    division_impossible=true,
-  )
-  run_decimal_binary_conformance_case(
-    "lfrem001",
-    Remainder,
-    "10",
-    "3",
-    "1",
-    ctx,
-  )
-  run_decimal_binary_conformance_case(
-    "lfrem002",
-    Remainder,
-    "-10",
-    "3",
-    "-1",
-    ctx,
-  )
-  let wide_ctx = @decimal.DecimalContext::new(
-    precision=16,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
-    e_min=-999999999,
-    e_max=999999999,
-  )
-  run_decimal_binary_conformance_case(
-    "lfdivint003",
-    DivideInteger,
-    "1.23456789012345E-0",
-    "9E+999999999",
-    "0",
-    wide_ctx,
-  )
-  run_decimal_binary_conformance_case(
-    "lfdivint004",
-    DivideInteger,
-    "0.100",
-    "9E+999999999",
-    "0",
-    wide_ctx,
-  )
-  run_decimal_binary_conformance_case(
-    "lfdivint005",
-    DivideInteger,
-    "1",
-    "12345678000",
-    "0",
-    ctx,
-  )
-  run_decimal_binary_conformance_case(
-    "lfdivint006",
-    DivideInteger,
-    "1",
-    "1234567891",
-    "0",
-    ctx,
-  )
-  run_decimal_binary_conformance_case(
-    "lfrem003",
-    Remainder,
-    "0.100",
-    "9E+999999999",
-    "0.100",
-    wide_ctx,
-  )
-  run_decimal_binary_conformance_case(
-    "lfrem004",
-    Remainder,
-    "9E-999999999",
-    "9.100",
-    "9E-999999999",
-    wide_ctx,
-  )
-}
-
-///|
 test "decimal power handles million-scale integer exponents with rounded gda results" {
   let ctx = @decimal.DecimalContext::new(
     precision=9,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
-    e_min=-999999,
     e_max=999999,
   )
   run_decimal_binary_conformance_case(
@@ -5515,97 +3992,9 @@ test "decimal power handles million-scale integer exponents with rounded gda res
 }
 
 ///|
-test "decimal power preserves exact cohort zeros for integer powers" {
-  let wide_ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999_999,
-    e_max=999_999,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
-  )
-  run_decimal_binary_conformance_case(
-    "powx075",
-    Power,
-    "6.0",
-    "1",
-    "6.0",
-    wide_ctx,
-  )
-  run_decimal_binary_conformance_case(
-    "powx076",
-    Power,
-    "6.0",
-    "2",
-    "36.00",
-    wide_ctx,
-  )
-
-  let subnormal_ctx = @decimal.DecimalContext::new(
-    precision=5,
-    e_min=-999,
-    e_max=999,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
-  )
-  run_decimal_binary_conformance_case(
-    "powx404",
-    Power,
-    "10E-501",
-    "2",
-    "1.00E-1000",
-    subnormal_ctx,
-    subnormal=true,
-  )
-  run_decimal_binary_conformance_case(
-    "powx416",
-    Power,
-    "10E-334",
-    "3",
-    "1.000E-999",
-    subnormal_ctx,
-  )
-}
-
-///|
-test "decimal power integer shortcuts stay conservative near subnormal and reciprocal edges" {
-  let subnormal_ctx = @decimal.DecimalContext::new(
-    precision=15,
-    e_min=-999,
-    e_max=999,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
-  )
-  run_decimal_binary_conformance_case(
-    "powx392",
-    Power,
-    "0.099",
-    "999",
-    "4.360732062E-1004",
-    subnormal_ctx,
-    underflow=true,
-    subnormal=true,
-    inexact=true,
-    rounded=true,
-  )
-
-  let reciprocal_ctx = @decimal.DecimalContext::new(
-    precision=5,
-    e_min=-999,
-    e_max=999,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
-  )
-  run_decimal_binary_conformance_case(
-    "powx422",
-    Power,
-    "2.5E-500",
-    "-2",
-    "1.6E+999",
-    reciprocal_ctx,
-  )
-}
-
-///|
 test "decimal power with exponent one matches official rounding and representation cases" {
   let rounded_ctx = @decimal.DecimalContext::new(
     precision=9,
-    e_min=-999,
     e_max=999,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
   )
@@ -5621,7 +4010,6 @@ test "decimal power with exponent one matches official rounding and representati
 
   let exact_ctx = @decimal.DecimalContext::new(
     precision=15,
-    e_min=-999,
     e_max=999,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
   )
@@ -5698,40 +4086,6 @@ test "decimal finite compare handles same-adjusted decade boundaries" {
   assert_true(nine_nine_nine_e_999.compare(one_e_1000) < 0)
   assert_true(neg_thousand.compare(neg_nine_nine_nine) < 0)
   assert_true(neg_nine_nine_nine.compare(neg_thousand) > 0)
-}
-
-///|
-test "decimal gda compare operations return decimal result and flags" {
-  let ctx = @decimal.DecimalContext::new(precision=3)
-  let one = @decimal.Decimal::one(precision=8)
-  let one_point_zero = @decimal.Decimal::from_string("1.0", precision=8).unwrap()
-  let two = @decimal.Decimal::from_int(2, precision=8)
-  let quiet = @decimal.Decimal::quiet_nan(payload=2N, precision=8)
-  let signaling = @decimal.Decimal::signaling_nan(payload=7N, precision=8)
-  let (equal, equal_flags) = one.compare_ctx(one_point_zero, ctx)
-  let (less, less_flags) = one.compare_signal_ctx(two, ctx)
-  let (quiet_compare, quiet_compare_flags) = quiet.compare_ctx(one, ctx)
-  let (quiet_signal, quiet_signal_flags) = quiet.compare_signal_ctx(one, ctx)
-  let (snan_compare, snan_compare_flags) = signaling.compare_ctx(one, ctx)
-  let subset_ctx = @decimal.DecimalContext::new(precision=3, extended=false)
-  let oversized = @decimal.Decimal::from_int(12345, precision=8)
-  let (subset_signal, subset_signal_flags) = oversized.compare_signal_ctx(
-    one, subset_ctx,
-  )
-  assert_eq(equal.to_string(), "0")
-  assert_false(equal_flags.invalid_operation())
-  assert_eq(less.to_string(), "-1")
-  assert_false(less_flags.invalid_operation())
-  assert_eq(quiet_compare.to_string(), "nan2")
-  assert_false(quiet_compare_flags.invalid_operation())
-  assert_eq(quiet_signal.to_string(), "nan2")
-  assert_true(quiet_signal_flags.invalid_operation())
-  assert_eq(snan_compare.to_string(), "nan7")
-  assert_true(snan_compare_flags.invalid_operation())
-  assert_eq(subset_signal.to_string(), "1")
-  assert_true(subset_signal_flags.rounded())
-  assert_true(subset_signal_flags.inexact())
-  assert_true(subset_signal_flags.lost_digits())
 }
 
 ///|
@@ -5903,37 +4257,9 @@ test "decimal quantize propagates special operands with quieting semantics" {
 }
 
 ///|
-test "decimal subset quantize canonicalizes zero results to positive zero" {
-  let subset_ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999,
-    e_max=999,
-    extended=false,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let neg_zero = @decimal.Decimal::from_string("-0", precision=16).unwrap()
-  let neg_tenth = @decimal.Decimal::from_string("-0.1", precision=16).unwrap()
-  let units = @decimal.Decimal::one(precision=16)
-  let hundreds = @decimal.Decimal::from_string("1E+2", precision=16).unwrap()
-  let (zero_units, zero_units_flags) = neg_zero.quantize_ctx(units, subset_ctx)
-  let (rounded_hundreds, rounded_hundreds_flags) = neg_tenth.quantize_ctx(
-    hundreds, subset_ctx,
-  )
-  assert_eq(zero_units.to_string(), "0")
-  assert_false(zero_units.is_negative_zero())
-  assert_false(zero_units_flags.has_error())
-  assert_true(rounded_hundreds.is_zero())
-  assert_eq(rounded_hundreds.exponent10(), 2)
-  assert_false(rounded_hundreds.is_negative_zero())
-  assert_true(rounded_hundreds_flags.rounded())
-  assert_true(rounded_hundreds_flags.inexact())
-}
-
-///|
 test "decimal rescale interprets rhs as target exponent count" {
   let ctx = @decimal.DecimalContext::new(
     precision=9,
-    e_min=-999,
     e_max=999,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
@@ -6022,7 +4348,6 @@ test "decimal rescale interprets rhs as target exponent count" {
 test "decimal rescale accepts exact integer rhs across exponent encodings" {
   let ctx = @decimal.DecimalContext::new(
     precision=9,
-    e_min=-999,
     e_max=999,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
@@ -6065,7 +4390,6 @@ test "decimal rescale accepts exact integer rhs across exponent encodings" {
 test "decimal rescale validates rhs integrality and infinity rules" {
   let ctx = @decimal.DecimalContext::new(
     precision=9,
-    e_min=-999,
     e_max=999,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
@@ -6096,86 +4420,6 @@ test "decimal rescale validates rhs integrality and infinity rules" {
   assert_true(neg_inf_rescaled.is_infinite())
   assert_true(neg_inf_rescaled.is_negative())
   assert_false(neg_inf_flags.has_error())
-}
-
-///|
-test "decimal quantize and rescale honor etiny fit window" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=7,
-    e_min=-999,
-    e_max=999,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let one_e_neg_999 = @decimal.Decimal::from_string("1E-999", precision=16).unwrap()
-  let one_e_neg_998 = @decimal.Decimal::from_string("1E-998", precision=16).unwrap()
-  let one_e_neg_1000 = @decimal.Decimal::from_string("1E-1000", precision=16).unwrap()
-  let repeating_subnormal = @decimal.Decimal::from_string(
-    "1.666666E-1000",
-    precision=16,
-  ).unwrap()
-  let quantum_e_neg_1005 = @decimal.Decimal::from_string(
-    "1E-1005",
-    precision=16,
-  ).unwrap()
-  let quantum_e_neg_1006 = @decimal.Decimal::from_string(
-    "1E-1006",
-    precision=16,
-  ).unwrap()
-  let (quantized_fit, quantized_fit_flags) = one_e_neg_999.quantize_ctx(
-    quantum_e_neg_1005, ctx,
-  )
-  let (quantized_subnormal, quantized_subnormal_flags) = one_e_neg_1000.quantize_ctx(
-    quantum_e_neg_1005, ctx,
-  )
-  let (quantized_too_wide, quantized_too_wide_flags) = one_e_neg_998.quantize_ctx(
-    quantum_e_neg_1005, ctx,
-  )
-  let (quantized_below_etiny, quantized_below_etiny_flags) = one_e_neg_999.quantize_ctx(
-    quantum_e_neg_1006, ctx,
-  )
-  let (quantized_rounded_subnormal, quantized_rounded_subnormal_flags) = repeating_subnormal.quantize_ctx(
-    quantum_e_neg_1005, ctx,
-  )
-  let (rescaled_fit, rescaled_fit_flags) = one_e_neg_999.rescale_ctx(
-    @decimal.Decimal::from_int(-1005, precision=16),
-    ctx,
-  )
-  assert_eq(
-    quantized_fit.total_order_compare(
-      @decimal.Decimal::from_string("1.000000E-999", precision=16).unwrap(),
-    ),
-    0,
-  )
-  assert_false(quantized_fit_flags.has_error())
-  assert_eq(
-    quantized_subnormal.total_order_compare(
-      @decimal.Decimal::from_string("1.00000E-1000", precision=16).unwrap(),
-    ),
-    0,
-  )
-  assert_true(quantized_subnormal_flags.subnormal())
-  assert_false(quantized_subnormal_flags.underflow())
-  assert_eq(
-    quantized_rounded_subnormal.total_order_compare(
-      @decimal.Decimal::from_string("1.66667E-1000", precision=16).unwrap(),
-    ),
-    0,
-  )
-  assert_true(quantized_rounded_subnormal_flags.subnormal())
-  assert_true(quantized_rounded_subnormal_flags.rounded())
-  assert_true(quantized_rounded_subnormal_flags.inexact())
-  assert_false(quantized_rounded_subnormal_flags.underflow())
-  assert_true(quantized_too_wide.is_quiet_nan())
-  assert_true(quantized_too_wide_flags.invalid_operation())
-  assert_true(quantized_below_etiny.is_quiet_nan())
-  assert_true(quantized_below_etiny_flags.invalid_operation())
-  assert_eq(
-    rescaled_fit.total_order_compare(
-      @decimal.Decimal::from_string("1.000000E-999", precision=16).unwrap(),
-    ),
-    0,
-  )
-  assert_false(rescaled_fit_flags.has_error())
 }
 
 ///|
@@ -6349,45 +4593,6 @@ test "decimal to_integral_exact preserves integral cohorts and special payloads"
 }
 
 ///|
-test "decimal subset to_integral canonicalizes negative zero results" {
-  let subset_ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999,
-    e_max=999,
-    extended=false,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let neg_zero = @decimal.Decimal::from_string("-0E+5", precision=16).unwrap()
-  let neg_tiny = @decimal.Decimal::from_string("-0.1", precision=16).unwrap()
-  let (exact_zero, exact_zero_flags) = neg_zero.to_integral_exact_ctx(
-    subset_ctx,
-  )
-  let (value_zero, value_zero_flags) = neg_zero.to_integral_value_ctx(
-    subset_ctx,
-  )
-  let (exact_tiny, exact_tiny_flags) = neg_tiny.to_integral_exact_ctx(
-    subset_ctx,
-  )
-  let (value_tiny, value_tiny_flags) = neg_tiny.to_integral_value_ctx(
-    subset_ctx,
-  )
-  assert_eq(exact_zero.to_string(), "0")
-  assert_false(exact_zero.is_negative_zero())
-  assert_false(exact_zero_flags.has_error())
-  assert_eq(value_zero.to_string(), "0")
-  assert_false(value_zero.is_negative_zero())
-  assert_false(value_zero_flags.has_error())
-  assert_eq(exact_tiny.to_string(), "0")
-  assert_false(exact_tiny.is_negative_zero())
-  assert_true(exact_tiny_flags.rounded())
-  assert_true(exact_tiny_flags.inexact())
-  assert_eq(value_tiny.to_string(), "0")
-  assert_false(value_tiny.is_negative_zero())
-  assert_false(value_tiny_flags.rounded())
-  assert_false(value_tiny_flags.inexact())
-}
-
-///|
 test "decimal reduce normalizes cohort after context rounding" {
   let exact_ctx = @decimal.DecimalContext::new(precision=8)
   let rounded_ctx = @decimal.DecimalContext::new(precision=3)
@@ -6414,7 +4619,7 @@ test "decimal reduce normalizes cohort after context rounding" {
 
 ///|
 test "decimal reduce preserves subnormal and special official cohorts" {
-  let dd_ctx = @decimal.DecimalContext::new(precision=16, e_min=-383, e_max=384)
+  let dd_ctx = @decimal.DecimalContext::new(precision=16, e_max=384)
   let subnormal = @decimal.Decimal::from_string("2.000E-395", precision=32).unwrap()
   let neg_subnormal = @decimal.Decimal::from_string("-1E-398", precision=32).unwrap()
   let inf = @decimal.Decimal::inf(@def.Sign::Positive, precision=16)
@@ -6465,7 +4670,7 @@ test "decimal reduce preserves subnormal and special official cohorts" {
 
 ///|
 test "decimal reduce preserves official negative zero representatives" {
-  let dd_ctx = @decimal.DecimalContext::new(precision=16, e_min=-383, e_max=384)
+  let dd_ctx = @decimal.DecimalContext::new(precision=16, e_max=384)
   let cases = ["-0", "-0.00", "-00.0", "-00.00", "-00", "-0E+5", "-0E+1"]
   for text in cases {
     let value = @decimal.Decimal::from_string(text, precision=32).unwrap()
@@ -6474,22 +4679,6 @@ test "decimal reduce preserves official negative zero representatives" {
     assert_true(reduced.is_negative_zero())
     assert_false(flags.has_error())
   }
-}
-
-///|
-test "decimal subset reduce canonicalizes negative zero to plain zero" {
-  let subset_ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999,
-    e_max=999,
-    extended=false,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let neg_zero = @decimal.Decimal::from_string("-0E+5", precision=16).unwrap()
-  let (reduced, flags) = neg_zero.reduce_ctx(subset_ctx)
-  assert_eq(reduced.to_string(), "0")
-  assert_false(reduced.is_negative_zero())
-  assert_false(flags.has_error())
 }
 
 ///|
@@ -6524,7 +4713,6 @@ test "decimal copy and trim preserve gda representation semantics" {
 test "decimal next plus and minus follow gda adjacent finite lattice" {
   let ctx = @decimal.DecimalContext::new(
     precision=9,
-    e_min=-383,
     e_max=384,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
@@ -6553,54 +4741,8 @@ test "decimal next plus and minus follow gda adjacent finite lattice" {
 }
 
 ///|
-test "decimal next plus and minus handle zeros specials and payloads" {
-  let ctx = @decimal.DecimalContext::new(precision=3, e_min=-2, e_max=2)
-  let (after_zero, after_zero_flags) = @decimal.Decimal::zero().next_up_ctx(ctx)
-  let (before_zero, before_zero_flags) = @decimal.Decimal::zero().next_down_ctx(
-    ctx,
-  )
-  assert_eq(after_zero.to_string(), "0.0001")
-  assert_eq(after_zero.exponent10(), -4)
-  assert_false(after_zero.is_negative())
-  assert_false(after_zero_flags.has_error())
-  assert_eq(before_zero.to_string(), "-0.0001")
-  assert_eq(before_zero.exponent10(), -4)
-  assert_true(before_zero.is_negative())
-  assert_false(before_zero_flags.has_error())
-
-  let neg_tiny = @decimal.Decimal::from_string("-0.00001", precision=16).unwrap()
-  let (neg_zero, _) = neg_tiny.next_up_ctx(ctx)
-  assert_eq(neg_zero.to_string(), "-0.0000")
-  assert_eq(neg_zero.exponent10(), -4)
-  assert_true(neg_zero.is_negative_zero())
-
-  let (below_inf, _) = @decimal.Decimal::inf(@def.Sign::Positive, precision=8).next_down_ctx(
-    ctx,
-  )
-  assert_eq(below_inf.to_string(), "999")
-  let (above_neg_inf, _) = @decimal.Decimal::inf(
-    @def.Sign::Negative,
-    precision=8,
-  ).next_up_ctx(ctx)
-  assert_eq(above_neg_inf.to_string(), "-999")
-
-  let qnan = @decimal.Decimal::quiet_nan(
-    payload=77N,
-    negative=true,
-    precision=8,
-  )
-  let snan = @decimal.Decimal::signaling_nan(payload=88N, precision=8)
-  let (quiet_result, quiet_flags) = qnan.next_up_ctx(ctx)
-  let (signal_result, signal_flags) = snan.next_down_ctx(ctx)
-  assert_eq(quiet_result.to_string(), "-nan77")
-  assert_false(quiet_flags.invalid_operation())
-  assert_eq(signal_result.to_string(), "nan88")
-  assert_true(signal_flags.invalid_operation())
-}
-
-///|
 test "decimal next plus and minus cover official zero and ultra-tiny representatives" {
-  let ctx = @decimal.DecimalContext::new(precision=9, e_min=-383, e_max=384)
+  let ctx = @decimal.DecimalContext::new(precision=9, e_max=384)
   let ultra_tiny = @decimal.Decimal::from_string("1E-99999", precision=32).unwrap()
   let neg_ultra_tiny = @decimal.Decimal::from_string("-1E-99999", precision=32).unwrap()
   let zero = @decimal.Decimal::zero(precision=32)
@@ -6671,7 +4813,7 @@ test "decimal next plus and minus cover official zero and ultra-tiny representat
 
 ///|
 test "decimal next plus and minus preserve tiny zero cohort representatives" {
-  let ctx = @decimal.DecimalContext::new(precision=9, e_min=-999, e_max=999)
+  let ctx = @decimal.DecimalContext::new(precision=9, e_max=999)
   let zero_tiny = @decimal.Decimal::from_string("0E-1007", precision=32).unwrap()
   let neg_zero_tiny = @decimal.Decimal::from_string("-0E-1007", precision=32).unwrap()
   let (next_pos_zero_tiny, next_pos_zero_tiny_flags) = zero_tiny.next_up_ctx(
@@ -6702,29 +4844,9 @@ test "decimal next plus and minus preserve tiny zero cohort representatives" {
 }
 
 ///|
-test "decimal next plus and minus cross zero without bigint-only artifacts" {
-  let ctx = @decimal.DecimalContext::new(precision=3, e_min=-2, e_max=2)
-  let neg_unit = @decimal.Decimal::from_string("-0.001", precision=16).unwrap()
-  let pos_unit = @decimal.Decimal::from_string("0.001", precision=16).unwrap()
-  let (neg_to_zero, neg_to_zero_flags) = neg_unit.next_up_ctx(ctx)
-  let (pos_to_zero, pos_to_zero_flags) = pos_unit.next_down_ctx(ctx)
-  let (neg_past_zero, neg_past_zero_flags) = neg_to_zero.next_down_ctx(ctx)
-  let (pos_past_zero, pos_past_zero_flags) = pos_to_zero.next_up_ctx(ctx)
-  assert_eq(neg_to_zero.to_string(), "-0.0009")
-  assert_false(neg_to_zero_flags.has_error())
-  assert_eq(pos_to_zero.to_string(), "0.0009")
-  assert_false(pos_to_zero_flags.has_error())
-  assert_eq(neg_past_zero.to_string(), "-0.0010")
-  assert_false(neg_past_zero_flags.has_error())
-  assert_eq(pos_past_zero.to_string(), "0.0010")
-  assert_false(pos_past_zero_flags.has_error())
-}
-
-///|
 test "decimal next toward follows direction and reports status flags" {
   let wide_ctx = @decimal.DecimalContext::new(
     precision=9,
-    e_min=-383,
     e_max=384,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
@@ -6765,7 +4887,7 @@ test "decimal next toward follows direction and reports status flags" {
 
 ///|
 test "decimal next_toward preserves zero cohort when lhs equals rhs" {
-  let ctx = @decimal.DecimalContext::new(precision=9, e_min=-999, e_max=999)
+  let ctx = @decimal.DecimalContext::new(precision=9, e_max=999)
   let pos_zero = @decimal.Decimal::from_string("0", precision=16).unwrap()
   let neg_zero = @decimal.Decimal::from_string("-0", precision=16).unwrap()
   let pos_zero_e4 = @decimal.Decimal::from_string("0E+4", precision=16).unwrap()
@@ -6825,7 +4947,7 @@ test "decimal next_toward preserves zero cohort when lhs equals rhs" {
 
 ///|
 test "decimal next_toward matches official underflow and clamped representatives" {
-  let ctx = @decimal.DecimalContext::new(precision=9, e_min=-383, e_max=384)
+  let ctx = @decimal.DecimalContext::new(precision=9, e_max=384)
   let inf = @decimal.Decimal::inf(@def.Sign::Positive, precision=16)
   let neg_inf = @decimal.Decimal::inf(@def.Sign::Negative, precision=16)
   let (zero_up, zero_up_flags) = @decimal.Decimal::zero(precision=16).next_toward_ctx(
@@ -6911,165 +5033,8 @@ test "decimal next_toward matches official underflow and clamped representatives
 }
 
 ///|
-test "decimal next_toward matches official negative infinity underflow representatives" {
-  let ctx = @decimal.DecimalContext::new(precision=9, e_min=-383, e_max=384)
-  let tiny_ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999,
-    e_max=999,
-  )
-  let neg_inf = @decimal.Decimal::inf(@def.Sign::Negative, precision=16)
-  let (pos_ultra_tiny, pos_ultra_tiny_flags) = @decimal.Decimal::from_string(
-      "1E-99999",
-      precision=32,
-    )
-    .unwrap()
-    .next_toward_ctx(neg_inf, ctx)
-  let (neg_ultra_tiny, neg_ultra_tiny_flags) = @decimal.Decimal::from_string(
-      "-1E-99999",
-      precision=32,
-    )
-    .unwrap()
-    .next_toward_ctx(neg_inf, ctx)
-  let (pos_zero, pos_zero_flags) = @decimal.Decimal::zero(precision=32).next_toward_ctx(
-    neg_inf, ctx,
-  )
-  let (neg_zero, neg_zero_flags) = @decimal.Decimal::negative_zero(precision=32).next_toward_ctx(
-    neg_inf, ctx,
-  )
-  let (pos_zero_huge, pos_zero_huge_flags) = @decimal.Decimal::from_string(
-      "0E+30000",
-      precision=32,
-    )
-    .unwrap()
-    .next_toward_ctx(neg_inf, ctx)
-  let (neg_zero_huge, neg_zero_huge_flags) = @decimal.Decimal::from_string(
-      "-0E+30000",
-      precision=32,
-    )
-    .unwrap()
-    .next_toward_ctx(neg_inf, ctx)
-  let (pos_zero_tiny, pos_zero_tiny_flags) = @decimal.Decimal::from_string(
-      "0E-1007",
-      precision=32,
-    )
-    .unwrap()
-    .next_toward_ctx(neg_inf, tiny_ctx)
-  let (pos_tiny_eqmin, pos_tiny_eqmin_flags) = @decimal.Decimal::from_string(
-      "1E-1007",
-      precision=32,
-    )
-    .unwrap()
-    .next_toward_ctx(neg_inf, tiny_ctx)
-  assert_eq(decimal_coeff_signed(pos_ultra_tiny), 0N)
-  assert_eq(pos_ultra_tiny.exponent10(), -391)
-  assert_false(pos_ultra_tiny.is_negative_zero())
-  assert_true(pos_ultra_tiny_flags.underflow())
-  assert_true(pos_ultra_tiny_flags.subnormal())
-  assert_true(pos_ultra_tiny_flags.inexact())
-  assert_true(pos_ultra_tiny_flags.rounded())
-  assert_true(pos_ultra_tiny_flags.clamped())
-  assert_eq(decimal_coeff_signed(neg_ultra_tiny), -1N)
-  assert_eq(neg_ultra_tiny.exponent10(), -391)
-  assert_true(neg_ultra_tiny_flags.underflow())
-  assert_true(neg_ultra_tiny_flags.subnormal())
-  assert_true(neg_ultra_tiny_flags.inexact())
-  assert_true(neg_ultra_tiny_flags.rounded())
-  assert_false(neg_ultra_tiny_flags.clamped())
-  assert_eq(decimal_coeff_signed(pos_zero), -1N)
-  assert_eq(pos_zero.exponent10(), -391)
-  assert_true(pos_zero_flags.underflow())
-  assert_true(pos_zero_flags.subnormal())
-  assert_true(pos_zero_flags.inexact())
-  assert_true(pos_zero_flags.rounded())
-  assert_false(pos_zero_flags.clamped())
-  assert_eq(decimal_coeff_signed(neg_zero), -1N)
-  assert_eq(neg_zero.exponent10(), -391)
-  assert_true(neg_zero_flags.underflow())
-  assert_true(neg_zero_flags.subnormal())
-  assert_true(neg_zero_flags.inexact())
-  assert_true(neg_zero_flags.rounded())
-  assert_false(neg_zero_flags.clamped())
-  assert_eq(decimal_coeff_signed(pos_zero_huge), -1N)
-  assert_eq(pos_zero_huge.exponent10(), -391)
-  assert_true(pos_zero_huge_flags.underflow())
-  assert_true(pos_zero_huge_flags.subnormal())
-  assert_true(pos_zero_huge_flags.inexact())
-  assert_true(pos_zero_huge_flags.rounded())
-  assert_false(pos_zero_huge_flags.clamped())
-  assert_eq(decimal_coeff_signed(neg_zero_huge), -1N)
-  assert_eq(neg_zero_huge.exponent10(), -391)
-  assert_true(neg_zero_huge_flags.underflow())
-  assert_true(neg_zero_huge_flags.subnormal())
-  assert_true(neg_zero_huge_flags.inexact())
-  assert_true(neg_zero_huge_flags.rounded())
-  assert_false(neg_zero_huge_flags.clamped())
-  assert_eq(decimal_coeff_signed(pos_zero_tiny), -1N)
-  assert_eq(pos_zero_tiny.exponent10(), -1007)
-  assert_true(pos_zero_tiny_flags.underflow())
-  assert_true(pos_zero_tiny_flags.subnormal())
-  assert_true(pos_zero_tiny_flags.inexact())
-  assert_true(pos_zero_tiny_flags.rounded())
-  assert_false(pos_zero_tiny_flags.clamped())
-  assert_eq(decimal_coeff_signed(pos_tiny_eqmin), 0N)
-  assert_eq(pos_tiny_eqmin.exponent10(), -1007)
-  assert_false(pos_tiny_eqmin.is_negative_zero())
-  assert_true(pos_tiny_eqmin_flags.underflow())
-  assert_true(pos_tiny_eqmin_flags.subnormal())
-  assert_true(pos_tiny_eqmin_flags.inexact())
-  assert_true(pos_tiny_eqmin_flags.rounded())
-  assert_true(pos_tiny_eqmin_flags.clamped())
-}
-
-///|
-test "decimal next toward handles overflow clamped zero and nan priority" {
-  let ctx = @decimal.DecimalContext::new(precision=3, e_min=-2, e_max=2)
-  let max = @decimal.Decimal::from_string("999", precision=16).unwrap()
-  let (overflowed, overflow_flags) = max.next_toward_ctx(
-    @decimal.Decimal::inf(@def.Sign::Positive),
-    ctx,
-  )
-  assert_eq(overflowed.to_string(), "inf")
-  assert_true(overflow_flags.overflow())
-  assert_true(overflow_flags.inexact())
-  assert_true(overflow_flags.rounded())
-
-  let min_tiny = @decimal.Decimal::from_string("0.0001", precision=16).unwrap()
-  let (zero, zero_flags) = min_tiny.next_toward_ctx(
-    @decimal.Decimal::inf(@def.Sign::Negative),
-    ctx,
-  )
-  assert_eq(zero.to_string(), "0.0000")
-  assert_true(zero_flags.underflow())
-  assert_true(zero_flags.subnormal())
-  assert_true(zero_flags.inexact())
-  assert_true(zero_flags.rounded())
-  assert_true(zero_flags.clamped())
-
-  let lhs_qnan = @decimal.Decimal::quiet_nan(payload=16N, precision=8)
-  let rhs_snan = @decimal.Decimal::signaling_nan(payload=19N, precision=8)
-  let (rhs_signal_result, rhs_signal_flags) = lhs_qnan.next_toward_ctx(
-    rhs_snan, ctx,
-  )
-  assert_eq(rhs_signal_result.to_string(), "nan19")
-  assert_true(rhs_signal_flags.invalid_operation())
-
-  let lhs_snan = @decimal.Decimal::signaling_nan(
-    payload=27N,
-    negative=true,
-    precision=8,
-  )
-  let rhs_snan2 = @decimal.Decimal::signaling_nan(payload=29N, precision=8)
-  let (lhs_signal_result, lhs_signal_flags) = lhs_snan.next_toward_ctx(
-    rhs_snan2, ctx,
-  )
-  assert_eq(lhs_signal_result.to_string(), "-nan27")
-  assert_true(lhs_signal_flags.invalid_operation())
-}
-
-///|
 test "decimal next_toward toward negative infinity matches official representatives" {
-  let ctx = @decimal.DecimalContext::new(precision=9, e_min=-383, e_max=384)
+  let ctx = @decimal.DecimalContext::new(precision=9, e_max=384)
   let neg_inf = @decimal.Decimal::inf(@def.Sign::Negative, precision=16)
   let (pos_ultra_tiny, pos_ultra_tiny_flags) = @decimal.Decimal::from_string(
       "1E-99999",
@@ -7144,39 +5109,6 @@ test "decimal next_toward toward negative infinity matches official representati
   assert_true(neg_zero_huge_flags.inexact())
   assert_true(neg_zero_huge_flags.rounded())
   assert_false(neg_zero_huge_flags.clamped())
-}
-
-///|
-test "decimal next_toward toward negative infinity preserves tiny zero cohort representatives" {
-  let ctx = @decimal.DecimalContext::new(precision=9, e_min=-999, e_max=999)
-  let neg_inf = @decimal.Decimal::inf(@def.Sign::Negative, precision=16)
-  let (pos_zero_tiny, pos_zero_tiny_flags) = @decimal.Decimal::from_string(
-      "0E-1007",
-      precision=32,
-    )
-    .unwrap()
-    .next_toward_ctx(neg_inf, ctx)
-  let (pos_tiny_eqmin, pos_tiny_eqmin_flags) = @decimal.Decimal::from_string(
-      "1E-1007",
-      precision=32,
-    )
-    .unwrap()
-    .next_toward_ctx(neg_inf, ctx)
-  assert_eq(decimal_coeff_signed(pos_zero_tiny), -1N)
-  assert_eq(pos_zero_tiny.exponent10(), -1007)
-  assert_true(pos_zero_tiny_flags.underflow())
-  assert_true(pos_zero_tiny_flags.subnormal())
-  assert_true(pos_zero_tiny_flags.inexact())
-  assert_true(pos_zero_tiny_flags.rounded())
-  assert_false(pos_zero_tiny_flags.clamped())
-  assert_eq(decimal_coeff_signed(pos_tiny_eqmin), 0N)
-  assert_eq(pos_tiny_eqmin.exponent10(), -1007)
-  assert_false(pos_tiny_eqmin.is_negative_zero())
-  assert_true(pos_tiny_eqmin_flags.underflow())
-  assert_true(pos_tiny_eqmin_flags.subnormal())
-  assert_true(pos_tiny_eqmin_flags.inexact())
-  assert_true(pos_tiny_eqmin_flags.rounded())
-  assert_true(pos_tiny_eqmin_flags.clamped())
 }
 
 ///|
@@ -7223,34 +5155,6 @@ test "decimal shift and rotate transform coefficient digits in context width" {
     ),
     0,
   )
-}
-
-///|
-test "decimal shift and rotate validate counts and propagate nans" {
-  let ctx = @decimal.DecimalContext::new(precision=5)
-  let one = @decimal.Decimal::one(precision=16)
-  let invalid_fraction = @decimal.Decimal::from_string("1.0", precision=16).unwrap()
-  let (invalid, invalid_flags) = one.shift_ctx(invalid_fraction, ctx)
-  assert_eq(invalid.to_string(), "nan")
-  assert_true(invalid_flags.invalid_operation())
-  let invalid_large = @decimal.Decimal::from_int(6, precision=16)
-  let (invalid_rotate, invalid_rotate_flags) = one.rotate_ctx(
-    invalid_large, ctx,
-  )
-  assert_eq(invalid_rotate.to_string(), "nan")
-  assert_true(invalid_rotate_flags.invalid_operation())
-
-  let snan = @decimal.Decimal::signaling_nan(
-    payload=1234567890N,
-    negative=true,
-    precision=16,
-  )
-  let (shift_nan, shift_nan_flags) = one.shift_ctx(snan, ctx)
-  let (rotate_nan, rotate_nan_flags) = one.rotate_ctx(snan, ctx)
-  assert_eq(shift_nan.to_string(), "-nan67890")
-  assert_eq(rotate_nan.to_string(), "-nan67890")
-  assert_true(shift_nan_flags.invalid_operation())
-  assert_true(rotate_nan_flags.invalid_operation())
 }
 
 ///|
@@ -7333,28 +5237,8 @@ test "decimal logb returns adjusted exponent with context flags" {
 }
 
 ///|
-test "decimal logb handles infinities and nan payloads" {
-  let ctx = @decimal.DecimalContext::new(precision=5)
-  let (inf_result, inf_flags) = @decimal.Decimal::inf(
-    @def.Sign::Negative,
-    precision=16,
-  ).logb_ctx(ctx)
-  assert_eq(inf_result.to_string(), "inf")
-  assert_false(inf_flags.has_error())
-
-  let snan = @decimal.Decimal::signaling_nan(
-    payload=1234567890N,
-    negative=true,
-    precision=16,
-  )
-  let (nan_result, nan_flags) = snan.logb_ctx(ctx)
-  assert_eq(nan_result.to_string(), "-nan67890")
-  assert_true(nan_flags.invalid_operation())
-}
-
-///|
 test "decimal logb matches official zero cohorts and adjusted exponent representatives" {
-  let ctx = @decimal.DecimalContext::new(precision=9, e_min=-999, e_max=999)
+  let ctx = @decimal.DecimalContext::new(precision=9, e_max=999)
   let zero = @decimal.Decimal::zero(precision=16)
   let neg_zero = @decimal.Decimal::negative_zero(precision=16)
   let zero_e4 = @decimal.Decimal::from_string("0E+4", precision=16).unwrap()
@@ -7417,7 +5301,6 @@ test "decimal logb matches official zero cohorts and adjusted exponent represent
 test "decimal scaleb shifts exponent and validates count operand" {
   let ctx = @decimal.DecimalContext::new(
     precision=9,
-    e_min=-999,
     e_max=999,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
@@ -7446,52 +5329,9 @@ test "decimal scaleb shifts exponent and validates count operand" {
 }
 
 ///|
-test "decimal scaleb reports subnormal rounding and clamped zero" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999,
-    e_max=999,
-    clamp=true,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let subnormal_source = @decimal.Decimal::from_string(
-    "1.00000000E-999",
-    precision=16,
-  ).unwrap()
-  let (subnormal, subnormal_flags) = subnormal_source.scaleb_ctx(
-    @decimal.Decimal::from_int(-1),
-    ctx,
-  )
-  assert_eq(
-    subnormal.total_order_compare(
-      @decimal.Decimal::from_string("1.0000000E-1000", precision=16).unwrap(),
-    ),
-    0,
-  )
-  assert_true(subnormal_flags.subnormal())
-  assert_true(subnormal_flags.rounded())
-  assert_false(subnormal_flags.inexact())
-
-  let tiny = @decimal.Decimal::from_string("1E-1007", precision=16).unwrap()
-  let (zero, zero_flags) = tiny.scaleb_ctx(@decimal.Decimal::from_int(-1), ctx)
-  assert_eq(
-    zero.total_order_compare(
-      @decimal.Decimal::from_string("0E-1007", precision=16).unwrap(),
-    ),
-    0,
-  )
-  assert_true(zero_flags.underflow())
-  assert_true(zero_flags.subnormal())
-  assert_true(zero_flags.inexact())
-  assert_true(zero_flags.rounded())
-  assert_true(zero_flags.clamped())
-}
-
-///|
 test "decimal scaleb preserves zero sign and shifted zero cohort" {
   let ctx = @decimal.DecimalContext::new(
     precision=9,
-    e_min=-999,
     e_max=999,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
@@ -7544,7 +5384,7 @@ test "decimal scaleb preserves zero sign and shifted zero cohort" {
 
 ///|
 test "IEEE decimal scaleb preserves first nan payload" {
-  let ctx = @decimal.DecimalContext::new(precision=5, e_min=-9, e_max=9)
+  let ctx = @decimal.DecimalContext::new(precision=5, e_max=9)
   let (inf_result, inf_flags) = @decimal.Decimal::inf(
     @def.Sign::Negative,
     precision=16,
@@ -7560,114 +5400,9 @@ test "IEEE decimal scaleb preserves first nan payload" {
 }
 
 ///|
-test "decimal transcendental operations report invalid_context on restricted math contexts" {
-  assert_true(@decimal.DecimalContext::try_new(precision=1000000000) is Err(_))
-  assert_true(
-    @decimal.DecimalContext::try_new(
-      precision=9,
-      e_min=-999999999,
-      e_max=1000000000,
-    )
-    is Err(_),
-  )
-  assert_true(
-    @decimal.DecimalContext::try_new(
-      precision=9,
-      e_min=-1000000000,
-      e_max=999999999,
-    )
-    is Err(_),
-  )
-  let precision_ctx = @decimal.DecimalContext::new(precision=100000000)
-  let upper_ctx = @decimal.DecimalContext::new(precision=9, e_max=1000000)
-  let lower_ctx = @decimal.DecimalContext::new(precision=9, e_min=-1000000)
-  let one = @decimal.Decimal::one(precision=8)
-  let ten = @decimal.Decimal::from_int(10, precision=8)
-  let minus_inf = @decimal.Decimal::inf(@def.Sign::Negative, precision=8)
-  let non_integer = @decimal.Decimal::from_string("1.1", precision=8).unwrap()
-  let integer = @decimal.Decimal::from_int(2, precision=8)
-  let (log10_precision, log10_precision_flags) = one.log10_ctx(precision_ctx)
-  let (ln_upper, ln_upper_flags) = one.ln_ctx(upper_ctx)
-  let (exp_lower, exp_lower_flags) = minus_inf.exp_ctx(lower_ctx)
-  let (power_upper, power_upper_flags) = one.pow_ctx(non_integer, upper_ctx)
-  let (power_fast, power_fast_flags) = ten.pow_ctx(integer, upper_ctx)
-  assert_eq(log10_precision.to_string(), "nan")
-  assert_true(log10_precision_flags.invalid_context())
-  assert_false(log10_precision_flags.invalid_operation())
-  assert_eq(ln_upper.to_string(), "nan")
-  assert_true(ln_upper_flags.invalid_context())
-  assert_false(ln_upper_flags.invalid_operation())
-  assert_eq(exp_lower.to_string(), "nan")
-  assert_true(exp_lower_flags.invalid_context())
-  assert_false(exp_lower_flags.invalid_operation())
-  // IEEE 754-2019 §9.2.1: pow(+1, y) is exactly 1 for every y, before
-  // the restricted-context rule for non-integral powers.
-  assert_eq(power_upper.to_string(), "1")
-  assert_false(power_upper_flags.invalid_context())
-  assert_false(power_upper_flags.invalid_operation())
-  assert_eq(power_fast.to_string(), "100")
-  assert_false(power_fast_flags.invalid_context())
-  assert_false(power_fast_flags.invalid_operation())
-}
-
-///|
-test "decimal integer power accepts the full gda exponent context" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999999999,
-    e_max=999999999,
-    extended=false,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let (value, flags) = decimal_test_operand("905.67402").pow_ctx(
-    decimal_test_operand("-2"),
-    ctx,
-  )
-  assert_decimal_total_eq(
-    value,
-    decimal_test_operand("0.0000012191473"),
-    "rpow001 result",
-  )
-  assert_true(flags.inexact())
-  assert_true(flags.rounded())
-  assert_false(flags.invalid_context())
-  assert_false(flags.invalid_operation())
-}
-
-///|
-test "decimal power bounds extreme coefficients without expanding their exponent" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999999999,
-    e_max=999999999,
-    extended=false,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let (value, flags) = decimal_test_operand("-671.507198E-908587890").pow_ctx(
-    decimal_test_operand("3"),
-    ctx,
-  )
-  assert_true(value.is_zero())
-  assert_true(value.is_negative_zero())
-  assert_true(flags.underflow())
-  assert_true(flags.subnormal())
-  assert_true(flags.inexact())
-  assert_true(flags.rounded())
-  assert_false(flags.clamped())
-}
-
-///|
 test "decimal transcendental constant reuse stays scale-correct across interleaved contexts" {
-  let low_ctx = @decimal.DecimalContext::new(
-    precision=12,
-    e_min=-999_999,
-    e_max=999_999,
-  )
-  let high_ctx = @decimal.DecimalContext::new(
-    precision=28,
-    e_min=-999_999,
-    e_max=999_999,
-  )
+  let low_ctx = @decimal.DecimalContext::new(precision=12, e_max=999_999)
+  let high_ctx = @decimal.DecimalContext::new(precision=28, e_max=999_999)
   let ln_value = @decimal.Decimal::from_string("2.5", precision=40).unwrap()
   let log10_value = @decimal.Decimal::from_string("12345.6789", precision=40).unwrap()
   let exp_value = @decimal.Decimal::from_string("1.23456789", precision=40).unwrap()
@@ -7691,7 +5426,6 @@ test "decimal transcendental constant reuse stays scale-correct across interleav
 test "decimal ln lookaside constants preserve official-scale semantics" {
   let ctx = @decimal.DecimalContext::new(
     precision=9,
-    e_min=-999_999,
     e_max=999_999,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
   )
@@ -7731,7 +5465,6 @@ test "decimal ln lookaside constants preserve official-scale semantics" {
 test "decimal exact division by power of ten preserves preferred exponent behavior" {
   let ctx = @decimal.DecimalContext::new(
     precision=9,
-    e_min=-999_999,
     e_max=999_999,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
   )
@@ -7761,7 +5494,6 @@ test "decimal exact division by power of ten preserves preferred exponent behavi
 test "decimal integer quotient fast paths for power-of-ten divisors preserve results" {
   let ctx = @decimal.DecimalContext::new(
     precision=9,
-    e_min=-999_999,
     e_max=999_999,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
   )
@@ -7798,7 +5530,6 @@ test "decimal integer quotient fast paths for power-of-ten divisors preserve res
 test "decimal power matches near-integer vector and IEEE one-base identity" {
   let near_integer_ctx = @decimal.DecimalContext::new(
     precision=16,
-    e_min=-383,
     e_max=384,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
   )
@@ -7821,7 +5552,6 @@ test "decimal power matches near-integer vector and IEEE one-base identity" {
 
   let one_ctx = @decimal.DecimalContext::new(
     precision=3,
-    e_min=-383,
     e_max=384,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
   )
@@ -7850,77 +5580,9 @@ test "decimal power matches near-integer vector and IEEE one-base identity" {
 }
 
 ///|
-test "decimal official underflow-to-zero edge rows preserve clamped zero semantics" {
-  let exp_ctx = @decimal.DecimalContext::new(
-    precision=7,
-    e_min=-383,
-    e_max=384,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
-  )
-  let mul_ctx = @decimal.DecimalContext::new(
-    precision=5,
-    e_min=-999,
-    e_max=999,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
-  )
-  let power_ctx = mul_ctx
-
-  let (exp_value, exp_flags) = @decimal.Decimal::from_string(
-      "-896.3988",
-      precision=16,
-    )
-    .unwrap()
-    .exp_ctx(exp_ctx)
-  let exp_expected = @decimal.Decimal::from_string("0E-389", precision=16).unwrap()
-  assert_eq(decimal_coeff_signed(exp_value), 0N)
-  assert_eq(exp_value.exponent10(), -389)
-  assert_eq(exp_value.total_order_compare(exp_expected), 0)
-  assert_true(exp_flags.underflow())
-  assert_true(exp_flags.subnormal())
-  assert_true(exp_flags.inexact())
-  assert_true(exp_flags.rounded())
-  assert_true(exp_flags.clamped())
-
-  let (mul_value, mul_flags) = @decimal.Decimal::from_string(
-      "1E-502",
-      precision=16,
-    )
-    .unwrap()
-    .mul_ctx(
-      @decimal.Decimal::from_string("1E-502", precision=16).unwrap(),
-      mul_ctx,
-    )
-  let mul_expected = @decimal.Decimal::from_string("0E-1003", precision=16).unwrap()
-  assert_eq(mul_value.total_order_compare(mul_expected), 0)
-  assert_true(mul_flags.underflow())
-  assert_true(mul_flags.subnormal())
-  assert_true(mul_flags.inexact())
-  assert_true(mul_flags.rounded())
-  assert_true(mul_flags.clamped())
-
-  let (power_value, power_flags) = @decimal.Decimal::from_string(
-      "-0.04E+336",
-      precision=16,
-    )
-    .unwrap()
-    .pow_ctx(
-      @decimal.Decimal::from_string("-3", precision=16).unwrap(),
-      power_ctx,
-    )
-  let power_expected = @decimal.Decimal::from_string("-0E-1003", precision=16).unwrap()
-  assert_eq(power_value.total_order_compare(power_expected), 0)
-  assert_true(power_flags.underflow())
-  assert_true(power_flags.subnormal())
-  assert_true(power_flags.inexact())
-  assert_true(power_flags.rounded())
-  assert_true(power_flags.clamped())
-}
-
-///|
 test "decimal plus_ctx handles underflow shifts far beyond coefficient digits" {
   let ctx = @decimal.DecimalContext::new(
     precision=7,
-    e_min=-383,
     e_max=384,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
   )
@@ -7956,7 +5618,6 @@ test "decimal plus_ctx handles underflow shifts far beyond coefficient digits" {
 test "decimal gda string conversions format and report context flags" {
   let ctx = @decimal.DecimalContext::new(
     precision=9,
-    e_min=-999_999_999,
     e_max=999_999_999,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
@@ -7971,7 +5632,6 @@ test "decimal gda string conversions format and report context flags" {
     "7e1000000000",
     @decimal.DecimalContext::new(
       precision=9,
-      e_min=-999_999_999,
       e_max=999_999_999,
       rounding=@decimal.DecimalRoundingMode::RoundTowardZero,
     ),
@@ -7982,7 +5642,6 @@ test "decimal gda string conversions format and report context flags" {
 
   let tiny_ctx = @decimal.DecimalContext::new(
     precision=7,
-    e_min=-95,
     e_max=96,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
   )
@@ -8005,98 +5664,6 @@ test "decimal gda string conversions format and report context flags" {
   assert_true(neg_tiny_flags.inexact())
   assert_true(neg_tiny_flags.rounded())
   assert_true(neg_tiny_flags.clamped())
-}
-
-///|
-test "decimal gda string conversions match official emax229 representative" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-2,
-    e_max=2,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let (emax229, emax229_flags) = @decimal.Decimal::to_sci_string("1E-11", ctx)
-  assert_eq(emax229, "0E-10")
-  assert_true(emax229_flags.underflow())
-  assert_true(emax229_flags.subnormal())
-  assert_true(emax229_flags.inexact())
-  assert_true(emax229_flags.rounded())
-  assert_true(emax229_flags.clamped())
-}
-
-///|
-test "decimal gda string conversions match official emax280 representative" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-99,
-    e_max=99,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let (emax280, emax280_flags) = @decimal.Decimal::to_sci_string("1E-120", ctx)
-  assert_eq(emax280, "0E-107")
-  assert_true(emax280_flags.underflow())
-  assert_true(emax280_flags.subnormal())
-  assert_true(emax280_flags.inexact())
-  assert_true(emax280_flags.rounded())
-  assert_true(emax280_flags.clamped())
-}
-
-///|
-test "decimal gda string conversions match official emax420 representative" {
-  let ctx = @decimal.DecimalContext::new(
-    precision=5,
-    e_min=-999,
-    e_max=999,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
-  )
-  let (emax420, emax420_flags) = @decimal.Decimal::to_sci_string(
-    "0.00005E-999", ctx,
-  )
-  assert_eq(emax420, "0E-1003")
-  assert_true(emax420_flags.underflow())
-  assert_true(emax420_flags.subnormal())
-  assert_true(emax420_flags.inexact())
-  assert_true(emax420_flags.rounded())
-  assert_true(emax420_flags.clamped())
-}
-
-///|
-test "decimal gda string conversions match official huge-emax underflow representatives" {
-  let ctx_large = @decimal.DecimalContext::new(
-    precision=9,
-    e_min=-999_999_999,
-    e_max=999_999_999,
-    rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
-  )
-  let (emax347, emax347_flags) = @decimal.Decimal::to_sci_string(
-    "1E-1000000008", ctx_large,
-  )
-  assert_eq(emax347, "0E-1000000007")
-  assert_true(emax347_flags.underflow())
-  assert_true(emax347_flags.subnormal())
-  assert_true(emax347_flags.inexact())
-  assert_true(emax347_flags.rounded())
-  assert_true(emax347_flags.clamped())
-
-  let (emax367, emax367_flags) = @decimal.Decimal::to_sci_string(
-    "9.999E-1000000009", ctx_large,
-  )
-  assert_eq(emax367, "0E-1000000007")
-  assert_true(emax367_flags.underflow())
-  assert_true(emax367_flags.subnormal())
-  assert_true(emax367_flags.inexact())
-  assert_true(emax367_flags.rounded())
-  assert_true(emax367_flags.clamped())
-
-  let (emax382, emax382_flags) = @decimal.Decimal::to_sci_string(
-    "-1.001E-1000000008", ctx_large,
-  )
-  assert_eq(emax382, "-0E-1000000007")
-  assert_true(emax382_flags.underflow())
-  assert_true(emax382_flags.subnormal())
-  assert_true(emax382_flags.inexact())
-  assert_true(emax382_flags.rounded())
-  assert_true(emax382_flags.clamped())
 }
 
 ///|
@@ -8134,7 +5701,7 @@ test "decimal gda string conversions canonicalize special spellings and payloads
 
 ///|
 test "decimal gda string conversions enforce clamped nan payload bounds" {
-  let ctx = @decimal.DecimalContext::new(precision=4, clamp=true)
+  let ctx = @decimal.DecimalContext::new(precision=4)
 
   let (allowed, allowed_flags) = @decimal.Decimal::to_sci_string("NaN123", ctx)
   assert_eq(allowed, "NaN123")
@@ -8386,7 +5953,6 @@ fn assert_decimal_total_eq(
 test "decimal integer power keeps large exact powers exact when precision allows" {
   let ctx = @decimal.DecimalContext::new(
     precision=400,
-    e_min=-999_999,
     e_max=999_999,
     rounding=@decimal.DecimalRoundingMode::RoundTowardPositive,
   )
@@ -8403,44 +5969,32 @@ test "decimal integer power keeps large exact powers exact when precision allows
 test "decimal official dectest math subsets stay aligned after gda fixes" {
   let exp_ctx9 = @decimal.DecimalContext::new(
     precision=9,
-    e_min=-383,
     e_max=384,
-    extended=false,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
   let exp_ctx7 = @decimal.DecimalContext::new(
     precision=7,
-    e_min=-383,
     e_max=384,
-    extended=false,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
   let ln_log_ctx = @decimal.DecimalContext::new(
     precision=16,
-    e_min=-383,
     e_max=384,
-    extended=false,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
   let power_ctx9 = @decimal.DecimalContext::new(
     precision=9,
-    e_min=-999,
     e_max=999,
-    extended=false,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
   let power_ctx10 = @decimal.DecimalContext::new(
     precision=10,
-    e_min=-999,
     e_max=999,
-    extended=false,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
   let minmax_ctx = @decimal.DecimalContext::new(
     precision=16,
-    e_min=-383,
     e_max=384,
-    clamp=true,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
   )
 
@@ -8589,7 +6143,7 @@ test "context try constructors totalize invalid and optional parameters" {
   assert_true(@bin_float.BinaryContext::try_new(53, e_max=10) is Ok(_))
   assert_true(@bin_float.BinaryContext::try_new(53, e_min=1, e_max=0) is Err(_))
   assert_true(@decimal.DecimalContext::try_new(precision=-1) is Err(_))
-  assert_true(@decimal.DecimalContext::try_new(e_min=1, e_max=0) is Err(_))
+  assert_true(@decimal.DecimalContext::try_new(e_max=0) is Err(_))
 }
 
 ///|

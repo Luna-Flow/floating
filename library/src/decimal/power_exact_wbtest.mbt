@@ -58,10 +58,9 @@ test "decimal power keeps inexact non-integral results inexact" {
 test "decimal power rounds exact non-integral results beyond the precision" {
   let coarse = DecimalContext::new(
     precision=1,
-    e_min=-999,
     e_max=999,
     rounding=DecimalRoundingMode::RoundTiesToEven,
-  ).ieee754()
+  )
   let (coarse_value, coarse_flags) = Decimal::from_string("4096")
     .unwrap()
     .pow_ctx(Decimal::from_string("1.5").unwrap(), coarse)
@@ -110,9 +109,7 @@ test "decimal power rounds long exact non-integral results in every mode" {
   for entry in cases {
     let (left, right, precision, expected) = entry
     for i, mode in all_decimal_roundings {
-      let context = DecimalContext::new(precision~, e_min=-999, e_max=999).with_round(
-        mode,
-      )
+      let context = DecimalContext::new(precision~, e_max=999).with_round(mode)
       let (value, flags) = Decimal::from_string(left)
         .unwrap()
         .pow_ctx(Decimal::from_string(right).unwrap(), context)
@@ -140,11 +137,9 @@ test "decimal power decides exact non-integral results past base^p's size (#138)
     let base = Decimal::from_string(left, precision=1000).unwrap()
     let exponent = Decimal::from_string(right).unwrap()
     for mode in all_decimal_roundings {
-      let context = DecimalContext::new(
-        precision=1000,
-        e_min=-999_999,
-        e_max=999_999,
-      ).with_round(mode)
+      let context = DecimalContext::new(precision=1000, e_max=999_999).with_round(
+        mode,
+      )
       let (value, flags) = base.pow_ctx(exponent, context)
       assert_eq(
         value.total_order_compare(
@@ -192,11 +187,9 @@ test "decimal power decides exact powers with large reduced exponents" {
     let exponent = Decimal::from_string(right).unwrap()
     let want = Decimal::from_string(expected, precision~).unwrap()
     for mode in all_decimal_roundings {
-      let context = DecimalContext::new(
-        precision~,
-        e_min=-999_999,
-        e_max=999_999,
-      ).with_round(mode)
+      let context = DecimalContext::new(precision~, e_max=999_999).with_round(
+        mode,
+      )
       let (value, flags) = base.pow_ctx(exponent, context)
       assert_eq(value.total_order_compare(want), 0)
       assert_false(flags.inexact)

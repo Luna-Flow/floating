@@ -58,7 +58,7 @@ fn add_finite_values_ctx(
   if lhs_value.is_zero() || rhs_value.is_zero() {
     let zero = if lhs_value.is_zero() { lhs_value } else { rhs_value }
     let nonzero = if lhs_value.is_zero() { rhs_value } else { lhs_value }
-    if ctx.extended && ctx.precision > 0 {
+    if ctx.precision > 0 {
       // The exact sum is the nonzero operand, with the smaller exponent as its
       // ideal exponent. Moving it towards that exponent by at most p + 1 -
       // digits places and normalizing once rounds and clamps the delivered
@@ -86,11 +86,7 @@ fn add_finite_values_ctx(
       !base.coefficient.is_zero() else {
       return (base, base_flags)
     }
-    let preferred_exponent = if ctx.extended {
-      Int32::min(zero.exponent10, base.exponent10)
-    } else {
-      Int32::min(base.exponent10, Int32::max(0, zero.exponent10))
-    }
+    let preferred_exponent = Int32::min(zero.exponent10, base.exponent10)
     if preferred_exponent < base.exponent10 && ctx.precision > 0 {
       let digits = base.coefficient.digits10()
       let wanted_shift = base.exponent10 - preferred_exponent
@@ -104,23 +100,17 @@ fn add_finite_values_ctx(
         return finalize_finite_ctx(shifted, base_flags, ctx)
       }
       let available_shift = Int32::max(0, ctx.precision - digits)
-      if ctx.extended {
-        let shifted = if available_shift > 0 {
-          finite_with_exponent_repr(
-            base.negative,
-            dec_coeff_shift_power10_repr(base.coefficient, available_shift),
-            base.exponent10 - available_shift,
-            base.precision_,
-          )
-        } else {
-          base
-        }
-        return finalize_finite_ctx(
-          shifted,
-          { ..base_flags, rounded: true, },
-          ctx,
+      let shifted = if available_shift > 0 {
+        finite_with_exponent_repr(
+          base.negative,
+          dec_coeff_shift_power10_repr(base.coefficient, available_shift),
+          base.exponent10 - available_shift,
+          base.precision_,
         )
+      } else {
+        base
       }
+      return finalize_finite_ctx(shifted, { ..base_flags, rounded: true, }, ctx)
     }
     return (base, base_flags)
   }
@@ -147,12 +137,9 @@ fn add_finite_values_ctx(
       // beyond it. Every other extended case takes the exact path below. A
       // non-extended context rounds each operand to the precision first, so an
       // operand cannot round past e_max inside the operation.
-      let overflow_is_certain = if ctx.extended {
-        low.negative == high.negative ||
+      let overflow_is_certain = low.negative == high.negative ||
         (precision >= 2 && high_adjusted >= ctx.e_max + 2)
-      } else {
-        !(high_adjusted == ctx.e_max + 1 && low.negative != high.negative)
-      }
+
       if base_flags.overflow && overflow_is_certain {
         return (base, base_flags)
       }
@@ -177,7 +164,7 @@ fn add_finite_values_ctx(
     // `high + sign(low) * 10^(sticky_limit - 1)`, so rounding the latter
     // rounds the sum correctly in every mode.
     let sticky_limit = Int32::min(high.exponent10, target_exponent - 2)
-    if can_absorb && ctx.extended && low_adjusted < sticky_limit {
+    if can_absorb && low_adjusted < sticky_limit {
       let sticky_exponent = sticky_limit - 1
       let units = dec_coeff_shift_power10_repr(
         high.coefficient,
@@ -203,20 +190,6 @@ fn add_finite_values_ctx(
         (value, flags)
       }
     }
-    if can_absorb && !ctx.extended {
-      let preferred_exponent = Int32::min(high.exponent10, target_exponent)
-      let magnitude = dec_coeff_shift_power10_repr(
-        high.coefficient,
-        high.exponent10 - preferred_exponent,
-      )
-      let (base, base_flags) = normalize_decimal_parts_ctx_repr(
-        high.negative,
-        magnitude,
-        preferred_exponent,
-        ctx,
-      )
-      return absorbed_sum_result(high, base, base_flags, low, ctx)
-    }
   }
   if exact_aligned_gap_too_large(lhs_value, rhs_value) {
     return invalid_context_result(ctx)
@@ -239,52 +212,7 @@ fn add_finite_values_ctx(
   } else {
     exact_negative
   }
-  if !ctx.extended && ctx.precision > 0 {
-    let lhs_width = lhs_value.coefficient.digits10() +
-      lhs_value.exponent10 -
-      target
-    let rhs_width = rhs_value.coefficient.digits10() +
-      rhs_value.exponent10 -
-      target
-    let virtual_digits = Int32::max(lhs_width, rhs_width)
-    let discard = virtual_digits - ctx.precision
-    if discard > 0 &&
-      virtual_digits > exact_digits &&
-      !exact_magnitude.is_zero() {
-      let target_digits = exact_digits - discard
-      let (magnitude, exponent10, rounded, inexact) = decimal_round_coeff_to_digits_repr(
-        exact_magnitude,
-        target,
-        target_digits,
-        exact_negative,
-        ctx.decimal_rounding,
-      )
-      let (magnitude, exponent10) = if virtual_digits > exact_digits &&
-        inexact &&
-        dec_coeff_compare_repr(
-          remove_factor10_repr(magnitude, 0).0,
-          dec_coeff_from_int(1),
-        ) ==
-        0 &&
-        magnitude.digits10() < ctx.precision {
-        let shift = ctx.precision - magnitude.digits10()
-        (dec_coeff_shift_power10_repr(magnitude, shift), exponent10 - shift)
-      } else {
-        (magnitude, exponent10)
-      }
-      let (value, flags) = finalize_finite_ctx(
-        finite_with_exponent_repr(
-          exact_negative,
-          magnitude,
-          exponent10,
-          finite_precision_for_coeff(magnitude, ctx),
-        ),
-        { ..DecimalFlags::new(), rounded, inexact, },
-        ctx,
-      )
-      return (value, flags)
-    }
-  }
+
   let tiny_limit = etiny(ctx)
   let zero_below_tiny = exact_magnitude.is_zero() &&
     ctx.precision > 0 &&
@@ -350,7 +278,7 @@ pub fn Decimal::add_ctx(
       )
   }
   let flags = operand_flags.combine(result.1)
-  finish_context_result(result.0, flags, ctx, false)
+  (result.0, flags)
 }
 
 ///|
@@ -377,7 +305,7 @@ pub fn Decimal::mul_ctx(
   )
   let result = lhs.decimal_mul_ctx_impl(rhs, ctx)
   let flags = operand_flags.combine(result.1)
-  finish_context_result(result.0, flags, ctx, false)
+  (result.0, flags)
 }
 
 ///|
@@ -464,7 +392,7 @@ pub fn Decimal::div_ctx(
   )
   let result = lhs.decimal_div_ctx_impl(rhs, ctx)
   let flags = operand_flags.combine(result.1)
-  finish_context_result(result.0, flags, ctx, true)
+  (result.0, flags)
 }
 
 ///|
@@ -676,9 +604,7 @@ fn Decimal::decimal_fma_ctx_impl(
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   let precision = finite_precision_for_default(ctx)
-  if !ctx.extended {
-    return (Decimal::nan(precision~), invalid_flags())
-  }
+
   let invalid_product = (
       self.class == FpClass::Infinity &&
       multiplier.class == FpClass::Finite &&
@@ -1033,29 +959,9 @@ fn decimal_sqrt_fixed_result(
     rounded: normalized_flags.rounded || inexact,
     inexact: normalized_flags.inexact || inexact,
   }
-  // An inexact root below 10^e_min is tiny before rounding. Detected after
-  // rounding (IEEE 754-2019 7.5), it is tiny only if rounding it to p digits
-  // with an unbounded exponent range stays below 10^e_min, which can fail
-  // only when its adjusted exponent is e_min - 1.
-  let tiny = inexact &&
-    root_adjusted < ctx.e_min &&
-    (
-      ctx.tininess != DecimalTininessDetection::AfterRounding ||
-      root_adjusted.to_int64() < ctx.e_min.to_int64() - 1L ||
-      ({
-        let unbounded = {
-          ..ctx,
-          e_min: decimal_int_from_int64_clamped(
-            ctx.e_min.to_int64() - precision.to_int64() - 1L,
-          ),
-          clamp: false,
-        }
-        let (rounded, _) = decimal_sqrt_fixed_result(
-          operand, unbounded, precision,
-        )
-        adjusted_exponent(rounded) < ctx.e_min
-      })
-    )
+  // An inexact root below 10^e_min is tiny, detected before rounding (IEEE
+  // 754-2019 7.5: for decimal formats tininess is detected before rounding).
+  let tiny = inexact && root_adjusted < ctx.e_min
   let flags = if tiny {
     {
       ..flags,
@@ -1139,11 +1045,7 @@ pub fn Decimal::sqrt_ctx(
       }
   }
   let flags = operand_flags.combine(result.1)
-  if !ctx.extended && result.0.is_zero() {
-    (Decimal::zero(precision~), flags)
-  } else {
-    (result.0, flags)
-  }
+  (result.0, flags)
 }
 
 ///|

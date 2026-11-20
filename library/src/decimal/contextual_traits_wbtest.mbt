@@ -70,12 +70,10 @@ test "Decimal checked parsing uses the arithmetic context" {
 }
 
 ///|
-test "IEEE context exposes 2019 semantics and explicit rounding updates" {
+test "IEEE context has explicit rounding updates" {
   let ctx = DecimalContext::decimal64()
-  assert_true(ctx.is754version2019())
   let directed = ctx.with_rounding(DecimalRoundingMode::RoundTowardPositive)
   assert_true(directed.rounding() == DecimalRoundingMode::RoundTowardPositive)
-  assert_true(directed.is754version2019())
 }
 
 ///|
@@ -90,12 +88,11 @@ test "Decimal contextual conversion preserves exponent bounds and clamp" {
   assert_eq(context.precision(), 7)
   assert_eq(context.e_min(), -95)
   assert_eq(context.e_max(), 96)
-  assert_true(context.clamp())
 }
 
 ///|
 test "Decimal checked powers preserve arithmetic exponent bounds" {
-  let context = @lf_arith.ArithmeticContext::new(7, e_min=-95, e_max=2)
+  let context = @lf_arith.ArithmeticContext::new(7, e_min=-1, e_max=2)
   let result = @lf_arith.PowNatChecked::pow_nat_checked(
     Decimal::from_int(2, precision=7),
     10U,
@@ -149,15 +146,20 @@ test "Decimal context translation rejects out of range bounds" {
     invalid,
   )
   assert_true(outcome is Err(_))
+  // IEEE 754-2019 3.3: emin = 1 - emax
   let positive = @lf_arith.ArithmeticContext::new(7, e_min=1, e_max=10)
   match DecimalContext::from_arithmetic_context(positive) {
-    Err(error) =>
-      assert_eq(error.message, "e_min must be within -999999999..=0")
-    Ok(_) => fail("positive e_min must be rejected")
+    Err(error) => assert_true(error.message.contains("e_min must be 1 - e_max"))
+    Ok(_) => fail("e_min other than 1 - e_max must be rejected")
   }
   let negative = @lf_arith.ArithmeticContext::new(7, e_min=-10, e_max=-1)
-  match DecimalContext::from_arithmetic_context(negative) {
-    Err(error) => assert_eq(error.message, "e_max must be within 0..=999999999")
-    Ok(_) => fail("negative e_max must be rejected")
-  }
+  assert_true(DecimalContext::from_arithmetic_context(negative) is Err(_))
+  // e_min alone gives e_max = 1 - e_min; neither gives the default range
+  let from_min = @lf_arith.ArithmeticContext::new(7, e_min=-95)
+  assert_eq(
+    DecimalContext::from_arithmetic_context(from_min).unwrap().e_max(),
+    96,
+  )
+  let away = @lf_arith.ArithmeticContext::new(7, rounding=AwayFromZero)
+  assert_true(DecimalContext::from_arithmetic_context(away) is Err(_))
 }

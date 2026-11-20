@@ -1,3 +1,4 @@
+import corpus_common
 import hashlib
 import io
 import json
@@ -186,3 +187,27 @@ class CorpusCommonTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class IeeeDecimalContextTests(unittest.TestCase):
+    def test_a_format_is_accepted(self) -> None:
+        for args in (
+            (7, "half_even", -95, 96, 1, "b"),
+            (34, "floor", -6143, 6144, 1, "b"),
+            (5, "half_up", -9, 10, 1, "b"),
+        ):
+            corpus_common.check_ieee_decimal_context(*args)
+
+    def test_what_no_format_has_is_rejected(self) -> None:
+        for args in (
+            (7, "half_even", -96, 96, 1, "b"),  # emin is not 1 - emax
+            (7, "half_even", -95, 96, 0, "b"),  # no clamp
+            (7, "half_even", -95, 96, 1, "a"),  # tininess after rounding
+            (7, "half_down", -95, 96, 1, "b"),  # not a rounding-direction attribute
+            (7, "up", -95, 96, 1, "b"),
+            (7, "05up", -95, 96, 1, "b"),
+            (0, "half_even", -95, 96, 1, "b"),
+            (7, "half_even", 1, 0, 1, "b"),  # emax below 1
+        ):
+            with self.assertRaises(ValueError, msg=str(args)):
+                corpus_common.check_ieee_decimal_context(*args)

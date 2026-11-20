@@ -13,7 +13,7 @@ result.
 | Documentation | `just docs` | `tools/doc_quality.py` (page coverage, API snapshots, links and anchors, version and GDA claims, package `README.mbt.md` files), then `tools/check_doc_examples.py` (every runnable example of the manual), then the `tooling/src/doc_examples` tests |
 | Formatting | `just fmt` | the MoonBit formatter |
 | Pull request | `just pr [jobs]` | format check, docs, native check and tests with `--deny-warn`, Python tool tests, and the four committed smoke corpora |
-| IEEE decimal | `just gate decimal [jobs]` | committed decimal32/64/128 DPD and BID vectors on native, Wasm, Wasm-GC and JavaScript, and the full 12,753-row π-inverse table, read at run time by the release-built conformance CLI on each target |
+| IEEE decimal | `just gate decimal [jobs]` | committed decimal32/64/128 DPD and BID vectors on native, Wasm, Wasm-GC and JavaScript, and the full 9,691-row π-inverse table, read at run time by the release-built conformance CLI on each target |
 | GDA decimal | `just gate decimal_gda [jobs]` | package and frontend tests, then the pinned `official` and `official0` `.decTest` corpora |
 | Binary | `just gate binary [jobs]` | the pinned TestFloat level-1 matrix and the MPFR witnesses |
 | Interval | `just gate interval [jobs]` | every strict ITF1788 phase |
@@ -41,7 +41,7 @@ Translation catalogs are checked separately by `lunadoc check`, which the
 
 The rows of `asinpi`, `acospi`, `atanpi` and `atan2pi` are the largest table
 of the repository. The quick gate (`just pr`, the native test stage of CI)
-compiles all 12,753 of them into `library/src/decimal/elementary_pi_inverse_rows_wbtest.mbt`
+compiles all 9,691 of them into `library/src/decimal/elementary_pi_inverse_rows_wbtest.mbt`
 (2.2 MB of source), and the same rows are data
 (`testdata/decimal/ieee/rows/pi_inverse.txt`, `mpfr-decimal-random-v1` rows, see
 `tooling/src/frontend/mpfr_expr`) that `just gate decimal` and the nightly run feed to the
@@ -63,11 +63,11 @@ its middle row). The data file is always the full table.
 
 | Operation | Exact rows | MPFR rows | Total |
 | --- | ---: | ---: | ---: |
-| `asinpi` | 148 | 1,666 | 1,814 |
-| `acospi` | 148 | 1,031 | 1,179 |
-| `atanpi` | 148 | 2,060 | 2,208 |
-| `atan2pi` | 1,248 | 6,304 | 7,552 |
-| Total | 1,692 | 11,061 | 12,753 |
+| `asinpi` | 148 | 1,125 | 1,273 |
+| `acospi` | 148 | 950 | 1,098 |
+| `atanpi` | 148 | 1,440 | 1,588 |
+| `atan2pi` | 1,248 | 4,484 | 5,732 |
+| Total | 1,692 | 7,999 | 9,691 |
 
 `python3 tools/generate_decimal_pi_inverse_rows.py --check` fails if either
 table is stale or if the compiled table is not a subset of the full table, and
@@ -274,8 +274,7 @@ directed results on every corner, one ulp of slack, both endpoints rounded to
 the context with Python `decimal`; a row exists only if the endpoints agree and
 the rounded value lies outside the enclosure (so exact results are not sampled
 here). Contexts are decimal32/64/128 and random ones (precision 1 to 120,
-exponent range up to ±20,000, all eight rounding modes, clamp on and off, both
-tininess rules); operands are drawn so that results reach overflow, underflow
+exponent range up to ±20,000; since 0.12 only legal contexts: the five rounding directions of IEEE 754-2019 4.3, `e_min = 1 - e_max`, clamp, tininess before rounding; the campaign counts below are those of the runs before that change); operands are drawn so that results reach overflow, underflow
 and the subnormal range. Native: 559,979 cases, 20,000 for each of 28 functions
 (`exp exp2 exp10 expm1 sinh cosh ln log2 log10 log1p sin cos tan sinpi cospi
 tanpi atan tanh asinh asin acos atanh acosh pow hypot atan2 rootn pown`; `cospi`
@@ -349,9 +348,9 @@ Wasm, JavaScript and Wasm-GC: 55,996 each (the first 2,000 of every function).
   generator reaches the failing arguments only rarely (case `m334.exp2.30728`
   is one of them), so the boundaries are covered by deterministic rows:
   `library/src/decimal/exp_range_rows_wbtest.mbt` (`tools/generate_decimal_exp_range_rows.py`,
-  Python `decimal` at 400 digits, a cross-check only) holds 5,976 rows for
+  Python `decimal` at 400 digits, a cross-check only) holds 8,330 rows for
   the context of the issue, decimal32, decimal64, decimal128 and a wide
-  context, all eight rounding directions, at results just inside and outside
+  context, the five rounding directions, at results just inside and outside
   the range and at the thresholds of the decision; they also cover `expm1`,
   `exp2m1`, `exp10m1`, `sinh`, `cosh`, `pow`, `powr`, `pown`, `compound` and
   `rsqrt`, none of which failed before the change.
@@ -365,13 +364,12 @@ Wasm, JavaScript and Wasm-GC: 55,996 each (the first 2,000 of every function).
   --family decimal-acospi --family decimal-atanpi --family decimal-atan2pi --count
   100000 --seed 20261118 --target native` and the same with `--count 20000
   --target wasm --target wasm-gc --target js`, in agreement with MPFR in
-  value, cohort and all eight flags. The 12,753 rows of
+  value, cohort and all eight flags. The 9,691 rows of
   `testdata/decimal/ieee/rows/pi_inverse.txt`
   (`tools/generate_decimal_pi_inverse_rows.py`) add the exact Niven values at
   the preferred exponent 0, the clusters next to $\pm\tfrac12$ and $\pm 1$ in
-  all eight rounding modes on both sides, operands down to
-  $10^{-1\,999\,996}$ and the range limits of decimal32/64/128 under both
-  tininess rules. They run in the full gate and the nightly run on all four
+  the five rounding directions on both sides, operands down to
+  $10^{-1\,999\,996}$ and the range limits of decimal32/64/128. They run in the full gate and the nightly run on all four
   targets, and all of them run in the quick gate (see
   [Quick-gate table of the π-inverse rows](#quick-gate-table-of-the-π-inverse-rows)).
 - *Binary elementary functions*: one finding in 1,000,000 native cases (and

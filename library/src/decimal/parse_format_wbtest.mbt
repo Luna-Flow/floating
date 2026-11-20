@@ -24,7 +24,7 @@ test "decimal parsing preserves coefficient-native finite and NaN payloads" {
 
 ///|
 test "decimal parsing coefficient-native boundary paths preserve flags" {
-  let ctx = DecimalContext::new(precision=7, e_min=-95, e_max=96, clamp=true)
+  let ctx = DecimalContext::new(precision=7, e_max=96)
   let (overflow, overflow_flags) = Decimal::from_string_ctx(
     "99999999E+100", ctx,
   )

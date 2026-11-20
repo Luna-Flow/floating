@@ -1,6 +1,6 @@
 ///|
 test "Decimal elementary extensions preserve exact identities" {
-  let context = DecimalContext::decimal64().ieee754()
+  let context = DecimalContext::decimal64()
   let (power_two, power_two_flags) = Decimal::from_int(10).exp2_ctx(context)
   assert_eq(power_two.compare(Decimal::from_int(1024)), 0)
   assert_false(power_two_flags.inexact)
@@ -17,7 +17,7 @@ test "Decimal elementary extensions preserve exact identities" {
 
 ///|
 test "Decimal pi-scaled functions follow IEEE exact special values" {
-  let context = DecimalContext::decimal64().ieee754()
+  let context = DecimalContext::decimal64()
   let (negative_integer_sine, sine_flags) = Decimal::from_int(-1).sinpi_ctx(
     context,
   )
@@ -39,7 +39,7 @@ test "Decimal pi-scaled functions follow IEEE exact special values" {
 
 ///|
 test "Decimal elementary domains and atan2 signed zeros are explicit" {
-  let context = DecimalContext::decimal64().ieee754()
+  let context = DecimalContext::decimal64()
   let (invalid, invalid_flags) = Decimal::from_int(2).asin_ctx(context)
   assert_true(invalid.is_nan())
   assert_true(invalid_flags.invalid_operation)
@@ -53,7 +53,7 @@ test "Decimal elementary domains and atan2 signed zeros are explicit" {
 
 ///|
 test "Decimal try power exposes certified evaluation as Result" {
-  let context = DecimalContext::decimal64().ieee754()
+  let context = DecimalContext::decimal64()
   match
     Decimal::from_int(9).try_pow_ctx(
       Decimal::from_string("0.5").unwrap(),
@@ -163,10 +163,9 @@ test "Decimal tiny elementary arguments certify all issue 170 families" {
 test "Decimal noninteger power preserves IEEE exact result semantics" {
   let ieee_context = DecimalContext::new(
     precision=9,
-    e_min=-999_999,
     e_max=999_999,
     rounding=DecimalRoundingMode::RoundTiesToEven,
-  ).ieee754()
+  )
   let base = Decimal::from_int(4, precision=32)
   let exponent = Decimal::from_string("0.5", precision=32).unwrap()
   let (ieee_value, ieee_flags) = base.pow_ctx(exponent, ieee_context)
@@ -179,16 +178,14 @@ test "Decimal noninteger power preserves IEEE exact result semantics" {
 test "Decimal elementary extensions honor context rounding" {
   let floor_context = DecimalContext::new(
     precision=9,
-    e_min=-999,
     e_max=999,
     rounding=DecimalRoundingMode::RoundTowardNegative,
-  ).ieee754()
+  )
   let ceiling_context = DecimalContext::new(
     precision=9,
-    e_min=-999,
     e_max=999,
     rounding=DecimalRoundingMode::RoundTowardPositive,
-  ).ieee754()
+  )
   let floor_result = Decimal::one().exp_ctx(floor_context)
   let ceiling_result = Decimal::one().exp_ctx(ceiling_context)
   assert_true(floor_result.0.compare(ceiling_result.0) < 0)
@@ -210,55 +207,38 @@ test "Decimal tanh and expm1 certify saturated finite results" {
     DecimalRound::Up,
     DecimalRound::ZeroFiveUp,
   ]
-  for clamp in [false, true] {
-    for extended in [false, true] {
-      for mode in modes {
-        let context = DecimalContext::new(
-            precision=16,
-            e_min=-383,
-            e_max=384,
-            clamp~,
-            extended~,
-          )
-          .with_round(mode)
-          .ieee754()
-        let (positive, positive_flags) = Decimal::from_int(5000).tanh_ctx(
-          context,
-        )
-        let (negative, negative_flags) = Decimal::from_int(-5000).tanh_ctx(
-          context,
-        )
-        let (expm1_negative, expm1_flags) = Decimal::from_int(-20000).expm1_ctx(
-          context,
-        )
-        let positive_expected = match mode {
-          Down | Floor | ZeroFiveUp => "0.9999999999999999"
-          _ => "1.000000000000000"
-        }
-        let negative_expected = match mode {
-          Down | Ceiling | ZeroFiveUp => "-0.9999999999999999"
-          _ => "-1.000000000000000"
-        }
-        let expected_flags = {
-          ..DecimalFlags::new(),
-          rounded: true,
-          inexact: true,
-        }
-        assert_eq(positive.to_string(), positive_expected)
-        assert_eq(negative.to_string(), negative_expected)
-        assert_eq(expm1_negative.to_string(), negative_expected)
-        assert_true(positive_flags == expected_flags)
-        assert_true(negative_flags == expected_flags)
-        assert_true(expm1_flags == expected_flags)
-      }
+  for mode in modes {
+    let context = DecimalContext::new(precision=16, e_max=384).with_round(mode)
+
+    let (positive, positive_flags) = Decimal::from_int(5000).tanh_ctx(context)
+    let (negative, negative_flags) = Decimal::from_int(-5000).tanh_ctx(context)
+    let (expm1_negative, expm1_flags) = Decimal::from_int(-20000).expm1_ctx(
+      context,
+    )
+    let positive_expected = match mode {
+      Down | Floor | ZeroFiveUp => "0.9999999999999999"
+      _ => "1.000000000000000"
     }
+    let negative_expected = match mode {
+      Down | Ceiling | ZeroFiveUp => "-0.9999999999999999"
+      _ => "-1.000000000000000"
+    }
+    let expected_flags = {
+      ..DecimalFlags::new(),
+      rounded: true,
+      inexact: true,
+    }
+    assert_eq(positive.to_string(), positive_expected)
+    assert_eq(negative.to_string(), negative_expected)
+    assert_eq(expm1_negative.to_string(), negative_expected)
+    assert_true(positive_flags == expected_flags)
+    assert_true(negative_flags == expected_flags)
+    assert_true(expm1_flags == expected_flags)
   }
   for mode in modes {
     match
       Decimal::from_int(-20000).try_expm1_ctx(
-        DecimalContext::new(precision=16, e_min=-383, e_max=384)
-        .with_round(mode)
-        .ieee754(),
+        DecimalContext::new(precision=16, e_max=384).with_round(mode),
       ) {
       Ok((value, flags)) => {
         let expected = match mode {
@@ -278,11 +258,7 @@ test "Decimal tanh and expm1 certify saturated finite results" {
 ///|
 test "Decimal saturation shortcut covers thresholds and narrow contexts" {
   for precision in [1, 2, 7, 16, 34] {
-    let context = DecimalContext::new(
-      precision~,
-      e_min=-(precision + 4),
-      e_max=precision + 4,
-    )
+    let context = DecimalContext::new(precision~, e_max=precision + 4)
     for input in [6 * precision - 1, 6 * precision] {
       let (positive, positive_flags) = Decimal::from_int(input).tanh_ctx(
         context,
@@ -299,12 +275,7 @@ test "Decimal saturation shortcut covers thresholds and narrow contexts" {
       assert_true(expm1_flags.inexact && expm1_flags.rounded)
     }
   }
-  let before_rounding = DecimalContext::new(
-    precision=7,
-    e_min=0,
-    e_max=10,
-    tininess=DecimalTininessDetection::BeforeRounding,
-  )
+  let before_rounding = DecimalContext::new(precision=7, e_max=1)
   let (below_threshold, below_flags) = Decimal::from_int(20).tanh_ctx(
     before_rounding,
   )
@@ -317,29 +288,15 @@ test "Decimal saturation shortcut covers thresholds and narrow contexts" {
 
   // expm1(-20000) = -(1 - 10^-8686) is below 10^e_min = 1 before rounding but
   // rounds to -1 at seven digits. IEEE 754-2019 §7.5 detects tininess before
-  // rounding for decimal formats (the default); after rounding is the explicit
-  // non-standard option.
-  let zero_emin = DecimalContext::new(precision=7, e_min=0, e_max=10)
+  // rounding for decimal formats.
+  let zero_emin = DecimalContext::new(precision=7, e_max=1)
   let (subnormal_limit, subnormal_flags) = Decimal::from_int(-20000).expm1_ctx(
     zero_emin,
   )
   assert_false(subnormal_limit.is_nan())
   assert_true(subnormal_flags.inexact && subnormal_flags.rounded)
   assert_true(subnormal_flags.underflow && subnormal_flags.subnormal)
-  let zero_emin_after = DecimalContext::new(
-    precision=7,
-    e_min=0,
-    e_max=10,
-    tininess=DecimalTininessDetection::AfterRounding,
-  )
-  let (after_limit, after_flags) = Decimal::from_int(-20000).expm1_ctx(
-    zero_emin_after,
-  )
-  assert_false(after_limit.is_nan())
-  assert_true(after_flags.inexact && after_flags.rounded)
-  assert_false(after_flags.underflow || after_flags.subnormal)
-
-  let negative_emin = DecimalContext::new(precision=7, e_min=-1, e_max=10)
+  let negative_emin = DecimalContext::new(precision=7, e_max=2)
   let (unit_subnormal, unit_subnormal_flags) = Decimal::from_int(-20000).expm1_ctx(
     negative_emin,
   )
@@ -349,8 +306,7 @@ test "Decimal saturation shortcut covers thresholds and narrow contexts" {
 
   let negative_emax = DecimalContext::new(
     precision=7,
-    e_min=-10,
-    e_max=0,
+    e_max=11,
     rounding=DecimalRoundingMode::RoundTowardZero,
   )
   let (overflow_edge, overflow_flags) = Decimal::from_int(-20000).expm1_ctx(
@@ -359,7 +315,7 @@ test "Decimal saturation shortcut covers thresholds and narrow contexts" {
   assert_eq(overflow_edge.to_string(), "-0.9999999")
   assert_true(overflow_flags.inexact && overflow_flags.rounded)
 
-  let one_digit = DecimalContext::new(precision=1, e_min=0, e_max=10).with_round(
+  let one_digit = DecimalContext::new(precision=1, e_max=1).with_round(
     DecimalRound::ZeroFiveUp,
   )
   let (zero_five_up, zero_five_up_flags) = Decimal::from_int(6).tanh_ctx(
@@ -402,12 +358,7 @@ test "Decimal extreme exp avoids unbounded dyadic endpoint expansion" {
       DecimalRound::Up,
       DecimalRound::ZeroFiveUp,
     ] {
-    let context = DecimalContext::new(
-      precision=7,
-      e_min=-383,
-      e_max=384,
-      extended=false,
-    ).with_round(mode)
+    let context = DecimalContext::new(precision=7, e_max=384).with_round(mode)
     let (value, flags) = input.exp_ctx(context)
     match mode {
       Ceiling | Up | ZeroFiveUp => {
@@ -427,28 +378,17 @@ test "Decimal extreme exp avoids unbounded dyadic endpoint expansion" {
 }
 
 ///|
-test "Decimal extreme exp honors before and after rounding tininess" {
+test "Decimal extreme exp detects tininess before rounding" {
   let input = Decimal::from_int(-1000, precision=16)
-  let after = DecimalContext::new(
-    precision=1,
-    e_min=-2,
-    e_max=2,
-    tininess=DecimalTininessDetection::AfterRounding,
-  ).with_round(DecimalRound::Up)
-  let before = after.with_tininess(DecimalTininessDetection::BeforeRounding)
-  let (after_value, after_flags) = input.exp_ctx(after)
+  let before = DecimalContext::new(precision=1, e_max=3).with_round(
+    DecimalRound::Up,
+  )
   let (before_value, before_flags) = input.exp_ctx(before)
-  assert_eq(after_value.to_string(), "0.01")
   assert_eq(before_value.to_string(), "0.01")
-  assert_true(after_flags.rounded && after_flags.inexact)
-  // `AfterRounding` is the library's non-standard option (IEEE 754-2019 7.5
-  // requires tininess before rounding for decimal formats). By its own rule,
-  // the unbounded-exponent-range result rounded to one digit, 1E-435, is below
-  // 10^e_min = 0.01, so the result is tiny after rounding as well, although the
-  // bounded result is 10^e_min (#333; this test used to expect no underflow
-  // here).
-  assert_true(after_flags.underflow)
-  assert_true(after_flags.subnormal)
+  assert_true(before_flags.rounded && before_flags.inexact)
+  // IEEE 754-2019 7.5: before rounding, the exact result 1E-435 is below
+  // 10^e_min = 0.01, so the result is tiny although the bounded result is
+  // 10^e_min (#333).
   assert_true(before_flags.underflow)
   assert_true(before_flags.subnormal)
 }

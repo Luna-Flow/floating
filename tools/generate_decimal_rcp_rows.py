@@ -42,7 +42,7 @@ ROUNDINGS = pm1.ROUNDINGS
 DECIMAL32 = pm1.DECIMAL32
 DECIMAL64 = pm1.DECIMAL64
 DECIMAL128 = pm1.DECIMAL128
-UNBOUNDED = (16, -999999, 999999, 0)
+UNBOUNDED = (16, -999998, 999999, 1)
 INT32_MIN = -(2**31)
 INT32_MAX = 2**31 - 1
 CHUNK_ROWS = 500
@@ -212,7 +212,7 @@ def build() -> Rows:
                "0.04", "1E+2", "1.00E+2", "100", "1", "1.0", "1E-6", "1E+6", "0.0016", "390625", "1.5625E-2",
                str(4**10), str(4**20), str(25**8), str(Decimal(4) ** 30), "2.56", "1.6E+3"]
     for precision in (1, 2, 3, 7, 16, 34):
-        spec = (precision, -999999, 999999, 0)
+        spec = (precision, -999998, 999999, 1)
         modes = ROUNDINGS if precision in (1, 3, 16) else ("half_even", "floor", "half_up")
         for mode in modes:
             c = ctx(spec, mode)
@@ -227,7 +227,7 @@ def build() -> Rows:
     # Powers of four beyond p + 1 result digits (left to the enclosure).
     for mode in ROUNDINGS:
         for precision in (3, 7):
-            c = ctx((precision, -999999, 999999, 0), mode)
+            c = ctx((precision, -999998, 999999, 1), mode)
             for a in (8, 9, 10, 12, 20):
                 rows.add("rsqrt", c, Decimal(4**a))
                 rows.add("rsqrt", c, Decimal(25**a))
@@ -237,7 +237,7 @@ def build() -> Rows:
         p, emin, emax = spec[0], spec[1], spec[2]
         etiny = emin - p + 1
         for mode in ROUNDINGS:
-            for tininess in ("b", "a"):
+            for tininess in ("b",):
                 c = ctx(spec, mode, tininess)
                 for k in (-2 * emax - 2, -2 * emax - 1, -2 * emax, -2 * emax + 1, -2 * emin, -2 * emin + 1,
                           -2 * emin + 2, -2 * etiny, -2 * etiny + 1, -2 * etiny + 4, -2 * etiny - 2):
@@ -250,16 +250,16 @@ def build() -> Rows:
     for precision in (*range(1, 61), 200, 220):
         for index, text in enumerate(samples):
             mode = ROUNDINGS[(precision + index) % len(ROUNDINGS)]
-            spec = (precision, -(precision + 400), precision + 400, (precision + index) % 2)
+            spec = (precision, -(precision + 399), precision + 400, 1)
             if index % 2:
-                spec = (precision, -999999, 999999, 0)
-            c = ctx(spec, mode, "ab"[(precision + index) % 2])
+                spec = (precision, -999998, 999999, 1)
+            c = ctx(spec, mode, "b")
             x = c.python().create_decimal(Decimal(text))
             rows.add("rsqrt", c, x)
     # compound: exact cases and cohorts, neighbours, large |n|, x near -1,
     # tiny x (the anchored path), overflow and underflow.
     for precision in (1, 2, 3, 7, 16, 34):
-        spec = (precision, -999999, 999999, 0)
+        spec = (precision, -999998, 999999, 1)
         modes = ROUNDINGS if precision in (1, 3, 16) else ("half_even", "floor", "half_up")
         for mode in modes:
             c = ctx(spec, mode)
@@ -269,9 +269,9 @@ def build() -> Rows:
             for text in ("0.0500000001", "-0.4999999", "1E-20", "-1E-20", "3E-12", "-0.999999", "1E+20"):
                 for n in (1, 3, -3, 1000, -1000, INT32_MAX, INT32_MIN, 123456789):
                     rows.add("compound", c, Decimal(text), None, n)
-    for spec in (DECIMAL32, DECIMAL64, DECIMAL128, (16, -3000, 3000, 0)):
+    for spec in (DECIMAL32, DECIMAL64, DECIMAL128, (16, -2999, 3000, 1)):
         for mode in ROUNDINGS:
-            for tininess in ("b", "a"):
+            for tininess in ("b",):
                 c = ctx(spec, mode, tininess)
                 for text in ("1E-30", "-1E-30", "7E-400", "-3E-6200", "1E-1999990", "-9.9E-1999997"):
                     for n in (1, -1, 7, -7, INT32_MAX, INT32_MIN):
@@ -293,7 +293,7 @@ def build() -> Rows:
              ("1E-300", "1.2"), ("1E-5", "1.2"), ("1E-5", "-1.2"), ("1E+10", "0.5"), ("1E-4", "-0.25"),
              ("1000E-8", "1.2")]
     for precision in (1, 3, 7, 16, 34):
-        spec = (precision, -999999, 999999, 0)
+        spec = (precision, -999998, 999999, 1)
         for mode in ROUNDINGS if precision in (1, 16) else ("half_even", "ceiling", "half_up"):
             c = ctx(spec, mode)
             for a, b in pairs:
@@ -302,7 +302,7 @@ def build() -> Rows:
                     rows.add("powr", c, x, Decimal(b), 0)
     for spec in (DECIMAL32, DECIMAL64, DECIMAL128):
         for mode in ROUNDINGS:
-            for tininess in ("b", "a"):
+            for tininess in ("b",):
                 c = ctx(spec, mode, tininess)
                 emax, emin = spec[2], spec[1]
                 for a, b in (("10", str(emax)), ("10", str(emax + 0.5)), ("2", str(int((emax + 1) * 3.3219))),

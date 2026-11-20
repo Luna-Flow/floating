@@ -15,10 +15,8 @@ test "a zero addend does not leak a clamp of the other operand" {
     (7, -95, 96, HalfEven, "1E+90", "1E+1", "-0E+80", "1.000000E+91"),
   ]
   for entry in cases {
-    let (precision, e_min, e_max, mode, left, right, addend, expected) = entry
-    let ctx = DecimalContext::new(precision~, e_min~, e_max~, clamp=true).with_round(
-      mode,
-    )
+    let (precision, _, e_max, mode, left, right, addend, expected) = entry
+    let ctx = DecimalContext::new(precision~, e_max~).with_round(mode)
     let x = Decimal::from_string(left).unwrap()
     let y = Decimal::from_string(right).unwrap()
     let (value, flags) = if addend == "" {

@@ -83,9 +83,7 @@ test "cospi next to zero is decided before the loop in every direction" {
   ]
   for x in ["1E-999999", "-3E-999999", "1E-1999996", "9E-1999997"] {
     for row in rows {
-      let ctx = DecimalContext::new(precision=16, e_min=-383, e_max=384).with_round(
-        row.0,
-      )
+      let ctx = DecimalContext::new(precision=16, e_max=384).with_round(row.0)
       assert_eq(
         "cospi(\{x}): " +
         huge_trig_show(fn(v, c) { v.try_cospi_ctx(c) }, x, ctx),

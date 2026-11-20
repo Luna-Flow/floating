@@ -48,11 +48,11 @@ ROUNDINGS = {
 }
 # (name, precision, e_min, e_max, clamp)
 CONTEXTS = [
-    ("narrow", 51, -14, 11, False),  # the context of issue #363
+    ("narrow", 51, -10, 11, True),  # the context of issue #363
     ("decimal32", 7, -95, 96, True),
     ("decimal64", 16, -383, 384, True),
     ("decimal128", 34, -6143, 6144, True),
-    ("wide", 34, -999999, 999999, False),
+    ("wide", 34, -999998, 999999, True),
 ]
 # 1 / log10(base) rounded up: the factor of the coarse decision.
 FACTOR = {"exp": 3, "exp2": 4, "exp10": 1}

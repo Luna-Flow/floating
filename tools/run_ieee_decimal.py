@@ -394,7 +394,7 @@ def render_moon_fixture_test() -> str:
             precision, e_min, e_max = format_parameters[row["format"]]
             ctx = (
                 "DecimalContext::new("
-                f"precision={precision}, e_min={e_min}, e_max={e_max}, clamp=true, "
+                f"precision={precision}, e_max={e_max}, "
                 f"rounding=DecimalRoundingMode::{rounding_variants[row['rounding']]})"
             )
             rhs = (

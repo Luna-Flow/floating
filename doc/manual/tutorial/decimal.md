@@ -122,7 +122,6 @@ test "decimal round to cents" {
   let bankers = @decimal.DecimalContext::decimal64()
   let commercial = @decimal.DecimalContext::new(
     precision=16,
-    e_min=-383,
     e_max=384,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
@@ -398,11 +397,11 @@ test "decimal total order separates cohorts" {
 
 ## Common pitfalls
 
-- **Elementary functions need a bounded context.** `DecimalContext::new()`
-  has the exponent range $\pm 999\,999\,999$, which is outside what the
-  elementary functions accept; they return NaN with `invalid_context`. Use
-  `decimal32()`/`decimal64()`/`decimal128()` or pass `e_min`/`e_max` within
-  $\pm 999\,999$.
+- **Elementary functions need an exponent range within 999,999.**
+  `DecimalContext::new()` is the format $(34,\ 999\,999)$, which they accept;
+  a context with `e_max` above 999,999, or a precision of 1000 digits or more
+  with the default range, makes them return NaN with `invalid_context`. Use
+  `decimal32()`/`decimal64()`/`decimal128()` or pass `e_max` up to 999,999.
 - **Operators are not context operations.** `*` never rounds, so repeated
   products grow without bound; `/` rounds half-even to the operand precision
   and applies no exponent range. Use `mul_ctx` and `div_ctx` when the result

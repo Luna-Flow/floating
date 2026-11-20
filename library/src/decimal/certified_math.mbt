@@ -346,13 +346,13 @@ fn decimal_tiny_argument_result(
   )
   let (lower, upper) = if above {
     (
-      anchor.add_ctx(inner_offset, DecimalContext::exact()).0,
-      anchor.add_ctx(offset, DecimalContext::exact()).0,
+      anchor.add_ctx(inner_offset, decimal_exact_work_context()).0,
+      anchor.add_ctx(offset, decimal_exact_work_context()).0,
     )
   } else {
     (
-      anchor.sub_ctx(offset, DecimalContext::exact()).0,
-      anchor.sub_ctx(inner_offset, DecimalContext::exact()).0,
+      anchor.sub_ctx(offset, decimal_exact_work_context()).0,
+      anchor.sub_ctx(inner_offset, decimal_exact_work_context()).0,
     )
   }
   guard lower.class == FpClass::Finite && upper.class == FpClass::Finite else {
@@ -464,11 +464,7 @@ fn decimal_certified_exp_minimum_result(
   // under both tininess options of the context (before rounding, the rule of
   // IEEE 754-2019 7.5 for decimal formats, and the non-standard
   // `AfterRounding`), also when `precision = 1` and etiny equals e_min (#333).
-  let tiny = tiny_for_underflow(
-    ctx,
-    (minimum_exponent - 1).to_int64(),
-    (minimum_exponent - 1).to_int64(),
-  )
+  let tiny = tiny_for_underflow(ctx, (minimum_exponent - 1).to_int64())
   (
     finite_with_exponent_repr(
       false,
@@ -559,13 +555,8 @@ fn decimal_exponential_coarse_extreme_result(
       return Some(
         match ctx.decimal_rounding {
           Ceiling | Up | ZeroFiveUp => decimal_certified_exp_minimum_result(ctx)
-          Down | Floor | HalfEven | HalfUp | HalfDown => {
-            let clamped = match decimal_power_gda_integer_count(value) {
-              Some(count) => count <= -1000
-              None => false
-            }
-            decimal_exp_underflow_zero_result(ctx, clamped)
-          }
+          Down | Floor | HalfEven | HalfUp | HalfDown =>
+            decimal_exp_underflow_zero_result(ctx)
         },
       )
     }

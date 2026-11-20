@@ -5,7 +5,7 @@
 
 ///|
 fn refinement_context(precision : Int32) -> DecimalContext {
-  DecimalContext::new(precision~, e_min=-999_999, e_max=999_999)
+  DecimalContext::new(precision~, e_max=999_999)
 }
 
 ///|
@@ -32,10 +32,6 @@ test "refinement limit: default is Some(12) and matches the explicit value" {
   inspect(context.refinement_limit() == Some(12), content="true")
   inspect(
     DecimalContext::decimal64().refinement_limit() == Some(12),
-    content="true",
-  )
-  inspect(
-    DecimalContext::exact().refinement_limit() == Some(12),
     content="true",
   )
   let x = refinement_hard_input()

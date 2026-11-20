@@ -49,7 +49,7 @@ DECIMAL32 = (7, -95, 96, 1)
 DECIMAL64 = (16, -383, 384, 1)
 DECIMAL128 = (34, -6143, 6144, 1)
 # The widest context the math functions accept (math_context_is_restricted).
-UNBOUNDED = (16, -999999, 999999, 0)
+UNBOUNDED = (16, -999998, 999999, 1)
 WIDE = 10**7
 
 
@@ -264,7 +264,7 @@ def build() -> Rows:
     # cases of log2p1/log10p1 and theirs; the gate 4 (p + 2) of the exact path
     # and the values beyond it (exp2(n) delegation, the 10^n cluster).
     for precision in (1, 2, 3, 5, 7, 16, 34):
-        spec = (precision, -999999, 999999, 0)
+        spec = (precision, -999998, 999999, 1)
         bound = 4 * (precision + 2)
         modes = ROUNDINGS if precision in (1, 7) else ("half_even", "floor", "half_up")
         for mode in modes:
@@ -306,13 +306,13 @@ def build() -> Rows:
     # log2p1(2^k - 1) = k with k longer than the precision (rounded, possibly
     # at a midpoint): k = 15, 25, 35, 95, 105 at p = 1.
     for mode in ROUNDINGS:
-        c = ctx((1, -999999, 999999, 0), mode)
+        c = ctx((1, -999998, 999999, 1), mode)
         for k in (15, 25, 35, 95, 105, 250):
-            rows.add("log2p1", ctx((80, -999999, 999999, 0), mode), Decimal(2**k - 1))
-            rows.add("log10p1", ctx((k + 1, -999999, 999999, 0), mode), Decimal(10**k - 1))
-            rows.add("log10p1", ctx((k + 1, -999999, 999999, 0), mode), fraction_decimal(Fraction(1, 10**k) - 1))
+            rows.add("log2p1", ctx((80, -999998, 999999, 1), mode), Decimal(2**k - 1))
+            rows.add("log10p1", ctx((k + 1, -999998, 999999, 1), mode), Decimal(10**k - 1))
+            rows.add("log10p1", ctx((k + 1, -999998, 999999, 1), mode), fraction_decimal(Fraction(1, 10**k) - 1))
         for k in (15, 25, 35):
-            rows.add("log2p1", ctx((k + 1, -999999, 999999, 0), mode), fraction_decimal(Fraction(1, 2**k) - 1))
+            rows.add("log2p1", ctx((k + 1, -999998, 999999, 1), mode), fraction_decimal(Fraction(1, 2**k) - 1))
     # The 10^n - 1 and 2^n - 1 clusters far beyond the gate, the overflow
     # edge and the coarse overflow guard, in the interchange formats.
     for spec, emax in ((DECIMAL32, 96), (DECIMAL64, 384), (DECIMAL128, 6144)):
@@ -332,7 +332,7 @@ def build() -> Rows:
     # Saturation towards -1 (non-integer x at and beyond -(p + 2), -(4p + 8)).
     for precision in (1, 2, 3, 7, 16, 34, 60):
         for mode in ROUNDINGS:
-            c = ctx((precision, -999999, 999999, 0), mode)
+            c = ctx((precision, -999998, 999999, 1), mode)
             for t in (precision + 2, 4 * precision + 8):
                 for delta in ("0.5", "-0.5", "3.25", "-0.25"):
                     x = -Decimal(t) + Decimal(delta)
@@ -344,9 +344,9 @@ def build() -> Rows:
     # interchange formats (whose range clips the result) and a wide context.
     # The wide context stays at +-3000: an in-range endpoint near 10^-3000 is
     # expanded exactly (doc/manual/verification.md), which is the cost of a row.
-    for spec in (DECIMAL32, DECIMAL64, DECIMAL128, (16, -3000, 3000, 0)):
+    for spec in (DECIMAL32, DECIMAL64, DECIMAL128, (16, -2999, 3000, 1)):
         for mode in ROUNDINGS:
-            for tininess in ("b", "a"):
+            for tininess in ("b",):
                 c = ctx(spec, mode, tininess)
                 etiny = spec[1] - spec[0] + 1
                 ks = (3, spec[0] + 3, -spec[1], -etiny - 1, -etiny, -etiny + 1, 6200, 1999996)
@@ -360,7 +360,7 @@ def build() -> Rows:
                         for op in OPS:
                             rows.add(op, c, x, member=False)
     # Tininess at the normal/subnormal boundary: f(x) just below 10^emin.
-    for spec in (DECIMAL32, DECIMAL64, (5, -10, 10, 0)):
+    for spec in (DECIMAL32, DECIMAL64, (5, -9, 10, 1)):
         p, emin = spec[0], spec[1]
         target = Decimal(1).scaleb(emin)
         for op, base, invert in (("exp2m1", 2, False), ("exp10m1", 10, False),
@@ -379,7 +379,7 @@ def build() -> Rows:
                     for _ in range(abs(ulps)):
                         x = x.next_plus() if ulps > 0 else x.next_minus()
                 for mode in ROUNDINGS:
-                    for tininess in ("b", "a"):
+                    for tininess in ("b",):
                         rows.add(op, ctx(spec, mode, tininess), x, member=False)
                         rows.add(op, ctx(spec, mode, tininess), -x, member=False)
     # Precision sweep 1..60, 200, 220 with all modes cycling, bounded
@@ -388,10 +388,10 @@ def build() -> Rows:
     for precision in (*range(1, 61), 200, 220):
         for index, text in enumerate(samples):
             mode = ROUNDINGS[(precision + index) % len(ROUNDINGS)]
-            bounded = (precision, -(precision + 30), precision + 30, (precision + index) % 2)
-            unbounded = (precision, -999999, 999999, 0)
+            bounded = (precision, -(precision + 29), precision + 30, 1)
+            unbounded = (precision, -999998, 999999, 1)
             for spec in ((bounded, unbounded) if index % 2 == 0 else (bounded,)) if precision <= 60 else (unbounded,):
-                c = ctx(spec, mode, "ab"[(precision + index) % 2])
+                c = ctx(spec, mode, "b")
                 x = c.python().create_decimal(Decimal(text))
                 if x.is_zero():
                     continue
@@ -401,7 +401,7 @@ def build() -> Rows:
                     rows.add(op, c, x)
     # Long operands at precision 200: near -1 (log poles) and near integers.
     for precision in (200, 220):
-        c = ctx((precision, -999999, 999999, 0), "half_even")
+        c = ctx((precision, -999998, 999999, 1), "half_even")
         for tail in (52, 150, precision):
             near = Decimal("-0." + "9" * tail)  # -1 + 10^-tail
             if len(near.as_tuple().digits) <= precision:
@@ -414,8 +414,8 @@ def build() -> Rows:
     # Log overflow in a context with a tiny e_max, and clamping of an exact
     # result (63 = 2^6 - 1 at p = 3, e_max = 1 must be written 630E-1).
     for mode in ROUNDINGS:
-        for clamp in (0, 1):
-            c = ctx((3, -2, 1, clamp), mode)
+        for clamp in (1,):
+            c = ctx((3, 0, 1, clamp), mode)
             for x in ("63", "7", "1E+3", "1E+30", "9.99E+1", "-0.875", "0.5"):
                 for op in OPS:
                     xd = Decimal(x)
