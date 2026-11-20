@@ -13,7 +13,9 @@ import argparse
 import decimal
 import json
 import re
+import signal as signal_module
 import subprocess
+import sys
 import time
 from decimal import Context, Decimal, localcontext
 from pathlib import Path
@@ -828,8 +830,19 @@ def check_executed_count(result: dict[str, Any], expected: int) -> dict[str, Any
     }
 
 
+def remove_generated_files(directory: Path) -> list[Path]:
+    """Delete the generated corpus files of `directory`; the pattern matches nothing else."""
+    removed = sorted(directory.glob(GENERATED_FIXTURE_GLOB))
+    for path in removed:
+        path.unlink(missing_ok=True)
+    return removed
+
+
 def run_targets(
-    targets: list[str], fixture: str = "", generated_only: bool = False
+    targets: list[str],
+    fixture: str = "",
+    generated_only: bool = False,
+    root: Path = ROOT,
 ) -> list[dict[str, Any]]:
     """Run the generated corpus tests on each target.
 
@@ -837,18 +850,38 @@ def run_targets(
     ordinary `decimal` tests already run in the repository gate's native TEST
     stage. The full gate (`just gate decimal`) still runs the whole package on
     every target, so cross-target coverage of the ordinary tests is kept.
+
+    The generated files live in `root/library/src/decimal` for the length of the
+    run only. A test must pass a temporary `root`: while the files exist, any
+    `moon` command that scans the real tree (the quick gate runs its Python lane
+    concurrently with its `moon` lane) plans them and then fails with
+    "input ... missing" when they are deleted (#417). A SIGTERM (the gate stops its
+    stages with one when another stage fails) is turned into an exit so that the
+    `finally` below still removes the files; files left by a run that was killed
+    harder are removed first, since the pattern is generated-only.
     """
     requested = selected_targets(targets)
-    existing = sorted((ROOT / "library/src/decimal").glob(GENERATED_FIXTURE_GLOB))
-    if existing:
-        raise CorpusError(f"generated IEEE fixture already exists: {existing[0]}")
+    decimal_directory = root / "library/src/decimal"
+    stale = remove_generated_files(decimal_directory)
+    if stale:
+        print(
+            f"removed {len(stale)} generated IEEE fixture files left by an interrupted run",
+            file=sys.stderr,
+        )
     results: list[dict[str, Any]] = []
     generated_paths: list[Path] = []
+    previous_handler = None
     try:
+        try:
+            previous_handler = signal_module.signal(
+                signal_module.SIGTERM, lambda _signum, _frame: sys.exit(143)
+            )
+        except ValueError:  # not the main thread: the default handler stays
+            previous_handler = None
         chunks = split_fixture_test(render_moon_fixture_test())
         expected = count_generated_tests(chunks)
         for index, chunk in enumerate(chunks):
-            path = ROOT / "library/src/decimal" / f"ieee_corpus_generated_{index:02d}_wbtest.mbt"
+            path = decimal_directory / f"ieee_corpus_generated_{index:02d}_wbtest.mbt"
             path.write_text(chunk, encoding="utf-8")
             generated_paths.append(path)
         for target in requested:
@@ -857,7 +890,7 @@ def run_targets(
                     "moon",
                     "test",
                     *(
-                        [str(path.relative_to(ROOT)) for path in generated_paths]
+                        [str(path.relative_to(root)) for path in generated_paths]
                         if generated_only
                         else ["library/src/decimal"]
                     ),
@@ -865,7 +898,7 @@ def run_targets(
                     target,
                     "--no-parallelize",
                 ],
-                cwd=ROOT,
+                cwd=root,
                 check=False,
                 capture_output=True,
                 text=True,
@@ -877,6 +910,8 @@ def run_targets(
     finally:
         for path in generated_paths:
             path.unlink(missing_ok=True)
+        if previous_handler is not None:
+            signal_module.signal(signal_module.SIGTERM, previous_handler)
     return results
 
 
