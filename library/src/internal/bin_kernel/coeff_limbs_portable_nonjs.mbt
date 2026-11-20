@@ -107,3 +107,228 @@ fn bin_limbs_submul_1_portable(
   }
   carry
 }
+
+///|
+/// The largest magnitude of the word shifts, and the largest length (`count`,
+/// `x_len`, `y_len`), that `bin_limbs_window_combine` accepts: 2^28 limbs. The
+/// callers (`binary_coeff_fast_add_parts`) give lengths of at most 2^14 limbs
+/// (coefficients of at most 2^20 bits) and word shifts of at most 2^24 in
+/// magnitude (exponents within +-2^28); within the bound every index sum of the
+/// portable body (32-bit) and of the C body (64-bit) is exact.
+let bin_limbs_window_max : Int32 = 268435456
+
+///|
+/// Aborts unless the arguments of `bin_limbs_window_combine` meet its
+/// contract: `0 <= count <= words.length()`, `0 <= x_len <= x.length()`,
+/// `0 <= y_len <= y.length()`, bit shifts in `0 ..= 63`, word shifts of
+/// magnitude at most `bin_limbs_window_max`, lengths at most the same, and
+/// `words` neither `x` nor `y`.
+fn bin_limbs_window_check(
+  words : FixedArray[UInt64],
+  count : Int32,
+  x : FixedArray[UInt64],
+  x_len : Int32,
+  x_word_shift : Int32,
+  x_bit_shift : Int32,
+  y : FixedArray[UInt64],
+  y_len : Int32,
+  y_word_shift : Int32,
+  y_bit_shift : Int32,
+) -> Unit {
+  let limit = bin_limbs_window_max.reinterpret_as_uint()
+  if count < 0 ||
+    count > words.length() ||
+    x_len < 0 ||
+    x_len > x.length() ||
+    y_len < 0 ||
+    y_len > y.length() ||
+    count.reinterpret_as_uint() > limit ||
+    x_len.reinterpret_as_uint() > limit ||
+    y_len.reinterpret_as_uint() > limit ||
+    (x_word_shift + bin_limbs_window_max).reinterpret_as_uint() > 2U * limit ||
+    (y_word_shift + bin_limbs_window_max).reinterpret_as_uint() > 2U * limit ||
+    x_bit_shift < 0 ||
+    x_bit_shift > 63 ||
+    y_bit_shift < 0 ||
+    y_bit_shift > 63 ||
+    physical_equal(words, x) ||
+    physical_equal(words, y) {
+    abort("bin_kernel window row contract violated")
+  }
+}
+
+///|
+/// Word `index` of the window of one operand of `bin_limbs_window_combine`:
+/// `words` (`len` limbs) placed so that its bit 0 is bit `64 * word_shift +
+/// bit_shift` of the window; limbs outside the operand read as zero.
+fn bin_limbs_window_word(
+  words : FixedArray[UInt64],
+  len : Int32,
+  word_shift : Int32,
+  bit_shift : Int32,
+  index : Int32,
+) -> UInt64 {
+  let source = index - word_shift
+  let low = if source >= 0 && source < len {
+    words.unsafe_get(source)
+  } else {
+    0UL
+  }
+  if bit_shift == 0 {
+    return low
+  }
+  let below = if source >= 1 && source <= len {
+    words.unsafe_get(source - 1)
+  } else {
+    0UL
+  }
+  (low << bit_shift) | (below >> (64 - bit_shift))
+}
+
+///|
+/// The portable body of `bin_limbs_window_combine` (the contract is there).
+/// The limbs where every source limb of both operands exists are read without
+/// a bounds test, each source limb once (the previous one is kept in a
+/// register), and an operand without a bit shift is read directly instead of
+/// through the two shifts (the operand that starts at the window bottom has
+/// none, so one of the two usually has none: four loops by which operand is
+/// shifted, plus the case without a second operand). The carry is written as
+/// the comparison idiom `sum = a + b + carry; carry = (partial < a) | (sum <
+/// partial)`, which the compiler turns into an add-with-carry chain when the
+/// loop body is as small as in the unshifted loop (a bit expression of the
+/// three words, measured, defeats that and costs more per limb). The few
+/// limbs at either end go through `bin_limbs_window_word`.
+fn bin_limbs_window_combine_portable(
+  words : FixedArray[UInt64],
+  count : Int32,
+  x : FixedArray[UInt64],
+  x_len : Int32,
+  x_word_shift : Int32,
+  x_bit_shift : Int32,
+  y : FixedArray[UInt64],
+  y_len : Int32,
+  y_word_shift : Int32,
+  y_bit_shift : Int32,
+  subtract : Bool,
+  carry_in : UInt64,
+) -> UInt64 {
+  let mask = if subtract { 0xFFFFFFFFFFFFFFFFUL } else { 0UL }
+  let mut carry = if subtract { 1UL - carry_in } else { carry_in }
+  let use_y = y_len > 0
+  let mut low = x_word_shift + 1
+  let mut high = x_word_shift + x_len
+  if use_y {
+    low = Int32::max(low, y_word_shift + 1)
+    high = Int32::min(high, y_word_shift + y_len)
+  }
+  low = Int32::max(0, Int32::min(low, count))
+  high = Int32::min(count, Int32::max(high, low))
+  for index in 0..<low {
+    let a = bin_limbs_window_word(x, x_len, x_word_shift, x_bit_shift, index)
+    let b = bin_limbs_window_word(y, y_len, y_word_shift, y_bit_shift, index) ^
+      mask
+    let partial = a + b
+    let sum = partial + carry
+    let first = if partial < a { 1UL } else { 0UL }
+    let second = if sum < partial { 1UL } else { 0UL }
+    carry = first | second
+    words.unsafe_set(index, sum)
+  }
+  if low < high {
+    if use_y {
+      if x_bit_shift == 0 && y_bit_shift == 0 {
+        for index in low..<high {
+          let a = x.unsafe_get(index - x_word_shift)
+          let b = y.unsafe_get(index - y_word_shift) ^ mask
+          let partial = a + b
+          let sum = partial + carry
+          let first = if partial < a { 1UL } else { 0UL }
+          let second = if sum < partial { 1UL } else { 0UL }
+          carry = first | second
+          words.unsafe_set(index, sum)
+        }
+      } else if x_bit_shift == 0 {
+        let y_down = 63 - y_bit_shift
+        let mut y_previous = y.unsafe_get(low - y_word_shift - 1)
+        for index in low..<high {
+          let y_current = y.unsafe_get(index - y_word_shift)
+          let a = x.unsafe_get(index - x_word_shift)
+          let b = ((y_current << y_bit_shift) | (y_previous >> 1 >> y_down)) ^
+            mask
+          y_previous = y_current
+          let partial = a + b
+          let sum = partial + carry
+          let first = if partial < a { 1UL } else { 0UL }
+          let second = if sum < partial { 1UL } else { 0UL }
+          carry = first | second
+          words.unsafe_set(index, sum)
+        }
+      } else if y_bit_shift == 0 {
+        let x_down = 63 - x_bit_shift
+        let mut x_previous = x.unsafe_get(low - x_word_shift - 1)
+        for index in low..<high {
+          let x_current = x.unsafe_get(index - x_word_shift)
+          let a = (x_current << x_bit_shift) | (x_previous >> 1 >> x_down)
+          let b = y.unsafe_get(index - y_word_shift) ^ mask
+          x_previous = x_current
+          let partial = a + b
+          let sum = partial + carry
+          let first = if partial < a { 1UL } else { 0UL }
+          let second = if sum < partial { 1UL } else { 0UL }
+          carry = first | second
+          words.unsafe_set(index, sum)
+        }
+      } else {
+        let x_down = 63 - x_bit_shift
+        let y_down = 63 - y_bit_shift
+        let mut x_previous = x.unsafe_get(low - x_word_shift - 1)
+        let mut y_previous = y.unsafe_get(low - y_word_shift - 1)
+        for index in low..<high {
+          let x_current = x.unsafe_get(index - x_word_shift)
+          let y_current = y.unsafe_get(index - y_word_shift)
+          let a = (x_current << x_bit_shift) | (x_previous >> 1 >> x_down)
+          let b = ((y_current << y_bit_shift) | (y_previous >> 1 >> y_down)) ^
+            mask
+          x_previous = x_current
+          y_previous = y_current
+          let partial = a + b
+          let sum = partial + carry
+          let first = if partial < a { 1UL } else { 0UL }
+          let second = if sum < partial { 1UL } else { 0UL }
+          carry = first | second
+          words.unsafe_set(index, sum)
+        }
+      }
+    } else {
+      let x_down = 63 - x_bit_shift
+      let mut x_previous = x.unsafe_get(low - x_word_shift - 1)
+      for index in low..<high {
+        let x_current = x.unsafe_get(index - x_word_shift)
+        let a = (x_current << x_bit_shift) | (x_previous >> 1 >> x_down)
+        x_previous = x_current
+        let partial = a + mask
+        let sum = partial + carry
+        let first = if partial < a { 1UL } else { 0UL }
+        let second = if sum < partial { 1UL } else { 0UL }
+        carry = first | second
+        words.unsafe_set(index, sum)
+      }
+    }
+  }
+  for index in high..<count {
+    let a = bin_limbs_window_word(x, x_len, x_word_shift, x_bit_shift, index)
+    let b = bin_limbs_window_word(y, y_len, y_word_shift, y_bit_shift, index) ^
+      mask
+    let partial = a + b
+    let sum = partial + carry
+    let first = if partial < a { 1UL } else { 0UL }
+    let second = if sum < partial { 1UL } else { 0UL }
+    carry = first | second
+    words.unsafe_set(index, sum)
+  }
+  if subtract {
+    1UL - carry
+  } else {
+    carry
+  }
+}

@@ -106,3 +106,385 @@ test "Coeff 64-bit limbs: carries across word boundaries" {
     )
   }
 }
+
+///|
+/// The previous loop of `binary_coeff_fast_add_parts` (`bin_window_combine` and
+/// `bin_window_word` of `bin_float_fast_coeff_nonjs.mbt` before the row
+/// primitive), kept verbatim as the reference of the window row.
+fn window_word_reference(
+  words : FixedArray[UInt64],
+  len : Int32,
+  word_shift : Int32,
+  bit_shift : Int32,
+  index : Int32,
+) -> UInt64 {
+  let source = index - word_shift
+  let low = if source >= 0 && source < len {
+    words.unsafe_get(source)
+  } else {
+    0UL
+  }
+  if bit_shift == 0 {
+    return low
+  }
+  let below = if source >= 1 && source <= len {
+    words.unsafe_get(source - 1)
+  } else {
+    0UL
+  }
+  (low << bit_shift) | (below >> (64 - bit_shift))
+}
+
+///|
+fn window_combine_reference(
+  words : FixedArray[UInt64],
+  count : Int32,
+  x : FixedArray[UInt64],
+  x_len : Int32,
+  x_word_shift : Int32,
+  x_bit_shift : Int32,
+  y : FixedArray[UInt64],
+  y_len : Int32,
+  y_word_shift : Int32,
+  y_bit_shift : Int32,
+  subtract : Bool,
+  carry_in : UInt64,
+) -> UInt64 {
+  let mask = if subtract { 0xFFFFFFFFFFFFFFFFUL } else { 0UL }
+  let mut carry = if subtract { 1UL - carry_in } else { carry_in }
+  let use_y = y_len > 0
+  let mut low = x_word_shift + 1
+  let mut high = x_word_shift + x_len
+  if use_y {
+    low = Int32::max(low, y_word_shift + 1)
+    high = Int32::min(high, y_word_shift + y_len)
+  }
+  low = Int32::max(0, Int32::min(low, count))
+  high = Int32::min(count, Int32::max(high, low))
+  for index in 0..<low {
+    let a = window_word_reference(x, x_len, x_word_shift, x_bit_shift, index)
+    let b = window_word_reference(y, y_len, y_word_shift, y_bit_shift, index) ^
+      mask
+    let partial = a + b
+    let sum = partial + carry
+    let first = if partial < a { 1UL } else { 0UL }
+    let second = if sum < partial { 1UL } else { 0UL }
+    carry = first | second
+    words.unsafe_set(index, sum)
+  }
+  let x_down = 63 - x_bit_shift
+  if low < high {
+    let mut x_previous = x.unsafe_get(low - x_word_shift - 1)
+    if use_y {
+      let y_down = 63 - y_bit_shift
+      let mut y_previous = y.unsafe_get(low - y_word_shift - 1)
+      for index in low..<high {
+        let x_current = x.unsafe_get(index - x_word_shift)
+        let y_current = y.unsafe_get(index - y_word_shift)
+        let a = (x_current << x_bit_shift) | (x_previous >> 1 >> x_down)
+        let b = ((y_current << y_bit_shift) | (y_previous >> 1 >> y_down)) ^
+          mask
+        x_previous = x_current
+        y_previous = y_current
+        let partial = a + b
+        let sum = partial + carry
+        let first = if partial < a { 1UL } else { 0UL }
+        let second = if sum < partial { 1UL } else { 0UL }
+        carry = first | second
+        words.unsafe_set(index, sum)
+      }
+    } else {
+      for index in low..<high {
+        let x_current = x.unsafe_get(index - x_word_shift)
+        let a = (x_current << x_bit_shift) | (x_previous >> 1 >> x_down)
+        x_previous = x_current
+        let partial = a + mask
+        let sum = partial + carry
+        let first = if partial < a { 1UL } else { 0UL }
+        let second = if sum < partial { 1UL } else { 0UL }
+        carry = first | second
+        words.unsafe_set(index, sum)
+      }
+    }
+  }
+  for index in high..<count {
+    let a = window_word_reference(x, x_len, x_word_shift, x_bit_shift, index)
+    let b = window_word_reference(y, y_len, y_word_shift, y_bit_shift, index) ^
+      mask
+    let partial = a + b
+    let sum = partial + carry
+    let first = if partial < a { 1UL } else { 0UL }
+    let second = if sum < partial { 1UL } else { 0UL }
+    carry = first | second
+    words.unsafe_set(index, sum)
+  }
+  if subtract {
+    1UL - carry
+  } else {
+    carry
+  }
+}
+
+///|
+/// A limb array of `len` limbs of a pattern: 0 random, 1 all ones, 2 zero, 3
+/// alternating all ones and zero, 4 single top bit, 5 random with zero runs.
+fn window_test_array(
+  random : WordsTestRandom,
+  len : Int32,
+  pattern : Int32,
+) -> FixedArray[UInt64] {
+  let words = FixedArray::make(len, 0UL)
+  for index in 0..<len {
+    words[index] = match pattern {
+      0 => random.next()
+      1 => 0xFFFF_FFFF_FFFF_FFFFUL
+      2 => 0UL
+      3 => if index % 2 == 0 { 0xFFFF_FFFF_FFFF_FFFFUL } else { 0UL }
+      4 => 0x8000_0000_0000_0000UL
+      _ => if index % 3 == 0 { 0UL } else { random.next() }
+    }
+  }
+  words
+}
+
+///|
+/// One call of the window row against the reference: the same result array
+/// and the same returned carry. `run` is the body under test.
+fn window_check_one(
+  run : (
+    FixedArray[UInt64],
+    Int32,
+    FixedArray[UInt64],
+    Int32,
+    Int32,
+    Int32,
+    FixedArray[UInt64],
+    Int32,
+    Int32,
+    Int32,
+    Bool,
+    UInt64,
+  ) -> UInt64,
+  count : Int32,
+  x : FixedArray[UInt64],
+  x_word_shift : Int32,
+  x_bit_shift : Int32,
+  y : FixedArray[UInt64],
+  y_len : Int32,
+  y_word_shift : Int32,
+  y_bit_shift : Int32,
+  subtract : Bool,
+  carry_in : UInt64,
+) -> Unit raise {
+  let expected = FixedArray::make(count, 0xABCDUL)
+  let actual = FixedArray::make(count, 0xABCDUL)
+  let expected_carry = window_combine_reference(
+    expected,
+    count,
+    x,
+    x.length(),
+    x_word_shift,
+    x_bit_shift,
+    y,
+    y_len,
+    y_word_shift,
+    y_bit_shift,
+    subtract,
+    carry_in,
+  )
+  let actual_carry = run(
+    actual,
+    count,
+    x,
+    x.length(),
+    x_word_shift,
+    x_bit_shift,
+    y,
+    y_len,
+    y_word_shift,
+    y_bit_shift,
+    subtract,
+    carry_in,
+  )
+  assert_eq(actual_carry, expected_carry)
+  assert_eq(actual, expected)
+}
+
+///|
+fn window_check_all(
+  run : (
+    FixedArray[UInt64],
+    Int32,
+    FixedArray[UInt64],
+    Int32,
+    Int32,
+    Int32,
+    FixedArray[UInt64],
+    Int32,
+    Int32,
+    Int32,
+    Bool,
+    UInt64,
+  ) -> UInt64,
+  seed : UInt64,
+) -> Unit raise {
+  let random = { words_state: seed, }
+  let shifts = [0, 1, 2, 31, 32, 33, 62, 63]
+  for count in [1, 2, 3, 4, 5, 7, 8, 9, 12, 13, 14, 15, 16, 17, 31, 32, 33, 40] {
+    for x_len in [1, 2, count - 1, count, count + 1, count + 3] {
+      if x_len >= 1 {
+        for y_len in [0, 1, x_len - 1, x_len, x_len + 2] {
+          if y_len >= 0 {
+            for pattern in 0..<6 {
+              let x = window_test_array(random, x_len, pattern)
+              let y = window_test_array(
+                random,
+                Int32::max(y_len, 1),
+                (pattern + 1) % 6,
+              )
+              // word shifts: x at the window bottom, one limb up, near the top;
+              // y cut at the bottom, aligned, above
+              for x_word_shift in [0, 1, count / 2] {
+                for y_word_shift in [-2, -1, 0, 1, count / 2, count + 1] {
+                  for subtract in [false, true] {
+                    for carry_in in [0UL, 1UL] {
+                      for k in 0..<shifts.length() {
+                        // every x shift with a sampled y shift and the other way round
+                        let a_shift = shifts[k]
+                        let b_shift = shifts[(k * 3 + pattern) % shifts.length()]
+                        window_check_one(
+                          run, count, x, x_word_shift, a_shift, y, y_len, y_word_shift,
+                          b_shift, subtract, carry_in,
+                        )
+                        window_check_one(
+                          run, count, x, x_word_shift, b_shift, y, y_len, y_word_shift,
+                          a_shift, subtract, carry_in,
+                        )
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  // every bit shift of both operands, one geometry
+  let x = window_test_array(random, 12, 0)
+  let y = window_test_array(random, 10, 5)
+  for x_bit_shift in 0..<64 {
+    for y_bit_shift in 0..<64 {
+      for subtract in [false, true] {
+        window_check_one(
+          run, 14, x, 1, x_bit_shift, y, 10, 2, y_bit_shift, subtract, 1UL,
+        )
+      }
+    }
+  }
+}
+
+///|
+test "the portable window row equals the previous loop: every bit shift, word shifts, subtraction with and without borrow, short and empty second operand, lengths 1 to 40, special limbs" {
+  window_check_all(bin_limbs_window_combine_portable, 0x1B873593CC9E2D51UL)
+}
+
+///|
+test "the window row of the active tier (C rows, assembly tier or portable) equals the previous loop" {
+  window_check_all(bin_limbs_window_combine, 0x85EBCA6B27D4EB2FUL)
+}
+
+///|
+test "the window row at the limits of its contract: word shifts of magnitude 2^28, both bodies" {
+  let random = { words_state: 0x2545F4914F6CDD1DUL, }
+  let limit = bin_limbs_window_max
+  let shifts = [-limit, -limit + 1, -1, 0, 1, limit - 1, limit]
+  for count in [1, 3, 9, 14, 20] {
+    for x_len in [1, 5, 16] {
+      for y_len in [0, 1, 9] {
+        for x_word_shift in shifts {
+          for y_word_shift in shifts {
+            for subtract in [false, true] {
+              for bit_shift in [0, 1, 63] {
+                let x = window_test_array(random, x_len, 0)
+                let y = window_test_array(random, Int32::max(y_len, 1), 5)
+                let expected = FixedArray::make(count, 0x77UL)
+                let reference_carry = window_combine_reference(
+                  expected,
+                  count,
+                  x,
+                  x_len,
+                  x_word_shift,
+                  bit_shift,
+                  y,
+                  y_len,
+                  y_word_shift,
+                  63 - bit_shift,
+                  subtract,
+                  1UL,
+                )
+                let portable = FixedArray::make(count, 0x77UL)
+                let portable_carry = bin_limbs_window_combine_portable(
+                  portable,
+                  count,
+                  x,
+                  x_len,
+                  x_word_shift,
+                  bit_shift,
+                  y,
+                  y_len,
+                  y_word_shift,
+                  63 - bit_shift,
+                  subtract,
+                  1UL,
+                )
+                assert_eq(portable_carry, reference_carry)
+                assert_eq(portable, expected)
+                let tier = FixedArray::make(count, 0x77UL)
+                let tier_carry = bin_limbs_window_combine(
+                  tier,
+                  count,
+                  x,
+                  x_len,
+                  x_word_shift,
+                  bit_shift,
+                  y,
+                  y_len,
+                  y_word_shift,
+                  63 - bit_shift,
+                  subtract,
+                  1UL,
+                )
+                assert_eq(tier_carry, reference_carry)
+                assert_eq(tier, expected)
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+///|
+test "panic the window row rejects a word shift beyond its contract" {
+  let words = FixedArray::make(4, 0UL)
+  let x = FixedArray::make(4, 1UL)
+  ignore(
+    bin_limbs_window_combine(
+      words,
+      4,
+      x,
+      4,
+      bin_limbs_window_max + 1,
+      0,
+      x,
+      0,
+      0,
+      0,
+      false,
+      0UL,
+    ),
+  )
+}
