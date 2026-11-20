@@ -5,10 +5,12 @@ The IEEE 754 package `decimal` and the GDA package `decimal_gda` must stay
 independent of each other (doc/manual/design/decimal_gda.md, section "A GDA
 package independent of `decimal`"), and the status-free coefficient kernel
 `internal/decimal_kernel` that both build on must not know either of them.
-The library module (`moon.mod`) may depend on `Luna-Flow/arithmetic` and
+The library module (`library/moon.mod`) may depend on `Luna-Flow/arithmetic` and
 `Luna-Flow/luna-generic` only, and none of its packages may import the tools
 module `Luna-Flow/floating-tools` (`tooling/`): benchmarks, command-line
 frontends and the differential harness live there (#22).
+The three LICENSE files (repository root, `library/`, `tooling/`) must be
+byte-identical: each published package carries its own copy.
 Every import in a package's `moon.pkg` counts, including `for "test"` and
 `for "wbtest"` blocks, because a test-only edge couples the packages as well.
 
@@ -25,7 +27,7 @@ from pathlib import Path
 MODULE = "Luna-Flow/floating"
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-# package directory (below src/) -> import paths it must not use.
+# package directory (below library/src/) -> import paths it must not use.
 FORBIDDEN: dict[str, tuple[str, ...]] = {
     "decimal": (f"{MODULE}/decimal_gda",),
     "decimal_gda": (f"{MODULE}/decimal",),
@@ -66,7 +68,7 @@ def violations(src: Path) -> list[str]:
             continue
         for path in imports_of(pkg_file):
             if path in forbidden:
-                found.append(f"src/{directory} must not import {path}")
+                found.append(f"library/src/{directory} must not import {path}")
     for directory, allowed in ALLOWED_MODULE_IMPORTS.items():
         pkg_file = src / directory / "moon.pkg"
         if not pkg_file.exists():
@@ -74,7 +76,7 @@ def violations(src: Path) -> list[str]:
             continue
         for path in imports_of(pkg_file):
             if is_module_path(path) and path not in allowed:
-                found.append(f"src/{directory} must not import {path}")
+                found.append(f"library/src/{directory} must not import {path}")
     return found
 
 
@@ -86,11 +88,11 @@ def manifest_dependencies(manifest: Path) -> list[str]:
 def module_violations(root: Path) -> list[str]:
     """Violations of the two-module split: the library's dependencies and imports."""
     found: list[str] = []
-    manifest = root / "moon.mod"
+    manifest = root / "library" / "moon.mod"
     for dependency in manifest_dependencies(manifest):
         if dependency not in LIBRARY_DEPENDENCIES:
-            found.append(f"moon.mod must not depend on {dependency}")
-    for pkg_file in sorted((root / "src").rglob("moon.pkg")):
+            found.append(f"library/moon.mod must not depend on {dependency}")
+    for pkg_file in sorted((root / "library" / "src").rglob("moon.pkg")):
         for path in imports_of(pkg_file):
             if path == TOOLS_MODULE or path.startswith(TOOLS_MODULE + "/"):
                 found.append(f"{pkg_file.relative_to(root)} must not import {path}")
@@ -101,11 +103,30 @@ def module_violations(root: Path) -> list[str]:
     return found
 
 
+LICENSE_FILES = ("LICENSE", "library/LICENSE", "tooling/LICENSE")
+
+
+def license_violations(root: Path) -> list[str]:
+    """The LICENSE of the repository and of both modules must be the same bytes."""
+    contents: dict[str, bytes | None] = {}
+    for name in LICENSE_FILES:
+        path = root / name
+        contents[name] = path.read_bytes() if path.is_file() else None
+    found = [f"{name} is missing" for name, data in contents.items() if data is None]
+    reference = contents[LICENSE_FILES[0]]
+    found.extend(
+        f"{name} differs from {LICENSE_FILES[0]}"
+        for name, data in contents.items()
+        if data is not None and reference is not None and data != reference
+    )
+    return found
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--root", type=Path, default=REPO_ROOT, help="repository root")
     args = parser.parse_args(argv)
-    found = violations(args.root / "src") + module_violations(args.root)
+    found = violations(args.root / "library" / "src") + module_violations(args.root) + license_violations(args.root)
     for line in found:
         print(f"check_imports: {line}", file=sys.stderr)
     if not found:

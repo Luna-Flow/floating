@@ -28,7 +28,7 @@ MANUAL_ROOT = REPO_ROOT / "doc" / "manual"
 # other page is compiled in the library module, so that the examples of the
 # library-internal `@internal` package keep working: a package of the tools
 # module cannot import it.
-LIBRARY_GENERATED_ROOT = REPO_ROOT / "src" / "_generated_doc_examples"
+LIBRARY_GENERATED_ROOT = REPO_ROOT / "library" / "src" / "_generated_doc_examples"
 TOOLS_GENERATED_ROOT = REPO_ROOT / "tooling" / "src" / "_generated_doc_examples"
 GENERATED_ROOTS = (LIBRARY_GENERATED_ROOT, TOOLS_GENERATED_ROOT)
 GENERATED_NAME = LIBRARY_GENERATED_ROOT.name

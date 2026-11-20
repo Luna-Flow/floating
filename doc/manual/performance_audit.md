@@ -122,10 +122,10 @@ every release, equivalence across targets, or a latency bound.
 
 | Check | Result |
 | --- | --- |
-| `sh tools/run_moon_clean_exec.sh test src/decimal_gda --target native --deny-warn --frozen --no-parallelize` | 93/93 passed |
-| `sh tools/run_moon_clean_exec.sh test src/decimal --target native --deny-warn --frozen --no-parallelize` | 94/94 passed |
-| `sh tools/run_moon_clean_exec.sh test src/bin_float --target native --deny-warn --frozen --no-parallelize` | 68/68 passed |
-| `sh tools/run_moon_clean_exec.sh test src/ball_float --target native --deny-warn --frozen --no-parallelize` | 42/42 passed |
+| `sh tools/run_moon_clean_exec.sh test library/src/decimal_gda --target native --deny-warn --frozen --no-parallelize` | 93/93 passed |
+| `sh tools/run_moon_clean_exec.sh test library/src/decimal --target native --deny-warn --frozen --no-parallelize` | 94/94 passed |
+| `sh tools/run_moon_clean_exec.sh test library/src/bin_float --target native --deny-warn --frozen --no-parallelize` | 68/68 passed |
+| `sh tools/run_moon_clean_exec.sh test library/src/ball_float --target native --deny-warn --frozen --no-parallelize` | 42/42 passed |
 | `just gate binary 8` | 7,464,503/7,464,503 passed |
 | `just gate decimal 8` | 15,763/15,763 passed |
 | `just gate decimal_gda 8` | 64,986/64,986 and 16,124/16,124 passed |

@@ -8857,7 +8857,7 @@ msgid "§9.8, §10.5.8 constructors"
 msgstr ""
 
 #: manual/conformance/ball_float.md:20
-msgid "ITF1788 sets phase; `src/ball_float/ieee1788_arithmetic_wbtest.mbt`"
+msgid "ITF1788 sets phase; `library/src/ball_float/ieee1788_arithmetic_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/ball_float.md:20
@@ -8877,7 +8877,7 @@ msgid "§9.5, §10.5.10 boolean functions of intervals"
 msgstr ""
 
 #: manual/conformance/ball_float.md:22
-msgid "ITF1788 relations phase (567 cases); `src/ball_float/ieee1788_relations_wbtest.mbt`"
+msgid "ITF1788 relations phase (567 cases); `library/src/ball_float/ieee1788_relations_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/ball_float.md:23
@@ -9209,7 +9209,7 @@ msgid "§3.3–§3.6 binary16/32/64/128 interchange formats"
 msgstr ""
 
 #: manual/conformance/bin_float.md:73
-msgid "TestFloat gate; `src/bin_float/ieee754_wbtest.mbt`"
+msgid "TestFloat gate; `library/src/bin_float/ieee754_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/bin_float.md:74
@@ -9218,7 +9218,7 @@ msgid "§3.7 extendable precisions"
 msgstr ""
 
 #: manual/conformance/bin_float.md:74
-msgid "MPFR elementary fixture; `src/bin_float/exponent_range_wbtest.mbt`"
+msgid "MPFR elementary fixture; `library/src/bin_float/exponent_range_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/bin_float.md:75
@@ -9240,7 +9240,7 @@ msgid "§5.3.1 addition, subtraction, multiplication, division, squareRoot"
 msgstr ""
 
 #: manual/conformance/bin_float.md:76
-msgid "TestFloat gate (7,461,360 vectors); `src/bin_float/ieee754_wbtest.mbt`"
+msgid "TestFloat gate (7,461,360 vectors); `library/src/bin_float/ieee754_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/bin_float.md:77
@@ -9249,7 +9249,7 @@ msgid "§5.3.1 fusedMultiplyAdd"
 msgstr ""
 
 #: manual/conformance/bin_float.md:77
-msgid "TestFloat gate (245,329,920 mulAdd vectors); `src/bin_float/fma_wbtest.mbt`"
+msgid "TestFloat gate (245,329,920 mulAdd vectors); `library/src/bin_float/fma_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/bin_float.md:78
@@ -9258,7 +9258,7 @@ msgid "§5.3.1 remainder"
 msgstr ""
 
 #: manual/conformance/bin_float.md:78
-msgid "TestFloat gate (rem); `src/bin_float/remainder_wbtest.mbt`"
+msgid "TestFloat gate (rem); `library/src/bin_float/remainder_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/bin_float.md:79
@@ -9266,7 +9266,7 @@ msgid "§5.3.1, §5.9 roundToIntegral (five directions, exact)"
 msgstr ""
 
 #: manual/conformance/bin_float.md:79
-msgid "TestFloat gate (roundToInt, exact and inexact); `src/bin_float/integral_wbtest.mbt`"
+msgid "TestFloat gate (roundToInt, exact and inexact); `library/src/bin_float/integral_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/bin_float.md:80
@@ -9275,7 +9275,7 @@ msgid "§5.3.1 nextUp, nextDown"
 msgstr ""
 
 #: manual/conformance/bin_float.md:80
-msgid "`src/bin_float/next_wbtest.mbt` (no external corpus)"
+msgid "`library/src/bin_float/next_wbtest.mbt` (no external corpus)"
 msgstr ""
 
 #: manual/conformance/bin_float.md:81
@@ -9284,7 +9284,7 @@ msgid "§5.3.1 scaleB, logB"
 msgstr ""
 
 #: manual/conformance/bin_float.md:81
-msgid "`src/bin_float/scale_wbtest.mbt` (no external corpus)"
+msgid "`library/src/bin_float/scale_wbtest.mbt` (no external corpus)"
 msgstr ""
 
 #: manual/conformance/bin_float.md:82
@@ -9294,7 +9294,7 @@ msgstr ""
 
 #: manual/conformance/bin_float.md:82
 #: manual/conformance/bin_float.md:88
-msgid "`src/bin_float/order_wbtest.mbt` (no external corpus)"
+msgid "`library/src/bin_float/order_wbtest.mbt` (no external corpus)"
 msgstr ""
 
 #: manual/conformance/bin_float.md:83
@@ -9302,7 +9302,7 @@ msgid "§5.4.1, §5.8 convertToInteger (exact and inexact)"
 msgstr ""
 
 #: manual/conformance/bin_float.md:83
-msgid "TestFloat gate (32- and 64-bit conversions); `src/bin_float/to_integer_wbtest.mbt`"
+msgid "TestFloat gate (32- and 64-bit conversions); `library/src/bin_float/to_integer_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/bin_float.md:84
@@ -9311,7 +9311,7 @@ msgid "§5.4.2 convertFormat"
 msgstr ""
 
 #: manual/conformance/bin_float.md:84
-msgid "`src/bin_float/ieee754_wbtest.mbt`; TestFloat format-to-format conversions are not run"
+msgid "`library/src/bin_float/ieee754_wbtest.mbt`; TestFloat format-to-format conversions are not run"
 msgstr ""
 
 #: manual/conformance/bin_float.md:85
@@ -9324,7 +9324,7 @@ msgid "§5.6, §5.11 comparison predicates, quiet and signaling"
 msgstr ""
 
 #: manual/conformance/bin_float.md:86
-msgid "TestFloat gate (eq, le, lt, eq_signaling, le_quiet, lt_quiet); `src/bin_float/order_wbtest.mbt`"
+msgid "TestFloat gate (eq, le, lt, eq_signaling, le_quiet, lt_quiet); `library/src/bin_float/order_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/bin_float.md:87
@@ -9332,7 +9332,7 @@ msgid "§5.7 class and sign predicates"
 msgstr ""
 
 #: manual/conformance/bin_float.md:87
-msgid "`src/bin_float/contextual_traits_wbtest.mbt`; the ten-way `class` of §5.7.2 is not one function"
+msgid "`library/src/bin_float/contextual_traits_wbtest.mbt`; the ten-way `class` of §5.7.2 is not one function"
 msgstr ""
 
 #: manual/conformance/bin_float.md:88
@@ -9345,7 +9345,7 @@ msgid "§5.12 decimal character conversion, both directions"
 msgstr ""
 
 #: manual/conformance/bin_float.md:89
-msgid "MPFR `mpfr_strtofr` corpus (1,716 rows) and `mpfr_get_str` corpus (3,300 rows); `src/bin_float/decimal_string_wbtest.mbt`"
+msgid "MPFR `mpfr_strtofr` corpus (1,716 rows) and `mpfr_get_str` corpus (3,300 rows); `library/src/bin_float/decimal_string_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/bin_float.md:90
@@ -9353,7 +9353,7 @@ msgid "§5.12 hexadecimal character conversion"
 msgstr ""
 
 #: manual/conformance/bin_float.md:90
-msgid "every production of the §5.12.3 grammar and the §5.12.1 words, accepted and rejected, and a 4,000-value round trip in `src/bin_float/hex_grammar_wbtest.mbt`; used by every MPFR corpus row; no rounding direction or flags yet ([#256](https://github.com/Luna-Flow/floating/issues/256))"
+msgid "every production of the §5.12.3 grammar and the §5.12.1 words, accepted and rejected, and a 4,000-value round trip in `library/src/bin_float/hex_grammar_wbtest.mbt`; used by every MPFR corpus row; no rounding direction or flags yet ([#256](https://github.com/Luna-Flow/floating/issues/256))"
 msgstr ""
 
 #: manual/conformance/bin_float.md:91
@@ -9367,7 +9367,7 @@ msgid "every `*_ctx` operation"
 msgstr ""
 
 #: manual/conformance/bin_float.md:91
-msgid "TestFloat gate (a NaN result is compared by class only); `src/bin_float/compare_nan_wbtest.mbt`"
+msgid "TestFloat gate (a NaN result is compared by class only); `library/src/bin_float/compare_nan_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/bin_float.md:91
@@ -9410,7 +9410,7 @@ msgid "§9.2 recommended mathematical functions"
 msgstr ""
 
 #: manual/conformance/bin_float.md:95
-msgid "MPFR elementary fixture (2,088 rows); `src/bin_float/elementary_certified_wbtest.mbt`; `src/bin_float/tanh_saturation_issue185_wbtest.mbt`; underflow and overflow decisions at the range limits (`exp2` and `pow` exact subnormal powers of two, `pown` tininess, `expm1` overflow window, all elementary exponentials against an independent reference): `src/bin_float/exp2_subnormal_wbtest.mbt`, `pow_exact_subnormal_wbtest.mbt`, `pown_subnormal_tininess_wbtest.mbt`, `expm1_overflow_window_wbtest.mbt`, `underflow_siblings_wbtest.mbt`; `exp2m1`, `exp10m1`, `log2p1`, `log10p1` (special values of §9.2.1, exact cases, thresholds): `src/bin_float/pm1_functions_wbtest.mbt`; `rsqrt`, `compound`, `powr` (special values of §9.2.1, exact cases, tiny-argument rule, `pow` agreement): `src/bin_float/rsqrt_compound_powr_wbtest.mbt`; `asinpi`, `acospi`, `atanpi`, `atan2pi` (special values and exact constants of §9.2.1, anchors at ±1/2 and ±1 for huge, tiny and extreme-ratio arguments, tiny arguments at the implementation subnormal limit, agreement with the result at p + 150): `src/bin_float/pi_inverse_wbtest.mbt`; seeded random and targeted boundary campaigns (results below)"
+msgid "MPFR elementary fixture (2,088 rows); `library/src/bin_float/elementary_certified_wbtest.mbt`; `library/src/bin_float/tanh_saturation_issue185_wbtest.mbt`; underflow and overflow decisions at the range limits (`exp2` and `pow` exact subnormal powers of two, `pown` tininess, `expm1` overflow window, all elementary exponentials against an independent reference): `library/src/bin_float/exp2_subnormal_wbtest.mbt`, `pow_exact_subnormal_wbtest.mbt`, `pown_subnormal_tininess_wbtest.mbt`, `expm1_overflow_window_wbtest.mbt`, `underflow_siblings_wbtest.mbt`; `exp2m1`, `exp10m1`, `log2p1`, `log10p1` (special values of §9.2.1, exact cases, thresholds): `library/src/bin_float/pm1_functions_wbtest.mbt`; `rsqrt`, `compound`, `powr` (special values of §9.2.1, exact cases, tiny-argument rule, `pow` agreement): `library/src/bin_float/rsqrt_compound_powr_wbtest.mbt`; `asinpi`, `acospi`, `atanpi`, `atan2pi` (special values and exact constants of §9.2.1, anchors at ±1/2 and ±1 for huge, tiny and extreme-ratio arguments, tiny arguments at the implementation subnormal limit, agreement with the result at p + 150): `library/src/bin_float/pi_inverse_wbtest.mbt`; seeded random and targeted boundary campaigns (results below)"
 msgstr ""
 
 #: manual/conformance/bin_float.md:96
@@ -9457,7 +9457,7 @@ msgid "§9.7 NaN payload operations"
 msgstr ""
 
 #: manual/conformance/bin_float.md:100
-msgid "`src/bin_float/order_wbtest.mbt`; no getPayload/setPayload pair"
+msgid "`library/src/bin_float/order_wbtest.mbt`; no getPayload/setPayload pair"
 msgstr ""
 
 #: manual/conformance/bin_float.md:102
@@ -9670,7 +9670,7 @@ msgid "The committed elementary layer contains 4,896 certified rows. MPFR 4.2.2 
 msgstr ""
 
 #: manual/conformance/decimal.md:27
-msgid "IEEE 754-2019 §9.2 saturation regressions for `Decimal::tanh_ctx` and `Decimal::expm1_ctx` are in `src/decimal/elementary_extensions_wbtest.mbt`. They check positive and negative `tanh`, negative `expm1`, all eight `DecimalRoundingMode` values, both clamp settings, both extended settings, and exact `Rounded`/`Inexact` flags. The certified pre-loop bound selects a same-side representative within the proved gap and passes it through the normal context finalizer, which supplies tininess, overflow and clamp flags. These targeted cases are separate from the committed MPFR row count. `decimal_gda` currently exposes neither operation, so this entry makes no GDA conformance claim."
+msgid "IEEE 754-2019 §9.2 saturation regressions for `Decimal::tanh_ctx` and `Decimal::expm1_ctx` are in `library/src/decimal/elementary_extensions_wbtest.mbt`. They check positive and negative `tanh`, negative `expm1`, all eight `DecimalRoundingMode` values, both clamp settings, both extended settings, and exact `Rounded`/`Inexact` flags. The certified pre-loop bound selects a same-side representative within the proved gap and passes it through the normal context finalizer, which supplies tininess, overflow and clamp flags. These targeted cases are separate from the committed MPFR row count. `decimal_gda` currently exposes neither operation, so this entry makes no GDA conformance claim."
 msgstr ""
 
 #: manual/conformance/decimal.md:40
@@ -9682,7 +9682,7 @@ msgid "§3.5 decimal32/64/128 interchange, DPD and BID"
 msgstr ""
 
 #: manual/conformance/decimal.md:44
-msgid "IEEE decimal corpus (`testdata/decimal/ieee/decimal64_dpd.json` and the other five encodings); all 1,024 declets; `src/decimal/interchange_wbtest.mbt`"
+msgid "IEEE decimal corpus (`testdata/decimal/ieee/decimal64_dpd.json` and the other five encodings); all 1,024 declets; `library/src/decimal/interchange_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/decimal.md:45
@@ -9690,7 +9690,7 @@ msgid "`DecimalContext::new` (precision up to 999,999,999)"
 msgstr ""
 
 #: manual/conformance/decimal.md:46
-msgid "IEEE decimal corpus (five directions); `src/decimal/subnormal_rounding_wbtest.mbt`"
+msgid "IEEE decimal corpus (five directions); `library/src/decimal/subnormal_rounding_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/decimal.md:46
@@ -9710,11 +9710,11 @@ msgid "conforming; `pow(1, ±inf)` has no defined exponent and returns `1`"
 msgstr ""
 
 #: manual/conformance/decimal.md:48
-msgid "IEEE decimal corpus (authoritative operations); `src/decimal/exponent_limits_issue187_wbtest.mbt`"
+msgid "IEEE decimal corpus (authoritative operations); `library/src/decimal/exponent_limits_issue187_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/decimal.md:49
-msgid "IEEE decimal corpus; `src/decimal/exponent_limits_issue187_wbtest.mbt`"
+msgid "IEEE decimal corpus; `library/src/decimal/exponent_limits_issue187_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/decimal.md:50
@@ -9722,7 +9722,7 @@ msgid "`remainder_ctx` (IEEE remainder; `remainder` and `remainder_near` are the
 msgstr ""
 
 #: manual/conformance/decimal.md:50
-msgid "`src/decimal/remainder_wbtest.mbt` (no external corpus)"
+msgid "`library/src/decimal/remainder_wbtest.mbt` (no external corpus)"
 msgstr ""
 
 #: manual/conformance/decimal.md:51
@@ -9754,7 +9754,7 @@ msgid "§5.7 class, isCanonical, radix"
 msgstr ""
 
 #: manual/conformance/decimal.md:61
-msgid "`testdata/decimal/ieee/total_order.json`: every ordered pair of cohorts, signed zeros, subnormals, infinities and quiet and signaling NaNs with payloads in decimal32/64/128 (18,816 pairs), expected values from a transcription of §5.10 cross-checked with libmpdec, run on four targets in the `DECIMAL: IEEE 754` gate; NaN payloads order by value, reversed for a negative sign (implementation-defined by §5.10 d) 5) iii)); `src/consistency/core_wbtest.mbt`"
+msgid "`testdata/decimal/ieee/total_order.json`: every ordered pair of cohorts, signed zeros, subnormals, infinities and quiet and signaling NaNs with payloads in decimal32/64/128 (18,816 pairs), expected values from a transcription of §5.10 cross-checked with libmpdec, run on four targets in the `DECIMAL: IEEE 754` gate; NaN payloads order by value, reversed for a negative sign (implementation-defined by §5.10 d) 5) iii)); `library/src/consistency/core_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/decimal.md:62
@@ -9762,11 +9762,11 @@ msgid "§5.12 decimal character conversion (decimal to decimal)"
 msgstr ""
 
 #: manual/conformance/decimal.md:62
-msgid "`src/decimal/parse_format_wbtest.mbt`; IEEE decimal corpus"
+msgid "`library/src/decimal/parse_format_wbtest.mbt`; IEEE decimal corpus"
 msgstr ""
 
 #: manual/conformance/decimal.md:63
-msgid "IEEE decimal corpus; `src/decimal/nan_payload_issue151_152_wbtest.mbt`"
+msgid "IEEE decimal corpus; `library/src/decimal/nan_payload_issue151_152_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/decimal.md:64
@@ -9778,7 +9778,7 @@ msgid "`DecimalFlags` returned by every `*_ctx` operation"
 msgstr ""
 
 #: manual/conformance/decimal.md:64
-msgid "IEEE decimal corpus (flags recorded independently of values); `src/decimal/overflow_rounded_result_issue264_wbtest.mbt` (overflow is judged on the rounded sum, not on an operand)"
+msgid "IEEE decimal corpus (flags recorded independently of values); `library/src/decimal/overflow_rounded_result_issue264_wbtest.mbt` (overflow is judged on the rounded sum, not on an operand)"
 msgstr ""
 
 #: manual/conformance/decimal.md:65
@@ -9786,7 +9786,7 @@ msgid "§7.5 underflow and tininess"
 msgstr ""
 
 #: manual/conformance/decimal.md:65
-msgid "`src/decimal/tininess_after_rounding_wbtest.mbt`; `src/decimal/sqrt_tininess_wbtest.mbt`; `src/decimal/elementary_extensions_wbtest.mbt`; `src/decimal/power_subnormal_underflow_issue268_wbtest.mbt` (an integer power just below 10^emin); `src/decimal/power_subnormal_underflow_issue342_wbtest.mbt` (underflow of an inexact subnormal integer power)"
+msgid "`library/src/decimal/tininess_after_rounding_wbtest.mbt`; `library/src/decimal/sqrt_tininess_wbtest.mbt`; `library/src/decimal/elementary_extensions_wbtest.mbt`; `library/src/decimal/power_subnormal_underflow_issue268_wbtest.mbt` (an integer power just below 10^emin); `library/src/decimal/power_subnormal_underflow_issue342_wbtest.mbt` (underflow of an inexact subnormal integer power)"
 msgstr ""
 
 #: manual/conformance/decimal.md:65
@@ -9794,7 +9794,7 @@ msgid "conforming (the default is before rounding; `AfterRounding` is a non-stan
 msgstr ""
 
 #: manual/conformance/decimal.md:67
-msgid "MPFR-certified elementary oracle (`testdata/decimal/ieee/elementary_mpfr_oracle.json`, 29 operations × 96 rows and 11 operations × 192 rows = 4,896); `src/decimal/elementary_extensions_wbtest.mbt`; `exp2m1`, `exp10m1`, `log2p1`, `log10p1` (special values of §9.2.1, exact cases and preferred exponent of §9.2.2, clusters, tiny arguments, all eight rounding modes, both tininess rules): `src/decimal/elementary_pm1_wbtest.mbt` and the generated `src/decimal/elementary_pm1_rows_wbtest.mbt` (`tools/generate_decimal_pm1_rows.py`); `rsqrt`, `compound`, `powr` (§9.2.1 rows, the two readings of the powr list, preferred exponents, `Int32` minimum, tiny and extreme arguments): `src/decimal/elementary_rcp_wbtest.mbt` and the generated `src/decimal/elementary_rcp_rows_wbtest.mbt` (`tools/generate_decimal_rcp_rows.py`); `asinpi`, `acospi`, `atanpi`, `atan2pi` (the clauses of §9.2.1 row by row, Niven's exact values, preferred exponent 0, the anchors next to ±1/2 and ±1 in all eight rounding modes on both sides, tiny and extreme operands, underflow): `src/decimal/elementary_pi_inverse_wbtest.mbt` and the generated `src/decimal/elementary_pi_inverse_rows_wbtest.mbt` (`tools/generate_decimal_pi_inverse_rows.py`); exponentials at the range limits (`exp`, `exp2`, `exp10` beyond the binary exponent range, results just inside and outside the range, all eight rounding directions): `src/decimal/exp_range_wbtest.mbt` and the generated `src/decimal/exp_range_rows_wbtest.mbt` (`tools/generate_decimal_exp_range_rows.py`); seeded random `decimal-*` campaign against MPFR (`doc/manual/verification.md`)"
+msgid "MPFR-certified elementary oracle (`testdata/decimal/ieee/elementary_mpfr_oracle.json`, 29 operations × 96 rows and 11 operations × 192 rows = 4,896); `library/src/decimal/elementary_extensions_wbtest.mbt`; `exp2m1`, `exp10m1`, `log2p1`, `log10p1` (special values of §9.2.1, exact cases and preferred exponent of §9.2.2, clusters, tiny arguments, all eight rounding modes, both tininess rules): `library/src/decimal/elementary_pm1_wbtest.mbt` and the generated `library/src/decimal/elementary_pm1_rows_wbtest.mbt` (`tools/generate_decimal_pm1_rows.py`); `rsqrt`, `compound`, `powr` (§9.2.1 rows, the two readings of the powr list, preferred exponents, `Int32` minimum, tiny and extreme arguments): `library/src/decimal/elementary_rcp_wbtest.mbt` and the generated `library/src/decimal/elementary_rcp_rows_wbtest.mbt` (`tools/generate_decimal_rcp_rows.py`); `asinpi`, `acospi`, `atanpi`, `atan2pi` (the clauses of §9.2.1 row by row, Niven's exact values, preferred exponent 0, the anchors next to ±1/2 and ±1 in all eight rounding modes on both sides, tiny and extreme operands, underflow): `library/src/decimal/elementary_pi_inverse_wbtest.mbt` and the generated `library/src/decimal/elementary_pi_inverse_rows_wbtest.mbt` (`tools/generate_decimal_pi_inverse_rows.py`); exponentials at the range limits (`exp`, `exp2`, `exp10` beyond the binary exponent range, results just inside and outside the range, all eight rounding directions): `library/src/decimal/exp_range_wbtest.mbt` and the generated `library/src/decimal/exp_range_rows_wbtest.mbt` (`tools/generate_decimal_exp_range_rows.py`); seeded random `decimal-*` campaign against MPFR (`doc/manual/verification.md`)"
 msgstr ""
 
 #: manual/conformance/decimal.md:68
@@ -9802,7 +9802,7 @@ msgid "§9.2.2 preferred exponents of pow and pown"
 msgstr ""
 
 #: manual/conformance/decimal.md:68
-msgid "`src/decimal/power_preferred_exponent_issue194_wbtest.mbt`; `src/decimal/power_overflow_sign_issue265_wbtest.mbt` (sign of an overflowing power); `src/decimal/power_inexact_trailing_zeros_issue266_wbtest.mbt` (an inexact power uses the cohort member of least exponent, §5.2); `src/decimal/power_reciprocal_cohort_issue284_wbtest.mbt` (cohort of exact negative powers, §5.2); `src/decimal/power_spurious_clamped_issue267_wbtest.mbt` (the `clamped` condition of integer powers); `src/decimal/power_ten_clamp_issue287_wbtest.mbt` (the `clamped` condition of a power of ten); `src/decimal/power_inexact_clamped_issue305_wbtest.mbt` (no `clamped` on an inexact result)"
+msgid "`library/src/decimal/power_preferred_exponent_issue194_wbtest.mbt`; `library/src/decimal/power_overflow_sign_issue265_wbtest.mbt` (sign of an overflowing power); `library/src/decimal/power_inexact_trailing_zeros_issue266_wbtest.mbt` (an inexact power uses the cohort member of least exponent, §5.2); `library/src/decimal/power_reciprocal_cohort_issue284_wbtest.mbt` (cohort of exact negative powers, §5.2); `library/src/decimal/power_spurious_clamped_issue267_wbtest.mbt` (the `clamped` condition of integer powers); `library/src/decimal/power_ten_clamp_issue287_wbtest.mbt` (the `clamped` condition of a power of ten); `library/src/decimal/power_inexact_clamped_issue305_wbtest.mbt` (no `clamped` on an inexact result)"
 msgstr ""
 
 #: manual/conformance/decimal.md:71
@@ -9913,7 +9913,7 @@ msgid "add, subtract, multiply"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:18
-msgid "`add.decTest`, `subtract.decTest`, `multiply.decTest`; `src/decimal_gda/overflow_rounded_result_issue264_wbtest.mbt` (overflow is judged on the rounded sum)"
+msgid "`add.decTest`, `subtract.decTest`, `multiply.decTest`; `library/src/decimal_gda/overflow_rounded_result_issue264_wbtest.mbt` (overflow is judged on the rounded sum)"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:19
@@ -9933,7 +9933,7 @@ msgid "power"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:22
-msgid "`power.decTest`; `src/decimal_gda/power_cohort_issue211_wbtest.mbt`; `src/decimal_gda/power_overflow_sign_issue265_wbtest.mbt` (sign of an overflowing power); `src/decimal_gda/power_inexact_trailing_zeros_issue266_wbtest.mbt` (an inexact power keeps precision digits); `src/decimal_gda/power_reciprocal_cohort_issue284_wbtest.mbt` (cohort of exact negative powers); `src/decimal_gda/power_spurious_clamped_issue267_wbtest.mbt` (Clamped of integer powers); `src/decimal_gda/power_subnormal_underflow_issue268_wbtest.mbt` (Subnormal and Underflow of integer powers near Emin); `src/decimal_gda/power_subnormal_underflow_issue342_wbtest.mbt` (Underflow of an inexact subnormal integer power); `src/decimal_gda/power_ten_clamp_issue287_wbtest.mbt` (clamp fold-down of a power of ten); `src/decimal_gda/power_inexact_clamped_issue305_wbtest.mbt` (no Clamped on an inexact result); `src/decimal_gda/power_one_inexact_issue306_wbtest.mbt` (the power of 1 to a non-integer exponent is inexact)"
+msgid "`power.decTest`; `library/src/decimal_gda/power_cohort_issue211_wbtest.mbt`; `library/src/decimal_gda/power_overflow_sign_issue265_wbtest.mbt` (sign of an overflowing power); `library/src/decimal_gda/power_inexact_trailing_zeros_issue266_wbtest.mbt` (an inexact power keeps precision digits); `library/src/decimal_gda/power_reciprocal_cohort_issue284_wbtest.mbt` (cohort of exact negative powers); `library/src/decimal_gda/power_spurious_clamped_issue267_wbtest.mbt` (Clamped of integer powers); `library/src/decimal_gda/power_subnormal_underflow_issue268_wbtest.mbt` (Subnormal and Underflow of integer powers near Emin); `library/src/decimal_gda/power_subnormal_underflow_issue342_wbtest.mbt` (Underflow of an inexact subnormal integer power); `library/src/decimal_gda/power_ten_clamp_issue287_wbtest.mbt` (clamp fold-down of a power of ten); `library/src/decimal_gda/power_inexact_clamped_issue305_wbtest.mbt` (no Clamped on an inexact result); `library/src/decimal_gda/power_one_inexact_issue306_wbtest.mbt` (the power of 1 to a non-integer exponent is inexact)"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:22
@@ -9989,7 +9989,7 @@ msgid "canonical"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:33
-msgid "no decTest file; `src/consistency/api_audit_wbtest.mbt`"
+msgid "no decTest file; `library/src/consistency/api_audit_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:34
@@ -10013,7 +10013,7 @@ msgid "`extended = false` contexts"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:36
-msgid "pinned subset corpus `dectest0.zip` (32 files, 31 with `extended: 0`) in the `DECIMAL_GDA: official0 decTest` gate stage; `src/decimal_gda/` white-box tests"
+msgid "pinned subset corpus `dectest0.zip` (32 files, 31 with `extended: 0`) in the `DECIMAL_GDA: official0 decTest` gate stage; `library/src/decimal_gda/` white-box tests"
 msgstr ""
 
 #: manual/conformance/decimal_gda.md:38
@@ -10097,7 +10097,7 @@ msgid "Repository conventions"
 msgstr ""
 
 #: manual/conventions.md:3
-msgid "These rules add to the Luna-Flow documentation standard for `floating`; they never relax it. The manual describes the implementation on the current branch. The current release is **`0.10.2`**, the version in `moon.mod`."
+msgid "These rules add to the Luna-Flow documentation standard for `floating`; they never relax it. The manual describes the implementation on the current branch. The current release is **`0.10.2`**, the version in `library/moon.mod`."
 msgstr ""
 
 #: manual/conventions.md:7
@@ -10137,7 +10137,7 @@ msgid "The guides are fixed by `tools/doc_quality.py`: `index.md` (overview and 
 msgstr ""
 
 #: manual/conventions.md:45
-msgid "`README.md` positions the current release and points into the manual. `CHANGELOG.md` owns release history and migration notes."
+msgid "`library/README.md` positions the current release and points into the manual. `library/CHANGELOG.md` owns release history and migration notes."
 msgstr ""
 
 #: manual/conventions.md:48
@@ -10145,7 +10145,7 @@ msgid "Package pages"
 msgstr ""
 
 #: manual/conventions.md:50
-msgid "Mirror every `moon.pkg`: the package in `src/<path>/moon.pkg` is documented in `api/<path>.md`, `tutorial/<path>.md` and `design/<path>.md`. Files do not create packages; `moon.pkg` boundaries do."
+msgid "Mirror every `moon.pkg`: the package in `library/src/<path>/moon.pkg` is documented in `api/<path>.md`, `tutorial/<path>.md` and `design/<path>.md`. Files do not create packages; `moon.pkg` boundaries do."
 msgstr ""
 
 #: manual/conventions.md:53
@@ -10153,7 +10153,7 @@ msgid "Give every package all three pages. Packages without an application API (
 msgstr ""
 
 #: manual/conventions.md:57
-msgid "Every package also keeps a `src/<path>/README.mbt.md`."
+msgid "Every package also keeps a `library/src/<path>/README.mbt.md`."
 msgstr ""
 
 #: manual/conventions.md:58
@@ -10161,7 +10161,7 @@ msgid "`pkg.generated.mbti` is the public-surface inventory; source and tests de
 msgstr ""
 
 #: manual/conventions.md:62
-msgid "Do not document planned APIs as existing, and do not keep research notes as separate pages. Promote durable conclusions into design, conformance or performance pages, and move superseded history to `CHANGELOG.md`."
+msgid "Do not document planned APIs as existing, and do not keep research notes as separate pages. Promote durable conclusions into design, conformance or performance pages, and move superseded history to `library/CHANGELOG.md`."
 msgstr ""
 
 #: manual/conventions.md:65
@@ -10265,7 +10265,7 @@ msgid "Run `moon fmt`, `moon check --target all --deny-warn`, the relevant tests
 msgstr ""
 
 #: manual/conventions.md:144
-msgid "On a release bump, update `moon.mod`, the version in `README.md`, this page and `CHANGELOG.md` together."
+msgid "On a release bump, update `library/moon.mod`, the version in `library/README.md`, this page and `library/CHANGELOG.md` together."
 msgstr ""
 
 #: manual/design/ball_float.md:1
@@ -11021,7 +11021,7 @@ msgid "The following inputs currently lose part of the input set, round or flag 
 msgstr ""
 
 #: manual/design/ball_float.md:855
-msgid "No limitation is open at present. Decorated `rootn` with a negative degree lowers the decoration to `trv` when 0 is in the argument, as the decoration rules of IEEE 1788-2015 §11 require; `src/ball_float/ball_float_decorated_wbtest.mbt` checks degrees `-1`, `-2` and `-3`."
+msgid "No limitation is open at present. Decorated `rootn` with a negative degree lowers the decoration to `trv` when 0 is in the argument, as the decoration rules of IEEE 1788-2015 §11 require; `library/src/ball_float/ball_float_decorated_wbtest.mbt` checks degrees `-1`, `-2` and `-3`."
 msgstr ""
 
 #: manual/design/ball_float.md:860
@@ -12077,7 +12077,7 @@ msgid "Handover: the range layer and how to add a function"
 msgstr ""
 
 #: manual/design/bin_float.md:450
-msgid "The recommended functions of §9.2 were added in three families on one layer (`src/bin_float/elementary_range.mbt`) and the helpers it builds on (`binary_round_dyadic` and `binary_round_precision_only` in `context_arithmetic.mbt`; `binary_certified_inexact_target_rounding`, `binary_inexact_inner_endpoint` and `binary_tiny_argument_result` in `elementary_certified.mbt`). Their purpose is to make the defect class of the range audit ([#271](https://github.com/Luna-Flow/floating/issues/271) to [#316](https://github.com/Luna-Flow/floating/issues/316)) impossible to write again: `BinFloat::make(c, e, w)` at a width $w$ flushes every value below $2^{e_{\\min} - (w - 1)}$, so a result or a helper value must never be built that way; exact results are rounded as dyadics, and a value that clusters at a representable anchor is decided by its certified distance to it."
+msgid "The recommended functions of §9.2 were added in three families on one layer (`library/src/bin_float/elementary_range.mbt`) and the helpers it builds on (`binary_round_dyadic` and `binary_round_precision_only` in `context_arithmetic.mbt`; `binary_certified_inexact_target_rounding`, `binary_inexact_inner_endpoint` and `binary_tiny_argument_result` in `elementary_certified.mbt`). Their purpose is to make the defect class of the range audit ([#271](https://github.com/Luna-Flow/floating/issues/271) to [#316](https://github.com/Luna-Flow/floating/issues/316)) impossible to write again: `BinFloat::make(c, e, w)` at a width $w$ flushes every value below $2^{e_{\\min} - (w - 1)}$, so a result or a helper value must never be built that way; exact results are rounded as dyadics, and a value that clusters at a representable anchor is decided by its certified distance to it."
 msgstr ""
 
 #: manual/design/bin_float.md:463
@@ -14049,7 +14049,7 @@ msgid "**Integer powers** are not certified; they are rounded once from exact in
 msgstr ""
 
 #: manual/design/decimal.md:803
-msgid "**Out-of-range results.** An enclosure such as $[0, \\text{tiny}]$ has endpoints that round with different flags. Any value $\\ge 10^{e_{\\max}+2}$ overflows identically, and any non-zero value $\\le 10^{E_{\\text{tiny}}-2} < \\tfrac12 10^{E_{\\text{tiny}}}$ rounds identically (to zero or to the smallest subnormal, depending only on the mode and sign), so far endpoints are replaced by such representatives; the binary test uses $3.322 > \\log_2 10$ so the replacement is conservative. `exp`, `exp2` and `exp10` share one decision (`decimal_exponential_coarse_extreme_result`, issue [#363](https://github.com/Luna-Flow/floating/issues/363)). For $b^x$ with $b \\in \\{e, 2, 10\\}$ let $k \\ge 1/\\log_{10} b$ be the integer 3, 4 or 1. Then $x \\ge k\\,(e_{\\max}+1)$ gives $b^x = 10^{x \\log_{10} b} \\ge 10^{e_{\\max}+1}$, above the largest finite number $(10^p - 1)\\,10^{e_{\\max}-p+1}$, so the overflow result of the rounding direction applies (IEEE 754-2019 §7.4); and $x \\le -k\\,(1 - E_{\\text{tiny}})$ gives $b^x \\le 10^{E_{\\text{tiny}}-1}$, below half of the smallest subnormal and, as $E_{\\text{tiny}} \\le e_{\\min}$, tiny before and after rounding, so the result is zero or the smallest subnormal by direction with `inexact`, `underflow` and `subnormal` (§7.5). The comparison is exact and the margin is the whole slack between $k$ and $1/\\log_{10} b$: an argument between the true boundary and the threshold is not decided here but by the Ziv loop, which is sound there because the threshold is at most $4\\,(1 - E_{\\text{tiny}})$ with $E_{\\text{tiny}} \\ge -1999997$, far below the exponent range of the binary enclosure. Without the decision a very negative argument (for `exp2`, beyond $2^{31}$ binades) has the enclosure $[0, \\text{tiny}]$ and never certifies. The decision is tested on both sides of each threshold and at results just inside and outside the range, in all eight rounding directions, by `src/decimal/exp_range_wbtest.mbt` and its generated rows. `power` bounds $y \\log_2 x$ with directed 128-bit arithmetic for the same purpose."
+msgid "**Out-of-range results.** An enclosure such as $[0, \\text{tiny}]$ has endpoints that round with different flags. Any value $\\ge 10^{e_{\\max}+2}$ overflows identically, and any non-zero value $\\le 10^{E_{\\text{tiny}}-2} < \\tfrac12 10^{E_{\\text{tiny}}}$ rounds identically (to zero or to the smallest subnormal, depending only on the mode and sign), so far endpoints are replaced by such representatives; the binary test uses $3.322 > \\log_2 10$ so the replacement is conservative. `exp`, `exp2` and `exp10` share one decision (`decimal_exponential_coarse_extreme_result`, issue [#363](https://github.com/Luna-Flow/floating/issues/363)). For $b^x$ with $b \\in \\{e, 2, 10\\}$ let $k \\ge 1/\\log_{10} b$ be the integer 3, 4 or 1. Then $x \\ge k\\,(e_{\\max}+1)$ gives $b^x = 10^{x \\log_{10} b} \\ge 10^{e_{\\max}+1}$, above the largest finite number $(10^p - 1)\\,10^{e_{\\max}-p+1}$, so the overflow result of the rounding direction applies (IEEE 754-2019 §7.4); and $x \\le -k\\,(1 - E_{\\text{tiny}})$ gives $b^x \\le 10^{E_{\\text{tiny}}-1}$, below half of the smallest subnormal and, as $E_{\\text{tiny}} \\le e_{\\min}$, tiny before and after rounding, so the result is zero or the smallest subnormal by direction with `inexact`, `underflow` and `subnormal` (§7.5). The comparison is exact and the margin is the whole slack between $k$ and $1/\\log_{10} b$: an argument between the true boundary and the threshold is not decided here but by the Ziv loop, which is sound there because the threshold is at most $4\\,(1 - E_{\\text{tiny}})$ with $E_{\\text{tiny}} \\ge -1999997$, far below the exponent range of the binary enclosure. Without the decision a very negative argument (for `exp2`, beyond $2^{31}$ binades) has the enclosure $[0, \\text{tiny}]$ and never certifies. The decision is tested on both sides of each threshold and at results just inside and outside the range, in all eight rounding directions, by `library/src/decimal/exp_range_wbtest.mbt` and its generated rows. `power` bounds $y \\log_2 x$ with directed 128-bit arithmetic for the same purpose."
 msgstr ""
 
 #: manual/design/decimal.md:832
@@ -14120,7 +14120,7 @@ msgid "*Clusters next to $\\pm\\tfrac12$ and $\\pm 1$.* These are the only inexa
 msgstr ""
 
 #: manual/design/decimal.md:1010
-msgid "*Tiny results.* For $|x| \\le 10^{-4}$, $\\operatorname{asin}(x)/x \\in [1, 1 + x^2]$ and $\\operatorname{atan}(x)/x \\in [1 - x^2, 1]$, and the same holds for $\\operatorname{atan2Pi}(y, x)$ with $x > 0$ and the ratio $y/x$. Once $x^2 < 2^{-(8\\max(D,p)+400)}$ the loop encloses the moderate value $(s/\\pi)(1 \\pm 2^{-k})$ with $s = x\\,10^{-\\operatorname{adj}(x)}$ (or the quotient of the two scaled mantissas) and shifts the endpoints by $10^{\\operatorname{adj}(x)}$ before the context rounds them, as for `rsqrt` (`decimal_certified_scaled_result`): an operand $10^{-1\\,999\\,996}$ costs what $10^{-300}$ costs, where the exact decimal endpoints of a binary number near $2^{-6.6\\cdot 10^6}$ have about two million digits (an unscaled `asinpi(7E-9999)` took more than a minute in a debug build before this path existed). For $\\operatorname{atan2Pi}(y, x)$ with $x > 0$ the derivation is: $\\operatorname{atan2Pi}(y, x) = \\operatorname{sign}(y) \\operatorname{atan}(r)/\\pi$ with $r = |y/x| = (s_y/s_x)\\,10^{D}$, where $s_y, s_x \\in [1, 10)$ are the operands scaled by their adjusted exponents and $D = \\operatorname{adj}(y) - \\operatorname{adj}(x)$, so $r < 10^{D+1}$; for $r \\le 1$, $\\operatorname{atan}(r)/r \\in [1 - r^2, 1]$, hence $\\operatorname{atan}(r)/\\pi = (s_y/(s_x \\pi))\\,10^{D}(1 - e)$ with $0 \\le e \\le r^2 < 10^{-t}$, $t = -(2D + 2)$, and the loop encloses the moderate factor $(s_y/(s_x\\pi))(1 - 2^{-k})$, $k \\le 3.32\\,t$, and shifts it by $D$. The path is taken when $3t \\ge 8\\max(D_{\\text{digits}}, p) + 400$, where it is decidable; the derivation itself needs only $t > 0$. The operands of every other case are first multiplied by $10^{-\\operatorname{adj}(x)}$ (the ratio, hence the angle, is unchanged), so operands with exponents of millions of digits and a moderate ratio cost what moderate operands cost. `src/decimal/atan2pi_scaled_wbtest.mbt` and the generated rows of `tools/generate_decimal_atan2pi_scaled_rows.py` (Python `decimal` at 450 digits, a cross-check only) cover ratios on both sides of the condition, both signs of $y$ and of $x$ (for $x < 0$ the result is $\\pm(1 - \\operatorname{atan}(r)/\\pi)$, next to $\\pm 1$, and takes the other anchored path), the four formats and all eight rounding directions; replacing $1 - 2^{-k}$ by $1 + 2^{-k}$ or the condition by $t > 0$ makes rows fail (checked by mutation)."
+msgid "*Tiny results.* For $|x| \\le 10^{-4}$, $\\operatorname{asin}(x)/x \\in [1, 1 + x^2]$ and $\\operatorname{atan}(x)/x \\in [1 - x^2, 1]$, and the same holds for $\\operatorname{atan2Pi}(y, x)$ with $x > 0$ and the ratio $y/x$. Once $x^2 < 2^{-(8\\max(D,p)+400)}$ the loop encloses the moderate value $(s/\\pi)(1 \\pm 2^{-k})$ with $s = x\\,10^{-\\operatorname{adj}(x)}$ (or the quotient of the two scaled mantissas) and shifts the endpoints by $10^{\\operatorname{adj}(x)}$ before the context rounds them, as for `rsqrt` (`decimal_certified_scaled_result`): an operand $10^{-1\\,999\\,996}$ costs what $10^{-300}$ costs, where the exact decimal endpoints of a binary number near $2^{-6.6\\cdot 10^6}$ have about two million digits (an unscaled `asinpi(7E-9999)` took more than a minute in a debug build before this path existed). For $\\operatorname{atan2Pi}(y, x)$ with $x > 0$ the derivation is: $\\operatorname{atan2Pi}(y, x) = \\operatorname{sign}(y) \\operatorname{atan}(r)/\\pi$ with $r = |y/x| = (s_y/s_x)\\,10^{D}$, where $s_y, s_x \\in [1, 10)$ are the operands scaled by their adjusted exponents and $D = \\operatorname{adj}(y) - \\operatorname{adj}(x)$, so $r < 10^{D+1}$; for $r \\le 1$, $\\operatorname{atan}(r)/r \\in [1 - r^2, 1]$, hence $\\operatorname{atan}(r)/\\pi = (s_y/(s_x \\pi))\\,10^{D}(1 - e)$ with $0 \\le e \\le r^2 < 10^{-t}$, $t = -(2D + 2)$, and the loop encloses the moderate factor $(s_y/(s_x\\pi))(1 - 2^{-k})$, $k \\le 3.32\\,t$, and shifts it by $D$. The path is taken when $3t \\ge 8\\max(D_{\\text{digits}}, p) + 400$, where it is decidable; the derivation itself needs only $t > 0$. The operands of every other case are first multiplied by $10^{-\\operatorname{adj}(x)}$ (the ratio, hence the angle, is unchanged), so operands with exponents of millions of digits and a moderate ratio cost what moderate operands cost. `library/src/decimal/atan2pi_scaled_wbtest.mbt` and the generated rows of `tools/generate_decimal_atan2pi_scaled_rows.py` (Python `decimal` at 450 digits, a cross-check only) cover ratios on both sides of the condition, both signs of $y$ and of $x$ (for $x < 0$ the result is $\\pm(1 - \\operatorname{atan}(r)/\\pi)$, next to $\\pm 1$, and takes the other anchored path), the four formats and all eight rounding directions; replacing $1 - 2^{-k}$ by $1 + 2^{-k}$ or the condition by $t > 0$ makes rows fail (checked by mutation)."
 msgstr ""
 
 #: manual/design/decimal.md:1044
@@ -14549,7 +14549,7 @@ msgid "with `extended = true` and before-rounding tininess detection (IEEE 754-2
 msgstr ""
 
 #: manual/design/decimal_checked.md:152
-msgid "The mathematical functions `exp`, `ln`, `log10` and `power` restrict their context to decNumber's range: precision and both exponent limits must lie within $999\\,999$ in magnitude, otherwise the result is NaN with `invalid_context` (private check `math_context_is_restricted` in `src/decimal`). This is a deliberate implementation limit (`DEC_MAX_MATH`), not a rule of the GDA operation text: decTest requires it (`power.decTest` powx4001 to powx4005 and the matching rows of `exp`, `ln`, `log10`) and GDA's Invalid context condition permits it.[^gda] The default unbounded exponent range therefore disables them, which the API page and tutorial point out. `power` and `pown` with an integral exponent, and `power` with the exponent $0.5$ (a square root), are the exceptions: like the arithmetic operations they accept contexts up to $\\pm 999\\,999\\,999$."
+msgid "The mathematical functions `exp`, `ln`, `log10` and `power` restrict their context to decNumber's range: precision and both exponent limits must lie within $999\\,999$ in magnitude, otherwise the result is NaN with `invalid_context` (private check `math_context_is_restricted` in `library/src/decimal`). This is a deliberate implementation limit (`DEC_MAX_MATH`), not a rule of the GDA operation text: decTest requires it (`power.decTest` powx4001 to powx4005 and the matching rows of `exp`, `ln`, `log10`) and GDA's Invalid context condition permits it.[^gda] The default unbounded exponent range therefore disables them, which the API page and tutorial point out. `power` and `pown` with an integral exponent, and `power` with the exponent $0.5$ (a square root), are the exceptions: like the arithmetic operations they accept contexts up to $\\pm 999\\,999\\,999$."
 msgstr ""
 
 #: manual/design/decimal_checked.md:165
@@ -14561,7 +14561,7 @@ msgid "From flags to arithmetic diagnostics"
 msgstr ""
 
 #: manual/design/decimal_checked.md:171
-msgid "The contextual trait implementations of `Decimal` in Luna-Flow/arithmetic report `ArithmeticDiagnostics`, six Booleans combined by `ArithmeticDiagnostics::combine`, again field-wise OR. The private helper `contextual_diagnostics` in `src/decimal/traits.mbt` maps flags to diagnostics by keeping the six shared coordinates; call this projection $\\pi : \\mathbb{F} \\to \\{0,1\\}^{6}$. A coordinate projection commutes with a field-wise OR:"
+msgid "The contextual trait implementations of `Decimal` in Luna-Flow/arithmetic report `ArithmeticDiagnostics`, six Booleans combined by `ArithmeticDiagnostics::combine`, again field-wise OR. The private helper `contextual_diagnostics` in `library/src/decimal/traits.mbt` maps flags to diagnostics by keeping the six shared coordinates; call this projection $\\pi : \\mathbb{F} \\to \\{0,1\\}^{6}$. A coordinate projection commutes with a field-wise OR:"
 msgstr ""
 
 #: manual/design/decimal_checked.md:184
@@ -15293,7 +15293,7 @@ msgid "GDA groups four signals under *invalid operation*: $I = \\{\\texttt{Conve
 msgstr ""
 
 #: manual/design/decimal_gda_checked.md:45
-msgid "$r \\models s$ is `GdaFlags::contains`; $\\delta$ is the *status delta* that `complete_gda` (in `src/decimal_gda/gda_context.mbt`) adds to the status."
+msgid "$r \\models s$ is `GdaFlags::contains`; $\\delta$ is the *status delta* that `complete_gda` (in `library/src/decimal_gda/gda_context.mbt`) adds to the status."
 msgstr ""
 
 #: manual/design/decimal_gda_checked.md:48
@@ -25437,7 +25437,7 @@ msgid "Quick-gate table of the π-inverse rows"
 msgstr ""
 
 #: manual/verification.md:42
-msgid "The rows of `asinpi`, `acospi`, `atanpi` and `atan2pi` are the largest table of the repository. The quick gate (`just pr`, the native test stage of CI) compiles all 19,134 of them into `src/decimal/elementary_pi_inverse_rows_wbtest.mbt` (2.2 MB of source), and the same rows are data (`testdata/decimal/ieee/rows/pi_inverse.txt`, `mpfr-decimal-random-v1` rows, see `tooling/src/frontend/mpfr_expr`) that `just gate decimal` and the nightly run feed to the release-built conformance CLI on native, Wasm, Wasm-GC and JavaScript. Both compare value, cohort (`compare_total`) and all flags exactly."
+msgid "The rows of `asinpi`, `acospi`, `atanpi` and `atan2pi` are the largest table of the repository. The quick gate (`just pr`, the native test stage of CI) compiles all 19,134 of them into `library/src/decimal/elementary_pi_inverse_rows_wbtest.mbt` (2.2 MB of source), and the same rows are data (`testdata/decimal/ieee/rows/pi_inverse.txt`, `mpfr-decimal-random-v1` rows, see `tooling/src/frontend/mpfr_expr`) that `just gate decimal` and the nightly run feed to the release-built conformance CLI on native, Wasm, Wasm-GC and JavaScript. Both compare value, cohort (`compare_total`) and all flags exactly."
 msgstr ""
 
 #: manual/verification.md:51
@@ -25458,7 +25458,7 @@ msgid "Total"
 msgstr ""
 
 #: manual/verification.md:72
-msgid "`python3 tools/generate_decimal_pi_inverse_rows.py --check` fails if either table is stale or if the compiled table is not a subset of the full table, and `--strata` prints the counts of every stratum. Go back to a sample (start with `--sample-step 8` and set `SAMPLE_STEP` in the generator) when the debug native run of the `pi inverse generated rows` test exceeds about 5 s again: measure it with `python3 tools/native_test_timing.py --package src/decimal`, not by assumption."
+msgid "`python3 tools/generate_decimal_pi_inverse_rows.py --check` fails if either table is stale or if the compiled table is not a subset of the full table, and `--strata` prints the counts of every stratum. Go back to a sample (start with `--sample-step 8` and set `SAMPLE_STEP` in the generator) when the debug native run of the `pi inverse generated rows` test exceeds about 5 s again: measure it with `python3 tools/native_test_timing.py --package library/src/decimal`, not by assumption."
 msgstr ""
 
 #: manual/verification.md:79
@@ -25586,15 +25586,15 @@ msgid "*Decimal elementary functions against MPFR*: 26 of the 28 functions agree
 msgstr ""
 
 #: manual/verification.md:308
-msgid "*Decimal `exp2m1`, `exp10m1`, `log2p1` and `log10p1`* ([#236](https://github.com/Luna-Flow/floating/issues/236)): families `decm-exp2m1`, `decm-exp10m1`, `decm-log2p1` and `decm-log10p1`, seed 20261118, 250,000 native cases each (1,000,000 in all) agree with MPFR in value, cohort and all eight flags, and so do 100,000 cases each on Wasm, Wasm-GC and JavaScript (400,000 per target, 1,200,000 in all, 804 validated batches, run on 2026-11-19 with `just random-diff run --family decm-exp2m1 --family decm-exp10m1 --family decm-log2p1 --family decm-log10p1 --count 100000 --seed 20261118 --target wasm --target wasm-gc --target js`). On the final code the native 1,000,000 cases of seed 20261118 were run again (1,000 validated batches) and a second seed, 20261202, with 100,000 cases per function on native, Wasm, Wasm-GC and JavaScript (400,000 per target, 1,600,000 in all, 1,204 validated batches), both on 2026-11-19 and both without a disagreement. Exact results are not sampled here; they, the clusters near the integers and near -1, the tiny arguments and the tininess and clamp boundaries are the 10,673 rows of `src/decimal/elementary_pm1_rows_wbtest.mbt` (exact rational arithmetic and certified MPFR enclosures, `tools/generate_decimal_pm1_rows.py`), which pass on native, Wasm, Wasm-GC and JavaScript."
+msgid "*Decimal `exp2m1`, `exp10m1`, `log2p1` and `log10p1`* ([#236](https://github.com/Luna-Flow/floating/issues/236)): families `decm-exp2m1`, `decm-exp10m1`, `decm-log2p1` and `decm-log10p1`, seed 20261118, 250,000 native cases each (1,000,000 in all) agree with MPFR in value, cohort and all eight flags, and so do 100,000 cases each on Wasm, Wasm-GC and JavaScript (400,000 per target, 1,200,000 in all, 804 validated batches, run on 2026-11-19 with `just random-diff run --family decm-exp2m1 --family decm-exp10m1 --family decm-log2p1 --family decm-log10p1 --count 100000 --seed 20261118 --target wasm --target wasm-gc --target js`). On the final code the native 1,000,000 cases of seed 20261118 were run again (1,000 validated batches) and a second seed, 20261202, with 100,000 cases per function on native, Wasm, Wasm-GC and JavaScript (400,000 per target, 1,600,000 in all, 1,204 validated batches), both on 2026-11-19 and both without a disagreement. Exact results are not sampled here; they, the clusters near the integers and near -1, the tiny arguments and the tininess and clamp boundaries are the 10,673 rows of `library/src/decimal/elementary_pm1_rows_wbtest.mbt` (exact rational arithmetic and certified MPFR enclosures, `tools/generate_decimal_pm1_rows.py`), which pass on native, Wasm, Wasm-GC and JavaScript."
 msgstr ""
 
 #: manual/verification.md:327
-msgid "*Decimal `rsqrt`, `compound` and `powr`* ([#236](https://github.com/Luna-Flow/floating/issues/236)): families `decm-rsqrt`, `decm-compound` and `decm-powr`; `compound` rows are certified from exact arithmetic (the rational $(1+x)^n$, an exact decimal $1 + nx \\pm 2(nx)^2$ for $|x| < 10^{-150}$, or libmpdec $\\exp(n\\ln(1+x))$ with a proven slack), never from `mpfr_compound_si`, which MPFR 4.2.2 rounds wrongly for $n < 0$ in the directed modes. Seed 20261118: 250,000 native cases per function (750,000) and 100,000 per function on each of Wasm, Wasm-GC and JavaScript (900,000); seed 20261202: 100,000 per function on native, Wasm, Wasm-GC and JavaScript (1,200,000); all on 2026-11-19 and all in agreement in value, cohort and flags. The 14,267 rows of `src/decimal/elementary_rcp_rows_wbtest.mbt` (`tools/generate_decimal_rcp_rows.py`) add the exact cases, the preferred exponents, the `Int32` minimum of `compound`, operands down to $10^{-1\\,999\\,997}$ and the range limits, on all four targets."
+msgid "*Decimal `rsqrt`, `compound` and `powr`* ([#236](https://github.com/Luna-Flow/floating/issues/236)): families `decm-rsqrt`, `decm-compound` and `decm-powr`; `compound` rows are certified from exact arithmetic (the rational $(1+x)^n$, an exact decimal $1 + nx \\pm 2(nx)^2$ for $|x| < 10^{-150}$, or libmpdec $\\exp(n\\ln(1+x))$ with a proven slack), never from `mpfr_compound_si`, which MPFR 4.2.2 rounds wrongly for $n < 0$ in the directed modes. Seed 20261118: 250,000 native cases per function (750,000) and 100,000 per function on each of Wasm, Wasm-GC and JavaScript (900,000); seed 20261202: 100,000 per function on native, Wasm, Wasm-GC and JavaScript (1,200,000); all on 2026-11-19 and all in agreement in value, cohort and flags. The 14,267 rows of `library/src/decimal/elementary_rcp_rows_wbtest.mbt` (`tools/generate_decimal_rcp_rows.py`) add the exact cases, the preferred exponents, the `Int32` minimum of `compound`, operands down to $10^{-1\\,999\\,997}$ and the range limits, on all four targets."
 msgstr ""
 
 #: manual/verification.md:342
-msgid "*Decimal `exp`, `exp2` and `exp10` at the range limits* ([#363](https://github.com/Luna-Flow/floating/issues/363)): families `decimal-exp`, `decimal-exp2` and `decimal-exp10`, 100,000 native cases per function for seed 334 and for seed 20261120 (600,000) and 20,000 per function on each of Wasm, Wasm-GC and JavaScript for seed 334 (180,000), run on 2026-11-20, in agreement with MPFR in value, cohort and flags. The generator reaches the failing arguments only rarely (case `m334.exp2.30728` is one of them), so the boundaries are covered by deterministic rows: `src/decimal/exp_range_rows_wbtest.mbt` (`tools/generate_decimal_exp_range_rows.py`, Python `decimal` at 400 digits, a cross-check only) holds 5,976 rows for the context of the issue, decimal32, decimal64, decimal128 and a wide context, all eight rounding directions, at results just inside and outside the range and at the thresholds of the decision; they also cover `expm1`, `exp2m1`, `exp10m1`, `sinh`, `cosh`, `pow`, `powr`, `pown`, `compound` and `rsqrt`, none of which failed before the change."
+msgid "*Decimal `exp`, `exp2` and `exp10` at the range limits* ([#363](https://github.com/Luna-Flow/floating/issues/363)): families `decimal-exp`, `decimal-exp2` and `decimal-exp10`, 100,000 native cases per function for seed 334 and for seed 20261120 (600,000) and 20,000 per function on each of Wasm, Wasm-GC and JavaScript for seed 334 (180,000), run on 2026-11-20, in agreement with MPFR in value, cohort and flags. The generator reaches the failing arguments only rarely (case `m334.exp2.30728` is one of them), so the boundaries are covered by deterministic rows: `library/src/decimal/exp_range_rows_wbtest.mbt` (`tools/generate_decimal_exp_range_rows.py`, Python `decimal` at 400 digits, a cross-check only) holds 5,976 rows for the context of the issue, decimal32, decimal64, decimal128 and a wide context, all eight rounding directions, at results just inside and outside the range and at the thresholds of the decision; they also cover `expm1`, `exp2m1`, `exp10m1`, `sinh`, `cosh`, `pow`, `powr`, `pown`, `compound` and `rsqrt`, none of which failed before the change."
 msgstr ""
 
 #: manual/verification.md:357
@@ -25610,7 +25610,7 @@ msgid "*`rSqrt`, `compound` and `powr`* (family `elem3` of the generator): 1,000
 msgstr ""
 
 #: manual/verification.md:415
-msgid "*`asinPi`, `acosPi`, `atanPi` and `atan2Pi`* (family `elem4` of the generator): 1,000,000 native cases and 100,000 on each of Wasm, JavaScript and Wasm-GC agree with MPFR 4.2.2 (`mpfr_asinpi`, `mpfr_acospi`, `mpfr_atanpi`, `mpfr_atan2pi`), and so do 1,654,315 range-boundary rows (precisions 2 to 300, six contexts, both tininess rules): the underflow thresholds ($\\operatorname{asinPi}(x) \\approx x/\\pi$ at $x = \\pi 2^{k}$), the anchors $\\pm 1/2$ and $\\pm 1$ for $\\operatorname{atanPi}$ of a huge argument, $\\operatorname{acosPi}$ of a tiny one and $\\operatorname{atan2Pi}$ of an extreme ratio (leading-exponent difference $D$ from $\\pm(p + 4)$ to $\\pm(p + 12)$, around the point $|D| = p + 8$ where the library switches to the anchor rule), and arguments next to $\\pm 1$. 11,661 `atan2pi` rows with operands more than 100,000 binades apart are not oracle rows: `mpfr_atan2pi` of MPFR 4.2.2 slows down with the exponent difference (5 s at 2^(2*10^7)), so they are skipped and covered by `src/bin_float/pi_inverse_wbtest.mbt` against an independent model and against `atanpi` of an exact power of two. The library had no disagreement."
+msgid "*`asinPi`, `acosPi`, `atanPi` and `atan2Pi`* (family `elem4` of the generator): 1,000,000 native cases and 100,000 on each of Wasm, JavaScript and Wasm-GC agree with MPFR 4.2.2 (`mpfr_asinpi`, `mpfr_acospi`, `mpfr_atanpi`, `mpfr_atan2pi`), and so do 1,654,315 range-boundary rows (precisions 2 to 300, six contexts, both tininess rules): the underflow thresholds ($\\operatorname{asinPi}(x) \\approx x/\\pi$ at $x = \\pi 2^{k}$), the anchors $\\pm 1/2$ and $\\pm 1$ for $\\operatorname{atanPi}$ of a huge argument, $\\operatorname{acosPi}$ of a tiny one and $\\operatorname{atan2Pi}$ of an extreme ratio (leading-exponent difference $D$ from $\\pm(p + 4)$ to $\\pm(p + 12)$, around the point $|D| = p + 8$ where the library switches to the anchor rule), and arguments next to $\\pm 1$. 11,661 `atan2pi` rows with operands more than 100,000 binades apart are not oracle rows: `mpfr_atan2pi` of MPFR 4.2.2 slows down with the exponent difference (5 s at 2^(2*10^7)), so they are skipped and covered by `library/src/bin_float/pi_inverse_wbtest.mbt` against an independent model and against `atanpi` of an exact power of two. The library had no disagreement."
 msgstr ""
 
 #: manual/verification.md:431
@@ -25686,7 +25686,7 @@ msgid "Before publishing:"
 msgstr ""
 
 #: manual/verification.md:521
-msgid "align `moon.mod`, `README.md`, the manual and `CHANGELOG.md`;"
+msgid "align `library/moon.mod`, `library/README.md`, the manual and `library/CHANGELOG.md`;"
 msgstr ""
 
 #: manual/verification.md:522

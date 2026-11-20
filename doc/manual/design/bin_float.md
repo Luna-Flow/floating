@@ -448,7 +448,7 @@ $1 - \operatorname{atan}(t)/\pi$) at a working precision above the operands'.
 ### Handover: the range layer and how to add a function
 
 The recommended functions of §9.2 were added in three families on one layer
-(`src/bin_float/elementary_range.mbt`) and the helpers it builds on
+(`library/src/bin_float/elementary_range.mbt`) and the helpers it builds on
 (`binary_round_dyadic` and `binary_round_precision_only` in
 `context_arithmetic.mbt`; `binary_certified_inexact_target_rounding`,
 `binary_inexact_inner_endpoint` and `binary_tiny_argument_result` in

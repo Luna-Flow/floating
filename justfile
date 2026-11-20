@@ -11,7 +11,7 @@ fmt:
 # registry dependency of `tooling`).
 update:
     sh tools/run_moon_clean_exec.sh update
-    for manifest in moon.mod tooling/moon.mod; do \
+    for manifest in library/moon.mod tooling/moon.mod; do \
       directory=$(dirname "$manifest"); \
       awk ' \
         $1 == "import" && $2 == "{" { in_import = 1; next } \
@@ -61,17 +61,18 @@ ci jobs='':
     @just gate all {{ jobs }}
 
 decimal-kernel-ci:
-    @sh tools/run_moon_clean_exec.sh test src/internal/decimal_kernel --no-parallelize
+    @sh tools/run_moon_clean_exec.sh test library/src/internal/decimal_kernel --no-parallelize
 
 bin-kernel-ci:
-    @sh tools/run_moon_clean_exec.sh test src/bin_float --target all --no-parallelize
+    @sh tools/run_moon_clean_exec.sh test library/src/bin_float --target all --no-parallelize
 
 # Run a Maremark suite, or `just bench external run` for floating against MPFR and libmpdec.
 bench suite *args:
     @python3 tools/benchmark.py {{ suite }} {{ args }}
 
+# Dependency tree of the library module (`tree` and `package` act on one module).
 tree:
-    sh tools/run_moon_clean_exec.sh tree
+    sh tools/run_moon_clean_exec.sh -C library tree
 
 publish:
-    sh tools/run_moon_clean_exec.sh package --frozen
+    CODEX_MOON_TARGET_DIR="$(pwd)/_build" sh tools/run_moon_clean_exec.sh -C library package --frozen

@@ -43,7 +43,7 @@ r \models s \;&\iff\; s \in r \text{, except } r \models \texttt{InvalidOperatio
 $$
 
 $r \models s$ is `GdaFlags::contains`; $\delta$ is the *status delta* that
-`complete_gda` (in `src/decimal_gda/gda_context.mbt`) adds to the status.
+`complete_gda` (in `library/src/decimal_gda/gda_context.mbt`) adds to the status.
 
 $\delta$ is a monoid homomorphism. With $\chi(r) = [\, r \cap I \ne
 \varnothing \,]$ we have $\chi(a \cup b) = \chi(a) \lor \chi(b)$, hence

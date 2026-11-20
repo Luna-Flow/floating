@@ -839,7 +839,7 @@ def run_targets(
     every target, so cross-target coverage of the ordinary tests is kept.
     """
     requested = selected_targets(targets)
-    existing = sorted((ROOT / "src/decimal").glob(GENERATED_FIXTURE_GLOB))
+    existing = sorted((ROOT / "library/src/decimal").glob(GENERATED_FIXTURE_GLOB))
     if existing:
         raise CorpusError(f"generated IEEE fixture already exists: {existing[0]}")
     results: list[dict[str, Any]] = []
@@ -848,7 +848,7 @@ def run_targets(
         chunks = split_fixture_test(render_moon_fixture_test())
         expected = count_generated_tests(chunks)
         for index, chunk in enumerate(chunks):
-            path = ROOT / "src/decimal" / f"ieee_corpus_generated_{index:02d}_wbtest.mbt"
+            path = ROOT / "library/src/decimal" / f"ieee_corpus_generated_{index:02d}_wbtest.mbt"
             path.write_text(chunk, encoding="utf-8")
             generated_paths.append(path)
         for target in requested:
@@ -859,7 +859,7 @@ def run_targets(
                     *(
                         [str(path.relative_to(ROOT)) for path in generated_paths]
                         if generated_only
-                        else ["src/decimal"]
+                        else ["library/src/decimal"]
                     ),
                     "--target",
                     target,

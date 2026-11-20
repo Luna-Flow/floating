@@ -826,7 +826,7 @@ Three kinds of inputs are decided outside the agreement test:
   negative argument (for `exp2`, beyond $2^{31}$ binades) has the enclosure
   $[0, \text{tiny}]$ and never certifies. The decision is tested on both sides
   of each threshold and at results just inside and outside the range, in all
-  eight rounding directions, by `src/decimal/exp_range_wbtest.mbt` and its
+  eight rounding directions, by `library/src/decimal/exp_range_wbtest.mbt` and its
   generated rows. `power` bounds $y \log_2 x$
   with directed 128-bit arithmetic for the same purpose.
 - **Enclosure of a non-integral power.** For a positive base the Ziv loop
@@ -1032,7 +1032,7 @@ enclosure divided by it (error: the angle, $\pi$ and the division, about
   The operands of every other case are first multiplied by
   $10^{-\operatorname{adj}(x)}$ (the ratio, hence the angle, is unchanged),
   so operands with exponents of millions of digits and a moderate ratio cost
-  what moderate operands cost. `src/decimal/atan2pi_scaled_wbtest.mbt` and the
+  what moderate operands cost. `library/src/decimal/atan2pi_scaled_wbtest.mbt` and the
   generated rows of `tools/generate_decimal_atan2pi_scaled_rows.py` (Python
   `decimal` at 450 digits, a cross-check only) cover ratios on both sides of
   the condition, both signs of $y$ and of $x$ (for $x < 0$ the result is

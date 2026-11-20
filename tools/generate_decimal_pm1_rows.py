@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """White-box rows for decimal exp2m1, exp10m1, log2p1 and log10p1 (issue #236).
 
-Writes `src/decimal/elementary_pm1_rows_wbtest.mbt`, a table of
+Writes `library/src/decimal/elementary_pm1_rows_wbtest.mbt`, a table of
 `(op, rounding, precision, emin, emax, clamp, tininess, x, expected, flags)`
 executed by `elementary_pm1_wbtest.mbt` on every backend. No row comes from the
 library under test:
@@ -41,7 +41,7 @@ import generate_mpfr_decimal_random as decm
 
 sys.set_int_max_str_digits(0)
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "src/decimal/elementary_pm1_rows_wbtest.mbt"
+OUTPUT = ROOT / "library/src/decimal/elementary_pm1_rows_wbtest.mbt"
 ROUNDINGS = ("half_even", "half_up", "half_down", "down", "ceiling", "floor", "up", "05up")
 OPS = ("exp2m1", "exp10m1", "log2p1", "log10p1")
 DECIMAL32 = (7, -95, 96, 1)

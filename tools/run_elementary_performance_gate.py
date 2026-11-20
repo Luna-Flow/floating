@@ -95,7 +95,7 @@ def align_baseline_dependencies(destination: Path, source: Path = ROOT) -> None:
     the `import { ... }` block of the snapshot's `moon.mod` is replaced by the
     one of this checkout; no source file of the snapshot changes.
     """
-    wanted = IMPORT_BLOCK.search((source / "moon.mod").read_text(encoding="utf-8"))
+    wanted = IMPORT_BLOCK.search((source / "library" / "moon.mod").read_text(encoding="utf-8"))
     manifest = destination / "moon.mod"
     text = manifest.read_text(encoding="utf-8")
     if wanted is None or IMPORT_BLOCK.search(text) is None:
@@ -163,13 +163,25 @@ def require_bench_import(package_file: Path) -> None:
     package_file.write_text(text, encoding="utf-8")
 
 
+def snapshot_path(root: Path, relative: str) -> str:
+    """A manifest path in the layout of the snapshot at `root`.
+
+    The manifest names paths of the pinned baseline, where the library is the
+    repository root (`src/...`). The candidate is this checkout, where the library
+    module lives in `library/`: its `src/...` paths gain the prefix.
+    """
+    if relative.startswith("src/") and (root / "library" / "moon.mod").is_file():
+        return "library/" + relative
+    return relative
+
+
 def inject_fixture(root: Path, manifest: dict[str, Any]) -> None:
     benchmark = manifest["benchmark"]
-    package = root / "src/bin_float"
+    package = root / snapshot_path(root, "src/bin_float")
     for pattern in ("*_test.mbt", "*_wbtest.mbt", "*.mbt.md"):
         for path in package.glob(pattern):
             path.unlink()
-    copy_path(ROOT / benchmark["fixture"], root / benchmark["destination"])
+    copy_path(ROOT / benchmark["fixture"], root / snapshot_path(root, benchmark["destination"]))
     require_bench_import(package / "moon.pkg")
 
 
@@ -201,8 +213,9 @@ def parse_records(output: str, checksum: str) -> list[dict[str, Any]]:
 
 
 def run_snapshot(root: Path, manifest: dict[str, Any]) -> list[dict[str, Any]]:
+    command = [snapshot_path(root, word) for word in manifest["benchmark"]["command"]]
     result = subprocess.run(
-        manifest["benchmark"]["command"],
+        command,
         cwd=root,
         text=True,
         stdout=subprocess.PIPE,

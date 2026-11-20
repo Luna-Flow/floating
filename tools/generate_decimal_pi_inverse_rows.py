@@ -5,7 +5,7 @@ Writes two tables (`x` is the operand, or the ordinate of atan2Pi, whose
 abscissa is `y`): the full one, `testdata/decimal/ieee/rows/pi_inverse.txt`, as
 `mpfr-decimal-random-v1` rows (`decimal_row_table`) that the release-built
 conformance CLI executes at run time on every target in the full gate; and a
-copy of it, `src/decimal/elementary_pi_inverse_rows_wbtest.mbt`,
+copy of it, `library/src/decimal/elementary_pi_inverse_rows_wbtest.mbt`,
 compiled into the `decimal` test module for the quick gate (the full table by
 default; `--sample-step N` keeps all exact rows and one certified MPFR row in N
 per (operation, rounding) stratum). No row comes from the library under test:
@@ -220,7 +220,7 @@ def build() -> Rows:
     return rows
 
 
-# The table compiled into `src/decimal` runs in the quick gate. By default it is
+# The table compiled into `library/src/decimal` runs in the quick gate. By default it is
 # the full table (`SAMPLE_STEP = 1`: 19,134 rows run in about 2.4 s under the
 # debug native build, source 2.2 MB, about 1.4 s more to build). Above about 5 s
 # set a larger step and the generator keeps every exact row and one certified
@@ -228,7 +228,7 @@ def build() -> Rows:
 # (`--sample-step N`, see doc/manual/verification.md for when to do so). The
 # data file is always the full table.
 SAMPLE_STEP = 1
-SAMPLED_OUTPUT = ROOT / "src/decimal/elementary_pi_inverse_rows_wbtest.mbt"
+SAMPLED_OUTPUT = ROOT / "library/src/decimal/elementary_pi_inverse_rows_wbtest.mbt"
 CHUNK_ROWS = 500
 ROW_TYPE = "(String, String, Int32, Int32, Int32, Bool, String, String, String, String, String)"
 
@@ -250,7 +250,7 @@ def render(rows: Rows) -> str:
 
 
 def render_sampled(rows: Rows, step: int = SAMPLE_STEP) -> str:
-    """The table compiled into `src/decimal`: the full one, or every `step`-th row per stratum."""
+    """The table compiled into `library/src/decimal`: the full one, or every `step`-th row per stratum."""
     if step == 1:
         what = [
             "// The full table: the same rows as testdata/decimal/ieee/rows/pi_inverse.txt,",

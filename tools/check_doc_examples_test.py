@@ -21,7 +21,7 @@ class DocExamplesTests(unittest.TestCase):
         self.assertEqual(command.count("test"), 1)
         self.assertEqual(
             command[3:5],
-            ("src/_generated_doc_examples/a", "src/_generated_doc_examples/b"),
+            ("library/src/_generated_doc_examples/a", "library/src/_generated_doc_examples/b"),
         )
         self.assertEqual(command[-2:], ("--target", "native"))
 
@@ -44,7 +44,7 @@ class DocExamplesTests(unittest.TestCase):
 
     def test_failures_are_attributed_to_pages_by_package_directory(self) -> None:
         pages = [page("getting_started"), page("verification")]
-        output = "[Luna-Flow/floating/_generated_doc_examples/verification] test ... src/_generated_doc_examples/verification/README.mbt.md:12 failed"
+        output = "[Luna-Flow/floating/_generated_doc_examples/verification] test ... library/src/_generated_doc_examples/verification/README.mbt.md:12 failed"
         self.assertEqual([p.slug for p in tool.failing_pages(output, pages)], ["verification"])
         self.assertEqual(tool.failing_pages("other output", pages), [])
 

@@ -176,12 +176,12 @@ CI intentionally runs only:
 just decimal-kernel-ci
 ```
 
-That command executes `src/decimal/coeff_kernel_wbtest.mbt`. To reproduce one
+That command executes `library/src/decimal/coeff_kernel_wbtest.mbt`. To reproduce one
 MoonBit white-box test by name:
 
 ```sh
 sh tools/run_moon_clean_exec.sh test \
-  src/decimal/coeff_kernel_wbtest.mbt \
+  library/src/decimal/coeff_kernel_wbtest.mbt \
   --filter 'decimal coefficient exact power-of-ten division uses unit shifts' \
   --no-parallelize
 ```

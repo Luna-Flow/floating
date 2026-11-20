@@ -41,7 +41,7 @@ Translation catalogs are checked separately by `lunadoc check`, which the
 
 The rows of `asinpi`, `acospi`, `atanpi` and `atan2pi` are the largest table
 of the repository. The quick gate (`just pr`, the native test stage of CI)
-compiles all 19,134 of them into `src/decimal/elementary_pi_inverse_rows_wbtest.mbt`
+compiles all 19,134 of them into `library/src/decimal/elementary_pi_inverse_rows_wbtest.mbt`
 (2.2 MB of source), and the same rows are data
 (`testdata/decimal/ieee/rows/pi_inverse.txt`, `mpfr-decimal-random-v1` rows, see
 `tooling/src/frontend/mpfr_expr`) that `just gate decimal` and the nightly run feed to the
@@ -74,7 +74,7 @@ table is stale or if the compiled table is not a subset of the full table, and
 `--strata` prints the counts of every stratum. Go back to a sample (start with
 `--sample-step 8` and set `SAMPLE_STEP` in the generator) when the debug native run
 of the `pi inverse generated rows` test exceeds about 5 s again: measure it with
-`python3 tools/native_test_timing.py --package src/decimal`, not by assumption.
+`python3 tools/native_test_timing.py --package library/src/decimal`, not by assumption.
 
 ## Shared conformance runner
 
@@ -321,7 +321,7 @@ Wasm, JavaScript and Wasm-GC: 55,996 each (the first 2,000 of every function).
   without a disagreement. Exact results are not sampled here; they,
   the clusters near the integers and near -1, the tiny arguments and the
   tininess and clamp boundaries are the 10,673 rows of
-  `src/decimal/elementary_pm1_rows_wbtest.mbt` (exact rational arithmetic and
+  `library/src/decimal/elementary_pm1_rows_wbtest.mbt` (exact rational arithmetic and
   certified MPFR enclosures, `tools/generate_decimal_pm1_rows.py`), which pass
   on native, Wasm, Wasm-GC and JavaScript.
 - *Decimal `rsqrt`, `compound` and `powr`*
@@ -335,7 +335,7 @@ Wasm, JavaScript and Wasm-GC: 55,996 each (the first 2,000 of every function).
   Wasm-GC and JavaScript (900,000); seed 20261202: 100,000 per function on
   native, Wasm, Wasm-GC and JavaScript (1,200,000); all on 2026-11-19 and all
   in agreement in value, cohort and flags. The 14,267 rows of
-  `src/decimal/elementary_rcp_rows_wbtest.mbt`
+  `library/src/decimal/elementary_rcp_rows_wbtest.mbt`
   (`tools/generate_decimal_rcp_rows.py`) add the exact cases, the preferred
   exponents, the `Int32` minimum of `compound`, operands down to
   $10^{-1\,999\,997}$ and the range limits, on all four targets.
@@ -347,7 +347,7 @@ Wasm, JavaScript and Wasm-GC: 55,996 each (the first 2,000 of every function).
   on 2026-11-20, in agreement with MPFR in value, cohort and flags. The
   generator reaches the failing arguments only rarely (case `m334.exp2.30728`
   is one of them), so the boundaries are covered by deterministic rows:
-  `src/decimal/exp_range_rows_wbtest.mbt` (`tools/generate_decimal_exp_range_rows.py`,
+  `library/src/decimal/exp_range_rows_wbtest.mbt` (`tools/generate_decimal_exp_range_rows.py`,
   Python `decimal` at 400 digits, a cross-check only) holds 5,976 rows for
   the context of the issue, decimal32, decimal64, decimal128 and a wide
   context, all eight rounding directions, at results just inside and outside
@@ -425,7 +425,7 @@ Wasm, JavaScript and Wasm-GC: 55,996 each (the first 2,000 of every function).
   and arguments next to $\pm 1$. 11,661 `atan2pi` rows with operands more than
   100,000 binades apart are not oracle rows: `mpfr_atan2pi` of MPFR 4.2.2
   slows down with the exponent difference (5 s at 2^(2*10^7)), so they are
-  skipped and covered by `src/bin_float/pi_inverse_wbtest.mbt` against an
+  skipped and covered by `library/src/bin_float/pi_inverse_wbtest.mbt` against an
   independent model and against `atanpi` of an exact power of two. The library
   had no disagreement.
 - *Decimal arithmetic*: `multiply`, `divide`, `squareroot`, `apply`, `tosci` and
@@ -518,7 +518,7 @@ a failing gate pass.
 
 Before publishing:
 
-1. align `moon.mod`, `README.md`, the manual and `CHANGELOG.md`;
+1. align `library/moon.mod`, `library/README.md`, the manual and `library/CHANGELOG.md`;
 2. run `just docs`, `lunadoc check`, and inspect generated interface
    differences;
 3. run `just pr` while iterating;

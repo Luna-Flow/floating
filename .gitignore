@@ -8,9 +8,9 @@ test.moon_db-shm
 test.moon_db-wal
 
 # Generated decTest artifacts
-src/.generated_dectest/
-src/.generated_dectest_runtime/
-src/consistency/_generated_dectest_wbtest.mbt
+library/src/.generated_dectest/
+library/src/.generated_dectest_runtime/
+library/src/consistency/_generated_dectest_wbtest.mbt
 
 # Coverage artifacts
 _coverage/
@@ -60,5 +60,5 @@ __pycache__/
 CLAUDE.local.md
 
 # Throwaway packages written by tools/check_doc_examples.py
-src/_generated_doc_examples/
+library/src/_generated_doc_examples/
 tooling/src/_generated_doc_examples/

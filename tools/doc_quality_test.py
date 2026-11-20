@@ -59,16 +59,16 @@ class DocumentationQualityTests(unittest.TestCase):
             root = Path(directory)
             page = root / "doc" / "manual" / "conformance" / "bin_float.md"
             page.parent.mkdir(parents=True)
-            (root / "src").mkdir()
-            (root / "src" / "present_wbtest.mbt").write_text("", encoding="utf-8")
+            (root / "library" / "src").mkdir(parents=True)
+            (root / "library" / "src" / "present_wbtest.mbt").write_text("", encoding="utf-8")
             page.write_text(
-                "| `src/present_wbtest.mbt` | `src/missing_wbtest.mbt` |\n",
+                "| `library/src/present_wbtest.mbt` | `library/src/missing_wbtest.mbt` |\n",
                 encoding="utf-8",
             )
             use_repo(stack, root)
             errors = doc_quality.check_evidence_paths()
             self.assertEqual(len(errors), 1)
-            self.assertIn("src/missing_wbtest.mbt", errors[0])
+            self.assertIn("library/src/missing_wbtest.mbt", errors[0])
 
     def test_conformance_checklist_counts_follow_the_tables(self) -> None:
         import conformance_checklist
@@ -97,15 +97,15 @@ class DocumentationQualityTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory, ExitStack() as stack:
             root = Path(directory) / "_checkout"
             for relative in ("core", "nested/leaf", "_generated_doc_examples/page"):
-                (root / "src" / relative).mkdir(parents=True)
-                (root / "src" / relative / "moon.pkg").write_text("", encoding="utf-8")
+                (root / "library" / "src" / relative).mkdir(parents=True)
+                (root / "library" / "src" / relative / "moon.pkg").write_text("", encoding="utf-8")
             use_repo(stack, root)
             self.assertEqual(doc_quality.package_paths(), {"core", "nested/leaf"})
 
     def test_package_paths_cover_the_library_and_the_tools_module(self) -> None:
         with tempfile.TemporaryDirectory() as directory, ExitStack() as stack:
             root = Path(directory)
-            for relative in ("src/core", "tooling/src/bench/leaf"):
+            for relative in ("library/src/core", "tooling/src/bench/leaf"):
                 (root / relative).mkdir(parents=True)
                 (root / relative / "moon.pkg").write_text("", encoding="utf-8")
             use_repo(stack, root)
@@ -116,12 +116,12 @@ class DocumentationQualityTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory, ExitStack() as stack:
             root = Path(directory)
             for relative, pkg in (
-                ("src/lib", ""),
+                ("library/src/lib", ""),
                 ("tooling/src/main", 'pkgtype(kind: "executable")\n'),
             ):
                 (root / relative).mkdir(parents=True)
                 (root / relative / "moon.pkg").write_text(pkg, encoding="utf-8")
-            (root / "src/lib/README.mbt.md").write_text("x", encoding="utf-8")
+            (root / "library/src/lib/README.mbt.md").write_text("x", encoding="utf-8")
             use_repo(stack, root)
             self.assertEqual(
                 doc_quality.check_package_readme_coverage(),
@@ -156,8 +156,9 @@ class DocumentationQualityTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory, ExitStack() as stack:
             root = Path(directory)
             (root / "doc" / "manual").mkdir(parents=True)
-            (root / "moon.mod").write_text('version = "0.6.1"\n', encoding="utf-8")
-            (root / "CHANGELOG.md").write_text(
+            (root / "library").mkdir()
+            (root / "library" / "moon.mod").write_text('version = "0.6.1"\n', encoding="utf-8")
+            (root / "library" / "CHANGELOG.md").write_text(
                 "## 0.6.1 - 2026-07-14\n\n## 0.6.0 - 2026-07-14\n",
                 encoding="utf-8",
             )
@@ -175,8 +176,9 @@ class DocumentationQualityTests(unittest.TestCase):
             catalog = root / "doc" / "locale" / "ja_JP" / "LC_MESSAGES" / "manual.po"
             catalog.parent.mkdir(parents=True)
             (root / "doc" / "conf.json").write_text('{"locales": ["ja_JP"]}', encoding="utf-8")
-            (root / "moon.mod").write_text('version = "0.6.1"\n', encoding="utf-8")
-            (root / "CHANGELOG.md").write_text("## 0.6.1\n\n## 0.6.0\n", encoding="utf-8")
+            (root / "library").mkdir()
+            (root / "library" / "moon.mod").write_text('version = "0.6.1"\n', encoding="utf-8")
+            (root / "library" / "CHANGELOG.md").write_text("## 0.6.1\n\n## 0.6.0\n", encoding="utf-8")
             catalog.write_text(
                 '#: manual/index.md:1\nmsgid "Since 0.6.0"\nmsgstr "0.6.0 以降"\n\n'
                 '#: manual/index.md:2\nmsgid "Current"\nmsgstr "0.6.0 現在"\n',

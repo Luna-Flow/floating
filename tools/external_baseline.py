@@ -1095,7 +1095,7 @@ def command_report(args: argparse.Namespace) -> int:
 
 
 def module_version() -> str:
-    for line in (REPO_ROOT / "moon.mod").read_text(encoding="utf-8").splitlines():
+    for line in (REPO_ROOT / "library" / "moon.mod").read_text(encoding="utf-8").splitlines():
         if line.startswith("version"):
             return line.split("=", 1)[1].strip().strip('"')
     raise RuntimeError("moon.mod declares no version")

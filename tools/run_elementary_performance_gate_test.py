@@ -31,7 +31,8 @@ class ElementaryPerformanceGateTests(unittest.TestCase):
             root = Path(directory)
             (root / "checkout").mkdir()
             (root / "baseline").mkdir()
-            (root / "checkout/moon.mod").write_text(
+            (root / "checkout/library").mkdir(parents=True)
+            (root / "checkout/library/moon.mod").write_text(
                 'name = "a"\n\nimport {\n  "x/y@2.0.0",\n}\n\nsource = "src"\n'
             )
             (root / "baseline/moon.mod").write_text(
@@ -42,6 +43,19 @@ class ElementaryPerformanceGateTests(unittest.TestCase):
                 (root / "baseline/moon.mod").read_text(),
                 'name = "a"\nversion = "0.6.1"\n\nimport {\n  "x/y@2.0.0",\n}\n\nsource = "src"\n',
             )
+
+    def test_manifest_paths_follow_the_layout_of_each_snapshot(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            baseline = Path(directory) / "baseline"
+            candidate = Path(directory) / "candidate"
+            (baseline / "src").mkdir(parents=True)
+            (candidate / "library").mkdir(parents=True)
+            (candidate / "library" / "moon.mod").write_text("", encoding="utf-8")
+            word = "src/bin_float/elementary_performance_bench_wbtest.mbt"
+            self.assertEqual(gate.snapshot_path(baseline, word), word)
+            self.assertEqual(gate.snapshot_path(candidate, word), "library/" + word)
+            self.assertEqual(gate.snapshot_path(candidate, "--release"), "--release")
+            self.assertEqual(gate.snapshot_path(candidate, "tools/run_moon_clean_exec.sh"), "tools/run_moon_clean_exec.sh")
 
     def test_fixture_scope_imports_bench_once(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

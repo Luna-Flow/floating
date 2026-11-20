@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Rows for `Decimal::to_bin_float` at large exponents (#378).
 
-Writes `src/decimal/to_bin_float_rows_wbtest.mbt`, a table of
+Writes `library/src/decimal/to_bin_float_rows_wbtest.mbt`, a table of
 `(decimal, precision, mode, expected coefficient, expected exponent2)` executed by
 `to_bin_float_parts_wbtest.mbt`. The expected binary value is computed by exact
 integer arithmetic in Python (`c * 10^e` rounded to `precision` bits in the named
@@ -26,7 +26,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "src/decimal/to_bin_float_rows_wbtest.mbt"
+OUTPUT = ROOT / "library/src/decimal/to_bin_float_rows_wbtest.mbt"
 MODES = ["ToNearestEven", "TowardZero", "AwayFromZero", "TowardNegative", "TowardPositive"]
 CHUNK_ROWS = 100
 ROW_TYPE = "(String, Int32, String, String, Int32)"

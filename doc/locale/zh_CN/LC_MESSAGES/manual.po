@@ -8881,8 +8881,8 @@ msgid "§9.8, §10.5.8 constructors"
 msgstr "§9.8, §10.5.8 构造函数"
 
 #: manual/conformance/ball_float.md:20
-msgid "ITF1788 sets phase; `src/ball_float/ieee1788_arithmetic_wbtest.mbt`"
-msgstr "ITF1788 集合阶段; `src/ball_float/ieee1788_arithmetic_wbtest.mbt`"
+msgid "ITF1788 sets phase; `library/src/ball_float/ieee1788_arithmetic_wbtest.mbt`"
+msgstr "ITF1788 集合阶段; `library/src/ball_float/ieee1788_arithmetic_wbtest.mbt`"
 
 #: manual/conformance/ball_float.md:20
 msgid "partial (no text-to-interval constructor)"
@@ -8901,8 +8901,8 @@ msgid "§9.5, §10.5.10 boolean functions of intervals"
 msgstr "§9.5, §10.5.10 区间的布尔函数"
 
 #: manual/conformance/ball_float.md:22
-msgid "ITF1788 relations phase (567 cases); `src/ball_float/ieee1788_relations_wbtest.mbt`"
-msgstr "ITF1788 关系阶段 (567 个用例); `src/ball_float/ieee1788_relations_wbtest.mbt`"
+msgid "ITF1788 relations phase (567 cases); `library/src/ball_float/ieee1788_relations_wbtest.mbt`"
+msgstr "ITF1788 关系阶段 (567 个用例); `library/src/ball_float/ieee1788_relations_wbtest.mbt`"
 
 #: manual/conformance/ball_float.md:23
 msgid "§10.6.2 slope functions"
@@ -9233,8 +9233,8 @@ msgid "§3.3–§3.6 binary16/32/64/128 interchange formats"
 msgstr "§3.3–§3.6 binary16/32/64/128 交换格式"
 
 #: manual/conformance/bin_float.md:73
-msgid "TestFloat gate; `src/bin_float/ieee754_wbtest.mbt`"
-msgstr "TestFloat 门禁; `src/bin_float/ieee754_wbtest.mbt`"
+msgid "TestFloat gate; `library/src/bin_float/ieee754_wbtest.mbt`"
+msgstr "TestFloat 门禁; `library/src/bin_float/ieee754_wbtest.mbt`"
 
 #: manual/conformance/bin_float.md:74
 #: manual/conformance/decimal.md:45
@@ -9242,8 +9242,8 @@ msgid "§3.7 extendable precisions"
 msgstr "§3.7 可扩展精度"
 
 #: manual/conformance/bin_float.md:74
-msgid "MPFR elementary fixture; `src/bin_float/exponent_range_wbtest.mbt`"
-msgstr "MPFR 初等函数 fixture; `src/bin_float/exponent_range_wbtest.mbt`"
+msgid "MPFR elementary fixture; `library/src/bin_float/exponent_range_wbtest.mbt`"
+msgstr "MPFR 初等函数 fixture; `library/src/bin_float/exponent_range_wbtest.mbt`"
 
 #: manual/conformance/bin_float.md:75
 #: manual/conformance/decimal.md:46
@@ -9264,8 +9264,8 @@ msgid "§5.3.1 addition, subtraction, multiplication, division, squareRoot"
 msgstr "§5.3.1 加法、减法、乘法、除法、squareRoot"
 
 #: manual/conformance/bin_float.md:76
-msgid "TestFloat gate (7,461,360 vectors); `src/bin_float/ieee754_wbtest.mbt`"
-msgstr "TestFloat 门禁 (7,461,360 个向量); `src/bin_float/ieee754_wbtest.mbt`"
+msgid "TestFloat gate (7,461,360 vectors); `library/src/bin_float/ieee754_wbtest.mbt`"
+msgstr "TestFloat 门禁 (7,461,360 个向量); `library/src/bin_float/ieee754_wbtest.mbt`"
 
 #: manual/conformance/bin_float.md:77
 #: manual/conformance/decimal.md:49
@@ -9273,8 +9273,8 @@ msgid "§5.3.1 fusedMultiplyAdd"
 msgstr "§5.3.1 fusedMultiplyAdd"
 
 #: manual/conformance/bin_float.md:77
-msgid "TestFloat gate (245,329,920 mulAdd vectors); `src/bin_float/fma_wbtest.mbt`"
-msgstr "TestFloat 门禁 (245,329,920 mulAdd 向量); `src/bin_float/fma_wbtest.mbt`"
+msgid "TestFloat gate (245,329,920 mulAdd vectors); `library/src/bin_float/fma_wbtest.mbt`"
+msgstr "TestFloat 门禁 (245,329,920 mulAdd 向量); `library/src/bin_float/fma_wbtest.mbt`"
 
 #: manual/conformance/bin_float.md:78
 #: manual/conformance/decimal.md:50
@@ -9282,16 +9282,16 @@ msgid "§5.3.1 remainder"
 msgstr "§5.3.1 remainder"
 
 #: manual/conformance/bin_float.md:78
-msgid "TestFloat gate (rem); `src/bin_float/remainder_wbtest.mbt`"
-msgstr "TestFloat 门禁 (rem); `src/bin_float/remainder_wbtest.mbt`"
+msgid "TestFloat gate (rem); `library/src/bin_float/remainder_wbtest.mbt`"
+msgstr "TestFloat 门禁 (rem); `library/src/bin_float/remainder_wbtest.mbt`"
 
 #: manual/conformance/bin_float.md:79
 msgid "§5.3.1, §5.9 roundToIntegral (five directions, exact)"
 msgstr "§5.3.1, §5.9 roundToIntegral (五种方向，含 exact 版)"
 
 #: manual/conformance/bin_float.md:79
-msgid "TestFloat gate (roundToInt, exact and inexact); `src/bin_float/integral_wbtest.mbt`"
-msgstr "TestFloat 门禁 (roundToInt, 精确与不精确); `src/bin_float/integral_wbtest.mbt`"
+msgid "TestFloat gate (roundToInt, exact and inexact); `library/src/bin_float/integral_wbtest.mbt`"
+msgstr "TestFloat 门禁 (roundToInt, 精确与不精确); `library/src/bin_float/integral_wbtest.mbt`"
 
 #: manual/conformance/bin_float.md:80
 #: manual/conformance/decimal.md:52
@@ -9299,8 +9299,8 @@ msgid "§5.3.1 nextUp, nextDown"
 msgstr "§5.3.1 nextUp, nextDown"
 
 #: manual/conformance/bin_float.md:80
-msgid "`src/bin_float/next_wbtest.mbt` (no external corpus)"
-msgstr "`src/bin_float/next_wbtest.mbt` (无外部语料)"
+msgid "`library/src/bin_float/next_wbtest.mbt` (no external corpus)"
+msgstr "`library/src/bin_float/next_wbtest.mbt` (无外部语料)"
 
 #: manual/conformance/bin_float.md:81
 #: manual/conformance/decimal.md:53
@@ -9308,8 +9308,8 @@ msgid "§5.3.1 scaleB, logB"
 msgstr "§5.3.1 scaleB, logB"
 
 #: manual/conformance/bin_float.md:81
-msgid "`src/bin_float/scale_wbtest.mbt` (no external corpus)"
-msgstr "`src/bin_float/scale_wbtest.mbt` (无外部语料)"
+msgid "`library/src/bin_float/scale_wbtest.mbt` (no external corpus)"
+msgstr "`library/src/bin_float/scale_wbtest.mbt` (无外部语料)"
 
 #: manual/conformance/bin_float.md:82
 #: manual/conformance/decimal.md:55
@@ -9318,16 +9318,16 @@ msgstr "§5.4.1 convertFromInt"
 
 #: manual/conformance/bin_float.md:82
 #: manual/conformance/bin_float.md:88
-msgid "`src/bin_float/order_wbtest.mbt` (no external corpus)"
-msgstr "`src/bin_float/order_wbtest.mbt` (无外部语料)"
+msgid "`library/src/bin_float/order_wbtest.mbt` (no external corpus)"
+msgstr "`library/src/bin_float/order_wbtest.mbt` (无外部语料)"
 
 #: manual/conformance/bin_float.md:83
 msgid "§5.4.1, §5.8 convertToInteger (exact and inexact)"
 msgstr "§5.4.1, §5.8 convertToInteger （exact 与 inexact）"
 
 #: manual/conformance/bin_float.md:83
-msgid "TestFloat gate (32- and 64-bit conversions); `src/bin_float/to_integer_wbtest.mbt`"
-msgstr "TestFloat 门禁 (32 位与 64 位转换); `src/bin_float/to_integer_wbtest.mbt`"
+msgid "TestFloat gate (32- and 64-bit conversions); `library/src/bin_float/to_integer_wbtest.mbt`"
+msgstr "TestFloat 门禁 (32 位与 64 位转换); `library/src/bin_float/to_integer_wbtest.mbt`"
 
 #: manual/conformance/bin_float.md:84
 #: manual/conformance/decimal.md:57
@@ -9335,8 +9335,8 @@ msgid "§5.4.2 convertFormat"
 msgstr "§5.4.2 convertFormat"
 
 #: manual/conformance/bin_float.md:84
-msgid "`src/bin_float/ieee754_wbtest.mbt`; TestFloat format-to-format conversions are not run"
-msgstr "`src/bin_float/ieee754_wbtest.mbt`; 未运行 TestFloat 的格式间转换"
+msgid "`library/src/bin_float/ieee754_wbtest.mbt`; TestFloat format-to-format conversions are not run"
+msgstr "`library/src/bin_float/ieee754_wbtest.mbt`; 未运行 TestFloat 的格式间转换"
 
 #: manual/conformance/bin_float.md:85
 #: manual/conformance/decimal.md:58
@@ -9348,16 +9348,16 @@ msgid "§5.6, §5.11 comparison predicates, quiet and signaling"
 msgstr "§5.6, §5.11 比较谓词，quiet 与 signaling"
 
 #: manual/conformance/bin_float.md:86
-msgid "TestFloat gate (eq, le, lt, eq_signaling, le_quiet, lt_quiet); `src/bin_float/order_wbtest.mbt`"
-msgstr "TestFloat 门禁 (eq, le, lt, eq_signaling, le_quiet, lt_quiet); `src/bin_float/order_wbtest.mbt`"
+msgid "TestFloat gate (eq, le, lt, eq_signaling, le_quiet, lt_quiet); `library/src/bin_float/order_wbtest.mbt`"
+msgstr "TestFloat 门禁 (eq, le, lt, eq_signaling, le_quiet, lt_quiet); `library/src/bin_float/order_wbtest.mbt`"
 
 #: manual/conformance/bin_float.md:87
 msgid "§5.7 class and sign predicates"
 msgstr "§5.7 class 与符号谓词"
 
 #: manual/conformance/bin_float.md:87
-msgid "`src/bin_float/contextual_traits_wbtest.mbt`; the ten-way `class` of §5.7.2 is not one function"
-msgstr "`src/bin_float/contextual_traits_wbtest.mbt`; §5.7.2 的十类 `class` 不是单个函数"
+msgid "`library/src/bin_float/contextual_traits_wbtest.mbt`; the ten-way `class` of §5.7.2 is not one function"
+msgstr "`library/src/bin_float/contextual_traits_wbtest.mbt`; §5.7.2 的十类 `class` 不是单个函数"
 
 #: manual/conformance/bin_float.md:88
 #: manual/conformance/decimal.md:61
@@ -9369,16 +9369,16 @@ msgid "§5.12 decimal character conversion, both directions"
 msgstr "§5.12 十进制字符转换，双向"
 
 #: manual/conformance/bin_float.md:89
-msgid "MPFR `mpfr_strtofr` corpus (1,716 rows) and `mpfr_get_str` corpus (3,300 rows); `src/bin_float/decimal_string_wbtest.mbt`"
-msgstr "MPFR `mpfr_strtofr` 语料 (1,716 行) and `mpfr_get_str` 语料 (3,300 行); `src/bin_float/decimal_string_wbtest.mbt`"
+msgid "MPFR `mpfr_strtofr` corpus (1,716 rows) and `mpfr_get_str` corpus (3,300 rows); `library/src/bin_float/decimal_string_wbtest.mbt`"
+msgstr "MPFR `mpfr_strtofr` 语料 (1,716 行) and `mpfr_get_str` 语料 (3,300 行); `library/src/bin_float/decimal_string_wbtest.mbt`"
 
 #: manual/conformance/bin_float.md:90
 msgid "§5.12 hexadecimal character conversion"
 msgstr "§5.12 十六进制字符转换"
 
 #: manual/conformance/bin_float.md:90
-msgid "every production of the §5.12.3 grammar and the §5.12.1 words, accepted and rejected, and a 4,000-value round trip in `src/bin_float/hex_grammar_wbtest.mbt`; used by every MPFR corpus row; no rounding direction or flags yet ([#256](https://github.com/Luna-Flow/floating/issues/256))"
-msgstr "`src/bin_float/hex_grammar_wbtest.mbt` 中 §5.12.3 文法的每条产生式与 §5.12.1 的各个单词都有接受和拒绝的用例，另有 4,000 个值的往返测试；每一行 MPFR 语料都用到它；尚无舍入方向和标志（[#256](https://github.com/Luna-Flow/floating/issues/256)）"
+msgid "every production of the §5.12.3 grammar and the §5.12.1 words, accepted and rejected, and a 4,000-value round trip in `library/src/bin_float/hex_grammar_wbtest.mbt`; used by every MPFR corpus row; no rounding direction or flags yet ([#256](https://github.com/Luna-Flow/floating/issues/256))"
+msgstr "`library/src/bin_float/hex_grammar_wbtest.mbt` 中 §5.12.3 文法的每条产生式与 §5.12.1 的各个单词都有接受和拒绝的用例，另有 4,000 个值的往返测试；每一行 MPFR 语料都用到它；尚无舍入方向和标志（[#256](https://github.com/Luna-Flow/floating/issues/256)）"
 
 #: manual/conformance/bin_float.md:91
 #: manual/conformance/decimal.md:63
@@ -9391,8 +9391,8 @@ msgid "every `*_ctx` operation"
 msgstr "每个 `*_ctx` 运算"
 
 #: manual/conformance/bin_float.md:91
-msgid "TestFloat gate (a NaN result is compared by class only); `src/bin_float/compare_nan_wbtest.mbt`"
-msgstr "TestFloat 门禁 (NaN 结果只按类别比较); `src/bin_float/compare_nan_wbtest.mbt`"
+msgid "TestFloat gate (a NaN result is compared by class only); `library/src/bin_float/compare_nan_wbtest.mbt`"
+msgstr "TestFloat 门禁 (NaN 结果只按类别比较); `library/src/bin_float/compare_nan_wbtest.mbt`"
 
 #: manual/conformance/bin_float.md:91
 #: manual/conformance/decimal.md:63
@@ -9434,8 +9434,8 @@ msgid "§9.2 recommended mathematical functions"
 msgstr "§9.2 推荐的数学函数"
 
 #: manual/conformance/bin_float.md:95
-msgid "MPFR elementary fixture (2,088 rows); `src/bin_float/elementary_certified_wbtest.mbt`; `src/bin_float/tanh_saturation_issue185_wbtest.mbt`; underflow and overflow decisions at the range limits (`exp2` and `pow` exact subnormal powers of two, `pown` tininess, `expm1` overflow window, all elementary exponentials against an independent reference): `src/bin_float/exp2_subnormal_wbtest.mbt`, `pow_exact_subnormal_wbtest.mbt`, `pown_subnormal_tininess_wbtest.mbt`, `expm1_overflow_window_wbtest.mbt`, `underflow_siblings_wbtest.mbt`; `exp2m1`, `exp10m1`, `log2p1`, `log10p1` (special values of §9.2.1, exact cases, thresholds): `src/bin_float/pm1_functions_wbtest.mbt`; `rsqrt`, `compound`, `powr` (special values of §9.2.1, exact cases, tiny-argument rule, `pow` agreement): `src/bin_float/rsqrt_compound_powr_wbtest.mbt`; `asinpi`, `acospi`, `atanpi`, `atan2pi` (special values and exact constants of §9.2.1, anchors at ±1/2 and ±1 for huge, tiny and extreme-ratio arguments, tiny arguments at the implementation subnormal limit, agreement with the result at p + 150): `src/bin_float/pi_inverse_wbtest.mbt`; seeded random and targeted boundary campaigns (results below)"
-msgstr "MPFR 初等函数夹具（2,088 行）；`src/bin_float/elementary_certified_wbtest.mbt`；`src/bin_float/tanh_saturation_issue185_wbtest.mbt`；范围极限处的下溢与上溢判定（`exp2` 与 `pow` 的精确次正规 2 的幂、`pown` 的 tininess、`expm1` 的上溢窗口，以及对照独立参考的全部初等指数函数）：`src/bin_float/exp2_subnormal_wbtest.mbt`、`pow_exact_subnormal_wbtest.mbt`、`pown_subnormal_tininess_wbtest.mbt`、`expm1_overflow_window_wbtest.mbt`、`underflow_siblings_wbtest.mbt`；`exp2m1`、`exp10m1`、`log2p1`、`log10p1`（§9.2.1 的特殊值、精确情形、阈值）：`src/bin_float/pm1_functions_wbtest.mbt`；`rsqrt`、`compound`、`powr`（§9.2.1 的特殊值、精确情形、微小参数规则、与 `pow` 一致）：`src/bin_float/rsqrt_compound_powr_wbtest.mbt`；`asinpi`、`acospi`、`atanpi`、`atan2pi`（§9.2.1 的特殊值与精确常量、巨大、微小及极端比值参数处 ±1/2 和 ±1 的锚点、实现次正规数极限处的微小参数、与 p + 150 位结果一致）：`src/bin_float/pi_inverse_wbtest.mbt`；带种子的随机活动与定向边界活动（结果见下）"
+msgid "MPFR elementary fixture (2,088 rows); `library/src/bin_float/elementary_certified_wbtest.mbt`; `library/src/bin_float/tanh_saturation_issue185_wbtest.mbt`; underflow and overflow decisions at the range limits (`exp2` and `pow` exact subnormal powers of two, `pown` tininess, `expm1` overflow window, all elementary exponentials against an independent reference): `library/src/bin_float/exp2_subnormal_wbtest.mbt`, `pow_exact_subnormal_wbtest.mbt`, `pown_subnormal_tininess_wbtest.mbt`, `expm1_overflow_window_wbtest.mbt`, `underflow_siblings_wbtest.mbt`; `exp2m1`, `exp10m1`, `log2p1`, `log10p1` (special values of §9.2.1, exact cases, thresholds): `library/src/bin_float/pm1_functions_wbtest.mbt`; `rsqrt`, `compound`, `powr` (special values of §9.2.1, exact cases, tiny-argument rule, `pow` agreement): `library/src/bin_float/rsqrt_compound_powr_wbtest.mbt`; `asinpi`, `acospi`, `atanpi`, `atan2pi` (special values and exact constants of §9.2.1, anchors at ±1/2 and ±1 for huge, tiny and extreme-ratio arguments, tiny arguments at the implementation subnormal limit, agreement with the result at p + 150): `library/src/bin_float/pi_inverse_wbtest.mbt`; seeded random and targeted boundary campaigns (results below)"
+msgstr "MPFR 初等函数夹具（2,088 行）；`library/src/bin_float/elementary_certified_wbtest.mbt`；`library/src/bin_float/tanh_saturation_issue185_wbtest.mbt`；范围极限处的下溢与上溢判定（`exp2` 与 `pow` 的精确次正规 2 的幂、`pown` 的 tininess、`expm1` 的上溢窗口，以及对照独立参考的全部初等指数函数）：`library/src/bin_float/exp2_subnormal_wbtest.mbt`、`pow_exact_subnormal_wbtest.mbt`、`pown_subnormal_tininess_wbtest.mbt`、`expm1_overflow_window_wbtest.mbt`、`underflow_siblings_wbtest.mbt`；`exp2m1`、`exp10m1`、`log2p1`、`log10p1`（§9.2.1 的特殊值、精确情形、阈值）：`library/src/bin_float/pm1_functions_wbtest.mbt`；`rsqrt`、`compound`、`powr`（§9.2.1 的特殊值、精确情形、微小参数规则、与 `pow` 一致）：`library/src/bin_float/rsqrt_compound_powr_wbtest.mbt`；`asinpi`、`acospi`、`atanpi`、`atan2pi`（§9.2.1 的特殊值与精确常量、巨大、微小及极端比值参数处 ±1/2 和 ±1 的锚点、实现次正规数极限处的微小参数、与 p + 150 位结果一致）：`library/src/bin_float/pi_inverse_wbtest.mbt`；带种子的随机活动与定向边界活动（结果见下）"
 
 #: manual/conformance/bin_float.md:96
 #: manual/conformance/decimal.md:69
@@ -9481,8 +9481,8 @@ msgid "§9.7 NaN payload operations"
 msgstr "§9.7 NaN 载荷运算"
 
 #: manual/conformance/bin_float.md:100
-msgid "`src/bin_float/order_wbtest.mbt`; no getPayload/setPayload pair"
-msgstr "`src/bin_float/order_wbtest.mbt`; 没有 getPayload/setPayload 对"
+msgid "`library/src/bin_float/order_wbtest.mbt`; no getPayload/setPayload pair"
+msgstr "`library/src/bin_float/order_wbtest.mbt`; 没有 getPayload/setPayload 对"
 
 #: manual/conformance/bin_float.md:102
 msgid "Declared corpus and results"
@@ -9694,8 +9694,8 @@ msgid "The committed elementary layer contains 4,896 certified rows. MPFR 4.2.2 
 msgstr "提交的 elementary 层包含 4,896 个证明行。MPFR 4.2.2 生成 768-bit 向下/向上 dyadic 端点；精确整数转换把两端在全部 `DecimalRoundingMode` 下舍入到 decimal32/64/128，只有结果与 flags 唯一时生成器才保留该行。生成这些行后，native、Wasm、Wasm-GC、JavaScript 各通过 531/531 个 public API 测试（每个 MPFR 区间一个测试，内含其 24 行：Wasm 测试模块无法为每一行注册一个测试）。完整 gate `just gate decimal 3` 为 103,527/103,527：24,867 个与目标无关的检查，四个目标各 531 个 public API 测试，以及四个目标各自的 `pi_inverse` 表 19,134 行。RDFP 与 Arb 仍是可选 secondary route；不可用时不计入已执行证据。"
 
 #: manual/conformance/decimal.md:27
-msgid "IEEE 754-2019 §9.2 saturation regressions for `Decimal::tanh_ctx` and `Decimal::expm1_ctx` are in `src/decimal/elementary_extensions_wbtest.mbt`. They check positive and negative `tanh`, negative `expm1`, all eight `DecimalRoundingMode` values, both clamp settings, both extended settings, and exact `Rounded`/`Inexact` flags. The certified pre-loop bound selects a same-side representative within the proved gap and passes it through the normal context finalizer, which supplies tininess, overflow and clamp flags. These targeted cases are separate from the committed MPFR row count. `decimal_gda` currently exposes neither operation, so this entry makes no GDA conformance claim."
-msgstr "IEEE 754-2019 §9.2 的饱和回归测试位于 `src/decimal/elementary_extensions_wbtest.mbt`，覆盖 `Decimal::tanh_ctx` 和 `Decimal::expm1_ctx`。测试检查正负 `tanh`、负值 `expm1`、全部八种 `DecimalRoundingMode`、两种 clamp 设置和两种 extended 设置，并精确核对 `Rounded`/`Inexact` 标志。认证循环前的界限会选取与真实结果同侧且处于已证明误差范围内的代表值，并交由常规上下文终结器处理，以正确产生微小性、溢出和 clamp 标志。这些定向用例不计入已提交的 MPFR 行数。`decimal_gda` 目前没有这两个运算，因此本条不声明 GDA 符合性。"
+msgid "IEEE 754-2019 §9.2 saturation regressions for `Decimal::tanh_ctx` and `Decimal::expm1_ctx` are in `library/src/decimal/elementary_extensions_wbtest.mbt`. They check positive and negative `tanh`, negative `expm1`, all eight `DecimalRoundingMode` values, both clamp settings, both extended settings, and exact `Rounded`/`Inexact` flags. The certified pre-loop bound selects a same-side representative within the proved gap and passes it through the normal context finalizer, which supplies tininess, overflow and clamp flags. These targeted cases are separate from the committed MPFR row count. `decimal_gda` currently exposes neither operation, so this entry makes no GDA conformance claim."
+msgstr "IEEE 754-2019 §9.2 的饱和回归测试位于 `library/src/decimal/elementary_extensions_wbtest.mbt`，覆盖 `Decimal::tanh_ctx` 和 `Decimal::expm1_ctx`。测试检查正负 `tanh`、负值 `expm1`、全部八种 `DecimalRoundingMode`、两种 clamp 设置和两种 extended 设置，并精确核对 `Rounded`/`Inexact` 标志。认证循环前的界限会选取与真实结果同侧且处于已证明误差范围内的代表值，并交由常规上下文终结器处理，以正确产生微小性、溢出和 clamp 标志。这些定向用例不计入已提交的 MPFR 行数。`decimal_gda` 目前没有这两个运算，因此本条不声明 GDA 符合性。"
 
 #: manual/conformance/decimal.md:40
 msgid "IEEE Std 754-2019 for `decimal` (decimal32/64/128 and arbitrary precision). Status is `conforming` when the operation exists and the cited evidence exercises it, `partial` when part of the clause is missing or evidence is thin (the cell says which), `not implemented` and `not applicable` otherwise. `Level` is `required` for clauses the standard states with \"shall\", `recommended` for those it states with \"should\" (and for the optional parts), `optional` for features a flavor may leave out. Evidence without a corpus name is a unit test in the repository; \"no external corpus\" marks operations that no independent oracle checks."
@@ -9706,16 +9706,16 @@ msgid "§3.5 decimal32/64/128 interchange, DPD and BID"
 msgstr "§3.5 decimal32/64/128 交换格式，DPD 与 BID"
 
 #: manual/conformance/decimal.md:44
-msgid "IEEE decimal corpus (`testdata/decimal/ieee/decimal64_dpd.json` and the other five encodings); all 1,024 declets; `src/decimal/interchange_wbtest.mbt`"
-msgstr "IEEE 十进制语料 (`testdata/decimal/ieee/decimal64_dpd.json` 及其余五种编码); 全部 1,024 个 declet; `src/decimal/interchange_wbtest.mbt`"
+msgid "IEEE decimal corpus (`testdata/decimal/ieee/decimal64_dpd.json` and the other five encodings); all 1,024 declets; `library/src/decimal/interchange_wbtest.mbt`"
+msgstr "IEEE 十进制语料 (`testdata/decimal/ieee/decimal64_dpd.json` 及其余五种编码); 全部 1,024 个 declet; `library/src/decimal/interchange_wbtest.mbt`"
 
 #: manual/conformance/decimal.md:45
 msgid "`DecimalContext::new` (precision up to 999,999,999)"
 msgstr "`DecimalContext::new` （精度最高 999,999,999）"
 
 #: manual/conformance/decimal.md:46
-msgid "IEEE decimal corpus (five directions); `src/decimal/subnormal_rounding_wbtest.mbt`"
-msgstr "IEEE 十进制语料 (五种方向); `src/decimal/subnormal_rounding_wbtest.mbt`"
+msgid "IEEE decimal corpus (five directions); `library/src/decimal/subnormal_rounding_wbtest.mbt`"
+msgstr "IEEE 十进制语料 (五种方向); `library/src/decimal/subnormal_rounding_wbtest.mbt`"
 
 #: manual/conformance/decimal.md:46
 msgid "conforming; `HalfDown`, `Up` and `ZeroFiveUp` are extensions"
@@ -9734,20 +9734,20 @@ msgid "conforming; `pow(1, ±inf)` has no defined exponent and returns `1`"
 msgstr "符合； `pow(1, ±inf)` 没有定义指数，返回 `1`"
 
 #: manual/conformance/decimal.md:48
-msgid "IEEE decimal corpus (authoritative operations); `src/decimal/exponent_limits_issue187_wbtest.mbt`"
-msgstr "IEEE 十进制语料 (权威运算); `src/decimal/exponent_limits_issue187_wbtest.mbt`"
+msgid "IEEE decimal corpus (authoritative operations); `library/src/decimal/exponent_limits_issue187_wbtest.mbt`"
+msgstr "IEEE 十进制语料 (权威运算); `library/src/decimal/exponent_limits_issue187_wbtest.mbt`"
 
 #: manual/conformance/decimal.md:49
-msgid "IEEE decimal corpus; `src/decimal/exponent_limits_issue187_wbtest.mbt`"
-msgstr "IEEE 十进制语料; `src/decimal/exponent_limits_issue187_wbtest.mbt`"
+msgid "IEEE decimal corpus; `library/src/decimal/exponent_limits_issue187_wbtest.mbt`"
+msgstr "IEEE 十进制语料; `library/src/decimal/exponent_limits_issue187_wbtest.mbt`"
 
 #: manual/conformance/decimal.md:50
 msgid "`remainder_ctx` (IEEE remainder; `remainder` and `remainder_near` are the GDA forms)"
 msgstr "`remainder_ctx` （IEEE 余数；`remainder` 与 `remainder_near` 是 GDA 形式）"
 
 #: manual/conformance/decimal.md:50
-msgid "`src/decimal/remainder_wbtest.mbt` (no external corpus)"
-msgstr "`src/decimal/remainder_wbtest.mbt` (无外部语料)"
+msgid "`library/src/decimal/remainder_wbtest.mbt` (no external corpus)"
+msgstr "`library/src/decimal/remainder_wbtest.mbt` (无外部语料)"
 
 #: manual/conformance/decimal.md:51
 msgid "§5.3.1 roundToIntegral (all five, exact)"
@@ -9778,20 +9778,20 @@ msgid "§5.7 class, isCanonical, radix"
 msgstr "§5.7 class, isCanonical, radix"
 
 #: manual/conformance/decimal.md:61
-msgid "`testdata/decimal/ieee/total_order.json`: every ordered pair of cohorts, signed zeros, subnormals, infinities and quiet and signaling NaNs with payloads in decimal32/64/128 (18,816 pairs), expected values from a transcription of §5.10 cross-checked with libmpdec, run on four targets in the `DECIMAL: IEEE 754` gate; NaN payloads order by value, reversed for a negative sign (implementation-defined by §5.10 d) 5) iii)); `src/consistency/core_wbtest.mbt`"
-msgstr "`testdata/decimal/ieee/total_order.json`：decimal32/64/128 中 cohort、带符号零、次正规数、无穷以及带 payload 的 quiet 与 signaling NaN 的全部有序对（18,816 对），期望值来自对 §5.10 的逐条转写并与 libmpdec 交叉核对，在 `DECIMAL: IEEE 754` 门禁中于四个目标上运行；NaN 按 payload 数值排序，负号时反向（§5.10 d) 5) iii) 规定由实现定义）；`src/consistency/core_wbtest.mbt`"
+msgid "`testdata/decimal/ieee/total_order.json`: every ordered pair of cohorts, signed zeros, subnormals, infinities and quiet and signaling NaNs with payloads in decimal32/64/128 (18,816 pairs), expected values from a transcription of §5.10 cross-checked with libmpdec, run on four targets in the `DECIMAL: IEEE 754` gate; NaN payloads order by value, reversed for a negative sign (implementation-defined by §5.10 d) 5) iii)); `library/src/consistency/core_wbtest.mbt`"
+msgstr "`testdata/decimal/ieee/total_order.json`：decimal32/64/128 中 cohort、带符号零、次正规数、无穷以及带 payload 的 quiet 与 signaling NaN 的全部有序对（18,816 对），期望值来自对 §5.10 的逐条转写并与 libmpdec 交叉核对，在 `DECIMAL: IEEE 754` 门禁中于四个目标上运行；NaN 按 payload 数值排序，负号时反向（§5.10 d) 5) iii) 规定由实现定义）；`library/src/consistency/core_wbtest.mbt`"
 
 #: manual/conformance/decimal.md:62
 msgid "§5.12 decimal character conversion (decimal to decimal)"
 msgstr "§5.12 十进制字符转换（十进制到十进制）"
 
 #: manual/conformance/decimal.md:62
-msgid "`src/decimal/parse_format_wbtest.mbt`; IEEE decimal corpus"
-msgstr "`src/decimal/parse_format_wbtest.mbt`; IEEE 十进制语料"
+msgid "`library/src/decimal/parse_format_wbtest.mbt`; IEEE decimal corpus"
+msgstr "`library/src/decimal/parse_format_wbtest.mbt`; IEEE 十进制语料"
 
 #: manual/conformance/decimal.md:63
-msgid "IEEE decimal corpus; `src/decimal/nan_payload_issue151_152_wbtest.mbt`"
-msgstr "IEEE 十进制语料; `src/decimal/nan_payload_issue151_152_wbtest.mbt`"
+msgid "IEEE decimal corpus; `library/src/decimal/nan_payload_issue151_152_wbtest.mbt`"
+msgstr "IEEE 十进制语料; `library/src/decimal/nan_payload_issue151_152_wbtest.mbt`"
 
 #: manual/conformance/decimal.md:64
 msgid "§7.2–§7.4, §7.6 invalid operation, division by zero, overflow, inexact"
@@ -9802,32 +9802,32 @@ msgid "`DecimalFlags` returned by every `*_ctx` operation"
 msgstr "`DecimalFlags` 由每个 `*_ctx` 运算返回"
 
 #: manual/conformance/decimal.md:64
-msgid "IEEE decimal corpus (flags recorded independently of values); `src/decimal/overflow_rounded_result_issue264_wbtest.mbt` (overflow is judged on the rounded sum, not on an operand)"
-msgstr "IEEE 十进制语料 (标志与数值分别记录)；`src/decimal/overflow_rounded_result_issue264_wbtest.mbt` (溢出按舍入后的和判定，而不是按某个操作数)"
+msgid "IEEE decimal corpus (flags recorded independently of values); `library/src/decimal/overflow_rounded_result_issue264_wbtest.mbt` (overflow is judged on the rounded sum, not on an operand)"
+msgstr "IEEE 十进制语料 (标志与数值分别记录)；`library/src/decimal/overflow_rounded_result_issue264_wbtest.mbt` (溢出按舍入后的和判定，而不是按某个操作数)"
 
 #: manual/conformance/decimal.md:65
 msgid "§7.5 underflow and tininess"
 msgstr "§7.5 下溢与微小性"
 
 #: manual/conformance/decimal.md:65
-msgid "`src/decimal/tininess_after_rounding_wbtest.mbt`; `src/decimal/sqrt_tininess_wbtest.mbt`; `src/decimal/elementary_extensions_wbtest.mbt`; `src/decimal/power_subnormal_underflow_issue268_wbtest.mbt` (an integer power just below 10^emin); `src/decimal/power_subnormal_underflow_issue342_wbtest.mbt` (underflow of an inexact subnormal integer power)"
-msgstr "`src/decimal/tininess_after_rounding_wbtest.mbt`；`src/decimal/sqrt_tininess_wbtest.mbt`；`src/decimal/elementary_extensions_wbtest.mbt`；`src/decimal/power_subnormal_underflow_issue268_wbtest.mbt` (刚好低于 10^emin 的整数幂)；`src/decimal/power_subnormal_underflow_issue342_wbtest.mbt` (不精确的次正规整数幂的下溢)"
+msgid "`library/src/decimal/tininess_after_rounding_wbtest.mbt`; `library/src/decimal/sqrt_tininess_wbtest.mbt`; `library/src/decimal/elementary_extensions_wbtest.mbt`; `library/src/decimal/power_subnormal_underflow_issue268_wbtest.mbt` (an integer power just below 10^emin); `library/src/decimal/power_subnormal_underflow_issue342_wbtest.mbt` (underflow of an inexact subnormal integer power)"
+msgstr "`library/src/decimal/tininess_after_rounding_wbtest.mbt`；`library/src/decimal/sqrt_tininess_wbtest.mbt`；`library/src/decimal/elementary_extensions_wbtest.mbt`；`library/src/decimal/power_subnormal_underflow_issue268_wbtest.mbt` (刚好低于 10^emin 的整数幂)；`library/src/decimal/power_subnormal_underflow_issue342_wbtest.mbt` (不精确的次正规整数幂的下溢)"
 
 #: manual/conformance/decimal.md:65
 msgid "conforming (the default is before rounding; `AfterRounding` is a non-standard option)"
 msgstr "符合（默认是舍入前检测；`AfterRounding` 是非标准选项）"
 
 #: manual/conformance/decimal.md:67
-msgid "MPFR-certified elementary oracle (`testdata/decimal/ieee/elementary_mpfr_oracle.json`, 29 operations × 96 rows and 11 operations × 192 rows = 4,896); `src/decimal/elementary_extensions_wbtest.mbt`; `exp2m1`, `exp10m1`, `log2p1`, `log10p1` (special values of §9.2.1, exact cases and preferred exponent of §9.2.2, clusters, tiny arguments, all eight rounding modes, both tininess rules): `src/decimal/elementary_pm1_wbtest.mbt` and the generated `src/decimal/elementary_pm1_rows_wbtest.mbt` (`tools/generate_decimal_pm1_rows.py`); `rsqrt`, `compound`, `powr` (§9.2.1 rows, the two readings of the powr list, preferred exponents, `Int32` minimum, tiny and extreme arguments): `src/decimal/elementary_rcp_wbtest.mbt` and the generated `src/decimal/elementary_rcp_rows_wbtest.mbt` (`tools/generate_decimal_rcp_rows.py`); `asinpi`, `acospi`, `atanpi`, `atan2pi` (the clauses of §9.2.1 row by row, Niven's exact values, preferred exponent 0, the anchors next to ±1/2 and ±1 in all eight rounding modes on both sides, tiny and extreme operands, underflow): `src/decimal/elementary_pi_inverse_wbtest.mbt` and the generated `src/decimal/elementary_pi_inverse_rows_wbtest.mbt` (`tools/generate_decimal_pi_inverse_rows.py`); exponentials at the range limits (`exp`, `exp2`, `exp10` beyond the binary exponent range, results just inside and outside the range, all eight rounding directions): `src/decimal/exp_range_wbtest.mbt` and the generated `src/decimal/exp_range_rows_wbtest.mbt` (`tools/generate_decimal_exp_range_rows.py`); seeded random `decimal-*` campaign against MPFR (`doc/manual/verification.md`)"
-msgstr "MPFR 认证的初等函数 oracle（`testdata/decimal/ieee/elementary_mpfr_oracle.json`，29 个运算 × 96 行加 11 个运算 × 192 行 = 4,896 行）；`src/decimal/elementary_extensions_wbtest.mbt`；`exp2m1`、`exp10m1`、`log2p1`、`log10p1`（§9.2.1 的特殊值、精确情形与 §9.2.2 的首选指数、聚集情形、微小参数、全部八种舍入模式、两种微小性规则）：`src/decimal/elementary_pm1_wbtest.mbt` 以及生成的 `src/decimal/elementary_pm1_rows_wbtest.mbt`（`tools/generate_decimal_pm1_rows.py`）；`rsqrt`、`compound`、`powr`（§9.2.1 的各行、powr 列表的两种理解、首选指数、`Int32` 最小值、微小与极端参数）：`src/decimal/elementary_rcp_wbtest.mbt` 以及生成的 `src/decimal/elementary_rcp_rows_wbtest.mbt`（`tools/generate_decimal_rcp_rows.py`）；`asinpi`、`acospi`、`atanpi`、`atan2pi`（逐行对照 §9.2.1 的条款、Niven 的精确值、首选指数 0、±1/2 与 ±1 附近两侧在全部八种舍入模式下的锚点、微小与极端操作数、下溢）：`src/decimal/elementary_pi_inverse_wbtest.mbt` 以及生成的 `src/decimal/elementary_pi_inverse_rows_wbtest.mbt`（`tools/generate_decimal_pi_inverse_rows.py`）；范围极限处的指数函数（`exp`、`exp2`、`exp10` 在二进制指数范围之外、刚好在范围内外的结果、全部八种舍入方向）：`src/decimal/exp_range_wbtest.mbt` 以及生成的 `src/decimal/exp_range_rows_wbtest.mbt`（`tools/generate_decimal_exp_range_rows.py`）；`asinpi`、`acospi`、`atanpi`、`atan2pi`（逐行对照 §9.2.1 的条款、Niven 的精确值、首选指数 0、±1/2 与 ±1 附近两侧在全部八种舍入模式下的锚点、微小与极端操作数、下溢）：`src/decimal/elementary_pi_inverse_wbtest.mbt` 以及生成的 `src/decimal/elementary_pi_inverse_rows_wbtest.mbt`（`tools/generate_decimal_pi_inverse_rows.py`）；范围极限处的指数函数（`exp`、`exp2`、`exp10` 在二进制指数范围之外、刚好在范围内外的结果、全部八种舍入方向）：`src/decimal/exp_range_wbtest.mbt` 以及生成的 `src/decimal/exp_range_rows_wbtest.mbt`（`tools/generate_decimal_exp_range_rows.py`）；对照 MPFR 的带种子随机 `decimal-*` 测试（`doc/manual/verification.md`）"
+msgid "MPFR-certified elementary oracle (`testdata/decimal/ieee/elementary_mpfr_oracle.json`, 29 operations × 96 rows and 11 operations × 192 rows = 4,896); `library/src/decimal/elementary_extensions_wbtest.mbt`; `exp2m1`, `exp10m1`, `log2p1`, `log10p1` (special values of §9.2.1, exact cases and preferred exponent of §9.2.2, clusters, tiny arguments, all eight rounding modes, both tininess rules): `library/src/decimal/elementary_pm1_wbtest.mbt` and the generated `library/src/decimal/elementary_pm1_rows_wbtest.mbt` (`tools/generate_decimal_pm1_rows.py`); `rsqrt`, `compound`, `powr` (§9.2.1 rows, the two readings of the powr list, preferred exponents, `Int32` minimum, tiny and extreme arguments): `library/src/decimal/elementary_rcp_wbtest.mbt` and the generated `library/src/decimal/elementary_rcp_rows_wbtest.mbt` (`tools/generate_decimal_rcp_rows.py`); `asinpi`, `acospi`, `atanpi`, `atan2pi` (the clauses of §9.2.1 row by row, Niven's exact values, preferred exponent 0, the anchors next to ±1/2 and ±1 in all eight rounding modes on both sides, tiny and extreme operands, underflow): `library/src/decimal/elementary_pi_inverse_wbtest.mbt` and the generated `library/src/decimal/elementary_pi_inverse_rows_wbtest.mbt` (`tools/generate_decimal_pi_inverse_rows.py`); exponentials at the range limits (`exp`, `exp2`, `exp10` beyond the binary exponent range, results just inside and outside the range, all eight rounding directions): `library/src/decimal/exp_range_wbtest.mbt` and the generated `library/src/decimal/exp_range_rows_wbtest.mbt` (`tools/generate_decimal_exp_range_rows.py`); seeded random `decimal-*` campaign against MPFR (`doc/manual/verification.md`)"
+msgstr "MPFR 认证的初等函数 oracle（`testdata/decimal/ieee/elementary_mpfr_oracle.json`，29 个运算 × 96 行加 11 个运算 × 192 行 = 4,896 行）；`library/src/decimal/elementary_extensions_wbtest.mbt`；`exp2m1`、`exp10m1`、`log2p1`、`log10p1`（§9.2.1 的特殊值、精确情形与 §9.2.2 的首选指数、聚集情形、微小参数、全部八种舍入模式、两种微小性规则）：`library/src/decimal/elementary_pm1_wbtest.mbt` 以及生成的 `library/src/decimal/elementary_pm1_rows_wbtest.mbt`（`tools/generate_decimal_pm1_rows.py`）；`rsqrt`、`compound`、`powr`（§9.2.1 的各行、powr 列表的两种理解、首选指数、`Int32` 最小值、微小与极端参数）：`library/src/decimal/elementary_rcp_wbtest.mbt` 以及生成的 `library/src/decimal/elementary_rcp_rows_wbtest.mbt`（`tools/generate_decimal_rcp_rows.py`）；`asinpi`、`acospi`、`atanpi`、`atan2pi`（逐行对照 §9.2.1 的条款、Niven 的精确值、首选指数 0、±1/2 与 ±1 附近两侧在全部八种舍入模式下的锚点、微小与极端操作数、下溢）：`library/src/decimal/elementary_pi_inverse_wbtest.mbt` 以及生成的 `library/src/decimal/elementary_pi_inverse_rows_wbtest.mbt`（`tools/generate_decimal_pi_inverse_rows.py`）；范围极限处的指数函数（`exp`、`exp2`、`exp10` 在二进制指数范围之外、刚好在范围内外的结果、全部八种舍入方向）：`library/src/decimal/exp_range_wbtest.mbt` 以及生成的 `library/src/decimal/exp_range_rows_wbtest.mbt`（`tools/generate_decimal_exp_range_rows.py`）；`asinpi`、`acospi`、`atanpi`、`atan2pi`（逐行对照 §9.2.1 的条款、Niven 的精确值、首选指数 0、±1/2 与 ±1 附近两侧在全部八种舍入模式下的锚点、微小与极端操作数、下溢）：`library/src/decimal/elementary_pi_inverse_wbtest.mbt` 以及生成的 `library/src/decimal/elementary_pi_inverse_rows_wbtest.mbt`（`tools/generate_decimal_pi_inverse_rows.py`）；范围极限处的指数函数（`exp`、`exp2`、`exp10` 在二进制指数范围之外、刚好在范围内外的结果、全部八种舍入方向）：`library/src/decimal/exp_range_wbtest.mbt` 以及生成的 `library/src/decimal/exp_range_rows_wbtest.mbt`（`tools/generate_decimal_exp_range_rows.py`）；对照 MPFR 的带种子随机 `decimal-*` 测试（`doc/manual/verification.md`）"
 
 #: manual/conformance/decimal.md:68
 msgid "§9.2.2 preferred exponents of pow and pown"
 msgstr "§9.2.2 pow 与 pown 的首选指数"
 
 #: manual/conformance/decimal.md:68
-msgid "`src/decimal/power_preferred_exponent_issue194_wbtest.mbt`; `src/decimal/power_overflow_sign_issue265_wbtest.mbt` (sign of an overflowing power); `src/decimal/power_inexact_trailing_zeros_issue266_wbtest.mbt` (an inexact power uses the cohort member of least exponent, §5.2); `src/decimal/power_reciprocal_cohort_issue284_wbtest.mbt` (cohort of exact negative powers, §5.2); `src/decimal/power_spurious_clamped_issue267_wbtest.mbt` (the `clamped` condition of integer powers); `src/decimal/power_ten_clamp_issue287_wbtest.mbt` (the `clamped` condition of a power of ten); `src/decimal/power_inexact_clamped_issue305_wbtest.mbt` (no `clamped` on an inexact result)"
-msgstr "`src/decimal/power_preferred_exponent_issue194_wbtest.mbt`；`src/decimal/power_overflow_sign_issue265_wbtest.mbt` (溢出的幂运算的符号)；`src/decimal/power_inexact_trailing_zeros_issue266_wbtest.mbt` (不精确的幂使用指数最小的队列成员，§5.2)；`src/decimal/power_reciprocal_cohort_issue284_wbtest.mbt` (精确负幂的队列，§5.2)；`src/decimal/power_spurious_clamped_issue267_wbtest.mbt` (整数幂的 `clamped` 条件)；`src/decimal/power_ten_clamp_issue287_wbtest.mbt` (十的幂的 `clamped` 条件)；`src/decimal/power_inexact_clamped_issue305_wbtest.mbt` (不精确结果不报 `clamped`)"
+msgid "`library/src/decimal/power_preferred_exponent_issue194_wbtest.mbt`; `library/src/decimal/power_overflow_sign_issue265_wbtest.mbt` (sign of an overflowing power); `library/src/decimal/power_inexact_trailing_zeros_issue266_wbtest.mbt` (an inexact power uses the cohort member of least exponent, §5.2); `library/src/decimal/power_reciprocal_cohort_issue284_wbtest.mbt` (cohort of exact negative powers, §5.2); `library/src/decimal/power_spurious_clamped_issue267_wbtest.mbt` (the `clamped` condition of integer powers); `library/src/decimal/power_ten_clamp_issue287_wbtest.mbt` (the `clamped` condition of a power of ten); `library/src/decimal/power_inexact_clamped_issue305_wbtest.mbt` (no `clamped` on an inexact result)"
+msgstr "`library/src/decimal/power_preferred_exponent_issue194_wbtest.mbt`；`library/src/decimal/power_overflow_sign_issue265_wbtest.mbt` (溢出的幂运算的符号)；`library/src/decimal/power_inexact_trailing_zeros_issue266_wbtest.mbt` (不精确的幂使用指数最小的队列成员，§5.2)；`library/src/decimal/power_reciprocal_cohort_issue284_wbtest.mbt` (精确负幂的队列，§5.2)；`library/src/decimal/power_spurious_clamped_issue267_wbtest.mbt` (整数幂的 `clamped` 条件)；`library/src/decimal/power_ten_clamp_issue287_wbtest.mbt` (十的幂的 `clamped` 条件)；`library/src/decimal/power_inexact_clamped_issue305_wbtest.mbt` (不精确结果不报 `clamped`)"
 
 #: manual/conformance/decimal.md:71
 msgid "none (§9.5 recommends it for binary formats only; no decimal requirement)"
@@ -9937,8 +9937,8 @@ msgid "add, subtract, multiply"
 msgstr "add, subtract, multiply"
 
 #: manual/conformance/decimal_gda.md:18
-msgid "`add.decTest`, `subtract.decTest`, `multiply.decTest`; `src/decimal_gda/overflow_rounded_result_issue264_wbtest.mbt` (overflow is judged on the rounded sum)"
-msgstr "`add.decTest`、`subtract.decTest`、`multiply.decTest`；`src/decimal_gda/overflow_rounded_result_issue264_wbtest.mbt` (溢出按舍入后的和判定)"
+msgid "`add.decTest`, `subtract.decTest`, `multiply.decTest`; `library/src/decimal_gda/overflow_rounded_result_issue264_wbtest.mbt` (overflow is judged on the rounded sum)"
+msgstr "`add.decTest`、`subtract.decTest`、`multiply.decTest`；`library/src/decimal_gda/overflow_rounded_result_issue264_wbtest.mbt` (溢出按舍入后的和判定)"
 
 #: manual/conformance/decimal_gda.md:19
 msgid "divide, divide-integer, remainder, remainder-near"
@@ -9957,8 +9957,8 @@ msgid "power"
 msgstr "power"
 
 #: manual/conformance/decimal_gda.md:22
-msgid "`power.decTest`; `src/decimal_gda/power_cohort_issue211_wbtest.mbt`; `src/decimal_gda/power_overflow_sign_issue265_wbtest.mbt` (sign of an overflowing power); `src/decimal_gda/power_inexact_trailing_zeros_issue266_wbtest.mbt` (an inexact power keeps precision digits); `src/decimal_gda/power_reciprocal_cohort_issue284_wbtest.mbt` (cohort of exact negative powers); `src/decimal_gda/power_spurious_clamped_issue267_wbtest.mbt` (Clamped of integer powers); `src/decimal_gda/power_subnormal_underflow_issue268_wbtest.mbt` (Subnormal and Underflow of integer powers near Emin); `src/decimal_gda/power_subnormal_underflow_issue342_wbtest.mbt` (Underflow of an inexact subnormal integer power); `src/decimal_gda/power_ten_clamp_issue287_wbtest.mbt` (clamp fold-down of a power of ten); `src/decimal_gda/power_inexact_clamped_issue305_wbtest.mbt` (no Clamped on an inexact result); `src/decimal_gda/power_one_inexact_issue306_wbtest.mbt` (the power of 1 to a non-integer exponent is inexact)"
-msgstr "`power.decTest`；`src/decimal_gda/power_cohort_issue211_wbtest.mbt`；`src/decimal_gda/power_overflow_sign_issue265_wbtest.mbt` (溢出的幂运算的符号)；`src/decimal_gda/power_inexact_trailing_zeros_issue266_wbtest.mbt` (不精确的幂保留 precision 位)；`src/decimal_gda/power_reciprocal_cohort_issue284_wbtest.mbt` (精确负幂的队列)；`src/decimal_gda/power_spurious_clamped_issue267_wbtest.mbt` (整数幂的 Clamped)；`src/decimal_gda/power_subnormal_underflow_issue268_wbtest.mbt` (Emin 附近整数幂的 Subnormal 与 Underflow)；`src/decimal_gda/power_subnormal_underflow_issue342_wbtest.mbt` (不精确的次正规整数幂的 Underflow)；`src/decimal_gda/power_ten_clamp_issue287_wbtest.mbt` (十的幂的 clamp 折下)；`src/decimal_gda/power_inexact_clamped_issue305_wbtest.mbt` (不精确结果不报 Clamped)；`src/decimal_gda/power_one_inexact_issue306_wbtest.mbt` (1 的非整数次幂是不精确的)"
+msgid "`power.decTest`; `library/src/decimal_gda/power_cohort_issue211_wbtest.mbt`; `library/src/decimal_gda/power_overflow_sign_issue265_wbtest.mbt` (sign of an overflowing power); `library/src/decimal_gda/power_inexact_trailing_zeros_issue266_wbtest.mbt` (an inexact power keeps precision digits); `library/src/decimal_gda/power_reciprocal_cohort_issue284_wbtest.mbt` (cohort of exact negative powers); `library/src/decimal_gda/power_spurious_clamped_issue267_wbtest.mbt` (Clamped of integer powers); `library/src/decimal_gda/power_subnormal_underflow_issue268_wbtest.mbt` (Subnormal and Underflow of integer powers near Emin); `library/src/decimal_gda/power_subnormal_underflow_issue342_wbtest.mbt` (Underflow of an inexact subnormal integer power); `library/src/decimal_gda/power_ten_clamp_issue287_wbtest.mbt` (clamp fold-down of a power of ten); `library/src/decimal_gda/power_inexact_clamped_issue305_wbtest.mbt` (no Clamped on an inexact result); `library/src/decimal_gda/power_one_inexact_issue306_wbtest.mbt` (the power of 1 to a non-integer exponent is inexact)"
+msgstr "`power.decTest`；`library/src/decimal_gda/power_cohort_issue211_wbtest.mbt`；`library/src/decimal_gda/power_overflow_sign_issue265_wbtest.mbt` (溢出的幂运算的符号)；`library/src/decimal_gda/power_inexact_trailing_zeros_issue266_wbtest.mbt` (不精确的幂保留 precision 位)；`library/src/decimal_gda/power_reciprocal_cohort_issue284_wbtest.mbt` (精确负幂的队列)；`library/src/decimal_gda/power_spurious_clamped_issue267_wbtest.mbt` (整数幂的 Clamped)；`library/src/decimal_gda/power_subnormal_underflow_issue268_wbtest.mbt` (Emin 附近整数幂的 Subnormal 与 Underflow)；`library/src/decimal_gda/power_subnormal_underflow_issue342_wbtest.mbt` (不精确的次正规整数幂的 Underflow)；`library/src/decimal_gda/power_ten_clamp_issue287_wbtest.mbt` (十的幂的 clamp 折下)；`library/src/decimal_gda/power_inexact_clamped_issue305_wbtest.mbt` (不精确结果不报 Clamped)；`library/src/decimal_gda/power_one_inexact_issue306_wbtest.mbt` (1 的非整数次幂是不精确的)"
 
 #: manual/conformance/decimal_gda.md:22
 msgid "conforming; integer powers are within about 0.55 units in the last place (0.6 for negative exponents), as the specification allows"
@@ -10013,8 +10013,8 @@ msgid "canonical"
 msgstr "canonical"
 
 #: manual/conformance/decimal_gda.md:33
-msgid "no decTest file; `src/consistency/api_audit_wbtest.mbt`"
-msgstr "无 decTest 文件; `src/consistency/api_audit_wbtest.mbt`"
+msgid "no decTest file; `library/src/consistency/api_audit_wbtest.mbt`"
+msgstr "无 decTest 文件; `library/src/consistency/api_audit_wbtest.mbt`"
 
 #: manual/conformance/decimal_gda.md:34
 msgid "context: precision, rounding, clamp, exponent limits"
@@ -10037,8 +10037,8 @@ msgid "`extended = false` contexts"
 msgstr "`extended = false` contexts"
 
 #: manual/conformance/decimal_gda.md:36
-msgid "pinned subset corpus `dectest0.zip` (32 files, 31 with `extended: 0`) in the `DECIMAL_GDA: official0 decTest` gate stage; `src/decimal_gda/` white-box tests"
-msgstr "门禁阶段 `DECIMAL_GDA: official0 decTest` 中固定的子集语料 `dectest0.zip`（32 个文件，其中 31 个为 `extended: 0`）；`src/decimal_gda/` 白盒测试"
+msgid "pinned subset corpus `dectest0.zip` (32 files, 31 with `extended: 0`) in the `DECIMAL_GDA: official0 decTest` gate stage; `library/src/decimal_gda/` white-box tests"
+msgstr "门禁阶段 `DECIMAL_GDA: official0 decTest` 中固定的子集语料 `dectest0.zip`（32 个文件，其中 31 个为 `extended: 0`）；`library/src/decimal_gda/` 白盒测试"
 
 #: manual/conformance/decimal_gda.md:38
 msgid "Legacy corpus"
@@ -10121,8 +10121,8 @@ msgid "Repository conventions"
 msgstr "仓库约定"
 
 #: manual/conventions.md:3
-msgid "These rules add to the Luna-Flow documentation standard for `floating`; they never relax it. The manual describes the implementation on the current branch. The current release is **`0.10.2`**, the version in `moon.mod`."
-msgstr "这些规则是 `floating` 在 Luna-Flow 文档标准之上的补充，绝不会放宽该标准。本手册描述当前分支上的实现。当前发布版本为 **`0.10.2`**，即 `moon.mod` 中的版本。"
+msgid "These rules add to the Luna-Flow documentation standard for `floating`; they never relax it. The manual describes the implementation on the current branch. The current release is **`0.10.2`**, the version in `library/moon.mod`."
+msgstr "这些规则是 `floating` 在 Luna-Flow 文档标准之上的补充，绝不会放宽该标准。本手册描述当前分支上的实现。当前发布版本为 **`0.10.2`**，即 `library/moon.mod` 中的版本。"
 
 #: manual/conventions.md:7
 msgid "Chapters and guides"
@@ -10161,32 +10161,32 @@ msgid "The guides are fixed by `tools/doc_quality.py`: `index.md` (overview and 
 msgstr "指南由 `tools/doc_quality.py` 固定：`index.md`（概览与包地图）、`getting_started.md`（包的选择与入门步骤）、`numeric_semantics.md`（共享的数值术语）、`architecture.md`（分层与职责）、`verification.md`（检查关卡与符合性范围）、`performance_audit.md`（历史性能基线的审计）以及本页。未同步更新该列表时，不要新增或重命名指南。"
 
 #: manual/conventions.md:45
-msgid "`README.md` positions the current release and points into the manual. `CHANGELOG.md` owns release history and migration notes."
-msgstr "`README.md` 说明当前发布版本的定位并指向本手册。`CHANGELOG.md` 负责发布历史与迁移说明。"
+msgid "`library/README.md` positions the current release and points into the manual. `library/CHANGELOG.md` owns release history and migration notes."
+msgstr "`library/README.md` 说明当前发布版本的定位并指向本手册。`library/CHANGELOG.md` 负责发布历史与迁移说明。"
 
 #: manual/conventions.md:48
 msgid "Package pages"
 msgstr "包页面"
 
 #: manual/conventions.md:50
-msgid "Mirror every `moon.pkg`: the package in `src/<path>/moon.pkg` is documented in `api/<path>.md`, `tutorial/<path>.md` and `design/<path>.md`. Files do not create packages; `moon.pkg` boundaries do."
-msgstr "镜像每个 `moon.pkg`：`src/<path>/moon.pkg` 中的包由 `api/<path>.md`、`tutorial/<path>.md` 和 `design/<path>.md` 记录。文件不会创建包，`moon.pkg` 边界才会。"
+msgid "Mirror every `moon.pkg`: the package in `library/src/<path>/moon.pkg` is documented in `api/<path>.md`, `tutorial/<path>.md` and `design/<path>.md`. Files do not create packages; `moon.pkg` boundaries do."
+msgstr "镜像每个 `moon.pkg`：`library/src/<path>/moon.pkg` 中的包由 `api/<path>.md`、`tutorial/<path>.md` 和 `design/<path>.md` 记录。文件不会创建包，`moon.pkg` 边界才会。"
 
 #: manual/conventions.md:53
 msgid "Give every package all three pages. Packages without an application API (frontends, CLIs, `internal/*`, `bench/*`, `consistency`, `doc_examples`) still document their generated interface, maintainer workflow and stability boundary."
 msgstr "为每个包提供全部三类页面。没有应用 API 的包（前端、CLI、`internal/*`、`bench/*`、`consistency`、`doc_examples`）仍需记录其生成接口、维护流程和稳定性边界。"
 
 #: manual/conventions.md:57
-msgid "Every package also keeps a `src/<path>/README.mbt.md`."
-msgstr "每个包还要保留一个 `src/<path>/README.mbt.md`。"
+msgid "Every package also keeps a `library/src/<path>/README.mbt.md`."
+msgstr "每个包还要保留一个 `library/src/<path>/README.mbt.md`。"
 
 #: manual/conventions.md:58
 msgid "`pkg.generated.mbti` is the public-surface inventory; source and tests define behaviour. A method is documented as callable with dot syntax only if the `.mbti` lists it as `pub fn Type::name`; trait-implementation methods are not promoted implicitly and must be declared with `pub extend`."
 msgstr "`pkg.generated.mbti` 是公开接口的清单；源码和测试定义行为。只有当 `.mbti` 将某方法列为 `pub fn Type::name` 时，才能将其记录为可用点语法调用；trait 实现中的方法不会被隐式提升，必须用 `pub extend` 声明。"
 
 #: manual/conventions.md:62
-msgid "Do not document planned APIs as existing, and do not keep research notes as separate pages. Promote durable conclusions into design, conformance or performance pages, and move superseded history to `CHANGELOG.md`."
-msgstr "不要把计划中的 API 写成已存在，也不要把研究笔记保留为独立页面。将持久的结论提升到设计、符合性或性能页面中，并把已被取代的历史移入 `CHANGELOG.md`。"
+msgid "Do not document planned APIs as existing, and do not keep research notes as separate pages. Promote durable conclusions into design, conformance or performance pages, and move superseded history to `library/CHANGELOG.md`."
+msgstr "不要把计划中的 API 写成已存在，也不要把研究笔记保留为独立页面。将持久的结论提升到设计、符合性或性能页面中，并把已被取代的历史移入 `library/CHANGELOG.md`。"
 
 #: manual/conventions.md:65
 msgid "Pages name only the current release. A page may mention an older release only when it carries a `<!-- historical-performance-baseline: X.Y.Z -->` marker for that version; `tools/doc_quality.py` rejects any other historical version."
@@ -10289,8 +10289,8 @@ msgid "Run `moon fmt`, `moon check --target all --deny-warn`, the relevant tests
 msgstr "提交前运行 `moon fmt`、`moon check --target all --deny-warn`、相关测试以及 `just pr`。"
 
 #: manual/conventions.md:144
-msgid "On a release bump, update `moon.mod`, the version in `README.md`, this page and `CHANGELOG.md` together."
-msgstr "版本发布时，同时更新 `moon.mod`、`README.md` 中的版本号、本页以及 `CHANGELOG.md`。"
+msgid "On a release bump, update `library/moon.mod`, the version in `library/README.md`, this page and `library/CHANGELOG.md` together."
+msgstr "版本发布时，同时更新 `library/moon.mod`、`library/README.md` 中的版本号、本页以及 `library/CHANGELOG.md`。"
 
 #: manual/design/ball_float.md:1
 msgid "ball_float design"
@@ -11067,8 +11067,8 @@ msgid "The following inputs currently lose part of the input set, round or flag 
 msgstr "以下输入目前会丢失输入集合的一部分、对结果做出错误的舍入或设置错误的标志，或返回与规定不同的集合。每一项都有对应的 issue 跟踪，并附有尚未合并的修复提案；它们记录于此，以便调用者避开。"
 
 #: manual/design/ball_float.md:855
-msgid "No limitation is open at present. Decorated `rootn` with a negative degree lowers the decoration to `trv` when 0 is in the argument, as the decoration rules of IEEE 1788-2015 §11 require; `src/ball_float/ball_float_decorated_wbtest.mbt` checks degrees `-1`, `-2` and `-3`."
-msgstr "目前没有未解决的限制。负次数的装饰 `rootn` 在参数含 0 时会把装饰降为 `trv`，这正是 IEEE 1788-2015 §11 的装饰规则所要求的；`src/ball_float/ball_float_decorated_wbtest.mbt` 检查了次数 `-1`、`-2` 和 `-3`。"
+msgid "No limitation is open at present. Decorated `rootn` with a negative degree lowers the decoration to `trv` when 0 is in the argument, as the decoration rules of IEEE 1788-2015 §11 require; `library/src/ball_float/ball_float_decorated_wbtest.mbt` checks degrees `-1`, `-2` and `-3`."
+msgstr "目前没有未解决的限制。负次数的装饰 `rootn` 在参数含 0 时会把装饰降为 `trv`，这正是 IEEE 1788-2015 §11 的装饰规则所要求的；`library/src/ball_float/ball_float_decorated_wbtest.mbt` 检查了次数 `-1`、`-2` 和 `-3`。"
 
 #: manual/design/ball_float.md:860
 #: manual/design/ball_float_checked.md:157
@@ -12136,8 +12136,8 @@ msgid "Handover: the range layer and how to add a function"
 msgstr "交接说明：范围层以及如何添加函数"
 
 #: manual/design/bin_float.md:450
-msgid "The recommended functions of §9.2 were added in three families on one layer (`src/bin_float/elementary_range.mbt`) and the helpers it builds on (`binary_round_dyadic` and `binary_round_precision_only` in `context_arithmetic.mbt`; `binary_certified_inexact_target_rounding`, `binary_inexact_inner_endpoint` and `binary_tiny_argument_result` in `elementary_certified.mbt`). Their purpose is to make the defect class of the range audit ([#271](https://github.com/Luna-Flow/floating/issues/271) to [#316](https://github.com/Luna-Flow/floating/issues/316)) impossible to write again: `BinFloat::make(c, e, w)` at a width $w$ flushes every value below $2^{e_{\\min} - (w - 1)}$, so a result or a helper value must never be built that way; exact results are rounded as dyadics, and a value that clusters at a representable anchor is decided by its certified distance to it."
-msgstr "§9.2 的推荐函数分三个族加在同一个层（`src/bin_float/elementary_range.mbt`）及其所依赖的辅助函数之上（`context_arithmetic.mbt` 中的 `binary_round_dyadic` 与 `binary_round_precision_only`；`elementary_certified.mbt` 中的 `binary_certified_inexact_target_rounding`、`binary_inexact_inner_endpoint` 与 `binary_tiny_argument_result`）。其目的是让范围审计（[#271](https://github.com/Luna-Flow/floating/issues/271) 到 [#316](https://github.com/Luna-Flow/floating/issues/316)）的缺陷类别不可能再被写出：宽度为 $w$ 的 `BinFloat::make(c, e, w)` 会丢弃所有小于 $2^{e_{\\min} - (w - 1)}$ 的值，所以结果或辅助值绝不能这样构造；精确结果作为二进有理数舍入，聚集在可表示锚点处的值由它到锚点的认证距离决定。"
+msgid "The recommended functions of §9.2 were added in three families on one layer (`library/src/bin_float/elementary_range.mbt`) and the helpers it builds on (`binary_round_dyadic` and `binary_round_precision_only` in `context_arithmetic.mbt`; `binary_certified_inexact_target_rounding`, `binary_inexact_inner_endpoint` and `binary_tiny_argument_result` in `elementary_certified.mbt`). Their purpose is to make the defect class of the range audit ([#271](https://github.com/Luna-Flow/floating/issues/271) to [#316](https://github.com/Luna-Flow/floating/issues/316)) impossible to write again: `BinFloat::make(c, e, w)` at a width $w$ flushes every value below $2^{e_{\\min} - (w - 1)}$, so a result or a helper value must never be built that way; exact results are rounded as dyadics, and a value that clusters at a representable anchor is decided by its certified distance to it."
+msgstr "§9.2 的推荐函数分三个族加在同一个层（`library/src/bin_float/elementary_range.mbt`）及其所依赖的辅助函数之上（`context_arithmetic.mbt` 中的 `binary_round_dyadic` 与 `binary_round_precision_only`；`elementary_certified.mbt` 中的 `binary_certified_inexact_target_rounding`、`binary_inexact_inner_endpoint` 与 `binary_tiny_argument_result`）。其目的是让范围审计（[#271](https://github.com/Luna-Flow/floating/issues/271) 到 [#316](https://github.com/Luna-Flow/floating/issues/316)）的缺陷类别不可能再被写出：宽度为 $w$ 的 `BinFloat::make(c, e, w)` 会丢弃所有小于 $2^{e_{\\min} - (w - 1)}$ 的值，所以结果或辅助值绝不能这样构造；精确结果作为二进有理数舍入，聚集在可表示锚点处的值由它到锚点的认证距离决定。"
 
 #: manual/design/bin_float.md:463
 msgid "The layer exposes (all internal):"
@@ -14144,8 +14144,8 @@ msgid "**Integer powers** are not certified; they are rounded once from exact in
 msgstr "**整数次幂**不经过认证，而是依据精确的整数信息只舍入一次。当整数指数 $n$ 无法容纳在 $p$ 位中时，`power_ctx` 先以 $p + \\operatorname{digits}(n) + 2$ 位工作精度运行 General Decimal Arithmetic 的平方再相乘算法。该方案只会丢弃精确幂中的零数字，因此恰在真实幂不精确时报告 `inexact`，并为精确幂给出其 GDA 同值类成员与标志。在扩展上下文中，不精确的结果随后被替换为正确舍入的结果。设 $c$ 为去除尾随零后的系数：若 $|n| \\cdot \\operatorname{digits}(c) \\le \\max(4p, 64)$，则构成精确幂 $c^{|n|}$ 并只舍入一次（负的 $n$ 再做一次正确舍入的除法）。否则 $c^{|n|}$ 有多于 $p + 1$ 个有效数字且没有尾随零，因此它绝不是 $p$ 位数或中点；以 $p + \\operatorname{digits}(n) + 8$ 位工作精度（每次尝试加倍）在 `Down` 和 `Up` 下用平方再相乘算法得到下界和上界，并不断细化，直到它们舍入为同一表示。因此 $3.339434^3 = 37.240765000\\ldots$ 在 decimal32 中为 `37.24077`。若界超出工作指数范围，或在非扩展上下文中，则保留 GDA 结果；其误差小于最后一位的一个单位。 若指数界把幂置于 $10^{E_{\\text{tiny}}-2}$ 之下（包括低于 $10^{E_{\\text{tiny}}}$ 的精确十的幂），则不再求值：它与任何低于 $\\tfrac12 10^{E_{\\text{tiny}}}$ 的非零值一样舍入——最近模式给出零，当舍入方向对其符号为远离零时给出 $\\pm 10^{E_{\\text{tiny}}}$（IEEE 754-2019 §7.5）。"
 
 #: manual/design/decimal.md:803
-msgid "**Out-of-range results.** An enclosure such as $[0, \\text{tiny}]$ has endpoints that round with different flags. Any value $\\ge 10^{e_{\\max}+2}$ overflows identically, and any non-zero value $\\le 10^{E_{\\text{tiny}}-2} < \\tfrac12 10^{E_{\\text{tiny}}}$ rounds identically (to zero or to the smallest subnormal, depending only on the mode and sign), so far endpoints are replaced by such representatives; the binary test uses $3.322 > \\log_2 10$ so the replacement is conservative. `exp`, `exp2` and `exp10` share one decision (`decimal_exponential_coarse_extreme_result`, issue [#363](https://github.com/Luna-Flow/floating/issues/363)). For $b^x$ with $b \\in \\{e, 2, 10\\}$ let $k \\ge 1/\\log_{10} b$ be the integer 3, 4 or 1. Then $x \\ge k\\,(e_{\\max}+1)$ gives $b^x = 10^{x \\log_{10} b} \\ge 10^{e_{\\max}+1}$, above the largest finite number $(10^p - 1)\\,10^{e_{\\max}-p+1}$, so the overflow result of the rounding direction applies (IEEE 754-2019 §7.4); and $x \\le -k\\,(1 - E_{\\text{tiny}})$ gives $b^x \\le 10^{E_{\\text{tiny}}-1}$, below half of the smallest subnormal and, as $E_{\\text{tiny}} \\le e_{\\min}$, tiny before and after rounding, so the result is zero or the smallest subnormal by direction with `inexact`, `underflow` and `subnormal` (§7.5). The comparison is exact and the margin is the whole slack between $k$ and $1/\\log_{10} b$: an argument between the true boundary and the threshold is not decided here but by the Ziv loop, which is sound there because the threshold is at most $4\\,(1 - E_{\\text{tiny}})$ with $E_{\\text{tiny}} \\ge -1999997$, far below the exponent range of the binary enclosure. Without the decision a very negative argument (for `exp2`, beyond $2^{31}$ binades) has the enclosure $[0, \\text{tiny}]$ and never certifies. The decision is tested on both sides of each threshold and at results just inside and outside the range, in all eight rounding directions, by `src/decimal/exp_range_wbtest.mbt` and its generated rows. `power` bounds $y \\log_2 x$ with directed 128-bit arithmetic for the same purpose."
-msgstr "**超出范围的结果。** 像 $[0, \\text{tiny}]$ 这样的包络，其端点在舍入时会产生不同的标志。任何 $\\ge 10^{e_{\\max}+2}$ 的值都以相同方式上溢，任何非零且 $\\le 10^{E_{\\text{tiny}}-2} < \\tfrac12 10^{E_{\\text{tiny}}}$ 的值都以相同方式舍入（舍入为零或最小次正规数，仅取决于模式和符号），因此远处的端点会被替换为这样的代表值；二进制测试使用 $3.322 > \\log_2 10$，以保证替换是保守的。`exp`、`exp2` 和 `exp10` 共用一项决策（`decimal_exponential_coarse_extreme_result`，问题 [#363](https://github.com/Luna-Flow/floating/issues/363)）。对于 $b^x$，$b \\in \\{e, 2, 10\\}$，令 $k \\ge 1/\\log_{10} b$ 为整数 3、4 或 1。那么 $x \\ge k\\,(e_{\\max}+1)$ 给出 $b^x = 10^{x \\log_{10} b} \\ge 10^{e_{\\max}+1}$，它高于最大有限数 $(10^p - 1)\\,10^{e_{\\max}-p+1}$，因此适用该舍入方向的上溢结果（IEEE 754-2019 §7.4）；而 $x \\le -k\\,(1 - E_{\\text{tiny}})$ 给出 $b^x \\le 10^{E_{\\text{tiny}}-1}$，低于最小次正规数的一半，并且由于 $E_{\\text{tiny}} \\le e_{\\min}$，舍入前后都是微小的，所以结果按方向取零或最小次正规数，并带有 `inexact`、`underflow` 和 `subnormal`（§7.5）。比较是精确的，余量就是 $k$ 与 $1/\\log_{10} b$ 之间的全部空隙：介于真实边界与阈值之间的参数不在此处判定，而由 Ziv 循环判定；那里是可靠的，因为阈值至多为 $4\\,(1 - E_{\\text{tiny}})$，且 $E_{\\text{tiny}} \\ge -1999997$，远低于二进制包络的指数范围。没有这项决策时，很负的参数（对 `exp2` 而言，超过 $2^{31}$ 个二进位）的包络是 $[0, \\text{tiny}]$，永远无法认证。该决策在每个阈值的两侧以及刚好在范围内外的结果处，针对全部八种舍入方向，由 `src/decimal/exp_range_wbtest.mbt` 及其生成的行进行测试。出于同样的目的，`power` 用定向的 128 位算术界定 $y \\log_2 x$。"
+msgid "**Out-of-range results.** An enclosure such as $[0, \\text{tiny}]$ has endpoints that round with different flags. Any value $\\ge 10^{e_{\\max}+2}$ overflows identically, and any non-zero value $\\le 10^{E_{\\text{tiny}}-2} < \\tfrac12 10^{E_{\\text{tiny}}}$ rounds identically (to zero or to the smallest subnormal, depending only on the mode and sign), so far endpoints are replaced by such representatives; the binary test uses $3.322 > \\log_2 10$ so the replacement is conservative. `exp`, `exp2` and `exp10` share one decision (`decimal_exponential_coarse_extreme_result`, issue [#363](https://github.com/Luna-Flow/floating/issues/363)). For $b^x$ with $b \\in \\{e, 2, 10\\}$ let $k \\ge 1/\\log_{10} b$ be the integer 3, 4 or 1. Then $x \\ge k\\,(e_{\\max}+1)$ gives $b^x = 10^{x \\log_{10} b} \\ge 10^{e_{\\max}+1}$, above the largest finite number $(10^p - 1)\\,10^{e_{\\max}-p+1}$, so the overflow result of the rounding direction applies (IEEE 754-2019 §7.4); and $x \\le -k\\,(1 - E_{\\text{tiny}})$ gives $b^x \\le 10^{E_{\\text{tiny}}-1}$, below half of the smallest subnormal and, as $E_{\\text{tiny}} \\le e_{\\min}$, tiny before and after rounding, so the result is zero or the smallest subnormal by direction with `inexact`, `underflow` and `subnormal` (§7.5). The comparison is exact and the margin is the whole slack between $k$ and $1/\\log_{10} b$: an argument between the true boundary and the threshold is not decided here but by the Ziv loop, which is sound there because the threshold is at most $4\\,(1 - E_{\\text{tiny}})$ with $E_{\\text{tiny}} \\ge -1999997$, far below the exponent range of the binary enclosure. Without the decision a very negative argument (for `exp2`, beyond $2^{31}$ binades) has the enclosure $[0, \\text{tiny}]$ and never certifies. The decision is tested on both sides of each threshold and at results just inside and outside the range, in all eight rounding directions, by `library/src/decimal/exp_range_wbtest.mbt` and its generated rows. `power` bounds $y \\log_2 x$ with directed 128-bit arithmetic for the same purpose."
+msgstr "**超出范围的结果。** 像 $[0, \\text{tiny}]$ 这样的包络，其端点在舍入时会产生不同的标志。任何 $\\ge 10^{e_{\\max}+2}$ 的值都以相同方式上溢，任何非零且 $\\le 10^{E_{\\text{tiny}}-2} < \\tfrac12 10^{E_{\\text{tiny}}}$ 的值都以相同方式舍入（舍入为零或最小次正规数，仅取决于模式和符号），因此远处的端点会被替换为这样的代表值；二进制测试使用 $3.322 > \\log_2 10$，以保证替换是保守的。`exp`、`exp2` 和 `exp10` 共用一项决策（`decimal_exponential_coarse_extreme_result`，问题 [#363](https://github.com/Luna-Flow/floating/issues/363)）。对于 $b^x$，$b \\in \\{e, 2, 10\\}$，令 $k \\ge 1/\\log_{10} b$ 为整数 3、4 或 1。那么 $x \\ge k\\,(e_{\\max}+1)$ 给出 $b^x = 10^{x \\log_{10} b} \\ge 10^{e_{\\max}+1}$，它高于最大有限数 $(10^p - 1)\\,10^{e_{\\max}-p+1}$，因此适用该舍入方向的上溢结果（IEEE 754-2019 §7.4）；而 $x \\le -k\\,(1 - E_{\\text{tiny}})$ 给出 $b^x \\le 10^{E_{\\text{tiny}}-1}$，低于最小次正规数的一半，并且由于 $E_{\\text{tiny}} \\le e_{\\min}$，舍入前后都是微小的，所以结果按方向取零或最小次正规数，并带有 `inexact`、`underflow` 和 `subnormal`（§7.5）。比较是精确的，余量就是 $k$ 与 $1/\\log_{10} b$ 之间的全部空隙：介于真实边界与阈值之间的参数不在此处判定，而由 Ziv 循环判定；那里是可靠的，因为阈值至多为 $4\\,(1 - E_{\\text{tiny}})$，且 $E_{\\text{tiny}} \\ge -1999997$，远低于二进制包络的指数范围。没有这项决策时，很负的参数（对 `exp2` 而言，超过 $2^{31}$ 个二进位）的包络是 $[0, \\text{tiny}]$，永远无法认证。该决策在每个阈值的两侧以及刚好在范围内外的结果处，针对全部八种舍入方向，由 `library/src/decimal/exp_range_wbtest.mbt` 及其生成的行进行测试。出于同样的目的，`power` 用定向的 128 位算术界定 $y \\log_2 x$。"
 
 #: manual/design/decimal.md:832
 msgid "**Enclosure of a non-integral power.** For a positive base the Ziv loop evaluates $x^y = \\exp(y \\ln x)$ in interval arithmetic: one `ln` enclosure, one interval product and one `exp` enclosure, instead of the four corners times two directions (eight correctly rounded binary powers) of `ball_float`'s `try_pow_interval`. The loop needs an enclosure, not tight endpoints, and correct rounding makes the delivered value independent of the enclosure's width, so the result, cohort and flags are those of the tighter evaluation. The composition loses about $\\lceil \\log_2 |y \\ln x| \\rceil$ bits of relative accuracy, because the relative error of $\\exp(t)$ is the absolute error of $t$. The initial working precision therefore grows by a bound of that quantity, taken from the adjusted exponents of $x$ and $y$ ($|\\ln x| \\le \\ln 10\\,(|\\operatorname{adjusted}(x)| + 1)$ and $|y| < 10^{\\operatorname{adjusted}(y)+1}$), so the first attempt usually decides ([#352](https://github.com/Luna-Flow/floating/issues/352))."
@@ -14218,8 +14218,8 @@ msgid "*Clusters next to $\\pm\\tfrac12$ and $\\pm 1$.* These are the only inexa
 msgstr "*$\\pm\\tfrac12$ 与 $\\pm 1$ 附近的聚集。* 这是仅有的会逼近可表示值的不精确结果，其距离与操作数的位数无关，所以 $w_0 = 4D + 64$ 覆盖不了。每一种都由 `decimal_tiny_argument_result` 依据距离上界作单侧判定：大 $|x|$ 时 $\\operatorname{atanPi}(x) = \\pm(\\tfrac12 - \\delta)$，$0 < \\delta < 1/(\\pi|x|) < 10^{-\\operatorname{adj}(x)}$；微小 $|x|$ 时 $\\operatorname{acosPi}(x) = \\tfrac12 - \\operatorname{asin}(x)/\\pi$，距离至多 $|x|/2 < 10^{\\operatorname{adj}(x)+1}$（这个最容易漏掉：微小 $x$ 的 $\\operatorname{acos}$ 靠近无理数 $\\pi/2$，但 $\\operatorname{acosPi}$ 靠近可表示的 $\\tfrac12$，$x > 0$ 时在其下方，$x < 0$ 时在其上方）；取 $D = \\operatorname{adj}(y) - \\operatorname{adj}(x)$，则比值很大时 $\\operatorname{atan2Pi}(y, x)$ 为 $\\pm(\\tfrac12 \\mp \\delta)$，$\\delta < 10^{1-D}$（$x > 0$ 时幅值小于 $\\tfrac12$，$x < 0$ 时大于 $\\tfrac12$），$x < 0$ 且比值很小时为 $\\pm(1 - \\delta)$，$\\delta < 10^{D+1}$。`decimal_tiny_argument_result` 的保护条件（误差指数低于锚点调整指数减 $p + 3$）给出阈值；阈值与中等范围之间由包络在工作精度下分辨。测试把每个锚点结果与普通循环比较，覆盖全部八种舍入模式的两侧。"
 
 #: manual/design/decimal.md:1010
-msgid "*Tiny results.* For $|x| \\le 10^{-4}$, $\\operatorname{asin}(x)/x \\in [1, 1 + x^2]$ and $\\operatorname{atan}(x)/x \\in [1 - x^2, 1]$, and the same holds for $\\operatorname{atan2Pi}(y, x)$ with $x > 0$ and the ratio $y/x$. Once $x^2 < 2^{-(8\\max(D,p)+400)}$ the loop encloses the moderate value $(s/\\pi)(1 \\pm 2^{-k})$ with $s = x\\,10^{-\\operatorname{adj}(x)}$ (or the quotient of the two scaled mantissas) and shifts the endpoints by $10^{\\operatorname{adj}(x)}$ before the context rounds them, as for `rsqrt` (`decimal_certified_scaled_result`): an operand $10^{-1\\,999\\,996}$ costs what $10^{-300}$ costs, where the exact decimal endpoints of a binary number near $2^{-6.6\\cdot 10^6}$ have about two million digits (an unscaled `asinpi(7E-9999)` took more than a minute in a debug build before this path existed). For $\\operatorname{atan2Pi}(y, x)$ with $x > 0$ the derivation is: $\\operatorname{atan2Pi}(y, x) = \\operatorname{sign}(y) \\operatorname{atan}(r)/\\pi$ with $r = |y/x| = (s_y/s_x)\\,10^{D}$, where $s_y, s_x \\in [1, 10)$ are the operands scaled by their adjusted exponents and $D = \\operatorname{adj}(y) - \\operatorname{adj}(x)$, so $r < 10^{D+1}$; for $r \\le 1$, $\\operatorname{atan}(r)/r \\in [1 - r^2, 1]$, hence $\\operatorname{atan}(r)/\\pi = (s_y/(s_x \\pi))\\,10^{D}(1 - e)$ with $0 \\le e \\le r^2 < 10^{-t}$, $t = -(2D + 2)$, and the loop encloses the moderate factor $(s_y/(s_x\\pi))(1 - 2^{-k})$, $k \\le 3.32\\,t$, and shifts it by $D$. The path is taken when $3t \\ge 8\\max(D_{\\text{digits}}, p) + 400$, where it is decidable; the derivation itself needs only $t > 0$. The operands of every other case are first multiplied by $10^{-\\operatorname{adj}(x)}$ (the ratio, hence the angle, is unchanged), so operands with exponents of millions of digits and a moderate ratio cost what moderate operands cost. `src/decimal/atan2pi_scaled_wbtest.mbt` and the generated rows of `tools/generate_decimal_atan2pi_scaled_rows.py` (Python `decimal` at 450 digits, a cross-check only) cover ratios on both sides of the condition, both signs of $y$ and of $x$ (for $x < 0$ the result is $\\pm(1 - \\operatorname{atan}(r)/\\pi)$, next to $\\pm 1$, and takes the other anchored path), the four formats and all eight rounding directions; replacing $1 - 2^{-k}$ by $1 + 2^{-k}$ or the condition by $t > 0$ makes rows fail (checked by mutation)."
-msgstr "*微小结果。* 当 $|x| \\le 10^{-4}$ 时，$\\operatorname{asin}(x)/x \\in [1, 1 + x^2]$，$\\operatorname{atan}(x)/x \\in [1 - x^2, 1]$；对 $x > 0$ 的 $\\operatorname{atan2Pi}(y, x)$，以比值 $y/x$ 代入同样成立。一旦 $x^2 < 2^{-(8\\max(D,p)+400)}$，循环就包络中等大小的值 $(s/\\pi)(1 \\pm 2^{-k})$（$s = x\\,10^{-\\operatorname{adj}(x)}$，或两个缩放尾数之商），并在上下文舍入之前把端点平移 $10^{\\operatorname{adj}(x)}$，做法与 `rsqrt` 相同（`decimal_certified_scaled_result`）：操作数 $10^{-1\\,999\\,996}$ 的代价与 $10^{-300}$ 相当，而接近 $2^{-6.6\\cdot 10^6}$ 的二进制数的精确十进制端点有约两百万位（在这条路径出现之前，未缩放的 `asinpi(7E-9999)` 在调试构建中耗时超过一分钟）。 对 $x > 0$ 的 $\\operatorname{atan2Pi}(y, x)$，推导如下：$\\operatorname{atan2Pi}(y, x) = \\operatorname{sign}(y) \\operatorname{atan}(r)/\\pi$，其中 $r = |y/x| = (s_y/s_x)\\,10^{D}$，$s_y, s_x \\in [1, 10)$ 是按调整指数缩放后的操作数，$D = \\operatorname{adj}(y) - \\operatorname{adj}(x)$，因此 $r < 10^{D+1}$；当 $r \\le 1$ 时，$\\operatorname{atan}(r)/r \\in [1 - r^2, 1]$，于是 $\\operatorname{atan}(r)/\\pi = (s_y/(s_x \\pi))\\,10^{D}(1 - e)$，其中 $0 \\le e \\le r^2 < 10^{-t}$，$t = -(2D + 2)$；循环包络中等大小的因子 $(s_y/(s_x\\pi))(1 - 2^{-k})$，$k \\le 3.32\\,t$，并把它平移 $D$。当 $3t \\ge 8\\max(D_{\\text{digits}}, p) + 400$ 时走这条路径，此时可以判定；推导本身只需要 $t > 0$。其余情形的操作数先乘以 $10^{-\\operatorname{adj}(x)}$（比值，因而角度不变），所以指数有数百万位而比值适中的操作数，其代价与适中操作数相当。`src/decimal/atan2pi_scaled_wbtest.mbt` 以及 `tools/generate_decimal_atan2pi_scaled_rows.py` 生成的行（450 位的 Python `decimal`，仅作交叉核对）覆盖条件两侧的比值、$y$ 与 $x$ 的两种符号（对 $x < 0$，结果是 $\\pm(1 - \\operatorname{atan}(r)/\\pi)$，靠近 $\\pm 1$，走另一条锚点路径）、四种格式和全部八种舍入方向；把 $1 - 2^{-k}$ 换成 $1 + 2^{-k}$，或把条件换成 $t > 0$，都会使行失败（经变异检查）。"
+msgid "*Tiny results.* For $|x| \\le 10^{-4}$, $\\operatorname{asin}(x)/x \\in [1, 1 + x^2]$ and $\\operatorname{atan}(x)/x \\in [1 - x^2, 1]$, and the same holds for $\\operatorname{atan2Pi}(y, x)$ with $x > 0$ and the ratio $y/x$. Once $x^2 < 2^{-(8\\max(D,p)+400)}$ the loop encloses the moderate value $(s/\\pi)(1 \\pm 2^{-k})$ with $s = x\\,10^{-\\operatorname{adj}(x)}$ (or the quotient of the two scaled mantissas) and shifts the endpoints by $10^{\\operatorname{adj}(x)}$ before the context rounds them, as for `rsqrt` (`decimal_certified_scaled_result`): an operand $10^{-1\\,999\\,996}$ costs what $10^{-300}$ costs, where the exact decimal endpoints of a binary number near $2^{-6.6\\cdot 10^6}$ have about two million digits (an unscaled `asinpi(7E-9999)` took more than a minute in a debug build before this path existed). For $\\operatorname{atan2Pi}(y, x)$ with $x > 0$ the derivation is: $\\operatorname{atan2Pi}(y, x) = \\operatorname{sign}(y) \\operatorname{atan}(r)/\\pi$ with $r = |y/x| = (s_y/s_x)\\,10^{D}$, where $s_y, s_x \\in [1, 10)$ are the operands scaled by their adjusted exponents and $D = \\operatorname{adj}(y) - \\operatorname{adj}(x)$, so $r < 10^{D+1}$; for $r \\le 1$, $\\operatorname{atan}(r)/r \\in [1 - r^2, 1]$, hence $\\operatorname{atan}(r)/\\pi = (s_y/(s_x \\pi))\\,10^{D}(1 - e)$ with $0 \\le e \\le r^2 < 10^{-t}$, $t = -(2D + 2)$, and the loop encloses the moderate factor $(s_y/(s_x\\pi))(1 - 2^{-k})$, $k \\le 3.32\\,t$, and shifts it by $D$. The path is taken when $3t \\ge 8\\max(D_{\\text{digits}}, p) + 400$, where it is decidable; the derivation itself needs only $t > 0$. The operands of every other case are first multiplied by $10^{-\\operatorname{adj}(x)}$ (the ratio, hence the angle, is unchanged), so operands with exponents of millions of digits and a moderate ratio cost what moderate operands cost. `library/src/decimal/atan2pi_scaled_wbtest.mbt` and the generated rows of `tools/generate_decimal_atan2pi_scaled_rows.py` (Python `decimal` at 450 digits, a cross-check only) cover ratios on both sides of the condition, both signs of $y$ and of $x$ (for $x < 0$ the result is $\\pm(1 - \\operatorname{atan}(r)/\\pi)$, next to $\\pm 1$, and takes the other anchored path), the four formats and all eight rounding directions; replacing $1 - 2^{-k}$ by $1 + 2^{-k}$ or the condition by $t > 0$ makes rows fail (checked by mutation)."
+msgstr "*微小结果。* 当 $|x| \\le 10^{-4}$ 时，$\\operatorname{asin}(x)/x \\in [1, 1 + x^2]$，$\\operatorname{atan}(x)/x \\in [1 - x^2, 1]$；对 $x > 0$ 的 $\\operatorname{atan2Pi}(y, x)$，以比值 $y/x$ 代入同样成立。一旦 $x^2 < 2^{-(8\\max(D,p)+400)}$，循环就包络中等大小的值 $(s/\\pi)(1 \\pm 2^{-k})$（$s = x\\,10^{-\\operatorname{adj}(x)}$，或两个缩放尾数之商），并在上下文舍入之前把端点平移 $10^{\\operatorname{adj}(x)}$，做法与 `rsqrt` 相同（`decimal_certified_scaled_result`）：操作数 $10^{-1\\,999\\,996}$ 的代价与 $10^{-300}$ 相当，而接近 $2^{-6.6\\cdot 10^6}$ 的二进制数的精确十进制端点有约两百万位（在这条路径出现之前，未缩放的 `asinpi(7E-9999)` 在调试构建中耗时超过一分钟）。 对 $x > 0$ 的 $\\operatorname{atan2Pi}(y, x)$，推导如下：$\\operatorname{atan2Pi}(y, x) = \\operatorname{sign}(y) \\operatorname{atan}(r)/\\pi$，其中 $r = |y/x| = (s_y/s_x)\\,10^{D}$，$s_y, s_x \\in [1, 10)$ 是按调整指数缩放后的操作数，$D = \\operatorname{adj}(y) - \\operatorname{adj}(x)$，因此 $r < 10^{D+1}$；当 $r \\le 1$ 时，$\\operatorname{atan}(r)/r \\in [1 - r^2, 1]$，于是 $\\operatorname{atan}(r)/\\pi = (s_y/(s_x \\pi))\\,10^{D}(1 - e)$，其中 $0 \\le e \\le r^2 < 10^{-t}$，$t = -(2D + 2)$；循环包络中等大小的因子 $(s_y/(s_x\\pi))(1 - 2^{-k})$，$k \\le 3.32\\,t$，并把它平移 $D$。当 $3t \\ge 8\\max(D_{\\text{digits}}, p) + 400$ 时走这条路径，此时可以判定；推导本身只需要 $t > 0$。其余情形的操作数先乘以 $10^{-\\operatorname{adj}(x)}$（比值，因而角度不变），所以指数有数百万位而比值适中的操作数，其代价与适中操作数相当。`library/src/decimal/atan2pi_scaled_wbtest.mbt` 以及 `tools/generate_decimal_atan2pi_scaled_rows.py` 生成的行（450 位的 Python `decimal`，仅作交叉核对）覆盖条件两侧的比值、$y$ 与 $x$ 的两种符号（对 $x < 0$，结果是 $\\pm(1 - \\operatorname{atan}(r)/\\pi)$，靠近 $\\pm 1$，走另一条锚点路径）、四种格式和全部八种舍入方向；把 $1 - 2^{-k}$ 换成 $1 + 2^{-k}$，或把条件换成 $t > 0$，都会使行失败（经变异检查）。"
 
 #: manual/design/decimal.md:1044
 msgid "Operands of extreme exponent and the cost of a first attempt"
@@ -14647,8 +14647,8 @@ msgid "with `extended = true` and before-rounding tininess detection (IEEE 754-2
 msgstr "并采用 `extended = true` 以及舍入前的微小性检测（IEEE 754-2019 §7.5）。因此预定义的 `ArithmeticContext::decimal64()` 恰好映射为 `DecimalContext::decimal64()`。各构造函数让上下文经过 `DecimalContext::ieee754()`，这是选择 IEEE 配置的钩子；在当前分支上它原样返回上下文。"
 
 #: manual/design/decimal_checked.md:152
-msgid "The mathematical functions `exp`, `ln`, `log10` and `power` restrict their context to decNumber's range: precision and both exponent limits must lie within $999\\,999$ in magnitude, otherwise the result is NaN with `invalid_context` (private check `math_context_is_restricted` in `src/decimal`). This is a deliberate implementation limit (`DEC_MAX_MATH`), not a rule of the GDA operation text: decTest requires it (`power.decTest` powx4001 to powx4005 and the matching rows of `exp`, `ln`, `log10`) and GDA's Invalid context condition permits it.[^gda] The default unbounded exponent range therefore disables them, which the API page and tutorial point out. `power` and `pown` with an integral exponent, and `power` with the exponent $0.5$ (a square root), are the exceptions: like the arithmetic operations they accept contexts up to $\\pm 999\\,999\\,999$."
-msgstr "数学函数 `exp`、`ln`、`log10` 和 `power` 把上下文限制在 decNumber 的范围内：精度和两个指数界的绝对值都必须在 $999\\,999$ 以内，否则结果为带 `invalid_context` 的 NaN（`src/decimal` 中的私有检查 `math_context_is_restricted`）。这是一项有意的实现限制（`DEC_MAX_MATH`），不是 GDA 运算正文的规则：decTest 要求它（`power.decTest` 的 powx4001 至 powx4005 以及 `exp`、`ln`、`log10` 中对应的行），GDA 的 Invalid context 条件允许它。[^gda] 因此默认的无界指数范围会禁用它们，API 页面和教程都指出了这一点。 带整数指数的 `power` 和 `pown`，以及指数为 $0.5$（即平方根）的 `power` 是例外：它们与算术运算一样，接受上限为 $\\pm 999\\,999\\,999$ 的上下文。"
+msgid "The mathematical functions `exp`, `ln`, `log10` and `power` restrict their context to decNumber's range: precision and both exponent limits must lie within $999\\,999$ in magnitude, otherwise the result is NaN with `invalid_context` (private check `math_context_is_restricted` in `library/src/decimal`). This is a deliberate implementation limit (`DEC_MAX_MATH`), not a rule of the GDA operation text: decTest requires it (`power.decTest` powx4001 to powx4005 and the matching rows of `exp`, `ln`, `log10`) and GDA's Invalid context condition permits it.[^gda] The default unbounded exponent range therefore disables them, which the API page and tutorial point out. `power` and `pown` with an integral exponent, and `power` with the exponent $0.5$ (a square root), are the exceptions: like the arithmetic operations they accept contexts up to $\\pm 999\\,999\\,999$."
+msgstr "数学函数 `exp`、`ln`、`log10` 和 `power` 把上下文限制在 decNumber 的范围内：精度和两个指数界的绝对值都必须在 $999\\,999$ 以内，否则结果为带 `invalid_context` 的 NaN（`library/src/decimal` 中的私有检查 `math_context_is_restricted`）。这是一项有意的实现限制（`DEC_MAX_MATH`），不是 GDA 运算正文的规则：decTest 要求它（`power.decTest` 的 powx4001 至 powx4005 以及 `exp`、`ln`、`log10` 中对应的行），GDA 的 Invalid context 条件允许它。[^gda] 因此默认的无界指数范围会禁用它们，API 页面和教程都指出了这一点。 带整数指数的 `power` 和 `pown`，以及指数为 $0.5$（即平方根）的 `power` 是例外：它们与算术运算一样，接受上限为 $\\pm 999\\,999\\,999$ 的上下文。"
 
 #: manual/design/decimal_checked.md:165
 msgid "M. Cowlishaw, *General Decimal Arithmetic Specification*, version 1.70, \"Context\" (the Invalid context condition under \"Exceptional conditions\") and the decTest rows named above."
@@ -14659,8 +14659,8 @@ msgid "From flags to arithmetic diagnostics"
 msgstr "从标志到算术诊断"
 
 #: manual/design/decimal_checked.md:171
-msgid "The contextual trait implementations of `Decimal` in Luna-Flow/arithmetic report `ArithmeticDiagnostics`, six Booleans combined by `ArithmeticDiagnostics::combine`, again field-wise OR. The private helper `contextual_diagnostics` in `src/decimal/traits.mbt` maps flags to diagnostics by keeping the six shared coordinates; call this projection $\\pi : \\mathbb{F} \\to \\{0,1\\}^{6}$. A coordinate projection commutes with a field-wise OR:"
-msgstr "Luna-Flow/arithmetic 中 `Decimal` 的上下文 trait 实现报告 `ArithmeticDiagnostics`，即由 `ArithmeticDiagnostics::combine` 合并的六个布尔值，同样是逐字段 OR。`src/decimal/traits.mbt` 中的私有辅助函数 `contextual_diagnostics` 通过保留六个共有坐标把标志映射为诊断；记此投影为 $\\pi : \\mathbb{F} \\to \\{0,1\\}^{6}$。坐标投影与逐字段 OR 可交换："
+msgid "The contextual trait implementations of `Decimal` in Luna-Flow/arithmetic report `ArithmeticDiagnostics`, six Booleans combined by `ArithmeticDiagnostics::combine`, again field-wise OR. The private helper `contextual_diagnostics` in `library/src/decimal/traits.mbt` maps flags to diagnostics by keeping the six shared coordinates; call this projection $\\pi : \\mathbb{F} \\to \\{0,1\\}^{6}$. A coordinate projection commutes with a field-wise OR:"
+msgstr "Luna-Flow/arithmetic 中 `Decimal` 的上下文 trait 实现报告 `ArithmeticDiagnostics`，即由 `ArithmeticDiagnostics::combine` 合并的六个布尔值，同样是逐字段 OR。`library/src/decimal/traits.mbt` 中的私有辅助函数 `contextual_diagnostics` 通过保留六个共有坐标把标志映射为诊断；记此投影为 $\\pi : \\mathbb{F} \\to \\{0,1\\}^{6}$。坐标投影与逐字段 OR 可交换："
 
 #: manual/design/decimal_checked.md:184
 msgid "so $\\pi$ is a monoid homomorphism, and by induction"
@@ -15399,8 +15399,8 @@ msgid "GDA groups four signals under *invalid operation*: $I = \\{\\texttt{Conve
 msgstr "GDA 把四种信号归入*无效运算*：$I = \\{\\texttt{ConversionSyntax}, \\texttt{DivisionImpossible}, \\texttt{DivisionUndefined}, \\texttt{InvalidContext}\\}$。实现在两处体现这一点："
 
 #: manual/design/decimal_gda_checked.md:45
-msgid "$r \\models s$ is `GdaFlags::contains`; $\\delta$ is the *status delta* that `complete_gda` (in `src/decimal_gda/gda_context.mbt`) adds to the status."
-msgstr "$r \\models s$ 即 `GdaFlags::contains`；$\\delta$ 是 `complete_gda`（位于 `src/decimal_gda/gda_context.mbt`）加入状态的*状态增量*。"
+msgid "$r \\models s$ is `GdaFlags::contains`; $\\delta$ is the *status delta* that `complete_gda` (in `library/src/decimal_gda/gda_context.mbt`) adds to the status."
+msgstr "$r \\models s$ 即 `GdaFlags::contains`；$\\delta$ 是 `complete_gda`（位于 `library/src/decimal_gda/gda_context.mbt`）加入状态的*状态增量*。"
 
 #: manual/design/decimal_gda_checked.md:48
 msgid ""
@@ -25560,8 +25560,8 @@ msgid "Quick-gate table of the π-inverse rows"
 msgstr "π 反函数行的快速门禁表"
 
 #: manual/verification.md:42
-msgid "The rows of `asinpi`, `acospi`, `atanpi` and `atan2pi` are the largest table of the repository. The quick gate (`just pr`, the native test stage of CI) compiles all 19,134 of them into `src/decimal/elementary_pi_inverse_rows_wbtest.mbt` (2.2 MB of source), and the same rows are data (`testdata/decimal/ieee/rows/pi_inverse.txt`, `mpfr-decimal-random-v1` rows, see `tooling/src/frontend/mpfr_expr`) that `just gate decimal` and the nightly run feed to the release-built conformance CLI on native, Wasm, Wasm-GC and JavaScript. Both compare value, cohort (`compare_total`) and all flags exactly."
-msgstr "`asinpi`、`acospi`、`atanpi` 与 `atan2pi` 的行是仓库中最大的表。快速门禁（`just pr`，即 CI 的原生测试阶段）把全部 19,134 行编译进 `src/decimal/elementary_pi_inverse_rows_wbtest.mbt`（2.2 MB 源码）；同样的行也是数据（`testdata/decimal/ieee/rows/pi_inverse.txt`，`mpfr-decimal-random-v1` 行，见 `tooling/src/frontend/mpfr_expr`），由 `just gate decimal` 和夜间运行交给 release 构建的一致性 CLI，在原生、Wasm、Wasm-GC 和 JavaScript 上执行。两者都精确比较值、同类（`compare_total`）和全部标志。"
+msgid "The rows of `asinpi`, `acospi`, `atanpi` and `atan2pi` are the largest table of the repository. The quick gate (`just pr`, the native test stage of CI) compiles all 19,134 of them into `library/src/decimal/elementary_pi_inverse_rows_wbtest.mbt` (2.2 MB of source), and the same rows are data (`testdata/decimal/ieee/rows/pi_inverse.txt`, `mpfr-decimal-random-v1` rows, see `tooling/src/frontend/mpfr_expr`) that `just gate decimal` and the nightly run feed to the release-built conformance CLI on native, Wasm, Wasm-GC and JavaScript. Both compare value, cohort (`compare_total`) and all flags exactly."
+msgstr "`asinpi`、`acospi`、`atanpi` 与 `atan2pi` 的行是仓库中最大的表。快速门禁（`just pr`，即 CI 的原生测试阶段）把全部 19,134 行编译进 `library/src/decimal/elementary_pi_inverse_rows_wbtest.mbt`（2.2 MB 源码）；同样的行也是数据（`testdata/decimal/ieee/rows/pi_inverse.txt`，`mpfr-decimal-random-v1` 行，见 `tooling/src/frontend/mpfr_expr`），由 `just gate decimal` 和夜间运行交给 release 构建的一致性 CLI，在原生、Wasm、Wasm-GC 和 JavaScript 上执行。两者都精确比较值、同类（`compare_total`）和全部标志。"
 
 #: manual/verification.md:51
 msgid "This was not always so. While about 50 `atan2pi` rows with an operand of `1E-1999996` cost 90 % of a 466 s debug run, the quick gate compiled only a deterministic sample. After the `atan2pi` path for tiny operands was fixed the full table runs in 2.4 s of a debug native build (4,416 sampled rows: 0.5 s) and adds about 1.4 s to the build, under the 5 s the quick gate allows it, so the sample was dropped. The mechanism stays in the generator (`tools/generate_decimal_pi_inverse_rows.py`) as an option: `--sample-step N` compiles every row that is not the rounding of an MPFR enclosure (the exact Niven values and the other cases decided by exact rational arithmetic) and, of the MPFR rows stratified by (operation, rounding mode), one row in N, taken equidistantly in generation order (a stratum shorter than N keeps its middle row). The data file is always the full table."
@@ -25581,8 +25581,8 @@ msgid "Total"
 msgstr "合计"
 
 #: manual/verification.md:72
-msgid "`python3 tools/generate_decimal_pi_inverse_rows.py --check` fails if either table is stale or if the compiled table is not a subset of the full table, and `--strata` prints the counts of every stratum. Go back to a sample (start with `--sample-step 8` and set `SAMPLE_STEP` in the generator) when the debug native run of the `pi inverse generated rows` test exceeds about 5 s again: measure it with `python3 tools/native_test_timing.py --package src/decimal`, not by assumption."
-msgstr "若任一表已过期，或编译进去的表不是全表的子集，`python3 tools/generate_decimal_pi_inverse_rows.py --check` 即失败，`--strata` 则打印每一层的行数。当 `pi inverse generated rows` 测试在 debug 原生构建下的运行再次超过约 5 秒时，回到抽样（先用 `--sample-step 8`，并在生成器中设置 `SAMPLE_STEP`）：用 `python3 tools/native_test_timing.py --package src/decimal` 测量，而不是凭假设。"
+msgid "`python3 tools/generate_decimal_pi_inverse_rows.py --check` fails if either table is stale or if the compiled table is not a subset of the full table, and `--strata` prints the counts of every stratum. Go back to a sample (start with `--sample-step 8` and set `SAMPLE_STEP` in the generator) when the debug native run of the `pi inverse generated rows` test exceeds about 5 s again: measure it with `python3 tools/native_test_timing.py --package library/src/decimal`, not by assumption."
+msgstr "若任一表已过期，或编译进去的表不是全表的子集，`python3 tools/generate_decimal_pi_inverse_rows.py --check` 即失败，`--strata` 则打印每一层的行数。当 `pi inverse generated rows` 测试在 debug 原生构建下的运行再次超过约 5 秒时，回到抽样（先用 `--sample-step 8`，并在生成器中设置 `SAMPLE_STEP`）：用 `python3 tools/native_test_timing.py --package library/src/decimal` 测量，而不是凭假设。"
 
 #: manual/verification.md:79
 msgid "Shared conformance runner"
@@ -25709,16 +25709,16 @@ msgid "*Decimal elementary functions against MPFR*: 26 of the 28 functions agree
 msgstr "*十进制初等函数对照 MPFR*：28 个函数中的 26 个，在各自 20,000 个 native 用例里，值、cohort 和全部八个标志都与 MPFR 一致，同样的行在 Wasm、JavaScript 和 Wasm-GC 上也通过。有两处不一致，四个后端上失败的 id 完全相同：`atan2` 对下溢结果的零返回指数 0，而不是最小指数 `e_min - p + 1`（20,000 行中有 54 行，例如 decimal64 里 `atan2(1E-500, 9)` 给出 `0` 而不是 `0E-398`；IEEE 754-2019 §5.2：不精确的结果使用最小可能指数的 cohort 成员）；以及 `exp` 在 `precision = 1`、选用非标准的 `AfterRounding` tininess 选项、方向为 `Up`、`Ceiling` 或 `ZeroFiveUp` 时，对下溢到最小次正规数的结果不报 Underflow 与 Subnormal（20,000 行中有 22 行；此时最小次正规数等于最小正规数，而库自己的舍入后规则认为该结果是 tiny；十进制格式的标准规则，即舍入前检测 tininess，是正确的）。两者另行报告，修复后成为回归行。"
 
 #: manual/verification.md:308
-msgid "*Decimal `exp2m1`, `exp10m1`, `log2p1` and `log10p1`* ([#236](https://github.com/Luna-Flow/floating/issues/236)): families `decm-exp2m1`, `decm-exp10m1`, `decm-log2p1` and `decm-log10p1`, seed 20261118, 250,000 native cases each (1,000,000 in all) agree with MPFR in value, cohort and all eight flags, and so do 100,000 cases each on Wasm, Wasm-GC and JavaScript (400,000 per target, 1,200,000 in all, 804 validated batches, run on 2026-11-19 with `just random-diff run --family decm-exp2m1 --family decm-exp10m1 --family decm-log2p1 --family decm-log10p1 --count 100000 --seed 20261118 --target wasm --target wasm-gc --target js`). On the final code the native 1,000,000 cases of seed 20261118 were run again (1,000 validated batches) and a second seed, 20261202, with 100,000 cases per function on native, Wasm, Wasm-GC and JavaScript (400,000 per target, 1,600,000 in all, 1,204 validated batches), both on 2026-11-19 and both without a disagreement. Exact results are not sampled here; they, the clusters near the integers and near -1, the tiny arguments and the tininess and clamp boundaries are the 10,673 rows of `src/decimal/elementary_pm1_rows_wbtest.mbt` (exact rational arithmetic and certified MPFR enclosures, `tools/generate_decimal_pm1_rows.py`), which pass on native, Wasm, Wasm-GC and JavaScript."
-msgstr "*十进制 `exp2m1`、`exp10m1`、`log2p1` 与 `log10p1`*（[#236](https://github.com/Luna-Flow/floating/issues/236)）：族 `decm-exp2m1`、`decm-exp10m1`、`decm-log2p1` 与 `decm-log10p1`，种子 20261118，每个 250,000 个 native 用例（共 1,000,000 个）在值、同值类与全部八个标志上都与 MPFR 一致；Wasm、Wasm-GC 与 JavaScript 上每个函数各 100,000 个用例（每个目标 400,000 个，共 1,200,000 个，804 个经过校验的批次）同样一致，于 2026-11-19 用 `just random-diff run --family decm-exp2m1 --family decm-exp10m1 --family decm-log2p1 --family decm-log10p1 --count 100000 --seed 20261118 --target wasm --target wasm-gc --target js` 运行。在最终代码上，种子 20261118 的 1,000,000 个 native 用例又运行了一遍（1,000 个经过校验的批次），另有第二个种子 20261202：native、Wasm、Wasm-GC 与 JavaScript 上每个函数各 100,000 个用例（每个目标 400,000 个，共 1,600,000 个，1,204 个经过校验的批次）；两者都于 2026-11-19 运行，均无分歧。这里不抽取精确结果；精确结果、整数附近与 -1 附近的聚集情形、微小参数以及微小性与 clamp 的边界由 `src/decimal/elementary_pm1_rows_wbtest.mbt` 的 10,673 行覆盖（精确有理数运算与认证的 MPFR 包络，`tools/generate_decimal_pm1_rows.py`），它们在 native、Wasm、Wasm-GC 与 JavaScript 上通过。"
+msgid "*Decimal `exp2m1`, `exp10m1`, `log2p1` and `log10p1`* ([#236](https://github.com/Luna-Flow/floating/issues/236)): families `decm-exp2m1`, `decm-exp10m1`, `decm-log2p1` and `decm-log10p1`, seed 20261118, 250,000 native cases each (1,000,000 in all) agree with MPFR in value, cohort and all eight flags, and so do 100,000 cases each on Wasm, Wasm-GC and JavaScript (400,000 per target, 1,200,000 in all, 804 validated batches, run on 2026-11-19 with `just random-diff run --family decm-exp2m1 --family decm-exp10m1 --family decm-log2p1 --family decm-log10p1 --count 100000 --seed 20261118 --target wasm --target wasm-gc --target js`). On the final code the native 1,000,000 cases of seed 20261118 were run again (1,000 validated batches) and a second seed, 20261202, with 100,000 cases per function on native, Wasm, Wasm-GC and JavaScript (400,000 per target, 1,600,000 in all, 1,204 validated batches), both on 2026-11-19 and both without a disagreement. Exact results are not sampled here; they, the clusters near the integers and near -1, the tiny arguments and the tininess and clamp boundaries are the 10,673 rows of `library/src/decimal/elementary_pm1_rows_wbtest.mbt` (exact rational arithmetic and certified MPFR enclosures, `tools/generate_decimal_pm1_rows.py`), which pass on native, Wasm, Wasm-GC and JavaScript."
+msgstr "*十进制 `exp2m1`、`exp10m1`、`log2p1` 与 `log10p1`*（[#236](https://github.com/Luna-Flow/floating/issues/236)）：族 `decm-exp2m1`、`decm-exp10m1`、`decm-log2p1` 与 `decm-log10p1`，种子 20261118，每个 250,000 个 native 用例（共 1,000,000 个）在值、同值类与全部八个标志上都与 MPFR 一致；Wasm、Wasm-GC 与 JavaScript 上每个函数各 100,000 个用例（每个目标 400,000 个，共 1,200,000 个，804 个经过校验的批次）同样一致，于 2026-11-19 用 `just random-diff run --family decm-exp2m1 --family decm-exp10m1 --family decm-log2p1 --family decm-log10p1 --count 100000 --seed 20261118 --target wasm --target wasm-gc --target js` 运行。在最终代码上，种子 20261118 的 1,000,000 个 native 用例又运行了一遍（1,000 个经过校验的批次），另有第二个种子 20261202：native、Wasm、Wasm-GC 与 JavaScript 上每个函数各 100,000 个用例（每个目标 400,000 个，共 1,600,000 个，1,204 个经过校验的批次）；两者都于 2026-11-19 运行，均无分歧。这里不抽取精确结果；精确结果、整数附近与 -1 附近的聚集情形、微小参数以及微小性与 clamp 的边界由 `library/src/decimal/elementary_pm1_rows_wbtest.mbt` 的 10,673 行覆盖（精确有理数运算与认证的 MPFR 包络，`tools/generate_decimal_pm1_rows.py`），它们在 native、Wasm、Wasm-GC 与 JavaScript 上通过。"
 
 #: manual/verification.md:327
-msgid "*Decimal `rsqrt`, `compound` and `powr`* ([#236](https://github.com/Luna-Flow/floating/issues/236)): families `decm-rsqrt`, `decm-compound` and `decm-powr`; `compound` rows are certified from exact arithmetic (the rational $(1+x)^n$, an exact decimal $1 + nx \\pm 2(nx)^2$ for $|x| < 10^{-150}$, or libmpdec $\\exp(n\\ln(1+x))$ with a proven slack), never from `mpfr_compound_si`, which MPFR 4.2.2 rounds wrongly for $n < 0$ in the directed modes. Seed 20261118: 250,000 native cases per function (750,000) and 100,000 per function on each of Wasm, Wasm-GC and JavaScript (900,000); seed 20261202: 100,000 per function on native, Wasm, Wasm-GC and JavaScript (1,200,000); all on 2026-11-19 and all in agreement in value, cohort and flags. The 14,267 rows of `src/decimal/elementary_rcp_rows_wbtest.mbt` (`tools/generate_decimal_rcp_rows.py`) add the exact cases, the preferred exponents, the `Int32` minimum of `compound`, operands down to $10^{-1\\,999\\,997}$ and the range limits, on all four targets."
-msgstr "*十进制 `rsqrt`、`compound` 与 `powr`*（[#236](https://github.com/Luna-Flow/floating/issues/236)）：族 `decm-rsqrt`、`decm-compound` 与 `decm-powr`；`compound` 的行由精确运算认证（有理数 $(1+x)^n$；$|x| < 10^{-150}$ 时的精确十进制数 $1 + nx \\pm 2(nx)^2$；或带有已证明余量的 libmpdec $\\exp(n\\ln(1+x))$），从不取自 `mpfr_compound_si`，因为 MPFR 4.2.2 在定向舍入下对 $n < 0$ 舍入错误。种子 20261118：每个函数 250,000 个 native 用例（共 750,000 个），以及 Wasm、Wasm-GC 与 JavaScript 上每个函数各 100,000 个（共 900,000 个）；种子 20261202：native、Wasm、Wasm-GC 与 JavaScript 上每个函数各 100,000 个（共 1,200,000 个）；均于 2026-11-19 运行，在值、同值类与标志上全部一致。`src/decimal/elementary_rcp_rows_wbtest.mbt` 的 14,267 行（`tools/generate_decimal_rcp_rows.py`）在全部四个目标上补充了精确情形、首选指数、`compound` 的 `Int32` 最小值、低至 $10^{-1\\,999\\,997}$ 的操作数以及范围边界。"
+msgid "*Decimal `rsqrt`, `compound` and `powr`* ([#236](https://github.com/Luna-Flow/floating/issues/236)): families `decm-rsqrt`, `decm-compound` and `decm-powr`; `compound` rows are certified from exact arithmetic (the rational $(1+x)^n$, an exact decimal $1 + nx \\pm 2(nx)^2$ for $|x| < 10^{-150}$, or libmpdec $\\exp(n\\ln(1+x))$ with a proven slack), never from `mpfr_compound_si`, which MPFR 4.2.2 rounds wrongly for $n < 0$ in the directed modes. Seed 20261118: 250,000 native cases per function (750,000) and 100,000 per function on each of Wasm, Wasm-GC and JavaScript (900,000); seed 20261202: 100,000 per function on native, Wasm, Wasm-GC and JavaScript (1,200,000); all on 2026-11-19 and all in agreement in value, cohort and flags. The 14,267 rows of `library/src/decimal/elementary_rcp_rows_wbtest.mbt` (`tools/generate_decimal_rcp_rows.py`) add the exact cases, the preferred exponents, the `Int32` minimum of `compound`, operands down to $10^{-1\\,999\\,997}$ and the range limits, on all four targets."
+msgstr "*十进制 `rsqrt`、`compound` 与 `powr`*（[#236](https://github.com/Luna-Flow/floating/issues/236)）：族 `decm-rsqrt`、`decm-compound` 与 `decm-powr`；`compound` 的行由精确运算认证（有理数 $(1+x)^n$；$|x| < 10^{-150}$ 时的精确十进制数 $1 + nx \\pm 2(nx)^2$；或带有已证明余量的 libmpdec $\\exp(n\\ln(1+x))$），从不取自 `mpfr_compound_si`，因为 MPFR 4.2.2 在定向舍入下对 $n < 0$ 舍入错误。种子 20261118：每个函数 250,000 个 native 用例（共 750,000 个），以及 Wasm、Wasm-GC 与 JavaScript 上每个函数各 100,000 个（共 900,000 个）；种子 20261202：native、Wasm、Wasm-GC 与 JavaScript 上每个函数各 100,000 个（共 1,200,000 个）；均于 2026-11-19 运行，在值、同值类与标志上全部一致。`library/src/decimal/elementary_rcp_rows_wbtest.mbt` 的 14,267 行（`tools/generate_decimal_rcp_rows.py`）在全部四个目标上补充了精确情形、首选指数、`compound` 的 `Int32` 最小值、低至 $10^{-1\\,999\\,997}$ 的操作数以及范围边界。"
 
 #: manual/verification.md:342
-msgid "*Decimal `exp`, `exp2` and `exp10` at the range limits* ([#363](https://github.com/Luna-Flow/floating/issues/363)): families `decimal-exp`, `decimal-exp2` and `decimal-exp10`, 100,000 native cases per function for seed 334 and for seed 20261120 (600,000) and 20,000 per function on each of Wasm, Wasm-GC and JavaScript for seed 334 (180,000), run on 2026-11-20, in agreement with MPFR in value, cohort and flags. The generator reaches the failing arguments only rarely (case `m334.exp2.30728` is one of them), so the boundaries are covered by deterministic rows: `src/decimal/exp_range_rows_wbtest.mbt` (`tools/generate_decimal_exp_range_rows.py`, Python `decimal` at 400 digits, a cross-check only) holds 5,976 rows for the context of the issue, decimal32, decimal64, decimal128 and a wide context, all eight rounding directions, at results just inside and outside the range and at the thresholds of the decision; they also cover `expm1`, `exp2m1`, `exp10m1`, `sinh`, `cosh`, `pow`, `powr`, `pown`, `compound` and `rsqrt`, none of which failed before the change."
-msgstr "*范围极限处的十进制 `exp`、`exp2` 和 `exp10`*（[#363](https://github.com/Luna-Flow/floating/issues/363)）：族 `decimal-exp`、`decimal-exp2` 和 `decimal-exp10`，种子 334 与种子 20261120 在 native 上每个函数各 100,000 个用例（共 600,000），种子 334 在 Wasm、Wasm-GC 和 JavaScript 上每个函数各 20,000 个（共 180,000），于 2026-11-20 运行，其值、同值类和标志与 MPFR 一致。生成器只是偶尔才会产生出错的参数（用例 `m334.exp2.30728` 就是其中之一），因此边界由确定性的行覆盖：`src/decimal/exp_range_rows_wbtest.mbt`（`tools/generate_decimal_exp_range_rows.py`，用 400 位的 Python `decimal`，仅作交叉核对）含有 5,976 行，覆盖该问题的上下文、decimal32、decimal64、decimal128 和一个宽上下文，全部八种舍入方向，位于刚好在范围内外的结果以及该决策的阈值处；它们也覆盖 `expm1`、`exp2m1`、`exp10m1`、`sinh`、`cosh`、`pow`、`powr`、`pown`、`compound` 和 `rsqrt`，这些函数在改动前都没有失败。"
+msgid "*Decimal `exp`, `exp2` and `exp10` at the range limits* ([#363](https://github.com/Luna-Flow/floating/issues/363)): families `decimal-exp`, `decimal-exp2` and `decimal-exp10`, 100,000 native cases per function for seed 334 and for seed 20261120 (600,000) and 20,000 per function on each of Wasm, Wasm-GC and JavaScript for seed 334 (180,000), run on 2026-11-20, in agreement with MPFR in value, cohort and flags. The generator reaches the failing arguments only rarely (case `m334.exp2.30728` is one of them), so the boundaries are covered by deterministic rows: `library/src/decimal/exp_range_rows_wbtest.mbt` (`tools/generate_decimal_exp_range_rows.py`, Python `decimal` at 400 digits, a cross-check only) holds 5,976 rows for the context of the issue, decimal32, decimal64, decimal128 and a wide context, all eight rounding directions, at results just inside and outside the range and at the thresholds of the decision; they also cover `expm1`, `exp2m1`, `exp10m1`, `sinh`, `cosh`, `pow`, `powr`, `pown`, `compound` and `rsqrt`, none of which failed before the change."
+msgstr "*范围极限处的十进制 `exp`、`exp2` 和 `exp10`*（[#363](https://github.com/Luna-Flow/floating/issues/363)）：族 `decimal-exp`、`decimal-exp2` 和 `decimal-exp10`，种子 334 与种子 20261120 在 native 上每个函数各 100,000 个用例（共 600,000），种子 334 在 Wasm、Wasm-GC 和 JavaScript 上每个函数各 20,000 个（共 180,000），于 2026-11-20 运行，其值、同值类和标志与 MPFR 一致。生成器只是偶尔才会产生出错的参数（用例 `m334.exp2.30728` 就是其中之一），因此边界由确定性的行覆盖：`library/src/decimal/exp_range_rows_wbtest.mbt`（`tools/generate_decimal_exp_range_rows.py`，用 400 位的 Python `decimal`，仅作交叉核对）含有 5,976 行，覆盖该问题的上下文、decimal32、decimal64、decimal128 和一个宽上下文，全部八种舍入方向，位于刚好在范围内外的结果以及该决策的阈值处；它们也覆盖 `expm1`、`exp2m1`、`exp10m1`、`sinh`、`cosh`、`pow`、`powr`、`pown`、`compound` 和 `rsqrt`，这些函数在改动前都没有失败。"
 
 #: manual/verification.md:357
 msgid "*Decimal `asinPi`, `acosPi`, `atanPi` and `atan2Pi`* ([#236](https://github.com/Luna-Flow/floating/issues/236)): families `decimal-asinpi`, `decimal-acospi`, `decimal-atanpi` and `decimal-atan2pi`, certified by `mpfr_asinpi`, `mpfr_acospi`, `mpfr_atanpi` and `mpfr_atan2pi`. Seed 20261118: 100,000 native cases per function (400,000) and 20,000 per function on each of Wasm, Wasm-GC and JavaScript (240,000), 564 validated batches, run on 2026-11-19 with `just random-diff run --family decimal-asinpi --family decimal-acospi --family decimal-atanpi --family decimal-atan2pi --count 100000 --seed 20261118 --target native` and the same with `--count 20000 --target wasm --target wasm-gc --target js`, in agreement with MPFR in value, cohort and all eight flags. The 19,134 rows of `testdata/decimal/ieee/rows/pi_inverse.txt` (`tools/generate_decimal_pi_inverse_rows.py`) add the exact Niven values at the preferred exponent 0, the clusters next to $\\pm\\tfrac12$ and $\\pm 1$ in all eight rounding modes on both sides, operands down to $10^{-1\\,999\\,996}$ and the range limits of decimal32/64/128 under both tininess rules. They run in the full gate and the nightly run on all four targets, and all of them run in the quick gate (see [Quick-gate table of the π-inverse rows](#quick-gate-table-of-the-π-inverse-rows))."
@@ -25733,8 +25733,8 @@ msgid "*`rSqrt`, `compound` and `powr`* (family `elem3` of the generator): 1,000
 msgstr "*`rSqrt`、`compound` 和 `powr`*（生成器的 `elem3` 族）：原生 1,000,000 个用例，以及 Wasm、JavaScript 和 Wasm-GC 各 100,000 个用例都与 MPFR 4.2.2 一致，718,824 行范围边界行也一致（精度 2 到 300，六种上下文，两种 tininess 规则；覆盖 $1/\\sqrt{x}$ 的阈值、$n \\in \\{\\pm 3, \\pm 7, \\pm 100\\}$ 时 $(1 + x)^n$ 的阈值，以及 $y$ 取在各阈值 $\\log_2$ 上的 $x^y$）。比较需要对预言做两处修正，均记录在 `testdata/bin_float/README.md`：`mpfr_compound_si` 在 $n$ 为负的定向舍入以及范围极限附近是错的（对全部 2,017 个边界行用精确有理数运算证明；这些行改用精确有理数），`mpfr_rec_sqrt(-0)` 返回 +inf 而标准要求 -inf。两种情况下库都没有不一致。"
 
 #: manual/verification.md:415
-msgid "*`asinPi`, `acosPi`, `atanPi` and `atan2Pi`* (family `elem4` of the generator): 1,000,000 native cases and 100,000 on each of Wasm, JavaScript and Wasm-GC agree with MPFR 4.2.2 (`mpfr_asinpi`, `mpfr_acospi`, `mpfr_atanpi`, `mpfr_atan2pi`), and so do 1,654,315 range-boundary rows (precisions 2 to 300, six contexts, both tininess rules): the underflow thresholds ($\\operatorname{asinPi}(x) \\approx x/\\pi$ at $x = \\pi 2^{k}$), the anchors $\\pm 1/2$ and $\\pm 1$ for $\\operatorname{atanPi}$ of a huge argument, $\\operatorname{acosPi}$ of a tiny one and $\\operatorname{atan2Pi}$ of an extreme ratio (leading-exponent difference $D$ from $\\pm(p + 4)$ to $\\pm(p + 12)$, around the point $|D| = p + 8$ where the library switches to the anchor rule), and arguments next to $\\pm 1$. 11,661 `atan2pi` rows with operands more than 100,000 binades apart are not oracle rows: `mpfr_atan2pi` of MPFR 4.2.2 slows down with the exponent difference (5 s at 2^(2*10^7)), so they are skipped and covered by `src/bin_float/pi_inverse_wbtest.mbt` against an independent model and against `atanpi` of an exact power of two. The library had no disagreement."
-msgstr "*`asinPi`、`acosPi`、`atanPi` 和 `atan2Pi`*（生成器的 `elem4` 族）：原生 1,000,000 个用例，以及 Wasm、JavaScript 和 Wasm-GC 各 100,000 个用例都与 MPFR 4.2.2（`mpfr_asinpi`、`mpfr_acospi`、`mpfr_atanpi`、`mpfr_atan2pi`）一致，1,654,315 行范围边界行也一致（精度 2 到 300，六种上下文，两种 tininess 规则）：下溢阈值（$x = \\pi 2^{k}$ 处 $\\operatorname{asinPi}(x) \\approx x/\\pi$）、巨大参数的 $\\operatorname{atanPi}$、微小参数的 $\\operatorname{acosPi}$ 以及极端比值的 $\\operatorname{atan2Pi}$ 在 $\\pm 1/2$ 和 $\\pm 1$ 处的锚点（最高位指数差 $D$ 从 $\\pm(p + 4)$ 到 $\\pm(p + 12)$，覆盖库切换到锚点规则的 $|D| = p + 8$ 附近），以及 $\\pm 1$ 附近的参数。11,661 个操作数相差超过 100,000 个二进制数量级的 `atan2pi` 行不是预言行：MPFR 4.2.2 的 `mpfr_atan2pi` 随指数差变慢（2^(2*10^7) 时 5 秒），所以被跳过，改由 `src/bin_float/pi_inverse_wbtest.mbt` 对照独立模型以及精确 2 的幂的 `atanpi` 来覆盖。库没有不一致。"
+msgid "*`asinPi`, `acosPi`, `atanPi` and `atan2Pi`* (family `elem4` of the generator): 1,000,000 native cases and 100,000 on each of Wasm, JavaScript and Wasm-GC agree with MPFR 4.2.2 (`mpfr_asinpi`, `mpfr_acospi`, `mpfr_atanpi`, `mpfr_atan2pi`), and so do 1,654,315 range-boundary rows (precisions 2 to 300, six contexts, both tininess rules): the underflow thresholds ($\\operatorname{asinPi}(x) \\approx x/\\pi$ at $x = \\pi 2^{k}$), the anchors $\\pm 1/2$ and $\\pm 1$ for $\\operatorname{atanPi}$ of a huge argument, $\\operatorname{acosPi}$ of a tiny one and $\\operatorname{atan2Pi}$ of an extreme ratio (leading-exponent difference $D$ from $\\pm(p + 4)$ to $\\pm(p + 12)$, around the point $|D| = p + 8$ where the library switches to the anchor rule), and arguments next to $\\pm 1$. 11,661 `atan2pi` rows with operands more than 100,000 binades apart are not oracle rows: `mpfr_atan2pi` of MPFR 4.2.2 slows down with the exponent difference (5 s at 2^(2*10^7)), so they are skipped and covered by `library/src/bin_float/pi_inverse_wbtest.mbt` against an independent model and against `atanpi` of an exact power of two. The library had no disagreement."
+msgstr "*`asinPi`、`acosPi`、`atanPi` 和 `atan2Pi`*（生成器的 `elem4` 族）：原生 1,000,000 个用例，以及 Wasm、JavaScript 和 Wasm-GC 各 100,000 个用例都与 MPFR 4.2.2（`mpfr_asinpi`、`mpfr_acospi`、`mpfr_atanpi`、`mpfr_atan2pi`）一致，1,654,315 行范围边界行也一致（精度 2 到 300，六种上下文，两种 tininess 规则）：下溢阈值（$x = \\pi 2^{k}$ 处 $\\operatorname{asinPi}(x) \\approx x/\\pi$）、巨大参数的 $\\operatorname{atanPi}$、微小参数的 $\\operatorname{acosPi}$ 以及极端比值的 $\\operatorname{atan2Pi}$ 在 $\\pm 1/2$ 和 $\\pm 1$ 处的锚点（最高位指数差 $D$ 从 $\\pm(p + 4)$ 到 $\\pm(p + 12)$，覆盖库切换到锚点规则的 $|D| = p + 8$ 附近），以及 $\\pm 1$ 附近的参数。11,661 个操作数相差超过 100,000 个二进制数量级的 `atan2pi` 行不是预言行：MPFR 4.2.2 的 `mpfr_atan2pi` 随指数差变慢（2^(2*10^7) 时 5 秒），所以被跳过，改由 `library/src/bin_float/pi_inverse_wbtest.mbt` 对照独立模型以及精确 2 的幂的 `atanpi` 来覆盖。库没有不一致。"
 
 #: manual/verification.md:431
 msgid "*Decimal arithmetic*: `multiply`, `divide`, `squareroot`, `apply`, `tosci` and `toeng` agreed with libmpdec in all 6,000,000 native cases. `add`, `subtract` and `fma` disagreed in 83 of 3,000,000 (overflow reported when an operand rounds past Nmax: [#264](https://github.com/Luna-Flow/floating/issues/264)). The campaign's first run had 10 further disagreements whose operand was above Emax; decTest converts operands subject to the directives, so they are a property of the rows, not findings (the generator now keeps operands within Emax)."
@@ -25809,8 +25809,8 @@ msgid "Before publishing:"
 msgstr "发布前："
 
 #: manual/verification.md:521
-msgid "align `moon.mod`, `README.md`, the manual and `CHANGELOG.md`;"
-msgstr "使 `moon.mod`、`README.md`、手册与 `CHANGELOG.md` 保持一致；"
+msgid "align `library/moon.mod`, `library/README.md`, the manual and `library/CHANGELOG.md`;"
+msgstr "使 `library/moon.mod`、`library/README.md`、手册与 `library/CHANGELOG.md` 保持一致；"
 
 #: manual/verification.md:522
 msgid "run `just docs`, `lunadoc check`, and inspect generated interface differences;"
@@ -26651,8 +26651,8 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路
 #~ msgid "partial: no `rSqrt`, `compound`, `powr`, `asinPi`, `acosPi`, `atanPi`, `atan2Pi`"
 #~ msgstr "部分符合：缺少 `rSqrt`、`compound`、`powr`、`asinPi`、`acosPi`、`atanPi`、`atan2Pi`"
 
-#~ msgid "MPFR-certified elementary oracle (`testdata/decimal/ieee/elementary_mpfr_oracle.json`, 29 operations × 96 rows = 2,784); `src/decimal/elementary_extensions_wbtest.mbt`"
-#~ msgstr "经 MPFR 认证的初等函数 oracle (`testdata/decimal/ieee/elementary_mpfr_oracle.json`, 29 个运算 × 96 行 = 2,784); `src/decimal/elementary_extensions_wbtest.mbt`"
+#~ msgid "MPFR-certified elementary oracle (`testdata/decimal/ieee/elementary_mpfr_oracle.json`, 29 operations × 96 rows = 2,784); `library/src/decimal/elementary_extensions_wbtest.mbt`"
+#~ msgstr "经 MPFR 认证的初等函数 oracle (`testdata/decimal/ieee/elementary_mpfr_oracle.json`, 29 个运算 × 96 行 = 2,784); `library/src/decimal/elementary_extensions_wbtest.mbt`"
 
 #~ msgid "**Evidence still to confirm.** The reference to Brent (1976) in the footnote below, for bit-burst and the AGM logarithm, and the statement of the Jacobi identity for the nome, were written from memory and have not been checked against the sources; the owner will check them, and nothing in the design or in the code depends on them (the AGM is not used until its truncation bound is derived and proved here). The 1-ulp and 2-ulp widths quoted above come from the MPFR comparison, which is secondary evidence for the enclosures; the proof is the integer-bound argument in this section."
 #~ msgstr "**仍需确认的证据。** 下面脚注中对 Brent (1976) 的引用（关于 bit-burst 与 AGM 对数），以及关于 nome 的雅可比恒等式的表述，都是凭记忆写下的，尚未对照原始文献核对；所有者会去核对，设计和代码都不依赖它们（在这里推导并证明截断界之前不使用 AGM）。上文给出的 1 ulp 和 2 ulp 宽度来自与 MPFR 的对照，对包络来说它是二手证据；证明是本节中的整数界论证。"
@@ -26672,8 +26672,8 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路
 #~ msgid "TestFloat gate (before and after rounding)"
 #~ msgstr "TestFloat 门禁 (舍入前与舍入后)"
 
-#~ msgid "MPFR elementary fixture (2,088 rows); `src/bin_float/elementary_certified_wbtest.mbt`; `src/bin_float/tanh_saturation_issue185_wbtest.mbt`"
-#~ msgstr "MPFR 初等函数 fixture (2,088 行); `src/bin_float/elementary_certified_wbtest.mbt`; `src/bin_float/tanh_saturation_issue185_wbtest.mbt`"
+#~ msgid "MPFR elementary fixture (2,088 rows); `library/src/bin_float/elementary_certified_wbtest.mbt`; `library/src/bin_float/tanh_saturation_issue185_wbtest.mbt`"
+#~ msgstr "MPFR 初等函数 fixture (2,088 行); `library/src/bin_float/elementary_certified_wbtest.mbt`; `library/src/bin_float/tanh_saturation_issue185_wbtest.mbt`"
 
 #~ msgid "*Binary elementary functions*: one finding in 1,000,000 native cases (and 300,000 on the other backends): `exp2` of exactly −2^30 returned +0 with no flags where the result 2^−1073741824 is an exact subnormal (13 cases, [#271](https://github.com/Luna-Flow/floating/issues/271)). It is fixed, and its rows are regression rows of `testdata/bin_float/random-regressions.txt`. After the fix two seeds (20261118 and 20261201) agree with MPFR in 1,000,000 native `elem` cases each."
 #~ msgstr "*二进制初等函数*：在 1,000,000 个 native 用例（其他后端各 300,000 个）中有一个发现：对 −2^30 整数做 `exp2` 时，结果 2^−1073741824 是精确的次正规数，却返回 +0 且没有任何标志（13 个用例，[#271](https://github.com/Luna-Flow/floating/issues/271)）。该问题已修复，其行成为 `testdata/bin_float/random-regressions.txt` 的回归行。修复之后，两个种子（20261118 与 20261201）在各 1,000,000 个 native `elem` 用例中都与 MPFR 一致。"
@@ -26717,8 +26717,8 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路
 #~ msgid "§5.10 totalOrder, totalOrderMag [required] (partial)"
 #~ msgstr "§5.10 totalOrder, totalOrderMag [必须] （部分符合）"
 
-#~ msgid "`src/decimal_gda/` white-box tests; no decTest subset run"
-#~ msgstr "`src/decimal_gda/` 白盒测试; 未运行 decTest 子集"
+#~ msgid "`library/src/decimal_gda/` white-box tests; no decTest subset run"
+#~ msgstr "`library/src/decimal_gda/` 白盒测试; 未运行 decTest 子集"
 
 #~ msgid "Decorated `rootn` with a negative degree does not lower the decoration to `trv` when 0 is in the argument."
 #~ msgstr "负次数的 `rootn` 在参数包含 0 时不会降低装饰，尽管当 $n < 0$ 时 $\\xi^{1/n}$ 在 0 处无定义：`rootn([0, 4], -2)` 的装饰为 `dac` 而非 `trv`。"
@@ -28319,8 +28319,8 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路
 #~ msgid "Read the repository README and the internal API reference."
 #~ msgstr "先看仓库 README 和 internal 的 API 文档。"
 
-#~ msgid "Start from the constructors or entry points under `src/internal`."
-#~ msgstr "从 `src/internal` 中的构造入口或主入口开始。"
+#~ msgid "Start from the constructors or entry points under `library/src/internal`."
+#~ msgstr "从 `library/src/internal` 中的构造入口或主入口开始。"
 
 #~ msgid "Validate behavior with the existing tests or examples before depending on edge-case semantics."
 #~ msgstr "在依赖边界行为之前，先结合已有测试或示例验证语义。"
@@ -29261,8 +29261,8 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路
 #~ msgid "Wrapper composition adds `O(1)` work beyond interval arithmetic. Entire remains success because loss of tightness is not the same as failure to enclose; making it an error would break valid interval-domain semantics."
 #~ msgstr "wrapper 附加成本是 `O(1)`。Entire 仍为成功，是因为 tightness 降低不等于包含失败；把安全包络当错误会破坏区间域本身的语义。"
 
-#~ msgid "`bin_float` is the binary numerical core of `floating` 0.8.0. Its design has two simultaneous goals: preserve exact integer/dyadic semantics at arbitrary precision, and reproduce the declared IEEE 754-2019 behavior when a bounded `BinaryContext` is supplied. Public names are fixed by `src/bin_float/pkg.generated.mbti`; coefficient layouts, dispatch thresholds, and scratch storage remain implementation details."
-#~ msgstr "`bin_float` 是 0.8.0 的二进制数值核心，同时追求任意精度 dyadic 精确语义与 `BinaryContext` 下声明范围内的 IEEE 754-2019 行为。公开名称由 `src/bin_float/pkg.generated.mbti` 确定；limb 布局、阈值与 scratch storage 属于私有实现。"
+#~ msgid "`bin_float` is the binary numerical core of `floating` 0.8.0. Its design has two simultaneous goals: preserve exact integer/dyadic semantics at arbitrary precision, and reproduce the declared IEEE 754-2019 behavior when a bounded `BinaryContext` is supplied. Public names are fixed by `library/src/bin_float/pkg.generated.mbti`; coefficient layouts, dispatch thresholds, and scratch storage remain implementation details."
+#~ msgstr "`bin_float` 是 0.8.0 的二进制数值核心，同时追求任意精度 dyadic 精确语义与 `BinaryContext` 下声明范围内的 IEEE 754-2019 行为。公开名称由 `library/src/bin_float/pkg.generated.mbti` 确定；limb 布局、阈值与 scratch storage 属于私有实现。"
 
 #~ msgid "`BinCoeff` performs exact non-negative integer arithmetic."
 #~ msgstr "实现把三类职责分开：`BinCoeff` 负责精确非负整数算术，`BinFloat` 表示 dyadic 值或特殊状态，`BinaryContext` 为一次操作施加 precision、exponent range、 rounding、tininess 与 flags。kernel 算法只改变精确 coefficient 的计算成本，只有 context finalization 能改变最终浮点表示。"
@@ -30446,8 +30446,8 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路
 #~ msgid "Read the repository README and the def API reference."
 #~ msgstr "先看仓库 README 和 def 的 API 文档。"
 
-#~ msgid "Start from the constructors or entry points under `src/def`."
-#~ msgstr "从 `src/def` 中的构造入口或主入口开始。"
+#~ msgid "Start from the constructors or entry points under `library/src/def`."
+#~ msgstr "从 `library/src/def` 中的构造入口或主入口开始。"
 
 #~ msgid "Repository Workflow"
 #~ msgstr "仓库流程"
