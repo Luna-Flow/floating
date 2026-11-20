@@ -40,8 +40,10 @@ let bin_coeff_limb32_karatsuba_cutoff : Int32 = 96
 let bin_coeff_limb32_min_words : Int32 = 160
 
 ///|
-/// Whether Knuth's division runs on 64-bit digits (a 64-bit digit step costs
-/// four `i64.mul` on Wasm, so Wasm keeps 32-bit digits).
+/// Whether Knuth's division runs on 64-bit digits. True on every target: measured
+/// faster on Wasm (1.3 and 3.3 times at 2,048 and 8,192 bits) and Wasm-GC (1.9 and
+/// 3.3 times) as well as on Native (commit 27989825, issue 328), although a 64-bit
+/// digit step costs four `i64.mul` there.
 let bin_coeff_knuth_words_enabled : Bool = true
 
 ///|
@@ -60,7 +62,9 @@ let bin_coeff_newton_division_min_words = 536870912
 
 ///|
 /// Whether the integer square roots of up to 256 bits use the word kernels
-/// (`bin_coeff_sqrt_words_nonjs.mbt`) instead of the restoring loops.
+/// (`bin_coeff_sqrt_words_nonjs.mbt`) instead of the restoring loops. Not
+/// measured on this target: Wasm-GC has it enabled and nothing in the history
+/// records why Wasm does not.
 let bin_coeff_sqrt_words_enabled = false
 
 ///|
