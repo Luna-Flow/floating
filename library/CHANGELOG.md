@@ -6,7 +6,7 @@ notes live in this file.
 
 ## Unreleased
 
-## 0.11.0 - 2026-11-21
+## 0.11.0 - 2026-11-20
 
 0.11.0 is the performance round of the binary and decimal cores (64-bit coefficient limbs, the certified elementary functions, the shared decimal kernel), the conformance additions (the remaining IEEE 754-2019 §9.2 functions, `convert_format`, totalOrder, `class_of`, and the fixes that the differential campaigns found), and step B of [#22](https://github.com/Luna-Flow/floating/issues/22): the library module is split from the developer tools, public surfaces are narrowed and operations are named after their standards. The breaking changes come first, with their migration tables; 0.12 completes them ([#438](https://github.com/Luna-Flow/floating/issues/438)).
 
