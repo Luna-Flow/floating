@@ -1112,7 +1112,7 @@ msgstr "使われるのは `ctx.precision` だけです。オペランドは `wi
 #: manual/api/frontend/itl_expr.md:276
 #: manual/api/frontend/mpfr_expr.md:536
 #: manual/api/frontend/testfloat_expr.md:407
-#: manual/api/internal.md:552
+#: manual/api/internal.md:506
 #: manual/api/internal/bin_kernel.md:77
 #: manual/api/internal/conformance.md:353
 #: manual/api/internal/decimal_kernel.md:92
@@ -1129,7 +1129,7 @@ msgstr "公開インターフェース全体"
 #: manual/api/frontend/itl_expr.md:278
 #: manual/api/frontend/mpfr_expr.md:538
 #: manual/api/frontend/testfloat_expr.md:409
-#: manual/api/internal.md:554
+#: manual/api/internal.md:508
 #: manual/api/internal/bin_kernel.md:79
 #: manual/api/internal/conformance.md:355
 #: manual/api/internal/decimal_kernel.md:94
@@ -7321,9 +7321,9 @@ msgstr "パッケージ"
 msgid "Helpers it uses"
 msgstr "使用するヘルパー"
 
-#: manual/api/internal.md:24
-msgid "The binary and decimal cores round their own coefficients with their own kernels. The remaining helpers (`round_shift`, `remove_factor10`, `trim_trailing_decimal_zeros`, `exact_divide_by_power_of_ten`, `compare_abs` and the `CertifiedDyadic` family) are exercised by the `consistency` and package tests only."
-msgstr "二進・十進のコアは、それぞれ自分の係数を自前のカーネルで丸めます。残りの補助関数（`round_shift`、`remove_factor10`、`trim_trailing_decimal_zeros`、`exact_divide_by_power_of_ten`、`compare_abs`、`CertifiedDyadic` ファミリー）は、`consistency` のテストとパッケージ内のテストからのみ使われます。"
+#: manual/api/internal.md:23
+msgid "The binary and decimal cores round their own coefficients with their own kernels. The remaining helpers (`round_shift`, `remove_factor10`, `trim_trailing_decimal_zeros`, `exact_divide_by_power_of_ten`, `compare_abs` and the `CertifiedDyadic` family) are exercised by the tests of this package and of the cores only. `semantic` no longer uses `internal`: it owns its exact rational (`ExactRational`) and its normalization."
+msgstr "二進・十進のコアは、それぞれ自分の係数を自前のカーネルで丸めます。残りの補助関数（`round_shift`、`remove_factor10`、`trim_trailing_decimal_zeros`、`exact_divide_by_power_of_ten`、`compare_abs`、`CertifiedDyadic` ファミリー）は、このパッケージのテストと各コアのテストからのみ使われます。`semantic` はもう `internal` を使いません。精密有理数（`ExactRational`）とその正規化を自前で持ちます。"
 
 #: manual/api/internal.md:30
 msgid "Decimal exponent bounds"
@@ -7462,116 +7462,95 @@ msgid "The result $(\\mathit{neg}, D, q)$ satisfies $\\text{value} = (-1)^{\\mat
 msgstr "結果 $(\\mathit{neg}, D, q)$ は $\\text{value} = (-1)^{\\mathit{neg}} \\cdot D \\cdot 10^{q}$ を満たします。ここで $D$ は仮数部のすべての数字からなる文字列（先頭のゼロも保持）であり、$q$ は記述された指数から小数部の桁数を引いたものです。ワイド版では、記述された指数は絶対値 $10^{18}$ まで正確で、そこで飽和しますが、これはどの指数範囲よりもはるかに外側です。$q$ が `Int` に収まらない場合、`split_decimal_string` は `None` を返します。空白、`_`、`inf`、`nan` を含め、それ以外はすべて `None` になります。"
 
 #: manual/api/internal.md:295
-#: manual/api/semantic.md:44
-msgid "Exact rationals"
-msgstr "厳密な有理数"
-
-#: manual/api/internal.md:299
-msgid "`ExactRat` is a rational number in lowest terms."
-msgstr "`ExactRat` は既約の有理数です。"
-
-#: manual/api/internal.md:309
-msgid "`ExactRat::new(n, d)` reduces $n/d$ to lowest terms with a positive denominator; the accessors return the reduced parts."
-msgstr "`ExactRat::new(n, d)` は $n/d$ を正の分母を持つ既約分数にします。アクセサは既約化された各部分を返します。"
-
-#: manual/api/internal.md:318
-msgid "Aborts when $d = 0$. Zero is stored as $0/1$. Because the form is canonical, `==` on `ExactRat` is equality of rational numbers."
-msgstr "$d = 0$ のときは異常終了します。ゼロは $0/1$ として格納されます。形が正準なので、`ExactRat` に対する `==` は有理数としての等しさです。"
-
-#: manual/api/internal.md:323
-msgid "These methods compare canonical forms; use `==` and `!=`."
-msgstr "これらのメソッドは正準形を比較します。`==` と `!=` を使ってください。"
-
-#: manual/api/internal.md:341
-#: manual/design/internal.md:49
+#: manual/design/internal.md:48
 msgid "Dyadic enclosures"
 msgstr "2 進有理数による包含区間"
 
-#: manual/api/internal.md:345
+#: manual/api/internal.md:299
 msgid "`CertifiedDyadic` is the dyadic rational $n \\cdot 2^{-s}$, where $n$ is `numerator_` and the scale $s$ = `scale_` is non-negative."
 msgstr "`CertifiedDyadic` は 2 進有理数 $n \\cdot 2^{-s}$ です。ここで $n$ は `numerator_`、スケール $s$ = `scale_` は非負です。"
 
-#: manual/api/internal.md:355
+#: manual/api/internal.md:309
 msgid "The fields are readable but the struct cannot be built literally outside the package; build values with `new` or `from_int`."
 msgstr "フィールドは読み取り可能ですが、パッケージの外では構造体をリテラルで構築できません。値は `new` または `from_int` で構築してください。"
 
-#: manual/api/internal.md:360
+#: manual/api/internal.md:314
 msgid "`new(n, s)` is $n \\cdot 2^{-s}$ (aborts if $s < 0$); `from_int(k)` is $k \\cdot 2^{0}$; the accessors return the fields."
 msgstr "`new(n, s)` は $n \\cdot 2^{-s}$（$s < 0$ なら異常終了）、`from_int(k)` は $k \\cdot 2^{0}$ です。アクセサはフィールドを返します。"
 
-#: manual/api/internal.md:370
+#: manual/api/internal.md:324
 msgid "The representation is not normalized: $2 \\cdot 2^{-1}$ and $1 \\cdot 2^{0}$ are different values of the struct with the same number."
 msgstr "表現は正規化されていません。$2 \\cdot 2^{-1}$ と $1 \\cdot 2^{0}$ は同じ数を表す、構造体としては異なる値です。"
 
-#: manual/api/internal.md:375
+#: manual/api/internal.md:329
 msgid "These methods are exact arithmetic and comparison of dyadic numbers."
 msgstr "これらのメソッドは 2 進有理数の厳密な算術と比較です。"
 
-#: manual/api/internal.md:385
+#: manual/api/internal.md:339
 msgid "`add` and `sub` align to the larger scale; `mul` adds the scales; `compare` compares the numbers (not the representations), so `new(2N, 1).compare(from_int(1))` is `0`."
 msgstr "`add` と `sub` は大きい方のスケールに揃え、`mul` はスケールを加算し、`compare` は（表現ではなく）数を比較します。そのため `new(2N, 1).compare(from_int(1))` は `0` です。"
 
-#: manual/api/internal.md:391
+#: manual/api/internal.md:345
 msgid "`x.round_down(s)` and `x.round_up(s)` are the largest dyadic $\\le x$ and the smallest dyadic $\\ge x$ with scale $s$: $\\lfloor x \\cdot 2^{s} \\rfloor \\cdot 2^{-s}$ and $\\lceil x \\cdot 2^{s} \\rceil \\cdot 2^{-s}$."
 msgstr "`x.round_down(s)` と `x.round_up(s)` は、スケール $s$ を持つ $\\le x$ の最大の 2 進有理数と $\\ge x$ の最小の 2 進有理数、すなわち $\\lfloor x \\cdot 2^{s} \\rfloor \\cdot 2^{-s}$ と $\\lceil x \\cdot 2^{s} \\rceil \\cdot 2^{-s}$ です。"
 
-#: manual/api/internal.md:401
+#: manual/api/internal.md:355
 msgid "Abort if $s < 0$. When $s$ is at least the current scale the value is re-expressed exactly (the numerator is shifted left). Both directions are true floor and ceiling for negative numbers too: $-5/4$ rounds down to $-2$ and up to $-1$ at scale $0$."
 msgstr "$s < 0$ なら異常終了します。$s$ が現在のスケール以上のとき、値は厳密に表し直されます（分子が左シフトされます）。負の数に対しても、どちらの方向も真の床関数・天井関数です。スケール $0$ では、$-5/4$ は下向きに $-2$、上向きに $-1$ へ丸められます。"
 
-#: manual/api/internal.md:408
+#: manual/api/internal.md:362
 msgid "`CertifiedInterval[T]` is an ordered pair `lower <= upper` used as an enclosure."
 msgstr "`CertifiedInterval[T]` は包含区間として使われる順序対 `lower <= upper` です。"
 
-#: manual/api/internal.md:420
+#: manual/api/internal.md:374
 msgid "`new(lower, upper, compare)` checks the order with the given comparison and builds the pair; `lower` and `upper` return the endpoints."
 msgstr "`new(lower, upper, compare)` は与えられた比較関数で順序を検査してペアを構築し、`lower` と `upper` は端点を返します。"
 
-#: manual/api/internal.md:429
+#: manual/api/internal.md:383
 msgid "When `compare(lower, upper) > 0`, `new` returns a certification-failure error for the operation `\"interval\"` with stage `EnclosurePropagation`, reason `InvalidEnclosure`, target and working precision 1 and 0 refinements."
 msgstr "`compare(lower, upper) > 0` のとき、`new` は演算 `\"interval\"` に対する認証失敗エラーを返します。段階は `EnclosurePropagation`、理由は `InvalidEnclosure`、目標精度と作業精度は 1、精緻化の回数は 0 です。"
 
-#: manual/api/internal.md:435
+#: manual/api/internal.md:389
 msgid "`certified_dyadic_fraction(n, d, s)` encloses $n/d$ between two dyadics of scale $s$."
 msgstr "`certified_dyadic_fraction(n, d, s)` は $n/d$ をスケール $s$ の 2 つの 2 進有理数で挟みます。"
 
-#: manual/api/internal.md:442
+#: manual/api/internal.md:396
 msgid "The result is $[\\lfloor n 2^{s}/d \\rfloor 2^{-s},\\ \\lceil n 2^{s}/d \\rceil 2^{-s}]$ for either sign of $n$: it contains $n/d$, has width $0$ or $2^{-s}$, and is a point exactly when $d \\mid n 2^{s}$. A non-positive $d$ gives a domain error."
 msgstr "$n$ の符号によらず、結果は $[\\lfloor n 2^{s}/d \\rfloor 2^{-s},\\ \\lceil n 2^{s}/d \\rceil 2^{-s}]$ です。これは $n/d$ を含み、幅は $0$ または $2^{-s}$ であり、点区間になるのはちょうど $d \\mid n 2^{s}$ のときです。正でない $d$ は定義域エラーになります。"
 
-#: manual/api/internal.md:449
+#: manual/api/internal.md:403
 msgid "`certified_dyadic_div(a, b, s)` encloses the quotient $a/b$ of two dyadics at scale $s$."
 msgstr "`certified_dyadic_div(a, b, s)` は 2 つの 2 進有理数の商 $a/b$ をスケール $s$ で挟みます。"
 
-#: manual/api/internal.md:456
+#: manual/api/internal.md:410
 msgid "$b = 0$ gives a division-by-zero error. Otherwise the result is `certified_dyadic_fraction` applied to $a/b$ written with a positive denominator."
 msgstr "$b = 0$ はゼロ除算エラーになります。それ以外の場合、結果は $a/b$ を正の分母で書いたものに `certified_dyadic_fraction` を適用したものです。"
 
-#: manual/api/internal.md:476
+#: manual/api/internal.md:430
 msgid "Refinement budgets"
 msgstr "精緻化予算"
 
-#: manual/api/internal.md:480
+#: manual/api/internal.md:434
 msgid "`CertifiedRefinementBudget` tracks the working precision and the number of refinements of a Ziv-style evaluation loop."
 msgstr "`CertifiedRefinementBudget` は、Ziv 流の評価ループの作業精度と精緻化の回数を追跡します。"
 
-#: manual/api/internal.md:494
+#: manual/api/internal.md:448
 msgid "`new(p, limit?)` starts at working precision $\\max(1, p)$ with zero refinements. `limit` is `Some(n)`, a limit of $\\max(1, n)$ refinements (default `Some(12)`), or `None`, no count limit. `next()` increases the precision by $\\max(32, \\lfloor p/2 \\rfloor)$ and counts one refinement. `available()` is true while fewer than `n` refinements were made, and, for `None`, while the working precision does not exceed `certified_unbounded_work_cap` of the starting precision."
 msgstr "`new(p, limit?)` は作業精度 $\\max(1, p)$、精緻化 0 回で始まります。`limit` は `Some(n)`（精緻化回数の上限 $\\max(1, n)$、既定は `Some(12)`）または `None`（回数の上限なし）です。`next()` は精度を $\\max(32, \\lfloor p/2 \\rfloor)$ だけ増やし、精緻化を 1 回数えます。`available()` は、行った精緻化が `n` 回未満の間は真で、`None` の場合は作業精度が開始精度に対する `certified_unbounded_work_cap` を超えない間は真です。"
 
-#: manual/api/internal.md:510
+#: manual/api/internal.md:464
 msgid "`next` does not check `available`; a loop must test `available()` itself."
 msgstr "`next` は `available` を検査しません。ループ側で `available()` を調べる必要があります。"
 
-#: manual/api/internal.md:529
+#: manual/api/internal.md:483
 msgid "`certified_refinement_continues(limit, attempt, work, precision)` tells a hand-written refinement loop whether it may run another step: `Some(n)` allows `attempt < max(1, n)`, `None` allows the step while `work` does not exceed `certified_unbounded_work_cap(precision)`. That cap is the larger of 8,000,000 and 256 times `precision`, at most 1,000,000,000."
 msgstr "`certified_refinement_continues(limit, attempt, work, precision)` は、手書きの精緻化ループがもう一歩進めてよいかを伝えます。`Some(n)` は `attempt < max(1, n)` の間許し、`None` は `work` が `certified_unbounded_work_cap(precision)` を超えない間許します。この上限は 8,000,000 と `precision` の 256 倍の大きい方で、高々 1,000,000,000 です。"
 
-#: manual/api/internal.md:542
+#: manual/api/internal.md:496
 msgid "`certified_failure(operation, stage, reason, target_precision, budget)` builds the `ArithmeticError` a certified operation returns when it gives up."
 msgstr "`certified_failure(operation, stage, reason, target_precision, budget)` は、認証付き演算が断念したときに返す `ArithmeticError` を構築します。"
 
-#: manual/api/internal.md:549
+#: manual/api/internal.md:503
 msgid "The error's detail records the operation name, stage, reason, target precision, and the budget's current working precision and refinement count."
 msgstr "エラーの詳細には、演算名、段階、理由、目標精度、および予算の現在の作業精度と精緻化回数が記録されます。"
 
@@ -8156,6 +8135,10 @@ msgstr "パッケージと、射影する表現を `moon.pkg` に追加します
 #: manual/api/semantic.md:28
 msgid "The examples call the package as `@semantic.`, the representations as `@bin_float.`, `@decimal.` and `@ball_float.`, and `Sign` as `@def.Sign`. They assume this helper, which prints a semantic scalar as `numerator/denominator`:"
 msgstr "例ではパッケージを `@semantic.`、各表現を `@bin_float.`、`@decimal.`、`@ball_float.`、`Sign` を `@def.Sign` として呼び出します。また、意味論的スカラーを `numerator/denominator` として出力する次のヘルパーを前提とします。"
+
+#: manual/api/semantic.md:44
+msgid "Exact rationals"
+msgstr "厳密な有理数"
 
 #: manual/api/semantic.md:48
 msgid "`ExactRational` is an exact rational number kept in lowest terms with a positive denominator."
@@ -9969,7 +9952,7 @@ msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行�
 #: manual/design/frontend/itl_expr.md:166
 #: manual/design/frontend/mpfr_expr.md:133
 #: manual/design/frontend/testfloat_expr.md:140
-#: manual/design/internal.md:219
+#: manual/design/internal.md:211
 #: manual/design/internal/conformance.md:129
 #: manual/design/internal/runner_cli.md:83
 #: manual/design/numeric_expr.md:194
@@ -10521,7 +10504,7 @@ msgstr "IEEE Std 1788-2015, *IEEE Standard for Interval Arithmetic*。このパ�
 #: manual/design/frontend/itl_expr.md:16
 #: manual/design/frontend/mpfr_expr.md:17
 #: manual/design/frontend/testfloat_expr.md:16
-#: manual/design/internal.md:25
+#: manual/design/internal.md:24
 #: manual/design/internal/bin_kernel.md:11
 #: manual/design/internal/conformance.md:12
 #: manual/design/internal/decimal_kernel.md:11
@@ -10994,7 +10977,7 @@ msgstr "集合の関係（`subset`、`interior`、`disjoint`、`set_equal`）と
 #: manual/design/frontend/itl_expr.md:76
 #: manual/design/frontend/mpfr_expr.md:59
 #: manual/design/frontend/testfloat_expr.md:74
-#: manual/design/internal.md:56
+#: manual/design/internal.md:55
 #: manual/design/internal/conformance.md:42
 #: manual/design/internal/decimal_kernel.md:51
 #: manual/design/internal/runner_cli.md:23
@@ -11156,7 +11139,7 @@ msgstr "各区間は精度タグを持ち、二項演算は大きい方のタグ
 #: manual/design/frontend/itl_expr.md:133
 #: manual/design/frontend/mpfr_expr.md:105
 #: manual/design/frontend/testfloat_expr.md:113
-#: manual/design/internal.md:146
+#: manual/design/internal.md:138
 #: manual/design/internal/conformance.md:74
 #: manual/design/internal/decimal_kernel.md:138
 #: manual/design/internal/runner_cli.md:60
@@ -11236,7 +11219,7 @@ msgstr "現時点で未解決の制限はありません。負の次数の装飾
 #: manual/design/frontend/itl_expr.md:156
 #: manual/design/frontend/mpfr_expr.md:123
 #: manual/design/frontend/testfloat_expr.md:130
-#: manual/design/internal.md:207
+#: manual/design/internal.md:199
 #: manual/design/internal/conformance.md:119
 #: manual/design/internal/runner_cli.md:74
 #: manual/design/numeric_expr.md:179
@@ -13921,8 +13904,8 @@ msgid "`floating` has four numeric cores with overlapping claims: a binary value
 msgstr "`floating` には主張が重なり合う 4 つの数値コアがあります。2 進値を 10 進に変換して戻したものは同じ有理数を表さなければならず、checked ラッパーはコアと同じ値を与えなければならず、区間はスカラー演算の厳密な結果を包含しなければならず、`internal` のヘルパーは厳密な `BigInt` 算術と一致しなければなりません。パッケージ自身のテストからは 1 つのパッケージしか見えません。パッケージ横断のテストをそこに置くと、コア間にテスト専用の依存関係が加わります。`consistency` は、こうしたパッケージ横断の法則を書き下して実行する唯一の場所です。"
 
 #: manual/design/consistency.md:16
-msgid "Every finite value of every core denotes a rational number. Let $\\llbracket\\cdot\\rrbracket$ map a value to $\\mathbb{Q}$ (implemented by `semantic`, with `internal.ExactRat` as canonical form). The laws the suite checks have three shapes:"
-msgstr "各コアのすべての有限値は有理数を表します。$\\llbracket\\cdot\\rrbracket$ を値を $\\mathbb{Q}$ に写す写像とします（`semantic` で実装され、`internal.ExactRat` を正準形とします）。スイートが検査する法則には 3 つの形があります："
+msgid "Every finite value of every core denotes a rational number. Let $\\llbracket\\cdot\\rrbracket$ map a value to $\\mathbb{Q}$ (implemented by `semantic`, with `ExactRational` as canonical form). The laws the suite checks have three shapes:"
+msgstr "各コアのすべての有限値は有理数を表します。$\\llbracket\\cdot\\rrbracket$ を値を $\\mathbb{Q}$ に写す写像とします（`semantic` で実装され、`ExactRational` を正準形とします）。スイートが検査する法則には 3 つの形があります："
 
 #: manual/design/consistency.md:21
 msgid "**Agreement:** for values $x$ of package $A$ and $y$ of package $B$ that represent the same input, $\\llbracket f_A(x) \\rrbracket = \\llbracket f_B(y) \\rrbracket$ when both operations are exact, and the results are the two packages' roundings of the same real otherwise."
@@ -13961,8 +13944,8 @@ msgid "Oracles over expectations"
 msgstr "期待値よりオラクル"
 
 #: manual/design/consistency.md:52
-msgid "Where possible a test computes the expected result independently (with `BigInt`, `ExactRat` or `semantic`) instead of hard-coding output strings, so a law stays meaningful when formatting changes."
-msgstr "可能な場合、テストは出力文字列をハードコードするのではなく、期待される結果を（`BigInt`、`ExactRat`、`semantic` で）独立に計算します。これにより書式が変わっても法則は意味を保ちます。"
+msgid "Where possible a test computes the expected result independently (with `BigInt` or `semantic`) instead of hard-coding output strings, so a law stays meaningful when formatting changes."
+msgstr "可能な場合、テストは出力文字列をハードコードするのではなく、期待される結果を（`BigInt` や `semantic` で）独立に計算します。これにより書式が変わっても法則は意味を保ちます。"
 
 #: manual/design/consistency.md:58
 msgid "A passing run shows that each stated law holds on its witnesses; it is finite evidence, not a proof for all inputs."
@@ -17105,159 +17088,151 @@ msgid "internal design"
 msgstr "internal の設計"
 
 #: manual/design/internal.md:5
-msgid "The binary, decimal and interval cores all reduce their hard steps to exact integer arithmetic: aligning exponents, removing trailing zeros, dividing with a rounding mode, enclosing a ratio between two dyadics. `internal` states these steps as small `BigInt` functions with proved invariants, so that the `consistency` tests can check each one against an oracle and the cores can share what they have in common. It is internal so the cores can change the helpers together without a public compatibility promise."
-msgstr "2 進・10 進・区間の各コアは、いずれも難しいステップを正確な整数演算に帰着させます。指数の整列、末尾のゼロの除去、丸めモード付きの除算、2 つの 2 進有理数（dyadic）の間への比の包含です。`internal` はこれらのステップを、不変条件が証明された小さな `BigInt` 関数として表し、`consistency` テストでそれぞれをオラクルに対して検査でき、コア同士が共通部分を共有できるようにします。internal であるため、コアは公開互換性の約束なしにヘルパーをまとめて変更できます。"
+msgid "The binary, decimal and interval cores all reduce their hard steps to exact integer arithmetic: aligning exponents, removing trailing zeros, dividing with a rounding mode, enclosing a ratio between two dyadics. `internal` states these steps as small `BigInt` functions with proved invariants, so that the tests of this package can check each one against an oracle and the cores can share what they have in common. It is internal so the cores can change the helpers together without a public compatibility promise."
+msgstr "2 進・10 進・区間の各コアは、いずれも難しいステップを正確な整数演算に帰着させます。指数の整列、末尾のゼロの除去、丸めモード付きの除算、2 つの 2 進有理数（dyadic）の間への比の包含です。`internal` はこれらのステップを、不変条件が証明された小さな `BigInt` 関数として表し、このパッケージのテストでそれぞれをオラクルに対して検査でき、コア同士が共通部分を共有できるようにします。internal であるため、コアは公開互換性の約束なしにヘルパーをまとめて変更できます。"
 
 #: manual/design/internal.md:13
-msgid "On the current branch the sharing is partial. The decimal cores use the string splitter, `round_positive_div`, the power caches and `digits10`; every core uses the refinement budget and `certified_failure`; `semantic` uses `ExactRat`. The hot paths of `bin_float` and the two decimal packages round with their own limb kernels (`BinCoeff`, and `DecCoeff` in the subpackage `internal/decimal_kernel`, which `decimal` and `decimal_gda` share), which implement the same rounding table as `round_positive_div` but are not built on it, and several helpers (`round_shift`, `remove_factor10`, `trim_trailing_decimal_zeros`, the `CertifiedDyadic` family) are exercised only by tests. The table on the [API page](../api/internal.md#purpose) lists the users of each helper."
-msgstr "現在のブランチでは、共有は部分的です。10 進のコアは文字列分割器、`round_positive_div`、べき乗のキャッシュ、`digits10` を使い、すべてのコアが精密化の予算と `certified_failure` を使い、`semantic` は `ExactRat` を使います。`bin_float` と 2 つの 10 進パッケージのホットパスは独自のリムのカーネルで丸めます（`BinCoeff` と、サブパッケージ `internal/decimal_kernel` の `DecCoeff`。後者は `decimal` と `decimal_gda` が共有します）。これらは `round_positive_div` と同じ丸めの表を実装していますが、それを基にしてはいません。また、いくつかのヘルパー（`round_shift`、`remove_factor10`、`trim_trailing_decimal_zeros`、`CertifiedDyadic` 系）はテストでしか使われていません。[API ページ](../api/internal.md#purpose)の表に、各ヘルパーの利用者を挙げています。"
+msgid "On the current branch the sharing is partial. The decimal cores use the string splitter, `round_positive_div`, the power caches and `digits10`; every core uses the refinement budget and `certified_failure`. The hot paths of `bin_float` and the two decimal packages round with their own limb kernels (`BinCoeff`, and `DecCoeff` in the subpackage `internal/decimal_kernel`, which `decimal` and `decimal_gda` share), which implement the same rounding table as `round_positive_div` but are not built on it, and several helpers (`round_shift`, `remove_factor10`, `trim_trailing_decimal_zeros`, the `CertifiedDyadic` family) are exercised only by tests. The table on the [API page](../api/internal.md#purpose) lists the users of each helper."
+msgstr "現在のブランチでは、共有は部分的です。10 進のコアは文字列分割器、`round_positive_div`、べき乗のキャッシュ、`digits10` を使い、すべてのコアが精密化の予算と `certified_failure` を使います。`bin_float` と 2 つの 10 進パッケージのホットパスは独自のリムのカーネルで丸めます（`BinCoeff` と、サブパッケージ `internal/decimal_kernel` の `DecCoeff`。後者は `decimal` と `decimal_gda` が共有します）。これらは `round_positive_div` と同じ丸めの表を実装していますが、それを基にしてはいません。また、いくつかのヘルパー（`round_shift`、`remove_factor10`、`trim_trailing_decimal_zeros`、`CertifiedDyadic` 系）はテストでしか使われていません。[API ページ](../api/internal.md#purpose)の表に、各ヘルパーの利用者を挙げています。"
 
-#: manual/design/internal.md:27
+#: manual/design/internal.md:26
 msgid "Integer division with remainder"
 msgstr "剰余付き整数除算"
 
-#: manual/design/internal.md:29
+#: manual/design/internal.md:28
 msgid "For $n \\ge 0$ and $d > 0$ there are unique integers $q, r$ with $n = qd + r$ and $0 \\le r < d$ (Euclidean division). Then $q = \\lfloor n/d \\rfloor$, and $n/d$ is an integer exactly when $r = 0$. The fractional part is $r/d \\in [0, 1)$, and"
 msgstr "$n \\ge 0$ と $d > 0$ に対し、$n = qd + r$ かつ $0 \\le r < d$ を満たす整数 $q, r$ が一意に存在します（ユークリッド除算）。このとき $q = \\lfloor n/d \\rfloor$ であり、$n/d$ が整数であるのはちょうど $r = 0$ のときです。小数部分は $r/d \\in [0, 1)$ であり、"
 
-#: manual/design/internal.md:38
+#: manual/design/internal.md:37
 #: manual/numeric_semantics.md:161
 msgid "Rounding to an integer"
 msgstr "整数への丸め"
 
-#: manual/design/internal.md:40
+#: manual/design/internal.md:39
 msgid "For a real $x$ and a rounding direction, $\\circ(x)$ is the integer chosen among $\\lfloor x \\rfloor$ and $\\lceil x \\rceil$: toward zero, toward $+\\infty$, toward $-\\infty$, away from zero, or to the nearest with ties to the even candidate.[^ieee]"
 msgstr "実数 $x$ と丸め方向に対し、$\\circ(x)$ は $\\lfloor x \\rfloor$ と $\\lceil x \\rceil$ の中から選ばれる整数です。ゼロ方向、$+\\infty$ 方向、$-\\infty$ 方向、ゼロから離れる方向、または最近接（タイは偶数の候補へ）のいずれかです。[^ieee]"
 
-#: manual/design/internal.md:45
+#: manual/design/internal.md:44
 msgid "IEEE 754-2019, clause 4.3, defines the rounding-direction attributes; the integer case is the same definition with $\\mathbb{Z}$ as the set of representable numbers."
 msgstr "IEEE 754-2019 の第 4.3 節は丸め方向属性を定義しています。整数の場合は、表現可能な数の集合を $\\mathbb{Z}$ とした同じ定義です。"
 
-#: manual/design/internal.md:51
+#: manual/design/internal.md:50
 msgid "A dyadic number is $n \\cdot 2^{-s}$ with $n \\in \\mathbb{Z}$, $s \\ge 0$. For a real $x$ and a scale $s$, the dyadics of scale $s$ around $x$ are $\\lfloor x 2^{s} \\rfloor 2^{-s} \\le x \\le \\lceil x 2^{s} \\rceil 2^{-s}$, an interval of width at most $2^{-s}$."
 msgstr "2 進有理数（dyadic number）とは、$n \\in \\mathbb{Z}$、$s \\ge 0$ に対する $n \\cdot 2^{-s}$ です。実数 $x$ とスケール $s$ に対し、$x$ を囲むスケール $s$ の 2 進有理数は $\\lfloor x 2^{s} \\rfloor 2^{-s} \\le x \\le \\lceil x 2^{s} \\rceil 2^{-s}$ であり、幅が高々 $2^{-s}$ の区間をなします。"
 
-#: manual/design/internal.md:58
+#: manual/design/internal.md:57
 msgid "Magnitude and sign passed separately"
 msgstr "絶対値と符号を別々に渡す"
 
-#: manual/design/internal.md:60
+#: manual/design/internal.md:59
 msgid "`round_positive_div(n, d, negative, mode)` takes $n \\ge 0$ and the sign of the true quotient as a flag. Sign-magnitude is how the cores store their coefficients, and directed rounding of a magnitude depends on the sign: rounding $-2.5$ toward $-\\infty$ *increases* the magnitude. Keeping the sign as a separate argument makes the rule a single table and avoids negative remainders, whose convention differs between languages."
 msgstr "`round_positive_div(n, d, negative, mode)` は $n \\ge 0$ と、真の商の符号をフラグとして受け取ります。符号と絶対値による表現はコアが係数を格納する方法であり、絶対値の方向付き丸めは符号に依存します。$-2.5$ を $-\\infty$ 方向に丸めると絶対値は*増加*します。符号を別の引数として保持することで、規則を 1 つの表にまとめられ、言語によって規約が異なる負の剰余を避けられます。"
 
-#: manual/design/internal.md:67
+#: manual/design/internal.md:66
 msgid "Powers of ten and five from a shared cache"
 msgstr "共有キャッシュによる 10 と 5 のべき乗"
 
-#: manual/design/internal.md:69
+#: manual/design/internal.md:68
 msgid "Decimal scaling uses $10^{k}$ and the binary-decimal conversions use $5^{k}$ (because $10^{k} = 5^{k} 2^{k}$ and the factor $2^{k}$ is a shift). The caches start with the 19 powers $k \\le 18$ ($10^{18}$ is the largest power of ten below $2^{63}$) and are extended on demand up to $k = 4096$; larger powers are computed directly on each call, so that an extreme exponent cannot make the cache grow without bound."
 msgstr "10 進スケーリングでは $10^{k}$ を、2 進–10 進変換では $5^{k}$ を使います（$10^{k} = 5^{k} 2^{k}$ であり、因子 $2^{k}$ はシフトだからです）。キャッシュは $k \\le 18$ の 19 個のべき乗から始まり（$10^{18}$ は $2^{63}$ 未満で最大の 10 のべき乗です）、必要に応じて $k = 4096$ まで拡張されます。それより大きなべき乗は呼び出しのたびに直接計算されるため、極端な指数によってキャッシュが際限なく大きくなることはありません。"
 
-#: manual/design/internal.md:75
+#: manual/design/internal.md:74
 msgid "Digit count without strings"
 msgstr "文字列を使わない桁数の計算"
 
-#: manual/design/internal.md:77
+#: manual/design/internal.md:76
 msgid "`digits10` starts from the estimate $d_0 = \\lfloor b \\log_{10} 2 \\rfloor + 1$, where $b$ is the bit length of $|x|$, and corrects it by comparison with powers of ten. Since $2^{b-1} \\le |x| < 2^{b}$, the true digit count $d$ satisfies"
 msgstr "`digits10` は、$b$ を $|x|$ のビット長として、推定値 $d_0 = \\lfloor b \\log_{10} 2 \\rfloor + 1$ から始め、10 のべき乗との比較によってこれを補正します。$2^{b-1} \\le |x| < 2^{b}$ であるため、真の桁数 $d$ は次を満たします。"
 
-#: manual/design/internal.md:86
+#: manual/design/internal.md:85
 msgid "and because $\\log_{10} 2 < 1$ the two bounds differ by at most one. So at most one downward correction is ever needed (the upward loop guards against floating-point error in the estimate), and the cost is a constant number of `BigInt` comparisons plus one power of ten."
 msgstr "そして $\\log_{10} 2 < 1$ なので、2 つの境界の差は高々 1 です。したがって下方向の補正は高々 1 回しか必要なく（上方向のループは推定値の浮動小数点誤差に対する保護です）、コストは定数回の `BigInt` 比較と 1 つの 10 のべき乗です。"
 
-#: manual/design/internal.md:91
+#: manual/design/internal.md:90
 msgid "Wide exponent parsing"
 msgstr "幅広い指数の解析"
 
-#: manual/design/internal.md:93
+#: manual/design/internal.md:92
 msgid "A decimal context may set $e_{\\max}$ anywhere in `Int`, and the context-free `parse` applies no exponent range at all, so no cap inside `Int` is safe: a literal exponent that is clamped to a smaller value can still be in range and silently changes the number. `split_decimal_string_wide` therefore returns the exponent $q$ as an `Int64`. The written exponent is read exactly up to $10^{18}$ and saturates there; with at most $2^{31}$ fraction digits, $|q| < 10^{18} + 2^{31}$, so the subtraction never overflows `Int64`. A saturated $q$ lies far outside `Int` and so outside every exponent a value or context can hold, which means a caller that compares $q$ (plus the digit count) with `Int` and its context sees the same overflow or underflow as for the exact exponent. `split_decimal_string` keeps its `Int` signature and returns `None` when $q$ does not fit `Int`, rather than a different exponent."
 msgstr "10 進コンテキストは $e_{\\max}$ を `Int` の任意の値に設定でき、コンテキストなしの `parse` は指数範囲をまったく適用しないため、`Int` の内側に上限を設けるのは安全ではありません。より小さい値にクランプされたリテラルの指数がなお範囲内に収まり、数値が黙って変わってしまうからです。そのため `split_decimal_string_wide` は指数 $q$ を `Int64` で返します。記述された指数は $10^{18}$ まで正確に読み取られ、そこで飽和します。小数部の桁数は高々 $2^{31}$ なので $|q| < 10^{18} + 2^{31}$ となり、減算で `Int64` がオーバーフローすることはありません。飽和した $q$ は `Int` のはるか外側、つまり値やコンテキストが保持できるどの指数よりも外側にあるため、$q$（と桁数）を `Int` や自身のコンテキストと比較する呼び出し側は、正確な指数の場合と同じオーバーフローまたはアンダーフローを得ます。`split_decimal_string` は `Int` のシグネチャを保ち、$q$ が `Int` に収まらないときは別の指数ではなく `None` を返します。"
 
-#: manual/design/internal.md:106
-msgid "Canonical rationals"
-msgstr "正準な有理数"
-
-#: manual/design/internal.md:108
-msgid "`ExactRat::new` divides by $\\gcd(n, d)$ and makes the denominator positive. With a canonical form, derived structural equality *is* equality of rational numbers, which is what `semantic` needs to compare values across binary and decimal representations."
-msgstr "`ExactRat::new` は $\\gcd(n, d)$ で割り、分母を正にします。正準形があれば、導出された構造的等価性が有理数としての等価性*そのもの*になります。これは、`semantic` が 2 進表現と 10 進表現をまたいで値を比較するために必要なことです。"
-
-#: manual/design/internal.md:113
+#: manual/design/internal.md:105
 msgid "Ziv-style refinement budget"
 msgstr "Ziv 方式の精密化の予算"
 
-#: manual/design/internal.md:115
+#: manual/design/internal.md:107
 msgid "The certified elementary functions evaluate an enclosure at a working precision $p_k$ and accept the result when both ends round to the same target number (Ziv's strategy[^ziv]); otherwise they retry at a higher precision. The budget fixes the schedule"
 msgstr "認証付き初等関数は、作業精度 $p_k$ で包含区間を評価し、両端が同じ目標の数に丸められる場合に結果を受け入れます（Ziv の戦略[^ziv]）。そうでなければ、より高い精度で再試行します。予算は次のスケジュールを定めます。"
 
-#: manual/design/internal.md:124
+#: manual/design/internal.md:116
 msgid "with $L = 12$ refinements by default. For $p_k \\ge 64$ this is $p_k + \\lfloor p_k/2 \\rfloor = \\lfloor 3 p_k / 2 \\rfloor$, geometric growth with ratio $3/2$ up to the floor, so $p_L \\approx p_0 (3/2)^{L}$ (about $130\\,p_0$ for $L = 12$ and $p_0 \\ge 64$). For $p_k < 64$ the step is $32$ and $p_{k+1}/p_k = 1 + 32/p_k > 3/2$, so the ratio is at least $3/2$ (up to the floor) at every step. If one attempt at precision $p$ costs $C(p) \\ge c\\,p$ (at least linear), the total cost of all attempts is dominated by the last one:"
 msgstr "既定では精密化の回数は $L = 12$ です。$p_k \\ge 64$ ではこれは $p_k + \\lfloor p_k/2 \\rfloor = \\lfloor 3 p_k / 2 \\rfloor$ であり、（床関数を除けば）比 $3/2$ の幾何級数的な増加なので、$p_L \\approx p_0 (3/2)^{L}$ となります（$L = 12$ かつ $p_0 \\ge 64$ では約 $130\\,p_0$）。$p_k < 64$ ではステップは $32$ で、$p_{k+1}/p_k = 1 + 32/p_k > 3/2$ なので、どのステップでも比は（床関数を除けば）少なくとも $3/2$ です。精度 $p$ での 1 回の試行のコストが $C(p) \\ge c\\,p$（少なくとも線形）であれば、全試行の総コストは最後の試行によって支配されます。"
 
-#: manual/design/internal.md:138
+#: manual/design/internal.md:130
 msgid "which holds, up to the floors in the schedule, for $C(p) = c\\,p^{\\alpha}$ with $\\alpha \\ge 1$ in the geometric phase. Exhaustion is reported with `certified_failure`, which records the target and final working precision, instead of returning a value that is not certified."
 msgstr "これは、幾何級数的な段階において $\\alpha \\ge 1$ の $C(p) = c\\,p^{\\alpha}$ に対し、スケジュール中の床関数の分を除いて成り立ちます。予算の枯渇は、認証されていない値を返す代わりに、目標精度と最終的な作業精度を記録する `certified_failure` によって報告されます。"
 
-#: manual/design/internal.md:143
+#: manual/design/internal.md:135
 msgid "A. Ziv, \"Fast evaluation of elementary mathematical functions with correctly rounded last bit\", *ACM TOMS* 17(3), 1991."
 msgstr "A. Ziv, \"Fast evaluation of elementary mathematical functions with correctly rounded last bit\", *ACM TOMS* 17(3), 1991."
 
-#: manual/design/internal.md:148
+#: manual/design/internal.md:140
 msgid "**Rounding table.** Let $n = qd + r$ with $0 \\le r < d$ and $x = (-1)^{\\sigma} n/d$. Then $|\\circ(x)| \\in \\{q, q+1\\}$, with $q + 1$ only if $r > 0$, and `round_positive_div` returns $|\\circ(x)|$:"
 msgstr "**丸め表。** $n = qd + r$、$0 \\le r < d$、$x = (-1)^{\\sigma} n/d$ とします。このとき $|\\circ(x)| \\in \\{q, q+1\\}$ であり、$q + 1$ となるのは $r > 0$ の場合に限られます。`round_positive_div` は $|\\circ(x)|$ を返します。"
 
-#: manual/design/internal.md:162
+#: manual/design/internal.md:154
 msgid "*Proof.* $|x| = q + r/d$ lies in $[q, q+1)$. Toward zero takes the smaller magnitude. Toward $+\\infty$ takes the larger magnitude for a positive non-integer and the smaller for a negative one; toward $-\\infty$ is the mirror image. Away from zero takes the larger magnitude for any non-integer. For nearest, the distance to $q$ is $r/d$ and to $q+1$ is $1 - r/d$, so $q + 1$ is nearer iff $2r > d$, and $2r = d$ is the tie, broken toward the even one of $q, q+1$, which is $q + 1$ iff $q$ is odd. $\\square$"
 msgstr "*証明。* $|x| = q + r/d$ は $[q, q+1)$ にあります。ゼロ方向は小さい方の絶対値をとります。$+\\infty$ 方向は、正の非整数では大きい方の絶対値を、負の非整数では小さい方をとります。$-\\infty$ 方向はその鏡像です。ゼロから離れる方向は、任意の非整数で大きい方の絶対値をとります。最近接では、$q$ までの距離は $r/d$、$q+1$ までの距離は $1 - r/d$ なので、$q + 1$ の方が近いのは $2r > d$ のときかつそのときに限り、$2r = d$ がタイです。タイは $q, q+1$ のうち偶数の方に解決され、それが $q + 1$ になるのは $q$ が奇数のときかつそのときに限ります。$\\square$"
 
-#: manual/design/internal.md:170
-msgid "`round_shift(m, s, …)` is the case $d = 2^{s}$ with $q = m \\gg s$ and $r = m - (q \\ll s)$, so the same table applies for $m \\ge 0$. For $m < 0$ the arithmetic shift gives $q = \\lfloor m/2^{s} \\rfloor < 0$ and $0 \\le r < 2^{s}$, and the \"magnitude\" table is then applied to a negative $q$; the result is not $\\pm|\\circ(x)|$ (for example $m = -5$, $s = 1$, `TowardZero` gives $-3$). The function does not check the sign, so callers must pass magnitudes. The `consistency` tests check both functions against these formulas on ties and directed cases."
-msgstr "`round_shift(m, s, …)` は $d = 2^{s}$、$q = m \\gg s$、$r = m - (q \\ll s)$ の場合であり、$m \\ge 0$ では同じ表が当てはまります。$m < 0$ では算術シフトにより $q = \\lfloor m/2^{s} \\rfloor < 0$ かつ $0 \\le r < 2^{s}$ となり、「絶対値」の表が負の $q$ に適用されます。結果は $\\pm|\\circ(x)|$ にはなりません（たとえば $m = -5$、$s = 1$ で `TowardZero` は $-3$ を返します）。この関数は符号を検査しないので、呼び出し側は絶対値を渡さなければなりません。`consistency` テストは、タイと方向付きのケースについて両方の関数をこれらの式と照合します。"
+#: manual/design/internal.md:162
+msgid "`round_shift(m, s, …)` is the case $d = 2^{s}$ with $q = m \\gg s$ and $r = m - (q \\ll s)$, so the same table applies for $m \\ge 0$. For $m < 0$ the arithmetic shift gives $q = \\lfloor m/2^{s} \\rfloor < 0$ and $0 \\le r < 2^{s}$, and the \"magnitude\" table is then applied to a negative $q$; the result is not $\\pm|\\circ(x)|$ (for example $m = -5$, $s = 1$, `TowardZero` gives $-3$). The function does not check the sign, so callers must pass magnitudes. The tests of this package check both functions against these formulas on ties and directed cases."
+msgstr "`round_shift(m, s, …)` は $d = 2^{s}$、$q = m \\gg s$、$r = m - (q \\ll s)$ の場合であり、$m \\ge 0$ では同じ表が当てはまります。$m < 0$ では算術シフトにより $q = \\lfloor m/2^{s} \\rfloor < 0$ かつ $0 \\le r < 2^{s}$ となり、「絶対値」の表が負の $q$ に適用されます。結果は $\\pm|\\circ(x)|$ にはなりません（たとえば $m = -5$、$s = 1$ で `TowardZero` は $-3$ を返します）。この関数は符号を検査しないので、呼び出し側は絶対値を渡さなければなりません。このパッケージのテストは、タイと方向付きのケースについて両方の関数をこれらの式と照合します。"
 
-#: manual/design/internal.md:178
+#: manual/design/internal.md:170
 msgid "**Factor removal.** `remove_factor10` and `trim_trailing_decimal_zeros` preserve $c \\cdot 10^{e}$, removing one factor of 10 per step; the latter stops after `max_drop` steps."
 msgstr "**因子の除去。** `remove_factor10` と `trim_trailing_decimal_zeros` は $c \\cdot 10^{e}$ を保ち、1 ステップごとに 10 の因子を 1 つ取り除きます。後者は `max_drop` ステップで止まります。"
 
-#: manual/design/internal.md:182
+#: manual/design/internal.md:174
 msgid "**Enclosure.** `certified_dyadic_fraction(n, d, s)` returns $\\ell = \\lfloor n 2^{s} / d \\rfloor 2^{-s}$ and $u = \\lceil n 2^{s} / d \\rceil 2^{-s}$; from $\\lfloor y \\rfloor \\le y \\le \\lceil y \\rceil$ with $y = n 2^{s}/d$ we get $\\ell \\le n/d \\le u$ and $u - \\ell \\le 2^{-s}$, with equality $\\ell = u$ iff $y \\in \\mathbb{Z}$. The floor of a negative ratio is computed as $-\\lceil |n| / d \\rceil$, so the enclosure is correct for both signs. `certified_dyadic_div` rewrites $a / b = (n_a 2^{s_b}) / (n_b 2^{s_a})$ with the sign moved to the numerator, so it inherits the same bound. `round_down` and `round_up` are the same floor and ceiling at a smaller scale, so $\\text{round\\_down}(x, s) \\le x \\le \\text{round\\_up}(x, s)$."
 msgstr "**包含。** `certified_dyadic_fraction(n, d, s)` は $\\ell = \\lfloor n 2^{s} / d \\rfloor 2^{-s}$ と $u = \\lceil n 2^{s} / d \\rceil 2^{-s}$ を返します。$y = n 2^{s}/d$ に対する $\\lfloor y \\rfloor \\le y \\le \\lceil y \\rceil$ から $\\ell \\le n/d \\le u$ と $u - \\ell \\le 2^{-s}$ が得られ、$\\ell = u$ となるのは $y \\in \\mathbb{Z}$ のときかつそのときに限ります。負の比の床関数は $-\\lceil |n| / d \\rceil$ として計算されるため、包含はどちらの符号でも正しくなります。`certified_dyadic_div` は符号を分子に移して $a / b = (n_a 2^{s_b}) / (n_b 2^{s_a})$ と書き換えるので、同じ限界を継承します。`round_down` と `round_up` はより小さいスケールでの同じ床関数と天井関数なので、$\\text{round\\_down}(x, s) \\le x \\le \\text{round\\_up}(x, s)$ が成り立ちます。"
 
-#: manual/design/internal.md:195
+#: manual/design/internal.md:187
 msgid "**Budget.** The precision sequence is strictly increasing (each step adds at least 32 bits) and at most `limit` refinements are made, so every refinement loop that checks `available()` terminates."
 msgstr "**予算。** 精度の列は狭義単調増加であり（各ステップで少なくとも 32 ビット増える）、精密化は高々 `limit` 回しか行われないため、`available()` を検査するすべての精密化ループは停止します。"
 
-#: manual/design/internal.md:199
-msgid "**Abort contract.** `pow5`, `pow10` with a negative exponent, `round_positive_div` with $n < 0$ or $d \\le 0$, `ExactRat::new` with $d = 0$, `exact_divide_by_power_of_ten` with a negative shift and a non-zero coefficient, and dyadic constructors and roundings with a negative scale abort: these are programmer errors inside the cores, never reachable from user input. `round_shift` with a negative magnitude does not abort; it returns the value described above."
-msgstr "**中止の約束。** 負の指数での `pow5`、`pow10`、$n < 0$ または $d \\le 0$ での `round_positive_div`、$d = 0$ での `ExactRat::new`、負のシフトかつ非零の係数での `exact_divide_by_power_of_ten`、負のスケールでの二進有理数のコンストラクタと丸めは中止します。これらはコア内部のプログラミングエラーで、ユーザー入力からは決して到達しません。`round_shift` は大きさが負でも中止せず、上で述べた値を返します。"
+#: manual/design/internal.md:191
+msgid "**Abort contract.** `pow5`, `pow10` with a negative exponent, `round_positive_div` with $n < 0$ or $d \\le 0$, `exact_divide_by_power_of_ten` with a negative shift and a non-zero coefficient, and dyadic constructors and roundings with a negative scale abort: these are programmer errors inside the cores, never reachable from user input. `round_shift` with a negative magnitude does not abort; it returns the value described above."
+msgstr "**中止の約束。** 負の指数での `pow5`、`pow10`、$n < 0$ または $d \\le 0$ での `round_positive_div`、負のシフトかつ非零の係数での `exact_divide_by_power_of_ten`、負のスケールでの二進有理数のコンストラクタと丸めは中止します。これらはコア内部のプログラミングエラーで、ユーザー入力からは決して到達しません。`round_shift` は大きさが負でも中止せず、上で述べた値を返します。"
 
-#: manual/design/internal.md:209
+#: manual/design/internal.md:201
 msgid "**Rounding via floating point.** Converting to `Double` to round a ratio loses exactness beyond 53 bits; all helpers stay in `BigInt`."
 msgstr "**浮動小数点による丸め。** 比を丸めるために `Double` に変換すると、53 ビットを超える正確性が失われます。すべてのヘルパーは `BigInt` の範囲にとどまります。"
 
-#: manual/design/internal.md:211
+#: manual/design/internal.md:203
 msgid "**Signed division with remainder.** Truncating and flooring division differ for negative operands; sign-magnitude avoids the ambiguity."
 msgstr "**符号付きの剰余付き除算。** 切り捨て除算と床除算は負のオペランドで異なります。符号と絶対値の表現はこの曖昧さを避けます。"
 
-#: manual/design/internal.md:213
+#: manual/design/internal.md:205
 msgid "**A normalized `CertifiedDyadic`.** Normalizing after every operation costs a trailing-zero scan; enclosures are compared with `compare`, which does not need canonical forms."
 msgstr "**正規化された `CertifiedDyadic`。** 演算のたびに正規化すると末尾ゼロの走査のコストがかかります。包含区間は `compare` で比較され、これは正準形を必要としません。"
 
-#: manual/design/internal.md:216
+#: manual/design/internal.md:208
 msgid "**An unbounded power cache.** Pathological exponents would retain huge `BigInt` values for the life of the process."
 msgstr "**非有界なべき乗キャッシュ。** 病的な指数によって、巨大な `BigInt` 値がプロセスの存続期間中保持されてしまいます。"
 
-#: manual/design/internal.md:221
+#: manual/design/internal.md:213
 msgid "No floating-point formats, contexts or flags: the cores build them on these helpers."
 msgstr "浮動小数点形式、コンテキスト、フラグはありません。コアがこれらのヘルパーの上にそれらを構築します。"
 
-#: manual/design/internal.md:223
+#: manual/design/internal.md:215
 msgid "No decimal string formatting and no special values (`inf`, `nan`) in `split_decimal_string`."
 msgstr "`split_decimal_string` には 10 進文字列の整形も特殊値（`inf`、`nan`）もありません。"
 
-#: manual/design/internal.md:225
+#: manual/design/internal.md:217
 msgid "No public stability: the package is importable only inside `Luna-Flow/floating`."
 msgstr "公開の安定性はありません。このパッケージは `Luna-Flow/floating` の内部からのみインポートできます。"
 
-#: manual/design/internal.md:227
+#: manual/design/internal.md:219
 msgid "The power caches are process-wide mutable state, the only state in the package; they never change a result."
 msgstr "べき乗キャッシュはプロセス全体の可変状態であり、パッケージ内の唯一の状態です。これが結果を変えることはありません。"
 
@@ -21715,7 +21690,7 @@ msgstr "各区間はビット単位の作業 `precision` を持ちます。二�
 #: manual/tutorial/frontend/itl_expr.md:164
 #: manual/tutorial/frontend/mpfr_expr.md:158
 #: manual/tutorial/frontend/testfloat_expr.md:207
-#: manual/tutorial/internal.md:182
+#: manual/tutorial/internal.md:180
 #: manual/tutorial/internal/conformance.md:116
 #: manual/tutorial/internal/runner_cli.md:148
 #: manual/tutorial/numeric_expr.md:257
@@ -21788,7 +21763,7 @@ msgstr "**`Double` からの入力。** `from_double(x)` は `x` の二進値を
 #: manual/tutorial/frontend/itl_expr.md:178
 #: manual/tutorial/frontend/mpfr_expr.md:174
 #: manual/tutorial/frontend/testfloat_expr.md:218
-#: manual/tutorial/internal.md:196
+#: manual/tutorial/internal.md:194
 #: manual/tutorial/internal/conformance.md:127
 #: manual/tutorial/internal/runner_cli.md:164
 #: manual/tutorial/numeric_expr.md:271
@@ -25536,46 +25511,42 @@ msgid "`bin_float`, `decimal`, `decimal_gda` and `ball_float` create their refin
 msgstr "`bin_float`、`decimal`、`decimal_gda`、`ball_float` は、目標精度にガードマージンを加えた精度で精緻化の予算を作成し、予算を使い切ると `certified_failure` を報告します。認証付き初等関数については [bin_float 設計](../design/bin_float.md) を参照してください。"
 
 #: manual/tutorial/internal.md:172
-msgid "`semantic` uses `ExactRat` as the canonical exact value of finite binary and decimal numbers."
-msgstr "`semantic` は、有限の 2 進数および 10 進数の正準な厳密値として `ExactRat` を使います。"
+msgid "The white-box tests of this package check these helpers against `BigInt` oracles."
+msgstr "このパッケージのホワイトボックステストは、これらのヘルパーを `BigInt` のオラクルと照合します。"
 
-#: manual/tutorial/internal.md:174
-msgid "The `consistency` package tests these helpers against `BigInt` oracles."
-msgstr "`consistency` パッケージは、これらのヘルパーを `BigInt` のオラクルに対してテストします。"
-
-#: manual/tutorial/internal.md:175
+#: manual/tutorial/internal.md:173
 msgid "Run the package tests from a workspace containing the module: `moon test -p Luna-Flow/floating/internal`."
 msgstr "パッケージのテストは、モジュールを含むワークスペースから実行します：`moon test -p Luna-Flow/floating/internal`。"
 
-#: manual/tutorial/internal.md:177
+#: manual/tutorial/internal.md:175
 msgid "The decimal cores parse literals with `split_decimal_string_wide`, which returns the exponent as an `Int64` so that they can overflow or underflow on it (see the [API page](../api/internal.md#split_decimal_string-split_decimal_string_wide))."
 msgstr "10 進コアは `split_decimal_string_wide` でリテラルを解析します。これは指数を `Int64` で返すため、コアはそれに基づいてオーバーフローやアンダーフローを判定できます（[API ページ](../api/internal.md#split_decimal_string-split_decimal_string_wide)を参照）。"
 
-#: manual/tutorial/internal.md:184
+#: manual/tutorial/internal.md:182
 msgid "**Signed inputs.** `round_positive_div` aborts on a negative numerator; pass the magnitude and the sign separately."
 msgstr "**符号付きの入力。** `round_positive_div` は分子が負だと中断します。大きさと符号を別々に渡してください。"
 
-#: manual/tutorial/internal.md:186
+#: manual/tutorial/internal.md:184
 msgid "**`round_shift` with $s \\le 0$** returns the input unchanged; it never shifts left. With a negative magnitude it floors instead of rounding the magnitude, so pass $|m|$ and the sign separately, as for `round_positive_div`."
 msgstr "**$s \\le 0$ のときの `round_shift`** は入力をそのまま返します。左シフトは決して行いません。負の値に対しては絶対値を丸めるのではなく切り捨て（床関数）を行うため、`round_positive_div` と同様に $|m|$ と符号を別々に渡してください。"
 
-#: manual/tutorial/internal.md:190
+#: manual/tutorial/internal.md:188
 msgid "**Zero loses its exponent.** `remove_factor10` and `trim_trailing_decimal_zeros` return exponent 0 for a zero coefficient. Keep the original exponent yourself if the cohort of zero matters."
 msgstr "**ゼロは指数を失います。** ゼロの係数に対して、`remove_factor10` と `trim_trailing_decimal_zeros` は指数 0 を返します。ゼロのコホートが重要なら、元の指数を自分で保持してください。"
 
-#: manual/tutorial/internal.md:193
+#: manual/tutorial/internal.md:191
 msgid "**Unnormalized dyadics.** `CertifiedDyadic` values with different scales may be numerically equal; compare with `compare`, not by fields."
 msgstr "**正規化されていない 2 進有理数。** スケールの異なる `CertifiedDyadic` の値が数値的に等しいことがあります。フィールドではなく `compare` で比較してください。"
 
-#: manual/tutorial/internal.md:198
+#: manual/tutorial/internal.md:196
 msgid "[internal API](../api/internal.md)"
 msgstr "[internal API](../api/internal.md)"
 
-#: manual/tutorial/internal.md:199
+#: manual/tutorial/internal.md:197
 msgid "[internal design](../design/internal.md)"
 msgstr "[internal 設計](../design/internal.md)"
 
-#: manual/tutorial/internal.md:200
+#: manual/tutorial/internal.md:198
 msgid "[consistency tutorial](consistency.md) for the tests that cross-check these helpers."
 msgstr "これらのヘルパーを照合するテストについては [consistency チュートリアル](consistency.md)。"
 
@@ -27411,6 +27382,27 @@ msgstr "公開 API を絞ると、条項から API への対応が変わるこ�
 #: manual/verification.md:707
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体のロードマップは [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "`ExactRat` is a rational number in lowest terms."
+#~ msgstr "`ExactRat` は既約の有理数です。"
+
+#~ msgid "`ExactRat::new(n, d)` reduces $n/d$ to lowest terms with a positive denominator; the accessors return the reduced parts."
+#~ msgstr "`ExactRat::new(n, d)` は $n/d$ を正の分母を持つ既約分数にします。アクセサは既約化された各部分を返します。"
+
+#~ msgid "Aborts when $d = 0$. Zero is stored as $0/1$. Because the form is canonical, `==` on `ExactRat` is equality of rational numbers."
+#~ msgstr "$d = 0$ のときは異常終了します。ゼロは $0/1$ として格納されます。形が正準なので、`ExactRat` に対する `==` は有理数としての等しさです。"
+
+#~ msgid "These methods compare canonical forms; use `==` and `!=`."
+#~ msgstr "これらのメソッドは正準形を比較します。`==` と `!=` を使ってください。"
+
+#~ msgid "Canonical rationals"
+#~ msgstr "正準な有理数"
+
+#~ msgid "`ExactRat::new` divides by $\\gcd(n, d)$ and makes the denominator positive. With a canonical form, derived structural equality *is* equality of rational numbers, which is what `semantic` needs to compare values across binary and decimal representations."
+#~ msgstr "`ExactRat::new` は $\\gcd(n, d)$ で割り、分母を正にします。正準形があれば、導出された構造的等価性が有理数としての等価性*そのもの*になります。これは、`semantic` が 2 進表現と 10 進表現をまたいで値を比較するために必要なことです。"
+
+#~ msgid "`semantic` uses `ExactRat` as the canonical exact value of finite binary and decimal numbers."
+#~ msgstr "`semantic` は、有限の 2 進数および 10 進数の正準な厳密値として `ExactRat` を使います。"
 
 #~ msgid "These constructors build a context from named parameters."
 #~ msgstr "これらのコンストラクタは名前付きパラメータからコンテキストを構築します。"

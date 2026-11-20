@@ -15,7 +15,7 @@ written down and executed.
 
 Every finite value of every core denotes a rational number. Let
 $\llbracket\cdot\rrbracket$ map a value to $\mathbb{Q}$ (implemented by
-`semantic`, with `internal.ExactRat` as canonical form). The laws the suite
+`semantic`, with `ExactRational` as canonical form). The laws the suite
 checks have three shapes:
 
 - **Agreement:** for values $x$ of package $A$ and $y$ of package $B$ that
@@ -50,7 +50,7 @@ in-process and without the corpus download.
 ### Oracles over expectations
 
 Where possible a test computes the expected result independently (with
-`BigInt`, `ExactRat` or `semantic`) instead of hard-coding output strings, so
+`BigInt` or `semantic`) instead of hard-coding output strings, so
 a law stays meaningful when formatting changes.
 
 ## Correctness and invariants

@@ -169,9 +169,7 @@ test "certified floor of 1/3" {
   `certified_failure` when the budget runs out; see the
   [bin_float design](../design/bin_float.md) for the certified elementary
   functions.
-- `semantic` uses `ExactRat` as the canonical exact value of finite binary
-  and decimal numbers.
-- The `consistency` package tests these helpers against `BigInt` oracles.
+- The white-box tests of this package check these helpers against `BigInt` oracles.
 - Run the package tests from a workspace containing the module:
   `moon test -p Luna-Flow/floating/internal`.
 - The decimal cores parse literals with `split_decimal_string_wide`, which
