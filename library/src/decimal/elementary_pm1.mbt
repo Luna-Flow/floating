@@ -462,7 +462,7 @@ fn Decimal::try_pm1_ctx(
     // and log10p1 of +inf are +inf, all with no exception; -inf is outside
     // the domain [-1, +inf] of log2p1 and log10p1.
     let result = if !value.negative {
-      (Decimal::inf(Sign::Positive, precision~), DecimalFlags::new())
+      (Decimal::inf(precision~), DecimalFlags::new())
     } else if operation.is_exp() {
       (Decimal::from_int(-1, precision~), DecimalFlags::new())
     } else {

@@ -335,7 +335,7 @@ test "convertFormat of NaNs: payload, sign and the signaling exception (IEEE 754
 ///|
 test "convertFormat of infinities and zeros keeps the sign" {
   let b64 = @bin_float.BinaryContext::binary64()
-  let (inf, flags) = Decimal::inf(Sign::Negative).to_bin_float_ctx(b64)
+  let (inf, flags) = Decimal::inf(negative=true).to_bin_float_ctx(b64)
   assert_true(inf.classify() == FpClass::Infinity && inf.is_negative())
   assert_false(flags.inexact())
   let (zero, flags) = Decimal::negative_zero().to_bin_float_ctx(b64)

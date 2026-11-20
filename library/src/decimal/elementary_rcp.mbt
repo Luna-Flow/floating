@@ -291,7 +291,7 @@ pub fn Decimal::try_compound_ctx(
     return Ok(
       finish(
         if n > 0 {
-          (Decimal::inf(Sign::Positive, precision~), DecimalFlags::new())
+          (Decimal::inf(precision~), DecimalFlags::new())
         } else {
           decimal_elementary_zero(false, ctx)
         },

@@ -47,22 +47,6 @@ fn round_positive_decimal_div_pow10_repr(
 }
 
 ///|
-fn normalize_decimal(
-  coefficient : BigInt,
-  exponent10 : Int32,
-  precision : Int32,
-  mode : DecimalRound,
-) -> Decimal {
-  normalize_decimal_parts(
-    coefficient < bigint_zero(),
-    abs_bigint(coefficient),
-    exponent10,
-    precision,
-    mode,
-  )
-}
-
-///|
 fn normalize_decimal_parts(
   negative : Bool,
   magnitude : BigInt,
@@ -724,6 +708,7 @@ pub fn Decimal::with_precision(
   precision : Int32,
   mode : DecimalRoundingMode,
 ) -> Decimal {
+  let precision = decimal_check_precision("with_precision", precision)
   self.with_precision_round(precision, mode.round())
 }
 
@@ -742,7 +727,7 @@ fn Decimal::with_precision_round(
         precision,
         mode,
       )
-    FpClass::Infinity => { ..self, precision_: Int32::max(1, precision), }
-    FpClass::NaN => { ..self, precision_: Int32::max(1, precision), }
+    FpClass::Infinity => { ..self, precision_: precision, }
+    FpClass::NaN => { ..self, precision_: precision, }
   }
 }

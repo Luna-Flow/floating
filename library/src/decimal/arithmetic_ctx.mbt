@@ -332,11 +332,7 @@ fn Decimal::decimal_mul_ctx_impl(
       } else {
         (
           Decimal::inf(
-            if self.negative == other.negative {
-              Sign::Positive
-            } else {
-              Sign::Negative
-            },
+            negative=!(self.negative == other.negative),
             precision=finite_precision_for_default(ctx),
           ),
           DecimalFlags::new(),
@@ -345,11 +341,7 @@ fn Decimal::decimal_mul_ctx_impl(
     (FpClass::Infinity, FpClass::Infinity) =>
       (
         Decimal::inf(
-          if self.negative == other.negative {
-            Sign::Positive
-          } else {
-            Sign::Negative
-          },
+          negative=!(self.negative == other.negative),
           precision=finite_precision_for_default(ctx),
         ),
         DecimalFlags::new(),
@@ -447,28 +439,14 @@ fn Decimal::decimal_div_ctx_impl(
     (_, FpClass::Finite) if other.is_zero() =>
       if self.class == FpClass::Infinity {
         (
-          Decimal::inf(
-            if self.negative == other.negative {
-              Sign::Positive
-            } else {
-              Sign::Negative
-            },
-            precision~,
-          ),
+          Decimal::inf(negative=!(self.negative == other.negative), precision~),
           DecimalFlags::new(),
         )
       } else if self.is_zero() {
         (Decimal::nan(precision~), div_zero_flags(true))
       } else {
         (
-          Decimal::inf(
-            if self.negative == other.negative {
-              Sign::Positive
-            } else {
-              Sign::Negative
-            },
-            precision~,
-          ),
+          Decimal::inf(negative=!(self.negative == other.negative), precision~),
           div_zero_flags(false),
         )
       }
@@ -476,14 +454,7 @@ fn Decimal::decimal_div_ctx_impl(
       (Decimal::nan(precision~), invalid_flags())
     (FpClass::Infinity, _) =>
       (
-        Decimal::inf(
-          if self.negative == other.negative {
-            Sign::Positive
-          } else {
-            Sign::Negative
-          },
-          precision~,
-        ),
+        Decimal::inf(negative=!(self.negative == other.negative), precision~),
         DecimalFlags::new(),
       )
     (_, FpClass::Infinity) =>
@@ -634,11 +605,7 @@ fn Decimal::decimal_fma_ctx_impl(
         (Decimal::nan(precision~), invalid_flags())
       } else {
         let product = Decimal::inf(
-          if self.negative != multiplier.negative {
-            Sign::Negative
-          } else {
-            Sign::Positive
-          },
+          negative=self.negative != multiplier.negative,
           precision~,
         )
         match addend.class {
@@ -655,11 +622,7 @@ fn Decimal::decimal_fma_ctx_impl(
       }
     (FpClass::Infinity, FpClass::Infinity, _) => {
       let product = Decimal::inf(
-        if self.negative != multiplier.negative {
-          Sign::Negative
-        } else {
-          Sign::Positive
-        },
+        negative=self.negative != multiplier.negative,
         precision~,
       )
       match addend.class {
@@ -833,19 +796,20 @@ pub fn Decimal::div(self : Decimal, other : Decimal) -> Decimal {
 }
 
 ///|
-pub fn Decimal::sqrt(self : Decimal) -> Result[Decimal, @def.ArithmeticError] {
+/// The square root under the format of the operand (`sqrt_ctx` in the context
+/// of its precision label): a negative non-zero operand gives NaN (IEEE
+/// 754-2019 7.2), no flags are returned. `sqrt_checked` reports it as `Err`.
+pub fn Decimal::sqrt(self : Decimal) -> Decimal {
   let ctx = match DecimalContext::try_new(precision=self.precision_) {
-    Err(error) => return Err(error)
     Ok(ctx) => ctx
+    // the default range of a precision above 999,999 digits is out of range
+    Err(_) =>
+      DecimalContext::new(
+        precision=self.precision_,
+        e_max=decimal_implementation_e_max,
+      )
   }
-  let (value, flags) = self.sqrt_ctx(ctx)
-  if flags.invalid_operation {
-    Err(
-      @def.ArithmeticError::domain_error("sqrt requires a non-negative value"),
-    )
-  } else {
-    Ok(value)
-  }
+  self.sqrt_ctx(ctx).0
 }
 
 ///|
@@ -1003,7 +967,7 @@ pub fn Decimal::sqrt_ctx(
       if operand.negative {
         (Decimal::nan(precision~), invalid_flags())
       } else {
-        (Decimal::inf(Sign::Positive, precision~), DecimalFlags::new())
+        (Decimal::inf(precision~), DecimalFlags::new())
       }
     FpClass::Finite =>
       if operand.negative && !operand.coefficient.is_zero() {

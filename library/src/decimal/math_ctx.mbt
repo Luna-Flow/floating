@@ -28,7 +28,7 @@ pub fn Decimal::try_log10_ctx(
         if value.negative {
           (Decimal::nan(precision~), invalid_flags())
         } else {
-          (Decimal::inf(Sign::Positive, precision~), DecimalFlags::new())
+          (Decimal::inf(precision~), DecimalFlags::new())
         },
       )
     // IEEE 754-2019 §9.2.1: log(±0) is -inf and signals divideByZero.
@@ -74,7 +74,7 @@ pub fn Decimal::try_exp_ctx(
         if value.negative {
           (Decimal::zero(precision~), DecimalFlags::new())
         } else {
-          (Decimal::inf(Sign::Positive, precision~), DecimalFlags::new())
+          (Decimal::inf(precision~), DecimalFlags::new())
         },
       )
     FpClass::Finite if value.coefficient.is_zero() =>
@@ -112,7 +112,7 @@ pub fn Decimal::try_ln_ctx(
         if value.negative {
           (Decimal::nan(precision~), invalid_flags())
         } else {
-          (Decimal::inf(Sign::Positive, precision~), DecimalFlags::new())
+          (Decimal::inf(precision~), DecimalFlags::new())
         },
       )
     // IEEE 754-2019 §9.2.1: log(±0) is -inf and signals divideByZero.
@@ -361,9 +361,9 @@ fn Decimal::power_ctx_impl(
           DecimalFlags::new(),
         )
       } else if self.negative && (count & 1) == 1 {
-        (Decimal::inf(Sign::Negative, precision~), DecimalFlags::new())
+        (Decimal::inf(negative=true, precision~), DecimalFlags::new())
       } else {
-        (Decimal::inf(Sign::Positive, precision~), DecimalFlags::new())
+        (Decimal::inf(precision~), DecimalFlags::new())
       }
     FpClass::Finite =>
       if self.coefficient.is_zero() {

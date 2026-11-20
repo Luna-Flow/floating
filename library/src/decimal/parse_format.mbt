@@ -219,17 +219,7 @@ fn decimal_overflow_result(
   let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
   let flags = { ..DecimalFlags::new(), overflow: true, inexact: true, }
   if overflow_to_infinity(negative, ctx.decimal_rounding) {
-    (
-      Decimal::inf(
-        if negative {
-          Sign::Negative
-        } else {
-          Sign::Positive
-        },
-        precision~,
-      ),
-      flags,
-    )
+    (Decimal::inf(negative~, precision~), flags)
   } else {
     (
       finite_with_exponent_repr(
@@ -323,19 +313,7 @@ fn parse_special_decimal_string_ctx(
   let lower = ascii_lower(body)
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   if lower == "inf" || lower == "infinity" {
-    return Some(
-      (
-        Decimal::inf(
-          if negative {
-            Sign::Negative
-          } else {
-            Sign::Positive
-          },
-          precision~,
-        ),
-        DecimalFlags::new(),
-      ),
-    )
+    return Some((Decimal::inf(negative~, precision~), DecimalFlags::new()))
   }
   let mut signaling = false
   let mut payload_start = 0
@@ -425,7 +403,6 @@ pub fn Decimal::parse(
   src : String,
   precision~ : Int32 = 34,
 ) -> Result[Decimal, @def.ArithmeticError] {
-  let precision = Int32::max(1, precision)
   let ctx = match DecimalContext::try_new(precision~) {
     Err(error) => return Err(error)
     Ok(ctx) => ctx

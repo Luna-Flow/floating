@@ -182,14 +182,7 @@ fn decimal_conformance_operand(
     return @decimal.Decimal::signaling_nan(negative~, precision=64)
   }
   if body == "inf" || body == "Inf" || body == "infinity" || body == "Infinity" {
-    return @decimal.Decimal::inf(
-      if negative {
-        @def.Sign::Negative
-      } else {
-        @def.Sign::Positive
-      },
-      precision=64,
-    )
+    return @decimal.Decimal::inf(negative~, precision=64)
   }
   match @decimal.Decimal::from_string(src, precision=64) {
     Some(value) => value
@@ -488,8 +481,8 @@ test "decimal preserves signed zero through GDA-ready observers" {
 test "decimal observers distinguish sign from signedness on specials" {
   let ctx = @decimal.DecimalContext::new(precision=8)
   let neg_zero = @decimal.Decimal::negative_zero(precision=8)
-  let pos_inf = @decimal.Decimal::inf(@def.Sign::Positive, precision=8)
-  let neg_inf = @decimal.Decimal::inf(@def.Sign::Negative, precision=8)
+  let pos_inf = @decimal.Decimal::inf(precision=8)
+  let neg_inf = @decimal.Decimal::inf(negative=true, precision=8)
   let qnan = @decimal.Decimal::quiet_nan(payload=7N, negative=true, precision=8)
   let snan = @decimal.Decimal::signaling_nan(
     payload=9N,
@@ -1127,7 +1120,7 @@ test "decimal addition propagates nan payloads" {
   let ctx = @decimal.DecimalContext::new(precision=9)
   let quiet = @decimal.Decimal::quiet_nan(payload=17N, precision=12)
   let (quiet_sum, quiet_flags) = quiet.add_ctx(
-    @decimal.Decimal::inf(@def.Sign::Negative),
+    @decimal.Decimal::inf(negative=true),
     ctx,
   )
   assert_eq(
@@ -1318,8 +1311,8 @@ test "IEEE decimal fma preserves first nan payload and signals snans" {
 ///|
 test "decimal fma handles infinite addends with direct infinity semantics" {
   let ctx = @decimal.DecimalContext::new(precision=9, e_max=999999)
-  let pos_inf = @decimal.Decimal::inf(@def.Sign::Positive, precision=16)
-  let neg_inf = @decimal.Decimal::inf(@def.Sign::Negative, precision=16)
+  let pos_inf = @decimal.Decimal::inf(precision=16)
+  let neg_inf = @decimal.Decimal::inf(negative=true, precision=16)
   let one = @decimal.Decimal::one(precision=16)
   let two = @decimal.Decimal::from_int(2, precision=16)
   let minus_one = @decimal.Decimal::from_int(-1, precision=16)
@@ -1916,7 +1909,7 @@ test "decimal interchange from_decimal matches encode result and flags" {
 
 ///|
 test "decimal interchange from_decimal matches special encode results and flags" {
-  let inf = @decimal.Decimal::inf(@def.Sign::Negative, precision=32)
+  let inf = @decimal.Decimal::inf(negative=true, precision=32)
   let qnan = @decimal.Decimal::quiet_nan(
     payload=12345N,
     negative=true,
@@ -2083,7 +2076,7 @@ test "decimal interchange decodes multi-format special encodings directly" {
 
 ///|
 test "decimal interchange special roundtrips preserve class sign and payload across formats" {
-  let neg_inf = @decimal.Decimal::inf(@def.Sign::Negative, precision=32)
+  let neg_inf = @decimal.Decimal::inf(negative=true, precision=32)
   let neg_qnan = @decimal.Decimal::quiet_nan(
     payload=12345N,
     negative=true,
@@ -2831,13 +2824,13 @@ test "decimal context reports underflow when tiny exact result rounds normal" {
 }
 
 ///|
-test "decimal make currently normalizes zero cohort exponent to plain zero" {
+test "decimal make keeps the zero cohort exponent it is given" {
   let dd_tiny_zero = @decimal.Decimal::make(0N, -398, 64)
   let dq_tiny_zero = @decimal.Decimal::make(0N, -6176, 64)
-  assert_eq(dd_tiny_zero.to_string(), "0")
-  assert_eq(dq_tiny_zero.to_string(), "0")
-  assert_eq(dd_tiny_zero.exponent10(), 0)
-  assert_eq(dq_tiny_zero.exponent10(), 0)
+  assert_eq(dd_tiny_zero.to_string(), "0E-398")
+  assert_eq(dq_tiny_zero.to_string(), "0E-6176")
+  assert_eq(dd_tiny_zero.exponent10(), -398)
+  assert_eq(dq_tiny_zero.exponent10(), -6176)
 }
 
 ///|
@@ -3617,8 +3610,8 @@ test "decimal quantize propagates special operands with quieting semantics" {
     negative=true,
     precision=16,
   )
-  let pos_inf = @decimal.Decimal::inf(@def.Sign::Positive, precision=16)
-  let neg_inf = @decimal.Decimal::inf(@def.Sign::Negative, precision=16)
+  let pos_inf = @decimal.Decimal::inf(precision=16)
+  let neg_inf = @decimal.Decimal::inf(negative=true, precision=16)
   let (qnan_result, qnan_flags) = finite.quantize_ctx(qnan, ctx)
   let (snan_result, snan_flags) = finite.quantize_ctx(snan, ctx)
   let (inf_result, inf_flags) = pos_inf.quantize_ctx(pos_inf, ctx)
@@ -3649,9 +3642,7 @@ test "decimal same_quantum handles finite and special values" {
   assert_true(cents.same_quantum(quantum))
   assert_false(cents.same_quantum(units))
   assert_true(
-    @decimal.Decimal::inf(@def.Sign::Positive).same_quantum(
-      @decimal.Decimal::inf(@def.Sign::Negative),
-    ),
+    @decimal.Decimal::inf().same_quantum(@decimal.Decimal::inf(negative=true)),
   )
   assert_true(
     @decimal.Decimal::nan().same_quantum(
@@ -3667,7 +3658,7 @@ test "decimal same_quantum matches official zero and special cohorts" {
   let pos_zero_plain = @decimal.Decimal::zero(precision=16)
   let seven = @decimal.Decimal::from_string("7", precision=16).unwrap()
   let seven_scaled = @decimal.Decimal::from_string("7E+3", precision=16).unwrap()
-  let inf = @decimal.Decimal::inf(@def.Sign::Positive, precision=16)
+  let inf = @decimal.Decimal::inf(precision=16)
   let snan = @decimal.Decimal::signaling_nan(payload=3N, precision=16)
   assert_true(neg_zero_exp.same_quantum(pos_zero_scaled))
   assert_false(neg_zero_exp.same_quantum(pos_zero_plain))
@@ -3770,7 +3761,7 @@ test "decimal to_integral_exact preserves integral cohorts and special payloads"
   let neg_zero = @decimal.Decimal::from_string("-0E+5", precision=16).unwrap()
   let qnan = @decimal.Decimal::quiet_nan(payload=808N, precision=16)
   let snan = @decimal.Decimal::signaling_nan(payload=80N, precision=16)
-  let inf = @decimal.Decimal::inf(@def.Sign::Positive, precision=16)
+  let inf = @decimal.Decimal::inf(precision=16)
   let (huge_integral, huge_flags) = huge.to_integral_exact_ctx(ctx)
   let (pos_zero_integral, pos_zero_flags) = pos_zero.to_integral_exact_ctx(ctx)
   let (neg_zero_integral, neg_zero_flags) = neg_zero.to_integral_exact_ctx(ctx)
@@ -4063,8 +4054,8 @@ test "decimal next_toward preserves zero cohort when lhs equals rhs" {
 ///|
 test "decimal next_toward matches official underflow and clamped representatives" {
   let ctx = @decimal.DecimalContext::new(precision=9, e_max=384)
-  let inf = @decimal.Decimal::inf(@def.Sign::Positive, precision=16)
-  let neg_inf = @decimal.Decimal::inf(@def.Sign::Negative, precision=16)
+  let inf = @decimal.Decimal::inf(precision=16)
+  let neg_inf = @decimal.Decimal::inf(negative=true, precision=16)
   let (zero_up, zero_up_flags) = @decimal.Decimal::zero(precision=16).next_toward_ctx(
     @decimal.Decimal::from_int(10, precision=16),
     ctx,
@@ -4129,7 +4120,7 @@ test "decimal next_toward matches official underflow and clamped representatives
 ///|
 test "decimal next_toward toward negative infinity matches official representatives" {
   let ctx = @decimal.DecimalContext::new(precision=9, e_max=384)
-  let neg_inf = @decimal.Decimal::inf(@def.Sign::Negative, precision=16)
+  let neg_inf = @decimal.Decimal::inf(negative=true, precision=16)
   let (pos_ultra_tiny, pos_ultra_tiny_flags) = @decimal.Decimal::from_string(
       "1E-99999",
       precision=32,
@@ -4372,7 +4363,7 @@ test "decimal scaleb preserves zero sign and shifted zero cohort" {
 test "IEEE decimal scaleb preserves first nan payload" {
   let ctx = @decimal.DecimalContext::new(precision=5, e_max=9)
   let (inf_result, inf_flags) = @decimal.Decimal::inf(
-    @def.Sign::Negative,
+    negative=true,
     precision=16,
   ).scaleb_ctx(@decimal.Decimal::from_int(2), ctx)
   assert_eq(inf_result.to_string(), "-inf")
