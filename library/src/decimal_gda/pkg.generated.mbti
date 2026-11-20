@@ -134,7 +134,6 @@ pub fn Decimal::copy_abs(Self) -> Self
 pub fn Decimal::copy_negate(Self) -> Self
 pub fn Decimal::copy_sign(Self, Self) -> Self
 pub fn Decimal::div(Self, Self) -> Self
-pub fn Decimal::div_checked(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::div_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Decimal::epsilon_contextual(@arithmetic.ArithmeticContext) -> Self
 pub fn Decimal::equal(Self, Self) -> Bool
@@ -185,7 +184,7 @@ pub fn Decimal::quiet_nan(payload? : @bigint.BigInt, negative? : Bool, precision
 pub fn Decimal::same_quantum(Self, Self) -> Bool
 pub fn Decimal::sign(Self) -> @def.Sign
 pub fn Decimal::signaling_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int32) -> Self
-pub fn Decimal::sqrt(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Decimal::sqrt(Self) -> Self
 pub fn Decimal::sqrt_checked(Self, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::sqrt_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Decimal::sub(Self, Self) -> Self

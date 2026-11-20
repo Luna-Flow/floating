@@ -942,5 +942,6 @@ a flag. See [performance](../performance/decimal_gda.md) for the measurements.
 - It does not store exponents beyond the 32-bit range. Literals and results
   outside it are not wrapped or rejected: context operations overflow or
   underflow against the context range, decided from the exact exponent, and
-  the context-free conversions and operators overflow to a signed infinity or
-  round to the exponent $-2^{31}$.
+  the context-free conversions overflow to a signed infinity or round to the
+  exponent $-2^{31}$, and the plain operators work in a private range whose
+  smallest exponent is $-2^{31}+3$.

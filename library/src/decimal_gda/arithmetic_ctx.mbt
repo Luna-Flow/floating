@@ -1,18 +1,7 @@
 ///|
 // Public arithmetic and sqrt APIs.
 
-pub fn Decimal::add(self : Decimal, other : Decimal) -> Decimal {
-  add_decimal_impl(self, other)
-}
-
 ///|
-pub fn Decimal::sub(self : Decimal, other : Decimal) -> Decimal {
-  match quiet_nan_pair_plain(self, other) {
-    Some(value) => return value
-    None => ()
-  }
-  add_decimal_impl(self, other.neg())
-}
 
 ///|
 fn add_finite_values_ctx(
@@ -302,9 +291,6 @@ fn add_finite_values_ctx(
 }
 
 ///|
-pub fn Decimal::mul(self : Decimal, other : Decimal) -> Decimal {
-  mul_decimal_impl(self, other)
-}
 
 ///|
 fn Decimal::add_ctx(
@@ -650,7 +636,18 @@ fn Decimal::decimal_div_ctx_impl(
         None => ()
       }
       let denominator = other.coefficient
-      let extra = precision + denominator.digits10() + 2
+      let extra_wanted = precision + denominator.digits10() + 2
+      // The quotient exponent must stay in `Int`. Near the lowest exponent the
+      // guard is cut to what fits: the grid at -2^31 is still finer than Etiny
+      // (the context floor is above it), so the guarded rounding stays valid.
+      let room = self.exponent10.to_int64() -
+        other.exponent10.to_int64() +
+        2147483648L
+      let extra = if room >= 0L && room < extra_wanted.to_int64() {
+        room.to_int()
+      } else {
+        extra_wanted
+      }
       let numerator = dec_coeff_shift_power10_repr(self.coefficient, extra)
       // The guarded quotient is rounded with `ZeroFiveUp` so that a nonzero
       // remainder always leaves the retained low digit off 0 and 5. Rounding it
@@ -991,45 +988,10 @@ fn Decimal::decimal_fma_ctx_impl(
 }
 
 ///|
-pub fn Decimal::div_checked(
-  self : Decimal,
-  other : Decimal,
-) -> Result[Decimal, @def.ArithmeticError] {
-  let ctx = match
-    DecimalContext::try_new(precision=max_precision(self, other)) {
-    Err(error) => return Err(error)
-    Ok(ctx) => ctx
-  }
-  let (value, flags) = self.div_ctx(other, ctx)
-  if flags.division_by_zero {
-    Err(@def.ArithmeticError::division_by_zero("division by zero"))
-  } else if flags.division_undefined || flags.invalid_operation {
-    Err(@def.ArithmeticError::domain_error("invalid decimal division"))
-  } else {
-    Ok(value)
-  }
-}
 
 ///|
-pub fn Decimal::div(self : Decimal, other : Decimal) -> Decimal {
-  div_decimal_impl(self, other)
-}
 
 ///|
-pub fn Decimal::sqrt(self : Decimal) -> Result[Decimal, @def.ArithmeticError] {
-  let ctx = match DecimalContext::try_new(precision=self.precision_) {
-    Err(error) => return Err(error)
-    Ok(ctx) => ctx
-  }
-  let (value, flags) = self.sqrt_ctx(ctx)
-  if flags.invalid_operation {
-    Err(
-      @def.ArithmeticError::domain_error("sqrt requires a non-negative value"),
-    )
-  } else {
-    Ok(value)
-  }
-}
 
 ///|
 fn decimal_sqrt_should_increment(

@@ -367,9 +367,11 @@ test "decimal64 interchange round trip" {
   `Decimal::make` remove trailing zeros, so `from_int(100)` prints `1E+2`. Use
   `Decimal::from_string("100")` or `parse` when the quantum matters.
 - **Using the operators for GDA work.** `+`, `-`, `*` and `/` take no context:
-  they round half-even to the larger operand precision (`*` is exact), never
-  signal, and `+` and `/` return the shortest cohort member. Use the package
-  functions whenever GDA results, flags or traps matter.
+  they run the package function in a private context (larger operand
+  precision, half-even, no clamp, no traps), so they round every result to that
+  precision, return the GDA cohort member (`1.10 + 3.50` is `4.60`) and never
+  signal. Use the package functions whenever GDA results, flags or traps
+  matter.
 - **Equality and NaN.** `==` and `compare` put every NaN equal to every other
   NaN and above every number (a total preorder, so sorting never aborts). Use
   `compare` (the package function), `compare_signal`, or
