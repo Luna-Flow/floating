@@ -15,6 +15,9 @@
 /// results are bit for bit those of the general path.
 
 ///|
+using @bin_kernel {bin_coeff_sqrt_rem_scaled}
+
+///|
 /// Coefficients wider than this, and precisions above it, are left to the
 /// general path.
 let binary_coeff_fast_bits_limit : Int32 = 1048576
@@ -441,9 +444,7 @@ fn binary_coeff_fast_sqrt(value : BinFloat) -> BinFloat? {
   if (exponent - scale) % 2 != 0 {
     scale += 1
   }
-  let (root, remainder) = bin_coeff_sqrt_rem_kernel(
-    value.coefficient_.shift_left(scale),
-  )
+  let (root, remainder) = bin_coeff_sqrt_rem_scaled(value.coefficient_, scale)
   let result_exponent = (exponent - scale) / 2
   if root.bit_length() == precision {
     // `sqrt(root^2 + remainder)` is at least `root + 1/2` exactly when

@@ -16,6 +16,8 @@ pub fn bin_coeff_short_div_rem(Coeff, Coeff) -> (Coeff, Coeff)
 
 pub fn bin_coeff_sqrt_rem_kernel(Coeff) -> (Coeff, Coeff)
 
+pub fn bin_coeff_sqrt_rem_scaled(Coeff, Int32) -> (Coeff, Coeff)
+
 pub fn bin_coeff_sub_normalized_odd(Coeff, Coeff) -> (Coeff, Int32)
 
 pub fn bin_coeff_word(Coeff, Int32) -> UInt64

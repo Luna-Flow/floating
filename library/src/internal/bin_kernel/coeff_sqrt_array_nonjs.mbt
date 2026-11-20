@@ -73,75 +73,141 @@ fn bin_coeff_sqrt_words_recursive(
     start + 2 * block,
     high_len,
   )
-  // dividend = high_remainder * X + a1, divisor = 2 * high_root
-  let dividend_len = high_half + 1 + block
-  let dividend = FixedArray::make(dividend_len, 0UL)
+  // `D = high_remainder * X + a1` has `high_half + 1 + block` limbs. Dividing
+  // by `2 s'` is dividing `floor(D / 2)` by `s'` (`floor(D / (2 s')) =
+  // floor(floor(D / 2) / s')`), and `s'` already has its top bit set (the
+  // radicand is normalised), so Knuth's divisor needs no shift and no copy.
+  // The remainder of `D` by `2 s'` is `2 r + (D mod 2)` for the remainder `r`
+  // of `floor(D / 2)` by `s'`.
+  let dividend_len = high_half + block
+  let dividend = FixedArray::make(dividend_len + 1, 0UL)
   for index in 0..<block {
     dividend.unsafe_set(index, source.unsafe_get(start + block + index))
   }
   for index in 0..<(high_half + 1) {
     dividend.unsafe_set(block + index, high_remainder.unsafe_get(index))
   }
-  let divisor = FixedArray::make(high_half + 1, 0UL)
-  let mut carry = 0UL
-  for index in 0..<high_half {
-    let word = high_root.unsafe_get(index)
-    divisor.unsafe_set(index, (word << 1) | carry)
-    carry = word >> 63
+  let low_bit = dividend.unsafe_get(0) & 1UL
+  for index in 0..<dividend_len {
+    dividend.unsafe_set(
+      index,
+      (dividend.unsafe_get(index) >> 1) | (dividend.unsafe_get(index + 1) << 63),
+    )
   }
-  divisor.unsafe_set(high_half, carry)
-  let dividend_value = bin_coeff_from_words(dividend, dividend_len)
-  let divisor_value = bin_coeff_from_words(divisor, high_half + 1)
-  let (raw_quotient, raw_remainder) = dividend_value
-    .div_rem_checked(divisor_value)
-    .unwrap()
-  let mut quotient = raw_quotient
-  let mut quotient_remainder = raw_remainder
-  if bin_coeff_word_len(quotient) > block {
-    // the estimate is X: use X - 1, which is then the root (see the header)
-    let ones = FixedArray::make(block, 0xFFFF_FFFF_FFFF_FFFFUL)
-    quotient = bin_coeff_from_words(ones, block)
-    quotient_remainder = dividend_value
-      .sub_checked(quotient.mul(divisor_value))
-      .unwrap()
+  dividend.unsafe_set(dividend_len, dividend.unsafe_get(dividend_len) >> 1)
+  let quotient = FixedArray::make(block + 1, 0UL)
+  bin_coeff_knuth_words_core(
+    dividend,
+    high_root,
+    high_half,
+    quotient,
+    block + 1,
+  )
+  // the estimate is at most X; a quotient of exactly X is capped at X - 1
+  let capped = quotient.unsafe_get(block) != 0UL
+  guard !capped || quotient.unsafe_get(block) == 1UL else {
+    abort("Coeff square root quotient estimate exceeded X")
   }
   let root = FixedArray::make(half, 0UL)
-  bin_coeff_sqrt_store_words(root, 0, block, quotient)
+  for index in 0..<block {
+    root.unsafe_set(
+      index,
+      if capped {
+        0xFFFF_FFFF_FFFF_FFFFUL
+      } else {
+        quotient.unsafe_get(index)
+      },
+    )
+  }
   for index in 0..<high_half {
     root.unsafe_set(block + index, high_root.unsafe_get(index))
   }
-  // partial = quotient_remainder * X + a0
-  let remainder_len = bin_coeff_word_len(quotient_remainder)
-  let partial_words = FixedArray::make(remainder_len + block, 0UL)
+  // partial = u * X + a0 with u = 2 r + low_bit (plus 2 s' when capped)
+  let partial_len = half + 1
+  let partial = FixedArray::make(partial_len, 0UL)
   for index in 0..<block {
-    partial_words.unsafe_set(index, source.unsafe_get(start + index))
+    partial.unsafe_set(index, source.unsafe_get(start + index))
   }
-  bin_coeff_sqrt_store_words(
-    partial_words, block, remainder_len, quotient_remainder,
-  )
-  let partial = bin_coeff_from_words(partial_words, remainder_len + block)
-  let square = quotient.square()
-  let remainder = match partial.sub_checked(square) {
-    Ok(value) => value
-    Err(_) => {
-      // one too large: root - 1, remainder + 2 (root - 1) + 1
-      let mut index = 0
-      while root.unsafe_get(index) == 0UL {
-        root.unsafe_set(index, 0xFFFF_FFFF_FFFF_FFFFUL)
-        index += 1
-      }
-      root.unsafe_set(index, root.unsafe_get(index) - 1UL)
-      let decremented = bin_coeff_from_words(root.copy(), half)
-      partial
-      .add(decremented.shift_left(1))
-      .add(Coeff::one())
-      .sub_checked(square)
-      .unwrap()
+  let mut carry = low_bit
+  for index in 0..<high_half {
+    let word = dividend.unsafe_get(index)
+    partial.unsafe_set(block + index, (word << 1) | carry)
+    carry = word >> 63
+  }
+  partial.unsafe_set(half, carry)
+  if capped {
+    for _ in 0..<2 {
+      bin_coeff_words_add_into(
+        partial, block, partial_len, high_root, 0, high_half,
+      )
     }
   }
-  let remainder_words = FixedArray::make(half + 1, 0UL)
-  bin_coeff_sqrt_store_words(remainder_words, 0, half + 1, remainder)
-  (root, remainder_words)
+  let square = FixedArray::make(2 * block, 0UL)
+  let scratch = if bin_coeff_words_scratch_len(block) > 0 {
+    FixedArray::make(bin_coeff_words_scratch_len(block), 0UL)
+  } else {
+    bin_coeff_sqrt_empty_scratch
+  }
+  bin_coeff_words_sqr_scratch(square, 0, root, 0, block, scratch, 0)
+  if bin_coeff_words_compare_padded(
+      partial,
+      0,
+      partial_len,
+      square,
+      0,
+      2 * block,
+      partial_len,
+    ) <
+    0 {
+    // one too large: root - 1, remainder + 2 (root - 1) + 1
+    let mut index = 0
+    while root.unsafe_get(index) == 0UL {
+      root.unsafe_set(index, 0xFFFF_FFFF_FFFF_FFFFUL)
+      index += 1
+    }
+    root.unsafe_set(index, root.unsafe_get(index) - 1UL)
+    for _ in 0..<2 {
+      bin_coeff_words_add_into(partial, 0, partial_len, root, 0, half)
+    }
+    let mut position = 0
+    let mut increment = 1UL
+    while increment != 0UL && position < partial_len {
+      let total = partial.unsafe_get(position) + increment
+      partial.unsafe_set(position, total)
+      increment = if total == 0UL { 1UL } else { 0UL }
+      position += 1
+    }
+  }
+  bin_coeff_words_sub_in_place(partial, 0, partial_len, square, 0, 2 * block)
+  (root, partial)
+}
+
+///|
+let bin_coeff_sqrt_empty_scratch : FixedArray[UInt64] = FixedArray::make(0, 0UL)
+
+///|
+/// The root and remainder of the original radicand from those of the
+/// normalised one (`radicand * 2^shift`, `shift` even, `limbs` limbs).
+fn bin_coeff_sqrt_rem_normalized(
+  source : FixedArray[UInt64],
+  limbs : Int32,
+  shift : Int32,
+) -> (Coeff, Coeff) {
+  let (root_words, remainder_words) = bin_coeff_sqrt_words_recursive(
+    source, 0, limbs,
+  )
+  let root = bin_coeff_from_words(root_words, limbs / 2)
+  let remainder = bin_coeff_from_words(remainder_words, limbs / 2 + 1)
+  if shift == 0 {
+    return (root, remainder)
+  }
+  let half_shift = shift / 2
+  let error = root_words.unsafe_get(0) & ((1UL << half_shift) - 1UL)
+  let error_value = Coeff::from_uint64(error)
+  let original_remainder = remainder
+    .add(error_value.mul(root.shift_left(1).sub_checked(error_value).unwrap()))
+    .shift_right(shift)
+  (root.shift_right(half_shift), original_remainder)
 }
 
 ///|
@@ -158,19 +224,58 @@ fn bin_coeff_sqrt_rem_words_recursive(value : Coeff) -> (Coeff, Coeff) {
     Heap(words, len) if len == limbs => words
     _ => abort("Coeff square root normalisation lost its width")
   }
-  let (root_words, remainder_words) = bin_coeff_sqrt_words_recursive(
-    source, 0, limbs,
-  )
-  let root = bin_coeff_from_words(root_words, limbs / 2)
-  let remainder = bin_coeff_from_words(remainder_words, limbs / 2 + 1)
-  if shift == 0 {
-    return (root, remainder)
+  bin_coeff_sqrt_rem_normalized(source, limbs, shift)
+}
+
+///|
+/// `value << shift` as exactly `limbs` little-endian limbs (the shifted value
+/// must fit).
+fn bin_coeff_words_shifted(
+  value : Coeff,
+  shift : Int32,
+  limbs : Int32,
+) -> FixedArray[UInt64] {
+  let words = FixedArray::make(limbs, 0UL)
+  let word_shift = shift / 64
+  let bit_shift = shift % 64
+  let len = bin_coeff_word_len(value)
+  if bit_shift == 0 {
+    for index in 0..<len {
+      words.unsafe_set(index + word_shift, bin_coeff_word(value, index))
+    }
+  } else {
+    let back = 64 - bit_shift
+    let mut carry = 0UL
+    for index in 0..<len {
+      let word = bin_coeff_word(value, index)
+      words.unsafe_set(index + word_shift, (word << bit_shift) | carry)
+      carry = word >> back
+    }
+    if len + word_shift < limbs {
+      words.unsafe_set(len + word_shift, carry)
+    }
   }
-  let half_shift = shift / 2
-  let error = root_words.unsafe_get(0) & ((1UL << half_shift) - 1UL)
-  let error_value = Coeff::from_uint64(error)
-  let original_remainder = remainder
-    .add(error_value.mul(root.shift_left(1).sub_checked(error_value).unwrap()))
-    .shift_right(shift)
-  (root.shift_right(half_shift), original_remainder)
+  words
+}
+
+///|
+/// `bin_coeff_sqrt_rem_kernel(value << scale)` without forming the shifted
+/// value twice: for a radicand of more than 256 bits the recursion needs an
+/// even number of limbs with a set bit in the top two, and that normalising
+/// shift is folded into the shift by `scale`.
+pub fn bin_coeff_sqrt_rem_scaled(
+  value : Coeff,
+  scale : Int32,
+) -> (Coeff, Coeff) {
+  let bits = value.bit_length() + scale
+  if bits <= 256 || value.is_zero() {
+    return bin_coeff_sqrt_rem_kernel(value.shift_left(scale))
+  }
+  let mut limbs = (bits + 63) / 64
+  if limbs % 2 == 1 {
+    limbs += 1
+  }
+  let shift = (limbs * 64 - bits) & -2
+  let source = bin_coeff_words_shifted(value, scale + shift, limbs)
+  bin_coeff_sqrt_rem_normalized(source, limbs, shift)
 }

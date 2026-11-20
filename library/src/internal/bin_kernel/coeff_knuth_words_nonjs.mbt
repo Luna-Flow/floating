@@ -57,6 +57,43 @@ fn bin_coeff_div_rem_knuth_words(
   }
   let quotient_len = numerator_len - denominator_len + 1
   let quotient = FixedArray::make(quotient_len, 0UL)
+  bin_coeff_knuth_words_core(
+    dividend, divisor, denominator_len, quotient, quotient_len,
+  )
+  let remainder = FixedArray::make(denominator_len, 0UL)
+  if normalization_shift == 0 {
+    for index in 0..<denominator_len {
+      remainder.unsafe_set(index, dividend.unsafe_get(index))
+    }
+  } else {
+    let back = 64 - normalization_shift
+    for index in 0..<denominator_len {
+      // the word above the divisor is zero after the division
+      let word = (dividend.unsafe_get(index) >> normalization_shift) |
+        (dividend.unsafe_get(index + 1) << back)
+      remainder.unsafe_set(index, word)
+    }
+  }
+  (
+    bin_coeff_from_words(quotient, quotient_len),
+    bin_coeff_from_words(remainder, denominator_len),
+  )
+}
+
+///|
+/// The quotient loop of Knuth's algorithm D on 64-bit digits. `divisor` has
+/// `denominator_len >= 2` limbs with the top bit set; `dividend` has
+/// `quotient_len + denominator_len` limbs (normalised by the same shift, the top
+/// limb holding the bits shifted out). The quotient limbs go to `quotient`
+/// (`quotient_len` limbs, zero on entry); the remainder is left in
+/// `dividend[0 ..< denominator_len]`.
+fn bin_coeff_knuth_words_core(
+  dividend : FixedArray[UInt64],
+  divisor : FixedArray[UInt64],
+  denominator_len : Int32,
+  quotient : FixedArray[UInt64],
+  quotient_len : Int32,
+) -> Unit {
   let divisor_top = divisor.unsafe_get(denominator_len - 1)
   let divisor_next = divisor.unsafe_get(denominator_len - 2)
   let mut offset = quotient_len - 1
@@ -138,22 +175,4 @@ fn bin_coeff_div_rem_knuth_words(
     quotient.unsafe_set(offset, trial)
     offset -= 1
   }
-  let remainder = FixedArray::make(denominator_len, 0UL)
-  if normalization_shift == 0 {
-    for index in 0..<denominator_len {
-      remainder.unsafe_set(index, dividend.unsafe_get(index))
-    }
-  } else {
-    let back = 64 - normalization_shift
-    for index in 0..<denominator_len {
-      // the word above the divisor is zero after the division
-      let word = (dividend.unsafe_get(index) >> normalization_shift) |
-        (dividend.unsafe_get(index + 1) << back)
-      remainder.unsafe_set(index, word)
-    }
-  }
-  (
-    bin_coeff_from_words(quotient, quotient_len),
-    bin_coeff_from_words(remainder, denominator_len),
-  )
 }
