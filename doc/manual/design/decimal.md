@@ -393,6 +393,17 @@ routes, in this order.
    $$
    so the exact result is the integer $c_a' 2^{k-i}5^{k-j}$ with exponent
    $q_a - q_b - k$, handed to the finalizer like any exact result.
+   Whether the quotient terminates is decided before any gcd is formed: with
+   $c_b = 2^{a}5^{b}u$ and $u$ prime to 10, it terminates if and only if $u$
+   divides $c_a$ (the reduced denominator $c_b/\gcd(c_a, c_b)$ contains no prime
+   of $u$ exactly when the gcd takes all of $u$, and $u$ is coprime to the
+   factors 2 and 5 of $c_b$). The valuations $a$ and $b$ are read from the
+   lowest limb when both are below 9, so for a divisor prime to 10 (the usual
+   case) the test is $c_b \mid c_a$, one division of limb arrays. Only a
+   terminating quotient runs the gcd route above; a non-terminating one, which
+   is nearly every division of random operands, used to pay a gcd of the two
+   coefficients (quadratic, hundreds of allocations at 34 digits) to learn that
+   it has no exact result.
 3. *Non-terminating quotient.* The result is certainly inexact. Let
    $a_c = \operatorname{adj}(c_a/c_b)$, found exactly by comparing $c_a$ with
    $c_b$ scaled by the right power of ten. Scaling the numerator (or the
@@ -594,7 +605,9 @@ explicit, and makes concurrent or compositional code fragile.
 `combine` is the field-wise OR, so flag sets form a commutative idempotent
 monoid with identity `DecimalFlags::new()`: accumulating them over a pipeline
 in any grouping gives the same set, which is exactly the sticky-flag
-semantics without the state. `decimal_checked` packages that accumulation;
+semantics without the state. `DecimalFlags` is an immutable record compared by value, so the identity is
+one shared value and `combine` returns the other operand when one is clear:
+no flag set is allocated for an operation that raises nothing. `decimal_checked` packages that accumulation;
 `decimal_gda` implements sticky status and traps as a separate model. The
 five IEEE exceptions are `invalid_operation`, `division_by_zero`,
 `overflow`, `underflow` and `inexact`; `DecimalFlags` has exactly these and

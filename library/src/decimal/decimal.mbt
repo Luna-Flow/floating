@@ -244,14 +244,14 @@ fn exact_decimal_division_result(
     !divisor.coefficient.is_zero() else {
     return None
   }
-  // The quotient terminates only when the part of the divisor that is not a
-  // power of 2 times a power of 5 divides the dividend: one division instead
-  // of a gcd decides the usual (inexact) case.
-  let (odd_part, _) = dec_coeff_count_factor_unit_repr(divisor.coefficient, 2)
-  let (rest, _) = dec_coeff_count_factor_unit_repr(odd_part, 5)
-  if dec_coeff_compare_repr(rest, dec_coeff_from_int(1)) != 0 {
-    let (_, remainder) = dec_coeff_div_rem_repr(dividend.coefficient, rest)
-    guard remainder.is_zero() else { return None }
+  // The gcd route below returns `None` exactly when the quotient has no finite
+  // decimal expansion; decide that first, without the gcd (the kernel function
+  // states and proves the criterion).
+  guard has_finite_decimal_expansion_repr(
+    dividend.coefficient,
+    divisor.coefficient,
+  ) else {
+    return None
   }
   let gcd = dec_coeff_gcd_repr(dividend.coefficient, divisor.coefficient)
   let (reduced_denominator, denominator_remainder) = dec_coeff_div_rem_repr(

@@ -126,14 +126,33 @@ let decimal_exp_boundary_cache : Array[DecimalExpBoundaryCacheEntry] = []
 
 ///|
 pub fn DecimalFlags::new() -> DecimalFlags {
-  {
-    inexact: false,
-    underflow: false,
-    overflow: false,
-    division_by_zero: false,
-    invalid_operation: false,
-    not_computed: false,
-  }
+  decimal_flags_none_value
+}
+
+///|
+/// The empty flag set, built once. Invariant: `DecimalFlags` is an immutable
+/// record compared by value (no `mut` field, no setter, every "update" is a
+/// copy `{ ..flags, field: v }`), so every `DecimalFlags::new()` may share this
+/// one value instead of allocating 6 fields, and `combine` may return one of its
+/// operands when the other is clear. The test "the shared empty flag set is
+/// never written" pins it.
+let decimal_flags_none_value : DecimalFlags = {
+  inexact: false,
+  underflow: false,
+  overflow: false,
+  division_by_zero: false,
+  invalid_operation: false,
+  not_computed: false,
+}
+
+///|
+fn decimal_flags_are_clear(flags : DecimalFlags) -> Bool {
+  !flags.inexact &&
+  !flags.underflow &&
+  !flags.overflow &&
+  !flags.division_by_zero &&
+  !flags.invalid_operation &&
+  !flags.not_computed
 }
 
 ///|
@@ -178,6 +197,12 @@ pub fn DecimalFlags::combine(
   self : DecimalFlags,
   other : DecimalFlags,
 ) -> DecimalFlags {
+  if decimal_flags_are_clear(other) {
+    return self
+  }
+  if decimal_flags_are_clear(self) {
+    return other
+  }
   {
     inexact: self.inexact || other.inexact,
     underflow: self.underflow || other.underflow,

@@ -283,6 +283,21 @@ a 128-limb product) varied by 18 percent between two runs from the one-time
 costs of the allocator (page faults counted as instructions); with a difference
 of at least 800 million two runs agree to 0.2 percent.
 
+`has_finite_decimal_expansion_repr(numerator, denominator)` answers whether
+$N/D$ has a finite decimal expansion without a gcd. Let $D = 2^{a}5^{b}u$ with
+$u$ prime to 10. In lowest terms the quotient has the denominator
+$D/\gcd(N, D)$, and that has no prime other than 2 and 5 exactly when the gcd
+takes every prime of $u$ out, i.e. when $u \mid N$ ($u$ is coprime to the
+factors 2 and 5 of $D$). So the quotient is finite iff $u \mid N$. The
+valuations of 2 and 5 are those of the lowest limb when both are below 9
+($10^{9}$ is divisible by $2^{9}$ and $5^{9}$); then $u = D/2^{a}5^{b}$ is one
+division by a unit, and for $D$ prime to 10 the test is $D \mid N$. Otherwise
+the factors are removed by division. `dec_coeff_div_scaled_inexact` uses the
+same unit for the remainder of its division. The white-box test compares the
+decision with the previous implementation and with the decision of the gcd
+route on divisors with factors 2 and 5 of valuation up to 37 and 25 (the lowest
+limb zero), multiples and non-multiples of $u$, and 1 to 120 limbs.
+
 ## Correctness and invariants
 
 - **Canonical form.** A `Limbs` value has no leading zero limb and is at least
