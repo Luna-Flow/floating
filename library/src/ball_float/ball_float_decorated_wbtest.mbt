@@ -38,7 +38,7 @@ test "decorated NaI propagates and empty canonicalizes" {
   assert_false(nai.is_entire())
   assert_false(nai.set_equal(nai))
   assert_false(nai.subset(value))
-  assert_true(nai.overlap(value) == Undefined)
+  assert_true(nai.overlap(value) is None)
 }
 
 ///|
@@ -241,4 +241,19 @@ test "decorated tanpi with a pole at an endpoint is trv" {
     decorated_test_interval(quarter.neg(), quarter).tanpi().decoration(),
     Com,
   )
+}
+
+///|
+/// IEEE 1788-2015 11.5.3: the comparisons of decorations follow the
+/// propagation order com > dac > def > trv > ill.
+test "decorations compare in the propagation order" {
+  let ascending = [Ill, Trv, Def, Dac, Com]
+  for i in 0..<ascending.length() {
+    for j in 0..<ascending.length() {
+      assert_eq(ascending[i] < ascending[j], i < j)
+      assert_eq(ascending[i] <= ascending[j], i <= j)
+      assert_eq(ascending[i] > ascending[j], i > j)
+      assert_eq(ascending[i] >= ascending[j], i >= j)
+    }
+  }
 }

@@ -204,34 +204,34 @@ msgid "the value is NaI"
 msgstr "値は NaI"
 
 #: manual/api/ball_float.md:152
-msgid "Each property implies the ones below it, which is why the decorations are totally ordered. `Show` prints the lower-case IEEE 1788 names `com`, `dac`, `def`, `trv`, `ill`."
-msgstr "各性質はその下の性質をすべて含意するため、装飾は全順序をなします。`Show` は小文字の IEEE 1788 名 `com`、`dac`、`def`、`trv`、`ill` を出力します。"
+msgid "Each property implies the ones below it, which is why the decorations are totally ordered; `Decoration` derives `Compare` in that order, so `<`, `<=`, `>` and `>=` are the comparisons of decorations of IEEE 1788-2015 11.5.3. `Show` prints the lower-case IEEE 1788 names `com`, `dac`, `def`, `trv`, `ill`."
+msgstr "各性質はその下の性質をすべて含意するため、装飾は全順序をなします。`Decoration` はその順序で `Compare` を導出するので、`<`、`<=`、`>`、`>=` が IEEE 1788-2015 11.5.3 の装飾の比較です。`Show` は小文字の IEEE 1788 名 `com`、`dac`、`def`、`trv`、`ill` を出力します。"
 
-#: manual/api/ball_float.md:158
+#: manual/api/ball_float.md:159
 msgid "`OverlapState` is the result of `overlap_state`: the IEEE 1788 classification of the relative position of two intervals."
 msgstr "`OverlapState` は `overlap_state` の結果であり、2 つの区間の相対位置に関する IEEE 1788 の分類です。"
 
-#: manual/api/ball_float.md:183
-msgid "The constructors correspond to the IEEE 1788 states `bothEmpty`, `firstEmpty`, `secondEmpty`, `before`, `meets`, `overlaps`, `starts`, `containedBy`, `finishes`, `equal`, `after`, `metBy`, `overlappedBy`, `startedBy`, `contains` and `finishedBy`; `OverlapsState`, `EqualIntervals` and `ContainsInterval` carry a suffix only to avoid clashing with method names. `Undefined` is returned only by the decorated version when an operand is NaI."
-msgstr "コンストラクタは IEEE 1788 の状態 `bothEmpty`、`firstEmpty`、`secondEmpty`、`before`、`meets`、`overlaps`、`starts`、`containedBy`、`finishes`、`equal`、`after`、`metBy`、`overlappedBy`、`startedBy`、`contains`、`finishedBy` に対応します。`OverlapsState`、`EqualIntervals`、`ContainsInterval` に接尾辞が付いているのは、メソッド名との衝突を避けるためだけです。`Undefined` は、オペランドが NaI のときに装飾付き版だけが返します。"
+#: manual/api/ball_float.md:184
+msgid "The constructors are the 16 states of IEEE 1788-2015 Table 10.7 (10.6.4), with the standard's names: `bothEmpty`, `firstEmpty`, `secondEmpty`, `before`, `meets`, `overlaps`, `starts`, `containedBy`, `finishes`, `equals`, `after`, `metBy`, `overlappedBy`, `startedBy`, `contains` and `finishedBy`. There is no 17th state: the decorated `overlap` has no value for NaI (11.7.2) and returns `None`."
+msgstr "コンストラクタは IEEE 1788-2015 表 10.7（10.6.4）の 16 の状態で、名前は標準と同じです。`bothEmpty`、`firstEmpty`、`secondEmpty`、`before`、`meets`、`overlaps`、`starts`、`containedBy`、`finishes`、`equals`、`after`、`metBy`、`overlappedBy`、`startedBy`、`contains`、`finishedBy` です。17 番目の状態はありません。装飾付き版の `overlap` は NaI に対して値を持たず（11.7.2）、`None` を返します。"
 
-#: manual/api/ball_float.md:192
+#: manual/api/ball_float.md:193
 msgid "`BallContext` describes a target binary format: a precision in bits and an exponent range $[e_{\\min}, e_{\\max}]$."
 msgstr "`BallContext` は目標とする二進形式を表します。すなわち、ビット単位の精度と指数範囲 $[e_{\\min}, e_{\\max}]$ です。"
 
-#: manual/api/ball_float.md:201
+#: manual/api/ball_float.md:202
 msgid "$e_{\\min}$ and $e_{\\max}$ follow IEEE 754: a finite nonzero value $v$ with $2^{e} \\le |v| < 2^{e+1}$ is in range when $e \\le e_{\\max}$, and it is normal when $e \\ge e_{\\min}$. See [Contexts and flags](#contexts-and-flags)."
 msgstr "$e_{\\min}$ と $e_{\\max}$ は IEEE 754 に従います。$2^{e} \\le |v| < 2^{e+1}$ を満たす有限な非ゼロ値 $v$ は、$e \\le e_{\\max}$ のとき範囲内であり、$e \\ge e_{\\min}$ のとき正規化数です。[コンテキストとフラグ](#contexts-and-flags)を参照してください。"
 
-#: manual/api/ball_float.md:207
+#: manual/api/ball_float.md:208
 msgid "`BallFlags` records the conditions raised while rounding an interval into a `BallContext`."
 msgstr "`BallFlags` は、区間を `BallContext` に丸める際に発生した条件を記録します。"
 
-#: manual/api/ball_float.md:216
+#: manual/api/ball_float.md:217
 msgid "`inexact` is set when an endpoint (or, for `midpoint_ctx`, the midpoint) changed; `overflow` when it was beyond $e_{\\max}$; `underflow` when it is tiny and inexact, as IEEE 754 defines it (see [`BallFloat::apply_ctx`](#ballfloatapply_ctx)). The fields are private; each flag is read with the accessor method of the same name, listed under [`BallFlags::new`](#ballflagsnew-ballflagscombine-ballflagsinexact-ballflagsoverflow-ballflagsunderflow)."
 msgstr "`inexact` は端点（`midpoint_ctx` では中点）が変化したときに、`overflow` はそれが $e_{\\max}$ を超えたときに、`underflow` はそれが微小かつ不正確なときに、IEEE 754 の定義どおり設定されます（[`BallFloat::apply_ctx`](#ballfloatapply_ctx) を参照）。フィールドは非公開で、各フラグは同名のアクセサメソッドで読み取ります。そのメソッドは [`BallFlags::new`](#ballflagsnew-ballflagscombine-ballflagsinexact-ballflagsoverflow-ballflagsunderflow) に列挙されています。"
 
-#: manual/api/ball_float.md:222
+#: manual/api/ball_float.md:223
 #: manual/api/ball_float_checked.md:59
 #: manual/api/bin_float_checked.md:63
 #: manual/api/decimal_checked.md:67
@@ -239,306 +239,306 @@ msgstr "`inexact` は端点（`midpoint_ctx` では中点）が変化したと�
 msgid "Construction"
 msgstr "構築"
 
-#: manual/api/ball_float.md:226
+#: manual/api/ball_float.md:227
 msgid "`BallFloat::new` builds the interval $[c - r, c + r]$ from a center and a radius, enlarged so that it is exact at the requested precision."
 msgstr "`BallFloat::new` は中心と半径から区間 $[c - r, c + r]$ を構築し、要求された精度で厳密になるように拡大します。"
 
-#: manual/api/ball_float.md:233
+#: manual/api/ball_float.md:234
 msgid "The default precision is the larger of the precisions of `center` and `radius`. With $p$ that precision, the stored interval is"
 msgstr "既定の精度は `center` と `radius` の精度のうち大きい方です。その精度を $p$ とすると、格納される区間は"
 
-#: manual/api/ball_float.md:242
+#: manual/api/ball_float.md:243
 msgid "which contains $[c - r, c + r]$ (proof in the [design page](../design/ball_float.md#from-midpointradius-to-endpoints)). The endpoints $\\tilde c \\pm R$ are formed exactly, so they may carry more than $p$ bits. Aborts when `center` or `radius` is not finite or when `radius` is negative. A precision below 1 is treated as 1."
 msgstr "であり、これは $[c - r, c + r]$ を含みます（証明は[設計ページ](../design/ball_float.md#from-midpointradius-to-endpoints)を参照）。端点 $\\tilde c \\pm R$ は厳密に計算されるため、$p$ ビットを超えることがあります。`center` または `radius` が有限でないとき、または `radius` が負のときはアボートします。1 未満の精度は 1 として扱われます。"
 
-#: manual/api/ball_float.md:248
+#: manual/api/ball_float.md:249
 msgid "When $c$ already has at most $p$ bits and $r = 0$, the result is the singleton $\\{c\\}$. When $c$ needs more than $p$ bits, the rounding error of the center is added to the radius on *both* sides, so the interval is wider than $[\\operatorname{RD}_p(c - r), \\operatorname{RU}_p(c + r)]$; use `from_bounds` for the tightest enclosure of known bounds."
 msgstr "$c$ がすでに高々 $p$ ビットで $r = 0$ のとき、結果は単集合 $\\{c\\}$ です。$c$ が $p$ ビットより多く必要なときは、中心の丸め誤差が*両側*で半径に加えられるため、区間は $[\\operatorname{RD}_p(c - r), \\operatorname{RU}_p(c + r)]$ より広くなります。既知の上下界の最も狭い包含区間を得るには `from_bounds` を使ってください。"
 
-#: manual/api/ball_float.md:254
+#: manual/api/ball_float.md:255
 msgid "`BallFloat::from_bounds` and `BallFloat::try_from_bounds`"
 msgstr "`BallFloat::from_bounds` と `BallFloat::try_from_bounds`"
 
-#: manual/api/ball_float.md:256
+#: manual/api/ball_float.md:257
 msgid "`BallFloat::from_bounds` builds the interval $[\\underline{x}, \\overline{x}]$ from its endpoints, rounded outward to the requested precision."
 msgstr "`BallFloat::from_bounds` は端点から区間 $[\\underline{x}, \\overline{x}]$ を構築し、要求された精度へ外向きに丸めます。"
 
-#: manual/api/ball_float.md:264
+#: manual/api/ball_float.md:265
 msgid "The default precision is the larger of the endpoint precisions. Infinite endpoints build unbounded intervals: `from_bounds(-inf, +inf)` is Entire. The inputs are invalid when an endpoint is NaN, the lower endpoint is $+\\infty$, the upper endpoint is $-\\infty$, or $\\underline{x} > \\overline{x}$; `from_bounds` aborts and `try_from_bounds` returns a domain error. There is no way to build Empty from bounds; use `BallFloat::empty`."
 msgstr "既定の精度は端点の精度のうち大きい方です。無限大の端点からは非有界な区間が構築され、`from_bounds(-inf, +inf)` は Entire になります。端点が NaN のとき、下端が $+\\infty$ のとき、上端が $-\\infty$ のとき、または $\\underline{x} > \\overline{x}$ のとき入力は不正であり、`from_bounds` はアボートし、`try_from_bounds` は定義域エラーを返します。端点から Empty を構築する方法はないので、`BallFloat::empty` を使ってください。"
 
-#: manual/api/ball_float.md:281
+#: manual/api/ball_float.md:282
 msgid "`BallFloat::exact` and `BallFloat::try_exact`"
 msgstr "`BallFloat::exact` と `BallFloat::try_exact`"
 
-#: manual/api/ball_float.md:283
+#: manual/api/ball_float.md:284
 msgid "`BallFloat::exact` builds the singleton $\\{x\\}$ of a finite `BinFloat`."
 msgstr "`BallFloat::exact` は有限な `BinFloat` の単集合 $\\{x\\}$ を構築します。"
 
-#: manual/api/ball_float.md:290
+#: manual/api/ball_float.md:291
 msgid "The default precision is that of `x`. When `x` has more significant bits than the requested precision, the singleton is rounded outward to the two-point interval $[\\operatorname{RD}_p(x), \\operatorname{RU}_p(x)]$. A non-finite `x` aborts `exact` and makes `try_exact` return a domain error."
 msgstr "既定の精度は `x` の精度です。`x` の有効ビット数が要求された精度より多い場合、単集合は外向きに丸められ、2 点の区間 $[\\operatorname{RD}_p(x), \\operatorname{RU}_p(x)]$ になります。有限でない `x` に対しては、`exact` はアボートし、`try_exact` は定義域エラーを返します。"
 
-#: manual/api/ball_float.md:295
+#: manual/api/ball_float.md:296
 msgid "`BallFloat::from_int` and `BallFloat::from_coefficient`"
 msgstr "`BallFloat::from_int` と `BallFloat::from_coefficient`"
 
-#: manual/api/ball_float.md:297
+#: manual/api/ball_float.md:298
 msgid "`BallFloat::from_int` and `BallFloat::from_coefficient` build an enclosure of an integer."
 msgstr "`BallFloat::from_int` と `BallFloat::from_coefficient` は整数の包含区間を構築します。"
 
-#: manual/api/ball_float.md:305
+#: manual/api/ball_float.md:306
 msgid "The default precision is 16. `from_coefficient` takes a non-negative `BinCoeff` magnitude and a separate sign. The integer is converted to a `BinFloat` exactly and then passed to `exact`, so the result is the singleton $\\{n\\}$ when $n$ fits in $p$ bits and the two-point interval $[\\operatorname{RD}_p(n), \\operatorname{RU}_p(n)]$ otherwise. Either way it contains $n$. Pass a precision at least as large as the bit length of the integer to get a singleton."
 msgstr "既定の精度は 16 です。`from_coefficient` は非負の `BinCoeff` の絶対値と別個の符号を受け取ります。整数はまず厳密に `BinFloat` に変換されてから `exact` に渡されるため、$n$ が $p$ ビットに収まる場合は単集合 $\\{n\\}$、そうでない場合は 2 点の区間 $[\\operatorname{RD}_p(n), \\operatorname{RU}_p(n)]$ が結果になります。いずれの場合も $n$ を含みます。単集合を得るには、整数のビット長以上の精度を渡してください。"
 
-#: manual/api/ball_float.md:313
+#: manual/api/ball_float.md:314
 msgid "`BallFloat::from_double`, `BallFloat::try_from_double`, `BallFloat::from_float` and `BallFloat::try_from_float`"
 msgstr "`BallFloat::from_double`、`BallFloat::try_from_double`、`BallFloat::from_float`、`BallFloat::try_from_float`"
 
-#: manual/api/ball_float.md:315
+#: manual/api/ball_float.md:316
 msgid "These functions build the singleton of the exact binary value of a `Double` or `Float`."
 msgstr "これらの関数は `Double` または `Float` の厳密な二進値の単集合を構築します。"
 
-#: manual/api/ball_float.md:325
+#: manual/api/ball_float.md:326
 msgid "Default precisions are 53 and 24. The conversion to `BinFloat` is exact; a smaller requested precision rounds the singleton outward. NaN and infinities abort the plain forms and are domain errors for the `try_` forms. The result encloses the binary value, not the decimal literal it was written as: `from_double(0.1)` does not contain $1/10$."
 msgstr "既定の精度は 53 と 24 です。`BinFloat` への変換は厳密であり、より小さい精度が要求された場合は単集合が外向きに丸められます。NaN と無限大に対しては、通常の形式はアボートし、`try_` 形式は定義域エラーになります。結果が包含するのは二進値であって、記述された十進リテラルではありません。`from_double(0.1)` は $1/10$ を含みません。"
 
-#: manual/api/ball_float.md:331
+#: manual/api/ball_float.md:332
 msgid "`BallFloat::entire` and `BallFloat::empty`"
 msgstr "`BallFloat::entire` と `BallFloat::empty`"
 
-#: manual/api/ball_float.md:333
+#: manual/api/ball_float.md:334
 msgid "`BallFloat::entire` returns Entire and `BallFloat::empty` returns Empty."
 msgstr "`BallFloat::entire` は Entire を、`BallFloat::empty` は Empty を返します。"
 
-#: manual/api/ball_float.md:340
+#: manual/api/ball_float.md:341
 msgid "The default precision is 53."
 msgstr "既定の精度は 53 です。"
 
-#: manual/api/ball_float.md:342
+#: manual/api/ball_float.md:343
 msgid "Observers"
 msgstr "オブザーバー"
 
-#: manual/api/ball_float.md:344
+#: manual/api/ball_float.md:345
 msgid "`BallFloat::lower_bound` and `BallFloat::upper_bound`"
 msgstr "`BallFloat::lower_bound` と `BallFloat::upper_bound`"
 
-#: manual/api/ball_float.md:346
+#: manual/api/ball_float.md:347
 msgid "`lower_bound` and `upper_bound` return the stored endpoints."
 msgstr "`lower_bound` と `upper_bound` は格納された端点を返します。"
 
-#: manual/api/ball_float.md:353
+#: manual/api/ball_float.md:354
 msgid "For an unbounded side the endpoint is an infinity. For Empty they return $+\\infty$ and $-\\infty$ respectively, so test `is_empty` first."
 msgstr "非有界な側の端点は無限大です。Empty に対してはそれぞれ $+\\infty$ と $-\\infty$ を返すので、先に `is_empty` を調べてください。"
 
-#: manual/api/ball_float.md:356
+#: manual/api/ball_float.md:357
 msgid "`BallFloat::center` and `BallFloat::radius`"
 msgstr "`BallFloat::center` と `BallFloat::radius`"
 
-#: manual/api/ball_float.md:358
+#: manual/api/ball_float.md:359
 msgid "`center` and `radius` return the midpoint–radius view of a bounded interval."
 msgstr "`center` と `radius` は有界な区間の中心–半径表示を返します。"
 
-#: manual/api/ball_float.md:365
+#: manual/api/ball_float.md:366
 msgid "`center` is $(\\underline{x} + \\overline{x})/2$ and `radius` is $(\\overline{x} - \\underline{x})/2$. Both are dyadic, so they are computed exactly (the radius is rounded up only if it underflows the exponent range), and $[\\text{center} - \\text{radius}, \\text{center} + \\text{radius}]$ is the stored interval. Both abort on Empty and on unbounded intervals."
 msgstr "`center` は $(\\underline{x} + \\overline{x})/2$、`radius` は $(\\overline{x} - \\underline{x})/2$ です。どちらも 2 進有理数なので厳密に計算され（半径は指数範囲をアンダーフローする場合に限り切り上げられます）、$[\\text{center} - \\text{radius}, \\text{center} + \\text{radius}]$ は格納された区間そのものです。どちらも Empty と非有界な区間に対してはアボートします。"
 
-#: manual/api/ball_float.md:371
+#: manual/api/ball_float.md:372
 msgid "[!NOTE] For bounded intervals whose endpoints are more than about $2^{16}$ binary orders of magnitude apart, neither value is exact: the smaller endpoint is replaced by a sticky surrogate below the last bit of the larger one (see the [design page](../design/ball_float.md#far-addends-bound-endpoint-sums-by-precision)), rounded to nearest for `center` and upward for `radius`. The pair then describes the stored set only approximately."
 msgstr "[!NOTE] 端点がおよそ $2^{16}$ 桁（二進）以上離れている有界な区間では、どちらの値も厳密ではありません。小さい方の端点が、大きい方の端点の最下位ビットより下にあるスティッキーな代用値に置き換えられ（[設計ページ](../design/ball_float.md#far-addends-bound-endpoint-sums-by-precision)を参照）、`center` では最近接に、`radius` では上向きに丸められます。この場合、この組は格納された集合を近似的にしか表しません。"
 
-#: manual/api/ball_float.md:381
+#: manual/api/ball_float.md:382
 msgid "`midpoint` returns the center rounded to nearest at the interval's precision."
 msgstr "`midpoint` は、中心を区間の精度へ最近接丸めした値を返します。"
 
-#: manual/api/ball_float.md:387
+#: manual/api/ball_float.md:388
 msgid "Entire has midpoint 0. Empty and half-bounded intervals abort."
 msgstr "Entire の中点は 0 です。Empty と片側だけ有界な区間に対してはアボートします。"
 
-#: manual/api/ball_float.md:389
+#: manual/api/ball_float.md:390
 msgid "`BallFloat::width` and `BallFloat::radius_extended`"
 msgstr "`BallFloat::width` と `BallFloat::radius_extended`"
 
-#: manual/api/ball_float.md:391
+#: manual/api/ball_float.md:392
 msgid "`width` returns $\\operatorname{RU}_p(\\overline{x} - \\underline{x})$ and `radius_extended` returns the radius rounded up to the interval's precision."
 msgstr "`width` は $\\operatorname{RU}_p(\\overline{x} - \\underline{x})$ を返し、`radius_extended` は半径を区間の精度へ切り上げた値を返します。"
 
-#: manual/api/ball_float.md:399
+#: manual/api/ball_float.md:400
 msgid "Both return 0 for Empty and $+\\infty$ for unbounded intervals instead of aborting. Both are upper bounds of the exact value."
 msgstr "どちらもアボートせず、Empty に対しては 0 を、非有界な区間に対しては $+\\infty$ を返します。どちらも厳密な値の上界です。"
 
-#: manual/api/ball_float.md:402
+#: manual/api/ball_float.md:403
 msgid "`BallFloat::magnitude` and `BallFloat::mignitude`"
 msgstr "`BallFloat::magnitude` と `BallFloat::mignitude`"
 
-#: manual/api/ball_float.md:404
+#: manual/api/ball_float.md:405
 msgid "`magnitude` returns $\\sup\\{|\\xi| : \\xi \\in \\boldsymbol{x}\\}$ and `mignitude` returns $\\inf\\{|\\xi| : \\xi \\in \\boldsymbol{x}\\}$."
 msgstr "`magnitude` は $\\sup\\{|\\xi| : \\xi \\in \\boldsymbol{x}\\}$ を、`mignitude` は $\\inf\\{|\\xi| : \\xi \\in \\boldsymbol{x}\\}$ を返します。"
 
-#: manual/api/ball_float.md:412
+#: manual/api/ball_float.md:413
 msgid "For a non-empty interval,"
 msgstr "空でない区間に対して、"
 
-#: manual/api/ball_float.md:424
+#: manual/api/ball_float.md:425
 msgid "because $|\\xi|$ is convex, so its maximum over an interval is at an endpoint, and it is monotone on each side of 0. Both are exact. Empty gives 0 for both (IEEE 1788 leaves them undefined there); `magnitude` of an unbounded interval is $+\\infty$."
 msgstr "これは $|\\xi|$ が凸であるため区間上の最大値は端点でとられ、かつ 0 の両側でそれぞれ単調だからです。どちらも厳密です。Empty に対してはどちらも 0 を与えます（IEEE 1788 ではそこでは未定義です）。非有界な区間の `magnitude` は $+\\infty$ です。"
 
-#: manual/api/ball_float.md:444
+#: manual/api/ball_float.md:445
 msgid "`precision` returns the precision tag."
 msgstr "`precision` は精度タグを返します。"
 
-#: manual/api/ball_float.md:452
+#: manual/api/ball_float.md:453
 msgid "These predicates test the shape of the set."
 msgstr "これらの述語は集合の形状を判定します。"
 
-#: manual/api/ball_float.md:461
+#: manual/api/ball_float.md:462
 msgid "`is_common_interval` holds when the interval is non-empty with two finite endpoints (IEEE 1788-2015 10.6.3). `is_singleton` holds when $\\underline{x} = \\overline{x}$. To ask whether an interval contains 0, use `contains` with a zero."
 msgstr "区間が空でなく、2 つの端点がともに有限のとき `is_common_interval` が成り立ちます（IEEE 1788-2015 10.6.3）。$\\underline{x} = \\overline{x}$ のとき `is_singleton` が成り立ちます。区間が 0 を含むかどうかは、0 に対して `contains` を使って調べます。"
 
-#: manual/api/ball_float.md:466
+#: manual/api/ball_float.md:467
 #: manual/design/decimal_gda.md:446
 msgid "Precision"
 msgstr "精度"
 
-#: manual/api/ball_float.md:470
+#: manual/api/ball_float.md:471
 msgid "`with_precision` re-rounds an interval to a new precision without shrinking it."
 msgstr "`with_precision` は、区間を縮めることなく新しい精度へ丸め直します。"
 
-#: manual/api/ball_float.md:477
+#: manual/api/ball_float.md:478
 msgid "The endpoints are rounded outward: the lower bound toward $-\\infty$ and the upper bound toward $+\\infty$, because outward rounding is the only direction that keeps the result an enclosure; there is no rounding-mode argument. Empty stays Empty with the new precision."
 msgstr "端点は外側へ丸められます。下界は $-\\infty$ 方向、上界は $+\\infty$ 方向です。外側への丸めだけが結果を包含に保つ方向だからで、丸めモードの引数はありません。Empty は新しい精度の Empty のままです。"
 
-#: manual/api/ball_float.md:482
+#: manual/api/ball_float.md:483
 msgid "[!NOTE] The result is the tightest representable enclosure of the input, so widening the precision is exact and re-rounding at an unchanged precision is an identity. The center–radius rebuild this function used to perform is not an identity: if the exact center $(\\underline{x} + \\overline{x})/2$ needs more than $p$ bits, both endpoints move outward by the rounding error of the center, so at 53 bits $[1, 1 + 2^{-52}]$ became $[1 - 2^{-52}, 1 + 2^{-52}]$. `normalized`, `convex_hull` with an Empty operand, the checked capabilities (`div_checked`, `pow_nat_checked`, `pow_int_checked`) and the `pow_nat`/`pown` methods of `ball_float_checked` round endpoints the same way and do not widen a representable interval either."
 msgstr "[!NOTE] 結果は入力の表現可能な最も狭い包含なので、精度を広げる操作は厳密であり、精度を変えずに再丸めすることは恒等です。この関数が以前行っていた中心–半径による再構築は恒等ではありません。厳密な中心 $(\\underline{x} + \\overline{x})/2$ が $p$ ビットを超える場合、両端点は中心の丸め誤差の分だけ外側へ動くため、53 ビットでは $[1, 1 + 2^{-52}]$ が $[1 - 2^{-52}, 1 + 2^{-52}]$ になっていました。`normalized`、Empty のオペランドを伴う `convex_hull`、checked の機能（`div_checked`、`pow_nat_checked`、`pow_int_checked`）、および `ball_float_checked` の `pow_nat`/`pown` メソッドも同じ方法で端点を丸めるため、表現可能な区間を広げることはありません。"
 
-#: manual/api/ball_float.md:515
+#: manual/api/ball_float.md:516
 msgid "`normalized` normalizes the two endpoints (`BinFloat::normalized` removes trailing zero bits) and stores them at the interval's precision."
 msgstr "`normalized` は 2 つの端点を正規化し（`BinFloat::normalized` は末尾のゼロビットを取り除きます）、区間の精度で格納します。"
 
-#: manual/api/ball_float.md:522
+#: manual/api/ball_float.md:523
 msgid "The stored endpoints are already representable at that precision, so the result is the same set as the input: `normalized` of $[1, 1 + 2^{-52}]$ at 53 bits is $[1, 1 + 2^{-52}]$. Empty stays Empty."
 msgstr "格納された端点はその精度ですでに表現可能なので、結果は入力と同じ集合です。53 ビットでの $[1, 1 + 2^{-52}]$ の `normalized` は $[1, 1 + 2^{-52}]$ です。Empty は Empty のままです。"
 
-#: manual/api/ball_float.md:526
+#: manual/api/ball_float.md:527
 msgid "Set operations"
 msgstr "集合演算"
 
-#: manual/api/ball_float.md:528
+#: manual/api/ball_float.md:529
 msgid "`BallFloat::intersection` and `BallFloat::convex_hull`"
 msgstr "`BallFloat::intersection` と `BallFloat::convex_hull`"
 
-#: manual/api/ball_float.md:530
+#: manual/api/ball_float.md:531
 msgid "`intersection` returns $\\boldsymbol{x} \\cap \\boldsymbol{y}$ and `convex_hull` returns the smallest interval containing $\\boldsymbol{x} \\cup \\boldsymbol{y}$."
 msgstr "`intersection` は $\\boldsymbol{x} \\cap \\boldsymbol{y}$ を返し、`convex_hull` は $\\boldsymbol{x} \\cup \\boldsymbol{y}$ を含む最小の区間を返します。"
 
-#: manual/api/ball_float.md:538
+#: manual/api/ball_float.md:539
 msgid "For non-empty operands both are computed by endpoint `max`/`min` ($[\\max(\\underline{x}, \\underline{y}), \\min(\\overline{x}, \\overline{y})]$ and $[\\min(\\underline{x}, \\underline{y}), \\max(\\overline{x}, \\overline{y})]$), exact apart from the final outward rounding to the larger precision. Disjoint intervals intersect to Empty, and an Empty operand makes the intersection Empty. When one operand of `convex_hull` is Empty, the result is the other operand passed through `with_precision`, so it can be one ulp wider per side than that operand (see the warning under [`BallFloat::with_precision`](#ballfloatwith_precision))."
 msgstr "空でないオペランドに対しては、どちらも端点の `max`/`min` で計算され（$[\\max(\\underline{x}, \\underline{y}), \\min(\\overline{x}, \\overline{y})]$ と $[\\min(\\underline{x}, \\underline{y}), \\max(\\overline{x}, \\overline{y})]$）、最後の大きい方の精度への外向き丸めを除いて厳密です。互いに素な区間の共通部分は Empty であり、Empty のオペランドがあると共通部分は Empty になります。`convex_hull` の一方のオペランドが Empty のとき、結果はもう一方のオペランドを `with_precision` に通したものなので、そのオペランドより片側あたり 1 ulp 広くなることがあります（[`BallFloat::with_precision`](#ballfloatwith_precision) の警告を参照）。"
 
-#: manual/api/ball_float.md:548
+#: manual/api/ball_float.md:549
 msgid "`BallFloat::cancel_plus` and `BallFloat::cancel_minus`"
 msgstr "`BallFloat::cancel_plus` と `BallFloat::cancel_minus`"
 
-#: manual/api/ball_float.md:550
+#: manual/api/ball_float.md:551
 msgid "`cancel_minus(x, y)` is the IEEE 1788 cancellative subtraction: in exact arithmetic it returns the interval $\\boldsymbol{z}$ with $\\boldsymbol{y} + \\boldsymbol{z} = \\boldsymbol{x}$, which undoes a previous sum; `cancel_plus(x, y)` is `cancel_minus(x, -y)`."
 msgstr "`cancel_minus(x, y)` は IEEE 1788 の相殺減算です。厳密な演算では $\\boldsymbol{y} + \\boldsymbol{z} = \\boldsymbol{x}$ を満たす区間 $\\boldsymbol{z}$ を返し、以前の和を取り消します。`cancel_plus(x, y)` は `cancel_minus(x, -y)` です。"
 
-#: manual/api/ball_float.md:560
+#: manual/api/ball_float.md:561
 msgid "For bounded operands `cancel_minus` is $[\\operatorname{RD}(\\underline{x} - \\underline{y}), \\operatorname{RU}(\\overline{x} - \\overline{y})]$. Indeed $\\boldsymbol{y} + \\boldsymbol{z} = [\\underline{y} + \\underline{z}, \\overline{y} + \\overline{z}]$, so $\\boldsymbol{y} + \\boldsymbol{z} = \\boldsymbol{x}$ forces $\\underline{z} = \\underline{x} - \\underline{y}$ and $\\overline{z} = \\overline{x} - \\overline{y}$, and this is an interval exactly when $w(\\boldsymbol{x}) \\ge w(\\boldsymbol{y})$. Because of the outward rounding, the computed $\\boldsymbol{z}$ satisfies $\\boldsymbol{y} + \\boldsymbol{z} \\supseteq \\boldsymbol{x}$. When $w(\\boldsymbol{y}) > w(\\boldsymbol{x})$, when an operand is unbounded, or when only $\\boldsymbol{y}$ is empty, the result is Entire. Empty $\\boldsymbol{x}$ with bounded or empty $\\boldsymbol{y}$ gives Empty."
 msgstr "有界なオペランドに対しては、`cancel_minus` は $[\\operatorname{RD}(\\underline{x} - \\underline{y}), \\operatorname{RU}(\\overline{x} - \\overline{y})]$ です。実際、$\\boldsymbol{y} + \\boldsymbol{z} = [\\underline{y} + \\underline{z}, \\overline{y} + \\overline{z}]$ なので、$\\boldsymbol{y} + \\boldsymbol{z} = \\boldsymbol{x}$ から $\\underline{z} = \\underline{x} - \\underline{y}$ かつ $\\overline{z} = \\overline{x} - \\overline{y}$ が従い、これが区間となるのはちょうど $w(\\boldsymbol{x}) \\ge w(\\boldsymbol{y})$ のときです。外向き丸めのため、計算された $\\boldsymbol{z}$ は $\\boldsymbol{y} + \\boldsymbol{z} \\supseteq \\boldsymbol{x}$ を満たします。$w(\\boldsymbol{y}) > w(\\boldsymbol{x})$ のとき、オペランドが非有界のとき、または $\\boldsymbol{y}$ だけが空のとき、結果は Entire です。$\\boldsymbol{x}$ が空で $\\boldsymbol{y}$ が有界または空のときは Empty になります。"
 
-#: manual/api/ball_float.md:587
+#: manual/api/ball_float.md:588
 msgid "Relations"
 msgstr "関係"
 
-#: manual/api/ball_float.md:589
+#: manual/api/ball_float.md:590
 msgid "All relations are set relations of IEEE 1788; none of them is a total order. They never abort."
 msgstr "すべての関係は IEEE 1788 の集合関係であり、いずれも全順序ではありません。アボートすることはありません。"
 
-#: manual/api/ball_float.md:594
+#: manual/api/ball_float.md:595
 msgid "`contains` tests whether a point belongs to the interval."
 msgstr "`contains` は点が区間に属するかどうかを判定します。"
 
-#: manual/api/ball_float.md:600
+#: manual/api/ball_float.md:601
 msgid "It returns false for Empty and for a non-finite point (an unbounded interval contains all sufficiently large reals, but not $\\pm\\infty$ or NaN). The trait method `@lf_arith.Contains::contains` instead takes two intervals and tests inclusion; see [Enclosure relations](#arithmeticcontains-arithmeticoverlaps-arithmeticdefinitelylt-arithmeticdefinitelyle-arithmeticmaybeeq)."
 msgstr "Empty および有限でない点に対しては偽を返します（非有界な区間は十分大きな実数をすべて含みますが、$\\pm\\infty$ や NaN は含みません）。トレイトメソッド `@lf_arith.Contains::contains` は代わりに 2 つの区間を受け取り包含関係を判定します。[包含区間の関係](#arithmeticcontains-arithmeticoverlaps-arithmeticdefinitelylt-arithmeticdefinitelyle-arithmeticmaybeeq)を参照してください。"
 
-#: manual/api/ball_float.md:608
+#: manual/api/ball_float.md:609
 msgid "These test inclusion, inclusion in the interior, equality and disjointness of sets."
 msgstr "これらは集合の包含、内部への包含、等しさ、互いに素であることを判定します。"
 
-#: manual/api/ball_float.md:618
+#: manual/api/ball_float.md:619
 msgid "`x.subset(y)` is $\\boldsymbol{x} \\subseteq \\boldsymbol{y}$, that is $\\underline{y} \\le \\underline{x}$ and $\\overline{x} \\le \\overline{y}$. `x.interior(y)` is $\\boldsymbol{x} \\subseteq \\operatorname{int} \\boldsymbol{y}$: each endpoint comparison is strict, except that two equal infinite endpoints count as interior (the interior of $[a, +\\infty)$ is $(a, +\\infty)$, so Entire is interior to itself). Empty is a subset of, interior to and disjoint from every interval. `set_equal` ignores the precision tag and the representation of the endpoints."
 msgstr "`x.subset(y)` は $\\boldsymbol{x} \\subseteq \\boldsymbol{y}$、すなわち $\\underline{y} \\le \\underline{x}$ かつ $\\overline{x} \\le \\overline{y}$ です。`x.interior(y)` は $\\boldsymbol{x} \\subseteq \\operatorname{int} \\boldsymbol{y}$ です。各端点の比較は狭義ですが、等しい 2 つの無限大の端点は内部とみなされます（$[a, +\\infty)$ の内部は $(a, +\\infty)$ なので、Entire は自身の内部にあります）。Empty はすべての区間の部分集合であり、その内部にあり、かつ互いに素です。`set_equal` は精度タグと端点の表現を無視します。"
 
-#: manual/api/ball_float.md:629
+#: manual/api/ball_float.md:630
 msgid "These are the order relations of IEEE 1788."
 msgstr "これらは IEEE 1788 の順序関係です。"
 
-#: manual/api/ball_float.md:638
+#: manual/api/ball_float.md:639
 msgid "For non-empty operands:"
 msgstr "空でないオペランドについて:"
 
-#: manual/api/ball_float.md:640
+#: manual/api/ball_float.md:641
 msgid "Relation"
 msgstr "関係"
 
-#: manual/api/ball_float.md:640
+#: manual/api/ball_float.md:641
 msgid "Set definition"
 msgstr "集合による定義"
 
-#: manual/api/ball_float.md:640
+#: manual/api/ball_float.md:641
 msgid "Condition"
 msgstr "条件"
 
-#: manual/api/ball_float.md:642
+#: manual/api/ball_float.md:643
 msgid "$\\forall\\xi\\,\\exists\\eta: \\xi \\le \\eta$ and $\\forall\\eta\\,\\exists\\xi: \\xi \\le \\eta$"
 msgstr "$\\forall\\xi\\,\\exists\\eta: \\xi \\le \\eta$ かつ $\\forall\\eta\\,\\exists\\xi: \\xi \\le \\eta$"
 
-#: manual/api/ball_float.md:642
+#: manual/api/ball_float.md:643
 msgid "$\\underline{x} \\le \\underline{y}$ and $\\overline{x} \\le \\overline{y}$"
 msgstr "$\\underline{x} \\le \\underline{y}$ かつ $\\overline{x} \\le \\overline{y}$"
 
-#: manual/api/ball_float.md:643
+#: manual/api/ball_float.md:644
 msgid "the same with $<$"
 msgstr "$<$ で同様"
 
-#: manual/api/ball_float.md:643
+#: manual/api/ball_float.md:644
 msgid "$\\underline{x} < \\underline{y}$ (or both $-\\infty$) and $\\overline{x} < \\overline{y}$ (or both $+\\infty$)"
 msgstr "$\\underline{x} < \\underline{y}$（または両方が $-\\infty$）かつ $\\overline{x} < \\overline{y}$（または両方が $+\\infty$）"
 
-#: manual/api/ball_float.md:647
+#: manual/api/ball_float.md:648
 msgid "With Empty: `less` and `strictly_less` hold only when both are Empty; `precedes` and `strictly_precedes` hold when either is Empty."
 msgstr "Empty がある場合: `less` と `strictly_less` は両方が Empty のときに限り成り立ち、`precedes` と `strictly_precedes` はどちらかが Empty のときに成り立ちます。"
 
-#: manual/api/ball_float.md:652
+#: manual/api/ball_float.md:653
 msgid "`overlap_state` classifies the relative position of two intervals."
 msgstr "`overlap_state` は 2 つの区間の相対位置を分類します。"
 
-#: manual/api/ball_float.md:658
-msgid "The result is one of the sixteen states of [`OverlapState`](#overlapstate) other than `Undefined`; it is computed from the comparisons of the four endpoints, testing equal endpoints first, so a singleton that coincides with an endpoint of the other interval gives `Starts`, `Finishes`, `StartedBy` or `FinishedBy` rather than `Meets` or `MetBy`, as IEEE 1788 requires."
-msgstr "結果は [`OverlapState`](#overlapstate) の 16 の状態のうち `Undefined` 以外のいずれかであり、4 つの端点の比較から、等しい端点を先に判定して計算されます。そのため、もう一方の区間の端点と一致する単集合は、IEEE 1788 の要求どおり `Meets` や `MetBy` ではなく `Starts`、`Finishes`、`StartedBy`、`FinishedBy` のいずれかを与えます。"
+#: manual/api/ball_float.md:659
+msgid "The result is one of the sixteen states of [`OverlapState`](#overlapstate); it is computed from the comparisons of the four endpoints, testing equal endpoints first, so a singleton that coincides with an endpoint of the other interval gives `Starts`, `Finishes`, `StartedBy` or `FinishedBy` rather than `Meets` or `MetBy`, as IEEE 1788 requires."
+msgstr "結果は [`OverlapState`](#overlapstate) の 16 の状態のいずれかであり、4 つの端点の比較から、等しい端点を先に判定して計算されます。そのため、もう一方の区間の端点と一致する単集合は、IEEE 1788 の要求どおり `Meets` や `MetBy` ではなく `Starts`、`Finishes`、`StartedBy`、`FinishedBy` のいずれかを与えます。"
 
-#: manual/api/ball_float.md:680
+#: manual/api/ball_float.md:681
 #: manual/api/ball_float_checked.md:217
 #: manual/api/bin_float_checked.md:185
 msgid "Arithmetic"
 msgstr "算術演算"
 
-#: manual/api/ball_float.md:684
+#: manual/api/ball_float.md:685
 msgid "The four basic operations return the outward-rounded hull of $\\{\\xi \\circ \\eta : \\xi \\in \\boldsymbol{x}, \\eta \\in \\boldsymbol{y}\\}$; they are also available as the operators `+`, `-`, `*`, `/`."
 msgstr "四則演算は $\\{\\xi \\circ \\eta : \\xi \\in \\boldsymbol{x}, \\eta \\in \\boldsymbol{y}\\}$ の外向きに丸めた凸包を返します。演算子 `+`、`-`、`*`、`/` としても利用できます。"
 
-#: manual/api/ball_float.md:695
+#: manual/api/ball_float.md:696
 msgid "The result precision is the larger operand precision; an Empty operand gives Empty. Endpoint formulas:"
 msgstr "結果の精度はオペランドの精度のうち大きい方であり、Empty のオペランドからは Empty が得られます。端点の公式:"
 
-#: manual/api/ball_float.md:706
+#: manual/api/ball_float.md:707
 msgid "with $0 \\cdot \\infty$ taken as 0 in $S$ (a zero endpoint times an unbounded side contributes 0). The sums and products are formed exactly and rounded once. For bounded operands the signs select the products that can be extremal: two when both operands have constant sign, four (the minimum of $\\underline{x}\\,\\overline{y}$ and $\\overline{x}\\,\\underline{y}$, the maximum of $\\underline{x}\\,\\underline{y}$ and $\\overline{x}\\,\\overline{y}$) when either operand has 0 in its interior. The design page proves the [sign-case table](../design/ball_float.md#endpoint-formulas)."
 msgstr "ただし $S$ では $0 \\cdot \\infty$ を 0 とみなします（ゼロの端点と非有界な側との積は 0 を与えます）。和と積は厳密に作られ、一度だけ丸められます。有界なオペランドでは、符号によって極値となり得る積が選ばれます。両オペランドの符号が一定であれば 2 つ、いずれかのオペランドが内部に 0 を含めば 4 つ（$\\underline{x}\\,\\overline{y}$ と $\\overline{x}\\,\\underline{y}$ の最小値、$\\underline{x}\\,\\underline{y}$ と $\\overline{x}\\,\\overline{y}$ の最大値）です。設計ページで[符号による場合分けの表](../design/ball_float.md#endpoint-formulas)を証明しています。"
 
-#: manual/api/ball_float.md:715
+#: manual/api/ball_float.md:716
 msgid ""
 "Division follows IEEE 1788: $\\boldsymbol{x} / \\boldsymbol{y}$ is the hull of $\\{\\xi/\\eta : \\xi \\in \\boldsymbol{x}, \\eta \\in \\boldsymbol{y}, \\eta \\n"
 "e 0\\}$."
@@ -546,11 +546,11 @@ msgstr ""
 "除算は IEEE 1788 に従います。$\\boldsymbol{x} / \\boldsymbol{y}$ は $\\{\\xi/\\eta : \\xi \\in \\boldsymbol{x}, \\eta \\in \\boldsymbol{y}, \\eta \\n"
 "e 0\\}$ の凸包です。"
 
-#: manual/api/ball_float.md:718
+#: manual/api/ball_float.md:719
 msgid "Divisor $\\boldsymbol{y}$"
 msgstr "除数 $\\boldsymbol{y}$"
 
-#: manual/api/ball_float.md:718
+#: manual/api/ball_float.md:719
 #: manual/api/bin_float.md:46
 #: manual/api/decimal_checked.md:280
 #: manual/conformance/bin_float.md:107
@@ -559,80 +559,80 @@ msgstr "除数 $\\boldsymbol{y}$"
 msgid "Result"
 msgstr "結果"
 
-#: manual/api/ball_float.md:720
+#: manual/api/ball_float.md:721
 msgid "$[\\operatorname{RD}\\min Q, \\operatorname{RU}\\max Q]$ over the endpoint quotients $Q$"
 msgstr "端点の商 $Q$ にわたる $[\\operatorname{RD}\\min Q, \\operatorname{RU}\\max Q]$"
 
-#: manual/api/ball_float.md:721
+#: manual/api/ball_float.md:722
 msgid "Empty"
 msgstr "Empty"
 
-#: manual/api/ball_float.md:722
+#: manual/api/ball_float.md:723
 msgid "Entire, unless $\\boldsymbol{x} = \\{0\\}$"
 msgstr "Entire（$\\boldsymbol{x} = \\{0\\}$ の場合を除く）"
 
-#: manual/api/ball_float.md:723
+#: manual/api/ball_float.md:724
 msgid "$[0, \\overline{y}]$ or $[\\underline{y}, 0]$"
 msgstr "$[0, \\overline{y}]$ または $[\\underline{y}, 0]$"
 
-#: manual/api/ball_float.md:723
+#: manual/api/ball_float.md:724
 msgid "half-unbounded (see below), or Entire when $\\underline{x} < 0 < \\overline{x}$"
 msgstr "片側が非有界（下記参照）、または $\\underline{x} < 0 < \\overline{x}$ のとき Entire"
 
-#: manual/api/ball_float.md:725
+#: manual/api/ball_float.md:726
 msgid "When the divisor touches 0 at one end, the quotient is unbounded on one side: for example $[1, 2]/[0, 4] = [1/4, +\\infty)$ and $[-2, -1]/[0, 4] = (-\\infty, -1/4]$. A dividend equal to $\\{0\\}$ gives $\\{0\\}$ for any divisor other than $\\{0\\}$. Each selected quotient is computed by one directed division at the result precision."
 msgstr "除数が一端で 0 に接する場合、商は片側で非有界になります。たとえば $[1, 2]/[0, 4] = [1/4, +\\infty)$、$[-2, -1]/[0, 4] = (-\\infty, -1/4]$ です。$\\{0\\}$ に等しい被除数からは、$\\{0\\}$ 以外の任意の除数に対して $\\{0\\}$ が得られます。選ばれた各商は、結果の精度で 1 回の方向付き除算により計算されます。"
 
-#: manual/api/ball_float.md:745
+#: manual/api/ball_float.md:746
 msgid "`BallFloat::neg` and `BallFloat::abs`"
 msgstr "`BallFloat::neg` と `BallFloat::abs`"
 
-#: manual/api/ball_float.md:747
+#: manual/api/ball_float.md:748
 msgid "`neg` returns $[-\\overline{x}, -\\underline{x}]$ and `abs` returns $\\{|\\xi| : \\xi \\in \\boldsymbol{x}\\}$."
 msgstr "`neg` は $[-\\overline{x}, -\\underline{x}]$ を返し、`abs` は $\\{|\\xi| : \\xi \\in \\boldsymbol{x}\\}$ を返します。"
 
-#: manual/api/ball_float.md:755
+#: manual/api/ball_float.md:756
 msgid "`abs` is $\\boldsymbol{x}$ when $\\underline{x} \\ge 0$, $-\\boldsymbol{x}$ when $\\overline{x} \\le 0$, and $[0, \\operatorname{mag}\\boldsymbol{x}]$ otherwise. Both are exact. `neg` is also the unary operator `-`."
 msgstr "`abs` は $\\underline{x} \\ge 0$ のとき $\\boldsymbol{x}$、$\\overline{x} \\le 0$ のとき $-\\boldsymbol{x}$、それ以外では $[0, \\operatorname{mag}\\boldsymbol{x}]$ です。どちらも厳密です。`neg` は単項演算子 `-` でもあります。"
 
-#: manual/api/ball_float.md:761
+#: manual/api/ball_float.md:762
 msgid "`reciprocal` returns $1/\\boldsymbol{x}$ with the division rules above."
 msgstr "`reciprocal` は上記の除算規則に従って $1/\\boldsymbol{x}$ を返します。"
 
-#: manual/api/ball_float.md:767
+#: manual/api/ball_float.md:768
 msgid "`BallFloat::sqr` and `BallFloat::pown`"
 msgstr "`BallFloat::sqr` と `BallFloat::pown`"
 
-#: manual/api/ball_float.md:769
+#: manual/api/ball_float.md:770
 msgid "`square` returns $\\{\\xi^2\\}$ and `pown` returns $\\{\\xi^n\\}$ for an integer exponent $n$."
 msgstr "`square` は $\\{\\xi^2\\}$ を返し、`pown` は整数指数 $n$ に対して $\\{\\xi^n\\}$ を返します。"
 
-#: manual/api/ball_float.md:777
+#: manual/api/ball_float.md:778
 msgid "Unlike `x * x`, these use the same point twice, so `[-1, 2].sqr()` is $[0, 4]$ (while `x * x` is $[-2, 4]$): `square` is $[\\operatorname{mig}(\\boldsymbol{x})^2, \\operatorname{mag}(\\boldsymbol{x})^2]$. `pown` evaluates the monotone pieces of $\\xi^n$ at the endpoints with directed rounding: odd positive powers are increasing; even positive powers decrease then increase, with minimum 0 when $0 \\in \\boldsymbol{x}$; negative powers have a pole at 0. `pown(x, 0)` is $\\{1\\}$ for every non-empty `x`; Empty stays Empty. `pown(x, n)` with $n < 0$ returns Empty for $\\boldsymbol{x} = \\{0\\}$, a half-unbounded interval when 0 is an endpoint, and for 0 in the interior Entire (odd $n$) or $[\\min(\\underline{x}^n, \\overline{x}^n), +\\infty)$ (even $n$). As a shortcut, $n < -4096$ with 0 in the interior returns Entire even for even $n$; this is a valid but not tight enclosure."
 msgstr "`x * x` と異なり、これらは同じ点を 2 回用いるため、`[-1, 2].sqr()` は $[0, 4]$ になります（`x * x` は $[-2, 4]$）。`square` は $[\\operatorname{mig}(\\boldsymbol{x})^2, \\operatorname{mag}(\\boldsymbol{x})^2]$ です。`pown` は $\\xi^n$ の単調な各部分を端点で方向付き丸めにより評価します。正の奇数乗は増加、正の偶数乗は減少してから増加し、$0 \\in \\boldsymbol{x}$ のとき最小値は 0、負のべきは 0 に極を持ちます。`pown(x, 0)` は空でないすべての `x` に対して $\\{1\\}$ であり、Empty は Empty のままです。$n < 0$ の `pown(x, n)` は、$\\boldsymbol{x} = \\{0\\}$ のとき Empty を、0 が端点のとき片側が非有界な区間を、0 が内部にあるとき Entire（$n$ が奇数）または $[\\min(\\underline{x}^n, \\overline{x}^n), +\\infty)$（$n$ が偶数）を返します。近道として、$n < -4096$ で 0 が内部にある場合は、$n$ が偶数でも Entire を返します。これは有効ですが狭くはない包含区間です。"
 
-#: manual/api/ball_float.md:804
+#: manual/api/ball_float.md:805
 msgid "`fma(x, y, z)` returns an enclosure of $\\{\\xi\\eta + \\zeta\\}$ with a single outward rounding."
 msgstr "`fma(x, y, z)` は、1 回の外向き丸めで $\\{\\xi\\eta + \\zeta\\}$ の包含区間を返します。"
 
-#: manual/api/ball_float.md:811
+#: manual/api/ball_float.md:812
 msgid "The exact product bounds are computed as for `mul` and added to the endpoints of $\\boldsymbol{z}$ before the final rounding, so the result is never wider than `x * y + z`."
 msgstr "厳密な積の上下界は `mul` と同様に計算され、最終的な丸めの前に $\\boldsymbol{z}$ の端点に加えられるため、結果が `x * y + z` より広くなることはありません。"
 
-#: manual/api/ball_float.md:815
+#: manual/api/ball_float.md:816
 msgid "`BallFloat::min` and `BallFloat::max`"
 msgstr "`BallFloat::min` と `BallFloat::max`"
 
-#: manual/api/ball_float.md:817
+#: manual/api/ball_float.md:818
 msgid "`minimum` and `maximum` return $\\{\\min(\\xi, \\eta)\\}$ and $\\{\\max(\\xi, \\eta)\\}$."
 msgstr "`minimum` と `maximum` は $\\{\\min(\\xi, \\eta)\\}$ と $\\{\\max(\\xi, \\eta)\\}$ を返します。"
 
-#: manual/api/ball_float.md:825
+#: manual/api/ball_float.md:826
 msgid "`minimum` is $[\\min(\\underline{x}, \\underline{y}), \\min(\\overline{x}, \\overline{y})]$ and `maximum` is the analogue with `max`: $\\min$ is increasing in each argument. An Empty operand gives Empty."
 msgstr "`minimum` は $[\\min(\\underline{x}, \\underline{y}), \\min(\\overline{x}, \\overline{y})]$ であり、`maximum` は `max` を用いた同様のものです。$\\min$ は各引数について増加です。Empty のオペランドからは Empty が得られます。"
 
-#: manual/api/ball_float.md:829
-#: manual/api/ball_float_checked.md:309
+#: manual/api/ball_float.md:830
+#: manual/api/ball_float_checked.md:338
 #: manual/api/bin_float.md:1480
 #: manual/api/bin_float_checked.md:489
 #: manual/api/decimal.md:1395
@@ -641,103 +641,103 @@ msgstr "`minimum` は $[\\min(\\underline{x}, \\underline{y}), \\min(\\overline{
 msgid "Elementary functions"
 msgstr "初等関数"
 
-#: manual/api/ball_float.md:831
+#: manual/api/ball_float.md:832
 msgid "Each function $f$ returns an interval containing $f(\\boldsymbol{x} \\cap D_f)$, where $D_f$ is the domain of $f$; points of $\\boldsymbol{x}$ outside $D_f$ are ignored and the result is Empty when $\\boldsymbol{x} \\cap D_f$ is empty. The result precision is the argument's precision."
 msgstr "各関数 $f$ は $f(\\boldsymbol{x} \\cap D_f)$ を含む区間を返します。ここで $D_f$ は $f$ の定義域です。$D_f$ の外にある $\\boldsymbol{x}$ の点は無視され、$\\boldsymbol{x} \\cap D_f$ が空のとき結果は Empty になります。結果の精度は引数の精度です。"
 
-#: manual/api/ball_float.md:837
+#: manual/api/ball_float.md:838
 msgid "Functions come in two forms, and there is one kernel. The `try_` form (`try_exp`, …) evaluates each endpoint with the corresponding `bin_float` `try_*_ctx` function rounded toward $-\\infty$ or $+\\infty$, and returns `Err(ArithmeticError)` with a certification-failure detail naming the operation, stage and reason when that evaluation runs out of its work budget. The total form (`exp`, `sin`, …) is the `try_` form with a fallback: it returns the same interval whenever the `try_` form succeeds, and otherwise the range of the function over its domain (the fallbacks are listed below), which is a valid but wide enclosure. A total form never aborts, at any precision the type accepts; a domain error is not a failure (the result is Empty), so an argument outside the domain and a certification failure give different results. Nothing is computed twice: the total form calls the `try_` form once."
 msgstr "関数には 2 つの形式がありますが、カーネルは 1 つです。`try_` 形式（`try_exp` など）は、`bin_float` の対応する `try_*_ctx` 関数で各端点を評価し、下端は $-\\infty$ 方向に、上端は $+\\infty$ 方向に丸めます。その評価が作業予算を使い果たすと、演算・段階・理由を示す認証失敗の詳細を伴う `Err(ArithmeticError)` を返します。全域形式（`exp`、`sin` など）は、フォールバックを備えた `try_` 形式です。`try_` 形式が成功する限り同じ区間を返し、そうでなければその関数の定義域上の値域（フォールバックは後述）を返します。これは有効ですが広い包含区間です。全域形式は、型が受け付けるどの精度でも中止しません。定義域エラーは失敗ではなく（結果は Empty）、定義域外の引数と認証失敗とでは結果が異なります。何も二重には計算されません。全域形式は `try_` 形式を 1 回だけ呼びます。"
 
-#: manual/api/ball_float.md:853
+#: manual/api/ball_float.md:854
 msgid "`sqrt` returns $\\sqrt{\\boldsymbol{x} \\cap [0, +\\infty)}$."
 msgstr "`sqrt` は $\\sqrt{\\boldsymbol{x} \\cap [0, +\\infty)}$ を返します。"
 
-#: manual/api/ball_float.md:859
+#: manual/api/ball_float.md:860
 msgid "The endpoints are the downward and upward square roots at the interval's precision. Empty when $\\overline{x} < 0$. There is no `try_` form: square root never fails."
 msgstr "端点は、区間の精度での下向きおよび上向きの平方根です。$\\overline{x} < 0$ のとき Empty です。平方根は失敗しないため、`try_` 形式はありません。"
 
-#: manual/api/ball_float.md:865
+#: manual/api/ball_float.md:866
 msgid "These return enclosures of $e^{\\xi}$, $2^{\\xi}$, $10^{\\xi}$ and $e^{\\xi} - 1$."
 msgstr "これらは、$e^{\\xi}$、$2^{\\xi}$、$10^{\\xi}$、$e^{\\xi} - 1$ の包含区間を返します。"
 
-#: manual/api/ball_float.md:879
+#: manual/api/ball_float.md:880
 msgid "All four are increasing, so the result is $[\\operatorname{RD} f(\\underline{x}), \\operatorname{RU} f(\\overline{x})]$. For $|\\xi| \\ge 2^{30}$ the enclosure is $[\\text{largest finite}, +\\infty)$ or $[0, \\text{smallest positive}]$, which is valid because $e^{2^{30}}$ exceeds $2^{e_{\\max}+1}$ and $e^{-2^{30}}$ is below the smallest positive `BinFloat` at every precision. `exp2` and `exp10` return exact powers for integer endpoints whose power is representable at the interval's precision (`exp2` of $\\{10\\}$ is $\\{1024\\}$, `exp10` of $\\{3\\}$ is $\\{1000\\}$); an integer endpoint outside the exponent range keeps the outward-rounded enclosure, so `exp2` of $\\{-1073742000\\}$ is $[0, \\text{smallest positive}]$ and of $\\{2^{30}\\}$ is $[\\text{largest finite}, +\\infty)$. The fallback of the total forms is $[0, +\\infty)$ for `exp`, `exp2` and `exp10` and $[-1, +\\infty)$ for `expm1`."
 msgstr "4 つとも増加関数なので、結果は $[\\operatorname{RD} f(\\underline{x}), \\operatorname{RU} f(\\overline{x})]$ です。$|\\xi| \\ge 2^{30}$ のとき、包含区間は $[\\text{largest finite}, +\\infty)$ または $[0, \\text{smallest positive}]$ です。どの精度でも $e^{2^{30}}$ は $2^{e_{\\max}+1}$ を超え、$e^{-2^{30}}$ は最小の正の `BinFloat` を下回るため、これは有効です。べきが区間の精度で表現できる整数の端点に対して、`exp2` と `exp10` は厳密なべきを返します（$\\{10\\}$ の `exp2` は $\\{1024\\}$、$\\{3\\}$ の `exp10` は $\\{1000\\}$）。指数範囲外の整数の端点では外向きに丸めた包含区間がそのまま使われるため、$\\{-1073742000\\}$ の `exp2` は $[0, \\text{smallest positive}]$、$\\{2^{30}\\}$ の場合は $[\\text{largest finite}, +\\infty)$ です。全域形式のフォールバックは、`exp`、`exp2`、`exp10` では $[0, +\\infty)$、`expm1` では $[-1, +\\infty)$ です。"
 
-#: manual/api/ball_float.md:896
+#: manual/api/ball_float.md:897
 msgid "These return enclosures of $\\ln \\xi$, $\\log_2 \\xi$, $\\log_{10} \\xi$ and $\\ln(1 + \\xi)$ over their domains $(0, \\infty)$ and $(-1, \\infty)$."
 msgstr "これらは、それぞれの定義域 $(0, \\infty)$ および $(-1, \\infty)$ 上で $\\ln \\xi$、$\\log_2 \\xi$、$\\log_{10} \\xi$、$\\ln(1 + \\xi)$ の包含区間を返します。"
 
-#: manual/api/ball_float.md:910
+#: manual/api/ball_float.md:911
 msgid "When the interval reaches the domain boundary ($\\underline{x} \\le 0$, or $\\underline{x} \\le -1$ for `log1p`) the lower endpoint is $-\\infty$; when it lies entirely outside the domain ($\\overline{x} \\le 0$, or $\\overline{x} < -1$ for `log1p`) the result is Empty. `log10` returns exact integers at endpoints $10^k$, $0 \\le k \\le 9$. The fallback of the total forms is Entire (an endpoint at or below the domain boundary is decided before the kernel runs and is not a failure)."
 msgstr "区間が定義域の境界に達するとき（$\\underline{x} \\le 0$、`log1p` では $\\underline{x} \\le -1$）、下端は $-\\infty$ です。区間が完全に定義域の外にあるとき（$\\overline{x} \\le 0$、`log1p` では $\\overline{x} < -1$）、結果は Empty です。`log10` は端点 $10^k$（$0 \\le k \\le 9$）で厳密な整数を返します。全域形式のフォールバックは Entire です（端点が定義域の境界またはその外にある場合はカーネルの実行前に判定され、失敗ではありません）。"
 
-#: manual/api/ball_float.md:936
+#: manual/api/ball_float.md:937
 msgid "`BallFloat::pow` and `BallFloat::try_pow`"
 msgstr "`BallFloat::pow` と `BallFloat::try_pow`"
 
-#: manual/api/ball_float.md:938
+#: manual/api/ball_float.md:939
 msgid "`pow(x, y)` returns an enclosure of $\\{\\xi^{\\eta} : \\xi \\in \\boldsymbol{x}, \\eta \\in \\boldsymbol{y}\\}$ over the IEEE 1788 domain of `pow`: $\\xi > 0$, or $\\xi = 0$ and $\\eta > 0$."
 msgstr "`pow(x, y)` は、`pow` の IEEE 1788 定義域（$\\xi > 0$、または $\\xi = 0$ かつ $\\eta > 0$）上で $\\{\\xi^{\\eta} : \\xi \\in \\boldsymbol{x}, \\eta \\in \\boldsymbol{y}\\}$ の包含区間を返します。"
 
-#: manual/api/ball_float.md:947
+#: manual/api/ball_float.md:948
 msgid "Negative parts of the base are ignored (use `pown` or `rootn` for negative bases). Since $\\xi^\\eta = e^{\\eta \\ln \\xi}$ and $\\eta \\ln \\xi$ is bilinear in $(\\ln \\xi, \\eta)$, the extrema over a box with $\\underline{x} > 0$ are at the four corners. When the base reaches 0, $\\xi^\\eta \\to 0$ for $\\eta > 0$ and $\\to +\\infty$ for $\\eta < 0$, so the result is extended by 0 or $+\\infty$ accordingly. The code also adds the value 1 when the base interval contains 1 or the exponent interval contains 0; it already lies between the corner values, so this changes nothing but is harmless. $0^{\\eta}$ for $\\eta \\le 0$ is excluded, so `pow([0, 0], y)` is Empty when $\\overline{y} \\le 0$. The result precision is the larger operand precision. A corner whose power is representable at the result precision, such as $16^{3/4} = 8$, gives that power exactly. The total form falls back to $[0, +\\infty)$."
 msgstr "底の負の部分は無視されます（負の底には `pown` または `rootn` を使ってください）。$\\xi^\\eta = e^{\\eta \\ln \\xi}$ であり、$\\eta \\ln \\xi$ は $(\\ln \\xi, \\eta)$ について双線形なので、$\\underline{x} > 0$ の箱上の極値は 4 つの角でとられます。底が 0 に達するとき、$\\eta > 0$ では $\\xi^\\eta \\to 0$、$\\eta < 0$ では $\\to +\\infty$ となるため、結果はそれに応じて 0 または $+\\infty$ で拡張されます。底の区間が 1 を含むか指数の区間が 0 を含むとき、コードは値 1 も加えます。この値はすでに角の値の間にあるので何も変わりませんが、害はありません。$\\eta \\le 0$ に対する $0^{\\eta}$ は除外されるため、$\\overline{y} \\le 0$ のとき `pow([0, 0], y)` は Empty です。結果の精度はオペランドの精度のうち大きい方です。べきが結果の精度で表現可能な角（たとえば $16^{3/4} = 8$）では、そのべきが厳密に得られます。全域形式は $[0, +\\infty)$ にフォールバックします。"
 
-#: manual/api/ball_float.md:961
+#: manual/api/ball_float.md:962
 msgid "`BallFloat::rootn` and `BallFloat::try_rootn`"
 msgstr "`BallFloat::rootn` と `BallFloat::try_rootn`"
 
-#: manual/api/ball_float.md:963
+#: manual/api/ball_float.md:964
 msgid "`rootn(x, n)` returns an enclosure of the real $n$-th roots $\\{\\xi^{1/n}\\}$: for even $n$ over $\\xi \\ge 0$, for odd $n$ over all reals, and for negative $n$ the reciprocal of the root."
 msgstr "`rootn(x, n)` は実数の $n$ 乗根 $\\{\\xi^{1/n}\\}$ の包含区間を返します。$n$ が偶数なら $\\xi \\ge 0$ 上、$n$ が奇数ならすべての実数上で、$n$ が負なら根の逆数です。"
 
-#: manual/api/ball_float.md:972
+#: manual/api/ball_float.md:973
 msgid "`rootn(x, 0)` and `rootn(x, Int min)` are Empty; `try_rootn(x, 0)` is a domain error. `rootn(x, 1)` is `x` and `rootn(x, 2)` is `sqrt`. The total form is `try_rootn` with a fallback ($[0, +\\infty)$ for an even degree, Entire for an odd one). For negative $n$, `try_rootn` returns Entire when an odd root's argument contains 0. Exact roots are returned exactly for every degree, so `try_rootn({8}, -3)` is $\\{1/2\\}$."
 msgstr "`rootn(x, 0)` と `rootn(x, Int min)` は Empty であり、`try_rootn(x, 0)` は定義域エラーです。`rootn(x, 1)` は `x`、`rootn(x, 2)` は `sqrt` です。全域形式は、フォールバックを備えた `try_rootn` です（偶数次では $[0, +\\infty)$、奇数次では Entire）。負の $n$ について、奇数乗根の引数が 0 を含むとき `try_rootn` は Entire を返します。厳密な根はどの次数でも厳密に返されるため、`try_rootn({8}, -3)` は $\\{1/2\\}$ です。"
 
-#: manual/api/ball_float.md:992
+#: manual/api/ball_float.md:993
 msgid "`BallFloat::hypot` and `BallFloat::try_hypot`"
 msgstr "`BallFloat::hypot` と `BallFloat::try_hypot`"
 
-#: manual/api/ball_float.md:994
+#: manual/api/ball_float.md:995
 msgid "`hypot` returns an enclosure of $\\{\\sqrt{\\xi^2 + \\eta^2}\\}$."
 msgstr "`hypot` は $\\{\\sqrt{\\xi^2 + \\eta^2}\\}$ の包含区間を返します。"
 
-#: manual/api/ball_float.md:1001
+#: manual/api/ball_float.md:1002
 msgid "The function is increasing in $|\\xi|$ and $|\\eta|$, so the result is $[\\operatorname{RD}\\operatorname{hypot}(\\operatorname{mig}\\boldsymbol{x}, \\operatorname{mig}\\boldsymbol{y}), \\operatorname{RU}\\operatorname{hypot}(\\operatorname{mag}\\boldsymbol{x}, \\operatorname{mag}\\boldsymbol{y})]$, evaluated on the endpoints of `abs(x)` and `abs(y)`. The total form falls back to `sqrt(sqr(x) + sqr(y))`."
 msgstr "この関数は $|\\xi|$ と $|\\eta|$ について増加なので、結果は $[\\operatorname{RD}\\operatorname{hypot}(\\operatorname{mig}\\boldsymbol{x}, \\operatorname{mig}\\boldsymbol{y}), \\operatorname{RU}\\operatorname{hypot}(\\operatorname{mag}\\boldsymbol{x}, \\operatorname{mag}\\boldsymbol{y})]$ であり、`abs(x)` と `abs(y)` の端点で評価されます。全域形式は `sqrt(sqr(x) + sqr(y))` にフォールバックします。"
 
-#: manual/api/ball_float.md:1009
+#: manual/api/ball_float.md:1010
 msgid "These return enclosures of $\\sin$, $\\cos$ and $\\tan$ over the interval (in radians)."
 msgstr "これらは、区間（ラジアン）上の $\\sin$、$\\cos$、$\\tan$ の包含区間を返します。"
 
-#: manual/api/ball_float.md:1021
+#: manual/api/ball_float.md:1022
 msgid "Both forms evaluate the `bin_float` functions at the endpoints (a point interval) or at the endpoints and the critical points. A critical point $k\\pi/2$ inside the interval contributes the extremum $\\pm 1$ of `sin`/`cos` (`sin` reaches $+1$ at $k \\equiv 1$ and $-1$ at $k \\equiv 3 \\pmod 4$, `cos` reaches $+1$ at $k \\equiv 0$ and $-1$ at $k \\equiv 2$); for `tan` an odd multiple of $\\pi/2$ inside the interval (a pole) makes the result Entire. The set of candidate indices $k$ is computed from the enclosure of $\\pi$ and can only be too large, which widens but never invalidates the result. Unbounded arguments give $[-1, 1]$ (Entire for `tan`). When the larger endpoint magnitude is at least $2^{\\max(65536,\\, 4p) + 1}$ the `try_` forms return a resource-limit error without evaluating; the total forms return $[-1, 1]$ (Entire for `tan`), the same fallback they use when the certification budget (12 work precisions) is exhausted."
 msgstr "両形式とも、端点（点区間）または端点と臨界点で `bin_float` の関数を評価します。区間内の臨界点 $k\\pi/2$ は `sin`/`cos` の極値 $\\pm 1$ を与えます（`sin` は $k \\equiv 1$ で $+1$、$k \\equiv 3 \\pmod 4$ で $-1$ をとり、`cos` は $k \\equiv 0$ で $+1$、$k \\equiv 2$ で $-1$ をとります）。`tan` では、区間内に $\\pi/2$ の奇数倍（極）があると結果は Entire になります。候補となる添字 $k$ の集合は $\\pi$ の包含区間から計算され、大きすぎることしかあり得ないため、結果が広がることはあっても無効になることはありません。非有界な引数からは $[-1, 1]$（`tan` では Entire）が得られます。大きい方の端点の絶対値が $2^{\\max(65536,\\, 4p) + 1}$ 以上のとき、`try_` 形式は評価せずにリソース制限エラーを返し、全域形式は $[-1, 1]$（`tan` では Entire）を返します。認証の予算（12 段階の作業精度）を使い果たした場合にも、同じフォールバックを用います。"
 
-#: manual/api/ball_float.md:1037
+#: manual/api/ball_float.md:1038
 msgid "These return enclosures of $\\sin \\pi\\xi$, $\\cos \\pi\\xi$ and $\\tan \\pi\\xi$."
 msgstr "これらは、$\\sin \\pi\\xi$、$\\cos \\pi\\xi$、$\\tan \\pi\\xi$ の包含区間を返します。"
 
-#: manual/api/ball_float.md:1048
+#: manual/api/ball_float.md:1049
 msgid "Here the critical points are the exact half-integers $k/2$, located from the dyadic endpoints without approximating $\\pi$. `tanpi` returns a half-unbounded interval when a pole is exactly an endpoint and no other pole lies in the interval (for example $[1/2, 1]$ gives $(-\\infty, 0]$, whose upper endpoint is $\\tan \\pi = -0$), Empty for the singleton of a pole, and Entire when a pole lies inside. Unbounded arguments and fallbacks give $[-1, 1]$ (Entire for `tanpi`)."
 msgstr "ここでは臨界点は厳密な半整数 $k/2$ であり、$\\pi$ を近似せずに 2 進有理数の端点から特定されます。`tanpi` は、極がちょうど端点であり区間内に他の極がない場合は片側が非有界な区間を返し（たとえば $[1/2, 1]$ からは $(-\\infty, 0]$ が得られ、その上端点は $\\tan \\pi = -0$ です）、極の単集合に対しては Empty を、極が内部にある場合は Entire を返します。非有界な引数とフォールバックからは $[-1, 1]$（`tanpi` では Entire）が得られます。"
 
-#: manual/api/ball_float.md:1071
+#: manual/api/ball_float.md:1072
 msgid "These return enclosures of $\\arcsin$, $\\arccos$ (over $[-1, 1]$) and $\\arctan$."
 msgstr "これらは、$\\arcsin$、$\\arccos$（$[-1, 1]$ 上）、$\\arctan$ の包含区間を返します。"
 
-#: manual/api/ball_float.md:1083
+#: manual/api/ball_float.md:1084
 msgid "`asin` and `atan` are increasing and `acos` is decreasing, so only endpoints are evaluated. `atan` of an infinite endpoint is $\\pm\\pi/2$. The fallback of the total forms is $[-\\pi/2, \\pi/2]$ for `atan` and `asin` and $[0, \\pi]$ for `acos`, with $\\pi$ taken from a constant of at most 64 bits and rounded outward to the interval's precision, so the fallback itself cannot fail."
 msgstr "`asin` と `atan` は増加、`acos` は減少なので、端点だけが評価されます。無限大の端点に対する `atan` は $\\pm\\pi/2$ です。全域形式のフォールバックは、`atan` と `asin` では $[-\\pi/2, \\pi/2]$、`acos` では $[0, \\pi]$ で、$\\pi$ は高々 64 ビットの定数から取り、区間の精度へ外向きに丸めるため、フォールバック自体は失敗しません。"
 
-#: manual/api/ball_float.md:1089
+#: manual/api/ball_float.md:1090
 msgid "`BallFloat::atan2` and `BallFloat::try_atan2`"
 msgstr "`BallFloat::atan2` と `BallFloat::try_atan2`"
 
-#: manual/api/ball_float.md:1091
+#: manual/api/ball_float.md:1092
 msgid ""
 "`y.atan2(x)` returns an enclosure of the angles $\\operatorname{atan2}(\\eta, \\xi) \\in (-\\pi, \\pi]$ of the points $(\\xi, \\eta) \\n"
 "e (0, 0)$ of the box $\\boldsymbol{x} \\times \\boldsymbol{y}$."
@@ -745,135 +745,135 @@ msgstr ""
 "`y.atan2(x)` は、箱 $\\boldsymbol{x} \\times \\boldsymbol{y}$ の点 $(\\xi, \\eta) \\n"
 "e (0, 0)$ の角度 $\\operatorname{atan2}(\\eta, \\xi) \\in (-\\pi, \\pi]$ の包含区間を返します。"
 
-#: manual/api/ball_float.md:1100
+#: manual/api/ball_float.md:1101
 msgid "The receiver is the ordinate. The result is the hull of the angles at the four corners and at the points where the box meets the axes. When the box crosses the branch cut ($\\underline{x} < 0$ and $\\underline{y} < 0 \\le \\overline{y}$) the result is $[-\\pi, \\pi]$. The box $\\{(0, 0)\\}$ gives Empty. The total form falls back to $[-\\pi, \\pi]$."
 msgstr "レシーバは縦座標です。結果は、4 つの角と、箱が座標軸と交わる点での角度の凸包です。箱が分枝切断を横切る場合（$\\underline{x} < 0$ かつ $\\underline{y} < 0 \\le \\overline{y}$）、結果は $[-\\pi, \\pi]$ です。箱 $\\{(0, 0)\\}$ からは Empty が得られます。全域形式は $[-\\pi, \\pi]$ にフォールバックします。"
 
-#: manual/api/ball_float.md:1108
+#: manual/api/ball_float.md:1109
 msgid "These return enclosures of the hyperbolic functions and their inverses over their domains ($[1, \\infty)$ for `acosh`, $(-1, 1)$ for `atanh`)."
 msgstr "これらは、双曲線関数とその逆関数の、それぞれの定義域（`acosh` では $[1, \\infty)$、`atanh` では $(-1, 1)$）上での包含区間を返します。"
 
-#: manual/api/ball_float.md:1126
+#: manual/api/ball_float.md:1127
 msgid "`cosh` has its minimum 1 at 0; the others are monotone. `atanh` of an interval reaching $\\pm 1$ is unbounded on that side, and an interval whose only point in the domain's closure is $1$ or $-1$ gives Empty. The fallback of the total forms is Entire for `sinh`, `asinh` and `atanh`, $[-1, 1]$ for `tanh`, $[1, +\\infty)$ for `cosh` and $[0, +\\infty)$ for `acosh`."
 msgstr "`cosh` は 0 で最小値 1 をとり、他は単調です。$\\pm 1$ に達する `atanh` の区間はその側で非有界です。区間が定義域の閉包と共有する点が $1$ または $-1$ だけのときは、結果は Empty です。全域形式のフォールバックは、`sinh`、`asinh`、`atanh` では Entire、`tanh` では $[-1, 1]$、`cosh` では $[1, +\\infty)$、`acosh` では $[0, +\\infty)$ です。"
 
-#: manual/api/ball_float.md:1132
+#: manual/api/ball_float.md:1133
 msgid "The total forms keep their relative accuracy for a tiny argument, since they are the `bin_float` kernels: at 53 bits `sinh` of $\\{2^{-300}\\}$ is the two-ulp interval $[2^{-300}, (1 + 2^{-52})\\,2^{-300}]$."
 msgstr "全域形式は、`bin_float` のカーネルそのものなので、非常に小さい引数でも相対精度を保ちます。53 ビットでは、$\\{2^{-300}\\}$ の `sinh` は幅 2 ulp の区間 $[2^{-300}, (1 + 2^{-52})\\,2^{-300}]$ です。"
 
-#: manual/api/ball_float.md:1148
+#: manual/api/ball_float.md:1149
 msgid "Contexts and flags"
 msgstr "コンテキストとフラグ"
 
-#: manual/api/ball_float.md:1150
+#: manual/api/ball_float.md:1151
 msgid "`BallContext::new` and `BallContext::try_new`"
 msgstr "`BallContext::new` と `BallContext::try_new`"
 
-#: manual/api/ball_float.md:1152
+#: manual/api/ball_float.md:1153
 msgid "`BallContext::new` builds a context from a precision and an exponent range."
 msgstr "`BallContext::new` は精度と指数範囲からコンテキストを構築します。"
 
-#: manual/api/ball_float.md:1159
+#: manual/api/ball_float.md:1160
 msgid "The defaults are those of binary64: precision 53, $e_{\\min} = -1022$, $e_{\\max} = 1023$. A precision below 1 or $e_{\\min} > e_{\\max}$ aborts `new` and is a domain error for `try_new`."
 msgstr "既定値は binary64 のもの（精度 53、$e_{\\min} = -1022$、$e_{\\max} = 1023$）です。1 未満の精度または $e_{\\min} > e_{\\max}$ に対しては、`new` はアボートし、`try_new` では定義域エラーになります。"
 
-#: manual/api/ball_float.md:1163
+#: manual/api/ball_float.md:1164
 msgid "`BallContext::binary32` and `BallContext::binary64`"
 msgstr "`BallContext::binary32` と `BallContext::binary64`"
 
-#: manual/api/ball_float.md:1165
+#: manual/api/ball_float.md:1166
 msgid "These return the contexts of the IEEE 754 binary32 ($p = 24$, $[-126, 127]$) and binary64 ($p = 53$, $[-1022, 1023]$) formats."
 msgstr "これらは IEEE 754 の binary32（$p = 24$、$[-126, 127]$）および binary64（$p = 53$、$[-1022, 1023]$）形式のコンテキストを返します。"
 
-#: manual/api/ball_float.md:1175
+#: manual/api/ball_float.md:1176
 msgid "These return the parameters of a context."
 msgstr "これらはコンテキストのパラメータを返します。"
 
-#: manual/api/ball_float.md:1185
+#: manual/api/ball_float.md:1186
 msgid "`BallFlags::new` returns the flags with nothing raised; `combine` is their union; the accessors read the fields."
 msgstr "`BallFlags::new` は何も立っていないフラグを返します。`combine` はそれらの和であり、アクセサはフィールドを読み取ります。"
 
-#: manual/api/ball_float.md:1198
+#: manual/api/ball_float.md:1199
 msgid "`apply_ctx` rounds an interval outward into a context and reports the flags."
 msgstr "`apply_ctx` は区間をコンテキストへ外向きに丸め、フラグを報告します。"
 
-#: manual/api/ball_float.md:1204
+#: manual/api/ball_float.md:1205
 msgid "Each finite nonzero endpoint is rounded outward to the context precision. An endpoint whose rounded exponent exceeds $e_{\\max}$ overflows: it becomes $\\mp\\infty$ if it is a negative lower or a positive upper endpoint, and the largest finite value of the right sign otherwise (a positive lower endpoint becomes the largest finite value, which is still below it). An endpoint below the normal range is then rounded outward on the subnormal grid $2^{e_{\\min} - p + 1}\\mathbb{Z}$, so a tiny positive upper endpoint becomes the smallest subnormal rather than 0. Rounding twice in the same direction equals rounding once onto the coarser grid, so the endpoints are the directed roundings of the stored ones. Zeros and infinities are kept. Empty gives Empty with no flags. The result has the context precision."
 msgstr "有限な非ゼロの端点はそれぞれコンテキストの精度へ外向きに丸められます。丸めた指数が $e_{\\max}$ を超える端点はオーバーフローします。負の下端または正の上端であれば $\\mp\\infty$ になり、それ以外の場合は適切な符号の最大の有限値になります（正の下端は最大の有限値となり、これは依然として元の値より小さい値です）。次に、正規化数の範囲を下回る端点は非正規化数の格子 $2^{e_{\\min} - p + 1}\\mathbb{Z}$ 上で外向きに丸められるため、ごく小さな正の上端は 0 ではなく最小の非正規化数になります。同じ方向に 2 回丸めることは、粗い方の格子へ 1 回丸めることに等しいため、得られる端点は格納された端点の方向付き丸めです。ゼロと無限大はそのまま保たれます。Empty からはフラグなしで Empty が得られます。結果はコンテキストの精度を持ちます。"
 
-#: manual/api/ball_float.md:1216
+#: manual/api/ball_float.md:1217
 msgid "`underflow` follows IEEE 754 with tininess detected after rounding: it is raised when an endpoint is inexact and its rounding to $p$ bits with an unbounded exponent range lies below $2^{e_{\\min}}$, whichever of the two steps lost the bits. With $p = 4$ and $e_{\\min} = -2$, the lower endpoint $2^{-3}(1 + 2^{-10})$ becomes $2^{-3}$, which is already on the subnormal grid, and raises both `inexact` and `underflow`. An exact tiny endpoint raises nothing."
 msgstr "`underflow` は IEEE 754 に従い、微小性を丸め後に判定します。端点が不正確で、かつ指数範囲を無制限として $p$ ビットに丸めた値が $2^{e_{\\min}}$ より小さいとき、2 段階のどちらでビットが失われたかにかかわらず通知されます。$p = 4$、$e_{\\min} = -2$ のとき、下端点 $2^{-3}(1 + 2^{-10})$ は $2^{-3}$ になります。これはすでに非正規化数の格子上にあり、`inexact` と `underflow` の両方が通知されます。厳密な微小端点では何も通知されません。"
 
-#: manual/api/ball_float.md:1224
+#: manual/api/ball_float.md:1225
 msgid "There is no `add_ctx` or `exp_ctx`: the operation and the context are composed, `(x + y).apply_ctx(ctx)`. When the operands' precision is at least the context precision, the double rounding gives the same endpoints as a single outward rounding into the context (see the [design page](../design/ball_float.md#contexts-and-double-rounding))."
 msgstr "`add_ctx` や `exp_ctx` はありません。演算とコンテキストは組み合わせて `(x + y).apply_ctx(ctx)` と書きます。オペランドの精度がコンテキストの精度以上であれば、二重丸めはコンテキストへの 1 回の外向き丸めと同じ端点を与えます（[設計ページ](../design/ball_float.md#contexts-and-double-rounding)を参照）。"
 
-#: manual/api/ball_float.md:1232
+#: manual/api/ball_float.md:1233
 msgid "`midpoint_ctx` is the IEEE 1788 `mid` operation with the context as the result format."
 msgstr "`midpoint_ctx` は、コンテキストを結果の形式とする IEEE 1788 の `mid` 演算です。"
 
-#: manual/api/ball_float.md:1239
+#: manual/api/ball_float.md:1240
 msgid "Following IEEE 1788-2015 §12.12.8, Empty gives NaN, Entire gives $+0$, an interval unbounded only above gives the largest finite value of the context, $(2 - 2^{1-p})\\,2^{e_{\\max}}$, and one unbounded only below gives its negative; none of these raises a flag. A bounded interval gives its exact center rounded once to nearest (ties to even) onto the context's grid, including the subnormal grid $2^{e_{\\min} - p + 1}\\mathbb{Z}$, so with $p = 4$, $e_{\\min} = -2$ the center $2^{-6} + 2^{-20}$ gives $2^{-5}$. A zero center gives $+0$. `inexact` is set when the result differs from the center and `underflow` when it is also tiny, as for `apply_ctx`. A center that rounds beyond $e_{\\max}$ overflows to an infinity of its sign with `overflow` and `inexact`: rounding to nearest maps it to $\\pm\\infty$ in IEEE 754, and IEEE 1788 uses that rounding for the bounded case. Only an interval whose endpoints are themselves outside the context's range can do this."
 msgstr "IEEE 1788-2015 §12.12.8 に従い、Empty は NaN、Entire は $+0$ を与え、上側だけ非有界な区間はコンテキストの最大有限値 $(2 - 2^{1-p})\\,2^{e_{\\max}}$ を、下側だけ非有界な区間はその符号反転を与えます。これらはいずれもフラグを通知しません。有界な区間は、その厳密な中心をコンテキストの格子（非正規化数の格子 $2^{e_{\\min} - p + 1}\\mathbb{Z}$ を含む）へ最近接（偶数への丸め）で 1 回だけ丸めた値を与えます。したがって $p = 4$、$e_{\\min} = -2$ では中心 $2^{-6} + 2^{-20}$ は $2^{-5}$ になります。中心がゼロなら $+0$ です。結果が中心と異なるときは `inexact` が、さらに微小であれば `underflow` が、`apply_ctx` と同様に設定されます。丸めると $e_{\\max}$ を超える中心は、同じ符号の無限大にオーバーフローし、`overflow` と `inexact` が設定されます。IEEE 754 では最近接丸めがその値を $\\pm\\infty$ に写し、IEEE 1788 は有界な場合にその丸めを用いるからです。これが起こるのは、端点自体がコンテキストの範囲外にある区間だけです。"
 
-#: manual/api/ball_float.md:1269
+#: manual/api/ball_float.md:1270
 msgid "Decorated intervals"
 msgstr "装飾付き区間"
 
-#: manual/api/ball_float.md:1271
+#: manual/api/ball_float.md:1272
 msgid "A decorated operation computes the bare result and the decoration $d = \\min(d_1, \\dots, d_k, d_f)$, where $d_i$ are the operand decorations and $d_f$ is the decoration of the operation on these operands (`Com` when the function is defined and continuous on the whole input box, `Trv` when the input leaves the domain, as listed below). The minimum is then made canonical (Empty → `Trv`, unbounded with `Com` → `Dac`). Any NaI operand gives NaI."
 msgstr "装飾付きの演算は、装飾なしの結果と装飾 $d = \\min(d_1, \\dots, d_k, d_f)$ を計算します。ここで $d_i$ はオペランドの装飾、$d_f$ はこれらのオペランドに対する演算の装飾です（関数が入力の箱全体で定義かつ連続であれば `Com`、入力が定義域を外れれば `Trv` など、以下に列挙するとおり）。その後、最小値は正準形にされます（Empty → `Trv`、`Com` を持つ非有界な区間 → `Dac`）。NaI のオペランドがあれば NaI が得られます。"
 
-#: manual/api/ball_float.md:1280
+#: manual/api/ball_float.md:1281
 msgid "`BallFloatDecorated::new` decorates a bare interval."
 msgstr "`BallFloatDecorated::new` は装飾なしの区間に装飾を付けます。"
 
-#: manual/api/ball_float.md:1286
+#: manual/api/ball_float.md:1287
 msgid "The default decoration is `Com`. `new` is `setDec` of IEEE 1788-2015 11.5.2: the decoration `Ill` gives NaI for any interval, empty or not (at the precision of the interval, so the result equals `BallFloatDecorated::nai`); otherwise the decoration is made canonical, so `new(entire())` is decorated `Dac` and `new(empty())` is decorated `Trv`, as in IEEE 1788 `newDec`."
 msgstr "既定の装飾は `Com` です。`new` は IEEE 1788-2015 第 11.5.2 条の `setDec` で、装飾 `Ill` は区間が空かどうかにかかわらず NaI を返します（区間と同じ精度なので、結果は `BallFloatDecorated::nai` と等しくなります）。それ以外では装飾は正規化され、`new(entire())` の装飾は `Dac`、`new(empty())` の装飾は `Trv` で、IEEE 1788 の `newDec` と同じです。"
 
-#: manual/api/ball_float.md:1292
+#: manual/api/ball_float.md:1293
 msgid "`BallFloatDecorated::nai` and `BallFloatDecorated::is_nai`"
 msgstr "`BallFloatDecorated::nai` と `BallFloatDecorated::is_nai`"
 
-#: manual/api/ball_float.md:1294
+#: manual/api/ball_float.md:1295
 msgid "`nai` returns NaI, the result of an invalid decorated construction; `is_nai` tests for it."
 msgstr "`nai` は不正な装飾付き構築の結果である NaI を返し、`is_nai` はそれを判定します。"
 
-#: manual/api/ball_float.md:1302
+#: manual/api/ball_float.md:1303
 msgid "NaI has decoration `Ill` and an Empty interval (default precision 53), but it is not Empty: `is_empty` is false for NaI."
 msgstr "NaI は装飾 `Ill` と Empty の区間（既定の精度 53）を持ちますが、Empty ではありません。NaI に対して `is_empty` は偽です。"
 
-#: manual/api/ball_float.md:1305
+#: manual/api/ball_float.md:1306
 msgid "`BallFloatDecorated::interval` and `BallFloatDecorated::decoration`"
 msgstr "`BallFloatDecorated::interval` と `BallFloatDecorated::decoration`"
 
-#: manual/api/ball_float.md:1307
+#: manual/api/ball_float.md:1308
 msgid "These return the bare interval and the decoration."
 msgstr "これらは装飾なしの区間と装飾を返します。"
 
-#: manual/api/ball_float.md:1316
+#: manual/api/ball_float.md:1317
 msgid "These predicates apply the bare predicate to the interval and return false for NaI."
 msgstr "これらの述語は、装飾なしの述語を区間に適用し、NaI に対しては偽を返します。"
 
-#: manual/api/ball_float.md:1329
+#: manual/api/ball_float.md:1330
 msgid "These relations apply the bare relation to the intervals and return false when an operand is NaI."
 msgstr "これらの関係は、装飾なしの関係を区間に適用し、オペランドが NaI のときは偽を返します。"
 
-#: manual/api/ball_float.md:1344
-msgid "`overlap_state` returns `Undefined` when an operand is NaI."
-msgstr "`overlap_state` はオペランドが NaI のとき `Undefined` を返します。"
+#: manual/api/ball_float.md:1345
+msgid "`overlap` returns `None` when an operand is NaI, which has no value for a non-interval-valued operation (IEEE 1788-2015 11.7.2), and `Some(state)` otherwise."
+msgstr "オペランドが NaI のとき `overlap` は `None` を返します。区間値でない演算では NaI は値を持たないためです（IEEE 1788-2015 11.7.2）。それ以外では `Some(state)` を返します。"
 
-#: manual/api/ball_float.md:1348
+#: manual/api/ball_float.md:1351
 msgid "These apply the bare operation and always lower the decoration to `Trv` (set operations are not point functions, so no property of a function can be claimed for their results)."
 msgstr "これらは装飾なしの演算を適用し、装飾を常に `Trv` に引き下げます（集合演算は点関数ではないため、その結果について関数の性質を何も主張できません）。"
 
-#: manual/api/ball_float.md:1361
+#: manual/api/ball_float.md:1364
 msgid "The arithmetic operations apply the bare operation; their operation decoration is `Com` except where the table says otherwise."
 msgstr "算術演算は装飾なしの演算を適用します。演算の装飾は、表に別途記載がない限り `Com` です。"
 
-#: manual/api/ball_float.md:1380
+#: manual/api/ball_float.md:1383
 #: manual/conformance/decimal_gda.md:15
 #: manual/design/ball_float.md:374
 #: manual/design/bin_float_checked.md:122
@@ -884,94 +884,94 @@ msgstr "算術演算は装飾なしの演算を適用します。演算の装飾
 msgid "Operation"
 msgstr "演算"
 
-#: manual/api/ball_float.md:1380
+#: manual/api/ball_float.md:1383
 msgid "Operation decoration"
 msgstr "演算の装飾"
 
-#: manual/api/ball_float.md:1382
+#: manual/api/ball_float.md:1385
 msgid "`Trv` when the divisor contains 0"
 msgstr "除数が 0 を含むとき `Trv`"
 
-#: manual/api/ball_float.md:1383
+#: manual/api/ball_float.md:1386
 msgid "`Trv` when $n < 0$ and $0 \\in \\boldsymbol{x}$"
 msgstr "$n < 0$ かつ $0 \\in \\boldsymbol{x}$ のとき `Trv`"
 
-#: manual/api/ball_float.md:1384
+#: manual/api/ball_float.md:1387
 msgid "identity (IEEE 1788 `pos`)"
 msgstr "恒等関数（IEEE 1788 の `pos`）"
 
-#: manual/api/ball_float.md:1385
+#: manual/api/ball_float.md:1388
 msgid "others"
 msgstr "その他"
 
-#: manual/api/ball_float.md:1389
+#: manual/api/ball_float.md:1392
 msgid "The decorated elementary functions apply the bare total form (there are no decorated `try_` forms) and lower the decoration when the input leaves the domain of the function, as listed in the table at the end of this group."
 msgstr "装飾付きの初等関数は装飾なしの全域形式を適用し（装飾付きの `try_` 形式はありません）、入力が関数の定義域を外れるときに、このグループの末尾の表に示すとおり装飾を引き下げます。"
 
-#: manual/api/ball_float.md:1393
+#: manual/api/ball_float.md:1396
 msgid "These are the decorated square root, exponentials, logarithms, powers and `hypot`."
 msgstr "これらは装飾付きの平方根、指数関数、対数関数、べき関数、および `hypot` です。"
 
-#: manual/api/ball_float.md:1413
+#: manual/api/ball_float.md:1416
 msgid "These are the decorated trigonometric functions and their inverses."
 msgstr "これらは装飾付きの三角関数とその逆関数です。"
 
-#: manual/api/ball_float.md:1430
+#: manual/api/ball_float.md:1433
 msgid "These are the decorated hyperbolic functions and their inverses."
 msgstr "これらは装飾付きの双曲線関数とその逆関数です。"
 
-#: manual/api/ball_float.md:1441
+#: manual/api/ball_float.md:1444
 #: manual/api/decimal.md:1795
 #: manual/numeric_semantics.md:136
 msgid "Function"
 msgstr "関数"
 
-#: manual/api/ball_float.md:1441
+#: manual/api/ball_float.md:1444
 msgid "Operation decoration `Trv` when"
 msgstr "演算の装飾が `Trv` となる条件"
 
-#: manual/api/ball_float.md:1443
+#: manual/api/ball_float.md:1446
 msgid "$\\underline{x} < 0$ (or the input is Empty)"
 msgstr "$\\underline{x} < 0$（または入力が Empty）"
 
-#: manual/api/ball_float.md:1448
+#: manual/api/ball_float.md:1451
 msgid "$\\underline{x} \\le -1$ or $\\overline{x} \\ge 1$"
 msgstr "$\\underline{x} \\le -1$ または $\\overline{x} \\ge 1$"
 
-#: manual/api/ball_float.md:1449
+#: manual/api/ball_float.md:1452
 msgid "$n = 0$, or $n$ even and $\\underline{x} < 0$, or $n < 0$ and $0 \\in \\boldsymbol{x}$"
 msgstr "$n = 0$、または $n$ が偶数かつ $\\underline{x} < 0$、または $n < 0$ かつ $0 \\in \\boldsymbol{x}$"
 
-#: manual/api/ball_float.md:1450
+#: manual/api/ball_float.md:1453
 msgid "$\\underline{x} < 0$, or $0 \\in \\boldsymbol{x}$ and $\\underline{y} \\le 0$, or the result is Empty"
 msgstr "$\\underline{x} < 0$、または $0 \\in \\boldsymbol{x}$ かつ $\\underline{y} \\le 0$、または結果が Empty"
 
-#: manual/api/ball_float.md:1451
+#: manual/api/ball_float.md:1454
 msgid "the result is Entire (a pole may lie inside)"
 msgstr "結果が Entire（極が内部にある可能性がある）"
 
-#: manual/api/ball_float.md:1452
+#: manual/api/ball_float.md:1455
 msgid "the result is unbounded (a pole lies in the argument, possibly at an endpoint)"
 msgstr "結果が非有界（引数に極が含まれ、端点にある場合もある）"
 
-#: manual/api/ball_float.md:1453
+#: manual/api/ball_float.md:1456
 msgid "both operands contain 0"
 msgstr "両オペランドが 0 を含む"
 
-#: manual/api/ball_float.md:1455
+#: manual/api/ball_float.md:1458
 msgid "All other functions have operation decoration `Com`. For `y.atan2(x)` the decoration is `Def` when the box crosses the branch cut ($\\underline{x} < 0$, $\\underline{y} < 0 \\le \\overline{y}$: the restriction jumps from $-\\pi$ to $\\pi$) and `Dac` when it touches the cut from above ($\\overline{x} < 0$, $\\underline{y} = 0$: the restriction is continuous, but `atan2` itself is not continuous at those points)."
 msgstr "その他の関数の演算の装飾はすべて `Com` です。`y.atan2(x)` では、箱が分枝切断を横切るとき（$\\underline{x} < 0$、$\\underline{y} < 0 \\le \\overline{y}$：制限は $-\\pi$ から $\\pi$ へ跳びます）装飾は `Def` であり、上から切断に接するとき（$\\overline{x} < 0$、$\\underline{y} = 0$：制限は連続ですが、`atan2` 自体はこれらの点で連続ではありません）は `Dac` です。"
 
-#: manual/api/ball_float.md:1464
+#: manual/api/ball_float.md:1467
 msgid "`apply_ctx` applies `BallFloat::apply_ctx` to the interval and keeps the decoration (made canonical again, so an overflowed `Com` becomes `Dac`)."
 msgstr "`apply_ctx` は区間に `BallFloat::apply_ctx` を適用し、装飾を保持します（再び正準形にされるため、オーバーフローした `Com` は `Dac` になります）。"
 
-#: manual/api/ball_float.md:1471
+#: manual/api/ball_float.md:1474
 msgid "NaI stays NaI, with the context precision."
 msgstr "NaI はコンテキストの精度を持つ NaI のままです。"
 
-#: manual/api/ball_float.md:1494
-#: manual/api/ball_float_checked.md:394
+#: manual/api/ball_float.md:1497
+#: manual/api/ball_float_checked.md:423
 #: manual/api/bin_float.md:2279
 #: manual/api/bin_float_checked.md:817
 #: manual/api/decimal.md:2025
@@ -987,39 +987,39 @@ msgstr "NaI はコンテキストの精度を持つ NaI のままです。"
 msgid "Trait implementations"
 msgstr "トレイト実装"
 
-#: manual/api/ball_float.md:1496
+#: manual/api/ball_float.md:1499
 msgid "`Add`, `Sub`, `Mul`, `Div` and `Neg` for `BallFloat` and `BallFloatDecorated`"
 msgstr "`BallFloat` と `BallFloatDecorated` の `Add`、`Sub`、`Mul`、`Div`、`Neg`"
 
-#: manual/api/ball_float.md:1498
+#: manual/api/ball_float.md:1501
 msgid "`BallFloat` implements `Add`, `Sub`, `Mul`, `Div` and `Neg`; `BallFloatDecorated` implements `Add`, `Sub`, `Mul` and `Div`. The operators call the methods of the same name."
 msgstr "`BallFloat` は `Add`、`Sub`、`Mul`、`Div`、`Neg` を実装し、`BallFloatDecorated` は `Add`、`Sub`、`Mul`、`Div` を実装します。演算子は同名のメソッドを呼び出します。"
 
-#: manual/api/ball_float.md:1516
+#: manual/api/ball_float.md:1519
 msgid "`Show` writes an interval in an exact text form."
 msgstr "`Show` は区間を厳密なテキスト形式で書き出します。"
 
-#: manual/api/ball_float.md:1530
+#: manual/api/ball_float.md:1533
 msgid "A bounded `BallFloat` prints as `center +/- radius` with both numbers in the exact `BinFloat` notation (`3p-1` is $3 \\cdot 2^{-1}$), so the text denotes exactly the stored set (up to the far-endpoint case noted under [`BallFloat::center`](#ballfloatcenter-and-ballfloatradius)); an unbounded one prints as `[lo, hi]`, Empty as `[empty]`. A decorated interval appends `_` and the decoration; NaI prints as `[nai]`."
 msgstr "有界な `BallFloat` は `center +/- radius` として出力され、両方の数は厳密な `BinFloat` 記法（`3p-1` は $3 \\cdot 2^{-1}$）で書かれるため、テキストは格納された集合をそのまま表します（[`BallFloat::center`](#ballfloatcenter-and-ballfloatradius) の項で述べた端点が遠く離れたケースを除く）。非有界なものは `[lo, hi]`、Empty は `[empty]` として出力されます。装飾付き区間は `_` と装飾を付け加え、NaI は `[nai]` として出力されます。"
 
-#: manual/api/ball_float.md:1548
+#: manual/api/ball_float.md:1551
 msgid "These are the derived `Eq` and `Debug` methods of the structures."
 msgstr "これらは構造体の導出された `Eq` および `Debug` メソッドです。"
 
-#: manual/api/ball_float.md:1562
+#: manual/api/ball_float.md:1565
 msgid "These are the derived `Eq` and `Debug` methods of the enums."
 msgstr "これらは列挙型の導出された `Eq` および `Debug` メソッドです。"
 
-#: manual/api/ball_float.md:1573
+#: manual/api/ball_float.md:1576
 msgid "The `Eq` implementations compare representations. For `BallFloat` and `BallFloatDecorated` this distinguishes equal sets stored with different precision tags or endpoint precisions; use `set_equal` for sets. `to_repr` gives the structural `Debug` form."
 msgstr "`Eq` の実装は表現を比較します。`BallFloat` と `BallFloatDecorated` では、異なる精度タグや端点の精度で格納された等しい集合が区別されます。集合の比較には `set_equal` を使ってください。`to_repr` は構造的な `Debug` 形式を与えます。"
 
-#: manual/api/ball_float.md:1580
+#: manual/api/ball_float.md:1583
 msgid "`BallFloat` implements the enclosure relation traits of `Luna-Flow/arithmetic`."
 msgstr "`BallFloat` は `Luna-Flow/arithmetic` の包含関係トレイトを実装します。"
 
-#: manual/api/ball_float.md:1590
+#: manual/api/ball_float.md:1593
 msgid ""
 "`Contains::contains(x, y)` is `y.subset(x)` (set inclusion, not the point-taking method). `Overlaps::overlaps(x, y)` is $\\underline{x} \\le \\overline{y} \\wedge \\underline{y} \\le \\overline{x}$, that is $\\boldsymbol{x} \\cap \\boldsymbol{y} \\n"
 "e \\emptyset$, and `MaybeEq::maybe_eq` is the same relation read as \"the two unknown points may be equal\". `DefinitelyLt::definitely_lt(x, y)` is $\\overline{x} < \\underline{y}$ and `DefinitelyLe::definitely_le(x, y)` is $\\overline{x} \\le \\underline{y}$: they hold when the order holds for every pair of points. All four are false when an operand is Empty. This differs from `disjoint`, `precedes` and `strictly_precedes`, which are true for an Empty operand (IEEE 1788-2015 Table 10.4): `overlaps` is false where `disjoint` is true, and `definitely_lt` is false where `strictly_precedes` is true, so a `true` answer of the traits is always backed by at least one pair of points. These are the generic interface of `Luna-Flow/arithmetic`; the interval package spells the standard relations `disjoint`, `precedes` and `strictly_precedes`."
@@ -1027,16 +1027,16 @@ msgstr ""
 "`Contains::contains(x, y)` は `y.subset(x)` です（集合の包含であり、点を受け取るメソッドではありません）。`Overlaps::overlaps(x, y)` は $\\underline{x} \\le \\overline{y} \\wedge \\underline{y} \\le \\overline{x}$、すなわち $\\boldsymbol{x} \\cap \\boldsymbol{y} \\n"
 "e \\emptyset$ で、`MaybeEq::maybe_eq` は同じ関係を「2 つの未知の点が等しいかもしれない」と読んだものです。`DefinitelyLt::definitely_lt(x, y)` は $\\overline{x} < \\underline{y}$、`DefinitelyLe::definitely_le(x, y)` は $\\overline{x} \\le \\underline{y}$ で、すべての点の組についてその順序が成り立つときに成り立ちます。4 つとも、オペランドが Empty のときは偽です。これは Empty のオペランドに対して真になる `disjoint`、`precedes`、`strictly_precedes` とは異なります（IEEE 1788-2015 表 10.4）。`overlaps` が偽のところで `disjoint` は真、`definitely_lt` が偽のところで `strictly_precedes` は真なので、これらのトレイトが `true` を返すときは、必ず少なくとも 1 組の点がその根拠になっています。これらは `Luna-Flow/arithmetic` の汎用インターフェースで、区間パッケージは標準の関係を `disjoint`、`precedes`、`strictly_precedes` と綴ります。"
 
-#: manual/api/ball_float.md:1608
+#: manual/api/ball_float.md:1611
 msgid "`BallFloat` implements `DivChecked`, `PowNatChecked` and `PowIntChecked`; their methods are promoted."
 msgstr "`BallFloat` は `DivChecked`、`PowNatChecked`、`PowIntChecked` を実装し、それらのメソッドは昇格されています。"
 
-#: manual/api/ball_float.md:1620
+#: manual/api/ball_float.md:1623
 msgid "Only `ctx.precision` is used: the operands are re-rounded to it with `with_precision`, the operation is applied, and the result is re-rounded outward (see [`BallFloat::with_precision`](#ballfloatwith_precision)). At the operands' own precision the result is that of the plain operation; at a lower precision it can be wider. They always return `Ok`. `div_checked` follows the division rules above (a divisor containing 0 gives an unbounded result, not an error). `pow_int_checked` uses `pown`. `pow_nat_checked` uses binary powering by repeated interval multiplication, which treats the factors as independent: for an argument containing 0 its result is wider than `pown`. An Empty base gives Empty for every exponent, including 0, as `pown` does."
 msgstr "使われるのは `ctx.precision` だけです。オペランドは `with_precision` でその精度に丸め直され、演算が適用され、結果が外向きに丸め直されます（[`BallFloat::with_precision`](#ballfloatwith_precision) を参照）。オペランド自身の精度では結果は通常の演算と同じで、より低い精度では広くなることがあります。常に `Ok` を返します。`div_checked` は上記の除算規則に従います（0 を含む除数はエラーではなく非有界な結果を与えます）。`pow_int_checked` は `pown` を用います。`pow_nat_checked` は区間の乗算の繰り返しによる二進べき乗を用い、因子を独立なものとして扱うため、0 を含む引数に対しては結果が `pown` より広くなります。`pown` と同様に、Empty の底は指数 0 を含むすべての指数で Empty を与えます。"
 
-#: manual/api/ball_float.md:1644
-#: manual/api/ball_float_checked.md:409
+#: manual/api/ball_float.md:1647
+#: manual/api/ball_float_checked.md:438
 #: manual/api/bench.md:216
 #: manual/api/bench/ball_float.md:43
 #: manual/api/bench/bin_float.md:44
@@ -1074,7 +1074,7 @@ msgstr "使われるのは `ctx.precision` だけです。オペランドは `wi
 msgid "Complete public interface"
 msgstr "公開インターフェース全体"
 
-#: manual/api/ball_float.md:1646
+#: manual/api/ball_float.md:1649
 #: manual/api/decimal.md:2225
 #: manual/api/decimal_gda.md:1562
 #: manual/api/frontend/gda_expr.md:510
@@ -1209,55 +1209,63 @@ msgid "The left operand's error comes first, then the right one's. Interval arit
 msgstr "左オペランドのエラーが先に、次に右オペランドのエラーが採用されます。区間演算自体が失敗することはなく、結果は $\\{\\, s \\circ t : s \\in X, t \\in Y \\,\\}$ を包含します。ちょうど $\\{0\\}$ である区間による除算は空集合を与え、内部にゼロを含む区間による除算は実数直線全体を与えます。"
 
 #: manual/api/ball_float_checked.md:238
+msgid "These methods are `map` of the `BallFloat` method of the same name (IEEE 1788-2015 Table 9.1): the directed square root, the square of one point (`sqr`, so the square of $[-1, 1]$ is $[0, 1]$) and the reciprocal. None of them can fail."
+msgstr "これらのメソッドは同名の `BallFloat` メソッドの `map` です（IEEE 1788-2015 表 9.1）。方向付き平方根、1 つの点の平方（`sqr`。したがって $[-1, 1]$ の平方は $[0, 1]$）、逆数です。いずれも失敗しません。"
+
+#: manual/api/ball_float_checked.md:251
+msgid "These methods combine two or three wrappers with the `BallFloat` method of the same name (Table 9.1 `min`, `max`, `fma`; 9.2 and 9.3 the cancellative and set operations). The first error comes first, in argument order, as for `add`."
+msgstr "これらのメソッドは、2 つまたは 3 つのラッパーを同名の `BallFloat` メソッドで組み合わせます（表 9.1 の `min`、`max`、`fma`、9.2 と 9.3 の相殺演算と集合演算）。最初のエラーが引数の順に優先されるのは `add` と同じです。"
+
+#: manual/api/ball_float_checked.md:267
 msgid "`pown` raises an interval to an integer power through the Luna-Flow/arithmetic trait `PowIntChecked`."
 msgstr "`pown` は、Luna-Flow/arithmetic のトレイト `PowIntChecked` を通じて区間を整数乗します。"
 
-#: manual/api/ball_float_checked.md:245
+#: manual/api/ball_float_checked.md:274
 msgid "The context is `ArithmeticContext::new(x.precision())`; `ball_float` uses only its precision, and re-rounds the base and the result outward with `with_precision`, which adds nothing when they are already representable. `pown` encloses $\\{t^{n}\\}$ with `BallFloat::pown`, which treats the base as one point (so `pown(2)` of $[-1, 1]$ is $[0, 1]$, tighter than `x * x`, which is $[-1, 1]$). A zero base with a negative exponent gives the empty set. An empty base stays empty for every exponent, including `pown(0)`. There is no `pow_nat` here: a non-negative exponent is a `pown`, and the trait form `BallFloat::pow_nat_checked` takes a `UInt`."
 msgstr "コンテキストは `ArithmeticContext::new(x.precision())` です。`ball_float` はその精度だけを使い、底と結果を `with_precision` で外向きに丸め直します。それらがすでに表現可能なら幅は増えません。`pown` は `BallFloat::pown` で $\\{t^{n}\\}$ を包含し、底を 1 つの点として扱います（したがって $[-1, 1]$ の `pown(2)` は $[0, 1]$ であり、$[-1, 1]$ となる `x * x` より狭くなります）。ゼロの底と負の指数からは空集合が得られます。空の底は、`pown(0)` を含め、どの指数でも空のままです。ここに `pow_nat` はありません。非負の指数は `pown` であり、トレイト形式の `BallFloat::pow_nat_checked` が `UInt` を受け取ります。"
 
-#: manual/api/ball_float_checked.md:257
+#: manual/api/ball_float_checked.md:286
 msgid "`rootn(n)` encloses the real $n$-th root with `BallFloat::try_rootn`."
 msgstr "`rootn(n)` は `BallFloat::try_rootn` によって実数の $n$ 乗根を包含します。"
 
-#: manual/api/ball_float_checked.md:263
+#: manual/api/ball_float_checked.md:292
 msgid "Degree $0$ gives a `DomainError`. Even roots ignore the negative part of the interval (set semantics): the root of $[-1, 1]$ is $[0, 1]$."
 msgstr "次数 $0$ からは `DomainError` が得られます。偶数乗根は区間の負の部分を無視します（集合意味論）。$[-1, 1]$ の根は $[0, 1]$ です。"
 
-#: manual/api/ball_float_checked.md:268
+#: manual/api/ball_float_checked.md:297
 msgid "These binary functions enclose $x^{y}$, $\\sqrt{x^2+y^2}$ and the angle of $(\\text{abscissa}, \\text{self})$."
 msgstr "これらの二項関数は、$x^{y}$、$\\sqrt{x^2+y^2}$、および $(\\text{abscissa}, \\text{self})$ の角度を包含します。"
 
-#: manual/api/ball_float_checked.md:277
+#: manual/api/ball_float_checked.md:306
 msgid "They call `try_pow`, `try_hypot` and `try_atan2`. Operand errors are taken left first; the operation can fail with a `CertificationFailure`. Points outside the real domain are dropped from the result set, so $(-2)^{0.5}$ is the empty interval."
 msgstr "これらは `try_pow`、`try_hypot`、`try_atan2` を呼び出します。オペランドのエラーは左から順に採用され、演算自体は `CertificationFailure` で失敗することがあります。実数の定義域外の点は結果の集合から除かれるため、$(-2)^{0.5}$ は空の区間です。"
 
-#: manual/api/ball_float_checked.md:313
+#: manual/api/ball_float_checked.md:342
 msgid "These methods enclose the image of the interval under the exponentials and logarithms."
 msgstr "これらのメソッドは、指数関数と対数関数による区間の像を包含します。"
 
-#: manual/api/ball_float_checked.md:329
+#: manual/api/ball_float_checked.md:358
 msgid "These methods enclose the image of the interval under the trigonometric functions and their inverses."
 msgstr "これらのメソッドは、三角関数とその逆関数による区間の像を包含します。"
 
-#: manual/api/ball_float_checked.md:346
+#: manual/api/ball_float_checked.md:375
 msgid "These methods enclose the image of the interval under the hyperbolic functions and their inverses."
 msgstr "これらのメソッドは、双曲線関数とその逆関数による区間の像を包含します。"
 
-#: manual/api/ball_float_checked.md:358
+#: manual/api/ball_float_checked.md:387
 msgid "Each method is `bind` of `BallFloat::try_<name>_interval` at the interval's precision. The result $Y$ satisfies $f(X \\cap \\operatorname{dom} f) \\subseteq Y$; parts of $X$ outside the domain are ignored, so $\\ln([-1, 1]) = [-\\infty, 0]$ and $\\ln([-2, -2])$ is empty. The only error is a `CertificationFailure` when an enclosure cannot be certified, for example the cosine of $2^{8000000}$ (reason `ResourceLimit`). There are no context variants; precision is set with `with_precision`."
 msgstr "各メソッドは、区間の精度での `BallFloat::try_<name>_interval` の `bind` です。結果 $Y$ は $f(X \\cap \\operatorname{dom} f) \\subseteq Y$ を満たします。$X$ のうち定義域外の部分は無視されるため、$\\ln([-1, 1]) = [-\\infty, 0]$ であり、$\\ln([-2, -2])$ は空です。唯一のエラーは、包含区間を認証できない場合の `CertificationFailure` であり、たとえば $2^{8000000}$ の余弦がそうです（理由は `ResourceLimit`）。コンテキスト付きの変種はなく、精度は `with_precision` で設定します。"
 
-#: manual/api/ball_float_checked.md:396
+#: manual/api/ball_float_checked.md:425
 msgid "`Add`, `Sub`, `Mul`, `Div`, `Neg` for `BallFloatResult`"
 msgstr "`BallFloatResult` の `Add`、`Sub`、`Mul`、`Div`、`Neg`"
 
-#: manual/api/ball_float_checked.md:398
+#: manual/api/ball_float_checked.md:427
 #: manual/api/bin_float_checked.md:821
 msgid "The operators `+`, `-`, `*`, `/` and unary `-` call `add`, `sub`, `mul`, `div` and `neg`."
 msgstr "演算子 `+`、`-`、`*`、`/` と単項 `-` は、`add`、`sub`、`mul`、`div`、`neg` を呼び出します。"
 
-#: manual/api/ball_float_checked.md:411
+#: manual/api/ball_float_checked.md:440
 #: manual/api/bin_float_checked.md:839
 #: manual/api/decimal_checked.md:410
 #: manual/api/decimal_gda_checked.md:283
@@ -27367,6 +27375,12 @@ msgstr "公開 API を絞ると、条項から API への対応が変わるこ�
 #: manual/verification.md:705
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体のロードマップは [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "The constructors correspond to the IEEE 1788 states `bothEmpty`, `firstEmpty`, `secondEmpty`, `before`, `meets`, `overlaps`, `starts`, `containedBy`, `finishes`, `equal`, `after`, `metBy`, `overlappedBy`, `startedBy`, `contains` and `finishedBy`; `OverlapsState`, `EqualIntervals` and `ContainsInterval` carry a suffix only to avoid clashing with method names. `Undefined` is returned only by the decorated version when an operand is NaI."
+#~ msgstr "コンストラクタは IEEE 1788 の状態 `bothEmpty`、`firstEmpty`、`secondEmpty`、`before`、`meets`、`overlaps`、`starts`、`containedBy`、`finishes`、`equal`、`after`、`metBy`、`overlappedBy`、`startedBy`、`contains`、`finishedBy` に対応します。`OverlapsState`、`EqualIntervals`、`ContainsInterval` に接尾辞が付いているのは、メソッド名との衝突を避けるためだけです。`Undefined` は、オペランドが NaI のときに装飾付き版だけが返します。"
+
+#~ msgid "`overlap_state` returns `Undefined` when an operand is NaI."
+#~ msgstr "`overlap_state` はオペランドが NaI のとき `Undefined` を返します。"
 
 #~ msgid "*The model term.* With $F = \\pi / (2\\, \\mathrm{AG}(1, 4/s))$ the lower end uses $\\ln s \\ge F (1 - 4/s^2)$ and the upper end $\\ln s \\le F$. **This inequality is taken from the literature and is not proved here**: the comment of MPFR's `log.c` states it for $s \\ge 1.26$, and the MPFR algorithms document (section 4.5) gives only the asymptotic form $\\ln x \\approx \\pi/(2\\,\\mathrm{AG}(1, 4/s)) - m \\ln 2 + o(\\ln x\\, 2^{-p})$ and cites J.-M. Muller, *Elementary Functions. Algorithms and Implementation*, Birkhauser, 1997. The source of a proof (Muller 1997, Brent 1976, the Borwein brothers' *Pi and the AGM*, or DLMF 19.8 and 19.12 for the expansion of $K(k)$ near $k = 1$) has not been read. The code subtracts $F\\, 2^{-(p-2)}$, sixteen times the claimed $4/s^2 < 2^{-(p+2)}$, and the error margin $e F$ of step 3 is more than a hundred times the claimed term, so a constant up to 64 instead of 4 would still give a valid enclosure. Numerically (exact decimal arithmetic, $s = 2^k$, $k = 1 \\ldots 40$): $0 < F - \\ln s < 4 \\ln s / s^2$ with a ratio to the bound between 0.56 and 0.96."
 #~ msgstr "*モデル項。* $F = \\pi / (2\\, \\mathrm{AG}(1, 4/s))$ として、下端には $\\ln s \\ge F (1 - 4/s^2)$、上端には $\\ln s \\le F$ を使う。**この不等式は文献から取ったもので、ここでは証明していない。** MPFR の `log.c` のコメントが $s \\ge 1.26$ に対してこれを述べており、MPFR のアルゴリズム文書（4.5 節）は漸近形 $\\ln x \\approx \\pi/(2\\,\\mathrm{AG}(1, 4/s)) - m \\ln 2 + o(\\ln x\\, 2^{-p})$ だけを与えて J.-M. Muller, *Elementary Functions. Algorithms and Implementation*, Birkhauser, 1997 を引用している。証明の出典（Muller 1997、Brent 1976、Borwein 兄弟の *Pi and the AGM*、または $K(k)$ の $k = 1$ 付近の展開を扱う DLMF 19.8 と 19.12）は読んでいない。コードは $F\\, 2^{-(p-2)}$ を引く。これは主張されている $4/s^2 < 2^{-(p+2)}$ の 16 倍であり、ステップ 3 の誤差の余裕 $e F$ は主張されている項の 100 倍以上あるので、定数が 4 でなく 64 まででも有効な包囲が得られる。数値では（厳密な十進演算、$s = 2^k$、$k = 1 \\ldots 40$）$0 < F - \\ln s < 4 \\ln s / s^2$ で、この上界との比は 0.56 から 0.96 の間である。"

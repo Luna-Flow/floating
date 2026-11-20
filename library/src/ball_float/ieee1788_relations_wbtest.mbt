@@ -59,6 +59,6 @@ test "IEEE 1788 overlap classification is exhaustive on representative pairs" {
   assert_true(a.overlap(b) == Before)
   assert_true(a.overlap(meeting) == Meets)
   assert_true(a.overlap(containing) == ContainedBy)
-  assert_true(containing.overlap(a) == ContainsInterval)
-  assert_true(a.overlap(a) == EqualIntervals)
+  assert_true(containing.overlap(a) == Contains)
+  assert_true(a.overlap(a) == Equals)
 }

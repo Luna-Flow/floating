@@ -208,7 +208,7 @@ test "relations" {
   inspect(@lf_arith.MaybeEq::maybe_eq(a, b), content="true") // ... because they share points
   inspect(c.subset(b), content="true")
   inspect(a.is_member(@bin_float.BinFloat::from_int(10, precision=53)), content="true")
-  debug_inspect(a.overlap(b), content="OverlapsState")
+  debug_inspect(a.overlap(b), content="Overlaps")
 }
 ```
 
