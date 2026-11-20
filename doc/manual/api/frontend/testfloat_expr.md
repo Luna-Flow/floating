@@ -63,6 +63,7 @@ pub(all) enum TestFloatOperation {
 | `Remainder` | `rem` | 2 | `remainder_ctx` |
 | `RoundToInt` | `roundToInt` | 1 | `to_integral_exact_ctx` if exact, else `to_integral_value_ctx` |
 | `ToInt32`, `ToInt64`, `ToUInt32`, `ToUInt64` | `to_i32`, `to_i64`, `to_ui32`, `to_ui64` | 1 | `to_int_ctx`, `to_int64_ctx`, `to_uint_ctx`, `to_uint64_ctx` with `exact~` |
+| `ConvertFormat(format)` | `to_f16`, `to_f32`, `to_f64`, `to_f128` | 1 | `convert_format` (operand in the format of the function name, result in `format`) |
 | `Equal`, `LessEqual`, `Less` | `eq`, `le`, `lt` | 2 | `equal_quiet`, `less_equal_signaling`, `less_signaling` |
 | `EqualSignaling`, `LessEqualQuiet`, `LessQuiet` | `eq_signaling`, `le_quiet`, `lt_quiet` | 2 | `equal_signaling`, `less_equal_quiet`, `less_quiet` |
 
@@ -87,10 +88,12 @@ pub fn TestFloatSpec::parse(String, String, tininess? : String, exact? : Bool) -
 
 `function_name` is `FORMAT_OPERATION`: the part before the first `_` is the
 format (`f16`, `f32`, `f64`, `f128`) and the rest is the operation
-(`add`, `mulAdd`, `to_ui64`, `le_quiet`, …). Names are matched
+(`add`, `mulAdd`, `to_ui64`, `to_f32`, `le_quiet`, …). Names are matched
 case-insensitively with `-`, `_` and spaces removed. TestFloat functions
-outside the eighteen operations, such as `f64_to_f32`, `i32_to_f64` or
-`f64_to_i32_r_minMag`, are rejected. `rounding` is one of
+outside the supported operations, such as `i32_to_f64` or
+`f64_to_i32_r_minMag`, are rejected; `f64_to_f32` is the conversion of a
+binary64 operand to binary32 (the first column is read in the format of the
+name's prefix, the result column in the destination format). `rounding` is one of
 `rnear_even`, `rnear_maxMag`, `rminMag`, `rmin`, `rmax` (also accepted without
 the leading `r`, or as the IEEE names `roundTiesToEven`, `roundTiesToAway`,
 `roundTowardZero`, `roundTowardNegative`, `roundTowardPositive`).
@@ -486,6 +489,7 @@ pub(all) enum TestFloatOperation {
   ToInt64
   ToUInt32
   ToUInt64
+  ConvertFormat(@bin_float.BinaryInterchangeFormat)
   Equal
   LessEqual
   Less

@@ -533,6 +533,22 @@ $\operatorname{tanpi}(n)$ has the sign of
 $\operatorname{sinpi}(n)/\operatorname{cospi}(n)$, and $(-0)^y$ and
 $(-\infty)^y$ are negative exactly for an odd integral $y$.
 
+### Format conversion
+
+`convert_format` is `round_ctx` in the destination format's context, so the
+conversion inherits the one rounding step of the dyadic finalizer: a destination
+with at least the precision and range of the source is exact (the value
+needs at most $p_{\text{source}} \le p_{\text{destination}}$ bits and its exponent
+is inside the wider range), and a narrower one rounds once, with the flags of
+clause 7. The only extra step is the payload of a NaN: `round_ctx` keeps the
+whole payload of a `BinFloat`, but a format holds $p - 2$ payload bits below the
+quiet bit, so the payload is masked to its low bits, which makes the result the
+value that decoding `to_interchange` returns and keeps the clause 6.2.3
+round trip (narrower to wider to the same narrower format) exact. The
+independent oracle is Berkeley TestFloat: all twelve pairs among binary16, 32,
+64 and 128 in the gate, five rounding directions and both tininess rules for
+the narrowing pairs; a widening pair does not round, so it is one task.
+
 ### Far-apart operands in addition
 
 **Problem.** $2^{10^9} + 2^{-10^9}$ is exact as a dyadic number, but forming

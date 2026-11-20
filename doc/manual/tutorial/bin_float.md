@@ -15,6 +15,7 @@ mathematics behind the rounding rules is on the
 | read decimal text without double rounding | [`BinFloat::from_string`](#build-exact-values) |
 | compute in binary16/32/64/128 and see the IEEE flags | [`add_ctx` and the other `*_ctx` methods](#compute-in-an-ieee-format-and-keep-the-flags) |
 | decode or encode interchange bit patterns | [`BinaryInterchange`](#read-and-write-interchange-bits) |
+| convert a value from one binary format to another, with flags | `convert_format` ([Read and write interchange bits](#read-and-write-interchange-bits)) |
 | print the shortest or a fixed-digit decimal | [`to_shortest_string_ctx`, `to_decimal_string_ctx`](#print-decimal-text) |
 | evaluate a correctly rounded `exp`, `ln`, `sin`, … | [the elementary functions](#call-elementary-functions) |
 | bracket a real number from below and above | [directed rounding](#enclose-a-real-number-with-directed-rounding) |
