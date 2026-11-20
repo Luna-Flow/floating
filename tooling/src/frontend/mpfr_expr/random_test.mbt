@@ -45,6 +45,9 @@ test "MPFR random parser rejects malformed rows" {
       "t add n 24 - - - 0x1p0 0x1p0 - 0 0x2p0", "t nope n 24 - - - 0x1p0 - - 0 0x1p0 -",
       "t add q 24 - - - 0x1p0 0x1p0 - 0 0x2p0 -", "t add n 24 -126 127 x 0x1p0 0x1p0 - 0 0x2p0 -",
       "t add n 24 - - - 0x1p0 0x1p0 - 0 0x2p0 q", "t add n 24 - - - 0xzp0 0x1p0 - 0 0x2p0 -",
+      // not IEEE formats: e_min != 1 - e_max, e_max = 0, precision above the limit
+       "t add n 24 -127 127 a 0x1p0 0x1p0 - 0 0x2p0 -", "t add n 24 1 0 a 0x1p0 0x1p0 - 0 0x2p0 -",
+      "t add n 268435457 -126 127 a 0x1p0 0x1p0 - 0 0x2p0 -",
     ] {
     match @mpfr_expr.parse_random_data("bad", row) {
       Err([_]) => ()

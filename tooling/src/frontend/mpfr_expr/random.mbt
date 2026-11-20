@@ -188,8 +188,11 @@ fn parse_random_row(tokens : Array[String]) -> Result[MpfrRandomCase, String] {
     None
   } else {
     match (parse_int(tokens[4]), parse_int(tokens[5]), tokens[6]) {
-      (Some(low), Some(high), _) if low != 1 - high || high < 1 =>
-        // IEEE 754-2019 3.3: emin = 1 - emax
+      // The column must agree with the constructor, which derives
+      // e_min = 1 - e_max (IEEE 754-2019 3.3); the legal e_max and
+      // precision are the constructor's to decide.
+      (Some(low), Some(high), _) if low != 1 - high ||
+        not_legal_range(precision, high) =>
         return Err("MPFR random exponent range is not an IEEE 754-2019 format")
       (Some(low), Some(high), "a") =>
         Some((low, high, @bin_float.TininessDetection::AfterRounding))
@@ -245,6 +248,11 @@ fn parse_random_row(tokens : Array[String]) -> Result[MpfrRandomCase, String] {
     expected_value,
     flags: tokens[12],
   })
+}
+
+///|
+fn not_legal_range(precision : Int32, e_max : Int32) -> Bool {
+  @bin_float.BinaryContext::try_new(precision~, e_max~) is Err(_)
 }
 
 ///|
