@@ -139,9 +139,10 @@ in the number of vectors.
 
 ## Boundaries
 
-- Only binary16/32/64/128 and the eighteen operations of
-  `TestFloatOperation`; no conversions between formats, to or from decimal
-  strings, or from integers.
+- Only binary16/32/64/128 and the operations of `TestFloatOperation` (the
+  eighteen arithmetic, integer and comparison operations and the conversions
+  between the binary formats); no conversions to or from decimal strings or from
+  integers.
 - Only the five IEEE rounding directions; TestFloat's round-to-odd is
   rejected by `TestFloatSpec::parse`.
 - NaN payloads and signs are not compared.

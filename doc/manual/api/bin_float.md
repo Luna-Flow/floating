@@ -1419,6 +1419,40 @@ zeros and infinities decode exactly; a NaN keeps its sign and payload (the
 fraction without the quiet bit), and a signaling NaN stays signaling. No host
 `Float` or `Double` is involved.
 
+### `BinFloat::convert_format`
+
+Convert a value to a binary interchange format and return it as a `BinFloat`.
+
+```mbti
+pub fn BinFloat::convert_format(Self, BinaryInterchangeFormat, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> (Self, BinaryFlags)
+```
+
+The IEEE 754-2019 §5.4.2 formatOf-convertFormat operation, with the parameters of
+`to_interchange` and the value instead of the encoding. A conversion to a wider
+precision and range is exact and raises nothing; to a narrower one the value is
+rounded under `rounding` and `tininess` with `inexact`, `underflow` and
+`overflow`. A signaling NaN gives a quiet NaN and `invalid_operation`, also when
+the source already has the destination's precision (the canonicalizing
+conversion). A NaN payload is kept when the destination holds it and truncated to
+its low bits otherwise (§6.2.3), so the result is exactly what decoding
+`to_interchange` returns. `round_ctx` and `to_interchange` stay.
+
+```moonbit
+///|
+test "convert a value between formats" {
+  let b32 = @bin_float.BinaryInterchangeFormat::Binary32
+  let tenth = @bin_float.BinFloat::from_string("0.1", precision=200).unwrap()
+  let (single, flags) = tenth.convert_format(b32)
+  inspect(single.precision(), content="24")
+  inspect(flags.inexact(), content="true")
+  let (up, _) = tenth.convert_format(
+    b32,
+    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+  )
+  inspect(up.compare(single), content="0")
+}
+```
+
 ### `BinaryInterchange::from_bin_float`, `BinFloat::to_interchange`
 
 Round a value into a format and encode it.
@@ -2597,6 +2631,7 @@ pub fn BinFloat::compare_quiet(Self, Self) -> (@def.PartialOrder, BinaryFlags)
 pub fn BinFloat::compare_signaling(Self, Self) -> (@def.PartialOrder, BinaryFlags)
 pub fn BinFloat::compound(Self, Int32) -> Self
 pub fn BinFloat::compound_ctx(Self, Int32, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::convert_format(Self, BinaryInterchangeFormat, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> (Self, BinaryFlags)
 pub fn BinFloat::copy_sign(Self, Self) -> Self
 pub fn BinFloat::cos(Self) -> Self
 pub fn BinFloat::cos_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
