@@ -558,7 +558,10 @@ with at least the precision and range of the source is exact (the value
 needs at most $p_{\text{source}} \le p_{\text{destination}}$ bits and its exponent
 is inside the wider range), and a narrower one rounds once, with the flags of
 clause 7. The only extra step is the payload of a NaN: `round_ctx` keeps the
-whole payload of a `BinFloat`, but a format holds $p - 2$ payload bits below the
+whole payload of a `BinFloat` only for a context of at least the same
+precision (a NaN of precision $p$ has $p - 2$ payload bits, so every operation
+and constructor that delivers a NaN at another precision truncates, 6.2.3), and
+a format holds $p - 2$ payload bits below the
 quiet bit, so the payload is masked to its low bits, which makes the result the
 value that decoding `to_interchange` returns and keeps the clause 6.2.3
 round trip (narrower to wider to the same narrower format) exact. The

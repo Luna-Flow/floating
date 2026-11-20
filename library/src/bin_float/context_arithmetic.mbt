@@ -210,7 +210,7 @@ fn binary_overflow_result(
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
   let value = if binary_overflow_to_infinity(negative, context.rounding) {
-    BinFloat::inf(
+    BinFloat::inf_raw(
       if negative {
         Sign::Negative
       } else {
@@ -587,11 +587,7 @@ fn binary_round_sqrt(
 
 ///|
 fn binary_quiet_nan(value : BinFloat, precision : Int32) -> BinFloat {
-  BinFloat::quiet_nan(
-    payload=value.nan_payload,
-    negative=value.negative,
-    precision~,
-  )
+  binary_convert_nan(value.negative, false, value.nan_payload, precision)
 }
 
 ///|
@@ -728,7 +724,7 @@ pub fn BinFloat::round_ctx(
       )
     FpClass::Infinity =>
       (
-        BinFloat::inf(
+        BinFloat::inf_raw(
           if self.negative {
             Sign::Negative
           } else {
@@ -762,7 +758,7 @@ pub fn BinFloat::add_ctx(
     (FpClass::Infinity, FpClass::Infinity) =>
       if self.negative == other.negative {
         (
-          BinFloat::inf(
+          BinFloat::inf_raw(
             if self.negative {
               Sign::Negative
             } else {
@@ -773,11 +769,11 @@ pub fn BinFloat::add_ctx(
           BinaryFlags::new(),
         )
       } else {
-        (BinFloat::nan(precision=context.precision), binary_invalid_flags())
+        (BinFloat::nan_raw(precision=context.precision), binary_invalid_flags())
       }
     (FpClass::Infinity, _) =>
       (
-        BinFloat::inf(
+        BinFloat::inf_raw(
           if self.negative {
             Sign::Negative
           } else {
@@ -789,7 +785,7 @@ pub fn BinFloat::add_ctx(
       )
     (_, FpClass::Infinity) =>
       (
-        BinFloat::inf(
+        BinFloat::inf_raw(
           if other.negative {
             Sign::Negative
           } else {
@@ -886,10 +882,10 @@ pub fn BinFloat::mul_ctx(
   match (self.class, other.class) {
     (FpClass::Infinity, FpClass::Finite)
     | (FpClass::Finite, FpClass::Infinity) if self.is_zero() || other.is_zero() =>
-      (BinFloat::nan(precision=context.precision), binary_invalid_flags())
+      (BinFloat::nan_raw(precision=context.precision), binary_invalid_flags())
     (FpClass::Infinity, _) | (_, FpClass::Infinity) =>
       (
-        BinFloat::inf(
+        BinFloat::inf_raw(
           if negative {
             Sign::Negative
           } else {
@@ -923,12 +919,12 @@ pub fn BinFloat::div_ctx(
   let negative = self.negative != other.negative
   match (self.class, other.class) {
     (FpClass::Infinity, FpClass::Infinity) =>
-      (BinFloat::nan(precision=context.precision), binary_invalid_flags())
+      (BinFloat::nan_raw(precision=context.precision), binary_invalid_flags())
     (FpClass::Finite, FpClass::Finite) if self.is_zero() && other.is_zero() =>
-      (BinFloat::nan(precision=context.precision), binary_invalid_flags())
+      (BinFloat::nan_raw(precision=context.precision), binary_invalid_flags())
     (FpClass::Infinity, _) =>
       (
-        BinFloat::inf(
+        BinFloat::inf_raw(
           if negative {
             Sign::Negative
           } else {
@@ -940,7 +936,7 @@ pub fn BinFloat::div_ctx(
       )
     (FpClass::Finite, FpClass::Finite) if other.is_zero() =>
       (
-        BinFloat::inf(
+        BinFloat::inf_raw(
           if negative {
             Sign::Negative
           } else {
@@ -989,10 +985,10 @@ pub fn BinFloat::sqrt_ctx(
       )
     FpClass::Infinity =>
       if self.negative {
-        (BinFloat::nan(precision=context.precision), binary_invalid_flags())
+        (BinFloat::nan_raw(precision=context.precision), binary_invalid_flags())
       } else {
         (
-          BinFloat::inf(Sign::Positive, precision=context.precision),
+          BinFloat::inf_raw(Sign::Positive, precision=context.precision),
           BinaryFlags::new(),
         )
       }
@@ -1002,7 +998,7 @@ pub fn BinFloat::sqrt_ctx(
         BinaryFlags::new(),
       )
     FpClass::Finite if self.negative =>
-      (BinFloat::nan(precision=context.precision), binary_invalid_flags())
+      (BinFloat::nan_raw(precision=context.precision), binary_invalid_flags())
     FpClass::Finite =>
       binary_round_sqrt(self.coefficient_, self.exponent2, context)
   }
@@ -1334,7 +1330,7 @@ fn binary_pow_ziv(
     )
     let approximation_base = if reciprocal {
       stats.divisions += 1
-      BinFloat::one(precision=work).div_ctx(
+      BinFloat::one_raw(precision=work).div_ctx(
         base.abs(),
         BinaryContext::unbounded(
           work,
@@ -1415,7 +1411,7 @@ fn binary_pow_out_of_range(
     magnitude.try_log2_ctx(up) is Ok((log_high, _)) else {
     return None
   }
-  let count = BinFloat::from_coefficient(
+  let count = BinFloat::from_coefficient_raw(
     Coeff::from_uint64(exponent.to_uint64()),
     precision=64,
   )
@@ -1424,11 +1420,14 @@ fn binary_pow_out_of_range(
   } else {
     (log_low.mul_ctx(count, down).0, log_high.mul_ctx(count, up).0)
   }
-  let overflow_bound = BinFloat::from_int(overflow_log.to_int(), precision=64)
+  let overflow_bound = BinFloat::from_int_raw(
+    overflow_log.to_int(),
+    precision=64,
+  )
   if result_low.compare(overflow_bound) >= 0 {
     return Some(binary_overflow_result(negative, context))
   }
-  let tiny_bound = BinFloat::from_int(tiny_log.to_int(), precision=64)
+  let tiny_bound = BinFloat::from_int_raw(tiny_log.to_int(), precision=64)
   if result_high.compare(tiny_bound) < 0 {
     return Some(binary_tiny_nonzero_result(negative, context))
   }
@@ -1559,7 +1558,7 @@ pub fn BinFloat::pown_ctx(
   // IEEE 754-2019 9.2.1: pown(x, 0) is 1 if x is not a signaling NaN; a
   // signaling NaN is an invalid operation (7.2 a), handled below (#286).
   if exponent == 0 && !self.signaling_nan {
-    return (BinFloat::one(precision=context.precision), BinaryFlags::new())
+    return (BinFloat::one_raw(precision=context.precision), BinaryFlags::new())
   }
   if self.class == FpClass::NaN {
     return (
@@ -1584,7 +1583,7 @@ pub fn BinFloat::pown_ctx(
         )
       } else {
         (
-          BinFloat::inf(
+          BinFloat::inf_raw(
             if negative {
               Sign::Negative
             } else {
@@ -1598,7 +1597,7 @@ pub fn BinFloat::pown_ctx(
     FpClass::Finite if self.is_zero() =>
       if exponent < 0 {
         (
-          BinFloat::inf(
+          BinFloat::inf_raw(
             if negative {
               Sign::Negative
             } else {
@@ -1648,7 +1647,7 @@ fn BinFloat::pow_nat_ctx(
   // IEEE 754-2019 9.2.1: pown(x, 0) is 1 if x is not a signaling NaN; a
   // signaling NaN is an invalid operation (7.2 a), handled below (#286).
   if exponent == 0U && !self.signaling_nan {
-    return (BinFloat::one(precision=context.precision), BinaryFlags::new())
+    return (BinFloat::one_raw(precision=context.precision), BinaryFlags::new())
   }
   if self.class == FpClass::NaN {
     return (
@@ -1664,7 +1663,7 @@ fn BinFloat::pow_nat_ctx(
   match self.class {
     FpClass::Infinity =>
       (
-        BinFloat::inf(
+        BinFloat::inf_raw(
           if negative {
             Sign::Negative
           } else {

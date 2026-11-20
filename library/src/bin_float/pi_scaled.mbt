@@ -36,21 +36,21 @@ fn binary_pi_scaled_exact(
   match (integer, twice) {
     (Some(n), _) => {
       let sine = if value.is_negative() {
-        BinFloat::negative_zero(precision=context.precision)
+        BinFloat::negative_zero_raw(precision=context.precision)
       } else {
-        BinFloat::zero(precision=context.precision)
+        BinFloat::zero_raw(precision=context.precision)
       }
       let cosine = if n % 2 == 0 {
-        BinFloat::one(precision=context.precision)
+        BinFloat::one_raw(precision=context.precision)
       } else {
-        BinFloat::one(precision=context.precision).neg()
+        BinFloat::one_raw(precision=context.precision).neg()
       }
       // tanPi takes the sign of sinPi(n) / cosPi(n) (IEEE 754-2019 §9.2.1,
       // C23 Annex F): -0 for positive odd and +0 for negative odd n.
       let tangent = if value.is_negative() != (n % 2 != 0) {
-        BinFloat::negative_zero(precision=context.precision)
+        BinFloat::negative_zero_raw(precision=context.precision)
       } else {
-        BinFloat::zero(precision=context.precision)
+        BinFloat::zero_raw(precision=context.precision)
       }
       let result = match operation {
         BinaryTrigonometricOperation::Sin => sine
@@ -62,16 +62,16 @@ fn binary_pi_scaled_exact(
     (_, Some(n)) if n % 2 != 0 => {
       let residue = n
       let sine = match residue {
-        1 => BinFloat::one(precision=context.precision)
-        3 => BinFloat::one(precision=context.precision).neg()
-        _ => BinFloat::zero(precision=context.precision)
+        1 => BinFloat::one_raw(precision=context.precision)
+        3 => BinFloat::one_raw(precision=context.precision).neg()
+        _ => BinFloat::zero_raw(precision=context.precision)
       }
-      let cosine = BinFloat::zero(precision=context.precision)
+      let cosine = BinFloat::zero_raw(precision=context.precision)
       let result = match operation {
         BinaryTrigonometricOperation::Sin => sine
         BinaryTrigonometricOperation::Cos => cosine
         BinaryTrigonometricOperation::Tan =>
-          BinFloat::inf(
+          BinFloat::inf_raw(
             if sine.is_negative() {
               Sign::Negative
             } else {
@@ -97,9 +97,9 @@ fn binary_pi_scaled_exact(
           Some(
             (
               if n == 1 {
-                BinFloat::one(precision=context.precision)
+                BinFloat::one_raw(precision=context.precision)
               } else {
-                BinFloat::one(precision=context.precision).neg()
+                BinFloat::one_raw(precision=context.precision).neg()
               },
               BinaryFlags::new(),
             ),
@@ -118,9 +118,9 @@ fn binary_pi_periodic_remainder(value : BinFloat) -> BinFloat? {
   if value.exponent2() >= 1 {
     return Some(
       if value.is_negative() {
-        BinFloat::negative_zero(precision=value.precision())
+        BinFloat::negative_zero_raw(precision=value.precision())
       } else {
-        BinFloat::zero(precision=value.precision())
+        BinFloat::zero_raw(precision=value.precision())
       },
     )
   }
@@ -135,9 +135,9 @@ fn binary_pi_periodic_remainder(value : BinFloat) -> BinFloat? {
   if residue.is_zero() {
     return Some(
       if value.is_negative() {
-        BinFloat::negative_zero(precision=value.precision())
+        BinFloat::negative_zero_raw(precision=value.precision())
       } else {
-        BinFloat::zero(precision=value.precision())
+        BinFloat::zero_raw(precision=value.precision())
       },
     )
   }
@@ -194,7 +194,7 @@ fn binary_pi_scaled_quadrant_reduction(
     4
   }
   let half_integer = match quadrant {
-    -4 => BinFloat::from_int(-2, precision=work_precision)
+    -4 => BinFloat::from_int_raw(-2, precision=work_precision)
     -3 =>
       BinFloat::make_coeff(
         Coeff::from_uint64(3UL),
@@ -202,13 +202,13 @@ fn binary_pi_scaled_quadrant_reduction(
         work_precision,
         negative=true,
       )
-    -2 => BinFloat::from_int(-1, precision=work_precision)
+    -2 => BinFloat::from_int_raw(-1, precision=work_precision)
     -1 => BinFloat::make_coeff(Coeff::one(), -1, work_precision, negative=true)
-    0 => BinFloat::zero(precision=work_precision)
+    0 => BinFloat::zero_raw(precision=work_precision)
     1 => BinFloat::make_coeff(Coeff::one(), -1, work_precision)
-    2 => BinFloat::one(precision=work_precision)
+    2 => BinFloat::one_raw(precision=work_precision)
     3 => BinFloat::make_coeff(Coeff::from_uint64(3UL), -1, work_precision)
-    _ => BinFloat::from_int(2, precision=work_precision)
+    _ => BinFloat::from_int_raw(2, precision=work_precision)
   }
   let (residual, flags) = value.sub_ctx(
     half_integer,
@@ -253,11 +253,11 @@ fn binary_pi_scaled_bounds(
     work_precision,
     rounding=RoundTowardPositive,
   )
-  let input_lower = residual.with_precision(
+  let input_lower = residual.with_precision_raw(
     work_precision,
     RoundingMode::TowardNegative,
   )
-  let input_upper = residual.with_precision(
+  let input_upper = residual.with_precision_raw(
     work_precision,
     RoundingMode::TowardPositive,
   )

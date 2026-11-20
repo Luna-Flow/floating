@@ -88,7 +88,7 @@ test "pow signals a signaling NaN base or exponent in every shortcut" {
           )
           assert_eq(
             result.nan_payload().to_string(),
-            snan.nan_payload().to_string(),
+            nan_payload_in(snan.nan_payload(), context.precision()),
             msg=label + " payload",
           )
           assert_false(flags.inexact() || flags.overflow() || flags.underflow())
@@ -143,7 +143,10 @@ test "pow keeps its quiet NaN shortcuts and propagation" {
         }
         assert_true(result.is_quiet_nan())
         assert_true(result.is_negative())
-        assert_eq(result.nan_payload().to_string(), "9")
+        assert_eq(
+          result.nan_payload().to_string(),
+          nan_payload_in(BinCoeff::from_uint64(9UL), context.precision()),
+        )
         assert_eq(flags, BinaryFlags::new())
       }
     }

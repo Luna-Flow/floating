@@ -26,14 +26,14 @@ fn binary_ln_unit_fixed_bounds(
     !value.is_negative() else {
     return None
   }
-  let rounded = value.with_precision(
+  let rounded = value.with_precision_raw(
     work_precision,
     RoundingMode::TowardNegative,
   )
   guard rounded.compare(value) == 0 else { return None }
-  let one = BinFloat::one(precision=work_precision)
+  let one = BinFloat::one_raw(precision=work_precision)
   guard value.compare(one) > 0 &&
-    value.compare(BinFloat::from_int(2, precision=work_precision)) <= 0 else {
+    value.compare(BinFloat::from_int_raw(2, precision=work_precision)) <= 0 else {
     return None
   }
   let coefficient = value.coefficient_

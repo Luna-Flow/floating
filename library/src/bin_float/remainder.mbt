@@ -38,7 +38,10 @@ pub fn BinFloat::remainder_ctx(
   }
   if self.class == FpClass::Infinity ||
     (divisor.class == FpClass::Finite && divisor.coefficient_.is_zero()) {
-    return (BinFloat::nan(precision=context.precision), binary_invalid_flags())
+    return (
+      BinFloat::nan_raw(precision=context.precision),
+      binary_invalid_flags(),
+    )
   }
   if divisor.class == FpClass::Infinity || self.coefficient_.is_zero() {
     return self.round_ctx(context)

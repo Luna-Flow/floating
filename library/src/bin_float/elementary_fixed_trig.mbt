@@ -29,7 +29,7 @@ fn binary_sin_cos_fixed_series(
   guard value.classify() == FpClass::Finite && !value.is_zero() else {
     return None
   }
-  let rounded = value.with_precision(
+  let rounded = value.with_precision_raw(
     work_precision,
     RoundingMode::TowardNegative,
   )

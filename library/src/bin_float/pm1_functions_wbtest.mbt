@@ -88,12 +88,18 @@ test "exp2m1 and exp10m1 special values" {
       )
       let (value, flags) = pm1_run(name, qnan, ctx)
       assert_true(value.is_quiet_nan() && value.is_negative())
-      assert_eq(value.nan_payload_coeff().to_string(), "9")
+      assert_eq(
+        value.nan_payload().to_string(),
+        nan_payload_in(BinCoeff::from_uint64(9UL), ctx.precision()),
+      )
       assert_eq(flags, BinaryFlags::new())
       let snan = BinFloat::signaling_nan(payload=Coeff::from_uint64(5UL))
       let (value, flags) = pm1_run(name, snan, ctx)
       assert_true(value.is_quiet_nan())
-      assert_eq(value.nan_payload_coeff().to_string(), "5")
+      assert_eq(
+        value.nan_payload().to_string(),
+        nan_payload_in(BinCoeff::from_uint64(5UL), ctx.precision()),
+      )
       assert_true(flags.invalid_operation())
     }
   }

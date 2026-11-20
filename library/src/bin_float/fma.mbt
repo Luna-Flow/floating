@@ -47,17 +47,20 @@ pub fn BinFloat::fma_ctx(
     )
   }
   if product_invalid {
-    return (BinFloat::nan(precision=context.precision), binary_invalid_flags())
+    return (
+      BinFloat::nan_raw(precision=context.precision),
+      binary_invalid_flags(),
+    )
   }
   if self.class == FpClass::Infinity || multiplier.class == FpClass::Infinity {
     if addend.class == FpClass::Infinity && addend.negative != product_negative {
       return (
-        BinFloat::nan(precision=context.precision),
+        BinFloat::nan_raw(precision=context.precision),
         binary_invalid_flags(),
       )
     }
     return (
-      BinFloat::inf(
+      BinFloat::inf_raw(
         if product_negative {
           Sign::Negative
         } else {
@@ -70,7 +73,7 @@ pub fn BinFloat::fma_ctx(
   }
   if addend.class == FpClass::Infinity {
     return (
-      BinFloat::inf(addend.sign(), precision=context.precision),
+      BinFloat::inf_raw(addend.sign(), precision=context.precision),
       BinaryFlags::new(),
     )
   }

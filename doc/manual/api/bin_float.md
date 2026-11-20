@@ -74,7 +74,13 @@ bounds is intersected with this range.
 
 ### `binary_precision_max`
 
-The largest precision a `BinaryContext` accepts.
+The largest precision a `BinaryContext` accepts and the largest precision a
+`BinFloat` may carry. Every constructor that takes a precision checks it
+against `1..=binary_precision_max`: a value-returning constructor aborts with a
+message that names the constructor, the range and the offending value, and a
+constructor that returns a `Result` (`from_string`, `from_hex`, and the
+constructors of `BinFloatResult`) returns an `ArithmeticError` of kind
+`DomainError`. A precision is never replaced by another one.
 
 ```mbti
 pub let binary_precision_max : Int
@@ -235,7 +241,7 @@ pub fn BinFloat::make(BinCoeff, Int, Int, negative? : Bool, mode? : @arithmetic.
 The arguments are the coefficient, the exponent $e$ and the precision. When
 the coefficient has more significant bits than the precision it is rounded
 with `mode` (default `ToNearestEven`). The result is normalized. A precision
-below 1 is treated as 1. A value outside the implementation exponent range is
+outside `1..=binary_precision_max` aborts. A value outside the implementation exponent range is
 replaced as an overflow or underflow would be: above it by $\pm\infty$ or, for
 a mode that rounds toward zero, the largest finite magnitude
 $(2^p - 1)\,2^{e_{\max} - p + 1}$; below the smallest implementation subnormal
@@ -292,8 +298,9 @@ pub fn BinFloat::one(precision? : Int) -> Self
 pub fn BinFloat::inf(@def.Sign, precision? : Int) -> Self
 ```
 
-The default precision is 53. `inf(Sign::Negative)` is $-\infty$; any other
-sign gives $+\infty$.
+The default precision is 53, and it must be within
+`1..=binary_precision_max` (see `binary_precision_max`). `inf(Sign::Negative)` is
+$-\infty$; any other sign gives $+\infty$.
 
 ### `BinFloat::nan`, `BinFloat::quiet_nan`, `BinFloat::signaling_nan`
 
@@ -306,9 +313,19 @@ pub fn BinFloat::signaling_nan(payload? : BinCoeff, negative? : Bool, precision?
 ```
 
 `nan()` is a positive quiet NaN with payload 0. A signaling NaN always has a
-nonzero payload (the default and a requested 0 both become 1). Payloads are
-carried through operations and are truncated to the payload field only when a
-value is encoded in an interchange format.
+nonzero payload (the default and a requested 0 both become 1).
+
+A NaN of precision $p$ has $p - 2$ payload bits (IEEE 754-2019 6.2.1: the
+trailing significand field has $p - 1$ bits and the first is the quiet bit), so
+none for $p \le 2$. `quiet_nan` and `signaling_nan` abort when the payload is
+wider, and `signaling_nan` aborts for $p < 3$, where no signaling NaN exists
+(a signaling NaN needs a non-zero payload bit). Conversions never abort: a
+payload that the destination cannot hold keeps its low bits (6.2.3), and a
+signaling NaN whose payload does not survive becomes quiet. This is the rule of
+`with_precision`, `from_double`, `from_float`, `from_hex` (a `snan` literal below
+precision 3 is a quiet NaN), every operation that returns a quiet NaN under a
+context (the payload is cut to the context precision) and the interchange
+encodings.
 
 ## Observing a value
 
@@ -1238,7 +1255,8 @@ or `0X`, hexadecimal digits with at most one point (`1.8`, `.8` or `1.`), and a
 required `p` or `P` exponent with an optional sign and decimal digits. The
 value is the hexadecimal significand times $2^{\text{exponent}}$, so `0x3p-1`
 and `0x1.8p0` are both $1.5$. `from_hex(s, p)` rounds once to precision `p`
-with nearest-even and reports no flags. `from_hex_ctx(s, context)` is the
+with nearest-even and reports no flags; a `p` outside
+`1..=binary_precision_max` is an `Err`. `from_hex_ctx(s, context)` is the
 §5.12.3 conversion: it rounds the exact value once under the rounding direction,
 precision, exponent range and tininess rule of `context` and returns the
 `inexact`, `underflow` and `overflow` flags, like `from_string_ctx`. An exponent

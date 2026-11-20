@@ -51,3 +51,19 @@ test "checked context arithmetic short-circuits errors" {
   ).add_ctx(BinFloatResult::from_int(1), context)
   assert_true(failed.is_err())
 }
+
+///|
+test "constructors return Err for a precision outside 1..=binary_precision_max" {
+  let max = @bin_float.binary_precision_max
+  assert_true(BinFloatResult::from_int(3, precision=0).is_err())
+  assert_true(BinFloatResult::from_int(3, precision=max + 1).is_err())
+  assert_true(BinFloatResult::from_int(3, precision=max).is_ok())
+  assert_true(BinFloatResult::from_double(1.5, precision=-1).is_err())
+  assert_true(BinFloatResult::from_float(1.5, precision=0).is_err())
+  assert_true(
+    BinFloatResult::from_coefficient(
+      @bin_float.BinCoeff::one(),
+      precision=max + 1,
+    ).is_err(),
+  )
+}

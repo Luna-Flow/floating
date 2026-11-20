@@ -27,8 +27,8 @@ fn binary_exp_base_minus_one_bounds(
   )
   guard ln_base_bounds(work_precision) is Some(ln_base) else { return None }
   let value_bounds = (
-    value.with_precision(work_precision, RoundingMode::TowardNegative),
-    value.with_precision(work_precision, RoundingMode::TowardPositive),
+    value.with_precision_raw(work_precision, RoundingMode::TowardNegative),
+    value.with_precision_raw(work_precision, RoundingMode::TowardPositive),
   )
   let scaled = binary_product_bounds(value_bounds, ln_base, downward, upward)
   binary_bounds_at_ends(scaled.0, scaled.1, fn(point) {
@@ -119,7 +119,7 @@ fn binary_try_exp_base_minus_one(
     } else {
       -saturation_limit
     }
-    if value.compare(BinFloat::from_int(limit, precision=53)) <= 0 {
+    if value.compare(BinFloat::from_int_raw(limit, precision=53)) <= 0 {
       return Ok(binary_saturated_minus_one(context))
     }
   }
@@ -150,9 +150,9 @@ pub fn BinFloat::try_exp2m1_ctx(
       Ok(
         (
           if self.is_negative() {
-            BinFloat::one(precision=context.precision).neg()
+            BinFloat::one_raw(precision=context.precision).neg()
           } else {
-            BinFloat::inf(Sign::Positive, precision=context.precision)
+            BinFloat::inf_raw(Sign::Positive, precision=context.precision)
           },
           BinaryFlags::new(),
         ),
@@ -170,7 +170,7 @@ pub fn BinFloat::try_exp2m1_ctx(
         false,
         true,
         fn() {
-          let unit = BinFloat::one(precision=binary_range_check_precision)
+          let unit = BinFloat::one_raw(precision=binary_range_check_precision)
           Some((unit, unit))
         },
         fn(work) { binary_ln2_bounds(work) },
@@ -208,9 +208,9 @@ pub fn BinFloat::try_exp10m1_ctx(
       Ok(
         (
           if self.is_negative() {
-            BinFloat::one(precision=context.precision).neg()
+            BinFloat::one_raw(precision=context.precision).neg()
           } else {
-            BinFloat::inf(Sign::Positive, precision=context.precision)
+            BinFloat::inf_raw(Sign::Positive, precision=context.precision)
           },
           BinaryFlags::new(),
         ),
@@ -279,17 +279,22 @@ fn binary_try_log_base_p1(
     FpClass::NaN => abort("unreachable " + operation + " NaN")
     FpClass::Infinity =>
       if value.is_negative() {
-        Ok((BinFloat::nan(precision=context.precision), binary_invalid_flags()))
+        Ok(
+          (
+            BinFloat::nan_raw(precision=context.precision),
+            binary_invalid_flags(),
+          ),
+        )
       } else {
         Ok(
           (
-            BinFloat::inf(Sign::Positive, precision=context.precision),
+            BinFloat::inf_raw(Sign::Positive, precision=context.precision),
             BinaryFlags::new(),
           ),
         )
       }
     FpClass::Finite => {
-      let minus_one = BinFloat::one(precision=value.precision()).neg()
+      let minus_one = BinFloat::one_raw(precision=value.precision()).neg()
       let comparison = value.compare(minus_one)
       if comparison < 0 {
         return Err(
