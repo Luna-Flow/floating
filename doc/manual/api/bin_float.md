@@ -1746,22 +1746,6 @@ Special values and domain as for `ln`. $x = 10^k$ with $k \ge 1$ (stored as
 the coefficient $5^k$ and exponent $k$) gives the exact integer $k$, rounded
 into the context, at any precision that holds $10^k$.
 
-### `BinFloat::exp_ln`, `BinFloat::exp_ln_ctx`, `BinFloat::try_exp_ln_ctx`
-
-The fused composition $\ln(e^x)$, which equals $x$.
-
-```mbti
-pub fn BinFloat::exp_ln(Self) -> Self
-pub fn BinFloat::exp_ln_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
-pub fn BinFloat::try_exp_ln_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
-```
-
-The result is $x$ rounded once into the context, without two intermediate
-roundings. The current implementation accepts finite arguments with
-$|x| \le 1/8$ and infinities; any other finite argument is a
-`certification_failure` at the range-reduction stage (reason
-`RangeNotCertified`).
-
 ### `BinFloat::pow`, `BinFloat::pow_ctx`, `BinFloat::try_pow_ctx`
 
 The real power $x^y$.
@@ -2682,8 +2666,6 @@ pub fn BinFloat::exp2m1(Self) -> Self
 pub fn BinFloat::exp2m1_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::exp_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn BinFloat::exp_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
-pub fn BinFloat::exp_ln(Self) -> Self
-pub fn BinFloat::exp_ln_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::expm1(Self) -> Self
 pub fn BinFloat::expm1_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::exponent2(Self) -> Int32
@@ -2828,7 +2810,6 @@ pub fn BinFloat::try_exp10m1_ctx(Self, BinaryContext) -> Result[(Self, BinaryFla
 pub fn BinFloat::try_exp2_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_exp2m1_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_exp_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
-pub fn BinFloat::try_exp_ln_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_expm1_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_hypot_ctx(Self, Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_ln_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]

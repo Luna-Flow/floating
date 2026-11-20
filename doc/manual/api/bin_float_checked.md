@@ -630,17 +630,6 @@ pub fn BinFloatResult::log10_ctx(Self, @bin_float.BinaryContext) -> Self
 
 Errors: a `DomainError` for a negative argument, $-\infty$ included; a `DivisionByZero` error for $\log_{10}(\pm 0)$.
 
-### `BinFloatResult::exp_ln`, `BinFloatResult::exp_ln_ctx`
-
-$\ln(e^x)$ as one fused operation, delegated to [`BinFloat::try_exp_ln_ctx`](bin_float.md#binfloatexp_ln-binfloatexp_ln_ctx-binfloattry_exp_ln_ctx).
-
-```mbti
-pub fn BinFloatResult::exp_ln(Self) -> Self
-pub fn BinFloatResult::exp_ln_ctx(Self, @bin_float.BinaryContext) -> Self
-```
-
-Errors: a `CertificationFailure` (stage `RangeReduction`, reason `RangeNotCertified`) for a finite $|x| > 1/8$.
-
 ### `BinFloatResult::sin`, `BinFloatResult::sin_ctx`
 
 $\sin x$, delegated to [`BinFloat::try_sin_ctx`](bin_float.md#binfloatsin-binfloatsin_ctx-binfloattry_sin_ctx).
@@ -824,7 +813,6 @@ test "elementary functions" {
   inspect(show(r(0).ln()), content="error: division by zero")
   inspect(show(r(-4).ln()), content="error: ln requires a positive value")
   inspect(show(r(2).asin()), content="error: asin requires an input in [-1, 1]")
-  inspect(show(r(3).exp_ln()), content="error: certified evaluation failed for exp_ln")
   inspect(show(r(0).exp().ln()), content="0")
 }
 ```
@@ -929,8 +917,6 @@ pub fn BinFloatResult::exp2_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::exp2m1(Self) -> Self
 pub fn BinFloatResult::exp2m1_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::exp_ctx(Self, @bin_float.BinaryContext) -> Self
-pub fn BinFloatResult::exp_ln(Self) -> Self
-pub fn BinFloatResult::exp_ln_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::expm1(Self) -> Self
 pub fn BinFloatResult::expm1_ctx(Self, @bin_float.BinaryContext) -> Self
 #deprecated

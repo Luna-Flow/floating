@@ -1004,8 +1004,8 @@ msgstr ""
 
 #: manual/api/ball_float.md:1565
 #: manual/api/ball_float_checked.md:398
-#: manual/api/bin_float.md:2330
-#: manual/api/bin_float_checked.md:832
+#: manual/api/bin_float.md:2314
+#: manual/api/bin_float_checked.md:820
 #: manual/api/decimal.md:2127
 #: manual/api/decimal_gda.md:1860
 #: manual/api/def.md:455
@@ -1083,8 +1083,8 @@ msgstr ""
 #: manual/api/bench/decimal.md:42
 #: manual/api/bench/decimal_gda.md:42
 #: manual/api/bench/external.md:68
-#: manual/api/bin_float.md:2543
-#: manual/api/bin_float_checked.md:862
+#: manual/api/bin_float.md:2527
+#: manual/api/bin_float_checked.md:850
 #: manual/api/cli.md:80
 #: manual/api/cli/dispatch.md:38
 #: manual/api/cli/gda_expr_cli.md:83
@@ -1291,22 +1291,22 @@ msgid "`Add`, `Sub`, `Mul`, `Div`, `Neg` for `BallFloatResult`"
 msgstr ""
 
 #: manual/api/ball_float_checked.md:402
-#: manual/api/bin_float_checked.md:836
+#: manual/api/bin_float_checked.md:824
 msgid "The operators `+`, `-`, `*`, `/` and unary `-` call `add`, `sub`, `mul`, `div` and `neg`."
 msgstr ""
 
 #: manual/api/ball_float_checked.md:413
-#: manual/api/bin_float_checked.md:850
+#: manual/api/bin_float_checked.md:838
 msgid "Deprecated"
 msgstr ""
 
 #: manual/api/ball_float_checked.md:417
-#: manual/api/bin_float_checked.md:854
+#: manual/api/bin_float_checked.md:842
 msgid "`flat_map` is the former name of `bind`. Replace `r.flat_map(f)` with `r.bind(f)`."
 msgstr ""
 
 #: manual/api/ball_float_checked.md:427
-#: manual/api/bin_float_checked.md:864
+#: manual/api/bin_float_checked.md:852
 #: manual/api/decimal_checked.md:412
 #: manual/api/decimal_gda_checked.md:283
 #: manual/api/def.md:471
@@ -2623,467 +2623,459 @@ msgid "Special values and domain as for `ln`. $x = 10^k$ with $k \\ge 1$ (stored
 msgstr ""
 
 #: manual/api/bin_float.md:1751
-msgid "The fused composition $\\ln(e^x)$, which equals $x$."
-msgstr ""
-
-#: manual/api/bin_float.md:1759
-msgid "The result is $x$ rounded once into the context, without two intermediate roundings. The current implementation accepts finite arguments with $|x| \\le 1/8$ and infinities; any other finite argument is a `certification_failure` at the range-reduction stage (reason `RangeNotCertified`)."
-msgstr ""
-
-#: manual/api/bin_float.md:1767
 msgid "The real power $x^y$."
 msgstr ""
 
-#: manual/api/bin_float.md:1775
+#: manual/api/bin_float.md:1759
 msgid "The cases are tried in this order, as in IEEE 754-2019 §9.2.1:"
 msgstr ""
 
-#: manual/api/bin_float.md:1777
+#: manual/api/bin_float.md:1761
 msgid "$x^{\\pm 0} = 1$ for every $x$, and $1^y = 1$ for every $y$, NaN included (also a signaling NaN, without `invalid_operation`)."
 msgstr ""
 
-#: manual/api/bin_float.md:1779
+#: manual/api/bin_float.md:1763
 msgid "An integral $y$ with $|y| < 2^{31}$ is `pown_ctx(x, y)`."
 msgstr ""
 
-#: manual/api/bin_float.md:1780
+#: manual/api/bin_float.md:1764
 msgid "A NaN operand propagates."
 msgstr ""
 
-#: manual/api/bin_float.md:1781
+#: manual/api/bin_float.md:1765
 msgid "An infinite $y$: $(\\pm 1)^{\\pm\\infty} = 1$; otherwise the result is $+\\infty$ when $|x| > 1$ and $y = +\\infty$ or $|x| < 1$ and $y = -\\infty$, and $+0$ in the other two cases, $x = \\pm 0$ included ($(\\pm 0)^{-\\infty} = +\\infty$). No flag is raised."
 msgstr ""
 
-#: manual/api/bin_float.md:1785
+#: manual/api/bin_float.md:1769
 msgid "An infinite $x$: $(\\pm\\infty)^{y < 0}$ is a zero and $(\\pm\\infty)^{y > 0}$ an infinity, negative only for $x = -\\infty$ and an odd integral $y$. No flag is raised."
 msgstr ""
 
-#: manual/api/bin_float.md:1788
+#: manual/api/bin_float.md:1772
 msgid "A zero $x$: $(\\pm 0)^{y < 0}$ is an infinity with `division_by_zero` and $(\\pm 0)^{y > 0}$ a zero, negative only for $x = -0$ and an odd integral $y$; so $(-0)^{3/4} = +0$."
 msgstr ""
 
-#: manual/api/bin_float.md:1791
+#: manual/api/bin_float.md:1775
 msgid "A negative finite $x$ with a non-integral $y$ is a `domain_error`. With an integral $y$ (here $|y| \\ge 2^{31}$) the result is $|x|^y$ for an even $y$ and $-|x|^y$ for an odd one, computed with the directed rounding modes swapped."
 msgstr ""
 
-#: manual/api/bin_float.md:1795
+#: manual/api/bin_float.md:1779
 msgid "$y = \\pm 2^{-k}$ with $1 \\le k \\le 29$ is `try_rootn_ctx(x, \\pm 2^k)`."
 msgstr ""
 
-#: manual/api/bin_float.md:1796
+#: manual/api/bin_float.md:1780
 msgid "A result certainly outside the exponent range is decided from certified bounds on $\\log_2 x$."
 msgstr ""
 
-#: manual/api/bin_float.md:1798
+#: manual/api/bin_float.md:1782
 msgid "An exactly dyadic result is computed and rounded once. For $x = c \\cdot 2^e$ and $y = m / 2^k$ ($c$, $m$ odd, $1 \\le k \\le 30$) it exists exactly when $2^k$ divides $e$ and $c$ is a perfect $2^k$-th power $r$ (tested as for `rootn`, for coefficients of any size); then $x^y = r^m \\cdot 2^{me/2^k}$, which is dyadic for $m < 0$ only when $r = 1$. So $16^{3/4} = 8$ without `inexact`. A dyadic result whose odd part would need more than $2p + 64$ bits is not a rounding breakpoint and is left to the next step."
 msgstr ""
 
-#: manual/api/bin_float.md:1806
+#: manual/api/bin_float.md:1790
 msgid "Otherwise the value is certified from enclosures of $e^{y \\ln x}$."
 msgstr ""
 
-#: manual/api/bin_float.md:1808
+#: manual/api/bin_float.md:1792
 msgid "Integrality and parity of $y$ are read from its odd coefficient: a finite nonzero $y$ is integral when `exponent2()` $\\ge 0$ and odd when it is $0$. When step 10 has shown that the result is not a rounding breakpoint, step 11 moves a representable enclosure end just inside before rounding, so an exponent so small that $x^y$ lies closer to $1$ than the target spacing is still certified: $2^{2^{-16000}}$ in `binary128()` is $1$ with `inexact`. A few results with a power-of-two base that step 10 cannot classify (an exponent of magnitude at least $2^{31}$, or a scale outside the 32-bit range) keep the plain test."
 msgstr ""
 
-#: manual/api/bin_float.md:1820
+#: manual/api/bin_float.md:1804
 msgid "The real $n$-th root $x^{1/n}$."
 msgstr ""
 
-#: manual/api/bin_float.md:1828
+#: manual/api/bin_float.md:1812
 msgid "$n = 0$ is a `domain_error`, an invalid operation, for every $x$, a quiet NaN and $\\pm 0$ included (IEEE 754-2019 Table 9.1, \"n = 0: invalid operation\"); it is not `division_by_zero`, which §7.3 keeps for an exact infinite result on finite operands, here $\\operatorname{rootn}(\\pm 0, n)$ with $n < 0$. `rootn_ctx` then returns a quiet NaN with `invalid`. Every other `Int` degree is supported, including `Int.min`; a NaN propagates. A negative $n$ gives $x^{-1/|n|}$."
 msgstr ""
 
-#: manual/api/bin_float.md:1831
+#: manual/api/bin_float.md:1815
 msgid "odd $n > 0$"
 msgstr ""
 
-#: manual/api/bin_float.md:1831
+#: manual/api/bin_float.md:1815
 msgid "even $n > 0$"
 msgstr ""
 
-#: manual/api/bin_float.md:1831
+#: manual/api/bin_float.md:1815
 msgid "odd $n < 0$"
 msgstr ""
 
-#: manual/api/bin_float.md:1831
+#: manual/api/bin_float.md:1815
 msgid "even $n < 0$"
 msgstr ""
 
-#: manual/api/bin_float.md:1837
+#: manual/api/bin_float.md:1821
 msgid "finite $x < 0$"
 msgstr ""
 
-#: manual/api/bin_float.md:1839
+#: manual/api/bin_float.md:1823
 msgid "So $\\operatorname{rootn}(-8, 3) = -2$. $n = 1$ rounds $x$ into the context and $n = -1$ is the correctly rounded $1/x$. For any other degree an exact root is detected when $|n|$ divides the exponent of $x = c \\cdot 2^e$ and the odd coefficient $c$ (of any size) is a perfect $|n|$-th power $r$; the result is then $\\pm r \\cdot 2^{e/|n|}$ rounded once, or for $n < 0$ the correctly rounded reciprocal of it. So $\\operatorname{rootn}(8, -3) = 1/2$ without `inexact` in every rounding mode, and an exact square root of a 6001-bit coefficient is found as well."
 msgstr ""
 
-#: manual/api/bin_float.md:1850
+#: manual/api/bin_float.md:1834
 msgid "The reciprocal square root $1/\\sqrt{x}$ (`rSqrt` of IEEE 754-2019 §9.2)."
 msgstr ""
 
-#: manual/api/bin_float.md:1858
+#: manual/api/bin_float.md:1842
 msgid "§9.2.1: $\\operatorname{rSqrt}(+\\infty) = +0$ with no exception and $\\operatorname{rSqrt}(\\pm 0) = \\pm\\infty$ with `division_by_zero`, so $\\operatorname{rSqrt}(-0) = -\\infty$ (MPFR's `mpfr_rec_sqrt` returns $+\\infty$ there by its own convention, and the oracle rows follow the standard). A negative finite $x$ and $-\\infty$ are a `domain_error` (Table 9.1, \"$x < 0$: invalid operation\"); a signaling NaN is invalid and a quiet NaN propagates. A positive finite $x$ is `rootn_ctx(x, -2)`: a power of four $4^k$ gives the exact $2^{-k}$ without `inexact`, and an exponent far outside the range is decided without forming the root."
 msgstr ""
 
-#: manual/api/bin_float.md:1870
+#: manual/api/bin_float.md:1854
 msgid "The compound factor $(1 + x)^n$ for an integer $n$, with the exact sum $1 + x$ (interest and growth rates, without the rounding of `1 + x`)."
 msgstr ""
 
-#: manual/api/bin_float.md:1879
+#: manual/api/bin_float.md:1863
 msgid "The special values of §9.2.1 are decided first, a signaling NaN before any of them:"
 msgstr ""
 
-#: manual/api/bin_float.md:1884
+#: manual/api/bin_float.md:1868
 msgid "quiet NaN"
 msgstr ""
 
-#: manual/api/bin_float.md:1885
+#: manual/api/bin_float.md:1869
 msgid "$-\\infty$, finite $x < -1$"
 msgstr ""
 
-#: manual/api/bin_float.md:1890
+#: manual/api/bin_float.md:1874
 msgid "Otherwise $1 + x$ is formed exactly (for any operand up to $2^{26}$ bits) and the result is `pown_ctx(1 + x, n)`, so the exact cases, the range decision and the single rounding are those of `pown`. When $|n x|$ is below $2^{-(p + 9)}$ the result is the neighbour of $1$ (or $1$) that the rounding direction chooses, always inexact and never an underflow. A wider operand (beyond $2^{26}$ bits) is not representable in the context and is certified from $n \\cdot \\operatorname{log1p}(x)$."
 msgstr ""
 
-#: manual/api/bin_float.md:1900
+#: manual/api/bin_float.md:1884
 msgid "The real power $x^y$ defined as $\\exp(y \\ln x)$, so that the domain excludes a negative $x$ (`powr` of IEEE 754-2019 §9.2)."
 msgstr ""
 
-#: manual/api/bin_float.md:1909
+#: manual/api/bin_float.md:1893
 msgid "The cases are tried in this order, as in §9.2.1; every `domain_error` below is a quiet NaN with `invalid_operation` from `powr_ctx`:"
 msgstr ""
 
-#: manual/api/bin_float.md:1912
+#: manual/api/bin_float.md:1896
 msgid "A signaling NaN operand is invalid; a quiet NaN base gives a quiet NaN."
 msgstr ""
 
-#: manual/api/bin_float.md:1913
+#: manual/api/bin_float.md:1897
 msgid "A negative $x$ ($-\\infty$ included, a quiet NaN exponent too) is invalid: $\\operatorname{powr}(x, y)$ for $x < 0$ is never a real number."
 msgstr ""
 
-#: manual/api/bin_float.md:1915
+#: manual/api/bin_float.md:1899
 msgid "A quiet NaN $y$ gives a quiet NaN."
 msgstr ""
 
-#: manual/api/bin_float.md:1916
+#: manual/api/bin_float.md:1900
 msgid "$x = \\pm 0$: $y = \\pm 0$ is invalid; $y = -\\infty$ gives $+\\infty$ with no exception; a finite $y < 0$ gives $+\\infty$ with `division_by_zero`; $y > 0$ gives $+0$."
 msgstr ""
 
-#: manual/api/bin_float.md:1919
+#: manual/api/bin_float.md:1903
 msgid "$x = +\\infty$: $y = \\pm 0$ is invalid; $y < 0$ gives $+0$; $y > 0$ gives $+\\infty$."
 msgstr ""
 
-#: manual/api/bin_float.md:1921
+#: manual/api/bin_float.md:1905
 msgid "$x = +1$: $\\pm\\infty$ is invalid, any other $y$ gives $1$."
 msgstr ""
 
-#: manual/api/bin_float.md:1922
+#: manual/api/bin_float.md:1906
 msgid "$y = \\pm 0$ gives $1$."
 msgstr ""
 
-#: manual/api/bin_float.md:1923
+#: manual/api/bin_float.md:1907
 msgid "Otherwise $x > 0$ and $y$ is finite and nonzero: `try_pow_ctx(x, y)`, which owns the exact dyadic cases, the range decision and the rounding."
 msgstr ""
 
-#: manual/api/bin_float.md:1926
+#: manual/api/bin_float.md:1910
 msgid "So $\\operatorname{powr}(\\pm 0, \\pm 0)$, $\\operatorname{powr}(+\\infty, \\pm 0)$ and $\\operatorname{powr}(1, \\pm\\infty)$ are invalid operations, where `pow` gives $1$ for the first two and for $1^{\\pm\\infty}$ (§9.2.1)."
 msgstr ""
 
-#: manual/api/bin_float.md:1932
+#: manual/api/bin_float.md:1916
 msgid "$\\sqrt{x^2 + y^2}$ without intermediate overflow or underflow."
 msgstr ""
 
-#: manual/api/bin_float.md:1940
+#: manual/api/bin_float.md:1924
 msgid "The squares are formed exactly and one correctly rounded square root is taken, so the result is $\\circ(\\sqrt{x^2+y^2})$ and exact when the root is. $\\operatorname{hypot}(\\pm\\infty, y) = +\\infty$ even when $y$ is a NaN (`invalid_operation` is raised only for a signaling NaN). When the smaller operand $b$ is too small to move $\\sqrt{a^2 + b^2}$ past the next rounding breakpoint above $|a|$, it is replaced by a power of two that rounds the same way: for $|a| = c \\cdot 2^e$ with leading bit $2^t$ and $g = \\min(e, t - p - 1)$, every $|b| < 2^{g - 3}$ becomes $2^{g - 3}$. The exact sum stays small however far apart the exponents are: $\\operatorname{hypot}(1, 2^{-600000})$ is $1$ with `inexact`. The exact sum is refused with a `certification_failure` only when its two squares would still be shifted against each other by more than $10^6$ bits, which needs an operand or target precision near $500\\,000$ bits."
 msgstr ""
 
-#: manual/api/bin_float.md:1956
+#: manual/api/bin_float.md:1940
 msgid "The sine of an argument in radians."
 msgstr ""
 
-#: manual/api/bin_float.md:1964
+#: manual/api/bin_float.md:1948
 msgid "$\\sin(\\pm 0) = \\pm 0$ exactly; an infinite argument is a `domain_error`. The argument is reduced by an enclosure of $\\pi/2$ computed at a working precision of at least $p + \\max(0, \\lfloor\\log_2|x|\\rfloor + 1) + 96$ bits, so the quadrant is certain for every finite input. When that starting precision exceeds $10^6$ bits, that is for $|x| \\ge 2^{10^6 - p - 96}$, the result is a `certification_failure` with stage `RangeReduction` and reason `ResourceLimit`, returned at once; no attempt goes beyond $10^6$ bits."
 msgstr ""
 
-#: manual/api/bin_float.md:1974
+#: manual/api/bin_float.md:1958
 msgid "The cosine of an argument in radians."
 msgstr ""
 
-#: manual/api/bin_float.md:1982
+#: manual/api/bin_float.md:1966
 msgid "$\\cos(\\pm 0) = 1$ exactly. Reduction, domain and limits as for `sin`."
 msgstr ""
 
-#: manual/api/bin_float.md:1986
+#: manual/api/bin_float.md:1970
 msgid "The tangent of an argument in radians."
 msgstr ""
 
-#: manual/api/bin_float.md:1994
+#: manual/api/bin_float.md:1978
 msgid "$\\tan(\\pm 0) = \\pm 0$ exactly. Reduction, domain and limits as for `sin`. No binary argument is an odd multiple of $\\pi/2$, so there is no pole; an enclosure of the cosine that contains zero is refined like any other."
 msgstr ""
 
-#: manual/api/bin_float.md:2008
+#: manual/api/bin_float.md:1992
 msgid "The period is reduced exactly on the binary representation, so huge arguments cost nothing extra. For integral $n$, $\\operatorname{sinpi}(n)$ is $\\pm 0$ with the sign of $n$; at $n + \\frac12$ it is $\\pm 1$. An infinite argument is a `domain_error`. By Niven's theorem these are the only dyadic arguments with a dyadic result."
 msgstr ""
 
-#: manual/api/bin_float.md:2024
+#: manual/api/bin_float.md:2008
 msgid "$\\operatorname{cospi}(n) = (-1)^n$ for integral $n$ and $\\operatorname{cospi}(n + \\frac12) = +0$. Reduction and domain as for `sinpi`."
 msgstr ""
 
-#: manual/api/bin_float.md:2038
+#: manual/api/bin_float.md:2022
 msgid "For integral $n$, $\\operatorname{tanpi}(n)$ is a zero with the sign of $\\operatorname{sinpi}(n) / \\operatorname{cospi}(n)$: $-0$ for positive odd and negative even $n$ (including $-0$), $+0$ otherwise, so `tanpi(1)` is $-0$ and `tanpi(-1)` is $+0$. $\\operatorname{tanpi}(n + \\frac12)$ is $+\\infty$ for even $n$ and $-\\infty$ for odd $n$, with `division_by_zero`; $\\operatorname{tanpi}(n \\pm \\frac14) = \\pm 1$ exactly. Reduction and domain as for `sinpi`."
 msgstr ""
 
-#: manual/api/bin_float.md:2048
+#: manual/api/bin_float.md:2032
 msgid "The arcsine, with values in $[-\\pi/2, \\pi/2]$."
 msgstr ""
 
-#: manual/api/bin_float.md:2056
+#: manual/api/bin_float.md:2040
 msgid "The domain is $[-1, 1]$; a finite argument outside it and both infinities are a `domain_error`. $\\operatorname{asin}(\\pm 0) = \\pm 0$ and $\\operatorname{asin}(\\pm 1) = \\pm\\pi/2$ correctly rounded."
 msgstr ""
 
-#: manual/api/bin_float.md:2062
+#: manual/api/bin_float.md:2046
 msgid "The arccosine, with values in $[0, \\pi]$."
 msgstr ""
 
-#: manual/api/bin_float.md:2070
+#: manual/api/bin_float.md:2054
 msgid "The domain is $[-1, 1]$; a finite argument outside it and both infinities are a `domain_error`, and a NaN propagates as for `asin`. On $[-1, 1]$ the result is $\\pi/2 - \\operatorname{asin}(x)$ evaluated as one enclosure; $\\operatorname{acos}(1) = +0$ exactly and $\\operatorname{acos}(-1) = \\pi$ correctly rounded."
 msgstr ""
 
-#: manual/api/bin_float.md:2078
+#: manual/api/bin_float.md:2062
 msgid "The arctangent, with values in $[-\\pi/2, \\pi/2]$."
 msgstr ""
 
-#: manual/api/bin_float.md:2086
+#: manual/api/bin_float.md:2070
 msgid "Defined on all of $\\mathbb{R}$: $\\operatorname{atan}(\\pm 0) = \\pm 0$ and $\\operatorname{atan}(\\pm\\infty) = \\pm\\pi/2$ correctly rounded."
 msgstr ""
 
-#: manual/api/bin_float.md:2091
+#: manual/api/bin_float.md:2075
 msgid "The angle of the point $(x, y)$ for `y.atan2(x)`, in $[-\\pi, \\pi]$."
 msgstr ""
 
-#: manual/api/bin_float.md:2099
+#: manual/api/bin_float.md:2083
 msgid "The receiver is the ordinate $y$. The special cases follow IEEE 754-2019 §9.2.1; $x \\ge +0$ below means $+0$ or a positive $x$, $x \\le -0$ means $-0$ or a negative $x$, infinities included:"
 msgstr ""
 
-#: manual/api/bin_float.md:2103
-#: manual/api/bin_float.md:2187
+#: manual/api/bin_float.md:2087
+#: manual/api/bin_float.md:2171
 msgid "result"
 msgstr ""
 
-#: manual/api/bin_float.md:2105
+#: manual/api/bin_float.md:2089
 msgid "$\\pm 0$ (exact)"
 msgstr ""
 
-#: manual/api/bin_float.md:2109
-#: manual/api/bin_float.md:2193
+#: manual/api/bin_float.md:2093
+#: manual/api/bin_float.md:2177
 msgid "finite"
 msgstr ""
 
-#: manual/api/bin_float.md:2110
-#: manual/api/bin_float.md:2111
-#: manual/api/bin_float.md:2112
-#: manual/api/bin_float.md:2194
-#: manual/api/bin_float.md:2195
-#: manual/api/bin_float.md:2196
+#: manual/api/bin_float.md:2094
+#: manual/api/bin_float.md:2095
+#: manual/api/bin_float.md:2096
+#: manual/api/bin_float.md:2178
+#: manual/api/bin_float.md:2179
+#: manual/api/bin_float.md:2180
 msgid ""
 "finite $y \\n"
 "e 0$"
 msgstr ""
 
-#: manual/api/bin_float.md:2110
+#: manual/api/bin_float.md:2094
 msgid "$\\pm\\pi/2$ (sign of $y$)"
 msgstr ""
 
-#: manual/api/bin_float.md:2111
+#: manual/api/bin_float.md:2095
 msgid "$\\pm 0$ (sign of $y$, exact)"
 msgstr ""
 
-#: manual/api/bin_float.md:2112
+#: manual/api/bin_float.md:2096
 msgid "$\\pm\\pi$ (sign of $y$)"
 msgstr ""
 
-#: manual/api/bin_float.md:2114
+#: manual/api/bin_float.md:2098
 msgid "A NaN operand propagates. Multiples of $\\pi$ are correctly rounded and `inexact`. So $\\operatorname{atan2}(-0, -0) = -\\pi$ and $\\operatorname{atan2}(-0, +0) = -0$."
 msgstr ""
 
-#: manual/api/bin_float.md:2120
+#: manual/api/bin_float.md:2104
 msgid "$\\operatorname{asin}(x)/\\pi$, the angle in half-revolutions (`asinPi` of IEEE 754-2019 §9.2)."
 msgstr ""
 
-#: manual/api/bin_float.md:2128
+#: manual/api/bin_float.md:2112
 msgid "The domain is $[-1, 1]$ (Table 9.1): $|x| > 1$ and $\\pm\\infty$ are a `domain_error` (a quiet NaN with `invalid_operation` from `asinpi_ctx`). $\\operatorname{asinPi}(\\pm 0) = \\pm 0$ with no exception, and $\\operatorname{asinPi}(\\pm 1) = \\pm 1/2$ exactly. $\\operatorname{asinPi}(\\pm 1/2) = \\pm 1/6$ is rational but not dyadic, so it is rounded and `inexact` like every other argument (by Niven's theorem these are the only rational values). For a tiny $x$ the result is $x/\\pi$ up to a relative error of order $x^2$ and is rounded from a certified enclosure whatever the exponent range, down to the implementation subnormal limit."
 msgstr ""
 
-#: manual/api/bin_float.md:2148
+#: manual/api/bin_float.md:2132
 msgid "The domain is $[-1, 1]$ as for `asinpi`. $\\operatorname{acosPi}(1) = +0$, $\\operatorname{acosPi}(-1) = 1$ and $\\operatorname{acosPi}(\\pm 0) = 1/2$, exact and without exception (§9.2.1). For a tiny $|x|$ the result is $1/2 \\mp \\delta$ with $0 < \\delta < |x|/2$, so it clusters at the representable $1/2$: when $|x| < 2^{-(p + 4)}$ the rounding direction alone decides between $1/2$ and its neighbour on that side (below for $x > 0$, above for $x < 0$), before the main loop, and the result is always `inexact`."
 msgstr ""
 
-#: manual/api/bin_float.md:2166
+#: manual/api/bin_float.md:2150
 msgid "Defined on all of $\\mathbb{R}$. $\\operatorname{atanPi}(\\pm 0) = \\pm 0$ with no exception, $\\operatorname{atanPi}(\\pm\\infty) = \\pm 1/2$ with no exception (§9.2.1) and $\\operatorname{atanPi}(\\pm 1) = \\pm 1/4$ exactly. For $|x| \\ge 2^{p + 8}$ the result is $\\pm(1/2 - \\delta)$ with $0 < \\delta < 2^{-t}$ for $2^t \\le |x|$, so the rounding direction alone decides between $\\pm 1/2$ and its neighbour inside, without forming a value that close to $1/2$. A tiny $x$ gives $x/\\pi$ rounded from a certified enclosure (underflow with the flags of §7.5 and §7.6)."
 msgstr ""
 
-#: manual/api/bin_float.md:2176
+#: manual/api/bin_float.md:2160
 msgid "$\\operatorname{atan2}(y, x)/\\pi$ for `y.atan2pi(x)`, in $[-1, 1]$."
 msgstr ""
 
-#: manual/api/bin_float.md:2184
+#: manual/api/bin_float.md:2168
 msgid "The receiver is the ordinate $y$. Every special case of §9.2.1 is an exact constant that signals no exception:"
 msgstr ""
 
-#: manual/api/bin_float.md:2194
+#: manual/api/bin_float.md:2178
 msgid "$\\pm 1/2$ (sign of $y$)"
 msgstr ""
 
-#: manual/api/bin_float.md:2195
+#: manual/api/bin_float.md:2179
 msgid "$\\pm 0$ (sign of $y$)"
 msgstr ""
 
-#: manual/api/bin_float.md:2196
+#: manual/api/bin_float.md:2180
 msgid "$\\pm 1$ (sign of $y$)"
 msgstr ""
 
-#: manual/api/bin_float.md:2198
+#: manual/api/bin_float.md:2182
 msgid "For finite nonzero operands $\\operatorname{atan2Pi}(y, x)$ is $\\operatorname{atan}(|y/x|)/\\pi$ for $x > 0$ and $1 - \\operatorname{atan}(|y/x|)/\\pi$ for $x < 0$, with the sign of $y$. $|y| = |x|$ gives the exact $\\pm 1/4$ or $\\pm 3/4$. With $D$ the difference of the leading-bit exponents of $y$ and $x$ (so $2^{D-1} < |y/x| < 2^{D+1}$), an extreme ratio is decided from the anchors before the main loop, from $|D| \\ge p + 8$: $D \\ge p + 8$ gives $1/2 - \\delta$ ($1/2 + \\delta$ for $x < 0$) with $0 < \\delta < 2^{-D}$, and $D \\le -(p + 8)$ with $x < 0$ gives $1 - \\delta$ with $0 < \\delta < 2^{D}$, each rounded by direction alone. With $x > 0$ and a tiny ratio the result is $\\approx t/\\pi$; when $D$ is below a quarter of the smallest subnormal ($D \\le e_{\\min} - p - 1$) it is the tiny nonzero result of the direction with `underflow` and `inexact`. The ratio $y/x$ itself is never formed outside the range where it is representable, so operands at the two ends of the exponent range are handled."
 msgstr ""
 
-#: manual/api/bin_float.md:2214
+#: manual/api/bin_float.md:2198
 msgid "The hyperbolic sine."
 msgstr ""
 
-#: manual/api/bin_float.md:2222
+#: manual/api/bin_float.md:2206
 msgid "$\\sinh(\\pm 0) = \\pm 0$ and $\\sinh(\\pm\\infty) = \\pm\\infty$. Certain overflow is decided before the loop from $|\\sinh x| \\ge e^{|x|}/4$."
 msgstr ""
 
-#: manual/api/bin_float.md:2227
+#: manual/api/bin_float.md:2211
 msgid "The hyperbolic cosine."
 msgstr ""
 
-#: manual/api/bin_float.md:2235
+#: manual/api/bin_float.md:2219
 msgid "$\\cosh(\\pm 0) = 1$ and $\\cosh(\\pm\\infty) = +\\infty$; certain overflow is decided as for `sinh`."
 msgstr ""
 
-#: manual/api/bin_float.md:2240
+#: manual/api/bin_float.md:2224
 msgid "The hyperbolic tangent."
 msgstr ""
 
-#: manual/api/bin_float.md:2248
+#: manual/api/bin_float.md:2232
 msgid "$\\tanh(\\pm 0) = \\pm 0$ and $\\tanh(\\pm\\infty) = \\pm 1$ exactly."
 msgstr ""
 
-#: manual/api/bin_float.md:2252
+#: manual/api/bin_float.md:2236
 msgid "The inverse hyperbolic sine."
 msgstr ""
 
-#: manual/api/bin_float.md:2260
+#: manual/api/bin_float.md:2244
 msgid "Defined on all of $\\mathbb{R}$; $\\operatorname{asinh}(\\pm 0) = \\pm 0$ and $\\operatorname{asinh}(\\pm\\infty) = \\pm\\infty$."
 msgstr ""
 
-#: manual/api/bin_float.md:2265
+#: manual/api/bin_float.md:2249
 msgid "The inverse hyperbolic cosine."
 msgstr ""
 
-#: manual/api/bin_float.md:2273
+#: manual/api/bin_float.md:2257
 msgid "The domain is $x \\ge 1$; any smaller argument, $-\\infty$ included, is a `domain_error`. $\\operatorname{acosh}(1) = +0$ and $\\operatorname{acosh}(+\\infty) = +\\infty$."
 msgstr ""
 
-#: manual/api/bin_float.md:2279
+#: manual/api/bin_float.md:2263
 msgid "The inverse hyperbolic tangent."
 msgstr ""
 
-#: manual/api/bin_float.md:2287
+#: manual/api/bin_float.md:2271
 msgid "The domain is $|x| \\le 1$; outside it, infinities included, the result is a `domain_error`. $\\operatorname{atanh}(\\pm 0) = \\pm 0$ and $\\operatorname{atanh}(\\pm 1) = \\pm\\infty$ with `division_by_zero`."
 msgstr ""
 
-#: manual/api/bin_float.md:2334
+#: manual/api/bin_float.md:2318
 msgid "Structural equality, the derived `Eq`."
 msgstr ""
 
-#: manual/api/bin_float.md:2341
+#: manual/api/bin_float.md:2325
 msgid "See [`BinFloat`](#binfloat): this compares representations, not numbers, so `==` distinguishes $\\pm 0$ and precisions and identifies equal NaNs."
 msgstr ""
 
-#: manual/api/bin_float.md:2346
+#: manual/api/bin_float.md:2330
 msgid "The `Compare` methods behind `<`, `<=`, `>` and `>=`."
 msgstr ""
 
-#: manual/api/bin_float.md:2355
+#: manual/api/bin_float.md:2339
 msgid "They use [`compare`](#binfloatcompare), so NaN is greater than every number: `nan > x` is `true`. Use the [IEEE predicates](#binfloatequal_quiet-binfloatless_quiet-binfloatless_equal_quiet-binfloatunordered_quiet-binfloatequal_signaling-binfloatless_signaling-binfloatless_equal_signaling) when NaN must be unordered."
 msgstr ""
 
-#: manual/api/bin_float.md:2361
+#: manual/api/bin_float.md:2345
 msgid "The `Show` and `Debug` methods."
 msgstr ""
 
-#: manual/api/bin_float.md:2368
+#: manual/api/bin_float.md:2352
 msgid "`output` writes the exact `c p e` form of [`to_string`](#binfloatto_string). `to_repr` (used by `debug_inspect`) shows every private field."
 msgstr ""
 
-#: manual/api/bin_float.md:2373
+#: manual/api/bin_float.md:2357
 msgid "The shared floating-point vocabulary of `floating`."
 msgstr ""
 
-#: manual/api/bin_float.md:2379
+#: manual/api/bin_float.md:2363
 msgid "`classify`, `sign`, `precision`, `with_precision` and `normalized` are the inherent methods above. Generic code uses `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and `@def.is_zero`."
 msgstr ""
 
-#: manual/api/bin_float.md:2385
+#: manual/api/bin_float.md:2369
 msgid "`@lf_arith` traits whose methods return `Result`."
 msgstr ""
 
-#: manual/api/bin_float.md:2398
+#: manual/api/bin_float.md:2382
 msgid "Each converts the `ArithmeticContext` with `BinaryContext::from_arithmetic_context` (which aborts for a precision above `binary_precision_max`) and runs the contextual operation. The invalid flag becomes a `domain_error` and the division-by-zero flag a `division_by_zero` error; the other flags are dropped, so a NaN, an infinity, an overflow or an underflow is the IEEE 754-2019 default result in `Ok`, as for the `Double` instances of Luna-Flow/arithmetic. `sqrt_checked` is a `domain_error` for a negative nonzero argument (including $-\\infty$) and a signaling NaN; a quiet NaN of either sign is `Ok`. `DivChecked::div_checked` is a `domain_error` for $0/0$, $\\infty/\\infty$ and a signaling NaN operand, and a `division_by_zero` error for a finite non-zero dividend over a signed zero; NaN$/0$ and $\\infty/0$ are `Ok`. `pow_int_checked` is a `division_by_zero` error for a zero base with a negative exponent, and both powers are a `domain_error` for a signaling NaN base, zero exponent included. The trait's `div_checked(x, y, ctx)` takes a context; the inherent [`BinFloat::div_checked`](#binfloatdiv_checked) does not. `CompareChecked::compare_checked` is the inherent [`compare_checked`](#binfloatcompare_checked)."
 msgstr ""
 
-#: manual/api/bin_float.md:2419
+#: manual/api/bin_float.md:2403
 msgid "`@lf_arith` traits that return an `ArithmeticOutcome` with diagnostics."
 msgstr ""
 
-#: manual/api/bin_float.md:2438
+#: manual/api/bin_float.md:2422
 msgid "Each runs the matching `*_ctx` method (for `abs`, `abs` followed by `round_ctx`; for `exp`, `try_exp_ctx`) under the converted context. A result with `division_by_zero` becomes a `division_by_zero` error and one with `invalid_operation` a `domain_error`; a certification failure of `exp` is returned as is. Otherwise the value is returned with `ArithmeticDiagnostics` whose `inexact` and `rounded` are the inexact flag and whose `overflow` and `underflow` are the matching flags."
 msgstr ""
 
-#: manual/api/bin_float.md:2448
+#: manual/api/bin_float.md:2432
 msgid "The `Compare` and `Eq` methods of `BinCoeff`, behind `<`, `<=`, `>`, `>=` and `!=`."
 msgstr ""
 
-#: manual/api/bin_float.md:2466
+#: manual/api/bin_float.md:2450
 msgid "They agree with [`BinCoeff::compare`](#bincoeffcompare-bincoeffequal); `+`, `*`, `<<` and `>>` are `add`, `mul`, `shl` and `shr`."
 msgstr ""
 
-#: manual/api/bin_float.md:2471
+#: manual/api/bin_float.md:2455
 msgid "The `Show` and `Debug` methods of `BinCoeff`."
 msgstr ""
 
-#: manual/api/bin_float.md:2478
+#: manual/api/bin_float.md:2462
 msgid "`output` writes the decimal digits of [`to_string`](#bincoeffparse-bincoeffto_string-bincoeffto_radix_string)."
 msgstr ""
 
-#: manual/api/bin_float.md:2482
+#: manual/api/bin_float.md:2466
 msgid "The derived `Eq` and `Debug` methods of `BinaryRoundingMode`."
 msgstr ""
 
-#: manual/api/bin_float.md:2492
+#: manual/api/bin_float.md:2476
 msgid "The derived `Eq` and `Debug` methods of `TininessDetection`."
 msgstr ""
 
-#: manual/api/bin_float.md:2502
+#: manual/api/bin_float.md:2486
 msgid "The derived `Eq` and `Debug` methods of `BinaryContext`."
 msgstr ""
 
-#: manual/api/bin_float.md:2510
+#: manual/api/bin_float.md:2494
 msgid "Equality compares the fields as given: `BinaryContext::new(53)` is not equal to `BinaryContext::new(53, e_max=binary_implementation_e_max)` although the two behave identically."
 msgstr ""
 
-#: manual/api/bin_float.md:2516
+#: manual/api/bin_float.md:2500
 msgid "The derived `Eq` and `Debug` methods of `BinaryFlags`."
 msgstr ""
 
-#: manual/api/bin_float.md:2526
+#: manual/api/bin_float.md:2510
 msgid "The derived `Eq` and `Debug` methods of `BinaryInterchangeFormat`."
 msgstr ""
 
-#: manual/api/bin_float.md:2536
+#: manual/api/bin_float.md:2520
 msgid "The derived `Eq` of `BinaryInterchange`: format and bits must agree."
 msgstr ""
 
@@ -3397,111 +3389,103 @@ msgid "Errors: a `DomainError` for a negative argument, $-\\infty$ included; a `
 msgstr ""
 
 #: manual/api/bin_float_checked.md:635
-msgid "$\\ln(e^x)$ as one fused operation, delegated to [`BinFloat::try_exp_ln_ctx`](bin_float.md#binfloatexp_ln-binfloatexp_ln_ctx-binfloattry_exp_ln_ctx)."
-msgstr ""
-
-#: manual/api/bin_float_checked.md:642
-msgid "Errors: a `CertificationFailure` (stage `RangeReduction`, reason `RangeNotCertified`) for a finite $|x| > 1/8$."
-msgstr ""
-
-#: manual/api/bin_float_checked.md:646
 msgid "$\\sin x$, delegated to [`BinFloat::try_sin_ctx`](bin_float.md#binfloatsin-binfloatsin_ctx-binfloattry_sin_ctx)."
 msgstr ""
 
+#: manual/api/bin_float_checked.md:642
 #: manual/api/bin_float_checked.md:653
 #: manual/api/bin_float_checked.md:664
 #: manual/api/bin_float_checked.md:675
 #: manual/api/bin_float_checked.md:686
-#: manual/api/bin_float_checked.md:697
 msgid "Errors: a `DomainError` for an infinite argument."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:657
+#: manual/api/bin_float_checked.md:646
 msgid "$\\cos x$, delegated to [`BinFloat::try_cos_ctx`](bin_float.md#binfloatcos-binfloatcos_ctx-binfloattry_cos_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:668
+#: manual/api/bin_float_checked.md:657
 msgid "$\\tan x$, delegated to [`BinFloat::try_tan_ctx`](bin_float.md#binfloattan-binfloattan_ctx-binfloattry_tan_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:679
+#: manual/api/bin_float_checked.md:668
 msgid "$\\sin(\\pi x)$, delegated to [`BinFloat::try_sinpi_ctx`](bin_float.md#binfloatsinpi-binfloatsinpi_ctx-binfloattry_sinpi_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:690
+#: manual/api/bin_float_checked.md:679
 msgid "$\\cos(\\pi x)$, delegated to [`BinFloat::try_cospi_ctx`](bin_float.md#binfloatcospi-binfloatcospi_ctx-binfloattry_cospi_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:701
+#: manual/api/bin_float_checked.md:690
 msgid "$\\tan(\\pi x)$, delegated to [`BinFloat::try_tanpi_ctx`](bin_float.md#binfloattanpi-binfloattanpi_ctx-binfloattry_tanpi_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:708
+#: manual/api/bin_float_checked.md:697
 msgid "Errors: a `DomainError` for an infinite argument; a `DivisionByZero` error at half-integers, the poles of §9.2.1."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:712
+#: manual/api/bin_float_checked.md:701
 msgid "$\\arcsin x$, delegated to [`BinFloat::try_asin_ctx`](bin_float.md#binfloatasin-binfloatasin_ctx-binfloattry_asin_ctx)."
 msgstr ""
 
+#: manual/api/bin_float_checked.md:708
 #: manual/api/bin_float_checked.md:719
-#: manual/api/bin_float_checked.md:730
 msgid "Errors: a `DomainError` outside $[-1, 1]$, infinities included."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:723
+#: manual/api/bin_float_checked.md:712
 msgid "$\\arccos x$, delegated to [`BinFloat::try_acos_ctx`](bin_float.md#binfloatacos-binfloatacos_ctx-binfloattry_acos_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:734
+#: manual/api/bin_float_checked.md:723
 msgid "$\\arctan x$, delegated to [`BinFloat::try_atan_ctx`](bin_float.md#binfloatatan-binfloatatan_ctx-binfloattry_atan_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:743
+#: manual/api/bin_float_checked.md:732
 msgid "$\\sinh x$, delegated to [`BinFloat::try_sinh_ctx`](bin_float.md#binfloatsinh-binfloatsinh_ctx-binfloattry_sinh_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:752
+#: manual/api/bin_float_checked.md:741
 msgid "$\\cosh x$, delegated to [`BinFloat::try_cosh_ctx`](bin_float.md#binfloatcosh-binfloatcosh_ctx-binfloattry_cosh_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:761
+#: manual/api/bin_float_checked.md:750
 msgid "$\\tanh x$, delegated to [`BinFloat::try_tanh_ctx`](bin_float.md#binfloattanh-binfloattanh_ctx-binfloattry_tanh_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:770
+#: manual/api/bin_float_checked.md:759
 msgid "$\\operatorname{asinh} x$, delegated to [`BinFloat::try_asinh_ctx`](bin_float.md#binfloatasinh-binfloatasinh_ctx-binfloattry_asinh_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:779
+#: manual/api/bin_float_checked.md:768
 msgid "$\\operatorname{acosh} x$, delegated to [`BinFloat::try_acosh_ctx`](bin_float.md#binfloatacosh-binfloatacosh_ctx-binfloattry_acosh_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:786
+#: manual/api/bin_float_checked.md:775
 msgid "Errors: a `DomainError` below $1$."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:790
+#: manual/api/bin_float_checked.md:779
 msgid "$\\operatorname{atanh} x$, delegated to [`BinFloat::try_atanh_ctx`](bin_float.md#binfloatatanh-binfloatatanh_ctx-binfloattry_atanh_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:797
+#: manual/api/bin_float_checked.md:786
 msgid "Errors: a `DomainError` for $|x| > 1$; a `DivisionByZero` error for $\\operatorname{atanh}(\\pm 1)$."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:801
+#: manual/api/bin_float_checked.md:790
 msgid "The angle of the point $(\\text{abscissa}, \\text{self})$, delegated to [`BinFloat::try_atan2_ctx`](bin_float.md#binfloatatan2-binfloatatan2_ctx-binfloattry_atan2_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:809
+#: manual/api/bin_float_checked.md:798
 msgid "Errors are taken in the order ordinate, abscissa, operation. `atan2` uses `BinaryContext::unbounded` at the larger operand precision. Signed zeros follow IEEE 754: `atan2` of $(-0, -0)$ is $-\\pi$ and of $(-0, +0)$ is $-0$. A signaling NaN operand is a `DomainError`; `atan2` raises no other exception."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:834
+#: manual/api/bin_float_checked.md:822
 msgid "`Add`, `Sub`, `Mul`, `Div` and `Neg` for `BinFloatResult`"
 msgstr ""
 
-#: manual/api/bin_float_checked.md:847
+#: manual/api/bin_float_checked.md:835
 msgid "So `/` on wrappers reports division by zero, while `/` on plain `BinFloat` values returns an infinity."
 msgstr ""
 
@@ -21269,7 +21253,7 @@ msgstr ""
 #: manual/tutorial/bench/decimal_gda.md:50
 #: manual/tutorial/bench/external.md:116
 #: manual/tutorial/bin_float.md:260
-#: manual/tutorial/bin_float_checked.md:182
+#: manual/tutorial/bin_float_checked.md:177
 #: manual/tutorial/cli.md:73
 #: manual/tutorial/cli/dispatch.md:60
 #: manual/tutorial/cli/gda_expr_cli.md:109
@@ -21342,7 +21326,7 @@ msgstr ""
 #: manual/tutorial/bench/decimal_gda.md:58
 #: manual/tutorial/bench/external.md:128
 #: manual/tutorial/bin_float.md:393
-#: manual/tutorial/bin_float_checked.md:240
+#: manual/tutorial/bin_float_checked.md:235
 #: manual/tutorial/cli.md:82
 #: manual/tutorial/cli/dispatch.md:66
 #: manual/tutorial/cli/gda_expr_cli.md:117
@@ -21415,7 +21399,7 @@ msgstr ""
 #: manual/tutorial/bench/decimal_gda.md:64
 #: manual/tutorial/bench/external.md:137
 #: manual/tutorial/bin_float.md:421
-#: manual/tutorial/bin_float_checked.md:264
+#: manual/tutorial/bin_float_checked.md:259
 #: manual/tutorial/cli.md:94
 #: manual/tutorial/cli/dispatch.md:74
 #: manual/tutorial/cli/gda_expr_cli.md:129
@@ -21616,7 +21600,7 @@ msgid "**`[+inf, +inf]` is rejected.** IEEE 1788 intervals are subsets of the re
 msgstr ""
 
 #: manual/tutorial/ball_float_checked.md:255
-#: manual/tutorial/bin_float_checked.md:262
+#: manual/tutorial/bin_float_checked.md:257
 msgid "**`flat_map` is deprecated.** Use `bind`."
 msgstr ""
 
@@ -22562,62 +22546,58 @@ msgid "Errors are `ArithmeticError` values from Luna-Flow/arithmetic. Their kind
 msgstr ""
 
 #: manual/tutorial/bin_float_checked.md:179
-msgid "`exp_ln` (the fused $\\ln(\\exp x)$) is certified only for $|x| \\le 1/8$, so it fails for $3$; this is a certification limit, not a mathematical domain."
-msgstr ""
-
-#: manual/tutorial/bin_float_checked.md:184
 msgid "Generic code over Luna-Flow/arithmetic traits"
 msgstr ""
 
-#: manual/tutorial/bin_float_checked.md:186
+#: manual/tutorial/bin_float_checked.md:181
 msgid "`BinFloat` implements the checked traits of Luna-Flow/arithmetic (`SqrtChecked`, `DivChecked`, `PowIntChecked`, `PowNatChecked`). A function written against those traits returns `Result[T, ArithmeticError]`, and `from_result` brings it into a pipeline:"
 msgstr ""
 
-#: manual/tutorial/bin_float_checked.md:218
+#: manual/tutorial/bin_float_checked.md:213
 msgid "Keep IEEE flags when they matter"
 msgstr ""
 
-#: manual/tutorial/bin_float_checked.md:220
+#: manual/tutorial/bin_float_checked.md:215
 msgid "The wrapper stores a value or an error, nothing else. When the inexact, overflow or underflow flags are part of your contract, call the `BinFloat::*_ctx` operations, which return `(value, BinaryFlags)`, and combine the flags yourself:"
 msgstr ""
 
-#: manual/tutorial/bin_float_checked.md:242
+#: manual/tutorial/bin_float_checked.md:237
 msgid "**A quiet NaN is a success.** `BinFloatResult` reports an invalid operation ($\\infty - \\infty$, `sqrt_ctx` of a negative number, a signaling NaN) as `DomainError` and a division by zero as `DivisionByZero`, with or without a context. A quiet NaN operand is not an exception and stays a successful NaN; test `@def.is_nan` on the final value if that matters."
 msgstr ""
 
-#: manual/tutorial/bin_float_checked.md:247
+#: manual/tutorial/bin_float_checked.md:242
 msgid "**`x` and `x_ctx` have one error contract.** `x_ctx` is `x` with an explicit context; `div_ctx` by zero fails like `div`. Overflow, underflow and inexact are not errors in either form."
 msgstr ""
 
-#: manual/tutorial/bin_float_checked.md:250
+#: manual/tutorial/bin_float_checked.md:245
 msgid "**Only the first error survives.** In `a + b` with both operands failing, the error of `a` is reported. Errors are not collected."
 msgstr ""
 
-#: manual/tutorial/bin_float_checked.md:252
+#: manual/tutorial/bin_float_checked.md:247
 msgid "**The `_ctx` methods drop the range flags.** Overflow, underflow and inexact are dropped; use `bin_float` directly for flags and for the raw default result of an invalid operation or a division by zero."
 msgstr ""
 
-#: manual/tutorial/bin_float_checked.md:255
+#: manual/tutorial/bin_float_checked.md:250
 msgid "**Precision of mixed operands.** Binary operations use the larger operand precision; `from_float` defaults to 24 bits, so mixing it with `from_double` values gives 53-bit results."
 msgstr ""
 
-#: manual/tutorial/bin_float_checked.md:258
+#: manual/tutorial/bin_float_checked.md:253
 msgid "**Operands are always evaluated.** The wrapper skips the *operation* after an error, but MoonBit evaluates every argument first, so in `a + f(b)` the call `f(b)` runs even when `a` is an error. Put expensive steps behind `bind` when they should be skipped."
 msgstr ""
 
-#: manual/tutorial/bin_float_checked.md:266
+#: manual/tutorial/bin_float_checked.md:261
 msgid "[`bin_float_checked` design](../design/bin_float_checked.md): the error monad, its laws and the first-error theorem."
 msgstr ""
 
-#: manual/tutorial/bin_float_checked.md:268
+#: manual/tutorial/bin_float_checked.md:263
 msgid "[`bin_float_checked` API](../api/bin_float_checked.md): every method."
 msgstr ""
 
-#: manual/tutorial/bin_float_checked.md:269
+#: manual/tutorial/bin_float_checked.md:264
 msgid "[`bin_float` tutorial](bin_float.md): contexts, flags and interchange formats."
 msgstr ""
 
-#: manual/tutorial/bin_float_checked.md:270
+#: manual/tutorial/bin_float_checked.md:265
 msgid "[`ball_float_checked` tutorial](ball_float_checked.md): the same pipeline for enclosures."
 msgstr ""
 

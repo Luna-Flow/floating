@@ -62,8 +62,6 @@ pub fn BinFloatResult::exp2_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::exp2m1(Self) -> Self
 pub fn BinFloatResult::exp2m1_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::exp_ctx(Self, @bin_float.BinaryContext) -> Self
-pub fn BinFloatResult::exp_ln(Self) -> Self
-pub fn BinFloatResult::exp_ln_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::expm1(Self) -> Self
 pub fn BinFloatResult::expm1_ctx(Self, @bin_float.BinaryContext) -> Self
 #deprecated

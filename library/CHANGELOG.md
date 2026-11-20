@@ -10,6 +10,8 @@ notes live in this file.
 
 - `decimal_gda`: the free functions `decimal32_context()`, `decimal64_context()` and `decimal128_context()` are removed (part of step B of [#22](https://github.com/Luna-Flow/floating/issues/22)). Migration: `GdaContext::decimal32()`, `GdaContext::decimal64()` and `GdaContext::decimal128()` return the same shared preset values. The free function `context(...)` stays.
 
+- `bin_float`, `bin_float_checked`: the `exp_ln` family is removed ([#22](https://github.com/Luna-Flow/floating/issues/22), step B1): `BinFloat::exp_ln`, `BinFloat::exp_ln_ctx`, `BinFloat::try_exp_ln_ctx`, `BinFloatResult::exp_ln` and `BinFloatResult::exp_ln_ctx`. It computed $\ln(e^x) = x$ and was certified only for $|x| \le 1/8$ (any other finite argument was a certification failure), it is not an IEEE 754-2019 operation, and the decimal packages have no counterpart. Migration: none needed; the value was $x$ rounded once into the context, which is `x.round_ctx(context)` (or `plus`). `ball_float` and `ball_float_checked` had no wrapper of it.
+
 - `bin_float_checked`: one flag rule for all 46 `BinFloatResult::*_ctx` methods ([#371](https://github.com/Luna-Flow/floating/issues/371)). `x_ctx` is `x` with an explicit context and the same map: invalid operation is `Err(DomainError)`, divideByZero is `Err(DivisionByZero)`, overflow, underflow and inexact are dropped. The 39 elementary methods already followed it; the seven arithmetic methods `add_ctx`, `sub_ctx`, `mul_ctx`, `div_ctx`, `sqrt_ctx`, `pow_int_ctx` and `pown_ctx` changed. No signature changes. Migration: for the raw IEEE default result together with its flags, call the unwrapped `BinFloat::div_ctx` and its siblings, which still return `(value, flags)`.
 
   | case | before | after |

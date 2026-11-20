@@ -162,8 +162,6 @@ fn elementary_unary(
     ("exp2", Some(c)) => x.exp2_ctx(c)
     ("exp10", None) => x.exp10()
     ("exp10", Some(c)) => x.exp10_ctx(c)
-    ("exp_ln", None) => x.exp_ln()
-    ("exp_ln", Some(c)) => x.exp_ln_ctx(c)
     ("ln", None) => x.ln()
     ("ln", Some(c)) => x.ln_ctx(c)
     ("log1p", None) => x.log1p()
@@ -209,9 +207,9 @@ fn elementary_unary(
 ///|
 fn elementary_unary_ops() -> Array[String] {
   [
-    "exp", "expm1", "exp2", "exp10", "exp_ln", "ln", "log1p", "log2", "log10", "sinh",
-    "cosh", "tanh", "asinh", "acosh", "atanh", "atan", "asin", "acos", "sin", "cos",
-    "tan", "sinpi", "cospi", "tanpi",
+    "exp", "expm1", "exp2", "exp10", "ln", "log1p", "log2", "log10", "sinh", "cosh",
+    "tanh", "asinh", "acosh", "atanh", "atan", "asin", "acos", "sin", "cos", "tan",
+    "sinpi", "cospi", "tanpi",
   ]
 }
 
@@ -228,14 +226,6 @@ test "elementary BinFloatResult methods map exceptions to errors" {
     for op in elementary_unary_ops() {
       for operand in elementary_operands() {
         let (name, x) = operand
-        // The fused ln(exp(x)) is certified only for |x| <= 1/8 (documented in
-        // api/bin_float.md); the other finite operands are certification failures.
-        if op == "exp_ln" &&
-          !elementary_is_nan(name) &&
-          x != 0.0 &&
-          x.abs() != elementary_inf {
-          continue
-        }
         let actual = elementary_render(
           elementary_unary(
             op,
@@ -262,8 +252,8 @@ test "elementary BinFloatResult methods map exceptions to errors" {
     }
   }
   assert_eq(failures, [])
-  // 2 forms x (24 operations x 16 operands - 8 finite non-zero exp_ln).
-  assert_eq(cases, 2 * (24 * 16 - 8))
+  // 2 forms x 23 operations x 16 operands.
+  assert_eq(cases, 2 * 23 * 16)
 }
 
 ///|

@@ -413,23 +413,6 @@ pub fn BinFloatResult::exp10_ctx(
 }
 
 ///|
-pub fn BinFloatResult::exp_ln(self : BinFloatResult) -> BinFloatResult {
-  bin_result_try_elementary(self, fn(value, context) {
-    value.try_exp_ln_ctx(context)
-  })
-}
-
-///|
-pub fn BinFloatResult::exp_ln_ctx(
-  self : BinFloatResult,
-  context : @bin_float.BinaryContext,
-) -> BinFloatResult {
-  bin_result_try_elementary_ctx(self, context, fn(value, ctx) {
-    value.try_exp_ln_ctx(ctx)
-  })
-}
-
-///|
 pub fn BinFloatResult::ln(self : BinFloatResult) -> BinFloatResult {
   bin_result_try_elementary(self, fn(value, context) {
     value.try_ln_ctx(context)
