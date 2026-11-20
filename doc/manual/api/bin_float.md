@@ -1046,7 +1046,9 @@ for a signaling NaN); an infinite or non-integer count is a NaN with
 `invalid_operation`, whatever the receiver is (an infinite receiver with a
 finite count is returned as it is); an integer count beyond the `Int` range
 acts as the largest count of its sign, which overflows or underflows every
-finite non-zero value of any format.
+finite non-zero value of any format. IEEE 754-2019 5.3.3 defines scaleB for integral counts only and leaves a
+non-integral second operand (an infinity is not integral) to the language: the
+NaN with `invalid_operation` is this library's choice, as in `decimal`.
 `x.logb_ctx(ctx)` is $\lfloor \log_2 |x| \rfloor$ as an exact integral value
 (also for subnormal $x$): $\operatorname{logB}(0) = -\infty$ with
 `division_by_zero`, $\operatorname{logB}(\pm\infty) = +\infty$, and a NaN

@@ -1125,7 +1125,10 @@ pub fn Decimal::logb_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 `x.scaleb_ctx(n, ctx)` returns $x \cdot 10^{n}$ by adding $n$ to the exponent;
 $n$ must be a finite integer with exponent 0 and
 $|n| \le 2(e_{\max}+p)$, otherwise the result is NaN with
-`invalid_operation`. The scaled value is then rounded once like every other
+`invalid_operation` (IEEE 754-2019 5.3.3 defines scaleB for integral counts only
+and leaves a non-integral second operand, an infinity included, to the language;
+the bound on $|n|$ is the GDA `scaleb` rule, where `BinFloat::scaleb_ctx` clamps a
+larger count instead). The scaled value is then rounded once like every other
 context result: a coefficient longer than $p$ digits is rounded to $p$ digits
 (`12345678901234567890` scaled by 0 in decimal64 is
 `1.234567890123457E+19` with `inexact`), a subnormal result is rounded to
