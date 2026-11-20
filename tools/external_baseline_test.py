@@ -394,7 +394,7 @@ class PublishNameTests(unittest.TestCase):
             root = Path(directory)
             out = root / "out"
             out.mkdir()
-            document = {"schema": eb.SCHEMA, "protocol": {"floating_configuration": configuration, "criterion_applies": True}, "cases": []}
+            document = {"schema": eb.SCHEMA, "protocol": {"floating_configuration": configuration, "criterion_applies": True, "target": "native"}, "cases": []}
             (out / "results.json").write_text(json.dumps(document), encoding="utf-8")
             (out / "results.md").write_text("# results\n", encoding="utf-8")
             (out / "samples.json").write_text('{"schema": "x"}\n', encoding="utf-8")
@@ -541,12 +541,13 @@ class RuntimeTests(unittest.TestCase):
 
         collected = self.collected(floating, (5.0, 0.5))
         protocol = eb.Protocol(1, 1.0, 1.0, 1, 10, 10.0, 1, 6, 3, 100)
-        results = eb.reduce_results(collected, protocol, 7, stats.Rules(), configuration, eb.criterion_applies_to(target))
-        summary = eb.summary_document(results, {"order_seed": 7, "inputs_sha256": sha}, protocol, configuration, stats.Rules(), target)
+        criterion = eb.criterion_for(configuration, target)
+        rules = stats.Rules(target=criterion.target_ratio, limit=criterion.limit_ratio)
+        results = eb.reduce_results(collected, protocol, 7, rules, configuration, criterion.applies)
+        summary = eb.summary_document(results, {"order_seed": 7, "inputs_sha256": sha}, protocol, configuration, rules, target, criterion)
         return json.loads(json.dumps(summary)), json.loads(json.dumps(eb.samples_document(collected)))
 
-    def test_targets_configurations_and_the_criterion(self) -> None:
-        self.assertEqual([eb.criterion_applies_to(t) for t in eb.TARGETS], [True, False, False])
+    def test_targets_and_configurations(self) -> None:
         self.assertEqual([eb.default_configuration(t) for t in eb.TARGETS], ["native", "wasm", "js"])
         for bad in ("wasm-gc", "native-portable", ""):
             with self.assertRaises(ValueError):
@@ -556,21 +557,76 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(eb.moon_command()[eb.moon_command().index("--target") + 1], "native")
         self.assertEqual(eb.runtime_versions("native"), {})
 
-    def test_a_runtime_summary_records_target_and_has_no_verdict(self) -> None:
-        summary, samples = self.summary_and_samples("wasm", "wasm", (130.0, 40.0))
-        self.assertEqual((summary["protocol"]["target"], summary["protocol"]["criterion_applies"]), ("wasm", False))
-        self.assertEqual(summary["protocol"]["target_ratio"], 3.0)
-        self.assertEqual(summary["protocol"]["warm_pct"], 5.0)
+    def test_the_table_of_criteria(self) -> None:
+        # Maintainer, 2026-11-21: native at most 3; wasm and js expected within 5, at most 10 (bounds as data).
+        for configuration in ("native", "native-portable"):
+            criterion = eb.CRITERIA[configuration]
+            self.assertEqual((criterion.judged, criterion.target_ratio, criterion.limit_ratio, criterion.applies), (eb.JUDGED_REFERENCE, 3.0, 3.0, True))
+        for configuration in ("wasm", "js"):
+            criterion = eb.CRITERIA[configuration]
+            self.assertEqual((criterion.judged, criterion.target_ratio, criterion.limit_ratio, criterion.applies), (eb.JUDGED_REFERENCE, 5.0, 10.0, True))
+        self.assertEqual(eb.criterion_for("wasm", "wasm"), eb.CRITERIA["wasm"])
+        self.assertEqual(eb.criterion_for("my-js-experiment", "js"), eb.CRITERIA["js"])  # a custom name takes the row of its target
+        self.assertEqual(eb.criterion_for("my-native-experiment", "native"), eb.CRITERIA["native"])
+        self.assertFalse(eb.Criterion(eb.JUDGED_NONE, 3.0, 3.0).applies)
+        for bad in (("other", 3.0, 3.0), (eb.JUDGED_REFERENCE, 0.0, 1.0), (eb.JUDGED_REFERENCE, -1.0, 3.0), (eb.JUDGED_REFERENCE, 5.0, 3.0)):
+            with self.assertRaises(ValueError):
+                eb.Criterion(*bad)
+
+    def test_a_runtime_summary_has_two_bounds(self) -> None:
+        summary, samples = self.summary_and_samples("wasm", "wasm", (130.0, 40.0))  # net ratio 20: above the limit
+        self.assertEqual(
+            (summary["protocol"]["target"], summary["protocol"]["criterion_applies"], summary["protocol"]["criterion_judged"]),
+            ("wasm", True, "reference"),
+        )
+        self.assertEqual((summary["protocol"]["target_ratio"], summary["protocol"]["limit_ratio"]), (5.0, 10.0))
         (case,) = summary["cases"]
-        self.assertEqual((case["status"], case["raw_status"], case["borderline"]), (stats.NOT_APPLICABLE, stats.NOT_APPLICABLE, False))
         self.assertAlmostEqual(case["ratio_net"]["ratio"], 90.0 / 4.5)
+        self.assertEqual(case["status"], stats.NOT_MET)
         recomputed = eb.recompute(samples, summary)
-        self.assertEqual(recomputed[0].status, stats.NOT_APPLICABLE)  # the flag survives the round trip
+        self.assertEqual(recomputed[0].status, stats.NOT_MET)
         text = eb.render_markdown(recomputed, summary["protocol"])
-        self.assertNotIn(" met", text)
-        self.assertNotIn("cases meet the target", text)
-        self.assertIn("no verdict", text)
-        self.assertIn("Net ratio of `floating` on this runtime to the native MPFR", text)
+        self.assertIn("0 of 1 cases meet the target (the upper end of the interval of the net ratio is at most 5), 0 are tolerated (above 5 and at most 10), 1 are not met (above 10)", text)
+        self.assertIn('"tolerated": above 5 and at most 10', text)
+        self.assertIn("`floating` runs on `wasm` and the reference process is native", text)
+        self.assertIn("diagnostic of the cost of the runtime", text)
+
+    def test_the_three_statuses_of_a_runtime(self) -> None:
+        expected = {(30.0, 10.0): stats.MET, (71.5, 40.0): stats.TOLERATED, (130.0, 40.0): stats.NOT_MET}  # net ratios 4.4, 7.0, 20
+        for floating, status in expected.items():
+            summary, samples = self.summary_and_samples("js", "js", floating)
+            self.assertEqual(summary["cases"][0]["status"], status, floating)
+            recomputed = eb.recompute(samples, summary)
+            self.assertEqual(recomputed[0].status, status)
+            text = eb.render_markdown(recomputed, summary["protocol"])
+            self.assertIn(f"{1 if status == stats.TOLERATED else 0} are tolerated", text)
+            if status == stats.TOLERATED:
+                self.assertIn(" tolerated", eb.net_cell(recomputed[0]))
+        native, _ = self.summary_and_samples("native", "native", (71.5, 40.0))  # the same ratio 7 is above 3 on native
+        self.assertEqual(native["cases"][0]["status"], stats.NOT_MET)
+        self.assertNotIn("tolerated", eb.render_markdown(eb.recompute(*reversed(self.summary_and_samples("native", "native", (71.5, 40.0)))), native["protocol"]))
+
+    def test_a_configuration_marked_none_has_no_verdict(self) -> None:
+        from unittest.mock import patch
+
+        with patch.dict(eb.CRITERIA, {"wasm": eb.Criterion(eb.JUDGED_NONE, 3.0, 3.0)}):
+            summary, samples = self.summary_and_samples("wasm", "wasm", (130.0, 40.0))
+            self.assertEqual((summary["protocol"]["criterion_applies"], summary["protocol"]["criterion_judged"]), (False, "none"))
+            (case,) = summary["cases"]
+            self.assertEqual((case["status"], case["raw_status"], case["borderline"]), (stats.NOT_APPLICABLE, stats.NOT_APPLICABLE, False))
+            text = eb.render_markdown(eb.recompute(samples, summary), summary["protocol"])
+            self.assertNotIn(" met", text)
+            self.assertNotIn("cases meet the target", text)
+            self.assertIn("no verdict", text)
+            self.assertIn("Net ratio of `floating` on this runtime to the native MPFR", text)
+
+    def test_the_bound_comes_from_the_table(self) -> None:
+        from unittest.mock import patch
+
+        with patch.dict(eb.CRITERIA, {"wasm": eb.Criterion(eb.JUDGED_REFERENCE, 25.0, 25.0)}):
+            summary, _ = self.summary_and_samples("wasm", "wasm", (130.0, 40.0))
+        self.assertEqual(summary["protocol"]["target_ratio"], 25.0)
+        self.assertEqual(summary["cases"][0]["status"], stats.MET)  # 20 is within 25
 
     def test_a_native_summary_keeps_its_verdict(self) -> None:
         summary, _ = self.summary_and_samples("native-portable", "native", (30.0, 9.0))

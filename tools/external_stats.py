@@ -43,11 +43,20 @@ class Rules:
     """The parameters of the verdict; the defaults are the published method."""
 
     target: float = TARGET_RATIO
+    limit: float | None = None  # the tolerated bound, at least `target`; `None` means the target (no tolerated band)
     width_bound: float = WIDTH_BOUND
     drift_pct: float = DRIFT_PCT
     order_pct: float = ORDER_PCT
     warm_pct: float = WARM_PCT
     level: float = LEVEL
+
+    @property
+    def tolerated_limit(self) -> float:
+        return self.target if self.limit is None else self.limit
+
+    def __post_init__(self) -> None:
+        if self.limit is not None and self.limit < self.target:
+            raise ValueError("the limit must be at least the target")
 
 
 # ---------------------------------------------------------------------------
@@ -275,7 +284,8 @@ def side_net(
 # The verdict
 # ---------------------------------------------------------------------------
 
-MET = "met"
+MET = "met"  # the upper end of the interval is at most the target
+TOLERATED = "tolerated"  # above the target and at most the limit (only where the limit is above the target)
 NOT_MET = "not_met"
 UNRESOLVED = "unresolved"
 NOT_APPLICABLE = "not_applicable"  # the criterion is not defined for the configuration
@@ -290,13 +300,20 @@ class Verdict:
     ratio: float  # net_F / net_R (inf when the reference net is not positive)
     ci_low: float
     ci_high: float
-    status: str  # MET, NOT_MET or UNRESOLVED
+    status: str  # MET, TOLERATED, NOT_MET, UNRESOLVED or NOT_APPLICABLE
     reason: str  # why unresolved; empty otherwise
-    borderline: bool  # resolved, and the interval contains the target
-    raw_status: str  # MET or NOT_MET by the raw ratio's upper end; the verdict of an unresolved case
+    borderline: bool  # resolved, and the interval contains the target or the limit
+    raw_status: str  # MET, TOLERATED or NOT_MET by the raw ratio's upper end; the verdict of an unresolved case
     drift: bool  # either side's null drifted between rounds
     order: bool  # either side shows an order effect
     warm: bool  # either side is still warming up between the first and the last third of its pairs
+
+
+def classify(ci_high: float, rules: Rules) -> str:
+    """`met` at most the target, `tolerated` at most the limit, `not_met` above."""
+    if ci_high <= rules.target:
+        return MET
+    return TOLERATED if ci_high <= rules.tolerated_limit else NOT_MET
 
 
 def judge(
@@ -317,7 +334,7 @@ def judge(
     ratios = ratio_replicates(floating.replicates, reference.replicates)
     low, high = interval(ratios, rules.level)
     point = floating.net_ns / reference.net_ns if reference.net_ns > 0.0 else math.inf
-    raw_status = MET if raw_ci_high <= rules.target else NOT_MET
+    raw_status = classify(raw_ci_high, rules)
     reference_tail = interval(reference.replicates, rules.level)[0]
     reason = ""
     if reference.net_ns <= 0.0 or reference_tail <= 0.0:
@@ -333,8 +350,8 @@ def judge(
         return Verdict(point, low, high, NOT_APPLICABLE, "", False, NOT_APPLICABLE, drift, order, warm)
     if reason:
         return Verdict(point, low, high, UNRESOLVED, reason, False, raw_status, drift, order, warm)
-    status = MET if high <= rules.target else NOT_MET
-    borderline = low <= rules.target < high
+    status = classify(high, rules)
+    borderline = any(low <= bound < high for bound in (rules.target, rules.tolerated_limit))
     return Verdict(point, low, high, status, "", borderline, raw_status, drift, order, warm)
 
 

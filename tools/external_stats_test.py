@@ -234,6 +234,43 @@ class VerdictTests(unittest.TestCase):
         self.assertEqual((edge.drift, edge.order), (False, False))  # at the threshold is not above it
 
 
+class LimitTests(unittest.TestCase):
+    """Two bounds: met up to the target, tolerated up to the limit, not met above."""
+
+    R = (10.0,) * 100
+    WIDE = st.Rules(target=5.0, limit=10.0)
+
+    def judge(self, floating_net: float, raw_high: float = 1.0, rules: st.Rules = WIDE) -> st.Verdict:
+        return st.judge(side(floating_net, floating_net, floating_net, (floating_net,) * 100), side(10.0, 10.0, 10.0, self.R), raw_ci_high=raw_high, rules=rules)
+
+    def test_the_status_follows_the_upper_end(self) -> None:
+        for net, status in ((50.0, st.MET), (51.0, st.TOLERATED), (100.0, st.TOLERATED), (101.0, st.NOT_MET)):  # ratios 5, 5.1, 10, 10.1
+            self.assertEqual(self.judge(net).status, status, net)
+
+    def test_the_raw_verdict_uses_both_bounds(self) -> None:
+        self.assertEqual(
+            [self.judge(50.0, raw).raw_status for raw in (5.0, 7.0, 10.0, 10.5)], [st.MET, st.TOLERATED, st.TOLERATED, st.NOT_MET]
+        )
+
+    def test_borderline_at_either_bound(self) -> None:
+        reference = tuple(9.5 + 0.01 * i for i in range(100))
+        for floating, bound in ((50.0, 5.0), (100.0, 10.0)):  # the ratio interval straddles 5 (or 10)
+            v = st.judge(side(floating, floating, floating, (floating,) * 100), side(10.0, 9.5, 10.5, reference), raw_ci_high=1.0, rules=self.WIDE)
+            self.assertTrue(v.ci_low < bound < v.ci_high)
+            self.assertTrue(v.borderline)
+        self.assertFalse(self.judge(70.0).borderline)  # a tolerated case with a point interval is no borderline
+
+    def test_no_limit_means_no_tolerated_band(self) -> None:
+        rules = st.Rules(target=3.0)
+        self.assertEqual(rules.tolerated_limit, 3.0)
+        self.assertEqual(self.judge(40.0, rules=rules).status, st.NOT_MET)
+        self.assertEqual(st.classify(3.0, rules), st.MET)
+
+    def test_a_limit_below_the_target_is_refused(self) -> None:
+        with self.assertRaises(ValueError):
+            st.Rules(target=5.0, limit=3.0)
+
+
 class CriterionTests(unittest.TestCase):
     F = (30.0,) * 100
     R = (10.0,) * 100

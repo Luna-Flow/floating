@@ -556,7 +556,7 @@ class CaseResult:
     floating: SideResult
     ratio_raw: RatioStats
     ratio_net: RatioStats
-    status: str  # stats.MET, stats.NOT_MET, stats.UNRESOLVED, or stats.NOT_APPLICABLE where the criterion is not defined
+    status: str  # stats.MET, stats.TOLERATED, stats.NOT_MET, stats.UNRESOLVED, or stats.NOT_APPLICABLE where the criterion is not defined
     raw_status: str  # the verdict of the raw ratio's upper end; the verdict of an unresolved case
     borderline: bool
     reason: str
@@ -707,6 +707,7 @@ def protocol_from_summary(document: dict[str, object]) -> tuple[Protocol, stats.
     protocol = Protocol(**{name: recorded[name] for name in Protocol.__dataclass_fields__})
     rules = stats.Rules(
         target=float(recorded["target_ratio"]),
+        limit=float(recorded.get("limit_ratio", recorded["target_ratio"])),
         width_bound=float(recorded["width_bound"]),
         drift_pct=float(recorded["drift_pct"]),
         order_pct=float(recorded["order_pct"]),
@@ -737,7 +738,45 @@ def recompute(samples: dict[str, object], summary: dict[str, object]) -> list[Ca
 # elementary function and a decimal case.
 WARMUP_CASES: tuple[str, ...] = ("binary/add/53", "binary/mul/512", "binary/ln/2048", "decimal_gda/add/34")
 TARGETS: tuple[str, ...] = ("native", "wasm", "js")  # the `moon --target` values the floating side can be built for
-CRITERION_TARGETS: tuple[str, ...] = ("native",)  # the 3x criterion is defined for the native configurations only
+
+
+JUDGED_REFERENCE = "reference"  # the net ratio of the floating side to the native reference process (MPFR, libmpdec)
+JUDGED_NONE = "none"  # no criterion: the status of every case is not_applicable
+JUDGED_KINDS: tuple[str, ...] = (JUDGED_REFERENCE, JUDGED_NONE)
+
+
+@dataclass(frozen=True)
+class Criterion:
+    """What is judged for a configuration and against which bound."""
+
+    judged: str
+    target_ratio: float  # met: the upper end of the interval is at most this
+    limit_ratio: float  # tolerated: above the target and at most this; equal to the target when there is no tolerated band
+
+    def __post_init__(self) -> None:
+        if self.judged not in JUDGED_KINDS:
+            raise ValueError(f"criterion judges {self.judged!r}: one of {', '.join(JUDGED_KINDS)}")
+        if not self.target_ratio > 0.0:
+            raise ValueError("the target ratio must be positive")
+        if self.limit_ratio < self.target_ratio:
+            raise ValueError("the limit ratio must be at least the target ratio")
+
+    @property
+    def applies(self) -> bool:
+        return self.judged != JUDGED_NONE
+
+
+# The one table of the criterion of every configuration (bounds as data). Maintainer, 2026-11-21: the native
+# configurations meet the target when the upper end of the interval of the net ratio to the native reference is at
+# most 3; `wasm` and `js` are expected within 5 and at most 10 (met up to 5, tolerated up to 10, not met above).
+# Their ratio to `native-portable` stays a diagnostic with no verdict (design page). A row with `JUDGED_NONE` makes
+# the status of every case `not_applicable`; no configuration has one today.
+CRITERIA: dict[str, Criterion] = {
+    "native": Criterion(JUDGED_REFERENCE, 3.0, 3.0),
+    "native-portable": Criterion(JUDGED_REFERENCE, 3.0, 3.0),
+    "wasm": Criterion(JUDGED_REFERENCE, 5.0, 10.0),
+    "js": Criterion(JUDGED_REFERENCE, 5.0, 10.0),
+}
 
 
 def valid_target(name: str) -> str:
@@ -746,8 +785,11 @@ def valid_target(name: str) -> str:
     return name
 
 
-def criterion_applies_to(target: str) -> bool:
-    return valid_target(target) in CRITERION_TARGETS
+def criterion_for(configuration: str, target: str) -> Criterion:
+    """The criterion of a configuration: its row of `CRITERIA`, else the row of its target (a custom name measured on `wasm` is judged like `wasm`)."""
+    if configuration in CRITERIA:
+        return CRITERIA[configuration]
+    return CRITERIA[default_configuration(target)]
 
 
 def default_configuration(target: str) -> str:
@@ -768,18 +810,23 @@ def summary_document(
     configuration: str = DEFAULT_CONFIGURATION,
     rules: stats.Rules = stats.Rules(),
     target: str = "native",
+    criterion: Criterion | None = None,
 ) -> dict[str, object]:
+    criterion = criterion or criterion_for(configuration, target)
+    rules = stats.Rules(**{**asdict(rules), "target": criterion.target_ratio, "limit": criterion.limit_ratio})
     method: dict[str, object] = {
         "method": stats.METHOD_VERSION,
         "pairs_per_round": protocol.confirmatory,
         "target_ratio": rules.target,
+        "limit_ratio": rules.tolerated_limit,
         "width_bound": rules.width_bound,
         "drift_pct": rules.drift_pct,
         "order_pct": rules.order_pct,
         "warm_pct": rules.warm_pct,
         "level": rules.level,
         "target": valid_target(target),
-        "criterion_applies": criterion_applies_to(target),
+        "criterion_applies": criterion.applies,
+        "criterion_judged": criterion.judged,
         "null_definition": NULL_DEFINITION,
         "floating_configuration": valid_configuration(configuration),
     }
@@ -844,9 +891,11 @@ def net_cell(result: CaseResult) -> str:
     if result.status == stats.NOT_APPLICABLE:
         return f"{_interval(result.ratio_net)}{flags}"
     if result.status == stats.UNRESOLVED:
-        raw = "met" if result.raw_status == stats.MET else "not met"
+        raw = {stats.MET: "met", stats.TOLERATED: "tolerated"}.get(result.raw_status, "not met")
         return f"unresolved, raw {format_ratio(result.ratio_raw.ratio)} {raw}{flags}"
-    mark = " met" if result.status == stats.MET else (" \\*" if result.borderline else "")
+    mark = {stats.MET: " met", stats.TOLERATED: " tolerated"}.get(result.status, "")
+    if result.borderline:
+        mark += " \\*"
     return f"{_interval(result.ratio_net)}{mark}{flags}"
 
 
@@ -857,22 +906,27 @@ def raw_cell(result: CaseResult) -> str:
 def render_markdown(results: Sequence[CaseResult], protocol: dict[str, object] | None = None) -> str:
     """Net ratio, raw ratio, net times and null times, one set of tables per domain."""
     target = float(protocol["target_ratio"]) if protocol else stats.TARGET_RATIO  # type: ignore[arg-type]
+    limit = float(protocol.get("limit_ratio", target)) if protocol else target  # type: ignore[arg-type]
     applies = bool(protocol["criterion_applies"]) if protocol else True
+    runtime = str(protocol["target"]) if protocol else "native"
     out: list[str] = []
     titles = {
         "binary": ("Binary: floating `bin_float` against MPFR", "MPFR"),
         "decimal_gda": ("Decimal GDA: floating `decimal_gda` against libmpdec", "libmpdec"),
     }
     met = sum(1 for r in results if r.status == stats.MET)
+    tolerated = sum(1 for r in results if r.status == stats.TOLERATED)
+    not_met = sum(1 for r in results if r.status == stats.NOT_MET)
     unresolved = [r for r in results if r.status == stats.UNRESOLVED]
+    raw_within = sum(1 for r in unresolved if r.raw_status in (stats.MET, stats.TOLERATED))
     if applies:
-        out += [
-            f"**{met} of {len(results)} cases meet the target (the upper end of the interval of the net ratio is at most "
-            f"{target:g}); {len(unresolved)} are unresolved"
-            + (f" ({sum(1 for r in unresolved if r.raw_status == stats.MET)} of them within the target on the raw ratio)" if unresolved else "")
-            + ".**",
-            "",
-        ]
+        counts = (
+            f"{met} of {len(results)} cases meet the target (the upper end of the interval of the net ratio is at most {target:g})"
+            + (f", {tolerated} are tolerated (above {target:g} and at most {limit:g}), {not_met} are not met (above {limit:g})" if limit > target else f", {not_met} are not met")
+            + f"; {len(unresolved)} are unresolved"
+            + (f" ({raw_within} of them within the {'limit' if limit > target else 'target'} on the raw ratio)" if unresolved else "")
+        )
+        out += [f"**{counts}.**", ""]
     else:
         out += [
             f"The target of {target:g} is defined for the native configurations. For this configuration the tables "
@@ -887,7 +941,16 @@ def render_markdown(results: Sequence[CaseResult], protocol: dict[str, object] |
             out += [
                 f"Net ratio floating / {library}: the net time of `floating` over the net time of {library}, each "
                 "the median of the differences between a case block and its null block, with the 95% bootstrap "
-                f"interval and the verdict (\"met\": the upper end is at most {target:g}). Above 1 means floating is slower.",
+                f"interval and the verdict (\"met\": the upper end is at most {target:g}"
+                + (f"; \"tolerated\": above {target:g} and at most {limit:g}" if limit > target else "")
+                + "). Above 1 means floating is slower."
+                + (
+                    f" `floating` runs on `{runtime}` and the reference process is native, so this is the ratio of this "
+                    f"library on that runtime to the native {library}; the ratio to the same case on `native-portable` "
+                    "(below the tables of the run, when published) is a diagnostic of the cost of the runtime and has no verdict."
+                    if runtime != "native"
+                    else ""
+                ),
                 "",
             ]
         else:
@@ -916,7 +979,7 @@ def render_markdown(results: Sequence[CaseResult], protocol: dict[str, object] |
         notes.append(
             "Unresolved cases (reason): "
             + ", ".join(f"`{r.case}` ({r.reason})" for r in unresolved)
-            + ". Their raw ratio decides the criterion and is shown; they are not counted as met."
+            + ". Their raw ratio decides the criterion and is shown; they are not counted as met or tolerated."
         )
     drifting = [r.case for r in results if r.drift]
     ordered = [r.case for r in results if r.order]
@@ -928,7 +991,7 @@ def render_markdown(results: Sequence[CaseResult], protocol: dict[str, object] |
     if ordered:
         notes.append("`o`: the net time depends on which block of a pair ran first by more than the order threshold: " + ", ".join(f"`{c}`" for c in ordered) + ".")
     if any(r.borderline for r in results):
-        notes.append("An asterisk after a net ratio: the interval contains the target.")
+        notes.append("An asterisk after a net ratio: the interval contains " + ("the target or the limit." if limit > target else "the target."))
     noisy = [r.case for r in results if r.noisy]
     if noisy:
         notes.append(
@@ -1062,7 +1125,8 @@ def render_relative(rows: Sequence[RelativeRow], configuration: str, other: str)
         "",
         f"Net time of `floating` in the configuration `{configuration}` over the net time of the same case in `{other}`, "
         "with the 95% bootstrap interval of independent resampling of the two configurations. The same code path runs in "
-        "both (the portable one), so a ratio above 1 attributes the difference to the runtime. There is no verdict.",
+        "both (the portable one), so a ratio above 1 attributes the difference to the runtime. It is a diagnostic of the cost "
+        "of the runtime: there is no verdict.",
         "",
     ]
     for kind, title in (("binary", "Binary"), ("decimal_gda", "Decimal GDA")):
@@ -1534,8 +1598,10 @@ def command_quick(args: argparse.Namespace) -> int:
 def finish(collected: Collected, protocol: Protocol, seed: int, meta: dict[str, object], out_dir: Path) -> int:
     configuration = str(meta.get("floating_configuration", DEFAULT_CONFIGURATION))
     target = str(meta.get("target", "native"))
-    results = reduce_results(collected, protocol, seed, stats.Rules(), configuration, criterion_applies_to(target))
-    document = summary_document(results, meta, protocol, configuration, stats.Rules(), target)
+    criterion = criterion_for(configuration, target)
+    rules = stats.Rules(target=criterion.target_ratio, limit=criterion.limit_ratio)
+    results = reduce_results(collected, protocol, seed, rules, configuration, criterion.applies)
+    document = summary_document(results, meta, protocol, configuration, rules, target, criterion)
     validation = {case: list(counts) for case, counts in sorted(collected.floating_validation.items())}
     document["validation_valid_total_per_case_all_rounds"] = validation
     invalid = [case for case, (valid, total) in collected.floating_validation.items() if valid != total]
@@ -1643,7 +1709,7 @@ def page_tables(configuration: str) -> str:
         return tables
     version = max(summaries, key=version_key)
     summary = json.loads(summaries[version].read_text(encoding="utf-8"))
-    if summary["protocol"]["criterion_applies"]:
+    if summary["protocol"]["target"] == "native":
         return tables
     other = "native-portable"
     other_summary_path = SUMMARY_DIR / summary_name(version, other)

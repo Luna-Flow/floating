@@ -225,15 +225,35 @@ case in `native-portable`, which runs the same code path. It is computed at
 publishing time from the two samples files of the same release (they must have
 read the same operand file and used the same protocol; each has its own
 configuration in the seed of every draw, so the two resamplings are independent)
-and has an interval and no verdict. `wasm-gc` is not a target: the module
-initialiser of the `moonbitlang/async` dependency, which the driver links, casts
-between two struct types of the runtime's scheduler and is rejected by the runtime
-at validation (it reproduces with that package alone).
+and has an interval and no verdict: it is a diagnostic of the cost of the runtime.
+`wasm-gc` is not a target: the benchmark driver uses `moonbitlang/async`, which
+has no wasm-gc runtime (the module initialiser of that package casts between two
+struct types of the runtime's scheduler and the runtime rejects the module at
+validation; a reduced reproduction with that package alone shows it, and nothing
+is filed).
 
-The criterion of 3 is defined for the native configurations. For `wasm` and `js`
-the summary says `criterion_applies: false` and the status of every case is
-`not_applicable`; the page reports the two ratios and sets no target, and
-whether a criterion applies there is for the maintainer to decide.
+**The criterion of a configuration** is one row of a table in the tool
+(`CRITERIA` in `tools/external_baseline.py`): which ratio is judged and two bounds,
+the target and the limit. Every configuration is judged on the net ratio to the
+native reference process (MPFR, libmpdec); for `wasm` and `js` that is the ratio of
+this library on the runtime to the native reference. The upper end of the 95%
+interval decides:
+
+| configuration | target | limit | met | tolerated | not met |
+| --- | ---: | ---: | --- | --- | --- |
+| `native`, `native-portable` | 3 | 3 | at most 3 | none | above 3 |
+| `wasm`, `js` | 5 | 10 | at most 5 | above 5, at most 10 | above 10 |
+
+A runtime that compiles while it runs is expected to stay within 5 times the native
+reference and may not exceed 10 times; where the limit equals the target there is no
+tolerated band. The unresolved and borderline rules above apply to both bounds: a
+case whose interval contains the target or the limit is marked borderline, and an
+unresolved case shows its raw ratio as `met`, `tolerated` or `not met`. The summary
+records the row (`criterion_judged`, `target_ratio`, `limit_ratio`,
+`criterion_applies`); a summary without `limit_ratio` is read with the limit equal to
+the target. A row that judges nothing makes the status of every case
+`not_applicable` and the page prints no verdict for it; no configuration has such a
+row today. The ratio to `native-portable` is never judged.
 
 What the method does differently on a runtime that compiles while it runs:
 
