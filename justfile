@@ -74,5 +74,7 @@ bench suite *args:
 tree:
     sh tools/run_moon_clean_exec.sh -C library tree
 
-publish:
-    CODEX_MOON_TARGET_DIR="$(pwd)/_build" sh tools/run_moon_clean_exec.sh -C library package --frozen
+# Build the zip of a module and check its contents; `module` is `library` (default),
+# `tools` or `all`. This never publishes: the publish workflow runs `moon publish`.
+publish module='library':
+    python3 tools/check_package_contents.py --module {{ module }}

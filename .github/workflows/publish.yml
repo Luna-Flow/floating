@@ -1,8 +1,21 @@
 name: publish-package
-run-name: publish to mooncakes
+run-name: publish ${{ inputs.module }} to mooncakes
 
 on:
   workflow_dispatch:
+    inputs:
+      # `library` publishes Luna-Flow/floating from `library/`; `tools` publishes
+      # Luna-Flow/floating-tools from `tooling/`. Both modules carry the same version
+      # and the tools module imports `Luna-Flow/floating@<that version>`, so run
+      # `library` first: the dry run of `tools` resolves that library version
+      # against the registry and fails if it is missing.
+      module:
+        description: module to publish
+        type: choice
+        options:
+          - library
+          - tools
+        default: library
 
 permissions:
   contents: read
@@ -35,32 +48,68 @@ jobs:
           moon version --all
           moonrun --version
 
+      # The repository is a `moon.work` workspace of two modules, each in its own
+      # directory: `library/` (Luna-Flow/floating) and `tooling/`
+      # (Luna-Flow/floating-tools). A `moon` command run from the root without a
+      # package argument covers both; only the publish step acts on one module.
+      #
+      # Both modules have the same version, and the tools module imports the
+      # library of that version (library/moon.mod, tooling/moon.mod, the import
+      # line): this guard fails before anything is built when the three differ.
+      # It also checks that the library packages import nothing but arithmetic and
+      # luna-generic, and that the three LICENSE files are identical.
+      - name: guard (versions, imports and licences)
+        run: python3 tools/check_imports.py
+
       - name: update registry
         run: sh tools/run_moon_clean_exec.sh update
 
-      - name: build
+      - name: build (both modules)
         run: sh tools/run_moon_clean_exec.sh build --target all
 
-      - name: documentation
+      - name: documentation (manual of both modules)
         run: python3 tools/run_docs.py
 
-      - name: format
+      - name: format (both modules)
         run: sh tools/run_moon_clean_exec.sh fmt --check
 
-      - name: check
+      - name: check (both modules)
         run: sh tools/run_moon_clean_exec.sh check --target all --deny-warn --frozen
 
-      - name: test
+      - name: test (both modules)
         run: sh tools/run_moon_clean_exec.sh test --enable-coverage --deny-warn --frozen
 
-      - name: publish
+      # Builds the zip of the selected module with `moon -C <module> package --frozen`
+      # and fails if it does not have the shape of that module: the library holds
+      # only moon.mod, README.md, LICENSE, CHANGELOG.md and src/ and imports exactly
+      # arithmetic and luna-generic; the tools module holds only moon.mod, LICENSE,
+      # README.md, CHANGELOG.md and src/, with the library version of library/moon.mod
+      # (see tools/check_package_contents.py).
+      - name: package contents (selected module only)
+        env:
+          MODULE: ${{ inputs.module }}
+        run: python3 tools/check_package_contents.py --module "$MODULE"
+
+      # `moon publish --dry-run` validates the publication against the registry
+      # without creating a release; it talks to the registry as the credentials'
+      # user, so it runs in the step that writes them, directly before the real
+      # publish, which stays the last command. `-C` selects the module directory; a
+      # relative target directory would be relative to it, so it is absolute and the
+      # one `_build` stays at the workspace root.
+      - name: publish (selected module only)
         env:
           SECRET: ${{ secrets.LUNA_MOONCAKE }}
+          MODULE: ${{ inputs.module }}
         run: |
           test -n "$SECRET"
+          case "$MODULE" in
+            library) directory=library ;;
+            tools) directory=tooling ;;
+            *) echo "unknown module: $MODULE" >&2; exit 1 ;;
+          esac
+          export CODEX_MOON_TARGET_DIR="$GITHUB_WORKSPACE/_build"
           mkdir -p "$HOME/.moon"
           trap 'rm -f "$HOME/.moon/credentials.json"' EXIT
           printf '%s' "$SECRET" > "$HOME/.moon/credentials.json"
-          # The library module is a workspace member in `library/`; keep the target
-          # directory at the workspace root (`-C` makes a relative one relative to `library/`).
-          CODEX_MOON_TARGET_DIR="$GITHUB_WORKSPACE/_build" sh tools/run_moon_clean_exec.sh -C library publish
+          sh tools/run_moon_clean_exec.sh -C "$directory" publish --dry-run
+          sh tools/run_moon_clean_exec.sh -C "$directory" publish
