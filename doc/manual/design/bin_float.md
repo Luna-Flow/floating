@@ -1801,8 +1801,10 @@ on the shorter operand length $n$ in limbs:
 | Karatsuba from | 96 | 96 | 96 |
 | Toom-3 from | 2048 | 2048 | 4096 |
 | two-prime NTT multiply from | 2048 | 2048 | 4096 |
-| NTT square from | 768 | 768 | 3072 |
+| NTT square from | 7168 | 7168 | 3072 |
 | recursive square from | 512 | 768 | 768 |
+
+On Native and LLVM squaring runs a word-range Karatsuba square from 36 64-bit limbs (three half-size squares $a_0^2$, $a_1^2$ and $(a_0 - a_1)^2$ instead of three products) and keeps the NTT square for 7168 32-bit limbs and above (measured crossover).
 
 Sparse operands (few nonzero limbs) use a sparse product, and operands with
 $m > 2n$ limbs are cut into $n$-limb blocks. Division uses a one-limb loop,

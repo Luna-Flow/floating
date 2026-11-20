@@ -9863,7 +9863,7 @@ msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行�
 #: manual/design/bench/decimal.md:67
 #: manual/design/bench/decimal_gda.md:64
 #: manual/design/bench/external.md:124
-#: manual/design/bin_float.md:1954
+#: manual/design/bin_float.md:1956
 #: manual/design/bin_float_checked.md:329
 #: manual/design/cli.md:71
 #: manual/design/cli/dispatch.md:32
@@ -10998,7 +10998,7 @@ msgstr "各区間は精度タグを持ち、二項演算は大きい方のタグ
 #: manual/design/bench/decimal.md:51
 #: manual/design/bench/decimal_gda.md:48
 #: manual/design/bench/external.md:105
-#: manual/design/bin_float.md:1882
+#: manual/design/bin_float.md:1884
 #: manual/design/bin_float_checked.md:199
 #: manual/design/cli.md:52
 #: manual/design/cli/dispatch.md:25
@@ -11078,7 +11078,7 @@ msgstr "現時点で未解決の制限はありません。負の次数の装飾
 #: manual/design/bench/decimal.md:60
 #: manual/design/bench/decimal_gda.md:57
 #: manual/design/bench/external.md:114
-#: manual/design/bin_float.md:1929
+#: manual/design/bin_float.md:1931
 #: manual/design/bin_float_checked.md:316
 #: manual/design/cli.md:62
 #: manual/design/cli/gda_expr_cli.md:60
@@ -12748,50 +12748,54 @@ msgid "recursive square from"
 msgstr "再帰的 2 乗（以上）"
 
 #: manual/design/bin_float.md:1807
+msgid "On Native and LLVM squaring runs a word-range Karatsuba square from 36 64-bit limbs (three half-size squares $a_0^2$, $a_1^2$ and $(a_0 - a_1)^2$ instead of three products) and keeps the NTT square for 7168 32-bit limbs and above (measured crossover)."
+msgstr "Native と LLVM では、二乗は 36 個の 64 ビット limb からワード範囲の Karatsuba 二乗（3 つの積の代わりに 3 つの半サイズの二乗 $a_0^2$、$a_1^2$、$(a_0 - a_1)^2$）で実行し、NTT 二乗は 7168 個の 32 ビット limb 以上のために残します（実測した交差点）。"
+
+#: manual/design/bin_float.md:1809
 msgid "Sparse operands (few nonzero limbs) use a sparse product, and operands with $m > 2n$ limbs are cut into $n$-limb blocks. Division uses a one-limb loop, Knuth's algorithm D below 48 divisor limbs, Burnikel–Ziegler recursion from 48 and a Newton reciprocal from 1024; GCD switches from the binary (Stein) algorithm to Lehmer batches above four limbs. The thresholds are measured, per target, by the benchmark suite; they are policy, not semantics."
 msgstr "疎なオペランド（非ゼロのリムが少ないもの）には疎な積を用い、$m > 2n$ リムのオペランドは $n$ リムのブロックに分割します。除算は、1 リムのループ、除数が 48 リム未満では Knuth のアルゴリズム D、48 以上では Burnikel–Ziegler の再帰、1024 以上では Newton 法による逆数を用います。GCD は 4 リムを超えると 2 進（Stein）アルゴリズムから Lehmer のバッチ処理に切り替わります。しきい値はベンチマークスイートによってターゲットごとに測定されたものであり、意味論ではなくポリシーです。"
 
-#: manual/design/bin_float.md:1814
+#: manual/design/bin_float.md:1816
 msgid "A Lehmer round is valid only when its single-word digits come from the same bit window of both operands: digits taken from each operand's own top limb have unrelated scales, and the cofactors they produce subtract only a small multiple of the smaller operand per round. Each round therefore keeps $a \\ge b$, runs Euclid on the leading 63 bits of $a$ and the bits of $b$ in the same window, and takes one division step $a \\bmod b$ instead when $b$ has no bits in that window (then $a / b \\ge 2^{62}$) or when the cofactor matrix would make an operand negative or shrink neither. Every matrix applied has determinant $\\pm 1$, so the gcd is unchanged, and a long $a$ is reduced modulo a short $b$ in one step however different their lengths are; below eight limbs of $b$ the loop finishes with plain Euclid."
 msgstr "Lehmer のラウンドが有効なのは、その 1 ワードの桁が両方のオペランドの同じビット窓から取られる場合だけです。各オペランド自身の最上位リムから取った桁は互いに無関係なスケールを持ち、それらから得られる余因子は 1 ラウンドあたり小さい方のオペランドの小さな倍数しか引けません。そのため各ラウンドは $a \\ge b$ を保ち、$a$ の上位 63 ビットと同じ窓にある $b$ のビットに対して Euclid の互除法を実行します。$b$ がその窓にビットを持たない場合（このとき $a / b \\ge 2^{62}$）や、余因子行列がいずれかのオペランドを負にするか、どちらも縮めない場合は、代わりに除算 $a \\bmod b$ を 1 ステップ行います。適用される行列の行列式はすべて $\\pm 1$ なので gcd は変わらず、長い $a$ は、長さがどれほど違っても短い $b$ を法として 1 ステップで縮約されます。$b$ が 8 リム未満になると、ループは通常の Euclid の互除法で終わります。"
 
-#: manual/design/bin_float.md:1826
+#: manual/design/bin_float.md:1828
 msgid "**Why exactness is preserved.** Schoolbook, Karatsuba and Toom-3 evaluate integer polynomial identities, for example"
 msgstr "**厳密性が保たれる理由。** 筆算法、Karatsuba、Toom-3 は整数の多項式恒等式を評価します。たとえば"
 
-#: manual/design/bin_float.md:1833
+#: manual/design/bin_float.md:1835
 msgid "and Toom-3 (evaluation at $0, 1, -1, 2, \\infty$) interpolates with exact divisions by 2 and 3 of signed intermediates known to be multiples, so they are exact integer computations. The NTT is the only modular step. It splits each operand into 16-bit digits, so each coefficient of the digit convolution is at most"
 msgstr "そして Toom-3（$0, 1, -1, 2, \\infty$ での評価）は、倍数であることがわかっている符号付き中間値を 2 と 3 で厳密に割って補間するので、これらは厳密な整数計算です。剰余演算を行うステップは NTT だけです。NTT は各オペランドを 16 ビットの桁に分割するので、桁の畳み込みの各係数は高々"
 
-#: manual/design/bin_float.md:1842
+#: manual/design/bin_float.md:1844
 msgid "for transform lengths up to $2^{23}$. It computes the convolution modulo the primes $p_1 = 998244353 = 119 \\cdot 2^{23} + 1$ and $p_2 = 754974721 = 45 \\cdot 2^{24} + 1$, both of which have $2^{23}$-th roots of unity, and recombines by the Chinese remainder theorem, which is unique in $[0, p_1 p_2)$ with $p_1 p_2 \\approx 2^{59.4} > 2^{55}$. So the recombined coefficients are the exact integers. The length check precedes every transform; a longer product uses overlapping blocks of admissible length or falls back to Toom-3. Division paths return $(q, r)$ with $n = qd + r$ and $0 \\le r < d$ by construction; the Newton path corrects its approximate quotient with the remainder and aborts if more than two corrections would be needed, which would indicate a bug rather than a numerical event. Because all paths compute the same integers, the choice of algorithm cannot change any rounded result, flag or encoding."
 msgstr "です（変換長が $2^{23}$ までの場合）。NTT は素数 $p_1 = 998244353 = 119 \\cdot 2^{23} + 1$ と $p_2 = 754974721 = 45 \\cdot 2^{24} + 1$ を法として畳み込みを計算します。どちらも $2^{23}$ 乗根の 1 を持ちます。そして中国剰余定理によって再結合しますが、これは $p_1 p_2 \\approx 2^{59.4} > 2^{55}$ なので $[0, p_1 p_2)$ において一意です。したがって再結合された係数は厳密な整数です。長さの検査はすべての変換に先立って行われ、より長い積は許容される長さの重なり合うブロックを用いるか、Toom-3 にフォールバックします。除算の経路は、構成上 $n = qd + r$ かつ $0 \\le r < d$ を満たす $(q, r)$ を返します。Newton の経路は近似的な商を剰余で補正し、2 回を超える補正が必要になる場合は中断します。そのような事態は数値的な現象ではなくバグを示すものだからです。すべての経路が同じ整数を計算するので、アルゴリズムの選択によって丸められた結果、フラグ、エンコーディングが変わることはありません。"
 
-#: manual/design/bin_float.md:1856
+#: manual/design/bin_float.md:1858
 msgid "Ordering NaN in `compare`"
 msgstr "`compare` における NaN の順序付け"
 
-#: manual/design/bin_float.md:1858
+#: manual/design/bin_float.md:1860
 msgid "**Problem.** MoonBit's `Compare` trait asks for a three-way comparison that sorting and ordered maps can rely on. IEEE comparison is a partial order: NaN is unordered with everything, itself included."
 msgstr "**問題。** MoonBit の `Compare` トレイトは、ソートや順序付きマップが依拠できる 3 通りの比較を要求します。IEEE の比較は半順序であり、NaN は自分自身を含むあらゆるものと順序付けられません。"
 
-#: manual/design/bin_float.md:1862
+#: manual/design/bin_float.md:1864
 msgid "**Options.** (1) Abort on NaN, as earlier versions did; every sort of data that might contain a NaN then becomes a crash. (2) Use IEEE `totalOrder`, which is total but distinguishes $-0 < +0$ and puts negative NaNs below $-\\infty$, so `compare` would disagree with numerical equality on zeros. (3) Keep the numerical order on numbers and put all NaNs in one class above it."
 msgstr "**選択肢。** (1) 以前のバージョンのように NaN で中断する。この場合、NaN を含みうるデータのソートはすべてクラッシュになります。(2) IEEE の `totalOrder` を用いる。これは全順序ですが $-0 < +0$ を区別し、負の NaN を $-\\infty$ より下に置くので、`compare` がゼロについて数値的な等価性と食い違ってしまいます。(3) 数については数値的な順序を保ち、すべての NaN をその上の 1 つのクラスに置く。"
 
-#: manual/design/bin_float.md:1869
+#: manual/design/bin_float.md:1871
 msgid "**Choice.** Option (3). Define the key $\\kappa(x) = (0, x)$ for a number and $\\kappa(\\mathrm{NaN}) = (1, 0)$, ordered lexicographically; `compare(x, y)` is the comparison of $\\kappa(x)$ and $\\kappa(y)$, with $-0$ and $+0$ mapped to the same number. A comparison of keys in a totally ordered set is reflexive, transitive and total, so `compare` is a total preorder; it is not antisymmetric ($-0$ and $+0$, or two NaNs with different payloads, compare equal but are different values), which `Compare` does not require. The cost is that `nan > 1` is true under `<`, so code that needs IEEE semantics must use `compare_checked` (error on NaN), `compare_quiet` / `compare_signaling` (four-valued, with flags) or `total_order`. Structural `==` stays the derived `Eq`, because it is the only equality that is a congruence for every method (precision and payload included)."
 msgstr "**選択。** 選択肢 (3) です。数に対してキー $\\kappa(x) = (0, x)$、$\\kappa(\\mathrm{NaN}) = (1, 0)$ を定義し、辞書式に順序付けます。`compare(x, y)` は $\\kappa(x)$ と $\\kappa(y)$ の比較であり、$-0$ と $+0$ は同じ数に対応付けられます。全順序集合におけるキーの比較は反射的、推移的、全域的なので、`compare` は全前順序です。反対称ではありません（$-0$ と $+0$、あるいはペイロードの異なる 2 つの NaN は等しいと比較されますが、異なる値です）が、`Compare` はそれを要求しません。代償として `<` のもとで `nan > 1` が真になるので、IEEE の意味論を必要とするコードは `compare_checked`（NaN でエラー）、`compare_quiet` / `compare_signaling`（4 値、フラグ付き）、または `total_order` を使わなければなりません。構造的な `==` は導出された `Eq` のままです。それが（精度とペイロードを含め）すべてのメソッドについて合同関係となる唯一の等価性だからです。"
 
-#: manual/design/bin_float.md:1884
+#: manual/design/bin_float.md:1886
 msgid "**Canonical form.** Every finite value produced by the API has $c$ odd or $c = 0, e = 0$, and $\\operatorname{bits}(c) \\le$ its precision; stored exponents never saturate (a saturated exponent is classified as overflow or underflow first)."
 msgstr "**正準形。** API が生成するすべての有限値は、$c$ が奇数または $c = 0, e = 0$ であり、$\\operatorname{bits}(c) \\le$ その精度を満たします。保存される指数が飽和することはありません（飽和する指数は、先にオーバーフローまたはアンダーフローとして分類されます）。"
 
-#: manual/design/bin_float.md:1888
+#: manual/design/bin_float.md:1890
 msgid "**Correct rounding.** For every arithmetic operation, conversion and elementary function and every context, the returned finite value equals $\\circ(r)$ for the exact real result $r$, with the range rules above. By (R1), $\\circ(r) = r$ and no flag is raised whenever $r \\in F$; `round_ctx` is idempotent."
 msgstr "**正しい丸め。** すべての算術演算、変換、初等関数、すべてのコンテキストについて、返される有限値は、上記の範囲規則のもとで厳密な実数の結果 $r$ に対する $\\circ(r)$ に等しくなります。(R1) により、$r \\in F$ のときは常に $\\circ(r) = r$ であり、フラグは発生しません。`round_ctx` は冪等です。"
 
-#: manual/design/bin_float.md:1893
+#: manual/design/bin_float.md:1895
 msgid ""
 "**Flags.** `inexact` iff $\\circ(r) \\n"
 "e r$; `overflow` implies `inexact`; `underflow` iff tiny (per the context rule) and inexact; `division_by_zero` only for an exact infinite result of finite operands; `invalid_operation` iff a quiet NaN was produced from non-NaN operands or a signaling NaN was consumed. Exceptions to the last rule: `min`, `max`, $\\operatorname{pow}(x, \\pm 0)$, $\\operatorname{pown}(x, 0)$ and $\\operatorname{pow}(1, y)$ accept a signaling NaN without the flag. `combine` is associative, commutative and idempotent."
@@ -12799,83 +12803,83 @@ msgstr ""
 "**フラグ。** `inexact` は $\\circ(r) \\n"
 "e r$ のときに限り立ちます。`overflow` は `inexact` を含意します。`underflow` は（コンテキストの規則で）極小かつ不正確のときに限り立ちます。`division_by_zero` は有限のオペランドから厳密な無限大の結果が得られた場合にのみ立ちます。`invalid_operation` は、NaN でないオペランドから quiet NaN が生成されたか、signaling NaN が消費されたときに限り立ちます。最後の規則の例外として、`min`、`max`、$\\operatorname{pow}(x, \\pm 0)$、$\\operatorname{pown}(x, 0)$、$\\operatorname{pow}(1, y)$ はフラグを立てずに signaling NaN を受け入れます。`combine` は結合的、可換、冪等です。"
 
-#: manual/design/bin_float.md:1902
+#: manual/design/bin_float.md:1904
 msgid "**Error model.** Consequently, in the normal range, $|\\circ(r) - r| \\le u|r|$ for nearest and $< 2u|r|$ for directed rounding, with the absolute term $\\eta/2$ (respectively $\\eta$) below $2^{e_{\\min}}$, and subnormal sums and differences are exact."
 msgstr "**誤差モデル。** したがって正規化範囲では、最近接丸めで $|\\circ(r) - r| \\le u|r|$、方向付き丸めで $< 2u|r|$ が成り立ち、$2^{e_{\\min}}$ 未満では絶対誤差項 $\\eta/2$（方向付き丸めでは $\\eta$）となり、非正規化数の和と差は厳密です。"
 
-#: manual/design/bin_float.md:1906
+#: manual/design/bin_float.md:1908
 msgid "**Monotonicity.** Each operation is monotone in each argument where the real function is, because it is $\\circ \\circ f$ with $\\circ$ monotone; in particular RD and RU results bracket the exact value, which `ball_float` and `sqrt_bounds_for_precision` rely on."
 msgstr "**単調性。** 各演算は $\\circ$ が単調な $\\circ \\circ f$ なので、実関数が単調である引数について単調です。特に RD と RU の結果は厳密な値を挟み込み、`ball_float` と `sqrt_bounds_for_precision` はこれに依拠しています。"
 
-#: manual/design/bin_float.md:1910
+#: manual/design/bin_float.md:1912
 msgid "**Exactness theorems.** `remainder`, `scaleb` in the normal range, `copy_sign`, `neg`, `abs`, `logb` and decoding are exact; the integral roundings never need a second rounding; `fma(a, b, -RN(ab))` is exact without underflow."
 msgstr "**厳密性の定理。** `remainder`、正規化範囲での `scaleb`、`copy_sign`、`neg`、`abs`、`logb`、デコードは厳密です。整数への丸めは 2 回目の丸めを必要としません。`fma(a, b, -RN(ab))` はアンダーフローがなければ厳密です。"
 
-#: manual/design/bin_float.md:1914
+#: manual/design/bin_float.md:1916
 msgid "**Complexity.** Addition is linear in the operand length (and independent of the exponent gap, by the far-operand rule); multiplication follows the kernel table, $O(n^2)$ to $O(n \\log n)$; division and square root cost a constant number of multiplications of the same size at large $n$; `remainder` costs $O(\\log(q_x - q_y))$ modular multiplications; an elementary function evaluates its series at the working precision $w$, and because $w$ grows geometrically the total cost of all attempts is within a constant factor of the last one."
 msgstr "**計算量。** 加算はオペランドの長さに対して線形です（大きく離れたオペランドの規則により、指数の差には依存しません）。乗算はカーネルの表に従い、$O(n^2)$ から $O(n \\log n)$ です。除算と平方根は、$n$ が大きいとき同じサイズの乗算の定数回分のコストです。`remainder` は $O(\\log(q_x - q_y))$ 回の剰余乗算のコストです。初等関数は作業精度 $w$ で級数を評価し、$w$ は幾何級数的に増加するので、すべての試行の総コストは最後の試行の定数倍以内に収まります。"
 
-#: manual/design/bin_float.md:1923
+#: manual/design/bin_float.md:1925
 msgid "The longer proofs (the far-operand addition rule, `nextUp`, the remainder reduction, the Ziv acceptance test and the NTT bound) are collected in the attachment."
 msgstr "より長い証明（大きく離れたオペランドの加算規則、`nextUp`、剰余の還元、Ziv の受理判定、NTT の上界）は添付資料にまとめてあります。"
 
-#: manual/design/bin_float.md:1927
+#: manual/design/bin_float.md:1929
 msgid "[Rounding and exactness proofs for bin_float](../../attachments/design_bin_float_rounding_proofs.typ)"
 msgstr "[bin_float の丸めと厳密性の証明](../../attachments/design_bin_float_rounding_proofs.typ)"
 
-#: manual/design/bin_float.md:1931
+#: manual/design/bin_float.md:1933
 msgid "**Host `Double` for anything but `from_double`.** Routing binary16, binary32 or binary128 through `Double` double-rounds, loses signaling NaNs on some targets and cannot represent binary128 at all. Interchange encoding is done on `BinCoeff` bit patterns instead."
 msgstr "**`from_double` 以外でのホストの `Double` の使用。** binary16、binary32、binary128 を `Double` 経由で扱うと二重丸めが起き、一部のターゲットでは signaling NaN が失われ、binary128 はまったく表現できません。代わりに交換形式のエンコーディングは `BinCoeff` のビットパターン上で行います。"
 
-#: manual/design/bin_float.md:1935
+#: manual/design/bin_float.md:1937
 msgid "**A fixed number of guard bits.** Three guard bits suffice for addition of two $p$-bit operands, but not for division, square root, conversions from decimal or operands wider than the context. Deciding from exact integer data (round, sticky, remainder sign, midpoint comparison) works for all of them with one finalizer."
 msgstr "**固定数のガードビット。** 2 つの $p$ ビットのオペランドの加算には 3 つのガードビットで十分ですが、除算、平方根、10 進からの変換、コンテキストより広いオペランドには不十分です。厳密な整数データ（ラウンドビット、スティッキービット、剰余の符号、中点との比較）から判定する方法なら、1 つの最終処理関数でそのすべてに対応できます。"
 
-#: manual/design/bin_float.md:1940
+#: manual/design/bin_float.md:1942
 msgid "**Rounding to $p$ bits, then to the subnormal grid.** This double rounding produces wrong subnormal results; the finalizer shifts once to the coarser of the two positions."
 msgstr "**$p$ ビットに丸めてから非正規化数の格子に丸めること。** この二重丸めは誤った非正規化数の結果を生みます。最終処理関数は、2 つの位置のうち粗い方へ一度だけシフトします。"
 
-#: manual/design/bin_float.md:1943
+#: manual/design/bin_float.md:1945
 msgid "**Ziv with an estimated error bound.** It requires a separate error analysis for every function and every reduction, and a mistake in it silently returns a wrong last bit. Outward-rounded enclosures make the bound a computed quantity, at the cost of evaluating every operation twice."
 msgstr "**見積もった誤差限界による Ziv。** 関数ごと、還元ごとに個別の誤差解析が必要になり、その誤りは黙って誤った最終ビットを返すことにつながります。外向きに丸めた包含区間を用いれば、すべての演算を 2 回評価するコストと引き換えに、限界は計算される量になります。"
 
-#: manual/design/bin_float.md:1947
+#: manual/design/bin_float.md:1949
 msgid "**Global flags and rounding state.** IEEE 754 describes flags as sticky global state. A returned `BinaryFlags` value composes with pure code, concurrent code and the `Result` style of `@lf_arith`, and `combine` recovers the sticky behaviour where wanted."
 msgstr "**大域的なフラグと丸め状態。** IEEE 754 はフラグをスティッキーな大域状態として記述しています。返される `BinaryFlags` の値は、純粋なコード、並行コード、`@lf_arith` の `Result` スタイルと組み合わせられ、必要な場合は `combine` によってスティッキーな振る舞いを再現できます。"
 
-#: manual/design/bin_float.md:1951
+#: manual/design/bin_float.md:1953
 msgid "**`compare` aborting on NaN, or `compare` as `totalOrder`.** See [Ordering NaN in `compare`](#ordering-nan-in-compare)."
 msgstr "**NaN で中断する `compare`、あるいは `totalOrder` としての `compare`。** [`compare` における NaN の順序付け](#ordering-nan-in-compare)を参照してください。"
 
-#: manual/design/bin_float.md:1956
+#: manual/design/bin_float.md:1958
 msgid "`bin_float` deliberately does not:"
 msgstr "`bin_float` は意図的に以下を行いません。"
 
-#: manual/design/bin_float.md:1958
+#: manual/design/bin_float.md:1960
 msgid "provide interval or ball arithmetic: enclosures are internal to the certification loops; `ball_float` builds midpoint–radius arithmetic on top of `BinFloat`;"
 msgstr "区間演算やボール演算を提供すること。包含区間は認証ループの内部でのみ用いられます。`ball_float` は `BinFloat` の上に中点・半径演算を構築しています。"
 
-#: manual/design/bin_float.md:1961
+#: manual/design/bin_float.md:1963
 msgid "implement IEEE 754 alternate exception handling (traps, substitution) or sticky global flags: flags are returned values;"
 msgstr "IEEE 754 の代替例外処理（トラップ、置換）やスティッキーな大域フラグを実装すること。フラグは返り値です。"
 
-#: manual/design/bin_float.md:1963
+#: manual/design/bin_float.md:1965
 msgid "implement decimal floating-point (`decimal`, `decimal_gda`) or the non-binary IEEE operations on them;"
 msgstr "10 進浮動小数点（`decimal`、`decimal_gda`）や、それに対する 2 進以外の IEEE 演算を実装すること。"
 
-#: manual/design/bin_float.md:1965
+#: manual/design/bin_float.md:1967
 msgid "promise any NaN payload for a newly generated NaN (it uses payload 0), or propagate payloads of more than one input;"
 msgstr "新たに生成された NaN に特定のペイロードを約束すること（ペイロード 0 を用います）、あるいは複数の入力のペイロードを伝播すること。"
 
-#: manual/design/bin_float.md:1967
+#: manual/design/bin_float.md:1969
 msgid "guarantee completion of an elementary function within any time for every input: certification has a budget, and an exhausted budget is reported, not hidden;"
 msgstr "すべての入力について、初等関数が一定時間内に完了することを保証すること。認証には予算があり、予算が尽きた場合は隠されずに報告されます。"
 
-#: manual/design/bin_float.md:1970
+#: manual/design/bin_float.md:1972
 msgid "expose limb layout, thresholds or transform parameters: they may change without notice as long as every result, flag and encoding stays the same;"
 msgstr "リムの配置、しきい値、変換のパラメータを公開すること。すべての結果、フラグ、エンコーディングが変わらない限り、これらは予告なく変更される可能性があります。"
 
-#: manual/design/bin_float.md:1972
+#: manual/design/bin_float.md:1974
 msgid "claim conformance beyond the finite corpus recorded in [conformance](../conformance/bin_float.md)."
 msgstr "[適合性](../conformance/bin_float.md)に記録された有限のコーパスを超える適合性を主張すること。"
 
@@ -20080,47 +20084,51 @@ msgid "Above 256 bits the integer square root on every target except JavaScript 
 msgstr "JavaScript 以外のすべてのターゲットでは、256 ビットを超える整数平方根を `BinCoeff` の分割統治平方根ではなくワード配列上の Zimmermann の `SqrtRem` で実行します。前者は 1 レベルあたり約 25 個の一時値を作っていました（数 limb の `BinCoeff` 演算は 600 から 700 命令かかり、囲んでいる除算より高くつきます）。被開方数は 128 未満の偶数ビットだけ左シフトして、上位 2 ビットが両方 0 ではない偶数個 $n$ の 64 ビット limb にします。各レベルでは $n/4$ limb ずつのブロックに分け、上半分の平方根と剰余を再帰で求め、その根の 2 倍による除算 1 回と商の平方 1 回を係数ディスパッチ経由で行い、根の補正は高々 1 回です。商がブロック全体になるときは 1 つ小さい値で打ち切り、それが根になります。元の被開方数の剰余は、正規化後の剰余に 1 limb の積を加えて得られ、シフト $2t$ に対して $e = s' \\bmod 2^t$ として $(r' + e(2s' - e)) \\gg 2t$ です。再帰は 256 ビットで固定幅カーネルに到達して終わります。Native での 1 回の平方根の retired instructions（release、被開方数は根の 2 倍の幅、従来のビルドと対で比較）は、512 ビットの根で 2.0 分の 1、2,048 ビットで 1.85 分の 1、8,192 ビットで 1.3 分の 1、65,536 ビットで 1.04 分の 1 で、後者では再帰内の除算と平方が支配的です。256 ビットの根（512 ビットの被開方数）では 1.8 分の 1 です。Wasm-GC での対のウォールクロック測定（被開方数は根の 2 倍の幅、5 回の中央値）では、1 回の平方根が 512 と 2,048 ビットで 4.9 倍と 2.2 倍、8,192 と 65,536 ビットで 1.3 倍と 1.07 倍速く、線形 Wasm では 2.2、2.0、1.4、1.05 倍、Native では 2.0、1.8、1.3、1.05 倍で、命令数と一致します。どのターゲットでも遅くなるサイズはないため、JavaScript 以外のすべてのターゲットでワード再帰を選びます（ターゲットごとの定数 `bin_coeff_sqrt_array_enabled` は残し、従来の再帰はテストの参照として残します）。ホワイトボックステストは 129 から 4,097 ビットで、従来の再帰、ビット単位ループ、BigInt の参照と比較し（ランダム、全て 1、単一ビット、値の内部の 0 limb、完全平方数の近傍）、33,000 ビットまでは定義の不等式で検査します。"
 
 #: manual/performance/bin_float.md:42
+msgid "Squaring on Native and LLVM no longer runs the half-product schoolbook (and, from 16,384 bits, the general product) up to the NTT: from 36 64-bit limbs (2,304 bits) a word-range Karatsuba square computes $a_0^2$, $a_1^2$ and $(a_0 - a_1)^2$ on array ranges, with the middle term $a_0^2 + a_1^2 - (a_0 - a_1)^2$ added in place, and the NTT square starts at 7,168 32-bit limbs (229,376 bits) instead of 768, because the Karatsuba square is cheaper up to there (retired instructions of one square: 12,288 bits 1.64 times fewer, 32,768 bits 2.2, 98,304 bits 1.7, 131,072 bits 1.09, 196,608 bits 1.18, equal from 262,144 bits). The Karatsuba multiplication of the word ranges now takes one scratch array per product, carved into the temporaries of each node, instead of five arrays and two copies per node: 1.02 to 1.04 times fewer instructions for a product of 2,048 to 65,536 bits, the same results. The schoolbook square stays below 36 limbs (the paired runs put the crossover between 32 and 40 limbs). Retired instructions per operation on Native, against the previous build: `sqr` 1.00, 1.00, 1.39 and 1.52 times fewer at 512, 2,048, 8,192 and 65,536 bits, `mul` 1.00, 1.02, 1.04 and 1.04 times, and the integer square root of a 65,536-bit root 1.23 times (its recursion squares). Wasm and Wasm-GC keep their squaring (`bin_coeff_square_words_enabled` is false there until paired wall-clock runs decide), and LLVM takes the Native values, unmeasured. White-box tests compare the scratch-buffer product with the allocating Karatsuba of the previous build and the schoolbook product at and around the cutoff with unbalanced shapes, the Karatsuba square with the schoolbook square and the product, and the dispatch against the schoolbook around 36, 64, 128, 256, 384 and 512 limbs and against the NTT and Karatsuba squares at the NTT cutoff."
+msgstr "Native と LLVM では、二乗は NTT に達するまで半積の素朴な方法（および 16,384 ビットからは一般の積）を使わなくなりました。36 個の 64 ビット limb（2,304 ビット）から、ワード範囲の Karatsuba 二乗が配列区間上で $a_0^2$、$a_1^2$、$(a_0 - a_1)^2$ を計算し、中間項 $a_0^2 + a_1^2 - (a_0 - a_1)^2$ をその場で加えます。NTT 二乗は 768 ではなく 7,168 個の 32 ビット limb（229,376 ビット）から始まります。それまでは Karatsuba 二乗のほうが安いためです（1 回の二乗の retired instructions：12,288 ビットで 1.64 分の 1、32,768 ビットで 2.2 分の 1、98,304 ビットで 1.7 分の 1、131,072 ビットで 1.09 分の 1、196,608 ビットで 1.18 分の 1、262,144 ビットからは同等）。ワード範囲の Karatsuba 乗算は、1 ノードあたり 5 個の配列と 2 回のコピーの代わりに、積ごとに 1 つの scratch 配列を使い、ノードごとの一時値をそこから切り出します。2,048 から 65,536 ビットの積で命令数は 1.02 から 1.04 分の 1 になり、結果は同じです。素朴な二乗は 36 limb 未満で残ります（対での測定では交差点は 32 から 40 limb の間です）。Native での 1 演算あたりの retired instructions（従来のビルドとの比較）：`sqr` は 512、2,048、8,192、65,536 ビットでそれぞれ 1.00、1.00、1.39、1.52 分の 1、`mul` は 1.00、1.02、1.04、1.04 分の 1、65,536 ビットの根の整数平方根は 1.23 分の 1（その再帰が二乗を行うため）です。Wasm と Wasm-GC は従来の二乗を保ちます（対でのウォールクロック測定が決めるまで、そこでは `bin_coeff_square_words_enabled` は false）。LLVM は Native の値を使い、未測定です。ホワイトボックステストは、scratch バッファ方式の積を従来ビルドのノードごとに割り当てる Karatsuba および素朴な積と、カットオフ付近で（不均衡な形も含めて）比較し、Karatsuba 二乗を素朴な二乗および積と比較し、ディスパッチを 36、64、128、256、384、512 limb 付近の素朴な積と比較し、NTT カットオフでは NTT 二乗および Karatsuba 二乗と比較します。"
+
+#: manual/performance/bin_float.md:44
 msgid "Certified constants"
 msgstr "認証済み定数"
 
-#: manual/performance/bin_float.md:44
+#: manual/performance/bin_float.md:46
 msgid "The certified elementary functions memoize the constant enclosures they need (`ln 2`, `ln 10` and `pi`) per working precision, in small per-constant caches of six precisions up to 65,536 bits. A cached enclosure is the value a recomputation returns, so results never depend on cache state or call order. Before this, every `ln`, `log2`, `log10`, `sin`, `cos`, `tan` and `atan2` call re-ran an `ln 2` series or an `atan(1)` evaluation that cost as much as the function itself. Paired native runs: `ln` 2.4 to 2.6 times faster at 53 to 512 bits, `sin` 2.4 to 3.7 times, decimal `ln` 2.5 times; on Wasm and Wasm-GC `ln` and `sin` are 1.7 to 2.2 times faster. `exp` has no such constant and is unchanged."
 msgstr "認証済みの初等関数は、必要な定数の包含区間（`ln 2`、`ln 10`、`pi`）を作業精度ごとに記憶します。定数ごとに小さなキャッシュを持ち、6 つの精度、最大 65,536 ビットまで保持します。キャッシュ内の包含区間は再計算で得られる値そのものなので、結果がキャッシュの状態や呼び出し順序に依存することはありません。以前は `ln`、`log2`、`log10`、`sin`、`cos`、`tan`、`atan2` の呼び出しごとに `ln 2` の級数や `atan(1)` の評価をやり直しており、その費用は関数本体と同程度でした。Native でのペア実行では、53〜512 ビットの `ln` が 2.4〜2.6 倍、`sin` が 2.4〜3.7 倍、10 進の `ln` が 2.5 倍速くなり、Wasm と Wasm-GC では `ln` と `sin` が 1.7〜2.2 倍速くなります。`exp` にはこの種の定数がないため変わりません。"
 
-#: manual/performance/bin_float.md:46
+#: manual/performance/bin_float.md:48
 #: manual/performance_audit.md:108
 msgid "Measurement"
 msgstr "測定"
 
-#: manual/performance/bin_float.md:48
+#: manual/performance/bin_float.md:50
 msgid "The unified Maremark harness under `bench/bin_float` compares coefficient kernels, numeric cores, checked full paths, and semantically equivalent square candidates with balanced blocks. Auto-tune emits a versioned per-scale policy and applies a threshold only to the measured target; every threshold change still requires correctness tests on all targets."
 msgstr "統一 `bench/bin_float` Maremark harness は balanced block で係数 kernel、数値 core、checked 全経路、意味的に等価な square 候補を比較します。auto-tune は versioned per-scale policy を出力し、threshold は計測した target だけへ適用します。全 target correctness test は引き続き必須です。"
 
-#: manual/performance/bin_float.md:50
+#: manual/performance/bin_float.md:52
 msgid "The elementary release gate separately archives the immutable `0.6.1` commit and the dirty candidate tree, injects one identical add/mul/div/sqrt workload, and collects ten alternating AB/BA native pairs at 53, 128, and 512 bits. Maremark blocks release only when the candidate is at least 3% slower and the 95% bootstrap interval has a positive lower bound. Functions first introduced in `0.7.1` run as a candidate workload; this release becomes their first valid baseline, because inventing `0.6.1` timings for APIs that did not exist would be meaningless."
 msgstr "elementary release gate は immutable `0.6.1` commit と dirty candidate tree を別々に archive し、同一 add/mul/div/sqrt workload を注入して、53/128/512 bit の alternating AB/BA native pair を十組収集します。candidate が 3% 以上遅く、かつ Maremark 95% bootstrap interval の下限が正の場合だけ release を阻止します。 `0.7.1` で初めて追加された function は candidate workload として測定し、この release を最初の正当な baseline とします。`0.6.1` に存在しない API の timing を捏造しません。"
 
-#: manual/performance/bin_float.md:59
+#: manual/performance/bin_float.md:61
 msgid "Certified series"
 msgstr "認証済み級数"
 
-#: manual/performance/bin_float.md:61
+#: manual/performance/bin_float.md:63
 msgid "The enclosure of `exp` evaluates its Taylor series once, not twice, when the argument is exact at the working precision (the usual case), because the lower and upper endpoints are then the same value and only one bound of each series is read. The trigonometric enclosure evaluates only the sine or cosine series that the requested function and quadrant read, two series instead of four for `sin` and `cos`. Both skips return the exact enclosures of before, which white-box tests check against copies of the previous code. Paired native runs: `exp` 1.8 to 2.0 times faster at 53 to 512 bits, decimal `exp` 1.3 to 1.4 times, `sin` 1.15 to 1.2 times on its own; on Wasm and Wasm-GC `exp` is 1.7 to 1.9 times faster."
 msgstr "引数が作業精度で正確に表せる場合（通常はそうです）、`exp` の包含区間はテイラー級数を 2 回ではなく 1 回だけ評価します。このとき下端と上端は同じ値であり、各級数が読むのはその一方の界だけだからです。三角関数の包含区間は、要求された関数と象限が実際に読む正弦または余弦の級数だけを評価し、`sin` と `cos` では 4 つの級数が 2 つになります。どちらの省略も以前とまったく同じ包含区間を返し、ホワイトボックステストで以前のコードの複製と比較しています。Native でのペア実行では、53〜512 ビットの `exp` が 1.8〜2.0 倍、10 進の `exp` が 1.3〜1.4 倍、`sin` はこれ単独で 1.15〜1.2 倍速くなり、Wasm と Wasm-GC では `exp` が 1.7〜1.9 倍速くなります。"
 
-#: manual/performance/bin_float.md:63
+#: manual/performance/bin_float.md:65
 msgid "Trade-offs"
 msgstr "Trade-off"
 
-#: manual/performance/bin_float.md:65
+#: manual/performance/bin_float.md:67
 msgid "Schoolbook minimizes setup and allocation, recursive algorithms reduce asymptotic work, and NTT improves very large balanced inputs at the cost of transforms and temporary storage. Every fast path retains an exact fallback, so performance dispatch cannot alter semantics."
 msgstr "schoolbook は setup/allocation を抑え、recursive algorithm は漸近 work を減らし、NTT は transform と temporary storage の代わりに非常に大きい balanced input を改善します。全 fast path に exact fallback があり、dispatch は semantics を変更しません。"
 
-#: manual/performance/bin_float.md:67
+#: manual/performance/bin_float.md:69
 msgid "Fixed-point logarithm"
 msgstr "固定小数点の対数関数"
 
-#: manual/performance/bin_float.md:69
+#: manual/performance/bin_float.md:71
 msgid "The certified `ln` enclosure on the normalized argument in [1, 2] (and the `ln 2` and `ln 10` constants built from it) sums the series `2 * sum z^(2k+1) / (2k+1)`, `z = (v - 1) / (v + 1)`, in fixed point when the argument is exact at the working precision. The fraction has 16 guard bits plus the leading zero bits of `z`, so the enclosure keeps `precision + 16` significant bits even for an argument close to 1; every operation rounds down, which makes the sum a lower bound, and a proven error of less than 2 units per term and a tail bound give the upper bound. Arguments that are not exact, or so close to 1 that the fraction would exceed four times the working precision, use the previous floating-point series, so the refinement loop and its working precisions are unchanged. White-box tests check containment of a much tighter enclosure, a bound on the width, and equality of the final correctly rounded results and flags with those of the previous series. Paired runs without the constant cache: `ln` is 5 to 7 times faster on Native at 53 to 2,048 bits, 5.5 to 7.5 times on Wasm and Wasm-GC, and decimal `ln` 6 times."
 msgstr "引数が作業精度で正確に表せる場合、認証済みの `ln` は、[1, 2] に正規化した引数の包含区間（およびそこから作る `ln 2` と `ln 10` の定数）で、級数 `2 * sum z^(2k+1) / (2k+1)`（`z = (v - 1) / (v + 1)`）を固定小数点で足し合わせます。小数部は 16 ビットのガードビットに `z` の先頭のゼロビット数を加えたもので、引数が 1 に近くても包含区間は `precision + 16` ビットの有効桁を保ちます。各演算は切り捨てなので和は下界になり、各項の誤差が 2 単位未満であるという証明と剰余の上界から上界が得られます。引数が正確でない場合や、1 に近すぎて小数部が作業精度の 4 倍を超える場合は、従来の浮動小数点の級数を使うので、精密化ループとその作業精度は変わりません。ホワイトボックステストは、より狭い包含区間を含むこと、幅が抑えられていること、および最終的な正しく丸めた結果とフラグが従来の級数と一致することを確認します。定数キャッシュなしのペア実行では、`ln` は Native で 53〜2,048 ビットにおいて 5〜7 倍、Wasm と Wasm-GC で 5.5〜7.5 倍、10 進の `ln` は 6 倍速くなります。"
 

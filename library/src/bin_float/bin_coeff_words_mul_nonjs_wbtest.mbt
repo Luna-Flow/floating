@@ -186,3 +186,130 @@ test "32-bit limb slices of 64-bit storage equal the limb-by-limb view" {
     }
   }
 }
+
+///|
+test "scratch-buffer Karatsuba equals the allocating Karatsuba of #326 and the schoolbook" {
+  let random = { words_state: 0x2468_ACE0_1357_9BDFUL, }
+  let cutoff = bin_coeff_words_karatsuba_cutoff
+  let sizes = [
+    cutoff,
+    cutoff + 1,
+    2 * cutoff - 1,
+    2 * cutoff,
+    2 * cutoff + 1,
+    3 * cutoff + 5,
+    4 * cutoff,
+    4 * cutoff + 1,
+    5 * cutoff - 3,
+    9 * cutoff + 7,
+    16 * cutoff,
+  ]
+  for left_len in sizes {
+    for right_len in sizes {
+      // one pattern per pair keeps the test cheap; the pattern rotates
+      let pattern = (left_len + right_len) % 5
+      let left = words_test_array(random, left_len, pattern)
+      let right = words_test_array(random, right_len, (pattern + 2) % 5)
+      let total = left_len + right_len
+      let expected = FixedArray::make(total, 0UL)
+      bin_coeff_words_school(
+        expected, 0, left, 0, left_len, right, 0, right_len,
+      )
+      let reference = FixedArray::make(total, 0UL)
+      ref_words_mul(reference, 0, left, 0, left_len, right, 0, right_len)
+      let actual = FixedArray::make(total + 4, 0x5555UL)
+      bin_coeff_words_mul(actual, 2, left, 0, left_len, right, 0, right_len)
+      for index in 0..<total {
+        assert_eq(reference[index], expected[index])
+        assert_eq(actual[2 + index], expected[index])
+      }
+      assert_eq(actual[1], 0x5555UL)
+      assert_eq(actual[total + 2], 0x5555UL)
+    }
+  }
+}
+
+///|
+test "word-range Karatsuba square equals the schoolbook square and product" {
+  let random = { words_state: 0x7A7A_3C3C_9E9E_1B1BUL, }
+  let cutoff = bin_coeff_words_square_cutoff
+  let sizes = [
+    1,
+    2,
+    cutoff - 1,
+    cutoff,
+    cutoff + 1,
+    cutoff + 2,
+    2 * cutoff - 1,
+    2 * cutoff,
+    2 * cutoff + 1,
+    3 * cutoff + 5,
+    4 * cutoff,
+    4 * cutoff + 1,
+    7 * cutoff + 3,
+    16 * cutoff,
+  ]
+  for len in sizes {
+    for pattern in 0..<5 {
+      let value = words_test_array(random, len, pattern)
+      let expected = FixedArray::make(2 * len, 0UL)
+      bin_coeff_words_school(expected, 0, value, 0, len, value, 0, len)
+      let school = FixedArray::make(2 * len, 0UL)
+      bin_coeff_words_sqr_school(school, 0, value, 0, len)
+      // an offset result and source inside larger arrays, with garbage around
+      let source = FixedArray::make(len + 5, 0x7777UL)
+      for index in 0..<len {
+        source[3 + index] = value[index]
+      }
+      let actual = FixedArray::make(2 * len + 6, 0x5555UL)
+      let scratch = FixedArray::make(bin_coeff_words_scratch_len(len) + 3, 0UL)
+      bin_coeff_words_sqr_scratch(actual, 3, source, 3, len, scratch, 2)
+      for index in 0..<(2 * len) {
+        assert_eq(school[index], expected[index])
+        assert_eq(actual[3 + index], expected[index])
+      }
+      assert_eq(actual[2], 0x5555UL)
+      assert_eq(actual[2 * len + 3], 0x5555UL)
+    }
+  }
+}
+
+///|
+test "BinCoeff square around the schoolbook, Karatsuba and NTT square cutoffs" {
+  let random = { words_state: 0x0F0F_A5A5_3C3C_9696UL, }
+  let sizes = [
+    16, 17, 31, 32, 33, 63, 64, 65, 127, 128, 129, 255, 256, 257, 383, 384, 385,
+    511, 512, 520,
+  ]
+  for len in sizes {
+    for pattern in [0, 1, 2, 4] {
+      let value = bin_coeff_from_words(
+        words_test_array(random, len, pattern),
+        len,
+      )
+      let expected = bin_coeff_mul_schoolbook(value, value)
+      assert_eq(value.square(), expected)
+      assert_eq(bin_coeff_square_words(value), expected)
+      assert_eq(value.mul(value), expected)
+    }
+  }
+}
+
+///|
+test "BinCoeff square at the NTT square cutoff equals the Karatsuba square and product" {
+  let random = { words_state: 0x1D1D_E2E2_4B4B_8F8FUL, }
+  // the NTT square starts at `bin_coeff_ntt_square_threshold` 32-bit limbs
+  let boundary = bin_coeff_ntt_square_threshold / 2
+  for len in [boundary - 1, boundary, boundary + 1] {
+    for pattern in [0, 1] {
+      let value = bin_coeff_from_words(
+        words_test_array(random, len, pattern),
+        len,
+      )
+      let karatsuba = bin_coeff_square_words(value)
+      assert_eq(value.square(), karatsuba)
+      assert_eq(bin_coeff_square_ntt(value), karatsuba)
+      assert_eq(value.mul(value), karatsuba)
+    }
+  }
+}
