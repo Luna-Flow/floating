@@ -15,7 +15,7 @@ library/src/decimal/ieee_corpus_generated_*_wbtest.mbt
 # Generated decTest artifacts
 library/src/.generated_dectest/
 library/src/.generated_dectest_runtime/
-library/src/consistency/_generated_dectest_wbtest.mbt
+tooling/src/consistency/_generated_dectest_wbtest.mbt
 
 # Coverage artifacts
 _coverage/

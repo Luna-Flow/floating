@@ -39,9 +39,9 @@ def is_test_file(path: Path) -> bool:
 
 
 def test_files(root: Path, package: str | None = None) -> list[Path]:
-    """Test files under `library/src` (or one package directory), sorted."""
-    base = root / (package if package else "library/src")
-    return sorted(path for path in base.rglob("*.mbt") if is_test_file(path))
+    """Test files under `library/src` and `tooling/src` (or one package directory), sorted."""
+    bases = [root / package] if package else [root / "library/src", root / "tooling/src"]
+    return sorted(path for base in bases for path in base.rglob("*.mbt") if is_test_file(path))
 
 
 def moon_command(path: Path, build_only: bool) -> tuple[str, ...]:

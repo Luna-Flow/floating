@@ -13,6 +13,7 @@ description = "Developer tools for Luna-Flow/floating: benchmarks, conformance f
 import {
   "Luna-Flow/floating@0.11.0",
   "Luna-Flow/arithmetic@0.5.2",
+  "Luna-Flow/luna-generic@0.4.0",
   "moonbitlang/x@0.5.7",
   "Luna-Flow/type_theory@0.4.1",
   "Luna-Flow/mare_mark@0.4.2",

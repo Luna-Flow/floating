@@ -39,7 +39,6 @@ FLOATING_PACKAGES = (
     "ball_float_checked",
     "bin_float",
     "bin_float_checked",
-    "consistency",
     "decimal",
     "decimal_checked",
     "decimal_gda",
@@ -48,7 +47,7 @@ FLOATING_PACKAGES = (
     "internal",
     "semantic",
 )
-TOOLS_PACKAGES = ("bench", "numeric_expr")
+TOOLS_PACKAGES = ("bench", "numeric_expr", "consistency")
 # Packages whose alias is not the last component of a path directly below the module.
 TOOLS_PATH_ALIASES = {
     "conformance": "internal/conformance",

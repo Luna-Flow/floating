@@ -16,6 +16,8 @@ class NativeTestTimingTests(unittest.TestCase):
         self.assertTrue(all(timing.is_test_file(path) for path in files))
         scoped = timing.test_files(timing.REPO_ROOT, "library/src/decimal")
         self.assertTrue(scoped and set(scoped) < set(files))
+        # Both modules are timed: the cross-package tests are in `tooling/src/consistency`.
+        self.assertTrue(any("tooling/src/consistency" in str(path) for path in files))
 
     def test_command_builds_then_runs_one_file(self) -> None:
         path = timing.REPO_ROOT / "library/src/decimal/a_wbtest.mbt"
