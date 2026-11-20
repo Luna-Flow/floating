@@ -411,6 +411,12 @@ fn binary_ln_unit_bounds(
   } else {
     binary_ln_burst_min_precision
   }
+  if entry && work_precision >= binary_ln_agm_min_precision {
+    match binary_ln_unit_agm_bounds(value, work_precision) {
+      Some(bounds) => return Some(bounds)
+      None => ()
+    }
+  }
   if work_precision >= threshold {
     match binary_ln_unit_burst_bounds(value, work_precision) {
       Some(bounds) => return Some(bounds)

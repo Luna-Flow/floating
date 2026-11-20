@@ -23,3 +23,8 @@ let binary_trig_burst_min_precision = 1536
 /// step on the table kernel (measured crossover on this target; the nested
 /// steps keep `binary_ln_burst_min_precision`).
 let binary_ln_entry_min_precision = 384
+
+///|
+/// Working precision from which the outermost `ln` call uses the arithmetic-geometric
+/// mean (measured crossover on this target).
+let binary_ln_agm_min_precision : Int32 = 640

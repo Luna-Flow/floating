@@ -1172,7 +1172,7 @@ class.
 *Status: design and results for [#18](https://github.com/Luna-Flow/floating/issues/18).
 The constants (`pi`, `ln 2`, `ln 10` by binary splitting), the `exp`
 enclosure, the `ln` enclosure and the `sin` and `cos` enclosures are
-implemented and merged; the AGM alternative, `tan`, and the further
+implemented and merged; `tan`, and the further
 reductions listed at the end of the section are design only. The measured
 figures are baselines or results of the implemented part; the figures marked
 "projection" come from a cost model fitted to them and are replaced by
@@ -1643,18 +1643,30 @@ load), so the drift-corrected ratios are about 10.7 to 11.4 at 8192 bits and
 about 12 to 15 at 2048 bits; an earlier run on a quiet machine gave
 11.5 to 13.6 at 8192 bits (on the previous division kernel).
 
-*AGM alternative.* $\ln s = \pi / (2\, \mathrm{AGM}(1, 4/s)) - m \ln 2$ for
-$s = v\, 2^{m} > 2^{w/2}$ costs about $\log_2 w$ iterations of one product and
-one square root. With today's kernels (`sqrt_ctx` 128 µs, product 43 µs at
-8192 bits) this is 2.7 to 3.2 ms, no better than the Newton step within the
-model's error, because our square root is 29 times and our product 13 times
-slower than MPFR's (4.4 and 3.2 µs on the same machine, secondary evidence).
-It also needs a rigorous bound for the truncation error of the formula (the
-$O(s^{-2})$ term, derived from the theta-function formula
-$\ln(1/q) = \pi / \mathrm{AGM}(\theta_2^2(q), \theta_3^2(q))$, attributed to
-Sasaki and Kanada, see the evidence note at the end of this section[^brent-agm]),
-which this page does not yet provide. It is therefore the second choice,
-taken up only if the Newton step measures slower than the projection.
+**`ln`, by the arithmetic-geometric mean.** For the outermost `ln` call (never for the constants, which the mean needs) and for $1 + 2^{-16} < v \le 2$ the enclosure of $\ln v$ is built from $\ln s = \pi / (2\, \mathrm{AG}(1, 4/s))$ up to a model term, with $s = v\, 2^{m}$, $m = \lceil p/2 \rceil + 2$ (so $s > 2^{p/2 + 2}$ and $4/s^2 < 2^{-(p+2)}$), $\ln v = \ln s - m \ln 2$. Every step below has a stated bound; none uses MPFR's constants.
+
+1. *The argument.* $x = 4/s = (4/v)\, 2^{-m}$: one division rounded to nearest at $p$ bits, relative error at most $2^{-p}$, then an exact shift. $\mathrm{AG}$ is increasing in each argument and homogeneous of degree one (both maps $(a, b) \mapsto ((a+b)/2, \sqrt{ab})$ are), so for $\theta \ge 0$: $\mathrm{AG}(1, x) \le \mathrm{AG}(1, x(1+\theta)) \le \mathrm{AG}(1+\theta, x(1+\theta)) = (1+\theta)\, \mathrm{AG}(1, x)$, and symmetrically for $\theta < 0$: the relative error of $x$ moves $\mathrm{AG}$ by at most as much.
+2. *The iteration.* $u' = \sqrt{u v}$, $v' = (u+v)/2$ from $(x, 1)$, every product, square root and sum rounded to nearest at $p$ bits (relative error $\delta = 2^{-p}$ each). With the exact sequence $(U_k, V_k)$ and $u_k = U_k (1 + a_k)$, $v_k = V_k (1 + b_k)$, $|a_k|, |b_k| \le \varepsilon_k$: the product has $(1+a)(1+b)(1+\eta_1)$, the root halves the exponent of that factor and adds one rounding, the sum is bounded by $(1 + \varepsilon)(1 + \eta_3)$ and halving is exact, so $\varepsilon_{k+1} \le \varepsilon_k + 2\delta + O(\delta\, \varepsilon_k)$, and $\varepsilon_n \le (3 n + 4)\delta$ for $n < 64$ (MPFR's analysis of the same iteration, with the Higham calculus, gives $3n/2$; ours is looser by 2).
+3. *Stopping.* After each iteration stop when $|u - v| < 2^{\operatorname{top}(v) - p + 3} \le 16\,\delta v$ (tested on exponents). A tolerance of one unit would never stop: two nearest-rounded means can stay one unit apart. $\mathrm{AG}(U_n, V_n)$ lies between $U_n$ and $V_n$, which differ by at most $16\,\delta v + 2 \varepsilon_n v (1 + \varepsilon_n)$, so $|\mathrm{AG}(1, 4/s) - v_n| \le e\, v_n$ with $e = (9 n + 30)\delta$ (the $+1$ from step 1 included). The code forms $v_n (1 \pm e)$ with directed products.
+4. *The model term.* With $F = \pi / (2\, \mathrm{AG}(1, 4/s))$ the lower end uses $\ln s \ge F (1 - 4/s^2)$ and the upper end $\ln s \le F$. **This inequality is taken from the literature and is not proved here**: the comment of MPFR's `log.c` states it for $s \ge 1.26$, and the MPFR algorithms document (section 4.5) gives only the asymptotic form $\ln x \approx \pi/(2\,\mathrm{AG}(1, 4/s)) - m \ln 2 + o(\ln x\, 2^{-p})$ and cites J.-M. Muller, *Elementary Functions. Algorithms and Implementation*, Birkhauser, 1997. The source of a proof (Muller 1997, Brent 1976, the Borwein brothers' *Pi and the AGM*, or DLMF 19.8 and 19.12 for the expansion of $K(k)$ near $k = 1$) has not been read. The code subtracts $F\, 2^{-(p-2)}$, sixteen times the claimed $4/s^2 < 2^{-(p+2)}$, and the error margin $e F$ of step 3 is more than a hundred times the claimed term, so a constant up to 64 instead of 4 would still give a valid enclosure. Numerically (exact decimal arithmetic, $s = 2^k$, $k = 1 \ldots 40$): $0 < F - \ln s < 4 \ln s / s^2$ with a ratio to the bound between 0.56 and 0.96.
+5. *The constants and the result.* $\pi_l \le \pi \le \pi_u$ at $p + 8$ bits and $\ln 2$ at $p + 16$ bits (the cached enclosures), $F_l = \pi_l / (2 v_n (1 + e))$ and $F_u = \pi_u / (2 v_n (1 - e))$ by directed divisions, $m \ln 2$ by directed products with the integer $m < 2^{\lceil \log_2 p \rceil}$, and the subtraction directed. Cancellation: $F$ and $m \ln 2$ are about $0.35 p$ and the result about $2^{\mathrm{lead}}$ with $\mathrm{lead} \ge -16$, so about $\log_2(0.35 p) + 16 \le 28$ bits are lost; they are paid once in the working precision $p = w + (2 - \mathrm{lead}) + \operatorname{bits}(w) + 16$ (no restart, as MPFR does). The width of the result is at most $2^{-(w + 3)}$ by this choice and is checked (as in the Newton step): a wider result returns `None` and the Newton step or the series runs.
+
+*Cost.* $n$ iterations of one product, one square root and one sum: $n = 18$ at 2112 bits and 22 at 8256 bits (exact decimal AGM of $(1, 4/2^{p/2+1})$, 14 at 512), about $2 \log_2 p - 4$. Per call: $n$ products, $n$ square roots, 3 divisions (one for $4/v$, two for $F$), about 5 products by short numbers, the two cached constants. In multiplication units ($M$ of the same side, the 0.11.0 baseline) this is about 66 at 2048 bits and 61 at 8192 against 178 and 133 for the Newton step and 65 and 55 for MPFR: the count equals MPFR's, so the ratio to MPFR stays at the ratio of the product and square-root kernels (about 4).
+
+*Choice of path.* The mean costs the same for every argument in $(1 + 2^{-16}, 2]$, the series of an argument $1 + d$ with $|d| \approx 2^{-k}$ needs about $p/(2k)$ terms: they meet at $k \approx 16$ at 2048 bits, which is the existing bound `binary_ln_burst_near_one_bits`, so the argument ranges of the Newton step and of the mean are the same, and below $1 + 2^{-16}$ the series remains. The threshold `binary_ln_agm_min_precision` (native: 640 working bits, per target) is chosen from the instruction counts below; the other targets are not measured and keep the kernel off (the constant is $2^{30}$ there), so their results are unchanged. The Newton step stays for working precisions below the threshold and as the fallback of the width check.
+
+*Result* (native, instructions retired per call, Newton step before and mean after):
+
+| `ln` precision (bits) | Newton step | mean | ratio |
+| ---: | ---: | ---: | ---: |
+| 512 | 501,445 | 509,327 | 1.016 |
+| 640 | 680,378 | 566,571 | 0.833 |
+| 1024 | 1,536,465 | 817,721 | 0.532 |
+| 2048 | 4,096,676 | 1,798,574 | 0.439 |
+| 4096 | 10,223,975 | 5,172,641 | 0.506 |
+| 8192 | 27,924,307 | 17,172,621 | 0.615 |
+
+The enclosure is verified by the same tests as the Newton step (containment of the exact value shown by the series at 256 bits more, no wider than the Newton enclosure, declined outside its range, mutated kernels caught). The results of `ln`, `log2`, `log10` and the inverse hyperbolic functions are correctly rounded from either enclosure, so they do not depend on which one ran.
 
 **`sin` and `cos`, by complex bit-burst.** With $H = \lfloor 2^{G} \pi/2
 \rfloor / 2^{G}$, $G = F + \operatorname{bits}(n) + 2$, the quadrant integer
@@ -1918,17 +1930,19 @@ authority of later notes by Brent (secondary sources); its normalization of the
 nome (Brent's notes use $q^4$ and point out a typo in the $q$ form of the
 Borwein book) and its truncation bound have not been checked against the
 original, which the owner will obtain. Nothing in the design or in the code
-depends on them (the AGM is not used until its truncation bound is derived and
-proved here). The 1-ulp and 2-ulp widths quoted above come from the MPFR
+depends on the theta-function formula; the `ln` enclosure by the AGM depends on
+the model bound $F (1 - 4/s^2) \le \ln s \le F$ only (see "`ln`, by the
+arithmetic-geometric mean" above), which is taken from MPFR's `log.c` and is
+not proved on this page. The 1-ulp and 2-ulp widths quoted above come from the MPFR
 comparison, which is secondary evidence for the enclosures; the proof is the
 integer-bound argument in this section.
 
 [^brent-agm]: R. P. Brent, "Fast multiple-precision evaluation of elementary
     functions", *J. ACM* 23(2), 1976 (bit-burst and the AGM logarithm; citation
     to be confirmed against the paper). The
-    sharp truncation bound has to be derived from the theta series before the
-    AGM is used. MPFR's `log.c` documents the same algorithm and is secondary
-    evidence only.
+    sharp truncation bound is not derived here; the AGM kernel uses the bound
+    of MPFR's `log.c` with a sixteen-fold margin. MPFR's `log.c` documents the
+    same algorithm and is secondary evidence only.
 
 ### The coefficient kernel
 
