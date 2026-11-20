@@ -177,7 +177,7 @@ msgstr "构造子"
 #: manual/api/decimal.md:403
 #: manual/api/differential.md:44
 #: manual/numeric_semantics.md:301
-#: manual/tutorial/internal/runner_cli.md:106
+#: manual/tutorial/internal/runner_cli.md:116
 msgid "Meaning"
 msgstr "含义"
 
@@ -1017,7 +1017,7 @@ msgstr "NaI 仍为 NaI，并带上上下文精度。"
 #: manual/api/def.md:421
 #: manual/api/frontend/gda_expr.md:457
 #: manual/api/frontend/itl_expr.md:263
-#: manual/api/frontend/mpfr_expr.md:516
+#: manual/api/frontend/mpfr_expr.md:523
 #: manual/api/frontend/testfloat_expr.md:358
 #: manual/api/internal/conformance.md:290
 #: manual/api/numeric_expr.md:298
@@ -1108,7 +1108,7 @@ msgstr "只使用 `ctx.precision`：操作数先用 `with_precision` 重新舍�
 #: manual/api/doc_examples.md:46
 #: manual/api/frontend/gda_expr.md:508
 #: manual/api/frontend/itl_expr.md:276
-#: manual/api/frontend/mpfr_expr.md:529
+#: manual/api/frontend/mpfr_expr.md:536
 #: manual/api/frontend/testfloat_expr.md:404
 #: manual/api/internal.md:582
 #: manual/api/internal/conformance.md:353
@@ -1124,7 +1124,7 @@ msgstr "完整公共接口"
 #: manual/api/decimal_gda.md:2034
 #: manual/api/frontend/gda_expr.md:510
 #: manual/api/frontend/itl_expr.md:278
-#: manual/api/frontend/mpfr_expr.md:531
+#: manual/api/frontend/mpfr_expr.md:538
 #: manual/api/frontend/testfloat_expr.md:406
 #: manual/api/internal.md:584
 #: manual/api/internal/conformance.md:355
@@ -3543,7 +3543,7 @@ msgid "Exit status"
 msgstr "退出状态"
 
 #: manual/api/cli.md:58
-#: manual/tutorial/internal/runner_cli.md:106
+#: manual/tutorial/internal/runner_cli.md:116
 msgid "Code"
 msgstr "代码"
 
@@ -6916,7 +6916,7 @@ msgstr "`source` 返回传给解析器的名称，`case_count` 返回行数。"
 
 #: manual/api/frontend/mpfr_expr.md:100
 #: manual/design/decimal_gda.md:610
-#: manual/tutorial/frontend/mpfr_expr.md:83
+#: manual/tutorial/frontend/mpfr_expr.md:81
 msgid "Integer powers"
 msgstr "整数次幂"
 
@@ -7041,57 +7041,65 @@ msgstr "解析文本（第一个参数是来源名）。空行和以 `#` 开头�
 msgid "Runs every row through the `try_*_ctx` form of the operation with the row's context, so a certification failure fails the row instead of becoming a quiet NaN. A row passes only when the result has the expected value *and* cohort (`compare_total` equal, so `1.0` and `1.00` differ) and the flags agree. The row id is the first field of the row."
 msgstr "用行的上下文，通过运算的 `try_*_ctx` 形式运行每一行，因此认证失败会使该行失败，而不是变成静默的 NaN。只有当结果的值与 cohort 都等于期望（按 `compare_total` 比较，所以 `1.0` 与 `1.00` 不同）且标志一致时，该行才通过。行 id 是该行的第一个字段。"
 
-#: manual/api/frontend/mpfr_expr.md:415
+#: manual/api/frontend/mpfr_expr.md:398
+msgid "`MpfrDecimalRandomDocument` is a parsed `mpfr-decimal-random-v1` corpus (IEEE `decimal` elementary functions against MPFR); `source` is the label it was parsed from, `case_count` the number of rows and `case_ids` their ids in order."
+msgstr "`MpfrDecimalRandomDocument` 是解析后的 `mpfr-decimal-random-v1` 语料（IEEE `decimal` 初等函数对照 MPFR）；`source` 是解析时使用的标签，`case_count` 是行数，`case_ids` 按顺序给出各行的 id。"
+
+#: manual/api/frontend/mpfr_expr.md:413
+msgid "`MpfrRandomDocument` is a parsed `mpfr-random-v1` corpus (binary operations against MPFR) with the same three accessors."
+msgstr "`MpfrRandomDocument` 是解析后的 `mpfr-random-v1` 语料（二进制运算对照 MPFR），提供同样的三个访问器。"
+
+#: manual/api/frontend/mpfr_expr.md:422
 msgid "`case_ids` lists the row ids in order, which the differential harness uses to name the failing case of a batch."
 msgstr "`case_ids` 按顺序列出各行的 id，差分运行器用它来命名一个批中的失败用例。"
 
-#: manual/api/frontend/mpfr_expr.md:418
+#: manual/api/frontend/mpfr_expr.md:425
 msgid "Diagnostics and results"
 msgstr "诊断与结果"
 
-#: manual/api/frontend/mpfr_expr.md:422
+#: manual/api/frontend/mpfr_expr.md:429
 #: manual/api/frontend/testfloat_expr.md:218
 msgid "`ParseDiagnostic` is one invalid line."
 msgstr "`ParseDiagnostic` 是一个无效行。"
 
-#: manual/api/frontend/mpfr_expr.md:432
+#: manual/api/frontend/mpfr_expr.md:439
 #: manual/api/frontend/testfloat_expr.md:228
 msgid "These methods return the name given to the parser, the 1-based line number and the message."
 msgstr "这些方法返回传给解析器的名称、从 1 开始的行号和消息。"
 
-#: manual/api/frontend/mpfr_expr.md:441
+#: manual/api/frontend/mpfr_expr.md:448
 msgid "Messages name the problem, for example `\"MPFR pow row must contain ten fields\"`, `\"invalid MPFR pow field\"` or `\"invalid MPFR elementary expected value\"`."
 msgstr "消息指明问题所在，例如 `\"MPFR pow row must contain ten fields\"`、`\"invalid MPFR pow field\"` 或 `\"invalid MPFR elementary expected value\"`。"
 
-#: manual/api/frontend/mpfr_expr.md:447
+#: manual/api/frontend/mpfr_expr.md:454
 msgid "`CaseResult` is the outcome of one row."
 msgstr "`CaseResult` 是一行的结果。"
 
-#: manual/api/frontend/mpfr_expr.md:457
+#: manual/api/frontend/mpfr_expr.md:464
 msgid "These methods return the row id, whether the row passed, and a message."
 msgstr "这些方法返回行 id、该行是否通过，以及一条消息。"
 
-#: manual/api/frontend/mpfr_expr.md:465
+#: manual/api/frontend/mpfr_expr.md:472
 msgid "The message is empty for a pass and otherwise shows expected and actual values in hexadecimal (and the compared flags for power and elementary rows)."
 msgstr "通过时消息为空，否则以十六进制显示期望值和实际值（对于幂行和初等函数行，还显示所比较的标志）。"
 
-#: manual/api/frontend/mpfr_expr.md:470
+#: manual/api/frontend/mpfr_expr.md:477
 msgid "`RunSummary` aggregates the rows of one document."
 msgstr "`RunSummary` 汇总一个文档中的各行。"
 
-#: manual/api/frontend/mpfr_expr.md:480
+#: manual/api/frontend/mpfr_expr.md:487
 msgid "These methods return the number of rows, and how many passed and failed."
 msgstr "这些方法返回行数，以及通过和失败的数目。"
 
-#: manual/api/frontend/mpfr_expr.md:490
+#: manual/api/frontend/mpfr_expr.md:497
 msgid "`results` returns a copy of the per-row results; `success` is the verdict."
 msgstr "`results` 返回逐行结果的副本；`success` 是判定。"
 
-#: manual/api/frontend/mpfr_expr.md:497
+#: manual/api/frontend/mpfr_expr.md:504
 msgid "Every row is executed, so $\\text{total} = \\text{passed} + \\text{failed}$; `success` is true when no row failed. `results` returns the results in row order."
 msgstr "每一行都会被执行，因此 $\\text{total} = \\text{passed} + \\text{failed}$；当没有行失败时 `success` 为真。`results` 按行序返回结果。"
 
-#: manual/api/frontend/mpfr_expr.md:520
+#: manual/api/frontend/mpfr_expr.md:527
 msgid "These methods compare location and message and render a diagnostic for `Debug`. Use `==`, `!=` and `debug_inspect` in new code."
 msgstr "这些方法比较位置和消息，并为 `Debug` 渲染诊断。新代码中请使用 `==`、`!=` 和 `debug_inspect`。"
 
@@ -8311,7 +8319,7 @@ msgstr "共享辅助函数、汇总、分片、文件、JSON 与文本输出、�
 #: manual/conformance/bin_float.md:71
 #: manual/conformance/decimal.md:42
 #: manual/conformance/decimal_gda.md:15
-#: manual/index.md:56
+#: manual/index.md:69
 #: manual/performance_audit.md:155
 msgid "Evidence"
 msgstr "证据"
@@ -8669,11 +8677,12 @@ msgstr "级别"
 #: manual/conformance/bin_float.md:71
 #: manual/conformance/decimal.md:42
 #: manual/conformance/decimal_gda.md:15
-#: manual/index.md:56
-#: manual/index.md:65
-#: manual/index.md:76
-#: manual/index.md:86
-#: manual/index.md:97
+#: manual/index.md:69
+#: manual/index.md:78
+#: manual/index.md:89
+#: manual/index.md:99
+#: manual/index.md:112
+#: manual/index.md:120
 #: manual/numeric_semantics.md:582
 msgid "API"
 msgstr "API"
@@ -9866,7 +9875,7 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 #: manual/design/bin_float.md:1956
 #: manual/design/bin_float_checked.md:329
 #: manual/design/cli.md:71
-#: manual/design/cli/dispatch.md:32
+#: manual/design/cli/dispatch.md:48
 #: manual/design/cli/gda_expr_cli.md:67
 #: manual/design/cli/itl_expr_cli.md:59
 #: manual/design/cli/mpfr_expr_cli.md:51
@@ -9878,7 +9887,7 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 #: manual/design/decimal_gda_checked.md:247
 #: manual/design/def.md:337
 #: manual/design/differential.md:168
-#: manual/design/differential/harness.md:26
+#: manual/design/differential/harness.md:41
 #: manual/design/doc_examples.md:36
 #: manual/design/frontend/gda_expr.md:225
 #: manual/design/frontend/itl_expr.md:166
@@ -10369,6 +10378,7 @@ msgstr "IEEE Std 1788-2015，*IEEE Standard for Interval Arithmetic*。本包遵
 #: manual/design/bin_float.md:30
 #: manual/design/bin_float_checked.md:13
 #: manual/design/cli.md:11
+#: manual/design/cli/dispatch.md:12
 #: manual/design/cli/gda_expr_cli.md:10
 #: manual/design/cli/itl_expr_cli.md:10
 #: manual/design/cli/mpfr_expr_cli.md:10
@@ -10380,6 +10390,7 @@ msgstr "IEEE Std 1788-2015，*IEEE Standard for Interval Arithmetic*。本包遵
 #: manual/design/decimal_gda_checked.md:20
 #: manual/design/def.md:16
 #: manual/design/differential.md:13
+#: manual/design/differential/harness.md:11
 #: manual/design/doc_examples.md:9
 #: manual/design/frontend/gda_expr.md:18
 #: manual/design/frontend/itl_expr.md:16
@@ -10839,7 +10850,7 @@ msgstr "集合关系（`subset`、`interior`、`disjoint`、`set_equal`）和 IE
 #: manual/design/bin_float.md:185
 #: manual/design/bin_float_checked.md:81
 #: manual/design/cli.md:18
-#: manual/design/cli/dispatch.md:12
+#: manual/design/cli/dispatch.md:18
 #: manual/design/cli/gda_expr_cli.md:21
 #: manual/design/cli/itl_expr_cli.md:18
 #: manual/design/cli/mpfr_expr_cli.md:16
@@ -10851,7 +10862,7 @@ msgstr "集合关系（`subset`、`interior`、`disjoint`、`set_equal`）和 IE
 #: manual/design/decimal_gda_checked.md:113
 #: manual/design/def.md:68
 #: manual/design/differential.md:95
-#: manual/design/differential/harness.md:11
+#: manual/design/differential/harness.md:18
 #: manual/design/doc_examples.md:14
 #: manual/design/frontend/gda_expr.md:117
 #: manual/design/frontend/itl_expr.md:76
@@ -11001,7 +11012,7 @@ msgstr "每个区间都携带一个精度标签；二元运算使用较大的标
 #: manual/design/bin_float.md:1884
 #: manual/design/bin_float_checked.md:199
 #: manual/design/cli.md:52
-#: manual/design/cli/dispatch.md:25
+#: manual/design/cli/dispatch.md:31
 #: manual/design/cli/gda_expr_cli.md:50
 #: manual/design/cli/itl_expr_cli.md:45
 #: manual/design/cli/mpfr_expr_cli.md:36
@@ -11013,7 +11024,7 @@ msgstr "每个区间都携带一个精度标签；二元运算使用较大的标
 #: manual/design/decimal_gda_checked.md:190
 #: manual/design/def.md:159
 #: manual/design/differential.md:145
-#: manual/design/differential/harness.md:20
+#: manual/design/differential/harness.md:27
 #: manual/design/doc_examples.md:25
 #: manual/design/frontend/gda_expr.md:174
 #: manual/design/frontend/itl_expr.md:133
@@ -11081,6 +11092,7 @@ msgstr "目前没有未解决的限制。负次数的装饰 `rootn` 在参数含
 #: manual/design/bin_float.md:1931
 #: manual/design/bin_float_checked.md:316
 #: manual/design/cli.md:62
+#: manual/design/cli/dispatch.md:38
 #: manual/design/cli/gda_expr_cli.md:60
 #: manual/design/cli/itl_expr_cli.md:53
 #: manual/design/cli/mpfr_expr_cli.md:44
@@ -11092,6 +11104,7 @@ msgstr "目前没有未解决的限制。负次数的装饰 `rootn` 在参数含
 #: manual/design/decimal_gda_checked.md:238
 #: manual/design/def.md:324
 #: manual/design/differential.md:156
+#: manual/design/differential/harness.md:33
 #: manual/design/doc_examples.md:30
 #: manual/design/frontend/gda_expr.md:214
 #: manual/design/frontend/itl_expr.md:156
@@ -13269,30 +13282,46 @@ msgid "The dispatcher has behaviour worth testing (argument scanning, the at-mos
 msgstr "调度器的行为值得测试（参数扫描、至多一次规则、空值、`--help`），所以它放在库包中。主包 `cli` 只保留进程边界：读取 `@env.args()`，并以返回的代码调用 `@sys.exit`。工具链已弃用在主包中放置测试输入（`.mbt.md` 文件）：主包将不再生成黑盒测试。"
 
 #: manual/design/cli/dispatch.md:14
+msgid "None. The dispatcher is a pure function of the argument vector: its result and its output depend on nothing else, and the runners it calls are libraries whose results depend only on their arguments and the files they read."
+msgstr "无。调度器是参数向量的纯函数：其结果和输出不依赖其他任何东西，它所调用的运行器是库，其结果只取决于它们的参数和读取的文件。"
+
+#: manual/design/cli/dispatch.md:20
 msgid "Return the exit code"
 msgstr "返回退出码"
 
-#: manual/design/cli/dispatch.md:16
+#: manual/design/cli/dispatch.md:22
 msgid "`dispatch` returns an `Int32` and never calls `@sys.exit`, so a white-box test checks an invocation without spawning a process. The semantics of the options are those of the `cli` page and are unchanged by the split."
 msgstr "`dispatch` 返回 `Int32` 且从不调用 `@sys.exit`，因此白盒测试无需启动进程即可检查一次调用。选项的语义与 `cli` 页面相同，拆分不改变它们。"
 
-#: manual/design/cli/dispatch.md:20
+#: manual/design/cli/dispatch.md:26
 msgid "Runners stay libraries"
 msgstr "运行器仍是库"
 
-#: manual/design/cli/dispatch.md:22
+#: manual/design/cli/dispatch.md:28
 msgid "The four runners (`cli/gda_expr_cli` and its siblings) are imported here and nowhere else; `cli` itself imports only this package and the process helpers."
 msgstr "四个运行器（`cli/gda_expr_cli` 及其同类）只在此处导入；`cli` 自身只导入本包和进程辅助包。"
 
-#: manual/design/cli/dispatch.md:27
+#: manual/design/cli/dispatch.md:33
 msgid "Exactly one runner is called per invocation, or none for invalid arguments or `--help`."
 msgstr "每次调用恰好调用一个运行器；参数无效或给出 `--help` 时一个也不调用。"
 
-#: manual/design/cli/dispatch.md:29
+#: manual/design/cli/dispatch.md:35
 msgid "The result equals the runner's return value, or `2` for an argument error, or `0` for `--help`."
 msgstr "结果等于运行器的返回值；参数错误时为 `2`；`--help` 时为 `0`。"
 
-#: manual/design/cli/dispatch.md:34
+#: manual/design/cli/dispatch.md:40
+msgid "**Keep the dispatcher in `cli`.** A main package that holds test inputs (`.mbt.md` files) is deprecated by the toolchain, and its tests would need the process boundary."
+msgstr "**把调度器留在 `cli` 中。** 工具链已弃用在主包中放置测试输入（`.mbt.md` 文件），而且其测试需要进程边界。"
+
+#: manual/design/cli/dispatch.md:43
+msgid "**A table of runners.** A `match` on the backend name is checked by the compiler, and each arm is one line."
+msgstr "**运行器表。** 对后端名称的 `match` 由编译器检查，每个分支只有一行。"
+
+#: manual/design/cli/dispatch.md:45
+msgid "**Exit inside `dispatch`.** It would make every usage error untestable without spawning a process."
+msgstr "**在 `dispatch` 内部退出。** 这会让每个用法错误都无法在不启动进程的情况下测试。"
+
+#: manual/design/cli/dispatch.md:50
 msgid "No process exit, no file access of its own: those are in the runners and in `cli`."
 msgstr "不退出进程，自身也不访问文件：这些在运行器和 `cli` 中。"
 
@@ -15945,22 +15974,34 @@ msgid "The harness has behaviour worth testing (batch splitting, directive handl
 msgstr "该工具的行为值得测试（批的拆分、指令处理、失败文本），所以它放在带白盒测试的库包中。主包 `differential` 只保留入口：以 `@env.args()` 调用 `run`。工具链已弃用在主包中放置测试输入（`.mbt.md` 文件）：主包将不再生成黑盒测试。"
 
 #: manual/design/differential/harness.md:13
+msgid "None of its own. A batch is valid when every row reproduces the expected value and flags of its oracle (MPFR, libmpdec); the rounding and flag semantics are those of the frontends it calls, and the statistics of the run are those of mare_mark (see the [differential design page](../../design/differential.md))."
+msgstr "其自身无。当每一行都复现其预言（MPFR、libmpdec）的期望值与标志时，一批才有效；舍入与标志语义属于它所调用的前端，运行的统计量属于 mare_mark（见 [differential 设计页](../../design/differential.md)）。"
+
+#: manual/design/differential/harness.md:20
 msgid "One public function"
 msgstr "一个公开函数"
 
-#: manual/design/differential/harness.md:15
+#: manual/design/differential/harness.md:22
 msgid "`run` is the only public item; the options, batches and the experiment specification stay private to the package. The behaviour, the command line and the record are those of the [`differential` design page](../../design/differential.md) and are unchanged by the split."
 msgstr "`run` 是唯一的公开项；选项、批和实验规格对本包保持私有。行为、命令行和记录与 [`differential` 设计页](../../design/differential.md)相同，拆分不改变它们。"
 
-#: manual/design/differential/harness.md:22
+#: manual/design/differential/harness.md:29
 msgid "The exit status is `2` for a bad command line or corpus, `1` when a batch disagrees with its oracle, and `0` otherwise."
 msgstr "命令行或语料有误时退出状态为 `2`，某一批与其预言不一致时为 `1`，否则为 `0`。"
 
-#: manual/design/differential/harness.md:24
+#: manual/design/differential/harness.md:31
 msgid "It does not implement or alter arithmetic: every row goes through a frontend."
 msgstr "它不实现也不改变算术：每一行都经过前端。"
 
-#: manual/design/differential/harness.md:28
+#: manual/design/differential/harness.md:35
+msgid "**Keep `run` in the main package.** A main package that holds test inputs (`.mbt.md` files) is deprecated by the toolchain, and the batching tests would live in an executable."
+msgstr "**把 `run` 留在主包中。** 工具链已弃用在主包中放置测试输入（`.mbt.md` 文件），批处理的测试也会落在可执行文件里。"
+
+#: manual/design/differential/harness.md:38
+msgid "**Several public functions.** Options and batches are details of one command line; exposing them would promise a stability they do not have."
+msgstr "**多个公开函数。** 选项和批是单个命令行的细节；公开它们会承诺它们并不具备的稳定性。"
+
+#: manual/design/differential/harness.md:43
 msgid "Native, JavaScript, Wasm and LLVM only (`moonbitlang/async`)."
 msgstr "仅限 native、JavaScript、Wasm 和 LLVM（`moonbitlang/async`）。"
 
@@ -16877,7 +16918,7 @@ msgid "where the $e$ are unit vectors in $\\mathbb{N}^{7}$. `RunSummary::from_re
 msgstr "其中各 $e$ 是 $\\mathbb{N}^{7}$ 中的单位向量。`RunSummary::from_results` 精确地计算 $c(R)$ 和 $|R|$，并存储调用者给出的总数 $T$。"
 
 #: manual/design/internal/conformance.md:33
-#: manual/tutorial/frontend/testfloat_expr.md:166
+#: manual/tutorial/frontend/testfloat_expr.md:164
 msgid "Shards"
 msgstr "分片"
 
@@ -17815,790 +17856,837 @@ msgid "The module needs the MoonBit toolchain 0.10.20 or later (`moonc` ≥ 0.10
 msgstr "本模块需要 MoonBit 工具链 0.10.20 或更高版本（`moonc` ≥ 0.10.20）。它依赖 `Luna-Flow/arithmetic`（舍入模式、上下文、checked 与 contextual trait）和 `Luna-Flow/luna-generic`（代数 trait）；当你直接使用 `Luna-Flow/arithmetic` 的类型时，需要自行添加它。[快速上手](getting_started.md)将带你完成第一个程序。"
 
 #: manual/index.md:47
+msgid "Modules"
+msgstr "模块"
+
+#: manual/index.md:49
+msgid "The repository is a workspace of two modules. `Luna-Flow/floating` (directory `library/`) is the library: the numerical cores, the checked wrappers, `def`, `semantic`, `consistency` and the `internal` helpers. `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds the developer tools: expressions and corpus frontends, the conformance command line, the differential harness, the benchmarks and the documentation examples. The sections below say which module a package belongs to; their package names are import paths below the module name, so `bin_float` is `Luna-Flow/floating/bin_float` and `frontend/gda_expr` is `Luna-Flow/floating-tools/frontend/gda_expr`."
+msgstr "本仓库是由两个模块组成的工作区。`Luna-Flow/floating`（目录 `library/`）是库：数值核心、checked 封装、`def`、`semantic`、`consistency` 以及 `internal` 辅助包。`Luna-Flow/floating-tools`（目录 `tooling/`，与库同版本）包含开发者工具：表达式与语料前端、一致性命令行、差分测试工具、基准测试和文档示例。下文各节说明每个包属于哪个模块；包名是模块名之下的导入路径，因此 `bin_float` 是 `Luna-Flow/floating/bin_float`，`frontend/gda_expr` 是 `Luna-Flow/floating-tools/frontend/gda_expr`。"
+
+#: manual/index.md:60
 msgid "Pages"
 msgstr "页面"
 
-#: manual/index.md:49
+#: manual/index.md:62
 msgid "Each documented package has a tutorial (how to use it), an API reference (what you can call) and a design page (why it works this way). The four numerical cores also have a conformance page (which standard behaviour is verified, and how) and a performance page (measurements and their method)."
 msgstr "每个有文档的包都有教程（如何使用）、API 参考（可以调用什么）和设计页面（为何如此设计）。四个数值核心还有符合性页面（验证了哪些标准行为以及如何验证）和性能页面（测量结果及其方法）。"
 
-#: manual/index.md:54
+#: manual/index.md:67
 msgid "Numerical cores"
 msgstr "数值核心"
 
-#: manual/index.md:56
-#: manual/index.md:65
-#: manual/index.md:76
-#: manual/index.md:86
-#: manual/index.md:97
+#: manual/index.md:69
+#: manual/index.md:78
+#: manual/index.md:89
+#: manual/index.md:99
+#: manual/index.md:112
+#: manual/index.md:120
 msgid "Part"
 msgstr "组成部分"
 
-#: manual/index.md:56
-#: manual/index.md:65
-#: manual/index.md:76
-#: manual/index.md:86
-#: manual/index.md:97
+#: manual/index.md:69
+#: manual/index.md:78
+#: manual/index.md:89
+#: manual/index.md:99
+#: manual/index.md:112
+#: manual/index.md:120
 msgid "Tutorial"
 msgstr "教程"
 
-#: manual/index.md:56
-#: manual/index.md:65
-#: manual/index.md:76
-#: manual/index.md:86
-#: manual/index.md:97
+#: manual/index.md:69
+#: manual/index.md:78
+#: manual/index.md:89
+#: manual/index.md:99
+#: manual/index.md:112
+#: manual/index.md:120
 msgid "Design"
 msgstr "设计"
 
-#: manual/index.md:58
+#: manual/index.md:71
 msgid "`bin_float`: binary floating point, IEEE 754 binary operations, binary16/32/64/128 interchange"
 msgstr "`bin_float`：二进制浮点、IEEE 754 二进制运算、binary16/32/64/128 交换格式"
 
-#: manual/index.md:58
+#: manual/index.md:71
 msgid "[tutorial](tutorial/bin_float.md)"
 msgstr "[教程](tutorial/bin_float.md)"
 
-#: manual/index.md:58
+#: manual/index.md:71
 msgid "[API](api/bin_float.md)"
 msgstr "[API](api/bin_float.md)"
 
-#: manual/index.md:58
+#: manual/index.md:71
 msgid "[design](design/bin_float.md)"
 msgstr "[设计](design/bin_float.md)"
 
-#: manual/index.md:58
+#: manual/index.md:71
 msgid "[conformance](conformance/bin_float.md), [performance](performance/bin_float.md)"
 msgstr "[符合性](conformance/bin_float.md), [性能](performance/bin_float.md)"
 
-#: manual/index.md:59
+#: manual/index.md:72
 msgid "`decimal`: IEEE 754 decimal with per-operation flags and DPD/BID interchange"
 msgstr "`decimal`：IEEE 754 十进制，提供逐运算的标志以及 DPD/BID 交换格式"
 
-#: manual/index.md:59
+#: manual/index.md:72
 msgid "[tutorial](tutorial/decimal.md)"
 msgstr "[教程](tutorial/decimal.md)"
 
-#: manual/index.md:59
+#: manual/index.md:72
 msgid "[API](api/decimal.md)"
 msgstr "[API](api/decimal.md)"
 
-#: manual/index.md:59
+#: manual/index.md:72
 msgid "[design](design/decimal.md)"
 msgstr "[设计](design/decimal.md)"
 
-#: manual/index.md:59
+#: manual/index.md:72
 msgid "[conformance](conformance/decimal.md), [performance](performance/decimal.md)"
 msgstr "[符合性](conformance/decimal.md), [性能](performance/decimal.md)"
 
-#: manual/index.md:60
+#: manual/index.md:73
 msgid "`decimal_gda`: General Decimal Arithmetic with sticky status and traps"
 msgstr "`decimal_gda`：带粘滞状态与陷阱的 General Decimal Arithmetic"
 
-#: manual/index.md:60
+#: manual/index.md:73
 msgid "[tutorial](tutorial/decimal_gda.md)"
 msgstr "[教程](tutorial/decimal_gda.md)"
 
-#: manual/index.md:60
+#: manual/index.md:73
 msgid "[API](api/decimal_gda.md)"
 msgstr "[API](api/decimal_gda.md)"
 
-#: manual/index.md:60
+#: manual/index.md:73
 msgid "[design](design/decimal_gda.md)"
 msgstr "[设计](design/decimal_gda.md)"
 
-#: manual/index.md:60
+#: manual/index.md:73
 msgid "[conformance](conformance/decimal_gda.md), [performance](performance/decimal_gda.md)"
 msgstr "[符合性](conformance/decimal_gda.md), [性能](performance/decimal_gda.md)"
 
-#: manual/index.md:61
+#: manual/index.md:74
 msgid "`ball_float`: outward-rounded bare and decorated intervals (IEEE 1788)"
 msgstr "`ball_float`：外向舍入的裸区间与带装饰区间（IEEE 1788）"
 
-#: manual/index.md:61
+#: manual/index.md:74
 msgid "[tutorial](tutorial/ball_float.md)"
 msgstr "[教程](tutorial/ball_float.md)"
 
-#: manual/index.md:61
+#: manual/index.md:74
 msgid "[API](api/ball_float.md)"
 msgstr "[API](api/ball_float.md)"
 
-#: manual/index.md:61
+#: manual/index.md:74
 msgid "[design](design/ball_float.md)"
 msgstr "[设计](design/ball_float.md)"
 
-#: manual/index.md:61
+#: manual/index.md:74
 msgid "[conformance](conformance/ball_float.md), [performance](performance/ball_float.md)"
 msgstr "[符合性](conformance/ball_float.md), [性能](performance/ball_float.md)"
 
-#: manual/index.md:63
+#: manual/index.md:76
 msgid "Composition and shared vocabulary"
 msgstr "组合与共享词汇"
 
-#: manual/index.md:67
+#: manual/index.md:80
 msgid "`def`: `Sign`, `PartialOrder`, the `Floating` trait, re-exported `arithmetic` types"
 msgstr "`def`：`Sign`、`PartialOrder`、`Floating` trait 以及重新导出的 `arithmetic` 类型"
 
-#: manual/index.md:67
+#: manual/index.md:80
 msgid "[tutorial](tutorial/def.md)"
 msgstr "[教程](tutorial/def.md)"
 
-#: manual/index.md:67
+#: manual/index.md:80
 msgid "[API](api/def.md)"
 msgstr "[API](api/def.md)"
 
-#: manual/index.md:67
+#: manual/index.md:80
 msgid "[design](design/def.md)"
 msgstr "[设计](design/def.md)"
 
-#: manual/index.md:68
+#: manual/index.md:81
 msgid "`bin_float_checked`: binary pipelines that stop at the first error"
 msgstr "`bin_float_checked`：在首个错误处停止的二进制流水线"
 
-#: manual/index.md:68
+#: manual/index.md:81
 msgid "[tutorial](tutorial/bin_float_checked.md)"
 msgstr "[教程](tutorial/bin_float_checked.md)"
 
-#: manual/index.md:68
+#: manual/index.md:81
 msgid "[API](api/bin_float_checked.md)"
 msgstr "[API](api/bin_float_checked.md)"
 
-#: manual/index.md:68
+#: manual/index.md:81
 msgid "[design](design/bin_float_checked.md)"
 msgstr "[设计](design/bin_float_checked.md)"
 
-#: manual/index.md:69
+#: manual/index.md:82
 msgid "`decimal_checked`: IEEE decimal pipelines that accumulate flags"
 msgstr "`decimal_checked`：累积标志的 IEEE 十进制流水线"
 
-#: manual/index.md:69
+#: manual/index.md:82
 msgid "[tutorial](tutorial/decimal_checked.md)"
 msgstr "[教程](tutorial/decimal_checked.md)"
 
-#: manual/index.md:69
+#: manual/index.md:82
 msgid "[API](api/decimal_checked.md)"
 msgstr "[API](api/decimal_checked.md)"
 
-#: manual/index.md:69
+#: manual/index.md:82
 msgid "[design](design/decimal_checked.md)"
 msgstr "[设计](design/decimal_checked.md)"
 
-#: manual/index.md:70
+#: manual/index.md:83
 msgid "`decimal_gda_checked`: GDA pipelines that thread status and stop at traps"
 msgstr "`decimal_gda_checked`：串联传递状态并在陷阱处停止的 GDA 流水线"
 
-#: manual/index.md:70
+#: manual/index.md:83
 msgid "[tutorial](tutorial/decimal_gda_checked.md)"
 msgstr "[教程](tutorial/decimal_gda_checked.md)"
 
-#: manual/index.md:70
+#: manual/index.md:83
 msgid "[API](api/decimal_gda_checked.md)"
 msgstr "[API](api/decimal_gda_checked.md)"
 
-#: manual/index.md:70
+#: manual/index.md:83
 msgid "[design](design/decimal_gda_checked.md)"
 msgstr "[设计](design/decimal_gda_checked.md)"
 
-#: manual/index.md:71
+#: manual/index.md:84
 msgid "`ball_float_checked`: interval pipelines that stop at the first error"
 msgstr "`ball_float_checked`：在首个错误处停止的区间流水线"
 
-#: manual/index.md:71
+#: manual/index.md:84
 msgid "[tutorial](tutorial/ball_float_checked.md)"
 msgstr "[教程](tutorial/ball_float_checked.md)"
 
-#: manual/index.md:71
+#: manual/index.md:84
 msgid "[API](api/ball_float_checked.md)"
 msgstr "[API](api/ball_float_checked.md)"
 
-#: manual/index.md:71
+#: manual/index.md:84
 msgid "[design](design/ball_float_checked.md)"
 msgstr "[设计](design/ball_float_checked.md)"
 
-#: manual/index.md:72
+#: manual/index.md:85
 msgid "`semantic`: exact, representation-independent projection for comparisons across packages"
 msgstr "`semantic`：用于跨包比较的精确且与表示无关的投影"
 
-#: manual/index.md:72
+#: manual/index.md:85
 msgid "[tutorial](tutorial/semantic.md)"
 msgstr "[教程](tutorial/semantic.md)"
 
-#: manual/index.md:72
+#: manual/index.md:85
 msgid "[API](api/semantic.md)"
 msgstr "[API](api/semantic.md)"
 
-#: manual/index.md:72
+#: manual/index.md:85
 msgid "[design](design/semantic.md)"
 msgstr "[设计](design/semantic.md)"
 
-#: manual/index.md:74
-msgid "Expressions and corpus frontends"
-msgstr "表达式与语料前端"
+#: manual/index.md:87
+msgid "Tools module: expressions and corpus frontends"
+msgstr "工具模块：表达式与语料前端"
 
-#: manual/index.md:78
+#: manual/index.md:91
 msgid "`numeric_expr`: host-independent numeric expression syntax and evaluation"
 msgstr "`numeric_expr`：与宿主无关的数值表达式语法及求值"
 
-#: manual/index.md:78
+#: manual/index.md:91
 msgid "[tutorial](tutorial/numeric_expr.md)"
 msgstr "[教程](tutorial/numeric_expr.md)"
 
-#: manual/index.md:78
+#: manual/index.md:91
 msgid "[API](api/numeric_expr.md)"
 msgstr "[API](api/numeric_expr.md)"
 
-#: manual/index.md:78
+#: manual/index.md:91
 msgid "[design](design/numeric_expr.md)"
 msgstr "[设计](design/numeric_expr.md)"
 
-#: manual/index.md:79
+#: manual/index.md:92
 msgid "`frontend/gda_expr`: parse and execute GDA `.decTest` files"
 msgstr "`frontend/gda_expr`：解析并执行 GDA `.decTest` 文件"
 
-#: manual/index.md:79
+#: manual/index.md:92
 msgid "[tutorial](tutorial/frontend/gda_expr.md)"
 msgstr "[教程](tutorial/frontend/gda_expr.md)"
 
-#: manual/index.md:79
+#: manual/index.md:92
 msgid "[API](api/frontend/gda_expr.md)"
 msgstr "[API](api/frontend/gda_expr.md)"
 
-#: manual/index.md:79
+#: manual/index.md:92
 msgid "[design](design/frontend/gda_expr.md)"
 msgstr "[设计](design/frontend/gda_expr.md)"
 
-#: manual/index.md:80
+#: manual/index.md:93
 msgid "`frontend/itl_expr`: parse and execute ITF1788 interval test rows"
 msgstr "`frontend/itl_expr`：解析并执行 ITF1788 区间测试行"
 
-#: manual/index.md:80
+#: manual/index.md:93
 msgid "[tutorial](tutorial/frontend/itl_expr.md)"
 msgstr "[教程](tutorial/frontend/itl_expr.md)"
 
-#: manual/index.md:80
+#: manual/index.md:93
 msgid "[API](api/frontend/itl_expr.md)"
 msgstr "[API](api/frontend/itl_expr.md)"
 
-#: manual/index.md:80
+#: manual/index.md:93
 msgid "[design](design/frontend/itl_expr.md)"
 msgstr "[设计](design/frontend/itl_expr.md)"
 
-#: manual/index.md:81
+#: manual/index.md:94
 msgid "`frontend/mpfr_expr`: parse and execute pinned MPFR witnesses"
 msgstr "`frontend/mpfr_expr`：解析并执行固定版本的 MPFR 见证数据"
 
-#: manual/index.md:81
+#: manual/index.md:94
 msgid "[tutorial](tutorial/frontend/mpfr_expr.md)"
 msgstr "[教程](tutorial/frontend/mpfr_expr.md)"
 
-#: manual/index.md:81
+#: manual/index.md:94
 msgid "[API](api/frontend/mpfr_expr.md)"
 msgstr "[API](api/frontend/mpfr_expr.md)"
 
-#: manual/index.md:81
+#: manual/index.md:94
 msgid "[design](design/frontend/mpfr_expr.md)"
 msgstr "[设计](design/frontend/mpfr_expr.md)"
 
-#: manual/index.md:82
+#: manual/index.md:95
 msgid "`frontend/testfloat_expr`: parse and execute Berkeley TestFloat vectors"
 msgstr "`frontend/testfloat_expr`：解析并执行 Berkeley TestFloat 向量"
 
-#: manual/index.md:82
+#: manual/index.md:95
 msgid "[tutorial](tutorial/frontend/testfloat_expr.md)"
 msgstr "[教程](tutorial/frontend/testfloat_expr.md)"
 
-#: manual/index.md:82
+#: manual/index.md:95
 msgid "[API](api/frontend/testfloat_expr.md)"
 msgstr "[API](api/frontend/testfloat_expr.md)"
 
-#: manual/index.md:82
+#: manual/index.md:95
 msgid "[design](design/frontend/testfloat_expr.md)"
 msgstr "[设计](design/frontend/testfloat_expr.md)"
 
-#: manual/index.md:84
-msgid "Conformance command line"
-msgstr "符合性测试命令行"
+#: manual/index.md:97
+msgid "Tools module: conformance command line"
+msgstr "工具模块：一致性命令行"
 
-#: manual/index.md:88
+#: manual/index.md:101
 msgid "`cli`: native dispatcher for the four conformance backends"
 msgstr "`cli`：四个符合性测试后端的原生调度器"
 
-#: manual/index.md:88
+#: manual/index.md:101
 msgid "[tutorial](tutorial/cli.md)"
 msgstr "[教程](tutorial/cli.md)"
 
-#: manual/index.md:88
+#: manual/index.md:101
 msgid "[API](api/cli.md)"
 msgstr "[API](api/cli.md)"
 
-#: manual/index.md:88
+#: manual/index.md:101
 msgid "[design](design/cli.md)"
 msgstr "[设计](design/cli.md)"
 
-#: manual/index.md:89
+#: manual/index.md:102
+msgid "`cli/dispatch`: the argument scanning and exit code of `cli`, as a library"
+msgstr "`cli/dispatch`：`cli` 的参数扫描与退出码，作为库提供"
+
+#: manual/index.md:102
+msgid "[tutorial](tutorial/cli/dispatch.md)"
+msgstr "[教程](tutorial/cli/dispatch.md)"
+
+#: manual/index.md:102
+msgid "[API](api/cli/dispatch.md)"
+msgstr "[API](api/cli/dispatch.md)"
+
+#: manual/index.md:102
+msgid "[design](design/cli/dispatch.md)"
+msgstr "[设计](design/cli/dispatch.md)"
+
+#: manual/index.md:103
 msgid "`cli/gda_expr_cli`: file and output adapter for `.decTest` runs"
 msgstr "`cli/gda_expr_cli`：`.decTest` 运行的文件与输出适配器"
 
-#: manual/index.md:89
+#: manual/index.md:103
 msgid "[tutorial](tutorial/cli/gda_expr_cli.md)"
 msgstr "[教程](tutorial/cli/gda_expr_cli.md)"
 
-#: manual/index.md:89
+#: manual/index.md:103
 msgid "[API](api/cli/gda_expr_cli.md)"
 msgstr "[API](api/cli/gda_expr_cli.md)"
 
-#: manual/index.md:89
+#: manual/index.md:103
 msgid "[design](design/cli/gda_expr_cli.md)"
 msgstr "[设计](design/cli/gda_expr_cli.md)"
 
-#: manual/index.md:90
+#: manual/index.md:104
 msgid "`cli/itl_expr_cli`: file and JSON adapter for ITF1788 runs"
 msgstr "`cli/itl_expr_cli`：ITF1788 运行的文件与 JSON 适配器"
 
-#: manual/index.md:90
+#: manual/index.md:104
 msgid "[tutorial](tutorial/cli/itl_expr_cli.md)"
 msgstr "[教程](tutorial/cli/itl_expr_cli.md)"
 
-#: manual/index.md:90
+#: manual/index.md:104
 msgid "[API](api/cli/itl_expr_cli.md)"
 msgstr "[API](api/cli/itl_expr_cli.md)"
 
-#: manual/index.md:90
+#: manual/index.md:104
 msgid "[design](design/cli/itl_expr_cli.md)"
 msgstr "[设计](design/cli/itl_expr_cli.md)"
 
-#: manual/index.md:91
+#: manual/index.md:105
 msgid "`cli/mpfr_expr_cli`: command adapter for MPFR witness runs"
 msgstr "`cli/mpfr_expr_cli`：MPFR 见证数据运行的命令适配器"
 
-#: manual/index.md:91
+#: manual/index.md:105
 msgid "[tutorial](tutorial/cli/mpfr_expr_cli.md)"
 msgstr "[教程](tutorial/cli/mpfr_expr_cli.md)"
 
-#: manual/index.md:91
+#: manual/index.md:105
 msgid "[API](api/cli/mpfr_expr_cli.md)"
 msgstr "[API](api/cli/mpfr_expr_cli.md)"
 
-#: manual/index.md:91
+#: manual/index.md:105
 msgid "[design](design/cli/mpfr_expr_cli.md)"
 msgstr "[设计](design/cli/mpfr_expr_cli.md)"
 
-#: manual/index.md:92
+#: manual/index.md:106
 msgid "`differential`: seeded random differential harness against MPFR and libmpdec"
 msgstr "`differential`：针对 MPFR 和 libmpdec 的带种子随机差分运行器"
 
-#: manual/index.md:92
+#: manual/index.md:106
 msgid "[tutorial](tutorial/differential.md)"
 msgstr "[教程](tutorial/differential.md)"
 
-#: manual/index.md:92
+#: manual/index.md:106
 msgid "[API](api/differential.md)"
 msgstr "[API](api/differential.md)"
 
-#: manual/index.md:92
+#: manual/index.md:106
 msgid "[design](design/differential.md)"
 msgstr "[设计](design/differential.md)"
 
-#: manual/index.md:93
+#: manual/index.md:107
+msgid "`differential/harness`: the batches, specification and `run` of `differential`, as a library"
+msgstr "`differential/harness`：`differential` 的批、规格与 `run`，作为库提供"
+
+#: manual/index.md:107
+msgid "[tutorial](tutorial/differential/harness.md)"
+msgstr "[教程](tutorial/differential/harness.md)"
+
+#: manual/index.md:107
+msgid "[API](api/differential/harness.md)"
+msgstr "[API](api/differential/harness.md)"
+
+#: manual/index.md:107
+msgid "[design](design/differential/harness.md)"
+msgstr "[设计](design/differential/harness.md)"
+
+#: manual/index.md:108
 msgid "`cli/testfloat_expr_cli`: command adapter for TestFloat runs"
 msgstr "`cli/testfloat_expr_cli`：TestFloat 运行的命令适配器"
 
-#: manual/index.md:93
+#: manual/index.md:108
 msgid "[tutorial](tutorial/cli/testfloat_expr_cli.md)"
 msgstr "[教程](tutorial/cli/testfloat_expr_cli.md)"
 
-#: manual/index.md:93
+#: manual/index.md:108
 msgid "[API](api/cli/testfloat_expr_cli.md)"
 msgstr "[API](api/cli/testfloat_expr_cli.md)"
 
-#: manual/index.md:93
+#: manual/index.md:108
 msgid "[design](design/cli/testfloat_expr_cli.md)"
 msgstr "[设计](design/cli/testfloat_expr_cli.md)"
 
-#: manual/index.md:95
-msgid "Infrastructure and evidence"
-msgstr "基础设施与证据"
+#: manual/index.md:110
+msgid "Library infrastructure"
+msgstr "库的基础设施"
 
-#: manual/index.md:99
+#: manual/index.md:114
 msgid "`internal`: exact rationals, big-integer, parsing, normalization and rounding helpers"
 msgstr "`internal`：精确有理数、大整数、解析、规范化与舍入辅助函数"
 
-#: manual/index.md:99
+#: manual/index.md:114
 msgid "[tutorial](tutorial/internal.md)"
 msgstr "[教程](tutorial/internal.md)"
 
-#: manual/index.md:99
+#: manual/index.md:114
 msgid "[API](api/internal.md)"
 msgstr "[API](api/internal.md)"
 
-#: manual/index.md:99
+#: manual/index.md:114
 msgid "[design](design/internal.md)"
 msgstr "[设计](design/internal.md)"
 
-#: manual/index.md:100
-msgid "`internal/conformance`: source locations, deterministic shards, case dispositions and summaries"
-msgstr "`internal/conformance`：源位置、确定性分片、用例处置与汇总"
-
-#: manual/index.md:100
-msgid "[tutorial](tutorial/internal/conformance.md)"
-msgstr "[教程](tutorial/internal/conformance.md)"
-
-#: manual/index.md:100
-msgid "[API](api/internal/conformance.md)"
-msgstr "[API](api/internal/conformance.md)"
-
-#: manual/index.md:100
-msgid "[design](design/internal/conformance.md)"
-msgstr "[设计](design/internal/conformance.md)"
-
-#: manual/index.md:101
+#: manual/index.md:115
 msgid "`internal/decimal_kernel`: exact integer arithmetic on decimal coefficients, shared by `decimal` and `decimal_gda`"
 msgstr "`internal/decimal_kernel`：十进制系数上的精确整数运算，由 `decimal` 和 `decimal_gda` 共用"
 
-#: manual/index.md:101
+#: manual/index.md:115
 msgid "[tutorial](tutorial/internal/decimal_kernel.md)"
 msgstr "[教程](tutorial/internal/decimal_kernel.md)"
 
-#: manual/index.md:101
+#: manual/index.md:115
 msgid "[API](api/internal/decimal_kernel.md)"
 msgstr "[API](api/internal/decimal_kernel.md)"
 
-#: manual/index.md:101
+#: manual/index.md:115
 msgid "[design](design/internal/decimal_kernel.md)"
 msgstr "[设计](design/internal/decimal_kernel.md)"
 
-#: manual/index.md:102
-msgid "`internal/runner_cli`: shared command-line options, files, diagnostics and JSON"
-msgstr "`internal/runner_cli`：共享的命令行选项、文件、诊断信息与 JSON"
-
-#: manual/index.md:102
-msgid "[tutorial](tutorial/internal/runner_cli.md)"
-msgstr "[教程](tutorial/internal/runner_cli.md)"
-
-#: manual/index.md:102
-msgid "[API](api/internal/runner_cli.md)"
-msgstr "[API](api/internal/runner_cli.md)"
-
-#: manual/index.md:102
-msgid "[design](design/internal/runner_cli.md)"
-msgstr "[设计](design/internal/runner_cli.md)"
-
-#: manual/index.md:103
+#: manual/index.md:116
 msgid "`consistency`: white-box cross-package laws and API audits"
 msgstr "`consistency`：白盒的跨包定律与 API 审计"
 
-#: manual/index.md:103
+#: manual/index.md:116
 msgid "[tutorial](tutorial/consistency.md)"
 msgstr "[教程](tutorial/consistency.md)"
 
-#: manual/index.md:103
+#: manual/index.md:116
 msgid "[API](api/consistency.md)"
 msgstr "[API](api/consistency.md)"
 
-#: manual/index.md:103
+#: manual/index.md:116
 msgid "[design](design/consistency.md)"
 msgstr "[设计](design/consistency.md)"
 
-#: manual/index.md:104
+#: manual/index.md:118
+msgid "Tools module: infrastructure and evidence"
+msgstr "工具模块：基础设施与证据"
+
+#: manual/index.md:122
+msgid "`internal/conformance`: source locations, deterministic shards, case dispositions and summaries"
+msgstr "`internal/conformance`：源位置、确定性分片、用例处置与汇总"
+
+#: manual/index.md:122
+msgid "[tutorial](tutorial/internal/conformance.md)"
+msgstr "[教程](tutorial/internal/conformance.md)"
+
+#: manual/index.md:122
+msgid "[API](api/internal/conformance.md)"
+msgstr "[API](api/internal/conformance.md)"
+
+#: manual/index.md:122
+msgid "[design](design/internal/conformance.md)"
+msgstr "[设计](design/internal/conformance.md)"
+
+#: manual/index.md:123
+msgid "`internal/runner_cli`: shared command-line options, files, diagnostics and JSON"
+msgstr "`internal/runner_cli`：共享的命令行选项、文件、诊断信息与 JSON"
+
+#: manual/index.md:123
+msgid "[tutorial](tutorial/internal/runner_cli.md)"
+msgstr "[教程](tutorial/internal/runner_cli.md)"
+
+#: manual/index.md:123
+msgid "[API](api/internal/runner_cli.md)"
+msgstr "[API](api/internal/runner_cli.md)"
+
+#: manual/index.md:123
+msgid "[design](design/internal/runner_cli.md)"
+msgstr "[设计](design/internal/runner_cli.md)"
+
+#: manual/index.md:124
 msgid "`doc_examples`: executable documentation examples run by `just docs`"
 msgstr "`doc_examples`：由 `just docs` 运行的可执行文档示例"
 
-#: manual/index.md:104
+#: manual/index.md:124
 msgid "[tutorial](tutorial/doc_examples.md)"
 msgstr "[教程](tutorial/doc_examples.md)"
 
-#: manual/index.md:104
+#: manual/index.md:124
 msgid "[API](api/doc_examples.md)"
 msgstr "[API](api/doc_examples.md)"
 
-#: manual/index.md:104
+#: manual/index.md:124
 msgid "[design](design/doc_examples.md)"
 msgstr "[设计](design/doc_examples.md)"
 
-#: manual/index.md:105
+#: manual/index.md:125
 msgid "`bench`: shared Maremark benchmark infrastructure"
 msgstr "`bench`：共享的 Maremark 基准测试基础设施"
 
-#: manual/index.md:105
+#: manual/index.md:125
 msgid "[tutorial](tutorial/bench.md)"
 msgstr "[教程](tutorial/bench.md)"
 
-#: manual/index.md:105
+#: manual/index.md:125
 msgid "[API](api/bench.md)"
 msgstr "[API](api/bench.md)"
 
-#: manual/index.md:105
+#: manual/index.md:125
 msgid "[design](design/bench.md)"
 msgstr "[设计](design/bench.md)"
 
-#: manual/index.md:106
+#: manual/index.md:126
 msgid "`bench/bin_float`: binary arithmetic and elementary-function benchmarks"
 msgstr "`bench/bin_float`：二进制算术与初等函数基准测试"
 
-#: manual/index.md:106
+#: manual/index.md:126
 msgid "[tutorial](tutorial/bench/bin_float.md)"
 msgstr "[教程](tutorial/bench/bin_float.md)"
 
-#: manual/index.md:106
+#: manual/index.md:126
 msgid "[API](api/bench/bin_float.md)"
 msgstr "[API](api/bench/bin_float.md)"
 
-#: manual/index.md:106
+#: manual/index.md:126
 msgid "[design](design/bench/bin_float.md)"
 msgstr "[设计](design/bench/bin_float.md)"
 
-#: manual/index.md:107
+#: manual/index.md:127
 msgid "`bench/decimal`: IEEE decimal benchmarks"
 msgstr "`bench/decimal`：IEEE 十进制基准测试"
 
-#: manual/index.md:107
+#: manual/index.md:127
 msgid "[tutorial](tutorial/bench/decimal.md)"
 msgstr "[教程](tutorial/bench/decimal.md)"
 
-#: manual/index.md:107
+#: manual/index.md:127
 msgid "[API](api/bench/decimal.md)"
 msgstr "[API](api/bench/decimal.md)"
 
-#: manual/index.md:107
+#: manual/index.md:127
 msgid "[design](design/bench/decimal.md)"
 msgstr "[设计](design/bench/decimal.md)"
 
-#: manual/index.md:108
+#: manual/index.md:128
 msgid "`bench/decimal_gda`: GDA decimal benchmarks"
 msgstr "`bench/decimal_gda`：GDA 十进制基准测试"
 
-#: manual/index.md:108
+#: manual/index.md:128
 msgid "[tutorial](tutorial/bench/decimal_gda.md)"
 msgstr "[教程](tutorial/bench/decimal_gda.md)"
 
-#: manual/index.md:108
+#: manual/index.md:128
 msgid "[API](api/bench/decimal_gda.md)"
 msgstr "[API](api/bench/decimal_gda.md)"
 
-#: manual/index.md:108
+#: manual/index.md:128
 msgid "[design](design/bench/decimal_gda.md)"
 msgstr "[设计](design/bench/decimal_gda.md)"
 
-#: manual/index.md:109
+#: manual/index.md:129
 msgid "`bench/ball_float`: interval arithmetic benchmarks"
 msgstr "`bench/ball_float`：区间算术基准测试"
 
-#: manual/index.md:109
+#: manual/index.md:129
 msgid "[tutorial](tutorial/bench/ball_float.md)"
 msgstr "[教程](tutorial/bench/ball_float.md)"
 
-#: manual/index.md:109
+#: manual/index.md:129
 msgid "[API](api/bench/ball_float.md)"
 msgstr "[API](api/bench/ball_float.md)"
 
-#: manual/index.md:109
+#: manual/index.md:129
 msgid "[design](design/bench/ball_float.md)"
 msgstr "[设计](design/bench/ball_float.md)"
 
-#: manual/index.md:110
+#: manual/index.md:130
 msgid "`bench/external`: timing against MPFR and libmpdec on shared operands"
 msgstr "`bench/external`：在共用操作数上与 MPFR 和 libmpdec 比较计时"
 
-#: manual/index.md:110
+#: manual/index.md:130
 msgid "[tutorial](tutorial/bench/external.md)"
 msgstr "[教程](tutorial/bench/external.md)"
 
-#: manual/index.md:110
+#: manual/index.md:130
 msgid "[API](api/bench/external.md)"
 msgstr "[API](api/bench/external.md)"
 
-#: manual/index.md:110
+#: manual/index.md:130
 msgid "[design](design/bench/external.md), [performance](performance/bench/external.md)"
 msgstr "[设计](design/bench/external.md), [性能](performance/bench/external.md)"
 
-#: manual/index.md:112
+#: manual/index.md:132
 msgid "Guides"
 msgstr "指南"
 
-#: manual/index.md:114
+#: manual/index.md:134
 msgid "Guide"
 msgstr "指南"
 
-#: manual/index.md:114
+#: manual/index.md:134
 msgid "Read it for"
 msgstr "阅读目的"
 
-#: manual/index.md:116
+#: manual/index.md:136
 msgid "[Getting started](getting_started.md)"
 msgstr "[快速上手](getting_started.md)"
 
-#: manual/index.md:116
+#: manual/index.md:136
 msgid "choosing a package, installing, first values, contexts and failure models"
 msgstr "选择包、安装、初始值、上下文与失败模型"
 
-#: manual/index.md:117
+#: manual/index.md:137
 msgid "[Numeric semantics](numeric_semantics.md)"
 msgstr "[数值语义](numeric_semantics.md)"
 
-#: manual/index.md:117
+#: manual/index.md:137
 msgid "the shared vocabulary: exact value and rounded result, rounding functions, ulp and unit roundoff, flags, quantum, signed zero, NaN, enclosures"
 msgstr "共享术语：精确值与舍入结果、舍入函数、ulp 与单位舍入误差、标志、量子、带符号零、NaN、包络"
 
-#: manual/index.md:118
+#: manual/index.md:138
 msgid "[Architecture](architecture.md)"
 msgstr "[架构](architecture.md)"
 
-#: manual/index.md:118
+#: manual/index.md:138
 msgid "package layers, the numeric core pipeline, certified elementary functions, invariants"
 msgstr "包的分层、数值核心流水线、经认证的初等函数、不变量"
 
-#: manual/index.md:119
+#: manual/index.md:139
 msgid "[Verification](verification.md)"
 msgstr "[验证](verification.md)"
 
-#: manual/index.md:119
+#: manual/index.md:139
 msgid "the gates, the published conformance claims and how to reproduce them"
 msgstr "检查关卡、已发布的符合性声明及其复现方法"
 
-#: manual/index.md:120
+#: manual/index.md:140
 msgid "[Performance audit](performance_audit.md)"
 msgstr "[性能审计](performance_audit.md)"
 
-#: manual/index.md:120
+#: manual/index.md:140
 msgid "proofs and evidence for the optimized arithmetic paths"
 msgstr "优化算术路径的证明与证据"
 
-#: manual/index.md:121
+#: manual/index.md:141
 msgid "[External baseline](performance/bench/external.md)"
 msgstr "[外部基线](performance/bench/external.md)"
 
-#: manual/index.md:121
+#: manual/index.md:141
 msgid "`floating` timed against MPFR and libmpdec: method, machine, ratios"
 msgstr "`floating` 与 MPFR 和 libmpdec 的计时比较：方法、机器、比值"
 
-#: manual/index.md:122
+#: manual/index.md:142
 msgid "[Repository conventions](conventions.md)"
 msgstr "[仓库约定](conventions.md)"
 
-#: manual/index.md:122
+#: manual/index.md:142
 msgid "documentation rules and the review checklist"
 msgstr "文档规则与评审清单"
 
-#: manual/index.md:124
+#: manual/index.md:144
 msgid "The application surface is the numerical cores, `def` and the checked wrappers; `semantic` and `numeric_expr` are provisional integration surfaces. The other packages publish interfaces because repository tools compose them, and their design pages state narrower stability promises."
 msgstr "应用接口包括各数值核心、`def` 和 checked 包装器；`semantic` 和 `numeric_expr` 是暂定的集成接口。其他包之所以公开接口，是因为仓库工具需要组合它们，其设计页面会给出范围更窄的稳定性承诺。"
 
-#: manual/index.md:129
+#: manual/index.md:149
 msgid "Exported types"
 msgstr "导出的类型"
 
-#: manual/index.md:131
+#: manual/index.md:151
 msgid "Binary floating point (`bin_float`)"
 msgstr "二进制浮点（`bin_float`）"
 
-#: manual/index.md:133
+#: manual/index.md:153
 msgid "Values: `BinFloat` (signed dyadic number with a precision, signed zeros, infinities and NaNs with payloads) and its exact coefficient `BinCoeff`"
 msgstr "值：`BinFloat`（带精度的有符号二进有理数、有符号零、无穷以及带载荷的 NaN）及其精确系数 `BinCoeff`"
 
-#: manual/index.md:135
+#: manual/index.md:155
 msgid "Contexts and status: `BinaryContext`, `BinaryRoundingMode`, `TininessDetection`, `BinaryFlags`"
 msgstr "上下文与状态：`BinaryContext`、`BinaryRoundingMode`、`TininessDetection`、`BinaryFlags`"
 
-#: manual/index.md:137
+#: manual/index.md:157
 msgid "Interchange: `BinaryInterchange`, `BinaryInterchangeFormat` (binary16, 32, 64, 128 and wider)"
 msgstr "交换格式：`BinaryInterchange`、`BinaryInterchangeFormat`（binary16、32、64、128 及更宽的格式）"
 
-#: manual/index.md:139
+#: manual/index.md:159
 msgid "Limits: `binary_implementation_e_min`, `binary_implementation_e_max`, `binary_precision_max`"
 msgstr "限值：`binary_implementation_e_min`、`binary_implementation_e_max`、`binary_precision_max`"
 
-#: manual/index.md:142
+#: manual/index.md:162
 msgid "Decimal floating point (`decimal`, `decimal_gda`)"
 msgstr "十进制浮点（`decimal`、`decimal_gda`）"
 
-#: manual/index.md:144
+#: manual/index.md:164
 msgid "IEEE 754 decimal: `Decimal`, `DecimalContext`, `DecimalRoundingMode`, `DecimalTininessDetection`, `DecimalFlags`, `DecimalSignal`, and the DPD/BID interchange types `DecimalInterchange`, `DecimalInterchangeFormat`, `DecimalInterchangeEncoding`"
 msgstr "IEEE 754 十进制：`Decimal`、`DecimalContext`、`DecimalRoundingMode`、`DecimalTininessDetection`、`DecimalFlags`、`DecimalSignal`，以及 DPD/BID 交换格式类型 `DecimalInterchange`、`DecimalInterchangeFormat`、`DecimalInterchangeEncoding`"
 
-#: manual/index.md:148
+#: manual/index.md:168
 msgid "General Decimal Arithmetic: `Decimal`, `GdaContext`, `GdaRoundingMode`, `GdaFlags`, `GdaSignal`, `GdaTrapSet`, `GdaOutcome`, `GdaInterchange`, `GdaInterchangeFormat`, and one free function per GDA operation (`add`, `divide`, `quantize`, `power`, ...)"
 msgstr "General Decimal Arithmetic：`Decimal`、`GdaContext`、`GdaRoundingMode`、`GdaFlags`、`GdaSignal`、`GdaTrapSet`、`GdaOutcome`、`GdaInterchange`、`GdaInterchangeFormat`，以及每个 GDA 运算对应的一个自由函数（`add`、`divide`、`quantize`、`power`……）"
 
-#: manual/index.md:153
+#: manual/index.md:173
 msgid "Intervals (`ball_float`)"
 msgstr "区间（`ball_float`）"
 
-#: manual/index.md:155
+#: manual/index.md:175
 msgid "`BallFloat` (bare interval), `BallFloatDecorated` with its `Decoration`, `OverlapState`"
 msgstr "`BallFloat`（裸区间）、带有 `Decoration` 的 `BallFloatDecorated`、`OverlapState`"
 
-#: manual/index.md:157
+#: manual/index.md:177
 msgid "`BallContext` and `BallFlags` for intervals in a target format"
 msgstr "用于目标格式中区间的 `BallContext` 与 `BallFlags`"
 
-#: manual/index.md:159
+#: manual/index.md:179
 msgid "Pipelines and shared vocabulary"
 msgstr "流水线与共享词汇"
 
-#: manual/index.md:161
+#: manual/index.md:181
 msgid "Checked wrappers: `BinFloatResult`, `DecimalChecked`, `GdaDecimalChecked`, `BallFloatResult`"
 msgstr "checked 包装器：`BinFloatResult`、`DecimalChecked`、`GdaDecimalChecked`、`BallFloatResult`"
 
-#: manual/index.md:163
+#: manual/index.md:183
 msgid "`def`: `Sign`, `PartialOrder`, the `Floating` trait, `is_finite`, `is_infinite`, `is_nan`, `is_zero`, and the re-exported `RoundingMode`, `ArithmeticContext` and `ArithmeticError` of `Luna-Flow/arithmetic`"
 msgstr "`def`：`Sign`、`PartialOrder`、`Floating` trait、`is_finite`、`is_infinite`、`is_nan`、`is_zero`，以及从 `Luna-Flow/arithmetic` 重新导出的 `RoundingMode`、`ArithmeticContext` 和 `ArithmeticError`"
 
-#: manual/index.md:168
+#: manual/index.md:188
 msgid "`numeric_expr`: `Expr`, `Literal`, `Operation`, `SourceSpan`, `EvalError` and `evaluate`"
 msgstr "`numeric_expr`：`Expr`、`Literal`、`Operation`、`SourceSpan`、`EvalError` 和 `evaluate`"
 
-#: manual/index.md:171
+#: manual/index.md:191
 msgid "Where to read next"
 msgstr "接下来读什么"
 
-#: manual/index.md:173
+#: manual/index.md:193
 msgid "**New to the library.** Read [getting started](getting_started.md), then the tutorial of the package you chose, for example the [`bin_float` tutorial](tutorial/bin_float.md) or the [`decimal` tutorial](tutorial/decimal.md). Keep [numeric semantics](numeric_semantics.md) open for the vocabulary."
 msgstr "**初次接触本库。** 阅读[快速上手](getting_started.md)，然后阅读所选包的教程，例如 [`bin_float` 教程](tutorial/bin_float.md)或 [`decimal` 教程](tutorial/decimal.md)。阅读时可随时查阅[数值语义](numeric_semantics.md)中的术语。"
 
-#: manual/index.md:178
+#: manual/index.md:198
 msgid "**Using it in an application or library.** Read [numeric semantics](numeric_semantics.md) once, then work from the API pages of your packages. Before you rely on a standard behaviour, check the matching conformance page; for pipelines, read the tutorial of the checked wrapper."
 msgstr "**在应用或库中使用。** 先通读一遍[数值语义](numeric_semantics.md)，然后以所用包的 API 页面为依据进行开发。在依赖某项标准行为之前，请查看对应的符合性页面；对于流水线，请阅读相应 checked 包装器的教程。"
 
-#: manual/index.md:183
+#: manual/index.md:203
 msgid "**Contributing.** Read [architecture](architecture.md), [verification](verification.md) and the [repository conventions](conventions.md), then the design page of the package you change. Changes to an optimized path also need the [performance audit](performance_audit.md) and the package's performance page."
 msgstr "**参与贡献。** 阅读[架构](architecture.md)、[验证](verification.md)和[仓库约定](conventions.md)，然后阅读你要修改的包的设计页面。修改优化路径时，还需阅读[性能审计](performance_audit.md)以及该包的性能页面。"
 
-#: manual/index.md:190
+#: manual/index.md:210
 msgid "Evidence snapshot"
 msgstr "证据快照"
 
-#: manual/index.md:192
+#: manual/index.md:212
 msgid "The pinned GDA `official` corpus passes **64,986/64,986 legal executable scalar rows**, and `official0` passes 16,124/16,124. The 141 `#` placeholder or non-scalar rows are diagnostic exclusions."
 msgstr "固定版本的 GDA `official` 语料通过了 **64,986/64,986 条合法的可执行标量行**，`official0` 通过了 16,124/16,124 条。其余 141 条 `#` 占位行或非标量行属于诊断性排除项。"
 
-#: manual/index.md:195
+#: manual/index.md:215
 msgid "The binary TestFloat level-1 matrix passes 254,227,872 vectors across binary16/32/64/128, including fused multiply-add, remainder, round to integral, integer conversions and the comparison predicates, plus pinned MPFR square-root and elementary-function witnesses."
 msgstr "二进制 TestFloat level-1 矩阵在 binary16/32/64/128 上通过了 254,227,872 个向量，涵盖融合乘加、余数、舍入到整数、整数转换和比较谓词，此外还通过了固定版本的 MPFR 平方根与初等函数见证数据。"
 
-#: manual/index.md:199
+#: manual/index.md:219
 msgid "The strict ITF1788 aggregate passes 4,656/4,656 selected interval cases."
 msgstr "严格的 ITF1788 汇总通过了 4,656/4,656 个选定的区间用例。"
 
-#: manual/index.md:200
+#: manual/index.md:220
 msgid "The IEEE decimal gate covers decimal32/64/128 DPD and BID encodings, flags and arithmetic on four targets."
 msgstr "IEEE 十进制检查关卡在四个目标平台上覆盖 decimal32/64/128 的 DPD 与 BID 编码、标志和算术。"
 
-#: manual/index.md:203
+#: manual/index.md:223
 msgid "These finite results do not imply support for every operation, every future corpus revision or every real input. Read the conformance page of a package before turning a result into a compatibility claim."
 msgstr "这些有限的结果并不意味着支持每一种运算、每一个未来的语料修订版或每一个实数输入。在将某项结果转化为兼容性声明之前，请先阅读该包的符合性页面。"
 
-#: manual/index.md:207
+#: manual/index.md:227
 msgid "Validation"
 msgstr "校验"
 
-#: manual/index.md:209
+#: manual/index.md:229
 msgid "Recommended checks before a release, from the repository root:"
 msgstr "发布前建议在仓库根目录下运行的检查："
 
-#: manual/index.md:219
+#: manual/index.md:239
 msgid "[Verification](verification.md) explains each gate and how to reproduce a published result."
 msgstr "[验证](verification.md)解释了每个关卡以及如何复现已发布的结果。"
 
-#: manual/index.md:222
+#: manual/index.md:242
 msgid "`pkg.generated.mbti` defines what is public, and source and tests define behaviour; if a page and the generated interface disagree, the interface wins."
 msgstr "`pkg.generated.mbti` 定义哪些内容是公开的，源码和测试定义行为；如果页面与生成的接口不一致，以接口为准。"
 
@@ -20714,7 +20802,7 @@ msgstr "本教程教你使用有保证的包络进行计算：构造一个已知
 #: manual/tutorial/bin_float.md:12
 #: manual/tutorial/bin_float_checked.md:11
 #: manual/tutorial/cli.md:7
-#: manual/tutorial/cli/dispatch.md:6
+#: manual/tutorial/cli/dispatch.md:7
 #: manual/tutorial/cli/gda_expr_cli.md:8
 #: manual/tutorial/cli/itl_expr_cli.md:7
 #: manual/tutorial/cli/mpfr_expr_cli.md:7
@@ -20726,7 +20814,7 @@ msgstr "本教程教你使用有保证的包络进行计算：构造一个已知
 #: manual/tutorial/decimal_gda_checked.md:13
 #: manual/tutorial/def.md:12
 #: manual/tutorial/differential.md:8
-#: manual/tutorial/differential/harness.md:6
+#: manual/tutorial/differential/harness.md:8
 #: manual/tutorial/doc_examples.md:6
 #: manual/tutorial/frontend/gda_expr.md:10
 #: manual/tutorial/frontend/itl_expr.md:8
@@ -20752,7 +20840,7 @@ msgstr "我想要"
 #: manual/tutorial/bin_float.md:12
 #: manual/tutorial/bin_float_checked.md:11
 #: manual/tutorial/cli.md:7
-#: manual/tutorial/cli/dispatch.md:6
+#: manual/tutorial/cli/dispatch.md:7
 #: manual/tutorial/cli/gda_expr_cli.md:8
 #: manual/tutorial/cli/itl_expr_cli.md:7
 #: manual/tutorial/cli/mpfr_expr_cli.md:7
@@ -20764,7 +20852,7 @@ msgstr "我想要"
 #: manual/tutorial/decimal_gda_checked.md:13
 #: manual/tutorial/def.md:12
 #: manual/tutorial/differential.md:8
-#: manual/tutorial/differential/harness.md:6
+#: manual/tutorial/differential/harness.md:8
 #: manual/tutorial/doc_examples.md:6
 #: manual/tutorial/frontend/gda_expr.md:10
 #: manual/tutorial/frontend/itl_expr.md:8
@@ -20858,6 +20946,7 @@ msgstr "报告多步计算中的第一个失败"
 #: manual/tutorial/bin_float.md:25
 #: manual/tutorial/bin_float_checked.md:21
 #: manual/tutorial/cli.md:15
+#: manual/tutorial/cli/dispatch.md:14
 #: manual/tutorial/cli/gda_expr_cli.md:17
 #: manual/tutorial/cli/itl_expr_cli.md:15
 #: manual/tutorial/cli/mpfr_expr_cli.md:15
@@ -20869,6 +20958,7 @@ msgstr "报告多步计算中的第一个失败"
 #: manual/tutorial/decimal_gda_checked.md:22
 #: manual/tutorial/def.md:22
 #: manual/tutorial/differential.md:17
+#: manual/tutorial/differential/harness.md:15
 #: manual/tutorial/doc_examples.md:13
 #: manual/tutorial/frontend/gda_expr.md:20
 #: manual/tutorial/frontend/itl_expr.md:17
@@ -20909,7 +20999,7 @@ msgstr "没有任何 53 位的 `BinFloat` 等于 $1/3$，因此结果是包含�
 
 #: manual/tutorial/ball_float.md:87
 #: manual/tutorial/ball_float_checked.md:60
-#: manual/tutorial/bench.md:79
+#: manual/tutorial/bench.md:75
 #: manual/tutorial/bench/ball_float.md:31
 #: manual/tutorial/bench/bin_float.md:34
 #: manual/tutorial/bench/decimal.md:31
@@ -20918,10 +21008,11 @@ msgstr "没有任何 53 位的 `BinFloat` 等于 $1/3$，因此结果是包含�
 #: manual/tutorial/bin_float.md:63
 #: manual/tutorial/bin_float_checked.md:57
 #: manual/tutorial/cli.md:38
-#: manual/tutorial/cli/gda_expr_cli.md:58
-#: manual/tutorial/cli/itl_expr_cli.md:41
-#: manual/tutorial/cli/mpfr_expr_cli.md:41
-#: manual/tutorial/cli/testfloat_expr_cli.md:55
+#: manual/tutorial/cli/dispatch.md:36
+#: manual/tutorial/cli/gda_expr_cli.md:67
+#: manual/tutorial/cli/itl_expr_cli.md:47
+#: manual/tutorial/cli/mpfr_expr_cli.md:49
+#: manual/tutorial/cli/testfloat_expr_cli.md:62
 #: manual/tutorial/consistency.md:27
 #: manual/tutorial/decimal.md:56
 #: manual/tutorial/decimal_checked.md:56
@@ -20929,15 +21020,16 @@ msgstr "没有任何 53 位的 `BinFloat` 等于 $1/3$，因此结果是包含�
 #: manual/tutorial/decimal_gda_checked.md:56
 #: manual/tutorial/def.md:49
 #: manual/tutorial/differential.md:39
+#: manual/tutorial/differential/harness.md:34
 #: manual/tutorial/doc_examples.md:25
-#: manual/tutorial/frontend/gda_expr.md:56
-#: manual/tutorial/frontend/itl_expr.md:53
-#: manual/tutorial/frontend/mpfr_expr.md:52
-#: manual/tutorial/frontend/testfloat_expr.md:54
+#: manual/tutorial/frontend/gda_expr.md:54
+#: manual/tutorial/frontend/itl_expr.md:51
+#: manual/tutorial/frontend/mpfr_expr.md:50
+#: manual/tutorial/frontend/testfloat_expr.md:52
 #: manual/tutorial/internal.md:53
 #: manual/tutorial/internal/conformance.md:55
-#: manual/tutorial/internal/runner_cli.md:100
-#: manual/tutorial/numeric_expr.md:57
+#: manual/tutorial/internal/runner_cli.md:110
+#: manual/tutorial/numeric_expr.md:55
 #: manual/tutorial/semantic.md:51
 msgid "Everyday tasks"
 msgstr "日常任务"
@@ -21012,18 +21104,20 @@ msgstr "`BallContext` 描述一种二进制格式（精度和指数范围）。`
 
 #: manual/tutorial/ball_float.md:283
 #: manual/tutorial/ball_float_checked.md:168
-#: manual/tutorial/bench.md:198
+#: manual/tutorial/bench.md:194
 #: manual/tutorial/bench/ball_float.md:48
 #: manual/tutorial/bench/bin_float.md:51
 #: manual/tutorial/bench/decimal.md:48
 #: manual/tutorial/bench/decimal_gda.md:50
+#: manual/tutorial/bench/external.md:116
 #: manual/tutorial/bin_float.md:232
 #: manual/tutorial/bin_float_checked.md:182
 #: manual/tutorial/cli.md:73
-#: manual/tutorial/cli/gda_expr_cli.md:100
-#: manual/tutorial/cli/itl_expr_cli.md:70
-#: manual/tutorial/cli/mpfr_expr_cli.md:62
-#: manual/tutorial/cli/testfloat_expr_cli.md:81
+#: manual/tutorial/cli/dispatch.md:60
+#: manual/tutorial/cli/gda_expr_cli.md:109
+#: manual/tutorial/cli/itl_expr_cli.md:76
+#: manual/tutorial/cli/mpfr_expr_cli.md:70
+#: manual/tutorial/cli/testfloat_expr_cli.md:88
 #: manual/tutorial/consistency.md:64
 #: manual/tutorial/decimal.md:267
 #: manual/tutorial/decimal_checked.md:167
@@ -21031,15 +21125,16 @@ msgstr "`BallContext` 描述一种二进制格式（精度和指数范围）。`
 #: manual/tutorial/decimal_gda_checked.md:164
 #: manual/tutorial/def.md:166
 #: manual/tutorial/differential.md:173
+#: manual/tutorial/differential/harness.md:50
 #: manual/tutorial/doc_examples.md:52
-#: manual/tutorial/frontend/gda_expr.md:225
-#: manual/tutorial/frontend/itl_expr.md:153
-#: manual/tutorial/frontend/mpfr_expr.md:147
-#: manual/tutorial/frontend/testfloat_expr.md:193
+#: manual/tutorial/frontend/gda_expr.md:223
+#: manual/tutorial/frontend/itl_expr.md:151
+#: manual/tutorial/frontend/mpfr_expr.md:145
+#: manual/tutorial/frontend/testfloat_expr.md:191
 #: manual/tutorial/internal.md:165
 #: manual/tutorial/internal/conformance.md:109
-#: manual/tutorial/internal/runner_cli.md:126
-#: manual/tutorial/numeric_expr.md:243
+#: manual/tutorial/internal/runner_cli.md:136
+#: manual/tutorial/numeric_expr.md:241
 #: manual/tutorial/semantic.md:173
 msgid "Going further"
 msgstr "深入了解"
@@ -21082,20 +21177,20 @@ msgstr "每个区间都带有以位为单位的工作 `precision`；二元运算
 
 #: manual/tutorial/ball_float.md:375
 #: manual/tutorial/ball_float_checked.md:239
-#: manual/tutorial/bench.md:210
+#: manual/tutorial/bench.md:206
 #: manual/tutorial/bench/ball_float.md:56
 #: manual/tutorial/bench/bin_float.md:59
 #: manual/tutorial/bench/decimal.md:56
 #: manual/tutorial/bench/decimal_gda.md:58
-#: manual/tutorial/bench/external.md:116
+#: manual/tutorial/bench/external.md:128
 #: manual/tutorial/bin_float.md:365
 #: manual/tutorial/bin_float_checked.md:240
 #: manual/tutorial/cli.md:82
-#: manual/tutorial/cli/dispatch.md:21
-#: manual/tutorial/cli/gda_expr_cli.md:108
-#: manual/tutorial/cli/itl_expr_cli.md:78
-#: manual/tutorial/cli/mpfr_expr_cli.md:71
-#: manual/tutorial/cli/testfloat_expr_cli.md:90
+#: manual/tutorial/cli/dispatch.md:66
+#: manual/tutorial/cli/gda_expr_cli.md:117
+#: manual/tutorial/cli/itl_expr_cli.md:84
+#: manual/tutorial/cli/mpfr_expr_cli.md:79
+#: manual/tutorial/cli/testfloat_expr_cli.md:97
 #: manual/tutorial/consistency.md:71
 #: manual/tutorial/decimal.md:348
 #: manual/tutorial/decimal_checked.md:251
@@ -21103,16 +21198,16 @@ msgstr "每个区间都带有以位为单位的工作 `precision`；二元运算
 #: manual/tutorial/decimal_gda_checked.md:234
 #: manual/tutorial/def.md:246
 #: manual/tutorial/differential.md:184
-#: manual/tutorial/differential/harness.md:22
+#: manual/tutorial/differential/harness.md:59
 #: manual/tutorial/doc_examples.md:58
-#: manual/tutorial/frontend/gda_expr.md:241
-#: manual/tutorial/frontend/itl_expr.md:166
-#: manual/tutorial/frontend/mpfr_expr.md:160
-#: manual/tutorial/frontend/testfloat_expr.md:209
+#: manual/tutorial/frontend/gda_expr.md:239
+#: manual/tutorial/frontend/itl_expr.md:164
+#: manual/tutorial/frontend/mpfr_expr.md:158
+#: manual/tutorial/frontend/testfloat_expr.md:207
 #: manual/tutorial/internal.md:182
 #: manual/tutorial/internal/conformance.md:116
-#: manual/tutorial/internal/runner_cli.md:138
-#: manual/tutorial/numeric_expr.md:259
+#: manual/tutorial/internal/runner_cli.md:148
+#: manual/tutorial/numeric_expr.md:257
 #: manual/tutorial/semantic.md:223
 msgid "Common pitfalls"
 msgstr "常见陷阱"
@@ -21155,20 +21250,20 @@ msgstr "**来自 `Double` 的输入。** `from_double(x)` 精确包络 `x` 的�
 
 #: manual/tutorial/ball_float.md:433
 #: manual/tutorial/ball_float_checked.md:257
-#: manual/tutorial/bench.md:226
+#: manual/tutorial/bench.md:222
 #: manual/tutorial/bench/ball_float.md:62
 #: manual/tutorial/bench/bin_float.md:65
 #: manual/tutorial/bench/decimal.md:62
 #: manual/tutorial/bench/decimal_gda.md:64
-#: manual/tutorial/bench/external.md:125
+#: manual/tutorial/bench/external.md:137
 #: manual/tutorial/bin_float.md:392
 #: manual/tutorial/bin_float_checked.md:264
 #: manual/tutorial/cli.md:94
-#: manual/tutorial/cli/dispatch.md:27
-#: manual/tutorial/cli/gda_expr_cli.md:120
-#: manual/tutorial/cli/itl_expr_cli.md:89
-#: manual/tutorial/cli/mpfr_expr_cli.md:80
-#: manual/tutorial/cli/testfloat_expr_cli.md:97
+#: manual/tutorial/cli/dispatch.md:74
+#: manual/tutorial/cli/gda_expr_cli.md:129
+#: manual/tutorial/cli/itl_expr_cli.md:95
+#: manual/tutorial/cli/mpfr_expr_cli.md:88
+#: manual/tutorial/cli/testfloat_expr_cli.md:104
 #: manual/tutorial/consistency.md:78
 #: manual/tutorial/decimal.md:376
 #: manual/tutorial/decimal_checked.md:271
@@ -21176,16 +21271,16 @@ msgstr "**来自 `Double` 的输入。** `from_double(x)` 精确包络 `x` 的�
 #: manual/tutorial/decimal_gda_checked.md:248
 #: manual/tutorial/def.md:270
 #: manual/tutorial/differential.md:195
-#: manual/tutorial/differential/harness.md:27
+#: manual/tutorial/differential/harness.md:66
 #: manual/tutorial/doc_examples.md:63
-#: manual/tutorial/frontend/gda_expr.md:259
-#: manual/tutorial/frontend/itl_expr.md:180
-#: manual/tutorial/frontend/mpfr_expr.md:176
-#: manual/tutorial/frontend/testfloat_expr.md:220
+#: manual/tutorial/frontend/gda_expr.md:257
+#: manual/tutorial/frontend/itl_expr.md:178
+#: manual/tutorial/frontend/mpfr_expr.md:174
+#: manual/tutorial/frontend/testfloat_expr.md:218
 #: manual/tutorial/internal.md:196
 #: manual/tutorial/internal/conformance.md:127
-#: manual/tutorial/internal/runner_cli.md:154
-#: manual/tutorial/numeric_expr.md:273
+#: manual/tutorial/internal/runner_cli.md:164
+#: manual/tutorial/numeric_expr.md:271
 #: manual/tutorial/semantic.md:240
 msgid "Next steps"
 msgstr "后续步骤"
@@ -21420,139 +21515,139 @@ msgid "understand the statistics"
 msgstr "理解统计方法"
 
 #: manual/tutorial/bench.md:16
-#: manual/tutorial/bench.md:229
+#: manual/tutorial/bench.md:225
 msgid "[bench design](../design/bench.md)"
 msgstr "[bench 设计](../design/bench.md)"
 
 #: manual/tutorial/bench.md:20
-msgid "To use the reduction functions in your own module, add the library and import the package in `moon.pkg`:"
-msgstr "若要在你自己的模块中使用这些归约函数，请添加该库并在 `moon.pkg` 中导入该包："
+msgid "To use the reduction functions in your own module, import the package in `moon.pkg`. The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`."
+msgstr "要在你自己的模块中使用这些归约函数，请在 `moon.pkg` 中导入该包。该包属于工具模块 `Luna-Flow/floating-tools`（仓库中的 `tooling/` 目录，与库同版本），而不属于已发布的库。请把你的代码写成本工作区中的一个包；工具模块发布后，也可以运行 `moon add Luna-Flow/floating-tools@0.11.0`。"
 
-#: manual/tutorial/bench.md:33
+#: manual/tutorial/bench.md:29
 msgid "The smallest useful program compares two paired sample arrays, for example per-call times measured before and after a change in the same ten blocks:"
 msgstr "最小的实用程序比较两个配对的样本数组，例如在同样十个区块中测得的改动前后的单次调用耗时："
 
-#: manual/tutorial/bench.md:47
+#: manual/tutorial/bench.md:43
 msgid "An 8 % slowdown is above the 3 % practical threshold, and every paired difference is positive, so the 95 % interval of the median difference lies above zero."
 msgstr "8 % 的变慢超过了 3 % 的实际阈值，而且每个配对差值都为正，因此中位差的 95 % 区间位于零之上。"
 
-#: manual/tutorial/bench.md:51
+#: manual/tutorial/bench.md:47
 msgid "The `floating` suites themselves run from a checkout of the repository. Run one suite from the repository root:"
 msgstr "`floating` 自身的基准套件需要从仓库的检出副本运行。在仓库根目录下运行一个套件："
 
-#: manual/tutorial/bench.md:58
+#: manual/tutorial/bench.md:54
 msgid "The command runs the skipped performance tests of `tooling/src/bench/bin_float` in release mode on the native target, then writes"
 msgstr "该命令以 release 模式在 native 目标上运行 `tooling/src/bench/bin_float` 中被跳过的性能测试，然后写出"
 
-#: manual/tutorial/bench.md:66
+#: manual/tutorial/bench.md:62
 msgid "The `.jsonl` file holds one versioned (`mmka_1`) event per line: every observation, the environment and the run summary. The `.analysis.txt` file holds the reduced results, one line per comparison, for example"
 msgstr "`.jsonl` 文件每行保存一个带版本（`mmka_1`）的事件：每次观测、环境信息和运行汇总。`.analysis.txt` 文件保存精简后的结果，每个比较一行，例如"
 
-#: manual/tutorial/bench.md:74
+#: manual/tutorial/bench.md:70
 msgid "meaning: for dataset 2 of `bin-float/mul`, the median paired difference between the `core/bin-float` path and the coefficient kernel is `core_pct` percent of the kernel's median per-call time (negative when the core is faster), and `full_pct` is the same for the checked path against the core."
 msgstr "含义是：对于 `bin-float/mul` 的数据集 2，`core/bin-float` 路径与系数内核之间配对差值的中位数，等于内核每次调用中位耗时的 `core_pct` 百分比（core 更快时为负）；`full_pct` 同理，是 checked 路径相对 core 路径的值。"
 
-#: manual/tutorial/bench.md:81
+#: manual/tutorial/bench.md:77
 msgid "Choose a suite"
 msgstr "选择套件"
 
-#: manual/tutorial/bench.md:83
+#: manual/tutorial/bench.md:79
 msgid "Suite"
 msgstr "套件"
 
-#: manual/tutorial/bench.md:83
+#: manual/tutorial/bench.md:79
 msgid "Runs"
 msgstr "运行内容"
 
-#: manual/tutorial/bench.md:85
+#: manual/tutorial/bench.md:81
 msgid "all tests of `tooling/src/bench/bin_float` (arithmetic, elementary functions, square auto-tune)"
 msgstr "`tooling/src/bench/bin_float` 的全部测试（算术、初等函数、平方自动调优）"
 
-#: manual/tutorial/bench.md:86
+#: manual/tutorial/bench.md:82
 msgid "only the binary elementary-function benchmark"
 msgstr "仅二进制初等函数基准测试"
 
-#: manual/tutorial/bench.md:87
+#: manual/tutorial/bench.md:83
 msgid "only the `mul(x, x)` versus `square(x)` crossover"
 msgstr "仅 `mul(x, x)` 与 `square(x)` 的交叉点"
 
-#: manual/tutorial/bench.md:91
+#: manual/tutorial/bench.md:87
 msgid "the four package suites"
 msgstr "四个包的套件"
 
-#: manual/tutorial/bench.md:93
+#: manual/tutorial/bench.md:89
 msgid "Add `--output PATH` to choose the artifact path or `--dry-run` to print the `moon test` commands without running them."
 msgstr "添加 `--output PATH` 可选择产物路径，添加 `--dry-run` 则只打印 `moon test` 命令而不运行。"
 
-#: manual/tutorial/bench.md:96
+#: manual/tutorial/bench.md:92
 msgid "Read an auto-tune result"
 msgstr "阅读自动调优结果"
 
-#: manual/tutorial/bench.md:98
+#: manual/tutorial/bench.md:94
 msgid "The auto-tune suite prints one decision per dataset and a crossover:"
 msgstr "自动调优套件为每个数据集打印一个决策，并打印一个交叉点："
 
-#: manual/tutorial/bench.md:106
+#: manual/tutorial/bench.md:102
 msgid "`candidate` is the implementation with the smallest median per-call time on that dataset, and `samples` the number of valid confirmatory observations behind it. When the winner changes exactly once along the scales, the crossover line gives the last scale `below` the change and the first scale `at_or_above` it, and the policy line is the per-scale lookup table a kernel can embed. When it changes more than once the suite prints `MAREMARK_CROSSOVER=non-monotonic` and a `MAREMARK_POLICY=lookup` line; when it never changes, `MAREMARK_CROSSOVER=none` and no policy line."
 msgstr "`candidate` 是该数据集上每次调用中位耗时最小的实现，`samples` 是其背后的有效确认性观测次数。当胜出者沿规模恰好变化一次时，交叉点行给出变化前的最后一个规模 `below` 和变化后的第一个规模 `at_or_above`，策略行则是内核可以嵌入的按规模查找表。当胜出者变化不止一次时，套件打印 `MAREMARK_CROSSOVER=non-monotonic` 和一行 `MAREMARK_POLICY=lookup`；当胜出者从不变化时，打印 `MAREMARK_CROSSOVER=none`，且没有策略行。"
 
-#: manual/tutorial/bench.md:115
+#: manual/tutorial/bench.md:111
 msgid "Check a regression in code"
 msgstr "在代码中检查性能退化"
 
-#: manual/tutorial/bench.md:117
+#: manual/tutorial/bench.md:113
 msgid "`confirmatory_regression` compares paired samples (same order, same blocks) and `is_significant_regression` applies the verdict:"
 msgstr "`confirmatory_regression` 比较配对样本（相同顺序、相同分块），`is_significant_regression` 则给出判定："
 
-#: manual/tutorial/bench.md:130
+#: manual/tutorial/bench.md:126
 msgid "A change of about 0.5 % is below the 3 % practical threshold, so it is not a regression even if it were statistically clear."
 msgstr "约 0.5 % 的变化低于 3 % 的实际阈值，因此即使它在统计上是明确的，也不算性能退化。"
 
-#: manual/tutorial/bench.md:133
+#: manual/tutorial/bench.md:129
 msgid "Write a new benchmark"
 msgstr "编写新的基准测试"
 
-#: manual/tutorial/bench.md:135
+#: manual/tutorial/bench.md:131
 msgid "A benchmark is an `immutable_bench` specification plus a skipped async test that runs it and prints Maremark lines. The pattern used by every suite:"
 msgstr "一个基准测试由一个 `immutable_bench` 规格加上一个被跳过的异步测试组成，该测试运行规格并打印 Maremark 行。所有套件都采用如下模式："
 
-#: manual/tutorial/bench.md:194
+#: manual/tutorial/bench.md:190
 msgid "Keep the plan-compiles test unskipped: it checks the specification in every normal test run. Register the package in `tools/benchmark.py` so `just bench` collects its output."
 msgstr "保持 plan-compiles 测试不被跳过：它会在每次常规测试运行中检查规格。在 `tools/benchmark.py` 中注册该包，以便 `just bench` 收集其输出。"
 
-#: manual/tutorial/bench.md:200
+#: manual/tutorial/bench.md:196
 msgid "The protocol presets of Maremark fix warm-up, batch calibration, sample counts and order: `QuickCheck` (3 confirmatory blocks), `Development` (10 blocks, used by the suites) and `RegressionGate` (20 blocks, used by the auto-tune suite). See the [Maremark documentation](https://lunaflow.cn/en/mare_mark/)."
 msgstr "Maremark 的协议预设固定了预热、批次校准、样本数和顺序：`QuickCheck`（3 个确认性分块）、`Development`（10 个分块，各套件使用）和 `RegressionGate`（20 个分块，自动调优套件使用）。参见 [Maremark 文档](https://lunaflow.cn/en/mare_mark/)。"
 
-#: manual/tutorial/bench.md:205
+#: manual/tutorial/bench.md:201
 msgid "[bench design](../design/bench.md) explains the estimators and the confidence interval."
 msgstr "[bench 设计](../design/bench.md) 解释了估计量和置信区间。"
 
-#: manual/tutorial/bench.md:207
+#: manual/tutorial/bench.md:203
 msgid "[Performance audit](../performance_audit.md) and the `performance/` pages record measured results."
 msgstr "[性能审计](../performance_audit.md) 和 `performance/` 页面记录了实测结果。"
 
-#: manual/tutorial/bench.md:212
+#: manual/tutorial/bench.md:208
 msgid "**Benchmarks are skipped by default.** `moon test` runs only the plan-compiles tests; use `just bench` (it passes `--include-skipped`, `--release` and `--no-parallelize`)."
 msgstr "**基准测试默认被跳过。** `moon test` 只运行 plan-compiles 测试；请使用 `just bench`（它会传入 `--include-skipped`、`--release` 和 `--no-parallelize`）。"
 
-#: manual/tutorial/bench.md:215
+#: manual/tutorial/bench.md:211
 msgid "**Native only.** `tools/benchmark.py` accepts only the native target."
 msgstr "**仅限 native。** `tools/benchmark.py` 只接受 native 目标。"
 
-#: manual/tutorial/bench.md:216
+#: manual/tutorial/bench.md:212
 msgid "**Pairing needs equal sample counts.** Both implementations of a comparison must have the same number of valid confirmatory observations; otherwise `paired_hotspot` returns `MismatchedPairs`."
 msgstr "**配对需要相等的样本数。** 一次比较中的两个实现必须具有相同数量的有效确认性观测；否则 `paired_hotspot` 返回 `MismatchedPairs`。"
 
-#: manual/tutorial/bench.md:219
+#: manual/tutorial/bench.md:215
 msgid "**Near ties go to the steadier candidate, not the faster one.** `tune_dataset` treats candidates within `practical_delta_pct` percent of the smallest median as tied and picks the one with the smaller interquartile range (then the smaller id), so a candidate whose median is slightly higher can win when its timings are less spread out. Use `0.0` to always take the smallest median."
 msgstr "**近似平局时选更稳定者，而不是更快者。** `tune_dataset` 把与最小中位数相差不超过 `practical_delta_pct` 百分比的候选视为持平，并选择四分位距较小者（再按较小的 id），因此中位数略高的候选在其耗时波动更小时可能获胜。要始终取最小中位数，请使用 `0.0`。"
 
-#: manual/tutorial/bench.md:228
+#: manual/tutorial/bench.md:224
 msgid "[bench API](../api/bench.md)"
 msgstr "[bench API](../api/bench.md)"
 
-#: manual/tutorial/bench.md:230
+#: manual/tutorial/bench.md:226
 msgid "Per-core suites: [bin_float](bench/bin_float.md), [decimal](bench/decimal.md), [decimal_gda](bench/decimal_gda.md), [ball_float](bench/ball_float.md)."
 msgstr "各核心的套件：[bin_float](bench/bin_float.md)、[decimal](bench/decimal.md)、[decimal_gda](bench/decimal_gda.md)、[ball_float](bench/ball_float.md)。"
 
@@ -21903,26 +21998,38 @@ msgid "A cell such as `37.5 [36.9, 38.2]` is the median time of `floating` divid
 msgstr "形如 `37.5 [36.9, 38.2]` 的单元格是 `floating` 的中位数时间除以参考库的中位数时间，附 95% 自助法区间。大于 1 表示 `floating` 更慢。星号标记测量离散超过性能页面上所述离散度阈值的单元格。"
 
 #: manual/tutorial/bench/external.md:118
+msgid "Add a case: extend the matrix constants of `tools/external_baseline.py` (for example `BINARY_PRECISIONS`) and the matching benchmark of `tooling/src/bench/external`; the operand file is read by both sides, so the new case is measured on the same inputs."
+msgstr "添加一个用例：扩展 `tools/external_baseline.py` 的矩阵常量（例如 `BINARY_PRECISIONS`）以及 `tooling/src/bench/external` 中对应的基准；两侧读取同一个操作数文件，因此新用例在相同输入上测量。"
+
+#: manual/tutorial/bench/external.md:122
+msgid "Understand the protocol: [bench/external design](../../design/bench/external.md) states why the sides alternate and why the harness overhead is measured."
+msgstr "理解测量协议：[bench/external 设计页](../../design/bench/external.md)说明了为什么两侧交替执行，以及为什么要测量而不是假设测试工具的开销。"
+
+#: manual/tutorial/bench/external.md:124
+msgid "Read the numbers: [external baseline](../../performance/bench/external.md) records the machine, the method and the ratios of the latest published release."
+msgstr "阅读数字：[外部基线](../../performance/bench/external.md)记录了机器、方法以及最新已发布版本的比值。"
+
+#: manual/tutorial/bench/external.md:130
 msgid "Compare runs only when `machine.json` agrees on CPU, compilers and library versions."
 msgstr "只有当 `machine.json` 在 CPU、编译器和库版本上一致时，才比较不同的运行。"
 
-#: manual/tutorial/bench/external.md:120
+#: manual/tutorial/bench/external.md:132
 msgid "A validation failure is reported but does not stop the timing: look for `WARNING` lines and `validation_failed_cases` in `results.json`."
 msgstr "验证失败会被报告，但不会中止计时：请查看 `WARNING` 行和 `results.json` 中的 `validation_failed_cases`。"
 
-#: manual/tutorial/bench/external.md:122
+#: manual/tutorial/bench/external.md:134
 msgid "Do not run other heavy work during a measurement; the load average is recorded at the start only."
 msgstr "测量期间不要运行其他重负载的工作；平均负载只在开始时记录。"
 
-#: manual/tutorial/bench/external.md:127
+#: manual/tutorial/bench/external.md:139
 msgid "[bench/external API](../../api/bench/external.md)"
 msgstr "[bench/external API](../../api/bench/external.md)"
 
-#: manual/tutorial/bench/external.md:128
+#: manual/tutorial/bench/external.md:140
 msgid "[bench/external design](../../design/bench/external.md)"
 msgstr "[bench/external 设计](../../design/bench/external.md)"
 
-#: manual/tutorial/bench/external.md:129
+#: manual/tutorial/bench/external.md:141
 msgid "[External baseline results](../../performance/bench/external.md)"
 msgstr "[外部基线结果](../../performance/bench/external.md)"
 
@@ -22459,42 +22566,91 @@ msgid "cli/dispatch tutorial"
 msgstr "cli/dispatch 教程"
 
 #: manual/tutorial/cli/dispatch.md:3
-msgid "This tutorial calls the dispatcher of `floating-conformance` from MoonBit code instead of starting the executable."
-msgstr "本教程在 MoonBit 代码中调用 `floating-conformance` 的调度器，而不启动可执行文件。"
+msgid "This tutorial calls the dispatcher of `floating-conformance` from MoonBit code instead of starting the executable, and shows how a new backend would be added behind it."
+msgstr "本教程在 MoonBit 代码中调用 `floating-conformance` 的调度器，而不启动可执行文件，并说明如何在其后添加新的后端。"
 
-#: manual/tutorial/cli/dispatch.md:8
+#: manual/tutorial/cli/dispatch.md:9
 msgid "get the exit code of an invocation"
 msgstr "取得一次调用的退出码"
 
-#: manual/tutorial/cli/dispatch.md:9
+#: manual/tutorial/cli/dispatch.md:10
+msgid "see which arguments reach a runner"
+msgstr "查看哪些参数会传给运行器"
+
+#: manual/tutorial/cli/dispatch.md:10
+msgid "[forwarding](#everyday-tasks)"
+msgstr "[转发](#everyday-tasks)"
+
+#: manual/tutorial/cli/dispatch.md:11
 msgid "run the executable itself"
 msgstr "运行可执行文件本身"
 
-#: manual/tutorial/cli/dispatch.md:9
+#: manual/tutorial/cli/dispatch.md:11
 msgid "[the `cli` tutorial](../cli.md)"
 msgstr "[`cli` 教程](../cli.md)"
 
-#: manual/tutorial/cli/dispatch.md:11
-msgid "Call the dispatcher"
-msgstr "调用调度器"
+#: manual/tutorial/cli/dispatch.md:12
+msgid "add a backend"
+msgstr "添加后端"
 
-#: manual/tutorial/cli/dispatch.md:13
-msgid "The first element is the program name, as in `@env.args()`:"
-msgstr "第一个元素是程序名，与 `@env.args()` 相同："
+#: manual/tutorial/cli/dispatch.md:12
+#: manual/tutorial/differential/harness.md:13
+msgid "[going further](#going-further)"
+msgstr "[进一步](#going-further)"
 
-#: manual/tutorial/cli/dispatch.md:23
+#: manual/tutorial/cli/dispatch.md:16
+msgid "The package ships inside the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository); there is nothing to install. Run its tests from the repository:"
+msgstr "该包随工具模块 `Luna-Flow/floating-tools`（仓库中的 `tooling/` 目录）一起提供，无需安装。从仓库运行其测试："
+
+#: manual/tutorial/cli/dispatch.md:24
+msgid "Call the dispatcher with the program name first, as in `@env.args()`:"
+msgstr "先传入程序名，与 `@env.args()` 相同，然后调用调度器："
+
+#: manual/tutorial/cli/dispatch.md:33
+msgid "`dispatch` prints a message and returns the exit code; it never exits the process."
+msgstr "`dispatch` 打印消息并返回退出码；它从不退出进程。"
+
+#: manual/tutorial/cli/dispatch.md:38
+msgid "Choose the exit code you expect"
+msgstr "确定期望的退出码"
+
+#: manual/tutorial/cli/dispatch.md:40
+msgid "`0` after `--help` (even after a valid `--backend`), `2` for a missing, repeated, empty or unknown backend, and otherwise the runner's own code:"
+msgstr "`--help` 之后为 `0`（即使在有效的 `--backend` 之后），`--backend` 缺失、重复、为空或未知时为 `2`，其余情况为运行器自己的退出码："
+
+#: manual/tutorial/cli/dispatch.md:53
+msgid "Forward arguments to a runner"
+msgstr "把参数转发给运行器"
+
+#: manual/tutorial/cli/dispatch.md:55
+msgid "Everything except `--backend` and its value is forwarded, in order, with the program name first, so a runner sees the same vector as when it is called directly (see [`cli/gda_expr_cli`](gda_expr_cli.md) for the options of one runner)."
+msgstr "除 `--backend` 及其值以外的所有参数都会按顺序转发，程序名在最前，因此运行器看到的向量与直接调用时相同（单个运行器的选项见 [`cli/gda_expr_cli`](gda_expr_cli.md)）。"
+
+#: manual/tutorial/cli/dispatch.md:62
+msgid "To add a backend, write a runner package `run(arguments) -> Int`, import it in `moon.pkg` of this package and add one arm to the `match backend` of `dispatch`; keep process exit in `cli`, which stays an entry point only."
+msgstr "要添加后端，请编写一个运行器包 `run(arguments) -> Int`，在本包的 `moon.pkg` 中导入它，并在 `dispatch` 的 `match backend` 中增加一个分支；进程退出仍放在 `cli` 中，它只保持为入口。"
+
+#: manual/tutorial/cli/dispatch.md:68
 msgid "**Index 0 is skipped.** Pass a program name even when a test has none."
 msgstr "**下标 0 会被跳过。** 即使测试里没有程序名，也要传一个。"
 
-#: manual/tutorial/cli/dispatch.md:24
+#: manual/tutorial/cli/dispatch.md:69
 msgid "**`--help` wins.** `[\"cli\", \"--backend\", \"gda\", \"--help\"]` prints the usage line and returns `0` without running a runner."
 msgstr "**`--help` 优先。** `[\"cli\", \"--backend\", \"gda\", \"--help\"]` 会打印用法行并返回 `0`，不运行任何运行器。"
 
-#: manual/tutorial/cli/dispatch.md:29
+#: manual/tutorial/cli/dispatch.md:71
+msgid "**Relative paths.** The runners read their default corpora relative to the working directory; the tests of the module run in `tooling/`."
+msgstr "**相对路径。** 运行器相对于工作目录读取其默认语料；该模块的测试在 `tooling/` 中运行。"
+
+#: manual/tutorial/cli/dispatch.md:76
 msgid "[cli/dispatch API](../../api/cli/dispatch.md) for the exact contract."
 msgstr "[cli/dispatch API](../../api/cli/dispatch.md)给出准确的约定。"
 
-#: manual/tutorial/cli/dispatch.md:30
+#: manual/tutorial/cli/dispatch.md:77
+msgid "[cli/dispatch design](../../design/cli/dispatch.md) for why it is a library."
+msgstr "[cli/dispatch 设计](../../design/cli/dispatch.md)说明它为什么是一个库。"
+
+#: manual/tutorial/cli/dispatch.md:78
 msgid "[cli tutorial](../cli.md) for the executable."
 msgstr "可执行文件见 [cli 教程](../cli.md)。"
 
@@ -22555,79 +22711,86 @@ msgid "From MoonBit code"
 msgstr "从 MoonBit 代码调用"
 
 #: manual/tutorial/cli/gda_expr_cli.md:42
-msgid "The runner is also a library. After `moon add Luna-Flow/floating@0.10.2`, import it and pass the argument vector, program name first:"
-msgstr "运行器也是一个库。执行 `moon add Luna-Flow/floating@0.10.2` 之后，导入它并传入参数向量（程序名在前）："
+msgid "The runner is also a library. The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`. Import it and pass the argument vector, program name first:"
+msgstr "运行器同时也是一个库。该包属于工具模块 `Luna-Flow/floating-tools`（仓库中的 `tooling/` 目录，与库同版本），而不属于已发布的库。请把你的代码写成本工作区中的一个包；工具模块发布后，也可以运行 `moon add Luna-Flow/floating-tools@0.11.0`。 导入它并传入参数向量，程序名在最前："
 
-#: manual/tutorial/cli/gda_expr_cli.md:55
+#: manual/tutorial/cli/gda_expr_cli.md:62
+#: manual/tutorial/cli/itl_expr_cli.md:45
+#: manual/tutorial/cli/mpfr_expr_cli.md:47
+#: manual/tutorial/cli/testfloat_expr_cli.md:60
+msgid "`just docs` runs the tests of this page in the module directory `tooling/`, so the corpus paths start with `../testdata`; use your own paths in your code."
+msgstr "`just docs` 在模块目录 `tooling/` 中运行本页的测试，所以语料路径以 `../testdata` 开头；在你自己的代码中请使用你自己的路径。"
+
+#: manual/tutorial/cli/gda_expr_cli.md:64
 msgid "`run` prints the same output as the executable and returns the exit status instead of exiting."
 msgstr "`run` 打印与可执行文件相同的输出，并返回退出状态而不是直接退出。"
 
-#: manual/tutorial/cli/gda_expr_cli.md:60
+#: manual/tutorial/cli/gda_expr_cli.md:69
 msgid "Run files and directories"
 msgstr "运行文件和目录"
 
-#: manual/tutorial/cli/gda_expr_cli.md:67
+#: manual/tutorial/cli/gda_expr_cli.md:76
 msgid "Files are sorted by path and executed as one run; a file named twice runs once."
 msgstr "文件按路径排序，并作为一次运行执行；被指定两次的文件只运行一次。"
 
-#: manual/tutorial/cli/gda_expr_cli.md:70
+#: manual/tutorial/cli/gda_expr_cli.md:79
 msgid "Select rows"
 msgstr "选择行"
 
-#: manual/tutorial/cli/gda_expr_cli.md:77
+#: manual/tutorial/cli/gda_expr_cli.md:86
 msgid "A range matches ids of the same length that sort between its bounds."
 msgstr "范围匹配长度相同、且排序位于其上下界之间的 id。"
 
-#: manual/tutorial/cli/gda_expr_cli.md:79
+#: manual/tutorial/cli/gda_expr_cli.md:88
 #: manual/tutorial/internal/conformance.md:70
 msgid "Shard a run"
 msgstr "对运行分片"
 
-#: manual/tutorial/cli/gda_expr_cli.md:86
+#: manual/tutorial/cli/gda_expr_cli.md:95
 msgid "Shard `i` runs the rows whose position (after the `--cases` filter, across all files) is `i` modulo the shard count. Adding the JSON counters of all shards gives the counters of the unsharded run, except `totalCases`, which every shard already reports for the whole run."
 msgstr "分片 `i` 运行位置（经 `--cases` 过滤后、跨所有文件计数）对分片数取模等于 `i` 的行。把所有分片的 JSON 计数器相加，即得到未分片运行的计数器；`totalCases` 除外，因为每个分片报告的已经是整个运行的值。"
 
-#: manual/tutorial/cli/gda_expr_cli.md:91
+#: manual/tutorial/cli/gda_expr_cli.md:100
 msgid "Fail on unsupported rows"
 msgstr "让不支持的行导致失败"
 
-#: manual/tutorial/cli/gda_expr_cli.md:97
+#: manual/tutorial/cli/gda_expr_cli.md:106
 msgid "With `--strict-supported` the exit status is `1` if any selected row is unsupported or legacy, even when all executed rows pass."
 msgstr "使用 `--strict-supported` 时，只要有任何被选中的行不受支持或属于遗留（legacy）行，即使所有已执行的行都通过，退出状态也为 `1`。"
 
-#: manual/tutorial/cli/gda_expr_cli.md:102
+#: manual/tutorial/cli/gda_expr_cli.md:111
 msgid "`just conformance run decimal_gda` fetches the pinned official corpora, splits them into the phases of `testdata/decimal_gda/interpreter_stages.json` and runs the shards in parallel with this runner."
 msgstr "`just conformance run decimal_gda` 会获取固定版本的官方语料，按 `testdata/decimal_gda/interpreter_stages.json` 将其划分为各阶段，并用此运行器并行运行各分片。"
 
-#: manual/tutorial/cli/gda_expr_cli.md:105
+#: manual/tutorial/cli/gda_expr_cli.md:114
 msgid "[gda_expr tutorial](../frontend/gda_expr.md) explains the row semantics and the pass rule."
 msgstr "[gda_expr 教程](../frontend/gda_expr.md) 解释了行的语义和通过规则。"
 
-#: manual/tutorial/cli/gda_expr_cli.md:110
+#: manual/tutorial/cli/gda_expr_cli.md:119
 msgid "**`--help` returns `2`.** The runner prints its usage as an error; through the dispatcher, `--help` shows the dispatcher usage instead."
 msgstr "**`--help` 返回 `2`。** 运行器将其用法作为错误打印；经由分发器时，`--help` 显示的则是分发器的用法。"
 
-#: manual/tutorial/cli/gda_expr_cli.md:112
+#: manual/tutorial/cli/gda_expr_cli.md:121
 msgid "**First parse error only.** A malformed line stops the run with one `file:line:1: message`; fix it and rerun to see the next."
 msgstr "**只报告第一个解析错误。** 格式错误的行会以一条 `file:line:1: message` 终止运行；修正后重新运行才能看到下一个错误。"
 
-#: manual/tutorial/cli/gda_expr_cli.md:114
+#: manual/tutorial/cli/gda_expr_cli.md:123
 msgid "**Non-recursive directories.** Subdirectories are not searched."
 msgstr "**目录不递归。** 不会搜索子目录。"
 
-#: manual/tutorial/cli/gda_expr_cli.md:115
+#: manual/tutorial/cli/gda_expr_cli.md:124
 msgid "**The suffix is case-sensitive.** A named file such as `add.dectest` or `add.txt` is the error `not a .decTest file: PATH` (exit `2`), and inside a directory such entries are skipped, so a directory without any `.decTest` file gives an empty run that exits with `0`."
 msgstr "**后缀区分大小写。** 像 `add.dectest` 或 `add.txt` 这样的指定文件会产生错误 `not a .decTest file: PATH`（退出码 `2`），而在目录中这样的条目会被跳过，因此不含任何 `.decTest` 文件的目录会产生一次以 `0` 退出的空运行。"
 
-#: manual/tutorial/cli/gda_expr_cli.md:122
+#: manual/tutorial/cli/gda_expr_cli.md:131
 msgid "[cli/gda_expr_cli API](../../api/cli/gda_expr_cli.md) for options, output keys and exit codes."
 msgstr "[cli/gda_expr_cli API](../../api/cli/gda_expr_cli.md)：选项、输出键和退出码。"
 
-#: manual/tutorial/cli/gda_expr_cli.md:124
+#: manual/tutorial/cli/gda_expr_cli.md:133
 msgid "[cli/gda_expr_cli design](../../design/cli/gda_expr_cli.md)."
 msgstr "[cli/gda_expr_cli 设计](../../design/cli/gda_expr_cli.md)。"
 
-#: manual/tutorial/cli/gda_expr_cli.md:125
+#: manual/tutorial/cli/gda_expr_cli.md:134
 msgid "[frontend/gda_expr tutorial](../frontend/gda_expr.md) for the row semantics."
 msgstr "[frontend/gda_expr 教程](../frontend/gda_expr.md)：行的语义。"
 
@@ -22666,66 +22829,66 @@ msgid "With no path the runner executes `testdata/interval/smoke.itl` and prints
 msgstr "不给路径时，运行器执行 `testdata/interval/smoke.itl` 并打印一个 JSON 对象，例如"
 
 #: manual/tutorial/cli/itl_expr_cli.md:33
-msgid "After `moon add Luna-Flow/floating@0.10.2`, import `\"Luna-Flow/floating-tools/cli/itl_expr_cli\"` in `moon.pkg` and call `run` with the argument vector, program name first:"
-msgstr "执行 `moon add Luna-Flow/floating@0.10.2` 之后，在 `moon.pkg` 中导入 `\"Luna-Flow/floating-tools/cli/itl_expr_cli\"`，并以参数向量（程序名在前）调用 `run`："
+msgid "The runner is also a library. The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`. Import `\"Luna-Flow/floating-tools/cli/itl_expr_cli\"` in `moon.pkg` and call `run` with the argument vector, program name first:"
+msgstr "运行器同时也是一个库。该包属于工具模块 `Luna-Flow/floating-tools`（仓库中的 `tooling/` 目录，与库同版本），而不属于已发布的库。请把你的代码写成本工作区中的一个包；工具模块发布后，也可以运行 `moon add Luna-Flow/floating-tools@0.11.0`。 在 `moon.pkg` 中导入 `\"Luna-Flow/floating-tools/cli/itl_expr_cli\"`，并以参数向量调用 `run`，程序名在最前："
 
-#: manual/tutorial/cli/itl_expr_cli.md:43
+#: manual/tutorial/cli/itl_expr_cli.md:49
 msgid "Run files"
 msgstr "运行文件"
 
-#: manual/tutorial/cli/itl_expr_cli.md:50
+#: manual/tutorial/cli/itl_expr_cli.md:56
 msgid "Paths must be files; they are read in the given order."
 msgstr "路径必须是文件；按给定顺序读取。"
 
-#: manual/tutorial/cli/itl_expr_cli.md:52
+#: manual/tutorial/cli/itl_expr_cli.md:58
 msgid "Select operations"
 msgstr "选择运算"
 
-#: manual/tutorial/cli/itl_expr_cli.md:58
+#: manual/tutorial/cli/itl_expr_cli.md:64
 msgid "Only cases whose operation is one of the listed names are executed and counted."
 msgstr "只有运算名在所列名称之中的用例才会被执行和计数。"
 
-#: manual/tutorial/cli/itl_expr_cli.md:61
+#: manual/tutorial/cli/itl_expr_cli.md:67
 msgid "Make unsupported operations fail"
 msgstr "让不支持的运算导致失败"
 
-#: manual/tutorial/cli/itl_expr_cli.md:67
+#: manual/tutorial/cli/itl_expr_cli.md:73
 msgid "Without the flag, unsupported cases are reported in `unsupportedIds` but do not change the exit status; diagnostic cases always do."
 msgstr "不加该标志时，不支持的用例会在 `unsupportedIds` 中报告，但不影响退出状态；诊断用例则总会影响退出状态。"
 
-#: manual/tutorial/cli/itl_expr_cli.md:72
+#: manual/tutorial/cli/itl_expr_cli.md:78
 msgid "`just conformance run interval` runs the phases listed in `testdata/interval/interpreter_stages.json` (files and operations per phase); add `--strict-supported` to forward strict mode to every phase."
 msgstr "`just conformance run interval` 运行 `testdata/interval/interpreter_stages.json` 中列出的各阶段（每个阶段的文件与运算）；加上 `--strict-supported` 可将严格模式传递给每个阶段。"
 
-#: manual/tutorial/cli/itl_expr_cli.md:75
+#: manual/tutorial/cli/itl_expr_cli.md:81
 msgid "[itl_expr tutorial](../frontend/itl_expr.md) explains the cases and the pass rule."
 msgstr "[itl_expr 教程](../frontend/itl_expr.md) 解释了用例和通过规则。"
 
-#: manual/tutorial/cli/itl_expr_cli.md:80
+#: manual/tutorial/cli/itl_expr_cli.md:86
 msgid "**No `--json` option.** The output is always JSON; passing `--json` is an unknown option (exit `2`)."
 msgstr "**没有 `--json` 选项。** 输出总是 JSON；传入 `--json` 会被视为未知选项（退出码 `2`）。"
 
-#: manual/tutorial/cli/itl_expr_cli.md:82
+#: manual/tutorial/cli/itl_expr_cli.md:88
 msgid "**No sharding.** ITL files are small; the tooling parallelizes by phase."
 msgstr "**不支持分片。** ITL 文件很小；工具链按阶段并行。"
 
-#: manual/tutorial/cli/itl_expr_cli.md:83
+#: manual/tutorial/cli/itl_expr_cli.md:89
 msgid "**All parse diagnostics are printed** as `PATH: MESSAGE`, and the run stops, even when the bad statement belongs to an operation you did not select."
 msgstr "**打印所有解析诊断**，格式为 `PATH: MESSAGE`，并终止运行，即使出错的语句属于你未选择的运算也是如此。"
 
-#: manual/tutorial/cli/itl_expr_cli.md:85
+#: manual/tutorial/cli/itl_expr_cli.md:91
 msgid "**Strict mode counts unknown operations.** Without `--operation`, cases such as `nums2interval 1.0 2.0 = …` are unsupported; they do not change the exit status unless `--strict-supported` is given."
 msgstr "**严格模式会计入未知运算。** 不使用 `--operation` 时，诸如 `nums2interval 1.0 2.0 = …` 的用例是不支持的；除非给出 `--strict-supported`，否则它们不会改变退出状态。"
 
-#: manual/tutorial/cli/itl_expr_cli.md:91
+#: manual/tutorial/cli/itl_expr_cli.md:97
 msgid "[cli/itl_expr_cli API](../../api/cli/itl_expr_cli.md)"
 msgstr "[cli/itl_expr_cli API](../../api/cli/itl_expr_cli.md)"
 
-#: manual/tutorial/cli/itl_expr_cli.md:92
+#: manual/tutorial/cli/itl_expr_cli.md:98
 msgid "[cli/itl_expr_cli design](../../design/cli/itl_expr_cli.md)"
 msgstr "[cli/itl_expr_cli 设计](../../design/cli/itl_expr_cli.md)"
 
-#: manual/tutorial/cli/itl_expr_cli.md:93
+#: manual/tutorial/cli/itl_expr_cli.md:99
 msgid "[frontend/itl_expr tutorial](../frontend/itl_expr.md) for the cases and the pass rule."
 msgstr "[frontend/itl_expr 教程](../frontend/itl_expr.md)：用例与通过规则。"
 
@@ -22759,59 +22922,59 @@ msgid "run all binary corpora"
 msgstr "运行所有二进制语料"
 
 #: manual/tutorial/cli/mpfr_expr_cli.md:34
-msgid "After `moon add Luna-Flow/floating@0.10.2`, import `\"Luna-Flow/floating-tools/cli/mpfr_expr_cli\"` in `moon.pkg` and call `run`:"
-msgstr "执行 `moon add Luna-Flow/floating@0.10.2` 之后，在 `moon.pkg` 中导入 `\"Luna-Flow/floating-tools/cli/mpfr_expr_cli\"` 并调用 `run`："
+msgid "The runner is also a library. The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`. Import `\"Luna-Flow/floating-tools/cli/mpfr_expr_cli\"` in `moon.pkg` and call `run`:"
+msgstr "运行器同时也是一个库。该包属于工具模块 `Luna-Flow/floating-tools`（仓库中的 `tooling/` 目录，与库同版本），而不属于已发布的库。请把你的代码写成本工作区中的一个包；工具模块发布后，也可以运行 `moon add Luna-Flow/floating-tools@0.11.0`。 在 `moon.pkg` 中导入 `\"Luna-Flow/floating-tools/cli/mpfr_expr_cli\"` 并调用 `run`："
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:43
+#: manual/tutorial/cli/mpfr_expr_cli.md:51
 msgid "Run each format"
 msgstr "运行各种格式"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:45
+#: manual/tutorial/cli/mpfr_expr_cli.md:53
 msgid "The runner reads exactly one file and picks the format from its content:"
 msgstr "运行器只读取一个文件，并根据其内容选择格式："
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:53
-#: manual/tutorial/cli/testfloat_expr_cli.md:75
+#: manual/tutorial/cli/mpfr_expr_cli.md:61
+#: manual/tutorial/cli/testfloat_expr_cli.md:82
 msgid "JSON for scripts"
 msgstr "供脚本使用的 JSON"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:59
+#: manual/tutorial/cli/mpfr_expr_cli.md:67
 msgid "prints one object with `corpus`, `totalCases`, `passedCases`, `failedCases` and `failedIds`."
 msgstr "打印一个包含 `corpus`、`totalCases`、`passedCases`、`failedCases` 和 `failedIds` 的对象。"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:64
+#: manual/tutorial/cli/mpfr_expr_cli.md:72
 msgid "`just conformance run binary` runs the pinned MPFR square-root data and the elementary matrix together with the TestFloat matrix."
 msgstr "`just conformance run binary` 将固定版本的 MPFR 平方根数据、初等函数矩阵与 TestFloat 矩阵一起运行。"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:66
+#: manual/tutorial/cli/mpfr_expr_cli.md:74
 msgid "New elementary data is produced by `tools/generate_mpfr_elementary_oracle.c`; keep the `mpfr-elementary-v1` marker line so the runner detects the format."
 msgstr "新的初等函数数据由 `tools/generate_mpfr_elementary_oracle.c` 生成；请保留 `mpfr-elementary-v1` 标记行，以便运行器识别格式。"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:68
+#: manual/tutorial/cli/mpfr_expr_cli.md:76
 msgid "[mpfr_expr tutorial](../frontend/mpfr_expr.md) explains the row formats and pass rules."
 msgstr "[mpfr_expr 教程](../frontend/mpfr_expr.md) 解释了行格式与通过规则。"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:73
+#: manual/tutorial/cli/mpfr_expr_cli.md:81
 msgid "**One file per invocation.** Extra paths, missing paths, and the shard options all print the usage line and exit with `2`."
 msgstr "**每次调用只处理一个文件。** 多余的路径、缺失的路径以及分片选项，都会打印用法行并以 `2` 退出。"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:75
+#: manual/tutorial/cli/mpfr_expr_cli.md:83
 msgid "**A lone option is read as a path.** `mpfr --help` reports `cannot read file: --help`, not the usage line."
 msgstr "**单独的选项会被当作路径读取。** `mpfr --help` 报告的是 `cannot read file: --help`，而不是用法行。"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:77
+#: manual/tutorial/cli/mpfr_expr_cli.md:85
 msgid "**Format detection is textual.** A square-root file that happens to contain `input_coefficient_hex` in a comment is parsed as power data."
 msgstr "**格式检测基于文本。** 若平方根文件恰好在注释中包含 `input_coefficient_hex`，它会被当作幂运算数据解析。"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:82
+#: manual/tutorial/cli/mpfr_expr_cli.md:90
 msgid "[cli/mpfr_expr_cli API](../../api/cli/mpfr_expr_cli.md)"
 msgstr "[cli/mpfr_expr_cli API](../../api/cli/mpfr_expr_cli.md)"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:83
+#: manual/tutorial/cli/mpfr_expr_cli.md:91
 msgid "[cli/mpfr_expr_cli design](../../design/cli/mpfr_expr_cli.md)"
 msgstr "[cli/mpfr_expr_cli 设计](../../design/cli/mpfr_expr_cli.md)"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:84
+#: manual/tutorial/cli/mpfr_expr_cli.md:92
 msgid "[frontend/mpfr_expr tutorial](../frontend/mpfr_expr.md) for the row formats."
 msgstr "[frontend/mpfr_expr 教程](../frontend/mpfr_expr.md)：行格式。"
 
@@ -22848,58 +23011,58 @@ msgid "Generate vectors with TestFloat's `testfloat_gen` and run them. `just con
 msgstr "用 TestFloat 的 `testfloat_gen` 生成向量并运行它们。`just conformance fetch binary` 下载固定版本的 SoftFloat 和 TestFloat 源码；`just conformance run binary` 用这些源码把 `testfloat_gen` 构建到 `.tmp/binfloat-conformance/vendor/TestFloat-3e/build/Linux-x86_64-GCC/` 中。"
 
 #: manual/tutorial/cli/testfloat_expr_cli.md:45
-msgid "After `moon add Luna-Flow/floating@0.10.2`, import `\"Luna-Flow/floating-tools/cli/testfloat_expr_cli\"` in `moon.pkg` and call `run` with the same arguments:"
-msgstr "执行 `moon add Luna-Flow/floating@0.10.2` 之后，在 `moon.pkg` 中导入 `\"Luna-Flow/floating-tools/cli/testfloat_expr_cli\"`，并以相同的参数调用 `run`："
+msgid "The runner is also a library. The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`. Import `\"Luna-Flow/floating-tools/cli/testfloat_expr_cli\"` in `moon.pkg` and call `run` with the same arguments:"
+msgstr "运行器同时也是一个库。该包属于工具模块 `Luna-Flow/floating-tools`（仓库中的 `tooling/` 目录，与库同版本），而不属于已发布的库。请把你的代码写成本工作区中的一个包；工具模块发布后，也可以运行 `moon add Luna-Flow/floating-tools@0.11.0`。 在 `moon.pkg` 中导入 `\"Luna-Flow/floating-tools/cli/testfloat_expr_cli\"`，并用相同的参数调用 `run`："
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:57
+#: manual/tutorial/cli/testfloat_expr_cli.md:64
 msgid "Match the generator options"
 msgstr "与生成器选项保持一致"
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:59
+#: manual/tutorial/cli/testfloat_expr_cli.md:66
 msgid "Pass the same function, rounding and tininess as the generator, and `--exact` when the vectors were generated with `-exact`:"
 msgstr "传入与生成器相同的函数、舍入模式和微小性（tininess）判定方式；若向量是用 `-exact` 生成的，还要加上 `--exact`："
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:67
+#: manual/tutorial/cli/testfloat_expr_cli.md:74
 msgid "Shard a large file"
 msgstr "对大文件分片"
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:73
+#: manual/tutorial/cli/testfloat_expr_cli.md:80
 msgid "Shard `i` runs the vectors whose index is `i` modulo the shard count."
 msgstr "分片 `i` 运行索引对分片数取模等于 `i` 的向量。"
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:77
+#: manual/tutorial/cli/testfloat_expr_cli.md:84
 msgid "`--json` prints `function`, `rounding`, `tininess`, `exact`, `totalCases`, `selectedCases`, `passedCases`, `failedCases` and `failedIds` (`FUNCTION:LINE`)."
 msgstr "`--json` 打印 `function`、`rounding`、`tininess`、`exact`、`totalCases`、`selectedCases`、`passedCases`、`failedCases` 和 `failedIds`（`FUNCTION:LINE`）。"
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:83
+#: manual/tutorial/cli/testfloat_expr_cli.md:90
 msgid "`just conformance run binary --level 1 --tininess after --tininess before` plans the full matrix, streams `testfloat_gen` output in chunks into temporary files, runs this runner on each chunk, and remaps the line-based ids to global vector numbers."
 msgstr "`just conformance run binary --level 1 --tininess after --tininess before` 规划完整矩阵，将 `testfloat_gen` 的输出分块流式写入临时文件，对每一块运行此运行器，并把基于行号的 id 重新映射为全局向量编号。"
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:87
+#: manual/tutorial/cli/testfloat_expr_cli.md:94
 msgid "[testfloat_expr tutorial](../frontend/testfloat_expr.md) explains the pass rule."
 msgstr "[testfloat_expr 教程](../frontend/testfloat_expr.md) 解释了通过规则。"
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:92
+#: manual/tutorial/cli/testfloat_expr_cli.md:99
 msgid "**Exactly one file.** A second path is an error."
 msgstr "**只能有一个文件。** 第二个路径会报错。"
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:93
+#: manual/tutorial/cli/testfloat_expr_cli.md:100
 msgid "**Rounding defaults to `rnear_even`.** Always pass the generator's mode."
 msgstr "**舍入模式默认为 `rnear_even`。** 务必传入生成器所用的模式。"
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:94
+#: manual/tutorial/cli/testfloat_expr_cli.md:101
 msgid "**Ids are line numbers of the file you pass.** When you split a stream into chunks, keep track of the offset yourself."
 msgstr "**id 是所传文件中的行号。** 将数据流拆分为块时，需要自行记录偏移量。"
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:99
+#: manual/tutorial/cli/testfloat_expr_cli.md:106
 msgid "[cli/testfloat_expr_cli API](../../api/cli/testfloat_expr_cli.md)"
 msgstr "[cli/testfloat_expr_cli API](../../api/cli/testfloat_expr_cli.md)"
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:100
+#: manual/tutorial/cli/testfloat_expr_cli.md:107
 msgid "[cli/testfloat_expr_cli design](../../design/cli/testfloat_expr_cli.md)"
 msgstr "[cli/testfloat_expr_cli 设计](../../design/cli/testfloat_expr_cli.md)"
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:101
+#: manual/tutorial/cli/testfloat_expr_cli.md:108
 msgid "[frontend/testfloat_expr tutorial](../frontend/testfloat_expr.md) for the pass rule."
 msgstr "[frontend/testfloat_expr 教程](../frontend/testfloat_expr.md)：通过规则。"
 
@@ -23922,7 +24085,7 @@ msgid "check the committed fixtures"
 msgstr "检查已提交的固定样例"
 
 #: manual/tutorial/differential.md:11
-#: manual/tutorial/differential/harness.md:8
+#: manual/tutorial/differential/harness.md:10
 msgid "run a campaign"
 msgstr "运行一次测试活动"
 
@@ -24067,34 +24230,82 @@ msgid "differential/harness tutorial"
 msgstr "differential/harness 教程"
 
 #: manual/tutorial/differential/harness.md:3
-msgid "The harness is run through the `just random-diff` tooling; this page only says where its code lives."
-msgstr "该工具通过 `just random-diff` 工具运行；本页只说明它的代码在哪里。"
+msgid "The harness is run through the `just random-diff` tooling, which builds the `differential` executable around it. This tutorial says where its code lives, how to test it and how to extend it; the campaign workflow is in the [differential tutorial](../differential.md)."
+msgstr "该工具通过 `just random-diff` 运行，后者围绕它构建 `differential` 可执行文件。本教程说明它的代码在哪里、如何测试以及如何扩展；运行一次测试活动的工作流见 [differential 教程](../differential.md)。"
 
-#: manual/tutorial/differential/harness.md:8
+#: manual/tutorial/differential/harness.md:10
 msgid "[the `differential` tutorial](../differential.md)"
 msgstr "[`differential` 教程](../differential.md)"
 
-#: manual/tutorial/differential/harness.md:9
+#: manual/tutorial/differential/harness.md:11
+msgid "test the harness"
+msgstr "测试该工具"
+
+#: manual/tutorial/differential/harness.md:11
+msgid "[quick start](#quick-start)"
+msgstr "[快速开始](#quick-start)"
+
+#: manual/tutorial/differential/harness.md:12
 msgid "change the batching or the record"
 msgstr "修改批的拆分或记录"
 
-#: manual/tutorial/differential/harness.md:11
-msgid "Where the code is"
-msgstr "代码在哪里"
+#: manual/tutorial/differential/harness.md:12
+msgid "[everyday tasks](#everyday-tasks)"
+msgstr "[日常任务](#everyday-tasks)"
 
 #: manual/tutorial/differential/harness.md:13
-msgid "The files `batch.mbt` (corpus splitting and batch execution) and `harness.mbt` (options, experiment specification and `run`) live in `tooling/src/differential/harness`, with their white-box tests in `differential_wbtest.mbt`. Test them with:"
-msgstr "文件 `batch.mbt`（语料拆分与批执行）和 `harness.mbt`（选项、实验规格与 `run`）位于 `tooling/src/differential/harness`，其白盒测试在 `differential_wbtest.mbt` 中。用以下命令测试："
+msgid "add a family of rows"
+msgstr "添加一类行"
 
-#: manual/tutorial/differential/harness.md:24
+#: manual/tutorial/differential/harness.md:17
+msgid "The package ships inside the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository); there is nothing to install. Test it from the repository (native only, because `moonbitlang/async` has no wasm-gc runtime):"
+msgstr "该包随工具模块 `Luna-Flow/floating-tools`（仓库中的 `tooling/` 目录）一起提供，无需安装。从仓库测试它（仅限 native，因为 `moonbitlang/async` 没有 wasm-gc 运行时）："
+
+#: manual/tutorial/differential/harness.md:25
+msgid "Run the committed fixtures through the whole stack:"
+msgstr "让已提交的夹具通过整个栈："
+
+#: manual/tutorial/differential/harness.md:31
+msgid "`run` is the only public function; the `differential` executable calls it with `@env.args()`."
+msgstr "`run` 是唯一的公开函数；`differential` 可执行文件以 `@env.args()` 调用它。"
+
+#: manual/tutorial/differential/harness.md:36
+msgid "Find the code"
+msgstr "找到代码"
+
+#: manual/tutorial/differential/harness.md:38
+msgid "`batch.mbt` splits a corpus into batches and executes one (`split_corpus`, `execute_batch`); `harness.mbt` holds the command-line options, the experiment specification and `run`; `differential_wbtest.mbt` tests the batching and the failure text with inline corpora."
+msgstr "`batch.mbt` 把语料拆分成批并执行其中一批（`split_corpus`、`execute_batch`）；`harness.mbt` 包含命令行选项、实验规格和 `run`；`differential_wbtest.mbt` 用内联语料测试批处理和失败文本。"
+
+#: manual/tutorial/differential/harness.md:43
+msgid "Change how a corpus is split"
+msgstr "改变语料的拆分方式"
+
+#: manual/tutorial/differential/harness.md:45
+msgid "`split_corpus(text, size)` recognises the corpus kind from its header line and, for decimal corpora, repeats the directives (precision, rounding, exponent range) in front of the cases they govern, so a batch is always self-contained. Add a case to `differential_wbtest.mbt` with a small inline corpus before changing it, then run the command above."
+msgstr "`split_corpus(text, size)` 根据头部行识别语料类型，对于十进制语料，会在它们所约束的用例前重复这些指令（精度、舍入、指数范围），因此每一批都是自包含的。修改之前先在 `differential_wbtest.mbt` 中用一个小的内联语料添加用例，然后运行上面的命令。"
+
+#: manual/tutorial/differential/harness.md:52
+msgid "A new family of rows needs three things: an oracle program that writes the rows (outside MoonBit, see `tools/generate_*`), a frontend that executes one row, and a `CorpusKind` that `split_corpus` recognises from the header line and `execute_batch` maps to that frontend. The manifest and the replay command of `tools/random_differential.py` pick it up by family name."
+msgstr "新的行类别需要三样东西：写出这些行的预言程序（在 MoonBit 之外，见 `tools/generate_*`）、执行一行的前端，以及一个 `CorpusKind`，由 `split_corpus` 根据头部行识别，并由 `execute_batch` 映射到该前端。`tools/random_differential.py` 的清单和重放命令按类别名称识别它。"
+
+#: manual/tutorial/differential/harness.md:61
 msgid "**No wasm-gc build.** `moonbitlang/async` has no wasm-gc runtime, so the package declares `supported_targets = \"all-wasm-gc\"`."
 msgstr "**没有 wasm-gc 构建。** `moonbitlang/async` 没有 wasm-gc 运行时，所以本包声明 `supported_targets = \"all-wasm-gc\"`。"
 
-#: manual/tutorial/differential/harness.md:29
+#: manual/tutorial/differential/harness.md:63
+msgid "**Exit status.** `run` exits the process (`2` for a bad command line or corpus, `1` for a disagreement): do not call it from a test."
+msgstr "**退出状态。** `run` 会退出进程（命令行或语料有误为 `2`，出现分歧为 `1`）：不要在测试中调用它。"
+
+#: manual/tutorial/differential/harness.md:68
 msgid "[differential/harness API](../../api/differential/harness.md)."
 msgstr "[differential/harness API](../../api/differential/harness.md)。"
 
-#: manual/tutorial/differential/harness.md:30
+#: manual/tutorial/differential/harness.md:69
+msgid "[differential/harness design](../../design/differential/harness.md)."
+msgstr "[differential/harness 设计](../../design/differential/harness.md)。"
+
+#: manual/tutorial/differential/harness.md:70
 msgid "[differential tutorial](../differential.md) for the workflow."
 msgstr "工作流见 [differential 教程](../differential.md)。"
 
@@ -24211,118 +24422,126 @@ msgstr "用自己的库对行求值"
 #: manual/tutorial/frontend/itl_expr.md:19
 #: manual/tutorial/frontend/mpfr_expr.md:20
 #: manual/tutorial/frontend/testfloat_expr.md:23
-msgid "Add the library to your module and import the package in `moon.pkg`:"
-msgstr "把该库添加到你的模块，并在 `moon.pkg` 中导入该包："
+#: manual/tutorial/numeric_expr.md:21
+msgid "The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`."
+msgstr "该包属于工具模块 `Luna-Flow/floating-tools`（仓库中的 `tooling/` 目录，与库同版本），而不属于已发布的库。请把你的代码写成本工作区中的一个包；工具模块发布后，也可以运行 `moon add Luna-Flow/floating-tools@0.11.0`。"
 
-#: manual/tutorial/frontend/gda_expr.md:34
+#: manual/tutorial/frontend/gda_expr.md:24
+#: manual/tutorial/frontend/itl_expr.md:21
+#: manual/tutorial/frontend/mpfr_expr.md:22
+#: manual/tutorial/frontend/testfloat_expr.md:25
+msgid "Import the package in `moon.pkg`:"
+msgstr "在 `moon.pkg` 中导入该包："
+
+#: manual/tutorial/frontend/gda_expr.md:32
 msgid "Parse two rows and execute them:"
 msgstr "解析两行并执行："
 
-#: manual/tutorial/frontend/gda_expr.md:52
+#: manual/tutorial/frontend/gda_expr.md:50
 msgid "A row has the form `id operation operand… -> expected condition…`. The directives above the rows (`precision:`, `rounding:`, …) set the context that every following row uses."
 msgstr "每一行的形式为 `id operation operand… -> expected condition…`。行上方的指令（`precision:`、`rounding:`、…）设定其后所有行使用的上下文。"
 
-#: manual/tutorial/frontend/gda_expr.md:58
+#: manual/tutorial/frontend/gda_expr.md:56
 msgid "Read why a row failed"
 msgstr "查明某一行失败的原因"
 
-#: manual/tutorial/frontend/gda_expr.md:60
+#: manual/tutorial/frontend/gda_expr.md:58
 msgid "A row passes only if both the result and the exact set of conditions (status flags) match. Each `CaseResult` carries a message for a failure:"
 msgstr "只有结果与条件（状态标志）的精确集合都匹配时，一行才算通过。每个 `CaseResult` 都为失败附带一条消息："
 
-#: manual/tutorial/frontend/gda_expr.md:87
+#: manual/tutorial/frontend/gda_expr.md:85
 msgid "`bad2` has the right digits but omits `Inexact Rounded`; an extra flag is a failure just like a missing one."
 msgstr "`bad2` 的数字正确，但缺少 `Inexact Rounded`；多出一个标志与缺少一个标志一样，都算失败。"
 
-#: manual/tutorial/frontend/gda_expr.md:90
+#: manual/tutorial/frontend/gda_expr.md:88
 msgid "Results are compared with their exponent"
 msgstr "结果连同指数一起比较"
 
-#: manual/tutorial/frontend/gda_expr.md:92
+#: manual/tutorial/frontend/gda_expr.md:90
 msgid "The expected result is compared as a decimal *representation*, not only as a number: `2.0` and `2.00` have the same value but different exponents, and only the one with the right exponent passes. Signed zeros and NaN payloads are compared the same way."
 msgstr "预期结果是作为十进制*表示*来比较的，而不仅仅作为数值：`2.0` 和 `2.00` 的值相同但指数不同，只有指数正确的那个才能通过。带符号零和 NaN 的载荷也以同样方式比较。"
 
-#: manual/tutorial/frontend/gda_expr.md:115
+#: manual/tutorial/frontend/gda_expr.md:113
 msgid "Skipped rows and dispositions"
 msgstr "跳过的行与处置类型"
 
-#: manual/tutorial/frontend/gda_expr.md:117
+#: manual/tutorial/frontend/gda_expr.md:115
 msgid "Some rows are not executed. Each result has a `CaseDisposition`: `Executable` rows are run; `Diagnostic` rows (a `#` placeholder operand or result, or a `?` operand) and `Unsupported` rows (an unknown operation, condition or rounding mode) are counted as skipped and never fail the run."
 msgstr "有些行不会被执行。每个结果都有一个 `CaseDisposition`：`Executable` 行会被运行；`Diagnostic` 行（操作数或结果为 `#` 占位符，或操作数为 `?`）和 `Unsupported` 行（未知的运算、条件或舍入模式）计为跳过，永远不会导致运行失败。"
 
-#: manual/tutorial/frontend/gda_expr.md:155
+#: manual/tutorial/frontend/gda_expr.md:153
 msgid "`success()` only says that no executable row failed. A strict runner also requires that nothing was unsupported; the CLI does this with `--strict-supported`."
 msgstr "`success()` 只表示没有可执行行失败。严格的运行器还要求没有任何不支持的内容；CLI 通过 `--strict-supported` 实现这一点。"
 
-#: manual/tutorial/frontend/gda_expr.md:159
+#: manual/tutorial/frontend/gda_expr.md:157
 msgid "Select rows and split work into shards"
 msgstr "选择行并将工作拆分为分片"
 
-#: manual/tutorial/frontend/gda_expr.md:161
+#: manual/tutorial/frontend/gda_expr.md:159
 msgid "`RunOptions` filters rows by id and selects one shard of the remaining rows. A filter is a comma-separated list of ids or ranges `first..last`, where a range matches ids of the same length that sort between the bounds:"
 msgstr "`RunOptions` 按 id 过滤行，并从剩余的行中选出一个分片。过滤器是以逗号分隔的 id 或范围 `first..last` 列表，其中范围匹配长度相同、且排序位于上下界之间的 id："
 
-#: manual/tutorial/frontend/gda_expr.md:195
+#: manual/tutorial/frontend/gda_expr.md:193
 msgid "Shard `i` of `n` takes the rows whose position among the filtered rows is congruent to `i` modulo `n`, so the shards are disjoint and together cover every row. `RunSummary::merge` adds the counts back up."
 msgstr "`n` 个分片中的第 `i` 个，取在过滤后各行中位置模 `n` 同余于 `i` 的行，因此各分片互不相交，合起来覆盖所有行。`RunSummary::merge` 会把计数重新累加起来。"
 
-#: manual/tutorial/frontend/gda_expr.md:199
+#: manual/tutorial/frontend/gda_expr.md:197
 msgid "Look at the parsed rows"
 msgstr "查看解析后的行"
 
-#: manual/tutorial/frontend/gda_expr.md:201
+#: manual/tutorial/frontend/gda_expr.md:199
 msgid "`parse_dectest` keeps each row's text and the context in force for it, so you can inspect a corpus without executing it:"
 msgstr "`parse_dectest` 保留每一行的文本以及对其生效的上下文，因此无需执行即可检查语料："
 
-#: manual/tutorial/frontend/gda_expr.md:227
+#: manual/tutorial/frontend/gda_expr.md:225
 msgid "**Interchange rows.** In a context whose precision and exponent limits are exactly those of decimal32, decimal64 or decimal128, operands and results written as `#` followed by hexadecimal digits are IEEE 754 interchange encodings, and the result is compared bit for bit. Operands prefixed `32#`, `64#` or `128#` are read in that format."
 msgstr "**交换格式行。** 在精度和指数限制恰好等于 decimal32、decimal64 或 decimal128 的上下文中，以 `#` 后接十六进制数字书写的操作数和结果是 IEEE 754 交换编码，结果按位比较。带 `32#`、`64#` 或 `128#` 前缀的操作数按相应格式读取。"
 
-#: manual/tutorial/frontend/gda_expr.md:232
+#: manual/tutorial/frontend/gda_expr.md:230
 msgid "**Expected `?`.** A result of `?` means \"any value\": only the conditions are compared."
 msgstr "**预期为 `?`。** 结果为 `?` 表示“任意值”：只比较条件。"
 
-#: manual/tutorial/frontend/gda_expr.md:234
+#: manual/tutorial/frontend/gda_expr.md:232
 msgid "**Your own executor.** Every `GdaCase` exposes `expression()`, a [`numeric_expr`](../numeric_expr.md) tree, so you can evaluate the same rows with your own callbacks, for example against another decimal library."
 msgstr "**自定义执行器。** 每个 `GdaCase` 都提供 `expression()`，它返回一棵 [`numeric_expr`](../numeric_expr.md) 树，因此你可以用自己的回调来求值同样的行，例如对照另一个十进制库。"
 
-#: manual/tutorial/frontend/gda_expr.md:237
+#: manual/tutorial/frontend/gda_expr.md:235
 msgid "**Whole corpora.** `just conformance run decimal_gda` downloads the pinned official corpus, builds the native runner and executes all phases; see [verification](../../verification.md)."
 msgstr "**完整语料。** `just conformance run decimal_gda` 会下载固定版本的官方语料，构建 native 运行器并执行所有阶段；参见[验证](../../verification.md)。"
 
-#: manual/tutorial/frontend/gda_expr.md:243
+#: manual/tutorial/frontend/gda_expr.md:241
 msgid "**Parse errors reject the whole document.** `parse_dectest` returns all diagnostics and no document if any line is malformed; fix the line or drop it."
 msgstr "**解析错误会使整个文档被拒绝。** 只要有任何一行格式错误，`parse_dectest` 就返回全部诊断而不返回文档；请修正或删除该行。"
 
-#: manual/tutorial/frontend/gda_expr.md:246
+#: manual/tutorial/frontend/gda_expr.md:244
 msgid "**The default context is not a decTest default.** Before any directive the context is precision 34, `half_even`, exponents $\\pm 999999999$, `extended: 1`, `clamp: 0`. Real files set their own directives."
 msgstr "**默认上下文并非 decTest 的默认值。** 在任何指令之前，上下文为精度 34、`half_even`、指数 $\\pm 999999999$、`extended: 1`、`clamp: 0`。实际文件会设置各自的指令。"
 
-#: manual/tutorial/frontend/gda_expr.md:249
+#: manual/tutorial/frontend/gda_expr.md:247
 msgid "**`success()` ignores skipped rows.** Check `unsupported_cases()` (or use the CLI's `--strict-supported`) if unsupported rows must fail the run."
 msgstr "**`success()` 忽略被跳过的行。** 如果不支持的行必须导致运行失败，请检查 `unsupported_cases()`（或使用 CLI 的 `--strict-supported`）。"
 
-#: manual/tutorial/frontend/gda_expr.md:251
+#: manual/tutorial/frontend/gda_expr.md:249
 msgid "**Doubled quotes.** Inside a quoted token, the delimiting quote written twice is one literal quote (`'1''2'` is the operand `1'2`), so a quoted token ends only at a single matching quote."
 msgstr "**连写的引号。** 在带引号的记号内部，连写两次的定界引号表示一个字面引号（`'1''2'` 是操作数 `1'2`），因此带引号的记号只在单个匹配引号处结束。"
 
-#: manual/tutorial/frontend/gda_expr.md:254
+#: manual/tutorial/frontend/gda_expr.md:252
 msgid "**Invalid contexts are skipped.** A non-positive precision directive (or `minexponent` above `maxexponent`) is accepted by the parser, and the rows under it are `Diagnostic`: they are counted in `diagnostic_cases()`, not executed."
 msgstr "**无效上下文会被跳过。** 解析器接受非正的精度指令（或大于 `maxexponent` 的 `minexponent`），其下的行为 `Diagnostic`：它们计入 `diagnostic_cases()`，而不会被执行。"
 
-#: manual/tutorial/frontend/gda_expr.md:261
+#: manual/tutorial/frontend/gda_expr.md:259
 msgid "[frontend/gda_expr API](../../api/frontend/gda_expr.md) for every item."
 msgstr "[frontend/gda_expr API](../../api/frontend/gda_expr.md)：每个条目。"
 
-#: manual/tutorial/frontend/gda_expr.md:262
+#: manual/tutorial/frontend/gda_expr.md:260
 msgid "[frontend/gda_expr design](../../design/frontend/gda_expr.md) for the exact pass rule and the row-to-operation mapping."
 msgstr "[frontend/gda_expr 设计](../../design/frontend/gda_expr.md)：精确的通过规则以及行到运算的映射。"
 
-#: manual/tutorial/frontend/gda_expr.md:264
+#: manual/tutorial/frontend/gda_expr.md:262
 msgid "[cli/gda_expr_cli tutorial](../cli/gda_expr_cli.md) for running corpora from the command line."
 msgstr "[cli/gda_expr_cli 教程](../cli/gda_expr_cli.md)：从命令行运行语料。"
 
-#: manual/tutorial/frontend/gda_expr.md:266
+#: manual/tutorial/frontend/gda_expr.md:264
 msgid "[decimal_gda tutorial](../decimal_gda.md) for the arithmetic being tested."
 msgstr "[decimal_gda 教程](../decimal_gda.md)：被测试的算术。"
 
@@ -24366,83 +24585,83 @@ msgstr "查明某个用例为何未被运行"
 msgid "[filter on `ItlCase::operation`](#going-further)"
 msgstr "[按 `ItlCase::operation` 过滤](#going-further)"
 
-#: manual/tutorial/frontend/itl_expr.md:31
+#: manual/tutorial/frontend/itl_expr.md:29
 msgid "Parse a test case block and run it:"
 msgstr "解析一个测试用例块并运行："
 
-#: manual/tutorial/frontend/itl_expr.md:50
+#: manual/tutorial/frontend/itl_expr.md:48
 msgid "Each statement `operation operand… = expected;` becomes one `ItlCase` with the id `testcase:index`."
 msgstr "每条语句 `operation operand… = expected;` 成为一个 `ItlCase`，其 id 为 `testcase:index`。"
 
-#: manual/tutorial/frontend/itl_expr.md:55
+#: manual/tutorial/frontend/itl_expr.md:53
 msgid "Inspect parsed cases"
 msgstr "检查解析后的用例"
 
-#: manual/tutorial/frontend/itl_expr.md:74
+#: manual/tutorial/frontend/itl_expr.md:72
 msgid "A statement may span several lines; it ends at `;`. Bounds can be decimal or hexadecimal (`0x1.8p1`) text, and the literals `[empty]`, `[entire]` and `[nai]` are understood."
 msgstr "一条语句可以跨越多行，以 `;` 结束。端点可以是十进制或十六进制（`0x1.8p1`）文本，并且可以识别字面量 `[empty]`、`[entire]` 和 `[nai]`。"
 
-#: manual/tutorial/frontend/itl_expr.md:78
+#: manual/tutorial/frontend/itl_expr.md:76
 msgid "Check decorations"
 msgstr "检查装饰"
 
-#: manual/tutorial/frontend/itl_expr.md:80
+#: manual/tutorial/frontend/itl_expr.md:78
 msgid "A decoration suffix (`_com`, `_dac`, `_def`, `_trv`, `_ill`) on the expected value makes the decoration part of the test. Without a suffix only the set is compared. Failure messages print intervals in midpoint-radius form:"
 msgstr "预期值上的装饰（decoration）后缀（`_com`、`_dac`、`_def`、`_trv`、`_ill`）使装饰成为测试的一部分。没有后缀时只比较集合。失败消息以中点-半径形式打印区间："
 
-#: manual/tutorial/frontend/itl_expr.md:103
+#: manual/tutorial/frontend/itl_expr.md:101
 msgid "Numbers, booleans and overlap states"
 msgstr "数值、布尔值与重叠状态"
 
-#: manual/tutorial/frontend/itl_expr.md:105
+#: manual/tutorial/frontend/itl_expr.md:103
 msgid "Besides interval results, ITL cases can expect a number (`inf`, `sup`, `mid`, `rad`, `wid`, `mag`, `mig`), a boolean (`isEmpty`, `subset`, `isMember`, …) or an overlap state name:"
 msgstr "除区间结果外，ITL 用例还可以预期一个数值（`inf`、`sup`、`mid`、`rad`、`wid`、`mag`、`mig`）、一个布尔值（`isEmpty`、`subset`、`isMember`、…）或一个重叠状态名："
 
-#: manual/tutorial/frontend/itl_expr.md:127
+#: manual/tutorial/frontend/itl_expr.md:125
 msgid "Unsupported and malformed cases"
 msgstr "不支持的用例与格式错误的用例"
 
-#: manual/tutorial/frontend/itl_expr.md:129
+#: manual/tutorial/frontend/itl_expr.md:127
 msgid "A case the executor does not implement is `Unsupported`, whatever its operands (`nums2interval 1.0 2.0` included); a case of a known operation whose operands cannot be read is a `Diagnostic`. Neither counts as a failure, but a diagnostic makes `success()` false:"
 msgstr "执行器未实现的用例是 `Unsupported`，无论其操作数如何（包括 `nums2interval 1.0 2.0`）；已知运算的用例若其操作数无法读取，则为 `Diagnostic`。两者都不算作失败，但诊断会使 `success()` 为 false："
 
-#: manual/tutorial/frontend/itl_expr.md:155
+#: manual/tutorial/frontend/itl_expr.md:153
 msgid "**Corpus runs.** `just conformance run interval` fetches the pinned ITF1788 corpus, builds the native runner and runs the strict phases listed in `testdata/interval/interpreter_stages.json`; see [verification](../../verification.md)."
 msgstr "**语料运行。** `just conformance run interval` 获取固定版本的 ITF1788 语料，构建 native 运行器，并运行 `testdata/interval/interpreter_stages.json` 中列出的严格阶段；参见[验证](../../verification.md)。"
 
-#: manual/tutorial/frontend/itl_expr.md:159
+#: manual/tutorial/frontend/itl_expr.md:157
 msgid "**Filtering by operation.** The CLI's `--operation NAME` option keeps only cases of that operation; in code, filter `cases` by `operation()` before executing."
 msgstr "**按运算过滤。** CLI 的 `--operation NAME` 选项只保留该运算的用例；在代码中，可在执行前按 `operation()` 过滤 `cases`。"
 
-#: manual/tutorial/frontend/itl_expr.md:162
+#: manual/tutorial/frontend/itl_expr.md:160
 msgid "**Precision.** `execute_case(case, precision=p)` reads bounds and rounds results at `p` bits, with the binary64 exponent range. The ITF1788 data is written for binary64, so keep the default `53` for corpus runs."
 msgstr "**精度。** `execute_case(case, precision=p)` 以 `p` 位读取端点并舍入结果，指数范围与 binary64 相同。ITF1788 数据是为 binary64 编写的，因此运行测试语料时请保持默认值 `53`。"
 
-#: manual/tutorial/frontend/itl_expr.md:168
+#: manual/tutorial/frontend/itl_expr.md:166
 msgid "**Decimal bounds are rounded to nearest.** As in ITF1788, a bound such as `0.1` is a floating constant of the format, read as the nearest binary64 number, so `[0.1,0.1]` is the singleton of that number, not an enclosure of one tenth. To test an enclosure of a decimal value, write its bounds in hexadecimal."
 msgstr "**十进制端点按就近舍入。** 与 ITF1788 一样，诸如 `0.1` 的端点是该格式的浮点常量，被读作最接近的 binary64 数，因此 `[0.1,0.1]` 是该数构成的单点区间，而不是包含十分之一的区间。若要测试某个十进制值的包含区间，请用十六进制写出其端点。"
 
-#: manual/tutorial/frontend/itl_expr.md:173
+#: manual/tutorial/frontend/itl_expr.md:171
 msgid "**Signals are not checked.** ITL annotations such as `signal …` after the expected value make the expected value unreadable; such cases become unsupported or diagnostic rather than passing."
 msgstr "**不检查信号。** 预期值之后的 `signal …` 等 ITL 注解会使预期值无法读取；这类用例会成为不支持或诊断用例，而不会通过。"
 
-#: manual/tutorial/frontend/itl_expr.md:176
+#: manual/tutorial/frontend/itl_expr.md:174
 msgid "**Parse errors reject the input.** `parse_itl` returns only diagnostics if any statement lacks `=` or an operation, or if the text ends inside a statement."
 msgstr "**解析错误会使输入被拒绝。** 只要有任何语句缺少 `=` 或运算，或者文本在语句中途结束，`parse_itl` 就只返回诊断。"
 
-#: manual/tutorial/frontend/itl_expr.md:182
+#: manual/tutorial/frontend/itl_expr.md:180
 msgid "[frontend/itl_expr API](../../api/frontend/itl_expr.md) for every item and the list of executed operations."
 msgstr "[frontend/itl_expr API](../../api/frontend/itl_expr.md)：每个条目以及已执行运算的列表。"
 
-#: manual/tutorial/frontend/itl_expr.md:184
+#: manual/tutorial/frontend/itl_expr.md:182
 msgid "[frontend/itl_expr design](../../design/frontend/itl_expr.md) for the pass rule."
 msgstr "[frontend/itl_expr 设计](../../design/frontend/itl_expr.md)：通过规则。"
 
-#: manual/tutorial/frontend/itl_expr.md:186
+#: manual/tutorial/frontend/itl_expr.md:184
 msgid "[cli/itl_expr_cli tutorial](../cli/itl_expr_cli.md) for running files from the command line."
 msgstr "[cli/itl_expr_cli 教程](../cli/itl_expr_cli.md)：从命令行运行文件。"
 
-#: manual/tutorial/frontend/itl_expr.md:188
+#: manual/tutorial/frontend/itl_expr.md:186
 msgid "[ball_float tutorial](../ball_float.md) for the interval arithmetic being tested."
 msgstr "[ball_float 教程](../ball_float.md)：被测试的区间算术。"
 
@@ -24474,91 +24693,91 @@ msgstr "找出格式错误的行"
 msgid "run the pinned corpora"
 msgstr "运行固定版本的语料"
 
-#: manual/tutorial/frontend/mpfr_expr.md:32
+#: manual/tutorial/frontend/mpfr_expr.md:30
 msgid "Check one square root: $\\sqrt{2^{-1074} \\cdot 2^{52}} = 2^{-511}$ at 53 bits, rounding to nearest:"
 msgstr "检验一个平方根：在 53 位精度、就近舍入下，$\\sqrt{2^{-1074} \\cdot 2^{52}} = 2^{-511}$："
 
-#: manual/tutorial/frontend/mpfr_expr.md:49
+#: manual/tutorial/frontend/mpfr_expr.md:47
 msgid "Numbers are written as hexadecimal significand and binary exponent: `0x10000000000000p-1074` is $2^{52} \\cdot 2^{-1074}$."
 msgstr "数值以十六进制有效数和二进制指数书写：`0x10000000000000p-1074` 即 $2^{52} \\cdot 2^{-1074}$。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:54
+#: manual/tutorial/frontend/mpfr_expr.md:52
 msgid "Elementary functions with flags"
 msgstr "带标志的初等函数"
 
-#: manual/tutorial/frontend/mpfr_expr.md:56
+#: manual/tutorial/frontend/mpfr_expr.md:54
 msgid "An elementary row names the function, the output precision and rounding, the operands, the expected result and three exception flags (inexact, invalid, division by zero). Unused operands are written `-` (second operand) and `0` (integer operand):"
 msgstr "初等函数行依次给出函数名、输出精度与舍入模式、操作数、预期结果，以及三个异常标志（不精确、无效、除以零）。未使用的操作数写作 `-`（第二操作数）和 `0`（整数操作数）："
 
-#: manual/tutorial/frontend/mpfr_expr.md:80
+#: manual/tutorial/frontend/mpfr_expr.md:78
 msgid "`ln(0) = -inf` raises division by zero and `sqrt(-1)` is an invalid operation returning NaN; both flags are part of the check."
 msgstr "`ln(0) = -inf` 引发除以零，`sqrt(-1)` 是返回 NaN 的无效运算；两个标志都是检验的一部分。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:85
+#: manual/tutorial/frontend/mpfr_expr.md:83
 msgid "A `pow` row splits each number into coefficient, binary exponent and sign:"
 msgstr "`pow` 行把每个数拆分为系数、二进制指数和符号："
 
-#: manual/tutorial/frontend/mpfr_expr.md:100
+#: manual/tutorial/frontend/mpfr_expr.md:98
 msgid "The fields are: precision, rounding, input coefficient (hex digits), input exponent, input sign (`1` negative), integer exponent, expected coefficient, expected exponent, expected sign, inexact flag. Here `0x6c0p-9` is $1728/512 = 27/8$."
 msgstr "各字段依次为：精度、舍入模式、输入系数（十六进制数字）、输入指数、输入符号（`1` 表示负）、整数指数、预期系数、预期指数、预期符号、不精确标志。此处 `0x6c0p-9` 即 $1728/512 = 27/8$。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:105
+#: manual/tutorial/frontend/mpfr_expr.md:103
 msgid "Read a failure"
 msgstr "解读失败"
 
-#: manual/tutorial/frontend/mpfr_expr.md:126
+#: manual/tutorial/frontend/mpfr_expr.md:124
 msgid "The id is the operation (or `sqrt`/`pow`) and the line number."
 msgstr "id 由运算名（或 `sqrt`/`pow`）和行号组成。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:128
+#: manual/tutorial/frontend/mpfr_expr.md:126
 msgid "Parse errors"
 msgstr "解析错误"
 
-#: manual/tutorial/frontend/mpfr_expr.md:130
+#: manual/tutorial/frontend/mpfr_expr.md:128
 msgid "Every malformed line is reported with its line number, and no document is returned:"
 msgstr "每一行格式错误的行都会连同行号一起报告，并且不返回文档："
 
-#: manual/tutorial/frontend/mpfr_expr.md:149
+#: manual/tutorial/frontend/mpfr_expr.md:147
 msgid "**Corpora.** `just conformance run binary` executes the pinned MPFR `tests/data/sqrt` file and the committed elementary matrix `testdata/bin_float/mpfr-4.2.2-elementary.txt` together with TestFloat; see [verification](../../verification.md). The generators for the elementary and power data are `tools/generate_mpfr_elementary_oracle.c` and `tools/generate_mpfr_pow_oracle.c`."
 msgstr "**语料。** `just conformance run binary` 将固定版本的 MPFR `tests/data/sqrt` 文件、仓库中提交的初等函数矩阵 `testdata/bin_float/mpfr-4.2.2-elementary.txt` 与 TestFloat 一起执行；参见[验证](../../verification.md)。初等函数数据和幂运算数据的生成器分别是 `tools/generate_mpfr_elementary_oracle.c` 和 `tools/generate_mpfr_pow_oracle.c`。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:155
+#: manual/tutorial/frontend/mpfr_expr.md:153
 msgid "**Which parser?** The CLI chooses the elementary format when the file contains `mpfr-elementary-v1`, the power format when it contains `input_coefficient_hex`, and the square-root format otherwise. Put the marker in a comment line."
 msgstr "**用哪个解析器？** 当文件包含 `mpfr-elementary-v1` 时，CLI 选择初等函数格式；包含 `input_coefficient_hex` 时选择幂运算格式；否则选择平方根格式。请把标记放在注释行中。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:162
+#: manual/tutorial/frontend/mpfr_expr.md:160
 msgid "**Elementary rows compare numbers, not encodings.** Any NaN matches an expected `nan`, and a zero must have the expected sign. Square-root and power rows compare the whole `BinFloat`."
 msgstr "**初等函数行比较的是数值，而不是编码。** 任何 NaN 都匹配期望的 `nan`，而零必须具有期望的符号。平方根行和幂运算行比较整个 `BinFloat`。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:165
+#: manual/tutorial/frontend/mpfr_expr.md:163
 msgid "**Square-root flags are not checked.** `sqrt` data rows compare only the value."
 msgstr "**不检查平方根的标志。** `sqrt` 数据行只比较值。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:167
+#: manual/tutorial/frontend/mpfr_expr.md:165
 msgid "**No exponent range.** Rows are executed in an unbounded context: there is no overflow, underflow or subnormal range, and an elementary or power row that reports overflow or underflow fails."
 msgstr "**没有指数范围。** 各行在无界上下文中执行：不存在上溢、下溢或次正规数范围；报告上溢或下溢的初等函数行或幂运算行会失败。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:170
+#: manual/tutorial/frontend/mpfr_expr.md:168
 msgid "**Binary operations need a second operand.** An elementary `pow`, `hypot` or `atan2` row with `-` as second operand is the parse diagnostic `invalid MPFR elementary field`."
 msgstr "**二元运算需要第二个操作数。** 第二个操作数为 `-` 的 `pow`、`hypot` 或 `atan2` 初等函数行会产生解析诊断 `invalid MPFR elementary field`。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:173
+#: manual/tutorial/frontend/mpfr_expr.md:171
 msgid "**Inputs are read at 512 bits.** Elementary and power operands with longer significands are rounded before the function is evaluated."
 msgstr "**输入以 512 位读取。** 有效数字更长的初等函数和幂的操作数会在函数求值之前被舍入。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:178
+#: manual/tutorial/frontend/mpfr_expr.md:176
 msgid "[frontend/mpfr_expr API](../../api/frontend/mpfr_expr.md) for every item and the exact field layouts."
 msgstr "[frontend/mpfr_expr API](../../api/frontend/mpfr_expr.md)：每个条目以及确切的字段布局。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:180
+#: manual/tutorial/frontend/mpfr_expr.md:178
 msgid "[frontend/mpfr_expr design](../../design/frontend/mpfr_expr.md) for the pass rules."
 msgstr "[frontend/mpfr_expr 设计](../../design/frontend/mpfr_expr.md)：通过规则。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:182
+#: manual/tutorial/frontend/mpfr_expr.md:180
 msgid "[cli/mpfr_expr_cli tutorial](../cli/mpfr_expr_cli.md) for running a file from the command line."
 msgstr "[cli/mpfr_expr_cli 教程](../cli/mpfr_expr_cli.md)：从命令行运行文件。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:184
+#: manual/tutorial/frontend/mpfr_expr.md:182
 msgid "[bin_float tutorial](../bin_float.md) for the functions being tested."
 msgstr "[bin_float 教程](../bin_float.md)：被测试的函数。"
 
@@ -24602,95 +24821,95 @@ msgstr "检验比较谓词"
 msgid "split a file over processes"
 msgstr "把文件拆分到多个进程"
 
-#: manual/tutorial/frontend/testfloat_expr.md:35
+#: manual/tutorial/frontend/testfloat_expr.md:33
 msgid "Check $1.5 \\times 2 = 3$ in binary64:"
 msgstr "在 binary64 中检验 $1.5 \\times 2 = 3$："
 
-#: manual/tutorial/frontend/testfloat_expr.md:51
+#: manual/tutorial/frontend/testfloat_expr.md:49
 msgid "The last field is the SoftFloat flag mask: `01` inexact, `02` underflow, `04` overflow, `08` division by zero (infinite), `10` invalid."
 msgstr "最后一个字段是 SoftFloat 标志掩码：`01` 不精确，`02` 下溢，`04` 上溢，`08` 除以零（无穷），`10` 无效。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:56
+#: manual/tutorial/frontend/testfloat_expr.md:54
 msgid "Values and flags are both checked"
 msgstr "值和标志都会被检查"
 
-#: manual/tutorial/frontend/testfloat_expr.md:58
+#: manual/tutorial/frontend/testfloat_expr.md:56
 msgid "A vector fails if either the encoded result or the flag mask differs:"
 msgstr "编码结果或标志掩码只要有一个不同，该向量即失败："
 
-#: manual/tutorial/frontend/testfloat_expr.md:80
+#: manual/tutorial/frontend/testfloat_expr.md:78
 msgid "Ids are the function name and the line number."
 msgstr "id 由函数名和行号组成。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:82
+#: manual/tutorial/frontend/testfloat_expr.md:80
 msgid "NaN results"
 msgstr "NaN 结果"
 
-#: manual/tutorial/frontend/testfloat_expr.md:84
+#: manual/tutorial/frontend/testfloat_expr.md:82
 msgid "When the expected result is a NaN, any quiet NaN is accepted, because IEEE 754 does not fix the payload or sign of a generated NaN. The flags must still match:"
 msgstr "当预期结果为 NaN 时，任何静默 NaN 都可接受，因为 IEEE 754 并未规定生成的 NaN 的载荷或符号。但标志仍须匹配："
 
-#: manual/tutorial/frontend/testfloat_expr.md:103
+#: manual/tutorial/frontend/testfloat_expr.md:101
 msgid "Conversions to integers and the exact variants"
 msgstr "到整数的转换与 exact 变体"
 
-#: manual/tutorial/frontend/testfloat_expr.md:105
+#: manual/tutorial/frontend/testfloat_expr.md:103
 msgid "For `to_i32`, `to_i64`, `to_ui32` and `to_ui64` the result field is the integer in hexadecimal. With `exact=true` (TestFloat's `-exact`) an inexact conversion also raises the inexact flag. An invalid conversion is checked by its flags only:"
 msgstr "对于 `to_i32`、`to_i64`、`to_ui32` 和 `to_ui64`，结果字段是十六进制的整数。使用 `exact=true`（对应 TestFloat 的 `-exact`）时，不精确的转换还会引发不精确标志。无效转换只通过其标志检查："
 
-#: manual/tutorial/frontend/testfloat_expr.md:138
+#: manual/tutorial/frontend/testfloat_expr.md:136
 msgid "Comparisons"
 msgstr "比较"
 
-#: manual/tutorial/frontend/testfloat_expr.md:140
+#: manual/tutorial/frontend/testfloat_expr.md:138
 msgid "The comparison functions expect `0` or `1`. The signaling predicates (`eq_signaling`, `le`, `lt`) raise invalid for any NaN operand; the quiet ones (`eq`, `le_quiet`, `lt_quiet`) only for signaling NaNs:"
 msgstr "比较函数预期结果为 `0` 或 `1`。发信号的谓词（`eq_signaling`、`le`、`lt`）对任何 NaN 操作数都引发无效；静默谓词（`eq`、`le_quiet`、`lt_quiet`）只对信号 NaN 引发："
 
-#: manual/tutorial/frontend/testfloat_expr.md:168
+#: manual/tutorial/frontend/testfloat_expr.md:166
 msgid "`RunOptions` runs every `n`-th vector, starting at index `i`, so `n` processes can share one file:"
 msgstr "`RunOptions` 从索引 `i` 开始，每隔 `n` 个运行一个向量，因此 `n` 个进程可以共享同一个文件："
 
-#: manual/tutorial/frontend/testfloat_expr.md:195
+#: manual/tutorial/frontend/testfloat_expr.md:193
 msgid "**Generating vectors.** `just conformance fetch binary` downloads the pinned SoftFloat and TestFloat sources, and `just conformance run binary --level 1` builds `testfloat_gen`, then generates and executes the matrix of all formats, operations and rounding modes. Tininess defaults to after rounding; add `--tininess after --tininess before` to run both modes for the operations that can underflow. See [verification](../../verification.md)."
 msgstr "**生成向量。** `just conformance fetch binary` 下载固定版本的 SoftFloat 和 TestFloat 源码，`just conformance run binary --level 1` 构建 `testfloat_gen`，然后生成并执行涵盖所有格式、运算和舍入模式的矩阵。微小性默认按舍入后判定；添加 `--tininess after --tininess before` 可对可能下溢的运算运行两种模式。参见[验证](../../verification.md)。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:202
+#: manual/tutorial/frontend/testfloat_expr.md:200
 msgid "**Tininess.** Pass `tininess=\"before\"` to `TestFloatSpec::parse` to match vectors generated with `-tininessbefore`; the default is after rounding."
 msgstr "**微小性。** 向 `TestFloatSpec::parse` 传入 `tininess=\"before\"`，以匹配用 `-tininessbefore` 生成的向量；默认是舍入后判定。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:204
+#: manual/tutorial/frontend/testfloat_expr.md:202
 msgid "**Function names.** The spec accepts TestFloat names: `f16_`, `f32_`, `f64_` or `f128_` followed by `add`, `sub`, `mul`, `div`, `sqrt`, `mulAdd`, `rem`, `roundToInt`, `to_i32`, `to_i64`, `to_ui32`, `to_ui64`, `eq`, `le`, `lt`, `eq_signaling`, `le_quiet` or `lt_quiet`."
 msgstr "**函数名。** spec 接受 TestFloat 名称：`f16_`、`f32_`、`f64_` 或 `f128_` 后接 `add`、`sub`、`mul`、`div`、`sqrt`、`mulAdd`、`rem`、`roundToInt`、`to_i32`、`to_i64`、`to_ui32`、`to_ui64`、`eq`、`le`、`lt`、`eq_signaling`、`le_quiet` 或 `lt_quiet`。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:211
+#: manual/tutorial/frontend/testfloat_expr.md:209
 msgid "**One function per document.** The spec applies to every line; split mixed files."
 msgstr "**每个文档只对应一个函数。** spec 作用于每一行；请拆分混合文件。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:213
+#: manual/tutorial/frontend/testfloat_expr.md:211
 msgid "**The rounding argument is not optional.** `rem` and the comparisons ignore it, but `TestFloatSpec::parse` still needs a valid name such as `rnear_even`."
 msgstr "**舍入参数不可省略。** `rem` 和比较运算会忽略它，但 `TestFloatSpec::parse` 仍需要一个有效名称，例如 `rnear_even`。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:216
+#: manual/tutorial/frontend/testfloat_expr.md:214
 msgid "**`rodd` is not supported.** Only the five IEEE directions are accepted."
 msgstr "**不支持 `rodd`。** 只接受 IEEE 的五种方向。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:217
+#: manual/tutorial/frontend/testfloat_expr.md:215
 msgid "**`exact` matters.** Vectors from `-exact` runs contain the inexact flag for `roundToInt` and integer conversions; parse them with `exact=true`."
 msgstr "**`exact` 很重要。** 来自 `-exact` 运行的向量中，`roundToInt` 和整数转换带有不精确标志；请用 `exact=true` 解析它们。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:222
+#: manual/tutorial/frontend/testfloat_expr.md:220
 msgid "[frontend/testfloat_expr API](../../api/frontend/testfloat_expr.md) for every item."
 msgstr "[frontend/testfloat_expr API](../../api/frontend/testfloat_expr.md)：每个条目。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:224
+#: manual/tutorial/frontend/testfloat_expr.md:222
 msgid "[frontend/testfloat_expr design](../../design/frontend/testfloat_expr.md) for the exact pass rule."
 msgstr "[frontend/testfloat_expr 设计](../../design/frontend/testfloat_expr.md)：精确的通过规则。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:226
+#: manual/tutorial/frontend/testfloat_expr.md:224
 msgid "[cli/testfloat_expr_cli tutorial](../cli/testfloat_expr_cli.md) for running vector files from the command line."
 msgstr "[cli/testfloat_expr_cli 教程](../cli/testfloat_expr_cli.md)：从命令行运行向量文件。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:228
+#: manual/tutorial/frontend/testfloat_expr.md:226
 msgid "[bin_float conformance](../../conformance/bin_float.md) for the published TestFloat claim."
 msgstr "[bin_float 符合性](../../conformance/bin_float.md)：已发布的 TestFloat 声明。"
 
@@ -24868,8 +25087,8 @@ msgstr "[包装类型](#wrap-the-model-in-a-frontend-type)"
 
 #: manual/tutorial/internal/conformance.md:22
 #: manual/tutorial/internal/runner_cli.md:22
-msgid "There is nothing to install: the package ships inside `Luna-Flow/floating`. Run its tests from the repository:"
-msgstr "无需安装：该包随 `Luna-Flow/floating` 一起发布。在仓库中运行它的测试："
+msgid "There is nothing to install: the package ships inside the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository). Run its tests from the repository:"
+msgstr "无需安装：该包随工具模块 `Luna-Flow/floating-tools`（仓库中的 `tooling/` 目录）一起提供。从仓库运行其测试："
 
 #: manual/tutorial/internal/conformance.md:29
 msgid "In a frontend package of the module, import it in `moon.pkg`:"
@@ -25107,83 +25326,87 @@ msgstr "在模块内部导入这些辅助函数和一个前端："
 msgid "A minimal runner (`run` receives the whole argument vector, program name first):"
 msgstr "一个最小的运行器（`run` 接收完整的参数向量，程序名在首位）："
 
-#: manual/tutorial/internal/runner_cli.md:102
+#: manual/tutorial/internal/runner_cli.md:100
+msgid "The runner is an ordinary function, so a test can check its exit status without a process:"
+msgstr "运行器是一个普通函数，所以测试无需进程即可检查其退出状态："
+
+#: manual/tutorial/internal/runner_cli.md:112
 msgid "Follow the exit-code convention"
 msgstr "遵循退出码约定"
 
-#: manual/tutorial/internal/runner_cli.md:104
+#: manual/tutorial/internal/runner_cli.md:114
 msgid "All runners in `cli/` use the same codes, which `tools/*.py` relies on:"
 msgstr "`cli/` 中的所有运行器都使用相同的退出码，`tools/*.py` 依赖于此："
 
-#: manual/tutorial/internal/runner_cli.md:108
+#: manual/tutorial/internal/runner_cli.md:118
 msgid "every executed case passed (and, in strict mode, nothing was unsupported)"
 msgstr "所有已执行的用例都通过（并且在严格模式下没有不支持的用例）"
 
-#: manual/tutorial/internal/runner_cli.md:109
+#: manual/tutorial/internal/runner_cli.md:119
 msgid "at least one case failed, or strict mode found unsupported cases (`gda-expr` also counts legacy rows)"
 msgstr "至少一个用例失败，或严格模式发现了不支持的用例（`gda-expr` 还会计入 legacy 行）"
 
-#: manual/tutorial/internal/runner_cli.md:110
+#: manual/tutorial/internal/runner_cli.md:120
 msgid "usage error, unreadable file, or parse diagnostic"
 msgstr "用法错误、文件无法读取或解析诊断"
 
-#: manual/tutorial/internal/runner_cli.md:112
+#: manual/tutorial/internal/runner_cli.md:122
 msgid "Add a runner-specific option"
 msgstr "添加运行器专用选项"
 
-#: manual/tutorial/internal/runner_cli.md:114
+#: manual/tutorial/internal/runner_cli.md:124
 msgid "`parse_common_options` leaves every argument it does not know in `remaining()`, in order. Parse your own options from that array and treat the rest as paths. Pass `allow_shard=false` if your runner cannot shard; the shard options then stay in `remaining()` and your parser should reject them as unknown."
 msgstr "`parse_common_options` 会把它不认识的所有参数按顺序留在 `remaining()` 中。从该数组中解析你自己的选项，其余的视为路径。如果你的运行器不能分片，请传入 `allow_shard=false`；此时分片选项会保留在 `remaining()` 中，你的解析器应将其作为未知选项拒绝。"
 
-#: manual/tutorial/internal/runner_cli.md:120
+#: manual/tutorial/internal/runner_cli.md:130
 msgid "Keep output machine-readable"
 msgstr "保持输出机器可读"
 
-#: manual/tutorial/internal/runner_cli.md:122
+#: manual/tutorial/internal/runner_cli.md:132
 msgid "Print exactly one JSON object per invocation when `--json` is given. Build it with `json_object` so the key order is the order you list, and use `json_int` for counts so they print as integers."
 msgstr "给出 `--json` 时，每次调用只打印一个 JSON 对象。用 `json_object` 构造它，使键的顺序与你列出的顺序一致，并对计数使用 `json_int`，使其打印为整数。"
 
-#: manual/tutorial/internal/runner_cli.md:128
+#: manual/tutorial/internal/runner_cli.md:138
 msgid "The four runners in `cli/` are complete examples: [gda_expr_cli](../cli/gda_expr_cli.md), [itl_expr_cli](../cli/itl_expr_cli.md), [mpfr_expr_cli](../cli/mpfr_expr_cli.md) and [testfloat_expr_cli](../cli/testfloat_expr_cli.md)."
 msgstr "`cli/` 中的四个运行器都是完整的示例：[gda_expr_cli](../cli/gda_expr_cli.md)、[itl_expr_cli](../cli/itl_expr_cli.md)、[mpfr_expr_cli](../cli/mpfr_expr_cli.md) 和 [testfloat_expr_cli](../cli/testfloat_expr_cli.md)。"
 
-#: manual/tutorial/internal/runner_cli.md:133
+#: manual/tutorial/internal/runner_cli.md:143
 msgid "Build the native dispatcher with `sh tools/run_moon_clean_exec.sh run --release --target native tooling/src/cli -- --help`."
 msgstr "用 `sh tools/run_moon_clean_exec.sh run --release --target native tooling/src/cli -- --help` 构建 native 分发器。"
 
-#: manual/tutorial/internal/runner_cli.md:135
+#: manual/tutorial/internal/runner_cli.md:145
 msgid "Run the helper tests from a workspace that contains the module: `moon test -p Luna-Flow/floating-tools/internal/runner_cli`."
 msgstr "在包含该模块的工作区中运行辅助函数的测试：`moon test -p Luna-Flow/floating-tools/internal/runner_cli`。"
 
-#: manual/tutorial/internal/runner_cli.md:140
+#: manual/tutorial/internal/runner_cli.md:150
 msgid "**Program name.** `parse_common_options` skips `arguments[0]`. Pass the full vector, not a slice without the program name, or the first real argument is lost."
 msgstr "**程序名。** `parse_common_options` 会跳过 `arguments[0]`。请传入完整的向量，而不是去掉程序名的切片，否则第一个真正的参数会丢失。"
 
-#: manual/tutorial/internal/runner_cli.md:143
+#: manual/tutorial/internal/runner_cli.md:153
 msgid "**Directories are not searched recursively.** `collect_files` lists only the direct entries of a directory."
 msgstr "**不递归搜索目录。** `collect_files` 只列出目录的直接条目。"
 
-#: manual/tutorial/internal/runner_cli.md:145
+#: manual/tutorial/internal/runner_cli.md:155
 msgid "**Named files must have the suffix.** A file argument without the suffix is an error (`not a SUFFIX file: P`), so a mistyped name cannot pass as an empty run."
 msgstr "**指定的文件必须带有后缀。** 没有该后缀的文件参数是一个错误（`not a SUFFIX file: P`），因此拼错的名称不会被当作一次空运行而通过。"
 
-#: manual/tutorial/internal/runner_cli.md:148
+#: manual/tutorial/internal/runner_cli.md:158
 msgid "**Option values use MoonBit integer syntax.** `0x10` and `1_000` are accepted as 16 and 1000; an argument starting with `--` is never taken as a value, so `--shard-count --json` is a missing count."
 msgstr "**选项值使用 MoonBit 整数语法。** `0x10` 和 `1_000` 分别被接受为 16 和 1000；以 `--` 开头的参数绝不会被当作值，因此 `--shard-count --json` 属于缺少计数值。"
 
-#: manual/tutorial/internal/runner_cli.md:151
+#: manual/tutorial/internal/runner_cli.md:161
 msgid "**Native only in practice.** File access goes through `moonbitlang/x/fs`; the runners are built and run on the native target."
 msgstr "**实际上仅支持 native。** 文件访问经由 `moonbitlang/x/fs`；运行器在 native 目标上构建和运行。"
 
-#: manual/tutorial/internal/runner_cli.md:156
+#: manual/tutorial/internal/runner_cli.md:166
 msgid "[internal/runner_cli API](../../api/internal/runner_cli.md)"
 msgstr "[internal/runner_cli API](../../api/internal/runner_cli.md)"
 
-#: manual/tutorial/internal/runner_cli.md:157
+#: manual/tutorial/internal/runner_cli.md:167
 msgid "[internal/runner_cli design](../../design/internal/runner_cli.md)"
 msgstr "[internal/runner_cli 设计](../../design/internal/runner_cli.md)"
 
-#: manual/tutorial/internal/runner_cli.md:158
+#: manual/tutorial/internal/runner_cli.md:168
 msgid "[cli tutorial](../cli.md) for the dispatcher that calls the runners."
 msgstr "[cli 教程](../cli.md)：调用各运行器的分发器。"
 
@@ -25235,107 +25458,107 @@ msgstr "把定义域错误作为值保留"
 msgid "[checked value types](#going-further)"
 msgstr "[checked 值类型](#going-further)"
 
-#: manual/tutorial/numeric_expr.md:25
+#: manual/tutorial/numeric_expr.md:23
 msgid "Add the package to `moon.pkg`:"
 msgstr "将该包添加到 `moon.pkg`："
 
-#: manual/tutorial/numeric_expr.md:33
+#: manual/tutorial/numeric_expr.md:31
 msgid "Build `1 + 2` and evaluate it over `Int`:"
 msgstr "构建 `1 + 2` 并在 `Int` 上求值："
 
-#: manual/tutorial/numeric_expr.md:54
+#: manual/tutorial/numeric_expr.md:52
 msgid "`evaluate` decodes both literals, then calls the operation callback with the decoded arguments `[1, 2]`."
 msgstr "`evaluate` 先解码两个字面量，然后以解码后的参数 `[1, 2]` 调用运算回调。"
 
-#: manual/tutorial/numeric_expr.md:59
+#: manual/tutorial/numeric_expr.md:57
 msgid "Write a small interpreter"
 msgstr "编写一个小型解释器"
 
-#: manual/tutorial/numeric_expr.md:61
+#: manual/tutorial/numeric_expr.md:59
 msgid "Most callers match on the operation name and the argument array. Matching the array pattern also checks the arity, which `numeric_expr` itself does not do:"
 msgstr "大多数调用方会对运算名和参数数组做模式匹配。匹配数组模式还会检查元数，而 `numeric_expr` 本身并不做这一检查："
 
-#: manual/tutorial/numeric_expr.md:114
+#: manual/tutorial/numeric_expr.md:112
 msgid "`sum` shows that an operation may take any number of arguments; the callback decides."
 msgstr "`sum` 表明一个运算可以接受任意数量的参数；由回调决定。"
 
-#: manual/tutorial/numeric_expr.md:117
+#: manual/tutorial/numeric_expr.md:115
 msgid "Evaluate over `BinFloat` and collect IEEE flags"
 msgstr "在 `BinFloat` 上求值并收集 IEEE 标志"
 
-#: manual/tutorial/numeric_expr.md:119
+#: manual/tutorial/numeric_expr.md:117
 msgid "The value type `V` can carry more than a number. Here every value is a `BinFloat` together with the IEEE flags raised so far, and each operation merges the flags of its arguments with its own:"
 msgstr "值类型 `V` 可以携带的不只是一个数。这里每个值都是一个 `BinFloat` 加上迄今为止引发的 IEEE 标志，每个运算都会把其参数的标志与自身的标志合并："
 
-#: manual/tutorial/numeric_expr.md:176
+#: manual/tutorial/numeric_expr.md:174
 msgid "The same tree could be evaluated over `@decimal_gda.Decimal` by swapping the two callbacks; nothing in the expression depends on the number type."
 msgstr "只需替换两个回调，同一棵树就可以在 `@decimal_gda.Decimal` 上求值；表达式中没有任何内容依赖于数值类型。"
 
-#: manual/tutorial/numeric_expr.md:179
+#: manual/tutorial/numeric_expr.md:177
 msgid "Report errors at their source"
 msgstr "在源头报告错误"
 
-#: manual/tutorial/numeric_expr.md:181
+#: manual/tutorial/numeric_expr.md:179
 msgid "Give every node the span of the text it came from. When a callback fails, the `EvalError` returns the failing node, so the span locates the error:"
 msgstr "为每个节点赋予其来源文本的区间（span）。当回调失败时，`EvalError` 会返回失败的节点，从而可以借助该区间定位错误："
 
-#: manual/tutorial/numeric_expr.md:212
+#: manual/tutorial/numeric_expr.md:210
 msgid "See the evaluation order"
 msgstr "观察求值顺序"
 
-#: manual/tutorial/numeric_expr.md:214
+#: manual/tutorial/numeric_expr.md:212
 msgid "The callbacks run in post-order, left to right, and evaluation stops at the first failure. A trace makes this visible:"
 msgstr "回调按后序、从左到右运行，并在第一次失败时停止求值。跟踪记录可以直观地展示这一点："
 
-#: manual/tutorial/numeric_expr.md:240
+#: manual/tutorial/numeric_expr.md:238
 msgid "The literal `1` and both `add` nodes are never visited, because `bad` fails first."
 msgstr "字面量 `1` 和两个 `add` 节点都从未被访问，因为 `bad` 先失败了。"
 
-#: manual/tutorial/numeric_expr.md:245
+#: manual/tutorial/numeric_expr.md:243
 msgid "**Corpus frontends.** `frontend/gda_expr` lowers each `.decTest` row `id operation operands -> expected conditions` into `Expr::invoke(Operation::new(op), operands.map(Expr::literal))` and evaluates it with callbacks over `@decimal_gda`. Read [gda_expr](frontend/gda_expr.md) for a complete example of the pattern."
 msgstr "**语料前端。** `frontend/gda_expr` 把每个 `.decTest` 行 `id operation operands -> expected conditions` 降低为 `Expr::invoke(Operation::new(op), operands.map(Expr::literal))`，并用基于 `@decimal_gda` 的回调对其求值。完整的模式示例请阅读 [gda_expr](frontend/gda_expr.md)。"
 
-#: manual/tutorial/numeric_expr.md:250
+#: manual/tutorial/numeric_expr.md:248
 msgid "**Richer values.** `V` can be an enum when operations return different kinds of results (numbers, booleans, strings), as `gda_expr` does for `compare`, `class` and `isnan`."
 msgstr "**更丰富的值。** 当运算返回不同种类的结果（数值、布尔值、字符串）时，`V` 可以是一个枚举，`gda_expr` 对 `compare`、`class` 和 `isnan` 就是这样做的。"
 
-#: manual/tutorial/numeric_expr.md:253
+#: manual/tutorial/numeric_expr.md:251
 msgid "**Typed errors.** `E` can be your own enum instead of `String`; `EvalError[E]` keeps it unchanged."
 msgstr "**带类型的错误。** `E` 可以是你自己的枚举而不是 `String`；`EvalError[E]` 会原样保留它。"
 
-#: manual/tutorial/numeric_expr.md:255
+#: manual/tutorial/numeric_expr.md:253
 msgid "**Checked pipelines.** If you want domain errors to stay values instead of stopping the evaluation, make `V` a checked type such as `@bin_float_checked.BinFloatResult` and let the callbacks always return `Ok`."
 msgstr "**checked 流水线。** 如果希望定义域错误作为值保留而不是终止求值，可让 `V` 为 checked 类型（如 `@bin_float_checked.BinFloatResult`），并让回调始终返回 `Ok`。"
 
-#: manual/tutorial/numeric_expr.md:261
+#: manual/tutorial/numeric_expr.md:259
 msgid "**No arity check.** `Expr::invoke` accepts any number of arguments. Check the arity in `invoke` (an array pattern does it) and return `Err` on a mismatch."
 msgstr "**没有元数检查。** `Expr::invoke` 接受任意数量的参数。请在 `invoke` 中检查元数（数组模式即可做到），并在不匹配时返回 `Err`。"
 
-#: manual/tutorial/numeric_expr.md:263
+#: manual/tutorial/numeric_expr.md:261
 msgid "**Early stop.** After the first failure no further callback runs. Do not rely on side effects of callbacks for nodes to the right of a failing node."
 msgstr "**提前停止。** 第一次失败之后不再运行任何回调。不要依赖失败节点右侧节点的回调所产生的副作用。"
 
-#: manual/tutorial/numeric_expr.md:265
+#: manual/tutorial/numeric_expr.md:263
 msgid "**Deep trees.** Evaluation is recursive; the stack depth equals the tree height. Very deep left-leaning trees (for example a sum of a million terms built as nested `add`) can exhaust the stack; build a flat `sum` node instead."
 msgstr "**深层树。** 求值是递归的，栈深度等于树高。非常深的左倾树（例如以嵌套 `add` 构建的一百万项之和）可能耗尽栈空间；请改为构建一个扁平的 `sum` 节点。"
 
-#: manual/tutorial/numeric_expr.md:268
+#: manual/tutorial/numeric_expr.md:266
 msgid "**Default spans.** Without an explicit span a node reports `SourceSpan::new(\"\")`, whose line and column are `0`."
 msgstr "**默认区间。** 没有显式区间的节点报告 `SourceSpan::new(\"\")`，其行号和列号均为 `0`。"
 
-#: manual/tutorial/numeric_expr.md:270
+#: manual/tutorial/numeric_expr.md:268
 msgid "**No literal parsing here.** A `Literal` stores raw text. Rounding, precision and flags of the conversion are decided entirely by your `decode` callback."
 msgstr "**这里不解析字面量。** `Literal` 只存储原始文本。转换时的舍入、精度和标志完全由你的 `decode` 回调决定。"
 
-#: manual/tutorial/numeric_expr.md:275
+#: manual/tutorial/numeric_expr.md:273
 msgid "[numeric_expr API](../api/numeric_expr.md) lists every item."
 msgstr "[numeric_expr API](../api/numeric_expr.md) 列出了每个条目。"
 
-#: manual/tutorial/numeric_expr.md:276
+#: manual/tutorial/numeric_expr.md:274
 msgid "[numeric_expr design](../design/numeric_expr.md) states the evaluation semantics and its invariants."
 msgstr "[numeric_expr 设计](../design/numeric_expr.md) 阐述了求值语义及其不变式。"
 
-#: manual/tutorial/numeric_expr.md:278
+#: manual/tutorial/numeric_expr.md:276
 msgid "[gda_expr tutorial](frontend/gda_expr.md) runs real decimal test rows through this package."
 msgstr "[gda_expr 教程](frontend/gda_expr.md) 通过此包运行真实的十进制测试行。"
 
@@ -26600,6 +26823,36 @@ msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 #: manual/verification.md:707
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "To use the reduction functions in your own module, add the library and import the package in `moon.pkg`:"
+#~ msgstr "若要在你自己的模块中使用这些归约函数，请添加该库并在 `moon.pkg` 中导入该包："
+
+#~ msgid "Call the dispatcher"
+#~ msgstr "调用调度器"
+
+#~ msgid "The runner is also a library. After `moon add Luna-Flow/floating@0.10.2`, import it and pass the argument vector, program name first:"
+#~ msgstr "运行器也是一个库。执行 `moon add Luna-Flow/floating@0.10.2` 之后，导入它并传入参数向量（程序名在前）："
+
+#~ msgid "After `moon add Luna-Flow/floating@0.10.2`, import `\"Luna-Flow/floating-tools/cli/itl_expr_cli\"` in `moon.pkg` and call `run` with the argument vector, program name first:"
+#~ msgstr "执行 `moon add Luna-Flow/floating@0.10.2` 之后，在 `moon.pkg` 中导入 `\"Luna-Flow/floating-tools/cli/itl_expr_cli\"`，并以参数向量（程序名在前）调用 `run`："
+
+#~ msgid "After `moon add Luna-Flow/floating@0.10.2`, import `\"Luna-Flow/floating-tools/cli/mpfr_expr_cli\"` in `moon.pkg` and call `run`:"
+#~ msgstr "执行 `moon add Luna-Flow/floating@0.10.2` 之后，在 `moon.pkg` 中导入 `\"Luna-Flow/floating-tools/cli/mpfr_expr_cli\"` 并调用 `run`："
+
+#~ msgid "After `moon add Luna-Flow/floating@0.10.2`, import `\"Luna-Flow/floating-tools/cli/testfloat_expr_cli\"` in `moon.pkg` and call `run` with the same arguments:"
+#~ msgstr "执行 `moon add Luna-Flow/floating@0.10.2` 之后，在 `moon.pkg` 中导入 `\"Luna-Flow/floating-tools/cli/testfloat_expr_cli\"`，并以相同的参数调用 `run`："
+
+#~ msgid "The harness is run through the `just random-diff` tooling; this page only says where its code lives."
+#~ msgstr "该工具通过 `just random-diff` 工具运行；本页只说明它的代码在哪里。"
+
+#~ msgid "Where the code is"
+#~ msgstr "代码在哪里"
+
+#~ msgid "The files `batch.mbt` (corpus splitting and batch execution) and `harness.mbt` (options, experiment specification and `run`) live in `tooling/src/differential/harness`, with their white-box tests in `differential_wbtest.mbt`. Test them with:"
+#~ msgstr "文件 `batch.mbt`（语料拆分与批执行）和 `harness.mbt`（选项、实验规格与 `run`）位于 `tooling/src/differential/harness`，其白盒测试在 `differential_wbtest.mbt` 中。用以下命令测试："
+
+#~ msgid "Add the library to your module and import the package in `moon.pkg`:"
+#~ msgstr "把该库添加到你的模块，并在 `moon.pkg` 中导入该包："
 
 #~ msgid "The rows with an exponent of zero in a clamped context are not registered: the library folds `x ** 0` down while decNumber and libmpdec do not, and the library does not fold `1 ** n`, so its own two paths disagree (issue 405)."
 #~ msgstr "在 clamp 上下文中指数为零的行没有登记：本库把 `x ** 0` 折叠，而 decNumber 和 libmpdec 不折叠；本库又不折叠 `1 ** n`，所以它自己的两条路径互相矛盾（issue 405）。"
@@ -28035,9 +28288,6 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路
 #~ msgid "**`round_shift` with $s \\le 0$** returns the input unchanged; it never shifts left."
 #~ msgstr "**$s \\le 0$ 时的 `round_shift`** 原样返回输入；它从不左移。"
 
-#~ msgid "Inside the module, import the package in the frontend's `moon.pkg`:"
-#~ msgstr "在模块内部，于前端的 `moon.pkg` 中导入该包："
-
 #~ msgid "These functions convert any Luna-Flow integer type."
 #~ msgstr "这些函数转换任意 Luna-Flow 整数类型。"
 
@@ -28166,9 +28416,6 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路
 
 #~ msgid "The package is maintained as repository infrastructure. Generated declarations may change with the runners and do not promise downstream compatibility."
 #~ msgstr "本包作为仓库基础设施维护；生成声明可能随 runner 演进，不承诺下游兼容性。"
-
-#~ msgid "Quick Start"
-#~ msgstr "快速开始"
 
 #~ msgid "Use `MAREMARK_JSONL` as the versioned raw artifact, `MAREMARK_HOTSPOT` for paired layer overhead, and `MAREMARK_TUNE` / `MAREMARK_CROSSOVER` for confirmed tuning decisions. Normal tests compile plans but skip timing."
 #~ msgstr "把 `MAREMARK_JSONL` 作为版本化原始 artifact，使用 `MAREMARK_HOTSPOT` 查看成对分层开销，使用 `MAREMARK_TUNE` / `MAREMARK_CROSSOVER` 查看确认后的调优决策。普通测试只编译计划并跳过计时。"

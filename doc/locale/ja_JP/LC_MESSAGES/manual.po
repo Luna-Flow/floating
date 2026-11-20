@@ -177,7 +177,7 @@ msgstr "コンストラクタ"
 #: manual/api/decimal.md:403
 #: manual/api/differential.md:44
 #: manual/numeric_semantics.md:301
-#: manual/tutorial/internal/runner_cli.md:106
+#: manual/tutorial/internal/runner_cli.md:116
 msgid "Meaning"
 msgstr "意味"
 
@@ -1017,7 +1017,7 @@ msgstr "NaI はコンテキストの精度を持つ NaI のままです。"
 #: manual/api/def.md:421
 #: manual/api/frontend/gda_expr.md:457
 #: manual/api/frontend/itl_expr.md:263
-#: manual/api/frontend/mpfr_expr.md:516
+#: manual/api/frontend/mpfr_expr.md:523
 #: manual/api/frontend/testfloat_expr.md:358
 #: manual/api/internal/conformance.md:290
 #: manual/api/numeric_expr.md:298
@@ -1108,7 +1108,7 @@ msgstr "使われるのは `ctx.precision` だけです。オペランドは `wi
 #: manual/api/doc_examples.md:46
 #: manual/api/frontend/gda_expr.md:508
 #: manual/api/frontend/itl_expr.md:276
-#: manual/api/frontend/mpfr_expr.md:529
+#: manual/api/frontend/mpfr_expr.md:536
 #: manual/api/frontend/testfloat_expr.md:404
 #: manual/api/internal.md:582
 #: manual/api/internal/conformance.md:353
@@ -1124,7 +1124,7 @@ msgstr "公開インターフェース全体"
 #: manual/api/decimal_gda.md:2034
 #: manual/api/frontend/gda_expr.md:510
 #: manual/api/frontend/itl_expr.md:278
-#: manual/api/frontend/mpfr_expr.md:531
+#: manual/api/frontend/mpfr_expr.md:538
 #: manual/api/frontend/testfloat_expr.md:406
 #: manual/api/internal.md:584
 #: manual/api/internal/conformance.md:355
@@ -3543,7 +3543,7 @@ msgid "Exit status"
 msgstr "終了ステータス"
 
 #: manual/api/cli.md:58
-#: manual/tutorial/internal/runner_cli.md:106
+#: manual/tutorial/internal/runner_cli.md:116
 msgid "Code"
 msgstr "コード"
 
@@ -6916,7 +6916,7 @@ msgstr "`source` はパーサに与えられた名前を、`case_count` は行�
 
 #: manual/api/frontend/mpfr_expr.md:100
 #: manual/design/decimal_gda.md:610
-#: manual/tutorial/frontend/mpfr_expr.md:83
+#: manual/tutorial/frontend/mpfr_expr.md:81
 msgid "Integer powers"
 msgstr "整数べき"
 
@@ -7041,57 +7041,65 @@ msgstr "テキストを解析します（最初の引数はソース名）。空
 msgid "Runs every row through the `try_*_ctx` form of the operation with the row's context, so a certification failure fails the row instead of becoming a quiet NaN. A row passes only when the result has the expected value *and* cohort (`compare_total` equal, so `1.0` and `1.00` differ) and the flags agree. The row id is the first field of the row."
 msgstr "行のコンテキストで各行を演算の `try_*_ctx` 形式に通して実行するため、認証の失敗は黙った NaN にならず、その行の失敗になります。結果の値と cohort が期待値に等しく（`compare_total` で比較するので `1.0` と `1.00` は異なります）、フラグが一致したときだけ行は合格します。行 id は行の最初のフィールドです。"
 
-#: manual/api/frontend/mpfr_expr.md:415
+#: manual/api/frontend/mpfr_expr.md:398
+msgid "`MpfrDecimalRandomDocument` is a parsed `mpfr-decimal-random-v1` corpus (IEEE `decimal` elementary functions against MPFR); `source` is the label it was parsed from, `case_count` the number of rows and `case_ids` their ids in order."
+msgstr "`MpfrDecimalRandomDocument` は解析済みの `mpfr-decimal-random-v1` コーパス（IEEE `decimal` の初等関数を MPFR と照合するもの）です。`source` は解析時のラベル、`case_count` は行数、`case_ids` は各行の id を順に返します。"
+
+#: manual/api/frontend/mpfr_expr.md:413
+msgid "`MpfrRandomDocument` is a parsed `mpfr-random-v1` corpus (binary operations against MPFR) with the same three accessors."
+msgstr "`MpfrRandomDocument` は解析済みの `mpfr-random-v1` コーパス（2 進演算を MPFR と照合するもの）で、同じ 3 つのアクセサを持ちます。"
+
+#: manual/api/frontend/mpfr_expr.md:422
 msgid "`case_ids` lists the row ids in order, which the differential harness uses to name the failing case of a batch."
 msgstr "`case_ids` は行 ID を順に列挙します。差分ハーネスはこれを使ってバッチ内の失敗ケースを特定します。"
 
-#: manual/api/frontend/mpfr_expr.md:418
+#: manual/api/frontend/mpfr_expr.md:425
 msgid "Diagnostics and results"
 msgstr "診断と結果"
 
-#: manual/api/frontend/mpfr_expr.md:422
+#: manual/api/frontend/mpfr_expr.md:429
 #: manual/api/frontend/testfloat_expr.md:218
 msgid "`ParseDiagnostic` is one invalid line."
 msgstr "`ParseDiagnostic` は 1 つの無効な行です。"
 
-#: manual/api/frontend/mpfr_expr.md:432
+#: manual/api/frontend/mpfr_expr.md:439
 #: manual/api/frontend/testfloat_expr.md:228
 msgid "These methods return the name given to the parser, the 1-based line number and the message."
 msgstr "これらのメソッドは、パーサに渡された名前、1 始まりの行番号、およびメッセージを返します。"
 
-#: manual/api/frontend/mpfr_expr.md:441
+#: manual/api/frontend/mpfr_expr.md:448
 msgid "Messages name the problem, for example `\"MPFR pow row must contain ten fields\"`, `\"invalid MPFR pow field\"` or `\"invalid MPFR elementary expected value\"`."
 msgstr "メッセージは問題を示します。例えば `\"MPFR pow row must contain ten fields\"`、`\"invalid MPFR pow field\"`、`\"invalid MPFR elementary expected value\"` などです。"
 
-#: manual/api/frontend/mpfr_expr.md:447
+#: manual/api/frontend/mpfr_expr.md:454
 msgid "`CaseResult` is the outcome of one row."
 msgstr "`CaseResult` は 1 行の結果です。"
 
-#: manual/api/frontend/mpfr_expr.md:457
+#: manual/api/frontend/mpfr_expr.md:464
 msgid "These methods return the row id, whether the row passed, and a message."
 msgstr "これらのメソッドは、行 id、その行が合格したかどうか、およびメッセージを返します。"
 
-#: manual/api/frontend/mpfr_expr.md:465
+#: manual/api/frontend/mpfr_expr.md:472
 msgid "The message is empty for a pass and otherwise shows expected and actual values in hexadecimal (and the compared flags for power and elementary rows)."
 msgstr "メッセージは合格なら空で、そうでなければ期待値と実際の値を 16 進で示します（べき乗と初等関数の行では比較したフラグも示します）。"
 
-#: manual/api/frontend/mpfr_expr.md:470
+#: manual/api/frontend/mpfr_expr.md:477
 msgid "`RunSummary` aggregates the rows of one document."
 msgstr "`RunSummary` は 1 つの文書の行を集計します。"
 
-#: manual/api/frontend/mpfr_expr.md:480
+#: manual/api/frontend/mpfr_expr.md:487
 msgid "These methods return the number of rows, and how many passed and failed."
 msgstr "これらのメソッドは、行の数と、合格した数および失敗した数を返します。"
 
-#: manual/api/frontend/mpfr_expr.md:490
+#: manual/api/frontend/mpfr_expr.md:497
 msgid "`results` returns a copy of the per-row results; `success` is the verdict."
 msgstr "`results` は行ごとの結果のコピーを返し、`success` は判定です。"
 
-#: manual/api/frontend/mpfr_expr.md:497
+#: manual/api/frontend/mpfr_expr.md:504
 msgid "Every row is executed, so $\\text{total} = \\text{passed} + \\text{failed}$; `success` is true when no row failed. `results` returns the results in row order."
 msgstr "すべての行が実行されるため $\\text{total} = \\text{passed} + \\text{failed}$ です。`success` はどの行も失敗しなかったとき真です。`results` は結果を行順に返します。"
 
-#: manual/api/frontend/mpfr_expr.md:520
+#: manual/api/frontend/mpfr_expr.md:527
 msgid "These methods compare location and message and render a diagnostic for `Debug`. Use `==`, `!=` and `debug_inspect` in new code."
 msgstr "これらのメソッドは位置とメッセージを比較し、診断を `Debug` 用に描画します。新しいコードでは `==`、`!=`、`debug_inspect` を使ってください。"
 
@@ -8311,7 +8319,7 @@ msgstr "共有ヘルパー、サマリー、シャーディング、ファイル
 #: manual/conformance/bin_float.md:71
 #: manual/conformance/decimal.md:42
 #: manual/conformance/decimal_gda.md:15
-#: manual/index.md:56
+#: manual/index.md:69
 #: manual/performance_audit.md:155
 msgid "Evidence"
 msgstr "evidence"
@@ -8669,11 +8677,12 @@ msgstr "レベル"
 #: manual/conformance/bin_float.md:71
 #: manual/conformance/decimal.md:42
 #: manual/conformance/decimal_gda.md:15
-#: manual/index.md:56
-#: manual/index.md:65
-#: manual/index.md:76
-#: manual/index.md:86
-#: manual/index.md:97
+#: manual/index.md:69
+#: manual/index.md:78
+#: manual/index.md:89
+#: manual/index.md:99
+#: manual/index.md:112
+#: manual/index.md:120
 #: manual/numeric_semantics.md:582
 msgid "API"
 msgstr "API"
@@ -9866,7 +9875,7 @@ msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行�
 #: manual/design/bin_float.md:1956
 #: manual/design/bin_float_checked.md:329
 #: manual/design/cli.md:71
-#: manual/design/cli/dispatch.md:32
+#: manual/design/cli/dispatch.md:48
 #: manual/design/cli/gda_expr_cli.md:67
 #: manual/design/cli/itl_expr_cli.md:59
 #: manual/design/cli/mpfr_expr_cli.md:51
@@ -9878,7 +9887,7 @@ msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行�
 #: manual/design/decimal_gda_checked.md:247
 #: manual/design/def.md:337
 #: manual/design/differential.md:168
-#: manual/design/differential/harness.md:26
+#: manual/design/differential/harness.md:41
 #: manual/design/doc_examples.md:36
 #: manual/design/frontend/gda_expr.md:225
 #: manual/design/frontend/itl_expr.md:166
@@ -10369,6 +10378,7 @@ msgstr "IEEE Std 1788-2015, *IEEE Standard for Interval Arithmetic*。このパ�
 #: manual/design/bin_float.md:30
 #: manual/design/bin_float_checked.md:13
 #: manual/design/cli.md:11
+#: manual/design/cli/dispatch.md:12
 #: manual/design/cli/gda_expr_cli.md:10
 #: manual/design/cli/itl_expr_cli.md:10
 #: manual/design/cli/mpfr_expr_cli.md:10
@@ -10380,6 +10390,7 @@ msgstr "IEEE Std 1788-2015, *IEEE Standard for Interval Arithmetic*。このパ�
 #: manual/design/decimal_gda_checked.md:20
 #: manual/design/def.md:16
 #: manual/design/differential.md:13
+#: manual/design/differential/harness.md:11
 #: manual/design/doc_examples.md:9
 #: manual/design/frontend/gda_expr.md:18
 #: manual/design/frontend/itl_expr.md:16
@@ -10839,7 +10850,7 @@ msgstr "集合の関係（`subset`、`interior`、`disjoint`、`set_equal`）と
 #: manual/design/bin_float.md:185
 #: manual/design/bin_float_checked.md:81
 #: manual/design/cli.md:18
-#: manual/design/cli/dispatch.md:12
+#: manual/design/cli/dispatch.md:18
 #: manual/design/cli/gda_expr_cli.md:21
 #: manual/design/cli/itl_expr_cli.md:18
 #: manual/design/cli/mpfr_expr_cli.md:16
@@ -10851,7 +10862,7 @@ msgstr "集合の関係（`subset`、`interior`、`disjoint`、`set_equal`）と
 #: manual/design/decimal_gda_checked.md:113
 #: manual/design/def.md:68
 #: manual/design/differential.md:95
-#: manual/design/differential/harness.md:11
+#: manual/design/differential/harness.md:18
 #: manual/design/doc_examples.md:14
 #: manual/design/frontend/gda_expr.md:117
 #: manual/design/frontend/itl_expr.md:76
@@ -11001,7 +11012,7 @@ msgstr "各区間は精度タグを持ち、二項演算は大きい方のタグ
 #: manual/design/bin_float.md:1884
 #: manual/design/bin_float_checked.md:199
 #: manual/design/cli.md:52
-#: manual/design/cli/dispatch.md:25
+#: manual/design/cli/dispatch.md:31
 #: manual/design/cli/gda_expr_cli.md:50
 #: manual/design/cli/itl_expr_cli.md:45
 #: manual/design/cli/mpfr_expr_cli.md:36
@@ -11013,7 +11024,7 @@ msgstr "各区間は精度タグを持ち、二項演算は大きい方のタグ
 #: manual/design/decimal_gda_checked.md:190
 #: manual/design/def.md:159
 #: manual/design/differential.md:145
-#: manual/design/differential/harness.md:20
+#: manual/design/differential/harness.md:27
 #: manual/design/doc_examples.md:25
 #: manual/design/frontend/gda_expr.md:174
 #: manual/design/frontend/itl_expr.md:133
@@ -11081,6 +11092,7 @@ msgstr "現時点で未解決の制限はありません。負の次数の装飾
 #: manual/design/bin_float.md:1931
 #: manual/design/bin_float_checked.md:316
 #: manual/design/cli.md:62
+#: manual/design/cli/dispatch.md:38
 #: manual/design/cli/gda_expr_cli.md:60
 #: manual/design/cli/itl_expr_cli.md:53
 #: manual/design/cli/mpfr_expr_cli.md:44
@@ -11092,6 +11104,7 @@ msgstr "現時点で未解決の制限はありません。負の次数の装飾
 #: manual/design/decimal_gda_checked.md:238
 #: manual/design/def.md:324
 #: manual/design/differential.md:156
+#: manual/design/differential/harness.md:33
 #: manual/design/doc_examples.md:30
 #: manual/design/frontend/gda_expr.md:214
 #: manual/design/frontend/itl_expr.md:156
@@ -13269,30 +13282,46 @@ msgid "The dispatcher has behaviour worth testing (argument scanning, the at-mos
 msgstr "ディスパッチャーにはテストする価値のある動作（引数の走査、最大 1 回の規則、空の値、`--help`）があるため、ライブラリパッケージに置かれています。メインパッケージ `cli` はプロセスの境界だけを持ち、`@env.args()` を読み、返されたコードで `@sys.exit` を呼びます。メインパッケージにテスト入力（`.mbt.md` ファイル）を置くことはツールチェーンで非推奨であり、メインパッケージはブラックボックステストを生成しなくなります。"
 
 #: manual/design/cli/dispatch.md:14
+msgid "None. The dispatcher is a pure function of the argument vector: its result and its output depend on nothing else, and the runners it calls are libraries whose results depend only on their arguments and the files they read."
+msgstr "なし。ディスパッチャーは引数ベクトルの純粋関数であり、結果と出力はそれ以外に依存しません。呼び出すランナーはライブラリで、その結果は引数と読み込むファイルだけで決まります。"
+
+#: manual/design/cli/dispatch.md:20
 msgid "Return the exit code"
 msgstr "終了コードを返す"
 
-#: manual/design/cli/dispatch.md:16
+#: manual/design/cli/dispatch.md:22
 msgid "`dispatch` returns an `Int32` and never calls `@sys.exit`, so a white-box test checks an invocation without spawning a process. The semantics of the options are those of the `cli` page and are unchanged by the split."
 msgstr "`dispatch` は `Int32` を返し、`@sys.exit` を呼びません。そのためホワイトボックステストはプロセスを起動せずに呼び出しを検証できます。オプションの意味は `cli` のページと同じで、この分割では変わりません。"
 
-#: manual/design/cli/dispatch.md:20
+#: manual/design/cli/dispatch.md:26
 msgid "Runners stay libraries"
 msgstr "ランナーはライブラリのまま"
 
-#: manual/design/cli/dispatch.md:22
+#: manual/design/cli/dispatch.md:28
 msgid "The four runners (`cli/gda_expr_cli` and its siblings) are imported here and nowhere else; `cli` itself imports only this package and the process helpers."
 msgstr "4 つのランナー（`cli/gda_expr_cli` とその仲間）はここでのみインポートされ、`cli` 自身はこのパッケージとプロセス用ヘルパーだけをインポートします。"
 
-#: manual/design/cli/dispatch.md:27
+#: manual/design/cli/dispatch.md:33
 msgid "Exactly one runner is called per invocation, or none for invalid arguments or `--help`."
 msgstr "呼び出しごとにランナーはちょうど 1 つ呼ばれます。引数が不正な場合や `--help` の場合は 1 つも呼ばれません。"
 
-#: manual/design/cli/dispatch.md:29
+#: manual/design/cli/dispatch.md:35
 msgid "The result equals the runner's return value, or `2` for an argument error, or `0` for `--help`."
 msgstr "結果はランナーの戻り値に等しく、引数エラーのときは `2`、`--help` のときは `0` です。"
 
-#: manual/design/cli/dispatch.md:34
+#: manual/design/cli/dispatch.md:40
+msgid "**Keep the dispatcher in `cli`.** A main package that holds test inputs (`.mbt.md` files) is deprecated by the toolchain, and its tests would need the process boundary."
+msgstr "**ディスパッチャーを `cli` に置いたままにする。** メインパッケージにテスト入力（`.mbt.md` ファイル）を置くことはツールチェーンで非推奨であり、そのテストにはプロセス境界が必要になります。"
+
+#: manual/design/cli/dispatch.md:43
+msgid "**A table of runners.** A `match` on the backend name is checked by the compiler, and each arm is one line."
+msgstr "**ランナーの表。** バックエンド名に対する `match` はコンパイラが検査し、各分岐は 1 行で済みます。"
+
+#: manual/design/cli/dispatch.md:45
+msgid "**Exit inside `dispatch`.** It would make every usage error untestable without spawning a process."
+msgstr "**`dispatch` の中で終了する。** すべての使い方エラーが、プロセスを起動しないとテストできなくなります。"
+
+#: manual/design/cli/dispatch.md:50
 msgid "No process exit, no file access of its own: those are in the runners and in `cli`."
 msgstr "プロセスの終了も独自のファイルアクセスもありません。それらはランナーと `cli` にあります。"
 
@@ -15945,22 +15974,34 @@ msgid "The harness has behaviour worth testing (batch splitting, directive handl
 msgstr "ハーネスにはテストする価値のある動作（バッチの分割、ディレクティブの処理、失敗メッセージ）があるため、ホワイトボックステストを持つライブラリパッケージに置かれています。メインパッケージ `differential` はエントリポイントだけを持ち、`@env.args()` で `run` を呼びます。メインパッケージにテスト入力（`.mbt.md` ファイル）を置くことはツールチェーンで非推奨であり、メインパッケージはブラックボックステストを生成しなくなります。"
 
 #: manual/design/differential/harness.md:13
+msgid "None of its own. A batch is valid when every row reproduces the expected value and flags of its oracle (MPFR, libmpdec); the rounding and flag semantics are those of the frontends it calls, and the statistics of the run are those of mare_mark (see the [differential design page](../../design/differential.md))."
+msgstr "固有のものはありません。バッチが有効なのは、すべての行がオラクル（MPFR、libmpdec）の期待値とフラグを再現するときです。丸めとフラグの意味論は呼び出すフロントエンドのもの、実行の統計は mare_mark のものです（[differential の設計ページ](../../design/differential.md)を参照）。"
+
+#: manual/design/differential/harness.md:20
 msgid "One public function"
 msgstr "公開関数は 1 つ"
 
-#: manual/design/differential/harness.md:15
+#: manual/design/differential/harness.md:22
 msgid "`run` is the only public item; the options, batches and the experiment specification stay private to the package. The behaviour, the command line and the record are those of the [`differential` design page](../../design/differential.md) and are unchanged by the split."
 msgstr "`run` が唯一の公開項目で、オプション、バッチ、実験仕様はパッケージ内に閉じています。動作、コマンドライン、記録は [`differential` の設計ページ](../../design/differential.md)と同じで、この分割では変わりません。"
 
-#: manual/design/differential/harness.md:22
+#: manual/design/differential/harness.md:29
 msgid "The exit status is `2` for a bad command line or corpus, `1` when a batch disagrees with its oracle, and `0` otherwise."
 msgstr "終了ステータスは、コマンドラインまたはコーパスが不正なら `2`、バッチがオラクルと食い違うなら `1`、それ以外は `0` です。"
 
-#: manual/design/differential/harness.md:24
+#: manual/design/differential/harness.md:31
 msgid "It does not implement or alter arithmetic: every row goes through a frontend."
 msgstr "算術を実装も変更もしません。すべての行はフロントエンドを通ります。"
 
-#: manual/design/differential/harness.md:28
+#: manual/design/differential/harness.md:35
+msgid "**Keep `run` in the main package.** A main package that holds test inputs (`.mbt.md` files) is deprecated by the toolchain, and the batching tests would live in an executable."
+msgstr "**`run` をメインパッケージに置いたままにする。** メインパッケージにテスト入力（`.mbt.md` ファイル）を置くことはツールチェーンで非推奨であり、バッチ処理のテストも実行ファイルの中に置かれることになります。"
+
+#: manual/design/differential/harness.md:38
+msgid "**Several public functions.** Options and batches are details of one command line; exposing them would promise a stability they do not have."
+msgstr "**複数の公開関数。** オプションとバッチは 1 つのコマンドラインの詳細であり、公開するとそれらが持たない安定性を約束してしまいます。"
+
+#: manual/design/differential/harness.md:43
 msgid "Native, JavaScript, Wasm and LLVM only (`moonbitlang/async`)."
 msgstr "native、JavaScript、Wasm、LLVM のみ（`moonbitlang/async`）。"
 
@@ -16877,7 +16918,7 @@ msgid "where the $e$ are unit vectors in $\\mathbb{N}^{7}$. `RunSummary::from_re
 msgstr "ここで $e$ は $\\mathbb{N}^{7}$ の単位ベクトルです。`RunSummary::from_results` は $c(R)$ と $|R|$ を正確に計算し、呼び出し側から与えられた合計 $T$ を格納します。"
 
 #: manual/design/internal/conformance.md:33
-#: manual/tutorial/frontend/testfloat_expr.md:166
+#: manual/tutorial/frontend/testfloat_expr.md:164
 msgid "Shards"
 msgstr "シャード"
 
@@ -17815,790 +17856,837 @@ msgid "The module needs the MoonBit toolchain 0.10.20 or later (`moonc` ≥ 0.10
 msgstr "このモジュールには MoonBit ツールチェーン 0.10.20 以降（`moonc` ≥ 0.10.20）が必要です。`Luna-Flow/arithmetic`（丸めモード、コンテキスト、checked およびコンテキスト付きトレイト）と `Luna-Flow/luna-generic`（代数的トレイト）に依存しています。`Luna-Flow/arithmetic` の型を名指しする場合は、自分でそれを追加してください。[はじめに](getting_started.md)では最初のプログラムを順を追って説明しています。"
 
 #: manual/index.md:47
+msgid "Modules"
+msgstr "モジュール"
+
+#: manual/index.md:49
+msgid "The repository is a workspace of two modules. `Luna-Flow/floating` (directory `library/`) is the library: the numerical cores, the checked wrappers, `def`, `semantic`, `consistency` and the `internal` helpers. `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds the developer tools: expressions and corpus frontends, the conformance command line, the differential harness, the benchmarks and the documentation examples. The sections below say which module a package belongs to; their package names are import paths below the module name, so `bin_float` is `Luna-Flow/floating/bin_float` and `frontend/gda_expr` is `Luna-Flow/floating-tools/frontend/gda_expr`."
+msgstr "このリポジトリは 2 つのモジュールからなるワークスペースです。`Luna-Flow/floating`（ディレクトリ `library/`）はライブラリで、数値コア、checked ラッパー、`def`、`semantic`、`consistency`、`internal` ヘルパーを含みます。`Luna-Flow/floating-tools`（ディレクトリ `tooling/`、ライブラリと同じバージョン）は開発者向けツールで、式とコーパスのフロントエンド、適合性コマンドライン、差分テストハーネス、ベンチマーク、ドキュメントの例を含みます。以下の節は各パッケージがどのモジュールに属するかを示します。パッケージ名はモジュール名の下のインポートパスなので、`bin_float` は `Luna-Flow/floating/bin_float`、`frontend/gda_expr` は `Luna-Flow/floating-tools/frontend/gda_expr` です。"
+
+#: manual/index.md:60
 msgid "Pages"
 msgstr "ページ"
 
-#: manual/index.md:49
+#: manual/index.md:62
 msgid "Each documented package has a tutorial (how to use it), an API reference (what you can call) and a design page (why it works this way). The four numerical cores also have a conformance page (which standard behaviour is verified, and how) and a performance page (measurements and their method)."
 msgstr "ドキュメントのある各パッケージには、チュートリアル（使い方）、API リファレンス（呼び出せるもの）、設計ページ（なぜそのように動作するのか）があります。四つの数値コアには、さらに適合性ページ（どの標準の振る舞いをどのように検証しているか）と性能ページ（測定結果とその方法）があります。"
 
-#: manual/index.md:54
+#: manual/index.md:67
 msgid "Numerical cores"
 msgstr "数値コア"
 
-#: manual/index.md:56
-#: manual/index.md:65
-#: manual/index.md:76
-#: manual/index.md:86
-#: manual/index.md:97
+#: manual/index.md:69
+#: manual/index.md:78
+#: manual/index.md:89
+#: manual/index.md:99
+#: manual/index.md:112
+#: manual/index.md:120
 msgid "Part"
 msgstr "構成要素"
 
-#: manual/index.md:56
-#: manual/index.md:65
-#: manual/index.md:76
-#: manual/index.md:86
-#: manual/index.md:97
+#: manual/index.md:69
+#: manual/index.md:78
+#: manual/index.md:89
+#: manual/index.md:99
+#: manual/index.md:112
+#: manual/index.md:120
 msgid "Tutorial"
 msgstr "チュートリアル"
 
-#: manual/index.md:56
-#: manual/index.md:65
-#: manual/index.md:76
-#: manual/index.md:86
-#: manual/index.md:97
+#: manual/index.md:69
+#: manual/index.md:78
+#: manual/index.md:89
+#: manual/index.md:99
+#: manual/index.md:112
+#: manual/index.md:120
 msgid "Design"
 msgstr "設計"
 
-#: manual/index.md:58
+#: manual/index.md:71
 msgid "`bin_float`: binary floating point, IEEE 754 binary operations, binary16/32/64/128 interchange"
 msgstr "`bin_float`：二進浮動小数点、IEEE 754 二進演算、binary16/32/64/128 交換形式"
 
-#: manual/index.md:58
+#: manual/index.md:71
 msgid "[tutorial](tutorial/bin_float.md)"
 msgstr "[チュートリアル](tutorial/bin_float.md)"
 
-#: manual/index.md:58
+#: manual/index.md:71
 msgid "[API](api/bin_float.md)"
 msgstr "[API](api/bin_float.md)"
 
-#: manual/index.md:58
+#: manual/index.md:71
 msgid "[design](design/bin_float.md)"
 msgstr "[設計](design/bin_float.md)"
 
-#: manual/index.md:58
+#: manual/index.md:71
 msgid "[conformance](conformance/bin_float.md), [performance](performance/bin_float.md)"
 msgstr "[適合性](conformance/bin_float.md), [性能](performance/bin_float.md)"
 
-#: manual/index.md:59
+#: manual/index.md:72
 msgid "`decimal`: IEEE 754 decimal with per-operation flags and DPD/BID interchange"
 msgstr "`decimal`：演算ごとのフラグと DPD/BID 交換形式を備えた IEEE 754 十進数"
 
-#: manual/index.md:59
+#: manual/index.md:72
 msgid "[tutorial](tutorial/decimal.md)"
 msgstr "[チュートリアル](tutorial/decimal.md)"
 
-#: manual/index.md:59
+#: manual/index.md:72
 msgid "[API](api/decimal.md)"
 msgstr "[API](api/decimal.md)"
 
-#: manual/index.md:59
+#: manual/index.md:72
 msgid "[design](design/decimal.md)"
 msgstr "[設計](design/decimal.md)"
 
-#: manual/index.md:59
+#: manual/index.md:72
 msgid "[conformance](conformance/decimal.md), [performance](performance/decimal.md)"
 msgstr "[適合性](conformance/decimal.md), [性能](performance/decimal.md)"
 
-#: manual/index.md:60
+#: manual/index.md:73
 msgid "`decimal_gda`: General Decimal Arithmetic with sticky status and traps"
 msgstr "`decimal_gda`：スティッキーなステータスとトラップを備えた General Decimal Arithmetic"
 
-#: manual/index.md:60
+#: manual/index.md:73
 msgid "[tutorial](tutorial/decimal_gda.md)"
 msgstr "[チュートリアル](tutorial/decimal_gda.md)"
 
-#: manual/index.md:60
+#: manual/index.md:73
 msgid "[API](api/decimal_gda.md)"
 msgstr "[API](api/decimal_gda.md)"
 
-#: manual/index.md:60
+#: manual/index.md:73
 msgid "[design](design/decimal_gda.md)"
 msgstr "[設計](design/decimal_gda.md)"
 
-#: manual/index.md:60
+#: manual/index.md:73
 msgid "[conformance](conformance/decimal_gda.md), [performance](performance/decimal_gda.md)"
 msgstr "[適合性](conformance/decimal_gda.md), [性能](performance/decimal_gda.md)"
 
-#: manual/index.md:61
+#: manual/index.md:74
 msgid "`ball_float`: outward-rounded bare and decorated intervals (IEEE 1788)"
 msgstr "`ball_float`：外向き丸めによる bare 区間と decorated 区間（IEEE 1788）"
 
-#: manual/index.md:61
+#: manual/index.md:74
 msgid "[tutorial](tutorial/ball_float.md)"
 msgstr "[チュートリアル](tutorial/ball_float.md)"
 
-#: manual/index.md:61
+#: manual/index.md:74
 msgid "[API](api/ball_float.md)"
 msgstr "[API](api/ball_float.md)"
 
-#: manual/index.md:61
+#: manual/index.md:74
 msgid "[design](design/ball_float.md)"
 msgstr "[設計](design/ball_float.md)"
 
-#: manual/index.md:61
+#: manual/index.md:74
 msgid "[conformance](conformance/ball_float.md), [performance](performance/ball_float.md)"
 msgstr "[適合性](conformance/ball_float.md), [性能](performance/ball_float.md)"
 
-#: manual/index.md:63
+#: manual/index.md:76
 msgid "Composition and shared vocabulary"
 msgstr "合成と共通語彙"
 
-#: manual/index.md:67
+#: manual/index.md:80
 msgid "`def`: `Sign`, `PartialOrder`, the `Floating` trait, re-exported `arithmetic` types"
 msgstr "`def`：`Sign`、`PartialOrder`、`Floating` トレイト、再エクスポートされた `arithmetic` の型"
 
-#: manual/index.md:67
+#: manual/index.md:80
 msgid "[tutorial](tutorial/def.md)"
 msgstr "[チュートリアル](tutorial/def.md)"
 
-#: manual/index.md:67
+#: manual/index.md:80
 msgid "[API](api/def.md)"
 msgstr "[API](api/def.md)"
 
-#: manual/index.md:67
+#: manual/index.md:80
 msgid "[design](design/def.md)"
 msgstr "[設計](design/def.md)"
 
-#: manual/index.md:68
+#: manual/index.md:81
 msgid "`bin_float_checked`: binary pipelines that stop at the first error"
 msgstr "`bin_float_checked`：最初のエラーで停止する二進パイプライン"
 
-#: manual/index.md:68
+#: manual/index.md:81
 msgid "[tutorial](tutorial/bin_float_checked.md)"
 msgstr "[チュートリアル](tutorial/bin_float_checked.md)"
 
-#: manual/index.md:68
+#: manual/index.md:81
 msgid "[API](api/bin_float_checked.md)"
 msgstr "[API](api/bin_float_checked.md)"
 
-#: manual/index.md:68
+#: manual/index.md:81
 msgid "[design](design/bin_float_checked.md)"
 msgstr "[設計](design/bin_float_checked.md)"
 
-#: manual/index.md:69
+#: manual/index.md:82
 msgid "`decimal_checked`: IEEE decimal pipelines that accumulate flags"
 msgstr "`decimal_checked`：フラグを蓄積する IEEE 十進パイプライン"
 
-#: manual/index.md:69
+#: manual/index.md:82
 msgid "[tutorial](tutorial/decimal_checked.md)"
 msgstr "[チュートリアル](tutorial/decimal_checked.md)"
 
-#: manual/index.md:69
+#: manual/index.md:82
 msgid "[API](api/decimal_checked.md)"
 msgstr "[API](api/decimal_checked.md)"
 
-#: manual/index.md:69
+#: manual/index.md:82
 msgid "[design](design/decimal_checked.md)"
 msgstr "[設計](design/decimal_checked.md)"
 
-#: manual/index.md:70
+#: manual/index.md:83
 msgid "`decimal_gda_checked`: GDA pipelines that thread status and stop at traps"
 msgstr "`decimal_gda_checked`：ステータスを受け渡し、トラップで停止する GDA パイプライン"
 
-#: manual/index.md:70
+#: manual/index.md:83
 msgid "[tutorial](tutorial/decimal_gda_checked.md)"
 msgstr "[チュートリアル](tutorial/decimal_gda_checked.md)"
 
-#: manual/index.md:70
+#: manual/index.md:83
 msgid "[API](api/decimal_gda_checked.md)"
 msgstr "[API](api/decimal_gda_checked.md)"
 
-#: manual/index.md:70
+#: manual/index.md:83
 msgid "[design](design/decimal_gda_checked.md)"
 msgstr "[設計](design/decimal_gda_checked.md)"
 
-#: manual/index.md:71
+#: manual/index.md:84
 msgid "`ball_float_checked`: interval pipelines that stop at the first error"
 msgstr "`ball_float_checked`：最初のエラーで停止する区間パイプライン"
 
-#: manual/index.md:71
+#: manual/index.md:84
 msgid "[tutorial](tutorial/ball_float_checked.md)"
 msgstr "[チュートリアル](tutorial/ball_float_checked.md)"
 
-#: manual/index.md:71
+#: manual/index.md:84
 msgid "[API](api/ball_float_checked.md)"
 msgstr "[API](api/ball_float_checked.md)"
 
-#: manual/index.md:71
+#: manual/index.md:84
 msgid "[design](design/ball_float_checked.md)"
 msgstr "[設計](design/ball_float_checked.md)"
 
-#: manual/index.md:72
+#: manual/index.md:85
 msgid "`semantic`: exact, representation-independent projection for comparisons across packages"
 msgstr "`semantic`：パッケージ間の比較のための、厳密で表現に依存しない射影"
 
-#: manual/index.md:72
+#: manual/index.md:85
 msgid "[tutorial](tutorial/semantic.md)"
 msgstr "[チュートリアル](tutorial/semantic.md)"
 
-#: manual/index.md:72
+#: manual/index.md:85
 msgid "[API](api/semantic.md)"
 msgstr "[API](api/semantic.md)"
 
-#: manual/index.md:72
+#: manual/index.md:85
 msgid "[design](design/semantic.md)"
 msgstr "[設計](design/semantic.md)"
 
-#: manual/index.md:74
-msgid "Expressions and corpus frontends"
-msgstr "式とコーパスのフロントエンド"
+#: manual/index.md:87
+msgid "Tools module: expressions and corpus frontends"
+msgstr "ツールモジュール: 式とコーパスのフロントエンド"
 
-#: manual/index.md:78
+#: manual/index.md:91
 msgid "`numeric_expr`: host-independent numeric expression syntax and evaluation"
 msgstr "`numeric_expr`：ホストに依存しない数値式の構文と評価"
 
-#: manual/index.md:78
+#: manual/index.md:91
 msgid "[tutorial](tutorial/numeric_expr.md)"
 msgstr "[チュートリアル](tutorial/numeric_expr.md)"
 
-#: manual/index.md:78
+#: manual/index.md:91
 msgid "[API](api/numeric_expr.md)"
 msgstr "[API](api/numeric_expr.md)"
 
-#: manual/index.md:78
+#: manual/index.md:91
 msgid "[design](design/numeric_expr.md)"
 msgstr "[設計](design/numeric_expr.md)"
 
-#: manual/index.md:79
+#: manual/index.md:92
 msgid "`frontend/gda_expr`: parse and execute GDA `.decTest` files"
 msgstr "`frontend/gda_expr`：GDA の `.decTest` ファイルをパースして実行する"
 
-#: manual/index.md:79
+#: manual/index.md:92
 msgid "[tutorial](tutorial/frontend/gda_expr.md)"
 msgstr "[チュートリアル](tutorial/frontend/gda_expr.md)"
 
-#: manual/index.md:79
+#: manual/index.md:92
 msgid "[API](api/frontend/gda_expr.md)"
 msgstr "[API](api/frontend/gda_expr.md)"
 
-#: manual/index.md:79
+#: manual/index.md:92
 msgid "[design](design/frontend/gda_expr.md)"
 msgstr "[設計](design/frontend/gda_expr.md)"
 
-#: manual/index.md:80
+#: manual/index.md:93
 msgid "`frontend/itl_expr`: parse and execute ITF1788 interval test rows"
 msgstr "`frontend/itl_expr`：ITF1788 の区間テストの行をパースして実行する"
 
-#: manual/index.md:80
+#: manual/index.md:93
 msgid "[tutorial](tutorial/frontend/itl_expr.md)"
 msgstr "[チュートリアル](tutorial/frontend/itl_expr.md)"
 
-#: manual/index.md:80
+#: manual/index.md:93
 msgid "[API](api/frontend/itl_expr.md)"
 msgstr "[API](api/frontend/itl_expr.md)"
 
-#: manual/index.md:80
+#: manual/index.md:93
 msgid "[design](design/frontend/itl_expr.md)"
 msgstr "[設計](design/frontend/itl_expr.md)"
 
-#: manual/index.md:81
+#: manual/index.md:94
 msgid "`frontend/mpfr_expr`: parse and execute pinned MPFR witnesses"
 msgstr "`frontend/mpfr_expr`：固定された MPFR の証拠データ（witness）をパースして実行する"
 
-#: manual/index.md:81
+#: manual/index.md:94
 msgid "[tutorial](tutorial/frontend/mpfr_expr.md)"
 msgstr "[チュートリアル](tutorial/frontend/mpfr_expr.md)"
 
-#: manual/index.md:81
+#: manual/index.md:94
 msgid "[API](api/frontend/mpfr_expr.md)"
 msgstr "[API](api/frontend/mpfr_expr.md)"
 
-#: manual/index.md:81
+#: manual/index.md:94
 msgid "[design](design/frontend/mpfr_expr.md)"
 msgstr "[設計](design/frontend/mpfr_expr.md)"
 
-#: manual/index.md:82
+#: manual/index.md:95
 msgid "`frontend/testfloat_expr`: parse and execute Berkeley TestFloat vectors"
 msgstr "`frontend/testfloat_expr`：Berkeley TestFloat のベクタをパースして実行する"
 
-#: manual/index.md:82
+#: manual/index.md:95
 msgid "[tutorial](tutorial/frontend/testfloat_expr.md)"
 msgstr "[チュートリアル](tutorial/frontend/testfloat_expr.md)"
 
-#: manual/index.md:82
+#: manual/index.md:95
 msgid "[API](api/frontend/testfloat_expr.md)"
 msgstr "[API](api/frontend/testfloat_expr.md)"
 
-#: manual/index.md:82
+#: manual/index.md:95
 msgid "[design](design/frontend/testfloat_expr.md)"
 msgstr "[設計](design/frontend/testfloat_expr.md)"
 
-#: manual/index.md:84
-msgid "Conformance command line"
-msgstr "適合性検証のコマンドライン"
+#: manual/index.md:97
+msgid "Tools module: conformance command line"
+msgstr "ツールモジュール: 適合性コマンドライン"
 
-#: manual/index.md:88
+#: manual/index.md:101
 msgid "`cli`: native dispatcher for the four conformance backends"
 msgstr "`cli`：四つの適合性検証バックエンドのためのネイティブディスパッチャ"
 
-#: manual/index.md:88
+#: manual/index.md:101
 msgid "[tutorial](tutorial/cli.md)"
 msgstr "[チュートリアル](tutorial/cli.md)"
 
-#: manual/index.md:88
+#: manual/index.md:101
 msgid "[API](api/cli.md)"
 msgstr "[API](api/cli.md)"
 
-#: manual/index.md:88
+#: manual/index.md:101
 msgid "[design](design/cli.md)"
 msgstr "[設計](design/cli.md)"
 
-#: manual/index.md:89
+#: manual/index.md:102
+msgid "`cli/dispatch`: the argument scanning and exit code of `cli`, as a library"
+msgstr "`cli/dispatch`: `cli` の引数走査と終了コードをライブラリとして提供"
+
+#: manual/index.md:102
+msgid "[tutorial](tutorial/cli/dispatch.md)"
+msgstr "[チュートリアル](tutorial/cli/dispatch.md)"
+
+#: manual/index.md:102
+msgid "[API](api/cli/dispatch.md)"
+msgstr "[API](api/cli/dispatch.md)"
+
+#: manual/index.md:102
+msgid "[design](design/cli/dispatch.md)"
+msgstr "[設計](design/cli/dispatch.md)"
+
+#: manual/index.md:103
 msgid "`cli/gda_expr_cli`: file and output adapter for `.decTest` runs"
 msgstr "`cli/gda_expr_cli`：`.decTest` 実行のためのファイルおよび出力アダプタ"
 
-#: manual/index.md:89
+#: manual/index.md:103
 msgid "[tutorial](tutorial/cli/gda_expr_cli.md)"
 msgstr "[チュートリアル](tutorial/cli/gda_expr_cli.md)"
 
-#: manual/index.md:89
+#: manual/index.md:103
 msgid "[API](api/cli/gda_expr_cli.md)"
 msgstr "[API](api/cli/gda_expr_cli.md)"
 
-#: manual/index.md:89
+#: manual/index.md:103
 msgid "[design](design/cli/gda_expr_cli.md)"
 msgstr "[設計](design/cli/gda_expr_cli.md)"
 
-#: manual/index.md:90
+#: manual/index.md:104
 msgid "`cli/itl_expr_cli`: file and JSON adapter for ITF1788 runs"
 msgstr "`cli/itl_expr_cli`：ITF1788 実行のためのファイルおよび JSON アダプタ"
 
-#: manual/index.md:90
+#: manual/index.md:104
 msgid "[tutorial](tutorial/cli/itl_expr_cli.md)"
 msgstr "[チュートリアル](tutorial/cli/itl_expr_cli.md)"
 
-#: manual/index.md:90
+#: manual/index.md:104
 msgid "[API](api/cli/itl_expr_cli.md)"
 msgstr "[API](api/cli/itl_expr_cli.md)"
 
-#: manual/index.md:90
+#: manual/index.md:104
 msgid "[design](design/cli/itl_expr_cli.md)"
 msgstr "[設計](design/cli/itl_expr_cli.md)"
 
-#: manual/index.md:91
+#: manual/index.md:105
 msgid "`cli/mpfr_expr_cli`: command adapter for MPFR witness runs"
 msgstr "`cli/mpfr_expr_cli`：MPFR 証拠データ実行のためのコマンドアダプタ"
 
-#: manual/index.md:91
+#: manual/index.md:105
 msgid "[tutorial](tutorial/cli/mpfr_expr_cli.md)"
 msgstr "[チュートリアル](tutorial/cli/mpfr_expr_cli.md)"
 
-#: manual/index.md:91
+#: manual/index.md:105
 msgid "[API](api/cli/mpfr_expr_cli.md)"
 msgstr "[API](api/cli/mpfr_expr_cli.md)"
 
-#: manual/index.md:91
+#: manual/index.md:105
 msgid "[design](design/cli/mpfr_expr_cli.md)"
 msgstr "[設計](design/cli/mpfr_expr_cli.md)"
 
-#: manual/index.md:92
+#: manual/index.md:106
 msgid "`differential`: seeded random differential harness against MPFR and libmpdec"
 msgstr "`differential`：MPFR と libmpdec に対するシード付きランダム差分ハーネス"
 
-#: manual/index.md:92
+#: manual/index.md:106
 msgid "[tutorial](tutorial/differential.md)"
 msgstr "[チュートリアル](tutorial/differential.md)"
 
-#: manual/index.md:92
+#: manual/index.md:106
 msgid "[API](api/differential.md)"
 msgstr "[API](api/differential.md)"
 
-#: manual/index.md:92
+#: manual/index.md:106
 msgid "[design](design/differential.md)"
 msgstr "[設計](design/differential.md)"
 
-#: manual/index.md:93
+#: manual/index.md:107
+msgid "`differential/harness`: the batches, specification and `run` of `differential`, as a library"
+msgstr "`differential/harness`: `differential` のバッチ、仕様、`run` をライブラリとして提供"
+
+#: manual/index.md:107
+msgid "[tutorial](tutorial/differential/harness.md)"
+msgstr "[チュートリアル](tutorial/differential/harness.md)"
+
+#: manual/index.md:107
+msgid "[API](api/differential/harness.md)"
+msgstr "[API](api/differential/harness.md)"
+
+#: manual/index.md:107
+msgid "[design](design/differential/harness.md)"
+msgstr "[設計](design/differential/harness.md)"
+
+#: manual/index.md:108
 msgid "`cli/testfloat_expr_cli`: command adapter for TestFloat runs"
 msgstr "`cli/testfloat_expr_cli`：TestFloat 実行のためのコマンドアダプタ"
 
-#: manual/index.md:93
+#: manual/index.md:108
 msgid "[tutorial](tutorial/cli/testfloat_expr_cli.md)"
 msgstr "[チュートリアル](tutorial/cli/testfloat_expr_cli.md)"
 
-#: manual/index.md:93
+#: manual/index.md:108
 msgid "[API](api/cli/testfloat_expr_cli.md)"
 msgstr "[API](api/cli/testfloat_expr_cli.md)"
 
-#: manual/index.md:93
+#: manual/index.md:108
 msgid "[design](design/cli/testfloat_expr_cli.md)"
 msgstr "[設計](design/cli/testfloat_expr_cli.md)"
 
-#: manual/index.md:95
-msgid "Infrastructure and evidence"
-msgstr "基盤と証拠"
+#: manual/index.md:110
+msgid "Library infrastructure"
+msgstr "ライブラリのインフラ"
 
-#: manual/index.md:99
+#: manual/index.md:114
 msgid "`internal`: exact rationals, big-integer, parsing, normalization and rounding helpers"
 msgstr "`internal`：厳密有理数、多倍長整数、パース、正規化、丸めのヘルパー"
 
-#: manual/index.md:99
+#: manual/index.md:114
 msgid "[tutorial](tutorial/internal.md)"
 msgstr "[チュートリアル](tutorial/internal.md)"
 
-#: manual/index.md:99
+#: manual/index.md:114
 msgid "[API](api/internal.md)"
 msgstr "[API](api/internal.md)"
 
-#: manual/index.md:99
+#: manual/index.md:114
 msgid "[design](design/internal.md)"
 msgstr "[設計](design/internal.md)"
 
-#: manual/index.md:100
-msgid "`internal/conformance`: source locations, deterministic shards, case dispositions and summaries"
-msgstr "`internal/conformance`：ソース位置、決定的なシャード、ケースの処理区分、サマリー"
-
-#: manual/index.md:100
-msgid "[tutorial](tutorial/internal/conformance.md)"
-msgstr "[チュートリアル](tutorial/internal/conformance.md)"
-
-#: manual/index.md:100
-msgid "[API](api/internal/conformance.md)"
-msgstr "[API](api/internal/conformance.md)"
-
-#: manual/index.md:100
-msgid "[design](design/internal/conformance.md)"
-msgstr "[設計](design/internal/conformance.md)"
-
-#: manual/index.md:101
+#: manual/index.md:115
 msgid "`internal/decimal_kernel`: exact integer arithmetic on decimal coefficients, shared by `decimal` and `decimal_gda`"
 msgstr "`internal/decimal_kernel`：10 進係数の厳密な整数演算（`decimal` と `decimal_gda` が共有）"
 
-#: manual/index.md:101
+#: manual/index.md:115
 msgid "[tutorial](tutorial/internal/decimal_kernel.md)"
 msgstr "[チュートリアル](tutorial/internal/decimal_kernel.md)"
 
-#: manual/index.md:101
+#: manual/index.md:115
 msgid "[API](api/internal/decimal_kernel.md)"
 msgstr "[API](api/internal/decimal_kernel.md)"
 
-#: manual/index.md:101
+#: manual/index.md:115
 msgid "[design](design/internal/decimal_kernel.md)"
 msgstr "[設計](design/internal/decimal_kernel.md)"
 
-#: manual/index.md:102
-msgid "`internal/runner_cli`: shared command-line options, files, diagnostics and JSON"
-msgstr "`internal/runner_cli`：共有のコマンドラインオプション、ファイル、診断、JSON"
-
-#: manual/index.md:102
-msgid "[tutorial](tutorial/internal/runner_cli.md)"
-msgstr "[チュートリアル](tutorial/internal/runner_cli.md)"
-
-#: manual/index.md:102
-msgid "[API](api/internal/runner_cli.md)"
-msgstr "[API](api/internal/runner_cli.md)"
-
-#: manual/index.md:102
-msgid "[design](design/internal/runner_cli.md)"
-msgstr "[設計](design/internal/runner_cli.md)"
-
-#: manual/index.md:103
+#: manual/index.md:116
 msgid "`consistency`: white-box cross-package laws and API audits"
 msgstr "`consistency`：ホワイトボックスによるパッケージ横断の法則と API 監査"
 
-#: manual/index.md:103
+#: manual/index.md:116
 msgid "[tutorial](tutorial/consistency.md)"
 msgstr "[チュートリアル](tutorial/consistency.md)"
 
-#: manual/index.md:103
+#: manual/index.md:116
 msgid "[API](api/consistency.md)"
 msgstr "[API](api/consistency.md)"
 
-#: manual/index.md:103
+#: manual/index.md:116
 msgid "[design](design/consistency.md)"
 msgstr "[設計](design/consistency.md)"
 
-#: manual/index.md:104
+#: manual/index.md:118
+msgid "Tools module: infrastructure and evidence"
+msgstr "ツールモジュール: インフラと証拠"
+
+#: manual/index.md:122
+msgid "`internal/conformance`: source locations, deterministic shards, case dispositions and summaries"
+msgstr "`internal/conformance`：ソース位置、決定的なシャード、ケースの処理区分、サマリー"
+
+#: manual/index.md:122
+msgid "[tutorial](tutorial/internal/conformance.md)"
+msgstr "[チュートリアル](tutorial/internal/conformance.md)"
+
+#: manual/index.md:122
+msgid "[API](api/internal/conformance.md)"
+msgstr "[API](api/internal/conformance.md)"
+
+#: manual/index.md:122
+msgid "[design](design/internal/conformance.md)"
+msgstr "[設計](design/internal/conformance.md)"
+
+#: manual/index.md:123
+msgid "`internal/runner_cli`: shared command-line options, files, diagnostics and JSON"
+msgstr "`internal/runner_cli`：共有のコマンドラインオプション、ファイル、診断、JSON"
+
+#: manual/index.md:123
+msgid "[tutorial](tutorial/internal/runner_cli.md)"
+msgstr "[チュートリアル](tutorial/internal/runner_cli.md)"
+
+#: manual/index.md:123
+msgid "[API](api/internal/runner_cli.md)"
+msgstr "[API](api/internal/runner_cli.md)"
+
+#: manual/index.md:123
+msgid "[design](design/internal/runner_cli.md)"
+msgstr "[設計](design/internal/runner_cli.md)"
+
+#: manual/index.md:124
 msgid "`doc_examples`: executable documentation examples run by `just docs`"
 msgstr "`doc_examples`：`just docs` で実行される実行可能なドキュメントの例"
 
-#: manual/index.md:104
+#: manual/index.md:124
 msgid "[tutorial](tutorial/doc_examples.md)"
 msgstr "[チュートリアル](tutorial/doc_examples.md)"
 
-#: manual/index.md:104
+#: manual/index.md:124
 msgid "[API](api/doc_examples.md)"
 msgstr "[API](api/doc_examples.md)"
 
-#: manual/index.md:104
+#: manual/index.md:124
 msgid "[design](design/doc_examples.md)"
 msgstr "[設計](design/doc_examples.md)"
 
-#: manual/index.md:105
+#: manual/index.md:125
 msgid "`bench`: shared Maremark benchmark infrastructure"
 msgstr "`bench`：共有の Maremark ベンチマーク基盤"
 
-#: manual/index.md:105
+#: manual/index.md:125
 msgid "[tutorial](tutorial/bench.md)"
 msgstr "[チュートリアル](tutorial/bench.md)"
 
-#: manual/index.md:105
+#: manual/index.md:125
 msgid "[API](api/bench.md)"
 msgstr "[API](api/bench.md)"
 
-#: manual/index.md:105
+#: manual/index.md:125
 msgid "[design](design/bench.md)"
 msgstr "[設計](design/bench.md)"
 
-#: manual/index.md:106
+#: manual/index.md:126
 msgid "`bench/bin_float`: binary arithmetic and elementary-function benchmarks"
 msgstr "`bench/bin_float`：二進算術と初等関数のベンチマーク"
 
-#: manual/index.md:106
+#: manual/index.md:126
 msgid "[tutorial](tutorial/bench/bin_float.md)"
 msgstr "[チュートリアル](tutorial/bench/bin_float.md)"
 
-#: manual/index.md:106
+#: manual/index.md:126
 msgid "[API](api/bench/bin_float.md)"
 msgstr "[API](api/bench/bin_float.md)"
 
-#: manual/index.md:106
+#: manual/index.md:126
 msgid "[design](design/bench/bin_float.md)"
 msgstr "[設計](design/bench/bin_float.md)"
 
-#: manual/index.md:107
+#: manual/index.md:127
 msgid "`bench/decimal`: IEEE decimal benchmarks"
 msgstr "`bench/decimal`：IEEE 十進ベンチマーク"
 
-#: manual/index.md:107
+#: manual/index.md:127
 msgid "[tutorial](tutorial/bench/decimal.md)"
 msgstr "[チュートリアル](tutorial/bench/decimal.md)"
 
-#: manual/index.md:107
+#: manual/index.md:127
 msgid "[API](api/bench/decimal.md)"
 msgstr "[API](api/bench/decimal.md)"
 
-#: manual/index.md:107
+#: manual/index.md:127
 msgid "[design](design/bench/decimal.md)"
 msgstr "[設計](design/bench/decimal.md)"
 
-#: manual/index.md:108
+#: manual/index.md:128
 msgid "`bench/decimal_gda`: GDA decimal benchmarks"
 msgstr "`bench/decimal_gda`：GDA 十進ベンチマーク"
 
-#: manual/index.md:108
+#: manual/index.md:128
 msgid "[tutorial](tutorial/bench/decimal_gda.md)"
 msgstr "[チュートリアル](tutorial/bench/decimal_gda.md)"
 
-#: manual/index.md:108
+#: manual/index.md:128
 msgid "[API](api/bench/decimal_gda.md)"
 msgstr "[API](api/bench/decimal_gda.md)"
 
-#: manual/index.md:108
+#: manual/index.md:128
 msgid "[design](design/bench/decimal_gda.md)"
 msgstr "[設計](design/bench/decimal_gda.md)"
 
-#: manual/index.md:109
+#: manual/index.md:129
 msgid "`bench/ball_float`: interval arithmetic benchmarks"
 msgstr "`bench/ball_float`：区間算術ベンチマーク"
 
-#: manual/index.md:109
+#: manual/index.md:129
 msgid "[tutorial](tutorial/bench/ball_float.md)"
 msgstr "[チュートリアル](tutorial/bench/ball_float.md)"
 
-#: manual/index.md:109
+#: manual/index.md:129
 msgid "[API](api/bench/ball_float.md)"
 msgstr "[API](api/bench/ball_float.md)"
 
-#: manual/index.md:109
+#: manual/index.md:129
 msgid "[design](design/bench/ball_float.md)"
 msgstr "[設計](design/bench/ball_float.md)"
 
-#: manual/index.md:110
+#: manual/index.md:130
 msgid "`bench/external`: timing against MPFR and libmpdec on shared operands"
 msgstr "`bench/external`：共有オペランドでの MPFR・libmpdec との計時比較"
 
-#: manual/index.md:110
+#: manual/index.md:130
 msgid "[tutorial](tutorial/bench/external.md)"
 msgstr "[チュートリアル](tutorial/bench/external.md)"
 
-#: manual/index.md:110
+#: manual/index.md:130
 msgid "[API](api/bench/external.md)"
 msgstr "[API](api/bench/external.md)"
 
-#: manual/index.md:110
+#: manual/index.md:130
 msgid "[design](design/bench/external.md), [performance](performance/bench/external.md)"
 msgstr "[設計](design/bench/external.md), [性能](performance/bench/external.md)"
 
-#: manual/index.md:112
+#: manual/index.md:132
 msgid "Guides"
 msgstr "ガイド"
 
-#: manual/index.md:114
+#: manual/index.md:134
 msgid "Guide"
 msgstr "ガイド"
 
-#: manual/index.md:114
+#: manual/index.md:134
 msgid "Read it for"
 msgstr "読むべき場面"
 
-#: manual/index.md:116
+#: manual/index.md:136
 msgid "[Getting started](getting_started.md)"
 msgstr "[はじめに](getting_started.md)"
 
-#: manual/index.md:116
+#: manual/index.md:136
 msgid "choosing a package, installing, first values, contexts and failure models"
 msgstr "パッケージの選択、インストール、最初の値、コンテキストと失敗モデル"
 
-#: manual/index.md:117
+#: manual/index.md:137
 msgid "[Numeric semantics](numeric_semantics.md)"
 msgstr "[数値意味論](numeric_semantics.md)"
 
-#: manual/index.md:117
+#: manual/index.md:137
 msgid "the shared vocabulary: exact value and rounded result, rounding functions, ulp and unit roundoff, flags, quantum, signed zero, NaN, enclosures"
 msgstr "共通の語彙: 厳密値と丸められた結果、丸め関数、ulp と単位丸め誤差、フラグ、量子、符号付きゼロ、NaN、包含区間"
 
-#: manual/index.md:118
+#: manual/index.md:138
 msgid "[Architecture](architecture.md)"
 msgstr "[アーキテクチャ](architecture.md)"
 
-#: manual/index.md:118
+#: manual/index.md:138
 msgid "package layers, the numeric core pipeline, certified elementary functions, invariants"
 msgstr "パッケージのレイヤー、数値コアのパイプライン、認証付き初等関数、不変条件"
 
-#: manual/index.md:119
+#: manual/index.md:139
 msgid "[Verification](verification.md)"
 msgstr "[検証](verification.md)"
 
-#: manual/index.md:119
+#: manual/index.md:139
 msgid "the gates, the published conformance claims and how to reproduce them"
 msgstr "ゲート、公開されている適合性の主張、およびその再現方法"
 
-#: manual/index.md:120
+#: manual/index.md:140
 msgid "[Performance audit](performance_audit.md)"
 msgstr "[性能監査](performance_audit.md)"
 
-#: manual/index.md:120
+#: manual/index.md:140
 msgid "proofs and evidence for the optimized arithmetic paths"
 msgstr "最適化された算術経路に対する証明と証拠"
 
-#: manual/index.md:121
+#: manual/index.md:141
 msgid "[External baseline](performance/bench/external.md)"
 msgstr "[外部ベースライン](performance/bench/external.md)"
 
-#: manual/index.md:121
+#: manual/index.md:141
 msgid "`floating` timed against MPFR and libmpdec: method, machine, ratios"
 msgstr "`floating` を MPFR と libmpdec と比べた計時：手法、マシン、比"
 
-#: manual/index.md:122
+#: manual/index.md:142
 msgid "[Repository conventions](conventions.md)"
 msgstr "[リポジトリの規約](conventions.md)"
 
-#: manual/index.md:122
+#: manual/index.md:142
 msgid "documentation rules and the review checklist"
 msgstr "ドキュメントの規則とレビューのチェックリスト"
 
-#: manual/index.md:124
+#: manual/index.md:144
 msgid "The application surface is the numerical cores, `def` and the checked wrappers; `semantic` and `numeric_expr` are provisional integration surfaces. The other packages publish interfaces because repository tools compose them, and their design pages state narrower stability promises."
 msgstr "アプリケーション向けの公開面は、数値コア、`def`、checked ラッパーです。`semantic` と `numeric_expr` は暫定的な統合用の公開面です。その他のパッケージは、リポジトリのツールがそれらを合成するためにインターフェースを公開しており、その設計ページではより限定的な安定性の約束を述べています。"
 
-#: manual/index.md:129
+#: manual/index.md:149
 msgid "Exported types"
 msgstr "エクスポートされる型"
 
-#: manual/index.md:131
+#: manual/index.md:151
 msgid "Binary floating point (`bin_float`)"
 msgstr "二進浮動小数点（`bin_float`）"
 
-#: manual/index.md:133
+#: manual/index.md:153
 msgid "Values: `BinFloat` (signed dyadic number with a precision, signed zeros, infinities and NaNs with payloads) and its exact coefficient `BinCoeff`"
 msgstr "値：`BinFloat`（精度を持つ符号付き二進有理数、符号付きゼロ、無限大、ペイロード付き NaN）とその厳密な係数 `BinCoeff`"
 
-#: manual/index.md:135
+#: manual/index.md:155
 msgid "Contexts and status: `BinaryContext`, `BinaryRoundingMode`, `TininessDetection`, `BinaryFlags`"
 msgstr "コンテキストとステータス：`BinaryContext`、`BinaryRoundingMode`、`TininessDetection`、`BinaryFlags`"
 
-#: manual/index.md:137
+#: manual/index.md:157
 msgid "Interchange: `BinaryInterchange`, `BinaryInterchangeFormat` (binary16, 32, 64, 128 and wider)"
 msgstr "交換形式：`BinaryInterchange`、`BinaryInterchangeFormat`（binary16、32、64、128 およびそれより広い形式）"
 
-#: manual/index.md:139
+#: manual/index.md:159
 msgid "Limits: `binary_implementation_e_min`, `binary_implementation_e_max`, `binary_precision_max`"
 msgstr "制限値：`binary_implementation_e_min`、`binary_implementation_e_max`、`binary_precision_max`"
 
-#: manual/index.md:142
+#: manual/index.md:162
 msgid "Decimal floating point (`decimal`, `decimal_gda`)"
 msgstr "十進浮動小数点（`decimal`、`decimal_gda`）"
 
-#: manual/index.md:144
+#: manual/index.md:164
 msgid "IEEE 754 decimal: `Decimal`, `DecimalContext`, `DecimalRoundingMode`, `DecimalTininessDetection`, `DecimalFlags`, `DecimalSignal`, and the DPD/BID interchange types `DecimalInterchange`, `DecimalInterchangeFormat`, `DecimalInterchangeEncoding`"
 msgstr "IEEE 754 十進：`Decimal`、`DecimalContext`、`DecimalRoundingMode`、`DecimalTininessDetection`、`DecimalFlags`、`DecimalSignal`、および DPD/BID 交換形式の型 `DecimalInterchange`、`DecimalInterchangeFormat`、`DecimalInterchangeEncoding`"
 
-#: manual/index.md:148
+#: manual/index.md:168
 msgid "General Decimal Arithmetic: `Decimal`, `GdaContext`, `GdaRoundingMode`, `GdaFlags`, `GdaSignal`, `GdaTrapSet`, `GdaOutcome`, `GdaInterchange`, `GdaInterchangeFormat`, and one free function per GDA operation (`add`, `divide`, `quantize`, `power`, ...)"
 msgstr "General Decimal Arithmetic：`Decimal`、`GdaContext`、`GdaRoundingMode`、`GdaFlags`、`GdaSignal`、`GdaTrapSet`、`GdaOutcome`、`GdaInterchange`、`GdaInterchangeFormat`、および GDA の各演算に一つずつ対応する自由関数（`add`、`divide`、`quantize`、`power` など）"
 
-#: manual/index.md:153
+#: manual/index.md:173
 msgid "Intervals (`ball_float`)"
 msgstr "区間（`ball_float`）"
 
-#: manual/index.md:155
+#: manual/index.md:175
 msgid "`BallFloat` (bare interval), `BallFloatDecorated` with its `Decoration`, `OverlapState`"
 msgstr "`BallFloat`（bare 区間）、`Decoration` を伴う `BallFloatDecorated`、`OverlapState`"
 
-#: manual/index.md:157
+#: manual/index.md:177
 msgid "`BallContext` and `BallFlags` for intervals in a target format"
 msgstr "目標形式の区間のための `BallContext` と `BallFlags`"
 
-#: manual/index.md:159
+#: manual/index.md:179
 msgid "Pipelines and shared vocabulary"
 msgstr "パイプラインと共通語彙"
 
-#: manual/index.md:161
+#: manual/index.md:181
 msgid "Checked wrappers: `BinFloatResult`, `DecimalChecked`, `GdaDecimalChecked`, `BallFloatResult`"
 msgstr "checked ラッパー：`BinFloatResult`、`DecimalChecked`、`GdaDecimalChecked`、`BallFloatResult`"
 
-#: manual/index.md:163
+#: manual/index.md:183
 msgid "`def`: `Sign`, `PartialOrder`, the `Floating` trait, `is_finite`, `is_infinite`, `is_nan`, `is_zero`, and the re-exported `RoundingMode`, `ArithmeticContext` and `ArithmeticError` of `Luna-Flow/arithmetic`"
 msgstr "`def`：`Sign`、`PartialOrder`、`Floating` トレイト、`is_finite`、`is_infinite`、`is_nan`、`is_zero`、および `Luna-Flow/arithmetic` から再エクスポートされた `RoundingMode`、`ArithmeticContext`、`ArithmeticError`"
 
-#: manual/index.md:168
+#: manual/index.md:188
 msgid "`numeric_expr`: `Expr`, `Literal`, `Operation`, `SourceSpan`, `EvalError` and `evaluate`"
 msgstr "`numeric_expr`：`Expr`、`Literal`、`Operation`、`SourceSpan`、`EvalError`、`evaluate`"
 
-#: manual/index.md:171
+#: manual/index.md:191
 msgid "Where to read next"
 msgstr "次に読むもの"
 
-#: manual/index.md:173
+#: manual/index.md:193
 msgid "**New to the library.** Read [getting started](getting_started.md), then the tutorial of the package you chose, for example the [`bin_float` tutorial](tutorial/bin_float.md) or the [`decimal` tutorial](tutorial/decimal.md). Keep [numeric semantics](numeric_semantics.md) open for the vocabulary."
 msgstr "**ライブラリを初めて使う場合。** [はじめに](getting_started.md)を読み、次に選んだパッケージのチュートリアル、たとえば [`bin_float` チュートリアル](tutorial/bin_float.md)や [`decimal` チュートリアル](tutorial/decimal.md)を読んでください。用語については[数値意味論](numeric_semantics.md)を手元に開いておいてください。"
 
-#: manual/index.md:178
+#: manual/index.md:198
 msgid "**Using it in an application or library.** Read [numeric semantics](numeric_semantics.md) once, then work from the API pages of your packages. Before you rely on a standard behaviour, check the matching conformance page; for pipelines, read the tutorial of the checked wrapper."
 msgstr "**アプリケーションやライブラリで使う場合。** [数値意味論](numeric_semantics.md)を一度読み、その後は使用するパッケージの API ページを参照して作業してください。標準の振る舞いに依拠する前に、対応する適合性ページを確認してください。パイプラインについては、checked ラッパーのチュートリアルを読んでください。"
 
-#: manual/index.md:183
+#: manual/index.md:203
 msgid "**Contributing.** Read [architecture](architecture.md), [verification](verification.md) and the [repository conventions](conventions.md), then the design page of the package you change. Changes to an optimized path also need the [performance audit](performance_audit.md) and the package's performance page."
 msgstr "**コントリビュートする場合。** [アーキテクチャ](architecture.md)、[検証](verification.md)、[リポジトリの規約](conventions.md)を読み、次に変更するパッケージの設計ページを読んでください。最適化された経路を変更する場合は、[性能監査](performance_audit.md)とそのパッケージの性能ページも必要です。"
 
-#: manual/index.md:190
+#: manual/index.md:210
 msgid "Evidence snapshot"
 msgstr "証拠の概要"
 
-#: manual/index.md:192
+#: manual/index.md:212
 msgid "The pinned GDA `official` corpus passes **64,986/64,986 legal executable scalar rows**, and `official0` passes 16,124/16,124. The 141 `#` placeholder or non-scalar rows are diagnostic exclusions."
 msgstr "固定された GDA の `official` コーパスは **64,986/64,986 件の正当な実行可能スカラー行** をパスし、`official0` は 16,124/16,124 件をパスします。残る 141 件の `#` プレースホルダ行または非スカラー行は診断上の除外対象です。"
 
-#: manual/index.md:195
+#: manual/index.md:215
 msgid "The binary TestFloat level-1 matrix passes 254,227,872 vectors across binary16/32/64/128, including fused multiply-add, remainder, round to integral, integer conversions and the comparison predicates, plus pinned MPFR square-root and elementary-function witnesses."
 msgstr "二進の TestFloat レベル 1 マトリクスは、binary16/32/64/128 にわたる 254,227,872 個のベクタをパスします。これには融合積和、剰余、整数値への丸め、整数変換、比較述語が含まれ、さらに固定された MPFR の平方根および初等関数の証拠データもパスします。"
 
-#: manual/index.md:199
+#: manual/index.md:219
 msgid "The strict ITF1788 aggregate passes 4,656/4,656 selected interval cases."
 msgstr "厳密な ITF1788 の集計は、選択された 4,656/4,656 件の区間ケースをパスします。"
 
-#: manual/index.md:200
+#: manual/index.md:220
 msgid "The IEEE decimal gate covers decimal32/64/128 DPD and BID encodings, flags and arithmetic on four targets."
 msgstr "IEEE 十進のゲートは、四つのターゲット上で decimal32/64/128 の DPD および BID エンコーディング、フラグ、算術をカバーします。"
 
-#: manual/index.md:203
+#: manual/index.md:223
 msgid "These finite results do not imply support for every operation, every future corpus revision or every real input. Read the conformance page of a package before turning a result into a compatibility claim."
 msgstr "これらの有限の結果は、あらゆる演算、将来のあらゆるコーパス改訂、あらゆる実数入力に対するサポートを意味するものではありません。結果を互換性の主張とする前に、そのパッケージの適合性ページを読んでください。"
 
-#: manual/index.md:207
+#: manual/index.md:227
 msgid "Validation"
 msgstr "検証"
 
-#: manual/index.md:209
+#: manual/index.md:229
 msgid "Recommended checks before a release, from the repository root:"
 msgstr "リリース前に、リポジトリのルートから実行することを推奨するチェック："
 
-#: manual/index.md:219
+#: manual/index.md:239
 msgid "[Verification](verification.md) explains each gate and how to reproduce a published result."
 msgstr "[検証](verification.md)では、各ゲートと、公開された結果を再現する方法を説明しています。"
 
-#: manual/index.md:222
+#: manual/index.md:242
 msgid "`pkg.generated.mbti` defines what is public, and source and tests define behaviour; if a page and the generated interface disagree, the interface wins."
 msgstr "何が公開されているかは `pkg.generated.mbti` が定義し、振る舞いはソースとテストが定義します。ページと生成されたインターフェースが食い違う場合は、インターフェースが優先されます。"
 
@@ -20714,7 +20802,7 @@ msgstr "このチュートリアルでは、保証付きの包含区間を使っ
 #: manual/tutorial/bin_float.md:12
 #: manual/tutorial/bin_float_checked.md:11
 #: manual/tutorial/cli.md:7
-#: manual/tutorial/cli/dispatch.md:6
+#: manual/tutorial/cli/dispatch.md:7
 #: manual/tutorial/cli/gda_expr_cli.md:8
 #: manual/tutorial/cli/itl_expr_cli.md:7
 #: manual/tutorial/cli/mpfr_expr_cli.md:7
@@ -20726,7 +20814,7 @@ msgstr "このチュートリアルでは、保証付きの包含区間を使っ
 #: manual/tutorial/decimal_gda_checked.md:13
 #: manual/tutorial/def.md:12
 #: manual/tutorial/differential.md:8
-#: manual/tutorial/differential/harness.md:6
+#: manual/tutorial/differential/harness.md:8
 #: manual/tutorial/doc_examples.md:6
 #: manual/tutorial/frontend/gda_expr.md:10
 #: manual/tutorial/frontend/itl_expr.md:8
@@ -20752,7 +20840,7 @@ msgstr "やりたいこと"
 #: manual/tutorial/bin_float.md:12
 #: manual/tutorial/bin_float_checked.md:11
 #: manual/tutorial/cli.md:7
-#: manual/tutorial/cli/dispatch.md:6
+#: manual/tutorial/cli/dispatch.md:7
 #: manual/tutorial/cli/gda_expr_cli.md:8
 #: manual/tutorial/cli/itl_expr_cli.md:7
 #: manual/tutorial/cli/mpfr_expr_cli.md:7
@@ -20764,7 +20852,7 @@ msgstr "やりたいこと"
 #: manual/tutorial/decimal_gda_checked.md:13
 #: manual/tutorial/def.md:12
 #: manual/tutorial/differential.md:8
-#: manual/tutorial/differential/harness.md:6
+#: manual/tutorial/differential/harness.md:8
 #: manual/tutorial/doc_examples.md:6
 #: manual/tutorial/frontend/gda_expr.md:10
 #: manual/tutorial/frontend/itl_expr.md:8
@@ -20858,6 +20946,7 @@ msgstr "複数ステップの計算で最初の失敗を報告する"
 #: manual/tutorial/bin_float.md:25
 #: manual/tutorial/bin_float_checked.md:21
 #: manual/tutorial/cli.md:15
+#: manual/tutorial/cli/dispatch.md:14
 #: manual/tutorial/cli/gda_expr_cli.md:17
 #: manual/tutorial/cli/itl_expr_cli.md:15
 #: manual/tutorial/cli/mpfr_expr_cli.md:15
@@ -20869,6 +20958,7 @@ msgstr "複数ステップの計算で最初の失敗を報告する"
 #: manual/tutorial/decimal_gda_checked.md:22
 #: manual/tutorial/def.md:22
 #: manual/tutorial/differential.md:17
+#: manual/tutorial/differential/harness.md:15
 #: manual/tutorial/doc_examples.md:13
 #: manual/tutorial/frontend/gda_expr.md:20
 #: manual/tutorial/frontend/itl_expr.md:17
@@ -20909,7 +20999,7 @@ msgstr "53 ビットの `BinFloat` で $1/3$ に等しいものはないので�
 
 #: manual/tutorial/ball_float.md:87
 #: manual/tutorial/ball_float_checked.md:60
-#: manual/tutorial/bench.md:79
+#: manual/tutorial/bench.md:75
 #: manual/tutorial/bench/ball_float.md:31
 #: manual/tutorial/bench/bin_float.md:34
 #: manual/tutorial/bench/decimal.md:31
@@ -20918,10 +21008,11 @@ msgstr "53 ビットの `BinFloat` で $1/3$ に等しいものはないので�
 #: manual/tutorial/bin_float.md:63
 #: manual/tutorial/bin_float_checked.md:57
 #: manual/tutorial/cli.md:38
-#: manual/tutorial/cli/gda_expr_cli.md:58
-#: manual/tutorial/cli/itl_expr_cli.md:41
-#: manual/tutorial/cli/mpfr_expr_cli.md:41
-#: manual/tutorial/cli/testfloat_expr_cli.md:55
+#: manual/tutorial/cli/dispatch.md:36
+#: manual/tutorial/cli/gda_expr_cli.md:67
+#: manual/tutorial/cli/itl_expr_cli.md:47
+#: manual/tutorial/cli/mpfr_expr_cli.md:49
+#: manual/tutorial/cli/testfloat_expr_cli.md:62
 #: manual/tutorial/consistency.md:27
 #: manual/tutorial/decimal.md:56
 #: manual/tutorial/decimal_checked.md:56
@@ -20929,15 +21020,16 @@ msgstr "53 ビットの `BinFloat` で $1/3$ に等しいものはないので�
 #: manual/tutorial/decimal_gda_checked.md:56
 #: manual/tutorial/def.md:49
 #: manual/tutorial/differential.md:39
+#: manual/tutorial/differential/harness.md:34
 #: manual/tutorial/doc_examples.md:25
-#: manual/tutorial/frontend/gda_expr.md:56
-#: manual/tutorial/frontend/itl_expr.md:53
-#: manual/tutorial/frontend/mpfr_expr.md:52
-#: manual/tutorial/frontend/testfloat_expr.md:54
+#: manual/tutorial/frontend/gda_expr.md:54
+#: manual/tutorial/frontend/itl_expr.md:51
+#: manual/tutorial/frontend/mpfr_expr.md:50
+#: manual/tutorial/frontend/testfloat_expr.md:52
 #: manual/tutorial/internal.md:53
 #: manual/tutorial/internal/conformance.md:55
-#: manual/tutorial/internal/runner_cli.md:100
-#: manual/tutorial/numeric_expr.md:57
+#: manual/tutorial/internal/runner_cli.md:110
+#: manual/tutorial/numeric_expr.md:55
 #: manual/tutorial/semantic.md:51
 msgid "Everyday tasks"
 msgstr "日常的なタスク"
@@ -21012,18 +21104,20 @@ msgstr "`BallContext` は二進形式（精度と指数範囲）を記述しま�
 
 #: manual/tutorial/ball_float.md:283
 #: manual/tutorial/ball_float_checked.md:168
-#: manual/tutorial/bench.md:198
+#: manual/tutorial/bench.md:194
 #: manual/tutorial/bench/ball_float.md:48
 #: manual/tutorial/bench/bin_float.md:51
 #: manual/tutorial/bench/decimal.md:48
 #: manual/tutorial/bench/decimal_gda.md:50
+#: manual/tutorial/bench/external.md:116
 #: manual/tutorial/bin_float.md:232
 #: manual/tutorial/bin_float_checked.md:182
 #: manual/tutorial/cli.md:73
-#: manual/tutorial/cli/gda_expr_cli.md:100
-#: manual/tutorial/cli/itl_expr_cli.md:70
-#: manual/tutorial/cli/mpfr_expr_cli.md:62
-#: manual/tutorial/cli/testfloat_expr_cli.md:81
+#: manual/tutorial/cli/dispatch.md:60
+#: manual/tutorial/cli/gda_expr_cli.md:109
+#: manual/tutorial/cli/itl_expr_cli.md:76
+#: manual/tutorial/cli/mpfr_expr_cli.md:70
+#: manual/tutorial/cli/testfloat_expr_cli.md:88
 #: manual/tutorial/consistency.md:64
 #: manual/tutorial/decimal.md:267
 #: manual/tutorial/decimal_checked.md:167
@@ -21031,15 +21125,16 @@ msgstr "`BallContext` は二進形式（精度と指数範囲）を記述しま�
 #: manual/tutorial/decimal_gda_checked.md:164
 #: manual/tutorial/def.md:166
 #: manual/tutorial/differential.md:173
+#: manual/tutorial/differential/harness.md:50
 #: manual/tutorial/doc_examples.md:52
-#: manual/tutorial/frontend/gda_expr.md:225
-#: manual/tutorial/frontend/itl_expr.md:153
-#: manual/tutorial/frontend/mpfr_expr.md:147
-#: manual/tutorial/frontend/testfloat_expr.md:193
+#: manual/tutorial/frontend/gda_expr.md:223
+#: manual/tutorial/frontend/itl_expr.md:151
+#: manual/tutorial/frontend/mpfr_expr.md:145
+#: manual/tutorial/frontend/testfloat_expr.md:191
 #: manual/tutorial/internal.md:165
 #: manual/tutorial/internal/conformance.md:109
-#: manual/tutorial/internal/runner_cli.md:126
-#: manual/tutorial/numeric_expr.md:243
+#: manual/tutorial/internal/runner_cli.md:136
+#: manual/tutorial/numeric_expr.md:241
 #: manual/tutorial/semantic.md:173
 msgid "Going further"
 msgstr "さらに進んで"
@@ -21082,20 +21177,20 @@ msgstr "各区間はビット単位の作業 `precision` を持ちます。二�
 
 #: manual/tutorial/ball_float.md:375
 #: manual/tutorial/ball_float_checked.md:239
-#: manual/tutorial/bench.md:210
+#: manual/tutorial/bench.md:206
 #: manual/tutorial/bench/ball_float.md:56
 #: manual/tutorial/bench/bin_float.md:59
 #: manual/tutorial/bench/decimal.md:56
 #: manual/tutorial/bench/decimal_gda.md:58
-#: manual/tutorial/bench/external.md:116
+#: manual/tutorial/bench/external.md:128
 #: manual/tutorial/bin_float.md:365
 #: manual/tutorial/bin_float_checked.md:240
 #: manual/tutorial/cli.md:82
-#: manual/tutorial/cli/dispatch.md:21
-#: manual/tutorial/cli/gda_expr_cli.md:108
-#: manual/tutorial/cli/itl_expr_cli.md:78
-#: manual/tutorial/cli/mpfr_expr_cli.md:71
-#: manual/tutorial/cli/testfloat_expr_cli.md:90
+#: manual/tutorial/cli/dispatch.md:66
+#: manual/tutorial/cli/gda_expr_cli.md:117
+#: manual/tutorial/cli/itl_expr_cli.md:84
+#: manual/tutorial/cli/mpfr_expr_cli.md:79
+#: manual/tutorial/cli/testfloat_expr_cli.md:97
 #: manual/tutorial/consistency.md:71
 #: manual/tutorial/decimal.md:348
 #: manual/tutorial/decimal_checked.md:251
@@ -21103,16 +21198,16 @@ msgstr "各区間はビット単位の作業 `precision` を持ちます。二�
 #: manual/tutorial/decimal_gda_checked.md:234
 #: manual/tutorial/def.md:246
 #: manual/tutorial/differential.md:184
-#: manual/tutorial/differential/harness.md:22
+#: manual/tutorial/differential/harness.md:59
 #: manual/tutorial/doc_examples.md:58
-#: manual/tutorial/frontend/gda_expr.md:241
-#: manual/tutorial/frontend/itl_expr.md:166
-#: manual/tutorial/frontend/mpfr_expr.md:160
-#: manual/tutorial/frontend/testfloat_expr.md:209
+#: manual/tutorial/frontend/gda_expr.md:239
+#: manual/tutorial/frontend/itl_expr.md:164
+#: manual/tutorial/frontend/mpfr_expr.md:158
+#: manual/tutorial/frontend/testfloat_expr.md:207
 #: manual/tutorial/internal.md:182
 #: manual/tutorial/internal/conformance.md:116
-#: manual/tutorial/internal/runner_cli.md:138
-#: manual/tutorial/numeric_expr.md:259
+#: manual/tutorial/internal/runner_cli.md:148
+#: manual/tutorial/numeric_expr.md:257
 #: manual/tutorial/semantic.md:223
 msgid "Common pitfalls"
 msgstr "よくある落とし穴"
@@ -21155,20 +21250,20 @@ msgstr "**`Double` からの入力。** `from_double(x)` は `x` の二進値を
 
 #: manual/tutorial/ball_float.md:433
 #: manual/tutorial/ball_float_checked.md:257
-#: manual/tutorial/bench.md:226
+#: manual/tutorial/bench.md:222
 #: manual/tutorial/bench/ball_float.md:62
 #: manual/tutorial/bench/bin_float.md:65
 #: manual/tutorial/bench/decimal.md:62
 #: manual/tutorial/bench/decimal_gda.md:64
-#: manual/tutorial/bench/external.md:125
+#: manual/tutorial/bench/external.md:137
 #: manual/tutorial/bin_float.md:392
 #: manual/tutorial/bin_float_checked.md:264
 #: manual/tutorial/cli.md:94
-#: manual/tutorial/cli/dispatch.md:27
-#: manual/tutorial/cli/gda_expr_cli.md:120
-#: manual/tutorial/cli/itl_expr_cli.md:89
-#: manual/tutorial/cli/mpfr_expr_cli.md:80
-#: manual/tutorial/cli/testfloat_expr_cli.md:97
+#: manual/tutorial/cli/dispatch.md:74
+#: manual/tutorial/cli/gda_expr_cli.md:129
+#: manual/tutorial/cli/itl_expr_cli.md:95
+#: manual/tutorial/cli/mpfr_expr_cli.md:88
+#: manual/tutorial/cli/testfloat_expr_cli.md:104
 #: manual/tutorial/consistency.md:78
 #: manual/tutorial/decimal.md:376
 #: manual/tutorial/decimal_checked.md:271
@@ -21176,16 +21271,16 @@ msgstr "**`Double` からの入力。** `from_double(x)` は `x` の二進値を
 #: manual/tutorial/decimal_gda_checked.md:248
 #: manual/tutorial/def.md:270
 #: manual/tutorial/differential.md:195
-#: manual/tutorial/differential/harness.md:27
+#: manual/tutorial/differential/harness.md:66
 #: manual/tutorial/doc_examples.md:63
-#: manual/tutorial/frontend/gda_expr.md:259
-#: manual/tutorial/frontend/itl_expr.md:180
-#: manual/tutorial/frontend/mpfr_expr.md:176
-#: manual/tutorial/frontend/testfloat_expr.md:220
+#: manual/tutorial/frontend/gda_expr.md:257
+#: manual/tutorial/frontend/itl_expr.md:178
+#: manual/tutorial/frontend/mpfr_expr.md:174
+#: manual/tutorial/frontend/testfloat_expr.md:218
 #: manual/tutorial/internal.md:196
 #: manual/tutorial/internal/conformance.md:127
-#: manual/tutorial/internal/runner_cli.md:154
-#: manual/tutorial/numeric_expr.md:273
+#: manual/tutorial/internal/runner_cli.md:164
+#: manual/tutorial/numeric_expr.md:271
 #: manual/tutorial/semantic.md:240
 msgid "Next steps"
 msgstr "次のステップ"
@@ -21420,139 +21515,139 @@ msgid "understand the statistics"
 msgstr "統計を理解する"
 
 #: manual/tutorial/bench.md:16
-#: manual/tutorial/bench.md:229
+#: manual/tutorial/bench.md:225
 msgid "[bench design](../design/bench.md)"
 msgstr "[bench の設計](../design/bench.md)"
 
 #: manual/tutorial/bench.md:20
-msgid "To use the reduction functions in your own module, add the library and import the package in `moon.pkg`:"
-msgstr "自分のモジュールで集約関数を使うには、ライブラリを追加し、`moon.pkg` でパッケージをインポートします。"
+msgid "To use the reduction functions in your own module, import the package in `moon.pkg`. The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`."
+msgstr "自分のモジュールでこれらの縮約関数を使うには、`moon.pkg` でパッケージをインポートします。このパッケージは、公開ライブラリではなくツールモジュール `Luna-Flow/floating-tools`（リポジトリの `tooling/` ディレクトリ、ライブラリと同じバージョン）に属します。このワークスペースのパッケージとしてコードを書くか、ツールモジュールの公開後に `moon add Luna-Flow/floating-tools@0.11.0` を実行してください。"
 
-#: manual/tutorial/bench.md:33
+#: manual/tutorial/bench.md:29
 msgid "The smallest useful program compares two paired sample arrays, for example per-call times measured before and after a change in the same ten blocks:"
 msgstr "最小の実用的なプログラムは、対応のある 2 つの標本配列を比較します。例えば、同じ 10 ブロックで変更の前後に計測した呼び出しあたりの時間です。"
 
-#: manual/tutorial/bench.md:47
+#: manual/tutorial/bench.md:43
 msgid "An 8 % slowdown is above the 3 % practical threshold, and every paired difference is positive, so the 95 % interval of the median difference lies above zero."
 msgstr "8 % の低速化は 3 % の実用上のしきい値を上回り、対応のある差はすべて正なので、差の中央値の 95 % 区間はゼロより上にあります。"
 
-#: manual/tutorial/bench.md:51
+#: manual/tutorial/bench.md:47
 msgid "The `floating` suites themselves run from a checkout of the repository. Run one suite from the repository root:"
 msgstr "`floating` 自体のスイートはリポジトリのチェックアウトから実行します。リポジトリのルートで 1 つのスイートを実行します。"
 
-#: manual/tutorial/bench.md:58
+#: manual/tutorial/bench.md:54
 msgid "The command runs the skipped performance tests of `tooling/src/bench/bin_float` in release mode on the native target, then writes"
 msgstr "このコマンドは、`tooling/src/bench/bin_float` のスキップされた性能テストをネイティブターゲット上でリリースモードで実行し、次のファイルを書き出します。"
 
-#: manual/tutorial/bench.md:66
+#: manual/tutorial/bench.md:62
 msgid "The `.jsonl` file holds one versioned (`mmka_1`) event per line: every observation, the environment and the run summary. The `.analysis.txt` file holds the reduced results, one line per comparison, for example"
 msgstr "`.jsonl` ファイルは、1 行に 1 つのバージョン付き（`mmka_1`）イベントを保持します。すべての観測値、環境、実行のサマリーです。`.analysis.txt` ファイルは集約された結果を比較ごとに 1 行で保持します。たとえば次のとおりです。"
 
-#: manual/tutorial/bench.md:74
+#: manual/tutorial/bench.md:70
 msgid "meaning: for dataset 2 of `bin-float/mul`, the median paired difference between the `core/bin-float` path and the coefficient kernel is `core_pct` percent of the kernel's median per-call time (negative when the core is faster), and `full_pct` is the same for the checked path against the core."
 msgstr "これは次の意味です。`bin-float/mul` のデータセット 2 について、`core/bin-float` パスと係数カーネルとの対応のある差の中央値は、カーネルの呼び出しあたりの中央値時間の `core_pct` パーセントです（core の方が速ければ負）。`full_pct` は checked パスを core と比較した同様の値です。"
 
-#: manual/tutorial/bench.md:81
+#: manual/tutorial/bench.md:77
 msgid "Choose a suite"
 msgstr "スイートを選ぶ"
 
-#: manual/tutorial/bench.md:83
+#: manual/tutorial/bench.md:79
 msgid "Suite"
 msgstr "スイート"
 
-#: manual/tutorial/bench.md:83
+#: manual/tutorial/bench.md:79
 msgid "Runs"
 msgstr "実行内容"
 
-#: manual/tutorial/bench.md:85
+#: manual/tutorial/bench.md:81
 msgid "all tests of `tooling/src/bench/bin_float` (arithmetic, elementary functions, square auto-tune)"
 msgstr "`tooling/src/bench/bin_float` のすべてのテスト（算術演算、初等関数、平方の自動チューニング）"
 
-#: manual/tutorial/bench.md:86
+#: manual/tutorial/bench.md:82
 msgid "only the binary elementary-function benchmark"
 msgstr "2 進の初等関数ベンチマークのみ"
 
-#: manual/tutorial/bench.md:87
+#: manual/tutorial/bench.md:83
 msgid "only the `mul(x, x)` versus `square(x)` crossover"
 msgstr "`mul(x, x)` と `square(x)` の交差点のみ"
 
-#: manual/tutorial/bench.md:91
+#: manual/tutorial/bench.md:87
 msgid "the four package suites"
 msgstr "4 つのパッケージスイート"
 
-#: manual/tutorial/bench.md:93
+#: manual/tutorial/bench.md:89
 msgid "Add `--output PATH` to choose the artifact path or `--dry-run` to print the `moon test` commands without running them."
 msgstr "成果物のパスを選ぶには `--output PATH` を、`moon test` コマンドを実行せずに表示するには `--dry-run` を追加します。"
 
-#: manual/tutorial/bench.md:96
+#: manual/tutorial/bench.md:92
 msgid "Read an auto-tune result"
 msgstr "自動チューニングの結果を読む"
 
-#: manual/tutorial/bench.md:98
+#: manual/tutorial/bench.md:94
 msgid "The auto-tune suite prints one decision per dataset and a crossover:"
 msgstr "自動チューニングスイートは、データセットごとに 1 つの判定と交差点を出力します。"
 
-#: manual/tutorial/bench.md:106
+#: manual/tutorial/bench.md:102
 msgid "`candidate` is the implementation with the smallest median per-call time on that dataset, and `samples` the number of valid confirmatory observations behind it. When the winner changes exactly once along the scales, the crossover line gives the last scale `below` the change and the first scale `at_or_above` it, and the policy line is the per-scale lookup table a kernel can embed. When it changes more than once the suite prints `MAREMARK_CROSSOVER=non-monotonic` and a `MAREMARK_POLICY=lookup` line; when it never changes, `MAREMARK_CROSSOVER=none` and no policy line."
 msgstr "`candidate` はそのデータセットで呼び出しあたりの中央値時間が最小の実装であり、`samples` はその根拠となる有効な確認用観測の数です。勝者がスケールに沿ってちょうど 1 回だけ変わる場合、切り替え点の行は変化の直前の最後のスケール `below` と、変化以降の最初のスケール `at_or_above` を示し、ポリシー行はカーネルに埋め込めるスケールごとのルックアップテーブルです。2 回以上変わる場合、スイートは `MAREMARK_CROSSOVER=non-monotonic` と `MAREMARK_POLICY=lookup` の行を出力します。一度も変わらない場合は `MAREMARK_CROSSOVER=none` となり、ポリシー行はありません。"
 
-#: manual/tutorial/bench.md:115
+#: manual/tutorial/bench.md:111
 msgid "Check a regression in code"
 msgstr "コードで性能の退行を検査する"
 
-#: manual/tutorial/bench.md:117
+#: manual/tutorial/bench.md:113
 msgid "`confirmatory_regression` compares paired samples (same order, same blocks) and `is_significant_regression` applies the verdict:"
 msgstr "`confirmatory_regression` は対応のあるサンプル（同じ順序、同じブロック）を比較し、`is_significant_regression` が判定を適用します。"
 
-#: manual/tutorial/bench.md:130
+#: manual/tutorial/bench.md:126
 msgid "A change of about 0.5 % is below the 3 % practical threshold, so it is not a regression even if it were statistically clear."
 msgstr "約 0.5 % の変化は実用上のしきい値 3 % を下回るため、たとえ統計的に明確であっても退行とはみなされません。"
 
-#: manual/tutorial/bench.md:133
+#: manual/tutorial/bench.md:129
 msgid "Write a new benchmark"
 msgstr "新しいベンチマークを書く"
 
-#: manual/tutorial/bench.md:135
+#: manual/tutorial/bench.md:131
 msgid "A benchmark is an `immutable_bench` specification plus a skipped async test that runs it and prints Maremark lines. The pattern used by every suite:"
 msgstr "ベンチマークは、`immutable_bench` の仕様と、それを実行して Maremark の行を出力するスキップされた非同期テストからなります。すべてのスイートで使われているパターンは次のとおりです。"
 
-#: manual/tutorial/bench.md:194
+#: manual/tutorial/bench.md:190
 msgid "Keep the plan-compiles test unskipped: it checks the specification in every normal test run. Register the package in `tools/benchmark.py` so `just bench` collects its output."
 msgstr "plan-compiles テストはスキップしないでください。このテストは通常のテスト実行のたびに仕様を検査します。`just bench` がその出力を収集できるように、パッケージを `tools/benchmark.py` に登録してください。"
 
-#: manual/tutorial/bench.md:200
+#: manual/tutorial/bench.md:196
 msgid "The protocol presets of Maremark fix warm-up, batch calibration, sample counts and order: `QuickCheck` (3 confirmatory blocks), `Development` (10 blocks, used by the suites) and `RegressionGate` (20 blocks, used by the auto-tune suite). See the [Maremark documentation](https://lunaflow.cn/en/mare_mark/)."
 msgstr "Maremark のプロトコルプリセットは、ウォームアップ、バッチの較正、サンプル数、順序を固定します。`QuickCheck`（確認用ブロック 3 個）、`Development`（ブロック 10 個、各スイートで使用）、`RegressionGate`（ブロック 20 個、自動チューニングスイートで使用）です。[Maremark のドキュメント](https://lunaflow.cn/en/mare_mark/)を参照してください。"
 
-#: manual/tutorial/bench.md:205
+#: manual/tutorial/bench.md:201
 msgid "[bench design](../design/bench.md) explains the estimators and the confidence interval."
 msgstr "[bench の設計](../design/bench.md)では、推定量と信頼区間について説明しています。"
 
-#: manual/tutorial/bench.md:207
+#: manual/tutorial/bench.md:203
 msgid "[Performance audit](../performance_audit.md) and the `performance/` pages record measured results."
 msgstr "[性能監査](../performance_audit.md)と `performance/` のページに計測結果が記録されています。"
 
-#: manual/tutorial/bench.md:212
+#: manual/tutorial/bench.md:208
 msgid "**Benchmarks are skipped by default.** `moon test` runs only the plan-compiles tests; use `just bench` (it passes `--include-skipped`, `--release` and `--no-parallelize`)."
 msgstr "**ベンチマークは既定でスキップされます。** `moon test` は plan-compiles テストのみを実行します。`just bench` を使用してください（`--include-skipped`、`--release`、`--no-parallelize` を渡します）。"
 
-#: manual/tutorial/bench.md:215
+#: manual/tutorial/bench.md:211
 msgid "**Native only.** `tools/benchmark.py` accepts only the native target."
 msgstr "**ネイティブのみ。** `tools/benchmark.py` はネイティブターゲットのみを受け付けます。"
 
-#: manual/tutorial/bench.md:216
+#: manual/tutorial/bench.md:212
 msgid "**Pairing needs equal sample counts.** Both implementations of a comparison must have the same number of valid confirmatory observations; otherwise `paired_hotspot` returns `MismatchedPairs`."
 msgstr "**対応付けにはサンプル数が等しいことが必要です。** 比較する 2 つの実装は、有効な確認用観測値の数が同じでなければなりません。そうでなければ `paired_hotspot` は `MismatchedPairs` を返します。"
 
-#: manual/tutorial/bench.md:219
+#: manual/tutorial/bench.md:215
 msgid "**Near ties go to the steadier candidate, not the faster one.** `tune_dataset` treats candidates within `practical_delta_pct` percent of the smallest median as tied and picks the one with the smaller interquartile range (then the smaller id), so a candidate whose median is slightly higher can win when its timings are less spread out. Use `0.0` to always take the smallest median."
 msgstr "**僅差のときは、速い方ではなく安定した候補が選ばれます。** `tune_dataset` は、最小の中央値との差が `practical_delta_pct` パーセント以内の候補を同等とみなし、四分位範囲の小さい方（それでも同じなら id の小さい方）を選びます。そのため、中央値がわずかに大きくても所要時間のばらつきが小さければ、その候補が勝つことがあります。常に最小の中央値を選ぶには `0.0` を使ってください。"
 
-#: manual/tutorial/bench.md:228
+#: manual/tutorial/bench.md:224
 msgid "[bench API](../api/bench.md)"
 msgstr "[bench API](../api/bench.md)"
 
-#: manual/tutorial/bench.md:230
+#: manual/tutorial/bench.md:226
 msgid "Per-core suites: [bin_float](bench/bin_float.md), [decimal](bench/decimal.md), [decimal_gda](bench/decimal_gda.md), [ball_float](bench/ball_float.md)."
 msgstr "コアごとのスイート：[bin_float](bench/bin_float.md)、[decimal](bench/decimal.md)、[decimal_gda](bench/decimal_gda.md)、[ball_float](bench/ball_float.md)。"
 
@@ -21903,26 +21998,38 @@ msgid "A cell such as `37.5 [36.9, 38.2]` is the median time of `floating` divid
 msgstr "`37.5 [36.9, 38.2]` のようなセルは、`floating` の中央値の時間を参照ライブラリの中央値の時間で割ったもので、95% ブートストラップ区間が付きます。1 より大きければ `floating` が遅いことを意味します。アスタリスクは、測定の散らばりが性能ページのしきい値を超えたセルを示します。"
 
 #: manual/tutorial/bench/external.md:118
+msgid "Add a case: extend the matrix constants of `tools/external_baseline.py` (for example `BINARY_PRECISIONS`) and the matching benchmark of `tooling/src/bench/external`; the operand file is read by both sides, so the new case is measured on the same inputs."
+msgstr "ケースを追加するには、`tools/external_baseline.py` のマトリクス定数（たとえば `BINARY_PRECISIONS`）と `tooling/src/bench/external` の対応するベンチマークを拡張します。両側が同じオペランドファイルを読むので、新しいケースも同じ入力で測定されます。"
+
+#: manual/tutorial/bench/external.md:122
+msgid "Understand the protocol: [bench/external design](../../design/bench/external.md) states why the sides alternate and why the harness overhead is measured."
+msgstr "測定プロトコルを理解する: [bench/external の設計ページ](../../design/bench/external.md)は、両側を交互に実行する理由と、ハーネスのオーバーヘッドを仮定せず測定する理由を説明します。"
+
+#: manual/tutorial/bench/external.md:124
+msgid "Read the numbers: [external baseline](../../performance/bench/external.md) records the machine, the method and the ratios of the latest published release."
+msgstr "数値を読む: [外部ベースライン](../../performance/bench/external.md)に、マシン、方法、最新の公開リリースの比率が記録されています。"
+
+#: manual/tutorial/bench/external.md:130
 msgid "Compare runs only when `machine.json` agrees on CPU, compilers and library versions."
 msgstr "実行同士は、`machine.json` が CPU、コンパイラ、ライブラリのバージョンで一致しているときにだけ比較してください。"
 
-#: manual/tutorial/bench/external.md:120
+#: manual/tutorial/bench/external.md:132
 msgid "A validation failure is reported but does not stop the timing: look for `WARNING` lines and `validation_failed_cases` in `results.json`."
 msgstr "検証の失敗は報告されますが、計時は止まりません。`WARNING` の行と、`results.json` の `validation_failed_cases` を確認してください。"
 
-#: manual/tutorial/bench/external.md:122
+#: manual/tutorial/bench/external.md:134
 msgid "Do not run other heavy work during a measurement; the load average is recorded at the start only."
 msgstr "測定中は他の重い作業を実行しないでください。平均負荷は開始時にのみ記録されます。"
 
-#: manual/tutorial/bench/external.md:127
+#: manual/tutorial/bench/external.md:139
 msgid "[bench/external API](../../api/bench/external.md)"
 msgstr "[bench/external API](../../api/bench/external.md)"
 
-#: manual/tutorial/bench/external.md:128
+#: manual/tutorial/bench/external.md:140
 msgid "[bench/external design](../../design/bench/external.md)"
 msgstr "[bench/external 設計](../../design/bench/external.md)"
 
-#: manual/tutorial/bench/external.md:129
+#: manual/tutorial/bench/external.md:141
 msgid "[External baseline results](../../performance/bench/external.md)"
 msgstr "[外部ベースラインの結果](../../performance/bench/external.md)"
 
@@ -22459,42 +22566,91 @@ msgid "cli/dispatch tutorial"
 msgstr "cli/dispatch チュートリアル"
 
 #: manual/tutorial/cli/dispatch.md:3
-msgid "This tutorial calls the dispatcher of `floating-conformance` from MoonBit code instead of starting the executable."
-msgstr "このチュートリアルでは、実行ファイルを起動せず、MoonBit のコードから `floating-conformance` のディスパッチャーを呼び出します。"
+msgid "This tutorial calls the dispatcher of `floating-conformance` from MoonBit code instead of starting the executable, and shows how a new backend would be added behind it."
+msgstr "このチュートリアルでは、実行ファイルを起動せず MoonBit のコードから `floating-conformance` のディスパッチャーを呼び出し、その背後に新しいバックエンドを追加する方法を示します。"
 
-#: manual/tutorial/cli/dispatch.md:8
+#: manual/tutorial/cli/dispatch.md:9
 msgid "get the exit code of an invocation"
 msgstr "呼び出しの終了コードを得る"
 
-#: manual/tutorial/cli/dispatch.md:9
+#: manual/tutorial/cli/dispatch.md:10
+msgid "see which arguments reach a runner"
+msgstr "ランナーに渡される引数を確認する"
+
+#: manual/tutorial/cli/dispatch.md:10
+msgid "[forwarding](#everyday-tasks)"
+msgstr "[転送](#everyday-tasks)"
+
+#: manual/tutorial/cli/dispatch.md:11
 msgid "run the executable itself"
 msgstr "実行ファイル自体を実行する"
 
-#: manual/tutorial/cli/dispatch.md:9
+#: manual/tutorial/cli/dispatch.md:11
 msgid "[the `cli` tutorial](../cli.md)"
 msgstr "[`cli` のチュートリアル](../cli.md)"
 
-#: manual/tutorial/cli/dispatch.md:11
-msgid "Call the dispatcher"
-msgstr "ディスパッチャーを呼び出す"
+#: manual/tutorial/cli/dispatch.md:12
+msgid "add a backend"
+msgstr "バックエンドを追加する"
 
-#: manual/tutorial/cli/dispatch.md:13
-msgid "The first element is the program name, as in `@env.args()`:"
-msgstr "最初の要素は `@env.args()` と同じくプログラム名です："
+#: manual/tutorial/cli/dispatch.md:12
+#: manual/tutorial/differential/harness.md:13
+msgid "[going further](#going-further)"
+msgstr "[さらに先へ](#going-further)"
 
-#: manual/tutorial/cli/dispatch.md:23
+#: manual/tutorial/cli/dispatch.md:16
+msgid "The package ships inside the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository); there is nothing to install. Run its tests from the repository:"
+msgstr "このパッケージはツールモジュール `Luna-Flow/floating-tools`（リポジトリの `tooling/` ディレクトリ）に含まれており、インストールは不要です。リポジトリからテストを実行します:"
+
+#: manual/tutorial/cli/dispatch.md:24
+msgid "Call the dispatcher with the program name first, as in `@env.args()`:"
+msgstr "`@env.args()` と同じくプログラム名を先頭にして、ディスパッチャーを呼び出します:"
+
+#: manual/tutorial/cli/dispatch.md:33
+msgid "`dispatch` prints a message and returns the exit code; it never exits the process."
+msgstr "`dispatch` はメッセージを表示して終了コードを返し、プロセスを終了することはありません。"
+
+#: manual/tutorial/cli/dispatch.md:38
+msgid "Choose the exit code you expect"
+msgstr "期待する終了コードを選ぶ"
+
+#: manual/tutorial/cli/dispatch.md:40
+msgid "`0` after `--help` (even after a valid `--backend`), `2` for a missing, repeated, empty or unknown backend, and otherwise the runner's own code:"
+msgstr "`--help` の後は `0`（有効な `--backend` の後でも）、`--backend` が欠けている、重複している、空である、または未知の場合は `2`、それ以外はランナー自身の終了コードです:"
+
+#: manual/tutorial/cli/dispatch.md:53
+msgid "Forward arguments to a runner"
+msgstr "引数をランナーに転送する"
+
+#: manual/tutorial/cli/dispatch.md:55
+msgid "Everything except `--backend` and its value is forwarded, in order, with the program name first, so a runner sees the same vector as when it is called directly (see [`cli/gda_expr_cli`](gda_expr_cli.md) for the options of one runner)."
+msgstr "`--backend` とその値を除くすべての引数が、プログラム名を先頭にして順に転送されるため、ランナーが見るベクトルは直接呼び出した場合と同じです（個々のランナーのオプションは [`cli/gda_expr_cli`](gda_expr_cli.md) を参照）。"
+
+#: manual/tutorial/cli/dispatch.md:62
+msgid "To add a backend, write a runner package `run(arguments) -> Int`, import it in `moon.pkg` of this package and add one arm to the `match backend` of `dispatch`; keep process exit in `cli`, which stays an entry point only."
+msgstr "バックエンドを追加するには、ランナーパッケージ `run(arguments) -> Int` を書き、このパッケージの `moon.pkg` でインポートし、`dispatch` の `match backend` に分岐を 1 つ追加します。プロセスの終了は `cli` に残し、`cli` はエントリポイントのままにします。"
+
+#: manual/tutorial/cli/dispatch.md:68
 msgid "**Index 0 is skipped.** Pass a program name even when a test has none."
 msgstr "**インデックス 0 は読み飛ばされます。** テストにプログラム名がなくても、何か渡してください。"
 
-#: manual/tutorial/cli/dispatch.md:24
+#: manual/tutorial/cli/dispatch.md:69
 msgid "**`--help` wins.** `[\"cli\", \"--backend\", \"gda\", \"--help\"]` prints the usage line and returns `0` without running a runner."
 msgstr "**`--help` が優先されます。** `[\"cli\", \"--backend\", \"gda\", \"--help\"]` は使い方の行を表示して `0` を返し、ランナーは実行されません。"
 
-#: manual/tutorial/cli/dispatch.md:29
+#: manual/tutorial/cli/dispatch.md:71
+msgid "**Relative paths.** The runners read their default corpora relative to the working directory; the tests of the module run in `tooling/`."
+msgstr "**相対パス。** ランナーは既定のコーパスを作業ディレクトリからの相対パスで読みます。このモジュールのテストは `tooling/` で実行されます。"
+
+#: manual/tutorial/cli/dispatch.md:76
 msgid "[cli/dispatch API](../../api/cli/dispatch.md) for the exact contract."
 msgstr "正確な契約は [cli/dispatch API](../../api/cli/dispatch.md) を参照してください。"
 
-#: manual/tutorial/cli/dispatch.md:30
+#: manual/tutorial/cli/dispatch.md:77
+msgid "[cli/dispatch design](../../design/cli/dispatch.md) for why it is a library."
+msgstr "[cli/dispatch の設計](../../design/cli/dispatch.md)は、これがライブラリである理由を説明します。"
+
+#: manual/tutorial/cli/dispatch.md:78
 msgid "[cli tutorial](../cli.md) for the executable."
 msgstr "実行ファイルについては [cli チュートリアル](../cli.md) を参照してください。"
 
@@ -22555,79 +22711,86 @@ msgid "From MoonBit code"
 msgstr "MoonBit コードから"
 
 #: manual/tutorial/cli/gda_expr_cli.md:42
-msgid "The runner is also a library. After `moon add Luna-Flow/floating@0.10.2`, import it and pass the argument vector, program name first:"
-msgstr "ランナーはライブラリでもあります。`moon add Luna-Flow/floating@0.10.2` の後、インポートして引数ベクタ（先頭はプログラム名）を渡します。"
+msgid "The runner is also a library. The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`. Import it and pass the argument vector, program name first:"
+msgstr "ランナーはライブラリでもあります。このパッケージは、公開ライブラリではなくツールモジュール `Luna-Flow/floating-tools`（リポジトリの `tooling/` ディレクトリ、ライブラリと同じバージョン）に属します。このワークスペースのパッケージとしてコードを書くか、ツールモジュールの公開後に `moon add Luna-Flow/floating-tools@0.11.0` を実行してください。インポートして引数ベクトルを渡します（プログラム名が先頭）:"
 
-#: manual/tutorial/cli/gda_expr_cli.md:55
+#: manual/tutorial/cli/gda_expr_cli.md:62
+#: manual/tutorial/cli/itl_expr_cli.md:45
+#: manual/tutorial/cli/mpfr_expr_cli.md:47
+#: manual/tutorial/cli/testfloat_expr_cli.md:60
+msgid "`just docs` runs the tests of this page in the module directory `tooling/`, so the corpus paths start with `../testdata`; use your own paths in your code."
+msgstr "`just docs` はこのページのテストをモジュールディレクトリ `tooling/` で実行するため、コーパスのパスは `../testdata` で始まります。自分のコードでは自分のパスを使ってください。"
+
+#: manual/tutorial/cli/gda_expr_cli.md:64
 msgid "`run` prints the same output as the executable and returns the exit status instead of exiting."
 msgstr "`run` は実行ファイルと同じ出力を表示し、終了する代わりに終了ステータスを返します。"
 
-#: manual/tutorial/cli/gda_expr_cli.md:60
+#: manual/tutorial/cli/gda_expr_cli.md:69
 msgid "Run files and directories"
 msgstr "ファイルとディレクトリを実行する"
 
-#: manual/tutorial/cli/gda_expr_cli.md:67
+#: manual/tutorial/cli/gda_expr_cli.md:76
 msgid "Files are sorted by path and executed as one run; a file named twice runs once."
 msgstr "ファイルはパス順にソートされ、1 回の実行としてまとめて実行されます。2 回指定されたファイルは 1 回だけ実行されます。"
 
-#: manual/tutorial/cli/gda_expr_cli.md:70
+#: manual/tutorial/cli/gda_expr_cli.md:79
 msgid "Select rows"
 msgstr "行を選択する"
 
-#: manual/tutorial/cli/gda_expr_cli.md:77
+#: manual/tutorial/cli/gda_expr_cli.md:86
 msgid "A range matches ids of the same length that sort between its bounds."
 msgstr "範囲は、同じ長さで、ソート順が両端の間にある ID にマッチします。"
 
-#: manual/tutorial/cli/gda_expr_cli.md:79
+#: manual/tutorial/cli/gda_expr_cli.md:88
 #: manual/tutorial/internal/conformance.md:70
 msgid "Shard a run"
 msgstr "実行をシャードに分割する"
 
-#: manual/tutorial/cli/gda_expr_cli.md:86
+#: manual/tutorial/cli/gda_expr_cli.md:95
 msgid "Shard `i` runs the rows whose position (after the `--cases` filter, across all files) is `i` modulo the shard count. Adding the JSON counters of all shards gives the counters of the unsharded run, except `totalCases`, which every shard already reports for the whole run."
 msgstr "シャード `i` は、（`--cases` フィルタ適用後、全ファイルを通した）位置をシャード数で割った余りが `i` である行を実行します。全シャードの JSON カウンタを合計すると、シャード分割しない実行のカウンタになります。ただし `totalCases` は例外で、各シャードがすでに実行全体の値を報告しています。"
 
-#: manual/tutorial/cli/gda_expr_cli.md:91
+#: manual/tutorial/cli/gda_expr_cli.md:100
 msgid "Fail on unsupported rows"
 msgstr "サポートされない行で失敗させる"
 
-#: manual/tutorial/cli/gda_expr_cli.md:97
+#: manual/tutorial/cli/gda_expr_cli.md:106
 msgid "With `--strict-supported` the exit status is `1` if any selected row is unsupported or legacy, even when all executed rows pass."
 msgstr "`--strict-supported` を指定すると、実行された行がすべて合格していても、選択された行のいずれかがサポート外またはレガシーであれば終了ステータスは `1` になります。"
 
-#: manual/tutorial/cli/gda_expr_cli.md:102
+#: manual/tutorial/cli/gda_expr_cli.md:111
 msgid "`just conformance run decimal_gda` fetches the pinned official corpora, splits them into the phases of `testdata/decimal_gda/interpreter_stages.json` and runs the shards in parallel with this runner."
 msgstr "`just conformance run decimal_gda` は固定された公式コーパスを取得し、`testdata/decimal_gda/interpreter_stages.json` のフェーズに分割して、このランナーでシャードを並列実行します。"
 
-#: manual/tutorial/cli/gda_expr_cli.md:105
+#: manual/tutorial/cli/gda_expr_cli.md:114
 msgid "[gda_expr tutorial](../frontend/gda_expr.md) explains the row semantics and the pass rule."
 msgstr "行の意味論と合格規則については [gda_expr チュートリアル](../frontend/gda_expr.md) で説明しています。"
 
-#: manual/tutorial/cli/gda_expr_cli.md:110
+#: manual/tutorial/cli/gda_expr_cli.md:119
 msgid "**`--help` returns `2`.** The runner prints its usage as an error; through the dispatcher, `--help` shows the dispatcher usage instead."
 msgstr "**`--help` は `2` を返します。** ランナーは使用法をエラーとして表示します。ディスパッチャ経由では、`--help` はディスパッチャの使用法を表示します。"
 
-#: manual/tutorial/cli/gda_expr_cli.md:112
+#: manual/tutorial/cli/gda_expr_cli.md:121
 msgid "**First parse error only.** A malformed line stops the run with one `file:line:1: message`; fix it and rerun to see the next."
 msgstr "**最初の構文解析エラーのみ。** 不正な行があると、1 つの `file:line:1: message` を出力して実行が停止します。修正して再実行すると次のエラーが表示されます。"
 
-#: manual/tutorial/cli/gda_expr_cli.md:114
+#: manual/tutorial/cli/gda_expr_cli.md:123
 msgid "**Non-recursive directories.** Subdirectories are not searched."
 msgstr "**ディレクトリは再帰的に探索されません。** サブディレクトリは探索されません。"
 
-#: manual/tutorial/cli/gda_expr_cli.md:115
+#: manual/tutorial/cli/gda_expr_cli.md:124
 msgid "**The suffix is case-sensitive.** A named file such as `add.dectest` or `add.txt` is the error `not a .decTest file: PATH` (exit `2`), and inside a directory such entries are skipped, so a directory without any `.decTest` file gives an empty run that exits with `0`."
 msgstr "**接尾辞は大文字と小文字を区別する。** `add.dectest` や `add.txt` のような指定ファイルはエラー `not a .decTest file: PATH`（終了コード `2`）になり、ディレクトリ内のそのようなエントリはスキップされるので、`.decTest` ファイルを 1 つも含まないディレクトリは、`0` で終了する空の実行になります。"
 
-#: manual/tutorial/cli/gda_expr_cli.md:122
+#: manual/tutorial/cli/gda_expr_cli.md:131
 msgid "[cli/gda_expr_cli API](../../api/cli/gda_expr_cli.md) for options, output keys and exit codes."
 msgstr "オプション、出力キー、終了コードについては [cli/gda_expr_cli API](../../api/cli/gda_expr_cli.md)。"
 
-#: manual/tutorial/cli/gda_expr_cli.md:124
+#: manual/tutorial/cli/gda_expr_cli.md:133
 msgid "[cli/gda_expr_cli design](../../design/cli/gda_expr_cli.md)."
 msgstr "[cli/gda_expr_cli 設計](../../design/cli/gda_expr_cli.md)。"
 
-#: manual/tutorial/cli/gda_expr_cli.md:125
+#: manual/tutorial/cli/gda_expr_cli.md:134
 msgid "[frontend/gda_expr tutorial](../frontend/gda_expr.md) for the row semantics."
 msgstr "行の意味論については [frontend/gda_expr チュートリアル](../frontend/gda_expr.md)。"
 
@@ -22666,66 +22829,66 @@ msgid "With no path the runner executes `testdata/interval/smoke.itl` and prints
 msgstr "パスを指定しない場合、ランナーは `testdata/interval/smoke.itl` を実行し、次のような JSON オブジェクトを 1 つ出力します。"
 
 #: manual/tutorial/cli/itl_expr_cli.md:33
-msgid "After `moon add Luna-Flow/floating@0.10.2`, import `\"Luna-Flow/floating-tools/cli/itl_expr_cli\"` in `moon.pkg` and call `run` with the argument vector, program name first:"
-msgstr "`moon add Luna-Flow/floating@0.10.2` の後、`moon.pkg` で `\"Luna-Flow/floating-tools/cli/itl_expr_cli\"` をインポートし、引数ベクタ（先頭はプログラム名）を渡して `run` を呼び出します。"
+msgid "The runner is also a library. The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`. Import `\"Luna-Flow/floating-tools/cli/itl_expr_cli\"` in `moon.pkg` and call `run` with the argument vector, program name first:"
+msgstr "ランナーはライブラリでもあります。このパッケージは、公開ライブラリではなくツールモジュール `Luna-Flow/floating-tools`（リポジトリの `tooling/` ディレクトリ、ライブラリと同じバージョン）に属します。このワークスペースのパッケージとしてコードを書くか、ツールモジュールの公開後に `moon add Luna-Flow/floating-tools@0.11.0` を実行してください。`moon.pkg` で `\"Luna-Flow/floating-tools/cli/itl_expr_cli\"` をインポートし、引数ベクトル（プログラム名が先頭）で `run` を呼び出します:"
 
-#: manual/tutorial/cli/itl_expr_cli.md:43
+#: manual/tutorial/cli/itl_expr_cli.md:49
 msgid "Run files"
 msgstr "ファイルを実行する"
 
-#: manual/tutorial/cli/itl_expr_cli.md:50
+#: manual/tutorial/cli/itl_expr_cli.md:56
 msgid "Paths must be files; they are read in the given order."
 msgstr "パスはファイルでなければならず、指定された順に読み込まれます。"
 
-#: manual/tutorial/cli/itl_expr_cli.md:52
+#: manual/tutorial/cli/itl_expr_cli.md:58
 msgid "Select operations"
 msgstr "演算を選択する"
 
-#: manual/tutorial/cli/itl_expr_cli.md:58
+#: manual/tutorial/cli/itl_expr_cli.md:64
 msgid "Only cases whose operation is one of the listed names are executed and counted."
 msgstr "演算が列挙された名前のいずれかであるケースだけが実行され、集計されます。"
 
-#: manual/tutorial/cli/itl_expr_cli.md:61
+#: manual/tutorial/cli/itl_expr_cli.md:67
 msgid "Make unsupported operations fail"
 msgstr "サポートされない演算で失敗させる"
 
-#: manual/tutorial/cli/itl_expr_cli.md:67
+#: manual/tutorial/cli/itl_expr_cli.md:73
 msgid "Without the flag, unsupported cases are reported in `unsupportedIds` but do not change the exit status; diagnostic cases always do."
 msgstr "このフラグがない場合、サポートされないケースは `unsupportedIds` に報告されますが、終了ステータスは変わりません。診断ケースは常に終了ステータスに影響します。"
 
-#: manual/tutorial/cli/itl_expr_cli.md:72
+#: manual/tutorial/cli/itl_expr_cli.md:78
 msgid "`just conformance run interval` runs the phases listed in `testdata/interval/interpreter_stages.json` (files and operations per phase); add `--strict-supported` to forward strict mode to every phase."
 msgstr "`just conformance run interval` は `testdata/interval/interpreter_stages.json` に列挙されたフェーズ（フェーズごとのファイルと演算）を実行します。`--strict-supported` を付けると、すべてのフェーズに strict モードが渡されます。"
 
-#: manual/tutorial/cli/itl_expr_cli.md:75
+#: manual/tutorial/cli/itl_expr_cli.md:81
 msgid "[itl_expr tutorial](../frontend/itl_expr.md) explains the cases and the pass rule."
 msgstr "ケースと合格規則については [itl_expr チュートリアル](../frontend/itl_expr.md) で説明しています。"
 
-#: manual/tutorial/cli/itl_expr_cli.md:80
+#: manual/tutorial/cli/itl_expr_cli.md:86
 msgid "**No `--json` option.** The output is always JSON; passing `--json` is an unknown option (exit `2`)."
 msgstr "**`--json` オプションはありません。** 出力は常に JSON です。`--json` を渡すと未知のオプションとなります（終了コード `2`）。"
 
-#: manual/tutorial/cli/itl_expr_cli.md:82
+#: manual/tutorial/cli/itl_expr_cli.md:88
 msgid "**No sharding.** ITL files are small; the tooling parallelizes by phase."
 msgstr "**シャード分割はありません。** ITL ファイルは小さいため、ツールはフェーズ単位で並列化します。"
 
-#: manual/tutorial/cli/itl_expr_cli.md:83
+#: manual/tutorial/cli/itl_expr_cli.md:89
 msgid "**All parse diagnostics are printed** as `PATH: MESSAGE`, and the run stops, even when the bad statement belongs to an operation you did not select."
 msgstr "**構文解析の診断はすべて** `PATH: MESSAGE` の形式で出力され、実行は停止します。不正な文が選択していない演算に属する場合も同様です。"
 
-#: manual/tutorial/cli/itl_expr_cli.md:85
+#: manual/tutorial/cli/itl_expr_cli.md:91
 msgid "**Strict mode counts unknown operations.** Without `--operation`, cases such as `nums2interval 1.0 2.0 = …` are unsupported; they do not change the exit status unless `--strict-supported` is given."
 msgstr "**厳格モードは未知の演算を数える。** `--operation` を指定しない場合、`nums2interval 1.0 2.0 = …` のようなケースは未対応です。`--strict-supported` を指定しない限り、それらは終了ステータスを変えません。"
 
-#: manual/tutorial/cli/itl_expr_cli.md:91
+#: manual/tutorial/cli/itl_expr_cli.md:97
 msgid "[cli/itl_expr_cli API](../../api/cli/itl_expr_cli.md)"
 msgstr "[cli/itl_expr_cli API](../../api/cli/itl_expr_cli.md)"
 
-#: manual/tutorial/cli/itl_expr_cli.md:92
+#: manual/tutorial/cli/itl_expr_cli.md:98
 msgid "[cli/itl_expr_cli design](../../design/cli/itl_expr_cli.md)"
 msgstr "[cli/itl_expr_cli 設計](../../design/cli/itl_expr_cli.md)"
 
-#: manual/tutorial/cli/itl_expr_cli.md:93
+#: manual/tutorial/cli/itl_expr_cli.md:99
 msgid "[frontend/itl_expr tutorial](../frontend/itl_expr.md) for the cases and the pass rule."
 msgstr "ケースと合格規則については [frontend/itl_expr チュートリアル](../frontend/itl_expr.md)。"
 
@@ -22759,59 +22922,59 @@ msgid "run all binary corpora"
 msgstr "すべての二進コーパスを実行する"
 
 #: manual/tutorial/cli/mpfr_expr_cli.md:34
-msgid "After `moon add Luna-Flow/floating@0.10.2`, import `\"Luna-Flow/floating-tools/cli/mpfr_expr_cli\"` in `moon.pkg` and call `run`:"
-msgstr "`moon add Luna-Flow/floating@0.10.2` の後、`moon.pkg` で `\"Luna-Flow/floating-tools/cli/mpfr_expr_cli\"` をインポートし、`run` を呼び出します。"
+msgid "The runner is also a library. The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`. Import `\"Luna-Flow/floating-tools/cli/mpfr_expr_cli\"` in `moon.pkg` and call `run`:"
+msgstr "ランナーはライブラリでもあります。このパッケージは、公開ライブラリではなくツールモジュール `Luna-Flow/floating-tools`（リポジトリの `tooling/` ディレクトリ、ライブラリと同じバージョン）に属します。このワークスペースのパッケージとしてコードを書くか、ツールモジュールの公開後に `moon add Luna-Flow/floating-tools@0.11.0` を実行してください。`moon.pkg` で `\"Luna-Flow/floating-tools/cli/mpfr_expr_cli\"` をインポートし、`run` を呼び出します:"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:43
+#: manual/tutorial/cli/mpfr_expr_cli.md:51
 msgid "Run each format"
 msgstr "各形式を実行する"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:45
+#: manual/tutorial/cli/mpfr_expr_cli.md:53
 msgid "The runner reads exactly one file and picks the format from its content:"
 msgstr "ランナーはちょうど 1 つのファイルを読み込み、その内容から形式を判別します。"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:53
-#: manual/tutorial/cli/testfloat_expr_cli.md:75
+#: manual/tutorial/cli/mpfr_expr_cli.md:61
+#: manual/tutorial/cli/testfloat_expr_cli.md:82
 msgid "JSON for scripts"
 msgstr "スクリプト向けの JSON"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:59
+#: manual/tutorial/cli/mpfr_expr_cli.md:67
 msgid "prints one object with `corpus`, `totalCases`, `passedCases`, `failedCases` and `failedIds`."
 msgstr "`corpus`、`totalCases`、`passedCases`、`failedCases`、`failedIds` を持つオブジェクトを 1 つ出力します。"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:64
+#: manual/tutorial/cli/mpfr_expr_cli.md:72
 msgid "`just conformance run binary` runs the pinned MPFR square-root data and the elementary matrix together with the TestFloat matrix."
 msgstr "`just conformance run binary` は、固定された MPFR の平方根データと初等関数マトリクスを、TestFloat マトリクスと合わせて実行します。"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:66
+#: manual/tutorial/cli/mpfr_expr_cli.md:74
 msgid "New elementary data is produced by `tools/generate_mpfr_elementary_oracle.c`; keep the `mpfr-elementary-v1` marker line so the runner detects the format."
 msgstr "新しい初等関数データは `tools/generate_mpfr_elementary_oracle.c` によって生成されます。ランナーが形式を検出できるよう、`mpfr-elementary-v1` マーカー行を残してください。"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:68
+#: manual/tutorial/cli/mpfr_expr_cli.md:76
 msgid "[mpfr_expr tutorial](../frontend/mpfr_expr.md) explains the row formats and pass rules."
 msgstr "行の形式と合格規則については [mpfr_expr チュートリアル](../frontend/mpfr_expr.md) で説明しています。"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:73
+#: manual/tutorial/cli/mpfr_expr_cli.md:81
 msgid "**One file per invocation.** Extra paths, missing paths, and the shard options all print the usage line and exit with `2`."
 msgstr "**1 回の呼び出しにつき 1 ファイル。** 余分なパス、パスの欠落、シャードオプションはいずれも使用法の行を表示して `2` で終了します。"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:75
+#: manual/tutorial/cli/mpfr_expr_cli.md:83
 msgid "**A lone option is read as a path.** `mpfr --help` reports `cannot read file: --help`, not the usage line."
 msgstr "**単独のオプションはパスとして読まれます。** `mpfr --help` は使用法の行ではなく `cannot read file: --help` を報告します。"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:77
+#: manual/tutorial/cli/mpfr_expr_cli.md:85
 msgid "**Format detection is textual.** A square-root file that happens to contain `input_coefficient_hex` in a comment is parsed as power data."
 msgstr "**形式の検出はテキストベースです。** コメント中にたまたま `input_coefficient_hex` を含む平方根ファイルは、べき乗データとして解析されます。"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:82
+#: manual/tutorial/cli/mpfr_expr_cli.md:90
 msgid "[cli/mpfr_expr_cli API](../../api/cli/mpfr_expr_cli.md)"
 msgstr "[cli/mpfr_expr_cli API](../../api/cli/mpfr_expr_cli.md)"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:83
+#: manual/tutorial/cli/mpfr_expr_cli.md:91
 msgid "[cli/mpfr_expr_cli design](../../design/cli/mpfr_expr_cli.md)"
 msgstr "[cli/mpfr_expr_cli 設計](../../design/cli/mpfr_expr_cli.md)"
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:84
+#: manual/tutorial/cli/mpfr_expr_cli.md:92
 msgid "[frontend/mpfr_expr tutorial](../frontend/mpfr_expr.md) for the row formats."
 msgstr "行の形式については [frontend/mpfr_expr チュートリアル](../frontend/mpfr_expr.md)。"
 
@@ -22848,58 +23011,58 @@ msgid "Generate vectors with TestFloat's `testfloat_gen` and run them. `just con
 msgstr "TestFloat の `testfloat_gen` でベクトルを生成して実行します。`just conformance fetch binary` は固定された SoftFloat と TestFloat のソースをダウンロードし、`just conformance run binary` はそれらから `testfloat_gen` を `.tmp/binfloat-conformance/vendor/TestFloat-3e/build/Linux-x86_64-GCC/` にビルドします。"
 
 #: manual/tutorial/cli/testfloat_expr_cli.md:45
-msgid "After `moon add Luna-Flow/floating@0.10.2`, import `\"Luna-Flow/floating-tools/cli/testfloat_expr_cli\"` in `moon.pkg` and call `run` with the same arguments:"
-msgstr "`moon add Luna-Flow/floating@0.10.2` の後、`moon.pkg` で `\"Luna-Flow/floating-tools/cli/testfloat_expr_cli\"` をインポートし、同じ引数で `run` を呼び出します。"
+msgid "The runner is also a library. The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`. Import `\"Luna-Flow/floating-tools/cli/testfloat_expr_cli\"` in `moon.pkg` and call `run` with the same arguments:"
+msgstr "ランナーはライブラリでもあります。このパッケージは、公開ライブラリではなくツールモジュール `Luna-Flow/floating-tools`（リポジトリの `tooling/` ディレクトリ、ライブラリと同じバージョン）に属します。このワークスペースのパッケージとしてコードを書くか、ツールモジュールの公開後に `moon add Luna-Flow/floating-tools@0.11.0` を実行してください。`moon.pkg` で `\"Luna-Flow/floating-tools/cli/testfloat_expr_cli\"` をインポートし、同じ引数で `run` を呼び出します:"
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:57
+#: manual/tutorial/cli/testfloat_expr_cli.md:64
 msgid "Match the generator options"
 msgstr "生成器のオプションに合わせる"
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:59
+#: manual/tutorial/cli/testfloat_expr_cli.md:66
 msgid "Pass the same function, rounding and tininess as the generator, and `--exact` when the vectors were generated with `-exact`:"
 msgstr "生成器と同じ関数、丸め、極小性を渡し、ベクトルが `-exact` で生成された場合は `--exact` も渡します。"
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:67
+#: manual/tutorial/cli/testfloat_expr_cli.md:74
 msgid "Shard a large file"
 msgstr "大きなファイルをシャードに分割する"
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:73
+#: manual/tutorial/cli/testfloat_expr_cli.md:80
 msgid "Shard `i` runs the vectors whose index is `i` modulo the shard count."
 msgstr "シャード `i` は、インデックスをシャード数で割った余りが `i` であるベクトルを実行します。"
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:77
+#: manual/tutorial/cli/testfloat_expr_cli.md:84
 msgid "`--json` prints `function`, `rounding`, `tininess`, `exact`, `totalCases`, `selectedCases`, `passedCases`, `failedCases` and `failedIds` (`FUNCTION:LINE`)."
 msgstr "`--json` は `function`、`rounding`、`tininess`、`exact`、`totalCases`、`selectedCases`、`passedCases`、`failedCases`、`failedIds`（`FUNCTION:LINE`）を出力します。"
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:83
+#: manual/tutorial/cli/testfloat_expr_cli.md:90
 msgid "`just conformance run binary --level 1 --tininess after --tininess before` plans the full matrix, streams `testfloat_gen` output in chunks into temporary files, runs this runner on each chunk, and remaps the line-based ids to global vector numbers."
 msgstr "`just conformance run binary --level 1 --tininess after --tininess before` は完全なマトリクスを計画し、`testfloat_gen` の出力をチャンク単位で一時ファイルにストリームし、各チャンクに対してこのランナーを実行して、行ベースの ID をベクトル全体の通し番号に対応付け直します。"
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:87
+#: manual/tutorial/cli/testfloat_expr_cli.md:94
 msgid "[testfloat_expr tutorial](../frontend/testfloat_expr.md) explains the pass rule."
 msgstr "合格規則については [testfloat_expr チュートリアル](../frontend/testfloat_expr.md) で説明しています。"
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:92
+#: manual/tutorial/cli/testfloat_expr_cli.md:99
 msgid "**Exactly one file.** A second path is an error."
 msgstr "**ファイルはちょうど 1 つ。** 2 つ目のパスはエラーになります。"
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:93
+#: manual/tutorial/cli/testfloat_expr_cli.md:100
 msgid "**Rounding defaults to `rnear_even`.** Always pass the generator's mode."
 msgstr "**丸めの既定は `rnear_even` です。** 必ず生成器のモードを渡してください。"
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:94
+#: manual/tutorial/cli/testfloat_expr_cli.md:101
 msgid "**Ids are line numbers of the file you pass.** When you split a stream into chunks, keep track of the offset yourself."
 msgstr "**ID は渡したファイルの行番号です。** ストリームをチャンクに分割する場合は、オフセットを自分で管理してください。"
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:99
+#: manual/tutorial/cli/testfloat_expr_cli.md:106
 msgid "[cli/testfloat_expr_cli API](../../api/cli/testfloat_expr_cli.md)"
 msgstr "[cli/testfloat_expr_cli API](../../api/cli/testfloat_expr_cli.md)"
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:100
+#: manual/tutorial/cli/testfloat_expr_cli.md:107
 msgid "[cli/testfloat_expr_cli design](../../design/cli/testfloat_expr_cli.md)"
 msgstr "[cli/testfloat_expr_cli 設計](../../design/cli/testfloat_expr_cli.md)"
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:101
+#: manual/tutorial/cli/testfloat_expr_cli.md:108
 msgid "[frontend/testfloat_expr tutorial](../frontend/testfloat_expr.md) for the pass rule."
 msgstr "合格規則については [frontend/testfloat_expr チュートリアル](../frontend/testfloat_expr.md)。"
 
@@ -23922,7 +24085,7 @@ msgid "check the committed fixtures"
 msgstr "コミット済みのフィクスチャを確認する"
 
 #: manual/tutorial/differential.md:11
-#: manual/tutorial/differential/harness.md:8
+#: manual/tutorial/differential/harness.md:10
 msgid "run a campaign"
 msgstr "キャンペーンを実行する"
 
@@ -24067,34 +24230,82 @@ msgid "differential/harness tutorial"
 msgstr "differential/harness チュートリアル"
 
 #: manual/tutorial/differential/harness.md:3
-msgid "The harness is run through the `just random-diff` tooling; this page only says where its code lives."
-msgstr "ハーネスは `just random-diff` ツールから実行されます。このページでは、そのコードがどこにあるかだけを説明します。"
+msgid "The harness is run through the `just random-diff` tooling, which builds the `differential` executable around it. This tutorial says where its code lives, how to test it and how to extend it; the campaign workflow is in the [differential tutorial](../differential.md)."
+msgstr "ハーネスは `just random-diff` ツールから実行され、これがその周りに `differential` 実行ファイルをビルドします。このチュートリアルでは、コードの場所、テスト方法、拡張方法を説明します。キャンペーンのワークフローは [differential のチュートリアル](../differential.md)にあります。"
 
-#: manual/tutorial/differential/harness.md:8
+#: manual/tutorial/differential/harness.md:10
 msgid "[the `differential` tutorial](../differential.md)"
 msgstr "[`differential` のチュートリアル](../differential.md)"
 
-#: manual/tutorial/differential/harness.md:9
+#: manual/tutorial/differential/harness.md:11
+msgid "test the harness"
+msgstr "ハーネスをテストする"
+
+#: manual/tutorial/differential/harness.md:11
+msgid "[quick start](#quick-start)"
+msgstr "[クイックスタート](#quick-start)"
+
+#: manual/tutorial/differential/harness.md:12
 msgid "change the batching or the record"
 msgstr "バッチ分割や記録を変更する"
 
-#: manual/tutorial/differential/harness.md:11
-msgid "Where the code is"
-msgstr "コードの場所"
+#: manual/tutorial/differential/harness.md:12
+msgid "[everyday tasks](#everyday-tasks)"
+msgstr "[日常のタスク](#everyday-tasks)"
 
 #: manual/tutorial/differential/harness.md:13
-msgid "The files `batch.mbt` (corpus splitting and batch execution) and `harness.mbt` (options, experiment specification and `run`) live in `tooling/src/differential/harness`, with their white-box tests in `differential_wbtest.mbt`. Test them with:"
-msgstr "ファイル `batch.mbt`（コーパスの分割とバッチの実行）と `harness.mbt`（オプション、実験仕様、`run`）は `tooling/src/differential/harness` にあり、そのホワイトボックステストは `differential_wbtest.mbt` にあります。次のコマンドでテストします："
+msgid "add a family of rows"
+msgstr "行のファミリーを追加する"
 
-#: manual/tutorial/differential/harness.md:24
+#: manual/tutorial/differential/harness.md:17
+msgid "The package ships inside the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository); there is nothing to install. Test it from the repository (native only, because `moonbitlang/async` has no wasm-gc runtime):"
+msgstr "このパッケージはツールモジュール `Luna-Flow/floating-tools`（リポジトリの `tooling/` ディレクトリ）に含まれており、インストールは不要です。リポジトリからテストします（`moonbitlang/async` に wasm-gc ランタイムがないため native のみ）:"
+
+#: manual/tutorial/differential/harness.md:25
+msgid "Run the committed fixtures through the whole stack:"
+msgstr "コミット済みのフィクスチャをスタック全体に通します:"
+
+#: manual/tutorial/differential/harness.md:31
+msgid "`run` is the only public function; the `differential` executable calls it with `@env.args()`."
+msgstr "`run` が唯一の公開関数で、`differential` 実行ファイルが `@env.args()` でこれを呼び出します。"
+
+#: manual/tutorial/differential/harness.md:36
+msgid "Find the code"
+msgstr "コードの場所"
+
+#: manual/tutorial/differential/harness.md:38
+msgid "`batch.mbt` splits a corpus into batches and executes one (`split_corpus`, `execute_batch`); `harness.mbt` holds the command-line options, the experiment specification and `run`; `differential_wbtest.mbt` tests the batching and the failure text with inline corpora."
+msgstr "`batch.mbt` はコーパスをバッチに分割して 1 つ実行し（`split_corpus`、`execute_batch`）、`harness.mbt` はコマンドラインオプション、実験仕様、`run` を持ち、`differential_wbtest.mbt` はインラインのコーパスでバッチ処理と失敗メッセージをテストします。"
+
+#: manual/tutorial/differential/harness.md:43
+msgid "Change how a corpus is split"
+msgstr "コーパスの分割方法を変更する"
+
+#: manual/tutorial/differential/harness.md:45
+msgid "`split_corpus(text, size)` recognises the corpus kind from its header line and, for decimal corpora, repeats the directives (precision, rounding, exponent range) in front of the cases they govern, so a batch is always self-contained. Add a case to `differential_wbtest.mbt` with a small inline corpus before changing it, then run the command above."
+msgstr "`split_corpus(text, size)` はヘッダー行からコーパスの種類を判別し、10 進コーパスでは指示（精度、丸め、指数範囲）を、それが適用されるケースの前に繰り返すため、バッチは常に自己完結しています。変更する前に、小さなインラインコーパスで `differential_wbtest.mbt` にケースを追加し、上のコマンドを実行してください。"
+
+#: manual/tutorial/differential/harness.md:52
+msgid "A new family of rows needs three things: an oracle program that writes the rows (outside MoonBit, see `tools/generate_*`), a frontend that executes one row, and a `CorpusKind` that `split_corpus` recognises from the header line and `execute_batch` maps to that frontend. The manifest and the replay command of `tools/random_differential.py` pick it up by family name."
+msgstr "新しい行のファミリーには 3 つのものが必要です。行を書き出すオラクルプログラム（MoonBit の外、`tools/generate_*` を参照）、1 行を実行するフロントエンド、そして `split_corpus` がヘッダー行から認識し `execute_batch` がそのフロントエンドに対応付ける `CorpusKind` です。`tools/random_differential.py` のマニフェストとリプレイコマンドは、ファミリー名でそれを取り込みます。"
+
+#: manual/tutorial/differential/harness.md:61
 msgid "**No wasm-gc build.** `moonbitlang/async` has no wasm-gc runtime, so the package declares `supported_targets = \"all-wasm-gc\"`."
 msgstr "**wasm-gc ビルドはありません。** `moonbitlang/async` には wasm-gc ランタイムがないため、このパッケージは `supported_targets = \"all-wasm-gc\"` を宣言しています。"
 
-#: manual/tutorial/differential/harness.md:29
+#: manual/tutorial/differential/harness.md:63
+msgid "**Exit status.** `run` exits the process (`2` for a bad command line or corpus, `1` for a disagreement): do not call it from a test."
+msgstr "**終了ステータス。** `run` はプロセスを終了します（コマンドラインまたはコーパスが不正なら `2`、不一致があれば `1`）。テストから呼び出さないでください。"
+
+#: manual/tutorial/differential/harness.md:68
 msgid "[differential/harness API](../../api/differential/harness.md)."
 msgstr "[differential/harness API](../../api/differential/harness.md)。"
 
-#: manual/tutorial/differential/harness.md:30
+#: manual/tutorial/differential/harness.md:69
+msgid "[differential/harness design](../../design/differential/harness.md)."
+msgstr "[differential/harness の設計](../../design/differential/harness.md)。"
+
+#: manual/tutorial/differential/harness.md:70
 msgid "[differential tutorial](../differential.md) for the workflow."
 msgstr "ワークフローについては [differential チュートリアル](../differential.md) を参照してください。"
 
@@ -24211,118 +24422,126 @@ msgstr "自分のライブラリで行を評価する"
 #: manual/tutorial/frontend/itl_expr.md:19
 #: manual/tutorial/frontend/mpfr_expr.md:20
 #: manual/tutorial/frontend/testfloat_expr.md:23
-msgid "Add the library to your module and import the package in `moon.pkg`:"
-msgstr "ライブラリをモジュールに追加し、`moon.pkg` でパッケージをインポートします。"
+#: manual/tutorial/numeric_expr.md:21
+msgid "The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`."
+msgstr "このパッケージは、公開ライブラリではなくツールモジュール `Luna-Flow/floating-tools`（リポジトリの `tooling/` ディレクトリ、ライブラリと同じバージョン）に属します。このワークスペースのパッケージとしてコードを書くか、ツールモジュールの公開後に `moon add Luna-Flow/floating-tools@0.11.0` を実行してください。"
 
-#: manual/tutorial/frontend/gda_expr.md:34
+#: manual/tutorial/frontend/gda_expr.md:24
+#: manual/tutorial/frontend/itl_expr.md:21
+#: manual/tutorial/frontend/mpfr_expr.md:22
+#: manual/tutorial/frontend/testfloat_expr.md:25
+msgid "Import the package in `moon.pkg`:"
+msgstr "`moon.pkg` でパッケージをインポートします:"
+
+#: manual/tutorial/frontend/gda_expr.md:32
 msgid "Parse two rows and execute them:"
 msgstr "2 つの行を構文解析して実行します。"
 
-#: manual/tutorial/frontend/gda_expr.md:52
+#: manual/tutorial/frontend/gda_expr.md:50
 msgid "A row has the form `id operation operand… -> expected condition…`. The directives above the rows (`precision:`, `rounding:`, …) set the context that every following row uses."
 msgstr "行は `id operation operand… -> expected condition…` の形式をとります。行の上にあるディレクティブ（`precision:`、`rounding:`、…）は、後続のすべての行が使うコンテキストを設定します。"
 
-#: manual/tutorial/frontend/gda_expr.md:58
+#: manual/tutorial/frontend/gda_expr.md:56
 msgid "Read why a row failed"
 msgstr "行が失敗した理由を読む"
 
-#: manual/tutorial/frontend/gda_expr.md:60
+#: manual/tutorial/frontend/gda_expr.md:58
 msgid "A row passes only if both the result and the exact set of conditions (status flags) match. Each `CaseResult` carries a message for a failure:"
 msgstr "行が合格するのは、結果とコンディション（ステータスフラグ）の集合の両方が正確に一致する場合だけです。各 `CaseResult` は失敗時のメッセージを保持します。"
 
-#: manual/tutorial/frontend/gda_expr.md:87
+#: manual/tutorial/frontend/gda_expr.md:85
 msgid "`bad2` has the right digits but omits `Inexact Rounded`; an extra flag is a failure just like a missing one."
 msgstr "`bad2` は桁は正しいものの `Inexact Rounded` が欠けています。フラグが余分な場合も、欠けている場合と同様に失敗です。"
 
-#: manual/tutorial/frontend/gda_expr.md:90
+#: manual/tutorial/frontend/gda_expr.md:88
 msgid "Results are compared with their exponent"
 msgstr "結果は指数も含めて比較される"
 
-#: manual/tutorial/frontend/gda_expr.md:92
+#: manual/tutorial/frontend/gda_expr.md:90
 msgid "The expected result is compared as a decimal *representation*, not only as a number: `2.0` and `2.00` have the same value but different exponents, and only the one with the right exponent passes. Signed zeros and NaN payloads are compared the same way."
 msgstr "期待される結果は、数値としてだけでなく 10 進の*表現*として比較されます。`2.0` と `2.00` は値は同じですが指数が異なり、正しい指数を持つ方だけが合格します。符号付きゼロと NaN のペイロードも同様に比較されます。"
 
-#: manual/tutorial/frontend/gda_expr.md:115
+#: manual/tutorial/frontend/gda_expr.md:113
 msgid "Skipped rows and dispositions"
 msgstr "スキップされる行と処置（disposition）"
 
-#: manual/tutorial/frontend/gda_expr.md:117
+#: manual/tutorial/frontend/gda_expr.md:115
 msgid "Some rows are not executed. Each result has a `CaseDisposition`: `Executable` rows are run; `Diagnostic` rows (a `#` placeholder operand or result, or a `?` operand) and `Unsupported` rows (an unknown operation, condition or rounding mode) are counted as skipped and never fail the run."
 msgstr "実行されない行もあります。各結果は `CaseDisposition` を持ちます。`Executable` の行は実行されます。`Diagnostic` の行（`#` のプレースホルダのオペランドまたは結果、あるいは `?` のオペランドを含むもの）と `Unsupported` の行（未知の演算、コンディション、丸めモードを含むもの）はスキップとして数えられ、実行を失敗させることはありません。"
 
-#: manual/tutorial/frontend/gda_expr.md:155
+#: manual/tutorial/frontend/gda_expr.md:153
 msgid "`success()` only says that no executable row failed. A strict runner also requires that nothing was unsupported; the CLI does this with `--strict-supported`."
 msgstr "`success()` は、実行可能な行が 1 つも失敗しなかったことしか示しません。strict なランナーはさらに、サポート外のものが何もないことも要求します。CLI では `--strict-supported` でこれを行います。"
 
-#: manual/tutorial/frontend/gda_expr.md:159
+#: manual/tutorial/frontend/gda_expr.md:157
 msgid "Select rows and split work into shards"
 msgstr "行を選択し、作業をシャードに分割する"
 
-#: manual/tutorial/frontend/gda_expr.md:161
+#: manual/tutorial/frontend/gda_expr.md:159
 msgid "`RunOptions` filters rows by id and selects one shard of the remaining rows. A filter is a comma-separated list of ids or ranges `first..last`, where a range matches ids of the same length that sort between the bounds:"
 msgstr "`RunOptions` は ID で行を絞り込み、残った行のうち 1 つのシャードを選択します。フィルタは ID または範囲 `first..last` のカンマ区切りリストで、範囲は同じ長さでソート順が両端の間にある ID にマッチします。"
 
-#: manual/tutorial/frontend/gda_expr.md:195
+#: manual/tutorial/frontend/gda_expr.md:193
 msgid "Shard `i` of `n` takes the rows whose position among the filtered rows is congruent to `i` modulo `n`, so the shards are disjoint and together cover every row. `RunSummary::merge` adds the counts back up."
 msgstr "`n` 個中のシャード `i` は、絞り込み後の行における位置が `n` を法として `i` と合同である行を取ります。そのため各シャードは互いに素で、合わせるとすべての行を覆います。`RunSummary::merge` で件数を合算できます。"
 
-#: manual/tutorial/frontend/gda_expr.md:199
+#: manual/tutorial/frontend/gda_expr.md:197
 msgid "Look at the parsed rows"
 msgstr "構文解析された行を見る"
 
-#: manual/tutorial/frontend/gda_expr.md:201
+#: manual/tutorial/frontend/gda_expr.md:199
 msgid "`parse_dectest` keeps each row's text and the context in force for it, so you can inspect a corpus without executing it:"
 msgstr "`parse_dectest` は各行のテキストとその行に適用されるコンテキストを保持するため、コーパスを実行せずに調べることができます。"
 
-#: manual/tutorial/frontend/gda_expr.md:227
+#: manual/tutorial/frontend/gda_expr.md:225
 msgid "**Interchange rows.** In a context whose precision and exponent limits are exactly those of decimal32, decimal64 or decimal128, operands and results written as `#` followed by hexadecimal digits are IEEE 754 interchange encodings, and the result is compared bit for bit. Operands prefixed `32#`, `64#` or `128#` are read in that format."
 msgstr "**交換形式の行。** 精度と指数の限界がちょうど decimal32、decimal64、decimal128 のものであるコンテキストでは、`#` の後に 16 進数字が続く形で書かれたオペランドと結果は IEEE 754 の交換形式のエンコーディングであり、結果はビット単位で比較されます。`32#`、`64#`、`128#` を前置したオペランドはその形式で読み込まれます。"
 
-#: manual/tutorial/frontend/gda_expr.md:232
+#: manual/tutorial/frontend/gda_expr.md:230
 msgid "**Expected `?`.** A result of `?` means \"any value\": only the conditions are compared."
 msgstr "**期待値 `?`。** 結果が `?` の場合は「任意の値」を意味し、コンディションだけが比較されます。"
 
-#: manual/tutorial/frontend/gda_expr.md:234
+#: manual/tutorial/frontend/gda_expr.md:232
 msgid "**Your own executor.** Every `GdaCase` exposes `expression()`, a [`numeric_expr`](../numeric_expr.md) tree, so you can evaluate the same rows with your own callbacks, for example against another decimal library."
 msgstr "**独自の実行器。** すべての `GdaCase` は [`numeric_expr`](../numeric_expr.md) の木である `expression()` を公開しているため、同じ行を独自のコールバックで評価できます。例えば別の 10 進ライブラリに対して評価することもできます。"
 
-#: manual/tutorial/frontend/gda_expr.md:237
+#: manual/tutorial/frontend/gda_expr.md:235
 msgid "**Whole corpora.** `just conformance run decimal_gda` downloads the pinned official corpus, builds the native runner and executes all phases; see [verification](../../verification.md)."
 msgstr "**コーパス全体。** `just conformance run decimal_gda` は固定された公式コーパスをダウンロードし、native ランナーをビルドしてすべてのフェーズを実行します。[検証](../../verification.md) を参照してください。"
 
-#: manual/tutorial/frontend/gda_expr.md:243
+#: manual/tutorial/frontend/gda_expr.md:241
 msgid "**Parse errors reject the whole document.** `parse_dectest` returns all diagnostics and no document if any line is malformed; fix the line or drop it."
 msgstr "**構文解析エラーは文書全体を拒否します。** いずれかの行が不正な場合、`parse_dectest` はすべての診断を返し、文書は返しません。その行を修正するか削除してください。"
 
-#: manual/tutorial/frontend/gda_expr.md:246
+#: manual/tutorial/frontend/gda_expr.md:244
 msgid "**The default context is not a decTest default.** Before any directive the context is precision 34, `half_even`, exponents $\\pm 999999999$, `extended: 1`, `clamp: 0`. Real files set their own directives."
 msgstr "**既定のコンテキストは decTest の既定値ではありません。** ディレクティブが現れる前のコンテキストは、精度 34、`half_even`、指数 $\\pm 999999999$、`extended: 1`、`clamp: 0` です。実際のファイルは独自のディレクティブを設定します。"
 
-#: manual/tutorial/frontend/gda_expr.md:249
+#: manual/tutorial/frontend/gda_expr.md:247
 msgid "**`success()` ignores skipped rows.** Check `unsupported_cases()` (or use the CLI's `--strict-supported`) if unsupported rows must fail the run."
 msgstr "**`success()` はスキップされた行を無視します。** サポートされない行で実行を失敗させる必要がある場合は、`unsupported_cases()` を確認してください（または CLI の `--strict-supported` を使います）。"
 
-#: manual/tutorial/frontend/gda_expr.md:251
+#: manual/tutorial/frontend/gda_expr.md:249
 msgid "**Doubled quotes.** Inside a quoted token, the delimiting quote written twice is one literal quote (`'1''2'` is the operand `1'2`), so a quoted token ends only at a single matching quote."
 msgstr "**二重の引用符。** 引用符付きトークンの中では、区切りの引用符を 2 つ続けて書くと 1 つのリテラルの引用符になります（`'1''2'` はオペランド `1'2`）。そのため、引用符付きトークンは単独の対応する引用符でのみ終わります。"
 
-#: manual/tutorial/frontend/gda_expr.md:254
+#: manual/tutorial/frontend/gda_expr.md:252
 msgid "**Invalid contexts are skipped.** A non-positive precision directive (or `minexponent` above `maxexponent`) is accepted by the parser, and the rows under it are `Diagnostic`: they are counted in `diagnostic_cases()`, not executed."
 msgstr "**無効なコンテキストはスキップされる。** 正でない精度のディレクティブ（または `maxexponent` より大きい `minexponent`）はパーサーに受け付けられ、その下の行は `Diagnostic` になります。それらは `diagnostic_cases()` に数えられ、実行されません。"
 
-#: manual/tutorial/frontend/gda_expr.md:261
+#: manual/tutorial/frontend/gda_expr.md:259
 msgid "[frontend/gda_expr API](../../api/frontend/gda_expr.md) for every item."
 msgstr "すべての項目については [frontend/gda_expr API](../../api/frontend/gda_expr.md)。"
 
-#: manual/tutorial/frontend/gda_expr.md:262
+#: manual/tutorial/frontend/gda_expr.md:260
 msgid "[frontend/gda_expr design](../../design/frontend/gda_expr.md) for the exact pass rule and the row-to-operation mapping."
 msgstr "正確な合格規則と行から演算への対応については [frontend/gda_expr 設計](../../design/frontend/gda_expr.md)。"
 
-#: manual/tutorial/frontend/gda_expr.md:264
+#: manual/tutorial/frontend/gda_expr.md:262
 msgid "[cli/gda_expr_cli tutorial](../cli/gda_expr_cli.md) for running corpora from the command line."
 msgstr "コマンドラインからコーパスを実行するには [cli/gda_expr_cli チュートリアル](../cli/gda_expr_cli.md)。"
 
-#: manual/tutorial/frontend/gda_expr.md:266
+#: manual/tutorial/frontend/gda_expr.md:264
 msgid "[decimal_gda tutorial](../decimal_gda.md) for the arithmetic being tested."
 msgstr "テスト対象の算術については [decimal_gda チュートリアル](../decimal_gda.md)。"
 
@@ -24366,83 +24585,83 @@ msgstr "ケースが実行されなかった理由を調べる"
 msgid "[filter on `ItlCase::operation`](#going-further)"
 msgstr "[`ItlCase::operation` で絞り込む](#going-further)"
 
-#: manual/tutorial/frontend/itl_expr.md:31
+#: manual/tutorial/frontend/itl_expr.md:29
 msgid "Parse a test case block and run it:"
 msgstr "テストケースのブロックを構文解析して実行します。"
 
-#: manual/tutorial/frontend/itl_expr.md:50
+#: manual/tutorial/frontend/itl_expr.md:48
 msgid "Each statement `operation operand… = expected;` becomes one `ItlCase` with the id `testcase:index`."
 msgstr "各文 `operation operand… = expected;` は、ID が `testcase:index` である 1 つの `ItlCase` になります。"
 
-#: manual/tutorial/frontend/itl_expr.md:55
+#: manual/tutorial/frontend/itl_expr.md:53
 msgid "Inspect parsed cases"
 msgstr "構文解析されたケースを調べる"
 
-#: manual/tutorial/frontend/itl_expr.md:74
+#: manual/tutorial/frontend/itl_expr.md:72
 msgid "A statement may span several lines; it ends at `;`. Bounds can be decimal or hexadecimal (`0x1.8p1`) text, and the literals `[empty]`, `[entire]` and `[nai]` are understood."
 msgstr "文は複数行にまたがってもよく、`;` で終わります。端点は 10 進または 16 進（`0x1.8p1`）のテキストで書くことができ、リテラル `[empty]`、`[entire]`、`[nai]` も解釈されます。"
 
-#: manual/tutorial/frontend/itl_expr.md:78
+#: manual/tutorial/frontend/itl_expr.md:76
 msgid "Check decorations"
 msgstr "装飾を検査する"
 
-#: manual/tutorial/frontend/itl_expr.md:80
+#: manual/tutorial/frontend/itl_expr.md:78
 msgid "A decoration suffix (`_com`, `_dac`, `_def`, `_trv`, `_ill`) on the expected value makes the decoration part of the test. Without a suffix only the set is compared. Failure messages print intervals in midpoint-radius form:"
 msgstr "期待値に装飾の接尾辞（`_com`、`_dac`、`_def`、`_trv`、`_ill`）を付けると、装飾もテスト対象になります。接尾辞がなければ集合だけが比較されます。失敗メッセージでは区間を中心・半径形式で表示します。"
 
-#: manual/tutorial/frontend/itl_expr.md:103
+#: manual/tutorial/frontend/itl_expr.md:101
 msgid "Numbers, booleans and overlap states"
 msgstr "数値、真偽値、重なり状態"
 
-#: manual/tutorial/frontend/itl_expr.md:105
+#: manual/tutorial/frontend/itl_expr.md:103
 msgid "Besides interval results, ITL cases can expect a number (`inf`, `sup`, `mid`, `rad`, `wid`, `mag`, `mig`), a boolean (`isEmpty`, `subset`, `isMember`, …) or an overlap state name:"
 msgstr "区間の結果のほか、ITL のケースは数値（`inf`、`sup`、`mid`、`rad`、`wid`、`mag`、`mig`）、真偽値（`isEmpty`、`subset`、`isMember`、…）、または重なり状態の名前を期待値とすることができます。"
 
-#: manual/tutorial/frontend/itl_expr.md:127
+#: manual/tutorial/frontend/itl_expr.md:125
 msgid "Unsupported and malformed cases"
 msgstr "サポートされないケースと不正なケース"
 
-#: manual/tutorial/frontend/itl_expr.md:129
+#: manual/tutorial/frontend/itl_expr.md:127
 msgid "A case the executor does not implement is `Unsupported`, whatever its operands (`nums2interval 1.0 2.0` included); a case of a known operation whose operands cannot be read is a `Diagnostic`. Neither counts as a failure, but a diagnostic makes `success()` false:"
 msgstr "エグゼキュータが実装していないケースは、オペランドが何であっても `Unsupported` です（`nums2interval 1.0 2.0` も含みます）。既知の演算のケースでオペランドを読み取れないものは `Diagnostic` です。どちらも失敗には数えられませんが、診断があると `success()` は false になります。"
 
-#: manual/tutorial/frontend/itl_expr.md:155
+#: manual/tutorial/frontend/itl_expr.md:153
 msgid "**Corpus runs.** `just conformance run interval` fetches the pinned ITF1788 corpus, builds the native runner and runs the strict phases listed in `testdata/interval/interpreter_stages.json`; see [verification](../../verification.md)."
 msgstr "**コーパスの実行。** `just conformance run interval` は固定された ITF1788 コーパスを取得し、native ランナーをビルドして、`testdata/interval/interpreter_stages.json` に列挙された strict なフェーズを実行します。[検証](../../verification.md) を参照してください。"
 
-#: manual/tutorial/frontend/itl_expr.md:159
+#: manual/tutorial/frontend/itl_expr.md:157
 msgid "**Filtering by operation.** The CLI's `--operation NAME` option keeps only cases of that operation; in code, filter `cases` by `operation()` before executing."
 msgstr "**演算による絞り込み。** CLI の `--operation NAME` オプションはその演算のケースだけを残します。コードでは、実行前に `cases` を `operation()` で絞り込みます。"
 
-#: manual/tutorial/frontend/itl_expr.md:162
+#: manual/tutorial/frontend/itl_expr.md:160
 msgid "**Precision.** `execute_case(case, precision=p)` reads bounds and rounds results at `p` bits, with the binary64 exponent range. The ITF1788 data is written for binary64, so keep the default `53` for corpus runs."
 msgstr "**精度。** `execute_case(case, precision=p)` は端点の読み取りと結果の丸めを `p` ビットで行い、指数範囲は binary64 と同じです。ITF1788 のデータは binary64 向けに書かれているため、コーパスを実行するときは既定値の `53` を使ってください。"
 
-#: manual/tutorial/frontend/itl_expr.md:168
+#: manual/tutorial/frontend/itl_expr.md:166
 msgid "**Decimal bounds are rounded to nearest.** As in ITF1788, a bound such as `0.1` is a floating constant of the format, read as the nearest binary64 number, so `[0.1,0.1]` is the singleton of that number, not an enclosure of one tenth. To test an enclosure of a decimal value, write its bounds in hexadecimal."
 msgstr "**10 進の端点は最近接に丸められます。** ITF1788 と同様に、`0.1` のような端点はその形式の浮動小数点定数であり、最も近い binary64 の数として読まれます。そのため `[0.1,0.1]` はその数の単集合であり、10 分の 1 を包含する区間ではありません。10 進の値を包含する区間をテストするには、端点を 16 進で書いてください。"
 
-#: manual/tutorial/frontend/itl_expr.md:173
+#: manual/tutorial/frontend/itl_expr.md:171
 msgid "**Signals are not checked.** ITL annotations such as `signal …` after the expected value make the expected value unreadable; such cases become unsupported or diagnostic rather than passing."
 msgstr "**シグナルは検査されません。** 期待値の後に置かれた `signal …` のような ITL の注釈があると期待値を読み取れなくなり、そのようなケースは合格ではなくサポート外または診断になります。"
 
-#: manual/tutorial/frontend/itl_expr.md:176
+#: manual/tutorial/frontend/itl_expr.md:174
 msgid "**Parse errors reject the input.** `parse_itl` returns only diagnostics if any statement lacks `=` or an operation, or if the text ends inside a statement."
 msgstr "**構文解析エラーは入力を拒否します。** いずれかの文に `=` や演算がない場合、またはテキストが文の途中で終わっている場合、`parse_itl` は診断だけを返します。"
 
-#: manual/tutorial/frontend/itl_expr.md:182
+#: manual/tutorial/frontend/itl_expr.md:180
 msgid "[frontend/itl_expr API](../../api/frontend/itl_expr.md) for every item and the list of executed operations."
 msgstr "すべての項目と実行される演算の一覧については [frontend/itl_expr API](../../api/frontend/itl_expr.md)。"
 
-#: manual/tutorial/frontend/itl_expr.md:184
+#: manual/tutorial/frontend/itl_expr.md:182
 msgid "[frontend/itl_expr design](../../design/frontend/itl_expr.md) for the pass rule."
 msgstr "合格規則については [frontend/itl_expr 設計](../../design/frontend/itl_expr.md)。"
 
-#: manual/tutorial/frontend/itl_expr.md:186
+#: manual/tutorial/frontend/itl_expr.md:184
 msgid "[cli/itl_expr_cli tutorial](../cli/itl_expr_cli.md) for running files from the command line."
 msgstr "コマンドラインからファイルを実行するには [cli/itl_expr_cli チュートリアル](../cli/itl_expr_cli.md)。"
 
-#: manual/tutorial/frontend/itl_expr.md:188
+#: manual/tutorial/frontend/itl_expr.md:186
 msgid "[ball_float tutorial](../ball_float.md) for the interval arithmetic being tested."
 msgstr "テスト対象の区間演算については [ball_float チュートリアル](../ball_float.md)。"
 
@@ -24474,91 +24693,91 @@ msgstr "不正な形式の行を見つける"
 msgid "run the pinned corpora"
 msgstr "固定されたコーパスを実行する"
 
-#: manual/tutorial/frontend/mpfr_expr.md:32
+#: manual/tutorial/frontend/mpfr_expr.md:30
 msgid "Check one square root: $\\sqrt{2^{-1074} \\cdot 2^{52}} = 2^{-511}$ at 53 bits, rounding to nearest:"
 msgstr "53 ビット、最近接丸めで、1 つの平方根 $\\sqrt{2^{-1074} \\cdot 2^{52}} = 2^{-511}$ を検査します。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:49
+#: manual/tutorial/frontend/mpfr_expr.md:47
 msgid "Numbers are written as hexadecimal significand and binary exponent: `0x10000000000000p-1074` is $2^{52} \\cdot 2^{-1074}$."
 msgstr "数値は 16 進の仮数と 2 進の指数で書きます。`0x10000000000000p-1074` は $2^{52} \\cdot 2^{-1074}$ です。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:54
+#: manual/tutorial/frontend/mpfr_expr.md:52
 msgid "Elementary functions with flags"
 msgstr "フラグ付きの初等関数"
 
-#: manual/tutorial/frontend/mpfr_expr.md:56
+#: manual/tutorial/frontend/mpfr_expr.md:54
 msgid "An elementary row names the function, the output precision and rounding, the operands, the expected result and three exception flags (inexact, invalid, division by zero). Unused operands are written `-` (second operand) and `0` (integer operand):"
 msgstr "初等関数の行は、関数名、出力の精度と丸め、オペランド、期待される結果、3 つの例外フラグ（inexact、invalid、ゼロ除算）を記述します。使わないオペランドは `-`（第 2 オペランド）と `0`（整数オペランド）で書きます。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:80
+#: manual/tutorial/frontend/mpfr_expr.md:78
 msgid "`ln(0) = -inf` raises division by zero and `sqrt(-1)` is an invalid operation returning NaN; both flags are part of the check."
 msgstr "`ln(0) = -inf` はゼロ除算を発生させ、`sqrt(-1)` は NaN を返す無効演算です。どちらのフラグも検査の対象です。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:85
+#: manual/tutorial/frontend/mpfr_expr.md:83
 msgid "A `pow` row splits each number into coefficient, binary exponent and sign:"
 msgstr "`pow` の行は、各数値を係数、2 進指数、符号に分けて記述します。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:100
+#: manual/tutorial/frontend/mpfr_expr.md:98
 msgid "The fields are: precision, rounding, input coefficient (hex digits), input exponent, input sign (`1` negative), integer exponent, expected coefficient, expected exponent, expected sign, inexact flag. Here `0x6c0p-9` is $1728/512 = 27/8$."
 msgstr "各フィールドは、精度、丸め、入力の係数（16 進数字）、入力の指数、入力の符号（`1` は負）、整数の指数、期待される係数、期待される指数、期待される符号、inexact フラグです。ここで `0x6c0p-9` は $1728/512 = 27/8$ です。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:105
+#: manual/tutorial/frontend/mpfr_expr.md:103
 msgid "Read a failure"
 msgstr "失敗を読む"
 
-#: manual/tutorial/frontend/mpfr_expr.md:126
+#: manual/tutorial/frontend/mpfr_expr.md:124
 msgid "The id is the operation (or `sqrt`/`pow`) and the line number."
 msgstr "ID は演算（または `sqrt`/`pow`）と行番号です。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:128
+#: manual/tutorial/frontend/mpfr_expr.md:126
 msgid "Parse errors"
 msgstr "構文解析エラー"
 
-#: manual/tutorial/frontend/mpfr_expr.md:130
+#: manual/tutorial/frontend/mpfr_expr.md:128
 msgid "Every malformed line is reported with its line number, and no document is returned:"
 msgstr "不正な行はすべて行番号付きで報告され、文書は返されません。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:149
+#: manual/tutorial/frontend/mpfr_expr.md:147
 msgid "**Corpora.** `just conformance run binary` executes the pinned MPFR `tests/data/sqrt` file and the committed elementary matrix `testdata/bin_float/mpfr-4.2.2-elementary.txt` together with TestFloat; see [verification](../../verification.md). The generators for the elementary and power data are `tools/generate_mpfr_elementary_oracle.c` and `tools/generate_mpfr_pow_oracle.c`."
 msgstr "**コーパス。** `just conformance run binary` は、固定された MPFR の `tests/data/sqrt` ファイルとコミット済みの初等関数マトリクス `testdata/bin_float/mpfr-4.2.2-elementary.txt` を TestFloat と合わせて実行します。[検証](../../verification.md) を参照してください。初等関数データとべき乗データの生成器は `tools/generate_mpfr_elementary_oracle.c` と `tools/generate_mpfr_pow_oracle.c` です。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:155
+#: manual/tutorial/frontend/mpfr_expr.md:153
 msgid "**Which parser?** The CLI chooses the elementary format when the file contains `mpfr-elementary-v1`, the power format when it contains `input_coefficient_hex`, and the square-root format otherwise. Put the marker in a comment line."
 msgstr "**どのパーサが使われるか。** CLI は、ファイルが `mpfr-elementary-v1` を含めば初等関数形式、`input_coefficient_hex` を含めばべき乗形式、それ以外は平方根形式を選びます。マーカーはコメント行に置いてください。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:162
+#: manual/tutorial/frontend/mpfr_expr.md:160
 msgid "**Elementary rows compare numbers, not encodings.** Any NaN matches an expected `nan`, and a zero must have the expected sign. Square-root and power rows compare the whole `BinFloat`."
 msgstr "**初等関数の行は符号化ではなく数値を比較する。** どの NaN も期待される `nan` に一致し、ゼロは期待される符号を持たなければなりません。平方根とべき乗の行は `BinFloat` 全体を比較します。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:165
+#: manual/tutorial/frontend/mpfr_expr.md:163
 msgid "**Square-root flags are not checked.** `sqrt` data rows compare only the value."
 msgstr "**平方根のフラグは検査されません。** `sqrt` のデータ行は値だけを比較します。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:167
+#: manual/tutorial/frontend/mpfr_expr.md:165
 msgid "**No exponent range.** Rows are executed in an unbounded context: there is no overflow, underflow or subnormal range, and an elementary or power row that reports overflow or underflow fails."
 msgstr "**指数範囲はありません。** 行は有界でないコンテキストで実行されます。オーバーフロー、アンダーフロー、非正規化数の範囲は存在せず、オーバーフローやアンダーフローを報告する初等関数やべき乗の行は失敗します。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:170
+#: manual/tutorial/frontend/mpfr_expr.md:168
 msgid "**Binary operations need a second operand.** An elementary `pow`, `hypot` or `atan2` row with `-` as second operand is the parse diagnostic `invalid MPFR elementary field`."
 msgstr "**2 項演算には 2 番目のオペランドが必要。** 2 番目のオペランドが `-` である初等関数の `pow`、`hypot`、`atan2` の行は、解析診断 `invalid MPFR elementary field` になります。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:173
+#: manual/tutorial/frontend/mpfr_expr.md:171
 msgid "**Inputs are read at 512 bits.** Elementary and power operands with longer significands are rounded before the function is evaluated."
 msgstr "**入力は 512 ビットで読み取られます。** より長い仮数を持つ初等関数とべき乗のオペランドは、関数の評価前に丸められます。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:178
+#: manual/tutorial/frontend/mpfr_expr.md:176
 msgid "[frontend/mpfr_expr API](../../api/frontend/mpfr_expr.md) for every item and the exact field layouts."
 msgstr "すべての項目と正確なフィールド配置については [frontend/mpfr_expr API](../../api/frontend/mpfr_expr.md)。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:180
+#: manual/tutorial/frontend/mpfr_expr.md:178
 msgid "[frontend/mpfr_expr design](../../design/frontend/mpfr_expr.md) for the pass rules."
 msgstr "合格規則については [frontend/mpfr_expr 設計](../../design/frontend/mpfr_expr.md)。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:182
+#: manual/tutorial/frontend/mpfr_expr.md:180
 msgid "[cli/mpfr_expr_cli tutorial](../cli/mpfr_expr_cli.md) for running a file from the command line."
 msgstr "コマンドラインからファイルを実行するには [cli/mpfr_expr_cli チュートリアル](../cli/mpfr_expr_cli.md)。"
 
-#: manual/tutorial/frontend/mpfr_expr.md:184
+#: manual/tutorial/frontend/mpfr_expr.md:182
 msgid "[bin_float tutorial](../bin_float.md) for the functions being tested."
 msgstr "テスト対象の関数については [bin_float チュートリアル](../bin_float.md)。"
 
@@ -24602,95 +24821,95 @@ msgstr "比較述語を検査する"
 msgid "split a file over processes"
 msgstr "ファイルを複数のプロセスに分割する"
 
-#: manual/tutorial/frontend/testfloat_expr.md:35
+#: manual/tutorial/frontend/testfloat_expr.md:33
 msgid "Check $1.5 \\times 2 = 3$ in binary64:"
 msgstr "binary64 で $1.5 \\times 2 = 3$ を検査します。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:51
+#: manual/tutorial/frontend/testfloat_expr.md:49
 msgid "The last field is the SoftFloat flag mask: `01` inexact, `02` underflow, `04` overflow, `08` division by zero (infinite), `10` invalid."
 msgstr "最後のフィールドは SoftFloat のフラグマスクです。`01` は inexact、`02` はアンダーフロー、`04` はオーバーフロー、`08` はゼロ除算（無限大）、`10` は invalid を表します。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:56
+#: manual/tutorial/frontend/testfloat_expr.md:54
 msgid "Values and flags are both checked"
 msgstr "値とフラグの両方が検査される"
 
-#: manual/tutorial/frontend/testfloat_expr.md:58
+#: manual/tutorial/frontend/testfloat_expr.md:56
 msgid "A vector fails if either the encoded result or the flag mask differs:"
 msgstr "エンコードされた結果かフラグマスクのどちらかが異なれば、そのベクトルは失敗です。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:80
+#: manual/tutorial/frontend/testfloat_expr.md:78
 msgid "Ids are the function name and the line number."
 msgstr "ID は関数名と行番号です。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:82
+#: manual/tutorial/frontend/testfloat_expr.md:80
 msgid "NaN results"
 msgstr "NaN の結果"
 
-#: manual/tutorial/frontend/testfloat_expr.md:84
+#: manual/tutorial/frontend/testfloat_expr.md:82
 msgid "When the expected result is a NaN, any quiet NaN is accepted, because IEEE 754 does not fix the payload or sign of a generated NaN. The flags must still match:"
 msgstr "期待される結果が NaN の場合は、任意の quiet NaN が受理されます。IEEE 754 は生成される NaN のペイロードや符号を定めていないためです。ただしフラグは一致しなければなりません。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:103
+#: manual/tutorial/frontend/testfloat_expr.md:101
 msgid "Conversions to integers and the exact variants"
 msgstr "整数への変換と exact 版"
 
-#: manual/tutorial/frontend/testfloat_expr.md:105
+#: manual/tutorial/frontend/testfloat_expr.md:103
 msgid "For `to_i32`, `to_i64`, `to_ui32` and `to_ui64` the result field is the integer in hexadecimal. With `exact=true` (TestFloat's `-exact`) an inexact conversion also raises the inexact flag. An invalid conversion is checked by its flags only:"
 msgstr "`to_i32`、`to_i64`、`to_ui32`、`to_ui64` では、結果フィールドは 16 進の整数です。`exact=true`（TestFloat の `-exact`）では、正確でない変換は inexact フラグも発生させます。無効な変換はフラグだけで検査されます。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:138
+#: manual/tutorial/frontend/testfloat_expr.md:136
 msgid "Comparisons"
 msgstr "比較"
 
-#: manual/tutorial/frontend/testfloat_expr.md:140
+#: manual/tutorial/frontend/testfloat_expr.md:138
 msgid "The comparison functions expect `0` or `1`. The signaling predicates (`eq_signaling`, `le`, `lt`) raise invalid for any NaN operand; the quiet ones (`eq`, `le_quiet`, `lt_quiet`) only for signaling NaNs:"
 msgstr "比較関数は `0` または `1` を期待値とします。シグナルを発生させる述語（`eq_signaling`、`le`、`lt`）は任意の NaN オペランドに対して invalid を発生させ、quiet な述語（`eq`、`le_quiet`、`lt_quiet`）は signaling NaN に対してのみ発生させます。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:168
+#: manual/tutorial/frontend/testfloat_expr.md:166
 msgid "`RunOptions` runs every `n`-th vector, starting at index `i`, so `n` processes can share one file:"
 msgstr "`RunOptions` はインデックス `i` から始めて `n` 個おきにベクトルを実行するため、`n` 個のプロセスで 1 つのファイルを分担できます。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:195
+#: manual/tutorial/frontend/testfloat_expr.md:193
 msgid "**Generating vectors.** `just conformance fetch binary` downloads the pinned SoftFloat and TestFloat sources, and `just conformance run binary --level 1` builds `testfloat_gen`, then generates and executes the matrix of all formats, operations and rounding modes. Tininess defaults to after rounding; add `--tininess after --tininess before` to run both modes for the operations that can underflow. See [verification](../../verification.md)."
 msgstr "**ベクトルの生成。** `just conformance fetch binary` は固定された SoftFloat と TestFloat のソースをダウンロードし、`just conformance run binary --level 1` は `testfloat_gen` をビルドしてから、すべての形式・演算・丸めモードのマトリクスを生成して実行します。極小性のデフォルトは丸め後です。アンダーフローしうる演算について両方のモードを実行するには `--tininess after --tininess before` を追加してください。[検証](../../verification.md)を参照してください。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:202
+#: manual/tutorial/frontend/testfloat_expr.md:200
 msgid "**Tininess.** Pass `tininess=\"before\"` to `TestFloatSpec::parse` to match vectors generated with `-tininessbefore`; the default is after rounding."
 msgstr "**極小性。** `-tininessbefore` で生成されたベクトルに合わせるには、`TestFloatSpec::parse` に `tininess=\"before\"` を渡します。既定は丸め後判定です。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:204
+#: manual/tutorial/frontend/testfloat_expr.md:202
 msgid "**Function names.** The spec accepts TestFloat names: `f16_`, `f32_`, `f64_` or `f128_` followed by `add`, `sub`, `mul`, `div`, `sqrt`, `mulAdd`, `rem`, `roundToInt`, `to_i32`, `to_i64`, `to_ui32`, `to_ui64`, `eq`, `le`, `lt`, `eq_signaling`, `le_quiet` or `lt_quiet`."
 msgstr "**関数名。** spec は TestFloat の名前を受け付けます。`f16_`、`f32_`、`f64_`、`f128_` のいずれかに続けて、`add`、`sub`、`mul`、`div`、`sqrt`、`mulAdd`、`rem`、`roundToInt`、`to_i32`、`to_i64`、`to_ui32`、`to_ui64`、`eq`、`le`、`lt`、`eq_signaling`、`le_quiet`、`lt_quiet` のいずれかを付けます。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:211
+#: manual/tutorial/frontend/testfloat_expr.md:209
 msgid "**One function per document.** The spec applies to every line; split mixed files."
 msgstr "**1 つの文書につき 1 つの関数。** spec はすべての行に適用されるため、混在したファイルは分割してください。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:213
+#: manual/tutorial/frontend/testfloat_expr.md:211
 msgid "**The rounding argument is not optional.** `rem` and the comparisons ignore it, but `TestFloatSpec::parse` still needs a valid name such as `rnear_even`."
 msgstr "**丸めの引数は省略できません。** `rem` と比較関数はこれを無視しますが、それでも `TestFloatSpec::parse` には `rnear_even` のような有効な名前が必要です。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:216
+#: manual/tutorial/frontend/testfloat_expr.md:214
 msgid "**`rodd` is not supported.** Only the five IEEE directions are accepted."
 msgstr "**`rodd` はサポートされません。** 受け付けるのは IEEE の 5 つの方向だけです。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:217
+#: manual/tutorial/frontend/testfloat_expr.md:215
 msgid "**`exact` matters.** Vectors from `-exact` runs contain the inexact flag for `roundToInt` and integer conversions; parse them with `exact=true`."
 msgstr "**`exact` は重要です。** `-exact` で実行して得たベクトルには、`roundToInt` と整数変換について inexact フラグが含まれます。`exact=true` を指定して構文解析してください。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:222
+#: manual/tutorial/frontend/testfloat_expr.md:220
 msgid "[frontend/testfloat_expr API](../../api/frontend/testfloat_expr.md) for every item."
 msgstr "すべての項目については [frontend/testfloat_expr API](../../api/frontend/testfloat_expr.md)。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:224
+#: manual/tutorial/frontend/testfloat_expr.md:222
 msgid "[frontend/testfloat_expr design](../../design/frontend/testfloat_expr.md) for the exact pass rule."
 msgstr "正確な合格規則については [frontend/testfloat_expr 設計](../../design/frontend/testfloat_expr.md)。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:226
+#: manual/tutorial/frontend/testfloat_expr.md:224
 msgid "[cli/testfloat_expr_cli tutorial](../cli/testfloat_expr_cli.md) for running vector files from the command line."
 msgstr "コマンドラインからベクトルファイルを実行するには [cli/testfloat_expr_cli チュートリアル](../cli/testfloat_expr_cli.md)。"
 
-#: manual/tutorial/frontend/testfloat_expr.md:228
+#: manual/tutorial/frontend/testfloat_expr.md:226
 msgid "[bin_float conformance](../../conformance/bin_float.md) for the published TestFloat claim."
 msgstr "公開されている TestFloat に関する主張については [bin_float の適合性](../../conformance/bin_float.md)。"
 
@@ -24868,8 +25087,8 @@ msgstr "[ラッパー型](#wrap-the-model-in-a-frontend-type)"
 
 #: manual/tutorial/internal/conformance.md:22
 #: manual/tutorial/internal/runner_cli.md:22
-msgid "There is nothing to install: the package ships inside `Luna-Flow/floating`. Run its tests from the repository:"
-msgstr "インストールは不要です。このパッケージは `Luna-Flow/floating` に同梱されています。リポジトリでテストを実行します。"
+msgid "There is nothing to install: the package ships inside the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository). Run its tests from the repository:"
+msgstr "インストールは不要です。このパッケージはツールモジュール `Luna-Flow/floating-tools`（リポジトリの `tooling/` ディレクトリ）に含まれています。リポジトリからテストを実行します:"
 
 #: manual/tutorial/internal/conformance.md:29
 msgid "In a frontend package of the module, import it in `moon.pkg`:"
@@ -25107,83 +25326,87 @@ msgstr "モジュール内部で、ヘルパーとフロントエンドをイン
 msgid "A minimal runner (`run` receives the whole argument vector, program name first):"
 msgstr "最小限のランナー（`run` は引数ベクトル全体を受け取り、先頭はプログラム名です）："
 
-#: manual/tutorial/internal/runner_cli.md:102
+#: manual/tutorial/internal/runner_cli.md:100
+msgid "The runner is an ordinary function, so a test can check its exit status without a process:"
+msgstr "ランナーは通常の関数なので、テストはプロセスなしでその終了ステータスを確認できます:"
+
+#: manual/tutorial/internal/runner_cli.md:112
 msgid "Follow the exit-code convention"
 msgstr "終了コードの規約に従う"
 
-#: manual/tutorial/internal/runner_cli.md:104
+#: manual/tutorial/internal/runner_cli.md:114
 msgid "All runners in `cli/` use the same codes, which `tools/*.py` relies on:"
 msgstr "`cli/` のすべてのランナーは同じコードを使い、`tools/*.py` はそれに依存しています。"
 
-#: manual/tutorial/internal/runner_cli.md:108
+#: manual/tutorial/internal/runner_cli.md:118
 msgid "every executed case passed (and, in strict mode, nothing was unsupported)"
 msgstr "実行されたすべてのケースが合格した（strict モードではさらに、サポート外のものが何もなかった）"
 
-#: manual/tutorial/internal/runner_cli.md:109
+#: manual/tutorial/internal/runner_cli.md:119
 msgid "at least one case failed, or strict mode found unsupported cases (`gda-expr` also counts legacy rows)"
 msgstr "少なくとも 1 つのケースが失敗した、または strict モードでサポートされないケースが見つかった（`gda-expr` ではレガシー行も数える）"
 
-#: manual/tutorial/internal/runner_cli.md:110
+#: manual/tutorial/internal/runner_cli.md:120
 msgid "usage error, unreadable file, or parse diagnostic"
 msgstr "使用法エラー、読み取れないファイル、または構文解析の診断"
 
-#: manual/tutorial/internal/runner_cli.md:112
+#: manual/tutorial/internal/runner_cli.md:122
 msgid "Add a runner-specific option"
 msgstr "ランナー固有のオプションを追加する"
 
-#: manual/tutorial/internal/runner_cli.md:114
+#: manual/tutorial/internal/runner_cli.md:124
 msgid "`parse_common_options` leaves every argument it does not know in `remaining()`, in order. Parse your own options from that array and treat the rest as paths. Pass `allow_shard=false` if your runner cannot shard; the shard options then stay in `remaining()` and your parser should reject them as unknown."
 msgstr "`parse_common_options` は、認識しないすべての引数を順序どおりに `remaining()` に残します。その配列から独自のオプションを解析し、残りをパスとして扱ってください。ランナーがシャード分割できない場合は `allow_shard=false` を渡します。その場合シャードオプションは `remaining()` に残るので、パーサはそれらを未知のオプションとして拒否すべきです。"
 
-#: manual/tutorial/internal/runner_cli.md:120
+#: manual/tutorial/internal/runner_cli.md:130
 msgid "Keep output machine-readable"
 msgstr "出力を機械可読に保つ"
 
-#: manual/tutorial/internal/runner_cli.md:122
+#: manual/tutorial/internal/runner_cli.md:132
 msgid "Print exactly one JSON object per invocation when `--json` is given. Build it with `json_object` so the key order is the order you list, and use `json_int` for counts so they print as integers."
 msgstr "`--json` が指定された場合は、1 回の呼び出しにつきちょうど 1 つの JSON オブジェクトを出力します。キーの順序が列挙した順になるよう `json_object` で構築し、件数が整数として出力されるよう `json_int` を使ってください。"
 
-#: manual/tutorial/internal/runner_cli.md:128
+#: manual/tutorial/internal/runner_cli.md:138
 msgid "The four runners in `cli/` are complete examples: [gda_expr_cli](../cli/gda_expr_cli.md), [itl_expr_cli](../cli/itl_expr_cli.md), [mpfr_expr_cli](../cli/mpfr_expr_cli.md) and [testfloat_expr_cli](../cli/testfloat_expr_cli.md)."
 msgstr "`cli/` の 4 つのランナーが完全な例です：[gda_expr_cli](../cli/gda_expr_cli.md)、[itl_expr_cli](../cli/itl_expr_cli.md)、[mpfr_expr_cli](../cli/mpfr_expr_cli.md)、[testfloat_expr_cli](../cli/testfloat_expr_cli.md)。"
 
-#: manual/tutorial/internal/runner_cli.md:133
+#: manual/tutorial/internal/runner_cli.md:143
 msgid "Build the native dispatcher with `sh tools/run_moon_clean_exec.sh run --release --target native tooling/src/cli -- --help`."
 msgstr "native のディスパッチャは `sh tools/run_moon_clean_exec.sh run --release --target native tooling/src/cli -- --help` でビルドします。"
 
-#: manual/tutorial/internal/runner_cli.md:135
+#: manual/tutorial/internal/runner_cli.md:145
 msgid "Run the helper tests from a workspace that contains the module: `moon test -p Luna-Flow/floating-tools/internal/runner_cli`."
 msgstr "ヘルパーのテストは、モジュールを含むワークスペースから実行します：`moon test -p Luna-Flow/floating-tools/internal/runner_cli`。"
 
-#: manual/tutorial/internal/runner_cli.md:140
+#: manual/tutorial/internal/runner_cli.md:150
 msgid "**Program name.** `parse_common_options` skips `arguments[0]`. Pass the full vector, not a slice without the program name, or the first real argument is lost."
 msgstr "**プログラム名。** `parse_common_options` は `arguments[0]` を読み飛ばします。プログラム名を除いたスライスではなく完全なベクトルを渡してください。そうしないと最初の実引数が失われます。"
 
-#: manual/tutorial/internal/runner_cli.md:143
+#: manual/tutorial/internal/runner_cli.md:153
 msgid "**Directories are not searched recursively.** `collect_files` lists only the direct entries of a directory."
 msgstr "**ディレクトリは再帰的に探索されません。** `collect_files` はディレクトリの直下のエントリだけを列挙します。"
 
-#: manual/tutorial/internal/runner_cli.md:145
+#: manual/tutorial/internal/runner_cli.md:155
 msgid "**Named files must have the suffix.** A file argument without the suffix is an error (`not a SUFFIX file: P`), so a mistyped name cannot pass as an empty run."
 msgstr "**指定するファイルには接尾辞が必要。** 接尾辞のないファイル引数はエラー（`not a SUFFIX file: P`）になるため、打ち間違えた名前が空の実行として通ってしまうことはありません。"
 
-#: manual/tutorial/internal/runner_cli.md:148
+#: manual/tutorial/internal/runner_cli.md:158
 msgid "**Option values use MoonBit integer syntax.** `0x10` and `1_000` are accepted as 16 and 1000; an argument starting with `--` is never taken as a value, so `--shard-count --json` is a missing count."
 msgstr "**オプションの値は MoonBit の整数構文を使う。** `0x10` と `1_000` はそれぞれ 16 と 1000 として受け付けられます。`--` で始まる引数が値として扱われることはないので、`--shard-count --json` は個数が欠けているものとして扱われます。"
 
-#: manual/tutorial/internal/runner_cli.md:151
+#: manual/tutorial/internal/runner_cli.md:161
 msgid "**Native only in practice.** File access goes through `moonbitlang/x/fs`; the runners are built and run on the native target."
 msgstr "**実質的に native 専用。** ファイルアクセスは `moonbitlang/x/fs` を介して行われるため、ランナーは native ターゲットでビルド・実行されます。"
 
-#: manual/tutorial/internal/runner_cli.md:156
+#: manual/tutorial/internal/runner_cli.md:166
 msgid "[internal/runner_cli API](../../api/internal/runner_cli.md)"
 msgstr "[internal/runner_cli API](../../api/internal/runner_cli.md)"
 
-#: manual/tutorial/internal/runner_cli.md:157
+#: manual/tutorial/internal/runner_cli.md:167
 msgid "[internal/runner_cli design](../../design/internal/runner_cli.md)"
 msgstr "[internal/runner_cli 設計](../../design/internal/runner_cli.md)"
 
-#: manual/tutorial/internal/runner_cli.md:158
+#: manual/tutorial/internal/runner_cli.md:168
 msgid "[cli tutorial](../cli.md) for the dispatcher that calls the runners."
 msgstr "ランナーを呼び出すディスパッチャについては [cli チュートリアル](../cli.md)。"
 
@@ -25235,107 +25458,107 @@ msgstr "定義域エラーを値として保持する"
 msgid "[checked value types](#going-further)"
 msgstr "[checked な値型](#going-further)"
 
-#: manual/tutorial/numeric_expr.md:25
+#: manual/tutorial/numeric_expr.md:23
 msgid "Add the package to `moon.pkg`:"
 msgstr "`moon.pkg` にパッケージを追加します。"
 
-#: manual/tutorial/numeric_expr.md:33
+#: manual/tutorial/numeric_expr.md:31
 msgid "Build `1 + 2` and evaluate it over `Int`:"
 msgstr "`1 + 2` を構築し、`Int` 上で評価します。"
 
-#: manual/tutorial/numeric_expr.md:54
+#: manual/tutorial/numeric_expr.md:52
 msgid "`evaluate` decodes both literals, then calls the operation callback with the decoded arguments `[1, 2]`."
 msgstr "`evaluate` は両方のリテラルをデコードし、デコードされた引数 `[1, 2]` で演算コールバックを呼び出します。"
 
-#: manual/tutorial/numeric_expr.md:59
+#: manual/tutorial/numeric_expr.md:57
 msgid "Write a small interpreter"
 msgstr "小さなインタプリタを書く"
 
-#: manual/tutorial/numeric_expr.md:61
+#: manual/tutorial/numeric_expr.md:59
 msgid "Most callers match on the operation name and the argument array. Matching the array pattern also checks the arity, which `numeric_expr` itself does not do:"
 msgstr "多くの呼び出し側は、演算名と引数配列に対してパターンマッチします。配列パターンのマッチはアリティの検査も兼ねますが、`numeric_expr` 自身はこれを行いません。"
 
-#: manual/tutorial/numeric_expr.md:114
+#: manual/tutorial/numeric_expr.md:112
 msgid "`sum` shows that an operation may take any number of arguments; the callback decides."
 msgstr "`sum` は、演算が任意個の引数を取りうることを示しています。それを決めるのはコールバックです。"
 
-#: manual/tutorial/numeric_expr.md:117
+#: manual/tutorial/numeric_expr.md:115
 msgid "Evaluate over `BinFloat` and collect IEEE flags"
 msgstr "`BinFloat` 上で評価し、IEEE フラグを収集する"
 
-#: manual/tutorial/numeric_expr.md:119
+#: manual/tutorial/numeric_expr.md:117
 msgid "The value type `V` can carry more than a number. Here every value is a `BinFloat` together with the IEEE flags raised so far, and each operation merges the flags of its arguments with its own:"
 msgstr "値の型 `V` は数値以上のものを保持できます。ここでは各値が `BinFloat` とそれまでに発生した IEEE フラグの組であり、各演算は引数のフラグと自身のフラグを統合します。"
 
-#: manual/tutorial/numeric_expr.md:176
+#: manual/tutorial/numeric_expr.md:174
 msgid "The same tree could be evaluated over `@decimal_gda.Decimal` by swapping the two callbacks; nothing in the expression depends on the number type."
 msgstr "2 つのコールバックを差し替えるだけで、同じ木を `@decimal_gda.Decimal` 上で評価することもできます。式の中に数値型に依存する部分は何もありません。"
 
-#: manual/tutorial/numeric_expr.md:179
+#: manual/tutorial/numeric_expr.md:177
 msgid "Report errors at their source"
 msgstr "エラーをそのソース位置で報告する"
 
-#: manual/tutorial/numeric_expr.md:181
+#: manual/tutorial/numeric_expr.md:179
 msgid "Give every node the span of the text it came from. When a callback fails, the `EvalError` returns the failing node, so the span locates the error:"
 msgstr "各ノードに、それが由来するテキストのスパンを与えます。コールバックが失敗すると、`EvalError` は失敗したノードを返すので、スパンによってエラーの位置を特定できます。"
 
-#: manual/tutorial/numeric_expr.md:212
+#: manual/tutorial/numeric_expr.md:210
 msgid "See the evaluation order"
 msgstr "評価順序を確かめる"
 
-#: manual/tutorial/numeric_expr.md:214
+#: manual/tutorial/numeric_expr.md:212
 msgid "The callbacks run in post-order, left to right, and evaluation stops at the first failure. A trace makes this visible:"
 msgstr "コールバックは左から右への後行順で実行され、評価は最初の失敗で停止します。トレースを取るとこれがわかります。"
 
-#: manual/tutorial/numeric_expr.md:240
+#: manual/tutorial/numeric_expr.md:238
 msgid "The literal `1` and both `add` nodes are never visited, because `bad` fails first."
 msgstr "`bad` が先に失敗するため、リテラル `1` と 2 つの `add` ノードはいずれも訪問されません。"
 
-#: manual/tutorial/numeric_expr.md:245
+#: manual/tutorial/numeric_expr.md:243
 msgid "**Corpus frontends.** `frontend/gda_expr` lowers each `.decTest` row `id operation operands -> expected conditions` into `Expr::invoke(Operation::new(op), operands.map(Expr::literal))` and evaluates it with callbacks over `@decimal_gda`. Read [gda_expr](frontend/gda_expr.md) for a complete example of the pattern."
 msgstr "**コーパスのフロントエンド。** `frontend/gda_expr` は、`.decTest` の各行 `id operation operands -> expected conditions` を `Expr::invoke(Operation::new(op), operands.map(Expr::literal))` に変換し、`@decimal_gda` 上のコールバックで評価します。このパターンの完全な例については [gda_expr](frontend/gda_expr.md) を参照してください。"
 
-#: manual/tutorial/numeric_expr.md:250
+#: manual/tutorial/numeric_expr.md:248
 msgid "**Richer values.** `V` can be an enum when operations return different kinds of results (numbers, booleans, strings), as `gda_expr` does for `compare`, `class` and `isnan`."
 msgstr "**より豊かな値。** 演算が異なる種類の結果（数値、真偽値、文字列）を返す場合、`V` を列挙型にできます。`gda_expr` は `compare`、`class`、`isnan` についてそうしています。"
 
-#: manual/tutorial/numeric_expr.md:253
+#: manual/tutorial/numeric_expr.md:251
 msgid "**Typed errors.** `E` can be your own enum instead of `String`; `EvalError[E]` keeps it unchanged."
 msgstr "**型付きのエラー。** `E` は `String` の代わりに独自の列挙型にできます。`EvalError[E]` はそれをそのまま保持します。"
 
-#: manual/tutorial/numeric_expr.md:255
+#: manual/tutorial/numeric_expr.md:253
 msgid "**Checked pipelines.** If you want domain errors to stay values instead of stopping the evaluation, make `V` a checked type such as `@bin_float_checked.BinFloatResult` and let the callbacks always return `Ok`."
 msgstr "**checked なパイプライン。** ドメインエラーで評価を止めずに値として残したい場合は、`V` を `@bin_float_checked.BinFloatResult` のような checked 型にし、コールバックが常に `Ok` を返すようにします。"
 
-#: manual/tutorial/numeric_expr.md:261
+#: manual/tutorial/numeric_expr.md:259
 msgid "**No arity check.** `Expr::invoke` accepts any number of arguments. Check the arity in `invoke` (an array pattern does it) and return `Err` on a mismatch."
 msgstr "**アリティ検査はありません。** `Expr::invoke` は任意個の引数を受け付けます。`invoke` でアリティを検査し（配列パターンで検査できます）、一致しなければ `Err` を返してください。"
 
-#: manual/tutorial/numeric_expr.md:263
+#: manual/tutorial/numeric_expr.md:261
 msgid "**Early stop.** After the first failure no further callback runs. Do not rely on side effects of callbacks for nodes to the right of a failing node."
 msgstr "**早期停止。** 最初の失敗の後、それ以上コールバックは実行されません。失敗したノードより右にあるノードのコールバックの副作用に依存しないでください。"
 
-#: manual/tutorial/numeric_expr.md:265
+#: manual/tutorial/numeric_expr.md:263
 msgid "**Deep trees.** Evaluation is recursive; the stack depth equals the tree height. Very deep left-leaning trees (for example a sum of a million terms built as nested `add`) can exhaust the stack; build a flat `sum` node instead."
 msgstr "**深い木。** 評価は再帰的で、スタックの深さは木の高さに等しくなります。非常に深い左偏りの木（例えば入れ子の `add` で構築した 100 万項の和）はスタックを使い果たす可能性があります。代わりに平坦な `sum` ノードを構築してください。"
 
-#: manual/tutorial/numeric_expr.md:268
+#: manual/tutorial/numeric_expr.md:266
 msgid "**Default spans.** Without an explicit span a node reports `SourceSpan::new(\"\")`, whose line and column are `0`."
 msgstr "**既定のスパン。** 明示的なスパンがない場合、ノードは `SourceSpan::new(\"\")` を報告し、その行と列は `0` です。"
 
-#: manual/tutorial/numeric_expr.md:270
+#: manual/tutorial/numeric_expr.md:268
 msgid "**No literal parsing here.** A `Literal` stores raw text. Rounding, precision and flags of the conversion are decided entirely by your `decode` callback."
 msgstr "**ここではリテラルを解析しません。** `Literal` は生のテキストを保持します。変換の丸め、精度、フラグはすべて `decode` コールバックが決定します。"
 
-#: manual/tutorial/numeric_expr.md:275
+#: manual/tutorial/numeric_expr.md:273
 msgid "[numeric_expr API](../api/numeric_expr.md) lists every item."
 msgstr "[numeric_expr API](../api/numeric_expr.md) はすべての項目を列挙しています。"
 
-#: manual/tutorial/numeric_expr.md:276
+#: manual/tutorial/numeric_expr.md:274
 msgid "[numeric_expr design](../design/numeric_expr.md) states the evaluation semantics and its invariants."
 msgstr "[numeric_expr 設計](../design/numeric_expr.md) は評価の意味論とその不変条件を述べています。"
 
-#: manual/tutorial/numeric_expr.md:278
+#: manual/tutorial/numeric_expr.md:276
 msgid "[gda_expr tutorial](frontend/gda_expr.md) runs real decimal test rows through this package."
 msgstr "[gda_expr チュートリアル](frontend/gda_expr.md) は、このパッケージを通して実際の 10 進テスト行を実行します。"
 
@@ -26600,6 +26823,36 @@ msgstr "公開 API を絞ると、条項から API への対応が変わるこ�
 #: manual/verification.md:707
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体のロードマップは [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "To use the reduction functions in your own module, add the library and import the package in `moon.pkg`:"
+#~ msgstr "自分のモジュールで集約関数を使うには、ライブラリを追加し、`moon.pkg` でパッケージをインポートします。"
+
+#~ msgid "Call the dispatcher"
+#~ msgstr "ディスパッチャーを呼び出す"
+
+#~ msgid "The runner is also a library. After `moon add Luna-Flow/floating@0.10.2`, import it and pass the argument vector, program name first:"
+#~ msgstr "ランナーはライブラリでもあります。`moon add Luna-Flow/floating@0.10.2` の後、インポートして引数ベクタ（先頭はプログラム名）を渡します。"
+
+#~ msgid "After `moon add Luna-Flow/floating@0.10.2`, import `\"Luna-Flow/floating-tools/cli/itl_expr_cli\"` in `moon.pkg` and call `run` with the argument vector, program name first:"
+#~ msgstr "`moon add Luna-Flow/floating@0.10.2` の後、`moon.pkg` で `\"Luna-Flow/floating-tools/cli/itl_expr_cli\"` をインポートし、引数ベクタ（先頭はプログラム名）を渡して `run` を呼び出します。"
+
+#~ msgid "After `moon add Luna-Flow/floating@0.10.2`, import `\"Luna-Flow/floating-tools/cli/mpfr_expr_cli\"` in `moon.pkg` and call `run`:"
+#~ msgstr "`moon add Luna-Flow/floating@0.10.2` の後、`moon.pkg` で `\"Luna-Flow/floating-tools/cli/mpfr_expr_cli\"` をインポートし、`run` を呼び出します。"
+
+#~ msgid "After `moon add Luna-Flow/floating@0.10.2`, import `\"Luna-Flow/floating-tools/cli/testfloat_expr_cli\"` in `moon.pkg` and call `run` with the same arguments:"
+#~ msgstr "`moon add Luna-Flow/floating@0.10.2` の後、`moon.pkg` で `\"Luna-Flow/floating-tools/cli/testfloat_expr_cli\"` をインポートし、同じ引数で `run` を呼び出します。"
+
+#~ msgid "The harness is run through the `just random-diff` tooling; this page only says where its code lives."
+#~ msgstr "ハーネスは `just random-diff` ツールから実行されます。このページでは、そのコードがどこにあるかだけを説明します。"
+
+#~ msgid "Where the code is"
+#~ msgstr "コードの場所"
+
+#~ msgid "The files `batch.mbt` (corpus splitting and batch execution) and `harness.mbt` (options, experiment specification and `run`) live in `tooling/src/differential/harness`, with their white-box tests in `differential_wbtest.mbt`. Test them with:"
+#~ msgstr "ファイル `batch.mbt`（コーパスの分割とバッチの実行）と `harness.mbt`（オプション、実験仕様、`run`）は `tooling/src/differential/harness` にあり、そのホワイトボックステストは `differential_wbtest.mbt` にあります。次のコマンドでテストします："
+
+#~ msgid "Add the library to your module and import the package in `moon.pkg`:"
+#~ msgstr "ライブラリをモジュールに追加し、`moon.pkg` でパッケージをインポートします。"
 
 #~ msgid "The rows with an exponent of zero in a clamped context are not registered: the library folds `x ** 0` down while decNumber and libmpdec do not, and the library does not fold `1 ** n`, so its own two paths disagree (issue 405)."
 #~ msgstr "clamp のある文脈で指数がゼロの行は登録されていません。本ライブラリは `x ** 0` を折り畳みますが、decNumber と libmpdec は折り畳まず、本ライブラリは `1 ** n` を折り畳まないので、自身の二つの経路が互いに矛盾しています（issue 405）。"
@@ -28035,9 +28288,6 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体の
 #~ msgid "**`round_shift` with $s \\le 0$** returns the input unchanged; it never shifts left."
 #~ msgstr "**$s \\le 0$ のときの `round_shift`** は入力をそのまま返します。左シフトは決して行いません。"
 
-#~ msgid "Inside the module, import the package in the frontend's `moon.pkg`:"
-#~ msgstr "モジュール内部で、フロントエンドの `moon.pkg` にこのパッケージをインポートします。"
-
 #~ msgid "These functions convert any Luna-Flow integer type."
 #~ msgstr "これらの関数は Luna-Flow の任意の整数型を変換します。"
 
@@ -28166,9 +28416,6 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体の
 
 #~ msgid "The package is maintained as repository infrastructure. Generated declarations may change with the runners and do not promise downstream compatibility."
 #~ msgstr "repository infrastructure として保守されます。生成宣言は runner とともに変更され得るため、downstream compatibility は保証しません。"
-
-#~ msgid "Quick Start"
-#~ msgstr "クイックスタート"
 
 #~ msgid "Use `MAREMARK_JSONL` as the versioned raw artifact, `MAREMARK_HOTSPOT` for paired layer overhead, and `MAREMARK_TUNE` / `MAREMARK_CROSSOVER` for confirmed tuning decisions. Normal tests compile plans but skip timing."
 #~ msgstr "`MAREMARK_JSONL` は versioned raw artifact、`MAREMARK_HOTSPOT` はペア化したレイヤー overhead、`MAREMARK_TUNE` / `MAREMARK_CROSSOVER` は確認済み tuning decision です。通常テストは plan だけを compile して timing を skip します。"

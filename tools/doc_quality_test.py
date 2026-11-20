@@ -134,6 +134,29 @@ class DocumentationQualityTests(unittest.TestCase):
                 ["tooling/src/main: a main package must not hold .mbt.md files"],
             )
 
+    def test_the_tooling_standard_flags_missing_sections_items_and_examples(self) -> None:
+        api = "# p API\n\n## Purpose\n\n## Importing\n\n### `run`\n\n## Complete public interface\n"
+        tutorial = (
+            "# p tutorial\n\n| I want to | Use |\n| --- | --- |\n\n## Quick start\n\n```moonbit\nlet a = 1\n```\n\n"
+            "## Everyday tasks\n\n## Going further\n\n## Common pitfalls\n\n## Next steps\n"
+        )
+        design = "# p design\n\n" + "".join(f"## {t}\n\n" for t in doc_quality.TOOLING_DESIGN_HEADINGS)
+        mbti = "pub fn run(Array[String]) -> Int32\npub fn Counter::total(Self) -> Int32\n"
+        errors = doc_quality.tooling_standard_errors("p", api, tutorial, design, mbti)
+        self.assertEqual(errors, ["doc/manual/api/p.md: public items without a heading: total"])
+        thin_tutorial = "# p tutorial\n\n## Quick start\n\n```moonbit nocheck\nlet a = 1\n```\n"
+        errors = doc_quality.tooling_standard_errors("p", api.replace("### `run`", "### `run`, `total`"), thin_tutorial, "# d\n", mbti)
+        self.assertIn("doc/manual/tutorial/p.md: missing the | I want to | Use | table", errors)
+        self.assertIn("doc/manual/tutorial/p.md: missing section Going further", errors)
+        self.assertIn("doc/manual/tutorial/p.md: no example that compiles", errors)
+        self.assertIn("doc/manual/design/p.md: missing section Alternatives rejected", errors)
+        self.assertEqual(doc_quality.mbti_items(mbti), ["run", "total"])
+        # An asynchronous package is exempt from the compiled example.
+        self.assertNotIn(
+            "doc/manual/tutorial/differential/harness.md: no example that compiles",
+            doc_quality.tooling_standard_errors("differential/harness", api.replace("### `run`", "### `run`, `total`"), thin_tutorial, design, mbti),
+        )
+
     def test_orphan_pages_need_a_moon_package(self) -> None:
         with patch.object(doc_quality, "package_paths", return_value={"example"}):
             with tempfile.TemporaryDirectory() as directory, ExitStack() as stack:

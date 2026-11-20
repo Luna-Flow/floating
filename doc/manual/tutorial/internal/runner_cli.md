@@ -19,7 +19,7 @@ are not compiled by the manual checker.
 
 ## Quick start
 
-There is nothing to install: the package ships inside `Luna-Flow/floating`.
+There is nothing to install: the package ships inside the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository).
 Run its tests from the repository:
 
 ```bash
@@ -38,7 +38,7 @@ import {
 A minimal runner (`run` receives the whole argument vector, program name
 first):
 
-```moonbit nocheck
+```moonbit
 ///|
 pub fn run(arguments : Array[String]) -> Int {
   let common = match @runner_cli.parse_common_options(arguments) {
@@ -94,6 +94,16 @@ pub fn run(arguments : Array[String]) -> Int {
     )
   }
   if summary.success() { 0 } else { 1 }
+}
+```
+
+The runner is an ordinary function, so a test can check its exit status without a
+process:
+
+```moonbit
+///|
+test "the minimal runner rejects a file that is not a decTest file" {
+  inspect(run(["runner", "moon.mod"]), content="2")
 }
 ```
 

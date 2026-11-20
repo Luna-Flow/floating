@@ -39,8 +39,7 @@ The exit status is `0` when no executable row failed.
 
 ### From MoonBit code
 
-The runner is also a library. After `moon add Luna-Flow/floating@0.10.2`,
-import it and pass the argument vector, program name first:
+The runner is also a library. The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`. Import it and pass the argument vector, program name first:
 
 ```moonbit nocheck
 import {
@@ -48,9 +47,19 @@ import {
 }
 ```
 
-```moonbit nocheck
-let status = @gda_expr_cli.run(["gda", "--json", "path/to/add.decTest"])
+```moonbit
+///|
+test "run the GDA runner from MoonBit code" {
+  let status = @gda_expr_cli.run([
+    "gda", "--json", "../testdata/decimal_gda/smoke.decTest",
+  ])
+  inspect(status, content="0")
+  // A file that is not a `.decTest` file is a usage error.
+  inspect(@gda_expr_cli.run(["gda", "moon.mod"]), content="2")
+}
 ```
+
+`just docs` runs the tests of this page in the module directory `tooling/`, so the corpus paths start with `../testdata`; use your own paths in your code.
 
 `run` prints the same output as the executable and returns the exit status
 instead of exiting.

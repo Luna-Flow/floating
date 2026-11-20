@@ -49,9 +49,15 @@ FLOATING_PACKAGES = (
     "semantic",
 )
 TOOLS_PACKAGES = ("bench", "numeric_expr")
+# Packages whose alias is not the last component of a path directly below the module.
+TOOLS_PATH_ALIASES = {
+    "conformance": "internal/conformance",
+    "runner_cli": "internal/runner_cli",
+    "dispatch": "cli/dispatch",
+}
 FRONTEND_PACKAGES = ("gda_expr", "itl_expr", "mpfr_expr", "testfloat_expr")
 CLI_PACKAGES = ("gda_expr_cli", "itl_expr_cli", "mpfr_expr_cli", "testfloat_expr_cli")
-TOOLS_ALIASES = frozenset((*TOOLS_PACKAGES, *FRONTEND_PACKAGES, *CLI_PACKAGES))
+TOOLS_ALIASES = frozenset((*TOOLS_PACKAGES, *FRONTEND_PACKAGES, *CLI_PACKAGES, *TOOLS_PATH_ALIASES))
 
 
 def generated_root(page: "Page") -> Path:
@@ -76,6 +82,8 @@ def alias_map() -> dict[str, str]:
         aliases[name] = f"Luna-Flow/floating/{name}"
     for name in TOOLS_PACKAGES:
         aliases[name] = f"Luna-Flow/floating-tools/{name}"
+    for name, path in TOOLS_PATH_ALIASES.items():
+        aliases[name] = f"Luna-Flow/floating-tools/{path}"
     for name in FRONTEND_PACKAGES:
         aliases[name] = f"Luna-Flow/floating-tools/frontend/{name}"
     for name in CLI_PACKAGES:

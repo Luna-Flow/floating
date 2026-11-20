@@ -30,13 +30,19 @@ JSON object such as
 
 ### From MoonBit code
 
-After `moon add Luna-Flow/floating@0.10.2`, import
+The runner is also a library. The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`. Import
 `"Luna-Flow/floating-tools/cli/itl_expr_cli"` in `moon.pkg` and call `run` with the
 argument vector, program name first:
 
-```moonbit nocheck
-let status = @itl_expr_cli.run(["itl", "--operation", "add", "cases.itl"])
+```moonbit
+///|
+test "run the ITL runner from MoonBit code" {
+  let status = @itl_expr_cli.run(["itl", "../testdata/interval/smoke.itl"])
+  inspect(status, content="0")
+}
 ```
+
+`just docs` runs the tests of this page in the module directory `tooling/`, so the corpus paths start with `../testdata`; use your own paths in your code.
 
 ## Everyday tasks
 

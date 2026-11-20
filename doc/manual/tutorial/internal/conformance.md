@@ -19,7 +19,7 @@ the manual checker.
 
 ## Quick start
 
-There is nothing to install: the package ships inside `Luna-Flow/floating`.
+There is nothing to install: the package ships inside the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository).
 Run its tests from the repository:
 
 ```bash
@@ -36,7 +36,7 @@ import {
 
 Record one result per case and summarize:
 
-```moonbit nocheck
+```moonbit
 ///|
 test "summarize a run" {
   let results = [

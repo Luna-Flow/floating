@@ -44,6 +44,19 @@ contextual traits) and `Luna-Flow/luna-generic` (algebraic traits); add
 `Luna-Flow/arithmetic` yourself when you name its types.
 [Getting started](getting_started.md) walks through the first program.
 
+## Modules
+
+The repository is a workspace of two modules. `Luna-Flow/floating` (directory
+`library/`) is the library: the numerical cores, the checked wrappers, `def`,
+`semantic`, `consistency` and the `internal` helpers. `Luna-Flow/floating-tools`
+(directory `tooling/`, versioned with the library) holds the developer tools:
+expressions and corpus frontends, the conformance command line, the
+differential harness, the benchmarks and the documentation examples. The
+sections below say which module a package belongs to; their package names are
+import paths below the module name, so `bin_float` is
+`Luna-Flow/floating/bin_float` and `frontend/gda_expr` is
+`Luna-Flow/floating-tools/frontend/gda_expr`.
+
 ## Pages
 
 Each documented package has a tutorial (how to use it), an API reference
@@ -71,7 +84,7 @@ verified, and how) and a performance page (measurements and their method).
 | `ball_float_checked`: interval pipelines that stop at the first error | [tutorial](tutorial/ball_float_checked.md) | [API](api/ball_float_checked.md) | [design](design/ball_float_checked.md) |
 | `semantic`: exact, representation-independent projection for comparisons across packages | [tutorial](tutorial/semantic.md) | [API](api/semantic.md) | [design](design/semantic.md) |
 
-### Expressions and corpus frontends
+### Tools module: expressions and corpus frontends
 
 | Part | Tutorial | API | Design |
 | --- | --- | --- | --- |
@@ -81,26 +94,33 @@ verified, and how) and a performance page (measurements and their method).
 | `frontend/mpfr_expr`: parse and execute pinned MPFR witnesses | [tutorial](tutorial/frontend/mpfr_expr.md) | [API](api/frontend/mpfr_expr.md) | [design](design/frontend/mpfr_expr.md) |
 | `frontend/testfloat_expr`: parse and execute Berkeley TestFloat vectors | [tutorial](tutorial/frontend/testfloat_expr.md) | [API](api/frontend/testfloat_expr.md) | [design](design/frontend/testfloat_expr.md) |
 
-### Conformance command line
+### Tools module: conformance command line
 
 | Part | Tutorial | API | Design |
 | --- | --- | --- | --- |
 | `cli`: native dispatcher for the four conformance backends | [tutorial](tutorial/cli.md) | [API](api/cli.md) | [design](design/cli.md) |
+| `cli/dispatch`: the argument scanning and exit code of `cli`, as a library | [tutorial](tutorial/cli/dispatch.md) | [API](api/cli/dispatch.md) | [design](design/cli/dispatch.md) |
 | `cli/gda_expr_cli`: file and output adapter for `.decTest` runs | [tutorial](tutorial/cli/gda_expr_cli.md) | [API](api/cli/gda_expr_cli.md) | [design](design/cli/gda_expr_cli.md) |
 | `cli/itl_expr_cli`: file and JSON adapter for ITF1788 runs | [tutorial](tutorial/cli/itl_expr_cli.md) | [API](api/cli/itl_expr_cli.md) | [design](design/cli/itl_expr_cli.md) |
 | `cli/mpfr_expr_cli`: command adapter for MPFR witness runs | [tutorial](tutorial/cli/mpfr_expr_cli.md) | [API](api/cli/mpfr_expr_cli.md) | [design](design/cli/mpfr_expr_cli.md) |
 | `differential`: seeded random differential harness against MPFR and libmpdec | [tutorial](tutorial/differential.md) | [API](api/differential.md) | [design](design/differential.md) |
+| `differential/harness`: the batches, specification and `run` of `differential`, as a library | [tutorial](tutorial/differential/harness.md) | [API](api/differential/harness.md) | [design](design/differential/harness.md) |
 | `cli/testfloat_expr_cli`: command adapter for TestFloat runs | [tutorial](tutorial/cli/testfloat_expr_cli.md) | [API](api/cli/testfloat_expr_cli.md) | [design](design/cli/testfloat_expr_cli.md) |
 
-### Infrastructure and evidence
+### Library infrastructure
 
 | Part | Tutorial | API | Design |
 | --- | --- | --- | --- |
 | `internal`: exact rationals, big-integer, parsing, normalization and rounding helpers | [tutorial](tutorial/internal.md) | [API](api/internal.md) | [design](design/internal.md) |
-| `internal/conformance`: source locations, deterministic shards, case dispositions and summaries | [tutorial](tutorial/internal/conformance.md) | [API](api/internal/conformance.md) | [design](design/internal/conformance.md) |
 | `internal/decimal_kernel`: exact integer arithmetic on decimal coefficients, shared by `decimal` and `decimal_gda` | [tutorial](tutorial/internal/decimal_kernel.md) | [API](api/internal/decimal_kernel.md) | [design](design/internal/decimal_kernel.md) |
-| `internal/runner_cli`: shared command-line options, files, diagnostics and JSON | [tutorial](tutorial/internal/runner_cli.md) | [API](api/internal/runner_cli.md) | [design](design/internal/runner_cli.md) |
 | `consistency`: white-box cross-package laws and API audits | [tutorial](tutorial/consistency.md) | [API](api/consistency.md) | [design](design/consistency.md) |
+
+### Tools module: infrastructure and evidence
+
+| Part | Tutorial | API | Design |
+| --- | --- | --- | --- |
+| `internal/conformance`: source locations, deterministic shards, case dispositions and summaries | [tutorial](tutorial/internal/conformance.md) | [API](api/internal/conformance.md) | [design](design/internal/conformance.md) |
+| `internal/runner_cli`: shared command-line options, files, diagnostics and JSON | [tutorial](tutorial/internal/runner_cli.md) | [API](api/internal/runner_cli.md) | [design](design/internal/runner_cli.md) |
 | `doc_examples`: executable documentation examples run by `just docs` | [tutorial](tutorial/doc_examples.md) | [API](api/doc_examples.md) | [design](design/doc_examples.md) |
 | `bench`: shared Maremark benchmark infrastructure | [tutorial](tutorial/bench.md) | [API](api/bench.md) | [design](design/bench.md) |
 | `bench/bin_float`: binary arithmetic and elementary-function benchmarks | [tutorial](tutorial/bench/bin_float.md) | [API](api/bench/bin_float.md) | [design](design/bench/bin_float.md) |

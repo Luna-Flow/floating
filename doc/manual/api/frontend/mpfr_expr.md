@@ -393,7 +393,11 @@ NaN. A row passes only when the result has the expected value *and* cohort
 (`compare_total` equal, so `1.0` and `1.00` differ) and the flags agree. The row
 id is the first field of the row.
 
-### `MpfrDecimalRandomDocument`
+### `MpfrDecimalRandomDocument`, `MpfrDecimalRandomDocument::source`, `MpfrDecimalRandomDocument::case_count`, `MpfrDecimalRandomDocument::case_ids`
+
+`MpfrDecimalRandomDocument` is a parsed `mpfr-decimal-random-v1` corpus (IEEE
+`decimal` elementary functions against MPFR); `source` is the label it was
+parsed from, `case_count` the number of rows and `case_ids` their ids in order.
 
 ```mbti
 pub struct MpfrDecimalRandomDocument {
@@ -404,11 +408,14 @@ pub fn MpfrDecimalRandomDocument::case_count(Self) -> Int32
 pub fn MpfrDecimalRandomDocument::case_ids(Self) -> Array[String]
 ```
 
-### `MpfrRandomDocument`
+### `MpfrRandomDocument`, `MpfrRandomDocument::source`, `MpfrRandomDocument::case_count`, `MpfrRandomDocument::case_ids`
+
+`MpfrRandomDocument` is a parsed `mpfr-random-v1` corpus (binary operations
+against MPFR) with the same three accessors.
 
 ```mbti
 pub fn MpfrRandomDocument::source(Self) -> String
-pub fn MpfrRandomDocument::case_count(Self) -> Int
+pub fn MpfrRandomDocument::case_count(Self) -> Int32
 pub fn MpfrRandomDocument::case_ids(Self) -> Array[String]
 ```
 

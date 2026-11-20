@@ -16,11 +16,9 @@ for whole files is [`cli/itl_expr_cli`](../cli/itl_expr_cli.md).
 
 ## Quick start
 
-Add the library to your module and import the package in `moon.pkg`:
+The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`.
 
-```bash
-moon add Luna-Flow/floating@0.10.2
-```
+Import the package in `moon.pkg`:
 
 ```moonbit nocheck
 import {
