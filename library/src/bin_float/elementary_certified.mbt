@@ -5542,14 +5542,24 @@ fn binary_reduced_trigonometric_bounds(
   }
   // The widening must not cross a bound that the true value sits on, or within
   // the directed-rounding unit of at every work precision: a widened end across
-  // such a bound can never be certified (the cosine of a tiny argument is
-  // `1 - x^2/2`, closer to 1 than any work precision resolves, and the
-  // enclosure `[.., 1 + h]` then straddles the breakpoint above 1 for ever,
-  // which in a directed mode never rounds to one value). A bound that the true
-  // value is strictly inside of is crossed harmlessly, refinement shrinks `h`.
-  // The range bounds of both functions are `-1` and `1`; the sine of an interval
-  // with ends of one sign has that sign, so its enclosure stops at 0 (`sin x` has
-  // the sign of `x` for `|x| <= 1`). A point interval is not widened.
+  // such a bound can never be certified, while one across a bound the true value
+  // is strictly inside of is harmless, refinement shrinks `h`. The mechanism: the
+  // target rounding (`binary_certified_inexact_target_rounding`) knows the result
+  // of these functions at a nonzero reduced argument is inexact, so it treats the
+  // true value as never equal to an end and moves an end that may be a rounding
+  // breakpoint of the target format (a value of at most `precision + 1` bits, 1
+  // among them) strictly inside (`binary_inexact_inner_endpoint`). The cosine of
+  // a tiny argument is `1 - x^2/2`, closer to 1 than any work precision resolves:
+  // the capped enclosure `[1 - d, 1]` becomes `[1 - d, 1 - tiny]` and rounds to
+  // one value in every direction, while `[1 - d, 1 + h]` keeps an end that is not
+  // a breakpoint (it has about the work precision in bits) and rounds to 1 on one
+  // side and to the number below on the other for ever. (An end at exactly 0 is
+  // not moved; for a sine of one sign the clamp below can only produce it where
+  // the true value, at least `l` or at most `u`, is strictly inside and
+  // refinement converges.) The range bounds of both functions are `-1` and `1`;
+  // the sine of an interval with ends of one sign has that sign (`sin x` has the
+  // sign of `x` for `|x| <= 1`), so its enclosure stops at 0. A point interval is
+  // not widened.
   let one = BinFloat::one_raw(precision=work_precision)
   let clamp_range = fn(bounds : (BinFloat, BinFloat)) -> (BinFloat, BinFloat) {
     (
