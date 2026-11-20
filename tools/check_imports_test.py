@@ -36,6 +36,39 @@ def write_library(root: Path, manifest_imports: tuple[str, ...], package_imports
     write_pkg(root / "library" / "src", "bin_float", f"import {{\n{body}}}\n")
 
 
+def write_mbti(src: Path, directory: str, text: str) -> None:
+    path = src / directory / "pkg.generated.mbti"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text, encoding="utf-8")
+
+
+class InterfaceViolationsTests(unittest.TestCase):
+    NEWTYPE = "pub(all) struct BinCoeff(@bin_kernel.Coeff)\n"
+
+    def test_the_binary_coefficient_definition_is_the_one_allowed_mention(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            src = Path(tmp)
+            write_mbti(src, "bin_float", "package \"x\"\n\n" + self.NEWTYPE + "pub fn BinCoeff::one() -> Self\n")
+            write_mbti(src, "internal/bin_kernel", "pub fn f(Coeff) -> Coeff\n")
+            self.assertEqual(check_imports.interface_violations(src), [])
+
+    def test_a_public_function_taking_the_kernel_type_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            src = Path(tmp)
+            write_mbti(src, "bin_float", self.NEWTYPE + "pub fn take(@bin_kernel.Coeff) -> Int32\n")
+            self.assertEqual(
+                check_imports.interface_violations(src),
+                ["library/src/bin_float/pkg.generated.mbti:2 names an internal type: pub fn take(@bin_kernel.Coeff) -> Int32"],
+            )
+
+    def test_the_definition_in_another_package_or_another_internal_type_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            src = Path(tmp)
+            write_mbti(src, "ball_float", self.NEWTYPE)
+            write_mbti(src, "decimal", "pub fn g() -> @decimal_kernel.DecCoeff\n")
+            self.assertEqual(len(check_imports.interface_violations(src)), 2)
+
+
 class ModuleViolationsTests(unittest.TestCase):
     def test_library_with_its_two_dependencies_passes(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
