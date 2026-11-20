@@ -137,6 +137,49 @@ pub fn Decimal::from_float(x : Float, precision~ : Int32 = 34) -> Decimal {
 }
 
 ///|
+/// The conversion of a finite non-zero `value` whose adjusted exponent puts it
+/// certainly outside the binary implementation range, decided in `Int64`
+/// before any power is formed (#447): above `2^(e_max + 2)` it overflows, below
+/// `2^(e_min - precision - 4)` it underflows, each as the rounding direction
+/// says. `None` for every other value. `10^a >= 2^(3.32 a)` and
+/// `10^(a + 1) <= 2^(3.33 (a + 1))`, so the cut-offs below keep a margin.
+fn decimal_to_bin_float_out_of_range(
+  value : Decimal,
+  precision : Int32,
+  mode : RoundingMode,
+) -> @bin_float.BinFloat? {
+  let adjusted = adjusted_exponent64(value)
+  let e_max = @bin_float.binary_implementation_e_max.to_int64()
+  let e_min = @bin_float.binary_implementation_e_min.to_int64()
+  let above = (e_max + 2L) * 30103L / 100000L + 2L
+  let below = (e_min - precision.to_int64() - 4L) * 30103L / 100000L - 3L
+  let negative = value.negative
+  if adjusted > above {
+    Some(
+      @bin_float.BinFloat::make(
+        @bin_float.BinCoeff::one(),
+        e_max.to_int() + 4,
+        precision,
+        negative~,
+        mode~,
+      ),
+    )
+  } else if adjusted + 1L < below {
+    Some(
+      @bin_float.BinFloat::make(
+        @bin_float.BinCoeff::one(),
+        e_min.to_int() - precision - 8,
+        precision,
+        negative~,
+        mode~,
+      ),
+    )
+  } else {
+    None
+  }
+}
+
+///|
 pub fn Decimal::to_bin_float(
   self : Decimal,
   precision~ : Int32 = self.precision_,
@@ -148,6 +191,10 @@ pub fn Decimal::to_bin_float(
     FpClass::Finite => {
       if self.coefficient.is_zero() {
         return @bin_float.BinFloat::zero(precision~)
+      }
+      match decimal_to_bin_float_out_of_range(self, precision, mode) {
+        Some(result) => return result
+        None => ()
       }
       if self.exponent10 >= 0 {
         let magnitude = coeff_bigint(self.coefficient) * pow5(self.exponent10)
