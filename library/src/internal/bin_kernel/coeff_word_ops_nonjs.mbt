@@ -32,14 +32,10 @@ pub fn binary_fast_mul_high(left : UInt64, right : UInt64) -> UInt64 {
   let left_high = left >> 32
   let right_low = right & bin_coeff_limb_mask
   let right_high = right >> 32
-  let low_low = left_low * right_low
-  let high_low = left_high * right_low
-  let low_high = left_low * right_high
-  let high_high = left_high * right_high
-  let middle = (low_low >> 32) +
-    (high_low & bin_coeff_limb_mask) +
-    (low_high & bin_coeff_limb_mask)
-  high_high + (high_low >> 32) + (low_high >> 32) + (middle >> 32)
+  let cross = left_high * right_low + ((left_low * right_low) >> 32)
+  left_high * right_high +
+  (cross >> 32) +
+  ((left_low * right_high + (cross & bin_coeff_limb_mask)) >> 32)
 }
 
 ///|
