@@ -119,20 +119,25 @@ pub fn Decimal::is_signed(Self) -> Bool
 predicate: they return the stored sign bit, so they are `true` for $-0$, for
 $-\infty$ and for a negative NaN.
 
-### `Decimal::classify`, `class_name`
+### `Decimal::classify`, `class_of`, `class_name`
 
-`classify` returns the coarse class of a value; `class_name` returns the
+`classify` returns the coarse class of a value; `class_of` returns the ten-valued
+class of IEEE 754-2019 clause 5.7.2 under a context; `class_name` returns the
 General Decimal Arithmetic class string under a context.
 
 ```mbti
 pub fn Decimal::classify(Self) -> @arithmetic.FpClass
+pub fn Decimal::class_of(Self, DecimalContext) -> @def.IeeeClass
 pub fn Decimal::class_name(Self, DecimalContext) -> String
 ```
 
 `classify` returns `Finite`, `Infinity` or `NaN`. `class_name` returns one of
 `"sNaN"`, `"NaN"`, `"-Infinity"`, `"+Infinity"`, `"-Zero"`, `"+Zero"`,
 `"-Subnormal"`, `"+Subnormal"`, `"-Normal"` or `"+Normal"`; the
-normal/subnormal split uses the context's $e_{\min}$.
+normal/subnormal split uses the context's $e_{\min}$. `class_of` makes the
+same split and returns the matching [`IeeeClass`](def.md#ieeeclass); `class_name`
+is its text (`SignalingNaN` is `"sNaN"`, `QuietNaN` is `"NaN"`, `PositiveZero` is
+`"+Zero"`, and so on).
 
 ### `Decimal::is_finite`, `is_infinite`, `is_nan`, `is_zero`, `is_negative_zero`, `is_quiet_nan`, `is_qnan`, `is_signaling_nan`, `is_snan`, `is_canonical`, `is_normal`, `is_subnormal`
 
@@ -2365,6 +2370,7 @@ pub fn Decimal::atanpi_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::clamp(Self, min~ : Self, max~ : Self) -> Self
 pub fn Decimal::clamp_checked(Self, min~ : Self, max~ : Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::class_name(Self, DecimalContext) -> String
+pub fn Decimal::class_of(Self, DecimalContext) -> @def.IeeeClass
 pub fn Decimal::classify(Self) -> @arithmetic.FpClass
 pub fn Decimal::classify_contextual(Self) -> @arithmetic.FpClass
 pub fn Decimal::coefficient(Self) -> @bigint.BigInt

@@ -533,6 +533,23 @@ $\operatorname{tanpi}(n)$ has the sign of
 $\operatorname{sinpi}(n)/\operatorname{cospi}(n)$, and $(-0)^y$ and
 $(-\infty)^y$ are negative exactly for an odd integral $y$.
 
+### Classes of a value
+
+IEEE 754-2019 clause 5.7.2 defines `class(x)` with ten values, which the
+`def` package spells as `IeeeClass`. Zeros, infinities and NaNs are read from
+the stored class and sign (a signaling NaN is the flag the value keeps). The
+normal/subnormal split is the one rule of clause 3.4: a nonzero finite $x$ is
+normal when $2^{e_{\min}} \le |x|$, that is when the exponent of its leading
+bit is at least $e_{\min}$, and subnormal otherwise. A `BinFloat` stores no
+$e_{\min}$ (it has only a precision), so `class_of`, `is_normal` and
+`is_subnormal` take the `BinaryContext`, the same way `Decimal` takes a
+`DecimalContext`. The leading-bit exponent is computed from the coefficient's
+bit length and the exponent, so the test is exact and independent of the
+precision; no rounding happens and no flag is raised. `is_finite`,
+`is_infinite` and `is_nan` need no context. `class_of` is a total function: the
+ten classes partition every `BinFloat`, and `Decimal::class_name` is the text of
+the same partition for `Decimal`.
+
 ### Format conversion
 
 `convert_format` is `round_ctx` in the destination format's context, so the
