@@ -161,6 +161,32 @@ fn dec_coeff_two_five_unit(denominator : DecCoeff) -> Int32 {
 }
 
 ///|
+/// `coeff mod divisor` for one positive coefficient unit (`divisor < 10^9`),
+/// without building a quotient: the remainder of `dec_coeff_div_rem_by_unit_repr`.
+pub fn dec_coeff_mod_unit(coeff : DecCoeff, divisor : Int32) -> Int32 {
+  guard divisor > 0 && divisor < dec_coeff_base else {
+    abort("dec_coeff_mod_unit expects one positive coefficient unit")
+  }
+  let wide_divisor = divisor.to_uint64()
+  match coeff {
+    DecCoeff::Small(value) => (value % wide_divisor).to_int()
+    DecCoeff::Limbs(_, _) => {
+      let mut remainder = 0UL
+      let mut index = dec_coeff_unit_len(coeff) - 1
+      while index >= 0 {
+        remainder = (
+            remainder * dec_coeff_base.to_uint64() +
+            dec_coeff_limb_at(coeff, index).to_uint64()
+          ) %
+          wide_divisor
+        index -= 1
+      }
+      remainder.to_int()
+    }
+  }
+}
+
+///|
 /// Whether the quotient `numerator / denominator` of two integers has a finite
 /// decimal expansion.
 ///
