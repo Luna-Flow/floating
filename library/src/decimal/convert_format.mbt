@@ -85,7 +85,19 @@ pub fn Decimal::from_bin_float_ctx(
 ) -> (Decimal, DecimalFlags) {
   match x.classify() {
     FpClass::NaN => {
-      let payload = BigInt::from_octets(x.nan_payload().to_bytes_be())
+      // A conversion to a narrower format keeps the low `precision - 1` digits
+      // of the payload (IEEE 754-2019 6.2.3); construction never truncates.
+      let wide = BigInt::from_octets(x.nan_payload().to_bytes_be())
+      let payload = if coeff_digits(coeff_from_bigint(wide)) <=
+        ctx.precision - 1 {
+        wide
+      } else if ctx.precision == 1 {
+        bigint_zero()
+      } else {
+        bigint_from_text(
+          decimal_nan_payload_digits_low(wide, ctx.precision - 1),
+        )
+      }
       let value = if x.is_signaling_nan() {
         Decimal::signaling_nan(
           payload~,
@@ -102,7 +114,9 @@ pub fn Decimal::from_bin_float_ctx(
       value.apply_ctx(ctx)
     }
     FpClass::Infinity =>
-      Decimal::inf(x.sign(), precision=ctx.precision).apply_ctx(ctx)
+      Decimal::inf(negative=x.is_negative(), precision=ctx.precision).apply_ctx(
+        ctx,
+      )
     FpClass::Finite =>
       if x.is_zero() {
         (if x.is_negative() {

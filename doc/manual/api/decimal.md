@@ -86,7 +86,7 @@ pub fn Decimal::exponent10(Self) -> Int
 pub fn Decimal::quantum(Self) -> Int
 ```
 
-`precision` is the working precision stored in the value (at least 1).
+`precision` is the working precision stored in the value: the precision of a format a context could have, `1..=999999999` (`decimal_precision_max`). Every constructor that returns a `Decimal` aborts on a precision outside that range, naming the function; the operations that return a `Result` return `Err`.
 `coefficient` returns the non-negative coefficient $c$;
 for a NaN they return the payload and for an infinity `0`. The sign is never
 part of the coefficient: use `is_negative`. `exponent10` and `quantum` both
@@ -188,11 +188,11 @@ pub fn Decimal::make(@bigint.BigInt, Int, Int, mode? : DecimalRoundingMode) -> S
 ```
 
 `Decimal::make(c, q, p, mode~)` represents $c \cdot 10^{q}$; the sign comes
-from `c`. Trailing zeros are removed first, the coefficient is then rounded to
-`p` digits with `mode` (default `RoundTiesToEven`) if it is longer, and trailing
-zeros are removed again. The result is therefore always in the *reduced*
-member of its cohort, and `make(0, q, p)` is $+0$ with exponent `0`. No
-exponent range applies.
+from `c`. A coefficient of at most `p` digits keeps the exponent `q` (the cohort
+member asked for is not reduced: `make(100, 0, 5)` is `100`, `make(0, 5, 5)` is
+`0E+5`); a longer one is rounded to exactly `p` digits with `mode` (default
+`RoundTiesToEven`) and not reduced (`make(1000000, 0, 3)` is `100E+4`). No
+exponent range applies. `p` must be within `1..=999999999`.
 
 ### `Decimal::zero`, `negative_zero`, `one`, `inf`, `nan`, `quiet_nan`, `signaling_nan`
 
@@ -202,16 +202,20 @@ These constructors build the special and unit values.
 pub fn Decimal::zero(precision? : Int) -> Self
 pub fn Decimal::negative_zero(precision? : Int) -> Self
 pub fn Decimal::one(precision? : Int) -> Self
-pub fn Decimal::inf(@def.Sign, precision? : Int) -> Self
+pub fn Decimal::inf(negative? : Bool, precision? : Int) -> Self
 pub fn Decimal::nan(precision? : Int) -> Self
 pub fn Decimal::quiet_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int) -> Self
 pub fn Decimal::signaling_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int) -> Self
 ```
 
 The default precision is 34. `zero`, `negative_zero` and `one` have exponent
-`0`. `inf(sign)` is $-\infty$ for `Negative` and $+\infty$ otherwise. `nan` is
+`0`. `inf(negative=true)` is $-\infty$ and `inf()` is $+\infty$. `nan` is
 a positive quiet NaN with payload 0; `quiet_nan` and `signaling_nan` default
-to payload 0 and a positive sign.
+to payload 0 and a positive sign. The payload is the trailing significand field
+(IEEE 754-2019 3.5.2): a non-negative integer of at most `precision - 1` digits,
+otherwise the constructor aborts; a conversion to a narrower format keeps the
+low digits of the payload, construction never truncates. The precision must be
+within `1..=999999999`.
 
 ### `Decimal::from_int`, `from_bigint`
 
@@ -796,19 +800,19 @@ new precision field. All of them are flag-free.
 
 ### `Decimal::div_checked`, `sqrt`
 
-These functions divide and take a square root, reporting domain errors as
-`Result`.
+`div_checked` divides, reporting domain errors as `Result`; `sqrt` takes the square root of the value under its own format.
 
 ```mbti
 pub fn Decimal::div_checked(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Decimal::sqrt(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Decimal::sqrt(Self) -> Self
 ```
 
 `div_checked(a, b)` is `div_ctx` under `DecimalContext::new(precision=max(p_a,
 p_b))`; it returns `Err(division_by_zero)` for $x/0$ and `Err(domain_error)`
 for an invalid division. `sqrt` is `sqrt_ctx` under
-`DecimalContext::new(precision=p)` and returns `Err(domain_error)` for a
-negative non-zero operand. Both are correctly rounded half-even.
+`DecimalContext::new(precision=p)` and returns NaN for a negative non-zero
+operand (IEEE 754-2019 7.2; `sqrt_checked` reports it as `Err`). Both are
+correctly rounded half-even.
 
 ## Context arithmetic
 
@@ -1226,6 +1230,31 @@ the same sign and kind are ordered by payload (reversed for negative NaNs).
 `total_order_compare` returns 0 only for identical representations.
 `total_order_mag(x, y)` is `total_order` of the absolute values. None of them
 takes a context, rounds or raises a flag.
+
+### `Decimal::identical`
+
+`identical` tests that two values are the same datum.
+
+```mbti
+pub fn Decimal::identical(Self, Self) -> Bool
+```
+
+`x.identical(y)` is true when the class, sign, signaling bit, coefficient (the
+payload of a NaN), exponent and precision label are all equal. It is finer than
+`==`, which compares values (`1.20 == 1.2`), and than `total_order_compare`,
+which ignores the precision label: `1.20` and `1.2` are not identical, a zero and
+its negative are not identical, and two NaNs that differ in payload are not
+identical.
+
+```moonbit
+///|
+test "decimal identical compares the representation" {
+  let a = @decimal.Decimal::from_string("1.20").unwrap()
+  inspect(a.identical(@decimal.Decimal::from_string("1.20").unwrap()), content="true")
+  inspect(a.identical(@decimal.Decimal::from_string("1.2").unwrap()), content="false")
+  inspect(a == @decimal.Decimal::from_string("1.2").unwrap(), content="true")
+}
+```
 
 ### `Decimal::min`, `max`, `clamp`, `clamp_checked`
 
@@ -2189,7 +2218,8 @@ pub fn Decimal::from_string(String, precision? : Int32) -> Self?
 pub fn Decimal::from_string_ctx(String, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::get_payload(Self) -> @bigint.BigInt
 pub fn Decimal::hypot_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::inf(@def.Sign, precision? : Int32) -> Self
+pub fn Decimal::identical(Self, Self) -> Bool
+pub fn Decimal::inf(negative? : Bool, precision? : Int32) -> Self
 pub fn Decimal::is_canonical(Self) -> Bool
 pub fn Decimal::is_finite(Self) -> Bool
 pub fn Decimal::is_infinite(Self) -> Bool
@@ -2263,7 +2293,7 @@ pub fn Decimal::signaling_nan(payload? : @bigint.BigInt, negative? : Bool, preci
 pub fn Decimal::sin_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::sinh_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::sinpi_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::sqrt(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Decimal::sqrt(Self) -> Self
 pub fn Decimal::sqrt_checked(Self, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::sqrt_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Decimal::sqrt_ctx(Self, DecimalContext) -> (Self, DecimalFlags)

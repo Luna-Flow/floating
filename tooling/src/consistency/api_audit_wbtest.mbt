@@ -8,7 +8,7 @@ let audit_ctx : @lf_arith.ArithmeticContext = @lf_arith.ArithmeticContext::new(
 test "def predicates classify finite and nan consistently" {
   let finite = @bin_float.BinFloat::from_int(3, precision=8)
   let nan = @bin_float.BinFloat::nan(precision=8)
-  let inf = @decimal.Decimal::inf(@def.Sign::Positive, precision=8)
+  let inf = @decimal.Decimal::inf(precision=8)
   assert_true(@def.is_finite(finite))
   assert_true(@def.is_nan(nan))
   assert_true(@def.is_infinite(inf))
@@ -186,7 +186,7 @@ test "decimal interchange scalar encode preserves finite flags across formats" {
 
 ///|
 test "decimal interchange facade from_decimal preserves special bits flags and format" {
-  let inf = @decimal.Decimal::inf(@def.Sign::Negative, precision=32)
+  let inf = @decimal.Decimal::inf(negative=true, precision=32)
   let qnan = @decimal.Decimal::quiet_nan(
     payload=12345N,
     negative=true,

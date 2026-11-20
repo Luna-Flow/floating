@@ -6,7 +6,7 @@
 test "payload operations follow IEEE 754 9.7 (#151)" {
   let one = Decimal::from_string("1").unwrap()
   assert_eq(one.get_payload().to_string(), "-1")
-  assert_eq(Decimal::inf(Sign::Positive).get_payload().to_string(), "-1")
+  assert_eq(Decimal::inf().get_payload().to_string(), "-1")
   assert_eq(Decimal::zero().get_payload().to_string(), "-1")
   assert_eq(Decimal::quiet_nan(payload=7N).get_payload().to_string(), "7")
   assert_eq(Decimal::signaling_nan(payload=9N).get_payload().to_string(), "9")
@@ -25,7 +25,7 @@ test "payload operations follow IEEE 754 9.7 (#151)" {
   let signaling = one.set_payload_signaling(5N)
   assert_true(signaling.is_signaling_nan())
   assert_eq(signaling.get_payload().to_string(), "5")
-  assert_eq(Decimal::inf(Sign::Positive).set_payload(0N).to_string(), "nan")
+  assert_eq(Decimal::inf().set_payload(0N).to_string(), "nan")
   // The payload must fit p - 1 digits: 15 for decimal64, 33 for the default.
   let d64 = Decimal::from_string("1", precision=16).unwrap()
   assert_eq(

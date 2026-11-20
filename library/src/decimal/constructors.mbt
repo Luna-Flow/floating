@@ -7,16 +7,35 @@ pub fn Decimal::make(
   precision : Int32,
   mode~ : DecimalRoundingMode = DecimalRoundingMode::RoundTiesToEven,
 ) -> Decimal {
-  normalize_decimal(coefficient, exponent10, precision, mode.round())
+  let precision = decimal_check_precision("make", precision)
+  // IEEE 754-2019 5.2: the member of the cohort asked for. A coefficient of at
+  // most `precision` digits keeps the exponent given (its cohort is not
+  // reduced, S7); a longer one is rounded to exactly `precision` digits.
+  let negative = coefficient < bigint_zero()
+  let magnitude = coeff_from_bigint(abs_bigint(coefficient))
+  if magnitude.is_zero() {
+    return finite_with_exponent_repr(false, magnitude, exponent10, precision)
+  }
+  context_free_round_wide(
+    negative,
+    magnitude,
+    exponent10.to_int64(),
+    precision,
+    round_to_precision=true,
+    reduce=false,
+    mode=mode.round(),
+  )
 }
 
 ///|
 pub fn Decimal::zero(precision~ : Int32 = 34) -> Decimal {
+  let precision = decimal_check_precision("zero", precision)
   Decimal::make(bigint_zero(), 0, precision)
 }
 
 ///|
 pub fn Decimal::negative_zero(precision~ : Int32 = 34) -> Decimal {
+  let precision = decimal_check_precision("negative_zero", precision)
   normalize_decimal_parts(
     true,
     bigint_zero(),
@@ -28,22 +47,22 @@ pub fn Decimal::negative_zero(precision~ : Int32 = 34) -> Decimal {
 
 ///|
 pub fn Decimal::one(precision~ : Int32 = 34) -> Decimal {
+  let precision = decimal_check_precision("one", precision)
   Decimal::make(bigint_one(), 0, precision)
 }
 
 ///|
-pub fn Decimal::inf(sign : Sign, precision~ : Int32 = 34) -> Decimal {
-  make_special(
-    FpClass::Infinity,
-    sign == Sign::Negative,
-    bigint_zero(),
-    precision,
-    false,
-  )
+pub fn Decimal::inf(
+  negative~ : Bool = false,
+  precision~ : Int32 = 34,
+) -> Decimal {
+  let precision = decimal_check_precision("inf", precision)
+  make_special(FpClass::Infinity, negative, bigint_zero(), precision, false)
 }
 
 ///|
 pub fn Decimal::nan(precision~ : Int32 = 34) -> Decimal {
+  let precision = decimal_check_precision("nan", precision)
   make_special(FpClass::NaN, false, bigint_zero(), precision, false)
 }
 
@@ -53,6 +72,8 @@ pub fn Decimal::quiet_nan(
   negative~ : Bool = false,
   precision~ : Int32 = 34,
 ) -> Decimal {
+  let precision = decimal_check_precision("quiet_nan", precision)
+  decimal_check_payload("quiet_nan", payload, precision)
   make_special(FpClass::NaN, negative, payload, precision, false)
 }
 
@@ -62,16 +83,20 @@ pub fn Decimal::signaling_nan(
   negative~ : Bool = false,
   precision~ : Int32 = 34,
 ) -> Decimal {
+  let precision = decimal_check_precision("signaling_nan", precision)
+  decimal_check_payload("signaling_nan", payload, precision)
   make_special(FpClass::NaN, negative, payload, precision, true)
 }
 
 ///|
 pub fn Decimal::from_int(n : Int32, precision~ : Int32 = 34) -> Decimal {
+  let precision = decimal_check_precision("from_int", precision)
   Decimal::from_bigint(BigInt::from_int(n), precision~)
 }
 
 ///|
 pub fn Decimal::from_bigint(n : BigInt, precision~ : Int32 = 34) -> Decimal {
+  let precision = decimal_check_precision("from_bigint", precision)
   decimal_from_integer_parts(n, 0, precision)
 }
 
@@ -88,7 +113,6 @@ fn decimal_from_integer_parts(
 ) -> Decimal {
   let negative = value < bigint_zero()
   let magnitude = coeff_from_bigint(abs_bigint(value))
-  let precision = Int32::max(1, precision)
   if magnitude.is_zero() {
     return finite_with_exponent_repr(negative, magnitude, 0, precision)
   }
@@ -105,7 +129,7 @@ fn decimal_from_integer_parts(
 
 ///|
 pub fn Decimal::from_double(x : Double, precision~ : Int32 = 34) -> Decimal {
-  let precision = Int32::max(1, precision)
+  let precision = decimal_check_precision("from_double", precision)
   let bits = x.reinterpret_as_uint64()
   let negative = bits >> 63 != 0UL
   let exponent_bits = ((bits >> 52) & 0x7ffUL).to_int()
@@ -123,13 +147,14 @@ pub fn Decimal::from_double(x : Double, precision~ : Int32 = 34) -> Decimal {
   let bin = @bin_float.BinFloat::from_double(x, precision=53)
   match bin.classify() {
     FpClass::NaN => Decimal::nan(precision~)
-    FpClass::Infinity => Decimal::inf(bin.sign(), precision~)
+    FpClass::Infinity => Decimal::inf(negative=bin.is_negative(), precision~)
     FpClass::Finite => Decimal::from_bin_float(bin, precision~)
   }
 }
 
 ///|
 pub fn Decimal::from_float(x : Float, precision~ : Int32 = 34) -> Decimal {
+  let precision = decimal_check_precision("from_float", precision)
   Decimal::from_double(x.to_double(), precision~)
 }
 
@@ -474,10 +499,7 @@ fn decimal_from_bin_float_surrogate(
   x : @bin_float.BinFloat,
   precision : Int32,
 ) -> Decimal {
-  let (negative, coefficient, exponent) = decimal_surrogate_parts(
-    x,
-    Int32::max(1, precision),
-  )
+  let (negative, coefficient, exponent) = decimal_surrogate_parts(x, precision)
   context_free_round_wide(
     negative,
     coefficient,
@@ -500,7 +522,7 @@ fn decimal_from_bin_float_is_bounded(
 ) -> Bool {
   let e2 = x.exponent2().to_int64()
   let size = if e2 < 0 { -e2 } else { e2 }
-  size > 1024L && Int32::max(1, precision).to_int64() * 2L <= size
+  size > 1024L && precision.to_int64() * 2L <= size
 }
 
 ///|
@@ -508,9 +530,10 @@ pub fn Decimal::from_bin_float(
   x : @bin_float.BinFloat,
   precision~ : Int32 = x.precision(),
 ) -> Decimal {
+  let precision = decimal_check_precision("from_bin_float", precision)
   match x.classify() {
     FpClass::NaN => Decimal::nan(precision~)
-    FpClass::Infinity => Decimal::inf(x.sign(), precision~)
+    FpClass::Infinity => Decimal::inf(negative=x.is_negative(), precision~)
     FpClass::Finite =>
       // IEEE 754-2019 §5.4.2 and §6.3: conversions keep the sign of zero.
       if x.is_zero() {

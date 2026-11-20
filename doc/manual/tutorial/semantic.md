@@ -210,7 +210,7 @@ test "binary and decimal agree on exact square roots" {
       @semantic.SemanticScalar::from_bin_float,
     )
     let d = @semantic.semantic_scalar_result(
-      @decimal.Decimal::from_int(n).sqrt(),
+      Ok(@decimal.Decimal::from_int(n).sqrt()),
       @semantic.SemanticScalar::from_decimal,
     )
     assert_true(b == d)

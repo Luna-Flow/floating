@@ -36,6 +36,37 @@ fn coeff_trailing_decimal_zeros(coeff : DecCoeff) -> Int32 {
 }
 
 ///|
+/// The precision label of a value names a format a context could have (S5): a
+/// precision outside `1..=decimal_precision_max` aborts, naming the function.
+fn decimal_check_precision(name : String, precision : Int32) -> Int32 {
+  if precision < 1 || precision > decimal_precision_max {
+    abort(
+      "Decimal::\{name}: precision must be within 1..=\{decimal_precision_max}",
+    )
+  }
+  precision
+}
+
+///|
+/// The payload of a NaN is the trailing significand field of the format
+/// (IEEE 754-2019 3.5.2, 6.2.3): a non-negative integer of at most
+/// `precision - 1` digits (S6). It is checked where a NaN is made; it is
+/// truncated only by a conversion to a narrower format.
+fn decimal_check_payload(
+  name : String,
+  payload : BigInt,
+  precision : Int32,
+) -> Unit {
+  let coefficient = coeff_from_bigint(payload)
+  if payload < bigint_zero() ||
+    (!coefficient.is_zero() && coeff_digits(coefficient) > precision - 1) {
+    abort(
+      "Decimal::\{name}: payload must be a non-negative integer of at most precision - 1 digits",
+    )
+  }
+}
+
+///|
 fn make_special(
   class : FpClass,
   negative : Bool,
@@ -65,7 +96,7 @@ fn make_special_repr(
     negative,
     coefficient: payload,
     exponent10: 0,
-    precision_: Int32::max(1, precision),
+    precision_: precision,
     signaling_nan,
   }
 }
@@ -536,7 +567,6 @@ fn plain_sticky_sum_result(
     !low.coefficient.is_zero() else {
     return None
   }
-  let precision = Int32::max(1, precision)
   let precision64 = precision.to_int64()
   let target_exponent = adjusted_exponent64(high) - precision64 + 1L
   guard adjusted_exponent64(low) < target_exponent - precision64 else {
@@ -645,24 +675,10 @@ fn mul_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
       if a.is_zero() || b.is_zero() {
         Decimal::nan(precision~)
       } else {
-        Decimal::inf(
-          if a.sign() == b.sign() {
-            Sign::Positive
-          } else {
-            Sign::Negative
-          },
-          precision~,
-        )
+        Decimal::inf(negative=!(a.sign() == b.sign()), precision~)
       }
     (FpClass::Infinity, FpClass::Infinity) =>
-      Decimal::inf(
-        if a.sign() == b.sign() {
-          Sign::Positive
-        } else {
-          Sign::Negative
-        },
-        precision~,
-      )
+      Decimal::inf(negative=!(a.sign() == b.sign()), precision~)
     (FpClass::Finite, FpClass::Finite) if a.is_zero() || b.is_zero() =>
       if (a.is_zero() && !b.is_zero() && a.is_negative_zero()) ||
         (b.is_zero() && !a.is_zero() && b.is_negative_zero()) ||
@@ -696,25 +712,11 @@ fn div_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
       if a.is_zero() {
         Decimal::nan(precision~)
       } else {
-        Decimal::inf(
-          if a.sign() == b.sign() {
-            Sign::Positive
-          } else {
-            Sign::Negative
-          },
-          precision~,
-        )
+        Decimal::inf(negative=!(a.sign() == b.sign()), precision~)
       }
     (FpClass::Infinity, FpClass::Infinity) => Decimal::nan(precision~)
     (FpClass::Infinity, _) =>
-      Decimal::inf(
-        if a.sign() == b.sign() {
-          Sign::Positive
-        } else {
-          Sign::Negative
-        },
-        precision~,
-      )
+      Decimal::inf(negative=!(a.sign() == b.sign()), precision~)
     (_, FpClass::Infinity) => Decimal::zero(precision~)
     (FpClass::Finite, FpClass::Finite) if a.is_zero() =>
       if a.negative != b.negative {
@@ -832,14 +834,7 @@ fn context_free_round_wide(
   }
   if target + (rounded.digits10() - 1).to_int64() > max_exponent {
     return if overflow_to_infinity(negative, mode) {
-      Decimal::inf(
-        if negative {
-          Sign::Negative
-        } else {
-          Sign::Positive
-        },
-        precision~,
-      )
+      Decimal::inf(negative~, precision~)
     } else {
       // The largest finite value with the result's number of digits.
       let digits = if round_to_precision { precision } else { digits }

@@ -96,7 +96,7 @@ fn decimal_elementary_division_by_zero(
 ) -> (Decimal, DecimalFlags) {
   (
     Decimal::inf(
-      sign,
+      negative=sign == Sign::Negative,
       precision=finite_precision_for_coeff(dec_coeff_zero(), ctx),
     ),
     { ..DecimalFlags::new(), division_by_zero: true, },
@@ -304,15 +304,7 @@ fn decimal_pi_scaled_exact(
       let result = match operation {
         SinPi => sine
         CosPi => decimal_elementary_zero(false, ctx).0
-        TanPi =>
-          Decimal::inf(
-            if sine_negative {
-              Sign::Negative
-            } else {
-              Sign::Positive
-            },
-            precision~,
-          )
+        TanPi => Decimal::inf(negative=sine_negative, precision~)
         _ => sine
       }
       Some(
@@ -390,7 +382,7 @@ fn Decimal::try_unary_elementary_ctx(
             if value.negative {
               Decimal::zero(precision~)
             } else {
-              Decimal::inf(Sign::Positive, precision~)
+              Decimal::inf(precision~)
             },
             DecimalFlags::new(),
           ),
@@ -401,7 +393,7 @@ fn Decimal::try_unary_elementary_ctx(
             if value.negative {
               Decimal::from_int(-1, precision~)
             } else {
-              Decimal::inf(Sign::Positive, precision~)
+              Decimal::inf(precision~)
             },
             DecimalFlags::new(),
           ),
@@ -411,22 +403,26 @@ fn Decimal::try_unary_elementary_ctx(
           if value.negative {
             decimal_elementary_invalid(ctx)
           } else {
-            (Decimal::inf(Sign::Positive, precision~), DecimalFlags::new())
+            (Decimal::inf(precision~), DecimalFlags::new())
           },
         )
       Asin | Acos | Atanh | Sin | Cos | Tan | SinPi | CosPi | TanPi =>
         Ok(decimal_elementary_invalid(ctx))
       Atan => decimal_certified_atan_infinity(value.negative, ctx)
       Sinh | Asinh =>
-        Ok((Decimal::inf(value.sign(), precision~), DecimalFlags::new()))
-      Cosh =>
-        Ok((Decimal::inf(Sign::Positive, precision~), DecimalFlags::new()))
+        Ok(
+          (
+            Decimal::inf(negative=value.is_negative(), precision~),
+            DecimalFlags::new(),
+          ),
+        )
+      Cosh => Ok((Decimal::inf(precision~), DecimalFlags::new()))
       Acosh =>
         Ok(
           if value.negative {
             decimal_elementary_invalid(ctx)
           } else {
-            (Decimal::inf(Sign::Positive, precision~), DecimalFlags::new())
+            (Decimal::inf(precision~), DecimalFlags::new())
           },
         )
       Tanh =>
@@ -444,14 +440,7 @@ fn Decimal::try_unary_elementary_ctx(
         } else {
           Ok(
             (
-              Decimal::inf(
-                if value.negative {
-                  Sign::Negative
-                } else {
-                  Sign::Positive
-                },
-                precision~,
-              ),
+              Decimal::inf(negative=value.negative, precision~),
               DecimalFlags::new(),
             ),
           )
@@ -1180,12 +1169,7 @@ pub fn Decimal::try_hypot_ctx(
       Some(result) => result.1
       None => DecimalFlags::new()
     }
-    return Ok(
-      (
-        Decimal::inf(Sign::Positive, precision~),
-        operand_flags.combine(nan_flags),
-      ),
-    )
+    return Ok((Decimal::inf(precision~), operand_flags.combine(nan_flags)))
   }
   match nan_result {
     Some(result) => return Ok((result.0, operand_flags.combine(result.1)))

@@ -805,11 +805,7 @@ fn decimal_power_integer_finite_result(
     let negative = base.negative && (abs_int(count) & 1) == 1
     return (
       Decimal::inf(
-        if negative {
-          Sign::Negative
-        } else {
-          Sign::Positive
-        },
+        negative~,
         precision=finite_precision_for_coeff(dec_coeff_from_int(1), ctx),
       ),
       { ..DecimalFlags::new(), overflow: true, },
@@ -1957,12 +1953,12 @@ fn decimal_power_infinite_exponent_result(
           ),
         )
       } else {
-        Some((Decimal::inf(Sign::Positive, precision~), DecimalFlags::new()))
+        Some((Decimal::inf(precision~), DecimalFlags::new()))
       }
     FpClass::Finite =>
       if base.coefficient.is_zero() {
         if exponent.negative {
-          Some((Decimal::inf(Sign::Positive, precision~), DecimalFlags::new()))
+          Some((Decimal::inf(precision~), DecimalFlags::new()))
         } else {
           Some(
             (
@@ -1984,7 +1980,7 @@ fn decimal_power_infinite_exponent_result(
             ),
           )
         } else {
-          Some((Decimal::inf(Sign::Positive, precision~), DecimalFlags::new()))
+          Some((Decimal::inf(precision~), DecimalFlags::new()))
         }
       }
   }
@@ -2009,7 +2005,7 @@ fn decimal_power_infinite_base_noninteger_result(
           ),
         )
       } else {
-        Some((Decimal::inf(Sign::Positive, precision~), DecimalFlags::new()))
+        Some((Decimal::inf(precision~), DecimalFlags::new()))
       }
   }
 }
@@ -2177,14 +2173,7 @@ fn decimal_power_ieee_special_result(
             }
             return Some(
               (
-                Decimal::inf(
-                  if base.negative && odd {
-                    Sign::Negative
-                  } else {
-                    Sign::Positive
-                  },
-                  precision~,
-                ),
+                Decimal::inf(negative=base.negative && odd, precision~),
                 DecimalFlags::new(),
               ),
             )

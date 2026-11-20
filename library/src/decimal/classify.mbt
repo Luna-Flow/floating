@@ -262,7 +262,7 @@ fn Decimal::payload_result(
   payload : BigInt,
   signaling : Bool,
 ) -> Decimal {
-  let precision = Int32::max(1, self.precision_)
+  let precision = self.precision_
   let coefficient = coeff_from_bigint(payload)
   if payload < BigInt::from_int(0) ||
     (coeff_digits(coefficient) > precision - 1 && !coefficient.is_zero()) {
@@ -293,6 +293,21 @@ pub fn Decimal::set_payload_signaling(
 ///|
 pub fn Decimal::quantum(self : Decimal) -> Int32 {
   self.exponent10
+}
+
+///|
+/// Whether `self` and `other` are the same datum: the same class, sign,
+/// signaling bit, coefficient (the payload of a NaN), exponent and precision
+/// label. Equal values of different cohort members, a zero and its negative and
+/// two NaNs that differ only in payload are not identical; `==` compares values
+/// and `total_order_compare` orders representations.
+pub fn Decimal::identical(self : Decimal, other : Decimal) -> Bool {
+  self.class == other.class &&
+  self.negative == other.negative &&
+  self.signaling_nan == other.signaling_nan &&
+  self.precision_ == other.precision_ &&
+  self.exponent10 == other.exponent10 &&
+  dec_coeff_compare_repr(self.coefficient, other.coefficient) == 0
 }
 
 ///|

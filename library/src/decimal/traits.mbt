@@ -180,9 +180,7 @@ pub impl @lf_arith.NumericFormatContextual for Decimal with fn max_finite_contex
       )
     Ok(dctx) => dctx
   }
-  Decimal::inf(Sign::Positive, precision=context.precision).next_down_ctx(
-    decimal_context,
-  ).0
+  Decimal::inf(precision=context.precision).next_down_ctx(decimal_context).0
 }
 
 ///|
@@ -424,6 +422,7 @@ pub impl @def.Floating for Decimal with fn precision(self) {
 
 ///|
 pub impl @def.Floating for Decimal with fn with_precision(self, precision) {
+  let precision = decimal_check_precision("with_precision", precision)
   self.with_precision_round(precision, DecimalRound::HalfEven)
 }
 

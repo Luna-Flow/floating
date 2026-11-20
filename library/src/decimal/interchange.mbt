@@ -458,16 +458,7 @@ fn Decimal::from_interchange_hex_dpd(
   let combination = decimal_interchange_extract(bits, coeff_bits + exp_bits, 5)
   let coefficient_bits = bits % (bigint_one() << coeff_bits)
   if combination == 0b11110 {
-    return Some(
-      Decimal::inf(
-        if sign {
-          Sign::Negative
-        } else {
-          Sign::Positive
-        },
-        precision~,
-      ),
-    )
+    return Some(Decimal::inf(negative=sign, precision~))
   }
   if combination == 0b11111 {
     let payload_digits = decimal_interchange_coefficient_bits_to_digits(
@@ -590,16 +581,7 @@ fn Decimal::from_interchange_hex_bid(
   let combination = decimal_interchange_extract(bits, coeff_bits + exp_bits, 5)
   let coefficient_continuation = bits % (bigint_one() << coeff_bits)
   if combination == 0b11110 {
-    return Some(
-      Decimal::inf(
-        if sign {
-          Sign::Negative
-        } else {
-          Sign::Positive
-        },
-        precision~,
-      ),
-    )
+    return Some(Decimal::inf(negative=sign, precision~))
   }
   if combination == 0b11111 {
     let payload_limit = pow10(decimal_interchange_payload_digits(format))
