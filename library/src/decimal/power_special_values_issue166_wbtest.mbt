@@ -70,10 +70,10 @@ test "decimal power identities across formats modes and checked routes" {
     }
   }
   let down = DecimalContext::decimal32().with_rounding(
-    @lf_arith.RoundingMode::TowardZero,
+    DecimalRoundingMode::RoundTowardZero,
   )
   let ceiling = DecimalContext::decimal128().with_rounding(
-    @lf_arith.RoundingMode::TowardPositive,
+    DecimalRoundingMode::RoundTowardPositive,
   )
   assert_eq(power_issue166_case(d("1").pow_ctx(d("1.5"), down)), "1")
   assert_eq(power_issue166_case(d("1").pow_ctx(d("Inf"), ceiling)), "1")

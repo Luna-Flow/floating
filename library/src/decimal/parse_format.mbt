@@ -201,7 +201,7 @@ fn decimal_conversion_syntax_result(
 }
 
 ///|
-fn overflow_to_infinity(negative : Bool, mode : DecimalRoundingMode) -> Bool {
+fn overflow_to_infinity(negative : Bool, mode : DecimalRound) -> Bool {
   match mode {
     Down => false
     Ceiling => !negative

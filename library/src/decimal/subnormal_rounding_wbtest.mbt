@@ -39,8 +39,8 @@ test "decimal division rounds subnormal quotients once" {
 /// a midpoint, and for ZeroFiveUp whenever the addend reduces the magnitude.
 test "decimal addition rounds sums with a far smaller addend correctly" {
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
-  let ctx = fn(mode : DecimalRoundingMode) {
-    DecimalContext::new(precision=7, decimal_rounding=mode)
+  let ctx = fn(mode : DecimalRound) {
+    DecimalContext::new(precision=7).with_round(mode)
   }
   // 1598617.000000000001 - 0.000000000002 = 1598616.999999999999
   let high = d("1598617000000000001E-12")
@@ -74,15 +74,12 @@ test "decimal exact division by a power of ten below Etiny rounds to precision" 
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
   for
     row in [
-      (DecimalRoundingMode::Up, "4.8265E-18"),
-      (DecimalRoundingMode::HalfEven, "4.8264E-18"),
-      (DecimalRoundingMode::Down, "4.8264E-18"),
+      (DecimalRound::Up, "4.8265E-18"),
+      (DecimalRound::HalfEven, "4.8264E-18"),
+      (DecimalRound::Down, "4.8264E-18"),
     ] {
-    let ctx = DecimalContext::new(
-      precision=5,
-      decimal_rounding=row.0,
-      e_min=-19,
-      e_max=20,
+    let ctx = DecimalContext::new(precision=5, e_min=-19, e_max=20).with_round(
+      row.0,
     )
     let (value, flags) = d("4826437").div_ctx(d("1E+24"), ctx)
     assert_eq(value.to_string(), row.1)

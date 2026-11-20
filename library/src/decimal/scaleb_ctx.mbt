@@ -29,7 +29,7 @@ fn scaleb_count(rhs : Decimal, ctx : DecimalContext) -> Int32? {
 fn huge_shift_rounded_unit_repr(
   coefficient : DecCoeff,
   negative : Bool,
-  mode : DecimalRoundingMode,
+  mode : DecimalRound,
 ) -> DecCoeff {
   dec_coeff_huge_shift_rounded_unit(coefficient, negative, mode.kernel())
 }
@@ -138,7 +138,10 @@ pub fn Decimal::scaleb_ctx(
       match (self.class, other.class) {
         (_, FpClass::Infinity) => (Decimal::nan(precision~), invalid_flags())
         (FpClass::Infinity, FpClass::Finite) =>
-          (self.with_precision(precision, ctx.rounding), DecimalFlags::new())
+          (
+            self.with_precision_round(precision, ctx.decimal_rounding),
+            DecimalFlags::new(),
+          )
         (FpClass::Finite, FpClass::Finite) =>
           match scaleb_count(other, ctx) {
             None => (Decimal::nan(precision~), invalid_flags())

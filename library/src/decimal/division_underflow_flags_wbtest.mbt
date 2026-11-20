@@ -16,11 +16,10 @@ test "division reports the underflow flags of the quotient" {
   // Precision 1: the quotient 2.2E-42 rounds down to zero at Etiny = -23.
   let p1 = DecimalContext::new(
     precision=1,
-    decimal_rounding=Down,
     e_min=-23,
     e_max=23,
     tininess=BeforeRounding,
-  )
+  ).with_round(Down)
   let (v2, f2) = d("-2E-23").div_ctx(d("-9E+18"), p1)
   assert_eq(v2.to_string(), "0E-23")
   assert_true(f2.underflow && f2.subnormal && f2.clamped && f2.inexact)

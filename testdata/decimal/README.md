@@ -37,9 +37,9 @@ committing a multi-gigabyte artifact with:
 just ieee-vectors mandatory-decimal 100000 .tmp/mandatory.jsonl
 ```
 
-The committed elementary oracle adds 4,896 executable rows. MPFR 4.2.2
+The committed elementary oracle adds 3,060 executable rows. MPFR 4.2.2
 computes 768-bit directed dyadic enclosures; exact integer conversion rounds
-both endpoints to decimal32/64/128 under all eight Decimal rounding modes and
+both endpoints to decimal32/64/128 under the five IEEE rounding-direction attributes and
 rejects non-unique value/flag witnesses. RDFP and Arb routes remain optional
 secondary evidence and are never counted when unavailable. The larger
 100,000-per-family plan remains an optional generated stress matrix rather

@@ -10,9 +10,9 @@ pub fn Decimal::plus_ctx(
     FpClass::NaN => quiet_nan_operand(operand, ctx)
     FpClass::Infinity =>
       (
-        operand.with_precision(
+        operand.with_precision_round(
           finite_precision_for(bigint_zero(), ctx),
-          ctx.rounding,
+          ctx.decimal_rounding,
         ),
         DecimalFlags::new(),
       )
@@ -28,8 +28,7 @@ pub fn Decimal::plus_ctx(
           // plus(-0) adds zeros of opposite signs: -0 under Floor
           // (roundTowardNegative), else +0.
           normalize_decimal_parts_ctx_repr(
-            operand.negative &&
-            ctx.decimal_rounding == DecimalRoundingMode::Floor,
+            operand.negative && ctx.decimal_rounding == DecimalRound::Floor,
             operand.coefficient,
             operand.exponent10,
             ctx,
@@ -57,9 +56,9 @@ pub fn Decimal::apply_ctx(
     FpClass::NaN => quiet_nan_operand(self, ctx)
     FpClass::Infinity =>
       (
-        self.with_precision(
+        self.with_precision_round(
           finite_precision_for(bigint_zero(), ctx),
-          ctx.rounding,
+          ctx.decimal_rounding,
         ),
         DecimalFlags::new(),
       )
@@ -108,8 +107,7 @@ pub fn Decimal::minus_ctx(
         // minus(+0) subtracts zeros of the same sign: -0 under Floor
         // (roundTowardNegative), else +0; minus(-0) is 0 + 0 = +0.
         normalize_decimal_parts_ctx_repr(
-          !operand.negative &&
-          ctx.decimal_rounding == DecimalRoundingMode::Floor,
+          !operand.negative && ctx.decimal_rounding == DecimalRound::Floor,
           operand.coefficient,
           operand.exponent10,
           ctx,

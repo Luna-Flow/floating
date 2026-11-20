@@ -11,7 +11,7 @@ fn issue267_flags_text(flags : DecimalFlags) -> String {
 }
 
 ///|
-fn issue267_mode_name(mode : DecimalRoundingMode) -> String {
+fn issue267_mode_name(mode : DecimalRound) -> String {
   match mode {
     HalfEven => "half_even"
     HalfUp => "half_up"
@@ -34,15 +34,10 @@ fn issue267_run(
   e_max : Int32,
   clamp : Bool,
   extended : Bool,
-  mode : DecimalRoundingMode,
+  mode : DecimalRound,
 ) -> (String, String) {
-  let ctx = DecimalContext::new(
-    precision~,
-    decimal_rounding=mode,
-    e_min~,
-    e_max~,
-    clamp~,
-    extended~,
+  let ctx = DecimalContext::new(precision~, e_min~, e_max~, clamp~, extended~).with_round(
+    mode,
   )
   let x = Decimal::from_string(args[0]).unwrap()
   let y = if args.length() > 1 {
@@ -91,7 +86,7 @@ fn issue267_check(
       Int32,
       Int32,
       Bool,
-      DecimalRoundingMode,
+      DecimalRound,
       String,
       String,
     ),
@@ -134,7 +129,7 @@ test "power signals Clamped only when the result exponent was altered (#267)" {
       Int32,
       Int32,
       Bool,
-      DecimalRoundingMode,
+      DecimalRound,
       String,
       String,
     ),

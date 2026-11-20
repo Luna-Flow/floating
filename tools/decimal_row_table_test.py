@@ -121,7 +121,7 @@ class CheckedInTableTests(unittest.TestCase):
             lines = table.data_lines(text)
             if name == "pi_inverse":
                 self.assertGreater(len(lines), 5000, name)
-                self.assertEqual(len(lines), 19134)
+                self.assertEqual(len(lines), 12753)
             else:
                 self.assertGreater(len(lines), 3, name)
             ids = [line.split()[0] for line in lines]

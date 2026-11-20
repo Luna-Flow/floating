@@ -133,7 +133,7 @@ interval arithmetic and the certified elementary functions rely on.
 
 Each domain names these functions in its own enum:
 
-| Function | `BinaryRoundingMode` | `@lf_arith.RoundingMode` | `DecimalRoundingMode` / `GdaRoundingMode` |
+| Function | `BinaryRoundingMode`, `DecimalRoundingMode` | `@lf_arith.RoundingMode` | `GdaRoundingMode` |
 | --- | --- | --- | --- |
 | $\operatorname{RN}_{\text{even}}$ | `RoundTiesToEven` | `ToNearestEven` | `HalfEven` |
 | $\operatorname{RN}_{\text{away}}$ | `RoundTiesToAway` | — | `HalfUp` |

@@ -20,15 +20,15 @@ FORMATS = {
     "decimal64": (16, -383, 384, 1),
     "decimal128": (34, -6143, 6144, 1),
 }
+# The five rounding-direction attributes of IEEE 754-2019 4.3 (half_up is
+# roundTiesToAway); the other decimal rounding algorithms of the Python module
+# are not attributes of an IEEE decimal format.
 ROUNDINGS = {
     "half_even": decimal.ROUND_HALF_EVEN,
     "half_up": decimal.ROUND_HALF_UP,
-    "half_down": decimal.ROUND_HALF_DOWN,
     "down": decimal.ROUND_DOWN,
     "ceiling": decimal.ROUND_CEILING,
     "floor": decimal.ROUND_FLOOR,
-    "up": decimal.ROUND_UP,
-    "zero_five_up": decimal.ROUND_05UP,
 }
 SIGNALS = {
     decimal.InvalidOperation: "InvalidOperation",

@@ -342,7 +342,10 @@ fn Decimal::quantize_impl(
     None =>
       match (self.class, quantum.class) {
         (FpClass::Infinity, FpClass::Infinity) =>
-          (self.with_precision(precision, ctx.rounding), DecimalFlags::new())
+          (
+            self.with_precision_round(precision, ctx.decimal_rounding),
+            DecimalFlags::new(),
+          )
         (FpClass::Infinity, _) | (_, FpClass::Infinity) =>
           (Decimal::nan(precision~), invalid_flags())
         (FpClass::Finite, FpClass::Finite) => {
@@ -487,7 +490,10 @@ fn Decimal::rescale_impl(
     None =>
       match (self.class, quantum.class) {
         (FpClass::Infinity, FpClass::Infinity) =>
-          (self.with_precision(precision, ctx.rounding), DecimalFlags::new())
+          (
+            self.with_precision_round(precision, ctx.decimal_rounding),
+            DecimalFlags::new(),
+          )
         (FpClass::Infinity, _) | (_, FpClass::Infinity) =>
           (Decimal::nan(precision~), invalid_flags())
         (FpClass::Finite, FpClass::Finite) =>
@@ -511,9 +517,9 @@ pub fn Decimal::to_integral_exact_ctx(
     FpClass::NaN => quiet_nan_operand(self, ctx)
     FpClass::Infinity =>
       (
-        self.with_precision(
+        self.with_precision_round(
           finite_precision_for(bigint_one(), ctx),
-          ctx.rounding,
+          ctx.decimal_rounding,
         ),
         DecimalFlags::new(),
       )
@@ -591,9 +597,9 @@ pub fn Decimal::to_integral_value_ctx(
     FpClass::NaN => quiet_nan_operand(self, ctx)
     FpClass::Infinity =>
       (
-        self.with_precision(
+        self.with_precision_round(
           finite_precision_for(bigint_one(), ctx),
-          ctx.rounding,
+          ctx.decimal_rounding,
         ),
         DecimalFlags::new(),
       )

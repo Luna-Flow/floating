@@ -110,7 +110,7 @@ pub fn Decimal::logical_and_ctx(Self, Self, DecimalContext) -> (Self, DecimalFla
 pub fn Decimal::logical_invert_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logical_or_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::logical_xor_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::make(@bigint.BigInt, Int32, Int32, mode? : @arithmetic.RoundingMode) -> Self
+pub fn Decimal::make(@bigint.BigInt, Int32, Int32, mode? : DecimalRoundingMode) -> Self
 pub fn Decimal::max(Self, Self) -> Self
 pub fn Decimal::max_finite_contextual(@arithmetic.ArithmeticContext) -> Self
 pub fn Decimal::maximum_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
@@ -239,7 +239,7 @@ pub fn Decimal::try_sinpi_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlag
 pub fn Decimal::try_tan_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_tanh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_tanpi_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
-pub fn Decimal::with_precision(Self, Int32, @arithmetic.RoundingMode) -> Self
+pub fn Decimal::with_precision(Self, Int32, DecimalRoundingMode) -> Self
 pub fn Decimal::zero(precision? : Int32) -> Self
 pub fn Decimal::zero_contextual(@arithmetic.ArithmeticContext) -> Self
 pub impl @arithmetic.AbsContextual for Decimal
@@ -281,10 +281,9 @@ pub struct DecimalContext {
 }
 pub fn DecimalContext::clamp(Self) -> Bool
 pub fn DecimalContext::clamp_fold(Self) -> Bool
-pub fn DecimalContext::decimal128() -> Self
-pub fn DecimalContext::decimal32() -> Self
-pub fn DecimalContext::decimal64() -> Self
-pub fn DecimalContext::decimal_rounding(Self) -> DecimalRoundingMode
+pub fn DecimalContext::decimal128(rounding? : DecimalRoundingMode) -> Self
+pub fn DecimalContext::decimal32(rounding? : DecimalRoundingMode) -> Self
+pub fn DecimalContext::decimal64(rounding? : DecimalRoundingMode) -> Self
 pub fn DecimalContext::e_max(Self) -> Int32
 pub fn DecimalContext::e_min(Self) -> Int32
 pub fn DecimalContext::equal(Self, Self) -> Bool
@@ -293,16 +292,17 @@ pub fn DecimalContext::extended(Self) -> Bool
 pub fn DecimalContext::from_arithmetic_context(@arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn DecimalContext::ieee754(Self) -> Self
 pub fn DecimalContext::is754version2019(Self) -> Bool
-pub fn DecimalContext::new(precision? : Int32, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Self
+pub fn DecimalContext::new(precision? : Int32, rounding? : DecimalRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Self
 pub fn DecimalContext::not_equal(Self, Self) -> Bool
 pub fn DecimalContext::precision(Self) -> Int32
 pub fn DecimalContext::refinement_limit(Self) -> Int32?
-pub fn DecimalContext::rounding(Self) -> @arithmetic.RoundingMode
+pub fn DecimalContext::rounding(Self) -> DecimalRoundingMode
 pub fn DecimalContext::tininess(Self) -> DecimalTininessDetection
-pub fn DecimalContext::try_new(precision? : Int32, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn DecimalContext::try_new(precision? : Int32, rounding? : DecimalRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn DecimalContext::with_clamp_fold(Self, Bool) -> Self
+pub fn DecimalContext::with_precision(Self, Int32) -> Self
 pub fn DecimalContext::with_refinement_limit(Self, Int32?) -> Self
-pub fn DecimalContext::with_rounding(Self, @arithmetic.RoundingMode) -> Self
+pub fn DecimalContext::with_rounding(Self, DecimalRoundingMode) -> Self
 pub fn DecimalContext::with_tininess(Self, DecimalTininessDetection) -> Self
 
 #derive(Eq)
@@ -368,17 +368,14 @@ pub fn DecimalInterchangeFormat::not_equal(Self, Self) -> Bool
 
 #derive(Eq)
 pub(all) enum DecimalRoundingMode {
-  HalfEven
-  HalfUp
-  HalfDown
-  Down
-  Ceiling
-  Floor
-  Up
-  ZeroFiveUp
+  RoundTiesToEven
+  RoundTiesToAway
+  RoundTowardZero
+  RoundTowardPositive
+  RoundTowardNegative
 }
 pub fn DecimalRoundingMode::equal(Self, Self) -> Bool
-pub fn DecimalRoundingMode::from_arithmetic(@arithmetic.RoundingMode) -> Self
+pub fn DecimalRoundingMode::from_arithmetic(@arithmetic.RoundingMode) -> Self?
 pub fn DecimalRoundingMode::not_equal(Self, Self) -> Bool
 pub fn DecimalRoundingMode::to_arithmetic(Self) -> @arithmetic.RoundingMode?
 

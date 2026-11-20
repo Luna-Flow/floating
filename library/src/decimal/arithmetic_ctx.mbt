@@ -26,7 +26,7 @@ fn add_finite_values_ctx(
   }
   if lhs_value.is_zero() && rhs_value.is_zero() {
     let precision = finite_precision_for_default(ctx)
-    let negative = if ctx.decimal_rounding == DecimalRoundingMode::Floor {
+    let negative = if ctx.decimal_rounding == DecimalRound::Floor {
       lhs_value.negative || rhs_value.negative
     } else {
       lhs_value.negative && rhs_value.negative
@@ -136,7 +136,7 @@ fn add_finite_values_ctx(
     let target_exponent = high_adjusted - precision + 1
     let low = if high == lhs_value { rhs_value } else { lhs_value }
     if low_adjusted < target_exponent &&
-      ctx.decimal_rounding != DecimalRoundingMode::ZeroFiveUp {
+      ctx.decimal_rounding != DecimalRound::ZeroFiveUp {
       let (base, base_flags) = apply_finite_ctx(high, ctx)
       // IEEE 754-2019 7.4: overflow is signaled for the rounded result of the
       // operation, here the sum, not for `high` alone. An addend of the same
@@ -234,7 +234,7 @@ fn add_finite_values_ctx(
     )
   }
   let negative = if exact_magnitude.is_zero() {
-    ctx.decimal_rounding == DecimalRoundingMode::Floor &&
+    ctx.decimal_rounding == DecimalRound::Floor &&
     (lhs_value.negative || rhs_value.negative)
   } else {
     exact_negative
@@ -327,12 +327,18 @@ pub fn Decimal::add_ctx(
       )
     (FpClass::Infinity, _) =>
       (
-        lhs.with_precision(finite_precision_for_default(ctx), ctx.rounding),
+        lhs.with_precision_round(
+          finite_precision_for_default(ctx),
+          ctx.decimal_rounding,
+        ),
         DecimalFlags::new(),
       )
     (_, FpClass::Infinity) =>
       (
-        rhs.with_precision(finite_precision_for_default(ctx), ctx.rounding),
+        rhs.with_precision_round(
+          finite_precision_for_default(ctx),
+          ctx.decimal_rounding,
+        ),
         DecimalFlags::new(),
       )
     (FpClass::Finite, FpClass::Finite) => add_finite_values_ctx(lhs, rhs, ctx)
@@ -606,7 +612,7 @@ fn Decimal::decimal_div_ctx_impl(
         numerator,
         denominator,
         self.negative != other.negative,
-        DecimalRoundingMode::ZeroFiveUp,
+        DecimalRound::ZeroFiveUp,
       )
       // With a bounded precision, round the guarded quotient once, straight
       // to its final grid: to `precision` digits when it is normal and to
@@ -866,7 +872,10 @@ fn Decimal::decimal_fma_ctx_impl(
             allow_shortcuts=true,
           )
         FpClass::Infinity =>
-          (addend.with_precision(precision, ctx.rounding), DecimalFlags::new())
+          (
+            addend.with_precision_round(precision, ctx.decimal_rounding),
+            DecimalFlags::new(),
+          )
         FpClass::NaN =>
           (Decimal::nan(precision~), nan_operand_flags(self, addend))
       }
@@ -920,7 +929,7 @@ fn decimal_sqrt_should_increment(
   quotient : DecCoeff,
   midpoint_cmp : Int32,
   inexact : Bool,
-  mode : DecimalRoundingMode,
+  mode : DecimalRound,
 ) -> Bool {
   dec_coeff_sqrt_should_increment(
     quotient,

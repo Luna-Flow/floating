@@ -29,22 +29,13 @@ fn issue168_int(text : String) -> Int32 {
 }
 
 ///|
-fn issue168_context(
-  format : String,
-  mode : DecimalRoundingMode,
-) -> DecimalContext {
+fn issue168_context(format : String, mode : DecimalRound) -> DecimalContext {
   let (precision, e_min, e_max) = match format {
     "decimal32" => (7, -95, 96)
     "decimal64" => (16, -383, 384)
     _ => (34, -6143, 6144)
   }
-  DecimalContext::new(
-    precision~,
-    decimal_rounding=mode,
-    e_min~,
-    e_max~,
-    clamp=true,
-  )
+  DecimalContext::new(precision~, e_min~, e_max~, clamp=true).with_round(mode)
 }
 
 ///|
@@ -62,7 +53,7 @@ fn issue168_context(
 /// cross-checks the standard.
 test "decimal integer powers below Etiny round in the rounding direction (#168)" {
   let rows : Array[
-    (String, String, String, DecimalRoundingMode, String, String, String),
+    (String, String, String, DecimalRound, String, String, String),
   ] = [
     ("pown", "9.9E-200", "2", HalfEven, "decimal64", "1E-398", "xr...us."),
     ("pown", "9.9E-200", "2", HalfUp, "decimal64", "1E-398", "xr...us."),

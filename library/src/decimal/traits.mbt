@@ -427,7 +427,7 @@ pub impl @def.Floating for Decimal with fn precision(self) {
 
 ///|
 pub impl @def.Floating for Decimal with fn with_precision(self, precision) {
-  Decimal::with_precision(self, precision, RoundingMode::ToNearestEven)
+  self.with_precision_round(precision, DecimalRound::HalfEven)
 }
 
 ///|

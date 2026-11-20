@@ -4,7 +4,7 @@ fn should_increment_decimal_repr(
   remainder : DecCoeff,
   divisor : DecCoeff,
   negative : Bool,
-  mode : DecimalRoundingMode,
+  mode : DecimalRound,
 ) -> Bool {
   dec_coeff_should_increment(
     quotient,
@@ -21,7 +21,7 @@ fn round_positive_decimal_div(
   numerator : BigInt,
   denominator : BigInt,
   negative : Bool,
-  mode : DecimalRoundingMode,
+  mode : DecimalRound,
 ) -> BigInt {
   dec_coeff_round_div_bigint(numerator, denominator, negative, mode.kernel())
 }
@@ -31,7 +31,7 @@ fn round_positive_decimal_div_repr(
   numerator : DecCoeff,
   denominator : DecCoeff,
   negative : Bool,
-  mode : DecimalRoundingMode,
+  mode : DecimalRound,
 ) -> DecCoeff {
   dec_coeff_round_div(numerator, denominator, negative, mode.kernel())
 }
@@ -41,7 +41,7 @@ fn round_positive_decimal_div_pow10_repr(
   numerator : DecCoeff,
   shift : Int32,
   negative : Bool,
-  mode : DecimalRoundingMode,
+  mode : DecimalRound,
 ) -> (DecCoeff, Bool) {
   dec_coeff_round_div_pow10(numerator, shift, negative, mode.kernel())
 }
@@ -51,7 +51,7 @@ fn normalize_decimal(
   coefficient : BigInt,
   exponent10 : Int32,
   precision : Int32,
-  mode : RoundingMode,
+  mode : DecimalRound,
 ) -> Decimal {
   normalize_decimal_parts(
     coefficient < bigint_zero(),
@@ -68,15 +68,9 @@ fn normalize_decimal_parts(
   magnitude : BigInt,
   exponent10 : Int32,
   precision : Int32,
-  mode : RoundingMode,
+  mode : DecimalRound,
 ) -> Decimal {
-  normalize_decimal_parts_gda(
-    negative,
-    magnitude,
-    exponent10,
-    precision,
-    DecimalRoundingMode::from_arithmetic(mode),
-  )
+  normalize_decimal_parts_gda(negative, magnitude, exponent10, precision, mode)
 }
 
 ///|
@@ -85,7 +79,7 @@ fn normalize_decimal_parts_gda(
   magnitude : BigInt,
   exponent10 : Int32,
   precision : Int32,
-  mode : DecimalRoundingMode,
+  mode : DecimalRound,
 ) -> Decimal {
   normalize_decimal_parts_gda_repr(
     negative,
@@ -102,7 +96,7 @@ fn normalize_decimal_parts_gda_repr(
   magnitude : DecCoeff,
   exponent10 : Int32,
   precision : Int32,
-  mode : DecimalRoundingMode,
+  mode : DecimalRound,
 ) -> Decimal {
   let precision = Int32::max(1, precision)
   if magnitude.is_zero() {
@@ -307,7 +301,7 @@ fn decimal_round_coeff_to_digits_repr(
   exponent10 : Int32,
   target_digits : Int32,
   negative : Bool,
-  mode : DecimalRoundingMode,
+  mode : DecimalRound,
 ) -> (DecCoeff, Int32, Bool, Bool) {
   dec_coeff_round_to_digits(
     magnitude,
@@ -629,7 +623,7 @@ fn fold_exponent10_into_int_repr(
     magnitude,
     shift.to_int(),
     negative,
-    DecimalRoundingMode::ZeroFiveUp,
+    DecimalRound::ZeroFiveUp,
   )
   (folded, floor_exponent, inexact)
 }
@@ -799,7 +793,7 @@ pub fn Decimal::normalized(self : Decimal) -> Decimal {
         self.coefficient,
         self.exponent10,
         self.precision_,
-        DecimalRoundingMode::HalfEven,
+        DecimalRound::HalfEven,
       )
     _ => self
   }
@@ -945,7 +939,16 @@ pub fn Decimal::reduce_ctx(
 pub fn Decimal::with_precision(
   self : Decimal,
   precision : Int32,
-  mode : RoundingMode,
+  mode : DecimalRoundingMode,
+) -> Decimal {
+  self.with_precision_round(precision, mode.round())
+}
+
+///|
+fn Decimal::with_precision_round(
+  self : Decimal,
+  precision : Int32,
+  mode : DecimalRound,
 ) -> Decimal {
   match self.class {
     FpClass::Finite =>
@@ -954,7 +957,7 @@ pub fn Decimal::with_precision(
         self.coefficient,
         self.exponent10,
         precision,
-        DecimalRoundingMode::from_arithmetic(mode),
+        mode,
       )
     FpClass::Infinity => { ..self, precision_: Int32::max(1, precision), }
     FpClass::NaN => { ..self, precision_: Int32::max(1, precision), }

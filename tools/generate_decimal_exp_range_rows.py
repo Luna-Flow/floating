@@ -42,12 +42,9 @@ PREC = 400
 ROUNDINGS = {
     "half_even": decimal.ROUND_HALF_EVEN,
     "half_up": decimal.ROUND_HALF_UP,
-    "half_down": decimal.ROUND_HALF_DOWN,
     "down": decimal.ROUND_DOWN,
     "ceiling": decimal.ROUND_CEILING,
     "floor": decimal.ROUND_FLOOR,
-    "up": decimal.ROUND_UP,
-    "05up": decimal.ROUND_05UP,
 }
 # (name, precision, e_min, e_max, clamp)
 CONTEXTS = [

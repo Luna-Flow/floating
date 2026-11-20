@@ -37,12 +37,9 @@ PREC = 450
 ROUNDINGS = {
     "half_even": decimal.ROUND_HALF_EVEN,
     "half_up": decimal.ROUND_HALF_UP,
-    "half_down": decimal.ROUND_HALF_DOWN,
     "down": decimal.ROUND_DOWN,
     "ceiling": decimal.ROUND_CEILING,
     "floor": decimal.ROUND_FLOOR,
-    "up": decimal.ROUND_UP,
-    "05up": decimal.ROUND_05UP,
 }
 CONTEXTS = [
     (51, -14, 11, False),
@@ -53,7 +50,7 @@ CONTEXTS = [
 # Rows with an operand exponent of 300 digits or more (the slow ones) use four
 # directions, the rest all eight (the condition and the signs, not the direction,
 # decide which path is taken).
-FEW_ROUNDINGS = ("half_even", "ceiling", "floor", "up")
+FEW_ROUNDINGS = ("half_even", "ceiling", "floor", "down")
 W = decimal.Context(prec=PREC, Emax=decimal.MAX_EMAX, Emin=decimal.MIN_EMIN, traps=[])
 decimal.setcontext(W)
 EPS = Decimal(10) ** -(PREC - 10)

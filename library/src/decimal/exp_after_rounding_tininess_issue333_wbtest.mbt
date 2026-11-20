@@ -20,15 +20,11 @@ fn exp_tiny_show(text : String, ctx : DecimalContext) -> String {
 ///|
 fn exp_tiny_ctx(
   precision : Int32,
-  mode : DecimalRoundingMode,
+  mode : DecimalRound,
   tininess : DecimalTininessDetection,
 ) -> DecimalContext {
-  DecimalContext::new(
-    precision~,
-    decimal_rounding=mode,
-    e_min=-10004,
-    e_max=10001,
-    tininess~,
+  DecimalContext::new(precision~, e_min=-10004, e_max=10001, tininess~).with_round(
+    mode,
   )
 }
 
@@ -45,11 +41,7 @@ fn exp_tiny_ctx(
 /// the default, was already right.
 test "exp far below the range is tiny after rounding when etiny = e_min (#333)" {
   for
-    mode in [
-      DecimalRoundingMode::Up,
-      DecimalRoundingMode::Ceiling,
-      DecimalRoundingMode::ZeroFiveUp,
-    ] {
+    mode in [DecimalRound::Up, DecimalRound::Ceiling, DecimalRound::ZeroFiveUp] {
     inspect(
       exp_tiny_show(
         "-8E+4",
@@ -77,7 +69,7 @@ test "exp coarse underflow flags do not depend on the precision (#333)" {
       ] {
       let (value, flags) = Decimal::from_string("-8E+4")
         .unwrap()
-        .exp_ctx(exp_tiny_ctx(precision, DecimalRoundingMode::Up, tininess))
+        .exp_ctx(exp_tiny_ctx(precision, DecimalRound::Up, tininess))
       assert_true(value.is_finite())
       assert_true(
         flags.underflow && flags.subnormal && flags.inexact && flags.rounded,
@@ -91,7 +83,7 @@ test "exp coarse underflow flags do not depend on the precision (#333)" {
       "-8E+4",
       exp_tiny_ctx(
         1,
-        DecimalRoundingMode::HalfEven,
+        DecimalRound::HalfEven,
         DecimalTininessDetection::AfterRounding,
       ),
     ),

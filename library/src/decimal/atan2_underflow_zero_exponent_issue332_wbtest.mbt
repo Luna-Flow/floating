@@ -55,10 +55,10 @@ test "atan2 zero exponent follows the context, not 0 (#332)" {
   // e_min = -17 so etiny = -18.
   let ctx = DecimalContext::new(
     precision=2,
-    decimal_rounding=DecimalRoundingMode::HalfUp,
     e_min=-17,
     e_max=20,
     tininess=DecimalTininessDetection::BeforeRounding,
+    rounding=DecimalRoundingMode::RoundTiesToAway,
   )
   inspect(
     atan2_zero_show("-3.4E-16", "7E+5", ctx),
@@ -67,10 +67,10 @@ test "atan2 zero exponent follows the context, not 0 (#332)" {
   // Precision 5, e_min = -3: etiny = -7.
   let wide = DecimalContext::new(
     precision=5,
-    decimal_rounding=DecimalRoundingMode::Down,
     e_min=-3,
     e_max=9,
     clamp=true,
+    rounding=DecimalRoundingMode::RoundTowardZero,
   )
   inspect(
     atan2_zero_show("1E-20", "7", wide),
@@ -82,12 +82,8 @@ test "atan2 zero exponent follows the context, not 0 (#332)" {
 test "atan2 rounding away from zero is not a zero (#332)" {
   // Directed rounding away from zero gives the smallest subnormal, whose
   // exponent was never affected.
-  let ctx = DecimalContext::new(
-    precision=16,
-    decimal_rounding=DecimalRoundingMode::Up,
-    e_min=-383,
-    e_max=384,
-    clamp=true,
+  let ctx = DecimalContext::new(precision=16, e_min=-383, e_max=384, clamp=true).with_round(
+    DecimalRound::Up,
   )
   inspect(
     atan2_zero_show("1E-500", "9", ctx),
@@ -95,10 +91,10 @@ test "atan2 rounding away from zero is not a zero (#332)" {
   )
   let floor = DecimalContext::new(
     precision=16,
-    decimal_rounding=DecimalRoundingMode::Floor,
     e_min=-383,
     e_max=384,
     clamp=true,
+    rounding=DecimalRoundingMode::RoundTowardNegative,
   )
   inspect(
     atan2_zero_show("-1E-500", "9", floor),

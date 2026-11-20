@@ -23,7 +23,7 @@ fn convert_binary_mode(name : String) -> @bin_float.BinaryRoundingMode {
 }
 
 ///|
-fn convert_decimal_mode(name : String) -> DecimalRoundingMode {
+fn convert_decimal_mode(name : String) -> DecimalRound {
   match name {
     "n" | "half_even" => HalfEven
     "na" | "half_up" => HalfUp
@@ -58,12 +58,8 @@ fn convert_decimal_context(format : String, mode : String) -> DecimalContext {
     "decimal128" => (34, -6143, 6144)
     _ => abort("unexpected decimal format \{format}")
   }
-  DecimalContext::new(
-    precision~,
-    decimal_rounding=convert_decimal_mode(mode),
-    e_min~,
-    e_max~,
-    clamp=true,
+  DecimalContext::new(precision~, e_min~, e_max~, clamp=true).with_round(
+    convert_decimal_mode(mode),
   )
 }
 
@@ -148,10 +144,9 @@ test "binary to decimal: the MPFR mpfr_get_str rows" {
     let x = @bin_float.BinFloat::from_hex(value, precision).unwrap()
     let context = DecimalContext::new(
       precision=digits,
-      decimal_rounding=convert_decimal_mode(mode),
       e_min=-999_999_999,
       e_max=999_999_999,
-    )
+    ).with_round(convert_decimal_mode(mode))
     let (actual, flags) = Decimal::from_bin_float_ctx(x, context)
     let label = "\{value} n\{digits} \{mode}"
     let text = coeff_bigint(actual.coefficient).to_string()
@@ -440,10 +435,9 @@ test "binary to decimal: the surrogate path equals the exact expansion on every 
     let x = @bin_float.BinFloat::from_hex(value, precision).unwrap()
     let context = DecimalContext::new(
       precision=digits,
-      decimal_rounding=convert_decimal_mode(mode),
       e_min=-999_999_999,
       e_max=999_999_999,
-    )
+    ).with_round(convert_decimal_mode(mode))
     convert_identical_to_exact_expansion("getstr " + value, x, context)
   }
   for row in binary_to_decimal_rows {
@@ -464,10 +458,9 @@ test "binary to decimal: values beyond a binary exponent of 2^22 are correctly r
     let x = @bin_float.BinFloat::from_hex(hexa, 128).unwrap()
     let context = DecimalContext::new(
       precision~,
-      decimal_rounding=convert_decimal_mode(mode),
       e_min=-999_999_999,
       e_max=999_999_999,
-    )
+    ).with_round(convert_decimal_mode(mode))
     let (actual, flags) = Decimal::from_bin_float_ctx(x, context)
     let label = "\{hexa} p\{precision} \{mode}"
     assert_eq(

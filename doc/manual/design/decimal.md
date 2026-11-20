@@ -185,6 +185,14 @@ $$
 Each rounding direction returns $c$ or $c + 1$ (times $10^{t}$); the choice
 depends on $f$, the last digit of $c$ and the sign:
 
+The kernels implement eight algorithms. A context selects one of the five
+that IEEE 754-2019 §4.3 names (public `DecimalRoundingMode`: `RoundTowardZero`
+is `Down`, `RoundTowardPositive` is `Ceiling`, `RoundTowardNegative` is
+`Floor`, `RoundTiesToAway` is `HalfUp`, `RoundTiesToEven` is `HalfEven`); `Up`,
+`HalfDown` and `ZeroFiveUp` are working modes of the library (directed bounds of
+the certified functions, the guard digit of division) that no context can
+select. The table uses the kernel names.
+
 | Mode | IEEE name | returns $c+1$ when ($f > 0$) |
 | --- | --- | --- |
 | `Down` | roundTowardZero | never |
@@ -511,7 +519,7 @@ test "design: overflow depends on the rounding direction" {
   let big = @decimal.Decimal::from_string("9E+384").unwrap()
   let ten = @decimal.Decimal::from_int(10)
   inspect(big.mul_ctx(ten, ctx).0, content="inf")
-  let down = ctx.with_rounding(@def.RoundingMode::TowardZero)
+  let down = ctx.with_rounding(@decimal.DecimalRoundingMode::RoundTowardZero)
   let (sat, flags) = big.mul_ctx(ten, down)
   inspect(sat, content="9.999999999999999E+384")
   inspect(flags.overflow() && flags.inexact(), content="true")

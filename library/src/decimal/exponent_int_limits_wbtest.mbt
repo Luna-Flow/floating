@@ -272,8 +272,7 @@ test "fma exact product boundary honors negative addend" {
     precision=2,
     e_min=-999_999_999,
     e_max=0,
-    rounding=RoundingMode::TowardZero,
-    decimal_rounding=DecimalRoundingMode::Down,
+    rounding=DecimalRoundingMode::RoundTowardZero,
   )
   let (value, flags) = Decimal::make(1N, 6, 2).fma_ctx(
     Decimal::make(1N, -5, 2),
@@ -292,7 +291,7 @@ test "fma exact product boundary follows floor without overflow" {
     precision=2,
     e_min=-999_999_999,
     e_max=0,
-    decimal_rounding=DecimalRoundingMode::Floor,
+    rounding=DecimalRoundingMode::RoundTowardNegative,
   )
   let (value, flags) = Decimal::make(1N, 6, 2).fma_ctx(
     Decimal::make(1N, -5, 2),

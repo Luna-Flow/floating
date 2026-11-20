@@ -12,22 +12,23 @@ The committed IEEE corpus covers decimal32/64/128 DPD and BID interchange, canon
 
 Mandatory operation vectors use exact integer/rational construction and the documented DPD/BID bridge. Elementary families use independent high-precision or interval oracles when available. Values or encoded bits and IEEE flags are recorded independently so a numerically plausible result cannot hide a flag error.
 
-The committed elementary layer contains 4,896 certified rows. MPFR 4.2.2
+The committed elementary layer contains 3,060 certified rows. MPFR 4.2.2
 produces directed 768-bit dyadic endpoints; exact integer conversion rounds
-both endpoints into decimal32/64/128 under every `DecimalRoundingMode`, and the
+both endpoints into decimal32/64/128 under each of the five `DecimalRoundingMode` values, and the
 generator rejects a row unless result and flags are unique. Native, Wasm,
-Wasm-GC, and JavaScript each pass 531/531 public API tests after these rows are
-materialized (one test per MPFR interval, holding its 24 rows: a Wasm test
+Wasm-GC, and JavaScript each pass 577/577 public API tests after these rows are
+materialized (one test per MPFR interval, holding its 15 rows: a Wasm test
 module cannot register one test per row). The full gate,
-`just gate decimal 3`, is 103,527/103,527: the 24,867 target-independent checks,
-the 531 public API tests on each of the four targets, and the 19,134 rows of the
-`pi_inverse` table on each of the four targets. RDFP and Arb remain optional
+`just gate decimal 3`, is 76,591/76,591: the 23,031 target-independent checks,
+the 577 public API tests on each of the four targets, and the 12,753 rows of the
+`pi_inverse` table and the 60 rows of the `huge_trig` table on each of the four
+targets. RDFP and Arb remain optional
 secondary routes and are not counted when unavailable.
 
 IEEE 754-2019 §9.2 saturation regressions for `Decimal::tanh_ctx` and
 `Decimal::expm1_ctx` are in
 `library/src/decimal/elementary_extensions_wbtest.mbt`. They check positive and
-negative `tanh`, negative `expm1`, all eight `DecimalRoundingMode` values,
+negative `tanh`, negative `expm1`, all five `DecimalRoundingMode` values,
 both clamp settings, both extended settings, and exact `Rounded`/`Inexact`
 flags. The certified pre-loop bound selects a same-side representative within
 the proved gap and passes it through the normal context finalizer, which
@@ -43,7 +44,7 @@ IEEE Std 754-2019 for `decimal` (decimal32/64/128 and arbitrary precision). Stat
 | --- | --- | --- | --- | --- |
 | §3.5 decimal32/64/128 interchange, DPD and BID | required | `Decimal::to_interchange_hex`, `Decimal::from_interchange_hex`, `Decimal::canonical` | IEEE decimal corpus (`testdata/decimal/ieee/decimal64_dpd.json` and the other five encodings); all 1,024 declets; `library/src/decimal/interchange_wbtest.mbt` | conforming |
 | §3.7 extendable precisions | recommended | `DecimalContext::new` (precision up to 999,999,999) | `library/src/decimal/exponent_range_wbtest.mbt` | conforming |
-| §4.3 rounding-direction attributes | required | `DecimalRoundingMode` | IEEE decimal corpus (five directions); `library/src/decimal/subnormal_rounding_wbtest.mbt` | conforming; `HalfDown`, `Up` and `ZeroFiveUp` are extensions |
+| §4.3 rounding-direction attributes | required | `DecimalRoundingMode` | IEEE decimal corpus (five directions); `library/src/decimal/subnormal_rounding_wbtest.mbt` | conforming; all five attributes of §4.3 (`RoundTiesToEven`, `RoundTiesToAway`, `RoundTowardZero`, `RoundTowardPositive`, `RoundTowardNegative`) and no other |
 | §5.2 preferred exponents | required | every `*_ctx` operation, `pow_ctx`, `pown_ctx` | `library/src/decimal/power_preferred_exponent_issue194_wbtest.mbt`, `library/src/decimal/preferred_cohort_issue150_wbtest.mbt` | conforming; `pow(1, ±inf)` has no defined exponent and returns `1` |
 | §5.3.1 addition, subtraction, multiplication, division, squareRoot | required | `add_ctx`, `sub_ctx`, `mul_ctx`, `div_ctx`, `sqrt_ctx` | IEEE decimal corpus (authoritative operations); `library/src/decimal/exponent_limits_issue187_wbtest.mbt` | conforming |
 | §5.3.1 fusedMultiplyAdd | required | `fma_ctx` | IEEE decimal corpus; `library/src/decimal/exponent_limits_issue187_wbtest.mbt` | conforming |

@@ -11,7 +11,7 @@
 /// not a number) and whether rounding changed the value`.
 
 ///|
-fn issue226_mode(name : String) -> DecimalRoundingMode {
+fn issue226_mode(name : String) -> DecimalRound {
   match name {
     "half_even" => HalfEven
     "half_up" => HalfUp
@@ -70,11 +70,8 @@ test "convertToInteger rounds in every direction with the exact flags (IEEE 754-
   for row in issue226_rows {
     let (text, mode, i32, i64, u32, u64, changed) = row
     let value = Decimal::from_string(text).unwrap()
-    let ctx = DecimalContext::new(
-      precision=16,
-      decimal_rounding=issue226_mode(mode),
-      e_min=-383,
-      e_max=384,
+    let ctx = DecimalContext::new(precision=16, e_min=-383, e_max=384).with_round(
+      issue226_mode(mode),
     )
     for exact in [false, true] {
       let label = "\{text} \{mode} exact=\{exact}"

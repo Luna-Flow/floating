@@ -437,7 +437,7 @@ fn integer_quotient_by_power_of_ten_repr(
     dividend.coefficient,
     -shift,
     false,
-    DecimalRoundingMode::HalfEven,
+    DecimalRound::HalfEven,
   )
   Some(quotient0)
 }
@@ -606,7 +606,7 @@ fn plain_sticky_sum_result(
       magnitude,
       sticky_exponent.to_int(),
       precision,
-      DecimalRoundingMode::HalfEven,
+      DecimalRound::HalfEven,
     ),
   )
 }
@@ -631,14 +631,14 @@ fn add_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
     (FpClass::NaN, _) | (_, FpClass::NaN) => Decimal::nan(precision~)
     (FpClass::Infinity, FpClass::Infinity) =>
       if a.sign() == b.sign() {
-        a.with_precision(precision, RoundingMode::ToNearestEven)
+        a.with_precision_round(precision, DecimalRound::HalfEven)
       } else {
         Decimal::nan(precision~)
       }
     (FpClass::Infinity, _) =>
-      a.with_precision(precision, RoundingMode::ToNearestEven)
+      a.with_precision_round(precision, DecimalRound::HalfEven)
     (_, FpClass::Infinity) =>
-      b.with_precision(precision, RoundingMode::ToNearestEven)
+      b.with_precision_round(precision, DecimalRound::HalfEven)
     (FpClass::Finite, FpClass::Finite) if a.is_zero() && b.is_zero() =>
       if a.negative && b.negative {
         Decimal::negative_zero(precision~)
@@ -667,7 +667,7 @@ fn add_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
         magnitude,
         target,
         precision,
-        DecimalRoundingMode::HalfEven,
+        DecimalRound::HalfEven,
       )
     }
   }
@@ -779,7 +779,7 @@ fn div_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
         numerator,
         b.coefficient,
         a.sign() != b.sign(),
-        DecimalRoundingMode::ZeroFiveUp,
+        DecimalRound::ZeroFiveUp,
       )
       // The guarded quotient is rounded once, to the precision and, below the
       // exponent range, to its smallest exponent.
@@ -812,7 +812,7 @@ fn context_free_round_wide(
   precision : Int32,
   round_to_precision~ : Bool,
   reduce~ : Bool,
-  mode~ : DecimalRoundingMode = DecimalRoundingMode::HalfEven,
+  mode~ : DecimalRound = DecimalRound::HalfEven,
 ) -> Decimal {
   let precision = Int32::max(1, precision)
   let min_exponent = -2147483648L
@@ -939,7 +939,7 @@ fn exact_base_small_addend_step(
   base_negative : Bool,
   low_negative : Bool,
   cmp_half : Int32,
-  mode : DecimalRoundingMode,
+  mode : DecimalRound,
 ) -> Int32 {
   dec_coeff_addend_rounding_step(
     base_is_odd,

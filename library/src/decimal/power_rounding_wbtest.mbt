@@ -60,7 +60,7 @@ test "decimal rootn and hypot return exact results exactly" {
   let c64 = DecimalContext::decimal64()
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
   for mode in [RoundingMode::ToNearestEven, TowardZero, TowardPositive] {
-    let ctx = c64.with_rounding(mode)
+    let ctx = c64.with_round(DecimalRound::from_arithmetic(mode))
     assert_eq(power_case(d("0.3").hypot_ctx(d("0.4"), ctx)), "0.5")
     assert_eq(power_case(d("-7.5").hypot_ctx(d("0"), ctx)), "7.5")
     assert_eq(power_case(d("5E+300").hypot_ctx(d("1.2E+301"), ctx)), "1.3E+301")

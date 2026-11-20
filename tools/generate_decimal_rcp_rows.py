@@ -213,7 +213,7 @@ def build() -> Rows:
                str(4**10), str(4**20), str(25**8), str(Decimal(4) ** 30), "2.56", "1.6E+3"]
     for precision in (1, 2, 3, 7, 16, 34):
         spec = (precision, -999999, 999999, 0)
-        modes = ROUNDINGS if precision in (1, 3, 16) else ("half_even", "floor", "05up")
+        modes = ROUNDINGS if precision in (1, 3, 16) else ("half_even", "floor", "half_up")
         for mode in modes:
             c = ctx(spec, mode)
             for text in exact_x:
@@ -260,7 +260,7 @@ def build() -> Rows:
     # tiny x (the anchored path), overflow and underflow.
     for precision in (1, 2, 3, 7, 16, 34):
         spec = (precision, -999999, 999999, 0)
-        modes = ROUNDINGS if precision in (1, 3, 16) else ("half_even", "floor", "05up")
+        modes = ROUNDINGS if precision in (1, 3, 16) else ("half_even", "floor", "half_up")
         for mode in modes:
             c = ctx(spec, mode)
             for text in ("0.05", "0.1", "0.10", "-0.5", "1", "2", "-0.75", "0.5", "1.5", "-0.25", "9", "0.01", "1E+1"):
@@ -294,7 +294,7 @@ def build() -> Rows:
              ("1000E-8", "1.2")]
     for precision in (1, 3, 7, 16, 34):
         spec = (precision, -999999, 999999, 0)
-        for mode in ROUNDINGS if precision in (1, 16) else ("half_even", "ceiling", "05up"):
+        for mode in ROUNDINGS if precision in (1, 16) else ("half_even", "ceiling", "half_up"):
             c = ctx(spec, mode)
             for a, b in pairs:
                 x = Decimal(a)

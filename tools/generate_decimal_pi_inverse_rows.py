@@ -125,7 +125,7 @@ def build() -> Rows:
     units = ["1", "1.0", "1.000", "1E+0", "10E-1"]
     for precision in (1, 2, 3, 7, 16, 34):
         spec = (precision, -999999, 999999, 0)
-        modes = ROUNDINGS if precision in (1, 2, 16) else ("half_even", "floor", "up")
+        modes = ROUNDINGS if precision in (1, 2, 16) else ("half_even", "floor", "ceiling")
         for mode in modes:
             c = ctx(spec, mode)
             for u in units:

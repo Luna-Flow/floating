@@ -42,7 +42,7 @@ fn pm1_flags_text(flags : DecimalFlags) -> String {
 }
 
 ///|
-fn pm1_rounding(name : String) -> DecimalRoundingMode {
+fn pm1_rounding(name : String) -> DecimalRound {
   match name {
     "half_even" => HalfEven
     "half_up" => HalfUp
@@ -100,12 +100,11 @@ fn pm1_ctx(
 ) -> DecimalContext {
   DecimalContext::new(
     precision~,
-    decimal_rounding=pm1_rounding(rounding),
     e_min~,
     e_max~,
     clamp~,
     tininess=if tininess == "a" { AfterRounding } else { BeforeRounding },
-  )
+  ).with_round(pm1_rounding(rounding))
 }
 
 ///|
@@ -186,7 +185,7 @@ test "pm1 generated rows: exact and MPFR-certified results, cohort and flags" {
     }
   }
   inspect(failures.to_string(), content="")
-  assert_true(rows.length() > 10000)
+  assert_true(rows.length() > 8000)
 }
 
 ///|

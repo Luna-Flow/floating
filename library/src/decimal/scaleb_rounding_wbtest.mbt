@@ -25,11 +25,19 @@ fn scaleb_case(value : String, count : String, ctx : DecimalContext) -> String {
 test "decimal scaleb overflow honours the rounding direction" {
   let c64 = DecimalContext::decimal64()
   assert_eq(
-    scaleb_case("9E+384", "1", c64.with_rounding(TowardZero)),
+    scaleb_case(
+      "9E+384",
+      "1",
+      c64.with_rounding(DecimalRoundingMode::RoundTowardZero),
+    ),
     "9.999999999999999E+384 inexact overflow",
   )
   assert_eq(
-    scaleb_case("-9.99", "385", c64.with_rounding(TowardPositive)),
+    scaleb_case(
+      "-9.99",
+      "385",
+      c64.with_rounding(DecimalRoundingMode::RoundTowardPositive),
+    ),
     "-9.999999999999999E+384 inexact overflow",
   )
   assert_eq(scaleb_case("9E+384", "1", c64), "inf inexact overflow")
