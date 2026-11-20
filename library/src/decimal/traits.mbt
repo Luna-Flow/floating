@@ -18,6 +18,21 @@ fn contextual_outcome(
 ) -> Result[@lf_arith.ArithmeticOutcome[Decimal], @lf_arith.ArithmeticError] {
   if flags.division_by_zero {
     Err(@lf_arith.ArithmeticError::division_by_zero("division by zero"))
+  } else if flags.not_computed {
+    // could not be computed within a limit of the implementation (S4): the
+    // certification-failure kind, apart from the domain error of an invalid result
+    Err(
+      @lf_arith.ArithmeticError::certification_failure(
+        @lf_arith.CertificationFailureDetail::new(
+          "decimal operation",
+          @lf_arith.CertificationStage::RangeReduction,
+          @lf_arith.CertificationFailureReason::ResourceLimit,
+          0,
+          0,
+          0,
+        ),
+      ),
+    )
   } else if flags.has_error() {
     Err(@lf_arith.ArithmeticError::domain_error("invalid decimal operation"))
   } else {

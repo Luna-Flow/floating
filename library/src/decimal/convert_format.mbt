@@ -78,7 +78,7 @@ fn decimal_exact_from_bin_float(x : @bin_float.BinFloat) -> Decimal {
 /// quiet NaN and the invalid operation exception; the payload is kept when the
 /// destination holds it (§6.2.3). Only an unlimited precision (`exact()`) needs
 /// the whole expansion, and a binary exponent beyond 2^22 in magnitude is then
-/// not computed: NaN with `invalid_context`.
+/// not computed: NaN with `not_computed`.
 pub fn Decimal::from_bin_float_ctx(
   x : @bin_float.BinFloat,
   ctx : DecimalContext,
@@ -145,10 +145,7 @@ pub fn Decimal::from_bin_float_ctx(
         // exponent of 2^22 it is not computed.
         let exponent = x.exponent2().to_int64()
         if exponent > 4_194_304L || exponent < -4_194_304L {
-          return (
-            Decimal::nan(precision=ctx.precision),
-            invalid_context_flags(),
-          )
+          return (Decimal::nan(precision=ctx.precision), not_computed_flags())
         }
         decimal_exact_from_bin_float(x).apply_ctx(ctx)
       }

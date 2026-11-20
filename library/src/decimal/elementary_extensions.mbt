@@ -364,7 +364,7 @@ fn Decimal::try_unary_elementary_ctx(
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
-    return Ok(invalid_context_result(ctx))
+    return Err(decimal_context_limit(operation.name(), ctx))
   }
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   if self.class == FpClass::NaN {
@@ -645,7 +645,7 @@ fn Decimal::unary_elementary_ctx(
 ) -> (Decimal, DecimalFlags) {
   match self.try_unary_elementary_ctx(operation, ctx) {
     Ok(result) => result
-    Err(_) => decimal_elementary_invalid(ctx)
+    Err(_) => not_computed_result(ctx)
   }
 }
 
@@ -761,7 +761,10 @@ pub fn Decimal::try_pown_ctx(
   exponent : Int32,
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
-  self.try_pow_ctx(decimal_pown_exponent(exponent, ctx), ctx)
+  decimal_failure_of(
+    "pown",
+    self.try_pow_ctx(decimal_pown_exponent(exponent, ctx), ctx),
+  )
 }
 
 ///|
@@ -1143,7 +1146,7 @@ pub fn Decimal::try_hypot_ctx(
   if math_context_is_restricted(ctx) ||
     decimal_math_operand_out_of_range(self) ||
     decimal_math_operand_out_of_range(other) {
-    return Ok(invalid_context_result(ctx))
+    return Err(decimal_context_limit("hypot", ctx))
   }
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   let nan_result = quiet_nan_pair(self, other, ctx)
@@ -1203,7 +1206,7 @@ pub fn Decimal::hypot_ctx(
 ) -> (Decimal, DecimalFlags) {
   match self.try_hypot_ctx(other, ctx) {
     Ok(result) => result
-    Err(_) => decimal_elementary_invalid(ctx)
+    Err(_) => not_computed_result(ctx)
   }
 }
 
@@ -1216,7 +1219,7 @@ pub fn Decimal::try_atan2_ctx(
   if math_context_is_restricted(ctx) ||
     decimal_math_operand_out_of_range(self) ||
     decimal_math_operand_out_of_range(abscissa) {
-    return Ok(invalid_context_result(ctx))
+    return Err(decimal_context_limit("atan2", ctx))
   }
   match quiet_nan_pair(self, abscissa, ctx) {
     Some(result) => return Ok(result)
@@ -1313,6 +1316,6 @@ pub fn Decimal::atan2_ctx(
 ) -> (Decimal, DecimalFlags) {
   match self.try_atan2_ctx(abscissa, ctx) {
     Ok(result) => result
-    Err(_) => decimal_elementary_invalid(ctx)
+    Err(_) => not_computed_result(ctx)
   }
 }

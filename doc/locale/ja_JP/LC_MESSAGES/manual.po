@@ -709,7 +709,7 @@ msgstr "`pown_rev(c, p, x?)` は標準の `pownRev(c, x, p)` に対応し、べ�
 
 #: manual/api/ball_float.md:965
 #: manual/api/ball_float.md:1962
-#: manual/api/decimal.md:1827
+#: manual/api/decimal.md:1830
 #: manual/design/ball_float.md:570
 #: manual/numeric_semantics.md:136
 msgid "Function"
@@ -1252,7 +1252,7 @@ msgstr "NaI はコンテキストの精度を持つ NaI のままです。"
 #: manual/api/ball_float_checked.md:513
 #: manual/api/bin_float.md:2387
 #: manual/api/bin_float_checked.md:817
-#: manual/api/decimal.md:2065
+#: manual/api/decimal.md:2076
 #: manual/api/decimal_gda.md:1458
 #: manual/api/def.md:414
 #: manual/api/frontend/gda_expr.md:457
@@ -1330,8 +1330,8 @@ msgstr "使われるのは `ctx.precision` だけです。オペランドは `wi
 #: manual/api/cli/mpfr_expr_cli.md:73
 #: manual/api/cli/testfloat_expr_cli.md:76
 #: manual/api/consistency.md:50
-#: manual/api/decimal.md:2263
-#: manual/api/decimal_checked.md:400
+#: manual/api/decimal.md:2274
+#: manual/api/decimal_checked.md:401
 #: manual/api/decimal_gda.md:1652
 #: manual/api/decimal_gda_checked.md:318
 #: manual/api/def.md:428
@@ -1353,7 +1353,7 @@ msgid "Complete public interface"
 msgstr "公開インターフェース全体"
 
 #: manual/api/ball_float.md:2171
-#: manual/api/decimal.md:2265
+#: manual/api/decimal.md:2276
 #: manual/api/decimal_gda.md:1654
 #: manual/api/frontend/gda_expr.md:510
 #: manual/api/frontend/itl_expr.md:278
@@ -1593,7 +1593,7 @@ msgstr "演算子 `+`、`-`、`*`、`/` と単項 `-` は、`add`、`sub`、`mul
 
 #: manual/api/ball_float_checked.md:530
 #: manual/api/bin_float_checked.md:839
-#: manual/api/decimal_checked.md:402
+#: manual/api/decimal_checked.md:403
 #: manual/api/decimal_gda_checked.md:320
 #: manual/api/def.md:430
 #: manual/api/semantic.md:375
@@ -4587,8 +4587,8 @@ msgid "no usefully definable result (signaling NaN, $\\infty-\\infty$, $0\\times
 msgstr "有用に定義できる結果がない場合（シグナリング NaN、$\\infty-\\infty$、$0\\times\\infty$、$0/0$、不正な quantize、数でないテキスト、初等関数がサポートする範囲外のコンテキスト）"
 
 #: manual/api/decimal.md:708
-msgid "reserved for a result that could not be computed within a limit of the implementation; no operation raises it yet"
-msgstr "実装の限界内で計算できなかった結果のために予約されています。現在これを立てる演算はありません"
+msgid "a result the library could not compute within a limit of the implementation (a context beyond the elementary kernels, an operand beyond their range, an exact sum with an exponent gap beyond the work bound, a certification that did not conclude): the value is a NaN, `invalid_operation` is not raised, and the `try_` form returns `Err` (certification failure kind)"
+msgstr "実装の限界内でライブラリが計算できなかった結果（初等カーネルを超えるコンテキスト、その範囲を超えるオペランド、作業上限を超える指数の隔たりを持つ厳密な和、結論に至らなかった認証）です。値は NaN で、`invalid_operation` は立たず、`try_` 形式は `Err`（認証失敗の種類）を返します"
 
 #: manual/api/decimal.md:710
 msgid "These are the five flags of IEEE 754-2019 7.2 to 7.6 and `not_computed`. The General Decimal Arithmetic flags `rounded`, `subnormal`, `clamped`, `lost_digits`, `conversion_syntax`, `division_impossible`, `division_undefined` and `invalid_context` are not part of `decimal`; `decimal_gda` keeps them."
@@ -4880,34 +4880,34 @@ msgid "[!NOTE] **Exact non-integral powers.** A power whose exact value is a rep
 msgstr "[!NOTE] **厳密な非整数べき。** 厳密値が表現可能な 10 進数でありながら二進分数ではないべきは、ループの前に 10 進で判定されます。そのため decimal64 では `pow_ctx(0.0016, 0.25)` は `0.2`、`pow_ctx(32, 0.2)` は `2`、`pow_ctx(0.04, 1.5)` は `0.008` となり、いずれも `inexact` を伴わず、どの丸めモードでも同じです。指数は既約な $p/q$ に約され——10 進の指数は $c \\cdot 10^{-k}$ なので、$q$ には係数が約せない 2 と 5 だけが残ります——べきが厳密になるのは $x$ 自身が完全 $q$ 乗であるとき、かつそのときだけです。先に根を取ってから $p$ 乗するので、判定が扱う数が結果より長くなることはありません。丸めの境界に乗りうるのは高々 `precision + 1` 桁の厳密な結果だけで、判定はそれらをすべて見つけます。それより長い厳密値は丸めのセルの内部にあり、包含区間がほかの値と同じように丸めます。"
 
 #: manual/api/decimal.md:1466
-msgid "These operations return NaN with `invalid_operation` when $p > 999\\,999$, $e_{\\max} > 999\\,999$ or $e_{\\min} < -999\\,999$, or when a finite operand has more than 999,999 digits or an adjusted exponent beyond about $\\pm 10^6$. Only `pow_ctx` and `pown_ctx` handle their IEEE power cases before this restricted-context check. For example, `pow_ctx(1, 1.1)` is exactly `1` even in a restricted context, while `ln_ctx(1)` and `exp_ctx(-inf)` still return `invalid_operation`. Integral powers in `decimal` support counts through 999,999,999 for positive exponents and -1,999,999,997 for negative exponents; these are adopted decNumber implementation limits, not limits imposed by GDA 1.70. Integer powers above those counts use bounded square-and-multiply when the exact exponent coefficient has at most 4,096 decimal digits. Larger coefficients return NaN with `invalid_operation` before expansion. Thus `pow_ctx(2, 1E+9)` is finite under `DecimalContext::new()`, while `pow_ctx(2, 1E+9999999)` is rejected within the fixed work bound. The same large input to `decimal_gda` still follows the GDA adapter's decNumber count limit and returns `invalid_operation`; IEEE `decimal` and `decimal_gda` therefore intentionally differ on this input. Non-integral powers such as `pow_ctx(2, 1.5)` and `exp2_ctx(2)` remain subject to the elementary-function context limits."
-msgstr "これらの演算は、$p > 999\\,999$、$e_{\\max} > 999\\,999$、または $e_{\\min} < -999\\,999$ の場合、あるいは有限のオペランドが 999,999 桁を超える場合や調整指数が約 $\\pm 10^6$ を超える場合に、`invalid_operation` 付きの NaN を返します。`pow_ctx` と `pown_ctx` だけが、この制限付きコンテキストの検査より前に、IEEE の冪の特殊な場合を処理します。たとえば `pow_ctx(1, 1.1)` は制限付きコンテキストでも正確に `1` ですが、`ln_ctx(1)` と `exp_ctx(-inf)` は引き続き `invalid_operation` を返します。`decimal` の整数冪は、正の指数で 999,999,999 まで、負の指数で -1,999,999,997 までの回数をサポートします。これらは採用した decNumber の実装上の限界であり、GDA 1.70 が課す限界ではありません。これらの回数を超える整数冪は、正確な指数の係数が 4,096 桁以下であれば、有界な二乗乗算を使います。それより大きな係数は、展開する前に `invalid_operation` 付きの NaN を返します。したがって `pow_ctx(2, 1E+9)` は `DecimalContext::new()` の下で有限ですが、`pow_ctx(2, 1E+9999999)` は固定された作業量の上限内で拒否されます。同じ大きな入力は `decimal_gda` では GDA アダプタの decNumber の回数制限に従い、`invalid_operation` を返します。そのため IEEE の `decimal` と `decimal_gda` はこの入力で意図的に異なります。`pow_ctx(2, 1.5)` や `exp2_ctx(2)` のような非整数冪は、引き続き初等関数のコンテキスト制限を受けます。"
+msgid "These operations return NaN with `not_computed` (and the `try_` forms `Err`, of the certification-failure kind) when $p > 999\\,999$, $e_{\\max} > 999\\,999$ or $e_{\\min} < -999\\,999$, or when a finite operand has more than 999,999 digits or an adjusted exponent beyond about $\\pm 10^6$. In such a context every operand is `not_computed`, the special ones (NaN, infinities, zero) included, although IEEE 754-2019 defines those results (the order of the checks is that of the implementation; lifting it is the subject of #478). Only `pow_ctx` and `pown_ctx` handle their IEEE power cases before this restricted-context check. For example, `pow_ctx(1, 1.1)` is exactly `1` even in a restricted context, while `ln_ctx(1)` and `exp_ctx(-inf)` still return `not_computed`. Integral powers in `decimal` support counts through 999,999,999 for positive exponents and -1,999,999,997 for negative exponents; these are adopted decNumber implementation limits, not limits imposed by GDA 1.70. Integer powers above those counts use bounded square-and-multiply when the exact exponent coefficient has at most 4,096 decimal digits. Larger coefficients return NaN with `invalid_operation` before expansion. Thus `pow_ctx(2, 1E+9)` is finite under `DecimalContext::new()`, while `pow_ctx(2, 1E+9999999)` is rejected within the fixed work bound. The same large input to `decimal_gda` still follows the GDA adapter's decNumber count limit and returns `invalid_operation`; IEEE `decimal` and `decimal_gda` therefore intentionally differ on this input. Non-integral powers such as `pow_ctx(2, 1.5)` and `exp2_ctx(2)` remain subject to the elementary-function context limits."
+msgstr "これらの演算は（`try_` 形式は認証失敗の種類の `Err` を返し）、$p > 999\\,999$、$e_{\\max} > 999\\,999$、または $e_{\\min} < -999\\,999$ の場合、あるいは有限のオペランドが 999,999 桁を超える場合や調整指数が約 $\\pm 10^6$ を超える場合に、`not_computed` 付きの NaN を返します。このようなコンテキストでは、特殊なもの（NaN、無限大、ゼロ）を含むすべてのオペランドが `not_computed` になります。IEEE 754-2019 はそれらの結果を定義していますが、検査の順序は実装のもので、それを変えることは #478 の課題です。`pow_ctx` と `pown_ctx` だけが、この制限付きコンテキストの検査より前に、IEEE の冪の特殊な場合を処理します。たとえば `pow_ctx(1, 1.1)` は制限付きコンテキストでも正確に `1` ですが、`ln_ctx(1)` と `exp_ctx(-inf)` は引き続き `not_computed` を返します。`decimal` の整数冪は、正の指数で 999,999,999 まで、負の指数で -1,999,999,997 までの回数をサポートします。これらは採用した decNumber の実装上の限界であり、GDA 1.70 が課す限界ではありません。これらの回数を超える整数冪は、正確な指数の係数が 4,096 桁以下であれば、有界な二乗乗算を使います。それより大きな係数は、展開する前に `invalid_operation` 付きの NaN を返します。したがって `pow_ctx(2, 1E+9)` は `DecimalContext::new()` の下で有限ですが、`pow_ctx(2, 1E+9999999)` は固定された作業量の上限内で拒否されます。同じ大きな入力は `decimal_gda` では GDA アダプタの decNumber の回数制限に従い、`invalid_operation` を返します。そのため IEEE の `decimal` と `decimal_gda` はこの入力で意図的に異なります。`pow_ctx(2, 1.5)` や `exp2_ctx(2)` のような非整数冪は、引き続き初等関数のコンテキスト制限を受けます。"
 
-#: manual/api/decimal.md:1488
+#: manual/api/decimal.md:1491
 msgid "These functions are the General Decimal Arithmetic exponential and logarithms."
 msgstr "これらの関数は General Decimal Arithmetic の指数関数と対数関数です。"
 
-#: manual/api/decimal.md:1500
+#: manual/api/decimal.md:1503
 msgid "$e^{\\pm 0} = 1$, $e^{+\\infty}=+\\infty$, $e^{-\\infty} = +0$. $\\ln$ and $\\log_{10}$ of $\\pm 0$ are $-\\infty$ with `division_by_zero`, as IEEE 754-2019 §9.2.1 requires and as `log2_ctx`, `log1p_ctx` and `logb_ctx` do (General Decimal Arithmetic, which [`decimal_gda`](decimal_gda.md) follows, raises no condition here); of $+\\infty$ are $+\\infty$, of a negative value or $-\\infty$ are NaN with `invalid_operation`; $\\ln 1 = 0$, and $\\log_{10}$ of a power of ten is the exact integer exponent. Arguments so large or small that $e^x$ certainly overflows or underflows are decided without evaluation."
 msgstr "$e^{\\pm 0} = 1$、$e^{+\\infty}=+\\infty$、$e^{-\\infty} = +0$ です。$\\pm 0$ の $\\ln$ と $\\log_{10}$ は $-\\infty$ で `division_by_zero` が立ちます。これは IEEE 754-2019 §9.2.1 の要求であり、`log2_ctx`、`log1p_ctx`、`logb_ctx` と同じ振る舞いです（[`decimal_gda`](decimal_gda.md) が従う General Decimal Arithmetic はここで条件を発生させません）。$+\\infty$ に対しては $+\\infty$、負の値や $-\\infty$ に対しては `invalid_operation` 付きの NaN です。$\\ln 1 = 0$ であり、10 の冪の $\\log_{10}$ は正確な整数の指数です。$e^x$ が確実にオーバーフローまたはアンダーフローするほど大きい・小さい引数は、評価せずに判定されます。"
 
-#: manual/api/decimal.md:1511
+#: manual/api/decimal.md:1514
 msgid "These functions compute powers, roots and the Euclidean norm."
 msgstr "これらの関数は冪、冪根、ユークリッドノルムを計算します。"
 
-#: manual/api/decimal.md:1524
+#: manual/api/decimal.md:1527
 msgid "`pow_ctx(x, y)` is the IEEE 754-2019 §9.2 power operation. A signaling NaN operand is quieted and raises `invalid_operation`; this takes precedence over the identities below. Otherwise $x^{\\pm 0}=1$, including for zero, infinity, and quiet NaN, and $\\operatorname{pow}(+1,y)=1$ for every $y$ (including quiet NaN). Also $\\operatorname{pow}(-1,\\pm\\infty)=1$. An infinite exponent classifies the magnitude of any other base: $|x|<1$ tends to zero for $+\\infty$ and infinity for $-\\infty$, while $|x|>1$ does the reverse; the sign of a negative base does not make these cases invalid."
 msgstr "`pow_ctx(x, y)` は IEEE 754-2019 §9.2 のべき演算です。`signaling NaN` オペランドは先に quiet NaN へ変換されて `invalid_operation` を通知し、以下の恒等式より優先されます。それ以外では $x^{\\pm 0}=1$ で、ゼロ、無限大、quiet NaN にも適用されます。`pow(+1, y)` は任意の $y$（quiet NaN を含む）に対して `1` です。また `pow(-1, ±inf)=1` です。無限大の指数は、その他の底の絶対値で分類されます。$|x|<1$ なら指数が $+\\infty$ のときゼロへ、$-\\infty$ のとき無限大へ近づき、$|x|>1$ では逆になります。負の底の符号によってこれらが無効になることはありません。"
 
-#: manual/api/decimal.md:1533
+#: manual/api/decimal.md:1536
 msgid "For a zero base and a negative integer exponent, the result is the signed infinity selected by the zero sign and exponent parity, with `division_by_zero`: for example, $(-0)^{-1}=-\\infty$ and $(-0)^{-2}=+\\infty$. Positive integer powers preserve the zero sign by parity: $(-0)^3=-0$ and $(-0)^2=+0$. Zero raised to a negative non-integer exponent is positive infinity with `division_by_zero`."
 msgstr "ゼロの底と負の整数指数では、結果はゼロの符号と指数の偶奇で選んだ符号付き無限大で、`division_by_zero` が立ちます。例えば $(-0)^{-1}=-\\infty$、$(-0)^{-2}=+\\infty$ です。正の整数べきは偶奇に従ってゼロの符号を保ちます：$(-0)^3=-0$、$(-0)^2=+0$。ゼロの負の非整数べきは、`division_by_zero` 付きの正の無限大です。"
 
-#: manual/api/decimal.md:1539
+#: manual/api/decimal.md:1542
 msgid "Integer powers within the bounded count use binary square-and-multiply. An exact power is returned when it fits in $p$ digits; otherwise the result is correctly rounded. An integral exponent outside the bounded count is still supported: the magnitude is certified, and an odd power of a negative base swaps the directed rounding modes before restoring its sign. For large integer exponents the zero and infinity cases are decided from sign and parity without expanding the exponent: for example, `pown_ctx(-0, Int::max_value())` is `-0`, `pown_ctx(-0, Int::min_value())` is `+infinity` with `division_by_zero`, and `pown_ctx(-infinity, Int::min_value())` is `+0`."
 msgstr "有界カウント内の整数べきには二進の平方と乗算を使います。$p$ 桁に収まるとき正確なべきを返し、それ以外は正しく丸めます。有界カウントを超える整数指数もサポートされます。絶対値のべきを認証し、負の底の奇数べきでは符号を戻す前に有向丸めモードを入れ替えます。大きな整数指数では、指数を展開せず符号と偶奇からゼロと無限大のケースを決めます。例えば `pown_ctx(-0, Int::max_value())` は `-0`、`pown_ctx(-0, Int::min_value())` は `division_by_zero` 付きの `+infinity`、`pown_ctx(-infinity, Int::min_value())` は `+0` です。"
 
-#: manual/api/decimal.md:1550
+#: manual/api/decimal.md:1553
 msgid ""
 "For other integral exponents, an exact power is returned when it fits in $p$ digits and otherwise the correctly rounded power (in decimal32, `pow_ctx(3.339434, 3)` is `37.24077`; the exact cube is $37.240765000\\ldots$); $x^{0.5}$ is `sqrt_ctx`; positive non-integer powers are certified and negative bases with a finite non-integer exponent are invalid. These IEEE rules intentionally differ from [`decimal_gda`](decimal_gda.md), which follows General Decimal Arithmetic (including its `0^0` invalid result and the `powx2015` rounded `1.00` vector). `pown_ctx(x, n)` converts the integer `n` exactly, so $(-1)^{12345679}=-1$ at any precision. `rootn_ctx(x, n)` is $x^{1/n}$ for integer $n \\n"
 "e 0$; an even root of a negative value and $n=0$ are invalid, and $\\operatorname{rootn}(\\pm 0, n<0)$ is an infinity with `division_by_zero`; an exactly representable root is returned exactly (`rootn_ctx(0.008, 3)` is `0.2` with no flag). `hypot_ctx(x, y)` is $\\sqrt{x^2+y^2}$; it is $+\\infty$ if either operand is infinite, even if the other is a quiet NaN, and an exactly representable norm, or $|x|$ when $y$ is zero, is returned exactly (`hypot_ctx(0.3, 0.4)` is `0.5`)."
@@ -4915,91 +4915,91 @@ msgstr ""
 "その他の整数指数では、$p$ 桁に収まるとき正確なべきを返し、それ以外は正しく丸めたべきを返します（decimal32 では `pow_ctx(3.339434, 3)` は `37.24077`、正確な立方は $37.240765000\\ldots$ です）。$x^{0.5}$ は `sqrt_ctx` です。正の非整数べきは認証され、有限の非整数指数を持つ負の底は無効です。これらの IEEE 規則は、General Decimal Arithmetic に従う [`decimal_gda`](decimal_gda.md) と意図的に異なります（その `0^0` の無効な結果や、丸められた `1.00` になる `powx2015` ベクトルを含みます）。`pown_ctx(x, n)` は整数 `n` を正確に変換するので、$(-1)^{12345679}=-1$ は精度に依存しません。`rootn_ctx(x, n)` は整数 $n \\n"
 "e 0$ に対する $x^{1/n}$ です。負の値の偶数根と $n=0$ は無効で、$\\operatorname{rootn}(\\pm 0, n<0)$ は `division_by_zero` 付きの無限大になります。正確に表現できる根はそのまま返されます（`rootn_ctx(0.008, 3)` はフラグなしの `0.2`）。`hypot_ctx(x, y)` は $\\sqrt{x^2+y^2}$ です。どちらか一方が無限大なら、もう一方が quiet NaN でも $+\\infty$ になり、正確に表現できるノルム、または $y$ がゼロのときの $|x|$ は正確に返されます（`hypot_ctx(0.3, 0.4)` は `0.5`）。"
 
-#: manual/api/decimal.md:1568
+#: manual/api/decimal.md:1571
 msgid "An integral exponent with more than 4,096 digits is never expanded: for a base other than $\\pm 1$, $\\pm 0$ and $\\pm\\infty$ the magnitude $|y \\ln |x||$ is far beyond any context, so the result is the overflow or the underflow value of the rounding direction (decided from the base being above or below 1 and the sign of the exponent) and the sign follows the parity, not an `invalid_operation`. A base with more than about 4,000 fractional digits, whose bound is not met, still returns NaN with `invalid_operation`."
 msgstr "4,096 桁を超える整数の指数は決して展開されません。$\\pm 1$、$\\pm 0$、$\\pm\\infty$ 以外の底では $|y \\ln |x||$ がどのコンテキストをもはるかに超えるので、結果は丸め方向に応じたオーバーフローまたはアンダーフローの値になり（底が 1 より大きいか小さいか、および指数の符号で決まります）、符号は偶奇で決まり、`invalid_operation` にはなりません。小数部が約 4,000 桁を超えて、この境界を満たさない底は、引き続き `invalid_operation` 付きの NaN を返します。"
 
-#: manual/api/decimal.md:1576
+#: manual/api/decimal.md:1579
 msgid "An exact result is delivered in the cohort member whose exponent is closest to the preferred exponent of IEEE 754-2019 §9.2.2, $\\lfloor y\\,q_x \\rfloor$ for `pow_ctx(x, y)` and $\\lfloor n\\,q_x \\rfloor$ for `pown_ctx(x, n)`, where $q_x$ is the exponent of the stored `x` and the member must fit in $p$ digits: in decimal64 `pown_ctx(1.00, 2)` is `1.0000`, `pown_ctx(-1.0, 3)` is `-1.000`, `pown_ctx(-1E+5, 5)` is `-1E+25` (exact, no flags), `pow_ctx(1.00, 1.5)` is `1.000` and `pow_ctx(4.00, 1.5)` is `8.000`; a negative exponent cannot reach a preferred exponent above the value (`pown_ctx(1.00, -2)` is `1`). The standard defines no preferred exponent when $y$ is infinite or a NaN, so `pow_ctx(1.00, Infinity)` stays `1`. `decimal_gda` follows the repeated multiplication exponent of General Decimal Arithmetic instead."
 msgstr "正確な結果は、IEEE 754-2019 §9.2.2 の優先指数に最も近い指数を持つコホートのメンバーで返されます。優先指数は `pow_ctx(x, y)` では $\\lfloor y\\,q_x \\rfloor$、`pown_ctx(x, n)` では $\\lfloor n\\,q_x \\rfloor$ で、$q_x$ は格納されている `x` の指数であり、そのメンバーは $p$ 桁に収まる必要があります。decimal64 では `pown_ctx(1.00, 2)` は `1.0000`、`pown_ctx(-1.0, 3)` は `-1.000`、`pown_ctx(-1E+5, 5)` は `-1E+25`（正確でフラグなし）、`pow_ctx(1.00, 1.5)` は `1.000`、`pow_ctx(4.00, 1.5)` は `8.000` です。負の指数では値より大きい優先指数には届きません（`pown_ctx(1.00, -2)` は `1`）。$y$ が無限大または NaN のときは標準が優先指数を定めていないので、`pow_ctx(1.00, Infinity)` は `1` のままです。`decimal_gda` は代わりに General Decimal Arithmetic の反復乗算の指数に従います。"
 
-#: manual/api/decimal.md:1590
+#: manual/api/decimal.md:1593
 msgid "These functions are the IEEE 754-2019 §9.2 exponentials and logarithms in bases 2 and 10 and near zero. Each has the `f_ctx`/`try_f_ctx` shape described at the start of this section."
 msgstr "これらの関数は、IEEE 754-2019 §9.2 の底 2 および底 10 の指数関数・対数関数と、ゼロ付近のものです。いずれも本節の冒頭で述べた `f_ctx`/`try_f_ctx` の形を持ちます。"
 
-#: manual/api/decimal.md:1608
+#: manual/api/decimal.md:1611
 msgid "These functions are $2^x - 1$, $10^x - 1$, $\\log_2(1 + x)$ and $\\log_{10}(1 + x)$ of IEEE 754-2019 §9.2, without the cancellation of `exp2(x) - 1` or the rounding of `1 + x` near zero. Each has the `f_ctx`/`try_f_ctx` shape described at the start of this section."
 msgstr "これらの関数は IEEE 754-2019 §9.2 の $2^x - 1$、$10^x - 1$、$\\log_2(1 + x)$、$\\log_{10}(1 + x)$ で、ゼロ付近で `exp2(x) - 1` の桁落ちや `1 + x` の丸めを起こしません。どの関数もこの節の冒頭で説明した `f_ctx`/`try_f_ctx` の形を持ちます。"
 
-#: manual/api/decimal.md:1624
-msgid "The special values are those of §9.2.1: $f(\\pm 0) = \\pm 0$ and $f(+\\infty) = +\\infty$ for all four, $-\\infty \\mapsto -1$ for `exp2m1` and `exp10m1`, and $-1 \\mapsto -\\infty$ with `division_by_zero` for `log2p1` and `log10p1`, whose domain is $[-1, +\\infty]$ ($x < -1$, including $-\\infty$, is invalid). The exact results are $2^n - 1$ and $10^n - 1$ for an integer $n$ and the integer $k$ when $1 + x = 2^k$ (resp. $10^k$); they take the preferred exponent 0 of §9.2.2, so in decimal64 `exp2m1_ctx(4)` is `15`, `exp2m1_ctx(-1)` is `-0.5`, `exp10m1_ctx(-2.0)` is `-0.99` and `log2p1_ctx(-0.50)` is `-1`, all without flags. A context that cannot hold an exact value rounds it with its flags: `log2p1_ctx(32767)` at precision 1 is `2E+1` (a midpoint, `inexact`). $\\operatorname{log2p1}(1) = 1$ exactly and $\\operatorname{log10p1}(1) = \\log_{10} 2$; the rule $f(1) = +0$ of §9.2.1 belongs to `log`, `log2` and `log10` only. Results below the subnormal range are rounded, never replaced, so they keep the sign of $x$ (`exp2m1_ctx(-1E-500)` is `-0E-398` in decimal64, `-1E-398` when rounding toward $-\\infty$), and the same restricted contexts as `exp_ctx` give `invalid_operation`."
-msgstr "特殊値は §9.2.1 のものです。四つすべてで $f(\\pm 0) = \\pm 0$ と $f(+\\infty) = +\\infty$、`exp2m1` と `exp10m1` では $-\\infty \\mapsto -1$、`log2p1` と `log10p1` では $-1 \\mapsto -\\infty$ で `division_by_zero` を伴い、その定義域は $[-1, +\\infty]$ です（$-\\infty$ を含む $x < -1$ は無効です）。正確な結果は、整数 $n$ に対する $2^n - 1$ と $10^n - 1$、および $1 + x = 2^k$（それぞれ $10^k$）のときの整数 $k$ です。これらは §9.2.2 の優先指数 0 を取るので、decimal64 では `exp2m1_ctx(4)` は `15`、`exp2m1_ctx(-1)` は `-0.5`、`exp10m1_ctx(-2.0)` は `-0.99`、`log2p1_ctx(-0.50)` は `-1` で、いずれもフラグはありません。正確な値を保持できないコンテキストは、それをフラグ付きで丸めます。精度 1 での `log2p1_ctx(32767)` は `2E+1` です（中間点、`inexact`）。$\\operatorname{log2p1}(1) = 1$ は正確で、$\\operatorname{log10p1}(1) = \\log_{10} 2$ です。§9.2.1 の $f(1) = +0$ の規則は `log`、`log2`、`log10` だけのものです。非正規化数の範囲を下回る結果は置き換えられず丸められるので、$x$ の符号を保ちます（decimal64 で `exp2m1_ctx(-1E-500)` は `-0E-398`、$-\\infty$ 方向への丸めでは `-1E-398` です）。`exp_ctx` と同じ制限付きコンテキストでは `invalid_operation` を返します。"
+#: manual/api/decimal.md:1627
+msgid "The special values are those of §9.2.1: $f(\\pm 0) = \\pm 0$ and $f(+\\infty) = +\\infty$ for all four, $-\\infty \\mapsto -1$ for `exp2m1` and `exp10m1`, and $-1 \\mapsto -\\infty$ with `division_by_zero` for `log2p1` and `log10p1`, whose domain is $[-1, +\\infty]$ ($x < -1$, including $-\\infty$, is invalid). The exact results are $2^n - 1$ and $10^n - 1$ for an integer $n$ and the integer $k$ when $1 + x = 2^k$ (resp. $10^k$); they take the preferred exponent 0 of §9.2.2, so in decimal64 `exp2m1_ctx(4)` is `15`, `exp2m1_ctx(-1)` is `-0.5`, `exp10m1_ctx(-2.0)` is `-0.99` and `log2p1_ctx(-0.50)` is `-1`, all without flags. A context that cannot hold an exact value rounds it with its flags: `log2p1_ctx(32767)` at precision 1 is `2E+1` (a midpoint, `inexact`). $\\operatorname{log2p1}(1) = 1$ exactly and $\\operatorname{log10p1}(1) = \\log_{10} 2$; the rule $f(1) = +0$ of §9.2.1 belongs to `log`, `log2` and `log10` only. Results below the subnormal range are rounded, never replaced, so they keep the sign of $x$ (`exp2m1_ctx(-1E-500)` is `-0E-398` in decimal64, `-1E-398` when rounding toward $-\\infty$), and the same restricted contexts as `exp_ctx` give `not_computed`."
+msgstr "特殊値は §9.2.1 のものです。四つすべてで $f(\\pm 0) = \\pm 0$ と $f(+\\infty) = +\\infty$、`exp2m1` と `exp10m1` では $-\\infty \\mapsto -1$、`log2p1` と `log10p1` では $-1 \\mapsto -\\infty$ で `division_by_zero` を伴い、その定義域は $[-1, +\\infty]$ です（$-\\infty$ を含む $x < -1$ は無効です）。正確な結果は、整数 $n$ に対する $2^n - 1$ と $10^n - 1$、および $1 + x = 2^k$（それぞれ $10^k$）のときの整数 $k$ です。これらは §9.2.2 の優先指数 0 を取るので、decimal64 では `exp2m1_ctx(4)` は `15`、`exp2m1_ctx(-1)` は `-0.5`、`exp10m1_ctx(-2.0)` は `-0.99`、`log2p1_ctx(-0.50)` は `-1` で、いずれもフラグはありません。正確な値を保持できないコンテキストは、それをフラグ付きで丸めます。精度 1 での `log2p1_ctx(32767)` は `2E+1` です（中間点、`inexact`）。$\\operatorname{log2p1}(1) = 1$ は正確で、$\\operatorname{log10p1}(1) = \\log_{10} 2$ です。§9.2.1 の $f(1) = +0$ の規則は `log`、`log2`、`log10` だけのものです。非正規化数の範囲を下回る結果は置き換えられず丸められるので、$x$ の符号を保ちます（decimal64 で `exp2m1_ctx(-1E-500)` は `-0E-398`、$-\\infty$ 方向への丸めでは `-1E-398` です）。`exp_ctx` と同じ制限付きコンテキストでは `not_computed` を返します。"
 
-#: manual/api/decimal.md:1659
+#: manual/api/decimal.md:1662
 msgid "These functions are $1/\\sqrt{x}$, $(1 + x)^n$ for an `Int32` $n$ and $x^y = e^{y \\ln x}$ of IEEE 754-2019 §9.2. Each has the `f_ctx`/`try_f_ctx` shape described at the start of this section."
 msgstr "これらの関数は IEEE 754-2019 §9.2 の $1/\\sqrt{x}$、`Int32` の $n$ に対する $(1 + x)^n$、および $x^y = e^{y \\ln x}$ です。どの関数もこの節の冒頭で説明した `f_ctx`/`try_f_ctx` の形を持ちます。"
 
-#: manual/api/decimal.md:1672
+#: manual/api/decimal.md:1675
 msgid "`rsqrt_ctx` has domain $[0, +\\infty]$: $x < 0$ (including $-\\infty$) is invalid, $\\pm 0 \\mapsto \\pm\\infty$ with `division_by_zero` and $+\\infty \\mapsto +0$ (§9.2.1). It is exact when $x = 2^{2i}5^{2j}$; the result then takes the preferred exponent $-\\lfloor Q(x)/2 \\rfloor$ of §9.2.2, so in decimal64 `rsqrt_ctx(4.00)` is `0.5`, `rsqrt_ctx(1E+2)` is `0.1` and `rsqrt_ctx(1E-400)` is `1E+200`."
 msgstr "`rsqrt_ctx` の定義域は $[0, +\\infty]$ です。$-\\infty$ を含む $x < 0$ は無効演算、$\\pm 0 \\mapsto \\pm\\infty$ で `division_by_zero` を立て、$+\\infty \\mapsto +0$ です（§9.2.1）。$x = 2^{2i}5^{2j}$ のとき結果は厳密で、§9.2.2 の優先指数 $-\\lfloor Q(x)/2 \\rfloor$ を取ります。したがって decimal64 では `rsqrt_ctx(4.00)` は `0.5`、`rsqrt_ctx(1E+2)` は `0.1`、`rsqrt_ctx(1E-400)` は `1E+200` です。"
 
-#: manual/api/decimal.md:1679
+#: manual/api/decimal.md:1682
 msgid "`compound_ctx(x, n)` follows the list of §9.2.1: `compound(x, 0)` is 1 for $x \\ge -1$ and for a quiet NaN, $x < -1$ (also with $n = 0$) is invalid, `compound(-1, n)` is $+\\infty$ with `division_by_zero` for $n < 0$ and $+0$ for $n > 0$, `compound(±0, n)` is 1 and `compound(+∞, n)` is $+\\infty$ or $+0$. An exact result takes the preferred exponent $\\lfloor n \\min(0, Q(x)) \\rfloor$: `compound_ctx(0.10, 2)` is `1.2100` and `compound_ctx(0.00, 3)` is `1.000000`. Every $n$ of `Int32` is accepted, also the `Int32` minimum $-2^{31}$."
 msgstr "`compound_ctx(x, n)` は §9.2.1 の一覧に従います。$x \\ge -1$ と quiet NaN に対して `compound(x, 0)` は 1、$x < -1$ は（$n = 0$ でも）無効演算、`compound(-1, n)` は $n < 0$ で `division_by_zero` を伴う $+\\infty$、$n > 0$ で $+0$、`compound(±0, n)` は 1、`compound(+∞, n)` は $+\\infty$ または $+0$ です。厳密な結果は優先指数 $\\lfloor n \\min(0, Q(x)) \\rfloor$ を取ります。`compound_ctx(0.10, 2)` は `1.2100`、`compound_ctx(0.00, 3)` は `1.000000` です。`Int32` のすべての $n$ を受け付け、`Int32` の最小値 $-2^{31}$ も含みます。"
 
-#: manual/api/decimal.md:1688
+#: manual/api/decimal.md:1691
 msgid "`powr_ctx(x, y)` is $e^{y \\ln x}$, so its domain excludes $x < 0$ (invalid, also when $y$ is a quiet NaN). It returns a quiet NaN for a NaN operand even when $y = \\pm 0$, is invalid for `powr(±0, ±0)`, `powr(+∞, ±0)` and `powr(1, ±∞)`, and otherwise equals `pow_ctx` on $|x|$ (results, cohort and flags): `powr_ctx(-0, 3)` is `0` where `pow_ctx` gives `-0`."
 msgstr "`powr_ctx(x, y)` は $e^{y \\ln x}$ なので、定義域は $x < 0$ を含みません（$y$ が quiet NaN でも無効演算）。NaN のオペランドには $y = \\pm 0$ でも quiet NaN を返し、`powr(±0, ±0)`、`powr(+∞, ±0)`、`powr(1, ±∞)` は無効演算で、それ以外は $|x|$ に対する `pow_ctx` と同じです（結果、コホート、フラグ）。`pow_ctx` が `-0` を返す `powr_ctx(-0, 3)` は `0` です。"
 
-#: manual/api/decimal.md:1712
+#: manual/api/decimal.md:1715
 msgid "These functions are the trigonometric functions of $x$ and of $\\pi x$. Each has the `f_ctx`/`try_f_ctx` shape described at the start of this section."
 msgstr "これらの関数は $x$ および $\\pi x$ の三角関数です。いずれも本節の冒頭で述べた `f_ctx`/`try_f_ctx` の形を持ちます。"
 
-#: manual/api/decimal.md:1732
+#: manual/api/decimal.md:1735
 msgid "These functions are the inverse trigonometric functions; `atan2(y, x)` is the angle of the point $(x, y)$. Each has the `f_ctx`/`try_f_ctx` shape described at the start of this section."
 msgstr "これらの関数は逆三角関数です。`atan2(y, x)` は点 $(x, y)$ の偏角です。いずれも本節の冒頭で述べた `f_ctx`/`try_f_ctx` の形を持ちます。"
 
-#: manual/api/decimal.md:1748
+#: manual/api/decimal.md:1751
 msgid "These functions are the inverse circular functions measured in half-revolutions of IEEE 754-2019 §9.2: $\\operatorname{asin}(x)/\\pi$, $\\operatorname{acos}(x)/\\pi$, $\\operatorname{atan}(x)/\\pi$ and $\\operatorname{atan2}(y, x)/\\pi$, the last with the ordinate as the receiver (`y.atan2pi_ctx(x, ctx)`) and a result in $[-1, 1]$. Each has the `f_ctx`/`try_f_ctx` shape described at the start of this section."
 msgstr "これらの関数は、半回転を単位に角度を測る逆円関数（IEEE 754-2019 §9.2）で、$\\operatorname{asin}(x)/\\pi$、$\\operatorname{acos}(x)/\\pi$、$\\operatorname{atan}(x)/\\pi$、$\\operatorname{atan2}(y, x)/\\pi$ です。最後の関数は縦座標をレシーバとし（`y.atan2pi_ctx(x, ctx)`）、結果は $[-1, 1]$ にあります。各関数にはこの節の冒頭で説明した `f_ctx`/`try_f_ctx` の形があります。"
 
-#: manual/api/decimal.md:1766
+#: manual/api/decimal.md:1769
 msgid "The exact results are those of §9.2.1, and by Niven's theorem the only ones: $\\operatorname{asinPi}(\\pm 0) = \\pm 0$, $\\operatorname{asinPi}(\\pm 1) = \\pm\\tfrac12$; $\\operatorname{acosPi}(1) = +0$, $\\operatorname{acosPi}(-1) = 1$, $\\operatorname{acosPi}(\\pm 0) = \\tfrac12$; $\\operatorname{atanPi}(\\pm 0) = \\pm 0$, $\\operatorname{atanPi}(\\pm 1) = \\pm\\tfrac14$ and $\\operatorname{atanPi}(\\pm\\infty) = \\pm\\tfrac12$ with no exception; and the eleven rows of $\\operatorname{atan2Pi}$ for zero and infinite operands ($\\pm 0$, $\\pm 1$, $\\pm\\tfrac12$, $\\pm\\tfrac14$, $\\pm\\tfrac34$, the sign bit of a zero abscissa choosing the half-plane), plus $\\lvert y\\rvert = \\lvert x\\rvert$ for finite nonzero operands ($\\pm\\tfrac14$ for $x > 0$, $\\pm\\tfrac34$ for $x < 0$). None of them signals an exception. They take the preferred exponent 0 of §9.2.2, so $\\tfrac12$ is `0.5`, $\\tfrac14$ is `0.25`, $\\tfrac34$ is `0.75` and 1 is `1`, whatever the cohort of the operand; a context too narrow for the constant (precision 1) rounds it, with `inexact`. $\\lvert x\\rvert > 1$ (also $\\pm\\infty$) is invalid for `asinpi` and `acospi`. Every other result is inexact ($\\operatorname{asinPi}(\\pm\\tfrac12) = \\pm\\tfrac16$ and $\\operatorname{acosPi}(\\pm\\tfrac12) = \\tfrac13, \\tfrac23$ are not terminating decimals) and is correctly rounded, also next to the representable values $\\pm\\tfrac12$ and $\\pm 1$ that `atanpi` (large $\\lvert x\\rvert$), `acospi` (tiny $\\lvert x\\rvert$) and `atan2pi` (extreme ratios) approach from one side: there the rounding mode decides between the anchor and its neighbour."
 msgstr "厳密な結果は §9.2.1 のもので、Niven の定理によりこれらが唯一です。$\\operatorname{asinPi}(\\pm 0) = \\pm 0$、$\\operatorname{asinPi}(\\pm 1) = \\pm\\tfrac12$、$\\operatorname{acosPi}(1) = +0$、$\\operatorname{acosPi}(-1) = 1$、$\\operatorname{acosPi}(\\pm 0) = \\tfrac12$、$\\operatorname{atanPi}(\\pm 0) = \\pm 0$、$\\operatorname{atanPi}(\\pm 1) = \\pm\\tfrac14$、$\\operatorname{atanPi}(\\pm\\infty) = \\pm\\tfrac12$（例外なし）、ゼロと無限大のオペランドに対する $\\operatorname{atan2Pi}$ の 11 行（$\\pm 0$、$\\pm 1$、$\\pm\\tfrac12$、$\\pm\\tfrac14$、$\\pm\\tfrac34$。ゼロの横座標の符号ビットが半平面を決めます）、および有限の非ゼロオペランドの $\\lvert y\\rvert = \\lvert x\\rvert$（$x > 0$ なら $\\pm\\tfrac14$、$x < 0$ なら $\\pm\\tfrac34$）です。いずれも例外を通知しません。§9.2.2 の優先指数 0 を取るので、オペランドのコホートによらず $\\tfrac12$ は `0.5`、$\\tfrac14$ は `0.25`、$\\tfrac34$ は `0.75`、1 は `1` です。定数に対してコンテキストが狭すぎる場合（精度 1）は丸めて `inexact` を立てます。$\\lvert x\\rvert > 1$（$\\pm\\infty$ も含む）は `asinpi` と `acospi` では無効です。それ以外の結果はすべて不正確で（$\\operatorname{asinPi}(\\pm\\tfrac12) = \\pm\\tfrac16$ と $\\operatorname{acosPi}(\\pm\\tfrac12) = \\tfrac13, \\tfrac23$ は有限小数ではありません）、正しく丸められます。`atanpi`（大きい $\\lvert x\\rvert$）、`acospi`（微小な $\\lvert x\\rvert$）、`atan2pi`（極端な比）が片側から近づく表現可能な値 $\\pm\\tfrac12$ と $\\pm 1$ の近くでも同様で、そこでは丸めモードがアンカーとその隣の値のどちらかを決めます。"
 
-#: manual/api/decimal.md:1807
+#: manual/api/decimal.md:1810
 msgid "These functions are the hyperbolic functions and their inverses. Each has the `f_ctx`/`try_f_ctx` shape described at the start of this section."
 msgstr "これらの関数は双曲線関数とその逆関数です。いずれも本節の冒頭で述べた `f_ctx`/`try_f_ctx` の形を持ちます。"
 
-#: manual/api/decimal.md:1825
+#: manual/api/decimal.md:1828
 msgid "Domain and special values of the functions in these four groups:"
 msgstr "これら 4 つのグループの関数の定義域と特殊値："
 
-#: manual/api/decimal.md:1827
+#: manual/api/decimal.md:1830
 msgid "Invalid (`invalid_operation`)"
 msgstr "無効（`invalid_operation`）"
 
-#: manual/api/decimal.md:1827
+#: manual/api/decimal.md:1830
 msgid "Pole (`division_by_zero`)"
 msgstr "極（`division_by_zero`）"
 
-#: manual/api/decimal.md:1827
+#: manual/api/decimal.md:1830
 msgid "Exact cases"
 msgstr "正確なケース"
 
-#: manual/api/decimal.md:1829
-#: manual/api/decimal.md:1830
+#: manual/api/decimal.md:1832
 #: manual/api/decimal.md:1833
-#: manual/api/decimal.md:1838
-#: manual/api/decimal.md:1840
+#: manual/api/decimal.md:1836
 #: manual/api/decimal.md:1841
-#: manual/api/decimal.md:1842
 #: manual/api/decimal.md:1843
 #: manual/api/decimal.md:1844
 #: manual/api/decimal.md:1845
 #: manual/api/decimal.md:1846
 #: manual/api/decimal.md:1847
 #: manual/api/decimal.md:1848
+#: manual/api/decimal.md:1849
+#: manual/api/decimal.md:1850
+#: manual/api/decimal.md:1851
 #: manual/api/decimal_gda.md:488
 #: manual/api/decimal_gda.md:489
 #: manual/api/decimal_gda.md:490
@@ -5019,215 +5019,215 @@ msgstr "正確なケース"
 msgid "none"
 msgstr "なし"
 
-#: manual/api/decimal.md:1829
+#: manual/api/decimal.md:1832
 msgid "integer argument (via `pow_ctx`), $\\pm 0 \\mapsto 1$, $-\\infty \\mapsto 0$, $+\\infty \\mapsto +\\infty$"
 msgstr "整数の引数（`pow_ctx` 経由）、$\\pm 0 \\mapsto 1$、$-\\infty \\mapsto 0$、$+\\infty \\mapsto +\\infty$"
 
-#: manual/api/decimal.md:1831
+#: manual/api/decimal.md:1834
 msgid "$1 \\mapsto 0$, exact binary powers ($0.125 \\mapsto -3$), $+\\infty \\mapsto +\\infty$"
 msgstr "$1 \\mapsto 0$、正確な 2 の冪（$0.125 \\mapsto -3$）、$+\\infty \\mapsto +\\infty$"
 
-#: manual/api/decimal.md:1833
+#: manual/api/decimal.md:1836
 msgid "$\\pm0 \\mapsto \\pm0$, $-\\infty\\mapsto -1$, $+\\infty \\mapsto +\\infty$; integer $n$: $2^n - 1$, $10^n - 1$"
 msgstr "$\\pm0 \\mapsto \\pm0$、$-\\infty\\mapsto -1$、$+\\infty \\mapsto +\\infty$。整数 $n$：$2^n - 1$、$10^n - 1$"
 
-#: manual/api/decimal.md:1834
+#: manual/api/decimal.md:1837
 msgid "$\\pm0 \\mapsto \\pm0$, $+\\infty \\mapsto +\\infty$; $1 + x = 2^k$ (resp. $10^k$) $\\mapsto k$"
 msgstr "$\\pm0 \\mapsto \\pm0$、$+\\infty \\mapsto +\\infty$。$1 + x = 2^k$（それぞれ $10^k$）$\\mapsto k$"
 
-#: manual/api/decimal.md:1836
+#: manual/api/decimal.md:1839
 msgid "$x<-1$, $-\\infty$ (any $n$)"
 msgstr "$x<-1$、$-\\infty$（任意の $n$）"
 
-#: manual/api/decimal.md:1836
+#: manual/api/decimal.md:1839
 msgid "$(x, 0) \\mapsto 1$, $(\\pm 0, n) \\mapsto 1$, $(-1, n>0) \\mapsto +0$, $+\\infty$ by the sign of $n$; exact powers"
 msgstr "$(x, 0) \\mapsto 1$、$(\\pm 0, n) \\mapsto 1$、$(-1, n>0) \\mapsto +0$、$+\\infty$ は $n$ の符号による。厳密なべき"
 
-#: manual/api/decimal.md:1837
+#: manual/api/decimal.md:1840
 msgid "NaN for a NaN operand; otherwise as `power` on $\\lvert x\\rvert$"
 msgstr "NaN のオペランドには NaN。それ以外は $\\lvert x\\rvert$ に対する `power` と同じ"
 
-#: manual/api/decimal.md:1839
+#: manual/api/decimal.md:1842
 msgid "`tanpi` at odd half-integers"
 msgstr "奇数の半整数における `tanpi`"
 
-#: manual/api/decimal.md:1839
+#: manual/api/decimal.md:1842
 msgid "integers, half-integers, `tanpi` at odd quarter-integers ($\\pm 1$)"
 msgstr "整数、半整数、1/4 の奇数倍での `tanpi`（$\\pm 1$）"
 
-#: manual/api/decimal.md:1841
+#: manual/api/decimal.md:1844
 msgid "$\\pm 0$; $\\pm\\infty \\mapsto \\pm\\pi/2$ (certified)"
 msgstr "$\\pm 0$；$\\pm\\infty \\mapsto \\pm\\pi/2$（認証付き）"
 
-#: manual/api/decimal.md:1843
+#: manual/api/decimal.md:1846
 msgid "$\\pm 0$; $\\pm 1 \\mapsto \\pm\\tfrac14$; $\\pm\\infty \\mapsto \\pm\\tfrac12$ (no exception)"
 msgstr "$\\pm 0$；$\\pm 1 \\mapsto \\pm\\tfrac14$；$\\pm\\infty \\mapsto \\pm\\tfrac12$（例外なし）"
 
-#: manual/api/decimal.md:1844
+#: manual/api/decimal.md:1847
 msgid "the eleven exact rows of §9.2.1 ($\\pm0$, $\\pm\\tfrac12$, $\\pm\\tfrac14$, $\\pm\\tfrac34$, $\\pm1$) and $\\lvert y\\rvert = \\lvert x\\rvert \\mapsto \\pm\\tfrac14, \\pm\\tfrac34$"
 msgstr "§9.2.1 の 11 個の厳密な行（$\\pm0$、$\\pm\\tfrac12$、$\\pm\\tfrac14$、$\\pm\\tfrac34$、$\\pm1$）と $\\lvert y\\rvert = \\lvert x\\rvert \\mapsto \\pm\\tfrac14, \\pm\\tfrac34$"
 
-#: manual/api/decimal.md:1845
+#: manual/api/decimal.md:1848
 msgid "$\\operatorname{atan2}(\\pm 0, x) = \\pm 0$ for $x = +0$ or $x > 0$, and $\\operatorname{atan2}(y, +\\infty) = \\pm 0$ for finite $y$; any other zero or infinite operand gives $\\pi$, $\\pi/2$, $\\pi/4$ or $3\\pi/4$ with the sign of $y$ (certified)"
 msgstr "$x = +0$ または $x > 0$ のとき $\\operatorname{atan2}(\\pm 0, x) = \\pm 0$、有限の $y$ に対して $\\operatorname{atan2}(y, +\\infty) = \\pm 0$。その他のゼロまたは無限大のオペランドでは、$y$ の符号を持つ $\\pi$、$\\pi/2$、$\\pi/4$、$3\\pi/4$ のいずれか（認証付き）"
 
-#: manual/api/decimal.md:1846
+#: manual/api/decimal.md:1849
 msgid "$\\pm0\\mapsto\\pm0$; $\\sinh$, $\\operatorname{asinh}$ keep $\\pm\\infty$; $\\tanh(\\pm\\infty)=\\pm 1$"
 msgstr "$\\pm0\\mapsto\\pm0$；$\\sinh$、$\\operatorname{asinh}$ は $\\pm\\infty$ を保持；$\\tanh(\\pm\\infty)=\\pm 1$"
 
-#: manual/api/decimal.md:1851
+#: manual/api/decimal.md:1854
 msgid "These special values follow IEEE 754-2019 §9.2.1: in decimal64, `atan2_ctx(-0, -1)` is `-3.141592653589793`, `atan2_ctx(+∞, -∞)` is `2.356194490192345` and `atan2_ctx(-1, +∞)` is `-0`."
 msgstr "これらの特殊値は IEEE 754-2019 §9.2.1 に従います。decimal64 では、`atan2_ctx(-0, -1)` は `-3.141592653589793`、`atan2_ctx(+∞, -∞)` は `2.356194490192345`、`atan2_ctx(-1, +∞)` は `-0` です。"
 
-#: manual/api/decimal.md:1896
+#: manual/api/decimal.md:1907
 msgid "Interchange formats"
 msgstr "交換形式"
 
-#: manual/api/decimal.md:1900
+#: manual/api/decimal.md:1911
 msgid "`DecimalInterchangeFormat` names an IEEE 754 decimal interchange format."
 msgstr "`DecimalInterchangeFormat` は IEEE 754 の十進交換形式を指します。"
 
-#: manual/api/decimal.md:1911
+#: manual/api/decimal.md:1922
 msgid "`context` returns `DecimalContext::decimal32()`, `decimal64()` or `decimal128()`."
 msgstr "`context` は `DecimalContext::decimal32()`、`decimal64()`、`decimal128()` のいずれかを返します。"
 
-#: manual/api/decimal.md:1916
+#: manual/api/decimal.md:1927
 msgid "`DecimalInterchangeEncoding` selects how the coefficient is stored in the bits."
 msgstr "`DecimalInterchangeEncoding` は係数をビットにどう格納するかを選択します。"
 
-#: manual/api/decimal.md:1926
+#: manual/api/decimal.md:1937
 msgid "`DPD` stores three decimal digits per 10-bit declet (densely packed decimal); `BID` stores the coefficient as a binary integer. Functions without an encoding argument use `DPD`."
 msgstr "`DPD` は 10 ビットの declet ごとに 3 桁の十進数字を格納し（densely packed decimal）、`BID` は係数を二進整数として格納します。エンコーディング引数を持たない関数は `DPD` を使用します。"
 
-#: manual/api/decimal.md:1932
+#: manual/api/decimal.md:1943
 msgid "These functions encode a value as interchange bits written in hexadecimal."
 msgstr "これらの関数は値を交換形式のビットにエンコードし、16 進数で書き出します。"
 
-#: manual/api/decimal.md:1939
+#: manual/api/decimal.md:1950
 msgid "A finite value is first rounded with `apply_ctx` under the format context (its flags are returned), then encoded with its exponent, so the cohort is kept when it fits. The text is `#` followed by 8, 16 or 32 upper-case hex digits. Infinities are encoded with a zero trailing field. A NaN keeps its sign and kind, and its payload is stored as an integer, independent of the value's precision field (IEEE 754-2019 §3.5.2): a payload below $10^{p-1}$ is kept, and a longer one keeps its low $p-1$ digits, in DPD and BID alike. `NaN7` encodes to decimal64 as `#7C00000000000007` in both encodings."
 msgstr "有限値はまず形式のコンテキストのもとで `apply_ctx` により丸められ（そのフラグが返されます）、その指数でエンコードされるため、収まる場合はコホートが保たれます。テキストは `#` に続く 8、16、または 32 桁の大文字の 16 進数字です。無限大は末尾フィールドをゼロとしてエンコードされます。NaN は符号と種類を保ち、そのペイロードは値の精度フィールドとは無関係に整数として格納されます（IEEE 754-2019 §3.5.2）。$10^{p-1}$ 未満のペイロードはそのまま保たれ、それより長いペイロードは下位 $p-1$ 桁が保持されます。これは DPD と BID で共通です。`NaN7` はどちらのエンコーディングでも decimal64 の `#7C00000000000007` になります。"
 
-#: manual/api/decimal.md:1950
+#: manual/api/decimal.md:1961
 msgid "These functions decode interchange hex text."
 msgstr "これらの関数は交換形式の 16 進テキストをデコードします。"
 
-#: manual/api/decimal.md:1957
+#: manual/api/decimal.md:1968
 msgid "The text may have surrounding ASCII whitespace and a leading `#`; it must have exactly the format's number of hex digits, in either case. Anything else is an `Err` (a parse error) that says what was wrong: the number of digits wanted and found (`\"#A23003D\"` for decimal32 has 7 of 8), or the first character that is not a hexadecimal digit and its place among the digits. The length is checked first. No bit pattern of the right length is refused: decoding is exact and keeps the exponent, the sign of zero, the NaN kind and payload. Non-canonical encodings decode to the value IEEE 754 assigns them: a non-canonical DPD declet to its digits, a BID coefficient $\\ge 10^{p}$ to zero, an out-of-range BID NaN payload to 0; the unused exponent bits of infinities and NaNs are ignored. The result has the format's precision. `GdaInterchange::from_hex` of `decimal_gda` accepts the same texts and refuses the same ones, but its message is one sentence for both faults."
 msgstr "テキストの前後に ASCII の空白があってもよく、先頭に `#` があってもかまいません。16 進数字の桁数は形式のものとちょうど一致しなければならず（大文字・小文字は問いません）、それ以外のテキストは `Err`（構文エラー）で、何が誤りかを示します。必要な桁数と実際の桁数（decimal32 の `\"#A23003D\"` は 8 桁ではなく 7 桁）、または最初の 16 進数字でない文字とその桁位置です。長さを先に検査します。長さが正しいビットパターンは拒否されません。デコードは正確で、指数、ゼロの符号、NaN の種類とペイロードを保持します。非正準なエンコーディングは、IEEE 754 が割り当てる値にデコードされます。非正準な DPD の declet はその数字に、$\\ge 10^{p}$ の BID 係数はゼロに、範囲外の BID の NaN ペイロードは 0 になります。無限大と NaN の未使用の指数ビットは無視されます。結果は形式の精度を持ちます。`decimal_gda` の `GdaInterchange::from_hex` は同じテキストを受理し同じものを拒否しますが、どちらの誤りも一つの文で報告します。"
 
-#: manual/api/decimal.md:1994
+#: manual/api/decimal.md:2005
 msgid "`DecimalInterchange` holds the raw bits of one interchange value together with its format and encoding."
 msgstr "`DecimalInterchange` は、1 つの交換形式の値の生のビットを、その形式とエンコーディングとともに保持します。"
 
-#: manual/api/decimal.md:2006
+#: manual/api/decimal.md:2017
 msgid "Use it when bits must be inspected or kept exactly, including non-canonical encodings that a `Decimal` cannot represent. `format` and `encoding` return the format and encoding the bits belong to; `to_hex` writes `#` and the full-width upper-case hex digits."
 msgstr "ビットを調べたり正確に保持したりする必要があるときに使用します。これには `Decimal` では表現できない非正準なエンコーディングも含まれます。`format` と `encoding` はビットが属する形式とエンコーディングを返します。`to_hex` は `#` と全幅の大文字の 16 進数字を書き出します。"
 
-#: manual/api/decimal.md:2013
+#: manual/api/decimal.md:2024
 msgid "These functions build an interchange value from text or from a `Decimal`."
 msgstr "これらの関数はテキストまたは `Decimal` から交換形式の値を構築します。"
 
-#: manual/api/decimal.md:2022
+#: manual/api/decimal.md:2033
 msgid "`from_hex` stores the bits unchanged (text rules and errors as in `from_interchange_hex`). `from_decimal` encodes like `to_interchange_hex` and returns the same flags. The forms without an encoding use `DPD`."
 msgstr "`from_hex` はビットを変更せずに格納します（テキストの規則とエラーは `from_interchange_hex` と同じ）。`from_decimal` は `to_interchange_hex` と同様にエンコードし、同じフラグを返します。エンコーディングを指定しない版は `DPD` を使用します。"
 
-#: manual/api/decimal.md:2028
+#: manual/api/decimal.md:2039
 msgid "These functions decode the stored bits."
 msgstr "これらの関数は格納されたビットをデコードします。"
 
-#: manual/api/decimal.md:2035
+#: manual/api/decimal.md:2046
 msgid "Decoding is exact: `to_decimal_ctx` raises no flag."
 msgstr "デコードは正確です。`to_decimal_ctx` はフラグを立てません。"
 
-#: manual/api/decimal.md:2039
+#: manual/api/decimal.md:2050
 msgid "These functions canonicalize the stored bits."
 msgstr "これらの関数は格納されたビットを正準化します。"
 
-#: manual/api/decimal.md:2046
+#: manual/api/decimal.md:2057
 msgid "`canonical` decodes and re-encodes in the same format and encoding: every non-canonical declet, out-of-range BID coefficient, and unused bit of an infinity or NaN is replaced by its canonical form. It is idempotent. `is_canonical` tests whether the bits are already canonical."
 msgstr "`canonical` は同じ形式とエンコーディングでデコードして再エンコードします。非正準な declet、範囲外の BID 係数、無限大や NaN の未使用ビットはすべて正準形に置き換えられます。これは冪等です。`is_canonical` はビットがすでに正準かどうかを判定します。"
 
-#: manual/api/decimal.md:2053
+#: manual/api/decimal.md:2064
 msgid "These functions change only the sign bit of the stored bits."
 msgstr "これらの関数は格納されたビットの符号ビットだけを変更します。"
 
-#: manual/api/decimal.md:2062
+#: manual/api/decimal.md:2073
 msgid "All other bits, canonical or not, are kept. `copy_sign` aborts unless both operands have the same format and encoding."
 msgstr "それ以外のビットは、正準かどうかにかかわらずすべて保持されます。`copy_sign` は両方のオペランドが同じ形式とエンコーディングでなければ中断します。"
 
-#: manual/api/decimal.md:2067
+#: manual/api/decimal.md:2078
 msgid "`Zero`, `One`, `Ring` and the operator traits"
 msgstr "`Zero`、`One`、`Ring` と演算子トレイト"
 
-#: manual/api/decimal.md:2069
+#: manual/api/decimal.md:2080
 msgid "`Decimal` implements the Luna-Flow algebra traits through the plain operators."
 msgstr "`Decimal` は素の演算子を通じて Luna-Flow の代数トレイトを実装します。"
 
-#: manual/api/decimal.md:2091
+#: manual/api/decimal.md:2102
 msgid "`Zero::zero()` and `One::one()` are `Decimal::zero()` and `Decimal::one()`. The ring laws hold exactly for `+`, `-` and `*` as long as no sum is rounded (sums whose exact coefficient fits the operand precision, and every product, since `*` is exact); a rounded sum is only approximately associative. `FromNat` and `FromInteger` are documented under [construction](#the-fromnat-and-frominteger-implementations)."
 msgstr "`Zero::zero()` と `One::one()` は `Decimal::zero()` と `Decimal::one()` です。和が丸められない限り（正確な係数がオペランドの精度に収まる和と、`*` は正確なのですべての積）、環の法則は `+`、`-`、`*` で正確に成り立ちます。丸められた和は近似的にしか結合的ではありません。`FromNat` と `FromInteger` は[構築](#the-fromnat-and-frominteger-implementations)で説明しています。"
 
-#: manual/api/decimal.md:2100
+#: manual/api/decimal.md:2111
 msgid "`Decimal` implements the `floating` scalar trait."
 msgstr "`Decimal` は `floating` のスカラートレイトを実装します。"
 
-#: manual/api/decimal.md:2106
+#: manual/api/decimal.md:2117
 msgid "The trait methods are `classify`, `sign`, `precision`, `with_precision` and `normalized`, all documented above; `@def.is_finite(x)` and the other generic predicates work through it."
 msgstr "トレイトメソッドは `classify`、`sign`、`precision`、`with_precision`、`normalized` で、いずれも上で説明しています。`@def.is_finite(x)` などのジェネリックな述語はこれを通じて動作します。"
 
-#: manual/api/decimal.md:2112
+#: manual/api/decimal.md:2123
 msgid "These functions implement the contextual traits of [`Luna-Flow/arithmetic`](https://lunaflow.cn/en/arithmetic/)."
 msgstr "これらの関数は [`Luna-Flow/arithmetic`](https://lunaflow.cn/en/arithmetic/) の contextual トレイトを実装します。"
 
-#: manual/api/decimal.md:2139
-msgid "Each `*_contextual` operation converts the context with `DecimalContext::from_arithmetic_context`, runs the matching `*_ctx` operation and returns `Err(division_by_zero)` when `division_by_zero` was raised, `Err(domain_error)` when another `has_error` flag was raised, and otherwise `Ok` with diagnostics `inexact`, `overflow` and `underflow` copied from the flags. Because the converted context has the default exponent range, which the certified functions accept for precisions up to 999, `exp_contextual` works at the default range; an explicit `e_max` above 999,999 fails with `domain_error` (`invalid_operation`)."
-msgstr "各 `*_contextual` 演算は、`DecimalContext::from_arithmetic_context` でコンテキストを変換し、対応する `*_ctx` 演算を実行します。`division_by_zero` が立った場合は `Err(division_by_zero)` を、他の `has_error` フラグが立った場合は `Err(domain_error)` を返し、それ以外は `Ok` を返して、診断の `inexact`、`overflow`、`underflow` をフラグからコピーします。変換後のコンテキストは既定の指数範囲を持ち、認証済みの関数は 999 までの精度に対してその範囲を受け付けるので、`exp_contextual` は既定の範囲で動作します。明示的な `e_max` が 999,999 を超えると、`domain_error`（`invalid_operation`）で失敗します。"
+#: manual/api/decimal.md:2150
+msgid "Each `*_contextual` operation converts the context with `DecimalContext::from_arithmetic_context`, runs the matching `*_ctx` operation and returns `Err(division_by_zero)` when `division_by_zero` was raised, `Err(domain_error)` when another `has_error` flag was raised, and otherwise `Ok` with diagnostics `inexact`, `overflow` and `underflow` copied from the flags. Because the converted context has the default exponent range, which the certified functions accept for precisions up to 999, `exp_contextual` works at the default range; an explicit `e_max` above 999,999 fails with `certification_failure` (`not_computed`). A result with `invalid_operation` is a `domain_error`; one with `not_computed` is a `certification_failure`; the `try_` forms return `Err` only for the second kind."
+msgstr "各 `*_contextual` 演算は、`DecimalContext::from_arithmetic_context` でコンテキストを変換し、対応する `*_ctx` 演算を実行します。`division_by_zero` が立った場合は `Err(division_by_zero)` を、他の `has_error` フラグが立った場合は `Err(domain_error)` を返し、それ以外は `Ok` を返して、診断の `inexact`、`overflow`、`underflow` をフラグからコピーします。変換後のコンテキストは既定の指数範囲を持ち、認証済みの関数は 999 までの精度に対してその範囲を受け付けるので、`exp_contextual` は既定の範囲で動作します。明示的な `e_max` が 999,999 を超えると、`certification_failure`（`not_computed`）で失敗します。`invalid_operation` を伴う結果は `domain_error`、`not_computed` を伴う結果は `certification_failure` で、`try_` 形式は後者にだけ `Err` を返します。"
 
-#: manual/api/decimal.md:2149
+#: manual/api/decimal.md:2160
 msgid "`zero_contextual` and `one_contextual` have the context precision. `epsilon_contextual` is $10^{1-p}$ (`next_up_ctx(1) - 1`). `min_normal_contextual` is $10^{e_{\\min}}$ (default $e_{\\min} = -999\\,999\\,999$). `max_finite_contextual` is $(10^{p}-1)\\,10^{e_{\\max}-p+1}$. `classify_contextual` is `classify`."
 msgstr "`zero_contextual` と `one_contextual` はコンテキストの精度を持ちます。`epsilon_contextual` は $10^{1-p}$（`next_up_ctx(1) - 1`）です。`min_normal_contextual` は $10^{e_{\\min}}$（既定は $e_{\\min} = -999\\,999\\,999$）です。`max_finite_contextual` は $(10^{p}-1)\\,10^{e_{\\max}-p+1}$ です。`classify_contextual` は `classify` です。"
 
-#: manual/api/decimal.md:2157
+#: manual/api/decimal.md:2168
 msgid "These functions implement the checked traits of `Luna-Flow/arithmetic`."
 msgstr "`parse_checked(s, ctx)` は `ctx` を `DecimalContext` に変換して `Decimal::from_string_ctx` を使用し、コンテキストの精度、丸め方向、指数範囲、clamp 設定を適用します。変換後の値を返し、オーバーフローなどのフラグは `from_string_ctx` から取得できます。構文が無効な場合は `Err(parse_error)` を返します。 `DivChecked::div_checked(x, y, ctx)` は変換後のコンテキストのもとでの `div_ctx` で、[`div_checked`](#decimaldiv_checked-sqrt) と同様に `Err(division_by_zero)` と `Err(domain_error)` を返します。`sqrt_checked` は変換後のコンテキストのもとでの `sqrt_ctx` で、負のオペランドに対して失敗します。`pow_nat_checked` と `pow_int_checked` は、整数の指数を `Decimal` へ厳密に変換した（少なくとも 10 桁で、受け付けるすべての指数を収められます）`power_ctx` です。したがって精度 7 では `(-1).pow_int_checked(12345679, ctx)` は `-1` です。底がゼロで指数が負なら `Err(division_by_zero)` を、無効な冪なら `Err(domain_error)` を返し、`pow_nat_checked` は 999,999,999 を超える指数に対して `Err(unsupported)` を返します。`CompareChecked` は [`compare_checked`](#decimalcompare_checked) です。"
 
-#: manual/api/decimal.md:2172
+#: manual/api/decimal.md:2183
 msgid "`parse_checked(s, ctx)` converts `ctx` to `DecimalContext` and uses `Decimal::from_string_ctx`, so the context's precision, rounding direction, exponent range applies. It returns the converted value; flags such as overflow remain available from `from_string_ctx`. Invalid syntax returns `Err(parse_error)`. `DivChecked::div_checked(x, y, ctx)` is `div_ctx` under the converted context with `Err(division_by_zero)` and `Err(domain_error)` as in [`div_checked`](#decimaldiv_checked-sqrt). `sqrt_checked` is `sqrt_ctx` under the converted context and fails for negative operands. `pow_nat_checked` and `pow_int_checked` call `pow_ctx` with the integer exponent converted exactly (with at least ten digits, which hold every accepted exponent), so at precision 7 `(-1).pow_int_checked(12345679, ctx)` is `-1`. They return `Ok(1)` for a zero or quiet-NaN base with exponent zero, `Err(division_by_zero)` for a zero base with a negative exponent, and `Err(domain_error)` for an invalid result such as a signaling NaN operand. `pow_nat_checked` returns `Err(unsupported)` for exponents above 999,999,999. `CompareChecked` is [`compare_checked`](#decimalcompare_checked)."
 msgstr "`parse_checked(s, ctx)` は `ctx` を `DecimalContext` に変換して `Decimal::from_string_ctx` を使うため、コンテキストの精度、丸め方向、指数範囲が適用されます。変換後の値を返し、オーバーフローなどのフラグは `from_string_ctx` から取得できます。構文が無効なら `Err(parse_error)` を返します。`DivChecked::div_checked(x, y, ctx)` は変換後のコンテキストで `div_ctx` を実行し、[`div_checked`](#decimaldiv_checked-sqrt) と同じく `Err(division_by_zero)` または `Err(domain_error)` を返します。`sqrt_checked` は変換後のコンテキストで `sqrt_ctx` を実行し、負のオペランドでは失敗します。`pow_nat_checked` と `pow_int_checked` は整数指数を正確に（受け付けるすべての指数を収める少なくとも 10 桁で）変換して `pow_ctx` を呼ぶので、精度 7 では `(-1).pow_int_checked(12345679, ctx)` は `-1` です。ゼロまたは quiet NaN の底とゼロ指数には `Ok(1)`、ゼロの底と負の指数には `Err(division_by_zero)` を返し、signaling NaN オペランドなど無効な結果には `Err(domain_error)` を返します。`pow_nat_checked` は 999,999,999 を超える指数に `Err(unsupported)` を返します。`CompareChecked` は [`compare_checked`](#decimalcompare_checked) です。"
 
-#: manual/api/decimal.md:2190
+#: manual/api/decimal.md:2201
 msgid "`Eq` and `Compare`: `Decimal::equal`, `not_equal`, `op_lt`, `op_le`, `op_gt`, `op_ge`"
 msgstr "`Eq` と `Compare`：`Decimal::equal`、`not_equal`、`op_lt`、`op_le`、`op_gt`、`op_ge`"
 
-#: manual/api/decimal.md:2192
+#: manual/api/decimal.md:2203
 msgid "These are the operator methods of `Eq` and `Compare`."
 msgstr "これらは `Eq` と `Compare` の演算子メソッドです。"
 
-#: manual/api/decimal.md:2203
+#: manual/api/decimal.md:2214
 msgid "They are defined by [`compare`](#decimalcompare): `x == y` is `compare(x, y) == 0`, `x < y` is `compare(x, y) < 0`, and so on. Cohort members are equal (`1.0 == 1.00`), $-0 = +0$, every NaN equals every NaN and is greater than every number. Use `total_order_compare` to tell representations apart."
 msgstr "これらは [`compare`](#decimalcompare) によって定義されます。`x == y` は `compare(x, y) == 0`、`x < y` は `compare(x, y) < 0` であり、以下同様です。コホートのメンバーは等しく（`1.0 == 1.00`）、$-0 = +0$ であり、すべての NaN はすべての NaN と等しく、すべての数より大きくなります。表現を区別するには `total_order_compare` を使用してください。"
 
-#: manual/api/decimal.md:2209
+#: manual/api/decimal.md:2220
 msgid "Derived equality: `DecimalContext::equal`, `DecimalContext::not_equal`, `DecimalFlags::equal`, `DecimalFlags::not_equal`, `DecimalRoundingMode::equal`, `DecimalRoundingMode::not_equal`, `DecimalSignal::equal`, `DecimalSignal::not_equal`, `DecimalInterchangeFormat::equal`, `DecimalInterchangeFormat::not_equal`, `DecimalInterchangeEncoding::equal`, `DecimalInterchangeEncoding::not_equal`"
 msgstr "導出された等価性：`DecimalContext::equal`、`DecimalContext::not_equal`、`DecimalFlags::equal`、`DecimalFlags::not_equal`、`DecimalRoundingMode::equal`、`DecimalRoundingMode::not_equal`、`DecimalSignal::equal`、`DecimalSignal::not_equal`、`DecimalInterchangeFormat::equal`、`DecimalInterchangeFormat::not_equal`、`DecimalInterchangeEncoding::equal`、`DecimalInterchangeEncoding::not_equal`"
 
-#: manual/api/decimal.md:2211
+#: manual/api/decimal.md:2222
 msgid "These are the derived `Eq` methods of the context, flag and enum types."
 msgstr "これらは、コンテキスト、フラグ、列挙型の導出された `Eq` メソッドです。"
 
-#: manual/api/decimal.md:2228
+#: manual/api/decimal.md:2239
 msgid "Contexts compare field by field (precision, rounding, exponent limits, refinement limit); flag sets compare all thirteen fields. `DecimalContext::from_arithmetic_context(ArithmeticContext::decimal64())` is equal to `DecimalContext::decimal64()`."
 msgstr "コンテキストはフィールドごとに比較されます（精度、丸め、指数の上下限、精緻化の上限）。フラグ集合は 13 個のフィールドすべてを比較します。`DecimalContext::from_arithmetic_context(ArithmeticContext::decimal64())` は `DecimalContext::decimal64()` と等しくなります。"
 
-#: manual/api/decimal.md:2233
+#: manual/api/decimal.md:2244
 msgid "`Show` and `Debug`: `Decimal::to_string`, `output`, `to_repr`"
 msgstr "`Show` と `Debug`：`Decimal::to_string`、`output`、`to_repr`"
 
-#: manual/api/decimal.md:2235
+#: manual/api/decimal.md:2246
 msgid "`Decimal` implements `Show` and `Debug`."
 msgstr "`Decimal` は `Show` と `Debug` を実装します。"
 
-#: manual/api/decimal.md:2244
+#: manual/api/decimal.md:2255
 msgid "`to_string` formats a value in scientific notation without a context. Finite values use the scientific-string rule of [`to_sci_string`](#decimalto_sci_string-to_eng_string), so trailing zeros and the exponent are visible: `1.20`, `1E+3`, `1.2E-7`. Special values are written in lower case: `inf`, `-inf`, `nan`, `snan`, `-nan12`. `output` writes the same text to a logger. `to_repr` is the derived structural representation used by `debug_inspect` and `assert_eq`."
 msgstr "`to_string` はコンテキストなしで値を科学表記で書式化します。有限値には [`to_sci_string`](#decimalto_sci_string-to_eng_string) の科学表記文字列の規則が使われるため、末尾のゼロと指数が見えます：`1.20`、`1E+3`、`1.2E-7`。特殊値は小文字で書かれます：`inf`、`-inf`、`nan`、`snan`、`-nan12`。`output` は同じテキストをロガーに書き込みます。`to_repr` は `debug_inspect` と `assert_eq` が使う導出された構造的表現です。"
 
@@ -5401,8 +5401,8 @@ msgid "The results are those of `decimal`, including its documented exception to
 msgstr "結果は `decimal` のものと同じで、文書化された正しい丸めの例外（$0.0016^{0.25} = 0.2$ のような非整数乗の正確な十進の結果。[decimal API](decimal.md#elementary-functions) を参照）も含みます。`atan2` のゼロと無限大のオペランドは IEEE 754 の値を与えます（$+\\infty$ と 1 の `atan2` は $\\pi/2$ で、inexact）。定義域の違反はフラグ付きの IEEE の値です（負数の `ln` は `invalid_operation` 付きの NaN、`tanpi(0.5)` は `division_by_zero` 付きの無限大）。エラーが記録されるのは `try_*_ctx` が `Err` を返したときだけで、これらの関数がそうするのは `CertificationFailure`（正しく丸められた結果を精緻化の予算内で認証できなかった）の場合です。エラー時の新しい状態は $(v, c, r, F, \\mathrm{Some}(e))$ で、ステップ前の値とフラグが保持されます。"
 
 #: manual/api/decimal_checked.md:372
-msgid "[!IMPORTANT] As an implementation limit (decNumber's `DEC_MAX_MATH`, required by the decTest suite and permitted by the GDA Invalid context condition), these operations require a context with precision and exponent limits within 999,999. A context with a larger `e_max`, or with a precision of 1000 digits or more and no explicit `e_max`, makes them return NaN with `invalid_operation`. Use `decimal32()`, `decimal64()`, `decimal128()` or an explicit `e_max` up to 999,999. `pow` and `pown` with an integral exponent, and `pow` with the exponent `0.5`, are not restricted."
-msgstr "[!IMPORTANT] 実装上の限界（decNumber の `DEC_MAX_MATH`。decTest スイートが要求し、GDA の Invalid context 条件が許容します）として、これらの演算は精度と指数の限界が 999,999 以内のコンテキストを要求します。`e_max` がより大きいコンテキスト、または精度が 1000 桁以上で明示的な `e_max` がないコンテキストでは、`invalid_operation` 付きの NaN を返します。`decimal32()`、`decimal64()`、`decimal128()`、または 999,999 以下の明示的な `e_max` を使ってください。整数の指数を持つ `pow` と `pown`、および指数が `0.5` の `pow` は制限されません。"
+msgid "[!IMPORTANT] As an implementation limit (decNumber's `DEC_MAX_MATH`, required by the decTest suite and permitted by the GDA Invalid context condition), these operations require a context with precision and exponent limits within 999,999. A context with a larger `e_max`, or with a precision of 1000 digits or more and no explicit `e_max`, makes them return NaN with `not_computed`; the `try_` mirrors return `Err` (certification failure). Use `decimal32()`, `decimal64()`, `decimal128()` or an explicit `e_max` up to 999,999. `pow` and `pown` with an integral exponent, and `pow` with the exponent `0.5`, are not restricted."
+msgstr "[!IMPORTANT] 実装上の限界（decNumber の `DEC_MAX_MATH`。decTest スイートが要求し、GDA の Invalid context 条件が許容します）として、これらの演算は精度と指数の限界が 999,999 以内のコンテキストを要求します。`e_max` がより大きいコンテキスト、または精度が 1000 桁以上で明示的な `e_max` がないコンテキストでは、`not_computed` 付きの NaN を返し、`try_` のミラーは `Err`（認証失敗）を返します。`decimal32()`、`decimal64()`、`decimal128()`、または 999,999 以下の明示的な `e_max` を使ってください。整数の指数を持つ `pow` と `pown`、および指数が `0.5` の `pow` は制限されません。"
 
 #: manual/api/decimal_gda.md:1
 msgid "decimal_gda API"
@@ -15703,8 +15703,8 @@ msgid "*Soundness.* Every trim moves towards the chosen side (down for the lower
 msgstr "*健全性。* 切り詰めはいずれも選んだ側へ動き（下限は下向き、上限は上向き。負の端点では向きが入れ替わる）、正の界の積は界なので、帰納法により計算したべきは厳密なべきを包み、$L' \\le L \\le U \\le U'$ が成り立ちます。コンテキストへの丸めは単調なので、$\\mathrm{rnd}(L') = \\mathrm{rnd}(U')$ ならば $[L, U]$ のすべての $x$ で $\\mathrm{rnd}(x)$ はその値になり、フラグの比較は従来どおりです。保護桁は tightness にのみ影響し、健全性には影響しません。退化した区間（$L = U$、二進で厳密）は厳密展開のまま、無限大・零・範囲外の端点の変換も変わりません。認証済みの結果は変わらず、丸め境界から相対距離 $10^{-D}$ 未満で境界をまたぐ区間だけが一段早く拒否され、次の細分化で二進精度に応じて $D$ が広がります。"
 
 #: manual/design/decimal.md:1262
-msgid "The elementary functions refuse contexts with $p$ or $|e|$ above 999,999 (`invalid_operation`; the decNumber limit, see the `decimal_gda` design page), which bounds the size of the exact endpoint conversions."
-msgstr "初等関数は $p$ または $|e|$ が 999,999 を超えるコンテキストを拒否します（`invalid_operation`。これは decNumber の限界で、`decimal_gda` の設計ページを参照）。これにより、端点の正確な変換の規模が抑えられます。"
+msgid "The elementary functions refuse contexts with $p$ or $|e|$ above 999,999 (`not_computed`, and `Err` of the certification-failure kind in the `try_` forms; the decNumber limit, see the `decimal_gda` design page), which bounds the size of the exact endpoint conversions."
+msgstr "初等関数は $p$ または $|e|$ が 999,999 を超えるコンテキストを拒否します（`not_computed`、`try_` 形式では認証失敗の種類の `Err`。これは decNumber の限界で、`decimal_gda` の設計ページを参照）。これにより、端点の正確な変換の規模が抑えられます。"
 
 #: manual/design/decimal.md:1266
 msgid "A. Ziv, \"Fast evaluation of elementary mathematical functions with correctly rounded last bit\", *ACM TOMS* 17(3), 1991; J.-M. Muller et al., *Handbook of Floating-Point Arithmetic*, 2nd ed., Birkhäuser 2018, ch. 12; J. van der Hoeven, \"Ball arithmetic\", 2009, for the enclosure model."
@@ -22922,7 +22922,7 @@ msgstr "各区間は作業用の `precision`（ビット数）を持ちます。
 #: manual/tutorial/cli/testfloat_expr_cli.md:97
 #: manual/tutorial/consistency.md:71
 #: manual/tutorial/decimal.md:400
-#: manual/tutorial/decimal_checked.md:241
+#: manual/tutorial/decimal_checked.md:242
 #: manual/tutorial/decimal_gda.md:359
 #: manual/tutorial/decimal_gda_checked.md:254
 #: manual/tutorial/def.md:195
@@ -22991,7 +22991,7 @@ msgstr "**`Double` からの入力。** `from_double(x)` は `x` の二進値を
 #: manual/tutorial/cli/testfloat_expr_cli.md:104
 #: manual/tutorial/consistency.md:78
 #: manual/tutorial/decimal.md:430
-#: manual/tutorial/decimal_checked.md:260
+#: manual/tutorial/decimal_checked.md:261
 #: manual/tutorial/decimal_gda.md:393
 #: manual/tutorial/decimal_gda_checked.md:268
 #: manual/tutorial/def.md:212
@@ -25168,8 +25168,8 @@ msgid "`total_order_compare` orders every representation, including cohorts, sig
 msgstr "`total_order_compare` はコホート、符号付きゼロ、NaN を含むすべての表現を順序付けるので、格納された値のソートやビット単位で同一のレコードの重複除去に適したキーです。"
 
 #: manual/tutorial/decimal.md:402
-msgid "**Elementary functions need an exponent range within 999,999.** `DecimalContext::new()` is the format $(34,\\ 999\\,999)$, which they accept; a context with `e_max` above 999,999, or a precision of 1000 digits or more with the default range, makes them return NaN with `invalid_operation`. Use `decimal32()`/`decimal64()`/`decimal128()` or pass `e_max` up to 999,999."
-msgstr "**初等関数には 999,999 以内の指数範囲が必要です。** `DecimalContext::new()` は形式 $(34,\\ 999\\,999)$ で、これらは受け付けます。`e_max` が 999,999 を超えるコンテキスト、または精度が 1000 桁以上で既定の範囲のコンテキストでは、`invalid_operation` 付きの NaN を返します。`decimal32()`/`decimal64()`/`decimal128()` を使うか、999,999 以下の `e_max` を渡してください。"
+msgid "**Elementary functions need an exponent range within 999,999.** `DecimalContext::new()` is the format $(34,\\ 999\\,999)$, which they accept; a context with `e_max` above 999,999, or a precision of 1000 digits or more with the default range, makes them return NaN with `not_computed` (not `invalid_operation`, which is for results IEEE 754 defines as invalid). Use `decimal32()`/`decimal64()`/`decimal128()` or pass `e_max` up to 999,999."
+msgstr "**初等関数には 999,999 以内の指数範囲が必要です。** `DecimalContext::new()` は形式 $(34,\\ 999\\,999)$ で、これらは受け付けます。`e_max` が 999,999 を超えるコンテキスト、または精度が 1000 桁以上で既定の範囲のコンテキストでは、`not_computed` 付きの NaN を返します（`invalid_operation` ではありません。これは IEEE 754 が無効と定める結果のためのものです）。`decimal32()`/`decimal64()`/`decimal128()` を使うか、999,999 以下の `e_max` を渡してください。"
 
 #: manual/tutorial/decimal.md:407
 msgid "**Operators are not context operations.** They round half-even to the larger operand precision and apply only the storage range of a value, so a result beyond it is an infinity or a zero. Use `mul_ctx` and `div_ctx` when the result must be bounded by a format, rounded in another mode, or reported through flags."
@@ -25324,67 +25324,67 @@ msgstr "初等関数には有界なコンテキストが必要"
 msgid "Mathematical functions (`exp`, `ln`, `pow`, the trigonometric family, …) follow the General Decimal Arithmetic restriction to precision and exponent limits within $\\pm 999\\,999$. Use one of the interchange contexts or explicit bounds; with a range above 999,999 they return NaN with `invalid_operation`:"
 msgstr "数学関数（`exp`、`ln`、`pow`、三角関数族、…）は、General Decimal Arithmetic の制限に従い、精度と指数の限界が $\\pm 999\\,999$ 以内でなければなりません。交換形式のコンテキストのいずれか、または明示的な限界を使ってください。範囲が 999,999 を超えると、`invalid_operation` 付きの NaN を返します。"
 
-#: manual/tutorial/decimal_checked.md:185
+#: manual/tutorial/decimal_checked.md:186
 msgid "Start from a Luna-Flow/arithmetic context"
 msgstr "Luna-Flow/arithmetic のコンテキストから始める"
 
-#: manual/tutorial/decimal_checked.md:187
+#: manual/tutorial/decimal_checked.md:188
 msgid "Code that is generic over Luna-Flow/arithmetic carries an `ArithmeticContext`. `DecimalContext::from_arithmetic_context` maps its precision, rounding direction and exponent bounds (`clamp` is ignored: every IEEE format clamps); the predefined `ArithmeticContext::decimal64()` maps to the same context as `DecimalContext::decimal64()`:"
 msgstr "Luna-Flow/arithmetic 上のジェネリックなコードは `ArithmeticContext` を持ち回ります。`DecimalContext::from_arithmetic_context` はその精度、丸め方向、指数の境界を対応付けます（`clamp` は無視されます。すべての IEEE 形式はクランプします）。定義済みの `ArithmeticContext::decimal64()` は `DecimalContext::decimal64()` と同じコンテキストに対応します。"
 
-#: manual/tutorial/decimal_checked.md:206
+#: manual/tutorial/decimal_checked.md:207
 msgid "Hand the result to the contextual traits"
 msgstr "結果を contextual トレイトに渡す"
 
-#: manual/tutorial/decimal_checked.md:208
+#: manual/tutorial/decimal_checked.md:209
 msgid "`result()` returns `Ok((value, flags))` or the recorded error. The `AddContextual`, `SqrtContextual`, … implementations of `Decimal` in Luna-Flow/arithmetic report diagnostics instead of flags; the shared conditions that `decimal` has (`inexact`, `overflow`, `underflow`) can be carried over field by field:"
 msgstr "`result()` は `Ok((value, flags))` または記録されたエラーを返します。Luna-Flow/arithmetic における `Decimal` の `AddContextual`、`SqrtContextual`、… の実装は、フラグではなく診断を報告します。`decimal` が持つ共通の場合（`inexact`、`overflow`、`underflow`）は、フィールドごとに移せます。"
 
-#: manual/tutorial/decimal_checked.md:237
+#: manual/tutorial/decimal_checked.md:238
 msgid "The [design page](../design/decimal_checked.md#from-flags-to-arithmetic-diagnostics) shows why converting the accumulated flags once gives the same diagnostics as combining the per-step diagnostics."
 msgstr "蓄積されたフラグを一度変換すると、ステップごとの診断情報を組み合わせたものと同じ診断情報が得られる理由は、[設計ページ](../design/decimal_checked.md#from-flags-to-arithmetic-diagnostics)で示しています。"
 
-#: manual/tutorial/decimal_checked.md:243
+#: manual/tutorial/decimal_checked.md:244
 msgid "**`raised()` is not the whole story.** It describes the latest step only; audit with `flags()`."
 msgstr "**`raised()` がすべてではない。** これは最新のステップだけを記述します。監査には `flags()` を使ってください。"
 
-#: manual/tutorial/decimal_checked.md:245
+#: manual/tutorial/decimal_checked.md:246
 msgid "**Exceptional results are not errors.** NaN, infinities and rounded values are successes with flags. `is_err()` is true only for certification failures of elementary functions."
 msgstr "**例外的な結果はエラーではない。** NaN、無限大、丸められた値はフラグ付きの成功です。`is_err()` が真になるのは初等関数の認証の失敗の場合だけです。"
 
-#: manual/tutorial/decimal_checked.md:248
+#: manual/tutorial/decimal_checked.md:249
 msgid "**Wide contexts disable the mathematical functions.** See above; this applies to an `e_max` above 999,999."
 msgstr "**広いコンテキストでは数学関数が使えない。** 上記を参照してください。これは `e_max` が 999,999 を超える場合に当てはまります。"
 
-#: manual/tutorial/decimal_checked.md:250
+#: manual/tutorial/decimal_checked.md:251
 msgid "**Binary sources.** `from_double(0.1, …)` converts the binary value of `0.1` rounded to 17 digits, not one tenth and not the exact binary value (in decimal128 it is `0.10000000000000001`); parse the string `\"0.1\"` instead."
 msgstr "**二進の入力元。** `from_double(0.1, …)` が変換するのは、十分の一でも厳密な二進値でもなく、`0.1` の二進値を 17 桁に丸めたものです（decimal128 では `0.10000000000000001`）。代わりに文字列 `\"0.1\"` をパースしてください。"
 
-#: manual/tutorial/decimal_checked.md:254
+#: manual/tutorial/decimal_checked.md:255
 msgid "**`remainder` is the IEEE remainder.** It rounds the quotient to the nearest integer, so `1` remainder `0.6` is `-0.2`, not `0.4`."
 msgstr "**`remainder` は IEEE の剰余です。** 商を最も近い整数に丸めるため、`1` を `0.6` で割った剰余は `0.4` ではなく `-0.2` です。"
 
-#: manual/tutorial/decimal_checked.md:256
+#: manual/tutorial/decimal_checked.md:257
 msgid "**Operands are plain `Decimal` values.** They are not rounded to the context before the operation; the operation rounds the result."
 msgstr "**オペランドは素の `Decimal` 値である。** 演算の前にコンテキストへ丸められることはなく、演算が結果を丸めます。"
 
-#: manual/tutorial/decimal_checked.md:258
+#: manual/tutorial/decimal_checked.md:259
 msgid "**`clear_flags` also works after an error,** but the error stays."
 msgstr "**`clear_flags` はエラーの後でも動作する**が、エラーは残ります。"
 
-#: manual/tutorial/decimal_checked.md:262
+#: manual/tutorial/decimal_checked.md:263
 msgid "[`decimal_checked` design](../design/decimal_checked.md): the state model, the flag monoid and the short-circuit rule."
 msgstr "[`decimal_checked` の設計](../design/decimal_checked.md): 状態モデル、フラグのモノイド、短絡規則。"
 
-#: manual/tutorial/decimal_checked.md:264
+#: manual/tutorial/decimal_checked.md:265
 msgid "[`decimal_checked` API](../api/decimal_checked.md): every method."
 msgstr "[`decimal_checked` API](../api/decimal_checked.md): すべてのメソッド。"
 
-#: manual/tutorial/decimal_checked.md:265
+#: manual/tutorial/decimal_checked.md:266
 msgid "[`decimal` tutorial](decimal.md): contexts, rounding modes and interchange formats."
 msgstr "[`decimal` チュートリアル](decimal.md): コンテキスト、丸めモード、交換形式。"
 
-#: manual/tutorial/decimal_checked.md:267
+#: manual/tutorial/decimal_checked.md:268
 msgid "[`decimal_gda_checked` tutorial](decimal_gda_checked.md): the same idea for General Decimal Arithmetic with sticky status and traps."
 msgstr "[`decimal_gda_checked` チュートリアル](decimal_gda_checked.md): スティッキーなステータスとトラップを備えた General Decimal Arithmetic における同じ考え方。"
 
@@ -28654,6 +28654,9 @@ msgstr "公開 API を絞ると、条項から API への対応が変わるこ�
 #: manual/verification.md:719
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体のロードマップは [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "reserved for a result that could not be computed within a limit of the implementation; no operation raises it yet"
+#~ msgstr "実装の限界内で計算できなかった結果のために予約されています。現在これを立てる演算はありません"
 
 #~ msgid "partial (no text-to-interval constructor)"
 #~ msgstr "部分準拠 （テキストから区間への構築関数はない）"

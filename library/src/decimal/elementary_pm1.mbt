@@ -448,7 +448,7 @@ fn Decimal::try_pm1_ctx(
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
-    return Ok(invalid_context_result(ctx))
+    return Err(decimal_context_limit(operation.name(), ctx))
   }
   // 9.2: a signaling NaN signals invalid and gives a quiet NaN; a quiet NaN
   // propagates (payload and sign kept) with no exception.
@@ -496,7 +496,7 @@ fn Decimal::pm1_ctx(
 ) -> (Decimal, DecimalFlags) {
   match self.try_pm1_ctx(operation, ctx) {
     Ok(result) => result
-    Err(_) => decimal_elementary_invalid(ctx)
+    Err(_) => not_computed_result(ctx)
   }
 }
 

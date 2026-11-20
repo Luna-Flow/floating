@@ -375,7 +375,7 @@ $(v, c, r, F, \mathrm{Some}(e))$: the value and flags before the step are kept.
 > operations require a context with precision and exponent
 > limits within 999,999. A context with a larger `e_max`, or with a precision of
 > 1000 digits or more and no explicit `e_max`, makes them return NaN with
-> `invalid_operation`. Use `decimal32()`, `decimal64()`, `decimal128()` or an
+> `not_computed`; the `try_` mirrors return `Err` (certification failure). Use `decimal32()`, `decimal64()`, `decimal128()` or an
 > explicit `e_max` up to 999,999. `pow` and `pown` with an integral exponent,
 > and `pow` with the exponent `0.5`, are not restricted.
 
@@ -390,8 +390,9 @@ test "elementary functions under a bounded context" {
     2,
     @decimal.DecimalContext::new(precision=16, e_max=999_999_999),
   ).ln()
-  inspect(unbounded.value().to_string(), content="nan")
-  inspect(flags(unbounded.raised()), content="invalid_operation")
+  // a context beyond the kernels is the error of the certification-failure kind
+  inspect(unbounded.error().unwrap().is_certification_failure(), content="true")
+  inspect(unbounded.error().unwrap().is_domain_error(), content="false")
   let pole = @decimal_checked.DecimalChecked::parse("0.5", ctx).tanpi()
   inspect(flags(pole.raised()), content="division_by_zero")
 }

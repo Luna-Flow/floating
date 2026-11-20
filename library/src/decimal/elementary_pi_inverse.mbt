@@ -165,7 +165,9 @@ fn Decimal::pi_asin_like(
   acos : Bool,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
-    return Ok(invalid_context_result(ctx))
+    return Err(
+      decimal_context_limit(if acos { "acospi" } else { "asinpi" }, ctx),
+    )
   }
   if self.class == FpClass::NaN {
     return Ok(quiet_nan_operand(self, ctx))
@@ -255,7 +257,7 @@ pub fn Decimal::asinpi_ctx(
 ) -> (Decimal, DecimalFlags) {
   match self.try_asinpi_ctx(ctx) {
     Ok(result) => result
-    Err(_) => decimal_elementary_invalid(ctx)
+    Err(_) => not_computed_result(ctx)
   }
 }
 
@@ -274,7 +276,7 @@ pub fn Decimal::acospi_ctx(
 ) -> (Decimal, DecimalFlags) {
   match self.try_acospi_ctx(ctx) {
     Ok(result) => result
-    Err(_) => decimal_elementary_invalid(ctx)
+    Err(_) => not_computed_result(ctx)
   }
 }
 
@@ -284,7 +286,7 @@ pub fn Decimal::try_atanpi_ctx(
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
-    return Ok(invalid_context_result(ctx))
+    return Err(decimal_context_limit("atanpi", ctx))
   }
   if self.class == FpClass::NaN {
     return Ok(quiet_nan_operand(self, ctx))
@@ -336,7 +338,7 @@ pub fn Decimal::atanpi_ctx(
 ) -> (Decimal, DecimalFlags) {
   match self.try_atanpi_ctx(ctx) {
     Ok(result) => result
-    Err(_) => decimal_elementary_invalid(ctx)
+    Err(_) => not_computed_result(ctx)
   }
 }
 
@@ -349,7 +351,7 @@ pub fn Decimal::try_atan2pi_ctx(
   if math_context_is_restricted(ctx) ||
     decimal_math_operand_out_of_range(self) ||
     decimal_math_operand_out_of_range(abscissa) {
-    return Ok(invalid_context_result(ctx))
+    return Err(decimal_context_limit("atan2pi", ctx))
   }
   match quiet_nan_pair(self, abscissa, ctx) {
     Some(result) => return Ok(result)
@@ -527,6 +529,6 @@ pub fn Decimal::atan2pi_ctx(
 ) -> (Decimal, DecimalFlags) {
   match self.try_atan2pi_ctx(abscissa, ctx) {
     Ok(result) => result
-    Err(_) => decimal_elementary_invalid(ctx)
+    Err(_) => not_computed_result(ctx)
   }
 }

@@ -850,16 +850,68 @@ fn invalid_flags() -> DecimalFlags {
 }
 
 ///|
-fn invalid_context_flags() -> DecimalFlags {
-  { ..DecimalFlags::new(), invalid_operation: true, }
+/// The flags of a result the library could not compute (S4): a NaN with
+/// `not_computed`, and not `invalid_operation`, which reports a case for which
+/// IEEE 754-2019 defines an invalid result.
+fn not_computed_flags() -> DecimalFlags {
+  { ..DecimalFlags::new(), not_computed: true, }
 }
 
 ///|
-fn invalid_context_result(ctx : DecimalContext) -> (Decimal, DecimalFlags) {
+fn not_computed_result(ctx : DecimalContext) -> (Decimal, DecimalFlags) {
   (
     Decimal::nan(precision=finite_precision_for(bigint_zero(), ctx)),
-    invalid_context_flags(),
+    not_computed_flags(),
   )
+}
+
+///|
+/// The error of a `try_` form for an operation the library cannot carry out
+/// within a limit of the implementation (a context or an operand beyond what the
+/// kernels support); the same `not_computed` condition as `not_computed_result`.
+fn decimal_context_limit(
+  operation : String,
+  ctx : DecimalContext,
+) -> @def.ArithmeticError {
+  @def.ArithmeticError::certification_failure(
+    @def.CertificationFailureDetail::new(
+      operation,
+      @def.CertificationStage::RangeReduction,
+      @def.CertificationFailureReason::ResourceLimit,
+      ctx.precision,
+      0,
+      0,
+    ),
+  )
+}
+
+///|
+/// A certification failure of a function that another one delegates to, named
+/// after the public operation the caller called (`powr` and `pown` run `pow`).
+fn decimal_failure_of(
+  operation : String,
+  result : Result[(Decimal, DecimalFlags), @def.ArithmeticError],
+) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
+  match result {
+    Err(error) =>
+      match error.certification_failure_detail() {
+        Some(detail) =>
+          Err(
+            @def.ArithmeticError::certification_failure(
+              @def.CertificationFailureDetail::new(
+                operation,
+                detail.stage(),
+                detail.reason(),
+                detail.target_precision(),
+                detail.work_precision(),
+                detail.refinements(),
+              ),
+            ),
+          )
+        None => Err(error)
+      }
+    Ok(value) => Ok(value)
+  }
 }
 
 ///|

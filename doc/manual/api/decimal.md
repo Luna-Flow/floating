@@ -705,7 +705,7 @@ pub struct DecimalFlags {
 | `overflow` | the rounded result's adjusted exponent exceeds $e_{\max}$ |
 | `division_by_zero` | an exact infinite result from finite operands ($x/0$, $\ln 0$, $\log_2 0$, $\log_{10} 0$, $\operatorname{logb} 0$, $\operatorname{log1p}(-1)$, $\operatorname{log2p1}(-1)$, $\operatorname{log10p1}(-1)$, $\operatorname{rSqrt}(\pm 0)$, $\operatorname{compound}(-1, n<0)$, $\operatorname{powr}(\pm 0, y<0)$) |
 | `invalid_operation` | no usefully definable result (signaling NaN, $\infty-\infty$, $0\times\infty$, $0/0$, bad quantize, text that is not a number, a context outside the range an elementary function supports) |
-| `not_computed` | reserved for a result that could not be computed within a limit of the implementation; no operation raises it yet |
+| `not_computed` | a result the library could not compute within a limit of the implementation (a context beyond the elementary kernels, an operand beyond their range, an exact sum with an exponent gap beyond the work bound, a certification that did not conclude): the value is a NaN, `invalid_operation` is not raised, and the `try_` form returns `Err` (certification failure kind) |
 
 These are the five flags of IEEE 754-2019 7.2 to 7.6 and `not_computed`. The General Decimal Arithmetic flags `rounded`, `subnormal`, `clamped`, `lost_digits`, `conversion_syntax`, `division_impossible`, `division_undefined` and `invalid_context` are not part of `decimal`; `decimal_gda` keeps them.
 
@@ -1463,13 +1463,16 @@ refined directed bounds.
 > rounding boundary; a longer exact value lies inside its rounding cell and the
 > enclosure rounds it like any other.
 
-These operations return NaN with `invalid_operation` when $p > 999\,999$,
+These operations return NaN with `not_computed` (and the `try_` forms `Err`, of the certification-failure kind) when $p > 999\,999$,
 $e_{\max} > 999\,999$ or $e_{\min} < -999\,999$, or when a finite operand has
 more than 999,999 digits or an adjusted exponent beyond about $\pm 10^6$.
-Only `pow_ctx` and `pown_ctx` handle their IEEE power cases before this
+In such a context every operand is `not_computed`, the special ones (NaN,
+infinities, zero) included, although IEEE 754-2019 defines those results (the
+order of the checks is that of the implementation; lifting it is the subject of
+#478). Only `pow_ctx` and `pown_ctx` handle their IEEE power cases before this
 restricted-context check. For example, `pow_ctx(1, 1.1)` is exactly `1` even
 in a restricted context, while `ln_ctx(1)` and `exp_ctx(-inf)` still return
-`invalid_operation`. Integral powers in `decimal` support counts through
+`not_computed`. Integral powers in `decimal` support counts through
 999,999,999 for positive exponents and -1,999,999,997 for negative exponents;
 these are adopted decNumber implementation limits, not limits imposed by GDA
 1.70. Integer powers above those counts use bounded square-and-multiply when
@@ -1637,7 +1640,7 @@ belongs to `log`, `log2` and `log10` only. Results below the subnormal range
 are rounded, never replaced, so they keep the sign of $x$
 (`exp2m1_ctx(-1E-500)` is `-0E-398` in decimal64, `-1E-398` when rounding
 toward $-\infty$), and the same restricted contexts as `exp_ctx` give
-`invalid_operation`.
+`not_computed`.
 
 ```moonbit
 ///|
@@ -1883,13 +1886,21 @@ test "decimal certified elementary functions" {
   inspect(d("0.5").sinpi_ctx(ctx).0, content="1")
   let down = ctx.with_rounding(@decimal.DecimalRoundingMode::RoundTowardZero)
   inspect(d("2").ln_ctx(down).0, content="0.6931471805599453")
-  match d("2").try_ln_ctx(@decimal.DecimalContext::new(e_max=999_999_999)) {
-    Ok((value, flags)) => {
-      inspect(value.is_nan(), content="true")
-      inspect(flags.invalid_operation(), content="true")
-    }
-    Err(_) => fail("not a certification failure")
+  // a context beyond the elementary kernels is not computed: `Err` in the `try_`
+  // form, a NaN with `not_computed` (and not `invalid_operation`) in the plain form
+  let beyond = @decimal.DecimalContext::new(e_max=999_999_999)
+  match d("2").try_ln_ctx(beyond) {
+    Ok(_) => fail("a context beyond the kernels must be an Err")
+    Err(error) => inspect(error.is_certification_failure(), content="true")
   }
+  let (value, flags) = d("2").ln_ctx(beyond)
+  inspect(value.is_nan(), content="true")
+  inspect(flags.not_computed(), content="true")
+  inspect(flags.invalid_operation(), content="false")
+  // a domain error is a value with invalid_operation
+  let (nan, nan_flags) = d("-1").ln_ctx(ctx)
+  inspect(nan.is_nan(), content="true")
+  inspect(nan_flags.invalid_operation(), content="true")
 }
 ```
 
@@ -2144,7 +2155,7 @@ otherwise `Ok` with diagnostics `inexact`, `overflow` and
 `underflow` copied from the flags. Because the
 converted context has the default exponent range, which the certified functions
 accept for precisions up to 999, `exp_contextual` works at the default range; an
-explicit `e_max` above 999,999 fails with `domain_error` (`invalid_operation`).
+explicit `e_max` above 999,999 fails with `certification_failure` (`not_computed`). A result with `invalid_operation` is a `domain_error`; one with `not_computed` is a `certification_failure`; the `try_` forms return `Err` only for the second kind.
 
 `zero_contextual` and `one_contextual` have the context precision.
 `epsilon_contextual` is $10^{1-p}$ (`next_up_ctx(1) - 1`).

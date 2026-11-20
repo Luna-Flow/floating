@@ -178,7 +178,8 @@ test "a bounded context for ln" {
     10,
     @decimal.DecimalContext::new(precision=34, e_max=999_999_999),
   ).ln()
-  inspect(flags(bad.raised()), content="invalid_operation")
+  // not computed (a context beyond the kernels): the error, not an invalid_operation flag
+  inspect(bad.error().unwrap().is_certification_failure(), content="true")
 }
 ```
 
