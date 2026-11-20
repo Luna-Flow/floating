@@ -147,6 +147,8 @@ pub fn dec_coeff_round_div_expansion(DecCoeff, DecCoeff, Bool, DecCoeffRounding)
 
 pub fn dec_coeff_round_div_pow10(DecCoeff, Int32, Bool, DecCoeffRounding) -> (DecCoeff, Bool)
 
+pub fn dec_coeff_round_div_pow10_owned(Array[UInt32], Int32, Int32, Bool, DecCoeffRounding) -> (DecCoeff, Bool)
+
 pub fn dec_coeff_round_to_digits(DecCoeff, Int32, Int32, Bool, DecCoeffRounding) -> (DecCoeff, Int32, Bool, Bool)
 
 pub fn dec_coeff_shift_power10_mod_repr(DecCoeff, Int32, DecCoeff) -> DecCoeff

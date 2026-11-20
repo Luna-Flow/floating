@@ -159,6 +159,34 @@ for bit with the previous implementation, kept in the test file, on random
 operands of 1 to 112 limbs, perfect squares and their neighbours, and powers of
 ten.
 
+### Rounding a limb coefficient in one pass
+
+`dec_coeff_round_div_pow10` shifts a coefficient of $D$ digits right by $k$
+digits and rounds. Write $k = 9u + c$. The rounding digit is the digit at
+position $k - 1$ and the sticky information is whether anything below it is
+nonzero; both are read from limb $\lfloor (k-1)/9 \rfloor$ and, only while that
+limb's lower part is zero, from the limbs below it (the scan ends at the first
+nonzero limb). Limb $j$ of the quotient is then
+$\lfloor a_{u+j} / 10^{c} \rfloor + (a_{u+j+1} \bmod 10^{c})\cdot 10^{9-c}$,
+one division by $10^{c}$ per source limb, written to a new array of exactly
+$\lceil (D-k)/9 \rceil$ limbs, so that no trimming and no digit count is
+needed afterwards. The increment is applied to that array in place: it carries
+from limb 0 up to the first limb that is not $10^{9}-1$, and appends a limb only
+if every limb carried. The digit count of the result is taken from its top
+limb. The earlier version copied the coefficient, shifted the copy, trimmed it
+and counted its digits, scanned the source again for the rounding digits, and
+added the unit through a second copy, a pass and a second digit count: four
+allocations and about five passes against one allocation (plus the `Limbs`
+box) and one pass.
+
+`dec_coeff_round_div_pow10_owned` is the same function for a caller that owns
+the limb array: the shift writes behind its own reads (limb $j$ of the result
+is stored after limb $j+1$ of the source was loaded, and $j \le u + j$), so the
+array is rounded in place and truncated, and becomes the limbs of the result.
+Values of two limbs or fewer are always below $10^{18}$ and are `Small`. The
+white-box test compares both entries with the previous implementation, kept
+in the test file, bit for bit.
+
 ## Correctness and invariants
 
 - **Canonical form.** A `Limbs` value has no leading zero limb and is at least
