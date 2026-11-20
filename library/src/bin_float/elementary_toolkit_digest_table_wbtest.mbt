@@ -78,4 +78,6 @@ let toolkit_digest_expected : Array[String] = [
   "exp_table_entries 1536 155/155 5fac905567080f3a", "exp_taylor 144 9/9 ab9e829a087fd29d",
   "exp_taylor 200 9/9 0e87b8d9488c4b03", "exp_taylor 300 9/9 e02e9bc5596c2c3d", "exp_taylor 600 9/9 cf874a2a920a450e",
   "exp_taylor 1200 9/9 58650ab599606382", "exp_taylor 2500 9/9 72ff6eb63d9670a0",
+  "ln_agm 384 12/18 3611c7fca446f9d7", "ln_agm 640 12/18 dad4f1a1c1680b0f", "ln_agm 1024 12/18 c7d0870f58d1019e",
+  "ln_agm 2048 12/18 833166547de51c16",
 ]

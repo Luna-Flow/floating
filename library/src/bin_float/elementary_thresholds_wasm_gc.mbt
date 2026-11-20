@@ -22,3 +22,8 @@ let binary_trig_burst_min_precision = 640
 /// Working precision from which the outermost `ln` call starts with a Newton
 /// step (not measured on this target: equal to the nested threshold).
 let binary_ln_entry_min_precision : Int32 = binary_ln_burst_min_precision
+
+///|
+/// Working precision from which the outermost `ln` call uses the arithmetic-geometric
+/// mean (not measured on this target: the kernel is off).
+let binary_ln_agm_min_precision : Int32 = 1073741824

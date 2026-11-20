@@ -453,6 +453,14 @@ fn toolkit_digest_rows() -> Array[String] {
     }
     rows.push(taylor.row("exp_taylor", f))
   }
+  // ln by the arithmetic-geometric mean
+  for work in [384, 640, 1024, 2048] {
+    let agm = ToolkitDigest::new()
+    for value in toolkit_digest_unit_values(work, true) {
+      agm.add(binary_ln_unit_agm_bounds(value, work))
+    }
+    rows.push(agm.row("ln_agm", work))
+  }
   rows
 }
 
