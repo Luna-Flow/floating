@@ -46,6 +46,20 @@ cases, the integer-functions phase 143 cases (`sign`, `ceil`, `floor`, `trunc`,
 (`sqrRev`, `absRev`, `pownRev`, `coshRev` and their `Bin` forms), for an official aggregate of 5,692 cases. Every selected case must be executable;
 unsupported and diagnostic classifications fail the gate.
 
+Refinements. A few corpus statements expect a value that is valid but wider than the
+exact result (IEEE 1788-2015 12.12.4 asks the reverse operations for an enclosure
+only). `interpreter_refinements.json` lists such a statement with the corpus value
+and a refined value that is the exact result. The runner validates every entry
+against the corpus (the case exists, the recorded corpus value is the one in the
+file, the refined value lies inside it with the same decorations and differs from
+it), runs a patched copy of the file in which the expected value of each refined
+statement is the refined value, and reports the refined cases on their own line
+(never folded into "passed"); every other case keeps exact equality with the corpus.
+`python3 tools/itl_trig_reverse_oracle.py --check` recomputes the entries with a
+pure-Python oracle that shares no code with `ball_float` (the file must list exactly
+the statements whose corpus value is wider than the oracle's hull); `--write`
+regenerates the file.
+
 The phase planner is part of the contract. A phase declares its operation set,
 input files, and strictness; the runner rejects overlapping operation sets and
 does not silently execute a case twice. This keeps per-phase counts additive and

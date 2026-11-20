@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "corpus": "itf1788",
+  "refinements": [
+    {
+      "file": "libieeep1788_tests_rev.itl",
+      "id": "minimal_sinRevBin_test:8",
+      "operation": "sinRevBin",
+      "corpus": "[0x1.921fb50442d18p+0,0x1.921fb58442d1ap+0]",
+      "refined": "[0x1.921fb50442d18p+0,0x1.921fb58442d19p+0]",
+      "reason": "the corpus value is valid but wider than the exact hull in binary64 (upper end 1 ulp from the exact hull end); IEEE 1788-2015 12.12.4 asks for an enclosure only"
+    },
+    {
+      "file": "libieeep1788_tests_rev.itl",
+      "id": "minimal_sinRev_dec_bin_test:8",
+      "operation": "sinRevBin",
+      "corpus": "[0x1.921fb50442d18p+0,0x1.921fb58442d1ap+0]_trv",
+      "refined": "[0x1.921fb50442d18p+0,0x1.921fb58442d19p+0]_trv",
+      "reason": "the corpus value is valid but wider than the exact hull in binary64 (upper end 1 ulp from the exact hull end); IEEE 1788-2015 12.12.4 asks for an enclosure only"
+    },
+    {
+      "file": "libieeep1788_tests_rev.itl",
+      "id": "minimal_cosRevBin_test:6",
+      "operation": "cosRevBin",
+      "corpus": "[0x1.921fb54442d18p+1,0x1.921fb54442d1ap+1]",
+      "refined": "[0x1.921fb54442d18p+1,0x1.921fb54442d19p+1]",
+      "reason": "the corpus value is valid but wider than the exact hull in binary64 (upper end 1 ulp from the exact hull end); IEEE 1788-2015 12.12.4 asks for an enclosure only"
+    },
+    {
+      "file": "libieeep1788_tests_rev.itl",
+      "id": "minimal_cosRevBin_test:13",
+      "operation": "cosRevBin",
+      "corpus": "[0x1.921fb52442d18p+1,0x1.921fb56442d1ap+1]",
+      "refined": "[0x1.921fb52442d18p+1,0x1.921fb56442d19p+1]",
+      "reason": "the corpus value is valid but wider than the exact hull in binary64 (upper end 1 ulp from the exact hull end); IEEE 1788-2015 12.12.4 asks for an enclosure only"
+    },
+    {
+      "file": "libieeep1788_tests_rev.itl",
+      "id": "minimal_cosRevBin_test:14",
+      "operation": "cosRevBin",
+      "corpus": "[-0x1.921fb56442d1ap+1,-0x1.921fb52442d18p+1]",
+      "refined": "[-0x1.921fb56442d19p+1,-0x1.921fb52442d18p+1]",
+      "reason": "the corpus value is valid but wider than the exact hull in binary64 (lower end 1 ulp from the exact hull end); IEEE 1788-2015 12.12.4 asks for an enclosure only"
+    },
+    {
+      "file": "libieeep1788_tests_rev.itl",
+      "id": "minimal_cosRev_dec_bin_test:6",
+      "operation": "cosRevBin",
+      "corpus": "[0x1.921fb54442d18p+1,0x1.921fb54442d1ap+1]_trv",
+      "refined": "[0x1.921fb54442d18p+1,0x1.921fb54442d19p+1]_trv",
+      "reason": "the corpus value is valid but wider than the exact hull in binary64 (upper end 1 ulp from the exact hull end); IEEE 1788-2015 12.12.4 asks for an enclosure only"
+    },
+    {
+      "file": "libieeep1788_tests_rev.itl",
+      "id": "minimal_cosRev_dec_bin_test:13",
+      "operation": "cosRevBin",
+      "corpus": "[0x1.921fb52442d18p+1,0x1.921fb56442d1ap+1]_trv",
+      "refined": "[0x1.921fb52442d18p+1,0x1.921fb56442d19p+1]_trv",
+      "reason": "the corpus value is valid but wider than the exact hull in binary64 (upper end 1 ulp from the exact hull end); IEEE 1788-2015 12.12.4 asks for an enclosure only"
+    },
+    {
+      "file": "libieeep1788_tests_rev.itl",
+      "id": "minimal_cosRev_dec_bin_test:14",
+      "operation": "cosRevBin",
+      "corpus": "[-0x1.921fb56442d1ap+1,-0x1.921fb52442d18p+1]_trv",
+      "refined": "[-0x1.921fb56442d19p+1,-0x1.921fb52442d18p+1]_trv",
+      "reason": "the corpus value is valid but wider than the exact hull in binary64 (lower end 1 ulp from the exact hull end); IEEE 1788-2015 12.12.4 asks for an enclosure only"
+    },
+    {
+      "file": "libieeep1788_tests_rev.itl",
+      "id": "minimal_tanRevBin_test:4",
+      "operation": "tanRevBin",
+      "corpus": "[-0x1.921fb54442d1bp+0,0x1.921fb54442d19p+0]",
+      "refined": "[-0x1.921fb54442d19p+0,0x1.921fb54442d19p+0]",
+      "reason": "the corpus value is valid but wider than the exact hull in binary64 (lower end 2 ulp from the exact hull end); IEEE 1788-2015 12.12.4 asks for an enclosure only"
+    },
+    {
+      "file": "libieeep1788_tests_rev.itl",
+      "id": "minimal_tanRevBin_test:6",
+      "operation": "tanRevBin",
+      "corpus": "[-0X1.921FB54442D19P+1,0X1.921FB54442D1aP+1]",
+      "refined": "[-0x1.921fb54442d18p+1,0x1.921fb54442d1ap+1]",
+      "reason": "the corpus value is valid but wider than the exact hull in binary64 (lower end 1 ulp from the exact hull end); IEEE 1788-2015 12.12.4 asks for an enclosure only"
+    },
+    {
+      "file": "libieeep1788_tests_rev.itl",
+      "id": "minimal_tanRev_dec_bin_test:4",
+      "operation": "tanRevBin",
+      "corpus": "[-0x1.921fb54442d1bp+0,0x1.921fb54442d19p+0]_trv",
+      "refined": "[-0x1.921fb54442d19p+0,0x1.921fb54442d19p+0]_trv",
+      "reason": "the corpus value is valid but wider than the exact hull in binary64 (lower end 2 ulp from the exact hull end); IEEE 1788-2015 12.12.4 asks for an enclosure only"
+    },
+    {
+      "file": "libieeep1788_tests_rev.itl",
+      "id": "minimal_tanRev_dec_bin_test:6",
+      "operation": "tanRevBin",
+      "corpus": "[-0X1.921FB54442D19P+1,0X1.921FB54442D1aP+1]_trv",
+      "refined": "[-0x1.921fb54442d18p+1,0x1.921fb54442d1ap+1]_trv",
+      "reason": "the corpus value is valid but wider than the exact hull in binary64 (lower end 1 ulp from the exact hull end); IEEE 1788-2015 12.12.4 asks for an enclosure only"
+    }
+  ]
+}
