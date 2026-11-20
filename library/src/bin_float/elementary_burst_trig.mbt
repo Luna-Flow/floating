@@ -13,6 +13,10 @@ priv struct BurstTrigMutation {
   split_reduce_terms : Int32
   /// Take `pi` with this many bits fewer than the reduction needs.
   pi_drop_bits : Int32
+  /// Swap the two ends of the sine ball in the square root of the cosine.
+  cos_swap_ends : Bool
+  /// Omit the `+ 1` of the upper end of the cosine ball.
+  cos_no_plus_one : Bool
 }
 
 ///|
@@ -20,6 +24,8 @@ let burst_trig_no_mutation : BurstTrigMutation = {
   mid_bias_bits: 0,
   split_reduce_terms: 0,
   pi_drop_bits: 0,
+  cos_swap_ends: false,
+  cos_no_plus_one: false,
 }
 
 ///|
@@ -93,101 +99,113 @@ fn burst_trig_bias(mutation : BurstTrigMutation) -> Coeff {
 }
 
 ///|
-fn burst_trig_rotate(value : SplitInt, quarter_turns : Int32) -> SplitInt {
-  // Multiplication by i^quarter_turns on one component is a sign change.
-  if quarter_turns % 4 >= 2 {
-    SplitInt::make(!value.negative, value.magnitude)
-  } else {
-    value
-  }
-}
-
-///|
-/// Binary splitting state of the series of `exp(i y)`, `y = N / 2^s`: the
-/// real-valued state of `SplitState` (`p`, `q`, `q_shift`) with two components
-/// `t = (re, im)` and the number of `i` factors `leaves`. The merge of each
-/// component is `split_combine_t`, applied to the right component rotated by
-/// `i^leaves_left`; this rotation is the only difference from `SplitState`, and
-/// the reason the state is not shared with it.
-priv struct SplitComplexState {
+/// Real binary-splitting state of `S(y^2) = sum_{k < n} (-y^2)^k / (2k+1)!` on the
+/// index range `[from, to)`, `y = N / 2^s`: `q = prod (2k)(2k+1)`,
+/// `q_shift = 2 s` per index from 1, `leaves` the number of indices from 1 and
+/// `t = q 2^q_shift (partial sum)` a signed integer. Merged as
+/// `t = t_left q_right 2^q_shift_right + (-1)^leaves_left (N^2)^leaves_left t_right`.
+priv struct SplitSinState {
   leaves : Int32
   q : Coeff
   q_shift : Int32
-  re : SplitInt
-  im : SplitInt
+  t : SplitInt
 }
 
 ///|
-/// Binary splitting of `sum_{k<n} prod_{i<=k} (i N) / (i 2^s)` on `[from, to)`
-/// (the series of `exp(i y)` with `i` the imaginary unit and the factor `i`
-/// written as the leaf `(0, N)`): `p = N^leaves`, `q = prod i`,
-/// `q_shift = s` per index from 1, `t = (re, im)` with `t = q 2^q_shift sum`,
-/// merged as `t = t_left q_right 2^q_shift_right + i^leaves_left p_left t_right`.
-fn split_trig_state(
+fn split_sin_state(
   from : Int32,
   to : Int32,
   powers : SplitPowers,
   s : Int32,
-) -> SplitComplexState {
-  let numerator = powers.numerator
+) -> SplitSinState {
   if to - from == 1 {
     if from == 0 {
       return {
         leaves: 0,
         q: Coeff::one(),
         q_shift: 0,
-        re: SplitInt::make(false, Coeff::one()),
-        im: SplitInt::make(false, Coeff::zero()),
+        t: SplitInt::make(false, Coeff::one()),
       }
     }
+    let k = from.to_uint64()
     return {
       leaves: 1,
-      q: Coeff::from_uint64(from.to_uint64()),
-      q_shift: s,
-      re: SplitInt::make(false, Coeff::zero()),
-      im: SplitInt::make(false, numerator),
-    }
-  }
-  if to - from == 2 && from >= 1 {
-    // Two leaves directly (the merge below with the leaf states
-    // `re = 0, im = N`): the right leaf is rotated by `i`, so `re = -N N` and
-    // `im = N (from + 1) 2^s`, `q = from (from + 1)`, `q_shift = 2 s`.
-    let next = Coeff::from_uint64((from + 1).to_uint64())
-    return {
-      leaves: 2,
-      q: Coeff::from_uint64(from.to_uint64() * (from + 1).to_uint64()),
+      q: Coeff::from_uint64(2UL * k * (2UL * k + 1UL)),
       q_shift: 2 * s,
-      re: SplitInt::make(true, powers.get(2)),
-      im: SplitInt::make(false, numerator.mul(next).shift_left(s)),
+      t: SplitInt::make(true, powers.numerator),
     }
   }
   let middle = from + (to - from) / 2
-  let left = split_trig_state(from, middle, powers, s)
-  let right = split_trig_state(middle, to, powers, s)
-  // i^m (a + b i) = (a + b i), (-b + a i), (-a - b i), (b - a i) for m = 0..3.
-  let (rotated_re, rotated_im) = match left.leaves % 4 {
-    0 => (right.re, right.im)
-    1 => (burst_trig_rotate(right.im, 2), right.re)
-    2 => (burst_trig_rotate(right.re, 2), burst_trig_rotate(right.im, 2))
-    _ => (right.im, burst_trig_rotate(right.re, 2))
+  let left = split_sin_state(from, middle, powers, s)
+  let right = split_sin_state(middle, to, powers, s)
+  let signed_right = if left.leaves % 2 == 1 {
+    SplitInt::make(!right.t.negative, right.t.magnitude)
+  } else {
+    right.t
   }
-  let left_power = powers.get(left.leaves)
   {
     leaves: left.leaves + right.leaves,
     q: left.q.mul(right.q),
     q_shift: left.q_shift + right.q_shift,
-    re: split_combine_t(left.re, left_power, rotated_re, right.q, right.q_shift),
-    im: split_combine_t(left.im, left_power, rotated_im, right.q, right.q_shift),
+    t: split_combine_t(
+      left.t,
+      powers.get(left.leaves),
+      signed_right,
+      right.q,
+      right.q_shift,
+    ),
   }
 }
 
 ///|
-/// Binary-splitting stage: balls for `cos y` and `sin y` for `y = N / 2^s < 1`.
-/// The partial sums over `n` terms are the exact rationals `re / (q 2^(s(n-1)))`
-/// and `im / (q 2^(s(n-1)))`; with the choice of `n` of `burst_split_terms` the
-/// omitted terms of each alternating series are below 2 units in size, and the
-/// floor loses less than 1, so the quotient plus 1 with radius 2 contains each.
-fn burst_trig_split_stage(
+/// Enclosure `[low, high]` in units of `2^-f` of `c = sqrt(2^(2f) - s^2)` for
+/// every `s` in `[s_low, s_high]`, `0 <= s_low <= s_high <= 2^f`: `c` decreases
+/// in `s`, so `low = floor(sqrt(2^(2f) - s_high^2))` and
+/// `high = floor(sqrt(2^(2f) - s_low^2)) + 1`, both exact integer operations;
+/// `s_low = 0` gives `2^f` (the cosine is at most 1). `None` when
+/// `s_high > 2^f`.
+fn burst_cos_from_sine_bounds(
+  s_low : Coeff,
+  s_high : Coeff,
+  f : Int32,
+  mutation : BurstTrigMutation,
+) -> (Coeff, Coeff)? {
+  let one_unit = Coeff::one().shift_left(f)
+  guard s_high.compare(one_unit) <= 0 else { return None }
+  let square_one = Coeff::one().shift_left(2 * f)
+  let (low_arg, high_arg) = if mutation.cos_swap_ends {
+    (s_low, s_high)
+  } else {
+    (s_high, s_low)
+  }
+  let low = bin_coeff_sqrt_rem_kernel(
+      square_one.sub_checked(low_arg.square()).unwrap(),
+    ).0
+  let root = bin_coeff_sqrt_rem_kernel(
+      square_one.sub_checked(high_arg.square()).unwrap(),
+    ).0
+  let high = if s_low.is_zero() && !mutation.cos_swap_ends {
+    one_unit
+  } else if mutation.cos_no_plus_one {
+    root
+  } else {
+    root.add(Coeff::one())
+  }
+  Some((low, high))
+}
+
+///|
+/// Binary-splitting stage by the real series of the sine: balls for `cos y` and
+/// `sin y` for `y = N / 2^s < 1` and `y <= pi / 2`. `sin y = y S(y^2)`, the
+/// partial sum over `n'` terms is the exact rational `T / (Q 2^q_shift)`,
+/// `n' = floor(n / 2)` with `n` the term count of the exponential series
+/// (`fixed_split_terms`), so that the first omitted term of the sine series,
+/// of exponent `2 n' + 1 >= n`, is below one unit (the bound of `n` holds for
+/// every larger count because `bits(N) <= s`); the series alternates and its
+/// terms decrease, so the tail is below 1 unit, the floor loses less than 1,
+/// and the quotient plus 1 with radius 2 contains `sin y`. The cosine ball is
+/// that of `sqrt(2^(2f) - s^2)` over the sine ball.
+fn burst_trig_split_stage_real(
   numerator : Coeff,
   s : Int32,
   f : Int32,
@@ -197,19 +215,42 @@ fn burst_trig_split_stage(
     2,
     fixed_split_terms(numerator, s, f) - mutation.split_reduce_terms,
   )
-  let state = split_trig_state(0, terms, SplitPowers::new(numerator, terms), s)
-  guard !state.re.negative && !state.im.negative else { return None }
+  let leaves = Int32::max(1, terms / 2)
+  let powers = SplitPowers::new(numerator.square(), leaves)
+  let state = split_sin_state(0, leaves, powers, s)
+  guard !state.t.negative else { return None }
+  let scaled = fixed_shift(
+    numerator.mul(state.t.magnitude),
+    f - s - state.q_shift,
+  )
   let bias = burst_trig_bias(mutation)
-  let ball = fn(value : Coeff) -> BurstBall {
-    let scaled = fixed_shift(value, f - state.q_shift)
-    {
-      mid: scaled.div_rem_checked(state.q).unwrap().0
-      .add(Coeff::one())
-      .add(bias),
-      rad: Coeff::from_uint64(2UL),
+  let radius = Coeff::from_uint64(2UL)
+  let sine_mid = scaled.div_rem_checked(state.q).unwrap().0
+    .add(Coeff::one())
+    .add(bias)
+  let one_unit = Coeff::one().shift_left(f)
+  let s_high = {
+    let value = sine_mid.add(radius)
+    if value.compare(one_unit) > 0 {
+      one_unit
+    } else {
+      value
     }
   }
-  Some({ cos: ball(state.re.magnitude), sin: ball(state.im.magnitude), })
+  let s_low = match sine_mid.sub_checked(radius) {
+    Ok(value) => value
+    Err(_) => Coeff::zero()
+  }
+  guard burst_cos_from_sine_bounds(s_low, s_high, f, mutation)
+    is Some((cos_low, cos_high)) else {
+    return None
+  }
+  let cos_mid = cos_low.add(cos_high).shift_right(1)
+  guard cos_high.sub_checked(cos_mid) is Ok(cos_radius) else { return None }
+  Some({
+    cos: { mid: cos_mid, rad: cos_radius, },
+    sin: { mid: sine_mid, rad: radius, },
+  })
 }
 
 ///|
@@ -385,7 +426,7 @@ fn binary_trig_bounds_burst(
   ) {
     let terms = fixed_split_terms(chunk, boundary, f)
     let stage = if terms >= split_min_terms {
-      burst_trig_split_stage(chunk, boundary, f, mutation)
+      burst_trig_split_stage_real(chunk, boundary, f, mutation)
     } else {
       burst_trig_fixed_stage(chunk, boundary, f, mutation)
     }
