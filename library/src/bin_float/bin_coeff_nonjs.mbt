@@ -1537,55 +1537,23 @@ pub fn BinCoeff::parse(
     None => ()
   }
   let (chunk_width, chunk_power) = bin_coeff_radix_chunk(radix)
-  let digit_count = source.length() - start
-  let chunk_count = (digit_count + chunk_width - 1) / chunk_width
-  let mut width = digit_count % chunk_width
-  if width == 0 {
-    width = chunk_width
+  let chunks = match
+    bin_coeff_parse_radix_chunks(source, start, radix, chunk_width) {
+    Ok(chunks) => chunks
+    Err(message) => return Err(message)
   }
-  let mut index = start
-  if chunk_count >= 64 {
-    let chunks = FixedArray::make(chunk_count, 0U)
-    let mut chunk_index = 0
-    while index < source.length() {
-      let end = index + width
-      let mut chunk = 0UL
-      while index < end {
-        let digit = bin_coeff_digit(source.unsafe_get(index).to_int())
-        if digit < 0 || digit >= radix {
-          return Err("BinCoeff contains a digit outside the selected radix")
-        }
-        chunk = chunk * radix.to_uint64() + digit.to_uint64()
-        index += 1
-      }
-      chunks.unsafe_set(chunk_index, chunk.to_uint())
-      chunk_index += 1
-      width = chunk_width
-    }
-    return Ok(
+  if chunks.length() >= bin_coeff_radix_parse_dc_chunks {
+    Ok(
       bin_coeff_parse_chunks_divide_and_conquer(
-        chunks, 0, chunk_count, chunk_power,
+        chunks,
+        0,
+        chunks.length(),
+        chunk_power,
       ).value,
     )
+  } else {
+    Ok(bin_coeff_parse_chunks_in_place(chunks, chunk_power))
   }
-  let mut value = BinCoeff::zero()
-  while index < source.length() {
-    let end = index + width
-    let mut chunk = 0UL
-    while index < end {
-      let digit = bin_coeff_digit(source.unsafe_get(index).to_int())
-      if digit < 0 || digit >= radix {
-        return Err("BinCoeff contains a digit outside the selected radix")
-      }
-      chunk = chunk * radix.to_uint64() + digit.to_uint64()
-      index += 1
-    }
-    value = bin_coeff_mul_small(value, chunk_power).add(
-      BinCoeff::from_uint64(chunk),
-    )
-    width = chunk_width
-  }
-  Ok(value)
 }
 
 ///|
@@ -1691,37 +1659,6 @@ fn bin_coeff_format_chunks_divide_and_conquer(
 }
 
 ///|
-fn bin_coeff_small_chunk_string(
-  value : UInt64,
-  radix : Int32,
-  minimum_width : Int32,
-) -> String {
-  let digits : Array[Char] = []
-  let mut value = value
-  if value == 0UL {
-    digits.push('0')
-  } else {
-    while value != 0UL {
-      digits.push(bin_coeff_digit_char((value % radix.to_uint64()).to_int()))
-      value /= radix.to_uint64()
-    }
-  }
-  let builder = StringBuilder()
-  for _ in digits.length()..<minimum_width {
-    builder.write_char('0')
-  }
-  let mut index = digits.length() - 1
-  while true {
-    builder.write_char(digits[index])
-    if index == 0 {
-      break
-    }
-    index -= 1
-  }
-  builder.to_string()
-}
-
-///|
 pub fn BinCoeff::to_radix_string(self : BinCoeff, radix : Int32) -> String {
   if radix < 2 || radix > 36 {
     abort("BinCoeff radix must be between 2 and 36")
@@ -1735,64 +1672,11 @@ pub fn BinCoeff::to_radix_string(self : BinCoeff, radix : Int32) -> String {
     None => ()
   }
   let (chunk_width, chunk_power) = bin_coeff_radix_chunk(radix)
-  if bin_coeff_limb_len(self) >= 128 {
-    let powers : Array[BinCoeff] = [
-      BinCoeff::from_uint64(chunk_power.to_uint64()),
-    ]
-    while self.compare(powers[powers.length() - 1]) >= 0 {
-      powers.push(powers[powers.length() - 1].square())
-    }
-    let chunks : Array[UInt64] = []
-    bin_coeff_format_chunks_divide_and_conquer(
-      self,
-      powers,
-      powers.length() - 1,
-      false,
-      chunks,
-    )
-    let builder = StringBuilder()
-    for index in 0..<chunks.length() {
-      builder.write_string(
-        bin_coeff_small_chunk_string(
-          chunks[index],
-          radix,
-          if index == 0 {
-            1
-          } else {
-            chunk_width
-          },
-        ),
-      )
-    }
-    return builder.to_string()
+  if bin_coeff_limb_len(self) >= bin_coeff_radix_format_dc_limbs {
+    bin_coeff_to_radix_divide_and_conquer(self, radix, chunk_width, chunk_power)
+  } else {
+    bin_coeff_to_radix_in_place(self, radix, chunk_width, chunk_power)
   }
-  let chunks : Array[UInt64] = []
-  let mut remaining = self
-  while !remaining.is_zero() {
-    let (quotient, remainder) = bin_coeff_div_rem_word(remaining, chunk_power)
-    chunks.push(remainder.to_uint64().unwrap())
-    remaining = quotient
-  }
-  let builder = StringBuilder()
-  let mut index = chunks.length() - 1
-  while true {
-    builder.write_string(
-      bin_coeff_small_chunk_string(
-        chunks[index],
-        radix,
-        if index == chunks.length() - 1 {
-          1
-        } else {
-          chunk_width
-        },
-      ),
-    )
-    if index == 0 {
-      break
-    }
-    index -= 1
-  }
-  builder.to_string()
 }
 
 ///|

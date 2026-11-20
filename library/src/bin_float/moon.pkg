@@ -36,6 +36,8 @@ options(
     "bin_coeff_words_reference_nonjs_wbtest.mbt": [ "not", "js" ],
     "bin_coeff_sqrt_nonjs.mbt": [ "not", "js" ],
     "bin_coeff_sqrt_array_nonjs.mbt": [ "not", "js" ],
+    "bin_coeff_radix_nonjs.mbt": [ "not", "js" ],
+    "bin_coeff_radix_nonjs_wbtest.mbt": [ "not", "js" ],
     "bin_coeff_sqrt_words_nonjs.mbt": [ "not", "js" ],
     "bin_coeff_sqrt_words_nonjs_wbtest.mbt": [ "not", "js" ],
     "bin_coeff_sqrt_nonjs_wbtest.mbt": [ "not", "js" ],
