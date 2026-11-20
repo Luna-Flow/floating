@@ -25,14 +25,14 @@ fn endpoint_rounding_unit_interval() -> BallFloat {
 ///|
 test "normalized keeps the interval" {
   let x = endpoint_rounding_unit_interval()
-  assert_true(x.normalized().set_equal(x))
+  assert_true(x.normalized().equal(x))
   assert_eq(x.normalized().precision(), 53)
 }
 
 ///|
 test "with_precision at the same precision keeps the interval" {
   let x = endpoint_rounding_unit_interval()
-  assert_true(x.with_precision(53).set_equal(x))
+  assert_true(x.with_precision(53).equal(x))
 }
 
 ///|
@@ -48,16 +48,16 @@ test "with_precision rounds each endpoint outward" {
 ///|
 test "convex_hull with Empty is the other operand" {
   let x = endpoint_rounding_unit_interval()
-  assert_true(BallFloat::empty().convex_hull(x).set_equal(x))
-  assert_true(x.convex_hull(BallFloat::empty()).set_equal(x))
+  assert_true(BallFloat::empty().convex_hull(x).equal(x))
+  assert_true(x.convex_hull(BallFloat::empty()).equal(x))
 }
 
 ///|
 test "pow_int_checked by one keeps the interval" {
   let x = endpoint_rounding_unit_interval()
   let ctx = @lf_arith.ArithmeticContext::new(53)
-  assert_true(x.pow_int_checked(1, ctx).unwrap().set_equal(x))
-  assert_true(x.pow_nat_checked(1U, ctx).unwrap().set_equal(x))
+  assert_true(x.pow_int_checked(1, ctx).unwrap().equal(x))
+  assert_true(x.pow_nat_checked(1U, ctx).unwrap().equal(x))
 }
 
 ///|

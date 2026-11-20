@@ -36,7 +36,7 @@ test "decorated NaI propagates and empty canonicalizes" {
   assert_eq(empty.decoration(), Trv)
   assert_false(nai.is_empty())
   assert_false(nai.is_entire())
-  assert_false(nai.set_equal(nai))
+  assert_false(nai.equal(nai))
   assert_false(nai.subset(value))
   assert_true(nai.overlap(value) is None)
 }
@@ -52,7 +52,7 @@ test "decorated power and trigonometric functions preserve IEEE domain grades" {
   assert_true(
     sine
     .interval()
-    .set_equal(
+    .equal(
       BallFloat::from_bounds(
         @bin_float.BinFloat::from_int(-1, precision=53),
         @bin_float.BinFloat::one(precision=53),

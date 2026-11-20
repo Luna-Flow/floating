@@ -18,7 +18,7 @@ test "far addends do not materialize the exponent gap" {
   assert_true(difference.lower_bound().compare(big.lower_bound()) < 0)
   assert_eq(difference.upper_bound(), big.upper_bound())
   let reversed = tiny.add(big)
-  assert_true(reversed.set_equal(sum))
+  assert_true(reversed.equal(sum))
 }
 
 ///|

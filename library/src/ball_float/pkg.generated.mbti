@@ -35,7 +35,7 @@ pub fn BallFlags::not_equal(Self, Self) -> Bool
 pub fn BallFlags::overflow(Self) -> Bool
 pub fn BallFlags::underflow(Self) -> Bool
 
-#derive(Eq, @debug.Debug)
+#derive(@debug.Debug)
 pub struct BallFloat {
   // private fields
 }
@@ -74,6 +74,7 @@ pub fn BallFloat::from_double(Double, precision? : Int32) -> Self
 pub fn BallFloat::from_float(Float, precision? : Int32) -> Self
 pub fn BallFloat::from_int(Int32, precision? : Int32) -> Self
 pub fn BallFloat::hypot(Self, Self) -> Self
+pub fn BallFloat::identical(Self, Self) -> Bool
 pub fn BallFloat::interior(Self, Self) -> Bool
 pub fn BallFloat::intersection(Self, Self) -> Self
 pub fn BallFloat::is_common_interval(Self) -> Bool
@@ -110,7 +111,6 @@ pub fn BallFloat::radius(Self) -> @bin_float.BinFloat
 pub fn BallFloat::radius_extended(Self) -> @bin_float.BinFloat
 pub fn BallFloat::recip(Self) -> Self
 pub fn BallFloat::rootn(Self, Int32) -> Self
-pub fn BallFloat::set_equal(Self, Self) -> Bool
 pub fn BallFloat::sin(Self) -> Self
 pub fn BallFloat::sinh(Self) -> Self
 pub fn BallFloat::sinpi(Self) -> Self
@@ -169,12 +169,12 @@ pub impl @arithmetic.PowIntChecked for BallFloat
 pub impl @arithmetic.PowNatChecked for BallFloat
 pub impl Add for BallFloat
 pub impl Div for BallFloat
+pub impl Eq for BallFloat
 pub impl Mul for BallFloat
 pub impl Neg for BallFloat
 pub impl Show for BallFloat
 pub impl Sub for BallFloat
 
-#derive(Eq)
 pub struct BallFloatDecorated {
   // private fields
 }
@@ -204,6 +204,7 @@ pub fn BallFloatDecorated::exp2(Self) -> Self
 pub fn BallFloatDecorated::expm1(Self) -> Self
 pub fn BallFloatDecorated::fma(Self, Self, Self) -> Self
 pub fn BallFloatDecorated::hypot(Self, Self) -> Self
+pub fn BallFloatDecorated::identical(Self, Self) -> Bool
 pub fn BallFloatDecorated::interior(Self, Self) -> Bool
 pub fn BallFloatDecorated::intersection(Self, Self) -> Self
 pub fn BallFloatDecorated::interval(Self) -> BallFloat
@@ -233,7 +234,6 @@ pub fn BallFloatDecorated::pown(Self, Int32) -> Self
 pub fn BallFloatDecorated::precedes(Self, Self) -> Bool
 pub fn BallFloatDecorated::recip(Self) -> Self
 pub fn BallFloatDecorated::rootn(Self, Int32) -> Self
-pub fn BallFloatDecorated::set_equal(Self, Self) -> Bool
 pub fn BallFloatDecorated::sin(Self) -> Self
 pub fn BallFloatDecorated::sinh(Self) -> Self
 pub fn BallFloatDecorated::sinpi(Self) -> Self
@@ -249,6 +249,7 @@ pub fn BallFloatDecorated::tanpi(Self) -> Self
 pub fn BallFloatDecorated::to_string(Self) -> String
 pub impl Add for BallFloatDecorated
 pub impl Div for BallFloatDecorated
+pub impl Eq for BallFloatDecorated
 pub impl Mul for BallFloatDecorated
 pub impl Show for BallFloatDecorated
 pub impl Sub for BallFloatDecorated

@@ -19,7 +19,7 @@ test "ln at 32,000 bits returns a tight enclosure (issue 449)" {
     back.is_member(@bin_float.BinFloat::from_int(3, precision=32_000)),
   )
   match x.try_ln() {
-    Ok(t) => assert_true(y.set_equal(t))
+    Ok(t) => assert_true(y.equal(t))
     Err(_) => ()
   }
 }

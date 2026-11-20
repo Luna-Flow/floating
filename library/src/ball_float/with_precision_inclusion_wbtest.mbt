@@ -99,7 +99,7 @@ test "BallFloat::with_precision does not widen ordinary intervals" {
         ),
         precision~,
       )
-      assert_true(y.set_equal(tightest))
+      assert_true(y.equal(tightest))
     }
   }
 }
@@ -113,7 +113,7 @@ test "BallFloat::with_precision keeps degenerate intervals" {
     with_precision_power(2, 53),
     precision=53,
   )
-  assert_true(x.with_precision(53).set_equal(x))
+  assert_true(x.with_precision(53).equal(x))
   assert_true(BallFloat::empty(precision=53).with_precision(70000).is_empty())
   assert_true(BallFloat::entire(precision=53).with_precision(70000).is_entire())
 }

@@ -212,12 +212,12 @@ test "relations" {
 }
 ```
 
-`contains` tests a point; `subset`, `interior` and `set_equal` compare sets;
+`is_member` tests a point; `subset`, `interior` and `==` (the `equal` of IEEE 1788) compare sets;
 `DefinitelyLt::definitely_lt` and `DefinitelyLe::definitely_le` of
 Luna-Flow/arithmetic hold only when the order holds for every pair of points;
 `MaybeEq::maybe_eq` (and `Overlaps::overlaps`) holds when some pair may be
-equal; `disjoint`, `precedes` and `strictly_precedes` are the relations of
-IEEE 1788 and are true for an empty operand; `overlap_state` gives the full IEEE 1788 classification
+equal; `disjoint`, `precedes` and `strict_precedes` are the relations of
+IEEE 1788 and are true for an empty operand; `overlap` gives the full IEEE 1788 classification
 of two intervals.
 
 ### Evaluate elementary functions
@@ -396,12 +396,14 @@ test "dependency" {
 ```
 
 Rewrite expressions so that each uncertain quantity appears once, and prefer
-`square`, `pown` and the elementary functions over hand-written products.
+`sqr`, `pown` and the elementary functions over hand-written products.
 
-**`==` is not set equality.** `==` compares the stored representation,
-including the precision tag; use `set_equal` to compare sets.
+**`==` compares sets, not representations.** `a == b` is true when the two
+intervals are the same set, whatever their precision tags (IEEE 1788-2015
+`equal`); use `a.identical(b)` when the precision tag matters too. On decorated
+intervals `==` is false for NaI, even against itself.
 
-**`contains` takes a point.** The method `BallFloat::is_member` tests a
+**`is_member` takes a point.** The method `BallFloat::is_member` tests a
 `BinFloat` point. Set inclusion is `subset` (or the trait method
 `@lf_arith.Contains::contains`, which means "contains as a subset").
 
@@ -420,8 +422,8 @@ a half-bounded interval.
 **Integers wider than the precision.** `from_int(n, precision=p)` and
 `from_coefficient` enclose `n` exactly, but when `n` needs more than $p$ bits
 the result is the two-point interval of its $p$-bit neighbours, not a point.
-The default of 16 bits gives a singleton only for $|n| \le 2^{16}$ (and
-larger integers with enough trailing zero bits); pass a precision at least as
+At the default of 53 bits every `Int32` is a point, but a `BinCoeff` wider than
+53 bits, or an explicit small precision, is not: pass a precision at least as
 large as the bit length of the integer.
 
 **Inputs from `Double`.** `from_double(x)` encloses the binary value of `x`

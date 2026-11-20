@@ -100,8 +100,8 @@ Other constructors: `BinFloat::from_int`, `from_double`, `from_string` and
 `from_string_ctx` (correctly rounded decimal parsing), `from_hex`;
 `Decimal::from_int`, `from_string` and `from_string_ctx`; `BallFloat::from_int`,
 `from_double`, `exact` and `from_bounds`. Constructors take an optional
-`precision`; `BallFloat::from_int` defaults to 16 bits, so pass
-`precision=53` when you want binary64-like endpoints.
+`precision`; `BallFloat::from_int` defaults to 53 bits, as the other
+constructors.
 
 ## Choose a context
 
