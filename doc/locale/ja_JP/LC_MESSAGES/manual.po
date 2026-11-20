@@ -8075,8 +8075,8 @@ msgid "`semantic` projects concrete values of `floating` onto a small representa
 msgstr "`semantic` は `floating` の具体的な値を、表現に依存しない小さなモデルへ射影します。このモデルは、厳密な既約有理数、符号付き無限大、NaN、そのようなスカラーの閉区間、そして簡潔なエラー語彙からなります。異なる表現の 2 つの値（たとえば binary64 の `BinFloat` と IEEE の `Decimal`）は、同じ数を表すときに限り等しい意味値に射影されます。このパッケージは算術演算も丸めも行いません。[チュートリアル](../tutorial/semantic.md)では典型的な比較を示し、[設計ページ](../design/semantic.md)では射影が厳密である理由と、射影によって失われる情報を導いています。"
 
 #: manual/api/semantic.md:17
-msgid "Add the package and the representations you project to your `moon.pkg`:"
-msgstr "パッケージと、射影する表現を `moon.pkg` に追加します。"
+msgid "Add the package (it belongs to the tools module `Luna-Flow/floating-tools`) and the representations you project to your `moon.pkg`:"
+msgstr "パッケージ（ツールモジュール `Luna-Flow/floating-tools` に属します）と、射影する表現を `moon.pkg` に追加します:"
 
 #: manual/api/semantic.md:28
 msgid "The examples call the package as `@semantic.`, the representations as `@bin_float.`, `@decimal.` and `@ball_float.`, and `Sign` as `@def.Sign`. They assume this helper, which prints a semantic scalar as `numerator/denominator`:"
@@ -8340,8 +8340,8 @@ msgid "Two modules"
 msgstr "2 つのモジュール"
 
 #: manual/architecture.md:33
-msgid "The repository is a `moon.work` workspace of two modules. The published library `Luna-Flow/floating` holds the shared vocabulary, the scalar and interval domains, the checked tiers and `semantic`; it depends on `Luna-Flow/arithmetic` and `Luna-Flow/luna-generic` only. The tools module `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds `numeric_expr`, the format frontends, the runtime adapters `internal/conformance` and `internal/runner_cli`, `cli`, `differential`, `bench`, `consistency` and `doc_examples`: everything that needs `mare_mark`, `async`, `x` or `type_theory`. The tools module imports the library from the same working tree, so a change to a numeric package is tested by the tools in the same commit."
-msgstr "このリポジトリは 2 つのモジュールからなる `moon.work` ワークスペースです。公開ライブラリ `Luna-Flow/floating` は共有語彙、スカラー領域と区間領域、checked 層、`semantic` を含み、依存するのは `Luna-Flow/arithmetic` と `Luna-Flow/luna-generic` のみです。ツールモジュール `Luna-Flow/floating-tools`（ディレクトリ `tooling/`、ライブラリと同じバージョン）は `numeric_expr`、各形式のフロントエンド、ランタイムアダプター `internal/conformance` と `internal/runner_cli`、`cli`、`differential`、`bench`、`consistency`、`doc_examples` を含み、`mare_mark`、`async`、`x`、`type_theory` を必要とするものはすべてここにあります。ツールモジュールは同じ作業ツリーからライブラリをインポートするため、数値パッケージの変更は同じコミットでツールによりテストされます。"
+msgid "The repository is a `moon.work` workspace of two modules. The published library `Luna-Flow/floating` holds the shared vocabulary, the scalar and interval domains and the checked tiers; it depends on `Luna-Flow/arithmetic` and `Luna-Flow/luna-generic` only. The tools module `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds `numeric_expr`, the format frontends, the runtime adapters `internal/conformance` and `internal/runner_cli`, `cli`, `differential`, `bench`, `consistency`, `semantic` and `doc_examples`: everything that needs `mare_mark`, `async`, `x` or `type_theory`. The tools module imports the library from the same working tree, so a change to a numeric package is tested by the tools in the same commit."
+msgstr "このリポジトリは 2 つのモジュールからなる `moon.work` ワークスペースです。公開ライブラリ `Luna-Flow/floating` は共有語彙、スカラー領域と区間領域、checked 層を含み、依存するのは `Luna-Flow/arithmetic` と `Luna-Flow/luna-generic` のみです。ツールモジュール `Luna-Flow/floating-tools`（ディレクトリ `tooling/`、ライブラリと同じバージョン）は `numeric_expr`、各形式のフロントエンド、ランタイムアダプター `internal/conformance` と `internal/runner_cli`、`cli`、`differential`、`bench`、`consistency`、`semantic`、`doc_examples` を含み、`mare_mark`、`async`、`x`、`type_theory` を必要とするものはすべてここにあります。ツールモジュールは同じ作業ツリーからライブラリをインポートするため、数値パッケージの変更は同じコミットでツールによりテストされます。"
 
 #: manual/architecture.md:45
 msgid "Standard boundaries"
@@ -8679,10 +8679,10 @@ msgstr "レベル"
 #: manual/conformance/decimal_gda.md:15
 #: manual/index.md:69
 #: manual/index.md:78
-#: manual/index.md:89
-#: manual/index.md:99
-#: manual/index.md:112
-#: manual/index.md:120
+#: manual/index.md:88
+#: manual/index.md:98
+#: manual/index.md:111
+#: manual/index.md:119
 #: manual/numeric_semantics.md:582
 msgid "API"
 msgstr "API"
@@ -18286,8 +18286,8 @@ msgid "Modules"
 msgstr "モジュール"
 
 #: manual/index.md:49
-msgid "The repository is a workspace of two modules. `Luna-Flow/floating` (directory `library/`) is the library: the numerical cores, the checked wrappers, `def`, `semantic` and the `internal` helpers. `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds the developer tools: expressions and corpus frontends, the conformance command line, the differential harness, the benchmarks and the documentation examples. The sections below say which module a package belongs to; their package names are import paths below the module name, so `bin_float` is `Luna-Flow/floating/bin_float` and `frontend/gda_expr` is `Luna-Flow/floating-tools/frontend/gda_expr`."
-msgstr "このリポジトリは 2 つのモジュールからなるワークスペースです。`Luna-Flow/floating`（ディレクトリ `library/`）はライブラリで、数値コア、checked ラッパー、`def`、`semantic`、`internal` ヘルパーを含みます。`Luna-Flow/floating-tools`（ディレクトリ `tooling/`、ライブラリと同じバージョン）は開発者向けツールで、式とコーパスのフロントエンド、適合性コマンドライン、差分テストハーネス、ベンチマーク、パッケージ横断の一貫性テスト、ドキュメントの例を含みます。以下の節は各パッケージがどのモジュールに属するかを示します。パッケージ名はモジュール名の下のインポートパスなので、`bin_float` は `Luna-Flow/floating/bin_float`、`frontend/gda_expr` は `Luna-Flow/floating-tools/frontend/gda_expr` です。"
+msgid "The repository is a workspace of two modules. `Luna-Flow/floating` (directory `library/`) is the library: the numerical cores, the checked wrappers, `def`, and the `internal` helpers. `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds the developer tools: expressions and corpus frontends, the conformance command line, the differential harness, the benchmarks and the documentation examples. The sections below say which module a package belongs to; their package names are import paths below the module name, so `bin_float` is `Luna-Flow/floating/bin_float` and `frontend/gda_expr` is `Luna-Flow/floating-tools/frontend/gda_expr`."
+msgstr "このリポジトリは 2 つのモジュールからなるワークスペースです。`Luna-Flow/floating`（ディレクトリ `library/`）はライブラリで、数値コア、checked ラッパー、`def`、`internal` ヘルパーを含みます。`Luna-Flow/floating-tools`（ディレクトリ `tooling/`、ライブラリと同じバージョン）は開発者向けツールで、式とコーパスのフロントエンド、適合性コマンドライン、差分テストハーネス、ベンチマーク、パッケージ横断の一貫性テスト、ドキュメントの例を含みます。以下の節は各パッケージがどのモジュールに属するかを示します。パッケージ名はモジュール名の下のインポートパスなので、`bin_float` は `Luna-Flow/floating/bin_float`、`frontend/gda_expr` は `Luna-Flow/floating-tools/frontend/gda_expr` です。"
 
 #: manual/index.md:60
 msgid "Pages"
@@ -18303,28 +18303,28 @@ msgstr "数値コア"
 
 #: manual/index.md:69
 #: manual/index.md:78
-#: manual/index.md:89
-#: manual/index.md:99
-#: manual/index.md:112
-#: manual/index.md:120
+#: manual/index.md:88
+#: manual/index.md:98
+#: manual/index.md:111
+#: manual/index.md:119
 msgid "Part"
 msgstr "構成要素"
 
 #: manual/index.md:69
 #: manual/index.md:78
-#: manual/index.md:89
-#: manual/index.md:99
-#: manual/index.md:112
-#: manual/index.md:120
+#: manual/index.md:88
+#: manual/index.md:98
+#: manual/index.md:111
+#: manual/index.md:119
 msgid "Tutorial"
 msgstr "チュートリアル"
 
 #: manual/index.md:69
 #: manual/index.md:78
-#: manual/index.md:89
-#: manual/index.md:99
-#: manual/index.md:112
-#: manual/index.md:120
+#: manual/index.md:88
+#: manual/index.md:98
+#: manual/index.md:111
+#: manual/index.md:119
 msgid "Design"
 msgstr "設計"
 
@@ -18492,325 +18492,325 @@ msgstr "[API](api/ball_float_checked.md)"
 msgid "[design](design/ball_float_checked.md)"
 msgstr "[設計](design/ball_float_checked.md)"
 
-#: manual/index.md:85
-msgid "`semantic`: exact, representation-independent projection for comparisons across packages"
-msgstr "`semantic`：パッケージ間の比較のための、厳密で表現に依存しない射影"
-
-#: manual/index.md:85
-msgid "[tutorial](tutorial/semantic.md)"
-msgstr "[チュートリアル](tutorial/semantic.md)"
-
-#: manual/index.md:85
-msgid "[API](api/semantic.md)"
-msgstr "[API](api/semantic.md)"
-
-#: manual/index.md:85
-msgid "[design](design/semantic.md)"
-msgstr "[設計](design/semantic.md)"
-
-#: manual/index.md:87
+#: manual/index.md:86
 msgid "Tools module: expressions and corpus frontends"
 msgstr "ツールモジュール: 式とコーパスのフロントエンド"
 
-#: manual/index.md:91
+#: manual/index.md:90
 msgid "`numeric_expr`: host-independent numeric expression syntax and evaluation"
 msgstr "`numeric_expr`：ホストに依存しない数値式の構文と評価"
 
-#: manual/index.md:91
+#: manual/index.md:90
 msgid "[tutorial](tutorial/numeric_expr.md)"
 msgstr "[チュートリアル](tutorial/numeric_expr.md)"
 
-#: manual/index.md:91
+#: manual/index.md:90
 msgid "[API](api/numeric_expr.md)"
 msgstr "[API](api/numeric_expr.md)"
 
-#: manual/index.md:91
+#: manual/index.md:90
 msgid "[design](design/numeric_expr.md)"
 msgstr "[設計](design/numeric_expr.md)"
 
-#: manual/index.md:92
+#: manual/index.md:91
 msgid "`frontend/gda_expr`: parse and execute GDA `.decTest` files"
 msgstr "`frontend/gda_expr`：GDA の `.decTest` ファイルをパースして実行する"
 
-#: manual/index.md:92
+#: manual/index.md:91
 msgid "[tutorial](tutorial/frontend/gda_expr.md)"
 msgstr "[チュートリアル](tutorial/frontend/gda_expr.md)"
 
-#: manual/index.md:92
+#: manual/index.md:91
 msgid "[API](api/frontend/gda_expr.md)"
 msgstr "[API](api/frontend/gda_expr.md)"
 
-#: manual/index.md:92
+#: manual/index.md:91
 msgid "[design](design/frontend/gda_expr.md)"
 msgstr "[設計](design/frontend/gda_expr.md)"
 
-#: manual/index.md:93
+#: manual/index.md:92
 msgid "`frontend/itl_expr`: parse and execute ITF1788 interval test rows"
 msgstr "`frontend/itl_expr`：ITF1788 の区間テストの行をパースして実行する"
 
-#: manual/index.md:93
+#: manual/index.md:92
 msgid "[tutorial](tutorial/frontend/itl_expr.md)"
 msgstr "[チュートリアル](tutorial/frontend/itl_expr.md)"
 
-#: manual/index.md:93
+#: manual/index.md:92
 msgid "[API](api/frontend/itl_expr.md)"
 msgstr "[API](api/frontend/itl_expr.md)"
 
-#: manual/index.md:93
+#: manual/index.md:92
 msgid "[design](design/frontend/itl_expr.md)"
 msgstr "[設計](design/frontend/itl_expr.md)"
 
-#: manual/index.md:94
+#: manual/index.md:93
 msgid "`frontend/mpfr_expr`: parse and execute pinned MPFR witnesses"
 msgstr "`frontend/mpfr_expr`：固定された MPFR の証拠データ（witness）をパースして実行する"
 
-#: manual/index.md:94
+#: manual/index.md:93
 msgid "[tutorial](tutorial/frontend/mpfr_expr.md)"
 msgstr "[チュートリアル](tutorial/frontend/mpfr_expr.md)"
 
-#: manual/index.md:94
+#: manual/index.md:93
 msgid "[API](api/frontend/mpfr_expr.md)"
 msgstr "[API](api/frontend/mpfr_expr.md)"
 
-#: manual/index.md:94
+#: manual/index.md:93
 msgid "[design](design/frontend/mpfr_expr.md)"
 msgstr "[設計](design/frontend/mpfr_expr.md)"
 
-#: manual/index.md:95
+#: manual/index.md:94
 msgid "`frontend/testfloat_expr`: parse and execute Berkeley TestFloat vectors"
 msgstr "`frontend/testfloat_expr`：Berkeley TestFloat のベクタをパースして実行する"
 
-#: manual/index.md:95
+#: manual/index.md:94
 msgid "[tutorial](tutorial/frontend/testfloat_expr.md)"
 msgstr "[チュートリアル](tutorial/frontend/testfloat_expr.md)"
 
-#: manual/index.md:95
+#: manual/index.md:94
 msgid "[API](api/frontend/testfloat_expr.md)"
 msgstr "[API](api/frontend/testfloat_expr.md)"
 
-#: manual/index.md:95
+#: manual/index.md:94
 msgid "[design](design/frontend/testfloat_expr.md)"
 msgstr "[設計](design/frontend/testfloat_expr.md)"
 
-#: manual/index.md:97
+#: manual/index.md:96
 msgid "Tools module: conformance command line"
 msgstr "ツールモジュール: 適合性コマンドライン"
 
-#: manual/index.md:101
+#: manual/index.md:100
 msgid "`cli`: native dispatcher for the four conformance backends"
 msgstr "`cli`：四つの適合性検証バックエンドのためのネイティブディスパッチャ"
 
-#: manual/index.md:101
+#: manual/index.md:100
 msgid "[tutorial](tutorial/cli.md)"
 msgstr "[チュートリアル](tutorial/cli.md)"
 
-#: manual/index.md:101
+#: manual/index.md:100
 msgid "[API](api/cli.md)"
 msgstr "[API](api/cli.md)"
 
-#: manual/index.md:101
+#: manual/index.md:100
 msgid "[design](design/cli.md)"
 msgstr "[設計](design/cli.md)"
 
-#: manual/index.md:102
+#: manual/index.md:101
 msgid "`cli/dispatch`: the argument scanning and exit code of `cli`, as a library"
 msgstr "`cli/dispatch`: `cli` の引数走査と終了コードをライブラリとして提供"
 
-#: manual/index.md:102
+#: manual/index.md:101
 msgid "[tutorial](tutorial/cli/dispatch.md)"
 msgstr "[チュートリアル](tutorial/cli/dispatch.md)"
 
-#: manual/index.md:102
+#: manual/index.md:101
 msgid "[API](api/cli/dispatch.md)"
 msgstr "[API](api/cli/dispatch.md)"
 
-#: manual/index.md:102
+#: manual/index.md:101
 msgid "[design](design/cli/dispatch.md)"
 msgstr "[設計](design/cli/dispatch.md)"
 
-#: manual/index.md:103
+#: manual/index.md:102
 msgid "`cli/gda_expr_cli`: file and output adapter for `.decTest` runs"
 msgstr "`cli/gda_expr_cli`：`.decTest` 実行のためのファイルおよび出力アダプタ"
 
-#: manual/index.md:103
+#: manual/index.md:102
 msgid "[tutorial](tutorial/cli/gda_expr_cli.md)"
 msgstr "[チュートリアル](tutorial/cli/gda_expr_cli.md)"
 
-#: manual/index.md:103
+#: manual/index.md:102
 msgid "[API](api/cli/gda_expr_cli.md)"
 msgstr "[API](api/cli/gda_expr_cli.md)"
 
-#: manual/index.md:103
+#: manual/index.md:102
 msgid "[design](design/cli/gda_expr_cli.md)"
 msgstr "[設計](design/cli/gda_expr_cli.md)"
 
-#: manual/index.md:104
+#: manual/index.md:103
 msgid "`cli/itl_expr_cli`: file and JSON adapter for ITF1788 runs"
 msgstr "`cli/itl_expr_cli`：ITF1788 実行のためのファイルおよび JSON アダプタ"
 
-#: manual/index.md:104
+#: manual/index.md:103
 msgid "[tutorial](tutorial/cli/itl_expr_cli.md)"
 msgstr "[チュートリアル](tutorial/cli/itl_expr_cli.md)"
 
-#: manual/index.md:104
+#: manual/index.md:103
 msgid "[API](api/cli/itl_expr_cli.md)"
 msgstr "[API](api/cli/itl_expr_cli.md)"
 
-#: manual/index.md:104
+#: manual/index.md:103
 msgid "[design](design/cli/itl_expr_cli.md)"
 msgstr "[設計](design/cli/itl_expr_cli.md)"
 
-#: manual/index.md:105
+#: manual/index.md:104
 msgid "`cli/mpfr_expr_cli`: command adapter for MPFR witness runs"
 msgstr "`cli/mpfr_expr_cli`：MPFR 証拠データ実行のためのコマンドアダプタ"
 
-#: manual/index.md:105
+#: manual/index.md:104
 msgid "[tutorial](tutorial/cli/mpfr_expr_cli.md)"
 msgstr "[チュートリアル](tutorial/cli/mpfr_expr_cli.md)"
 
-#: manual/index.md:105
+#: manual/index.md:104
 msgid "[API](api/cli/mpfr_expr_cli.md)"
 msgstr "[API](api/cli/mpfr_expr_cli.md)"
 
-#: manual/index.md:105
+#: manual/index.md:104
 msgid "[design](design/cli/mpfr_expr_cli.md)"
 msgstr "[設計](design/cli/mpfr_expr_cli.md)"
 
-#: manual/index.md:106
+#: manual/index.md:105
 msgid "`differential`: seeded random differential harness against MPFR and libmpdec"
 msgstr "`differential`：MPFR と libmpdec に対するシード付きランダム差分ハーネス"
 
-#: manual/index.md:106
+#: manual/index.md:105
 msgid "[tutorial](tutorial/differential.md)"
 msgstr "[チュートリアル](tutorial/differential.md)"
 
-#: manual/index.md:106
+#: manual/index.md:105
 msgid "[API](api/differential.md)"
 msgstr "[API](api/differential.md)"
 
-#: manual/index.md:106
+#: manual/index.md:105
 msgid "[design](design/differential.md)"
 msgstr "[設計](design/differential.md)"
 
-#: manual/index.md:107
+#: manual/index.md:106
 msgid "`differential/harness`: the batches, specification and `run` of `differential`, as a library"
 msgstr "`differential/harness`: `differential` のバッチ、仕様、`run` をライブラリとして提供"
 
-#: manual/index.md:107
+#: manual/index.md:106
 msgid "[tutorial](tutorial/differential/harness.md)"
 msgstr "[チュートリアル](tutorial/differential/harness.md)"
 
-#: manual/index.md:107
+#: manual/index.md:106
 msgid "[API](api/differential/harness.md)"
 msgstr "[API](api/differential/harness.md)"
 
-#: manual/index.md:107
+#: manual/index.md:106
 msgid "[design](design/differential/harness.md)"
 msgstr "[設計](design/differential/harness.md)"
 
-#: manual/index.md:108
+#: manual/index.md:107
 msgid "`cli/testfloat_expr_cli`: command adapter for TestFloat runs"
 msgstr "`cli/testfloat_expr_cli`：TestFloat 実行のためのコマンドアダプタ"
 
-#: manual/index.md:108
+#: manual/index.md:107
 msgid "[tutorial](tutorial/cli/testfloat_expr_cli.md)"
 msgstr "[チュートリアル](tutorial/cli/testfloat_expr_cli.md)"
 
-#: manual/index.md:108
+#: manual/index.md:107
 msgid "[API](api/cli/testfloat_expr_cli.md)"
 msgstr "[API](api/cli/testfloat_expr_cli.md)"
 
-#: manual/index.md:108
+#: manual/index.md:107
 msgid "[design](design/cli/testfloat_expr_cli.md)"
 msgstr "[設計](design/cli/testfloat_expr_cli.md)"
 
-#: manual/index.md:110
+#: manual/index.md:109
 msgid "Library infrastructure"
 msgstr "ライブラリのインフラ"
 
-#: manual/index.md:114
+#: manual/index.md:113
 msgid "`internal`: exact rationals, big-integer, parsing, normalization and rounding helpers"
 msgstr "`internal`：厳密有理数、多倍長整数、パース、正規化、丸めのヘルパー"
 
-#: manual/index.md:114
+#: manual/index.md:113
 msgid "[tutorial](tutorial/internal.md)"
 msgstr "[チュートリアル](tutorial/internal.md)"
 
-#: manual/index.md:114
+#: manual/index.md:113
 msgid "[API](api/internal.md)"
 msgstr "[API](api/internal.md)"
 
-#: manual/index.md:114
+#: manual/index.md:113
 msgid "[design](design/internal.md)"
 msgstr "[設計](design/internal.md)"
 
-#: manual/index.md:115
+#: manual/index.md:114
 msgid "`internal/decimal_kernel`: exact integer arithmetic on decimal coefficients, shared by `decimal` and `decimal_gda`"
 msgstr "`internal/decimal_kernel`：10 進係数の厳密な整数演算（`decimal` と `decimal_gda` が共有）"
 
-#: manual/index.md:115
+#: manual/index.md:114
 msgid "[tutorial](tutorial/internal/decimal_kernel.md)"
 msgstr "[チュートリアル](tutorial/internal/decimal_kernel.md)"
 
-#: manual/index.md:115
+#: manual/index.md:114
 msgid "[API](api/internal/decimal_kernel.md)"
 msgstr "[API](api/internal/decimal_kernel.md)"
 
-#: manual/index.md:115
+#: manual/index.md:114
 msgid "[design](design/internal/decimal_kernel.md)"
 msgstr "[設計](design/internal/decimal_kernel.md)"
 
-#: manual/index.md:116
+#: manual/index.md:115
 msgid "`internal/bin_kernel`: exact integer arithmetic on the coefficients of `bin_float`"
 msgstr "`internal/bin_kernel`：`bin_float` の係数に対する厳密な整数演算"
 
-#: manual/index.md:116
+#: manual/index.md:115
 msgid "[tutorial](tutorial/internal/bin_kernel.md)"
 msgstr "[チュートリアル](tutorial/internal/bin_kernel.md)"
 
-#: manual/index.md:116
+#: manual/index.md:115
 msgid "[API](api/internal/bin_kernel.md)"
 msgstr "[API](api/internal/bin_kernel.md)"
 
-#: manual/index.md:116
+#: manual/index.md:115
 msgid "[design](design/internal/bin_kernel.md)"
 msgstr "[設計](design/internal/bin_kernel.md)"
 
-#: manual/index.md:118
+#: manual/index.md:117
 msgid "Tools module: infrastructure and evidence"
 msgstr "ツールモジュール: インフラと証拠"
 
-#: manual/index.md:122
+#: manual/index.md:121
 msgid "`internal/conformance`: source locations, deterministic shards, case dispositions and summaries"
 msgstr "`internal/conformance`：ソース位置、決定的なシャード、ケースの処理区分、サマリー"
 
-#: manual/index.md:122
+#: manual/index.md:121
 msgid "[tutorial](tutorial/internal/conformance.md)"
 msgstr "[チュートリアル](tutorial/internal/conformance.md)"
 
-#: manual/index.md:122
+#: manual/index.md:121
 msgid "[API](api/internal/conformance.md)"
 msgstr "[API](api/internal/conformance.md)"
 
-#: manual/index.md:122
+#: manual/index.md:121
 msgid "[design](design/internal/conformance.md)"
 msgstr "[設計](design/internal/conformance.md)"
 
-#: manual/index.md:123
+#: manual/index.md:122
 msgid "`internal/runner_cli`: shared command-line options, files, diagnostics and JSON"
 msgstr "`internal/runner_cli`：共有のコマンドラインオプション、ファイル、診断、JSON"
 
-#: manual/index.md:123
+#: manual/index.md:122
 msgid "[tutorial](tutorial/internal/runner_cli.md)"
 msgstr "[チュートリアル](tutorial/internal/runner_cli.md)"
 
-#: manual/index.md:123
+#: manual/index.md:122
 msgid "[API](api/internal/runner_cli.md)"
 msgstr "[API](api/internal/runner_cli.md)"
 
-#: manual/index.md:123
+#: manual/index.md:122
 msgid "[design](design/internal/runner_cli.md)"
 msgstr "[設計](design/internal/runner_cli.md)"
+
+#: manual/index.md:123
+msgid "`semantic`: exact, representation-independent projection for comparisons across packages"
+msgstr "`semantic`：パッケージ間の比較のための、厳密で表現に依存しない射影"
+
+#: manual/index.md:123
+msgid "[tutorial](tutorial/semantic.md)"
+msgstr "[チュートリアル](tutorial/semantic.md)"
+
+#: manual/index.md:123
+msgid "[API](api/semantic.md)"
+msgstr "[API](api/semantic.md)"
+
+#: manual/index.md:123
+msgid "[design](design/semantic.md)"
+msgstr "[設計](design/semantic.md)"
 
 #: manual/index.md:124
 msgid "`consistency`: white-box cross-package laws and API audits"
@@ -21466,7 +21466,7 @@ msgstr "53 ビットの `BinFloat` で $1/3$ に等しいものはないので�
 #: manual/tutorial/internal/conformance.md:55
 #: manual/tutorial/internal/runner_cli.md:110
 #: manual/tutorial/numeric_expr.md:55
-#: manual/tutorial/semantic.md:51
+#: manual/tutorial/semantic.md:49
 msgid "Everyday tasks"
 msgstr "日常的なタスク"
 
@@ -21571,7 +21571,7 @@ msgstr "`BallContext` は二進形式（精度と指数範囲）を記述しま�
 #: manual/tutorial/internal/conformance.md:109
 #: manual/tutorial/internal/runner_cli.md:136
 #: manual/tutorial/numeric_expr.md:241
-#: manual/tutorial/semantic.md:173
+#: manual/tutorial/semantic.md:171
 msgid "Going further"
 msgstr "さらに進んで"
 
@@ -21644,7 +21644,7 @@ msgstr "各区間はビット単位の作業 `precision` を持ちます。二�
 #: manual/tutorial/internal/conformance.md:116
 #: manual/tutorial/internal/runner_cli.md:148
 #: manual/tutorial/numeric_expr.md:257
-#: manual/tutorial/semantic.md:223
+#: manual/tutorial/semantic.md:221
 msgid "Common pitfalls"
 msgstr "よくある落とし穴"
 
@@ -21717,7 +21717,7 @@ msgstr "**`Double` からの入力。** `from_double(x)` は `x` の二進値を
 #: manual/tutorial/internal/conformance.md:127
 #: manual/tutorial/internal/runner_cli.md:164
 #: manual/tutorial/numeric_expr.md:271
-#: manual/tutorial/semantic.md:240
+#: manual/tutorial/semantic.md:238
 msgid "Next steps"
 msgstr "次のステップ"
 
@@ -24862,6 +24862,7 @@ msgstr "自分のライブラリで行を評価する"
 #: manual/tutorial/frontend/mpfr_expr.md:20
 #: manual/tutorial/frontend/testfloat_expr.md:23
 #: manual/tutorial/numeric_expr.md:21
+#: manual/tutorial/semantic.md:24
 msgid "The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`."
 msgstr "このパッケージは、公開ライブラリではなくツールモジュール `Luna-Flow/floating-tools`（リポジトリの `tooling/` ディレクトリ、ライブラリと同じバージョン）に属します。このワークスペースのパッケージとしてコードを書くか、ツールモジュールの公開後に `moon add Luna-Flow/floating-tools@0.11.0` を実行してください。"
 
@@ -26111,103 +26112,103 @@ msgstr "異なるパッケージのエラーを比較する"
 msgid "cross-check two implementations"
 msgstr "2 つの実装を相互に検証する"
 
-#: manual/tutorial/semantic.md:36
+#: manual/tutorial/semantic.md:34
 msgid "Three represented as a 32-bit binary float and as a decimal is the same number:"
 msgstr "32 ビットの二進浮動小数点数として表した 3 と十進数として表した 3 は、同じ数です。"
 
-#: manual/tutorial/semantic.md:53
+#: manual/tutorial/semantic.md:51
 msgid "See the exact value of a float"
 msgstr "浮動小数点数の厳密な値を見る"
 
-#: manual/tutorial/semantic.md:55
+#: manual/tutorial/semantic.md:53
 msgid "The examples below print a projected scalar with this helper:"
 msgstr "以下の例では、次のヘルパーで射影されたスカラーを出力します。"
 
-#: manual/tutorial/semantic.md:80
+#: manual/tutorial/semantic.md:78
 msgid "The denominator of the binary value is $2^{55}$; the decimal value is exactly $1/10$. The projections differ, so binary64 `0.1` is not one tenth."
 msgstr "二進値の分母は $2^{55}$ であり、十進値は厳密に $1/10$ です。射影が異なるので、binary64 の `0.1` は十分の一ではありません。"
 
-#: manual/tutorial/semantic.md:83
+#: manual/tutorial/semantic.md:81
 msgid "Ignore cohorts, precision and signed zeros"
 msgstr "コホート、精度、符号付きゼロを無視する"
 
-#: manual/tutorial/semantic.md:85
+#: manual/tutorial/semantic.md:83
 msgid "Decimal `1.5`, `1.50` and `1.500` are different representations of one value (a cohort); a binary value carries a precision; zero has two signs. The projection forgets all of this:"
 msgstr "十進の `1.5`、`1.50`、`1.500` は一つの値の異なる表現（コホート）です。二進値は精度を持ち、ゼロには二つの符号があります。射影はこれらをすべて捨てます。"
 
-#: manual/tutorial/semantic.md:109
+#: manual/tutorial/semantic.md:107
 msgid "Order two values exactly"
 msgstr "二つの値を厳密に順序付ける"
 
-#: manual/tutorial/semantic.md:111
+#: manual/tutorial/semantic.md:109
 msgid "The package provides equality only. Because a projected rational exposes a reduced numerator and a positive denominator, you can order two of them with the cross-multiplication rule $a/b < c/d \\iff ad < cb$ (valid because $b, d > 0$):"
 msgstr "パッケージが提供するのは等価性だけです。射影された有理数は既約な分子と正の分母を公開しているので、たすき掛けの規則 $a/b < c/d \\iff ad < cb$ で二つを順序付けられます（$b, d > 0$ なのでこれは有効です）。"
 
-#: manual/tutorial/semantic.md:134
+#: manual/tutorial/semantic.md:132
 msgid "Check that an interval encloses a decimal"
 msgstr "区間が十進数を包含することを確認する"
 
-#: manual/tutorial/semantic.md:136
+#: manual/tutorial/semantic.md:134
 msgid "`SemanticInterval::from_ball_float` exposes the exact endpoints of a ball. With the comparison above you can check an enclosure against a decimal reference value without any rounding:"
 msgstr "`SemanticInterval::from_ball_float` はボールの厳密な端点を公開します。上の比較を使えば、包含区間を十進の参照値と丸めなしで照合できます。"
 
-#: manual/tutorial/semantic.md:170
+#: manual/tutorial/semantic.md:168
 msgid "The empty interval projects to the reversed pair $(+\\infty, -\\infty)$, so the helper rejects every value without a special case."
 msgstr "空区間は逆転した組 $(+\\infty, -\\infty)$ に射影されるので、ヘルパーは特別扱いなしにすべての値を拒否します。"
 
-#: manual/tutorial/semantic.md:175
+#: manual/tutorial/semantic.md:173
 msgid "Compare checked results across packages"
 msgstr "パッケージをまたいで checked の結果を比較する"
 
-#: manual/tutorial/semantic.md:177
+#: manual/tutorial/semantic.md:175
 msgid "`semantic_scalar_result` maps a `Result[T, ArithmeticError]` to a `SemanticResult`, so an error from one package and the same error from another compare equal although their messages differ:"
 msgstr "`semantic_scalar_result` は `Result[T, ArithmeticError]` を `SemanticResult` に写すので、あるパッケージのエラーと別のパッケージの同じエラーは、メッセージが異なっていても等しいと判定されます。"
 
-#: manual/tutorial/semantic.md:200
+#: manual/tutorial/semantic.md:198
 msgid "Cross-check two implementations"
 msgstr "二つの実装を相互検証する"
 
-#: manual/tutorial/semantic.md:202
+#: manual/tutorial/semantic.md:200
 msgid "A typical consistency test computes one result in two representations, rounds both to values that are exactly representable in each, and compares the projections. Square roots of perfect squares are exact in both radices:"
 msgstr "典型的な一貫性テストでは、一つの結果を二つの表現で計算し、両方をそれぞれで厳密に表現可能な値に丸め、射影を比較します。完全平方数の平方根はどちらの基数でも厳密です。"
 
-#: manual/tutorial/semantic.md:225
+#: manual/tutorial/semantic.md:223
 msgid "`NaN == NaN` is `true` for `SemanticScalar`. The projection is a value model, not IEEE comparison; use the concrete packages for IEEE predicates."
 msgstr "`SemanticScalar` では `NaN == NaN` は `true` です。射影は値のモデルであって IEEE の比較ではありません。IEEE の述語には具体的なパッケージを使ってください。"
 
-#: manual/tutorial/semantic.md:227
+#: manual/tutorial/semantic.md:225
 msgid "The projection drops the sign of zero, NaN payloads and signalling state, decimal cohorts, precision and flags. Do not use it to test those. Decorated intervals are not accepted at all."
 msgstr "射影はゼロの符号、NaN のペイロードと signaling 状態、十進のコホート、精度、フラグを捨てます。それらの判定には使わないでください。装飾付き区間はそもそも受け付けられません。"
 
-#: manual/tutorial/semantic.md:230
+#: manual/tutorial/semantic.md:228
 msgid "There is no ordering in the package. Write the cross-multiplication yourself as above; never convert to `Double` to compare."
 msgstr "パッケージには順序付けがありません。上のようにたすき掛けを自分で書いてください。比較のために `Double` に変換してはいけません。"
 
-#: manual/tutorial/semantic.md:232
+#: manual/tutorial/semantic.md:230
 msgid "Projecting a value with a huge exponent (for example decimal `1E+999999`, or a `BinFloat` near its exponent limit $2^{30}$) builds a `BigInt` with as many digits or bits as the exponent. Keep projections to values of moderate exponent."
 msgstr "巨大な指数を持つ値（例えば十進数 `1E+999999`、または指数の限界 $2^{30}$ に近い `BinFloat`）を射影すると、指数と同じだけの桁数またはビット数を持つ `BigInt` が構築されます。射影は適度な指数の値にとどめてください。"
 
-#: manual/tutorial/semantic.md:236
+#: manual/tutorial/semantic.md:234
 msgid "Only `@decimal.Decimal` has a projection; convert a `@decimal_gda.Decimal` through its string form if you need one."
 msgstr "射影を持つのは `@decimal.Decimal` だけです。必要な場合は `@decimal_gda.Decimal` を文字列形式経由で変換してください。"
 
-#: manual/tutorial/semantic.md:238
+#: manual/tutorial/semantic.md:236
 msgid "`ExactRational::new` aborts on a zero denominator."
 msgstr "`ExactRational::new` は分母がゼロのとき異常終了します。"
 
-#: manual/tutorial/semantic.md:242
+#: manual/tutorial/semantic.md:240
 msgid "[`semantic` design](../design/semantic.md): the exact projection, the canonical form and the interval model."
 msgstr "[`semantic` の設計](../design/semantic.md): 厳密な射影、標準形、区間のモデル。"
 
-#: manual/tutorial/semantic.md:244
+#: manual/tutorial/semantic.md:242
 msgid "[`semantic` API](../api/semantic.md): every item with its signature."
 msgstr "[`semantic` API](../api/semantic.md): すべての項目とそのシグネチャ。"
 
-#: manual/tutorial/semantic.md:245
+#: manual/tutorial/semantic.md:243
 msgid "[`def` tutorial](def.md) for the shared vocabulary (`Sign`, `Floating`)."
 msgstr "共通の語彙（`Sign`、`Floating`）については [`def` チュートリアル](def.md)。"
 
-#: manual/tutorial/semantic.md:246
+#: manual/tutorial/semantic.md:244
 msgid "[`ball_float` tutorial](ball_float.md) for computing the enclosures you project."
 msgstr "射影する包含区間の計算については [`ball_float` チュートリアル](ball_float.md)。"
 

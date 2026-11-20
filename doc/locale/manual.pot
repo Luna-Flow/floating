@@ -8055,7 +8055,7 @@ msgid "`semantic` projects concrete values of `floating` onto a small representa
 msgstr ""
 
 #: manual/api/semantic.md:17
-msgid "Add the package and the representations you project to your `moon.pkg`:"
+msgid "Add the package (it belongs to the tools module `Luna-Flow/floating-tools`) and the representations you project to your `moon.pkg`:"
 msgstr ""
 
 #: manual/api/semantic.md:28
@@ -8320,7 +8320,7 @@ msgid "Two modules"
 msgstr ""
 
 #: manual/architecture.md:33
-msgid "The repository is a `moon.work` workspace of two modules. The published library `Luna-Flow/floating` holds the shared vocabulary, the scalar and interval domains, the checked tiers and `semantic`; it depends on `Luna-Flow/arithmetic` and `Luna-Flow/luna-generic` only. The tools module `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds `numeric_expr`, the format frontends, the runtime adapters `internal/conformance` and `internal/runner_cli`, `cli`, `differential`, `bench`, `consistency` and `doc_examples`: everything that needs `mare_mark`, `async`, `x` or `type_theory`. The tools module imports the library from the same working tree, so a change to a numeric package is tested by the tools in the same commit."
+msgid "The repository is a `moon.work` workspace of two modules. The published library `Luna-Flow/floating` holds the shared vocabulary, the scalar and interval domains and the checked tiers; it depends on `Luna-Flow/arithmetic` and `Luna-Flow/luna-generic` only. The tools module `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds `numeric_expr`, the format frontends, the runtime adapters `internal/conformance` and `internal/runner_cli`, `cli`, `differential`, `bench`, `consistency`, `semantic` and `doc_examples`: everything that needs `mare_mark`, `async`, `x` or `type_theory`. The tools module imports the library from the same working tree, so a change to a numeric package is tested by the tools in the same commit."
 msgstr ""
 
 #: manual/architecture.md:45
@@ -8659,10 +8659,10 @@ msgstr ""
 #: manual/conformance/decimal_gda.md:15
 #: manual/index.md:69
 #: manual/index.md:78
-#: manual/index.md:89
-#: manual/index.md:99
-#: manual/index.md:112
-#: manual/index.md:120
+#: manual/index.md:88
+#: manual/index.md:98
+#: manual/index.md:111
+#: manual/index.md:119
 #: manual/numeric_semantics.md:582
 msgid "API"
 msgstr ""
@@ -18167,7 +18167,7 @@ msgid "Modules"
 msgstr ""
 
 #: manual/index.md:49
-msgid "The repository is a workspace of two modules. `Luna-Flow/floating` (directory `library/`) is the library: the numerical cores, the checked wrappers, `def`, `semantic` and the `internal` helpers. `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds the developer tools: expressions and corpus frontends, the conformance command line, the differential harness, the benchmarks and the documentation examples. The sections below say which module a package belongs to; their package names are import paths below the module name, so `bin_float` is `Luna-Flow/floating/bin_float` and `frontend/gda_expr` is `Luna-Flow/floating-tools/frontend/gda_expr`."
+msgid "The repository is a workspace of two modules. `Luna-Flow/floating` (directory `library/`) is the library: the numerical cores, the checked wrappers, `def`, and the `internal` helpers. `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds the developer tools: expressions and corpus frontends, the conformance command line, the differential harness, the benchmarks and the documentation examples. The sections below say which module a package belongs to; their package names are import paths below the module name, so `bin_float` is `Luna-Flow/floating/bin_float` and `frontend/gda_expr` is `Luna-Flow/floating-tools/frontend/gda_expr`."
 msgstr ""
 
 #: manual/index.md:60
@@ -18184,28 +18184,28 @@ msgstr ""
 
 #: manual/index.md:69
 #: manual/index.md:78
-#: manual/index.md:89
-#: manual/index.md:99
-#: manual/index.md:112
-#: manual/index.md:120
+#: manual/index.md:88
+#: manual/index.md:98
+#: manual/index.md:111
+#: manual/index.md:119
 msgid "Part"
 msgstr ""
 
 #: manual/index.md:69
 #: manual/index.md:78
-#: manual/index.md:89
-#: manual/index.md:99
-#: manual/index.md:112
-#: manual/index.md:120
+#: manual/index.md:88
+#: manual/index.md:98
+#: manual/index.md:111
+#: manual/index.md:119
 msgid "Tutorial"
 msgstr ""
 
 #: manual/index.md:69
 #: manual/index.md:78
-#: manual/index.md:89
-#: manual/index.md:99
-#: manual/index.md:112
-#: manual/index.md:120
+#: manual/index.md:88
+#: manual/index.md:98
+#: manual/index.md:111
+#: manual/index.md:119
 msgid "Design"
 msgstr ""
 
@@ -18373,324 +18373,324 @@ msgstr ""
 msgid "[design](design/ball_float_checked.md)"
 msgstr ""
 
-#: manual/index.md:85
-msgid "`semantic`: exact, representation-independent projection for comparisons across packages"
-msgstr ""
-
-#: manual/index.md:85
-msgid "[tutorial](tutorial/semantic.md)"
-msgstr ""
-
-#: manual/index.md:85
-msgid "[API](api/semantic.md)"
-msgstr ""
-
-#: manual/index.md:85
-msgid "[design](design/semantic.md)"
-msgstr ""
-
-#: manual/index.md:87
+#: manual/index.md:86
 msgid "Tools module: expressions and corpus frontends"
 msgstr ""
 
-#: manual/index.md:91
+#: manual/index.md:90
 msgid "`numeric_expr`: host-independent numeric expression syntax and evaluation"
 msgstr ""
 
-#: manual/index.md:91
+#: manual/index.md:90
 msgid "[tutorial](tutorial/numeric_expr.md)"
 msgstr ""
 
-#: manual/index.md:91
+#: manual/index.md:90
 msgid "[API](api/numeric_expr.md)"
 msgstr ""
 
-#: manual/index.md:91
+#: manual/index.md:90
 msgid "[design](design/numeric_expr.md)"
 msgstr ""
 
-#: manual/index.md:92
+#: manual/index.md:91
 msgid "`frontend/gda_expr`: parse and execute GDA `.decTest` files"
 msgstr ""
 
-#: manual/index.md:92
+#: manual/index.md:91
 msgid "[tutorial](tutorial/frontend/gda_expr.md)"
 msgstr ""
 
-#: manual/index.md:92
+#: manual/index.md:91
 msgid "[API](api/frontend/gda_expr.md)"
 msgstr ""
 
-#: manual/index.md:92
+#: manual/index.md:91
 msgid "[design](design/frontend/gda_expr.md)"
 msgstr ""
 
-#: manual/index.md:93
+#: manual/index.md:92
 msgid "`frontend/itl_expr`: parse and execute ITF1788 interval test rows"
 msgstr ""
 
-#: manual/index.md:93
+#: manual/index.md:92
 msgid "[tutorial](tutorial/frontend/itl_expr.md)"
 msgstr ""
 
-#: manual/index.md:93
+#: manual/index.md:92
 msgid "[API](api/frontend/itl_expr.md)"
 msgstr ""
 
-#: manual/index.md:93
+#: manual/index.md:92
 msgid "[design](design/frontend/itl_expr.md)"
 msgstr ""
 
-#: manual/index.md:94
+#: manual/index.md:93
 msgid "`frontend/mpfr_expr`: parse and execute pinned MPFR witnesses"
 msgstr ""
 
-#: manual/index.md:94
+#: manual/index.md:93
 msgid "[tutorial](tutorial/frontend/mpfr_expr.md)"
 msgstr ""
 
-#: manual/index.md:94
+#: manual/index.md:93
 msgid "[API](api/frontend/mpfr_expr.md)"
 msgstr ""
 
-#: manual/index.md:94
+#: manual/index.md:93
 msgid "[design](design/frontend/mpfr_expr.md)"
 msgstr ""
 
-#: manual/index.md:95
+#: manual/index.md:94
 msgid "`frontend/testfloat_expr`: parse and execute Berkeley TestFloat vectors"
 msgstr ""
 
-#: manual/index.md:95
+#: manual/index.md:94
 msgid "[tutorial](tutorial/frontend/testfloat_expr.md)"
 msgstr ""
 
-#: manual/index.md:95
+#: manual/index.md:94
 msgid "[API](api/frontend/testfloat_expr.md)"
 msgstr ""
 
-#: manual/index.md:95
+#: manual/index.md:94
 msgid "[design](design/frontend/testfloat_expr.md)"
 msgstr ""
 
-#: manual/index.md:97
+#: manual/index.md:96
 msgid "Tools module: conformance command line"
 msgstr ""
 
-#: manual/index.md:101
+#: manual/index.md:100
 msgid "`cli`: native dispatcher for the four conformance backends"
 msgstr ""
 
-#: manual/index.md:101
+#: manual/index.md:100
 msgid "[tutorial](tutorial/cli.md)"
 msgstr ""
 
-#: manual/index.md:101
+#: manual/index.md:100
 msgid "[API](api/cli.md)"
 msgstr ""
 
-#: manual/index.md:101
+#: manual/index.md:100
 msgid "[design](design/cli.md)"
 msgstr ""
 
-#: manual/index.md:102
+#: manual/index.md:101
 msgid "`cli/dispatch`: the argument scanning and exit code of `cli`, as a library"
 msgstr ""
 
-#: manual/index.md:102
+#: manual/index.md:101
 msgid "[tutorial](tutorial/cli/dispatch.md)"
 msgstr ""
 
-#: manual/index.md:102
+#: manual/index.md:101
 msgid "[API](api/cli/dispatch.md)"
 msgstr ""
 
-#: manual/index.md:102
+#: manual/index.md:101
 msgid "[design](design/cli/dispatch.md)"
 msgstr ""
 
-#: manual/index.md:103
+#: manual/index.md:102
 msgid "`cli/gda_expr_cli`: file and output adapter for `.decTest` runs"
 msgstr ""
 
-#: manual/index.md:103
+#: manual/index.md:102
 msgid "[tutorial](tutorial/cli/gda_expr_cli.md)"
 msgstr ""
 
-#: manual/index.md:103
+#: manual/index.md:102
 msgid "[API](api/cli/gda_expr_cli.md)"
 msgstr ""
 
-#: manual/index.md:103
+#: manual/index.md:102
 msgid "[design](design/cli/gda_expr_cli.md)"
 msgstr ""
 
-#: manual/index.md:104
+#: manual/index.md:103
 msgid "`cli/itl_expr_cli`: file and JSON adapter for ITF1788 runs"
 msgstr ""
 
-#: manual/index.md:104
+#: manual/index.md:103
 msgid "[tutorial](tutorial/cli/itl_expr_cli.md)"
 msgstr ""
 
-#: manual/index.md:104
+#: manual/index.md:103
 msgid "[API](api/cli/itl_expr_cli.md)"
 msgstr ""
 
-#: manual/index.md:104
+#: manual/index.md:103
 msgid "[design](design/cli/itl_expr_cli.md)"
 msgstr ""
 
-#: manual/index.md:105
+#: manual/index.md:104
 msgid "`cli/mpfr_expr_cli`: command adapter for MPFR witness runs"
 msgstr ""
 
-#: manual/index.md:105
+#: manual/index.md:104
 msgid "[tutorial](tutorial/cli/mpfr_expr_cli.md)"
 msgstr ""
 
-#: manual/index.md:105
+#: manual/index.md:104
 msgid "[API](api/cli/mpfr_expr_cli.md)"
 msgstr ""
 
-#: manual/index.md:105
+#: manual/index.md:104
 msgid "[design](design/cli/mpfr_expr_cli.md)"
 msgstr ""
 
-#: manual/index.md:106
+#: manual/index.md:105
 msgid "`differential`: seeded random differential harness against MPFR and libmpdec"
 msgstr ""
 
-#: manual/index.md:106
+#: manual/index.md:105
 msgid "[tutorial](tutorial/differential.md)"
 msgstr ""
 
-#: manual/index.md:106
+#: manual/index.md:105
 msgid "[API](api/differential.md)"
 msgstr ""
 
-#: manual/index.md:106
+#: manual/index.md:105
 msgid "[design](design/differential.md)"
 msgstr ""
 
-#: manual/index.md:107
+#: manual/index.md:106
 msgid "`differential/harness`: the batches, specification and `run` of `differential`, as a library"
 msgstr ""
 
-#: manual/index.md:107
+#: manual/index.md:106
 msgid "[tutorial](tutorial/differential/harness.md)"
 msgstr ""
 
-#: manual/index.md:107
+#: manual/index.md:106
 msgid "[API](api/differential/harness.md)"
 msgstr ""
 
-#: manual/index.md:107
+#: manual/index.md:106
 msgid "[design](design/differential/harness.md)"
 msgstr ""
 
-#: manual/index.md:108
+#: manual/index.md:107
 msgid "`cli/testfloat_expr_cli`: command adapter for TestFloat runs"
 msgstr ""
 
-#: manual/index.md:108
+#: manual/index.md:107
 msgid "[tutorial](tutorial/cli/testfloat_expr_cli.md)"
 msgstr ""
 
-#: manual/index.md:108
+#: manual/index.md:107
 msgid "[API](api/cli/testfloat_expr_cli.md)"
 msgstr ""
 
-#: manual/index.md:108
+#: manual/index.md:107
 msgid "[design](design/cli/testfloat_expr_cli.md)"
 msgstr ""
 
-#: manual/index.md:110
+#: manual/index.md:109
 msgid "Library infrastructure"
 msgstr ""
 
-#: manual/index.md:114
+#: manual/index.md:113
 msgid "`internal`: exact rationals, big-integer, parsing, normalization and rounding helpers"
 msgstr ""
 
-#: manual/index.md:114
+#: manual/index.md:113
 msgid "[tutorial](tutorial/internal.md)"
 msgstr ""
 
-#: manual/index.md:114
+#: manual/index.md:113
 msgid "[API](api/internal.md)"
 msgstr ""
 
-#: manual/index.md:114
+#: manual/index.md:113
 msgid "[design](design/internal.md)"
 msgstr ""
 
-#: manual/index.md:115
+#: manual/index.md:114
 msgid "`internal/decimal_kernel`: exact integer arithmetic on decimal coefficients, shared by `decimal` and `decimal_gda`"
 msgstr ""
 
-#: manual/index.md:115
+#: manual/index.md:114
 msgid "[tutorial](tutorial/internal/decimal_kernel.md)"
 msgstr ""
 
-#: manual/index.md:115
+#: manual/index.md:114
 msgid "[API](api/internal/decimal_kernel.md)"
 msgstr ""
 
-#: manual/index.md:115
+#: manual/index.md:114
 msgid "[design](design/internal/decimal_kernel.md)"
 msgstr ""
 
-#: manual/index.md:116
+#: manual/index.md:115
 msgid "`internal/bin_kernel`: exact integer arithmetic on the coefficients of `bin_float`"
 msgstr ""
 
-#: manual/index.md:116
+#: manual/index.md:115
 msgid "[tutorial](tutorial/internal/bin_kernel.md)"
 msgstr ""
 
-#: manual/index.md:116
+#: manual/index.md:115
 msgid "[API](api/internal/bin_kernel.md)"
 msgstr ""
 
-#: manual/index.md:116
+#: manual/index.md:115
 msgid "[design](design/internal/bin_kernel.md)"
 msgstr ""
 
-#: manual/index.md:118
+#: manual/index.md:117
 msgid "Tools module: infrastructure and evidence"
 msgstr ""
 
-#: manual/index.md:122
+#: manual/index.md:121
 msgid "`internal/conformance`: source locations, deterministic shards, case dispositions and summaries"
 msgstr ""
 
-#: manual/index.md:122
+#: manual/index.md:121
 msgid "[tutorial](tutorial/internal/conformance.md)"
 msgstr ""
 
-#: manual/index.md:122
+#: manual/index.md:121
 msgid "[API](api/internal/conformance.md)"
 msgstr ""
 
-#: manual/index.md:122
+#: manual/index.md:121
 msgid "[design](design/internal/conformance.md)"
 msgstr ""
 
-#: manual/index.md:123
+#: manual/index.md:122
 msgid "`internal/runner_cli`: shared command-line options, files, diagnostics and JSON"
 msgstr ""
 
-#: manual/index.md:123
+#: manual/index.md:122
 msgid "[tutorial](tutorial/internal/runner_cli.md)"
 msgstr ""
 
-#: manual/index.md:123
+#: manual/index.md:122
 msgid "[API](api/internal/runner_cli.md)"
 msgstr ""
 
-#: manual/index.md:123
+#: manual/index.md:122
 msgid "[design](design/internal/runner_cli.md)"
+msgstr ""
+
+#: manual/index.md:123
+msgid "`semantic`: exact, representation-independent projection for comparisons across packages"
+msgstr ""
+
+#: manual/index.md:123
+msgid "[tutorial](tutorial/semantic.md)"
+msgstr ""
+
+#: manual/index.md:123
+msgid "[API](api/semantic.md)"
+msgstr ""
+
+#: manual/index.md:123
+msgid "[design](design/semantic.md)"
 msgstr ""
 
 #: manual/index.md:124
@@ -21347,7 +21347,7 @@ msgstr ""
 #: manual/tutorial/internal/conformance.md:55
 #: manual/tutorial/internal/runner_cli.md:110
 #: manual/tutorial/numeric_expr.md:55
-#: manual/tutorial/semantic.md:51
+#: manual/tutorial/semantic.md:49
 msgid "Everyday tasks"
 msgstr ""
 
@@ -21452,7 +21452,7 @@ msgstr ""
 #: manual/tutorial/internal/conformance.md:109
 #: manual/tutorial/internal/runner_cli.md:136
 #: manual/tutorial/numeric_expr.md:241
-#: manual/tutorial/semantic.md:173
+#: manual/tutorial/semantic.md:171
 msgid "Going further"
 msgstr ""
 
@@ -21525,7 +21525,7 @@ msgstr ""
 #: manual/tutorial/internal/conformance.md:116
 #: manual/tutorial/internal/runner_cli.md:148
 #: manual/tutorial/numeric_expr.md:257
-#: manual/tutorial/semantic.md:223
+#: manual/tutorial/semantic.md:221
 msgid "Common pitfalls"
 msgstr ""
 
@@ -21598,7 +21598,7 @@ msgstr ""
 #: manual/tutorial/internal/conformance.md:127
 #: manual/tutorial/internal/runner_cli.md:164
 #: manual/tutorial/numeric_expr.md:271
-#: manual/tutorial/semantic.md:240
+#: manual/tutorial/semantic.md:238
 msgid "Next steps"
 msgstr ""
 
@@ -24741,6 +24741,7 @@ msgstr ""
 #: manual/tutorial/frontend/mpfr_expr.md:20
 #: manual/tutorial/frontend/testfloat_expr.md:23
 #: manual/tutorial/numeric_expr.md:21
+#: manual/tutorial/semantic.md:24
 msgid "The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`."
 msgstr ""
 
@@ -25990,103 +25991,103 @@ msgstr ""
 msgid "cross-check two implementations"
 msgstr ""
 
-#: manual/tutorial/semantic.md:36
+#: manual/tutorial/semantic.md:34
 msgid "Three represented as a 32-bit binary float and as a decimal is the same number:"
 msgstr ""
 
-#: manual/tutorial/semantic.md:53
+#: manual/tutorial/semantic.md:51
 msgid "See the exact value of a float"
 msgstr ""
 
-#: manual/tutorial/semantic.md:55
+#: manual/tutorial/semantic.md:53
 msgid "The examples below print a projected scalar with this helper:"
 msgstr ""
 
-#: manual/tutorial/semantic.md:80
+#: manual/tutorial/semantic.md:78
 msgid "The denominator of the binary value is $2^{55}$; the decimal value is exactly $1/10$. The projections differ, so binary64 `0.1` is not one tenth."
 msgstr ""
 
-#: manual/tutorial/semantic.md:83
+#: manual/tutorial/semantic.md:81
 msgid "Ignore cohorts, precision and signed zeros"
 msgstr ""
 
-#: manual/tutorial/semantic.md:85
+#: manual/tutorial/semantic.md:83
 msgid "Decimal `1.5`, `1.50` and `1.500` are different representations of one value (a cohort); a binary value carries a precision; zero has two signs. The projection forgets all of this:"
 msgstr ""
 
-#: manual/tutorial/semantic.md:109
+#: manual/tutorial/semantic.md:107
 msgid "Order two values exactly"
 msgstr ""
 
-#: manual/tutorial/semantic.md:111
+#: manual/tutorial/semantic.md:109
 msgid "The package provides equality only. Because a projected rational exposes a reduced numerator and a positive denominator, you can order two of them with the cross-multiplication rule $a/b < c/d \\iff ad < cb$ (valid because $b, d > 0$):"
 msgstr ""
 
-#: manual/tutorial/semantic.md:134
+#: manual/tutorial/semantic.md:132
 msgid "Check that an interval encloses a decimal"
 msgstr ""
 
-#: manual/tutorial/semantic.md:136
+#: manual/tutorial/semantic.md:134
 msgid "`SemanticInterval::from_ball_float` exposes the exact endpoints of a ball. With the comparison above you can check an enclosure against a decimal reference value without any rounding:"
 msgstr ""
 
-#: manual/tutorial/semantic.md:170
+#: manual/tutorial/semantic.md:168
 msgid "The empty interval projects to the reversed pair $(+\\infty, -\\infty)$, so the helper rejects every value without a special case."
 msgstr ""
 
-#: manual/tutorial/semantic.md:175
+#: manual/tutorial/semantic.md:173
 msgid "Compare checked results across packages"
 msgstr ""
 
-#: manual/tutorial/semantic.md:177
+#: manual/tutorial/semantic.md:175
 msgid "`semantic_scalar_result` maps a `Result[T, ArithmeticError]` to a `SemanticResult`, so an error from one package and the same error from another compare equal although their messages differ:"
 msgstr ""
 
-#: manual/tutorial/semantic.md:200
+#: manual/tutorial/semantic.md:198
 msgid "Cross-check two implementations"
 msgstr ""
 
-#: manual/tutorial/semantic.md:202
+#: manual/tutorial/semantic.md:200
 msgid "A typical consistency test computes one result in two representations, rounds both to values that are exactly representable in each, and compares the projections. Square roots of perfect squares are exact in both radices:"
 msgstr ""
 
-#: manual/tutorial/semantic.md:225
+#: manual/tutorial/semantic.md:223
 msgid "`NaN == NaN` is `true` for `SemanticScalar`. The projection is a value model, not IEEE comparison; use the concrete packages for IEEE predicates."
 msgstr ""
 
-#: manual/tutorial/semantic.md:227
+#: manual/tutorial/semantic.md:225
 msgid "The projection drops the sign of zero, NaN payloads and signalling state, decimal cohorts, precision and flags. Do not use it to test those. Decorated intervals are not accepted at all."
 msgstr ""
 
-#: manual/tutorial/semantic.md:230
+#: manual/tutorial/semantic.md:228
 msgid "There is no ordering in the package. Write the cross-multiplication yourself as above; never convert to `Double` to compare."
 msgstr ""
 
-#: manual/tutorial/semantic.md:232
+#: manual/tutorial/semantic.md:230
 msgid "Projecting a value with a huge exponent (for example decimal `1E+999999`, or a `BinFloat` near its exponent limit $2^{30}$) builds a `BigInt` with as many digits or bits as the exponent. Keep projections to values of moderate exponent."
 msgstr ""
 
-#: manual/tutorial/semantic.md:236
+#: manual/tutorial/semantic.md:234
 msgid "Only `@decimal.Decimal` has a projection; convert a `@decimal_gda.Decimal` through its string form if you need one."
 msgstr ""
 
-#: manual/tutorial/semantic.md:238
+#: manual/tutorial/semantic.md:236
 msgid "`ExactRational::new` aborts on a zero denominator."
 msgstr ""
 
-#: manual/tutorial/semantic.md:242
+#: manual/tutorial/semantic.md:240
 msgid "[`semantic` design](../design/semantic.md): the exact projection, the canonical form and the interval model."
 msgstr ""
 
-#: manual/tutorial/semantic.md:244
+#: manual/tutorial/semantic.md:242
 msgid "[`semantic` API](../api/semantic.md): every item with its signature."
 msgstr ""
 
-#: manual/tutorial/semantic.md:245
+#: manual/tutorial/semantic.md:243
 msgid "[`def` tutorial](def.md) for the shared vocabulary (`Sign`, `Floating`)."
 msgstr ""
 
-#: manual/tutorial/semantic.md:246
+#: manual/tutorial/semantic.md:244
 msgid "[`ball_float` tutorial](ball_float.md) for computing the enclosures you project."
 msgstr ""
 
