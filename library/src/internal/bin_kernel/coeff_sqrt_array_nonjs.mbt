@@ -279,3 +279,74 @@ pub fn bin_coeff_sqrt_rem_scaled(
   let source = bin_coeff_words_shifted(value, scale + shift, limbs)
   bin_coeff_sqrt_rem_normalized(source, limbs, shift)
 }
+
+///|
+/// The root and remainder of `value << scale`, packed into one value so that no
+/// tuple is returned (it would be a heap object), for a radicand whose root has
+/// at least `precision` bits:
+///
+/// - if the root has exactly `precision` bits, the root rounded to nearest
+///   (`root + 1` when the remainder exceeds the root, the square root then lies
+///   above `root + 1/2`; it never equals it), at the exponent of the root. This
+///   value has `precision` bits, or `precision + 1` when the increment carries;
+/// - otherwise `4 * root + 2 * b + s` with `b = 1` when the remainder exceeds
+///   the root and `s = 1` when it is not zero: the two low bits are the round
+///   and sticky bits under the root, the value has `precision + 3` bits or more
+///   and its exponent is two below that of the root.
+///
+/// The caller tells the cases apart by the bit length (`<= precision + 1`).
+pub fn bin_coeff_sqrt_scaled_rounded(
+  value : Coeff,
+  scale : Int32,
+  precision : Int32,
+) -> Coeff {
+  let (root, remainder) = bin_coeff_sqrt_rem_scaled(value, scale)
+  let above_half = remainder.compare(root) > 0
+  if root.bit_length() == precision {
+    return if above_half { root.add(Coeff::one()) } else { root }
+  }
+  let low = if above_half {
+    3UL
+  } else if remainder.is_zero() {
+    0UL
+  } else {
+    1UL
+  }
+  bin_coeff_shift2_or(root, low)
+}
+
+///|
+/// `value * 4 + low` for `low < 4`, built from the limbs without general `Coeff`
+/// arithmetic (a shift and an addition of a general `Coeff` allocate several
+/// temporaries, which costs more than the square root of a 128-bit radicand).
+fn bin_coeff_shift2_or(value : Coeff, low : UInt64) -> Coeff {
+  match value.0 {
+    Inline64(word) =>
+      if word >> 62 == 0UL {
+        Coeff::from_uint64((word << 2) | low)
+      } else {
+        bin_coeff_inline(word >> 62, (word << 2) | low)
+      }
+    Inline128(high, word) => {
+      let top = high >> 62
+      let new_high = (high << 2) | (word >> 62)
+      let new_low = (word << 2) | low
+      if top == 0UL {
+        bin_coeff_inline(new_high, new_low)
+      } else {
+        bin_coeff_from_words([new_low, new_high, top], 3)
+      }
+    }
+    Heap(words, len) => {
+      let result = FixedArray::make(len + 1, 0UL)
+      let mut carry = low
+      for index in 0..<len {
+        let word = words.unsafe_get(index)
+        result.unsafe_set(index, (word << 2) | carry)
+        carry = word >> 62
+      }
+      result.unsafe_set(len, carry)
+      bin_coeff_from_words(result, len + 1)
+    }
+  }
+}

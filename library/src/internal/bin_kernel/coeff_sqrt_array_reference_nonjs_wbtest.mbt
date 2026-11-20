@@ -148,6 +148,36 @@ fn bin_coeff_sqrt_reference_check(value : Coeff) -> Unit raise {
     let shifted = value.shift_left(scale)
     let direct = bin_coeff_sqrt_rem_words_reference(shifted)
     let folded = bin_coeff_sqrt_rem_scaled(value, scale)
+    // the packed form (see `bin_coeff_sqrt_scaled_rounded`)
+    for precision in [folded.0.bit_length(), folded.0.bit_length() - 1, 53] {
+      if precision < 1 || folded.0.bit_length() < precision {
+        continue
+      }
+      let packed = bin_coeff_sqrt_scaled_rounded(value, scale, precision)
+      let above_half = folded.1.compare(folded.0) > 0
+      let expected = if folded.0.bit_length() == precision {
+        if above_half {
+          folded.0.add(Coeff::one())
+        } else {
+          folded.0
+        }
+      } else {
+        folded.0
+        .shift_left(2)
+        .add(
+          Coeff::from_uint64(
+            if above_half {
+              3UL
+            } else if folded.1.is_zero() {
+              0UL
+            } else {
+              1UL
+            },
+          ),
+        )
+      }
+      assert_true(packed == expected)
+    }
     if shifted.bit_length() > 256 {
       assert_true(direct.0 == folded.0)
       assert_true(direct.1 == folded.1)
