@@ -3,6 +3,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+import itl_refinements
 import run_itl_interpreter
 
 
@@ -93,6 +94,62 @@ class ItlInterpreterPlanTest(unittest.TestCase):
                 aggregate, [{"phase": "sets", "totalCases": 1}]
             )
         )
+
+
+class RefinedPhaseTest(unittest.TestCase):
+    SOURCE = (
+        "testcase t {\n"
+        "    sinRevBin [0.0,0.0] [3.0,3.5] = [0x1.921fb54442d18p+1,0x1.921fb54442d1ap+1];\n"
+        "    add [1.0,2.0] [3.0,4.0] = [4.0,6.0];\n"
+        "}\n"
+    )
+
+    def refinement(self) -> itl_refinements.Refinement:
+        return itl_refinements.Refinement(
+            file="rev.itl",
+            id="t:1",
+            operation="sinRevBin",
+            corpus="[0x1.921fb54442d18p+1,0x1.921fb54442d1ap+1]",
+            refined="[0x1.921fb54442d18p+1,0x1.921fb54442d19p+1]",
+            reason="test",
+        )
+
+    def test_a_refined_file_is_a_patched_copy_and_the_corpus_is_untouched(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            corpus = Path(directory) / "corpus"
+            corpus.mkdir()
+            path = corpus / "rev.itl"
+            path.write_text(self.SOURCE, encoding="utf-8")
+            scratch = Path(directory) / "scratch"
+            scratch.mkdir()
+            phase = {"name": "trig", "files": [path], "operations": ["sinRevBin"]}
+            files, applied = run_itl_interpreter.refined_files(phase, [self.refinement()], scratch)
+            self.assertEqual(len(applied), 1)
+            self.assertNotEqual(files[0], path)
+            self.assertIn("0x1.921fb54442d19p+1", files[0].read_text(encoding="utf-8"))
+            self.assertEqual(path.read_text(encoding="utf-8"), self.SOURCE)
+
+    def test_a_phase_that_does_not_select_the_operation_keeps_the_corpus_file(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "rev.itl"
+            path.write_text(self.SOURCE, encoding="utf-8")
+            phase = {"name": "other", "files": [path], "operations": ["add"]}
+            files, applied = run_itl_interpreter.refined_files(phase, [self.refinement()], Path(directory))
+            self.assertEqual((files, applied), ([path], []))
+
+    def test_only_refined_cases_that_run_are_counted(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "rev.itl"
+            path.write_text(self.SOURCE, encoding="utf-8")
+            phase = {"name": "trig", "files": [path], "operations": ["sinRevBin"]}
+            with mock.patch("run_itl_interpreter.subprocess.run") as run:
+                run.return_value.returncode = 0
+                run.return_value.stdout = '{"unsupportedIds": [], "diagnosticIds": []}'
+                ran = run_itl_interpreter.run_phase(Path("itl"), phase, True, [self.refinement()])
+                run.return_value.stdout = '{"unsupportedIds": ["t:1"], "diagnosticIds": []}'
+                skipped = run_itl_interpreter.run_phase(Path("itl"), phase, False, [self.refinement()])
+        self.assertEqual(ran["refinedCases"], 1)
+        self.assertEqual(skipped["refinedCases"], 0)
 
 
 if __name__ == "__main__":

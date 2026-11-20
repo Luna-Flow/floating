@@ -5,10 +5,12 @@ import fnmatch
 import json
 import subprocess
 import sys
+import tempfile
 import time
 from pathlib import Path
 
 import fetch_interval_corpora
+import itl_refinements
 from conformance_cli import build_backend, executable_path
 from conformance_runtime import ensure_available, ordered_parallel_map
 from conformance_ui import Console, Progress, SummaryRow, print_summary
@@ -84,20 +86,65 @@ def planned_phases(config: dict, corpus: Path, selected: set[str]) -> list[dict]
     return planned
 
 
-def run_phase(executable: Path, phase: dict, strict_supported: bool) -> dict:
+def refined_files(
+    phase: dict,
+    refinements: list[itl_refinements.Refinement],
+    directory: Path,
+) -> tuple[list[Path], list[itl_refinements.Refinement]]:
+    """The files of a phase, those with refined cases replaced by patched copies
+    in `directory`, and the refinements applied to them.
+
+    A refined case is run against the refined value, not against the corpus
+    value; the planner has already checked that the refined value lies inside
+    the corpus value. A refinement counts for the phase that selects its
+    operation."""
+    operations = set(phase["operations"])
+    files: list[Path] = []
+    applied: list[itl_refinements.Refinement] = []
+    for path in phase["files"]:
+        applicable = [
+            refinement
+            for refinement in refinements
+            if refinement.file == path.name
+            and (not operations or refinement.operation in operations)
+        ]
+        if not applicable:
+            files.append(path)
+            continue
+        patched = directory / path.name
+        patched.write_text(
+            itl_refinements.apply(path.read_text(encoding="utf-8"), applicable),
+            encoding="utf-8",
+        )
+        files.append(patched)
+        applied.extend(applicable)
+    return files, applied
+
+
+def run_phase(
+    executable: Path,
+    phase: dict,
+    strict_supported: bool,
+    refinements: list[itl_refinements.Refinement] | None = None,
+) -> dict:
     command = [str(executable), "--backend", "itl"]
     if strict_supported:
         command.append("--strict-supported")
     for operation in phase["operations"]:
         command.extend(("--operation", operation))
-    command.extend(str(path) for path in phase["files"])
-    result = subprocess.run(command, cwd=REPO_ROOT, text=True, capture_output=True)
+    with tempfile.TemporaryDirectory() as directory:
+        files, applied = refined_files(phase, refinements or [], Path(directory))
+        command.extend(str(path) for path in files)
+        result = subprocess.run(command, cwd=REPO_ROOT, text=True, capture_output=True)
     if result.returncode not in (0, 1):
         raise RuntimeError(result.stderr or result.stdout)
     payload = json.loads(result.stdout)
     payload["phase"] = phase["name"]
     payload["files"] = len(phase["files"])
     payload["exitCode"] = result.returncode
+    # only a refined case that runs counts: an unsupported one is not run
+    not_run = set(payload.get("unsupportedIds", [])) | set(payload.get("diagnosticIds", []))
+    payload["refinedCases"] = sum(1 for r in applied if r.id not in not_run)
     return payload
 
 
@@ -142,6 +189,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.jobs <= 0:
             raise ValueError("--jobs must be positive")
+        refinements: list[itl_refinements.Refinement] = []
         if args.smoke:
             phases = [
                 {
@@ -169,6 +217,12 @@ def main(argv: list[str] | None = None) -> int:
             phases = planned_phases(config, corpus, set(args.phase))
             revision = spec["revision"]
             official_aggregate = config.get("officialAggregate")
+            refinement_file = config.get("refinements")
+            if refinement_file is not None:
+                refinements = itl_refinements.load(CONFIG.parent / refinement_file)
+                itl_refinements.validate(
+                    refinements, itl_refinements.corpus_statements(corpus)
+                )
         if args.plan:
             for phase in phases:
                 print(f"{phase['name']}: {len(phase['files'])} files")
@@ -179,7 +233,9 @@ def main(argv: list[str] | None = None) -> int:
         reports = ordered_parallel_map(
             phases,
             args.jobs,
-            lambda phase: run_phase(executable, phase, args.strict_supported),
+            lambda phase: run_phase(
+                executable, phase, args.strict_supported, refinements
+            ),
             phase_progress,
             lambda phase: phase["name"],
         )
@@ -203,6 +259,7 @@ def main(argv: list[str] | None = None) -> int:
                     "failedCases",
                     "unsupportedCases",
                     "diagnosticCases",
+                    "refinedCases",
                 )
             },
         }
@@ -220,7 +277,12 @@ def main(argv: list[str] | None = None) -> int:
                         phase["executableCases"],
                         phase["failedCases"]
                         + (phase["unsupportedCases"] + phase["diagnosticCases"] if args.strict_supported else 0),
-                        f"{phase['unsupportedCases']} unsupported",
+                        f"{phase['unsupportedCases']} unsupported"
+                        + (
+                            f", {phase['refinedCases']} refined"
+                            if phase["refinedCases"]
+                            else ""
+                        ),
                     )
                     for phase in reports
                 ],
@@ -229,6 +291,12 @@ def main(argv: list[str] | None = None) -> int:
                 0 if exit_code == 0 else 1,
                 time.monotonic() - started,
             )
+            if summary["refinedCases"]:
+                print(
+                    f"refined: {summary['refinedCases']:,} of {summary['executableCases']:,} "
+                    "executed cases run against a value inside the corpus value "
+                    "(testdata/interval/interpreter_refinements.json)"
+                )
         return exit_code
     except (OSError, ValueError, RuntimeError, subprocess.CalledProcessError) as error:
         print(f"ITL interpreter runner failed: {error}")

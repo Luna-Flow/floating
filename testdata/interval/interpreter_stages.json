@@ -1,6 +1,7 @@
 {
   "schemaVersion": 1,
   "corpus": "itf1788",
+  "refinements": "interpreter_refinements.json",
   "officialAggregate": {
     "expectedCases": 5692,
     "phases": [
