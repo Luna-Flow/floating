@@ -91,9 +91,7 @@ A non-negative arbitrary-precision integer, used as the coefficient of a
 `BinFloat` and as the bit pattern of an interchange encoding.
 
 ```mbti
-pub struct BinCoeff {
-  // private fields
-} derive(@debug.Debug)
+type BinCoeff derive(@debug.Debug)
 ```
 
 All arithmetic on `BinCoeff` is exact. On the native, LLVM and Wasm targets

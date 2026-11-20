@@ -385,8 +385,7 @@ fn bin_coeff_normalize_odd_words(
 ///|
 fn bin_coeff_sub_unchecked(left : BinCoeff, right : BinCoeff) -> BinCoeff {
   match (left.0, right.0) {
-    (Inline64(left), Inline64(right)) =>
-      return BinCoeff(Inline64(left - right))
+    (Inline64(left), Inline64(right)) => return BinCoeff(Inline64(left - right))
     (Inline128(high, low), Inline64(value)) => {
       let borrow = if low < value { 1UL } else { 0UL }
       return bin_coeff_inline(high - borrow, low - value)
