@@ -26,7 +26,7 @@ fn binary_fast_word(value : BinFloat) -> UInt64? {
   if value.class != FpClass::Finite {
     return None
   }
-  match value.coefficient_.repr {
+  match value.coefficient_.0 {
     Inline64(word) => if word == 0UL { None } else { Some(word) }
     _ => None
   }
