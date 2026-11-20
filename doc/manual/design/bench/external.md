@@ -11,29 +11,77 @@ own earlier versions cannot say that.
 ## Mathematical background
 
 Let $t_F$ and $t_R$ be the time per operation of `floating` and of the
-reference library for one case (operation and precision). Each side yields
-blocks of per-operation times, $x_{r,j}$ in round $r$ and block $j$. The
-reported quantities are the pooled medians
-$\tilde t_F = \operatorname{med}_{r,j} x^F_{r,j}$ and
-$\tilde t_R = \operatorname{med}_{r,j} x^R_{r,j}$ and the ratio
+reference library for one case (operation and precision). The number the
+project is judged by is the ratio of the *net* times, which are the times of the
+operation without the cost of the benchmark loop around it. The method is fixed
+in advance and versioned (`net-ratio-v1`); a change of any number below is a
+new method version.
+
+**Pairs.** Each side is timed in pairs of blocks, in one process: a block of the
+case, $x_{r,j}$, and a block of its null, $y_{r,j}$ (the same loop without the
+library call, see below), both in ns per operation, each with its own
+calibrated batch of about 20 ms, run back to back with the order inside the
+pair alternating. Here $r$ is the round and $j$ the confirmatory pair of the
+round ($R = 7$ rounds of $B = 12$ pairs, after 3 exploratory pairs per round
+that are discarded by position). The difference of a pair is
 
 $$
-\rho = \frac{\tilde t_F}{\tilde t_R}.
+d_{r,j} = x_{r,j} - y_{r,j}.
+$$
+
+The two blocks of a pair are 40 ms apart, so a drift of the machine that is
+slower than that cancels in $d$; it does not cancel in $x$ or $y$ alone.
+
+**Net time and its interval.** The net time of a side is the median of all its
+differences,
+
+$$
+\nu = \operatorname{med}_{r,j}\, d_{r,j}.
 $$
 
 Blocks of one round come from one process and share memory layout, frequency
-state and system noise, so they are not independent. The interval is therefore
-a two-level percentile bootstrap: a replicate draws $R$ rounds with
-replacement, once for both sides, and then draws the blocks of each chosen
-round with replacement on each side; the ratio of the two replicate medians is
-one replicate of $\rho$, and the 2.5% and 97.5% quantiles of 2000 replicates
-(seeded) are the interval. Drawing the rounds once for both sides pairs them,
-so a slow drift of the machine between rounds cancels in the ratio. The
-interval of a single median is obtained the same way from one side.
+state and system noise, so they are not independent. The interval of $\nu$ is
+a two-level percentile bootstrap that keeps the pairs intact: a replicate draws
+$R$ rounds with replacement, then draws the $B$ pairs of each chosen round with
+replacement, and $\nu^*$ is the median of the $RB$ drawn differences; the 2.5%
+and 97.5% quantiles of 2000 seeded replicates are the interval.
 
-A cell is flagged as noisy when the half-width of its median interval exceeds
-5% of the median or when the medians of the rounds spread (maximum minus
-minimum) by more than 10% of the pooled median, on either side.
+**Ratio.** $\hat\rho = \nu_F / \nu_R$. The two sides run in different
+processes and share no structure, so their replicates are drawn independently,
+$\rho^*_b = \nu^*_{F,b} / \nu^*_{R,b}$ (with $\rho^*_b = +\infty$ when
+$\nu^*_{R,b} \le 0$), and the interval $[\rho_{lo}, \rho_{hi}]$ is the 2.5% and
+97.5% quantiles of the $\rho^*_b$. The raw ratio of the 0.11.0 method, the
+median of the case blocks over the median of the case blocks, is kept beside
+it, with its interval from a bootstrap that pairs the rounds of the two sides.
+
+**Criterion.** A case meets the target when $\rho_{hi} \le 3$. This is a
+one-sided 97.5% statement made from a two-sided 95% interval, so it is
+conservative. A resolved case that does not meet it is marked borderline when
+$\rho_{lo} \le 3 < \rho_{hi}$.
+
+**Unresolved.** A case is reported as unresolved, and never as met, when
+(1) the 2.5% quantile of $\nu^*_R$ is at most zero, or $\nu_R \le 0$ (the
+reference net is not distinguishable from zero), (2) $\nu_F \le 0$, or (3)
+$\rho_{hi} / \rho_{lo} > 1.25$ (the interval is too wide; in the 0.11.0 summary
+the raw interval has $\rho_{hi}/\rho_{lo}$ of 1.02 at the median case and 1.07 at
+the worst). The raw ratio decides such a case and is printed as "met (raw)" or
+"not met (raw)"; it is never counted among the met cases.
+
+**Flags.** The null loop scales with the clock, so the null blocks are a
+thermometer. With $n_r$ the median of the null blocks of round $r$, a side is
+flagged `d` (drift) when $\max_r |n_r / \operatorname{med}_r n_r - 1|$ exceeds
+5%. A case is flagged `o` (order) when the mean of $d$ over the pairs where the
+null ran first differs from the mean over the pairs where it ran second by more
+than 5% of $\nu$. Flags are reported; they remove no data and change no
+verdict by themselves (a drift between rounds widens the interval, and an
+interval above the width bound makes the case unresolved).
+
+A raw cell is flagged as noisy when the half-width of its median interval
+exceeds 5% of the median or when the medians of the rounds spread (maximum
+minus minimum) by more than 10% of the pooled median, on either side.
+
+Nothing is removed from the data after it is measured: not by hand, not by a
+rule that looks at the result.
 
 ## Design decisions
 
@@ -96,20 +144,69 @@ and any internal temporaries, for `floating` the construction of an immutable
 result value, which is how the library is used. That difference is inherent in
 the two designs and is part of what the ratio reports.
 
-### The harness overhead is measured, not assumed
+### The null of a case: the same loop without the library call
 
-`external/*/null` cases run `floating`'s timed loop with the arithmetic
-removed. Its time per operation bounds what the harness adds to every
-`floating` number and is reported next to the results; it is not subtracted.
+The null removes everything the library needs to do and nothing else, so that
+the net time is what the library call costs.
+
+- **`floating`.** A second implementation of the same case, run by Maremark
+  next to the operation (the blocks of the implementations are interleaved, each
+  implementation has its own calibration). Its closure has the shape of the
+  operation closures, an indirect call with the same arguments returning its
+  first one, and it loads from `expected` instead of the operands so that its
+  output validates against the reference. It keeps the closure call, the array
+  loads, the reference-counted store of a result and Maremark's per-pass work. It
+  removes the library call and the allocation, construction and release of a
+  result.
+- **MPFR and libmpdec.** `pass_null` runs the loop of the case with the same
+  operand and result accesses (the three operand pointers of every row, and the
+  context and the status of the decimal calls) handed to an empty `asm` statement,
+  so the compiler can neither drop the accesses nor fuse the loop.
+
+What the null cannot remove, and what the net therefore still contains:
+
+1. The call itself: argument set-up and return of `mpfr_add` are in the net of
+   the reference; the direct call into the library is in the net of `floating`,
+   while the closure that reaches it is in the null. The closure belongs to the
+   harness, the library call to the library.
+2. Cache, branch-predictor and allocator state differ between a loop with and a
+   loop without the call, so the net is an approximation of "the operation
+   alone", not an identity. Its error is of the order of the variation of the
+   null and is the same for every build of the library, so comparisons between
+   builds are not affected.
+3. Per-pass and per-block costs (the pair of clock reads, `Bench::keep`) are in
+   both blocks and cancel in the difference; they are not removed from the
+   individual times.
+4. The release of the previous result happens in the next call: in the null
+   `out[i]` holds a shared value, in the case it frees an allocation. That cost
+   is caused by the operation and stays in the net.
+
+A regression of the time on the number of operations per block was considered
+and not adopted: it removes per-pass costs but not the per-operation cost of the
+harness (the closure call, the array traffic, the reference loop), which is the
+largest part of the floor, so a null would still be needed.
+
+### Two configurations of the floating side
+
+The floating side is built and published in named configurations, recorded as
+`floating_configuration` in the protocol block of the summary and in the names of
+the published files: `native` (the native limb primitives where the build has
+them) and `portable` (the portable path forced). The target of the baseline has
+to be reached by the portable path as well. The runner passes the name and the
+environment variables that select a configuration (`--configuration`,
+`--moon-env KEY=VALUE`); how a configuration is selected is defined by the kernel
+work, not by the benchmark. One summary, one samples file and one section of the
+manual page exist per configuration.
 
 ## Correctness and invariants
 
 - The operand file and the reference file are checksummed in `machine.json`.
 - A `floating` result that differs from the reference is counted in the
   Maremark validation tally and listed in `results.json`.
-- The ratio uses only rounds in which both sides produced confirmatory blocks.
+- A summary is a function of its samples file (the pairs of every case, per side and round) and of its protocol block; `just bench external recompute` recomputes it and says whether every stored number agrees.
+- A pair is used only when both of its blocks were measured; exploratory pairs are never used.
 - Seeds are recorded, so the round order and the bootstrap are reproducible
-  from the raw JSONL; the timings themselves are not.
+  from the samples; the timings themselves are not.
 
 ## Alternatives rejected
 
@@ -131,3 +228,4 @@ removed. Its time per operation bounds what the harness adds to every
 - The library caches of MPFR (for $\pi$ and $\log 2$) and the corresponding
   caches of `floating` are warm during timing; cold-start cost is not measured.
 - Only a single thread is used; memory use is not measured.
+- The correction for the loop floor moves few verdicts. Computed from the 0.11.0 medians with the floating floor then measured (9.21 ns) and a reference floor between 0.4 and 1.1 ns, 43 of 59 cases are above 3 on the raw ratio and 42 on the net ratio: only `decimal_gda` multiplication at 100 digits (3.03) changes side. The method makes the number honest; it does not move the target.

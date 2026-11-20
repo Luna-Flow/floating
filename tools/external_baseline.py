@@ -21,6 +21,7 @@ import math
 import os
 import platform
 import random
+import re
 import shutil
 import subprocess
 import sys
@@ -37,7 +38,8 @@ DEFAULT_OUT = REPO_ROOT / ".tmp" / "external"
 SUMMARY_DIR = REPO_ROOT / "testdata" / "external_baseline"
 EVENT_MARKER = "MAREMARK_JSONL="
 
-SCHEMA = "external-baseline-v1"
+SCHEMA_V1 = "external-baseline-v1"
+SCHEMA = "external-baseline-v2"
 INPUT_SEED = 20261118
 OPERANDS_PER_CASE = 8
 
@@ -45,10 +47,6 @@ BINARY_OPS: tuple[str, ...] = ("add", "mul", "div", "sqrt", "exp", "ln", "sin")
 DECIMAL_OPS: tuple[str, ...] = ("add", "mul", "div", "sqrt", "exp", "ln")
 BINARY_PRECISIONS: tuple[int, ...] = (53, 128, 512, 2048, 8192)
 DECIMAL_DIGITS: tuple[int, ...] = (16, 34, 100, 1000)
-# The "null" operation runs floating's timed loop without arithmetic: it
-# measures what the harness itself costs per pass, so it can be read off.
-OVERHEAD_CASES: tuple[tuple[str, int], ...] = (("binary", 53), ("decimal_gda", 16))
-
 REFERENCE_TOOL = {"binary": "mpfr", "decimal_gda": "libmpdec"}
 
 
@@ -93,11 +91,6 @@ def benchmark_cases(
         if wanted is None or op in wanted
     ]
     return cases
-
-
-def overhead_cases(cases: Sequence[Case]) -> list[Case]:
-    kinds = {case.kind for case in cases}
-    return [Case(kind, "null", size) for kind, size in OVERHEAD_CASES if kind in kinds]
 
 
 @dataclass(frozen=True)
@@ -164,7 +157,6 @@ _BINARY_RANGE: dict[str, tuple[int, int, bool]] = {
     "exp": (-2, 1, True),  # |x| in [0.25, 4)
     "ln": (-3, 3, False),
     "sin": (-2, 1, True),  # |x| in [0.25, 4)
-    "null": (-8, 8, True),
 }
 _DECIMAL_RANGE: dict[str, tuple[int, int, bool]] = {
     "add": (-2, 2, True),
@@ -173,10 +165,9 @@ _DECIMAL_RANGE: dict[str, tuple[int, int, bool]] = {
     "sqrt": (-1, 2, False),
     "exp": (-1, 0, True),  # |x| in [0.1, 10)
     "ln": (-1, 2, False),
-    "null": (-2, 2, True),
 }
-_BINARY_ARITY = {"add": 2, "mul": 2, "div": 2, "null": 2}
-_DECIMAL_ARITY = {"add": 2, "mul": 2, "div": 2, "null": 2}
+_BINARY_ARITY = {"add": 2, "mul": 2, "div": 2}
+_DECIMAL_ARITY = {"add": 2, "mul": 2, "div": 2}
 
 
 @dataclass(frozen=True)
@@ -522,6 +513,10 @@ def add_floating_events(
 # Results (pure)
 # ---------------------------------------------------------------------------
 
+SCHEMA_SAMPLES = "external-baseline-samples-v1"
+NULL_DEFINITION = "the case loop without the library call, v1"
+DEFAULT_CONFIGURATION = "native"
+
 
 @dataclass(frozen=True)
 class RatioStats:
@@ -531,38 +526,83 @@ class RatioStats:
 
 
 @dataclass(frozen=True)
+class NetStats:
+    """Net time of one side: the median of the pair differences and its interval."""
+
+    net_ns: float
+    ci_low_ns: float
+    ci_high_ns: float
+    pairs: int
+    drift_pct: float
+    order_pct: float
+
+
+@dataclass(frozen=True)
+class SideResult:
+    raw: CellStats  # the case blocks alone, as in the 0.11.0 method
+    null: CellStats  # the null blocks of the pairs
+    net: NetStats
+
+
+@dataclass(frozen=True)
 class CaseResult:
     case: str
     kind: str
     op: str
     size: int
     reference_tool: str
-    reference: CellStats
-    floating: CellStats
-    ratio: RatioStats
+    reference: SideResult
+    floating: SideResult
+    ratio_raw: RatioStats
+    ratio_net: RatioStats
+    status: str  # stats.MET, stats.NOT_MET or stats.UNRESOLVED
+    raw_status: str  # the verdict of the raw ratio's upper end; the verdict of an unresolved case
+    borderline: bool
+    reason: str
+    drift: bool
+    order: bool
     noisy: bool
 
 
-def reduce_results(collected: Collected, protocol: Protocol, seed: int) -> list[CaseResult]:
+def pair_samples(pairs: stats.Pairs, null: bool) -> Samples:
+    """The case blocks (or the null blocks) of the pairs, per round."""
+    return {key: [pair.null_ns if null else pair.case_ns for pair in block] for key, block in pairs.items()}
+
+
+def _side_result(
+    pairs: stats.Pairs, iterations: int, tag: str, protocol: Protocol
+) -> tuple[SideResult, stats.SideNet]:
+    net = stats.side_net(pairs, f"{tag}:net", protocol.resamples)
+    result = SideResult(
+        raw=summarize(pair_samples(pairs, False), f"{tag}:raw", protocol.resamples, iterations),
+        null=summarize(pair_samples(pairs, True), f"{tag}:null", protocol.resamples, iterations),
+        net=NetStats(net.net_ns, net.ci_low_ns, net.ci_high_ns, net.pairs, net.drift_pct, net.order_pct),
+    )
+    return result, net
+
+
+def reduce_results(
+    collected: Collected, protocol: Protocol, seed: int, rules: stats.Rules = stats.Rules()
+) -> list[CaseResult]:
     results: list[CaseResult] = []
     for case_id in sorted(collected.floating, key=_case_sort_key):
         kind, op, size_text = case_id.split("/")
-        if op == "null" or case_id not in collected.reference:
+        if case_id not in collected.reference:
             continue
-        floating_samples = collected.floating[case_id]
-        reference_samples = collected.reference[case_id]
+        if case_id not in collected.floating_pairs or case_id not in collected.reference_pairs:
+            raise ValueError(f"{case_id} has no pairs of case and null blocks (rounds of an older harness?)")
         tag = f"{seed}:{case_id}"
-        floating = summarize(
-            floating_samples, f"{tag}:floating", protocol.resamples,
-            collected.floating_iterations.get(case_id, 0),
-        )  # fmt: skip
-        reference = summarize(
-            reference_samples, f"{tag}:reference", protocol.resamples,
-            collected.reference_iterations.get(case_id, 0),
-        )  # fmt: skip
-        low, high = bootstrap_ratio_ci(
-            floating_samples, reference_samples, f"{tag}:ratio", protocol.resamples
+        floating, floating_net = _side_result(
+            collected.floating_pairs[case_id], collected.floating_iterations.get(case_id, 0), f"{tag}:floating", protocol
         )
+        reference, reference_net = _side_result(
+            collected.reference_pairs[case_id], collected.reference_iterations.get(case_id, 0), f"{tag}:reference", protocol
+        )
+        low, high = bootstrap_ratio_ci(
+            collected.floating[case_id], collected.reference[case_id], f"{tag}:ratio", protocol.resamples
+        )
+        raw = RatioStats(floating.raw.median_ns / reference.raw.median_ns, low, high)
+        verdict = stats.judge(floating_net, reference_net, high, rules)
         results.append(
             CaseResult(
                 case=case_id,
@@ -572,27 +612,143 @@ def reduce_results(collected: Collected, protocol: Protocol, seed: int) -> list[
                 reference_tool=REFERENCE_TOOL[kind],
                 reference=reference,
                 floating=floating,
-                ratio=RatioStats(floating.median_ns / reference.median_ns, low, high),
-                noisy=is_noisy(floating) or is_noisy(reference),
+                ratio_raw=raw,
+                ratio_net=RatioStats(verdict.ratio, verdict.ci_low, verdict.ci_high),
+                status=verdict.status,
+                raw_status=verdict.raw_status,
+                borderline=verdict.borderline,
+                reason=verdict.reason,
+                drift=verdict.drift,
+                order=verdict.order,
+                noisy=is_noisy(floating.raw) or is_noisy(reference.raw),
             )
         )
     return results
-
-
-def overhead_results(collected: Collected, protocol: Protocol, seed: int) -> list[dict[str, object]]:
-    rows = []
-    for case_id, samples in sorted(collected.floating.items()):
-        if case_id.split("/")[1] != "null":
-            continue
-        stats = summarize(samples, f"{seed}:{case_id}:floating", protocol.resamples, 0)
-        rows.append({"case": case_id, "ns_per_op": stats.median_ns, "ci": [stats.ci_low_ns, stats.ci_high_ns]})
-    return rows
 
 
 def _case_sort_key(case_id: str) -> tuple[int, int, int]:
     kind, op, size = case_id.split("/")
     ops = BINARY_OPS if kind == "binary" else DECIMAL_OPS
     return (0 if kind == "binary" else 1, ops.index(op) if op in ops else len(ops), int(size))
+
+
+# ---------------------------------------------------------------------------
+# Samples (pure): everything a summary is computed from
+# ---------------------------------------------------------------------------
+
+
+def samples_document(collected: Collected) -> dict[str, object]:
+    """The pairs of every case, per side and round: `[case ns, null ns, null ran first]`.
+
+    The raw medians, the net times, the intervals and the verdicts of a summary
+    are functions of this document and of the protocol, so any summary can be
+    recomputed from it (`recompute`).
+    """
+    cases: dict[str, object] = {}
+    for case_id in sorted(collected.floating_pairs, key=_case_sort_key):
+        if case_id not in collected.reference_pairs:
+            continue
+        entry: dict[str, object] = {}
+        for side, pairs, iterations in (
+            ("floating", collected.floating_pairs[case_id], collected.floating_iterations),
+            ("reference", collected.reference_pairs[case_id], collected.reference_iterations),
+        ):
+            entry[side] = {
+                "iterations": iterations.get(case_id, 0),
+                "rounds": {
+                    str(key): [[pair.case_ns, pair.null_ns, int(pair.null_first)] for pair in block]
+                    for key, block in sorted(pairs.items())
+                },
+            }
+        cases[case_id] = entry
+    return {"schema": SCHEMA_SAMPLES, "operands": collected.operands, "cases": cases}
+
+
+def load_samples(document: dict[str, object]) -> Collected:
+    """The inverse of `samples_document`."""
+    if document.get("schema") != SCHEMA_SAMPLES:
+        raise ValueError(f"not a samples document: {document.get('schema')!r}")
+    collected = Collected(operands=int(document["operands"]))  # type: ignore[call-overload]
+    for case_id, entry in document["cases"].items():  # type: ignore[attr-defined]
+        for side in ("floating", "reference"):
+            data = entry[side]
+            pairs: stats.Pairs = {
+                int(key): [stats.Pair(float(a), float(b), bool(c)) for a, b, c in block]
+                for key, block in data["rounds"].items()
+            }
+            if side == "floating":
+                collected.floating_pairs[case_id] = pairs
+                collected.floating[case_id] = pair_samples(pairs, False)
+                collected.floating_iterations[case_id] = int(data["iterations"])
+            else:
+                collected.reference_pairs[case_id] = pairs
+                collected.reference[case_id] = pair_samples(pairs, False)
+                collected.reference_iterations[case_id] = int(data["iterations"])
+    return collected
+
+
+def protocol_from_summary(document: dict[str, object]) -> tuple[Protocol, stats.Rules, int]:
+    """Protocol, rules and bootstrap seed of a v2 summary, to recompute it from its samples."""
+    recorded = dict(document["protocol"])  # type: ignore[call-overload]
+    protocol = Protocol(**{name: recorded[name] for name in Protocol.__dataclass_fields__})
+    rules = stats.Rules(
+        target=float(recorded["target"]),
+        width_bound=float(recorded["width_bound"]),
+        drift_pct=float(recorded["drift_pct"]),
+        order_pct=float(recorded["order_pct"]),
+        level=float(recorded["level"]),
+    )
+    return protocol, rules, int(document["meta"]["order_seed"])  # type: ignore[index]
+
+
+def recompute(samples: dict[str, object], summary: dict[str, object]) -> list[CaseResult]:
+    """The results of a published summary, recomputed from its samples document."""
+    protocol, rules, seed = protocol_from_summary(summary)
+    return reduce_results(load_samples(samples), protocol, seed, rules)
+
+
+# ---------------------------------------------------------------------------
+# Summary document (pure)
+# ---------------------------------------------------------------------------
+
+
+def valid_configuration(name: str) -> str:
+    if not re.fullmatch(r"[a-z0-9][a-z0-9-]*", name):
+        raise ValueError(f"configuration name {name!r}: lower-case letters, digits and hyphens only")
+    return name
+
+
+def summary_document(
+    results: Sequence[CaseResult],
+    meta: dict[str, object],
+    protocol: Protocol,
+    configuration: str = DEFAULT_CONFIGURATION,
+    rules: stats.Rules = stats.Rules(),
+) -> dict[str, object]:
+    method: dict[str, object] = {
+        "method": stats.METHOD_VERSION,
+        "pairs_per_round": protocol.confirmatory,
+        "target": rules.target,
+        "width_bound": rules.width_bound,
+        "drift_pct": rules.drift_pct,
+        "order_pct": rules.order_pct,
+        "level": rules.level,
+        "null_definition": NULL_DEFINITION,
+        "floating_configuration": valid_configuration(configuration),
+    }
+    return {
+        "schema": SCHEMA,
+        "meta": meta,
+        "protocol": {**asdict(protocol), **method},
+        "cases": [asdict(r) for r in results],
+    }
+
+
+def summary_configuration(summary: dict[str, object]) -> str:
+    """The configuration of the floating side a summary measured (`native` for a v1 summary)."""
+    if summary.get("schema") == SCHEMA_V1:
+        return DEFAULT_CONFIGURATION
+    return str(summary["protocol"]["floating_configuration"])  # type: ignore[index]
 
 
 # ---------------------------------------------------------------------------
@@ -612,6 +768,8 @@ def format_ns(value: float) -> str:
 
 
 def format_ratio(value: float) -> str:
+    if math.isinf(value):
+        return "inf"
     return f"{value:.2f}" if value < 100 else f"{value:.0f}"
 
 
@@ -629,65 +787,93 @@ def _table(kind: str, results: Sequence[CaseResult], cell: Callable[[CaseResult]
     return lines
 
 
-def _ratio_cell(result: CaseResult) -> str:
-    mark = "\\*" if result.noisy else ""
-    return (
-        f"{format_ratio(result.ratio.ratio)}{mark}"
-        f" [{format_ratio(result.ratio.ci_low)}, {format_ratio(result.ratio.ci_high)}]"
-    )
+def _interval(ratio: RatioStats) -> str:
+    return f"{format_ratio(ratio.ratio)} [{format_ratio(ratio.ci_low)}, {format_ratio(ratio.ci_high)}]"
 
 
-def render_markdown(
-    results: Sequence[CaseResult], overhead: Sequence[dict[str, object]] = ()
-) -> str:
-    """Ratio and absolute-time tables, one pair per domain, and the harness overhead."""
+def net_cell(result: CaseResult) -> str:
+    """Net ratio with its interval and the verdict; an unresolved case shows its raw verdict instead."""
+    flags = (" d" if result.drift else "") + (" o" if result.order else "")
+    if result.status == stats.UNRESOLVED:
+        raw = "met" if result.raw_status == stats.MET else "not met"
+        return f"unresolved, raw {format_ratio(result.ratio_raw.ratio)} {raw}{flags}"
+    mark = " met" if result.status == stats.MET else (" \\*" if result.borderline else "")
+    return f"{_interval(result.ratio_net)}{mark}{flags}"
+
+
+def raw_cell(result: CaseResult) -> str:
+    return _interval(result.ratio_raw) + ("\\*" if result.noisy else "")
+
+
+def render_markdown(results: Sequence[CaseResult], protocol: dict[str, object] | None = None) -> str:
+    """Net ratio, raw ratio, net times and null times, one set of tables per domain."""
+    target = float(protocol["target"]) if protocol else stats.TARGET_RATIO  # type: ignore[arg-type]
     out: list[str] = []
     titles = {
         "binary": ("Binary: floating `bin_float` against MPFR", "MPFR"),
         "decimal_gda": ("Decimal GDA: floating `decimal_gda` against libmpdec", "libmpdec"),
     }
+    met = sum(1 for r in results if r.status == stats.MET)
+    unresolved = [r for r in results if r.status == stats.UNRESOLVED]
+    out += [
+        f"**{met} of {len(results)} cases meet the target (the upper end of the interval of the net ratio is at most "
+        f"{target:g}); {len(unresolved)} are unresolved"
+        + (f" ({sum(1 for r in unresolved if r.raw_status == stats.MET)} of them within the target on the raw ratio)" if unresolved else "")
+        + ".**",
+        "",
+    ]
     for kind, (title, library) in titles.items():
         if not any(r.kind == kind for r in results):
             continue
         out += [f"### {title}", ""]
-        out += [f"Ratio floating / {library} (median time, 95% bootstrap interval; above 1 means floating is slower)", ""]
-        out += _table(kind, results, _ratio_cell)
-        out += ["", f"Median ns per operation, {library}", ""]
-        out += _table(kind, results, lambda r: format_ns(r.reference.median_ns))
-        out += ["", "Median ns per operation, floating", ""]
-        out += _table(kind, results, lambda r: format_ns(r.floating.median_ns))
-        out += [""]
-    if overhead:
-        out += ["### Harness overhead of the floating side", ""]
-        out += ["| case | ns per operation (loop and result store only) |", "| --- | ---: |"]
-        for row in overhead:
-            low, high = row["ci"]  # type: ignore[misc]
-            out.append(f"| `{row['case']}` | {format_ns(float(row['ns_per_op']))} [{format_ns(low)}, {format_ns(high)}] |")  # type: ignore[arg-type]
-        out += [""]
-    noisy = [r.case for r in results if r.noisy]
-    if noisy:
         out += [
-            "Cells marked with an asterisk exceeded a dispersion threshold "
-            f"(CI half-width over {NOISY_CI_PCT:.0f}% of the median, or round medians spread by over "
-            f"{NOISY_SPREAD_PCT:.0f}%): " + ", ".join(f"`{case}`" for case in noisy) + ".",
+            f"Net ratio floating / {library}: the net time of `floating` over the net time of {library}, each "
+            "the median of the differences between a case block and its null block, with the 95% bootstrap "
+            f"interval and the verdict (\"met\": the upper end is at most {target:g}). Above 1 means floating is slower.",
             "",
         ]
+        out += _table(kind, results, net_cell)
+        out += ["", f"Raw ratio floating / {library} (median over median of the case blocks, as in 0.11.0; 95% bootstrap interval)", ""]
+        out += _table(kind, results, raw_cell)
+        out += ["", f"Net time per operation, {library}", ""]
+        out += _table(kind, results, lambda r: format_ns(r.reference.net.net_ns))
+        out += ["", "Net time per operation, floating", ""]
+        out += _table(kind, results, lambda r: format_ns(r.floating.net.net_ns))
+        out += ["", f"Null time per operation (the loop without the library call), {library}", ""]
+        out += _table(kind, results, lambda r: format_ns(r.reference.null.median_ns))
+        out += ["", "Null time per operation, floating", ""]
+        out += _table(kind, results, lambda r: format_ns(r.floating.null.median_ns))
+        out += [""]
+    notes: list[str] = []
+    if unresolved:
+        notes.append(
+            "Unresolved cases (reason): "
+            + ", ".join(f"`{r.case}` ({r.reason})" for r in unresolved)
+            + ". Their raw ratio decides the criterion and is shown; they are not counted as met."
+        )
+    drifting = [r.case for r in results if r.drift]
+    ordered = [r.case for r in results if r.order]
+    if drifting:
+        notes.append("`d`: the null time moved between rounds by more than the drift threshold: " + ", ".join(f"`{c}`" for c in drifting) + ".")
+    if ordered:
+        notes.append("`o`: the net time depends on which block of a pair ran first by more than the order threshold: " + ", ".join(f"`{c}`" for c in ordered) + ".")
+    if any(r.borderline for r in results):
+        notes.append("An asterisk after a net ratio: the interval contains the target.")
+    noisy = [r.case for r in results if r.noisy]
+    if noisy:
+        notes.append(
+            "An asterisk after a raw ratio: the cell exceeded a dispersion threshold "
+            f"(CI half-width over {NOISY_CI_PCT:.0f}% of the median, or round medians spread by over "
+            f"{NOISY_SPREAD_PCT:.0f}%): " + ", ".join(f"`{case}`" for case in noisy) + "."
+        )
+    for note in notes:
+        out += [note, ""]
     return "\n".join(out)
 
 
-def summary_document(
-    results: Sequence[CaseResult],
-    overhead: Sequence[dict[str, object]],
-    meta: dict[str, object],
-    protocol: Protocol,
-) -> dict[str, object]:
-    return {
-        "schema": SCHEMA,
-        "meta": meta,
-        "protocol": asdict(protocol),
-        "overhead_floating_ns_per_pass_op": list(overhead),
-        "cases": [asdict(r) for r in results],
-    }
+# ---------------------------------------------------------------------------
+# Comparison (pure)
+# ---------------------------------------------------------------------------
 
 
 @dataclass(frozen=True)
@@ -696,44 +882,96 @@ class Change:
     old: float
     new: float
     verdict: str  # "slower", "faster" or "same"
+    basis: str = "raw"  # "net" when both summaries have a resolved net ratio, else "raw"
 
     @property
     def change_pct(self) -> float:
         return 100.0 * (self.new / self.old - 1.0)
 
 
+def _ratio_of(summary: dict[str, object], case: dict[str, object]) -> tuple[dict[str, float], str]:
+    """The ratio entry of a case and its basis: net for a resolved v2 case, raw otherwise."""
+    if summary.get("schema") == SCHEMA_V1:
+        return case["ratio"], "raw"  # type: ignore[return-value]
+    if case["status"] != stats.UNRESOLVED:
+        return case["ratio_net"], "net"  # type: ignore[return-value]
+    return case["ratio_raw"], "raw"  # type: ignore[return-value]
+
+
 def compare_summaries(old: dict[str, object], new: dict[str, object]) -> list[Change]:
     """Compare the floating/reference ratios of two summaries, case by case.
 
-    A case is "slower" (floating lost ground to the library) only when the 95%
-    interval of the new ratio lies entirely above that of the old one, and
-    "faster" when it lies entirely below; overlapping intervals are "same".
+    The net ratios are compared when both cases are resolved v2 results, the
+    raw ratios otherwise. A case is "slower" (floating lost ground to the
+    library) only when the 95% interval of the new ratio lies entirely above
+    that of the old one, and "faster" when it lies entirely below; overlapping
+    intervals are "same".
     """
-    old_cases = {c["case"]: c["ratio"] for c in old["cases"]}  # type: ignore[index, union-attr]
+    old_cases = {c["case"]: c for c in old["cases"]}  # type: ignore[attr-defined]
     changes = []
-    for case in new["cases"]:  # type: ignore[union-attr]
-        before = old_cases.get(case["case"])
-        if before is None:
+    for case in new["cases"]:  # type: ignore[attr-defined]
+        previous = old_cases.get(case["case"])
+        if previous is None:
             continue
-        after = case["ratio"]
+        before, old_basis = _ratio_of(old, previous)
+        after, new_basis = _ratio_of(new, case)
+        if old_basis != new_basis:  # mixed: fall back to the raw ratios on both sides
+            before = previous["ratio"] if old.get("schema") == SCHEMA_V1 else previous["ratio_raw"]
+            after = case["ratio"] if new.get("schema") == SCHEMA_V1 else case["ratio_raw"]
+            basis = "raw"
+        else:
+            basis = new_basis
         if after["ci_low"] > before["ci_high"]:
             verdict = "slower"
         elif after["ci_high"] < before["ci_low"]:
             verdict = "faster"
         else:
             verdict = "same"
-        changes.append(Change(case["case"], before["ratio"], after["ratio"], verdict))
+        changes.append(Change(case["case"], before["ratio"], after["ratio"], verdict, basis))
     return changes
 
 
 def render_changes(changes: Sequence[Change]) -> str:
-    lines = ["| case | old ratio | new ratio | change | verdict |", "| --- | ---: | ---: | ---: | --- |"]
+    lines = ["| case | old ratio | new ratio | change | verdict | ratio |", "| --- | ---: | ---: | ---: | --- | --- |"]
     for change in changes:
         lines.append(
             f"| `{change.case}` | {format_ratio(change.old)} | {format_ratio(change.new)} "
-            f"| {change.change_pct:+.1f}% | {change.verdict} |"
+            f"| {change.change_pct:+.1f}% | {change.verdict} | {change.basis} |"
         )
     return "\n".join(lines) + "\n"
+
+
+# ---------------------------------------------------------------------------
+# Published files (pure naming)
+# ---------------------------------------------------------------------------
+
+
+def summary_name(version: str, configuration: str) -> str:
+    return f"summary-{version}-{valid_configuration(configuration)}.json"
+
+
+def samples_name(version: str, configuration: str) -> str:
+    return f"samples-{version}-{valid_configuration(configuration)}.json.gz"
+
+
+def tables_name(configuration: str) -> str:
+    return f"summary-{valid_configuration(configuration)}.md"
+
+
+def page_markers(configuration: str) -> tuple[str, str]:
+    """The comment lines that delimit the generated tables of a configuration in the manual page."""
+    name = valid_configuration(configuration)
+    return (f"<!-- external-baseline:{name}:start -->", f"<!-- external-baseline:{name}:end -->")
+
+
+def replace_page_tables(page: str, configuration: str, tables: str) -> str:
+    """The manual page with the generated tables of one configuration replaced."""
+    start, end = page_markers(configuration)
+    if page.count(start) != 1 or page.count(end) != 1:
+        raise ValueError(f"the page needs exactly one {start} and one {end}")
+    head, rest = page.split(start)
+    _, tail = rest.split(end)
+    return f"{head}{start}\n\n{tables.strip()}\n\n{end}{tail}"
 
 
 # ---------------------------------------------------------------------------
@@ -792,6 +1030,16 @@ def sample_foreign_cpu() -> float:
             except ValueError:
                 continue
     return foreign_cpu_pct(rows, os.getpid())
+
+
+def thermal_state() -> str:
+    """The speed-limit line of `pmset -g therm` (Darwin), empty when the system reports none."""
+    if platform.system() != "Darwin":
+        return ""
+    for line in capture(["pmset", "-g", "therm"]).splitlines():
+        if "speed_limit" in line.lower():
+            return line.strip()
+    return ""
 
 
 def wait_until_quiet() -> float:
@@ -901,8 +1149,21 @@ def moon_command(release: bool = True) -> list[str]:
     return command
 
 
-def run_floating(inputs: Path, reference: Path | None, cases: Sequence[str], protocol: Protocol, seed: int, round_index: int) -> str:
+def parse_environment(items: Sequence[str]) -> dict[str, str]:
+    """`KEY=VALUE` arguments of `--moon-env`; a key is given once."""
+    environment: dict[str, str] = {}
+    for item in items:
+        key, separator, value = item.partition("=")
+        if not separator or not key or key in environment:
+            raise ValueError(f"--moon-env wants KEY=VALUE, each key once: {item!r}")
+        environment[key] = value
+    return environment
+
+
+def run_floating(inputs: Path, reference: Path | None, cases: Sequence[str], protocol: Protocol, seed: int, round_index: int,
+                 extra_environment: dict[str, str] | None = None) -> str:  # fmt: skip
     env = moon_environment()
+    env.update(extra_environment or {})
     env.update(moon_protocol_env(protocol))
     env["EXTBENCH_INPUTS"] = str(inputs)
     env["EXTBENCH_CASES"] = ",".join(cases)
@@ -933,7 +1194,7 @@ def selected_cases(args: argparse.Namespace) -> list[Case]:
 
 def prepare_inputs(args: argparse.Namespace, out_dir: Path) -> tuple[Path, list[Case]]:
     cases = selected_cases(args)
-    rows = generate_rows(args.input_seed, OPERANDS_PER_CASE, cases + overhead_cases(cases))
+    rows = generate_rows(args.input_seed, OPERANDS_PER_CASE, cases)
     inputs = out_dir / "inputs.txt"
     inputs.write_text(format_inputs(rows, args.input_seed, OPERANDS_PER_CASE), encoding="utf-8")
     return inputs, cases
@@ -949,6 +1210,8 @@ def command_gen(args: argparse.Namespace) -> int:
 
 def command_run(args: argparse.Namespace) -> int:
     protocol = PRESETS[args.preset]
+    configuration = valid_configuration(args.configuration)
+    environment = parse_environment(args.moon_env)
     if args.rounds is not None:
         protocol = Protocol(**{**asdict(protocol), "rounds": args.rounds})
     out_dir: Path = args.out
@@ -960,7 +1223,6 @@ def command_run(args: argparse.Namespace) -> int:
     info = json.loads(capture([str(binary), "info"]))
     inputs, cases = prepare_inputs(args, out_dir)
     case_ids = [c.id for c in cases]
-    overhead_ids = [c.id for c in overhead_cases(cases)]
     # Reference results (MPFR / libmpdec) are the oracle the floating side is validated against.
     reference = out_dir / "reference.txt"
     completed = subprocess.run(
@@ -978,17 +1240,20 @@ def command_run(args: argparse.Namespace) -> int:
         "operands_per_case": OPERANDS_PER_CASE,
         "preset": args.preset,
         "c_flags": args.cflags,
+        "floating_configuration": configuration,
+        "floating_environment": environment,
     })  # fmt: skip
     (out_dir / "machine.json").write_text(json.dumps(meta, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     collected = Collected()
-    plans = plan_rounds(args.seed, protocol.rounds, case_ids + overhead_ids)
+    plans = plan_rounds(args.seed, protocol.rounds, case_ids)
     contention: list[dict[str, object]] = []
     for plan in plans:
         round_dir = out_dir / f"round-{plan.index}"
         round_dir.mkdir(exist_ok=True)
-        c_order = [case for case in plan.case_order if case in case_ids]
+        c_order = list(plan.case_order)
         for side in (plan.first, "floating" if plan.first == "reference" else "reference"):
             started = time.monotonic()
+            therm_before = thermal_state()
             if not args.no_gate and not args.resume:
                 before = wait_until_quiet()
                 if before >= QUIET_CPU_PCT:
@@ -1004,7 +1269,7 @@ def command_run(args: argparse.Namespace) -> int:
                 log = round_dir / "floating.log"
                 jsonl = round_dir / "floating.jsonl"
                 if not (args.resume and jsonl.exists() and log.exists()):
-                    output = run_floating(inputs, reference, list(plan.case_order), protocol, args.seed, plan.index)
+                    output = run_floating(inputs, reference, list(plan.case_order), protocol, args.seed, plan.index, environment)
                     log.write_text(output, encoding="utf-8")
                     events = parse_jsonl(output, EVENT_MARKER)
                     jsonl.write_text("".join(json.dumps(e, sort_keys=True) + "\n" for e in events), encoding="utf-8")
@@ -1012,7 +1277,8 @@ def command_run(args: argparse.Namespace) -> int:
                 failed = [line for line in log.read_text(encoding="utf-8").splitlines() if line.startswith("EXTBENCH_FAILED=")]
                 if failed and failed[-1] != "EXTBENCH_FAILED=0":
                     print(f"WARNING: floating output differs from the reference in round {plan.index}: see {log}")
-            contention.append({"round": plan.index, "side": side, "other_cpu_pct_before": before, "other_cpu_pct_after": sample_foreign_cpu()})
+            contention.append({"round": plan.index, "side": side, "other_cpu_pct_before": before, "other_cpu_pct_after": sample_foreign_cpu(),
+                               "thermal_before": therm_before, "thermal_after": thermal_state()})  # fmt: skip
             print(f"round {plan.index} {side}: {time.monotonic() - started:.0f} s, other CPU {contention[-1]['other_cpu_pct_after']:.0f}%", flush=True)
     meta["contention"] = contention
     meta["load_average_end"] = os.getloadavg()
@@ -1033,11 +1299,11 @@ QUICK_TARGET_RATIO = 10.0
 def stored_medians(summary: dict[str, object]) -> dict[str, tuple[float, float]]:
     """`case id -> (reference median ns, floating median ns)` of a published summary."""
     medians: dict[str, tuple[float, float]] = {}
+    v1 = summary.get("schema") == SCHEMA_V1
     for entry in summary["cases"]:  # type: ignore[attr-defined]
-        medians[str(entry["case"])] = (
-            float(entry["reference"]["median_ns"]),
-            float(entry["floating"]["median_ns"]),
-        )
+        reference = entry["reference"] if v1 else entry["reference"]["raw"]
+        floating = entry["floating"] if v1 else entry["floating"]["raw"]
+        medians[str(entry["case"])] = (float(reference["median_ns"]), float(floating["median_ns"]))
     return medians
 
 
@@ -1070,11 +1336,7 @@ def render_quick(rows: Sequence[Sequence[str]]) -> str:
 
 
 def floating_medians(collected: Collected) -> dict[str, float]:
-    return {
-        case: median(pooled(samples))
-        for case, samples in collected.floating.items()
-        if not case.split("/")[1] == "null"
-    }
+    return {case: median(pooled(samples)) for case, samples in collected.floating.items()}
 
 
 def command_quick(args: argparse.Namespace) -> int:
@@ -1094,7 +1356,7 @@ def command_quick(args: argparse.Namespace) -> int:
     case_ids = [c.id for c in cases]
     collected = Collected()
     for round_index in range(protocol.rounds):
-        output = run_floating(inputs, None, case_ids, protocol, args.seed, round_index)
+        output = run_floating(inputs, None, case_ids, protocol, args.seed, round_index, parse_environment(args.moon_env))
         (out_dir / f"quick-round-{round_index}.log").write_text(output, encoding="utf-8")
         add_floating_events(collected, round_index, parse_jsonl(output, EVENT_MARKER))
         print(f"round {round_index} done", flush=True)
@@ -1106,9 +1368,9 @@ def command_quick(args: argparse.Namespace) -> int:
 
 
 def finish(collected: Collected, protocol: Protocol, seed: int, meta: dict[str, object], out_dir: Path) -> int:
+    configuration = str(meta.get("floating_configuration", DEFAULT_CONFIGURATION))
     results = reduce_results(collected, protocol, seed)
-    overhead = overhead_results(collected, protocol, seed)
-    document = summary_document(results, overhead, meta, protocol)
+    document = summary_document(results, meta, protocol, configuration)
     validation = {case: list(counts) for case, counts in sorted(collected.floating_validation.items())}
     document["validation_valid_total_per_case_all_rounds"] = validation
     invalid = [case for case, (valid, total) in collected.floating_validation.items() if valid != total]
@@ -1116,7 +1378,8 @@ def finish(collected: Collected, protocol: Protocol, seed: int, meta: dict[str, 
     if invalid:
         print("WARNING: floating differs from the MPFR/libmpdec reference in: " + ", ".join(sorted(invalid)))
     (out_dir / "results.json").write_text(json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    markdown = render_markdown(results, overhead)
+    (out_dir / "samples.json").write_text(json.dumps(samples_document(collected), sort_keys=True) + "\n", encoding="utf-8")
+    markdown = render_markdown(results, document["protocol"])  # type: ignore[arg-type]
     (out_dir / "results.md").write_text(markdown, encoding="utf-8")
     print(markdown)
     print(f"summary: {out_dir / 'results.json'}")
@@ -1144,32 +1407,85 @@ def module_version() -> str:
     raise RuntimeError("moon.mod declares no version")
 
 
-def command_publish(args: argparse.Namespace) -> int:
-    """Copy the summary of a run into testdata/ (raw JSONL stays in .tmp).
+def write_gzip(path: Path, text: str) -> None:
+    """Deterministic gzip (no timestamp, no file name): the same samples give the same bytes."""
+    import gzip
 
-    One `summary-<version>.json` is kept per release, so the ratios can be
-    tracked from release to release with `compare`; `summary.md` is the latest.
-    The name follows `--version`, or the version of `library/moon.mod`: name the
-    measured release explicitly when the manifest already carries the next one.
-    The stored measurement of the latest published release (`STORED_SUMMARY`) keeps
-    its name and content.
+    with path.open("wb") as handle:
+        with gzip.GzipFile(filename="", mode="wb", fileobj=handle, mtime=0) as archive:
+            archive.write(text.encode("utf-8"))
+
+
+def command_publish(args: argparse.Namespace) -> int:
+    """Copy the summary and the samples of a run into testdata/ (raw JSONL stays in .tmp).
+
+    One `summary-<version>-<configuration>.json` and one
+    `samples-<version>-<configuration>.json.gz` are kept per release and per
+    configuration of the floating side (`native` by default), so the ratios can
+    be tracked from release to release with `compare`, and every number of a
+    summary recomputed from its samples (`recompute`); `summary-<configuration>.md`
+    is the latest tables of that configuration, and the generated tables of the
+    manual page for it are replaced (`page`). The name follows `--version`, or
+    the version of `library/moon.mod`: name the measured release explicitly when
+    the manifest already carries the next one. The summaries of earlier
+    releases (`summary-0.10.2.json`, `summary-0.11.0.json`, schema v1) keep their
+    names and content.
     """
     SUMMARY_DIR.mkdir(parents=True, exist_ok=True)
     document = json.loads((args.out / "results.json").read_text(encoding="utf-8"))
+    configuration = summary_configuration(document)
+    version = args.version or module_version()
     raw = sorted(args.out.glob("round-*/*.jsonl")) + sorted(args.out.glob("round-*/*.log"))
     document["raw_sha256"] = {str(path.relative_to(args.out)): sha256_file(path) for path in raw}
     document["raw_bytes"] = sum(path.stat().st_size for path in raw)
-    target = SUMMARY_DIR / f"summary-{args.version or module_version()}.json"
+    target = SUMMARY_DIR / summary_name(version, configuration)
     target.write_text(json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    (SUMMARY_DIR / "summary.md").write_text((args.out / "results.md").read_text(encoding="utf-8"), encoding="utf-8")
+    write_gzip(SUMMARY_DIR / samples_name(version, configuration), (args.out / "samples.json").read_text(encoding="utf-8"))
+    (SUMMARY_DIR / tables_name(configuration)).write_text((args.out / "results.md").read_text(encoding="utf-8"), encoding="utf-8")
     print(f"published {target}")
+    return update_page(configuration)
+
+
+def update_page(configuration: str) -> int:
+    """Replace the generated tables of `configuration` in the manual page, when the page has its markers."""
+    page_path = REPO_ROOT / "doc" / "manual" / "performance" / "bench" / "external.md"
+    page = page_path.read_text(encoding="utf-8")
+    start, end = page_markers(configuration)
+    if start not in page:
+        print(f"the manual page has no {start}: tables not updated")
+        return 0
+    tables = (SUMMARY_DIR / tables_name(configuration)).read_text(encoding="utf-8")
+    page_path.write_text(replace_page_tables(page, configuration, tables), encoding="utf-8")
+    print(f"updated the tables of configuration {configuration} in {page_path.relative_to(REPO_ROOT)}")
     return 0
+
+
+def command_page(args: argparse.Namespace) -> int:
+    """Regenerate the tables of one configuration in the manual page from the published `summary-<configuration>.md`."""
+    return update_page(valid_configuration(args.configuration))
+
+
+def command_recompute(args: argparse.Namespace) -> int:
+    """Recompute a published summary from its samples and say whether every stored number agrees."""
+    import gzip
+
+    summary = json.loads(args.summary.read_text(encoding="utf-8"))
+    samples = json.loads(gzip.decompress(args.samples.read_bytes()).decode("utf-8"))
+    results = recompute(samples, summary)
+    stored = {entry["case"]: entry for entry in summary["cases"]}
+    differing = [r.case for r in results if json.loads(json.dumps(asdict(r))) != stored.get(r.case)]
+    print(f"{len(results) - len(differing)} of {len(results)} cases agree with the summary")
+    if differing:
+        print("differ: " + ", ".join(differing))
+    return 1 if differing or len(results) != len(stored) else 0
 
 
 def command_compare(args: argparse.Namespace) -> int:
     """Print how the ratios of NEW moved against OLD."""
     old = json.loads(args.old.read_text(encoding="utf-8"))
     new = json.loads(args.new.read_text(encoding="utf-8"))
+    if summary_configuration(old) != summary_configuration(new):
+        print(f"configurations differ: {summary_configuration(old)} (old) against {summary_configuration(new)} (new)")
     changes = compare_summaries(old, new)
     print(render_changes(changes), end="")
     slower = [c.case for c in changes if c.verdict == "slower"]
@@ -1204,6 +1520,10 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--resume", action="store_true", help="reuse finished sides of an interrupted run in --out")
     run.add_argument("--cc", default=os.environ.get("CC", "cc"))
     run.add_argument("--cflags", default=os.environ.get("EXTBENCH_CFLAGS", "-O2"))
+    run.add_argument("--configuration", default=DEFAULT_CONFIGURATION,
+                     help="name of the build configuration of the floating side, recorded in the summary and in the names of the published files (for example native, portable)")  # fmt: skip
+    run.add_argument("--moon-env", action="append", default=[], metavar="KEY=VALUE",
+                     help="environment variable for the moon process that builds and runs the floating side (how a configuration is selected is defined by the kernel work); repeatable")  # fmt: skip
     run.set_defaults(func=command_run)
 
     quick = sub.add_parser("quick", help="floating side only, against the stored reference medians")
@@ -1213,6 +1533,7 @@ def build_parser() -> argparse.ArgumentParser:
     quick.add_argument("--stored", type=Path, default=STORED_SUMMARY, help="published summary giving the reference medians")
     quick.add_argument("--target", type=float, default=QUICK_TARGET_RATIO, help="ratio above which a cell is flagged")
     quick.add_argument("--json", type=Path, default=None, help="also write the rows as JSON")
+    quick.add_argument("--moon-env", action="append", default=[], metavar="KEY=VALUE", help="environment variable for the moon process; repeatable")
     quick.set_defaults(func=command_quick)
 
     report = sub.add_parser("report", help="reduce the raw rounds of an earlier run again")
@@ -1223,6 +1544,15 @@ def build_parser() -> argparse.ArgumentParser:
     publish.add_argument("--out", type=Path, default=DEFAULT_OUT)
     publish.add_argument("--version", help="release the run measures (default: the version of library/moon.mod)")
     publish.set_defaults(func=command_publish)
+
+    page = sub.add_parser("page", help="regenerate the tables of one configuration in the manual page")
+    page.add_argument("--configuration", default=DEFAULT_CONFIGURATION)
+    page.set_defaults(func=command_page)
+
+    recomputed = sub.add_parser("recompute", help="recompute a published summary from its samples")
+    recomputed.add_argument("summary", type=Path)
+    recomputed.add_argument("samples", type=Path)
+    recomputed.set_defaults(func=command_recompute)
 
     compare = sub.add_parser("compare", help="compare the ratios of two published summaries")
     compare.add_argument("old", type=Path)

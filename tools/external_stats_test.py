@@ -189,6 +189,10 @@ class FlagTests(unittest.TestCase):
         self.assertAlmostEqual(st.order_pct(pairs), 100.0 * 2.0 / 9.0)
         self.assertEqual(st.order_pct({0: [st.Pair(12.0, 2.0, True)] * 3}), 0.0)  # one order only: no effect to measure
         self.assertEqual(st.order_pct(constant_pairs(40.0, 9.0)), 0.0)
+        zero = {0: [st.Pair(5.0, 5.0, True), st.Pair(5.0, 5.0, False)]}
+        self.assertEqual(st.order_pct(zero), 0.0)  # a zero net with no order effect
+        skewed = {0: [st.Pair(6.0, 5.0, True), st.Pair(4.0, 5.0, False), st.Pair(5.0, 5.0, False)]}
+        self.assertEqual(st.order_pct(skewed), math.inf)  # a zero net with an order effect
 
 
 if __name__ == "__main__":

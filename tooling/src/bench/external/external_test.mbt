@@ -132,7 +132,6 @@ fn binary_function(
   op : String,
 ) -> ((@binary.BinFloat, @binary.BinFloat) -> @binary.BinFloat)? {
   match op {
-    "null" => Some((x, _) => x)
     "add" => Some((x, y) => x.add(y))
     "mul" => Some((x, y) => x.mul(y))
     "div" => Some((x, y) => x.div(y))
@@ -281,7 +280,6 @@ fn decimal_function(
   op : String,
 ) -> ((@gda.Decimal, @gda.Decimal, @gda.GdaContext) -> @gda.Decimal)? {
   match op {
-    "null" => Some((x, _, _) => x)
     "add" => Some((x, y, c) => @gda.add(x, y, c).value())
     "mul" => Some((x, y, c) => @gda.multiply(x, y, c).value())
     "div" => Some((x, y, c) => @gda.divide(x, y, c).value())

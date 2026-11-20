@@ -13,6 +13,8 @@ toolkit and the statistics are in the [bench tutorial](../bench.md).
 | restrict the matrix | [`--ops`, `--binary-precisions`, `--decimal-gda-digits`](#restrict-the-matrix) |
 | re-reduce raw rounds without measuring | [`just bench external report`](#re-reduce-and-publish) |
 | keep a summary in the repository | [`just bench external publish`](#re-reduce-and-publish) |
+| measure a build configuration of the floating side | [`--configuration`, `--moon-env`](#choose-a-configuration) |
+| check a summary against its samples | [`just bench external recompute`](#recompute-a-summary) |
 | see how the ratios moved since a release | [`just bench external compare OLD NEW`](#compare-two-releases) |
 | understand what is timed | [performance page](../../performance/bench/external.md#what-is-timed) |
 
@@ -30,9 +32,10 @@ The run builds `tools/external_baseline.c`, writes the operand file, asks the
 C harness for the reference results, checks `floating` against them while it is
 timed, and alternates the two sides over seven rounds, waiting before each side until
 the machine is quiet (under 150% CPU used by other processes; `--no-gate`
-turns this off). It takes about 40 minutes on the machine of the reported run,
-because the slowest cases (elementary functions at 8192 bits and 1000 digits)
-run for hundreds of milliseconds per operation. Run it on AC power and close
+turns this off). Every block is a pair of the case and its null, so a run takes
+about twice as long as it did before the net-ratio method (about 40 minutes
+then), because the slowest cases (elementary functions at 8192 bits and 1000
+digits) run for hundreds of milliseconds per operation. Run it on AC power and close
 other heavy work: the load of other processes is the main source of noise. The
 files land in `.tmp/external`:
 
@@ -42,7 +45,8 @@ files land in `.tmp/external`:
 | `reference.txt` | MPFR and libmpdec results for those operands |
 | `machine.json` | CPU, OS, compiler, library, `moon` and `moonc` versions, revision, checksums of the two files above |
 | `round-N/reference.jsonl`, `round-N/floating.jsonl`, `round-N/floating.log` | raw observations of each round |
-| `results.json`, `results.md` | medians, intervals, ratios |
+| `results.json`, `results.md` | raw and net times, null times, intervals, ratios, verdicts (schema `external-baseline-v2`) |
+| `samples.json` | the pairs of case and null blocks of every case, per side and round: everything `results.json` is computed from |
 
 ## Everyday tasks
 
@@ -89,10 +93,37 @@ just bench external publish
 ```
 
 `report` reduces the raw rounds in `.tmp/external` again, for example after a
-change of the statistics, without measuring. `publish` copies the compact
-summary into `testdata/external_baseline` as `summary-VERSION.json`, one file
-per release, and refreshes `summary.md`; the raw JSONL stays out of the
-repository.
+change of the statistics, without measuring (the rounds must come from a harness
+that writes null blocks). `publish` copies the compact summary into
+`testdata/external_baseline` as `summary-VERSION-CONFIGURATION.json`, one file per
+release and configuration, the samples as `samples-VERSION-CONFIGURATION.json.gz`,
+the tables as `summary-CONFIGURATION.md`, and regenerates the tables of that
+configuration in the [performance page](../../performance/bench/external.md);
+the raw JSONL stays out of the repository. The summaries of earlier releases
+(schema v1) keep their names.
+
+### Choose a configuration
+
+```bash
+just bench external run --configuration portable --moon-env KEY=VALUE
+```
+
+`--configuration` names the build configuration of the floating side (lower-case
+letters, digits and hyphens; `native` by default) and is recorded in the summary
+and in the names of the published files. `--moon-env` passes an environment
+variable to the `moon` process that builds and runs the floating side and can be
+repeated; how a configuration is selected, for example how the portable path is
+forced, is defined by the kernel work, not by the benchmark.
+
+### Recompute a summary
+
+```bash
+just bench external recompute testdata/external_baseline/summary-VERSION-native.json testdata/external_baseline/samples-VERSION-native.json.gz
+```
+
+recomputes every case from the samples and the protocol of the summary and says
+how many cases agree with the stored numbers (the exit status is 1 when one
+differs).
 
 ### Compare two releases
 
@@ -100,18 +131,26 @@ repository.
 just bench external compare testdata/external_baseline/summary-0.11.0.json .tmp/external/results.json
 ```
 
-prints the ratio of every case in both files, the change in percent, and a
-verdict: `slower` when the interval of the new ratio lies entirely above the
-old one, `faster` when it lies entirely below, `same` otherwise. Ratios, not
-absolute times, are compared, so a faster machine does not hide a regression;
-the two runs should still come from the same machine class.
+prints the ratio of every case in both files, the change in percent, a verdict:
+`slower` when the interval of the new ratio lies entirely above the old one,
+`faster` when it lies entirely below, `same` otherwise, and which ratio was
+compared: the net ratios when both summaries are resolved v2 results of the case,
+the raw ratios otherwise (a v1 summary has only raw ratios). A line says when the
+two summaries are of different configurations. Ratios, not absolute times, are
+compared, so a faster machine does not hide a regression; the two runs should
+still come from the same machine class.
 
 ### Read a ratio
 
-A cell such as `37.5 [36.9, 38.2]` is the median time of `floating` divided by
-the median time of the reference library, with a 95% bootstrap interval. Above
-1 means `floating` is slower. An asterisk marks a cell whose measurements
-spread more than the dispersion thresholds on the performance page.
+A cell of the net table such as `2.80 [2.71, 2.93] met` is the net time of
+`floating` divided by the net time of the reference library, with a 95%
+bootstrap interval; above 1 means `floating` is slower. `met` says the upper end
+is at most 3. `unresolved, raw 3.77 not met` says the net ratio could not be
+resolved (the reason is listed under the tables) and the raw ratio, shown in its
+own table, decides. `d` and `o` after a cell flag a drift of the null time
+between rounds and an order effect; an asterisk after a net ratio says the
+interval contains the target, after a raw ratio that the cell spread more than
+the dispersion thresholds on the performance page.
 
 ## Going further
 
@@ -120,7 +159,8 @@ spread more than the dispersion thresholds on the performance page.
   `tooling/src/bench/external`; the operand file is read by both sides, so the
   new case is measured on the same inputs.
 - Understand the protocol: [bench/external design](../../design/bench/external.md)
-  states why the sides alternate and why the harness overhead is measured.
+  states why the sides alternate and defines the net ratio, the null and the
+  rules of the verdict.
 - Read the numbers: [external baseline](../../performance/bench/external.md)
   records the machine, the method and the ratios of the latest published
   release.
