@@ -24,7 +24,7 @@ test "binary context and interchange" {
 ///|
 test "GDA context threads sticky status" {
   let context = @decimal_gda.GdaContext::decimal64()
-  let parsed = @decimal_gda.parse("12.3400", context)
+  let parsed = @decimal_gda.to_number("12.3400", context)
   inspect(parsed.value().to_string(), content="12.3400")
   let divided = @decimal_gda.divide(
     parsed.value(),

@@ -78,7 +78,7 @@ fn gda_core(operation : GdaOperation, input : GdaInput) -> @gda.Decimal {
     Div => @gda.divide(input.left, input.right, input.context).value()
     Fma =>
       @gda.fma(input.left, input.right, input.addend, input.context).value()
-    Parse => @gda.parse(input.source, input.context).value()
+    Parse => @gda.to_number(input.source, input.context).value()
   }
 }
 

@@ -182,7 +182,7 @@ specified meaning in GDA, where a computation has one current context.
 The pipeline takes a `GdaContext`, which carries status and traps that
 `ArithmeticContext` does not have. The contextual trait implementations of
 `@decimal_gda.Decimal` (for generic code over Luna-Flow/arithmetic) use the
-package's IEEE-style `DecimalContext::from_arithmetic_context` and report
+package's engine conversion of the arithmetic context and report
 `ArithmeticDiagnostics` per operation, without traps. The two models are kept
 apart: a generic algorithm cannot observe a trap, and a GDA pipeline does not
 lose its status to a diagnostics record.
@@ -250,7 +250,7 @@ When the operation raises nothing, the context is passed on unchanged.
 - Only the operation set in the generated interface has pipeline methods;
   other `decimal_gda` operations are run on `value()` / `context()` and
   re-wrapped with `from_outcome`.
-- No `ArithmeticError`, no IEEE `DecimalFlags`; IEEE-style flag accumulation is
+- No `ArithmeticError`, no IEEE flags; IEEE-style flag accumulation is
   the [`decimal_checked`](decimal_checked.md) contract.
 - No merging of pipelines, no implicit recovery, no changes to the trap set
   during a pipeline.

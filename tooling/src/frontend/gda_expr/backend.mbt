@@ -31,16 +31,15 @@ priv struct EvaluatedValue {
 
 ///|
 priv struct ResolvedContext {
-  decimal : @decimal_gda.DecimalContext
   gda : @decimal_gda.GdaContext
 }
 
 ///|
 fn evaluated_decimal(
   value : @decimal_gda.Decimal,
-  flags~ : @decimal_gda.DecimalFlags = @decimal_gda.DecimalFlags::new(),
+  flags~ : @decimal_gda.GdaFlags = @decimal_gda.GdaFlags::new(),
 ) -> EvaluatedValue {
-  { value: DecimalValue(value), flags: runtime_flags_from_decimal(flags), }
+  { value: DecimalValue(value), flags: runtime_flags_from_gda(flags), }
 }
 
 ///|
@@ -81,27 +80,6 @@ fn RuntimeFlags::combine(
     division_impossible: self.division_impossible || other.division_impossible,
     division_undefined: self.division_undefined || other.division_undefined,
     invalid_context: self.invalid_context || other.invalid_context,
-  }
-}
-
-///|
-fn runtime_flags_from_decimal(
-  flags : @decimal_gda.DecimalFlags,
-) -> RuntimeFlags {
-  {
-    inexact: flags.inexact(),
-    rounded: flags.rounded(),
-    lost_digits: flags.lost_digits(),
-    invalid_operation: flags.invalid_operation(),
-    division_by_zero: flags.division_by_zero(),
-    overflow: flags.overflow(),
-    underflow: flags.underflow(),
-    subnormal: flags.subnormal(),
-    clamped: flags.clamped(),
-    conversion_syntax: flags.conversion_syntax(),
-    division_impossible: flags.division_impossible(),
-    division_undefined: flags.division_undefined(),
-    invalid_context: flags.invalid_context(),
   }
 }
 
@@ -193,68 +171,18 @@ fn invalid_context_reason(context : GdaContext) -> String? {
 ///|
 fn resolve_context(context : GdaContext) -> ResolvedContext? {
   guard invalid_context_reason(context) is None else { return None }
-  let normalized = normalized_word(context.rounding())
-  let (rounding, decimal_rounding, gda_rounding) = match normalized {
-    "halfeven" =>
-      (
-        @lf_arith.RoundingMode::ToNearestEven,
-        @decimal_gda.DecimalRoundingMode::HalfEven,
-        @decimal_gda.GdaRoundingMode::HalfEven,
-      )
-    "halfup" =>
-      (
-        @lf_arith.RoundingMode::ToNearestEven,
-        @decimal_gda.DecimalRoundingMode::HalfUp,
-        @decimal_gda.GdaRoundingMode::HalfUp,
-      )
-    "halfdown" =>
-      (
-        @lf_arith.RoundingMode::ToNearestEven,
-        @decimal_gda.DecimalRoundingMode::HalfDown,
-        @decimal_gda.GdaRoundingMode::HalfDown,
-      )
-    "down" | "towardzero" =>
-      (
-        @lf_arith.RoundingMode::TowardZero,
-        @decimal_gda.DecimalRoundingMode::Down,
-        @decimal_gda.GdaRoundingMode::Down,
-      )
-    "ceiling" | "towardpositive" =>
-      (
-        @lf_arith.RoundingMode::TowardPositive,
-        @decimal_gda.DecimalRoundingMode::Ceiling,
-        @decimal_gda.GdaRoundingMode::Ceiling,
-      )
-    "floor" | "towardnegative" =>
-      (
-        @lf_arith.RoundingMode::TowardNegative,
-        @decimal_gda.DecimalRoundingMode::Floor,
-        @decimal_gda.GdaRoundingMode::Floor,
-      )
-    "up" | "awayfromzero" =>
-      (
-        @lf_arith.RoundingMode::AwayFromZero,
-        @decimal_gda.DecimalRoundingMode::Up,
-        @decimal_gda.GdaRoundingMode::Up,
-      )
-    "05up" | "zerofiveup" =>
-      (
-        @lf_arith.RoundingMode::TowardZero,
-        @decimal_gda.DecimalRoundingMode::ZeroFiveUp,
-        @decimal_gda.GdaRoundingMode::ZeroFiveUp,
-      )
+  let gda_rounding = match normalized_word(context.rounding()) {
+    "halfeven" => @decimal_gda.GdaRoundingMode::HalfEven
+    "halfup" => @decimal_gda.GdaRoundingMode::HalfUp
+    "halfdown" => @decimal_gda.GdaRoundingMode::HalfDown
+    "down" | "towardzero" => @decimal_gda.GdaRoundingMode::Down
+    "ceiling" | "towardpositive" => @decimal_gda.GdaRoundingMode::Ceiling
+    "floor" | "towardnegative" => @decimal_gda.GdaRoundingMode::Floor
+    "up" | "awayfromzero" => @decimal_gda.GdaRoundingMode::Up
+    "05up" | "zerofiveup" => @decimal_gda.GdaRoundingMode::ZeroFiveUp
     _ => return None
   }
   Some({
-    decimal: @decimal_gda.DecimalContext::new(
-      precision=context.precision(),
-      rounding~,
-      decimal_rounding~,
-      e_min=context.min_exponent(),
-      e_max=context.max_exponent(),
-      clamp=context.clamp(),
-      extended=context.extended(),
-    ),
     gda: @decimal_gda.GdaContext::new(
       precision=context.precision(),
       rounding=gda_rounding,
@@ -268,13 +196,13 @@ fn resolve_context(context : GdaContext) -> ResolvedContext? {
 }
 
 ///|
-let decimal32_gda_context : @decimal_gda.DecimalContext = @decimal_gda.DecimalContext::decimal32()
+let decimal32_gda_context : @decimal_gda.GdaContext = @decimal_gda.GdaContext::decimal32()
 
 ///|
-let decimal64_gda_context : @decimal_gda.DecimalContext = @decimal_gda.DecimalContext::decimal64()
+let decimal64_gda_context : @decimal_gda.GdaContext = @decimal_gda.GdaContext::decimal64()
 
 ///|
-let decimal128_gda_context : @decimal_gda.DecimalContext = @decimal_gda.DecimalContext::decimal128()
+let decimal128_gda_context : @decimal_gda.GdaContext = @decimal_gda.GdaContext::decimal128()
 
 ///|
 fn decode_decimal(
@@ -339,29 +267,22 @@ fn decode_decimal_literal(
   let normalized = normalize_token(token)
   if normalized.has_prefix("32#") {
     Some(
-      @decimal_gda.Decimal::from_string_ctx(
-        normalized[3:].to_owned(),
-        decimal32_gda_context,
-      ).0,
+      @decimal_gda.to_number(normalized[3:].to_owned(), decimal32_gda_context).value(),
     )
   } else if normalized.has_prefix("64#") {
     Some(
-      @decimal_gda.Decimal::from_string_ctx(
-        normalized[3:].to_owned(),
-        decimal64_gda_context,
-      ).0,
+      @decimal_gda.to_number(normalized[3:].to_owned(), decimal64_gda_context).value(),
     )
   } else if normalized.has_prefix("128#") {
     Some(
-      @decimal_gda.Decimal::from_string_ctx(
-        normalized[4:].to_owned(),
-        decimal128_gda_context,
-      ).0,
+      @decimal_gda.to_number(normalized[4:].to_owned(), decimal128_gda_context).value(),
     )
   } else if normalized.has_prefix("#") {
     match interchange_format(context) {
       Some(format) =>
-        @decimal_gda.Decimal::from_interchange_hex(normalized, format)
+        @decimal_gda.GdaInterchange::from_hex(normalized, format).map(fn(i) {
+          i.to_decimal()
+        })
       None => None
     }
   } else {
@@ -669,8 +590,10 @@ fn invoke_decimal_operation(
       } else {
         match decode_decimal(raw, case.context()) {
           Some(value) => {
-            let encoded = value.to_interchange_hex(format)
-            Some((encoded.0, runtime_flags_from_decimal(encoded.1)))
+            let (encoded, flags) = @decimal_gda.GdaInterchange::from_decimal(
+              value, format,
+            )
+            Some((encoded.to_hex(), runtime_flags_from_gda(flags)))
           }
           None => None
         }
@@ -685,8 +608,12 @@ fn invoke_decimal_operation(
         @decimal_gda.GdaInterchange::from_hex(raw, format) is Some(value) else {
         return Err("invalid interchange apply operand")
       }
-      let (decimal, flags) = value.to_decimal_ctx()
-      return Ok(evaluated_decimal(decimal, flags~))
+      let decimal = value.to_decimal()
+      let subnormal = @decimal_gda.is_subnormal(decimal, format.context())
+      return Ok({
+        value: DecimalValue(decimal),
+        flags: { ..RuntimeFlags::none(), subnormal: subnormal.value(), },
+      })
     }
   }
   if (op == "copy" || op == "copyabs" || op == "copynegate" || op == "copyneg") &&
@@ -856,11 +783,11 @@ fn invoke_decimal_operation(
       unary_gda_decimal(values, fn(a) { @decimal_gda.sqrt(a, context.gda) })
     "tointegralx" | "tointegralexact" =>
       unary_gda_decimal(values, fn(a) {
-        @decimal_gda.to_integral_exact(a, context.gda)
+        @decimal_gda.round_to_integral_exact(a, context.gda)
       })
     "tointegral" | "tointegralvalue" =>
       unary_gda_decimal(values, fn(a) {
-        @decimal_gda.to_integral_value(a, context.gda)
+        @decimal_gda.round_to_integral_value(a, context.gda)
       })
     "fma" => {
       guard decimal_argument(values, 0) is Some(a) &&
@@ -897,11 +824,7 @@ fn invoke_decimal_operation(
         decimal_argument(values, 1) is Some(b) else {
         return Err("samequantum expects two operands")
       }
-      let outcome = @decimal_gda.same_quantum(a, b, context.gda)
-      Ok({
-        value: BoolValue(outcome.value()),
-        flags: runtime_flags_from_gda(outcome.raised()),
-      })
+      Ok({ value: BoolValue(a.same_quantum(b)), flags: RuntimeFlags::none(), })
     }
     "trim" | "copy" | "copyabs" | "copynegate" | "copyneg" => {
       guard decimal_argument(values, 0) is Some(value) else {
@@ -909,8 +832,8 @@ fn invoke_decimal_operation(
       }
       let result = match op {
         "trim" =>
-          if !context.decimal.extended() && value.is_zero() {
-            @decimal_gda.Decimal::zero(precision=context.decimal.precision())
+          if !context.gda.extended() && value.is_zero() {
+            @decimal_gda.Decimal::zero(precision=context.gda.precision())
           } else {
             value.trim()
           }
@@ -982,12 +905,16 @@ fn invoke_decimal_operation(
       guard raws is [raw, ..] else {
         return Err("string conversion expects one operand")
       }
-      let (text, flags) = if op == "tosci" {
-        @decimal_gda.Decimal::to_sci_string(raw, context.decimal)
+      let parsed = @decimal_gda.to_number(raw, context.gda)
+      let text = if op == "tosci" {
+        parsed.value().to_sci_string()
       } else {
-        @decimal_gda.Decimal::to_eng_string(raw, context.decimal)
+        parsed.value().to_eng_string()
       }
-      Ok({ value: TextValue(text), flags: runtime_flags_from_decimal(flags), })
+      Ok({
+        value: TextValue(text),
+        flags: runtime_flags_from_gda(parsed.raised()),
+      })
     }
     "canonical" => {
       guard raws is [raw, ..] &&
@@ -1024,20 +951,29 @@ fn compare_evaluated(
   let actual_flags = match actual.value {
     DecimalValue(value) if expected.has_prefix("32#") =>
       actual.flags.combine(
-        runtime_flags_from_decimal(
-          value.to_interchange_hex(@decimal_gda.Decimal32).1,
+        runtime_flags_from_gda(
+          @decimal_gda.GdaInterchange::from_decimal(
+            value,
+            @decimal_gda.Decimal32,
+          ).1,
         ),
       )
     DecimalValue(value) if expected.has_prefix("64#") =>
       actual.flags.combine(
-        runtime_flags_from_decimal(
-          value.to_interchange_hex(@decimal_gda.Decimal64).1,
+        runtime_flags_from_gda(
+          @decimal_gda.GdaInterchange::from_decimal(
+            value,
+            @decimal_gda.Decimal64,
+          ).1,
         ),
       )
     DecimalValue(value) if expected.has_prefix("128#") =>
       actual.flags.combine(
-        runtime_flags_from_decimal(
-          value.to_interchange_hex(@decimal_gda.Decimal128).1,
+        runtime_flags_from_gda(
+          @decimal_gda.GdaInterchange::from_decimal(
+            value,
+            @decimal_gda.Decimal128,
+          ).1,
         ),
       )
     _ => actual.flags
@@ -1048,7 +984,8 @@ fn compare_evaluated(
         if expected.has_prefix("#") {
           match interchange_format(case.context()) {
             Some(format) =>
-              value.to_interchange_hex(format).0 == uppercase_ascii(expected)
+              @decimal_gda.GdaInterchange::from_decimal(value, format).0.to_hex() ==
+              uppercase_ascii(expected)
             None => false
           }
         } else {

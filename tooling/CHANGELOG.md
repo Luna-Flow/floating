@@ -9,6 +9,8 @@ module goes here (see `CONTRIBUTING.md`, "Release Checklist").
 
 ## Unreleased
 
+- `frontend/gda_expr` and the consistency tests call the GDA functions of `decimal_gda` only (the status-free engine is private there, [#438](https://github.com/Luna-Flow/floating/issues/438)); the corpus counts of the `decimal_gda` gate are unchanged.
+
 ## 0.11.0 - 2026-11-20
 
 The first release of the changelog of the tools module: it has the version of the library, so 0.11.0 is the release in which the tools moved out of the library module ([#22](https://github.com/Luna-Flow/floating/issues/22), step A and B7), got their own README, manual standard and changelog, and follow the latest MoonBit toolchain (`moonc` >= 0.10.22).

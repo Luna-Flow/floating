@@ -269,7 +269,7 @@ fn logb_finite_result_ctx(
 }
 
 ///|
-pub fn Decimal::next_plus(
+fn Decimal::next_plus(
   self : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
@@ -277,7 +277,7 @@ pub fn Decimal::next_plus(
 }
 
 ///|
-pub fn Decimal::next_minus(
+fn Decimal::next_minus(
   self : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
@@ -285,7 +285,7 @@ pub fn Decimal::next_minus(
 }
 
 ///|
-pub fn Decimal::next_toward(
+fn Decimal::next_toward(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,
@@ -313,7 +313,7 @@ pub fn Decimal::next_toward(
 }
 
 ///|
-pub fn Decimal::logb_ctx(
+fn Decimal::logb_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {

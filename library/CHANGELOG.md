@@ -18,6 +18,30 @@ notes live in this file.
   | `GdaFlags::none()` | `GdaFlags::new()` |
   | `GdaTrapSet::none()` | `GdaTrapSet::new()` |
 
+- `decimal_gda`: the package exports its GDA 1.70 layer only ([#438](https://github.com/Luna-Flow/floating/issues/438), item A1). `Decimal`, `GdaContext`, the `Gda*` types and the functions named after the GDA operations stay. The status-free engine (`DecimalContext`, `DecimalFlags`, `DecimalRoundingMode`, `DecimalSignal`, `DecimalTininessDetection` and the 52 `Decimal` methods that took a `DecimalContext` or returned `DecimalFlags`) is private to the package, so each operation has one public spelling. GDA 1.70 has no tininess choice (Subnormal is judged before rounding, page 53): `DecimalTininessDetection` and its after-rounding rule are removed, not kept.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `x.add_ctx(y, dctx)` (also `sub_ctx`, `mul_ctx`, `div_ctx`, `fma_ctx`) | `add(x, y, gctx)` (`subtract`, `multiply`, `divide`, `fma`) | `o.value()`, `o.raised()` (`GdaFlags`, the same 13 conditions) instead of the tuple |
+  | `x.plus_ctx`, `minus_ctx`, `abs_ctx`, `apply_ctx`, `reduce_ctx`, `sqrt_ctx`, `exp_ctx`, `ln_ctx`, `log10_ctx`, `power_ctx`, `scaleb_ctx`, `logb_ctx`, `shift_ctx`, `rotate_ctx`, `compare_ctx`, `compare_signal_ctx`, `max_ctx`, `min_ctx`, `max_magnitude_ctx`, `min_magnitude_ctx` | the free function without the suffix | |
+  | `x.quantize`, `rescale`, `divide_integer`, `remainder`, `remainder_near`, `logical_*`, `next_*` (methods taking a `DecimalContext`) | the free function of the same name | |
+  | `x.compare_total_ctx(y, d)`, `compare_total_magnitude_ctx` | `compare_total(x, y, gctx)`, `compare_total_magnitude(x, y, gctx)` | the context matters only in a subset context (operands rounded first) |
+  | free `same_quantum(x, y, gctx)` | `x.same_quantum(y)` | context-free and quiet (GDA 1.70 page 48) |
+  | `x.is_normal(d)`, `is_subnormal(d)`, `class_name(d)` | `is_normal(x, gctx)`, `is_subnormal(x, gctx)`, `class_name(x, gctx)` | |
+  | `Decimal::from_string_ctx(s, d)` | `to_number(s, gctx)` | to-number, page 21 |
+  | free `parse(s, gctx)` | `to_number(s, gctx)` | renamed to the GDA name |
+  | `Decimal::to_sci_string(s, d)`, `to_eng_string(s, d)` | `to_number(s, gctx)` then `v.to_sci_string()`, `v.to_eng_string()` | new: `to_sci_string(Self)`, `to_eng_string(Self)`; neither conversion uses a context (pages 19, 20) |
+  | free `to_integral_exact`, `to_integral_value`; methods of the same names | `round_to_integral_exact`, `round_to_integral_value` | the GDA 1.70 names (page 39) |
+  | `x.try_exp_ctx(d)`, `try_ln_ctx`, `try_log10_ctx`, `try_power_ctx` | `try_exp(x, gctx)`, `try_ln`, `try_log10`, `try_power` | new free functions: `Ok(outcome)` for every defined case, `Err` only when the library could not certify the result |
+  | free `context(precision~, ...)` | `GdaContext::try_new(...)` or `GdaContext::new(...)` | one constructor pair |
+  | `DecimalContext::new(precision~, rounding~, decimal_rounding~, ...)`, `DecimalContext::decimal64()` | `GdaContext::new(precision~, rounding=GdaRoundingMode::X, ...)`, `GdaContext::decimal64()` | one rounding parameter |
+  | `DecimalContext::with_refinement_limit(l)`, `refinement_limit()` | `GdaContext::with_refinement_limit(l)`, `refinement_limit()` | new methods on `GdaContext` |
+  | `DecimalContext::with_tininess(...)` | none | no tininess choice in GDA 1.70 |
+  | `GdaInterchangeFormat::context(f)` returning `DecimalContext` | returns `GdaContext` | the same presets |
+  | `GdaInterchange::from_decimal(v, f)` returning `(Self, DecimalFlags)` | returns `(Self, GdaFlags)` | |
+  | `GdaInterchange::to_decimal_ctx()` | `i.to_decimal()`, plus `is_subnormal(v, f.context())` | the old method only added the subnormal flag |
+  | `Decimal::to_interchange_hex(f)`, `from_interchange_hex(s, f)` | `GdaInterchange::from_decimal(v, f).0.to_hex()`, `GdaInterchange::from_hex(s, f)` | one spelling |
+
 ### Performance
 
 - `bin_float`: `sqrt` of a coefficient above 256 bits (precisions from about 128 bits up) runs the Karatsuba square root on limb arrays: the divisor of each level is the root of the upper part, used without a copy or a shift, the quotient, remainder and square are formed on arrays, and the radicand is shifted once instead of twice. Results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).

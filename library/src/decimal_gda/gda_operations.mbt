@@ -94,7 +94,7 @@ pub fn rescale(
 }
 
 ///|
-pub fn to_integral_exact(
+pub fn round_to_integral_exact(
   value : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
@@ -103,7 +103,7 @@ pub fn to_integral_exact(
 }
 
 ///|
-pub fn to_integral_value(
+pub fn round_to_integral_value(
   value : Decimal,
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
@@ -254,29 +254,6 @@ pub fn compare_signal(
 }
 
 ///|
-pub fn compare_total(
-  lhs : Decimal,
-  rhs : Decimal,
-  ctx : GdaContext,
-) -> GdaOutcome[Int32] {
-  let (result, flags) = lhs.compare_total_ctx(rhs, ctx.decimal_context())
-  complete_gda(result, ctx, flags)
-}
-
-///|
-pub fn compare_total_magnitude(
-  lhs : Decimal,
-  rhs : Decimal,
-  ctx : GdaContext,
-) -> GdaOutcome[Int32] {
-  let (result, flags) = lhs.compare_total_magnitude_ctx(
-    rhs,
-    ctx.decimal_context(),
-  )
-  complete_gda(result, ctx, flags)
-}
-
-///|
 pub fn logb(value : Decimal, ctx : GdaContext) -> GdaOutcome[Decimal] {
   let (result, flags) = value.logb_ctx(ctx.decimal_context())
   complete_decimal_gda(result, ctx, flags)
@@ -323,15 +300,6 @@ pub fn max_magnitude(
 }
 
 ///|
-pub fn same_quantum(
-  lhs : Decimal,
-  rhs : Decimal,
-  ctx : GdaContext,
-) -> GdaOutcome[Bool] {
-  complete_gda(lhs.same_quantum(rhs), ctx, DecimalFlags::new())
-}
-
-///|
 pub fn class_name(value : Decimal, ctx : GdaContext) -> GdaOutcome[String] {
   complete_gda(
     value.class_name(ctx.decimal_context()),
@@ -352,4 +320,76 @@ pub fn is_subnormal(value : Decimal, ctx : GdaContext) -> GdaOutcome[Bool] {
     ctx,
     DecimalFlags::new(),
   )
+}
+
+///|
+/// `exp` that returns `Err` when the library could not certify the result,
+/// where `exp` reports `invalid_context`.
+pub fn try_exp(
+  value : Decimal,
+  ctx : GdaContext,
+) -> Result[GdaOutcome[Decimal], @def.ArithmeticError] {
+  value
+  .try_exp_ctx(ctx.mathematical_decimal_context())
+  .map(fn(r) { complete_decimal_gda(r.0, ctx, r.1) })
+}
+
+///|
+/// `ln` that returns `Err` when the library could not certify the result,
+/// where `ln` reports `invalid_context`.
+pub fn try_ln(
+  value : Decimal,
+  ctx : GdaContext,
+) -> Result[GdaOutcome[Decimal], @def.ArithmeticError] {
+  value
+  .try_ln_ctx(ctx.mathematical_decimal_context())
+  .map(fn(r) { complete_decimal_gda(r.0, ctx, r.1) })
+}
+
+///|
+/// `log10` that returns `Err` when the library could not certify the result,
+/// where `log10` reports `invalid_context`.
+pub fn try_log10(
+  value : Decimal,
+  ctx : GdaContext,
+) -> Result[GdaOutcome[Decimal], @def.ArithmeticError] {
+  value
+  .try_log10_ctx(ctx.mathematical_decimal_context())
+  .map(fn(r) { complete_decimal_gda(r.0, ctx, r.1) })
+}
+
+///|
+/// `power` that returns `Err` when the library could not certify the result,
+/// where `power` reports `invalid_context`.
+pub fn try_power(
+  lhs : Decimal,
+  rhs : Decimal,
+  ctx : GdaContext,
+) -> Result[GdaOutcome[Decimal], @def.ArithmeticError] {
+  lhs
+  .try_power_ctx(rhs, ctx.decimal_context())
+  .map(fn(r) { complete_decimal_gda(r.0, ctx, r.1) })
+}
+
+///|
+pub fn compare_total(
+  lhs : Decimal,
+  rhs : Decimal,
+  ctx : GdaContext,
+) -> GdaOutcome[Int32] {
+  let (result, flags) = lhs.compare_total_ctx(rhs, ctx.decimal_context())
+  complete_gda(result, ctx, flags)
+}
+
+///|
+pub fn compare_total_magnitude(
+  lhs : Decimal,
+  rhs : Decimal,
+  ctx : GdaContext,
+) -> GdaOutcome[Int32] {
+  let (result, flags) = lhs.compare_total_magnitude_ctx(
+    rhs,
+    ctx.decimal_context(),
+  )
+  complete_gda(result, ctx, flags)
 }

@@ -466,7 +466,6 @@ fn gda_build_decimal_context(
     e_max~,
     clamp~,
     extended~,
-    tininess=DecimalTininessDetection::BeforeRounding,
   )
 }
 
@@ -682,6 +681,29 @@ pub fn GdaContext::with_traps(
   traps : GdaTrapSet,
 ) -> GdaContext {
   { ..self, traps_: traps, }
+}
+
+///|
+/// The number of refinement steps the certified elementary functions (`exp`,
+/// `ln`, `log10`, `power`) may take before they report that the result could
+/// not be certified: `Some(12)` by default. `None` removes the count limit; the
+/// work precision still stops at a resource bound.
+pub fn GdaContext::refinement_limit(self : GdaContext) -> Int32? {
+  self.decimal_.refinement_limit()
+}
+
+///|
+/// Returns a copy of the context with the refinement limit set to `limit`
+/// (a limit below 1 is clamped to one refinement step).
+pub fn GdaContext::with_refinement_limit(
+  self : GdaContext,
+  limit : Int32?,
+) -> GdaContext {
+  {
+    ..self,
+    decimal_: self.decimal_.with_refinement_limit(limit),
+    mathematical_: self.mathematical_.with_refinement_limit(limit),
+  }
 }
 
 ///|

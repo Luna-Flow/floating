@@ -172,7 +172,7 @@ test "GDA basic context matches the 1.70 defaults" {
 
 ///|
 test "GDA invalid conditions signal InvalidOperation" {
-  let outcome = parse(
+  let outcome = to_number(
     "not-a-number",
     GdaContext::new().trap(GdaSignal::InvalidOperation),
   )

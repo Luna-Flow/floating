@@ -112,7 +112,7 @@ fn decimal_minmax_nan_result(
 }
 
 ///|
-pub fn Decimal::min_ctx(
+fn Decimal::min_ctx(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,
@@ -121,7 +121,7 @@ pub fn Decimal::min_ctx(
 }
 
 ///|
-pub fn Decimal::max_ctx(
+fn Decimal::max_ctx(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,
@@ -130,7 +130,7 @@ pub fn Decimal::max_ctx(
 }
 
 ///|
-pub fn Decimal::min_magnitude_ctx(
+fn Decimal::min_magnitude_ctx(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,
@@ -139,7 +139,7 @@ pub fn Decimal::min_magnitude_ctx(
 }
 
 ///|
-pub fn Decimal::max_magnitude_ctx(
+fn Decimal::max_magnitude_ctx(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,

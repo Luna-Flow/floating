@@ -163,7 +163,7 @@ test "GDA DecimalContext rejects exponent bounds with invalid signs" {
       (-10, -1, "GdaContext e_max must be within 0..=999999999"),
       (-10, 1_000_000_000, "GdaContext e_max must be within 0..=999999999"),
     ] {
-    match context(e_min~, e_max~) {
+    match GdaContext::try_new(e_min~, e_max~) {
       Err(error) => assert_eq(error.message, expected)
       Ok(_) => fail("context facade must reject invalid exponent signs")
     }
@@ -182,8 +182,11 @@ test "GDA DecimalContext rejects exponent bounds with invalid signs" {
   let zero_min_negative_max = "GdaContext e_max must be within 0..=999999999"
   for
     (result, expected) in [
-      (context(precision=999_999_999, e_min=1), large_precision_positive_min),
-      (context(e_min=0, e_max=-1), zero_min_negative_max),
+      (
+        GdaContext::try_new(precision=999_999_999, e_min=1),
+        large_precision_positive_min,
+      ),
+      (GdaContext::try_new(e_min=0, e_max=-1), zero_min_negative_max),
       (
         GdaContext::try_new(precision=999_999_999, e_min=1),
         large_precision_positive_min,

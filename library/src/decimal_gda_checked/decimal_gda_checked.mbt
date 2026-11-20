@@ -23,7 +23,7 @@ pub fn GdaDecimalChecked::parse(
   source : String,
   context : @decimal_gda.GdaContext,
 ) -> GdaDecimalChecked {
-  GdaDecimalChecked::from_outcome(@decimal_gda.parse(source, context))
+  GdaDecimalChecked::from_outcome(@decimal_gda.to_number(source, context))
 }
 
 ///|

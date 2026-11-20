@@ -135,19 +135,7 @@ fn gda_completed_exact(
 }
 
 ///|
-pub fn context(
-  precision~ : Int32 = 34,
-  rounding~ : GdaRoundingMode = GdaRoundingMode::HalfEven,
-  e_min~ : Int32 = -999_999_999,
-  e_max~ : Int32 = 999_999_999,
-  clamp~ : Bool = false,
-  extended~ : Bool = true,
-) -> Result[GdaContext, @def.ArithmeticError] {
-  GdaContext::try_new(precision~, rounding~, e_min~, e_max~, clamp~, extended~)
-}
-
-///|
-pub fn parse(source : String, ctx : GdaContext) -> GdaOutcome[Decimal] {
+pub fn to_number(source : String, ctx : GdaContext) -> GdaOutcome[Decimal] {
   match gda_exact_small_integer_parse(source, ctx) {
     Some(value) => return gda_completed_exact(value, ctx)
     None => ()

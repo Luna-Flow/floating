@@ -800,7 +800,6 @@ fn decimal_power_integer_tininess_flags(
     return { ..flags, subnormal: true, underflow: true, }
   }
   guard ctx.extended &&
-    ctx.tininess == DecimalTininessDetection::BeforeRounding &&
     flags.inexact &&
     result.class == FpClass::Finite &&
     !result.coefficient.is_zero() &&

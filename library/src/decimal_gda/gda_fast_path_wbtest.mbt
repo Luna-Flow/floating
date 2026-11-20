@@ -39,7 +39,7 @@ test "GDA exact small wrapper paths match generic finalization" {
     context,
   )
   assert_gda_fast_matches_generic(
-    parse("314159265358979328", context),
+    to_number("314159265358979328", context),
     Decimal::from_string_ctx("314159265358979328", decimal_context),
     context,
   )
@@ -57,7 +57,7 @@ test "GDA small wrapper paths fall back at semantic boundaries" {
   )
   let clamped = GdaContext::new(precision=18, e_min=-2, e_max=2, clamp=true)
   assert_gda_fast_matches_generic(
-    parse("314159265358979328", clamped),
+    to_number("314159265358979328", clamped),
     Decimal::from_string_ctx("314159265358979328", clamped.decimal_context()),
     clamped,
   )

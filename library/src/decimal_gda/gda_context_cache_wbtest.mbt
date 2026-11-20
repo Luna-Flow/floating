@@ -30,7 +30,6 @@ test "cached decimal contexts equal a fresh build for every parameter set" {
             e_max=384,
             clamp~,
             extended~,
-            tininess=DecimalTininessDetection::BeforeRounding,
           )
           assert_true(ctx.decimal_context() == fresh)
           assert_true(

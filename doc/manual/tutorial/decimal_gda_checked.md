@@ -222,7 +222,7 @@ test "use an operation without a pipeline method" {
   let ctx = @decimal_gda.GdaContext::decimal64()
   let start = @decimal_gda_checked.GdaDecimalChecked::parse("7.5", ctx)
   let rounded = @decimal_gda_checked.GdaDecimalChecked::from_outcome(
-    @decimal_gda.to_integral_value(start.value(), start.context()),
+    @decimal_gda.round_to_integral_value(start.value(), start.context()),
   )
   inspect(rounded.value().to_string(), content="8")
 }

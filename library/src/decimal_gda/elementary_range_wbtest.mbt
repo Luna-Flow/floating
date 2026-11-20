@@ -1,7 +1,7 @@
 ///|
 fn elementary_range_show(result : (Decimal, DecimalFlags)) -> String {
   let (value, flags) = result
-  "\{value} overflow=\{flags.contains(Overflow)} underflow=\{flags.contains(Underflow)} invalid=\{flags.contains(InvalidOperation)}"
+  "\{value} overflow=\{flags.overflow} underflow=\{flags.underflow} invalid=\{flags.invalid_operation}"
 }
 
 ///|

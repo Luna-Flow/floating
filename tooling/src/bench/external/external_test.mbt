@@ -237,7 +237,7 @@ fn decimal_context(size : Int32) -> @gda.GdaContext {
 
 ///|
 fn decimal_value(text : String, context : @gda.GdaContext) -> @gda.Decimal {
-  @gda.parse(text, context).value()
+  @gda.to_number(text, context).value()
 }
 
 ///|
