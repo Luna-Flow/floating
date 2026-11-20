@@ -135,6 +135,30 @@ invertible modulo $u$ that is equivalent to $u$ dividing the remainder of
 $n\,10^k$ by $d$, so the one division that produces the quotient also decides
 it.
 
+### Integer square root
+
+`dec_coeff_integer_sqrt_rem_repr` returns the floor root $s$ of $n$ and the
+remainder $n - s^2$. A value below $10^{18}$ takes the hardware root of the
+nearest double, which is within one of the answer, and two comparisons with
+exact word products settle it. A longer value of $D$ digits is split as
+$n = h\,10^{2t} + l$ with $t \approx D/4$ and $0 \le l < 10^{2t}$. The root
+$s_h$ of $h$ comes from the same function one level down, and
+$x_0 = (s_h + 1)\,10^{t}$ never lies below $s$: $n < (h+1)\,10^{2t}$ and
+$h + 1 \le (s_h+1)^2$. Newton's step
+$x \mapsto \lfloor (x + \lfloor n/x \rfloor)/2 \rfloor$ started at or above $s$
+decreases to $s$ and never falls below it, so the start needs no estimate and
+the working size doubles from the bottom of the recursion. The earlier version
+began at a power of ten and ran every step at full size, about $\log_2 D + 2$
+divisions of a $D$-digit number. The division of each step also ends the loop:
+for $x \ge s$ the quotient $q = \lfloor n/x \rfloor$ reaches $x$ exactly when
+$x = s$, and then $n = xq + r$ gives the remainder $r + x(q - x)$ with
+$q - x \in \{0, 1, 2\}$ (because $n < (x+1)^2$), so the squaring that the
+earlier version needed for the remainder is gone. The pair $(s, n - s^2)$ is
+unique, so no caller can observe the change; the white-box test compares it bit
+for bit with the previous implementation, kept in the test file, on random
+operands of 1 to 112 limbs, perfect squares and their neighbours, and powers of
+ten.
+
 ## Correctness and invariants
 
 - **Canonical form.** A `Limbs` value has no leading zero limb and is at least
