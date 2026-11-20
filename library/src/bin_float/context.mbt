@@ -112,15 +112,6 @@ pub fn BinaryFlags::invalid_operation(self : BinaryFlags) -> Bool {
 }
 
 ///|
-pub fn BinaryFlags::to_testfloat_bits(self : BinaryFlags) -> Int32 {
-  (if self.inexact { 0x01 } else { 0 }) |
-  (if self.underflow { 0x02 } else { 0 }) |
-  (if self.overflow { 0x04 } else { 0 }) |
-  (if self.division_by_zero { 0x08 } else { 0 }) |
-  (if self.invalid_operation { 0x10 } else { 0 })
-}
-
-///|
 fn binary_inexact_flags(underflow : Bool) -> BinaryFlags {
   { ..BinaryFlags::new(), inexact: true, underflow, }
 }

@@ -254,7 +254,6 @@ test "carry flags next to the wrapper" {
   an error, but MoonBit evaluates every argument first, so in `a + f(b)` the
   call `f(b)` runs even when `a` is an error. Put expensive steps behind
   `bind` when they should be skipped.
-- **`flat_map` is deprecated.** Use `bind`.
 
 ## Next steps
 

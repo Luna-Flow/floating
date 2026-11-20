@@ -225,6 +225,24 @@ fn old_pown_positive(
 }
 
 ///|
+/// Directed square roots of a finite non-negative value at `precision` bits, the
+/// former `@bin_float.sqrt_bounds_for_precision`.
+fn old_sqrt_bounds(
+  x : @bin_float.BinFloat,
+  precision : Int32,
+) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
+  let down = @bin_float.BinaryContext::unbounded(
+    precision,
+    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+  )
+  let up = @bin_float.BinaryContext::unbounded(
+    precision,
+    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+  )
+  (x.sqrt_ctx(down).0, x.sqrt_ctx(up).0)
+}
+
+///|
 fn BallFloat::old_sqrt_interval(self : BallFloat) -> BallFloat {
   if self.is_empty() {
     return self
@@ -235,12 +253,12 @@ fn BallFloat::old_sqrt_interval(self : BallFloat) -> BallFloat {
   let lower = if self.lo_.sign() == Sign::Negative || self.lo_.is_zero() {
     @bin_float.BinFloat::zero(precision=self.precision_)
   } else {
-    @bin_float.sqrt_bounds_for_precision(self.lo_, self.precision_).unwrap().0
+    old_sqrt_bounds(self.lo_, self.precision_).0
   }
   let upper = if is_pos_inf(self.hi_) {
     pos_inf(self.precision_)
   } else {
-    @bin_float.sqrt_bounds_for_precision(self.hi_, self.precision_).unwrap().1
+    old_sqrt_bounds(self.hi_, self.precision_).1
   }
   quantize_interval(lower, upper, self.precision_)
 }

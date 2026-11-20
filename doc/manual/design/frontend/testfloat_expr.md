@@ -46,7 +46,7 @@ $\rho$, and a set of exceptions[^ieee754]:
 SoftFloat reports them as the mask
 $\text{inexact} = 1$, $\text{underflow} = 2$, $\text{overflow} = 4$,
 $\text{infinite} = 8$, $\text{invalid} = 16$, printed as two hexadecimal
-digits. `BinaryFlags::to_testfloat_bits` produces the same mask.
+digits. The front end builds the same mask from the five flag accessors of `BinaryFlags`.
 
 [^ieee754]: IEEE 754-2019, clause 7 (exceptions), clause 7.5 (underflow and
     the two tininess rules), clause 3.4 (binary interchange encodings).

@@ -2032,7 +2032,7 @@ that `nan > 1` is true under `<`, so code that needs IEEE semantics must use
 - **Monotonicity.** Each operation is monotone in each argument where the
   real function is, because it is $\circ \circ f$ with $\circ$ monotone; in
   particular RD and RU results bracket the exact value, which `ball_float`
-  and `sqrt_bounds_for_precision` rely on.
+  and the directed square roots of `sqrt_ctx` rely on.
 - **Exactness theorems.** `remainder`, `scaleb` in the normal range,
   `copy_sign`, `neg`, `abs`, `logb` and decoding are exact; the integral
   roundings never need a second rounding; `fma(a, b, -RN(ab))` is exact
