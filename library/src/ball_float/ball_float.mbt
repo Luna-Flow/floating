@@ -306,6 +306,7 @@ fn exact_mul(
   b : @bin_float.BinFloat,
   mode~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
   min_bits~ : Int32 = 1,
+  exact_range~ : Bool = false,
 ) -> @bin_float.BinFloat {
   // Saturating keeps the direction of an out-of-range exponent sum; the
   // binary layer then clamps it according to `mode`.
@@ -323,6 +324,7 @@ fn exact_mul(
     negative=a.is_negative() != b.is_negative(),
     mode~,
     min_bits~,
+    exact_range~,
   )
 }
 
@@ -888,7 +890,9 @@ fn extended_mul(
   if rounded {
     directed_mul(a, b, precision, mode)
   } else {
-    exact_mul(a, b, mode~)
+    // exact (the product of `fma` is not rounded before the sum): nothing is
+    // rounded below the normal range
+    exact_mul(a, b, mode~, exact_range=true)
   }
 }
 
@@ -934,6 +938,7 @@ fn extended_mul_both(
     negative~,
     mode=BinaryRoundingMode::RoundTowardNegative,
     min_bits~,
+    exact_range=!rounded,
   )
   let up = exact_make(
     coefficient,
@@ -941,6 +946,7 @@ fn extended_mul_both(
     negative~,
     mode=BinaryRoundingMode::RoundTowardPositive,
     min_bits~,
+    exact_range=!rounded,
   )
   if rounded {
     (
@@ -964,7 +970,8 @@ fn extended_add(
   if b.classify() == FpClass::Infinity {
     return b
   }
-  exact_add(a, b, mode~)
+  // exact (the sum of `fma` is rounded once, at the end)
+  exact_add(a, b, mode~, exact_range=true)
 }
 
 ///|
