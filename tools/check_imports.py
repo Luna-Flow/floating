@@ -11,6 +11,10 @@ module `Luna-Flow/floating-tools` (`tooling/`): benchmarks, command-line
 frontends and the differential harness live there (#22).
 The three LICENSE files (repository root, `library/`, `tooling/`) must be
 byte-identical: each published package carries its own copy.
+The version of `library/moon.mod`, the version of `tooling/moon.mod` and the library
+version named in the tools imports (`Luna-Flow/floating@<version>`) must be equal:
+the tools module is versioned with the library, and the workspace resolves the
+library member whatever the import line says, so only this check keeps it honest.
 Every import in a package's `moon.pkg` counts, including `for "test"` and
 `for "wbtest"` blocks, because a test-only edge couples the packages as well.
 
@@ -122,11 +126,45 @@ def license_violations(root: Path) -> list[str]:
     return found
 
 
+VERSION_LINE = re.compile(r'^version\s*=\s*"([^"]+)"', re.MULTILINE)
+
+
+def manifest_version(manifest: Path) -> str | None:
+    match = VERSION_LINE.search(manifest.read_text(encoding="utf-8"))
+    return match.group(1) if match else None
+
+
+def version_violations(root: Path) -> list[str]:
+    """Library version, tools version and the library version named by the tools imports."""
+    library = manifest_version(root / "library" / "moon.mod")
+    tools = manifest_version(root / "tooling" / "moon.mod")
+    if library is None:
+        return ["library/moon.mod declares no version"]
+    found: list[str] = []
+    if tools is None:
+        found.append("tooling/moon.mod declares no version")
+    elif tools != library:
+        found.append(f"tooling/moon.mod has version {tools}, but library/moon.mod has version {library}")
+    pinned = [
+        path.split("@", 1)[1] if "@" in path else ""
+        for path in imports_of(root / "tooling" / "moon.mod")
+        if path.split("@", 1)[0] == MODULE
+    ]
+    if not pinned:
+        found.append(f"tooling/moon.mod must import {MODULE}@{library}")
+    found.extend(
+        f"tooling/moon.mod imports {MODULE}@{version}, but library/moon.mod has version {library}"
+        for version in pinned
+        if version != library
+    )
+    return found
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--root", type=Path, default=REPO_ROOT, help="repository root")
     args = parser.parse_args(argv)
-    found = violations(args.root / "library" / "src") + module_violations(args.root) + license_violations(args.root)
+    found = violations(args.root / "library" / "src") + module_violations(args.root) + license_violations(args.root) + version_violations(args.root)
     for line in found:
         print(f"check_imports: {line}", file=sys.stderr)
     if not found:

@@ -105,6 +105,12 @@ NATIVE_TEST_WARN_SECONDS = 150.0
 # repository root covers both workspace modules (library and `tooling`).
 OTHER_TARGETS_STAGE_NAME = "CHECK: other targets"
 
+# Builds the zip of each module (`moon -C library package --frozen`, then `tooling`;
+# about 2 s each with the dependencies fetched) and checks its contents
+# (tools/check_package_contents.py). It runs in the "moon" lane because
+# `moon package` uses the target directory of the workspace root.
+PACKAGE_STAGE_NAME = "PACKAGE: published contents"
+
 DOCS_STAGE_NAME = "DOCS: manual quality and examples"
 DOCS_EXAMPLES_STAGE_NAME = "DOCS: manual examples"
 
@@ -118,6 +124,7 @@ DOCS_EXAMPLES_STAGE_NAME = "DOCS: manual examples"
 QUICK_LANES: dict[str, tuple[str, str | None]] = {
     "DEPENDENCIES: fetch": ("moon", None),
     OTHER_TARGETS_STAGE_NAME: ("moon", None),
+    PACKAGE_STAGE_NAME: ("moon", None),
     DOCS_EXAMPLES_STAGE_NAME: ("moon", None),
     "FORMAT: MoonBit sources": ("moon", None),
     "TEST: native": ("moon", None),
@@ -239,6 +246,10 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
         Stage(
             "FORMAT: MoonBit sources",
             ("sh", "tools/run_moon_clean_exec.sh", "fmt", "--check"),
+        ),
+        Stage(
+            PACKAGE_STAGE_NAME,
+            (sys.executable, "tools/check_package_contents.py", "--module", "all"),
         ),
         Stage(
             DOCS_STAGE_NAME,

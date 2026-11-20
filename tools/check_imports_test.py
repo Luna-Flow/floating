@@ -99,6 +99,51 @@ class LicenseTests(unittest.TestCase):
         self.assertEqual(check_imports.license_violations(check_imports.REPO_ROOT), [])
 
 
+def write_versions(root: Path, library: str, tools: str | None, pinned: str | None) -> None:
+    (root / "library").mkdir(exist_ok=True)
+    (root / "tooling").mkdir(exist_ok=True)
+    (root / "library" / "moon.mod").write_text(f'name = "{MODULE}"\n\nversion = "{library}"\n', encoding="utf-8")
+    head = f'name = "{MODULE}-tools"\n\n' + ("" if tools is None else f'version = "{tools}"\n\n')
+    body = "" if pinned is None else f'  "{MODULE}@{pinned}",\n'
+    (root / "tooling" / "moon.mod").write_text(f"{head}import {{\n{body}}}\n", encoding="utf-8")
+
+
+class VersionTests(unittest.TestCase):
+    def violations(self, library: str, tools: str | None, pinned: str | None) -> list[str]:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_versions(root, library, tools, pinned)
+            return check_imports.version_violations(root)
+
+    def test_three_equal_versions_pass(self) -> None:
+        self.assertEqual(self.violations("0.11.0", "0.11.0", "0.11.0"), [])
+
+    def test_a_different_tools_version_fails(self) -> None:
+        self.assertEqual(
+            self.violations("0.11.0", "0.10.2", "0.11.0"),
+            ["tooling/moon.mod has version 0.10.2, but library/moon.mod has version 0.11.0"],
+        )
+
+    def test_a_different_pinned_library_version_fails(self) -> None:
+        self.assertEqual(
+            self.violations("0.11.0", "0.11.0", "0.10.2"),
+            [f"tooling/moon.mod imports {MODULE}@0.10.2, but library/moon.mod has version 0.11.0"],
+        )
+
+    def test_a_missing_tools_version_or_library_import_fails(self) -> None:
+        self.assertEqual(
+            self.violations("0.11.0", None, "0.11.0"),
+            ["tooling/moon.mod declares no version"],
+        )
+        self.assertEqual(
+            self.violations("0.11.0", "0.11.0", None),
+            [f"tooling/moon.mod must import {MODULE}@0.11.0"],
+        )
+
+    def test_the_repository_versions_agree(self) -> None:
+        self.assertEqual(check_imports.version_violations(check_imports.REPO_ROOT), [])
+
+
 class ViolationsTests(unittest.TestCase):
     def setUp(self) -> None:
         # The restricted packages of the real repository do not exist in the
