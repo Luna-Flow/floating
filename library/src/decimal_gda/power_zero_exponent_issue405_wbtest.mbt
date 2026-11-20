@@ -70,7 +70,7 @@ fn issue405_gda_flags_text(flags : GdaFlags) -> String {
 ///|
 fn issue405_value_text(value : Decimal) -> String {
   if value.is_infinite() {
-    if value.is_negative() {
+    if value.is_signed() {
       "-Infinity"
     } else {
       "Infinity"

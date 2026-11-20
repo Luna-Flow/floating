@@ -75,7 +75,7 @@ fn issue397_gda_mode(name : String) -> GdaRoundingMode {
 ///|
 fn issue397_value_text(value : Decimal) -> String {
   if value.is_infinite() {
-    if value.is_negative() {
+    if value.is_signed() {
       "-Infinity"
     } else {
       "Infinity"

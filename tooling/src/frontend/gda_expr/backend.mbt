@@ -972,7 +972,7 @@ fn invoke_decimal_operation(
         "isnan" => value.is_nan()
         "isqnan" => value.is_qnan()
         "issnan" => value.is_snan()
-        "isnegative" => value.is_negative()
+        "isnegative" => value.is_signed()
         "issigned" => value.is_signed()
         _ => value.is_zero()
       }

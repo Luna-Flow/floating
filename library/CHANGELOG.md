@@ -8,6 +8,19 @@ notes live in this file.
 
 ### Breaking
 
+- `decimal_gda`: one spelling per operation ([#22](https://github.com/Luna-Flow/floating/issues/22), naming rows G01 to G06, G08 and G09; the name of an operation follows GDA 1.70 and there is no alias). Twenty-three methods of `Decimal` are removed; `decimal_gda_checked` had none of them. The `decimal` package is not affected. Migration:
+
+  | row | removed | use instead |
+  | --- | --- | --- |
+  | G01 | `Decimal::is_negative` | `Decimal::is_signed` |
+  | G02 | `Decimal::is_quiet_nan`, `Decimal::is_signaling_nan` | `Decimal::is_qnan`, `Decimal::is_snan` |
+  | G03 | `Decimal::magnitude` | `Decimal::coefficient` |
+  | G04 | `Decimal::get_payload`, `Decimal::set_payload`, `Decimal::set_payload_signaling` | `Decimal::nan_payload` for reading; the IEEE 754-2019 §9.7 operations are in `decimal`; to build a NaN with a payload, `Decimal::quiet_nan(payload=)` and `Decimal::signaling_nan(payload=)` |
+  | G05 | `Decimal::from_integer`, `Decimal::from_natural` (the inherent forms of the `FromInteger` and `FromNat` implementations, which stay) | `FromInteger::from_integer` and `FromNat::from_natural`, or `Decimal::from_bigint(n).normalized()` (note: `Decimal::from_bigint(n)` alone keeps trailing zeros, `1200` rather than `1.2E+3`) |
+  | G06 | `Decimal::normalize_ctx` | `Decimal::reduce_ctx` |
+  | G08 | `Decimal::minimum_ctx`, `maximum_ctx`, `minimum_number_ctx`, `maximum_number_ctx`, `minimum_magnitude_ctx`, `maximum_magnitude_ctx`, `minimum_number_magnitude_ctx`, `maximum_number_magnitude_ctx` and the four `*_mag_ctx` forms of the magnitude variants | the GDA operations `min_ctx`, `max_ctx`, `min_mag_ctx`, `max_mag_ctx` (they return the number when one operand is a quiet NaN, as `minimumNumber` and `maximumNumber` do); the IEEE 754-2019 §9.6 variants are in `decimal` |
+  | G09 | `Decimal::remainder_ctx` | `Decimal::remainder_near` (the IEEE remainder; `remainder` is the truncating GDA remainder) |
+
 - `decimal_gda`: the free functions `decimal32_context()`, `decimal64_context()` and `decimal128_context()` are removed (part of step B of [#22](https://github.com/Luna-Flow/floating/issues/22)). Migration: `GdaContext::decimal32()`, `GdaContext::decimal64()` and `GdaContext::decimal128()` return the same shared preset values. The free function `context(...)` stays.
 - `decimal_gda`: `GdaOutcome` is `pub enum` instead of `pub(all) enum` (part of step B of [#22](https://github.com/Luna-Flow/floating/issues/22)). Code outside the package can still `match` on `Completed` and `Trapped` and use `value`, `next_context` and `raised`, but can no longer construct a `GdaOutcome` or mutate one; only the GDA operations produce it. Migration: to continue after a trap with the defined result, call the new `GdaOutcome::resume_defined(Self) -> Self` (`Completed` unchanged, `Trapped(s, v, C, R)` becomes `Completed(v, C, none)`) instead of building `Completed(v, C, GdaFlags::none())`. `GdaDecimalChecked::resume_defined` now uses it; nothing else in the library, tooling or manual constructed an outcome.
 - `bin_float`, `bin_float_checked`: the `exp_ln` family is removed ([#22](https://github.com/Luna-Flow/floating/issues/22), step B1): `BinFloat::exp_ln`, `BinFloat::exp_ln_ctx`, `BinFloat::try_exp_ln_ctx`, `BinFloatResult::exp_ln` and `BinFloatResult::exp_ln_ctx`. It computed $\ln(e^x) = x$ and was certified only for $|x| \le 1/8$ (any other finite argument was a certification failure), it is not an IEEE 754-2019 operation, and the decimal packages have no counterpart. Migration: none needed; the value was $x$ rounded once into the context, which is `x.round_ctx(context)` (or `plus`). `ball_float` and `ball_float_checked` had no wrapper of it.

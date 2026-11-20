@@ -122,7 +122,7 @@ fn issue283_run(
 ///|
 fn issue283_value_text(value : Decimal) -> String {
   if value.is_infinite() {
-    if value.is_negative() {
+    if value.is_signed() {
       "-Infinity"
     } else {
       "Infinity"
