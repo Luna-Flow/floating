@@ -53,7 +53,7 @@ IEEE Std 754-2019 for `decimal` (decimal32/64/128 and arbitrary precision). Stat
 | §5.3.1 scaleB, logB | required | `scaleb_ctx`, `logb_ctx` | `library/src/decimal/scaleb_rounding_wbtest.mbt`; `library/src/consistency/core_wbtest.mbt` | conforming |
 | §5.3.2 quantize, quantum, sameQuantum | required | `quantize`, `quantum`, `same_quantum` | `library/src/decimal/exponent_int_limits_wbtest.mbt`; `library/src/consistency/core_wbtest.mbt` | conforming; a zero result above `e_max - p + 1` under `clamp` is not folded down |
 | §5.4.1 convertFromInt | required | `Decimal::from_int`, `Decimal::from_bigint` | `library/src/decimal/preferred_cohort_issue150_wbtest.mbt` | conforming |
-| §5.4.1 convertToInteger | required | none (`to_integral_*` return a `Decimal`) | none | partial |
+| §5.4.1, §5.8 convertToInteger (exact and inexact) | required | `Decimal::to_int_ctx`, `to_int64_ctx`, `to_uint_ctx`, `to_uint64_ctx` | `library/src/decimal/to_integer_wbtest.mbt` | conforming |
 | §5.4.2 convertFormat | required | `apply_ctx`, `to_bin_float`, `from_bin_float` | `library/src/decimal/to_bin_float_rounding_wbtest.mbt`; `library/src/decimal/bin_float_zero_wbtest.mbt` | partial |
 | §5.5 copy, negate, abs, copySign | required | `copy`, `copy_negate`, `copy_abs`, `copy_sign` | `library/src/consistency/api_audit_wbtest.mbt`; `library/src/consistency/core_wbtest.mbt` | conforming |
 | §5.6, §5.11 comparison, quiet and signaling | required | `compare_ctx`, `compare_signal_ctx` | `library/src/consistency/core_wbtest.mbt` | conforming |

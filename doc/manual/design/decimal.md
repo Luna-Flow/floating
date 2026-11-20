@@ -615,6 +615,28 @@ precision), which is why the digit check comes after rounding.
 NaNs); it is the test to use before combining values whose exponents must
 agree.
 
+### Conversion to integers
+
+`to_int_ctx` and its three siblings (IEEE 754-2019 §5.4.1 and §5.8) share one
+function that rounds a finite value $c\,10^{q}$ to an integer in the direction
+of the context and checks the range, so the four types differ only in their
+limits. A value with $q \ge 0$ is an integer already; one with $q < 0$ is
+$c / 10^{-q}$ rounded by the same decision function that rounds decimal
+results (the kernel's rounding decisions: increment or not from the discarded
+digits and the mode), and `changed` is whether anything was discarded.
+The power of ten is never formed. An integer of 21 or more digits is out of
+range for every type ($2^{64}$ has 20 digits), so
+$\operatorname{digits}(c) + q > 20$ is decided before any arithmetic, and a fraction with more than
+$\operatorname{digits}(c) + 1$ places is the same as one with exactly that many:
+the value is below $0.1$, and the rounding decision only needs to know that the
+remainder is nonzero and below one half, so the shift is clamped to
+$\operatorname{digits}(c) + 1$. `1E+999999` and `1E-999999` therefore cost
+as much as `1E+3` and `1E-3`. The invalid operation is signaled for a NaN, an
+infinity and an out-of-range result, and then only: `exact` adds `inexact`
+when `changed`, nothing else is ever raised (no `rounded`, no clamping: the
+result is not a decimal), and a negative value that rounds to zero converts to
+`0`.
+
 ### Interchange encodings
 
 All three formats share one layout: a sign bit, a 5-bit *combination field*

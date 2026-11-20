@@ -1087,6 +1087,33 @@ quantized at $\max(p, \text{its digit count})$ digits) is the package's
 chosen, GDA-style behaviour: General Decimal Arithmetic rounds to an integral
 value at the operand's own precision.
 
+### `Decimal::to_int_ctx`, `to_int64_ctx`, `to_uint_ctx`, `to_uint64_ctx`
+
+These functions are IEEE 754-2019 convertToInteger (§5.4.1, §5.8): they round a
+decimal to a fixed-width integer in the context's rounding direction.
+
+```mbti
+pub fn Decimal::to_int_ctx(Self, DecimalContext, exact? : Bool) -> (Int32?, DecimalFlags)
+pub fn Decimal::to_int64_ctx(Self, DecimalContext, exact? : Bool) -> (Int64?, DecimalFlags)
+pub fn Decimal::to_uint_ctx(Self, DecimalContext, exact? : Bool) -> (UInt32?, DecimalFlags)
+pub fn Decimal::to_uint64_ctx(Self, DecimalContext, exact? : Bool) -> (UInt64?, DecimalFlags)
+```
+
+They have the shape of the `BinFloat` functions of the same names. The value
+is rounded to an integer with `decimal_rounding` of the context: ties to even,
+toward zero, toward positive, toward negative and ties to away are the five
+directions of §5.8, and half-down, away from zero and round-05up round as they
+round a decimal result. A NaN (quiet or signaling), an infinity and a value
+outside the range of the integer type give `None` with `invalid_operation`;
+the result of a negative value that rounds to zero is `0` (also for the
+unsigned types), and any other negative value is out of range for them. With
+`exact=true` (convertToIntegerExact) `inexact` is raised when rounding changed
+the value; without it the flags of a valid conversion are empty. The context's
+precision and exponent range play no part: an integer of any number of digits
+that fits the type is converted exactly. The conversion never forms the power
+of ten of the exponent: `1E+999999` is out of range and `1E-999999` rounds to
+zero (or to one unit in an away direction) at once.
+
 ### `Decimal::scaleb_ctx`, `logb_ctx`
 
 These functions scale by a power of ten and extract the adjusted exponent.
