@@ -1008,7 +1008,7 @@ msgstr ""
 #: manual/api/bin_float_checked.md:820
 #: manual/api/decimal.md:2127
 #: manual/api/decimal_gda.md:1876
-#: manual/api/def.md:455
+#: manual/api/def.md:460
 #: manual/api/frontend/gda_expr.md:457
 #: manual/api/frontend/itl_expr.md:263
 #: manual/api/frontend/mpfr_expr.md:523
@@ -1096,7 +1096,7 @@ msgstr ""
 #: manual/api/decimal_checked.md:410
 #: manual/api/decimal_gda.md:2084
 #: manual/api/decimal_gda_checked.md:281
-#: manual/api/def.md:469
+#: manual/api/def.md:474
 #: manual/api/differential.md:97
 #: manual/api/differential/harness.md:39
 #: manual/api/doc_examples.md:46
@@ -1309,7 +1309,7 @@ msgstr ""
 #: manual/api/bin_float_checked.md:852
 #: manual/api/decimal_checked.md:412
 #: manual/api/decimal_gda_checked.md:283
-#: manual/api/def.md:471
+#: manual/api/def.md:476
 #: manual/api/semantic.md:375
 msgid "The following snapshot is the complete generated interface of the package."
 msgstr ""
@@ -1635,7 +1635,7 @@ msgid "Scale"
 msgstr ""
 
 #: manual/api/bench/external.md:39
-#: manual/api/def.md:185
+#: manual/api/def.md:190
 msgid "Implementation"
 msgstr ""
 
@@ -6099,7 +6099,7 @@ msgid "def API"
 msgstr ""
 
 #: manual/api/def.md:5
-msgid "`def` is the shared vocabulary of the `floating` packages. It defines the sign classification `Sign`, the ten-valued IEEE class `IeeeClass`, the four-way comparison result `PartialOrder`, the open `Floating` trait that every scalar or interval representation of this repository implements, four generic predicates built on that trait, and re-exports the context, rounding, classification and error types of [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/) so that callers need only one import. It contains no arithmetic. The [tutorial](../tutorial/def.md) shows the vocabulary in use; the [design page](../design/def.md) states the trait laws and explains why `PartialOrder` is not a total order."
+msgid "`def` is the shared vocabulary of the `floating` packages. It defines the sign classification `Sign`, the ten-valued IEEE class `IeeeClass`, the four-way comparison result `PartialOrder`, the `Floating` trait that every scalar or interval representation of this repository implements, four generic predicates built on that trait, and re-exports the context, rounding, classification and error types of [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/) so that callers need only one import. It contains no arithmetic. The [tutorial](../tutorial/def.md) shows the vocabulary in use; the [design page](../design/def.md) states the trait laws and explains why `PartialOrder` is not a total order."
 msgstr ""
 
 #: manual/api/def.md:18
@@ -6147,134 +6147,134 @@ msgid "`Floating` is the observation and re-precision interface shared by every 
 msgstr ""
 
 #: manual/api/def.md:154
-msgid "The trait is `pub(open)`, so downstream types may implement it. In this repository it is implemented by `@bin_float.BinFloat`, `@decimal.Decimal`, `@decimal_gda.Decimal` and `@ball_float.BallFloat`. Since the MoonBit 0.10 migration trait methods are not promoted automatically, so generic code calls them in the qualified form `@def.Floating::classify(x)`; the concrete types also provide inherent methods with the same names (`x.classify()`). The laws every implementation is expected to satisfy, and the places where `BallFloat` only satisfies a weaker form, are listed in the [design page](../design/def.md#the-floating-laws)."
+msgid "`Floating` is implemented by the types of this library only: `@bin_float.BinFloat`, `@decimal.Decimal`, `@decimal_gda.Decimal` and `@ball_float.BallFloat`. It is not an extension point: implementing it for a type outside this module is not supported and is not covered by the compatibility promise, because methods may be added to the trait in a minor release. It is declared `pub(open)` only because the implementations are in other packages of this module (the [design page](../design/def.md#why-floating-is-declared-open) gives the reason). Since the MoonBit 0.10 migration trait methods are not promoted automatically, so generic code calls them in the qualified form `@def.Floating::classify(x)`; the concrete types also provide inherent methods with the same names (`x.classify()`). The laws every implementation is expected to satisfy, and the places where `BallFloat` only satisfies a weaker form, are listed in the [design page](../design/def.md#the-floating-laws)."
 msgstr ""
 
-#: manual/api/def.md:166
+#: manual/api/def.md:171
 msgid "`classify` returns the class of a value: `Finite`, `Infinity` or `NaN`."
 msgstr ""
 
-#: manual/api/def.md:172
+#: manual/api/def.md:177
 msgid "For the scalar types this is the IEEE class with signalling and quiet NaNs merged. For `BallFloat` it is `Finite` for a bounded non-empty interval, `Infinity` for an interval with an infinite endpoint (including the entire line), and `NaN` for the empty interval. Total; never aborts."
 msgstr ""
 
-#: manual/api/def.md:179
+#: manual/api/def.md:184
 msgid "`sign` returns the sign classification of a value."
 msgstr ""
 
-#: manual/api/def.md:187
+#: manual/api/def.md:192
 msgid "`BinFloat`, both `Decimal`s"
 msgstr ""
 
-#: manual/api/def.md:187
+#: manual/api/def.md:192
 msgid "value $< 0$, including $-\\infty$"
 msgstr ""
 
-#: manual/api/def.md:187
+#: manual/api/def.md:192
 msgid "$\\pm 0$ and every NaN"
 msgstr ""
 
-#: manual/api/def.md:187
+#: manual/api/def.md:192
 msgid "value $> 0$, including $+\\infty$"
 msgstr ""
 
-#: manual/api/def.md:190
+#: manual/api/def.md:195
 msgid "The interval rule also applies to unbounded intervals: $[-\\infty, -1]$ is `Negative`."
 msgstr ""
 
-#: manual/api/def.md:193
+#: manual/api/def.md:198
 msgid "[!WARNING] `BallFloat::sign` aborts on the empty interval, which has no sign. Test `@def.is_nan(x)` (true exactly for the empty interval) before calling `sign` on an interval."
 msgstr ""
 
-#: manual/api/def.md:200
+#: manual/api/def.md:205
 msgid "`precision` returns the working precision stored on the value."
 msgstr ""
 
-#: manual/api/def.md:206
+#: manual/api/def.md:211
 msgid "It counts significant bits for `BinFloat` and for the endpoints of a `BallFloat`, and significant decimal digits for both `Decimal` types. Every constructor clamps the stored precision to at least $1$, so the result is always at least $1$."
 msgstr ""
 
-#: manual/api/def.md:213
+#: manual/api/def.md:218
 msgid "`with_precision(x, p, mode)` returns `x` re-expressed at precision $q = \\max(1, p)$."
 msgstr ""
 
-#: manual/api/def.md:220
+#: manual/api/def.md:225
 msgid "For a finite scalar the value is rounded to $q$ significant digits of its radix in the direction `mode`. No context exponent bounds apply and no flags are reported (use the `*_ctx` APIs of the concrete package for both). The decimal types have no other exponent limit. `BinFloat` keeps its implementation range: a result whose exponent leaves $\\pm(2^{30} - 1)$ (`binary_implementation_e_max`, `binary_implementation_e_min`) overflows to an infinity or to the largest finite value, or underflows, as in IEEE 754. Zeros keep their sign. Infinities and NaNs keep their class, sign and payload and only change the stored precision."
 msgstr ""
 
-#: manual/api/def.md:231
+#: manual/api/def.md:236
 msgid "For `BallFloat` the endpoints are rounded outward (the lower one toward $-\\infty$, the upper one toward $+\\infty$), so the result is the tightest enclosure of `x` at the new precision whatever `mode` is; `mode` is not used. An interval whose endpoints are already representable at `p` bits is returned unchanged."
 msgstr ""
 
-#: manual/api/def.md:239
+#: manual/api/def.md:244
 msgid "`normalized` returns the canonical representative of a value."
 msgstr ""
 
-#: manual/api/def.md:245
+#: manual/api/def.md:250
 msgid "For `BinFloat` this is the representation with an odd coefficient (or zero); for both `Decimal` types it removes trailing zeros of the coefficient, so `1.500` becomes `1.5` (the cohort changes, the value does not) and `-0.000` becomes `-0`. Non-finite scalars are returned unchanged. On the scalar types `normalized` keeps the value and is idempotent."
 msgstr ""
 
-#: manual/api/def.md:251
+#: manual/api/def.md:256
 msgid "`BallFloat::normalized` normalizes the two endpoints and keeps them at the stored precision, so the interval denotes the same set: at 53 bits, $[1, 1 + 2^{-52}]$ stays $[1, 1 + 2^{-52}]$."
 msgstr ""
 
-#: manual/api/def.md:320
+#: manual/api/def.md:325
 msgid "Generic predicates"
 msgstr ""
 
-#: manual/api/def.md:324
+#: manual/api/def.md:329
 msgid "These functions test the class of any `Floating` value."
 msgstr ""
 
-#: manual/api/def.md:342
+#: manual/api/def.md:347
 msgid "Exactly one of the first three is true for every value. For scalars `is_zero` is true for both signed zeros. For a `BallFloat`, `is_zero` is true for every bounded interval that *contains* zero (for example $[-1, 1]$), not only for $[0, 0]$; use `BallFloat::contains_zero` or compare the bounds when you mean something else. `is_zero` never calls `sign` on an empty interval, because the conjunction stops at `classify`."
 msgstr ""
 
-#: manual/api/def.md:366
+#: manual/api/def.md:371
 msgid "Re-exported types"
 msgstr ""
 
-#: manual/api/def.md:368
+#: manual/api/def.md:373
 msgid "`def` re-exports these types with `pub using`, so `@def.RoundingMode` and `@lf_arith.RoundingMode` name the same type and no conversion is needed. Their definitions and full semantics are documented by [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/)."
 msgstr ""
 
-#: manual/api/def.md:375
+#: manual/api/def.md:380
 msgid "`ArithmeticContext` is the precision, rounding direction and optional exponent bounds passed to the contextual traits of Luna-Flow/arithmetic."
 msgstr ""
 
-#: manual/api/def.md:382
+#: manual/api/def.md:387
 msgid "`BinaryContext` and `DecimalContext` are built from it by their `from_arithmetic_context` constructors."
 msgstr ""
 
-#: manual/api/def.md:387
+#: manual/api/def.md:392
 msgid "`ArithmeticError` is the structured error of every `Result`-returning (`*_checked`, `try_*`) API and of the checked wrapper packages; `ArithmeticErrorKind` is its kind."
 msgstr ""
 
-#: manual/api/def.md:396
+#: manual/api/def.md:401
 msgid "The kinds are `DivisionByZero`, `ParseError`, `DomainError`, `FormatError`, `UnsupportedOperation`, `UnorderedComparison` and `CertificationFailure(detail)`; `ArithmeticError` has one `is_*` predicate per kind and a `message`."
 msgstr ""
 
-#: manual/api/def.md:403
+#: manual/api/def.md:408
 msgid "These types are the payload of an `ArithmeticError` of kind `CertificationFailure`: an elementary function whose correctly rounded result could not be certified within its refinement budget."
 msgstr ""
 
-#: manual/api/def.md:413
+#: manual/api/def.md:418
 msgid "The detail records the operation, the stage and reason, the target precision, and the final working precision and refinement count (see `certified_failure` in the [internal API](internal.md))."
 msgstr ""
 
-#: manual/api/def.md:419
+#: manual/api/def.md:424
 msgid "`FpClass` is the result of `Floating::classify`: `Finite`, `Infinity` or `NaN`."
 msgstr ""
 
-#: manual/api/def.md:428
+#: manual/api/def.md:433
 msgid "`RoundingMode` lists the five rounding directions accepted by `with_precision` and by the concrete constructors: `ToNearestEven`, `TowardZero`, `TowardPositive`, `TowardNegative` and `AwayFromZero`."
 msgstr ""
 
-#: manual/api/def.md:438
+#: manual/api/def.md:443
 msgid "`BigInt` is the arbitrary-precision integer of `moonbitlang/core/bigint`, used for coefficients and exact values."
 msgstr ""
 
-#: manual/api/def.md:459
+#: manual/api/def.md:464
 msgid "These methods are the derived `Eq` instance, promoted explicitly so that `a.equal(b)` remains available; prefer `==` and `!=`."
 msgstr ""
 
@@ -9914,7 +9914,7 @@ msgstr ""
 #: manual/design/decimal_checked.md:279
 #: manual/design/decimal_gda.md:885
 #: manual/design/decimal_gda_checked.md:247
-#: manual/design/def.md:337
+#: manual/design/def.md:370
 #: manual/design/differential.md:168
 #: manual/design/differential/harness.md:41
 #: manual/design/doc_examples.md:36
@@ -11036,7 +11036,7 @@ msgstr ""
 #: manual/design/decimal_checked.md:196
 #: manual/design/decimal_gda.md:840
 #: manual/design/decimal_gda_checked.md:190
-#: manual/design/def.md:159
+#: manual/design/def.md:191
 #: manual/design/differential.md:145
 #: manual/design/differential/harness.md:27
 #: manual/design/doc_examples.md:25
@@ -11113,7 +11113,7 @@ msgstr ""
 #: manual/design/decimal_checked.md:268
 #: manual/design/decimal_gda.md:869
 #: manual/design/decimal_gda_checked.md:238
-#: manual/design/def.md:324
+#: manual/design/def.md:357
 #: manual/design/differential.md:156
 #: manual/design/differential/harness.md:33
 #: manual/design/doc_examples.md:30
@@ -14501,7 +14501,7 @@ msgstr ""
 #: manual/design/decimal.md:1228
 #: manual/design/decimal_checked.md:263
 #: manual/design/decimal_gda_checked.md:233
-#: manual/design/def.md:317
+#: manual/design/def.md:350
 msgid "Cost"
 msgstr ""
 
@@ -15817,7 +15817,7 @@ msgid "IEEE 754-2019, clause 5.11 (details of comparison predicates) and Table 5
 msgstr ""
 
 #: manual/design/def.md:70
-msgid "A small open trait instead of a numeric tower"
+msgid "A small trait instead of a numeric tower"
 msgstr ""
 
 #: manual/design/def.md:72
@@ -15833,155 +15833,179 @@ msgid "**Choice: (b).** `Floating` has exactly `classify`, `sign`, `precision`, 
 msgstr ""
 
 #: manual/design/def.md:90
-msgid "`Sign` merges the two zeros"
+msgid "Why `Floating` is declared open"
 msgstr ""
 
 #: manual/design/def.md:92
-msgid "`sign` answers \"on which side of zero is the value\", not \"what is the sign bit\". Merging $-0$ and $+0$ into `Zero` makes `sign` a function of the denoted value, so it agrees across representations and with the [`semantic`](semantic.md) projection, which also forgets signed zeros. The sign bit stays observable through the concrete packages. The scalar implementations return `Zero` for NaN because NaN has no position on the line; callers that care test `is_nan` first."
+msgid "**Problem.** `Floating` is meant to be implemented by the types of this library only, so that a method can be added to it in a minor release without breaking a downstream type. MoonBit has a visibility that would enforce this, `pub trait` (readonly), but it is per package."
 msgstr ""
 
-#: manual/design/def.md:100
-msgid "For an interval $X = [\\ell, u]$ the same question has three honest answers, and `BallFloat::sign` returns them as follows:"
+#: manual/design/def.md:97
+msgid "**Evidence.** Declaring `pub trait Floating` in `def` makes every implementation outside `def` fail to compile:"
 msgstr ""
 
-#: manual/design/def.md:112
-msgid "The three cases are exhaustive and disjoint for non-empty $X$ because $\\ell \\le u$: if neither $\\ell > 0$ nor $u < 0$, then $\\ell \\le 0 \\le u$. So `Zero` on an interval means \"contains zero\", and `is_zero`, which is defined through `sign`, inherits that meaning."
+#: manual/design/def.md:107
+msgid "The four implementations are in `bin_float`, `decimal`, `decimal_gda` and `ball_float`, which are other packages of the module, and `def` cannot import them (they import `def`)."
 msgstr ""
 
-#: manual/design/def.md:117
-msgid "`PartialOrder` is the IEEE four-way relation"
+#: manual/design/def.md:111
+msgid "**Options.** (a) Keep `pub(open)` and state the contract in the documentation. (b) Seal the trait with a token type that only this module can build. (c) Move the implementations into `def`, which is a dependency cycle."
 msgstr ""
 
-#: manual/design/def.md:119
-msgid "**Problem.** Comparison results must be expressible for NaN operands."
+#: manual/design/def.md:115
+msgid "**Choice: (a).** (b) puts an internal type into a public trait signature for a promise that documentation can state as well, and (c) is impossible. The contract is: implementing `Floating` outside this module is not supported and not covered by the compatibility promise; the tutorial therefore shows no such implementation, and the generic predicates `is_finite`, `is_infinite`, `is_nan` and `is_zero` are unchanged."
 msgstr ""
 
-#: manual/design/def.md:121
-msgid "**Options.** (a) Return `Int` through MoonBit's `Compare`. (b) Return `Option[Int]`. (c) Return a four-valued enum."
+#: manual/design/def.md:122
+msgid "`Sign` merges the two zeros"
 msgstr ""
 
 #: manual/design/def.md:124
-msgid "**Choice: (c).** Let $\\preceq$ be \"less or equal\" on floating-point data. It is not an order on the whole set:"
+msgid "`sign` answers \"on which side of zero is the value\", not \"what is the sign bit\". Merging $-0$ and $+0$ into `Zero` makes `sign` a function of the denoted value, so it agrees across representations and with the [`semantic`](semantic.md) projection, which also forgets signed zeros. The sign bit stays observable through the concrete packages. The scalar implementations return `Zero` for NaN because NaN has no position on the line; callers that care test `is_nan` first."
 msgstr ""
 
-#: manual/design/def.md:135
-msgid "Restricted to non-NaN data, $\\preceq$ is reflexive, transitive and total, hence a total *preorder*, and its quotient by \"equal\" is the total order of the extended reals. With NaN it is not even a preorder, so no `Int`-valued `Compare` instance can represent it lawfully: whichever integer is chosen for an unordered pair, a sort based on it would treat NaN as comparable. An enum with an explicit `Unordered` keeps the information and forces callers to handle it in a `match`. `Option[Int]` would carry the same information but give \"no answer\" the generic meaning of absence, and would lose the name."
+#: manual/design/def.md:132
+msgid "For an interval $X = [\\ell, u]$ the same question has three honest answers, and `BallFloat::sign` returns them as follows:"
 msgstr ""
 
 #: manual/design/def.md:144
+msgid "The three cases are exhaustive and disjoint for non-empty $X$ because $\\ell \\le u$: if neither $\\ell > 0$ nor $u < 0$, then $\\ell \\le 0 \\le u$. So `Zero` on an interval means \"contains zero\", and `is_zero`, which is defined through `sign`, inherits that meaning."
+msgstr ""
+
+#: manual/design/def.md:149
+msgid "`PartialOrder` is the IEEE four-way relation"
+msgstr ""
+
+#: manual/design/def.md:151
+msgid "**Problem.** Comparison results must be expressible for NaN operands."
+msgstr ""
+
+#: manual/design/def.md:153
+msgid "**Options.** (a) Return `Int` through MoonBit's `Compare`. (b) Return `Option[Int]`. (c) Return a four-valued enum."
+msgstr ""
+
+#: manual/design/def.md:156
+msgid "**Choice: (c).** Let $\\preceq$ be \"less or equal\" on floating-point data. It is not an order on the whole set:"
+msgstr ""
+
+#: manual/design/def.md:167
+msgid "Restricted to non-NaN data, $\\preceq$ is reflexive, transitive and total, hence a total *preorder*, and its quotient by \"equal\" is the total order of the extended reals. With NaN it is not even a preorder, so no `Int`-valued `Compare` instance can represent it lawfully: whichever integer is chosen for an unordered pair, a sort based on it would treat NaN as comparable. An enum with an explicit `Unordered` keeps the information and forces callers to handle it in a `match`. `Option[Int]` would carry the same information but give \"no answer\" the generic meaning of absence, and would lose the name."
+msgstr ""
+
+#: manual/design/def.md:176
 msgid "The concrete packages additionally provide relations that *are* total, for tasks that need one: `BinFloat::total_order` implements the IEEE `totalOrder` predicate (clause 5.10), and `BinFloat::compare` (the `Compare` instance) is a total preorder that places every NaN above every number. These are different relations from `PartialOrder`, chosen per call site."
 msgstr ""
 
-#: manual/design/def.md:150
+#: manual/design/def.md:182
 msgid "Re-exporting the arithmetic types"
 msgstr ""
 
-#: manual/design/def.md:152
+#: manual/design/def.md:184
 msgid "`ArithmeticContext`, `ArithmeticError`, `RoundingMode`, `FpClass` and the certification types are owned by Luna-Flow/arithmetic, which defines the contextual and checked traits that `floating` implements. `def` re-exports them with `pub using` rather than defining look-alikes, so a value of `@def.RoundingMode` *is* a value of `@lf_arith.RoundingMode` and no conversion layer exists between the two repositories."
 msgstr ""
 
-#: manual/design/def.md:161
+#: manual/design/def.md:193
 msgid "The `Floating` laws"
 msgstr ""
 
-#: manual/design/def.md:163
-msgid "The laws below are the contract of the trait. They are stated for a value $x$, a precision $p$ and a direction $m$; $q = \\max(1, p)$. The three scalar implementations satisfy (F1)–(F5) and (F7), with the exponent-range exception of `BinFloat` stated below (F5). `BallFloat` satisfies (F1)–(F4), (F6) and (F7′). A downstream implementation is expected to satisfy the laws of its kind."
+#: manual/design/def.md:195
+msgid "The laws below are the contract of the trait. They are stated for a value $x$, a precision $p$ and a direction $m$; $q = \\max(1, p)$. The three scalar implementations satisfy (F1)–(F5) and (F7), with the exponent-range exception of `BinFloat` stated below (F5). `BallFloat` satisfies (F1)–(F4), (F6) and (F7′). The laws are the contract between the four implementations and the generic code of this library; they are not an invitation to implement the trait elsewhere (see [Why `Floating` is declared open](#why-floating-is-declared-open))."
 msgstr ""
 
-#: manual/design/def.md:183
+#: manual/design/def.md:216
 msgid "**The exponent range of `BinFloat`.** (F5) is stated over $\\mathbb{F}_{\\beta,q}$, whose exponent is unbounded. The decimal types store the exponent as an `Int` and add no other limit, so for them (F5) holds as stated. `BinFloat` keeps its implementation range even in `with_precision`: let $E = 2^{30} - 1$ (`binary_implementation_e_max`, and $-E$ is `binary_implementation_e_min`). A rounded result whose leading bit would lie above $2^{E}$ overflows: to an infinity for `ToNearestEven`, `AwayFromZero` and the directed mode that points away from zero on that side, otherwise to the largest finite value with $q$ bits. A value whose leading bit lies below $2^{-E-(q-1)}$, the smallest positive value stored at $q$ bits, is rounded to $0$ or to that value. So for `BinFloat` (F5) holds whenever $\\circ_{m,q}([\\![x]\\!])$ lies in that range. For example $3 \\cdot 2^{E-1}$ re-expressed with one bit and `AwayFromZero` becomes $+\\infty$ instead of $2^{E+1}$."
 msgstr ""
 
-#: manual/design/def.md:198
+#: manual/design/def.md:231
 msgid "For non-finite scalars, `with_precision` keeps the class and the sign and only changes the stored precision, so (F4) still holds. (F2) for intervals is the three-case rule derived above; for scalars \"the side of $0$\" is `Zero` for $[\\![x]\\!] = 0$."
 msgstr ""
 
-#: manual/design/def.md:203
+#: manual/design/def.md:236
 msgid ""
 "**Why (F6) holds for `BallFloat`.** A `BallFloat` stores its endpoints $\\ell \\le u$. `with_precision` rounds the lower endpoint toward $-\\infty$ and the upper one toward $+\\infty$ at $q$ bits, so $\\n"
 "abla_q(\\ell) \\le \\ell \\le t \\le u \\le \\Delta_q(u)$ for every member $t$, whatever $m$ is; the direction $m$ is not used. Infinite endpoints stay infinite, an endpoint that leaves the `BinFloat` range is rounded in its own direction as in IEEE 754, which still encloses, and the empty interval maps to the empty interval. $[\\n"
 "abla_q(\\ell), \\Delta_q(u)]$ is also the smallest interval with $q$-bit endpoints that contains $[\\ell, u]$, so the result is the tightest enclosure, and by the consequences of (F5) below it is the identity when $\\ell$ and $u$ are already $q$-bit numbers."
 msgstr ""
 
-#: manual/design/def.md:214
+#: manual/design/def.md:247
 msgid "**Why (F7′) holds for `BallFloat`.** `normalized` normalizes the two stored endpoints, which changes their representation but not their values, and stores them at the interval's own precision $q$ by rounding the lower one down and the upper one up. Both are already in $\\mathbb{F}_{2,q}$, and rounding is the identity on its target set (see the consequences of (F5) below), so the result denotes the same set: with $q = 53$, $[1, 1 + 2^{-52}]$ stays $[1, 1 + 2^{-52}]$. Rebuilding the interval from its centre and radius would not keep it: the centre $1 + 2^{-53}$ needs 54 bits, and rounding it to 1 and adding the error to the radius gives $[1 - 2^{-52}, 1 + 2^{-52}]$. The endpoint form also makes `normalized` idempotent on the set."
 msgstr ""
 
-#: manual/design/def.md:241
+#: manual/design/def.md:274
 msgid "Consequences of (F5)"
 msgstr ""
 
-#: manual/design/def.md:243
+#: manual/design/def.md:276
 msgid "Rounding is the identity on its target set: if $t \\in \\mathbb{F}_{\\beta,q}$ then $\\circ_{m,q}(t) = t$ for every direction, because $t$ is its own neighbour. Hence"
 msgstr ""
 
-#: manual/design/def.md:251
+#: manual/design/def.md:284
 msgid "and in particular raising the precision never changes a value, since $\\mathbb{F}_{\\beta,p} \\subseteq \\mathbb{F}_{\\beta,p'}$ for $p \\le p'$."
 msgstr ""
 
-#: manual/design/def.md:254
+#: manual/design/def.md:287
 msgid "Lowering the precision in two steps is *not* the same as lowering it once in general. For the directed modes it is. Take $q \\le p$ and $m =$ `TowardZero`, write $\\circ_k$ for $\\circ_{m,k}$, and let $a = \\circ_q(t)$, the element of $\\mathbb{F}_{\\beta,q}$ with the sign of $t$ and the largest magnitude not exceeding $|t|$. Then"
 msgstr ""
 
-#: manual/design/def.md:270
+#: manual/design/def.md:303
 msgid ""
 "The same argument with \"largest element $\\le t$\" works for $\\n"
 "abla$, with \"smallest element $\\ge t$\" for $\\Delta$, and with \"smallest magnitude $\\ge |t|$\" for `AwayFromZero`: every directed rounding to $\\mathbb{F}_{\\beta,q}$ factors through any finer set $\\mathbb{F}_{\\beta,p}$ that contains $\\mathbb{F}_{\\beta,q}$. For `ToNearestEven` the identity fails (double rounding).[^double-rounding] Take $t = 1.0100001_2 = 161/128$ in binary. With $p = 3$ the neighbours are $1.25$ and $1.5$, and $t$ rounds to $1.25$, which is exactly halfway between the $q = 2$ neighbours $1$ and $1.5$; the tie goes to the even coefficient, $1$. Rounding $t$ directly to two bits gives $1.5$ because $t > 1.25$:"
 msgstr ""
 
-#: manual/design/def.md:305
+#: manual/design/def.md:338
 msgid "Muller et al., *Handbook of Floating-Point Arithmetic*, 2nd ed., 2018, section 3.2 (double rounding); Goldberg, \"What every computer scientist should know about floating-point arithmetic\", 1991."
 msgstr ""
 
-#: manual/design/def.md:309
+#: manual/design/def.md:342
 msgid "The predicates"
 msgstr ""
 
-#: manual/design/def.md:311
+#: manual/design/def.md:344
 msgid "The four predicates are projections of `classify` and `sign`, so their correctness reduces to (F1) and (F2). `is_zero` evaluates `classify` first and uses short-circuit `&&`; it therefore never calls `sign` on a NaN-class value, which keeps it total on empty intervals although `BallFloat::sign` aborts there."
 msgstr ""
 
-#: manual/design/def.md:319
+#: manual/design/def.md:352
 msgid "Every item of `def` is constant time apart from the delegated implementation. `with_precision` and `normalized` cost what the concrete package's rounding or trailing-zero removal costs: linear in the coefficient length for decimals, and linear in the coefficient bit length for binary."
 msgstr ""
 
-#: manual/design/def.md:326
+#: manual/design/def.md:359
 msgid "**A `Real` super-trait with arithmetic.** It would claim laws (associativity, total order) that rounded and interval arithmetic do not satisfy, and would hide the difference between exact, rounded and enclosing operations."
 msgstr ""
 
-#: manual/design/def.md:329
+#: manual/design/def.md:362
 msgid "**`Compare` for IEEE comparison.** An `Int` result cannot express *unordered*; see the derivation above."
 msgstr ""
 
-#: manual/design/def.md:331
+#: manual/design/def.md:364
 msgid "**Separate `NegativeZero` / `PositiveZero` signs.** They would make `sign` depend on the representation rather than the value, and the interval sign has no analogue."
 msgstr ""
 
-#: manual/design/def.md:334
+#: manual/design/def.md:367
 msgid "**Defining local copies of `RoundingMode` and `ArithmeticContext`.** They would need conversions at every boundary with Luna-Flow/arithmetic."
 msgstr ""
 
-#: manual/design/def.md:339
+#: manual/design/def.md:372
 msgid "No arithmetic, parsing, formatting or comparison is implemented here; `def` only names results (`Sign`, `PartialOrder`) and states contracts."
 msgstr ""
 
-#: manual/design/def.md:341
+#: manual/design/def.md:374
 msgid "`Floating` does not imply a field, a total order, an IEEE format, exact arithmetic or any error behaviour. Generic code must request the additional capability traits it uses."
 msgstr ""
 
-#: manual/design/def.md:344
+#: manual/design/def.md:377
 msgid "`with_precision` neither honours context exponent bounds nor reports flags (only the `BinFloat` implementation range applies); contexts and flags belong to the `*_ctx` APIs of the concrete packages and to the contextual traits of Luna-Flow/arithmetic."
 msgstr ""
 
-#: manual/design/def.md:348
+#: manual/design/def.md:381
 msgid "`normalized` keeps the representation-independent value: the number on scalars (F7) and the set on intervals (F7′)."
 msgstr ""
 
-#: manual/design/def.md:350
+#: manual/design/def.md:383
 msgid "`Sign` does not expose the sign bit of zeros or NaNs."
 msgstr ""
 
-#: manual/design/def.md:351
+#: manual/design/def.md:384
 msgid "The laws are documented and tested by the implementations; the trait does not enforce them for downstream implementations."
 msgstr ""
 
@@ -21110,7 +21134,7 @@ msgstr ""
 #: manual/tutorial/decimal_checked.md:25
 #: manual/tutorial/decimal_gda.md:25
 #: manual/tutorial/decimal_gda_checked.md:22
-#: manual/tutorial/def.md:22
+#: manual/tutorial/def.md:21
 #: manual/tutorial/differential.md:17
 #: manual/tutorial/differential/harness.md:15
 #: manual/tutorial/doc_examples.md:13
@@ -21172,7 +21196,7 @@ msgstr ""
 #: manual/tutorial/decimal_checked.md:56
 #: manual/tutorial/decimal_gda.md:61
 #: manual/tutorial/decimal_gda_checked.md:56
-#: manual/tutorial/def.md:49
+#: manual/tutorial/def.md:48
 #: manual/tutorial/differential.md:39
 #: manual/tutorial/differential/harness.md:34
 #: manual/tutorial/doc_examples.md:25
@@ -21277,7 +21301,7 @@ msgstr ""
 #: manual/tutorial/decimal_checked.md:167
 #: manual/tutorial/decimal_gda.md:274
 #: manual/tutorial/decimal_gda_checked.md:164
-#: manual/tutorial/def.md:166
+#: manual/tutorial/def.md:165
 #: manual/tutorial/differential.md:173
 #: manual/tutorial/differential/harness.md:50
 #: manual/tutorial/doc_examples.md:52
@@ -21350,7 +21374,7 @@ msgstr ""
 #: manual/tutorial/decimal_checked.md:251
 #: manual/tutorial/decimal_gda.md:361
 #: manual/tutorial/decimal_gda_checked.md:234
-#: manual/tutorial/def.md:246
+#: manual/tutorial/def.md:197
 #: manual/tutorial/differential.md:184
 #: manual/tutorial/differential/harness.md:59
 #: manual/tutorial/doc_examples.md:58
@@ -21423,7 +21447,7 @@ msgstr ""
 #: manual/tutorial/decimal_checked.md:271
 #: manual/tutorial/decimal_gda.md:393
 #: manual/tutorial/decimal_gda_checked.md:248
-#: manual/tutorial/def.md:270
+#: manual/tutorial/def.md:221
 #: manual/tutorial/differential.md:195
 #: manual/tutorial/differential/harness.md:66
 #: manual/tutorial/doc_examples.md:63
@@ -24148,115 +24172,103 @@ msgstr ""
 msgid "handle checked errors without importing `arithmetic`"
 msgstr ""
 
-#: manual/tutorial/def.md:20
-msgid "make my own type usable by generic code"
-msgstr ""
-
-#: manual/tutorial/def.md:24
+#: manual/tutorial/def.md:23
 msgid "Add the module and import `def` next to the representation you use:"
 msgstr ""
 
-#: manual/tutorial/def.md:37
+#: manual/tutorial/def.md:36
 msgid "The smallest useful program asks a value what it is:"
 msgstr ""
 
-#: manual/tutorial/def.md:51
+#: manual/tutorial/def.md:50
 msgid "Write one function for every representation"
 msgstr ""
 
-#: manual/tutorial/def.md:53
+#: manual/tutorial/def.md:52
 msgid "A function bounded by `F : @def.Floating` accepts binary, IEEE decimal, GDA decimal and interval values. Call the trait methods in their qualified form, `@def.Floating::classify(x)`, because MoonBit no longer turns trait methods into dot methods of a type parameter."
 msgstr ""
 
-#: manual/tutorial/def.md:91
+#: manual/tutorial/def.md:90
 msgid "The interval case shows why the NaN test comes first: the empty interval classifies as `NaN`, and `BallFloat::sign` aborts on it."
 msgstr ""
 
-#: manual/tutorial/def.md:94
+#: manual/tutorial/def.md:93
 msgid "Change precision generically"
 msgstr ""
 
-#: manual/tutorial/def.md:96
+#: manual/tutorial/def.md:95
 msgid "`with_precision` rounds to the requested number of significant digits of the value's own radix, bits for binary and digits for decimal:"
 msgstr ""
 
-#: manual/tutorial/def.md:114
+#: manual/tutorial/def.md:113
 msgid "Eleven is `1011` in binary; three significant bits round it to `1100`, which `to_string` prints as $3 \\cdot 2^2$."
 msgstr ""
 
-#: manual/tutorial/def.md:117
+#: manual/tutorial/def.md:116
 msgid "Read an IEEE comparison"
 msgstr ""
 
-#: manual/tutorial/def.md:119
+#: manual/tutorial/def.md:118
 msgid "Comparisons that follow IEEE 754 return a `PartialOrder`, whose fourth value `Unordered` reports a NaN operand:"
 msgstr ""
 
-#: manual/tutorial/def.md:146
+#: manual/tutorial/def.md:145
 msgid "Normalize before comparing representations"
 msgstr ""
 
-#: manual/tutorial/def.md:148
+#: manual/tutorial/def.md:147
 msgid "Decimal values with the same value can differ in their stored exponent (`1.5` and `1.500` belong to one *cohort*). `normalized` picks the canonical member, so the printed forms agree:"
 msgstr ""
 
-#: manual/tutorial/def.md:168
+#: manual/tutorial/def.md:167
 msgid "Use the re-exported arithmetic types"
 msgstr ""
 
-#: manual/tutorial/def.md:170
+#: manual/tutorial/def.md:169
 msgid "`@def.ArithmeticContext`, `@def.ArithmeticError`, `@def.RoundingMode` and the other aliases are the types of [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/). Code that only needs the vocabulary can import `def` instead of `arithmetic`:"
 msgstr ""
 
-#: manual/tutorial/def.md:198
-msgid "Implement `Floating` for your own type"
-msgstr ""
-
-#: manual/tutorial/def.md:200
-msgid "The trait is open. A wrapper type can delegate to an existing implementation; it must then keep the laws listed in the design page (for example, `normalized` must not change the value):"
-msgstr ""
-
-#: manual/tutorial/def.md:248
+#: manual/tutorial/def.md:199
 msgid "`Sign::Zero` does not mean \"the value is zero\". It is also returned for NaN by the scalar types and for any interval that contains zero. Test `@def.is_nan` first, and for intervals use `BallFloat::contains_zero` or the bounds."
 msgstr ""
 
-#: manual/tutorial/def.md:252
+#: manual/tutorial/def.md:203
 msgid "`@def.is_zero` on a `BallFloat` is true for $[-1, 1]$: the predicate is defined through `sign`, which for an interval means \"contains zero\"."
 msgstr ""
 
-#: manual/tutorial/def.md:254
+#: manual/tutorial/def.md:205
 msgid "`Sign` cannot tell $-0$ from $+0$. Use the concrete package (`BinFloat::is_negative_zero`, `Decimal::is_signed`) when the sign bit matters."
 msgstr ""
 
-#: manual/tutorial/def.md:257
+#: manual/tutorial/def.md:208
 msgid "`PartialOrder` is not an ordering you can sort with: `Unordered` breaks trichotomy. Use the total orders of the concrete packages (`BinFloat::total_order_compare`, `Decimal::compare_total`) for sorting."
 msgstr ""
 
-#: manual/tutorial/def.md:260
+#: manual/tutorial/def.md:211
 msgid "`with_precision` reports no flags and ignores context exponent limits (a `BinFloat` still overflows at its implementation range of about $2^{\\pm 2^{30}}$). When rounding must be observed, use the `*_ctx` operations of the concrete package."
 msgstr ""
 
-#: manual/tutorial/def.md:264
+#: manual/tutorial/def.md:215
 msgid "On a `BallFloat`, `with_precision` returns the tightest enclosure of the input at the new precision (the endpoints rounded outward), and `normalized` returns the same set. Neither changes an interval that is already representable at the target precision."
 msgstr ""
 
-#: manual/tutorial/def.md:268
+#: manual/tutorial/def.md:219
 msgid "`with_precision(x, 0, mode)` is not an error: the precision is clamped to 1."
 msgstr ""
 
-#: manual/tutorial/def.md:272
+#: manual/tutorial/def.md:223
 msgid "[`def` design](../design/def.md): the trait laws and the order theory of `PartialOrder`."
 msgstr ""
 
-#: manual/tutorial/def.md:274
+#: manual/tutorial/def.md:225
 msgid "[`def` API](../api/def.md): every item with its signature."
 msgstr ""
 
-#: manual/tutorial/def.md:275
+#: manual/tutorial/def.md:226
 msgid "[`semantic` tutorial](semantic.md): compare values of different representations exactly."
 msgstr ""
 
-#: manual/tutorial/def.md:277
+#: manual/tutorial/def.md:228
 msgid "[Numeric semantics guide](../numeric_semantics.md) for the shared vocabulary of the repository."
 msgstr ""
 

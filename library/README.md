@@ -102,6 +102,13 @@ Conformance evidence is finite and pinned: the GDA `official` corpus passes
 254,227,872 vectors, and the strict ITF1788 aggregate 4,656/4,656 cases. Read
 the conformance pages before turning a result into a compatibility claim.
 
+## Stability
+
+The public API of every package follows the changelog of each release. `Floating` in
+`def` is implemented by the types of this library only; implementing it for a
+type outside this module is not supported and not covered by the compatibility
+promise, because methods may be added to the trait in a minor release.
+
 ## Development
 
 The repository ([Luna-Flow/floating](https://github.com/Luna-Flow/floating)) holds
