@@ -284,7 +284,7 @@ pub fn Decimal::add_ctx(
     Some(result) => return result
     None => ()
   }
-  let result = match (self.class, other.class) {
+  match (self.class, other.class) {
     (FpClass::Infinity, FpClass::Infinity) if self.negative != other.negative =>
       (
         Decimal::nan(precision=finite_precision_for_default(ctx)),
@@ -315,7 +315,6 @@ pub fn Decimal::add_ctx(
         invalid_flags(),
       )
   }
-  result
 }
 
 ///|
@@ -337,8 +336,7 @@ pub fn Decimal::mul_ctx(
   other : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let result = self.decimal_mul_ctx_impl(other, ctx)
-  result
+  self.decimal_mul_ctx_impl(other, ctx)
 }
 
 ///|
@@ -412,8 +410,7 @@ pub fn Decimal::div_ctx(
   other : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let result = self.decimal_div_ctx_impl(other, ctx)
-  result
+  self.decimal_div_ctx_impl(other, ctx)
 }
 
 ///|
@@ -985,7 +982,7 @@ pub fn Decimal::sqrt_ctx(
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   let precision = finite_precision_for_default(ctx)
-  let result = match self.class {
+  match self.class {
     FpClass::NaN => quiet_nan_operand(self, ctx)
     FpClass::Infinity =>
       if self.negative {
@@ -1015,7 +1012,6 @@ pub fn Decimal::sqrt_ctx(
         }
       }
   }
-  result
 }
 
 ///|
