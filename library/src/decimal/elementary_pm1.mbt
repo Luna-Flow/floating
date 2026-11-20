@@ -478,12 +478,11 @@ fn Decimal::try_pm1_ctx(
     Some(result) => return Ok(result)
     None => ()
   }
-  let result = if operation.is_exp() {
+  if operation.is_exp() {
     decimal_exp_m1_finite(self, operation, ctx)
   } else {
     decimal_log_p1_finite(self, operation, ctx)
   }
-  result
 }
 
 ///|

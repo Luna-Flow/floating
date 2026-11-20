@@ -5,7 +5,7 @@ fn Decimal::plus_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let result = match self.class {
+  match self.class {
     FpClass::NaN => quiet_nan_operand(self, ctx)
     FpClass::Infinity =>
       (
@@ -36,7 +36,6 @@ fn Decimal::plus_ctx(
         (value, flags)
       }
   }
-  result
 }
 
 ///|
@@ -79,9 +78,8 @@ pub fn Decimal::abs_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let result = match self.class {
+  match self.class {
     FpClass::NaN => quiet_nan_operand(self, ctx)
     _ => self.abs().plus_ctx(ctx)
   }
-  result
 }

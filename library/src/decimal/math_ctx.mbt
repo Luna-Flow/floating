@@ -20,7 +20,7 @@ pub fn Decimal::try_log10_ctx(
     return Ok(invalid_context_result(ctx))
   }
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
-  let result = match self.class {
+  match self.class {
     FpClass::NaN => Ok(quiet_nan_operand(self, ctx))
     FpClass::Infinity =>
       Ok(
@@ -42,7 +42,6 @@ pub fn Decimal::try_log10_ctx(
       0 => Ok(logb_finite_result_ctx(adjusted_exponent(self), ctx))
     FpClass::Finite => decimal_certified_log10_result(self, ctx)
   }
-  result
 }
 
 ///|
@@ -65,7 +64,7 @@ pub fn Decimal::try_exp_ctx(
     return Ok(invalid_context_result(ctx))
   }
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
-  let result = match self.class {
+  match self.class {
     FpClass::NaN => Ok(quiet_nan_operand(self, ctx))
     FpClass::Infinity =>
       Ok(
@@ -79,7 +78,6 @@ pub fn Decimal::try_exp_ctx(
       Ok((Decimal::one(precision~), DecimalFlags::new()))
     FpClass::Finite => decimal_certified_exp_result(self, ctx)
   }
-  result
 }
 
 ///|
@@ -102,7 +100,7 @@ pub fn Decimal::try_ln_ctx(
     return Ok(invalid_context_result(ctx))
   }
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
-  let result = match self.class {
+  match self.class {
     FpClass::NaN => Ok(quiet_nan_operand(self, ctx))
     FpClass::Infinity =>
       Ok(
@@ -121,7 +119,6 @@ pub fn Decimal::try_ln_ctx(
       Ok((Decimal::zero(precision~), DecimalFlags::new()))
     FpClass::Finite => decimal_certified_ln_result(self, ctx)
   }
-  result
 }
 
 ///|
