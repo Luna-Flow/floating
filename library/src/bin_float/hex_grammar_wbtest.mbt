@@ -163,10 +163,15 @@ test "§5.12.3 rejected forms" {
   ]
   for source in rejected {
     assert_true(BinFloat::from_hex(source, 53) is Err(_), msg=source)
-    assert_true(
-      BinFloat::from_hex_ctx(source, BinaryContext::unbounded(53)) is Err(_),
-      msg=source,
-    )
+    // An exponent beyond the 32-bit range (but within the 10^12 the parser
+    // reads) is a parse error for from_hex only: from_hex_ctx overflows or
+    // underflows (tested in hex_ctx_wbtest.mbt).
+    if source != "0x1p2147483648" && source != "0x1p-2147483649" {
+      assert_true(
+        BinFloat::from_hex_ctx(source, BinaryContext::unbounded(53)) is Err(_),
+        msg=source,
+      )
+    }
   }
 }
 
