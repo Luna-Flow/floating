@@ -252,47 +252,8 @@ fn etop(ctx : DecimalContext, precision : Int32) -> Int32 {
 }
 
 ///|
-fn tiny_for_underflow(
-  ctx : DecimalContext,
-  before_adjusted : Int64,
-  after_adjusted : Int64,
-) -> Bool {
-  match ctx.tininess {
-    DecimalTininessDetection::BeforeRounding =>
-      before_adjusted < ctx.e_min.to_int64()
-    DecimalTininessDetection::AfterRounding =>
-      after_adjusted < ctx.e_min.to_int64()
-  }
-}
-
-///|
-// Adjusted exponent of the exact value `magnitude * 10^exponent10` rounded to
-// the context precision with an unbounded exponent range: the quantity that
-// IEEE 754 (clause 7.5) compares with e_min for tininess after rounding. It is
-// the exact adjusted exponent, plus one when rounding carries into the next
-// power of ten; only a value with adjusted exponent e_min - 1 can change sides,
-// so the rounding is done only there.
-fn adjusted_after_rounding_to_precision(
-  magnitude : DecCoeff,
-  exponent10 : Int32,
-  negative : Bool,
-  ctx : DecimalContext,
-) -> Int64 {
-  let digits = magnitude.digits10()
-  let adjusted = exponent10.to_int64() + (digits - 1).to_int64()
-  if magnitude.is_zero() ||
-    ctx.precision <= 0 ||
-    digits <= ctx.precision ||
-    adjusted != ctx.e_min.to_int64() - 1L {
-    return adjusted
-  }
-  let (rounded, _) = round_positive_decimal_div_pow10_repr(
-    magnitude,
-    digits - ctx.precision,
-    negative,
-    ctx.decimal_rounding,
-  )
-  adjusted + (rounded.digits10() - ctx.precision).to_int64()
+fn tiny_for_underflow(ctx : DecimalContext, before_adjusted : Int64) -> Bool {
+  before_adjusted < ctx.e_min.to_int64()
 }
 
 ///|
@@ -361,19 +322,7 @@ fn finalize_finite_ctx(
   }
   let unrounded_adjusted = adjusted_exponent64(value)
   let adjusted = unrounded_adjusted
-  if !ctx.extended && adjusted < ctx.e_min.to_int64() {
-    return (
-      finite_with_exponent_repr(false, dec_coeff_zero(), 0, value.precision_),
-      {
-        ..flags,
-        underflow: true,
-        subnormal: true,
-        inexact: true,
-        rounded: true,
-        clamped: false,
-      },
-    )
-  }
+
   if adjusted > ctx.e_max.to_int64() {
     let (overflowed, overflow_flags) = decimal_overflow_result(
       value.negative,
@@ -397,13 +346,7 @@ fn finalize_finite_ctx(
       ctx.decimal_rounding,
     )
     flags = { ..flags, rounded: true, }
-    let rounded_adjusted = adjusted_after_rounding_to_precision(
-      value.coefficient,
-      value.exponent10,
-      value.negative,
-      ctx,
-    )
-    let tiny = tiny_for_underflow(ctx, unrounded_adjusted, rounded_adjusted)
+    let tiny = tiny_for_underflow(ctx, unrounded_adjusted)
     if tiny {
       flags = { ..flags, subnormal: true, }
     }
@@ -427,8 +370,6 @@ fn finalize_finite_ctx(
     flags = { ..flags, subnormal: true, }
     if flags.inexact {
       flags = { ..flags, underflow: true, }
-    } else if !ctx.extended {
-      flags = { ..flags, rounded: true, inexact: true, underflow: true, }
     }
   }
   if ctx.clamp && ctx.precision > 0 {
@@ -503,12 +444,7 @@ fn normalize_decimal_parts_ctx_repr(
       (rounded_magnitude0, next_exponent0)
     }
     flags = { ..flags, rounded: true, }
-    let rounded_adjusted = adjusted_after_rounding_to_precision(
-      magnitude, exponent10, negative, ctx,
-    )
-    let tiny_result = tiny_for_underflow(
-      ctx, unrounded_adjusted, rounded_adjusted,
-    )
+    let tiny_result = tiny_for_underflow(ctx, unrounded_adjusted)
     if tiny_result {
       flags = { ..flags, subnormal: true, }
     }
@@ -836,55 +772,6 @@ fn trim_finite_fractional_zeros(value : Decimal) -> Decimal {
 }
 
 ///|
-fn finish_subset_finite_result(
-  value : Decimal,
-  ctx : DecimalContext,
-  trim_fractional : Bool,
-) -> Decimal {
-  guard !ctx.extended && value.class == FpClass::Finite else { return value }
-  if value.coefficient.is_zero() {
-    return finite_with_exponent_repr(
-      false,
-      value.coefficient,
-      0,
-      value.precision_,
-    )
-  }
-  let value = if value.exponent10 >= 0 &&
-    ctx.precision >= value.exponent10 + value.coefficient.digits10() {
-    finite_with_exponent_repr(
-      value.negative,
-      dec_coeff_shift_power10_repr(value.coefficient, value.exponent10),
-      0,
-      value.precision_,
-    )
-  } else {
-    value
-  }
-  if trim_fractional {
-    trim_finite_fractional_zeros(value)
-  } else {
-    value
-  }
-}
-
-///|
-fn finish_context_result(
-  value : Decimal,
-  flags : DecimalFlags,
-  ctx : DecimalContext,
-  trim_fractional : Bool,
-) -> (Decimal, DecimalFlags) {
-  let value = finish_subset_finite_result(value, ctx, trim_fractional)
-  let flags = if !ctx.extended && value.is_zero() && flags.underflow {
-    { ..flags, clamped: false, }
-  } else {
-    flags
-  }
-  (value, flags)
-}
-
-///|
 fn reduce_finite_cohort_ctx(value : Decimal, ctx : DecimalContext) -> Decimal {
   guard value.class == FpClass::Finite else { return value }
   guard !value.coefficient.is_zero() else { return value.normalized() }
@@ -918,7 +805,7 @@ pub fn Decimal::reduce_ctx(
 ) -> (Decimal, DecimalFlags) {
   if self.class == FpClass::Finite && self.coefficient.is_zero() {
     let (rounded, flags) = apply_finite_ctx(self, ctx)
-    let negative = ctx.extended && self.negative
+    let negative = self.negative
     return (
       finite_with_exponent(negative, bigint_zero(), 0, rounded.precision_),
       flags,

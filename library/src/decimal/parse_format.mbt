@@ -255,12 +255,7 @@ fn decimal_zero_conversion_result(
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
-  if !ctx.extended {
-    return (
-      finite_with_exponent_repr(false, dec_coeff_zero(), 0, precision),
-      DecimalFlags::new(),
-    )
-  }
+
   let upper = if ctx.clamp && ctx.precision > 0 {
     etop(ctx, precision)
   } else {
@@ -319,7 +314,7 @@ fn decimal_extreme_tiny_conversion_result(
         inexact: true,
         subnormal,
         underflow: subnormal,
-        clamped: ctx.extended && rounded_magnitude.is_zero(),
+        clamped: rounded_magnitude.is_zero(),
       },
     ),
   )
@@ -344,9 +339,6 @@ fn parse_special_decimal_string_ctx(
   let lower = ascii_lower(body)
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   if lower == "inf" || lower == "infinity" {
-    if !ctx.extended {
-      return Some(decimal_conversion_syntax_result(ctx))
-    }
     return Some(
       (
         Decimal::inf(
@@ -371,9 +363,7 @@ fn parse_special_decimal_string_ctx(
   } else {
     return None
   }
-  if !ctx.extended {
-    return Some(decimal_conversion_syntax_result(ctx))
-  }
+
   let payload_src = body[payload_start:].to_owned()
   for i in 0..<payload_src.length() {
     let ch = payload_src[i]

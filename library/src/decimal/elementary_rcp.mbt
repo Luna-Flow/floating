@@ -6,7 +6,7 @@
 /// The widest context the decimal math functions accept: used to convert a
 /// moderate binary endpoint to an exact decimal with no range representative.
 fn decimal_rcp_wide_ctx() -> DecimalContext {
-  DecimalContext::new(precision=1, e_min=-999_999, e_max=999_999)
+  DecimalContext::raw(1, -999_999, 999_999)
 }
 
 ///|
@@ -379,7 +379,10 @@ fn decimal_compound_exact_result(
       return None
     }
   }
-  let sum = value.add_ctx(Decimal::one(precision=1), DecimalContext::exact()).0
+  let sum = value.add_ctx(
+      Decimal::one(precision=1),
+      decimal_exact_work_context(),
+    ).0
   let (coefficient, exponent) = remove_factor10_repr(
     sum.coefficient,
     sum.exponent10,

@@ -16,19 +16,6 @@ pub fn Decimal::try_log10_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
-  if !ctx.extended &&
-    ctx.precision <= 99_999_999 &&
-    self.class == FpClass::Finite &&
-    self.coefficient.is_zero() {
-    return Ok(
-      (
-        Decimal::nan(
-          precision=finite_precision_for_coeff(dec_coeff_zero(), ctx),
-        ),
-        invalid_flags(),
-      ),
-    )
-  }
   if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
     return Ok(invalid_context_result(ctx))
   }
@@ -46,13 +33,7 @@ pub fn Decimal::try_log10_ctx(
       )
     // IEEE 754-2019 §9.2.1: log(±0) is -inf and signals divideByZero.
     FpClass::Finite if value.coefficient.is_zero() =>
-      Ok(
-        if ctx.extended {
-          decimal_elementary_division_by_zero(Sign::Negative, ctx)
-        } else {
-          (Decimal::nan(precision~), invalid_flags())
-        },
-      )
+      Ok(decimal_elementary_division_by_zero(Sign::Negative, ctx))
     FpClass::Finite if value.negative =>
       Ok((Decimal::nan(precision~), invalid_flags()))
     FpClass::Finite if dec_coeff_compare_repr(
@@ -119,19 +100,6 @@ pub fn Decimal::try_ln_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
-  if !ctx.extended &&
-    ctx.precision <= 99_999_999 &&
-    self.class == FpClass::Finite &&
-    self.coefficient.is_zero() {
-    return Ok(
-      (
-        Decimal::nan(
-          precision=finite_precision_for_coeff(dec_coeff_zero(), ctx),
-        ),
-        invalid_flags(),
-      ),
-    )
-  }
   if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
     return Ok(invalid_context_result(ctx))
   }
@@ -149,13 +117,7 @@ pub fn Decimal::try_ln_ctx(
       )
     // IEEE 754-2019 §9.2.1: log(±0) is -inf and signals divideByZero.
     FpClass::Finite if value.coefficient.is_zero() =>
-      Ok(
-        if ctx.extended {
-          decimal_elementary_division_by_zero(Sign::Negative, ctx)
-        } else {
-          (Decimal::nan(precision~), invalid_flags())
-        },
-      )
+      Ok(decimal_elementary_division_by_zero(Sign::Negative, ctx))
     FpClass::Finite if value.negative =>
       Ok((Decimal::nan(precision~), invalid_flags()))
     FpClass::Finite if is_finite_decimal_one(value) =>
@@ -190,8 +152,7 @@ pub fn Decimal::try_pow_ctx(
     self, exponent, ctx,
   )
   let half = finite_with_exponent_repr(false, dec_coeff_from_int(5), -1, 1)
-  if ctx.is754version2019() &&
-    base.class == FpClass::Finite &&
+  if base.class == FpClass::Finite &&
     !base.negative &&
     rounded_exponent.class == FpClass::Finite &&
     rounded_exponent.compare(half) == 0 {
@@ -283,7 +244,7 @@ pub fn Decimal::try_pow_ctx(
       match
         decimal_power_adjacent_one_directed_result(base, rounded_exponent, ctx) {
         Some(result) => {
-          let finalized = decimal_power_finalize_result(result, ctx)
+          let finalized = result
           return Ok((finalized.0, operand_flags.combine(finalized.1)))
         }
         None => ()
@@ -291,7 +252,7 @@ pub fn Decimal::try_pow_ctx(
       return decimal_certified_power_result(base, rounded_exponent, ctx).map(fn(
         result,
       ) {
-        let finalized = decimal_power_finalize_result(result, ctx)
+        let finalized = result
         let finalized = if decimal_exact_cohort_adjustable(finalized) {
           match
             decimal_power_preferred_exponent(base.exponent10, rounded_exponent) {
@@ -321,15 +282,15 @@ fn Decimal::power_ctx_impl(
     None => ()
   }
   match decimal_power_simple_ten_result(self, exponent, ctx) {
-    Some(result) => return decimal_power_finalize_result(result, ctx)
+    Some(result) => return result
     None => ()
   }
   match decimal_power_exact_ten_result(self, exponent, ctx) {
-    Some(result) => return decimal_power_finalize_result(result, ctx)
+    Some(result) => return result
     None => ()
   }
   match decimal_power_of_ten_extreme_result(self, exponent, ctx) {
-    Some(result) => return decimal_power_finalize_result(result, ctx)
+    Some(result) => return result
     None => ()
   }
   match quiet_nan_pair(self, exponent, ctx) {
@@ -360,11 +321,11 @@ fn Decimal::power_ctx_impl(
     return invalid_context_result(ctx)
   }
   match decimal_power_one_finite_exponent_result(self, exponent, ctx) {
-    Some(result) => return decimal_power_finalize_result(result, ctx)
+    Some(result) => return result
     None => ()
   }
   match decimal_power_positive_noninteger_result(self, exponent, ctx) {
-    Some(result) => return decimal_power_finalize_result(result, ctx)
+    Some(result) => return result
     None => ()
   }
   if decimal_power_operand_out_of_range(exponent) {
@@ -407,16 +368,10 @@ fn Decimal::power_ctx_impl(
     FpClass::Finite =>
       if self.coefficient.is_zero() {
         if count == 0 {
-          if !ctx.extended {
-            return (Decimal::one(precision~), DecimalFlags::new())
-          }
           return (Decimal::nan(precision~), invalid_flags())
         }
         let negative = self.negative && (abs_int(count) & 1) == 1
         if count < 0 {
-          if !ctx.extended {
-            return (Decimal::nan(precision~), invalid_flags())
-          }
           decimal_elementary_division_by_zero(
             if negative {
               Sign::Negative

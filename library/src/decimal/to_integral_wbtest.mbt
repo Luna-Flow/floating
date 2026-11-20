@@ -68,17 +68,3 @@ test "to_integral keeps integral parts longer than the precision" {
     content="-100 [Inexact,Rounded]",
   )
 }
-
-///|
-test "to_integral in a subset context rounds the operand first" {
-  let d = (s : String) => Decimal::from_string(s).unwrap()
-  let p3 = DecimalContext::new(precision=3, extended=false)
-  inspect(
-    to_integral_show(d("12345.6").to_integral_exact_ctx(p3)),
-    content="1.23E+4 [Inexact,Rounded,LostDigits]",
-  )
-  inspect(
-    to_integral_show(d("12345.6").to_integral_value_ctx(p3)),
-    content="1.23E+4 [Inexact,Rounded,LostDigits]",
-  )
-}

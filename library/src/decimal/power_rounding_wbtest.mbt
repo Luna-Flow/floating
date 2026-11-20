@@ -112,7 +112,7 @@ test "decimal power returns exact non-integral powers" {
   // An irrational power is still rounded and inexact.
   assert_eq(power_case(d("2").pow_ctx(d("0.5"), c32)), "1.414214 inexact")
   // 4^2048.5 = 2^4097 has 1234 digits, so it is rounded to the precision.
-  let wide = DecimalContext::new(precision=34, e_max=999_999, e_min=-999_999)
+  let wide = DecimalContext::new(precision=34, e_max=999_999)
   assert_eq(
     power_case(d("4").pow_ctx(d("2048.5"), wide)),
     "2.088777762826305013383505421433249E+1233 inexact",
@@ -120,13 +120,13 @@ test "decimal power returns exact non-integral powers" {
 }
 
 ///|
-/// The GDA math functions are defined only on contexts with precision and
-/// exponent range within 999_999. `DecimalContext::new` defaults `e_min` to
-/// -999_999_999, so raising only `e_max` leaves the context restricted and a
-/// non-integral power signals Invalid context rather than computing.
+/// The math functions are defined only on contexts with precision and
+/// exponent range within 999_999: an `e_max` above it leaves the context
+/// restricted and a non-integral power signals Invalid context rather than
+/// computing.
 test "decimal power rejects contexts outside the math function range" {
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
-  let default_e_min = DecimalContext::new(precision=34, e_max=999_999)
+  let default_e_min = DecimalContext::new(precision=34, e_max=1_000_000)
   let (value, flags) = d("4").pow_ctx(d("2048.5"), default_e_min)
   assert_true(value.is_nan())
   assert_true(flags.contains(DecimalSignal::InvalidContext))

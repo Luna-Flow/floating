@@ -103,7 +103,7 @@ Flags of earlier steps stay in `flags()` even when later steps are exact:
 ```moonbit
 ///|
 test "an early rounding is remembered" {
-  let ctx = @decimal.DecimalContext::new(precision=5, e_min=-99, e_max=99)
+  let ctx = @decimal.DecimalContext::new(precision=5, e_max=100)
   let r = @decimal_checked.DecimalChecked::parse("1.234567", ctx)
     .add(@decimal.Decimal::from_int(1))
     .mul(@decimal.Decimal::from_int(2))
@@ -184,7 +184,7 @@ test "a bounded context for ln" {
   inspect(good.value().to_string(), content="2.302585092994045684017991454684364")
   let bad = @decimal_checked.DecimalChecked::from_int(
     10,
-    @decimal.DecimalContext::new(precision=34),
+    @decimal.DecimalContext::new(precision=34, e_max=999_999_999),
   ).ln()
   inspect(flags(bad.raised()), content="invalid_context")
 }
@@ -194,7 +194,8 @@ test "a bounded context for ln" {
 
 Code that is generic over Luna-Flow/arithmetic carries an
 `ArithmeticContext`. `DecimalContext::from_arithmetic_context` maps its
-precision, rounding direction, exponent bounds and clamp flag; the predefined
+precision, rounding direction and exponent bounds (`clamp` is ignored: every
+IEEE format clamps); the predefined
 `ArithmeticContext::decimal64()` maps to the same context as
 `DecimalContext::decimal64()`:
 
@@ -255,9 +256,8 @@ combining the per-step diagnostics.
 - **Exceptional results are not errors.** NaN, infinities and rounded values
   are successes with flags. `is_err()` is true only for certification
   failures of elementary functions.
-- **Unbounded contexts disable the mathematical functions.** See above; this
-  also applies to contexts built from an `ArithmeticContext` without
-  `e_min` / `e_max`.
+- **Wide contexts disable the mathematical functions.** See above; this
+  applies to an `e_max` above 999,999.
 - **Binary sources.** `from_double(0.1, …)` converts the binary value of
   `0.1` rounded to 17 digits, not one tenth and not the exact binary value
   (in decimal128 it is `0.10000000000000001`); parse the string `"0.1"`

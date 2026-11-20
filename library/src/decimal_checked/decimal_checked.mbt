@@ -46,7 +46,7 @@ pub fn DecimalChecked::from_outcome(
 ) -> DecimalChecked {
   {
     value_: value,
-    context_: context.ieee754(),
+    context_: context,
     raised_: flags,
     flags_: flags,
     error_: None,
@@ -58,7 +58,7 @@ pub fn DecimalChecked::from_decimal(
   value : @decimal.Decimal,
   context : @decimal.DecimalContext,
 ) -> DecimalChecked {
-  let ieee_context = context.ieee754()
+  let ieee_context = context
   let (checked, flags) = value.apply_ctx(ieee_context)
   DecimalChecked::from_outcome(checked, ieee_context, flags)
 }
@@ -68,7 +68,7 @@ pub fn DecimalChecked::parse(
   source : String,
   context : @decimal.DecimalContext,
 ) -> DecimalChecked {
-  let ieee_context = context.ieee754()
+  let ieee_context = context
   let (value, flags) = @decimal.Decimal::from_string_ctx(source, ieee_context)
   DecimalChecked::from_outcome(value, ieee_context, flags)
 }
@@ -177,7 +177,7 @@ pub fn DecimalChecked::with_context(
   context : @decimal.DecimalContext,
 ) -> DecimalChecked {
   guard self.error_ is None else { return self }
-  let ieee_context = context.ieee754()
+  let ieee_context = context
   let (value, raised) = self.value_.apply_ctx(ieee_context)
   {
     value_: value,

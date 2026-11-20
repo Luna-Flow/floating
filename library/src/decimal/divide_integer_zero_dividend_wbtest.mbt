@@ -29,7 +29,7 @@ test "divide_integer and remainder accept a zero dividend" {
 
 ///|
 test "divide_integer clamps a zero quotient exponent" {
-  let ctx = DecimalContext::new(precision=9, e_min=0, e_max=1, clamp=true)
+  let ctx = DecimalContext::new(precision=9, e_max=1)
   let lhs = Decimal::from_string("-8.95E-6").unwrap()
   let rhs = Decimal::from_string("2.40E-5").unwrap()
   let (value, flags) = lhs.divide_integer_ctx(rhs, ctx)
@@ -42,7 +42,7 @@ test "divide_integer clamps a zero quotient exponent" {
 /// with preferred exponent 0; a clamped context folds that exponent down to
 /// e_max - p + 1 and raises only `clamped`.
 test "divide_integer clamps a zero quotient over an infinite divisor" {
-  let ctx = DecimalContext::new(precision=9, e_min=0, e_max=1, clamp=true)
+  let ctx = DecimalContext::new(precision=9, e_max=1)
   let cases = [
     ("1", "Inf", "0E-7", "1.0000000"),
     ("-1", "Inf", "-0E-7", "-1.0000000"),
@@ -61,10 +61,4 @@ test "divide_integer clamps a zero quotient over an infinite divisor" {
     assert_eq(r.to_string(), remainder)
     assert_true(r_flags == { ..DecimalFlags::new(), clamped: true, })
   }
-  let unclamped = DecimalContext::new(precision=9, e_min=0, e_max=1)
-  let (q, flags) = Decimal::from_string("-1")
-    .unwrap()
-    .divide_integer_ctx(Decimal::from_string("Inf").unwrap(), unclamped)
-  inspect(q.to_string(), content="-0")
-  assert_true(flags == DecimalFlags::new())
 }

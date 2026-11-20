@@ -502,7 +502,7 @@ test "tiny and huge operands: relative width of the enclosure" {
   let ctx = pm1_ctx(34, "half_even", -6143, 6144, true, "b")
   let out = StringBuilder()
   for x in ["1E-1999996", "-3E-1000000", "7E-9999", "1E-30"] {
-    let wide = DecimalContext::new(precision=34, e_min=-999999, e_max=999999)
+    let wide = DecimalContext::new(precision=34, e_max=999999)
     out.write_string("asinpi(\{x}) = \{pii_call("asinpi", x, "", wide)}\n")
     out.write_string("atanpi(\{x}) = \{pii_call("atanpi", x, "", wide)}\n")
     out.write_string("acospi(\{x}) = \{pii_call("acospi", x, "", ctx)}\n")
@@ -510,11 +510,11 @@ test "tiny and huge operands: relative width of the enclosure" {
   inspect(
     out.to_string(),
     content=(
-      #|asinpi(1E-1999996) = 0E-1000032 xrsuc
-      #|atanpi(1E-1999996) = 0E-1000032 xrsuc
+      #|asinpi(1E-1999996) = 0E-1000031 xrsuc
+      #|atanpi(1E-1999996) = 0E-1000031 xrsuc
       #|acospi(1E-1999996) = 0.5000000000000000000000000000000000 xr
-      #|asinpi(-3E-1000000) = -9.5492965855137201461330258023509E-1000001 xrsu
-      #|atanpi(-3E-1000000) = -9.5492965855137201461330258023509E-1000001 xrsu
+      #|asinpi(-3E-1000000) = -9.549296585513720146133025802351E-1000001 xrsu
+      #|atanpi(-3E-1000000) = -9.549296585513720146133025802351E-1000001 xrsu
       #|acospi(-3E-1000000) = 0.5000000000000000000000000000000000 xr
       #|asinpi(7E-9999) = 2.228169203286534700764372687215201E-9999 xr
       #|atanpi(7E-9999) = 2.228169203286534700764372687215201E-9999 xr

@@ -5,8 +5,8 @@
 `Luna-Flow/floating/decimal` is the IEEE 754-2019 decimal floating-point
 package of `floating`. A `Decimal` is an arbitrary-precision decimal value
 that keeps its quantum (exponent), its sign of zero and its NaN payload; a
-`DecimalContext` fixes precision, rounding, exponent range, clamping and
-tininess; every context operation returns the rounded value together with the
+`DecimalContext` is an IEEE 754-2019 format (a precision and an exponent range)
+with one rounding-direction attribute; every context operation returns the rounded value together with the
 `DecimalFlags` it raised. The package also encodes and decodes the
 decimal32/64/128 interchange formats in both DPD and BID, and evaluates
 elementary functions with certified rounding.
@@ -298,9 +298,8 @@ inexact one has `precision` digits ("the preferred exponent is the least
 possible"). A value beyond the exponent range, or far below it, overflows or
 underflows without its digits being formed. An in-range value is converted at
 any binary exponent, correctly rounded, at a cost that does not grow with the
-exponent; only the unlimited precision of `DecimalContext::exact()` needs the
-whole expansion, and a binary exponent beyond $2^{22}$ is then refused with NaN
-and `invalid_context`. `to_bin_float_ctx(ctx)` rounds the exact decimal value once
+exponent; a binary exponent beyond $2^{22}$ is refused with NaN and
+`invalid_context`. `to_bin_float_ctx(ctx)` rounds the exact decimal value once
 under a `BinaryContext` (binary16 to binary128, or any precision and range)
 and returns the `BinaryFlags` (inexact, overflow, underflow); it is the
 conversion of `BinFloat::from_string_ctx`, correctly rounded for any exponent.
@@ -364,11 +363,9 @@ pub fn Decimal::from_string_ctx(String, DecimalContext) -> (Self, DecimalFlags)
 The syntax is the one of `parse`. The value is rounded to the context
 precision (raising `rounded`, and `inexact` when non-zero digits are
 discarded), checked against the exponent range (overflow, subnormal,
-underflow, clamping) and, when `clamp` is set, folded down. A NaN payload with
-more digits than the context allows (precision $-1$ digits when `clamp` is
-set, otherwise precision) is a syntax error. Invalid text returns a quiet NaN
-with only the `conversion_syntax` flag set. In a non-extended context, `Inf`
-and `NaN` spellings are conversion-syntax errors.
+underflow, clamping) and folded down. A NaN payload with more digits than the
+format allows (precision $-1$ digits) is a syntax error. Invalid text returns a
+quiet NaN with only the `conversion_syntax` flag set.
 
 ```moonbit
 ///|
@@ -416,11 +413,15 @@ pub struct DecimalContext {
 } derive(Eq)
 ```
 
-A context holds a precision $p$, one rounding-direction attribute (`rounding`,
-a `DecimalRoundingMode`, the one the arithmetic uses), the
-adjusted-exponent limits $e_{\min} \le e_{\max}$, the `clamp` switch, the
-`extended` switch and a tininess rule. No operation reads ambient state: every
-context operation receives its context as an argument.
+A context is the IEEE 754-2019 format of a precision $p$ and an exponent range
+$[e_{\min}, e_{\max}]$ with $e_{\min} = 1 - e_{\max}$ (§3.3), and one
+rounding-direction attribute (`rounding`, a `DecimalRoundingMode`). Every finite
+result of a context operation is a member of the format: its exponent $q$
+satisfies $e_{\min} \le q + p - 1 \le e_{\max}$, so $q \le e_{\max} - p + 1$
+(large exponents are folded down, as the format requires), and tininess is
+detected before rounding (§7.5). There is no option for any of this. No
+operation reads ambient state: every context operation receives its context as
+an argument.
 
 ### `decimal_implementation_e_max`, `decimal_implementation_e_min`, `decimal_precision_max`
 
@@ -432,84 +433,83 @@ pub let decimal_implementation_e_min : Int
 pub let decimal_precision_max : Int
 ```
 
-They are $999\,999\,999$, $-999\,999\,999$ and $999\,999\,999$, the decNumber
-`decContext.h` limits. `try_new` and `new` check `precision`, `e_min` and
-`e_max` against these constants (`precision` in `1..=decimal_precision_max`,
-`e_min` in `decimal_implementation_e_min..=0`, `e_max` in
-`0..=decimal_implementation_e_max`), so the values cannot drift from the
+They are $999\,999\,999$, $-999\,999\,998$ ($1 - e_{\max}$, the smallest
+$e_{\min}$ of a context) and $999\,999\,999$, the decNumber `decContext.h`
+limits (`decimal_implementation_e_min` was $-999\,999\,999$ before 0.12).
+`try_new` and `new` check `precision` and `e_max` against these constants
+(`precision` in `1..=decimal_precision_max`, `e_max` in
+`1..=decimal_implementation_e_max`), so the values cannot drift from the
 validation. They bound the context only: the certified elementary functions
-have their own, lower limit ($|e| \le 999\,999$ and $p \le 999\,999$), which is
+have their own, lower limit ($e_{\max} \le 999\,999$ and $p \le 999\,999$), which is
 documented in [Elementary functions](#elementary-functions).
 
 ### `DecimalContext::new`, `try_new`
 
-`new` builds a context from named parameters and aborts on an invalid one;
-`try_new` takes the same parameters and returns a `Result`.
+`new` builds the context of an IEEE 754-2019 decimal format from a precision and
+an `e_max` and aborts on an invalid one; `try_new` takes the same parameters and
+returns a `Result`.
 
 ```mbti
-pub fn DecimalContext::new(precision? : Int, rounding? : DecimalRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Self
-pub fn DecimalContext::try_new(precision? : Int, rounding? : DecimalRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn DecimalContext::new(precision? : Int, e_max? : Int, rounding? : DecimalRoundingMode) -> Self
+pub fn DecimalContext::try_new(precision? : Int, e_max? : Int, rounding? : DecimalRoundingMode) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 | Parameter | Default | Meaning |
 | --- | --- | --- |
 | `precision` | 34 | coefficient digits $p$ |
+| `e_max` | $\max(999\,999,\ 1000\,p)$ | the largest exponent $e_{\max}$; $e_{\min}$ is $1 - e_{\max}$ |
 | `rounding` | `RoundTiesToEven` | rounding-direction attribute (IEEE 754-2019 §4.3) |
-| `e_min`, `e_max` | $-999\,999\,999$, $999\,999\,999$ | adjusted-exponent range |
-| `clamp` | `false` | fold large exponents down to $e_{\max}-p+1$ |
-| `extended` | `true` | IEEE/extended arithmetic; `false` selects the GDA subset |
-| `tininess` | `BeforeRounding` | when a result counts as tiny |
 
-`precision` must be in `1..=999,999,999`, `e_min` in
-`-999,999,999..=0`, and `e_max` in `0..=999,999,999`. `try_new` returns
-`Err(domain_error)` naming the invalid field; `new` aborts with a message that
-names it, like `BinaryContext::new`, so use `try_new` for parameters that come
-from outside. These bounds
-adopt decNumber's `decContext.h` limits and keep Etiny, Etop and context
-exponent arithmetic within `Int`. GDA 1.70 specifies no fixed exponent limit
-and requires a balanced range; this library does not enforce that balance
-rule.
+`precision` must be in `1..=999,999,999` and `e_max` in `1..=999,999,999`. The
+default of `e_max` follows IEEE 754-2019 §3.7: an extendable format given by its
+precision alone needs $e_{\max} \ge 1000\,p$ from 51 digits on, and 999,999 is
+the widest range in which every operation of the package runs. `new()` is
+therefore the format $(34,\ 999\,999)$, not decimal128: use `decimal128()` for
+that. A precision above 999,999 has no default range (1000 $p$ exceeds the
+limit): pass `e_max`. `try_new` returns `Err(domain_error)` naming the invalid
+field; `new` aborts with a message that names it, like `BinaryContext::new`, so
+use `try_new` for parameters that come from outside. NOTE 3 of §3.7 says that
+$e_{\max}$ should be at least 2; the library accepts 1, the least value for which
+$e_{\min} \le e_{\max}$ (§3.3).
 
 There is one rounding parameter: finite results, infinities and every other
 use of the context round by it, and `rounding()` reports exactly the mode that
 is applied. The commercial rounding of GDA (`round-half-up`) is
-`RoundTiesToAway`; the GDA modes `round-half-down`, `round-up` and
-`round-05up` are not attributes of an IEEE 754-2019 decimal format and exist
-only in [`decimal_gda`](decimal_gda.md).
+`RoundTiesToAway`; the GDA modes `round-half-down`,
+`round-up` and `round-05up` are not attributes of an IEEE 754-2019 decimal
+format and exist only in [`decimal_gda`](decimal_gda.md). A context has no
+`clamp`, `extended` or `tininess` setting and no unlimited precision (`exact()`
+is gone): an IEEE format always has the exponent range of its quantum, the
+subset arithmetic of the General Decimal Arithmetic appendix is not an IEEE
+format, and exact results are obtained with a precision large enough for the
+digits (a context of `digits(a) + digits(b)` digits and an `e_max` of at least
+the exponent of the product makes `mul_ctx` exact).
 
-> [!IMPORTANT]
-> The default exponent range is wider than the range the elementary
-> functions accept ($|e| \le 999\,999$ and $p \le 999\,999$). With
-> `DecimalContext::new()` they return NaN with `invalid_context`; use a
-> format preset or explicit `e_min`/`e_max`.
+> [!NOTE]
+> The certified elementary functions accept contexts with $e_{\max} \le 999\,999$
+> and $p \le 999\,999$. The default range of `DecimalContext::new` is the largest
+> one inside that limit for $p \le 999$; a context with a larger range (explicit
+> `e_max`, or $p \ge 1000$) makes them return NaN with `invalid_context`.
 
-The subset mode (`extended=false`) reproduces the classic decNumber subset:
-operands longer than $p$ digits are rounded first (raising `lost_digits`),
-zero results lose their sign and exponent, and special-value text is
-rejected. It exists for General Decimal Arithmetic test compatibility.
+### `DecimalContext::decimal32`, `decimal64`, `decimal128`
 
-### `DecimalContext::decimal32`, `decimal64`, `decimal128`, `exact`
-
-These constructors return the interchange-format contexts and an exact
-working context.
+These constructors return the contexts of the IEEE 754-2019 interchange formats
+(§3.6).
 
 ```mbti
 pub fn DecimalContext::decimal32(rounding? : DecimalRoundingMode) -> Self
 pub fn DecimalContext::decimal64(rounding? : DecimalRoundingMode) -> Self
 pub fn DecimalContext::decimal128(rounding? : DecimalRoundingMode) -> Self
-pub fn DecimalContext::exact() -> Self
 ```
 
-| Context | $p$ | $e_{\min}$ | $e_{\max}$ | clamp |
-| --- | ---: | ---: | ---: | --- |
-| `decimal32` | 7 | $-95$ | 96 | yes |
-| `decimal64` | 16 | $-383$ | 384 | yes |
-| `decimal128` | 34 | $-6143$ | 6144 | yes |
+| Context | $p$ | $e_{\min}$ | $e_{\max}$ |
+| --- | ---: | ---: | ---: |
+| `decimal32` | 7 | $-95$ | 96 |
+| `decimal64` | 16 | $-383$ | 384 |
+| `decimal128` | 34 | $-6143$ | 6144 |
 
 All three use `RoundTiesToEven` by default (pass `rounding~` for another
-attribute), extended arithmetic and before-rounding tininess. `exact()` has precision 0, which means "unlimited":
-results keep every digit and no rounding by precision happens; its exponent
-range is the default one. It is the only way to obtain precision 0.
+attribute).
 
 ### `DecimalContext::from_arithmetic_context`
 
@@ -519,15 +519,16 @@ range is the default one. It is the only way to obtain precision 0.
 pub fn DecimalContext::from_arithmetic_context(@arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
-Precision, rounding and clamp are copied; a missing `e_min` or `e_max` becomes
-$\mp 999\,999\,999$. The result is extended and uses before-rounding tininess.
-The conversion returns `Err(domain_error)` if precision is outside
-`1..=999,999,999`, `e_min` outside `-999,999,999..=0`, or `e_max` outside
-`0..=999,999,999`. These are the adopted decNumber `decContext.h` limits; GDA
-1.70 itself sets no fixed limits and its separate balanced-range rule is not
-enforced here.
+Precision and rounding are copied; `clamp` is ignored (it is a property of every
+IEEE format, and the `arithmetic` package's default is `false`). A given `e_max`
+is used; a given `e_min` must equal `1 - e_max` or the conversion returns
+`Err(domain_error)`; `e_min` alone gives `e_max = 1 - e_min`; neither gives the
+default range of `new`. The conversion also returns `Err(domain_error)` for
+`AwayFromZero` (no attribute of §4.3) and when the precision or `e_max` is out of
+range. GDA 1.70 itself sets no fixed limits; these are the adopted decNumber
+`decContext.h` limits.
 
-### `DecimalContext::precision`, `rounding`, `e_min`, `e_max`, `clamp`, `extended`, `tininess`
+### `DecimalContext::precision`, `rounding`, `e_min`, `e_max`
 
 These accessors return the fields of a context.
 
@@ -536,47 +537,9 @@ pub fn DecimalContext::precision(Self) -> Int
 pub fn DecimalContext::rounding(Self) -> DecimalRoundingMode
 pub fn DecimalContext::e_min(Self) -> Int
 pub fn DecimalContext::e_max(Self) -> Int
-pub fn DecimalContext::clamp(Self) -> Bool
-pub fn DecimalContext::extended(Self) -> Bool
-pub fn DecimalContext::tininess(Self) -> DecimalTininessDetection
 ```
 
-`precision` is 0 only for `exact()`.
-
-### `DecimalContext::clamp_fold`, `DecimalContext::with_clamp_fold`
-
-Read and set the opt-in fold-down of a zero `quantize_ctx` result.
-
-```mbti
-pub fn DecimalContext::clamp_fold(Self) -> Bool
-pub fn DecimalContext::with_clamp_fold(Self, Bool) -> Self
-```
-
-Under `clamp` the largest encodable exponent is $e_{\max} - p + 1$ (369 in
-decimal64). IEEE 754-2019 §5.3.2 says nothing about a `quantize_ctx` result that is
-zero and whose requested exponent lies above it (the target must not exceed
-$e_{\max}$): by default the exponent asked for is returned and nothing is
-raised, as before (`quantize_ctx(0, 1E+380)` is `0E+380`). With
-`with_clamp_fold(true)` that zero is folded down to $e_{\max} - p + 1$ and
-`clamped` is raised (`0E+369`), which is what decNumber does (`decQuantizeOp`
-calls `decFinalize` for a zero operand). `rescale_ctx` shares the path. The option
-is `false` by default and in every preset, has no effect without `clamp`, does
-not change a non-zero result, and takes part in `==`; every other operation that
-produces such a zero already folds, with or without it.
-
-```moonbit
-///|
-test "the clamp fold of a zero quantize_ctx result" {
-  let d = fn(s : String) { @decimal.Decimal::from_string(s).unwrap() }
-  let context = @decimal.DecimalContext::decimal64()
-  let (plain, flags) = d("0").quantize_ctx(d("1E+380"), context)
-  inspect(plain, content="0E+380")
-  assert_false(flags.clamped())
-  let (folded, flags) = d("0").quantize_ctx(d("1E+380"), context.with_clamp_fold(true))
-  inspect(folded, content="0E+369")
-  assert_true(flags.clamped())
-}
-```
+`e_min` is always `1 - e_max`.
 
 ### `DecimalContext::refinement_limit`, `DecimalContext::with_refinement_limit`
 
@@ -601,11 +564,7 @@ contexts that differ only in the limit are different.
 ```moonbit
 ///|
 test "a refinement limit makes a hard-to-round result fail" {
-  let context = @decimal.DecimalContext::new(
-    precision=34,
-    e_min=-999_999,
-    e_max=999_999,
-  )
+  let context = @decimal.DecimalContext::new(precision=34, e_max=999_999)
   inspect(context.refinement_limit() == Some(12), content="true")
   // exp(5E-34) lies just above the midpoint 1 + 5E-34 at 34 digits.
   let x = @decimal.Decimal::from_string("5E-34", precision=34).unwrap()
@@ -616,26 +575,21 @@ test "a refinement limit makes a hard-to-round result fail" {
 }
 ```
 
-### `DecimalContext::with_precision`, `with_rounding`, `with_tininess`, `ieee754`, `is754version2019`
+### `DecimalContext::with_precision`, `with_e_max`, `with_rounding`
 
-These functions derive a context or describe its standard.
+These functions derive a context.
 
 ```mbti
 pub fn DecimalContext::with_precision(Self, Int) -> Self
+pub fn DecimalContext::with_e_max(Self, Int) -> Self
 pub fn DecimalContext::with_rounding(Self, DecimalRoundingMode) -> Self
-pub fn DecimalContext::with_tininess(Self, DecimalTininessDetection) -> Self
-pub fn DecimalContext::ieee754(Self) -> Self
-pub fn DecimalContext::is754version2019(Self) -> Bool
 ```
 
-`with_precision` replaces the precision (it aborts outside
-`1..=decimal_precision_max`, like `new`). `with_rounding` replaces the
-rounding-direction attribute. `with_tininess` replaces the tininess rule.
-`ieee754` returns the context unchanged: every context already follows the
-IEEE 754-2019 semantics of this package. `is754version2019` always returns
-`true`.
+`with_precision` replaces the precision and `with_e_max` the exponent range
+(`e_min` follows); both abort outside the limits of `new`. `with_rounding`
+replaces the rounding-direction attribute.
 
-## Rounding modes and tininess
+## Rounding modes
 
 ### `DecimalRoundingMode`
 
@@ -684,29 +638,11 @@ pub fn DecimalRoundingMode::to_arithmetic(Self) -> @arithmetic.RoundingMode?
 does not have. `DecimalContext::from_arithmetic_context` and the `_contextual`
 forms return `Err` for `AwayFromZero`.
 
-### `DecimalTininessDetection`
-
-`DecimalTininessDetection` chooses when a non-zero result is tiny.
-
-```mbti
-pub(all) enum DecimalTininessDetection {
-  BeforeRounding
-  AfterRounding
-}
-```
-
-`BeforeRounding` (the default) calls a result tiny when the adjusted exponent of
-the exact result is below $e_{\min}$, as IEEE 754-2019 §7.5 requires for decimal
-formats; `AfterRounding` uses the result rounded to $p$ digits with unbounded
-exponent and is a non-standard option for callers who want the binary-style
-rule. A tiny result raises `subnormal`, and also `underflow` when it is
-inexact.
-
-The two rules differ only for results just below $10^{e_{\min}}$. With
-$p = 3$, $e_{\min} = 0$ and `HalfEven`, `plus_ctx` of `0.9951` and of `0.99951`
-are both tiny by default and raise `underflow`, `subnormal` and `inexact`.
-Under `AfterRounding` only `0.9951` is (its rounding to three digits is
-$0.995 < 1$); `0.99951` rounds to $1.00$ and raises only `inexact`.
+Tininess is detected before rounding in every context (IEEE 754-2019 §7.5: "For
+decimal formats, tininess is detected before rounding"): a non-zero result whose
+exact magnitude is below $10^{e_{\min}}$ is tiny, whatever the delivered value. A
+tiny result raises `subnormal`, and also `underflow` when it is inexact. There is
+no option for the binary-style after-rounding rule.
 
 ## Status flags
 
@@ -724,7 +660,7 @@ pub struct DecimalFlags {
 | --- | --- |
 | `inexact` | the result differs from the exact result |
 | `rounded` | digits were discarded, even if they were all zero |
-| `lost_digits` | a subset-mode operand longer than $p$ lost non-zero digits |
+| `lost_digits` | never raised since the subset mode went (0.12); the flag is removed with the other GDA flags |
 | `invalid_operation` | the operation is invalid (signaling NaN, $\infty-\infty$, $0\times\infty$, bad quantize, domain error) |
 | `division_by_zero` | an exact infinite result from finite operands ($x/0$, $\ln 0$, $\log_2 0$, $\log_{10} 0$, $\operatorname{logb} 0$, $\operatorname{log1p}(-1)$, $\operatorname{log2p1}(-1)$, $\operatorname{log10p1}(-1)$, $\operatorname{rSqrt}(\pm 0)$, $\operatorname{compound}(-1, n<0)$, $\operatorname{powr}(\pm 0, y<0)$) |
 | `overflow` | the rounded result's adjusted exponent exceeds $e_{\max}$ |
@@ -922,11 +858,11 @@ exponent range: overflow gives the rounding-mode-dependent result of the
 [design page](../design/decimal.md#overflow), a result whose exact magnitude
 is below $10^{e_{\min}}$ is rounded directly to the subnormal grid
 $10^{E_{\text{tiny}}}$ (a normal result is rounded only to $p$ digits, even
-when its exact exponent is below $E_{\text{tiny}}$), and with `clamp` large
+when its exact exponent is below $E_{\text{tiny}}$), and large
 exponents are folded down to $e_{\max}-p+1$. When the exact result fits, the exponent is the
 *preferred exponent* of the operation, so cohorts carry information. NaN
 operands propagate as a quiet NaN with the first NaN's sign and payload (the
-payload is cut to its low $p$ digits, or $p-1$ with `clamp`, as in
+payload is cut to its low $p-1$ digits, as in
 `from_string_ctx` and the interchange encodings); any
 signaling NaN operand raises `invalid_operation`.
 
@@ -963,7 +899,7 @@ with `division_by_zero`; finite$/\infty$ gives a signed zero with exponent
 $E_{\text{tiny}}$ and `clamped`.
 
 When one operand of `add_ctx` or `sub_ctx` lies entirely below every
-rounding boundary of the sum, an extended context does not align it digit by
+rounding boundary of the sum, the operation does not align it digit by
 digit: it is replaced by a sticky unit of the same sign just below those
 boundaries, and the sum is rounded once (see the
 [design](../design/decimal.md#addition-with-a-far-smaller-addend)). With precision 7,
@@ -1013,8 +949,7 @@ The product is formed exactly and added to `z` exactly; only the sum is
 rounded. $0\times\infty + z$ is invalid for a number or infinite `z`; when
 `z` is a quiet NaN the result is that NaN **without** `invalid_operation`
 (IEEE 754-2019 §7.2 leaves this case to the implementation).
-$\infty \cdot y + (-\infty)$ with opposite signs is invalid. In a
-non-extended context the operation returns NaN with `invalid_operation`.
+$\infty \cdot y + (-\infty)$ with opposite signs is invalid.
 
 ### `Decimal::sqrt_ctx`
 
@@ -1072,12 +1007,12 @@ is zero. $x \operatorname{rem} 0$ and $\infty \operatorname{rem} y$ are invalid
 ($0 \operatorname{rem} 0$ also raises `division_undefined`);
 $x \operatorname{rem} \infty = x$.
 
-In an extended clamped context, a zero `divide_integer_ctx` result has its exponent folded
+A zero `divide_integer_ctx` result has its exponent folded
 down to $e_{\max}-p+1$ when exponent 0 is larger; the `clamped` flag is
 raised. Its sign is still the sign of the exact quotient.
 
 For example, `-8.95E-6` divided by `2.40E-5` with precision 9, $e_{\min}=0$,
-$e_{\max}=1$ and clamp enabled gives `-0E-7` with `clamped`. Folding a zero's
+$e_{\max}=1$ gives `-0E-7` with `clamped`. Folding a zero's
 exponent preserves its value and does not raise `rounded` or `inexact`.
 `remainder_trunc_ctx` applies exponent bounds to its own result; clamping its internal
 integer quotient does not contribute a `clamped` flag to the remainder.
@@ -1112,7 +1047,7 @@ resulting coefficient needs more than $p$ digits, when its adjusted exponent
 exceeds $e_{\max}$, or when exactly one operand is infinite. Two infinities
 give the infinity of `x`. The quantum never silently changes to another
 value of the cohort range: if the result cannot have exponent $q_y$ the
-operation fails. The one exception is `clamp`: a target exponent in
+operation fails. The one exception is the fold-down: a target exponent in
 $(e_{\max}-p+1,\ e_{\max}]$ is accepted and the result is then folded down
 to exponent $e_{\max}-p+1$ with `clamped`, like every other result
 (`1E+384` quantized to `1E+384` in decimal64 is `1.000000000000000E+384`).
@@ -1125,7 +1060,7 @@ test "decimal quantize_ctx to cents" {
   let (cents, flags) = d("12.3456").quantize_ctx(d("0.01"), ctx)
   inspect(cents, content="12.35")
   inspect(flags.inexact(), content="true")
-  let small = @decimal.DecimalContext::new(precision=3, e_min=-99, e_max=99)
+  let small = @decimal.DecimalContext::new(precision=3, e_max=100)
   let (bad, bad_flags) = d("999.9").quantize_ctx(d("0.1"), small)
   inspect(bad.is_nan(), content="true")
   inspect(bad_flags.invalid_operation(), content="true")
@@ -1165,9 +1100,8 @@ pub fn Decimal::reduce_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
 `reduce_ctx` applies the context, then removes trailing zeros while the
-exponent stays at most $e_{\max}$ (with `clamp`, at most $e_{\max}-p+1$). A
-zero becomes a zero with exponent 0 (keeping its sign in an extended
-context).
+exponent stays at most $e_{\max}-p+1$. A zero becomes a zero with exponent 0
+(keeping its sign).
 
 ### `Decimal::to_integral_exact_ctx`, `to_integral_value_ctx`
 
@@ -1179,14 +1113,13 @@ pub fn Decimal::to_integral_value_ctx(Self, DecimalContext) -> (Self, DecimalFla
 ```
 
 A finite value with exponent $\ge 0$ is already an integer and is returned
-unchanged, even when it is longer than $p$ digits (a `clamp` context still
-folds its exponent down). A value with negative exponent is quantized to
+unchanged, even when it is longer than $p$ digits (the fold-down of the
+format still applies to its exponent). A value with negative exponent is quantized to
 exponent 0 with the context's rounding mode, at a working precision of
 $\max(p, \text{its digit count})$, so the integral part is never rounded to
 $p$ digits: at precision 3, `12345.6` gives `12346`. `to_integral_exact_ctx`
 reports `rounded`/`inexact` when digits are dropped; `to_integral_value_ctx`
-returns the same value with those two flags cleared. In a subset context the
-operand is first rounded to $p$ digits, with `lost_digits`. Infinities are
+returns the same value with those two flags cleared. Infinities are
 returned unchanged; NaNs are quieted.
 
 IEEE 754 §5.9 defines roundToIntegral for an operand in the context's format
@@ -1242,7 +1175,7 @@ context result: a coefficient longer than $p$ digits is rounded to $p$ digits
 `1.234567890123457E+19` with `inexact`), a subnormal result is rounded to
 $E_{\text{tiny}}$, overflow gives the rounding-mode-dependent result with
 `overflow`, `inexact` and `rounded` (in decimal64 with `TowardZero`, `9E+384`
-scaled by 1 is `9.999999999999999E+384`), and `clamp` folds large exponents
+scaled by 1 is `9.999999999999999E+384`), and large exponents are folded
 down. A zero keeps its sign and has its exponent clamped into the range with
 `clamped`: `0` scaled by 700 in decimal64 is `0E+369`.
 
@@ -1381,8 +1314,7 @@ exponent comes first ($1.00 < 1.0$), for negative values the larger. NaNs of
 the same sign and kind are ordered by payload (reversed for negative NaNs).
 `total_order_compare` returns 0 only for identical representations.
 `total_order_mag(x, y)` is `total_order` of the absolute values. None of them
-takes a context, rounds or raises a flag (the former `_ctx` forms prepared the
-operands for the context, which only mattered in subset mode).
+takes a context, rounds or raises a flag.
 
 ### `Decimal::min`, `max`, `clamp`, `clamp_checked`
 
@@ -1482,7 +1414,7 @@ exact roots such as `rootn_ctx(0.008, 3)` $= 0.2$, exact norms such as
 returned without `inexact`, and an exact binary result such as
 `pow_ctx(4, 1.5)` $= 8$ is returned exactly by the enclosure itself. Integer
 powers are not certified: [`pow_ctx`](#decimalpow_ctx-pown_ctx-rootn_ctx-hypot_ctx-try_pow_ctx-try_pown_ctx-try_rootn_ctx-try_hypot_ctx)
-rounds them once, in an extended context, from the exact power or from
+rounds them once from the exact power or from
 refined directed bounds.
 
 > [!NOTE]
@@ -1534,11 +1466,9 @@ pub fn Decimal::try_log10_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlag
 ```
 
 $e^{\pm 0} = 1$, $e^{+\infty}=+\infty$, $e^{-\infty} = +0$. $\ln$ and
-$\log_{10}$ of $\pm 0$ are $-\infty$ with `division_by_zero` in an extended
-context, as IEEE 754-2019 §9.2.1 requires and as `log2_ctx`, `log1p_ctx` and
+$\log_{10}$ of $\pm 0$ are $-\infty$ with `division_by_zero`, as IEEE 754-2019 §9.2.1 requires and as `log2_ctx`, `log1p_ctx` and
 `logb_ctx` do (General Decimal Arithmetic, which
-[`decimal_gda`](decimal_gda.md) follows, raises no condition here; a subset
-context makes a zero operand invalid); of
+[`decimal_gda`](decimal_gda.md) follows, raises no condition here); of
 $+\infty$ are $+\infty$, of a negative value or $-\infty$ are NaN with
 `invalid_operation`; $\ln 1 = 0$, and $\log_{10}$ of a power of ten is the
 exact integer exponent. Arguments so large or small that $e^x$ certainly
@@ -1568,31 +1498,25 @@ classifies the magnitude of any other base: $|x|<1$ tends to zero for
 $+\infty$ and infinity for $-\infty$, while $|x|>1$ does the reverse; the
 sign of a negative base does not make these cases invalid.
 
-For a zero base and a negative integer exponent, an extended context returns
-the signed infinity selected by the zero sign and exponent parity, with
-`division_by_zero`: for example, $(-0)^{-1}=-\infty$ and $(-0)^{-2}=+\infty$.
-With `extended = false`, every negative integer power of zero instead returns
-NaN with `invalid_operation`, including $0^{-1}$ and $(-0)^{-1}$. In that
-subset context, positive integer powers preserve the zero sign by parity:
-$(-0)^3=-0$ and $(-0)^2=+0$. Zero raised to a negative non-integer exponent
-is positive infinity with `division_by_zero` in an extended context, and NaN
-with `invalid_operation` in a subset context.
+For a zero base and a negative integer exponent, the result is the signed
+infinity selected by the zero sign and exponent parity, with `division_by_zero`:
+for example, $(-0)^{-1}=-\infty$ and $(-0)^{-2}=+\infty$. Positive integer powers
+preserve the zero sign by parity: $(-0)^3=-0$ and $(-0)^2=+0$. Zero raised to a
+negative non-integer exponent is positive infinity with `division_by_zero`.
 
-Integer powers within the bounded count use binary square-and-multiply. In
-extended contexts, an exact power is returned when it fits in $p$ digits;
-otherwise the result is correctly rounded. Subset contexts use
-$p + \operatorname{digits}(|n|) + 1$ working digits with half-even intermediate
-rounding, then apply the reciprocal for a negative exponent. An integral
+Integer powers within the bounded count use binary square-and-multiply. An exact
+power is returned when it fits in $p$ digits; otherwise the result is correctly
+rounded. An integral
 exponent outside the bounded count is still supported: the magnitude is
 certified, and an odd power of a negative base swaps the directed rounding
 modes before restoring its sign. For large integer exponents the zero and
 infinity cases are decided from sign and parity without expanding the exponent:
 for example, `pown_ctx(-0, Int::max_value())` is `-0`,
-`pown_ctx(-0, Int::min_value())` is `+infinity` with `division_by_zero` in an
-extended context, and `pown_ctx(-infinity, Int::min_value())` is `+0`.
+`pown_ctx(-0, Int::min_value())` is `+infinity` with `division_by_zero`, and
+`pown_ctx(-infinity, Int::min_value())` is `+0`.
 
 For other integral exponents, an exact power is returned when it fits in $p$
-digits and otherwise, in an extended context, the correctly rounded power (in
+digits and otherwise the correctly rounded power (in
 decimal32, `pow_ctx(3.339434, 3)` is `37.24077`; the exact cube is
 $37.240765000\ldots$); $x^{0.5}$ is `sqrt_ctx`; positive non-integer powers
 are certified and negative bases with a finite non-integer exponent are
@@ -1927,7 +1851,7 @@ test "decimal certified elementary functions" {
   inspect(d("0.5").sinpi_ctx(ctx).0, content="1")
   let down = ctx.with_rounding(@decimal.DecimalRoundingMode::RoundTowardZero)
   inspect(d("2").ln_ctx(down).0, content="0.6931471805599453")
-  match d("2").try_ln_ctx(@decimal.DecimalContext::new()) {
+  match d("2").try_ln_ctx(@decimal.DecimalContext::new(e_max=999_999_999)) {
     Ok((value, flags)) => {
       inspect(value.is_nan(), content="true")
       inspect(flags.invalid_context(), content="true")
@@ -2178,8 +2102,9 @@ operation and returns `Err(division_by_zero)` when `division_by_zero` was
 raised, `Err(domain_error)` when another `has_error` flag was raised, and
 otherwise `Ok` with diagnostics `inexact`, `rounded`, `overflow`,
 `underflow`, `subnormal` and `clamped` copied from the flags. Because the
-converted context has the default exponent range, `exp_contextual` without
-explicit `e_min`/`e_max` fails with `domain_error` (`invalid_context`).
+converted context has the default exponent range, which the certified functions
+accept for precisions up to 999, `exp_contextual` works at the default range; an
+explicit `e_max` above 999,999 fails with `domain_error` (`invalid_context`).
 
 `zero_contextual` and `one_contextual` have the context precision.
 `epsilon_contextual` is $10^{1-p}$ (`next_up_ctx(1) - 1`).
@@ -2206,7 +2131,7 @@ pub impl @arithmetic.PowIntChecked for Decimal
 
 `parse_checked(s, ctx)` converts `ctx` to `DecimalContext` and uses
 `Decimal::from_string_ctx`, so the context's precision, rounding direction,
-exponent bounds and clamp setting apply. It returns the converted value; flags
+exponent range applies. It returns the converted value; flags
 such as overflow remain available from `from_string_ctx`. Invalid syntax
 returns `Err(parse_error)`. `DivChecked::div_checked(x, y, ctx)` is `div_ctx`
 under the converted context with `Err(division_by_zero)` and
@@ -2217,9 +2142,8 @@ with the integer exponent converted exactly (with at least ten digits, which
 hold every accepted exponent), so at precision 7
 `(-1).pow_int_checked(12345679, ctx)` is `-1`. They return `Ok(1)` for a zero
 or quiet-NaN base with exponent zero, `Err(division_by_zero)` for a zero base with
-a negative exponent in an extended context, and `Err(domain_error)` for an
-invalid result such as a signaling NaN operand or a negative power of zero in
-a subset context. `pow_nat_checked` returns `Err(unsupported)` for exponents
+a negative exponent, and `Err(domain_error)` for an
+invalid result such as a signaling NaN operand. `pow_nat_checked` returns `Err(unsupported)` for exponents
 above 999,999,999. `CompareChecked` is
 [`compare_checked`](#decimalcompare_checked).
 
@@ -2242,7 +2166,7 @@ members are equal (`1.0 == 1.00`), $-0 = +0$, every NaN equals every NaN and
 is greater than every number. Use `total_order_compare` to tell representations
 apart.
 
-### Derived equality: `DecimalContext::equal`, `DecimalContext::not_equal`, `DecimalFlags::equal`, `DecimalFlags::not_equal`, `DecimalRoundingMode::equal`, `DecimalRoundingMode::not_equal`, `DecimalTininessDetection::equal`, `DecimalTininessDetection::not_equal`, `DecimalSignal::equal`, `DecimalSignal::not_equal`, `DecimalInterchangeFormat::equal`, `DecimalInterchangeFormat::not_equal`, `DecimalInterchangeEncoding::equal`, `DecimalInterchangeEncoding::not_equal`
+### Derived equality: `DecimalContext::equal`, `DecimalContext::not_equal`, `DecimalFlags::equal`, `DecimalFlags::not_equal`, `DecimalRoundingMode::equal`, `DecimalRoundingMode::not_equal`, `DecimalSignal::equal`, `DecimalSignal::not_equal`, `DecimalInterchangeFormat::equal`, `DecimalInterchangeFormat::not_equal`, `DecimalInterchangeEncoding::equal`, `DecimalInterchangeEncoding::not_equal`
 
 These are the derived `Eq` methods of the context, flag and enum types.
 
@@ -2253,8 +2177,6 @@ pub fn DecimalFlags::equal(Self, Self) -> Bool
 pub fn DecimalFlags::not_equal(Self, Self) -> Bool
 pub fn DecimalRoundingMode::equal(Self, Self) -> Bool
 pub fn DecimalRoundingMode::not_equal(Self, Self) -> Bool
-pub fn DecimalTininessDetection::equal(Self, Self) -> Bool
-pub fn DecimalTininessDetection::not_equal(Self, Self) -> Bool
 pub fn DecimalSignal::equal(Self, Self) -> Bool
 pub fn DecimalSignal::not_equal(Self, Self) -> Bool
 pub fn DecimalInterchangeFormat::equal(Self, Self) -> Bool
@@ -2263,8 +2185,8 @@ pub fn DecimalInterchangeEncoding::equal(Self, Self) -> Bool
 pub fn DecimalInterchangeEncoding::not_equal(Self, Self) -> Bool
 ```
 
-Contexts compare field by field (precision, both rounding fields, exponent
-limits, clamp, extended, tininess); flag sets compare all thirteen fields.
+Contexts compare field by field (precision, rounding, exponent
+limits, refinement limit); flag sets compare all thirteen fields.
 `DecimalContext::from_arithmetic_context(ArithmeticContext::decimal64())` is
 equal to `DecimalContext::decimal64()`.
 
@@ -2585,31 +2507,23 @@ pub impl Sub for Decimal
 pub struct DecimalContext {
   // private fields
 }
-pub fn DecimalContext::clamp(Self) -> Bool
-pub fn DecimalContext::clamp_fold(Self) -> Bool
 pub fn DecimalContext::decimal128(rounding? : DecimalRoundingMode) -> Self
 pub fn DecimalContext::decimal32(rounding? : DecimalRoundingMode) -> Self
 pub fn DecimalContext::decimal64(rounding? : DecimalRoundingMode) -> Self
 pub fn DecimalContext::e_max(Self) -> Int32
 pub fn DecimalContext::e_min(Self) -> Int32
 pub fn DecimalContext::equal(Self, Self) -> Bool
-pub fn DecimalContext::exact() -> Self
-pub fn DecimalContext::extended(Self) -> Bool
 pub fn DecimalContext::from_arithmetic_context(@arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn DecimalContext::ieee754(Self) -> Self
-pub fn DecimalContext::is754version2019(Self) -> Bool
-pub fn DecimalContext::new(precision? : Int32, rounding? : DecimalRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Self
+pub fn DecimalContext::new(precision? : Int32, e_max? : Int32, rounding? : DecimalRoundingMode) -> Self
 pub fn DecimalContext::not_equal(Self, Self) -> Bool
 pub fn DecimalContext::precision(Self) -> Int32
 pub fn DecimalContext::refinement_limit(Self) -> Int32?
 pub fn DecimalContext::rounding(Self) -> DecimalRoundingMode
-pub fn DecimalContext::tininess(Self) -> DecimalTininessDetection
-pub fn DecimalContext::try_new(precision? : Int32, rounding? : DecimalRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn DecimalContext::with_clamp_fold(Self, Bool) -> Self
+pub fn DecimalContext::try_new(precision? : Int32, e_max? : Int32, rounding? : DecimalRoundingMode) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn DecimalContext::with_e_max(Self, Int32) -> Self
 pub fn DecimalContext::with_precision(Self, Int32) -> Self
 pub fn DecimalContext::with_refinement_limit(Self, Int32?) -> Self
 pub fn DecimalContext::with_rounding(Self, DecimalRoundingMode) -> Self
-pub fn DecimalContext::with_tininess(Self, DecimalTininessDetection) -> Self
 
 #derive(Eq)
 pub struct DecimalFlags {
@@ -2703,14 +2617,6 @@ pub(all) enum DecimalSignal {
 }
 pub fn DecimalSignal::equal(Self, Self) -> Bool
 pub fn DecimalSignal::not_equal(Self, Self) -> Bool
-
-#derive(Eq)
-pub(all) enum DecimalTininessDetection {
-  BeforeRounding
-  AfterRounding
-}
-pub fn DecimalTininessDetection::equal(Self, Self) -> Bool
-pub fn DecimalTininessDetection::not_equal(Self, Self) -> Bool
 
 // Type aliases
 

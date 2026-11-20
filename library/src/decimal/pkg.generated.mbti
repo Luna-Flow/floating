@@ -279,31 +279,23 @@ pub impl Sub for Decimal
 pub struct DecimalContext {
   // private fields
 }
-pub fn DecimalContext::clamp(Self) -> Bool
-pub fn DecimalContext::clamp_fold(Self) -> Bool
 pub fn DecimalContext::decimal128(rounding? : DecimalRoundingMode) -> Self
 pub fn DecimalContext::decimal32(rounding? : DecimalRoundingMode) -> Self
 pub fn DecimalContext::decimal64(rounding? : DecimalRoundingMode) -> Self
 pub fn DecimalContext::e_max(Self) -> Int32
 pub fn DecimalContext::e_min(Self) -> Int32
 pub fn DecimalContext::equal(Self, Self) -> Bool
-pub fn DecimalContext::exact() -> Self
-pub fn DecimalContext::extended(Self) -> Bool
 pub fn DecimalContext::from_arithmetic_context(@arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn DecimalContext::ieee754(Self) -> Self
-pub fn DecimalContext::is754version2019(Self) -> Bool
-pub fn DecimalContext::new(precision? : Int32, rounding? : DecimalRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Self
+pub fn DecimalContext::new(precision? : Int32, e_max? : Int32, rounding? : DecimalRoundingMode) -> Self
 pub fn DecimalContext::not_equal(Self, Self) -> Bool
 pub fn DecimalContext::precision(Self) -> Int32
 pub fn DecimalContext::refinement_limit(Self) -> Int32?
 pub fn DecimalContext::rounding(Self) -> DecimalRoundingMode
-pub fn DecimalContext::tininess(Self) -> DecimalTininessDetection
-pub fn DecimalContext::try_new(precision? : Int32, rounding? : DecimalRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn DecimalContext::with_clamp_fold(Self, Bool) -> Self
+pub fn DecimalContext::try_new(precision? : Int32, e_max? : Int32, rounding? : DecimalRoundingMode) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn DecimalContext::with_e_max(Self, Int32) -> Self
 pub fn DecimalContext::with_precision(Self, Int32) -> Self
 pub fn DecimalContext::with_refinement_limit(Self, Int32?) -> Self
 pub fn DecimalContext::with_rounding(Self, DecimalRoundingMode) -> Self
-pub fn DecimalContext::with_tininess(Self, DecimalTininessDetection) -> Self
 
 #derive(Eq)
 pub struct DecimalFlags {
@@ -397,14 +389,6 @@ pub(all) enum DecimalSignal {
 }
 pub fn DecimalSignal::equal(Self, Self) -> Bool
 pub fn DecimalSignal::not_equal(Self, Self) -> Bool
-
-#derive(Eq)
-pub(all) enum DecimalTininessDetection {
-  BeforeRounding
-  AfterRounding
-}
-pub fn DecimalTininessDetection::equal(Self, Self) -> Bool
-pub fn DecimalTininessDetection::not_equal(Self, Self) -> Bool
 
 // Type aliases
 

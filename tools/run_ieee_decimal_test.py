@@ -73,8 +73,8 @@ class IeeeDecimalCorpusTests(unittest.TestCase):
         checks = {"cases": 23, "operations": 36, "declets": 1024, "encodingBridge": 11,
                   "staticExamples": 19, "elementaryOracle": 3060, "totalOrderPairs": 18816}
         targets = [{"target": "native", "totalCases": 2, "passedCases": 2, "failedCases": 0, "exitCode": 0}]
-        table = [{"target": "native", "table": "pi_inverse", "totalCases": 12753,
-                  "passedCases": 12753, "failedCases": 0, "failedIds": []}]
+        table = [{"target": "native", "table": "pi_inverse", "totalCases": 9691,
+                  "passedCases": 9691, "failedCases": 0, "failedIds": []}]
         for smoke, expected_calls in ((True, 0), (False, 1)):
             with tempfile.TemporaryDirectory() as directory, patch.object(
                 run_ieee_decimal, "collect_corpus_checks", return_value=checks

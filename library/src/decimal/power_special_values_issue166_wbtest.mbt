@@ -78,20 +78,6 @@ test "decimal power identities across formats modes and checked routes" {
   assert_eq(power_issue166_case(d("1").pow_ctx(d("1.5"), down)), "1")
   assert_eq(power_issue166_case(d("1").pow_ctx(d("Inf"), ceiling)), "1")
 
-  let restricted = DecimalContext::new(extended=false)
-  assert_eq(power_issue166_case(d("0").pow_ctx(d("0"), restricted)), "1")
-  assert_eq(
-    power_issue166_case(d("0").pow_ctx(d("-0.5"), restricted)),
-    "nan invalid_operation",
-  )
-  for base in [d("0"), d("-0")] {
-    for exponent in [-1, -2] {
-      assert_eq(
-        power_issue166_case(base.pown_ctx(exponent, restricted)),
-        "nan invalid_operation",
-      )
-    }
-  }
   match d("0").try_pow_ctx(d("0"), DecimalContext::decimal64()) {
     Ok((value, flags)) => {
       assert_eq(value.to_string(), "1")

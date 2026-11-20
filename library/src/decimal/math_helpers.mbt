@@ -352,10 +352,7 @@ fn decimal_power_finite_noninteger_domain_result(
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   if base.coefficient.is_zero() {
     if exponent.negative && !exponent.coefficient.is_zero() {
-      if ctx.extended {
-        return Some(decimal_elementary_division_by_zero(Sign::Positive, ctx))
-      }
-      return Some((Decimal::nan(precision~), invalid_flags()))
+      return Some(decimal_elementary_division_by_zero(Sign::Positive, ctx))
     }
     return Some(
       (
@@ -428,8 +425,7 @@ fn decimal_power_integer_work_ctx(
   ctx : DecimalContext,
 ) -> DecimalContext {
   let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
-  let extra_digits = dec_coeff_from_int_magnitude(count).digits10() +
-    (if ctx.extended { 2 } else { 1 })
+  let extra_digits = dec_coeff_from_int_magnitude(count).digits10() + 2
   // The working context does not clamp: a fold-down of an intermediate product
   // at the working precision is not the result's, and the final rounding to
   // `ctx` clamps the delivered value and raises `clamped` when it does.
@@ -601,7 +597,7 @@ fn decimal_power_integer_bounded_result(
   let one = Decimal::one(
     precision=finite_precision_for_coeff(dec_coeff_from_int(1), work_ctx),
   )
-  let (factor0, initial_flags) = if count < 0 && ctx.extended {
+  let (factor0, initial_flags) = if count < 0 {
     // The reciprocal of repeated multiplication keeps the cohort the division
     // gives (1 / 5E-2 is 2E+1): IEEE 754-2019 5.2 and 9.2.2 take the exponent of
     // an exact power from the preferred exponent, and padding the reciprocal
@@ -649,23 +645,9 @@ fn decimal_power_integer_bounded_result(
       }
     }
   }
-  let (powered, power_flags) = if count < 0 && !ctx.extended {
-    let (reciprocal, reciprocal_flags) = decimal_div_finite_work(
-      one, acc, work_ctx,
-    )
-    // A tiny positive power has a reciprocal beyond the working range: the
-    // overflow of the result (IEEE 754-2019 7.4), with the sign of x^n, not a
-    // finite value to round to the context.
-    guard reciprocal.class == FpClass::Finite else {
-      let negative = base.negative && (abs_int(count) & 1) == 1
-      return decimal_overflow_result(negative, ctx)
-    }
-    (reciprocal, flags.combine(reciprocal_flags))
-  } else {
-    (acc, flags)
-  }
+  let (powered, power_flags) = (acc, flags)
   // An inexact work value is rounded from a full-length member (issue 350).
-  let powered = if ctx.extended && power_flags.inexact {
+  let powered = if power_flags.inexact {
     decimal_pad_coefficient_digits(powered, work_ctx.precision)
   } else {
     powered
@@ -697,7 +679,7 @@ fn decimal_power_large_integer_coeff_result(
   }
   guard !magnitude.is_zero() else { return None }
   let odd = dec_coeff_is_odd(magnitude)
-  let extra_digits = magnitude.digits10() + (if ctx.extended { 2 } else { 1 })
+  let extra_digits = magnitude.digits10() + 2
   let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
   let work_ctx = {
     ..ctx,
@@ -708,7 +690,7 @@ fn decimal_power_large_integer_coeff_result(
   let one = Decimal::one(
     precision=finite_precision_for_coeff(dec_coeff_from_int(1), work_ctx),
   )
-  let (factor0, initial_flags) = if negative_exponent && ctx.extended {
+  let (factor0, initial_flags) = if negative_exponent {
     decimal_div_finite_work(one, base, work_ctx, keep_cohort=true)
   } else {
     (base, DecimalFlags::new())
@@ -719,9 +701,7 @@ fn decimal_power_large_integer_coeff_result(
     // gives the result sign 1 only for an odd integral exponent and a negative
     // base, so (-0.07)^-8 overflows to +Infinity and (-0.07)^-7 to -Infinity.
     return Some(
-      decimal_power_large_integer_terminal_result(
-        base, negative_exponent, odd, initial_flags, ctx,
-      ),
+      decimal_power_large_integer_terminal_result(base, odd, initial_flags, ctx),
     )
   }
   let mut remaining = magnitude
@@ -737,9 +717,7 @@ fn decimal_power_large_integer_coeff_result(
       flags = flags.combine(mul_flags)
       if decimal_power_terminal_work_result(acc, flags) {
         return Some(
-          decimal_power_large_integer_terminal_result(
-            base, negative_exponent, odd, flags, ctx,
-          ),
+          decimal_power_large_integer_terminal_result(base, odd, flags, ctx),
         )
       }
     }
@@ -752,25 +730,13 @@ fn decimal_power_large_integer_coeff_result(
       flags = flags.combine(square_flags)
       if decimal_power_terminal_work_result(factor, flags) {
         return Some(
-          decimal_power_large_integer_terminal_result(
-            base, negative_exponent, odd, flags, ctx,
-          ),
+          decimal_power_large_integer_terminal_result(base, odd, flags, ctx),
         )
       }
     }
   }
-  let (powered, power_flags) = if negative_exponent && !ctx.extended {
-    let (reciprocal, reciprocal_flags) = decimal_div_finite_work(
-      one, acc, work_ctx,
-    )
-    guard reciprocal.class == FpClass::Finite else {
-      return Some(decimal_overflow_result(base.negative && odd, ctx))
-    }
-    (reciprocal, flags.combine(reciprocal_flags))
-  } else {
-    (acc, flags)
-  }
-  let powered = if ctx.extended && power_flags.inexact {
+  let (powered, power_flags) = (acc, flags)
+  let powered = if power_flags.inexact {
     decimal_pad_coefficient_digits(powered, work_ctx.precision)
   } else {
     powered
@@ -796,25 +762,12 @@ fn decimal_power_large_integer_coeff_result(
 ///|
 fn decimal_power_large_integer_terminal_result(
   base : Decimal,
-  negative_exponent : Bool,
   odd : Bool,
   flags : DecimalFlags,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   let negative = base.negative && odd
-  if ctx.extended {
-    if flags.overflow {
-      decimal_overflow_result(negative, ctx)
-    } else {
-      decimal_power_tiny_result(negative, ctx)
-    }
-  } else if negative_exponent {
-    if flags.overflow {
-      decimal_power_tiny_result(negative, ctx)
-    } else {
-      decimal_overflow_result(negative, ctx)
-    }
-  } else if flags.overflow {
+  if flags.overflow {
     decimal_overflow_result(negative, ctx)
   } else {
     decimal_power_tiny_result(negative, ctx)
@@ -829,19 +782,7 @@ fn decimal_power_terminal_result(
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   let negative = base.negative && (abs_int(count) & 1) == 1
-  if ctx.extended {
-    if flags.overflow {
-      decimal_overflow_result(negative, ctx)
-    } else {
-      decimal_power_tiny_result(negative, ctx)
-    }
-  } else if count < 0 {
-    if flags.overflow {
-      decimal_power_tiny_result(negative, ctx)
-    } else {
-      decimal_overflow_result(negative, ctx)
-    }
-  } else if flags.overflow {
+  if flags.overflow {
     decimal_overflow_result(negative, ctx)
   } else {
     decimal_power_tiny_result(negative, ctx)
@@ -859,7 +800,7 @@ fn decimal_power_integer_finite_result(
       ctx,
     ) +
     dec_coeff_from_int_magnitude(count).digits10() +
-    (if ctx.extended { 2 } else { 1 })
+    2
   if required_precision > 999_999_999 {
     let negative = base.negative && (abs_int(count) & 1) == 1
     return (
@@ -896,7 +837,7 @@ fn decimal_power_integer_finite_result(
       }
     }
   }
-  decimal_power_finalize_result(result, ctx)
+  result
 }
 
 ///|
@@ -973,9 +914,7 @@ fn decimal_power_coeff_correctly_rounded_result(
   magnitude : DecCoeff,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
-  guard ctx.extended && ctx.precision > 0 && !magnitude.is_zero() else {
-    return None
-  }
+  guard ctx.precision > 0 && !magnitude.is_zero() else { return None }
   guard base.class == FpClass::Finite && !base.coefficient.is_zero() else {
     return None
   }
@@ -1103,8 +1042,7 @@ fn decimal_power_coeff_correctly_rounded_result(
     // not tell it (1 / 1.00000000000000000001 rounds to 1 at precision 1, but is
     // below 10^0): refine the enclosure first. The exact power is not 10^e_min
     // itself (that would be exact), so the refinement separates it.
-    if ctx.tininess == DecimalTininessDetection::BeforeRounding &&
-      _attempt < 8 &&
+    if _attempt < 8 &&
       adjusted_exponent64(lower) < ctx.e_min.to_int64() &&
       adjusted_exponent64(upper) >= ctx.e_min.to_int64() {
       work_precision = work_precision * 2
@@ -1144,21 +1082,8 @@ fn decimal_power_coeff_correctly_rounded_result(
 }
 
 ///|
-fn decimal_power_finalize_result(
-  result : (Decimal, DecimalFlags),
-  ctx : DecimalContext,
-) -> (Decimal, DecimalFlags) {
-  let value = result.0
-  if ctx.extended || value.class != FpClass::Finite {
-    return result
-  }
-  finish_context_result(value, result.1, ctx, true)
-}
-
-///|
 fn decimal_exp_underflow_zero_result(
   ctx : DecimalContext,
-  clamped : Bool,
 ) -> (Decimal, DecimalFlags) {
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   let result = (
@@ -1168,18 +1093,11 @@ fn decimal_exp_underflow_zero_result(
       underflow: true,
       inexact: true,
       rounded: true,
-      clamped: clamped || ctx.extended,
+      clamped: true,
       subnormal: true,
     },
   )
-  if ctx.extended || clamped {
-    result
-  } else {
-    (
-      finish_subset_finite_result(result.0, ctx, false),
-      { ..result.1, clamped: false, },
-    )
-  }
+  result
 }
 
 ///|
@@ -1193,11 +1111,7 @@ fn decimal_math_target_precision(ctx : DecimalContext) -> Int32 {
 
 ///|
 fn decimal_math_work_ctx(precision : Int32) -> DecimalContext {
-  DecimalContext::new(
-    precision=Int32::max(precision, 1),
-    e_min=-999_999,
-    e_max=999_999,
-  )
+  DecimalContext::raw(Int32::max(precision, 1), -999_999, 999_999)
 }
 
 ///|
@@ -2011,11 +1925,7 @@ fn decimal_exp_extreme_half_even_result(
   let boundary = decimal_exp_boundary_entry(ctx)
   if value.negative {
     if value.compare(boundary.lower) <= 0 {
-      let clamped = match decimal_power_gda_integer_count(value) {
-        Some(count) => count <= -1000
-        None => false
-      }
-      Some(decimal_exp_underflow_zero_result(ctx, clamped))
+      Some(decimal_exp_underflow_zero_result(ctx))
     } else {
       None
     }
@@ -2287,9 +2197,6 @@ fn decimal_power_ieee_special_result(
           }
           FpClass::Finite if base.coefficient.is_zero() => {
             if exponent.negative {
-              if !ctx.extended {
-                return Some((Decimal::nan(precision~), invalid_flags()))
-              }
               return Some(
                 decimal_elementary_division_by_zero(
                   if base.negative && odd {
@@ -2372,19 +2279,6 @@ fn decimal_underflow_zero_result(
 }
 
 ///|
-fn decimal_power_underflow_zero_result(
-  negative : Bool,
-  ctx : DecimalContext,
-) -> (Decimal, DecimalFlags) {
-  let (value, flags) = decimal_underflow_zero_result(negative, ctx)
-  if ctx.extended {
-    (value, flags)
-  } else {
-    (value, { ..flags, clamped: false, })
-  }
-}
-
-///|
 /// The delivered result of a nonzero power whose exact magnitude is below half
 /// of the smallest subnormal `10^Etiny`. IEEE 754-2019 §4.3 and §7.5 round
 /// the exact value in the rounding direction on the subnormal grid, so the
@@ -2397,9 +2291,6 @@ fn decimal_power_tiny_result(
   negative : Bool,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  guard ctx.extended else {
-    return decimal_power_underflow_zero_result(negative, ctx)
-  }
   normalize_decimal_parts_ctx_repr(
     negative,
     dec_coeff_from_int(1),
@@ -2655,14 +2546,7 @@ fn decimal_power_simple_ten_result(
       )
     }
   } else {
-    let flags = if !ctx.extended &&
-      dec_coeff_matches_unit_repr(base.coefficient, 10) &&
-      count < 0 &&
-      abs_int(count) + 1 > precision {
-      { ..DecimalFlags::new(), rounded: true, }
-    } else {
-      DecimalFlags::new()
-    }
+    let flags = DecimalFlags::new()
     Some(
       finalize_finite_ctx(
         finite_with_exponent_repr(

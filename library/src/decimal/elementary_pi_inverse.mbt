@@ -152,7 +152,7 @@ fn decimal_pi_scale_to_unit(value : Decimal) -> (Decimal, Int32) {
 ///|
 fn decimal_pi_is_unit(value : Decimal) -> Bool {
   value.coefficient.digits10() > 0 &&
-  value.abs_ctx(DecimalContext::exact()).0.compare(
+  value.abs_ctx(decimal_exact_work_context()).0.compare(
     Decimal::from_int(1, precision=1),
   ) ==
   0
@@ -179,7 +179,7 @@ fn Decimal::pi_asin_like(
     return Ok(finish(decimal_elementary_invalid(ctx)))
   }
   let one = Decimal::from_int(1, precision=1)
-  let comparison = value.abs_ctx(DecimalContext::exact()).0.compare(one)
+  let comparison = value.abs_ctx(decimal_exact_work_context()).0.compare(one)
   if comparison > 0 {
     return Ok(finish(decimal_elementary_invalid(ctx)))
   }

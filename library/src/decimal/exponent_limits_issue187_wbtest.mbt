@@ -13,10 +13,10 @@ fn issue187_flags(flags : DecimalFlags) -> String {
 ///|
 fn issue187_context(
   precision : Int32,
-  clamp : Bool,
+  _clamp : Bool,
   mode : DecimalRound,
 ) -> DecimalContext {
-  DecimalContext::new(precision~, clamp~).with_round(mode)
+  DecimalContext::new(precision~, e_max=999_999_999).with_round(mode)
 }
 
 ///|
@@ -82,7 +82,7 @@ test "operands with exponents near the Int limits give the specified results (#1
       34,
       false,
       HalfEven,
-      "0E-1000000032",
+      "0E-1000000031",
       "xr...usc",
     ),
     (
@@ -91,27 +91,27 @@ test "operands with exponents near the Int limits give the specified results (#1
       34,
       false,
       HalfEven,
-      "0E-1000000032",
+      "0E-1000000031",
       "xr...usc",
     ),
-    ("sqrt", ["10E-2147483648"], 7, true, HalfEven, "0E-1000000005", "xr...usc"),
-    ("sqrt", ["0E-2147483648"], 7, true, HalfEven, "0E-1000000005", ".......c"),
+    ("sqrt", ["10E-2147483648"], 7, true, HalfEven, "0E-1000000004", "xr...usc"),
+    ("sqrt", ["0E-2147483648"], 7, true, HalfEven, "0E-1000000004", ".......c"),
     (
       "sqrt",
       ["0E-2147483648"],
       34,
       false,
       HalfEven,
-      "0E-1000000032",
+      "0E-1000000031",
       ".......c",
     ),
     (
       "sqrt",
-      ["4E-2000000064"],
+      ["4E-2000000062"],
       34,
       false,
       HalfEven,
-      "2E-1000000032",
+      "2E-1000000031",
       "......s.",
     ),
     ("sqrt", ["5E2147483647"], 34, false, HalfEven, "inf", "xr..o..."),
@@ -184,7 +184,7 @@ test "operands with exponents near the Int limits give the specified results (#1
       34,
       false,
       HalfEven,
-      "-0E-1000000032",
+      "-0E-1000000031",
       "xr...usc",
     ),
     (
@@ -195,7 +195,7 @@ test "operands with exponents near the Int limits give the specified results (#1
       34,
       false,
       Down,
-      "0E-1000000032",
+      "0E-1000000031",
       "xr...usc",
     ),
     ("fma", ["10E0", "1E-1", "1E0"], 2, false, HalfEven, "2.0", "........"),
@@ -266,6 +266,6 @@ test "rescale with an exponent operand beyond Int is invalid (#187)" {
     )
   assert_eq(
     (near.to_string(), issue187_flags(near_flags)),
-    ("-0E-1000000032", "xr...usc"),
+    ("-0E-1000000031", "xr...usc"),
   )
 }

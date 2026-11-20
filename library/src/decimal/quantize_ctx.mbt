@@ -96,7 +96,6 @@ fn decimal_remainder_extended_fast_result(
   divisor : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
-  guard ctx.extended else { return None }
   guard dividend.class == FpClass::Finite &&
     divisor.class == FpClass::Finite &&
     !dividend.coefficient.is_zero() &&
@@ -217,14 +216,9 @@ pub fn Decimal::remainder_trunc_ctx(
         !lhs.negative,
         product,
       )
-      if exact_magnitude.is_zero() && !ctx.extended {
-        return (
-          Decimal::zero(precision=finite_precision_for(bigint_one(), ctx)),
-          operand_flags,
-        )
-      }
+
       let negative = if exact_magnitude.is_zero() {
-        lhs.negative && ctx.extended
+        lhs.negative
       } else {
         exact_negative
       }
@@ -281,7 +275,7 @@ pub fn Decimal::remainder_ctx(
     )
   }
   let quotient_flags = operand_flags.combine(
-    divide_integer_zero_quotient_flags(lhs, rhs, ctx),
+    divide_integer_zero_quotient_flags(),
   )
   if finite_nearest_integer_quotient_is_zero(lhs, rhs) {
     let (value, flags) = zero_quotient_remainder_result(lhs, rhs, ctx)
@@ -292,14 +286,9 @@ pub fn Decimal::remainder_ctx(
       let (exact_negative, exact_magnitude, target) = decimal_nearest_remainder_parts(
         lhs, rhs,
       )
-      if exact_magnitude.is_zero() && !ctx.extended {
-        return (
-          Decimal::zero(precision=finite_precision_for(bigint_one(), ctx)),
-          quotient_flags,
-        )
-      }
+
       let negative = if exact_magnitude.is_zero() {
-        lhs.negative && ctx.extended
+        lhs.negative
       } else {
         exact_negative
       }
@@ -349,14 +338,7 @@ fn Decimal::quantize_impl(
         (FpClass::Infinity, _) | (_, FpClass::Infinity) =>
           (Decimal::nan(precision~), invalid_flags())
         (FpClass::Finite, FpClass::Finite) => {
-          let target = if !ctx.extended &&
-            original_quantum.class == FpClass::Finite &&
-            !original_quantum.coefficient.is_zero() &&
-            original_quantum.exponent10 < -999_999_999 {
-            0
-          } else {
-            original_quantum.exponent10
-          }
+          let target = original_quantum.exponent10
           quantize_finite_to_exponent(self, target, precision, ctx)
         }
         (FpClass::NaN, _) | (_, FpClass::NaN) =>
@@ -375,7 +357,7 @@ fn quantize_finite_to_exponent(
   guard value.class == FpClass::Finite else {
     abort("quantize_finite_to_exponent expects a finite operand")
   }
-  let lower = if ctx.extended { etiny(ctx) } else { ctx.e_min }
+  let lower = etiny(ctx)
   guard target >= lower && target <= ctx.e_max else {
     return (Decimal::nan(precision~), invalid_flags())
   }
@@ -384,27 +366,17 @@ fn quantize_finite_to_exponent(
     // A zero result above `e_max - precision + 1` cannot be encoded under
     // `clamp`; with the opt-in fold it is folded down and flagged, as decNumber's
     // `decFinalize` does (issue 234). Otherwise the exponent asked for is kept.
-    if ctx.clamp_fold && ctx.clamp && ctx.precision > 0 {
+    if ctx.clamp && ctx.precision > 0 {
       let top = etop(ctx, precision)
       if target > top {
         return (
-          finite_with_exponent_repr(
-            negative && ctx.extended,
-            dec_coeff_zero(),
-            top,
-            precision,
-          ),
+          finite_with_exponent_repr(negative, dec_coeff_zero(), top, precision),
           { ..DecimalFlags::new(), clamped: true, },
         )
       }
     }
     return (
-      finite_with_exponent_repr(
-        negative && ctx.extended,
-        dec_coeff_zero(),
-        target,
-        precision,
-      ),
+      finite_with_exponent_repr(negative, dec_coeff_zero(), target, precision),
       DecimalFlags::new(),
     )
   }
@@ -454,14 +426,7 @@ fn quantize_finite_to_exponent(
     ctx,
   )
   let final_flags = { ..final_flags, underflow: false, }
-  if !ctx.extended && result.coefficient.is_zero() {
-    (
-      finite_with_exponent_repr(false, dec_coeff_zero(), target, precision),
-      final_flags,
-    )
-  } else {
-    (result, final_flags)
-  }
+  (result, final_flags)
 }
 
 ///|
@@ -523,17 +488,7 @@ pub fn Decimal::to_integral_exact_ctx(
         ),
         DecimalFlags::new(),
       )
-    FpClass::Finite =>
-      if !ctx.extended && self.coefficient.is_zero() {
-        (
-          Decimal::zero(precision=finite_precision_for(bigint_one(), ctx)),
-          DecimalFlags::new(),
-        )
-      } else if !ctx.extended && self.exponent10 >= 0 {
-        self.apply_ctx(ctx)
-      } else {
-        to_integral_finite(self, ctx)
-      }
+    FpClass::Finite => to_integral_finite(self, ctx)
   }
 }
 
@@ -603,23 +558,10 @@ pub fn Decimal::to_integral_value_ctx(
         ),
         DecimalFlags::new(),
       )
-    FpClass::Finite =>
-      if !ctx.extended && self.coefficient.is_zero() {
-        (
-          Decimal::zero(precision=finite_precision_for(bigint_one(), ctx)),
-          DecimalFlags::new(),
-        )
-      } else if !ctx.extended && self.exponent10 >= 0 {
-        self.apply_ctx(ctx)
-      } else {
-        let (value, flags) = to_integral_finite(self, ctx)
-        // Only the rounding to an integer is silent; digits lost by a
-        // subset operand are still reported.
-        if flags.lost_digits {
-          (value, flags)
-        } else {
-          (value, { ..flags, rounded: false, inexact: false, })
-        }
-      }
+    FpClass::Finite => {
+      // Only the rounding to an integer is silent.
+      let (value, flags) = to_integral_finite(self, ctx)
+      (value, { ..flags, rounded: false, inexact: false, })
+    }
   }
 }

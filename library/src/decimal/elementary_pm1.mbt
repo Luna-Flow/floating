@@ -201,7 +201,7 @@ fn decimal_pm1_tiny_scaled(
   guard !scaled.is_empty() && !scaled.contains_zero() else { return None }
   // The scaled endpoints are moderate: convert them in the widest math
   // context, so that no range representative replaces them.
-  let wide = DecimalContext::new(precision=1, e_min=-999_999, e_max=999_999)
+  let wide = DecimalContext::raw(1, -999_999, 999_999)
   let (lower, upper) = decimal_certified_endpoints(scaled, wide)
   guard lower is Some(lower) &&
     upper is Some(upper) &&

@@ -80,9 +80,11 @@ $$
 N_{\max} = (10^{p} - 1)\cdot 10^{E_{\text{top}}} = 10^{e_{\max}+1} - 10^{e_{\max}-p+1}.
 $$
 
-`DecimalContext` stores exactly $p$, $e_{\min}$, $e_{\max}$, the rounding mode,
-`clamp` (whether exponents above $E_{\text{top}}$ are allowed; see
-[clamping](#clamping)) and the tininess rule. The interchange formats are:
+`DecimalContext` stores exactly $p$, $e_{\max}$ (and $e_{\min} = 1 - e_{\max}$,
+IEEE 754-2019 §3.3) and the rounding mode. Every context is an IEEE format: its
+exponents above $E_{\text{top}}$ are not allowed (see [clamping](#clamping)) and
+tininess is detected before rounding. The library's own working contexts, which
+are not formats, are private. The interchange formats are:
 
 | Format | $p$ | $e_{\max}$ | $e_{\min}$ | $E_{\text{tiny}}$ | $E_{\text{top}}$ | bias $=-E_{\text{tiny}}$ | exponents $E_{\text{top}}-E_{\text{tiny}}+1$ |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -331,7 +333,7 @@ $10^{g}$, and so does every rounding boundary of the sum: the grid $10^{t}$,
 its midpoints, and the grid $10^{t-1}$ with its midpoints, which a
 cancellation can reach. If $0 < |\ell| < 10^{g}$, the sum $h + \ell$ lies
 strictly between the same two neighbours on that grid as the short value
-$h \pm 10^{g-1}$, with the sign of $\ell$. In an extended context `add_ctx`
+$h \pm 10^{g-1}$, with the sign of $\ell$. `add_ctx`
 rounds that value once instead of the exact sum; result and flags are the
 same in every mode. With precision 7, $1598617.000000000001 - 2\cdot
 10^{-12}$ is `1598616` under `Down`, and $6.0000005\cdot 10^{-73} +
@@ -399,8 +401,8 @@ routes, in this order.
    same midpoint test as above, now with the exact remainder as sticky
    information — so the quotient is rounded once.
 
-The third route is used for normal results in extended contexts. For subnormal
-results and subset contexts the code forms the integer quotient of
+The third route is used for normal results. For subnormal
+results the code forms the integer quotient of
 $c_a\,10^{k}$ by $c_b$ with $k = p + \operatorname{digits}(c_b) + 2$ (about
 $\operatorname{digits}(c_a) + p + 2$ digits), rounds it with `ZeroFiveUp`,
 and rounds that guarded quotient once more in the context mode, straight to
@@ -532,23 +534,18 @@ If the exact value is below $10^{e_{\min}}$ and needs an exponent below
 $E_{\text{tiny}}$, it is rounded once to the subnormal grid: the shift becomes
 $s = E_{\text{tiny}} - Q$ and the rounding rule above applies with fewer than
 $p$ digits kept. The result is **tiny** when its adjusted exponent is below
-$e_{\min}$, measured on the exact value (`BeforeRounding`) or on the value
-rounded to $p$ digits with unbounded exponent (`AfterRounding`). IEEE 754-2019
-§7.5 requires the first for decimal formats, so `BeforeRounding` is the default
-and `AfterRounding` is an explicit non-standard option. The two rules differ only for values just below $10^{e_{\min}}$ whose rounding
-to $p$ digits reaches it; only an exact adjusted exponent of $e_{\min} - 1$
-can change sides, so the extra rounding to $p$ digits is done only there.
-With $p = 3$ and $e_{\min} = 0$, $0.9951$ and $0.99951$ are both tiny by
-default (their subnormal-grid result is `1.00`); under `AfterRounding` only
-$0.9951$ is, since it rounds to $0.995$ at three digits, while $0.99951$ rounds
-to $1.00$ and is not. A tiny result raises
+$e_{\min}$, measured on the exact value. IEEE 754-2019 §7.5 requires this for
+decimal formats ("tininess is detected before rounding"); the binary-style rule,
+on the value rounded to $p$ digits with unbounded exponent, was an option of the
+library until 0.12 and is gone. With $p = 3$ and $e_{\min} = 0$, $0.9951$ and
+$0.99951$ are both tiny (their subnormal-grid result is `1.00`). A tiny result raises
 `subnormal`; a tiny **and** inexact result also raises `underflow`, as IEEE 754
 §7.5 requires for default exception handling. A result that rounds to zero
 gets exponent $E_{\text{tiny}}$ and `clamped`.
 
 #### Clamping
 
-With `clamp` (all interchange formats), exponents above $E_{\text{top}}$ are
+In every context, exponents above $E_{\text{top}}$ are
 not representable, because the encoding has room only for
 $E_{\text{top}} - E_{\text{tiny}} + 1$ exponents. A result with $Q' >
 E_{\text{top}}$ that did not overflow is **folded down**: the coefficient is
@@ -576,19 +573,17 @@ test "design: fold-down in decimal32" {
 ```
 
 Zeros have no digits to pad, so their exponent is simply clamped into
-$[E_{\text{tiny}}, E_{\text{top}}]$ (or $[E_{\text{tiny}}, e_{\max}]$ without
-`clamp`), raising `clamped` when it changes.
+$[E_{\text{tiny}}, E_{\text{top}}]$, raising `clamped` when it changes.
 
 A zero is the one result `quantize_ctx` can return above $E_{\text{top}}$: its
 target exponent only has to be at most $e_{\max}$ (a zero has one digit, so
 $e_{\max} - \operatorname{digits} + 1 = e_{\max}$ is the overflow bound of
-decNumber's `decQuantizeOp`), and the zero path then returns the exponent asked
-for without the finishing step. decNumber calls `decFinalize` there, whose
-clamp branch lowers the exponent to $E_{\text{top}}$ and raises `clamped`.
-IEEE 754-2019 §5.3.2 is silent on this, so the default stays as it was and the
-fold is opt-in: `DecimalContext::with_clamp_fold(true)` (off in every preset)
-applies it to a zero `quantize_ctx` and `rescale_ctx` result under `clamp`. Every other
-operation already folds a zero through `finalize_finite_ctx`.
+decNumber's `decQuantizeOp`). decNumber calls `decFinalize` there, whose clamp
+branch lowers the exponent to $E_{\text{top}}$ and raises `clamped`. A result
+of an IEEE format is a member of the format (§3.3), whose exponents stop at
+$E_{\text{top}}$, so `quantize_ctx` and `rescale_ctx` fold a zero like every
+other operation does through `finalize_finite_ctx`; until 0.12 the fold of these two
+was an option (`with_clamp_fold`).
 
 ### Flags as returned values
 
@@ -624,8 +619,7 @@ have at most $p$ digits, $t$ must lie in $[E_{\text{tiny}}, e_{\max}]$ and the
 result's adjusted exponent must not exceed $e_{\max}$. Otherwise the operation
 is invalid. It never substitutes another exponent, because the exponent is
 the contract (an amount quantized to cents must have two decimal places). The
-only change of exponent is the fold-down of [clamping](#clamping): with
-`clamp`, a target $t \in (E_{\text{top}}, e_{\max}]$ is accepted and the
+only change of exponent is the fold-down of [clamping](#clamping): a target $t \in (E_{\text{top}}, e_{\max}]$ is accepted and the
 result is stored at $E_{\text{top}}$ with `clamped`, exactly like any other
 result in that range.
 Rounding a coefficient up can add a digit ($9.99 \to 10.0$ at two digits of
@@ -682,9 +676,8 @@ rounded). The digits are not
 formed for a value whose estimate
 $\lfloor 0.30103\,(\operatorname{bits} + e)\rfloor$ lies more than two beyond
 $e_{\max}$ or three below $E_{\text{tiny}}$, which stands for every such value in
-the rounding (overflow, or a result of zero or the least subnormal). Only the
-unlimited precision of `exact()` needs the whole expansion, and a binary exponent
-beyond $2^{22}$ is then refused. Decimal to binary is the exact decimal text rounded by
+the rounding (overflow, or a result of zero or the least subnormal). A binary exponent
+beyond $2^{22}$ is refused. Decimal to binary is the exact decimal text rounded by
 `BinFloat::from_string_ctx`, which is correctly rounded for any exponent and is
 checked against MPFR; the corpus runs both directions through the MPFR rows of
 `mpfr_strtofr` and `mpfr_get_str` and through exact rows for every pair of
@@ -864,7 +857,7 @@ Three kinds of inputs are decided outside the agreement test:
   square-and-multiply with $p + \operatorname{digits}(n) + 2$ working
   digits. That scheme only ever discards zero digits of an exact power, so
   it reports `inexact` exactly when the true power is inexact, and it gives
-  exact powers their GDA cohort and flags. In an extended context an inexact
+  exact powers their GDA cohort and flags. An inexact
   result is then replaced by the correctly rounded one. With $c$ the
   coefficient stripped of trailing zeros, if $|n| \cdot
   \operatorname{digits}(c) \le \max(4p, 64)$ the exact power $c^{|n|}$ is
@@ -875,8 +868,7 @@ Three kinds of inputs are decided outside the agreement test:
   precision of $p + \operatorname{digits}(n) + 8$ digits, doubled on each
   attempt, are refined until they round to the same representation. So
   $3.339434^3 = 37.240765000\ldots$ is `37.24077` in decimal32. If the
-  bounds leave the working exponent range, and in a context that is not
-  extended, the GDA result is kept; its error is below one unit in the last
+  bounds leave the working exponent range, the GDA result is kept; its error is below one unit in the last
   place. A power that the exponent bounds place below
   $10^{E_{\text{tiny}}-2}$ (including an exact power of ten below
   $10^{E_{\text{tiny}}}$) is not evaluated: it rounds like any non-zero value
@@ -943,7 +935,7 @@ $10^{e_{\max}+2}$ or $10^{E_{\text{tiny}}-2}$
 test); and every other result comes from the Ziv loop above. No result is a
 zero or an infinity chosen because the argument is small or large: a tiny
 result is the rounding of its certified endpoints, so subnormals, `Underflow`
-under either tininess rule, `Clamped` and the sign of a zero are those of the
+under the before-rounding rule, `Clamped` and the sign of a zero are those of the
 context.
 
 The four functions evaluate `expm1(x ln b)` and `log1p(x) / ln b` on the
@@ -1308,7 +1300,7 @@ measurements do not show a crossover.
 - **Single rounding.** Every context result of `+`, `-`, `×`, `/`, `fma`,
   `sqrt`, `scaleb`, quantize and the conversions is the exact result rounded
   once, in the normal and in the subnormal range; integer powers are
-  correctly rounded in extended contexts; certified elementary results are
+  correctly rounded; certified elementary results are
   correctly rounded whenever they are returned, and a failure is reported,
   never approximated. The exceptions are listed under
   [known deviations](#known-deviations).
@@ -1377,8 +1369,7 @@ four targets).
 - keep sticky status or traps (use `decimal_checked` or `decimal_gda`);
 - round the context-free operators to a context: `*` is exact, `+` and `/`
   round to the operand precision only, and none applies an exponent range;
-- guarantee correct rounding of integer powers longer than $p$ digits in a
-  context that is not extended, or the exact flags of exact decimal results
+- guarantee the exact flags of exact decimal results
   of non-integral powers (see [known deviations](#known-deviations));
 - guarantee that elementary-function certification succeeds: after the
   refinement limit of the context (twelve by default, `with_refinement_limit`;

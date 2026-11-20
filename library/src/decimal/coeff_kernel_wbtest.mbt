@@ -375,32 +375,6 @@ test "decimal integer quotient stays in GDA unit accumulator representation" {
 }
 
 ///|
-test "decimal subset operand rounding stays coefficient-native" {
-  let ctx = DecimalContext::new(
-    precision=5,
-    extended=false,
-    rounding=DecimalRoundingMode::RoundTiesToEven,
-  )
-  let (exact, exact_flags) = round_operand_for_subset(
-    Decimal::from_string("1234500", precision=16).unwrap(),
-    ctx,
-  )
-  assert_eq(exact.coefficient.to_bigint(), 12345N)
-  assert_eq(exact.exponent10, 2)
-  assert_true(exact_flags.rounded)
-  assert_false(exact_flags.inexact)
-
-  let (inexact, inexact_flags) = round_operand_for_subset(
-    Decimal::from_string("1234567", precision=16).unwrap(),
-    ctx,
-  )
-  assert_eq(inexact.coefficient.to_bigint(), 12346N)
-  assert_eq(inexact.exponent10, 2)
-  assert_true(inexact_flags.rounded)
-  assert_true(inexact_flags.inexact)
-}
-
-///|
 test "decimal unary finalize and zero compare stay coefficient-native" {
   let ctx = DecimalContext::new(precision=3)
   let value = Decimal::from_string("1234", precision=16).unwrap()
@@ -578,7 +552,6 @@ test "decimal integer parity helper rejects fractional values and tracks signles
 test "scaleb count extracts exponent-zero integers from coeff repr" {
   let ctx = DecimalContext::new(
     precision=9,
-    e_min=-999,
     e_max=999,
     rounding=DecimalRoundingMode::RoundTiesToEven,
   )
@@ -1109,9 +1082,7 @@ test "decimal logical invert and digit motion helpers match bigint formulas" {
 test "decimal div_ctx repr pipeline matches bigint divide normalization" {
   let ctx = DecimalContext::new(
     precision=6,
-    e_min=-20,
     e_max=20,
-    clamp=false,
     rounding=DecimalRoundingMode::RoundTiesToEven,
   )
   let exact_lhs = Decimal::from_string("7.50", precision=8).unwrap()
@@ -1132,9 +1103,7 @@ test "decimal div_ctx repr pipeline matches bigint divide normalization" {
 test "decimal math small-int division repr pipeline matches bigint divide normalization" {
   let work_ctx = DecimalContext::new(
     precision=5,
-    e_min=-12,
     e_max=12,
-    clamp=true,
     rounding=DecimalRoundingMode::RoundTiesToAway,
   )
   let exact = Decimal::from_string("7.50", precision=8).unwrap()
@@ -1153,9 +1122,7 @@ test "decimal math small-int division repr pipeline matches bigint divide normal
 test "decimal math finite division repr pipeline matches bigint divide normalization" {
   let work_ctx = DecimalContext::new(
     precision=5,
-    e_min=-15,
     e_max=15,
-    clamp=false,
     rounding=DecimalRoundingMode::RoundTiesToEven,
   )
   let exact_lhs = Decimal::from_string("7.50", precision=8).unwrap()
@@ -1176,9 +1143,7 @@ test "decimal math finite division repr pipeline matches bigint divide normaliza
 test "decimal repr math normalization and multiplication match bigint path" {
   let work_ctx = DecimalContext::new(
     precision=6,
-    e_min=-20,
     e_max=20,
-    clamp=false,
     rounding=DecimalRoundingMode::RoundTiesToEven,
   )
   let value = Decimal::from_string("1234500E-3", precision=16).unwrap()
@@ -1213,9 +1178,7 @@ test "decimal repr math normalization and multiplication match bigint path" {
 test "decimal scaleb repr construction matches bigint path" {
   let ctx = DecimalContext::new(
     precision=4,
-    e_min=-6,
     e_max=6,
-    clamp=true,
     rounding=DecimalRoundingMode::RoundTiesToAway,
   )
   let regular = Decimal::from_string("12.34", precision=8).unwrap()
@@ -1234,9 +1197,7 @@ test "decimal scaleb repr construction matches bigint path" {
 test "decimal repr normalization matches bigint normalization on finite values" {
   let ctx = DecimalContext::new(
     precision=7,
-    e_min=-20,
     e_max=20,
-    clamp=true,
     rounding=DecimalRoundingMode::RoundTiesToAway,
   )
   let value = Decimal::from_string("1234500E-3", precision=16).unwrap()

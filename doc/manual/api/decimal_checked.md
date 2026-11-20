@@ -76,8 +76,7 @@ pub fn DecimalChecked::from_outcome(@decimal.Decimal, @decimal.DecimalContext, @
 ```
 
 The result is $(\textit{value}, c', \textit{flags}, \textit{flags},
-\text{none})$ with $c' = \textit{context}.\texttt{ieee754()}$ (on the current
-branch `ieee754()` returns the context unchanged). The value is *not*
+\text{none})$ with $c' = \textit{context}$. The value is *not*
 re-rounded; use it with the `(value, flags)` pair returned by a
 `Decimal::*_ctx` call.
 
@@ -382,11 +381,10 @@ $(v, c, r, F, \mathrm{Some}(e))$: the value and flags before the step are kept.
 > As an implementation limit (decNumber's `DEC_MAX_MATH`, required by the
 > decTest suite and permitted by the GDA Invalid context condition), these
 > operations require a context with precision and exponent
-> limits within $\pm 999\,999$. The default `DecimalContext::new` range
-> ($\pm 999\,999\,999$), and any context built by `from_arithmetic_context`
-> from an `ArithmeticContext` without exponent bounds, makes them return NaN
-> with `invalid_context`. Use `decimal32()`, `decimal64()`, `decimal128()` or
-> explicit `e_min` / `e_max`. `pow` and `pown` with an integral exponent,
+> limits within 999,999. A context with a larger `e_max`, or with a precision of
+> 1000 digits or more and no explicit `e_max`, makes them return NaN with
+> `invalid_context`. Use `decimal32()`, `decimal64()`, `decimal128()` or an
+> explicit `e_max` up to 999,999. `pow` and `pown` with an integral exponent,
 > and `pow` with the exponent `0.5`, are not restricted.
 
 ```moonbit
@@ -398,7 +396,7 @@ test "elementary functions under a bounded context" {
   inspect(flags(ln2.raised()), content="inexact,rounded")
   let unbounded = @decimal_checked.DecimalChecked::from_int(
     2,
-    @decimal.DecimalContext::new(precision=16),
+    @decimal.DecimalContext::new(precision=16, e_max=999_999_999),
   ).ln()
   inspect(unbounded.value().to_string(), content="nan")
   inspect(flags(unbounded.raised()), content="invalid_context")

@@ -107,24 +107,24 @@ test "exp2 and exp10 of an argument beyond the binary exponent range (#363)" {
   // 9.2: the result is the correctly rounded value, here the least subnormal
   // 1E-64 (below half of it, rounding toward +inf); 7.5: the rounded result is
   // inexact, so underflow and inexact are raised.
-  let ctx = pm1_ctx(51, "ceiling", -14, 11, false, "b")
+  let ctx = pm1_ctx(51, "ceiling", -14, 15, true, "b")
   for op in ["exp", "exp2", "exp10"] {
     for x in ["-1000", "-100000", "-6773329072.88", "-1E+12"] {
       assert_eq(exp_range_call(op, x, "", ctx), "1E-64 xrsu")
     }
   }
   // Rounding to nearest gives +0 with the same flags (7.5, 9.2).
-  let nearest = pm1_ctx(51, "half_even", -14, 11, false, "b")
+  let nearest = pm1_ctx(51, "half_even", -14, 15, true, "b")
   for op in ["exp", "exp2", "exp10"] {
     let got = exp_range_call(op, "-6773329072.88", "", nearest)
     assert_true(got.has_prefix("0E-64 x"))
   }
   // 7.4: the symmetric overflow, by rounding direction.
-  let down = pm1_ctx(51, "down", -14, 11, false, "b")
+  let down = pm1_ctx(51, "down", -14, 15, true, "b")
   for op in ["exp", "exp2", "exp10"] {
     assert_eq(
       exp_range_call(op, "6773329072.88", "", down),
-      "999999999999.999999999999999999999999999999999999999 xro",
+      "9999999999999999.99999999999999999999999999999999999 xro",
     )
     assert_eq(exp_range_call(op, "6773329072.88", "", ctx), "inf xro")
   }

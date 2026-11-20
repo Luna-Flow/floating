@@ -30,12 +30,12 @@ fn issue168_int(text : String) -> Int32 {
 
 ///|
 fn issue168_context(format : String, mode : DecimalRound) -> DecimalContext {
-  let (precision, e_min, e_max) = match format {
-    "decimal32" => (7, -95, 96)
-    "decimal64" => (16, -383, 384)
-    _ => (34, -6143, 6144)
+  let (precision, e_max) = match format {
+    "decimal32" => (7, 96)
+    "decimal64" => (16, 384)
+    _ => (34, 6144)
   }
-  DecimalContext::new(precision~, e_min~, e_max~, clamp=true).with_round(mode)
+  DecimalContext::new(precision~, e_max~).with_round(mode)
 }
 
 ///|
