@@ -94,8 +94,13 @@ fn normalize_finite_odd(
       exact_top == tiny_top - 1L && bits > 1,
     )
   }
-  let (coefficient1, exponent1) = if bits > precision {
-    let shift = bits - precision
+  // The kept bits are bounded by the precision and by the range together: at
+  // or above 2^e_min the grid has `precision` bits, below it the grid is the
+  // fixed smallest quantum 2^tiny_top, so a leading bit at `exact_top` leaves
+  // only `exact_top - tiny_top + 1` bits (at least 1 here).
+  let kept = Int64::min(precision.to_int64(), exact_top - tiny_top + 1L).to_int()
+  let (coefficient1, exponent1) = if bits > kept {
+    let shift = bits - kept
     (
       bin_coeff_round_shift_for_make(coefficient, shift, negative, mode),
       binary_add_sat(exponent2, shift),

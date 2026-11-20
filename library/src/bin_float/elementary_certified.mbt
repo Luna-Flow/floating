@@ -130,13 +130,12 @@ fn binary_inexact_inner_endpoint(
     scaled.sub_checked(Coeff::one()).unwrap()
   }
   // Built wide enough to be kept: a BinFloat of width w stores nothing below
-  // 2^(e_min - (w - 1)), so an endpoint within a few bits of the implementation
-  // subnormal limit would be flushed at its own bit length.
-  let moved_top = (endpoint.exponent2() - shift).to_int64() +
-    (moved.bit_length() - 1).to_int64()
+  // 2^(e_min - (w - 1)), so every bit of the endpoint, down to its lowest bit
+  // at 2^(e - shift), has to lie on that grid or `make` rounds it.
+  let lowest = (endpoint.exponent2() - shift).to_int64()
   let width = Int64::max(
     moved.bit_length().to_int64(),
-    binary_implementation_e_min.to_int64() - moved_top + 2L,
+    binary_implementation_e_min.to_int64() - lowest + 1L,
   )
   guard width <= 1073741824L else { return endpoint }
   BinFloat::make_coeff(
