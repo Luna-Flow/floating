@@ -299,4 +299,43 @@ pub fn BinFloat::to_interchange(
 }
 
 ///|
+/// IEEE 754-2019 5.4.2 formatOf-convertFormat: the value rounded to `format`
+/// under `rounding` and `tininess`, with its flags, as a `BinFloat` (the
+/// parameters of `to_interchange`, which returns the encoding instead).
+///
+/// A conversion to a wider precision and range is exact; to a narrower one the
+/// result is rounded as specified in Clause 4 (`inexact`, `underflow`,
+/// `overflow`). A signaling NaN gives a quiet NaN and `invalid` (also when the
+/// formats are identical: the canonicalizing conversion of 5.4.2). The payload
+/// of a NaN is kept as far as the destination holds it and otherwise truncated
+/// to its low bits (6.2.3: a quiet NaN converted to a wider format and back
+/// keeps its payload; a payload that does not fit gives "a quiet NaN that
+/// should provide some language-defined diagnostic information"): the result is
+/// the value that decoding `to_interchange(format)` returns.
+pub fn BinFloat::convert_format(
+  self : BinFloat,
+  format : BinaryInterchangeFormat,
+  rounding~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
+  tininess~ : TininessDetection = TininessDetection::AfterRounding,
+) -> (BinFloat, BinaryFlags) {
+  let (value, flags) = self.round_ctx(format.context(rounding~, tininess~))
+  if value.class == FpClass::NaN {
+    // The payload field of the format has precision - 2 bits below the quiet bit.
+    let payload_mask = BinCoeff::one()
+      .shift_left(format.fraction_bits() - 1)
+      .sub_checked(BinCoeff::one())
+      .unwrap()
+    return (
+      BinFloat::quiet_nan(
+        payload=value.nan_payload.bit_and(payload_mask),
+        negative=value.negative,
+        precision=format.precision(),
+      ),
+      flags,
+    )
+  }
+  (value, flags)
+}
+
+///|
 pub extend BinaryInterchange with Eq::{not_equal, equal}
