@@ -118,7 +118,7 @@ fn decimal_random_shape(op : String) -> Int32? {
 fn parse_decimal_random_operand(token : String) -> @decimal.Decimal? {
   // Every digit written is kept: the default precision of `from_string`
   // would round a wide operand or expected value.
-  @decimal.Decimal::from_string(token, precision=Int32::max(token.length(), 1))
+  @decimal.Decimal::from_string(token, precision=Int32::max(token.length(), 1)).to_option()
 }
 
 ///|

@@ -23,12 +23,11 @@ test "context and parse error types are exposed" {
   )
   assert_eq(ctx.precision, 7)
   assert_true(ctx.rounding == @lf_arith.RoundingMode::TowardPositive)
-  let result = @decimal.Decimal::parse("bad", precision=10)
+  let result = @decimal.Decimal::from_string("bad", precision=10)
   match result {
     Ok(_) => fail("expected parse error")
     Err(err) => assert_true(err.is_parse_error())
   }
-  assert_true(@decimal.Decimal::from_string("bad", precision=10) is None)
   assert_true(
     @decimal.Decimal::from_interchange_hex(
       "#77FFFF3FCFF3FCFG",

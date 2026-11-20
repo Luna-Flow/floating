@@ -399,7 +399,7 @@ fn parse_decimal_string_ctx(
 }
 
 ///|
-pub fn Decimal::parse(
+pub fn Decimal::from_string(
   src : String,
   precision~ : Int32 = 34,
 ) -> Result[Decimal, @def.ArithmeticError] {
@@ -457,14 +457,6 @@ pub fn Decimal::parse(
     }
     None =>
       Err(@def.ArithmeticError::parse_error("invalid decimal literal: " + src))
-  }
-}
-
-///|
-pub fn Decimal::from_string(src : String, precision~ : Int32 = 34) -> Decimal? {
-  match Decimal::parse(src, precision~) {
-    Ok(value) => Some(value)
-    Err(_) => None
   }
 }
 

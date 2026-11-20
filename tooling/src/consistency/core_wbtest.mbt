@@ -161,7 +161,7 @@ fn decimal_conformance_operand(
   id : String,
   src : String,
 ) -> @decimal.Decimal raise {
-  let normalized = @decimal.Decimal::parse(src, precision=64)
+  let normalized = @decimal.Decimal::from_string(src, precision=64)
   match normalized {
     Ok(value) => return value
     Err(_) => ()
@@ -184,10 +184,7 @@ fn decimal_conformance_operand(
   if body == "inf" || body == "Inf" || body == "infinity" || body == "Infinity" {
     return @decimal.Decimal::inf(negative~, precision=64)
   }
-  match @decimal.Decimal::from_string(src, precision=64) {
-    Some(value) => value
-    None => fail("invalid decimal conformance operand: " + id + " " + src)
-  }
+  fail("invalid decimal conformance operand: " + id + " " + src)
 }
 
 ///|
@@ -399,7 +396,7 @@ test "bin_float coefficient constructor normalizes canonical dyadics" {
 
 ///|
 test "decimal parses and normalizes" {
-  let x = @decimal.Decimal::parse("0012.3400", precision=20)
+  let x = @decimal.Decimal::from_string("0012.3400", precision=20)
   match x {
     Ok(value) => {
       assert_true(value == @decimal.Decimal::make(1234N, -2, 20))
@@ -412,7 +409,7 @@ test "decimal parses and normalizes" {
 
 ///|
 test "decimal parse accepts special values and rejects malformed special payloads" {
-  match @decimal.Decimal::parse("-Infinity", precision=12) {
+  match @decimal.Decimal::from_string("-Infinity", precision=12) {
     Ok(value) => {
       assert_true(value.classify() == @lf_arith.FpClass::Infinity)
       assert_true(value.is_negative())
@@ -420,7 +417,7 @@ test "decimal parse accepts special values and rejects malformed special payload
     Err(_) => fail("expected infinity parse to succeed")
   }
 
-  match @decimal.Decimal::parse("NaN0012", precision=4) {
+  match @decimal.Decimal::from_string("NaN0012", precision=4) {
     Ok(value) => {
       assert_true(value.is_quiet_nan())
       assert_eq(value.nan_payload(), 12N)
@@ -428,7 +425,7 @@ test "decimal parse accepts special values and rejects malformed special payload
     Err(_) => fail("expected quiet NaN parse to succeed")
   }
 
-  match @decimal.Decimal::parse("-sNaN9", precision=8) {
+  match @decimal.Decimal::from_string("-sNaN9", precision=8) {
     Ok(value) => {
       assert_true(value.is_signaling_nan())
       assert_true(value.is_negative())
@@ -437,17 +434,17 @@ test "decimal parse accepts special values and rejects malformed special payload
     Err(_) => fail("expected signaling NaN parse to succeed")
   }
 
-  match @decimal.Decimal::parse("sNaN12x", precision=8) {
+  match @decimal.Decimal::from_string("sNaN12x", precision=8) {
     Ok(_) => fail("expected malformed signaling NaN payload to fail")
     Err(err) => assert_true(err.is_parse_error())
   }
 
-  match @decimal.Decimal::parse("NaN12345", precision=4) {
+  match @decimal.Decimal::from_string("NaN12345", precision=4) {
     Ok(_) => fail("expected quiet NaN payload beyond precision to fail")
     Err(err) => assert_true(err.is_parse_error())
   }
 
-  match @decimal.Decimal::parse("-sNaN12345", precision=4) {
+  match @decimal.Decimal::from_string("-sNaN12345", precision=4) {
     Ok(_) => fail("expected signaling NaN payload beyond precision to fail")
     Err(err) => assert_true(err.is_parse_error())
   }
@@ -4869,7 +4866,7 @@ test "ball_float_checked keeps interval operations in one result category" {
 
 ///|
 fn decimal_test_operand(src : String) -> @decimal.Decimal {
-  match @decimal.Decimal::parse(src, precision=64) {
+  match @decimal.Decimal::from_string(src, precision=64) {
     Ok(value) => value
     Err(_) => abort("expected decimal parse to succeed: " + src)
   }

@@ -164,14 +164,8 @@ test "decimal checked minimum_number and maximum_number order signed zeros and k
   )
   assert_true(minimum.value().is_negative())
   assert_false(maximum.value().is_negative())
-  let one = match @decimal.Decimal::from_string("1.0") {
-    Some(value) => value
-    None => abort("1.0")
-  }
-  let one_more = match @decimal.Decimal::from_string("1.00") {
-    Some(value) => value
-    None => abort("1.00")
-  }
+  let one = @decimal.Decimal::from_string("1.0").unwrap()
+  let one_more = @decimal.Decimal::from_string("1.00").unwrap()
   let tie_min = DecimalChecked::from_decimal(one, context).minimum_number(
     one_more,
   )
