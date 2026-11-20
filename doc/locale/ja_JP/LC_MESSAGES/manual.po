@@ -2570,7 +2570,7 @@ msgstr "構文は IEEE 754-2019 §5.12.3 の hexSequence です。省略可能�
 
 #: manual/api/bin_float.md:1323
 #: manual/api/decimal_gda.md:1339
-#: manual/design/decimal.md:746
+#: manual/design/decimal.md:748
 #: manual/tutorial/decimal_gda.md:344
 msgid "Interchange encodings"
 msgstr "交換エンコーディング"
@@ -2587,7 +2587,7 @@ msgstr "形式のパラメータ。"
 #: manual/api/cli/mpfr_expr_cli.md:46
 #: manual/design/bin_float.md:107
 #: manual/design/decimal.md:89
-#: manual/design/decimal.md:752
+#: manual/design/decimal.md:754
 #: manual/design/frontend/mpfr_expr.md:48
 msgid "Format"
 msgstr "形式"
@@ -8446,7 +8446,7 @@ msgstr "切り替え点は非公開のターゲット固有ポリシーです。
 
 #: manual/architecture.md:124
 #: manual/design/bin_float.md:816
-#: manual/design/decimal.md:819
+#: manual/design/decimal.md:821
 msgid "Certified elementary functions"
 msgstr "認証付き初等関数"
 
@@ -9964,7 +9964,7 @@ msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行�
 #: manual/design/cli/mpfr_expr_cli.md:51
 #: manual/design/cli/testfloat_expr_cli.md:55
 #: manual/design/consistency.md:70
-#: manual/design/decimal.md:1423
+#: manual/design/decimal.md:1425
 #: manual/design/decimal_checked.md:277
 #: manual/design/decimal_gda.md:930
 #: manual/design/decimal_gda_checked.md:262
@@ -11417,7 +11417,7 @@ msgstr "各区間は精度タグを持ち、二項演算は大きい方のタグ
 #: manual/design/cli/mpfr_expr_cli.md:36
 #: manual/design/cli/testfloat_expr_cli.md:41
 #: manual/design/consistency.md:56
-#: manual/design/decimal.md:1353
+#: manual/design/decimal.md:1355
 #: manual/design/decimal_checked.md:194
 #: manual/design/decimal_gda.md:885
 #: manual/design/decimal_gda_checked.md:205
@@ -11497,7 +11497,7 @@ msgstr "現時点で未解決の制限はありません。負の次数の装飾
 #: manual/design/cli/mpfr_expr_cli.md:44
 #: manual/design/cli/testfloat_expr_cli.md:48
 #: manual/design/consistency.md:63
-#: manual/design/decimal.md:1402
+#: manual/design/decimal.md:1404
 #: manual/design/decimal_checked.md:266
 #: manual/design/decimal_gda.md:914
 #: manual/design/decimal_gda_checked.md:253
@@ -14732,17 +14732,17 @@ msgid "exponents $E_{\\text{top}}-E_{\\text{tiny}}+1$"
 msgstr "指数の個数 $E_{\\text{top}}-E_{\\text{tiny}}+1$"
 
 #: manual/design/decimal.md:91
-#: manual/design/decimal.md:754
+#: manual/design/decimal.md:756
 msgid "decimal32"
 msgstr "decimal32"
 
 #: manual/design/decimal.md:92
-#: manual/design/decimal.md:755
+#: manual/design/decimal.md:757
 msgid "decimal64"
 msgstr "decimal64"
 
 #: manual/design/decimal.md:93
-#: manual/design/decimal.md:756
+#: manual/design/decimal.md:758
 msgid "decimal128"
 msgstr "decimal128"
 
@@ -14799,7 +14799,7 @@ msgid "The kernels implement eight algorithms. A context selects one of the five
 msgstr "カーネルは 8 つのアルゴリズムを実装します。コンテキストが選べるのは IEEE 754-2019 §4.3 が名付ける 5 つのうちの 1 つです（公開の `DecimalRoundingMode`：`RoundTowardZero` は `Down`、`RoundTowardPositive` は `Ceiling`、`RoundTowardNegative` は `Floor`、`RoundTiesToAway` は `HalfUp`、`RoundTiesToEven` は `HalfEven`）。`Up`、`HalfDown`、`ZeroFiveUp` はライブラリの作業用モード（認証済み関数の方向付き境界、除算のガード桁）で、コンテキストからは選べません。下の表ではカーネルでの名前を使います。"
 
 #: manual/design/decimal.md:198
-#: manual/design/decimal.md:558
+#: manual/design/decimal.md:560
 #: manual/design/decimal_gda.md:295
 msgid "Mode"
 msgstr "モード"
@@ -14998,23 +14998,23 @@ msgid "The predicates are those of the finalizer turned around. The exact result
 msgstr "条件は確定処理の条件を裏返したものです。厳密な結果の調整指数を $a$ とすると、単純経路は $e_{\\min} \\le a \\le e_{\\max} - 1$ を要求します。すると結果は微小ではなく（非正規への丸めも `underflow` もない）、丸めが $10^{p}$ へ繰り上がっても調整指数は高々 $e_{\\max}$ なのでオーバーフローしません。丸めた結果の指数は $a - p + 1$、繰り上がりがあればその 1 つ上で、$E_{\\text{tiny}}$ を下回ることはありません。$p$ 桁に満たない厳密な結果では指数は厳密な結果の指数そのままで、クランプする文脈では $e_{\\max} - p + 1$ を超えないことを要求します（超えると確定処理が桁を折り畳みますが、それは一般経路が行います）。和ではさらに、小さい方の調整指数が $\\hat e_1 - p + 1$ を下回らないこと（吸収されるオペランドがない。その場合は独自の粘着経路を使います）と、厳密な和が非零であること（零の和の符号は丸め方向で決まります）を要求し、積と商では非零のオペランドを要求します。有限の十進展開を持つ商は、指数が理想指数の規則に従うので一般経路に任せます。"
 
 #: manual/design/decimal.md:468
-msgid "A sum is formed in one limb array and rounded in place by the kernel; a product is the exact product rounded at the digit count. A quotient is one division of $c_a \\cdot 10^{k}$ with $k = \\max(0, p + 2 + n_b - n_a)$ ($n_a$, $n_b$ the digit counts of the coefficients), which has at least $p + 2$ digits, rounded with `ZeroFiveUp` and then once to $p$ digits, which by the `ZeroFiveUp` lemma above equals one rounding of the exact quotient in every mode. The remainder test of that division also tells a terminating quotient from a non-terminating one. The flag sets are shared constants, like the empty set (`DecimalFlags` is an immutable record compared by value). A 34-digit `add_ctx` makes 5 allocations and 1,739 instructions instead of 20 and 4,427, `mul_ctx` 8 and 2,500 instead of 14 and 3,251, `div_ctx` 13 and 3,840 instead of 38 and 9,212."
-msgstr "和は 1 本のリム配列で作ってカーネルがその場で丸め、積は桁数で丸めた厳密な積です。商は $c_a \\cdot 10^{k}$ の 1 回の除算で、$k = \\max(0, p + 2 + n_b - n_a)$（$n_a$、$n_b$ は係数の桁数）により少なくとも $p + 2$ 桁を得て、`ZeroFiveUp` で丸め、次に $p$ 桁へ 1 回丸めます。上の `ZeroFiveUp` の補題により、これはどのモードでも厳密な商を 1 回丸めたものに等しくなります。この除算の剰余の検査は、有限展開の商と無限展開の商の区別も与えます。フラグ集合は空集合と同じく共有定数です（`DecimalFlags` は値で比較される不変レコードです）。34 桁の `add_ctx` は 5 回の割り当てと 1,739 命令になり（以前は 20 回と 4,427 命令）、`mul_ctx` は 8 回と 2,500 命令（以前は 14 回と 3,251 命令）、`div_ctx` は 13 回と 3,840 命令（以前は 38 回と 9,212 命令）です。"
+msgid "A sum is formed in one limb array and rounded in place by the kernel; a product is the exact product rounded at the digit count. A quotient is one division of $c_a \\cdot 10^{k}$ with $k = \\max(0, p + 2 + n_b - n_a)$ ($n_a$, $n_b$ the digit counts of the coefficients), which has at least $p + 2$ digits, rounded with `ZeroFiveUp` and then once to $p$ digits, which by the `ZeroFiveUp` lemma above equals one rounding of the exact quotient in every mode. The remainder test of that division tells a terminating quotient from a non-terminating one; for the cheap cases (equal coefficients, a divisor of one limb) the test is made before the division, so that an exact quotient does not pay for a division it discards. The flag sets are shared constants, like the empty set (`DecimalFlags` is an immutable record compared by value). A 34-digit `add_ctx` makes 5 allocations and 1,739 instructions instead of 20 and 4,427, `mul_ctx` 8 and 2,500 instead of 14 and 3,251, `div_ctx` 13 and 3,840 instead of 38 and 9,212."
+msgstr "和は 1 本のリム配列で作ってカーネルがその場で丸め、積は桁数で丸めた厳密な積です。商は $c_a \\cdot 10^{k}$ の 1 回の除算で、$k = \\max(0, p + 2 + n_b - n_a)$（$n_a$、$n_b$ は係数の桁数）により少なくとも $p + 2$ 桁を得て、`ZeroFiveUp` で丸め、次に $p$ 桁へ 1 回丸めます。上の `ZeroFiveUp` の補題により、これはどのモードでも厳密な商を 1 回丸めたものに等しくなります。この除算の剰余の検査は有限展開の商と無限展開の商を区別します。安価な場合（係数が等しい、除数が 1 リム）では、この検査を除算の前に行い、厳密な商が捨てられる除算の費用を払わずに済むようにします。フラグ集合は空集合と同じく共有定数です（`DecimalFlags` は値で比較される不変レコードです）。34 桁の `add_ctx` は 5 回の割り当てと 1,739 命令になり（以前は 20 回と 4,427 命令）、`mul_ctx` は 8 回と 2,500 命令（以前は 14 回と 3,251 命令）、`div_ctx` は 13 回と 3,840 命令（以前は 38 回と 9,212 命令）です。"
 
-#: manual/design/decimal.md:480
+#: manual/design/decimal.md:482
 msgid "The general route stays the definition of the behavior, and the plain paths are checked against it: the white-box test compares both on random operands of 1 to 130 digits with mixed signs, cancellations, exponent gaps and carries, at every rounding direction, in clamped and unclamped formats with tight and storage-wide exponent ranges, with operands placed at both ends of the range."
 msgstr "一般経路は引き続き動作の定義であり、単純経路はそれと照合して検査されます。ホワイトボックステストは、1 桁から 130 桁のランダムなオペランド（符号の混在、相殺、指数の間隔、繰り上がりを含む）で両者を比較し、すべての丸め方向、クランプあり・なしの形式、狭い指数範囲と格納幅の指数範囲、範囲の両端に置いたオペランドを網羅します。"
 
-#: manual/design/decimal.md:486
+#: manual/design/decimal.md:488
 #: manual/design/decimal_gda.md:631
 msgid "Square root"
 msgstr "平方根"
 
-#: manual/design/decimal.md:488
+#: manual/design/decimal.md:490
 msgid "Exact roots are detected first: after removing trailing zeros and making the exponent even, the operand is $c'\\,10^{2m}$, and $\\sqrt{x}$ is a decimal if and only if the integer $c'$ is a perfect square. Such a root is returned at the member closest to the preferred exponent $\\lfloor q/2 \\rfloor$; if it has more than $p$ digits it is rounded like any exact result. For every other operand $\\sqrt{x} = \\sqrt{c'}\\,10^{m}$ is irrational."
 msgstr "まず厳密な平方根を検出します。末尾のゼロを取り除き指数を偶数にすると、オペランドは $c'\\,10^{2m}$ となり、$\\sqrt{x}$ が 10 進数になるのは整数 $c'$ が完全平方数であるとき、かつそのときに限ります。そのような平方根は、優先指数 $\\lfloor q/2 \\rfloor$ に最も近いメンバーで返されます。$p$ 桁より長ければ、他の厳密な結果と同様に丸められます。それ以外のすべてのオペランドでは、$\\sqrt{x} = \\sqrt{c'}\\,10^{m}$ は無理数です。"
 
-#: manual/design/decimal.md:495
+#: manual/design/decimal.md:497
 msgid ""
 "For the irrational case let the target exponent be $t = \\max(E_{\\text{tiny}},\\\n"
 "\\lfloor \\operatorname{adj}(x)/2 \\rfloor - p + 1)$. The root has adjusted exponent $\\lfloor \\operatorname{adj}(x)/2 \\rfloor$: from $10^{a} \\le x < 10^{a+1}$ follows $10^{a/2} \\le \\sqrt x < 10^{(a+1)/2}$, and both for even and for odd $a$ the integer part of the exponent is $\\lfloor a/2 \\rfloor$. So $t$ leaves $p$ digits, or stops at the subnormal grid. When $q - 2t \\ge 0$ the operand is scaled to the integer $M = c\\,10^{q - 2t}$ and $r = \\lfloor \\sqrt{M} \\rfloor$ is the truncated root at exponent $t$. When $q - 2t < 0$ the code takes the integer root of $c$ (of $10c$ if $-(q-2t)$ is odd) and divides it by $10^{\\lceil -(q-2t)/2 \\rceil}$; nested floors of a positive real by positive integers compose, so this is again $\\lfloor \\sqrt{x}\\,10^{-t} \\rfloor$. The integer root is computed with Newton's iteration on integers,"
@@ -15022,121 +15022,121 @@ msgstr ""
 "無理数の場合、目標指数を $t = \\max(E_{\\text{tiny}},\\\n"
 "\\lfloor \\operatorname{adj}(x)/2 \\rfloor - p + 1)$ とします。平方根の調整指数は $\\lfloor \\operatorname{adj}(x)/2 \\rfloor$ です。$10^{a} \\le x < 10^{a+1}$ から $10^{a/2} \\le \\sqrt x < 10^{(a+1)/2}$ が従い、$a$ が偶数でも奇数でも指数の整数部分は $\\lfloor a/2 \\rfloor$ だからです。したがって $t$ は $p$ 桁を残すか、非正規化数のグリッドで止まります。$q - 2t \\ge 0$ のとき、オペランドは整数 $M = c\\,10^{q - 2t}$ にスケーリングされ、$r = \\lfloor \\sqrt{M} \\rfloor$ が指数 $t$ で切り捨てた平方根です。$q - 2t < 0$ のとき、コードは $c$ の整数平方根（$-(q-2t)$ が奇数なら $10c$ の整数平方根）をとり、それを $10^{\\lceil -(q-2t)/2 \\rceil}$ で割ります。正の実数を正の整数で順に割るときの床関数の入れ子は 1 つにまとめられるので、これもまた $\\lfloor \\sqrt{x}\\,10^{-t} \\rfloor$ です。整数平方根は整数上の Newton 反復で計算します。"
 
-#: manual/design/decimal.md:514
+#: manual/design/decimal.md:516
 msgid "($N < 10^{\\operatorname{digits}(N)}$ gives $\\sqrt N < 10^{\\operatorname{digits}(N)/2} \\le a_0$). Because $\\lfloor (a + \\lfloor y \\rfloor)/2 \\rfloor = \\lfloor (a + y)/2 \\rfloor$ for an integer $a$, the AM–GM inequality $\\tfrac12(a + N/a) \\ge \\sqrt{N}$ gives $a_{k+1} \\ge \\lfloor \\sqrt N \\rfloor$; and $a_{k+1} < a_k$ exactly when $a_k^2 > N$. The iterates therefore decrease strictly to $\\lfloor \\sqrt N \\rfloor$, where the iteration stops."
 msgstr "（$N < 10^{\\operatorname{digits}(N)}$ から $\\sqrt N < 10^{\\operatorname{digits}(N)/2} \\le a_0$ が従います。）整数 $a$ に対して $\\lfloor (a + \\lfloor y \\rfloor)/2 \\rfloor = \\lfloor (a + y)/2 \\rfloor$ なので、相加相乗平均の不等式 $\\tfrac12(a + N/a) \\ge \\sqrt{N}$ から $a_{k+1} \\ge \\lfloor \\sqrt N \\rfloor$ が得られます。また $a_{k+1} < a_k$ となるのは、$a_k^2 > N$ のとき、かつそのときに限ります。したがって反復値は $\\lfloor \\sqrt N \\rfloor$ まで狭義単調に減少し、そこで反復が停止します。"
 
-#: manual/design/decimal.md:521
+#: manual/design/decimal.md:523
 msgid "Since the root is irrational it is never exact and never a midpoint, so the increment decision needs only the comparison $\\sqrt{x}\\,10^{-t} \\gtrless r + \\tfrac12$, done exactly as $4M \\gtrless (2r+1)^2$ (or $4c \\gtrless (2r+1)^2\\,10^{-(q-2t)}$ in the second branch). Rounding directly at the subnormal target exponent avoids rounding twice for tiny roots."
 msgstr "平方根は無理数なので、決して厳密にはならず中点にもなりません。そのためインクリメントの判定には比較 $\\sqrt{x}\\,10^{-t} \\gtrless r + \\tfrac12$ だけが必要で、これは $4M \\gtrless (2r+1)^2$（2 つ目の分岐では $4c \\gtrless (2r+1)^2\\,10^{-(q-2t)}$）として厳密に行えます。非正規化数の目標指数で直接丸めることで、極小な平方根を 2 回丸めることを避けます。"
 
-#: manual/design/decimal.md:527
+#: manual/design/decimal.md:529
 msgid "A root *can* be exactly halfway when it is exact but longer than $p$ digits: $\\sqrt{6.25} = 2.5$ at $p = 1$ gives `2` under `HalfEven` and `HalfDown` and `3` under `HalfUp`. A halfway root $(r + \\tfrac12)10^{t}$ squares to $(2r+1)^2\\cdot 25 \\cdot 10^{2t-2}$, an odd coefficient with at least $2p+1$ digits when $r$ has $p$ digits ($r \\ge 10^{p-1}$ gives $(2r+1)^2 \\cdot 25 > 10^{2p}$). A normal halfway root therefore needs an operand with more than $2p$ significant digits, and a subnormal one an operand below the format's range. An operand that fits the format (at most $p$ digits, value at least $10^{E_{\\text{tiny}}}$) has a normal root whenever $e_{\\min} \\le 1 - p$, as in all interchange formats, because $\\sqrt{10^{E_{\\text{tiny}}}} = 10^{(e_{\\min}-p+1)/2} \\ge 10^{e_{\\min}}$; for such operands the three half modes agree."
 msgstr "平方根は、厳密だが $p$ 桁より長い場合には、ちょうど中間に*なりうる*のです。$p = 1$ で $\\sqrt{6.25} = 2.5$ は `HalfEven` と `HalfDown` では `2`、`HalfUp` では `3` になります。中間にある平方根 $(r + \\tfrac12)10^{t}$ の 2 乗は $(2r+1)^2\\cdot 25 \\cdot 10^{2t-2}$ であり、$r$ が $p$ 桁のときこれは少なくとも $2p+1$ 桁の奇数の係数です（$r \\ge 10^{p-1}$ から $(2r+1)^2 \\cdot 25 > 10^{2p}$）。したがって、正規化数の中間の平方根には有効桁数が $2p$ を超えるオペランドが必要であり、非正規化数の中間の平方根には形式の範囲を下回るオペランドが必要です。形式に収まるオペランド（高々 $p$ 桁で、値が $10^{E_{\\text{tiny}}}$ 以上）は、すべての交換形式と同様に $e_{\\min} \\le 1 - p$ であれば常に正規化数の平方根を持ちます。$\\sqrt{10^{E_{\\text{tiny}}}} = 10^{(e_{\\min}-p+1)/2} \\ge 10^{e_{\\min}}$ だからです。このようなオペランドでは 3 つの half 系のモードは一致します。"
 
-#: manual/design/decimal.md:540
+#: manual/design/decimal.md:542
 msgid "[Rounding proofs for decimal](../../attachments/design_decimal_rounding.typ) contains the full proofs of the double-rounding lemma, the overflow table, the fold-down bound, the certification lemma and the NTT bound."
 msgstr "[decimal の丸めに関する証明](../../attachments/design_decimal_rounding.typ)には、二重丸めの補題、オーバーフローの表、フォールドダウンの限界、認証の補題、NTT の限界の完全な証明が含まれています。"
 
-#: manual/design/decimal.md:544
+#: manual/design/decimal.md:546
 msgid "Exponent range"
 msgstr "指数範囲"
 
-#: manual/design/decimal.md:546
+#: manual/design/decimal.md:548
 msgid "The finalizer works on the rounded coefficient $C'$ with $p$ digits and exponent $Q'$, i.e. on the value rounded with an unbounded exponent range."
 msgstr "最終化ルーチンは $p$ 桁の丸められた係数 $C'$ と指数 $Q'$、すなわち指数範囲を無制限として丸めた値に対して処理を行います。"
 
-#: manual/design/decimal.md:549
+#: manual/design/decimal.md:551
 #: manual/design/decimal_gda.md:281
 msgid "Overflow"
 msgstr "オーバーフロー"
 
-#: manual/design/decimal.md:551
+#: manual/design/decimal.md:553
 msgid "If $\\operatorname{adj}(C' 10^{Q'}) > e_{\\max}$ the result overflows. IEEE 754 §7.4 defines the delivered result as the rounding of the exact value in a format with the same $p$ but unbounded exponent, then saturated: a direction that never increases magnitude cannot leave the finite range, a direction that may increase it goes to infinity. Hence, with $N_{\\max} = (10^{p}-1)10^{E_{\\text{top}}}$:"
 msgstr "$\\operatorname{adj}(C' 10^{Q'}) > e_{\\max}$ であれば結果はオーバーフローします。IEEE 754 §7.4 は、返される結果を、同じ $p$ で指数が無制限の形式で厳密な値を丸め、それを飽和させたものと定義しています。絶対値を決して増やさない方向は有限の範囲を出られず、増やしうる方向は無限大になります。したがって $N_{\\max} = (10^{p}-1)10^{E_{\\text{top}}}$ とすると、"
 
-#: manual/design/decimal.md:566
+#: manual/design/decimal.md:568
 msgid "The half modes go to infinity because an overflowing exact value is at least $N_{\\max} + \\tfrac12 10^{E_{\\text{top}}}$ (anything smaller rounds to a finite value and does not overflow), which is at or beyond the midpoint between $N_{\\max}$ and the next power of ten. `ZeroFiveUp` saturates because the last digit of $N_{\\max}$ is 9. Every overflow raises `overflow`, `inexact` and `rounded`."
 msgstr "half 系のモードが無限大になるのは、オーバーフローする厳密な値は少なくとも $N_{\\max} + \\tfrac12 10^{E_{\\text{top}}}$ であり（それより小さいものは有限値に丸められてオーバーフローしません）、これは $N_{\\max}$ と次の 10 のべきとの中点以上だからです。`ZeroFiveUp` が飽和するのは、$N_{\\max}$ の最後の桁が 9 だからです。すべてのオーバーフローは `overflow`、`inexact`、`rounded` を立てます。"
 
-#: manual/design/decimal.md:587
+#: manual/design/decimal.md:589
 msgid "Subnormals, tininess and underflow"
 msgstr "非正規化数、極小性、アンダーフロー"
 
-#: manual/design/decimal.md:589
+#: manual/design/decimal.md:591
 msgid "If the exact value is below $10^{e_{\\min}}$ and needs an exponent below $E_{\\text{tiny}}$, it is rounded once to the subnormal grid: the shift becomes $s = E_{\\text{tiny}} - Q$ and the rounding rule above applies with fewer than $p$ digits kept. The result is **tiny** when its adjusted exponent is below $e_{\\min}$, measured on the exact value. IEEE 754-2019 §7.5 requires this for decimal formats (\"tininess is detected before rounding\"); the binary-style rule, on the value rounded to $p$ digits with unbounded exponent, was an option of the library until 0.12 and is gone. With $p = 3$ and $e_{\\min} = 0$, $0.9951$ and $0.99951$ are both tiny (their subnormal-grid result is `1.00`). A tiny **and** inexact result raises `underflow`, as IEEE 754 §7.5 requires for default exception handling. A result that rounds to zero gets exponent $E_{\\text{tiny}}$."
 msgstr "正確な値が $10^{e_{\\min}}$ を下回り、$E_{\\text{tiny}}$ より小さい指数を必要とする場合は、非正規化数のグリッドへ一度だけ丸められます。シフト量は $s = E_{\\text{tiny}} - Q$ となり、上の丸め規則が $p$ 桁未満の保持桁数で適用されます。結果の調整指数が $e_{\\min}$ を下回るとき、その結果は**微小**（tiny）であり、これは正確な値で測ります。IEEE 754-2019 §7.5 は十進形式についてこれを要求しています（「微小性は丸めの前に検出される」）。指数無制限で $p$ 桁に丸めた値に対する二進形式風の規則は、0.12 までこのライブラリのオプションでしたが、廃止されました。$p = 3$、$e_{\\min} = 0$ では、$0.9951$ と $0.99951$ はどちらも微小です（非正規化数のグリッド上の結果は `1.00`）。微小**かつ**不正確な結果は `underflow` を立てます。これは IEEE 754 §7.5 が既定の例外処理に要求することです。ゼロに丸められた結果は指数 $E_{\\text{tiny}}$ を得ます。"
 
-#: manual/design/decimal.md:601
+#: manual/design/decimal.md:603
 #: manual/design/decimal_gda.md:264
 msgid "Clamping"
 msgstr "クランプ"
 
-#: manual/design/decimal.md:603
+#: manual/design/decimal.md:605
 msgid "In every context, exponents above $E_{\\text{top}}$ are not representable, because the encoding has room only for $E_{\\text{top}} - E_{\\text{tiny}} + 1$ exponents. A result with $Q' > E_{\\text{top}}$ that did not overflow is **folded down**: the coefficient is multiplied by $10^{Q' - E_{\\text{top}}}$ and the exponent set to $E_{\\text{top}}$. This never needs more than $p$ digits:"
 msgstr "どのコンテキストでも、$E_{\\text{top}}$ より大きい指数は表現できません。符号化に $E_{\\text{top}} - E_{\\text{tiny}} + 1$ 個の指数分の余地しかないからです。$Q' > E_{\\text{top}}$ でオーバーフローしなかった結果は**折り畳まれ**（fold down）ます。係数に $10^{Q' - E_{\\text{top}}}$ を掛け、指数を $E_{\\text{top}}$ にします。これが $p$ 桁を超えて必要とすることはありません。"
 
-#: manual/design/decimal.md:616
+#: manual/design/decimal.md:618
 msgid "using $\\operatorname{adj} \\le e_{\\max}$. The value is unchanged; only the cohort member changes. In decimal32, `1E+96` is stored as `1000000E+90`."
 msgstr "ここで $\\operatorname{adj} \\le e_{\\max}$ を用いました。値は変わらず、コホートのメンバーだけが変わります。decimal32 では、`1E+96` は `1000000E+90` として格納されます。"
 
-#: manual/design/decimal.md:630
+#: manual/design/decimal.md:632
 msgid "Zeros have no digits to pad, so their exponent is simply clamped into $[E_{\\text{tiny}}, E_{\\text{top}}]$."
 msgstr "ゼロには埋める桁がないので、その指数は単に $[E_{\\text{tiny}}, E_{\\text{top}}]$ にクランプされます。"
 
-#: manual/design/decimal.md:633
+#: manual/design/decimal.md:635
 msgid "A zero is the one result `quantize_ctx` can return above $E_{\\text{top}}$: its target exponent only has to be at most $e_{\\max}$ (a zero has one digit, so $e_{\\max} - \\operatorname{digits} + 1 = e_{\\max}$ is the overflow bound of decNumber's `decQuantizeOp`). decNumber calls `decFinalize` there, whose clamp branch lowers the exponent to $E_{\\text{top}}$. A result of an IEEE format is a member of the format (§3.3), whose exponents stop at $E_{\\text{top}}$, so `quantize_ctx` folds a zero like every other operation does through `finalize_finite_ctx`; until 0.12 the fold of these two was an option (`with_clamp_fold`)."
 msgstr "ゼロは、`quantize_ctx` が $E_{\\text{top}}$ より上で返せる唯一の結果です。その目標指数は $e_{\\max}$ 以下でありさえすればよいのです（ゼロは 1 桁なので、$e_{\\max} - \\operatorname{digits} + 1 = e_{\\max}$ が decNumber の `decQuantizeOp` のオーバーフロー境界です）。decNumber はここで `decFinalize` を呼び、その clamp 分岐が指数を $E_{\\text{top}}$ に下げます。IEEE 形式の結果はその形式のメンバー（§3.3）であり、その指数は $E_{\\text{top}}$ で終わるので、`quantize_ctx` は他のすべての演算と同様に `finalize_finite_ctx` を通じてゼロを折り畳みます。0.12 までは、この二つの折り畳みはオプションでした（`with_clamp_fold`）。"
 
-#: manual/design/decimal.md:643
+#: manual/design/decimal.md:645
 msgid "Flags as returned values"
 msgstr "戻り値としてのフラグ"
 
-#: manual/design/decimal.md:645
+#: manual/design/decimal.md:647
 msgid "**Problem.** IEEE 754 status flags are sticky process state in hardware; GDA adds traps. Hidden state conflicts with the Luna-Flow rule that semantics are explicit, and makes concurrent or compositional code fragile."
 msgstr "**問題。** IEEE 754 のステータスフラグは、ハードウェアではスティッキーなプロセス状態です。GDA はさらにトラップを加えます。隠れた状態は、意味論を明示的にするという Luna-Flow の規則と衝突し、並行なコードや合成的なコードを壊れやすくします。"
 
-#: manual/design/decimal.md:649
+#: manual/design/decimal.md:651
 msgid "**Choice.** Each context operation returns its own `DecimalFlags`. `combine` is the field-wise OR, so flag sets form a commutative idempotent monoid with identity `DecimalFlags::new()`: accumulating them over a pipeline in any grouping gives the same set, which is exactly the sticky-flag semantics without the state. `DecimalFlags` is an immutable record compared by value, so the identity is one shared value and `combine` returns the other operand when one is clear: no flag set is allocated for an operation that raises nothing. `decimal_checked` packages that accumulation; `decimal_gda` implements sticky status and traps as a separate model. The five IEEE exceptions are `invalid_operation`, `division_by_zero`, `overflow`, `underflow` and `inexact`; `DecimalFlags` has exactly these and `not_computed`. The GDA conditions (`rounded`, `subnormal`, `clamped`, `lost_digits`, `conversion_syntax`, `division_impossible`, `division_undefined`, `invalid_context`) belong to `decimal_gda`."
 msgstr "**選択。** 各コンテキスト演算は自身の `DecimalFlags` を返します。`combine` はフィールドごとの OR なので、フラグ集合は単位元 `DecimalFlags::new()` を持つ可換で冪等なモノイドをなします。パイプライン上でどのように括ってフラグを蓄積しても同じ集合が得られ、これは状態を除いた粘着フラグの意味論そのものです。`DecimalFlags` は値で比較される不変のレコードなので、単位元は共有された 1 つの値であり、片方が空のとき `combine` はもう片方のオペランドを返します。何も立てない演算ではフラグ集合は確保されません。`decimal_checked` はこの蓄積をまとめたものです。`decimal_gda` は粘着状態とトラップを別のモデルとして実装します。五つの IEEE 例外は `invalid_operation`、`division_by_zero`、`overflow`、`underflow`、`inexact` で、`DecimalFlags` はちょうどこれらと `not_computed` を持ちます。GDA の条件（`rounded`、`subnormal`、`clamped`、`lost_digits`、`conversion_syntax`、`division_impossible`、`division_undefined`、`invalid_context`）は `decimal_gda` に属します。"
 
-#: manual/design/decimal.md:663
+#: manual/design/decimal.md:665
 msgid "Quantize and same-quantum"
 msgstr "quantize と same-quantum"
 
-#: manual/design/decimal.md:665
+#: manual/design/decimal.md:667
 msgid "`x.quantize(y)` returns the value of $x$ with exponent exactly $t = q_y$:"
 msgstr "`x.quantize(y)` は、指数がちょうど $t = q_y$ である $x$ の値を返します。"
 
-#: manual/design/decimal.md:675
+#: manual/design/decimal.md:677
 msgid "The result must be representable *at that exponent*: the new coefficient must have at most $p$ digits, $t$ must lie in $[E_{\\text{tiny}}, e_{\\max}]$ and the result's adjusted exponent must not exceed $e_{\\max}$. Otherwise the operation is invalid. It never substitutes another exponent, because the exponent is the contract (an amount quantized to cents must have two decimal places). The only change of exponent is the fold-down of [clamping](#clamping): a target $t \\in (E_{\\text{top}}, e_{\\max}]$ is accepted and the result is stored at $E_{\\text{top}}$, exactly like any other result in that range. Rounding a coefficient up can add a digit ($9.99 \\to 10.0$ at two digits of precision), which is why the digit check comes after rounding. `same_quantum` is the predicate $q_x = q_y$ (true for two infinities or two NaNs); it is the test to use before combining values whose exponents must agree."
 msgstr "結果は*その指数で*表現できなければなりません。新しい係数は高々 $p$ 桁で、$t$ は $[E_{\\text{tiny}}, e_{\\max}]$ にあり、結果の調整指数は $e_{\\max}$ を超えてはなりません。そうでなければ演算は無効です。別の指数に置き換えることは決してありません。指数こそが契約だからです（セントに量子化した金額は小数点以下 2 桁でなければなりません）。指数が変わる唯一の場合は[クランプ](#clamping)の折り畳みです。目標 $t \\in (E_{\\text{top}}, e_{\\max}]$ は受け入れられ、結果はその範囲の他の結果とまったく同様に $E_{\\text{top}}$ で格納されます。係数を切り上げると桁が一つ増えることがあるので（精度 2 桁での $9.99 \\to 10.0$）、桁数の検査は丸めの後に行われます。`same_quantum` は述語 $q_x = q_y$ です（二つの無限大または二つの NaN では真）。指数が一致しなければならない値を組み合わせる前に使うべき検査です。"
 
-#: manual/design/decimal.md:689
+#: manual/design/decimal.md:691
 msgid "Conversion to integers"
 msgstr "整数への変換"
 
-#: manual/design/decimal.md:691
+#: manual/design/decimal.md:693
 msgid "`to_int_ctx` and its three siblings (IEEE 754-2019 §5.4.1 and §5.8) share one function that rounds a finite value $c\\,10^{q}$ to an integer in the direction of the context and checks the range, so the four types differ only in their limits. A value with $q \\ge 0$ is an integer already; one with $q < 0$ is $c / 10^{-q}$ rounded by the same decision function that rounds decimal results (the kernel's rounding decisions: increment or not from the discarded digits and the mode), and `changed` is whether anything was discarded. The power of ten is never formed. An integer of 21 or more digits is out of range for every type ($2^{64}$ has 20 digits), so $\\operatorname{digits}(c) + q > 20$ is decided before any arithmetic, and a fraction with more than $\\operatorname{digits}(c) + 1$ places is the same as one with exactly that many: the value is below $0.1$, and the rounding decision only needs to know that the remainder is nonzero and below one half, so the shift is clamped to $\\operatorname{digits}(c) + 1$. `1E+999999` and `1E-999999` therefore cost as much as `1E+3` and `1E-3`. The invalid operation is signaled for a NaN, an infinity and an out-of-range result, and then only: `exact` adds `inexact` when `changed`, nothing else is ever raised (no `rounded`, no clamping: the result is not a decimal), and a negative value that rounds to zero converts to `0`."
 msgstr "`to_int_ctx` とその三つの仲間（IEEE 754-2019 §5.4.1 と §5.8）は一つの関数を共有し、有限の値 $c\\,10^{q}$ を文脈の方向で整数に丸めて範囲を検査するので、四つの型は限界だけが異なります。$q \\ge 0$ の値はすでに整数で、$q < 0$ の値は $c / 10^{-q}$ であり、十進の結果を丸めるのと同じ決定関数（カーネルの丸め決定：捨てた桁とモードから繰り上げるかどうか）で丸められ、`changed` は何かを捨てたかどうかです。10 の冪は作りません。21 桁以上の整数はどの型でも範囲外（$2^{64}$ は 20 桁）なので、$\\operatorname{digits}(c) + q > 20$ は演算の前に判定され、小数部が $\\operatorname{digits}(c) + 1$ 桁を超える分数は、ちょうどその桁数の分数と同じです。値は $0.1$ 未満で、丸めの決定は余りが非零で 1/2 未満であることだけを知ればよいので、シフトは $\\operatorname{digits}(c) + 1$ に制限されます。したがって `1E+999999` と `1E-999999` のコストは `1E+3` と `1E-3` と同じです。無効操作は NaN、無限大、範囲外の結果にだけ通知され、それ以外には通知されません。`exact` は `changed` のとき `inexact` を加え、ほかは何も立てません（`rounded` も clamp もありません。結果は十進数ではないためです）。負の値がゼロに丸まる場合は `0` に変換されます。"
 
-#: manual/design/decimal.md:711
+#: manual/design/decimal.md:713
 msgid "Conversions between formats"
 msgstr "形式間の変換"
 
-#: manual/design/decimal.md:713
+#: manual/design/decimal.md:715
 msgid "`convert_format`, `from_bin_float_ctx` and `to_bin_float_ctx` (IEEE 754-2019 §5.4.2) are thin on purpose: each rounds the exact source value once, in the destination's context, and returns the flags of that rounding. Decimal to decimal is `apply_ctx` of the format's context, so the preferred exponent $Q(\\text{source})$ is the one the normalization keeps when the value fits. Binary to decimal does not form the expansion $c\\,2^e$, whose cost grows with $|e|$: it takes the first $p + 1$ significant digits of $|x|$, truncated, from the correctly rounded digit string of `BinFloat::to_decimal_string_ctx`, appends a sticky digit $1$ when digits were dropped, and rounds that decimal once with `apply_ctx`. A rounding of a decimal depends on the digits beyond the kept ones only as zero, below half, a tie or above half, and the surrogate (the digits and the sticky digit) lies strictly inside the unit after the truncated digits as $x$ does, so for every kept length up to $p$ (fewer digits for a subnormal result, so nothing is rounded twice) the result and its flags are those of $x$, and the tininess of the unrounded value is the one of $x$ (same leading digit). An exact value has no sticky digit; its trailing zeros are dropped and an integer takes exponent 0, the preferred exponent, or, when it has more than $p$ digits, the member closest to it (IEEE 754-2019 §5.2): zeros are appended up to $p + 1$ digits, and the zero that `apply_ctx` rounds away leaves the $p$-digit member with the exponent closest to 0 (`1E+20` in decimal64 is `1000000000000000E+5`, flagged rounded). The digits are not formed for a value whose estimate $\\lfloor 0.30103\\,(\\operatorname{bits} + e)\\rfloor$ lies more than two beyond $e_{\\max}$ or three below $E_{\\text{tiny}}$, which stands for every such value in the rounding (overflow, or a result of zero or the least subnormal). A binary exponent beyond $2^{22}$ is refused. Decimal to binary is the exact decimal text rounded by `BinFloat::from_string_ctx`, which is correctly rounded for any exponent and is checked against MPFR; the corpus runs both directions through the MPFR rows of `mpfr_strtofr` and `mpfr_get_str` and through exact rows for every pair of decimal32/64/128 and binary16/32/64/128 (`tools/generate_decimal_conversion_rows.py`). A NaN keeps its sign and the payload it can hold ($p - 1$ digits, $p - 2$ bits), and a signaling NaN is quieted with the invalid operation exception."
 msgstr "`convert_format`、`from_bin_float_ctx`、`to_bin_float_ctx`（IEEE 754-2019 §5.4.2）は意図的に薄く作られています。それぞれが厳密なソース値を変換先のコンテキストで一度だけ丸め、その丸めのフラグを返します。十進から十進への変換は形式のコンテキストの `apply_ctx` なので、値が収まるとき正規化が保つのが優先指数 $Q(\\text{source})$ です。二進から十進への変換は、$|e|$ とともにコストが増える展開 $c\\,2^e$ を作りません。`BinFloat::to_decimal_string_ctx` の正しく丸められた桁列から $|x|$ の最初の $p + 1$ 桁の有効数字（切り捨て）を取り、桁を捨てた場合は粘着桁 $1$ を付け、その十進数を `apply_ctx` で一度だけ丸めます。十進数の丸めは、保持する桁より後ろの桁にゼロ、半分未満、ちょうど半分、半分超という区別だけで依存し、代役（その桁と粘着桁）は $x$ と同様に切り捨てた桁の次の単位の厳密に内側にあるので、$p$ までのどの保持長でも（非正規化数の結果ではさらに少ない桁にして二重に丸めないようにします）、結果とそのフラグは $x$ のものと同じで、丸め前の値の極小性も $x$ のものと同じです（先頭桁が同じ）。厳密な値には粘着桁がなく、末尾のゼロは落とされ、整数は指数 0、すなわち優先指数になります。$p$ 桁を超える場合はそれに最も近い要素になります（IEEE 754-2019 §5.2）。ゼロを $p + 1$ 桁まで補い、`apply_ctx` が丸めて捨てるゼロの後に、指数が 0 に最も近い $p$ 桁の要素が残ります（decimal64 の `1E+20` は `1000000000000000E+5` で、rounded フラグが立ちます）。推定値 $\\lfloor 0.30103\\,(\\operatorname{bits} + e)\\rfloor$ が $e_{\\max}$ を 2 より超えるか $E_{\\text{tiny}}$ を 3 より下回る値では桁を作りません。これはそのような値すべての丸めでの結果（オーバーフロー、またはゼロか最小の非正規化数）を代表します。$2^{22}$ を超える二進指数は拒否されます。十進から二進への変換は、`BinFloat::from_string_ctx` が丸める厳密な十進テキストで、任意の指数に対して正しく丸められ、MPFR と照合されています。コーパスは `mpfr_strtofr` と `mpfr_get_str` の MPFR の行と、decimal32/64/128 と binary16/32/64/128 のすべての組の厳密な行（`tools/generate_decimal_conversion_rows.py`）で両方向を通します。NaN は符号と保持できるペイロード（$p - 1$ 桁、$p - 2$ ビット）を保ち、シグナリング NaN は quiet 化されて無効操作の例外が立ちます。"
 
-#: manual/design/decimal.md:748
+#: manual/design/decimal.md:750
 msgid "All three formats share one layout: a sign bit, a 5-bit *combination field* $G$, $w$ *exponent continuation* bits and a *trailing significand* of $10J$ bits, where $p = 3J + 1$:"
 msgstr "3 つの形式はすべて同じレイアウトを共有します。符号ビット、5 ビットの*組み合わせフィールド* $G$、$w$ ビットの*指数継続*ビット、$10J$ ビットの*後続仮数*です。ここで $p = 3J + 1$ です。"
 
-#: manual/design/decimal.md:758
+#: manual/design/decimal.md:760
 msgid "The biased exponent $E = q + \\text{bias}$ has $w + 2$ bits whose top two bits take only the values 00, 01, 10; this is the $3\\cdot 2^{w}$ count derived above."
 msgstr "バイアス付き指数 $E = q + \\text{bias}$ は $w + 2$ ビットで、その上位 2 ビットは 00、01、10 の値しかとりません。これが上で導いた $3\\cdot 2^{w}$ という個数です。"
 
-#: manual/design/decimal.md:762
+#: manual/design/decimal.md:764
 msgid ""
 "**DPD.** The combination field holds the top two exponent bits and the leading digit $d_0$: if $G = ab\\,cde$ with $ab \\n"
 "e 11$, the exponent bits are $ab$ and $d_0 = cde \\in [0,7]$; if $G = 11\\,cd\\,e$ with $cd \\n"
@@ -15146,35 +15146,35 @@ msgstr ""
 "e 11$ なら、指数ビットは $ab$、$d_0 = cde \\in [0,7]$ です。$G = 11\\,cd\\,e$ で $cd \\n"
 "e 11$ なら、指数ビットは $cd$、$d_0 = 8 + e$ です。$G = 11110$ は無限大、$G = 11111$ は NaN で、次のビットが signaling と quiet を区別します。残りの $3J$ 桁は、densely packed decimal により $J$ 個の*デクレット*（3 桁を 10 ビットで表す）に格納されます。[^dpd] 3 桁は 1000 通りの値、10 ビットは 1024 通りの符号を持ち、効率は $\\log_2 1000 / 10 = 99.66\\%$ です。0–7 の桁（3 ビット）を*小さい*桁、8 または 9 の桁（1 ビット）を*大きい*桁と呼びます。デクレット $pqr\\,stu\\,v\\,wxy$ は、3 桁とも小さい場合に $v = 0$ を使い、そのとき桁は $pqr$、$stu$、$wxy$ にそのまま格納されます。$v = 1$ は少なくとも 1 つの大きい桁があることを示し、$wx$、次いで $st$ がそれがどれかを示します。大きい桁の個数で数えると、"
 
-#: manual/design/decimal.md:782
+#: manual/design/decimal.md:784
 msgid "and $512 + 384 + 96 + 8 = 1000$. The first three cases use exactly 512, 384 and 96 codes. The last case has 32 codes for 8 values: $r$, $u$, $y$ carry the low bits of the three digits and $p$, $q$ are ignored, so **24 codes are redundant**: each value with three large digits has four encodings, of which the one with $pq = 00$ is canonical. Decoding accepts all four, `canonical()` rewrites them. For example, `125` is the declet `0010100101` = `0x0A5` (three small digits) and `999` is `0011111111` = `0x0FF`, also written `0x1FF`, `0x2FF`, `0x3FF`."
 msgstr "そして $512 + 384 + 96 + 8 = 1000$ です。最初の 3 つの場合はちょうど 512、384、96 個の符号を使います。最後の場合は 8 個の値に対して 32 個の符号があります。$r$、$u$、$y$ が 3 桁の下位ビットを運び、$p$、$q$ は無視されるので、**24 個の符号は冗長**です。3 桁とも大きい各値には 4 つのエンコーディングがあり、そのうち $pq = 00$ のものが正準です。デコードは 4 つすべてを受け付け、`canonical()` はそれらを書き換えます。たとえば `125` はデクレット `0010100101` = `0x0A5`（3 桁とも小さい）であり、`999` は `0011111111` = `0x0FF` で、`0x1FF`、`0x2FF`、`0x3FF` とも書けます。"
 
-#: manual/design/decimal.md:790
+#: manual/design/decimal.md:792
 msgid "M. F. Cowlishaw, \"Densely packed decimal encoding\", *IEE Proceedings — Computers and Digital Techniques* 149(3), 2002. IEEE 754-2019 §3.5.2 gives the encoding tables; the code implements them as Boolean formulas, and the conformance corpus checks all 1024 declets."
 msgstr "M. F. Cowlishaw, \"Densely packed decimal encoding\", *IEE Proceedings — Computers and Digital Techniques* 149(3), 2002. IEEE 754-2019 §3.5.2 がエンコーディングの表を与えています。コードはそれらをブール式として実装しており、適合性コーパスは 1024 個すべてのデクレットを検査します。"
 
-#: manual/design/decimal.md:795
+#: manual/design/decimal.md:797
 msgid "**BID.** The coefficient is stored as a binary integer. If the two bits after the sign are not 11, the next $w+2$ bits are the biased exponent and the remaining $10J + 3$ bits the coefficient. Otherwise the exponent follows the 11 and the coefficient is $2^{10J+3}$ plus the remaining $10J+1$ bits (\"100\" implied). Since $10^{7} - 1 < 2^{24}$, $10^{16}-1 < 2^{54}$ and $10^{34}-1 < 2^{114}$, every coefficient fits; encodings with a coefficient $\\ge 10^{p}$ are non-canonical and decode to zero."
 msgstr "**BID。** 係数は 2 進整数として格納されます。符号の後の 2 ビットが 11 でなければ、続く $w+2$ ビットがバイアス付き指数、残りの $10J + 3$ ビットが係数です。そうでなければ指数は 11 の後に続き、係数は $2^{10J+3}$ に残りの $10J+1$ ビットを加えたものです（\"100\" が暗黙に補われます）。$10^{7} - 1 < 2^{24}$、$10^{16}-1 < 2^{54}$、$10^{34}-1 < 2^{114}$ なので、すべての係数が収まります。係数が $\\ge 10^{p}$ のエンコーディングは非正準であり、ゼロにデコードされます。"
 
-#: manual/design/decimal.md:816
+#: manual/design/decimal.md:818
 msgid "`DecimalInterchange` keeps the raw bits so that non-canonical input survives until the caller decides to canonicalize; arithmetic is always on `Decimal`."
 msgstr "`DecimalInterchange` は生のビットを保持するので、非正準な入力は呼び出し側が正準化を決めるまでそのまま残ります。算術は常に `Decimal` 上で行われます。"
 
-#: manual/design/decimal.md:821
+#: manual/design/decimal.md:823
 msgid "**Problem.** For transcendental $f$, $f(x)$ is irrational for almost every decimal $x$, so it can only be approximated; a correctly rounded result needs an approximation good enough to decide the rounding (the *table maker's dilemma*)."
 msgstr "**問題。** 超越関数 $f$ に対して、ほとんどすべての 10 進数 $x$ で $f(x)$ は無理数になるため、近似することしかできません。正しく丸められた結果を得るには、丸めを決定できるほど良い近似が必要です（*table maker's dilemma*）。"
 
-#: manual/design/decimal.md:826
+#: manual/design/decimal.md:828
 msgid "**Options.** A fixed-precision evaluation with an a-priori error bound (fast, but correctness then depends on the bound being right for every function and argument); Ziv's adaptive strategy[^ziv] with rigorous error bounds."
 msgstr "**選択肢。** 事前の誤差限界を伴う固定精度の評価（高速だが、正しさはその限界がすべての関数と引数で正しいことに依存する）。厳密な誤差限界を伴う Ziv の適応的戦略。[^ziv]"
 
-#: manual/design/decimal.md:831
+#: manual/design/decimal.md:833
 msgid "**Choice.** A Ziv loop over rigorous enclosures. For an operation $f$ and input $x$:"
 msgstr "**選択。** 厳密な包含区間に対する Ziv ループ。演算 $f$ と入力 $x$ について："
 
-#: manual/design/decimal.md:834
+#: manual/design/decimal.md:836
 msgid ""
 "Convert $x$ exactly into a binary interval: $\\underline{x} = \\n"
 "abla_w(x)$ and $\\overline{x} = \\Delta_w(x)$, `to_bin_float` with `TowardNegative` and `TowardPositive` at $w$ bits, so $x \\in [\\underline{x}, \\overline{x}]$."
@@ -15182,7 +15182,7 @@ msgstr ""
 "$x$ を 2 進の区間に厳密に変換します：$\\underline{x} = \\n"
 "abla_w(x)$、$\\overline{x} = \\Delta_w(x)$。これは $w$ ビットでの `TowardNegative` と `TowardPositive` による `to_bin_float` であり、$x \\in [\\underline{x}, \\overline{x}]$ となります。"
 
-#: manual/design/decimal.md:838
+#: manual/design/decimal.md:840
 msgid ""
 "Evaluate $f$ on that interval with [`ball_float`](ball_float.md), which returns an interval $[L, U] \\n"
 "i f(x)$ for every point of the input interval."
@@ -15190,87 +15190,87 @@ msgstr ""
 "[`ball_float`](ball_float.md) を使ってその区間上で $f$ を評価します。これは入力区間のすべての点について $[L, U] \\n"
 "i f(x)$ となる区間を返します。"
 
-#: manual/design/decimal.md:840
+#: manual/design/decimal.md:842
 msgid "Convert $L$ and $U$ (dyadic, hence exact decimals) to `Decimal` exactly and round both with the target context. If both give the same representation (`total_order_compare` equal) and the same flags, return it."
 msgstr "$L$ と $U$（2 進有理数なので厳密な 10 進数）を厳密に `Decimal` に変換し、両方を目標コンテキストで丸めます。両者が同じ表現（`total_order_compare` で等しい）と同じフラグを与えれば、それを返します。"
 
-#: manual/design/decimal.md:843
+#: manual/design/decimal.md:845
 msgid "Otherwise increase $w \\leftarrow w + \\max(32, \\lfloor w/2 \\rfloor)$ and repeat; after $L$ evaluations report a certification failure, where $L$ is the refinement limit of the context (`DecimalContext::refinement_limit`, twelve by default; a value below one counts as one). With `with_refinement_limit(None)` the count is unbounded, but the loop stops, with the same failure, when $w$ exceeds $\\max(8\\,000\\,000,\\ 256\\,w_0)$ bits (at most $10^9$), so the work and the memory stay bounded. The default changes no result."
 msgstr "そうでなければ $w \\leftarrow w + \\max(32, \\lfloor w/2 \\rfloor)$ と増やして繰り返します。$L$ 回の評価の後に認証の失敗を報告します。ここで $L$ は文脈の精緻化の上限です（`DecimalContext::refinement_limit`、既定は 12、1 未満の値は 1 として扱います）。`with_refinement_limit(None)` では回数に上限はありませんが、$w$ が $\\max(8\\,000\\,000,\\ 256\\,w_0)$ ビット（高々 $10^9$）を超えると同じ失敗でループが停止するので、計算量とメモリは有界のままです。既定値はどの結果も変えません。"
 
-#: manual/design/decimal.md:852
+#: manual/design/decimal.md:854
 msgid "The acceptance test is sound because rounding is monotone: $L \\le f(x) \\le U$ implies $\\circ(L) \\le \\circ(f(x)) \\le \\circ(U)$, and if the outer two are the same representation, so is the middle one. The flags transfer as well, provided $f(x)$ is not itself representable: then one endpoint differs from the common result, so both are inexact, and `overflow` and `underflow` are monotone in $|f(x)|$ on an interval that does not contain zero. Representable results are therefore handled before the loop (below)."
 msgstr "受理テストが健全なのは、丸めが単調だからです。$L \\le f(x) \\le U$ ならば $\\circ(L) \\le \\circ(f(x)) \\le \\circ(U)$ であり、外側の二つが同じ表現ならば中間のものも同じです。フラグも、$f(x)$ 自身が表現可能でない限り同様に伝わります。その場合は一方の端点が共通の結果と異なるので両方が不正確であり、`overflow` と `underflow` はゼロを含まない区間で $|f(x)|$ について単調です。したがって表現可能な結果は、ループの前に処理されます（下記）。"
 
-#: manual/design/decimal.md:861
+#: manual/design/decimal.md:863
 msgid "The initial working precision is $w_0 = \\max(128,\\ 4\\max(D, p) + 64)$ bits, where $D$ is the number of input digits: one decimal digit needs $\\log_2 10 \\approx 3.32 < 4$ bits, so $4\\max(D,p)$ bits represent the input and the target with margin, and 64 bits more cover the loss of the enclosure. The schedule grows by a factor of about $3/2$ per step (exactly $w + \\lfloor w/2 \\rfloor$ once $w \\ge 64$); the 12 evaluations use $w_0, w_1, \\ldots, w_{11}$, and the last one works with about $w_0 \\cdot (3/2)^{11} \\approx 86\\,w_0$ bits."
 msgstr "初期作業精度は $w_0 = \\max(128,\\ 4\\max(D, p) + 64)$ ビットです。ここで $D$ は入力の桁数です。10 進 1 桁には $\\log_2 10 \\approx 3.32 < 4$ ビットが必要なので、$4\\max(D,p)$ ビットで入力と目標を余裕をもって表現でき、さらに 64 ビットで包含区間による損失を賄います。スケジュールは 1 ステップごとにおよそ $3/2$ 倍で増えます（$w \\ge 64$ になれば正確に $w + \\lfloor w/2 \\rfloor$）。12 回の評価では $w_0, w_1, \\ldots, w_{11}$ を使い、最後の評価は約 $w_0 \\cdot (3/2)^{11} \\approx 86\\,w_0$ ビットで行われます。"
 
-#: manual/design/decimal.md:870
+#: manual/design/decimal.md:872
 msgid "Three kinds of inputs are decided outside the agreement test:"
 msgstr "3 種類の入力は一致判定の外で決定されます。"
 
-#: manual/design/decimal.md:872
+#: manual/design/decimal.md:874
 msgid "**Exact results.** If $f(x)$ is a representable decimal and the enclosure is not a point, $L < f(x) < U$ round to different neighbours in a directed mode, forever. In a half mode both endpoints round to $f(x)$ itself, but with `inexact`, so the agreement test would *accept* the right value with wrong flags and with all $p$ digits instead of the preferred exponent: the soundness argument above assumed that $f(x)$ is not representable. The code therefore detects exact cases before the loop (`exp(0)`, `ln(1)`, $\\log_{10} 10^{k}$, integer and half-integer arguments of `sinpi`/`cospi`/`tanpi`, odd quarter-integers of `tanpi`, `acos(1)`, integer arguments of `exp2`/`exp10`, $x^{1/2}$, integer powers, …). For the algebraic functions this is a finite integer computation: `rootn` strips the trailing zeros of the coefficient, aligns the exponent to a multiple of the degree $n$ and tests the integer $n$-th root (Newton's iteration from above) of the result, so $\\sqrt[3]{0.008} = 0.2$; `hypot` forms $x^2 + y^2$ exactly when the adjusted exponents of the operands differ by at most $p + 2$ (beyond that, $\\sqrt{x^2+y^2} - |x| \\approx y^2/(2|x|)$ is below the last digit the result could have) and tests it with the exact square root, so $\\operatorname{hypot}(0.3, 0.4) = 0.5$; a zero operand gives the other operand's magnitude. `ball_float` returns point intervals for exact binary results such as $\\log_2 8 = 3$, $\\log_2 0.125 = -3$ and $4^{1.5} = 8$. A power whose exact value is representable in decimal but not in binary is decided in decimal instead: the exponent is reduced to $p/q$ in lowest terms — a decimal exponent is $c \\cdot 10^{-k}$, so $q$ keeps only the twos and fives the coefficient cannot cancel — and the result is exact exactly when $x^{p/q}$ is a decimal. By Bézout there are integers $a, b$ with $ap + bq = 1$, so $x^{1/q} = (x^{p/q})^{a} x^{b}$ is rational whenever $x^{p/q}$ is, and a rational $q$-th root of a decimal is again a decimal (its denominator divides a power of ten). The test therefore writes $x = r \\cdot 10^{qe}$ with $r$ an integer keeping fewer than $q$ trailing zeros, decides whether $r$ is a perfect $q$-th power by a bisection over the root's digit count, and only then raises the root to $p$ (the reciprocal of the root, for a negative exponent). Every intermediate is then no longer than the result, so $0.0016^{0.25} = 0.2$, $32^{0.2} = 2$ and $(2^{1200} \\cdot 10^{-1200})^{1.5} = 2^{1800} \\cdot 10^{-1800}$ at precision 1000 are all decided at once, although $x^{3}$ in the last one has 1084 digits. Only a value of at most $p + 1$ significant digits can sit on a rounding boundary — a representable value in the directed modes, a midpoint in the half modes — so the search covers exactly those and leaves a longer exact value, which lies strictly inside its rounding cell, to the enclosure."
 msgstr "**厳密な結果。** $f(x)$ が表現可能な 10 進数で包含区間が 1 点でなければ、方向付き丸めのモードでは $L < f(x) < U$ は異なる隣接値に丸められ、それがいつまでも続きます。half 系のモードでは両端点とも $f(x)$ 自身に丸められますが `inexact` を伴うため、一致判定は正しい値を、誤ったフラグとともに、優先指数ではなく $p$ 桁すべてで*受理*してしまうことになります。上記の健全性の議論は $f(x)$ が表現可能でないことを仮定していました。そのためコードはループの前に厳密なケース（`exp(0)`、`ln(1)`、$\\log_{10} 10^{k}$、`sinpi`/`cospi`/`tanpi` の整数・半整数の引数、`tanpi` の奇数の 4 分の 1 整数の引数、`acos(1)`、`exp2`/`exp10` の整数の引数、$x^{1/2}$、整数べき、…）を検出します。代数関数ではこれは有限の整数計算です。`rootn` は係数の末尾のゼロを除去し、指数を次数 $n$ の倍数にそろえ、結果の整数 $n$ 乗根（上から近づく Newton 反復）を検査するので、$\\sqrt[3]{0.008} = 0.2$ となります。`hypot` はオペランドの調整指数の差が $p + 2$ 以下のとき $x^2 + y^2$ を厳密に作り（それを超えると $\\sqrt{x^2+y^2} - |x| \\approx y^2/(2|x|)$ は結果が持ちうる最後の桁より小さくなります）、厳密な平方根で検査するので、$\\operatorname{hypot}(0.3, 0.4) = 0.5$ となります。ゼロのオペランドはもう一方のオペランドの絶対値を与えます。`ball_float` は $\\log_2 8 = 3$、$\\log_2 0.125 = -3$、$4^{1.5} = 8$ のような厳密な 2 進の結果に対して点区間を返します。厳密値が 10 進では表現可能でも二進では表現できないべきは、代わりに 10 進で判定されます。指数は既約な $p/q$ に約され——10 進の指数は $c \\cdot 10^{-k}$ なので、$q$ には係数が約せない 2 と 5 だけが残ります——結果が厳密になるのは $x^{p/q}$ が 10 進数であるとき、かつそのときだけです。Bézout の定理により $ap + bq = 1$ となる整数 $a, b$ が存在するので、$x^{p/q}$ が有理数なら $x^{1/q} = (x^{p/q})^{a} x^{b}$ も有理数であり、10 進数の有理な $q$ 乗根はふたたび 10 進数です（分母が 10 のべきを割り切るため）。そこで判定は $x = r \\cdot 10^{qe}$（整数 $r$ の末尾のゼロは $q$ 個未満）と書き、根の桁数に対する二分探索で $r$ が完全 $q$ 乗かどうかを判定し、そのあとで初めて根を $p$ 乗します（指数が負なら根の逆数を $p$ 乗します）。これで中間値はどれも結果より長くならないので、$0.0016^{0.25} = 0.2$、$32^{0.2} = 2$、そして精度 1000 での $(2^{1200} \\cdot 10^{-1200})^{1.5} = 2^{1800} \\cdot 10^{-1800}$ がすぐに判定されます。最後の例の $x^{3}$ は 1084 桁あるにもかかわらずです。丸めの境界に乗りうるのは有効桁が高々 $p + 1$ 桁の値——方向付き丸めでは表現可能な値、half 系では中点——だけなので、探索はちょうどそれらを対象とし、それより長い厳密値は丸めのセルの厳密に内部にあるため包含区間に委ねます。"
 
-#: manual/design/decimal.md:912
+#: manual/design/decimal.md:914
 msgid "**Integer powers** are not certified; they are rounded once from exact integer information. `pow_ctx` with an integral exponent $n$ that does not fit in $p$ digits first runs the General Decimal Arithmetic square-and-multiply with $p + \\operatorname{digits}(n) + 2$ working digits. That scheme only ever discards zero digits of an exact power, so it reports `inexact` exactly when the true power is inexact, and it gives exact powers their GDA cohort and flags. An inexact result is then replaced by the correctly rounded one. With $c$ the coefficient stripped of trailing zeros, if $|n| \\cdot \\operatorname{digits}(c) \\le \\max(4p, 64)$ the exact power $c^{|n|}$ is formed and rounded once (a negative $n$ divides once, correctly rounded). Otherwise $c^{|n|}$ has more than $p + 1$ significant digits and no trailing zero, so it is never a $p$-digit number or midpoint; lower and upper bounds from square-and-multiply in `Down` and `Up` at a working precision of $p + \\operatorname{digits}(n) + 8$ digits, doubled on each attempt, are refined until they round to the same representation. So $3.339434^3 = 37.240765000\\ldots$ is `37.24077` in decimal32. If the bounds leave the working exponent range, the GDA result is kept; its error is below one unit in the last place. A power that the exponent bounds place below $10^{E_{\\text{tiny}}-2}$ (including an exact power of ten below $10^{E_{\\text{tiny}}}$) is not evaluated: it rounds like any non-zero value below $\\tfrac12 10^{E_{\\text{tiny}}}$, to zero in the nearest modes and to $\\pm 10^{E_{\\text{tiny}}}$ when the rounding direction is away from zero for its sign (IEEE 754-2019 §7.5)."
 msgstr "**整数べき**は認証されず、厳密な整数の情報から 1 回だけ丸められます。$p$ 桁に収まらない整数の指数 $n$ を持つ `pow_ctx` は、まず $p + \\operatorname{digits}(n) + 2$ 桁の作業桁数で General Decimal Arithmetic の二乗乗算法を実行します。この方式は厳密なべきのゼロの桁しか捨てないので、真のべきが不正確なときにちょうど `inexact` を報告し、厳密なべきにはその GDA のコホートとフラグを与えます。不正確な結果はその後、正しく丸められた結果に置き換えられます。$c$ を末尾のゼロを除いた係数とすると、$|n| \\cdot \\operatorname{digits}(c) \\le \\max(4p, 64)$ であれば厳密なべき $c^{|n|}$ を作って 1 回だけ丸めます（負の $n$ では正しく丸めた除算を 1 回行います）。そうでなければ $c^{|n|}$ は $p + 1$ 桁を超える有効桁を持ち末尾にゼロがないので、$p$ 桁の数にも中点にもなりません。$p + \\operatorname{digits}(n) + 8$ 桁の作業精度（試行ごとに倍増）で `Down` と `Up` の二乗乗算法から得た下界と上界を、同じ表現に丸められるまで精密化します。したがって $3.339434^3 = 37.240765000\\ldots$ は decimal32 で `37.24077` になります。上下界が作業用の指数範囲を外れた場合は、GDA の結果がそのまま保持されます。その誤差は最後の桁の 1 単位未満です。べき乗の指数の上下界から $10^{E_{\\text{tiny}}-2}$ を下回ると判定されたべき（$10^{E_{\\text{tiny}}}$ 未満の厳密な 10 のべきを含む）は評価されません。$\\tfrac12 10^{E_{\\text{tiny}}}$ 未満の他の非ゼロ値と同様に丸められ、最近接のモードではゼロに、丸め方向がその符号について 0 から遠ざかる向きであれば $\\pm 10^{E_{\\text{tiny}}}$ になります（IEEE 754-2019 §7.5）。"
 
-#: manual/design/decimal.md:936
+#: manual/design/decimal.md:938
 msgid "**Out-of-range results.** An enclosure such as $[0, \\text{tiny}]$ has endpoints that round with different flags. Any value $\\ge 10^{e_{\\max}+2}$ overflows identically, and any non-zero value $\\le 10^{E_{\\text{tiny}}-2} < \\tfrac12 10^{E_{\\text{tiny}}}$ rounds identically (to zero or to the smallest subnormal, depending only on the mode and sign), so far endpoints are replaced by such representatives; the binary test uses $3.322 > \\log_2 10$ so the replacement is conservative. `exp`, `exp2` and `exp10` share one decision (`decimal_exponential_coarse_extreme_result`, issue [#363](https://github.com/Luna-Flow/floating/issues/363)). For $b^x$ with $b \\in \\{e, 2, 10\\}$ let $k \\ge 1/\\log_{10} b$ be the integer 3, 4 or 1. Then $x \\ge k\\,(e_{\\max}+1)$ gives $b^x = 10^{x \\log_{10} b} \\ge 10^{e_{\\max}+1}$, above the largest finite number $(10^p - 1)\\,10^{e_{\\max}-p+1}$, so the overflow result of the rounding direction applies (IEEE 754-2019 §7.4); and $x \\le -k\\,(1 - E_{\\text{tiny}})$ gives $b^x \\le 10^{E_{\\text{tiny}}-1}$, below half of the smallest subnormal and, as $E_{\\text{tiny}} \\le e_{\\min}$, tiny before and after rounding, so the result is zero or the smallest subnormal by direction with `inexact` and `underflow` (§7.5). The comparison is exact and the margin is the whole slack between $k$ and $1/\\log_{10} b$: an argument between the true boundary and the threshold is not decided here but by the Ziv loop, which is sound there because the threshold is at most $4\\,(1 - E_{\\text{tiny}})$ with $E_{\\text{tiny}} \\ge -1999997$, far below the exponent range of the binary enclosure. Without the decision a very negative argument (for `exp2`, beyond $2^{31}$ binades) has the enclosure $[0, \\text{tiny}]$ and never certifies. The decision is tested on both sides of each threshold and at results just inside and outside the range, in all eight rounding directions, by `library/src/decimal/exp_range_wbtest.mbt` and its generated rows. `power` bounds $y \\log_2 x$ with directed 128-bit arithmetic for the same purpose."
 msgstr "**範囲外の結果。** $[0, \\text{tiny}]$ のような包囲区間は、その端点が異なるフラグで丸められます。$10^{e_{\\max}+2}$ 以上のどの値も同じようにオーバーフローし、非ゼロで $10^{E_{\\text{tiny}}-2} < \\tfrac12 10^{E_{\\text{tiny}}}$ 以下のどの値も同じように丸められる（ゼロまたは最小の非正規化数になり、モードと符号だけで決まります）ので、遠い端点はそのような代表値に置き換えられます。二進側のテストは $3.322 > \\log_2 10$ を使うので、この置き換えは保守的です。`exp`、`exp2`、`exp10` は一つの判定を共有します（`decimal_exponential_coarse_extreme_result`、issue [#363](https://github.com/Luna-Flow/floating/issues/363)）。$b \\in \\{e, 2, 10\\}$ の $b^x$ について、$k \\ge 1/\\log_{10} b$ となる整数を 3、4、1 とします。このとき $x \\ge k\\,(e_{\\max}+1)$ ならば $b^x = 10^{x \\log_{10} b} \\ge 10^{e_{\\max}+1}$ で、これは最大の有限数 $(10^p - 1)\\,10^{e_{\\max}-p+1}$ を上回るので、丸め方向のオーバーフロー結果が適用されます（IEEE 754-2019 §7.4）。また $x \\le -k\\,(1 - E_{\\text{tiny}})$ ならば $b^x \\le 10^{E_{\\text{tiny}}-1}$ で、最小の非正規化数の半分を下回り、$E_{\\text{tiny}} \\le e_{\\min}$ なので丸めの前後ともに微小であるため、結果は方向に応じてゼロまたは最小の非正規化数となり、`inexact` と `underflow` を伴います（§7.5）。比較は正確で、余裕は $k$ と $1/\\log_{10} b$ の間の隙間全体です。真の境界と閾値の間にある引数はここでは判定されず、Ziv ループが判定します。そこでは健全です。閾値は高々 $4\\,(1 - E_{\\text{tiny}})$ で $E_{\\text{tiny}} \\ge -1999997$ であり、二進の包囲区間の指数範囲をはるかに下回るからです。この判定がなければ、非常に負の引数（`exp2` では $2^{31}$ 二進桁を超えるもの）の包囲区間は $[0, \\text{tiny}]$ となり、認証されることがありません。この判定は、各閾値の両側と範囲のすぐ内側および外側の結果で、八つすべての丸め方向について、`library/src/decimal/exp_range_wbtest.mbt` とその生成された行によってテストされます。`power` は同じ目的で、方向付きの 128 ビット算術で $y \\log_2 x$ を評価します。"
 
-#: manual/design/decimal.md:965
+#: manual/design/decimal.md:967
 msgid "**Enclosure of a non-integral power.** For a positive base the Ziv loop evaluates $x^y = \\exp(y \\ln x)$ in interval arithmetic: one `ln` enclosure, one interval product and one `exp` enclosure, instead of the four corners times two directions (eight correctly rounded binary powers) of `ball_float`'s `try_pow`. The loop needs an enclosure, not tight endpoints, and correct rounding makes the delivered value independent of the enclosure's width, so the result, cohort and flags are those of the tighter evaluation. The composition loses about $\\lceil \\log_2 |y \\ln x| \\rceil$ bits of relative accuracy, because the relative error of $\\exp(t)$ is the absolute error of $t$. The initial working precision therefore grows by a bound of that quantity, taken from the adjusted exponents of $x$ and $y$ ($|\\ln x| \\le \\ln 10\\,(|\\operatorname{adjusted}(x)| + 1)$ and $|y| < 10^{\\operatorname{adjusted}(y)+1}$), so the first attempt usually decides ([#352](https://github.com/Luna-Flow/floating/issues/352))."
 msgstr "**非整数冪の包含区間。** 底が正のとき、Ziv ループは区間演算で $x^y = \\exp(y \\ln x)$ を評価します。`ln` の包含区間 1 回、区間の積 1 回、`exp` の包含区間 1 回です。`ball_float` の `try_pow` のように 4 つの角点と 2 方向(正しく丸めた 2 進冪を 8 回)を計算することはしません。ループに必要なのは包含区間であり厳密な端点ではなく、正しい丸めにより最終結果は包含区間の幅に依存しないため、結果・コホート・フラグはより狭い評価と同一です。この合成は相対精度を約 $\\lceil \\log_2 |y \\ln x| \\rceil$ ビット失います($\\exp(t)$ の相対誤差は $t$ の絶対誤差だからです)。そのため初期作業精度は、$x$ と $y$ の調整指数から得られるこの量の上界($|\\ln x| \\le \\ln 10\\,(|\\operatorname{adjusted}(x)| + 1)$、$|y| < 10^{\\operatorname{adjusted}(y)+1}$)だけ増やし、最初の試行で通常は判定できるようにします([#352](https://github.com/Luna-Flow/floating/issues/352))。"
 
-#: manual/design/decimal.md:980
+#: manual/design/decimal.md:982
 msgid "**One layer for the newer §9.2 functions.** `exp2m1`, `exp10m1`, `log2p1` and `log10p1`, and the families that follow in [#236](https://github.com/Luna-Flow/floating/issues/236), take three decisions from one internal file (`elementary_range.mbt`) instead of writing them again: an exact result is formed as an exact decimal, rounded once by the context and then moved to the cohort member nearest the preferred exponent (`decimal_exact_constant`, which uses the cohort step of `power` with the preferred exponent as an argument), so a context that cannot hold the value rounds it with its own flags; a result whose certified bracket of $\\log_2$ lies above $\\log_2 10\\,(e_{\\max}+2)$ or below $\\log_2 10\\,(E_{\\text{tiny}}-2)$ rounds like the representative $10^{e_{\\max}+2}$ or $10^{E_{\\text{tiny}}-2}$ (`decimal_range_from_log2_bracket`, the former tail of the `power` range test); and every other result comes from the Ziv loop above. No result is a zero or an infinity chosen because the argument is small or large: a tiny result is the rounding of its certified endpoints, so subnormals, `Underflow` under the before-rounding rule and the sign of a zero are those of the context."
 msgstr "**新しい §9.2 の関数のための一つの層。** `exp2m1`、`exp10m1`、`log2p1`、`log10p1`、および [#236](https://github.com/Luna-Flow/floating/issues/236) で続く各系列は、三つの判定を一つの内部ファイル（`elementary_range.mbt`）から取り、それぞれで書き直しません。正確な結果は正確な十進数として作られ、コンテキストで一度だけ丸められ、優先指数に最も近い同値類のメンバーへ移されます（`decimal_exact_constant`。これは `power` の同値類のステップを使い、優先指数を引数に取ります）。したがって、その値を保持できないコンテキストは、自身のフラグ付きでそれを丸めます。結果の $\\log_2$ の認証済み区間が $\\log_2 10\\,(e_{\\max}+2)$ より上、または $\\log_2 10\\,(E_{\\text{tiny}}-2)$ より下にある場合、その丸めは代表値 $10^{e_{\\max}+2}$ または $10^{E_{\\text{tiny}}-2}$ と同じになります（`decimal_range_from_log2_bracket`。従来の `power` の範囲テストの後半部分です）。それ以外の結果はすべて上の Ziv ループから得られます。引数が小さい、または大きいという理由で選ばれたゼロや無限大という結果はありません。微小な結果はその認証済み端点の丸めであり、非正規化数、丸め前規則での `Underflow`、ゼロの符号は、コンテキストのものになります。"
 
-#: manual/design/decimal.md:999
+#: manual/design/decimal.md:1001
 msgid "The four functions evaluate `expm1(x ln b)` and `log1p(x) / ln b` on the input interval ($\\ln 2$ and $\\ln 10$ as certified `ball_float` intervals). Both primitives are series in $x$, so the relative width of the enclosure is a few units of the working precision for every legal operand, down to $x = 10^{-1\\,999\\,996}$; no tiny-argument anchor is needed because the slopes $\\ln b$ and $1/\\ln b$ are irrational. Before the loop:"
 msgstr "4 つの関数は入力区間上で `expm1(x ln b)` と `log1p(x) / ln b` を評価します（$\\ln 2$ と $\\ln 10$ は認証済みの `ball_float` 区間）。どちらの基本関数も $x$ の級数なので、包含区間の相対幅は $x = 10^{-1\\,999\\,996}$ までのすべての正当なオペランドで作業精度の数単位にとどまります。傾き $\\ln b$ と $1/\\ln b$ は無理数なので、微小引数のアンカーは不要です。ループの前に："
 
-#: manual/design/decimal.md:1006
+#: manual/design/decimal.md:1008
 msgid "*Exact cases.* $b^x$ is rational only for an integer $x$ ($2^r$ and $10^r$ are irrational for a non-integer rational $r$), and $\\log_b(1+x)$ is rational only when $1+x = b^k$. For $0 < |n| \\le 4(p+2)$ the value $2^n-1$, $10^n-1$, $-(1-2^{-m})$ or $-(1-10^{-m})$ is formed and rounded once; $k$ is found from $x$ without forming $1+x$ ($x+1$ a power of two, compared first on its lowest nine digits; all nines; a coefficient $10^m - 5^m$ or $10^m - 1$ with $m$ fraction digits). The preferred exponent is 0 (IEEE 754-2019 §9.2.2), so `exp2m1(4)` is `15` and `log2p1(-0.50)` is `-1`."
 msgstr "*厳密な場合。* $b^x$ が有理数になるのは整数 $x$ のときだけで（非整数の有理数 $r$ に対して $2^r$ と $10^r$ は無理数）、$\\log_b(1+x)$ が有理数になるのは $1+x = b^k$ のときだけです。$0 < |n| \\le 4(p+2)$ では値 $2^n-1$、$10^n-1$、$-(1-2^{-m})$、$-(1-10^{-m})$ を作って 1 回だけ丸めます。$k$ は $1+x$ を作らずに $x$ から求めます（$x+1$ が 2 のべきかを、まず下位 9 桁で比較。すべて 9。小数部 $m$ 桁の係数 $10^m - 5^m$ または $10^m - 1$）。優先指数は 0（IEEE 754-2019 §9.2.2）なので、`exp2m1(4)` は `15`、`log2p1(-0.50)` は `-1` です。"
 
-#: manual/design/decimal.md:1014
+#: manual/design/decimal.md:1016
 msgid "*Clusters.* For an integer $n > 4(p+2)$, $2^n$ has $D \\ge p+3$ digits and every rounding boundary of a $D$-digit integer is a multiple of the even number $5 \\cdot 10^{D-p-1}$; neither $2^n$ (no factor 5) nor the odd $2^n - 1$ is one, so both lie in one open rounding cell and `exp2m1(n)` is `exp2(n)`. $10^n - 1$ lies above the midpoint $10^n - 5 \\cdot 10^{n-p-1}$ and below $10^n$, where an enclosure can never separate it from the representable $10^n$; the representative $10^n - 10^{n-p-2}$ has the same rounding and is formed instead of a number of $n$ digits. Towards $-1$, for $x \\le -(p+2)$ (base 10) or $x \\le -(4p+8)$ (base 2) the value is $-1 + \\delta$ with $0 < \\delta \\le 10^{-(p+2)}$ and rounds like $-(1 - 10^{-(p+2)})$, as for `expm1`."
 msgstr "*クラスタ。* 整数 $n > 4(p+2)$ では $2^n$ は $D \\ge p+3$ 桁で、$D$ 桁の整数の丸め境界はすべて偶数 $5 \\cdot 10^{D-p-1}$ の倍数です。$2^n$（因数 5 を持たない）も奇数 $2^n - 1$ も境界ではないので、両者は同じ開いた丸めセルにあり、`exp2m1(n)` は `exp2(n)` です。$10^n - 1$ は中点 $10^n - 5 \\cdot 10^{n-p-1}$ より上、$10^n$ より下にあり、包含区間では表現可能な $10^n$ と決して分離できません。丸めが同じ代表値 $10^n - 10^{n-p-2}$ を、$n$ 桁の数の代わりに作ります。$-1$ の側では、$x \\le -(p+2)$（底 10）または $x \\le -(4p+8)$（底 2）で値は $0 < \\delta \\le 10^{-(p+2)}$ の $-1 + \\delta$ となり、`expm1` と同様に $-(1 - 10^{-(p+2)})$ と同じように丸められます。"
 
-#: manual/design/decimal.md:1025
+#: manual/design/decimal.md:1027
 msgid "*Overflow.* $x \\ge \\lceil 3.322\\,(e_{\\max}+2) \\rceil$ (base 2) or $x \\ge e_{\\max}+2$ (base 10) gives the overflow result of the context."
 msgstr "*オーバーフロー。* $x \\ge \\lceil 3.322\\,(e_{\\max}+2) \\rceil$（底 2）または $x \\ge e_{\\max}+2$（底 10）では、コンテキストのオーバーフロー結果になります。"
 
-#: manual/design/decimal.md:1027
+#: manual/design/decimal.md:1029
 msgid "*Below the subnormal range.* For $|x| \\le 10^{-5}$ all four satisfy $0 < |f(x)| < 3|x|$ with the sign of $x$, so $|x| < 10^{E_{\\text{tiny}}-3}$ puts $f(x)$ below $10^{E_{\\text{tiny}}-2}$, where it rounds like the representative $\\pm 10^{E_{\\text{tiny}}-2}$ that the enclosure would use for its endpoints. The result is that rounding, decided without converting $x$ to binary (the conversion of $10^{-1\\,999\\,997}$ alone costs about a second)."
 msgstr "*非正規化数の範囲より下。* $|x| \\le 10^{-5}$ では 4 つの関数すべてが $x$ と同符号で $0 < |f(x)| < 3|x|$ を満たすので、$|x| < 10^{E_{\\text{tiny}}-3}$ なら $f(x)$ は $10^{E_{\\text{tiny}}-2}$ より小さく、包含区間が端点に使う代表値 $\\pm 10^{E_{\\text{tiny}}-2}$ と同じように丸められます。結果はその丸めで、$x$ を 2 進に変換せずに決まります（$10^{-1\\,999\\,997}$ の変換だけで約 1 秒かかります）。"
 
-#: manual/design/decimal.md:1034
+#: manual/design/decimal.md:1036
 msgid "*Tiny arguments within the range.* For $|x| < 10^{-(p+11)}$, write $x = m\\,10^{q}$; then $f(x) = c\\,x\\,(1 + d)$ with $c = \\ln b$ or $1/\\ln b$ and $|d| \\le 2.31|x|$, so $f(x)/10^{q}$ lies in $c\\,m\\,[1 - 2^{k}, 1 + 2^{k}]$ for $2^{k} \\ge 4|x|$. The endpoints of that enclosure have a few dozen digits, where the binary endpoints of $f(x)$ itself would expand to about $0.7|q|$ digits; scaled back by $10^{q}$ they are rounded with the context and accepted under the same agreement test as the loop, which decides the rare value too close to a rounding boundary. The certified $\\ln 2$ and $\\ln 10$ intervals are kept per working precision. Both only change the cost: on 10,000 random rows of each function the executed instructions fell from 57 to 12 (`exp2m1`), 60 to 14 (`exp10m1`), 102 to 17 (`log2p1`) and 102 to 18 (`log10p1`) billion, the level of `exp` (13) and `log1p` (18)."
 msgstr "*範囲内の微小な引数。* $|x| < 10^{-(p+11)}$ のとき $x = m\\,10^{q}$ と書くと、$f(x) = c\\,x\\,(1 + d)$（$c = \\ln b$ または $1/\\ln b$、$|d| \\le 2.31|x|$）なので、$2^{k} \\ge 4|x|$ に対して $f(x)/10^{q}$ は $c\\,m\\,[1 - 2^{k}, 1 + 2^{k}]$ に入ります。この包含区間の端点は数十桁で済みますが、$f(x)$ 自身の 2 進の端点は約 $0.7|q|$ 桁に展開されます。端点を $10^{q}$ で戻してコンテキストで丸め、ループと同じ一致判定で受理します。丸め境界に近すぎるまれな値はループが決めます。認証済みの $\\ln 2$ と $\\ln 10$ の区間は作業精度ごとに保持します。どちらもコストだけを変えます。各関数 10,000 行のランダムな行で、実行命令数は 570 億から 120 億（`exp2m1`）、600 億から 140 億（`exp10m1`）、1020 億から 170 億（`log2p1`）、1020 億から 180 億（`log10p1`）に減り、`exp`（130 億）と `log1p`（180 億）と同程度になりました。"
 
-#: manual/design/decimal.md:1047
+#: manual/design/decimal.md:1049
 msgid "*Poles and domain.* $x = -1$ is $-\\infty$ with `division_by_zero` and $x < -1$ is invalid for `log2p1` and `log10p1` (Table 9.1). Near $-1$ an operand of $D$ digits keeps $1 + x \\ge 10^{-D}$, which $w_0 = 4\\max(D,p)+64$ bits resolve, as for `log1p`."
 msgstr "*極と定義域。* `log2p1` と `log10p1` では $x = -1$ は `division_by_zero` を伴う $-\\infty$ で、$x < -1$ は無効演算です（表 9.1）。$-1$ の近くでも $D$ 桁のオペランドは $1 + x \\ge 10^{-D}$ を保ち、`log1p` と同様に $w_0 = 4\\max(D,p)+64$ ビットで分離できます。"
 
-#: manual/design/decimal.md:1052
+#: manual/design/decimal.md:1054
 msgid "**`rSqrt`, `compound` and `powr`.** The three take their exact results from `decimal_exact_constant` and none of them expands a binary endpoint near an extreme power of ten."
 msgstr "**`rSqrt`、`compound`、`powr`。** 3 つとも厳密な結果を `decimal_exact_constant` から得ており、極端な 10 のべきの近くで 2 進の端点を展開することはありません。"
 
-#: manual/design/decimal.md:1056
+#: manual/design/decimal.md:1058
 msgid "*`rsqrt`.* $1/\\sqrt{x}$ terminates exactly when $x = 2^{2i}5^{2j}$: with $c$ the coefficient stripped of trailing zeros and $e$ its exponent, $c$ is $2^a$ or $5^b$ with $a$ (or $b$) and $e$ even, and the value is $5^{a/2}10^{-(e+a)/2}$ or $2^{b/2}10^{-(e+b)/2}$. It is formed when it has at most $p + 1$ digits and given the preferred exponent $-\\lfloor Q(x)/2 \\rfloor$ (§9.2.2); a longer one ends in a 5 or a non-zero even digit beyond the $(p+1)$-th place, so it is neither representable nor a midpoint, and the enclosure decides it. Every other $x$ is written $x = s\\,10^{2k}$ with $s \\in [1, 100)$: the Ziv loop encloses $1/\\sqrt{s}$, whose endpoints are moderate, and multiplies them by $10^{-k}$ (an exponent shift) before the context rounds them, under the same agreement test. An operand $10^{-1\\,999\\,997}$ costs what $1$ costs."
 msgstr "*`rsqrt`。* $1/\\sqrt{x}$ が有限小数になるのは $x = 2^{2i}5^{2j}$ のときに限ります。末尾のゼロを除いた係数を $c$、その指数を $e$ とすると、$c$ は $2^a$ または $5^b$ で $a$（または $b$）と $e$ は偶数、値は $5^{a/2}10^{-(e+a)/2}$ または $2^{b/2}10^{-(e+b)/2}$ です。高々 $p + 1$ 桁なら値を作り、優先指数 $-\\lfloor Q(x)/2 \\rfloor$（§9.2.2）を与えます。より長い値は $(p+1)$ 桁目より後ろが 5 か 0 でない偶数で終わるので、表現可能でも中点でもなく、包含区間が決めます。それ以外の $x$ は $x = s\\,10^{2k}$（$s \\in [1, 100)$）と書き、Ziv ループが端点の大きさが適度な $1/\\sqrt{s}$ を包み、それを $10^{-k}$ 倍（指数のずらし）してからコンテキストで丸め、同じ一致判定で受理します。オペランド $10^{-1\\,999\\,997}$ のコストは $1$ と同じです。"
 
-#: manual/design/decimal.md:1068
+#: manual/design/decimal.md:1070
 msgid "*`compound`.* The special values are the list of §9.2.1 (with $x < -1$ invalid also for $n = 0$, Table 9.1). For a tiny $x$, $(1+x)^n - 1$ has the sign of $nx$ and $|(1+x)^n - 1| \\le |nx|\\,e^{|nx|} < 10^{\\operatorname{adj}(x) + 12}$ for $|n| \\le 2^{31}$, so `decimal_tiny_argument_result` decides a one-sided neighbour of 1 and $1 + x$ (up to two million digits) is never formed. Otherwise $1 + x = c\\,10^{e}$ is formed exactly ($c$ without trailing zeros, $d$ digits, exponent $\\min(0, Q(x))$ before stripping). For $n > 0$, $c^n$ has more than $\\max((d-1)n, 0.301n)$ digits and no trailing zero, so beyond $p + 1$ digits it is neither representable nor a midpoint; shorter powers are formed and rounded once with the preferred exponent $\\lfloor n \\min(0, Q(x)) \\rfloor$. For $n < 0$, $c^{n}$ terminates only for $c = 2^a$ or $5^b$ (the values $5^{a|n|}10^{-(a+e)|n|}$ and $2^{b|n|}10^{-(b+e)|n|}$), formed while they have at most $p + 2$ digits. Every other case is the Ziv loop on $\\exp(n \\operatorname{log1p}(x))$ ($\\operatorname{log1p}$ of $x$ itself, so $1 + x$ is never rounded), after `decimal_range_from_log2_bracket` on $n \\operatorname{log1p}(x)/\\ln 2$ whenever $|n| \\max(\\operatorname{adj}(x) + 2, -Q(x), 1)$ does not already keep the result inside the range. `Int32`'s minimum $-2^{31}$ is taken as an `Int64`. `pown(1 + x, n)` is not used: when this function was written, its exponents beyond the machine count gave wrong values and some negative ones a spurious `Clamped` for a base near 1 (issues 348 and 350, since fixed), and the Ziv loop never forms $1 + x$."
 msgstr "*`compound`。* 特殊値は §9.2.1 の一覧です（表 9.1 により $x < -1$ は $n = 0$ でも無効演算）。微小な $x$ では $(1+x)^n - 1$ は $nx$ と同符号で、$|n| \\le 2^{31}$ に対して $|(1+x)^n - 1| \\le |nx|\\,e^{|nx|} < 10^{\\operatorname{adj}(x) + 12}$ なので、`decimal_tiny_argument_result` が 1 の片側の隣を決め、$1 + x$（最大 200 万桁）は作りません。それ以外では $1 + x = c\\,10^{e}$ を厳密に作ります（$c$ は末尾のゼロを持たない $d$ 桁、ゼロを除く前の指数は $\\min(0, Q(x))$）。$n > 0$ では $c^n$ は $\\max((d-1)n, 0.301n)$ 桁より長く末尾にゼロを持たないので、$p + 1$ 桁を超えれば表現可能でも中点でもありません。それより短いべきは作って優先指数 $\\lfloor n \\min(0, Q(x)) \\rfloor$ で 1 回だけ丸めます。$n < 0$ では $c^{n}$ が有限小数になるのは $c = 2^a$ か $5^b$ のときだけで（値は $5^{a|n|}10^{-(a+e)|n|}$ と $2^{b|n|}10^{-(b+e)|n|}$）、高々 $p + 2$ 桁なら作ります。その他はすべて $\\exp(n \\operatorname{log1p}(x))$ の Ziv ループです（$\\operatorname{log1p}$ は $x$ そのものに対して計算するので $1 + x$ は丸められません）。$|n| \\max(\\operatorname{adj}(x) + 2, -Q(x), 1)$ が結果を範囲内に保証しないときは、先に $n \\operatorname{log1p}(x)/\\ln 2$ に対する `decimal_range_from_log2_bracket` を適用します。`Int32` の最小値 $-2^{31}$ は `Int64` として扱います。`pown(1 + x, n)` は使いません。この関数を書いた時点では、1 に近い底に対して機械整数を超える指数で誤った値を、一部の負の指数で余分な `Clamped` を返していました（issue 348 と 350、修正済み）。また Ziv ループは $1 + x$ を構成しません。"
 
-#: manual/design/decimal.md:1091
+#: manual/design/decimal.md:1093
 msgid ""
 "*`powr`.* §9.2.1 lists the invalid pairs $(\\pm 0, \\pm 0)$, $(+\\infty, \\pm 0)$, $(1, \\pm\\infty)$ and $x < 0$, and a NaN result for a NaN operand even when $y = \\pm 0$. Two cases are not stated and are read as follows [ambiguous]: $x < 0$ with $y$ a quiet NaN is invalid (the NaN rule is stated \"for $x \\ge 0$\"), and $+\\infty^{y}$ for $y \\n"
 "e 0$ and $x^{\\pm\\infty}$ for $x \\n"
@@ -15280,345 +15280,345 @@ msgstr ""
 "e 0$ の $+\\infty^{y}$ と $x \\n"
 "otin \\{0, 1\\}$ の $x^{\\pm\\infty}$ は $e^{y \\ln x}$ の連続性に従います。残りの組はすべて $x \\ge 0$ で、そこでは $x^y$ は `pow` と同じ関数で優先指数も一致する（$\\lfloor y Q(x) \\rfloor$）ので、結果は $|x|$ に対する `power` です（$-0$ は $+0$ として渡します。そうしないと `pow` が奇数整数の符号規則を適用します）。"
 
-#: manual/design/decimal.md:1102
+#: manual/design/decimal.md:1104
 msgid "**`asinPi`, `acosPi`, `atanPi` and `atan2Pi`.** The four evaluate $\\operatorname{asin}(x)/\\pi$, $\\operatorname{acos}(x)/\\pi$, $\\operatorname{atan}(x)/\\pi$ and $\\operatorname{atan2}(y, x)/\\pi$ in the existing Ziv driver, with $\\pi$ enclosed as $[\\operatorname{RD}(\\pi), \\operatorname{RU}(\\pi)]$ taken from the cached binary-splitting constant of `bin_float` (twice the correctly rounded $\\pi/2$ of `atan(+inf)`, the same interval as $4\\operatorname{atan}(1)$ bit for bit) and the angle enclosure divided by it (error: the angle, $\\pi$ and the division, about 4 ulp relative)."
 msgstr "**`asinPi`、`acosPi`、`atanPi`、`atan2Pi`。** この 4 つは既存の Ziv ドライバで $\\operatorname{asin}(x)/\\pi$、$\\operatorname{acos}(x)/\\pi$、$\\operatorname{atan}(x)/\\pi$、$\\operatorname{atan2}(y, x)/\\pi$ を計算します。$\\pi$ の包絡 $[\\operatorname{RD}(\\pi), \\operatorname{RU}(\\pi)]$ を `bin_float` のキャッシュされた二分割定数から取り（`atan(+inf)` の正しく丸められた $\\pi/2$ の 2 倍で、$4\\operatorname{atan}(1)$ とビット単位で同じ区間）、角度の包絡をそれで割ります（誤差は角度、$\\pi$、除算に由来し、相対でおよそ 4 ulp）。"
 
-#: manual/design/decimal.md:1112
+#: manual/design/decimal.md:1114
 msgid "*Exact results.* By Niven's theorem a rational $x$ has a rational $\\operatorname{asin}(x)/\\pi$ or $\\operatorname{acos}(x)/\\pi$ only at $0, \\pm\\tfrac12, \\pm 1$ and a rational $\\operatorname{atan}(x)/\\pi$ only at $0, \\pm 1$, so the dyadic exact results are those of §9.2.1 and $\\operatorname{atanPi}(\\pm 1) = \\pm\\tfrac14$, $\\operatorname{atan2Pi}(\\pm a, \\pm a) = \\pm\\tfrac14, \\pm\\tfrac34$. They are built by `decimal_exact_constant` at the preferred exponent 0 (§9.2.2). $\\pm\\tfrac16$, $\\tfrac13$ and $\\tfrac23$ do not terminate, so they sit strictly inside a rounding cell and the loop decides them. No Pi function is anchored at a tiny argument: $x/\\pi$ is irrational and nowhere near a representable value."
 msgstr "*厳密な結果。* Niven の定理により、有理数 $x$ に対して $\\operatorname{asin}(x)/\\pi$ や $\\operatorname{acos}(x)/\\pi$ が有理数になるのは $0, \\pm\\tfrac12, \\pm 1$ のみ、$\\operatorname{atan}(x)/\\pi$ が有理数になるのは $0, \\pm 1$ のみです。したがって二進で有限な厳密結果は §9.2.1 のもの、および $\\operatorname{atanPi}(\\pm 1) = \\pm\\tfrac14$、$\\operatorname{atan2Pi}(\\pm a, \\pm a) = \\pm\\tfrac14, \\pm\\tfrac34$ です。これらは `decimal_exact_constant` が優先指数 0 で作ります（§9.2.2）。$\\pm\\tfrac16$、$\\tfrac13$、$\\tfrac23$ は有限小数ではなく、丸めセルの厳密に内部にあるので、ループが判定します。Pi 系の関数は微小な引数でアンカーを使いません。$x/\\pi$ は無理数で、表現可能な値の近くには決してないからです。"
 
-#: manual/design/decimal.md:1123
+#: manual/design/decimal.md:1125
 msgid "*Clusters next to $\\pm\\tfrac12$ and $\\pm 1$.* These are the only inexact results that approach a representable value, and the distance does not depend on the digits of the operand, so $w_0 = 4D + 64$ cannot cover it. Each is decided by `decimal_tiny_argument_result` from a bound on the distance, one-sided: $\\operatorname{atanPi}(x) = \\pm(\\tfrac12 - \\delta)$ with $0 < \\delta < 1/(\\pi|x|) < 10^{-\\operatorname{adj}(x)}$ for a large $|x|$; $\\operatorname{acosPi}(x) = \\tfrac12 - \\operatorname{asin}(x)/\\pi$ with distance at most $|x|/2 < 10^{\\operatorname{adj}(x)+1}$ for a tiny $|x|$ (the easy one to miss: $\\operatorname{acos}$ of a tiny $x$ is near the irrational $\\pi/2$, but $\\operatorname{acosPi}$ is near the representable $\\tfrac12$, below it for $x > 0$ and above for $x < 0$); $\\operatorname{atan2Pi}(y, x)$ with $D = \\operatorname{adj}(y) - \\operatorname{adj}(x)$ is $\\pm(\\tfrac12 \\mp \\delta)$ with $\\delta < 10^{1-D}$ for a large ratio (below $\\tfrac12$ in magnitude for $x > 0$, above for $x < 0$), and $\\pm(1 - \\delta)$ with $\\delta < 10^{D+1}$ for $x < 0$ and a small ratio. The guard of `decimal_tiny_argument_result` (error exponent below the anchor's adjusted exponent minus $p + 3$) picks the threshold; between it and the moderate range the enclosure resolves the gap at the working precision. The tests compare every anchored result with the plain loop in all eight rounding modes, on both sides."
 msgstr "*$\\pm\\tfrac12$ と $\\pm 1$ の近くのクラスタ。* 表現可能な値に近づく不正確な結果はこれだけで、その距離はオペランドの桁数に依存しないため、$w_0 = 4D + 64$ では賄えません。それぞれ `decimal_tiny_argument_result` が距離の上界から片側で判定します。大きい $|x|$ では $\\operatorname{atanPi}(x) = \\pm(\\tfrac12 - \\delta)$ で $0 < \\delta < 1/(\\pi|x|) < 10^{-\\operatorname{adj}(x)}$、微小な $|x|$ では $\\operatorname{acosPi}(x) = \\tfrac12 - \\operatorname{asin}(x)/\\pi$ で距離は高々 $|x|/2 < 10^{\\operatorname{adj}(x)+1}$（見落としやすい点です。微小な $x$ の $\\operatorname{acos}$ は無理数 $\\pi/2$ の近くですが、$\\operatorname{acosPi}$ は表現可能な $\\tfrac12$ の近くにあり、$x > 0$ なら下、$x < 0$ なら上です）、$D = \\operatorname{adj}(y) - \\operatorname{adj}(x)$ として、比が大きいとき $\\operatorname{atan2Pi}(y, x)$ は $\\pm(\\tfrac12 \\mp \\delta)$ で $\\delta < 10^{1-D}$（$x > 0$ なら大きさは $\\tfrac12$ 未満、$x < 0$ なら超過）、$x < 0$ で比が小さいときは $\\pm(1 - \\delta)$ で $\\delta < 10^{D+1}$ です。`decimal_tiny_argument_result` のガード（誤差指数がアンカーの調整指数から $p + 3$ を引いた値より小さいこと）が閾値を決め、閾値と中程度の範囲の間は包絡が作業精度で差を解消します。テストはすべてのアンカー結果を通常のループと、8 つの丸めモードの両側で比較します。"
 
-#: manual/design/decimal.md:1143
+#: manual/design/decimal.md:1145
 msgid "*Tiny results.* For $|x| \\le 10^{-4}$, $\\operatorname{asin}(x)/x \\in [1, 1 + x^2]$ and $\\operatorname{atan}(x)/x \\in [1 - x^2, 1]$, and the same holds for $\\operatorname{atan2Pi}(y, x)$ with $x > 0$ and the ratio $y/x$. Once $x^2 < 2^{-(8\\max(D,p)+400)}$ the loop encloses the moderate value $(s/\\pi)(1 \\pm 2^{-k})$ with $s = x\\,10^{-\\operatorname{adj}(x)}$ (or the quotient of the two scaled mantissas) and shifts the endpoints by $10^{\\operatorname{adj}(x)}$ before the context rounds them, as for `rsqrt` (`decimal_certified_scaled_result`): an operand $10^{-1\\,999\\,996}$ costs what $10^{-300}$ costs, where the exact decimal endpoints of a binary number near $2^{-6.6\\cdot 10^6}$ have about two million digits (an unscaled `asinpi(7E-9999)` took more than a minute in a debug build before this path existed). For $\\operatorname{atan2Pi}(y, x)$ with $x > 0$ the derivation is: $\\operatorname{atan2Pi}(y, x) = \\operatorname{sign}(y) \\operatorname{atan}(r)/\\pi$ with $r = |y/x| = (s_y/s_x)\\,10^{D}$, where $s_y, s_x \\in [1, 10)$ are the operands scaled by their adjusted exponents and $D = \\operatorname{adj}(y) - \\operatorname{adj}(x)$, so $r < 10^{D+1}$; for $r \\le 1$, $\\operatorname{atan}(r)/r \\in [1 - r^2, 1]$, hence $\\operatorname{atan}(r)/\\pi = (s_y/(s_x \\pi))\\,10^{D}(1 - e)$ with $0 \\le e \\le r^2 < 10^{-t}$, $t = -(2D + 2)$, and the loop encloses the moderate factor $(s_y/(s_x\\pi))(1 - 2^{-k})$, $k \\le 3.32\\,t$, and shifts it by $D$. The path is taken when $3t \\ge 8\\max(D_{\\text{digits}}, p) + 400$, where it is decidable; the derivation itself needs only $t > 0$. The operands of every other case are first multiplied by $10^{-\\operatorname{adj}(x)}$ (the ratio, hence the angle, is unchanged), so operands with exponents of millions of digits and a moderate ratio cost what moderate operands cost. `library/src/decimal/atan2pi_scaled_wbtest.mbt` and the generated rows of `tools/generate_decimal_atan2pi_scaled_rows.py` (Python `decimal` at 450 digits, a cross-check only) cover ratios on both sides of the condition, both signs of $y$ and of $x$ (for $x < 0$ the result is $\\pm(1 - \\operatorname{atan}(r)/\\pi)$, next to $\\pm 1$, and takes the other anchored path), the four formats and all eight rounding directions; replacing $1 - 2^{-k}$ by $1 + 2^{-k}$ or the condition by $t > 0$ makes rows fail (checked by mutation)."
 msgstr "*微小な結果。* $|x| \\le 10^{-4}$ では $\\operatorname{asin}(x)/x \\in [1, 1 + x^2]$、$\\operatorname{atan}(x)/x \\in [1 - x^2, 1]$ で、$x > 0$ の $\\operatorname{atan2Pi}(y, x)$ でも比 $y/x$ について同じことが成り立ちます。$x^2 < 2^{-(8\\max(D,p)+400)}$ になると、ループは中程度の大きさの値 $(s/\\pi)(1 \\pm 2^{-k})$（$s = x\\,10^{-\\operatorname{adj}(x)}$、または 2 つのスケール済み仮数の商）を包絡し、コンテキストで丸める前に端点を $10^{\\operatorname{adj}(x)}$ だけシフトします。`rsqrt` と同じ方法です（`decimal_certified_scaled_result`）。オペランド $10^{-1\\,999\\,996}$ のコストは $10^{-300}$ と同程度で、$2^{-6.6\\cdot 10^6}$ 付近の二進数の厳密な十進端点は約 200 万桁になります（この経路ができる前は、スケールしない `asinpi(7E-9999)` がデバッグビルドで 1 分以上かかりました）。 $x > 0$ の $\\operatorname{atan2Pi}(y, x)$ の導出は次のとおりです。$\\operatorname{atan2Pi}(y, x) = \\operatorname{sign}(y) \\operatorname{atan}(r)/\\pi$、ここで $r = |y/x| = (s_y/s_x)\\,10^{D}$、$s_y, s_x \\in [1, 10)$ は調整指数でスケールしたオペランド、$D = \\operatorname{adj}(y) - \\operatorname{adj}(x)$ なので $r < 10^{D+1}$ です。$r \\le 1$ なら $\\operatorname{atan}(r)/r \\in [1 - r^2, 1]$ で、したがって $\\operatorname{atan}(r)/\\pi = (s_y/(s_x \\pi))\\,10^{D}(1 - e)$、$0 \\le e \\le r^2 < 10^{-t}$、$t = -(2D + 2)$ となり、ループは中程度の因子 $(s_y/(s_x\\pi))(1 - 2^{-k})$、$k \\le 3.32\\,t$ を包絡して $D$ だけシフトします。この経路は $3t \\ge 8\\max(D_{\\text{digits}}, p) + 400$ のときに使われ、そこで判定できます。導出そのものに必要なのは $t > 0$ だけです。それ以外の場合のオペランドは、まず $10^{-\\operatorname{adj}(x)}$ を掛けます（比、したがって角度は変わりません）。そのため指数が数百万桁でも比が中程度のオペランドは、中程度のオペランドと同じコストで済みます。`library/src/decimal/atan2pi_scaled_wbtest.mbt` と `tools/generate_decimal_atan2pi_scaled_rows.py` の生成行（450 桁の Python `decimal`、照合のみ）は、条件の両側の比、$y$ と $x$ の両方の符号（$x < 0$ では結果は $\\pm(1 - \\operatorname{atan}(r)/\\pi)$ で $\\pm 1$ の近くになり、別のアンカー経路を通ります）、4 つの形式、全 8 つの丸め方向を扱います。$1 - 2^{-k}$ を $1 + 2^{-k}$ に、または条件を $t > 0$ に置き換えると行が失敗します（ミューテーションで確認）。"
 
-#: manual/design/decimal.md:1177
+#: manual/design/decimal.md:1179
 msgid "Operands of extreme exponent and the cost of a first attempt"
 msgstr "指数が極端なオペランドと最初の試行のコスト"
 
-#: manual/design/decimal.md:1179
+#: manual/design/decimal.md:1181
 msgid "Four changes of issue [#378](https://github.com/Luna-Flow/floating/issues/378) keep the cost of a call independent of the size of its operands' exponents while the results stay those of correct rounding."
 msgstr "issue [#378](https://github.com/Luna-Flow/floating/issues/378) の 4 つの変更により、結果は正しく丸められたままで、呼び出しのコストがオペランドの指数の大きさに依存しなくなります。"
 
-#: manual/design/decimal.md:1183
+#: manual/design/decimal.md:1185
 msgid "*Conversion to binary.* For $x = c\\,10^{-s}$ the quotient $\\lfloor c\\,2^{u} / 10^{s} \\rfloor$ is formed once, with $u = p + 3 + \\lceil s \\log_2 10 \\rceil$ (so $10^s < 2^{u-p-3}$ and the quotient keeps at least $p + 3$ bits: two bits below the target position and a sticky bit), made odd when the remainder is not zero; the remainder test is a multiplication, not a second division, and the lower and upper bound of a ball come from the same quotient. For $|{\\rm exponent}_{10}| \\ge 4096$ the exact $5^s$ (rebuilt on every call above the power cache) is replaced by a lower and an upper bound $m\\,2^{k}$ with $m$ of $p + \\text{bits}(c) + 80$ bits, made by binary powering with a directed trim after every product; the two bounds are rounded in the requested mode and the result is kept only if they agree (monotonicity of rounding), otherwise the exact conversion decides, so the result is the exact conversion bit for bit. For a negative exponent the quotient of the bounds is used only when $2 s > 4\\,\\text{bits}(c)$, where $5^s > c$ guarantees that the division is inexact (the sticky bit is set)."
 msgstr "*二進への変換。* $x = c\\,10^{-s}$ に対し、商 $\\lfloor c\\,2^{u} / 10^{s} \\rfloor$ は 1 回だけ計算します。ここで $u = p + 3 + \\lceil s \\log_2 10 \\rceil$ です（したがって $10^s < 2^{u-p-3}$ で、商は少なくとも $p + 3$ ビットを保ちます：目標位置の下の 2 ビットとスティッキービット）。余りが 0 でなければ商を奇数にします。余りの判定は 2 回目の除算ではなく乗算で行い、ボールの下限と上限は同じ商から作ります。$|{\\rm exponent}_{10}| \\ge 4096$ では、（べき乗キャッシュを超えると呼び出しのたびに作り直す）厳密な $5^s$ を、下限と上限 $m\\,2^{k}$ で置き換えます。$m$ は $p + \\text{bits}(c) + 80$ ビットで、二進のべき乗と各積の後の方向付き切り捨てで作ります。2 つの限界を要求されたモードで丸め、一致したときだけ結果を採用し（丸めの単調性）、そうでなければ厳密な変換が決めるので、結果は厳密な変換とビット単位で同じです。負の指数では、$2 s > 4\\,\\text{bits}(c)$ のときだけ限界の商を使います。このとき $5^s > c$ により除算は不正確（スティッキービットが立つ）です。"
 
-#: manual/design/decimal.md:1198
+#: manual/design/decimal.md:1200
 msgid "*First working precision.* $\\max(64, \\lceil 3.3219281\\,\\max(D, p) \\rceil + 31)$ bits instead of $\\max(128, 4 \\max(D, p) + 64)$: the schedule grows by a factor of 1.5 when an enclosure does not decide, so a low start costs an attempt and never a result. On 16,536 rows (exp, exp2, exp10, expm1, the inverse functions of $\\pi$ and atan2Pi, five formats) the number of operand conversions was 14,489 before and 14,490 after."
 msgstr "*最初の作業精度。* $\\max(128, 4 \\max(D, p) + 64)$ ではなく $\\max(64, \\lceil 3.3219281\\,\\max(D, p) \\rceil + 31)$ ビットにします。包含区間が判定できないときはスケジュールが精度を 1.5 倍にするので、低めの開始は試行が 1 回増えるだけで、結果は変わりません。16,536 行（exp、exp2、exp10、expm1、$\\pi$ の逆関数と atan2Pi、5 つの形式）で、オペランド変換の回数は変更前が 14,489、変更後が 14,490 でした。"
 
-#: manual/design/decimal.md:1204
+#: manual/design/decimal.md:1206
 msgid "*Tiny arguments of exp, exp2, exp10, expm1 and log1p.* For $|x| < 10^{t}$, $t \\le -1$: $|b^x - 1| \\le |x|\\ln b\\,e^{|x| \\ln b} < 10^{t+1}$ for $b \\in \\{e, 2, 10\\}$ ($\\ln b < 2.31$, $e^{0.231} < 1.3$) with the sign of $x$, so the result is $1$ plus or minus less than $10^{t+1}$, one-sided next to the representable 1 and decided by `decimal_tiny_argument_result` once $t + 1 < -(p + 3)$; and $\\operatorname{expm1}(x) - x = x^2/2 + \\dots > 0$, $x - \\operatorname{log1p}(x) = x^2/2 - \\dots > 0$, both below $x^2$ for $0 < |x| < 1/2$, so expm1 lies above $x$ and log1p below it, within $10^{2t}$. Rows on both sides of the thresholds, both signs, three formats and all eight directions have independently computed expected values; flipping a side makes rows fail."
 msgstr "*exp、exp2、exp10、expm1、log1p の微小な引数。* $|x| < 10^{t}$、$t \\le -1$ のとき、$b \\in \\{e, 2, 10\\}$ について $|b^x - 1| \\le |x|\\ln b\\,e^{|x| \\ln b} < 10^{t+1}$（$\\ln b < 2.31$、$e^{0.231} < 1.3$）で符号は $x$ と同じです。したがって結果は $1$ に $10^{t+1}$ 未満を加えるか引いたもので、表現可能な 1 の片側にあり、$t + 1 < -(p + 3)$ になれば `decimal_tiny_argument_result` が判定します。また $\\operatorname{expm1}(x) - x = x^2/2 + \\dots > 0$、$x - \\operatorname{log1p}(x) = x^2/2 - \\dots > 0$ で、$0 < |x| < 1/2$ ではどちらも $x^2$ 未満なので、expm1 は $x$ の上、log1p は下にあり、距離は $10^{2t}$ 以内です。しきい値の両側、両方の符号、3 つの形式、全 8 つの方向の行は独立に計算した期待値を持ち、どちらかの側を反転すると行が失敗します。"
 
-#: manual/design/decimal.md:1215
+#: manual/design/decimal.md:1217
 msgid "*Exact tests before the loop.* An exact $n$-th root of a decimal needs $\\text{exponent} \\bmod n = 0$ once trailing zeros are removed ($c\\,10^{\\text{shift}}$ with $0 < \\text{shift} < n$ and $\\min(v_2(c), v_5(c)) = 0$ has $v_2$ or $v_5$ equal to the shift, not a multiple of $n$), and the root comes from the kernel (square roots first for even degrees, Newton from the root of the leading digits); `atan2` forms the exact ratio only when $2D < -(p + 4)$ with $D = \\operatorname{adj}(y) - \\operatorname{adj}(x)$, the necessary condition of the tiny-argument decision; `compound` does not form $1 + x$ when $x$ is an integer multiple of 10 with $\\operatorname{adj}(x) \\ge p + 2$ (the sum ends in 1: no power of 2, 5 or 10) or for $n > 0$ when $\\operatorname{adj}(x) < -(p + 2)$ (more than $p + 2$ digits); `sqrt` reuses the remainder of the integer root."
 msgstr "*ループの前の厳密性テスト。* 末尾のゼロを除いた後、十進数の厳密な $n$ 乗根には $\\text{exponent} \\bmod n = 0$ が必要です（$0 < \\text{shift} < n$ かつ $\\min(v_2(c), v_5(c)) = 0$ の $c\\,10^{\\text{shift}}$ では、$v_2$ か $v_5$ が shift に等しく、$n$ の倍数ではありません）。根はカーネルから得ます（偶数次ではまず平方根、次に先頭桁の根からのニュートン法）。`atan2` が厳密な比を作るのは $2D < -(p + 4)$ のときだけで、$D = \\operatorname{adj}(y) - \\operatorname{adj}(x)$ は微小引数判定の必要条件です。`compound` は、$x$ が 10 の整数倍で $\\operatorname{adj}(x) \\ge p + 2$ のとき（和は 1 で終わり、2、5、10 のべき乗ではない）、または $n > 0$ で $\\operatorname{adj}(x) < -(p + 2)$ のとき（$p + 2$ 桁より多い）、$1 + x$ を作りません。`sqrt` は整数平方根の余りを再利用します。"
 
-#: manual/design/decimal.md:1226
+#: manual/design/decimal.md:1228
 msgid "*Negative integer power (#375).* For $n = |{\\rm count}|$, $|b|^n \\in [10^{n\\,lb}, 10^{n\\,ub})$ with $lb = \\operatorname{adj}(b)$, $ub = lb + 1$, hence $1/|b|^n \\in (10^{-n\\,ub}, 10^{-n\\,lb}]$: it overflows when $-n\\,ub > e_{\\max}$ and lies below half of the smallest subnormal when $-n\\,lb \\le E_{\\text{tiny}} - 2$; the exponent product of the exact path is formed in 64 bits."
 msgstr "*負の整数べき（#375）。* $n = |{\\rm count}|$ について $|b|^n \\in [10^{n\\,lb}, 10^{n\\,ub})$、ここで $lb = \\operatorname{adj}(b)$、$ub = lb + 1$ なので、$1/|b|^n \\in (10^{-n\\,ub}, 10^{-n\\,lb}]$ です。$-n\\,ub > e_{\\max}$ ならオーバーフローし、$-n\\,lb \\le E_{\\text{tiny}} - 2$ なら最小の非正規数の半分より小さくなります。厳密経路の指数の積は 64 ビットで作ります。"
 
-#: manual/design/decimal.md:1232
+#: manual/design/decimal.md:1234
 msgid "Outward-rounded endpoints"
 msgstr "外向きに丸めた端点"
 
-#: manual/design/decimal.md:1234
+#: manual/design/decimal.md:1236
 msgid "The Ziv driver turns the two binary endpoints $L \\le U$ of an enclosure into decimals and rounds both to the context. Expanding $c \\cdot 2^{-s}$ exactly costs $c \\cdot 5^{s}$, about $0.7 s$ digits, which is quadratic in the decimal exponent of the argument under a wide-range context (`1E-999990` took more than 80 s in `expm1`). For a non-degenerate enclosure the driver instead rounds $L$ down and $U$ up to $D = \\max(p + 12,\\ 0.3\\,b + 4)$ digits, $b$ being the bit length of the endpoint coefficients (so a refined enclosure is never widened beyond about one binary ulp). The powers $5^{s}$ and $2^{s}$ are computed by binary powering with a directed trim to $D + 4$ digits after every product: $O(\\log s)$ products of $D$-digit numbers, independent of $s$."
 msgstr "Ziv ドライバーは包含区間の二つの二進端点 $L \\le U$ を十進数に変換し、どちらもコンテキストへ丸めます。$c \\cdot 2^{-s}$ を厳密に展開すると $c \\cdot 5^{s}$ が必要で約 $0.7 s$ 桁になり、広い範囲のコンテキストでは引数の十進指数に対して二次の計算量になります（`expm1` の `1E-999990` は 80 秒を超えていました）。退化していない包含区間では、代わりに $L$ を下向き、$U$ を上向きに $D = \\max(p + 12,\\ 0.3\\,b + 4)$ 桁へ丸めます。$b$ は端点係数のビット長です（細分化した区間が広がるのは約 1 二進 ulp 以内）。$5^{s}$ と $2^{s}$ は二進べき乗法で求め、各積のあとに向きを指定して $D + 4$ 桁へ切り詰めます。$D$ 桁の数の積が $O(\\log s)$ 回で、$s$ に依存しません。"
 
-#: manual/design/decimal.md:1245
+#: manual/design/decimal.md:1247
 msgid "*Soundness.* Every trim moves towards the chosen side (down for the lower magnitude bound, up for the upper one, with signs swapped for negative endpoints), and products of positive bounds are bounds, so by induction the computed power brackets the exact power, and $L' \\le L \\le U \\le U'$. Rounding to the context is monotone, so $\\mathrm{rnd}(L') = \\mathrm{rnd}(U')$ implies $\\mathrm{rnd}(x)$ is that value for every $x \\in [L, U]$, and the flags are compared as before. The guard digits only affect tightness, not soundness. A degenerate enclosure ($L = U$, binary-exact) keeps the exact expansion, and infinite, zero and out-of-range endpoints are converted as before. A certified result is unchanged; only an enclosure that straddles a rounding boundary at a distance below $10^{-D}$ relative is refused one step earlier, and the next refinement widens $D$ with the binary precision."
 msgstr "*健全性。* 切り詰めはいずれも選んだ側へ動き（下限は下向き、上限は上向き。負の端点では向きが入れ替わる）、正の界の積は界なので、帰納法により計算したべきは厳密なべきを包み、$L' \\le L \\le U \\le U'$ が成り立ちます。コンテキストへの丸めは単調なので、$\\mathrm{rnd}(L') = \\mathrm{rnd}(U')$ ならば $[L, U]$ のすべての $x$ で $\\mathrm{rnd}(x)$ はその値になり、フラグの比較は従来どおりです。保護桁は tightness にのみ影響し、健全性には影響しません。退化した区間（$L = U$、二進で厳密）は厳密展開のまま、無限大・零・範囲外の端点の変換も変わりません。認証済みの結果は変わらず、丸め境界から相対距離 $10^{-D}$ 未満で境界をまたぐ区間だけが一段早く拒否され、次の細分化で二進精度に応じて $D$ が広がります。"
 
-#: manual/design/decimal.md:1258
+#: manual/design/decimal.md:1260
 msgid "The elementary functions refuse contexts with $p$ or $|e|$ above 999,999 (`invalid_operation`; the decNumber limit, see the `decimal_gda` design page), which bounds the size of the exact endpoint conversions."
 msgstr "初等関数は $p$ または $|e|$ が 999,999 を超えるコンテキストを拒否します（`invalid_operation`。これは decNumber の限界で、`decimal_gda` の設計ページを参照）。これにより、端点の正確な変換の規模が抑えられます。"
 
-#: manual/design/decimal.md:1262
+#: manual/design/decimal.md:1264
 msgid "A. Ziv, \"Fast evaluation of elementary mathematical functions with correctly rounded last bit\", *ACM TOMS* 17(3), 1991; J.-M. Muller et al., *Handbook of Floating-Point Arithmetic*, 2nd ed., Birkhäuser 2018, ch. 12; J. van der Hoeven, \"Ball arithmetic\", 2009, for the enclosure model."
 msgstr "A. Ziv, \"Fast evaluation of elementary mathematical functions with correctly rounded last bit\", *ACM TOMS* 17(3), 1991; J.-M. Muller et al., *Handbook of Floating-Point Arithmetic*, 2nd ed., Birkhäuser 2018, ch. 12; 包含区間のモデルについては J. van der Hoeven, \"Ball arithmetic\", 2009."
 
-#: manual/design/decimal.md:1267
+#: manual/design/decimal.md:1269
 msgid "Coefficient kernels"
 msgstr "係数カーネル"
 
-#: manual/design/decimal.md:1269
+#: manual/design/decimal.md:1271
 msgid "**Problem.** Rounding at decimal positions needs fast division by powers of ten and fast digit counts; large precisions need sub-quadratic multiplication and division."
 msgstr "**問題。** 10 進の位置での丸めには、10 のべきによる高速な除算と高速な桁数計算が必要です。大きな精度には、2 乗未満の計算量の乗算と除算が必要です。"
 
-#: manual/design/decimal.md:1273
+#: manual/design/decimal.md:1275
 msgid "**Choice.** `DecCoeff`, defined in the internal package `internal/decimal_kernel` that `decimal` shares with `decimal_gda` (neither package exposes it), is either a `Small(UInt64)` below $10^{18}$ or a little-endian array of base-$10^{9}$ limbs with no leading zero limb and a cached digit count. The package holds only status-free integer arithmetic; the finalizer, flags and contexts stay in each decimal package (see [the shared kernel](decimal_gda.md#a-gda-package-independent-of-decimal)). Base $10^9$ is the largest power of ten below $2^{30}$, so a limb product is below $10^{18} < 2^{60}$; shifting by a multiple of nine digits moves limbs, and `digits10` is a limb count plus the digits of the top limb. `BigInt` appears only at the public boundary."
 msgstr "**選択。** `DecCoeff` は内部パッケージ `internal/decimal_kernel` で定義され、`decimal` と `decimal_gda` が共有します（どちらのパッケージも公開しません）。$10^{18}$ 未満の `Small(UInt64)` か、基数 $10^{9}$ のリムからなるリトルエンディアンの配列（先頭にゼロのリムを持たず、桁数をキャッシュする）のどちらかです。このパッケージが持つのは状態に依存しない整数演算だけで、最終化ルーチン、フラグ、コンテキストは各 10 進パッケージに残ります（[共有カーネル](decimal_gda.md#a-gda-package-independent-of-decimal)を参照）。基数 $10^9$ は $2^{30}$ 未満で最大の 10 のべきなので、リム同士の積は $10^{18} < 2^{60}$ 未満になります。9 桁の倍数だけシフトするのはリムの移動で済み、`digits10` はリムの個数と最上位リムの桁数から求まります。`BigInt` が現れるのは公開境界だけです。"
 
-#: manual/design/decimal.md:1284
+#: manual/design/decimal.md:1286
 msgid "Multiplication dispatch:"
 msgstr "乗算のディスパッチ："
 
-#: manual/design/decimal.md:1286
+#: manual/design/decimal.md:1288
 msgid "Shape"
 msgstr "形状"
 
-#: manual/design/decimal.md:1286
+#: manual/design/decimal.md:1288
 msgid "Algorithm"
 msgstr "アルゴリズム"
 
-#: manual/design/decimal.md:1286
+#: manual/design/decimal.md:1288
 #: manual/design/decimal_checked.md:261
 #: manual/design/decimal_gda_checked.md:248
 #: manual/design/def.md:295
 msgid "Cost"
 msgstr "コスト"
 
-#: manual/design/decimal.md:1288
+#: manual/design/decimal.md:1290
 msgid "one limb each"
 msgstr "それぞれ 1 リム"
 
-#: manual/design/decimal.md:1288
+#: manual/design/decimal.md:1290
 msgid "inline"
 msgstr "インライン"
 
-#: manual/design/decimal.md:1289
+#: manual/design/decimal.md:1291
 msgid "many zero limbs ($n_a' n_b' \\cdot 4 < n_a n_b$ non-zero limbs)"
 msgstr "ゼロのリムが多い（ゼロでないリムが $n_a' n_b' \\cdot 4 < n_a n_b$）"
 
-#: manual/design/decimal.md:1289
+#: manual/design/decimal.md:1291
 msgid "sparse products"
 msgstr "疎な積"
 
-#: manual/design/decimal.md:1290
+#: manual/design/decimal.md:1292
 msgid "balanced blocks of the short length"
 msgstr "短い方の長さのブロックに均等分割"
 
-#: manual/design/decimal.md:1291
+#: manual/design/decimal.md:1293
 msgid "small"
 msgstr "小さい"
 
-#: manual/design/decimal.md:1291
+#: manual/design/decimal.md:1293
 msgid "Comba columns / schoolbook"
 msgstr "Comba の列方式 / 筆算"
 
-#: manual/design/decimal.md:1292
+#: manual/design/decimal.md:1294
 msgid "from the Karatsuba threshold"
 msgstr "Karatsuba の閾値以上"
 
-#: manual/design/decimal.md:1292
+#: manual/design/decimal.md:1294
 msgid "Karatsuba"
 msgstr "Karatsuba"
 
-#: manual/design/decimal.md:1293
+#: manual/design/decimal.md:1295
 msgid "from the Toom-3 threshold"
 msgstr "Toom-3 の閾値以上"
 
-#: manual/design/decimal.md:1293
-#: manual/design/decimal.md:1339
+#: manual/design/decimal.md:1295
+#: manual/design/decimal.md:1341
 #: manual/design/decimal_gda.md:875
 msgid "Toom-3"
 msgstr "Toom-3"
 
-#: manual/design/decimal.md:1294
+#: manual/design/decimal.md:1296
 msgid "from the NTT threshold"
 msgstr "NTT の閾値以上"
 
-#: manual/design/decimal.md:1294
+#: manual/design/decimal.md:1296
 msgid "two-prime NTT"
 msgstr "2 素数 NTT"
 
-#: manual/design/decimal.md:1296
+#: manual/design/decimal.md:1298
 msgid "The Comba kernel accumulates a column of $n$ limb products in a `UInt64` only when $\\min(n_a,n_b) \\le 18$: a column sum plus incoming carry is at most $18(10^{9}-1)^{2} + 2\\cdot 10^{10} < 1.8\\cdot 10^{19} < 2^{64}$, while 19 products could exceed $2^{64} \\approx 1.845\\cdot 10^{19}$."
 msgstr "Comba カーネルは、$\\min(n_a,n_b) \\le 18$ のときに限り、$n$ 個のリム積の列を `UInt64` に累積します。列の和に入ってくる繰り上がりを加えても高々 $18(10^{9}-1)^{2} + 2\\cdot 10^{10} < 1.8\\cdot 10^{19} < 2^{64}$ ですが、19 個の積では $2^{64} \\approx 1.845\\cdot 10^{19}$ を超えうるからです。"
 
-#: manual/design/decimal.md:1301
+#: manual/design/decimal.md:1303
 msgid "The NTT splits the coefficients into base-$10^5$ digits and convolves them modulo the primes $p_1 = 998\\,244\\,353 = 119\\cdot 2^{23} + 1$ and $p_2 = 754\\,974\\,721 = 45 \\cdot 2^{24} + 1$, both of which have $2^{23}$-th roots of unity, so transforms up to length $2^{23}$ exist. A convolution coefficient is a sum of at most $m = \\min(n_a, n_b)$ products of digits below $10^{5}$, hence below $m \\cdot 99999^{2}$; it is recovered exactly from its residues by the Chinese remainder theorem,"
 msgstr "NTT は係数を基数 $10^5$ の桁に分割し、素数 $p_1 = 998\\,244\\,353 = 119\\cdot 2^{23} + 1$ と $p_2 = 754\\,974\\,721 = 45 \\cdot 2^{24} + 1$ を法として畳み込みます。どちらも $2^{23}$ 乗根の 1 の原始根を持つので、長さ $2^{23}$ までの変換が存在します。畳み込みの係数は $10^{5}$ 未満の桁同士の積を高々 $m = \\min(n_a, n_b)$ 個足したものなので $m \\cdot 99999^{2}$ 未満であり、中国剰余定理によって剰余から厳密に復元されます。"
 
-#: manual/design/decimal.md:1313
+#: manual/design/decimal.md:1315
 msgid "as long as $m \\cdot 99999^{2} < p_1 p_2 = 753\\,649\\,251\\,896\\,000\\,513$, i.e. $m < 7.5 \\cdot 10^{7}$. The transform limit $2^{23}$ allows at most $m = 2^{22}$, and $2^{22} \\cdot 99999^{2} = 41\\,942\\,201\\,143\\,394\\,304 < p_1 p_2$, so the bound always holds below the transform limit (the kernel checks it before every transform). Base $10^{9}$ digits would need $m\\cdot 10^{18} < p_1p_2$, impossible for any $m \\ge 1$, which is why the NTT uses smaller digits. When the bounds do not hold the kernel falls back to Toom-3."
 msgstr "これは $m \\cdot 99999^{2} < p_1 p_2 = 753\\,649\\,251\\,896\\,000\\,513$、すなわち $m < 7.5 \\cdot 10^{7}$ である限り成り立ちます。変換長の上限 $2^{23}$ からは高々 $m = 2^{22}$ で、$2^{22} \\cdot 99999^{2} = 41\\,942\\,201\\,143\\,394\\,304 < p_1 p_2$ なので、変換の上限未満では常にこの限界が成り立ちます（カーネルは変換のたびにこれを検査します）。基数 $10^{9}$ の桁では $m\\cdot 10^{18} < p_1p_2$ が必要になり、これはどの $m \\ge 1$ でも不可能です。NTT がより小さい桁を使うのはこのためです。限界が成り立たない場合、カーネルは Toom-3 にフォールバックします。"
 
-#: manual/design/decimal.md:1322
+#: manual/design/decimal.md:1324
 msgid "Division uses one-limb division, Knuth's Algorithm D,[^knuth] Burnikel–Ziegler recursive division, or Newton reciprocal division. Newton computes $r \\approx S/d$ for $S = B^{n+1}$ by $r_{k+1} = \\lfloor r_k (2S - d r_k)/S \\rfloor$: with $r_k = S/d - \\varepsilon_k$ one gets $S/d - r_{k+1} \\approx d\\,\\varepsilon_k^{2}/S$, so the number of correct limbs doubles per step. The iteration must increase monotonically from below; if it does not, or the final quotient correction takes more than $2n+8$ steps, the routine falls back to Burnikel–Ziegler, which itself falls back to Algorithm D on unsupported shapes."
 msgstr "除算は、1 リムによる除算、Knuth の Algorithm D、[^knuth] Burnikel–Ziegler の再帰的除算、または Newton の逆数除算を使います。Newton 法は $S = B^{n+1}$ に対して $r_{k+1} = \\lfloor r_k (2S - d r_k)/S \\rfloor$ により $r \\approx S/d$ を計算します。$r_k = S/d - \\varepsilon_k$ とすると $S/d - r_{k+1} \\approx d\\,\\varepsilon_k^{2}/S$ となるので、正しいリムの数は 1 ステップごとに倍になります。反復は下から単調に増加しなければなりません。そうならない場合、あるいは最後の商の補正に $2n+8$ ステップより多くかかる場合、ルーチンは Burnikel–Ziegler にフォールバックし、それ自体もサポートしない形状では Algorithm D にフォールバックします。"
 
-#: manual/design/decimal.md:1332
+#: manual/design/decimal.md:1334
 msgid "D. E. Knuth, *The Art of Computer Programming*, vol. 2, 3rd ed., §4.3.1 (Algorithm D) and §4.3.3; R. Brent and P. Zimmermann, *Modern Computer Arithmetic*, Cambridge 2010, §1.3–1.4 and §2.4 (NTT); C. Burnikel and J. Ziegler, \"Fast recursive division\", MPI-I-98-1-022, 1998."
 msgstr "D. E. Knuth, *The Art of Computer Programming*, vol. 2, 3rd ed., §4.3.1 (Algorithm D) and §4.3.3; R. Brent and P. Zimmermann, *Modern Computer Arithmetic*, Cambridge 2010, §1.3–1.4 and §2.4 (NTT); C. Burnikel and J. Ziegler, \"Fast recursive division\", MPI-I-98-1-022, 1998."
 
-#: manual/design/decimal.md:1337
+#: manual/design/decimal.md:1339
 msgid "The crossovers are measured per target and stored in target-specific files:"
 msgstr "切り替え点はターゲットごとに計測され、ターゲット固有のファイルに保存されています。"
 
-#: manual/design/decimal.md:1339
+#: manual/design/decimal.md:1341
 #: manual/design/decimal_gda.md:875
 msgid "Target"
 msgstr "ターゲット"
 
-#: manual/design/decimal.md:1339
+#: manual/design/decimal.md:1341
 #: manual/design/decimal_gda.md:875
 msgid "Karatsuba mul / square"
 msgstr "Karatsuba mul/square"
 
-#: manual/design/decimal.md:1339
+#: manual/design/decimal.md:1341
 #: manual/design/decimal_gda.md:875
 msgid "first NTT mul / square"
 msgstr "first NTT mul/square"
 
-#: manual/design/decimal.md:1339
+#: manual/design/decimal.md:1341
 #: manual/design/decimal_gda.md:875
 msgid "Burnikel–Ziegler"
 msgstr "Burnikel–Ziegler"
 
-#: manual/design/decimal.md:1339
+#: manual/design/decimal.md:1341
 msgid "Newton"
 msgstr "Newton"
 
-#: manual/design/decimal.md:1341
+#: manual/design/decimal.md:1343
 #: manual/design/decimal_gda.md:877
 #: manual/verification.md:216
 #: manual/verification.md:259
 msgid "native"
 msgstr "native"
 
-#: manual/design/decimal.md:1341
+#: manual/design/decimal.md:1343
 #: manual/design/decimal_gda.md:877
 msgid "from 2,816"
 msgstr "2,816 以上"
 
-#: manual/design/decimal.md:1341
+#: manual/design/decimal.md:1343
 msgid "disabled"
 msgstr "無効"
 
-#: manual/design/decimal.md:1342
+#: manual/design/decimal.md:1344
 #: manual/design/decimal_gda.md:878
 msgid "LLVM"
 msgstr "LLVM"
 
-#: manual/design/decimal.md:1343
+#: manual/design/decimal.md:1345
 msgid "Wasm / Wasm-GC / JS"
 msgstr "Wasm / Wasm-GC / JS"
 
-#: manual/design/decimal.md:1345
+#: manual/design/decimal.md:1347
 msgid "(limbs of nine digits). On native the NTT threshold also depends on the transform length — 1,728, 2,816, 4,608, 7,680, then 8,192 limbs for multiplication and 640, 1,040, 1,824, 3,648, 7,296, then 8,192 for squaring — and the Burnikel–Ziegler entry moves to 5,120 and 10,240 limbs for larger block lengths. These are dispatch boundaries: they change cost, never results. The native Newton path is implemented and tested but disabled, because native measurements do not show a crossover."
 msgstr "（リムは 9 桁）。native では NTT の閾値は変換長にも依存します。乗算では 1,728、2,816、4,608、7,680、その後 8,192 リム、2 乗では 640、1,040、1,824、3,648、7,296、その後 8,192 リムです。また Burnikel–Ziegler に入る点は、ブロック長が大きくなると 5,120 リム、10,240 リムに移ります。これらはディスパッチの境界であり、コストを変えるだけで結果を変えることはありません。native の Newton 経路は実装・テスト済みですが、native での計測では切り替え点が見られないため無効になっています。"
 
-#: manual/design/decimal.md:1355
+#: manual/design/decimal.md:1357
 msgid "**Representation.** A finite `Decimal` has $c \\ge 0$; `DecCoeff` limbs are canonical (no leading zero limb, exact digit count). A zero's sign is kept in the sign bit; `coefficient()` never carries a sign."
 msgstr "**表現。** 有限の `Decimal` は $c \\ge 0$ を持ちます。`DecCoeff` のリムは正準です（先頭にゼロのリムがなく、桁数が正確）。ゼロの符号は符号ビットに保持され、`coefficient()` が符号を持つことはありません。"
 
-#: manual/design/decimal.md:1358
+#: manual/design/decimal.md:1360
 msgid "**Single rounding.** Every context result of `+`, `-`, `×`, `/`, `fma`, `sqrt`, `scaleb`, quantize and the conversions is the exact result rounded once, in the normal and in the subnormal range; integer powers are correctly rounded; certified elementary results are correctly rounded whenever they are returned, and a failure is reported, never approximated. The exceptions are listed under [known deviations](#known-deviations)."
 msgstr "**1 回だけの丸め。** `+`、`-`、`×`、`/`、`fma`、`sqrt`、`scaleb`、quantize、変換のすべてのコンテキスト結果は、正規化数の範囲でも非正規化数の範囲でも、厳密な結果を 1 回だけ丸めたものです。整数べきは正しく丸められます。認証された初等関数の結果は返される場合は常に正しく丸められており、失敗は近似されることなく報告されます。例外は[既知の逸脱](#known-deviations)に挙げます。"
 
-#: manual/design/decimal.md:1365
+#: manual/design/decimal.md:1367
 msgid "**Error bound.** For normal results of those operations, $\\operatorname{fl}(x) = x(1+\\delta)$ with $|\\delta| \\le \\tfrac12 10^{1-p}$ in the half modes and $|\\delta| < 10^{1-p}$ in the directed modes."
 msgstr "**誤差限界。** これらの演算の結果が正規化数であれば、$\\operatorname{fl}(x) = x(1+\\delta)$ であり、half 系のモードでは $|\\delta| \\le \\tfrac12 10^{1-p}$、方向付き丸めのモードでは $|\\delta| < 10^{1-p}$ です。"
 
-#: manual/design/decimal.md:1368
+#: manual/design/decimal.md:1370
 msgid "**Exactness is visible.** `inexact` is raised if and only if the returned value differs from the exact result; `rounded` whenever digits were dropped. Exact decimal results of non-integral powers violate the \"only if\" direction."
 msgstr "**厳密さが見える。** `inexact` は返される値が厳密な結果と異なるとき、かつそのときに限り立てられます。`rounded` は桁が落とされたときに常に立てられます。非整数べきの厳密な 10 進結果は、「そのときに限り」の方向に反します。"
 
-#: manual/design/decimal.md:1372
+#: manual/design/decimal.md:1374
 msgid "**Cohort preservation.** An exact result that fits is returned at the preferred exponent; `quantize_ctx` either returns exponent $q_y$ or fails."
 msgstr "**コホートの保存。** 収まる厳密な結果は推奨指数で返されます。`quantize_ctx` は指数 $q_y$ を返すか、失敗するかのどちらかです。"
 
-#: manual/design/decimal.md:1374
+#: manual/design/decimal.md:1376
 msgid "**Flags.** `combine` is associative, commutative and idempotent with identity `new()`."
 msgstr "**フラグ。** `combine` は結合的、可換、冪等で、単位元は `new()` です。"
 
-#: manual/design/decimal.md:1376
+#: manual/design/decimal.md:1378
 msgid "**Ordering.** `compare` is a total preorder (NaNs equal to each other and above every number, $-0 = +0$); `total_order_compare` is a total order on representations and refines `compare` on non-NaN values."
 msgstr "**順序。** `compare` は全前順序です（NaN 同士は等しく、すべての数より大きい。$-0 = +0$）。`total_order_compare` は表現上の全順序であり、NaN でない値については `compare` を細分化します。"
 
-#: manual/design/decimal.md:1379
+#: manual/design/decimal.md:1381
 msgid "**Encodings.** Decoding then encoding canonical bits is the identity; encoding then decoding a value that fits the format is the identity, including cohort, sign of zero and NaN payload (DPD and BID)."
 msgstr "**エンコーディング。** 正準なビットをデコードしてからエンコードすると恒等写像になります。形式に収まる値をエンコードしてからデコードすると、コホート、ゼロの符号、NaN のペイロード（DPD と BID）を含めて恒等写像になります。"
 
-#: manual/design/decimal.md:1382
+#: manual/design/decimal.md:1384
 msgid "**Complexity.** Comparison, addition, shifts and one-limb division are $O(n)$ in limbs; multiplication and division follow the dispatch table."
 msgstr "**計算量。** 比較、加算、シフト、1 リムによる除算はリム数について $O(n)$ です。乗算と除算はディスパッチ表に従います。"
 
-#: manual/design/decimal.md:1385
+#: manual/design/decimal.md:1387
 msgid "Known deviations"
 msgstr "既知の逸脱"
 
-#: manual/design/decimal.md:1387
+#: manual/design/decimal.md:1389
 msgid "No behaviour of the current branch contradicts the goals above. A deviation found later is listed here, reproduced in the [API reference](../api/decimal.md) next to the operation, and tracked in a GitHub issue together with the pull request that proposes a fix."
 msgstr "現在のブランチの挙動で上記の目標に反するものはありません。後に見つかった逸脱はここに列挙し、[API リファレンス](../api/decimal.md)の該当する演算の箇所で再現を示し、修正を提案する pull request とともに GitHub issue で追跡します。"
 
-#: manual/design/decimal.md:1392
+#: manual/design/decimal.md:1394
 msgid "The proofs of the midpoint test, the `ZeroFiveUp` double-rounding lemma, the overflow table, the fold-down bound, the certification lemma and the kernel bounds are collected in the attachment:"
 msgstr "中点テスト、`ZeroFiveUp` の二重丸めの補題、オーバーフローの表、フォールドダウンの限界、認証の補題、カーネルの限界の証明は、添付資料にまとめられています。"
 
-#: manual/design/decimal.md:1396
+#: manual/design/decimal.md:1398
 msgid "[Rounding proofs for decimal](../../attachments/design_decimal_rounding.typ)"
 msgstr "[decimal の丸めに関する証明](../../attachments/design_decimal_rounding.typ)"
 
-#: manual/design/decimal.md:1398
+#: manual/design/decimal.md:1400
 msgid "The [conformance page](../conformance/decimal.md) records the finite evidence (fixed IEEE corpus, exhaustive declet check, MPFR-certified elementary rows, four targets)."
 msgstr "[適合性のページ](../conformance/decimal.md)には、有限の証拠（固定された IEEE コーパス、デクレットの網羅的検査、MPFR で認証された初等関数の行、4 つのターゲット）が記録されています。"
 
-#: manual/design/decimal.md:1404
+#: manual/design/decimal.md:1406
 msgid "**A binary `BigInt` coefficient.** Rounding at a decimal position needs a division by $10^{s}$ and a digit count at every operation; with a binary coefficient both are expensive, with base-$10^{9}$ limbs they are limb moves and one small division."
 msgstr "**2 進の `BigInt` 係数。** 10 進の位置での丸めには、毎回の演算で $10^{s}$ による除算と桁数の計算が必要です。2 進の係数ではどちらも高価ですが、基数 $10^{9}$ のリムならリムの移動と 1 回の小さな除算で済みます。"
 
-#: manual/design/decimal.md:1408
+#: manual/design/decimal.md:1410
 msgid "**Ambient context and sticky flags.** Rejected for explicitness and composability; the flags monoid gives the same information."
 msgstr "**暗黙のコンテキストとスティッキーフラグ。** 明示性と合成可能性のために不採用としました。フラグのモノイドが同じ情報を与えます。"
 
-#: manual/design/decimal.md:1410
+#: manual/design/decimal.md:1412
 msgid "**A `compare` that aborts on NaN.** Sorting and generic `Compare` code would abort on data containing NaN. The current `compare` is a total preorder and IEEE semantics are available through `compare_checked`, `compare_ctx`, `compare_signal_ctx` and `total_order_compare`."
 msgstr "**NaN で中断する `compare`。** NaN を含むデータに対して、ソートや汎用の `Compare` コードが中断してしまいます。現在の `compare` は全前順序であり、IEEE の意味論は `compare_checked`、`compare_ctx`、`compare_signal_ctx`、`total_order_compare` を通じて利用できます。"
 
-#: manual/design/decimal.md:1414
+#: manual/design/decimal.md:1416
 msgid "**Fixed-precision transcendental kernels with an analytic error bound.** Faster for small precisions, but a correctness proof per function and per precision; the enclosure loop is correct by construction and its failure mode is explicit."
 msgstr "**解析的な誤差限界を持つ固定精度の超越関数カーネル。** 小さな精度では高速ですが、関数ごと・精度ごとに正しさの証明が必要になります。包含区間のループは構成上正しく、その失敗モードは明示的です。"
 
-#: manual/design/decimal.md:1418
+#: manual/design/decimal.md:1420
 msgid "**One package for IEEE and GDA.** Sticky status, traps and trap precedence change the type of every operation; they live in `decimal_gda`."
 msgstr "**IEEE と GDA を 1 つのパッケージにすること。** スティッキーなステータス、トラップ、トラップの優先順位はすべての演算の型を変えてしまいます。これらは `decimal_gda` にあります。"
 
-#: manual/design/decimal.md:1420
+#: manual/design/decimal.md:1422
 msgid "**Normalizing every result.** Losing the cohort would make `12.30` and `12.3` indistinguishable and break quantum-sensitive protocols."
 msgstr "**すべての結果を正規化すること。** コホートを失うと `12.30` と `12.3` が区別できなくなり、量子に依存するプロトコルが壊れます。"
 
-#: manual/design/decimal.md:1425
+#: manual/design/decimal.md:1427
 msgid "`decimal` deliberately does not:"
 msgstr "`decimal` は意図的に次のことを行いません。"
 
-#: manual/design/decimal.md:1427
+#: manual/design/decimal.md:1429
 msgid "keep sticky status or traps (use `decimal_checked` or `decimal_gda`);"
 msgstr "スティッキーなステータスやトラップを保持すること（`decimal_checked` または `decimal_gda` を使ってください）。"
 
-#: manual/design/decimal.md:1428
+#: manual/design/decimal.md:1430
 msgid "round the context-free operators to a context: `*` is exact, `+` and `/` round to the operand precision only, and none applies an exponent range;"
 msgstr "コンテキストを持たない演算子をコンテキストへ丸めること。`*` は厳密で、`+` と `/` はオペランドの精度にのみ丸め、いずれも指数範囲を適用しません。"
 
-#: manual/design/decimal.md:1430
+#: manual/design/decimal.md:1432
 msgid "guarantee the exact flags of exact decimal results of non-integral powers (see [known deviations](#known-deviations));"
 msgstr "非整数べきの厳密な十進の結果の正確なフラグを保証すること（[既知の逸脱](#known-deviations)を参照）。"
 
-#: manual/design/decimal.md:1432
+#: manual/design/decimal.md:1434
 msgid "guarantee that elementary-function certification succeeds: after the refinement limit of the context (twelve by default, `with_refinement_limit`; the last steps work with very wide numbers and can take a long time) it reports `CertificationFailure` (`try_*_ctx`) or NaN with `invalid_operation` (`*_ctx`);"
 msgstr "初等関数の認証が成功することを保証すること。文脈の精緻化の上限（既定は 12 ステップ、`with_refinement_limit` を参照。最後のステップでは非常に長い数を扱い、長い時間がかかることがあります）を使い切ると、`CertificationFailure`（`try_*_ctx`）または `invalid_operation` を伴う NaN（`*_ctx`）を報告します。"
 
-#: manual/design/decimal.md:1436
+#: manual/design/decimal.md:1438
 msgid "evaluate elementary functions in contexts with precision or exponents above 999,999;"
 msgstr "精度または指数が 999,999 を超えるコンテキストで初等関数を評価すること。"
 
-#: manual/design/decimal.md:1438
+#: manual/design/decimal.md:1440
 msgid "preserve NaN payloads through binary conversions;"
 msgstr "二進との変換で NaN のペイロードを保持すること。"
 
-#: manual/design/decimal.md:1439
+#: manual/design/decimal.md:1441
 msgid "expose its coefficient representation, kernel selection or thresholds;"
 msgstr "係数の表現、カーネルの選択、閾値を公開すること。"
 
-#: manual/design/decimal.md:1440
+#: manual/design/decimal.md:1442
 msgid "claim conformance beyond the finite evidence on the [conformance page](../conformance/decimal.md)."
 msgstr "[適合性のページ](../conformance/decimal.md)にある有限の証拠を超えて適合性を主張すること。"
 
