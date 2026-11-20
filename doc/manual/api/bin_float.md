@@ -833,13 +833,15 @@ largest finite value (always together with `inexact`); `division_by_zero`, an
 exact infinite result from finite operands (such as $1/0$ or $\log 0$);
 `invalid_operation`, no useful real result exists and a quiet NaN was
 returned, or a signaling NaN was an operand. The non-`try` elementary
-functions also raise it when they return NaN for a domain error or a
-certification failure.
+functions also raise it when they return NaN for a domain error (the `try_`
+forms still return an `Err` for one; they become values in a later step of S4).
 `not_computed`, the operation could not be carried out within a limit of the
 implementation (a certification that did not conclude, a context beyond what the
 kernels support) and the value is a NaN; it is not a flag of IEEE 754-2019 and
-is distinct from `invalid_operation`. No operation raises it yet: the elementary
-functions will, in place of `invalid_operation`, when they fail to compute.
+is distinct from `invalid_operation`. The non-`try` elementary functions raise it
+when the `try_` form returns an `Err` of the certification-failure kind (they
+raised `invalid_operation` before), and the checked tiers turn it into that
+`Err`.
 
 ### `BinaryFlags::combine`
 
@@ -1611,8 +1613,9 @@ When the attempts run out, `try_f_ctx` returns a `certification_failure`
 error whose `CertificationFailureDetail` names the operation, the stage
 (`RangeReduction` or `TargetRounding`), the reason and the last working
 precision. An argument outside the real domain gives a `domain_error` from
-`try_f_ctx`. The non-`try` forms turn both kinds of error into a quiet NaN
-with `invalid_operation`. NaN operands propagate quietly (a signaling NaN
+`try_f_ctx`. The non-`try` forms turn a certification failure into a quiet NaN
+with `not_computed` and a domain error into a quiet NaN with
+`invalid_operation`. NaN operands propagate quietly (a signaling NaN
 raises `invalid_operation`), and poles return a signed infinity with
 `division_by_zero` (for example $\ln 0 = -\infty$,
 $\operatorname{atanh}(1) = +\infty$). Exactly representable results that an
@@ -2507,8 +2510,8 @@ pub fn BinFloat::exp_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@
 Each runs the matching `*_ctx` method (for `abs`, `abs` followed by
 `round_ctx`; for `exp`, `try_exp_ctx`) under the converted context. A result
 with `division_by_zero` becomes a `division_by_zero` error and one with
-`invalid_operation` a `domain_error`; a certification failure of `exp` is
-returned as is. Otherwise the value is returned with `ArithmeticDiagnostics`
+`invalid_operation` a `domain_error`, one with `not_computed` a
+`certification_failure`; a certification failure of `exp` is returned as is. Otherwise the value is returned with `ArithmeticDiagnostics`
 whose `inexact` and `rounded` are the inexact flag and whose `overflow` and
 `underflow` are the matching flags.
 

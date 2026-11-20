@@ -187,6 +187,14 @@ fn binary_invalid_flags() -> BinaryFlags {
 }
 
 ///|
+/// The flags of a result the library could not compute (S4): a NaN with
+/// `not_computed`, and not `invalid_operation`. Flags are built through these
+/// helpers, never by a record literal that names the fields.
+fn binary_not_computed_flags() -> BinaryFlags {
+  BinaryFlags::from_bits(binary_flag_not_computed)
+}
+
+///|
 /// The IEEE 754-2019 4.3 attribute of an `@arithmetic` rounding mode, or `None`
 /// for `AwayFromZero`, which is not one of them.
 pub fn BinaryRoundingMode::from_arithmetic(

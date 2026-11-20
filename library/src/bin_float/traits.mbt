@@ -17,6 +17,8 @@ fn binary_contextual_outcome(
 ) -> Result[@lf_arith.ArithmeticOutcome[BinFloat], @lf_arith.ArithmeticError] {
   if flags.division_by_zero() {
     Err(@lf_arith.ArithmeticError::division_by_zero("division by zero"))
+  } else if flags.not_computed() {
+    Err(binary_not_computed_error("binary operation"))
   } else if flags.invalid_operation() {
     Err(@lf_arith.ArithmeticError::domain_error("invalid binary operation"))
   } else {

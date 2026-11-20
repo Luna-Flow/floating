@@ -15,17 +15,42 @@ fn binary_certification_failure(
 }
 
 ///|
+/// The error of a checked result whose flags say `not_computed` (S4): the
+/// certification-failure kind, apart from the domain error of `invalid_operation`.
+fn binary_not_computed_error(operation : String) -> @def.ArithmeticError {
+  binary_certification_failure(
+    operation,
+    @def.CertificationStage::RangeReduction,
+    @def.CertificationFailureReason::ResourceLimit,
+    0,
+    0,
+    0,
+  )
+}
+
+///|
 /// Total form of a `try_*_ctx` result used by the non-`try` elementary APIs.
-/// Domain errors and certification failures both become a quiet NaN with
-/// `invalid_operation`; callers that need the reason use the `try_*` API.
+/// A certification failure or a limit of the implementation (`Err` of the
+/// certification-failure kind) becomes a quiet NaN with `not_computed`, and not
+/// with `invalid_operation`, which is raised only for a case IEEE 754-2019 defines
+/// as invalid; callers that need the reason use the `try_*` API. A domain
+/// `Err` (the `try_` forms of this package still return one until their domain
+/// cases become values) is the invalid case.
 fn binary_defined_or_nan(
   result : Result[(BinFloat, BinaryFlags), @def.ArithmeticError],
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
   match result {
     Ok(value) => value
-    Err(_) =>
-      (BinFloat::nan_raw(precision=context.precision), binary_invalid_flags())
+    Err(error) =>
+      (
+        BinFloat::nan_raw(precision=context.precision),
+        if error.is_certification_failure() {
+          binary_not_computed_flags()
+        } else {
+          binary_invalid_flags()
+        },
+      )
   }
 }
 

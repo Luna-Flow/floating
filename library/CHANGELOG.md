@@ -456,6 +456,13 @@ notes live in this file.
   | `*_contextual`, `*_checked`: a computation with `invalid_operation` or `not_computed`, `Err(domain_error)` | `invalid_operation` is `Err(domain_error)`, `not_computed` is `Err(certification_failure)` | the two kinds are told apart by `error.is_domain_error()` and `error.is_certification_failure()` |
   | `DecimalChecked` elementary mirrors in a restricted context: a recorded NaN with `invalid_operation`, no error | `error()` is a certification failure | |
 
+- `bin_float`, `bin_float_checked`: a result the library could not compute is `not_computed` in the plain elementary forms ([#438](https://github.com/Luna-Flow/floating/issues/438), item S4, `bin_float`, plain and checked side). The 38 non-`try` elementary `_ctx` forms turned a certification failure into a NaN with `invalid_operation`, the flag of a domain error; they now raise `not_computed` (introduced by the previous step) and not `invalid_operation`. A domain error is still `invalid_operation` here; the `try_` forms still return a domain `Err` until the family steps that follow make it a value.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `x.exp_ctx(ctx)` (every plain elementary `_ctx`, 38 functions) after a certification failure: NaN with `invalid_operation` | NaN with `not_computed`, without `invalid_operation` | the plain form without `_ctx` is the `.0` of it; read the reason with the `try_` form |
+  | `*_contextual`, `*_checked`, `BinFloatResult` mirrors: a result with `not_computed` | `Err(certification_failure)` | `invalid_operation` stays `Err(domain_error)`, `division_by_zero` stays `Err(division_by_zero)` |
+
 ### Added
 
 - `bin_float`, `decimal`: every comparison predicate of IEEE 754-2019 5.11 has a function ([#438](https://github.com/Luna-Flow/floating/issues/438), item N6). The clause lists 22 predicates, 10 in Table 5.1 and 12 in Table 5.2; `bin_float` had 7 and `decimal` none. Both now have the 15 others, with the names of the first seven (`compare_quiet_*`, `compare_signaling_*`): `not_equal`, `greater`, `greater_equal`, `not_greater`, `less_unordered`, `not_less` and `greater_unordered` for both kinds, and `compare_quiet_ordered`. Each returns `(Bool, flags)`, is defined from `compare_quiet` or `compare_signaling` and raises invalid where the table says (a signaling NaN for the quiet ones, any NaN for the signaling ones). Nothing existing changes in `bin_float`.
