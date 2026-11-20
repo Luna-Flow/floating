@@ -33,14 +33,14 @@ test "context and parse error types are exposed" {
       "#77FFFF3FCFF3FCFG",
       @decimal.DecimalInterchangeFormat::Decimal64,
     )
-    is None,
+    is Err(_),
   )
   match
     @decimal.Decimal::from_interchange_hex(
       "#A2300000000003D0",
       @decimal.DecimalInterchangeFormat::Decimal64,
     ) {
-    Some(value) =>
+    Ok(value) =>
       assert_eq(
         value
         .total_order_compare(
@@ -49,27 +49,27 @@ test "context and parse error types are exposed" {
         .to_string(),
         "0",
       )
-    None => fail("expected valid interchange decode to succeed")
+    Err(_) => fail("expected valid interchange decode to succeed")
   }
   assert_true(
     @decimal.DecimalInterchange::from_hex(
       "#77FFFF3FCFF3FCFG",
       @decimal.DecimalInterchangeFormat::Decimal64,
     )
-    is None,
+    is Err(_),
   )
   match
     @decimal.DecimalInterchange::from_hex(
       " \t#a2300000000003d0\n",
       @decimal.DecimalInterchangeFormat::Decimal64,
     ) {
-    Some(interchange) => {
+    Ok(interchange) => {
       assert_eq(interchange.to_hex(), "#A2300000000003D0")
       assert_true(
         interchange.format() == @decimal.DecimalInterchangeFormat::Decimal64,
       )
     }
-    None => fail("expected valid interchange wrapper decode to succeed")
+    Err(_) => fail("expected valid interchange wrapper decode to succeed")
   }
 }
 

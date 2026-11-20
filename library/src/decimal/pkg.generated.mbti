@@ -84,8 +84,8 @@ pub fn Decimal::from_bin_float_ctx(@bin_float.BinFloat, DecimalContext) -> (Self
 pub fn Decimal::from_double(Double, precision? : Int32) -> Self
 pub fn Decimal::from_float(Float, precision? : Int32) -> Self
 pub fn Decimal::from_int(Int32, precision? : Int32) -> Self
-pub fn Decimal::from_interchange_hex(String, DecimalInterchangeFormat) -> Self?
-pub fn Decimal::from_interchange_hex_with_encoding(String, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> Self?
+pub fn Decimal::from_interchange_hex(String, DecimalInterchangeFormat) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Decimal::from_interchange_hex_with_encoding(String, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::from_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::from_string_ctx(String, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::get_payload(Self) -> @bigint.BigInt
@@ -176,7 +176,7 @@ pub fn Decimal::tanh_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::tanpi_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::to_bin_float(Self, precision? : Int32, mode? : @arithmetic.RoundingMode) -> @bin_float.BinFloat
 pub fn Decimal::to_bin_float_ctx(Self, @bin_float.BinaryContext) -> (@bin_float.BinFloat, @bin_float.BinaryFlags)
-pub fn Decimal::to_eng_string(String, DecimalContext) -> (String, DecimalFlags)
+pub fn Decimal::to_eng_string(Self) -> String
 pub fn Decimal::to_int64_ctx(Self, DecimalContext, exact? : Bool) -> (Int64?, DecimalFlags)
 pub fn Decimal::to_int_ctx(Self, DecimalContext, exact? : Bool) -> (Int32?, DecimalFlags)
 pub fn Decimal::to_integral_exact_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
@@ -184,7 +184,7 @@ pub fn Decimal::to_integral_value_ctx(Self, DecimalContext) -> (Self, DecimalFla
 pub fn Decimal::to_interchange_hex(Self, DecimalInterchangeFormat) -> (String, DecimalFlags)
 pub fn Decimal::to_interchange_hex_with_encoding(Self, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> (String, DecimalFlags)
 pub fn Decimal::to_repr(Self) -> @debug.Repr
-pub fn Decimal::to_sci_string(String, DecimalContext) -> (String, DecimalFlags)
+pub fn Decimal::to_sci_string(Self) -> String
 pub fn Decimal::to_string(Self) -> String
 pub fn Decimal::to_uint64_ctx(Self, DecimalContext, exact? : Bool) -> (UInt64?, DecimalFlags)
 pub fn Decimal::to_uint_ctx(Self, DecimalContext, exact? : Bool) -> (UInt32?, DecimalFlags)
@@ -317,8 +317,8 @@ pub fn DecimalInterchange::encoding(Self) -> DecimalInterchangeEncoding
 pub fn DecimalInterchange::format(Self) -> DecimalInterchangeFormat
 pub fn DecimalInterchange::from_decimal(Decimal, DecimalInterchangeFormat) -> (Self, DecimalFlags)
 pub fn DecimalInterchange::from_decimal_with_encoding(Decimal, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> (Self, DecimalFlags)
-pub fn DecimalInterchange::from_hex(String, DecimalInterchangeFormat) -> Self?
-pub fn DecimalInterchange::from_hex_with_encoding(String, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> Self?
+pub fn DecimalInterchange::from_hex(String, DecimalInterchangeFormat) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn DecimalInterchange::from_hex_with_encoding(String, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn DecimalInterchange::is_canonical(Self) -> Bool
 pub fn DecimalInterchange::to_decimal(Self) -> Decimal
 pub fn DecimalInterchange::to_decimal_ctx(Self) -> (Decimal, DecimalFlags)

@@ -323,3 +323,71 @@ test "IEEE DPD and BID special witnesses preserve class sign and canonical bits"
     }
   }
 }
+
+///|
+fn interchange_decode_message(
+  src : String,
+  format : DecimalInterchangeFormat,
+  encoding : DecimalInterchangeEncoding,
+) -> String raise {
+  let from_value = Decimal::from_interchange_hex_with_encoding(
+    src, format, encoding,
+  )
+  let from_wrapper = DecimalInterchange::from_hex_with_encoding(
+    src, format, encoding,
+  )
+  match (from_value, from_wrapper) {
+    (Err(a), Err(b)) => {
+      // both decoders refuse with the same reason, and it is a parse error
+      assert_true(a.is_parse_error())
+      assert_eq(a.message, b.message)
+      a.message
+    }
+    _ => abort("expected both decoders to refuse: " + src)
+  }
+}
+
+///|
+/// A text of the wrong length is refused and the reason gives the length wanted
+/// and the length found: too short, too long and empty, in each encoding.
+test "interchange decoders refuse a text of the wrong length and say so" {
+  for encoding in [DPD, BID] {
+    inspect(
+      interchange_decode_message("#A23003D", Decimal32, encoding),
+      content="interchange hexadecimal text must have exactly 8 digits after the optional '#', got 7: #A23003D",
+    )
+    inspect(
+      interchange_decode_message("A230003D0", Decimal32, encoding),
+      content="interchange hexadecimal text must have exactly 8 digits after the optional '#', got 9: A230003D0",
+    )
+    inspect(
+      interchange_decode_message("", Decimal64, encoding),
+      content="interchange hexadecimal text must have exactly 16 digits after the optional '#', got 0: ",
+    )
+    inspect(
+      interchange_decode_message("#", Decimal128, encoding),
+      content="interchange hexadecimal text must have exactly 32 digits after the optional '#', got 0: #",
+    )
+  }
+}
+
+///|
+/// A character that is not a hexadecimal digit is refused and the reason names
+/// the character and its place among the digits.
+test "interchange decoders refuse a non-hexadecimal character and name it" {
+  for encoding in [DPD, BID] {
+    inspect(
+      interchange_decode_message("#77FFFF3FCFF3FCFG", Decimal64, encoding),
+      content="interchange hexadecimal text has a character that is not a hexadecimal digit, 'G' at digit 15: #77FFFF3FCFF3FCFG",
+    )
+    inspect(
+      interchange_decode_message("0x000001", Decimal32, encoding),
+      content="interchange hexadecimal text has a character that is not a hexadecimal digit, 'x' at digit 1: 0x000001",
+    )
+    // the length is checked first: a text with both faults is reported as wrong length
+    inspect(
+      interchange_decode_message("#G", Decimal32, encoding),
+      content="interchange hexadecimal text must have exactly 8 digits after the optional '#', got 1: #G",
+    )
+  }
+}

@@ -107,19 +107,48 @@ fn uppercase_ascii(src : String) -> String {
 }
 
 ///|
-fn normalize_interchange_hex(src : String, digits : Int32) -> BigInt? {
+/// The text is `#` (optional) followed by exactly `digits` hexadecimal digits,
+/// after the white space around it is trimmed. The `Err` says which of the two
+/// rules the text broke.
+fn normalize_interchange_hex(
+  src : String,
+  digits : Int32,
+) -> Result[BigInt, @def.ArithmeticError] {
   let trimmed = src.trim()
   let body = if trimmed.length() > 0 && trimmed[0] == '#' {
     trimmed[1:].to_owned()
   } else {
     trimmed.to_owned()
   }
-  guard body.length() == digits else { return None }
-  guard body.length() > 0 else { return None }
-  for ch in body {
-    guard ch.is_ascii_hexdigit() else { return None }
+  guard body.length() == digits else {
+    return Err(
+      @def.ArithmeticError::parse_error(
+        "interchange hexadecimal text must have exactly " +
+        digits.to_string() +
+        " digits after the optional '#', got " +
+        body.length().to_string() +
+        ": " +
+        src,
+      ),
+    )
   }
-  Some(bigint_from_text(body, radix=16))
+  let mut index = 0
+  for ch in body {
+    guard ch.is_ascii_hexdigit() else {
+      return Err(
+        @def.ArithmeticError::parse_error(
+          "interchange hexadecimal text has a character that is not a hexadecimal digit, '" +
+          ch.to_string() +
+          "' at digit " +
+          index.to_string() +
+          ": " +
+          src,
+        ),
+      )
+    }
+    index += 1
+  }
+  Ok(bigint_from_text(body, radix=16))
 }
 
 ///|
@@ -141,7 +170,7 @@ fn interchange_hex_string(
 pub fn DecimalInterchange::from_hex(
   src : String,
   format : DecimalInterchangeFormat,
-) -> DecimalInterchange? {
+) -> Result[DecimalInterchange, @def.ArithmeticError] {
   DecimalInterchange::from_hex_with_encoding(src, format, DPD)
 }
 
@@ -150,17 +179,17 @@ pub fn DecimalInterchange::from_hex_with_encoding(
   src : String,
   format : DecimalInterchangeFormat,
   encoding : DecimalInterchangeEncoding,
-) -> DecimalInterchange? {
-  let digits = decimal_interchange_hex_digits(format)
-  match normalize_interchange_hex(src, digits) {
-    Some(bits) =>
-      Some({
-        format,
-        encoding,
-        bits: bits % (decimal_interchange_mask(format) + bigint_one()),
-      })
-    None => None
+) -> Result[DecimalInterchange, @def.ArithmeticError] {
+  let bits = match
+    normalize_interchange_hex(src, decimal_interchange_hex_digits(format)) {
+    Ok(bits) => bits
+    Err(error) => return Err(error)
   }
+  Ok({
+    format,
+    encoding,
+    bits: bits % (decimal_interchange_mask(format) + bigint_one()),
+  })
 }
 
 ///|
@@ -443,7 +472,7 @@ fn decimal_interchange_coefficient_bits_to_digits(
 fn Decimal::from_interchange_hex_dpd(
   src : String,
   format : DecimalInterchangeFormat,
-) -> Decimal? {
+) -> Result[Decimal, @def.ArithmeticError] {
   let total_bits = decimal_interchange_total_bits(format)
   let exp_bits = decimal_interchange_exponent_continuation_bits(format)
   let coeff_bits = decimal_interchange_coefficient_bits(format)
@@ -451,14 +480,14 @@ fn Decimal::from_interchange_hex_dpd(
   let bias = decimal_interchange_bias(format)
   let bits = match
     normalize_interchange_hex(src, decimal_interchange_hex_digits(format)) {
-    Some(bits) => bits
-    None => return None
+    Ok(bits) => bits
+    Err(error) => return Err(error)
   }
   let sign = decimal_interchange_extract(bits, total_bits - 1, 1) == 1
   let combination = decimal_interchange_extract(bits, coeff_bits + exp_bits, 5)
   let coefficient_bits = bits % (bigint_one() << coeff_bits)
   if combination == 0b11110 {
-    return Some(Decimal::inf(negative=sign, precision~))
+    return Ok(Decimal::inf(negative=sign, precision~))
   }
   if combination == 0b11111 {
     let payload_digits = decimal_interchange_coefficient_bits_to_digits(
@@ -472,7 +501,7 @@ fn Decimal::from_interchange_hex_dpd(
         1,
       ) ==
       1
-    return Some(
+    return Ok(
       if signaling {
         Decimal::signaling_nan(payload~, negative=sign, precision~)
       } else {
@@ -495,7 +524,7 @@ fn Decimal::from_interchange_hex_dpd(
   )
   let coefficient_digits = msd.to_string() + continuation_digits
   let coefficient = bigint_from_text(coefficient_digits)
-  Some(finite_with_exponent(sign, coefficient, exponent, precision))
+  Ok(finite_with_exponent(sign, coefficient, exponent, precision))
 }
 
 ///|
@@ -563,7 +592,7 @@ fn Decimal::to_interchange_hex_dpd(
 fn Decimal::from_interchange_hex_bid(
   src : String,
   format : DecimalInterchangeFormat,
-) -> Decimal? {
+) -> Result[Decimal, @def.ArithmeticError] {
   let total_bits = decimal_interchange_total_bits(format)
   let exp_bits = decimal_interchange_exponent_continuation_bits(format)
   let coeff_bits = decimal_interchange_coefficient_bits(format)
@@ -574,14 +603,14 @@ fn Decimal::from_interchange_hex_bid(
   let large_coeff_bits = small_coeff_bits - 2
   let bits = match
     normalize_interchange_hex(src, decimal_interchange_hex_digits(format)) {
-    Some(bits) => bits
-    None => return None
+    Ok(bits) => bits
+    Err(error) => return Err(error)
   }
   let sign = decimal_interchange_extract(bits, total_bits - 1, 1) == 1
   let combination = decimal_interchange_extract(bits, coeff_bits + exp_bits, 5)
   let coefficient_continuation = bits % (bigint_one() << coeff_bits)
   if combination == 0b11110 {
-    return Some(Decimal::inf(negative=sign, precision~))
+    return Ok(Decimal::inf(negative=sign, precision~))
   }
   if combination == 0b11111 {
     let payload_limit = pow10(decimal_interchange_payload_digits(format))
@@ -596,7 +625,7 @@ fn Decimal::from_interchange_hex_bid(
         1,
       ) ==
       1
-    return Some(
+    return Ok(
       if signaling {
         Decimal::signaling_nan(payload~, negative=sign, precision~)
       } else {
@@ -623,7 +652,7 @@ fn Decimal::from_interchange_hex_bid(
   } else {
     bigint_zero()
   }
-  Some(finite_with_exponent(sign, canonical_coefficient, exponent, precision))
+  Ok(finite_with_exponent(sign, canonical_coefficient, exponent, precision))
 }
 
 ///|
@@ -689,7 +718,7 @@ fn Decimal::to_interchange_hex_bid(
 pub fn Decimal::from_interchange_hex(
   src : String,
   format : DecimalInterchangeFormat,
-) -> Decimal? {
+) -> Result[Decimal, @def.ArithmeticError] {
   Decimal::from_interchange_hex_dpd(src, format)
 }
 
@@ -698,7 +727,7 @@ pub fn Decimal::from_interchange_hex_with_encoding(
   src : String,
   format : DecimalInterchangeFormat,
   encoding : DecimalInterchangeEncoding,
-) -> Decimal? {
+) -> Result[Decimal, @def.ArithmeticError] {
   match encoding {
     DPD => Decimal::from_interchange_hex_dpd(src, format)
     BID => Decimal::from_interchange_hex_bid(src, format)

@@ -300,8 +300,8 @@ test "every context-free function that returns a Decimal gives a non-finite or a
         },
         format,
       ) {
-      Some(value) => assert_true(stored_range_storable(value))
-      None => ()
+      Ok(value) => assert_true(stored_range_storable(value))
+      Err(_) => ()
     }
   }
 }

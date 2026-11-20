@@ -144,6 +144,16 @@ notes live in this file.
   | `Decimal::from_string(s, precision~) -> Decimal?` | `Decimal::from_string(s, precision~) -> Result[Decimal, ArithmeticError]` | `None` becomes `Err` with the reason; `Some(x)` becomes `Ok(x)` |
   | `Decimal::parse(s, precision~) -> Result[Decimal, ArithmeticError]` | `Decimal::from_string(s, precision~)` | `parse` is removed; the result and the messages are the same |
 
+- `decimal`: the interchange decoders return a `Result` that says what was wrong, and `to_sci_string` and `to_eng_string` format a value ([#438](https://github.com/Luna-Flow/floating/issues/438), items N2 and the decoder half of N1). A text that was not interchange hex gave `None`; `to_sci_string(text, ctx)` parsed text under a context, a second job beside the first.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `Decimal::from_interchange_hex(s, f)`, `from_interchange_hex_with_encoding(s, f, e)` returning `Decimal?` | `Result[Decimal, ArithmeticError]` | `Err` is a parse error that names the digits wanted and found, or the first character that is not a hexadecimal digit and its place; the length is checked first |
+  | `DecimalInterchange::from_hex(s, f)`, `from_hex_with_encoding(s, f, e)` returning `DecimalInterchange?` | `Result[DecimalInterchange, ArithmeticError]` | the same text rules and errors; the types of `decimal_gda` already returned a `Result` |
+  | `Decimal::to_sci_string(text, ctx) -> (String, DecimalFlags)`, `to_eng_string(text, ctx)` | `v.to_sci_string() -> String`, `v.to_eng_string()` | for text under a context: `let (v, flags) = Decimal::from_string_ctx(text, ctx)` first; the names and the result are those of `decimal_gda` |
+
+  No bit pattern of the right length is refused: a non-canonical declet or coefficient still decodes to the value IEEE 754-2019 3.5 gives it, as before.
+
 - `decimal_gda`: `make` keeps the exponent it is given ([#438](https://github.com/Luna-Flow/floating/issues/438), item S7), and the optional rounding argument of the value-level functions is spelled `mode?` as in `bin_float` and `decimal`. `make` always stripped trailing zeros, so `make(1200, 0, 34)` was `1.2E+3` and `make(0, 5, 5)` was `0` (a `Decimal` built any other way keeps its exponent: `from_int(1200)` and `from_string("1200")` were `1200`). The rounding argument of `make` and `from_bin_float` was spelled `rounding?` in the previous change of this release, which was not released: no migration row for that.
 
   | before | after | note |
