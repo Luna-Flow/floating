@@ -536,25 +536,13 @@ fn pow_end_compare(
       match cls {
         Dyadic(value) => order_of(value.compare(d))
         Rational(den, exp2) => order_of(pow_rational_compare(den, exp2, d))
-        Irrational | Unknown => {
-          let mut w = pow_start_work(c, beta, precision)
-          for _ in 0..<cap {
-            let enclosure = pow_enclosure(c, beta, w)
-            let hi_order = enclosure.hi.compare(d)
-            if hi_order < 0 || (hi_order == 0 && enclosure.hi_open) {
-              return Below
-            }
-            let lo_order = enclosure.lo.compare(d)
-            if lo_order > 0 || (lo_order == 0 && enclosure.lo_open) {
-              return Above
-            }
-            if enclosure.clamped {
-              break
-            }
-            w = w * 2
-          }
-          Undecided
-        }
+        Irrational | Unknown =>
+          pow_loop_compare(
+            pow_start_work(c, beta, precision),
+            fn(w) { pow_enclosure(c, beta, w) },
+            d,
+            cap,
+          )
       }
   }
 }
@@ -583,36 +571,82 @@ fn pow_end_rounded(
             },
           )
         Rational(den, exp2) => pow_rational_round(den, exp2, upper, precision)
-        Irrational | Unknown => {
-          let down = BinaryRoundingMode::RoundTowardNegative
-          let up = BinaryRoundingMode::RoundTowardPositive
-          let context = @bin_float.BinaryContext::new(precision~)
-          let mut w = pow_start_work(c, beta, precision)
-          let mut enclosure = pow_enclosure(c, beta, w)
-          for _ in 0..<cap {
-            // the least float inside the enclosure (excluding an open lower end)
-            let floor_lo = enclosure.lo.with_precision(precision, down)
-            let first = if enclosure.lo_open {
-              floor_lo.next_up_ctx(context).0
-            } else {
-              enclosure.lo.with_precision(precision, up)
-            }
-            let order = first.compare(enclosure.hi)
-            if enclosure.clamped ||
-              order > 0 ||
-              (order == 0 && enclosure.hi_open) {
-              break
-            }
-            w = w * 2
-            enclosure = pow_enclosure(c, beta, w)
-          }
-          if upper {
-            enclosure.hi.with_precision(precision, up)
-          } else {
-            enclosure.lo.with_precision(precision, down)
-          }
-        }
+        Irrational | Unknown =>
+          pow_loop_round(
+            pow_start_work(c, beta, precision),
+            fn(w) { pow_enclosure(c, beta, w) },
+            upper,
+            precision,
+            cap,
+          )
       }
+  }
+}
+
+///|
+/// Compares the value of an enclosure family with the finite float `d`: the first
+/// working precision `start`, doubled up to `cap` times; `enclosure(w)` is an
+/// enclosure of the value at `w` bits.
+fn pow_loop_compare(
+  start : Int32,
+  enclosure : (Int32) -> PowEnc,
+  d : @bin_float.BinFloat,
+  cap : Int32,
+) -> RevOrder {
+  let mut w = start
+  for _ in 0..<cap {
+    let enc = enclosure(w)
+    let hi_order = enc.hi.compare(d)
+    if hi_order < 0 || (hi_order == 0 && enc.hi_open) {
+      return Below
+    }
+    let lo_order = enc.lo.compare(d)
+    if lo_order > 0 || (lo_order == 0 && enc.lo_open) {
+      return Above
+    }
+    if enc.clamped {
+      break
+    }
+    w = w * 2
+  }
+  Undecided
+}
+
+///|
+/// The directed rounding to `precision` bits of the value of an enclosure family:
+/// the working precision doubles (at most `cap` times) until no float of the
+/// precision lies inside the enclosure, and the end of the enclosure is written.
+fn pow_loop_round(
+  start : Int32,
+  enclosure : (Int32) -> PowEnc,
+  upper : Bool,
+  precision : Int32,
+  cap : Int32,
+) -> @bin_float.BinFloat {
+  let down = BinaryRoundingMode::RoundTowardNegative
+  let up = BinaryRoundingMode::RoundTowardPositive
+  let context = @bin_float.BinaryContext::new(precision~)
+  let mut w = start
+  let mut enc = enclosure(w)
+  for _ in 0..<cap {
+    // the least float inside the enclosure (excluding an open lower end)
+    let floor_lo = enc.lo.with_precision(precision, down)
+    let first = if enc.lo_open {
+      floor_lo.next_up_ctx(context).0
+    } else {
+      enc.lo.with_precision(precision, up)
+    }
+    let order = first.compare(enc.hi)
+    if enc.clamped || order > 0 || (order == 0 && enc.hi_open) {
+      break
+    }
+    w = w * 2
+    enc = enclosure(w)
+  }
+  if upper {
+    enc.hi.with_precision(precision, up)
+  } else {
+    enc.lo.with_precision(precision, down)
   }
 }
 
