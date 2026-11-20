@@ -753,6 +753,75 @@ pub fn BinFloat::round_ctx(
 }
 
 ///|
+/// The finite pair of `add_ctx`: the exact sum as `Coeff`s, rounded once by
+/// `binary_round_dyadic` (the general route; the word route of
+/// `bin_finish_ctx_nonjs.mbt` takes the pairs of one-word operands first).
+fn BinFloat::add_ctx_general(
+  self : BinFloat,
+  other : BinFloat,
+  context : BinaryContext,
+) -> (BinFloat, BinaryFlags) {
+  let self_top = self.exact_top()
+  let other_top = other.exact_top()
+  let top_gap = self_top.to_int64() - other_top.to_int64()
+  let far_threshold = binary_add_sat(context.precision, 3).to_int64()
+  if top_gap > far_threshold || top_gap < -far_threshold {
+    return binary_add_far_exponents(self, other, context)
+  }
+  let self_exponent = self.exponent2_()
+  let other_exponent = other.exponent2_()
+  let target = Int32::min(self_exponent, other_exponent)
+  let left = self
+    .coefficient_()
+    .shift_left(binary_sub_sat(self_exponent, target))
+  let right = other
+    .coefficient_()
+    .shift_left(binary_sub_sat(other_exponent, target))
+  if self.negative() == other.negative() {
+    let (sum, normalization_shift) = bin_coeff_add_normalized_odd(left, right)
+    binary_round_dyadic(
+      self.negative(),
+      sum,
+      binary_add_sat(target, normalization_shift),
+      context,
+    )
+  } else {
+    let comparison = left.compare(right)
+    if comparison == 0 {
+      (
+        finite_from_parts(
+          binary_exact_sum_zero_sign(self, other, context.rounding),
+          Coeff::zero(),
+          0,
+          context.precision,
+        ),
+        BinaryFlags::new(),
+      )
+    } else if comparison > 0 {
+      let (difference, normalization_shift) = bin_coeff_sub_normalized_odd(
+        left, right,
+      )
+      binary_round_dyadic(
+        self.negative(),
+        difference,
+        binary_add_sat(target, normalization_shift),
+        context,
+      )
+    } else {
+      let (difference, normalization_shift) = bin_coeff_sub_normalized_odd(
+        right, left,
+      )
+      binary_round_dyadic(
+        other.negative(),
+        difference,
+        binary_add_sat(target, normalization_shift),
+        context,
+      )
+    }
+  }
+}
+
+///|
 pub fn BinFloat::add_ctx(
   self : BinFloat,
   other : BinFloat,
@@ -803,68 +872,11 @@ pub fn BinFloat::add_ctx(
         ),
         BinaryFlags::new(),
       )
-    (FpClass::Finite, FpClass::Finite) => {
-      let self_top = self.exact_top()
-      let other_top = other.exact_top()
-      let top_gap = self_top.to_int64() - other_top.to_int64()
-      let far_threshold = binary_add_sat(context.precision, 3).to_int64()
-      if top_gap > far_threshold || top_gap < -far_threshold {
-        return binary_add_far_exponents(self, other, context)
+    (FpClass::Finite, FpClass::Finite) =>
+      match binary_ctx_add_words(self, other, false, context) {
+        Some(result) => result
+        None => self.add_ctx_general(other, context)
       }
-      let self_exponent = self.exponent2_()
-      let other_exponent = other.exponent2_()
-      let target = Int32::min(self_exponent, other_exponent)
-      let left = self
-        .coefficient_()
-        .shift_left(binary_sub_sat(self_exponent, target))
-      let right = other
-        .coefficient_()
-        .shift_left(binary_sub_sat(other_exponent, target))
-      if self.negative() == other.negative() {
-        let (sum, normalization_shift) = bin_coeff_add_normalized_odd(
-          left, right,
-        )
-        binary_round_dyadic(
-          self.negative(),
-          sum,
-          binary_add_sat(target, normalization_shift),
-          context,
-        )
-      } else {
-        let comparison = left.compare(right)
-        if comparison == 0 {
-          (
-            finite_from_parts(
-              binary_exact_sum_zero_sign(self, other, context.rounding),
-              Coeff::zero(),
-              0,
-              context.precision,
-            ),
-            BinaryFlags::new(),
-          )
-        } else if comparison > 0 {
-          let (difference, normalization_shift) = bin_coeff_sub_normalized_odd(
-            left, right,
-          )
-          binary_round_dyadic(
-            self.negative(),
-            difference,
-            binary_add_sat(target, normalization_shift),
-            context,
-          )
-        } else {
-          let (difference, normalization_shift) = bin_coeff_sub_normalized_odd(
-            right, left,
-          )
-          binary_round_dyadic(
-            other.negative(),
-            difference,
-            binary_add_sat(target, normalization_shift),
-            context,
-          )
-        }
-      }
-    }
     _ => abort("unreachable BinFloat::add_ctx class pair")
   }
 }
@@ -875,7 +887,35 @@ pub fn BinFloat::sub_ctx(
   other : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  self.add_ctx(other.neg(), context)
+  match self.class() {
+    FpClass::Finite =>
+      match other.class() {
+        FpClass::Finite =>
+          match binary_ctx_add_words(self, other, true, context) {
+            Some(result) => result
+            None => self.add_ctx(other.neg(), context)
+          }
+        _ => self.add_ctx(other.neg(), context)
+      }
+    _ => self.add_ctx(other.neg(), context)
+  }
+}
+
+///|
+/// The finite pair of `mul_ctx`: the exact product as a `Coeff`, rounded once by
+/// `binary_round_dyadic` (the general route; the word route of
+/// `bin_finish_ctx_nonjs.mbt` takes the pairs of one-word operands first).
+fn BinFloat::mul_ctx_general(
+  self : BinFloat,
+  other : BinFloat,
+  context : BinaryContext,
+) -> (BinFloat, BinaryFlags) {
+  binary_round_dyadic(
+    self.negative() != other.negative(),
+    self.coefficient_().mul(other.coefficient_()),
+    binary_add_sat(self.exponent2_(), other.exponent2_()),
+    context,
+  )
 }
 
 ///|
@@ -906,14 +946,29 @@ pub fn BinFloat::mul_ctx(
         BinaryFlags::new(),
       )
     (FpClass::Finite, FpClass::Finite) =>
-      binary_round_dyadic(
-        negative,
-        self.coefficient_().mul(other.coefficient_()),
-        binary_add_sat(self.exponent2_(), other.exponent2_()),
-        context,
-      )
+      match binary_ctx_mul_words(self, other, context) {
+        Some(result) => result
+        None => self.mul_ctx_general(other, context)
+      }
     _ => abort("unreachable BinFloat::mul_ctx class pair")
   }
+}
+
+///|
+/// The finite non-zero pair of `div_ctx`: the quotient of the coefficients rounded
+/// once by `binary_round_rational` (the general route).
+fn BinFloat::div_ctx_general(
+  self : BinFloat,
+  other : BinFloat,
+  context : BinaryContext,
+) -> (BinFloat, BinaryFlags) {
+  binary_round_rational(
+    self.negative() != other.negative(),
+    self.coefficient_(),
+    other.coefficient_(),
+    binary_sub_sat(self.exponent2_(), other.exponent2_()),
+    context,
+  )
 }
 
 ///|
@@ -967,13 +1022,10 @@ pub fn BinFloat::div_ctx(
         BinaryFlags::new(),
       )
     (FpClass::Finite, FpClass::Finite) =>
-      binary_round_rational(
-        negative,
-        self.coefficient_(),
-        other.coefficient_(),
-        binary_sub_sat(self.exponent2_(), other.exponent2_()),
-        context,
-      )
+      match binary_ctx_div_words(self, other, context) {
+        Some(result) => result
+        None => self.div_ctx_general(other, context)
+      }
     _ => abort("unreachable BinFloat::div_ctx class pair")
   }
 }

@@ -498,6 +498,24 @@ notes live in this file.
 
 ### Performance
 
+- `bin_float`: `add_ctx`, `sub_ctx`, `mul_ctx` and `div_ctx` take a word route in the default exponent range ([#438](https://github.com/Luna-Flow/floating/issues/438), item F2a of the performance plan). The exact result of two one-word operands (a non-zero coefficient of at most 64 bits, exponents within `2^28`) is formed in two words, one packed rounding decision (shift, increment, inexact; bits for overflow and the two tininess rules are reserved for the bounded range) is taken on the words, and two consumers build the value and the flags from it: no `Coeff` is built, and the objects of a call are the result and the result pair. A context takes the route when its exponent range is the default one (`BinaryContext::new` without `e_max`) and its precision is at most 62 bits (60 for `div_ctx`); a sum or difference also needs the exponents of the operands within `precision + 3` bits and no exact cancellation; every other context (a bounded `e_max`, a wider precision), wide, zero or far-apart operand takes the general route, unchanged (`add_ctx_general`, `mul_ctx_general`, `div_ctx_general`), to which differential tests tie the word route (value, representation and flags: 12,580 sums and differences, 20,000 products and 20,000 quotients; every rounding mode, both tininess rules, precisions of 1 to 62 bits). Instructions per call (53-bit operands; the difference of 5,000 and 135,000 calls, the median of 5 runs of each count with the range, one build before and one after, so differences below 3 to 9 percent are not evidence; the plain `add` is the control) and allocations (`lldb`, exact):
+
+  | call | instructions before: median (range) | after: median (range) | measured difference (millions, per side) | allocations before | after |
+  | --- | ---: | ---: | ---: | ---: | ---: |
+  | `add_ctx binary64` | 1,165 (1,142 to 1,173) | 1,198 (1,176 to 1,207) | 152, 156 | 7 | 7 |
+  | `sub_ctx binary64` | 1,343 (1,336 to 1,353) | 1,426 (1,422 to 1,429) | 175, 186 | 8 | 8 |
+  | `plain add (control)` | 282 (281 to 284) | 284 (280 to 286) | 37, 37 | 1 | 1 |
+  | `mul_ctx binary64` | 1,587 (1,584 to 1,594) | 1,623 (1,617 to 1,631) | 206, 211 | 10 | 10 |
+  | `fma binary64` | 2,585 (2,581 to 2,598) | 2,621 (2,620 to 2,624) | 336, 341 | 16 | 16 |
+  | `scaleb_ctx binary64` | 2,004 (1,988 to 2,006) | 2,006 (2,003 to 2,014) | 261, 261 | 14 | 14 |
+  | `div_ctx binary64` | 2,317 (2,308 to 2,326) | 2,360 (2,356 to 2,364) | 301, 307 | 13 | 13 |
+  | `add_ctx extendable 53` | 1,161 (1,156 to 1,162) | 410 (407 to 418) | 151, 53 | 7 | 2 |
+  | `sub_ctx extendable 53` | 1,341 (1,327 to 1,352) | 388 (388 to 398) | 175, 50 | 8 | 2 |
+  | `mul_ctx extendable 53` | 1,586 (1,582 to 1,596) | 423 (414 to 425) | 206, 55 | 10 | 2 |
+  | `div_ctx extendable 53` | 2,320 (2,308 to 2,330) | 499 (498 to 516) | 302, 65 | 13 | 2 |
+
+  The rows of `binary64()` (a bounded range) do not move yet (the route declines them; the 3 percent more instructions of `add_ctx` and `sub_ctx` are the guards and the call of the general route), and the rows of `fma_ctx` and `scaleb_ctx` are untouched controls: the bounded range is the next change.
+
 - `ball_float`: the interval operations no longer read the coefficient only to measure it, and the bounds of sums, differences and products are made once at the precision ([#438](https://github.com/Luna-Flow/floating/issues/438)). `BinFloat::ilogb()` replaces `exponent2() + coefficient().bit_length() - 1` at the six places that wanted the leading bit (four of the twelve allocations that the layout of the previous change added to `BallFloat::add` came from `far_addend_surrogate` alone), and `add`, `sub`, `mul`, `sqr`, `radius` and `width` round each endpoint once in its direction (`fma` is not covered: its product is still made at its own bit length, [#607](https://github.com/Luna-Flow/floating/issues/607)). Instructions per call (the two-count method of the entry above: 1,000 and 3,000 calls, minimum of 9 runs; operands `sqrt(3)` and `sqrt(5)` as balls of the stated precision; three builds of different code, so only differences well above the 3 to 9 percent that two builds of the same code differ by are evidence, and the allocation counts, which are exact, carry the comparison) and allocations (the same difference of 20 and 60 calls under `lldb`):
 
   | `BallFloat` call | bits | instructions before the layout | after the layout | after this change | allocations before | after the layout | after this change |
