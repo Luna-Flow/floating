@@ -17,7 +17,6 @@ warnings = "-unused_package"
 options(
   targets: {
     "arithmetic_async_test.mbt": [ "native", "js", "wasm", "llvm" ],
-    "autotune_async_test.mbt": [ "native", "js", "wasm", "llvm" ],
     "elementary_async_test.mbt": [ "native", "js", "wasm", "llvm" ],
   },
 )

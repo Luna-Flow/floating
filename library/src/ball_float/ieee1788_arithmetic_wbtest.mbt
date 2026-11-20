@@ -76,10 +76,7 @@ test "IEEE 1788 division reduces sign-definite quotients to two corners" {
 test "binary64 context applies directed overflow bounds" {
   let ctx = BallContext::binary64()
   let max_finite = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::one()
-    .shift_left(53)
-    .sub_checked(@bin_float.BinCoeff::one())
-    .unwrap(),
+    coeff_sub(coeff_shift_left(coeff_one(), 53), coeff_one()),
     971,
     53,
   )

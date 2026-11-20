@@ -18,15 +18,13 @@ fn RootnRng::next(self : RootnRng) -> UInt64 {
 ///|
 fn rootn_random_value(rng : RootnRng, allow_negative : Bool) -> BinFloat {
   let words = (rng.next() % 3UL).to_int() + 1
-  let mut coefficient = BinCoeff::from_uint64(rng.next() | 1UL)
+  let mut coefficient = Coeff::from_uint64(rng.next() | 1UL)
   for _ in 1..<words {
-    coefficient = coefficient
-      .shift_left(37)
-      .add(BinCoeff::from_uint64(rng.next()))
+    coefficient = coefficient.shift_left(37).add(Coeff::from_uint64(rng.next()))
   }
   let trim = (rng.next() % 90UL).to_int()
   let trimmed = coefficient.shift_right(trim)
-  let odd = if trimmed.is_zero() { BinCoeff::one() } else { trimmed }
+  let odd = if trimmed.is_zero() { Coeff::one() } else { trimmed }
   let exponent = match (rng.next() % 6UL).to_int() {
     0 => (rng.next() % 40UL).to_int() - 20
     1 => (rng.next() % 4000UL).to_int() - 2000
@@ -36,7 +34,12 @@ fn rootn_random_value(rng : RootnRng, allow_negative : Bool) -> BinFloat {
     _ => (rng.next() % 300UL).to_int() - 150
   }
   let negative = allow_negative && rng.next() % 2UL == 0UL
-  BinFloat::make(odd, exponent, Int32::max(1, odd.bit_length()), negative~)
+  BinFloat::make_coeff(
+    odd,
+    exponent,
+    Int32::max(1, odd.bit_length()),
+    negative~,
+  )
 }
 
 ///|
@@ -188,22 +191,22 @@ test "rootn by an integer root: perfect powers plus or minus one, both sides of 
   let widths = if rootn_integer_full { [3, 11, 24, 53] } else { [3, 53] }
   for n in degrees {
     for p in widths {
-      let two_p = BinCoeff::one().shift_left(p)
+      let two_p = Coeff::one().shift_left(p)
       for
         base in [
-          two_p.sub_checked(BinCoeff::one()).unwrap(),
-          two_p.add(BinCoeff::one()),
-          two_p.shift_right(1).add(BinCoeff::one()),
+          two_p.sub_checked(Coeff::one()).unwrap(),
+          two_p.add(Coeff::one()),
+          two_p.shift_right(1).add(Coeff::one()),
           two_p.add(two_p.shift_right(1)),
         ] {
         let power = base.pow_nat(n.reinterpret_as_uint())
         for delta in [-1, 0, 1] {
           let near = if delta < 0 {
-            power.sub_checked(BinCoeff::one()).unwrap()
+            power.sub_checked(Coeff::one()).unwrap()
           } else if delta == 0 {
             power
           } else {
-            power.add(BinCoeff::one())
+            power.add(Coeff::one())
           }
           for
             exponent in (if rootn_integer_full {
@@ -211,7 +214,7 @@ test "rootn by an integer root: perfect powers plus or minus one, both sides of 
             } else {
               [0, 5 * n + 1]
             }) {
-            let value = BinFloat::make(
+            let value = BinFloat::make_coeff(
               near,
               exponent,
               Int32::max(1, near.bit_length()),
@@ -259,9 +262,9 @@ test "rootn by an integer root at the exponent limits and the subnormal boundary
   for n in [2, 3, 4, 5, 32] {
     for top in top_limits {
       for c in [3UL, 5UL, 0x1fffffffffffffUL, 0xffffffffffffffffUL] {
-        let coefficient = BinCoeff::from_uint64(c)
+        let coefficient = Coeff::from_uint64(c)
         let exponent = top - (coefficient.bit_length() - 1)
-        let value = BinFloat::make(coefficient, exponent, 64)
+        let value = BinFloat::make_coeff(coefficient, exponent, 64)
         for context in contexts {
           rootn_compare(value, n, context, "limit n=\{n} top=\{top}")
           rootn_compare(value, -n, context, "limit -n=\{n} top=\{top}")
@@ -283,12 +286,12 @@ test "rootn by an integer root at the exponent limits and the subnormal boundary
     for k in [126, 127, 149, 150, 1022, 1023, 1074, 1075] {
       for
         mantissa in [
-          BinCoeff::from_uint64(0x1fffffffffffffUL),
-          BinCoeff::from_uint64(0x10000000000001UL),
-          BinCoeff::from_uint64(3UL),
+          Coeff::from_uint64(0x1fffffffffffffUL),
+          Coeff::from_uint64(0x10000000000001UL),
+          Coeff::from_uint64(3UL),
         ] {
         let exponent = n * k - (mantissa.bit_length() - 1)
-        let value = BinFloat::make(mantissa, exponent, 64)
+        let value = BinFloat::make_coeff(mantissa, exponent, 64)
         for context in contexts {
           rootn_compare(value, -n, context, "subnormal n=\{n} k=\{k}")
         }
@@ -344,8 +347,8 @@ test "rootn gate: both sides of every precision bound agree with the certified l
     ] {
     let (degree, precision) = item
     let magnitude = if degree < 0 { -degree } else { degree }
-    let value = BinFloat::make(
-      BinCoeff::one().shift_left(precision).add(BinCoeff::from_uint64(12345UL)),
+    let value = BinFloat::make_coeff(
+      Coeff::one().shift_left(precision).add(Coeff::from_uint64(12345UL)),
       -precision - 3,
       precision + 1,
     )

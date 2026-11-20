@@ -10,7 +10,6 @@ comparisons with bootstrap confidence intervals.
 | --- | --- |
 | run the benchmarks of one package | [`just bench SUITE`](#choose-a-suite) |
 | read the hotspot lines | [`MAREMARK_HOTSPOT`](#quick-start) |
-| read the square auto-tune result | [`MAREMARK_TUNE`, `MAREMARK_CROSSOVER`](#read-an-auto-tune-result) |
 | decide whether a change is a regression | [`confirmatory_regression`, `is_significant_regression`](#check-a-regression-in-code) |
 | add a benchmark | [`immutable_bench`, `run`, `paired_hotspot`](#write-a-new-benchmark) |
 | understand the statistics | [bench design](../design/bench.md) |
@@ -78,9 +77,8 @@ faster), and `full_pct` is the same for the checked path against the core.
 
 | Suite | Runs |
 | --- | --- |
-| `just bench bin-float` | all tests of `tooling/src/bench/bin_float` (arithmetic, elementary functions, square auto-tune) |
+| `just bench bin-float` | all tests of `tooling/src/bench/bin_float` (arithmetic, elementary functions) |
 | `just bench elementary` | only the binary elementary-function benchmark |
-| `just bench auto-tune` | only the `mul(x, x)` versus `square(x)` crossover |
 | `just bench decimal` | `tooling/src/bench/decimal` |
 | `just bench decimal-gda` | `tooling/src/bench/decimal_gda` |
 | `just bench ball-float` | `tooling/src/bench/ball_float` |
@@ -88,25 +86,6 @@ faster), and `full_pct` is the same for the checked path against the core.
 
 Add `--output PATH` to choose the artifact path or `--dry-run` to print the
 `moon test` commands without running them.
-
-### Read an auto-tune result
-
-The auto-tune suite prints one decision per dataset and a crossover:
-
-```text
-MAREMARK_TUNE=bin-float/autotune/square/64 candidate=square median_us=… samples=20
-MAREMARK_CROSSOVER=bin-float/autotune/square below=… at_or_above=…
-MAREMARK_POLICY=piecewise case=bin-float/autotune/square lookup=4:…,8:…
-```
-
-`candidate` is the implementation with the smallest median per-call time on
-that dataset, and `samples` the number of valid confirmatory observations
-behind it. When the winner changes exactly once along the scales, the
-crossover line gives the last scale `below` the change and the first scale
-`at_or_above` it, and the policy line is the per-scale lookup table a kernel
-can embed. When it changes more than once the suite prints
-`MAREMARK_CROSSOVER=non-monotonic` and a `MAREMARK_POLICY=lookup` line; when
-it never changes, `MAREMARK_CROSSOVER=none` and no policy line.
 
 ### Check a regression in code
 
@@ -195,8 +174,8 @@ collects its output.
 
 - The protocol presets of Maremark fix warm-up, batch calibration, sample
   counts and order: `QuickCheck` (3 confirmatory blocks), `Development` (10
-  blocks, used by the suites) and `RegressionGate` (20 blocks, used by the
-  auto-tune suite). See the
+  blocks, used by the suites) and `RegressionGate` (20 blocks, for regression
+  checks). See the
   [Maremark documentation](https://lunaflow.cn/en/mare_mark/).
 - [bench design](../design/bench.md) explains the estimators and the
   confidence interval.

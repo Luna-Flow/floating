@@ -45,15 +45,23 @@ fn coeff_gcd(
   // general big-integer gcd. Rationals built from binary floats have
   // power-of-two denominators, so this is the common case.
   if coeff_is_zero(left) || coeff_is_zero(right) {
-    return left.gcd(right)
+    return @bin_float.BinCoeff(left.0.gcd(right.0))
   }
-  if right.ctz() == right.bit_length() - 1 {
-    return coeff_one().shift_left(Int32::min(left.ctz(), right.ctz()))
+  if right.0.ctz() == right.bit_length() - 1 {
+    return @bin_float.BinCoeff(
+      @bin_kernel.Coeff::one().shift_left(
+        Int32::min(left.0.ctz(), right.0.ctz()),
+      ),
+    )
   }
-  if left.ctz() == left.bit_length() - 1 {
-    return coeff_one().shift_left(Int32::min(left.ctz(), right.ctz()))
+  if left.0.ctz() == left.bit_length() - 1 {
+    return @bin_float.BinCoeff(
+      @bin_kernel.Coeff::one().shift_left(
+        Int32::min(left.0.ctz(), right.0.ctz()),
+      ),
+    )
   }
-  left.gcd(right)
+  @bin_float.BinCoeff(left.0.gcd(right.0))
 }
 
 ///|
@@ -61,7 +69,7 @@ fn coeff_mul(
   left : @bin_float.BinCoeff,
   right : @bin_float.BinCoeff,
 ) -> @bin_float.BinCoeff {
-  left.mul(right)
+  @bin_float.BinCoeff(left.0.mul(right.0))
 }
 
 ///|
@@ -69,12 +77,50 @@ fn coeff_shift_left(
   value : @bin_float.BinCoeff,
   shift : Int32,
 ) -> @bin_float.BinCoeff {
-  value.shift_left(shift)
+  @bin_float.BinCoeff(value.0.shift_left(shift))
+}
+
+///|
+fn coeff_add(
+  left : @bin_float.BinCoeff,
+  right : @bin_float.BinCoeff,
+) -> @bin_float.BinCoeff {
+  @bin_float.BinCoeff(left.0.add(right.0))
+}
+
+///|
+/// `left - right` for `left >= right`; a smaller `left` aborts.
+fn coeff_sub(
+  left : @bin_float.BinCoeff,
+  right : @bin_float.BinCoeff,
+) -> @bin_float.BinCoeff {
+  @bin_float.BinCoeff(left.0.sub_checked(right.0).unwrap())
+}
+
+///|
+fn coeff_shift_right(
+  value : @bin_float.BinCoeff,
+  shift : Int32,
+) -> @bin_float.BinCoeff {
+  @bin_float.BinCoeff(value.0.shift_right(shift))
+}
+
+///|
+fn coeff_test_bit(value : @bin_float.BinCoeff, index : Int32) -> Bool {
+  value.0.test_bit(index)
+}
+
+///|
+fn coeff_pow_nat(
+  value : @bin_float.BinCoeff,
+  exponent : UInt32,
+) -> @bin_float.BinCoeff {
+  @bin_float.BinCoeff(value.0.pow_nat(exponent))
 }
 
 ///|
 fn coeff_increment(value : @bin_float.BinCoeff) -> @bin_float.BinCoeff {
-  value.add(@bin_float.BinCoeff::one())
+  @bin_float.BinCoeff(value.0.add(@bin_kernel.Coeff::one()))
 }
 
 ///|
@@ -82,7 +128,10 @@ fn coeff_div_rem(
   numerator : @bin_float.BinCoeff,
   denominator : @bin_float.BinCoeff,
 ) -> (@bin_float.BinCoeff, @bin_float.BinCoeff) {
-  numerator.div_rem_checked(denominator).unwrap()
+  let (quotient, remainder) = numerator.0
+    .div_rem_checked(denominator.0)
+    .unwrap()
+  (@bin_float.BinCoeff(quotient), @bin_float.BinCoeff(remainder))
 }
 
 ///|
@@ -103,8 +152,8 @@ fn coeff_to_uint64(value : @bin_float.BinCoeff) -> UInt64? {
 ///|
 fn coeff_mod_int(value : @bin_float.BinCoeff, divisor : Int32) -> Int32 {
   guard divisor > 0 else { abort("coefficient modulus must be positive") }
-  value
-  .div_rem_checked(@bin_float.BinCoeff::from_uint64(divisor.to_uint64()))
+  value.0
+  .div_rem_checked(@bin_kernel.Coeff::from_uint64(divisor.to_uint64()))
   .unwrap().1
   .to_uint64()
   .unwrap()
@@ -187,7 +236,7 @@ fn signed_coeff_add(
   if left.negative == right.negative {
     return signed_coeff_from_parts(
       left.negative,
-      left.magnitude.add(right.magnitude),
+      coeff_add(left.magnitude, right.magnitude),
     )
   }
   let comparison = left.magnitude.compare(right.magnitude)
@@ -196,12 +245,12 @@ fn signed_coeff_add(
   } else if comparison > 0 {
     signed_coeff_from_parts(
       left.negative,
-      left.magnitude.sub_checked(right.magnitude).unwrap(),
+      coeff_sub(left.magnitude, right.magnitude),
     )
   } else {
     signed_coeff_from_parts(
       right.negative,
-      right.magnitude.sub_checked(left.magnitude).unwrap(),
+      coeff_sub(right.magnitude, left.magnitude),
     )
   }
 }
@@ -221,7 +270,7 @@ fn signed_coeff_mul(
 ) -> SignedBinCoeff {
   signed_coeff_from_parts(
     left.negative != right.negative,
-    left.magnitude.mul(right.magnitude),
+    coeff_mul(left.magnitude, right.magnitude),
   )
 }
 
@@ -230,7 +279,10 @@ fn signed_coeff_mul_magnitude(
   value : SignedBinCoeff,
   multiplier : @bin_float.BinCoeff,
 ) -> SignedBinCoeff {
-  signed_coeff_from_parts(value.negative, value.magnitude.mul(multiplier))
+  signed_coeff_from_parts(
+    value.negative,
+    coeff_mul(value.magnitude, multiplier),
+  )
 }
 
 ///|

@@ -36,12 +36,6 @@ BENCHMARKS: dict[str, tuple[BenchmarkCommand, ...]] = {
     "decimal": (BenchmarkCommand("tooling/src/bench/decimal"),),
     "decimal-gda": (BenchmarkCommand("tooling/src/bench/decimal_gda"),),
     "ball-float": (BenchmarkCommand("tooling/src/bench/ball_float"),),
-    "auto-tune": (
-        BenchmarkCommand(
-            "tooling/src/bench/bin_float",
-            "auto tune binary square crossover",
-        ),
-    ),
     "elementary": (
         BenchmarkCommand(
             "tooling/src/bench/bin_float",

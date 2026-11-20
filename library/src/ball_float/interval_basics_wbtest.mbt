@@ -213,13 +213,13 @@ test "coeff_gcd: power-of-two shortcut equals the general gcd" {
     for b in nums {
       let x = @bin_float.BinCoeff::from_uint64(a.to_uint64())
       let y = @bin_float.BinCoeff::from_uint64(b.to_uint64())
-      assert_eq(coeff_gcd(x, y).compare(x.gcd(y)), 0)
+      assert_eq(coeff_gcd(x, y).compare(coeff_gcd_kernel(x, y)), 0)
     }
   }
-  let big = @bin_float.BinCoeff::from_uint64(3UL).shift_left(200)
-  let pow = @bin_float.BinCoeff::one().shift_left(150)
-  assert_eq(coeff_gcd(big, pow).compare(big.gcd(pow)), 0)
-  assert_eq(coeff_gcd(pow, big).compare(pow.gcd(big)), 0)
+  let big = coeff_shift_left(@bin_float.BinCoeff::from_uint64(3UL), 200)
+  let pow = coeff_shift_left(coeff_one(), 150)
+  assert_eq(coeff_gcd(big, pow).compare(coeff_gcd_kernel(big, pow)), 0)
+  assert_eq(coeff_gcd(pow, big).compare(coeff_gcd_kernel(pow, big)), 0)
 }
 
 ///|
@@ -341,4 +341,14 @@ test "trig_critical_indices: contained in the first-round range of the old code"
     assert_true(signed_coeff_compare(now.0, old.0) >= 0)
     assert_true(signed_coeff_compare(now.1, old.1) <= 0)
   }
+}
+
+///|
+/// The general kernel GCD, without the power-of-two shortcut of `coeff_gcd`
+/// (the reference of its test).
+fn coeff_gcd_kernel(
+  left : @bin_float.BinCoeff,
+  right : @bin_float.BinCoeff,
+) -> @bin_float.BinCoeff {
+  @bin_float.BinCoeff(left.0.gcd(right.0))
 }

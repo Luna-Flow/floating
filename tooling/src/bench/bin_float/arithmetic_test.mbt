@@ -17,8 +17,9 @@ fn BinaryOperation::name(self : BinaryOperation) -> String {
 ///|
 struct BinaryInput {
   bits : Int32
-  left_coeff : @binary.BinCoeff
-  right_coeff : @binary.BinCoeff
+  left_big : BigInt
+  right_big : BigInt
+  expected : @binary.BinCoeff
   left : @binary.BinFloat
   right : @binary.BinFloat
   left_checked : @checked.BinFloatResult
@@ -27,38 +28,55 @@ struct BinaryInput {
 
 ///|
 enum BinaryOutput {
-  Coefficient(@binary.BinCoeff)
+  Coefficient(BigInt)
   Core(@binary.BinFloat)
   Checked(@checked.BinFloatResult)
 }
 
 ///|
-fn binary_pattern(bits : Int32, phase : Int32) -> @binary.BinCoeff {
-  let one = @binary.BinCoeff::one()
-  let mut value = one.shift_left(bits - 1)
+/// The coefficient arithmetic of `BinCoeff` is internal, so the operands are
+/// built and the expected results are computed with `BigInt`.
+fn binary_pattern(bits : Int32, phase : Int32) -> BigInt {
+  let one = BigInt::from_int(1)
+  let mut value = one << (bits - 1)
   let mut index = phase % 17
   while index < bits - 1 {
-    value = value.bit_or(one.shift_left(index))
+    value = value + (one << index)
     index += 17 + phase % 5
   }
-  value.bit_or(one)
+  value + one
+}
+
+///|
+fn binary_coeff(value : BigInt) -> @binary.BinCoeff {
+  @binary.BinCoeff::parse(value.to_string()).unwrap()
 }
 
 ///|
 fn binary_input(operation : BinaryOperation, bits : Int32) -> BinaryInput {
   let raw_left = binary_pattern(bits, 3)
   let raw_right = binary_pattern((bits - 1).max(2), 11)
-  let (left_coeff, right_coeff) = match operation {
+  let (left_big, right_big) = match operation {
     Add | Mul => (raw_left, raw_right)
-    Div => (raw_left.mul(raw_right), raw_right)
+    Div => (raw_left * raw_right, raw_right)
   }
+  let expected = binary_coeff(
+    match operation {
+      Add => left_big + right_big
+      Mul => left_big * right_big
+      Div => left_big / right_big
+    },
+  )
+  let left_coeff = binary_coeff(left_big)
+  let right_coeff = binary_coeff(right_big)
   let precision = left_coeff.bit_length() + right_coeff.bit_length() + 4
   let left = @binary.BinFloat::from_coefficient(left_coeff, precision~)
   let right = @binary.BinFloat::from_coefficient(right_coeff, precision~)
   {
     bits,
-    left_coeff,
-    right_coeff,
+    left_big,
+    right_big,
+    expected,
     left,
     right,
     left_checked: @checked.BinFloatResult::ok(left),
@@ -68,14 +86,10 @@ fn binary_input(operation : BinaryOperation, bits : Int32) -> BinaryInput {
 
 ///|
 fn binary_expected(
-  operation : BinaryOperation,
+  _operation : BinaryOperation,
   input : BinaryInput,
 ) -> @binary.BinCoeff {
-  match operation {
-    Add => input.left_coeff.add(input.right_coeff)
-    Mul => input.left_coeff.mul(input.right_coeff)
-    Div => input.left_coeff.div_rem_checked(input.right_coeff).unwrap().0
-  }
+  input.expected
 }
 
 ///|
@@ -84,7 +98,7 @@ fn binary_output_matches(
   output : BinaryOutput,
 ) -> Bool {
   match output {
-    Coefficient(actual) => actual.compare(expected) == 0
+    Coefficient(actual) => actual.to_string() == expected.to_string()
     Core(actual) => {
       let reference = @binary.BinFloat::from_coefficient(
         expected,
@@ -126,9 +140,9 @@ fn binary_implementations(
   [
     @runner.Implementation::stateless("kernel/coefficient", "0.8.0", input => {
       let output = match operation {
-        Add => input.left_coeff.add(input.right_coeff)
-        Mul => input.left_coeff.mul(input.right_coeff)
-        Div => input.left_coeff.div_rem_checked(input.right_coeff).unwrap().0
+        Add => input.left_big + input.right_big
+        Mul => input.left_big * input.right_big
+        Div => input.left_big / input.right_big
       }
       @model.OperationResult::completed(BinaryOutput::Coefficient(output), ())
     }),

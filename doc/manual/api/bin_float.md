@@ -91,17 +91,20 @@ A non-negative arbitrary-precision integer, used as the coefficient of a
 `BinFloat` and as the bit pattern of an interchange encoding.
 
 ```mbti
-type BinCoeff derive(@debug.Debug)
+pub(all) struct BinCoeff(@bin_kernel.Coeff)
 ```
 
-All arithmetic on `BinCoeff` is exact. On the native, LLVM and Wasm targets
-the value is an inline 64- or 128-bit word or an array of 32-bit limbs; on
-JavaScript it is a host `bigint`. The representation is not observable, and
-the algorithm selection (schoolbook, Karatsuba, Toom-3, number-theoretic
-transform, staged division) is described in the
-[design page](../design/bin_float.md#the-coefficient-kernel). Operations whose
-mathematical result could be negative or undefined are checked and return
-`Err` with a message instead.
+The inner type `@bin_kernel.Coeff` belongs to the internal package
+`internal/bin_kernel`, which only code inside `Luna-Flow/floating` can import.
+It carries no compatibility promise and a user cannot call a method on it, read
+it, compare it or build one: from outside the module a `BinCoeff` is opaque,
+and the field is public only so that the other packages of the library can
+unwrap it. The value is exact: on the native, LLVM and Wasm targets an inline
+64- or 128-bit word or an array of 64-bit limbs, on JavaScript a host
+`bigint`; the representation is not observable, and the algorithm selection
+(schoolbook, Karatsuba, Toom-3, number-theoretic transform, staged division) is
+described in the [design page](../design/bin_float.md#the-coefficient-kernel).
+`Debug` prints the integer value.
 
 ### `BinCoeff::zero`, `BinCoeff::one`, `BinCoeff::from_uint64`
 
@@ -149,20 +152,16 @@ Returns the value as a `UInt64`, or `None` when it needs more than 64 bits.
 pub fn BinCoeff::to_uint64(Self) -> UInt64?
 ```
 
-### `BinCoeff::is_zero`, `BinCoeff::bit_length`, `BinCoeff::ctz`, `BinCoeff::test_bit`
+### `BinCoeff::is_zero`, `BinCoeff::bit_length`
 
-Bit-level queries.
+Queries.
 
 ```mbti
 pub fn BinCoeff::is_zero(Self) -> Bool
 pub fn BinCoeff::bit_length(Self) -> Int
-pub fn BinCoeff::ctz(Self) -> Int
-pub fn BinCoeff::test_bit(Self, Int) -> Bool
 ```
 
 `bit_length` is $\lfloor \log_2 c \rfloor + 1$ for $c > 0$ and $0$ for zero.
-`ctz` counts trailing zero bits (the 2-adic valuation $\nu_2(c)$).
-`test_bit(i)` is bit $i$, counting from the least significant bit $0$.
 
 ### `BinCoeff::compare`, `BinCoeff::equal`
 
@@ -178,88 +177,22 @@ natural numbers is the same as equality of representations. The operators
 `<`, `<=`, `>`, `>=`, `==` and `!=` use them (see
 [Trait implementations](#trait-implementations)).
 
-### `BinCoeff::add`, `BinCoeff::mul`, `BinCoeff::square`, `BinCoeff::pow_nat`
-
-Exact addition, multiplication, squaring and powers.
-
-```mbti
-pub fn BinCoeff::add(Self, Self) -> Self
-pub fn BinCoeff::mul(Self, Self) -> Self
-pub fn BinCoeff::square(Self) -> Self
-pub fn BinCoeff::pow_nat(Self, UInt) -> Self
-```
-
-`square` uses a dedicated kernel that exploits the symmetry of the cross
-products. `pow_nat(0)` is one, including $0^0$.
-
-### `BinCoeff::sub_checked`, `BinCoeff::div_rem_checked`
-
-Subtraction and Euclidean division, which can fail on a natural number.
-
-```mbti
-pub fn BinCoeff::sub_checked(Self, Self) -> Result[Self, String]
-pub fn BinCoeff::div_rem_checked(Self, Self) -> Result[(Self, Self), String]
-```
-
-`a.sub_checked(b)` is `Err` when $b > a$. `n.div_rem_checked(d)` returns
-$(q, r)$ with $n = qd + r$ and $0 \le r < d$, and is `Err` when $d = 0$.
-
-### `BinCoeff::gcd`
-
-Returns the greatest common divisor.
-
-```mbti
-pub fn BinCoeff::gcd(Self, Self) -> Self
-```
-
-$\gcd(a, 0) = a$ and $\gcd(0, 0) = 0$.
-
-Operands that both fit in four 32-bit limbs use the binary (Stein)
-algorithm. Larger operands use Lehmer rounds: each runs Euclid on the leading
-63 bits of the larger operand and the bits of the smaller one in the same
-window, and takes one plain division step instead when the smaller operand
-has no bits in that window or the cofactors would not shrink the pair. A
-long operand is therefore reduced modulo a much shorter one in one step, and
-operands of any lengths finish. Below eight limbs of the smaller operand the
-loop continues with plain Euclid. JavaScript uses the host `BigInt`.
-
-### `BinCoeff::shift_left`, `BinCoeff::shift_right`, `BinCoeff::shl`, `BinCoeff::shr`
-
-Multiply by $2^k$ or divide by $2^k$ rounding toward zero.
-
-```mbti
-pub fn BinCoeff::shift_left(Self, Int) -> Self
-pub fn BinCoeff::shift_right(Self, Int) -> Self
-pub fn BinCoeff::shl(Self, Int) -> Self
-pub fn BinCoeff::shr(Self, Int) -> Self
-```
-
-`shl` and `shr` are the `Shl`/`Shr` trait methods behind `<<` and `>>`. A
-negative shift count aborts.
-
-### `BinCoeff::bit_and`, `BinCoeff::bit_or`, `BinCoeff::bit_xor`
-
-Bitwise operations on the binary expansions.
-
-```mbti
-pub fn BinCoeff::bit_and(Self, Self) -> Self
-pub fn BinCoeff::bit_or(Self, Self) -> Self
-pub fn BinCoeff::bit_xor(Self, Self) -> Self
-```
-
-`BinCoeff` also implements `Add`, `Mul`, `Shl`, `Shr`, `Eq`, `Compare`,
-`Show` and `Debug`; the promoted trait methods are listed under
-[Trait implementations](#trait-implementations).
+`BinCoeff` also implements `Eq`, `Compare`, `Show` and `Debug`; the promoted
+trait methods are listed under [Trait implementations](#trait-implementations).
+It has no arithmetic, shifts, bit operations or GCD: they are internal to the
+library (the package `internal/bin_kernel`), and arithmetic on values is done
+with `BinFloat` or, on a coefficient read with `coefficient()`, after
+converting it with `to_string` or `to_bytes_be`.
 
 ```moonbit
 ///|
-test "BinCoeff is exact natural-number arithmetic" {
+test "BinCoeff converts and compares exact natural numbers" {
   let c = @bin_float.BinCoeff::parse("ff", radix=16).unwrap()
   let ten = @bin_float.BinCoeff::from_uint64(10UL)
-  let (q, r) = c.div_rem_checked(ten).unwrap()
-  inspect("\{q} \{r} \{c.gcd(ten)} \{c.bit_length()}", content="25 5 5 8")
-  inspect(ten.pow_nat(20), content="100000000000000000000")
-  inspect(ten.sub_checked(c) is Err(_), content="true")
+  inspect("\{c} \{ten} \{c.bit_length()}", content="255 10 8")
+  inspect(c.compare(ten), content="1")
+  inspect(c.to_bytes_be(), content="b\"\\xff\"")
+  inspect(@bin_float.BinCoeff::parse("-1") is Err(_), content="true")
 }
 ```
 
@@ -2422,21 +2355,17 @@ pub fn BinCoeff::op_le(Self, Self) -> Bool
 pub fn BinCoeff::op_gt(Self, Self) -> Bool
 pub fn BinCoeff::op_ge(Self, Self) -> Bool
 pub fn BinCoeff::not_equal(Self, Self) -> Bool
-pub impl Add for BinCoeff
 pub impl Compare for BinCoeff
 pub impl Eq for BinCoeff
-pub impl Mul for BinCoeff
-pub impl Shl for BinCoeff
 pub impl Show for BinCoeff
-pub impl Shr for BinCoeff
+pub impl @debug.Debug for BinCoeff
 ```
 
-They agree with [`BinCoeff::compare`](#bincoeffcompare-bincoeffequal); `+`,
-`*`, `<<` and `>>` are `add`, `mul`, `shl` and `shr`.
+They agree with [`BinCoeff::compare`](#bincoeffcompare-bincoeffequal).
 
 ### `BinCoeff::output`, `BinCoeff::to_repr`
 
-The `Show` and `Debug` methods of `BinCoeff`.
+The `Show` and `Debug` methods of `BinCoeff`; `to_repr` is the integer value.
 
 ```mbti
 pub fn BinCoeff::output(Self, &Logger) -> Unit
@@ -2518,6 +2447,7 @@ package "Luna-Flow/floating/bin_float"
 import {
   "Luna-Flow/arithmetic",
   "Luna-Flow/floating/def",
+  "Luna-Flow/floating/internal/bin_kernel",
   "moonbitlang/core/debug",
 }
 
@@ -2531,22 +2461,13 @@ pub let binary_precision_max : Int32
 // Errors
 
 // Types and methods
-#derive(@debug.Debug)
-type BinCoeff
-pub fn BinCoeff::add(Self, Self) -> Self
-pub fn BinCoeff::bit_and(Self, Self) -> Self
+pub(all) struct BinCoeff(@bin_kernel.Coeff)
 pub fn BinCoeff::bit_length(Self) -> Int32
-pub fn BinCoeff::bit_or(Self, Self) -> Self
-pub fn BinCoeff::bit_xor(Self, Self) -> Self
 pub fn BinCoeff::compare(Self, Self) -> Int32
-pub fn BinCoeff::ctz(Self) -> Int32
-pub fn BinCoeff::div_rem_checked(Self, Self) -> Result[(Self, Self), String]
 pub fn BinCoeff::equal(Self, Self) -> Bool
 pub fn BinCoeff::from_bytes_be(BytesView) -> Self
 pub fn BinCoeff::from_uint64(UInt64) -> Self
-pub fn BinCoeff::gcd(Self, Self) -> Self
 pub fn BinCoeff::is_zero(Self) -> Bool
-pub fn BinCoeff::mul(Self, Self) -> Self
 pub fn BinCoeff::not_equal(Self, Self) -> Bool
 pub fn BinCoeff::one() -> Self
 pub fn BinCoeff::op_ge(Self, Self) -> Bool
@@ -2555,27 +2476,16 @@ pub fn BinCoeff::op_le(Self, Self) -> Bool
 pub fn BinCoeff::op_lt(Self, Self) -> Bool
 pub fn BinCoeff::output(Self, &Logger) -> Unit
 pub fn BinCoeff::parse(String, radix? : Int32) -> Result[Self, String]
-pub fn BinCoeff::pow_nat(Self, UInt32) -> Self
-pub fn BinCoeff::shift_left(Self, Int32) -> Self
-pub fn BinCoeff::shift_right(Self, Int32) -> Self
-pub fn BinCoeff::shl(Self, Int32) -> Self
-pub fn BinCoeff::shr(Self, Int32) -> Self
-pub fn BinCoeff::square(Self) -> Self
-pub fn BinCoeff::sub_checked(Self, Self) -> Result[Self, String]
-pub fn BinCoeff::test_bit(Self, Int32) -> Bool
 pub fn BinCoeff::to_bytes_be(Self) -> Bytes
 pub fn BinCoeff::to_radix_string(Self, Int32) -> String
 pub fn BinCoeff::to_repr(Self) -> @debug.Repr
 pub fn BinCoeff::to_string(Self) -> String
 pub fn BinCoeff::to_uint64(Self) -> UInt64?
 pub fn BinCoeff::zero() -> Self
-pub impl Add for BinCoeff
 pub impl Compare for BinCoeff
 pub impl Eq for BinCoeff
-pub impl Mul for BinCoeff
-pub impl Shl for BinCoeff
 pub impl Show for BinCoeff
-pub impl Shr for BinCoeff
+pub impl @debug.Debug for BinCoeff
 
 #derive(Eq, @debug.Debug)
 pub struct BinFloat {

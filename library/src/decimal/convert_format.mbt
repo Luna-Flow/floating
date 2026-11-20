@@ -36,7 +36,7 @@ fn binary_decimal_magnitude(bits : Int64) -> Int64 {
 fn decimal_exact_from_bin_float(x : @bin_float.BinFloat) -> Decimal {
   let mut coefficient = BigInt::from_octets(x.coefficient().to_bytes_be())
   let mut exponent = x.exponent2()
-  let zeros = x.coefficient().ctz()
+  let zeros = x.coefficient().0.ctz()
   if zeros > 0 {
     coefficient = coefficient >> zeros
     exponent = exponent + zeros

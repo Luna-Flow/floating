@@ -348,7 +348,8 @@ fn exact_exp10_endpoint(
     exponent <= 100000 else {
     return None
   }
-  let power = @bin_float.BinCoeff::from_uint64(10UL).pow_nat(
+  let power = coeff_pow_nat(
+    @bin_float.BinCoeff::from_uint64(10UL),
     exponent.reinterpret_as_uint(),
   )
   Some(

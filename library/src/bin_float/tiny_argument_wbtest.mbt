@@ -37,7 +37,7 @@ test "BinFloat elementary functions certify tiny arguments" {
   let one = BinFloat::one()
   for exponent in [-6000, -20000] {
     for negative in [false, true] {
-      let magnitude = BinFloat::make(BinCoeff::one(), exponent, 53)
+      let magnitude = BinFloat::make_coeff(Coeff::one(), exponent, 53)
       let x = if negative { magnitude.neg() } else { magnitude }
       let positive = !negative
       // (name, function, anchor, result above the anchor)
@@ -83,7 +83,7 @@ test "BinFloat elementary functions certify tiny arguments" {
     }
   }
   // A normal binary128 argument far below 2^-113.
-  let x = BinFloat::make(BinCoeff::one(), -8000, 113)
+  let x = BinFloat::make_coeff(Coeff::one(), -8000, 113)
   for mode in [RoundTiesToEven, RoundTowardNegative, RoundTowardPositive] {
     let context = BinaryContext::binary128(rounding=mode)
     guard x.try_sin_ctx(context) is Ok((value, flags)) else {
@@ -96,8 +96,8 @@ test "BinFloat elementary functions certify tiny arguments" {
 
 ///|
 test "BinFloat hypot ignores the exponent gap of a negligible operand" {
-  let tiny = BinFloat::make(BinCoeff::one(), -600000, 53)
-  let three_large = BinFloat::make(BinCoeff::from_uint64(3UL), 100, 53)
+  let tiny = BinFloat::make_coeff(Coeff::one(), -600000, 53)
+  let three_large = BinFloat::make_coeff(Coeff::from_uint64(3UL), 100, 53)
   for context in tiny_contexts(53) {
     for
       case in [
@@ -123,8 +123,8 @@ test "BinFloat hypot ignores the exponent gap of a negligible operand" {
   for context in tiny_contexts(53) {
     for
       small in [
-        BinFloat::make(BinCoeff::from_uint64(5UL), -70, 53),
-        BinFloat::make(BinCoeff::one(), -40, 53),
+        BinFloat::make_coeff(Coeff::from_uint64(5UL), -70, 53),
+        BinFloat::make_coeff(Coeff::one(), -40, 53),
       ] {
       let (value, flags) = BinFloat::one().hypot_ctx(small, context)
       assert_eq(value, tiny_expected(BinFloat::one(), true, context))
@@ -137,8 +137,8 @@ test "BinFloat hypot ignores the exponent gap of a negligible operand" {
 test "BinFloat exp10 and log10 stay exact past 10^4096" {
   let context = BinaryContext::unbounded(12000)
   let (power, power_flags) = BinFloat::from_int(5000).exp10_ctx(context)
-  let expected = BinFloat::make(
-    BinCoeff::from_uint64(5UL).pow_nat(5000U),
+  let expected = BinFloat::make_coeff(
+    Coeff::from_uint64(5UL).pow_nat(5000U),
     5000,
     12000,
   )
@@ -151,9 +151,9 @@ test "BinFloat exp10 and log10 stay exact past 10^4096" {
 
 ///|
 test "BinFloat pow certifies tiny exponents" {
-  let tiny = BinFloat::make(BinCoeff::one(), -16000, 53)
-  let three_tiny = BinFloat::make(BinCoeff::from_uint64(3UL), -20000, 53)
-  let half = BinFloat::make(BinCoeff::one(), -1, 53)
+  let tiny = BinFloat::make_coeff(Coeff::one(), -16000, 53)
+  let three_tiny = BinFloat::make_coeff(Coeff::from_uint64(3UL), -20000, 53)
+  let half = BinFloat::make_coeff(Coeff::one(), -1, 53)
   // (base, exponent, result above 1)
   let cases = [
     (BinFloat::from_int(2), tiny, true),

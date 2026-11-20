@@ -15,5 +15,4 @@ sidecar.
 
 ```sh
 just bench all
-just bench auto-tune
 ```

@@ -48,7 +48,7 @@ test "pair add of near-equal and cancelling values" {
   for _ in 0..<40000 {
     let precision = fast_pair_precision(random)
     let left = fast_coeff_operand(random, 0, 128, precision)
-    let delta = BinFloat::make(
+    let delta = BinFloat::make_coeff(
       fast_coeff_value(random, 1 + random.below(40)),
       left.exponent2() + random.below(20) - 10,
       precision,
@@ -78,23 +78,20 @@ test "pair add of near-equal and cancelling values" {
 ///|
 test "pair add and mul at every alignment of all-ones operands" {
   // all-ones coefficients round up to a power of two at the full precision
-  let ones = BinCoeff::one()
-    .shift_left(128)
-    .sub_checked(BinCoeff::one())
-    .unwrap()
+  let ones = Coeff::one().shift_left(128).sub_checked(Coeff::one()).unwrap()
   let mut adds = 0
   let mut muls = 0
   for width in [1, 2, 63, 64, 65, 100, 127, 128] {
-    let coefficient = BinCoeff::one()
+    let coefficient = Coeff::one()
       .shift_left(width)
-      .sub_checked(BinCoeff::one())
+      .sub_checked(Coeff::one())
       .unwrap()
     for precision in [53, 64, 65, 127, 128] {
       for shift in 0..<135 {
         for negative in [false, true] {
-          let left = BinFloat::make(coefficient, 0, 128)
-          let right = BinFloat::make(ones, -shift, 128, negative~)
-          let tight = BinFloat::make(coefficient, shift, precision)
+          let left = BinFloat::make_coeff(coefficient, 0, 128)
+          let right = BinFloat::make_coeff(ones, -shift, 128, negative~)
+          let tight = BinFloat::make_coeff(coefficient, shift, precision)
           for
             pair in [
               (left, right),
@@ -171,13 +168,13 @@ test "pair mul equals the general path" {
 ///|
 test "pair paths decline what they do not cover" {
   let one = BinFloat::from_int(1, precision=100)
-  let wide = BinFloat::make(
-    BinCoeff::one().shift_left(150).add(BinCoeff::one()),
+  let wide = BinFloat::make_coeff(
+    Coeff::one().shift_left(150).add(Coeff::one()),
     0,
     200,
   )
-  let narrow = BinFloat::make(
-    BinCoeff::one().shift_left(100).add(BinCoeff::one()),
+  let narrow = BinFloat::make_coeff(
+    Coeff::one().shift_left(100).add(Coeff::one()),
     0,
     128,
   )
@@ -189,10 +186,10 @@ test "pair paths decline what they do not cover" {
   assert_true(binary_pair_add(wide, one) is None)
   assert_true(binary_pair_mul(wide, one) is None)
   assert_true(binary_pair_add(narrow, narrow.neg()) is None)
-  let far = BinFloat::make(BinCoeff::one(), 100000, 100)
+  let far = BinFloat::make_coeff(Coeff::one(), 100000, 100)
   assert_true(binary_pair_add(narrow, far) is None)
-  let huge = BinFloat::make(
-    BinCoeff::one().shift_left(120).add(BinCoeff::one()),
+  let huge = BinFloat::make_coeff(
+    Coeff::one().shift_left(120).add(Coeff::one()),
     binary_implementation_e_max - 200,
     128,
   )

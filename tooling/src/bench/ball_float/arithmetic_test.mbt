@@ -33,25 +33,34 @@ enum BallOutput {
 }
 
 ///|
-fn ball_pattern(bits : Int32, phase : Int32) -> @binary.BinCoeff {
-  let one = @binary.BinCoeff::one()
-  let mut value = one.shift_left(bits - 1)
+/// The coefficient arithmetic of `BinCoeff` is internal, so the operands are
+/// built with `BigInt`.
+fn ball_pattern(bits : Int32, phase : Int32) -> BigInt {
+  let one = BigInt::from_int(1)
+  let mut value = one << (bits - 1)
   let mut index = phase % 13
   while index < bits - 1 {
-    value = value.bit_or(one.shift_left(index))
+    value = value + (one << index)
     index += 13 + phase % 7
   }
-  value.bit_or(one)
+  value + one
+}
+
+///|
+fn ball_coeff(value : BigInt) -> @binary.BinCoeff {
+  @binary.BinCoeff::parse(value.to_string()).unwrap()
 }
 
 ///|
 fn ball_input(operation : BallOperation, bits : Int32) -> BallInput {
   let raw_left = ball_pattern(bits, 5)
   let raw_right = ball_pattern((bits - 1).max(2), 9)
-  let (left_coeff, right_coeff) = match operation {
+  let (left_big, right_big) = match operation {
     Add | Mul => (raw_left, raw_right)
-    Div => (raw_left.mul(raw_right), raw_right)
+    Div => (raw_left * raw_right, raw_right)
   }
+  let left_coeff = ball_coeff(left_big)
+  let right_coeff = ball_coeff(right_big)
   let precision = left_coeff.bit_length() + right_coeff.bit_length() + 4
   let left_binary = @binary.BinFloat::from_coefficient(left_coeff, precision~)
   let right_binary = @binary.BinFloat::from_coefficient(right_coeff, precision~)

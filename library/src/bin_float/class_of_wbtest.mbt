@@ -11,13 +11,13 @@
 fn cls_bits(
   format : BinaryInterchangeFormat,
   negative : Bool,
-  exponent_field : BinCoeff,
-  fraction : BinCoeff,
+  exponent_field : Coeff,
+  fraction : Coeff,
 ) -> BinFloat {
   let sign = if negative {
-    BinCoeff::one().shift_left(format.total_bits() - 1)
+    Coeff::one().shift_left(format.total_bits() - 1)
   } else {
-    BinCoeff::zero()
+    Coeff::zero()
   }
   let bits = sign
     .bit_or(exponent_field.shift_left(format.fraction_bits()))
@@ -26,8 +26,8 @@ fn cls_bits(
 }
 
 ///|
-fn cls_all_ones(width : Int32) -> BinCoeff {
-  BinCoeff::one().shift_left(width).sub_checked(BinCoeff::one()).unwrap()
+fn cls_all_ones(width : Int32) -> Coeff {
+  Coeff::one().shift_left(width).sub_checked(Coeff::one()).unwrap()
 }
 
 ///|
@@ -45,14 +45,14 @@ test "class_of reaches all ten classes in every interchange format" {
   for format in cls_formats() {
     let ctx = format.context()
     let fb = format.fraction_bits()
-    let zero = BinCoeff::zero()
-    let one = BinCoeff::one()
+    let zero = Coeff::zero()
+    let one = Coeff::one()
     let frac_max = cls_all_ones(fb)
     let exp_max = cls_all_ones(format.exponent_bits())
     let exp_top_finite = exp_max.sub_checked(one).unwrap()
     let quiet_bit = one.shift_left(fb - 1)
     // (negative, exponent field, fraction, class)
-    let rows : Array[(Bool, BinCoeff, BinCoeff, IeeeClass)] = [
+    let rows : Array[(Bool, Coeff, Coeff, IeeeClass)] = [
       (false, zero, zero, PositiveZero),
       (true, zero, zero, NegativeZero),
       (false, zero, one, PositiveSubnormal),
@@ -101,8 +101,8 @@ test "class_of boundary between subnormal and normal follows emin" {
   // binary32: emin = -126. 2^-126 is the smallest normal, 2^-127 is
   // subnormal, and the value just below 2^-126 is the largest subnormal.
   let ctx = BinaryInterchangeFormat::Binary32.context()
-  let smallest_normal = BinFloat::make(BinCoeff::one(), -126, 24)
-  let half = BinFloat::make(BinCoeff::one(), -127, 24)
+  let smallest_normal = BinFloat::make_coeff(Coeff::one(), -126, 24)
+  let half = BinFloat::make_coeff(Coeff::one(), -127, 24)
   inspect(smallest_normal.class_of(ctx) == PositiveNormal, content="true")
   inspect(half.class_of(ctx) == PositiveSubnormal, content="true")
   inspect(smallest_normal.neg().class_of(ctx) == NegativeNormal, content="true")

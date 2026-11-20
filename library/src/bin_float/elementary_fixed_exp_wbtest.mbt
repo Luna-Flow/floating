@@ -22,8 +22,8 @@ fn binary_exp_bounds_series_reference(
     work_precision,
     RoundingMode::TowardPositive,
   )
-  let eighth = BinFloat::make(BinCoeff::one(), -3, work_precision)
-  let half = BinFloat::make(BinCoeff::one(), -1, work_precision)
+  let eighth = BinFloat::make_coeff(Coeff::one(), -3, work_precision)
+  let half = BinFloat::make_coeff(Coeff::one(), -1, work_precision)
   let mut reductions = 0
   while (lower.compare(eighth.neg()) < 0 || upper.compare(eighth) > 0) &&
         reductions < 4096 {
@@ -59,13 +59,13 @@ fn binary_exp_fixed_test_values() -> Array[BinFloat] {
   for index in 0..<60 {
     state = state * 6364136223846793005UL + 1442695040888963407UL
     let bits = 20 + index % 90
-    let mantissa = BinCoeff::from_uint64((state >> 11) | 1UL)
+    let mantissa = Coeff::from_uint64((state >> 11) | 1UL)
       .shift_right(64 - Int32::min(bits, 53))
-      .add(BinCoeff::one())
+      .add(Coeff::one())
     // magnitudes from 2^-30 up to 2^9, both signs
     let exponent = -Int32::min(bits, 53) - 30 + index * 7 % 40
     values.push(
-      BinFloat::make(
+      BinFloat::make_coeff(
         mantissa,
         exponent,
         Int32::max(Int32::min(bits, 53), 2),
@@ -73,11 +73,11 @@ fn binary_exp_fixed_test_values() -> Array[BinFloat] {
       ),
     )
   }
-  values.push(BinFloat::make(BinCoeff::one(), -3, 53)) // exactly 1/8
-  values.push(BinFloat::make(BinCoeff::one(), -3, 53, negative=true))
-  values.push(BinFloat::make(BinCoeff::one(), -60000, 53)) // tiny
-  values.push(BinFloat::make(BinCoeff::one(), 9, 53)) // 512
-  values.push(BinFloat::make(BinCoeff::one(), -1, 53, negative=true))
+  values.push(BinFloat::make_coeff(Coeff::one(), -3, 53)) // exactly 1/8
+  values.push(BinFloat::make_coeff(Coeff::one(), -3, 53, negative=true))
+  values.push(BinFloat::make_coeff(Coeff::one(), -60000, 53)) // tiny
+  values.push(BinFloat::make_coeff(Coeff::one(), 9, 53)) // 512
+  values.push(BinFloat::make_coeff(Coeff::one(), -1, 53, negative=true))
   values
 }
 
@@ -87,7 +87,7 @@ test "fixed-point exp enclosure contains the series enclosure's true value" {
     for value in binary_exp_fixed_test_values() {
       let fixed = binary_exp_bounds_fixed(value, work)
       // arguments exact at the working precision always take the fixed path
-      if value.coefficient().bit_length() <= work {
+      if value.coefficient_.bit_length() <= work {
         assert_true(fixed is Some(_))
       }
       guard fixed is Some((fixed_lower, fixed_upper)) else { continue }
@@ -175,8 +175,8 @@ test "fixed-point exp path declines arguments it does not cover" {
     is None,
   )
   // not exact at the working precision: the general path runs
-  let wide = BinFloat::make(
-    BinCoeff::one().shift_left(150).add(BinCoeff::one()),
+  let wide = BinFloat::make_coeff(
+    Coeff::one().shift_left(150).add(Coeff::one()),
     -151,
     160,
   )

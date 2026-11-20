@@ -22,8 +22,8 @@ fn binary_exp_bounds_reference(
     work_precision,
     RoundingMode::TowardPositive,
   )
-  let eighth = BinFloat::make(BinCoeff::one(), -3, work_precision)
-  let half = BinFloat::make(BinCoeff::one(), -1, work_precision)
+  let eighth = BinFloat::make_coeff(Coeff::one(), -3, work_precision)
+  let half = BinFloat::make_coeff(Coeff::one(), -1, work_precision)
   let mut reductions = 0
   while (lower.compare(eighth.neg()) < 0 || upper.compare(eighth) > 0) &&
         reductions < 4096 {
@@ -178,8 +178,8 @@ test "exp enclosure skips the duplicate series without changing a bit" {
     BinFloat::from_double(0.1, precision=53).mul(
       BinFloat::from_double(0.7, precision=53),
     ),
-    BinFloat::make(
-      BinCoeff::one().shift_left(120).add(BinCoeff::one()),
+    BinFloat::make_coeff(
+      Coeff::one().shift_left(120).add(Coeff::one()),
       -118,
       130,
     ),
@@ -321,11 +321,12 @@ test "sin, cos and tan results do not depend on the skipped series" {
     // sin^2 + cos^2 = 1 and tan = sin / cos hold up to the rounding of each
     let norm = sine.mul(sine).add(cosine.mul(cosine))
     let drift = norm.sub(BinFloat::one()).abs()
-    assert_true(drift < BinFloat::make(BinCoeff::one(), -50, 53))
+    assert_true(drift < BinFloat::make_coeff(Coeff::one(), -50, 53))
     let quotient = sine.div(cosine)
     let tan_drift = quotient.sub(tangent).abs()
     assert_true(
-      tan_drift <= tangent.abs().mul(BinFloat::make(BinCoeff::one(), -50, 53)),
+      tan_drift <=
+      tangent.abs().mul(BinFloat::make_coeff(Coeff::one(), -50, 53)),
     )
   }
 }

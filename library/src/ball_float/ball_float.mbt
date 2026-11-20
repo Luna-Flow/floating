@@ -208,24 +208,24 @@ fn exact_add(
     return a
   }
   let target = Int32::min(a.exponent2(), b.exponent2())
-  let left = a.coefficient().shift_left(a.exponent2() - target)
-  let right = b.coefficient().shift_left(b.exponent2() - target)
+  let left = coeff_shift_left(a.coefficient(), a.exponent2() - target)
+  let right = coeff_shift_left(b.coefficient(), b.exponent2() - target)
   if a.is_negative() == b.is_negative() {
-    exact_make(left.add(right), target, negative=a.is_negative(), mode~)
+    exact_make(coeff_add(left, right), target, negative=a.is_negative(), mode~)
   } else {
     let comparison = left.compare(right)
     if comparison == 0 {
       exact_make(@bin_float.BinCoeff::zero(), 0)
     } else if comparison > 0 {
       exact_make(
-        left.sub_checked(right).unwrap(),
+        coeff_sub(left, right),
         target,
         negative=a.is_negative(),
         mode~,
       )
     } else {
       exact_make(
-        right.sub_checked(left).unwrap(),
+        coeff_sub(right, left),
         target,
         negative=b.is_negative(),
         mode~,
@@ -260,7 +260,7 @@ fn exact_mul(
     exponent.to_int()
   }
   exact_make(
-    a.coefficient().mul(b.coefficient()),
+    coeff_mul(a.coefficient(), b.coefficient()),
     exponent,
     negative=a.is_negative() != b.is_negative(),
     mode~,
@@ -696,7 +696,7 @@ fn extended_mul_both(
   } else {
     exponent.to_int()
   }
-  let coefficient = a.coefficient().mul(b.coefficient())
+  let coefficient = coeff_mul(a.coefficient(), b.coefficient())
   let negative = a.is_negative() != b.is_negative()
   (
     exact_make(
