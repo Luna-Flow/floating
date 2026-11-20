@@ -173,9 +173,10 @@ def order_pct(pairs: Pairs) -> float:
     if not first or not second:
         return 0.0
     centre = net_time(pairs)
+    gap = abs(mean(first) - mean(second))
     if centre == 0.0:
-        return math.inf
-    return 100.0 * abs(mean(first) - mean(second)) / abs(centre)
+        return 0.0 if gap == 0.0 else math.inf
+    return 100.0 * gap / abs(centre)
 
 
 # ---------------------------------------------------------------------------

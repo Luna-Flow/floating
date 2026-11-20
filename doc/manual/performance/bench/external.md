@@ -11,13 +11,32 @@ distribution, not a speed claim for every environment. Where `floating` is
 slower, the tables say so as measured; nothing here is tuned for the
 comparison, and no library code was changed for it.
 
-The ratio of a cell is the median time of `floating` divided by the median time
-of the reference library; above 1 means `floating` is slower. The bracketed
-interval is a 95% two-level bootstrap interval over rounds and blocks (see the
-[design page](../../design/bench/external.md)). The measurements are native,
-release builds only.
+The ratio of a cell is the *net* time of `floating` divided by the net time of
+the reference library; above 1 means `floating` is slower. A net time is the
+time of the operation without the loop around it: every block of a case is
+paired with a block of its null (the same loop without the library call), and
+the net time is the median of the differences of the pairs. The bracketed
+interval is a 95% bootstrap interval over rounds and pairs, and the interval of
+the ratio resamples the two sides independently; the method, with its formulas
+and its fixed rules, is on the [design page](../../design/bench/external.md).
+A case meets the target of the baseline, a ratio of at most 3, when the upper end
+of that interval is at most 3. A case whose reference net time cannot be told
+from zero, whose floating net time is not above zero, or whose interval is wider
+than a stated bound is reported as unresolved, is never counted as met, and is
+judged on the raw ratio (the median of the case blocks over the median of the
+case blocks, the number of 0.11.0), which is printed beside the net ratio. The
+measurements are native, release builds only.
+
+The method makes the number honest; it does not move the target. Computed from
+the 0.11.0 medians, with the floating floor then measured (9.21 ns per
+operation) and any reference floor between 0.4 and 1.1 ns, 43 of the 59 cases
+are above 3 on the raw ratio and 42 on the net ratio; only `decimal_gda`
+multiplication at 100 digits (3.03) changes side.
 
 ## Machine and toolchain
+
+The table describes the run of 0.11.0; every summary records its own machine and
+toolchain in `meta`, and the sections of the new measurements state theirs.
 
 | Item | Value |
 | --- | --- |
@@ -55,8 +74,11 @@ iterations and by eight.
   that precision. libmpdec has no `sin`, so `decimal_gda` has six operations.
 - **Included in the time.** The library call itself, with whatever temporary
   storage it allocates internally. For `floating` this includes constructing
-  the immutable result value and the Maremark per-iteration bookkeeping; the
-  `null` rows below measure the latter.
+  the immutable result value. The loop around the call, and for `floating`
+  Maremark's per-iteration bookkeeping, are in the raw time and are removed in
+  the net time by the null of the case (see the
+  [design page](../../design/bench/external.md#the-null-of-a-case-the-same-loop-without-the-library-call)
+  for what the null contains and what it cannot remove).
 - **Excluded.** Parsing operands, creating contexts, `mpfr_t` and `mpd_t`
   initialisation and result buffers (MPFR and libmpdec write into results
   allocated before timing), reading files, and printing. Process start-up and
@@ -77,17 +99,56 @@ iterations and by eight.
 
 Both sides run the Maremark protocol with the same numbers: 3 warm-up passes
 and at least 5 ms of warm-up, batches calibrated to about 20 ms (at least one
-pass of eight operations), 3 exploratory blocks that are discarded and 12
-confirmatory blocks. The two sides alternate over 7 rounds in seeded AB/BA
-order, each round with its own shuffled case order, so every cell has
-84 confirmatory blocks per side from 7 separate processes. Before each side
+pass of eight operations), 3 exploratory pairs that are discarded and 12
+confirmatory pairs. A pair is a block of the case and a block of its null, each
+with its own calibrated batch, back to back, the order alternating. The two
+sides alternate over 7 rounds in seeded AB/BA order, each round with its own
+shuffled case order, so every cell has 84 confirmatory pairs per side from 7
+separate processes. The rules of the verdict (84 pairs, the width bound of 1.25
+on the ratio interval, the 5% drift and order thresholds, the target of 3) are
+fixed in the method and written into the `protocol` block of every summary. Before each side
 starts, the runner waits until other processes use under 150% CPU. The slowest cells
 (elementary functions at 8192 bits and 1000 digits) take seconds per pass, so
 their batch is a single pass.
 
-## Results
+## Configurations and results
 
-The tables are the output of `just bench external publish` for this run (`testdata/external_baseline/summary.md` and `summary-0.11.0.json`), copied without editing.
+The floating side is measured in two configurations of the native build, each
+published as its own summary and shown in its own section: `native`, with the
+native limb primitives where the build has them, and `portable`, with the
+portable path forced. The target has to be reached by the portable path too.
+The configuration is chosen when the run starts (`--configuration NAME`,
+`--moon-env KEY=VALUE`) and recorded in the summary. The tables of a configuration are generated by
+`just bench external publish` between the marker comments below and copied
+without editing.
+
+### Configuration `native`
+
+<!-- external-baseline:native:start -->
+
+Not measured yet with the net-ratio method. The first measurement with it is
+published with the next release; until then the results below are those of
+0.11.0, measured with the raw method.
+
+<!-- external-baseline:native:end -->
+
+### Configuration `portable`
+
+<!-- external-baseline:portable:start -->
+
+Not measured yet with the net-ratio method.
+
+<!-- external-baseline:portable:end -->
+
+## Results of 0.11.0 (raw method)
+
+These are the tables of the release 0.11.0, measured before the net-ratio method
+existed: the ratio is the median of the case blocks of `floating` over that of
+the reference, without a null, and the single floor known then was the 9.21 ns of
+the floating loop. They are kept as the record of that release
+(`testdata/external_baseline/summary-0.11.0.json`, schema v1) and are replaced
+by the sections above as the new measurements are published. The tables are the
+output of `just bench external publish` for that run, copied without editing.
 
 ### Binary: floating `bin_float` against MPFR
 
@@ -227,8 +288,8 @@ binary library of the same size class.
 **Harness overhead.** The `null` rows show that the timed loop of the
 `floating` side costs 9.2 ns per operation with the arithmetic removed. That
 is 23% of the 40.1 ns of a 53-bit addition and 16% of the 57.1 ns of a 53-bit
-square root, about 1% of 1 us and less above it; it is not subtracted. The C
-side's loop overhead is below the clock resolution.
+square root, about 1% of 1 us and less above it; it is not subtracted in these
+tables. The loop of the C side was not measured in that run.
 
 **Dispersion.** Within a process the 20 ms batches vary by under 3.1% (largest
 median absolute deviation 1.5% for `floating` and 3.1% for the references).
@@ -291,15 +352,19 @@ names where the largest gaps are, not their cause.
 ## Reproduce
 
 ```bash
-just bench external run
+just bench external run --configuration native
 just bench external publish
 ```
 
-`run` writes the inputs, the reference results, the raw rounds and the
-summary under `.tmp/external`; `publish` copies the compact summary to
-`testdata/external_baseline/summary-VERSION.json`. The raw JSONL of the run
-reported here (about 12 MB) is not committed; its checksums and the
+`run` writes the inputs, the reference results, the raw rounds, the summary and
+the samples under `.tmp/external`; `publish` copies the compact summary to
+`testdata/external_baseline/summary-VERSION-CONFIGURATION.json`, the samples
+(the pairs of every case) to `samples-VERSION-CONFIGURATION.json.gz`, the tables
+to `summary-CONFIGURATION.md`, and regenerates the tables of that configuration
+on this page. The raw JSONL (about 12 MB) is not committed; its checksums and the
 checksums of the operand and reference files are in the published summary.
-`just bench external compare OLD NEW` compares two summaries; see the
+`just bench external recompute SUMMARY SAMPLES` recomputes a summary from its
+samples; `just bench external compare OLD NEW` compares two summaries (net
+ratios when both are resolved, raw ratios otherwise); see the
 [tutorial](../../tutorial/bench/external.md) for the commands and the
 [API page](../../api/bench/external.md) for the benchmark cases.

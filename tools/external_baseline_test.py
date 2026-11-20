@@ -1,5 +1,6 @@
 import random
 import unittest
+from dataclasses import asdict
 
 import external_baseline as eb
 import external_stats as stats
@@ -216,23 +217,75 @@ class ReductionTests(unittest.TestCase):
         self.assertEqual(eb.parse_jsonl(text, eb.EVENT_MARKER), [{"a": 1}])
         self.assertEqual(eb.parse_jsonl('{"b": 2}\n\n'), [{"b": 2}])
 
+    @staticmethod
+    def fill(collected: eb.Collected, case: str, floating: tuple[float, float], reference: tuple[float, float],
+             rounds: int = 2, blocks: int = 4) -> None:  # fmt: skip
+        """Constant pairs `(case ns, null ns)` on both sides, the null running first in every other block."""
+        for side, (case_ns, null_ns), samples, pairs in (
+            ("floating", floating, collected.floating, collected.floating_pairs),
+            ("reference", reference, collected.reference, collected.reference_pairs),
+        ):
+            for round_index in range(rounds):
+                block = [stats.Pair(case_ns, null_ns, j % 2 == 1) for j in range(blocks)]
+                pairs.setdefault(case, {})[round_index] = block
+                samples.setdefault(case, {})[round_index] = [pair.case_ns for pair in block]
+        collected.floating_iterations[case] = 11
+        collected.reference_iterations[case] = 22
+
+    PROTOCOL = eb.Protocol(1, 1.0, 1.0, 1, 10, 10.0, 1, 4, 2, 100)
+
     def test_end_to_end_reduction_and_table(self) -> None:
         collected = eb.Collected()
-        protocol = eb.Protocol(1, 1.0, 1.0, 1, 10, 10.0, 1, 4, 2, 100)
-        for round_index in range(2):
-            for case, reference_ns, floating_ns in (("binary/add/53", 10.0, 200.0), ("binary/sqrt/53", 50.0, 100.0)):
-                collected.reference.setdefault(case, {})[round_index] = [reference_ns] * 4
-                collected.floating.setdefault(case, {})[round_index] = [floating_ns] * 4
-        collected.floating.setdefault("binary/null/53", {})[0] = [3.0, 3.0]
-        results = eb.reduce_results(collected, protocol, 1)
+        self.fill(collected, "binary/add/53", floating=(209.0, 9.0), reference=(10.0, 1.0))
+        self.fill(collected, "binary/sqrt/53", floating=(100.0, 10.0), reference=(50.0, 5.0))
+        results = eb.reduce_results(collected, self.PROTOCOL, 1)
         self.assertEqual([r.case for r in results], ["binary/add/53", "binary/sqrt/53"])
-        self.assertEqual(results[0].ratio.ratio, 20.0)
-        self.assertEqual(results[1].ratio.ratio, 2.0)
+        add, sqrt = results
+        self.assertEqual(add.ratio_raw.ratio, 20.9)
+        self.assertEqual(add.ratio_net.ratio, 200.0 / 9.0)
+        self.assertEqual(sqrt.ratio_raw.ratio, 2.0)
+        self.assertEqual(sqrt.ratio_net.ratio, 2.0)
+        self.assertEqual((add.status, sqrt.status), (stats.NOT_MET, stats.MET))
+        self.assertEqual(add.floating.net.net_ns, 200.0)
+        self.assertEqual(add.reference.null.median_ns, 1.0)
+        self.assertEqual((add.floating.raw.iterations, add.reference.raw.iterations), (11, 22))
         text = eb.render_markdown(results)
-        self.assertIn("Ratio floating / MPFR", text)
-        self.assertIn("| add | 20.00 [20.00, 20.00] |", text)
-        self.assertIn("| sqrt | 2.00 [2.00, 2.00] |", text)
-        self.assertEqual(eb.overhead_results(collected, protocol, 1)[0]["case"], "binary/null/53")
+        self.assertIn("1 of 2 cases meet the target", text)
+        self.assertIn("Net ratio floating / MPFR", text)
+        self.assertIn("| add | 22.22 [22.22, 22.22] |", text)
+        self.assertIn("| sqrt | 2.00 [2.00, 2.00] met |", text)  # net table
+        self.assertIn("| sqrt | 2.00 [2.00, 2.00] |", text)  # raw table
+        self.assertIn("Null time per operation", text)
+
+    def test_a_case_without_pairs_is_an_error(self) -> None:
+        collected = eb.Collected()
+        collected.floating["binary/add/53"] = {0: [1.0]}
+        collected.reference["binary/add/53"] = {0: [1.0]}
+        with self.assertRaises(ValueError):
+            eb.reduce_results(collected, self.PROTOCOL, 1)
+
+    def test_unresolved_case_shows_its_raw_verdict_and_is_never_met(self) -> None:
+        collected = eb.Collected()
+        # the reference net is zero: its case blocks cost what its null blocks cost
+        self.fill(collected, "binary/add/53", floating=(40.0, 9.0), reference=(1.0, 1.0))
+        (result,) = eb.reduce_results(collected, self.PROTOCOL, 1)
+        self.assertEqual((result.status, result.reason), (stats.UNRESOLVED, stats.REASON_REFERENCE_ZERO))
+        self.assertEqual(result.raw_status, stats.NOT_MET)
+        self.assertEqual(eb.net_cell(result), "unresolved, raw 40.00 not met")
+        self.assertFalse(result.order)
+        text = eb.render_markdown([result])
+        self.assertIn("0 of 1 cases meet the target", text)
+        self.assertIn("1 are unresolved", text)
+        self.assertIn("`binary/add/53` (reference net not above zero)", text)
+
+    def test_flags_and_borderline_marks_are_shown(self) -> None:
+        collected = eb.Collected()
+        self.fill(collected, "binary/add/53", floating=(40.0, 9.0), reference=(11.0, 1.0))
+        (result,) = eb.reduce_results(collected, self.PROTOCOL, 1)
+        flagged = eb.CaseResult(**{**asdict(result), "drift": True, "order": True,
+                                   "reference": result.reference, "floating": result.floating,
+                                   "ratio_raw": result.ratio_raw, "ratio_net": result.ratio_net})  # fmt: skip
+        self.assertTrue(eb.net_cell(flagged).endswith(" d o"))
 
     def test_number_formatting(self) -> None:
         self.assertEqual(eb.format_ns(12.34), "12.3 ns")
@@ -245,7 +298,24 @@ class ReductionTests(unittest.TestCase):
 class ComparisonTests(unittest.TestCase):
     @staticmethod
     def summary(ratios: dict[str, tuple[float, float, float]]) -> dict[str, object]:
-        return {"cases": [{"case": c, "ratio": {"ratio": r, "ci_low": lo, "ci_high": hi}} for c, (r, lo, hi) in ratios.items()]}
+        return {
+            "schema": eb.SCHEMA_V1,
+            "cases": [{"case": c, "ratio": {"ratio": r, "ci_low": lo, "ci_high": hi}} for c, (r, lo, hi) in ratios.items()],
+        }
+
+    @staticmethod
+    def summary_v2(
+        net: dict[str, tuple[float, float, float]], raw: dict[str, tuple[float, float, float]], unresolved: tuple[str, ...] = ()
+    ) -> dict[str, object]:
+        def entry(case: str) -> dict[str, object]:
+            return {
+                "case": case,
+                "status": stats.UNRESOLVED if case in unresolved else stats.NOT_MET,
+                "ratio_net": {"ratio": net[case][0], "ci_low": net[case][1], "ci_high": net[case][2]},
+                "ratio_raw": {"ratio": raw[case][0], "ci_low": raw[case][1], "ci_high": raw[case][2]},
+            }
+
+        return {"schema": eb.SCHEMA, "protocol": {"floating_configuration": "native"}, "cases": [entry(c) for c in net]}
 
     def test_verdicts_follow_interval_overlap(self) -> None:
         old = self.summary({"a": (10.0, 9.0, 11.0), "b": (10.0, 9.0, 11.0), "c": (10.0, 9.0, 11.0), "d": (1.0, 1.0, 1.0)})
@@ -256,7 +326,28 @@ class ComparisonTests(unittest.TestCase):
         self.assertEqual(changes["b"].verdict, "faster")
         self.assertEqual(changes["c"].verdict, "same")
         self.assertAlmostEqual(changes["a"].change_pct, 50.0)
-        self.assertIn("| `a` | 10.00 | 15.00 | +50.0% | slower |", eb.render_changes(list(changes.values())))
+        self.assertIn("| `a` | 10.00 | 15.00 | +50.0% | slower | raw |", eb.render_changes(list(changes.values())))
+
+    def test_two_v2_summaries_compare_their_net_ratios_unless_a_case_is_unresolved(self) -> None:
+        net_old = {"a": (8.0, 7.5, 8.5), "b": (8.0, 7.5, 8.5)}
+        net_new = {"a": (4.0, 3.5, 4.5), "b": (4.0, 3.5, 4.5)}
+        raw_old = {"a": (9.0, 8.5, 9.5), "b": (9.0, 8.5, 9.5)}
+        raw_new = {"a": (8.9, 8.4, 9.4), "b": (8.9, 8.4, 9.4)}
+        old = self.summary_v2(net_old, raw_old)
+        new = self.summary_v2(net_new, raw_new, unresolved=("b",))
+        changes = {c.case: c for c in eb.compare_summaries(old, new)}
+        self.assertEqual((changes["a"].basis, changes["a"].verdict), ("net", "faster"))
+        self.assertEqual((changes["b"].basis, changes["b"].verdict), ("raw", "same"))  # one side unresolved: raw on both
+
+    def test_a_v1_against_a_v2_summary_compares_raw_ratios(self) -> None:
+        old = self.summary({"a": (9.0, 8.5, 9.5)})
+        new = self.summary_v2({"a": (4.0, 3.5, 4.5)}, {"a": (9.2, 8.7, 9.7)})
+        (change,) = eb.compare_summaries(old, new)
+        self.assertEqual((change.basis, change.verdict, change.new), ("raw", "same", 9.2))
+
+    def test_the_configuration_of_a_summary(self) -> None:
+        self.assertEqual(eb.summary_configuration({"schema": eb.SCHEMA_V1}), "native")
+        self.assertEqual(eb.summary_configuration({"schema": eb.SCHEMA, "protocol": {"floating_configuration": "portable"}}), "portable")
 
 
 class QuietGateTests(unittest.TestCase):
@@ -289,7 +380,7 @@ class ProtocolTests(unittest.TestCase):
 
 
 class PublishNameTests(unittest.TestCase):
-    def publish(self, version: str | None) -> list[str]:
+    def publish(self, version: str | None, configuration: str = "native") -> tuple[list[str], str]:
         import argparse
         import contextlib
         import io
@@ -302,26 +393,108 @@ class PublishNameTests(unittest.TestCase):
             root = Path(directory)
             out = root / "out"
             out.mkdir()
-            (out / "results.json").write_text(json.dumps({"cases": []}), encoding="utf-8")
+            document = {"schema": eb.SCHEMA, "protocol": {"floating_configuration": configuration}, "cases": []}
+            (out / "results.json").write_text(json.dumps(document), encoding="utf-8")
             (out / "results.md").write_text("# results\n", encoding="utf-8")
-            with patch.object(eb, "SUMMARY_DIR", root / "summaries"), contextlib.redirect_stdout(io.StringIO()):
+            (out / "samples.json").write_text('{"schema": "x"}\n', encoding="utf-8")
+            (root / "library").mkdir()
+            (root / "library" / "moon.mod").write_text('name = "x"\nversion = "9.9.9"\n', encoding="utf-8")
+            page = root / "doc" / "manual" / "performance" / "bench" / "external.md"
+            page.parent.mkdir(parents=True)
+            start, end = eb.page_markers(configuration)
+            page.write_text(f"before\n{start}\nold tables\n{end}\nafter\n", encoding="utf-8")
+            with (
+                patch.object(eb, "SUMMARY_DIR", root / "summaries"),
+                patch.object(eb, "REPO_ROOT", root),
+                contextlib.redirect_stdout(io.StringIO()),
+            ):
                 eb.command_publish(argparse.Namespace(out=out, version=version))
-            return sorted(path.name for path in (root / "summaries").iterdir())
+            return sorted(path.name for path in (root / "summaries").iterdir()), page.read_text(encoding="utf-8")
 
-    def test_the_summary_name_follows_the_explicit_version_not_the_manifest(self) -> None:
-        self.assertEqual(self.publish("0.10.2"), ["summary-0.10.2.json", "summary.md"])
+    def test_the_names_follow_the_explicit_version_and_the_configuration(self) -> None:
+        names, _ = self.publish("0.12.0", "portable")
+        self.assertEqual(names, ["samples-0.12.0-portable.json.gz", "summary-0.12.0-portable.json", "summary-portable.md"])
 
     def test_the_summary_name_defaults_to_the_manifest_version(self) -> None:
-        self.assertEqual(self.publish(None), [f"summary-{eb.module_version()}.json", "summary.md"])
+        names, _ = self.publish(None)  # the temporary repository declares version 9.9.9
+        self.assertEqual(names, ["samples-9.9.9-native.json.gz", "summary-9.9.9-native.json", "summary-native.md"])
+
+    def test_publish_replaces_the_generated_tables_of_the_page(self) -> None:
+        _, page = self.publish("0.12.0")
+        self.assertEqual(page, "before\n<!-- external-baseline:native:start -->\n\n# results\n\n<!-- external-baseline:native:end -->\nafter\n")
 
     def test_the_stored_baseline_is_the_published_release_summary(self) -> None:
         self.assertEqual(eb.STORED_SUMMARY.name, "summary-0.11.0.json")
         self.assertTrue(eb.STORED_SUMMARY.is_file())
 
+    def test_page_markers_and_configuration_names(self) -> None:
+        self.assertEqual(eb.page_markers("native"), ("<!-- external-baseline:native:start -->", "<!-- external-baseline:native:end -->"))
+        for bad in ("", "Native", "native build", "-x"):
+            with self.assertRaises(ValueError):
+                eb.valid_configuration(bad)
+        with self.assertRaises(ValueError):
+            eb.replace_page_tables("no markers", "native", "t")
+        with self.assertRaises(ValueError):
+            start, end = eb.page_markers("native")
+            eb.replace_page_tables(f"{start}{end}{start}{end}", "native", "t")
+
+    def test_moon_environment_arguments(self) -> None:
+        self.assertEqual(eb.parse_environment(["A=1", "B=x=y", "C="]), {"A": "1", "B": "x=y", "C": ""})
+        for bad in (["A"], ["=1"], ["A=1", "A=2"]):
+            with self.assertRaises(ValueError):
+                eb.parse_environment(bad)
+
+
+class SamplesTests(unittest.TestCase):
+    def collected(self) -> eb.Collected:
+        collected = eb.Collected()
+        ReductionTests.fill(collected, "binary/add/53", floating=(40.0, 9.0), reference=(5.0, 0.5), rounds=3, blocks=5)
+        ReductionTests.fill(collected, "decimal_gda/mul/16", floating=(70.0, 9.0), reference=(20.0, 0.5), rounds=3, blocks=5)
+        return collected
+
+    def test_samples_round_trip(self) -> None:
+        import json
+
+        collected = self.collected()
+        document = json.loads(json.dumps(eb.samples_document(collected)))
+        loaded = eb.load_samples(document)
+        self.assertEqual(loaded.floating_pairs, collected.floating_pairs)
+        self.assertEqual(loaded.reference_pairs, collected.reference_pairs)
+        self.assertEqual(loaded.floating, collected.floating)
+        self.assertEqual((loaded.floating_iterations, loaded.reference_iterations), (collected.floating_iterations, collected.reference_iterations))
+        with self.assertRaises(ValueError):
+            eb.load_samples({"schema": "other"})
+
+    def test_a_summary_is_recomputed_exactly_from_its_samples(self) -> None:
+        import json
+
+        protocol = eb.Protocol(1, 1.0, 1.0, 1, 10, 10.0, 1, 5, 3, 100)
+        collected = self.collected()
+        summary = eb.summary_document(eb.reduce_results(collected, protocol, 7), {"order_seed": 7}, protocol, "portable")
+        samples = json.loads(json.dumps(eb.samples_document(collected)))
+        summary = json.loads(json.dumps(summary))
+        recomputed = [json.loads(json.dumps(asdict(r))) for r in eb.recompute(samples, summary)]
+        self.assertEqual(recomputed, summary["cases"])
+        self.assertEqual(summary["protocol"]["floating_configuration"], "portable")
+        self.assertEqual(summary["protocol"]["method"], stats.METHOD_VERSION)
+        self.assertEqual(summary["protocol"]["width_bound"], 1.25)
+        self.assertEqual(summary["protocol"]["pairs_per_round"], 5)
+        self.assertEqual(summary["schema"], "external-baseline-v2")
+
+    def test_gzip_output_is_deterministic(self) -> None:
+        import tempfile
+        from pathlib import Path
+
+        with tempfile.TemporaryDirectory() as directory:
+            first, second = Path(directory) / "a.gz", Path(directory) / "b.gz"
+            eb.write_gzip(first, "same text\n")
+            eb.write_gzip(second, "same text\n")
+            self.assertEqual(first.read_bytes(), second.read_bytes())
+
 
 class QuickCheckTests(unittest.TestCase):
     def test_stored_medians_read_a_published_summary(self) -> None:
-        summary = {"cases": [
+        summary = {"schema": eb.SCHEMA_V1, "cases": [
             {"case": "binary/add/53", "reference": {"median_ns": 4.0}, "floating": {"median_ns": 100.0}},
             {"case": "decimal_gda/ln/16", "reference": {"median_ns": 10000.0}, "floating": {"median_ns": 200000.0}},
         ]}  # fmt: skip
@@ -329,6 +502,12 @@ class QuickCheckTests(unittest.TestCase):
             eb.stored_medians(summary),
             {"binary/add/53": (4.0, 100.0), "decimal_gda/ln/16": (10000.0, 200000.0)},
         )
+
+    def test_stored_medians_read_a_v2_summary(self) -> None:
+        summary = {"schema": eb.SCHEMA, "cases": [
+            {"case": "binary/add/53", "reference": {"raw": {"median_ns": 4.0}}, "floating": {"raw": {"median_ns": 100.0}}},
+        ]}  # fmt: skip
+        self.assertEqual(eb.stored_medians(summary), {"binary/add/53": (4.0, 100.0)})
 
     def test_rows_flag_cells_above_the_target_and_order_by_case(self) -> None:
         stored = {"binary/add/53": (4.0, 100.0), "binary/exp/53": (500.0, 30000.0), "binary/add/128": (6.0, 120.0)}
@@ -346,12 +525,6 @@ class QuickCheckTests(unittest.TestCase):
         self.assertEqual(len(lines), 2)
         self.assertTrue(lines[0].startswith("case"))
         self.assertIn("binary/add/53", lines[1])
-
-    def test_overhead_cases_are_left_out_of_the_medians(self) -> None:
-        collected = eb.Collected()
-        collected.floating["binary/null/53"] = {0: [9.0]}
-        collected.floating["binary/add/53"] = {0: [100.0, 120.0, 110.0]}
-        self.assertEqual(eb.floating_medians(collected), {"binary/add/53": 110.0})
 
 
 if __name__ == "__main__":

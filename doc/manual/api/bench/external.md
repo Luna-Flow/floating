@@ -40,7 +40,12 @@ import {
 | --- | --- | --- | --- |
 | `external/binary/OP` for `add`, `mul`, `div`, `sqrt`, `exp`, `ln`, `sin` | 53, 128, 512, 2048, 8192 bits | `floating` (`BinFloat` methods at the scale as precision, round to nearest even) | the MPFR result for each operand, bit for bit |
 | `external/decimal_gda/OP` for `add`, `mul`, `div`, `sqrt`, `exp`, `ln` | 16, 34, 100, 1000 digits | `floating` (`decimal_gda` functions in a context of the scale as precision, `HalfEven`, exponent range ±999999) | the libmpdec result for each operand, value for value |
-| `external/binary/null`, `external/decimal_gda/null` | 53 bits, 16 digits | `floating` with the arithmetic removed: the loop and result store only | the operands themselves |
+
+Every case has a second implementation, `null`, next to `floating`: the same
+closure call and result store with the library call removed. Maremark runs the
+blocks of the two implementations interleaved (each with its own calibration),
+and the runner pairs them by block number. The null reads `expected` instead of
+the operands so that its output validates against the reference.
 
 One iteration of the timed function is one pass over the eight operand sets of
 the case, so a reported time per operation is the observation divided by

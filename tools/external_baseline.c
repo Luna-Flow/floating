@@ -132,7 +132,6 @@ typedef struct {
 } CaseId;
 
 typedef enum {
-  OP_NULL,
   OP_ADD,
   OP_MUL,
   OP_DIV,
@@ -143,7 +142,6 @@ typedef enum {
 } Op;
 
 static Op parse_op(const char *name) {
-  if (strcmp(name, "null") == 0) return OP_NULL;
   if (strcmp(name, "add") == 0) return OP_ADD;
   if (strcmp(name, "mul") == 0) return OP_MUL;
   if (strcmp(name, "div") == 0) return OP_DIV;
@@ -152,7 +150,7 @@ static Op parse_op(const char *name) {
   if (strcmp(name, "ln") == 0) return OP_LN;
   if (strcmp(name, "sin") == 0) return OP_SIN;
   die("unknown operation");
-  return OP_NULL;
+  return OP_ADD;
 }
 
 static CaseId parse_case(const char *text) {
@@ -280,9 +278,6 @@ static void pass(Prepared *p) {
   if (p->is_binary) {
     mpfr_t *a = p->ba, *b = p->bb, *r = p->br;
     switch (p->op) {
-      case OP_NULL:
-        for (size_t i = 0; i < n; i++) __asm__ volatile("" : : "r"(&r[i]), "r"(&a[i]) : "memory");
-        break;
       case OP_ADD:
         for (size_t i = 0; i < n; i++) mpfr_add(r[i], a[i], b[i], MPFR_RNDN);
         break;
@@ -310,9 +305,6 @@ static void pass(Prepared *p) {
     mpd_context_t *ctx = &p->dctx;
     uint32_t status = 0;
     switch (p->op) {
-      case OP_NULL:
-        for (size_t i = 0; i < n; i++) __asm__ volatile("" : : "r"(&r[i]), "r"(&a[i]) : "memory");
-        break;
       case OP_ADD:
         for (size_t i = 0; i < n; i++) mpd_qadd(r[i], a[i], b[i], ctx, &status);
         break;
@@ -367,8 +359,6 @@ static void pass_null(Prepared *p) {
 /* ------------------------------------------------------------------ */
 
 static void reference_case(FILE *out, const CaseId *id, Prepared *p) {
-  /* The null case does no arithmetic and has no reference result. */
-  if (p->op == OP_NULL) return;
   pass(p);
   for (size_t i = 0; i < p->n; i++) {
     if (p->is_binary) {
