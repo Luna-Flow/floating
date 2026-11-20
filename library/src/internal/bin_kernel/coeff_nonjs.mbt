@@ -1094,8 +1094,25 @@ pub fn bin_coeff_short_div_rem(
   } else if denominator.bit_length() > 96 {
     match bin_coeff_short_div_high_product(numerator, denominator) {
       Some(result) => result
-      None => bin_coeff_div_rem_knuth(numerator, denominator)
+      None => bin_coeff_div_rem_long(numerator, denominator)
     }
+  } else {
+    bin_coeff_div_rem_knuth(numerator, denominator)
+  }
+}
+
+///|
+/// The quotient and remainder of a long division: Knuth's schoolbook division
+/// below `bin_coeff_bz_division_min_words` limbs of divisor, the recursive
+/// division of Burnikel and Ziegler (quadratic work becomes a few products)
+/// from there. Both return the exact pair, so the rounding bits of every
+/// caller are the same either way.
+fn bin_coeff_div_rem_long(
+  numerator : Coeff,
+  denominator : Coeff,
+) -> (Coeff, Coeff) {
+  if bin_coeff_word_len(denominator) >= bin_coeff_bz_division_min_words {
+    bin_coeff_div_rem_burnikel_ziegler(numerator, denominator)
   } else {
     bin_coeff_div_rem_knuth(numerator, denominator)
   }
