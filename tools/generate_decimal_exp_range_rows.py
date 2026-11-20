@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """White-box rows for exponential-type decimal results near the range limits (#363).
 
-Writes `src/decimal/exp_range_rows_wbtest.mbt`, a table of
+Writes `library/src/decimal/exp_range_rows_wbtest.mbt`, a table of
 `(op, rounding, precision, e_min, e_max, clamp, x, y, expected, flags)` executed
 by `exp_range_wbtest.mbt` on every backend. The table is about results that are
 just representable (the smallest subnormal, half of it, the largest finite
@@ -35,7 +35,7 @@ from decimal import Decimal
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "src/decimal/exp_range_rows_wbtest.mbt"
+OUTPUT = ROOT / "library/src/decimal/exp_range_rows_wbtest.mbt"
 CHUNK_ROWS = 500
 ROW_TYPE = "(String, String, Int32, Int32, Int32, Bool, String, String, String, String)"
 PREC = 400

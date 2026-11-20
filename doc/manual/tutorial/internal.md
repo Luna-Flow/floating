@@ -23,7 +23,7 @@ There is nothing to install: the package ships inside `Luna-Flow/floating`
 and is visible only to its packages. Run its tests from the repository:
 
 ```bash
-sh tools/run_moon_clean_exec.sh test src/internal --target native
+sh tools/run_moon_clean_exec.sh test library/src/internal --target native
 ```
 
 In a package of the module, import it in `moon.pkg`:

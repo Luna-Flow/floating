@@ -55,7 +55,7 @@ class GdaBenchmarkTest(unittest.TestCase):
     def test_inject_fixture_adds_benchmark_import_once(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             destination = Path(directory)
-            package = destination / "src/decimal_gda/moon.pkg"
+            package = destination / "library/src/decimal_gda/moon.pkg"
             package.parent.mkdir(parents=True)
             package.write_text('import {\n  "moonbitlang/core/bigint",\n}\n', encoding="utf-8")
             benchmark.inject_fixture(destination)

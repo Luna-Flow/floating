@@ -854,7 +854,7 @@ documented here so that callers can avoid them.
 
 No limitation is open at present. Decorated `rootn` with a negative degree
 lowers the decoration to `trv` when 0 is in the argument, as the decoration
-rules of IEEE 1788-2015 §11 require; `src/ball_float/ball_float_decorated_wbtest.mbt`
+rules of IEEE 1788-2015 §11 require; `library/src/ball_float/ball_float_decorated_wbtest.mbt`
 checks degrees `-1`, `-2` and `-3`.
 
 ## Alternatives rejected

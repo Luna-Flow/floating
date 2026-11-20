@@ -177,7 +177,7 @@ class IeeeDecimalCorpusTests(unittest.TestCase):
         paths = [item for item in calls[0] if item.endswith(".mbt")]
         self.assertTrue(paths)
         self.assertTrue(all("ieee_corpus_generated_" in item for item in paths))
-        self.assertNotIn("src/decimal", calls[0])
+        self.assertNotIn("library/src/decimal", calls[0])
 
     def test_full_run_keeps_whole_package_on_every_target(self) -> None:
         calls: list[list[str]] = []
@@ -191,7 +191,7 @@ class IeeeDecimalCorpusTests(unittest.TestCase):
         with patch.object(run_ieee_decimal.subprocess, "run", fake_run):
             results = run_ieee_decimal.run_targets(["native", "js"])
         self.assertEqual([r["totalCases"] for r in results], [518, 518])
-        self.assertTrue(all("src/decimal" in call for call in calls))
+        self.assertTrue(all("library/src/decimal" in call for call in calls))
 
     def test_format_context_uses_normal_exponent_bounds(self) -> None:
         self.assertEqual(run_ieee_decimal.decimal_context("decimal32").Emin, -95)

@@ -9,7 +9,7 @@ that file's executable (not timed), then the same command without
 The numbers are run times of one file in isolation, debug build, one process
 at a time, so their sum is about the native test stage minus its build time.
 
-    python3 tools/native_test_timing.py [--top 20] [--package src/decimal] [--json out.json]
+    python3 tools/native_test_timing.py [--top 20] [--package library/src/decimal] [--json out.json]
 
 It is a heavy job: run it in a heavy slot.
 """
@@ -39,8 +39,8 @@ def is_test_file(path: Path) -> bool:
 
 
 def test_files(root: Path, package: str | None = None) -> list[Path]:
-    """Test files under `src` (or one package directory), sorted."""
-    base = root / (package if package else "src")
+    """Test files under `library/src` (or one package directory), sorted."""
+    base = root / (package if package else "library/src")
     return sorted(path for path in base.rglob("*.mbt") if is_test_file(path))
 
 
@@ -114,7 +114,7 @@ def time_file(path: Path) -> dict:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--top", type=int, default=DEFAULT_TOP)
-    parser.add_argument("--package", help="restrict to one package directory, e.g. src/decimal")
+    parser.add_argument("--package", help="restrict to one package directory, e.g. library/src/decimal")
     parser.add_argument("--json", type=Path, help="also write every row to this file")
     args = parser.parse_args(argv)
     files = test_files(REPO_ROOT, args.package)

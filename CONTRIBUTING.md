@@ -39,11 +39,11 @@ trait design, and test coverage are especially valuable.
 
 ### Two modules
 
-The repository is a `moon.work` workspace of two modules:
+The repository is a `moon.work` workspace of two modules, each in its own directory (the root has no module; `moon.work` lists `./library` and `./tooling`). A published package is exactly its directory: `library/` holds `moon.mod`, `src/`, `README.md`, `LICENSE` and `CHANGELOG.md`; the manual, the corpora, the scripts and the workflows stay at the root and are not packaged.
 
 | Module | Directory | Contents | Dependencies |
 | --- | --- | --- | --- |
-| `Luna-Flow/floating` (published) | `.` (`moon.mod`, `src/`) | the numeric packages: `def`, `internal`, `bin_float`, `decimal`, `decimal_gda`, `ball_float`, the `*_checked` tiers, `semantic`, `consistency` | `Luna-Flow/arithmetic`, `Luna-Flow/luna-generic` only |
+| `Luna-Flow/floating` (published) | `library/` (`library/moon.mod`, `library/src/`) | the numeric packages: `def`, `internal`, `bin_float`, `decimal`, `decimal_gda`, `ball_float`, the `*_checked` tiers, `semantic`, `consistency` | `Luna-Flow/arithmetic`, `Luna-Flow/luna-generic` only |
 | `Luna-Flow/floating-tools` (not published) | `tooling/` (`tooling/moon.mod`, `tooling/src/`) | benchmarks (`bench`), command-line programs (`cli`), the differential harness (`differential`), frontends (`frontend`, `numeric_expr`), `internal/conformance`, `internal/runner_cli`, `doc_examples` | the library from this working tree, plus `mare_mark`, `async`, `x`, `type_theory` |
 
 A library package must never import the tools module or one of the tooling
@@ -54,19 +54,27 @@ workspace member, never as a published version.
 Every `moon` command run anywhere in the workspace acts on both modules and uses
 one `_build` directory at the root: `moon check --target all --deny-warn`,
 `moon fmt`, `moon info` and `moon test` cover the library and `tooling/`.
-`cd` and `-C` do not narrow a command. To narrow it, name a package with
+`cd` and `-C` do not narrow a command (`moon tree` and `moon package` are the exceptions below). To narrow it, name a package with
 `-p` or a package path:
 
 ```bash
 moon test -p Luna-Flow/floating/decimal_gda --target native   # one library package
-moon test src/bin_float --target native                       # a package path works too
+moon test library/src/bin_float --target native                       # a package path works too
 moon test -p Luna-Flow/floating-tools/frontend/gda_expr       # one tools package
 moon check --target native --deny-warn tooling/src/bench      # one directory
 ```
 
 `moon tree` and `moon package` act on one module: run them in the directory of
-that module (the repository root for the library, `tooling/` for the tools). `tools/*.py` and `justfile`
-use these forms wherever a stage means one package.
+that module (`library/` or `tooling/`; `moon -C library package --frozen` from the
+root). `-C DIR` makes a relative `--target-dir` relative to `DIR`, so pass an
+absolute `CODEX_MOON_TARGET_DIR` to `tools/run_moon_clean_exec.sh` when you use it
+(the `just publish` recipe does) to keep the one `_build` of the workspace root.
+`tools/*.py` and `justfile` use these forms wherever a stage means one package.
+
+The three `LICENSE` files (root, `library/`, `tooling/`) are byte-identical, which
+`tools/check_imports.py` checks. Links in `library/README.md` that point outside
+`library/` are absolute URLs: the package page of the registry cannot follow
+relative links out of the package.
 
 ## 2. Naming Conventions
 
@@ -103,14 +111,14 @@ use these forms wherever a stage means one package.
 
 ### 4.0 Documentation Matrix
 
-- Every `src/<path>/moon.pkg` and `tooling/src/<path>/moon.pkg` package has matching `doc/manual/api/<path>.md`,
+- Every `library/src/<path>/moon.pkg` and `tooling/src/<path>/moon.pkg` package has matching `doc/manual/api/<path>.md`,
   `doc/manual/tutorial/<path>.md`, and `doc/manual/design/<path>.md` pages.
 - English pages in `doc/manual` are the only source. Translations live in the
   gettext catalogs under `doc/locale`; run `lunadoc update` after editing
   English pages and `lunadoc check` before submitting.
 - Numerical conformance and performance evidence stays separate from API
   promises. Promote durable research conclusions into synchronized pages and
-  keep historical release material in `CHANGELOG.md`.
+  keep historical release material in `library/CHANGELOG.md`.
 - Refresh `pkg.generated.mbti` with `moon info`, then run `just docs` before
   submitting documentation changes. It runs `tools/doc_quality.py` (page
   coverage, generated API snapshots, links and anchors, current-version and
@@ -168,16 +176,16 @@ use these forms wherever a stage means one package.
 
 ## 6. Release Checklist
 
-- Before publishing to Mooncakes, make sure `moon.mod` has already been bumped to the intended release version.
-- Update `README.md`, the `doc/manual` pages, and (with `lunadoc update`) the translation catalogs if the package overview or release notes no longer match the implementation.
-- Move superseded release notes to `CHANGELOG.md`; keep README files focused on the current baseline.
+- Before publishing to Mooncakes, make sure `library/moon.mod` has already been bumped to the intended release version.
+- Update `library/README.md`, the root `README.md`, the `doc/manual` pages, and (with `lunadoc update`) the translation catalogs if the package overview or release notes no longer match the implementation.
+- Move superseded release notes to `library/CHANGELOG.md`; keep README files focused on the current baseline.
 - Run the quick `just pr` gate for ordinary changes and the complete `just ci`
   gate before publishing.
-- The GitHub Actions publish workflow reads the release version directly from `moon.mod`.
+- The GitHub Actions publish workflow reads the release version directly from `library/moon.mod`.
 - If Mooncakes reports a duplicate version, bump the version before retrying.
 
 ## 7. Code Review
 
 - All code submissions should undergo review.
 - Reviews should focus first on numeric correctness, semantic clarity, and missing tests, then on style and cleanup.
-- Changes that alter rounding, normalization, conversion, or enclosure behavior should include or update tests in `src/consistency`.
+- Changes that alter rounding, normalization, conversion, or enclosure behavior should include or update tests in `library/src/consistency`.

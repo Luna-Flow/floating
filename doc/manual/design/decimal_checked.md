@@ -153,7 +153,7 @@ The mathematical functions `exp`, `ln`, `log10` and `power` restrict their
 context to decNumber's range: precision and both exponent limits must lie
 within $999\,999$ in magnitude, otherwise the result is NaN with
 `invalid_context` (private check `math_context_is_restricted` in
-`src/decimal`). This is a deliberate implementation limit (`DEC_MAX_MATH`), not
+`library/src/decimal`). This is a deliberate implementation limit (`DEC_MAX_MATH`), not
 a rule of the GDA operation text: decTest requires it (`power.decTest` powx4001
 to powx4005 and the matching rows of `exp`, `ln`, `log10`) and GDA's Invalid
 context condition permits it.[^gda] The default unbounded exponent range therefore
@@ -171,7 +171,7 @@ contexts up to $\pm 999\,999\,999$.
 The contextual trait implementations of `Decimal` in Luna-Flow/arithmetic
 report `ArithmeticDiagnostics`, six Booleans combined by
 `ArithmeticDiagnostics::combine`, again field-wise OR. The private helper
-`contextual_diagnostics` in `src/decimal/traits.mbt` maps flags to diagnostics
+`contextual_diagnostics` in `library/src/decimal/traits.mbt` maps flags to diagnostics
 by keeping the six shared coordinates; call this projection
 $\pi : \mathbb{F} \to \{0,1\}^{6}$. A coordinate projection commutes with a
 field-wise OR:

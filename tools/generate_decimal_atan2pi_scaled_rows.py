@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """White-box rows for `atan2pi` with extreme operand exponents (#378).
 
-Writes `src/decimal/atan2pi_scaled_rows_wbtest.mbt`, a table of
+Writes `library/src/decimal/atan2pi_scaled_rows_wbtest.mbt`, a table of
 `(rounding, precision, e_min, e_max, clamp, y, x, expected, flags)` executed by
 `atan2pi_scaled_wbtest.mbt`. The rows lie on both sides of the condition of the
 scaled evaluation (`t = -(2 D + 2)` with `3 t >= 8 max(digits, p) + 400`, where
@@ -30,7 +30,7 @@ from decimal import Decimal
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "src/decimal/atan2pi_scaled_rows_wbtest.mbt"
+OUTPUT = ROOT / "library/src/decimal/atan2pi_scaled_rows_wbtest.mbt"
 ROW_TYPE = "(String, String, Int32, Int32, Int32, Bool, String, String, String, String)"
 CHUNK_ROWS = 400
 PREC = 450

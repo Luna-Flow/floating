@@ -252,7 +252,7 @@ answer at once. A row of the family `elem4` or of the boundary sweep whose two
 operands differ by more than 100,000 binades is therefore not an oracle row:
 the generator counts it in `# oracle-defects-skipped` and does not emit it. The
 library's decision for these extreme ratios (the anchors +-1/2 and +-1) is
-covered by `src/bin_float/pi_inverse_wbtest.mbt`, by `atanpi` of a huge
+covered by `library/src/bin_float/pi_inverse_wbtest.mbt`, by `atanpi` of a huge
 argument (which MPFR answers at once, up to 2^(2^30)), and by the rows just
 inside the limit.
 

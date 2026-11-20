@@ -41,11 +41,11 @@ PO_STRING_RE = re.compile(r'"((?:[^"\\]|\\.)*)"')
 PO_ESCAPES = {"n": "\n", "t": "\t", '"': '"', "\\": "\\"}
 
 
-# MoonBit sources of the two modules: the library (`moon.mod`) and the tools
+# MoonBit sources of the two modules: the library (`library/moon.mod`) and the tools
 # module (`tooling/moon.mod`). A package keeps the name it has below its source
 # root, and the manual pages are named after it.
 def source_roots() -> tuple[Path, Path]:
-    return (REPO_ROOT / "src", REPO_ROOT / "tooling" / "src")
+    return (REPO_ROOT / "library" / "src", REPO_ROOT / "tooling" / "src")
 
 
 def package_paths() -> set[str]:
@@ -166,7 +166,15 @@ def local_target(path: Path, raw_target: str) -> tuple[Path, str | None] | None:
 
 def check_links() -> list[str]:
     errors: list[str] = []
-    paths = [REPO_ROOT / "README.md", REPO_ROOT / "CONTRIBUTING.md"]
+    paths = [
+        path
+        for path in (
+            REPO_ROOT / "README.md",
+            REPO_ROOT / "library" / "README.md",
+            REPO_ROOT / "CONTRIBUTING.md",
+        )
+        if path.exists()
+    ]
     paths.extend(sorted(MANUAL_ROOT.rglob("*.md")))
     for path in paths:
         text = path.read_text(encoding="utf-8")
@@ -195,7 +203,7 @@ def check_links() -> list[str]:
 
 
 def module_version() -> str:
-    text = (REPO_ROOT / "moon.mod").read_text(encoding="utf-8")
+    text = (REPO_ROOT / "library" / "moon.mod").read_text(encoding="utf-8")
     match = MODULE_VERSION_RE.search(text)
     if match is None:
         raise ValueError("moon.mod does not declare a version")
@@ -204,7 +212,7 @@ def module_version() -> str:
 
 def historical_versions() -> list[str]:
     current = module_version()
-    changelog = (REPO_ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+    changelog = (REPO_ROOT / "library" / "CHANGELOG.md").read_text(encoding="utf-8")
     return sorted(set(CHANGELOG_VERSION_RE.findall(changelog)) - {current})
 
 
@@ -212,9 +220,17 @@ def check_current_versions() -> list[str]:
     errors: list[str] = []
     current = module_version()
     historical = historical_versions()
-    candidates = [REPO_ROOT / "README.md", REPO_ROOT / "CONTRIBUTING.md"]
+    candidates = [
+        path
+        for path in (
+            REPO_ROOT / "README.md",
+            REPO_ROOT / "library" / "README.md",
+            REPO_ROOT / "CONTRIBUTING.md",
+        )
+        if path.exists()
+    ]
     candidates.extend(MANUAL_ROOT.rglob("*.md"))
-    candidates.extend(REPO_ROOT.glob("src/**/README.mbt.md"))
+    candidates.extend(REPO_ROOT.glob("library/src/**/README.mbt.md"))
     candidates.extend(REPO_ROOT.glob("tooling/src/**/README.mbt.md"))
     for path in candidates:
         text = path.read_text(encoding="utf-8")
@@ -318,7 +334,7 @@ def check_api_snapshots() -> list[str]:
     return errors
 
 
-EVIDENCE_PATH_RE = re.compile(r"`((?:src|tooling|testdata|tools)/[^`\s]+)`")
+EVIDENCE_PATH_RE = re.compile(r"`((?:library|tooling|testdata|tools)/[^`\s]+)`")
 
 
 def check_evidence_paths() -> list[str]:

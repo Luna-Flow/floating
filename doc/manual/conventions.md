@@ -2,7 +2,7 @@
 
 These rules add to the Luna-Flow documentation standard for `floating`; they
 never relax it. The manual describes the implementation on the current branch.
-The current release is **`0.10.2`**, the version in `moon.mod`.
+The current release is **`0.10.2`**, the version in `library/moon.mod`.
 
 ## Chapters and guides
 
@@ -42,26 +42,26 @@ package map), `getting_started.md` (package choice and first steps),
 scope), `performance_audit.md` (audit of the historical performance baseline)
 and this page. Do not add or rename guides without updating that list.
 
-`README.md` positions the current release and points into the manual.
-`CHANGELOG.md` owns release history and migration notes.
+`library/README.md` positions the current release and points into the manual.
+`library/CHANGELOG.md` owns release history and migration notes.
 
 ## Package pages
 
-- Mirror every `moon.pkg`: the package in `src/<path>/moon.pkg` is documented
+- Mirror every `moon.pkg`: the package in `library/src/<path>/moon.pkg` is documented
   in `api/<path>.md`, `tutorial/<path>.md` and `design/<path>.md`. Files do not
   create packages; `moon.pkg` boundaries do.
 - Give every package all three pages. Packages without an application API
   (frontends, CLIs, `internal/*`, `bench/*`, `consistency`, `doc_examples`)
   still document their generated interface, maintainer workflow and stability
   boundary.
-- Every package also keeps a `src/<path>/README.mbt.md`.
+- Every package also keeps a `library/src/<path>/README.mbt.md`.
 - `pkg.generated.mbti` is the public-surface inventory; source and tests
   define behaviour. A method is documented as callable with dot syntax only if
   the `.mbti` lists it as `pub fn Type::name`; trait-implementation methods are
   not promoted implicitly and must be declared with `pub extend`.
 - Do not document planned APIs as existing, and do not keep research notes as
   separate pages. Promote durable conclusions into design, conformance or
-  performance pages, and move superseded history to `CHANGELOG.md`.
+  performance pages, and move superseded history to `library/CHANGELOG.md`.
 - Pages name only the current release. A page may mention an older release
   only when it carries a `<!-- historical-performance-baseline: X.Y.Z -->`
   marker for that version; `tools/doc_quality.py` rejects any other historical
@@ -141,5 +141,5 @@ Typst attachments live in `doc/attachments/` and are shared by all locales.
    links and Typst attachments).
 6. Run `moon fmt`, `moon check --target all --deny-warn`, the relevant tests,
    and `just pr` before submitting.
-7. On a release bump, update `moon.mod`, the version in `README.md`, this page
-   and `CHANGELOG.md` together.
+7. On a release bump, update `library/moon.mod`, the version in `library/README.md`, this page
+   and `library/CHANGELOG.md` together.

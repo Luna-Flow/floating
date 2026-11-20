@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """White-box rows for decimal rsqrt, compound and powr (issue #236, PR 2).
 
-Writes `src/decimal/elementary_rcp_rows_wbtest.mbt`, a table of
+Writes `library/src/decimal/elementary_rcp_rows_wbtest.mbt`, a table of
 `(op, rounding, precision, emin, emax, clamp, tininess, x, y, n, expected,
 flags)` executed by `elementary_rcp_wbtest.mbt` on every backend. No row comes
 from the library under test:
@@ -37,7 +37,7 @@ import generate_mpfr_decimal_random as decm
 
 sys.set_int_max_str_digits(0)
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "src/decimal/elementary_rcp_rows_wbtest.mbt"
+OUTPUT = ROOT / "library/src/decimal/elementary_rcp_rows_wbtest.mbt"
 ROUNDINGS = pm1.ROUNDINGS
 DECIMAL32 = pm1.DECIMAL32
 DECIMAL64 = pm1.DECIMAL64

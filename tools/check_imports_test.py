@@ -30,9 +30,10 @@ class ImportsOfTests(unittest.TestCase):
 
 def write_library(root: Path, manifest_imports: tuple[str, ...], package_imports: tuple[str, ...]) -> None:
     body = "".join(f'  "{name}",\n' for name in manifest_imports)
-    (root / "moon.mod").write_text(f'name = "{MODULE}"\n\nimport {{\n{body}}}\n', encoding="utf-8")
+    (root / "library").mkdir(exist_ok=True)
+    (root / "library" / "moon.mod").write_text(f'name = "{MODULE}"\n\nimport {{\n{body}}}\n', encoding="utf-8")
     body = "".join(f'  "{name}",\n' for name in package_imports)
-    write_pkg(root / "src", "bin_float", f"import {{\n{body}}}\n")
+    write_pkg(root / "library" / "src", "bin_float", f"import {{\n{body}}}\n")
 
 
 class ModuleViolationsTests(unittest.TestCase):
@@ -52,7 +53,7 @@ class ModuleViolationsTests(unittest.TestCase):
             write_library(root, ("Luna-Flow/arithmetic@0.5.2", "Luna-Flow/mare_mark@0.4.2"), ())
             self.assertEqual(
                 check_imports.module_violations(root),
-                ["moon.mod must not depend on Luna-Flow/mare_mark"],
+                ["library/moon.mod must not depend on Luna-Flow/mare_mark"],
             )
 
     def test_a_package_importing_the_tools_module_or_a_foreign_module_fails(self) -> None:
@@ -66,10 +67,36 @@ class ModuleViolationsTests(unittest.TestCase):
             self.assertEqual(
                 check_imports.module_violations(root),
                 [
-                    "src/bin_float/moon.pkg must not import Luna-Flow/floating-tools/bench",
-                    "src/bin_float/moon.pkg must not import moonbitlang/async",
+                    "library/src/bin_float/moon.pkg must not import Luna-Flow/floating-tools/bench",
+                    "library/src/bin_float/moon.pkg must not import moonbitlang/async",
                 ],
             )
+
+
+class LicenseTests(unittest.TestCase):
+    def write(self, root: Path, texts: dict[str, str]) -> None:
+        for name, text in texts.items():
+            path = root / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text, encoding="utf-8")
+
+    def test_identical_licenses_pass(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.write(root, {name: "Apache\n" for name in check_imports.LICENSE_FILES})
+            self.assertEqual(check_imports.license_violations(root), [])
+
+    def test_a_differing_or_missing_license_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self.write(root, {"LICENSE": "Apache\n", "library/LICENSE": "Apache \n"})
+            self.assertEqual(
+                check_imports.license_violations(root),
+                ["tooling/LICENSE is missing", "library/LICENSE differs from LICENSE"],
+            )
+
+    def test_the_repository_licenses_are_identical(self) -> None:
+        self.assertEqual(check_imports.license_violations(check_imports.REPO_ROOT), [])
 
 
 class ViolationsTests(unittest.TestCase):
@@ -94,7 +121,7 @@ class ViolationsTests(unittest.TestCase):
             write_pkg(src, "decimal_gda", CLEAN_DECIMAL)
             self.assertEqual(
                 check_imports.violations(src),
-                [f"src/decimal must not import {MODULE}/decimal_gda"],
+                [f"library/src/decimal must not import {MODULE}/decimal_gda"],
             )
 
     def test_gda_importing_decimal_in_test_block_fails(self) -> None:
@@ -108,7 +135,7 @@ class ViolationsTests(unittest.TestCase):
             )
             self.assertEqual(
                 check_imports.violations(src),
-                [f"src/decimal_gda must not import {MODULE}/decimal"],
+                [f"library/src/decimal_gda must not import {MODULE}/decimal"],
             )
 
     def test_similar_package_names_are_not_confused(self) -> None:
@@ -131,7 +158,7 @@ class ViolationsTests(unittest.TestCase):
             with patch.dict(check_imports.ALLOWED_MODULE_IMPORTS, {"kernel": ()}, clear=True):
                 self.assertEqual(
                     check_imports.violations(src),
-                    [f"src/kernel must not import {MODULE}/def"],
+                    [f"library/src/kernel must not import {MODULE}/def"],
                 )
 
 
@@ -140,7 +167,7 @@ class RepositoryTests(unittest.TestCase):
         self.assertIn("internal/decimal_kernel", check_imports.ALLOWED_MODULE_IMPORTS)
 
     def test_this_repository_satisfies_the_rules(self) -> None:
-        self.assertEqual(check_imports.violations(check_imports.REPO_ROOT / "src"), [])
+        self.assertEqual(check_imports.violations(check_imports.REPO_ROOT / "library" / "src"), [])
 
 
 if __name__ == "__main__":

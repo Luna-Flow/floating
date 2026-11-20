@@ -77,7 +77,7 @@ cross every threshold exactly.
 
 ```bash
 just decimal-kernel-ci
-sh tools/run_moon_clean_exec.sh test src/internal/decimal_kernel --target native
+sh tools/run_moon_clean_exec.sh test library/src/internal/decimal_kernel --target native
 ```
 
 The `internal/decimal_kernel` tests carry the algorithm cross-checks that used

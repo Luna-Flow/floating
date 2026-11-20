@@ -18,7 +18,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / "tools/fixtures/gda_performance_bench_wbtest.mbt"
-DESTINATION = Path("src/decimal_gda/gda_performance_wbtest.mbt")
+DESTINATION = Path("library/src/decimal_gda/gda_performance_wbtest.mbt")
 DEFAULT_OUTPUT = ROOT / ".tmp/bench/gda-quick-native.json"
 CHECKSUM_MARKER = "GDA_PERFORMANCE_CHECKSUM="
 JSON_MARKER = "GDA_PERFORMANCE_JSON="
@@ -68,7 +68,7 @@ def create_candidate(destination: Path) -> None:
 
 def inject_fixture(destination: Path) -> None:
     copy_path(FIXTURE, destination / DESTINATION)
-    package = destination / "src/decimal_gda/moon.pkg"
+    package = destination / "library/src/decimal_gda/moon.pkg"
     package_text = package.read_text(encoding="utf-8")
     if '"moonbitlang/core/bench"' not in package_text:
         package_text += '\nimport {\n  "moonbitlang/core/bench",\n} for "wbtest"\n'
