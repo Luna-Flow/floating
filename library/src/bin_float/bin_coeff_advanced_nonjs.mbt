@@ -96,97 +96,6 @@ fn BinCoeffSignedScratch::nonnegative(self : BinCoeffSignedScratch) -> BinCoeff 
 }
 
 ///|
-fn bin_coeff_slice(value : BinCoeff, start : Int32, length : Int32) -> BinCoeff {
-  let source_len = bin_coeff_limb_len(value)
-  if length <= 0 || start >= source_len {
-    return BinCoeff::zero()
-  }
-  let len = Int32::min(length, source_len - start)
-  match value.repr {
-    Heap(source, word_len) => {
-      // `len` 32-bit limbs from limb `start`, assembled from whole words
-      let out_words = (len + 1) / 2
-      let words = FixedArray::make(out_words, 0UL)
-      let first = start / 2
-      if start % 2 == 0 {
-        for index in 0..<out_words {
-          if first + index < word_len {
-            words.unsafe_set(index, source.unsafe_get(first + index))
-          }
-        }
-      } else {
-        for index in 0..<out_words {
-          let position = first + index
-          let low = if position < word_len {
-            source.unsafe_get(position) >> 32
-          } else {
-            0UL
-          }
-          let high = if position + 1 < word_len {
-            source.unsafe_get(position + 1) << 32
-          } else {
-            0UL
-          }
-          words.unsafe_set(index, low | high)
-        }
-      }
-      if len % 2 == 1 {
-        words.unsafe_set(
-          out_words - 1,
-          words.unsafe_get(out_words - 1) & bin_coeff_limb_mask,
-        )
-      }
-      bin_coeff_from_words(words, out_words)
-    }
-    _ => {
-      let limbs = FixedArray::make(len, 0U)
-      for index in 0..<len {
-        limbs.unsafe_set(index, bin_coeff_limb(value, start + index))
-      }
-      bin_coeff_from_limbs(limbs, len)
-    }
-  }
-}
-
-///|
-fn bin_coeff_add_shifted_into(
-  destination : FixedArray[UInt32],
-  destination_len : Int32,
-  value : BinCoeff,
-  offset : Int32,
-) -> Unit {
-  let value_len = bin_coeff_limb_len(value)
-  let mut carry = 0UL
-  for value_index in 0..<value_len {
-    let destination_index = offset + value_index
-    guard destination_index < destination_len else {
-      abort("BinCoeff shifted accumulation exceeded its output")
-    }
-    let sum = destination.unsafe_get(destination_index).to_uint64() +
-      bin_coeff_limb(value, value_index).to_uint64() +
-      carry
-    destination.unsafe_set(
-      destination_index,
-      (sum & bin_coeff_limb_mask).to_uint(),
-    )
-    carry = sum >> bin_coeff_limb_bits
-  }
-  let mut destination_index = offset + value_len
-  while carry != 0UL && destination_index < destination_len {
-    let sum = destination.unsafe_get(destination_index).to_uint64() + carry
-    destination.unsafe_set(
-      destination_index,
-      (sum & bin_coeff_limb_mask).to_uint(),
-    )
-    carry = sum >> bin_coeff_limb_bits
-    destination_index += 1
-  }
-  guard carry == 0UL else {
-    abort("BinCoeff shifted accumulation exceeded its output")
-  }
-}
-
-///|
 /// `length` 64-bit limbs of `value` starting at limb `start`.
 fn bin_coeff_word_slice(
   value : BinCoeff,
@@ -301,31 +210,20 @@ fn bin_coeff_mul_toom3(left : BinCoeff, right : BinCoeff) -> BinCoeff {
 }
 
 ///|
-fn bin_coeff_mul_unbalanced(shorter : BinCoeff, longer : BinCoeff) -> BinCoeff {
-  let block_len = bin_coeff_word_len(shorter)
-  let longer_len = bin_coeff_word_len(longer)
-  let output_len = block_len + longer_len
-  let result = FixedArray::make(output_len, 0UL)
-  let mut start = 0
-  while start < longer_len {
-    let block = bin_coeff_word_slice(longer, start, block_len)
-    let product = shorter.mul(block)
-    bin_coeff_add_word_shifted_into(result, output_len, product, start)
-    start += block_len
-  }
-  bin_coeff_from_words(result, output_len)
-}
-
-///|
+/// Product of two heap values of at least `bin_coeff_words_karatsuba_cutoff`
+/// limbs: the two-prime NTT (or its overlap-add for a short operand against a
+/// long one) from `bin_coeff_ntt_mul_min_words`, Toom-3 where the transform
+/// does not fit, otherwise the word Karatsuba, which cuts an unbalanced
+/// product into blocks of the shorter operand itself.
 fn bin_coeff_mul_large_dispatch(left : BinCoeff, right : BinCoeff) -> BinCoeff {
-  let left_len = bin_coeff_limb_len(left)
-  let right_len = bin_coeff_limb_len(right)
+  let left_len = bin_coeff_word_len(left)
+  let right_len = bin_coeff_word_len(right)
   let shorter_len = Int32::min(left_len, right_len)
   let longer_len = Int32::max(left_len, right_len)
-  if shorter_len >= bin_coeff_ntt_mul_threshold &&
+  if shorter_len >= bin_coeff_ntt_mul_min_words &&
     bin_coeff_ntt_fits(left, right) {
     bin_coeff_mul_ntt(left, right)
-  } else if shorter_len >= bin_coeff_ntt_mul_threshold &&
+  } else if shorter_len >= bin_coeff_ntt_mul_min_words &&
     bin_coeff_ntt_overlap_possible(
       if left_len <= right_len {
         left
@@ -338,13 +236,8 @@ fn bin_coeff_mul_large_dispatch(left : BinCoeff, right : BinCoeff) -> BinCoeff {
     } else {
       bin_coeff_mul_ntt_overlap(right, left)
     }
-  } else if longer_len > 2 * shorter_len {
-    if left_len <= right_len {
-      bin_coeff_mul_unbalanced(left, right)
-    } else {
-      bin_coeff_mul_unbalanced(right, left)
-    }
-  } else if shorter_len >= bin_coeff_toom3_threshold {
+  } else if shorter_len >= bin_coeff_toom3_min_words &&
+    longer_len <= 2 * shorter_len {
     bin_coeff_mul_toom3(left, right)
   } else {
     bin_coeff_mul_words(left, right)
@@ -352,27 +245,30 @@ fn bin_coeff_mul_large_dispatch(left : BinCoeff, right : BinCoeff) -> BinCoeff {
 }
 
 ///|
+/// Square of a heap value of at least 16 limbs: the two-prime NTT from
+/// `bin_coeff_ntt_square_min_words`, the word Karatsuba square where it is
+/// enabled, otherwise (Wasm) the schoolbook or 32-bit-limb square below
+/// `bin_coeff_square_recursive_min_words`, the general product below
+/// `bin_coeff_square_toom3_min_words` and Toom-3 above it.
 fn bin_coeff_square_large_dispatch(value : BinCoeff) -> BinCoeff {
-  let len = bin_coeff_limb_len(value)
-  if len >= bin_coeff_ntt_square_threshold && bin_coeff_ntt_fits(value, value) {
+  let len = bin_coeff_word_len(value)
+  if len >= bin_coeff_ntt_square_min_words && bin_coeff_ntt_fits(value, value) {
     bin_coeff_square_ntt(value)
   } else if bin_coeff_square_words_enabled &&
-    bin_coeff_word_len(value) >= bin_coeff_words_square_cutoff &&
-    bin_coeff_word_len(value) < bin_coeff_limb32_min_words / 2 &&
-    len < bin_coeff_toom3_threshold {
+    len >= bin_coeff_words_square_cutoff &&
+    len < bin_coeff_limb32_min_words / 2 &&
+    len < bin_coeff_toom3_min_words {
     bin_coeff_square_words(value)
-  } else if len < bin_coeff_square_recursive_threshold {
-    if bin_coeff_word_len(value) >= bin_coeff_limb32_min_words / 2 {
+  } else if len < bin_coeff_square_recursive_min_words {
+    if len >= bin_coeff_limb32_min_words / 2 {
       bin_coeff_square_limb32(value)
     } else {
       bin_coeff_square_schoolbook(value)
     }
-  } else if len < 768 {
+  } else if len < bin_coeff_square_toom3_min_words {
     bin_coeff_mul_large_dispatch(value, value)
-  } else if len >= 96 {
-    bin_coeff_mul_toom3(value, value)
   } else {
-    bin_coeff_mul_words(value, value)
+    bin_coeff_mul_toom3(value, value)
   }
 }
 
@@ -413,7 +309,7 @@ fn bin_coeff_gcd_lehmer(left : BinCoeff, right : BinCoeff) -> BinCoeff {
       a = b
       b = smaller
     }
-    if bin_coeff_limb_len(b) < 8 {
+    if bin_coeff_word_len(b) < 4 {
       return bin_coeff_gcd_euclid(a, b)
     }
     let shift = a.bit_length() - 63

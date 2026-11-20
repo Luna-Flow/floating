@@ -1,17 +1,28 @@
 ///|
-let bin_coeff_toom3_threshold = 4096
+/// Shorter-operand length, in 64-bit limbs, from which a balanced product uses
+/// Toom-3 instead of the word Karatsuba (it equals the NTT cutoff, so it is only
+/// reached where the NTT transform length does not fit).
+let bin_coeff_toom3_min_words = 2048
 
 ///|
-let bin_coeff_ntt_mul_threshold = 4096
+/// Shorter-operand length, in 64-bit limbs, from which a product uses the
+/// two-prime NTT.
+let bin_coeff_ntt_mul_min_words = 2048
 
 ///|
-let bin_coeff_ntt_square_threshold = 3072
+/// Operand length, in 64-bit limbs, from which a square uses the two-prime NTT.
+let bin_coeff_ntt_square_min_words = 1536
 
 ///|
-let bin_coeff_square_recursive_threshold = 768
+/// Operand length, in 64-bit limbs, from which a square that is not an NTT or
+/// Karatsuba square runs Toom-3 instead of the general product.
+let bin_coeff_square_toom3_min_words = 384
 
 ///|
-let bin_coeff_sqrt_dc_base_bits = 512
+/// Operand length, in 64-bit limbs, below which a square that does not take the
+/// word Karatsuba square runs the schoolbook square, and above which it runs the
+/// general product.
+let bin_coeff_square_recursive_min_words = 384
 
 ///|
 /// Working precision from which the bit-burst enclosure of `exp` replaces the
@@ -30,7 +41,7 @@ let bin_coeff_words_karatsuba_cutoff : Int32 = 32
 
 ///|
 /// 32-bit limb count below which the schoolbook product beats the Karatsuba
-/// step of the 32-bit-limb multiplication.
+/// step of the 32-bit-limb multiplication (the Wasm route).
 let bin_coeff_limb32_karatsuba_cutoff : Int32 = 96
 
 ///|
@@ -44,18 +55,18 @@ let bin_coeff_limb32_min_words : Int32 = 160
 let bin_coeff_knuth_words_enabled : Bool = true
 
 ///|
-/// Divisor length, in 32-bit limbs, from which division uses Burnikel-Ziegler.
-let bin_coeff_bz_division_threshold = 192
+/// Divisor length, in 64-bit limbs, from which division uses Burnikel-Ziegler.
+let bin_coeff_bz_division_min_words = 96
 
 ///|
-/// Divisor length, in 32-bit limbs, up to which the Burnikel-Ziegler
+/// Divisor length, in 64-bit limbs, up to which the Burnikel-Ziegler
 /// recursion ends in Knuth's algorithm.
-let bin_coeff_bz_leaf_limbs = 128
+let bin_coeff_bz_leaf_words = 64
 
 ///|
-/// Divisor length, in 32-bit limbs, from which division uses Newton's
-/// reciprocal.
-let bin_coeff_newton_division_threshold = 1073741824
+/// Divisor length, in 64-bit limbs, from which division uses Newton's
+/// reciprocal (never selected: the routine stays for tests).
+let bin_coeff_newton_division_min_words = 536870912
 
 ///|
 /// Working precision from which the verified Newton step replaces the series for
@@ -73,11 +84,6 @@ let binary_trig_burst_min_precision = 640
 let bin_coeff_sqrt_words_enabled = true
 
 ///|
-/// Whether integer square roots above 256 bits use the word-array recursion
-/// (`bin_coeff_sqrt_array_nonjs.mbt`) instead of the `BinCoeff` divide-and-conquer.
-let bin_coeff_sqrt_array_enabled = true
-
-///|
 /// Limb count (64-bit limbs) below which the half-product schoolbook square
 /// beats the Karatsuba square step of the word-range squaring.
 let bin_coeff_words_square_cutoff : Int32 = 32
@@ -88,9 +94,9 @@ let bin_coeff_words_square_cutoff : Int32 = 32
 let bin_coeff_square_words_enabled = false
 
 ///|
-/// Number of 32-bit limbs from which `BinCoeff::to_radix_string` formats by
+/// Number of 64-bit limbs from which `BinCoeff::to_radix_string` formats by
 /// divide and conquer instead of dividing a copy of the limbs chunk by chunk.
-let bin_coeff_radix_format_dc_limbs = 128
+let bin_coeff_radix_format_dc_words = 64
 
 ///|
 /// Number of digit chunks from which `BinCoeff::parse` combines chunks by

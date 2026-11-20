@@ -401,11 +401,11 @@ fn bin_coeff_ntt_fill(
   r2 : UInt64,
 ) -> Unit {
   for index in 0..<digit_length {
-    let limb = bin_coeff_limb(value, index / 2)
-    let digit = if (index & 1) == 0 { limb & 0xffffU } else { limb >> 16 }
+    let word = bin_coeff_word(value, index / 4)
+    let digit = (word >> ((index & 3) * 16)) & 0xffffUL
     destination.unsafe_set(
       index,
-      bin_coeff_ntt_to_montgomery(digit.to_uint64(), prime, nprime, r2).to_uint(),
+      bin_coeff_ntt_to_montgomery(digit, prime, nprime, r2).to_uint(),
     )
   }
 }
@@ -516,13 +516,16 @@ fn bin_coeff_ntt_crt(residue1 : UInt64, residue2 : UInt64) -> UInt64 {
 }
 
 ///|
+/// The product from the two residue arrays: the digit convolution is
+/// reassembled with carries into 16-bit digits written straight into 64-bit
+/// limbs (`maximum_words` bounds the product).
 fn bin_coeff_ntt_reconstruct(
   residues1 : FixedArray[UInt32],
   residues2 : FixedArray[UInt32],
   coefficient_count : Int32,
-  maximum_limbs : Int32,
+  maximum_words : Int32,
 ) -> BinCoeff {
-  let limbs = FixedArray::make(maximum_limbs + 1, 0U)
+  let words = FixedArray::make(maximum_words + 1, 0UL)
   let mut carry = 0UL
   let mut digit_index = 0
   for index in 0..<coefficient_count {
@@ -531,28 +534,28 @@ fn bin_coeff_ntt_reconstruct(
       residues2.unsafe_get(index).to_uint64(),
     )
     let accumulated = coefficient + carry
-    let digit = (accumulated & 0xffffUL).to_uint()
-    let limb_index = digit_index / 2
-    let shift = (digit_index & 1) * 16
-    limbs.unsafe_set(
-      limb_index,
-      limbs.unsafe_get(limb_index) | (digit << shift),
+    let digit = accumulated & 0xffffUL
+    let word_index = digit_index / 4
+    let shift = (digit_index & 3) * 16
+    words.unsafe_set(
+      word_index,
+      words.unsafe_get(word_index) | (digit << shift),
     )
     digit_index += 1
     carry = accumulated >> 16
   }
   while carry != 0UL {
-    let digit = (carry & 0xffffUL).to_uint()
-    let limb_index = digit_index / 2
-    let shift = (digit_index & 1) * 16
-    limbs.unsafe_set(
-      limb_index,
-      limbs.unsafe_get(limb_index) | (digit << shift),
+    let digit = carry & 0xffffUL
+    let word_index = digit_index / 4
+    let shift = (digit_index & 3) * 16
+    words.unsafe_set(
+      word_index,
+      words.unsafe_get(word_index) | (digit << shift),
     )
     digit_index += 1
     carry = carry >> 16
   }
-  bin_coeff_from_limbs(limbs, (digit_index + 1) / 2)
+  bin_coeff_from_words(words, (digit_index + 3) / 4)
 }
 
 ///|
@@ -590,7 +593,7 @@ fn bin_coeff_ntt_product(
     residues1,
     residues2,
     coefficient_count,
-    bin_coeff_limb_len(left) + bin_coeff_limb_len(right),
+    bin_coeff_word_len(left) + bin_coeff_word_len(right),
   )
 }
 
@@ -608,16 +611,16 @@ fn bin_coeff_square_ntt(value : BinCoeff) -> BinCoeff {
 fn bin_coeff_mul_ntt_overlap(shorter : BinCoeff, longer : BinCoeff) -> BinCoeff {
   let shorter_digits = bin_coeff_ntt_digit_length(shorter)
   let block_digits = bin_coeff_ntt_max_length - shorter_digits + 1
-  let block_limbs = Int32::max(1, block_digits / 2)
-  let longer_limbs = bin_coeff_limb_len(longer)
-  let output_len = bin_coeff_limb_len(shorter) + longer_limbs
-  let result = FixedArray::make(output_len, 0U)
+  let block_words = Int32::max(1, block_digits / 4)
+  let longer_words = bin_coeff_word_len(longer)
+  let output_len = bin_coeff_word_len(shorter) + longer_words
+  let result = FixedArray::make(output_len, 0UL)
   let mut start = 0
-  while start < longer_limbs {
-    let block = bin_coeff_slice(longer, start, block_limbs)
+  while start < longer_words {
+    let block = bin_coeff_word_slice(longer, start, block_words)
     let product = bin_coeff_ntt_product(shorter, block, false)
-    bin_coeff_add_shifted_into(result, output_len, product, start)
-    start += block_limbs
+    bin_coeff_add_word_shifted_into(result, output_len, product, start)
+    start += block_words
   }
-  bin_coeff_from_limbs(result, output_len)
+  bin_coeff_from_words(result, output_len)
 }

@@ -1,26 +1,25 @@
 ///|
-fn bin_coeff_bz_radix_minus_one(limbs : Int32) -> BinCoeff {
-  BinCoeff::one()
-  .shift_left(limbs * bin_coeff_limb_bits)
-  .sub_checked(BinCoeff::one())
-  .unwrap()
+fn bin_coeff_bz_radix_minus_one(words : Int32) -> BinCoeff {
+  BinCoeff::one().shift_left(words * 64).sub_checked(BinCoeff::one()).unwrap()
 }
 
 ///|
 fn bin_coeff_bz_div_3n_2n(
   numerator : BinCoeff,
   denominator : BinCoeff,
-  half_limbs : Int32,
+  half_words : Int32,
 ) -> (BinCoeff, BinCoeff) {
   if numerator.compare(denominator) < 0 {
     return (BinCoeff::zero(), numerator)
   }
-  let half_bits = half_limbs * bin_coeff_limb_bits
-  let denominator_low = bin_coeff_slice(denominator, 0, half_limbs)
-  let denominator_high = bin_coeff_slice(denominator, half_limbs, half_limbs)
-  let numerator_low = bin_coeff_slice(numerator, 0, half_limbs)
+  let half_bits = half_words * 64
+  let denominator_low = bin_coeff_word_slice(denominator, 0, half_words)
+  let denominator_high = bin_coeff_word_slice(
+    denominator, half_words, half_words,
+  )
+  let numerator_low = bin_coeff_word_slice(numerator, 0, half_words)
   let numerator_upper = numerator.shift_right(half_bits)
-  let numerator_middle = bin_coeff_slice(numerator_upper, 0, half_limbs)
+  let numerator_middle = bin_coeff_word_slice(numerator_upper, 0, half_words)
   let numerator_high = numerator_upper.shift_right(half_bits)
   let (initial_quotient, high_remainder) = if numerator_high.compare(
       denominator_high,
@@ -29,10 +28,10 @@ fn bin_coeff_bz_div_3n_2n(
     bin_coeff_bz_div_2n_1n(
       numerator_high.shift_left(half_bits).add(numerator_middle),
       denominator_high,
-      half_limbs,
+      half_words,
     )
   } else {
-    let quotient = bin_coeff_bz_radix_minus_one(half_limbs)
+    let quotient = bin_coeff_bz_radix_minus_one(half_words)
     let remainder = numerator_high
       .sub_checked(denominator_high)
       .unwrap()
@@ -68,24 +67,24 @@ fn bin_coeff_bz_div_3n_2n(
 fn bin_coeff_bz_div_2n_1n(
   numerator : BinCoeff,
   denominator : BinCoeff,
-  divisor_limbs : Int32,
+  divisor_words : Int32,
 ) -> (BinCoeff, BinCoeff) {
   if numerator.compare(denominator) < 0 {
     return (BinCoeff::zero(), numerator)
   }
-  if divisor_limbs <= bin_coeff_bz_leaf_limbs {
+  if divisor_words <= bin_coeff_bz_leaf_words {
     return bin_coeff_div_rem_knuth(numerator, denominator)
   }
-  let half_limbs = divisor_limbs / 2
-  let half_bits = half_limbs * bin_coeff_limb_bits
-  let numerator_low = bin_coeff_slice(numerator, 0, half_limbs)
+  let half_words = divisor_words / 2
+  let half_bits = half_words * 64
+  let numerator_low = bin_coeff_word_slice(numerator, 0, half_words)
   let numerator_upper = numerator.shift_right(half_bits)
   let (upper_quotient, upper_remainder) = bin_coeff_bz_div_3n_2n(
-    numerator_upper, denominator, half_limbs,
+    numerator_upper, denominator, half_words,
   )
   let combined = upper_remainder.shift_left(half_bits).add(numerator_low)
   let (lower_quotient, remainder) = bin_coeff_bz_div_3n_2n(
-    combined, denominator, half_limbs,
+    combined, denominator, half_words,
   )
   (upper_quotient.shift_left(half_bits).add(lower_quotient), remainder)
 }
@@ -95,30 +94,29 @@ fn bin_coeff_div_rem_burnikel_ziegler(
   numerator : BinCoeff,
   denominator : BinCoeff,
 ) -> (BinCoeff, BinCoeff) {
-  let denominator_len = bin_coeff_limb_len(denominator)
-  let mut normalized_limbs = 1
-  while normalized_limbs < denominator_len {
-    normalized_limbs *= 2
+  let denominator_len = bin_coeff_word_len(denominator)
+  let mut normalized_words = 1
+  while normalized_words < denominator_len {
+    normalized_words *= 2
   }
-  let normalization_shift = normalized_limbs * bin_coeff_limb_bits -
-    denominator.bit_length()
+  let normalization_shift = normalized_words * 64 - denominator.bit_length()
   let normalized_denominator = denominator.shift_left(normalization_shift)
   let normalized_numerator = numerator.shift_left(normalization_shift)
-  let block_bits = normalized_limbs * bin_coeff_limb_bits
-  let numerator_len = bin_coeff_limb_len(normalized_numerator)
-  let block_count = (numerator_len + normalized_limbs - 1) / normalized_limbs
+  let block_bits = normalized_words * 64
+  let numerator_len = bin_coeff_word_len(normalized_numerator)
+  let block_count = (numerator_len + normalized_words - 1) / normalized_words
   let mut quotient = BinCoeff::zero()
   let mut remainder = BinCoeff::zero()
   let mut block_index = block_count - 1
   while true {
-    let block = bin_coeff_slice(
+    let block = bin_coeff_word_slice(
       normalized_numerator,
-      block_index * normalized_limbs,
-      normalized_limbs,
+      block_index * normalized_words,
+      normalized_words,
     )
     let combined = remainder.shift_left(block_bits).add(block)
     let (quotient_digit, next_remainder) = bin_coeff_bz_div_2n_1n(
-      combined, normalized_denominator, normalized_limbs,
+      combined, normalized_denominator, normalized_words,
     )
     quotient = quotient.shift_left(block_bits).add(quotient_digit)
     remainder = next_remainder
