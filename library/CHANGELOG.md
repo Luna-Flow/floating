@@ -41,6 +41,13 @@ notes live in this file.
   | `GdaInterchange::from_decimal(v, f)` returning `(Self, DecimalFlags)` | returns `(Self, GdaFlags)` | |
   | `GdaInterchange::to_decimal_ctx()` | `i.to_decimal()`, plus `is_subnormal(v, f.context())` | the old method only added the subnormal flag |
   | `Decimal::to_interchange_hex(f)`, `from_interchange_hex(s, f)` | `GdaInterchange::from_decimal(v, f).0.to_hex()`, `GdaInterchange::from_hex(s, f)` | one spelling |
+- `def`: `Floating::with_precision` has no rounding parameter ([#438](https://github.com/Luna-Flow/floating/issues/438), item A3b and section 1.3 of the shared decisions). A trait method that cannot return an error would have to abort on a valid rounding mode once `RoundAwayFromZero` leaves `bin_float` and `decimal` has the five IEEE modes, so the trait rounds to nearest, ties to even (IEEE 754-2019 4.3.1). The inherent `with_precision` of `BinFloat`, `BallFloat` and both `Decimal` types is unchanged for now and keeps its mode.
+
+  | before | after |
+  | --- | --- |
+  | `fn with_precision(Self, Int32, @arithmetic.RoundingMode) -> Self` in `@def.Floating` | `fn with_precision(Self, Int32) -> Self` |
+  | `@def.Floating::with_precision(x, p, @arithmetic.RoundingMode::ToNearestEven)` | `@def.Floating::with_precision(x, p)` |
+  | `@def.Floating::with_precision(x, p, mode)` with another mode | the inherent `T::with_precision(x, p, mode)` of the concrete type |
 
 ### Performance
 

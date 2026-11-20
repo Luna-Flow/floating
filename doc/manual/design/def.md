@@ -305,7 +305,7 @@ The same argument with "largest element $\le t$" works for $\nabla$, with
 $\ge |t|$" for `AwayFromZero`: every directed rounding to $\mathbb{F}_{\beta,q}$
 factors through any finer set $\mathbb{F}_{\beta,p}$ that contains
 $\mathbb{F}_{\beta,q}$. For
-`ToNearestEven` the identity fails (double rounding).[^double-rounding] Take
+`ToNearestEven` the identity fails (double rounding).[^double-rounding] (The trait method `Floating::with_precision` has no mode and rounds to nearest even; the example calls the inherent `BinFloat::with_precision`, which takes one.) Take
 $t = 1.0100001_2 = 161/128$ in binary. With $p = 3$ the neighbours are $1.25$
 and $1.5$, and $t$ rounds to $1.25$, which is exactly halfway between the
 $q = 2$ neighbours $1$ and $1.5$; the tie goes to the even coefficient, $1$.
@@ -316,21 +316,14 @@ Rounding $t$ directly to two bits gives $1.5$ because $t > 1.25$:
 test "double rounding to nearest differs from one rounding" {
   let t = @bin_float.BinFloat::from_double(1.2578125)
   let nearest = @lf_arith.RoundingMode::ToNearestEven
-  let twice = @def.Floating::with_precision(
-    @def.Floating::with_precision(t, 3, nearest),
-    2,
-    nearest,
-  )
-  let once = @def.Floating::with_precision(t, 2, nearest)
+  let twice = t.with_precision(3, nearest).with_precision(2, nearest)
+  let once = t.with_precision(2, nearest)
   inspect(twice.to_string(), content="1p0")
   inspect(once.to_string(), content="3p-1")
+  inspect(@def.Floating::with_precision(t, 2).to_string(), content="3p-1")
   let toward_zero = @lf_arith.RoundingMode::TowardZero
-  let twice_rz = @def.Floating::with_precision(
-    @def.Floating::with_precision(t, 3, toward_zero),
-    2,
-    toward_zero,
-  )
-  let once_rz = @def.Floating::with_precision(t, 2, toward_zero)
+  let twice_rz = t.with_precision(3, toward_zero).with_precision(2, toward_zero)
+  let once_rz = t.with_precision(2, toward_zero)
   inspect(twice_rz.to_string() == once_rz.to_string(), content="true")
 }
 ```

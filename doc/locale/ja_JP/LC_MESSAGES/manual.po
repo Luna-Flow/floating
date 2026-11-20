@@ -1016,7 +1016,7 @@ msgstr "NaI はコンテキストの精度を持つ NaI のままです。"
 #: manual/api/bin_float_checked.md:817
 #: manual/api/decimal.md:2098
 #: manual/api/decimal_gda.md:1307
-#: manual/api/def.md:460
+#: manual/api/def.md:462
 #: manual/api/frontend/gda_expr.md:457
 #: manual/api/frontend/itl_expr.md:263
 #: manual/api/frontend/mpfr_expr.md:523
@@ -1104,7 +1104,7 @@ msgstr "使われるのは `ctx.precision` だけです。オペランドは `wi
 #: manual/api/decimal_checked.md:410
 #: manual/api/decimal_gda.md:1501
 #: manual/api/decimal_gda_checked.md:281
-#: manual/api/def.md:474
+#: manual/api/def.md:476
 #: manual/api/differential.md:97
 #: manual/api/differential/harness.md:39
 #: manual/api/doc_examples.md:46
@@ -1318,7 +1318,7 @@ msgstr "`flat_map` は `bind` の旧名です。`r.flat_map(f)` を `r.bind(f)` 
 #: manual/api/bin_float_checked.md:839
 #: manual/api/decimal_checked.md:412
 #: manual/api/decimal_gda_checked.md:283
-#: manual/api/def.md:476
+#: manual/api/def.md:478
 #: manual/api/semantic.md:375
 msgid "The following snapshot is the complete generated interface of the package."
 msgstr "以下のスナップショットは、パッケージの生成された完全なインターフェースです。"
@@ -5974,86 +5974,86 @@ msgid "It counts significant bits for `BinFloat` and for the endpoints of a `Bal
 msgstr "`BinFloat` と `BallFloat` の端点では有効ビット数を、両方の `Decimal` 型では有効 10 進桁数を数えます。すべてのコンストラクタは保存される精度を $1$ 以上に制限するため、結果は常に $1$ 以上です。"
 
 #: manual/api/def.md:218
-msgid "`with_precision(x, p, mode)` returns `x` re-expressed at precision $q = \\max(1, p)$."
-msgstr "`with_precision(x, p, mode)` は `x` を精度 $q = \\max(1, p)$ で表し直したものを返します。"
+msgid "`with_precision(x, p)` returns `x` re-expressed at precision $q = \\max(1, p)$."
+msgstr "`with_precision(x, p)` は `x` を精度 $q = \\max(1, p)$ で表し直したものを返します。"
 
 #: manual/api/def.md:225
-msgid "For a finite scalar the value is rounded to $q$ significant digits of its radix in the direction `mode`. No context exponent bounds apply and no flags are reported (use the `*_ctx` APIs of the concrete package for both). The decimal types have no other exponent limit. `BinFloat` keeps its implementation range: a result whose exponent leaves $\\pm(2^{30} - 1)$ (`binary_implementation_e_max`, `binary_implementation_e_min`) overflows to an infinity or to the largest finite value, or underflows, as in IEEE 754. Zeros keep their sign. Infinities and NaNs keep their class, sign and payload and only change the stored precision."
-msgstr "有限のスカラーでは、値はその基数で $q$ 桁の有効数字に `mode` の方向で丸められます。コンテキストの指数の上下限は適用されず、フラグも報告されません（どちらも必要な場合は具体的なパッケージの `*_ctx` API を使ってください）。10 進型にはそれ以外の指数の制限はありません。`BinFloat` は実装上の範囲を保ちます。指数が $\\pm(2^{30} - 1)$（`binary_implementation_e_max`、`binary_implementation_e_min`）を外れる結果は、IEEE 754 と同様に無限大または最大の有限値へオーバーフローするか、アンダーフローします。ゼロは符号を保ちます。無限大と NaN はクラス、符号、ペイロードを保ち、保存される精度だけが変わります。"
+msgid "For a finite scalar the value is rounded to $q$ significant digits of its radix, to nearest with ties to even (IEEE 754-2019 4.3.1). The trait method has no rounding parameter, because it cannot return an error; the inherent `with_precision` of each concrete type takes a rounding mode. No context exponent bounds apply and no flags are reported (use the `*_ctx` APIs of the concrete package for both). The decimal types have no other exponent limit. `BinFloat` keeps its implementation range: a result whose exponent leaves $\\pm(2^{30} - 1)$ (`binary_implementation_e_max`, `binary_implementation_e_min`) overflows to an infinity or to the largest finite value, or underflows, as in IEEE 754. Zeros keep their sign. Infinities and NaNs keep their class, sign and payload and only change the stored precision."
+msgstr "有限のスカラーでは、値はその基数で $q$ 桁の有効数字に最近接偶数丸め（IEEE 754-2019 4.3.1）で丸められます。trait メソッドはエラーを返せないため丸めパラメータを持たず、各具体型の `with_precision` が丸めモードを受け取ります。コンテキストの指数の上下限は適用されず、フラグも報告されません（どちらも必要な場合は具体的なパッケージの `*_ctx` API を使ってください）。10 進型にはそれ以外の指数の制限はありません。`BinFloat` は実装上の範囲を保ちます。指数が $\\pm(2^{30} - 1)$（`binary_implementation_e_max`、`binary_implementation_e_min`）を外れる結果は、IEEE 754 と同様に無限大または最大の有限値へオーバーフローするか、アンダーフローします。ゼロは符号を保ちます。無限大と NaN はクラス、符号、ペイロードを保ち、保存される精度だけが変わります。"
 
-#: manual/api/def.md:236
-msgid "For `BallFloat` the endpoints are rounded outward (the lower one toward $-\\infty$, the upper one toward $+\\infty$), so the result is the tightest enclosure of `x` at the new precision whatever `mode` is; `mode` is not used. An interval whose endpoints are already representable at `p` bits is returned unchanged."
-msgstr "`BallFloat` では端点が外向きに丸められる（下端点は $-\\infty$ 方向、上端点は $+\\infty$ 方向）ので、`mode` にかかわらず結果は新しい精度での `x` の最も狭い包含です。`mode` は使われません。端点が `p` ビットですでに表現可能な区間はそのまま返されます。"
+#: manual/api/def.md:238
+msgid "For `BallFloat` the endpoints are rounded outward (the lower one toward $-\\infty$, the upper one toward $+\\infty$), so the result is the tightest enclosure of `x` at the new precision. An interval whose endpoints are already representable at `p` bits is returned unchanged."
+msgstr "`BallFloat` では端点が外向きに丸められる（下端点は $-\\infty$ 方向、上端点は $+\\infty$ 方向）ので、結果は新しい精度での `x` の最も狭い包含です。端点が `p` ビットですでに表現可能な区間はそのまま返されます。"
 
-#: manual/api/def.md:244
+#: manual/api/def.md:246
 msgid "`normalized` returns the canonical representative of a value."
 msgstr "`normalized` は値の正準な代表元を返します。"
 
-#: manual/api/def.md:250
+#: manual/api/def.md:252
 msgid "For `BinFloat` this is the representation with an odd coefficient (or zero); for both `Decimal` types it removes trailing zeros of the coefficient, so `1.500` becomes `1.5` (the cohort changes, the value does not) and `-0.000` becomes `-0`. Non-finite scalars are returned unchanged. On the scalar types `normalized` keeps the value and is idempotent."
 msgstr "`BinFloat` では係数が奇数（またはゼロ）である表現です。両方の `Decimal` 型では係数の末尾のゼロを取り除くため、`1.500` は `1.5` に（コホートは変わりますが、値は変わりません）、`-0.000` は `-0` になります。有限でないスカラーはそのまま返されます。スカラー型では `normalized` は値を保ち、冪等です。"
 
-#: manual/api/def.md:256
+#: manual/api/def.md:258
 msgid "`BallFloat::normalized` normalizes the two endpoints and keeps them at the stored precision, so the interval denotes the same set: at 53 bits, $[1, 1 + 2^{-52}]$ stays $[1, 1 + 2^{-52}]$."
 msgstr "`BallFloat::normalized` は 2 つの端点を正規化して格納精度のまま保つので、区間が表す集合は変わりません。53 ビットでは $[1, 1 + 2^{-52}]$ は $[1, 1 + 2^{-52}]$ のままです。"
 
-#: manual/api/def.md:325
+#: manual/api/def.md:326
 msgid "Generic predicates"
 msgstr "ジェネリック述語"
 
-#: manual/api/def.md:329
+#: manual/api/def.md:330
 msgid "These functions test the class of any `Floating` value."
 msgstr "これらの関数は任意の `Floating` 値のクラスを判定します。"
 
-#: manual/api/def.md:347
+#: manual/api/def.md:348
 msgid "Exactly one of the first three is true for every value. For scalars `is_zero` is true for both signed zeros. For a `BallFloat`, `is_zero` is true for every bounded interval that *contains* zero (for example $[-1, 1]$), not only for $[0, 0]$; use `BallFloat::contains_zero` or compare the bounds when you mean something else. `is_zero` never calls `sign` on an empty interval, because the conjunction stops at `classify`."
 msgstr "すべての値について、最初の 3 つのうちちょうど 1 つが真になります。スカラーでは、`is_zero` は符号付きゼロのどちらに対しても真です。`BallFloat` では、`is_zero` は $[0, 0]$ だけでなく、ゼロを*含む*すべての有界区間（たとえば $[-1, 1]$）に対して真になります。別の意味を意図する場合は `BallFloat::contains_zero` を使うか、端点を比較してください。論理積は `classify` の段階で打ち切られるため、`is_zero` が空区間に対して `sign` を呼ぶことはありません。"
 
-#: manual/api/def.md:371
+#: manual/api/def.md:372
 msgid "Re-exported types"
 msgstr "再エクスポートされる型"
 
-#: manual/api/def.md:373
+#: manual/api/def.md:374
 msgid "`def` re-exports these types with `pub using`, so `@def.RoundingMode` and `@lf_arith.RoundingMode` name the same type and no conversion is needed. Their definitions and full semantics are documented by [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/)."
 msgstr "`def` はこれらの型を `pub using` で再エクスポートしているため、`@def.RoundingMode` と `@lf_arith.RoundingMode` は同じ型を指し、変換は不要です。定義と完全な意味論は [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/) に記載されています。"
 
-#: manual/api/def.md:380
+#: manual/api/def.md:381
 msgid "`ArithmeticContext` is the precision, rounding direction and optional exponent bounds passed to the contextual traits of Luna-Flow/arithmetic."
 msgstr "`ArithmeticContext` は、Luna-Flow/arithmetic のコンテキスト付きトレイトに渡される精度、丸め方向、および省略可能な指数の上下限です。"
 
-#: manual/api/def.md:387
+#: manual/api/def.md:388
 msgid "`BinaryContext` and `DecimalContext` are built from it by their `from_arithmetic_context` constructors."
 msgstr "`BinaryContext` と `DecimalContext` は、それぞれの `from_arithmetic_context` コンストラクタによってこれから構築されます。"
 
-#: manual/api/def.md:392
+#: manual/api/def.md:393
 msgid "`ArithmeticError` is the structured error of every `Result`-returning (`*_checked`, `try_*`) API and of the checked wrapper packages; `ArithmeticErrorKind` is its kind."
 msgstr "`ArithmeticError` は、`Result` を返すすべての API（`*_checked`、`try_*`）および checked ラッパーパッケージの構造化エラーです。`ArithmeticErrorKind` はその種類です。"
 
-#: manual/api/def.md:401
+#: manual/api/def.md:402
 msgid "The kinds are `DivisionByZero`, `ParseError`, `DomainError`, `FormatError`, `UnsupportedOperation`, `UnorderedComparison` and `CertificationFailure(detail)`; `ArithmeticError` has one `is_*` predicate per kind and a `message`."
 msgstr "種類は `DivisionByZero`、`ParseError`、`DomainError`、`FormatError`、`UnsupportedOperation`、`UnorderedComparison`、`CertificationFailure(detail)` です。`ArithmeticError` は種類ごとに 1 つの `is_*` 述語と `message` を持ちます。"
 
-#: manual/api/def.md:408
+#: manual/api/def.md:409
 msgid "These types are the payload of an `ArithmeticError` of kind `CertificationFailure`: an elementary function whose correctly rounded result could not be certified within its refinement budget."
 msgstr "これらの型は、種類が `CertificationFailure` である `ArithmeticError` のペイロードです。正しく丸められた結果を精緻化の予算内で認証できなかった初等関数を表します。"
 
-#: manual/api/def.md:418
+#: manual/api/def.md:419
 msgid "The detail records the operation, the stage and reason, the target precision, and the final working precision and refinement count (see `certified_failure` in the [internal API](internal.md))."
 msgstr "詳細には、演算、段階と理由、目標精度、および最終的な作業精度と精緻化の回数が記録されます（[内部 API](internal.md) の `certified_failure` を参照）。"
 
-#: manual/api/def.md:424
+#: manual/api/def.md:425
 msgid "`FpClass` is the result of `Floating::classify`: `Finite`, `Infinity` or `NaN`."
 msgstr "`FpClass` は `Floating::classify` の結果で、`Finite`、`Infinity`、`NaN` のいずれかです。"
 
-#: manual/api/def.md:433
-msgid "`RoundingMode` lists the five rounding directions accepted by `with_precision` and by the concrete constructors: `ToNearestEven`, `TowardZero`, `TowardPositive`, `TowardNegative` and `AwayFromZero`."
-msgstr "`RoundingMode` は、`with_precision` と具体的なコンストラクタが受け付ける 5 つの丸め方向 `ToNearestEven`、`TowardZero`、`TowardPositive`、`TowardNegative`、`AwayFromZero` を列挙します。"
+#: manual/api/def.md:434
+msgid "`RoundingMode` lists the five rounding directions accepted by the inherent `with_precision` methods and by the concrete constructors (not by the trait method `Floating::with_precision`): `ToNearestEven`, `TowardZero`, `TowardPositive`, `TowardNegative` and `AwayFromZero`."
+msgstr "`RoundingMode` は、具体型自身の `with_precision` メソッドと具体的なコンストラクタが受け付ける 5 つの丸め方向を列挙します（trait メソッド `Floating::with_precision` は受け付けません）：`ToNearestEven`、`TowardZero`、`TowardPositive`、`TowardNegative`、`AwayFromZero`。"
 
-#: manual/api/def.md:443
+#: manual/api/def.md:445
 msgid "`BigInt` is the arbitrary-precision integer of `moonbitlang/core/bigint`, used for coefficients and exact values."
 msgstr "`BigInt` は `moonbitlang/core/bigint` の任意精度整数で、係数と厳密な値に用いられます。"
 
-#: manual/api/def.md:464
+#: manual/api/def.md:466
 msgid "These methods are the derived `Eq` instance, promoted explicitly so that `a.equal(b)` remains available; prefer `==` and `!=`."
 msgstr "これらのメソッドは導出された `Eq` インスタンスであり、`a.equal(b)` を引き続き使えるように明示的に昇格されています。`==` と `!=` の使用を推奨します。"
 
@@ -9736,7 +9736,7 @@ msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行�
 #: manual/design/decimal_checked.md:279
 #: manual/design/decimal_gda.md:878
 #: manual/design/decimal_gda_checked.md:247
-#: manual/design/def.md:370
+#: manual/design/def.md:363
 #: manual/design/differential.md:168
 #: manual/design/differential/harness.md:41
 #: manual/design/doc_examples.md:36
@@ -10979,7 +10979,7 @@ msgstr "現時点で未解決の制限はありません。負の次数の装飾
 #: manual/design/decimal_checked.md:268
 #: manual/design/decimal_gda.md:862
 #: manual/design/decimal_gda_checked.md:238
-#: manual/design/def.md:357
+#: manual/design/def.md:350
 #: manual/design/differential.md:156
 #: manual/design/differential/harness.md:33
 #: manual/design/doc_examples.md:30
@@ -14419,7 +14419,7 @@ msgstr "アルゴリズム"
 #: manual/design/decimal.md:1228
 #: manual/design/decimal_checked.md:263
 #: manual/design/decimal_gda_checked.md:233
-#: manual/design/def.md:350
+#: manual/design/def.md:343
 msgid "Cost"
 msgstr "コスト"
 
@@ -15883,64 +15883,64 @@ msgstr "一般には、精度を二段階で下げることは一度に下げる
 #: manual/design/def.md:303
 msgid ""
 "The same argument with \"largest element $\\le t$\" works for $\\n"
-"abla$, with \"smallest element $\\ge t$\" for $\\Delta$, and with \"smallest magnitude $\\ge |t|$\" for `AwayFromZero`: every directed rounding to $\\mathbb{F}_{\\beta,q}$ factors through any finer set $\\mathbb{F}_{\\beta,p}$ that contains $\\mathbb{F}_{\\beta,q}$. For `ToNearestEven` the identity fails (double rounding).[^double-rounding] Take $t = 1.0100001_2 = 161/128$ in binary. With $p = 3$ the neighbours are $1.25$ and $1.5$, and $t$ rounds to $1.25$, which is exactly halfway between the $q = 2$ neighbours $1$ and $1.5$; the tie goes to the even coefficient, $1$. Rounding $t$ directly to two bits gives $1.5$ because $t > 1.25$:"
+"abla$, with \"smallest element $\\ge t$\" for $\\Delta$, and with \"smallest magnitude $\\ge |t|$\" for `AwayFromZero`: every directed rounding to $\\mathbb{F}_{\\beta,q}$ factors through any finer set $\\mathbb{F}_{\\beta,p}$ that contains $\\mathbb{F}_{\\beta,q}$. For `ToNearestEven` the identity fails (double rounding).[^double-rounding] (The trait method `Floating::with_precision` has no mode and rounds to nearest even; the example calls the inherent `BinFloat::with_precision`, which takes one.) Take $t = 1.0100001_2 = 161/128$ in binary. With $p = 3$ the neighbours are $1.25$ and $1.5$, and $t$ rounds to $1.25$, which is exactly halfway between the $q = 2$ neighbours $1$ and $1.5$; the tie goes to the even coefficient, $1$. Rounding $t$ directly to two bits gives $1.5$ because $t > 1.25$:"
 msgstr ""
 "「$\\le t$ である最大の元」を用いた同じ議論は $\\n"
-"abla$ に、「$\\ge t$ である最小の元」を用いれば $\\Delta$ に、「絶対値が $\\ge |t|$ である最小の元」を用いれば `AwayFromZero` に通用します。$\\mathbb{F}_{\\beta,q}$ へのすべての方向付き丸めは、$\\mathbb{F}_{\\beta,q}$ を含む任意のより細かい集合 $\\mathbb{F}_{\\beta,p}$ を経由して分解できます。`ToNearestEven` ではこの恒等式は成り立ちません（二重丸め）。[^double-rounding] 二進で $t = 1.0100001_2 = 161/128$ を考えます。$p = 3$ では隣接元は $1.25$ と $1.5$ であり、$t$ は $1.25$ に丸められますが、これは $q = 2$ の隣接元 $1$ と $1.5$ のちょうど中間です。同距離なので係数が偶数の $1$ が選ばれます。一方、$t > 1.25$ なので $t$ を直接 2 ビットに丸めると $1.5$ になります。"
+"abla$ に、「$\\ge t$ である最小の元」を用いれば $\\Delta$ に、「絶対値が $\\ge |t|$ である最小の元」を用いれば `AwayFromZero` に通用します。$\\mathbb{F}_{\\beta,q}$ へのすべての方向付き丸めは、$\\mathbb{F}_{\\beta,q}$ を含む任意のより細かい集合 $\\mathbb{F}_{\\beta,p}$ を経由して分解できます。`ToNearestEven` ではこの恒等式は成り立ちません（二重丸め）。[^double-rounding] （trait メソッド `Floating::with_precision` はモードを持たず最近接偶数丸めです。例では、モードを受け取る固有の `BinFloat::with_precision` を呼びます。） 二進で $t = 1.0100001_2 = 161/128$ を考えます。$p = 3$ では隣接元は $1.25$ と $1.5$ であり、$t$ は $1.25$ に丸められますが、これは $q = 2$ の隣接元 $1$ と $1.5$ のちょうど中間です。同距離なので係数が偶数の $1$ が選ばれます。一方、$t > 1.25$ なので $t$ を直接 2 ビットに丸めると $1.5$ になります。"
 
-#: manual/design/def.md:338
+#: manual/design/def.md:331
 msgid "Muller et al., *Handbook of Floating-Point Arithmetic*, 2nd ed., 2018, section 3.2 (double rounding); Goldberg, \"What every computer scientist should know about floating-point arithmetic\", 1991."
 msgstr "Muller et al., *Handbook of Floating-Point Arithmetic*, 2nd ed., 2018, 3.2 節（二重丸め）; Goldberg, \"What every computer scientist should know about floating-point arithmetic\", 1991."
 
-#: manual/design/def.md:342
+#: manual/design/def.md:335
 msgid "The predicates"
 msgstr "述語"
 
-#: manual/design/def.md:344
+#: manual/design/def.md:337
 msgid "The four predicates are projections of `classify` and `sign`, so their correctness reduces to (F1) and (F2). `is_zero` evaluates `classify` first and uses short-circuit `&&`; it therefore never calls `sign` on a NaN-class value, which keeps it total on empty intervals although `BallFloat::sign` aborts there."
 msgstr "四つの述語は `classify` と `sign` の射影なので、その正しさは (F1) と (F2) に帰着します。`is_zero` は先に `classify` を評価し、短絡評価の `&&` を使います。そのため NaN クラスの値に対して `sign` を呼ぶことはなく、`BallFloat::sign` が空区間で異常終了するにもかかわらず、空区間上でも全域的です。"
 
-#: manual/design/def.md:352
+#: manual/design/def.md:345
 msgid "Every item of `def` is constant time apart from the delegated implementation. `with_precision` and `normalized` cost what the concrete package's rounding or trailing-zero removal costs: linear in the coefficient length for decimals, and linear in the coefficient bit length for binary."
 msgstr "`def` のすべての項目は、委譲先の実装を除けば定数時間です。`with_precision` と `normalized` のコストは、具体的なパッケージの丸めまたは末尾ゼロ除去のコストに等しく、十進では係数の桁数に、二進では係数のビット長に線形です。"
 
-#: manual/design/def.md:359
+#: manual/design/def.md:352
 msgid "**A `Real` super-trait with arithmetic.** It would claim laws (associativity, total order) that rounded and interval arithmetic do not satisfy, and would hide the difference between exact, rounded and enclosing operations."
 msgstr "**算術を備えた `Real` スーパートレイト。** 丸め算術や区間算術が満たさない法則（結合則、全順序）を主張することになり、厳密・丸め・包含の各演算の違いを隠してしまいます。"
 
-#: manual/design/def.md:362
+#: manual/design/def.md:355
 msgid "**`Compare` for IEEE comparison.** An `Int` result cannot express *unordered*; see the derivation above."
 msgstr "**IEEE 比較に `Compare` を使う。** `Int` の結果では *unordered* を表現できません。上の導出を参照してください。"
 
-#: manual/design/def.md:364
+#: manual/design/def.md:357
 msgid "**Separate `NegativeZero` / `PositiveZero` signs.** They would make `sign` depend on the representation rather than the value, and the interval sign has no analogue."
 msgstr "**`NegativeZero` / `PositiveZero` という別々の符号。** `sign` が値ではなく表現に依存するようになり、区間の符号には対応するものがありません。"
 
-#: manual/design/def.md:367
+#: manual/design/def.md:360
 msgid "**Defining local copies of `RoundingMode` and `ArithmeticContext`.** They would need conversions at every boundary with Luna-Flow/arithmetic."
 msgstr "**`RoundingMode` と `ArithmeticContext` のローカルなコピーを定義する。** Luna-Flow/arithmetic とのあらゆる境界で変換が必要になります。"
 
-#: manual/design/def.md:372
+#: manual/design/def.md:365
 msgid "No arithmetic, parsing, formatting or comparison is implemented here; `def` only names results (`Sign`, `PartialOrder`) and states contracts."
 msgstr "ここでは算術、パース、書式化、比較のいずれも実装しません。`def` は結果（`Sign`、`PartialOrder`）に名前を付け、契約を述べるだけです。"
 
-#: manual/design/def.md:374
+#: manual/design/def.md:367
 msgid "`Floating` does not imply a field, a total order, an IEEE format, exact arithmetic or any error behaviour. Generic code must request the additional capability traits it uses."
 msgstr "`Floating` は、体、全順序、IEEE 形式、厳密な算術、あるいはいかなるエラー挙動も含意しません。ジェネリックなコードは、使用する追加の能力トレイトを要求しなければなりません。"
 
-#: manual/design/def.md:377
+#: manual/design/def.md:370
 msgid "`with_precision` neither honours context exponent bounds nor reports flags (only the `BinFloat` implementation range applies); contexts and flags belong to the `*_ctx` APIs of the concrete packages and to the contextual traits of Luna-Flow/arithmetic."
 msgstr "`with_precision` はコンテキストの指数の境界を守らず、フラグも報告しません（適用されるのは `BinFloat` の実装上の範囲だけです）。コンテキストとフラグは、具体的なパッケージの `*_ctx` API と Luna-Flow/arithmetic の contextual トレイトの役割です。"
 
-#: manual/design/def.md:381
+#: manual/design/def.md:374
 msgid "`normalized` keeps the representation-independent value: the number on scalars (F7) and the set on intervals (F7′)."
 msgstr "`normalized` は表現に依存しない値を保ちます。スカラーでは数 (F7)、区間では集合 (F7′) です。"
 
-#: manual/design/def.md:383
+#: manual/design/def.md:376
 msgid "`Sign` does not expose the sign bit of zeros or NaNs."
 msgstr "`Sign` はゼロや NaN の符号ビットを公開しません。"
 
-#: manual/design/def.md:384
+#: manual/design/def.md:377
 msgid "The laws are documented and tested by the implementations; the trait does not enforce them for downstream implementations."
 msgstr "法則は文書化され、実装によってテストされていますが、トレイトが下流の実装に対してそれを強制することはありません。"
 
@@ -21382,7 +21382,7 @@ msgstr "`BallContext` は二進形式（精度と指数範囲）を記述しま�
 #: manual/tutorial/decimal_checked.md:167
 #: manual/tutorial/decimal_gda.md:269
 #: manual/tutorial/decimal_gda_checked.md:164
-#: manual/tutorial/def.md:165
+#: manual/tutorial/def.md:167
 #: manual/tutorial/differential.md:173
 #: manual/tutorial/differential/harness.md:50
 #: manual/tutorial/doc_examples.md:52
@@ -21455,7 +21455,7 @@ msgstr "各区間は作業用の `precision`（ビット数）を持ちます。
 #: manual/tutorial/decimal_checked.md:251
 #: manual/tutorial/decimal_gda.md:356
 #: manual/tutorial/decimal_gda_checked.md:234
-#: manual/tutorial/def.md:197
+#: manual/tutorial/def.md:199
 #: manual/tutorial/differential.md:184
 #: manual/tutorial/differential/harness.md:59
 #: manual/tutorial/doc_examples.md:58
@@ -21524,7 +21524,7 @@ msgstr "**`Double` からの入力。** `from_double(x)` は `x` の二進値を
 #: manual/tutorial/decimal_checked.md:271
 #: manual/tutorial/decimal_gda.md:388
 #: manual/tutorial/decimal_gda_checked.md:248
-#: manual/tutorial/def.md:221
+#: manual/tutorial/def.md:223
 #: manual/tutorial/differential.md:195
 #: manual/tutorial/differential/harness.md:66
 #: manual/tutorial/doc_examples.md:63
@@ -24255,78 +24255,78 @@ msgid "Change precision generically"
 msgstr "精度をジェネリックに変更する"
 
 #: manual/tutorial/def.md:95
-msgid "`with_precision` rounds to the requested number of significant digits of the value's own radix, bits for binary and digits for decimal:"
-msgstr "`with_precision` は、値自身の基数での指定された有効桁数、つまり二進ではビット数、十進では桁数に丸めます。"
+msgid "`with_precision` rounds to the requested number of significant digits of the value's own radix, bits for binary and digits for decimal, to nearest with ties to even. The trait method takes no rounding mode; a concrete type has its own `with_precision` method that does:"
+msgstr "`with_precision` は、値自身の基数での指定された有効桁数（二進ではビット数、十進では桁数）に、最近接偶数丸めで丸めます。trait メソッドは丸めモードを取りません。具体型には、モードを取る独自の `with_precision` メソッドがあります："
 
-#: manual/tutorial/def.md:113
+#: manual/tutorial/def.md:115
 msgid "Eleven is `1011` in binary; three significant bits round it to `1100`, which `to_string` prints as $3 \\cdot 2^2$."
 msgstr "11 は二進で `1011` です。有効ビット 3 桁に丸めると `1100` になり、`to_string` はそれを $3 \\cdot 2^2$ として出力します。"
 
-#: manual/tutorial/def.md:116
+#: manual/tutorial/def.md:118
 msgid "Read an IEEE comparison"
 msgstr "IEEE の比較を読み取る"
 
-#: manual/tutorial/def.md:118
+#: manual/tutorial/def.md:120
 msgid "Comparisons that follow IEEE 754 return a `PartialOrder`, whose fourth value `Unordered` reports a NaN operand:"
 msgstr "IEEE 754 に従う比較は `PartialOrder` を返し、その四番目の値 `Unordered` は NaN のオペランドを示します。"
 
-#: manual/tutorial/def.md:145
+#: manual/tutorial/def.md:147
 msgid "Normalize before comparing representations"
 msgstr "表現を比較する前に正規化する"
 
-#: manual/tutorial/def.md:147
+#: manual/tutorial/def.md:149
 msgid "Decimal values with the same value can differ in their stored exponent (`1.5` and `1.500` belong to one *cohort*). `normalized` picks the canonical member, so the printed forms agree:"
 msgstr "同じ値を持つ十進数でも、格納されている指数が異なることがあります（`1.5` と `1.500` は一つの*コホート*に属します）。`normalized` は標準的な元を選ぶので、出力される形が一致します。"
 
-#: manual/tutorial/def.md:167
+#: manual/tutorial/def.md:169
 msgid "Use the re-exported arithmetic types"
 msgstr "再エクスポートされた算術型を使う"
 
-#: manual/tutorial/def.md:169
+#: manual/tutorial/def.md:171
 msgid "`@def.ArithmeticContext`, `@def.ArithmeticError`, `@def.RoundingMode` and the other aliases are the types of [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/). Code that only needs the vocabulary can import `def` instead of `arithmetic`:"
 msgstr "`@def.ArithmeticContext`、`@def.ArithmeticError`、`@def.RoundingMode` およびその他のエイリアスは [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/) の型です。語彙だけが必要なコードは、`arithmetic` の代わりに `def` をインポートできます。"
 
-#: manual/tutorial/def.md:199
+#: manual/tutorial/def.md:201
 msgid "`Sign::Zero` does not mean \"the value is zero\". It is also returned for NaN by the scalar types and for any interval that contains zero. Test `@def.is_nan` first, and for intervals use `BallFloat::contains_zero` or the bounds."
 msgstr "`Sign::Zero` は「値がゼロである」ことを意味しません。スカラー型では NaN に対しても、またゼロを含むあらゆる区間に対しても返されます。先に `@def.is_nan` を判定し、区間では `BallFloat::contains_zero` か上下界を使ってください。"
 
-#: manual/tutorial/def.md:203
+#: manual/tutorial/def.md:205
 msgid "`@def.is_zero` on a `BallFloat` is true for $[-1, 1]$: the predicate is defined through `sign`, which for an interval means \"contains zero\"."
 msgstr "`BallFloat` に対する `@def.is_zero` は $[-1, 1]$ で真になります。この述語は `sign` を通じて定義されており、区間ではそれが「ゼロを含む」を意味するからです。"
 
-#: manual/tutorial/def.md:205
+#: manual/tutorial/def.md:207
 msgid "`Sign` cannot tell $-0$ from $+0$. Use the concrete package (`BinFloat::is_negative_zero`, `Decimal::is_negative`) when the sign bit matters."
 msgstr "`Sign` は $-0$ と $+0$ を区別できません。符号ビットが重要なときは、具体的なパッケージ（`BinFloat::is_negative_zero`、`Decimal::is_negative`）を使ってください。"
 
-#: manual/tutorial/def.md:208
+#: manual/tutorial/def.md:210
 msgid "`PartialOrder` is not an ordering you can sort with: `Unordered` breaks trichotomy. Use the total orders of the concrete packages (`BinFloat::total_order_compare`, `Decimal::total_order_compare`) for sorting."
 msgstr "`PartialOrder` はソートに使える順序ではありません。`Unordered` が三分律を破るからです。ソートには具体的なパッケージの全順序（`BinFloat::total_order_compare`、`Decimal::total_order_compare`）を使ってください。"
 
-#: manual/tutorial/def.md:211
+#: manual/tutorial/def.md:213
 msgid "`with_precision` reports no flags and ignores context exponent limits (a `BinFloat` still overflows at its implementation range of about $2^{\\pm 2^{30}}$). When rounding must be observed, use the `*_ctx` operations of the concrete package."
 msgstr "`with_precision` はフラグを報告せず、コンテキストの指数の限界も無視します（`BinFloat` は約 $2^{\\pm 2^{30}}$ という実装上の範囲では依然としてオーバーフローします）。丸めを観測する必要がある場合は、具体的なパッケージの `*_ctx` 演算を使ってください。"
 
-#: manual/tutorial/def.md:215
+#: manual/tutorial/def.md:217
 msgid "On a `BallFloat`, `with_precision` returns the tightest enclosure of the input at the new precision (the endpoints rounded outward), and `normalized` returns the same set. Neither changes an interval that is already representable at the target precision."
 msgstr "`BallFloat` では、`with_precision` は新しい精度での入力の最も狭い包含（端点を外向きに丸めたもの）を返し、`normalized` は同じ集合を返します。どちらも、目標の精度ですでに表現可能な区間を変えません。"
 
-#: manual/tutorial/def.md:219
-msgid "`with_precision(x, 0, mode)` is not an error: the precision is clamped to 1."
-msgstr "`with_precision(x, 0, mode)` はエラーではありません。精度は 1 に切り上げられます。"
+#: manual/tutorial/def.md:221
+msgid "`with_precision(x, 0)` is not an error: the precision is clamped to 1."
+msgstr "`with_precision(x, 0)` はエラーではありません。精度は 1 に切り上げられます。"
 
-#: manual/tutorial/def.md:223
+#: manual/tutorial/def.md:225
 msgid "[`def` design](../design/def.md): the trait laws and the order theory of `PartialOrder`."
 msgstr "[`def` の設計](../design/def.md): トレイトの法則と `PartialOrder` の順序理論。"
 
-#: manual/tutorial/def.md:225
+#: manual/tutorial/def.md:227
 msgid "[`def` API](../api/def.md): every item with its signature."
 msgstr "[`def` API](../api/def.md): すべての項目とそのシグネチャ。"
 
-#: manual/tutorial/def.md:226
+#: manual/tutorial/def.md:228
 msgid "[`semantic` tutorial](semantic.md): compare values of different representations exactly."
 msgstr "[`semantic` チュートリアル](semantic.md): 異なる表現の値を厳密に比較する。"
 
-#: manual/tutorial/def.md:228
+#: manual/tutorial/def.md:230
 msgid "[Numeric semantics guide](../numeric_semantics.md) for the shared vocabulary of the repository."
 msgstr "リポジトリ共通の語彙については[数値意味論ガイド](../numeric_semantics.md)を参照してください。"
 
