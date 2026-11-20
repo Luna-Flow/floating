@@ -133,10 +133,10 @@ pub fn GdaInterchange::from_hex(
 pub fn GdaInterchange::from_decimal(
   value : Decimal,
   format : GdaInterchangeFormat,
-) -> (GdaInterchange, DecimalFlags) {
+) -> (GdaInterchange, GdaFlags) {
   let (bits, flags) = value.to_interchange_hex(format)
   let interchange = GdaInterchange::from_hex(bits, format).unwrap()
-  (interchange, flags)
+  (interchange, gda_flags_from_decimal(flags))
 }
 
 ///|
@@ -152,19 +152,6 @@ pub fn GdaInterchange::to_hex(self : GdaInterchange) -> String {
 ///|
 pub fn GdaInterchange::to_decimal(self : GdaInterchange) -> Decimal {
   Decimal::from_interchange_hex(self.to_hex(), self.format).unwrap()
-}
-
-///|
-pub fn GdaInterchange::to_decimal_ctx(
-  self : GdaInterchange,
-) -> (Decimal, DecimalFlags) {
-  let value = self.to_decimal()
-  let flags = if value.is_subnormal(self.format.context()) {
-    { ..DecimalFlags::new(), subnormal: true, }
-  } else {
-    DecimalFlags::new()
-  }
-  (value, flags)
 }
 
 ///|
@@ -446,7 +433,7 @@ fn Decimal::to_interchange_hex_dpd(
   self : Decimal,
   format : GdaInterchangeFormat,
 ) -> (String, DecimalFlags) {
-  let ctx = format.context()
+  let ctx = format.decimal_context()
   let precision = decimal_interchange_precision(format)
   let total_bits = decimal_interchange_total_bits(format)
   let exp_bits = decimal_interchange_exponent_continuation_bits(format)
@@ -503,7 +490,7 @@ fn Decimal::to_interchange_hex_dpd(
 }
 
 ///|
-pub fn Decimal::from_interchange_hex(
+fn Decimal::from_interchange_hex(
   src : String,
   format : GdaInterchangeFormat,
 ) -> Decimal? {
@@ -511,7 +498,7 @@ pub fn Decimal::from_interchange_hex(
 }
 
 ///|
-pub fn Decimal::to_interchange_hex(
+fn Decimal::to_interchange_hex(
   self : Decimal,
   format : GdaInterchangeFormat,
 ) -> (String, DecimalFlags) {

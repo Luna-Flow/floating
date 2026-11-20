@@ -120,7 +120,7 @@ pub fn Decimal::compare_checked(
 }
 
 ///|
-pub fn Decimal::compare_ctx(
+fn Decimal::compare_ctx(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,
@@ -136,31 +136,7 @@ pub fn Decimal::compare_ctx(
 }
 
 ///|
-pub fn Decimal::compare_total_ctx(
-  self : Decimal,
-  other : Decimal,
-  ctx : DecimalContext,
-) -> (Int32, DecimalFlags) {
-  let (lhs, rhs, operand_flags) = prepare_binary_operands_for_context(
-    self, other, ctx,
-  )
-  (lhs.compare_total(rhs), operand_flags)
-}
-
-///|
-pub fn Decimal::compare_total_magnitude_ctx(
-  self : Decimal,
-  other : Decimal,
-  ctx : DecimalContext,
-) -> (Int32, DecimalFlags) {
-  let (lhs, rhs, operand_flags) = prepare_binary_operands_for_context(
-    self, other, ctx,
-  )
-  (lhs.compare_total_magnitude(rhs), operand_flags)
-}
-
-///|
-pub fn Decimal::compare_signal_ctx(
+fn Decimal::compare_signal_ctx(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,
@@ -323,4 +299,28 @@ pub fn Decimal::clamp_checked(
     return Err(@def.ArithmeticError::domain_error("min must not exceed max"))
   }
   Ok(self.clamp(min~, max~))
+}
+
+///|
+fn Decimal::compare_total_ctx(
+  self : Decimal,
+  other : Decimal,
+  ctx : DecimalContext,
+) -> (Int32, DecimalFlags) {
+  let (lhs, rhs, operand_flags) = prepare_binary_operands_for_context(
+    self, other, ctx,
+  )
+  (lhs.compare_total(rhs), operand_flags)
+}
+
+///|
+fn Decimal::compare_total_magnitude_ctx(
+  self : Decimal,
+  other : Decimal,
+  ctx : DecimalContext,
+) -> (Int32, DecimalFlags) {
+  let (lhs, rhs, operand_flags) = prepare_binary_operands_for_context(
+    self, other, ctx,
+  )
+  (lhs.compare_total_magnitude(rhs), operand_flags)
 }

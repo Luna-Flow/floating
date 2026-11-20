@@ -11,7 +11,7 @@ fn decimal_certification_invalid(
 ///|
 // Public context-aware mathematical operations.
 
-pub fn Decimal::log10_ctx(
+fn Decimal::log10_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
@@ -22,7 +22,7 @@ pub fn Decimal::log10_ctx(
 }
 
 ///|
-pub fn Decimal::try_log10_ctx(
+fn Decimal::try_log10_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
@@ -75,7 +75,7 @@ pub fn Decimal::try_log10_ctx(
 }
 
 ///|
-pub fn Decimal::exp_ctx(
+fn Decimal::exp_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
@@ -86,7 +86,7 @@ pub fn Decimal::exp_ctx(
 }
 
 ///|
-pub fn Decimal::try_exp_ctx(
+fn Decimal::try_exp_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
@@ -113,7 +113,7 @@ pub fn Decimal::try_exp_ctx(
 }
 
 ///|
-pub fn Decimal::ln_ctx(
+fn Decimal::ln_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
@@ -124,7 +124,7 @@ pub fn Decimal::ln_ctx(
 }
 
 ///|
-pub fn Decimal::try_ln_ctx(
+fn Decimal::try_ln_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
@@ -174,7 +174,7 @@ pub fn Decimal::try_ln_ctx(
 }
 
 ///|
-pub fn Decimal::power_ctx(
+fn Decimal::power_ctx(
   self : Decimal,
   exponent : Decimal,
   ctx : DecimalContext,
@@ -186,7 +186,7 @@ pub fn Decimal::power_ctx(
 }
 
 ///|
-pub fn Decimal::try_power_ctx(
+fn Decimal::try_power_ctx(
   self : Decimal,
   exponent : Decimal,
   ctx : DecimalContext,

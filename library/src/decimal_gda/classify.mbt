@@ -255,21 +255,21 @@ pub fn Decimal::quantum(self : Decimal) -> Int32 {
 }
 
 ///|
-pub fn Decimal::is_subnormal(self : Decimal, ctx : DecimalContext) -> Bool {
+fn Decimal::is_subnormal(self : Decimal, ctx : DecimalContext) -> Bool {
   self.class == FpClass::Finite &&
   !self.coefficient.is_zero() &&
   adjusted_exponent(self) < ctx.e_min
 }
 
 ///|
-pub fn Decimal::is_normal(self : Decimal, ctx : DecimalContext) -> Bool {
+fn Decimal::is_normal(self : Decimal, ctx : DecimalContext) -> Bool {
   self.class == FpClass::Finite &&
   !self.coefficient.is_zero() &&
   adjusted_exponent(self) >= ctx.e_min
 }
 
 ///|
-pub fn Decimal::class_name(self : Decimal, ctx : DecimalContext) -> String {
+fn Decimal::class_name(self : Decimal, ctx : DecimalContext) -> String {
   match self.class {
     FpClass::NaN => if self.signaling_nan { "sNaN" } else { "NaN" }
     FpClass::Infinity => if self.negative { "-Infinity" } else { "+Infinity" }

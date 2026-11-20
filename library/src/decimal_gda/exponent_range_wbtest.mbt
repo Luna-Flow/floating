@@ -61,7 +61,7 @@ test "context conversion of huge exponents overflows or underflows" {
   )
   let floor = GdaContext::new(rounding=GdaRoundingMode::Floor)
   inspect(
-    exponent_range_show(parse("-1e-99999999999999999999999999", floor)),
+    exponent_range_show(to_number("-1e-99999999999999999999999999", floor)),
     content="-1E-1000000032 [Underflow,Subnormal,Inexact,Rounded]",
   )
 }

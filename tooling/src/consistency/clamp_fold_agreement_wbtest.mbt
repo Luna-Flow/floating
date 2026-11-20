@@ -26,7 +26,7 @@ fn clamp_fold_flags(f : @decimal.DecimalFlags) -> String {
 }
 
 ///|
-fn clamp_fold_gda_flags(f : @decimal_gda.DecimalFlags) -> String {
+fn clamp_fold_gda_flags(f : @decimal_gda.GdaFlags) -> String {
   (if f.inexact() { "x" } else { "." }) +
   (if f.rounded() { "r" } else { "." }) +
   (if f.invalid_operation() { "i" } else { "." }) +
@@ -56,7 +56,7 @@ test "decimal with the clamp fold and decimal_gda agree on a zero quantize and r
       e_max~,
       clamp=true,
     ).with_clamp_fold(true)
-    let gda = @decimal_gda.DecimalContext::new(
+    let gda = @decimal_gda.GdaContext::new(
       precision~,
       e_min~,
       e_max~,
@@ -88,9 +88,11 @@ test "decimal with the clamp fold and decimal_gda agree on a zero quantize and r
         let a = @decimal.Decimal::from_string(zero)
           .unwrap()
           .quantize_ctx(@decimal.Decimal::from_string(quantum).unwrap(), ieee)
-        let b = @decimal_gda.Decimal::from_string(zero)
-          .unwrap()
-          .quantize(@decimal_gda.Decimal::from_string(quantum).unwrap(), gda)
+        let b = @decimal_gda.quantize(
+          @decimal_gda.Decimal::from_string(zero).unwrap(),
+          @decimal_gda.Decimal::from_string(quantum).unwrap(),
+          gda,
+        )
         assert_eq(
           (
             label,
@@ -99,16 +101,18 @@ test "decimal with the clamp fold and decimal_gda agree on a zero quantize and r
           ),
           (
             label,
-            clamp_fold_text(b.0.is_nan(), b.0.to_string()),
-            clamp_fold_gda_flags(b.1),
+            clamp_fold_text(b.value().is_nan(), b.value().to_string()),
+            clamp_fold_gda_flags(b.raised()),
           ),
         )
         let c = @decimal.Decimal::from_string(zero)
           .unwrap()
           .rescale_ctx(@decimal.Decimal::from_int(target), ieee)
-        let d = @decimal_gda.Decimal::from_string(zero)
-          .unwrap()
-          .rescale(@decimal_gda.Decimal::from_int(target), gda)
+        let d = @decimal_gda.rescale(
+          @decimal_gda.Decimal::from_string(zero).unwrap(),
+          @decimal_gda.Decimal::from_int(target),
+          gda,
+        )
         assert_eq(
           (
             label + " rescale",
@@ -117,8 +121,8 @@ test "decimal with the clamp fold and decimal_gda agree on a zero quantize and r
           ),
           (
             label + " rescale",
-            clamp_fold_text(d.0.is_nan(), d.0.to_string()),
-            clamp_fold_gda_flags(d.1),
+            clamp_fold_text(d.value().is_nan(), d.value().to_string()),
+            clamp_fold_gda_flags(d.raised()),
           ),
         )
       }
@@ -129,13 +133,15 @@ test "decimal with the clamp fold and decimal_gda agree on a zero quantize and r
 ///|
 test "with the clamp fold off decimal keeps the exponent asked for, where decimal_gda folds" {
   let ieee = @decimal.DecimalContext::decimal64()
-  let gda = @decimal_gda.DecimalContext::decimal64()
+  let gda = @decimal_gda.GdaContext::decimal64()
   let a = @decimal.Decimal::from_string("0")
     .unwrap()
     .quantize_ctx(@decimal.Decimal::from_string("1E+380").unwrap(), ieee)
-  let b = @decimal_gda.Decimal::from_string("0")
-    .unwrap()
-    .quantize(@decimal_gda.Decimal::from_string("1E+380").unwrap(), gda)
+  let b = @decimal_gda.quantize(
+    @decimal_gda.Decimal::from_string("0").unwrap(),
+    @decimal_gda.Decimal::from_string("1E+380").unwrap(),
+    gda,
+  )
   assert_eq((a.0.to_string(), a.1.clamped()), ("0E+380", false))
-  assert_eq((b.0.to_string(), b.1.clamped()), ("0E+369", true))
+  assert_eq((b.value().to_string(), b.raised().clamped()), ("0E+369", true))
 }

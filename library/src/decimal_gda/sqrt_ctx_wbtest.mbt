@@ -1,6 +1,6 @@
 ///|
 test "GDA sqrt rounds directly at subnormal precision" {
-  let ctx = context(precision=2, e_min=-9, e_max=9).unwrap()
+  let ctx = GdaContext::try_new(precision=2, e_min=-9, e_max=9).unwrap()
   let operand = Decimal::from_string("1.2E-19", precision=2).unwrap()
   let outcome = sqrt(operand, ctx)
   let result = outcome.value()

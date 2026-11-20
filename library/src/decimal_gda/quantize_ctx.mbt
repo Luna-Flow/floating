@@ -11,7 +11,7 @@ pub fn Decimal::same_quantum(self : Decimal, other : Decimal) -> Bool {
 }
 
 ///|
-pub fn Decimal::divide_integer(
+fn Decimal::divide_integer(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,
@@ -98,7 +98,7 @@ fn Decimal::divide_integer_impl(
 }
 
 ///|
-pub fn Decimal::remainder(
+fn Decimal::remainder(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,
@@ -191,7 +191,7 @@ pub fn Decimal::remainder(
 }
 
 ///|
-pub fn Decimal::remainder_near(
+fn Decimal::remainder_near(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,
@@ -275,7 +275,7 @@ pub fn Decimal::remainder_near(
 }
 
 ///|
-pub fn Decimal::quantize(
+fn Decimal::quantize(
   self : Decimal,
   quantum : Decimal,
   ctx : DecimalContext,
@@ -422,7 +422,7 @@ fn quantize_finite_to_exponent(
 }
 
 ///|
-pub fn Decimal::rescale(
+fn Decimal::rescale(
   self : Decimal,
   quantum : Decimal,
   ctx : DecimalContext,
@@ -463,7 +463,7 @@ fn Decimal::rescale_impl(
 }
 
 ///|
-pub fn Decimal::to_integral_exact(
+fn Decimal::to_integral_exact(
   self : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
@@ -535,7 +535,7 @@ fn to_integral_finite(
 }
 
 ///|
-pub fn Decimal::to_integral_value(
+fn Decimal::to_integral_value(
   self : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {

@@ -591,29 +591,11 @@ pub fn Decimal::from_string(src : String, precision~ : Int32 = 34) -> Decimal? {
 }
 
 ///|
-pub fn Decimal::from_string_ctx(
+fn Decimal::from_string_ctx(
   src : String,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   parse_decimal_string_ctx(src, ctx)
-}
-
-///|
-pub fn Decimal::to_sci_string(
-  src : String,
-  ctx : DecimalContext,
-) -> (String, DecimalFlags) {
-  let (value, flags) = parse_decimal_string_ctx(src, ctx)
-  (format_sci_gda(value), flags)
-}
-
-///|
-pub fn Decimal::to_eng_string(
-  src : String,
-  ctx : DecimalContext,
-) -> (String, DecimalFlags) {
-  let (value, flags) = parse_decimal_string_ctx(src, ctx)
-  (format_eng_gda(value), flags)
 }
 
 ///|
@@ -650,3 +632,15 @@ pub extend Decimal with Show::{to_string}
 
 ///|
 pub extend Decimal with Show::{output}
+
+///|
+/// GDA 1.70 to-scientific-string (page 19): the number only, no context.
+pub fn Decimal::to_sci_string(self : Decimal) -> String {
+  format_sci_gda(self)
+}
+
+///|
+/// GDA 1.70 to-engineering-string (page 20): the number only, no context.
+pub fn Decimal::to_eng_string(self : Decimal) -> String {
+  format_eng_gda(self)
+}

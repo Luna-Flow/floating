@@ -16,7 +16,7 @@ pub struct Decimal {
 
 ///|
 #derive(Eq)
-pub(all) enum DecimalRoundingMode {
+priv enum DecimalRoundingMode {
   HalfEven
   HalfUp
   HalfDown
@@ -25,31 +25,6 @@ pub(all) enum DecimalRoundingMode {
   Floor
   Up
   ZeroFiveUp
-}
-
-///|
-#derive(Eq)
-pub(all) enum DecimalTininessDetection {
-  BeforeRounding
-  AfterRounding
-}
-
-///|
-#derive(Eq)
-pub(all) enum DecimalSignal {
-  ConversionSyntax
-  DivisionByZero
-  DivisionImpossible
-  DivisionUndefined
-  InvalidContext
-  InvalidOperation
-  Overflow
-  Underflow
-  Subnormal
-  Inexact
-  Rounded
-  Clamped
-  LostDigits
 }
 
 ///|
@@ -67,35 +42,33 @@ pub struct GdaInterchange {
 }
 
 ///|
-#derive(Eq)
-pub struct DecimalContext {
-  priv precision : Int32
-  priv rounding : RoundingMode
-  priv decimal_rounding : DecimalRoundingMode
-  priv e_min : Int32
-  priv e_max : Int32
-  priv clamp : Bool
-  priv extended : Bool
-  priv tininess : DecimalTininessDetection
-  priv refinement_limit : Int32?
+priv struct DecimalContext {
+  precision : Int32
+  rounding : RoundingMode
+  decimal_rounding : DecimalRoundingMode
+  e_min : Int32
+  e_max : Int32
+  clamp : Bool
+  extended : Bool
+  refinement_limit : Int32?
 }
 
 ///|
 #derive(Eq)
-pub struct DecimalFlags {
-  priv inexact : Bool
-  priv rounded : Bool
-  priv lost_digits : Bool
-  priv invalid_operation : Bool
-  priv division_by_zero : Bool
-  priv overflow : Bool
-  priv underflow : Bool
-  priv subnormal : Bool
-  priv clamped : Bool
-  priv conversion_syntax : Bool
-  priv division_impossible : Bool
-  priv division_undefined : Bool
-  priv invalid_context : Bool
+priv struct DecimalFlags {
+  inexact : Bool
+  rounded : Bool
+  lost_digits : Bool
+  invalid_operation : Bool
+  division_by_zero : Bool
+  overflow : Bool
+  underflow : Bool
+  subnormal : Bool
+  clamped : Bool
+  conversion_syntax : Bool
+  division_impossible : Bool
+  division_undefined : Bool
+  invalid_context : Bool
 }
 
 ///|
@@ -135,7 +108,7 @@ let decimal_exp_boundary_cache_capacity = 8
 let decimal_exp_boundary_cache_next : @ref.Ref[Int32] = @ref.Ref(0)
 
 ///|
-pub fn DecimalFlags::new() -> DecimalFlags {
+fn DecimalFlags::new() -> DecimalFlags {
   {
     inexact: false,
     rounded: false,
@@ -154,85 +127,7 @@ pub fn DecimalFlags::new() -> DecimalFlags {
 }
 
 ///|
-/// Whether the `inexact` status flag is set.
-pub fn DecimalFlags::inexact(self : DecimalFlags) -> Bool {
-  self.inexact
-}
-
-///|
-/// Whether the `rounded` status flag is set.
-pub fn DecimalFlags::rounded(self : DecimalFlags) -> Bool {
-  self.rounded
-}
-
-///|
-/// Whether the `lost_digits` status flag is set.
-pub fn DecimalFlags::lost_digits(self : DecimalFlags) -> Bool {
-  self.lost_digits
-}
-
-///|
-/// Whether the `invalid_operation` status flag is set.
-pub fn DecimalFlags::invalid_operation(self : DecimalFlags) -> Bool {
-  self.invalid_operation
-}
-
-///|
-/// Whether the `division_by_zero` status flag is set.
-pub fn DecimalFlags::division_by_zero(self : DecimalFlags) -> Bool {
-  self.division_by_zero
-}
-
-///|
-/// Whether the `overflow` status flag is set.
-pub fn DecimalFlags::overflow(self : DecimalFlags) -> Bool {
-  self.overflow
-}
-
-///|
-/// Whether the `underflow` status flag is set.
-pub fn DecimalFlags::underflow(self : DecimalFlags) -> Bool {
-  self.underflow
-}
-
-///|
-/// Whether the `subnormal` status flag is set.
-pub fn DecimalFlags::subnormal(self : DecimalFlags) -> Bool {
-  self.subnormal
-}
-
-///|
-/// Whether the `clamped` status flag is set.
-pub fn DecimalFlags::clamped(self : DecimalFlags) -> Bool {
-  self.clamped
-}
-
-///|
-/// Whether the `conversion_syntax` status flag is set.
-pub fn DecimalFlags::conversion_syntax(self : DecimalFlags) -> Bool {
-  self.conversion_syntax
-}
-
-///|
-/// Whether the `division_impossible` status flag is set.
-pub fn DecimalFlags::division_impossible(self : DecimalFlags) -> Bool {
-  self.division_impossible
-}
-
-///|
-/// Whether the `division_undefined` status flag is set.
-pub fn DecimalFlags::division_undefined(self : DecimalFlags) -> Bool {
-  self.division_undefined
-}
-
-///|
-/// Whether the `invalid_context` status flag is set.
-pub fn DecimalFlags::invalid_context(self : DecimalFlags) -> Bool {
-  self.invalid_context
-}
-
-///|
-pub fn DecimalFlags::combine(
+fn DecimalFlags::combine(
   self : DecimalFlags,
   other : DecimalFlags,
 ) -> DecimalFlags {
@@ -254,13 +149,7 @@ pub fn DecimalFlags::combine(
 }
 
 ///|
-/// True when a condition that delivers no usable number, or a division by
-/// zero, is set: `invalid_operation`, `conversion_syntax`, `division_by_zero`,
-/// `division_undefined`, `division_impossible` or `invalid_context`. The last
-/// four of the GDA 1.70 conditions (pages 51 and 52) signal invalid-operation.
-/// Overflow, underflow, inexact and the other conditions deliver a usable
-/// result and are not errors.
-pub fn DecimalFlags::has_error(self : DecimalFlags) -> Bool {
+fn DecimalFlags::has_error(self : DecimalFlags) -> Bool {
   // `conversion_syntax` is a condition of the Invalid operation signal, like
   // `division_impossible` and `division_undefined`. Leaving it out made a
   // failed parse, which raises only this flag, look like a successful result.
@@ -273,28 +162,6 @@ pub fn DecimalFlags::has_error(self : DecimalFlags) -> Bool {
 }
 
 ///|
-pub fn DecimalFlags::contains(
-  self : DecimalFlags,
-  signal : DecimalSignal,
-) -> Bool {
-  match signal {
-    ConversionSyntax => self.conversion_syntax
-    DivisionByZero => self.division_by_zero
-    DivisionImpossible => self.division_impossible
-    DivisionUndefined => self.division_undefined
-    InvalidContext => self.invalid_context
-    InvalidOperation => self.invalid_operation
-    Overflow => self.overflow
-    Underflow => self.underflow
-    Subnormal => self.subnormal
-    Inexact => self.inexact
-    Rounded => self.rounded
-    Clamped => self.clamped
-    LostDigits => self.lost_digits
-  }
-}
-
-///|
 fn DecimalContext::build(
   precision~ : Int32 = 34,
   rounding~ : RoundingMode = RoundingMode::ToNearestEven,
@@ -303,7 +170,6 @@ fn DecimalContext::build(
   e_max~ : Int32 = 999_999_999,
   clamp~ : Bool = false,
   extended~ : Bool = true,
-  tininess~ : DecimalTininessDetection = DecimalTininessDetection::BeforeRounding,
 ) -> Result[DecimalContext, String] {
   let bounds = @internal.DecimalExponentBounds::new(precision, e_min, e_max)
   guard bounds.is_valid() else {
@@ -330,7 +196,6 @@ fn DecimalContext::build(
     e_max,
     clamp,
     extended,
-    tininess,
     refinement_limit: Some(12),
   })
 }
@@ -339,7 +204,7 @@ fn DecimalContext::build(
 /// Builds a context, or aborts with the message that names the invalid
 /// parameter (like `BinaryContext::new`). `try_new` returns the same check as
 /// an `Err` instead.
-pub fn DecimalContext::new(
+fn DecimalContext::new(
   precision~ : Int32 = 34,
   rounding~ : RoundingMode = RoundingMode::ToNearestEven,
   decimal_rounding? : DecimalRoundingMode,
@@ -347,7 +212,6 @@ pub fn DecimalContext::new(
   e_max~ : Int32 = 999_999_999,
   clamp~ : Bool = false,
   extended~ : Bool = true,
-  tininess~ : DecimalTininessDetection = DecimalTininessDetection::BeforeRounding,
 ) -> DecimalContext {
   match
     DecimalContext::build(
@@ -358,7 +222,6 @@ pub fn DecimalContext::new(
       e_max~,
       clamp~,
       extended~,
-      tininess~,
     ) {
     Ok(context) => context
     Err(reason) => abort("DecimalContext::new: " + reason)
@@ -366,7 +229,7 @@ pub fn DecimalContext::new(
 }
 
 ///|
-pub fn DecimalContext::try_new(
+fn DecimalContext::try_new(
   precision~ : Int32 = 34,
   rounding~ : RoundingMode = RoundingMode::ToNearestEven,
   decimal_rounding? : DecimalRoundingMode,
@@ -374,7 +237,6 @@ pub fn DecimalContext::try_new(
   e_max~ : Int32 = 999_999_999,
   clamp~ : Bool = false,
   extended~ : Bool = true,
-  tininess~ : DecimalTininessDetection = DecimalTininessDetection::BeforeRounding,
 ) -> Result[DecimalContext, @def.ArithmeticError] {
   match
     DecimalContext::build(
@@ -385,7 +247,6 @@ pub fn DecimalContext::try_new(
       e_max~,
       clamp~,
       extended~,
-      tininess~,
     ) {
     Ok(context) => Ok(context)
     Err(reason) => Err(@def.ArithmeticError::domain_error(reason))
@@ -393,88 +254,8 @@ pub fn DecimalContext::try_new(
 }
 
 ///|
-pub fn DecimalContext::precision(self : DecimalContext) -> Int32 {
-  self.precision
-}
-
-///|
-pub fn DecimalContext::rounding(self : DecimalContext) -> RoundingMode {
-  self.rounding
-}
-
-///|
-pub fn DecimalContext::with_rounding(
-  self : DecimalContext,
-  rounding : RoundingMode,
-) -> DecimalContext {
-  {
-    ..self,
-    rounding,
-    decimal_rounding: DecimalRoundingMode::from_arithmetic(rounding),
-  }
-}
-
-///|
-pub fn DecimalContext::decimal_rounding(
-  self : DecimalContext,
-) -> DecimalRoundingMode {
-  self.decimal_rounding
-}
-
-///|
-pub fn DecimalContext::e_min(self : DecimalContext) -> Int32 {
+fn DecimalContext::e_min(self : DecimalContext) -> Int32 {
   self.e_min
-}
-
-///|
-pub fn DecimalContext::e_max(self : DecimalContext) -> Int32 {
-  self.e_max
-}
-
-///|
-pub fn DecimalContext::clamp(self : DecimalContext) -> Bool {
-  self.clamp
-}
-
-///|
-pub fn DecimalContext::extended(self : DecimalContext) -> Bool {
-  self.extended
-}
-
-///|
-pub fn DecimalContext::tininess(
-  self : DecimalContext,
-) -> DecimalTininessDetection {
-  self.tininess
-}
-
-///|
-pub fn DecimalContext::with_tininess(
-  self : DecimalContext,
-  tininess : DecimalTininessDetection,
-) -> DecimalContext {
-  { ..self, tininess, }
-}
-
-///|
-/// The number of refinement steps the certified elementary functions may take
-/// before they report a certification failure, `Some(12)` by default. `None`
-/// means no count limit; the work precision still stops at a resource bound
-/// (see `with_refinement_limit`).
-pub fn DecimalContext::refinement_limit(self : DecimalContext) -> Int32? {
-  self.refinement_limit
-}
-
-///|
-/// Returns a copy of the context with the refinement limit of the certified
-/// elementary functions set to `limit`. `None` removes the count limit; the work
-/// precision of each loop is then bounded (at least 8,000,000 bits, or 256 times
-/// the initial work precision). A limit below 1 is clamped to 1 refinement step.
-pub fn DecimalContext::with_refinement_limit(
-  self : DecimalContext,
-  limit : Int32?,
-) -> DecimalContext {
-  { ..self, refinement_limit: limit, }
 }
 
 ///|
@@ -487,18 +268,12 @@ fn decimal_exact_work_context() -> DecimalContext {
     e_max: 999_999_999,
     clamp: false,
     extended: true,
-    tininess: DecimalTininessDetection::BeforeRounding,
     refinement_limit: Some(12),
   }
 }
 
 ///|
-pub fn DecimalContext::exact() -> DecimalContext {
-  decimal_exact_work_context()
-}
-
-///|
-pub fn DecimalContext::decimal32() -> DecimalContext {
+fn DecimalContext::decimal32() -> DecimalContext {
   DecimalContext::new(
     precision=7,
     rounding=RoundingMode::ToNearestEven,
@@ -509,7 +284,7 @@ pub fn DecimalContext::decimal32() -> DecimalContext {
 }
 
 ///|
-pub fn DecimalContext::decimal64() -> DecimalContext {
+fn DecimalContext::decimal64() -> DecimalContext {
   DecimalContext::new(
     precision=16,
     rounding=RoundingMode::ToNearestEven,
@@ -520,7 +295,7 @@ pub fn DecimalContext::decimal64() -> DecimalContext {
 }
 
 ///|
-pub fn DecimalContext::decimal128() -> DecimalContext {
+fn DecimalContext::decimal128() -> DecimalContext {
   DecimalContext::new(
     precision=34,
     rounding=RoundingMode::ToNearestEven,
@@ -531,7 +306,7 @@ pub fn DecimalContext::decimal128() -> DecimalContext {
 }
 
 ///|
-pub fn DecimalContext::from_arithmetic_context(
+fn DecimalContext::from_arithmetic_context(
   ctx : @lf_arith.ArithmeticContext,
 ) -> Result[DecimalContext, @def.ArithmeticError] {
   DecimalContext::try_new(
@@ -544,7 +319,7 @@ pub fn DecimalContext::from_arithmetic_context(
 }
 
 ///|
-pub fn GdaInterchangeFormat::context(
+fn GdaInterchangeFormat::decimal_context(
   self : GdaInterchangeFormat,
 ) -> DecimalContext {
   match self {
@@ -555,7 +330,7 @@ pub fn GdaInterchangeFormat::context(
 }
 
 ///|
-pub fn DecimalRoundingMode::from_arithmetic(
+fn DecimalRoundingMode::from_arithmetic(
   mode : RoundingMode,
 ) -> DecimalRoundingMode {
   match mode {
@@ -568,39 +343,10 @@ pub fn DecimalRoundingMode::from_arithmetic(
 }
 
 ///|
-pub fn DecimalRoundingMode::to_arithmetic(
-  self : DecimalRoundingMode,
-) -> RoundingMode? {
-  match self {
-    HalfEven => Some(RoundingMode::ToNearestEven)
-    Down => Some(RoundingMode::TowardZero)
-    Ceiling => Some(RoundingMode::TowardPositive)
-    Floor => Some(RoundingMode::TowardNegative)
-    Up => Some(RoundingMode::AwayFromZero)
-    HalfUp | HalfDown | ZeroFiveUp => None
-  }
-}
-
-///|
 pub extend Decimal with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
-pub extend DecimalRoundingMode with Eq::{not_equal, equal}
-
-///|
-pub extend DecimalTininessDetection with Eq::{not_equal, equal}
-
-///|
-pub extend DecimalSignal with Eq::{not_equal, equal}
-
-///|
 pub extend GdaInterchangeFormat with Eq::{not_equal, equal}
-
-///|
-pub extend DecimalContext with Eq::{not_equal, equal}
-
-///|
-pub extend DecimalFlags with Eq::{not_equal, equal}
 
 ///|
 // The kernel's rounding enum has the same eight directions; it is a different
@@ -616,4 +362,36 @@ fn DecimalRoundingMode::kernel(self : DecimalRoundingMode) -> DecCoeffRounding {
     Up => DecCoeffRounding::Up
     ZeroFiveUp => DecCoeffRounding::ZeroFiveUp
   }
+}
+
+///|
+/// The extended default context of the interchange format (GDA 1.70, Default
+/// contexts, page 16): precision 7, 16 or 34, round-half-even, no traps.
+pub fn GdaInterchangeFormat::context(self : GdaInterchangeFormat) -> GdaContext {
+  match self {
+    Decimal32 => GdaContext::decimal32()
+    Decimal64 => GdaContext::decimal64()
+    Decimal128 => GdaContext::decimal128()
+  }
+}
+
+///|
+/// The number of refinement steps the certified elementary functions may take
+/// before they report a certification failure, `Some(12)` by default. `None`
+/// means no count limit; the work precision still stops at a resource bound
+/// (see `with_refinement_limit`).
+fn DecimalContext::refinement_limit(self : DecimalContext) -> Int32? {
+  self.refinement_limit
+}
+
+///|
+/// Returns a copy of the context with the refinement limit of the certified
+/// elementary functions set to `limit`. `None` removes the count limit; the work
+/// precision of each loop is then bounded (at least 8,000,000 bits, or 256 times
+/// the initial work precision). A limit below 1 is clamped to 1 refinement step.
+fn DecimalContext::with_refinement_limit(
+  self : DecimalContext,
+  limit : Int32?,
+) -> DecimalContext {
+  { ..self, refinement_limit: limit, }
 }

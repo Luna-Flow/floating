@@ -27,10 +27,10 @@ goal is to model all of that exactly and observably, so that
     is the same author's `dectest` collection, version 2.62.
 
 The ParseChecked adapter is a value-only adapter over the GDA to-number
-conversion. It maps ArithmeticContext to DecimalContext, so precision,
+conversion. It maps ArithmeticContext to the engine context, so precision,
 rounding direction, exponent bounds and clamp apply. The returned Result
 cannot carry GDA status or traps; callers that need those effects should use
-the decimal_gda::parse API with GdaContext.
+the decimal_gda::to_number API with GdaContext.
 
 `divide_integer` constructs its preferred zero at exponent 0 before applying
 the context finalizer. This preserves the quotient sign and lets clamp fold
@@ -257,17 +257,9 @@ every tiny result (GDA, and this package's GDA functions, detect tininess
 also inexact, and `Clamped` when it rounds to zero (the zero then takes the
 exponent $E_{\mathrm{tiny}}$). Because tininess is decided before rounding,
 a result such as $0.9951$ at $p = 3$, $e_{\min} = 0$ raises `Subnormal` and
-`Underflow` even though it rounds to the normal number `1.00`. The status-free
-layer additionally offers `DecimalTininessDetection::AfterRounding`, the
-IEEE 754 after-rounding rule: a result is tiny when its exact value rounded to
-$p$ digits with an unbounded exponent range has $\hat e < e_{\min}$. It
-changes only which results count as tiny, never the value. Only an exact
-value with $\hat e = e_{\min} - 1$ can be judged differently from
-`BeforeRounding` (rounding to $p$ digits can carry it into $10^{e_{\min}}$), so
-the extra rounding is done only there.
-The grid matters: $0.9951$ rounds to $0.995$ at $p$ digits and is tiny,
-although its rounding at $E_{\mathrm{tiny}} = -2$ is the normal `1.00`;
-$0.99951$ rounds to $1.00$ at $p$ digits and is not tiny.
+`Underflow` even though it rounds to the normal number `1.00`. GDA 1.70 has no
+other rule (the after-rounding rule is an IEEE 754 choice for binary formats
+only), so the package has no tininess parameter.
 
 ### Clamping
 
@@ -373,7 +365,7 @@ on:
 ```moonbit
 ///|
 test "status is the union of the raised sets" {
-  let ctx = @decimal_gda.context(precision=3).unwrap()
+  let ctx = @decimal_gda.GdaContext::new(precision=3)
   let d = (s : String) => @decimal_gda.Decimal::from_string(s).unwrap()
   let a = @decimal_gda.divide(d("1"), d("3"), ctx) // Inexact, Rounded
   let b = @decimal_gda.divide(d("1"), d("0"), a.next_context()) // DivisionByZero
@@ -485,11 +477,12 @@ and every flag, clamp, subnormal and overflow rule around it, stays in the
 finalizer of each package. The same holds for the exact integer helpers that
 roots, logarithm series and the logical digit operations are built on.
 
-The status-free layer (`DecimalContext`, `DecimalFlags`, the `*_ctx` methods)
-is the package's own engine made public. It returns flags per operation like
-IEEE, which is convenient for adapters (the `Luna-Flow/arithmetic` trait
-implementations use it), but it implements the GDA arithmetic; the IEEE 754
-contract lives in `decimal`.
+The status-free engine (a private `DecimalContext`, `DecimalFlags` and the
+`*_ctx` methods) is private to the package: the functions named after the GDA
+operations are the only public spelling of every operation, so each operation
+exists once. The engine returns flags per operation, which is what the
+`Luna-Flow/arithmetic` trait implementations use. The IEEE 754 contract lives
+in `decimal`.
 
 ### Fast paths that are proven equivalent
 
@@ -758,7 +751,7 @@ refinement loop.[^ziv] For $f(x)$:
 5. **Refine.** Otherwise the working precision grows,
    $w \leftarrow w + \max(32, \lfloor w/2 \rfloor)$; at most $L$
    evaluations are made, where $L$ is the refinement limit of the
-   `DecimalContext` (`DecimalContext::refinement_limit`, default twelve, so the
+   `GdaContext` (`GdaContext::refinement_limit`, default twelve, so the
    last evaluation runs at roughly $1.5^{11} \approx 86$ times the starting
    precision).
 
@@ -886,7 +879,7 @@ a flag. See [performance](../performance/decimal_gda.md) for the measurements.
 
 - The package implements the GDA operations and nothing else: no
   trigonometric, hyperbolic or other functions outside the specification, and
-  no IEEE 754 operations other than the few extras of the status-free layer.
+  no IEEE 754 operations.
 - It does not parse `.decTest` files, run test suites or read files; that is
   [`frontend/gda_expr`](../api/frontend/gda_expr.md) and the repository tools.
 - It does not provide BID interchange; only DPD.

@@ -45,8 +45,8 @@ operation raised.
 ```moonbit
 ///|
 test "quick start: one third in nine digits" {
-  let ctx = @decimal_gda.context(precision=9).unwrap()
-  let one = @decimal_gda.parse("1", ctx)
+  let ctx = @decimal_gda.GdaContext::new(precision=9)
+  let one = @decimal_gda.to_number("1", ctx)
   let three = @decimal_gda.Decimal::from_string("3").unwrap()
   let third = @decimal_gda.divide(one.value(), three, one.next_context())
   inspect(third.value(), content="0.333333333")
@@ -69,7 +69,7 @@ is a value, not a mutable object.
 ```moonbit
 ///|
 test "sticky status follows the threaded context" {
-  let start = @decimal_gda.context(precision=5).unwrap()
+  let start = @decimal_gda.GdaContext::new(precision=5)
   let two = @decimal_gda.Decimal::from_string("2").unwrap()
   let three = @decimal_gda.Decimal::from_string("3").unwrap()
   let q = @decimal_gda.divide(two, three, start) // inexact
@@ -96,7 +96,7 @@ That is how you round an amount to cents:
 ///|
 test "round to cents with quantize" {
   let even = @decimal_gda.GdaContext::decimal64() // HalfEven
-  let half_up = @decimal_gda.context(precision=16, rounding=HalfUp).unwrap()
+  let half_up = @decimal_gda.GdaContext::new(precision=16, rounding=HalfUp)
   let price = @decimal_gda.Decimal::from_string("2.50").unwrap()
   let qty = @decimal_gda.Decimal::from_string("3").unwrap()
   inspect(@decimal_gda.multiply(price, qty, even).value(), content="7.50")
@@ -150,7 +150,7 @@ An `InvalidOperation` trap also catches the four detailed invalid conditions
 ///|
 test "the InvalidOperation trap covers conversion syntax" {
   let basic = @decimal_gda.GdaContext::basic()
-  let out = @decimal_gda.parse("1.2.3", basic)
+  let out = @decimal_gda.to_number("1.2.3", basic)
   match out {
     @decimal_gda.GdaOutcome::Trapped(signal, value, _, raised) => {
       inspect(signal == InvalidOperation, content="true")
@@ -176,13 +176,13 @@ result overflows; what it overflows *to* depends on the rounding mode. Below
 ///|
 test "overflow and underflow in decimal32" {
   let d32 = @decimal_gda.GdaContext::decimal32() // p=7, e_max=96, HalfEven
-  let down = @decimal_gda.context(
+  let down = @decimal_gda.GdaContext::new(
     precision=7,
     rounding=Down,
     e_min=-95,
     e_max=96,
     clamp=true,
-  ).unwrap()
+  )
   let big = @decimal_gda.Decimal::from_string("9E+96").unwrap()
   let ten = @decimal_gda.Decimal::from_string("10").unwrap()
   inspect(@decimal_gda.multiply(big, ten, d32).value(), content="inf")
@@ -220,12 +220,12 @@ test "elementary functions" {
   inspect(@decimal_gda.log10(two, ctx).value(), content="0.3010299956639812")
   inspect(@decimal_gda.sqrt(two, ctx).value(), content="1.414213562373095")
   // exp, ln, log10 and non-integer power need |e_min|, e_max <= 999999.
-  let floor3 = @decimal_gda.context(
+  let floor3 = @decimal_gda.GdaContext::new(
     precision=3,
     rounding=Floor,
     e_min=-999_999,
     e_max=999_999,
-  ).unwrap()
+  )
   let three_halves = @decimal_gda.Decimal::from_string("1.5").unwrap()
   inspect(@decimal_gda.exp(one, floor3).value(), content="2.72") // still half-even
   inspect(@decimal_gda.power(two, three_halves, floor3).value(), content="2.82") // floor
@@ -236,8 +236,7 @@ A certified elementary function refines its enclosure at most twelve times by
 default. For a rare argument that sits very close to a rounding boundary,
 `ctx.with_refinement_limit(Some(24))` allows more steps and
 `with_refinement_limit(None)` removes the count (the working precision then
-stops at a cap of at least 8,000,000 bits); the limit is a field of
-`DecimalContext`, so contexts that differ only in it are different.
+stops at a cap of at least 8,000,000 bits). `refinement_limit()` reads it.
 
 ### Compare and print
 
@@ -263,11 +262,7 @@ test "comparisons and text" {
   let big = @decimal_gda.Decimal::from_string("123E+5").unwrap()
   inspect(big, content="1.23E+7")
   inspect(@decimal_gda.class_name(big, ctx).value(), content="+Normal")
-  let (eng, _) = @decimal_gda.Decimal::to_eng_string(
-    "123E+5",
-    @decimal_gda.DecimalContext::new(),
-  )
-  inspect(eng, content="12.3E+6")
+  inspect(big.to_eng_string(), content="12.3E+6")
 }
 ```
 

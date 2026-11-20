@@ -126,7 +126,7 @@ fn scaleb_finite_result_ctx(
 }
 
 ///|
-pub fn Decimal::scaleb_ctx(
+fn Decimal::scaleb_ctx(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,

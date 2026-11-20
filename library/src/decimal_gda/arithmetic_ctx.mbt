@@ -307,7 +307,7 @@ pub fn Decimal::mul(self : Decimal, other : Decimal) -> Decimal {
 }
 
 ///|
-pub fn Decimal::add_ctx(
+fn Decimal::add_ctx(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,
@@ -348,7 +348,7 @@ pub fn Decimal::add_ctx(
 }
 
 ///|
-pub fn Decimal::sub_ctx(
+fn Decimal::sub_ctx(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,
@@ -361,7 +361,7 @@ pub fn Decimal::sub_ctx(
 }
 
 ///|
-pub fn Decimal::mul_ctx(
+fn Decimal::mul_ctx(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,
@@ -448,7 +448,7 @@ fn Decimal::decimal_mul_ctx_impl(
 }
 
 ///|
-pub fn Decimal::div_ctx(
+fn Decimal::div_ctx(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,
@@ -760,7 +760,7 @@ fn Decimal::decimal_div_ctx_impl(
 }
 
 ///|
-pub fn Decimal::fma_ctx(
+fn Decimal::fma_ctx(
   self : Decimal,
   multiplier : Decimal,
   addend : Decimal,
@@ -1174,7 +1174,7 @@ fn decimal_sqrt_tiny_result(
 }
 
 ///|
-pub fn Decimal::sqrt_ctx(
+fn Decimal::sqrt_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {

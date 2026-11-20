@@ -234,47 +234,9 @@ fn adjusted_exponent64(x : Decimal) -> Int64 {
 }
 
 ///|
-fn tiny_for_underflow(
-  ctx : DecimalContext,
-  before_adjusted : Int64,
-  after_adjusted : Int64,
-) -> Bool {
-  match ctx.tininess {
-    DecimalTininessDetection::BeforeRounding =>
-      before_adjusted < ctx.e_min.to_int64()
-    DecimalTininessDetection::AfterRounding =>
-      after_adjusted < ctx.e_min.to_int64()
-  }
-}
-
-///|
-// Adjusted exponent of the exact value `magnitude * 10^exponent10` rounded to
-// the context precision with an unbounded exponent range: the quantity that
-// IEEE 754 (clause 7.5) compares with e_min for tininess after rounding. It is
-// the exact adjusted exponent, plus one when rounding carries into the next
-// power of ten; only a value with adjusted exponent e_min - 1 can change sides,
-// so the rounding is done only there.
-fn adjusted_after_rounding_to_precision(
-  magnitude : DecCoeff,
-  exponent10 : Int32,
-  negative : Bool,
-  ctx : DecimalContext,
-) -> Int64 {
-  let digits = magnitude.digits10()
-  let adjusted = exponent10.to_int64() + (digits - 1).to_int64()
-  if magnitude.is_zero() ||
-    ctx.precision <= 0 ||
-    digits <= ctx.precision ||
-    adjusted != ctx.e_min.to_int64() - 1L {
-    return adjusted
-  }
-  let (rounded, _) = round_positive_decimal_div_pow10_repr(
-    magnitude,
-    digits - ctx.precision,
-    negative,
-    ctx.decimal_rounding,
-  )
-  adjusted + (rounded.digits10() - ctx.precision).to_int64()
+/// GDA 1.70 (Subnormal, page 53): tininess is judged before rounding.
+fn tiny_for_underflow(ctx : DecimalContext, before_adjusted : Int64) -> Bool {
+  before_adjusted < ctx.e_min.to_int64()
 }
 
 ///|
@@ -376,13 +338,7 @@ fn finalize_finite_ctx(
       ctx.decimal_rounding,
     )
     flags = { ..flags, rounded: true, }
-    let rounded_adjusted = adjusted_after_rounding_to_precision(
-      value.coefficient,
-      value.exponent10,
-      value.negative,
-      ctx,
-    )
-    let tiny = tiny_for_underflow(ctx, unrounded_adjusted, rounded_adjusted)
+    let tiny = tiny_for_underflow(ctx, unrounded_adjusted)
     if tiny {
       flags = { ..flags, subnormal: true, }
     }
@@ -483,12 +439,7 @@ fn normalize_decimal_parts_ctx_repr(
       (rounded_magnitude0, next_exponent0)
     }
     flags = { ..flags, rounded: true, }
-    let rounded_adjusted = adjusted_after_rounding_to_precision(
-      magnitude, exponent10, negative, ctx,
-    )
-    let tiny_result = tiny_for_underflow(
-      ctx, unrounded_adjusted, rounded_adjusted,
-    )
+    let tiny_result = tiny_for_underflow(ctx, unrounded_adjusted)
     if tiny_result {
       flags = { ..flags, subnormal: true, }
     }
@@ -892,7 +843,7 @@ fn reduce_finite_cohort_ctx(value : Decimal, ctx : DecimalContext) -> Decimal {
 }
 
 ///|
-pub fn Decimal::reduce_ctx(
+fn Decimal::reduce_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {

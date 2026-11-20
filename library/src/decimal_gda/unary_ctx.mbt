@@ -1,7 +1,7 @@
 ///|
 // Public unary context application operations.
 
-pub fn Decimal::plus_ctx(
+fn Decimal::plus_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
@@ -44,7 +44,7 @@ pub fn Decimal::plus_ctx(
 }
 
 ///|
-pub fn Decimal::apply_ctx(
+fn Decimal::apply_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
@@ -82,7 +82,7 @@ pub fn Decimal::apply_ctx(
 }
 
 ///|
-pub fn Decimal::minus_ctx(
+fn Decimal::minus_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
@@ -112,7 +112,7 @@ pub fn Decimal::minus_ctx(
 }
 
 ///|
-pub fn Decimal::abs_ctx(
+fn Decimal::abs_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
