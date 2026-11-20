@@ -19,7 +19,7 @@ fn atan2pi_scaled_same(
 test "atan2pi tiny ratio equals atanpi of the ratio on both sides of the threshold" {
   for mode in pm1_modes {
     for p in [7, 16, 34] {
-      let ctx = pm1_ctx(p, mode, -383, 384, false, "b")
+      let ctx = pm1_ctx(p, mode, -383, 384, true, "b")
       // 2 D + 2 <= -t where 3 t >= 8 p + 400; D runs through the threshold.
       let threshold = -((8 * p + 400 + 2) / 6 + 1)
       for
@@ -47,7 +47,7 @@ test "atan2pi tiny ratio equals atanpi of the ratio on both sides of the thresho
 ///|
 test "atan2pi with both operands of extreme exponent equals the moderate ratio" {
   for mode in pm1_modes {
-    let ctx = pm1_ctx(16, mode, -383, 384, false, "b")
+    let ctx = pm1_ctx(16, mode, -383, 384, true, "b")
     for e in ["1999996", "5000", "300"] {
       for pair in [("3", "2"), ("7", "9"), ("1.5", "4")] {
         let moderate = pii_call("atan2pi", pair.0, pair.1, ctx)

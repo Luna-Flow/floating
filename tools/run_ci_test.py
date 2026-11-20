@@ -49,12 +49,13 @@ class RunCiTests(unittest.TestCase):
 
     def test_all_scope_covers_repository_and_three_suites(self) -> None:
         stages = run_ci.stages_for("all", 5)
-        self.assertEqual(len(stages), 20)
+        self.assertEqual(len(stages), 21)
         self.assertEqual(
             [stage.name.split(": ")[0] for stage in stages],
             [
                 "DEPENDENCIES",
                 "IMPORTS",
+                "CONTEXTS",
                 "FORMAT",
                 "PACKAGE",
                 "DOCS",
@@ -104,6 +105,7 @@ class RunCiTests(unittest.TestCase):
                     "DEPENDENCIES",
                     "CHECK",
                     "IMPORTS",
+                    "CONTEXTS",
                     "FORMAT",
                     "PACKAGE",
                     "DOCS",
@@ -120,6 +122,7 @@ class RunCiTests(unittest.TestCase):
         )
         by_name = {stage.name: stage.command for stage in stages}
         self.assertEqual(by_name["IMPORTS: package independence"][1], "tools/check_imports.py")
+        self.assertEqual(by_name["CONTEXTS: corpus"][1], "tools/check_corpus_contexts.py")
         self.assertEqual(
             by_name["PACKAGE: published contents"][1:],
             ("tools/check_package_contents.py", "--module", "all"),
@@ -155,7 +158,7 @@ class RunCiTests(unittest.TestCase):
         )
         self.assertEqual(
             lanes["python"],
-            ["IMPORTS: package independence", "DOCS: manual quality", "TEST: Python tooling"],
+            ["IMPORTS: package independence", "CONTEXTS: corpus", "DOCS: manual quality", "TEST: Python tooling"],
         )
         self.assertEqual(lanes["conformance"][0], "SMOKE: DecimalGDA")
         ci_schedule.validate_plan(stages)

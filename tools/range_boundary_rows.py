@@ -44,6 +44,8 @@ import sys
 from collections.abc import Iterator
 from fractions import Fraction
 
+import context_rules
+
 decimal.getcontext().prec = 140
 
 IMPL_EMIN = -1073741822  # 1 - IMPL_EMAX (IEEE 754-2019 3.3)
@@ -57,6 +59,8 @@ CONTEXTS: list[tuple[int | None, int | None]] = [
     (-16382, 16383),
     (-6, 7),
 ]
+for _e_min, _e_max in CONTEXTS:  # a context is a format of IEEE 754-2019 3.3, or the precision alone
+    context_rules.check_binary_context(53, _e_max, _e_min)
 MODES = ["n", "na", "z", "u", "d"]
 OPERATIONS = ("exp", "exp2", "exp10", "expm1", "pow", "pown", "rootn", "exp2m1", "exp10m1", "log2p1", "log10p1", "rsqrt", "compound", "powr", "asinpi", "acospi", "atanpi", "atan2pi")
 RELATIVE_OFFSETS = (20, 24, 30, 40, 52, 64)

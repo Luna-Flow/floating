@@ -148,7 +148,7 @@ test "rootn exact roots need the exponent to be a multiple of the degree (#376)"
     ] {
     let (x, n, want) = entry
     let ctx = if x == "1E+999000" {
-      pm1_ctx(34, "half_even", -999999, 999999, false, "b")
+      pm1_ctx(34, "half_even", -999998, 999999, true, "b")
     } else {
       ctx
     }
