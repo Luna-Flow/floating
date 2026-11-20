@@ -23,7 +23,6 @@ using @internal {
   abs_bigint,
   bigint_one,
   bigint_zero,
-  digits10,
   pow5,
   pow10,
   split_decimal_string_wide,
