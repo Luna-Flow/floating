@@ -40,7 +40,8 @@ Translation catalogs are checked separately by `lunadoc check`, which the
   `bin_float` on native with the row primitives portable
   (`LUNA_FLOATING_PORTABLE=1`), forced to the C tier (`LUNA_FLOATING_LIMBS=c`) and
   in the default state; `tools/check_limbs_tier.py` fails the job when the runner
-  is not arm64 or a state reports another tier than expected. The Linux runner is
+  is not arm64, a state reports another tier than expected, or the switch
+  did not take (`enabled=false` in the portable state, `enabled=true` in the others). The Linux runner is
   x86-64, so nothing else executes the arm64 code. `wasm-gc` runs the whole
   workspace except what needs `moonbitlang/async`, which has no wasm-gc
   runtime (its module initialiser is rejected by the runtime at validation); the
