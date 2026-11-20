@@ -9737,7 +9737,7 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 #: manual/design/bench/bin_float.md:68
 #: manual/design/bench/decimal.md:67
 #: manual/design/bench/decimal_gda.md:64
-#: manual/design/bench/external.md:221
+#: manual/design/bench/external.md:235
 #: manual/design/bin_float.md:2096
 #: manual/design/bin_float_checked.md:328
 #: manual/design/cli.md:71
@@ -10738,7 +10738,7 @@ msgstr "集合关系（`subset`、`interior`、`disjoint`、`set_equal`）和 IE
 #: manual/design/bench/bin_float.md:29
 #: manual/design/bench/decimal.md:29
 #: manual/design/bench/decimal_gda.md:26
-#: manual/design/bench/external.md:86
+#: manual/design/bench/external.md:90
 #: manual/design/bin_float.md:185
 #: manual/design/bin_float_checked.md:81
 #: manual/design/cli.md:18
@@ -10904,7 +10904,7 @@ msgstr "每个区间都携带一个精度标签；二元运算使用较大的标
 #: manual/design/bench/bin_float.md:52
 #: manual/design/bench/decimal.md:51
 #: manual/design/bench/decimal_gda.md:48
-#: manual/design/bench/external.md:201
+#: manual/design/bench/external.md:215
 #: manual/design/bin_float.md:2024
 #: manual/design/bin_float_checked.md:198
 #: manual/design/cli.md:52
@@ -10984,7 +10984,7 @@ msgstr "目前没有未解决的限制。负次数的装饰 `rootn` 在参数含
 #: manual/design/bench/bin_float.md:61
 #: manual/design/bench/decimal.md:60
 #: manual/design/bench/decimal_gda.md:57
-#: manual/design/bench/external.md:211
+#: manual/design/bench/external.md:225
 #: manual/design/bin_float.md:2071
 #: manual/design/bin_float_checked.md:315
 #: manual/design/cli.md:62
@@ -11661,20 +11661,20 @@ msgid ""
 "u_R$. The two sides run in different processes and share no structure, so their replicates are drawn independently, $\\rho^*_b = \\n"
 "u^*_{F,b} / \\n"
 "u^*_{R,b}$ (with $\\rho^*_b = +\\infty$ when $\\n"
-"u^*_{R,b} \\le 0$), and the interval $[\\rho_{lo}, \\rho_{hi}]$ is the 2.5% and 97.5% quantiles of the $\\rho^*_b$. The raw ratio of the 0.11.0 method, the median of the case blocks over the median of the case blocks, is kept beside it, with its interval from a bootstrap that pairs the rounds of the two sides."
+"u^*_{R,b} \\le 0$). Replicate $b$ of one side is divided by replicate $b$ of the other only to form the distribution of the ratio; it is not a pairing. The seed of every draw is derived from the run seed, the case, the side and the purpose, so two sides never share a stream, even when their data are identical. The interval $[\\rho_{lo}, \\rho_{hi}]$ is the 2.5% and 97.5% quantiles of the $\\rho^*_b$. The raw ratio of the 0.11.0 method, the median of the case blocks over the median of the case blocks, is kept beside it, with its interval from a bootstrap that pairs the rounds of the two sides."
 msgstr ""
 "**比值。** $\\hat\\rho = \\n"
 "u_F / \\n"
 "u_R$。两侧在不同的进程中运行，没有共同结构，所以它们的重复值独立抽取，$\\rho^*_b = \\n"
 "u^*_{F,b} / \\n"
 "u^*_{R,b}$（当 $\\n"
-"u^*_{R,b} \\le 0$ 时 $\\rho^*_b = +\\infty$），区间 $[\\rho_{lo}, \\rho_{hi}]$ 是 $\\rho^*_b$ 的 2.5% 与 97.5% 分位数。0.11.0 方法的原始比值，即用例块的中位数除以用例块的中位数，保留在旁边，其区间来自把两侧轮次配对的自助法。"
+"u^*_{R,b} \\le 0$ 时 $\\rho^*_b = +\\infty$）。一侧的第 $b$ 个重复值除以另一侧的第 $b$ 个重复值，只是为了形成比值的分布，并不是配对。每次抽样的种子由运行种子、用例、侧和用途派生，所以两侧从不共用同一个随机流，即使它们的数据完全相同。区间 $[\\rho_{lo}, \\rho_{hi}]$ 是 $\\rho^*_b$ 的 2.5% 与 97.5% 分位数。0.11.0 方法的原始比值，即用例块的中位数除以用例块的中位数，保留在旁边，其区间来自把两侧轮次配对的自助法。"
 
-#: manual/design/bench/external.md:57
+#: manual/design/bench/external.md:61
 msgid "**Criterion.** A case meets the target when $\\rho_{hi} \\le 3$. This is a one-sided 97.5% statement made from a two-sided 95% interval, so it is conservative. A resolved case that does not meet it is marked borderline when $\\rho_{lo} \\le 3 < \\rho_{hi}$."
 msgstr "**判据。** 当 $\\rho_{hi} \\le 3$ 时，用例达到目标。这是由双侧 95% 区间得出的单侧 97.5% 陈述，因此是保守的。已判定但未达到目标的用例，当 $\\rho_{lo} \\le 3 < \\rho_{hi}$ 时标为临界。"
 
-#: manual/design/bench/external.md:62
+#: manual/design/bench/external.md:66
 msgid ""
 "**Unresolved.** A case is reported as unresolved, and never as met, when (1) the 2.5% quantile of $\\n"
 "u^*_R$ is at most zero, or $\\n"
@@ -11686,7 +11686,7 @@ msgstr ""
 "u_R \\le 0$（参考侧的净值与零无法区分），(2) $\\n"
 "u_F \\le 0$，或 (3) $\\rho_{hi} / \\rho_{lo} > 1.25$（区间太宽；在 0.11.0 的汇总中，原始区间的 $\\rho_{hi}/\\rho_{lo}$ 在中位用例为 1.02，最差为 1.07）。这样的用例由原始比值决定，并印为“met (raw)”或“not met (raw)”；它绝不计入达标用例。"
 
-#: manual/design/bench/external.md:70
+#: manual/design/bench/external.md:74
 msgid ""
 "**Flags.** The null loop scales with the clock, so the null blocks are a thermometer. With $n_r$ the median of the null blocks of round $r$, a side is flagged `d` (drift) when $\\max_r |n_r / \\operatorname{med}_r n_r - 1|$ exceeds 5%. A case is flagged `o` (order) when the mean of $d$ over the pairs where the null ran first differs from the mean over the pairs where it ran second by more than 5% of $\\n"
 "u$. Flags are reported; they remove no data and change no verdict by themselves (a drift between rounds widens the interval, and an interval above the width bound makes the case unresolved)."
@@ -11694,155 +11694,155 @@ msgstr ""
 "**标记。** null 循环随时钟缩放，所以 null 块相当于温度计。设 $n_r$ 为第 $r$ 轮 null 块的中位数，当 $\\max_r |n_r / \\operatorname{med}_r n_r - 1|$ 超过 5% 时，该侧被标记为 `d`（漂移）。当 null 先运行的配对上 $d$ 的均值与 null 后运行的配对上的均值之差超过 $\\n"
 "u$ 的 5% 时，该用例被标记为 `o`（顺序）。标记只做报告；它们不删除任何数据，本身也不改变任何判定（轮次之间的漂移会使区间变宽，区间超过宽度上限则用例未判定）。"
 
-#: manual/design/bench/external.md:79
+#: manual/design/bench/external.md:83
 msgid "A raw cell is flagged as noisy when the half-width of its median interval exceeds 5% of the median or when the medians of the rounds spread (maximum minus minimum) by more than 10% of the pooled median, on either side."
 msgstr "当某个原始单元格任一侧的中位数区间半宽超过中位数的 5%，或各轮中位数的极差（最大减最小）超过合并中位数的 10% 时，该单元格被标记为噪声较大。"
 
-#: manual/design/bench/external.md:83
+#: manual/design/bench/external.md:87
 msgid "Nothing is removed from the data after it is measured: not by hand, not by a rule that looks at the result."
 msgstr "数据一经测得，就不会再被删除：既不手工删除，也不通过查看结果的规则删除。"
 
-#: manual/design/bench/external.md:88
+#: manual/design/bench/external.md:92
 msgid "One operand file, read by both sides"
 msgstr "一个操作数文件，两侧共同读取"
 
-#: manual/design/bench/external.md:90
+#: manual/design/bench/external.md:94
 msgid "A seeded generator (Python's `random.Random` seeded by a string, stable across versions) writes `operands-per-case = 8` operand sets for every case. Binary operands are exact `±0x<mantissa>p<exponent>` values with exactly the case precision in mantissa bits and the leading bit set; decimal operands are exact `±<coefficient>E<exponent>` values with exactly the case digit count. Parsing is therefore exact on both sides and needs no rounding mode, and both sides time the same values. Magnitudes are chosen so that no operation takes a special-case shortcut: the leading-bit exponent of `add`, `mul`, `div` and `sqrt` operands lies in $[-8, 8]$, `exp` and `sin` arguments have $|x| \\in [0.25, 4)$, `ln` arguments lie in $[2^{-3}, 2^4)$; for decimal the magnitudes are $[10^{-2}, 10^{3})$ for arithmetic, $[0.1, 10)$ for `exp` and $[0.1, 10^3)$ for `ln` and `sqrt`. Every operand is a different random mantissa, so no result repeats and nothing can be answered from a cache of results."
 msgstr "带种子的生成器（以字符串为种子的 Python `random.Random`，跨版本稳定）为每个用例写入 `operands-per-case = 8` 组操作数。二进制操作数是精确的 `±0x<mantissa>p<exponent>` 值，尾数恰有该用例的精度位数且最高位为 1；十进制操作数是精确的 `±<coefficient>E<exponent>` 值，恰有该用例的数字位数。因此两侧的解析都是精确的，不需要舍入模式，并且两侧计时的是相同的值。量级的选取使任何操作都不会走特殊情形的捷径：`add`、`mul`、`div` 和 `sqrt` 操作数的最高位指数位于 $[-8, 8]$，`exp` 和 `sin` 的自变量满足 $|x| \\in [0.25, 4)$，`ln` 的自变量位于 $[2^{-3}, 2^4)$；十进制的量级为：算术运算 $[10^{-2}, 10^{3})$，`exp` 为 $[0.1, 10)$，`ln` 和 `sqrt` 为 $[0.1, 10^3)$。每个操作数都是不同的随机尾数，因此没有结果重复出现，也不可能从结果缓存中直接得到答案。"
 
-#: manual/design/bench/external.md:105
+#: manual/design/bench/external.md:109
 msgid "Oracle: the reference result of the same operands"
 msgstr "预言机：相同操作数的参考结果"
 
-#: manual/design/bench/external.md:107
+#: manual/design/bench/external.md:111
 msgid "The C harness prints the correctly rounded MPFR (round to nearest even) and libmpdec (`HalfEven`, `allcr = 1`) results for every operand to a reference file. The `floating` benchmark reads that file as its oracle, so Maremark validates every `floating` output against the reference library before it is timed. A mismatch is reported (it would be a correctness finding) and the case is still timed, so the table never silently compares different results. The elementary functions of both libraries are correctly rounded, so for them, too, equal precision implies equal results."
 msgstr "C 测试程序把每个操作数的正确舍入 MPFR 结果（舍入到最近偶数）和 libmpdec 结果（`HalfEven`，`allcr = 1`）打印到参考文件。`floating` 基准把该文件当作预言机读取，因此 Maremark 在计时之前就把每个 `floating` 输出与参考库对照验证。不一致会被报告（这将是一个正确性发现），该用例仍会被计时，因此表格绝不会悄悄比较不同的结果。两个库的初等函数都是正确舍入的，所以对它们而言，相同精度同样意味着相同结果。"
 
-#: manual/design/bench/external.md:116
+#: manual/design/bench/external.md:120
 msgid "Same protocol on both sides"
 msgstr "两侧使用同一协议"
 
-#: manual/design/bench/external.md:118
+#: manual/design/bench/external.md:122
 msgid "The C harness implements the Maremark protocol literally: warm-up passes until both a count and a time are reached, the calibration rule that grows the batch towards a target batch time, then exploratory and confirmatory blocks of a fixed number of passes. The numbers (warm-up, batch target, block counts) are passed to both sides from one place. Only confirmatory blocks enter the statistics."
 msgstr "C 测试程序逐字实现了 Maremark 协议：预热遍数直到计数和时间都达到要求，把批次朝目标批次时间增长的校准规则，然后是遍数固定的探索块和确认块。各项数值（预热、批次目标、块数）从同一处传给两侧。只有确认块进入统计。"
 
-#: manual/design/bench/external.md:125
+#: manual/design/bench/external.md:129
 msgid "Alternating sides, shuffled cases"
 msgstr "两侧交替，用例顺序打乱"
 
-#: manual/design/bench/external.md:127
+#: manual/design/bench/external.md:131
 msgid "Each round runs the C harness and the `floating` test as two processes, the first side alternating from round to round (seeded AB/BA), with one shuffled case order per round shared by both sides, so a case occupies different times of the run in different rounds. Seven rounds give each case seven process-level measurements per side to bootstrap over; between-process variation (core placement, allocator layout, other load) is larger than the variation between blocks of one process, and the two-level bootstrap accounts for it. Before each side starts the runner waits until other processes use under 150% CPU and records the load it saw."
 msgstr "每一轮把 C 测试程序和 `floating` 测试作为两个进程运行，先运行的一侧逐轮交替（带种子的 AB/BA），每轮用一个两侧共用的打乱后的用例顺序，因此同一用例在不同轮次处于运行中的不同时间。七轮使每个用例每一侧有七次进程级测量可供自助法抽样；进程间的差异（核心放置、分配器布局、其他负载）大于同一进程内各块之间的差异，两层自助法对此予以考虑。每一侧开始之前，运行器会等待其他进程的 CPU 使用率低于 150%，并记录它看到的负载。"
 
-#: manual/design/bench/external.md:137
+#: manual/design/bench/external.md:141
 msgid "What is not in the timed region"
 msgstr "不在计时区间内的内容"
 
-#: manual/design/bench/external.md:139
+#: manual/design/bench/external.md:143
 msgid "Operand parsing, context and `mpfr_t` / `mpd_t` initialisation, result buffers (MPFR and libmpdec write into preallocated results; `floating` writes into a preallocated array of results), and printing are outside. What stays inside is the cost of the library's own API: for MPFR and libmpdec the call and any internal temporaries, for `floating` the construction of an immutable result value, which is how the library is used. That difference is inherent in the two designs and is part of what the ratio reports."
 msgstr "操作数解析、上下文以及 `mpfr_t` / `mpd_t` 的初始化、结果缓冲区（MPFR 和 libmpdec 写入预先分配的结果；`floating` 写入预先分配的结果数组）以及打印都在计时之外。留在计时之内的是库自身 API 的成本：对 MPFR 和 libmpdec 是调用本身及其内部临时量，对 `floating` 是构造不可变结果值，这正是该库的使用方式。这一差异是两种设计所固有的，也是比值所反映内容的一部分。"
 
-#: manual/design/bench/external.md:147
+#: manual/design/bench/external.md:151
 msgid "The null of a case: the same loop without the library call"
 msgstr "用例的 null：去掉库调用的同一个循环"
 
-#: manual/design/bench/external.md:149
+#: manual/design/bench/external.md:153
 msgid "The null removes everything the library needs to do and nothing else, so that the net time is what the library call costs."
 msgstr "null 去掉库需要做的一切，而且仅此而已，因此净时间就是库调用的开销。"
 
-#: manual/design/bench/external.md:152
-msgid "**`floating`.** A second implementation of the same case, run by Maremark next to the operation (the blocks of the implementations are interleaved, each implementation has its own calibration). Its closure has the shape of the operation closures, an indirect call with the same arguments returning its first one, and it loads from `expected` instead of the operands so that its output validates against the reference. It keeps the closure call, the array loads, the reference-counted store of a result and Maremark's per-pass work. It removes the library call and the allocation, construction and release of a result."
-msgstr "**`floating`。** 同一用例的第二个实现，由 Maremark 在运算旁边运行（各实现的块交错进行，每个实现有自己的校准）。它的闭包与运算闭包形状相同，是带相同参数的间接调用并返回第一个参数，且它从 `expected` 而不是操作数中加载，使其输出能通过对参考结果的验证。它保留闭包调用、数组加载、结果的引用计数存储以及 Maremark 的逐遍工作；它去掉库调用以及结果的分配、构造和释放。"
+#: manual/design/bench/external.md:156
+msgid "**`floating`.** A second implementation of the same case, run by Maremark next to the operation (the blocks of the implementations are interleaved, each implementation has its own calibration). Its closure has the shape of the operation closures, an indirect call with the same arguments returning its first one, and it loads from `expected` instead of the operands so that its output validates against the reference. It keeps the closure call, the array loads, the reference-counted store of a result and Maremark's per-pass work. It removes the library call and the allocation, construction and release of a result. The operation of a case is a closure chosen at run time by the operation name, and the generated C calls it through the closure object (`f->code(f, a, b)`, checked on the release build). A top-level function with a known body would be called directly and could be inlined, which would make the null cheaper than the harness part of the case and the net larger, so the null closure is held in a `Ref` and is called through the closure object the same way (checked in the generated C as well)."
+msgstr "**`floating`。** 同一用例的第二个实现，由 Maremark 在运算旁边运行（各实现的块交错进行，每个实现有自己的校准）。它的闭包与运算闭包形状相同，是带相同参数的间接调用并返回第一个参数，且它从 `expected` 而不是操作数中加载，使其输出能通过对参考结果的验证。它保留闭包调用、数组加载、结果的引用计数存储以及 Maremark 的逐遍工作；它去掉库调用以及结果的分配、构造和释放。用例的运算是由运算名称在运行时选出的闭包，生成的 C 通过闭包对象调用它（`f->code(f, a, b)`，已在发布构建上核对）。已知函数体的顶层函数会被直接调用并可能被内联，这会使 null 比用例中的测试程序部分更便宜、净值更大，所以 null 闭包放在 `Ref` 中，同样通过闭包对象调用（也已在生成的 C 中核对）。"
 
-#: manual/design/bench/external.md:161
-msgid "**MPFR and libmpdec.** `pass_null` runs the loop of the case with the same operand and result accesses (the three operand pointers of every row, and the context and the status of the decimal calls) handed to an empty `asm` statement, so the compiler can neither drop the accesses nor fuse the loop."
-msgstr "**MPFR 与 libmpdec。** `pass_null` 以相同的操作数和结果访问（每行的三个操作数指针，以及十进制调用的上下文与状态）运行用例的循环，把它们交给一条空的 `asm` 语句，使编译器既不能丢掉这些访问，也不能把循环融合。"
+#: manual/design/bench/external.md:171
+msgid "**MPFR and libmpdec.** `pass_null` runs the loop of the case with the same operand and result accesses (the three operand pointers of every row, and the context and the status of the decimal calls) handed to an empty `asm` statement, so the compiler can neither drop the accesses nor fuse the loop. For binary the null computes the three row addresses (`a[i]`, `b[i]` and `r[i]` are addresses into arrays of `mpfr_t`); for decimal it loads three pointers from the pointer arrays, and takes the address of the context and of the status. That is exactly what `pass` does before the call."
+msgstr "**MPFR 与 libmpdec。** `pass_null` 以相同的操作数和结果访问（每行的三个操作数指针，以及十进制调用的上下文与状态）运行用例的循环，把它们交给一条空的 `asm` 语句，使编译器既不能丢掉这些访问，也不能把循环融合。对二进制，null 计算三个行地址（`a[i]`、`b[i]` 和 `r[i]` 是 `mpfr_t` 数组中的地址）；对十进制，它从指针数组中加载三个指针，并取上下文和状态的地址。这与 `pass` 在调用之前所做的完全一致。"
 
-#: manual/design/bench/external.md:166
+#: manual/design/bench/external.md:180
 msgid "What the null cannot remove, and what the net therefore still contains:"
 msgstr "null 无法去掉的东西，因而净值中仍然包含的东西："
 
-#: manual/design/bench/external.md:168
+#: manual/design/bench/external.md:182
 msgid "The call itself: argument set-up and return of `mpfr_add` are in the net of the reference; the direct call into the library is in the net of `floating`, while the closure that reaches it is in the null. The closure belongs to the harness, the library call to the library."
 msgstr "调用本身：`mpfr_add` 的参数准备与返回在参考侧的净值中；对库的直接调用在 `floating` 的净值中，而到达它的闭包在 null 中。闭包属于测试程序，库调用属于库。"
 
-#: manual/design/bench/external.md:172
+#: manual/design/bench/external.md:186
 msgid "Cache, branch-predictor and allocator state differ between a loop with and a loop without the call, so the net is an approximation of \"the operation alone\", not an identity. Its error is of the order of the variation of the null and is the same for every build of the library, so comparisons between builds are not affected."
 msgstr "缓存、分支预测器和分配器的状态在有调用和无调用的循环之间不同，所以净值是对“运算本身”的近似，而不是恒等。它的误差与 null 的波动同一量级，并且对库的每个构建都相同，因此构建之间的比较不受影响。"
 
-#: manual/design/bench/external.md:177
+#: manual/design/bench/external.md:191
 msgid "Per-pass and per-block costs (the pair of clock reads, `Bench::keep`) are in both blocks and cancel in the difference; they are not removed from the individual times."
 msgstr "逐遍和逐块的开销（一对时钟读取、`Bench::keep`）同时在两个块中，在差中抵消；它们没有从各个单独的时间中去掉。"
 
-#: manual/design/bench/external.md:180
+#: manual/design/bench/external.md:194
 msgid "The release of the previous result happens in the next call: in the null `out[i]` holds a shared value, in the case it frees an allocation. That cost is caused by the operation and stays in the net."
 msgstr "上一个结果的释放发生在下一次调用中：在 null 中 `out[i]` 持有的是共享的值，在用例中则要释放一次分配。该开销由运算引起，因而留在净值中。"
 
-#: manual/design/bench/external.md:184
+#: manual/design/bench/external.md:198
 msgid "A regression of the time on the number of operations per block was considered and not adopted: it removes per-pass costs but not the per-operation cost of the harness (the closure call, the array traffic, the reference loop), which is the largest part of the floor, so a null would still be needed."
 msgstr "曾考虑过把时间对每块运算次数做回归，但没有采用：它去掉逐遍开销，却去不掉测试程序的逐运算开销（闭包调用、数组访问、参考侧的循环），而这正是底噪的最大部分，所以仍然需要 null。"
 
-#: manual/design/bench/external.md:189
+#: manual/design/bench/external.md:203
 msgid "Two configurations of the floating side"
 msgstr "`floating` 一侧的两种构建配置"
 
-#: manual/design/bench/external.md:191
+#: manual/design/bench/external.md:205
 msgid "The floating side is built and published in named configurations, recorded as `floating_configuration` in the protocol block of the summary and in the names of the published files: `native` (the native limb primitives where the build has them) and `portable` (the portable path forced). The target of the baseline has to be reached by the portable path as well. The runner passes the name and the environment variables that select a configuration (`--configuration`, `--moon-env KEY=VALUE`); how a configuration is selected is defined by the kernel work, not by the benchmark. One summary, one samples file and one section of the manual page exist per configuration."
 msgstr "`floating` 一侧按命名的配置构建和发布，记录为汇总 `protocol` 块中的 `floating_configuration`，并体现在发布文件的名字里：`native`（构建具备时使用原生 limb 原语）和 `portable`（强制使用可移植路径）。基线的目标也必须由可移植路径达到。运行器传入名字以及选择配置的环境变量（`--configuration`、`--moon-env KEY=VALUE`）；如何选择配置由内核工作定义，而不是由基准测试定义。每种配置有一份汇总、一份样本文件和手册页中的一节。"
 
-#: manual/design/bench/external.md:203
+#: manual/design/bench/external.md:217
 msgid "The operand file and the reference file are checksummed in `machine.json`."
 msgstr "操作数文件和参考文件的校验和记录在 `machine.json` 中。"
 
-#: manual/design/bench/external.md:204
+#: manual/design/bench/external.md:218
 msgid "A `floating` result that differs from the reference is counted in the Maremark validation tally and listed in `results.json`."
 msgstr "与参考结果不同的 `floating` 结果会被计入 Maremark 验证统计，并列在 `results.json` 中。"
 
-#: manual/design/bench/external.md:206
+#: manual/design/bench/external.md:220
 msgid "A summary is a function of its samples file (the pairs of every case, per side and round) and of its protocol block; `just bench external recompute` recomputes it and says whether every stored number agrees."
 msgstr "汇总是其样本文件（每个用例按侧和轮次的配对）与其 protocol 块的函数；`just bench external recompute` 会重新计算它，并说明每个已存数字是否一致。"
 
-#: manual/design/bench/external.md:207
+#: manual/design/bench/external.md:221
 msgid "A pair is used only when both of its blocks were measured; exploratory pairs are never used."
 msgstr "只有当配对的两个块都测量过时才使用该配对；探索性配对从不使用。"
 
-#: manual/design/bench/external.md:208
+#: manual/design/bench/external.md:222
 msgid "Seeds are recorded, so the round order and the bootstrap are reproducible from the samples; the timings themselves are not."
 msgstr "种子会被记录，因此轮次顺序和自助法可以从样本重现；计时本身则不能。"
 
-#: manual/design/bench/external.md:213
+#: manual/design/bench/external.md:227
 msgid "**A binding from MoonBit to MPFR.** It would put FFI marshalling inside the timed region of one side only."
 msgstr "**从 MoonBit 绑定 MPFR。** 这会把 FFI 编组放进只有一侧的计时区间内。"
 
-#: manual/design/bench/external.md:215
+#: manual/design/bench/external.md:229
 msgid "**Comparing against mpmath or gmpy2.** Their overhead is the Python interpreter, not the library."
 msgstr "**与 mpmath 或 gmpy2 比较。** 它们的开销来自 Python 解释器，而不是库本身。"
 
-#: manual/design/bench/external.md:217
+#: manual/design/bench/external.md:231
 msgid "**Timing one operand repeatedly.** A single fixed operand lets branch predictors and caches memorise the data path; eight different operands per pass avoid it at a cost of eight times the batch duration."
 msgstr "**重复对同一个操作数计时。** 单个固定的操作数会让分支预测器和缓存记住数据路径；每遍使用八个不同的操作数可以避免这一点，代价是批次时长变为八倍。"
 
-#: manual/design/bench/external.md:223
+#: manual/design/bench/external.md:237
 msgid "Native target only; no claims for JavaScript or WebAssembly."
 msgstr "仅限 native 目标；不对 JavaScript 或 WebAssembly 作出任何结论。"
 
-#: manual/design/bench/external.md:224
+#: manual/design/bench/external.md:238
 msgid "One machine, one operating system, one compiler per run; see the performance page for the machine."
 msgstr "每次运行只有一台机器、一个操作系统、一个编译器；机器信息见性能页面。"
 
-#: manual/design/bench/external.md:226
+#: manual/design/bench/external.md:240
 msgid "Elementary functions are measured on a few well-conditioned argument ranges; huge arguments and arguments near singularities are not measured."
 msgstr "初等函数只在少数条件良好的自变量范围内测量；巨大的自变量和接近奇点的自变量不在测量之列。"
 
-#: manual/design/bench/external.md:228
+#: manual/design/bench/external.md:242
 msgid "The library caches of MPFR (for $\\pi$ and $\\log 2$) and the corresponding caches of `floating` are warm during timing; cold-start cost is not measured."
 msgstr "MPFR 的缓存（用于 $\\pi$ 和 $\\log 2$）以及 `floating` 中相应的缓存在计时期间都是热的；冷启动成本不被测量。"
 
-#: manual/design/bench/external.md:230
+#: manual/design/bench/external.md:244
 msgid "Only a single thread is used; memory use is not measured."
 msgstr "只使用单线程；不测量内存使用。"
 
-#: manual/design/bench/external.md:231
+#: manual/design/bench/external.md:245
 msgid "The correction for the loop floor moves few verdicts. Computed from the 0.11.0 medians with the floating floor then measured (9.21 ns) and a reference floor between 0.4 and 1.1 ns, 43 of 59 cases are above 3 on the raw ratio and 42 on the net ratio: only `decimal_gda` multiplication at 100 digits (3.03) changes side. The method makes the number honest; it does not move the target."
 msgstr "对循环底噪的修正几乎不改变判定。依据 0.11.0 的中位数，取当时测得的 `floating` 底噪（9.21 ns）和 0.4 到 1.1 ns 之间的参考侧底噪来计算，59 个用例中按原始比值有 43 个高于 3，按净比值有 42 个：只有 100 位的 `decimal_gda` 乘法（3.03）换了边。该方法让数字变得诚实；它并不移动目标。"
 

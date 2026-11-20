@@ -49,7 +49,11 @@ and 97.5% quantiles of 2000 seeded replicates are the interval.
 **Ratio.** $\hat\rho = \nu_F / \nu_R$. The two sides run in different
 processes and share no structure, so their replicates are drawn independently,
 $\rho^*_b = \nu^*_{F,b} / \nu^*_{R,b}$ (with $\rho^*_b = +\infty$ when
-$\nu^*_{R,b} \le 0$), and the interval $[\rho_{lo}, \rho_{hi}]$ is the 2.5% and
+$\nu^*_{R,b} \le 0$). Replicate $b$ of one side is divided by replicate $b$ of
+the other only to form the distribution of the ratio; it is not a pairing. The
+seed of every draw is derived from the run seed, the case, the side and the
+purpose, so two sides never share a stream, even when their data are identical.
+The interval $[\rho_{lo}, \rho_{hi}]$ is the 2.5% and
 97.5% quantiles of the $\rho^*_b$. The raw ratio of the 0.11.0 method, the
 median of the case blocks over the median of the case blocks, is kept beside
 it, with its interval from a bootstrap that pairs the rounds of the two sides.
@@ -157,11 +161,21 @@ the net time is what the library call costs.
   output validates against the reference. It keeps the closure call, the array
   loads, the reference-counted store of a result and Maremark's per-pass work. It
   removes the library call and the allocation, construction and release of a
-  result.
+  result. The operation of a case is a closure chosen at run time by the
+  operation name, and the generated C calls it through the closure object
+  (`f->code(f, a, b)`, checked on the release build). A top-level function with a
+  known body would be called directly and could be inlined, which would make the
+  null cheaper than the harness part of the case and the net larger, so the null
+  closure is held in a `Ref` and is called through the closure object the same
+  way (checked in the generated C as well).
 - **MPFR and libmpdec.** `pass_null` runs the loop of the case with the same
   operand and result accesses (the three operand pointers of every row, and the
   context and the status of the decimal calls) handed to an empty `asm` statement,
-  so the compiler can neither drop the accesses nor fuse the loop.
+  so the compiler can neither drop the accesses nor fuse the loop. For binary
+  the null computes the three row addresses (`a[i]`, `b[i]` and `r[i]` are
+  addresses into arrays of `mpfr_t`); for decimal it loads three pointers from
+  the pointer arrays, and takes the address of the context and of the status.
+  That is exactly what `pass` does before the call.
 
 What the null cannot remove, and what the net therefore still contains:
 

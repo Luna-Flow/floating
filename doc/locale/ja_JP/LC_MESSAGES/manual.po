@@ -9737,7 +9737,7 @@ msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行�
 #: manual/design/bench/bin_float.md:68
 #: manual/design/bench/decimal.md:67
 #: manual/design/bench/decimal_gda.md:64
-#: manual/design/bench/external.md:221
+#: manual/design/bench/external.md:235
 #: manual/design/bin_float.md:2096
 #: manual/design/bin_float_checked.md:328
 #: manual/design/cli.md:71
@@ -10738,7 +10738,7 @@ msgstr "集合の関係（`subset`、`interior`、`disjoint`、`set_equal`）と
 #: manual/design/bench/bin_float.md:29
 #: manual/design/bench/decimal.md:29
 #: manual/design/bench/decimal_gda.md:26
-#: manual/design/bench/external.md:86
+#: manual/design/bench/external.md:90
 #: manual/design/bin_float.md:185
 #: manual/design/bin_float_checked.md:81
 #: manual/design/cli.md:18
@@ -10904,7 +10904,7 @@ msgstr "各区間は精度タグを持ち、二項演算は大きい方のタグ
 #: manual/design/bench/bin_float.md:52
 #: manual/design/bench/decimal.md:51
 #: manual/design/bench/decimal_gda.md:48
-#: manual/design/bench/external.md:201
+#: manual/design/bench/external.md:215
 #: manual/design/bin_float.md:2024
 #: manual/design/bin_float_checked.md:198
 #: manual/design/cli.md:52
@@ -10984,7 +10984,7 @@ msgstr "現時点で未解決の制限はありません。負の次数の装飾
 #: manual/design/bench/bin_float.md:61
 #: manual/design/bench/decimal.md:60
 #: manual/design/bench/decimal_gda.md:57
-#: manual/design/bench/external.md:211
+#: manual/design/bench/external.md:225
 #: manual/design/bin_float.md:2071
 #: manual/design/bin_float_checked.md:315
 #: manual/design/cli.md:62
@@ -11661,20 +11661,20 @@ msgid ""
 "u_R$. The two sides run in different processes and share no structure, so their replicates are drawn independently, $\\rho^*_b = \\n"
 "u^*_{F,b} / \\n"
 "u^*_{R,b}$ (with $\\rho^*_b = +\\infty$ when $\\n"
-"u^*_{R,b} \\le 0$), and the interval $[\\rho_{lo}, \\rho_{hi}]$ is the 2.5% and 97.5% quantiles of the $\\rho^*_b$. The raw ratio of the 0.11.0 method, the median of the case blocks over the median of the case blocks, is kept beside it, with its interval from a bootstrap that pairs the rounds of the two sides."
+"u^*_{R,b} \\le 0$). Replicate $b$ of one side is divided by replicate $b$ of the other only to form the distribution of the ratio; it is not a pairing. The seed of every draw is derived from the run seed, the case, the side and the purpose, so two sides never share a stream, even when their data are identical. The interval $[\\rho_{lo}, \\rho_{hi}]$ is the 2.5% and 97.5% quantiles of the $\\rho^*_b$. The raw ratio of the 0.11.0 method, the median of the case blocks over the median of the case blocks, is kept beside it, with its interval from a bootstrap that pairs the rounds of the two sides."
 msgstr ""
 "**比。** $\\hat\\rho = \\n"
 "u_F / \\n"
 "u_R$。2 つの側は別々のプロセスで実行され、共通の構造を持たないので、反復は独立に引きます。$\\rho^*_b = \\n"
 "u^*_{F,b} / \\n"
 "u^*_{R,b}$（$\\n"
-"u^*_{R,b} \\le 0$ のときは $\\rho^*_b = +\\infty$）で、区間 $[\\rho_{lo}, \\rho_{hi}]$ は $\\rho^*_b$ の 2.5% 点と 97.5% 点です。0.11.0 の方法の生の比、つまりケースのブロックの中央値をケースのブロックの中央値で割ったものは、その横に残し、その区間は両側のラウンドを対にするブートストラップから得ます。"
+"u^*_{R,b} \\le 0$ のときは $\\rho^*_b = +\\infty$）。一方の側の第 $b$ 反復を他方の第 $b$ 反復で割るのは、比の分布を作るためだけであり、ペアリングではありません。各抽出のシードは、実行のシード、ケース、側、目的から導かれるので、2 つの側は、データが同一でも同じ乱数列を共有しません。区間 $[\\rho_{lo}, \\rho_{hi}]$ は $\\rho^*_b$ の 2.5% 点と 97.5% 点です。0.11.0 の方法の生の比、つまりケースのブロックの中央値をケースのブロックの中央値で割ったものは、その横に残し、その区間は両側のラウンドを対にするブートストラップから得ます。"
 
-#: manual/design/bench/external.md:57
+#: manual/design/bench/external.md:61
 msgid "**Criterion.** A case meets the target when $\\rho_{hi} \\le 3$. This is a one-sided 97.5% statement made from a two-sided 95% interval, so it is conservative. A resolved case that does not meet it is marked borderline when $\\rho_{lo} \\le 3 < \\rho_{hi}$."
 msgstr "**基準。** $\\rho_{hi} \\le 3$ のとき、ケースは目標を満たします。これは両側 95% 区間から得た片側 97.5% の主張なので保守的です。判定できたが目標を満たさないケースは、$\\rho_{lo} \\le 3 < \\rho_{hi}$ のとき境界線上と印を付けます。"
 
-#: manual/design/bench/external.md:62
+#: manual/design/bench/external.md:66
 msgid ""
 "**Unresolved.** A case is reported as unresolved, and never as met, when (1) the 2.5% quantile of $\\n"
 "u^*_R$ is at most zero, or $\\n"
@@ -11686,7 +11686,7 @@ msgstr ""
 "u_R \\le 0$（参照側のネット値が 0 と区別できない）、(2) $\\n"
 "u_F \\le 0$、(3) $\\rho_{hi} / \\rho_{lo} > 1.25$（区間が広すぎる。0.11.0 の要約では、生の区間の $\\rho_{hi}/\\rho_{lo}$ は中央のケースで 1.02、最悪で 1.07 です）。そのようなケースは生の比で判断され、「met (raw)」または「not met (raw)」と表示されます。満たしたケースには決して数えません。"
 
-#: manual/design/bench/external.md:70
+#: manual/design/bench/external.md:74
 msgid ""
 "**Flags.** The null loop scales with the clock, so the null blocks are a thermometer. With $n_r$ the median of the null blocks of round $r$, a side is flagged `d` (drift) when $\\max_r |n_r / \\operatorname{med}_r n_r - 1|$ exceeds 5%. A case is flagged `o` (order) when the mean of $d$ over the pairs where the null ran first differs from the mean over the pairs where it ran second by more than 5% of $\\n"
 "u$. Flags are reported; they remove no data and change no verdict by themselves (a drift between rounds widens the interval, and an interval above the width bound makes the case unresolved)."
@@ -11694,155 +11694,155 @@ msgstr ""
 "**フラグ。** null ループはクロックに比例して変わるので、null ブロックは温度計の役目をします。$n_r$ をラウンド $r$ の null ブロックの中央値とするとき、$\\max_r |n_r / \\operatorname{med}_r n_r - 1|$ が 5% を超えると、その側に `d`（ドリフト）のフラグを付けます。null が先に走ったペアでの $d$ の平均と、後に走ったペアでの平均との差が $\\n"
 "u$ の 5% を超えると、そのケースに `o`（順序）のフラグを付けます。フラグは報告のためのもので、データを取り除かず、それだけでは判定も変えません（ラウンド間のドリフトは区間を広げ、幅の上限を超える区間はケースを判定不能にします）。"
 
-#: manual/design/bench/external.md:79
+#: manual/design/bench/external.md:83
 msgid "A raw cell is flagged as noisy when the half-width of its median interval exceeds 5% of the median or when the medians of the rounds spread (maximum minus minimum) by more than 10% of the pooled median, on either side."
 msgstr "生のセルは、どちらかの側で中央値の区間の半幅が中央値の 5% を超えるか、ラウンドごとの中央値の広がり（最大から最小を引いたもの）がプールした中央値の 10% を超えると、ノイズが大きいと印が付きます。"
 
-#: manual/design/bench/external.md:83
+#: manual/design/bench/external.md:87
 msgid "Nothing is removed from the data after it is measured: not by hand, not by a rule that looks at the result."
 msgstr "データは測定した後で取り除かれることはありません。手作業でも、結果を見る規則でも取り除きません。"
 
-#: manual/design/bench/external.md:88
+#: manual/design/bench/external.md:92
 msgid "One operand file, read by both sides"
 msgstr "両側が読む 1 つのオペランドファイル"
 
-#: manual/design/bench/external.md:90
+#: manual/design/bench/external.md:94
 msgid "A seeded generator (Python's `random.Random` seeded by a string, stable across versions) writes `operands-per-case = 8` operand sets for every case. Binary operands are exact `±0x<mantissa>p<exponent>` values with exactly the case precision in mantissa bits and the leading bit set; decimal operands are exact `±<coefficient>E<exponent>` values with exactly the case digit count. Parsing is therefore exact on both sides and needs no rounding mode, and both sides time the same values. Magnitudes are chosen so that no operation takes a special-case shortcut: the leading-bit exponent of `add`, `mul`, `div` and `sqrt` operands lies in $[-8, 8]$, `exp` and `sin` arguments have $|x| \\in [0.25, 4)$, `ln` arguments lie in $[2^{-3}, 2^4)$; for decimal the magnitudes are $[10^{-2}, 10^{3})$ for arithmetic, $[0.1, 10)$ for `exp` and $[0.1, 10^3)$ for `ln` and `sqrt`. Every operand is a different random mantissa, so no result repeats and nothing can be answered from a cache of results."
 msgstr "シード付きの生成器（文字列をシードとする Python の `random.Random`。バージョン間で安定）が、ケースごとに `operands-per-case = 8` 組のオペランドを書き出します。2 進のオペランドは、仮数のビット数がちょうどそのケースの精度で最上位ビットが立った正確な `±0x<mantissa>p<exponent>` の値、10 進のオペランドは、桁数がちょうどそのケースの桁数の正確な `±<coefficient>E<exponent>` の値です。したがって両側で構文解析は正確で、丸めモードは不要であり、両側が同じ値を計時します。大きさは、どの演算も特殊ケースの近道を通らないように選ばれています。`add`、`mul`、`div`、`sqrt` のオペランドの最上位ビットの指数は $[-8, 8]$ にあり、`exp` と `sin` の引数は $|x| \\in [0.25, 4)$、`ln` の引数は $[2^{-3}, 2^4)$ にあります。10 進では、算術で $[10^{-2}, 10^{3})$、`exp` で $[0.1, 10)$、`ln` と `sqrt` で $[0.1, 10^3)$ です。すべてのオペランドは異なる乱数の仮数なので、結果が繰り返されることはなく、結果のキャッシュから答えが得られることもありません。"
 
-#: manual/design/bench/external.md:105
+#: manual/design/bench/external.md:109
 msgid "Oracle: the reference result of the same operands"
 msgstr "オラクル：同じオペランドの参照結果"
 
-#: manual/design/bench/external.md:107
+#: manual/design/bench/external.md:111
 msgid "The C harness prints the correctly rounded MPFR (round to nearest even) and libmpdec (`HalfEven`, `allcr = 1`) results for every operand to a reference file. The `floating` benchmark reads that file as its oracle, so Maremark validates every `floating` output against the reference library before it is timed. A mismatch is reported (it would be a correctness finding) and the case is still timed, so the table never silently compares different results. The elementary functions of both libraries are correctly rounded, so for them, too, equal precision implies equal results."
 msgstr "C ハーネスは、各オペランドについて正しく丸められた MPFR（最近接偶数丸め）と libmpdec（`HalfEven`、`allcr = 1`）の結果を参照ファイルに出力します。`floating` のベンチマークはそのファイルをオラクルとして読むので、Maremark は計時の前にすべての `floating` の出力を参照ライブラリと照合します。不一致は報告され（正しさに関する発見になります）、そのケースは引き続き計時されるため、表が黙って異なる結果を比べることはありません。両ライブラリの初等関数は正しく丸められているので、それらについても、同じ精度は同じ結果を意味します。"
 
-#: manual/design/bench/external.md:116
+#: manual/design/bench/external.md:120
 msgid "Same protocol on both sides"
 msgstr "両側で同じプロトコル"
 
-#: manual/design/bench/external.md:118
+#: manual/design/bench/external.md:122
 msgid "The C harness implements the Maremark protocol literally: warm-up passes until both a count and a time are reached, the calibration rule that grows the batch towards a target batch time, then exploratory and confirmatory blocks of a fixed number of passes. The numbers (warm-up, batch target, block counts) are passed to both sides from one place. Only confirmatory blocks enter the statistics."
 msgstr "C ハーネスは Maremark のプロトコルを文字どおり実装しています。回数と時間の両方に達するまでのウォームアップのパス、バッチを目標バッチ時間へ向けて増やすキャリブレーション規則、そして一定のパス数の探索ブロックと確認ブロックです。数値（ウォームアップ、バッチの目標、ブロック数）は 1 か所から両側に渡されます。統計に入るのは確認ブロックだけです。"
 
-#: manual/design/bench/external.md:125
+#: manual/design/bench/external.md:129
 msgid "Alternating sides, shuffled cases"
 msgstr "側を交互に、ケースをシャッフル"
 
-#: manual/design/bench/external.md:127
+#: manual/design/bench/external.md:131
 msgid "Each round runs the C harness and the `floating` test as two processes, the first side alternating from round to round (seeded AB/BA), with one shuffled case order per round shared by both sides, so a case occupies different times of the run in different rounds. Seven rounds give each case seven process-level measurements per side to bootstrap over; between-process variation (core placement, allocator layout, other load) is larger than the variation between blocks of one process, and the two-level bootstrap accounts for it. Before each side starts the runner waits until other processes use under 150% CPU and records the load it saw."
 msgstr "各ラウンドは、C ハーネスと `floating` のテストを 2 つのプロセスとして実行します。先に走る側はラウンドごとに交互になり（シード付きの AB/BA）、ラウンドごとに 1 つのシャッフルされたケース順を両側で共有するため、同じケースは異なるラウンドで実行中の異なる時点に現れます。7 ラウンドにより、各ケースの各側についてブートストラップ対象の 7 つのプロセスレベルの測定が得られます。プロセス間の変動（コアの配置、アロケータのレイアウト、他の負荷）は 1 つのプロセス内のブロック間の変動より大きく、2 段階のブートストラップはそれを考慮します。各側の開始前に、ランナーは他のプロセスの CPU 使用率が 150% 未満になるまで待ち、見た負荷を記録します。"
 
-#: manual/design/bench/external.md:137
+#: manual/design/bench/external.md:141
 msgid "What is not in the timed region"
 msgstr "計時区間に含まれないもの"
 
-#: manual/design/bench/external.md:139
+#: manual/design/bench/external.md:143
 msgid "Operand parsing, context and `mpfr_t` / `mpd_t` initialisation, result buffers (MPFR and libmpdec write into preallocated results; `floating` writes into a preallocated array of results), and printing are outside. What stays inside is the cost of the library's own API: for MPFR and libmpdec the call and any internal temporaries, for `floating` the construction of an immutable result value, which is how the library is used. That difference is inherent in the two designs and is part of what the ratio reports."
 msgstr "オペランドの構文解析、コンテキストと `mpfr_t` / `mpd_t` の初期化、結果バッファ（MPFR と libmpdec は事前に確保された結果に書き込み、`floating` は事前に確保された結果の配列に書き込む）、および出力は計時の外にあります。内側に残るのは、ライブラリ自身の API のコストです。MPFR と libmpdec では呼び出しとその内部の一時領域、`floating` では不変の結果値の構築であり、それがこのライブラリの使い方です。この違いは 2 つの設計に固有のもので、比が報告する内容の一部です。"
 
-#: manual/design/bench/external.md:147
+#: manual/design/bench/external.md:151
 msgid "The null of a case: the same loop without the library call"
 msgstr "ケースの null：ライブラリ呼び出しを除いた同じループ"
 
-#: manual/design/bench/external.md:149
+#: manual/design/bench/external.md:153
 msgid "The null removes everything the library needs to do and nothing else, so that the net time is what the library call costs."
 msgstr "null はライブラリが行う必要のあることをすべて取り除き、それ以外は何も取り除かないので、ネット時間はライブラリ呼び出しのコストになります。"
 
-#: manual/design/bench/external.md:152
-msgid "**`floating`.** A second implementation of the same case, run by Maremark next to the operation (the blocks of the implementations are interleaved, each implementation has its own calibration). Its closure has the shape of the operation closures, an indirect call with the same arguments returning its first one, and it loads from `expected` instead of the operands so that its output validates against the reference. It keeps the closure call, the array loads, the reference-counted store of a result and Maremark's per-pass work. It removes the library call and the allocation, construction and release of a result."
-msgstr "**`floating`。** 同じケースの第 2 の実装で、Maremark が演算と並べて実行します（実装のブロックは交互に並び、各実装が個別の校正を持ちます）。そのクロージャは演算のクロージャと同じ形で、同じ引数を取る間接呼び出しが最初の引数を返し、出力が参照結果に対する検証を通るよう、オペランドの代わりに `expected` から読み込みます。クロージャ呼び出し、配列の読み込み、結果の参照カウント付き格納、Maremark の 1 パスごとの処理は残し、ライブラリ呼び出しと結果の確保・構築・解放を取り除きます。"
+#: manual/design/bench/external.md:156
+msgid "**`floating`.** A second implementation of the same case, run by Maremark next to the operation (the blocks of the implementations are interleaved, each implementation has its own calibration). Its closure has the shape of the operation closures, an indirect call with the same arguments returning its first one, and it loads from `expected` instead of the operands so that its output validates against the reference. It keeps the closure call, the array loads, the reference-counted store of a result and Maremark's per-pass work. It removes the library call and the allocation, construction and release of a result. The operation of a case is a closure chosen at run time by the operation name, and the generated C calls it through the closure object (`f->code(f, a, b)`, checked on the release build). A top-level function with a known body would be called directly and could be inlined, which would make the null cheaper than the harness part of the case and the net larger, so the null closure is held in a `Ref` and is called through the closure object the same way (checked in the generated C as well)."
+msgstr "**`floating`。** 同じケースの第 2 の実装で、Maremark が演算と並べて実行します（実装のブロックは交互に並び、各実装が個別の校正を持ちます）。そのクロージャは演算のクロージャと同じ形で、同じ引数を取る間接呼び出しが最初の引数を返し、出力が参照結果に対する検証を通るよう、オペランドの代わりに `expected` から読み込みます。クロージャ呼び出し、配列の読み込み、結果の参照カウント付き格納、Maremark の 1 パスごとの処理は残し、ライブラリ呼び出しと結果の確保・構築・解放を取り除きます。ケースの演算は、演算名で実行時に選ばれるクロージャで、生成された C はクロージャオブジェクトを通して呼び出します（`f->code(f, a, b)`、リリースビルドで確認）。本体が既知のトップレベル関数は直接呼び出され、インライン化され得るため、null がケースのハーネス部分より安くなり、ネット値が大きくなってしまいます。そこで null のクロージャは `Ref` に入れ、同じようにクロージャオブジェクトを通して呼び出します（これも生成された C で確認）。"
 
-#: manual/design/bench/external.md:161
-msgid "**MPFR and libmpdec.** `pass_null` runs the loop of the case with the same operand and result accesses (the three operand pointers of every row, and the context and the status of the decimal calls) handed to an empty `asm` statement, so the compiler can neither drop the accesses nor fuse the loop."
-msgstr "**MPFR と libmpdec。** `pass_null` は、ケースのループを同じオペランドと結果へのアクセス（各行の 3 つのオペランドポインタ、および 10 進呼び出しのコンテキストとステータス）で実行し、それらを空の `asm` 文に渡すので、コンパイラはアクセスを捨てることも、ループを融合することもできません。"
+#: manual/design/bench/external.md:171
+msgid "**MPFR and libmpdec.** `pass_null` runs the loop of the case with the same operand and result accesses (the three operand pointers of every row, and the context and the status of the decimal calls) handed to an empty `asm` statement, so the compiler can neither drop the accesses nor fuse the loop. For binary the null computes the three row addresses (`a[i]`, `b[i]` and `r[i]` are addresses into arrays of `mpfr_t`); for decimal it loads three pointers from the pointer arrays, and takes the address of the context and of the status. That is exactly what `pass` does before the call."
+msgstr "**MPFR と libmpdec。** `pass_null` は、ケースのループを同じオペランドと結果へのアクセス（各行の 3 つのオペランドポインタ、および 10 進呼び出しのコンテキストとステータス）で実行し、それらを空の `asm` 文に渡すので、コンパイラはアクセスを捨てることも、ループを融合することもできません。2 進では、null は 3 つの行アドレスを計算します（`a[i]`、`b[i]`、`r[i]` は `mpfr_t` の配列内のアドレスです）。10 進では、ポインタの配列から 3 つのポインタを読み込み、コンテキストとステータスのアドレスを取ります。これは `pass` が呼び出しの前に行うことと全く同じです。"
 
-#: manual/design/bench/external.md:166
+#: manual/design/bench/external.md:180
 msgid "What the null cannot remove, and what the net therefore still contains:"
 msgstr "null が取り除けないもの、したがってネット値にまだ含まれるもの："
 
-#: manual/design/bench/external.md:168
+#: manual/design/bench/external.md:182
 msgid "The call itself: argument set-up and return of `mpfr_add` are in the net of the reference; the direct call into the library is in the net of `floating`, while the closure that reaches it is in the null. The closure belongs to the harness, the library call to the library."
 msgstr "呼び出しそのもの：`mpfr_add` の引数の準備と戻りは参照側のネット値に含まれます。ライブラリへの直接呼び出しは `floating` のネット値に含まれ、そこに至るクロージャは null に含まれます。クロージャはハーネスに、ライブラリ呼び出しはライブラリに属します。"
 
-#: manual/design/bench/external.md:172
+#: manual/design/bench/external.md:186
 msgid "Cache, branch-predictor and allocator state differ between a loop with and a loop without the call, so the net is an approximation of \"the operation alone\", not an identity. Its error is of the order of the variation of the null and is the same for every build of the library, so comparisons between builds are not affected."
 msgstr "キャッシュ、分岐予測器、アロケータの状態は、呼び出しのあるループとないループで異なるので、ネット値は「演算そのもの」の近似であり、恒等ではありません。その誤差は null のばらつきと同程度で、ライブラリのどのビルドでも同じなので、ビルド間の比較には影響しません。"
 
-#: manual/design/bench/external.md:177
+#: manual/design/bench/external.md:191
 msgid "Per-pass and per-block costs (the pair of clock reads, `Bench::keep`) are in both blocks and cancel in the difference; they are not removed from the individual times."
 msgstr "1 パスごと、1 ブロックごとのコスト（クロック読み取りの対、`Bench::keep`）は両方のブロックに含まれ、差の中で打ち消されます。個々の時間からは取り除かれません。"
 
-#: manual/design/bench/external.md:180
+#: manual/design/bench/external.md:194
 msgid "The release of the previous result happens in the next call: in the null `out[i]` holds a shared value, in the case it frees an allocation. That cost is caused by the operation and stays in the net."
 msgstr "前の結果の解放は次の呼び出しで起こります。null では `out[i]` は共有された値を保持し、ケースでは確保した領域を解放します。このコストは演算が引き起こすものなので、ネット値に残ります。"
 
-#: manual/design/bench/external.md:184
+#: manual/design/bench/external.md:198
 msgid "A regression of the time on the number of operations per block was considered and not adopted: it removes per-pass costs but not the per-operation cost of the harness (the closure call, the array traffic, the reference loop), which is the largest part of the floor, so a null would still be needed."
 msgstr "時間を 1 ブロックあたりの演算回数に回帰する方法も検討しましたが、採用しませんでした。1 パスごとのコストは取り除けますが、ハーネスの 1 演算ごとのコスト（クロージャ呼び出し、配列アクセス、参照側のループ）は取り除けず、これがフロアの最大の部分なので、null が結局必要になります。"
 
-#: manual/design/bench/external.md:189
+#: manual/design/bench/external.md:203
 msgid "Two configurations of the floating side"
 msgstr "`floating` 側の 2 つのビルド構成"
 
-#: manual/design/bench/external.md:191
+#: manual/design/bench/external.md:205
 msgid "The floating side is built and published in named configurations, recorded as `floating_configuration` in the protocol block of the summary and in the names of the published files: `native` (the native limb primitives where the build has them) and `portable` (the portable path forced). The target of the baseline has to be reached by the portable path as well. The runner passes the name and the environment variables that select a configuration (`--configuration`, `--moon-env KEY=VALUE`); how a configuration is selected is defined by the kernel work, not by the benchmark. One summary, one samples file and one section of the manual page exist per configuration."
 msgstr "`floating` 側は名前付きの構成でビルドされ、公開されます。構成は要約の `protocol` ブロックに `floating_configuration` として、また公開ファイルの名前に記録されます。`native`（ビルドに備わっている場合はネイティブの limb プリミティブを使う）と `portable`（移植可能な経路を強制する）です。ベースラインの目標は移植可能な経路でも達成する必要があります。ランナーは名前と、構成を選ぶ環境変数を渡します（`--configuration`、`--moon-env KEY=VALUE`）。構成の選び方はカーネル作業が定めるもので、ベンチマークが定めるものではありません。構成ごとに、要約 1 つ、サンプルファイル 1 つ、マニュアルページの 1 節があります。"
 
-#: manual/design/bench/external.md:203
+#: manual/design/bench/external.md:217
 msgid "The operand file and the reference file are checksummed in `machine.json`."
 msgstr "オペランドファイルと参照ファイルのチェックサムは `machine.json` に記録されます。"
 
-#: manual/design/bench/external.md:204
+#: manual/design/bench/external.md:218
 msgid "A `floating` result that differs from the reference is counted in the Maremark validation tally and listed in `results.json`."
 msgstr "参照と異なる `floating` の結果は、Maremark の検証集計に数えられ、`results.json` に列挙されます。"
 
-#: manual/design/bench/external.md:206
+#: manual/design/bench/external.md:220
 msgid "A summary is a function of its samples file (the pairs of every case, per side and round) and of its protocol block; `just bench external recompute` recomputes it and says whether every stored number agrees."
 msgstr "要約は、そのサンプルファイル（各ケースの、側とラウンドごとのペア）と `protocol` ブロックの関数です。`just bench external recompute` がそれを再計算し、保存された数がすべて一致するかを示します。"
 
-#: manual/design/bench/external.md:207
+#: manual/design/bench/external.md:221
 msgid "A pair is used only when both of its blocks were measured; exploratory pairs are never used."
 msgstr "ペアは、その 2 つのブロックがどちらも測定されたときにだけ使われます。探索用のペアは使われません。"
 
-#: manual/design/bench/external.md:208
+#: manual/design/bench/external.md:222
 msgid "Seeds are recorded, so the round order and the bootstrap are reproducible from the samples; the timings themselves are not."
 msgstr "シードは記録されるので、ラウンドの順序とブートストラップはサンプルから再現できます。計時そのものは再現できません。"
 
-#: manual/design/bench/external.md:213
+#: manual/design/bench/external.md:227
 msgid "**A binding from MoonBit to MPFR.** It would put FFI marshalling inside the timed region of one side only."
 msgstr "**MoonBit から MPFR へのバインディング。** FFI のマーシャリングを片側だけの計時区間に入れてしまいます。"
 
-#: manual/design/bench/external.md:215
+#: manual/design/bench/external.md:229
 msgid "**Comparing against mpmath or gmpy2.** Their overhead is the Python interpreter, not the library."
 msgstr "**mpmath や gmpy2 との比較。** それらのオーバーヘッドは Python インタプリタであり、ライブラリではありません。"
 
-#: manual/design/bench/external.md:217
+#: manual/design/bench/external.md:231
 msgid "**Timing one operand repeatedly.** A single fixed operand lets branch predictors and caches memorise the data path; eight different operands per pass avoid it at a cost of eight times the batch duration."
 msgstr "**1 つのオペランドを繰り返し計時する。** 固定された 1 つのオペランドでは、分岐予測器やキャッシュがデータ経路を記憶してしまいます。1 パスあたり 8 個の異なるオペランドを使えばこれを避けられますが、バッチの所要時間は 8 倍になります。"
 
-#: manual/design/bench/external.md:223
+#: manual/design/bench/external.md:237
 msgid "Native target only; no claims for JavaScript or WebAssembly."
 msgstr "native ターゲットのみ。JavaScript や WebAssembly については何も主張しません。"
 
-#: manual/design/bench/external.md:224
+#: manual/design/bench/external.md:238
 msgid "One machine, one operating system, one compiler per run; see the performance page for the machine."
 msgstr "実行ごとに 1 台のマシン、1 つの OS、1 つのコンパイラ。マシンについては性能ページを参照してください。"
 
-#: manual/design/bench/external.md:226
+#: manual/design/bench/external.md:240
 msgid "Elementary functions are measured on a few well-conditioned argument ranges; huge arguments and arguments near singularities are not measured."
 msgstr "初等関数は、条件の良いいくつかの引数範囲で測定されます。巨大な引数や特異点付近の引数は測定されません。"
 
-#: manual/design/bench/external.md:228
+#: manual/design/bench/external.md:242
 msgid "The library caches of MPFR (for $\\pi$ and $\\log 2$) and the corresponding caches of `floating` are warm during timing; cold-start cost is not measured."
 msgstr "MPFR のキャッシュ（$\\pi$ と $\\log 2$ 用）と、`floating` の対応するキャッシュは、計時中にウォームな状態です。コールドスタートのコストは測定されません。"
 
-#: manual/design/bench/external.md:230
+#: manual/design/bench/external.md:244
 msgid "Only a single thread is used; memory use is not measured."
 msgstr "使うスレッドは 1 つだけです。メモリ使用量は測定されません。"
 
-#: manual/design/bench/external.md:231
+#: manual/design/bench/external.md:245
 msgid "The correction for the loop floor moves few verdicts. Computed from the 0.11.0 medians with the floating floor then measured (9.21 ns) and a reference floor between 0.4 and 1.1 ns, 43 of 59 cases are above 3 on the raw ratio and 42 on the net ratio: only `decimal_gda` multiplication at 100 digits (3.03) changes side. The method makes the number honest; it does not move the target."
 msgstr "ループのフロアの補正が変える判定はわずかです。0.11.0 の中央値から、そのとき測定した `floating` のフロア（9.21 ns）と 0.4 から 1.1 ns の間の参照側フロアで計算すると、59 ケースのうち、生の比で 43 ケース、ネット比で 42 ケースが 3 を超えます。側が変わるのは 100 桁の `decimal_gda` の乗算（3.03）だけです。この方法は数を正直にしますが、目標を動かしはしません。"
 

@@ -145,11 +145,13 @@ fn binary_function(
 
 ///|
 /// The closure of the null implementation: the shape of the operation
-/// closures (an indirect call with two arguments), returning its first one.
-let binary_null : (@binary.BinFloat, @binary.BinFloat) -> @binary.BinFloat = (
-  x,
-  _,
-) => x
+/// closures (an indirect call with two arguments), returning its first one. It
+/// sits in a `Ref` so that the compiler cannot see its body: a top-level
+/// function with a known body is called directly (and may be inlined), while the
+/// operation of a case is a closure chosen at run time by the operation name.
+let binary_null : Ref[(@binary.BinFloat, @binary.BinFloat) -> @binary.BinFloat] = {
+  val: (x, _) => x,
+}
 
 ///|
 fn binary_matches(
@@ -213,7 +215,7 @@ fn binary_spec(
         // (so that its output validates) and stores an existing value.
         @runner.Implementation::stateless("null", "0.11.0", input => {
           for i in 0..<input.count {
-            input.out[i] = binary_null(input.expected[i], input.b[i])
+            input.out[i] = (binary_null.val)(input.expected[i], input.b[i])
           }
           @model.OperationResult::completed(input.out, ())
         }),
@@ -291,11 +293,10 @@ fn decimal_function(
 }
 
 ///|
-let decimal_null : (@gda.Decimal, @gda.Decimal, @gda.GdaContext) -> @gda.Decimal = (
-  x,
-  _,
-  _,
-) => x
+/// See `binary_null`.
+let decimal_null : Ref[
+  (@gda.Decimal, @gda.Decimal, @gda.GdaContext) -> @gda.Decimal,
+] = { val: (x, _, _) => x, }
 
 ///|
 fn decimal_matches(
@@ -358,7 +359,7 @@ fn decimal_spec(
         }),
         @runner.Implementation::stateless("null", "0.11.0", input => {
           for i in 0..<input.count {
-            input.out[i] = decimal_null(
+            input.out[i] = (decimal_null.val)(
               input.expected[i],
               input.b[i],
               input.context,

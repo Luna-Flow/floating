@@ -570,12 +570,12 @@ def pair_samples(pairs: stats.Pairs, null: bool) -> Samples:
 
 
 def _side_result(
-    pairs: stats.Pairs, iterations: int, tag: str, protocol: Protocol
+    pairs: stats.Pairs, iterations: int, seed: int, case_id: str, side: str, protocol: Protocol
 ) -> tuple[SideResult, stats.SideNet]:
-    net = stats.side_net(pairs, f"{tag}:net", protocol.resamples)
+    net = stats.side_net(pairs, seed, case_id, side, protocol.resamples)
     result = SideResult(
-        raw=summarize(pair_samples(pairs, False), f"{tag}:raw", protocol.resamples, iterations),
-        null=summarize(pair_samples(pairs, True), f"{tag}:null", protocol.resamples, iterations),
+        raw=summarize(pair_samples(pairs, False), stats.derive_seed(seed, case_id, side, "raw"), protocol.resamples, iterations),
+        null=summarize(pair_samples(pairs, True), stats.derive_seed(seed, case_id, side, "null"), protocol.resamples, iterations),
         net=NetStats(net.net_ns, net.ci_low_ns, net.ci_high_ns, net.pairs, net.drift_pct, net.order_pct),
     )
     return result, net
@@ -591,15 +591,17 @@ def reduce_results(
             continue
         if case_id not in collected.floating_pairs or case_id not in collected.reference_pairs:
             raise ValueError(f"{case_id} has no pairs of case and null blocks (rounds of an older harness?)")
-        tag = f"{seed}:{case_id}"
         floating, floating_net = _side_result(
-            collected.floating_pairs[case_id], collected.floating_iterations.get(case_id, 0), f"{tag}:floating", protocol
+            collected.floating_pairs[case_id], collected.floating_iterations.get(case_id, 0), seed, case_id, "floating", protocol
         )
         reference, reference_net = _side_result(
-            collected.reference_pairs[case_id], collected.reference_iterations.get(case_id, 0), f"{tag}:reference", protocol
+            collected.reference_pairs[case_id], collected.reference_iterations.get(case_id, 0), seed, case_id, "reference", protocol
         )
         low, high = bootstrap_ratio_ci(
-            collected.floating[case_id], collected.reference[case_id], f"{tag}:ratio", protocol.resamples
+            collected.floating[case_id],
+            collected.reference[case_id],
+            stats.derive_seed(seed, case_id, "both", "raw-ratio"),
+            protocol.resamples,
         )
         raw = RatioStats(floating.raw.median_ns / reference.raw.median_ns, low, high)
         verdict = stats.judge(floating_net, reference_net, high, rules)
