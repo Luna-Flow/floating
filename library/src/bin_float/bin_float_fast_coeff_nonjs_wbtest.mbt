@@ -365,3 +365,82 @@ test "coefficient paths decline what they do not cover" {
   )
   assert_true(binary_coeff_fast_mul(huge, huge) is None)
 }
+
+///|
+/// Operands that are hard for the short division: exact quotients (`A = T * B`),
+/// their neighbours, all-ones and `2^k + 1` divisors, and every precision from a
+/// word boundary to a few bits above it. `binary_coeff_fast_div` and the plain
+/// `div` must equal `div_ctx` in the unbounded nearest-even context.
+test "coefficient div equals the general path on exact quotients, neighbours and hard divisors" {
+  let mut checked = 0
+  for limbs in [2, 3, 4, 8, 9, 17, 32, 33, 64, 100, 128] {
+    let divisors = [
+      Coeff::one().shift_left(limbs * 64).sub_checked(Coeff::one()).unwrap(),
+      Coeff::one().shift_left(limbs * 64 - 1).add(Coeff::one()),
+      Coeff::one()
+      .shift_left(limbs * 64 - 1)
+      .add(Coeff::one().shift_left(64))
+      .add(Coeff::one()),
+      fast_coeff_value(
+        { coeff_state: 77UL + limbs.to_uint64(), },
+        limbs * 64 - 5,
+      ),
+    ]
+    for divisor in divisors {
+      for
+        precision in [
+          limbs * 64 - 1,
+          limbs * 64,
+          limbs * 64 + 1,
+          limbs * 64 + 40,
+        ] {
+        for multiplier_bits in [1, 2, 3, 40] {
+          let multiplier = fast_coeff_value(
+            { coeff_state: 5UL + multiplier_bits.to_uint64(), },
+            multiplier_bits,
+          )
+          let product = multiplier.mul(divisor)
+          if product.bit_length() > precision {
+            continue
+          }
+          for delta in [-3, -1, 0, 1, 2] {
+            let dividend = if delta == 0 {
+              product
+            } else if delta > 0 {
+              product.add(Coeff::from_uint64(delta.to_uint64()))
+            } else {
+              product
+              .sub_checked(Coeff::from_uint64((-delta).to_uint64()))
+              .unwrap()
+            }
+            for exponent in [-40, 0, 7] {
+              let left = BinFloat::make_coeff(dividend, exponent, precision)
+              let right = BinFloat::make_coeff(
+                divisor,
+                3,
+                precision,
+                negative=true,
+              )
+              if left.is_zero() || right.is_zero() {
+                continue
+              }
+              let general = left.div_ctx(
+                  right,
+                  BinaryContext::unbounded(max_precision(left, right)),
+                ).0
+              match binary_coeff_fast_div(left, right) {
+                Some(result) => {
+                  checked += 1
+                  assert_true(fast_test_same(result, general))
+                }
+                None => ()
+              }
+              assert_true(fast_test_same(left.div(right), general))
+            }
+          }
+        }
+      }
+    }
+  }
+  assert_true(checked > 1000)
+}
