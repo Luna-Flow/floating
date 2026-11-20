@@ -100,7 +100,9 @@ the GDA `remainder-near` as `remainder_near`.
   - the flag name `division_by_zero`;
   - `parse`, `to_sci_string`, `to_eng_string`;
   - `to_hex`, `from_hex`, `to_interchange_hex` and `from_interchange_hex`;
-  - in `decimal_gda`, also `rescale` and the `logical_` prefix.
+  - in `decimal_gda`, also `rescale`, the `logical_` prefix and the method
+    `remainder` (the name `remainder_ctx` is reserved for the IEEE remainder of
+    `bin_float` and `decimal`).
 - **Old names.** A renamed or removed operation keeps no alias. A name that had
   one meaning is not reused with another meaning in the same release. The
   release that renames or removes an operation lists the old name and its

@@ -6407,7 +6407,7 @@ msgid "Nothing can be imported from `doc_examples`. Its `moon.pkg` imports the p
 msgstr "`doc_examples` からインポートできるものはありません。その `moon.pkg` は、例で使うパッケージをテストのためだけにインポートします。"
 
 #: manual/api/doc_examples.md:38
-#: manual/conventions.md:142
+#: manual/conventions.md:144
 msgid "Examples"
 msgstr "例"
 
@@ -10305,110 +10305,110 @@ msgid "`to_hex`, `from_hex`, `to_interchange_hex` and `from_interchange_hex`;"
 msgstr "`to_hex`、`from_hex`、`to_interchange_hex`、`from_interchange_hex`；"
 
 #: manual/conventions.md:103
-msgid "in `decimal_gda`, also `rescale` and the `logical_` prefix."
-msgstr "`decimal_gda` では、`rescale` と `logical_` 接頭辞も残します。"
+msgid "in `decimal_gda`, also `rescale`, the `logical_` prefix and the method `remainder` (the name `remainder_ctx` is reserved for the IEEE remainder of `bin_float` and `decimal`)."
+msgstr "`decimal_gda` では、`rescale`、`logical_` 接頭辞、メソッド `remainder` も残します（名前 `remainder_ctx` は `bin_float` と `decimal` の IEEE の剰余のために予約されています）。"
 
-#: manual/conventions.md:104
+#: manual/conventions.md:106
 msgid "**Old names.** A renamed or removed operation keeps no alias. A name that had one meaning is not reused with another meaning in the same release. The release that renames or removes an operation lists the old name and its replacement under **Breaking** in `library/CHANGELOG.md`."
 msgstr "**旧名。** 改名または削除された操作に別名は残りません。ある意味を持っていた名前は、同じリリースの中で別の意味に再利用されません。操作を改名または削除するリリースは、`library/CHANGELOG.md` の **Breaking** に旧名と代替を列挙します。"
 
-#: manual/conventions.md:109
+#: manual/conventions.md:111
 msgid "API snapshots"
 msgstr "API スナップショット"
 
-#: manual/conventions.md:111
+#: manual/conventions.md:113
 msgid "Every API page ends with `## Complete public interface`, whose body is an exact copy of the package's `pkg.generated.mbti` between the markers `<!-- generated-api-start -->` and `<!-- generated-api-end -->`, fenced as `mbti`. Individual signatures in the page body are `mbti` blocks too. `tools/doc_quality.py` compares the snapshot with the generated file (it also accepts the older `moonbit` fence), so regenerate it whenever `moon info` changes the interface."
 msgstr "すべての API ページは `## Complete public interface` で終わり、その本文はマーカー `<!-- generated-api-start -->` と `<!-- generated-api-end -->` の間に置かれた、パッケージの `pkg.generated.mbti` の正確なコピーで、`mbti` としてフェンスされます。ページ本文中の個々のシグネチャも `mbti` ブロックです。`tools/doc_quality.py` はスナップショットを生成ファイルと比較する（古い `moonbit` フェンスも受け付けます）ので、`moon info` がインターフェースを変更したときは必ず再生成してください。"
 
-#: manual/conventions.md:119
+#: manual/conventions.md:121
 msgid "Numeric documentation rules"
 msgstr "数値文書の規則"
 
-#: manual/conventions.md:121
+#: manual/conventions.md:123
 msgid "Use `precision`, `rounding`, `classify`, `sign`, `normalized`, `quantum`, `context` and `flags` as defined in [numeric semantics](./numeric_semantics.md)."
 msgstr "`precision`、`rounding`、`classify`、`sign`、`normalized`、`quantum`、`context`、`flags` は[数値意味論](./numeric_semantics.md)で定義されたとおりに使用してください。"
 
-#: manual/conventions.md:124
+#: manual/conventions.md:126
 msgid "Separate the stored representation, the exact value, the rounded result, status flags, checked errors and interval enclosures."
 msgstr "格納表現、厳密値、丸められた結果、ステータスフラグ、checked エラー、区間の包含区間を区別してください。"
 
-#: manual/conventions.md:126
+#: manual/conventions.md:128
 msgid "State when parsing preserves the quantum and when normalization changes the cohort without changing the value."
 msgstr "パースが量子を保持する場合と、正規化が値を変えずにコホートを変える場合を明記してください。"
 
-#: manual/conventions.md:128
+#: manual/conventions.md:130
 msgid "Name the order an API uses. `compare`, `<` and sorting are a total preorder that puts every NaN above every number; the IEEE partial order (with *unordered*) and `totalOrder` are separate APIs. Never imply a scalar order for interval values."
 msgstr "API が用いる順序を明示してください。`compare`、`<`、ソートは、すべての NaN をすべての数より上に置く全前順序です。IEEE の半順序（*unordered* を含む）と `totalOrder` は別の API です。区間値にスカラーの順序があるかのように示唆してはなりません。"
 
-#: manual/conventions.md:132
+#: manual/conventions.md:134
 msgid "For `*_ctx` APIs, document both the returned value and the flags."
 msgstr "`*_ctx` API では、返される値とフラグの両方を文書化してください。"
 
-#: manual/conventions.md:133
+#: manual/conventions.md:135
 msgid "For checked APIs and wrappers, document the domain-specific transition: a result error, IEEE flag accumulation, or a GDA trap short-circuit and its recovery."
 msgstr "checked API とラッパーでは、ドメイン固有の遷移、すなわち結果のエラー、IEEE フラグの蓄積、あるいは GDA トラップによる短絡とその回復を文書化してください。"
 
-#: manual/conventions.md:136
+#: manual/conventions.md:138
 msgid "Document `decimal` and `decimal_gda` as separate contracts: IEEE operations return per-operation flags, while GDA operations thread sticky status and traps through `GdaOutcome`."
 msgstr "`decimal` と `decimal_gda` は別 contract として説明します。IEEE operation は per-operation flags を返し、GDA operation は `GdaOutcome` で sticky status と trap を thread します。"
 
-#: manual/conventions.md:139
+#: manual/conventions.md:141
 msgid "Write mathematics in TeX (`$…$`, `$$…$$`) and cite the standard clause or classical result a derivation relies on."
 msgstr "数式は TeX（`$…$`、`$$…$$`）で書き、導出が依拠する標準の条項や古典的な結果を引用してください。"
 
-#: manual/conventions.md:144
+#: manual/conventions.md:146
 msgid "Runnable examples are complete top-level items, normally a `test` block, fenced `moonbit`, and they show their output with `inspect`. They must compile and pass against the current branch."
 msgstr "実行可能な例は完全なトップレベル項目（通常は `test` ブロック）で、`moonbit` としてフェンスし、出力を `inspect` で示します。これらは現在のブランチに対してコンパイルされ、パスしなければなりません。"
 
-#: manual/conventions.md:147
+#: manual/conventions.md:149
 msgid "Partial snippets, signatures in prose, executable-package code and `internal/*` code that cannot be imported from outside the module, and `moon.pkg` snippets are fenced `moonbit nocheck`; shell commands are fenced `bash`. `tools/check_doc_examples.py`, run by `just docs`, compiles and runs every other `moonbit` block of the manual."
 msgstr "部分的なスニペット、本文中のシグネチャ、実行可能パッケージのコード、モジュール外からインポートできない `internal/*` のコード、および `moon.pkg` のスニペットは `moonbit nocheck` としてフェンスし、シェルコマンドは `bash` としてフェンスします。`just docs` が実行する `tools/check_doc_examples.py` は、マニュアルのそれ以外のすべての `moonbit` ブロックをコンパイルして実行します。"
 
-#: manual/conventions.md:152
+#: manual/conventions.md:154
 msgid "Import aliases: `@lf_alg` for `Luna-Flow/luna-generic` and `@lf_arith` for `Luna-Flow/arithmetic`; floating packages use their default aliases (`@bin_float`, `@decimal`, …)."
 msgstr "インポートのエイリアス: `Luna-Flow/luna-generic` は `@lf_alg`、`Luna-Flow/arithmetic` は `@lf_arith` とします。floating のパッケージはデフォルトのエイリアス（`@bin_float`、`@decimal`、…）を使用します。"
 
-#: manual/conventions.md:155
+#: manual/conventions.md:157
 msgid "Call only what the `.mbti` lists. For example, `BinFloat` has no `to_double` or `is_finite` method; use `to_shortest_string` and `@def.is_finite(x)`."
 msgstr "`.mbti` に記載されているものだけを呼び出してください。たとえば `BinFloat` には `to_double` や `is_finite` メソッドはありません。`to_shortest_string` と `@def.is_finite(x)` を使用してください。"
 
-#: manual/conventions.md:159
+#: manual/conventions.md:161
 msgid "Translations"
 msgstr "翻訳"
 
-#: manual/conventions.md:161
+#: manual/conventions.md:163
 msgid "English pages in `doc/manual` are the only source. Translations live in the gettext catalogs `doc/locale/<locale>/LC_MESSAGES/manual.po` for the locales in `doc/conf.json` and are never edited as page copies. Do not translate identifiers, package names, paths, commands, version strings or mathematics. Typst attachments live in `doc/attachments/` and are shared by all locales."
 msgstr "`doc/manual` の英語ページが唯一のソースです。翻訳は `doc/conf.json` に列挙されたロケールの gettext カタログ `doc/locale/<locale>/LC_MESSAGES/manual.po` に置かれ、ページのコピーとして編集されることはありません。識別子、パッケージ名、パス、コマンド、バージョン文字列、数式は翻訳しないでください。Typst の添付ファイルは `doc/attachments/` に置かれ、すべてのロケールで共有されます。"
 
-#: manual/conventions.md:167
+#: manual/conventions.md:169
 msgid "Review checklist"
 msgstr "レビューチェック"
 
-#: manual/conventions.md:169
+#: manual/conventions.md:171
 msgid "Run `moon info` and compare each changed `pkg.generated.mbti` with its API page; refresh the `## Complete public interface` snapshot."
 msgstr "`moon info` を実行し、変更された各 `pkg.generated.mbti` を対応する API ページと比較して、`## Complete public interface` のスナップショットを更新します。"
 
-#: manual/conventions.md:171
+#: manual/conventions.md:173
 msgid "Check that every `moon.pkg` still has its `api/`, `tutorial/` and `design/` pages (and the evidence pages of the four cores)."
 msgstr "すべての `moon.pkg` に `api/`、`tutorial/`、`design/` のページ（および四つのコアについては証拠ページ）がそろっていることを確認します。"
 
-#: manual/conventions.md:173
+#: manual/conventions.md:175
 msgid "Compile and run every changed example (`moonbit` blocks) against the current branch."
 msgstr "変更されたすべての例（`moonbit` ブロック）を現在のブランチに対してコンパイルし、実行します。"
 
-#: manual/conventions.md:175
+#: manual/conventions.md:177
 msgid "Run `just docs`: `tools/doc_quality.py`, the manual examples and the `tooling/src/doc_examples` tests."
 msgstr "`just docs` を実行します。`tools/doc_quality.py`、マニュアルの例、`tooling/src/doc_examples` のテストが実行されます。"
 
-#: manual/conventions.md:177
+#: manual/conventions.md:179
 msgid "Run `lunadoc update` to refresh `doc/locale/manual.pot` and merge the catalogs, translate new and fuzzy entries, then check `lunadoc status` (coverage per locale) and `lunadoc check --compile` (layout, catalogs, links and Typst attachments)."
 msgstr "`lunadoc update` を実行して `doc/locale/manual.pot` を更新してカタログをマージし、新規エントリと fuzzy エントリを翻訳してから、`lunadoc status`（ロケールごとのカバレッジ）と `lunadoc check --compile`（レイアウト、カタログ、リンク、Typst の添付ファイル）を確認します。"
 
-#: manual/conventions.md:181
+#: manual/conventions.md:183
 msgid "Run `moon fmt`, `moon check --target all --deny-warn`, the relevant tests, and `just pr` before submitting."
 msgstr "提出前に `moon fmt`、`moon check --target all --deny-warn`、関連するテスト、`just pr` を実行します。"
 
-#: manual/conventions.md:183
+#: manual/conventions.md:185
 msgid "On a release bump, update `library/moon.mod`, the version in `library/README.md`, this page and `library/CHANGELOG.md` together."
 msgstr "リリースのバージョンを上げるときは、`library/moon.mod`、`library/README.md` 内のバージョン、このページ、`library/CHANGELOG.md` を同時に更新します。"
 
@@ -27386,6 +27386,9 @@ msgstr "公開 API を絞ると、条項から API への対応が変わるこ�
 #: manual/verification.md:707
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体のロードマップは [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "in `decimal_gda`, also `rescale` and the `logical_` prefix."
+#~ msgstr "`decimal_gda` では、`rescale` と `logical_` 接頭辞も残します。"
 
 #~ msgid "These functions are the canonical maps out of the naturals and the integers."
 #~ msgstr "これらの関数は自然数と整数からの標準的な写像です。"
