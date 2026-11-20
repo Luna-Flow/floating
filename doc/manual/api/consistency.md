@@ -32,7 +32,7 @@ import {
   "Luna-Flow/floating/ball_float_checked",
   "Luna-Flow/floating/def",
   "Luna-Flow/floating/internal",
-  "Luna-Flow/floating/semantic",
+  "Luna-Flow/floating-tools/semantic",
 } for "wbtest"
 ```
 

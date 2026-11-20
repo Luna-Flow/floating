@@ -32,12 +32,12 @@ and nothing numerical depends on a frontend, a CLI or a benchmark.
 
 The repository is a `moon.work` workspace of two modules. The published
 library `Luna-Flow/floating` holds the shared vocabulary, the scalar and
-interval domains, the checked tiers and `semantic`; it
+interval domains and the checked tiers; it
 depends on `Luna-Flow/arithmetic` and `Luna-Flow/luna-generic` only. The
 tools module `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library)
 holds `numeric_expr`, the format frontends, the runtime adapters
 `internal/conformance` and `internal/runner_cli`, `cli`, `differential`,
-`bench`, `consistency` and `doc_examples`: everything that needs `mare_mark`, `async`, `x`
+`bench`, `consistency`, `semantic` and `doc_examples`: everything that needs `mare_mark`, `async`, `x`
 or `type_theory`. The tools module imports the library from the same working
 tree, so a change to a numeric package is tested by the tools in the same
 commit.

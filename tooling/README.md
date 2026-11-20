@@ -74,6 +74,7 @@ test "parse two decTest rows and execute them" {
 | [`cli`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/cli.md), [`cli/dispatch`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/cli/dispatch.md) and the four `cli/*_expr_cli` runners | the `floating-conformance` executable and its libraries |
 | [`differential`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/differential.md), [`differential/harness`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/differential/harness.md) | the seeded random differential campaign and its library |
 | [`bench`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/bench.md) and `bench/*` | Maremark benchmark infrastructure, per-package suites and the timing against MPFR and libmpdec |
+| [`semantic`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/semantic.md) | exact, representation-independent projection of values for comparing across packages (the oracle of `consistency`) |
 | [`consistency`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/consistency.md) | cross-package laws and API audits of the library (white-box tests, no public items) |
 | `internal/conformance`, `internal/runner_cli` | summaries, shards, options and JSON shared by the runners |
 | [`doc_examples`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/doc_examples.md) | the documentation examples run by `just docs` |

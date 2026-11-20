@@ -73,7 +73,6 @@ and `enclosure` is a set of reals guaranteed to contain $1/3$.
 | [`decimal_gda_checked`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/decimal_gda_checked.md) | GDA pipeline that stops at a trap | one threaded `GdaOutcome` |
 | [`ball_float_checked`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/ball_float_checked.md) | interval pipeline that stops at the first error | `Result[BallFloat, ArithmeticError]` in a wrapper |
 | [`def`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/def.md) | shared vocabulary: `Sign`, `PartialOrder`, the `Floating` trait | — |
-| [`semantic`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/semantic.md) | exact projection for comparing values across packages | exact rational, signed infinity or NaN |
 
 Expression, corpus-frontend, CLI, benchmark and differential-testing packages
 are not part of this module: they live in the separate module
