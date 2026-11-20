@@ -91,7 +91,7 @@ test "binary64 context applies directed overflow bounds" {
 
 ///|
 test "binary context applies gradual directed underflow" {
-  let ctx = BallContext::new(precision=4, e_min=-2, e_max=3)
+  let ctx = BallContext::new(precision=4, e_max=3)
   let below_subnormal = @bin_float.BinFloat::make(
     @bin_float.BinCoeff::one(),
     -7,

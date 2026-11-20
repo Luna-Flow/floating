@@ -15,13 +15,17 @@ import {
 pub struct BallContext {
   // private fields
 }
+pub fn BallContext::binary128() -> Self
+pub fn BallContext::binary16() -> Self
 pub fn BallContext::binary32() -> Self
 pub fn BallContext::binary64() -> Self
 pub fn BallContext::e_max(Self) -> Int32
 pub fn BallContext::e_min(Self) -> Int32
-pub fn BallContext::new(precision? : Int32, e_min? : Int32, e_max? : Int32) -> Self
+pub fn BallContext::new(precision? : Int32, e_max? : Int32) -> Self
 pub fn BallContext::precision(Self) -> Int32
-pub fn BallContext::try_new(precision? : Int32, e_min? : Int32, e_max? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallContext::try_new(precision? : Int32, e_max? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallContext::with_e_max(Self, Int32) -> Self
+pub fn BallContext::with_precision(Self, Int32) -> Self
 
 #derive(Eq)
 pub struct BallFlags {

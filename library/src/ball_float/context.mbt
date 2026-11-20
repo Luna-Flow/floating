@@ -43,41 +43,36 @@ pub fn BallFlags::underflow(self : BallFlags) -> Bool {
 }
 
 ///|
+/// A binary format of IEEE 754-2019 3.3 for the endpoints of an interval:
+/// `precision` bits and the exponent range `[1 - e_max, e_max]`. The legality
+/// of the pair is decided by `@bin_float.BinaryContext`, so the two packages
+/// have one definition of a format. `e_max` absent is the implementation limit
+/// `@bin_float.binary_implementation_e_max`.
 pub fn BallContext::try_new(
   precision~ : Int32 = 53,
-  e_min~ : Int32 = -1022,
-  e_max~ : Int32 = 1023,
+  e_max? : Int32,
 ) -> Result[BallContext, @def.ArithmeticError] {
-  guard precision > 0 else {
-    return Err(
-      @def.ArithmeticError::domain_error(
-        "BallContext::try_new: precision must be positive",
-      ),
-    )
+  let format = match e_max {
+    Some(value) => @bin_float.BinaryContext::try_new(precision~, e_max=value)
+    None => @bin_float.BinaryContext::try_new(precision~)
   }
-  guard e_min <= e_max else {
-    return Err(
-      @def.ArithmeticError::domain_error(
-        "BallContext::try_new: e_min must not exceed e_max",
-      ),
-    )
-  }
-  Ok({ precision, e_min, e_max, })
+  format.map(fn(format) {
+    {
+      precision: format.precision(),
+      e_min: format.e_min(),
+      e_max: format.e_max(),
+    }
+  })
 }
 
 ///|
-pub fn BallContext::new(
-  precision~ : Int32 = 53,
-  e_min~ : Int32 = -1022,
-  e_max~ : Int32 = 1023,
-) -> BallContext {
-  guard precision > 0 else {
-    abort("BallContext::new: precision must be positive")
+/// `try_new` that aborts on an illegal precision or exponent range, naming
+/// the parameter.
+pub fn BallContext::new(precision~ : Int32 = 53, e_max? : Int32) -> BallContext {
+  match BallContext::try_new(precision~, e_max?) {
+    Ok(context) => context
+    Err(error) => abort("BallContext::new: " + error.message)
   }
-  guard e_min <= e_max else {
-    abort("BallContext::new: e_min must not exceed e_max")
-  }
-  { precision, e_min, e_max, }
 }
 
 ///|
@@ -96,24 +91,47 @@ pub fn BallContext::e_max(self : BallContext) -> Int32 {
 }
 
 ///|
-fn ball_context_from_format(
-  format : @bin_float.BinaryInterchangeFormat,
+/// The same format with another precision; aborts when it is not legal.
+pub fn BallContext::with_precision(
+  self : BallContext,
+  precision : Int32,
 ) -> BallContext {
-  BallContext::new(
-    precision=format.precision(),
-    e_min=format.e_min(),
-    e_max=format.e_max(),
-  )
+  BallContext::new(precision~, e_max=self.e_max)
+}
+
+///|
+/// The same precision with another largest exponent (`e_min` becomes
+/// `1 - e_max`); aborts when it is not legal.
+pub fn BallContext::with_e_max(
+  self : BallContext,
+  e_max : Int32,
+) -> BallContext {
+  BallContext::new(precision=self.precision, e_max~)
+}
+
+///|
+fn ball_context_from_format(format : @bin_float.BinaryContext) -> BallContext {
+  BallContext::new(precision=format.precision(), e_max=format.e_max())
+}
+
+///|
+pub fn BallContext::binary16() -> BallContext {
+  ball_context_from_format(@bin_float.BinaryContext::binary16())
 }
 
 ///|
 pub fn BallContext::binary32() -> BallContext {
-  ball_context_from_format(@bin_float.BinaryInterchangeFormat::Binary32)
+  ball_context_from_format(@bin_float.BinaryContext::binary32())
 }
 
 ///|
 pub fn BallContext::binary64() -> BallContext {
-  ball_context_from_format(@bin_float.BinaryInterchangeFormat::Binary64)
+  ball_context_from_format(@bin_float.BinaryContext::binary64())
+}
+
+///|
+pub fn BallContext::binary128() -> BallContext {
+  ball_context_from_format(@bin_float.BinaryContext::binary128())
 }
 
 ///|
@@ -139,7 +157,7 @@ fn ball_round_shift(
   magnitude : @bin_float.BinCoeff,
   shift : Int32,
   negative : Bool,
-  mode : RoundingMode,
+  mode : BinaryRoundingMode,
 ) -> @bin_float.BinCoeff {
   if shift <= 0 {
     return magnitude
@@ -150,16 +168,20 @@ fn ball_round_shift(
     return quotient
   }
   let increment = match mode {
-    RoundingMode::TowardZero => false
-    RoundingMode::TowardPositive => !negative
-    RoundingMode::TowardNegative => negative
-    RoundingMode::AwayFromZero => true
-    RoundingMode::ToNearestEven => {
+    BinaryRoundingMode::RoundTowardZero => false
+    BinaryRoundingMode::RoundTowardPositive => !negative
+    BinaryRoundingMode::RoundTowardNegative => negative
+    BinaryRoundingMode::RoundTiesToEven => {
       let comparison = coeff_shift_left(remainder, 1).compare(
         coeff_shift_left(coeff_one(), shift),
       )
       comparison > 0 || (comparison == 0 && coeff_test_bit(quotient, 0))
     }
+    BinaryRoundingMode::RoundTiesToAway =>
+      coeff_shift_left(remainder, 1).compare(
+        coeff_shift_left(coeff_one(), shift),
+      ) >=
+      0
   }
   if increment {
     coeff_increment(quotient)
@@ -172,7 +194,7 @@ fn ball_round_shift(
 fn context_round_subnormal(
   value : @bin_float.BinFloat,
   ctx : BallContext,
-  mode : RoundingMode,
+  mode : BinaryRoundingMode,
 ) -> (@bin_float.BinFloat, Bool, Bool) {
   let e_tiny = ctx.e_min - ctx.precision + 1
   if value.exponent2() >= e_tiny {
@@ -229,7 +251,7 @@ fn context_round_lower(
   let (result, _, tiny_inexact) = context_round_subnormal(
     rounded,
     ctx,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   let inexact = tiny_inexact || rounded.compare(value) != 0
   (result, false, inexact && context_is_tiny(rounded, ctx), inexact)
@@ -258,7 +280,7 @@ fn context_round_upper(
   let (result, _, tiny_inexact) = context_round_subnormal(
     rounded,
     ctx,
-    RoundingMode::TowardPositive,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   let inexact = tiny_inexact || rounded.compare(value) != 0
   (result, false, inexact && context_is_tiny(rounded, ctx), inexact)
@@ -334,7 +356,7 @@ pub fn BallFloat::midpoint_ctx(
   let rounded = if finite_adjusted_exponent(exact) < ctx.e_min {
     // A tiny center has fewer than `precision` bits above the grid, so the
     // final `with_precision` only sets the precision tag.
-    context_round_subnormal(exact, ctx, RoundingMode::ToNearestEven).0.with_precision(
+    context_round_subnormal(exact, ctx, BinaryRoundingMode::RoundTiesToEven).0.with_precision(
       ctx.precision,
       @bin_float.BinaryRoundingMode::RoundTiesToEven,
     )

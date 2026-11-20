@@ -31,6 +31,11 @@ Conventions used on this page:
   `bin_float`: leading-bit exponents up to $e_{\max} = 2^{30} - 1$, and
   nonzero magnitudes down to $2^{e_{\min} - p + 1}$ with
   $e_{\min} = -(2^{30} - 1)$. Use a `BallContext` to impose a narrower range.
+- The *precision* of an interval is between 1 and `binary_precision_max`
+  (268,435,456) bits, the limits of a `BinaryContext`. A constructor that
+  returns a value aborts on a precision outside them and names the limits; the
+  `try_` constructors and the checked tier return an error. A precision is
+  never replaced silently (before 0.12 a precision below 1 became 1).
 - *Empty* is the empty set, *Entire* is $(-\infty, +\infty)$. An unbounded
   interval stores $-\infty$ and/or $+\infty$ as endpoints; these mean that the
   set is unbounded on that side, never that it contains an infinite value.
@@ -192,8 +197,9 @@ with the standard's names: `bothEmpty`, `firstEmpty`, `secondEmpty`, `before`,
 
 ### `BallContext`
 
-`BallContext` describes a target binary format: a precision in bits and an
-exponent range $[e_{\min}, e_{\max}]$.
+`BallContext` describes a target binary format of IEEE 754-2019 3.3: a
+precision in bits and the exponent range $[1 - e_{\max}, e_{\max}]$ (`e_min`
+is derived, not a parameter).
 
 ```mbti
 pub struct BallContext {
@@ -249,7 +255,8 @@ which contains $[c - r, c + r]$ (proof in the
 [design page](../design/ball_float.md#from-midpointradius-to-endpoints)). The
 endpoints $\tilde c \pm R$ are formed exactly, so they may carry more than
 $p$ bits. `new` aborts, and `try_new` returns a domain error, when `center` or
-`radius` is not finite or when `radius` is negative. A precision below 1 is treated as 1.
+`radius` is not finite or when `radius` is negative, and when `precision` is
+outside `1..=binary_precision_max`.
 
 When $c$ already has at most $p$ bits and $r = 0$, the result is the
 singleton $\{c\}$. When $c$ needs more than $p$ bits, the rounding error of
@@ -1157,25 +1164,45 @@ test "inverse and hyperbolic functions" {
 
 ### `BallContext::new` and `BallContext::try_new`
 
-`BallContext::new` builds a context from a precision and an exponent range.
+`BallContext::new` builds a context from a precision and the largest exponent
+`e_max`; `e_min` is `1 - e_max` (IEEE 754-2019 3.3).
 
 ```mbti
-pub fn BallContext::new(precision? : Int, e_min? : Int, e_max? : Int) -> Self
-pub fn BallContext::try_new(precision? : Int, e_min? : Int, e_max? : Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallContext::new(precision? : Int, e_max? : Int) -> Self
+pub fn BallContext::try_new(precision? : Int, e_max? : Int) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
-The defaults are those of binary64: precision 53, $e_{\min} = -1022$,
-$e_{\max} = 1023$. A precision below 1 or $e_{\min} > e_{\max}$ aborts `new`
-and is a domain error for `try_new`.
+The defaults are precision 53 and, for `e_max`, the implementation limit
+`binary_implementation_e_max` of `bin_float`, the same as
+`BinaryContext::new` given a precision alone (so `BallContext::new()` is not
+binary64: use `binary64()` for that). The legality of the pair is decided by
+`BinaryContext::try_new`, so `bin_float` and `ball_float` have one definition
+of a format: the precision is between 1 and `binary_precision_max` and
+`e_max` is at least 1. An illegal pair aborts `new`, naming the parameter, and
+is a domain error for `try_new`. Before 0.12 `e_min` was a parameter, any pair
+with `e_min <= e_max` was accepted, and the precision had no upper limit.
 
-### `BallContext::binary32` and `BallContext::binary64`
+### `BallContext::with_precision` and `BallContext::with_e_max`
 
-These return the contexts of the IEEE 754 binary32 ($p = 24$,
-$[-126, 127]$) and binary64 ($p = 53$, $[-1022, 1023]$) formats.
+These return the same format with another precision, or another largest
+exponent (and `e_min = 1 - e_max`); they abort when the result is not legal.
 
 ```mbti
+pub fn BallContext::with_precision(Self, Int) -> Self
+pub fn BallContext::with_e_max(Self, Int) -> Self
+```
+
+### `BallContext::binary16`, `BallContext::binary32`, `BallContext::binary64`, `BallContext::binary128`
+
+These return the contexts of the IEEE 754 interchange formats: binary16
+($p = 11$, $[-14, 15]$), binary32 ($p = 24$, $[-126, 127]$), binary64
+($p = 53$, $[-1022, 1023]$) and binary128 ($p = 113$, $[-16382, 16383]$).
+
+```mbti
+pub fn BallContext::binary16() -> Self
 pub fn BallContext::binary32() -> Self
 pub fn BallContext::binary64() -> Self
+pub fn BallContext::binary128() -> Self
 ```
 
 ### `BallContext::precision`, `BallContext::e_min`, `BallContext::e_max`
@@ -1261,7 +1288,7 @@ endpoints are themselves outside the context's range can do this.
 ```moonbit
 ///|
 test "contexts" {
-  let ctx = @ball_float.BallContext::new(precision=8, e_min=-10, e_max=10)
+  let ctx = @ball_float.BallContext::new(precision=8, e_max=10)
   let (third, flags) = (iv(1, 1) / iv(3, 3)).apply_ctx(ctx)
   inspect(third.lower_bound().to_string(), content="85p-8")
   inspect(third.upper_bound().to_string(), content="171p-9")
@@ -1680,13 +1707,17 @@ import {
 pub struct BallContext {
   // private fields
 }
+pub fn BallContext::binary128() -> Self
+pub fn BallContext::binary16() -> Self
 pub fn BallContext::binary32() -> Self
 pub fn BallContext::binary64() -> Self
 pub fn BallContext::e_max(Self) -> Int32
 pub fn BallContext::e_min(Self) -> Int32
-pub fn BallContext::new(precision? : Int32, e_min? : Int32, e_max? : Int32) -> Self
+pub fn BallContext::new(precision? : Int32, e_max? : Int32) -> Self
 pub fn BallContext::precision(Self) -> Int32
-pub fn BallContext::try_new(precision? : Int32, e_min? : Int32, e_max? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallContext::try_new(precision? : Int32, e_max? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallContext::with_e_max(Self, Int32) -> Self
+pub fn BallContext::with_precision(Self, Int32) -> Self
 
 #derive(Eq)
 pub struct BallFlags {

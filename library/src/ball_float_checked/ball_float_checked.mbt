@@ -34,7 +34,11 @@ pub fn BallFloatResult::from_int(
   value : Int32,
   precision~ : Int32 = 53,
 ) -> BallFloatResult {
-  BallFloatResult::ok(@ball_float.BallFloat::from_int(value, precision~))
+  match @ball_float.BallContext::try_new(precision~) {
+    Ok(_) =>
+      BallFloatResult::ok(@ball_float.BallFloat::from_int(value, precision~))
+    Err(error) => BallFloatResult::err(error)
+  }
 }
 
 ///|
@@ -43,9 +47,13 @@ pub fn BallFloatResult::from_coefficient(
   precision~ : Int32 = 53,
   negative~ : Bool = false,
 ) -> BallFloatResult {
-  BallFloatResult::ok(
-    @ball_float.BallFloat::from_coefficient(value, precision~, negative~),
-  )
+  match @ball_float.BallContext::try_new(precision~) {
+    Ok(_) =>
+      BallFloatResult::ok(
+        @ball_float.BallFloat::from_coefficient(value, precision~, negative~),
+      )
+    Err(error) => BallFloatResult::err(error)
+  }
 }
 
 ///|
@@ -91,7 +99,10 @@ pub fn BallFloatResult::from_bounds(
 
 ///|
 pub fn BallFloatResult::entire(precision~ : Int32 = 53) -> BallFloatResult {
-  BallFloatResult::ok(@ball_float.BallFloat::entire(precision~))
+  match @ball_float.BallContext::try_new(precision~) {
+    Ok(_) => BallFloatResult::ok(@ball_float.BallFloat::entire(precision~))
+    Err(error) => BallFloatResult::err(error)
+  }
 }
 
 ///|
