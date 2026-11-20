@@ -14,11 +14,11 @@ test "gda interpreter folds down a power of ten under clamp" {
     #|tc1 power -1E+998 1 -> -1.00000E+998 Clamped
     #|precision: 3
     #|maxexponent: 0
-    #|minexponent: -5
+    #|minexponent: -1
     #|tc2 power -1E+1 -1 -> -0.10 Clamped
     #|precision: 3
     #|maxexponent: 1
-    #|minexponent: -3
+    #|minexponent: -2
     #|tc3 power -1E+1 1 -> -10.0 Clamped
     #|clamp: 0
     #|tc4 power -1E+1 1 -> -1E+1

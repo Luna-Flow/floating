@@ -97,7 +97,7 @@ pub fn GdaDecimalChecked::parse(String, @decimal_gda.GdaContext) -> Self
 
 An invalid string gives NaN with `conversion_syntax`; because GDA treats
 conversion syntax as an invalid-operation condition, a context that traps
-`InvalidOperation` (such as `GdaContext::default()`) traps it.
+`InvalidOperation` (such as `GdaContext::basic_default()`) traps it.
 
 ## Observation
 

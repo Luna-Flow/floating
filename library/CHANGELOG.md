@@ -18,6 +18,15 @@ notes live in this file.
   | `GdaFlags::none()` | `GdaFlags::new()` |
   | `GdaTrapSet::none()` | `GdaTrapSet::new()` |
 
+- `decimal_gda`: contexts follow GDA 1.70 ([#438](https://github.com/Luna-Flow/floating/issues/438), context rules of the 0.12 plan). `GdaContext::new` and `try_new` accept an exponent range only when it satisfies page 10 of the specification: `e_min` is `-e_max`, `1 - e_max` or `-e_max - 1`. Before, any pair with `e_min <= 0 <= e_max` was accepted, so a context such as `e_min=-50, e_max=60` existed that no format has. `clamp` and `extended` stay as documented decNumber extensions (the official decTest files use both). The default contexts are named after the specification.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `GdaContext::new(e_min=-50, e_max=60)` (and `try_new`, any pair outside the rule) | `Err` from `try_new`, abort from `new`, message `e_min must be -e_max, 1 - e_max or -e_max - 1` | use `e_min=-60`, or `-59`, `-61` |
+  | `GdaContext::basic()`, `GdaContext::default()` | `GdaContext::basic_default()` | the basic default context of GDA 1.70 (page 16); `GdaContext::new()` was never this context |
+  | `GdaContext::decimal32()`, `decimal64()`, `decimal128()` | the same, now `decimal32(rounding?)` and so on | the extended default contexts; `rounding` replaces round-half-even |
+  | (new) | `GdaContext::with_precision`, `with_rounding`, `with_exponent_range(e_min~, e_max~)` | each aborts on an invalid result and keeps status, traps and the refinement limit |
+
 - `decimal_gda`: the package exports its GDA 1.70 layer only ([#438](https://github.com/Luna-Flow/floating/issues/438), item A1). `Decimal`, `GdaContext`, the `Gda*` types and the functions named after the GDA operations stay. The status-free engine (`DecimalContext`, `DecimalFlags`, `DecimalRoundingMode`, `DecimalSignal`, `DecimalTininessDetection` and the 52 `Decimal` methods that took a `DecimalContext` or returned `DecimalFlags`) is private to the package, so each operation has one public spelling. GDA 1.70 has no tininess choice (Subnormal is judged before rounding, page 53): `DecimalTininessDetection` and its after-rounding rule are removed, not kept.
 
   | before | after | note |

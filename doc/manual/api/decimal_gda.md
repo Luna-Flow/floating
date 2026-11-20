@@ -358,17 +358,32 @@ pub fn GdaContext::try_new(precision? : Int, rounding? : GdaRoundingMode, e_min?
 ```
 
 Defaults: `precision=34`, `rounding=HalfEven`, `e_min=-999_999_999`,
-`e_max=999_999_999`, `clamp=false`, `extended=true`, no traps. When precision
-is outside `1..=999_999_999`, `e_min` outside `-999_999_999..=0`, or `e_max`
-outside `0..=999_999_999`, `try_new` returns `Err(domain_error)` naming the
-invalid field and `new` aborts with the same message. These adopted decNumber `decContext.h` limits keep
-Etiny/Etop and exponent arithmetic within `Int`. GDA 1.70 itself specifies no
-fixed context limits and requires a balanced exponent range; this library
-does not enforce that separate balance rule. `clamp=true` limits exponents to
-$e_{\max} - p + 1$ as the interchange formats do. `extended=false` selects GDA
-*subset* arithmetic: operands longer than $p$ digits are rounded first
-(raising `LostDigits` when that is inexact), special values cannot be parsed,
-zeros and some results are normalized, and `fma` is invalid.
+`e_max=999_999_999`, `clamp=false`, `extended=true`, no traps. The parameters
+must satisfy these rules, and `try_new` returns `Err(domain_error)` naming the
+invalid one while `new` aborts with the same message:
+
+- precision within `1..=999_999_999`, `e_max` within `0..=999_999_999` and
+  `e_min` within `-999_999_999..=0`. These adopted decNumber `decContext.h`
+  limits keep Etiny/Etop and exponent arithmetic within `Int`; GDA 1.70
+  itself fixes no limit.
+- `e_min` is `-e_max`, `1 - e_max` (the IEEE 754 rule) or `-e_max - 1`. GDA 1.70
+  (page 10) requires the magnitudes of Emin and Emax to differ by at most one,
+  so that the range of results is balanced. A range such as `e_min=-50,
+  e_max=60` is rejected. The text also requires `Elimit` to exceed five times
+  the maximum coefficient length when there is one; the context has no maximum
+  coefficient length, and 913 rows of the official decTest corpus run with
+  an `e_max` below four times the precision, so that sentence is not enforced.
+
+`clamp` and `extended` are not parameters of the context in the GDA text. They
+are decNumber extensions that the library keeps: `clamp=true` is the
+fold-down of the Clamped condition (page 51), which limits exponents to
+$e_{\max} - p + 1$ as the interchange formats do, and `extended=false` selects
+the GDA *subset* arithmetic of Appendix A (page 55, footnote 43: a parameter
+of the context "might" select it): operands longer than $p$ digits are rounded
+first (raising `LostDigits` when that is inexact), special values cannot be
+parsed, zeros and some results are normalized, and `fma` is invalid. The
+official decTest files use both (`clamp:` in 30,649 rows, `extended: 0` in all
+16,162 rows of `dectest0`).
 
 > [!NOTE]
 > `exp`, `ln`, `log10` and `power` with a non-integer exponent require
@@ -383,27 +398,46 @@ zeros and some results are normalized, and `fma` is invalid.
 > capability of the underlying concrete representation"). With the default
 > exponent range they return NaN and raise `InvalidContext`.
 
-### `GdaContext::basic`, `GdaContext::default`, `GdaContext::decimal32`, `GdaContext::decimal64`, `GdaContext::decimal128`
+### `GdaContext::basic_default`, `GdaContext::decimal32`, `GdaContext::decimal64`, `GdaContext::decimal128`
 
-These return the standard contexts.
+These return the default contexts of GDA 1.70 (page 16).
 
 ```mbti
-pub fn GdaContext::basic() -> Self
-pub fn GdaContext::default() -> Self
-pub fn GdaContext::decimal32() -> Self
-pub fn GdaContext::decimal64() -> Self
-pub fn GdaContext::decimal128() -> Self
+pub fn GdaContext::basic_default() -> Self
+pub fn GdaContext::decimal32(rounding? : GdaRoundingMode) -> Self
+pub fn GdaContext::decimal64(rounding? : GdaRoundingMode) -> Self
+pub fn GdaContext::decimal128(rounding? : GdaRoundingMode) -> Self
 ```
 
 | Context | $p$ | rounding | $e_{\min}$ | $e_{\max}$ | clamp | extended | traps |
 | --- | ---: | --- | ---: | ---: | --- | --- | --- |
-| `basic`, `default` | 9 | `HalfUp` | $-999\,999\,999$ | $999\,999\,999$ | no | no | DivisionByZero, InvalidOperation, Overflow, Underflow, Clamped |
+| `basic_default` | 9 | `HalfUp` | $-999\,999\,999$ | $999\,999\,999$ | no | no | DivisionByZero, InvalidOperation, Overflow, Underflow, Clamped |
 | `decimal32` | 7 | `HalfEven` | $-95$ | $96$ | yes | yes | none |
 | `decimal64` | 16 | `HalfEven` | $-383$ | $384$ | yes | yes | none |
 | `decimal128` | 34 | `HalfEven` | $-6143$ | $6144$ | yes | yes | none |
 
-`basic` is the GDA basic default context; `default` is the same value. The
-values are created once and shared.
+`basic_default` is what the specification calls the *basic default context*:
+precision 9, round-half-up, and every trap enabled except inexact, rounded and
+subnormal. The library also sets `extended=false` for it (the X3.274 subset of
+Appendix A); the text of the context does not set that parameter. `decimal32`, `decimal64` and `decimal128` are the
+*extended default contexts* for the IEEE 754 formats: round-half-even, no traps;
+`rounding` replaces the mode when given. `GdaContext::new()` is not
+`basic_default()`: it has precision 34, half-even and no traps. The values are
+created once and shared.
+
+### `GdaContext::with_precision`, `GdaContext::with_rounding`, `GdaContext::with_exponent_range`
+
+These return a copy with one setting changed.
+
+```mbti
+pub fn GdaContext::with_precision(Self, Int) -> Self
+pub fn GdaContext::with_rounding(Self, GdaRoundingMode) -> Self
+pub fn GdaContext::with_exponent_range(Self, e_min~ : Int, e_max~ : Int) -> Self
+```
+
+The result is checked like `new`: a precision or exponent range outside the
+rules above aborts. The sticky status, the traps, `clamp`, `extended` and the
+refinement limit are kept.
 
 ### `GdaContext::precision`, `GdaContext::rounding`, `GdaContext::e_min`, `GdaContext::e_max`, `GdaContext::clamp`, `GdaContext::extended`, `GdaContext::radix`
 
@@ -1742,13 +1776,12 @@ pub impl Sub for Decimal
 pub struct GdaContext {
   // private fields
 }
-pub fn GdaContext::basic() -> Self
+pub fn GdaContext::basic_default() -> Self
 pub fn GdaContext::clamp(Self) -> Bool
 pub fn GdaContext::clear_status(Self) -> Self
-pub fn GdaContext::decimal128() -> Self
-pub fn GdaContext::decimal32() -> Self
-pub fn GdaContext::decimal64() -> Self
-pub fn GdaContext::default() -> Self
+pub fn GdaContext::decimal128(rounding? : GdaRoundingMode) -> Self
+pub fn GdaContext::decimal32(rounding? : GdaRoundingMode) -> Self
+pub fn GdaContext::decimal64(rounding? : GdaRoundingMode) -> Self
 pub fn GdaContext::e_max(Self) -> Int32
 pub fn GdaContext::e_min(Self) -> Int32
 pub fn GdaContext::extended(Self) -> Bool
@@ -1762,7 +1795,10 @@ pub fn GdaContext::status(Self) -> GdaFlags
 pub fn GdaContext::trap(Self, GdaSignal, enabled? : Bool) -> Self
 pub fn GdaContext::traps(Self) -> GdaTrapSet
 pub fn GdaContext::try_new(precision? : Int32, rounding? : GdaRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, traps? : GdaTrapSet) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn GdaContext::with_exponent_range(Self, e_min~ : Int32, e_max~ : Int32) -> Self
+pub fn GdaContext::with_precision(Self, Int32) -> Self
 pub fn GdaContext::with_refinement_limit(Self, Int32?) -> Self
+pub fn GdaContext::with_rounding(Self, GdaRoundingMode) -> Self
 pub fn GdaContext::with_traps(Self, GdaTrapSet) -> Self
 
 #derive(Eq)

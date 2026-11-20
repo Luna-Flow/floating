@@ -9,7 +9,7 @@ test "gda interpreter signals Subnormal and Underflow for a power just below Emi
     #|extended: 1
     #|precision: 1
     #|rounding: half_even
-    #|maxexponent: 999
+    #|maxexponent: 0
     #|minexponent: 0
     #|clamp: 0
     #|su1 power 100000000000000000001E-20 -1 -> 1 Underflow Subnormal Inexact Rounded

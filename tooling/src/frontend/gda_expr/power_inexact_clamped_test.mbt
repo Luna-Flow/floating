@@ -11,11 +11,11 @@ test "gda interpreter does not flag Clamped on an inexact power that rounds to a
     #|clamp: 1
     #|precision: 4
     #|maxexponent: 0
-    #|minexponent: -9
+    #|minexponent: -1
     #|ic1 power 0.9999999 -1 -> 1.000 Inexact Rounded
     #|precision: 4
     #|maxexponent: 18
-    #|minexponent: -16
+    #|minexponent: -17
     #|ic2 power 000999999900000000000000000E-27 -6 -> 1.000E+18 Inexact Rounded
     #|precision: 6
     #|maxexponent: 0
@@ -23,7 +23,7 @@ test "gda interpreter does not flag Clamped on an inexact power that rounds to a
     #|ic3 power 099999999999999999999999999999E-29 -001e+0 -> 1.00000 Inexact Rounded
     #|precision: 2
     #|maxexponent: 3
-    #|minexponent: -9
+    #|minexponent: -4
     #|ic4 power 10 3 -> 1.0E+3 Rounded
     #|
   let document = @gda_expr.parse_dectest(

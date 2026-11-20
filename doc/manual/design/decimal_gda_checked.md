@@ -157,7 +157,7 @@ again. Only the per-step `raised` and the trap marker are dropped.
 ```moonbit
 ///|
 test "resume keeps status and traps and is idempotent" {
-  let ctx = @decimal_gda.GdaContext::default()
+  let ctx = @decimal_gda.GdaContext::basic_default()
   let zero = @decimal_gda.Decimal::zero()
   let trapped = @decimal_gda_checked.GdaDecimalChecked::parse("1", ctx).divide(zero)
   let once = trapped.resume_defined()

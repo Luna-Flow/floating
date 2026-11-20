@@ -41,7 +41,7 @@ Divide under the GDA *basic* context, which traps division by zero:
 ```moonbit
 ///|
 test "quick start: a trapped division" {
-  let ctx = @decimal_gda.GdaContext::default()
+  let ctx = @decimal_gda.GdaContext::basic_default()
   let r = @decimal_gda_checked.GdaDecimalChecked::parse("1", ctx).divide(
     @decimal_gda.Decimal::zero(),
   )
@@ -76,7 +76,7 @@ fn gda_flags(f : @decimal_gda.GdaFlags) -> String {
 ### Choose the traps
 
 A `GdaContext` carries a trap set. The predefined contexts differ:
-`GdaContext::default()` (the GDA basic context: precision 9, `HalfUp`) traps
+`GdaContext::basic_default()` (the GDA basic context: precision 9, `HalfUp`) traps
 `DivisionByZero`, `InvalidOperation`, `Overflow`, `Underflow` and `Clamped`;
 `decimal32()`, `decimal64()`, `decimal128()` and `new(...)` trap nothing. Add
 or remove traps with `trap`:
@@ -129,7 +129,7 @@ value is the defined result of the trapped step:
 ```moonbit
 ///|
 test "short circuit after a trap" {
-  let ctx = @decimal_gda.GdaContext::default()
+  let ctx = @decimal_gda.GdaContext::basic_default()
   let r = @decimal_gda_checked.GdaDecimalChecked::parse("1", ctx)
     .divide(@decimal_gda.Decimal::zero())
     .add(@decimal_gda.Decimal::one())
@@ -147,7 +147,7 @@ records the trapped signal, so the decision is visible afterwards:
 ```moonbit
 ///|
 test "resume with the defined result" {
-  let ctx = @decimal_gda.GdaContext::default()
+  let ctx = @decimal_gda.GdaContext::basic_default()
   let trapped = @decimal_gda_checked.GdaDecimalChecked::parse("1", ctx).divide(
     @decimal_gda.Decimal::zero(),
   )
@@ -175,7 +175,7 @@ contexts as *invalid-operation conditions*. A context that traps
 test "a malformed literal" {
   let r = @decimal_gda_checked.GdaDecimalChecked::parse(
     "12,5",
-    @decimal_gda.GdaContext::default(),
+    @decimal_gda.GdaContext::basic_default(),
   )
   inspect(r.is_trapped(), content="true")
   inspect(

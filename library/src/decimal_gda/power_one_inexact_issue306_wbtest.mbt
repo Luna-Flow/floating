@@ -71,7 +71,7 @@ fn issue306_run(
     clamp~,
     extended~,
   )
-  let gda = GdaContext::new(
+  let gda = gda_context_unchecked(
     precision~,
     rounding=issue306_gda_mode(mode),
     e_min~,

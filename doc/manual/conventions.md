@@ -100,9 +100,19 @@ the GDA `remainder-near` as `remainder_near`.
   - the flag name `division_by_zero`;
   - `parse`, `to_sci_string`, `to_eng_string`;
   - `to_hex`, `from_hex`, `to_interchange_hex` and `from_interchange_hex`;
-  - in `decimal_gda`, also `rescale`, the `logical_` prefix and the method
-    `remainder` (the name `remainder_ctx` is reserved for the IEEE remainder of
-    `bin_float` and `decimal`).
+  - in `decimal_gda`, also `rescale`, `apply` and `trim` (decNumber operations
+    that GDA 1.70 does not define), `class_name`, and the `logical_` prefix.
+- **Context in `decimal_gda`.** An operation that takes the context is a free
+  function named after the GDA operation, taking a `GdaContext` last and
+  returning a `GdaOutcome`; a quiet operation that GDA 1.70 says is unaffected by
+  context is a method of `Decimal` (`copy`, `copy_sign`, `same_quantum`, the
+  `is_*` predicates). `compare_total` and `compare_total_magnitude` are free
+  functions although the total order itself uses no context: in a subset
+  context (`extended=false`) the operands are first rounded to the precision
+  (GDA 1.70, Appendix A), which the `Decimal` methods of the same names do not
+  do. The design of 0.12 first took them to be context-free and quiet; the 32
+  `comparetotal` rows of the subset corpus `dectest0` showed that this holds
+  only in extended contexts.
 - **Old names.** A renamed or removed operation keeps no alias. A name that had
   one meaning is not reused with another meaning in the same release. The
   release that renames or removes an operation lists the old name and its

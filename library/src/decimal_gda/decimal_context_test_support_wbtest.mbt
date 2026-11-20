@@ -36,3 +36,38 @@ impl Eq for DecimalContext with fn equal(a, b) {
   a.extended == b.extended &&
   a.refinement_limit == b.refinement_limit
 }
+
+///|
+/// A `GdaContext` whose exponent range is not checked against GDA 1.70 page 10.
+/// The regression tests of #264 to #405 keep the oracle rows (libmpdec) that
+/// were found under such ranges and compare the engine with the public
+/// functions on them; `GdaContext::new` rejects these ranges. They are to move
+/// to legal ranges with recomputed oracle rows (issue 438, item 6).
+fn gda_context_unchecked(
+  precision~ : Int32 = 34,
+  rounding~ : GdaRoundingMode = GdaRoundingMode::HalfEven,
+  e_min~ : Int32 = -999_999_999,
+  e_max~ : Int32 = 999_999_999,
+  clamp~ : Bool = false,
+  extended~ : Bool = true,
+) -> GdaContext {
+  let decimal_ = gda_build_decimal_context(
+    precision, rounding, e_min, e_max, clamp, extended,
+  )
+  {
+    precision_: precision,
+    rounding_: rounding,
+    e_min_: e_min,
+    e_max_: e_max,
+    clamp_: clamp,
+    extended_: extended,
+    status_: GdaFlags::new(),
+    traps_: GdaTrapSet::new(),
+    decimal_,
+    mathematical_: {
+      ..decimal_,
+      rounding: @lf_arith.RoundingMode::ToNearestEven,
+      decimal_rounding: DecimalRoundingMode::HalfEven,
+    },
+  }
+}

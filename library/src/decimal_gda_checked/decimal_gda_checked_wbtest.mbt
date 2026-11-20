@@ -63,7 +63,7 @@ test "gda checked power of a power of ten with an integral k*y is exact in the d
 test "gda checked power to a zero exponent is exactly 1 in a clamped context (issue 405)" {
   let context = @decimal_gda.GdaContext::new(
     precision=5,
-    e_min=-10,
+    e_min=-1,
     e_max=0,
     clamp=true,
   )
@@ -81,7 +81,7 @@ test "gda checked power to one half is the padded inexact result without Clamped
   let context = @decimal_gda.GdaContext::new(
     precision=4,
     rounding=@decimal_gda.GdaRoundingMode::Down,
-    e_min=-4,
+    e_min=-1,
     e_max=0,
     clamp=true,
   )

@@ -163,6 +163,13 @@ fn invalid_context_reason(context : GdaContext) -> String? {
     Some("diagnostic invalid context: maxexponent outside 0..=999999999")
   } else if context.min_exponent() > context.max_exponent() {
     Some("diagnostic invalid context: minexponent exceeds maxexponent")
+  } else if context.min_exponent() != -context.max_exponent() &&
+    context.min_exponent() != 1 - context.max_exponent() &&
+    context.min_exponent() != -context.max_exponent() - 1 {
+    // GDA 1.70 page 10: the magnitudes of Emin and Emax differ by at most one.
+    Some(
+      "diagnostic invalid context: minexponent is not -maxexponent, 1 - maxexponent or -maxexponent - 1",
+    )
   } else {
     None
   }

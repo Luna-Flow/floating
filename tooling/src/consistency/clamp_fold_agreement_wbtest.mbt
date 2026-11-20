@@ -11,7 +11,7 @@ let clamp_fold_contexts : Array[(String, Int32, Int32, Int32)] = [
   ("decimal32", 7, -95, 96),
   ("decimal64", 16, -383, 384),
   ("decimal128", 34, -6143, 6144),
-  ("small", 5, -10, 3),
+  ("small", 5, -2, 3),
 ]
 
 ///|

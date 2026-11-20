@@ -97,7 +97,7 @@ fn issue405_rows(
         clamp~,
         extended~,
       )
-      let gda = GdaContext::new(
+      let gda = gda_context_unchecked(
         precision~,
         rounding=mode.2,
         e_min~,
