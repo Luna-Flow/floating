@@ -1043,8 +1043,8 @@ The cost grows faster than linearly in $k$ because $\pi$ at $k$ bits is
 computed by binary splitting with a quasi-linear product (a call recomputes
 $\pi$: the cache keeps no entry above 65,536 bits). Native release build, one
 call of `Decimal::sin_ctx` in decimal64 (`cos` and `tan` cost the same), `p = 53`
-for the binary rows, on a quiet machine (the bench slot of the session notes of
-2026-11-20):
+for the binary rows, on a quiet machine, measured at commit `bdba3fd` (2026-11-20; later
+multiplication work may lower the numbers by a few percent):
 
 | operation | seconds | instructions retired | peak memory |
 | --- | --- | --- | --- |
