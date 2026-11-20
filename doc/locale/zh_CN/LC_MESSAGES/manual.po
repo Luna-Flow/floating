@@ -5990,8 +5990,8 @@ msgid "`resume_defined()` continues a trapped pipeline with its defined result."
 msgstr "`resume_defined()` 以已陷入陷阱的流水线的定义结果继续执行。"
 
 #: manual/api/decimal_gda_checked.md:149
-msgid "On `Trapped(signal, value, context, raised)` it returns `Completed(value, context, GdaFlags::none())`: the value and the context (with its status, which already contains the trapped signal) are kept, the trap marker and the latest-step flags are dropped. On a completed pipeline it does nothing. Traps stay enabled in the context, so the same condition traps again if it recurs."
-msgstr "对于 `Trapped(signal, value, context, raised)`，它返回 `Completed(value, context, GdaFlags::none())`：值和上下文（其状态中已包含被捕获的信号）被保留，陷阱标记和最近一步的标志被丢弃。对于已完成的流水线，它不做任何事。陷阱在上下文中保持启用，因此同一条件若再次出现会再次触发陷阱。"
+msgid "On `Trapped(signal, value, context, raised)` it returns `Completed(value, context, GdaFlags::new())`: the value and the context (with its status, which already contains the trapped signal) are kept, the trap marker and the latest-step flags are dropped. On a completed pipeline it does nothing. Traps stay enabled in the context, so the same condition traps again if it recurs."
+msgstr "对于 `Trapped(signal, value, context, raised)`，它返回 `Completed(value, context, GdaFlags::new())`：值和上下文（其状态中已包含被捕获的信号）被保留，陷阱标记和最近一步的标志被丢弃。对于已完成的流水线，它不做任何事。陷阱在上下文中保持启用，因此同一条件若再次出现会再次触发陷阱。"
 
 #: manual/api/decimal_gda_checked.md:183
 #: manual/api/frontend/itl_expr.md:115
@@ -30206,8 +30206,8 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路
 #~ msgid "`GdaSignal` includes `ConversionSyntax`, `DivisionByZero`, `DivisionImpossible`, `DivisionUndefined`, `InvalidContext`, `InvalidOperation`, `Overflow`, `Underflow`, `Subnormal`, `Inexact`, `Rounded`, `Clamped`, and `LostDigits`."
 #~ msgstr "`GdaSignal` 包含 `ConversionSyntax`、`DivisionByZero`、`DivisionImpossible`、 `DivisionUndefined`、`InvalidContext`、`InvalidOperation`、`Overflow`、 `Underflow`、`Subnormal`、`Inexact`、`Rounded`、`Clamped` 与 `LostDigits`。"
 
-#~ msgid "`GdaFlags::none`, `contains`, and `combine` create, query, and union condition sets. `GdaTrapSet::none`, `with_signal`, and `contains` configure traps without mutation."
-#~ msgstr "`GdaFlags::none`、`contains`、`combine` 用于创建、查询和并集条件集合。 `GdaTrapSet::none`、`with_signal`、`contains` 以不可变方式配置 traps。"
+#~ msgid "`GdaFlags::new`, `contains`, and `combine` create, query, and union condition sets. `GdaTrapSet::new`, `with_signal`, and `contains` configure traps without mutation."
+#~ msgstr "`GdaFlags::new`、`contains`、`combine` 用于创建、查询和并集条件集合。 `GdaTrapSet::new`、`with_signal`、`contains` 以不可变方式配置 traps。"
 
 #~ msgid "The 1.70 standard signals are Clamped, DivisionByZero, InvalidOperation, Overflow, Underflow, Subnormal, Inexact, and Rounded. `ConversionSyntax`, `DivisionImpossible`, `DivisionUndefined`, and `InvalidContext` are retained as detailed condition diagnostics and all signal `InvalidOperation`; `LostDigits` is retained for legacy non-extended arithmetic. Consequently, an `InvalidOperation` trap catches every one of those invalid conditions."
 #~ msgstr "1.70 的标准 signals 是 Clamped、DivisionByZero、InvalidOperation、Overflow、 Underflow、Subnormal、Inexact 与 Rounded。`ConversionSyntax`、 `DivisionImpossible`、`DivisionUndefined`、`InvalidContext` 作为细粒度条件诊断保留，但都会发出 `InvalidOperation` signal；`LostDigits` 用于兼容旧式 non-extended 算术。因此启用 `InvalidOperation` trap 会捕获上述所有 invalid conditions。"

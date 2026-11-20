@@ -81,7 +81,7 @@ test "sticky status follows the threaded context" {
   inspect(start.status().contains(Inexact), content="false")
   // Start a new observation window and keep the trap settings.
   let fresh = s.next_context().clear_status()
-  inspect(fresh.status() == @decimal_gda.GdaFlags::none(), content="true")
+  inspect(fresh.status() == @decimal_gda.GdaFlags::new(), content="true")
 }
 ```
 

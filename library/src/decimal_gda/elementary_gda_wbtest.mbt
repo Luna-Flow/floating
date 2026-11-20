@@ -121,7 +121,7 @@ test "GDA square-root power preserves zero and tiny-result conditions" {
     GdaContext::new(precision=9),
   )
   assert_eq(zero.value().to_string(), "0")
-  assert_true(zero.raised() == GdaFlags::none())
+  assert_true(zero.raised() == GdaFlags::new())
   let tiny = power(
     Decimal::from_string("1E-20").unwrap(),
     Decimal::from_string("0.5").unwrap(),

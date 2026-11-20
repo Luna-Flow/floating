@@ -5990,8 +5990,8 @@ msgid "`resume_defined()` continues a trapped pipeline with its defined result."
 msgstr "`resume_defined()` はトラップされたパイプラインをその定義済みの結果で続行します。"
 
 #: manual/api/decimal_gda_checked.md:149
-msgid "On `Trapped(signal, value, context, raised)` it returns `Completed(value, context, GdaFlags::none())`: the value and the context (with its status, which already contains the trapped signal) are kept, the trap marker and the latest-step flags are dropped. On a completed pipeline it does nothing. Traps stay enabled in the context, so the same condition traps again if it recurs."
-msgstr "`Trapped(signal, value, context, raised)` に対しては `Completed(value, context, GdaFlags::none())` を返します。値とコンテキスト（トラップされたシグナルをすでに含むステータスを伴う）は保持され、トラップの印と直近ステップのフラグは破棄されます。完了状態のパイプラインに対しては何もしません。トラップはコンテキスト内で有効なままなので、同じ条件が再び起きれば再度トラップされます。"
+msgid "On `Trapped(signal, value, context, raised)` it returns `Completed(value, context, GdaFlags::new())`: the value and the context (with its status, which already contains the trapped signal) are kept, the trap marker and the latest-step flags are dropped. On a completed pipeline it does nothing. Traps stay enabled in the context, so the same condition traps again if it recurs."
+msgstr "`Trapped(signal, value, context, raised)` に対しては `Completed(value, context, GdaFlags::new())` を返します。値とコンテキスト（トラップされたシグナルをすでに含むステータスを伴う）は保持され、トラップの印と直近ステップのフラグは破棄されます。完了状態のパイプラインに対しては何もしません。トラップはコンテキスト内で有効なままなので、同じ条件が再び起きれば再度トラップされます。"
 
 #: manual/api/decimal_gda_checked.md:183
 #: manual/api/frontend/itl_expr.md:115
@@ -30149,8 +30149,8 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体の
 #~ msgid "`GdaSignal` includes `ConversionSyntax`, `DivisionByZero`, `DivisionImpossible`, `DivisionUndefined`, `InvalidContext`, `InvalidOperation`, `Overflow`, `Underflow`, `Subnormal`, `Inexact`, `Rounded`, `Clamped`, and `LostDigits`."
 #~ msgstr "`GdaSignal` は `ConversionSyntax`、`DivisionByZero`、`DivisionImpossible`、 `DivisionUndefined`、`InvalidContext`、`InvalidOperation`、`Overflow`、`Underflow`、 `Subnormal`、`Inexact`、`Rounded`、`Clamped`、`LostDigits` を含みます。"
 
-#~ msgid "`GdaFlags::none`, `contains`, and `combine` create, query, and union condition sets. `GdaTrapSet::none`, `with_signal`, and `contains` configure traps without mutation."
-#~ msgstr "`GdaFlags::none`、`contains`、`combine` は condition set の生成・照会・union、 `GdaTrapSet::none`、`with_signal`、`contains` は immutable trap configuration 用です。"
+#~ msgid "`GdaFlags::new`, `contains`, and `combine` create, query, and union condition sets. `GdaTrapSet::new`, `with_signal`, and `contains` configure traps without mutation."
+#~ msgstr "`GdaFlags::new`、`contains`、`combine` は condition set の生成・照会・union、 `GdaTrapSet::new`、`with_signal`、`contains` は immutable trap configuration 用です。"
 
 #~ msgid "The 1.70 standard signals are Clamped, DivisionByZero, InvalidOperation, Overflow, Underflow, Subnormal, Inexact, and Rounded. `ConversionSyntax`, `DivisionImpossible`, `DivisionUndefined`, and `InvalidContext` are retained as detailed condition diagnostics and all signal `InvalidOperation`; `LostDigits` is retained for legacy non-extended arithmetic. Consequently, an `InvalidOperation` trap catches every one of those invalid conditions."
 #~ msgstr "1.70 の標準 signal は Clamped、DivisionByZero、InvalidOperation、Overflow、 Underflow、Subnormal、Inexact、Rounded です。`ConversionSyntax`、 `DivisionImpossible`、`DivisionUndefined`、`InvalidContext` は詳細な condition diagnostic として保持しますが、すべて `InvalidOperation` を signal します。 `LostDigits` は legacy non-extended arithmetic 用です。したがって `InvalidOperation` trap はこれらすべての invalid condition を捕捉します。"

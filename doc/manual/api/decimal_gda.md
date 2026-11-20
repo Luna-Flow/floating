@@ -580,7 +580,7 @@ same name, such as `raised().inexact()` or `status().division_by_zero()`; there
 is no public constructor besides `new`, so sets are built only with `new` and
 `combine`. `GdaTrapSet` reads the same way.
 
-### `GdaFlags::none`, `GdaFlags::contains`, `GdaFlags::combine`
+### `GdaFlags::new`, `GdaFlags::contains`, `GdaFlags::combine`
 
 `new` is the empty set, `combine` the field-wise union and `contains` the
 membership test with the GDA invalid-operation grouping. `contains` exists
@@ -588,7 +588,7 @@ because this package has the signal enum `GdaSignal`; the accessor methods
 read one condition each.
 
 ```mbti
-pub fn GdaFlags::none() -> Self
+pub fn GdaFlags::new() -> Self
 pub fn GdaFlags::contains(Self, GdaSignal) -> Bool
 pub fn GdaFlags::combine(Self, Self) -> Self
 ```
@@ -608,12 +608,12 @@ pub struct GdaTrapSet {
 } derive(Eq)
 ```
 
-### `GdaTrapSet::none`, `GdaTrapSet::with_signal`, `GdaTrapSet::contains`
+### `GdaTrapSet::new`, `GdaTrapSet::with_signal`, `GdaTrapSet::contains`
 
 These build and query trap sets.
 
 ```mbti
-pub fn GdaTrapSet::none() -> Self
+pub fn GdaTrapSet::new() -> Self
 pub fn GdaTrapSet::with_signal(Self, GdaSignal, enabled? : Bool) -> Self
 pub fn GdaTrapSet::contains(Self, GdaSignal) -> Bool
 ```
@@ -704,8 +704,8 @@ test "GDA context, status and traps" {
     @decimal_gda.GdaOutcome::Completed(_, _, _) => fail("expected a trap")
   }
   inspect(out.next_context().status().invalid_operation(), content="true")
-  inspect(ctx.status() == @decimal_gda.GdaFlags::none(), content="true")
-  inspect(ctx.reset().traps() == @decimal_gda.GdaTrapSet::none(), content="true")
+  inspect(ctx.status() == @decimal_gda.GdaFlags::new(), content="true")
+  inspect(ctx.reset().traps() == @decimal_gda.GdaTrapSet::new(), content="true")
 }
 ```
 
@@ -2409,7 +2409,7 @@ pub fn GdaFlags::inexact(Self) -> Bool
 pub fn GdaFlags::invalid_context(Self) -> Bool
 pub fn GdaFlags::invalid_operation(Self) -> Bool
 pub fn GdaFlags::lost_digits(Self) -> Bool
-pub fn GdaFlags::none() -> Self
+pub fn GdaFlags::new() -> Self
 pub fn GdaFlags::not_equal(Self, Self) -> Bool
 pub fn GdaFlags::overflow(Self) -> Bool
 pub fn GdaFlags::rounded(Self) -> Bool
@@ -2499,7 +2499,7 @@ pub fn GdaTrapSet::inexact(Self) -> Bool
 pub fn GdaTrapSet::invalid_context(Self) -> Bool
 pub fn GdaTrapSet::invalid_operation(Self) -> Bool
 pub fn GdaTrapSet::lost_digits(Self) -> Bool
-pub fn GdaTrapSet::none() -> Self
+pub fn GdaTrapSet::new() -> Self
 pub fn GdaTrapSet::not_equal(Self, Self) -> Bool
 pub fn GdaTrapSet::overflow(Self) -> Bool
 pub fn GdaTrapSet::rounded(Self) -> Bool

@@ -18,7 +18,7 @@ test "plus and minus of a zero follow the add and subtract sign rule" {
     let ctx = GdaContext::new(
       precision=9,
       rounding=mode,
-      traps=GdaTrapSet::none(),
+      traps=GdaTrapSet::new(),
     )
     let floor = mode == GdaRoundingMode::Floor
     let check = (
@@ -28,7 +28,7 @@ test "plus and minus of a zero follow the add and subtract sign rule" {
     ) => {
       let outcome = op(Decimal::from_string(operand).unwrap(), ctx)
       assert_eq(outcome.value().to_string(), expected)
-      assert_true(outcome.raised() == GdaFlags::none())
+      assert_true(outcome.raised() == GdaFlags::new())
     }
     check(plus, "0", "0")
     check(plus, "-0", if floor { "-0" } else { "0" })

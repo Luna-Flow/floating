@@ -92,12 +92,12 @@ pub enum GdaOutcome[T] {
 pub fn[T] GdaOutcome::resume_defined(self : GdaOutcome[T]) -> GdaOutcome[T] {
   match self {
     Completed(_, _, _) => self
-    Trapped(_, value, context, _) => Completed(value, context, GdaFlags::none())
+    Trapped(_, value, context, _) => Completed(value, context, GdaFlags::new())
   }
 }
 
 ///|
-pub fn GdaFlags::none() -> GdaFlags {
+pub fn GdaFlags::new() -> GdaFlags {
   {
     conversion_syntax: false,
     division_by_zero: false,
@@ -273,7 +273,7 @@ fn decimal_flags_are_clear(flags : DecimalFlags) -> Bool {
 }
 
 ///|
-pub fn GdaTrapSet::none() -> GdaTrapSet {
+pub fn GdaTrapSet::new() -> GdaTrapSet {
   {
     conversion_syntax: false,
     division_by_zero: false,
@@ -478,7 +478,7 @@ fn GdaContext::build(
   e_max~ : Int32 = 999_999_999,
   clamp~ : Bool = false,
   extended~ : Bool = true,
-  traps~ : GdaTrapSet = GdaTrapSet::none(),
+  traps~ : GdaTrapSet = GdaTrapSet::new(),
 ) -> Result[GdaContext, String] {
   let bounds = @internal.DecimalExponentBounds::new(precision, e_min, e_max)
   guard bounds.is_valid() else {
@@ -503,7 +503,7 @@ fn GdaContext::build(
     e_max_: e_max,
     clamp_: clamp,
     extended_: extended,
-    status_: GdaFlags::none(),
+    status_: GdaFlags::new(),
     traps_: traps,
     decimal_,
     mathematical_: {
@@ -525,7 +525,7 @@ pub fn GdaContext::new(
   e_max~ : Int32 = 999_999_999,
   clamp~ : Bool = false,
   extended~ : Bool = true,
-  traps~ : GdaTrapSet = GdaTrapSet::none(),
+  traps~ : GdaTrapSet = GdaTrapSet::new(),
 ) -> GdaContext {
   match
     GdaContext::build(
@@ -550,7 +550,7 @@ pub fn GdaContext::try_new(
   e_max~ : Int32 = 999_999_999,
   clamp~ : Bool = false,
   extended~ : Bool = true,
-  traps~ : GdaTrapSet = GdaTrapSet::none(),
+  traps~ : GdaTrapSet = GdaTrapSet::new(),
 ) -> Result[GdaContext, @def.ArithmeticError] {
   match
     GdaContext::build(
@@ -598,7 +598,7 @@ let gda_basic_context_cache : GdaContext = GdaContext::new(
   rounding=GdaRoundingMode::HalfUp,
   extended=false,
   traps={
-    ..GdaTrapSet::none(),
+    ..GdaTrapSet::new(),
     division_by_zero: true,
     invalid_operation: true,
     overflow: true,
@@ -695,12 +695,12 @@ pub fn GdaContext::trap(
 
 ///|
 pub fn GdaContext::clear_status(self : GdaContext) -> GdaContext {
-  { ..self, status_: GdaFlags::none(), }
+  { ..self, status_: GdaFlags::new(), }
 }
 
 ///|
 pub fn GdaContext::reset(self : GdaContext) -> GdaContext {
-  { ..self, status_: GdaFlags::none(), traps_: GdaTrapSet::none(), }
+  { ..self, status_: GdaFlags::new(), traps_: GdaTrapSet::new(), }
 }
 
 ///|
@@ -743,7 +743,7 @@ fn[T] complete_gda(
   decimal_flags : DecimalFlags,
 ) -> GdaOutcome[T] {
   if decimal_flags_are_clear(decimal_flags) {
-    return Completed(value, context, GdaFlags::none())
+    return Completed(value, context, GdaFlags::new())
   }
   let raised = gda_flags_from_decimal(decimal_flags)
   let status_delta = if raised.contains(GdaSignal::InvalidOperation) {
