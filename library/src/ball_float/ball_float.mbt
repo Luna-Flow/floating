@@ -1886,6 +1886,33 @@ pub fn BallFloat::convex_hull(self : BallFloat, other : BallFloat) -> BallFloat 
 }
 
 ///|
+/// `cancelMinus` and `cancelPlus` of IEEE 1788-2015 (9.2, 10.5.6, 12.12.5): for
+/// nonempty bounded `x = [x1, x2]` and `y = [y1, y2]` the Level 1 value of
+/// `cancelMinus(x, y)` is defined "if and only if the width of x is not less
+/// than that of y, i.e., x2 - x1 >= y2 - y1", and is `[x1 - y1, x2 - y2]`;
+/// `cancelPlus(x, y)` is `cancelMinus(x, -y)`. The T-version "shall return an
+/// enclosure of the Level 1 value if the latter is defined, and Entire
+/// otherwise. It shall return Empty if the Level 1 value is Empty": Entire when
+/// either operand is unbounded, when `x` is nonempty and `y` empty, and when
+/// `width(x) < width(y)`; Empty when `x` is empty and `y` bounded. The decision
+/// `width(x) < width(y)` is `lower > upper` of the two exact end values (equal
+/// widths give a point, not Entire), so it is made on the exact end values
+/// (`exact_range`: nothing is rounded below the normal range; the far-addend
+/// surrogate of `exact_add` applies beyond a gap of 65,536 bits plus the
+/// precision) and the ends are rounded outward once at the precision.
+fn cancel_result(
+  lo : @bin_float.BinFloat,
+  hi : @bin_float.BinFloat,
+  precision : Int32,
+) -> BallFloat {
+  if lo.compare(hi) > 0 {
+    whole_real(precision)
+  } else {
+    quantize_interval(lo, hi, precision)
+  }
+}
+
+///|
 pub fn BallFloat::cancel_plus(self : BallFloat, other : BallFloat) -> BallFloat {
   let precision = Int32::max(self.precision_, other.precision_)
   if self.is_empty() {
@@ -1904,17 +1931,15 @@ pub fn BallFloat::cancel_plus(self : BallFloat, other : BallFloat) -> BallFloat 
     self.lo_,
     other.hi_,
     mode=BinaryRoundingMode::RoundTowardNegative,
+    exact_range=true,
   )
   let hi = exact_add(
     self.hi_,
     other.lo_,
     mode=BinaryRoundingMode::RoundTowardPositive,
+    exact_range=true,
   )
-  if lo.compare(hi) > 0 {
-    whole_real(precision)
-  } else {
-    quantize_interval(lo, hi, precision)
-  }
+  cancel_result(lo, hi, precision)
 }
 
 ///|
@@ -1935,21 +1960,19 @@ pub fn BallFloat::cancel_minus(
     !other.is_common_interval() {
     return whole_real(precision)
   }
-  let lo = exact_sub(
+  let lo = exact_add(
     self.lo_,
-    other.lo_,
+    other.lo_.neg(),
     mode=BinaryRoundingMode::RoundTowardNegative,
+    exact_range=true,
   )
-  let hi = exact_sub(
+  let hi = exact_add(
     self.hi_,
-    other.hi_,
+    other.hi_.neg(),
     mode=BinaryRoundingMode::RoundTowardPositive,
+    exact_range=true,
   )
-  if lo.compare(hi) > 0 {
-    whole_real(precision)
-  } else {
-    quantize_interval(lo, hi, precision)
-  }
+  cancel_result(lo, hi, precision)
 }
 
 ///|
