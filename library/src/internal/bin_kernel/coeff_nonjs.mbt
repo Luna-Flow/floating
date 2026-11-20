@@ -557,30 +557,9 @@ fn bin_coeff_mul_schoolbook(left : Coeff, right : Coeff) -> Coeff {
   let words = FixedArray::make(left_len + right_len, 0UL)
   match (left.0, right.0) {
     (Heap(left_words, _), Heap(right_words, _)) =>
-      for left_index in 0..<left_len {
-        let left_word = left_words.unsafe_get(left_index)
-        let left_low = left_word & bin_coeff_limb_mask
-        let left_high = left_word >> 32
-        let mut carry = 0UL
-        for right_index in 0..<right_len {
-          let index = left_index + right_index
-          let right_word = right_words.unsafe_get(right_index)
-          let low = left_word * right_word
-          let right_low = right_word & bin_coeff_limb_mask
-          let right_high = right_word >> 32
-          let cross = left_high * right_low + ((left_low * right_low) >> 32)
-          let product_high = left_high * right_high +
-            (cross >> 32) +
-            ((left_low * right_high + (cross & bin_coeff_limb_mask)) >> 32)
-          let partial = low + carry
-          let carry_one = if partial < low { 1UL } else { 0UL }
-          let total = partial + words.unsafe_get(index)
-          let carry_two = if total < partial { 1UL } else { 0UL }
-          words.unsafe_set(index, total)
-          carry = product_high + carry_one + carry_two
-        }
-        words.unsafe_set(left_index + right_len, carry)
-      }
+      bin_limbs_school(
+        words, 0, left_words, 0, left_len, right_words, 0, right_len,
+      )
     _ =>
       for left_index in 0..<left_len {
         let left_word = bin_coeff_word(left, left_index)
@@ -719,60 +698,7 @@ fn bin_coeff_square_schoolbook(value : Coeff) -> Coeff {
   }
   let output_len = source_len * 2
   let words = FixedArray::make(output_len, 0UL)
-  // the cross products a_i * a_j, i < j, once
-  for left_index in 0..<source_len {
-    let left_word = source.unsafe_get(left_index)
-    let left_low = left_word & bin_coeff_limb_mask
-    let left_high = left_word >> 32
-    let mut carry = 0UL
-    for right_index in (left_index + 1)..<source_len {
-      let offset = left_index + right_index
-      let right_word = source.unsafe_get(right_index)
-      let low = left_word * right_word
-      let right_low = right_word & bin_coeff_limb_mask
-      let right_high = right_word >> 32
-      let cross = left_high * right_low + ((left_low * right_low) >> 32)
-      let product_high = left_high * right_high +
-        (cross >> 32) +
-        ((left_low * right_high + (cross & bin_coeff_limb_mask)) >> 32)
-      let partial = low + carry
-      let carry_one = if partial < low { 1UL } else { 0UL }
-      let total = partial + words.unsafe_get(offset)
-      let carry_two = if total < partial { 1UL } else { 0UL }
-      words.unsafe_set(offset, total)
-      carry = product_high + carry_one + carry_two
-    }
-    words.unsafe_set(left_index + source_len, carry)
-  }
-  // double them
-  let mut shifted_out = 0UL
-  for index in 0..<output_len {
-    let word = words.unsafe_get(index)
-    words.unsafe_set(index, (word << 1) | shifted_out)
-    shifted_out = word >> 63
-  }
-  guard shifted_out == 0UL else {
-    abort("Coeff square doubling exceeded its output")
-  }
-  // add the squares a_i * a_i at 2 i
-  let mut carry = 0UL
-  for index in 0..<source_len {
-    let word = source.unsafe_get(index)
-    let low = word * word
-    let high = bin_coeff_mul_high(word, word)
-    let low_sum = words.unsafe_get(2 * index) + low
-    let low_carry = if low_sum < low { 1UL } else { 0UL }
-    let low_total = low_sum + carry
-    let low_carry_two = if low_total < low_sum { 1UL } else { 0UL }
-    words.unsafe_set(2 * index, low_total)
-    let high_sum = words.unsafe_get(2 * index + 1) + high
-    let high_carry = if high_sum < high { 1UL } else { 0UL }
-    let high_total = high_sum + low_carry + low_carry_two
-    let high_carry_two = if high_total < high_sum { 1UL } else { 0UL }
-    words.unsafe_set(2 * index + 1, high_total)
-    carry = high_carry + high_carry_two
-  }
-  guard carry == 0UL else { abort("Coeff square carry exceeded its output") }
+  bin_limbs_sqr_school(words, 0, source, 0, source_len)
   bin_coeff_from_words(words, output_len)
 }
 

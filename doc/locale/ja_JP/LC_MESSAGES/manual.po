@@ -1065,7 +1065,7 @@ msgstr "使われるのは `ctx.precision` だけです。オペランドは `wi
 #: manual/api/frontend/mpfr_expr.md:538
 #: manual/api/frontend/testfloat_expr.md:407
 #: manual/api/internal.md:506
-#: manual/api/internal/bin_kernel.md:79
+#: manual/api/internal/bin_kernel.md:80
 #: manual/api/internal/conformance.md:353
 #: manual/api/internal/decimal_kernel.md:92
 #: manual/api/internal/runner_cli.md:209
@@ -1082,7 +1082,7 @@ msgstr "公開インターフェース全体"
 #: manual/api/frontend/mpfr_expr.md:540
 #: manual/api/frontend/testfloat_expr.md:409
 #: manual/api/internal.md:508
-#: manual/api/internal/bin_kernel.md:81
+#: manual/api/internal/bin_kernel.md:82
 #: manual/api/internal/conformance.md:355
 #: manual/api/internal/decimal_kernel.md:94
 #: manual/api/internal/runner_cli.md:211
@@ -7354,10 +7354,14 @@ msgid "number theory and roots"
 msgstr "整数論と根"
 
 #: manual/api/internal/bin_kernel.md:71
+msgid "limb rows (C on native, portable elsewhere)"
+msgstr "リム行（nativeではC、他のターゲットでは移植可能な実装）"
+
+#: manual/api/internal/bin_kernel.md:72
 msgid "machine words"
 msgstr "マシンワード"
 
-#: manual/api/internal/bin_kernel.md:73
+#: manual/api/internal/bin_kernel.md:74
 msgid "The per-target thresholds (`bin_coeff_*_min_words`, `*_words`, `*_cutoff`) are private: they live in `coeff_thresholds_<target>.mbt` and are selected by `moon.pkg`. Preconditions are checked with `abort` (a negative shift count, a zero divisor): they are programmer errors of the caller, never conditions of an operation."
 msgstr "ターゲット別のしきい値（`bin_coeff_*_min_words`、`*_words`、`*_cutoff`）は非公開です。`coeff_thresholds_<target>.mbt` にあり、`moon.pkg` が選びます。前提条件は `abort` で検査されます（負のシフト量、ゼロ除数）。これらは呼び出し側のプログラミング誤りであり、演算の状態ではありません。"
 
@@ -8356,7 +8360,7 @@ msgid "`internal` and `internal/*`, `cli` and `cli/*`, `bench` and `bench/*`, `c
 msgstr "`internal` と `internal/*`、`cli` と `cli/*`、`bench` と `bench/*`、`consistency`、`doc_examples` は実装および検証のための基盤です。シンボルが `pkg.generated.mbti` に現れていても、長期的なアプリケーション契約になるとは限りません。依存する前にそのパッケージの設計ページを読んでください。"
 
 #: manual/architecture.md:274
-#: manual/design/internal/bin_kernel.md:52
+#: manual/design/internal/bin_kernel.md:81
 msgid "Invariants"
 msgstr "Invariant"
 
@@ -17357,26 +17361,50 @@ msgid "The word-wide `mul_high` and `div_wide` are used by the kernel and by the
 msgstr "ワード幅の `mul_high` と `div_wide` は、カーネルと `bin_float` の 1 ワード用パスの両方が使います。"
 
 #: manual/design/internal/bin_kernel.md:44
+msgid "Limb rows and the native C stub"
+msgstr "リム行とnativeのCスタブ"
+
+#: manual/design/internal/bin_kernel.md:46
+msgid "The inner loops of the schoolbook product and square are row primitives on 64-bit limbs: `mul_1`, `addmul_1`, `submul_1` (each takes arrays and offsets in limbs and returns a carry limb), the whole-call `school` and `sqr_school`. Each has a portable MoonBit function (`coeff_limbs_portable_nonjs.mbt`, `coeff_words_nonjs.mbt`), which is the reference, and a C function of the same name in `luna_limbs.c`. On the native target the wrappers of `coeff_limbs_native.mbt` check every range once per call, then call the C function; on wasm, wasm-gc and llvm the wrappers of `coeff_limbs_other_nonjs.mbt` call the portable one; JavaScript has no limb loops. The results are the same bit for bit; a differential test per primitive (`coeff_limbs_native_wbtest.mbt`) compares the two on lengths 1 to 200, edge limbs, carries through every position and the aliasing the callers use."
+msgstr "教科書的な乗算と二乗の内側ループは、64ビットリム上の行プリミティブです。`mul_1`、`addmul_1`、`submul_1`（配列とリム単位のオフセットを受け取り、キャリーのリムを返す）と、呼び出し全体を行う `school` と `sqr_school` です。それぞれに移植可能なMoonBit関数（`coeff_limbs_portable_nonjs.mbt`、`coeff_words_nonjs.mbt`）があり、これが基準実装です。`luna_limbs.c` には同名のC関数があります。nativeターゲットでは `coeff_limbs_native.mbt` のラッパーが呼び出しごとに範囲を一度検査してからC関数を呼び、wasm、wasm-gc、llvm では `coeff_limbs_other_nonjs.mbt` のラッパーが移植可能版を呼びます。JavaScriptにはリムのループがありません。結果はビット単位で一致します。プリミティブごとの差分テスト（`coeff_limbs_native_wbtest.mbt`）が、長さ1から200、境界のリム、すべての位置のキャリー、呼び出し側が使うエイリアスで両者を比較します。"
+
+#: manual/design/internal/bin_kernel.md:59
+msgid "The C file uses `unsigned __int128` where the compiler defines `__SIZEOF_INT128__` (gcc, clang) and four 32-bit products elsewhere. The intrinsics of MSVC (`_umul128`, `__umulh`) are not used: they have not been compiled and run, so `cl` takes the 32-bit branch (known follow-up)."
+msgstr "Cファイルは、コンパイラが `__SIZEOF_INT128__` を定義している場合（gcc、clang）は `unsigned __int128` を使い、それ以外では32ビット積4つを使います。MSVCの組み込み関数（`_umul128`、`__umulh`）は、コンパイルも実行もされていないため使いません。したがって `cl` は32ビットの分岐を使います（既知のフォローアップ）。"
+
+#: manual/design/internal/bin_kernel.md:63
+msgid "Test and benchmark knob: the environment variable `LUNA_FLOATING_PORTABLE`, read once at start, set to anything but empty or `0`, makes the native build run the portable loops. It changes speed only. `getenv` may warn on MSVC; that platform is untested."
+msgstr "テストとベンチマーク用のスイッチ：環境変数 `LUNA_FLOATING_PORTABLE` は起動時に一度だけ読まれ、空でも `0` でもない値に設定するとnativeビルドは移植可能なループを実行します。変わるのは速度だけです。MSVCでは `getenv` が警告を出すことがあります。このプラットフォームは未テストです。"
+
+#: manual/design/internal/bin_kernel.md:67
+msgid "Measured on arm64 (Apple clang, release): about 21 to 23 instructions per limb pair in the portable loop, 11 to 12 in C. x86-64: the stub compiles and its tests run in CI, no instruction table (not measured)."
+msgstr "arm64（Apple clang、release）での測定：移植可能なループはリム対あたり約21〜23命令、Cは11〜12命令です。x86-64：スタブはCIでコンパイルされテストも実行されますが、命令数の表はありません（未測定）。"
+
+#: manual/design/internal/bin_kernel.md:70
+msgid "Rows are not worth a C version for add, subtract and shifts: the portable loop is as short."
+msgstr "加算、減算、シフトにはC版の価値がありません。移植可能なループがすでに同じ短さです。"
+
+#: manual/design/internal/bin_kernel.md:73
 msgid "Thresholds"
 msgstr "しきい値"
 
-#: manual/design/internal/bin_kernel.md:46
+#: manual/design/internal/bin_kernel.md:75
 msgid "The cutoffs are named `*_min_words` or `*_words` (64-bit limbs) and chosen per target in `coeff_thresholds_<target>.mbt`. They are policy, not semantics: the dispatch tests cross every one of them and compare with the schoolbook result. The cutoffs of the elementary functions are not kernel policy and stay in `bin_float`."
 msgstr "切り替え点は `*_min_words` または `*_words`（64 ビットリム）と名付けられ、ターゲットごとに `coeff_thresholds_<target>.mbt` で選ばれます。これらは意味論ではなく方針です。振り分けテストはすべての切り替え点をちょうど跨ぎ、教科書的乗算の結果と比較します。初等関数の切り替え点はカーネルの方針ではなく、`bin_float` に残ります。"
 
-#: manual/design/internal/bin_kernel.md:54
+#: manual/design/internal/bin_kernel.md:83
 msgid "A `Heap` coefficient has `len >= 3` limbs, the top limb is nonzero, and no function mutates the array of an operand."
 msgstr "`Heap` の係数は `len >= 3` 個のリムを持ち、最上位リムは 0 ではなく、どの関数もオペランドの配列を変更しません。"
 
-#: manual/design/internal/bin_kernel.md:56
+#: manual/design/internal/bin_kernel.md:85
 msgid "The producers of fresh values (`Coeff::mul` for nonzero operands, `bin_coeff_div_scaled_quotient`, `bin_coeff_div_short_quotient`, `bin_coeff_sqrt_scaled_rounded`) return a `Heap` coefficient whose array no operand and no other value refers to; inline results and the shared `Coeff::zero()` carry no array, and a shift by zero returns its receiver. A caller may keep or modify such an array."
 msgstr "新しい値を作る関数（非零のオペランドに対する `Coeff::mul`、`bin_coeff_div_scaled_quotient`、`bin_coeff_div_short_quotient`、`bin_coeff_sqrt_scaled_rounded`）は、どのオペランドも他の値も参照しない配列を持つ `Heap` 係数を返す。インライン結果と共有の `Coeff::zero()` は配列を持たず、シフト量が 0 のときはレシーバ自身を返す。呼び出し側はそのような配列を保持または変更してよい。"
 
-#: manual/design/internal/bin_kernel.md:57
+#: manual/design/internal/bin_kernel.md:86
 msgid "`Inline64` and `Inline128` are the only representations of values below $2^{128}$; `bin_coeff_from_words` normalizes."
 msgstr "`Inline64` と `Inline128` は $2^{128}$ 未満の値の唯一の表現であり、`bin_coeff_from_words` が正規化します。"
 
-#: manual/design/internal/bin_kernel.md:59
+#: manual/design/internal/bin_kernel.md:88
 msgid "No function aborts except on a violated precondition (a zero divisor, a negative shift)."
 msgstr "前提条件の違反（ゼロ除数、負のシフト）を除き、abort する関数はありません。"
 

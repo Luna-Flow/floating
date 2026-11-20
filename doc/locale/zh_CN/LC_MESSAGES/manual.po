@@ -1065,7 +1065,7 @@ msgstr "只使用 `ctx.precision`：操作数先用 `with_precision` 重新舍�
 #: manual/api/frontend/mpfr_expr.md:538
 #: manual/api/frontend/testfloat_expr.md:407
 #: manual/api/internal.md:506
-#: manual/api/internal/bin_kernel.md:79
+#: manual/api/internal/bin_kernel.md:80
 #: manual/api/internal/conformance.md:353
 #: manual/api/internal/decimal_kernel.md:92
 #: manual/api/internal/runner_cli.md:209
@@ -1082,7 +1082,7 @@ msgstr "完整公共接口"
 #: manual/api/frontend/mpfr_expr.md:540
 #: manual/api/frontend/testfloat_expr.md:409
 #: manual/api/internal.md:508
-#: manual/api/internal/bin_kernel.md:81
+#: manual/api/internal/bin_kernel.md:82
 #: manual/api/internal/conformance.md:355
 #: manual/api/internal/decimal_kernel.md:94
 #: manual/api/internal/runner_cli.md:211
@@ -7354,10 +7354,14 @@ msgid "number theory and roots"
 msgstr "数论与开方"
 
 #: manual/api/internal/bin_kernel.md:71
+msgid "limb rows (C on native, portable elsewhere)"
+msgstr "肢行（native 上为 C，其他目标为可移植实现）"
+
+#: manual/api/internal/bin_kernel.md:72
 msgid "machine words"
 msgstr "机器字"
 
-#: manual/api/internal/bin_kernel.md:73
+#: manual/api/internal/bin_kernel.md:74
 msgid "The per-target thresholds (`bin_coeff_*_min_words`, `*_words`, `*_cutoff`) are private: they live in `coeff_thresholds_<target>.mbt` and are selected by `moon.pkg`. Preconditions are checked with `abort` (a negative shift count, a zero divisor): they are programmer errors of the caller, never conditions of an operation."
 msgstr "分目标阈值（`bin_coeff_*_min_words`、`*_words`、`*_cutoff`）是私有的：它们位于 `coeff_thresholds_<target>.mbt`，由 `moon.pkg` 选择。前置条件用 `abort` 检查（负的移位量、零除数）：它们是调用者的编程错误，而不是运算的状况。"
 
@@ -8356,7 +8360,7 @@ msgid "`internal` and `internal/*`, `cli` and `cli/*`, `bench` and `bench/*`, `c
 msgstr "`internal` 与 `internal/*`、`cli` 与 `cli/*`、`bench` 与 `bench/*`、`consistency` 以及 `doc_examples` 属于实现与验证基础设施。某个符号出现在 `pkg.generated.mbti` 中，并不意味着它成为长期的应用契约；依赖它之前请先阅读该包的设计页面。"
 
 #: manual/architecture.md:274
-#: manual/design/internal/bin_kernel.md:52
+#: manual/design/internal/bin_kernel.md:81
 msgid "Invariants"
 msgstr "不变量"
 
@@ -17357,26 +17361,50 @@ msgid "The word-wide `mul_high` and `div_wide` are used by the kernel and by the
 msgstr "字宽的 `mul_high` 和 `div_wide` 由内核和 `bin_float` 的单字路径共同使用。"
 
 #: manual/design/internal/bin_kernel.md:44
+msgid "Limb rows and the native C stub"
+msgstr "肢行与 native 的 C 桩"
+
+#: manual/design/internal/bin_kernel.md:46
+msgid "The inner loops of the schoolbook product and square are row primitives on 64-bit limbs: `mul_1`, `addmul_1`, `submul_1` (each takes arrays and offsets in limbs and returns a carry limb), the whole-call `school` and `sqr_school`. Each has a portable MoonBit function (`coeff_limbs_portable_nonjs.mbt`, `coeff_words_nonjs.mbt`), which is the reference, and a C function of the same name in `luna_limbs.c`. On the native target the wrappers of `coeff_limbs_native.mbt` check every range once per call, then call the C function; on wasm, wasm-gc and llvm the wrappers of `coeff_limbs_other_nonjs.mbt` call the portable one; JavaScript has no limb loops. The results are the same bit for bit; a differential test per primitive (`coeff_limbs_native_wbtest.mbt`) compares the two on lengths 1 to 200, edge limbs, carries through every position and the aliasing the callers use."
+msgstr "教科书式乘法与平方的内层循环是基于 64 位肢的行原语：`mul_1`、`addmul_1`、`submul_1`（参数为数组和以肢为单位的偏移，返回一个进位肢），以及整体调用的 `school` 与 `sqr_school`。每个原语都有一个可移植的 MoonBit 函数（`coeff_limbs_portable_nonjs.mbt`、`coeff_words_nonjs.mbt`），它是参照实现；`luna_limbs.c` 中有同名的 C 函数。在 native 目标上，`coeff_limbs_native.mbt` 的包装函数每次调用先检查一次所有范围，再调用 C 函数；在 wasm、wasm-gc 和 llvm 上，`coeff_limbs_other_nonjs.mbt` 的包装函数调用可移植版本；JavaScript 没有肢循环。结果逐位相同；每个原语都有差分测试（`coeff_limbs_native_wbtest.mbt`），在长度 1 到 200、边界肢、每个位置的进位以及调用方使用的别名情形下比较两者。"
+
+#: manual/design/internal/bin_kernel.md:59
+msgid "The C file uses `unsigned __int128` where the compiler defines `__SIZEOF_INT128__` (gcc, clang) and four 32-bit products elsewhere. The intrinsics of MSVC (`_umul128`, `__umulh`) are not used: they have not been compiled and run, so `cl` takes the 32-bit branch (known follow-up)."
+msgstr "C 文件在编译器定义了 `__SIZEOF_INT128__` 时（gcc、clang）使用 `unsigned __int128`，其他情况使用四个 32 位乘积。MSVC 的内建函数（`_umul128`、`__umulh`）未被使用：它们尚未编译和运行过，所以 `cl` 走 32 位分支（已知的后续工作）。"
+
+#: manual/design/internal/bin_kernel.md:63
+msgid "Test and benchmark knob: the environment variable `LUNA_FLOATING_PORTABLE`, read once at start, set to anything but empty or `0`, makes the native build run the portable loops. It changes speed only. `getenv` may warn on MSVC; that platform is untested."
+msgstr "测试与基准开关：环境变量 `LUNA_FLOATING_PORTABLE` 在启动时读取一次，设为非空且不为 `0` 的任何值时，native 构建运行可移植循环。它只改变速度。`getenv` 在 MSVC 上可能产生警告；该平台未经测试。"
+
+#: manual/design/internal/bin_kernel.md:67
+msgid "Measured on arm64 (Apple clang, release): about 21 to 23 instructions per limb pair in the portable loop, 11 to 12 in C. x86-64: the stub compiles and its tests run in CI, no instruction table (not measured)."
+msgstr "在 arm64（Apple clang，release）上的测量：可移植循环每个肢对约 21 到 23 条指令，C 为 11 到 12 条。x86-64：桩在 CI 中编译并运行测试，没有指令数表（未测量）。"
+
+#: manual/design/internal/bin_kernel.md:70
+msgid "Rows are not worth a C version for add, subtract and shifts: the portable loop is as short."
+msgstr "加法、减法和移位不值得做 C 版本：可移植循环已经同样短。"
+
+#: manual/design/internal/bin_kernel.md:73
 msgid "Thresholds"
 msgstr "阈值"
 
-#: manual/design/internal/bin_kernel.md:46
+#: manual/design/internal/bin_kernel.md:75
 msgid "The cutoffs are named `*_min_words` or `*_words` (64-bit limbs) and chosen per target in `coeff_thresholds_<target>.mbt`. They are policy, not semantics: the dispatch tests cross every one of them and compare with the schoolbook result. The cutoffs of the elementary functions are not kernel policy and stay in `bin_float`."
 msgstr "分界点命名为 `*_min_words` 或 `*_words`（64 位肢），按目标在 `coeff_thresholds_<target>.mbt` 中选择。它们是策略而非语义：分派测试会恰好跨过每一个分界点，并与朴素乘法的结果比较。初等函数的分界点不是内核策略，仍留在 `bin_float`。"
 
-#: manual/design/internal/bin_kernel.md:54
+#: manual/design/internal/bin_kernel.md:83
 msgid "A `Heap` coefficient has `len >= 3` limbs, the top limb is nonzero, and no function mutates the array of an operand."
 msgstr "`Heap` 系数有 `len >= 3` 个肢，最高肢非零，且没有函数会修改操作数的数组。"
 
-#: manual/design/internal/bin_kernel.md:56
+#: manual/design/internal/bin_kernel.md:85
 msgid "The producers of fresh values (`Coeff::mul` for nonzero operands, `bin_coeff_div_scaled_quotient`, `bin_coeff_div_short_quotient`, `bin_coeff_sqrt_scaled_rounded`) return a `Heap` coefficient whose array no operand and no other value refers to; inline results and the shared `Coeff::zero()` carry no array, and a shift by zero returns its receiver. A caller may keep or modify such an array."
 msgstr "生成新值的函数（对非零操作数的 `Coeff::mul`、`bin_coeff_div_scaled_quotient`、`bin_coeff_div_short_quotient`、`bin_coeff_sqrt_scaled_rounded`）返回的 `Heap` 系数拥有一个数组，任何操作数和其他值都不引用它；内联结果和共享的 `Coeff::zero()` 不带数组，移位量为零时返回接收者本身。调用者可以保留或修改这样的数组。"
 
-#: manual/design/internal/bin_kernel.md:57
+#: manual/design/internal/bin_kernel.md:86
 msgid "`Inline64` and `Inline128` are the only representations of values below $2^{128}$; `bin_coeff_from_words` normalizes."
 msgstr "`Inline64` 和 `Inline128` 是低于 $2^{128}$ 的值的唯一表示；`bin_coeff_from_words` 会做规范化。"
 
-#: manual/design/internal/bin_kernel.md:59
+#: manual/design/internal/bin_kernel.md:88
 msgid "No function aborts except on a violated precondition (a zero divisor, a negative shift)."
 msgstr "除违反前置条件（零除数、负移位）外，没有函数会中止。"
 

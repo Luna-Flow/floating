@@ -41,6 +41,35 @@ choice of algorithm cannot change a rounded result, a flag or an encoding.
 | JavaScript | `Coeff` is a host `bigint` (`coeff_js.mbt`); no kernel algorithms | The host's arbitrary-precision integers are the kernel there. |
 | Machine words | `binary_fast_*` live here | The word-wide `mul_high` and `div_wide` are used by the kernel and by the single-word paths of `bin_float`. |
 
+## Limb rows and the native C stub
+
+The inner loops of the schoolbook product and square are row primitives on
+64-bit limbs: `mul_1`, `addmul_1`, `submul_1` (each takes arrays and offsets in
+limbs and returns a carry limb), the whole-call `school` and `sqr_school`.
+Each has a portable MoonBit function (`coeff_limbs_portable_nonjs.mbt`,
+`coeff_words_nonjs.mbt`), which is the reference, and a C function of the same
+name in `luna_limbs.c`. On the native target the wrappers of
+`coeff_limbs_native.mbt` check every range once per call, then call the C
+function; on wasm, wasm-gc and llvm the wrappers of `coeff_limbs_other_nonjs.mbt`
+call the portable one; JavaScript has no limb loops. The results are the same bit
+for bit; a differential test per primitive (`coeff_limbs_native_wbtest.mbt`)
+compares the two on lengths 1 to 200, edge limbs, carries through every position
+and the aliasing the callers use.
+
+- The C file uses `unsigned __int128` where the compiler defines
+  `__SIZEOF_INT128__` (gcc, clang) and four 32-bit products elsewhere. The
+  intrinsics of MSVC (`_umul128`, `__umulh`) are not used: they have not been
+  compiled and run, so `cl` takes the 32-bit branch (known follow-up).
+- Test and benchmark knob: the environment variable `LUNA_FLOATING_PORTABLE`,
+  read once at start, set to anything but empty or `0`, makes the native build
+  run the portable loops. It changes speed only. `getenv` may warn on MSVC; that
+  platform is untested.
+- Measured on arm64 (Apple clang, release): about 21 to 23 instructions per limb
+  pair in the portable loop, 11 to 12 in C. x86-64: the stub compiles and its
+  tests run in CI, no instruction table (not measured).
+- Rows are not worth a C version for add, subtract and shifts: the portable loop
+  is as short.
+
 ## Thresholds
 
 The cutoffs are named `*_min_words` or `*_words` (64-bit limbs) and chosen per

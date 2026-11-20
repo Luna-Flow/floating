@@ -1059,7 +1059,7 @@ msgstr ""
 #: manual/api/frontend/mpfr_expr.md:538
 #: manual/api/frontend/testfloat_expr.md:407
 #: manual/api/internal.md:506
-#: manual/api/internal/bin_kernel.md:79
+#: manual/api/internal/bin_kernel.md:80
 #: manual/api/internal/conformance.md:353
 #: manual/api/internal/decimal_kernel.md:92
 #: manual/api/internal/runner_cli.md:209
@@ -1076,7 +1076,7 @@ msgstr ""
 #: manual/api/frontend/mpfr_expr.md:540
 #: manual/api/frontend/testfloat_expr.md:409
 #: manual/api/internal.md:508
-#: manual/api/internal/bin_kernel.md:81
+#: manual/api/internal/bin_kernel.md:82
 #: manual/api/internal/conformance.md:355
 #: manual/api/internal/decimal_kernel.md:94
 #: manual/api/internal/runner_cli.md:211
@@ -7334,10 +7334,14 @@ msgid "number theory and roots"
 msgstr ""
 
 #: manual/api/internal/bin_kernel.md:71
+msgid "limb rows (C on native, portable elsewhere)"
+msgstr ""
+
+#: manual/api/internal/bin_kernel.md:72
 msgid "machine words"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:73
+#: manual/api/internal/bin_kernel.md:74
 msgid "The per-target thresholds (`bin_coeff_*_min_words`, `*_words`, `*_cutoff`) are private: they live in `coeff_thresholds_<target>.mbt` and are selected by `moon.pkg`. Preconditions are checked with `abort` (a negative shift count, a zero divisor): they are programmer errors of the caller, never conditions of an operation."
 msgstr ""
 
@@ -8336,7 +8340,7 @@ msgid "`internal` and `internal/*`, `cli` and `cli/*`, `bench` and `bench/*`, `c
 msgstr ""
 
 #: manual/architecture.md:274
-#: manual/design/internal/bin_kernel.md:52
+#: manual/design/internal/bin_kernel.md:81
 msgid "Invariants"
 msgstr ""
 
@@ -17228,26 +17232,50 @@ msgid "The word-wide `mul_high` and `div_wide` are used by the kernel and by the
 msgstr ""
 
 #: manual/design/internal/bin_kernel.md:44
-msgid "Thresholds"
+msgid "Limb rows and the native C stub"
 msgstr ""
 
 #: manual/design/internal/bin_kernel.md:46
-msgid "The cutoffs are named `*_min_words` or `*_words` (64-bit limbs) and chosen per target in `coeff_thresholds_<target>.mbt`. They are policy, not semantics: the dispatch tests cross every one of them and compare with the schoolbook result. The cutoffs of the elementary functions are not kernel policy and stay in `bin_float`."
-msgstr ""
-
-#: manual/design/internal/bin_kernel.md:54
-msgid "A `Heap` coefficient has `len >= 3` limbs, the top limb is nonzero, and no function mutates the array of an operand."
-msgstr ""
-
-#: manual/design/internal/bin_kernel.md:56
-msgid "The producers of fresh values (`Coeff::mul` for nonzero operands, `bin_coeff_div_scaled_quotient`, `bin_coeff_div_short_quotient`, `bin_coeff_sqrt_scaled_rounded`) return a `Heap` coefficient whose array no operand and no other value refers to; inline results and the shared `Coeff::zero()` carry no array, and a shift by zero returns its receiver. A caller may keep or modify such an array."
-msgstr ""
-
-#: manual/design/internal/bin_kernel.md:57
-msgid "`Inline64` and `Inline128` are the only representations of values below $2^{128}$; `bin_coeff_from_words` normalizes."
+msgid "The inner loops of the schoolbook product and square are row primitives on 64-bit limbs: `mul_1`, `addmul_1`, `submul_1` (each takes arrays and offsets in limbs and returns a carry limb), the whole-call `school` and `sqr_school`. Each has a portable MoonBit function (`coeff_limbs_portable_nonjs.mbt`, `coeff_words_nonjs.mbt`), which is the reference, and a C function of the same name in `luna_limbs.c`. On the native target the wrappers of `coeff_limbs_native.mbt` check every range once per call, then call the C function; on wasm, wasm-gc and llvm the wrappers of `coeff_limbs_other_nonjs.mbt` call the portable one; JavaScript has no limb loops. The results are the same bit for bit; a differential test per primitive (`coeff_limbs_native_wbtest.mbt`) compares the two on lengths 1 to 200, edge limbs, carries through every position and the aliasing the callers use."
 msgstr ""
 
 #: manual/design/internal/bin_kernel.md:59
+msgid "The C file uses `unsigned __int128` where the compiler defines `__SIZEOF_INT128__` (gcc, clang) and four 32-bit products elsewhere. The intrinsics of MSVC (`_umul128`, `__umulh`) are not used: they have not been compiled and run, so `cl` takes the 32-bit branch (known follow-up)."
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:63
+msgid "Test and benchmark knob: the environment variable `LUNA_FLOATING_PORTABLE`, read once at start, set to anything but empty or `0`, makes the native build run the portable loops. It changes speed only. `getenv` may warn on MSVC; that platform is untested."
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:67
+msgid "Measured on arm64 (Apple clang, release): about 21 to 23 instructions per limb pair in the portable loop, 11 to 12 in C. x86-64: the stub compiles and its tests run in CI, no instruction table (not measured)."
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:70
+msgid "Rows are not worth a C version for add, subtract and shifts: the portable loop is as short."
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:73
+msgid "Thresholds"
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:75
+msgid "The cutoffs are named `*_min_words` or `*_words` (64-bit limbs) and chosen per target in `coeff_thresholds_<target>.mbt`. They are policy, not semantics: the dispatch tests cross every one of them and compare with the schoolbook result. The cutoffs of the elementary functions are not kernel policy and stay in `bin_float`."
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:83
+msgid "A `Heap` coefficient has `len >= 3` limbs, the top limb is nonzero, and no function mutates the array of an operand."
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:85
+msgid "The producers of fresh values (`Coeff::mul` for nonzero operands, `bin_coeff_div_scaled_quotient`, `bin_coeff_div_short_quotient`, `bin_coeff_sqrt_scaled_rounded`) return a `Heap` coefficient whose array no operand and no other value refers to; inline results and the shared `Coeff::zero()` carry no array, and a shift by zero returns its receiver. A caller may keep or modify such an array."
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:86
+msgid "`Inline64` and `Inline128` are the only representations of values below $2^{128}$; `bin_coeff_from_words` normalizes."
+msgstr ""
+
+#: manual/design/internal/bin_kernel.md:88
 msgid "No function aborts except on a violated precondition (a zero divisor, a negative shift)."
 msgstr ""
 

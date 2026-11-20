@@ -250,7 +250,7 @@ fn bin_coeff_words_mul_scratch(
 ) -> Unit {
   let shorter = Int32::min(left_len, right_len)
   if shorter < bin_coeff_words_karatsuba_cutoff {
-    bin_coeff_words_school(
+    bin_limbs_school(
       result, result_offset, left, left_offset, left_len, right, right_offset, right_len,
     )
     return
@@ -535,9 +535,7 @@ fn bin_coeff_words_sqr_scratch(
   scratch_offset : Int32,
 ) -> Unit {
   if len < bin_coeff_words_square_cutoff {
-    bin_coeff_words_sqr_school(
-      result, result_offset, source, source_offset, len,
-    )
+    bin_limbs_sqr_school(result, result_offset, source, source_offset, len)
     return
   }
   let half = (len + 1) / 2
