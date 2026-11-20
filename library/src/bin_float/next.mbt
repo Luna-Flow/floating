@@ -7,11 +7,11 @@ pub fn BinFloat::next_up_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  match self.class {
+  match self.class() {
     FpClass::NaN =>
       (
         binary_quiet_nan(self, context.precision),
-        if self.signaling_nan {
+        if self.signaling() {
           binary_invalid_flags()
         } else {
           BinaryFlags::new()
@@ -19,7 +19,7 @@ pub fn BinFloat::next_up_ctx(
       )
     FpClass::Infinity =>
       (
-        if self.negative {
+        if self.negative() {
           binary_max_finite(true, context)
         } else {
           self
@@ -31,13 +31,13 @@ pub fn BinFloat::next_up_ctx(
       // it and rounding upward lands on the next representable value.
       let precision = context.precision.to_int64()
       let floor = context.range_e_min().to_int64() - precision
-      let position = if self.coefficient_.is_zero() {
+      let position = if self.coefficient_().is_zero() {
         floor
       } else {
-        let top = binary_exact_top(self.coefficient_, self.exponent2).to_int64()
+        let top = binary_exact_top(self.coefficient_(), self.exponent2_()).to_int64()
         Int64::min(
           floor,
-          Int64::min(self.exponent2.to_int64(), top - precision),
+          Int64::min(self.exponent2_().to_int64(), top - precision),
         )
       }
       let step = finite_normalized(

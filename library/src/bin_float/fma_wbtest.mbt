@@ -176,21 +176,21 @@ fn fma_reference(
   c : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  let product_negative = a.negative != b.negative
-  let product = a.coefficient_.mul(b.coefficient_)
-  let product_exponent = a.exponent2 + b.exponent2
+  let product_negative = a.negative() != b.negative()
+  let product = a.coefficient_().mul(b.coefficient_())
+  let product_exponent = a.exponent2_() + b.exponent2_()
   if product.is_zero() && c.is_zero() {
     return a.mul_ctx(b, BinaryContext::new(precision=106)).0.add_ctx(c, context)
   }
-  let target = Int32::min(product_exponent, c.exponent2)
+  let target = Int32::min(product_exponent, c.exponent2_())
   let left = product.shift_left(product_exponent - target)
-  let right = c.coefficient_.shift_left(c.exponent2 - target)
-  let (negative, magnitude) = if product_negative == c.negative {
-    (c.negative, left.add(right))
+  let right = c.coefficient_().shift_left(c.exponent2_() - target)
+  let (negative, magnitude) = if product_negative == c.negative() {
+    (c.negative(), left.add(right))
   } else if left.compare(right) >= 0 {
     (product_negative, left.sub_checked(right).unwrap())
   } else {
-    (c.negative, right.sub_checked(left).unwrap())
+    (c.negative(), right.sub_checked(left).unwrap())
   }
   if magnitude.is_zero() {
     return (

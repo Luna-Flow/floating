@@ -42,7 +42,7 @@ fn tiny_model(
   } else {
     base.sub_checked(Coeff::one()).unwrap()
   }
-  let magnitude = x.coefficient_.mul(factor)
+  let magnitude = x.coefficient_().mul(factor)
   let (value, flags) = binary_round_dyadic(
     x.is_negative(),
     magnitude,

@@ -85,9 +85,9 @@ fn binary_ln_bounds_series_reference(
   guard value.classify() == FpClass::Finite && value.sign() == Sign::Positive else {
     return None
   }
-  let coefficient_bits = value.coefficient_.bit_length()
+  let coefficient_bits = value.coefficient_().bit_length()
   let normalized = BinFloat::make_coeff(
-    value.coefficient_,
+    value.coefficient_(),
     -(coefficient_bits - 1),
     Int32::max(work_precision, coefficient_bits),
   )
@@ -181,14 +181,14 @@ test "fixed-point ln enclosure contains a tighter series enclosure and is not lo
         value
       } else {
         BinFloat::make_coeff(
-          value.coefficient_,
-          -(value.coefficient_.bit_length() - 1),
-          Int32::max(value.coefficient_.bit_length(), 2),
+          value.coefficient_(),
+          -(value.coefficient_().bit_length() - 1),
+          Int32::max(value.coefficient_().bit_length(), 2),
         )
       }
       let fixed = binary_ln_unit_fixed_bounds(unit, work)
       if unit.compare(BinFloat::one()) > 0 &&
-        unit.coefficient_.bit_length() <= work &&
+        unit.coefficient_().bit_length() <= work &&
         unit.exponent2() > -4 * work {
         assert_true(fixed is Some(_))
       }

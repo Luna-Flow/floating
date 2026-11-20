@@ -112,7 +112,7 @@ fn binary_inexact_inner_endpoint(
     return endpoint
   }
   // Coefficients are odd, so bit_length counts the significant bits.
-  let coefficient = endpoint.coefficient_
+  let coefficient = endpoint.coefficient_()
   guard coefficient.bit_length() <= context.precision + 1 else {
     return endpoint
   }
@@ -160,7 +160,7 @@ fn binary_tiny_argument_result(
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags)? {
   let anchor_top = anchor.exponent2().to_int64() +
-    (anchor.coefficient_.bit_length() - 1).to_int64()
+    (anchor.coefficient_().bit_length() - 1).to_int64()
   let precision = context.precision.to_int64()
   guard scale < anchor_top - precision - 3L else { return None }
   let offset_exponent = Int64::max(scale, anchor_top - precision - 8L)
@@ -211,7 +211,7 @@ fn binary_tiny_argument_result(
 ///|
 /// Exponent bound of a finite nonzero value: |x| < 2^(binary_top_bound(x)).
 fn binary_top_bound(value : BinFloat) -> Int64 {
-  value.exponent2().to_int64() + value.coefficient_.bit_length().to_int64()
+  value.exponent2().to_int64() + value.coefficient_().bit_length().to_int64()
 }
 
 ///|
@@ -575,7 +575,7 @@ fn binary_log2_linear_out_of_range(
     context.precision.to_int64()
   // |value| < 2^(top + 1) and scale < 2^scale_bits, so small arguments skip
   // the certified constants entirely.
-  let top = binary_exact_top(value.coefficient_, value.exponent2)
+  let top = binary_exact_top(value.coefficient_(), value.exponent2_())
   if top + 1 + scale_bits < 62 {
     let reach = 1L << (top + 1 + scale_bits)
     if reach < overflow_limit && -reach > tiny_limit {
@@ -773,9 +773,9 @@ fn binary_ln_bounds(
   guard value.classify() == FpClass::Finite && value.sign() == Sign::Positive else {
     return None
   }
-  let coefficient_bits = value.coefficient_.bit_length()
+  let coefficient_bits = value.coefficient_().bit_length()
   let normalized = BinFloat::make_coeff(
-    value.coefficient_,
+    value.coefficient_(),
     -(coefficient_bits - 1),
     Int32::max(work_precision, coefficient_bits),
   )
@@ -1308,12 +1308,12 @@ pub fn BinFloat::try_exp_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
-  match self.class {
+  match self.class() {
     FpClass::NaN =>
       Ok(
         (
           binary_quiet_nan(self, context.precision),
-          if self.signaling_nan {
+          if self.signaling() {
             binary_invalid_flags()
           } else {
             BinaryFlags::new()
@@ -1323,7 +1323,7 @@ pub fn BinFloat::try_exp_ctx(
     FpClass::Infinity =>
       Ok(
         (
-          if self.negative {
+          if self.negative() {
             BinFloat::zero_raw(precision=context.precision)
           } else {
             BinFloat::inf_raw(Sign::Positive, precision=context.precision)
@@ -1397,12 +1397,12 @@ pub fn BinFloat::try_expm1_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
-  match self.class {
+  match self.class() {
     FpClass::NaN =>
       Ok(
         (
           binary_quiet_nan(self, context.precision),
-          if self.signaling_nan {
+          if self.signaling() {
             binary_invalid_flags()
           } else {
             BinaryFlags::new()
@@ -1509,12 +1509,12 @@ pub fn BinFloat::try_log1p_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
-  match self.class {
+  match self.class() {
     FpClass::NaN =>
       Ok(
         (
           binary_quiet_nan(self, context.precision),
-          if self.signaling_nan {
+          if self.signaling() {
             binary_invalid_flags()
           } else {
             BinaryFlags::new()
@@ -1600,12 +1600,12 @@ pub fn BinFloat::try_exp2_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
-  match self.class {
+  match self.class() {
     FpClass::NaN =>
       Ok(
         (
           binary_quiet_nan(self, context.precision),
-          if self.signaling_nan {
+          if self.signaling() {
             binary_invalid_flags()
           } else {
             BinaryFlags::new()
@@ -1689,12 +1689,12 @@ pub fn BinFloat::try_log2_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
-  match self.class {
+  match self.class() {
     FpClass::NaN =>
       Ok(
         (
           binary_quiet_nan(self, context.precision),
-          if self.signaling_nan {
+          if self.signaling() {
             binary_invalid_flags()
           } else {
             BinaryFlags::new()
@@ -1727,7 +1727,7 @@ pub fn BinFloat::try_log2_ctx(
       0 =>
       Ok((BinFloat::zero_raw(precision=context.precision), BinaryFlags::new()))
     FpClass::Finite => {
-      if self.coefficient_.compare(Coeff::one()) == 0 {
+      if self.coefficient_().compare(Coeff::one()) == 0 {
         let exact = BinFloat::from_int_raw(self.exponent2(), precision=64)
         return Ok(exact.round_ctx(context))
       }
@@ -1774,12 +1774,12 @@ pub fn BinFloat::try_exp10_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
-  match self.class {
+  match self.class() {
     FpClass::NaN =>
       Ok(
         (
           binary_quiet_nan(self, context.precision),
-          if self.signaling_nan {
+          if self.signaling() {
             binary_invalid_flags()
           } else {
             BinaryFlags::new()
@@ -1789,7 +1789,7 @@ pub fn BinFloat::try_exp10_ctx(
     FpClass::Infinity =>
       Ok(
         (
-          if self.negative {
+          if self.negative() {
             BinFloat::zero_raw(precision=context.precision)
           } else {
             BinFloat::inf_raw(Sign::Positive, precision=context.precision)
@@ -1917,19 +1917,19 @@ pub fn BinFloat::try_log10_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
-  match self.class {
+  match self.class() {
     FpClass::NaN =>
       Ok(
         (
           binary_quiet_nan(self, context.precision),
-          if self.signaling_nan {
+          if self.signaling() {
             binary_invalid_flags()
           } else {
             BinaryFlags::new()
           },
         ),
       )
-    FpClass::Infinity if self.negative =>
+    FpClass::Infinity if self.negative() =>
       Ok(
         (BinFloat::nan_raw(precision=context.precision), binary_invalid_flags()),
       )
@@ -1947,7 +1947,7 @@ pub fn BinFloat::try_log10_ctx(
           binary_division_by_zero_flags(),
         ),
       )
-    FpClass::Finite if self.negative =>
+    FpClass::Finite if self.negative() =>
       Err(@def.ArithmeticError::domain_error("log10 requires a positive value"))
     FpClass::Finite if self.compare(
         BinFloat::one_raw(precision=self.precision()),
@@ -1958,11 +1958,11 @@ pub fn BinFloat::try_log10_ctx(
       // x = 10^k = 5^k * 2^k needs an odd coefficient of more than k bits.
       let decimal_exponent = self.exponent2()
       if decimal_exponent > 0 &&
-        decimal_exponent < self.coefficient_.bit_length() {
+        decimal_exponent < self.coefficient_().bit_length() {
         let expected_coefficient = Coeff::from_uint64(5UL).pow_nat(
           decimal_exponent.reinterpret_as_uint(),
         )
-        if self.coefficient_.compare(expected_coefficient) == 0 {
+        if self.coefficient_().compare(expected_coefficient) == 0 {
           let exact = BinFloat::from_int_raw(decimal_exponent, precision=64)
           return Ok(exact.round_ctx(context))
         }
@@ -2047,12 +2047,12 @@ pub fn BinFloat::try_ln_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
-  match self.class {
+  match self.class() {
     FpClass::NaN =>
       Ok(
         (
           binary_quiet_nan(self, context.precision),
-          if self.signaling_nan {
+          if self.signaling() {
             binary_invalid_flags()
           } else {
             BinaryFlags::new()
@@ -2064,7 +2064,7 @@ pub fn BinFloat::try_ln_ctx(
       ) ==
       0 =>
       Ok((BinFloat::zero_raw(precision=context.precision), BinaryFlags::new()))
-    FpClass::Infinity if self.negative =>
+    FpClass::Infinity if self.negative() =>
       Ok(
         (BinFloat::nan_raw(precision=context.precision), binary_invalid_flags()),
       )
@@ -2082,7 +2082,7 @@ pub fn BinFloat::try_ln_ctx(
           binary_division_by_zero_flags(),
         ),
       )
-    FpClass::Finite if self.negative =>
+    FpClass::Finite if self.negative() =>
       Err(@def.ArithmeticError::domain_error("ln requires a positive value"))
     FpClass::Finite => {
       let mut work = context.precision + 64
@@ -2157,9 +2157,9 @@ fn binary_hypot_negligible_operand(
     return None
   }
   let left_top = left.exponent2().to_int64() +
-    (left.coefficient_.bit_length() - 1).to_int64()
+    (left.coefficient_().bit_length() - 1).to_int64()
   let right_top = right.exponent2().to_int64() +
-    (right.coefficient_.bit_length() - 1).to_int64()
+    (right.coefficient_().bit_length() - 1).to_int64()
   let (large, large_top, small_top) = if left_top >= right_top {
     (left, left_top, right_top)
   } else {
@@ -2193,7 +2193,7 @@ pub fn BinFloat::try_hypot_ctx(
   // IEEE 754-2019 9.2: hypot(+-inf, qNaN) is +inf. A signaling NaN operand is
   // an invalid operation (7.2 a) with a quiet NaN result, even beside an
   // infinity, so it goes to the NaN handling below.
-  if (self.class == FpClass::Infinity || other.class == FpClass::Infinity) &&
+  if (self.class() == FpClass::Infinity || other.class() == FpClass::Infinity) &&
     !self.is_signaling_nan() &&
     !other.is_signaling_nan() {
     return Ok(
@@ -2245,8 +2245,8 @@ pub fn BinFloat::try_hypot_ctx(
       ),
     )
   }
-  let left_square = self.coefficient_.mul(self.coefficient_)
-  let right_square = other.coefficient_.mul(other.coefficient_)
+  let left_square = self.coefficient_().mul(self.coefficient_())
+  let right_square = other.coefficient_().mul(other.coefficient_())
   let sum = left_square
     .shift_left(left_shift.to_int())
     .add(right_square.shift_left(right_shift.to_int()))
@@ -2465,8 +2465,8 @@ fn binary_exact_rootn_int64(value : BinFloat, degree : Int64) -> BinFloat? {
     return None
   }
   let coefficient = if degree <= 2147483647L {
-    binary_exact_nth_root_coefficient(value.coefficient_, degree.to_int())
-  } else if value.coefficient_.compare(Coeff::one()) == 0 {
+    binary_exact_nth_root_coefficient(value.coefficient_(), degree.to_int())
+  } else if value.coefficient_().compare(Coeff::one()) == 0 {
     Some(Coeff::one())
   } else {
     None
@@ -2505,7 +2505,7 @@ fn binary_rootn_certified_loop(
         ) {
     match binary_rootn_positive_bounds(positive, magnitude_degree, work) {
       Some(bounds) => {
-        let signed_bounds = if original.negative {
+        let signed_bounds = if original.negative() {
           (bounds.1.neg(), bounds.0.neg())
         } else {
           bounds
@@ -2559,26 +2559,26 @@ pub fn BinFloat::try_rootn_ctx(
   let degree64 = degree.to_int64()
   let magnitude_degree = if degree64 < 0L { -degree64 } else { degree64 }
   let odd = magnitude_degree % 2L != 0L
-  match self.class {
+  match self.class() {
     FpClass::NaN =>
       Ok(
         (
           binary_quiet_nan(self, context.precision),
-          if self.signaling_nan {
+          if self.signaling() {
             binary_invalid_flags()
           } else {
             BinaryFlags::new()
           },
         ),
       )
-    FpClass::Infinity if self.negative && !odd =>
+    FpClass::Infinity if self.negative() && !odd =>
       Err(
         @def.ArithmeticError::domain_error(
           "rootn even degree requires a non-negative value",
         ),
       )
     FpClass::Infinity => {
-      let negative = self.negative && odd
+      let negative = self.negative() && odd
       if degree < 0 {
         Ok(
           (
@@ -2607,7 +2607,7 @@ pub fn BinFloat::try_rootn_ctx(
       }
     }
     FpClass::Finite if self.is_zero() => {
-      let negative = self.negative && odd
+      let negative = self.negative() && odd
       if degree < 0 {
         Ok(
           (
@@ -2635,7 +2635,7 @@ pub fn BinFloat::try_rootn_ctx(
         )
       }
     }
-    FpClass::Finite if self.negative && !odd =>
+    FpClass::Finite if self.negative() && !odd =>
       Err(
         @def.ArithmeticError::domain_error(
           "rootn even degree requires a non-negative value",
@@ -2700,10 +2700,10 @@ fn binary_exact_bounded_int(value : BinFloat) -> Int32? {
   }
   guard value.exponent2() >= 0 &&
     value.exponent2() <= 30 &&
-    value.coefficient_.bit_length() + value.exponent2() <= 31 else {
+    value.coefficient_().bit_length() + value.exponent2() <= 31 else {
     return None
   }
-  match value.coefficient_.shift_left(value.exponent2()).to_uint64() {
+  match value.coefficient_().shift_left(value.exponent2()).to_uint64() {
     Some(magnitude) => {
       let integer = magnitude.reinterpret_as_int64().to_int()
       Some(if value.is_negative() { -integer } else { integer })
@@ -2715,7 +2715,7 @@ fn binary_exact_bounded_int(value : BinFloat) -> Int32? {
 ///|
 fn binary_exact_unit_fraction_degree(value : BinFloat) -> Int32? {
   guard value.classify() == FpClass::Finite &&
-    value.coefficient_.compare(Coeff::one()) == 0 &&
+    value.coefficient_().compare(Coeff::one()) == 0 &&
     value.exponent2() < 0 &&
     value.exponent2() >= -29 else {
     return None
@@ -2732,8 +2732,11 @@ fn binary_pow_may_leave_range(
   exponent : BinFloat,
   context : BinaryContext,
 ) -> Bool {
-  let base_top = binary_exact_top(base.coefficient_, base.exponent2).to_int64()
-  let exponent_top = binary_exact_top(exponent.coefficient_, exponent.exponent2)
+  let base_top = binary_exact_top(base.coefficient_(), base.exponent2_()).to_int64()
+  let exponent_top = binary_exact_top(
+    exponent.coefficient_(),
+    exponent.exponent2_(),
+  )
   if exponent_top >= 30 {
     return true
   }
@@ -2776,7 +2779,7 @@ fn binary_pow_exactness(
     !exponent.is_zero() else {
     return Undecided
   }
-  let unit_base = base.coefficient_.compare(Coeff::one()) == 0
+  let unit_base = base.coefficient_().compare(Coeff::one()) == 0
   let shift = -exponent.exponent2()
   if shift <= 0 {
     // An integer exponent outside the `pown` range has |y| >= 2^31. For c > 1,
@@ -2796,13 +2799,13 @@ fn binary_pow_exactness(
   let degree = 1 << shift
   guard base.exponent2() % degree == 0 else { return NotBreakpoint }
   let root = match
-    binary_exact_nth_root_coefficient(base.coefficient_, degree) {
+    binary_exact_nth_root_coefficient(base.coefficient_(), degree) {
     Some(root) => root
     None => return NotBreakpoint
   }
   let unit_root = root.compare(Coeff::one()) == 0
   guard unit_root || !exponent.is_negative() else { return NotBreakpoint }
-  let numerator = match exponent.coefficient_.to_uint64() {
+  let numerator = match exponent.coefficient_().to_uint64() {
     Some(value) if value < 1UL << 31 => value.reinterpret_as_int64()
     // r^m with r >= 3 and m >= 2^31 has more than precision + 1 bits.
     _ => return if unit_root { Undecided } else { NotBreakpoint }
@@ -2993,7 +2996,10 @@ pub fn BinFloat::try_pow_ctx(
     } else {
       (exponent, (log_low, log_high))
     }
-    let scale_top = binary_exact_top(scale.1.coefficient_, scale.1.exponent2)
+    let scale_top = binary_exact_top(
+      scale.1.coefficient_(),
+      scale.1.exponent2_(),
+    )
     if binary_log2_linear_out_of_range(
         value,
         fn() { Some(scale) },
@@ -3215,12 +3221,12 @@ fn BinFloat::try_hyperbolic_ctx(
   operation : BinaryHyperbolicOperation,
   context : BinaryContext,
 ) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
-  match self.class {
+  match self.class() {
     FpClass::NaN =>
       Ok(
         (
           binary_quiet_nan(self, context.precision),
-          if self.signaling_nan {
+          if self.signaling() {
             binary_invalid_flags()
           } else {
             BinaryFlags::new()
@@ -3558,12 +3564,12 @@ fn BinFloat::try_inverse_hyperbolic_ctx(
   operation : BinaryInverseHyperbolicOperation,
   context : BinaryContext,
 ) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
-  match self.class {
+  match self.class() {
     FpClass::NaN =>
       Ok(
         (
           binary_quiet_nan(self, context.precision),
-          if self.signaling_nan {
+          if self.signaling() {
             binary_invalid_flags()
           } else {
             BinaryFlags::new()
@@ -3834,7 +3840,10 @@ fn binary_atan_small_positive_pair_bounds(
   if upper_value.is_zero() {
     return Some((lower_value, upper_value))
   }
-  let q = -binary_exact_top(upper_value.coefficient_, upper_value.exponent2)
+  let q = -binary_exact_top(
+    upper_value.coefficient_(),
+    upper_value.exponent2_(),
+  )
   if q.to_int64() >= (work_precision / 2 + 8).to_int64() {
     // R(x) <= x^3/3 (alternating series with decreasing terms) and, for
     // x < 2^-(w/2 + 7), R(x) >= 0: the bounds are lo - hi^3/3 and hi.
@@ -3923,8 +3932,8 @@ fn binary_atan_fixed_remainder(
     (
       fixed_scaled_floor(lo, fraction),
       fixed_shift(
-        lo.coefficient_.mul(lo.coefficient_),
-        2 * lo.exponent2 + fraction,
+        lo.coefficient_().mul(lo.coefficient_()),
+        2 * lo.exponent2_() + fraction,
       ),
     )
   }
@@ -3933,8 +3942,8 @@ fn binary_atan_fixed_remainder(
     None => fixed_scaled_floor(hi, fraction).add(Coeff::one())
   }
   let up_square = fixed_ceil_shift(
-    hi.coefficient_.mul(hi.coefficient_),
-    2 * hi.exponent2 + fraction,
+    hi.coefficient_().mul(hi.coefficient_()),
+    2 * hi.exponent2_() + fraction,
   )
   let mut power_low = low_scaled
   let mut power_up = up_scaled
@@ -4010,7 +4019,7 @@ fn binary_atan_reduction_ratio(
     rounding=RoundTowardPositive,
   )
   let one = BinFloat::one_raw(precision=work_precision)
-  let top = binary_exact_top(x.coefficient_, x.exponent2).to_int64()
+  let top = binary_exact_top(x.coefficient_(), x.exponent2_()).to_int64()
   if top >= 2L * work_precision.to_int64() + 2L {
     return if upper {
       let y_down = one.div_ctx(x, downward).0
@@ -4212,12 +4221,12 @@ pub fn BinFloat::try_atan_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
-  match self.class {
+  match self.class() {
     FpClass::NaN =>
       Ok(
         (
           binary_quiet_nan(self, context.precision),
-          if self.signaling_nan {
+          if self.signaling() {
             binary_invalid_flags()
           } else {
             BinaryFlags::new()
@@ -4400,12 +4409,12 @@ pub fn BinFloat::try_asin_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
-  match self.class {
+  match self.class() {
     FpClass::NaN =>
       Ok(
         (
           binary_quiet_nan(self, context.precision),
-          if self.signaling_nan {
+          if self.signaling() {
             binary_invalid_flags()
           } else {
             BinaryFlags::new()
@@ -4539,12 +4548,12 @@ pub fn BinFloat::try_acos_ctx(
 ) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
   // Without this guard a NaN, an infinity or a finite |x| > 1 reaches the
   // certified asin bounds below and recurses until the stack overflows.
-  match self.class {
+  match self.class() {
     FpClass::NaN =>
       return Ok(
         (
           binary_quiet_nan(self, context.precision),
-          if self.signaling_nan {
+          if self.signaling() {
             binary_invalid_flags()
           } else {
             BinaryFlags::new()
@@ -5076,7 +5085,7 @@ fn binary_floor_integer(value : BinFloat) -> BinFloat? {
     return Some(value)
   }
   let shift = -value.exponent2()
-  let magnitude = value.coefficient_
+  let magnitude = value.coefficient_()
   let quotient = if shift >= magnitude.bit_length() {
     Coeff::zero()
   } else {
@@ -5109,14 +5118,14 @@ fn binary_integer_mod4(value : BinFloat) -> Int32? {
   let magnitude_residue = if value.is_zero() || value.exponent2() >= 2 {
     0
   } else if value.exponent2() == 1 {
-    if value.coefficient_.test_bit(0) {
+    if value.coefficient_().test_bit(0) {
       2
     } else {
       0
     }
   } else {
-    (if value.coefficient_.test_bit(0) { 1 } else { 0 }) +
-    (if value.coefficient_.test_bit(1) { 2 } else { 0 })
+    (if value.coefficient_().test_bit(0) { 1 } else { 0 }) +
+    (if value.coefficient_().test_bit(1) { 2 } else { 0 })
   }
   Some(
     if value.is_negative() && magnitude_residue != 0 {
@@ -5421,12 +5430,12 @@ fn BinFloat::try_trigonometric_ctx(
   operation : BinaryTrigonometricOperation,
   context : BinaryContext,
 ) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
-  match self.class {
+  match self.class() {
     FpClass::NaN =>
       Ok(
         (
           binary_quiet_nan(self, context.precision),
-          if self.signaling_nan {
+          if self.signaling() {
             binary_invalid_flags()
           } else {
             BinaryFlags::new()
@@ -5450,7 +5459,7 @@ fn BinFloat::try_trigonometric_ctx(
       )
     FpClass::Finite => {
       let adjusted_exponent = self.exponent2().to_int64() +
-        self.coefficient_.bit_length().to_int64()
+        self.coefficient_().bit_length().to_int64()
       let required = context.precision.to_int64() +
         Int64::max(0L, adjusted_exponent) +
         96L

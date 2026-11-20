@@ -127,8 +127,8 @@ fn binary_rootn_integer(
   let negative = value.is_negative()
   let reciprocal = degree < 0
   let n = if reciprocal { -degree } else { degree }
-  let coefficient = value.coefficient_
-  let exponent2 = value.exponent2
+  let coefficient = value.coefficient_()
+  let exponent2 = value.exponent2_()
   let top = binary_exact_top(coefficient, exponent2)
   let floor_top = binary_floor_div_int32(top, n)
   let exact_top = if !reciprocal {

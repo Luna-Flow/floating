@@ -135,12 +135,12 @@ fn binary_shift_exponent(
   shift : Int32,
   precision : Int32,
 ) -> BinFloat {
-  match value.class {
-    FpClass::Finite if !value.coefficient_.is_zero() =>
+  match value.class() {
+    FpClass::Finite if !value.coefficient_().is_zero() =>
       finite_from_parts(
-        value.negative,
-        value.coefficient_,
-        value.exponent2 + shift,
+        value.negative(),
+        value.coefficient_(),
+        value.exponent2_() + shift,
         precision,
       )
     _ => value

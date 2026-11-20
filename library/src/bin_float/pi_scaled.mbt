@@ -6,14 +6,14 @@ fn binary_scaled_integer_mod4(value : BinFloat, shift : Int32) -> Int32? {
   let magnitude_residue = if value.is_zero() || exponent >= 2 {
     0
   } else if exponent == 1 {
-    if value.coefficient_.test_bit(0) {
+    if value.coefficient_().test_bit(0) {
       2
     } else {
       0
     }
   } else {
-    (if value.coefficient_.test_bit(0) { 1 } else { 0 }) +
-    (if value.coefficient_.test_bit(1) { 2 } else { 0 })
+    (if value.coefficient_().test_bit(0) { 1 } else { 0 }) +
+    (if value.coefficient_().test_bit(1) { 2 } else { 0 })
   }
   Some(
     if value.is_negative() && magnitude_residue != 0 {
@@ -125,7 +125,7 @@ fn binary_pi_periodic_remainder(value : BinFloat) -> BinFloat? {
     )
   }
   let modulus_shift = 1 - value.exponent2()
-  let magnitude = value.coefficient_
+  let magnitude = value.coefficient_()
   let residue = if modulus_shift >= magnitude.bit_length() {
     magnitude
   } else {
@@ -296,12 +296,12 @@ fn BinFloat::try_pi_scaled_ctx(
   operation : BinaryTrigonometricOperation,
   context : BinaryContext,
 ) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
-  match self.class {
+  match self.class() {
     FpClass::NaN =>
       Ok(
         (
           binary_quiet_nan(self, context.precision),
-          if self.signaling_nan {
+          if self.signaling() {
             binary_invalid_flags()
           } else {
             BinaryFlags::new()

@@ -281,8 +281,8 @@ test "coefficient sqrt equals the general path" {
     let value = if index % 3 == 0 {
       let square = base.mul_ctx(base, BinaryContext::new(precision=2000)).0
       BinFloat::make_coeff(
-        square.coefficient_,
-        square.exponent2,
+        square.coefficient_(),
+        square.exponent2_(),
         precision,
         negative=false,
       )

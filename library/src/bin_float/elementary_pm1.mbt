@@ -68,7 +68,7 @@ fn binary_log_base_p1_bounds(
 /// `x > 0` this is an odd integer `c` with `c + 1` a power of two; for
 /// `x < 0` it is `-(1 - 2^e)`, `c = 2^|e| - 1`, and then `k = e`.
 fn binary_log2p1_exact_exponent(value : BinFloat) -> Int32? {
-  let coefficient = value.coefficient_
+  let coefficient = value.coefficient_()
   let next = coefficient.add(Coeff::one())
   let power_of_two = next.shift_right(next.ctz()).compare(Coeff::one()) == 0
   if !value.is_negative() {
@@ -93,7 +93,7 @@ fn binary_log10p1_exact_exponent(value : BinFloat) -> Int32? {
   if value.is_negative() || value.exponent2() != 0 {
     return None
   }
-  let next = value.coefficient_.add(Coeff::one())
+  let next = value.coefficient_().add(Coeff::one())
   let estimate = (next.bit_length() - 1) * 30103 / 100000
   for k in estimate..<=(estimate + 1) {
     if k > 0 &&
@@ -150,7 +150,7 @@ pub fn BinFloat::try_exp2m1_ctx(
     Some(result) => return Ok(result)
     None => ()
   }
-  match self.class {
+  match self.class() {
     FpClass::NaN => abort("unreachable exp2m1 NaN")
     FpClass::Infinity =>
       Ok(
@@ -208,7 +208,7 @@ pub fn BinFloat::try_exp10m1_ctx(
     Some(result) => return Ok(result)
     None => ()
   }
-  match self.class {
+  match self.class() {
     FpClass::NaN => abort("unreachable exp10m1 NaN")
     FpClass::Infinity =>
       Ok(
@@ -281,7 +281,7 @@ fn binary_try_log_base_p1(
     Some(result) => return Ok(result)
     None => ()
   }
-  match value.class {
+  match value.class() {
     FpClass::NaN => abort("unreachable " + operation + " NaN")
     FpClass::Infinity =>
       if value.is_negative() {

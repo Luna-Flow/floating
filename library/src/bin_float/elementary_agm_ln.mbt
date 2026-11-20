@@ -30,10 +30,10 @@ let agm_ln_no_mutation : AgmLnMutation = {
 /// `x * 2^k` for a finite value, exactly.
 fn binary_scale_pow2(x : BinFloat, k : Int32) -> BinFloat {
   BinFloat::make_coeff(
-    x.coefficient_,
+    x.coefficient_(),
     x.exponent2() + k,
     x.precision(),
-    negative=x.negative,
+    negative=x.negative(),
   )
 }
 
@@ -41,7 +41,7 @@ fn binary_scale_pow2(x : BinFloat, k : Int32) -> BinFloat {
 /// `x / 2` for a finite nonzero value, exactly and without a copy: the
 /// coefficient is already normalized (odd), so only the exponent changes.
 fn binary_halve_exact(x : BinFloat) -> BinFloat {
-  { ..x, exponent2: x.exponent2 - 1, }
+  { ..x, f_exponent2: x.f_exponent2 - 1, }
 }
 
 ///|
@@ -144,7 +144,7 @@ fn binary_ln_unit_agm_bounds(
   }
   let difference = value.sub_ctx(
       BinFloat::one_raw(precision=2),
-      binary_working_context(value.coefficient_.bit_length() + 8),
+      binary_working_context(value.coefficient_().bit_length() + 8),
     ).0
   let lead = binary_top_bound(difference).to_int()
   let inner = work_precision + Int32::max(0, 2 - lead)

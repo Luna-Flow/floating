@@ -303,7 +303,7 @@ test "pair div at boundary operands: exact quotients, all ones, tiny divisors, e
 /// `binary_pair_add` as it was before the two-word alignment (six calls of
 /// `binary_pair_shl_word`), kept as the reference of the tests.
 fn binary_pair_add_reference(left : BinFloat, right : BinFloat) -> BinFloat? {
-  let precision = Int32::max(left.precision_, right.precision_)
+  let precision = Int32::max(left.precision_(), right.precision_())
   guard precision <= binary_pair_precision_limit else { return None }
   guard binary_pair_is_words(left) && binary_pair_is_words(right) else {
     return None
@@ -312,8 +312,8 @@ fn binary_pair_add_reference(left : BinFloat, right : BinFloat) -> BinFloat? {
   let left_low = binary_pair_low_of(left)
   let right_high = binary_pair_high_of(right)
   let right_low = binary_pair_low_of(right)
-  let left_exponent = left.exponent2
-  let right_exponent = right.exponent2
+  let left_exponent = left.exponent2_()
+  let right_exponent = right.exponent2_()
   guard left_exponent <= binary_fast_exponent_limit &&
     left_exponent >= -binary_fast_exponent_limit &&
     right_exponent <= binary_fast_exponent_limit &&
@@ -346,7 +346,7 @@ fn binary_pair_add_reference(left : BinFloat, right : BinFloat) -> BinFloat? {
   let right2 = binary_pair_shl_word(right_high, right_low, right_shift, 2)
   let right1 = binary_pair_shl_word(right_high, right_low, right_shift, 1)
   let right0 = binary_pair_shl_word(right_high, right_low, right_shift, 0)
-  if left.negative == right.negative {
+  if left.negative() == right.negative() {
     let word0 = left0 + right0
     let carry0 = if word0 < left0 { 1UL } else { 0UL }
     let partial1 = left1 + right1
@@ -356,7 +356,7 @@ fn binary_pair_add_reference(left : BinFloat, right : BinFloat) -> BinFloat? {
     let word2 = left2 + right2 + carry1a + carry1b
     Some(
       binary_pair_round(
-        left.negative,
+        left.negative(),
         0UL,
         word2,
         word1,
@@ -384,7 +384,7 @@ fn binary_pair_add_reference(left : BinFloat, right : BinFloat) -> BinFloat? {
       let word2 = left2 - right2 - borrow1a - borrow1b
       Some(
         binary_pair_round(
-          left.negative,
+          left.negative(),
           0UL,
           word2,
           word1,
@@ -403,7 +403,7 @@ fn binary_pair_add_reference(left : BinFloat, right : BinFloat) -> BinFloat? {
       let word2 = right2 - left2 - borrow1a - borrow1b
       Some(
         binary_pair_round(
-          right.negative,
+          right.negative(),
           0UL,
           word2,
           word1,

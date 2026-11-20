@@ -12,23 +12,23 @@ pub fn BinFloat::fma_ctx(
   addend : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  let product_negative = self.negative != multiplier.negative
+  let product_negative = self.negative() != multiplier.negative()
   let product_invalid = (
-      self.class == FpClass::Infinity &&
-      multiplier.class == FpClass::Finite &&
+      self.class() == FpClass::Infinity &&
+      multiplier.class() == FpClass::Finite &&
       multiplier.is_zero()
     ) ||
     (
-      multiplier.class == FpClass::Infinity &&
-      self.class == FpClass::Finite &&
+      multiplier.class() == FpClass::Infinity &&
+      self.class() == FpClass::Finite &&
       self.is_zero()
     )
-  if self.class == FpClass::NaN ||
-    multiplier.class == FpClass::NaN ||
-    addend.class == FpClass::NaN {
-    let source = if self.class == FpClass::NaN {
+  if self.class() == FpClass::NaN ||
+    multiplier.class() == FpClass::NaN ||
+    addend.class() == FpClass::NaN {
+    let source = if self.class() == FpClass::NaN {
       self
-    } else if multiplier.class == FpClass::NaN {
+    } else if multiplier.class() == FpClass::NaN {
       multiplier
     } else {
       addend
@@ -52,8 +52,10 @@ pub fn BinFloat::fma_ctx(
       binary_invalid_flags(),
     )
   }
-  if self.class == FpClass::Infinity || multiplier.class == FpClass::Infinity {
-    if addend.class == FpClass::Infinity && addend.negative != product_negative {
+  if self.class() == FpClass::Infinity ||
+    multiplier.class() == FpClass::Infinity {
+    if addend.class() == FpClass::Infinity &&
+      addend.negative() != product_negative {
       return (
         BinFloat::nan_raw(precision=context.precision),
         binary_invalid_flags(),
@@ -71,7 +73,7 @@ pub fn BinFloat::fma_ctx(
       BinaryFlags::new(),
     )
   }
-  if addend.class == FpClass::Infinity {
+  if addend.class() == FpClass::Infinity {
     return (
       BinFloat::inf_raw(addend.sign(), precision=context.precision),
       BinaryFlags::new(),
@@ -94,12 +96,12 @@ fn binary_exact_product(
   addend : BinFloat,
   context : BinaryContext,
 ) -> Result[BinFloat, (BinFloat, BinaryFlags)] {
-  let negative = left.negative != right.negative
-  let coefficient = left.coefficient_.mul(right.coefficient_)
+  let negative = left.negative() != right.negative()
+  let coefficient = left.coefficient_().mul(right.coefficient_())
   if coefficient.is_zero() {
     return Ok(finite_zero(negative, context.precision))
   }
-  let exponent = left.exponent2.to_int64() + right.exponent2.to_int64()
+  let exponent = left.exponent2_().to_int64() + right.exponent2_().to_int64()
   if exponent > 2147483647L - coefficient.bit_length().to_int64() {
     return Err(binary_overflow_result(negative, context))
   }
@@ -118,12 +120,12 @@ fn binary_exact_product(
   }
   // Every representable addend has its leading bit above -2^31 + 2^29, so a
   // single bit far below its last significant position rounds identically.
-  let addend_top = binary_exact_top(addend.coefficient_, addend.exponent2)
+  let addend_top = binary_exact_top(addend.coefficient_(), addend.exponent2_())
   Ok(
     finite_normalized(
       negative,
       Coeff::one(),
-      addend_top - addend.coefficient_.bit_length() - context.precision - 8,
+      addend_top - addend.coefficient_().bit_length() - context.precision - 8,
       1,
     ),
   )
@@ -138,8 +140,8 @@ pub fn BinFloat::fma(
   addend : BinFloat,
 ) -> BinFloat {
   let precision = Int32::max(
-    self.precision_,
-    Int32::max(multiplier.precision_, addend.precision_),
+    self.precision_(),
+    Int32::max(multiplier.precision_(), addend.precision_()),
   )
   self.fma_ctx(multiplier, addend, binary_working_context(precision)).0
 }

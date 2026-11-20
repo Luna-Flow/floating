@@ -19,11 +19,11 @@ fn binary_nan_unary(
   value : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags)? {
-  if value.class == FpClass::NaN {
+  if value.class() == FpClass::NaN {
     Some(
       (
         binary_quiet_nan(value, context.precision),
-        if value.signaling_nan {
+        if value.signaling() {
           binary_invalid_flags()
         } else {
           BinaryFlags::new()

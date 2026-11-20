@@ -44,7 +44,7 @@ fn checked_render(result : Result[BinFloat, @def.ArithmeticError]) -> String {
         _ => "err:other"
       }
     Ok(value) => {
-      let sign = if value.negative { "-" } else { "+" }
+      let sign = if value.negative() { "-" } else { "+" }
       match value.classify() {
         FpClass::NaN =>
           if value.is_signaling_nan() {
@@ -421,7 +421,7 @@ test "pown of a signaling NaN with a zero exponent is invalid (#286)" {
       assert_true(value.classify() == FpClass::NaN)
       assert_false(value.is_signaling_nan())
       assert_eq(value.nan_payload(), payload)
-      assert_eq(value.negative, negative)
+      assert_eq(value.negative(), negative)
       assert_true(flags.invalid_operation())
       assert_false(flags.division_by_zero())
     }

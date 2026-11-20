@@ -21,8 +21,8 @@ let binary_fast_exponent_limit : Int32 = 268435456
 /// returning `UInt64?` allocates a box for the `Some`, so the test and the word
 /// are two functions that return scalars.
 fn binary_fast_is_word(value : BinFloat) -> Bool {
-  value.class == FpClass::Finite &&
-  (match value.coefficient_.0 {
+  value.class() == FpClass::Finite &&
+  (match value.coefficient_().0 {
     Inline64(word) => word != 0UL
     _ => false
   })
@@ -31,7 +31,7 @@ fn binary_fast_is_word(value : BinFloat) -> Bool {
 ///|
 /// The one-word coefficient of a value for which `binary_fast_is_word` holds.
 fn binary_fast_word_of(value : BinFloat) -> UInt64 {
-  match value.coefficient_.0 {
+  match value.coefficient_().0 {
     Inline64(word) => word
     _ => 0UL
   }
@@ -99,16 +99,16 @@ fn binary_fast_add_signed(
   flip : Bool,
 ) -> BinFloat? {
   // `right` with its sign flipped when `flip` (a subtraction), without a new value
-  let right_negative = right.negative != flip
-  let precision = Int32::max(left.precision_, right.precision_)
+  let right_negative = right.negative() != flip
+  let precision = Int32::max(left.precision_(), right.precision_())
   guard precision <= 62 else { return None }
   guard binary_fast_is_word(left) && binary_fast_is_word(right) else {
     return None
   }
   let left_word = binary_fast_word_of(left)
   let right_word = binary_fast_word_of(right)
-  let left_exponent = left.exponent2
-  let right_exponent = right.exponent2
+  let left_exponent = left.exponent2_()
+  let right_exponent = right.exponent2_()
   guard left_exponent <= binary_fast_exponent_limit &&
     left_exponent >= -binary_fast_exponent_limit &&
     right_exponent <= binary_fast_exponent_limit &&
@@ -130,11 +130,11 @@ fn binary_fast_add_signed(
   let left_low = binary_fast_shl_low(left_word, left_shift)
   let right_high = binary_fast_shl_high(right_word, right_shift)
   let right_low = binary_fast_shl_low(right_word, right_shift)
-  if left.negative == right_negative {
+  if left.negative() == right_negative {
     let low = left_low + right_low
     let carry = if low < left_low { 1UL } else { 0UL }
     binary_fast_round_some(
-      left.negative,
+      left.negative(),
       left_high + right_high + carry,
       low,
       target,
@@ -149,7 +149,7 @@ fn binary_fast_add_signed(
     if left_larger {
       let borrow = if left_low < right_low { 1UL } else { 0UL }
       binary_fast_round_some(
-        left.negative,
+        left.negative(),
         left_high - right_high - borrow,
         left_low - right_low,
         target,
@@ -181,15 +181,15 @@ fn binary_fast_round_some(
 
 ///|
 fn binary_fast_mul(left : BinFloat, right : BinFloat) -> BinFloat? {
-  let precision = Int32::max(left.precision_, right.precision_)
+  let precision = Int32::max(left.precision_(), right.precision_())
   guard precision <= 62 else { return None }
   guard binary_fast_is_word(left) && binary_fast_is_word(right) else {
     return None
   }
   let left_word = binary_fast_word_of(left)
   let right_word = binary_fast_word_of(right)
-  let left_exponent = left.exponent2
-  let right_exponent = right.exponent2
+  let left_exponent = left.exponent2_()
+  let right_exponent = right.exponent2_()
   guard left_exponent <= binary_fast_exponent_limit &&
     left_exponent >= -binary_fast_exponent_limit &&
     right_exponent <= binary_fast_exponent_limit &&
@@ -198,7 +198,7 @@ fn binary_fast_mul(left : BinFloat, right : BinFloat) -> BinFloat? {
   }
   Some(
     binary_fast_round(
-      left.negative != right.negative,
+      left.negative() != right.negative(),
       binary_fast_mul_high(left_word, right_word),
       left_word * right_word,
       left_exponent + right_exponent,
@@ -209,15 +209,15 @@ fn binary_fast_mul(left : BinFloat, right : BinFloat) -> BinFloat? {
 
 ///|
 fn binary_fast_div_words(left : BinFloat, right : BinFloat) -> BinFloat? {
-  let precision = Int32::max(left.precision_, right.precision_)
+  let precision = Int32::max(left.precision_(), right.precision_())
   guard precision <= 60 else { return None }
   guard binary_fast_is_word(left) && binary_fast_is_word(right) else {
     return None
   }
   let dividend = binary_fast_word_of(left)
   let divisor = binary_fast_word_of(right)
-  let left_exponent = left.exponent2
-  let right_exponent = right.exponent2
+  let left_exponent = left.exponent2_()
+  let right_exponent = right.exponent2_()
   guard left_exponent <= binary_fast_exponent_limit &&
     left_exponent >= -binary_fast_exponent_limit &&
     right_exponent <= binary_fast_exponent_limit &&
@@ -238,7 +238,7 @@ fn binary_fast_div_words(left : BinFloat, right : BinFloat) -> BinFloat? {
   let sticky = if remainder != 0UL { 1UL } else { 0UL }
   Some(
     binary_fast_round(
-      left.negative != right.negative,
+      left.negative() != right.negative(),
       quotient >> 63,
       (quotient << 1) | sticky,
       left_exponent - right_exponent - scale - 1,
@@ -286,11 +286,11 @@ fn binary_fast_isqrt(high : UInt64, low : UInt64) -> UInt64 {
 
 ///|
 fn binary_fast_sqrt_words(value : BinFloat) -> BinFloat? {
-  let precision = value.precision_
-  guard precision <= 60 && !value.negative else { return None }
+  let precision = value.precision_()
+  guard precision <= 60 && !value.negative() else { return None }
   guard binary_fast_is_word(value) else { return None }
   let word = binary_fast_word_of(value)
-  let exponent = value.exponent2
+  let exponent = value.exponent2_()
   guard exponent <= binary_fast_exponent_limit &&
     exponent >= -binary_fast_exponent_limit else {
     return None
@@ -351,21 +351,21 @@ fn binary_fast_from_double(
 /// quotient, which is the result of the general path, and scaling by a power of
 /// two does not change a rounding decision without an exponent range.
 fn binary_fast_div(left : BinFloat, right : BinFloat) -> BinFloat? {
-  if Int32::max(left.precision_, right.precision_) == 53 &&
+  if Int32::max(left.precision_(), right.precision_()) == 53 &&
     binary_fast_is_word(left) &&
     binary_fast_is_word(right) &&
     binary_fast_word_of(left) <= binary_fast_double_limit &&
     binary_fast_word_of(right) <= binary_fast_double_limit &&
-    left.exponent2 <= binary_fast_exponent_limit &&
-    left.exponent2 >= -binary_fast_exponent_limit &&
-    right.exponent2 <= binary_fast_exponent_limit &&
-    right.exponent2 >= -binary_fast_exponent_limit {
+    left.exponent2_() <= binary_fast_exponent_limit &&
+    left.exponent2_() >= -binary_fast_exponent_limit &&
+    right.exponent2_() <= binary_fast_exponent_limit &&
+    right.exponent2_() >= -binary_fast_exponent_limit {
     return Some(
       binary_fast_from_double(
-        left.negative != right.negative,
+        left.negative() != right.negative(),
         binary_fast_word_of(left).to_double() /
         binary_fast_word_of(right).to_double(),
-        left.exponent2 - right.exponent2,
+        left.exponent2_() - right.exponent2_(),
       ),
     )
   }
@@ -377,20 +377,20 @@ fn binary_fast_div(left : BinFloat, right : BinFloat) -> BinFloat? {
 /// 2 for an odd exponent, is one binary64 square root (correctly rounded to
 /// nearest even by IEEE 754): the same reasoning as for the division.
 fn binary_fast_sqrt(value : BinFloat) -> BinFloat? {
-  if value.precision_ == 53 &&
-    !value.negative &&
+  if value.precision_() == 53 &&
+    !value.negative() &&
     binary_fast_is_word(value) &&
     binary_fast_word_of(value) <= binary_fast_double_limit &&
-    value.exponent2 <= binary_fast_exponent_limit &&
-    value.exponent2 >= -binary_fast_exponent_limit {
-    let odd = value.exponent2 & 1
+    value.exponent2_() <= binary_fast_exponent_limit &&
+    value.exponent2_() >= -binary_fast_exponent_limit {
+    let odd = value.exponent2_() & 1
     let radicand = binary_fast_word_of(value).to_double() *
       (if odd == 1 { 2.0 } else { 1.0 })
     return Some(
       binary_fast_from_double(
         false,
         radicand.sqrt(),
-        (value.exponent2 - odd) / 2,
+        (value.exponent2_() - odd) / 2,
       ),
     )
   }

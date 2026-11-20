@@ -29,8 +29,8 @@ fn owned_test_same_words(value : Coeff, snapshot : Array[UInt64]) -> Bool {
 /// finisher, the paths agree with the contextual operations, and the same
 /// call twice gives the same result (nothing shared was written to).
 fn owned_test_check(left : BinFloat, right : BinFloat) -> Int32 raise {
-  let left_words = owned_test_words(left.coefficient_)
-  let right_words = owned_test_words(right.coefficient_)
+  let left_words = owned_test_words(left.coefficient_())
+  let right_words = owned_test_words(right.coefficient_())
   let context = BinaryContext::new(precision=max_precision(left, right))
   let mut covered = 0
   let product = left.mul_ctx(right, context).0
@@ -71,8 +71,8 @@ fn owned_test_check(left : BinFloat, right : BinFloat) -> Int32 raise {
       None => ()
     }
   }
-  assert_true(owned_test_same_words(left.coefficient_, left_words))
-  assert_true(owned_test_same_words(right.coefficient_, right_words))
+  assert_true(owned_test_same_words(left.coefficient_(), left_words))
+  assert_true(owned_test_same_words(right.coefficient_(), right_words))
   covered
 }
 
@@ -96,10 +96,10 @@ test "mul, div and sqrt round the kernel arrays in place without touching the op
     covered += owned_test_check(
       left,
       BinFloat::make_coeff(
-        left.coefficient_.shift_left(0),
-        left.exponent2,
-        left.precision_,
-        negative=left.negative,
+        left.coefficient_().shift_left(0),
+        left.exponent2_(),
+        left.precision_(),
+        negative=left.negative(),
       ),
     )
   }

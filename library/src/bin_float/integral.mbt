@@ -5,37 +5,37 @@ fn binary_round_to_integral(
   value : BinFloat,
   mode : BinaryRoundingMode,
 ) -> (BinFloat, Bool) {
-  if value.coefficient_.is_zero() || value.exponent2 >= 0 {
+  if value.coefficient_().is_zero() || value.exponent2_() >= 0 {
     return (value, false)
   }
   let (retained, round_bit, sticky) = binary_split_shift(
-    value.coefficient_,
-    -value.exponent2,
+    value.coefficient_(),
+    -value.exponent2_(),
   )
   let integral = binary_apply_round_bits(
     retained,
     round_bit,
     sticky,
-    value.negative,
+    value.negative(),
     mode,
   )
   let rounded = if integral.is_zero() {
-    finite_zero(value.negative, value.precision_)
+    finite_zero(value.negative(), value.precision_())
   } else {
     // |integral| <= 2^(top + 1), so it fits the operand precision.
-    finite_from_parts(value.negative, integral, 0, value.precision_)
+    finite_from_parts(value.negative(), integral, 0, value.precision_())
   }
   (rounded, round_bit || sticky)
 }
 
 ///|
 fn binary_integral_special(value : BinFloat) -> (BinFloat, BinaryFlags)? {
-  match value.class {
+  match value.class() {
     FpClass::NaN =>
       Some(
         (
-          binary_quiet_nan(value, value.precision_),
-          if value.signaling_nan {
+          binary_quiet_nan(value, value.precision_()),
+          if value.signaling() {
             binary_invalid_flags()
           } else {
             BinaryFlags::new()

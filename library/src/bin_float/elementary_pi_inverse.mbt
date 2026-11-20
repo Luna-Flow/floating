@@ -98,7 +98,7 @@ fn binary_pi_signed_zero(
 /// The leading-bit exponent of a finite nonzero value, as an `Int64`.
 fn binary_pi_top(value : BinFloat) -> Int64 {
   value.exponent2().to_int64() +
-  (value.coefficient_.bit_length() - 1).to_int64()
+  (value.coefficient_().bit_length() - 1).to_int64()
 }
 
 ///|

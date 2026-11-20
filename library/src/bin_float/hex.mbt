@@ -228,20 +228,20 @@ pub fn BinFloat::from_hex_ctx(
 
 ///|
 pub fn BinFloat::to_hex(self : BinFloat) -> String {
-  match self.class {
-    FpClass::NaN => if self.negative { "-nan" } else { "nan" }
-    FpClass::Infinity => if self.negative { "-inf" } else { "inf" }
+  match self.class() {
+    FpClass::NaN => if self.negative() { "-nan" } else { "nan" }
+    FpClass::Infinity => if self.negative() { "-inf" } else { "inf" }
     FpClass::Finite if self.is_zero() =>
-      if self.negative {
+      if self.negative() {
         "-0x0p0"
       } else {
         "0x0p0"
       }
     FpClass::Finite =>
-      (if self.negative { "-" } else { "" }) +
+      (if self.negative() { "-" } else { "" }) +
       "0x" +
-      self.coefficient_.to_radix_string(16) +
+      self.coefficient_().to_radix_string(16) +
       "p" +
-      self.exponent2.to_string()
+      self.exponent2_().to_string()
   }
 }

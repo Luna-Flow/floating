@@ -23,7 +23,7 @@ fn toolkit_digest_mix(hash : UInt64, text : String) -> UInt64 {
 
 ///|
 fn toolkit_digest_float(value : BinFloat) -> String {
-  value.coefficient_.to_radix_string(16) +
+  value.coefficient_().to_radix_string(16) +
   "x" +
   value.exponent2().to_string() +
   "p" +

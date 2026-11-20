@@ -39,7 +39,7 @@ pub fn BinFloat::try_rsqrt_ctx(
     Some(result) => return Ok(result)
     None => ()
   }
-  match self.class {
+  match self.class() {
     FpClass::NaN => abort("unreachable rsqrt NaN")
     FpClass::Infinity =>
       if self.is_negative() {
@@ -102,7 +102,7 @@ fn binary_compound_general(
   context : BinaryContext,
 ) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
   let p = context.precision.to_int64()
-  let top = binary_exact_top(value.coefficient_, value.exponent2).to_int64()
+  let top = binary_exact_top(value.coefficient_(), value.exponent2_()).to_int64()
   // |n x| < 2^31 * 2^(top + 1) <= 2^-(p + 9): 1 + n x is just beside 1.
   if top + 32L < -(p + 9L) {
     return Ok(
@@ -112,8 +112,8 @@ fn binary_compound_general(
   // 1 + x exactly, while it fits: then it is `pown` of an exact base, which
   // owns the exact cases, the range decision and the rounding.
   let integer_bits = Int64::max(top, 0L) + 1L
-  let fraction_bits = if value.exponent2 < 0 {
-    -value.exponent2.to_int64()
+  let fraction_bits = if value.exponent2_() < 0 {
+    -value.exponent2_().to_int64()
   } else {
     0L
   }
@@ -168,9 +168,9 @@ pub fn BinFloat::try_compound_ctx(
   context : BinaryContext,
 ) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
   let one = BinFloat::one_raw(precision=context.precision)
-  match self.class {
+  match self.class() {
     FpClass::NaN =>
-      if self.signaling_nan {
+      if self.signaling() {
         Ok((binary_quiet_nan(self, context.precision), binary_invalid_flags()))
       } else if degree == 0 {
         Ok((one, BinaryFlags::new()))
@@ -250,13 +250,13 @@ pub fn BinFloat::try_powr_ctx(
       None => ()
     }
   }
-  if self.class == FpClass::NaN {
+  if self.class() == FpClass::NaN {
     return Ok((binary_quiet_nan(self, context.precision), BinaryFlags::new()))
   }
   if self.is_negative() && !self.is_zero() {
     return binary_invalid_domain("powr requires x >= 0")
   }
-  if exponent.class == FpClass::NaN {
+  if exponent.class() == FpClass::NaN {
     return Ok(
       (binary_quiet_nan(exponent, context.precision), BinaryFlags::new()),
     )
