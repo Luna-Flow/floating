@@ -1289,8 +1289,8 @@ msgid "These methods enclose the image of the interval under the hyperbolic func
 msgstr "这些方法包络区间在双曲函数及其反函数下的像。"
 
 #: manual/api/ball_float_checked.md:362
-msgid "Each method is `bind` of `BallFloat::try_<name>_interval` at the interval's precision. The result $Y$ satisfies $f(X \\cap \\operatorname{dom} f) \\subseteq Y$; parts of $X$ outside the domain are ignored, so $\\ln([-1, 1]) = [-\\infty, 0]$ and $\\ln([-2, -2])$ is empty. The only error is a `CertificationFailure` when an enclosure cannot be certified, for example the cosine of $2^{70000}$ (reason `ResourceLimit`). There are no context variants; precision is set with `with_precision`."
-msgstr "每个方法都是以区间精度对 `BallFloat::try_<name>_interval` 进行 `bind`。结果 $Y$ 满足 $f(X \\cap \\operatorname{dom} f) \\subseteq Y$；$X$ 中位于定义域之外的部分被忽略，因此 $\\ln([-1, 1]) = [-\\infty, 0]$，而 $\\ln([-2, -2])$ 为空。唯一的错误是无法认证包络时的 `CertificationFailure`，例如 $2^{70000}$ 的余弦（原因为 `ResourceLimit`）。没有上下文变体；精度通过 `with_precision` 设置。"
+msgid "Each method is `bind` of `BallFloat::try_<name>_interval` at the interval's precision. The result $Y$ satisfies $f(X \\cap \\operatorname{dom} f) \\subseteq Y$; parts of $X$ outside the domain are ignored, so $\\ln([-1, 1]) = [-\\infty, 0]$ and $\\ln([-2, -2])$ is empty. The only error is a `CertificationFailure` when an enclosure cannot be certified, for example the cosine of $2^{8000000}$ (reason `ResourceLimit`). There are no context variants; precision is set with `with_precision`."
+msgstr "每个方法都是以区间精度对 `BallFloat::try_<name>_interval` 进行 `bind`。结果 $Y$ 满足 $f(X \\cap \\operatorname{dom} f) \\subseteq Y$；$X$ 中位于定义域之外的部分被忽略，因此 $\\ln([-1, 1]) = [-\\infty, 0]$，而 $\\ln([-2, -2])$ 为空。唯一的错误是无法认证包络时的 `CertificationFailure`，例如 $2^{8000000}$ 的余弦（原因为 `ResourceLimit`）。没有上下文变体；精度通过 `with_precision` 设置。"
 
 #: manual/api/ball_float_checked.md:400
 msgid "`Add`, `Sub`, `Mul`, `Div`, `Neg` for `BallFloatResult`"

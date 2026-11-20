@@ -364,7 +364,7 @@ precision. The result $Y$ satisfies $f(X \cap \operatorname{dom} f) \subseteq
 Y$; parts of $X$ outside the domain are ignored, so $\ln([-1, 1]) =
 [-\infty, 0]$ and $\ln([-2, -2])$ is empty. The only error is a
 `CertificationFailure` when an enclosure cannot be certified, for example the
-cosine of $2^{70000}$ (reason `ResourceLimit`). There are no context variants;
+cosine of $2^{8000000}$ (reason `ResourceLimit`). There are no context variants;
 precision is set with `with_precision`.
 
 ```moonbit
@@ -379,7 +379,7 @@ test "elementary enclosures" {
   )
   inspect(show(around_zero.ln()), content="[-inf, 0]")
   let huge = @ball_float_checked.BallFloatResult::exact(
-    @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), 70000, 53),
+    @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), 8000000, 53),
   )
   match huge.cos().error() {
     Some(e) => {
