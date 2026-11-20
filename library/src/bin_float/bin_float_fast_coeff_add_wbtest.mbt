@@ -81,9 +81,8 @@ fn ref_add_wide(
 
 ///|
 fn ref_add(left : BinFloat, right : BinFloat) -> BinFloat? {
-  guard binary_coeff_fast_operands(left, right) is Some(precision) else {
-    return None
-  }
+  guard binary_coeff_fast_operands_ok(left, right) else { return None }
+  let precision = Int32::max(left.precision_, right.precision_)
   let left_bits = left.coefficient_.bit_length()
   let right_bits = right.coefficient_.bit_length()
   guard left_bits <= binary_coeff_fast_bits_limit &&
