@@ -48,7 +48,7 @@ fn hypot_reference(
   )
   let (value, flags) = scaled.round_ctx(context)
   // The result of these operands is never exact: inexact for every row.
-  (value, { ..flags, inexact: true, })
+  (value, flags.combine(BinaryFlags::from_bits(binary_flag_inexact)))
 }
 
 ///|

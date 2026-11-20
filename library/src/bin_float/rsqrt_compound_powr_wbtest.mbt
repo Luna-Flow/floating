@@ -115,7 +115,7 @@ test "rsqrt of a power of four is exact, other values are correctly rounded" {
           if !exact {
             assert_eq(
               "rsqrt(\{x}) p=\{p} \{e2s_mode_name(mode)} => \{value} \{e2s_flags(flags)}",
-              "rsqrt(\{x}) p=\{p} \{e2s_mode_name(mode)} => \{expected} \{e2s_flags({ ..expected_flags, inexact: true })}",
+              "rsqrt(\{x}) p=\{p} \{e2s_mode_name(mode)} => \{expected} \{e2s_flags(expected_flags.combine(BinaryFlags::from_bits(binary_flag_inexact)))}",
             )
             cases += 1
           }
