@@ -308,9 +308,11 @@ a mode that rounds toward zero, the largest finite magnitude
 $(2^p - 1)\,2^{e_{\max} - p + 1}$; below the smallest implementation subnormal
 $2^{e_{\min} - p + 1}$ by $\pm 0$ or, for a mode that rounds away from zero
 (and for nearest when the value exceeds half of it), by that subnormal.
-`make` rounds only to $p$ bits: a value between the smallest subnormal and
-$2^{e_{\min}}$ is not moved onto the subnormal grid (use `round_ctx` for
-that), which matters only at magnitudes near $2^{-2^{30}}$.
+`make` rounds precision and range together, in `mode`: a value between the
+smallest subnormal and $2^{e_{\min}}$ keeps only the bits on the subnormal
+grid $2^{e_{\min} - p + 1}$ (at least one), so the stored value never has a bit
+below that grid. This matters only at magnitudes near $2^{-2^{30}}$; `round_ctx`
+additionally reports the flags.
 
 ### `BinFloat::from_coefficient`, `BinFloat::from_int`
 
