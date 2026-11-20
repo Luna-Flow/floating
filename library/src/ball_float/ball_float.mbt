@@ -140,15 +140,17 @@ fn checked_exact(
 /// rounded; made at its own bit length, a value of a few bits below the normal
 /// range was rounded to the quantum of those few bits (to 0 for the sum of the
 /// endpoints of `[1, 3] * 2^(e_min - 60)`). Needs at most one bit more than the
-/// operands of a sum or of a halving have.
+/// operands of a sum or of a halving have. `min_bits`: the value is made at no
+/// fewer bits (the precision of a directed result, see `directed_add`).
 fn exact_make(
   coefficient : @bin_float.BinCoeff,
   exponent2 : Int32,
   negative~ : Bool = false,
   mode~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
+  min_bits~ : Int32 = 1,
   exact_range~ : Bool = false,
 ) -> @bin_float.BinFloat {
-  let bits = Int32::max(1, coefficient.bit_length())
+  let bits = Int32::max(min_bits, coefficient.bit_length())
   let bits = if exact_range && !coefficient.is_zero() {
     Int32::min(
       @bin_float.binary_precision_max,
@@ -167,7 +169,7 @@ let far_addend_margin : Int32 = 65536
 
 ///|
 fn exponent_top(x : @bin_float.BinFloat) -> Int64 {
-  x.exponent2().to_int64() + (x.coefficient().bit_length() - 1).to_int64()
+  x.ilogb().unwrap().to_int64()
 }
 
 ///|
@@ -233,6 +235,7 @@ fn exact_add(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
   mode~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
+  min_bits~ : Int32 = 1,
   exact_range~ : Bool = false,
 ) -> @bin_float.BinFloat {
   if a.is_zero() {
@@ -257,6 +260,7 @@ fn exact_add(
       target,
       negative=a.is_negative(),
       mode~,
+      min_bits~,
       exact_range~,
     )
   } else {
@@ -269,6 +273,7 @@ fn exact_add(
         target,
         negative=a.is_negative(),
         mode~,
+        min_bits~,
         exact_range~,
       )
     } else {
@@ -277,6 +282,7 @@ fn exact_add(
         target,
         negative=b.is_negative(),
         mode~,
+        min_bits~,
         exact_range~,
       )
     }
@@ -288,9 +294,10 @@ fn exact_sub(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
   mode~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
+  min_bits~ : Int32 = 1,
   exact_range~ : Bool = false,
 ) -> @bin_float.BinFloat {
-  exact_add(a, b.neg(), mode~, exact_range~)
+  exact_add(a, b.neg(), mode~, min_bits~, exact_range~)
 }
 
 ///|
@@ -298,6 +305,7 @@ fn exact_mul(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
   mode~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
+  min_bits~ : Int32 = 1,
 ) -> @bin_float.BinFloat {
   // Saturating keeps the direction of an out-of-range exponent sum; the
   // binary layer then clamps it according to `mode`.
@@ -314,7 +322,89 @@ fn exact_mul(
     exponent,
     negative=a.is_negative() != b.is_negative(),
     mode~,
+    min_bits~,
   )
+}
+
+///|
+/// The two roundings of a directed result (the exact value made at
+/// `max(bits, precision)` bits, then rounded to `precision` bits) are one
+/// rounding only for a direction: the grid of `precision` bits is a subset of the
+/// grid of `max(bits, precision)` bits (same exponent range, finer quantum below
+/// the normal range), and rounding down (or up, or toward zero) to the finer grid
+/// and then to the coarser one is rounding to the coarser one. A nearest mode
+/// would round twice, so it is refused.
+fn directed_check_mode(mode : BinaryRoundingMode) -> Unit {
+  match mode {
+    BinaryRoundingMode::RoundTowardNegative
+    | BinaryRoundingMode::RoundTowardPositive
+    | BinaryRoundingMode::RoundTowardZero => ()
+    BinaryRoundingMode::RoundTiesToEven | BinaryRoundingMode::RoundTiesToAway =>
+      abort("directed bounds are rounded in a direction, not to nearest")
+  }
+}
+
+///|
+/// `x` rounded to `precision` bits in the direction `mode`.
+fn directed_round(
+  x : @bin_float.BinFloat,
+  precision : Int32,
+  mode : BinaryRoundingMode,
+) -> @bin_float.BinFloat {
+  if x.precision() == precision {
+    x
+  } else {
+    x.with_precision(precision, mode)
+  }
+}
+
+///|
+/// PR F (a contextual core that reads words) turns this into `add_ctx` in a
+/// context of `precision` bits and the direction `mode`: that is the oracle of
+/// `directed_bounds_wbtest.mbt`; it has 1 to 3 more allocations per call today
+/// and is equal in instructions within a few percent, except for `sub` and
+/// `add` at 512 bits (see the CHANGELOG).
+///
+/// `a + b` of two finite values rounded once to `precision` bits in the
+/// direction `mode`: the exact sum made at `max(bits, precision)` bits (so a
+/// short exact result is not rounded to its own bit length first) and rounded
+/// once. A zero operand returns the other one (rounded) and an exact
+/// cancellation is the positive zero of `precision` bits, as `exact_add` makes
+/// them; a sum rounded to zero keeps the sign of the exact value.
+fn directed_add(
+  a : @bin_float.BinFloat,
+  b : @bin_float.BinFloat,
+  precision : Int32,
+  mode : BinaryRoundingMode,
+) -> @bin_float.BinFloat {
+  directed_check_mode(mode)
+  directed_round(exact_add(a, b, mode~, min_bits=precision), precision, mode)
+}
+
+///|
+/// `a - b`, as `directed_add(a, -b)` (PR F: `sub_ctx`).
+fn directed_sub(
+  a : @bin_float.BinFloat,
+  b : @bin_float.BinFloat,
+  precision : Int32,
+  mode : BinaryRoundingMode,
+) -> @bin_float.BinFloat {
+  directed_check_mode(mode)
+  directed_round(exact_sub(a, b, mode~, min_bits=precision), precision, mode)
+}
+
+///|
+/// `a * b` of two finite non-zero values rounded once to `precision` bits in
+/// the direction `mode` (PR F: `mul_ctx`; a product rounded to zero keeps its sign, as `make`
+/// does).
+fn directed_mul(
+  a : @bin_float.BinFloat,
+  b : @bin_float.BinFloat,
+  precision : Int32,
+  mode : BinaryRoundingMode,
+) -> @bin_float.BinFloat {
+  directed_check_mode(mode)
+  directed_round(exact_mul(a, b, mode~, min_bits=precision), precision, mode)
 }
 
 ///|
@@ -348,15 +438,8 @@ fn outward_sum(
   b : @bin_float.BinFloat,
   precision : Int32,
 ) -> @bin_float.BinFloat {
-  outward_round(
-    exact_add(
-      a,
-      b,
-      mode=BinaryRoundingMode::RoundTowardPositive,
-      exact_range=true,
-    ),
-    precision,
-  )
+  // both addends are non-negative: the directed sum is the outward one
+  directed_add(a, b, precision, BinaryRoundingMode::RoundTowardPositive)
 }
 
 ///|
@@ -672,16 +755,36 @@ fn add_ball_impl(a : BallFloat, b : BallFloat) -> BallFloat {
   }
   if a.is_common_interval() && b.is_common_interval() {
     return quantize_interval(
-      exact_add(a.lo_, b.lo_, mode=BinaryRoundingMode::RoundTowardNegative),
-      exact_add(a.hi_, b.hi_, mode=BinaryRoundingMode::RoundTowardPositive),
+      directed_add(
+        a.lo_,
+        b.lo_,
+        precision,
+        BinaryRoundingMode::RoundTowardNegative,
+      ),
+      directed_add(
+        a.hi_,
+        b.hi_,
+        precision,
+        BinaryRoundingMode::RoundTowardPositive,
+      ),
       precision,
     )
   }
   // Lower endpoints are finite or -inf and upper ones finite or +inf, so the
   // extended sums never meet opposite infinities.
   quantize_interval(
-    extended_add(a.lo_, b.lo_, BinaryRoundingMode::RoundTowardNegative),
-    extended_add(a.hi_, b.hi_, BinaryRoundingMode::RoundTowardPositive),
+    extended_directed_add(
+      a.lo_,
+      b.lo_,
+      precision,
+      BinaryRoundingMode::RoundTowardNegative,
+    ),
+    extended_directed_add(
+      a.hi_,
+      b.hi_,
+      precision,
+      BinaryRoundingMode::RoundTowardPositive,
+    ),
     precision,
   )
 }
@@ -694,14 +797,34 @@ fn sub_ball_impl(a : BallFloat, b : BallFloat) -> BallFloat {
   }
   if a.is_common_interval() && b.is_common_interval() {
     return quantize_interval(
-      exact_sub(a.lo_, b.hi_, mode=BinaryRoundingMode::RoundTowardNegative),
-      exact_sub(a.hi_, b.lo_, mode=BinaryRoundingMode::RoundTowardPositive),
+      directed_sub(
+        a.lo_,
+        b.hi_,
+        precision,
+        BinaryRoundingMode::RoundTowardNegative,
+      ),
+      directed_sub(
+        a.hi_,
+        b.lo_,
+        precision,
+        BinaryRoundingMode::RoundTowardPositive,
+      ),
       precision,
     )
   }
   quantize_interval(
-    extended_add(a.lo_, b.hi_.neg(), BinaryRoundingMode::RoundTowardNegative),
-    extended_add(a.hi_, b.lo_.neg(), BinaryRoundingMode::RoundTowardPositive),
+    extended_directed_sub(
+      a.lo_,
+      b.hi_,
+      precision,
+      BinaryRoundingMode::RoundTowardNegative,
+    ),
+    extended_directed_sub(
+      a.hi_,
+      b.lo_,
+      precision,
+      BinaryRoundingMode::RoundTowardPositive,
+    ),
     precision,
   )
 }
@@ -749,6 +872,7 @@ fn extended_mul(
   b : @bin_float.BinFloat,
   precision : Int32,
   mode : BinaryRoundingMode,
+  rounded~ : Bool = true,
 ) -> @bin_float.BinFloat {
   if a.is_zero() || b.is_zero() {
     return @bin_float.BinFloat::zero(precision~)
@@ -761,15 +885,21 @@ fn extended_mul(
     }
     return @bin_float.BinFloat::inf(sign, precision~)
   }
-  exact_mul(a, b, mode~)
+  if rounded {
+    directed_mul(a, b, precision, mode)
+  } else {
+    exact_mul(a, b, mode~)
+  }
 }
 
 ///|
-/// Both directed products of `extended_mul` with one coefficient product.
+/// Both directed products of `extended_mul` with one coefficient product
+/// (`rounded`: rounded once to `precision` bits; otherwise exact).
 fn extended_mul_both(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
   precision : Int32,
+  rounded : Bool,
 ) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
   if a.is_zero() ||
     b.is_zero() ||
@@ -793,20 +923,33 @@ fn extended_mul_both(
   }
   let coefficient = coeff_mul(a.coefficient(), b.coefficient())
   let negative = a.is_negative() != b.is_negative()
-  (
-    exact_make(
-      coefficient,
-      exponent,
-      negative~,
-      mode=BinaryRoundingMode::RoundTowardNegative,
-    ),
-    exact_make(
-      coefficient,
-      exponent,
-      negative~,
-      mode=BinaryRoundingMode::RoundTowardPositive,
-    ),
+  // `rounded`: each product is made at `max(bits, precision)` bits and rounded
+  // once to `precision` in its direction (`directed_mul`'s value); the one
+  // coefficient product is shared (measured cheaper than two `mul_ctx` at every
+  // width from 53 to 2,048 bits, by 20 to 40 percent)
+  let min_bits = if rounded { precision } else { 1 }
+  let down = exact_make(
+    coefficient,
+    exponent,
+    negative~,
+    mode=BinaryRoundingMode::RoundTowardNegative,
+    min_bits~,
   )
+  let up = exact_make(
+    coefficient,
+    exponent,
+    negative~,
+    mode=BinaryRoundingMode::RoundTowardPositive,
+    min_bits~,
+  )
+  if rounded {
+    (
+      directed_round(down, precision, BinaryRoundingMode::RoundTowardNegative),
+      directed_round(up, precision, BinaryRoundingMode::RoundTowardPositive),
+    )
+  } else {
+    (down, up)
+  }
 }
 
 ///|
@@ -825,10 +968,46 @@ fn extended_add(
 }
 
 ///|
+/// `extended_add` rounded once to `precision` bits in `mode` (an interval
+/// endpoint sum of an interval operation).
+fn extended_directed_add(
+  a : @bin_float.BinFloat,
+  b : @bin_float.BinFloat,
+  precision : Int32,
+  mode : BinaryRoundingMode,
+) -> @bin_float.BinFloat {
+  if a.classify() == FpClass::Infinity {
+    return a
+  }
+  if b.classify() == FpClass::Infinity {
+    return b
+  }
+  directed_add(a, b, precision, mode)
+}
+
+///|
+/// `extended_directed_add(a, -b)`.
+fn extended_directed_sub(
+  a : @bin_float.BinFloat,
+  b : @bin_float.BinFloat,
+  precision : Int32,
+  mode : BinaryRoundingMode,
+) -> @bin_float.BinFloat {
+  if a.classify() == FpClass::Infinity {
+    return a
+  }
+  if b.classify() == FpClass::Infinity {
+    return b.neg()
+  }
+  directed_sub(a, b, precision, mode)
+}
+
+///|
 fn multiplication_bounds(
   a : BallFloat,
   b : BallFloat,
   precision : Int32,
+  rounded~ : Bool = true,
 ) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
   if a.is_common_interval() && b.is_common_interval() {
     let a_nonnegative = a.lo_.is_zero() || a.lo_.sign() == Sign::Positive
@@ -842,12 +1021,14 @@ fn multiplication_bounds(
           b.lo_,
           precision,
           BinaryRoundingMode::RoundTowardNegative,
+          rounded~,
         ),
         extended_mul(
           a.hi_,
           b.hi_,
           precision,
           BinaryRoundingMode::RoundTowardPositive,
+          rounded~,
         ),
       )
     }
@@ -858,12 +1039,14 @@ fn multiplication_bounds(
           b.hi_,
           precision,
           BinaryRoundingMode::RoundTowardNegative,
+          rounded~,
         ),
         extended_mul(
           a.lo_,
           b.lo_,
           precision,
           BinaryRoundingMode::RoundTowardPositive,
+          rounded~,
         ),
       )
     }
@@ -874,12 +1057,14 @@ fn multiplication_bounds(
           b.lo_,
           precision,
           BinaryRoundingMode::RoundTowardNegative,
+          rounded~,
         ),
         extended_mul(
           a.lo_,
           b.hi_,
           precision,
           BinaryRoundingMode::RoundTowardPositive,
+          rounded~,
         ),
       )
     }
@@ -890,12 +1075,14 @@ fn multiplication_bounds(
           b.hi_,
           precision,
           BinaryRoundingMode::RoundTowardNegative,
+          rounded~,
         ),
         extended_mul(
           a.hi_,
           b.lo_,
           precision,
           BinaryRoundingMode::RoundTowardPositive,
+          rounded~,
         ),
       )
     }
@@ -912,12 +1099,14 @@ fn multiplication_bounds(
           b.hi_,
           precision,
           BinaryRoundingMode::RoundTowardNegative,
+          rounded~,
         ),
         extended_mul(
           a.hi_,
           b.hi_,
           precision,
           BinaryRoundingMode::RoundTowardPositive,
+          rounded~,
         ),
       )
     }
@@ -928,12 +1117,14 @@ fn multiplication_bounds(
           b.lo_,
           precision,
           BinaryRoundingMode::RoundTowardNegative,
+          rounded~,
         ),
         extended_mul(
           a.lo_,
           b.lo_,
           precision,
           BinaryRoundingMode::RoundTowardPositive,
+          rounded~,
         ),
       )
     }
@@ -944,12 +1135,14 @@ fn multiplication_bounds(
           b.lo_,
           precision,
           BinaryRoundingMode::RoundTowardNegative,
+          rounded~,
         ),
         extended_mul(
           a.hi_,
           b.hi_,
           precision,
           BinaryRoundingMode::RoundTowardPositive,
+          rounded~,
         ),
       )
     }
@@ -960,12 +1153,14 @@ fn multiplication_bounds(
           b.hi_,
           precision,
           BinaryRoundingMode::RoundTowardNegative,
+          rounded~,
         ),
         extended_mul(
           a.lo_,
           b.lo_,
           precision,
           BinaryRoundingMode::RoundTowardPositive,
+          rounded~,
         ),
       )
     }
@@ -974,24 +1169,28 @@ fn multiplication_bounds(
       b.hi_,
       precision,
       BinaryRoundingMode::RoundTowardNegative,
+      rounded~,
     )
     let lower_right = extended_mul(
       a.hi_,
       b.lo_,
       precision,
       BinaryRoundingMode::RoundTowardNegative,
+      rounded~,
     )
     let upper_left = extended_mul(
       a.lo_,
       b.lo_,
       precision,
       BinaryRoundingMode::RoundTowardPositive,
+      rounded~,
     )
     let upper_right = extended_mul(
       a.hi_,
       b.hi_,
       precision,
       BinaryRoundingMode::RoundTowardPositive,
+      rounded~,
     )
     return (bin_min(lower_left, lower_right), bin_max(upper_left, upper_right))
   }
@@ -1004,7 +1203,7 @@ fn multiplication_bounds(
   let mut upper : @bin_float.BinFloat? = None
   for corner in corners {
     let (x, y) = corner
-    let (d, u) = extended_mul_both(x, y, precision)
+    let (d, u) = extended_mul_both(x, y, precision, rounded)
     lower = match lower {
       None => Some(d)
       Some(m) => Some(bin_min(m, d))
@@ -1332,23 +1531,17 @@ pub fn BallFloat::radius(self : BallFloat) -> @bin_float.BinFloat {
     return pos_inf(self.precision_)
   }
   let m = self.midpoint()
-  let below = upper_round_bound(
-    exact_sub(
-      m,
-      self.lo_,
-      mode=BinaryRoundingMode::RoundTowardPositive,
-      exact_range=true,
-    ),
+  let below = directed_sub(
+    m,
+    self.lo_,
     self.precision_,
+    BinaryRoundingMode::RoundTowardPositive,
   )
-  let above = upper_round_bound(
-    exact_sub(
-      self.hi_,
-      m,
-      mode=BinaryRoundingMode::RoundTowardPositive,
-      exact_range=true,
-    ),
+  let above = directed_sub(
+    self.hi_,
+    m,
     self.precision_,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   bin_max(below, above)
 }
@@ -1365,14 +1558,11 @@ pub fn BallFloat::width(self : BallFloat) -> @bin_float.BinFloat {
   if !self.is_common_interval() {
     return pos_inf(self.precision_)
   }
-  upper_round_bound(
-    exact_sub(
-      self.hi_,
-      self.lo_,
-      mode=BinaryRoundingMode::RoundTowardPositive,
-      exact_range=true,
-    ),
+  directed_sub(
+    self.hi_,
+    self.lo_,
     self.precision_,
+    BinaryRoundingMode::RoundTowardPositive,
   )
 }
 
@@ -2068,8 +2258,12 @@ pub fn BallFloat::fma(
   if self.is_empty() || multiplier.is_empty() || addend.is_empty() {
     return empty_interval(precision)
   }
+  // exact products and sums: one rounding at the end
   let (product_lo, product_hi) = multiplication_bounds(
-    self, multiplier, precision,
+    self,
+    multiplier,
+    precision,
+    rounded=false,
   )
   quantize_interval(
     extended_add(

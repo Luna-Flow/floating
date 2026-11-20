@@ -57,10 +57,9 @@ fn trig_quotient_bounds(
 
 ///|
 fn trig_initial_work(value : @bin_float.BinFloat, precision : Int32) -> Int32 {
-  let magnitude_bits = if value.is_zero() {
-    0
-  } else {
-    Int32::max(0, value.exponent2() + value.coefficient().bit_length())
+  let magnitude_bits = match value.ilogb() {
+    Some(top) => Int32::max(0, top + 1)
+    None => 0
   }
   precision + magnitude_bits + 96
 }
@@ -152,9 +151,7 @@ fn trig_work_limit_exceeded(value : BallFloat) -> Bool {
   if magnitude.is_zero() {
     return false
   }
-  let adjusted = magnitude.exponent2().to_int64() +
-    magnitude.coefficient().bit_length().to_int64() -
-    1L
+  let adjusted = magnitude.ilogb().unwrap().to_int64()
   Int64::max(0L, adjusted) + value.precision_.to_int64() + 96L > trig_work_limit
 }
 

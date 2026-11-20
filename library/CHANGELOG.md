@@ -457,6 +457,8 @@ notes live in this file.
 
 - `bin_float`: `BinaryFlags` has the flag `not_computed`, as `DecimalFlags` does ([#438](https://github.com/Luna-Flow/floating/issues/438), item S4, first step): `BinaryFlags::not_computed()` reports an operation that could not be carried out within a limit of the implementation, with a NaN value; it is not an IEEE 754-2019 flag and is distinct from `invalid_operation`. `new()` clears it, `combine` accumulates it and `==` compares it. No operation raises it yet; the next steps make the elementary functions raise it where they now raise `invalid_operation` for a failure to compute.
 
+- `bin_float`: `BinFloat::ilogb(self) -> Int32?`, the exponent of the leading bit of a finite non-zero value (`floor(log2 |x|)`, `exponent2() + coefficient().bit_length() - 1`), read without building the coefficient ([#438](https://github.com/Luna-Flow/floating/issues/438)). It is `logB` of IEEE 754-2019 5.3.3 with an integral `logBFormat`: a subnormal gives the exponent of its leading bit; `logB(0)`, `logB(infinity)` and `logB(NaN)`, which the standard sends to language-defined values outside the range of the exponents and signals the invalid operation for, are `None` here and raise no flag. `logb_ctx` is the operation with a floating-point `logBFormat`.
+
 ### Fixed
 
 - `ball_float`: the ball of `BallFloat::new` was wider than needed at the bottom of the exponent range ([#581](https://github.com/Luna-Flow/floating/issues/581); present in 0.11.0). Its endpoints `center' - R` and `center' + R` (`center'` the center rounded to the precision, `R` the radius plus the rounding error of the center, both rounded upward to the precision) were made at their own bit length, which rounds a result of a few bits below the normal range outward to the quantum of those few bits, and the sum `R` was made the same way. Both are now exact (`exact_range`). Example: center `133022375522373997p-1073741877`, radius `389p-1073741869`, 53 bits: the ball was `[8313623592241431p-1073741873, 8314173348055319p-1073741873]`, it is `[16627796940284301p-1073741874, 16627796940309199p-1073741874]` (the exact `c' - R`, `c' + R`, symmetric around `c'`). Away from the bottom of the range the endpoints are identical (3,000 cases).
@@ -477,7 +479,57 @@ notes live in this file.
 
 - `ball_float`: the half-width of the ball view (the second part of the text `center +/- half-width` of a ball, `BallFloat::half_width`) was far above the half-width for an interval below the normal range ([#583](https://github.com/Luna-Flow/floating/issues/583); present in 0.11.0). The difference of the bounds and its half were made at their own bit length and rounded upward there, to the quantum of a few bits. They are now exact (`exact_range`). Example: `[1, 3] * 2^(e_min - 60)` at 113 bits: the half-width was `1p-1073741822` (`2^e_min`), it is `1p-1073741882`, and the text is `1p-1073741881 +/- 1p-1073741882`. Away from the bottom of the range the value is identical (3,000 cases).
 
+- `ball_float`: `add`, `sub`, `mul` and `sqr` return the tightest interval at the edge of the exponent range: the bounds are the correctly rounded ones when the exact result has fewer bits than the precision ([#606](https://github.com/Luna-Flow/floating/issues/606); present in 0.11.0). IEEE 1788-2015 12.10.2 requires the accuracy of the basic operations to be tightest (the T-hull of the Level 1 result). `fma` is not covered ([#607](https://github.com/Luna-Flow/floating/issues/607)). They were made at the bit length of the exact result before they were rounded to the precision, so below the normal range the lower bound of a positive result was rounded to zero and the upper one to the next multiple of the coarser quantum of the short result, and in the overflow band the lower bound of a positive result was the largest finite value of the short result, not of the precision. Example at 53 bits: `2^(e_min - 3) + 2^(e_min - 3)` had lower bound `0` and upper bound `2^(e_min - 1)`; both are now `2^(e_min - 2)`. The new interval is always inside the old one; there are no other changes of results (`identical` endpoints, the same zero), verified on 6,672 random and range-edge operand pairs against the old exact route and against the exact route made at `max(bits, p)` bits.
+
 ### Performance
+
+- `ball_float`: the interval operations no longer read the coefficient only to measure it, and the bounds of sums, differences and products are made once at the precision ([#438](https://github.com/Luna-Flow/floating/issues/438)). `BinFloat::ilogb()` replaces `exponent2() + coefficient().bit_length() - 1` at the six places that wanted the leading bit (four of the twelve allocations that the layout of the previous change added to `BallFloat::add` came from `far_addend_surrogate` alone), and `add`, `sub`, `mul`, `sqr`, `radius` and `width` round each endpoint once in its direction (`fma` is not covered: its product is still made at its own bit length, [#607](https://github.com/Luna-Flow/floating/issues/607)). Instructions per call (the two-count method of the entry above: 1,000 and 3,000 calls, minimum of 9 runs; operands `sqrt(3)` and `sqrt(5)` as balls of the stated precision; three builds of different code, so only differences well above the 3 to 9 percent that two builds of the same code differ by are evidence, and the allocation counts, which are exact, carry the comparison) and allocations (the same difference of 20 and 60 calls under `lldb`):
+
+  | `BallFloat` call | bits | instructions before the layout | after the layout | after this change | allocations before | after the layout | after this change |
+  | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+  | `add` | 53 | 3,570 | 5,430 | 4,027 | 14 | 26 | 18 |
+  | `sub` | 53 | 4,291 | 6,121 | 3,793 | 16 | 29 | 17 |
+  | `mul` | 53 | 3,148 | 3,981 | 3,999 | 13 | 19 | 19 |
+  | `sqr` | 53 | 4,060 | 4,199 | 4,220 | 15 | 19 | 19 |
+  | `mul_rev` | 53 | 10,053 | 9,054 | 9,054 | 47 | 47 | 47 |
+  | `add` | 128 | 4,676 | 6,127 | 4,642 | 18 | 30 | 20 |
+  | `sub` | 128 | 4,890 | 6,177 | 4,293 | 18 | 31 | 19 |
+  | `mul` | 128 | 4,826 | 5,308 | 5,420 | 23 | 27 | 27 |
+  | `sqr` | 128 | 5,602 | 5,625 | 5,601 | 25 | 27 | 27 |
+  | `mul_rev` | 128 | 12,751 | 11,704 | 11,734 | 56 | 56 | 56 |
+  | `add` | 512 | 4,802 | 5,391 | 5,261 | 16 | 16 | 16 |
+  | `sub` | 512 | 6,113 | 6,598 | 5,652 | 21 | 21 | 19 |
+  | `mul` | 512 | 5,959 | 6,209 | 6,306 | 16 | 16 | 16 |
+  | `sqr` | 512 | 8,317 | 8,628 | 8,710 | 24 | 24 | 24 |
+  | `mul_rev` | 512 | 19,823 | 19,696 | 19,657 | 67 | 67 | 67 |
+  | `add` | 2048 | 8,412 | 8,918 | 8,396 | 21 | 21 | 20 |
+  | `sub` | 2048 | 7,512 | 8,046 | 7,099 | 21 | 21 | 19 |
+  | `mul` | 2048 | 25,959 | 26,202 | 26,279 | 24 | 24 | 24 |
+  | `sqr` | 2048 | 27,168 | 27,436 | 27,566 | 26 | 26 | 26 |
+  | `mul_rev` | 2048 | 46,101 | 45,982 | 45,925 | 67 | 67 | 67 |
+
+  `add` and `sub` recover most of what the layout cost, `mul` and `sqr` do not move: the exact product reads `coefficient()` of both operands (an allocation each since the previous change), which needs either a word reader on `BinFloat` or a contextual core that reads words. The measured alternative is `add_ctx`, `sub_ctx` and `mul_ctx` in a context of the result precision with the direction as the rounding (no exact intermediate). The two forms of the endpoint helper were measured in one executable (instructions per call: the difference of 1,000 and 41,000 calls at 53 bits and of 1,000 and 31,000, 21,000 and 5,500 at the larger widths, the median of 5 runs of each count with the range of the 25 pairwise differences; allocations as above); the difference of the counts is at least 50 million instructions except for the rows marked below 50:
+
+  | operation (endpoint helper) | bits | instructions, exact route (median, range) | instructions, contexts (median, range) | measured difference (millions) | allocations, exact route | allocations, contexts |
+  | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+  | `directed_add` | 53 | 1,329 (1,267 to 1,341) | 1,379 (1,374 to 1,385) | 53, 55 | 6 | 8 |
+  | `directed_sub` | 53 | 1,697 (1,691 to 1,702) | 1,570 (1,540 to 1,575) | 68, 63 | 8 | 9 |
+  | `directed_mul` | 53 | 1,933 (1,906 to 1,974) | 1,978 (1,974 to 1,990) | 77, 79 | 10 | 12 |
+  | `directed_add` | 128 | 2,811 (2,777 to 2,815) | 2,797 (2,792 to 2,802) | 84, 84 | 12 | 15 |
+  | `directed_sub` | 128 | 2,186 (2,180 to 2,190) | 2,030 (2,011 to 2,039) | 66, 61 | 10 | 11 |
+  | `directed_mul` | 128 | 2,635 (2,629 to 2,641) | 2,731 (2,680 to 2,740) | 79, 82 | 14 | 17 |
+  | `directed_add` | 512 | 1,895 (1,890 to 1,915) | 1,514 (1,486 to 1,522) | 38, 30 | 6 | 6 |
+  | `directed_sub` | 512 | 2,345 (2,340 to 2,351) | 1,735 (1,728 to 1,748) | 47, 35 | 8 | 7 |
+  | `directed_mul` | 512 | 3,064 (3,060 to 3,069) | 3,153 (3,143 to 3,161) | 61, 63 | 8 | 11 |
+  | `directed_add` | 2048 | 5,636 (5,586 to 5,665) | 5,531 (5,492 to 5,743) | 28, 28 | 13 | 16 |
+  | `directed_sub` | 2048 | 2,816 (2,627 to 2,856) | 2,606 (2,575 to 2,645) | 14, 13 | 8 | 9 |
+  | `directed_mul` | 2048 | 10,830 (10,785 to 10,865) | 10,879 (10,681 to 11,052) | 54, 54 | 8 | 11 |
+
+  In instructions the two forms are equal within the resolution of the method (at most 4 percent) for `add` at 53, 128 and 2,048 bits and for `mul` at every width, and the contexts are lower for `sub` (7, 7, 26 and 7 percent) and for `add` at 512 bits (20 percent); the rows with a measured difference below 50 million (`add` and `sub` at 512 bits, `add` and `sub` at 2,048 bits) are weaker evidence. In allocations the exact route has 1 to 3 fewer for `add` (6 against 8 at 53 bits; equal at 512), 2 to 3 fewer for `mul` and 1 fewer for `sub` except at 512 bits where the contexts have 1 fewer. A context is built per call by `BinaryContext::new` (155 instructions, one allocation) and the contextual operations return a tuple and a flag set; the exact route is the one with the fewer allocations today.
+
+  The exact route stays; the contexts are the oracle of the differential test (`directed_bounds_wbtest.mbt`), and they replace the exact route when the contextual core reads words (PR F of the 0.12 plan).
+
+  Not recovered here, owner PR F (to be recovered before the 0.12 release): `BallFloat::add` at 53 bits is 18 allocations and 4,027 instructions against 14 and 3,570 before the layout, `mul` 19 and 3,999 against 13 and 3,148, `sqr` 19 and 4,220 against 15 and 4,060, and the 128-bit rows (`add` 20 and 4,642 against 18 and 4,676, `mul` 27 and 5,420 against 23 and 4,826), because the exact sum and product read `coefficient()` of both operands.
 
 - `bin_float`: a `BinFloat` is one heap object when its coefficient has at most 128 bits ([#438](https://github.com/Luna-Flow/floating/issues/438), items X1 and X2 of the performance plan). The record of seven fields (and a coefficient object) is replaced by a newtype over the internal enum `@bin_kernel.BinRepr` (`Fin64`, `Fin128`, `FinBig`, `Inf`, `NaN`; `FinBig`, `Inf` and `NaN` on the JavaScript target). The public methods are unchanged; the type prints in the interface as `pub struct BinFloat(@bin_kernel.BinRepr)` like `BinCoeff`. The plain operations read the precision once and dispatch to the word, two-word or limb path by it; the wide paths read two wide operands by one match.
 

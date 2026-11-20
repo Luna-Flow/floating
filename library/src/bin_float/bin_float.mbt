@@ -837,6 +837,36 @@ pub fn BinFloat::exponent2(self : BinFloat) -> Int32 {
 }
 
 ///|
+/// The exponent of the leading bit of a finite non-zero value: the `e` with
+/// `2^e <= |x| < 2^(e+1)`, that is `floor(log2 |x|)`; `ilogb(1)` is `Some(0)`.
+///
+/// This is `logB` of IEEE 754-2019 5.3.3 with an integral `logBFormat`.
+/// The standard defines `logB(x)` as the exponent of `x` "determined as
+/// though x were represented with infinite range and minimum exponent", so a
+/// subnormal value gives the exponent of its leading bit, and not the minimum
+/// exponent of the format (the leading bit of the subnormal `3 * 2^(e_min -
+/// p + 1)` is `e_min - p + 2`). For `logB(NaN)`, `logB(infinity)` and `logB(0)`
+/// with an integer `logBFormat` the standard returns language-defined values
+/// outside `+-2 * (e_max + p - 1)` and signals the invalid operation exception
+/// (5.3.3, 7.2 l); this interface renders those three cases as `None` and
+/// raises no flag. With a floating-point `logBFormat` the results are a NaN,
+/// `+infinity` and `-infinity` (with divideByZero), which `logb_ctx` returns.
+///
+/// It is read from the value without building its coefficient, and is
+/// `exponent2() + coefficient().bit_length() - 1`.
+pub fn BinFloat::ilogb(self : BinFloat) -> Int32? {
+  match self.class() {
+    FpClass::Finite =>
+      if self.coefficient_is_zero() {
+        None
+      } else {
+        Some(self.exact_top())
+      }
+    FpClass::Infinity | FpClass::NaN => None
+  }
+}
+
+///|
 pub fn BinFloat::normalized(self : BinFloat) -> BinFloat {
   match self.class() {
     FpClass::Finite =>
