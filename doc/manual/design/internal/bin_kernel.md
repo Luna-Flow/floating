@@ -69,6 +69,26 @@ and the aliasing the callers use.
   tests run in CI, no instruction table (not measured).
 - Rows are not worth a C version for add, subtract and shifts: the portable loop
   is as short.
+- Assembly tier: on Apple arm64 (clang or gcc) the three rows, and through them
+  `school` and `sqr_school`, have a third implementation in inline assembly in
+  `luna_limbs.c`, written from the AArch64 instruction definitions. Four limbs
+  per iteration, two carry chains in sequence: chain A adds the low words of the
+  products and the high words of the previous limbs (`adds`, `adcs`, `adc`),
+  chain B adds or subtracts the destination limbs, and the carry of chain B
+  enters the next block as the initial flag (`cmp x, #1`). The lengths below a
+  multiple of four are done first by the C row. Measured instructions per limb
+  (arm64, row of 128 limbs): `mul_1` 4.9, `addmul_1` 6.9, `submul_1` 7.0 in
+  assembly, 9.2, 12.1 and 13.1 in C. The floor of the loop: each limb needs a
+  `mul`, a `umulh`, two carry additions and about 1.5 memory operations, 5.5 for
+  `addmul_1`; the block adds 1.25 (finishing the chain A carry, the flag rebuild,
+  the chain B carry, the loop). AArch64 has one carry flag and no
+  multiply-accumulate with carry, so the two chains cannot be interleaved.
+  Anywhere else the assembly entry points are the C rows.
+- Selection: `LUNA_FLOATING_PORTABLE` (portable loops) and
+  `LUNA_FLOATING_LIMBS=c` (C rows) are read once at start; the default is
+  assembly where the tier exists, else C. The differential test compares all
+  three on the same arrays and logs the tier that ran. Linux arm64 has not been
+  run; the tier is enabled for Apple arm64 only.
 
 ## Thresholds
 
