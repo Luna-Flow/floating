@@ -1051,12 +1051,8 @@ pub impl @def.Floating for BinFloat with fn precision(self) {
 }
 
 ///|
-pub impl @def.Floating for BinFloat with fn with_precision(
-  self,
-  precision,
-  mode,
-) {
-  self.with_precision(precision, mode)
+pub impl @def.Floating for BinFloat with fn with_precision(self, precision) {
+  BinFloat::with_precision(self, precision, RoundingMode::ToNearestEven)
 }
 
 ///|

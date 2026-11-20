@@ -1932,12 +1932,8 @@ pub impl @def.Floating for BallFloat with fn precision(self) {
 }
 
 ///|
-pub impl @def.Floating for BallFloat with fn with_precision(
-  self,
-  precision,
-  mode,
-) {
-  self.with_precision(precision, mode)
+pub impl @def.Floating for BallFloat with fn with_precision(self, precision) {
+  BallFloat::with_precision(self, precision, RoundingMode::ToNearestEven)
 }
 
 ///|

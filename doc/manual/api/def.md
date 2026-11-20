@@ -146,7 +146,7 @@ pub(open) trait Floating {
   fn classify(Self) -> @arithmetic.FpClass
   fn sign(Self) -> Sign
   fn precision(Self) -> Int
-  fn with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
+  fn with_precision(Self, Int) -> Self
   fn normalized(Self) -> Self
 }
 ```
@@ -215,15 +215,17 @@ always at least $1$.
 
 ### `Floating::with_precision`
 
-`with_precision(x, p, mode)` returns `x` re-expressed at precision
+`with_precision(x, p)` returns `x` re-expressed at precision
 $q = \max(1, p)$.
 
 ```mbti
-fn with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
+fn with_precision(Self, Int) -> Self
 ```
 
 For a finite scalar the value is rounded to $q$ significant digits of its
-radix in the direction `mode`. No context exponent bounds apply and no flags
+radix, to nearest with ties to even (IEEE 754-2019 4.3.1). The trait method has
+no rounding parameter, because it cannot return an error; the inherent
+`with_precision` of each concrete type takes a rounding mode. No context exponent bounds apply and no flags
 are reported (use the `*_ctx` APIs of the concrete package for both). The
 decimal types have no other exponent limit. `BinFloat` keeps its
 implementation range: a result whose exponent leaves
@@ -235,7 +237,7 @@ stored precision.
 
 For `BallFloat` the endpoints are rounded outward (the lower one toward
 $-\infty$, the upper one toward $+\infty$), so the result is the tightest
-enclosure of `x` at the new precision whatever `mode` is; `mode` is not used.
+enclosure of `x` at the new precision.
 An interval whose endpoints are already representable at `p` bits is returned
 unchanged.
 
@@ -297,12 +299,11 @@ test "Floating observations" {
 ///|
 test "Floating re-precision and normalization" {
   let d = @decimal.Decimal::from_string("2.71828").unwrap()
-  let cut = @def.Floating::with_precision(d, 3, @lf_arith.RoundingMode::TowardZero)
-  inspect(cut.to_string(), content="2.71")
+  let cut = @def.Floating::with_precision(d, 3)
+  inspect(cut.to_string(), content="2.72")
   let ten = @def.Floating::with_precision(
     @bin_float.BinFloat::from_int(10),
     2,
-    @lf_arith.RoundingMode::ToNearestEven,
   )
   inspect(ten.to_string(), content="1p3")
   inspect(ten.precision(), content="2")
@@ -430,8 +431,9 @@ pub using @arithmetic {type FpClass}
 
 ### `RoundingMode`
 
-`RoundingMode` lists the five rounding directions accepted by
-`with_precision` and by the concrete constructors: `ToNearestEven`,
+`RoundingMode` lists the five rounding directions accepted by the inherent
+`with_precision` methods and by the concrete constructors (not by the trait
+method `Floating::with_precision`): `ToNearestEven`,
 `TowardZero`, `TowardPositive`, `TowardNegative` and `AwayFromZero`.
 
 ```mbti
@@ -554,7 +556,7 @@ pub(open) trait Floating {
   fn classify(Self) -> @arithmetic.FpClass
   fn sign(Self) -> Sign
   fn precision(Self) -> Int32
-  fn with_precision(Self, Int32, @arithmetic.RoundingMode) -> Self
+  fn with_precision(Self, Int32) -> Self
   fn normalized(Self) -> Self
 }
 ```

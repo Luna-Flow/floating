@@ -93,12 +93,14 @@ classifies as `NaN`, and `BallFloat::sign` aborts on it.
 ### Change precision generically
 
 `with_precision` rounds to the requested number of significant digits of the
-value's own radix, bits for binary and digits for decimal:
+value's own radix, bits for binary and digits for decimal, to nearest with ties
+to even. The trait method takes no rounding mode; a concrete type has its own
+`with_precision` method that does:
 
 ```moonbit
 ///|
 fn[F : @def.Floating] three_digits(x : F) -> F {
-  @def.Floating::with_precision(x, 3, @lf_arith.RoundingMode::ToNearestEven)
+  @def.Floating::with_precision(x, 3)
 }
 
 ///|
@@ -216,7 +218,7 @@ test "handle a checked result through def" {
   input at the new precision (the endpoints rounded outward), and
   `normalized` returns the same set. Neither changes an interval that is
   already representable at the target precision.
-- `with_precision(x, 0, mode)` is not an error: the precision is clamped to 1.
+- `with_precision(x, 0)` is not an error: the precision is clamped to 1.
 
 ## Next steps
 
