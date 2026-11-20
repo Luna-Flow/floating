@@ -9,6 +9,24 @@ pub(all) enum Sign {
 }
 
 ///|
+/// The ten classes of IEEE 754-2019 clause 5.7.2 (`class`). Normal and
+/// subnormal depend on the format's minimum exponent, so the classifying
+/// functions take the context that fixes it.
+#derive(Eq)
+pub(all) enum IeeeClass {
+  SignalingNaN
+  QuietNaN
+  NegativeInfinity
+  NegativeNormal
+  NegativeSubnormal
+  NegativeZero
+  PositiveZero
+  PositiveSubnormal
+  PositiveNormal
+  PositiveInfinity
+}
+
+///|
 #derive(Eq)
 pub(all) enum PartialOrder {
   Less

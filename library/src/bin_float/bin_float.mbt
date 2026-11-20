@@ -579,6 +579,73 @@ pub fn BinFloat::classify(self : BinFloat) -> FpClass {
 }
 
 ///|
+pub fn BinFloat::is_finite(self : BinFloat) -> Bool {
+  self.class == FpClass::Finite
+}
+
+///|
+pub fn BinFloat::is_infinite(self : BinFloat) -> Bool {
+  self.class == FpClass::Infinity
+}
+
+///|
+pub fn BinFloat::is_nan(self : BinFloat) -> Bool {
+  self.class == FpClass::NaN
+}
+
+///|
+/// True for a nonzero finite value whose leading-bit exponent is below the
+/// context's smallest normal exponent (IEEE 754-2019 clause 5.7.2).
+pub fn BinFloat::is_subnormal(self : BinFloat, context : BinaryContext) -> Bool {
+  self.class == FpClass::Finite &&
+  !self.coefficient_.is_zero() &&
+  binary_exact_top(self.coefficient_, self.exponent2) < context.range_e_min()
+}
+
+///|
+/// True for a nonzero finite value that is not subnormal in `context`.
+pub fn BinFloat::is_normal(self : BinFloat, context : BinaryContext) -> Bool {
+  self.class == FpClass::Finite &&
+  !self.coefficient_.is_zero() &&
+  binary_exact_top(self.coefficient_, self.exponent2) >= context.range_e_min()
+}
+
+///|
+/// The ten-valued class of IEEE 754-2019 clause 5.7.2.
+pub fn BinFloat::class_of(
+  self : BinFloat,
+  context : BinaryContext,
+) -> IeeeClass {
+  match self.class {
+    FpClass::NaN => if self.signaling_nan { SignalingNaN } else { QuietNaN }
+    FpClass::Infinity =>
+      if self.negative {
+        NegativeInfinity
+      } else {
+        PositiveInfinity
+      }
+    FpClass::Finite =>
+      if self.coefficient_.is_zero() {
+        if self.negative {
+          NegativeZero
+        } else {
+          PositiveZero
+        }
+      } else if self.is_subnormal(context) {
+        if self.negative {
+          NegativeSubnormal
+        } else {
+          PositiveSubnormal
+        }
+      } else if self.negative {
+        NegativeNormal
+      } else {
+        PositiveNormal
+      }
+  }
+}
+
+///|
 pub fn BinFloat::precision(self : BinFloat) -> Int32 {
   self.precision_
 }

@@ -103,6 +103,7 @@ pub fn BinFloat::atanpi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::ceil(Self) -> Self
 pub fn BinFloat::clamp(Self, min~ : Self, max~ : Self) -> Self
 pub fn BinFloat::clamp_checked(Self, min~ : Self, max~ : Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BinFloat::class_of(Self, BinaryContext) -> @def.IeeeClass
 pub fn BinFloat::classify(Self) -> @arithmetic.FpClass
 pub fn BinFloat::coefficient(Self) -> BinCoeff
 pub fn BinFloat::compare(Self, Self) -> Int32
@@ -156,10 +157,15 @@ pub fn BinFloat::from_string_ctx(String, BinaryContext) -> Result[(Self, BinaryF
 pub fn BinFloat::hypot(Self, Self) -> Self
 pub fn BinFloat::hypot_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::inf(@def.Sign, precision? : Int32) -> Self
+pub fn BinFloat::is_finite(Self) -> Bool
+pub fn BinFloat::is_infinite(Self) -> Bool
+pub fn BinFloat::is_nan(Self) -> Bool
 pub fn BinFloat::is_negative(Self) -> Bool
 pub fn BinFloat::is_negative_zero(Self) -> Bool
+pub fn BinFloat::is_normal(Self, BinaryContext) -> Bool
 pub fn BinFloat::is_quiet_nan(Self) -> Bool
 pub fn BinFloat::is_signaling_nan(Self) -> Bool
+pub fn BinFloat::is_subnormal(Self, BinaryContext) -> Bool
 pub fn BinFloat::is_zero(Self) -> Bool
 pub fn BinFloat::less_equal_quiet(Self, Self) -> (Bool, BinaryFlags)
 pub fn BinFloat::less_equal_signaling(Self, Self) -> (Bool, BinaryFlags)

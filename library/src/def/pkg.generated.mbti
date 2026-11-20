@@ -19,6 +19,20 @@ pub fn[F : Floating] is_zero(F) -> Bool
 
 // Types and methods
 #derive(Eq)
+pub(all) enum IeeeClass {
+  SignalingNaN
+  QuietNaN
+  NegativeInfinity
+  NegativeNormal
+  NegativeSubnormal
+  NegativeZero
+  PositiveZero
+  PositiveSubnormal
+  PositiveNormal
+  PositiveInfinity
+}
+
+#derive(Eq)
 pub(all) enum PartialOrder {
   Less
   Equal
