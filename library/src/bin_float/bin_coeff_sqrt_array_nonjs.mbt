@@ -29,7 +29,7 @@ fn bin_coeff_sqrt_store_words(
   guard bin_coeff_word_len(value) <= count else {
     abort("BinCoeff square root block exceeded its width")
   }
-  match value.repr {
+  match value.0 {
     Heap(words, len) =>
       for index in 0..<len {
         destination.unsafe_set(offset + index, words.unsafe_get(index))
@@ -154,7 +154,7 @@ fn bin_coeff_sqrt_rem_words_recursive(value : BinCoeff) -> (BinCoeff, BinCoeff) 
   }
   let shift = (limbs * 64 - bits) & -2
   let normalized = value.shift_left(shift)
-  let source = match normalized.repr {
+  let source = match normalized.0 {
     Heap(words, len) if len == limbs => words
     _ => abort("BinCoeff square root normalisation lost its width")
   }

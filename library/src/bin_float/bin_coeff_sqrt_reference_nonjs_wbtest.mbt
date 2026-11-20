@@ -115,7 +115,7 @@ fn bin_coeff_sqrt_rem_u512(value : BinCoeff) -> (BinCoeff, BinCoeff) {
 /// for values of at most 512 bits (the base case of the divide-and-conquer
 /// recursion); wider values use the restoring reference.
 fn bin_coeff_sqrt_rem_fixed_width(value : BinCoeff) -> (BinCoeff, BinCoeff) {
-  match value.repr {
+  match value.0 {
     Inline64(word) => {
       let (root, remainder) = bin_coeff_sqrt_rem_u64(word)
       (BinCoeff::from_uint64(root), BinCoeff::from_uint64(remainder))

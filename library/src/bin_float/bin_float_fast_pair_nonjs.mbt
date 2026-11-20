@@ -19,7 +19,7 @@ fn binary_pair_words(value : BinFloat) -> (UInt64, UInt64)? {
   if value.class != FpClass::Finite {
     return None
   }
-  match value.coefficient_.repr {
+  match value.coefficient_.0 {
     Inline64(low) => if low == 0UL { None } else { Some((0UL, low)) }
     Inline128(high, low) => Some((high, low))
     Heap(_, _) => None

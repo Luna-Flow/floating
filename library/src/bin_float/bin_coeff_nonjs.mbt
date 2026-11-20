@@ -9,9 +9,7 @@ priv enum BinCoeffRepr {
 
 ///|
 #derive(Debug)
-pub struct BinCoeff {
-  priv repr : BinCoeffRepr
-}
+struct BinCoeff(BinCoeffRepr)
 
 ///|
 let bin_coeff_limb_bits = 32
@@ -39,16 +37,16 @@ fn bin_coeff_u64_bits(value : UInt64) -> Int32 {
 ///|
 fn bin_coeff_inline(high : UInt64, low : UInt64) -> BinCoeff {
   if high == 0UL {
-    { repr: Inline64(low), }
+    BinCoeff(Inline64(low))
   } else {
-    { repr: Inline128(high, low), }
+    BinCoeff(Inline128(high, low))
   }
 }
 
 ///|
 /// Number of 64-bit limbs (1 for zero).
 fn bin_coeff_word_len(value : BinCoeff) -> Int32 {
-  match value.repr {
+  match value.0 {
     Inline64(_) => 1
     Inline128(_, _) => 2
     Heap(_, len) => len
@@ -58,7 +56,7 @@ fn bin_coeff_word_len(value : BinCoeff) -> Int32 {
 ///|
 /// The `index`-th 64-bit limb, zero beyond the top.
 fn bin_coeff_word(value : BinCoeff, index : Int32) -> UInt64 {
-  match value.repr {
+  match value.0 {
     Inline64(low) => if index == 0 { low } else { 0UL }
     Inline128(high, low) =>
       match index {
@@ -90,12 +88,12 @@ fn bin_coeff_from_words(
     return BinCoeff::zero()
   }
   if len == 1 {
-    return { repr: Inline64(words.unsafe_get(0)), }
+    return BinCoeff(Inline64(words.unsafe_get(0)))
   }
   if len == 2 {
     return bin_coeff_inline(words.unsafe_get(1), words.unsafe_get(0))
   }
-  { repr: Heap(words, len), }
+  BinCoeff(Heap(words, len))
 }
 
 ///|
@@ -117,22 +115,22 @@ fn bin_coeff_mul_high(left : UInt64, right : UInt64) -> UInt64 {
 
 ///|
 pub fn BinCoeff::zero() -> BinCoeff {
-  { repr: Inline64(0UL), }
+  BinCoeff(Inline64(0UL))
 }
 
 ///|
 pub fn BinCoeff::one() -> BinCoeff {
-  { repr: Inline64(1UL), }
+  BinCoeff(Inline64(1UL))
 }
 
 ///|
 pub fn BinCoeff::from_uint64(value : UInt64) -> BinCoeff {
-  { repr: Inline64(value), }
+  BinCoeff(Inline64(value))
 }
 
 ///|
 pub fn BinCoeff::is_zero(self : BinCoeff) -> Bool {
-  match self.repr {
+  match self.0 {
     Inline64(value) => value == 0UL
     Inline128(_, _) | Heap(_, _) => false
   }
@@ -145,7 +143,7 @@ fn BinCoeff::is_odd(self : BinCoeff) -> Bool {
 
 ///|
 pub fn BinCoeff::bit_length(self : BinCoeff) -> Int32 {
-  match self.repr {
+  match self.0 {
     Inline64(value) => bin_coeff_u64_bits(value)
     Inline128(high, _) => 64 + bin_coeff_u64_bits(high)
     Heap(words, len) =>
@@ -155,7 +153,7 @@ pub fn BinCoeff::bit_length(self : BinCoeff) -> Int32 {
 
 ///|
 pub fn BinCoeff::ctz(self : BinCoeff) -> Int32 {
-  match self.repr {
+  match self.0 {
     Inline64(value) =>
       if value == 0UL {
         0
@@ -184,7 +182,7 @@ pub fn BinCoeff::ctz(self : BinCoeff) -> Int32 {
 
 ///|
 pub fn BinCoeff::to_uint64(self : BinCoeff) -> UInt64? {
-  match self.repr {
+  match self.0 {
     Inline64(value) => Some(value)
     Inline128(_, _) | Heap(_, _) => None
   }
@@ -205,7 +203,7 @@ pub fn BinCoeff::compare(self : BinCoeff, other : BinCoeff) -> Int32 {
   if self_len != other_len {
     return if self_len < other_len { -1 } else { 1 }
   }
-  match (self.repr, other.repr) {
+  match (self.0, other.0) {
     (Heap(left_words, _), Heap(right_words, _)) => {
       let mut index = self_len - 1
       while true {
@@ -246,7 +244,7 @@ fn bin_coeff_add_heap(left : BinCoeff, right : BinCoeff) -> BinCoeff {
   let len = Int32::max(left_len, right_len)
   let words = FixedArray::make(len + 1, 0UL)
   let mut carry = 0UL
-  match (left.repr, right.repr) {
+  match (left.0, right.0) {
     (Heap(left_words, _), Heap(right_words, _)) =>
       for index in 0..<len {
         let left_value = if index < left_len {
@@ -283,13 +281,13 @@ fn bin_coeff_add_heap(left : BinCoeff, right : BinCoeff) -> BinCoeff {
 
 ///|
 pub fn BinCoeff::add(self : BinCoeff, other : BinCoeff) -> BinCoeff {
-  match (self.repr, other.repr) {
+  match (self.0, other.0) {
     (Inline64(left), Inline64(right)) => {
       let low = left + right
       if low >= left {
-        { repr: Inline64(low), }
+        BinCoeff(Inline64(low))
       } else {
-        { repr: Inline128(1UL, low), }
+        BinCoeff(Inline128(1UL, low))
       }
     }
     (Inline128(high, low), Inline64(value))
@@ -323,7 +321,7 @@ fn bin_coeff_add_normalized_odd(
   left : BinCoeff,
   right : BinCoeff,
 ) -> (BinCoeff, Int32) {
-  match (left.repr, right.repr) {
+  match (left.0, right.0) {
     (Heap(left_words, left_len), Heap(right_words, right_len)) => {
       let len = Int32::max(left_len, right_len)
       let words = FixedArray::make(len + 1, 0UL)
@@ -386,9 +384,9 @@ fn bin_coeff_normalize_odd_words(
 
 ///|
 fn bin_coeff_sub_unchecked(left : BinCoeff, right : BinCoeff) -> BinCoeff {
-  match (left.repr, right.repr) {
+  match (left.0, right.0) {
     (Inline64(left), Inline64(right)) =>
-      return { repr: Inline64(left - right), }
+      return BinCoeff(Inline64(left - right))
     (Inline128(high, low), Inline64(value)) => {
       let borrow = if low < value { 1UL } else { 0UL }
       return bin_coeff_inline(high - borrow, low - value)
@@ -419,7 +417,7 @@ fn bin_coeff_sub_words(
   right_len : Int32,
 ) -> Unit {
   let mut borrow = 0UL
-  match (left.repr, right.repr) {
+  match (left.0, right.0) {
     (Heap(left_words, _), Heap(right_words, _)) =>
       for index in 0..<left_len {
         let minuend = left_words.unsafe_get(index)
@@ -454,7 +452,7 @@ fn bin_coeff_sub_normalized_odd(
   left : BinCoeff,
   right : BinCoeff,
 ) -> (BinCoeff, Int32) {
-  match (left.repr, right.repr) {
+  match (left.0, right.0) {
     (Heap(_, left_len), Heap(_, right_len)) => {
       let words = FixedArray::make(left_len, 0UL)
       bin_coeff_sub_words(left, right, words, left_len, right_len)
@@ -565,7 +563,7 @@ fn bin_coeff_mul_schoolbook(left : BinCoeff, right : BinCoeff) -> BinCoeff {
   let left_len = bin_coeff_word_len(left)
   let right_len = bin_coeff_word_len(right)
   let words = FixedArray::make(left_len + right_len, 0UL)
-  match (left.repr, right.repr) {
+  match (left.0, right.0) {
     (Heap(left_words, _), Heap(right_words, _)) =>
       for left_index in 0..<left_len {
         let left_word = left_words.unsafe_get(left_index)
@@ -621,7 +619,7 @@ fn bin_coeff_nonzero_word_count_limited(
   value : BinCoeff,
   limit : Int32,
 ) -> Int32? {
-  match value.repr {
+  match value.0 {
     Heap(words, len) => {
       let mut count = 0
       for index in 0..<len {
@@ -645,7 +643,7 @@ fn bin_coeff_sparse_positions(
   count : Int32,
 ) -> FixedArray[Int32] {
   let positions = FixedArray::make(count, 0)
-  match value.repr {
+  match value.0 {
     Heap(words, len) => {
       let mut position_index = 0
       for index in 0..<len {
@@ -720,7 +718,7 @@ fn bin_coeff_add_product_at(
 
 ///|
 fn bin_coeff_square_schoolbook(value : BinCoeff) -> BinCoeff {
-  let (source, source_len) = match value.repr {
+  let (source, source_len) = match value.0 {
     Heap(source, source_len) => (source, source_len)
     Inline64(_) | Inline128(_, _) => return value.mul(value)
   }
@@ -785,7 +783,7 @@ pub fn BinCoeff::mul(self : BinCoeff, other : BinCoeff) -> BinCoeff {
   if self.is_zero() || other.is_zero() {
     return BinCoeff::zero()
   }
-  match (self.repr, other.repr) {
+  match (self.0, other.0) {
     (Inline64(left), Inline64(right)) => return bin_coeff_mul_u64(left, right)
     (Inline128(left_high, left_low), Inline64(right)) =>
       return bin_coeff_mul_inline_128(left_high, left_low, 0UL, right)
@@ -846,7 +844,7 @@ pub fn BinCoeff::shift_left(self : BinCoeff, shift : Int32) -> BinCoeff {
     return self
   }
   if self.bit_length() + shift <= 128 {
-    match self.repr {
+    match self.0 {
       Inline64(value) =>
         if shift < 64 {
           return bin_coeff_inline(value >> (64 - shift), value << shift)
@@ -865,7 +863,7 @@ pub fn BinCoeff::shift_left(self : BinCoeff, shift : Int32) -> BinCoeff {
   let word_shift = shift / 64
   let bit_shift = shift % 64
   let words = FixedArray::make(source_len + word_shift + 1, 0UL)
-  match self.repr {
+  match self.0 {
     Heap(source, _) =>
       if bit_shift == 0 {
         for index in 0..<source_len {
@@ -906,15 +904,15 @@ pub fn BinCoeff::shift_right(self : BinCoeff, shift : Int32) -> BinCoeff {
   if shift == 0 || self.is_zero() {
     return self
   }
-  match self.repr {
+  match self.0 {
     Inline64(value) =>
-      return { repr: Inline64(if shift >= 64 { 0UL } else { value >> shift }), }
+      return BinCoeff(Inline64(if shift >= 64 { 0UL } else { value >> shift }))
     Inline128(high, low) => {
       if shift >= 128 {
         return BinCoeff::zero()
       }
       if shift >= 64 {
-        return { repr: Inline64(high >> (shift - 64)), }
+        return BinCoeff(Inline64(high >> (shift - 64)))
       }
       return bin_coeff_inline(
         high >> shift,
@@ -931,7 +929,7 @@ pub fn BinCoeff::shift_right(self : BinCoeff, shift : Int32) -> BinCoeff {
   let bit_shift = shift % 64
   let output_len = source_len - word_shift
   let words = FixedArray::make(output_len, 0UL)
-  match self.repr {
+  match self.0 {
     Heap(source, _) =>
       for output_index in 0..<output_len {
         let source_index = output_index + word_shift
@@ -949,7 +947,7 @@ pub fn BinCoeff::shift_right(self : BinCoeff, shift : Int32) -> BinCoeff {
 
 ///|
 fn bin_coeff_inline_words(value : BinCoeff) -> (UInt64, UInt64)? {
-  match value.repr {
+  match value.0 {
     Inline64(low) => Some((0UL, low))
     Inline128(high, low) => Some((high, low))
     Heap(_, _) => None
@@ -1053,7 +1051,7 @@ pub fn BinCoeff::div_rem_checked(
   if self.compare(denominator) < 0 {
     return Ok((BinCoeff::zero(), self))
   }
-  match (self.repr, denominator.repr) {
+  match (self.0, denominator.0) {
     (Inline64(numerator), Inline64(denominator)) =>
       return Ok(
         (
@@ -1064,7 +1062,7 @@ pub fn BinCoeff::div_rem_checked(
     _ => ()
   }
   if bin_coeff_word_len(denominator) == 1 &&
-    denominator.repr is Inline64(divisor) &&
+    denominator.0 is Inline64(divisor) &&
     divisor <= 0xffff_ffffUL {
     Ok(bin_coeff_div_rem_word(self, divisor.to_uint()))
   } else if bin_coeff_word_len(denominator) >=
@@ -1085,7 +1083,7 @@ fn bin_coeff_short_div_rem(
   if numerator.compare(denominator) < 0 {
     return (BinCoeff::zero(), numerator)
   }
-  match (numerator.repr, denominator.repr) {
+  match (numerator.0, denominator.0) {
     (Inline64(numerator), Inline64(denominator)) =>
       return (
         BinCoeff::from_uint64(numerator / denominator),
@@ -1094,7 +1092,7 @@ fn bin_coeff_short_div_rem(
     _ => ()
   }
   if bin_coeff_word_len(denominator) == 1 &&
-    denominator.repr is Inline64(divisor) &&
+    denominator.0 is Inline64(divisor) &&
     divisor <= 0xffff_ffffUL {
     bin_coeff_div_rem_word(numerator, divisor.to_uint())
   } else if denominator.bit_length() > 96 {
@@ -1177,7 +1175,7 @@ fn bin_coeff_mul_small(value : BinCoeff, multiplier : UInt32) -> BinCoeff {
   if multiplier == 1U {
     return value
   }
-  match value.repr {
+  match value.0 {
     Inline64(value) => return bin_coeff_mul_u64(value, multiplier.to_uint64())
     _ => ()
   }

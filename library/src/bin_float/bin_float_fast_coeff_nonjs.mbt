@@ -142,7 +142,7 @@ fn binary_coeff_fast_finish(
 /// The little-endian words of `value` and their count: the array of a heap
 /// coefficient itself (not to be modified), a fresh small array otherwise.
 fn binary_coeff_fast_words(value : BinCoeff) -> (FixedArray[UInt64], Int32) {
-  match value.repr {
+  match value.0 {
     Heap(words, len) => (words, len)
     Inline64(low) => ([low], 1)
     Inline128(high, low) => ([low, high], 2)

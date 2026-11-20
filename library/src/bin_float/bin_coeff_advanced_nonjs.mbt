@@ -108,7 +108,7 @@ fn bin_coeff_word_slice(
   }
   let len = Int32::min(length, source_len - start)
   let words = FixedArray::make(len, 0UL)
-  match value.repr {
+  match value.0 {
     Heap(source, _) =>
       for index in 0..<len {
         words.unsafe_set(index, source.unsafe_get(start + index))

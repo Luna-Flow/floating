@@ -395,7 +395,7 @@ fn bin_coeff_limb32_unpack(
 ///|
 /// Product of two heap values through 32-bit limb ranges.
 fn bin_coeff_mul_limb32(left : BinCoeff, right : BinCoeff) -> BinCoeff {
-  match (left.repr, right.repr) {
+  match (left.0, right.0) {
     (Heap(left_words, left_len), Heap(right_words, right_len)) => {
       let left_limbs = bin_coeff_limb32_unpack(left_words, left_len)
       let right_limbs = bin_coeff_limb32_unpack(right_words, right_len)
@@ -422,7 +422,7 @@ fn bin_coeff_mul_limb32(left : BinCoeff, right : BinCoeff) -> BinCoeff {
 /// the 32-bit-limb routes of Wasm and Wasm-GC in this file (multiplication,
 /// squaring, Knuth division) and by the tests that compare against them.
 fn bin_coeff_limb_len(value : BinCoeff) -> Int32 {
-  match value.repr {
+  match value.0 {
     Inline64(value) => if value >> 32 == 0UL { 1 } else { 2 }
     Inline128(high, _) => if high >> 32 == 0UL { 3 } else { 4 }
     Heap(words, len) =>
@@ -437,7 +437,7 @@ fn bin_coeff_limb_len(value : BinCoeff) -> Int32 {
 ///|
 /// The `index`-th 32-bit limb of the 32-bit view.
 fn bin_coeff_limb(value : BinCoeff, index : Int32) -> UInt32 {
-  match value.repr {
+  match value.0 {
     Inline64(low) =>
       match index {
         0 => (low & bin_coeff_limb_mask).to_uint()
@@ -487,7 +487,7 @@ fn bin_coeff_from_limbs(
     } else {
       0UL
     }
-    return { repr: Inline64(high | low), }
+    return BinCoeff(Inline64(high | low))
   }
   if len <= 4 {
     let low = limbs.unsafe_get(0).to_uint64() |
@@ -507,7 +507,7 @@ fn bin_coeff_from_limbs(
     }
     words.unsafe_set(index, high | low)
   }
-  { repr: Heap(words, word_len), }
+  BinCoeff(Heap(words, word_len))
 }
 
 ///|

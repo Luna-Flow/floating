@@ -55,7 +55,7 @@ test "BinCoeff 64-bit limbs: sizes, words and the 32-bit view agree" {
       }
       assert_eq(bin_coeff_from_limbs(limbs, limb_len + 1), value)
       // representation invariants: inline up to 128 bits, heap above
-      match value.repr {
+      match value.0 {
         Inline64(_) => assert_true(bits <= 64)
         Inline128(high, _) => {
           assert_true(bits > 64 && bits <= 128)

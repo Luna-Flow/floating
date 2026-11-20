@@ -135,7 +135,7 @@ fn bin_coeff_sqrt_rem_u256(value : BinCoeff) -> (BinCoeff, BinCoeff) {
 
 ///|
 fn bin_coeff_sqrt_rem_kernel(value : BinCoeff) -> (BinCoeff, BinCoeff) {
-  match value.repr {
+  match value.0 {
     Inline64(value) => {
       let (root, remainder) = bin_coeff_sqrt_rem_u64(value)
       (BinCoeff::from_uint64(root), BinCoeff::from_uint64(remainder))

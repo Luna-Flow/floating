@@ -613,7 +613,7 @@ fn bin_coeff_words_sqr_scratch(
 ///|
 /// The square of a heap value by the word-range Karatsuba square.
 fn bin_coeff_square_words(value : BinCoeff) -> BinCoeff {
-  match value.repr {
+  match value.0 {
     Heap(words, len) => {
       let result = FixedArray::make(2 * len, 0UL)
       let scratch = FixedArray::make(bin_coeff_words_scratch_len(len), 0UL)
@@ -627,7 +627,7 @@ fn bin_coeff_square_words(value : BinCoeff) -> BinCoeff {
 ///|
 /// Product of two heap values by the word-range Karatsuba method.
 fn bin_coeff_mul_words(left : BinCoeff, right : BinCoeff) -> BinCoeff {
-  match (left.repr, right.repr) {
+  match (left.0, right.0) {
     (Heap(_, left_len), Heap(_, right_len)) if Int32::min(left_len, right_len) >=
       bin_coeff_limb32_min_words => bin_coeff_mul_limb32(left, right)
     (Heap(left_words, left_len), Heap(right_words, right_len)) => {

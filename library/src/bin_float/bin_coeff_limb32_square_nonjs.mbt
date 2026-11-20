@@ -30,7 +30,7 @@ fn bin_coeff_limb32_add_product_at(
 /// limbs (the cross products once, doubled, plus the diagonal squares), the
 /// Wasm counterpart of `bin_coeff_square_schoolbook`.
 fn bin_coeff_square_limb32(value : BinCoeff) -> BinCoeff {
-  match value.repr {
+  match value.0 {
     Heap(words, word_len) => {
       let source = bin_coeff_limb32_unpack(words, word_len)
       let source_len = 2 * word_len
