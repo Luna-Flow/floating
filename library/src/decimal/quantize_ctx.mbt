@@ -18,52 +18,47 @@ pub fn Decimal::remainder_ctx(
   other : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let (lhs, rhs, operand_flags) = prepare_binary_operands_for_context(
-    self, other, ctx,
-  )
-  match quiet_nan_pair(lhs, rhs, ctx) {
-    Some((value, flags)) => return (value, operand_flags.combine(flags))
+  match quiet_nan_pair(self, other, ctx) {
+    Some(result) => return result
     None => ()
   }
-  if lhs.class == FpClass::Finite &&
-    rhs.class == FpClass::Finite &&
-    rhs.is_zero() {
+  if self.class == FpClass::Finite &&
+    other.class == FpClass::Finite &&
+    other.is_zero() {
     let precision = finite_precision_for(bigint_one(), ctx)
-    return if lhs.is_zero() {
-      (Decimal::nan(precision~), operand_flags.combine(div_zero_flags(true)))
+    return if self.is_zero() {
+      (Decimal::nan(precision~), div_zero_flags(true))
     } else {
-      (Decimal::nan(precision~), operand_flags.combine(invalid_flags()))
+      (Decimal::nan(precision~), invalid_flags())
     }
   }
-  if lhs.class == FpClass::Finite && rhs.class == FpClass::Infinity {
-    let (value, flags) = if lhs.class == FpClass::Finite {
-      apply_finite_ctx(lhs, ctx)
+  if self.class == FpClass::Finite && other.class == FpClass::Infinity {
+    let (value, flags) = if self.class == FpClass::Finite {
+      apply_finite_ctx(self, ctx)
     } else {
-      (lhs, DecimalFlags::new())
+      (self, DecimalFlags::new())
     }
-    return (value, operand_flags.combine(flags))
+    return (value, flags)
   }
-  if lhs.class == FpClass::Infinity {
+  if self.class == FpClass::Infinity {
     return (
       Decimal::nan(precision=finite_precision_for(bigint_one(), ctx)),
-      operand_flags.combine(invalid_flags()),
+      invalid_flags(),
     )
   }
-  let quotient_flags = operand_flags.combine(
-    divide_integer_zero_quotient_flags(),
-  )
-  if finite_nearest_integer_quotient_is_zero(lhs, rhs) {
-    let (value, flags) = zero_quotient_remainder_result(lhs, rhs, ctx)
+  let quotient_flags = divide_integer_zero_quotient_flags()
+  if finite_nearest_integer_quotient_is_zero(self, other) {
+    let (value, flags) = zero_quotient_remainder_result(self, other, ctx)
     return (value, quotient_flags.combine(flags))
   }
-  match (lhs.class, rhs.class) {
+  match (self.class, other.class) {
     (FpClass::Finite, FpClass::Finite) => {
       let (exact_negative, exact_magnitude, target) = decimal_nearest_remainder_parts(
-        lhs, rhs,
+        self, other,
       )
 
       let negative = if exact_magnitude.is_zero() {
-        lhs.negative
+        self.negative
       } else {
         exact_negative
       }
@@ -86,11 +81,7 @@ pub fn Decimal::quantize_ctx(
   quantum : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let (lhs, rhs, operand_flags) = prepare_binary_operands_for_context(
-    self, quantum, ctx,
-  )
-  let result = lhs.quantize_impl(rhs, quantum, ctx)
-  (result.0, operand_flags.combine(result.1))
+  self.quantize_impl(quantum, quantum, ctx)
 }
 
 ///|
@@ -238,39 +229,36 @@ fn to_integral_finite(
   value : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let (operand, operand_flags) = prepare_operand_for_context(value, ctx)
-  if operand.class != FpClass::Finite {
-    return (operand, operand_flags)
+  if value.class != FpClass::Finite {
+    return (value, DecimalFlags::new())
   }
-  if operand.exponent10 >= 0 {
+  if value.exponent10 >= 0 {
     // Within the precision `apply_ctx` only applies the exponent range
     // (the clamp fold-down of interchange formats); a longer integer is
     // returned as it is instead of being rounded.
-    if ctx.precision <= 0 || operand.coefficient.digits10() <= ctx.precision {
-      let (result, flags) = operand.apply_ctx(ctx)
-      return (result, operand_flags.combine(flags))
+    if ctx.precision <= 0 || value.coefficient.digits10() <= ctx.precision {
+      return value.apply_ctx(ctx)
     }
     return (
       {
-        ..operand,
-        precision_: finite_precision_for_coeff(operand.coefficient, ctx),
+        ..value,
+        precision_: finite_precision_for_coeff(value.coefficient, ctx),
       },
-      operand_flags,
+      DecimalFlags::new(),
     )
   }
   let work_ctx = if ctx.precision > 0 {
     {
       ..ctx,
-      precision: Int32::max(ctx.precision, operand.coefficient.digits10()),
+      precision: Int32::max(ctx.precision, value.coefficient.digits10()),
     }
   } else {
     ctx
   }
-  let (result, flags) = operand.quantize_ctx(
+  value.quantize_ctx(
     Decimal::one(precision=finite_precision_for(bigint_one(), ctx)),
     work_ctx,
   )
-  (result, operand_flags.combine(flags))
 }
 
 ///|

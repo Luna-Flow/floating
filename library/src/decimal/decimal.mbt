@@ -918,25 +918,6 @@ fn abs_int(value : Int32) -> Int32 {
 }
 
 ///|
-fn prepare_operand_for_context(
-  value : Decimal,
-  _ctx : DecimalContext,
-) -> (Decimal, DecimalFlags) {
-  (value, DecimalFlags::new())
-}
-
-///|
-fn prepare_binary_operands_for_context(
-  lhs : Decimal,
-  rhs : Decimal,
-  ctx : DecimalContext,
-) -> (Decimal, Decimal, DecimalFlags) {
-  let (lhs, lhs_flags) = prepare_operand_for_context(lhs, ctx)
-  let (rhs, rhs_flags) = prepare_operand_for_context(rhs, ctx)
-  (lhs, rhs, lhs_flags.combine(rhs_flags))
-}
-
-///|
 fn divide_integer_zero_quotient_flags() -> DecimalFlags {
   DecimalFlags::new()
 }

@@ -280,22 +280,19 @@ pub fn Decimal::add_ctx(
   other : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let (lhs, rhs, operand_flags) = prepare_binary_operands_for_context(
-    self, other, ctx,
-  )
-  match quiet_nan_pair(lhs, rhs, ctx) {
-    Some((value, flags)) => return (value, operand_flags.combine(flags))
+  match quiet_nan_pair(self, other, ctx) {
+    Some(result) => return result
     None => ()
   }
-  let result = match (lhs.class, rhs.class) {
-    (FpClass::Infinity, FpClass::Infinity) if lhs.negative != rhs.negative =>
+  let result = match (self.class, other.class) {
+    (FpClass::Infinity, FpClass::Infinity) if self.negative != other.negative =>
       (
         Decimal::nan(precision=finite_precision_for_default(ctx)),
         invalid_flags(),
       )
     (FpClass::Infinity, _) =>
       (
-        lhs.with_precision_round(
+        self.with_precision_round(
           finite_precision_for_default(ctx),
           ctx.decimal_rounding,
         ),
@@ -303,13 +300,14 @@ pub fn Decimal::add_ctx(
       )
     (_, FpClass::Infinity) =>
       (
-        rhs.with_precision_round(
+        other.with_precision_round(
           finite_precision_for_default(ctx),
           ctx.decimal_rounding,
         ),
         DecimalFlags::new(),
       )
-    (FpClass::Finite, FpClass::Finite) => add_finite_values_ctx(lhs, rhs, ctx)
+    (FpClass::Finite, FpClass::Finite) =>
+      add_finite_values_ctx(self, other, ctx)
     (FpClass::NaN, _) | (_, FpClass::NaN) =>
       // Covered by quiet_nan_pair; keep the match total if the enum grows.
       (
@@ -317,8 +315,7 @@ pub fn Decimal::add_ctx(
         invalid_flags(),
       )
   }
-  let flags = operand_flags.combine(result.1)
-  (result.0, flags)
+  result
 }
 
 ///|
@@ -340,12 +337,8 @@ pub fn Decimal::mul_ctx(
   other : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let (lhs, rhs, operand_flags) = prepare_binary_operands_for_context(
-    self, other, ctx,
-  )
-  let result = lhs.decimal_mul_ctx_impl(rhs, ctx)
-  let flags = operand_flags.combine(result.1)
-  (result.0, flags)
+  let result = self.decimal_mul_ctx_impl(other, ctx)
+  result
 }
 
 ///|
@@ -419,12 +412,8 @@ pub fn Decimal::div_ctx(
   other : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let (lhs, rhs, operand_flags) = prepare_binary_operands_for_context(
-    self, other, ctx,
-  )
-  let result = lhs.decimal_div_ctx_impl(rhs, ctx)
-  let flags = operand_flags.combine(result.1)
-  (result.0, flags)
+  let result = self.decimal_div_ctx_impl(other, ctx)
+  result
 }
 
 ///|
@@ -996,22 +985,21 @@ pub fn Decimal::sqrt_ctx(
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   let precision = finite_precision_for_default(ctx)
-  let (operand, operand_flags) = prepare_operand_for_context(self, ctx)
-  let result = match operand.class {
-    FpClass::NaN => quiet_nan_operand(operand, ctx)
+  let result = match self.class {
+    FpClass::NaN => quiet_nan_operand(self, ctx)
     FpClass::Infinity =>
-      if operand.negative {
+      if self.negative {
         (Decimal::nan(precision~), invalid_flags())
       } else {
         (Decimal::inf(precision~), DecimalFlags::new())
       }
     FpClass::Finite =>
-      if operand.negative && !operand.coefficient.is_zero() {
+      if self.negative && !self.coefficient.is_zero() {
         (Decimal::nan(precision~), invalid_flags())
-      } else if decimal_sqrt_tiny_result(operand, ctx) is Some(tiny) {
+      } else if decimal_sqrt_tiny_result(self, ctx) is Some(tiny) {
         tiny
       } else {
-        match exact_finite_sqrt(operand, precision) {
+        match exact_finite_sqrt(self, precision) {
           Some(root) =>
             if root.coefficient.is_zero() {
               finalize_finite_ctx(root, DecimalFlags::new(), ctx)
@@ -1023,12 +1011,11 @@ pub fn Decimal::sqrt_ctx(
                 ctx,
               )
             }
-          None => decimal_sqrt_fixed_result(operand, ctx, precision)
+          None => decimal_sqrt_fixed_result(self, ctx, precision)
         }
       }
   }
-  let flags = operand_flags.combine(result.1)
-  (result.0, flags)
+  result
 }
 
 ///|

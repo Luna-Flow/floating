@@ -19,31 +19,30 @@ pub fn Decimal::try_log10_ctx(
   if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
     return Ok(invalid_context_result(ctx))
   }
-  let (value, operand_flags) = prepare_operand_for_context(self, ctx)
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
-  let result = match value.class {
-    FpClass::NaN => Ok(quiet_nan_operand(value, ctx))
+  let result = match self.class {
+    FpClass::NaN => Ok(quiet_nan_operand(self, ctx))
     FpClass::Infinity =>
       Ok(
-        if value.negative {
+        if self.negative {
           (Decimal::nan(precision~), invalid_flags())
         } else {
           (Decimal::inf(precision~), DecimalFlags::new())
         },
       )
     // IEEE 754-2019 §9.2.1: log(±0) is -inf and signals divideByZero.
-    FpClass::Finite if value.coefficient.is_zero() =>
+    FpClass::Finite if self.coefficient.is_zero() =>
       Ok(decimal_elementary_division_by_zero(Sign::Negative, ctx))
-    FpClass::Finite if value.negative =>
+    FpClass::Finite if self.negative =>
       Ok((Decimal::nan(precision~), invalid_flags()))
     FpClass::Finite if dec_coeff_compare_repr(
-        remove_factor10_repr(value.coefficient, 0).0,
+        remove_factor10_repr(self.coefficient, 0).0,
         dec_coeff_from_int(1),
       ) ==
-      0 => Ok(logb_finite_result_ctx(adjusted_exponent(value), ctx))
-    FpClass::Finite => decimal_certified_log10_result(value, ctx)
+      0 => Ok(logb_finite_result_ctx(adjusted_exponent(self), ctx))
+    FpClass::Finite => decimal_certified_log10_result(self, ctx)
   }
-  result.map(fn(value) { (value.0, operand_flags.combine(value.1)) })
+  result
 }
 
 ///|
@@ -65,23 +64,22 @@ pub fn Decimal::try_exp_ctx(
   if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
     return Ok(invalid_context_result(ctx))
   }
-  let (value, operand_flags) = prepare_operand_for_context(self, ctx)
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
-  let result = match value.class {
-    FpClass::NaN => Ok(quiet_nan_operand(value, ctx))
+  let result = match self.class {
+    FpClass::NaN => Ok(quiet_nan_operand(self, ctx))
     FpClass::Infinity =>
       Ok(
-        if value.negative {
+        if self.negative {
           (Decimal::zero(precision~), DecimalFlags::new())
         } else {
           (Decimal::inf(precision~), DecimalFlags::new())
         },
       )
-    FpClass::Finite if value.coefficient.is_zero() =>
+    FpClass::Finite if self.coefficient.is_zero() =>
       Ok((Decimal::one(precision~), DecimalFlags::new()))
-    FpClass::Finite => decimal_certified_exp_result(value, ctx)
+    FpClass::Finite => decimal_certified_exp_result(self, ctx)
   }
-  result.map(fn(value) { (value.0, operand_flags.combine(value.1)) })
+  result
 }
 
 ///|
@@ -103,28 +101,27 @@ pub fn Decimal::try_ln_ctx(
   if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
     return Ok(invalid_context_result(ctx))
   }
-  let (value, operand_flags) = prepare_operand_for_context(self, ctx)
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
-  let result = match value.class {
-    FpClass::NaN => Ok(quiet_nan_operand(value, ctx))
+  let result = match self.class {
+    FpClass::NaN => Ok(quiet_nan_operand(self, ctx))
     FpClass::Infinity =>
       Ok(
-        if value.negative {
+        if self.negative {
           (Decimal::nan(precision~), invalid_flags())
         } else {
           (Decimal::inf(precision~), DecimalFlags::new())
         },
       )
     // IEEE 754-2019 §9.2.1: log(±0) is -inf and signals divideByZero.
-    FpClass::Finite if value.coefficient.is_zero() =>
+    FpClass::Finite if self.coefficient.is_zero() =>
       Ok(decimal_elementary_division_by_zero(Sign::Negative, ctx))
-    FpClass::Finite if value.negative =>
+    FpClass::Finite if self.negative =>
       Ok((Decimal::nan(precision~), invalid_flags()))
-    FpClass::Finite if is_finite_decimal_one(value) =>
+    FpClass::Finite if is_finite_decimal_one(self) =>
       Ok((Decimal::zero(precision~), DecimalFlags::new()))
-    FpClass::Finite => decimal_certified_ln_result(value, ctx)
+    FpClass::Finite => decimal_certified_ln_result(self, ctx)
   }
-  result.map(fn(value) { (value.0, operand_flags.combine(value.1)) })
+  result
 }
 
 ///|
@@ -148,45 +145,39 @@ pub fn Decimal::try_pow_ctx(
   if gda_context_is_restricted(ctx) {
     return Ok(invalid_context_result(ctx))
   }
-  let (base, rounded_exponent, operand_flags) = prepare_binary_operands_for_context(
-    self, exponent, ctx,
-  )
   let half = finite_with_exponent_repr(false, dec_coeff_from_int(5), -1, 1)
-  if base.class == FpClass::Finite &&
-    !base.negative &&
-    rounded_exponent.class == FpClass::Finite &&
-    rounded_exponent.compare(half) == 0 {
-    let square_root = base.sqrt_ctx(ctx)
-    return Ok((square_root.0, operand_flags.combine(square_root.1)))
+  if self.class == FpClass::Finite &&
+    !self.negative &&
+    exponent.class == FpClass::Finite &&
+    exponent.compare(half) == 0 {
+    let square_root = self.sqrt_ctx(ctx)
+    return Ok(square_root)
   }
-  match decimal_power_integer_is_odd(rounded_exponent) {
+  match decimal_power_integer_is_odd(exponent) {
     Some(odd) =>
-      if decimal_power_gda_integer_count(rounded_exponent) is None &&
-        base.class == FpClass::Finite &&
-        !base.coefficient.is_zero() &&
-        !is_finite_decimal_one(base) &&
-        !is_finite_decimal_negative_one(base) {
+      if decimal_power_gda_integer_count(exponent) is None &&
+        self.class == FpClass::Finite &&
+        !self.coefficient.is_zero() &&
+        !is_finite_decimal_one(self) &&
+        !is_finite_decimal_negative_one(self) {
         // decNumber's GDA compatibility count is smaller than the native
         // machine count.  Keep ordinary large integer exponents on the
         // bounded square-and-multiply path instead of sending them through
         // the much more expensive non-integral certification route.
-        match decimal_power_machine_integer_count(rounded_exponent) {
+        match decimal_power_machine_integer_count(exponent) {
           Some(count) =>
             if count != 0 {
               let (value, flags) = decimal_power_integer_finite_result(
-                base, count, ctx,
+                self, count, ctx,
               )
-              return Ok((value, operand_flags.combine(flags)))
+              return Ok((value, flags))
             }
           None => ()
         }
-        if decimal_power_integer_expansion_exceeds_limit(rounded_exponent) {
+        if decimal_power_integer_expansion_exceeds_limit(exponent) {
           match
-            decimal_power_huge_integer_exponent_result(
-              base, rounded_exponent, odd, ctx,
-            ) {
-            Some(result) =>
-              return Ok((result.0, operand_flags.combine(result.1)))
+            decimal_power_huge_integer_exponent_result(self, exponent, odd, ctx) {
+            Some(result) => return Ok(result)
             None => ()
           }
           return Ok(
@@ -194,68 +185,54 @@ pub fn Decimal::try_pow_ctx(
               Decimal::nan(
                 precision=finite_precision_for_coeff(dec_coeff_from_int(1), ctx),
               ),
-              operand_flags.combine({
-                ..DecimalFlags::new(),
-                invalid_operation: true,
-              }),
+              { ..DecimalFlags::new(), invalid_operation: true, },
             ),
           )
         }
-        match
-          decimal_power_large_integer_coeff_result(base, rounded_exponent, ctx) {
-          Some(result) => return Ok((result.0, operand_flags.combine(result.1)))
+        match decimal_power_large_integer_coeff_result(self, exponent, ctx) {
+          Some(result) => return Ok(result)
           None => ()
         }
-        match
-          decimal_power_large_integer_result(base, rounded_exponent, odd, ctx) {
-          Some(result) =>
-            return result.map(fn(value) {
-              (value.0, operand_flags.combine(value.1))
-            })
+        match decimal_power_large_integer_result(self, exponent, odd, ctx) {
+          Some(result) => return result
           None => ()
         }
       }
     None => ()
   }
-  let is_positive_noninteger = base.class == FpClass::Finite &&
-    !base.negative &&
-    !base.coefficient.is_zero() &&
-    rounded_exponent.class == FpClass::Finite &&
-    decimal_power_integer_is_odd(rounded_exponent) is None &&
-    decimal_power_gda_integer_count(rounded_exponent) is None
+  let is_positive_noninteger = self.class == FpClass::Finite &&
+    !self.negative &&
+    !self.coefficient.is_zero() &&
+    exponent.class == FpClass::Finite &&
+    decimal_power_integer_is_odd(exponent) is None &&
+    decimal_power_gda_integer_count(exponent) is None
   if is_positive_noninteger {
     let handled_before_certification = decimal_power_simple_ten_result(
-        base, rounded_exponent, ctx,
+        self, exponent, ctx,
       )
       is Some(_) ||
-      decimal_power_exact_ten_result(base, rounded_exponent, ctx) is Some(_) ||
-      decimal_power_of_ten_extreme_result(base, rounded_exponent, ctx)
+      decimal_power_exact_ten_result(self, exponent, ctx) is Some(_) ||
+      decimal_power_of_ten_extreme_result(self, exponent, ctx) is Some(_) ||
+      decimal_power_finite_noninteger_operand_range_result(self, exponent, ctx)
       is Some(_) ||
-      decimal_power_finite_noninteger_operand_range_result(
-        base, rounded_exponent, ctx,
-      )
-      is Some(_) ||
-      decimal_power_one_finite_exponent_result(base, rounded_exponent, ctx)
-      is Some(_)
+      decimal_power_one_finite_exponent_result(self, exponent, ctx) is Some(_)
     if !handled_before_certification {
       if math_context_is_restricted(ctx) {
         return Ok(invalid_context_result(ctx))
       }
-      match
-        decimal_power_adjacent_one_directed_result(base, rounded_exponent, ctx) {
+      match decimal_power_adjacent_one_directed_result(self, exponent, ctx) {
         Some(result) => {
           let finalized = result
-          return Ok((finalized.0, operand_flags.combine(finalized.1)))
+          return Ok(finalized)
         }
         None => ()
       }
-      return decimal_certified_power_result(base, rounded_exponent, ctx).map(fn(
+      return decimal_certified_power_result(self, exponent, ctx).map(fn(
         result,
       ) {
         let finalized = result
         let finalized = if decimal_exact_cohort_adjustable(finalized, ctx) {
-          match
-            decimal_power_preferred_exponent(base.exponent10, rounded_exponent) {
+          match decimal_power_preferred_exponent(self.exponent10, exponent) {
             Some(preferred) =>
               decimal_power_adjust_exact_cohort(finalized, preferred, ctx)
             None => finalized
@@ -263,12 +240,12 @@ pub fn Decimal::try_pow_ctx(
         } else {
           finalized
         }
-        (finalized.0, operand_flags.combine(finalized.1))
+        finalized
       })
     }
   }
-  let (result, flags) = base.power_ctx_impl(rounded_exponent, ctx)
-  Ok((result, operand_flags.combine(flags)))
+  let (result, flags) = self.power_ctx_impl(exponent, ctx)
+  Ok((result, flags))
 }
 
 ///|

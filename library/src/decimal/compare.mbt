@@ -125,14 +125,11 @@ pub fn Decimal::compare_ctx(
   other : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let (lhs, rhs, operand_flags) = prepare_binary_operands_for_context(
-    self, other, ctx,
-  )
-  match quiet_nan_pair(lhs, rhs, ctx) {
-    Some((value, flags)) => return (value, operand_flags.combine(flags))
+  match quiet_nan_pair(self, other, ctx) {
+    Some(result) => return result
     None => ()
   }
-  (decimal_compare_result(lhs.compare(rhs), ctx), operand_flags)
+  (decimal_compare_result(self.compare(other), ctx), DecimalFlags::new())
 }
 
 ///|
@@ -141,18 +138,12 @@ pub fn Decimal::compare_signal_ctx(
   other : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  let (lhs, rhs, operand_flags) = prepare_binary_operands_for_context(
-    self, other, ctx,
-  )
-  match quiet_nan_pair(lhs, rhs, ctx) {
+  match quiet_nan_pair(self, other, ctx) {
     Some((value, flags)) =>
-      return (
-        value,
-        operand_flags.combine({ ..flags, invalid_operation: true, }),
-      )
+      return (value, { ..flags, invalid_operation: true, })
     None => ()
   }
-  (decimal_compare_result(lhs.compare(rhs), ctx), operand_flags)
+  (decimal_compare_result(self.compare(other), ctx), DecimalFlags::new())
 }
 
 ///|
