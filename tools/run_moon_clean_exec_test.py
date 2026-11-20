@@ -53,7 +53,7 @@ printf '%s\\n' "$*" > "{marker}"
         env = os.environ.copy()
         env["PATH"] = f"{fake_bin}:{env.get('PATH', '')}"
         completed = subprocess.run(
-            ["sh", str(wrapper), "test", "library/src/consistency/core_wbtest.mbt", "--no-parallelize"],
+            ["sh", str(wrapper), "test", "tooling/src/consistency/core_wbtest.mbt", "--no-parallelize"],
             cwd=root,
             env=env,
             text=True,
@@ -66,7 +66,7 @@ printf '%s\\n' "$*" > "{marker}"
         assert_true(marker.exists(), "fake moon should have been invoked after cleanup")
         invoked = marker.read_text(encoding="utf-8").strip()
         assert_true(
-            invoked == "--target-dir _build test library/src/consistency/core_wbtest.mbt --no-parallelize",
+            invoked == "--target-dir _build test tooling/src/consistency/core_wbtest.mbt --no-parallelize",
             f"wrapper should forward moon arguments verbatim, got: {invoked!r}",
         )
 
