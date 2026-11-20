@@ -17,7 +17,7 @@ code uses:
 
 | Package | Helpers it uses |
 | --- | --- |
-| `decimal`, `decimal_gda` | `split_decimal_string`, `round_positive_div`, `pow5`, `pow10`, `digits10`, `abs_bigint`, `bigint_zero`, `bigint_one`, `DecimalExponentBounds`, `CertifiedRefinementBudget`, `certified_failure` |
+| `decimal`, `decimal_gda` | `split_decimal_string`, `round_positive_div`, `pow5`, `pow10`, `digits10`, `abs_bigint`, `bigint_zero`, `bigint_one`, `DecimalExponentBounds`, `decimal_exponent_limit`, `CertifiedRefinementBudget`, `certified_failure` |
 | `bin_float`, `ball_float` | `CertifiedRefinementBudget`, `certified_failure` |
 | `semantic` | `ExactRat` |
 
@@ -581,6 +581,8 @@ pub fn certified_refinement_continues(Int32?, Int32, Int32, Int32) -> Bool
 pub fn certified_unbounded_work_cap(Int32) -> Int32
 
 pub fn compare_abs(@bigint.BigInt, @bigint.BigInt) -> Int32
+
+pub let decimal_exponent_limit : Int32
 
 pub fn digits10(@bigint.BigInt) -> Int32
 
