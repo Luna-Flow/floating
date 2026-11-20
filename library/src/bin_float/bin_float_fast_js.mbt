@@ -78,6 +78,17 @@ fn binary_pair_mul(_left : BinFloat, _right : BinFloat) -> BinFloat? {
 }
 
 ///|
+/// No word comparison on this target: 2 sends the caller to the general path.
+fn binary_compare_pair(_left : BinFloat, _right : BinFloat) -> Int32 {
+  2
+}
+
+///|
+fn binary_compare_pair_magnitude(_left : BinFloat, _right : BinFloat) -> Int32 {
+  2
+}
+
+///|
 /// The two-word paths do not exist on this target; the limit is only read by the
 /// dispatch of the plain operations.
 let binary_pair_precision_limit : Int32 = 128

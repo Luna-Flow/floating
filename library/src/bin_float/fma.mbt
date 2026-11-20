@@ -120,7 +120,7 @@ fn binary_exact_product(
   }
   // Every representable addend has its leading bit above -2^31 + 2^29, so a
   // single bit far below its last significant position rounds identically.
-  let addend_top = binary_exact_top(addend.coefficient_(), addend.exponent2_())
+  let addend_top = addend.exact_top()
   Ok(
     finite_normalized(
       negative,

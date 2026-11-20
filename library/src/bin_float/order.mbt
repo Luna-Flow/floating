@@ -24,17 +24,7 @@ fn binary_total_order_magnitude(left : BinFloat, right : BinFloat) -> Int32 {
     return if rank < 0 { -1 } else { 1 }
   }
   match left.class() {
-    FpClass::Finite =>
-      if left.coefficient_is_zero() || right.coefficient_is_zero() {
-        left.coefficient_().compare(right.coefficient_())
-      } else {
-        binary_compare_shifted(
-          left.coefficient_(),
-          left.exponent2_(),
-          right.coefficient_(),
-          right.exponent2_(),
-        )
-      }
+    FpClass::Finite => binary_compare_magnitude(left, right)
     FpClass::Infinity => 0
     FpClass::NaN => left.payload_().compare(right.payload_())
   }

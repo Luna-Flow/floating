@@ -184,6 +184,29 @@ fn BinFloat::coefficient_(self : BinFloat) -> Coeff {
 }
 
 ///|
+/// `sign` in one match.
+#inline
+fn BinFloat::sign_(self : BinFloat) -> Sign {
+  match self.0 {
+    Fin64(negative~, word~, ..) =>
+      if word == 0UL {
+        Sign::Zero
+      } else if negative {
+        Sign::Negative
+      } else {
+        Sign::Positive
+      }
+    Fin128(negative~, ..) | FinBig(negative~, ..) | Inf(negative~, ..) =>
+      if negative {
+        Sign::Negative
+      } else {
+        Sign::Positive
+      }
+    NaN(..) => Sign::Zero
+  }
+}
+
+///|
 /// `self.coefficient_().is_zero()` without building the coefficient.
 #inline
 fn BinFloat::coefficient_is_zero(self : BinFloat) -> Bool {

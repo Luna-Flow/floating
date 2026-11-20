@@ -20,6 +20,8 @@ options(
     "elementary_thresholds_wasm_gc.mbt": [ "wasm-gc" ],
     "bin_float_fast_js.mbt": [ "js" ],
     "bin_repr_js.mbt": [ "js" ],
+    "bin_float_compare_nonjs.mbt": [ "not", "js" ],
+    "bin_float_compare_nonjs_wbtest.mbt": [ "not", "js" ],
     "bin_repr_nonjs.mbt": [ "not", "js" ],
     "kernel_imports_nonjs.mbt": [ "not", "js" ],
     "bin_float_fast_nonjs.mbt": [ "not", "js" ],

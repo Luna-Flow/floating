@@ -64,7 +64,7 @@ pub fn BinFloat::logb_ctx(
         // An Int needs at most 32 bits, so the result is exact.
         (
           BinFloat::from_int_raw(
-            binary_exact_top(self.coefficient_(), self.exponent2_()),
+            self.exact_top(),
             precision=Int32::max(context.precision, 32),
           ),
           BinaryFlags::new(),

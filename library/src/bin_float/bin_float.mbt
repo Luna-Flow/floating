@@ -254,8 +254,44 @@ fn finite_from_uint64(
 }
 
 ///|
+/// Exponent of the leading bit of a finite non-zero value (`binary_exact_top` of
+/// its coefficient and exponent) without building the coefficient.
+fn BinFloat::exact_top(self : BinFloat) -> Int32 {
+  binary_add_sat(self.coefficient_bits() - 1, self.exponent2_())
+}
+
+///|
 fn max_precision(a : BinFloat, b : BinFloat) -> Int32 {
   Int32::max(a.precision_(), b.precision_())
+}
+
+///|
+/// Order of the magnitudes of two finite values (zero included): the words of
+/// values of at most 128 coefficient bits are compared without building a
+/// coefficient (`binary_compare_pair_magnitude`), anything wider through the
+/// coefficients.
+fn binary_compare_magnitude(left : BinFloat, right : BinFloat) -> Int32 {
+  if left.coefficient_is_zero() || right.coefficient_is_zero() {
+    return if left.coefficient_is_zero() {
+      if right.coefficient_is_zero() {
+        0
+      } else {
+        -1
+      }
+    } else {
+      1
+    }
+  }
+  let words = binary_compare_pair_magnitude(left, right)
+  if words != 2 {
+    return words
+  }
+  binary_compare_shifted(
+    left.coefficient_(),
+    left.exponent2_(),
+    right.coefficient_(),
+    right.exponent2_(),
+  )
 }
 
 ///|
@@ -266,13 +302,7 @@ fn compare_finite(a : BinFloat, b : BinFloat) -> Int32 {
   if a.negative() != b.negative() {
     return if a.negative() { -1 } else { 1 }
   }
-  let ea = a.exponent2_()
-  let eb = b.exponent2_()
-  let magnitude_comparison = if ea == eb {
-    a.coefficient_().compare(b.coefficient_())
-  } else {
-    binary_compare_shifted(a.coefficient_(), ea, b.coefficient_(), eb)
-  }
+  let magnitude_comparison = binary_compare_magnitude(a, b)
   if a.negative() {
     -magnitude_comparison
   } else {
@@ -706,8 +736,7 @@ pub fn BinFloat::is_nan(self : BinFloat) -> Bool {
 pub fn BinFloat::is_subnormal(self : BinFloat, context : BinaryContext) -> Bool {
   self.class() == FpClass::Finite &&
   !self.coefficient_is_zero() &&
-  binary_exact_top(self.coefficient_(), self.exponent2_()) <
-  context.range_e_min()
+  self.exact_top() < context.range_e_min()
 }
 
 ///|
@@ -715,8 +744,7 @@ pub fn BinFloat::is_subnormal(self : BinFloat, context : BinaryContext) -> Bool 
 pub fn BinFloat::is_normal(self : BinFloat, context : BinaryContext) -> Bool {
   self.class() == FpClass::Finite &&
   !self.coefficient_is_zero() &&
-  binary_exact_top(self.coefficient_(), self.exponent2_()) >=
-  context.range_e_min()
+  self.exact_top() >= context.range_e_min()
 }
 
 ///|
@@ -761,11 +789,7 @@ pub fn BinFloat::precision(self : BinFloat) -> Int32 {
 
 ///|
 pub fn BinFloat::sign(self : BinFloat) -> Sign {
-  match self.class() {
-    FpClass::NaN => Sign::Zero
-    FpClass::Finite if self.coefficient_is_zero() => Sign::Zero
-    _ => if self.negative() { Sign::Negative } else { Sign::Positive }
-  }
+  self.sign_()
 }
 
 ///|
@@ -927,6 +951,10 @@ pub fn BinFloat::compare_checked(
 /// NaN compares equal to every other NaN and greater than every non-NaN.
 /// Use the quiet/signaling predicates or `compare_checked` for IEEE semantics.
 pub fn BinFloat::compare(self : BinFloat, other : BinFloat) -> Int32 {
+  let words = binary_compare_pair(self, other)
+  if words != 2 {
+    return words
+  }
   match (self.class() == FpClass::NaN, other.class() == FpClass::NaN) {
     (true, true) => return 0
     (true, false) => return 1

@@ -46,7 +46,7 @@ pub fn BinFloat::remainder_ctx(
   if divisor.class() == FpClass::Infinity || self.coefficient_is_zero() {
     return self.round_ctx(context)
   }
-  let top = binary_exact_top(self.coefficient_(), self.exponent2_())
+  let top = self.exact_top()
   let divisor_top = binary_exact_top(
     divisor.coefficient_(),
     divisor.exponent2_(),
