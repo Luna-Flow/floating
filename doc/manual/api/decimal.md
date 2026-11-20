@@ -525,6 +525,41 @@ pub fn DecimalContext::tininess(Self) -> DecimalTininessDetection
 
 `precision` is 0 only for `exact()`.
 
+### `DecimalContext::clamp_fold`, `DecimalContext::with_clamp_fold`
+
+Read and set the opt-in fold-down of a zero `quantize` result.
+
+```mbti
+pub fn DecimalContext::clamp_fold(Self) -> Bool
+pub fn DecimalContext::with_clamp_fold(Self, Bool) -> Self
+```
+
+Under `clamp` the largest encodable exponent is $e_{\max} - p + 1$ (369 in
+decimal64). IEEE 754-2019 §5.3.2 says nothing about a `quantize` result that is
+zero and whose requested exponent lies above it (the target must not exceed
+$e_{\max}$): by default the exponent asked for is returned and nothing is
+raised, as before (`quantize(0, 1E+380)` is `0E+380`). With
+`with_clamp_fold(true)` that zero is folded down to $e_{\max} - p + 1$ and
+`clamped` is raised (`0E+369`), which is what decNumber does (`decQuantizeOp`
+calls `decFinalize` for a zero operand). `rescale` shares the path. The option
+is `false` by default and in every preset, has no effect without `clamp`, does
+not change a non-zero result, and takes part in `==`; every other operation that
+produces such a zero already folds, with or without it.
+
+```moonbit
+///|
+test "the clamp fold of a zero quantize result" {
+  let d = fn(s : String) { @decimal.Decimal::from_string(s).unwrap() }
+  let context = @decimal.DecimalContext::decimal64()
+  let (plain, flags) = d("0").quantize(d("1E+380"), context)
+  inspect(plain, content="0E+380")
+  assert_false(flags.clamped)
+  let (folded, flags) = d("0").quantize(d("1E+380"), context.with_clamp_fold(true))
+  inspect(folded, content="0E+369")
+  assert_true(flags.clamped)
+}
+```
+
 ### `DecimalContext::refinement_limit`, `DecimalContext::with_refinement_limit`
 
 Read and set the refinement limit of the certified elementary functions.
@@ -2584,6 +2619,7 @@ pub struct DecimalContext {
   // private fields
 }
 pub fn DecimalContext::clamp(Self) -> Bool
+pub fn DecimalContext::clamp_fold(Self) -> Bool
 pub fn DecimalContext::decimal128() -> Self
 pub fn DecimalContext::decimal32() -> Self
 pub fn DecimalContext::decimal64() -> Self
@@ -2603,6 +2639,7 @@ pub fn DecimalContext::refinement_limit(Self) -> Int32?
 pub fn DecimalContext::rounding(Self) -> @arithmetic.RoundingMode
 pub fn DecimalContext::tininess(Self) -> DecimalTininessDetection
 pub fn DecimalContext::try_new(precision? : Int32, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn DecimalContext::with_clamp_fold(Self, Bool) -> Self
 pub fn DecimalContext::with_refinement_limit(Self, Int32?) -> Self
 pub fn DecimalContext::with_rounding(Self, @arithmetic.RoundingMode) -> Self
 pub fn DecimalContext::with_tininess(Self, DecimalTininessDetection) -> Self

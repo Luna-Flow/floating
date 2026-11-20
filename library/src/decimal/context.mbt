@@ -86,6 +86,7 @@ pub struct DecimalContext {
   priv extended : Bool
   priv tininess : DecimalTininessDetection
   priv refinement_limit : Int32?
+  priv clamp_fold : Bool
 }
 
 ///|
@@ -250,6 +251,7 @@ pub fn DecimalContext::new(
     extended,
     tininess,
     refinement_limit: Some(12),
+    clamp_fold: false,
   })
 }
 
@@ -367,6 +369,29 @@ pub fn DecimalContext::with_refinement_limit(
 }
 
 ///|
+/// Whether a zero `quantize` result above `e_max - precision + 1` is folded
+/// down to that exponent with `clamped` under `clamp`, `false` by default and in
+/// every preset (see `with_clamp_fold`).
+pub fn DecimalContext::clamp_fold(self : DecimalContext) -> Bool {
+  self.clamp_fold
+}
+
+///|
+/// Returns a copy of the context with the clamp fold-down of zero `quantize`
+/// results set to `fold`. IEEE 754-2019 §5.3.2 says nothing about a zero result
+/// whose exponent cannot be encoded (above `e_max - precision + 1`, 369 in
+/// decimal64): by default `quantize` returns the exponent asked for, as before.
+/// With `fold` and `clamp`, the exponent is folded down to the largest encodable
+/// one and `clamped` is raised, as `decFinalize` of decNumber does for a zero
+/// result. Non-zero results and contexts without `clamp` are not affected.
+pub fn DecimalContext::with_clamp_fold(
+  self : DecimalContext,
+  fold : Bool,
+) -> DecimalContext {
+  { ..self, clamp_fold: fold, }
+}
+
+///|
 pub fn DecimalContext::ieee754(self : DecimalContext) -> DecimalContext {
   self
 }
@@ -383,6 +408,7 @@ fn decimal_exact_work_context() -> DecimalContext {
     extended: true,
     tininess: DecimalTininessDetection::BeforeRounding,
     refinement_limit: Some(12),
+    clamp_fold: false,
   }
 }
 
