@@ -552,9 +552,71 @@ fn Decimal::try_unary_elementary_ctx(
       }
     _ => ()
   }
-  decimal_certified_unary_result(value, ctx, operation.name(), fn(input) {
-    operation.evaluate(input)
-  }).map(finish)
+  // sin, cos and tan of a huge integer operand: the operand is exactly a binary
+  // rational (c * 5^e * 2^e), so it enters the ball as an exact point and the
+  // evaluation runs at the result precision plus the binary magnitude of the
+  // argument (the reduction modulo pi). Converting it to a ball of the target
+  // precision would widen it by 2^top and never decide (#377). An operand with a
+  // fractional part is not a dyadic rational: its ball precision starts at its
+  // binary magnitude plus the target instead.
+  let huge = match operation {
+    Sin | Cos | Tan if value.class == FpClass::Finite =>
+      adjusted_exponent64(value) >= 32L
+    _ => false
+  }
+  let exact_evaluate = if huge && value.exponent10 >= 0 {
+    let bits = ((
+      value.coefficient.digits10().to_int64() + value.exponent10.to_int64()
+    ) *
+    3_321_929L /
+    1_000_000L +
+    16L).to_int()
+    let (lower, upper) = value.to_bin_float_bounds(bits)
+    if lower.compare(upper) == 0 {
+      Some(fn(precision : Int32) {
+        let downward = @bin_float.BinaryContext::unbounded(
+          precision,
+          rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+        )
+        let upward = @bin_float.BinaryContext::unbounded(
+          precision,
+          rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+        )
+        let low = match operation {
+          Sin => lower.try_sin_ctx(downward)
+          Cos => lower.try_cos_ctx(downward)
+          _ => lower.try_tan_ctx(downward)
+        }
+        let high = match operation {
+          Sin => lower.try_sin_ctx(upward)
+          Cos => lower.try_cos_ctx(upward)
+          _ => lower.try_tan_ctx(upward)
+        }
+        low.bind(fn(a) {
+          high.map(fn(b) {
+            @ball_float.BallFloat::from_bounds(a.0, b.0, precision~)
+          })
+        })
+      })
+    } else {
+      None
+    }
+  } else {
+    None
+  }
+  let extra_bits = if huge && exact_evaluate is None {
+    (adjusted_exponent64(value) + 1L) * 3_321_929L / 1_000_000L
+  } else {
+    0L
+  }
+  decimal_certified_unary_result(
+    value,
+    ctx,
+    operation.name(),
+    fn(input) { operation.evaluate(input) },
+    extra_bits=extra_bits.to_int(),
+    exact_evaluate~,
+  ).map(finish)
 }
 
 ///|

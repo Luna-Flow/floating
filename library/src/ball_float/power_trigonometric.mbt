@@ -699,6 +699,29 @@ fn trig_cutoff_exceeded(value : BallFloat) -> Bool {
 }
 
 ///|
+/// Largest working precision (bits) of the argument reduction of the point
+/// evaluations (`BinFloat::try_sin_ctx` and its siblings, which report a
+/// resource limit beyond it).
+let trig_work_limit : Int64 = 8_000_000L
+
+///|
+/// `true` when the reduction of the argument needs more working bits than
+/// `trig_work_limit`: `precision + adjusted exponent + 96`.
+fn trig_work_limit_exceeded(value : BallFloat) -> Bool {
+  if !value.is_bounded() || value.is_empty() {
+    return false
+  }
+  let magnitude = value.magnitude()
+  if magnitude.is_zero() {
+    return false
+  }
+  let adjusted = magnitude.exponent2().to_int64() +
+    magnitude.coefficient().bit_length().to_int64() -
+    1L
+  Int64::max(0L, adjusted) + value.precision_.to_int64() + 96L > trig_work_limit
+}
+
+///|
 fn unit_interval(precision : Int32) -> BallFloat {
   store_interval(
     @bin_float.BinFloat::from_int(-1, precision~),
@@ -712,8 +735,15 @@ pub fn BallFloat::sin_interval(self : BallFloat) -> BallFloat {
   if self.is_empty() {
     return self
   }
-  if !self.is_bounded() || trig_cutoff_exceeded(self) {
+  if !self.is_bounded() {
     return unit_interval(self.precision_)
+  }
+  if trig_cutoff_exceeded(self) {
+    // Beyond the rational path: the point evaluations decide it, tightly.
+    return match self.try_sin_interval() {
+      Ok(value) => value
+      Err(_) => unit_interval(self.precision_)
+    }
   }
   guard certified_sin_cos_interval_bounds(self) is Some(bounds) else {
     return unit_interval(self.precision_)
@@ -736,8 +766,14 @@ pub fn BallFloat::cos_interval(self : BallFloat) -> BallFloat {
   if self.is_empty() {
     return self
   }
-  if !self.is_bounded() || trig_cutoff_exceeded(self) {
+  if !self.is_bounded() {
     return unit_interval(self.precision_)
+  }
+  if trig_cutoff_exceeded(self) {
+    return match self.try_cos_interval() {
+      Ok(value) => value
+      Err(_) => unit_interval(self.precision_)
+    }
   }
   guard certified_sin_cos_interval_bounds(self) is Some(bounds) else {
     return unit_interval(self.precision_)
@@ -862,8 +898,14 @@ pub fn BallFloat::tan_interval(self : BallFloat) -> BallFloat {
   if self.is_empty() {
     return self
   }
-  if !self.is_bounded() || trig_cutoff_exceeded(self) {
+  if !self.is_bounded() {
     return whole_real(self.precision_)
+  }
+  if trig_cutoff_exceeded(self) {
+    return match self.try_tan_interval() {
+      Ok(value) => value
+      Err(_) => whole_real(self.precision_)
+    }
   }
   match certified_tan_interval_bounds(self) {
     Bounds(lower, upper) => store_interval(lower, upper, self.precision_)
