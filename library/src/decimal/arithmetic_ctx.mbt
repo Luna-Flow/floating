@@ -1,17 +1,50 @@
 ///|
 // Public arithmetic and sqrt APIs.
 
+///|
+/// The largest adjusted exponent and the smallest exponent of a stored finite
+/// value: the range of the working context of the plain operators (S1). Both
+/// are the largest and smallest the 32-bit exponent field allows once
+/// `e_max`, `e_min` and `etiny = e_min - p + 1` have to be representable in it.
+let decimal_working_e_max : Int32 = 2147483646
+
+///|
+let decimal_working_e_tiny : Int32 = -2147483645
+
+///|
+/// The private context of the plain operators `+ - * /` and `sqrt`: the format
+/// of the larger precision label with the storage range of a value, round half
+/// even, no fold (IEEE 754-2019 5.4.1). A plain operation is the `_ctx`
+/// operation in this context with the flags dropped, so a sum beyond the range
+/// is an infinity and a result below it rounds to a zero like any context
+/// result.
+fn decimal_plain_context(precision : Int32) -> DecimalContext {
+  DecimalContext::raw(
+    precision,
+    decimal_working_e_tiny + precision - 1,
+    decimal_working_e_max,
+  )
+}
+
+///|
 pub fn Decimal::add(self : Decimal, other : Decimal) -> Decimal {
-  add_decimal_impl(self, other)
+  let ctx = decimal_plain_context(max_precision(self, other))
+  if self.class == FpClass::Finite && other.class == FpClass::Finite {
+    // the finite case of `add_ctx` without its operand and NaN preparation
+    add_finite_values_ctx(self, other, ctx).0
+  } else {
+    self.add_ctx(other, ctx).0
+  }
 }
 
 ///|
 pub fn Decimal::sub(self : Decimal, other : Decimal) -> Decimal {
-  match quiet_nan_pair_plain(self, other) {
-    Some(value) => return value
-    None => ()
+  let ctx = decimal_plain_context(max_precision(self, other))
+  if self.class == FpClass::Finite && other.class == FpClass::Finite {
+    add_finite_values_ctx(self, other.neg(), ctx).0
+  } else {
+    self.sub_ctx(other, ctx).0
   }
-  add_decimal_impl(self, other.neg())
 }
 
 ///|
@@ -229,7 +262,10 @@ fn add_finite_values_ctx(
 
 ///|
 pub fn Decimal::mul(self : Decimal, other : Decimal) -> Decimal {
-  mul_decimal_impl(self, other)
+  self.decimal_mul_ctx_impl(
+    other,
+    decimal_plain_context(max_precision(self, other)),
+  ).0
 }
 
 ///|
@@ -792,7 +828,10 @@ pub fn Decimal::div_checked(
 
 ///|
 pub fn Decimal::div(self : Decimal, other : Decimal) -> Decimal {
-  div_decimal_impl(self, other)
+  self.decimal_div_ctx_impl(
+    other,
+    decimal_plain_context(max_precision(self, other)),
+  ).0
 }
 
 ///|
@@ -800,16 +839,7 @@ pub fn Decimal::div(self : Decimal, other : Decimal) -> Decimal {
 /// of its precision label): a negative non-zero operand gives NaN (IEEE
 /// 754-2019 7.2), no flags are returned. `sqrt_checked` reports it as `Err`.
 pub fn Decimal::sqrt(self : Decimal) -> Decimal {
-  let ctx = match DecimalContext::try_new(precision=self.precision_) {
-    Ok(ctx) => ctx
-    // the default range of a precision above 999,999 digits is out of range
-    Err(_) =>
-      DecimalContext::new(
-        precision=self.precision_,
-        e_max=decimal_implementation_e_max,
-      )
-  }
-  self.sqrt_ctx(ctx).0
+  self.sqrt_ctx(decimal_plain_context(self.precision_)).0
 }
 
 ///|

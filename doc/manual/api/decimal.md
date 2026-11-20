@@ -730,39 +730,46 @@ pub fn Decimal::div(Self, Self) -> Self
 pub fn Decimal::neg(Self) -> Self
 ```
 
-The result precision is $\max(p_a, p_b)$ of the operand precision fields.
+Each operator is the matching [context operation](#context-arithmetic) (`add_ctx`,
+`sub_ctx`, `mul_ctx`, `div_ctx`, `sqrt_ctx`) in a private working context with the
+flags dropped: the format of the larger precision $\max(p_a, p_b)$ of the
+operand precision fields, round half even, the storage range of a value
+(largest adjusted exponent $2\,147\,483\,646$, smallest exponent
+$-2\,147\,483\,645$) and no fold-down. The result precision field is
+$\max(p_a, p_b)$.
 
-- `add`/`sub` compute the exact sum, round it half-even to that precision and
-  return the reduced cohort member: `1.20 + 3.40` is `4.6`.
-- `mul` returns the exact product with exponent $q_a+q_b$ and is **not
-  rounded**: `1.25 * 2.50` is `3.1250`, and the coefficient may be longer
-  than the precision field.
-- `div` rounds the quotient half-even to that precision and reduces it. The
-  quotient is computed with a few guard digits and rounded with `ZeroFiveUp`
-  first, which makes the second rounding equal to one correct rounding:
-  `15 / 83294` at five digits is `0.00018009`.
+- An exact result takes the cohort member closest to the preferred exponent
+  (IEEE 754-2019 5.4.1: $\min(q_a, q_b)$ for `add` and `sub`, $q_a+q_b$ for
+  `mul`, $q_a-q_b$ for `div`): `1.20 + 3.40` is `4.60`, `6.0 / 2` is `3.0`,
+  `1.25 * 2.50` is `3.1250`, `1.20 - 1.20` is `0.00`.
+- An inexact result has exactly $p$ digits (the least exponent, 5.2) and is not
+  reduced: `1 / 3` at seven digits is `0.3333333`, a product of two five-digit
+  values is rounded to five digits. The product used to be returned exact, with
+  up to $2p$ digits.
 - `neg` flips the sign bit of every value, including zeros and NaNs.
 
-Special values: a NaN operand gives a quiet NaN with the first NaN's sign and
-payload; $\infty-\infty$, $0\times\infty$, $0/0$ and $\infty/\infty$ give a
-positive NaN; $x/0$ gives a signed infinity; finite$/\infty$ gives $+0$. No
-context exponent range is applied, only the limits of the representation
-described under [`parse`](#decimalparse-from_string): a result whose
-adjusted exponent would exceed $2^{31}-1$ is a signed infinity, and a result
-that needs an exponent below $-2^{31}$ is rounded half-even to that exponent,
-possibly to a signed zero, as IEEE 754 §7.4 and §7.5 prescribe for that
-range (`1E+1500000000 * 1E+1500000000` is `inf`, `123E-2147483640 * 1E-10`
-is `1E-2147483648`). Exact cancellation gives $+0$; the sum of two
-negative zeros is $-0$.
+Special values follow the context operations: a NaN operand gives a quiet NaN
+with the payload of the first NaN; $\infty-\infty$, $0\times\infty$, $0/0$
+and $\infty/\infty$ give a NaN; $x/0$ is an infinity with the sign of the
+exact quotient (the sign of a zero counts: `1 / -0` is $-\infty$); the sign of
+a zero product is the exclusive or of the signs; finite$/\infty$ is a signed
+zero at the smallest exponent of the working context. A result beyond the
+working range is an overflow of that context, an infinity, and a result below
+it rounds half-even to the smallest exponent, possibly to a signed zero
+(`1E+2147483646 * 1E+2147483646` is `inf`, `123E-2147483640 * 1E-10` is
+`0E-2147483645`). `x + 0 == x`, `x - 0 == x` and `x * 1 == x` hold for every
+finite value inside that range, at any exponent: the sum or product is the
+value, at the cohort member closest to the preferred exponent that holds it in
+$p$ digits.
 
 ```moonbit
 ///|
 test "decimal plain operators" {
   let a = @decimal.Decimal::from_string("1.20").unwrap()
   let b = @decimal.Decimal::from_string("3.40").unwrap()
-  inspect(a + b, content="4.6")
+  inspect(a + b, content="4.60")
   inspect(a * b, content="4.0800")
-  inspect(a - b, content="-2.2")
+  inspect(a - b, content="-2.20")
   inspect(-a, content="-1.20")
   inspect(@decimal.Decimal::one() / @decimal.Decimal::from_int(8), content="0.125")
 }
@@ -809,8 +816,8 @@ pub fn Decimal::sqrt(Self) -> Self
 
 `div_checked(a, b)` is `div_ctx` under `DecimalContext::new(precision=max(p_a,
 p_b))`; it returns `Err(division_by_zero)` for $x/0$ and `Err(domain_error)`
-for an invalid division. `sqrt` is `sqrt_ctx` under
-`DecimalContext::new(precision=p)` and returns NaN for a negative non-zero
+for an invalid division. `sqrt` is `sqrt_ctx` in the working context of the plain
+operators (precision $p$) and returns NaN for a negative non-zero
 operand (IEEE 754-2019 7.2; `sqrt_checked` reports it as `Err`). Both are
 correctly rounded half-even.
 

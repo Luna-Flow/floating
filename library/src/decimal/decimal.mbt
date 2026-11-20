@@ -244,6 +244,15 @@ fn exact_decimal_division_result(
     !divisor.coefficient.is_zero() else {
     return None
   }
+  // The quotient terminates only when the part of the divisor that is not a
+  // power of 2 times a power of 5 divides the dividend: one division instead
+  // of a gcd decides the usual (inexact) case.
+  let (odd_part, _) = dec_coeff_count_factor_unit_repr(divisor.coefficient, 2)
+  let (rest, _) = dec_coeff_count_factor_unit_repr(odd_part, 5)
+  if dec_coeff_compare_repr(rest, dec_coeff_from_int(1)) != 0 {
+    let (_, remainder) = dec_coeff_div_rem_repr(dividend.coefficient, rest)
+    guard remainder.is_zero() else { return None }
+  }
   let gcd = dec_coeff_gcd_repr(dividend.coefficient, divisor.coefficient)
   let (reduced_denominator, denominator_remainder) = dec_coeff_div_rem_repr(
     divisor.coefficient,
@@ -546,213 +555,12 @@ fn decimal_exact_aligned_sum_result(
 }
 
 ///|
-/// The plain sum of two finite non-zero operands when the one with the smaller
-/// adjusted exponent lies more than `precision` digits below the rounding
-/// position of the other (issue 446). Every rounding boundary of the sum and
-/// every digit of `high` lies on the grid of `10^sticky_limit`; a non-zero `low`
-/// below that grid therefore places the exact sum strictly between the same two
-/// neighbours as `high + sign(low) * 10^(sticky_limit - 1)`, so rounding that
-/// value half-even rounds the sum correctly (the absorption `add_ctx` makes).
-/// The exponent gap is taken in `Int64` and the cost does not depend on it.
-/// Returns `None` when the operands are closer, or when the sticky exponent
-/// would leave the `Int32` range.
-fn plain_sticky_sum_result(
-  high : Decimal,
-  low : Decimal,
-  precision : Int32,
-) -> Decimal? {
-  guard high.class == FpClass::Finite &&
-    low.class == FpClass::Finite &&
-    !high.coefficient.is_zero() &&
-    !low.coefficient.is_zero() else {
-    return None
-  }
-  let precision64 = precision.to_int64()
-  let target_exponent = adjusted_exponent64(high) - precision64 + 1L
-  guard adjusted_exponent64(low) < target_exponent - precision64 else {
-    return None
-  }
-  let sticky_limit = Int64::min(
-    high.exponent10.to_int64(),
-    target_exponent - 2L,
-  )
-  guard adjusted_exponent64(low) < sticky_limit else { return None }
-  let sticky_exponent = sticky_limit - 1L
-  let shift = high.exponent10.to_int64() - sticky_exponent
-  guard sticky_exponent >= -2147483648L && shift <= 2147483647L else {
-    return None
-  }
-  let units = dec_coeff_shift_power10_repr(high.coefficient, shift.to_int())
-  let magnitude = if low.negative == high.negative {
-    dec_coeff_magnitude_add_unit(units, 1)
-  } else {
-    dec_coeff_magnitude_sub_unit(units, 1)
-  }
-  Some(
-    normalize_decimal_parts_gda_repr(
-      high.negative,
-      magnitude,
-      sticky_exponent.to_int(),
-      precision,
-      DecimalRound::HalfEven,
-    ),
-  )
-}
-
-///|
 /// Whether the exact aligned sum of two finite operands would need more than
 /// 2,000,000,000 padding digits: the exponent gap is taken in `Int64`, and the
 /// callers return a NaN instead of letting the `Int32` padding overflow (#446).
 fn exact_aligned_gap_too_large(lhs : Decimal, rhs : Decimal) -> Bool {
   let gap = lhs.exponent10.to_int64() - rhs.exponent10.to_int64()
   gap > 2000000000L || gap < -2000000000L
-}
-
-///|
-fn add_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
-  match quiet_nan_pair_plain(a, b) {
-    Some(value) => return value
-    None => ()
-  }
-  let precision = max_precision(a, b)
-  match (a.class, b.class) {
-    (FpClass::NaN, _) | (_, FpClass::NaN) => Decimal::nan(precision~)
-    (FpClass::Infinity, FpClass::Infinity) =>
-      if a.sign() == b.sign() {
-        a.with_precision_round(precision, DecimalRound::HalfEven)
-      } else {
-        Decimal::nan(precision~)
-      }
-    (FpClass::Infinity, _) =>
-      a.with_precision_round(precision, DecimalRound::HalfEven)
-    (_, FpClass::Infinity) =>
-      b.with_precision_round(precision, DecimalRound::HalfEven)
-    (FpClass::Finite, FpClass::Finite) if a.is_zero() && b.is_zero() =>
-      if a.negative && b.negative {
-        Decimal::negative_zero(precision~)
-      } else {
-        Decimal::zero(precision~)
-      }
-    (FpClass::Finite, FpClass::Finite) => {
-      let (high, low) = if adjusted_exponent64(a) >= adjusted_exponent64(b) {
-        (a, b)
-      } else {
-        (b, a)
-      }
-      match plain_sticky_sum_result(high, low, precision) {
-        Some(value) => return value
-        None => ()
-      }
-      if exact_aligned_gap_too_large(a, b) {
-        return Decimal::nan(precision~)
-      }
-      let target = Int32::min(a.exponent10, b.exponent10)
-      // Same Unit padding + decUnitAddSub mapping as GDA decAddOp
-      // (decNumber.c lines 3978-4059), without a binary-integer detour.
-      let (negative, magnitude) = decimal_exact_aligned_sum_result(a, b, target)
-      normalize_decimal_parts_gda_repr(
-        negative,
-        magnitude,
-        target,
-        precision,
-        DecimalRound::HalfEven,
-      )
-    }
-  }
-}
-
-///|
-fn mul_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
-  match quiet_nan_pair_plain(a, b) {
-    Some(value) => return value
-    None => ()
-  }
-  let precision = max_precision(a, b)
-  match (a.class, b.class) {
-    (FpClass::NaN, _) | (_, FpClass::NaN) => Decimal::nan(precision~)
-    (FpClass::Infinity, FpClass::Finite)
-    | (FpClass::Finite, FpClass::Infinity) =>
-      if a.is_zero() || b.is_zero() {
-        Decimal::nan(precision~)
-      } else {
-        Decimal::inf(negative=!(a.sign() == b.sign()), precision~)
-      }
-    (FpClass::Infinity, FpClass::Infinity) =>
-      Decimal::inf(negative=!(a.sign() == b.sign()), precision~)
-    (FpClass::Finite, FpClass::Finite) if a.is_zero() || b.is_zero() =>
-      if (a.is_zero() && !b.is_zero() && a.is_negative_zero()) ||
-        (b.is_zero() && !a.is_zero() && b.is_negative_zero()) ||
-        (a.is_zero() && b.is_zero() && a.negative != b.negative) {
-        Decimal::negative_zero(precision~)
-      } else {
-        Decimal::zero(precision~)
-      }
-    (FpClass::Finite, FpClass::Finite) =>
-      context_free_round_wide(
-        a.negative != b.negative,
-        dec_coeff_multiply_repr(a.coefficient, b.coefficient),
-        a.exponent10.to_int64() + b.exponent10.to_int64(),
-        precision,
-        round_to_precision=false,
-        reduce=false,
-      )
-  }
-}
-
-///|
-fn div_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
-  match quiet_nan_pair_plain(a, b) {
-    Some(value) => return value
-    None => ()
-  }
-  let precision = max_precision(a, b)
-  match (a.class, b.class) {
-    (FpClass::NaN, _) | (_, FpClass::NaN) => Decimal::nan(precision~)
-    (_, FpClass::Finite) if b.is_zero() =>
-      if a.is_zero() {
-        Decimal::nan(precision~)
-      } else {
-        Decimal::inf(negative=!(a.sign() == b.sign()), precision~)
-      }
-    (FpClass::Infinity, FpClass::Infinity) => Decimal::nan(precision~)
-    (FpClass::Infinity, _) =>
-      Decimal::inf(negative=!(a.sign() == b.sign()), precision~)
-    (_, FpClass::Infinity) => Decimal::zero(precision~)
-    (FpClass::Finite, FpClass::Finite) if a.is_zero() =>
-      if a.negative != b.negative {
-        Decimal::negative_zero(precision~)
-      } else {
-        Decimal::zero(precision~)
-      }
-    (FpClass::Finite, FpClass::Finite) => {
-      let extra = precision + b.coefficient.digits10() + 2
-      let numerator = dec_coeff_shift_power10_repr(a.coefficient, extra)
-      // GDA decDivideOp performs non-restoring long division directly over
-      // Unit arrays and stores the quotient in its decimal accumulator
-      // (decNumber.c lines 4159-4201 and 4394-4607).
-      // The guarded quotient is rounded with `ZeroFiveUp` so that a nonzero
-      // remainder always leaves the retained low digit off 0 and 5. Rounding it
-      // with the target mode here could manufacture an exact tie that the exact
-      // quotient had already decided, and the final rounding would then apply
-      // the tie rule to it (decNumber uses DEC_ROUND_05UP for the same reason).
-      let q = round_positive_decimal_div_repr(
-        numerator,
-        b.coefficient,
-        a.sign() != b.sign(),
-        DecimalRound::ZeroFiveUp,
-      )
-      // The guarded quotient is rounded once, to the precision and, below the
-      // exponent range, to its smallest exponent.
-      context_free_round_wide(
-        a.sign() != b.sign(),
-        q,
-        a.exponent10.to_int64() - b.exponent10.to_int64() - extra.to_int64(),
-        precision,
-        round_to_precision=true,
-        reduce=true,
-      )
-    }
-  }
 }
 
 ///|

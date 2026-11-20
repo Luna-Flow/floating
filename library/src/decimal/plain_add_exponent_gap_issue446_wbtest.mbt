@@ -62,20 +62,22 @@ test "issue 446: a gap below 2^31 - 1 costs nothing and rounds like add_ctx" {
 fn exact_plain_sum(a : Decimal, b : Decimal, precision : Int32) -> Decimal {
   let target = Int32::min(a.exponent10, b.exponent10)
   let (negative, magnitude) = decimal_exact_aligned_sum_result(a, b, target)
-  normalize_decimal_parts_gda_repr(
-    negative,
-    magnitude,
-    target,
-    precision,
-    DecimalRound::HalfEven,
-  )
+  // IEEE 754-2019 5.4.1 and 5.2: the exact sum at the preferred exponent
+  // `min(Q(a), Q(b))`, or rounded to `precision` digits (half even, least
+  // exponent) when it is longer.
+  let signed = if negative {
+    -magnitude.to_bigint()
+  } else {
+    magnitude.to_bigint()
+  }
+  Decimal::make(signed, target, precision)
 }
 
 ///|
 test "issue 446: the sticky absorption gives the result of the exact aligned sum" {
-  // Oracle: the exact aligned sum rounded once half-even to the larger operand
-  // precision, the computation the plain operators made before the absorption
-  // (the result is compared as a representation, cohort included). The gaps
+  // Oracle: the exact aligned sum at the preferred exponent, rounded once
+  // half-even to the larger operand precision (the result is compared as a
+  // representation, cohort included). The gaps
   // straddle the point where the absorption starts.
   let coefficients : Array[BigInt] = [
     1N, 5N, 9N, 10N, 12345N, 99999N, 100000N, 5000000000000N, 9999999999999999999999999999999999N,
