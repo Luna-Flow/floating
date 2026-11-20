@@ -87,7 +87,7 @@ test "fixed-point exp enclosure contains the series enclosure's true value" {
     for value in binary_exp_fixed_test_values() {
       let fixed = binary_exp_bounds_fixed(value, work)
       // arguments exact at the working precision always take the fixed path
-      if value.coefficient_().bit_length() <= work {
+      if value.coefficient_bits() <= work {
         assert_true(fixed is Some(_))
       }
       guard fixed is Some((fixed_lower, fixed_upper)) else { continue }

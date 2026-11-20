@@ -396,6 +396,29 @@ notes live in this file.
 
 ### Performance
 
+- `bin_float`: a `BinFloat` is one heap object when its coefficient has at most 128 bits ([#438](https://github.com/Luna-Flow/floating/issues/438), items X1 and X2 of the performance plan). The record of seven fields (and a coefficient object) is replaced by a newtype over the internal enum `@bin_kernel.BinRepr` (`Fin64`, `Fin128`, `FinBig`, `Inf`, `NaN`; `FinBig`, `Inf` and `NaN` on the JavaScript target). The public methods are unchanged; the type prints in the interface as `pub struct BinFloat(@bin_kernel.BinRepr)` like `BinCoeff`. The plain operations read the precision once and dispatch to the word, two-word or limb path by it; the wide paths read two wide operands by one match.
+
+  | call (operands of the stated width, the result rounds) | instructions before | after | allocations before | after |
+  | --- | ---: | ---: | ---: | ---: |
+  | `add` at 53 bits | 466 | 284 | 2 | 1 |
+  | `mul` at 53 bits | 462 | 280 | 2 | 1 |
+  | `div` at 53 bits | 412 | 257 | 2 | 1 |
+  | `sqrt` at 53 bits | 526 | 363 | 3 | 2 |
+  | `add` at 64 bits | 530 | 355 | 2 | 1 |
+  | `mul` at 64 bits | 512 | 333 | 2 | 1 |
+  | `div` at 64 bits | 1,104 | 935 | 2 | 1 |
+  | `sqrt` at 64 bits | 1,490 | 1,576 | 8 | 9 |
+  | `add` at 128 bits | 568 | 381 | 2 | 1 |
+  | `mul` at 128 bits | 581 | 406 | 2 | 1 |
+  | `div` at 128 bits | 1,156 | 984 | 2 | 1 |
+  | `sqrt` at 128 bits | 2,068 | 2,162 | 9 | 10 |
+  | `add` at 512 bits | 1,289 | 1,233 | 3 | 3 |
+  | `mul` at 512 bits | 2,028 | 2,004 | 4 | 4 |
+  | `div` at 512 bits | 4,665 | 4,589 | 6 | 6 |
+  | `sqrt` at 512 bits | 8,755 | 8,804 | 31 | 31 |
+
+  Instructions per call by the difference of two repetition counts (5,000 and 25,000 calls, minimum of 9 runs); operands `sqrt(3)` and `sqrt(5)` rounded to the stated width, so every result rounds; allocations counted on `mi_malloc` under `lldb` by the same difference (200 and 1,000 calls). The `sqrt` rows at 64 and 128 bits are the general contextual path, which builds the coefficient object of a small operand once (one allocation more); a word-based entry of `sqrt_ctx` would remove it.
+
 - `bin_float`: `mul` of operands of 13 to 64 limbs (precisions from 768 to about 4,000 bits) forms the high limbs of the product only (the basecase short product: the rows of limb products with `i + j >= m - 1`, about half of them) with one extra limb of guard, and uses them when the rounding is certain from a proved error bound (exact products and products next to a rounding boundary take the full product as before). Instructions per call fall to 0.97 (768 bits), 0.86 (1,024) and 0.75 (2,048); below 768 bits the setup costs more than the rows save, so the short product is not used there. Results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).
 - `bin_float`: `sub` no longer allocates the negated right operand: the word, two-word and coefficient paths of the addition read its sign flipped (`add_signed_impl`), so a subtraction costs what an addition costs (0.68 of the instructions at 53 to 128 bits, 0.87 at 512 bits); the two-word addition aligns the shifted operand by three shifts of two words when the exponent difference is below 64, and the two-word rounding extracts the kept words and the dropped bits in one expression for a result less than a word too wide (`add` at 128 bits 0.89, at 113 bits 0.95). Results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).
 

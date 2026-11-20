@@ -125,7 +125,7 @@ fn binary_exact_product(
     finite_normalized(
       negative,
       Coeff::one(),
-      addend_top - addend.coefficient_().bit_length() - context.precision - 8,
+      addend_top - addend.coefficient_bits() - context.precision - 8,
       1,
     ),
   )

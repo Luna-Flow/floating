@@ -59,6 +59,15 @@ pub fn binary_fast_shl_low(UInt64, Int32) -> UInt64
 // Errors
 
 // Types and methods
+#derive(Eq, @debug.Debug)
+pub(all) enum BinRepr {
+  Fin64(negative~ : Bool, word~ : UInt64, exponent2~ : Int32, precision~ : Int32)
+  Fin128(negative~ : Bool, high~ : UInt64, low~ : UInt64, exponent2~ : Int32, precision~ : Int32)
+  FinBig(negative~ : Bool, coefficient~ : Coeff, exponent2~ : Int32, precision~ : Int32)
+  Inf(negative~ : Bool, precision~ : Int32)
+  NaN(negative~ : Bool, signaling~ : Bool, payload~ : Coeff, precision~ : Int32)
+}
+
 #derive(@debug.Debug)
 pub struct Coeff(CoeffRepr)
 pub fn Coeff::add(Self, Self) -> Self

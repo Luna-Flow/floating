@@ -80,11 +80,27 @@ fn ref_add_wide(
 }
 
 ///|
+/// Whether both operands are finite, nonzero, narrow enough, and have exponents
+/// far from the implementation limits (the reference of the scalar test of
+/// `binary_coeff_fast_scalars_ok`).
+fn binary_coeff_fast_operands_ok(left : BinFloat, right : BinFloat) -> Bool {
+  left.class() == FpClass::Finite &&
+  right.class() == FpClass::Finite &&
+  binary_coeff_fast_scalars_ok(
+    Int32::max(left.precision_(), right.precision_()),
+    left.exponent2_(),
+    right.exponent2_(),
+  ) &&
+  !left.coefficient_is_zero() &&
+  !right.coefficient_is_zero()
+}
+
+///|
 fn ref_add(left : BinFloat, right : BinFloat) -> BinFloat? {
   guard binary_coeff_fast_operands_ok(left, right) else { return None }
   let precision = Int32::max(left.precision_(), right.precision_())
-  let left_bits = left.coefficient_().bit_length()
-  let right_bits = right.coefficient_().bit_length()
+  let left_bits = left.coefficient_bits()
+  let right_bits = right.coefficient_bits()
   guard left_bits <= binary_coeff_fast_bits_limit &&
     right_bits <= binary_coeff_fast_bits_limit else {
     return None
@@ -194,7 +210,7 @@ fn add_test_float(
 ///|
 /// The same value moved so that its top bit is `top`.
 fn add_test_with_top(value : BinFloat, top : Int32) -> BinFloat {
-  let bits = value.coefficient_().bit_length()
+  let bits = value.coefficient_bits()
   BinFloat::make_coeff(
     value.coefficient_(),
     top - bits,
@@ -241,7 +257,7 @@ fn add_test_pair_gap(
     0,
     random.below(2) == 0,
   )
-  let actual_left_top = left.exponent2_() + left.coefficient_().bit_length()
+  let actual_left_top = left.exponent2_() + left.coefficient_bits()
   (left, add_test_with_top(right, actual_left_top - gap))
 }
 
@@ -299,7 +315,7 @@ fn add_test_pair_tie(
     random.below(200) - 100,
     random.below(2) == 0,
   )
-  let top = left.exponent2_() + left.coefficient_().bit_length()
+  let top = left.exponent2_() + left.coefficient_bits()
   let right = BinFloat::make_coeff(
     Coeff::one(),
     top - precision - 1,
@@ -325,7 +341,7 @@ fn add_test_pair_deep_tie(
     random.below(200) - 100,
     random.below(2) == 0,
   )
-  let top = left.exponent2_() + left.coefficient_().bit_length()
+  let top = left.exponent2_() + left.coefficient_bits()
   let m = 3 + random.below(40)
   let right = BinFloat::make_coeff(
     Coeff::one().shift_left(m).add(Coeff::one()),

@@ -1205,10 +1205,7 @@ fn binary_round_precision_only(
   value : BinFloat,
   context : BinaryContext,
 ) -> (Coeff, Int32) {
-  let shift = Int32::max(
-    0,
-    value.coefficient_().bit_length() - context.precision,
-  )
+  let shift = Int32::max(0, value.coefficient_bits() - context.precision)
   let (retained, round_bit, sticky) = binary_split_shift(
     value.coefficient_(),
     shift,
@@ -1303,7 +1300,7 @@ fn binary_pow_exact_positive_if_small(
   exponent : UInt32,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags)? {
-  let odd_bits = base.coefficient_().bit_length()
+  let odd_bits = base.coefficient_bits()
   if odd_bits <= 1 {
     return None
   }
@@ -1378,7 +1375,7 @@ fn binary_pow_ziv(
 
 ///|
 fn binary_pow_is_power_of_two(base : BinFloat) -> Bool {
-  if base.coefficient_().is_zero() {
+  if base.coefficient_is_zero() {
     return false
   }
   base.coefficient_().shift_right(base.coefficient_().ctz()) == Coeff::one()
@@ -1500,7 +1497,7 @@ fn binary_pow_should_use_exact_fast(
   if reciprocal || exponent == 0U {
     return false
   }
-  let coefficient_bits = base.coefficient_().bit_length()
+  let coefficient_bits = base.coefficient_bits()
   coefficient_bits > 0 &&
   exponent.to_uint64() <=
   (2048 / coefficient_bits).reinterpret_as_uint().to_uint64()

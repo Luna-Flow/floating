@@ -17,29 +17,17 @@ let binary_pair_precision_limit : Int32 = 128
 /// The words come from `binary_pair_high_of` and `binary_pair_low_of`: an
 /// option of a tuple would allocate two objects per operand.
 fn binary_pair_is_words(value : BinFloat) -> Bool {
-  value.class() == FpClass::Finite &&
-  (match value.coefficient_().0 {
-    Inline64(low) => low != 0UL
-    Inline128(_, _) => true
-    Heap(_, _) => false
-  })
+  value.is_pair()
 }
 
 ///|
 fn binary_pair_high_of(value : BinFloat) -> UInt64 {
-  match value.coefficient_().0 {
-    Inline128(high, _) => high
-    _ => 0UL
-  }
+  value.pair_high()
 }
 
 ///|
 fn binary_pair_low_of(value : BinFloat) -> UInt64 {
-  match value.coefficient_().0 {
-    Inline64(low) => low
-    Inline128(_, low) => low
-    Heap(_, _) => 0UL
-  }
+  value.pair_low()
 }
 
 ///|
@@ -216,12 +204,7 @@ fn binary_pair_round(
     }
     result_exponent += zeros
   }
-  finite_normalized(
-    negative,
-    bin_coeff_inline(high, low),
-    result_exponent,
-    precision,
-  )
+  bin_repr_pair(negative, high, low, result_exponent, precision)
 }
 
 ///|
@@ -476,30 +459,11 @@ fn binary_pair_div(left : BinFloat, right : BinFloat) -> BinFloat? {
   guard left.class() == FpClass::Finite && right.class() == FpClass::Finite else {
     return None
   }
-  let mut dividend_high = 0UL
-  let mut dividend_low = 0UL
-  match left.coefficient_().0 {
-    Inline64(word) => dividend_low = word
-    Inline128(high, low) => {
-      dividend_high = high
-      dividend_low = low
-    }
-    Heap(_, _) => return None
-  }
-  let mut divisor_high = 0UL
-  let mut divisor_low = 0UL
-  match right.coefficient_().0 {
-    Inline64(word) => divisor_low = word
-    Inline128(high, low) => {
-      divisor_high = high
-      divisor_low = low
-    }
-    Heap(_, _) => return None
-  }
-  guard (dividend_high != 0UL || dividend_low != 0UL) &&
-    (divisor_high != 0UL || divisor_low != 0UL) else {
-    return None
-  }
+  guard left.is_pair() && right.is_pair() else { return None }
+  let dividend_high = left.pair_high()
+  let dividend_low = left.pair_low()
+  let divisor_high = right.pair_high()
+  let divisor_low = right.pair_low()
   let left_exponent = left.exponent2_()
   let right_exponent = right.exponent2_()
   guard left_exponent <= binary_fast_exponent_limit &&

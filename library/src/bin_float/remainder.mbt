@@ -37,13 +37,13 @@ pub fn BinFloat::remainder_ctx(
     None => ()
   }
   if self.class() == FpClass::Infinity ||
-    (divisor.class() == FpClass::Finite && divisor.coefficient_().is_zero()) {
+    (divisor.class() == FpClass::Finite && divisor.coefficient_is_zero()) {
     return (
       BinFloat::nan_raw(precision=context.precision),
       binary_invalid_flags(),
     )
   }
-  if divisor.class() == FpClass::Infinity || self.coefficient_().is_zero() {
+  if divisor.class() == FpClass::Infinity || self.coefficient_is_zero() {
     return self.round_ctx(context)
   }
   let top = binary_exact_top(self.coefficient_(), self.exponent2_())

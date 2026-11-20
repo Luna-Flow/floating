@@ -2,7 +2,7 @@
 /// IEEE 754 copySign: `self` with the sign bit of `sign_source`. Quiet for
 /// every operand, including NaNs, whose payload is kept.
 pub fn BinFloat::copy_sign(self : BinFloat, sign_source : BinFloat) -> BinFloat {
-  { ..self, f_negative: sign_source.negative(), }
+  self.with_negative(sign_source.negative())
 }
 
 ///|
@@ -25,7 +25,7 @@ fn binary_total_order_magnitude(left : BinFloat, right : BinFloat) -> Int32 {
   }
   match left.class() {
     FpClass::Finite =>
-      if left.coefficient_().is_zero() || right.coefficient_().is_zero() {
+      if left.coefficient_is_zero() || right.coefficient_is_zero() {
         left.coefficient_().compare(right.coefficient_())
       } else {
         binary_compare_shifted(

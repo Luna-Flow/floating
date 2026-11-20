@@ -453,8 +453,7 @@ fn pi_reference(
   is_asin : Bool,
   ctx : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  if x.exponent2().to_int64() + (x.coefficient_().bit_length() - 1).to_int64() <
-    -152L {
+  if x.exponent2().to_int64() + (x.coefficient_bits() - 1).to_int64() < -152L {
     pi_inverse_tiny_model(x, is_asin, ctx)
   } else {
     let high = BinaryContext::new(precision=ctx.precision + 150)

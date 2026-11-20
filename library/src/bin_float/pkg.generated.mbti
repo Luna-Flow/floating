@@ -45,9 +45,7 @@ pub impl Show for BinCoeff
 pub impl @debug.Debug for BinCoeff
 
 #derive(Eq, @debug.Debug)
-pub struct BinFloat {
-  // private fields
-}
+pub struct BinFloat(@bin_kernel.BinRepr)
 pub fn BinFloat::abs(Self) -> Self
 pub fn BinFloat::abs_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn BinFloat::acos(Self) -> Self

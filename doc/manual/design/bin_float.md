@@ -54,6 +54,36 @@ logarithms. Each value also carries a precision $p$ with
 $\operatorname{bits}(c) \le p$; it records the format the value belongs to
 and is the default precision of plain operations on it.
 
+### Representation of a value
+
+A `BinFloat` is a newtype over the internal enum `BinRepr`, so a value is one
+heap object (the constructors of an enum hold their scalar fields inline, and a
+newtype adds no object). The constructors are the forms of a finite value and
+the two kinds of non-finite value:
+
+| constructor | holds | when |
+| --- | --- | --- |
+| `Fin64` | sign, one word, $e$, $p$ | $\operatorname{bits}(c) \le 64$; zero is `word = 0`, $e = 0$ |
+| `Fin128` | sign, two words, $e$, $p$ | $65 \le \operatorname{bits}(c) \le 128$ |
+| `FinBig` | sign, a `Coeff`, $e$, $p$ | $\operatorname{bits}(c) > 128$ |
+| `Inf` | sign, $p$ | $\pm\infty$ |
+| `NaN` | sign, signaling bit, payload, $p$ | a NaN |
+
+The form of a finite value is a function of its coefficient, so the
+representation stays unique and the structural equality of the stored data is
+still the equality of the datum. A result of at most 128 bits costs one
+allocation, where a record of seven fields plus a coefficient object cost two;
+a result of more than 128 bits is the value object, a `Coeff` and its limb
+array. On the JavaScript target a coefficient is a host bigint and there is no
+word path, so the type has only `FinBig`, `Inf` and `NaN`. Only
+`bin_repr_nonjs.mbt` and `bin_repr_js.mbt` (the constructors and the
+accessors) and the `_nonjs` fast paths match on it; every other reader uses an
+accessor. Accessors that only need a test or a length (`coefficient_is_zero`,
+`coefficient_bits`, `is_word`, `word_`, `is_pair`, `pair_high`, `pair_low`)
+return scalars: a function on a hot path never returns an option of a scalar or
+a tuple, because both are heap objects. The general readers get the
+coefficient as a `Coeff`, which a value of at most 128 bits builds on demand.
+
 ### The IEEE 754 binary formats
 
 A binary interchange format with $k$ bits has a sign bit, a $w$-bit biased
