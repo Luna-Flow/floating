@@ -9634,7 +9634,7 @@ msgstr ""
 #: manual/design/bench/decimal.md:67
 #: manual/design/bench/decimal_gda.md:64
 #: manual/design/bench/external.md:235
-#: manual/design/bin_float.md:2127
+#: manual/design/bin_float.md:2126
 #: manual/design/bin_float_checked.md:329
 #: manual/design/cli.md:71
 #: manual/design/cli/dispatch.md:48
@@ -10782,7 +10782,7 @@ msgstr ""
 #: manual/design/bench/decimal.md:51
 #: manual/design/bench/decimal_gda.md:48
 #: manual/design/bench/external.md:215
-#: manual/design/bin_float.md:2055
+#: manual/design/bin_float.md:2054
 #: manual/design/bin_float_checked.md:199
 #: manual/design/cli.md:52
 #: manual/design/cli/dispatch.md:31
@@ -10859,7 +10859,7 @@ msgstr ""
 #: manual/design/bench/decimal.md:60
 #: manual/design/bench/decimal_gda.md:57
 #: manual/design/bench/external.md:225
-#: manual/design/bin_float.md:2102
+#: manual/design/bin_float.md:2101
 #: manual/design/bin_float_checked.md:316
 #: manual/design/cli.md:62
 #: manual/design/cli/dispatch.md:38
@@ -11878,8 +11878,8 @@ msgid "RZ"
 msgstr ""
 
 #: manual/design/bin_float.md:224
-#: manual/design/bin_float.md:1962
-#: manual/design/bin_float.md:1964
+#: manual/design/bin_float.md:1961
+#: manual/design/bin_float.md:1963
 #: manual/design/decimal.md:200
 msgid "never"
 msgstr ""
@@ -12716,7 +12716,7 @@ msgid "*Stopping.* After each iteration stop when $|u - v| < 2^{\\operatorname{t
 msgstr ""
 
 #: manual/design/bin_float.md:1652
-msgid "*The model term.* With $F = \\pi / (2\\, \\mathrm{AG}(1, 4/s))$ the lower end uses $\\ln s \\ge F (1 - 4/s^2)$ and the upper end $\\ln s \\le F$. **This inequality is taken from the literature and is not proved here**: the comment of MPFR's `log.c` states it for $s \\ge 1.26$, and the MPFR algorithms document (section 4.5) gives only the asymptotic form $\\ln x \\approx \\pi/(2\\,\\mathrm{AG}(1, 4/s)) - m \\ln 2 + o(\\ln x\\, 2^{-p})$ and cites J.-M. Muller, *Elementary Functions. Algorithms and Implementation*, Birkhauser, 1997. The source of a proof (Muller 1997, Brent 1976, the Borwein brothers' *Pi and the AGM*, or DLMF 19.8 and 19.12 for the expansion of $K(k)$ near $k = 1$) has not been read. The code subtracts $F\\, 2^{-(p-2)}$, sixteen times the claimed $4/s^2 < 2^{-(p+2)}$, and the error margin $e F$ of step 3 is more than a hundred times the claimed term, so a constant up to 64 instead of 4 would still give a valid enclosure. Numerically (exact decimal arithmetic, $s = 2^k$, $k = 1 \\ldots 40$): $0 < F - \\ln s < 4 \\ln s / s^2$ with a ratio to the bound between 0.56 and 0.96."
+msgid "*The model term.* With $F = \\pi / (2\\, \\mathrm{AG}(1, 4/s))$ the lower end uses $\\ln s \\ge F (1 - 4/s^2)$ and the upper end $\\ln s \\le F$. Both follow from two equations of the NIST Digital Library of Mathematical Functions, for $0 < k < 1$ and $k' = \\sqrt{1 - k^2}$: DLMF 19.8.5, $K(k) = \\pi / (2\\, \\mathrm{AG}(1, k'))$, and DLMF 19.9.2, $1 + k'^2/8 < K(k) / \\ln(4/k') < 1 + k'^2/4$. Put $k' = 4/s$ with $s > 4$ (so $0 < k' < 1$ and $\\ln(4/k') = \\ln s$): $F = K(k)$ by 19.8.5 and 19.9.2 reads $(1 + 2/s^2) \\ln s < F < (1 + 4/s^2) \\ln s$. Hence $\\ln s < F$, and $\\ln s > F / (1 + 4/s^2) > F (1 - 4/s^2)$ since $1/(1 + x) > 1 - x$ for $x > 0$. The same inequality gives the lower bound $F - \\ln s > 2 \\ln s / s^2$ as a by-product. The range is $s > 4$, and the kernel's $s > 2^{p/2 + 2}$ with $p \\ge 64$ satisfies it. Numerically (exact decimal arithmetic, $s = 2^k$, $k = 1 \\ldots 40$) the ratio $(F - \\ln s) / (4 \\ln s / s^2)$ is between 0.532 and 0.964, inside the interval $(0.5, 1)$ that 19.9.2 predicts (the values for $k = 1, 2$, that is $s \\le 4$, are also inside, though DLMF does not cover them). The code subtracts $F\\, 2^{-(p-2)}$, sixteen times the term $4/s^2 < 2^{-(p+2)}$ that the lemma needs, and the error margin $e F$ of step 3 is more than a hundred times that term: the factor is slack, not a need, and is kept as it is."
 msgstr ""
 
 #: manual/design/bin_float.md:1653
@@ -12820,205 +12820,205 @@ msgid "**Measured result.** On main `8badc55` (all four kernels merged), Apple M
 msgstr ""
 
 #: manual/design/bin_float.md:1918
-msgid "**Evidence checked and still to confirm.** The references were checked against the sources on 2026-11-19. Brent, *J. ACM* 23(2), 1976, 242-251, exists as cited, but it contains the AGM and ascending Landen transformation methods with cost $O(M(n)\\log n)$ (the logarithm by Landen transformations of incomplete elliptic integrals); it contains neither bit-burst nor theta functions, nor the nome, and it credits the $O(M(n)\\log^2 n)$ bound to Brent, \"The complexity of multiple-precision arithmetic\" (Proc. Seminar on Complexity of Computational Problem Solving, 1975, pp. 126-165), which was not read. So the footnote below supports the AGM logarithm only, and the bit-burst attribution is to be replaced by that 1975 paper (not yet read). The formula with the theta functions, $\\ln(1/q) = \\pi / \\mathrm{AGM}(\\theta_2^2(q), \\theta_3^2(q))$, is attributed to Sasaki and Kanada, *J. Inf. Process.* 5(4), 1982, 247-250, on the authority of later notes by Brent (secondary sources); its normalization of the nome (Brent's notes use $q^4$ and point out a typo in the $q$ form of the Borwein book) and its truncation bound have not been checked against the original, which the owner will obtain. Nothing in the design or in the code depends on the theta-function formula; the `ln` enclosure by the AGM depends on the model bound $F (1 - 4/s^2) \\le \\ln s \\le F$ only (see \"`ln`, by the arithmetic-geometric mean\" above), which is taken from MPFR's `log.c` and is not proved on this page. The 1-ulp and 2-ulp widths quoted above come from the MPFR comparison, which is secondary evidence for the enclosures; the proof is the integer-bound argument in this section."
+msgid "**Evidence checked and still to confirm.** The references were checked against the sources on 2026-11-19. Brent, *J. ACM* 23(2), 1976, 242-251, exists as cited, but it contains the AGM and ascending Landen transformation methods with cost $O(M(n)\\log n)$ (the logarithm by Landen transformations of incomplete elliptic integrals); it contains neither bit-burst nor theta functions, nor the nome, and it credits the $O(M(n)\\log^2 n)$ bound to Brent, \"The complexity of multiple-precision arithmetic\" (Proc. Seminar on Complexity of Computational Problem Solving, 1975, pp. 126-165), which was not read. So the footnote below supports the AGM logarithm only, and the bit-burst attribution is to be replaced by that 1975 paper (not yet read). The formula with the theta functions, $\\ln(1/q) = \\pi / \\mathrm{AGM}(\\theta_2^2(q), \\theta_3^2(q))$, is attributed to Sasaki and Kanada, *J. Inf. Process.* 5(4), 1982, 247-250, on the authority of later notes by Brent (secondary sources); its normalization of the nome (Brent's notes use $q^4$ and point out a typo in the $q$ form of the Borwein book) and its truncation bound have not been checked against the original, which the owner will obtain. Nothing in the design or in the code depends on the theta-function formula; the `ln` enclosure by the AGM depends on the model bound $F (1 - 4/s^2) \\le \\ln s \\le F$ only (see \"`ln`, by the arithmetic-geometric mean\" above), which follows from DLMF 19.8.5 and 19.9.2. The 1-ulp and 2-ulp widths quoted above come from the MPFR comparison, which is secondary evidence for the enclosures; the proof is the integer-bound argument in this section."
 msgstr ""
 
-#: manual/design/bin_float.md:1941
-msgid "R. P. Brent, \"Fast multiple-precision evaluation of elementary functions\", *J. ACM* 23(2), 1976 (bit-burst and the AGM logarithm; citation to be confirmed against the paper). The sharp truncation bound is not derived here; the AGM kernel uses the bound of MPFR's `log.c` with a sixteen-fold margin. MPFR's `log.c` documents the same algorithm and is secondary evidence only."
+#: manual/design/bin_float.md:1940
+msgid "R. P. Brent, \"Fast multiple-precision evaluation of elementary functions\", *J. ACM* 23(2), 1976 (bit-burst and the AGM logarithm; citation to be confirmed against the paper). The truncation bound of the AGM kernel is taken from DLMF 19.8.5 and 19.9.2 (see \"`ln`, by the arithmetic-geometric mean\"), not from this paper. MPFR's `log.c` documents the same algorithm and is secondary evidence only."
 msgstr ""
 
-#: manual/design/bin_float.md:1948
+#: manual/design/bin_float.md:1947
 msgid "The coefficient kernel"
 msgstr ""
 
-#: manual/design/bin_float.md:1950
+#: manual/design/bin_float.md:1949
 msgid "**Problem.** Precision costs integer multiplication and division of $p$-bit numbers, and $p$ ranges from 1 to $2^{28}$."
 msgstr ""
 
-#: manual/design/bin_float.md:1953
+#: manual/design/bin_float.md:1952
 msgid "**Choice.** The kernel is the internal package [`internal/bin_kernel`](internal/bin_kernel.md); `BinCoeff` is a newtype over its `Coeff`. `Coeff` stores up to 128 bits inline and larger values as little-endian 64-bit limbs (a host `bigint` on JavaScript), and dispatches on the operand length $n$ in 64-bit limbs. Every threshold below is in 64-bit limbs:"
 msgstr ""
 
-#: manual/design/bin_float.md:1958
+#: manual/design/bin_float.md:1957
 msgid "Product or square"
 msgstr ""
 
-#: manual/design/bin_float.md:1958
+#: manual/design/bin_float.md:1957
 msgid "Native, LLVM"
 msgstr ""
 
-#: manual/design/bin_float.md:1958
+#: manual/design/bin_float.md:1957
 msgid "Wasm, Wasm-GC"
 msgstr ""
 
-#: manual/design/bin_float.md:1960
+#: manual/design/bin_float.md:1959
 msgid "schoolbook product below"
 msgstr ""
 
-#: manual/design/bin_float.md:1961
+#: manual/design/bin_float.md:1960
 msgid "Karatsuba product from"
 msgstr ""
 
-#: manual/design/bin_float.md:1962
+#: manual/design/bin_float.md:1961
 msgid "Karatsuba product on 32-bit limbs from"
 msgstr ""
 
-#: manual/design/bin_float.md:1963
+#: manual/design/bin_float.md:1962
 msgid "Karatsuba square from"
 msgstr ""
 
-#: manual/design/bin_float.md:1963
+#: manual/design/bin_float.md:1962
 #: manual/design/decimal_gda.md:853
 msgid "off"
 msgstr ""
 
-#: manual/design/bin_float.md:1964
+#: manual/design/bin_float.md:1963
 msgid "square on 32-bit limbs from"
 msgstr ""
 
-#: manual/design/bin_float.md:1965
+#: manual/design/bin_float.md:1964
 msgid "Toom-3 product from (balanced, where the NTT does not fit)"
 msgstr ""
 
-#: manual/design/bin_float.md:1966
+#: manual/design/bin_float.md:1965
 msgid "two-prime NTT product from"
 msgstr ""
 
-#: manual/design/bin_float.md:1967
+#: manual/design/bin_float.md:1966
 msgid "NTT square from"
 msgstr ""
 
-#: manual/design/bin_float.md:1969
+#: manual/design/bin_float.md:1968
 msgid "LLVM takes the Native values, which are unmeasured there. A product with $m > 2n$ limbs is cut inside the Karatsuba into $n$-limb blocks; a short operand against a long one beyond the NTT cutoff uses the NTT overlap-add. Squaring is a word-range Karatsuba square (three half-size squares $a_0^2$, $a_1^2$ and $(a_0 - a_1)^2$ instead of three products) on Native and LLVM, and the NTT square above its cutoff; Wasm keeps the 32-bit-limb route from 80 limbs, where a 64-bit product costs four `i64.mul`."
 msgstr ""
 
-#: manual/design/bin_float.md:1977
+#: manual/design/bin_float.md:1976
 msgid "Operands with at least 4 limbs of which at most one eighth are nonzero use a sparse product of the nonzero limbs. Division uses a loop over half-limbs for a divisor below $2^{32}$, Knuth's algorithm D on 64-bit digits (32-bit digits on Wasm) below 96 divisor limbs, Burnikel–Ziegler recursion from 96 with leaves of up to 64 limbs, and never the Newton reciprocal (the routine stays for tests); GCD switches from the binary (Stein) algorithm to Lehmer batches above two limbs. The thresholds are measured, per target, by the benchmark suite; they are policy, not semantics. The 32-bit view of the storage exists only for the Wasm routes above."
 msgstr ""
 
-#: manual/design/bin_float.md:1987
+#: manual/design/bin_float.md:1986
 msgid "A Lehmer round is valid only when its single-word digits come from the same bit window of both operands: digits taken from each operand's own top limb have unrelated scales, and the cofactors they produce subtract only a small multiple of the smaller operand per round. Each round therefore keeps $a \\ge b$, runs Euclid on the leading 63 bits of $a$ and the bits of $b$ in the same window, and takes one division step $a \\bmod b$ instead when $b$ has no bits in that window (then $a / b \\ge 2^{62}$) or when the cofactor matrix would make an operand negative or shrink neither. Every matrix applied has determinant $\\pm 1$, so the gcd is unchanged, and a long $a$ is reduced modulo a short $b$ in one step however different their lengths are; below eight limbs of $b$ the loop finishes with plain Euclid."
 msgstr ""
 
-#: manual/design/bin_float.md:1999
+#: manual/design/bin_float.md:1998
 msgid "**Why exactness is preserved.** Schoolbook, Karatsuba and Toom-3 evaluate integer polynomial identities, for example"
 msgstr ""
 
-#: manual/design/bin_float.md:2006
+#: manual/design/bin_float.md:2005
 msgid "and Toom-3 (evaluation at $0, 1, -1, 2, \\infty$) interpolates with exact divisions by 2 and 3 of signed intermediates known to be multiples, so they are exact integer computations. The NTT is the only modular step. It splits each operand into 16-bit digits, so each coefficient of the digit convolution is at most"
 msgstr ""
 
-#: manual/design/bin_float.md:2015
+#: manual/design/bin_float.md:2014
 msgid "for transform lengths up to $2^{23}$. It computes the convolution modulo the primes $p_1 = 998244353 = 119 \\cdot 2^{23} + 1$ and $p_2 = 754974721 = 45 \\cdot 2^{24} + 1$, both of which have $2^{23}$-th roots of unity, and recombines by the Chinese remainder theorem, which is unique in $[0, p_1 p_2)$ with $p_1 p_2 \\approx 2^{59.4} > 2^{55}$. So the recombined coefficients are the exact integers. The length check precedes every transform; a longer product uses overlapping blocks of admissible length or falls back to Toom-3. Division paths return $(q, r)$ with $n = qd + r$ and $0 \\le r < d$ by construction; the Newton path corrects its approximate quotient with the remainder and aborts if more than two corrections would be needed, which would indicate a bug rather than a numerical event. Because all paths compute the same integers, the choice of algorithm cannot change any rounded result, flag or encoding."
 msgstr ""
 
-#: manual/design/bin_float.md:2029
+#: manual/design/bin_float.md:2028
 msgid "Ordering NaN in `compare`"
 msgstr ""
 
-#: manual/design/bin_float.md:2031
+#: manual/design/bin_float.md:2030
 msgid "**Problem.** MoonBit's `Compare` trait asks for a three-way comparison that sorting and ordered maps can rely on. IEEE comparison is a partial order: NaN is unordered with everything, itself included."
 msgstr ""
 
-#: manual/design/bin_float.md:2035
+#: manual/design/bin_float.md:2034
 msgid "**Options.** (1) Abort on NaN, as earlier versions did; every sort of data that might contain a NaN then becomes a crash. (2) Use IEEE `totalOrder`, which is total but distinguishes $-0 < +0$ and puts negative NaNs below $-\\infty$, so `compare` would disagree with numerical equality on zeros. (3) Keep the numerical order on numbers and put all NaNs in one class above it."
 msgstr ""
 
-#: manual/design/bin_float.md:2042
+#: manual/design/bin_float.md:2041
 msgid "**Choice.** Option (3). Define the key $\\kappa(x) = (0, x)$ for a number and $\\kappa(\\mathrm{NaN}) = (1, 0)$, ordered lexicographically; `compare(x, y)` is the comparison of $\\kappa(x)$ and $\\kappa(y)$, with $-0$ and $+0$ mapped to the same number. A comparison of keys in a totally ordered set is reflexive, transitive and total, so `compare` is a total preorder; it is not antisymmetric ($-0$ and $+0$, or two NaNs with different payloads, compare equal but are different values), which `Compare` does not require. The cost is that `nan > 1` is true under `<`, so code that needs IEEE semantics must use `compare_checked` (error on NaN), `compare_quiet` / `compare_signaling` (four-valued, with flags) or `total_order`. Structural `==` stays the derived `Eq`, because it is the only equality that is a congruence for every method (precision and payload included)."
 msgstr ""
 
-#: manual/design/bin_float.md:2057
+#: manual/design/bin_float.md:2056
 msgid "**Canonical form.** Every finite value produced by the API has $c$ odd or $c = 0, e = 0$, and $\\operatorname{bits}(c) \\le$ its precision; stored exponents never saturate (a saturated exponent is classified as overflow or underflow first)."
 msgstr ""
 
-#: manual/design/bin_float.md:2061
+#: manual/design/bin_float.md:2060
 msgid "**Correct rounding.** For every arithmetic operation, conversion and elementary function and every context, the returned finite value equals $\\circ(r)$ for the exact real result $r$, with the range rules above. By (R1), $\\circ(r) = r$ and no flag is raised whenever $r \\in F$; `round_ctx` is idempotent."
 msgstr ""
 
-#: manual/design/bin_float.md:2066
+#: manual/design/bin_float.md:2065
 msgid ""
 "**Flags.** `inexact` iff $\\circ(r) \\n"
 "e r$; `overflow` implies `inexact`; `underflow` iff tiny (per the context rule) and inexact; `division_by_zero` only for an exact infinite result of finite operands; `invalid_operation` iff a quiet NaN was produced from non-NaN operands or a signaling NaN was consumed. Exceptions to the last rule: `min`, `max`, $\\operatorname{pow}(x, \\pm 0)$, $\\operatorname{pown}(x, 0)$ and $\\operatorname{pow}(1, y)$ accept a signaling NaN without the flag. `combine` is associative, commutative and idempotent."
 msgstr ""
 
-#: manual/design/bin_float.md:2075
+#: manual/design/bin_float.md:2074
 msgid "**Error model.** Consequently, in the normal range, $|\\circ(r) - r| \\le u|r|$ for nearest and $< 2u|r|$ for directed rounding, with the absolute term $\\eta/2$ (respectively $\\eta$) below $2^{e_{\\min}}$, and subnormal sums and differences are exact."
 msgstr ""
 
-#: manual/design/bin_float.md:2079
+#: manual/design/bin_float.md:2078
 msgid "**Monotonicity.** Each operation is monotone in each argument where the real function is, because it is $\\circ \\circ f$ with $\\circ$ monotone; in particular RD and RU results bracket the exact value, which `ball_float` and the directed square roots of `sqrt_ctx` rely on."
 msgstr ""
 
-#: manual/design/bin_float.md:2083
+#: manual/design/bin_float.md:2082
 msgid "**Exactness theorems.** `remainder`, `scaleb` in the normal range, `copy_sign`, `neg`, `abs`, `logb` and decoding are exact; the integral roundings never need a second rounding; `fma(a, b, -RN(ab))` is exact without underflow."
 msgstr ""
 
-#: manual/design/bin_float.md:2087
+#: manual/design/bin_float.md:2086
 msgid "**Complexity.** Addition is linear in the operand length (and independent of the exponent gap, by the far-operand rule); multiplication follows the kernel table, $O(n^2)$ to $O(n \\log n)$; division and square root cost a constant number of multiplications of the same size at large $n$; `remainder` costs $O(\\log(q_x - q_y))$ modular multiplications; an elementary function evaluates its series at the working precision $w$, and because $w$ grows geometrically the total cost of all attempts is within a constant factor of the last one."
 msgstr ""
 
-#: manual/design/bin_float.md:2096
+#: manual/design/bin_float.md:2095
 msgid "The longer proofs (the far-operand addition rule, `nextUp`, the remainder reduction, the Ziv acceptance test and the NTT bound) are collected in the attachment."
 msgstr ""
 
-#: manual/design/bin_float.md:2100
+#: manual/design/bin_float.md:2099
 msgid "[Rounding and exactness proofs for bin_float](../../attachments/design_bin_float_rounding_proofs.typ)"
 msgstr ""
 
-#: manual/design/bin_float.md:2104
+#: manual/design/bin_float.md:2103
 msgid "**Host `Double` for anything but `from_double`.** Routing binary16, binary32 or binary128 through `Double` double-rounds, loses signaling NaNs on some targets and cannot represent binary128 at all. Interchange encoding is done on `BinCoeff` bit patterns instead."
 msgstr ""
 
-#: manual/design/bin_float.md:2108
+#: manual/design/bin_float.md:2107
 msgid "**A fixed number of guard bits.** Three guard bits suffice for addition of two $p$-bit operands, but not for division, square root, conversions from decimal or operands wider than the context. Deciding from exact integer data (round, sticky, remainder sign, midpoint comparison) works for all of them with one finalizer."
 msgstr ""
 
-#: manual/design/bin_float.md:2113
+#: manual/design/bin_float.md:2112
 msgid "**Rounding to $p$ bits, then to the subnormal grid.** This double rounding produces wrong subnormal results; the finalizer shifts once to the coarser of the two positions."
 msgstr ""
 
-#: manual/design/bin_float.md:2116
+#: manual/design/bin_float.md:2115
 msgid "**Ziv with an estimated error bound.** It requires a separate error analysis for every function and every reduction, and a mistake in it silently returns a wrong last bit. Outward-rounded enclosures make the bound a computed quantity, at the cost of evaluating every operation twice."
 msgstr ""
 
-#: manual/design/bin_float.md:2120
+#: manual/design/bin_float.md:2119
 msgid "**Global flags and rounding state.** IEEE 754 describes flags as sticky global state. A returned `BinaryFlags` value composes with pure code, concurrent code and the `Result` style of `@lf_arith`, and `combine` recovers the sticky behaviour where wanted."
 msgstr ""
 
-#: manual/design/bin_float.md:2124
+#: manual/design/bin_float.md:2123
 msgid "**`compare` aborting on NaN, or `compare` as `totalOrder`.** See [Ordering NaN in `compare`](#ordering-nan-in-compare)."
 msgstr ""
 
-#: manual/design/bin_float.md:2129
+#: manual/design/bin_float.md:2128
 msgid "`bin_float` deliberately does not:"
 msgstr ""
 
-#: manual/design/bin_float.md:2131
+#: manual/design/bin_float.md:2130
 msgid "provide interval or ball arithmetic: enclosures are internal to the certification loops; `ball_float` builds midpoint–radius arithmetic on top of `BinFloat`;"
 msgstr ""
 
-#: manual/design/bin_float.md:2134
+#: manual/design/bin_float.md:2133
 msgid "implement IEEE 754 alternate exception handling (traps, substitution) or sticky global flags: flags are returned values;"
 msgstr ""
 
-#: manual/design/bin_float.md:2136
+#: manual/design/bin_float.md:2135
 msgid "implement decimal floating-point (`decimal`, `decimal_gda`) or the non-binary IEEE operations on them;"
 msgstr ""
 
-#: manual/design/bin_float.md:2138
+#: manual/design/bin_float.md:2137
 msgid "promise any NaN payload for a newly generated NaN (it uses payload 0), or propagate payloads of more than one input;"
 msgstr ""
 
-#: manual/design/bin_float.md:2140
+#: manual/design/bin_float.md:2139
 msgid "guarantee completion of an elementary function within any time for every input: certification has a budget, and an exhausted budget is reported, not hidden;"
 msgstr ""
 
-#: manual/design/bin_float.md:2143
+#: manual/design/bin_float.md:2142
 msgid "expose limb layout, thresholds or transform parameters: they may change without notice as long as every result, flag and encoding stays the same;"
 msgstr ""
 
-#: manual/design/bin_float.md:2145
+#: manual/design/bin_float.md:2144
 msgid "claim conformance beyond the finite corpus recorded in [conformance](../conformance/bin_float.md)."
 msgstr ""
 

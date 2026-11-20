@@ -9654,7 +9654,7 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 #: manual/design/bench/decimal.md:67
 #: manual/design/bench/decimal_gda.md:64
 #: manual/design/bench/external.md:235
-#: manual/design/bin_float.md:2127
+#: manual/design/bin_float.md:2126
 #: manual/design/bin_float_checked.md:329
 #: manual/design/cli.md:71
 #: manual/design/cli/dispatch.md:48
@@ -10821,7 +10821,7 @@ msgstr "每个区间都携带一个精度标签；二元运算使用较大的标
 #: manual/design/bench/decimal.md:51
 #: manual/design/bench/decimal_gda.md:48
 #: manual/design/bench/external.md:215
-#: manual/design/bin_float.md:2055
+#: manual/design/bin_float.md:2054
 #: manual/design/bin_float_checked.md:199
 #: manual/design/cli.md:52
 #: manual/design/cli/dispatch.md:31
@@ -10901,7 +10901,7 @@ msgstr "目前没有未解决的限制。负次数的装饰 `rootn` 在参数含
 #: manual/design/bench/decimal.md:60
 #: manual/design/bench/decimal_gda.md:57
 #: manual/design/bench/external.md:225
-#: manual/design/bin_float.md:2102
+#: manual/design/bin_float.md:2101
 #: manual/design/bin_float_checked.md:316
 #: manual/design/cli.md:62
 #: manual/design/cli/dispatch.md:38
@@ -11942,8 +11942,8 @@ msgid "RZ"
 msgstr "RZ"
 
 #: manual/design/bin_float.md:224
-#: manual/design/bin_float.md:1962
-#: manual/design/bin_float.md:1964
+#: manual/design/bin_float.md:1961
+#: manual/design/bin_float.md:1963
 #: manual/design/decimal.md:200
 msgid "never"
 msgstr "从不"
@@ -12807,8 +12807,8 @@ msgid "*Stopping.* After each iteration stop when $|u - v| < 2^{\\operatorname{t
 msgstr "*停止。* 每次迭代后，当 $|u - v| < 2^{\\operatorname{top}(v) - p + 3} \\le 16\\,\\delta v$ 时停止（用指数检验）。容差取一个单位永远不会停止：两个舍入到最近的平均值可能始终相差一个单位。$\\mathrm{AG}(U_n, V_n)$ 位于 $U_n$ 与 $V_n$ 之间，二者至多相差 $16\\,\\delta v + 2 \\varepsilon_n v (1 + \\varepsilon_n)$，所以 $|\\mathrm{AG}(1, 4/s) - v_n| \\le e\\, v_n$，$e = (9 n + 30)\\delta$（已含第 1 步的 $+1$）。代码用有向乘积构造 $v_n (1 \\pm e)$。"
 
 #: manual/design/bin_float.md:1652
-msgid "*The model term.* With $F = \\pi / (2\\, \\mathrm{AG}(1, 4/s))$ the lower end uses $\\ln s \\ge F (1 - 4/s^2)$ and the upper end $\\ln s \\le F$. **This inequality is taken from the literature and is not proved here**: the comment of MPFR's `log.c` states it for $s \\ge 1.26$, and the MPFR algorithms document (section 4.5) gives only the asymptotic form $\\ln x \\approx \\pi/(2\\,\\mathrm{AG}(1, 4/s)) - m \\ln 2 + o(\\ln x\\, 2^{-p})$ and cites J.-M. Muller, *Elementary Functions. Algorithms and Implementation*, Birkhauser, 1997. The source of a proof (Muller 1997, Brent 1976, the Borwein brothers' *Pi and the AGM*, or DLMF 19.8 and 19.12 for the expansion of $K(k)$ near $k = 1$) has not been read. The code subtracts $F\\, 2^{-(p-2)}$, sixteen times the claimed $4/s^2 < 2^{-(p+2)}$, and the error margin $e F$ of step 3 is more than a hundred times the claimed term, so a constant up to 64 instead of 4 would still give a valid enclosure. Numerically (exact decimal arithmetic, $s = 2^k$, $k = 1 \\ldots 40$): $0 < F - \\ln s < 4 \\ln s / s^2$ with a ratio to the bound between 0.56 and 0.96."
-msgstr "*模型项。* 记 $F = \\pi / (2\\, \\mathrm{AG}(1, 4/s))$，下端用 $\\ln s \\ge F (1 - 4/s^2)$，上端用 $\\ln s \\le F$。**这个不等式取自文献，这里没有证明**：MPFR `log.c` 的注释对 $s \\ge 1.26$ 陈述了它，而 MPFR 算法文档（第 4.5 节）只给出渐近形式 $\\ln x \\approx \\pi/(2\\,\\mathrm{AG}(1, 4/s)) - m \\ln 2 + o(\\ln x\\, 2^{-p})$，并引用 J.-M. Muller，*Elementary Functions. Algorithms and Implementation*，Birkhauser，1997。证明的出处（Muller 1997、Brent 1976、Borwein 兄弟的 *Pi and the AGM*，或 DLMF 19.8 与 19.12 中 $K(k)$ 在 $k = 1$ 附近的展开）尚未读过。代码减去 $F\\, 2^{-(p-2)}$，是所称 $4/s^2 < 2^{-(p+2)}$ 的十六倍；并且第 3 步的误差余量 $e F$ 是所称项的一百多倍，所以常数取到 64 而不是 4 仍给出有效的包络。数值上（精确十进制运算，$s = 2^k$，$k = 1 \\ldots 40$）：$0 < F - \\ln s < 4 \\ln s / s^2$，与该界之比在 0.56 到 0.96 之间。"
+msgid "*The model term.* With $F = \\pi / (2\\, \\mathrm{AG}(1, 4/s))$ the lower end uses $\\ln s \\ge F (1 - 4/s^2)$ and the upper end $\\ln s \\le F$. Both follow from two equations of the NIST Digital Library of Mathematical Functions, for $0 < k < 1$ and $k' = \\sqrt{1 - k^2}$: DLMF 19.8.5, $K(k) = \\pi / (2\\, \\mathrm{AG}(1, k'))$, and DLMF 19.9.2, $1 + k'^2/8 < K(k) / \\ln(4/k') < 1 + k'^2/4$. Put $k' = 4/s$ with $s > 4$ (so $0 < k' < 1$ and $\\ln(4/k') = \\ln s$): $F = K(k)$ by 19.8.5 and 19.9.2 reads $(1 + 2/s^2) \\ln s < F < (1 + 4/s^2) \\ln s$. Hence $\\ln s < F$, and $\\ln s > F / (1 + 4/s^2) > F (1 - 4/s^2)$ since $1/(1 + x) > 1 - x$ for $x > 0$. The same inequality gives the lower bound $F - \\ln s > 2 \\ln s / s^2$ as a by-product. The range is $s > 4$, and the kernel's $s > 2^{p/2 + 2}$ with $p \\ge 64$ satisfies it. Numerically (exact decimal arithmetic, $s = 2^k$, $k = 1 \\ldots 40$) the ratio $(F - \\ln s) / (4 \\ln s / s^2)$ is between 0.532 and 0.964, inside the interval $(0.5, 1)$ that 19.9.2 predicts (the values for $k = 1, 2$, that is $s \\le 4$, are also inside, though DLMF does not cover them). The code subtracts $F\\, 2^{-(p-2)}$, sixteen times the term $4/s^2 < 2^{-(p+2)}$ that the lemma needs, and the error margin $e F$ of step 3 is more than a hundred times that term: the factor is slack, not a need, and is kept as it is."
+msgstr "*模型项。* 记 $F = \\pi / (2\\, \\mathrm{AG}(1, 4/s))$，下端用 $\\ln s \\ge F (1 - 4/s^2)$，上端用 $\\ln s \\le F$。二者都由 NIST 数学函数数字图书馆（DLMF）的两个等式推出，其中 $0 < k < 1$，$k' = \\sqrt{1 - k^2}$：DLMF 19.8.5，$K(k) = \\pi / (2\\, \\mathrm{AG}(1, k'))$；以及 DLMF 19.9.2，$1 + k'^2/8 < K(k) / \\ln(4/k') < 1 + k'^2/4$。取 $k' = 4/s$，$s > 4$（于是 $0 < k' < 1$，$\\ln(4/k') = \\ln s$）：由 19.8.5 有 $F = K(k)$，19.9.2 成为 $(1 + 2/s^2) \\ln s < F < (1 + 4/s^2) \\ln s$。因此 $\\ln s < F$，并且 $\\ln s > F / (1 + 4/s^2) > F (1 - 4/s^2)$（因为 $x > 0$ 时 $1/(1 + x) > 1 - x$）。同一不等式还顺带给出下界 $F - \\ln s > 2 \\ln s / s^2$。适用范围是 $s > 4$，而内核的 $s > 2^{p/2 + 2}$（$p \\ge 64$）满足它。数值上（精确十进制运算，$s = 2^k$，$k = 1 \\ldots 40$）比值 $(F - \\ln s) / (4 \\ln s / s^2)$ 在 0.532 与 0.964 之间，落在 19.9.2 所预测的区间 $(0.5, 1)$ 内（$k = 1, 2$，即 $s \\le 4$ 的值也在其中，尽管 DLMF 没有涵盖它们）。代码减去 $F\\, 2^{-(p-2)}$，是引理所需的项 $4/s^2 < 2^{-(p+2)}$ 的十六倍，而第 3 步的误差余量 $e F$ 是该项的一百多倍：这个因子是余量而不是必需，原样保留。"
 
 #: manual/design/bin_float.md:1653
 msgid "*The constants and the result.* $\\pi_l \\le \\pi \\le \\pi_u$ at $p + 8$ bits and $\\ln 2$ at $p + 16$ bits (the cached enclosures), $F_l = \\pi_l / (2 v_n (1 + e))$ and $F_u = \\pi_u / (2 v_n (1 - e))$ by directed divisions, $m \\ln 2$ by directed products with the integer $m < 2^{\\lceil \\log_2 p \\rceil}$, and the subtraction directed. Cancellation: $F$ and $m \\ln 2$ are about $0.35 p$ and the result about $2^{\\mathrm{lead}}$ with $\\mathrm{lead} \\ge -16$, so about $\\log_2(0.35 p) + 16 \\le 28$ bits are lost; they are paid once in the working precision $p = w + (2 - \\mathrm{lead}) + \\operatorname{bits}(w) + 16$ (no restart, as MPFR does). The width of the result is at most $2^{-(w + 3)}$ by this choice and is checked (as in the Newton step): a wider result returns `None` and the Newton step or the series runs."
@@ -12911,123 +12911,123 @@ msgid "**Measured result.** On main `8badc55` (all four kernels merged), Apple M
 msgstr "**实测结果。** 在 main `8badc55`（四个内核均已合并）上，Apple M4、native、release，负载均值 1.3 到 3，对 `just bench external quick --ops exp ln sin --binary-precisions 2048 8192` 跑三次，彼此相差 1 到 10 %，并在 `952600f` 上复核，相差 3 % 以内：floating 的耗时除以存档的 MPFR 中位数，在 2048 位下为 6.0 到 6.6（`exp`）、12.5（`ln`）和 12.2（`sin`），在 8192 位下为 3.2（`exp`）、10.6（`ln`）和 5.8（`sin`）。同一时刻在同一台机器上测得的 MPFR 耗时与存档相差不到 6 %，所以原始比值和漂移修正后的比值最多相差 6 %。有两格低于 MPFR 的 10 倍；`ln` 在 2048 位和 8192 位，以及 `sin` 在 2048 位，高于 10 倍。这只是一台机器、只是 native 目标：Wasm、Wasm-GC 和 JavaScript 目标没有与 MPFR 对比。上文的预测被这些数字取代；剩下的差距在乘法与除法内核和内存分配，不在算法。"
 
 #: manual/design/bin_float.md:1918
-msgid "**Evidence checked and still to confirm.** The references were checked against the sources on 2026-11-19. Brent, *J. ACM* 23(2), 1976, 242-251, exists as cited, but it contains the AGM and ascending Landen transformation methods with cost $O(M(n)\\log n)$ (the logarithm by Landen transformations of incomplete elliptic integrals); it contains neither bit-burst nor theta functions, nor the nome, and it credits the $O(M(n)\\log^2 n)$ bound to Brent, \"The complexity of multiple-precision arithmetic\" (Proc. Seminar on Complexity of Computational Problem Solving, 1975, pp. 126-165), which was not read. So the footnote below supports the AGM logarithm only, and the bit-burst attribution is to be replaced by that 1975 paper (not yet read). The formula with the theta functions, $\\ln(1/q) = \\pi / \\mathrm{AGM}(\\theta_2^2(q), \\theta_3^2(q))$, is attributed to Sasaki and Kanada, *J. Inf. Process.* 5(4), 1982, 247-250, on the authority of later notes by Brent (secondary sources); its normalization of the nome (Brent's notes use $q^4$ and point out a typo in the $q$ form of the Borwein book) and its truncation bound have not been checked against the original, which the owner will obtain. Nothing in the design or in the code depends on the theta-function formula; the `ln` enclosure by the AGM depends on the model bound $F (1 - 4/s^2) \\le \\ln s \\le F$ only (see \"`ln`, by the arithmetic-geometric mean\" above), which is taken from MPFR's `log.c` and is not proved on this page. The 1-ulp and 2-ulp widths quoted above come from the MPFR comparison, which is secondary evidence for the enclosures; the proof is the integer-bound argument in this section."
-msgstr "**已核对与仍需确认的证据。** 这些引用已于 2026-11-19 对照原始文献核对。Brent，*J. ACM* 23(2)，1976，242-251 确如所引存在，但它给出的是 AGM 与 ascending Landen 变换方法，代价为 $O(M(n)\\log n)$（对数用不完全椭圆积分的 Landen 变换）；其中既没有 bit-burst，也没有 theta 函数和 nome，并且把 $O(M(n)\\log^2 n)$ 的界归于 Brent 的 “The complexity of multiple-precision arithmetic”（Proc. Seminar on Complexity of Computational Problem Solving，1975，126-165 页，尚未读过）。所以下面的脚注只支持 AGM 对数，bit-burst 的出处应改为那篇 1975 年的文章（尚未读过）。含 theta 函数的公式 $\\ln(1/q) = \\pi / \\mathrm{AGM}(\\theta_2^2(q), \\theta_3^2(q))$ 归于 Sasaki 与 Kanada，*J. Inf. Process.* 5(4)，1982，247-250，依据是 Brent 后来的笔记（二手来源）；它对 nome 的规范化（Brent 的笔记用 $q^4$，并指出 Borwein 的书中 $q$ 形式有笔误）及其截断界尚未对照原文核对，所有者会去取原文。设计和代码都不依赖 theta 函数公式；用 AGM 得到的 `ln` 包络只依赖模型界 $F (1 - 4/s^2) \\le \\ln s \\le F$（见上面的“`ln`，用算术几何平均”），该界取自 MPFR 的 `log.c`，本页没有证明。上文给出的 1 ulp 和 2 ulp 宽度来自与 MPFR 的对照，对包络来说它是二手证据；证明是本节中的整数界论证。"
+msgid "**Evidence checked and still to confirm.** The references were checked against the sources on 2026-11-19. Brent, *J. ACM* 23(2), 1976, 242-251, exists as cited, but it contains the AGM and ascending Landen transformation methods with cost $O(M(n)\\log n)$ (the logarithm by Landen transformations of incomplete elliptic integrals); it contains neither bit-burst nor theta functions, nor the nome, and it credits the $O(M(n)\\log^2 n)$ bound to Brent, \"The complexity of multiple-precision arithmetic\" (Proc. Seminar on Complexity of Computational Problem Solving, 1975, pp. 126-165), which was not read. So the footnote below supports the AGM logarithm only, and the bit-burst attribution is to be replaced by that 1975 paper (not yet read). The formula with the theta functions, $\\ln(1/q) = \\pi / \\mathrm{AGM}(\\theta_2^2(q), \\theta_3^2(q))$, is attributed to Sasaki and Kanada, *J. Inf. Process.* 5(4), 1982, 247-250, on the authority of later notes by Brent (secondary sources); its normalization of the nome (Brent's notes use $q^4$ and point out a typo in the $q$ form of the Borwein book) and its truncation bound have not been checked against the original, which the owner will obtain. Nothing in the design or in the code depends on the theta-function formula; the `ln` enclosure by the AGM depends on the model bound $F (1 - 4/s^2) \\le \\ln s \\le F$ only (see \"`ln`, by the arithmetic-geometric mean\" above), which follows from DLMF 19.8.5 and 19.9.2. The 1-ulp and 2-ulp widths quoted above come from the MPFR comparison, which is secondary evidence for the enclosures; the proof is the integer-bound argument in this section."
+msgstr "**已核对与仍需确认的证据。** 这些引用已于 2026-11-19 对照原始文献核对。Brent，*J. ACM* 23(2)，1976，242-251 确如所引存在，但它给出的是 AGM 与 ascending Landen 变换方法，代价为 $O(M(n)\\log n)$（对数用不完全椭圆积分的 Landen 变换）；其中既没有 bit-burst，也没有 theta 函数和 nome，并且把 $O(M(n)\\log^2 n)$ 的界归于 Brent 的 “The complexity of multiple-precision arithmetic”（Proc. Seminar on Complexity of Computational Problem Solving，1975，126-165 页，尚未读过）。所以下面的脚注只支持 AGM 对数，bit-burst 的出处应改为那篇 1975 年的文章（尚未读过）。含 theta 函数的公式 $\\ln(1/q) = \\pi / \\mathrm{AGM}(\\theta_2^2(q), \\theta_3^2(q))$ 归于 Sasaki 与 Kanada，*J. Inf. Process.* 5(4)，1982，247-250，依据是 Brent 后来的笔记（二手来源）；它对 nome 的规范化（Brent 的笔记用 $q^4$，并指出 Borwein 的书中 $q$ 形式有笔误）及其截断界尚未对照原文核对，所有者会去取原文。设计和代码都不依赖 theta 函数公式；用 AGM 得到的 `ln` 包络只依赖模型界 $F (1 - 4/s^2) \\le \\ln s \\le F$（见上面的“`ln`，用算术几何平均”），该界由 DLMF 19.8.5 与 19.9.2 推出。上文给出的 1 ulp 和 2 ulp 宽度来自与 MPFR 的对照，对包络来说它是二手证据；证明是本节中的整数界论证。"
 
-#: manual/design/bin_float.md:1941
-msgid "R. P. Brent, \"Fast multiple-precision evaluation of elementary functions\", *J. ACM* 23(2), 1976 (bit-burst and the AGM logarithm; citation to be confirmed against the paper). The sharp truncation bound is not derived here; the AGM kernel uses the bound of MPFR's `log.c` with a sixteen-fold margin. MPFR's `log.c` documents the same algorithm and is secondary evidence only."
-msgstr "R. P. Brent，“Fast multiple-precision evaluation of elementary functions”，*J. ACM* 23(2)，1976（bit-burst 与 AGM 对数；引用待对照论文确认）。这里没有推导精确的截断界；AGM 内核使用 MPFR 的 `log.c` 的界，并留有十六倍的余量。MPFR 的 `log.c` 记载了同一算法，仅作为二手证据。"
+#: manual/design/bin_float.md:1940
+msgid "R. P. Brent, \"Fast multiple-precision evaluation of elementary functions\", *J. ACM* 23(2), 1976 (bit-burst and the AGM logarithm; citation to be confirmed against the paper). The truncation bound of the AGM kernel is taken from DLMF 19.8.5 and 19.9.2 (see \"`ln`, by the arithmetic-geometric mean\"), not from this paper. MPFR's `log.c` documents the same algorithm and is secondary evidence only."
+msgstr "R. P. Brent，“Fast multiple-precision evaluation of elementary functions”，*J. ACM* 23(2)，1976（bit-burst 与 AGM 对数；引用待对照论文确认）。AGM 内核的截断界取自 DLMF 19.8.5 与 19.9.2（见“`ln`，用算术几何平均”），而不是这篇论文。MPFR 的 `log.c` 记载了同一算法，仅作为二手证据。"
 
-#: manual/design/bin_float.md:1948
+#: manual/design/bin_float.md:1947
 msgid "The coefficient kernel"
 msgstr "系数内核"
 
-#: manual/design/bin_float.md:1950
+#: manual/design/bin_float.md:1949
 msgid "**Problem.** Precision costs integer multiplication and division of $p$-bit numbers, and $p$ ranges from 1 to $2^{28}$."
 msgstr "**问题。** 精度的代价来自 $p$ 位数的整数乘法和除法，而 $p$ 的范围从 1 到 $2^{28}$。"
 
-#: manual/design/bin_float.md:1953
+#: manual/design/bin_float.md:1952
 msgid "**Choice.** The kernel is the internal package [`internal/bin_kernel`](internal/bin_kernel.md); `BinCoeff` is a newtype over its `Coeff`. `Coeff` stores up to 128 bits inline and larger values as little-endian 64-bit limbs (a host `bigint` on JavaScript), and dispatches on the operand length $n$ in 64-bit limbs. Every threshold below is in 64-bit limbs:"
 msgstr "**选择。** 内核是内部包 [`internal/bin_kernel`](internal/bin_kernel.md)；`BinCoeff` 是其 `Coeff` 之上的 newtype。`Coeff` 内联存储至多 128 位，更大的值存为小端 64 位肢（在 JavaScript 上为宿主 `bigint`），并按操作数的 64 位肢长度 $n$ 分派。下面的每个阈值都以 64 位肢为单位："
 
-#: manual/design/bin_float.md:1958
+#: manual/design/bin_float.md:1957
 msgid "Product or square"
 msgstr "积或平方"
 
-#: manual/design/bin_float.md:1958
+#: manual/design/bin_float.md:1957
 msgid "Native, LLVM"
 msgstr "Native、LLVM"
 
-#: manual/design/bin_float.md:1958
+#: manual/design/bin_float.md:1957
 msgid "Wasm, Wasm-GC"
 msgstr "Wasm、Wasm-GC"
 
-#: manual/design/bin_float.md:1960
+#: manual/design/bin_float.md:1959
 msgid "schoolbook product below"
 msgstr "朴素乘积，低于"
 
-#: manual/design/bin_float.md:1961
+#: manual/design/bin_float.md:1960
 msgid "Karatsuba product from"
 msgstr "Karatsuba 乘积，从"
 
-#: manual/design/bin_float.md:1962
+#: manual/design/bin_float.md:1961
 msgid "Karatsuba product on 32-bit limbs from"
 msgstr "32 位 limb 上的 Karatsuba 乘积，从"
 
-#: manual/design/bin_float.md:1963
+#: manual/design/bin_float.md:1962
 msgid "Karatsuba square from"
 msgstr "Karatsuba 平方，从"
 
-#: manual/design/bin_float.md:1963
+#: manual/design/bin_float.md:1962
 #: manual/design/decimal_gda.md:853
 msgid "off"
 msgstr "关闭"
 
-#: manual/design/bin_float.md:1964
+#: manual/design/bin_float.md:1963
 msgid "square on 32-bit limbs from"
 msgstr "32 位 limb 上的平方，从"
 
-#: manual/design/bin_float.md:1965
+#: manual/design/bin_float.md:1964
 msgid "Toom-3 product from (balanced, where the NTT does not fit)"
 msgstr "Toom-3 乘积，从（平衡情形，NTT 放不下时）"
 
-#: manual/design/bin_float.md:1966
+#: manual/design/bin_float.md:1965
 msgid "two-prime NTT product from"
 msgstr "双素数 NTT 乘积，从"
 
-#: manual/design/bin_float.md:1967
+#: manual/design/bin_float.md:1966
 msgid "NTT square from"
 msgstr "从此值起用 NTT 平方"
 
-#: manual/design/bin_float.md:1969
+#: manual/design/bin_float.md:1968
 msgid "LLVM takes the Native values, which are unmeasured there. A product with $m > 2n$ limbs is cut inside the Karatsuba into $n$-limb blocks; a short operand against a long one beyond the NTT cutoff uses the NTT overlap-add. Squaring is a word-range Karatsuba square (three half-size squares $a_0^2$, $a_1^2$ and $(a_0 - a_1)^2$ instead of three products) on Native and LLVM, and the NTT square above its cutoff; Wasm keeps the 32-bit-limb route from 80 limbs, where a 64-bit product costs four `i64.mul`."
 msgstr "LLVM 采用 Native 的值，那里未经测量。具有 $m > 2n$ 个 limb 的乘积在 Karatsuba 内部被切成 $n$ limb 的块；在 NTT 截止点之上，短操作数对长操作数使用 NTT 重叠相加。平方在 Native 与 LLVM 上是字范围 Karatsuba 平方（用 $a_0^2$、$a_1^2$ 与 $(a_0 - a_1)^2$ 三个半尺寸平方代替三个乘积），在其截止点之上用 NTT 平方；Wasm 从 80 个 limb 起保留 32 位 limb 路径，因为 64 位乘积在那里要四次 `i64.mul`。"
 
-#: manual/design/bin_float.md:1977
+#: manual/design/bin_float.md:1976
 msgid "Operands with at least 4 limbs of which at most one eighth are nonzero use a sparse product of the nonzero limbs. Division uses a loop over half-limbs for a divisor below $2^{32}$, Knuth's algorithm D on 64-bit digits (32-bit digits on Wasm) below 96 divisor limbs, Burnikel–Ziegler recursion from 96 with leaves of up to 64 limbs, and never the Newton reciprocal (the routine stays for tests); GCD switches from the binary (Stein) algorithm to Lehmer batches above two limbs. The thresholds are measured, per target, by the benchmark suite; they are policy, not semantics. The 32-bit view of the storage exists only for the Wasm routes above."
 msgstr "至少有 4 个 limb、其中非零 limb 不超过八分之一的操作数使用只对非零 limb 做的稀疏乘积。除数小于 $2^{32}$ 时，除法使用按半 limb 的循环；除数少于 96 个 limb 时使用 64 位数字的 Knuth 算法 D（Wasm 上为 32 位数字），从 96 起使用 Burnikel–Ziegler 递归，叶子至多 64 个 limb，从不选用 Newton 倒数（该例程保留用于测试）；GCD 在超过两个 limb 时从二进制（Stein）算法切换为 Lehmer 批处理。这些阈值由基准测试套件针对每个目标实测得出；它们是策略，而非语义。存储的 32 位视图只为上述 Wasm 路径而存在。"
 
-#: manual/design/bin_float.md:1987
+#: manual/design/bin_float.md:1986
 msgid "A Lehmer round is valid only when its single-word digits come from the same bit window of both operands: digits taken from each operand's own top limb have unrelated scales, and the cofactors they produce subtract only a small multiple of the smaller operand per round. Each round therefore keeps $a \\ge b$, runs Euclid on the leading 63 bits of $a$ and the bits of $b$ in the same window, and takes one division step $a \\bmod b$ instead when $b$ has no bits in that window (then $a / b \\ge 2^{62}$) or when the cofactor matrix would make an operand negative or shrink neither. Every matrix applied has determinant $\\pm 1$, so the gcd is unchanged, and a long $a$ is reduced modulo a short $b$ in one step however different their lengths are; below eight limbs of $b$ the loop finishes with plain Euclid."
 msgstr "只有当 Lehmer 轮的单字数字取自两个操作数的同一比特窗口时，该轮才有效：从各操作数自身最高 limb 取出的数字尺度互不相关，由它们产生的余因子每轮只能减去较小操作数的一个小倍数。因此每一轮都保持 $a \\ge b$，对 $a$ 的前 63 位以及 $b$ 在同一窗口中的位运行 Euclid 算法；当 $b$ 在该窗口中没有位（此时 $a / b \\ge 2^{62}$），或余因子矩阵会使某个操作数变为负数、或两者都不缩小时，改为执行一步除法 $a \\bmod b$。所施加的每个矩阵的行列式都是 $\\pm 1$，因此 gcd 不变；无论长度相差多少，长的 $a$ 都会在一步内对短的 $b$ 取模约化；当 $b$ 少于八个 limb 时，循环以普通 Euclid 算法结束。"
 
-#: manual/design/bin_float.md:1999
+#: manual/design/bin_float.md:1998
 msgid "**Why exactness is preserved.** Schoolbook, Karatsuba and Toom-3 evaluate integer polynomial identities, for example"
 msgstr "**为何能保持精确性。** 竖式乘法、Karatsuba 和 Toom-3 计算的是整数多项式恒等式，例如"
 
-#: manual/design/bin_float.md:2006
+#: manual/design/bin_float.md:2005
 msgid "and Toom-3 (evaluation at $0, 1, -1, 2, \\infty$) interpolates with exact divisions by 2 and 3 of signed intermediates known to be multiples, so they are exact integer computations. The NTT is the only modular step. It splits each operand into 16-bit digits, so each coefficient of the digit convolution is at most"
 msgstr "而 Toom-3（在 $0, 1, -1, 2, \\infty$ 处求值）在插值时对已知为倍数的带符号中间量做精确的除以 2 和除以 3，因此它们都是精确的整数计算。NTT 是唯一的模运算步骤。它将每个操作数拆分为 16 位数字，因此数字卷积的每个系数至多为"
 
-#: manual/design/bin_float.md:2015
+#: manual/design/bin_float.md:2014
 msgid "for transform lengths up to $2^{23}$. It computes the convolution modulo the primes $p_1 = 998244353 = 119 \\cdot 2^{23} + 1$ and $p_2 = 754974721 = 45 \\cdot 2^{24} + 1$, both of which have $2^{23}$-th roots of unity, and recombines by the Chinese remainder theorem, which is unique in $[0, p_1 p_2)$ with $p_1 p_2 \\approx 2^{59.4} > 2^{55}$. So the recombined coefficients are the exact integers. The length check precedes every transform; a longer product uses overlapping blocks of admissible length or falls back to Toom-3. Division paths return $(q, r)$ with $n = qd + r$ and $0 \\le r < d$ by construction; the Newton path corrects its approximate quotient with the remainder and aborts if more than two corrections would be needed, which would indicate a bug rather than a numerical event. Because all paths compute the same integers, the choice of algorithm cannot change any rounded result, flag or encoding."
 msgstr "这对至多 $2^{23}$ 的变换长度成立。它对素数 $p_1 = 998244353 = 119 \\cdot 2^{23} + 1$ 和 $p_2 = 754974721 = 45 \\cdot 2^{24} + 1$ 取模计算卷积，两者都有 $2^{23}$ 次单位根，再用中国剩余定理重组，该重组在 $[0, p_1 p_2)$ 中唯一，其中 $p_1 p_2 \\approx 2^{59.4} > 2^{55}$。因此重组得到的系数就是精确的整数。每次变换之前都会先做长度检查；更长的乘积使用长度可接受的重叠块，或回退到 Toom-3。除法路径按构造返回满足 $n = qd + r$ 和 $0 \\le r < d$ 的 $(q, r)$；Newton 路径用余数校正其近似商，若需要超过两次校正则中止，因为这意味着存在缺陷，而非数值现象。由于所有路径计算的是同样的整数，算法的选择不会改变任何舍入结果、标志或编码。"
 
-#: manual/design/bin_float.md:2029
+#: manual/design/bin_float.md:2028
 msgid "Ordering NaN in `compare`"
 msgstr "`compare` 中 NaN 的排序"
 
-#: manual/design/bin_float.md:2031
+#: manual/design/bin_float.md:2030
 msgid "**Problem.** MoonBit's `Compare` trait asks for a three-way comparison that sorting and ordered maps can rely on. IEEE comparison is a partial order: NaN is unordered with everything, itself included."
 msgstr "**问题。** MoonBit 的 `Compare` trait 要求一个可供排序和有序映射依赖的三路比较。IEEE 比较是偏序：NaN 与任何值（包括它自身）都是无序的。"
 
-#: manual/design/bin_float.md:2035
+#: manual/design/bin_float.md:2034
 msgid "**Options.** (1) Abort on NaN, as earlier versions did; every sort of data that might contain a NaN then becomes a crash. (2) Use IEEE `totalOrder`, which is total but distinguishes $-0 < +0$ and puts negative NaNs below $-\\infty$, so `compare` would disagree with numerical equality on zeros. (3) Keep the numerical order on numbers and put all NaNs in one class above it."
 msgstr "**可选方案。** (1) 遇到 NaN 时中止，早期版本即是如此；这样一来，对任何可能含有 NaN 的数据排序都会崩溃。(2) 使用 IEEE `totalOrder`，它是全序，但区分 $-0 < +0$，并把负 NaN 排在 $-\\infty$ 之下，因此 `compare` 在零上会与数值相等不一致。(3) 在数上保持数值顺序，并将所有 NaN 归为位于其上方的同一类。"
 
-#: manual/design/bin_float.md:2042
+#: manual/design/bin_float.md:2041
 msgid "**Choice.** Option (3). Define the key $\\kappa(x) = (0, x)$ for a number and $\\kappa(\\mathrm{NaN}) = (1, 0)$, ordered lexicographically; `compare(x, y)` is the comparison of $\\kappa(x)$ and $\\kappa(y)$, with $-0$ and $+0$ mapped to the same number. A comparison of keys in a totally ordered set is reflexive, transitive and total, so `compare` is a total preorder; it is not antisymmetric ($-0$ and $+0$, or two NaNs with different payloads, compare equal but are different values), which `Compare` does not require. The cost is that `nan > 1` is true under `<`, so code that needs IEEE semantics must use `compare_checked` (error on NaN), `compare_quiet` / `compare_signaling` (four-valued, with flags) or `total_order`. Structural `==` stays the derived `Eq`, because it is the only equality that is a congruence for every method (precision and payload included)."
 msgstr "**选择。** 方案 (3)。对数定义键 $\\kappa(x) = (0, x)$，对 NaN 定义 $\\kappa(\\mathrm{NaN}) = (1, 0)$，按字典序排列；`compare(x, y)` 是 $\\kappa(x)$ 与 $\\kappa(y)$ 的比较，$-0$ 和 $+0$ 映射为同一个数。在全序集中比较键是自反、传递且完全的，因此 `compare` 是一个全预序；它不是反对称的（$-0$ 与 $+0$，或两个载荷不同的 NaN，比较结果相等但却是不同的值），而 `Compare` 并不要求反对称性。代价是在 `<` 下 `nan > 1` 为真，因此需要 IEEE 语义的代码必须使用 `compare_checked`（遇 NaN 报错）、`compare_quiet` / `compare_signaling`（四值，带标志）或 `total_order`。结构性的 `==` 仍是派生的 `Eq`，因为它是对每个方法（包括精度和载荷）都构成同余关系的唯一相等。"
 
-#: manual/design/bin_float.md:2057
+#: manual/design/bin_float.md:2056
 msgid "**Canonical form.** Every finite value produced by the API has $c$ odd or $c = 0, e = 0$, and $\\operatorname{bits}(c) \\le$ its precision; stored exponents never saturate (a saturated exponent is classified as overflow or underflow first)."
 msgstr "**规范形式。** API 产生的每个有限值都满足 $c$ 为奇数或 $c = 0, e = 0$，且 $\\operatorname{bits}(c) \\le$ 为其精度；存储的指数从不饱和（饱和的指数会先被归类为上溢或下溢）。"
 
-#: manual/design/bin_float.md:2061
+#: manual/design/bin_float.md:2060
 msgid "**Correct rounding.** For every arithmetic operation, conversion and elementary function and every context, the returned finite value equals $\\circ(r)$ for the exact real result $r$, with the range rules above. By (R1), $\\circ(r) = r$ and no flag is raised whenever $r \\in F$; `round_ctx` is idempotent."
 msgstr "**正确舍入。** 对每个算术运算、转换和初等函数以及每个上下文，返回的有限值都等于精确实数结果 $r$ 的 $\\circ(r)$，并遵循上述范围规则。由 (R1)，每当 $r \\in F$ 时有 $\\circ(r) = r$ 且不引发任何标志；`round_ctx` 是幂等的。"
 
-#: manual/design/bin_float.md:2066
+#: manual/design/bin_float.md:2065
 msgid ""
 "**Flags.** `inexact` iff $\\circ(r) \\n"
 "e r$; `overflow` implies `inexact`; `underflow` iff tiny (per the context rule) and inexact; `division_by_zero` only for an exact infinite result of finite operands; `invalid_operation` iff a quiet NaN was produced from non-NaN operands or a signaling NaN was consumed. Exceptions to the last rule: `min`, `max`, $\\operatorname{pow}(x, \\pm 0)$, $\\operatorname{pown}(x, 0)$ and $\\operatorname{pow}(1, y)$ accept a signaling NaN without the flag. `combine` is associative, commutative and idempotent."
@@ -13035,83 +13035,83 @@ msgstr ""
 "**标志。** `inexact` 当且仅当 $\\circ(r) \\n"
 "e r$；`overflow` 蕴含 `inexact`；`underflow` 当且仅当结果微小（按上下文规则）且不精确；`division_by_zero` 仅用于有限操作数产生精确无穷结果的情形；`invalid_operation` 当且仅当由非 NaN 操作数产生了静默 NaN，或消耗了信号 NaN。最后一条规则的例外：`min`、`max`、$\\operatorname{pow}(x, \\pm 0)$、$\\operatorname{pown}(x, 0)$ 和 $\\operatorname{pow}(1, y)$ 接受信号 NaN 而不设置该标志。`combine` 满足结合律、交换律和幂等律。"
 
-#: manual/design/bin_float.md:2075
+#: manual/design/bin_float.md:2074
 msgid "**Error model.** Consequently, in the normal range, $|\\circ(r) - r| \\le u|r|$ for nearest and $< 2u|r|$ for directed rounding, with the absolute term $\\eta/2$ (respectively $\\eta$) below $2^{e_{\\min}}$, and subnormal sums and differences are exact."
 msgstr "**误差模型。** 因此，在正规范围内，就近舍入有 $|\\circ(r) - r| \\le u|r|$，定向舍入有 $< 2u|r|$，在 $2^{e_{\\min}}$ 以下另有绝对项 $\\eta/2$（相应地 $\\eta$），而次正规的和与差是精确的。"
 
-#: manual/design/bin_float.md:2079
+#: manual/design/bin_float.md:2078
 msgid "**Monotonicity.** Each operation is monotone in each argument where the real function is, because it is $\\circ \\circ f$ with $\\circ$ monotone; in particular RD and RU results bracket the exact value, which `ball_float` and the directed square roots of `sqrt_ctx` rely on."
 msgstr "**单调性。** 只要实函数在某个参数上单调，相应运算在该参数上也单调，因为它是 $\\circ \\circ f$ 且 $\\circ$ 单调；特别地，RD 和 RU 的结果夹住精确值，`ball_float` 和 `sqrt_ctx` 的定向平方根正依赖于这一点。"
 
-#: manual/design/bin_float.md:2083
+#: manual/design/bin_float.md:2082
 msgid "**Exactness theorems.** `remainder`, `scaleb` in the normal range, `copy_sign`, `neg`, `abs`, `logb` and decoding are exact; the integral roundings never need a second rounding; `fma(a, b, -RN(ab))` is exact without underflow."
 msgstr "**精确性定理。** `remainder`、正规范围内的 `scaleb`、`copy_sign`、`neg`、`abs`、`logb` 以及解码都是精确的；取整运算从不需要第二次舍入；`fma(a, b, -RN(ab))` 在无下溢时是精确的。"
 
-#: manual/design/bin_float.md:2087
+#: manual/design/bin_float.md:2086
 msgid "**Complexity.** Addition is linear in the operand length (and independent of the exponent gap, by the far-operand rule); multiplication follows the kernel table, $O(n^2)$ to $O(n \\log n)$; division and square root cost a constant number of multiplications of the same size at large $n$; `remainder` costs $O(\\log(q_x - q_y))$ modular multiplications; an elementary function evaluates its series at the working precision $w$, and because $w$ grows geometrically the total cost of all attempts is within a constant factor of the last one."
 msgstr "**复杂度。** 加法与操作数长度呈线性关系（且由远距操作数规则，与指数差无关）；乘法遵循内核表格，从 $O(n^2)$ 到 $O(n \\log n)$；在较大的 $n$ 下，除法和平方根的代价为常数次同等规模的乘法；`remainder` 的代价为 $O(\\log(q_x - q_y))$ 次模乘；初等函数在工作精度 $w$ 下对其级数求值，且由于 $w$ 按几何级数增长，所有尝试的总代价不超过最后一次尝试的常数倍。"
 
-#: manual/design/bin_float.md:2096
+#: manual/design/bin_float.md:2095
 msgid "The longer proofs (the far-operand addition rule, `nextUp`, the remainder reduction, the Ziv acceptance test and the NTT bound) are collected in the attachment."
 msgstr "较长的证明（远距操作数加法规则、`nextUp`、余数约简、Ziv 接受测试以及 NTT 界）收录于附件中。"
 
-#: manual/design/bin_float.md:2100
+#: manual/design/bin_float.md:2099
 msgid "[Rounding and exactness proofs for bin_float](../../attachments/design_bin_float_rounding_proofs.typ)"
 msgstr "[bin_float 的舍入与精确性证明](../../attachments/design_bin_float_rounding_proofs.typ)"
 
-#: manual/design/bin_float.md:2104
+#: manual/design/bin_float.md:2103
 msgid "**Host `Double` for anything but `from_double`.** Routing binary16, binary32 or binary128 through `Double` double-rounds, loses signaling NaNs on some targets and cannot represent binary128 at all. Interchange encoding is done on `BinCoeff` bit patterns instead."
 msgstr "**对 `from_double` 以外的格式使用宿主 `Double`。** 让 binary16、binary32 或 binary128 经由 `Double` 会导致双重舍入，在某些目标上丢失信号 NaN，而且根本无法表示 binary128。因此交换编码改为在 `BinCoeff` 位模式上完成。"
 
-#: manual/design/bin_float.md:2108
+#: manual/design/bin_float.md:2107
 msgid "**A fixed number of guard bits.** Three guard bits suffice for addition of two $p$-bit operands, but not for division, square root, conversions from decimal or operands wider than the context. Deciding from exact integer data (round, sticky, remainder sign, midpoint comparison) works for all of them with one finalizer."
 msgstr "**固定数量的保护位。** 三个保护位足以完成两个 $p$ 位操作数的加法，但不足以应对除法、平方根、从十进制的转换或宽于上下文的操作数。依据精确的整数数据（舍入位、粘滞位、余数符号、中点比较）进行判定，则可以用一个终结器处理所有这些情形。"
 
-#: manual/design/bin_float.md:2113
+#: manual/design/bin_float.md:2112
 msgid "**Rounding to $p$ bits, then to the subnormal grid.** This double rounding produces wrong subnormal results; the finalizer shifts once to the coarser of the two positions."
 msgstr "**先舍入到 $p$ 位，再舍入到次正规网格。** 这种双重舍入会产生错误的次正规结果；终结器只做一次移位，移到两个位置中较粗的那个。"
 
-#: manual/design/bin_float.md:2116
+#: manual/design/bin_float.md:2115
 msgid "**Ziv with an estimated error bound.** It requires a separate error analysis for every function and every reduction, and a mistake in it silently returns a wrong last bit. Outward-rounded enclosures make the bound a computed quantity, at the cost of evaluating every operation twice."
 msgstr "**使用估计误差界的 Ziv 方法。** 它需要对每个函数和每种约简单独做误差分析，而其中的错误会悄无声息地返回错误的最后一位。向外舍入的包络使误差界成为计算得出的量，代价是每个运算都要求值两次。"
 
-#: manual/design/bin_float.md:2120
+#: manual/design/bin_float.md:2119
 msgid "**Global flags and rounding state.** IEEE 754 describes flags as sticky global state. A returned `BinaryFlags` value composes with pure code, concurrent code and the `Result` style of `@lf_arith`, and `combine` recovers the sticky behaviour where wanted."
 msgstr "**全局标志与舍入状态。** IEEE 754 将标志描述为粘滞的全局状态。返回的 `BinaryFlags` 值可以与纯代码、并发代码以及 `@lf_arith` 的 `Result` 风格组合，而 `combine` 可在需要时恢复粘滞行为。"
 
-#: manual/design/bin_float.md:2124
+#: manual/design/bin_float.md:2123
 msgid "**`compare` aborting on NaN, or `compare` as `totalOrder`.** See [Ordering NaN in `compare`](#ordering-nan-in-compare)."
 msgstr "**`compare` 遇到 NaN 时中止，或以 `compare` 作为 `totalOrder`。** 参见[`compare` 中 NaN 的排序](#ordering-nan-in-compare)。"
 
-#: manual/design/bin_float.md:2129
+#: manual/design/bin_float.md:2128
 msgid "`bin_float` deliberately does not:"
 msgstr "`bin_float` 有意不做以下事情："
 
-#: manual/design/bin_float.md:2131
+#: manual/design/bin_float.md:2130
 msgid "provide interval or ball arithmetic: enclosures are internal to the certification loops; `ball_float` builds midpoint–radius arithmetic on top of `BinFloat`;"
 msgstr "提供区间或球算术：包络只在认证循环内部使用；`ball_float` 在 `BinFloat` 之上构建中点–半径算术；"
 
-#: manual/design/bin_float.md:2134
+#: manual/design/bin_float.md:2133
 msgid "implement IEEE 754 alternate exception handling (traps, substitution) or sticky global flags: flags are returned values;"
 msgstr "实现 IEEE 754 替代异常处理（陷阱、替换）或粘滞的全局标志：标志是返回值；"
 
-#: manual/design/bin_float.md:2136
+#: manual/design/bin_float.md:2135
 msgid "implement decimal floating-point (`decimal`, `decimal_gda`) or the non-binary IEEE operations on them;"
 msgstr "实现十进制浮点（`decimal`、`decimal_gda`）或其上的非二进制 IEEE 运算；"
 
-#: manual/design/bin_float.md:2138
+#: manual/design/bin_float.md:2137
 msgid "promise any NaN payload for a newly generated NaN (it uses payload 0), or propagate payloads of more than one input;"
 msgstr "为新生成的 NaN 承诺任何特定的 NaN 载荷（它使用载荷 0），或传播多于一个输入的载荷；"
 
-#: manual/design/bin_float.md:2140
+#: manual/design/bin_float.md:2139
 msgid "guarantee completion of an elementary function within any time for every input: certification has a budget, and an exhausted budget is reported, not hidden;"
 msgstr "保证初等函数对每个输入都能在一定时间内完成：认证有预算，预算耗尽会被报告，而不会被隐藏；"
 
-#: manual/design/bin_float.md:2143
+#: manual/design/bin_float.md:2142
 msgid "expose limb layout, thresholds or transform parameters: they may change without notice as long as every result, flag and encoding stays the same;"
 msgstr "暴露 limb 布局、阈值或变换参数：只要每个结果、标志和编码保持不变，它们可能随时更改而不另行通知；"
 
-#: manual/design/bin_float.md:2145
+#: manual/design/bin_float.md:2144
 msgid "claim conformance beyond the finite corpus recorded in [conformance](../conformance/bin_float.md)."
 msgstr "声称超出[符合性](../conformance/bin_float.md)中所记录的有限语料之外的符合性。"
 
@@ -27359,6 +27359,9 @@ msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 #: manual/verification.md:705
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "*The model term.* With $F = \\pi / (2\\, \\mathrm{AG}(1, 4/s))$ the lower end uses $\\ln s \\ge F (1 - 4/s^2)$ and the upper end $\\ln s \\le F$. **This inequality is taken from the literature and is not proved here**: the comment of MPFR's `log.c` states it for $s \\ge 1.26$, and the MPFR algorithms document (section 4.5) gives only the asymptotic form $\\ln x \\approx \\pi/(2\\,\\mathrm{AG}(1, 4/s)) - m \\ln 2 + o(\\ln x\\, 2^{-p})$ and cites J.-M. Muller, *Elementary Functions. Algorithms and Implementation*, Birkhauser, 1997. The source of a proof (Muller 1997, Brent 1976, the Borwein brothers' *Pi and the AGM*, or DLMF 19.8 and 19.12 for the expansion of $K(k)$ near $k = 1$) has not been read. The code subtracts $F\\, 2^{-(p-2)}$, sixteen times the claimed $4/s^2 < 2^{-(p+2)}$, and the error margin $e F$ of step 3 is more than a hundred times the claimed term, so a constant up to 64 instead of 4 would still give a valid enclosure. Numerically (exact decimal arithmetic, $s = 2^k$, $k = 1 \\ldots 40$): $0 < F - \\ln s < 4 \\ln s / s^2$ with a ratio to the bound between 0.56 and 0.96."
+#~ msgstr "*模型项。* 记 $F = \\pi / (2\\, \\mathrm{AG}(1, 4/s))$，下端用 $\\ln s \\ge F (1 - 4/s^2)$，上端用 $\\ln s \\le F$。**这个不等式取自文献，这里没有证明**：MPFR `log.c` 的注释对 $s \\ge 1.26$ 陈述了它，而 MPFR 算法文档（第 4.5 节）只给出渐近形式 $\\ln x \\approx \\pi/(2\\,\\mathrm{AG}(1, 4/s)) - m \\ln 2 + o(\\ln x\\, 2^{-p})$，并引用 J.-M. Muller，*Elementary Functions. Algorithms and Implementation*，Birkhauser，1997。证明的出处（Muller 1997、Brent 1976、Borwein 兄弟的 *Pi and the AGM*，或 DLMF 19.8 与 19.12 中 $K(k)$ 在 $k = 1$ 附近的展开）尚未读过。代码减去 $F\\, 2^{-(p-2)}$，是所称 $4/s^2 < 2^{-(p+2)}$ 的十六倍；并且第 3 步的误差余量 $e F$ 是所称项的一百多倍，所以常数取到 64 而不是 4 仍给出有效的包络。数值上（精确十进制运算，$s = 2^k$，$k = 1 \\ldots 40$）：$0 < F - \\ln s < 4 \\ln s / s^2$，与该界之比在 0.56 到 0.96 之间。"
 
 #~ msgid "unbounded exponent range, nearest-even, precision of the operands"
 #~ msgstr "无界指数范围、就近舍入（偶数优先）、操作数的精度"

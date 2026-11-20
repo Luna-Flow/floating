@@ -90,8 +90,8 @@ fn binary_agm_one(
 ///
 /// With `s = v 2^m`, `m = ceil(p / 2) + 2`, so that `s > 2^(p / 2 + 2)`:
 /// `ln v = ln s - m ln 2` and `F (1 - 4 / s^2) <= ln s <= F` for
-/// `F = pi / (2 AG(1, 4 / s))` (the model bound, taken from the literature, see
-/// the design page). `AG` is increasing in each argument and homogeneous of
+/// `F = pi / (2 AG(1, 4 / s))` (the model bound, DLMF 19.8.5 and 19.9.2 with
+/// `k' = 4 / s`, valid for `s > 4`; see the design page). `AG` is increasing in each argument and homogeneous of
 /// degree one, so the relative error `2^-p` of the rounded `x = 4 / s` moves `AG`
 /// by at most that much; `binary_agm_one` gives `AG(1, x)` within the relative
 /// error `e = (9 n + 30) 2^-p`; `pi` and `ln 2` are the cached directed bounds;
@@ -153,7 +153,7 @@ fn binary_ln_unit_agm_bounds(
   let f_low = binary_scale_pow2(pi_low.div_ctx(mean_high, down).0, -1)
   let f_high = binary_scale_pow2(pi_high.div_ctx(mean_low, up).0, -1)
   // ln s >= F (1 - 4 / s^2) >= F (1 - 2^-(p + 2)); the term taken is 16 times that
-  // (4 / s^2 < 2^-(p + 2)), so the model constant has this much slack.
+  // (4 / s^2 < 2^-(p + 2)): slack, not a need.
   let model_low = if mutation.drop_model {
     f_low
   } else {
