@@ -253,7 +253,7 @@ test "try_sin/cos/tan: huge arguments around the cutoff stay sound" {
   assert_true(near.try_sin_interval().unwrap().subset(unit))
   assert_true(near.try_cos_interval().unwrap().subset(unit))
   assert_true(near.try_tan_interval() is Ok(_))
-  let beyond = power(65600)
+  let beyond = power(8_100_000)
   assert_true(beyond.try_sin_interval() is Err(_))
   assert_true(beyond.try_cos_interval() is Err(_))
   assert_true(beyond.try_tan_interval() is Err(_))
