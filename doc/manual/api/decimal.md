@@ -434,6 +434,25 @@ adjusted-exponent limits $e_{\min} \le e_{\max}$, the `clamp` switch, the
 `extended` switch and a tininess rule. No operation reads ambient state: every
 context operation receives its context as an argument.
 
+### `decimal_implementation_e_max`, `decimal_implementation_e_min`, `decimal_precision_max`
+
+The limits of the context parameters that `DecimalContext::try_new` accepts.
+
+```mbti
+pub let decimal_implementation_e_max : Int
+pub let decimal_implementation_e_min : Int
+pub let decimal_precision_max : Int
+```
+
+They are $999\,999\,999$, $-999\,999\,999$ and $999\,999\,999$, the decNumber
+`decContext.h` limits. `try_new` and `new` check `precision`, `e_min` and
+`e_max` against these constants (`precision` in `1..=decimal_precision_max`,
+`e_min` in `decimal_implementation_e_min..=0`, `e_max` in
+`0..=decimal_implementation_e_max`), so the values cannot drift from the
+validation. They bound the context only: the certified elementary functions
+have their own, lower limit ($|e| \le 999\,999$ and $p \le 999\,999$), which is
+documented in [Elementary functions](#elementary-functions).
+
 ### `DecimalContext::new`, `try_new`
 
 `new` builds a context from named parameters and aborts on an invalid one;
@@ -2346,6 +2365,11 @@ import {
 }
 
 // Values
+pub let decimal_implementation_e_max : Int32
+
+pub let decimal_implementation_e_min : Int32
+
+pub let decimal_precision_max : Int32
 
 // Errors
 

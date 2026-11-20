@@ -214,24 +214,46 @@ pub fn DecimalFlags::contains(
 }
 
 ///|
+/// Largest exponent bound that `DecimalContext::try_new` accepts for `e_max`
+/// (and, negated, the smallest for `e_min`). The context parameters are
+/// checked against these three constants, so the values cannot drift from the
+/// validation. The certified elementary functions accept a narrower range
+/// (`|e| <= 999999` and `p <= 999999`); outside it they return NaN with
+/// `invalid_context`. See "DecimalContext::new, try_new" in the `decimal` API
+/// manual (doc/manual/api/decimal.md).
+pub let decimal_implementation_e_max : Int32 = @internal.decimal_exponent_limit
+
+///|
+/// Smallest `e_min` that `DecimalContext::try_new` accepts, the negation of
+/// `decimal_implementation_e_max`. The certified elementary functions have
+/// their own, narrower limit (see `decimal_implementation_e_max`).
+pub let decimal_implementation_e_min : Int32 = -@internal.decimal_exponent_limit
+
+///|
+/// Largest precision that `DecimalContext::try_new` accepts. The certified
+/// elementary functions have their own, lower limit (see
+/// `decimal_implementation_e_max`).
+pub let decimal_precision_max : Int32 = @internal.decimal_exponent_limit
+
+///|
 fn DecimalContext::build(
   precision~ : Int32 = 34,
   rounding~ : RoundingMode = RoundingMode::ToNearestEven,
   decimal_rounding? : DecimalRoundingMode,
-  e_min~ : Int32 = -999_999_999,
-  e_max~ : Int32 = 999_999_999,
+  e_min~ : Int32 = decimal_implementation_e_min,
+  e_max~ : Int32 = decimal_implementation_e_max,
   clamp~ : Bool = false,
   extended~ : Bool = true,
   tininess~ : DecimalTininessDetection = DecimalTininessDetection::BeforeRounding,
 ) -> Result[DecimalContext, String] {
   let bounds = @internal.DecimalExponentBounds::new(precision, e_min, e_max)
   guard bounds.is_valid() else {
-    let reason = if precision <= 0 || precision > 999_999_999 {
-      "precision must be within 1..=999999999"
-    } else if e_min < -999_999_999 || e_min > 0 {
-      "e_min must be within -999999999..=0"
-    } else if e_max < 0 || e_max > 999_999_999 {
-      "e_max must be within 0..=999999999"
+    let reason = if precision <= 0 || precision > decimal_precision_max {
+      "precision must be within 1..=\{decimal_precision_max}"
+    } else if e_min < decimal_implementation_e_min || e_min > 0 {
+      "e_min must be within \{decimal_implementation_e_min}..=0"
+    } else if e_max < 0 || e_max > decimal_implementation_e_max {
+      "e_max must be within 0..=\{decimal_implementation_e_max}"
     } else {
       "e_min must not exceed e_max"
     }
@@ -263,8 +285,8 @@ pub fn DecimalContext::new(
   precision~ : Int32 = 34,
   rounding~ : RoundingMode = RoundingMode::ToNearestEven,
   decimal_rounding? : DecimalRoundingMode,
-  e_min~ : Int32 = -999_999_999,
-  e_max~ : Int32 = 999_999_999,
+  e_min~ : Int32 = decimal_implementation_e_min,
+  e_max~ : Int32 = decimal_implementation_e_max,
   clamp~ : Bool = false,
   extended~ : Bool = true,
   tininess~ : DecimalTininessDetection = DecimalTininessDetection::BeforeRounding,
@@ -290,8 +312,8 @@ pub fn DecimalContext::try_new(
   precision~ : Int32 = 34,
   rounding~ : RoundingMode = RoundingMode::ToNearestEven,
   decimal_rounding? : DecimalRoundingMode,
-  e_min~ : Int32 = -999_999_999,
-  e_max~ : Int32 = 999_999_999,
+  e_min~ : Int32 = decimal_implementation_e_min,
+  e_max~ : Int32 = decimal_implementation_e_max,
   clamp~ : Bool = false,
   extended~ : Bool = true,
   tininess~ : DecimalTininessDetection = DecimalTininessDetection::BeforeRounding,
@@ -436,8 +458,8 @@ fn decimal_exact_work_context() -> DecimalContext {
     precision: 0,
     rounding: RoundingMode::ToNearestEven,
     decimal_rounding: DecimalRoundingMode::HalfEven,
-    e_min: -999_999_999,
-    e_max: 999_999_999,
+    e_min: decimal_implementation_e_min,
+    e_max: decimal_implementation_e_max,
     clamp: false,
     extended: true,
     tininess: DecimalTininessDetection::BeforeRounding,
@@ -491,8 +513,8 @@ pub fn DecimalContext::from_arithmetic_context(
   DecimalContext::try_new(
     precision=ctx.precision,
     rounding=ctx.rounding,
-    e_min=ctx.e_min.unwrap_or(-999_999_999),
-    e_max=ctx.e_max.unwrap_or(999_999_999),
+    e_min=ctx.e_min.unwrap_or(decimal_implementation_e_min),
+    e_max=ctx.e_max.unwrap_or(decimal_implementation_e_max),
     clamp=ctx.clamp,
   )
 }

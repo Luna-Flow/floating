@@ -1,4 +1,9 @@
 ///|
+/// The one bound of the decimal context: the largest precision and the largest
+/// magnitude of `e_min` and `e_max` that a context accepts.
+pub let decimal_exponent_limit : Int32 = 999_999_999
+
+///|
 pub struct DecimalExponentBounds {
   valid_ : Bool
   etiny_ : Int32
@@ -11,7 +16,7 @@ pub fn DecimalExponentBounds::new(
   e_min : Int32,
   e_max : Int32,
 ) -> DecimalExponentBounds {
-  let limit = 999_999_999
+  let limit = decimal_exponent_limit
   let etiny = e_min.to_int64() - precision.to_int64() + 1L
   let etop = e_max.to_int64() - precision.to_int64() + 1L
   {
