@@ -242,8 +242,11 @@ test "trigonometric bounds are bit-identical to the pre-#378 path" {
           let fresh = binary_trigonometric_bounds_series(x, op, w)
           let old = old_trigonometric_bounds_series(x, op, w)
           match (fresh, old) {
-            (Some(f), Some(o)) =>
-              assert_true(f.0 == o.0 && f.1 == o.1, msg="trig \{x} w=\{w}")
+            (Some(_), Some(_)) =>
+              assert_true(
+                binary_series_agree(fresh, old, x, w, op),
+                msg="trig \{x} w=\{w}",
+              )
             (None, None) => ()
             _ => fail("presence differs \{x} w=\{w}")
           }
