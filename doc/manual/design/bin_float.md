@@ -671,6 +671,19 @@ binary logarithm is certainly beyond the range, estimated with
 $\log_2 10$ and a safety margin, overflow or underflow without any
 arithmetic, so `1e100000000` costs nothing.
 
+**Hexadecimal parsing.** The value of a hexSequence is the integer of its hex
+digits times a power of two, so it is exactly a dyadic rational and no
+enclosure is needed: `from_hex_ctx` parses once (the grammar function is shared
+with `from_hex`) and hands the integer and the binary exponent to the same
+dyadic finalizer as the arithmetic operations, which applies the rounding
+direction, the exponent range, subnormals and the tininess rule, and returns
+the flags. A binary exponent beyond the 32-bit range is saturated: the value is
+then above $2^{2^{31}-1}$ or below $2^{-2^{31}+b}$ ($b$ the number of bits of
+the integer), outside every exponent range, so it overflows or underflows
+exactly as the saturated one does. `from_hex` keeps its own range check (a
+parse error beyond the 32-bit range) and its results for every in-range
+sequence.
+
 **Fixed digits.** `to_decimal_string_ctx(x, d)` needs
 $\operatorname{round}(x / 10^{E - d + 1})$ with $E = \lfloor \log_{10}|x|
 \rfloor$. $E$ starts from $\lfloor \operatorname{top}(x) \log_{10} 2 \rfloor$,
