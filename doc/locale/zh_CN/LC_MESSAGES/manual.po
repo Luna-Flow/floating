@@ -9891,7 +9891,7 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 #: manual/design/bench/decimal.md:67
 #: manual/design/bench/decimal_gda.md:64
 #: manual/design/bench/external.md:124
-#: manual/design/bin_float.md:2035
+#: manual/design/bin_float.md:2047
 #: manual/design/bin_float_checked.md:329
 #: manual/design/cli.md:71
 #: manual/design/cli/dispatch.md:48
@@ -11028,7 +11028,7 @@ msgstr "每个区间都携带一个精度标签；二元运算使用较大的标
 #: manual/design/bench/decimal.md:51
 #: manual/design/bench/decimal_gda.md:48
 #: manual/design/bench/external.md:105
-#: manual/design/bin_float.md:1963
+#: manual/design/bin_float.md:1975
 #: manual/design/bin_float_checked.md:199
 #: manual/design/cli.md:52
 #: manual/design/cli/dispatch.md:31
@@ -11108,7 +11108,7 @@ msgstr "目前没有未解决的限制。负次数的装饰 `rootn` 在参数含
 #: manual/design/bench/decimal.md:60
 #: manual/design/bench/decimal_gda.md:57
 #: manual/design/bench/external.md:114
-#: manual/design/bin_float.md:2010
+#: manual/design/bin_float.md:2022
 #: manual/design/bin_float_checked.md:316
 #: manual/design/cli.md:62
 #: manual/design/cli/dispatch.md:38
@@ -12039,6 +12039,8 @@ msgid "RZ"
 msgstr "RZ"
 
 #: manual/design/bin_float.md:223
+#: manual/design/bin_float.md:1882
+#: manual/design/bin_float.md:1884
 #: manual/design/decimal.md:190
 msgid "never"
 msgstr "从不"
@@ -12902,100 +12904,107 @@ msgid "**Problem.** Precision costs integer multiplication and division of $p$-b
 msgstr "**问题。** 精度的代价来自 $p$ 位数的整数乘法和除法，而 $p$ 的范围从 1 到 $2^{28}$。"
 
 #: manual/design/bin_float.md:1873
-msgid "**Choice.** `BinCoeff` stores up to 128 bits inline and larger values as little-endian 32-bit limbs (a host `bigint` on JavaScript), and dispatches on the shorter operand length $n$ in limbs:"
-msgstr "**选择。** `BinCoeff` 将至多 128 位的值内联存储，更大的值存储为小端序的 32 位 limb（在 JavaScript 上为宿主 `bigint`），并按较短操作数的 limb 长度 $n$ 进行分派："
+msgid "**Choice.** `BinCoeff` stores up to 128 bits inline and larger values as little-endian 64-bit limbs (a host `bigint` on JavaScript), and dispatches on the operand length $n$ in 64-bit limbs. Every threshold below is in 64-bit limbs:"
+msgstr "**选择。** `BinCoeff` 内联存储至多 128 位，更大的值以小端 64 位 limb 存储（JavaScript 上为宿主 `bigint`），并按以 64 位 limb 计的操作数长度 $n$ 分派。下面所有阈值都以 64 位 limb 为单位："
 
-#: manual/design/bin_float.md:1877
-msgid "Product"
-msgstr "乘积"
+#: manual/design/bin_float.md:1878
+msgid "Product or square"
+msgstr "积或平方"
 
-#: manual/design/bin_float.md:1877
-msgid "Native"
-msgstr "Native"
+#: manual/design/bin_float.md:1878
+msgid "Native, LLVM"
+msgstr "Native、LLVM"
 
-#: manual/design/bin_float.md:1877
-#: manual/design/decimal.md:1237
-#: manual/design/decimal_gda.md:829
-msgid "LLVM"
-msgstr "LLVM"
-
-#: manual/design/bin_float.md:1877
+#: manual/design/bin_float.md:1878
 msgid "Wasm, Wasm-GC"
 msgstr "Wasm、Wasm-GC"
 
-#: manual/design/bin_float.md:1879
-msgid "schoolbook below"
-msgstr "低于此值用竖式乘法"
-
 #: manual/design/bin_float.md:1880
-msgid "Karatsuba from"
-msgstr "从此值起用 Karatsuba"
+msgid "schoolbook product below"
+msgstr "朴素乘积，低于"
 
 #: manual/design/bin_float.md:1881
-msgid "Toom-3 from"
-msgstr "从此值起用 Toom-3"
+msgid "Karatsuba product from"
+msgstr "Karatsuba 乘积，从"
 
 #: manual/design/bin_float.md:1882
-msgid "two-prime NTT multiply from"
-msgstr "从此值起用双素数 NTT 乘法"
+msgid "Karatsuba product on 32-bit limbs from"
+msgstr "32 位 limb 上的 Karatsuba 乘积，从"
 
 #: manual/design/bin_float.md:1883
+msgid "Karatsuba square from"
+msgstr "Karatsuba 平方，从"
+
+#: manual/design/bin_float.md:1883
+#: manual/design/decimal_gda.md:828
+msgid "off"
+msgstr "关闭"
+
+#: manual/design/bin_float.md:1884
+msgid "square on 32-bit limbs from"
+msgstr "32 位 limb 上的平方，从"
+
+#: manual/design/bin_float.md:1885
+msgid "Toom-3 product from (balanced, where the NTT does not fit)"
+msgstr "Toom-3 乘积，从（平衡情形，NTT 放不下时）"
+
+#: manual/design/bin_float.md:1886
+msgid "two-prime NTT product from"
+msgstr "双素数 NTT 乘积，从"
+
+#: manual/design/bin_float.md:1887
 msgid "NTT square from"
 msgstr "从此值起用 NTT 平方"
 
-#: manual/design/bin_float.md:1884
-msgid "recursive square from"
-msgstr "从此值起用递归平方"
+#: manual/design/bin_float.md:1889
+msgid "LLVM takes the Native values, which are unmeasured there. A product with $m > 2n$ limbs is cut inside the Karatsuba into $n$-limb blocks; a short operand against a long one beyond the NTT cutoff uses the NTT overlap-add. Squaring is a word-range Karatsuba square (three half-size squares $a_0^2$, $a_1^2$ and $(a_0 - a_1)^2$ instead of three products) on Native and LLVM, and the NTT square above its cutoff; Wasm keeps the 32-bit-limb route from 80 limbs, where a 64-bit product costs four `i64.mul`."
+msgstr "LLVM 采用 Native 的值，那里未经测量。具有 $m > 2n$ 个 limb 的乘积在 Karatsuba 内部被切成 $n$ limb 的块；在 NTT 截止点之上，短操作数对长操作数使用 NTT 重叠相加。平方在 Native 与 LLVM 上是字范围 Karatsuba 平方（用 $a_0^2$、$a_1^2$ 与 $(a_0 - a_1)^2$ 三个半尺寸平方代替三个乘积），在其截止点之上用 NTT 平方；Wasm 从 80 个 limb 起保留 32 位 limb 路径，因为 64 位乘积在那里要四次 `i64.mul`。"
 
-#: manual/design/bin_float.md:1886
-msgid "On Native and LLVM squaring runs a word-range Karatsuba square from 36 64-bit limbs (three half-size squares $a_0^2$, $a_1^2$ and $(a_0 - a_1)^2$ instead of three products) and keeps the NTT square for 7168 32-bit limbs and above (measured crossover)."
-msgstr "在 Native 与 LLVM 上，平方从 36 个 64 位 limb 起运行字范围 Karatsuba 平方（用 $a_0^2$、$a_1^2$ 与 $(a_0 - a_1)^2$ 三个半尺寸平方代替三个乘积），并把 NTT 平方保留给 7168 个 32 位 limb 及以上（实测的交叉点）。"
+#: manual/design/bin_float.md:1897
+msgid "Operands with at least 4 limbs of which at most one eighth are nonzero use a sparse product of the nonzero limbs. Division uses a loop over half-limbs for a divisor below $2^{32}$, Knuth's algorithm D on 64-bit digits (32-bit digits on Wasm) below 96 divisor limbs, Burnikel–Ziegler recursion from 96 with leaves of up to 64 limbs, and never the Newton reciprocal (the routine stays for tests); GCD switches from the binary (Stein) algorithm to Lehmer batches above two limbs. The thresholds are measured, per target, by the benchmark suite; they are policy, not semantics. The 32-bit view of the storage exists only for the Wasm routes above."
+msgstr "至少有 4 个 limb、其中非零 limb 不超过八分之一的操作数使用只对非零 limb 做的稀疏乘积。除数小于 $2^{32}$ 时，除法使用按半 limb 的循环；除数少于 96 个 limb 时使用 64 位数字的 Knuth 算法 D（Wasm 上为 32 位数字），从 96 起使用 Burnikel–Ziegler 递归，叶子至多 64 个 limb，从不选用 Newton 倒数（该例程保留用于测试）；GCD 在超过两个 limb 时从二进制（Stein）算法切换为 Lehmer 批处理。这些阈值由基准测试套件针对每个目标实测得出；它们是策略，而非语义。存储的 32 位视图只为上述 Wasm 路径而存在。"
 
-#: manual/design/bin_float.md:1888
-msgid "Sparse operands (few nonzero limbs) use a sparse product, and operands with $m > 2n$ limbs are cut into $n$-limb blocks. Division uses a one-limb loop, Knuth's algorithm D below 48 divisor limbs, Burnikel–Ziegler recursion from 48 and a Newton reciprocal from 1024; GCD switches from the binary (Stein) algorithm to Lehmer batches above four limbs. The thresholds are measured, per target, by the benchmark suite; they are policy, not semantics."
-msgstr "稀疏操作数（非零 limb 很少）使用稀疏乘积，具有 $m > 2n$ 个 limb 的操作数被切分为 $n$ limb 的块。除法使用单 limb 循环，除数少于 48 个 limb 时使用 Knuth 算法 D，从 48 起使用 Burnikel–Ziegler 递归，从 1024 起使用 Newton 倒数；GCD 在超过四个 limb 时从二进制（Stein）算法切换为 Lehmer 批处理。这些阈值由基准测试套件针对每个目标实测得出；它们是策略，而非语义。"
-
-#: manual/design/bin_float.md:1895
+#: manual/design/bin_float.md:1907
 msgid "A Lehmer round is valid only when its single-word digits come from the same bit window of both operands: digits taken from each operand's own top limb have unrelated scales, and the cofactors they produce subtract only a small multiple of the smaller operand per round. Each round therefore keeps $a \\ge b$, runs Euclid on the leading 63 bits of $a$ and the bits of $b$ in the same window, and takes one division step $a \\bmod b$ instead when $b$ has no bits in that window (then $a / b \\ge 2^{62}$) or when the cofactor matrix would make an operand negative or shrink neither. Every matrix applied has determinant $\\pm 1$, so the gcd is unchanged, and a long $a$ is reduced modulo a short $b$ in one step however different their lengths are; below eight limbs of $b$ the loop finishes with plain Euclid."
 msgstr "只有当 Lehmer 轮的单字数字取自两个操作数的同一比特窗口时，该轮才有效：从各操作数自身最高 limb 取出的数字尺度互不相关，由它们产生的余因子每轮只能减去较小操作数的一个小倍数。因此每一轮都保持 $a \\ge b$，对 $a$ 的前 63 位以及 $b$ 在同一窗口中的位运行 Euclid 算法；当 $b$ 在该窗口中没有位（此时 $a / b \\ge 2^{62}$），或余因子矩阵会使某个操作数变为负数、或两者都不缩小时，改为执行一步除法 $a \\bmod b$。所施加的每个矩阵的行列式都是 $\\pm 1$，因此 gcd 不变；无论长度相差多少，长的 $a$ 都会在一步内对短的 $b$ 取模约化；当 $b$ 少于八个 limb 时，循环以普通 Euclid 算法结束。"
 
-#: manual/design/bin_float.md:1907
+#: manual/design/bin_float.md:1919
 msgid "**Why exactness is preserved.** Schoolbook, Karatsuba and Toom-3 evaluate integer polynomial identities, for example"
 msgstr "**为何能保持精确性。** 竖式乘法、Karatsuba 和 Toom-3 计算的是整数多项式恒等式，例如"
 
-#: manual/design/bin_float.md:1914
+#: manual/design/bin_float.md:1926
 msgid "and Toom-3 (evaluation at $0, 1, -1, 2, \\infty$) interpolates with exact divisions by 2 and 3 of signed intermediates known to be multiples, so they are exact integer computations. The NTT is the only modular step. It splits each operand into 16-bit digits, so each coefficient of the digit convolution is at most"
 msgstr "而 Toom-3（在 $0, 1, -1, 2, \\infty$ 处求值）在插值时对已知为倍数的带符号中间量做精确的除以 2 和除以 3，因此它们都是精确的整数计算。NTT 是唯一的模运算步骤。它将每个操作数拆分为 16 位数字，因此数字卷积的每个系数至多为"
 
-#: manual/design/bin_float.md:1923
+#: manual/design/bin_float.md:1935
 msgid "for transform lengths up to $2^{23}$. It computes the convolution modulo the primes $p_1 = 998244353 = 119 \\cdot 2^{23} + 1$ and $p_2 = 754974721 = 45 \\cdot 2^{24} + 1$, both of which have $2^{23}$-th roots of unity, and recombines by the Chinese remainder theorem, which is unique in $[0, p_1 p_2)$ with $p_1 p_2 \\approx 2^{59.4} > 2^{55}$. So the recombined coefficients are the exact integers. The length check precedes every transform; a longer product uses overlapping blocks of admissible length or falls back to Toom-3. Division paths return $(q, r)$ with $n = qd + r$ and $0 \\le r < d$ by construction; the Newton path corrects its approximate quotient with the remainder and aborts if more than two corrections would be needed, which would indicate a bug rather than a numerical event. Because all paths compute the same integers, the choice of algorithm cannot change any rounded result, flag or encoding."
 msgstr "这对至多 $2^{23}$ 的变换长度成立。它对素数 $p_1 = 998244353 = 119 \\cdot 2^{23} + 1$ 和 $p_2 = 754974721 = 45 \\cdot 2^{24} + 1$ 取模计算卷积，两者都有 $2^{23}$ 次单位根，再用中国剩余定理重组，该重组在 $[0, p_1 p_2)$ 中唯一，其中 $p_1 p_2 \\approx 2^{59.4} > 2^{55}$。因此重组得到的系数就是精确的整数。每次变换之前都会先做长度检查；更长的乘积使用长度可接受的重叠块，或回退到 Toom-3。除法路径按构造返回满足 $n = qd + r$ 和 $0 \\le r < d$ 的 $(q, r)$；Newton 路径用余数校正其近似商，若需要超过两次校正则中止，因为这意味着存在缺陷，而非数值现象。由于所有路径计算的是同样的整数，算法的选择不会改变任何舍入结果、标志或编码。"
 
-#: manual/design/bin_float.md:1937
+#: manual/design/bin_float.md:1949
 msgid "Ordering NaN in `compare`"
 msgstr "`compare` 中 NaN 的排序"
 
-#: manual/design/bin_float.md:1939
+#: manual/design/bin_float.md:1951
 msgid "**Problem.** MoonBit's `Compare` trait asks for a three-way comparison that sorting and ordered maps can rely on. IEEE comparison is a partial order: NaN is unordered with everything, itself included."
 msgstr "**问题。** MoonBit 的 `Compare` trait 要求一个可供排序和有序映射依赖的三路比较。IEEE 比较是偏序：NaN 与任何值（包括它自身）都是无序的。"
 
-#: manual/design/bin_float.md:1943
+#: manual/design/bin_float.md:1955
 msgid "**Options.** (1) Abort on NaN, as earlier versions did; every sort of data that might contain a NaN then becomes a crash. (2) Use IEEE `totalOrder`, which is total but distinguishes $-0 < +0$ and puts negative NaNs below $-\\infty$, so `compare` would disagree with numerical equality on zeros. (3) Keep the numerical order on numbers and put all NaNs in one class above it."
 msgstr "**可选方案。** (1) 遇到 NaN 时中止，早期版本即是如此；这样一来，对任何可能含有 NaN 的数据排序都会崩溃。(2) 使用 IEEE `totalOrder`，它是全序，但区分 $-0 < +0$，并把负 NaN 排在 $-\\infty$ 之下，因此 `compare` 在零上会与数值相等不一致。(3) 在数上保持数值顺序，并将所有 NaN 归为位于其上方的同一类。"
 
-#: manual/design/bin_float.md:1950
+#: manual/design/bin_float.md:1962
 msgid "**Choice.** Option (3). Define the key $\\kappa(x) = (0, x)$ for a number and $\\kappa(\\mathrm{NaN}) = (1, 0)$, ordered lexicographically; `compare(x, y)` is the comparison of $\\kappa(x)$ and $\\kappa(y)$, with $-0$ and $+0$ mapped to the same number. A comparison of keys in a totally ordered set is reflexive, transitive and total, so `compare` is a total preorder; it is not antisymmetric ($-0$ and $+0$, or two NaNs with different payloads, compare equal but are different values), which `Compare` does not require. The cost is that `nan > 1` is true under `<`, so code that needs IEEE semantics must use `compare_checked` (error on NaN), `compare_quiet` / `compare_signaling` (four-valued, with flags) or `total_order`. Structural `==` stays the derived `Eq`, because it is the only equality that is a congruence for every method (precision and payload included)."
 msgstr "**选择。** 方案 (3)。对数定义键 $\\kappa(x) = (0, x)$，对 NaN 定义 $\\kappa(\\mathrm{NaN}) = (1, 0)$，按字典序排列；`compare(x, y)` 是 $\\kappa(x)$ 与 $\\kappa(y)$ 的比较，$-0$ 和 $+0$ 映射为同一个数。在全序集中比较键是自反、传递且完全的，因此 `compare` 是一个全预序；它不是反对称的（$-0$ 与 $+0$，或两个载荷不同的 NaN，比较结果相等但却是不同的值），而 `Compare` 并不要求反对称性。代价是在 `<` 下 `nan > 1` 为真，因此需要 IEEE 语义的代码必须使用 `compare_checked`（遇 NaN 报错）、`compare_quiet` / `compare_signaling`（四值，带标志）或 `total_order`。结构性的 `==` 仍是派生的 `Eq`，因为它是对每个方法（包括精度和载荷）都构成同余关系的唯一相等。"
 
-#: manual/design/bin_float.md:1965
+#: manual/design/bin_float.md:1977
 msgid "**Canonical form.** Every finite value produced by the API has $c$ odd or $c = 0, e = 0$, and $\\operatorname{bits}(c) \\le$ its precision; stored exponents never saturate (a saturated exponent is classified as overflow or underflow first)."
 msgstr "**规范形式。** API 产生的每个有限值都满足 $c$ 为奇数或 $c = 0, e = 0$，且 $\\operatorname{bits}(c) \\le$ 为其精度；存储的指数从不饱和（饱和的指数会先被归类为上溢或下溢）。"
 
-#: manual/design/bin_float.md:1969
+#: manual/design/bin_float.md:1981
 msgid "**Correct rounding.** For every arithmetic operation, conversion and elementary function and every context, the returned finite value equals $\\circ(r)$ for the exact real result $r$, with the range rules above. By (R1), $\\circ(r) = r$ and no flag is raised whenever $r \\in F$; `round_ctx` is idempotent."
 msgstr "**正确舍入。** 对每个算术运算、转换和初等函数以及每个上下文，返回的有限值都等于精确实数结果 $r$ 的 $\\circ(r)$，并遵循上述范围规则。由 (R1)，每当 $r \\in F$ 时有 $\\circ(r) = r$ 且不引发任何标志；`round_ctx` 是幂等的。"
 
-#: manual/design/bin_float.md:1974
+#: manual/design/bin_float.md:1986
 msgid ""
 "**Flags.** `inexact` iff $\\circ(r) \\n"
 "e r$; `overflow` implies `inexact`; `underflow` iff tiny (per the context rule) and inexact; `division_by_zero` only for an exact infinite result of finite operands; `invalid_operation` iff a quiet NaN was produced from non-NaN operands or a signaling NaN was consumed. Exceptions to the last rule: `min`, `max`, $\\operatorname{pow}(x, \\pm 0)$, $\\operatorname{pown}(x, 0)$ and $\\operatorname{pow}(1, y)$ accept a signaling NaN without the flag. `combine` is associative, commutative and idempotent."
@@ -13003,83 +13012,83 @@ msgstr ""
 "**标志。** `inexact` 当且仅当 $\\circ(r) \\n"
 "e r$；`overflow` 蕴含 `inexact`；`underflow` 当且仅当结果微小（按上下文规则）且不精确；`division_by_zero` 仅用于有限操作数产生精确无穷结果的情形；`invalid_operation` 当且仅当由非 NaN 操作数产生了静默 NaN，或消耗了信号 NaN。最后一条规则的例外：`min`、`max`、$\\operatorname{pow}(x, \\pm 0)$、$\\operatorname{pown}(x, 0)$ 和 $\\operatorname{pow}(1, y)$ 接受信号 NaN 而不设置该标志。`combine` 满足结合律、交换律和幂等律。"
 
-#: manual/design/bin_float.md:1983
+#: manual/design/bin_float.md:1995
 msgid "**Error model.** Consequently, in the normal range, $|\\circ(r) - r| \\le u|r|$ for nearest and $< 2u|r|$ for directed rounding, with the absolute term $\\eta/2$ (respectively $\\eta$) below $2^{e_{\\min}}$, and subnormal sums and differences are exact."
 msgstr "**误差模型。** 因此，在正规范围内，就近舍入有 $|\\circ(r) - r| \\le u|r|$，定向舍入有 $< 2u|r|$，在 $2^{e_{\\min}}$ 以下另有绝对项 $\\eta/2$（相应地 $\\eta$），而次正规的和与差是精确的。"
 
-#: manual/design/bin_float.md:1987
+#: manual/design/bin_float.md:1999
 msgid "**Monotonicity.** Each operation is monotone in each argument where the real function is, because it is $\\circ \\circ f$ with $\\circ$ monotone; in particular RD and RU results bracket the exact value, which `ball_float` and `sqrt_bounds_for_precision` rely on."
 msgstr "**单调性。** 只要实函数在某个参数上单调，相应运算在该参数上也单调，因为它是 $\\circ \\circ f$ 且 $\\circ$ 单调；特别地，RD 和 RU 的结果夹住精确值，`ball_float` 和 `sqrt_bounds_for_precision` 正依赖于这一点。"
 
-#: manual/design/bin_float.md:1991
+#: manual/design/bin_float.md:2003
 msgid "**Exactness theorems.** `remainder`, `scaleb` in the normal range, `copy_sign`, `neg`, `abs`, `logb` and decoding are exact; the integral roundings never need a second rounding; `fma(a, b, -RN(ab))` is exact without underflow."
 msgstr "**精确性定理。** `remainder`、正规范围内的 `scaleb`、`copy_sign`、`neg`、`abs`、`logb` 以及解码都是精确的；取整运算从不需要第二次舍入；`fma(a, b, -RN(ab))` 在无下溢时是精确的。"
 
-#: manual/design/bin_float.md:1995
+#: manual/design/bin_float.md:2007
 msgid "**Complexity.** Addition is linear in the operand length (and independent of the exponent gap, by the far-operand rule); multiplication follows the kernel table, $O(n^2)$ to $O(n \\log n)$; division and square root cost a constant number of multiplications of the same size at large $n$; `remainder` costs $O(\\log(q_x - q_y))$ modular multiplications; an elementary function evaluates its series at the working precision $w$, and because $w$ grows geometrically the total cost of all attempts is within a constant factor of the last one."
 msgstr "**复杂度。** 加法与操作数长度呈线性关系（且由远距操作数规则，与指数差无关）；乘法遵循内核表格，从 $O(n^2)$ 到 $O(n \\log n)$；在较大的 $n$ 下，除法和平方根的代价为常数次同等规模的乘法；`remainder` 的代价为 $O(\\log(q_x - q_y))$ 次模乘；初等函数在工作精度 $w$ 下对其级数求值，且由于 $w$ 按几何级数增长，所有尝试的总代价不超过最后一次尝试的常数倍。"
 
-#: manual/design/bin_float.md:2004
+#: manual/design/bin_float.md:2016
 msgid "The longer proofs (the far-operand addition rule, `nextUp`, the remainder reduction, the Ziv acceptance test and the NTT bound) are collected in the attachment."
 msgstr "较长的证明（远距操作数加法规则、`nextUp`、余数约简、Ziv 接受测试以及 NTT 界）收录于附件中。"
 
-#: manual/design/bin_float.md:2008
+#: manual/design/bin_float.md:2020
 msgid "[Rounding and exactness proofs for bin_float](../../attachments/design_bin_float_rounding_proofs.typ)"
 msgstr "[bin_float 的舍入与精确性证明](../../attachments/design_bin_float_rounding_proofs.typ)"
 
-#: manual/design/bin_float.md:2012
+#: manual/design/bin_float.md:2024
 msgid "**Host `Double` for anything but `from_double`.** Routing binary16, binary32 or binary128 through `Double` double-rounds, loses signaling NaNs on some targets and cannot represent binary128 at all. Interchange encoding is done on `BinCoeff` bit patterns instead."
 msgstr "**对 `from_double` 以外的格式使用宿主 `Double`。** 让 binary16、binary32 或 binary128 经由 `Double` 会导致双重舍入，在某些目标上丢失信号 NaN，而且根本无法表示 binary128。因此交换编码改为在 `BinCoeff` 位模式上完成。"
 
-#: manual/design/bin_float.md:2016
+#: manual/design/bin_float.md:2028
 msgid "**A fixed number of guard bits.** Three guard bits suffice for addition of two $p$-bit operands, but not for division, square root, conversions from decimal or operands wider than the context. Deciding from exact integer data (round, sticky, remainder sign, midpoint comparison) works for all of them with one finalizer."
 msgstr "**固定数量的保护位。** 三个保护位足以完成两个 $p$ 位操作数的加法，但不足以应对除法、平方根、从十进制的转换或宽于上下文的操作数。依据精确的整数数据（舍入位、粘滞位、余数符号、中点比较）进行判定，则可以用一个终结器处理所有这些情形。"
 
-#: manual/design/bin_float.md:2021
+#: manual/design/bin_float.md:2033
 msgid "**Rounding to $p$ bits, then to the subnormal grid.** This double rounding produces wrong subnormal results; the finalizer shifts once to the coarser of the two positions."
 msgstr "**先舍入到 $p$ 位，再舍入到次正规网格。** 这种双重舍入会产生错误的次正规结果；终结器只做一次移位，移到两个位置中较粗的那个。"
 
-#: manual/design/bin_float.md:2024
+#: manual/design/bin_float.md:2036
 msgid "**Ziv with an estimated error bound.** It requires a separate error analysis for every function and every reduction, and a mistake in it silently returns a wrong last bit. Outward-rounded enclosures make the bound a computed quantity, at the cost of evaluating every operation twice."
 msgstr "**使用估计误差界的 Ziv 方法。** 它需要对每个函数和每种约简单独做误差分析，而其中的错误会悄无声息地返回错误的最后一位。向外舍入的包络使误差界成为计算得出的量，代价是每个运算都要求值两次。"
 
-#: manual/design/bin_float.md:2028
+#: manual/design/bin_float.md:2040
 msgid "**Global flags and rounding state.** IEEE 754 describes flags as sticky global state. A returned `BinaryFlags` value composes with pure code, concurrent code and the `Result` style of `@lf_arith`, and `combine` recovers the sticky behaviour where wanted."
 msgstr "**全局标志与舍入状态。** IEEE 754 将标志描述为粘滞的全局状态。返回的 `BinaryFlags` 值可以与纯代码、并发代码以及 `@lf_arith` 的 `Result` 风格组合，而 `combine` 可在需要时恢复粘滞行为。"
 
-#: manual/design/bin_float.md:2032
+#: manual/design/bin_float.md:2044
 msgid "**`compare` aborting on NaN, or `compare` as `totalOrder`.** See [Ordering NaN in `compare`](#ordering-nan-in-compare)."
 msgstr "**`compare` 遇到 NaN 时中止，或以 `compare` 作为 `totalOrder`。** 参见[`compare` 中 NaN 的排序](#ordering-nan-in-compare)。"
 
-#: manual/design/bin_float.md:2037
+#: manual/design/bin_float.md:2049
 msgid "`bin_float` deliberately does not:"
 msgstr "`bin_float` 有意不做以下事情："
 
-#: manual/design/bin_float.md:2039
+#: manual/design/bin_float.md:2051
 msgid "provide interval or ball arithmetic: enclosures are internal to the certification loops; `ball_float` builds midpoint–radius arithmetic on top of `BinFloat`;"
 msgstr "提供区间或球算术：包络只在认证循环内部使用；`ball_float` 在 `BinFloat` 之上构建中点–半径算术；"
 
-#: manual/design/bin_float.md:2042
+#: manual/design/bin_float.md:2054
 msgid "implement IEEE 754 alternate exception handling (traps, substitution) or sticky global flags: flags are returned values;"
 msgstr "实现 IEEE 754 替代异常处理（陷阱、替换）或粘滞的全局标志：标志是返回值；"
 
-#: manual/design/bin_float.md:2044
+#: manual/design/bin_float.md:2056
 msgid "implement decimal floating-point (`decimal`, `decimal_gda`) or the non-binary IEEE operations on them;"
 msgstr "实现十进制浮点（`decimal`、`decimal_gda`）或其上的非二进制 IEEE 运算；"
 
-#: manual/design/bin_float.md:2046
+#: manual/design/bin_float.md:2058
 msgid "promise any NaN payload for a newly generated NaN (it uses payload 0), or propagate payloads of more than one input;"
 msgstr "为新生成的 NaN 承诺任何特定的 NaN 载荷（它使用载荷 0），或传播多于一个输入的载荷；"
 
-#: manual/design/bin_float.md:2048
+#: manual/design/bin_float.md:2060
 msgid "guarantee completion of an elementary function within any time for every input: certification has a budget, and an exhausted budget is reported, not hidden;"
 msgstr "保证初等函数对每个输入都能在一定时间内完成：认证有预算，预算耗尽会被报告，而不会被隐藏；"
 
-#: manual/design/bin_float.md:2051
+#: manual/design/bin_float.md:2063
 msgid "expose limb layout, thresholds or transform parameters: they may change without notice as long as every result, flag and encoding stays the same;"
 msgstr "暴露 limb 布局、阈值或变换参数：只要每个结果、标志和编码保持不变，它们可能随时更改而不另行通知；"
 
-#: manual/design/bin_float.md:2053
+#: manual/design/bin_float.md:2065
 msgid "claim conformance beyond the finite corpus recorded in [conformance](../conformance/bin_float.md)."
 msgstr "声称超出[符合性](../conformance/bin_float.md)中所记录的有限语料之外的符合性。"
 
@@ -14646,6 +14655,11 @@ msgstr "从 2,816 起"
 msgid "disabled"
 msgstr "已禁用"
 
+#: manual/design/decimal.md:1237
+#: manual/design/decimal_gda.md:829
+msgid "LLVM"
+msgstr "LLVM"
+
 #: manual/design/decimal.md:1238
 msgid "Wasm / Wasm-GC / JS"
 msgstr "Wasm / Wasm-GC / JS"
@@ -15517,10 +15531,6 @@ msgstr "内核位于 `internal/decimal_kernel`，与 `decimal` 共用（参见�
 #: manual/design/decimal_gda.md:826
 msgid "Newton division"
 msgstr "Newton"
-
-#: manual/design/decimal_gda.md:828
-msgid "off"
-msgstr "关闭"
 
 #: manual/design/decimal_gda.md:830
 msgid "Wasm, Wasm-GC, JS"
@@ -20391,59 +20401,63 @@ msgid "The integer square root of a value of up to 256 bits (a 128-bit root, the
 msgstr "至多 256 位的值的整数平方根（128 位的根、分治平方根的基本情形，以及精度至多 128 位时的整个平方根），在 Native、LLVM 和 Wasm-GC 上不再运行逐位循环：至多 128 位时，用双精度估计在 128 位算术上做一步牛顿迭代并以精确比较定位；至多 256 位时，用 Zimmermann 的字级 Karatsuba 平方根（上两个字的平方根，低半部分一次 128 除以 64 位除法，在 256 位平方上做精确定位），对象是经偶数移位规范化后的值。Native 与 LLVM 上 257 到 512 位的值改走以该基本情形为基础的分治平方根，不再用 512 位循环。线性 Wasm 保留循环（其 64 位乘法使字级内核在那里并不更快），Wasm 各目标也保留 512 位的基本情形。与此前内核的成对运行（含上文的系数级路径）：`sqrt` 在 100 与 128 位时于 Native 和 Wasm-GC 上快 2.0 与 2.3 倍，在 Native 上 200 与 256 位快 1.4 与 1.5 倍，512 位快 1.1 倍，2,048 位快 1.05 倍；Wasm-GC 在 256 与 512 位不变，线性 Wasm 各处不变。更大的尺寸由递归中的除法与平方主导，而非基本情形。LLVM 采用 Native 的设置，因所用工具链不提供该后端而未测量。白盒测试把字级内核与循环及 BigInt 参照在 1 到 256 位的每个宽度上比较（随机、全 1、单个位、连续位段，以及各宽度极端根附近的完全平方数的邻近值）。"
 
 #: manual/performance/bin_float.md:40
+msgid "The last stage of the 64-bit limb work moves the remaining coefficient kernels off the 32-bit view of the storage, so that only the 32-bit-limb routes of Wasm (multiplication, squaring and Knuth division on 32-bit limbs) use it, and every cutoff is named and documented in 64-bit limbs (`bin_coeff_ntt_mul_min_words`, `bin_coeff_ntt_square_min_words`, `bin_coeff_toom3_min_words`, `bin_coeff_bz_division_min_words`, `bin_coeff_bz_leaf_words`, `bin_coeff_radix_format_dc_words`, `bin_coeff_sparse_min_words` and the others of the threshold files, the same values halved). Converted: the multiplication and squaring dispatch, the unbalanced product (the block multiplication of the word Karatsuba replaces the `BinCoeff`-level one), the Burnikel–Ziegler recursion, the NTT digit conversion and overlap-add (the transforms keep their 32-bit Montgomery primes), the one-limb division, the sparse product, the bit operations, the byte and power-of-two radix conversions, the Lehmer threshold and the 256-bit square root kernel. The old divide-and-conquer root, its 512-bit kernel and the restoring loop are test-only references now. Retired instructions per operation on Native against the previous build: a sparse product of 8,192-bit operands 3.3 times fewer (4 and 12 nonzero limbs), `bit_and` plus `bit_xor` at 8,192 bits 2.8 times, a division by a one-limb divisor below $2^{32}$ 2.2 times, `from_bytes_be` 1.2 times, and 1.00 to 1.09 times for the products, divisions, NTT products and gcd measured at 2,048 to 300,000 bits; nothing is slower. Results are unchanged: the regression digests recorded with the 32-bit implementation, the BigInt oracle tests, and new tests of the converted kernels against their 32-bit-limb definitions, the Knuth division, the schoolbook product and each other. The cutoffs keep their values (halved from limbs of 32 bits), except that LLVM now carries the Native cutoffs instead of an old copy of the Wasm ones; the elementary bit-burst precisions depend on multiplication cost, which this stage does not change. On Wasm and Wasm-GC the paired wall-clock runs of the radix conversion (in place against divide and conquer, 4,096 to 131,072 bits) put the parsing cutoff at 4,608 chunks as on Native (in place is 1.2 to 6.5 times faster up to 131,072 bits) and keep the formatting cutoff at 64 limbs (4,096 bits), above which divide and conquer is 1.2 to 3 times faster."
+msgstr "64 位 limb 工作的最后一个阶段把其余的系数内核移出存储的 32 位视图，使得只有 Wasm 的 32 位 limb 路径（32 位 limb 上的乘法、平方与 Knuth 除法）仍使用它，并且每个截止点都以 64 位 limb 命名和记录（`bin_coeff_ntt_mul_min_words`、`bin_coeff_ntt_square_min_words`、`bin_coeff_toom3_min_words`、`bin_coeff_bz_division_min_words`、`bin_coeff_bz_leaf_words`、`bin_coeff_radix_format_dc_words`、`bin_coeff_sparse_min_words` 以及阈值文件中的其他常量，数值为原值的一半）。已转换：乘法与平方分派，不平衡乘积（字 Karatsuba 的分块乘法取代 `BinCoeff` 级的分块乘法），Burnikel–Ziegler 递归，NTT 的数字转换与重叠相加（变换仍使用其 32 位 Montgomery 素数），单 limb 除法，稀疏乘积，位运算，字节与 2 的幂基数转换，Lehmer 阈值，以及 256 位平方根内核。旧的分治平方根、其 512 位内核与逐位循环现在只是测试用的参照。Native 上每次运算的 retired instructions 与此前构建相比：8,192 位操作数的稀疏乘积（4 个与 12 个非零 limb）少 3.3 倍，8,192 位的 `bit_and` 加 `bit_xor` 少 2.8 倍，除以小于 $2^{32}$ 的单 limb 除数少 2.2 倍，`from_bytes_be` 少 1.2 倍，在 2,048 至 300,000 位上测量的乘积、除法、NTT 乘积与 gcd 少 1.00 至 1.09 倍；没有任何操作变慢。结果不变：用 32 位实现记录的回归摘要、BigInt 参照测试，以及把转换后的内核与其 32 位 limb 定义、Knuth 除法、朴素乘积及彼此比较的新测试。各截止点保持其数值（由 32 位 limb 折半得到），只是 LLVM 现在使用 Native 的截止点，而不再是 Wasm 截止点的旧副本；初等函数的 bit-burst 精度取决于乘法代价，而本阶段不改变它。在 Wasm 与 Wasm-GC 上，基数转换（就地对分治，4,096 至 131,072 位）的成对墙钟运行把解析截止点定在与 Native 相同的 4,608 个块（至 131,072 位就地快 1.2 至 6.5 倍），并把格式化截止点保持在 64 个 limb（4,096 位），高于它时分治快 1.2 至 3 倍。"
+
+#: manual/performance/bin_float.md:42
 msgid "`BinCoeff::to_radix_string` and `BinCoeff::parse` in a radix that is not a power of two work on one limb array in place below their divide-and-conquer cutoffs. Formatting divides a copy of the 64-bit limbs by the chunk power (9 decimal digits, the largest power of the radix below $2^{32}$) one pass per chunk, and parsing accumulates `value * chunk_power + chunk` in place; each limb is two 32-bit halves with one 64 by 32 bit division or multiplication each, and the digits of a chunk are written into one string builder from a scratch array. Before, every chunk went through the 32-bit limb accessors and allocated a coefficient (about 113 instructions per 32-bit limb step against about 10 now). Chunks of 64 bits (19 decimal digits) are not used: a 128 by 64 bit quotient digit needs two hardware divisions where two 64 by 32 bit steps need one each, so by construction a pass over the limbs costs about the same per digit, and what was wrong was the per-chunk overhead, which is gone either way (not measured separately). The divide-and-conquer conversion starts at 6,144 32-bit limbs (196,608 bits) for formatting and at 4,608 chunks (about 41,000 digits) for parsing on Native and LLVM, measured as the crossover with retired instructions (formatting 65,536 bits 14.5 million against 25.5 million instructions for divide and conquer, 262,144 bits 220 million against 181 million; parsing 131,072 bits 47.2 against 48.3 million, 262,144 bits 201 against 146 million); Wasm and Wasm-GC keep the previous cutoffs of 128 limbs and 64 chunks until measured. Retired instructions per operation on Native, base 10, against the previous build: formatting 4.9, 5.7, 4.2 and 2.0 times fewer at 512, 2,048, 8,192 and 65,536 bits, parsing 6.1, 8.3, 4.7 and 1.5 times; base 16 (a power of two) is unchanged. White-box tests compare both paths with a chunk-by-chunk reference of the previous build for the radixes 3, 5, 7, 10, 12 and 36 at 1 to 513 limbs, with the values $r^{9k}$ and $r^{9k} - 1$ around chunk edges up to 130 chunks, and with each other (in place against divide and conquer, formatting and parsing) on both sides of the old cutoffs."
 msgstr "`BinCoeff::to_radix_string` 与 `BinCoeff::parse` 在基数不是 2 的幂时，于各自的分治截止点以下直接在一个 limb 数组上就地进行转换。格式化时对 64 位 limb 的副本逐块（每块 9 位十进制数字，即小于 $2^{32}$ 的最大基数幂）就地做除法，每块一遍；解析时就地累加 `value * chunk_power + chunk`；每个 limb 视为两个 32 位半字，每个半字一次 64 位除以 32 位的除法或乘法，一块的各位数字从一个暂存数组写入同一个字符串构建器。此前每个块都经过 32 位 limb 访问器并分配一个系数（每个 32 位 limb 步骤约 113 条指令，现在约 10 条）。没有使用 64 位的块（19 位十进制数字）：128 除以 64 位的商位需要两次硬件除法，而两个 64 除以 32 位的步骤各需一次，因此按构造，遍历 limb 的每位数字代价大致相同，而此前的问题在于每块的开销，两种方式下它都已消除（未单独测量）。分治转换在 Native 与 LLVM 上，格式化从 6,144 个 32 位 limb（196,608 位）起，解析从 4,608 个块（约 41,000 位数字）起，按 retired instructions 实测的交叉点确定（格式化 65,536 位为 1,448 万对分治的 2,549 万条指令，262,144 位为 2.2 亿对 1.81 亿；解析 131,072 位为 4,720 万对 4,830 万，262,144 位为 2.01 亿对 1.46 亿）；Wasm 与 Wasm-GC 在测量之前保留原先的 128 个 limb 与 64 个块的截止点。Native 上十进制每次运算的 retired instructions 与此前构建相比：格式化在 512、2,048、8,192 与 65,536 位分别少 4.9、5.7、4.2 与 2.0 倍，解析少 6.1、8.3、4.7 与 1.5 倍；十六进制（2 的幂）不变。白盒测试把两条路径与此前构建的逐块参照实现在基数 3、5、7、10、12 与 36 下于 1 至 513 个 limb 上比较，检验围绕块边界至 130 个块的 $r^{9k}$ 与 $r^{9k} - 1$ 取值，并让就地与分治两种实现（格式化与解析）在旧截止点两侧互相比较。"
 
-#: manual/performance/bin_float.md:42
+#: manual/performance/bin_float.md:44
 msgid "Above 256 bits the integer square root on every target except JavaScript runs Zimmermann's `SqrtRem` on word arrays instead of the `BinCoeff` divide-and-conquer root, which built about twenty-five temporaries per level (a `BinCoeff` operation on a few limbs costs 600 to 700 instructions, more than the division it surrounds). The radicand is shifted left by an even number of bits, below 128, to an even number $n$ of 64-bit limbs with the top two bits not both zero; each level cuts it into blocks of $n/4$ limbs, takes the root and remainder of the upper part from the recursion, one division by twice that root and one squaring of the quotient through the coefficient dispatch, and corrects the root by at most one; a quotient of a whole block is capped one below, which is the root. The remainder of the original radicand comes back from the normalized one with a one-limb product, $(r' + e(2s' - e)) \\gg 2t$ with $e = s' \\bmod 2^t$ for the shift $2t$. The recursion ends in the fixed-width kernels at 256 bits. Retired instructions of one root on Native (release, radicand of twice the root width, paired with the previous build): 2.0 times fewer for a 512-bit root, 1.85 for 2,048 bits, 1.3 for 8,192 bits and 1.04 for 65,536 bits, where the division and the squaring of the recursion dominate; a root of 256 bits (a 512-bit radicand) 1.8 times. On Wasm-GC paired wall-clock runs of one root (radicand of twice the root width, medians of five) are 4.9 and 2.2 times faster at 512 and 2,048 bits and 1.3 and 1.07 times at 8,192 and 65,536 bits; on linear Wasm 2.2, 2.0, 1.4 and 1.05 times; on Native 2.0, 1.8, 1.3 and 1.05 times, in line with the instruction counts. No size is slower on any target, so the word recursion is selected on every target except JavaScript (the per-target constant `bin_coeff_sqrt_array_enabled` stays, and the previous recursion remains as the test reference). White-box tests compare it with the previous recursion, the restoring loop and a BigInt oracle from 129 to 4,097 bits (random, all ones, single bits, zero limbs inside the value, the neighbours of exact squares), and with the defining inequalities up to 33,000 bits."
 msgstr "在除 JavaScript 外的所有目标上，256 位以上的整数平方根改在字数组上运行 Zimmermann 的 `SqrtRem`，不再使用 `BinCoeff` 分治平方根；后者每层要构造约二十五个临时量（对几个 limb 的 `BinCoeff` 运算要 600 到 700 条指令，比它所包围的除法还多）。被开方数先左移一个偶数位（小于 128），得到偶数个 $n$ 个 64 位 limb 且最高两位不全为零；每层把它切成每块 $n/4$ 个 limb，由递归求上半部分的根与余数，再通过系数分派做一次除以该根两倍的除法和一次商的平方，并把根至多修正一次；商为整块时封顶取小一，那就是根。原被开方数的余数由规范化后的余数加一个单 limb 乘积得到，即 $(r' + e(2s' - e)) \\gg 2t$，其中 $e = s' \\bmod 2^t$，移位为 $2t$。递归在 256 位处止于定宽内核。Native 上一次开方的 retired instructions（release，被开方数宽度为根的两倍，与此前构建成对比较）：512 位根少 2.0 倍，2,048 位少 1.85 倍，8,192 位少 1.3 倍，65,536 位少 1.04 倍，那里由递归中的除法与平方主导；256 位根（512 位被开方数）少 1.8 倍。在 Wasm-GC 上，成对墙钟测量（被开方数为根的两倍宽，五次取中位数）显示一次开方在 512 与 2,048 位快 4.9 与 2.2 倍，在 8,192 与 65,536 位快 1.3 与 1.07 倍；线性 Wasm 为 2.2、2.0、1.4 与 1.05 倍；Native 为 2.0、1.8、1.3 与 1.05 倍，与指令数一致。任何目标上都没有更慢的尺寸，因此除 JavaScript 外的所有目标都选用字级递归（按目标的常量 `bin_coeff_sqrt_array_enabled` 保留，此前的递归留作测试参照）。白盒测试在 129 到 4,097 位上把它与此前的递归、逐位循环及 BigInt 参照比较（随机、全 1、单个位、值内部的零 limb、完全平方数的邻近值），并在至多 33,000 位上用定义不等式检验。"
 
-#: manual/performance/bin_float.md:44
+#: manual/performance/bin_float.md:46
 msgid "Squaring on Native and LLVM no longer runs the half-product schoolbook (and, from 16,384 bits, the general product) up to the NTT: from 36 64-bit limbs (2,304 bits) a word-range Karatsuba square computes $a_0^2$, $a_1^2$ and $(a_0 - a_1)^2$ on array ranges, with the middle term $a_0^2 + a_1^2 - (a_0 - a_1)^2$ added in place, and the NTT square starts at 7,168 32-bit limbs (229,376 bits) instead of 768, because the Karatsuba square is cheaper up to there (retired instructions of one square: 12,288 bits 1.64 times fewer, 32,768 bits 2.2, 98,304 bits 1.7, 131,072 bits 1.09, 196,608 bits 1.18, equal from 262,144 bits). The Karatsuba multiplication of the word ranges now takes one scratch array per product, carved into the temporaries of each node, instead of five arrays and two copies per node: 1.02 to 1.04 times fewer instructions for a product of 2,048 to 65,536 bits, the same results. The schoolbook square stays below 36 limbs (the paired runs put the crossover between 32 and 40 limbs). Retired instructions per operation on Native, against the previous build: `sqr` 1.00, 1.00, 1.39 and 1.52 times fewer at 512, 2,048, 8,192 and 65,536 bits, `mul` 1.00, 1.02, 1.04 and 1.04 times, and the integer square root of a 65,536-bit root 1.23 times (its recursion squares). Wasm and Wasm-GC keep their squaring (`bin_coeff_square_words_enabled` is false there until paired wall-clock runs decide), and LLVM takes the Native values, unmeasured. White-box tests compare the scratch-buffer product with the allocating Karatsuba of the previous build and the schoolbook product at and around the cutoff with unbalanced shapes, the Karatsuba square with the schoolbook square and the product, and the dispatch against the schoolbook around 36, 64, 128, 256, 384 and 512 limbs and against the NTT and Karatsuba squares at the NTT cutoff."
 msgstr "在 Native 与 LLVM 上，平方不再在 NTT 之前运行半乘积朴素算法（以及从 16,384 位起的一般乘积）：从 36 个 64 位 limb（2,304 位）起，字范围 Karatsuba 平方在数组区间上计算 $a_0^2$、$a_1^2$ 与 $(a_0 - a_1)^2$，中间项 $a_0^2 + a_1^2 - (a_0 - a_1)^2$ 就地加入；NTT 平方从 7,168 个 32 位 limb（229,376 位）起，而不再是 768，因为在此之前 Karatsuba 平方更便宜（一次平方的 retired instructions：12,288 位少 1.64 倍，32,768 位少 2.2 倍，98,304 位少 1.7 倍，131,072 位少 1.09 倍，196,608 位少 1.18 倍，262,144 位起持平）。字范围 Karatsuba 乘法现在每个乘积只用一个 scratch 数组，按节点划分其临时量，而不是每个节点五个数组和两次拷贝：2,048 至 65,536 位的乘积少 1.02 至 1.04 倍指令，结果不变。朴素平方保持用于 36 个 limb 以下（成对运行把交叉点定在 32 与 40 个 limb 之间）。Native 上每次运算的 retired instructions，与此前构建相比：`sqr` 在 512、2,048、8,192 与 65,536 位分别少 1.00、1.00、1.39 与 1.52 倍，`mul` 为 1.00、1.02、1.04 与 1.04 倍，65,536 位根的整数平方根少 1.23 倍（其递归要做平方）。Wasm 与 Wasm-GC 保持其平方方式（在成对墙钟测量作出决定之前，`bin_coeff_square_words_enabled` 在那里为 false），LLVM 采用 Native 的值，未经测量。白盒测试把 scratch 缓冲乘积与此前构建的逐节点分配 Karatsuba 及朴素乘积在截止点及其附近（含不平衡形状）比较，把 Karatsuba 平方与朴素平方及乘积比较，把分派与 36、64、128、256、384、512 个 limb 附近的朴素乘积比较，并在 NTT 截止点与 NTT 及 Karatsuba 平方比较。"
 
-#: manual/performance/bin_float.md:46
+#: manual/performance/bin_float.md:48
 msgid "Certified constants"
 msgstr "认证常数"
 
-#: manual/performance/bin_float.md:48
+#: manual/performance/bin_float.md:50
 msgid "The certified elementary functions memoize the constant enclosures they need (`ln 2`, `ln 10` and `pi`) per working precision, in small per-constant caches of six precisions up to 65,536 bits. A cached enclosure is the value a recomputation returns, so results never depend on cache state or call order. Before this, every `ln`, `log2`, `log10`, `sin`, `cos`, `tan` and `atan2` call re-ran an `ln 2` series or an `atan(1)` evaluation that cost as much as the function itself. Paired native runs: `ln` 2.4 to 2.6 times faster at 53 to 512 bits, `sin` 2.4 to 3.7 times, decimal `ln` 2.5 times; on Wasm and Wasm-GC `ln` and `sin` are 1.7 to 2.2 times faster. `exp` has no such constant and is unchanged."
 msgstr "认证初等函数按工作精度缓存其所需的常数包络（`ln 2`、`ln 10` 与 `pi`），每个常数一个小缓存，保存六个精度，最高 65,536 位。缓存中的包络就是重新计算会得到的值，因此结果绝不依赖缓存状态或调用顺序。此前每次 `ln`、`log2`、`log10`、`sin`、`cos`、`tan` 与 `atan2` 调用都会重新运行一次 `ln 2` 级数或 `atan(1)` 求值，其代价与函数本身相当。在 Native 上的成对运行中：53 至 512 位的 `ln` 快 2.4 至 2.6 倍，`sin` 快 2.4 至 3.7 倍，十进制 `ln` 快 2.5 倍；在 Wasm 与 Wasm-GC 上 `ln` 和 `sin` 快 1.7 至 2.2 倍。`exp` 没有这类常数，保持不变。"
 
-#: manual/performance/bin_float.md:50
+#: manual/performance/bin_float.md:52
 #: manual/performance_audit.md:108
 msgid "Measurement"
 msgstr "测量"
 
-#: manual/performance/bin_float.md:52
+#: manual/performance/bin_float.md:54
 msgid "The unified Maremark harness under `bench/bin_float` compares coefficient kernels, numeric cores, checked full paths, and semantically equivalent square candidates with balanced blocks. Auto-tune emits a versioned per-scale policy and applies a threshold only to the measured target; every threshold change still requires correctness tests on all targets."
 msgstr "统一的 `bench/bin_float` Maremark harness 使用平衡 block 比较系数核、数值核心、checked 全路径与语义等价的平方候选。auto-tune 输出版本化的逐尺度 policy，并且只把阈值应用到实际测量的 target；所有阈值变更仍须通过全 target 正确性测试。"
 
-#: manual/performance/bin_float.md:54
+#: manual/performance/bin_float.md:56
 msgid "The elementary release gate separately archives the immutable `0.6.1` commit and the dirty candidate tree, injects one identical add/mul/div/sqrt workload, and collects ten alternating AB/BA native pairs at 53, 128, and 512 bits. Maremark blocks release only when the candidate is at least 3% slower and the 95% bootstrap interval has a positive lower bound. Functions first introduced in `0.7.1` run as a candidate workload; this release becomes their first valid baseline, because inventing `0.6.1` timings for APIs that did not exist would be meaningless."
 msgstr "elementary 发布门禁会分别归档不可变的 `0.6.1` commit 与当前 dirty candidate，向两者注入完全相同的 add/mul/div/sqrt workload，并在 53、128、512 bit 收集十组交替 AB/BA native 配对样本。只有 candidate 至少慢 3%，且 Maremark 95% bootstrap 区间下界为正时才阻断发布。`0.7.1` 首次新增的函数只运行 candidate workload；本版本将成为它们的首个合法 baseline，不能为 `0.6.1` 中不存在的 API 伪造耗时。"
 
-#: manual/performance/bin_float.md:63
+#: manual/performance/bin_float.md:65
 msgid "Certified series"
 msgstr "认证级数"
 
-#: manual/performance/bin_float.md:65
+#: manual/performance/bin_float.md:67
 msgid "The enclosure of `exp` evaluates its Taylor series once, not twice, when the argument is exact at the working precision (the usual case), because the lower and upper endpoints are then the same value and only one bound of each series is read. The trigonometric enclosure evaluates only the sine or cosine series that the requested function and quadrant read, two series instead of four for `sin` and `cos`. Both skips return the exact enclosures of before, which white-box tests check against copies of the previous code. Paired native runs: `exp` 1.8 to 2.0 times faster at 53 to 512 bits, decimal `exp` 1.3 to 1.4 times, `sin` 1.15 to 1.2 times on its own; on Wasm and Wasm-GC `exp` is 1.7 to 1.9 times faster."
 msgstr "当参数在工作精度下精确表示（通常如此）时，`exp` 的包络只计算一次泰勒级数而不是两次，因为此时下端点与上端点是同一个值，而每个级数只读取其中一个界。三角函数的包络只计算所请求函数和象限实际读取的正弦或余弦级数，`sin` 与 `cos` 由四个级数减为两个。两种跳过都返回与之前完全相同的包络，白盒测试将其与此前代码的副本逐一比对。在 Native 上的成对运行中：53 至 512 位的 `exp` 快 1.8 至 2.0 倍，十进制 `exp` 快 1.3 至 1.4 倍，仅此一项使 `sin` 快 1.15 至 1.2 倍；在 Wasm 与 Wasm-GC 上 `exp` 快 1.7 至 1.9 倍。"
 
-#: manual/performance/bin_float.md:67
+#: manual/performance/bin_float.md:69
 msgid "Trade-offs"
 msgstr "取舍"
 
-#: manual/performance/bin_float.md:69
+#: manual/performance/bin_float.md:71
 msgid "Schoolbook minimizes setup and allocation, recursive algorithms reduce asymptotic work, and NTT improves very large balanced inputs at the cost of transforms and temporary storage. Every fast path retains an exact fallback, so performance dispatch cannot alter semantics."
 msgstr "schoolbook 降低初始化和分配，递归算法减少渐近工作，NTT 改善超大平衡输入但需要 transform 与临时存储。所有快路径保留精确 fallback，因此性能调度不能改变语义。"
 
-#: manual/performance/bin_float.md:71
+#: manual/performance/bin_float.md:73
 msgid "Fixed-point logarithm"
 msgstr "定点对数函数"
 
-#: manual/performance/bin_float.md:73
+#: manual/performance/bin_float.md:75
 msgid "The certified `ln` enclosure on the normalized argument in [1, 2] (and the `ln 2` and `ln 10` constants built from it) sums the series `2 * sum z^(2k+1) / (2k+1)`, `z = (v - 1) / (v + 1)`, in fixed point when the argument is exact at the working precision. The fraction has 16 guard bits plus the leading zero bits of `z`, so the enclosure keeps `precision + 16` significant bits even for an argument close to 1; every operation rounds down, which makes the sum a lower bound, and a proven error of less than 2 units per term and a tail bound give the upper bound. Arguments that are not exact, or so close to 1 that the fraction would exceed four times the working precision, use the previous floating-point series, so the refinement loop and its working precisions are unchanged. White-box tests check containment of a much tighter enclosure, a bound on the width, and equality of the final correctly rounded results and flags with those of the previous series. Paired runs without the constant cache: `ln` is 5 to 7 times faster on Native at 53 to 2,048 bits, 5.5 to 7.5 times on Wasm and Wasm-GC, and decimal `ln` 6 times."
 msgstr "当参数在工作精度下精确表示时，认证 `ln` 对 [1, 2] 内规范化参数的包络（以及由它构造的 `ln 2` 与 `ln 10` 常数）以定点方式对级数 `2 * sum z^(2k+1) / (2k+1)`（`z = (v - 1) / (v + 1)`）求和。小数部分包含 16 位保护位再加上 `z` 的前导零位数，因此即使参数接近 1，包络也保有 `precision + 16` 个有效位；每一步运算都向下舍入，使和成为下界，每项误差小于 2 个单位的证明以及尾项界给出上界。参数不精确，或接近 1 以致小数位数将超过工作精度的四倍时，仍使用此前的浮点级数，因此细化循环及其工作精度均不变。白盒测试检查该包络包含一个更紧的包络、宽度有界，并检查最终正确舍入的结果与标志与此前的级数一致。不含常数缓存的成对运行：`ln` 在 Native 上于 53 至 2,048 位快 5 至 7 倍，在 Wasm 与 Wasm-GC 上快 5.5 至 7.5 倍，十进制 `ln` 快 6 倍。"
 
@@ -27019,6 +27033,21 @@ msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 #: manual/verification.md:706
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "Product"
+#~ msgstr "乘积"
+
+#~ msgid "Toom-3 from"
+#~ msgstr "从此值起用 Toom-3"
+
+#~ msgid "recursive square from"
+#~ msgstr "从此值起用递归平方"
+
+#~ msgid "On Native and LLVM squaring runs a word-range Karatsuba square from 36 64-bit limbs (three half-size squares $a_0^2$, $a_1^2$ and $(a_0 - a_1)^2$ instead of three products) and keeps the NTT square for 7168 32-bit limbs and above (measured crossover)."
+#~ msgstr "在 Native 与 LLVM 上，平方从 36 个 64 位 limb 起运行字范围 Karatsuba 平方（用 $a_0^2$、$a_1^2$ 与 $(a_0 - a_1)^2$ 三个半尺寸平方代替三个乘积），并把 NTT 平方保留给 7168 个 32 位 limb 及以上（实测的交叉点）。"
+
+#~ msgid "Sparse operands (few nonzero limbs) use a sparse product, and operands with $m > 2n$ limbs are cut into $n$-limb blocks. Division uses a one-limb loop, Knuth's algorithm D below 48 divisor limbs, Burnikel–Ziegler recursion from 48 and a Newton reciprocal from 1024; GCD switches from the binary (Stein) algorithm to Lehmer batches above four limbs. The thresholds are measured, per target, by the benchmark suite; they are policy, not semantics."
+#~ msgstr "稀疏操作数（非零 limb 很少）使用稀疏乘积，具有 $m > 2n$ 个 limb 的操作数被切分为 $n$ limb 的块。除法使用单 limb 循环，除数少于 48 个 limb 时使用 Knuth 算法 D，从 48 起使用 Burnikel–Ziegler 递归，从 1024 起使用 Newton 倒数；GCD 在超过四个 limb 时从二进制（Stein）算法切换为 Lehmer 批处理。这些阈值由基准测试套件针对每个目标实测得出；它们是策略，而非语义。"
 
 #~ msgid "Otherwise increase $w \\leftarrow w + \\max(32, \\lfloor w/2 \\rfloor)$ and repeat; after 12 evaluations report a certification failure."
 #~ msgstr "否则增大 $w \\leftarrow w + \\max(32, \\lfloor w/2 \\rfloor)$ 并重复；求值 12 次之后报告认证失败。"
