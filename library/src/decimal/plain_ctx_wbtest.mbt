@@ -110,8 +110,8 @@ fn plain_contexts() -> Array[DecimalContext] {
       contexts.push(
         DecimalContext::raw(
           precision,
-          decimal_working_e_tiny + precision - 1,
-          decimal_working_e_max,
+          decimal_value_e_tiny + precision - 1,
+          decimal_value_e_max,
           round~,
         ),
       )
@@ -283,7 +283,7 @@ fn plain_check(
 ///|
 fn plain_run(max_digits : Int32, seed : UInt64) -> Array[Int32] raise {
   let wide = DecimalContext::raw(
-    4000, decimal_working_e_tiny, decimal_working_e_max,
+    4000, decimal_value_e_tiny, decimal_value_e_max,
   )
   let contexts = plain_contexts()
   let state = Ref(seed)
@@ -358,7 +358,7 @@ test "plain paths decline what they do not cover" {
 /// within it. The plain paths decline the first, and the second must agree.
 test "plain paths at the end of the range with a rounding carry" {
   let wide = DecimalContext::raw(
-    4000, decimal_working_e_tiny, decimal_working_e_max,
+    4000, decimal_value_e_tiny, decimal_value_e_max,
   )
   let hits = [0, 0, 0]
   for ctx in plain_contexts() {
