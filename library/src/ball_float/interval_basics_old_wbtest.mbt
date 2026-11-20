@@ -105,51 +105,91 @@ fn old_multiplication_bounds(
     let b_nonpositive = b.hi_.is_zero() || b.hi_.sign() == Sign::Negative
     if a_nonnegative && b_nonnegative {
       return (
-        extended_mul(a.lo_, b.lo_, precision, RoundingMode::TowardNegative),
-        extended_mul(a.hi_, b.hi_, precision, RoundingMode::TowardPositive),
+        extended_mul(
+          a.lo_,
+          b.lo_,
+          precision,
+          BinaryRoundingMode::RoundTowardNegative,
+        ),
+        extended_mul(
+          a.hi_,
+          b.hi_,
+          precision,
+          BinaryRoundingMode::RoundTowardPositive,
+        ),
       )
     }
     if a_nonpositive && b_nonpositive {
       return (
-        extended_mul(a.hi_, b.hi_, precision, RoundingMode::TowardNegative),
-        extended_mul(a.lo_, b.lo_, precision, RoundingMode::TowardPositive),
+        extended_mul(
+          a.hi_,
+          b.hi_,
+          precision,
+          BinaryRoundingMode::RoundTowardNegative,
+        ),
+        extended_mul(
+          a.lo_,
+          b.lo_,
+          precision,
+          BinaryRoundingMode::RoundTowardPositive,
+        ),
       )
     }
     if a_nonnegative && b_nonpositive {
       return (
-        extended_mul(a.hi_, b.lo_, precision, RoundingMode::TowardNegative),
-        extended_mul(a.lo_, b.hi_, precision, RoundingMode::TowardPositive),
+        extended_mul(
+          a.hi_,
+          b.lo_,
+          precision,
+          BinaryRoundingMode::RoundTowardNegative,
+        ),
+        extended_mul(
+          a.lo_,
+          b.hi_,
+          precision,
+          BinaryRoundingMode::RoundTowardPositive,
+        ),
       )
     }
     if a_nonpositive && b_nonnegative {
       return (
-        extended_mul(a.lo_, b.hi_, precision, RoundingMode::TowardNegative),
-        extended_mul(a.hi_, b.lo_, precision, RoundingMode::TowardPositive),
+        extended_mul(
+          a.lo_,
+          b.hi_,
+          precision,
+          BinaryRoundingMode::RoundTowardNegative,
+        ),
+        extended_mul(
+          a.hi_,
+          b.lo_,
+          precision,
+          BinaryRoundingMode::RoundTowardPositive,
+        ),
       )
     }
     let lower_left = extended_mul(
       a.lo_,
       b.hi_,
       precision,
-      RoundingMode::TowardNegative,
+      BinaryRoundingMode::RoundTowardNegative,
     )
     let lower_right = extended_mul(
       a.hi_,
       b.lo_,
       precision,
-      RoundingMode::TowardNegative,
+      BinaryRoundingMode::RoundTowardNegative,
     )
     let upper_left = extended_mul(
       a.lo_,
       b.lo_,
       precision,
-      RoundingMode::TowardPositive,
+      BinaryRoundingMode::RoundTowardPositive,
     )
     let upper_right = extended_mul(
       a.hi_,
       b.hi_,
       precision,
-      RoundingMode::TowardPositive,
+      BinaryRoundingMode::RoundTowardPositive,
     )
     return (bin_min(lower_left, lower_right), bin_max(upper_left, upper_right))
   }
@@ -161,8 +201,8 @@ fn old_multiplication_bounds(
       extended_mul(a.hi_, b.hi_, precision, mode),
     )
   }
-  let (d1, d2, d3, d4) = products(RoundingMode::TowardNegative)
-  let (u1, u2, u3, u4) = products(RoundingMode::TowardPositive)
+  let (d1, d2, d3, d4) = products(BinaryRoundingMode::RoundTowardNegative)
+  let (u1, u2, u3, u4) = products(BinaryRoundingMode::RoundTowardPositive)
   (
     bin_min(bin_min(d1, d2), bin_min(d3, d4)),
     bin_max(bin_max(u1, u2), bin_max(u3, u4)),

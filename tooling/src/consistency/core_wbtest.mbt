@@ -6135,7 +6135,7 @@ test "binary checked clamps reject external invalid bounds without aborting" {
 ///|
 test "context try constructors totalize invalid and optional parameters" {
   assert_true(@ball_float.BallContext::try_new(precision=0) is Err(_))
-  assert_true(@ball_float.BallContext::try_new(e_min=2, e_max=1) is Err(_))
+  assert_true(@ball_float.BallContext::try_new(e_max=0) is Err(_))
   assert_true(@bin_float.BinaryContext::try_new(precision=0) is Err(_))
   assert_true(
     @bin_float.BinaryContext::try_new(precision=53, e_max=11) is Ok(_),

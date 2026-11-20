@@ -31,8 +31,8 @@ IEEE Std 1788-2015 (set-based flavor) for `ball_float`. Status is `conforming` w
 
 This is the tightness documentation that §12.10.3 requires, for the inf-sup type
 with `p`-bit `BinFloat` endpoints and the binary64 exponent range
-(`BallContext::new(p)`; `p = 53` is the binary64 inf-sup type of the ITF1788
-corpus). *Tightest* means the result is the hull of the exact range in that type
+(`BallContext::new(precision=p, e_max=1023)`; `p = 53` is the binary64 inf-sup type
+of the ITF1788 corpus). *Tightest* means the result is the hull of the exact range in that type
 (§12.10.1, (27)); *valid* means it contains the exact range ((26)). No operation
 claims the intermediate *accurate* mode. Every operation returns Empty for an
 Empty input. The ITF1788 phases cited below compare both endpoints for equality

@@ -456,7 +456,7 @@ fn parse_interval(
 /// binary64 exponent range, the range the ITF1788 data is written for.
 /// `precision = 53` is exactly `BallContext::binary64()`.
 fn result_context(precision : Int32) -> @ball_float.BallContext {
-  @ball_float.BallContext::new(precision~)
+  @ball_float.BallContext::new(precision~, e_max=1023)
 }
 
 ///|
