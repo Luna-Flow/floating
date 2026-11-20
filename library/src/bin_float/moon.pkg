@@ -26,5 +26,6 @@ options(
     "bin_float_fast_pair_nonjs_wbtest.mbt": [ "not", "js" ],
     "bin_float_fast_coeff_nonjs_wbtest.mbt": [ "not", "js" ],
     "bin_float_fast_nonjs_wbtest.mbt": [ "not", "js" ],
+    "fast_exponent_bound_nonjs_wbtest.mbt": [ "not", "js" ],
   },
 )
