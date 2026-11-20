@@ -214,10 +214,11 @@ fn bin_coeff_mul_large_dispatch(left : Coeff, right : Coeff) -> Coeff {
   let right_len = bin_coeff_word_len(right)
   let shorter_len = Int32::min(left_len, right_len)
   let longer_len = Int32::max(left_len, right_len)
-  if shorter_len >= bin_coeff_ntt_mul_min_words &&
-    bin_coeff_ntt_fits(left, right) {
+  let ntt_wanted = shorter_len >= bin_coeff_ntt_mul_min_words &&
+    left_len + right_len >= bin_coeff_ntt_mul_min_product_words
+  if ntt_wanted && bin_coeff_ntt_fits(left, right) {
     bin_coeff_mul_ntt(left, right)
-  } else if shorter_len >= bin_coeff_ntt_mul_min_words &&
+  } else if ntt_wanted &&
     bin_coeff_ntt_overlap_possible(
       if left_len <= right_len {
         left

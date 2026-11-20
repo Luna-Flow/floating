@@ -10,6 +10,28 @@ let bin_coeff_toom3_min_words = 4096
 let bin_coeff_ntt_mul_min_words = 4096
 
 ///|
+/// Smallest product, in limbs, that the NTT multiplies, besides the limit on
+/// the shorter operand. The NTT costs the same for every product below a power
+/// of two of its transform length (about 39M, 83M to 85M, 172M to 176M and
+/// 373M to 380M instructions at 8,192, 16,384 to 30,720, 32,768 to 61,440 and
+/// 49,152 limbs of product), while Toom-3 and Karatsuba grow smoothly, so with
+/// fast rows the product, not the shorter operand, decides. Per row
+/// implementation, from `Coeff::mul` of `n x n` and unbalanced products
+/// (instructions per call, two-count method, median of five runs): the
+/// assembly rows beat the NTT up to 14,336 limbs (0.40 to 0.86 of its count at
+/// 5,120 to 14,336 limbs, equal at 15,360) and the C rows up to 7,168 limbs
+/// (0.52 to 0.86); the portable loops keep the limit alone (the NTT is cheaper
+/// from 4,096 limbs there). The limit on the shorter operand stays the whole
+/// rule on the other targets (`coeff_limbs_other_nonjs.mbt`).
+let bin_coeff_ntt_mul_min_product_words : Int32 = if bin_limbs_mode == 2 {
+  30720
+} else if bin_limbs_mode == 1 {
+  15360
+} else {
+  0
+}
+
+///|
 /// Operand length, in 64-bit limbs, from which a square uses the two-prime NTT.
 let bin_coeff_ntt_square_min_words = 3584
 
