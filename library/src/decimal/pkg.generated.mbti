@@ -40,6 +40,7 @@ pub fn Decimal::atanpi_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::clamp(Self, min~ : Self, max~ : Self) -> Self
 pub fn Decimal::clamp_checked(Self, min~ : Self, max~ : Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::class_name(Self, DecimalContext) -> String
+pub fn Decimal::class_of(Self, DecimalContext) -> @def.IeeeClass
 pub fn Decimal::classify(Self) -> @arithmetic.FpClass
 pub fn Decimal::classify_contextual(Self) -> @arithmetic.FpClass
 pub fn Decimal::coefficient(Self) -> @bigint.BigInt

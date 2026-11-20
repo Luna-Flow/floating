@@ -356,6 +356,39 @@ pub fn Decimal::class_name(self : Decimal, ctx : DecimalContext) -> String {
 }
 
 ///|
+/// The ten-valued class of IEEE 754-2019 clause 5.7.2; `class_name` is its
+/// textual form.
+pub fn Decimal::class_of(self : Decimal, ctx : DecimalContext) -> IeeeClass {
+  match self.class {
+    FpClass::NaN => if self.signaling_nan { SignalingNaN } else { QuietNaN }
+    FpClass::Infinity =>
+      if self.negative {
+        NegativeInfinity
+      } else {
+        PositiveInfinity
+      }
+    FpClass::Finite =>
+      if self.coefficient.is_zero() {
+        if self.negative {
+          NegativeZero
+        } else {
+          PositiveZero
+        }
+      } else if self.is_subnormal(ctx) {
+        if self.negative {
+          NegativeSubnormal
+        } else {
+          PositiveSubnormal
+        }
+      } else if self.negative {
+        NegativeNormal
+      } else {
+        PositiveNormal
+      }
+  }
+}
+
+///|
 pub fn Decimal::neg(self : Decimal) -> Decimal {
   { ..self, negative: !self.negative, }
 }
