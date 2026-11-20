@@ -175,3 +175,59 @@ test "ln keeps its results when the AGM kernel runs" {
     }
   }
 }
+
+///|
+/// The iteration as it was before the limb-array root, the exact halving without
+/// a copy and the exponent test before the difference: kept as the reference
+/// (every operation through the context forms, the difference at every step).
+fn binary_agm_one_reference(x : BinFloat, p : Int32) -> (BinFloat, Int32)? {
+  let context = binary_working_context(p)
+  let mut u = x
+  let mut v = BinFloat::one_raw(precision=p)
+  let mut n = 0
+  while n < 64 {
+    let next_u = u.mul_ctx(v, context).0.sqrt_ctx(context).0
+    let next_v = binary_scale_pow2(u.add_ctx(v, context).0, -1)
+    u = next_u
+    v = next_v
+    n += 1
+    let difference = if u.compare(v) <= 0 {
+      v.sub_ctx(u, context).0
+    } else {
+      u.sub_ctx(v, context).0
+    }
+    if difference.is_zero() ||
+      binary_top_bound(difference) <= binary_top_bound(v) - p.to_int64() + 3 {
+      return Some((v, n))
+    }
+  }
+  None
+}
+
+///|
+test "AGM iteration equals the reference iteration" {
+  let mut seed = 1234UL
+  let mut compared = 0
+  for p in [64, 65, 100, 128, 200, 256, 640, 1100, 2140, 4200, 8288] {
+    for shift in [10, 33, p / 2, p / 2 + 7, p] {
+      for bits in [Int32::min(p, 3), Int32::min(p, 40), p] {
+        seed += 1UL
+        let x = BinFloat::make_coeff(
+          burst_test_coefficient(bits, seed),
+          -shift - bits,
+          p,
+        )
+        match (binary_agm_one(x, p), binary_agm_one_reference(x, p)) {
+          (Some((a, n)), Some((b, m))) => {
+            assert_eq(n, m)
+            assert_eq(a.compare(b), 0)
+            compared += 1
+          }
+          (None, None) => ()
+          _ => fail("iterations disagree on settling")
+        }
+      }
+    }
+  }
+  assert_true(compared > 100)
+}
