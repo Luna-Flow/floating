@@ -34,7 +34,7 @@ test "ITL unknown operations are unsupported whatever their operands" {
     #|testcase unknown {
     #|  nums2interval 1.0 2.0 = [1.0,2.0];
     #|  rootn [1.0,8.0] 3 = [1.0,2.0];
-    #|  sqrRev [1.0,4.0] = [-2.0,2.0];
+    #|  rsqrt [1.0,4.0] = [0.5,1.0];
     #|  frobnicate 1.0 [1.0,2.0] = true;
     #|}
   let cases = @itl_expr.parse_itl(source).unwrap()
@@ -157,4 +157,25 @@ test "ITL reverse multiplication: one-output, ternary and two-output forms" {
     ),
   ).unwrap()
   assert_false(@itl_expr.execute_case(wrong[0]).passed())
+}
+
+///|
+test "ITL algebraic reverse functions: bare, with a prior, and decorated" {
+  let source =
+    #|testcase algebraic_reverse {
+    #|  sqrRev [1.0,4.0] = [-2.0,2.0];
+    #|  sqrRevBin [1.0,4.0] [0.0,1.2] = [1.0,1.2];
+    #|  absRev [1.0,3.0]_com = [-3.0,3.0]_trv;
+    #|  absRevBin [1.0,3.0] [-2.0,0.5] = [-2.0,-1.0];
+    #|  coshRev [1.0,1.0] = [0.0,0.0];
+    #|  pownRev [16.0,81.0] 4 = [-3.0,3.0];
+    #|  pownRevBin [16.0,81.0] [-1.0,2.5] 4 = [2.0,2.5];
+    #|  pownRev [1.0,infinity] -2 = [-1.0,1.0];
+    #|  pownRevBin [1.0,infinity] [0.0,0.0] -2 = [empty];
+    #|}
+  let cases = @itl_expr.parse_itl(source).unwrap()
+  for case in cases {
+    let result = @itl_expr.execute_case(case)
+    assert_true(result.passed(), msg=case.id() + ": " + result.message())
+  }
 }

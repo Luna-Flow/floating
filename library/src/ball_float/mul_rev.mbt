@@ -182,44 +182,7 @@ pub fn BallFloat::mul_rev(
   if prior.is_empty() {
     return empty_interval(precision)
   }
-  let mut lo : @bin_float.BinFloat? = None
-  let mut hi : @bin_float.BinFloat? = None
-  for piece in mul_rev_pieces(self, c) {
-    // intersection of the piece with the closed prior interval
-    let cmp_lo = piece.lo.compare(prior.lo_)
-    let (low, low_open) = if cmp_lo > 0 {
-      (piece.lo, piece.lo_open)
-    } else if cmp_lo < 0 {
-      (prior.lo_, false)
-    } else {
-      (piece.lo, piece.lo_open)
-    }
-    let cmp_hi = piece.hi.compare(prior.hi_)
-    let (high, high_open) = if cmp_hi < 0 {
-      (piece.hi, piece.hi_open)
-    } else if cmp_hi > 0 {
-      (prior.hi_, false)
-    } else {
-      (piece.hi, piece.hi_open)
-    }
-    let order = low.compare(high)
-    let nonempty = order < 0 || (order == 0 && !low_open && !high_open)
-    if !nonempty {
-      continue
-    }
-    match lo {
-      Some(current) if current.compare(low) <= 0 => ()
-      _ => lo = Some(low)
-    }
-    match hi {
-      Some(current) if current.compare(high) >= 0 => ()
-      _ => hi = Some(high)
-    }
-  }
-  match (lo, hi) {
-    (Some(l), Some(h)) => BallFloat::from_bounds(l, h, precision~)
-    _ => empty_interval(precision)
-  }
+  rev_hull_in_prior(mul_rev_pieces(self, c), prior, precision)
 }
 
 ///|
@@ -271,4 +234,56 @@ pub fn BallFloatDecorated::mul_rev(
     None => self.interval_.mul_rev(c.interval_)
   }
   BallFloatDecorated::new(result, decoration=Trv)
+}
+
+///|
+/// The hull of the part of the union of `pieces` that lies in the closed
+/// interval `prior`. A piece is met only if the two ends, with their open
+/// flags, leave a nonempty set; Empty when no piece is met.
+fn rev_hull_in_prior(
+  pieces : Array[RevPiece],
+  prior : BallFloat,
+  precision : Int32,
+) -> BallFloat {
+  if prior.is_empty() {
+    return empty_interval(precision)
+  }
+  let mut lo : @bin_float.BinFloat? = None
+  let mut hi : @bin_float.BinFloat? = None
+  for piece in pieces {
+    // intersection of the piece with the closed prior interval
+    let cmp_lo = piece.lo.compare(prior.lo_)
+    let (low, low_open) = if cmp_lo > 0 {
+      (piece.lo, piece.lo_open)
+    } else if cmp_lo < 0 {
+      (prior.lo_, false)
+    } else {
+      (piece.lo, piece.lo_open)
+    }
+    let cmp_hi = piece.hi.compare(prior.hi_)
+    let (high, high_open) = if cmp_hi < 0 {
+      (piece.hi, piece.hi_open)
+    } else if cmp_hi > 0 {
+      (prior.hi_, false)
+    } else {
+      (piece.hi, piece.hi_open)
+    }
+    let order = low.compare(high)
+    let nonempty = order < 0 || (order == 0 && !low_open && !high_open)
+    if !nonempty {
+      continue
+    }
+    match lo {
+      Some(current) if current.compare(low) <= 0 => ()
+      _ => lo = Some(low)
+    }
+    match hi {
+      Some(current) if current.compare(high) >= 0 => ()
+      _ => hi = Some(high)
+    }
+  }
+  match (lo, hi) {
+    (Some(l), Some(h)) => BallFloat::from_bounds(l, h, precision~)
+    _ => empty_interval(precision)
+  }
 }

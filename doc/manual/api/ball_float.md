@@ -881,6 +881,57 @@ test "integer functions" {
 }
 ```
 
+### `BallFloat::sqr_rev`, `BallFloat::abs_rev`, `BallFloat::pown_rev` and `BallFloat::cosh_rev`
+
+IEEE 1788-2015 10.5.4 and Table 10.1. Each is the natural reverse extension:
+the hull of $\{\, x \in \boldsymbol{x} \mid \varphi(x) \in \boldsymbol{c} \,\}$,
+where $\boldsymbol{c}$ is the receiver and the prior $\boldsymbol{x}$ is the
+optional last argument (default Entire). The hull is taken after meeting the
+preimage with $\boldsymbol{x}$, not before: for $\boldsymbol{c} = [1, 4]$,
+`sqr_rev` is $[-2, 2]$ and with the prior $[0, 1.2]$ it is $[1, 1.2]$, while
+$[-2, 2] \cap [0, 1.2] = [0, 1.2]$.
+
+```mbti
+pub fn BallFloat::sqr_rev(Self, x? : Self) -> Self
+pub fn BallFloat::abs_rev(Self, x? : Self) -> Self
+pub fn BallFloat::pown_rev(Self, Int, x? : Self) -> Self
+pub fn BallFloat::cosh_rev(Self, x? : Self) -> Self
+```
+
+`pown_rev(c, p, x?)` is the standard's `pownRev(c, x, p)`: the power comes
+before the optional prior. The functions:
+
+| Function | Preimage of $\boldsymbol{c}$ |
+| --- | --- |
+| `sqr_rev` | $\pm\sqrt{\boldsymbol{c} \cap [0, +\infty)}$, the endpoints of the roots rounded outward |
+| `abs_rev` | $\pm(\boldsymbol{c} \cap [0, +\infty))$, exact |
+| `cosh_rev` | $\pm\operatorname{acosh}(\boldsymbol{c} \cap [1, +\infty))$ |
+| `pown_rev`, $p = 0$ | $\mathbb{R}$ if $1 \in \boldsymbol{c}$, else empty ($x^0 = 1$ for every $x$) |
+| `pown_rev`, $p$ even and positive | $\pm\sqrt[p]{\boldsymbol{c} \cap [0, +\infty)}$ |
+| `pown_rev`, $p$ odd and positive | $\sqrt[p]{\boldsymbol{c}}$, one interval ($p = 1$: $\boldsymbol{c}$) |
+| `pown_rev`, $p$ even and negative | $x \ne 0$ with $x^p \in \boldsymbol{c} \cap (0, +\infty)$: $\pm$ the $\lvert p\rvert$-th root of $1/\boldsymbol{c}$, the upper end of $\boldsymbol{c}$ bounding $\lvert x\rvert$ from below and the lower end from above |
+| `pown_rev`, $p$ odd and negative | the positive part of $\boldsymbol{c}$ gives positive $x$ and the negative part gives negative $x$, each by $\sqrt[p]{\cdot}$ with the pole 0 excluded |
+
+An Empty $\boldsymbol{c}$, or a $\boldsymbol{c}$ outside the range of the function
+(negative for `sqr_rev`, below 1 for `cosh_rev`), gives Empty. The root
+endpoints are directed roundings of exact points, so the results are the
+tightest in the type. For a negative power the value $x = 0$ is not in the
+domain, so the component that ends at 0 (when $\boldsymbol{c}$ is unbounded above
+for an even $p$, or reaches the pole) is open there: with $\boldsymbol{c} =
+[1, +\infty)$ and $p = -2$ the set is $[-1, 0) \cup (0, 1]$ and the prior
+$[0, 0]$ gives Empty. The result precision is the largest of the operands'.
+
+```moonbit
+///|
+test "sqr_rev and pown_rev" {
+  let c = iv(1, 4)
+  inspect(c.sqr_rev().lower_bound().to_string() + " " + c.sqr_rev().upper_bound().to_string(), content="-1p1 1p1")
+  assert_true(c.sqr_rev(x=iv(0, 1)) == iv(1, 1))
+  assert_true(iv(16, 81).pown_rev(4, x=iv(0, 5)) == iv(2, 3))
+  assert_true(iv(1, 4).pown_rev(0) == @ball_float.BallFloat::entire())
+}
+```
+
 ### `BallFloat::mul_rev_to_pair` and `BallFloat::mul_rev`
 
 IEEE 1788-2015 10.5.5 and Table 10.1. For intervals $\boldsymbol{b}$ and
@@ -1571,6 +1622,18 @@ pub fn BallFloatDecorated::round_ties_to_even(Self) -> Self
 pub fn BallFloatDecorated::round_ties_to_away(Self) -> Self
 ```
 
+### `BallFloatDecorated::sqr_rev`, `BallFloatDecorated::abs_rev`, `BallFloatDecorated::pown_rev` and `BallFloatDecorated::cosh_rev`
+
+Reverse-mode operations have the trivial decorated version of 11.7.1: NaI if any
+input (the interval or the prior) is NaI, else the bare result decorated `Trv`.
+
+```mbti
+pub fn BallFloatDecorated::sqr_rev(Self, x? : Self) -> Self
+pub fn BallFloatDecorated::abs_rev(Self, x? : Self) -> Self
+pub fn BallFloatDecorated::pown_rev(Self, Int, x? : Self) -> Self
+pub fn BallFloatDecorated::cosh_rev(Self, x? : Self) -> Self
+```
+
 ### `BallFloatDecorated::mul_rev_to_pair` and `BallFloatDecorated::mul_rev`
 
 `mul_rev_to_pair` follows 12.12.3. If either input is NaI both outputs are NaI.
@@ -1876,6 +1939,7 @@ pub struct BallFloat {
   // private fields
 }
 pub fn BallFloat::abs(Self) -> Self
+pub fn BallFloat::abs_rev(Self, x? : Self) -> Self
 pub fn BallFloat::acos(Self) -> Self
 pub fn BallFloat::acosh(Self) -> Self
 pub fn BallFloat::add(Self, Self) -> Self
@@ -1891,6 +1955,7 @@ pub fn BallFloat::ceil(Self) -> Self
 pub fn BallFloat::convex_hull(Self, Self) -> Self
 pub fn BallFloat::cos(Self) -> Self
 pub fn BallFloat::cosh(Self) -> Self
+pub fn BallFloat::cosh_rev(Self, x? : Self) -> Self
 pub fn BallFloat::cospi(Self) -> Self
 pub fn BallFloat::disjoint(Self, Self) -> Bool
 pub fn BallFloat::div(Self, Self) -> Self
@@ -1944,6 +2009,7 @@ pub fn BallFloat::pow(Self, Self) -> Self
 pub fn BallFloat::pow_int_checked(Self, Int32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::pown(Self, Int32) -> Self
+pub fn BallFloat::pown_rev(Self, Int32, x? : Self) -> Self
 pub fn BallFloat::precedes(Self, Self) -> Bool
 pub fn BallFloat::precision(Self) -> Int32
 pub fn BallFloat::radius(Self) -> @bin_float.BinFloat
@@ -1956,6 +2022,7 @@ pub fn BallFloat::sin(Self) -> Self
 pub fn BallFloat::sinh(Self) -> Self
 pub fn BallFloat::sinpi(Self) -> Self
 pub fn BallFloat::sqr(Self) -> Self
+pub fn BallFloat::sqr_rev(Self, x? : Self) -> Self
 pub fn BallFloat::sqrt(Self) -> Self
 pub fn BallFloat::strict_less(Self, Self) -> Bool
 pub fn BallFloat::strict_precedes(Self, Self) -> Bool
@@ -2022,6 +2089,7 @@ pub struct BallFloatDecorated {
   // private fields
 }
 pub fn BallFloatDecorated::abs(Self) -> Self
+pub fn BallFloatDecorated::abs_rev(Self, x? : Self) -> Self
 pub fn BallFloatDecorated::acos(Self) -> Self
 pub fn BallFloatDecorated::acosh(Self) -> Self
 pub fn BallFloatDecorated::add(Self, Self) -> Self
@@ -2037,6 +2105,7 @@ pub fn BallFloatDecorated::ceil(Self) -> Self
 pub fn BallFloatDecorated::convex_hull(Self, Self) -> Self
 pub fn BallFloatDecorated::cos(Self) -> Self
 pub fn BallFloatDecorated::cosh(Self) -> Self
+pub fn BallFloatDecorated::cosh_rev(Self, x? : Self) -> Self
 pub fn BallFloatDecorated::cospi(Self) -> Self
 pub fn BallFloatDecorated::decoration(Self) -> Decoration
 pub fn BallFloatDecorated::disjoint(Self, Self) -> Bool
@@ -2078,6 +2147,7 @@ pub fn BallFloatDecorated::overlap(Self, Self) -> OverlapState?
 pub fn BallFloatDecorated::pos(Self) -> Self
 pub fn BallFloatDecorated::pow(Self, Self) -> Self
 pub fn BallFloatDecorated::pown(Self, Int32) -> Self
+pub fn BallFloatDecorated::pown_rev(Self, Int32, x? : Self) -> Self
 pub fn BallFloatDecorated::precedes(Self, Self) -> Bool
 pub fn BallFloatDecorated::recip(Self) -> Self
 pub fn BallFloatDecorated::rootn(Self, Int32) -> Self
@@ -2088,6 +2158,7 @@ pub fn BallFloatDecorated::sin(Self) -> Self
 pub fn BallFloatDecorated::sinh(Self) -> Self
 pub fn BallFloatDecorated::sinpi(Self) -> Self
 pub fn BallFloatDecorated::sqr(Self) -> Self
+pub fn BallFloatDecorated::sqr_rev(Self, x? : Self) -> Self
 pub fn BallFloatDecorated::sqrt(Self) -> Self
 pub fn BallFloatDecorated::strict_less(Self, Self) -> Bool
 pub fn BallFloatDecorated::strict_precedes(Self, Self) -> Bool

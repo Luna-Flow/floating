@@ -574,6 +574,9 @@ pub fn execute_case(case : ItlCase, precision~ : Int32 = 53) -> ItlResult {
   if case.operation_ == "fma" {
     return execute_fma_case(case, precision)
   }
+  if algebraic_reverse_operation(case.operation_) {
+    return execute_algebraic_reverse_case(case, precision)
+  }
   if case.operation_ == "mulRev" ||
     case.operation_ == "mulRevTen" ||
     case.operation_ == "mulRevToPair" {
@@ -720,6 +723,107 @@ fn execute_fma_case(case : ItlCase, precision : Int32) -> ItlResult {
     }
   }
   let actual = left.fma(multiplier, addend).apply_ctx(result_context(precision)).0
+  let passed = intervals_equal(
+    actual,
+    expected,
+    find_char(case.expected_, '_') is Some(_),
+  )
+  {
+    id_: case.id_,
+    disposition_: Executable,
+    passed_: passed,
+    message_: if passed {
+      ""
+    } else {
+      "expected " + expected.to_string() + ", got " + actual.to_string()
+    },
+  }
+}
+
+///|
+/// `sqrRev`, `absRev`, `coshRev` and `pownRev`, each also in the `...Bin` form
+/// of the corpus that takes the prior interval `x` before the power.
+fn algebraic_reverse_operation(name : String) -> Bool {
+  match name {
+    "sqrRev"
+    | "sqrRevBin"
+    | "absRev"
+    | "absRevBin"
+    | "coshRev"
+    | "coshRevBin"
+    | "pownRev"
+    | "pownRevBin" => true
+    _ => false
+  }
+}
+
+///|
+fn execute_algebraic_reverse_case(
+  case : ItlCase,
+  precision : Int32,
+) -> ItlResult {
+  let name = case.operation_
+  let is_pown = name == "pownRev" || name == "pownRevBin"
+  let has_prior = name.has_suffix("Bin")
+  let intervals = 1 + (if has_prior { 1 } else { 0 })
+  guard case.operands_.length() == intervals + (if is_pown { 1 } else { 0 }) else {
+    return {
+      id_: case.id_,
+      disposition_: Diagnostic("reverse function arity"),
+      passed_: false,
+      message_: name,
+    }
+  }
+  let operands : Array[@ball_float.BallFloatDecorated] = []
+  for index in 0..<intervals {
+    match parse_interval(case.operands_[index], precision) {
+      Some(value) => operands.push(value)
+      None =>
+        return {
+          id_: case.id_,
+          disposition_: Diagnostic("invalid reverse function operand"),
+          passed_: false,
+          message_: case.operands_[index],
+        }
+    }
+  }
+  let mut power = 0
+  if is_pown {
+    match parse_int_option(case.operands_[intervals]) {
+      Some(value) => power = value
+      None =>
+        return {
+          id_: case.id_,
+          disposition_: Diagnostic("invalid reverse power"),
+          passed_: false,
+          message_: case.operands_[intervals],
+        }
+    }
+  }
+  guard parse_interval(case.expected_, precision) is Some(expected) else {
+    return {
+      id_: case.id_,
+      disposition_: Diagnostic("invalid reverse function expected value"),
+      passed_: false,
+      message_: case.expected_,
+    }
+  }
+  let c = operands[0]
+  let prior : @ball_float.BallFloatDecorated? = if has_prior {
+    Some(operands[1])
+  } else {
+    None
+  }
+  let bare = if name.has_prefix("sqrRev") {
+    c.sqr_rev(x?=prior)
+  } else if name.has_prefix("absRev") {
+    c.abs_rev(x?=prior)
+  } else if name.has_prefix("coshRev") {
+    c.cosh_rev(x?=prior)
+  } else {
+    c.pown_rev(power, x?=prior)
+  }
+  let actual = bare.apply_ctx(result_context(precision)).0
   let passed = intervals_equal(
     actual,
     expected,

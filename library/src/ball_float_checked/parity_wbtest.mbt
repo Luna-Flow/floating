@@ -97,3 +97,28 @@ test "mul_rev and mul_rev_to_pair exist on the checked tier and agree with the p
   let (fu, fv) = failed.mul_rev_to_pair(rc)
   assert_true(fu.result() is Err(_) && fv.result() is Err(_))
 }
+
+///|
+test "sqr_rev, abs_rev, cosh_rev and pown_rev exist on the checked tier and agree with the plain tier" {
+  let c = parity_interval(1, 4)
+  let x = parity_interval(0, 9)
+  let rc = parity_result(1, 4)
+  let rx = parity_result(0, 9)
+  assert_true(parity_value(rc.sqr_rev()) == c.sqr_rev())
+  assert_true(parity_value(rc.sqr_rev(x=rx)) == c.sqr_rev(x~))
+  assert_true(parity_value(rc.abs_rev()) == c.abs_rev())
+  assert_true(parity_value(rc.abs_rev(x=rx)) == c.abs_rev(x~))
+  assert_true(parity_value(rc.cosh_rev()) == c.cosh_rev())
+  assert_true(parity_value(rc.cosh_rev(x=rx)) == c.cosh_rev(x~))
+  assert_true(parity_value(rc.pown_rev(3)) == c.pown_rev(3))
+  assert_true(parity_value(rc.pown_rev(-2, x=rx)) == c.pown_rev(-2, x~))
+  let failed = BallFloatResult::from_result(
+    Err(@def.ArithmeticError::domain_error("earlier failure")),
+  )
+  assert_true(failed.sqr_rev().result() is Err(_))
+  assert_true(rc.sqr_rev(x=failed).result() is Err(_))
+  assert_true(failed.abs_rev().result() is Err(_))
+  assert_true(failed.cosh_rev().result() is Err(_))
+  assert_true(failed.pown_rev(2).result() is Err(_))
+  assert_true(rc.pown_rev(2, x=failed).result() is Err(_))
+}

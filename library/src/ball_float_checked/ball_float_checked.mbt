@@ -245,6 +245,57 @@ pub fn BallFloatResult::mul_rev_to_pair(
 }
 
 ///|
+/// `sqrRev(c, x)` of Table 10.1 on the interval part; only an earlier failure
+/// is passed on. The prior `x` is optional (default Entire).
+pub fn BallFloatResult::sqr_rev(
+  self : BallFloatResult,
+  x? : BallFloatResult,
+) -> BallFloatResult {
+  match x {
+    Some(prior) => self.bind(fn(c) { prior.map(fn(p) { c.sqr_rev(x=p) }) })
+    None => self.map(fn(c) { c.sqr_rev() })
+  }
+}
+
+///|
+/// `absRev(c, x)` of Table 10.1; see `sqr_rev`.
+pub fn BallFloatResult::abs_rev(
+  self : BallFloatResult,
+  x? : BallFloatResult,
+) -> BallFloatResult {
+  match x {
+    Some(prior) => self.bind(fn(c) { prior.map(fn(p) { c.abs_rev(x=p) }) })
+    None => self.map(fn(c) { c.abs_rev() })
+  }
+}
+
+///|
+/// `coshRev(c, x)` of Table 10.1; see `sqr_rev`.
+pub fn BallFloatResult::cosh_rev(
+  self : BallFloatResult,
+  x? : BallFloatResult,
+) -> BallFloatResult {
+  match x {
+    Some(prior) => self.bind(fn(c) { prior.map(fn(p) { c.cosh_rev(x=p) }) })
+    None => self.map(fn(c) { c.cosh_rev() })
+  }
+}
+
+///|
+/// `pownRev(c, x, p)` of Table 10.1; see `sqr_rev`. The prior is the optional
+/// last argument.
+pub fn BallFloatResult::pown_rev(
+  self : BallFloatResult,
+  p : Int32,
+  x? : BallFloatResult,
+) -> BallFloatResult {
+  match x {
+    Some(prior) => self.bind(fn(c) { prior.map(fn(q) { c.pown_rev(p, x=q) }) })
+    None => self.map(fn(c) { c.pown_rev(p) })
+  }
+}
+
+///|
 pub fn BallFloatResult::recip(self : BallFloatResult) -> BallFloatResult {
   self.map(fn(value) { value.recip() })
 }
