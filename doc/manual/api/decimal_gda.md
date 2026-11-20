@@ -1221,31 +1221,51 @@ pub impl Div for Decimal
 pub impl Neg for Decimal
 ```
 
-Let $P$ be the larger precision attribute of the operands. `+`, `-` and `/`
-round half to even to $P$ digits and then remove trailing zeros; `*` returns
-the exact product (it is never rounded) with attribute $P$. A result whose
-adjusted exponent would exceed $2^{31}-1$ is a signed infinity, and one that
-needs an exponent below $-2^{31}$ is rounded half to even to that exponent,
-possibly to a signed zero (`1E+1500000000 * 1E+1500000000` is `inf`). Special values
-follow IEEE rules without signals: NaN operands give a quiet NaN,
-$\infty - \infty$, $0 \times \infty$, $0/0$ and $\infty/\infty$ give NaN,
-$x/0$ gives a signed infinity and $x/\infty$ gives $+0$. `neg` is
+Each operator runs the free function of the same name in a private working
+context and returns its value: precision $P$, the larger precision attribute of
+the operands, half-even rounding, the extended rules, no clamp and no traps.
+The result is therefore a member of the cohort GDA prescribes: `+` and `-`
+keep the smaller exponent (`1.10 + 3.50` is `4.60`), `*` adds the exponents,
+`/` starts from the difference of the exponents and removes only the trailing
+zeros that exact quotients allow (`1.5 / 0.5` is `3`, `1.50 / 0.5` is `3.0`),
+and a product or a quotient with more than $P$ digits is rounded to $P$ digits
+(`*` is no longer exact). `x + 0 == x` and `x * 1 == x` hold because equality
+compares values, not members of the cohort, for every stored finite value
+whose adjusted exponent is at most $2^{31}-2$ and whose exponent is at least
+$-2^{31}+3$ (the range below). A value stored outside that range (a finite
+`Decimal` can still be built with the adjusted exponent $2^{31}-1$ or with an
+exponent down to $-2^{31}$) is overflowed or rounded by the operators, so the
+identity does not hold for it today; a later release restricts what can be
+stored to this range.
+
+The working exponent range cannot be built with
+[`GdaContext::new`](#gdacontextnew-gdacontexttry_new), because GDA limits the
+exponent range of a context to $\pm 999{,}999{,}999$ and this one fills the
+`Int` range: the largest adjusted exponent is $2^{31}-2 = 2{,}147{,}483{,}646$
+and the smallest exponent is $\text{Etiny} = -2^{31}+3 = -2{,}147{,}483{,}645$
+for every $P$ (so `Etiny` is always a valid `Int` exponent). A result above the range is a signed infinity
+(`1E+1500000000 * 1E+1500000000` is `inf`); one below it is rounded half to
+even to `Etiny`, possibly to a signed zero. Special values follow IEEE rules
+without signals: NaN operands give a quiet NaN, $\infty - \infty$,
+$0 \times \infty$, $0/0$ and $\infty/\infty$ give NaN, $x/0$ gives a signed
+infinity and $x/\infty$ gives a signed zero. Use the free functions with a
+`GdaContext` when you need another precision, rounding, range or the signals.
+`neg` is
 [`Decimal::neg`](#decimalneg-decimalabs-decimalcopy-decimalcopy_abs-decimalcopy_negate-decimalcopy_sign).
 
-### `Decimal::div_checked`, `Decimal::sqrt`
+### `Decimal::sqrt`
 
-These are checked conveniences that use a default context of the larger
-operand precision.
+`sqrt` is the square root in the same working context as the operators, with
+the value's own precision attribute.
 
 ```mbti
-pub fn Decimal::div_checked(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Decimal::sqrt(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Decimal::sqrt(Self) -> Self
 ```
 
-`div_checked` divides in a working context of the value's own precision attribute and returns
-`Err(division_by_zero)` for a zero divisor and `Err(domain_error)` for an
-invalid division. `sqrt` takes the square root at the value's own precision
-attribute and returns `Err(domain_error)` for negative operands.
+A negative operand gives NaN, as the free function [`sqrt`](#sqrt-exp-ln-log10) does. The
+checked forms are `sqrt_checked` and `DivChecked::div_checked`; the
+`Decimal::div_checked` method is removed (use `1 / 0` for the infinity, or
+`divide` with a trapping `GdaContext` for an error).
 
 ```moonbit
 ///|
@@ -1256,7 +1276,7 @@ test "context-free ordering and operators" {
   inspect(@decimal_gda.Decimal::nan() == @decimal_gda.Decimal::nan(), content="true")
   inspect(d("1").compare(@decimal_gda.Decimal::nan()), content="-1")
   inspect(d("1").compare_checked(@decimal_gda.Decimal::nan()) is Err(_), content="true")
-  inspect(d("1.10") + d("2.20"), content="3.3")
+  inspect(d("1.10") + d("2.20"), content="3.30")
   inspect(d("1.10") * d("2.20"), content="2.4200")
   inspect(d("1") / d("3"), content="0.3333333333333333333333333333333333")
   inspect(d("5").clamp(min=d("0"), max=d("3")), content="3")
@@ -1519,8 +1539,8 @@ without exponent bounds within $\pm 999\,999$, as in the decTest rows
 `powx1183` and `powx1184`), `Err(domain_error)` for other invalid results,
 and `pow_nat_checked` returns `Err(unsupported)` for exponents above
 999,999,999. `DivChecked::div_checked`
-divides under the given context with the same errors as
-[`Decimal::div_checked`](#decimaldiv_checked-decimalsqrt).
+divides under the given context and returns `Err(division_by_zero)` for a zero
+divisor and `Err(domain_error)` for an invalid division.
 
 ### `FromNat`, `FromInteger` and the `luna-generic` algebra traits
 
@@ -1718,7 +1738,6 @@ pub fn Decimal::copy_abs(Self) -> Self
 pub fn Decimal::copy_negate(Self) -> Self
 pub fn Decimal::copy_sign(Self, Self) -> Self
 pub fn Decimal::div(Self, Self) -> Self
-pub fn Decimal::div_checked(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::div_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Decimal::epsilon_contextual(@arithmetic.ArithmeticContext) -> Self
 pub fn Decimal::equal(Self, Self) -> Bool
@@ -1769,7 +1788,7 @@ pub fn Decimal::quiet_nan(payload? : @bigint.BigInt, negative? : Bool, precision
 pub fn Decimal::same_quantum(Self, Self) -> Bool
 pub fn Decimal::sign(Self) -> @def.Sign
 pub fn Decimal::signaling_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int32) -> Self
-pub fn Decimal::sqrt(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Decimal::sqrt(Self) -> Self
 pub fn Decimal::sqrt_checked(Self, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::sqrt_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Decimal::sub(Self, Self) -> Self

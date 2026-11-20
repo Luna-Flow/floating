@@ -393,8 +393,9 @@ test "decimal plain add normalizes the GDA unit accumulator directly" {
   let sum = Decimal::from_string("999.999", precision=7)
     .unwrap()
     .add(Decimal::from_string("0.001", precision=7).unwrap())
-  assert_eq(sum.coefficient.to_bigint(), 1N)
-  assert_eq(sum.exponent10, 3)
+  // the sum is exact at the least exponent: 1000.000, not the reduced 1E+3
+  assert_eq(sum.coefficient.to_bigint(), 1000000N)
+  assert_eq(sum.exponent10, -3)
   assert_false(sum.negative)
 
   let cancellation = Decimal::from_string("1.20", precision=7)
@@ -409,14 +410,15 @@ test "decimal plain add avoids expanding absorbed extreme exponents" {
   let high = Decimal::from_string("1E+1000000000", precision=7).unwrap()
   let tiny = Decimal::from_string("1E-1000000000", precision=7).unwrap()
   let sum = high.add(tiny)
-  assert_eq(sum.coefficient.to_bigint(), 1N)
-  assert_eq(sum.exponent10, 1000000000)
+  // inexact: seven digits at the least exponent, not reduced
+  assert_eq(sum.coefficient.to_bigint(), 1000000N)
+  assert_eq(sum.exponent10, 999999994)
   assert_eq(sum.precision_, 7)
 
   let zero = Decimal::from_string("0E-1000000000", precision=7).unwrap()
   let zero_sum = high.add(zero)
-  assert_eq(zero_sum.coefficient.to_bigint(), 1N)
-  assert_eq(zero_sum.exponent10, 1000000000)
+  assert_eq(zero_sum.coefficient.to_bigint(), 1000000N)
+  assert_eq(zero_sum.exponent10, 999999994)
 }
 
 ///|
@@ -424,7 +426,7 @@ test "decimal plain add preserves half-even absorption boundaries" {
   let even_tie = Decimal::from_string("1", precision=3)
     .unwrap()
     .add(Decimal::from_string("0.005", precision=3).unwrap())
-  assert_eq(even_tie.to_string(), "1")
+  assert_eq(even_tie.to_string(), "1.00")
 
   let odd_tie = Decimal::from_string("1.01", precision=3)
     .unwrap()

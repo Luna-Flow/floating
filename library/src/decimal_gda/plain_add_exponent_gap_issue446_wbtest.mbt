@@ -75,7 +75,7 @@ fn exact_plain_sum(a : Decimal, b : Decimal, precision : Int32) -> Decimal {
 test "issue 446: the sticky absorption gives the result of the exact aligned sum" {
   // Oracle: the exact aligned sum rounded once half-even to the larger operand
   // precision, the computation the plain operators made before the absorption
-  // (the result is compared as a representation, cohort included). The gaps
+  // (the result is compared as a value: the plain operators now return the least exponent, not the reduced cohort member). The gaps
   // straddle the point where the absorption starts.
   let coefficients : Array[BigInt] = [
     1N, 5N, 9N, 10N, 12345N, 99999N, 100000N, 5000000000000N, 9999999999999999999999999999999999N,
@@ -116,14 +116,8 @@ test "issue 446: the sticky absorption gives the result of the exact aligned sum
                 precision,
               )
               let expected = exact_plain_sum(high, low, precision)
-              inspect(
-                (high + low).to_string() == expected.to_string(),
-                content="true",
-              )
-              inspect(
-                (low + high).to_string() == expected.to_string(),
-                content="true",
-              )
+              inspect(high + low == expected, content="true")
+              inspect(low + high == expected, content="true")
             }
           }
         }

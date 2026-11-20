@@ -1042,7 +1042,7 @@ msgstr "NaI はコンテキストの精度を持つ NaI のままです。"
 #: manual/api/bin_float.md:2279
 #: manual/api/bin_float_checked.md:817
 #: manual/api/decimal.md:2025
-#: manual/api/decimal_gda.md:1385
+#: manual/api/decimal_gda.md:1405
 #: manual/api/def.md:414
 #: manual/api/frontend/gda_expr.md:457
 #: manual/api/frontend/itl_expr.md:263
@@ -1121,7 +1121,7 @@ msgstr "使われるのは `ctx.precision` だけです。オペランドは `wi
 #: manual/api/consistency.md:50
 #: manual/api/decimal.md:2223
 #: manual/api/decimal_checked.md:408
-#: manual/api/decimal_gda.md:1579
+#: manual/api/decimal_gda.md:1599
 #: manual/api/decimal_gda_checked.md:318
 #: manual/api/def.md:428
 #: manual/api/differential.md:97
@@ -1143,7 +1143,7 @@ msgstr "公開インターフェース全体"
 
 #: manual/api/ball_float.md:1828
 #: manual/api/decimal.md:2225
-#: manual/api/decimal_gda.md:1581
+#: manual/api/decimal_gda.md:1601
 #: manual/api/frontend/gda_expr.md:510
 #: manual/api/frontend/itl_expr.md:278
 #: manual/api/frontend/mpfr_expr.md:540
@@ -2409,7 +2409,7 @@ msgid "The syntax is the IEEE 754-2019 §5.12.3 hexSequence: an optional sign, `
 msgstr "構文は IEEE 754-2019 §5.12.3 の hexSequence です。省略可能な符号、`0x` または `0X`、小数点を高々 1 つ含む 16 進数字（`1.8`、`.8`、`1.`）、そして必須の `p` または `P` の指数（省略可能な符号と 10 進数字）からなります。値は 16 進の仮数に $2^{\\text{exponent}}$ を掛けたもので、`0x3p-1` と `0x1.8p0` はどちらも $1.5$ です。`from_hex(s, p)` は最近接偶数で精度 `p` に 1 回だけ丸め、フラグを報告しません。`p` が `1..=binary_precision_max` の範囲外なら `Err` です。`from_hex_ctx(s, context)` は §5.12.3 の変換です。`context` の丸め方向、精度、指数範囲、tininess 規則のもとで正確な値を 1 回だけ丸め、`from_string_ctx` と同様に `inexact`、`underflow`、`overflow` のフラグを返します。32 ビットの範囲を超える指数は、ここでは構文エラーではなくオーバーフローまたはアンダーフローになります。どちらも、大文字小文字を問わず省略可能な符号付きの `inf`、`infinity`、`nan`、`snan`（§5.12.1）を受け付け、`snan` はシグナリング NaN になります。前後の空白は取り除かれ、それ以外の文字列は `parse_error` です。`to_hex` は格納された係数を小文字で出力し、ゼロは `0x0p0` または `-0x0p0`、`nan`/`inf` は符号付きで出力します。"
 
 #: manual/api/bin_float.md:1315
-#: manual/api/decimal_gda.md:1266
+#: manual/api/decimal_gda.md:1286
 #: manual/design/decimal.md:688
 #: manual/tutorial/decimal_gda.md:344
 msgid "Interchange encodings"
@@ -5673,130 +5673,134 @@ msgid "These implement `+`, `-`, `*`, `/` and unary `-` without a context."
 msgstr "これらはコンテキストなしで `+`、`-`、`*`、`/` と単項の `-` を実装します。"
 
 #: manual/api/decimal_gda.md:1224
-msgid "Let $P$ be the larger precision attribute of the operands. `+`, `-` and `/` round half to even to $P$ digits and then remove trailing zeros; `*` returns the exact product (it is never rounded) with attribute $P$. A result whose adjusted exponent would exceed $2^{31}-1$ is a signed infinity, and one that needs an exponent below $-2^{31}$ is rounded half to even to that exponent, possibly to a signed zero (`1E+1500000000 * 1E+1500000000` is `inf`). Special values follow IEEE rules without signals: NaN operands give a quiet NaN, $\\infty - \\infty$, $0 \\times \\infty$, $0/0$ and $\\infty/\\infty$ give NaN, $x/0$ gives a signed infinity and $x/\\infty$ gives $+0$. `neg` is [`Decimal::neg`](#decimalneg-decimalabs-decimalcopy-decimalcopy_abs-decimalcopy_negate-decimalcopy_sign)."
-msgstr "$P$ をオペランドの精度属性のうち大きいほうとします。`+`、`-`、`/` は $P$ 桁に half to even で丸めてから末尾のゼロを除去します。`*` は属性 $P$ を持つ正確な積を返します（丸められることはありません）。調整済み指数が $2^{31}-1$ を超える結果は符号付き無限大になり、$-2^{31}$ より小さい指数を必要とする結果はその指数へ half to even で丸められ、符号付きゼロになることもあります（`1E+1500000000 * 1E+1500000000` は `inf`）。特殊値はシグナルなしで IEEE の規則に従います。NaN のオペランドは quiet NaN を与え、$\\infty - \\infty$、$0 \\times \\infty$、$0/0$、$\\infty/\\infty$ は NaN を、$x/0$ は符号付き無限大を、$x/\\infty$ は $+0$ を与えます。`neg` は [`Decimal::neg`](#decimalneg-decimalabs-decimalcopy-decimalcopy_abs-decimalcopy_negate-decimalcopy_sign) です。"
+msgid "Each operator runs the free function of the same name in a private working context and returns its value: precision $P$, the larger precision attribute of the operands, half-even rounding, the extended rules, no clamp and no traps. The result is therefore a member of the cohort GDA prescribes: `+` and `-` keep the smaller exponent (`1.10 + 3.50` is `4.60`), `*` adds the exponents, `/` starts from the difference of the exponents and removes only the trailing zeros that exact quotients allow (`1.5 / 0.5` is `3`, `1.50 / 0.5` is `3.0`), and a product or a quotient with more than $P$ digits is rounded to $P$ digits (`*` is no longer exact). `x + 0 == x` and `x * 1 == x` hold because equality compares values, not members of the cohort, for every stored finite value whose adjusted exponent is at most $2^{31}-2$ and whose exponent is at least $-2^{31}+3$ (the range below). A value stored outside that range (a finite `Decimal` can still be built with the adjusted exponent $2^{31}-1$ or with an exponent down to $-2^{31}$) is overflowed or rounded by the operators, so the identity does not hold for it today; a later release restricts what can be stored to this range."
+msgstr "各演算子は、同名の自由関数を非公開の作業コンテキストで実行してその値を返します。精度 $P$ はオペランドの精度属性の大きいほう、丸めは偶数丸め（half-even）、拡張規則、クランプなし、トラップなしです。そのため結果は GDA が定める同値類のメンバーになります。`+` と `-` は小さいほうの指数を保ち（`1.10 + 3.50` は `4.60`）、`*` は指数を加え、`/` は指数の差から始めて、正確な商が許す末尾のゼロだけを取り除きます（`1.5 / 0.5` は `3`、`1.50 / 0.5` は `3.0`）。$P$ 桁より多い積や商は $P$ 桁に丸められます（`*` はもう正確ではありません）。等価比較は同値類のメンバーではなく値を比べるため、`x + 0 == x` と `x * 1 == x` は成り立ちます。"
 
-#: manual/api/decimal_gda.md:1237
-msgid "These are checked conveniences that use a default context of the larger operand precision."
-msgstr "これらは、大きいほうのオペランド精度の既定コンテキストを使う checked な便利関数です。"
+#: manual/api/decimal_gda.md:1241
+msgid "The working exponent range cannot be built with [`GdaContext::new`](#gdacontextnew-gdacontexttry_new), because GDA limits the exponent range of a context to $\\pm 999{,}999{,}999$ and this one fills the `Int` range: the largest adjusted exponent is $2^{31}-2 = 2{,}147{,}483{,}646$ and the smallest exponent is $\\text{Etiny} = -2^{31}+3 = -2{,}147{,}483{,}645$ for every $P$ (so `Etiny` is always a valid `Int` exponent). A result above the range is a signed infinity (`1E+1500000000 * 1E+1500000000` is `inf`); one below it is rounded half to even to `Etiny`, possibly to a signed zero. Special values follow IEEE rules without signals: NaN operands give a quiet NaN, $\\infty - \\infty$, $0 \\times \\infty$, $0/0$ and $\\infty/\\infty$ give NaN, $x/0$ gives a signed infinity and $x/\\infty$ gives a signed zero. Use the free functions with a `GdaContext` when you need another precision, rounding, range or the signals. `neg` is [`Decimal::neg`](#decimalneg-decimalabs-decimalcopy-decimalcopy_abs-decimalcopy_negate-decimalcopy_sign)."
+msgstr "作業用の指数範囲は [`GdaContext::new`](#gdacontextnew-gdacontexttry_new) では作れません。GDA はコンテキストの指数範囲を $\\pm 999{,}999{,}999$ に制限していますが、この範囲は `Int` 全体を占めるからです。どの $P$ でも、最大の調整指数は $2^{31}-2 = 2{,}147{,}483{,}646$、最小の指数は $\\text{Etiny} = -2^{31}+3 = -2{,}147{,}483{,}645$ です（したがって `Etiny` は常に有効な `Int` の指数です）。範囲を上回る結果は符号付きの無限大になり（`1E+1500000000 * 1E+1500000000` は `inf`）、下回る結果は偶数丸め（half-even）で `Etiny` に丸められ、符号付きのゼロになることがあります。特殊値は IEEE の規則に従い、シグナルは出しません。NaN のオペランドは quiet NaN を返し、$\\infty - \\infty$、$0 \\times \\infty$、$0/0$、$\\infty/\\infty$ は NaN、$x/0$ は符号付きの無限大、$x/\\infty$ は符号付きのゼロを返します。別の精度、丸め、範囲、あるいはシグナルが必要なときは、`GdaContext` を渡して自由関数を使ってください。`neg` は [`Decimal::neg`](#decimalneg-decimalabs-decimalcopy-decimalcopy_abs-decimalcopy_negate-decimalcopy_sign) です。"
 
-#: manual/api/decimal_gda.md:1245
-msgid "`div_checked` divides in a working context of the value's own precision attribute and returns `Err(division_by_zero)` for a zero divisor and `Err(domain_error)` for an invalid division. `sqrt` takes the square root at the value's own precision attribute and returns `Err(domain_error)` for negative operands."
-msgstr "`div_checked` は 値自身の精度属性を精度とする作業コンテキストで除算し、ゼロの除数に対しては `Err(division_by_zero)` を、無効な除算に対しては `Err(domain_error)` を返します。`sqrt` は値自身の精度属性で平方根を求め、負のオペランドに対しては `Err(domain_error)` を返します。"
+#: manual/api/decimal_gda.md:1258
+msgid "`sqrt` is the square root in the same working context as the operators, with the value's own precision attribute."
+msgstr "`sqrt` は、演算子と同じ作業コンテキストで、その値自身の精度属性を使って平方根を求めます。"
 
-#: manual/api/decimal_gda.md:1270
+#: manual/api/decimal_gda.md:1265
+msgid "A negative operand gives NaN, as the free function [`sqrt`](#sqrt-exp-ln-log10) does. The checked forms are `sqrt_checked` and `DivChecked::div_checked`; the `Decimal::div_checked` method is removed (use `1 / 0` for the infinity, or `divide` with a trapping `GdaContext` for an error)."
+msgstr "負のオペランドは、自由関数 [`sqrt`](#sqrt-exp-ln-log10) と同じく NaN を返します。検査付きの形は `sqrt_checked` と `DivChecked::div_checked` です。`Decimal::div_checked` メソッドは削除されました（無限大が欲しいときは `1 / 0`、エラーが欲しいときはトラップを有効にした `GdaContext` で `divide` を使います）。"
+
+#: manual/api/decimal_gda.md:1290
 msgid "`GdaInterchangeFormat` names the three IEEE 754 decimal interchange formats."
 msgstr "`GdaInterchangeFormat` は IEEE 754 の 3 つの十進交換形式を指します。"
 
-#: manual/api/decimal_gda.md:1282
+#: manual/api/decimal_gda.md:1302
 msgid "`context` returns the extended default `GdaContext` of the format."
 msgstr "`context` は形式の拡張デフォルトの `GdaContext` を返します。"
 
-#: manual/api/decimal_gda.md:1288
+#: manual/api/decimal_gda.md:1308
 msgid "The presets are `GdaContext::decimal32()`, `decimal64()` and `decimal128()`: precision 7, 16 or 34, half-even, clamped."
 msgstr "プリセットは `GdaContext::decimal32()`、`decimal64()`、`decimal128()` で、精度はそれぞれ 7、16、34、half-even、クランプ有効です。"
 
-#: manual/api/decimal_gda.md:1293
+#: manual/api/decimal_gda.md:1313
 msgid "`GdaInterchange` is a decimal32, decimal64 or decimal128 bit pattern in the densely packed decimal (DPD) encoding."
 msgstr "`GdaInterchange` は、densely packed decimal（DPD）エンコーディングによる decimal32、decimal64、または decimal128 のビットパターンです。"
 
-#: manual/api/decimal_gda.md:1304
+#: manual/api/decimal_gda.md:1324
 msgid "`format` returns the format of the pattern."
 msgstr "`format` はパターンの形式を返します。"
 
-#: manual/api/decimal_gda.md:1312
+#: manual/api/decimal_gda.md:1332
 msgid "These encode and decode values."
 msgstr "これらは値をエンコード・デコードします。"
 
-#: manual/api/decimal_gda.md:1319
+#: manual/api/decimal_gda.md:1339
 msgid "`from_decimal` rounds the value to the format (reporting the rounding, overflow, underflow and clamping flags) and encodes it. `to_decimal` decodes exactly, keeping the exponent and raising nothing; test the result with [`is_subnormal`](#class_name-is_normal-is_subnormal) when the flag is needed."
 msgstr "`from_decimal` は値を形式に合わせて丸め（丸め、オーバーフロー、アンダーフロー、クランプのフラグを報告します）、エンコードします。`to_decimal` は指数を保ったまま正確にデコードし、何も発生させません。フラグが必要なときは、結果を [`is_subnormal`](#class_name-is_normal-is_subnormal) で調べます。"
 
-#: manual/api/decimal_gda.md:1324
+#: manual/api/decimal_gda.md:1344
 msgid "A NaN is encoded with its sign, its signaling bit and its payload. The payload of a decimal32, decimal64 or decimal128 pattern has 6, 15 or 33 digits (the trailing significand field, IEEE 754-2019 3.5.2). A payload that is wider keeps its low digits and no flag is raised: IEEE 754-2019 6.2.3 asks that a conversion that cannot preserve the payload return a quiet NaN carrying some language-defined diagnostic information, and names no signal. The decTest interchange rows have no payload wider than their format."
 msgstr "NaN は符号、シグナルビット、ペイロードとともに符号化されます。decimal32、decimal64、decimal128 のパターンのペイロードは、それぞれ 6、15、33 桁です（末尾の仮数部フィールド、IEEE 754-2019 3.5.2）。それより広いペイロードは下位の桁を保ち、フラグは発生しません。IEEE 754-2019 6.2.3 は、ペイロードを保てない変換が言語定義の診断情報を持つ quiet NaN を返すことを求めますが、シグナルは指定していません。decTest の互換形式の行には、形式より広いペイロードはありません。"
 
-#: manual/api/decimal_gda.md:1334
+#: manual/api/decimal_gda.md:1354
 msgid "These convert between a bit pattern and its hexadecimal text."
 msgstr "これらはビットパターンとその 16 進テキストの間で変換を行います。"
 
-#: manual/api/decimal_gda.md:1341
+#: manual/api/decimal_gda.md:1361
 msgid "The text is `#` (optional on input) followed by exactly 8, 16 or 32 hexadecimal digits; surrounding spaces are ignored and any other input gives `Err(parse_error)`. `to_hex` prints `#` and uppercase digits."
 msgstr "テキストは `#`（入力では省略可）に続くちょうど 8、16、または 32 桁の 16 進数字です。前後の空白は無視され、それ以外の入力は `Err(parse_error)` を与えます。`to_hex` は `#` と大文字の数字を出力します。"
 
-#: manual/api/decimal_gda.md:1347
+#: manual/api/decimal_gda.md:1367
 msgid "These canonicalize an encoding."
 msgstr "これらはエンコーディングを正準化します。"
 
-#: manual/api/decimal_gda.md:1354
+#: manual/api/decimal_gda.md:1374
 msgid "`canonical` decodes and re-encodes the pattern, which replaces non-canonical declets and payloads with their canonical form; `is_canonical` tests whether that changes the pattern."
 msgstr "`canonical` はパターンをデコードして再エンコードし、非正準な declet とペイロードを正準形に置き換えます。`is_canonical` はそれによってパターンが変わるかどうかを判定します。"
 
-#: manual/api/decimal_gda.md:1360
+#: manual/api/decimal_gda.md:1380
 msgid "These operate on the sign bit of the encoding without decoding it."
 msgstr "これらはデコードせずにエンコーディングの符号ビットを操作します。"
 
-#: manual/api/decimal_gda.md:1369
+#: manual/api/decimal_gda.md:1389
 msgid "`copy_sign` aborts when the two patterns have different formats."
 msgstr "`copy_sign` は 2 つのパターンの形式が異なると中断します。"
 
-#: manual/api/decimal_gda.md:1389
+#: manual/api/decimal_gda.md:1409
 msgid "These are the derived `Eq` methods of the enums and flag sets."
 msgstr "これらは列挙型とフラグ集合の導出された `Eq` メソッドです。"
 
-#: manual/api/decimal_gda.md:1404
+#: manual/api/decimal_gda.md:1424
 msgid "They compare field by field (or variant by variant); `GdaContext` has no `Eq`. `Decimal` has its own numeric `Eq`, documented under [`Decimal::equal`](#decimalequal-decimalnot_equal-decimalop_lt-decimalop_le-decimalop_gt-decimalop_ge)."
 msgstr "フィールドごと（またはバリアントごと）に比較します。`GdaContext` には `Eq` はありません。`Decimal` には独自の数値的な `Eq` があり、[`Decimal::equal`](#decimalequal-decimalnot_equal-decimalop_lt-decimalop_le-decimalop_gt-decimalop_ge) で説明しています。"
 
-#: manual/api/decimal_gda.md:1410
+#: manual/api/decimal_gda.md:1430
 msgid "These implement the `Luna-Flow/arithmetic` contextual traits on top of the package's private engine."
 msgstr "これらは、パッケージの非公開エンジンの上に `Luna-Flow/arithmetic` の contextual トレイトを実装します。"
 
-#: manual/api/decimal_gda.md:1430
+#: manual/api/decimal_gda.md:1450
 msgid "Each converts the arithmetic context to an engine context, runs the operation, and returns `Err(unsupported)` when the operation raises `invalid_context`, `Err(division_by_zero)` when `division_by_zero` is raised, `Err(domain_error)` for any other error flag, and otherwise `Ok` with the value and diagnostics `inexact`, `rounded`, `overflow`, `underflow`, `subnormal` and `clamped`. The rounding is one of the five `ArithmeticContext` modes, and `sqrt_contextual` and `exp_contextual` round with it (not half-even as the GDA functions do)."
 msgstr "各関数は arithmetic コンテキストをエンジンのコンテキストに変換して演算を行い、演算が `invalid_context` を発生させれば `Err(unsupported)` を、`division_by_zero` が立てば `Err(division_by_zero)` を、それ以外のエラーフラグなら `Err(domain_error)` を返し、そうでなければ値と診断情報 `inexact`、`rounded`、`overflow`、`underflow`、`subnormal`、`clamped` とともに `Ok` を返します。丸めは `ArithmeticContext` の 5 つのモードのいずれかであり、`sqrt_contextual` と `exp_contextual` はそのモードで丸めます（GDA の関数のような half-even ではありません）。"
 
-#: manual/api/decimal_gda.md:1439
+#: manual/api/decimal_gda.md:1459
 msgid "`exp_contextual` requires the caller to set the exponent bounds. Like the GDA `exp`, it is defined only for precision, $e_{\\max}$ and $-e_{\\min}$ of at most $999\\,999$, and an `ArithmeticContext` without `e_min` or `e_max` is not given bounds by default: it translates to the full range $\\pm 999\\,999\\,999$, which is an invalid context for `exp`. The result is `Err(unsupported)` whose message starts with `invalid context:`, states the limit and names the bounds the `ArithmeticContext` does not set, whatever the operand (as `exp(-Infinity)` is `Invalid_context` in the decTest row `expx901`). `ArithmeticContext::new(16)` therefore fails, while `ArithmeticContext::new(16, e_min=-999_999, e_max=999_999)` and `ArithmeticContext::decimal64()` work."
 msgstr "`exp_contextual` では、呼び出し側が指数の上下限を設定する必要があります。GDA の `exp` と同じく、精度、$e_{\\max}$、$-e_{\\min}$ がいずれも $999\\,999$ 以下のコンテキストでのみ定義されており、`e_min` や `e_max` を持たない `ArithmeticContext` には既定の上下限が補われません。全範囲 $\\pm 999\\,999\\,999$ に変換され、これは `exp` にとって無効なコンテキストです。結果は `Err(unsupported)` で、そのメッセージは `invalid context:` で始まり、制限と `ArithmeticContext` が設定していない上下限を示します。オペランドには依存しません（decTest の行 `expx901` で `exp(-Infinity)` が `Invalid_context` であるのと同じです）。したがって `ArithmeticContext::new(16)` は失敗し、`ArithmeticContext::new(16, e_min=-999_999, e_max=999_999)` と `ArithmeticContext::decimal64()` は動作します。"
 
-#: manual/api/decimal_gda.md:1472
+#: manual/api/decimal_gda.md:1492
 msgid "These implement `NumericFormatContextual`: they describe the number format of an `ArithmeticContext`."
 msgstr "これらは `NumericFormatContextual` を実装し、`ArithmeticContext` の数値形式を記述します。"
 
-#: manual/api/decimal_gda.md:1485
+#: manual/api/decimal_gda.md:1505
 msgid "`epsilon_contextual` is $\\operatorname{next\\_plus}(1) - 1 = 10^{1-p}$, `min_normal_contextual` is $10^{e_{\\min}}$ and `max_finite_contextual` is $(10^p - 1) \\cdot 10^{e_{\\max} - p + 1}$."
 msgstr "`epsilon_contextual` は $\\operatorname{next\\_plus}(1) - 1 = 10^{1-p}$、`min_normal_contextual` は $10^{e_{\\min}}$、`max_finite_contextual` は $(10^p - 1) \\cdot 10^{e_{\\max} - p + 1}$ です。"
 
-#: manual/api/decimal_gda.md:1491
+#: manual/api/decimal_gda.md:1511
 msgid "These implement the checked traits of `Luna-Flow/arithmetic`: they return `Result` instead of flags."
 msgstr "`parse_checked` は arithmetic コンテキストを `DecimalContext` に変換して `Decimal::from_string_ctx` を使用し、コンテキストの精度、丸め方向、指数範囲、clamp 設定を適用します。変換後の値を返し、オーバーフローなどの条件は `from_string_ctx` から取得できます。構文が無効な場合は `Err(parse_error)` を返します。 `sqrt_checked` は負のオペランドに対して `Err(domain_error)` を返します。`pow_int_checked` と `pow_nat_checked` は、厳密に変換した整数の指数（少なくとも 10 桁で、受け付けるすべての指数を収められます）で `power_ctx` を呼び出すため、精度 7 では `(-1).pow_int_checked(12345679, ctx)` は `-1` です。底がゼロで指数が負なら `Err(division_by_zero)` を、`power` が `invalid_context` を発生させたとき（指数の上下限が $\\pm 999\\,999$ 以内でないコンテキストで 999,999,999 を超える正の指数を使った場合。decTest の行 `powx1183` と `powx1184` のとおり）は `invalid context:` メッセージ付きの `Err(unsupported)` を、その他の無効な結果なら `Err(domain_error)` を返し、`pow_nat_checked` は 999,999,999 を超える指数に対して `Err(unsupported)` を返します。`DivChecked::div_checked` は与えられたコンテキストのもとで除算し、[`Decimal::div_checked`](#decimaldiv_checked-decimalsqrt) と同じエラーを返します。"
 
-#: manual/api/decimal_gda.md:1506
-msgid "`parse_checked` converts the arithmetic context to an engine context and converts the string under it; the context's precision, rounding direction, exponent bounds and clamp setting apply. It returns the converted value; conditions such as overflow are available from [`to_number`](#to_number). Invalid syntax returns `Err(parse_error)`. `sqrt_checked` returns `Err(domain_error)` for negative operands. `pow_int_checked` and `pow_nat_checked` call the power operation with the integer exponent converted exactly (with at least ten digits, which hold every accepted exponent), so at precision 7 `(-1).pow_int_checked(12345679, ctx)` is `-1`; they return `Err(division_by_zero)` for a zero base with a negative exponent, `Err(unsupported)` with an `invalid context:` message when `power` raises `invalid_context` (a positive exponent above 999,999,999 under a context without exponent bounds within $\\pm 999\\,999$, as in the decTest rows `powx1183` and `powx1184`), `Err(domain_error)` for other invalid results, and `pow_nat_checked` returns `Err(unsupported)` for exponents above 999,999,999. `DivChecked::div_checked` divides under the given context with the same errors as [`Decimal::div_checked`](#decimaldiv_checked-decimalsqrt)."
-msgstr "`parse_checked` は arithmetic コンテキストをエンジンのコンテキストに変換して、その下で文字列を変換し、コンテキストの精度、丸め方向、指数範囲、clamp 設定を適用します。変換後の値を返し、オーバーフローなどの条件は [`to_number`](#to_number) から取得できます。構文が無効な場合は `Err(parse_error)` を返します。 `sqrt_checked` は負のオペランドに対して `Err(domain_error)` を返します。`pow_int_checked` と `pow_nat_checked` は、厳密に変換した整数の指数（少なくとも 10 桁で、受け付けるすべての指数を収められます）で べき乗の演算を呼び出すため、精度 7 では `(-1).pow_int_checked(12345679, ctx)` は `-1` です。底がゼロで指数が負なら `Err(division_by_zero)` を、`power` が `invalid_context` を発生させたとき（指数の上下限が $\\pm 999\\,999$ 以内でないコンテキストで 999,999,999 を超える正の指数を使った場合。decTest の行 `powx1183` と `powx1184` のとおり）は `invalid context:` メッセージ付きの `Err(unsupported)` を、その他の無効な結果なら `Err(domain_error)` を返し、`pow_nat_checked` は 999,999,999 を超える指数に対して `Err(unsupported)` を返します。`DivChecked::div_checked` は与えられたコンテキストのもとで除算し、[`Decimal::div_checked`](#decimaldiv_checked-decimalsqrt) と同じエラーを返します。"
+#: manual/api/decimal_gda.md:1526
+msgid "`parse_checked` converts the arithmetic context to an engine context and converts the string under it; the context's precision, rounding direction, exponent bounds and clamp setting apply. It returns the converted value; conditions such as overflow are available from [`to_number`](#to_number). Invalid syntax returns `Err(parse_error)`. `sqrt_checked` returns `Err(domain_error)` for negative operands. `pow_int_checked` and `pow_nat_checked` call the power operation with the integer exponent converted exactly (with at least ten digits, which hold every accepted exponent), so at precision 7 `(-1).pow_int_checked(12345679, ctx)` is `-1`; they return `Err(division_by_zero)` for a zero base with a negative exponent, `Err(unsupported)` with an `invalid context:` message when `power` raises `invalid_context` (a positive exponent above 999,999,999 under a context without exponent bounds within $\\pm 999\\,999$, as in the decTest rows `powx1183` and `powx1184`), `Err(domain_error)` for other invalid results, and `pow_nat_checked` returns `Err(unsupported)` for exponents above 999,999,999. `DivChecked::div_checked` divides under the given context and returns `Err(division_by_zero)` for a zero divisor and `Err(domain_error)` for an invalid division."
+msgstr "`parse_checked` は arithmetic コンテキストをエンジンのコンテキストに変換して、その下で文字列を変換し、コンテキストの精度、丸め方向、指数範囲、clamp 設定を適用します。変換後の値を返し、オーバーフローなどの条件は [`to_number`](#to_number) から取得できます。構文が無効な場合は `Err(parse_error)` を返します。 `sqrt_checked` は負のオペランドに対して `Err(domain_error)` を返します。`pow_int_checked` と `pow_nat_checked` は、厳密に変換した整数の指数（少なくとも 10 桁で、受け付けるすべての指数を収められます）で べき乗の演算を呼び出すため、精度 7 では `(-1).pow_int_checked(12345679, ctx)` は `-1` です。底がゼロで指数が負なら `Err(division_by_zero)` を、`power` が `invalid_context` を発生させたとき（指数の上下限が $\\pm 999\\,999$ 以内でないコンテキストで 999,999,999 を超える正の指数を使った場合。decTest の行 `powx1183` と `powx1184` のとおり）は `invalid context:` メッセージ付きの `Err(unsupported)` を、その他の無効な結果なら `Err(domain_error)` を返し、`pow_nat_checked` は 999,999,999 を超える指数に対して `Err(unsupported)` を返します。`DivChecked::div_checked` は与えられたコンテキストのもとで除算し、ゼロの除数には `Err(division_by_zero)` を、無効な除算には `Err(domain_error)` を返します。"
 
-#: manual/api/decimal_gda.md:1525
+#: manual/api/decimal_gda.md:1545
 msgid "`FromNat`, `FromInteger` and the `luna-generic` algebra traits"
 msgstr "`FromNat`、`FromInteger` と `luna-generic` の代数トレイト"
 
-#: manual/api/decimal_gda.md:1527
+#: manual/api/decimal_gda.md:1547
 msgid "These let generic algebra code use `Decimal`."
 msgstr "これらにより、ジェネリックな代数コードで `Decimal` を使えるようになります。"
 
-#: manual/api/decimal_gda.md:1541
+#: manual/api/decimal_gda.md:1561
 msgid "`FromNat::from_natural` and `FromInteger::from_integer` are the canonical maps out of the naturals and the integers; `Decimal` has no inherent method of those names, call the trait method, or `Decimal::from_bigint(n).normalized()`, which is what they compute. They convert with `Decimal::from_bigint` (34 digits, trailing zeros removed), so they are exact only for integers of at most 34 significant digits. To convert another Luna-Flow integer type, pick its representative with `Integral::normalize` first, or use `lift_to`. `Zero::zero` and `One::one` are `Decimal::zero()` and `Decimal::one()`. The ring structure uses the context-free operators; because `+` rounds to the operand precision, the ring laws hold exactly only while sums stay within that precision."
 msgstr "`FromNat::from_natural` と `FromInteger::from_integer` は自然数と整数からの標準的な写像です。`Decimal` にこれらの名前の固有メソッドはないので、トレイトのメソッドか、それらが計算している `Decimal::from_bigint(n).normalized()` を呼んでください。変換には `Decimal::from_bigint` を使い（34 桁、末尾の零は除去）、したがって有効数字 34 桁以内の整数でのみ正確です。他の Luna-Flow の整数型を変換するには、先に `Integral::normalize` でその代表元を取るか、`lift_to` を使います。`Zero::zero` と `One::one` は `Decimal::zero()` と `Decimal::one()` です。環構造は文脈なしの演算子を使います。`+` はオペランドの精度に丸めるので、環の法則が正確に成り立つのは和がその精度に収まる間だけです。"
 
-#: manual/api/decimal_gda.md:1550
+#: manual/api/decimal_gda.md:1570
 msgid "`Decimal::to_repr` and the `@def.Floating`, `Show` and `Debug` implementations"
 msgstr "`Decimal::to_repr` と `@def.Floating`、`Show`、`Debug` の実装"
 
-#: manual/api/decimal_gda.md:1552
+#: manual/api/decimal_gda.md:1572
 msgid "`Decimal` implements the floating vocabulary of the `def` package, `Show` (see [`Decimal::to_string`](#decimalto_string-decimaloutput)) and `Debug`."
 msgstr "`Decimal` は `def` パッケージの浮動小数点の語彙、`Show`（[`Decimal::to_string`](#decimalto_string-decimaloutput) を参照）、`Debug` を実装します。"
 
-#: manual/api/decimal_gda.md:1560
+#: manual/api/decimal_gda.md:1580
 msgid "The `Floating` methods are `classify`, `sign`, `precision`, `with_precision` and `normalized`, documented above. `to_repr` is the structural `Debug` representation."
 msgstr "`Floating` のメソッドは `classify`、`sign`、`precision`、`with_precision`、`normalized` で、上で説明しています。`to_repr` は構造的な `Debug` 表現です。"
 
@@ -15961,8 +15965,8 @@ msgid "It does not provide a mutable or global context, and contexts carry no id
 msgstr "可変またはグローバルなコンテキストは提供せず、コンテキストは同一性を持ちません。同じフィールドを持つ 2 つのコンテキストは交換可能です。"
 
 #: manual/design/decimal_gda.md:942
-msgid "It does not store exponents beyond the 32-bit range. Literals and results outside it are not wrapped or rejected: context operations overflow or underflow against the context range, decided from the exact exponent, and the context-free conversions and operators overflow to a signed infinity or round to the exponent $-2^{31}$."
-msgstr "32 ビットの範囲を超える指数は格納しません。その範囲外のリテラルや結果は、ラップアラウンドも拒否もされません。コンテキスト演算は正確な指数からコンテキストの範囲に対するオーバーフローまたはアンダーフローを判定し、コンテキストなしの変換と演算子は符号付き無限大へオーバーフローするか、指数 $-2^{31}$ へ丸めます。"
+msgid "It does not store exponents beyond the 32-bit range. Literals and results outside it are not wrapped or rejected: context operations overflow or underflow against the context range, decided from the exact exponent, and the context-free conversions overflow to a signed infinity or round to the exponent $-2^{31}$, and the plain operators work in a private range whose smallest exponent is $-2^{31}+3$."
+msgstr "32 ビットの範囲を超える指数は保持しません。範囲外のリテラルや結果は、回り込むことも拒否されることもありません。コンテキストを使う演算は正確な指数から判断してコンテキストの範囲に対してオーバーフローまたはアンダーフローし、コンテキストなしの変換は符号付きの無限大にオーバーフローするか指数 $-2^{31}$ に丸められます。通常の演算子は非公開の範囲で動作し、その最小の指数は $-2^{31}+3$ です。"
 
 #: manual/design/decimal_gda_checked.md:1
 msgid "decimal_gda_checked design"
@@ -22099,7 +22103,7 @@ msgstr "**`Double` からの入力。** `from_double(x)` は `x` の二進値を
 #: manual/tutorial/consistency.md:78
 #: manual/tutorial/decimal.md:427
 #: manual/tutorial/decimal_checked.md:271
-#: manual/tutorial/decimal_gda.md:391
+#: manual/tutorial/decimal_gda.md:393
 #: manual/tutorial/decimal_gda_checked.md:268
 #: manual/tutorial/def.md:212
 #: manual/tutorial/differential.md:195
@@ -24640,42 +24644,42 @@ msgid "**Expecting constructors to keep zeros.** `Decimal::from_int(100)` and `D
 msgstr "**コンストラクタがゼロを保持すると期待する。** `Decimal::from_int(100)` と `Decimal::make` は末尾のゼロを取り除くので、`from_int(100)` は `1E+2` と出力されます。量子が重要な場合は `Decimal::from_string(\"100\")` または `parse` を使ってください。"
 
 #: manual/tutorial/decimal_gda.md:369
-msgid "**Using the operators for GDA work.** `+`, `-`, `*` and `/` take no context: they round half-even to the larger operand precision (`*` is exact), never signal, and `+` and `/` return the shortest cohort member. Use the package functions whenever GDA results, flags or traps matter."
-msgstr "**GDA の処理に演算子を使う。** `+`、`-`、`*`、`/` はコンテキストを受け取りません。大きい方のオペランドの精度へ最近接偶数丸めを行い（`*` は厳密）、シグナルを発生させることはなく、`+` と `/` はコホートの最短の元を返します。GDA の結果、フラグ、トラップが重要な場合は常にパッケージの関数を使ってください。"
+msgid "**Using the operators for GDA work.** `+`, `-`, `*` and `/` take no context: they run the package function in a private context (larger operand precision, half-even, no clamp, no traps), so they round every result to that precision, return the GDA cohort member (`1.10 + 3.50` is `4.60`) and never signal. Use the package functions whenever GDA results, flags or traps matter."
+msgstr "**GDA の計算に演算子を使う。** `+`、`-`、`*`、`/` はコンテキストを取りません。非公開のコンテキスト（大きいほうのオペランドの精度、偶数丸め、クランプなし、トラップなし）でパッケージの関数を実行するため、すべての結果がその精度に丸められ、GDA の同値類のメンバー（`1.10 + 3.50` は `4.60`）を返し、シグナルは出しません。GDA の結果、フラグ、トラップが重要なときは、パッケージの関数を使ってください。"
 
-#: manual/tutorial/decimal_gda.md:373
+#: manual/tutorial/decimal_gda.md:375
 msgid "**Equality and NaN.** `==` and `compare` put every NaN equal to every other NaN and above every number (a total preorder, so sorting never aborts). Use `compare` (the package function), `compare_signal`, or `Decimal::compare_checked` when NaN must stay unordered."
 msgstr "**等価性と NaN。** `==` と `compare` はすべての NaN を他のすべての NaN と等しく、すべての数より上に置きます（全前順序なので、ソートが異常終了することはありません）。NaN を順序付けられないままにする必要がある場合は、`compare`（パッケージの関数）、`compare_signal`、または `Decimal::compare_checked` を使ってください。"
 
-#: manual/tutorial/decimal_gda.md:377
+#: manual/tutorial/decimal_gda.md:379
 msgid "**Mixing the two decimal packages.** `@decimal_gda.Decimal` and `@decimal.Decimal` are different types with different contracts; cross between them through strings or interchange bits."
 msgstr "**二つの十進パッケージを混在させる。** `@decimal_gda.Decimal` と `@decimal.Decimal` は異なる契約を持つ別々の型です。両者の間は文字列か交換形式のビット列を介して行き来してください。"
 
-#: manual/tutorial/decimal_gda.md:380
+#: manual/tutorial/decimal_gda.md:382
 msgid "**Expecting `exp`, `ln`, `log10` or `sqrt` to follow the context rounding.** They always round half to even; only `power` follows the context."
 msgstr "**`exp`、`ln`、`log10`、`sqrt` がコンテキストの丸めに従うと期待する。** これらは常に最近接偶数丸めを行います。コンテキストに従うのは `power` だけです。"
 
-#: manual/tutorial/decimal_gda.md:382
+#: manual/tutorial/decimal_gda.md:384
 msgid "**Calling `exp`, `ln`, `log10` or non-integer `power` with a default context.** `GdaContext::new()` and `context()` allow exponents up to ±999,999,999, which is outside the range these functions accept, so they return NaN and raise `InvalidContext` (an `InvalidOperation`). Use a preset or pass `e_min=-999_999, e_max=999_999`. The same holds for an `ArithmeticContext` without `e_min` and `e_max`: no bounds are filled in for you, and `exp_contextual` returns `Err(unsupported)` with an `invalid context:` message naming the missing bounds."
 msgstr "**既定の文脈で `exp`、`ln`、`log10`、非整数指数の `power` を呼ぶ。** `GdaContext::new()` と `context()` は指数 ±999,999,999 まで許しますが、これはこれらの関数が受け付ける範囲の外なので、NaN を返して `InvalidContext`（`InvalidOperation` の一種）を発生させます。プリセットを使うか、`e_min=-999_999, e_max=999_999` を渡してください。`e_min` と `e_max` のない `ArithmeticContext` も同様で、境界は補われず、`exp_contextual` は不足している境界を示す `invalid context:` メッセージ付きの `Err(unsupported)` を返します。"
 
-#: manual/tutorial/decimal_gda.md:393
+#: manual/tutorial/decimal_gda.md:395
 msgid "[Design](../design/decimal_gda.md): the arithmetic model, ideal exponents, rounding functions, the signal and trap state machine, and how the elementary functions are certified."
 msgstr "[設計](../design/decimal_gda.md): 算術モデル、理想指数、丸め関数、シグナルとトラップの状態機械、初等関数の認証方法。"
 
-#: manual/tutorial/decimal_gda.md:396
+#: manual/tutorial/decimal_gda.md:398
 msgid "[API reference](../api/decimal_gda.md): every type, function and method."
 msgstr "[API リファレンス](../api/decimal_gda.md): すべての型、関数、メソッド。"
 
-#: manual/tutorial/decimal_gda.md:397
+#: manual/tutorial/decimal_gda.md:399
 msgid "[Conformance](../conformance/decimal_gda.md) and [performance](../performance/decimal_gda.md): the pinned test-suite result and how to measure speed."
 msgstr "[適合性](../conformance/decimal_gda.md)と[性能](../performance/decimal_gda.md): 固定されたテストスイートの結果と速度の測定方法。"
 
-#: manual/tutorial/decimal_gda.md:400
+#: manual/tutorial/decimal_gda.md:402
 msgid "[`decimal_gda_checked` tutorial](decimal_gda_checked.md): trap short-circuiting and recovery in pipelines."
 msgstr "[`decimal_gda_checked` チュートリアル](decimal_gda_checked.md): パイプラインにおけるトラップによる短絡と回復。"
 
-#: manual/tutorial/decimal_gda.md:402
+#: manual/tutorial/decimal_gda.md:404
 msgid "[`decimal` tutorial](decimal.md): the IEEE 754 decimal model with per-operation flags."
 msgstr "[`decimal` チュートリアル](decimal.md): 演算ごとのフラグを持つ IEEE 754 の十進モデル。"
 
@@ -27741,6 +27745,12 @@ msgstr "公開 API を絞ると、条項から API への対応が変わるこ�
 #: manual/verification.md:706
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体のロードマップは [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "These are checked conveniences that use a default context of the larger operand precision."
+#~ msgstr "これらは、大きいほうのオペランド精度の既定コンテキストを使う checked な便利関数です。"
+
+#~ msgid "`div_checked` divides in a working context of the value's own precision attribute and returns `Err(division_by_zero)` for a zero divisor and `Err(domain_error)` for an invalid division. `sqrt` takes the square root at the value's own precision attribute and returns `Err(domain_error)` for negative operands."
+#~ msgstr "`div_checked` は 値自身の精度属性を精度とする作業コンテキストで除算し、ゼロの除数に対しては `Err(division_by_zero)` を、無効な除算に対しては `Err(domain_error)` を返します。`sqrt` は値自身の精度属性で平方根を求め、負のオペランドに対しては `Err(domain_error)` を返します。"
 
 #~ msgid "§9.1 integer functions (Table 9.1)"
 #~ msgstr "§9.1 整数関数（表 9.1）"
