@@ -133,19 +133,31 @@ fn checked_exact(
 /// Builds `coefficient * 2^exponent2` exactly. When the value lies outside the
 /// binary exponent range it cannot be stored exactly, and `mode` decides the
 /// side it is clamped to; endpoint computations pass the outward direction.
+///
+/// `exact_range`: the value is made at `max(bit length, e_min - exponent2 + 1)`
+/// bits, so that the quantum below the normal range of the make,
+/// `2^(e_min - bits + 1)`, is at most the lowest bit of the value and nothing is
+/// rounded; made at its own bit length, a value of a few bits below the normal
+/// range was rounded to the quantum of those few bits (to 0 for the sum of the
+/// endpoints of `[1, 3] * 2^(e_min - 60)`). Needs at most one bit more than the
+/// operands of a sum or of a halving have.
 fn exact_make(
   coefficient : @bin_float.BinCoeff,
   exponent2 : Int32,
   negative~ : Bool = false,
   mode~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
+  exact_range~ : Bool = false,
 ) -> @bin_float.BinFloat {
-  @bin_float.BinFloat::make(
-    coefficient,
-    exponent2,
-    Int32::max(1, coefficient.bit_length()),
-    negative~,
-    mode~,
-  )
+  let bits = Int32::max(1, coefficient.bit_length())
+  let bits = if exact_range && !coefficient.is_zero() {
+    Int32::min(
+      @bin_float.binary_precision_max,
+      Int32::max(bits, @bin_float.binary_implementation_e_min - exponent2 + 1),
+    )
+  } else {
+    bits
+  }
+  @bin_float.BinFloat::make(coefficient, exponent2, bits, negative~, mode~)
 }
 
 ///|
@@ -221,6 +233,7 @@ fn exact_add(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
   mode~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
+  exact_range~ : Bool = false,
 ) -> @bin_float.BinFloat {
   if a.is_zero() {
     return b
@@ -239,7 +252,13 @@ fn exact_add(
   let left = coeff_shift_left(a.coefficient(), a.exponent2() - target)
   let right = coeff_shift_left(b.coefficient(), b.exponent2() - target)
   if a.is_negative() == b.is_negative() {
-    exact_make(coeff_add(left, right), target, negative=a.is_negative(), mode~)
+    exact_make(
+      coeff_add(left, right),
+      target,
+      negative=a.is_negative(),
+      mode~,
+      exact_range~,
+    )
   } else {
     let comparison = left.compare(right)
     if comparison == 0 {
@@ -250,6 +269,7 @@ fn exact_add(
         target,
         negative=a.is_negative(),
         mode~,
+        exact_range~,
       )
     } else {
       exact_make(
@@ -257,6 +277,7 @@ fn exact_add(
         target,
         negative=b.is_negative(),
         mode~,
+        exact_range~,
       )
     }
   }
@@ -299,12 +320,14 @@ fn exact_mul(
 fn exact_half(
   x : @bin_float.BinFloat,
   mode~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
+  exact_range~ : Bool = false,
 ) -> @bin_float.BinFloat {
   exact_make(
     x.coefficient(),
     x.exponent2() - 1,
     negative=x.is_negative(),
     mode~,
+    exact_range~,
   )
 }
 
@@ -474,7 +497,9 @@ fn interval_center(x : BallFloat) -> @bin_float.BinFloat {
   guard x.is_common_interval() else {
     abort("ball center is undefined for unbounded intervals")
   }
-  exact_half(exact_add(x.lo_, x.hi_))
+  // exact: the sum and its half are made wide enough that nothing is rounded
+  // below the normal range; `midpoint_ctx` rounds the result once
+  exact_half(exact_add(x.lo_, x.hi_, exact_range=true), exact_range=true)
 }
 
 ///|
@@ -1259,10 +1284,14 @@ fn observer_context(precision : Int32) -> BallContext {
 }
 
 ///|
-/// `mid` of IEEE 1788-2015 12.12.8, total: NaN for Empty, 0 for Entire, the
-/// largest finite number of the format (precision, widest exponent range) with
-/// the sign of the unbounded side for a half-bounded interval, and the exact
-/// midpoint rounded to nearest otherwise. `midpoint_ctx` takes the format.
+/// `mid` of IEEE 1788-2015 12.12.8 (Table 9.2: `mid(x) = (lower + upper) / 2`),
+/// total: NaN for Empty, 0 for Entire, the largest finite number of the format
+/// (precision, widest exponent range) with the sign of the unbounded side for a
+/// half-bounded interval, and for a bounded interval the exact midpoint rounded
+/// once to nearest at the precision (the standard asks the implementation to
+/// document how it handles this case: ties go to the even neighbour, 4.3.1 of
+/// IEEE 754; a midpoint of 0 is +0). The exact midpoint is formed without
+/// rounding, also below the normal range. `midpoint_ctx` takes the format.
 pub fn BallFloat::midpoint(self : BallFloat) -> @bin_float.BinFloat {
   self.midpoint_ctx(observer_context(self.precision_)).0
 }
