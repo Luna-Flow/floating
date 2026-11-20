@@ -21,13 +21,11 @@ listed in the [API reference](../api/semantic.md).
 
 ## Quick start
 
-```bash
-moon add Luna-Flow/floating@0.10.2
-```
+The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`.
 
 ```moonbit nocheck
 import {
-  "Luna-Flow/floating/semantic",
+  "Luna-Flow/floating-tools/semantic",
   "Luna-Flow/floating/bin_float",
   "Luna-Flow/floating/decimal",
 }

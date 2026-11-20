@@ -48,7 +48,7 @@ contextual traits) and `Luna-Flow/luna-generic` (algebraic traits); add
 
 The repository is a workspace of two modules. `Luna-Flow/floating` (directory
 `library/`) is the library: the numerical cores, the checked wrappers, `def`,
-`semantic` and the `internal` helpers. `Luna-Flow/floating-tools`
+and the `internal` helpers. `Luna-Flow/floating-tools`
 (directory `tooling/`, versioned with the library) holds the developer tools:
 expressions and corpus frontends, the conformance command line, the
 differential harness, the benchmarks and the documentation examples. The
@@ -82,7 +82,6 @@ verified, and how) and a performance page (measurements and their method).
 | `decimal_checked`: IEEE decimal pipelines that accumulate flags | [tutorial](tutorial/decimal_checked.md) | [API](api/decimal_checked.md) | [design](design/decimal_checked.md) |
 | `decimal_gda_checked`: GDA pipelines that thread status and stop at traps | [tutorial](tutorial/decimal_gda_checked.md) | [API](api/decimal_gda_checked.md) | [design](design/decimal_gda_checked.md) |
 | `ball_float_checked`: interval pipelines that stop at the first error | [tutorial](tutorial/ball_float_checked.md) | [API](api/ball_float_checked.md) | [design](design/ball_float_checked.md) |
-| `semantic`: exact, representation-independent projection for comparisons across packages | [tutorial](tutorial/semantic.md) | [API](api/semantic.md) | [design](design/semantic.md) |
 
 ### Tools module: expressions and corpus frontends
 
@@ -121,6 +120,7 @@ verified, and how) and a performance page (measurements and their method).
 | --- | --- | --- | --- |
 | `internal/conformance`: source locations, deterministic shards, case dispositions and summaries | [tutorial](tutorial/internal/conformance.md) | [API](api/internal/conformance.md) | [design](design/internal/conformance.md) |
 | `internal/runner_cli`: shared command-line options, files, diagnostics and JSON | [tutorial](tutorial/internal/runner_cli.md) | [API](api/internal/runner_cli.md) | [design](design/internal/runner_cli.md) |
+| `semantic`: exact, representation-independent projection for comparisons across packages | [tutorial](tutorial/semantic.md) | [API](api/semantic.md) | [design](design/semantic.md) |
 | `consistency`: white-box cross-package laws and API audits | [tutorial](tutorial/consistency.md) | [API](api/consistency.md) | [design](design/consistency.md) |
 | `doc_examples`: executable documentation examples run by `just docs` | [tutorial](tutorial/doc_examples.md) | [API](api/doc_examples.md) | [design](design/doc_examples.md) |
 | `bench`: shared Maremark benchmark infrastructure | [tutorial](tutorial/bench.md) | [API](api/bench.md) | [design](design/bench.md) |

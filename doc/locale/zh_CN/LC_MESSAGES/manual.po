@@ -8075,8 +8075,8 @@ msgid "`semantic` projects concrete values of `floating` onto a small representa
 msgstr "`semantic` 将 `floating` 的具体值投影到一个与表示无关的小型模型上：精确的既约有理数、带符号的无穷、NaN、由此类标量构成的闭区间，以及一套简短的错误词汇。两个不同表示的值（例如 binary64 的 `BinFloat` 与 IEEE 的 `Decimal`）当且仅当表示同一个数时，投影为相等的语义值。本包不执行任何算术运算和舍入。[教程](../tutorial/semantic.md) 展示了典型的比较；[设计页面](../design/semantic.md) 推导了该投影为何是精确的以及它会丢弃哪些信息。"
 
 #: manual/api/semantic.md:17
-msgid "Add the package and the representations you project to your `moon.pkg`:"
-msgstr "将该包以及你要投影的表示添加到你的 `moon.pkg` 中："
+msgid "Add the package (it belongs to the tools module `Luna-Flow/floating-tools`) and the representations you project to your `moon.pkg`:"
+msgstr "将该包（它属于工具模块 `Luna-Flow/floating-tools`）以及你要投影的表示添加到你的 `moon.pkg` 中："
 
 #: manual/api/semantic.md:28
 msgid "The examples call the package as `@semantic.`, the representations as `@bin_float.`, `@decimal.` and `@ball_float.`, and `Sign` as `@def.Sign`. They assume this helper, which prints a semantic scalar as `numerator/denominator`:"
@@ -8340,8 +8340,8 @@ msgid "Two modules"
 msgstr "两个模块"
 
 #: manual/architecture.md:33
-msgid "The repository is a `moon.work` workspace of two modules. The published library `Luna-Flow/floating` holds the shared vocabulary, the scalar and interval domains, the checked tiers and `semantic`; it depends on `Luna-Flow/arithmetic` and `Luna-Flow/luna-generic` only. The tools module `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds `numeric_expr`, the format frontends, the runtime adapters `internal/conformance` and `internal/runner_cli`, `cli`, `differential`, `bench`, `consistency` and `doc_examples`: everything that needs `mare_mark`, `async`, `x` or `type_theory`. The tools module imports the library from the same working tree, so a change to a numeric package is tested by the tools in the same commit."
-msgstr "本仓库是由两个模块组成的 `moon.work` 工作区。已发布的库 `Luna-Flow/floating` 包含共享词汇、标量域与区间域、checked 层和 `semantic`，只依赖 `Luna-Flow/arithmetic` 和 `Luna-Flow/luna-generic`。工具模块 `Luna-Flow/floating-tools`（目录 `tooling/`，与库同版本）包含 `numeric_expr`、各格式前端、运行时适配器 `internal/conformance` 和 `internal/runner_cli`、`cli`、`differential`、`bench`、`consistency` 以及 `doc_examples`：凡是需要 `mare_mark`、`async`、`x` 或 `type_theory` 的内容都放在这里。工具模块从同一个工作树导入库，因此对数值包的改动会在同一次提交中被工具测试。"
+msgid "The repository is a `moon.work` workspace of two modules. The published library `Luna-Flow/floating` holds the shared vocabulary, the scalar and interval domains and the checked tiers; it depends on `Luna-Flow/arithmetic` and `Luna-Flow/luna-generic` only. The tools module `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds `numeric_expr`, the format frontends, the runtime adapters `internal/conformance` and `internal/runner_cli`, `cli`, `differential`, `bench`, `consistency`, `semantic` and `doc_examples`: everything that needs `mare_mark`, `async`, `x` or `type_theory`. The tools module imports the library from the same working tree, so a change to a numeric package is tested by the tools in the same commit."
+msgstr "本仓库是由两个模块组成的 `moon.work` 工作区。已发布的库 `Luna-Flow/floating` 包含共享词汇、标量域与区间域、checked 层，只依赖 `Luna-Flow/arithmetic` 和 `Luna-Flow/luna-generic`。工具模块 `Luna-Flow/floating-tools`（目录 `tooling/`，与库同版本）包含 `numeric_expr`、各格式前端、运行时适配器 `internal/conformance` 和 `internal/runner_cli`、`cli`、`differential`、`bench`、`consistency`、`semantic` 以及 `doc_examples`：凡是需要 `mare_mark`、`async`、`x` 或 `type_theory` 的内容都放在这里。工具模块从同一个工作树导入库，因此对数值包的改动会在同一次提交中被工具测试。"
 
 #: manual/architecture.md:45
 msgid "Standard boundaries"
@@ -8679,10 +8679,10 @@ msgstr "级别"
 #: manual/conformance/decimal_gda.md:15
 #: manual/index.md:69
 #: manual/index.md:78
-#: manual/index.md:89
-#: manual/index.md:99
-#: manual/index.md:112
-#: manual/index.md:120
+#: manual/index.md:88
+#: manual/index.md:98
+#: manual/index.md:111
+#: manual/index.md:119
 #: manual/numeric_semantics.md:582
 msgid "API"
 msgstr "API"
@@ -18286,8 +18286,8 @@ msgid "Modules"
 msgstr "模块"
 
 #: manual/index.md:49
-msgid "The repository is a workspace of two modules. `Luna-Flow/floating` (directory `library/`) is the library: the numerical cores, the checked wrappers, `def`, `semantic` and the `internal` helpers. `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds the developer tools: expressions and corpus frontends, the conformance command line, the differential harness, the benchmarks and the documentation examples. The sections below say which module a package belongs to; their package names are import paths below the module name, so `bin_float` is `Luna-Flow/floating/bin_float` and `frontend/gda_expr` is `Luna-Flow/floating-tools/frontend/gda_expr`."
-msgstr "本仓库是由两个模块组成的工作区。`Luna-Flow/floating`（目录 `library/`）是库：数值核心、checked 封装、`def`、`semantic` 以及 `internal` 辅助包。`Luna-Flow/floating-tools`（目录 `tooling/`，与库同版本）包含开发者工具：表达式与语料前端、一致性命令行、差分测试工具、基准测试、跨包一致性测试和文档示例。下文各节说明每个包属于哪个模块；包名是模块名之下的导入路径，因此 `bin_float` 是 `Luna-Flow/floating/bin_float`，`frontend/gda_expr` 是 `Luna-Flow/floating-tools/frontend/gda_expr`。"
+msgid "The repository is a workspace of two modules. `Luna-Flow/floating` (directory `library/`) is the library: the numerical cores, the checked wrappers, `def`, and the `internal` helpers. `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds the developer tools: expressions and corpus frontends, the conformance command line, the differential harness, the benchmarks and the documentation examples. The sections below say which module a package belongs to; their package names are import paths below the module name, so `bin_float` is `Luna-Flow/floating/bin_float` and `frontend/gda_expr` is `Luna-Flow/floating-tools/frontend/gda_expr`."
+msgstr "本仓库是由两个模块组成的工作区。`Luna-Flow/floating`（目录 `library/`）是库：数值核心、checked 封装、`def` 以及 `internal` 辅助包。`Luna-Flow/floating-tools`（目录 `tooling/`，与库同版本）包含开发者工具：表达式与语料前端、一致性命令行、差分测试工具、基准测试、跨包一致性测试和文档示例。下文各节说明每个包属于哪个模块；包名是模块名之下的导入路径，因此 `bin_float` 是 `Luna-Flow/floating/bin_float`，`frontend/gda_expr` 是 `Luna-Flow/floating-tools/frontend/gda_expr`。"
 
 #: manual/index.md:60
 msgid "Pages"
@@ -18303,28 +18303,28 @@ msgstr "数值核心"
 
 #: manual/index.md:69
 #: manual/index.md:78
-#: manual/index.md:89
-#: manual/index.md:99
-#: manual/index.md:112
-#: manual/index.md:120
+#: manual/index.md:88
+#: manual/index.md:98
+#: manual/index.md:111
+#: manual/index.md:119
 msgid "Part"
 msgstr "组成部分"
 
 #: manual/index.md:69
 #: manual/index.md:78
-#: manual/index.md:89
-#: manual/index.md:99
-#: manual/index.md:112
-#: manual/index.md:120
+#: manual/index.md:88
+#: manual/index.md:98
+#: manual/index.md:111
+#: manual/index.md:119
 msgid "Tutorial"
 msgstr "教程"
 
 #: manual/index.md:69
 #: manual/index.md:78
-#: manual/index.md:89
-#: manual/index.md:99
-#: manual/index.md:112
-#: manual/index.md:120
+#: manual/index.md:88
+#: manual/index.md:98
+#: manual/index.md:111
+#: manual/index.md:119
 msgid "Design"
 msgstr "设计"
 
@@ -18492,325 +18492,325 @@ msgstr "[API](api/ball_float_checked.md)"
 msgid "[design](design/ball_float_checked.md)"
 msgstr "[设计](design/ball_float_checked.md)"
 
-#: manual/index.md:85
-msgid "`semantic`: exact, representation-independent projection for comparisons across packages"
-msgstr "`semantic`：用于跨包比较的精确且与表示无关的投影"
-
-#: manual/index.md:85
-msgid "[tutorial](tutorial/semantic.md)"
-msgstr "[教程](tutorial/semantic.md)"
-
-#: manual/index.md:85
-msgid "[API](api/semantic.md)"
-msgstr "[API](api/semantic.md)"
-
-#: manual/index.md:85
-msgid "[design](design/semantic.md)"
-msgstr "[设计](design/semantic.md)"
-
-#: manual/index.md:87
+#: manual/index.md:86
 msgid "Tools module: expressions and corpus frontends"
 msgstr "工具模块：表达式与语料前端"
 
-#: manual/index.md:91
+#: manual/index.md:90
 msgid "`numeric_expr`: host-independent numeric expression syntax and evaluation"
 msgstr "`numeric_expr`：与宿主无关的数值表达式语法及求值"
 
-#: manual/index.md:91
+#: manual/index.md:90
 msgid "[tutorial](tutorial/numeric_expr.md)"
 msgstr "[教程](tutorial/numeric_expr.md)"
 
-#: manual/index.md:91
+#: manual/index.md:90
 msgid "[API](api/numeric_expr.md)"
 msgstr "[API](api/numeric_expr.md)"
 
-#: manual/index.md:91
+#: manual/index.md:90
 msgid "[design](design/numeric_expr.md)"
 msgstr "[设计](design/numeric_expr.md)"
 
-#: manual/index.md:92
+#: manual/index.md:91
 msgid "`frontend/gda_expr`: parse and execute GDA `.decTest` files"
 msgstr "`frontend/gda_expr`：解析并执行 GDA `.decTest` 文件"
 
-#: manual/index.md:92
+#: manual/index.md:91
 msgid "[tutorial](tutorial/frontend/gda_expr.md)"
 msgstr "[教程](tutorial/frontend/gda_expr.md)"
 
-#: manual/index.md:92
+#: manual/index.md:91
 msgid "[API](api/frontend/gda_expr.md)"
 msgstr "[API](api/frontend/gda_expr.md)"
 
-#: manual/index.md:92
+#: manual/index.md:91
 msgid "[design](design/frontend/gda_expr.md)"
 msgstr "[设计](design/frontend/gda_expr.md)"
 
-#: manual/index.md:93
+#: manual/index.md:92
 msgid "`frontend/itl_expr`: parse and execute ITF1788 interval test rows"
 msgstr "`frontend/itl_expr`：解析并执行 ITF1788 区间测试行"
 
-#: manual/index.md:93
+#: manual/index.md:92
 msgid "[tutorial](tutorial/frontend/itl_expr.md)"
 msgstr "[教程](tutorial/frontend/itl_expr.md)"
 
-#: manual/index.md:93
+#: manual/index.md:92
 msgid "[API](api/frontend/itl_expr.md)"
 msgstr "[API](api/frontend/itl_expr.md)"
 
-#: manual/index.md:93
+#: manual/index.md:92
 msgid "[design](design/frontend/itl_expr.md)"
 msgstr "[设计](design/frontend/itl_expr.md)"
 
-#: manual/index.md:94
+#: manual/index.md:93
 msgid "`frontend/mpfr_expr`: parse and execute pinned MPFR witnesses"
 msgstr "`frontend/mpfr_expr`：解析并执行固定版本的 MPFR 见证数据"
 
-#: manual/index.md:94
+#: manual/index.md:93
 msgid "[tutorial](tutorial/frontend/mpfr_expr.md)"
 msgstr "[教程](tutorial/frontend/mpfr_expr.md)"
 
-#: manual/index.md:94
+#: manual/index.md:93
 msgid "[API](api/frontend/mpfr_expr.md)"
 msgstr "[API](api/frontend/mpfr_expr.md)"
 
-#: manual/index.md:94
+#: manual/index.md:93
 msgid "[design](design/frontend/mpfr_expr.md)"
 msgstr "[设计](design/frontend/mpfr_expr.md)"
 
-#: manual/index.md:95
+#: manual/index.md:94
 msgid "`frontend/testfloat_expr`: parse and execute Berkeley TestFloat vectors"
 msgstr "`frontend/testfloat_expr`：解析并执行 Berkeley TestFloat 向量"
 
-#: manual/index.md:95
+#: manual/index.md:94
 msgid "[tutorial](tutorial/frontend/testfloat_expr.md)"
 msgstr "[教程](tutorial/frontend/testfloat_expr.md)"
 
-#: manual/index.md:95
+#: manual/index.md:94
 msgid "[API](api/frontend/testfloat_expr.md)"
 msgstr "[API](api/frontend/testfloat_expr.md)"
 
-#: manual/index.md:95
+#: manual/index.md:94
 msgid "[design](design/frontend/testfloat_expr.md)"
 msgstr "[设计](design/frontend/testfloat_expr.md)"
 
-#: manual/index.md:97
+#: manual/index.md:96
 msgid "Tools module: conformance command line"
 msgstr "工具模块：一致性命令行"
 
-#: manual/index.md:101
+#: manual/index.md:100
 msgid "`cli`: native dispatcher for the four conformance backends"
 msgstr "`cli`：四个符合性测试后端的原生调度器"
 
-#: manual/index.md:101
+#: manual/index.md:100
 msgid "[tutorial](tutorial/cli.md)"
 msgstr "[教程](tutorial/cli.md)"
 
-#: manual/index.md:101
+#: manual/index.md:100
 msgid "[API](api/cli.md)"
 msgstr "[API](api/cli.md)"
 
-#: manual/index.md:101
+#: manual/index.md:100
 msgid "[design](design/cli.md)"
 msgstr "[设计](design/cli.md)"
 
-#: manual/index.md:102
+#: manual/index.md:101
 msgid "`cli/dispatch`: the argument scanning and exit code of `cli`, as a library"
 msgstr "`cli/dispatch`：`cli` 的参数扫描与退出码，作为库提供"
 
-#: manual/index.md:102
+#: manual/index.md:101
 msgid "[tutorial](tutorial/cli/dispatch.md)"
 msgstr "[教程](tutorial/cli/dispatch.md)"
 
-#: manual/index.md:102
+#: manual/index.md:101
 msgid "[API](api/cli/dispatch.md)"
 msgstr "[API](api/cli/dispatch.md)"
 
-#: manual/index.md:102
+#: manual/index.md:101
 msgid "[design](design/cli/dispatch.md)"
 msgstr "[设计](design/cli/dispatch.md)"
 
-#: manual/index.md:103
+#: manual/index.md:102
 msgid "`cli/gda_expr_cli`: file and output adapter for `.decTest` runs"
 msgstr "`cli/gda_expr_cli`：`.decTest` 运行的文件与输出适配器"
 
-#: manual/index.md:103
+#: manual/index.md:102
 msgid "[tutorial](tutorial/cli/gda_expr_cli.md)"
 msgstr "[教程](tutorial/cli/gda_expr_cli.md)"
 
-#: manual/index.md:103
+#: manual/index.md:102
 msgid "[API](api/cli/gda_expr_cli.md)"
 msgstr "[API](api/cli/gda_expr_cli.md)"
 
-#: manual/index.md:103
+#: manual/index.md:102
 msgid "[design](design/cli/gda_expr_cli.md)"
 msgstr "[设计](design/cli/gda_expr_cli.md)"
 
-#: manual/index.md:104
+#: manual/index.md:103
 msgid "`cli/itl_expr_cli`: file and JSON adapter for ITF1788 runs"
 msgstr "`cli/itl_expr_cli`：ITF1788 运行的文件与 JSON 适配器"
 
-#: manual/index.md:104
+#: manual/index.md:103
 msgid "[tutorial](tutorial/cli/itl_expr_cli.md)"
 msgstr "[教程](tutorial/cli/itl_expr_cli.md)"
 
-#: manual/index.md:104
+#: manual/index.md:103
 msgid "[API](api/cli/itl_expr_cli.md)"
 msgstr "[API](api/cli/itl_expr_cli.md)"
 
-#: manual/index.md:104
+#: manual/index.md:103
 msgid "[design](design/cli/itl_expr_cli.md)"
 msgstr "[设计](design/cli/itl_expr_cli.md)"
 
-#: manual/index.md:105
+#: manual/index.md:104
 msgid "`cli/mpfr_expr_cli`: command adapter for MPFR witness runs"
 msgstr "`cli/mpfr_expr_cli`：MPFR 见证数据运行的命令适配器"
 
-#: manual/index.md:105
+#: manual/index.md:104
 msgid "[tutorial](tutorial/cli/mpfr_expr_cli.md)"
 msgstr "[教程](tutorial/cli/mpfr_expr_cli.md)"
 
-#: manual/index.md:105
+#: manual/index.md:104
 msgid "[API](api/cli/mpfr_expr_cli.md)"
 msgstr "[API](api/cli/mpfr_expr_cli.md)"
 
-#: manual/index.md:105
+#: manual/index.md:104
 msgid "[design](design/cli/mpfr_expr_cli.md)"
 msgstr "[设计](design/cli/mpfr_expr_cli.md)"
 
-#: manual/index.md:106
+#: manual/index.md:105
 msgid "`differential`: seeded random differential harness against MPFR and libmpdec"
 msgstr "`differential`：针对 MPFR 和 libmpdec 的带种子随机差分运行器"
 
-#: manual/index.md:106
+#: manual/index.md:105
 msgid "[tutorial](tutorial/differential.md)"
 msgstr "[教程](tutorial/differential.md)"
 
-#: manual/index.md:106
+#: manual/index.md:105
 msgid "[API](api/differential.md)"
 msgstr "[API](api/differential.md)"
 
-#: manual/index.md:106
+#: manual/index.md:105
 msgid "[design](design/differential.md)"
 msgstr "[设计](design/differential.md)"
 
-#: manual/index.md:107
+#: manual/index.md:106
 msgid "`differential/harness`: the batches, specification and `run` of `differential`, as a library"
 msgstr "`differential/harness`：`differential` 的批、规格与 `run`，作为库提供"
 
-#: manual/index.md:107
+#: manual/index.md:106
 msgid "[tutorial](tutorial/differential/harness.md)"
 msgstr "[教程](tutorial/differential/harness.md)"
 
-#: manual/index.md:107
+#: manual/index.md:106
 msgid "[API](api/differential/harness.md)"
 msgstr "[API](api/differential/harness.md)"
 
-#: manual/index.md:107
+#: manual/index.md:106
 msgid "[design](design/differential/harness.md)"
 msgstr "[设计](design/differential/harness.md)"
 
-#: manual/index.md:108
+#: manual/index.md:107
 msgid "`cli/testfloat_expr_cli`: command adapter for TestFloat runs"
 msgstr "`cli/testfloat_expr_cli`：TestFloat 运行的命令适配器"
 
-#: manual/index.md:108
+#: manual/index.md:107
 msgid "[tutorial](tutorial/cli/testfloat_expr_cli.md)"
 msgstr "[教程](tutorial/cli/testfloat_expr_cli.md)"
 
-#: manual/index.md:108
+#: manual/index.md:107
 msgid "[API](api/cli/testfloat_expr_cli.md)"
 msgstr "[API](api/cli/testfloat_expr_cli.md)"
 
-#: manual/index.md:108
+#: manual/index.md:107
 msgid "[design](design/cli/testfloat_expr_cli.md)"
 msgstr "[设计](design/cli/testfloat_expr_cli.md)"
 
-#: manual/index.md:110
+#: manual/index.md:109
 msgid "Library infrastructure"
 msgstr "库的基础设施"
 
-#: manual/index.md:114
+#: manual/index.md:113
 msgid "`internal`: exact rationals, big-integer, parsing, normalization and rounding helpers"
 msgstr "`internal`：精确有理数、大整数、解析、规范化与舍入辅助函数"
 
-#: manual/index.md:114
+#: manual/index.md:113
 msgid "[tutorial](tutorial/internal.md)"
 msgstr "[教程](tutorial/internal.md)"
 
-#: manual/index.md:114
+#: manual/index.md:113
 msgid "[API](api/internal.md)"
 msgstr "[API](api/internal.md)"
 
-#: manual/index.md:114
+#: manual/index.md:113
 msgid "[design](design/internal.md)"
 msgstr "[设计](design/internal.md)"
 
-#: manual/index.md:115
+#: manual/index.md:114
 msgid "`internal/decimal_kernel`: exact integer arithmetic on decimal coefficients, shared by `decimal` and `decimal_gda`"
 msgstr "`internal/decimal_kernel`：十进制系数上的精确整数运算，由 `decimal` 和 `decimal_gda` 共用"
 
-#: manual/index.md:115
+#: manual/index.md:114
 msgid "[tutorial](tutorial/internal/decimal_kernel.md)"
 msgstr "[教程](tutorial/internal/decimal_kernel.md)"
 
-#: manual/index.md:115
+#: manual/index.md:114
 msgid "[API](api/internal/decimal_kernel.md)"
 msgstr "[API](api/internal/decimal_kernel.md)"
 
-#: manual/index.md:115
+#: manual/index.md:114
 msgid "[design](design/internal/decimal_kernel.md)"
 msgstr "[设计](design/internal/decimal_kernel.md)"
 
-#: manual/index.md:116
+#: manual/index.md:115
 msgid "`internal/bin_kernel`: exact integer arithmetic on the coefficients of `bin_float`"
 msgstr "`internal/bin_kernel`：`bin_float` 系数的精确整数算术"
 
-#: manual/index.md:116
+#: manual/index.md:115
 msgid "[tutorial](tutorial/internal/bin_kernel.md)"
 msgstr "[教程](tutorial/internal/bin_kernel.md)"
 
-#: manual/index.md:116
+#: manual/index.md:115
 msgid "[API](api/internal/bin_kernel.md)"
 msgstr "[API](api/internal/bin_kernel.md)"
 
-#: manual/index.md:116
+#: manual/index.md:115
 msgid "[design](design/internal/bin_kernel.md)"
 msgstr "[设计](design/internal/bin_kernel.md)"
 
-#: manual/index.md:118
+#: manual/index.md:117
 msgid "Tools module: infrastructure and evidence"
 msgstr "工具模块：基础设施与证据"
 
-#: manual/index.md:122
+#: manual/index.md:121
 msgid "`internal/conformance`: source locations, deterministic shards, case dispositions and summaries"
 msgstr "`internal/conformance`：源位置、确定性分片、用例处置与汇总"
 
-#: manual/index.md:122
+#: manual/index.md:121
 msgid "[tutorial](tutorial/internal/conformance.md)"
 msgstr "[教程](tutorial/internal/conformance.md)"
 
-#: manual/index.md:122
+#: manual/index.md:121
 msgid "[API](api/internal/conformance.md)"
 msgstr "[API](api/internal/conformance.md)"
 
-#: manual/index.md:122
+#: manual/index.md:121
 msgid "[design](design/internal/conformance.md)"
 msgstr "[设计](design/internal/conformance.md)"
 
-#: manual/index.md:123
+#: manual/index.md:122
 msgid "`internal/runner_cli`: shared command-line options, files, diagnostics and JSON"
 msgstr "`internal/runner_cli`：共享的命令行选项、文件、诊断信息与 JSON"
 
-#: manual/index.md:123
+#: manual/index.md:122
 msgid "[tutorial](tutorial/internal/runner_cli.md)"
 msgstr "[教程](tutorial/internal/runner_cli.md)"
 
-#: manual/index.md:123
+#: manual/index.md:122
 msgid "[API](api/internal/runner_cli.md)"
 msgstr "[API](api/internal/runner_cli.md)"
 
-#: manual/index.md:123
+#: manual/index.md:122
 msgid "[design](design/internal/runner_cli.md)"
 msgstr "[设计](design/internal/runner_cli.md)"
+
+#: manual/index.md:123
+msgid "`semantic`: exact, representation-independent projection for comparisons across packages"
+msgstr "`semantic`：用于跨包比较的精确且与表示无关的投影"
+
+#: manual/index.md:123
+msgid "[tutorial](tutorial/semantic.md)"
+msgstr "[教程](tutorial/semantic.md)"
+
+#: manual/index.md:123
+msgid "[API](api/semantic.md)"
+msgstr "[API](api/semantic.md)"
+
+#: manual/index.md:123
+msgid "[design](design/semantic.md)"
+msgstr "[设计](design/semantic.md)"
 
 #: manual/index.md:124
 msgid "`consistency`: white-box cross-package laws and API audits"
@@ -21466,7 +21466,7 @@ msgstr "没有任何 53 位的 `BinFloat` 等于 $1/3$，因此结果是包含�
 #: manual/tutorial/internal/conformance.md:55
 #: manual/tutorial/internal/runner_cli.md:110
 #: manual/tutorial/numeric_expr.md:55
-#: manual/tutorial/semantic.md:51
+#: manual/tutorial/semantic.md:49
 msgid "Everyday tasks"
 msgstr "日常任务"
 
@@ -21571,7 +21571,7 @@ msgstr "`BallContext` 描述一种二进制格式（精度和指数范围）。`
 #: manual/tutorial/internal/conformance.md:109
 #: manual/tutorial/internal/runner_cli.md:136
 #: manual/tutorial/numeric_expr.md:241
-#: manual/tutorial/semantic.md:173
+#: manual/tutorial/semantic.md:171
 msgid "Going further"
 msgstr "深入了解"
 
@@ -21644,7 +21644,7 @@ msgstr "每个区间都带有以位为单位的工作 `precision`；二元运算
 #: manual/tutorial/internal/conformance.md:116
 #: manual/tutorial/internal/runner_cli.md:148
 #: manual/tutorial/numeric_expr.md:257
-#: manual/tutorial/semantic.md:223
+#: manual/tutorial/semantic.md:221
 msgid "Common pitfalls"
 msgstr "常见陷阱"
 
@@ -21717,7 +21717,7 @@ msgstr "**来自 `Double` 的输入。** `from_double(x)` 精确包络 `x` 的�
 #: manual/tutorial/internal/conformance.md:127
 #: manual/tutorial/internal/runner_cli.md:164
 #: manual/tutorial/numeric_expr.md:271
-#: manual/tutorial/semantic.md:240
+#: manual/tutorial/semantic.md:238
 msgid "Next steps"
 msgstr "后续步骤"
 
@@ -24862,6 +24862,7 @@ msgstr "用自己的库对行求值"
 #: manual/tutorial/frontend/mpfr_expr.md:20
 #: manual/tutorial/frontend/testfloat_expr.md:23
 #: manual/tutorial/numeric_expr.md:21
+#: manual/tutorial/semantic.md:24
 msgid "The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`."
 msgstr "该包属于工具模块 `Luna-Flow/floating-tools`（仓库中的 `tooling/` 目录，与库同版本），而不属于已发布的库。请把你的代码写成本工作区中的一个包；工具模块发布后，也可以运行 `moon add Luna-Flow/floating-tools@0.11.0`。"
 
@@ -26111,103 +26112,103 @@ msgstr "比较不同包的错误"
 msgid "cross-check two implementations"
 msgstr "交叉检验两个实现"
 
-#: manual/tutorial/semantic.md:36
+#: manual/tutorial/semantic.md:34
 msgid "Three represented as a 32-bit binary float and as a decimal is the same number:"
 msgstr "三表示为 32 位二进制浮点数和表示为十进制数时，是同一个数："
 
-#: manual/tutorial/semantic.md:53
+#: manual/tutorial/semantic.md:51
 msgid "See the exact value of a float"
 msgstr "查看浮点数的精确值"
 
-#: manual/tutorial/semantic.md:55
+#: manual/tutorial/semantic.md:53
 msgid "The examples below print a projected scalar with this helper:"
 msgstr "下面的示例用这个辅助函数打印投影后的标量："
 
-#: manual/tutorial/semantic.md:80
+#: manual/tutorial/semantic.md:78
 msgid "The denominator of the binary value is $2^{55}$; the decimal value is exactly $1/10$. The projections differ, so binary64 `0.1` is not one tenth."
 msgstr "二进制值的分母是 $2^{55}$；十进制值恰好是 $1/10$。两者的投影不同，因此 binary64 `0.1` 不是十分之一。"
 
-#: manual/tutorial/semantic.md:83
+#: manual/tutorial/semantic.md:81
 msgid "Ignore cohorts, precision and signed zeros"
 msgstr "忽略同值类、精度和带符号零"
 
-#: manual/tutorial/semantic.md:85
+#: manual/tutorial/semantic.md:83
 msgid "Decimal `1.5`, `1.50` and `1.500` are different representations of one value (a cohort); a binary value carries a precision; zero has two signs. The projection forgets all of this:"
 msgstr "十进制的 `1.5`、`1.50` 和 `1.500` 是同一个值的不同表示（一个同值类）；二进制值带有精度；零有两种符号。投影会忽略所有这些："
 
-#: manual/tutorial/semantic.md:109
+#: manual/tutorial/semantic.md:107
 msgid "Order two values exactly"
 msgstr "精确地比较两个值的大小"
 
-#: manual/tutorial/semantic.md:111
+#: manual/tutorial/semantic.md:109
 msgid "The package provides equality only. Because a projected rational exposes a reduced numerator and a positive denominator, you can order two of them with the cross-multiplication rule $a/b < c/d \\iff ad < cb$ (valid because $b, d > 0$):"
 msgstr "本包只提供相等性。由于投影得到的有理数暴露了约分后的分子和正的分母，你可以用交叉相乘规则 $a/b < c/d \\iff ad < cb$ 对其中两个排序（因为 $b, d > 0$，该规则成立）："
 
-#: manual/tutorial/semantic.md:134
+#: manual/tutorial/semantic.md:132
 msgid "Check that an interval encloses a decimal"
 msgstr "检查区间是否包络某个十进制数"
 
-#: manual/tutorial/semantic.md:136
+#: manual/tutorial/semantic.md:134
 msgid "`SemanticInterval::from_ball_float` exposes the exact endpoints of a ball. With the comparison above you can check an enclosure against a decimal reference value without any rounding:"
 msgstr "`SemanticInterval::from_ball_float` 暴露了球的精确端点。结合上面的比较，你可以在不做任何舍入的情况下，用十进制参考值检查包络："
 
-#: manual/tutorial/semantic.md:170
+#: manual/tutorial/semantic.md:168
 msgid "The empty interval projects to the reversed pair $(+\\infty, -\\infty)$, so the helper rejects every value without a special case."
 msgstr "空区间投影为反转的对 $(+\\infty, -\\infty)$，因此辅助函数无需特殊处理即可拒绝每个值。"
 
-#: manual/tutorial/semantic.md:175
+#: manual/tutorial/semantic.md:173
 msgid "Compare checked results across packages"
 msgstr "跨包比较 checked 结果"
 
-#: manual/tutorial/semantic.md:177
+#: manual/tutorial/semantic.md:175
 msgid "`semantic_scalar_result` maps a `Result[T, ArithmeticError]` to a `SemanticResult`, so an error from one package and the same error from another compare equal although their messages differ:"
 msgstr "`semantic_scalar_result` 把 `Result[T, ArithmeticError]` 映射为 `SemanticResult`，因此来自一个包的错误与来自另一个包的同一错误比较为相等，尽管它们的消息不同："
 
-#: manual/tutorial/semantic.md:200
+#: manual/tutorial/semantic.md:198
 msgid "Cross-check two implementations"
 msgstr "交叉检验两种实现"
 
-#: manual/tutorial/semantic.md:202
+#: manual/tutorial/semantic.md:200
 msgid "A typical consistency test computes one result in two representations, rounds both to values that are exactly representable in each, and compares the projections. Square roots of perfect squares are exact in both radices:"
 msgstr "典型的一致性测试在两种表示下计算同一个结果，把两者都舍入为在各自表示中都能精确表示的值，然后比较投影。完全平方数的平方根在两种基数下都是精确的："
 
-#: manual/tutorial/semantic.md:225
+#: manual/tutorial/semantic.md:223
 msgid "`NaN == NaN` is `true` for `SemanticScalar`. The projection is a value model, not IEEE comparison; use the concrete packages for IEEE predicates."
 msgstr "对 `SemanticScalar` 而言 `NaN == NaN` 为 `true`。投影是一种值模型，而不是 IEEE 比较；IEEE 谓词请使用具体的包。"
 
-#: manual/tutorial/semantic.md:227
+#: manual/tutorial/semantic.md:225
 msgid "The projection drops the sign of zero, NaN payloads and signalling state, decimal cohorts, precision and flags. Do not use it to test those. Decorated intervals are not accepted at all."
 msgstr "投影丢弃了零的符号、NaN 载荷与信号状态、十进制同值类、精度和标志。不要用它来检验这些属性。装饰区间则完全不被接受。"
 
-#: manual/tutorial/semantic.md:230
+#: manual/tutorial/semantic.md:228
 msgid "There is no ordering in the package. Write the cross-multiplication yourself as above; never convert to `Double` to compare."
 msgstr "本包没有提供序。请像上面那样自己写交叉相乘；切勿为了比较而转换为 `Double`。"
 
-#: manual/tutorial/semantic.md:232
+#: manual/tutorial/semantic.md:230
 msgid "Projecting a value with a huge exponent (for example decimal `1E+999999`, or a `BinFloat` near its exponent limit $2^{30}$) builds a `BigInt` with as many digits or bits as the exponent. Keep projections to values of moderate exponent."
 msgstr "投影一个指数极大的值（例如十进制数 `1E+999999`，或接近其指数界限 $2^{30}$ 的 `BinFloat`）会构造一个位数与指数相当的 `BigInt`。请只对指数适中的值进行投影。"
 
-#: manual/tutorial/semantic.md:236
+#: manual/tutorial/semantic.md:234
 msgid "Only `@decimal.Decimal` has a projection; convert a `@decimal_gda.Decimal` through its string form if you need one."
 msgstr "只有 `@decimal.Decimal` 有投影；如果需要投影 `@decimal_gda.Decimal`，请经由其字符串形式转换。"
 
-#: manual/tutorial/semantic.md:238
+#: manual/tutorial/semantic.md:236
 msgid "`ExactRational::new` aborts on a zero denominator."
 msgstr "`ExactRational::new` 在分母为零时中止。"
 
-#: manual/tutorial/semantic.md:242
+#: manual/tutorial/semantic.md:240
 msgid "[`semantic` design](../design/semantic.md): the exact projection, the canonical form and the interval model."
 msgstr "[`semantic` 设计](../design/semantic.md)：精确投影、规范形式与区间模型。"
 
-#: manual/tutorial/semantic.md:244
+#: manual/tutorial/semantic.md:242
 msgid "[`semantic` API](../api/semantic.md): every item with its signature."
 msgstr "[`semantic` API](../api/semantic.md)：每个条目及其签名。"
 
-#: manual/tutorial/semantic.md:245
+#: manual/tutorial/semantic.md:243
 msgid "[`def` tutorial](def.md) for the shared vocabulary (`Sign`, `Floating`)."
 msgstr "共享词汇（`Sign`、`Floating`）见 [`def` 教程](def.md)。"
 
-#: manual/tutorial/semantic.md:246
+#: manual/tutorial/semantic.md:244
 msgid "[`ball_float` tutorial](ball_float.md) for computing the enclosures you project."
 msgstr "如何计算你要投影的包络，见 [`ball_float` 教程](ball_float.md)。"
 

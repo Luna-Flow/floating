@@ -14,11 +14,11 @@ and what it forgets.
 
 ## Importing
 
-Add the package and the representations you project to your `moon.pkg`:
+Add the package (it belongs to the tools module `Luna-Flow/floating-tools`) and the representations you project to your `moon.pkg`:
 
 ```moonbit nocheck
 import {
-  "Luna-Flow/floating/semantic",
+  "Luna-Flow/floating-tools/semantic",
   "Luna-Flow/floating/bin_float",
   "Luna-Flow/floating/decimal",
   "Luna-Flow/floating/ball_float",
@@ -377,7 +377,7 @@ The following snapshot is the complete generated interface of the package.
 <!-- generated-api-start -->
 ```mbti
 // Generated using `moon info`, DON'T EDIT IT
-package "Luna-Flow/floating/semantic"
+package "Luna-Flow/floating-tools/semantic"
 
 import {
   "Luna-Flow/arithmetic",
