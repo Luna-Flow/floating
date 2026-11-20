@@ -68,6 +68,7 @@ the functions below.
 | bit operations | `Coeff::bit_and`, `Coeff::bit_or`, `Coeff::bit_xor` |
 | multiply and divide | `Coeff::mul`, `bin_coeff_mul_short_ok`, `bin_coeff_mul_short`, `bin_coeff_short_product_limbs`, `Coeff::square`, `Coeff::div_rem_checked`, `bin_coeff_short_div_rem`, `bin_coeff_div_scaled_ok`, `bin_coeff_div_scaled_quotient`, `bin_coeff_div_short_ok`, `bin_coeff_div_short_quotient`, `bin_coeff_short_division_guard_bits` |
 | number theory and roots | `Coeff::gcd`, `Coeff::pow_nat`, `bin_coeff_sqrt_rem_kernel`, `bin_coeff_sqrt_rem_scaled`, `bin_coeff_sqrt_scaled_rounded` |
+| limb rows (C on native, portable elsewhere) | `bin_limbs_mul_1`, `bin_limbs_addmul_1`, `bin_limbs_submul_1` |
 | machine words | `binary_fast_bits`, `binary_fast_mul_high`, `binary_fast_div_wide`, `binary_fast_shl_high`, `binary_fast_shl_low` |
 
 The per-target thresholds (`bin_coeff_*_min_words`, `*_words`, `*_cutoff`) are
@@ -123,6 +124,12 @@ pub fn bin_coeff_sqrt_scaled_rounded(Coeff, Int32, Int32) -> Coeff
 pub fn bin_coeff_sub_normalized_odd(Coeff, Coeff) -> (Coeff, Int32)
 
 pub fn bin_coeff_word(Coeff, Int32) -> UInt64
+
+pub fn bin_limbs_addmul_1(FixedArray[UInt64], Int32, FixedArray[UInt64], Int32, Int32, UInt64) -> UInt64
+
+pub fn bin_limbs_mul_1(FixedArray[UInt64], Int32, FixedArray[UInt64], Int32, Int32, UInt64) -> UInt64
+
+pub fn bin_limbs_submul_1(FixedArray[UInt64], Int32, FixedArray[UInt64], Int32, Int32, UInt64) -> UInt64
 
 pub fn binary_fast_bits(UInt64) -> Int32
 

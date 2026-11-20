@@ -40,6 +40,12 @@ pub fn bin_coeff_sub_normalized_odd(Coeff, Coeff) -> (Coeff, Int32)
 
 pub fn bin_coeff_word(Coeff, Int32) -> UInt64
 
+pub fn bin_limbs_addmul_1(FixedArray[UInt64], Int32, FixedArray[UInt64], Int32, Int32, UInt64) -> UInt64
+
+pub fn bin_limbs_mul_1(FixedArray[UInt64], Int32, FixedArray[UInt64], Int32, Int32, UInt64) -> UInt64
+
+pub fn bin_limbs_submul_1(FixedArray[UInt64], Int32, FixedArray[UInt64], Int32, Int32, UInt64) -> UInt64
+
 pub fn binary_fast_bits(UInt64) -> Int32
 
 pub fn binary_fast_div_wide(UInt64, UInt64, UInt64) -> UInt64

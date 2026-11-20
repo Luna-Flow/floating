@@ -7,6 +7,7 @@ import {
 } for "wbtest"
 
 options(
+  "native-stub": [ "luna_limbs.c" ],
   targets: {
     "coeff_js.mbt": [ "js" ],
     "coeff_advanced_nonjs.mbt": [ "not", "js" ],
@@ -40,6 +41,10 @@ options(
     "coeff_sqrt_words_nonjs_wbtest.mbt": [ "not", "js" ],
     "coeff_sqrt_nonjs_wbtest.mbt": [ "not", "js" ],
     "coeff_sqrt_reference_nonjs_wbtest.mbt": [ "not", "js" ],
+    "coeff_limbs_native.mbt": [ "native" ],
+    "coeff_limbs_native_wbtest.mbt": [ "native" ],
+    "coeff_limbs_other_nonjs.mbt": [ "wasm", "wasm-gc", "llvm" ],
+    "coeff_limbs_portable_nonjs.mbt": [ "not", "js" ],
     "coeff_thresholds_llvm.mbt": [ "llvm" ],
     "coeff_thresholds_native.mbt": [ "native" ],
     "coeff_thresholds_wasm.mbt": [ "wasm" ],
