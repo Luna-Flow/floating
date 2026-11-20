@@ -10909,7 +10909,7 @@ msgstr "每个区间都携带一个精度标签；二元运算使用较大的标
 #: manual/design/frontend/testfloat_expr.md:113
 #: manual/design/internal.md:138
 #: manual/design/internal/conformance.md:74
-#: manual/design/internal/decimal_kernel.md:138
+#: manual/design/internal/decimal_kernel.md:162
 #: manual/design/internal/runner_cli.md:60
 #: manual/design/numeric_expr.md:129
 #: manual/design/semantic.md:196
@@ -17363,35 +17363,43 @@ msgstr "位数统计、累加器与精确商"
 msgid "`dec_coeff_small_digits` counts the digits of a one-word value with the leading-zero count (`floor(bits * 1233 / 4096)` is the digit count or one less) and one comparison with a power of ten; `value | 1` maps zero to one digit and never changes the count of another value. Both packages use it, as `digits10` of every `Small` coefficient. `dec_coeff_from_unit_accumulator` trims leading zero limbs and truncates the buffer in one step and does not scan the limbs for values at or above the base: every producer writes limbs below the base, which the white-box test \"unit accumulator producers write limbs below the base\" checks over shifts, sums, products and quotients. A division that must also say whether the exact quotient has a finite decimal expansion uses `dec_coeff_round_div_expansion`: with $d = 2^a 5^b u$, $u$ prime to 10, the expansion of $n/d$ is finite exactly when $u \\mid n$, and as 10 is invertible modulo $u$ that is equivalent to $u$ dividing the remainder of $n\\,10^k$ by $d$, so the one division that produces the quotient also decides it."
 msgstr "`dec_coeff_small_digits` 用前导零计数统计单字值的位数（`floor(bits * 1233 / 4096)` 等于位数或比位数小一），再与一个 10 的幂做一次比较；`value | 1` 把零映射为一位，并且不会改变其他值的位数。两个包都使用它，作为每个 `Small` 系数的 `digits10`。`dec_coeff_from_unit_accumulator` 去掉高位零肢并一次性截断缓冲区，不再对大于等于基数的值逐肢扫描：每个生产者写入的肢都小于基数，白盒测试 “unit accumulator producers write limbs below the base” 在移位、加法、乘法和除法上检查了这一点。需要同时判断精确商是否有有限十进制展开的除法使用 `dec_coeff_round_div_expansion`：设 $d = 2^a 5^b u$，$u$ 与 10 互素，则 $n/d$ 的展开有限当且仅当 $u \\mid n$；由于 10 在模 $u$ 下可逆，这等价于 $u$ 整除 $n\\,10^k$ 除以 $d$ 的余数，所以产生商的那一次除法同时也决定了结果。"
 
+#: manual/design/internal/decimal_kernel.md:138
+msgid "Integer square root"
+msgstr "整数平方根"
+
 #: manual/design/internal/decimal_kernel.md:140
+msgid "`dec_coeff_integer_sqrt_rem_repr` returns the floor root $s$ of $n$ and the remainder $n - s^2$. A value below $10^{18}$ takes the hardware root of the nearest double, which is within one of the answer, and two comparisons with exact word products settle it. A longer value of $D$ digits is split as $n = h\\,10^{2t} + l$ with $t \\approx D/4$ and $0 \\le l < 10^{2t}$. The root $s_h$ of $h$ comes from the same function one level down, and $x_0 = (s_h + 1)\\,10^{t}$ never lies below $s$: $n < (h+1)\\,10^{2t}$ and $h + 1 \\le (s_h+1)^2$. Newton's step $x \\mapsto \\lfloor (x + \\lfloor n/x \\rfloor)/2 \\rfloor$ started at or above $s$ decreases to $s$ and never falls below it, so the start needs no estimate and the working size doubles from the bottom of the recursion. The earlier version began at a power of ten and ran every step at full size, about $\\log_2 D + 2$ divisions of a $D$-digit number. The division of each step also ends the loop: for $x \\ge s$ the quotient $q = \\lfloor n/x \\rfloor$ reaches $x$ exactly when $x = s$, and then $n = xq + r$ gives the remainder $r + x(q - x)$ with $q - x \\in \\{0, 1, 2\\}$ (because $n < (x+1)^2$), so the squaring that the earlier version needed for the remainder is gone. The pair $(s, n - s^2)$ is unique, so no caller can observe the change; the white-box test compares it bit for bit with the previous implementation, kept in the test file, on random operands of 1 to 112 limbs, perfect squares and their neighbours, and powers of ten."
+msgstr "`dec_coeff_integer_sqrt_rem_repr` 返回 $n$ 的下取整平方根 $s$ 以及余数 $n - s^2$。小于 $10^{18}$ 的值取最近的 double 的硬件平方根，它与答案至多相差一，再用两次与精确字乘积的比较确定结果。更长的 $D$ 位值写成 $n = h\\,10^{2t} + l$，其中 $t \\approx D/4$，$0 \\le l < 10^{2t}$。$h$ 的平方根 $s_h$ 由同一函数在低一层递归求得，而 $x_0 = (s_h + 1)\\,10^{t}$ 永远不小于 $s$：因为 $n < (h+1)\\,10^{2t}$ 且 $h + 1 \\le (s_h+1)^2$。牛顿步 $x \\mapsto \\lfloor (x + \\lfloor n/x \\rfloor)/2 \\rfloor$ 从不小于 $s$ 的值出发，单调下降到 $s$ 且不会低于它，所以起点无需估计，工作规模从递归底层起逐层加倍。旧版本从 10 的幂出发，每一步都以全精度运行，约需 $\\log_2 D + 2$ 次 $D$ 位数的除法。每一步的除法同时决定循环何时结束：对 $x \\ge s$，商 $q = \\lfloor n/x \\rfloor$ 恰在 $x = s$ 时达到 $x$，此时由 $n = xq + r$ 得余数 $r + x(q - x)$，其中 $q - x \\in \\{0, 1, 2\\}$（因为 $n < (x+1)^2$），所以旧版本为求余数所做的平方不再需要。数对 $(s, n - s^2)$ 是唯一的，因此调用方无法察觉这一改动；白盒测试把它与保留在测试文件中的旧实现逐位比较，覆盖 1 到 112 个 limb 的随机操作数、完全平方数及其相邻数，以及十的幂。"
+
+#: manual/design/internal/decimal_kernel.md:164
 msgid "**Canonical form.** A `Limbs` value has no leading zero limb and is at least $10^{18}$; a smaller value is `Small`. Equal integers therefore have equal representations, and `DecCoeff::to_string` is the plain decimal string."
 msgstr "**规范形式。** `Limbs` 值没有前导零 limb，且不小于 $10^{18}$；更小的值是 `Small`。因此相等的整数有相等的表示，`DecCoeff::to_string` 就是朴素的十进制字符串。"
 
-#: manual/design/internal/decimal_kernel.md:143
+#: manual/design/internal/decimal_kernel.md:167
 msgid "**Persistence.** No operation mutates the limbs of an operand."
 msgstr "**持久性。** 没有任何运算会修改操作数的 limb。"
 
-#: manual/design/internal/decimal_kernel.md:144
+#: manual/design/internal/decimal_kernel.md:168
 msgid "**Totality inside the contract.** A violated precondition aborts; it is never mapped to a value."
 msgstr "**契约内的全函数性。** 违反前置条件会中止；它绝不会被映射为某个值。"
 
-#: manual/design/internal/decimal_kernel.md:146
+#: manual/design/internal/decimal_kernel.md:170
 msgid "**Exactness.** All results equal the `BigInt` result. The white-box tests compare with `BigInt` at limb boundaries, at the threshold of every target and for forced algorithms on nines, powers of ten and sparse operands."
 msgstr "**精确性。** 所有结果都等于 `BigInt` 的结果。白盒测试在 limb 边界、每个目标平台的阈值处，以及对全 9、十的幂和稀疏操作数的强制算法，与 `BigInt` 进行比较。"
 
-#: manual/design/internal/decimal_kernel.md:150
+#: manual/design/internal/decimal_kernel.md:174
 msgid "Trade-offs and limitations"
 msgstr "取舍与局限"
 
-#: manual/design/internal/decimal_kernel.md:152
+#: manual/design/internal/decimal_kernel.md:176
 msgid "Sharing means a performance change hits both standards; every change is measured on both. The kernel is not a general bignum: it has no negative numbers except `SignedDecCoeff` for intermediate values, and no radix other than $10^{9}$."
 msgstr "共享意味着一次性能改动会同时影响两个标准；每次改动都在两者上测量。内核不是通用的大整数库：除了用于中间值的 `SignedDecCoeff` 外它没有负数，也没有 $10^{9}$ 以外的基数。"
 
-#: manual/design/internal/decimal_kernel.md:157
+#: manual/design/internal/decimal_kernel.md:181
 msgid "References"
 msgstr "参考文献"
 
-#: manual/design/internal/decimal_kernel.md:159
+#: manual/design/internal/decimal_kernel.md:183
 msgid "D. E. Knuth, *The Art of Computer Programming*, vol. 2, 3rd ed., §4.3.1; C. Burnikel and J. Ziegler, \"Fast recursive division\", MPI-I-98-1-022, 1998; R. Brent and P. Zimmermann, *Modern Computer Arithmetic*, Cambridge 2010, §1.3–1.4 and §2.4."
 msgstr "D. E. Knuth, *The Art of Computer Programming*, vol. 2, 3rd ed., §4.3.1；C. Burnikel and J. Ziegler, \"Fast recursive division\", MPI-I-98-1-022, 1998；R. Brent and P. Zimmermann, *Modern Computer Arithmetic*, Cambridge 2010, §1.3–1.4 and §2.4。"
 
