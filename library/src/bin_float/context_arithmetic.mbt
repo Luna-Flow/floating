@@ -641,8 +641,8 @@ fn binary_add_far_exponents(
   right : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
-  let left_top = binary_exact_top(left.coefficient_(), left.exponent2_())
-  let right_top = binary_exact_top(right.coefficient_(), right.exponent2_())
+  let left_top = left.exact_top()
+  let right_top = right.exact_top()
   let (high, low) = if left_top >= right_top {
     (left, right)
   } else {
@@ -804,20 +804,22 @@ pub fn BinFloat::add_ctx(
         BinaryFlags::new(),
       )
     (FpClass::Finite, FpClass::Finite) => {
-      let self_top = binary_exact_top(self.coefficient_(), self.exponent2_())
-      let other_top = binary_exact_top(other.coefficient_(), other.exponent2_())
+      let self_top = self.exact_top()
+      let other_top = other.exact_top()
       let top_gap = self_top.to_int64() - other_top.to_int64()
       let far_threshold = binary_add_sat(context.precision, 3).to_int64()
       if top_gap > far_threshold || top_gap < -far_threshold {
         return binary_add_far_exponents(self, other, context)
       }
-      let target = Int32::min(self.exponent2_(), other.exponent2_())
+      let self_exponent = self.exponent2_()
+      let other_exponent = other.exponent2_()
+      let target = Int32::min(self_exponent, other_exponent)
       let left = self
         .coefficient_()
-        .shift_left(binary_sub_sat(self.exponent2_(), target))
+        .shift_left(binary_sub_sat(self_exponent, target))
       let right = other
         .coefficient_()
-        .shift_left(binary_sub_sat(other.exponent2_(), target))
+        .shift_left(binary_sub_sat(other_exponent, target))
       if self.negative() == other.negative() {
         let (sum, normalization_shift) = bin_coeff_add_normalized_odd(
           left, right,
@@ -1236,8 +1238,8 @@ fn binary_pow_can_round_interval(
   if lower.is_zero() || upper.is_zero() {
     return None
   }
-  let lower_top = binary_exact_top(lower.coefficient_(), lower.exponent2_())
-  let upper_top = binary_exact_top(upper.coefficient_(), upper.exponent2_())
+  let lower_top = lower.exact_top()
+  let upper_top = upper.exact_top()
   if lower_top != upper_top {
     return None
   }
@@ -1395,7 +1397,7 @@ fn binary_pow_out_of_range(
   let overflow_log = context.range_e_max().to_int64() + 1L
   let tiny_log = context.range_e_min().to_int64() - context.precision.to_int64()
   // |base| lies in [2^top, 2^(top + 1)), which gives a cheap first bound.
-  let top = binary_exact_top(base.coefficient_(), base.exponent2_()).to_int64()
+  let top = base.exact_top().to_int64()
   let n = exponent.to_uint64().reinterpret_as_int64()
   let (low, high) = if reciprocal {
     (-(top + 1L) * n, -top * n)

@@ -102,7 +102,7 @@ fn binary_compound_general(
   context : BinaryContext,
 ) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
   let p = context.precision.to_int64()
-  let top = binary_exact_top(value.coefficient_(), value.exponent2_()).to_int64()
+  let top = value.exact_top().to_int64()
   // |n x| < 2^31 * 2^(top + 1) <= 2^-(p + 9): 1 + n x is just beside 1.
   if top + 32L < -(p + 9L) {
     return Ok(

@@ -406,6 +406,13 @@ For a finite value the number is `coefficient()` $\times 2^{\texttt{exponent2()}
 with the sign applied. The coefficient and exponent of an infinity or NaN
 carry no meaning.
 
+`coefficient()` builds a `BinCoeff` on each call for a value of at most 128
+coefficient bits (the value stores its coefficient as one or two machine
+words), so it allocates there; for a wider value it returns the stored
+coefficient. A loop that reads the coefficient of many small values pays one
+allocation per call. `BinFloat` has no public word reader; the result's
+`BinCoeff::to_uint64` gives the value when it fits 64 bits.
+
 ### `BinFloat::normalized`
 
 Returns the canonical representation of a finite value at its own precision.

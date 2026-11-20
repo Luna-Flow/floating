@@ -13,7 +13,7 @@ fn bin_coeff_pow10(exponent : Int32) -> Coeff {
 /// nonzero value. Starts from a binary estimate and corrects it exactly or with
 /// directed bounds.
 fn binary_decimal_exponent(value : BinFloat) -> Int32 {
-  let top = binary_exact_top(value.coefficient_(), value.exponent2_())
+  let top = value.exact_top()
   // log10(2) = 0.30102999566...; the estimate is within one of the answer.
   let estimate = (top.to_double() * 0.30102999566398120).floor().to_int()
   let magnitude = value.abs()

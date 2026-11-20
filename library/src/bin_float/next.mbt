@@ -34,7 +34,7 @@ pub fn BinFloat::next_up_ctx(
       let position = if self.coefficient_is_zero() {
         floor
       } else {
-        let top = binary_exact_top(self.coefficient_(), self.exponent2_()).to_int64()
+        let top = self.exact_top().to_int64()
         Int64::min(
           floor,
           Int64::min(self.exponent2_().to_int64(), top - precision),

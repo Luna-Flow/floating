@@ -575,7 +575,7 @@ fn binary_log2_linear_out_of_range(
     context.precision.to_int64()
   // |value| < 2^(top + 1) and scale < 2^scale_bits, so small arguments skip
   // the certified constants entirely.
-  let top = binary_exact_top(value.coefficient_(), value.exponent2_())
+  let top = value.exact_top()
   if top + 1 + scale_bits < 62 {
     let reach = 1L << (top + 1 + scale_bits)
     if reach < overflow_limit && -reach > tiny_limit {
@@ -2731,7 +2731,7 @@ fn binary_pow_may_leave_range(
   exponent : BinFloat,
   context : BinaryContext,
 ) -> Bool {
-  let base_top = binary_exact_top(base.coefficient_(), base.exponent2_()).to_int64()
+  let base_top = base.exact_top().to_int64()
   let exponent_top = binary_exact_top(
     exponent.coefficient_(),
     exponent.exponent2_(),
@@ -4018,7 +4018,7 @@ fn binary_atan_reduction_ratio(
     rounding=RoundTowardPositive,
   )
   let one = BinFloat::one_raw(precision=work_precision)
-  let top = binary_exact_top(x.coefficient_(), x.exponent2_()).to_int64()
+  let top = x.exact_top().to_int64()
   if top >= 2L * work_precision.to_int64() + 2L {
     return if upper {
       let y_down = one.div_ctx(x, downward).0

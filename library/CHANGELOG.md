@@ -403,21 +403,60 @@ notes live in this file.
   | `add` at 53 bits | 466 | 284 | 2 | 1 |
   | `mul` at 53 bits | 462 | 280 | 2 | 1 |
   | `div` at 53 bits | 412 | 257 | 2 | 1 |
-  | `sqrt` at 53 bits | 526 | 363 | 3 | 2 |
+  | `sqrt` at 53 bits | 524 | 363 | 3 | 2 |
   | `add` at 64 bits | 530 | 355 | 2 | 1 |
   | `mul` at 64 bits | 512 | 333 | 2 | 1 |
   | `div` at 64 bits | 1,104 | 935 | 2 | 1 |
-  | `sqrt` at 64 bits | 1,490 | 1,576 | 8 | 9 |
+  | `sqrt` at 64 bits | 1,492 | 1,581 | 8 | 9 |
   | `add` at 128 bits | 568 | 381 | 2 | 1 |
   | `mul` at 128 bits | 581 | 406 | 2 | 1 |
   | `div` at 128 bits | 1,156 | 984 | 2 | 1 |
-  | `sqrt` at 128 bits | 2,068 | 2,162 | 9 | 10 |
+  | `sqrt` at 128 bits | 2,078 | 2,170 | 9 | 10 |
   | `add` at 512 bits | 1,289 | 1,233 | 3 | 3 |
   | `mul` at 512 bits | 2,028 | 2,004 | 4 | 4 |
   | `div` at 512 bits | 4,665 | 4,589 | 6 | 6 |
-  | `sqrt` at 512 bits | 8,755 | 8,804 | 31 | 31 |
+  | `sqrt` at 512 bits | 8,674 | 8,713 | 31 | 31 |
 
   Instructions per call by the difference of two repetition counts (5,000 and 25,000 calls, minimum of 9 runs); operands `sqrt(3)` and `sqrt(5)` rounded to the stated width, so every result rounds; allocations counted on `mi_malloc` under `lldb` by the same difference (200 and 1,000 calls). The `sqrt` rows at 64 and 128 bits are the general contextual path, which builds the coefficient object of a small operand once (one allocation more); a word-based entry of `sqrt_ctx` would remove it.
+
+  The readers and the contextual operations, same method (53 bits, and 128 where the operation has a 128-bit case; `BallFloat` rows are a client of the package; the `==` rows read operands from an array by a varying index so that the comparison is not folded; the `sqrt` rows of the first table were taken on main after the `sqrt_ctx` change of PR 564):
+
+  | call | bits | instructions before | after | allocations before | after |
+  | --- | ---: | ---: | ---: | ---: | ---: |
+  | `compare equal exponents` | 53 | 264 | 96 | 1 | 0 |
+  | `compare different exponents` | 53 | 66 | 77 | 0 | 0 |
+  | `==` | 53 | 70 | 57 | 0 | 0 |
+  | `neg` | 53 | 211 | 149 | 1 | 1 |
+  | `abs` | 53 | 13 | 20 | 0 | 0 |
+  | `is_zero` | 53 | 13 | 3 | 0 | 0 |
+  | `sign` | 53 | 8 | 15 | 0 | 0 |
+  | `from_double` | 53 | 611 | 532 | 3 | 3 |
+  | `with_precision 64 to 53` | 53 | 710 | 780 | 3 | 4 |
+  | `fma` | 53 | 2,462 | 2,901 | 14 | 18 |
+  | `scaleb_ctx` | 53 | 429 | 493 | 2 | 3 |
+  | `next_up_ctx` | 53 | 2,634 | 2,718 | 15 | 17 |
+  | `to_integral_value_ctx` | 53 | 1,155 | 1,250 | 7 | 8 |
+  | `to_decimal_string_ctx 17 digits` | 53 | 11,371 | 11,056 | 59 | 60 |
+  | `from_string 17 digits` | 53 | 8,576 | 8,521 | 41 | 41 |
+  | `add_ctx binary64` | 53 | 985 | 1,175 | 5 | 7 |
+  | `mul_ctx binary64` | 53 | 1,494 | 1,714 | 9 | 11 |
+  | `compare equal exponents` | 128 | 71 | 85 | 0 | 0 |
+  | `compare different exponents` | 128 | 70 | 78 | 0 | 0 |
+  | `==` | 128 | 78 | 57 | 0 | 0 |
+  | `neg` | 128 | 215 | 156 | 1 | 1 |
+  | `abs` | 128 | 14 | 28 | 0 | 0 |
+  | `is_zero` | 128 | 4 | 5 | 0 | 0 |
+  | `fma` | 128 | 3,846 | 4,263 | 21 | 24 |
+  | `add_ctx binary128` | 128 | 2,612 | 2,841 | 13 | 15 |
+  | `mul_ctx binary128` | 128 | 2,170 | 2,413 | 13 | 15 |
+  | `BallFloat add` | 53 | 3,442 | 5,416 | 14 | 26 |
+  | `BallFloat mul` | 53 | 3,156 | 3,940 | 13 | 19 |
+  | `BallFloat add` | 128 | 4,688 | 6,154 | 18 | 30 |
+  | `BallFloat mul` | 128 | 4,873 | 5,317 | 23 | 27 |
+  | `BallFloat mul_rev` | 53 | 10,038 | 9,018 | 47 | 47 |
+  | `BallFloat sqr_rev` | 53 | 17,476 | 16,642 | 93 | 93 |
+
+  `compare`, `==`, `is_zero` and `neg` get cheaper; `compare` decides on the words when both operands have at most 128 coefficient bits (equal values have equal exponents because the coefficient is odd, so only the leading-bit exponents, then the shifted words, are compared). Known regressions: the contextual operations (`fma`, `add_ctx`, `mul_ctx`, `scaleb_ctx`, `with_precision`, `to_integral_value_ctx`, `next_up_ctx`) and `sqrt` at 64 and 128 bits build a coefficient object from the words of a small operand (one allocation each, 2 to 4 more per call, +3 % to +20 % instructions); they go to the word-based exact core of the later layout PR (`bin_finish_*`) and to a word entry of `sqrt_ctx`. `abs`, `sign` and `compare` of unequal exponents cost 6 to 13 instructions more (a match on the form instead of a field read). `BallFloat::add` and `mul` read `BinFloat::coefficient()`, which now allocates for a value of at most 128 bits, so they allocate 6 to 12 more per call (`add` at 53 bits +57 % instructions); `BinFloat` has no public word reader, so the fix is one in the package or a ball-side reader (owner: `ball_float`). These regressions are to be recovered before the 0.12 release.
 
 - `bin_float`: `mul` of operands of 13 to 64 limbs (precisions from 768 to about 4,000 bits) forms the high limbs of the product only (the basecase short product: the rows of limb products with `i + j >= m - 1`, about half of them) with one extra limb of guard, and uses them when the rounding is certain from a proved error bound (exact products and products next to a rounding boundary take the full product as before). Instructions per call fall to 0.97 (768 bits), 0.86 (1,024) and 0.75 (2,048); below 768 bits the setup costs more than the rows save, so the short product is not used there. Results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).
 - `bin_float`: `sub` no longer allocates the negated right operand: the word, two-word and coefficient paths of the addition read its sign flipped (`add_signed_impl`), so a subtraction costs what an addition costs (0.68 of the instructions at 53 to 128 bits, 0.87 at 512 bits); the two-word addition aligns the shifted operand by three shifts of two words when the exponent difference is below 64, and the two-word rounding extracts the kept words and the dropped bits in one expression for a result less than a word too wide (`add` at 128 bits 0.89, at 113 bits 0.95). Results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).
