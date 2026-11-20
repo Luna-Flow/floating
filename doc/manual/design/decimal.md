@@ -1411,8 +1411,8 @@ four targets).
   composability; the flags monoid gives the same information.
 - **A `compare` that aborts on NaN.** Sorting and generic `Compare` code would
   abort on data containing NaN. The current `compare` is a total preorder and
-  IEEE semantics are available through `compare_checked`, `compare_ctx`,
-  `compare_signal_ctx` and `total_order_compare`.
+  IEEE semantics are available through `compare_checked`, `compare_quiet`,
+  `compare_signaling` and `total_order_compare`.
 - **Fixed-precision transcendental kernels with an analytic error bound.**
   Faster for small precisions, but a correctness proof per function and per
   precision; the enclosure loop is correct by construction and its failure

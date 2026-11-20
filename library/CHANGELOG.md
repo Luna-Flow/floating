@@ -31,6 +31,14 @@ notes live in this file.
   | --- | --- | --- |
   | `x.scaleb_ctx(n : Int32, ctx)` | `x.scaleb_ctx(BinFloat::from_int(n), ctx)` | an integer count only: a NaN count propagates, an infinite or non-integer count is a NaN with `invalid_operation`; an integer beyond the `Int32` range acts as the largest count of its sign |
 
+- `decimal`: the comparison family is the one of `bin_float` ([#438](https://github.com/Luna-Flow/floating/issues/438), item N6). `compare_ctx` and `compare_signal_ctx` returned the `Decimal` -1, 0 or 1 (or a NaN), a General Decimal Arithmetic result; IEEE 754-2019 5.11 defines a relation with flags, which `BinFloat` already returned.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `x.compare_ctx(y, ctx) -> (Decimal, DecimalFlags)` | `x.compare_quiet(y) -> (@def.PartialOrder, DecimalFlags)` | `Less`, `Equal`, `Greater` or `Unordered` in place of -1, 0, 1 or a NaN; no context; invalid only for a signaling NaN |
+  | `x.compare_signal_ctx(y, ctx) -> (Decimal, DecimalFlags)` | `x.compare_signaling(y) -> (@def.PartialOrder, DecimalFlags)` | invalid for every unordered pair |
+  | (new) | `compare_quiet_equal`, `compare_quiet_less`, `compare_quiet_less_equal`, `compare_quiet_unordered`, `compare_signaling_equal`, `compare_signaling_less`, `compare_signaling_less_equal` | `(Bool, DecimalFlags)`, the predicates `bin_float` has |
+
 - The flag and trap types share one access style: methods ([#438](https://github.com/Luna-Flow/floating/issues/438), item A5). The fields of `decimal.DecimalFlags`, `decimal_gda.DecimalFlags`, `GdaFlags`, `GdaTrapSet` and `BallFlags` are private; each flag is read with a method of the same name, as `BinaryFlags` already did. `GdaFlags::none` and `GdaTrapSet::none` are `new`, like every other flag constructor. `contains` stays on the types of packages that have a signal enum (`decimal`, `decimal_gda`); `has_error` is unchanged (true for `invalid_operation`, `conversion_syntax`, `division_by_zero`, `division_undefined`, `division_impossible`, `invalid_context`; false for overflow, underflow, inexact and the other conditions, which deliver a usable result).
 
   | before | after |

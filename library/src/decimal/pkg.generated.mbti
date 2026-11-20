@@ -54,8 +54,15 @@ pub fn Decimal::classify_contextual(Self) -> @arithmetic.FpClass
 pub fn Decimal::coefficient(Self) -> @bigint.BigInt
 pub fn Decimal::compare(Self, Self) -> Int32
 pub fn Decimal::compare_checked(Self, Self) -> Result[Int32, @arithmetic.ArithmeticError]
-pub fn Decimal::compare_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::compare_signal_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::compare_quiet(Self, Self) -> (@def.PartialOrder, DecimalFlags)
+pub fn Decimal::compare_quiet_equal(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_quiet_less(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_quiet_less_equal(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_quiet_unordered(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_signaling(Self, Self) -> (@def.PartialOrder, DecimalFlags)
+pub fn Decimal::compare_signaling_equal(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_signaling_less(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_signaling_less_equal(Self, Self) -> (Bool, DecimalFlags)
 pub fn Decimal::compound_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::convert_format(Self, DecimalInterchangeFormat) -> (Self, DecimalFlags)
 pub fn Decimal::copy(Self) -> Self

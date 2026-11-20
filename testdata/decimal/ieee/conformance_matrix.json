@@ -17,7 +17,7 @@
     {"operation": "quantize", "api": "Decimal::quantize_ctx", "status": "covered"},
     {"operation": "formatConversion", "api": "DecimalInterchange", "status": "partial"},
     {"operation": "integerConversion", "api": "Decimal::from_int", "status": "partial"},
-    {"operation": "comparison", "api": "Decimal::compare_ctx", "status": "covered"},
+    {"operation": "comparison", "api": "Decimal::compare_quiet, compare_signaling and the predicates", "status": "covered"},
     {"operation": "totalOrder", "api": "Decimal::total_order_compare, total_order, total_order_mag", "status": "partial"},
     {"operation": "classification", "api": "Decimal::classify", "status": "covered"},
     {"operation": "statusFlags", "api": "DecimalFlags", "status": "partial"},
