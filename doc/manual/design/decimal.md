@@ -473,9 +473,9 @@ counts of the coefficients), which has at least $p + 2$ digits, rounded with
 rounding of the exact quotient in every mode. The remainder test of that
 division also tells a terminating quotient from a non-terminating one. The flag
 sets are shared constants, like the empty set (`DecimalFlags` is an immutable
-record compared by value). A 34-digit `add_ctx` makes 5 allocations and 1,720
-instructions instead of 20 and 4,412, `mul_ctx` 8 and 2,478 instead of 14 and
-3,253, `div_ctx` 13 and 3,850 instead of 38 and 9,175.
+record compared by value). A 34-digit `add_ctx` makes 5 allocations and 1,739
+instructions instead of 20 and 4,427, `mul_ctx` 8 and 2,500 instead of 14 and
+3,251, `div_ctx` 13 and 3,840 instead of 38 and 9,212.
 
 The general route stays the definition of the behavior, and the plain paths are
 checked against it: the white-box test compares both on random operands of 1 to
