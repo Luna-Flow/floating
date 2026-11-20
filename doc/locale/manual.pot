@@ -9839,7 +9839,7 @@ msgstr ""
 #: manual/design/bench/decimal.md:67
 #: manual/design/bench/decimal_gda.md:64
 #: manual/design/bench/external.md:124
-#: manual/design/bin_float.md:1954
+#: manual/design/bin_float.md:1956
 #: manual/design/bin_float_checked.md:329
 #: manual/design/cli.md:71
 #: manual/design/cli/dispatch.md:32
@@ -10955,7 +10955,7 @@ msgstr ""
 #: manual/design/bench/decimal.md:51
 #: manual/design/bench/decimal_gda.md:48
 #: manual/design/bench/external.md:105
-#: manual/design/bin_float.md:1882
+#: manual/design/bin_float.md:1884
 #: manual/design/bin_float_checked.md:199
 #: manual/design/cli.md:52
 #: manual/design/cli/dispatch.md:25
@@ -11032,7 +11032,7 @@ msgstr ""
 #: manual/design/bench/decimal.md:60
 #: manual/design/bench/decimal_gda.md:57
 #: manual/design/bench/external.md:114
-#: manual/design/bin_float.md:1929
+#: manual/design/bin_float.md:1931
 #: manual/design/bin_float_checked.md:316
 #: manual/design/cli.md:62
 #: manual/design/cli/gda_expr_cli.md:60
@@ -12668,132 +12668,136 @@ msgid "recursive square from"
 msgstr ""
 
 #: manual/design/bin_float.md:1807
+msgid "On Native and LLVM squaring runs a word-range Karatsuba square from 36 64-bit limbs (three half-size squares $a_0^2$, $a_1^2$ and $(a_0 - a_1)^2$ instead of three products) and keeps the NTT square for 7168 32-bit limbs and above (measured crossover)."
+msgstr ""
+
+#: manual/design/bin_float.md:1809
 msgid "Sparse operands (few nonzero limbs) use a sparse product, and operands with $m > 2n$ limbs are cut into $n$-limb blocks. Division uses a one-limb loop, Knuth's algorithm D below 48 divisor limbs, Burnikel–Ziegler recursion from 48 and a Newton reciprocal from 1024; GCD switches from the binary (Stein) algorithm to Lehmer batches above four limbs. The thresholds are measured, per target, by the benchmark suite; they are policy, not semantics."
 msgstr ""
 
-#: manual/design/bin_float.md:1814
+#: manual/design/bin_float.md:1816
 msgid "A Lehmer round is valid only when its single-word digits come from the same bit window of both operands: digits taken from each operand's own top limb have unrelated scales, and the cofactors they produce subtract only a small multiple of the smaller operand per round. Each round therefore keeps $a \\ge b$, runs Euclid on the leading 63 bits of $a$ and the bits of $b$ in the same window, and takes one division step $a \\bmod b$ instead when $b$ has no bits in that window (then $a / b \\ge 2^{62}$) or when the cofactor matrix would make an operand negative or shrink neither. Every matrix applied has determinant $\\pm 1$, so the gcd is unchanged, and a long $a$ is reduced modulo a short $b$ in one step however different their lengths are; below eight limbs of $b$ the loop finishes with plain Euclid."
 msgstr ""
 
-#: manual/design/bin_float.md:1826
+#: manual/design/bin_float.md:1828
 msgid "**Why exactness is preserved.** Schoolbook, Karatsuba and Toom-3 evaluate integer polynomial identities, for example"
 msgstr ""
 
-#: manual/design/bin_float.md:1833
+#: manual/design/bin_float.md:1835
 msgid "and Toom-3 (evaluation at $0, 1, -1, 2, \\infty$) interpolates with exact divisions by 2 and 3 of signed intermediates known to be multiples, so they are exact integer computations. The NTT is the only modular step. It splits each operand into 16-bit digits, so each coefficient of the digit convolution is at most"
 msgstr ""
 
-#: manual/design/bin_float.md:1842
+#: manual/design/bin_float.md:1844
 msgid "for transform lengths up to $2^{23}$. It computes the convolution modulo the primes $p_1 = 998244353 = 119 \\cdot 2^{23} + 1$ and $p_2 = 754974721 = 45 \\cdot 2^{24} + 1$, both of which have $2^{23}$-th roots of unity, and recombines by the Chinese remainder theorem, which is unique in $[0, p_1 p_2)$ with $p_1 p_2 \\approx 2^{59.4} > 2^{55}$. So the recombined coefficients are the exact integers. The length check precedes every transform; a longer product uses overlapping blocks of admissible length or falls back to Toom-3. Division paths return $(q, r)$ with $n = qd + r$ and $0 \\le r < d$ by construction; the Newton path corrects its approximate quotient with the remainder and aborts if more than two corrections would be needed, which would indicate a bug rather than a numerical event. Because all paths compute the same integers, the choice of algorithm cannot change any rounded result, flag or encoding."
 msgstr ""
 
-#: manual/design/bin_float.md:1856
+#: manual/design/bin_float.md:1858
 msgid "Ordering NaN in `compare`"
 msgstr ""
 
-#: manual/design/bin_float.md:1858
+#: manual/design/bin_float.md:1860
 msgid "**Problem.** MoonBit's `Compare` trait asks for a three-way comparison that sorting and ordered maps can rely on. IEEE comparison is a partial order: NaN is unordered with everything, itself included."
 msgstr ""
 
-#: manual/design/bin_float.md:1862
+#: manual/design/bin_float.md:1864
 msgid "**Options.** (1) Abort on NaN, as earlier versions did; every sort of data that might contain a NaN then becomes a crash. (2) Use IEEE `totalOrder`, which is total but distinguishes $-0 < +0$ and puts negative NaNs below $-\\infty$, so `compare` would disagree with numerical equality on zeros. (3) Keep the numerical order on numbers and put all NaNs in one class above it."
 msgstr ""
 
-#: manual/design/bin_float.md:1869
+#: manual/design/bin_float.md:1871
 msgid "**Choice.** Option (3). Define the key $\\kappa(x) = (0, x)$ for a number and $\\kappa(\\mathrm{NaN}) = (1, 0)$, ordered lexicographically; `compare(x, y)` is the comparison of $\\kappa(x)$ and $\\kappa(y)$, with $-0$ and $+0$ mapped to the same number. A comparison of keys in a totally ordered set is reflexive, transitive and total, so `compare` is a total preorder; it is not antisymmetric ($-0$ and $+0$, or two NaNs with different payloads, compare equal but are different values), which `Compare` does not require. The cost is that `nan > 1` is true under `<`, so code that needs IEEE semantics must use `compare_checked` (error on NaN), `compare_quiet` / `compare_signaling` (four-valued, with flags) or `total_order`. Structural `==` stays the derived `Eq`, because it is the only equality that is a congruence for every method (precision and payload included)."
 msgstr ""
 
-#: manual/design/bin_float.md:1884
+#: manual/design/bin_float.md:1886
 msgid "**Canonical form.** Every finite value produced by the API has $c$ odd or $c = 0, e = 0$, and $\\operatorname{bits}(c) \\le$ its precision; stored exponents never saturate (a saturated exponent is classified as overflow or underflow first)."
 msgstr ""
 
-#: manual/design/bin_float.md:1888
+#: manual/design/bin_float.md:1890
 msgid "**Correct rounding.** For every arithmetic operation, conversion and elementary function and every context, the returned finite value equals $\\circ(r)$ for the exact real result $r$, with the range rules above. By (R1), $\\circ(r) = r$ and no flag is raised whenever $r \\in F$; `round_ctx` is idempotent."
 msgstr ""
 
-#: manual/design/bin_float.md:1893
+#: manual/design/bin_float.md:1895
 msgid ""
 "**Flags.** `inexact` iff $\\circ(r) \\n"
 "e r$; `overflow` implies `inexact`; `underflow` iff tiny (per the context rule) and inexact; `division_by_zero` only for an exact infinite result of finite operands; `invalid_operation` iff a quiet NaN was produced from non-NaN operands or a signaling NaN was consumed. Exceptions to the last rule: `min`, `max`, $\\operatorname{pow}(x, \\pm 0)$, $\\operatorname{pown}(x, 0)$ and $\\operatorname{pow}(1, y)$ accept a signaling NaN without the flag. `combine` is associative, commutative and idempotent."
 msgstr ""
 
-#: manual/design/bin_float.md:1902
+#: manual/design/bin_float.md:1904
 msgid "**Error model.** Consequently, in the normal range, $|\\circ(r) - r| \\le u|r|$ for nearest and $< 2u|r|$ for directed rounding, with the absolute term $\\eta/2$ (respectively $\\eta$) below $2^{e_{\\min}}$, and subnormal sums and differences are exact."
 msgstr ""
 
-#: manual/design/bin_float.md:1906
+#: manual/design/bin_float.md:1908
 msgid "**Monotonicity.** Each operation is monotone in each argument where the real function is, because it is $\\circ \\circ f$ with $\\circ$ monotone; in particular RD and RU results bracket the exact value, which `ball_float` and `sqrt_bounds_for_precision` rely on."
 msgstr ""
 
-#: manual/design/bin_float.md:1910
+#: manual/design/bin_float.md:1912
 msgid "**Exactness theorems.** `remainder`, `scaleb` in the normal range, `copy_sign`, `neg`, `abs`, `logb` and decoding are exact; the integral roundings never need a second rounding; `fma(a, b, -RN(ab))` is exact without underflow."
 msgstr ""
 
-#: manual/design/bin_float.md:1914
+#: manual/design/bin_float.md:1916
 msgid "**Complexity.** Addition is linear in the operand length (and independent of the exponent gap, by the far-operand rule); multiplication follows the kernel table, $O(n^2)$ to $O(n \\log n)$; division and square root cost a constant number of multiplications of the same size at large $n$; `remainder` costs $O(\\log(q_x - q_y))$ modular multiplications; an elementary function evaluates its series at the working precision $w$, and because $w$ grows geometrically the total cost of all attempts is within a constant factor of the last one."
 msgstr ""
 
-#: manual/design/bin_float.md:1923
+#: manual/design/bin_float.md:1925
 msgid "The longer proofs (the far-operand addition rule, `nextUp`, the remainder reduction, the Ziv acceptance test and the NTT bound) are collected in the attachment."
 msgstr ""
 
-#: manual/design/bin_float.md:1927
+#: manual/design/bin_float.md:1929
 msgid "[Rounding and exactness proofs for bin_float](../../attachments/design_bin_float_rounding_proofs.typ)"
 msgstr ""
 
-#: manual/design/bin_float.md:1931
+#: manual/design/bin_float.md:1933
 msgid "**Host `Double` for anything but `from_double`.** Routing binary16, binary32 or binary128 through `Double` double-rounds, loses signaling NaNs on some targets and cannot represent binary128 at all. Interchange encoding is done on `BinCoeff` bit patterns instead."
 msgstr ""
 
-#: manual/design/bin_float.md:1935
+#: manual/design/bin_float.md:1937
 msgid "**A fixed number of guard bits.** Three guard bits suffice for addition of two $p$-bit operands, but not for division, square root, conversions from decimal or operands wider than the context. Deciding from exact integer data (round, sticky, remainder sign, midpoint comparison) works for all of them with one finalizer."
 msgstr ""
 
-#: manual/design/bin_float.md:1940
+#: manual/design/bin_float.md:1942
 msgid "**Rounding to $p$ bits, then to the subnormal grid.** This double rounding produces wrong subnormal results; the finalizer shifts once to the coarser of the two positions."
 msgstr ""
 
-#: manual/design/bin_float.md:1943
+#: manual/design/bin_float.md:1945
 msgid "**Ziv with an estimated error bound.** It requires a separate error analysis for every function and every reduction, and a mistake in it silently returns a wrong last bit. Outward-rounded enclosures make the bound a computed quantity, at the cost of evaluating every operation twice."
 msgstr ""
 
-#: manual/design/bin_float.md:1947
+#: manual/design/bin_float.md:1949
 msgid "**Global flags and rounding state.** IEEE 754 describes flags as sticky global state. A returned `BinaryFlags` value composes with pure code, concurrent code and the `Result` style of `@lf_arith`, and `combine` recovers the sticky behaviour where wanted."
 msgstr ""
 
-#: manual/design/bin_float.md:1951
+#: manual/design/bin_float.md:1953
 msgid "**`compare` aborting on NaN, or `compare` as `totalOrder`.** See [Ordering NaN in `compare`](#ordering-nan-in-compare)."
 msgstr ""
 
-#: manual/design/bin_float.md:1956
+#: manual/design/bin_float.md:1958
 msgid "`bin_float` deliberately does not:"
 msgstr ""
 
-#: manual/design/bin_float.md:1958
+#: manual/design/bin_float.md:1960
 msgid "provide interval or ball arithmetic: enclosures are internal to the certification loops; `ball_float` builds midpoint–radius arithmetic on top of `BinFloat`;"
 msgstr ""
 
-#: manual/design/bin_float.md:1961
+#: manual/design/bin_float.md:1963
 msgid "implement IEEE 754 alternate exception handling (traps, substitution) or sticky global flags: flags are returned values;"
 msgstr ""
 
-#: manual/design/bin_float.md:1963
+#: manual/design/bin_float.md:1965
 msgid "implement decimal floating-point (`decimal`, `decimal_gda`) or the non-binary IEEE operations on them;"
 msgstr ""
 
-#: manual/design/bin_float.md:1965
+#: manual/design/bin_float.md:1967
 msgid "promise any NaN payload for a newly generated NaN (it uses payload 0), or propagate payloads of more than one input;"
 msgstr ""
 
-#: manual/design/bin_float.md:1967
+#: manual/design/bin_float.md:1969
 msgid "guarantee completion of an elementary function within any time for every input: certification has a budget, and an exhausted budget is reported, not hidden;"
 msgstr ""
 
-#: manual/design/bin_float.md:1970
+#: manual/design/bin_float.md:1972
 msgid "expose limb layout, thresholds or transform parameters: they may change without notice as long as every result, flag and encoding stays the same;"
 msgstr ""
 
-#: manual/design/bin_float.md:1972
+#: manual/design/bin_float.md:1974
 msgid "claim conformance beyond the finite corpus recorded in [conformance](../conformance/bin_float.md)."
 msgstr ""
 
@@ -19959,47 +19963,51 @@ msgid "Above 256 bits the integer square root on every target except JavaScript 
 msgstr ""
 
 #: manual/performance/bin_float.md:42
-msgid "Certified constants"
+msgid "Squaring on Native and LLVM no longer runs the half-product schoolbook (and, from 16,384 bits, the general product) up to the NTT: from 36 64-bit limbs (2,304 bits) a word-range Karatsuba square computes $a_0^2$, $a_1^2$ and $(a_0 - a_1)^2$ on array ranges, with the middle term $a_0^2 + a_1^2 - (a_0 - a_1)^2$ added in place, and the NTT square starts at 7,168 32-bit limbs (229,376 bits) instead of 768, because the Karatsuba square is cheaper up to there (retired instructions of one square: 12,288 bits 1.64 times fewer, 32,768 bits 2.2, 98,304 bits 1.7, 131,072 bits 1.09, 196,608 bits 1.18, equal from 262,144 bits). The Karatsuba multiplication of the word ranges now takes one scratch array per product, carved into the temporaries of each node, instead of five arrays and two copies per node: 1.02 to 1.04 times fewer instructions for a product of 2,048 to 65,536 bits, the same results. The schoolbook square stays below 36 limbs (the paired runs put the crossover between 32 and 40 limbs). Retired instructions per operation on Native, against the previous build: `sqr` 1.00, 1.00, 1.39 and 1.52 times fewer at 512, 2,048, 8,192 and 65,536 bits, `mul` 1.00, 1.02, 1.04 and 1.04 times, and the integer square root of a 65,536-bit root 1.23 times (its recursion squares). Wasm and Wasm-GC keep their squaring (`bin_coeff_square_words_enabled` is false there until paired wall-clock runs decide), and LLVM takes the Native values, unmeasured. White-box tests compare the scratch-buffer product with the allocating Karatsuba of the previous build and the schoolbook product at and around the cutoff with unbalanced shapes, the Karatsuba square with the schoolbook square and the product, and the dispatch against the schoolbook around 36, 64, 128, 256, 384 and 512 limbs and against the NTT and Karatsuba squares at the NTT cutoff."
 msgstr ""
 
 #: manual/performance/bin_float.md:44
-msgid "The certified elementary functions memoize the constant enclosures they need (`ln 2`, `ln 10` and `pi`) per working precision, in small per-constant caches of six precisions up to 65,536 bits. A cached enclosure is the value a recomputation returns, so results never depend on cache state or call order. Before this, every `ln`, `log2`, `log10`, `sin`, `cos`, `tan` and `atan2` call re-ran an `ln 2` series or an `atan(1)` evaluation that cost as much as the function itself. Paired native runs: `ln` 2.4 to 2.6 times faster at 53 to 512 bits, `sin` 2.4 to 3.7 times, decimal `ln` 2.5 times; on Wasm and Wasm-GC `ln` and `sin` are 1.7 to 2.2 times faster. `exp` has no such constant and is unchanged."
+msgid "Certified constants"
 msgstr ""
 
 #: manual/performance/bin_float.md:46
+msgid "The certified elementary functions memoize the constant enclosures they need (`ln 2`, `ln 10` and `pi`) per working precision, in small per-constant caches of six precisions up to 65,536 bits. A cached enclosure is the value a recomputation returns, so results never depend on cache state or call order. Before this, every `ln`, `log2`, `log10`, `sin`, `cos`, `tan` and `atan2` call re-ran an `ln 2` series or an `atan(1)` evaluation that cost as much as the function itself. Paired native runs: `ln` 2.4 to 2.6 times faster at 53 to 512 bits, `sin` 2.4 to 3.7 times, decimal `ln` 2.5 times; on Wasm and Wasm-GC `ln` and `sin` are 1.7 to 2.2 times faster. `exp` has no such constant and is unchanged."
+msgstr ""
+
+#: manual/performance/bin_float.md:48
 #: manual/performance_audit.md:108
 msgid "Measurement"
 msgstr ""
 
-#: manual/performance/bin_float.md:48
+#: manual/performance/bin_float.md:50
 msgid "The unified Maremark harness under `bench/bin_float` compares coefficient kernels, numeric cores, checked full paths, and semantically equivalent square candidates with balanced blocks. Auto-tune emits a versioned per-scale policy and applies a threshold only to the measured target; every threshold change still requires correctness tests on all targets."
 msgstr ""
 
-#: manual/performance/bin_float.md:50
+#: manual/performance/bin_float.md:52
 msgid "The elementary release gate separately archives the immutable `0.6.1` commit and the dirty candidate tree, injects one identical add/mul/div/sqrt workload, and collects ten alternating AB/BA native pairs at 53, 128, and 512 bits. Maremark blocks release only when the candidate is at least 3% slower and the 95% bootstrap interval has a positive lower bound. Functions first introduced in `0.7.1` run as a candidate workload; this release becomes their first valid baseline, because inventing `0.6.1` timings for APIs that did not exist would be meaningless."
 msgstr ""
 
-#: manual/performance/bin_float.md:59
+#: manual/performance/bin_float.md:61
 msgid "Certified series"
 msgstr ""
 
-#: manual/performance/bin_float.md:61
+#: manual/performance/bin_float.md:63
 msgid "The enclosure of `exp` evaluates its Taylor series once, not twice, when the argument is exact at the working precision (the usual case), because the lower and upper endpoints are then the same value and only one bound of each series is read. The trigonometric enclosure evaluates only the sine or cosine series that the requested function and quadrant read, two series instead of four for `sin` and `cos`. Both skips return the exact enclosures of before, which white-box tests check against copies of the previous code. Paired native runs: `exp` 1.8 to 2.0 times faster at 53 to 512 bits, decimal `exp` 1.3 to 1.4 times, `sin` 1.15 to 1.2 times on its own; on Wasm and Wasm-GC `exp` is 1.7 to 1.9 times faster."
 msgstr ""
 
-#: manual/performance/bin_float.md:63
+#: manual/performance/bin_float.md:65
 msgid "Trade-offs"
 msgstr ""
 
-#: manual/performance/bin_float.md:65
+#: manual/performance/bin_float.md:67
 msgid "Schoolbook minimizes setup and allocation, recursive algorithms reduce asymptotic work, and NTT improves very large balanced inputs at the cost of transforms and temporary storage. Every fast path retains an exact fallback, so performance dispatch cannot alter semantics."
 msgstr ""
 
-#: manual/performance/bin_float.md:67
+#: manual/performance/bin_float.md:69
 msgid "Fixed-point logarithm"
 msgstr ""
 
-#: manual/performance/bin_float.md:69
+#: manual/performance/bin_float.md:71
 msgid "The certified `ln` enclosure on the normalized argument in [1, 2] (and the `ln 2` and `ln 10` constants built from it) sums the series `2 * sum z^(2k+1) / (2k+1)`, `z = (v - 1) / (v + 1)`, in fixed point when the argument is exact at the working precision. The fraction has 16 guard bits plus the leading zero bits of `z`, so the enclosure keeps `precision + 16` significant bits even for an argument close to 1; every operation rounds down, which makes the sum a lower bound, and a proven error of less than 2 units per term and a tail bound give the upper bound. Arguments that are not exact, or so close to 1 that the fraction would exceed four times the working precision, use the previous floating-point series, so the refinement loop and its working precisions are unchanged. White-box tests check containment of a much tighter enclosure, a bound on the width, and equality of the final correctly rounded results and flags with those of the previous series. Paired runs without the constant cache: `ln` is 5 to 7 times faster on Native at 53 to 2,048 bits, 5.5 to 7.5 times on Wasm and Wasm-GC, and decimal `ln` 6 times."
 msgstr ""
 

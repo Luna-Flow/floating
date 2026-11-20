@@ -76,3 +76,13 @@ let bin_coeff_sqrt_words_enabled = true
 /// Whether integer square roots above 256 bits use the word-array recursion
 /// (`bin_coeff_sqrt_array_nonjs.mbt`) instead of the `BinCoeff` divide-and-conquer.
 let bin_coeff_sqrt_array_enabled = true
+
+///|
+/// Limb count (64-bit limbs) below which the half-product schoolbook square
+/// beats the Karatsuba square step of the word-range squaring.
+let bin_coeff_words_square_cutoff : Int32 = 32
+
+///|
+/// Whether squaring runs the word-range Karatsuba square
+/// (`bin_coeff_words_sqr_scratch`) between the schoolbook square and the NTT.
+let bin_coeff_square_words_enabled = false

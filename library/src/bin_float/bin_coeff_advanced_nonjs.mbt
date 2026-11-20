@@ -356,6 +356,11 @@ fn bin_coeff_square_large_dispatch(value : BinCoeff) -> BinCoeff {
   let len = bin_coeff_limb_len(value)
   if len >= bin_coeff_ntt_square_threshold && bin_coeff_ntt_fits(value, value) {
     bin_coeff_square_ntt(value)
+  } else if bin_coeff_square_words_enabled &&
+    bin_coeff_word_len(value) >= bin_coeff_words_square_cutoff &&
+    bin_coeff_word_len(value) < bin_coeff_limb32_min_words / 2 &&
+    len < bin_coeff_toom3_threshold {
+    bin_coeff_square_words(value)
   } else if len < bin_coeff_square_recursive_threshold {
     if bin_coeff_word_len(value) >= bin_coeff_limb32_min_words / 2 {
       bin_coeff_square_limb32(value)
