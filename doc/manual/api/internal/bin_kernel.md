@@ -66,7 +66,7 @@ the functions below.
 | compare | `Coeff::compare`, `Coeff::equal`, `Coeff::not_equal`, `Coeff::op_lt`, `Coeff::op_le`, `Coeff::op_gt`, `Coeff::op_ge` |
 | add, subtract, shift | `Coeff::add`, `Coeff::sub_checked`, `Coeff::shift_left`, `Coeff::shift_right`, `Coeff::shl`, `Coeff::shr`, `bin_coeff_add_normalized_odd`, `bin_coeff_sub_normalized_odd` |
 | bit operations | `Coeff::bit_and`, `Coeff::bit_or`, `Coeff::bit_xor` |
-| multiply and divide | `Coeff::mul`, `Coeff::square`, `Coeff::div_rem_checked`, `bin_coeff_short_div_rem`, `bin_coeff_div_scaled_ok`, `bin_coeff_div_scaled_quotient`, `bin_coeff_div_short_ok`, `bin_coeff_div_short_quotient`, `bin_coeff_short_division_guard_bits` |
+| multiply and divide | `Coeff::mul`, `bin_coeff_mul_short_ok`, `bin_coeff_mul_short`, `bin_coeff_short_product_limbs`, `Coeff::square`, `Coeff::div_rem_checked`, `bin_coeff_short_div_rem`, `bin_coeff_div_scaled_ok`, `bin_coeff_div_scaled_quotient`, `bin_coeff_div_short_ok`, `bin_coeff_div_short_quotient`, `bin_coeff_short_division_guard_bits` |
 | number theory and roots | `Coeff::gcd`, `Coeff::pow_nat`, `bin_coeff_sqrt_rem_kernel`, `bin_coeff_sqrt_rem_scaled`, `bin_coeff_sqrt_scaled_rounded` |
 | machine words | `binary_fast_bits`, `binary_fast_mul_high`, `binary_fast_div_wide`, `binary_fast_shl_high`, `binary_fast_shl_low` |
 
@@ -104,9 +104,15 @@ pub fn bin_coeff_from_words(FixedArray[UInt64], Int32) -> Coeff
 
 pub fn bin_coeff_inline(UInt64, UInt64) -> Coeff
 
+pub fn bin_coeff_mul_short(Coeff, Coeff, Int32) -> Coeff
+
+pub fn bin_coeff_mul_short_ok(Coeff, Coeff, Int32) -> Bool
+
 pub fn bin_coeff_short_div_rem(Coeff, Coeff) -> (Coeff, Coeff)
 
 pub let bin_coeff_short_division_guard_bits : Int32
+
+pub fn bin_coeff_short_product_limbs(Int32) -> Int32
 
 pub fn bin_coeff_sqrt_rem_kernel(Coeff) -> (Coeff, Coeff)
 
