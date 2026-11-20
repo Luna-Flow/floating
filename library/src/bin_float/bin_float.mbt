@@ -413,6 +413,8 @@ fn binary_checked_result(
   let (value, flags) = result
   if flags.division_by_zero() {
     Err(@def.ArithmeticError::division_by_zero(division_by_zero_message))
+  } else if flags.not_computed() {
+    Err(binary_not_computed_error("binary operation"))
   } else if flags.invalid_operation() {
     Err(@def.ArithmeticError::domain_error(invalid_message))
   } else {

@@ -322,14 +322,28 @@ pub fn BinFloatResult::sqrt_ctx(
 /// Maps the flags of a contextual result to the checked tier, as
 /// `@bin_float.BinFloat::div_checked` does (#262): the invalid operation
 /// exception (IEEE 754-2019 section 7.2) becomes `DomainError`, divideByZero
-/// (section 7.3) becomes `DivisionByZero`, and every other result, NaN and
-/// range exceptions included, is `Ok` (#290).
+/// (section 7.3) becomes `DivisionByZero`, `not_computed` (a result the library
+/// could not compute, S4) becomes `CertificationFailure`, and every other result,
+/// NaN and range exceptions included, is `Ok` (#290).
 fn bin_result_checked_flags(
   result : (@bin_float.BinFloat, @bin_float.BinaryFlags),
 ) -> Result[@bin_float.BinFloat, @def.ArithmeticError] {
   let (value, flags) = result
   if flags.division_by_zero() {
     Err(@def.ArithmeticError::division_by_zero("division by zero"))
+  } else if flags.not_computed() {
+    Err(
+      @def.ArithmeticError::certification_failure(
+        @def.CertificationFailureDetail::new(
+          "binary operation",
+          @def.CertificationStage::RangeReduction,
+          @def.CertificationFailureReason::ResourceLimit,
+          0,
+          0,
+          0,
+        ),
+      ),
+    )
   } else if flags.invalid_operation() {
     Err(@def.ArithmeticError::domain_error("invalid operation"))
   } else {

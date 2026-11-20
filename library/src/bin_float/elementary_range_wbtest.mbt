@@ -128,18 +128,19 @@ test "binary64 exp keeps its exact overflow threshold" {
 }
 
 ///|
-test "non-try elementary APIs return NaN with invalid on failure" {
+test "non-try elementary APIs return NaN with not_computed on failure" {
   let failure : Result[(BinFloat, BinaryFlags), @def.ArithmeticError] = Err(
     binary_refinement_failure_state("exp", BinaryContext::binary64(), 64, 12),
   )
+  let result = binary_defined_or_nan(failure, BinaryContext::binary64())
+  // S4: a certification failure is not an invalid operation
   inspect(
-    elementary_range_show(
-      binary_defined_or_nan(failure, BinaryContext::binary64()),
-    ),
+    elementary_range_show(result),
     content=(
-      #|nan inexact=false underflow=false overflow=false invalid=true
+      #|nan inexact=false underflow=false overflow=false invalid=false
     ),
   )
+  assert_true(result.1.not_computed())
 }
 
 ///|
