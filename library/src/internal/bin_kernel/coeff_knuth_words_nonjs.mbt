@@ -81,6 +81,39 @@ fn bin_coeff_div_rem_knuth_words(
 }
 
 ///|
+/// One multiply-subtract row of the quotient loop: `dividend[offset + skip ..<
+/// offset + n] -= trial * divisor[skip ..< n]` and the limb above it, where `n`
+/// is `denominator_len`. Returns whether the row borrowed out of the limb
+/// above (the digit estimate was one too large). `bin_limbs_submul_1` returns
+/// the carry and the borrow folded into one limb, which is subtracted from the
+/// limb above the row; the row borrows out exactly when that subtraction does.
+fn bin_knuth_row(
+  dividend : FixedArray[UInt64],
+  offset : Int32,
+  divisor : FixedArray[UInt64],
+  skip : Int32,
+  denominator_len : Int32,
+  trial : UInt64,
+) -> Bool {
+  let length = denominator_len - skip
+  // measured: the C row wins from a length of one limb (thresholds of 1, 3 and
+  // 6 limbs on `div` and `sqrt` at 512 to 8,192 bits differ by under 2 percent,
+  // 1 the best), so every row goes through the primitive
+  let folded = bin_limbs_submul_1(
+    dividend,
+    offset + skip,
+    divisor,
+    skip,
+    length,
+    trial,
+  )
+  let high_index = offset + denominator_len
+  let current = dividend.unsafe_get(high_index)
+  dividend.unsafe_set(high_index, current - folded)
+  current < folded
+}
+
+///|
 /// The quotient loop of Knuth's algorithm D on 64-bit digits. `divisor` has
 /// `denominator_len >= 2` limbs with the top bit set; `dividend` has
 /// `quotient_len + denominator_len` limbs (normalised by the same shift, the top
@@ -125,41 +158,9 @@ fn bin_coeff_knuth_words_core(
         break
       }
     }
-    // dividend[offset ..= offset + n] -= trial * divisor
-    let mut carry = 0UL
-    let mut borrow = 0UL
-    let trial_low = trial & bin_coeff_limb_mask
-    let trial_high = trial >> 32
-    for index in 0..<denominator_len {
-      let digit = divisor.unsafe_get(index)
-      let product_low = trial * digit
-      let digit_low = digit & bin_coeff_limb_mask
-      let digit_high = digit >> 32
-      let cross = trial_high * digit_low + ((trial_low * digit_low) >> 32)
-      let mut product_high = trial_high * digit_high +
-        (cross >> 32) +
-        ((trial_low * digit_high + (cross & bin_coeff_limb_mask)) >> 32)
-      let low = product_low + carry
-      if low < product_low {
-        product_high += 1UL
-      }
-      carry = product_high
-      let current = dividend.unsafe_get(offset + index)
-      let difference = current - low
-      let borrow_one = if current < low { 1UL } else { 0UL }
-      let result = difference - borrow
-      let borrow_two = if difference < borrow { 1UL } else { 0UL }
-      dividend.unsafe_set(offset + index, result)
-      borrow = borrow_one + borrow_two
-    }
+    // dividend[offset ..= offset + n] -= trial * divisor, one row
     let high_index = offset + denominator_len
-    let current_high = dividend.unsafe_get(high_index)
-    let high_difference = current_high - carry
-    let high_borrow_one = if current_high < carry { 1UL } else { 0UL }
-    let high_result = high_difference - borrow
-    let high_borrow_two = if high_difference < borrow { 1UL } else { 0UL }
-    dividend.unsafe_set(high_index, high_result)
-    if high_borrow_one + high_borrow_two != 0UL {
+    if bin_knuth_row(dividend, offset, divisor, 0, denominator_len, trial) {
       // the estimate was one too large: add the divisor back
       trial -= 1UL
       let mut add_carry = 0UL
@@ -339,42 +340,10 @@ fn bin_coeff_knuth_short_core(
         break
       }
     }
-    // dividend[offset + skip ..= offset + n] -= trial * divisor[skip ..< n]
+    // dividend[offset + skip ..= offset + n] -= trial * divisor[skip ..< n], one row
     let skip = Int32::max(0, denominator_len - 1 - offset)
-    let mut carry = 0UL
-    let mut borrow = 0UL
-    let trial_low = trial & bin_coeff_limb_mask
-    let trial_high = trial >> 32
-    for index in skip..<denominator_len {
-      let digit = divisor.unsafe_get(index)
-      let product_low = trial * digit
-      let digit_low = digit & bin_coeff_limb_mask
-      let digit_high = digit >> 32
-      let cross = trial_high * digit_low + ((trial_low * digit_low) >> 32)
-      let mut product_high = trial_high * digit_high +
-        (cross >> 32) +
-        ((trial_low * digit_high + (cross & bin_coeff_limb_mask)) >> 32)
-      let low = product_low + carry
-      if low < product_low {
-        product_high += 1UL
-      }
-      carry = product_high
-      let current = dividend.unsafe_get(offset + index)
-      let difference = current - low
-      let borrow_one = if current < low { 1UL } else { 0UL }
-      let result = difference - borrow
-      let borrow_two = if difference < borrow { 1UL } else { 0UL }
-      dividend.unsafe_set(offset + index, result)
-      borrow = borrow_one + borrow_two
-    }
     let high_index = offset + denominator_len
-    let current_high = dividend.unsafe_get(high_index)
-    let high_difference = current_high - carry
-    let high_borrow_one = if current_high < carry { 1UL } else { 0UL }
-    let high_result = high_difference - borrow
-    let high_borrow_two = if high_difference < borrow { 1UL } else { 0UL }
-    dividend.unsafe_set(high_index, high_result)
-    if high_borrow_one + high_borrow_two != 0UL {
+    if bin_knuth_row(dividend, offset, divisor, skip, denominator_len, trial) {
       trial -= 1UL
       let mut add_carry = 0UL
       for index in skip..<denominator_len {
