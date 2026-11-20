@@ -190,7 +190,7 @@ fn binary_fast_mul(left : BinFloat, right : BinFloat) -> BinFloat? {
 }
 
 ///|
-fn binary_fast_div(left : BinFloat, right : BinFloat) -> BinFloat? {
+fn binary_fast_div_words(left : BinFloat, right : BinFloat) -> BinFloat? {
   let precision = Int32::max(left.precision_, right.precision_)
   guard precision <= 60 else { return None }
   guard binary_fast_word(left) is Some(dividend) &&
@@ -266,7 +266,7 @@ fn binary_fast_isqrt(high : UInt64, low : UInt64) -> (UInt64, Bool)? {
 }
 
 ///|
-fn binary_fast_sqrt(value : BinFloat) -> BinFloat? {
+fn binary_fast_sqrt_words(value : BinFloat) -> BinFloat? {
   let precision = value.precision_
   guard precision <= 60 && !value.negative else { return None }
   guard binary_fast_word(value) is Some(word) else { return None }
@@ -295,4 +295,80 @@ fn binary_fast_sqrt(value : BinFloat) -> BinFloat? {
       precision,
     ),
   )
+}
+
+///|
+/// Coefficients up to this value are exactly representable as binary64.
+let binary_fast_double_limit : UInt64 = 0x20_0000_0000_0000UL
+
+///|
+/// The result `mantissa * 2^(exponent + e)` of a positive normal binary64 `value`
+/// (`mantissa * 2^e` its exact value) as a 53-bit `BinFloat` with an odd
+/// coefficient.
+fn binary_fast_from_double(
+  negative : Bool,
+  value : Double,
+  exponent : Int32,
+) -> BinFloat {
+  let bits = value.reinterpret_as_uint64()
+  let biased = ((bits >> 52) & 0x7ffUL).to_int()
+  let mantissa = (bits & 0xf_ffff_ffff_ffffUL) | 0x10_0000_0000_0000UL
+  let zeros = mantissa.reinterpret_as_int64().ctz()
+  finite_normalized(
+    negative,
+    Coeff::from_uint64(mantissa >> zeros),
+    exponent + (biased - 1075) + zeros,
+    53,
+  )
+}
+
+///|
+/// At precision 53 the quotient of two coefficients of at most 53 bits is
+/// formed by one binary64 division: both operands are exact binary64 numbers,
+/// the IEEE 754 division returns the correctly rounded (to nearest even) 53-bit
+/// quotient, which is the result of the general path, and scaling by a power of
+/// two does not change a rounding decision without an exponent range.
+fn binary_fast_div(left : BinFloat, right : BinFloat) -> BinFloat? {
+  if Int32::max(left.precision_, right.precision_) == 53 &&
+    binary_fast_word(left) is Some(dividend) &&
+    binary_fast_word(right) is Some(divisor) &&
+    dividend <= binary_fast_double_limit &&
+    divisor <= binary_fast_double_limit &&
+    left.exponent2 <= binary_fast_exponent_limit &&
+    left.exponent2 >= -binary_fast_exponent_limit &&
+    right.exponent2 <= binary_fast_exponent_limit &&
+    right.exponent2 >= -binary_fast_exponent_limit {
+    return Some(
+      binary_fast_from_double(
+        left.negative != right.negative,
+        dividend.to_double() / divisor.to_double(),
+        left.exponent2 - right.exponent2,
+      ),
+    )
+  }
+  binary_fast_div_words(left, right)
+}
+
+///|
+/// At precision 53 the square root of a coefficient of at most 53 bits, times
+/// 2 for an odd exponent, is one binary64 square root (correctly rounded to
+/// nearest even by IEEE 754): the same reasoning as for the division.
+fn binary_fast_sqrt(value : BinFloat) -> BinFloat? {
+  if value.precision_ == 53 &&
+    !value.negative &&
+    binary_fast_word(value) is Some(word) &&
+    word <= binary_fast_double_limit &&
+    value.exponent2 <= binary_fast_exponent_limit &&
+    value.exponent2 >= -binary_fast_exponent_limit {
+    let odd = value.exponent2 & 1
+    let radicand = word.to_double() * (if odd == 1 { 2.0 } else { 1.0 })
+    return Some(
+      binary_fast_from_double(
+        false,
+        radicand.sqrt(),
+        (value.exponent2 - odd) / 2,
+      ),
+    )
+  }
+  binary_fast_sqrt_words(value)
 }
