@@ -9,7 +9,14 @@ module goes here (see `CONTRIBUTING.md`, "Release Checklist").
 
 ## Unreleased
 
+### Added
+
+- `tooling/README.md` (the `readme` field of `tooling/moon.mod`) to the standard of the library's README: what the module is, how it is built, a quick start, the package table, the documentation and the contribution rules ([#22](https://github.com/Luna-Flow/floating/issues/22)).
+- The manual pages of every package of this module follow the library's standard, and `tools/doc_quality.py` now checks it: the API page has Purpose, Importing, a heading for every public item and the complete interface; the tutorial has the `I want to` table, Quick start, Everyday tasks, Going further, Common pitfalls, Next steps and, for a package with public items, an example that compiles; the design page has the goal, the mathematical background, the decisions, the invariants, the rejected alternatives and the boundaries. Gaps found by the audit are filled: the tutorials of `cli/dispatch` and `differential/harness`, a Going further section for `bench/external`, headings for `MpfrRandomDocument` and `MpfrDecimalRandomDocument`, and compiled examples for the four `cli/*_expr_cli` runners, `internal/conformance` and `internal/runner_cli`.
+
 ### Changed
+
+- The tutorials of the packages of this module no longer tell the reader to `moon add Luna-Flow/floating@0.10.2`, which does not contain them: they say that the packages belong to this module (a package of the workspace, or `moon add Luna-Flow/floating-tools@0.11.0` once it is published). The package map of the manual says which module each package belongs to and lists `cli/dispatch` and `differential/harness`.
 
 - The module is versioned with the library: `version` is `0.11.0`, the version of
   `library/moon.mod`, and the manifest imports `Luna-Flow/floating@0.11.0`

@@ -6,6 +6,8 @@ repository = "https://github.com/Luna-Flow/floating"
 
 license = "Apache-2.0"
 
+readme = "README.md"
+
 description = "Developer tools for Luna-Flow/floating: benchmarks, conformance frontends and command-line programs, the differential harness and the documentation examples."
 
 import {
