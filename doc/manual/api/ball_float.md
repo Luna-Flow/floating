@@ -990,6 +990,53 @@ test "sin_rev with a prior" {
 }
 ```
 
+### `BallFloat::pow_rev1`
+
+IEEE 1788-2015 Table 10.1. `b.pow_rev1(c, x?)` is the hull of
+$\{\, x \in \boldsymbol{x} \mid \exists\, \beta \in \boldsymbol{b} : x^\beta \text{ is defined and in } \boldsymbol{c} \,\}$
+for the optional prior $\boldsymbol{x}$ (default Entire); the receiver is the exponent interval
+$\boldsymbol{b}$. $x^\beta$ is defined for $x > 0$ and for $x = 0$ with $\beta > 0$ (value 0).
+
+```mbti
+pub fn BallFloat::pow_rev1(Self, Self, x? : Self) -> Self
+```
+
+For $x > 0$, $x^\beta \in \boldsymbol{c}$ means $\beta \ln x \in \ln(\boldsymbol{c} \cap (0, +\infty))$, so
+the set is $\exp(L /_{\text{set}} \boldsymbol{b})$ with $L = \ln(\boldsymbol{c} \cap (0, +\infty))$,
+the set division of [`mul_rev`](#ballfloatmul_rev_to_pair-and-ballfloatmul_rev) in logarithm
+coordinates, plus the point 0 when $0 \in \boldsymbol{c}$ and $\boldsymbol{b}$ has a positive point.
+Every end of a piece is $c_\text{end}^{1/\beta_\text{end}}$, 0, 1 or infinite. The ends that are not
+attained are open: 0 (from $\ln x \to -\infty$, unless the zero part closes it) and 1 (the limit of a
+quotient by an unbounded $\boldsymbol{b}$); a prior that only touches such an end does not meet the
+set. For example `pow_rev1([1, +inf), [2, +inf))` is $(1, +\infty)$, so with the prior $[0, 1]$ the
+result is Empty, and `pow_rev1([-1, 1], [0.5, 2])` is $(0, +\infty)$, so with the prior $[0, 0]$
+it is Empty.
+
+The result is the hull in the type: every comparison of a prior end with a piece end is exact and an
+end written to the result is the exact directed rounding of the piece end. The exact value of
+$c^{1/\beta}$ is classified from the structure of $c$ and $\beta$ (no squaring): it is a float
+candidate (dyadic), a rational that is not a float (for example $9^{1/(-2)} = 1/3$), or irrational,
+and the last is decided by a loop that raises the working precision as `sin_rev` does. The
+[design page](../design/ball_float.md#reverse-power-with-an-interval-exponent) has the classes,
+the budgets and their cost. An end of the set above the largest finite float is written as $+\infty$ when it is an upper end
+and as the largest finite float of the result precision when it is a lower end; an end below the
+smallest positive stored value is written as 0 when it is a lower end and as the smallest positive stored value
+when it is an upper end; in between, including the subnormal range, the end is the usual directed rounding.
+An exponent of magnitude $2^{10^9}$ is decided at once because the sign of $\ln(c)/\beta$ is exact.
+
+```moonbit
+///|
+test "pow_rev1" {
+  // x^2 in [4, 4] with x > 0: x = 2
+  assert_true(iv(2, 2).pow_rev1(iv(4, 4)) == iv(2, 2))
+  // x^beta in [0.25, 0.5] for beta in [-4, -2]: the upper end 0.25^(1/-2) = 2 is exact
+  let r = iv(-4, -2).pow_rev1(iv(1, 1), x=iv(1, 1))
+  assert_true(r == iv(1, 1))
+  // 0^beta = 0 for beta > 0
+  assert_true(iv(1, 2).pow_rev1(iv(0, 0)) == iv(0, 0))
+}
+```
+
 ### `BallFloat::mul_rev_to_pair` and `BallFloat::mul_rev`
 
 IEEE 1788-2015 10.5.5 and Table 10.1. For intervals $\boldsymbol{b}$ and
@@ -1703,6 +1750,14 @@ pub fn BallFloatDecorated::cos_rev(Self, x? : Self) -> Self
 pub fn BallFloatDecorated::tan_rev(Self, x? : Self) -> Self
 ```
 
+### `BallFloatDecorated::pow_rev1`
+
+The trivial decorated version of 11.7.1: NaI if any input is NaI, else the bare result decorated `Trv`.
+
+```mbti
+pub fn BallFloatDecorated::pow_rev1(Self, Self, x? : Self) -> Self
+```
+
 ### `BallFloatDecorated::mul_rev_to_pair` and `BallFloatDecorated::mul_rev`
 
 `mul_rev_to_pair` follows 12.12.3. If either input is NaI both outputs are NaI.
@@ -2078,6 +2133,7 @@ pub fn BallFloat::overlap(Self, Self) -> OverlapState
 pub fn BallFloat::pow(Self, Self) -> Self
 pub fn BallFloat::pow_int_checked(Self, Int32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::pow_rev1(Self, Self, x? : Self) -> Self
 pub fn BallFloat::pown(Self, Int32) -> Self
 pub fn BallFloat::pown_rev(Self, Int32, x? : Self) -> Self
 pub fn BallFloat::precedes(Self, Self) -> Bool
@@ -2219,6 +2275,7 @@ pub fn BallFloatDecorated::output(Self, &Logger) -> Unit
 pub fn BallFloatDecorated::overlap(Self, Self) -> OverlapState?
 pub fn BallFloatDecorated::pos(Self) -> Self
 pub fn BallFloatDecorated::pow(Self, Self) -> Self
+pub fn BallFloatDecorated::pow_rev1(Self, Self, x? : Self) -> Self
 pub fn BallFloatDecorated::pown(Self, Int32) -> Self
 pub fn BallFloatDecorated::pown_rev(Self, Int32, x? : Self) -> Self
 pub fn BallFloatDecorated::precedes(Self, Self) -> Bool

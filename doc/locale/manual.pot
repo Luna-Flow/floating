@@ -554,7 +554,7 @@ msgid "$[\\operatorname{RD}\\min Q, \\operatorname{RU}\\max Q]$ over the endpoin
 msgstr ""
 
 #: manual/api/ball_float.md:736
-#: manual/api/ball_float.md:1659
+#: manual/api/ball_float.md:1706
 msgid "Empty"
 msgstr ""
 
@@ -643,7 +643,7 @@ msgid "`pown_rev(c, p, x?)` is the standard's `pownRev(c, x, p)`: the power come
 msgstr ""
 
 #: manual/api/ball_float.md:904
-#: manual/api/ball_float.md:1751
+#: manual/api/ball_float.md:1806
 #: manual/api/decimal.md:1740
 #: manual/design/ball_float.md:570
 #: manual/numeric_semantics.md:136
@@ -716,28 +716,40 @@ msgstr ""
 msgid "The result is the hull of the true set in the type: every comparison of a prior end with a piece end is decided exactly, and an end of the result that comes from a piece is the exact directed rounding of that end (`RD` for a lower end, `RU` for an upper end). This is the tightest result, and it can be narrower than a reference value that leaves an ulp of slack. For example `sin_rev([0, 0], x = [RU(pi), 7])` is $[RD(2\\pi), RU(2\\pi)]$ and `sin_rev([0, 0], x = [RU(pi), 6])` is Empty. How the ends are decided is on the [design page](../design/ball_float.md#reverse-sine-cosine-and-tangent). The one limit is the forward trigonometric one: an end of the prior at or beyond $2^{\\max(65536, 4p) + 1}$ in magnitude is kept as it is (valid, not tight), decided before any work is done, and a prior whose finite ends are all beyond it is returned at once. For a prior end of magnitude $2^e$ inside the limit the cost grows with $e$ like the cost of the forward functions of the [trigonometric functions section](#ballfloatsin-ballfloatcos-ballfloattan-ballfloattry_sin-ballfloattry_cos-ballfloattry_tan), the working precision following $e$."
 msgstr ""
 
-#: manual/api/ball_float.md:993
+#: manual/api/ball_float.md:995
+msgid "IEEE 1788-2015 Table 10.1. `b.pow_rev1(c, x?)` is the hull of $\\{\\, x \\in \\boldsymbol{x} \\mid \\exists\\, \\beta \\in \\boldsymbol{b} : x^\\beta \\text{ is defined and in } \\boldsymbol{c} \\,\\}$ for the optional prior $\\boldsymbol{x}$ (default Entire); the receiver is the exponent interval $\\boldsymbol{b}$. $x^\\beta$ is defined for $x > 0$ and for $x = 0$ with $\\beta > 0$ (value 0)."
+msgstr ""
+
+#: manual/api/ball_float.md:1004
+msgid "For $x > 0$, $x^\\beta \\in \\boldsymbol{c}$ means $\\beta \\ln x \\in \\ln(\\boldsymbol{c} \\cap (0, +\\infty))$, so the set is $\\exp(L /_{\\text{set}} \\boldsymbol{b})$ with $L = \\ln(\\boldsymbol{c} \\cap (0, +\\infty))$, the set division of [`mul_rev`](#ballfloatmul_rev_to_pair-and-ballfloatmul_rev) in logarithm coordinates, plus the point 0 when $0 \\in \\boldsymbol{c}$ and $\\boldsymbol{b}$ has a positive point. Every end of a piece is $c_\\text{end}^{1/\\beta_\\text{end}}$, 0, 1 or infinite. The ends that are not attained are open: 0 (from $\\ln x \\to -\\infty$, unless the zero part closes it) and 1 (the limit of a quotient by an unbounded $\\boldsymbol{b}$); a prior that only touches such an end does not meet the set. For example `pow_rev1([1, +inf), [2, +inf))` is $(1, +\\infty)$, so with the prior $[0, 1]$ the result is Empty, and `pow_rev1([-1, 1], [0.5, 2])` is $(0, +\\infty)$, so with the prior $[0, 0]$ it is Empty."
+msgstr ""
+
+#: manual/api/ball_float.md:1015
+msgid "The result is the hull in the type: every comparison of a prior end with a piece end is exact and an end written to the result is the exact directed rounding of the piece end. The exact value of $c^{1/\\beta}$ is classified from the structure of $c$ and $\\beta$ (no squaring): it is a float candidate (dyadic), a rational that is not a float (for example $9^{1/(-2)} = 1/3$), or irrational, and the last is decided by a loop that raises the working precision as `sin_rev` does. The [design page](../design/ball_float.md#reverse-power-with-an-interval-exponent) has the classes, the budgets and their cost. An end of the set above the largest finite float is written as $+\\infty$ when it is an upper end and as the largest finite float of the result precision when it is a lower end; an end below the smallest positive stored value is written as 0 when it is a lower end and as the smallest positive stored value when it is an upper end; in between, including the subnormal range, the end is the usual directed rounding. An exponent of magnitude $2^{10^9}$ is decided at once because the sign of $\\ln(c)/\\beta$ is exact."
+msgstr ""
+
+#: manual/api/ball_float.md:1040
 msgid "`BallFloat::mul_rev_to_pair` and `BallFloat::mul_rev`"
 msgstr ""
 
-#: manual/api/ball_float.md:995
+#: manual/api/ball_float.md:1042
 msgid "IEEE 1788-2015 10.5.5 and Table 10.1. For intervals $\\boldsymbol{b}$ and $\\boldsymbol{c}$ the set"
 msgstr ""
 
-#: manual/api/ball_float.md:1002
+#: manual/api/ball_float.md:1049
 msgid "has zero, one or two connected components, and is not always closed ($[1, 1] /_{\\text{set}} [1, +\\infty) = (0, 1]$). `mul_rev_to_pair` returns the closures of the components, ordered, as a pair; `mul_rev` returns the hull of the part of the set that lies in the prior interval `x`."
 msgstr ""
 
-#: manual/api/ball_float.md:1012
+#: manual/api/ball_float.md:1059
 msgid "`mul_rev_to_pair(b, c)` is `(Empty, Empty)` when there is no component, `(u, Empty)` for one, and `(u, v)` with $u < v$ for two. The two closures can share an endpoint: $[1, 1] /_{\\text{set}} \\text{Entire} = (-\\infty, 0) \\cup (0, +\\infty)$ gives `([-inf, 0], [0, +inf])`. An Empty operand gives `(Empty, Empty)`. The receiver is $\\boldsymbol{b}$ and the argument is $\\boldsymbol{c}$, as in the standard's `mulRevToPair(b, c)`."
 msgstr ""
 
-#: manual/api/ball_float.md:1019
+#: manual/api/ball_float.md:1066
 msgid "`mul_rev(b, c, x?)` is $\\operatorname{hull}\\{x \\in \\boldsymbol{x} \\mid \\exists y \\in \\boldsymbol{b} : x y \\in \\boldsymbol{c}\\}$ with the default $\\boldsymbol{x} = $ Entire. The hull is of the set and not of its closure, and not the intersection of `x` with the hull of the set: with $\\boldsymbol{b} = [-1, 1]$, $\\boldsymbol{c} = [1, 1]$ and $\\boldsymbol{x} = [0, 0.5]$ the result is Empty, whereas the hull of the set is Entire. An endpoint 0 that is the unattained limit of a quotient by an unbounded $\\boldsymbol{b}$ counts as open, so `mul_rev([1, +inf), [1, 1], x=[-1, 0])` is Empty (the set is $(0, 1]$) and with $\\boldsymbol{x} = [0, 0.5]$ it is $[0, 0.5]$. The endpoints of the components are quotients rounded outward, so the results are the tightest in the type. The result precision is the largest of the operands'."
 msgstr ""
 
-#: manual/api/ball_float.md:1046
-#: manual/api/ball_float_checked.md:392
+#: manual/api/ball_float.md:1093
+#: manual/api/ball_float_checked.md:401
 #: manual/api/bin_float.md:1488
 #: manual/api/bin_float_checked.md:489
 #: manual/api/decimal.md:1340
@@ -746,241 +758,241 @@ msgstr ""
 msgid "Elementary functions"
 msgstr ""
 
-#: manual/api/ball_float.md:1048
+#: manual/api/ball_float.md:1095
 msgid "Each function $f$ returns an interval containing $f(\\boldsymbol{x} \\cap D_f)$, where $D_f$ is the domain of $f$; points of $\\boldsymbol{x}$ outside $D_f$ are ignored and the result is Empty when $\\boldsymbol{x} \\cap D_f$ is empty. The result precision is the argument's precision."
 msgstr ""
 
-#: manual/api/ball_float.md:1054
+#: manual/api/ball_float.md:1101
 msgid "Functions come in two forms, and there is one kernel. The `try_` form (`try_exp`, …) evaluates each endpoint with the corresponding `bin_float` `try_*_ctx` function rounded toward $-\\infty$ or $+\\infty$, and returns `Err(ArithmeticError)` with a certification-failure detail naming the operation, stage and reason when that evaluation runs out of its work budget. The total form (`exp`, `sin`, …) is the `try_` form with a fallback: it returns the same interval whenever the `try_` form succeeds, and otherwise the range of the function over its domain (the fallbacks are listed below), which is a valid but wide enclosure. A total form never aborts, at any precision the type accepts; a domain error is not a failure (the result is Empty), so an argument outside the domain and a certification failure give different results. Nothing is computed twice: the total form calls the `try_` form once."
 msgstr ""
 
-#: manual/api/ball_float.md:1070
+#: manual/api/ball_float.md:1117
 msgid "`sqrt` returns $\\sqrt{\\boldsymbol{x} \\cap [0, +\\infty)}$."
 msgstr ""
 
-#: manual/api/ball_float.md:1076
+#: manual/api/ball_float.md:1123
 msgid "The endpoints are the downward and upward square roots at the interval's precision. Empty when $\\overline{x} < 0$. There is no `try_` form: square root never fails."
 msgstr ""
 
-#: manual/api/ball_float.md:1082
+#: manual/api/ball_float.md:1129
 msgid "These return enclosures of $e^{\\xi}$, $2^{\\xi}$, $10^{\\xi}$ and $e^{\\xi} - 1$."
 msgstr ""
 
-#: manual/api/ball_float.md:1096
+#: manual/api/ball_float.md:1143
 msgid "All four are increasing, so the result is $[\\operatorname{RD} f(\\underline{x}), \\operatorname{RU} f(\\overline{x})]$. For $|\\xi| \\ge 2^{30}$ the enclosure is $[\\text{largest finite}, +\\infty)$ or $[0, \\text{smallest positive}]$, which is valid because $e^{2^{30}}$ exceeds $2^{e_{\\max}+1}$ and $e^{-2^{30}}$ is below the smallest positive `BinFloat` at every precision. `exp2` and `exp10` return exact powers for integer endpoints whose power is representable at the interval's precision (`exp2` of $\\{10\\}$ is $\\{1024\\}$, `exp10` of $\\{3\\}$ is $\\{1000\\}$); an integer endpoint outside the exponent range keeps the outward-rounded enclosure, so `exp2` of $\\{-1073742000\\}$ is $[0, \\text{smallest positive}]$ and of $\\{2^{30}\\}$ is $[\\text{largest finite}, +\\infty)$. The fallback of the total forms is $[0, +\\infty)$ for `exp`, `exp2` and `exp10` and $[-1, +\\infty)$ for `expm1`."
 msgstr ""
 
-#: manual/api/ball_float.md:1113
+#: manual/api/ball_float.md:1160
 msgid "These return enclosures of $\\ln \\xi$, $\\log_2 \\xi$, $\\log_{10} \\xi$ and $\\ln(1 + \\xi)$ over their domains $(0, \\infty)$ and $(-1, \\infty)$."
 msgstr ""
 
-#: manual/api/ball_float.md:1127
+#: manual/api/ball_float.md:1174
 msgid "When the interval reaches the domain boundary ($\\underline{x} \\le 0$, or $\\underline{x} \\le -1$ for `log1p`) the lower endpoint is $-\\infty$; when it lies entirely outside the domain ($\\overline{x} \\le 0$, or $\\overline{x} < -1$ for `log1p`) the result is Empty. `log10` returns exact integers at endpoints $10^k$, $0 \\le k \\le 9$. The fallback of the total forms is Entire (an endpoint at or below the domain boundary is decided before the kernel runs and is not a failure)."
 msgstr ""
 
-#: manual/api/ball_float.md:1153
+#: manual/api/ball_float.md:1200
 msgid "`BallFloat::pow` and `BallFloat::try_pow`"
 msgstr ""
 
-#: manual/api/ball_float.md:1155
+#: manual/api/ball_float.md:1202
 msgid "`pow(x, y)` returns an enclosure of $\\{\\xi^{\\eta} : \\xi \\in \\boldsymbol{x}, \\eta \\in \\boldsymbol{y}\\}$ over the IEEE 1788 domain of `pow`: $\\xi > 0$, or $\\xi = 0$ and $\\eta > 0$."
 msgstr ""
 
-#: manual/api/ball_float.md:1164
+#: manual/api/ball_float.md:1211
 msgid "Negative parts of the base are ignored (use `pown` or `rootn` for negative bases). Since $\\xi^\\eta = e^{\\eta \\ln \\xi}$ and $\\eta \\ln \\xi$ is bilinear in $(\\ln \\xi, \\eta)$, the extrema over a box with $\\underline{x} > 0$ are at the four corners. When the base reaches 0, $\\xi^\\eta \\to 0$ for $\\eta > 0$ and $\\to +\\infty$ for $\\eta < 0$, so the result is extended by 0 or $+\\infty$ accordingly. The code also adds the value 1 when the base interval contains 1 or the exponent interval contains 0; it already lies between the corner values, so this changes nothing but is harmless. $0^{\\eta}$ for $\\eta \\le 0$ is excluded, so `pow([0, 0], y)` is Empty when $\\overline{y} \\le 0$. The result precision is the larger operand precision. A corner whose power is representable at the result precision, such as $16^{3/4} = 8$, gives that power exactly. The total form falls back to $[0, +\\infty)$."
 msgstr ""
 
-#: manual/api/ball_float.md:1178
+#: manual/api/ball_float.md:1225
 msgid "`BallFloat::rootn` and `BallFloat::try_rootn`"
 msgstr ""
 
-#: manual/api/ball_float.md:1180
+#: manual/api/ball_float.md:1227
 msgid "`rootn(x, n)` returns an enclosure of the real $n$-th roots $\\{\\xi^{1/n}\\}$: for even $n$ over $\\xi \\ge 0$, for odd $n$ over all reals, and for negative $n$ the reciprocal of the root."
 msgstr ""
 
-#: manual/api/ball_float.md:1189
+#: manual/api/ball_float.md:1236
 msgid "`rootn(x, 0)` and `rootn(x, Int min)` are Empty; `try_rootn(x, 0)` is a domain error. `rootn(x, 1)` is `x` and `rootn(x, 2)` is `sqrt`. The total form is `try_rootn` with a fallback ($[0, +\\infty)$ for an even degree, Entire for an odd one). For negative $n$, `try_rootn` returns Entire when an odd root's argument contains 0. Exact roots are returned exactly for every degree, so `try_rootn({8}, -3)` is $\\{1/2\\}$."
 msgstr ""
 
-#: manual/api/ball_float.md:1209
+#: manual/api/ball_float.md:1256
 msgid "`BallFloat::hypot` and `BallFloat::try_hypot`"
 msgstr ""
 
-#: manual/api/ball_float.md:1211
+#: manual/api/ball_float.md:1258
 msgid "`hypot` returns an enclosure of $\\{\\sqrt{\\xi^2 + \\eta^2}\\}$."
 msgstr ""
 
-#: manual/api/ball_float.md:1218
+#: manual/api/ball_float.md:1265
 msgid "The function is increasing in $|\\xi|$ and $|\\eta|$, so the result is $[\\operatorname{RD}\\operatorname{hypot}(\\operatorname{mig}\\boldsymbol{x}, \\operatorname{mig}\\boldsymbol{y}), \\operatorname{RU}\\operatorname{hypot}(\\operatorname{mag}\\boldsymbol{x}, \\operatorname{mag}\\boldsymbol{y})]$, evaluated on the endpoints of `abs(x)` and `abs(y)`. The total form falls back to `sqrt(sqr(x) + sqr(y))`."
 msgstr ""
 
-#: manual/api/ball_float.md:1226
+#: manual/api/ball_float.md:1273
 msgid "These return enclosures of $\\sin$, $\\cos$ and $\\tan$ over the interval (in radians)."
 msgstr ""
 
-#: manual/api/ball_float.md:1238
+#: manual/api/ball_float.md:1285
 msgid "Both forms evaluate the `bin_float` functions at the endpoints (a point interval) or at the endpoints and the critical points. A critical point $k\\pi/2$ inside the interval contributes the extremum $\\pm 1$ of `sin`/`cos` (`sin` reaches $+1$ at $k \\equiv 1$ and $-1$ at $k \\equiv 3 \\pmod 4$, `cos` reaches $+1$ at $k \\equiv 0$ and $-1$ at $k \\equiv 2$); for `tan` an odd multiple of $\\pi/2$ inside the interval (a pole) makes the result Entire. The set of candidate indices $k$ is computed from the enclosure of $\\pi$ and can only be too large, which widens but never invalidates the result. Unbounded arguments give $[-1, 1]$ (Entire for `tan`). When the larger endpoint magnitude is at least $2^{\\max(65536,\\, 4p) + 1}$ the `try_` forms return a resource-limit error without evaluating; the total forms return $[-1, 1]$ (Entire for `tan`), the same fallback they use when the certification budget (12 work precisions) is exhausted."
 msgstr ""
 
-#: manual/api/ball_float.md:1254
+#: manual/api/ball_float.md:1301
 msgid "These return enclosures of $\\sin \\pi\\xi$, $\\cos \\pi\\xi$ and $\\tan \\pi\\xi$."
 msgstr ""
 
-#: manual/api/ball_float.md:1265
+#: manual/api/ball_float.md:1312
 msgid "Here the critical points are the exact half-integers $k/2$, located from the dyadic endpoints without approximating $\\pi$. `tanpi` returns a half-unbounded interval when a pole is exactly an endpoint and no other pole lies in the interval (for example $[1/2, 1]$ gives $(-\\infty, 0]$, whose upper endpoint is $\\tan \\pi = -0$), Empty for the singleton of a pole, and Entire when a pole lies inside. Unbounded arguments and fallbacks give $[-1, 1]$ (Entire for `tanpi`)."
 msgstr ""
 
-#: manual/api/ball_float.md:1288
+#: manual/api/ball_float.md:1335
 msgid "These return enclosures of $\\arcsin$, $\\arccos$ (over $[-1, 1]$) and $\\arctan$."
 msgstr ""
 
-#: manual/api/ball_float.md:1300
+#: manual/api/ball_float.md:1347
 msgid "`asin` and `atan` are increasing and `acos` is decreasing, so only endpoints are evaluated. `atan` of an infinite endpoint is $\\pm\\pi/2$. The fallback of the total forms is $[-\\pi/2, \\pi/2]$ for `atan` and `asin` and $[0, \\pi]$ for `acos`, with $\\pi$ taken from a constant of at most 64 bits and rounded outward to the interval's precision, so the fallback itself cannot fail."
 msgstr ""
 
-#: manual/api/ball_float.md:1306
+#: manual/api/ball_float.md:1353
 msgid "`BallFloat::atan2` and `BallFloat::try_atan2`"
 msgstr ""
 
-#: manual/api/ball_float.md:1308
+#: manual/api/ball_float.md:1355
 msgid ""
 "`y.atan2(x)` returns an enclosure of the angles $\\operatorname{atan2}(\\eta, \\xi) \\in (-\\pi, \\pi]$ of the points $(\\xi, \\eta) \\n"
 "e (0, 0)$ of the box $\\boldsymbol{x} \\times \\boldsymbol{y}$."
 msgstr ""
 
-#: manual/api/ball_float.md:1317
+#: manual/api/ball_float.md:1364
 msgid "The receiver is the ordinate. The result is the hull of the angles at the four corners and at the points where the box meets the axes. When the box crosses the branch cut ($\\underline{x} < 0$ and $\\underline{y} < 0 \\le \\overline{y}$) the result is $[-\\pi, \\pi]$. The box $\\{(0, 0)\\}$ gives Empty. The total form falls back to $[-\\pi, \\pi]$."
 msgstr ""
 
-#: manual/api/ball_float.md:1325
+#: manual/api/ball_float.md:1372
 msgid "These return enclosures of the hyperbolic functions and their inverses over their domains ($[1, \\infty)$ for `acosh`, $(-1, 1)$ for `atanh`)."
 msgstr ""
 
-#: manual/api/ball_float.md:1343
+#: manual/api/ball_float.md:1390
 msgid "`cosh` has its minimum 1 at 0; the others are monotone. `atanh` of an interval reaching $\\pm 1$ is unbounded on that side, and an interval whose only point in the domain's closure is $1$ or $-1$ gives Empty. The fallback of the total forms is Entire for `sinh`, `asinh` and `atanh`, $[-1, 1]$ for `tanh`, $[1, +\\infty)$ for `cosh` and $[0, +\\infty)$ for `acosh`."
 msgstr ""
 
-#: manual/api/ball_float.md:1349
+#: manual/api/ball_float.md:1396
 msgid "The total forms keep their relative accuracy for a tiny argument, since they are the `bin_float` kernels: at 53 bits `sinh` of $\\{2^{-300}\\}$ is the two-ulp interval $[2^{-300}, (1 + 2^{-52})\\,2^{-300}]$."
 msgstr ""
 
-#: manual/api/ball_float.md:1365
+#: manual/api/ball_float.md:1412
 msgid "Contexts and flags"
 msgstr ""
 
-#: manual/api/ball_float.md:1367
+#: manual/api/ball_float.md:1414
 msgid "`BallContext::new` and `BallContext::try_new`"
 msgstr ""
 
-#: manual/api/ball_float.md:1369
+#: manual/api/ball_float.md:1416
 msgid "`BallContext::new` builds a context from a precision and the largest exponent `e_max`; `e_min` is `1 - e_max` (IEEE 754-2019 3.3)."
 msgstr ""
 
-#: manual/api/ball_float.md:1377
+#: manual/api/ball_float.md:1424
 msgid "The defaults are precision 53 and, for `e_max`, the implementation limit `binary_implementation_e_max` of `bin_float`, the same as `BinaryContext::new` given a precision alone (so `BallContext::new()` is not binary64: use `binary64()` for that). The legality of the pair is decided by `BinaryContext::try_new`, so `bin_float` and `ball_float` have one definition of a format: the precision is between 1 and `binary_precision_max` and `e_max` is at least 1. An illegal pair aborts `new`, naming the parameter, and is a domain error for `try_new`. Before 0.12 `e_min` was a parameter, any pair with `e_min <= e_max` was accepted, and the precision had no upper limit."
 msgstr ""
 
-#: manual/api/ball_float.md:1387
+#: manual/api/ball_float.md:1434
 msgid "`BallContext::with_precision` and `BallContext::with_e_max`"
 msgstr ""
 
-#: manual/api/ball_float.md:1389
+#: manual/api/ball_float.md:1436
 msgid "These return the same format with another precision, or another largest exponent (and `e_min = 1 - e_max`); they abort when the result is not legal."
 msgstr ""
 
-#: manual/api/ball_float.md:1399
+#: manual/api/ball_float.md:1446
 msgid "These return the contexts of the IEEE 754 interchange formats: binary16 ($p = 11$, $[-14, 15]$), binary32 ($p = 24$, $[-126, 127]$), binary64 ($p = 53$, $[-1022, 1023]$) and binary128 ($p = 113$, $[-16382, 16383]$)."
 msgstr ""
 
-#: manual/api/ball_float.md:1412
+#: manual/api/ball_float.md:1459
 msgid "These return the parameters of a context."
 msgstr ""
 
-#: manual/api/ball_float.md:1422
+#: manual/api/ball_float.md:1469
 msgid "`BallFlags::new` returns the flags with nothing raised; `combine` is their union; the accessors read the fields."
 msgstr ""
 
-#: manual/api/ball_float.md:1435
+#: manual/api/ball_float.md:1482
 msgid "`apply_ctx` rounds an interval outward into a context and reports the flags."
 msgstr ""
 
-#: manual/api/ball_float.md:1441
+#: manual/api/ball_float.md:1488
 msgid "Each finite nonzero endpoint is rounded outward to the context precision. An endpoint whose rounded exponent exceeds $e_{\\max}$ overflows: it becomes $\\mp\\infty$ if it is a negative lower or a positive upper endpoint, and the largest finite value of the right sign otherwise (a positive lower endpoint becomes the largest finite value, which is still below it). An endpoint below the normal range is then rounded outward on the subnormal grid $2^{e_{\\min} - p + 1}\\mathbb{Z}$, so a tiny positive upper endpoint becomes the smallest subnormal rather than 0. Rounding twice in the same direction equals rounding once onto the coarser grid, so the endpoints are the directed roundings of the stored ones. Zeros and infinities are kept. Empty gives Empty with no flags. The result has the context precision."
 msgstr ""
 
-#: manual/api/ball_float.md:1453
+#: manual/api/ball_float.md:1500
 msgid "`underflow` follows IEEE 754 with tininess detected after rounding: it is raised when an endpoint is inexact and its rounding to $p$ bits with an unbounded exponent range lies below $2^{e_{\\min}}$, whichever of the two steps lost the bits. With $p = 4$ and $e_{\\min} = -2$, the lower endpoint $2^{-3}(1 + 2^{-10})$ becomes $2^{-3}$, which is already on the subnormal grid, and raises both `inexact` and `underflow`. An exact tiny endpoint raises nothing."
 msgstr ""
 
-#: manual/api/ball_float.md:1461
+#: manual/api/ball_float.md:1508
 msgid "There is no `add_ctx` or `exp_ctx`: the operation and the context are composed, `(x + y).apply_ctx(ctx)`. When the operands' precision is at least the context precision, the double rounding gives the same endpoints as a single outward rounding into the context (see the [design page](../design/ball_float.md#contexts-and-double-rounding))."
 msgstr ""
 
-#: manual/api/ball_float.md:1469
+#: manual/api/ball_float.md:1516
 msgid "`midpoint_ctx` is the IEEE 1788 `mid` operation with the context as the result format."
 msgstr ""
 
-#: manual/api/ball_float.md:1476
+#: manual/api/ball_float.md:1523
 msgid "Following IEEE 1788-2015 §12.12.8, Empty gives NaN, Entire gives $+0$, an interval unbounded only above gives the largest finite value of the context, $(2 - 2^{1-p})\\,2^{e_{\\max}}$, and one unbounded only below gives its negative; none of these raises a flag. A bounded interval gives its exact center rounded once to nearest (ties to even) onto the context's grid, including the subnormal grid $2^{e_{\\min} - p + 1}\\mathbb{Z}$, so with $p = 4$, $e_{\\min} = -2$ the center $2^{-6} + 2^{-20}$ gives $2^{-5}$. A zero center gives $+0$. `inexact` is set when the result differs from the center and `underflow` when it is also tiny, as for `apply_ctx`. A center that rounds beyond $e_{\\max}$ overflows to an infinity of its sign with `overflow` and `inexact`: rounding to nearest maps it to $\\pm\\infty$ in IEEE 754, and IEEE 1788 uses that rounding for the bounded case. Only an interval whose endpoints are themselves outside the context's range can do this."
 msgstr ""
 
-#: manual/api/ball_float.md:1506
+#: manual/api/ball_float.md:1553
 msgid "Decorated intervals"
 msgstr ""
 
-#: manual/api/ball_float.md:1508
+#: manual/api/ball_float.md:1555
 msgid "A decorated operation computes the bare result and the decoration $d = \\min(d_1, \\dots, d_k, d_f)$, where $d_i$ are the operand decorations and $d_f$ is the decoration of the operation on these operands (`Com` when the function is defined and continuous on the whole input box, `Trv` when the input leaves the domain, as listed below). The minimum is then made canonical (Empty → `Trv`, unbounded with `Com` → `Dac`). Any NaI operand gives NaI."
 msgstr ""
 
-#: manual/api/ball_float.md:1517
+#: manual/api/ball_float.md:1564
 msgid "`BallFloatDecorated::new` decorates a bare interval."
 msgstr ""
 
-#: manual/api/ball_float.md:1523
+#: manual/api/ball_float.md:1570
 msgid "The default decoration is `Com`. `new` is `setDec` of IEEE 1788-2015 11.5.2: the decoration `Ill` gives NaI for any interval, empty or not (at the precision of the interval, so the result equals `BallFloatDecorated::nai`); otherwise the decoration is made canonical, so `new(entire())` is decorated `Dac` and `new(empty())` is decorated `Trv`, as in IEEE 1788 `newDec`."
 msgstr ""
 
-#: manual/api/ball_float.md:1529
+#: manual/api/ball_float.md:1576
 msgid "`BallFloatDecorated::nai` and `BallFloatDecorated::is_nai`"
 msgstr ""
 
-#: manual/api/ball_float.md:1531
+#: manual/api/ball_float.md:1578
 msgid "`nai` returns NaI, the result of an invalid decorated construction; `is_nai` tests for it."
 msgstr ""
 
-#: manual/api/ball_float.md:1539
+#: manual/api/ball_float.md:1586
 msgid "NaI has decoration `Ill` and an Empty interval (default precision 53), but it is not Empty: `is_empty` is false for NaI."
 msgstr ""
 
-#: manual/api/ball_float.md:1542
+#: manual/api/ball_float.md:1589
 msgid "`BallFloatDecorated::interval` and `BallFloatDecorated::decoration`"
 msgstr ""
 
-#: manual/api/ball_float.md:1544
+#: manual/api/ball_float.md:1591
 msgid "These return the bare interval and the decoration."
 msgstr ""
 
-#: manual/api/ball_float.md:1553
+#: manual/api/ball_float.md:1600
 msgid "These predicates apply the bare predicate to the interval and return false for NaI."
 msgstr ""
 
-#: manual/api/ball_float.md:1566
+#: manual/api/ball_float.md:1613
 msgid "These relations apply the bare relation to the intervals and return false when an operand is NaI."
 msgstr ""
 
-#: manual/api/ball_float.md:1582
+#: manual/api/ball_float.md:1629
 msgid "`overlap` returns `None` when an operand is NaI, which has no value for a non-interval-valued operation (IEEE 1788-2015 11.7.2), and `Some(state)` otherwise."
 msgstr ""
 
-#: manual/api/ball_float.md:1588
+#: manual/api/ball_float.md:1635
 msgid "These apply the bare operation and always lower the decoration to `Trv` (set operations are not point functions, so no property of a function can be claimed for their results)."
 msgstr ""
 
-#: manual/api/ball_float.md:1601
+#: manual/api/ball_float.md:1648
 msgid "The arithmetic operations apply the bare operation; their operation decoration is `Com` except where the table says otherwise."
 msgstr ""
 
-#: manual/api/ball_float.md:1620
+#: manual/api/ball_float.md:1667
 #: manual/conformance/decimal_gda.md:15
 #: manual/design/ball_float.md:382
 #: manual/design/bin_float_checked.md:122
@@ -991,143 +1003,147 @@ msgstr ""
 msgid "Operation"
 msgstr ""
 
-#: manual/api/ball_float.md:1620
-#: manual/api/ball_float.md:1657
+#: manual/api/ball_float.md:1667
+#: manual/api/ball_float.md:1704
 msgid "Operation decoration"
 msgstr ""
 
-#: manual/api/ball_float.md:1622
+#: manual/api/ball_float.md:1669
 msgid "`Trv` when the divisor contains 0"
 msgstr ""
 
-#: manual/api/ball_float.md:1623
+#: manual/api/ball_float.md:1670
 msgid "`Trv` when $n < 0$ and $0 \\in \\boldsymbol{x}$"
 msgstr ""
 
-#: manual/api/ball_float.md:1624
+#: manual/api/ball_float.md:1671
 msgid "identity (IEEE 1788 `pos`)"
 msgstr ""
 
-#: manual/api/ball_float.md:1625
+#: manual/api/ball_float.md:1672
 msgid "others"
 msgstr ""
 
-#: manual/api/ball_float.md:1629
+#: manual/api/ball_float.md:1676
 msgid "The decorated elementary functions apply the bare total form (there are no decorated `try_` forms) and lower the decoration when the input leaves the domain of the function, as listed in the table at the end of this group."
 msgstr ""
 
-#: manual/api/ball_float.md:1633
+#: manual/api/ball_float.md:1680
 msgid "These are the decorated square root, exponentials, logarithms, powers and `hypot`."
 msgstr ""
 
-#: manual/api/ball_float.md:1653
+#: manual/api/ball_float.md:1700
 msgid "The interval part is the bare result. The operation decoration is the strongest decoration of 11.2 for the function over the input box, and the result is the minimum of it and the input decoration (11.6, equation 18):"
 msgstr ""
 
-#: manual/api/ball_float.md:1657
+#: manual/api/ball_float.md:1704
 msgid "Input box $\\boldsymbol{x}$"
 msgstr ""
 
-#: manual/api/ball_float.md:1660
+#: manual/api/ball_float.md:1707
 msgid "the function is not constant on $\\boldsymbol{x}$"
 msgstr ""
 
-#: manual/api/ball_float.md:1661
+#: manual/api/ball_float.md:1708
 msgid "constant, and $\\boldsymbol{x}$ unbounded"
 msgstr ""
 
-#: manual/api/ball_float.md:1662
+#: manual/api/ball_float.md:1709
 msgid "constant, bounded, and $\\boldsymbol{x}$ contains a point of discontinuity of the function on the real line"
 msgstr ""
 
-#: manual/api/ball_float.md:1663
+#: manual/api/ball_float.md:1710
 msgid "constant, bounded, and no such point in $\\boldsymbol{x}$"
 msgstr ""
 
-#: manual/api/ball_float.md:1665
+#: manual/api/ball_float.md:1712
 msgid "The functions take integer values, so their restriction to $\\boldsymbol{x}$ is continuous exactly when it is constant (`dac` asks for continuity of the restriction, `com` for continuity at each point of $\\boldsymbol{x}$). The points of discontinuity are the integers for `ceil` and `floor`, the nonzero integers for `trunc`, $0$ for `sign`, and the half-integers for the two roundings. For example `ceil` of the box $[1.1, 2.0]$ is $[2, 2]$ with `Dac`: the restriction is constant, but $2$ is a point of discontinuity of `ceil`. `floor` of the same box is $[1, 2]$ with `Def`. NaI gives NaI."
 msgstr ""
 
-#: manual/api/ball_float.md:1683
+#: manual/api/ball_float.md:1730
 msgid "`BallFloatDecorated::sqr_rev`, `BallFloatDecorated::abs_rev`, `BallFloatDecorated::pown_rev` and `BallFloatDecorated::cosh_rev`"
 msgstr ""
 
-#: manual/api/ball_float.md:1685
+#: manual/api/ball_float.md:1732
 msgid "Reverse-mode operations have the trivial decorated version of 11.7.1: NaI if any input (the interval or the prior) is NaI, else the bare result decorated `Trv`."
 msgstr ""
 
-#: manual/api/ball_float.md:1695
+#: manual/api/ball_float.md:1742
 msgid "`BallFloatDecorated::sin_rev`, `BallFloatDecorated::cos_rev` and `BallFloatDecorated::tan_rev`"
 msgstr ""
 
-#: manual/api/ball_float.md:1697
+#: manual/api/ball_float.md:1744
 msgid "The trivial decorated version of 11.7.1: NaI if any input (the interval or the prior) is NaI, else the bare result decorated `Trv`."
 msgstr ""
 
-#: manual/api/ball_float.md:1706
+#: manual/api/ball_float.md:1755
+msgid "The trivial decorated version of 11.7.1: NaI if any input is NaI, else the bare result decorated `Trv`."
+msgstr ""
+
+#: manual/api/ball_float.md:1761
 msgid "`BallFloatDecorated::mul_rev_to_pair` and `BallFloatDecorated::mul_rev`"
 msgstr ""
 
-#: manual/api/ball_float.md:1708
+#: manual/api/ball_float.md:1763
 msgid ""
 "`mul_rev_to_pair` follows 12.12.3. If either input is NaI both outputs are NaI. Otherwise, when both are nonempty and $0 \\n"
 "otin \\boldsymbol{b}$, the first output is the decorated quotient $\\boldsymbol{c} / \\boldsymbol{b}$ (the same decoration as `/`) and the second is Empty with `Trv`. Every other output, empty or not, is decorated `Trv`. `mul_rev` is a reverse-mode operation and has the trivial decorated version of 11.7.1: NaI if any input is NaI, else the bare result decorated `Trv`."
 msgstr ""
 
-#: manual/api/ball_float.md:1723
+#: manual/api/ball_float.md:1778
 msgid "These are the decorated trigonometric functions and their inverses."
 msgstr ""
 
-#: manual/api/ball_float.md:1740
+#: manual/api/ball_float.md:1795
 msgid "These are the decorated hyperbolic functions and their inverses."
 msgstr ""
 
-#: manual/api/ball_float.md:1751
+#: manual/api/ball_float.md:1806
 msgid "Operation decoration `Trv` when"
 msgstr ""
 
-#: manual/api/ball_float.md:1753
+#: manual/api/ball_float.md:1808
 msgid "$\\underline{x} < 0$ (or the input is Empty)"
 msgstr ""
 
-#: manual/api/ball_float.md:1758
+#: manual/api/ball_float.md:1813
 msgid "$\\underline{x} \\le -1$ or $\\overline{x} \\ge 1$"
 msgstr ""
 
-#: manual/api/ball_float.md:1759
+#: manual/api/ball_float.md:1814
 msgid "$n = 0$, or $n$ even and $\\underline{x} < 0$, or $n < 0$ and $0 \\in \\boldsymbol{x}$"
 msgstr ""
 
-#: manual/api/ball_float.md:1760
+#: manual/api/ball_float.md:1815
 msgid "$\\underline{x} < 0$, or $0 \\in \\boldsymbol{x}$ and $\\underline{y} \\le 0$, or the result is Empty"
 msgstr ""
 
-#: manual/api/ball_float.md:1761
+#: manual/api/ball_float.md:1816
 msgid "the result is Entire (a pole may lie inside)"
 msgstr ""
 
-#: manual/api/ball_float.md:1762
+#: manual/api/ball_float.md:1817
 msgid "the result is unbounded (a pole lies in the argument, possibly at an endpoint)"
 msgstr ""
 
-#: manual/api/ball_float.md:1763
+#: manual/api/ball_float.md:1818
 msgid "both operands contain 0"
 msgstr ""
 
-#: manual/api/ball_float.md:1765
+#: manual/api/ball_float.md:1820
 msgid "All other functions have operation decoration `Com`. For `y.atan2(x)` the decoration is `Def` when the box crosses the branch cut ($\\underline{x} < 0$, $\\underline{y} < 0 \\le \\overline{y}$: the restriction jumps from $-\\pi$ to $\\pi$) and `Dac` when it touches the cut from above ($\\overline{x} < 0$, $\\underline{y} = 0$: the restriction is continuous, but `atan2` itself is not continuous at those points)."
 msgstr ""
 
-#: manual/api/ball_float.md:1774
+#: manual/api/ball_float.md:1829
 msgid "`apply_ctx` applies `BallFloat::apply_ctx` to the interval and keeps the decoration (made canonical again, so an overflowed `Com` becomes `Dac`)."
 msgstr ""
 
-#: manual/api/ball_float.md:1781
+#: manual/api/ball_float.md:1836
 msgid "NaI stays NaI, with the context precision."
 msgstr ""
 
-#: manual/api/ball_float.md:1804
-#: manual/api/ball_float_checked.md:477
+#: manual/api/ball_float.md:1859
+#: manual/api/ball_float_checked.md:486
 #: manual/api/bin_float.md:2287
 #: manual/api/bin_float_checked.md:817
 #: manual/api/decimal.md:1969
@@ -1143,54 +1159,54 @@ msgstr ""
 msgid "Trait implementations"
 msgstr ""
 
-#: manual/api/ball_float.md:1806
+#: manual/api/ball_float.md:1861
 msgid "`Add`, `Sub`, `Mul`, `Div` and `Neg` for `BallFloat` and `BallFloatDecorated`"
 msgstr ""
 
-#: manual/api/ball_float.md:1808
+#: manual/api/ball_float.md:1863
 msgid "`BallFloat` implements `Add`, `Sub`, `Mul`, `Div` and `Neg`; `BallFloatDecorated` implements `Add`, `Sub`, `Mul` and `Div`. The operators call the methods of the same name."
 msgstr ""
 
-#: manual/api/ball_float.md:1826
+#: manual/api/ball_float.md:1881
 msgid "`Show` writes an interval in an exact text form."
 msgstr ""
 
-#: manual/api/ball_float.md:1840
+#: manual/api/ball_float.md:1895
 msgid "A bounded `BallFloat` prints as `center +/- radius` with both numbers in the exact `BinFloat` notation (`3p-1` is $3 \\cdot 2^{-1}$), so the text denotes exactly the stored set (up to the far-endpoint case: endpoints more than about $2^{16}$ binary orders of magnitude apart print with a sticky surrogate for the smaller one); an unbounded one prints as `[lo, hi]`, Empty as `[empty]`. A decorated interval appends `_` and the decoration; NaI prints as `[nai]`."
 msgstr ""
 
-#: manual/api/ball_float.md:1859
+#: manual/api/ball_float.md:1914
 msgid "These are the derived `Eq` and `Debug` methods of the structures."
 msgstr ""
 
-#: manual/api/ball_float.md:1873
+#: manual/api/ball_float.md:1928
 msgid "These are the derived `Eq` and `Debug` methods of the enums."
 msgstr ""
 
-#: manual/api/ball_float.md:1884
+#: manual/api/ball_float.md:1939
 msgid "The `Eq` implementations of `BallFloat` and `BallFloatDecorated` are the `equal` relation of IEEE 1788-2015 (12.12.9), not equality of representation: `==` compares sets, ignoring precision tags, and on decorated intervals it is false whenever one operand is NaI, so NaI is not equal to itself (as NaN is not), and decorations are ignored. `identical` is the equality of the datum. `to_repr` gives the structural `Debug` form. The `Eq` of `Decoration` and `OverlapState` is the equality of the variants."
 msgstr ""
 
-#: manual/api/ball_float.md:1894
+#: manual/api/ball_float.md:1949
 msgid "`BallFloat` implements the enclosure relation traits of `Luna-Flow/arithmetic`."
 msgstr ""
 
-#: manual/api/ball_float.md:1904
+#: manual/api/ball_float.md:1959
 msgid ""
 "`Contains::contains(x, y)` is `y.subset(x)` (set inclusion, not the point-taking method). `Overlaps::overlaps(x, y)` is $\\underline{x} \\le \\overline{y} \\wedge \\underline{y} \\le \\overline{x}$, that is $\\boldsymbol{x} \\cap \\boldsymbol{y} \\n"
 "e \\emptyset$, and `MaybeEq::maybe_eq` is the same relation read as \"the two unknown points may be equal\". `DefinitelyLt::definitely_lt(x, y)` is $\\overline{x} < \\underline{y}$ and `DefinitelyLe::definitely_le(x, y)` is $\\overline{x} \\le \\underline{y}$: they hold when the order holds for every pair of points. All four are false when an operand is Empty. This differs from `disjoint`, `precedes` and `strict_precedes`, which are true for an Empty operand (IEEE 1788-2015 Table 10.4): `overlaps` is false where `disjoint` is true, and `definitely_lt` is false where `strict_precedes` is true, so a `true` answer of the traits is always backed by at least one pair of points. These are the generic interface of `Luna-Flow/arithmetic`; the interval package spells the standard relations `disjoint`, `precedes` and `strict_precedes`."
 msgstr ""
 
-#: manual/api/ball_float.md:1922
+#: manual/api/ball_float.md:1977
 msgid "`BallFloat` implements `DivChecked`, `PowNatChecked` and `PowIntChecked`; their methods are promoted."
 msgstr ""
 
-#: manual/api/ball_float.md:1934
+#: manual/api/ball_float.md:1989
 msgid "Only `ctx.precision` is used: the operands are re-rounded to it with `with_precision`, the operation is applied, and the result is re-rounded outward (see [`BallFloat::with_precision`](#ballfloatwith_precision)). At the operands' own precision the result is that of the plain operation; at a lower precision it can be wider. They always return `Ok`. `div_checked` follows the division rules above (a divisor containing 0 gives an unbounded result, not an error). `pow_int_checked` uses `pown`. `pow_nat_checked` uses binary powering by repeated interval multiplication, which treats the factors as independent: for an argument containing 0 its result is wider than `pown`. An Empty base gives Empty for every exponent, including 0, as `pown` does."
 msgstr ""
 
-#: manual/api/ball_float.md:1958
-#: manual/api/ball_float_checked.md:492
+#: manual/api/ball_float.md:2013
+#: manual/api/ball_float_checked.md:501
 #: manual/api/bench.md:216
 #: manual/api/bench/ball_float.md:43
 #: manual/api/bench/bin_float.md:44
@@ -1228,7 +1244,7 @@ msgstr ""
 msgid "Complete public interface"
 msgstr ""
 
-#: manual/api/ball_float.md:1960
+#: manual/api/ball_float.md:2015
 #: manual/api/decimal.md:2169
 #: manual/api/decimal_gda.md:1654
 #: manual/api/frontend/gda_expr.md:510
@@ -1386,68 +1402,72 @@ msgstr ""
 msgid "These methods apply the `BallFloat` method of the same name to the interval part (see the [`ball_float` page](ball_float.md#ballfloatsin_rev-ballfloatcos_rev-and-ballfloattan_rev)). They cannot fail themselves; an earlier failure in the receiver or in the optional prior is passed on."
 msgstr ""
 
-#: manual/api/ball_float_checked.md:291
+#: manual/api/ball_float_checked.md:293
+msgid "`BallFloat::pow_rev1` on the interval parts (see the [`ball_float` page](ball_float.md#ballfloatpow_rev1)). It cannot fail itself; an earlier failure in the receiver, in `c` or in the optional prior is passed on."
+msgstr ""
+
+#: manual/api/ball_float_checked.md:300
 msgid "`BallFloatResult::mul_rev` and `BallFloatResult::mul_rev_to_pair`"
 msgstr ""
 
-#: manual/api/ball_float_checked.md:293
+#: manual/api/ball_float_checked.md:302
 msgid "These methods apply `BallFloat::mul_rev` and `BallFloat::mul_rev_to_pair` to the interval parts (see the [`ball_float` page](ball_float.md#ballfloatmul_rev_to_pair-and-ballfloatmul_rev)). They cannot fail themselves; an earlier failure in an input is passed on, and for `mul_rev_to_pair` both outputs carry it. `x` is optional."
 msgstr ""
 
-#: manual/api/ball_float_checked.md:305
+#: manual/api/ball_float_checked.md:314
 msgid "These methods combine two or three wrappers with the `BallFloat` method of the same name (Table 9.1 `min`, `max`, `fma`; 9.2 and 9.3 the cancellative and set operations). The first error comes first, in argument order, as for `add`."
 msgstr ""
 
-#: manual/api/ball_float_checked.md:321
+#: manual/api/ball_float_checked.md:330
 msgid "`pown` raises an interval to an integer power through the Luna-Flow/arithmetic trait `PowIntChecked`."
 msgstr ""
 
-#: manual/api/ball_float_checked.md:328
+#: manual/api/ball_float_checked.md:337
 msgid "The context is `ArithmeticContext::new(x.precision())`; `ball_float` uses only its precision, and re-rounds the base and the result outward with `with_precision`, which adds nothing when they are already representable. `pown` encloses $\\{t^{n}\\}$ with `BallFloat::pown`, which treats the base as one point (so `pown(2)` of $[-1, 1]$ is $[0, 1]$, tighter than `x * x`, which is $[-1, 1]$). A zero base with a negative exponent gives the empty set. An empty base stays empty for every exponent, including `pown(0)`. There is no `pow_nat` here: a non-negative exponent is a `pown`, and the trait form `BallFloat::pow_nat_checked` takes a `UInt`."
 msgstr ""
 
-#: manual/api/ball_float_checked.md:340
+#: manual/api/ball_float_checked.md:349
 msgid "`rootn(n)` encloses the real $n$-th root with `BallFloat::try_rootn`."
 msgstr ""
 
-#: manual/api/ball_float_checked.md:346
+#: manual/api/ball_float_checked.md:355
 msgid "Degree $0$ gives a `DomainError`. Even roots ignore the negative part of the interval (set semantics): the root of $[-1, 1]$ is $[0, 1]$."
 msgstr ""
 
-#: manual/api/ball_float_checked.md:351
+#: manual/api/ball_float_checked.md:360
 msgid "These binary functions enclose $x^{y}$, $\\sqrt{x^2+y^2}$ and the angle of $(\\text{abscissa}, \\text{self})$."
 msgstr ""
 
-#: manual/api/ball_float_checked.md:360
+#: manual/api/ball_float_checked.md:369
 msgid "They call `try_pow`, `try_hypot` and `try_atan2`. Operand errors are taken left first; the operation can fail with a `CertificationFailure`. Points outside the real domain are dropped from the result set, so $(-2)^{0.5}$ is the empty interval."
 msgstr ""
 
-#: manual/api/ball_float_checked.md:396
+#: manual/api/ball_float_checked.md:405
 msgid "These methods enclose the image of the interval under the exponentials and logarithms."
 msgstr ""
 
-#: manual/api/ball_float_checked.md:412
+#: manual/api/ball_float_checked.md:421
 msgid "These methods enclose the image of the interval under the trigonometric functions and their inverses."
 msgstr ""
 
-#: manual/api/ball_float_checked.md:429
+#: manual/api/ball_float_checked.md:438
 msgid "These methods enclose the image of the interval under the hyperbolic functions and their inverses."
 msgstr ""
 
-#: manual/api/ball_float_checked.md:441
+#: manual/api/ball_float_checked.md:450
 msgid "Each method is `bind` of `BallFloat::try_<name>_interval` at the interval's precision. The result $Y$ satisfies $f(X \\cap \\operatorname{dom} f) \\subseteq Y$; parts of $X$ outside the domain are ignored, so $\\ln([-1, 1]) = [-\\infty, 0]$ and $\\ln([-2, -2])$ is empty. The only error is a `CertificationFailure` when an enclosure cannot be certified, for example the cosine of $2^{8000000}$ (reason `ResourceLimit`). There are no context variants; precision is set with `with_precision`."
 msgstr ""
 
-#: manual/api/ball_float_checked.md:479
+#: manual/api/ball_float_checked.md:488
 msgid "`Add`, `Sub`, `Mul`, `Div`, `Neg` for `BallFloatResult`"
 msgstr ""
 
-#: manual/api/ball_float_checked.md:481
+#: manual/api/ball_float_checked.md:490
 #: manual/api/bin_float_checked.md:821
 msgid "The operators `+`, `-`, `*`, `/` and unary `-` call `add`, `sub`, `mul`, `div` and `neg`."
 msgstr ""
 
-#: manual/api/ball_float_checked.md:494
+#: manual/api/ball_float_checked.md:503
 #: manual/api/bin_float_checked.md:839
 #: manual/api/decimal_checked.md:402
 #: manual/api/decimal_gda_checked.md:320
@@ -6211,6 +6231,7 @@ msgid "The harness writes mare_mark JSONL (`mmka_1`) to standard output, one eve
 msgstr ""
 
 #: manual/api/differential.md:66
+#: manual/design/ball_float.md:728
 msgid "When"
 msgstr ""
 
@@ -8585,7 +8606,7 @@ msgid "Claim"
 msgstr ""
 
 #: manual/conformance/ball_float.md:5
-msgid "The current strict ITF1788 gate executes 5,828/5,828 selected cases with no failed, unsupported, or diagnostic rows. This is a claim about the pinned corpus revision, selected operation phases, and runner precision—not a claim of complete IEEE 1788 implementation."
+msgid "The current strict ITF1788 gate executes 6,257/6,257 selected cases with no failed, unsupported, or diagnostic rows. This is a claim about the pinned corpus revision, selected operation phases, and runner precision—not a claim of complete IEEE 1788 implementation."
 msgstr ""
 
 #: manual/conformance/ball_float.md:7
@@ -8697,7 +8718,7 @@ msgid "required"
 msgstr ""
 
 #: manual/conformance/ball_float.md:13
-msgid "ITF1788 strict gate (5,828 cases)"
+msgid "ITF1788 strict gate (6,257 cases)"
 msgstr ""
 
 #: manual/conformance/ball_float.md:13
@@ -8739,11 +8760,11 @@ msgid "§10.5.4 reverse-mode elementary functions"
 msgstr ""
 
 #: manual/conformance/ball_float.md:16
-msgid "ITF1788 multiplicative-reverse (`mulRev`, `mulRevTen`), algebraic-reverse (`sqrRev`, `absRev`, `pownRev`, `coshRev`) and trigonometric-reverse (`sinRev`, `cosRev`, `tanRev`, and the `Bin` forms) phases; `library/src/ball_float/mul_rev_wbtest.mbt`, `algebraic_reverse_wbtest.mbt`, `trig_reverse_wbtest.mbt`, `trig_reverse_reference_wbtest.mbt`"
+msgid "ITF1788 multiplicative-reverse (`mulRev`, `mulRevTen`), algebraic-reverse (`sqrRev`, `absRev`, `pownRev`, `coshRev`) trigonometric-reverse (`sinRev`, `cosRev`, `tanRev`, and the `Bin` forms) and power-reverse-1 (`powRev1`) phases; `library/src/ball_float/mul_rev_wbtest.mbt`, `algebraic_reverse_wbtest.mbt`, `trig_reverse_wbtest.mbt`, `trig_reverse_reference_wbtest.mbt`, `pow_reverse_wbtest.mbt`, `pow_reverse_reference_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/ball_float.md:16
-msgid "partial (`powRev1`, `powRev2`, `atan2Rev1`, `atan2Rev2` are not implemented; issue [#230](https://github.com/Luna-Flow/floating/issues/230))"
+msgid "partial (`powRev2`, `atan2Rev1`, `atan2Rev2` are not implemented; issue [#230](https://github.com/Luna-Flow/floating/issues/230))"
 msgstr ""
 
 #: manual/conformance/ball_float.md:17
@@ -9123,7 +9144,7 @@ msgid "Supported phases"
 msgstr ""
 
 #: manual/conformance/ball_float.md:87
-msgid "The strict matrix covers sets, relations, observations, cancellation, add/subtract/multiply/divide, elementary core, exponential/logarithmic functions, general power, trigonometric functions, `atan2`, hyperbolic functions, inverse trigonometric functions, FMA, integer power, extrema, the integer functions, reverse multiplication (`mulRev`, `mulRevTen`, `mulRevToPair`), the algebraic reverse functions (`sqrRev`, `absRev`, `pownRev`, `coshRev`), and the trigonometric reverse functions (`sinRev`, `cosRev`, `tanRev`). Phase operation sets are disjoint so a row is never counted twice."
+msgid "The strict matrix covers sets, relations, observations, cancellation, add/subtract/multiply/divide, elementary core, exponential/logarithmic functions, general power, trigonometric functions, `atan2`, hyperbolic functions, inverse trigonometric functions, FMA, integer power, extrema, the integer functions, reverse multiplication (`mulRev`, `mulRevTen`, `mulRevToPair`), the algebraic reverse functions (`sqrRev`, `absRev`, `pownRev`, `coshRev`), the trigonometric reverse functions (`sinRev`, `cosRev`, `tanRev`), and `powRev1`. Phase operation sets are disjoint so a row is never counted twice."
 msgstr ""
 
 #: manual/conformance/ball_float.md:89
@@ -9139,7 +9160,7 @@ msgid "Exclusions"
 msgstr ""
 
 #: manual/conformance/ball_float.md:95
-msgid "Reverse interval operations other than `mulRev`, `mulRevToPair`, `sqrRev`, `absRev`, `pownRev`, `coshRev`, `sinRev`, `cosRev` and `tanRev`, every decoration rule outside the selected phases, arbitrary endpoint formats, and unpinned upstream revisions remain outside the claim."
+msgid "Reverse interval operations other than `mulRev`, `mulRevToPair`, `sqrRev`, `absRev`, `pownRev`, `coshRev`, `sinRev`, `cosRev`, `tanRev` and `powRev1`, every decoration rule outside the selected phases, arbitrary endpoint formats, and unpinned upstream revisions remain outside the claim."
 msgstr ""
 
 #: manual/conformance/ball_float.md:97
@@ -9879,7 +9900,7 @@ msgstr ""
 
 #: manual/conformance/decimal.md:80
 #: manual/conformance/decimal_gda.md:61
-#: manual/design/ball_float.md:993
+#: manual/design/ball_float.md:1045
 #: manual/design/ball_float_checked.md:171
 #: manual/design/bench.md:243
 #: manual/design/bench/ball_float.md:67
@@ -10981,22 +11002,105 @@ msgid "*Tightness against the corpus.* The tests compare the result with an enum
 msgstr ""
 
 #: manual/design/ball_float.md:709
-msgid "Relations: certainly and possibly"
+msgid "Reverse power with an interval exponent"
 msgstr ""
 
 #: manual/design/ball_float.md:711
+msgid "`pow_rev1(b, c, x)` (IEEE 1788-2015 10.5.4) reduces to the set division of `mul_rev` in logarithm coordinates (see the [API page](../api/ball_float.md#ballfloatpow_rev1)): the pieces of $\\exp(L /_{\\text{set}} \\boldsymbol{b})$ come from the same case split as $c /_{\\text{set}} b$ (whether $0 \\in L$, that is $1 \\in \\boldsymbol{c}$, and whether $0 \\in \\boldsymbol{b}$), with the sign of an end of $L$ decided by comparing the end of $\\boldsymbol{c}$ with 1. The end $x = 0$ of a piece is open (it comes from $\\ln x \\to -\\infty$); the zero part $\\{0\\}$ is a piece of its own; $x = 1$ is open when it is the limit of a quotient by an unbounded $\\boldsymbol{b}$ and attained when $c_\\text{end} = 1$; every other finite end is attained."
+msgstr ""
+
+#: manual/design/ball_float.md:720
+msgid ""
+"*Exactness of an end* $x = c^{1/\\beta}$, $c > 0$, $\\beta \\n"
+"e 0$ finite. Write $\\beta = s\\,u\\,2^j$ and $c = C\\,2^\\gamma$ with $u$ and $C$ odd, $p = 2^{\\max(-j, 0)}$ and $q = u\\,2^{\\max(j, 0)}$. Then $x = c^{s p / q}$ with $\\gcd(p, q) = 1$, and $x$ is rational iff $c$ is a perfect $q$-th power in $\\mathbb{Q}$, that is $C = m^q$ and $q \\mid \\gamma$ (for $C > 1$ this needs $q \\le \\operatorname{bitlen}(C)$, a comparison, and then one integer root; for $C = 1$ it needs $q \\mid \\gamma$, a divisibility test; no power of $c$ is formed). The value is then $(m\\,2^{\\gamma/q})^{s p}$. There are three classes of end and each has its own line in the procedure:"
+msgstr ""
+
+#: manual/design/ball_float.md:728
+#: manual/performance_audit.md:25
+msgid "Class"
+msgstr ""
+
+#: manual/design/ball_float.md:728
+msgid "Comparison with a prior end"
+msgstr ""
+
+#: manual/design/ball_float.md:728
+msgid "Rounding"
+msgstr ""
+
+#: manual/design/ball_float.md:730
+msgid "dyadic"
+msgstr ""
+
+#: manual/design/ball_float.md:730
+msgid "$s = +1$ or $m = 1$"
+msgstr ""
+
+#: manual/design/ball_float.md:730
+msgid "exact (it is $m^p 2^{\\ldots}$)"
+msgstr ""
+
+#: manual/design/ball_float.md:730
+msgid "exact `with_precision`"
+msgstr ""
+
+#: manual/design/ball_float.md:731
+msgid "rational, not dyadic"
+msgstr ""
+
+#: manual/design/ball_float.md:731
+msgid "$s = -1$ and $m > 1$, for example $9^{1/(-2)} = 1/3$"
+msgstr ""
+
+#: manual/design/ball_float.md:731
+msgid "exact cross-multiplication"
+msgstr ""
+
+#: manual/design/ball_float.md:731
+msgid "integer division with directed rounding"
+msgstr ""
+
+#: manual/design/ball_float.md:732
+msgid "irrational"
+msgstr ""
+
+#: manual/design/ball_float.md:732
+msgid "otherwise"
+msgstr ""
+
+#: manual/design/ball_float.md:732
+msgid "the loop below"
+msgstr ""
+
+#: manual/design/ball_float.md:734
+msgid "A rational that is not dyadic is never a float, so its comparisons are strict without any refinement. An irrational value is not rational, so it differs from every float, and the loop terminates: the working precision starts at $p + 64 + e_t$, with $e_t$ the exponent of $t = \\ln(c)/\\beta$ (the result needs the absolute error of $t$ below $2^{-p}$), and doubles up to the cap of 12 as in `sin_rev`; at the cap an undecided comparison counts as met in both conditions and the end written for that piece is the prior's own end. The sign of $t$ is exact, so $\\exp(t) > 1$ iff $t > 0$: the enclosure is strict at the float 1, and an exponent such as $\\beta = 2^{10^9}$, where $x = 1 + 2^{-10^9}\\ln c$, is decided at once ($\\operatorname{RD} = 1$, $\\operatorname{RU} = 1 + \\text{ulp}$). The stored range is decided with a certified upper bound of $\\ln 2$, by a test that is sufficient and never wrong. Above: every finite float is below $2^{e_{\\max}+1}$ ($e_{\\max}$ is the exponent of the leading bit), so if the enclosure of $t$ lies wholly at or above $(e_{\\max}+1)\\ln 2$ the enclosure of the value is [largest finite float at $w$ bits, $+\\infty$], built explicitly, and a lower end then rounds down to the largest finite float of the result precision; the top binade $[2^{e_{\\max}}, 2^{e_{\\max}+1})$ is finite and goes through $\\exp$. Below: the stored values at $w$ bits go down to the leading bit $e_{\\min}-w+1$, so if the enclosure of $t$ lies wholly at or below $(e_{\\min}-w)\\ln 2$ the enclosure is $[0, 2^{e_{\\min}-w+1}]$, the smallest positive stored value at $w$ bits, and an upper end rounds up to the smallest positive stored value of the result precision. Between the limits $\\exp$ is used, with gradual underflow (the enclosure is at most one quantum $2^{e_{\\min}-w+1}$ wide). `BallFloat::exp` of an interval with an end past the range returns the range of the function $[0, +\\infty]$ at some precisions (issue [#569](https://github.com/Luna-Flow/floating/issues/569)); the point `exp` of the lower end is a tight bound, so the two ends give the enclosure. If the enclosure of $t$ straddles the upper limit, $\\exp$ returns an infinite upper end; the loops stop with it only if its lower end is checked to be at least $2^{e_{\\max}+1}(1 - 2^{-(w-64)})$ (the largest finite float at $w - 64$ bits), which says exactly that the upper end is $+\\infty$ and the lower end rounds down to the largest finite float of the result at every precision $p \\le w - 64$, hence at every further precision; otherwise the loops go on to their cap. If it straddles the lower limit the loops go on and terminate, since the quantum shrinks with $w$ while the value is fixed. An exact dyadic end in the subnormal range is kept exact, at a datum precision of at least $e_{\\min} - \\text{low} + 1$ bits within `pow_value_budget`, where $\\text{low}$ is the exponent of the coefficient's lowest bit (the stored values at $P$ bits are the multiples of $2^{e_{\\min}-P+1}$; the leading-bit formula is too small for a coefficient of more than one bit), and the datum built is checked to carry the value asked (an exact class never carries a rounded value) (for example $2^{-2^{30}}$ is the stored value $2^{e_{\\min}-2}$, and $3 \\cdot 2^{e_{\\min}-5}$ needs 6 bits; the result for a point set is $[v, v]$ for every prior that contains it, in about 0.2 s); an exact end above $2^{e_{\\max}+1}$ (for example $2^{(2^{30})}$), a rational end in the subnormal range, and a dyadic end below the budget are decided by the loop, which clamps at the limits (a rational is never a float, so its separation terminates at the first precision)."
+msgstr ""
+
+#: manual/design/ball_float.md:743
+msgid "*Budgets*, in bits and not in terms of 53: the exactness test runs only for $C$ and $q$ within `pow_int_budget` = 65,536 bits (an exact 65,535-bit square takes about 80 ms, against about 20 ms for the forward `sqrt` of the same operand) and an exact value is materialised only within `pow_value_budget` = 262,144 bits (a value of millions of bits would be built only to be rounded to $p$ bits). Above a budget the end goes to the loop with its documented fallback. The corpus needs none of this: its 429 cases need the first working precision of the loop at most ($w = p + 64 = 117$ at $p = 53$, measured), and the oracle reproduces all of them."
+msgstr ""
+
+#: manual/design/ball_float.md:751
+msgid "*Tests.* The definition tests cover the classes (including a 2000-bit perfect square and a $\\beta$ with 500 fractional bits), the open ends at 0 and 1 against a prior that touches them from both sides, and exponents and prior ends of magnitude $2^{\\pm 10^9}$. The reference test (`pow_reverse_reference_wbtest.mbt`) does not use the pieces: it evaluates the condition for a float $x$ with the forward `BallFloat::pow` at 200 bits, since $\\beta \\mapsto x^\\beta$ is monotone and its range over $\\boldsymbol{b}$ is the interval `pow(x, b)`, and checks, at precisions 24, 53 and 113, that every float certainly in the set is in the result, that a point a quarter of a float outside either end that comes from a piece is not in the set, and that the float one step inside is not certainly outside while the next one is certainly inside. A sample runs in every test run; the long run is an interval gate stage."
+msgstr ""
+
+#: manual/design/ball_float.md:761
+msgid "Relations: certainly and possibly"
+msgstr ""
+
+#: manual/design/ball_float.md:763
 msgid "An interval stands for an unknown point, so a comparison of two intervals asks a quantified question. Two quantifiers give the useful relations:"
 msgstr ""
 
-#: manual/design/ball_float.md:725
+#: manual/design/ball_float.md:777
 msgid "For the first line, \"$\\Leftarrow$\" is $\\xi \\le \\overline{x} < \\underline{y} \\le \\eta$. For \"$\\Rightarrow$\": if $\\overline{x}$ and $\\underline{y}$ are finite they are elements, so $\\overline{x} < \\underline{y}$; if $\\overline{x} = +\\infty$ or $\\underline{y} = -\\infty$, a large $\\xi$ or a small $\\eta$ violates $\\xi < \\eta$, and the endpoint test is false as well. The second line is the nonempty intersection of two intervals. \"Possibly less\" is the negation of \"certainly not less\", so the two families are dual: `DefinitelyLt::definitely_lt(x, y)` is false exactly when some pair satisfies $\\xi \\ge \\eta$. With empty operands the universal statements would be vacuously true, which would let a caller prove anything from an empty enclosure; the `DefinitelyLt` and `DefinitelyLe` relations (and `Overlaps`, `MaybeEq`) therefore return false for empty operands, whereas the IEEE 1788 relation `precedes` ($\\forall\\xi\\,\\forall\\eta: \\xi \\le \\eta$) is defined to be vacuously true."
 msgstr ""
 
-#: manual/design/ball_float.md:738
+#: manual/design/ball_float.md:790
 msgid "The set relations (`subset`, `interior`, `disjoint`, `==`) and the IEEE 1788 orders (`less`: $\\forall\\xi\\,\\exists\\eta\\, \\xi \\le \\eta$ and $\\forall\\eta\\,\\exists\\xi\\, \\xi \\le \\eta$, which reduces to comparing both endpoint pairs) are evaluated by endpoint comparisons in the same way. None of these relations is a total order, and the trait method `@lf_arith.Contains::contains(x, y)` is set inclusion $\\boldsymbol{y} \\subseteq \\boldsymbol{x}$, matching the enclosure reading of the [`arithmetic`](https://lunaflow.cn/en/arithmetic/) traits."
 msgstr ""
 
-#: manual/design/ball_float.md:747
+#: manual/design/ball_float.md:799
 #: manual/design/ball_float_checked.md:60
 #: manual/design/bench.md:156
 #: manual/design/bench/ball_float.md:29
@@ -11034,135 +11138,135 @@ msgstr ""
 msgid "Design decisions"
 msgstr ""
 
-#: manual/design/ball_float.md:749
+#: manual/design/ball_float.md:801
 msgid "Endpoints, not midpoint and radius"
 msgstr ""
 
-#: manual/design/ball_float.md:751
+#: manual/design/ball_float.md:803
 msgid "*Problem.* A ball can be stored as endpoints $[\\underline{x}, \\overline{x}]$ (inf–sup) or as a midpoint and radius $\\langle m, r\\rangle$, as in Arb.[^arb]"
 msgstr ""
 
-#: manual/design/ball_float.md:754
+#: manual/design/ball_float.md:806
 msgid "*Midpoint–radius arithmetic.* With $x = m_x + \\delta_x$, $|\\delta_x| \\le r_x$ and likewise for $y$:"
 msgstr ""
 
-#: manual/design/ball_float.md:764
+#: manual/design/ball_float.md:816
 msgid "With a rounded midpoint $m = \\operatorname{RN}_p(m_x \\circ m_y)$, the rounding error $|m - m_x \\circ m_y| \\le 2^{-p}|m|$ is added, so"
 msgstr ""
 
-#: manual/design/ball_float.md:772
+#: manual/design/ball_float.md:824
 msgid "These are cheap (the radius needs only a few bits), but the product radius overestimates: for $\\boldsymbol{x} = \\boldsymbol{y} = \\langle 1, 1\\rangle = [0, 2]$ it gives $\\langle 1, 3\\rangle = [-2, 4]$ while the exact product is $[0, 4]$. Rump showed that the width can grow by a factor up to $1.5$ per multiplication compared to inf–sup.[^rump]"
 msgstr ""
 
-#: manual/design/ball_float.md:778
+#: manual/design/ball_float.md:830
 msgid "*Options.* (a) midpoint–radius storage with low-precision radii; (b) endpoint storage with full-precision endpoints; (c) both."
 msgstr ""
 
-#: manual/design/ball_float.md:781
+#: manual/design/ball_float.md:833
 msgid "*Chosen: (b).* IEEE 1788 is defined on endpoints, half-unbounded and empty sets have no midpoint–radius form, and the hulls in the [endpoint formulas](#endpoint-formulas) are exact before rounding, so inf–sup results are as tight as the precision allows. The cost is that both endpoints carry $p$ bits, so wide intervals at high precision store many useless bits. The midpoint–radius *view* (`new`, `midpoint`, `radius`) is kept for users who reason in $c \\pm r$, with the conversions derived [above](#from-midpointradius-to-endpoints)."
 msgstr ""
 
-#: manual/design/ball_float.md:790
+#: manual/design/ball_float.md:842
 msgid "J. van der Hoeven, \"Ball arithmetic\", 2009; F. Johansson, \"Arb: efficient arbitrary-precision midpoint-radius interval arithmetic\", *IEEE Trans. Computers* 66(8), 2017."
 msgstr ""
 
-#: manual/design/ball_float.md:794
+#: manual/design/ball_float.md:846
 msgid "S. M. Rump, \"Fast and parallel interval arithmetic\", *BIT* 39(3), 1999."
 msgstr ""
 
-#: manual/design/ball_float.md:797
+#: manual/design/ball_float.md:849
 msgid "Exact candidates, one directed rounding"
 msgstr ""
 
-#: manual/design/ball_float.md:799
+#: manual/design/ball_float.md:851
 msgid "*Problem.* Endpoint candidates can be computed with directed rounding at each step, or exactly and rounded once."
 msgstr ""
 
-#: manual/design/ball_float.md:802
+#: manual/design/ball_float.md:854
 msgid "*Chosen.* Sums and products of `BinFloat` endpoints are formed exactly (the coefficient grows to hold them), and `quantize_interval` applies one $\\operatorname{RD}_p$/$\\operatorname{RU}_p$ at the end; by property (iii) the result is the tightest $p$-bit enclosure of the exact hull. Division and square root, whose exact results are not dyadic, are computed directly with directed rounding at precision $p$. The rule needs two safeguards, described next: bounded alignment of far-apart addends and outward clamping at the edge of the exponent range."
 msgstr ""
 
-#: manual/design/ball_float.md:811
+#: manual/design/ball_float.md:863
 msgid "Far addends: bound endpoint sums by precision"
 msgstr ""
 
-#: manual/design/ball_float.md:813
+#: manual/design/ball_float.md:865
 msgid "*Problem.* Adding $A = 2^{10^9}$ and $s = 2^{-10^9}$ exactly aligns the two coefficients and builds a two-billion-bit number (about 750 MB for one interval addition, issue #24)."
 msgstr ""
 
-#: manual/design/ball_float.md:817
+#: manual/design/ball_float.md:869
 msgid "*Chosen.* Let $t(v)$ be the exponent of the leading bit of $v$, $e(A)$ the exponent of the last bit of the larger addend $A$, $M = \\max(65536, \\operatorname{prec}(A), \\operatorname{prec}(s))$ and $c = \\min(e(A), t(A) - M)$. If $t(s) < c - 2$, the small addend is replaced by a sticky surrogate $s' = \\operatorname{sign}(s)\\,2^{c-2}$ when $s$ pushes the sum in the rounding direction of the endpoint being computed, and by $s' = 0$ otherwise. Then:"
 msgstr ""
 
-#: manual/design/ball_float.md:825
+#: manual/design/ball_float.md:877
 msgid "**Soundness, for every precision.** $|s| < 2^{t(s)+1} \\le 2^{c-2}$. An upper endpoint with $s > 0$ gets $A + 2^{c-2} > A + s$; with $s < 0$ it gets $A > A + s$. Lower endpoints are symmetric. So the directed sum stays on the required side of the exact sum, which is all the inclusion property needs."
 msgstr ""
 
-#: manual/design/ball_float.md:829
+#: manual/design/ball_float.md:881
 msgid "**No loss of tightness when $p \\le M$.** The $p$-bit numbers near $A$ are multiples of $2^{t(A) - p}$, and $t(A) - p \\ge t(A) - M \\ge c$, so no $p$-bit number lies strictly between $A$ and $A \\pm 2^c$; both $A + s$ and $A + s'$ fall in the same gap and round to the same endpoint (Lemma 7 of the attachment)."
 msgstr ""
 
-#: manual/design/ball_float.md:835
+#: manual/design/ball_float.md:887
 msgid "The alignment now costs at most about $M$ bits beyond the width of $A$, independent of the exponent gap. The surrogate is also used for the nearest-rounded sums inside the center, where it is not exact; this is the source of the limitation noted in [Correctness](#known-limitations)."
 msgstr ""
 
-#: manual/design/ball_float.md:840
+#: manual/design/ball_float.md:892
 msgid "Outward clamping at the exponent range"
 msgstr ""
 
-#: manual/design/ball_float.md:842
+#: manual/design/ball_float.md:894
 msgid "`BinFloat` has a finite (very wide) exponent range. An exact candidate beyond it cannot be stored, so the exact helpers take the direction of the endpoint being built: lower endpoints clamp toward $-\\infty$, upper endpoints toward $+\\infty$, radii round up, and exponent sums are computed in 64 bits and saturated. This keeps, for example, $\\exp([10^9, 10^9])$ an enclosure $[\\text{largest finite}, +\\infty)$ instead of collapsing it."
 msgstr ""
 
-#: manual/design/ball_float.md:849
+#: manual/design/ball_float.md:901
 msgid "Contexts and double rounding"
 msgstr ""
 
-#: manual/design/ball_float.md:851
+#: manual/design/ball_float.md:903
 msgid "`BallContext` carries a target precision $q$ and exponent range; `apply_ctx` rounds endpoints outward into it and the `*_ctx` operations compute at the operands' precision $p$ and then apply the context. Rounding twice is harmless for directed rounding when $q \\le p$:"
 msgstr ""
 
-#: manual/design/ball_float.md:860
+#: manual/design/ball_float.md:912
 msgid "because $F_q \\subseteq F_p$ (a $q$-bit significand is a $p$-bit one padded with zeros): every $f \\in F_q$ below $a$ is in $F_p$, hence below $\\operatorname{RD}_p(a)$, and conversely. So `(x + y).apply_ctx(ctx)` equals a single outward rounding of the exact sum into the context whenever the operands are at least as precise as the context. Overflow is resolved in the enclosing direction: an upper endpoint above the range becomes $+\\infty$, a positive lower endpoint becomes the largest finite number (still below the true value). Underflow rounds outward on the subnormal grid, so a tiny positive upper bound becomes the smallest subnormal and never 0. The flags are returned, never stored globally."
 msgstr ""
 
-#: manual/design/ball_float.md:871
+#: manual/design/ball_float.md:923
 msgid "Total and `try_` forms"
 msgstr ""
 
-#: manual/design/ball_float.md:873
+#: manual/design/ball_float.md:925
 msgid "*Problem.* Certified evaluation can fail: the refinement budget may run out, or an argument may be too large to reduce. Aborting would break long computations; returning a silent wide interval hides a lost guarantee of tightness."
 msgstr ""
 
-#: manual/design/ball_float.md:878
+#: manual/design/ball_float.md:930
 msgid "*Chosen.* Both, with one kernel. The `try_` forms return an `ArithmeticError` with a certification detail (operation, stage, reason, precision). The total form is the `try_` form with a fallback: when the `try_` form fails it returns the range of the function over its domain, which keeps the inclusion property: $[0, +\\infty)$ for `exp`, `exp2`, `exp10`, `pow` and `hypot`, $[-1, +\\infty)$ for `expm1`, Entire for the logarithms, `sinh`, `asinh`, `atanh`, `tan`, `tanpi` and `log1p`, $[-1, 1]$ for `sin`, `cos`, `sinpi`, `cospi` and `tanh`, $[1, +\\infty)$ for `cosh`, $[0, +\\infty)$ for `acosh`, $[-\\pi/2, \\pi/2]$ for `atan` and `asin`, $[0, \\pi]$ for `acos`, $[-\\pi, \\pi]$ for `atan2`. The $\\pi$ of a fallback is evaluated at no more than 64 bits and rounded outward, so a fallback cannot fail at any precision. The domain is decided before the kernel runs, so a failure is always a certification failure and never a domain error: an argument outside the domain gives Empty, a wide interval means the kernel gave up. Trigonometric reduction is capped: when the larger endpoint magnitude is at least $2^{\\max(65536, 4p)+1}$, reduction would need more than that many bits, so the `try_` forms report a resource limit and the total forms return the fallback."
 msgstr ""
 
-#: manual/design/ball_float.md:896
+#: manual/design/ball_float.md:948
 msgid "*Why one kernel.* Until this was settled the total forms of fifteen functions had a kernel of their own (exact-rational series), which aborted at a high precision (about 32,000 bits for `ln`, issue 449) and lost all relative accuracy for a tiny argument in the hyperbolic functions, while the `try_` forms used the `bin_float` kernels and had neither limit. Keeping two kernels for the same function meant two sets of bugs, and results that depended on which form the caller chose."
 msgstr ""
 
-#: manual/design/ball_float.md:904
+#: manual/design/ball_float.md:956
 msgid "Decorations in a separate type"
 msgstr ""
 
-#: manual/design/ball_float.md:906
+#: manual/design/ball_float.md:958
 msgid "*Problem.* Decorations cost a field and a minimum per operation, and most users do not need them."
 msgstr ""
 
-#: manual/design/ball_float.md:909
+#: manual/design/ball_float.md:961
 msgid "*Chosen.* `BallFloat` is the bare set; `BallFloatDecorated` wraps it with a decoration and the NaI state. Bare operations stay cheap and simple, and the decorated type cannot be mixed with bare values by accident."
 msgstr ""
 
-#: manual/design/ball_float.md:913
+#: manual/design/ball_float.md:965
 msgid "Precision as a tag"
 msgstr ""
 
-#: manual/design/ball_float.md:915
+#: manual/design/ball_float.md:967
 msgid "Each interval carries a precision tag; binary operations use the larger tag. This keeps a sequence of operations at the precision of its most precise input without a context argument, which is what a set-valued type needs to compose with operators (`x + y`). A `BallContext` is used when a specific format must be imposed."
 msgstr ""
 
-#: manual/design/ball_float.md:921
+#: manual/design/ball_float.md:973
 #: manual/design/ball_float_checked.md:138
 #: manual/design/bench.md:217
 #: manual/design/bench/ball_float.md:51
@@ -11200,46 +11304,46 @@ msgstr ""
 msgid "Correctness and invariants"
 msgstr ""
 
-#: manual/design/ball_float.md:923
+#: manual/design/ball_float.md:975
 msgid ""
 "**Representation invariant.** A non-empty `BallFloat` has non-NaN endpoints, $\\underline{x} \\le \\overline{x}$, $\\underline{x} \\n"
 "e +\\infty$, $\\overline{x} \\n"
 "e -\\infty$ and precision $\\ge 1$; every construction path ends in `store_interval`, which checks this and aborts otherwise. Empty is a flag with endpoints $(+\\infty, -\\infty)$."
 msgstr ""
 
-#: manual/design/ball_float.md:929
+#: manual/design/ball_float.md:981
 msgid "**Inclusion.** Each public operation $F$ of `BallFloat` satisfies $f(\\boldsymbol{x}) \\subseteq F(\\boldsymbol{x})$, by the endpoint formulas and Corollary 2 for arithmetic, by the critical-point analysis and certified endpoint enclosures for elementary functions, and by the fallbacks for uncertified cases (the exceptions are listed under known limitations). By the fundamental theorem, so does every composition."
 msgstr ""
 
-#: manual/design/ball_float.md:936
+#: manual/design/ball_float.md:988
 msgid "**Tightness.** Basic arithmetic, `sqr`, `pown`, `fma`, `abs`, `min`, `max`, `intersection`, `convex_hull` of non-empty operands and `sqrt` return the outward rounding of the exact hull, so each endpoint is within one ulp of optimal. Trigonometric and arctangent endpoints are correctly directed roundings when certified; the other elementary functions are usually within a few ulps. Not tight: fallbacks; `pown` with $n < -4096$ and 0 inside (Entire);  `with_precision` and `normalized` round the endpoints outward, which is the tightest enclosure and the identity on an interval already representable at the target precision, so `convex_hull` with an Empty operand and the checked capabilities do not widen either."
 msgstr ""
 
-#: manual/design/ball_float.md:948
+#: manual/design/ball_float.md:1000
 msgid "**Decorations.** The decoration of a result is a true statement about the function evaluated, by the induction argument above."
 msgstr ""
 
-#: manual/design/ball_float.md:951
+#: manual/design/ball_float.md:1003
 msgid "**Complexity.** Arithmetic performs at most four endpoint products or two sums, $O(M(p))$ for $p$-bit endpoints with multiplication cost $M(p)$, plus alignment of at most about $65536 + p$ bits for sums. Elementary functions cost one or two directed evaluations of the `bin_float` kernels at precision $p$ (see [`bin_float`](bin_float.md) for their cost), plus the index range for the trigonometric functions."
 msgstr ""
 
-#: manual/design/ball_float.md:958
-msgid "**Evidence.** Package tests check directed endpoints, the far-addend and exponent-range cases, decorations and relations; the pinned ITF1788 corpus runs 5,828 cases in strict mode (see [conformance](../conformance/ball_float.md))."
+#: manual/design/ball_float.md:1010
+msgid "**Evidence.** Package tests check directed endpoints, the far-addend and exponent-range cases, decorations and relations; the pinned ITF1788 corpus runs 6,257 cases in strict mode (see [conformance](../conformance/ball_float.md))."
 msgstr ""
 
-#: manual/design/ball_float.md:962
+#: manual/design/ball_float.md:1014
 msgid "Known limitations"
 msgstr ""
 
-#: manual/design/ball_float.md:964
+#: manual/design/ball_float.md:1016
 msgid "The following inputs currently lose part of the input set, round or flag a result incorrectly, or return a set other than the specified one. Each is tracked in an issue with a proposed fix that is not merged yet; they are documented here so that callers can avoid them."
 msgstr ""
 
-#: manual/design/ball_float.md:969
+#: manual/design/ball_float.md:1021
 msgid "No limitation is open at present. Decorated `rootn` with a negative degree lowers the decoration to `trv` when 0 is in the argument, as the decoration rules of IEEE 1788-2015 §11 require; `library/src/ball_float/ball_float_decorated_wbtest.mbt` checks degrees `-1`, `-2` and `-3`."
 msgstr ""
 
-#: manual/design/ball_float.md:974
+#: manual/design/ball_float.md:1026
 #: manual/design/ball_float_checked.md:158
 #: manual/design/bench.md:234
 #: manual/design/bench/ball_float.md:60
@@ -11276,51 +11380,51 @@ msgstr ""
 msgid "Alternatives rejected"
 msgstr ""
 
-#: manual/design/ball_float.md:976
+#: manual/design/ball_float.md:1028
 msgid "**Midpoint–radius storage** (Arb-style): cheaper radii, but overestimating products and no representation for half-unbounded sets; see [above](#endpoints-not-midpoint-and-radius)."
 msgstr ""
 
-#: manual/design/ball_float.md:979
+#: manual/design/ball_float.md:1031
 msgid "**Hardware `Double` endpoints with switched rounding modes:** fixed precision, process-global state, and rounding-mode control is not available on every MoonBit target."
 msgstr ""
 
-#: manual/design/ball_float.md:982
+#: manual/design/ball_float.md:1034
 msgid "**Round to nearest and inflate by one ulp** (\"epsilon inflation\"): simpler, but about one ulp wider per endpoint than directed rounding, and only valid for operations whose nearest-rounded result is known to be within one ulp, which excludes most elementary function kernels."
 msgstr ""
 
-#: manual/design/ball_float.md:986
+#: manual/design/ball_float.md:1038
 msgid "**Aborting on uncertified elementary functions:** a single hard argument would stop a whole computation; the `try_` forms cover callers who need the failure."
 msgstr ""
 
-#: manual/design/ball_float.md:989
+#: manual/design/ball_float.md:1041
 msgid "**Treating division by zero-containing intervals as an error:** IEEE 1788 defines these results as sets (Entire, half-unbounded or empty), and extended division is what makes interval Newton methods work."
 msgstr ""
 
-#: manual/design/ball_float.md:995
+#: manual/design/ball_float.md:1047
 msgid "The package deliberately does not:"
 msgstr ""
 
-#: manual/design/ball_float.md:997
-msgid "provide the IEEE 1788 reverse operations other than `mulRev` and `mulRevToPair`, `sqrRev`, `absRev`, `pownRev`, `coshRev`, `sinRev`, `cosRev` and `tanRev` (`powRev1`, `powRev2`, …; issue 230);"
+#: manual/design/ball_float.md:1049
+msgid "provide the IEEE 1788 reverse operations other than `mulRev` and `mulRevToPair`, `sqrRev`, `absRev`, `pownRev`, `coshRev`, `sinRev`, `cosRev` and `tanRev`, `powRev1` (`powRev2`, …; issue 230);"
 msgstr ""
 
-#: manual/design/ball_float.md:1000
+#: manual/design/ball_float.md:1052
 msgid "promise tight results: fallbacks and the dependency problem may widen enclosures arbitrarily;"
 msgstr ""
 
-#: manual/design/ball_float.md:1002
+#: manual/design/ball_float.md:1054
 msgid "define a total order on intervals, or treat `Eq` as set equality;"
 msgstr ""
 
-#: manual/design/ball_float.md:1003
+#: manual/design/ball_float.md:1055
 msgid "convert decimal data outward on its own: `from_double` and `exact` enclose binary values, and enclosing a decimal literal is the caller's job (see the [tutorial](../tutorial/ball_float.md#enclose-a-decimal-constant));"
 msgstr ""
 
-#: manual/design/ball_float.md:1006
+#: manual/design/ball_float.md:1058
 msgid "implement intervals over decimal endpoints, complex balls, interval vectors or matrices, or Taylor models;"
 msgstr ""
 
-#: manual/design/ball_float.md:1008
+#: manual/design/ball_float.md:1060
 msgid "report status through global flags: flags come back from `*_ctx` calls and decorations travel with values."
 msgstr ""
 
@@ -19613,7 +19717,7 @@ msgid "The binary TestFloat level-1 matrix passes 254,227,872 vectors across bin
 msgstr ""
 
 #: manual/index.md:220
-msgid "The strict ITF1788 aggregate passes 5,828/5,828 selected interval cases."
+msgid "The strict ITF1788 aggregate passes 6,257/6,257 selected interval cases."
 msgstr ""
 
 #: manual/index.md:221
@@ -21354,10 +21458,6 @@ msgstr ""
 
 #: manual/performance_audit.md:25
 msgid "Row"
-msgstr ""
-
-#: manual/performance_audit.md:25
-msgid "Class"
 msgstr ""
 
 #: manual/performance_audit.md:25
@@ -27010,7 +27110,7 @@ msgid "**IEEE decimal.** Committed decimal32/64/128 DPD and BID fixtures cover e
 msgstr ""
 
 #: manual/verification.md:142
-msgid "**Interval.** The strict ITF1788 phases pass 5,828/5,828 selected cases: sets, relations, numeric observations, cancellation, arithmetic, elementary-core, exponentials and logarithms, general power, trigonometric, hyperbolic, inverse trigonometric, `atan2`, FMA, integer power, extrema, the integer functions, reverse multiplication and the algebraic and trigonometric reverse functions. The other reverse operations remain unsupported."
+msgid "**Interval.** The strict ITF1788 phases pass 6,257/6,257 selected cases: sets, relations, numeric observations, cancellation, arithmetic, elementary-core, exponentials and logarithms, general power, trigonometric, hyperbolic, inverse trigonometric, `atan2`, FMA, integer power, extrema, the integer functions, reverse multiplication and the algebraic and trigonometric reverse functions and `powRev1`. The other reverse operations remain unsupported."
 msgstr ""
 
 #: manual/verification.md:149

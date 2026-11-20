@@ -70,6 +70,7 @@ pub fn BallFloatResult::neg(Self) -> Self
 pub fn BallFloatResult::normalized(Self) -> Self
 pub fn BallFloatResult::ok(@ball_float.BallFloat) -> Self
 pub fn BallFloatResult::pow(Self, Self) -> Self
+pub fn BallFloatResult::pow_rev1(Self, Self, x? : Self) -> Self
 pub fn BallFloatResult::pown(Self, Int32) -> Self
 pub fn BallFloatResult::pown_rev(Self, Int32, x? : Self) -> Self
 pub fn BallFloatResult::recip(Self) -> Self

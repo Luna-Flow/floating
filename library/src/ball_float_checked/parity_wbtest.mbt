@@ -144,3 +144,21 @@ test "sin_rev, cos_rev and tan_rev exist on the checked tier and agree with the 
   assert_true(rc.cos_rev(x=failed).result() is Err(_))
   assert_true(rc.tan_rev(x=failed).result() is Err(_))
 }
+
+///|
+test "pow_rev1 exists on the checked tier and agrees with the plain tier" {
+  let b = parity_interval(-2, 3)
+  let c = parity_interval(1, 4)
+  let x = parity_interval(0, 9)
+  let rb = parity_result(-2, 3)
+  let rc = parity_result(1, 4)
+  let rx = parity_result(0, 9)
+  assert_true(parity_value(rb.pow_rev1(rc)) == b.pow_rev1(c))
+  assert_true(parity_value(rb.pow_rev1(rc, x=rx)) == b.pow_rev1(c, x~))
+  let failed = BallFloatResult::from_result(
+    Err(@def.ArithmeticError::domain_error("earlier failure")),
+  )
+  assert_true(failed.pow_rev1(rc).result() is Err(_))
+  assert_true(rb.pow_rev1(failed).result() is Err(_))
+  assert_true(rb.pow_rev1(rc, x=failed).result() is Err(_))
+}

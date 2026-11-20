@@ -198,3 +198,20 @@ test "ITL trigonometric reverse functions: bare, with a prior, and decorated" {
     assert_true(result.passed(), msg=case.id() + ": " + result.message())
   }
 }
+
+///|
+test "ITL powRev1: exact ends, a rounded end and the zero part" {
+  let source =
+    #|testcase pow_reverse_1 {
+    #|  powRev1 [2.0,2.0] [4.0,4.0] [entire] = [2.0,2.0];
+    #|  powRev1 [-4.0,-2.0] [0.25,0.5] [entire] = [0x1.306FE0A31B715p0, 2.0];
+    #|  powRev1 [1.0,2.0] [0.0,0.0] [entire] = [0.0,0.0];
+    #|  powRev1 [0.0,0.0] [1.0,1.0] [entire] = [0.0,infinity];
+    #|  powRev1 [entire] [-infinity,-1.0] [entire] = [empty];
+    #|}
+  let cases = @itl_expr.parse_itl(source).unwrap()
+  for case in cases {
+    let result = @itl_expr.execute_case(case)
+    assert_true(result.passed(), msg=case.id() + ": " + result.message())
+  }
+}
