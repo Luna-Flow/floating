@@ -303,9 +303,7 @@ fn binary_try_log_base_p1(
       let minus_one = BinFloat::one_raw(precision=value.precision()).neg()
       let comparison = value.compare(minus_one)
       if comparison < 0 {
-        return Err(
-          @def.ArithmeticError::domain_error(operation + " requires x >= -1"),
-        )
+        return Ok(binary_invalid_value(context))
       }
       if comparison == 0 {
         return Ok(binary_pole_result(true, context))

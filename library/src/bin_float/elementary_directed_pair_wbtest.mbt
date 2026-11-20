@@ -112,5 +112,11 @@ test "ln directed pair equals the two directed calls on every operand" {
     }
   }
   assert_true(ok > 300)
-  assert_true(errors > 0)
+  // S4: a domain operand is a value (a NaN with invalid_operation), not an Err:
+  // no operand of the list fails to certify
+  assert_eq(errors, 0)
+  match BinFloat::from_int(-1, precision=53).try_ln_directed_pair(53) {
+    Ok((low, high)) => assert_true(low.is_nan() && high.is_nan())
+    Err(_) => abort("ln(-1) is a value")
+  }
 }

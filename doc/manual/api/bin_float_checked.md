@@ -808,7 +808,7 @@ test "elementary functions" {
     content="1453635p-21",
   )
   inspect(show(r(0).ln()), content="error: division by zero")
-  inspect(show(r(-4).ln()), content="error: ln requires a positive value")
+  inspect(show(r(-4).ln()), content="error: invalid operation")
   inspect(show(r(2).asin()), content="error: asin requires an input in [-1, 1]")
   inspect(show(r(0).exp().ln()), content="0")
 }
