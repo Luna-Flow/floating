@@ -18,9 +18,9 @@ fn out_of_range_modes() -> Array[RoundingMode] {
 ///|
 fn out_of_range_values() -> Array[(BigInt, Int32)] {
   [
-    (1N, -2147483648),
-    (9999999999999999999999999999999999N, -2147483648),
-    (1N, -2147483647),
+    (1N, -2147483645),
+    (9999999999999999999999999999999999N, -2147483645),
+    (1N, -2147483644),
     (1N, -536870904),
     (12345N, -536870904),
     (1N, -400000000),
@@ -28,8 +28,8 @@ fn out_of_range_values() -> Array[(BigInt, Int32)] {
     (1N, 330000000),
     (1N, 400000000),
     (7N, 536870904),
-    (1N, 2147483647),
-    (9999999999999999999999999999999999N, 2147483614),
+    (1N, 2147483646),
+    (9999999999999999999999999999999999N, 2147483613),
   ]
 }
 
@@ -52,11 +52,11 @@ test "issue 447: to_bin_float at both ends of the exponent range, every rounding
 
 ///|
 test "issue 447: the reported cases do not panic" {
-  let tiny = Decimal::make(1N, -2147483648, 34).to_bin_float()
+  let tiny = Decimal::make(1N, -2147483645, 34).to_bin_float()
   inspect(tiny.is_zero(), content="true")
-  let huge = Decimal::make(1N, 2147483647, 34).to_bin_float()
+  let huge = Decimal::make(1N, 2147483646, 34).to_bin_float()
   inspect(@def.is_infinite(huge), content="true")
-  let directed_up = Decimal::make(1N, -2147483648, 34).to_bin_float(
+  let directed_up = Decimal::make(1N, -2147483645, 34).to_bin_float(
     mode=RoundingMode::TowardPositive,
   )
   inspect(directed_up.is_zero(), content="false")

@@ -63,7 +63,7 @@ test "fma with maximum context exponents reports overflow" {
 /// shift beyond Int is necessarily sticky and rounds to zero at that quantum.
 test "huge quantize and to-integral shifts round to zero" {
   let ctx = DecimalContext::new(precision=1, e_max=999_999_999)
-  let tiny = Decimal::make(1N, -2_147_483_648, 1)
+  let tiny = Decimal::make(1N, -2_147_483_645, 1)
   let (quantized, quantize_flags) = tiny.quantize_ctx(
     Decimal::make(1N, 999_999_999, 1),
     ctx,
@@ -86,7 +86,7 @@ test "huge quantize and to-integral shifts round to zero" {
 /// next* must handle an operand exponent at Int::min even when Etiny is zero.
 test "next operations handle Int minimum with zero etiny" {
   let ctx = DecimalContext::new(precision=1, e_max=1)
-  let tiny = Decimal::make(1N, -2_147_483_648, 34)
+  let tiny = Decimal::make(1N, -2_147_483_645, 34)
   let (plus, plus_flags) = tiny.next_up_ctx(ctx)
   assert_eq(plus.to_string(), "1")
   assert_true(plus_flags == DecimalFlags::new())
@@ -151,8 +151,8 @@ test "fma exact product boundary follows floor without overflow" {
 ///|
 test "fma product below Int range uses a bounded sticky alignment" {
   let ctx = DecimalContext::new(precision=34, e_max=999_999_999)
-  let (value, flags) = Decimal::make(1N, -2_147_483_648, 34).fma_ctx(
-    Decimal::make(1N, -2_147_483_648, 34),
+  let (value, flags) = Decimal::make(1N, -2_147_483_645, 34).fma_ctx(
+    Decimal::make(1N, -2_147_483_645, 34),
     Decimal::make(1N, 999_999_999, 34),
     ctx,
   )

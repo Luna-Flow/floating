@@ -178,13 +178,40 @@ NaN.
 
 ## Construction and conversion
 
-### `Decimal::make`
+### `decimal_value_e_max`, `decimal_value_e_tiny`
+
+The limits of a stored finite value.
+
+```mbti
+pub let decimal_value_e_max : Int
+pub let decimal_value_e_tiny : Int
+```
+
+A finite `Decimal` holds only a value with `exponent + digits - 1 <=
+decimal_value_e_max` (the largest adjusted exponent, $2\,147\,483\,646$; a
+zero has one digit) and `exponent >= decimal_value_e_tiny` (the smallest
+exponent, $-2\,147\,483\,645$). They are the `e_max` and the `etiny` of the
+private working context of the plain operators, the largest and smallest the
+32-bit exponent field allows once `e_max`, `e_min` and `etiny = e_min - p + 1`
+have to be representable in it, so that `x + 0 == x`, `x - 0 == x` and
+`x * 1 == x` hold for every stored value. The exact constructors (`make`,
+`try_make`, `parse`, `from_string`) refuse a value outside the range; the
+constructors from integers, floats and binary floats cannot produce one; an
+operation that rounds (the plain operators, `with_precision`) overflows to an
+infinity or the largest finite value of the rounding direction, or underflows
+to the smallest exponent, like a context result. These are not the limits of a
+context (`decimal_implementation_e_max`, below): a context is narrower than
+what can be stored, and a value outside every context range can still be
+stored and is rounded when a context operation reads it.
+
+### `Decimal::make`, `try_make`
 
 `make` builds a finite value from a signed integer coefficient and an exponent,
-rounding it to a precision.
+rounding it to a precision; `try_make` is its `Result` form.
 
 ```mbti
 pub fn Decimal::make(@bigint.BigInt, Int, Int, mode? : DecimalRoundingMode) -> Self
+pub fn Decimal::try_make(@bigint.BigInt, Int, Int, mode? : DecimalRoundingMode) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 `Decimal::make(c, q, p, mode~)` represents $c \cdot 10^{q}$; the sign comes
@@ -192,7 +219,10 @@ from `c`. A coefficient of at most `p` digits keeps the exponent `q` (the cohort
 member asked for is not reduced: `make(100, 0, 5)` is `100`, `make(0, 5, 5)` is
 `0E+5`); a longer one is rounded to exactly `p` digits with `mode` (default
 `RoundTiesToEven`) and not reduced (`make(1000000, 0, 3)` is `100E+4`). No
-exponent range applies. `p` must be within `1..=999999999`.
+context exponent range applies, but the value must be within the [stored
+range](#decimal_value_e_max-decimal_value_e_tiny), checked after the rounding: `make` aborts
+naming the exponent and both limits, `try_make` returns the domain error (and an
+error for a `p` outside `1..=999999999`).
 
 ### `Decimal::zero`, `negative_zero`, `one`, `inf`, `nan`, `quiet_nan`, `signaling_nan`
 
@@ -346,15 +376,18 @@ and exponent $-4$; `"1.0001"` at precision 3 rounds to `1.00`, and the exact
 not fit. `"10001"` at precision 3 rounds to `1.00E+4`. Invalid text returns
 `Err(parse_error)` from `parse` and `None` from `from_string`.
 
-No context exponent range is applied; the only limits are those of the
-representation: the stored exponent must be at least $-2^{31}$ and the
-adjusted exponent at most $2^{31}-1$. As IEEE 754 §5.12 requires, a valid
-literal beyond them still converts, with the conversion rounded once: a
-literal too large is a signed infinity (`"1e3000000000"` is `inf`), and one
-too small is rounded half-even to the exponent $-2^{31}$, possibly to a
-signed zero (`"1e-3000000000"` is `0E-2147483648`, `"15e-2147483649"` is
-`2E-2147483648`). Use `from_string_ctx` to get the `overflow` and
-`underflow` flags.
+No context exponent range is applied; the limits are those of the
+[stored range](#decimal_value_e_max-decimal_value_e_tiny): the exponent of the
+value must be at least `decimal_value_e_tiny` ($-2\,147\,483\,645$) and its
+adjusted exponent at most `decimal_value_e_max` ($2\,147\,483\,646$), checked
+after the rounding to `precision` (a carry included) and for a zero as for any
+finite value. A text whose value is outside them is refused, never replaced:
+`from_string` returns `None` and `parse` the domain error, which names the
+exponent and both limits (`"1e3000000000"`, `"12e2147483647"`, `"0e-2147483646"`
+are refused; `"1249e-2147483646"` at precision 3 is `1.25E-2147483643`, its
+exponent after the rounding being inside the range). Read the text with
+[`from_string_ctx`](#decimalfrom_string_ctx) when a rounded value (an
+infinity, a zero) and the `overflow` and `underflow` flags are wanted.
 
 ### `Decimal::from_string_ctx`
 
@@ -734,7 +767,7 @@ Each operator is the matching [context operation](#context-arithmetic) (`add_ctx
 `sub_ctx`, `mul_ctx`, `div_ctx`, `sqrt_ctx`) in a private working context with the
 flags dropped: the format of the larger precision $\max(p_a, p_b)$ of the
 operand precision fields, round half even, the storage range of a value
-(largest adjusted exponent $2\,147\,483\,646$, smallest exponent
+(`decimal_value_e_max`, $2\,147\,483\,646$, and `decimal_value_e_tiny`,
 $-2\,147\,483\,645$) and no fold-down. The result precision field is
 $\max(p_a, p_b)$.
 
@@ -2156,6 +2189,10 @@ pub let decimal_implementation_e_min : Int32
 
 pub let decimal_precision_max : Int32
 
+pub let decimal_value_e_max : Int32
+
+pub let decimal_value_e_tiny : Int32
+
 // Errors
 
 // Types and methods
@@ -2355,6 +2392,7 @@ pub fn Decimal::try_log10p1_ctx(Self, DecimalContext) -> Result[(Self, DecimalFl
 pub fn Decimal::try_log1p_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_log2_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_log2p1_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_make(@bigint.BigInt, Int32, Int32, mode? : DecimalRoundingMode) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::try_pow_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_pown_ctx(Self, Int32, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_powr_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]

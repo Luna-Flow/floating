@@ -2,14 +2,20 @@
 // Public arithmetic and sqrt APIs.
 
 ///|
-/// The largest adjusted exponent and the smallest exponent of a stored finite
-/// value: the range of the working context of the plain operators (S1). Both
-/// are the largest and smallest the 32-bit exponent field allows once
-/// `e_max`, `e_min` and `etiny = e_min - p + 1` have to be representable in it.
-let decimal_working_e_max : Int32 = 2147483646
+/// The largest adjusted exponent of a stored finite value: `exponent + digits -
+/// 1 <= decimal_value_e_max` (a zero has one digit). It is the `e_max` of the
+/// working context of the plain operators (S1), the largest the 32-bit exponent
+/// field allows once `e_max`, `e_min` and `etiny = e_min - p + 1` have to be
+/// representable in it. A context is narrower than what can be stored (see
+/// `decimal_implementation_e_max`): a value outside every context range can
+/// still be stored and is rounded when a context operation reads it.
+pub let decimal_value_e_max : Int32 = 2147483646
 
 ///|
-let decimal_working_e_tiny : Int32 = -2147483645
+/// The smallest exponent of a stored finite value, the `etiny` of the working
+/// context of the plain operators: `exponent >= decimal_value_e_tiny` (the
+/// least digit of a stored value; a context's `etiny` is higher).
+pub let decimal_value_e_tiny : Int32 = -2147483645
 
 ///|
 /// The private context of the plain operators `+ - * /` and `sqrt`: the format
@@ -21,8 +27,8 @@ let decimal_working_e_tiny : Int32 = -2147483645
 fn decimal_plain_context(precision : Int32) -> DecimalContext {
   DecimalContext::raw(
     precision,
-    decimal_working_e_tiny + precision - 1,
-    decimal_working_e_max,
+    decimal_value_e_tiny + precision - 1,
+    decimal_value_e_max,
   )
 }
 
