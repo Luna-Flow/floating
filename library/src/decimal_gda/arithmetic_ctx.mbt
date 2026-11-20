@@ -540,7 +540,33 @@ fn division_beyond_exponent_range(
       ),
     )
   }
-  None
+  // The exponent difference is below `Int` although the quotient is not below
+  // the range: the dividend has more digits than the divisor (`adjusted` is
+  // above `tiny - 2` only then). Even a guard of zero digits would put the
+  // quotient exponent outside `Int`, so the quotient is formed with the usual
+  // guard (the sticky rounding does not depend on the exponent) and its
+  // exponent, an `Int64`, goes to the wide normalization, which folds it into
+  // the context range.
+  guard difference < -2147483648L else { return None }
+  let extra = finite_precision_for_default(ctx) +
+    divisor.coefficient.digits10() +
+    2
+  let (q, _) = dec_coeff_round_div_expansion(
+    dec_coeff_shift_power10_repr(dividend.coefficient, extra),
+    divisor.coefficient,
+    negative,
+    DecimalRoundingMode::ZeroFiveUp.kernel(),
+  )
+  // A nonzero remainder leaves the low digit of `q` off 0 and 5, so the
+  // wide rounding reports `inexact` exactly when the quotient is inexact.
+  Some(
+    normalize_decimal_parts_ctx_wide_repr(
+      negative,
+      q,
+      difference - extra.to_int64(),
+      ctx,
+    ),
+  )
 }
 
 ///|
@@ -637,13 +663,15 @@ fn Decimal::decimal_div_ctx_impl(
       }
       let denominator = other.coefficient
       let extra_wanted = precision + denominator.digits10() + 2
-      // The quotient exponent must stay in `Int`. Near the lowest exponent the
-      // guard is cut to what fits: the grid at -2^31 is still finer than Etiny
-      // (the context floor is above it), so the guarded rounding stays valid.
+      // The quotient exponent `difference - extra` must stay in `Int`: near
+      // the lowest exponent the guard is cut to what fits. The grid at -2^31 is
+      // still finer than Etiny (the context floor is above it), so the guarded
+      // rounding stays valid. `difference` itself is in `Int` here, a lower one
+      // is answered by `division_beyond_exponent_range`.
       let room = self.exponent10.to_int64() -
         other.exponent10.to_int64() +
         2147483648L
-      let extra = if room >= 0L && room < extra_wanted.to_int64() {
+      let extra = if room < extra_wanted.to_int64() {
         room.to_int()
       } else {
         extra_wanted

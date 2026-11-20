@@ -75,3 +75,72 @@ test "plain operators on special values and zero divisors" {
   assert_true((Decimal::nan() + one).is_nan())
   assert_true((Decimal::signaling_nan(payload=7N) + one).is_qnan())
 }
+
+///|
+/// The working context is written out by hand; this keeps it in step with
+/// `GdaContext::new`: on operands far from both ends of the range the plain
+/// operators equal the free functions in the context the public constructor
+/// builds for the same precision (extended, half-even, no clamp).
+test "plain operators equal the free functions in a GdaContext::new context" {
+  let texts = [
+    "1", "3", "0", "-0", "7.25", "-2.50", "1E+10", "1.5E-10", "123456789.123456789",
+    "9999999999999999999999999999999999", "0.000123", "-33.3333", "2E+100", "4E-100",
+  ]
+  for precision in [1, 3, 7, 16, 34] {
+    let context = GdaContext::new(precision~)
+    for a_text in texts {
+      for b_text in texts {
+        let a = Decimal::from_string(a_text, precision~).unwrap()
+        let b = Decimal::from_string(b_text, precision~).unwrap()
+        let label = "p=\{precision} \{a_text} \{b_text}"
+        assert_eq(
+          (a + b).to_string(),
+          add(a, b, context).value().to_string(),
+          msg="add " + label,
+        )
+        assert_eq(
+          (a - b).to_string(),
+          subtract(a, b, context).value().to_string(),
+          msg="sub " + label,
+        )
+        assert_eq(
+          (a * b).to_string(),
+          multiply(a, b, context).value().to_string(),
+          msg="mul " + label,
+        )
+        assert_eq(
+          (a / b).to_string(),
+          divide(a, b, context).value().to_string(),
+          msg="div " + label,
+        )
+      }
+      let a = Decimal::from_string(a_text, precision~).unwrap()
+      assert_eq(
+        a.sqrt().to_string(),
+        sqrt(a, context).value().to_string(),
+        msg="sqrt p=\{precision} \{a_text}",
+      )
+    }
+  }
+}
+
+///|
+/// An exponent difference below `Int` with a dividend longer than the divisor:
+/// the quotient lies in the range, so it is rounded, not lost to infinity.
+test "plain division with an exponent difference below Int" {
+  let d = fn(text : String) { Decimal::from_string(text).unwrap() }
+  // 1.2345E-2147483646 is below Etiny = -2147483645: rounds to zero
+  inspect(d("12345E-2147483648") / d("1E+2"), content="0E-2147483645")
+  // 9.9999E-2147483646 rounds up to one unit of Etiny
+  inspect(d("99999E-2147483648") / d("1E+2"), content="1E-2147483645")
+  inspect(d("-99999E-2147483648") / d("1E+2"), content="-1E-2147483645")
+  // exactly representable at Etiny: kept
+  inspect(d("12300000E-2147483648") / d("1E+2"), content="1.23E-2147483643")
+  // subnormal: limited to the digits down to Etiny
+  inspect(
+    d("123456789012345678901234567890123456789E-2147483648") / d("1E+9"),
+    content="1.23456789012345678901234568E-2147483619",
+  )
+  // an inexact quotient with the guard cut by the floor, rounded at Etiny
+  inspect(d("5E-2147483640") / d("3E+1"), content="1.6667E-2147483641")
+}
