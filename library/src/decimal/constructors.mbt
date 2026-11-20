@@ -462,6 +462,48 @@ fn Decimal::to_bin_float_bounds(
 }
 
 ///|
+/// The plain `from_bin_float` of a finite non-zero `x` without the exact
+/// expansion `c * 5^k` or `c << e2` (the shape that #423 removed from
+/// `from_bin_float_ctx`): the digits of the surrogate of
+/// `decimal_surrogate_parts` rounded once to `precision` digits, half-even, by
+/// the rounding of the plain form. The surrogate keeps the first `precision + 1`
+/// digits of `|x|` with a sticky digit and, for an exact value, the member of the
+/// cohort closest to exponent 0, so the result is the one of the exact expansion
+/// (coefficient, exponent and sign).
+fn decimal_from_bin_float_surrogate(
+  x : @bin_float.BinFloat,
+  precision : Int32,
+) -> Decimal {
+  let (negative, coefficient, exponent) = decimal_surrogate_parts(
+    x,
+    Int32::max(1, precision),
+  )
+  context_free_round_wide(
+    negative,
+    coefficient,
+    exponent.to_int64(),
+    precision,
+    round_to_precision=true,
+    reduce=false,
+    mode=DecimalRoundingMode::HalfEven,
+  )
+}
+
+///|
+/// Whether the cost of the exact expansion of `x` (it grows with the binary
+/// exponent, quadratically for a negative one) is worth avoiding: the exponent
+/// is large and the requested precision is small against it (a precision of
+/// about the size of the value needs the whole expansion anyway).
+fn decimal_from_bin_float_is_bounded(
+  x : @bin_float.BinFloat,
+  precision : Int32,
+) -> Bool {
+  let e2 = x.exponent2().to_int64()
+  let size = if e2 < 0 { -e2 } else { e2 }
+  size > 1024L && Int32::max(1, precision).to_int64() * 2L <= size
+}
+
+///|
 pub fn Decimal::from_bin_float(
   x : @bin_float.BinFloat,
   precision~ : Int32 = x.precision(),
@@ -477,6 +519,8 @@ pub fn Decimal::from_bin_float(
         } else {
           Decimal::zero(precision~)
         }
+      } else if decimal_from_bin_float_is_bounded(x, precision) {
+        decimal_from_bin_float_surrogate(x, precision)
       } else {
         let coefficient = BigInt::from_octets(x.coefficient().to_bytes_be())
         let signed = if x.is_negative() { -coefficient } else { coefficient }

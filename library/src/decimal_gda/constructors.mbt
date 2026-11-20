@@ -235,6 +235,108 @@ pub fn Decimal::to_bin_float(
 }
 
 ///|
+/// The sign, coefficient and exponent of the surrogate of a finite non-zero `x`
+/// at a precision of `precision` digits: the first `precision + 1` correctly
+/// rounded (truncated) digits of `|x|` from `BinFloat::to_decimal_string_ctx`,
+/// with a sticky digit `1` appended when digits were dropped; for an exact value
+/// the trailing zeros are dropped and the member of the cohort closest to
+/// exponent 0 is kept. A private copy of `decimal_surrogate_parts` of `decimal`
+/// (the two packages share no code outside the internal kernel).
+fn decimal_surrogate_parts(
+  x : @bin_float.BinFloat,
+  precision : Int32,
+) -> (Bool, DecCoeff, Int32) {
+  let digits = precision + 1
+  let (text, flags) = x.to_decimal_string_ctx(
+    digits,
+    @bin_float.BinaryContext::unbounded(
+      53,
+      rounding=@bin_float.BinaryRoundingMode::RoundTowardZero,
+    ),
+  )
+  let sticky = flags.inexact()
+  let negative = text[0] == '-'
+  let body = if negative { text[1:].to_owned() } else { text }
+  // d.ddd...e+x
+  let split = body.find("e").unwrap()
+  let mantissa = body[0:split].to_owned()
+  let exponent_text = body[split + 1:].to_owned()
+  let magnitude = @string.parse_int(exponent_text[1:]) catch {
+    _ => abort("unexpected decimal exponent text \{exponent_text}")
+  }
+  let leading = if exponent_text[0] == '-' { -magnitude } else { magnitude }
+  let mut coefficient = mantissa.replace(old=".", new="")
+  let mut exponent = leading - digits + 1
+  if sticky {
+    coefficient = coefficient + "1"
+    exponent = exponent - 1
+  } else {
+    // exact: drop the trailing zeros, then prefer the exponent 0
+    let mut end = coefficient.length()
+    while end > 1 && coefficient[end - 1] == '0' {
+      end = end - 1
+    }
+    exponent = exponent + (coefficient.length() - end)
+    coefficient = coefficient[0:end].to_owned()
+    if exponent > 0 {
+      // The member closest to the preferred exponent 0 (IEEE 754-2019 §5.2):
+      // exponent 0 when the value fits in `precision` digits. Otherwise zeros
+      // are appended up to `precision + 1` digits, and the one `apply_ctx`
+      // rounds away is a zero: the `precision`-digit member with the exponent
+      // closest to 0, flagged rounded, with no second rounding.
+      let pad = Int32::min(exponent, precision + 1 - coefficient.length())
+      if pad > 0 {
+        coefficient = coefficient + "0".repeat(pad)
+        exponent = exponent - pad
+      }
+    }
+  }
+  (negative, coeff_from_bigint(bigint_from_text(coefficient)), exponent)
+}
+
+///|
+/// The plain `from_bin_float` of a finite non-zero `x` without the exact
+/// expansion `c * 5^k` or `c << e2` (the shape that #423 removed from
+/// `from_bin_float_ctx`): the digits of the surrogate of
+/// `decimal_surrogate_parts` rounded once to `precision` digits, half-even, by
+/// the rounding of the plain form. The surrogate keeps the first `precision + 1`
+/// digits of `|x|` with a sticky digit and, for an exact value, the member of the
+/// cohort closest to exponent 0, so the result is the one of the exact expansion
+/// (coefficient, exponent and sign).
+fn decimal_from_bin_float_surrogate(
+  x : @bin_float.BinFloat,
+  precision : Int32,
+) -> Decimal {
+  let (negative, coefficient, exponent) = decimal_surrogate_parts(
+    x,
+    Int32::max(1, precision),
+  )
+  context_free_round_wide(
+    negative,
+    coefficient,
+    exponent.to_int64(),
+    precision,
+    round_to_precision=true,
+    reduce=false,
+    mode=DecimalRoundingMode::HalfEven,
+  )
+}
+
+///|
+/// Whether the cost of the exact expansion of `x` (it grows with the binary
+/// exponent, quadratically for a negative one) is worth avoiding: the exponent
+/// is large and the requested precision is small against it (a precision of
+/// about the size of the value needs the whole expansion anyway).
+fn decimal_from_bin_float_is_bounded(
+  x : @bin_float.BinFloat,
+  precision : Int32,
+) -> Bool {
+  let e2 = x.exponent2().to_int64()
+  let size = if e2 < 0 { -e2 } else { e2 }
+  size > 1024L && Int32::max(1, precision).to_int64() * 2L <= size
+}
+
+///|
 pub fn Decimal::from_bin_float(
   x : @bin_float.BinFloat,
   precision~ : Int32 = x.precision(),
@@ -245,6 +347,8 @@ pub fn Decimal::from_bin_float(
     FpClass::Finite =>
       if x.is_zero() {
         Decimal::zero(precision~)
+      } else if decimal_from_bin_float_is_bounded(x, precision) {
+        decimal_from_bin_float_surrogate(x, precision)
       } else {
         let coefficient = BigInt::from_octets(x.coefficient().to_bytes_be())
         let signed = if x.is_negative() { -coefficient } else { coefficient }
