@@ -21,7 +21,12 @@ fn scaleb_count(n : BinFloat) -> Int32? {
 /// overflow, underflow, and subnormal handling. `n` is the same floating-point
 /// kind as `logb_ctx` returns (the `logBFormat` of this library) and must be an
 /// integer: a NaN `n` propagates, an infinite or non-integer `n` gives a NaN
-/// with `invalid_operation`, as `Decimal::scaleb_ctx` does.
+/// with `invalid_operation`, as `Decimal::scaleb_ctx` does. IEEE 754-2019 5.3.3
+/// defines scaleB for integral `n` only and leaves the behavior for a
+/// non-integral second operand (an infinity is not integral) to the language;
+/// this library returns NaN with `invalid_operation`, except that an infinite
+/// receiver with a finite count is returned as it is (`scaleB(+-inf, N)` is
+/// `+-inf` for non-zero `N`).
 pub fn BinFloat::scaleb_ctx(
   self : BinFloat,
   n : BinFloat,
