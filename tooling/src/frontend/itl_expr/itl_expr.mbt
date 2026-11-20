@@ -324,7 +324,13 @@ fn parse_bound(
     }
     match
       @decimal.Decimal::from_string(normalized, precision=precision * 2 + 16) {
-      Ok(value) => Some(value.to_bin_float(precision~, mode~))
+      Ok(value) =>
+        Some(
+          value.to_bin_float(
+            precision~,
+            mode=itl_bin_mode(mode, normalized.has_prefix("-")),
+          ),
+        )
       Err(_) => None
     }
   }

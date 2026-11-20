@@ -39,6 +39,7 @@ test "integer and binary constructors return the IEEE preferred cohort (#150)" {
     s(
       Decimal::from_bin_float(
         @bin_float.BinFloat::from_double(6.0, precision=53),
+        precision=16,
       ),
     ),
     content="6",

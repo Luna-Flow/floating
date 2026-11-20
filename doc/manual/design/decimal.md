@@ -835,7 +835,7 @@ input $x$:
 
 1. Convert $x$ exactly into a binary interval: $\underline{x} =
    \nabla_w(x)$ and $\overline{x} = \Delta_w(x)$, `to_bin_float` with
-   `TowardNegative` and `TowardPositive` at $w$ bits, so $x \in
+   `RoundTowardNegative` and `RoundTowardPositive` at $w$ bits, so $x \in
    [\underline{x}, \overline{x}]$.
 2. Evaluate $f$ on that interval with [`ball_float`](ball_float.md), which
    returns an interval $[L, U] \ni f(x)$ for every point of the input interval.

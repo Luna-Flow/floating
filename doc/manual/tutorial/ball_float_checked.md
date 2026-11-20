@@ -222,7 +222,7 @@ and test it:
 test "decide with an enclosure" {
   match reading(1.0, 3.0).rootn(2).result() {
     Ok(root) => {
-      let two = @ball_float.BallFloat::from_int(2)
+      let two = @ball_float.BallFloat::from_int(2, precision=53)
       inspect(@lf_arith.DefinitelyLt::definitely_lt(root, two), content="true")
     }
     Err(e) => fail(e.message)

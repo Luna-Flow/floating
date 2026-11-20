@@ -11,7 +11,7 @@
 fn to_bin_float_reference(
   value : Decimal,
   precision : Int32,
-  mode : RoundingMode,
+  mode : @bin_float.BinaryRoundingMode,
 ) -> @bin_float.BinFloat {
   if value.exponent10 >= 0 {
     let magnitude = coeff_bigint(value.coefficient) * pow5(value.exponent10)
@@ -20,7 +20,7 @@ fn to_bin_float_reference(
       value.exponent10,
       precision,
       negative=value.negative,
-      mode=bin_mode(mode, value.negative),
+      mode~,
     )
   }
   let scale = -value.exponent10
@@ -38,7 +38,7 @@ fn to_bin_float_reference(
     -binary_shift,
     precision,
     negative=value.sign() == Sign::Negative,
-    mode=bin_mode(mode, value.sign() == Sign::Negative),
+    mode~,
   )
 }
 
@@ -64,11 +64,11 @@ test "to_bin_float equals the previous implementation in every mode" {
   ]
   let precisions = [1, 2, 24, 53, 64, 113, 128, 200, 600]
   let modes = [
-    RoundingMode::ToNearestEven,
-    RoundingMode::TowardZero,
-    RoundingMode::AwayFromZero,
-    RoundingMode::TowardNegative,
-    RoundingMode::TowardPositive,
+    @bin_float.BinaryRoundingMode::RoundTiesToEven,
+    @bin_float.BinaryRoundingMode::RoundTiesToAway,
+    @bin_float.BinaryRoundingMode::RoundTowardZero,
+    @bin_float.BinaryRoundingMode::RoundTowardNegative,
+    @bin_float.BinaryRoundingMode::RoundTowardPositive,
   ]
   let mut checked = 0
   for c in coefficients {
@@ -121,11 +121,11 @@ test "decimal_to_certified_ball bounds are the two directed conversions" {
       let ball = decimal_to_certified_ball(value, p)
       let lower = value.to_bin_float(
         precision=p,
-        mode=RoundingMode::TowardNegative,
+        mode=@bin_float.BinaryRoundingMode::RoundTowardNegative,
       )
       let upper = value.to_bin_float(
         precision=p,
-        mode=RoundingMode::TowardPositive,
+        mode=@bin_float.BinaryRoundingMode::RoundTowardPositive,
       )
       assert_true(
         to_bin_float_same(ball.lower_bound(), lower),
@@ -140,13 +140,24 @@ test "decimal_to_certified_ball bounds are the two directed conversions" {
 }
 
 ///|
-fn to_bin_float_mode(name : String) -> RoundingMode {
+/// The rounding attribute of a row's mode name for a value of the given sign:
+/// the generated rows keep the names of the retired `@arithmetic` modes, and
+/// `AwayFromZero` is the direction of the sign.
+fn to_bin_float_mode(
+  name : String,
+  negative : Bool,
+) -> @bin_float.BinaryRoundingMode {
   match name {
-    "ToNearestEven" => RoundingMode::ToNearestEven
-    "TowardZero" => RoundingMode::TowardZero
-    "AwayFromZero" => RoundingMode::AwayFromZero
-    "TowardNegative" => RoundingMode::TowardNegative
-    "TowardPositive" => RoundingMode::TowardPositive
+    "ToNearestEven" => @bin_float.BinaryRoundingMode::RoundTiesToEven
+    "TowardZero" => @bin_float.BinaryRoundingMode::RoundTowardZero
+    "AwayFromZero" =>
+      if negative {
+        @bin_float.BinaryRoundingMode::RoundTowardNegative
+      } else {
+        @bin_float.BinaryRoundingMode::RoundTowardPositive
+      }
+    "TowardNegative" => @bin_float.BinaryRoundingMode::RoundTowardNegative
+    "TowardPositive" => @bin_float.BinaryRoundingMode::RoundTowardPositive
     _ => abort("unknown mode " + name)
   }
 }
@@ -165,7 +176,10 @@ test "to_bin_float at large exponents equals exact integer arithmetic (not the o
       text,
       precision=Int32::max(40, text.length()),
     ).unwrap()
-    let got = value.to_bin_float(precision~, mode=to_bin_float_mode(mode))
+    let got = value.to_bin_float(
+      precision~,
+      mode=to_bin_float_mode(mode, value.sign() == Sign::Negative),
+    )
     let expected_value = bigint_from_text(coefficient)
     let negative = expected_value < BigInt::from_int(0)
     let magnitude = abs_bigint(expected_value)

@@ -4,9 +4,14 @@
 
 ///|
 test "new with the decoration ill returns NaI (#443)" {
-  let one = BallFloat::from_int(1)
+  let one = BallFloat::from_int(1, precision=53)
   for
-    x in [one, BallFloat::empty(), BallFloat::entire(), BallFloat::from_int(-7)] {
+    x in [
+      one,
+      BallFloat::empty(),
+      BallFloat::entire(),
+      BallFloat::from_int(-7, precision=53),
+    ] {
     let d = BallFloatDecorated::new(x, decoration=Ill)
     assert_true(d.is_nai())
     assert_true(d.decoration() == Ill)
@@ -28,7 +33,10 @@ test "the other forbidden combinations of 11.5.2 are repaired (#443)" {
   let entire = BallFloatDecorated::new(BallFloat::entire(), decoration=Com)
   assert_true(entire.decoration() == Dac)
   for decoration in [Trv, Def, Dac, Com] {
-    let d = BallFloatDecorated::new(BallFloat::from_int(2), decoration~)
+    let d = BallFloatDecorated::new(
+      BallFloat::from_int(2, precision=53),
+      decoration~,
+    )
     assert_false(d.is_nai())
   }
 }

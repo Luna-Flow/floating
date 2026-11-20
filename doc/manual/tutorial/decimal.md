@@ -378,7 +378,7 @@ and range events become diagnostics.
   model with sticky status and traps. Its values are a separate type; use it
   when you need `.decTest` behaviour, not IEEE per-operation flags.
 - To enclose a decimal value in a binary interval, convert it twice with
-  `to_bin_float(mode=TowardNegative)` and `to_bin_float(mode=TowardPositive)`
+  `to_bin_float(precision=p, mode=RoundTowardNegative)` and `to_bin_float(precision=p, mode=RoundTowardPositive)`
   and build a [`ball_float`](ball_float.md) ball from both bounds.
 
 ### A deterministic order for storage
