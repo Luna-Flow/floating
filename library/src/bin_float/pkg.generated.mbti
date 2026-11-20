@@ -347,6 +347,7 @@ pub fn BinaryFlags::equal(Self, Self) -> Bool
 pub fn BinaryFlags::inexact(Self) -> Bool
 pub fn BinaryFlags::invalid_operation(Self) -> Bool
 pub fn BinaryFlags::new() -> Self
+pub fn BinaryFlags::not_computed(Self) -> Bool
 pub fn BinaryFlags::not_equal(Self, Self) -> Bool
 pub fn BinaryFlags::overflow(Self) -> Bool
 pub fn BinaryFlags::to_repr(Self) -> @debug.Repr
