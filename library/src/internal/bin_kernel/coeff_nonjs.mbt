@@ -757,6 +757,97 @@ pub fn Coeff::mul(self : Coeff, other : Coeff) -> Coeff {
 }
 
 ///|
+/// The limbs of a coefficient as an array that the caller owns, **every limb of
+/// which beyond the value is zero**: a heap value's own array (the kernel's
+/// heap results own their arrays) with the limbs from `len` to its end cleared,
+/// because a heap coefficient promises nothing about them (`bin_coeff_from_words`
+/// keeps the array whatever lies above `maximum_len`, and `bin_coeff_mul_short`
+/// builds such a value: `H` in the first limbs, scratch above); a fresh array of
+/// exactly the value's limbs for an inline coefficient. The fallback of the
+/// array forms, whose callers take `words.length()` as the limb count.
+fn bin_coeff_owned_words(value : Coeff) -> FixedArray[UInt64] {
+  match value.0 {
+    Heap(words, len) => {
+      for index in len..<words.length() {
+        words.unsafe_set(index, 0UL)
+      }
+      words
+    }
+    Inline64(word) => [word]
+    Inline128(high, low) => [low, high]
+  }
+}
+
+///|
+/// Whether `Coeff::mul` multiplies two heap values of these lengths (both at
+/// least `bin_coeff_sparse_min_words`) by the sparse route: the same test as
+/// in `Coeff::mul` (at most `max(2, len / 8)` nonzero limbs each and `4 *
+/// left_count * right_count < left_len * right_len`).
+fn bin_coeff_sparse_product_applies(
+  left : Coeff,
+  left_len : Int32,
+  right : Coeff,
+  right_len : Int32,
+) -> Bool {
+  match
+    bin_coeff_nonzero_word_count_limited(left, Int32::max(2, left_len / 8)) {
+    Some(left_count) =>
+      match
+        bin_coeff_nonzero_word_count_limited(
+          right,
+          Int32::max(2, right_len / 8),
+        ) {
+        Some(right_count) =>
+          left_count.to_int64() * right_count.to_int64() * 4L <
+          left_len.to_int64() * right_len.to_int64()
+        None => false
+      }
+    None => false
+  }
+}
+
+///|
+/// The product of two nonzero coefficients as a fresh array, without the
+/// coefficient box between the product and its caller: `left_len + right_len`
+/// limbs for two heap values on the schoolbook and Karatsuba routes (the top
+/// limb may be zero), otherwise the array of `Coeff::mul` (the NTT, Toom-3,
+/// 32-bit-limb and sparse routes and operands that are not both heap values
+/// keep their `Coeff` result and give up its array, so the box is built there
+/// as before). The value is `left * right` exactly as `Coeff::mul` computes it:
+/// this function only chooses the same route and stops before the box.
+pub fn bin_words_mul(left : Coeff, right : Coeff) -> FixedArray[UInt64] {
+  match (left.0, right.0) {
+    (Heap(left_words, left_len), Heap(right_words, right_len)) => {
+      let shorter = Int32::min(left_len, right_len)
+      if left_len >= bin_coeff_sparse_min_words &&
+        right_len >= bin_coeff_sparse_min_words &&
+        bin_coeff_sparse_product_applies(left, left_len, right, right_len) {
+        // the sparse route (`Coeff::mul`) keeps its `Coeff` result
+        return bin_coeff_owned_words(left.mul(right))
+      }
+      if shorter >= bin_coeff_words_karatsuba_cutoff {
+        if shorter >= bin_coeff_ntt_mul_min_words ||
+          shorter >= bin_coeff_toom3_min_words ||
+          shorter >= bin_coeff_limb32_min_words {
+          return bin_coeff_owned_words(left.mul(right))
+        }
+        let result = FixedArray::make(left_len + right_len, 0UL)
+        bin_coeff_words_mul(
+          result, 0, left_words, 0, left_len, right_words, 0, right_len,
+        )
+        return result
+      }
+      let result = FixedArray::make(left_len + right_len, 0UL)
+      bin_limbs_school(
+        result, 0, left_words, 0, left_len, right_words, 0, right_len,
+      )
+      result
+    }
+    _ => bin_coeff_owned_words(left.mul(right))
+  }
+}
+
+///|
 pub fn Coeff::square(self : Coeff) -> Coeff {
   let len = bin_coeff_word_len(self)
   if len >= 16 {

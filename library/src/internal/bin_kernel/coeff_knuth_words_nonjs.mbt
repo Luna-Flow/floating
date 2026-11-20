@@ -319,6 +319,9 @@ pub fn bin_coeff_div_scaled_ok(
 }
 
 ///|
+/// Array form: the packed `2 * q + s` as a fresh array of `quotient_len + 1`
+/// limbs (its top limbs may be zero).
+///
 /// `2 * q + s` for the quotient `q` of `dividend * 2^scale` by `divisor` and
 /// `s = 1` when the division leaves a remainder, else `s = 0`: the inexact flag
 /// travels as the lowest bit of the result, so that no option or tuple is
@@ -333,11 +336,11 @@ pub fn bin_coeff_div_scaled_ok(
 /// which the caller may keep, hand on or modify. Results of up to 128 bits are
 /// `Inline64` or `Inline128` and carry no array; `Coeff::zero()` is a shared
 /// constant, recognised by `is_zero()`.
-pub fn bin_coeff_div_scaled_quotient(
+pub fn bin_words_div_scaled_quotient(
   dividend : Coeff,
   scale : Int32,
   divisor : Coeff,
-) -> Coeff {
+) -> FixedArray[UInt64] {
   let denominator_len = bin_coeff_word_len(divisor)
   let numerator_bits = dividend.bit_length() + scale
   let numerator_len = (numerator_bits + 63) / 64
@@ -375,7 +378,18 @@ pub fn bin_coeff_div_scaled_quotient(
     (quotient.unsafe_get(0) << 1) |
     (if index < denominator_len { 1UL } else { 0UL }),
   )
-  bin_coeff_from_words(quotient, quotient_len + 1)
+  quotient
+}
+
+///|
+/// `bin_words_div_scaled_quotient` as a coefficient, with the same ownership.
+pub fn bin_coeff_div_scaled_quotient(
+  dividend : Coeff,
+  scale : Int32,
+  divisor : Coeff,
+) -> Coeff {
+  let words = bin_words_div_scaled_quotient(dividend, scale, divisor)
+  bin_coeff_from_words(words, words.length())
 }
 
 ///|
@@ -470,6 +484,9 @@ fn bin_coeff_knuth_short_core(
 }
 
 ///|
+/// Array form: the quotient as a fresh array (its top limbs may be zero), or
+/// `bin_decline_words` when the rounding is not certain.
+///
 /// An approximate quotient `Q` of `dividend * 2^scale` by `divisor`, rounded
 /// correctly if it is returned, else `Coeff::zero()` (the caller then divides
 /// exactly). Requires `bin_coeff_div_short_ok`.
@@ -500,12 +517,12 @@ fn bin_coeff_knuth_short_core(
 /// `Inline64` or `Inline128` and carry no array; `Coeff::zero()` is a shared
 /// constant, recognised by `is_zero()`.
 /// The shared zero is the "declined" answer.
-pub fn bin_coeff_div_short_quotient(
+pub fn bin_words_div_short_quotient(
   dividend : Coeff,
   scale : Int32,
   divisor : Coeff,
   precision : Int32,
-) -> Coeff {
+) -> FixedArray[UInt64] {
   let denominator_len = bin_coeff_word_len(divisor)
   let numerator_bits = dividend.bit_length() + scale
   let numerator_len = (numerator_bits + 63) / 64
@@ -528,7 +545,7 @@ pub fn bin_coeff_div_short_quotient(
   let top = normalized.unsafe_get(denominator_len - 1)
   let window_high = work.unsafe_get(denominator_len)
   if window_high >= top {
-    return Coeff::zero()
+    return bin_decline_words
   }
   let upper = binary_fast_div_wide(
       window_high,
@@ -543,12 +560,12 @@ pub fn bin_coeff_div_short_quotient(
     used -= 1
   }
   if used == 0 {
-    return Coeff::zero()
+    return bin_decline_words
   }
   let bits = (used - 1) * 64 + bin_coeff_u64_bits(quotient.unsafe_get(used - 1))
   let spacing_bits = bits - precision - 1
   if spacing_bits < bin_coeff_short_division_guard_bits {
-    return Coeff::zero()
+    return bin_decline_words
   }
   // r = Q mod 2^spacing_bits must exceed `lower`, and its complement within
   // spacing_bits bits must be at least `upper`
@@ -588,7 +605,24 @@ pub fn bin_coeff_div_short_quotient(
   let remainder_ok = remainder_above || word0 > lower
   let complement_ok = complement_above || full0 - word0 >= upper
   if !remainder_ok || !complement_ok {
-    return Coeff::zero()
+    return bin_decline_words
   }
-  bin_coeff_from_words(quotient, quotient_len)
+  quotient
+}
+
+///|
+/// `bin_words_div_short_quotient` as a coefficient (`Coeff::zero()` when it
+/// declines), with the same ownership.
+pub fn bin_coeff_div_short_quotient(
+  dividend : Coeff,
+  scale : Int32,
+  divisor : Coeff,
+  precision : Int32,
+) -> Coeff {
+  let words = bin_words_div_short_quotient(dividend, scale, divisor, precision)
+  if words.length() == 0 {
+    Coeff::zero()
+  } else {
+    bin_coeff_from_words(words, words.length())
+  }
 }
