@@ -49,6 +49,32 @@ class BinFloatInterpreterRunnerTests(unittest.TestCase):
             {"mulAdd": 4, "rem": 1, "roundToInt": 4, "to_i32": 4, "le_quiet": 1},
         )
 
+    def test_conversion_tasks_skip_the_source_format_and_the_rounding_of_exact_ones(self):
+        arguments = SimpleNamespace(
+            formats=["f16", "f64"],
+            operations=["to_f16", "to_f32", "to_f128"],
+            roundings=["rnear_even", "rmin"],
+            tininess_modes=["after", "before"],
+            level=1,
+            seed=1,
+        )
+        tasks = RUNNER.task_matrix(arguments)
+        functions = {}
+        for task in tasks:
+            functions[task["function"]] = functions.get(task["function"], 0) + 1
+        # f16_to_f16 and f64_to_f16 exist only as f64_to_f16 (no identical pair);
+        # a widening conversion is exact: one task; a narrowing one: 2 roundings x 2 tininess.
+        self.assertEqual(
+            functions,
+            {
+                "f16_to_f32": 1,
+                "f16_to_f128": 1,
+                "f64_to_f16": 4,
+                "f64_to_f32": 4,
+                "f64_to_f128": 1,
+            },
+        )
+
     def test_exact_tasks_pass_exact_to_generator_and_interpreter(self):
         task = {
             "function": "f32_to_i64",

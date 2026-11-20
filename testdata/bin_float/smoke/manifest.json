@@ -142,6 +142,34 @@
       "rounding": "rnear_even",
       "tininess": "after",
       "expectedCases": 12
+    },
+    {
+      "path": "testdata/bin_float/smoke/f64_to_f32_rnear_even_after.testfloat",
+      "function": "f64_to_f32",
+      "rounding": "rnear_even",
+      "tininess": "after",
+      "expectedCases": 12
+    },
+    {
+      "path": "testdata/bin_float/smoke/f128_to_f16_rmax_before.testfloat",
+      "function": "f128_to_f16",
+      "rounding": "rmax",
+      "tininess": "before",
+      "expectedCases": 12
+    },
+    {
+      "path": "testdata/bin_float/smoke/f16_to_f64_rnear_even_after.testfloat",
+      "function": "f16_to_f64",
+      "rounding": "rnear_even",
+      "tininess": "after",
+      "expectedCases": 12
+    },
+    {
+      "path": "testdata/bin_float/smoke/f32_to_f16_rminMag_after.testfloat",
+      "function": "f32_to_f16",
+      "rounding": "rminMag",
+      "tininess": "after",
+      "expectedCases": 12
     }
   ],
   "mpfr": [

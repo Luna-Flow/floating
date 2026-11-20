@@ -38,6 +38,10 @@ IEEE_OPERATIONS = (
     "to_i64",
     "to_ui32",
     "to_ui64",
+    "to_f16",
+    "to_f32",
+    "to_f64",
+    "to_f128",
     "eq",
     "le",
     "lt",
@@ -51,7 +55,31 @@ ROUNDING_INSENSITIVE = frozenset(
     ("rem", "eq", "le", "lt", "eq_signaling", "le_quiet", "lt_quiet")
 )
 # Only operations that can produce a tiny inexact result observe tininess.
-TININESS_SENSITIVE = frozenset(("add", "sub", "mul", "div", "sqrt", "mulAdd"))
+TININESS_SENSITIVE = frozenset(
+    (
+        "add", "sub", "mul", "div", "sqrt", "mulAdd",
+        "to_f16", "to_f32", "to_f64", "to_f128",
+    )
+)
+# formatOf-convertFormat (IEEE 754-2019 5.4.2): `f64_to_f32` converts from the
+# format of the function name to the format of the operation. The identical
+# format is not a TestFloat function; a wider destination is exact.
+CONVERSIONS = {"to_f16": "f16", "to_f32": "f32", "to_f64": "f64", "to_f128": "f128"}
+PRECISION = {"f16": 11, "f32": 24, "f64": 53, "f128": 113}
+
+
+def conversion_applies(format_name: str, operation: str) -> bool:
+    """False for the source format itself, which TestFloat has no function for."""
+    return operation not in CONVERSIONS or CONVERSIONS[operation] != format_name
+
+
+def conversion_is_exact(format_name: str, operation: str) -> bool:
+    """A conversion to a wider format never rounds, never underflows and never overflows."""
+    return (
+        operation in CONVERSIONS
+        and PRECISION[CONVERSIONS[operation]] > PRECISION[format_name]
+    )
+
 # roundToInt and the integer conversions have -exact/-notexact variants.
 EXACT_SENSITIVE = frozenset(("roundToInt", "to_i32", "to_i64", "to_ui32", "to_ui64"))
 ROUNDINGS = ("rnear_even", "rnear_maxMag", "rminMag", "rmin", "rmax")
@@ -154,11 +182,18 @@ def task_matrix(args: argparse.Namespace) -> list[dict]:
     tasks = []
     for format_name in formats:
         for operation in operations:
+            if not conversion_applies(format_name, operation):
+                continue
+            exact_conversion = conversion_is_exact(format_name, operation)
             selected_roundings = (
-                roundings[:1] if operation in ROUNDING_INSENSITIVE else roundings
+                roundings[:1]
+                if operation in ROUNDING_INSENSITIVE or exact_conversion
+                else roundings
             )
             selected_tininess = (
-                tininess_modes if operation in TININESS_SENSITIVE else tininess_modes[:1]
+                tininess_modes
+                if operation in TININESS_SENSITIVE and not exact_conversion
+                else tininess_modes[:1]
             )
             exact_modes = (False, True) if operation in EXACT_SENSITIVE else (False,)
             for rounding in selected_roundings:

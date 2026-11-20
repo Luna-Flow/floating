@@ -13,6 +13,9 @@ pub(all) enum TestFloatOperation {
   ToInt64
   ToUInt32
   ToUInt64
+  /// `f64_to_f32` and the other format conversions: the operand is in the format of
+  /// the function name's prefix, the result in this format.
+  ConvertFormat(@bin_float.BinaryInterchangeFormat)
   Equal
   LessEqual
   Less
@@ -148,6 +151,11 @@ fn parse_operation(source : String) -> TestFloatOperation? {
     "toi64" => Some(ToInt64)
     "toui32" => Some(ToUInt32)
     "toui64" => Some(ToUInt64)
+    "tof16" => Some(ConvertFormat(@bin_float.BinaryInterchangeFormat::Binary16))
+    "tof32" => Some(ConvertFormat(@bin_float.BinaryInterchangeFormat::Binary32))
+    "tof64" => Some(ConvertFormat(@bin_float.BinaryInterchangeFormat::Binary64))
+    "tof128" =>
+      Some(ConvertFormat(@bin_float.BinaryInterchangeFormat::Binary128))
     "eq" => Some(Equal)
     "le" => Some(LessEqual)
     "lt" => Some(Less)
@@ -161,7 +169,13 @@ fn parse_operation(source : String) -> TestFloatOperation? {
 ///|
 fn operand_count(operation : TestFloatOperation) -> Int32 {
   match operation {
-    SquareRoot | RoundToInt | ToInt32 | ToInt64 | ToUInt32 | ToUInt64 => 1
+    SquareRoot
+    | RoundToInt
+    | ToInt32
+    | ToInt64
+    | ToUInt32
+    | ToUInt64
+    | ConvertFormat(_) => 1
     MulAdd => 3
     _ => 2
   }
@@ -343,6 +357,10 @@ fn parse_expected(source : String, spec : TestFloatSpec) -> TestFloatExpected? {
         "1" => Some(Boolean(true))
         _ => None
       }
+    ConvertFormat(target) =>
+      @bin_float.BinaryInterchange::from_hex(source, target).map(fn(value) {
+        Encoded(value)
+      })
     _ =>
       @bin_float.BinaryInterchange::from_hex(source, spec.format).map(fn(
         value,
@@ -489,7 +507,19 @@ fn execute_float_case(
   operands : Array[@bin_float.BinFloat],
   expected : @bin_float.BinaryInterchange,
 ) -> CaseResult {
+  // The result format: the destination of a format conversion, else the format
+  // of the operands.
+  let result_format = match spec.operation {
+    ConvertFormat(target) => target
+    _ => spec.format
+  }
   let (actual, flags) = match (spec.operation, operands) {
+    (ConvertFormat(target), [operand]) =>
+      operand.convert_format(
+        target,
+        rounding=spec.rounding,
+        tininess=spec.tininess,
+      )
     (Add, [left, right]) => left.add_ctx(right, context)
     (Subtract, [left, right]) => left.sub_ctx(right, context)
     (Multiply, [left, right]) => left.mul_ctx(right, context)
@@ -507,7 +537,7 @@ fn execute_float_case(
   }
   let (encoded, encoding_flags) = @bin_float.BinaryInterchange::from_bin_float(
     actual,
-    spec.format,
+    result_format,
     rounding=spec.rounding,
     tininess=spec.tininess,
   )
