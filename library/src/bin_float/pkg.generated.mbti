@@ -148,6 +148,7 @@ pub fn BinFloat::from_coefficient(BinCoeff, precision? : Int32, negative? : Bool
 pub fn BinFloat::from_double(Double, precision? : Int32) -> Self
 pub fn BinFloat::from_float(Float, precision? : Int32) -> Self
 pub fn BinFloat::from_hex(String, Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BinFloat::from_hex_ctx(String, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::from_int(Int32, precision? : Int32) -> Self
 pub fn BinFloat::from_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BinFloat::from_string_ctx(String, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
