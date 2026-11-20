@@ -1010,7 +1010,11 @@ pub fn BinFloat::sqrt_ctx(
     FpClass::Finite if self.negative() =>
       (BinFloat::nan_raw(precision=context.precision), binary_invalid_flags())
     FpClass::Finite =>
-      binary_round_sqrt(self.coefficient_(), self.exponent2_(), context)
+      if binary_sqrt_ctx_words_ok(self, context) {
+        binary_sqrt_ctx_words(self, context)
+      } else {
+        binary_round_sqrt(self.coefficient_(), self.exponent2_(), context)
+      }
   }
 }
 

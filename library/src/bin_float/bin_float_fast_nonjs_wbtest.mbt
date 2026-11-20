@@ -372,3 +372,109 @@ test "binary64 quotient and root at ties, exact results and powers of two" {
     }
   }
 }
+
+///|
+/// The word route of `sqrt_ctx` (`binary_sqrt_ctx_words`) against the general
+/// path `binary_round_sqrt` on the same coefficient and exponent: result,
+/// representation and flags identical, in every rounding direction and in
+/// contexts whose range puts results in the normal, subnormal and overflowing
+/// ranges (where the route declines and the general path answers).
+fn sqrt_words_check(
+  coefficient : UInt64,
+  exponent : Int32,
+  context : BinaryContext,
+) -> Unit raise {
+  if coefficient == 0UL {
+    return
+  }
+  let zeros = coefficient.reinterpret_as_int64().ctz()
+  let odd = coefficient >> zeros
+  let exponent2 = exponent + zeros
+  let value = finite_from_parts(false, Coeff::from_uint64(odd), exponent2, 64)
+  let actual = value.sqrt_ctx(context)
+  let expected = binary_round_sqrt(Coeff::from_uint64(odd), exponent2, context)
+  assert_eq(actual, expected)
+}
+
+///|
+test "sqrt_ctx on words equals the general path: edges and random, every direction and range" {
+  let random = { state: 0x7A3C_91D5_E2B4_0F68UL, }
+  let modes = [
+    BinaryRoundingMode::RoundTiesToEven,
+    BinaryRoundingMode::RoundTiesToAway,
+    BinaryRoundingMode::RoundTowardZero,
+    BinaryRoundingMode::RoundTowardPositive,
+    BinaryRoundingMode::RoundTowardNegative,
+  ]
+  for precision in [2, 3, 5, 8, 24, 31, 32, 33, 53, 58, 59, 60, 61] {
+    for mode in modes {
+      for e_max in [1, 3, 20, 1000, binary_implementation_e_max] {
+        let context = BinaryContext::new(precision~, e_max~, rounding=mode)
+        let span = 4 * e_max.to_int64().to_int() + 2 * precision + 10
+        for round in 0..<40 {
+          let width = 1 + random.below(64)
+          let raw = (random.next() << 11) | (random.next() >> 53)
+          let coefficient = if width == 64 {
+            raw | 0x8000_0000_0000_0000UL
+          } else {
+            (raw & ((1UL << width) - 1UL)) | (1UL << (width - 1))
+          }
+          let top = if e_max == binary_implementation_e_max {
+            random.below(2000) - 1000
+          } else {
+            -2 * (e_max + precision + 3) + random.below(span)
+          }
+          let exponent = top - (binary_fast_bits(coefficient) - 1)
+          sqrt_words_check(coefficient, exponent, context)
+          sqrt_words_check(coefficient, exponent + 1, context)
+          // perfect squares, one above, the last value below the midpoint and
+          // the first above it
+          let root = coefficient >> 33
+          if root > 0UL && round % 4 == 0 {
+            let square = root * root
+            for
+              radicand in [
+                square,
+                square + 1UL,
+                square + root,
+                square + root + 1UL,
+                if square > 1UL {
+                  square - 1UL
+                } else {
+                  square
+                },
+              ] {
+              let adjusted = top - (binary_fast_bits(radicand) - 1)
+              sqrt_words_check(radicand, adjusted, context)
+              sqrt_words_check(radicand, adjusted - 1, context)
+            }
+          }
+        }
+        // exact ties: the root of `r^2` with `r` odd of `precision + 1` bits is
+        // exactly halfway between two `precision`-bit numbers
+        if precision <= 31 {
+          for _ in 0..<4 {
+            let r = ((random.next() >> 10) & ((1UL << (precision + 1)) - 1UL)) |
+              (1UL << precision) |
+              1UL
+            for exponent in [0, 2, -2, 4 * precision, -4 * precision] {
+              sqrt_words_check(r * r, exponent, context)
+            }
+          }
+        }
+        // all ones and a single bit
+        for width in [1, 2, 31, 32, 53, 63, 64] {
+          let ones = if width == 64 {
+            0xFFFF_FFFF_FFFF_FFFFUL
+          } else {
+            (1UL << width) - 1UL
+          }
+          for exponent in [-3 * precision, -1, 0, 1, 2 * precision] {
+            sqrt_words_check(ones, exponent, context)
+            sqrt_words_check(1UL << (width - 1), exponent, context)
+          }
+        }
+      }
+    }
+  }
+}

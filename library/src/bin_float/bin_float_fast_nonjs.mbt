@@ -308,6 +308,103 @@ fn binary_fast_sqrt_words(value : BinFloat) -> BinFloat? {
 }
 
 ///|
+/// The scale of the radicand `word * 2^scale` of the word route of
+/// `sqrt_ctx`: an even exponent `exponent - scale` and at least
+/// `2 * (precision + 2)` bits, so that the root has at least `precision + 2`
+/// bits (the round bit and one more under the kept ones, the remainder gives
+/// the sticky bit). `-1` when the radicand does not fit 126 bits.
+fn binary_sqrt_ctx_words_scale(
+  bits : Int32,
+  exponent : Int32,
+  precision : Int32,
+) -> Int32 {
+  let mut scale = Int32::max(0, 2 * (precision + 2) - bits)
+  if (exponent - scale) % 2 != 0 {
+    scale += 1
+  }
+  if bits + scale <= 126 {
+    scale
+  } else {
+    -1
+  }
+}
+
+///|
+/// Whether `sqrt_ctx` of the finite positive `value` of one word can be done on
+/// words by `binary_sqrt_ctx_words`: a precision of at most 60 bits, a radicand
+/// that fits 126 bits, and a result in the normal range of the context (the
+/// leading bit of the root at `top` with `e_min <= top < e_max`, so that no
+/// overflow, underflow or subnormal rounding can occur, including the carry of
+/// a rounding up).
+fn binary_sqrt_ctx_words_ok(value : BinFloat, context : BinaryContext) -> Bool {
+  let precision = context.precision
+  if precision > 60 || !binary_fast_is_word(value) {
+    return false
+  }
+  let exponent = value.exponent2_()
+  if exponent > binary_fast_exponent_limit ||
+    exponent < -binary_fast_exponent_limit {
+    return false
+  }
+  let bits = binary_fast_bits(binary_fast_word_of(value))
+  if binary_sqrt_ctx_words_scale(bits, exponent, precision) < 0 {
+    return false
+  }
+  let top = binary_floor_div2(exponent + bits - 1)
+  top >= context.range_e_min() && top < context.range_e_max()
+}
+
+///|
+/// `sqrt_ctx` of a value for which `binary_sqrt_ctx_words_ok` holds: the root
+/// of `word * 2^scale` with its remainder, rounded to `precision` bits in the
+/// direction of the context from the bits under the kept ones (the root has at
+/// least `precision + 2` bits; the sticky bit is the rest of the root or a
+/// nonzero remainder), at the exponent of the general path.
+fn binary_sqrt_ctx_words(
+  value : BinFloat,
+  context : BinaryContext,
+) -> (BinFloat, BinaryFlags) {
+  let precision = context.precision
+  let word = binary_fast_word_of(value)
+  let exponent = value.exponent2_()
+  let bits = binary_fast_bits(word)
+  let scale = binary_sqrt_ctx_words_scale(bits, exponent, precision)
+  let high = binary_fast_shl_high(word, scale)
+  let low = binary_fast_shl_low(word, scale)
+  let root = binary_fast_isqrt(high, low)
+  let exact = binary_fast_mul_high(root, root) == high && root * root == low
+  let shift = binary_fast_bits(root) - precision
+  let retained = root >> shift
+  let below = root & ((1UL << shift) - 1UL)
+  let half = 1UL << (shift - 1)
+  let round_bit = (below & half) != 0UL
+  let sticky = (below & (half - 1UL)) != 0UL || !exact
+  let inexact = round_bit || sticky
+  let increment = match context.rounding {
+    RoundTiesToEven => round_bit && (sticky || (retained & 1UL) == 1UL)
+    RoundTiesToAway => round_bit
+    RoundTowardZero => false
+    RoundTowardPositive => inexact
+    RoundTowardNegative => false
+  }
+  let coefficient = if increment { retained + 1UL } else { retained }
+  let zeros = coefficient.reinterpret_as_int64().ctz()
+  (
+    bin_repr_word(
+      false,
+      coefficient >> zeros,
+      (exponent - scale) / 2 + shift + zeros,
+      precision,
+    ),
+    if inexact {
+      binary_inexact_flags(false)
+    } else {
+      BinaryFlags::new()
+    },
+  )
+}
+
+///|
 /// Coefficients up to this value are exactly representable as binary64.
 let binary_fast_double_limit : UInt64 = 0x20_0000_0000_0000UL
 
