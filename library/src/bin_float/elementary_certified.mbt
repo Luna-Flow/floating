@@ -5136,6 +5136,29 @@ fn binary_integer_mod4(value : BinFloat) -> Int32? {
 }
 
 ///|
+/// `x / 2` at the working precision, the value of `x.mul_ctx(1/2, context)`: when
+/// `x` is a finite nonzero value of exactly `work_precision` bits (the bounds of
+/// `pi` and of its halves are) the product by a power of two changes only the
+/// exponent, rounds nothing and cannot overflow (the unbounded working context has
+/// no exponent range and the exponent of `pi / 2^k` is about `-work_precision`),
+/// so the exponent is changed in place; any other value, and any value whose exponent is within 2^30 of the
+/// bottom of the implementation range, takes the product.
+fn binary_halve_bound(
+  x : BinFloat,
+  work_precision : Int32,
+  context : BinaryContext,
+) -> BinFloat {
+  if x.classify() == FpClass::Finite &&
+    !x.is_zero() &&
+    x.precision() == work_precision &&
+    x.exponent2() > -1073741824 {
+    binary_halve_exact(x)
+  } else {
+    x.mul_ctx(BinFloat::make_coeff(Coeff::one(), -1, work_precision), context).0
+  }
+}
+
+///|
 /// Largest working precision of the argument reduction of `sin`, `cos` and
 /// `tan` (bits): an argument of binary exponent `k` needs about `k` more bits
 /// than the result for the reduction modulo pi/2.
@@ -5169,10 +5192,7 @@ fn binary_trigonometric_reduction(
   // lower bound of pi/2, exact): x / (pi/2) lies in (-1/2, 1/2) at both ends,
   // so the nearest integer is 0 for both, the product 0 * (pi/2) is 0 and the
   // reduced argument is the input itself. Same result as the general path.
-  let quarter_lower = half_pi.0.mul_ctx(
-      BinFloat::make_coeff(Coeff::one(), -1, work_precision),
-      downward,
-    ).0
+  let quarter_lower = binary_halve_bound(half_pi.0, work_precision, downward)
   if input_bounds.0.compare(quarter_lower.neg()) > 0 &&
     input_bounds.1.compare(quarter_lower) < 0 {
     return Some((input_bounds, 0))
@@ -5251,21 +5271,12 @@ fn binary_trigonometric_bounds_series(
     rounding=RoundTowardPositive,
   )
   let half_pi = (
-    pi.0.mul_ctx(
-      BinFloat::make_coeff(Coeff::one(), -1, work_precision),
-      downward,
-    ).0,
-    pi.1.mul_ctx(BinFloat::make_coeff(Coeff::one(), -1, work_precision), upward).0,
+    binary_halve_bound(pi.0, work_precision, downward),
+    binary_halve_bound(pi.1, work_precision, upward),
   )
   let quarter_pi = (
-    half_pi.0.mul_ctx(
-      BinFloat::make_coeff(Coeff::one(), -1, work_precision),
-      downward,
-    ).0,
-    half_pi.1.mul_ctx(
-      BinFloat::make_coeff(Coeff::one(), -1, work_precision),
-      upward,
-    ).0,
+    binary_halve_bound(half_pi.0, work_precision, downward),
+    binary_halve_bound(half_pi.1, work_precision, upward),
   )
   let reduction = binary_trigonometric_reduction(value, half_pi, work_precision)
   guard reduction is Some(((lower, upper), quadrant)) else { return None }
