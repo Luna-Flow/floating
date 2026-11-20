@@ -566,26 +566,21 @@ dividend over a signed zero (§7.3) is a `division_by_zero` error. A quiet NaN
 operand gives `Ok` of a quiet NaN (§6.2), and $\pm\infty/0$ gives `Ok` of the
 signed infinity.
 
-### `BinFloat::sqrt`, `sqrt_for_precision`, `sqrt_bounds_for_precision`
+### `BinFloat::sqrt`
 
-Correctly rounded square roots.
+Correctly rounded square root.
 
 ```mbti
 pub fn BinFloat::sqrt(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn sqrt_for_precision(BinFloat, Int) -> Result[BinFloat, @arithmetic.ArithmeticError]
-pub fn sqrt_bounds_for_precision(BinFloat, Int) -> Result[(BinFloat, BinFloat), @arithmetic.ArithmeticError]
 ```
 
-`x.sqrt()` rounds $\sqrt{x}$ to nearest-even at the precision of `x`;
-`sqrt_for_precision(x, p)` does the same at precision `p`. Both return a
+`x.sqrt()` rounds $\sqrt{x}$ to nearest-even at the precision of `x`. It returns a
 `domain_error` for an invalid operation: a negative nonzero argument
 (including $-\infty$) or a signaling NaN. $\sqrt{-0} = -0$, and a quiet NaN
-of either sign gives `Ok` of a quiet NaN.
-`sqrt_bounds_for_precision(x, p)` returns $(\operatorname{RD}_p(\sqrt x),
-\operatorname{RU}_p(\sqrt x))$, an enclosure of width at most one unit in the
-last place that collapses to a point when the root is exact. It needs a finite
-non-negative argument: a NaN or infinity is `unsupported`, a negative value a
-`domain_error`.
+of either sign gives `Ok` of a quiet NaN. For a square root at another precision
+or rounding direction use `sqrt_ctx`; its results under `RoundTowardNegative`
+and `RoundTowardPositive` enclose $\sqrt{x}$ and coincide when the root is
+exact.
 
 ### `BinFloat::pow_int`, `BinFloat::pown`
 
@@ -865,17 +860,6 @@ pub fn BinaryFlags::combine(Self, Self) -> Self
 `new()` as identity, so the flags of a computation can be accumulated in any
 order.
 
-### `BinaryFlags::to_testfloat_bits`
-
-Encodes the flags in the Berkeley TestFloat bit layout.
-
-```mbti
-pub fn BinaryFlags::to_testfloat_bits(Self) -> Int
-```
-
-Inexact is `0x01`, underflow `0x02`, overflow `0x04`, division by zero `0x08`
-and invalid `0x10`.
-
 ## Contextual arithmetic
 
 Every method in this group returns `(value, flags)`, rounds the exact result
@@ -985,7 +969,7 @@ test "contextual operations return value and flags" {
   let one = @bin_float.BinFloat::one()
   let (third, flags) = one.div_ctx(@bin_float.BinFloat::from_int(3), ctx)
   inspect(third.to_shortest_string_ctx(ctx), content="0.33333334")
-  inspect(flags.to_testfloat_bits(), content="1")
+  inspect(flags.inexact(), content="true")
   let (inf, zero_flags) = one.div_ctx(@bin_float.BinFloat::zero(), ctx)
   inspect("\{inf} \{zero_flags.division_by_zero()}", content="inf true")
 }
@@ -2544,10 +2528,6 @@ pub let binary_implementation_e_min : Int32
 
 pub let binary_precision_max : Int32
 
-pub fn sqrt_bounds_for_precision(BinFloat, Int32) -> Result[(BinFloat, BinFloat), @arithmetic.ArithmeticError]
-
-pub fn sqrt_for_precision(BinFloat, Int32) -> Result[BinFloat, @arithmetic.ArithmeticError]
-
 // Errors
 
 // Types and methods
@@ -2889,7 +2869,6 @@ pub fn BinaryFlags::new() -> Self
 pub fn BinaryFlags::not_equal(Self, Self) -> Bool
 pub fn BinaryFlags::overflow(Self) -> Bool
 pub fn BinaryFlags::to_repr(Self) -> @debug.Repr
-pub fn BinaryFlags::to_testfloat_bits(Self) -> Int32
 pub fn BinaryFlags::underflow(Self) -> Bool
 
 #derive(Eq)

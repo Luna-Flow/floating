@@ -110,15 +110,6 @@ pub fn BinFloatResult::bind(
 }
 
 ///|
-#deprecated("Use bind instead")
-pub fn BinFloatResult::flat_map(
-  self : BinFloatResult,
-  f : (@bin_float.BinFloat) -> BinFloatResult,
-) -> BinFloatResult {
-  self.bind(f)
-}
-
-///|
 pub fn BinFloatResult::normalized(self : BinFloatResult) -> BinFloatResult {
   self.map(fn(value) { value.normalized() })
 }

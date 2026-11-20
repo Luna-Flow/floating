@@ -1487,7 +1487,7 @@ pub fn BallFloat::maximum(self : BallFloat, other : BallFloat) -> BallFloat {
 
 ///|
 /// One directed square root of a non-negative endpoint (one `sqrt_ctx`
-/// instead of the down/up pair of `sqrt_bounds_for_precision`, half of which
+/// instead of a down/up pair of directed square roots, half of which
 /// was discarded).
 fn directed_sqrt(
   x : @bin_float.BinFloat,

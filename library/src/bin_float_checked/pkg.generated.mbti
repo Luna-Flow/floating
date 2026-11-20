@@ -64,8 +64,6 @@ pub fn BinFloatResult::exp2m1_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::exp_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::expm1(Self) -> Self
 pub fn BinFloatResult::expm1_ctx(Self, @bin_float.BinaryContext) -> Self
-#deprecated
-pub fn BinFloatResult::flat_map(Self, (@bin_float.BinFloat) -> Self) -> Self
 pub fn BinFloatResult::from_coefficient(@bin_float.BinCoeff, precision? : Int32, negative? : Bool) -> Self
 pub fn BinFloatResult::from_double(Double, precision? : Int32) -> Self
 pub fn BinFloatResult::from_float(Float, precision? : Int32) -> Self

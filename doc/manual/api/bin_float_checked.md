@@ -837,16 +837,6 @@ values returns an infinity.
 
 ## Deprecated
 
-### `BinFloatResult::flat_map`
-
-`flat_map` is the former name of `bind`. Replace `r.flat_map(f)` with
-`r.bind(f)`.
-
-```mbti
-#deprecated
-pub fn BinFloatResult::flat_map(Self, (@bin_float.BinFloat) -> Self) -> Self
-```
-
 ## Complete public interface
 
 The following snapshot is the complete generated interface of the package.
@@ -919,8 +909,6 @@ pub fn BinFloatResult::exp2m1_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::exp_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::expm1(Self) -> Self
 pub fn BinFloatResult::expm1_ctx(Self, @bin_float.BinaryContext) -> Self
-#deprecated
-pub fn BinFloatResult::flat_map(Self, (@bin_float.BinFloat) -> Self) -> Self
 pub fn BinFloatResult::from_coefficient(@bin_float.BinCoeff, precision? : Int32, negative? : Bool) -> Self
 pub fn BinFloatResult::from_double(Double, precision? : Int32) -> Self
 pub fn BinFloatResult::from_float(Float, precision? : Int32) -> Self

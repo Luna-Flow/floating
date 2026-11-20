@@ -166,7 +166,7 @@ test "binary32 bits in and out" {
   let (doubled, flags) = value.add_ctx(value, format.context())
   let (bits, encode_flags) = doubled.to_interchange(format)
   inspect(bits.to_hex(), content="40400000")
-  inspect(flags.combine(encode_flags).to_testfloat_bits(), content="0")
+  inspect(flags.combine(encode_flags).inexact(), content="false")
 }
 ```
 
@@ -269,17 +269,18 @@ library:
 ///|
 test "an enclosure of the square root of two" {
   let two = @bin_float.BinFloat::from_int(2)
-  let (low, high) = @bin_float.sqrt_bounds_for_precision(two, 20).unwrap()
-  inspect("\{low} \{high}", content="741455p-19 46341p-15")
   let down = @bin_float.BinaryContext::unbounded(
     20,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
-  let (low_exp, _) = two.exp_ctx(down)
   let up = @bin_float.BinaryContext::unbounded(
     20,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
+  let (low, _) = two.sqrt_ctx(down)
+  let (high, _) = two.sqrt_ctx(up)
+  inspect("\{low} \{high}", content="741455p-19 46341p-15")
+  let (low_exp, _) = two.exp_ctx(down)
   let (high_exp, _) = two.exp_ctx(up)
   inspect(low_exp.compare(high_exp), content="-1")
 }

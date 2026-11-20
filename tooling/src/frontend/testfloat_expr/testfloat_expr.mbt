@@ -1,4 +1,15 @@
 ///|
+/// The five flags as the TestFloat bit mask: inexact 0x01, underflow 0x02,
+/// overflow 0x04, divideByZero 0x08, invalid 0x10.
+fn testfloat_flag_bits(flags : @bin_float.BinaryFlags) -> Int32 {
+  (if flags.inexact() { 0x01 } else { 0 }) |
+  (if flags.underflow() { 0x02 } else { 0 }) |
+  (if flags.overflow() { 0x04 } else { 0 }) |
+  (if flags.division_by_zero() { 0x08 } else { 0 }) |
+  (if flags.invalid_operation() { 0x10 } else { 0 })
+}
+
+///|
 #derive(Eq, Debug)
 pub(all) enum TestFloatOperation {
   Add
@@ -541,7 +552,7 @@ fn execute_float_case(
     rounding=spec.rounding,
     tininess=spec.tininess,
   )
-  let actual_flags = flags.combine(encoding_flags).to_testfloat_bits()
+  let actual_flags = testfloat_flag_bits(flags.combine(encoding_flags))
   let expected_value = expected.to_bin_float()
   let expected_is_nan = expected_value.is_quiet_nan() ||
     expected_value.is_signaling_nan()
@@ -609,7 +620,7 @@ fn execute_integer_case(
         }),
     )
   }
-  flags_result(case, flags.to_testfloat_bits())
+  flags_result(case, testfloat_flag_bits(flags))
 }
 
 ///|
@@ -640,7 +651,7 @@ fn execute_boolean_case(
         actual.to_string(),
     )
   }
-  flags_result(case, flags.to_testfloat_bits())
+  flags_result(case, testfloat_flag_bits(flags))
 }
 
 ///|

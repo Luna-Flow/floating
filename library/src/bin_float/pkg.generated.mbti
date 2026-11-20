@@ -14,10 +14,6 @@ pub let binary_implementation_e_min : Int32
 
 pub let binary_precision_max : Int32
 
-pub fn sqrt_bounds_for_precision(BinFloat, Int32) -> Result[(BinFloat, BinFloat), @arithmetic.ArithmeticError]
-
-pub fn sqrt_for_precision(BinFloat, Int32) -> Result[BinFloat, @arithmetic.ArithmeticError]
-
 // Errors
 
 // Types and methods
@@ -359,7 +355,6 @@ pub fn BinaryFlags::new() -> Self
 pub fn BinaryFlags::not_equal(Self, Self) -> Bool
 pub fn BinaryFlags::overflow(Self) -> Bool
 pub fn BinaryFlags::to_repr(Self) -> @debug.Repr
-pub fn BinaryFlags::to_testfloat_bits(Self) -> Int32
 pub fn BinaryFlags::underflow(Self) -> Bool
 
 #derive(Eq)

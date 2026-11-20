@@ -341,45 +341,7 @@ fn div_bin_impl(a : BinFloat, b : BinFloat) -> BinFloat {
 }
 
 ///|
-pub fn sqrt_bounds_for_precision(
-  x : BinFloat,
-  precision : Int32,
-) -> Result[(BinFloat, BinFloat), @def.ArithmeticError] {
-  guard x.classify() == FpClass::Finite else {
-    return Err(
-      @def.ArithmeticError::unsupported("sqrt bounds require a finite value"),
-    )
-  }
-  guard x.sign() != Sign::Negative else {
-    return Err(
-      @def.ArithmeticError::domain_error("sqrt requires a non-negative value"),
-    )
-  }
-  if x.is_zero() {
-    let z = if x.is_negative_zero() {
-      BinFloat::negative_zero(precision~)
-    } else {
-      BinFloat::zero(precision~)
-    }
-    return Ok((z, z))
-  }
-  let lower = x.sqrt_ctx(
-      BinaryContext::unbounded(
-        precision,
-        rounding=BinaryRoundingMode::RoundTowardNegative,
-      ),
-    ).0
-  let upper = x.sqrt_ctx(
-      BinaryContext::unbounded(
-        precision,
-        rounding=BinaryRoundingMode::RoundTowardPositive,
-      ),
-    ).0
-  Ok((lower, upper))
-}
-
-///|
-pub fn sqrt_for_precision(
+fn sqrt_for_precision(
   x : BinFloat,
   precision : Int32,
 ) -> Result[BinFloat, @def.ArithmeticError] {
