@@ -79,7 +79,7 @@ All functions are named `dec_coeff_*`; the ones without that prefix are
 | multiply | `dec_coeff_multiply_repr`, `dec_coeff_square_repr`, `dec_coeff_multiply_by_unit_repr` |
 | divide | `dec_coeff_div_rem_repr`, `dec_coeff_mod_repr`, `dec_coeff_div_rem_by_unit_repr`, `dec_coeff_div_rem_knuth_repr`, `dec_coeff_div_rem_burnikel_ziegler`, `dec_coeff_div_rem_newton_try` |
 | number theory | `dec_coeff_gcd_repr`, `dec_coeff_count_factor_unit_repr`, `dec_coeff_pow_unit_repr`, `dec_coeff_exact_power_repr`, `dec_coeff_exact_power_if_fits_repr` |
-| rounding decisions | `DecCoeffRounding`, `dec_coeff_should_increment`, `dec_coeff_round_div`, `dec_coeff_round_div_bigint`, `dec_coeff_round_div_pow10`, `dec_coeff_round_div_pow10_owned`, `dec_coeff_round_to_digits`, `dec_coeff_huge_shift_rounded_unit`, `dec_coeff_sqrt_should_increment`, `dec_coeff_addend_rounding_step`, `dec_coeff_round_div_expansion` |
+| rounding decisions | `DecCoeffRounding`, `dec_coeff_should_increment`, `dec_coeff_round_div`, `dec_coeff_round_div_bigint`, `dec_coeff_round_div_pow10`, `dec_coeff_round_div_pow10_owned`, `dec_coeff_round_units_to_digits`, `dec_coeff_round_to_digits`, `dec_coeff_huge_shift_rounded_unit`, `dec_coeff_sqrt_should_increment`, `dec_coeff_addend_rounding_step`, `dec_coeff_round_div_expansion` |
 | exact helpers | `compare_finite_magnitude_repr`, `dec_coeff_integer_sqrt_rem_repr`, `dec_coeff_floor_nth_root_repr`, `dec_coeff_exact_nth_root_repr`, `has_finite_decimal_expansion_repr`, `decimal_ln_atanh_scaled_coeff`, `decimal_round_scaled_coeff`, `decimal_floor_div_scaled_repr`, `dec_coeff_shift_power10_mod_wide_repr`, `dec_coeff_to_bounded_int`, `is_power_of_ten_coeff`, `decimal_small_pow10`, `dec_coeff_shift_power10_mod_repr` |
 | digit-wise logic | `logical_binary_digits_repr`, `coefficient_shift_digits_repr`, `coefficient_rotate_digits_repr`, `logical_coeff_digits_lsd`, `logical_coeff_from_digits_lsd` |
 | signed values | `SignedDecCoeff`, `SignedDecCoeff::add`, `SignedDecCoeff::neg`, `SignedDecCoeff::sub`, `dec_coeff_signed_compare_int_repr`, `dec_coeff_signed_step_unit_repr`, `signed_dec_coeff`, `signed_dec_coeff_from_int_product` |
@@ -247,6 +247,8 @@ pub fn dec_coeff_round_div_pow10(DecCoeff, Int32, Bool, DecCoeffRounding) -> (De
 pub fn dec_coeff_round_div_pow10_owned(Array[UInt32], Int32, Int32, Bool, DecCoeffRounding) -> (DecCoeff, Bool)
 
 pub fn dec_coeff_round_to_digits(DecCoeff, Int32, Int32, Bool, DecCoeffRounding) -> (DecCoeff, Int32, Bool, Bool)
+
+pub fn dec_coeff_round_units_to_digits(Array[UInt32], Int32, Int32, Bool, DecCoeffRounding) -> (DecCoeff, Int32, Bool)
 
 pub fn dec_coeff_shift_power10_mod_repr(DecCoeff, Int32, DecCoeff) -> DecCoeff
 
