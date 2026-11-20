@@ -1064,10 +1064,10 @@ The series change alone, `sin(2^k)` with $p = 53$ (origin/main before and after)
 | 200,000 | 8.82 | 232.2e9 | 0.08 | 2.19e9 |
 | 400,000 | 164 (loaded machine) | not measured | 0.30 | 7.78e9 |
 
-The expensive rows (`1E+999999`) are in the opt-in table
+The rows from `1E+300000` upward are in the opt-in table
 `testdata/decimal/ieee/rows/huge_trig_extreme.txt`
-(`python3 tools/run_huge_trig_extreme.py`); the `1E+300000` class is in the
-full gate.
+(`python3 tools/run_huge_trig_extreme.py`); the full gate has the `1E+100000`
+class.
 
 ### Asymptotically fast elementary kernels (implemented, with open items)
 

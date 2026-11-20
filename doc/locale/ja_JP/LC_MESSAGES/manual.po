@@ -12631,8 +12631,8 @@ msgid "7.78e9"
 msgstr "7.78e9"
 
 #: manual/design/bin_float.md:1067
-msgid "The expensive rows (`1E+999999`) are in the opt-in table `testdata/decimal/ieee/rows/huge_trig_extreme.txt` (`python3 tools/run_huge_trig_extreme.py`); the `1E+300000` class is in the full gate."
-msgstr "コストの高い行（`1E+999999`）は、任意実行の表 `testdata/decimal/ieee/rows/huge_trig_extreme.txt`（`python3 tools/run_huge_trig_extreme.py`）にあり、`1E+300000` 級はフルゲートに含まれます。"
+msgid "The rows from `1E+300000` upward are in the opt-in table `testdata/decimal/ieee/rows/huge_trig_extreme.txt` (`python3 tools/run_huge_trig_extreme.py`); the full gate has the `1E+100000` class."
+msgstr "`1E+300000` 以上の行は、任意実行の表 `testdata/decimal/ieee/rows/huge_trig_extreme.txt`（`python3 tools/run_huge_trig_extreme.py`）にあり、フルゲートには `1E+100000` 級が含まれます。"
 
 #: manual/design/bin_float.md:1072
 msgid "Asymptotically fast elementary kernels (implemented, with open items)"
