@@ -54,7 +54,7 @@ SHA-256.
 | `benchmark.py` | `just bench <suite>`: the Maremark suites of `tooling/src/bench` and the external baseline |
 | `external_baseline.py`, `external_baseline.c` | floating against MPFR and libmpdec on the same operands (`just bench external ...`) |
 | `check_corpus_contexts.py` | the quick-gate stage `CONTEXTS: corpus`: every checked-in row file, decTest file and generated table has only legal contexts under `context_rules.py` |
-| `check_limbs_tier.py` | the nightly arm64 job: checks the log of the native tests of `internal/bin_kernel` for the runner architecture and the tier of the row primitives |
+| `check_limbs_tier.py` | the nightly arm64 job: checks the log of the native tests of `internal/bin_kernel` for the runner architecture, the tier of the row primitives and whether the `LUNA_FLOATING_PORTABLE` switch took (`enabled=`) |
 | `context_rules.py` | the one definition of a legal context (`bin_float`, IEEE `decimal`, `decimal_gda`): checks, one frozen dataclass per standard, and the parser of `testdata/context_vectors.txt`; `corpus_common` and `generate_libmpdec_random` use it |
 | `external_stats.py` | pure statistics of the external baseline: paired net times, bootstrap intervals, the verdict on the net ratio |
 | `run_elementary_performance_gate.py`, `run_gda_benchmark.py`, `decimal_dispatch_model.py`, `fixtures/` | the immutable baseline gate, the quick GDA benchmark and the dispatch calibration model, with the white-box fixtures they inject |
