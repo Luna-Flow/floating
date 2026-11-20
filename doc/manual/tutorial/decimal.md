@@ -138,6 +138,28 @@ Half-even ("banker's") rounding sends the tie `2.345` to the even last digit
 exponent: if the result would need more digits than the precision, you get NaN
 with `invalid_operation`.
 
+### Convert to an integer
+
+`to_int_ctx`, `to_int64_ctx`, `to_uint_ctx` and `to_uint64_ctx` round to a
+fixed-width integer in the context's direction and return `None` with
+`invalid_operation` for a NaN, an infinity or a value out of range. Pass
+`exact=true` to get `inexact` when rounding changed the value:
+
+```moonbit
+///|
+test "decimal convert to integer" {
+  let d = fn(s : String) { @decimal.Decimal::from_string(s).unwrap() }
+  let bankers = @decimal.DecimalContext::decimal64()
+  let (value, flags) = d("2.5").to_int_ctx(bankers, exact=true)
+  inspect(value, content="Some(2)")
+  assert_true(flags.inexact)
+  let (negative, flags) = d("-1").to_uint_ctx(bankers)
+  inspect(negative, content="None")
+  assert_true(flags.invalid_operation)
+  inspect(d("9223372036854775807").to_int64_ctx(bankers).0, content="Some(9223372036854775807)")
+}
+```
+
 ### Bound a result from both sides
 
 Directed rounding gives guaranteed bounds. Rounding the same quotient toward
