@@ -209,7 +209,30 @@ fn decimal_tiny_unary_result(
 }
 
 ///|
+/// `value` modulo 4 for an integer `value`, without expanding the power of ten
+/// of a large exponent: `4 | 10^e` for `e >= 2` and `10^1 c = 2 (c mod 2)`
+/// (mod 4), so only the low limb of the coefficient is read. `None` when
+/// `value` is not an integer that the exact expansion can decide.
 fn decimal_elementary_integer_mod4(value : Decimal) -> Int32? {
+  if value.class == FpClass::Finite &&
+    value.exponent10 >= 0 &&
+    !value.coefficient.is_zero() {
+    let low = dec_coeff_limb_at(value.coefficient, 0).reinterpret_as_int() % 4
+    let residue = if value.exponent10 >= 2 {
+      0
+    } else if value.exponent10 == 1 {
+      low % 2 * 2
+    } else {
+      low
+    }
+    return Some(
+      if value.negative && residue != 0 {
+        4 - residue
+      } else {
+        residue
+      },
+    )
+  }
   match decimal_exact_integer_coeff(value) {
     Some((negative, magnitude)) => {
       let residue = dec_coeff_limb_at(magnitude, 0).reinterpret_as_int() % 4
