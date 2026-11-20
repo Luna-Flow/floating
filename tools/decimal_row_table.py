@@ -20,6 +20,8 @@ from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
+import context_rules
+
 FORMAT = "mpfr-decimal-random-v2"
 TABLE_ROOT = Path(__file__).resolve().parent.parent / "testdata/decimal/ieee/rows"
 ABSENT = "-"
@@ -42,8 +44,10 @@ class TableRow:
 
 
 def format_row(identifier: str, row: TableRow) -> str:
-    if row.emin != 1 - row.emax or not row.clamp or row.tininess != "b":
-        raise ValueError(f"row context is not an IEEE format: {row!r}")
+    try:
+        context_rules.check_ieee_decimal_context(row.precision, row.rounding, row.emin, row.emax, int(row.clamp), row.tininess)
+    except ValueError as error:
+        raise ValueError(f"row context is not an IEEE format ({error}): {row!r}") from error
     fields = [
         identifier,
         row.op,

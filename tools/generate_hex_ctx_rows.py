@@ -33,6 +33,8 @@ import sys
 from fractions import Fraction
 from pathlib import Path
 
+import context_rules
+
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "library/src/bin_float/hex_ctx_rows_wbtest.mbt"
 
@@ -47,6 +49,8 @@ FORMATS = [
     # the implementation range: the context of a precision given alone (3.7)
     ("unbounded53", 53, -1073741822, 1073741823),
 ]
+for _name, _precision, _e_min, _e_max in FORMATS:  # every row context is a format of IEEE 754-2019 3.3
+    context_rules.check_binary_context(_precision, _e_max, _e_min)
 MODES = ["RNE", "RNA", "RTZ", "RTP", "RTN"]
 
 

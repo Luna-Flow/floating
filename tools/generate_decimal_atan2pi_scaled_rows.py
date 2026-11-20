@@ -29,6 +29,8 @@ import sys
 from decimal import Decimal
 from pathlib import Path
 
+import context_rules
+
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "library/src/decimal/atan2pi_scaled_rows_wbtest.mbt"
 ROW_TYPE = "(String, String, Int32, Int32, Int32, Bool, String, String, String, String)"
@@ -47,6 +49,8 @@ CONTEXTS = [
     (16, -383, 384, True),
     (34, -6143, 6144, True),
 ]
+for _precision, _e_min, _e_max, _clamp in CONTEXTS:  # the table emits only IEEE formats
+    context_rules.check_ieee_decimal_context(_precision, "half_even", _e_min, _e_max, int(_clamp), "b")
 # Rows with an operand exponent of 300 digits or more (the slow ones) use four
 # directions, the rest all eight (the condition and the signs, not the direction,
 # decide which path is taken).

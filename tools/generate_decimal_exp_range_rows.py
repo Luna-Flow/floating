@@ -34,6 +34,8 @@ import sys
 from decimal import Decimal
 from pathlib import Path
 
+import context_rules
+
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "library/src/decimal/exp_range_rows_wbtest.mbt"
 CHUNK_ROWS = 500
@@ -54,6 +56,8 @@ CONTEXTS = [
     ("decimal128", 34, -6143, 6144, True),
     ("wide", 34, -999998, 999999, True),
 ]
+for _name, _precision, _e_min, _e_max, _clamp in CONTEXTS:  # the table emits only IEEE formats
+    context_rules.check_ieee_decimal_context(_precision, "half_even", _e_min, _e_max, int(_clamp), "b")
 # 1 / log10(base) rounded up: the factor of the coarse decision.
 FACTOR = {"exp": 3, "exp2": 4, "exp10": 1}
 UNARY_OTHER = ("expm1", "exp2m1", "exp10m1", "sinh", "cosh")

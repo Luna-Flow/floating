@@ -81,11 +81,20 @@ fn pm1_exact(text : String) -> Decimal {
 fn pm1_ctx(
   precision : Int32,
   rounding : String,
-  _e_min : Int32,
+  e_min : Int32,
   e_max : Int32,
-  _clamp : Bool,
-  _tininess : String,
+  clamp : Bool,
+  tininess : String,
 ) -> DecimalContext {
+  // The context is built from the precision and `e_max` only: the other columns of the
+  // row must say the same thing, or the row is not a context of this package (IEEE 754-2019
+  // 3.3: `e_min = 1 - e_max`, every result a member of the format, 7.5: tininess before
+  // rounding) and the expected value was computed for something this test does not run.
+  if e_min != 1 - e_max || !clamp || tininess != "b" {
+    abort(
+      "row context is not an IEEE format: precision=\{precision} e_min=\{e_min} e_max=\{e_max} clamp=\{clamp} tininess=\{tininess}",
+    )
+  }
   DecimalContext::new(precision~, e_max~).with_round(pm1_rounding(rounding))
 }
 
@@ -190,7 +199,7 @@ test "pm1 special values follow 9.2.1 in every rounding mode" {
       spec in [
         (7, -95, 96, true),
         (16, -383, 384, true),
-        (5, -999999, 999999, false),
+        (5, -999998, 999999, true),
       ] {
       let (precision, e_min, e_max, clamp) = spec
       let ctx = pm1_ctx(precision, mode, e_min, e_max, clamp, "b")
@@ -569,7 +578,7 @@ test "pm1 the 10^n - 1 cluster is decided without forming 10^n" {
   // value that is never expanded.
   let out = StringBuilder()
   for mode in pm1_modes {
-    let ctx = pm1_ctx(16, mode, -999_999, 999_999, false, "b")
+    let ctx = pm1_ctx(16, mode, -999_998, 999_999, true, "b")
     out.write_string(
       "\{mode} \{pm1_call("exp10m1", pm1_exact("999999"), ctx)} \{pm1_call("exp10m1", pm1_exact("1000000"), ctx)}\n",
     )
@@ -597,7 +606,7 @@ test "pm1 2^n - 1 beyond the exact gate rounds like 2^n" {
   // the odd 2^n - 1 is one, so both round alike: exp2m1(n) = exp2(n).
   for mode in pm1_modes {
     for precision in [1, 3, 7, 16] {
-      let ctx = pm1_ctx(precision, mode, -999_999, 999_999, false, "b")
+      let ctx = pm1_ctx(precision, mode, -999_998, 999_999, true, "b")
       for n in [4 * (precision + 2) + 1, 100, 1001, 3321, 100000] {
         let x = Decimal::from_int(n, precision=10)
         let m1 = x.exp2m1_ctx(ctx)
@@ -664,8 +673,8 @@ test "pm1 exact results are rounded with the flags of the context" {
   // midpoint, exp2m1(6) = 63 needs 630E-1 when e_max = 1 and clamp is set.
   let out = StringBuilder()
   for mode in pm1_modes {
-    let p1 = pm1_ctx(1, mode, -99, 99, false, "b")
-    let clamped = pm1_ctx(3, mode, -2, 1, true, "b")
+    let p1 = pm1_ctx(1, mode, -98, 99, true, "b")
+    let clamped = pm1_ctx(3, mode, 0, 1, true, "b")
     out.write_string(
       "\{mode} \{pm1_call("log2p1", pm1_exact("32767"), p1)} \{pm1_call("log10p1", pm1_exact("9999999999"), p1)} \{pm1_call("exp2m1", pm1_exact("6"), clamped)} \{pm1_call("exp2m1", pm1_exact("7"), clamped)}\n",
     )
@@ -733,11 +742,11 @@ test "pm1 the tiny-argument shortcut gives the Ziv loop's result" {
       spec in [
         (7, -95, 96, true),
         (16, -383, 384, true),
-        (16, -3000, 3000, false),
+        (16, -2999, 3000, true),
         (34, -6143, 6144, true),
       ] {
       let (precision, e_min, e_max, clamp) = spec
-      for tininess in ["b", "a"] {
+      for tininess in ["b"] {
         let ctx = pm1_ctx(precision, mode, e_min, e_max, clamp, tininess)
         for
           text in [

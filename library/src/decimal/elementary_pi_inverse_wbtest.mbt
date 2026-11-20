@@ -404,7 +404,7 @@ test "anchored results agree with the certified loop in all modes and ranges" {
   for mode in pm1_modes {
     for precision in [1, 16] {
       for tininess in ["b"] {
-        let ctx = pm1_ctx(precision, mode, -6143, 6144, false, tininess)
+        let ctx = pm1_ctx(precision, mode, -6143, 6144, true, tininess)
         for case_ in pii_anchor_cases() {
           let (op, x, y) = case_
           let value = pm1_exact(x)
