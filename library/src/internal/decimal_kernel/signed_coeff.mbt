@@ -3,7 +3,7 @@
 // values may be negative. DecCoeff itself always remains non-negative.
 
 ///|
-pub(all) struct SignedDecCoeff {
+pub struct SignedDecCoeff {
   negative : Bool
   magnitude : DecCoeff
 }
@@ -17,7 +17,7 @@ pub fn signed_dec_coeff(
 }
 
 ///|
-pub fn signed_dec_coeff_zero() -> SignedDecCoeff {
+fn signed_dec_coeff_zero() -> SignedDecCoeff {
   signed_dec_coeff(false, dec_coeff_zero())
 }
 

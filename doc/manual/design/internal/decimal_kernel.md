@@ -100,11 +100,14 @@ same meaning, in either standard.
 
 ### Public types, internal package
 
-`DecCoeff`, its algorithm enums and the scratch types are `pub(all)` so that
-the two packages can pattern-match the `Small` case in their own fast paths
-without a call per access. Visibility is bounded by the package itself:
-`internal/` makes it unimportable outside `Luna-Flow/floating`, and no public
-signature of `decimal` or `decimal_gda` mentions the types.
+`DecCoeff` and `DecCoeffRounding` are `pub(all)` so that the two packages can
+pattern-match the `Small` case in their own fast paths without a call per
+access; `SignedDecCoeff` is `pub`, so its fields can be read but only this
+package builds one. The algorithm enums, the scratch types and the helpers
+that no other package uses are private: the package keeps public only what
+`decimal`, `decimal_gda` or their tests name. Visibility is also bounded by the
+package itself: `internal/` makes it unimportable outside `Luna-Flow/floating`,
+and no public signature of `decimal` or `decimal_gda` mentions the types.
 
 ### Option-free hot paths
 

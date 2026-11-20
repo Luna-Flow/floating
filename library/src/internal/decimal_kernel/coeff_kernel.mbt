@@ -20,12 +20,12 @@ pub let dec_coeff_dpun = 9
 pub let dec_coeff_base = 1000000000
 
 ///|
-pub let dec_coeff_powers : Array[Int32] = [
+let dec_coeff_powers : Array[Int32] = [
   1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000,
 ]
 
 ///|
-pub let dec_coeff_wide_base = 1000000000UL
+let dec_coeff_wide_base = 1000000000UL
 
 ///|
 pub let dec_coeff_small_limit = 1000000000000000000UL
@@ -65,12 +65,12 @@ pub fn dec_coeff_small_digits(value : UInt64) -> Int32 {
 }
 
 ///|
-pub fn dec_coeff_d2u(digits : Int32) -> Int32 {
+fn dec_coeff_d2u(digits : Int32) -> Int32 {
   (digits + dec_coeff_dpun - 1) / dec_coeff_dpun
 }
 
 ///|
-pub fn dec_coeff_msu_digits(digits : Int32) -> Int32 {
+fn dec_coeff_msu_digits(digits : Int32) -> Int32 {
   let rem = digits % dec_coeff_dpun
   if rem == 0 {
     dec_coeff_dpun
@@ -80,7 +80,7 @@ pub fn dec_coeff_msu_digits(digits : Int32) -> Int32 {
 }
 
 ///|
-pub fn dec_coeff_ensure_length(units : Array[UInt32], needed : Int32) -> Unit {
+fn dec_coeff_ensure_length(units : Array[UInt32], needed : Int32) -> Unit {
   while units.length() < needed {
     units.push(0U)
   }
@@ -220,7 +220,7 @@ pub fn dec_coeff_copy_limbs(coeff : DecCoeff) -> Array[UInt32] {
 }
 
 ///|
-pub fn dec_coeff_digits_cached(coeff : DecCoeff) -> Int32 {
+fn dec_coeff_digits_cached(coeff : DecCoeff) -> Int32 {
   match coeff {
     Small(value) => dec_coeff_small_digits(value)
     Limbs(_, digits) => digits
@@ -228,7 +228,7 @@ pub fn dec_coeff_digits_cached(coeff : DecCoeff) -> Int32 {
 }
 
 ///|
-pub fn dec_coeff_is_zero(coeff : DecCoeff) -> Bool {
+fn dec_coeff_is_zero(coeff : DecCoeff) -> Bool {
   match coeff {
     Small(value) => value == 0UL
     Limbs(_, _) => false
@@ -290,7 +290,7 @@ pub fn DecCoeff::to_string(self : DecCoeff) -> String {
 }
 
 ///|
-pub fn dec_coeff_from_bigint(magnitude : BigInt) -> (Array[UInt32], Int32) {
+fn dec_coeff_from_bigint(magnitude : BigInt) -> (Array[UInt32], Int32) {
   guard magnitude >= 0N else {
     abort("dec_coeff_from_bigint expects a non-negative coefficient")
   }
@@ -310,7 +310,7 @@ pub fn dec_coeff_from_bigint(magnitude : BigInt) -> (Array[UInt32], Int32) {
 }
 
 ///|
-pub fn dec_coeff_to_bigint(
+fn dec_coeff_to_bigint(
   units : Array[UInt32],
   unit_len~ : Int32 = units.length(),
 ) -> BigInt {
@@ -345,7 +345,7 @@ pub fn dec_coeff_to_bigint_repr(coeff : DecCoeff) -> BigInt {
 }
 
 ///|
-pub fn dec_coeff_get_digits(units : Array[UInt32], unit_len : Int32) -> Int32 {
+fn dec_coeff_get_digits(units : Array[UInt32], unit_len : Int32) -> Int32 {
   guard unit_len >= 1 else {
     abort("dec_coeff_get_digits expects unit_len >= 1")
   }
@@ -378,7 +378,7 @@ pub fn dec_coeff_get_digits(units : Array[UInt32], unit_len : Int32) -> Int32 {
 }
 
 ///|
-pub fn dec_coeff_shift_to_most(
+fn dec_coeff_shift_to_most(
   units : Array[UInt32],
   digits : Int32,
   shift : Int32,
@@ -446,7 +446,7 @@ pub fn dec_coeff_shift_to_most(
 }
 
 ///|
-pub fn dec_coeff_shift_to_least(
+fn dec_coeff_shift_to_least(
   units : Array[UInt32],
   unit_len : Int32,
   shift : Int32,
@@ -500,7 +500,7 @@ pub fn dec_coeff_shift_to_least(
 }
 
 ///|
-pub fn dec_coeff_div_pow10_round_info_repr(
+fn dec_coeff_div_pow10_round_info_repr(
   numerator : DecCoeff,
   shift : Int32,
 ) -> (DecCoeff, Bool, Int32) {
@@ -566,7 +566,7 @@ pub fn dec_coeff_div_pow10_round_info_repr(
 }
 
 ///|
-pub fn dec_coeff_unit_trailing_zeros(value : UInt32) -> Int32 {
+fn dec_coeff_unit_trailing_zeros(value : UInt32) -> Int32 {
   guard value != 0U else {
     abort("dec_coeff_unit_trailing_zeros expects a non-zero unit")
   }
@@ -580,7 +580,7 @@ pub fn dec_coeff_unit_trailing_zeros(value : UInt32) -> Int32 {
 }
 
 ///|
-pub fn dec_coeff_trim(
+fn dec_coeff_trim(
   units : Array[UInt32],
   digits : Int32,
   exponent : Int32,
@@ -662,7 +662,7 @@ pub fn dec_coeff_trim(
 }
 
 ///|
-pub fn dec_coeff_split_carry_3(carry : Int64) -> (Int32, Int64) {
+fn dec_coeff_split_carry_3(carry : Int64) -> (Int32, Int64) {
   let base = 1000000000L
   if carry >= 0L {
     ((carry % base).to_int(), carry / base)
@@ -860,7 +860,7 @@ pub fn dec_coeff_compare_half_power10(coeff : DecCoeff) -> Int32 {
 }
 
 ///|
-pub fn dec_coeff_trim_units(units : Array[UInt32], unit_len : Int32) -> Int32 {
+fn dec_coeff_trim_units(units : Array[UInt32], unit_len : Int32) -> Int32 {
   let mut len = unit_len
   while len > 1 && units[len - 1] == 0U {
     len -= 1
@@ -869,7 +869,7 @@ pub fn dec_coeff_trim_units(units : Array[UInt32], unit_len : Int32) -> Int32 {
 }
 
 ///|
-pub fn dec_coeff_write_wide_unit(
+fn dec_coeff_write_wide_unit(
   units : Array[UInt32],
   wide_index : Int32,
   value : UInt64,
@@ -881,7 +881,7 @@ pub fn dec_coeff_write_wide_unit(
 }
 
 ///|
-pub fn dec_coeff_pack_wide(coeff : DecCoeff) -> Array[UInt64] {
+fn dec_coeff_pack_wide(coeff : DecCoeff) -> Array[UInt64] {
   let wide_len = dec_coeff_unit_len(coeff)
   let packed = Array::make(wide_len, 0UL)
   for wide_index in 0..<wide_len {
@@ -891,7 +891,7 @@ pub fn dec_coeff_pack_wide(coeff : DecCoeff) -> Array[UInt64] {
 }
 
 ///|
-pub fn dec_coeff_from_wide_accumulator(
+fn dec_coeff_from_wide_accumulator(
   wide_units : Array[UInt64],
   wide_len : Int32,
 ) -> DecCoeff {
@@ -903,7 +903,7 @@ pub fn dec_coeff_from_wide_accumulator(
 }
 
 ///|
-pub fn dec_coeff_multiply_units_by_unit(
+fn dec_coeff_multiply_units_by_unit(
   units : Array[UInt32],
   unit_len : Int32,
   multiplier : Int32,
@@ -922,7 +922,7 @@ pub fn dec_coeff_multiply_units_by_unit(
 }
 
 ///|
-pub fn dec_coeff_multiply_units_by_unit_into(
+fn dec_coeff_multiply_units_by_unit_into(
   units : Array[UInt32],
   unit_len : Int32,
   multiplier : Int32,
@@ -1098,7 +1098,7 @@ pub fn dec_coeff_div_rem_by_unit_repr(
 }
 
 ///|
-pub fn dec_coeff_mod_by_unit_repr(coeff : DecCoeff, divisor : Int32) -> Int32 {
+fn dec_coeff_mod_by_unit_repr(coeff : DecCoeff, divisor : Int32) -> Int32 {
   guard divisor > 0 && divisor < dec_coeff_base else {
     abort("dec_coeff_mod_by_unit_repr expects one positive coefficient unit")
   }
@@ -1124,7 +1124,7 @@ pub fn dec_coeff_mod_by_unit_repr(coeff : DecCoeff, divisor : Int32) -> Int32 {
 }
 
 ///|
-pub fn dec_coeff_exact_divide_by_unit_repr(
+fn dec_coeff_exact_divide_by_unit_repr(
   coeff : DecCoeff,
   divisor : Int32,
 ) -> DecCoeff? {
@@ -1181,7 +1181,7 @@ pub fn dec_coeff_count_factor_unit_repr(
 }
 
 ///|
-pub fn dec_coeff_remove_factor_unit_repr(
+fn dec_coeff_remove_factor_unit_repr(
   coeff : DecCoeff,
   factor : Int32,
 ) -> DecCoeff {
@@ -1339,7 +1339,7 @@ pub fn dec_coeff_signed_add_repr(
 }
 
 ///|
-pub fn dec_coeff_signed_compare_repr(
+fn dec_coeff_signed_compare_repr(
   lhs_negative : Bool,
   lhs : DecCoeff,
   rhs_negative : Bool,
@@ -1459,10 +1459,7 @@ pub fn dec_coeff_signed_step_unit_repr(
 }
 
 ///|
-pub fn dec_coeff_wide_trim_units(
-  units : Array[UInt64],
-  unit_len : Int32,
-) -> Int32 {
+fn dec_coeff_wide_trim_units(units : Array[UInt64], unit_len : Int32) -> Int32 {
   let mut len = unit_len
   while len > 1 && units[len - 1] == 0UL {
     len -= 1
@@ -1471,7 +1468,7 @@ pub fn dec_coeff_wide_trim_units(
 }
 
 ///|
-pub fn dec_coeff_wide_multiply_coeff_by_unit_into(
+fn dec_coeff_wide_multiply_coeff_by_unit_into(
   coeff : DecCoeff,
   multiplier : UInt64,
   result : Array[UInt64],
@@ -1662,7 +1659,7 @@ pub fn dec_coeff_div_rem_knuth_repr(
 }
 
 ///|
-pub fn dec_coeff_knuth_subtract_quotient_digit(
+fn dec_coeff_knuth_subtract_quotient_digit(
   normalized_numerator : Array[UInt64],
   normalized_denominator : Array[UInt64],
   denominator_len : Int32,
@@ -1745,7 +1742,7 @@ pub fn dec_coeff_knuth_subtract_quotient_digit(
 }
 
 ///|
-pub fn dec_coeff_mod_knuth_repr(
+fn dec_coeff_mod_knuth_repr(
   numerator : DecCoeff,
   denominator : DecCoeff,
 ) -> DecCoeff {
@@ -1855,7 +1852,7 @@ pub fn dec_coeff_div_rem_repr(
 }
 
 ///|
-pub fn dec_coeff_mul_schoolbook(lhs : DecCoeff, rhs : DecCoeff) -> DecCoeff {
+fn dec_coeff_mul_schoolbook(lhs : DecCoeff, rhs : DecCoeff) -> DecCoeff {
   if lhs.is_zero() || rhs.is_zero() {
     return dec_coeff_zero()
   }

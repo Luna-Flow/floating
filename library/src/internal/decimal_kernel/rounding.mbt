@@ -23,7 +23,7 @@ pub(all) enum DecCoeffRounding {
 ///|
 /// Whether `quotient` is incremented when the exact value is
 /// `quotient + remainder / divisor` with `0 <= remainder < divisor`.
-pub fn dec_coeff_should_increment_bigint(
+fn dec_coeff_should_increment_bigint(
   quotient : BigInt,
   remainder : BigInt,
   divisor : BigInt,

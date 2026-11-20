@@ -388,8 +388,3 @@ pub fn dec_coeff_exact_nth_root_repr(
     _ => None
   }
 }
-
-///|
-pub fn dec_coeff_integer_sqrt_floor_repr(n : DecCoeff) -> DecCoeff {
-  dec_coeff_integer_sqrt_rem_repr(n).0
-}

@@ -1,7 +1,7 @@
 ///|
 #derive(Eq)
 #warnings("-unused_value")
-pub(all) enum DecCoeffMulAlgorithm {
+priv enum DecCoeffMulAlgorithm {
   Inline
   Schoolbook
   Sparse
@@ -12,13 +12,13 @@ pub(all) enum DecCoeffMulAlgorithm {
 }
 
 ///|
-pub(all) struct DecCoeffSignedScratch {
+priv struct DecCoeffSignedScratch {
   negative : Bool
   magnitude : DecCoeff
 }
 
 ///|
-pub fn dec_coeff_signed_scratch(
+fn dec_coeff_signed_scratch(
   negative : Bool,
   magnitude : DecCoeff,
 ) -> DecCoeffSignedScratch {
@@ -26,14 +26,14 @@ pub fn dec_coeff_signed_scratch(
 }
 
 ///|
-pub fn DecCoeffSignedScratch::neg(
+fn DecCoeffSignedScratch::neg(
   self : DecCoeffSignedScratch,
 ) -> DecCoeffSignedScratch {
   dec_coeff_signed_scratch(!self.negative, self.magnitude)
 }
 
 ///|
-pub fn DecCoeffSignedScratch::add(
+fn DecCoeffSignedScratch::add(
   self : DecCoeffSignedScratch,
   other : DecCoeffSignedScratch,
 ) -> DecCoeffSignedScratch {
@@ -47,7 +47,7 @@ pub fn DecCoeffSignedScratch::add(
 }
 
 ///|
-pub fn DecCoeffSignedScratch::sub(
+fn DecCoeffSignedScratch::sub(
   self : DecCoeffSignedScratch,
   other : DecCoeffSignedScratch,
 ) -> DecCoeffSignedScratch {
@@ -55,7 +55,7 @@ pub fn DecCoeffSignedScratch::sub(
 }
 
 ///|
-pub fn DecCoeffSignedScratch::mul(
+fn DecCoeffSignedScratch::mul(
   self : DecCoeffSignedScratch,
   other : DecCoeffSignedScratch,
 ) -> DecCoeffSignedScratch {
@@ -66,7 +66,7 @@ pub fn DecCoeffSignedScratch::mul(
 }
 
 ///|
-pub fn DecCoeffSignedScratch::div_exact_small(
+fn DecCoeffSignedScratch::div_exact_small(
   self : DecCoeffSignedScratch,
   divisor : Int32,
 ) -> DecCoeffSignedScratch {
@@ -81,9 +81,7 @@ pub fn DecCoeffSignedScratch::div_exact_small(
 }
 
 ///|
-pub fn DecCoeffSignedScratch::nonnegative(
-  self : DecCoeffSignedScratch,
-) -> DecCoeff {
+fn DecCoeffSignedScratch::nonnegative(self : DecCoeffSignedScratch) -> DecCoeff {
   guard !self.negative else {
     abort("Toom-3 produced a negative output coefficient")
   }
@@ -91,7 +89,7 @@ pub fn DecCoeffSignedScratch::nonnegative(
 }
 
 ///|
-pub(all) struct DecCoeffScratchArena {
+priv struct DecCoeffScratchArena {
   slots : Array[DecCoeff]
   mut used : Int32
   limb_buffers : Array[Array[UInt32]]
@@ -99,19 +97,17 @@ pub(all) struct DecCoeffScratchArena {
 }
 
 ///|
-pub fn dec_coeff_scratch_arena_new() -> DecCoeffScratchArena {
+fn dec_coeff_scratch_arena_new() -> DecCoeffScratchArena {
   { slots: [], used: 0, limb_buffers: [], limb_used: 0, }
 }
 
 ///|
-pub fn DecCoeffScratchArena::mark(
-  self : DecCoeffScratchArena,
-) -> (Int32, Int32) {
+fn DecCoeffScratchArena::mark(self : DecCoeffScratchArena) -> (Int32, Int32) {
   (self.used, self.limb_used)
 }
 
 ///|
-pub fn DecCoeffScratchArena::alloc_limbs(
+fn DecCoeffScratchArena::alloc_limbs(
   self : DecCoeffScratchArena,
   length : Int32,
 ) -> Array[UInt32] {
@@ -127,7 +123,7 @@ pub fn DecCoeffScratchArena::alloc_limbs(
 }
 
 ///|
-pub fn DecCoeffScratchArena::save(
+fn DecCoeffScratchArena::save(
   self : DecCoeffScratchArena,
   value : DecCoeff,
 ) -> DecCoeff {
@@ -141,7 +137,7 @@ pub fn DecCoeffScratchArena::save(
 }
 
 ///|
-pub fn DecCoeffScratchArena::rewind(
+fn DecCoeffScratchArena::rewind(
   self : DecCoeffScratchArena,
   mark : (Int32, Int32),
 ) -> Unit {
@@ -168,7 +164,7 @@ pub fn dec_coeff_slice(
 }
 
 ///|
-pub fn dec_coeff_slice_arena(
+fn dec_coeff_slice_arena(
   value : DecCoeff,
   start : Int32,
   length : Int32,
@@ -187,7 +183,7 @@ pub fn dec_coeff_slice_arena(
 }
 
 ///|
-pub fn dec_coeff_shift_limbs(value : DecCoeff, shift : Int32) -> DecCoeff {
+fn dec_coeff_shift_limbs(value : DecCoeff, shift : Int32) -> DecCoeff {
   guard shift >= 0 else { abort("decimal coefficient limb shift is negative") }
   if shift == 0 || value.is_zero() {
     return value
@@ -201,7 +197,7 @@ pub fn dec_coeff_shift_limbs(value : DecCoeff, shift : Int32) -> DecCoeff {
 }
 
 ///|
-pub fn dec_coeff_add_product_at(
+fn dec_coeff_add_product_at(
   result : Array[UInt64],
   index : Int32,
   product : UInt64,
@@ -217,7 +213,7 @@ pub fn dec_coeff_add_product_at(
 }
 
 ///|
-pub fn dec_coeff_accumulate_at(
+fn dec_coeff_accumulate_at(
   accumulator : Array[UInt64],
   value : DecCoeff,
   offset : Int32,
@@ -242,7 +238,7 @@ pub fn dec_coeff_accumulate_at(
 }
 
 ///|
-pub fn dec_coeff_mul_inline(left : DecCoeff, right : DecCoeff) -> DecCoeff {
+fn dec_coeff_mul_inline(left : DecCoeff, right : DecCoeff) -> DecCoeff {
   let product = dec_coeff_limb_at(left, 0).to_uint64() *
     dec_coeff_limb_at(right, 0).to_uint64()
   if product < dec_coeff_wide_base {
@@ -259,7 +255,7 @@ pub fn dec_coeff_mul_inline(left : DecCoeff, right : DecCoeff) -> DecCoeff {
 }
 
 ///|
-pub fn dec_coeff_square_schoolbook(value : DecCoeff) -> DecCoeff {
+fn dec_coeff_square_schoolbook(value : DecCoeff) -> DecCoeff {
   if value.is_zero() {
     return dec_coeff_zero()
   }
@@ -277,10 +273,7 @@ pub fn dec_coeff_square_schoolbook(value : DecCoeff) -> DecCoeff {
 }
 
 ///|
-pub fn dec_coeff_nonzero_count_limited(
-  value : DecCoeff,
-  limit : Int32,
-) -> Int32? {
+fn dec_coeff_nonzero_count_limited(value : DecCoeff, limit : Int32) -> Int32? {
   let len = dec_coeff_unit_len(value)
   let mut count = 0
   for index in 0..<len {
@@ -295,7 +288,7 @@ pub fn dec_coeff_nonzero_count_limited(
 }
 
 ///|
-pub fn dec_coeff_maybe_sparse(value : DecCoeff) -> Bool {
+fn dec_coeff_maybe_sparse(value : DecCoeff) -> Bool {
   let len = dec_coeff_unit_len(value)
   let probes = Int32::min(8, len)
   for probe in 0..<probes {
@@ -308,7 +301,7 @@ pub fn dec_coeff_maybe_sparse(value : DecCoeff) -> Bool {
 }
 
 ///|
-pub fn dec_coeff_mul_sparse(left : DecCoeff, right : DecCoeff) -> DecCoeff {
+fn dec_coeff_mul_sparse(left : DecCoeff, right : DecCoeff) -> DecCoeff {
   let left_len = dec_coeff_unit_len(left)
   let right_len = dec_coeff_unit_len(right)
   let result = Array::make(left_len + right_len + 1, 0UL)
@@ -343,7 +336,7 @@ pub fn dec_coeff_mul_sparse(left : DecCoeff, right : DecCoeff) -> DecCoeff {
 }
 
 ///|
-pub fn dec_coeff_mul_karatsuba_inner(
+fn dec_coeff_mul_karatsuba_inner(
   left : DecCoeff,
   right : DecCoeff,
   arena : DecCoeffScratchArena,
@@ -413,7 +406,7 @@ pub fn dec_coeff_mul_karatsuba_inner(
 }
 
 ///|
-pub fn dec_coeff_mul_karatsuba(left : DecCoeff, right : DecCoeff) -> DecCoeff {
+fn dec_coeff_mul_karatsuba(left : DecCoeff, right : DecCoeff) -> DecCoeff {
   let arena = dec_coeff_scratch_arena_new()
   dec_coeff_mul_karatsuba_inner(
     left, right, arena, dec_coeff_karatsuba_threshold, false, 0,
@@ -421,7 +414,7 @@ pub fn dec_coeff_mul_karatsuba(left : DecCoeff, right : DecCoeff) -> DecCoeff {
 }
 
 ///|
-pub fn dec_coeff_square_karatsuba(value : DecCoeff) -> DecCoeff {
+fn dec_coeff_square_karatsuba(value : DecCoeff) -> DecCoeff {
   let arena = dec_coeff_scratch_arena_new()
   dec_coeff_mul_karatsuba_inner(
     value, value, arena, dec_coeff_karatsuba_square_threshold, true, 0,
@@ -429,7 +422,7 @@ pub fn dec_coeff_square_karatsuba(value : DecCoeff) -> DecCoeff {
 }
 
 ///|
-pub fn dec_coeff_mul_toom3(left : DecCoeff, right : DecCoeff) -> DecCoeff {
+fn dec_coeff_mul_toom3(left : DecCoeff, right : DecCoeff) -> DecCoeff {
   let arena = dec_coeff_scratch_arena_new()
   let mark = arena.mark()
   let maximum_len = Int32::max(
@@ -525,10 +518,7 @@ pub fn dec_coeff_mul_toom3(left : DecCoeff, right : DecCoeff) -> DecCoeff {
 }
 
 ///|
-pub fn dec_coeff_mul_unbalanced(
-  shorter : DecCoeff,
-  longer : DecCoeff,
-) -> DecCoeff {
+fn dec_coeff_mul_unbalanced(shorter : DecCoeff, longer : DecCoeff) -> DecCoeff {
   let shorter_len = dec_coeff_unit_len(shorter)
   let longer_len = dec_coeff_unit_len(longer)
   if shorter_len >= dec_coeff_karatsuba_threshold {
@@ -573,7 +563,7 @@ pub fn dec_coeff_mul_unbalanced(
 }
 
 ///|
-pub fn dec_coeff_mul_algorithm(
+fn dec_coeff_mul_algorithm(
   left : DecCoeff,
   right : DecCoeff,
 ) -> DecCoeffMulAlgorithm {
@@ -615,7 +605,7 @@ pub fn dec_coeff_mul_algorithm(
 }
 
 ///|
-pub fn dec_coeff_ntt_mul_profitable(left : DecCoeff, right : DecCoeff) -> Bool {
+fn dec_coeff_ntt_mul_profitable(left : DecCoeff, right : DecCoeff) -> Bool {
   let transform_length = dec_coeff_ntt_transform_length(left, right)
   let threshold = if transform_length <= 8192 {
     dec_coeff_ntt_mul_threshold
@@ -632,7 +622,7 @@ pub fn dec_coeff_ntt_mul_profitable(left : DecCoeff, right : DecCoeff) -> Bool {
 }
 
 ///|
-pub fn dec_coeff_multiply_forced(
+fn dec_coeff_multiply_forced(
   algorithm : DecCoeffMulAlgorithm,
   left : DecCoeff,
   right : DecCoeff,
@@ -684,7 +674,7 @@ pub fn dec_coeff_multiply_repr(lhs : DecCoeff, rhs : DecCoeff) -> DecCoeff {
 }
 
 ///|
-pub fn dec_coeff_square_algorithm(value : DecCoeff) -> DecCoeffMulAlgorithm {
+fn dec_coeff_square_algorithm(value : DecCoeff) -> DecCoeffMulAlgorithm {
   let len = dec_coeff_unit_len(value)
   if len == 1 {
     Inline
@@ -706,7 +696,7 @@ pub fn dec_coeff_square_algorithm(value : DecCoeff) -> DecCoeffMulAlgorithm {
 }
 
 ///|
-pub fn dec_coeff_ntt_square_profitable(value : DecCoeff) -> Bool {
+fn dec_coeff_ntt_square_profitable(value : DecCoeff) -> Bool {
   let transform_length = dec_coeff_ntt_transform_length(value, value)
   let threshold = if transform_length <= 4096 {
     dec_coeff_ntt_square_threshold
@@ -725,7 +715,7 @@ pub fn dec_coeff_ntt_square_profitable(value : DecCoeff) -> Bool {
 }
 
 ///|
-pub fn dec_coeff_ntt_square_toom3_profitable(value : DecCoeff) -> Bool {
+fn dec_coeff_ntt_square_toom3_profitable(value : DecCoeff) -> Bool {
   let transform_length = dec_coeff_ntt_transform_length(value, value)
   let threshold = if transform_length <= 4096 {
     dec_coeff_ntt_square_toom3_threshold

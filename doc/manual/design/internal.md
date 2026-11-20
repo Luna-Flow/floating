@@ -18,8 +18,8 @@ own limb kernels (`BinCoeff`, and `DecCoeff` in the subpackage
 `internal/decimal_kernel`, which `decimal` and `decimal_gda` share), which
 implement the same rounding table as `round_positive_div` but are not built
 on it, and several helpers
-(`round_shift`, the factor removers, the `CertifiedDyadic` family, the
-`result_lift2` combinators) are exercised only by tests. The table on the
+(`round_shift`, `remove_factor10`, `trim_trailing_decimal_zeros`, the
+`CertifiedDyadic` family) are exercised only by tests. The table on the
 [API page](../api/internal.md#purpose) lists the users of each helper.
 
 ## Mathematical background
@@ -175,11 +175,8 @@ not $\pm|\circ(x)|$ (for example $m = -5$, $s = 1$, `TowardZero` gives $-3$).
 The function does not check the sign, so callers must pass magnitudes. The `consistency` tests check
 both functions against these formulas on ties and directed cases.
 
-**Factor removal.** `remove_factor2(sig, e)` returns $(sig / 2^{t}, e + t)$ with
-$t = \operatorname{ctz}(|sig|)$, so
-$(sig / 2^{t}) \cdot 2^{e+t} = sig \cdot 2^{e}$ and the new significand is
-odd. `remove_factor10` and `trim_trailing_decimal_zeros` preserve
-$c \cdot 10^{e}$ in the same way, one factor of 10 per step; the latter stops
+**Factor removal.** `remove_factor10` and `trim_trailing_decimal_zeros`
+preserve $c \cdot 10^{e}$, removing one factor of 10 per step; the latter stops
 after `max_drop` steps.
 
 **Enclosure.** `certified_dyadic_fraction(n, d, s)` returns
@@ -199,7 +196,7 @@ and ceiling at a smaller scale, so $\text{round\_down}(x, s) \le x \le
 least 32 bits) and at most `limit` refinements are made, so every refinement
 loop that checks `available()` terminates.
 
-**Abort contract.** `pow2`, `pow5`, `pow10` with a negative exponent,
+**Abort contract.** `pow5`, `pow10` with a negative exponent,
 `round_positive_div` with $n < 0$ or $d \le 0$, `ExactRat::new` with $d = 0$,
 `exact_divide_by_power_of_ten` with a negative shift and a non-zero
 coefficient, and dyadic constructors and roundings with a negative scale

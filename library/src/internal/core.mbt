@@ -18,17 +18,6 @@ pub fn abs_bigint(x : BigInt) -> BigInt {
 }
 
 ///|
-pub fn sign_of_bigint(x : BigInt) -> Sign {
-  if x < bigint_zero() {
-    Sign::Negative
-  } else if x > bigint_zero() {
-    Sign::Positive
-  } else {
-    Sign::Zero
-  }
-}
-
-///|
 let pow10_small : Array[BigInt] = [
   1N, 10N, 100N, 1000N, 10000N, 100000N, 1000000N, 10000000N, 100000000N, 1000000000N,
   10000000000N, 100000000000N, 1000000000000N, 10000000000000N, 100000000000000N,
@@ -61,12 +50,6 @@ fn extend_pow_cache(
     cache.push(cache[cache.length() - 1] * multiplier)
   }
   cache[n]
-}
-
-///|
-pub fn pow2(n : Int32) -> BigInt {
-  guard n >= 0 else { abort("pow2 exponent must be non-negative") }
-  bigint_one() << n
 }
 
 ///|
@@ -117,16 +100,6 @@ pub fn digits10(x : BigInt) -> Int32 {
     upper = upper * ten
   }
   digits
-}
-
-///|
-pub fn remove_factor2(sig : BigInt, exp : Int32) -> (BigInt, Int32) {
-  if sig.is_zero() {
-    (bigint_zero(), 0)
-  } else {
-    let shift = abs_bigint(sig).ctz()
-    (sig >> shift, exp + shift)
-  }
 }
 
 ///|
