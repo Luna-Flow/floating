@@ -165,14 +165,11 @@ fn BallFloatDecorated::integer_function(
   self : BallFloatDecorated,
   kind : IntegerFunction,
 ) -> BallFloatDecorated {
+  let result = self.interval_.integer_function(kind)
   unary_result(
     self,
-    self.interval_.integer_function(kind),
-    integer_local_decoration(
-      kind,
-      self.interval_,
-      self.interval_.integer_function(kind),
-    ),
+    result,
+    integer_local_decoration(kind, self.interval_, result),
   )
 }
 
