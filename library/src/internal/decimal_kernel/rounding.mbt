@@ -576,3 +576,75 @@ pub fn dec_coeff_round_accumulator(
     dec_coeff_pow10_round_increment(units[0], (info >> 1) - 1, negative, mode)
   dec_coeff_finish_owned_units(units, out_len, increment)
 }
+
+///|
+/// Whether discarding the lowest `shift` digits (`0 < shift < digits`) of a
+/// coefficient drops a nonzero digit. Reads the coefficient only and returns
+/// a scalar.
+pub fn dec_coeff_discards_nonzero(coeff : DecCoeff, shift : Int32) -> Bool {
+  guard shift >= 1 && shift < coeff.digits10() else {
+    abort("dec_coeff_discards_nonzero expects 0 < shift < digits")
+  }
+  match coeff {
+    Small(value) => value % dec_coeff_small_powers10[shift] != 0UL
+    Limbs(units, _) => (dec_coeff_round_info_bits(units, shift) & 1) == 1
+  }
+}
+
+///|
+/// `numerator / 10^shift` rounded in the given direction (`0 < shift <
+/// digits`), as `dec_coeff_round_div_pow10` but returning the coefficient
+/// only, so it allocates no tuple; whether the division was inexact is
+/// `dec_coeff_discards_nonzero`.
+pub fn dec_coeff_round_pow10_coeff(
+  numerator : DecCoeff,
+  shift : Int32,
+  negative : Bool,
+  mode : DecCoeffRounding,
+) -> DecCoeff {
+  guard shift >= 1 && shift < numerator.digits10() else {
+    abort("dec_coeff_round_pow10_coeff expects 0 < shift < digits")
+  }
+  match numerator {
+    Limbs(units, digits) => {
+      let out_len = (digits - shift + dec_coeff_dpun - 1) / dec_coeff_dpun
+      let result = Array::make(out_len, 0U)
+      let info = dec_coeff_shift_right_info(
+        units,
+        units.length(),
+        digits,
+        shift,
+        result,
+      )
+      let increment = (info & 1) == 1 &&
+        dec_coeff_pow10_round_increment(
+          result[0],
+          (info >> 1) - 1,
+          negative,
+          mode,
+        )
+      dec_coeff_finish_owned_units(result, out_len, increment)
+    }
+    Small(value) => {
+      let divisor = dec_coeff_small_powers10[shift]
+      let quotient = value / divisor
+      let remainder = value % divisor
+      let twice = remainder * 2UL
+      let half_cmp = if twice < divisor {
+        -1
+      } else if twice > divisor {
+        1
+      } else {
+        0
+      }
+      let increment = remainder != 0UL &&
+        dec_coeff_pow10_round_increment(
+          (quotient % 1000000000UL).to_uint(),
+          half_cmp,
+          negative,
+          mode,
+        )
+      Small(if increment { quotient + 1UL } else { quotient })
+    }
+  }
+}

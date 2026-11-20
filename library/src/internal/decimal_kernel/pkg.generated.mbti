@@ -39,6 +39,8 @@ pub fn dec_coeff_copy_limbs(DecCoeff) -> Array[UInt32]
 
 pub fn dec_coeff_count_factor_unit_repr(DecCoeff, Int32) -> (DecCoeff, Int32)
 
+pub fn dec_coeff_discards_nonzero(DecCoeff, Int32) -> Bool
+
 pub fn dec_coeff_div_rem_burnikel_ziegler(DecCoeff, DecCoeff) -> (DecCoeff, DecCoeff)
 
 pub fn dec_coeff_div_rem_by_unit_repr(DecCoeff, Int32) -> (DecCoeff, Int32)
@@ -154,6 +156,8 @@ pub fn dec_coeff_round_div_expansion(DecCoeff, DecCoeff, Bool, DecCoeffRounding)
 pub fn dec_coeff_round_div_pow10(DecCoeff, Int32, Bool, DecCoeffRounding) -> (DecCoeff, Bool)
 
 pub fn dec_coeff_round_div_pow10_owned(Array[UInt32], Int32, Int32, Bool, DecCoeffRounding) -> (DecCoeff, Bool)
+
+pub fn dec_coeff_round_pow10_coeff(DecCoeff, Int32, Bool, DecCoeffRounding) -> DecCoeff
 
 pub fn dec_coeff_round_to_digits(DecCoeff, Int32, Int32, Bool, DecCoeffRounding) -> (DecCoeff, Int32, Bool, Bool)
 

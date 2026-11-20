@@ -202,6 +202,10 @@ pub fn multiply(
     Some(outcome) => return outcome
     None => ()
   }
+  match gda_mul_plain(lhs, rhs, ctx) {
+    Some(outcome) => return outcome
+    None => ()
+  }
   let (value, flags) = lhs.mul_ctx(rhs, ctx.decimal_context())
   complete_decimal_gda(value, ctx, flags)
 }
@@ -213,6 +217,10 @@ pub fn divide(
   ctx : GdaContext,
 ) -> GdaOutcome[Decimal] {
   match gda_fast_quotient(lhs, rhs, ctx) {
+    Some(outcome) => return outcome
+    None => ()
+  }
+  match gda_div_plain(lhs, rhs, ctx) {
     Some(outcome) => return outcome
     None => ()
   }
