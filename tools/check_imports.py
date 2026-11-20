@@ -90,14 +90,18 @@ def violations(src: Path) -> list[str]:
     return found
 
 
-# The only line of a public interface that may name a type of an internal package:
-# the definition of `BinCoeff`, a newtype over the kernel type. A public function that
+# The only lines of a public interface that may name a type of an internal package:
+# the definitions of `BinCoeff` and `BinFloat`, newtypes over the kernel types
+# `Coeff` and `BinRepr` (a public struct cannot wrap a private enum). A public function that
 # took or returned the kernel type would be callable from outside the module (an
 # internal type can be passed around, not used), so the rest of every public `.mbti`
 # must not mention an internal package (#22).
 INTERNAL_TYPE_LINE = re.compile(r"@(?:bin_kernel|decimal_kernel|internal)\b")
 ALLOWED_INTERNAL_TYPE_LINES = {
-    "bin_float": ("pub(all) struct BinCoeff(@bin_kernel.Coeff)",),
+    "bin_float": (
+        "pub(all) struct BinCoeff(@bin_kernel.Coeff)",
+        "pub struct BinFloat(@bin_kernel.BinRepr)",
+    ),
 }
 
 
