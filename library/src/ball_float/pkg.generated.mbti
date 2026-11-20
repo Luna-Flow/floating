@@ -55,6 +55,7 @@ pub fn BallFloat::atan2(Self, Self) -> Self
 pub fn BallFloat::atanh(Self) -> Self
 pub fn BallFloat::cancel_minus(Self, Self) -> Self
 pub fn BallFloat::cancel_plus(Self, Self) -> Self
+pub fn BallFloat::ceil(Self) -> Self
 pub fn BallFloat::convex_hull(Self, Self) -> Self
 pub fn BallFloat::cos(Self) -> Self
 pub fn BallFloat::cosh(Self) -> Self
@@ -70,6 +71,7 @@ pub fn BallFloat::exp(Self) -> Self
 pub fn BallFloat::exp10(Self) -> Self
 pub fn BallFloat::exp2(Self) -> Self
 pub fn BallFloat::expm1(Self) -> Self
+pub fn BallFloat::floor(Self) -> Self
 pub fn BallFloat::fma(Self, Self, Self) -> Self
 pub fn BallFloat::from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Self
 pub fn BallFloat::from_coefficient(@bin_float.BinCoeff, precision? : Int32, negative? : Bool) -> Self
@@ -113,6 +115,9 @@ pub fn BallFloat::precision(Self) -> Int32
 pub fn BallFloat::radius(Self) -> @bin_float.BinFloat
 pub fn BallFloat::recip(Self) -> Self
 pub fn BallFloat::rootn(Self, Int32) -> Self
+pub fn BallFloat::round_ties_to_away(Self) -> Self
+pub fn BallFloat::round_ties_to_even(Self) -> Self
+pub fn BallFloat::sign(Self) -> Self
 pub fn BallFloat::sin(Self) -> Self
 pub fn BallFloat::sinh(Self) -> Self
 pub fn BallFloat::sinpi(Self) -> Self
@@ -127,6 +132,7 @@ pub fn BallFloat::tanh(Self) -> Self
 pub fn BallFloat::tanpi(Self) -> Self
 pub fn BallFloat::to_repr(Self) -> @debug.Repr
 pub fn BallFloat::to_string(Self) -> String
+pub fn BallFloat::trunc(Self) -> Self
 pub fn BallFloat::try_acos(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_acosh(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_asin(Self) -> Result[Self, @arithmetic.ArithmeticError]
@@ -193,6 +199,7 @@ pub fn BallFloatDecorated::atan2(Self, Self) -> Self
 pub fn BallFloatDecorated::atanh(Self) -> Self
 pub fn BallFloatDecorated::cancel_minus(Self, Self) -> Self
 pub fn BallFloatDecorated::cancel_plus(Self, Self) -> Self
+pub fn BallFloatDecorated::ceil(Self) -> Self
 pub fn BallFloatDecorated::convex_hull(Self, Self) -> Self
 pub fn BallFloatDecorated::cos(Self) -> Self
 pub fn BallFloatDecorated::cosh(Self) -> Self
@@ -205,6 +212,7 @@ pub fn BallFloatDecorated::exp(Self) -> Self
 pub fn BallFloatDecorated::exp10(Self) -> Self
 pub fn BallFloatDecorated::exp2(Self) -> Self
 pub fn BallFloatDecorated::expm1(Self) -> Self
+pub fn BallFloatDecorated::floor(Self) -> Self
 pub fn BallFloatDecorated::fma(Self, Self, Self) -> Self
 pub fn BallFloatDecorated::hypot(Self, Self) -> Self
 pub fn BallFloatDecorated::identical(Self, Self) -> Bool
@@ -237,6 +245,9 @@ pub fn BallFloatDecorated::pown(Self, Int32) -> Self
 pub fn BallFloatDecorated::precedes(Self, Self) -> Bool
 pub fn BallFloatDecorated::recip(Self) -> Self
 pub fn BallFloatDecorated::rootn(Self, Int32) -> Self
+pub fn BallFloatDecorated::round_ties_to_away(Self) -> Self
+pub fn BallFloatDecorated::round_ties_to_even(Self) -> Self
+pub fn BallFloatDecorated::sign(Self) -> Self
 pub fn BallFloatDecorated::sin(Self) -> Self
 pub fn BallFloatDecorated::sinh(Self) -> Self
 pub fn BallFloatDecorated::sinpi(Self) -> Self
@@ -250,6 +261,7 @@ pub fn BallFloatDecorated::tan(Self) -> Self
 pub fn BallFloatDecorated::tanh(Self) -> Self
 pub fn BallFloatDecorated::tanpi(Self) -> Self
 pub fn BallFloatDecorated::to_string(Self) -> String
+pub fn BallFloatDecorated::trunc(Self) -> Self
 pub impl Add for BallFloatDecorated
 pub impl Div for BallFloatDecorated
 pub impl Eq for BallFloatDecorated

@@ -545,6 +545,12 @@ pub fn execute_case(case : ItlCase, precision~ : Int32 = 53) -> ItlResult {
     case.operation_ == "recip" ||
     case.operation_ == "sqr" ||
     case.operation_ == "sqrt" ||
+    case.operation_ == "sign" ||
+    case.operation_ == "ceil" ||
+    case.operation_ == "floor" ||
+    case.operation_ == "trunc" ||
+    case.operation_ == "roundTiesToEven" ||
+    case.operation_ == "roundTiesToAway" ||
     case.operation_ == "exp" ||
     case.operation_ == "exp2" ||
     case.operation_ == "exp10" ||
@@ -752,6 +758,12 @@ fn execute_interval_unary_case(case : ItlCase, precision : Int32) -> ItlResult {
     "recip" => operand.recip()
     "sqr" => operand.sqr()
     "sqrt" => operand.sqrt()
+    "sign" => operand.sign()
+    "ceil" => operand.ceil()
+    "floor" => operand.floor()
+    "trunc" => operand.trunc()
+    "roundTiesToEven" => operand.round_ties_to_even()
+    "roundTiesToAway" => operand.round_ties_to_away()
     "exp" => operand.exp()
     "exp2" => operand.exp2()
     "exp10" => operand.exp10()

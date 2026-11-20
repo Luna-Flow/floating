@@ -172,7 +172,8 @@ notes live in this file.
   | `x.add_ctx(y, ctx)`, `sub_ctx`, `mul_ctx`, `div_ctx` | `(x + y).apply_ctx(ctx)` (the operators) | no use outside the package |
   | `x.exp_ctx(ctx)`, `x.ln_ctx(ctx)` | `x.with_precision(ctx.precision() + 32).exp_interval().apply_ctx(ctx)` (and `ln_interval`) | same work precision; no use outside the package |
   | `@def.is_zero(x)`, `@def.is_nan(x)`, `@def.is_finite(x)`, `@def.is_infinite(x)`, `@def.Floating::{classify, sign, precision, with_precision, normalized}` on a `BallFloat` | `x.is_empty()`, `x.is_common_interval()`, `x.is_entire()`, `x.contains(zero)`, `x.precision()`, `x.with_precision(p)`, `x.normalized()` | 3 uses in tests |
-  | `x.classify()`, `x.sign()` | none | `Floating` is not implemented by intervals |
+  | `x.classify()` | none | `Floating` is not implemented by intervals |
+  | `x.sign()` returning a `Sign` (aborted on Empty) | `x.sign()` returning an interval | the `sign` of IEEE 1788-2015 Table 9.1 (see the integer functions entry below); `Sign` of a point is `x.sign().lower_bound().sign()` when `x` does not contain 0 |
   | `x.with_precision(p, mode)`, `BallFloatResult::with_precision(p, mode)` | `x.with_precision(p)` | the mode was ignored: endpoints always round outward |
   | `x.separated_from(y)` | `x.disjoint(y)` | duplicate (empty operand: both true) |
   | `x.is_bounded()` | `x.is_common_interval()` | duplicate |
@@ -275,6 +276,13 @@ notes live in this file.
   | none | `with_precision(Int32)`, `with_e_max(Int32)`, `binary16()`, `binary128()` | additive |
   | `BallFloat::from_bounds(lo, hi, precision=0)` (also `exact`, `empty`, `entire`, `from_int`, `new`, `with_precision`) building precision 1 | aborts naming `1..=binary_precision_max`; `try_from_bounds`, `try_exact`, `try_from_double`, `try_from_float` and `BallFloatResult::*` return `Err` | no silent replacement |
   | precision above `binary_precision_max` accepted | aborts or `Err` | |
+
+- `ball_float` and `ball_float_checked`: the six integer functions of IEEE 1788-2015 Table 9.1, `sign`, `ceil`, `floor`, `trunc`, `round_ties_to_even` and `round_ties_to_away`, on `BallFloat`, `BallFloatDecorated` and `BallFloatResult` ([#257](https://github.com/Luna-Flow/floating/issues/257), item B6). The ITF1788 gate runs the 143 corpus cases of these functions in a new `integer-functions` phase (4,656 to 4,799 strict cases). A decorated result is the strongest decoration of 11.2 (11.6 note 3) combined with the input decoration by the min-rule: `def` when the function is not constant on the box, `dac` when it is constant but the box contains a point where the function is discontinuous on the real line, `com` otherwise.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `x.sign()` returning a `Sign` (removed earlier in this release) | `x.sign()` returning an interval inside [-1, 1] | Table 9.1 |
+  | none | `ceil`, `floor`, `trunc`, `round_ties_to_even`, `round_ties_to_away` | `BallFloat`, `BallFloatDecorated`, `BallFloatResult`; exact, no rounding, no `try_` form |
 
 ### Fixed
 

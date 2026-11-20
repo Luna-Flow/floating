@@ -33,6 +33,7 @@ INTERVAL_PHASES = (
     "fma",
     "integer-power",
     "extrema",
+    "integer-functions",
 )
 SUPPORTED_TARGETS = ("native", "wasm", "wasm-gc", "js")
 

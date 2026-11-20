@@ -841,6 +841,46 @@ pub fn BallFloat::max(Self, Self) -> Self
 \overline{y})]$ and `max` is the analogue with `max`: $\min$ is
 increasing in each argument. An Empty operand gives Empty.
 
+### `BallFloat::sign`, `BallFloat::ceil`, `BallFloat::floor`, `BallFloat::trunc`, `BallFloat::round_ties_to_even`, `BallFloat::round_ties_to_away`
+
+The integer functions of IEEE 1788-2015 Table 9.1. `sign` is $-1$, $0$ or $1$
+by the sign of the point; `ceil` and `floor` give the smallest integer not
+less and the largest integer not greater than the point; `trunc` the nearest
+integer toward zero; `round_ties_to_even` and `round_ties_to_away` the nearest
+integer, a tie going to the even integer or away from zero (the names are the
+754 `roundTiesToEven` and `roundTiesToAway`).
+
+```mbti
+pub fn BallFloat::sign(Self) -> Self
+pub fn BallFloat::ceil(Self) -> Self
+pub fn BallFloat::floor(Self) -> Self
+pub fn BallFloat::trunc(Self) -> Self
+pub fn BallFloat::round_ties_to_even(Self) -> Self
+pub fn BallFloat::round_ties_to_away(Self) -> Self
+```
+
+Each function $f$ is nondecreasing, so the result is
+$[f(\underline{x}), f(\overline{x})]$. The values are integers (or $-1$, $0$,
+$1$), so the result is exact: nothing is rounded, the precision tag is kept,
+and a zero bound is stored as $+0$. The function of $\pm\infty$ is
+$\pm\infty$ (for `sign`, $\pm 1$). An Empty operand gives Empty. There is no
+`try_` form: no input fails.
+
+```moonbit
+///|
+test "integer functions" {
+  let x = @ball_float.BallFloat::from_bounds(
+    @bin_float.BinFloat::from_double(1.1),
+    @bin_float.BinFloat::from_double(2.0),
+  )
+  assert_true(x.ceil() == iv(2, 2))
+  assert_true(x.floor() == iv(1, 2))
+  let d = @ball_float.BallFloatDecorated::new(x)
+  assert_eq(d.ceil().decoration(), @ball_float.Decoration::Dac)
+  assert_eq(d.floor().decoration(), @ball_float.Decoration::Def)
+}
+```
+
 ## Elementary functions
 
 Each function $f$ returns an interval containing
@@ -1446,6 +1486,38 @@ pub fn BallFloatDecorated::rootn(Self, Int) -> Self
 pub fn BallFloatDecorated::hypot(Self, Self) -> Self
 ```
 
+### `BallFloatDecorated::sign`, `BallFloatDecorated::ceil`, `BallFloatDecorated::floor`, `BallFloatDecorated::trunc`, `BallFloatDecorated::round_ties_to_even`, `BallFloatDecorated::round_ties_to_away`
+
+The interval part is the bare result. The operation decoration is the
+strongest decoration of 11.2 for the function over the input box, and the
+result is the minimum of it and the input decoration (11.6, equation 18):
+
+| Input box $\boldsymbol{x}$ | Operation decoration |
+| --- | --- |
+| Empty | `Trv` |
+| the function is not constant on $\boldsymbol{x}$ | `Def` |
+| constant, and $\boldsymbol{x}$ unbounded | `Dac` |
+| constant, bounded, and $\boldsymbol{x}$ contains a point of discontinuity of the function on the real line | `Dac` |
+| constant, bounded, and no such point in $\boldsymbol{x}$ | `Com` |
+
+The functions take integer values, so their restriction to $\boldsymbol{x}$ is
+continuous exactly when it is constant (`dac` asks for continuity of the
+restriction, `com` for continuity at each point of $\boldsymbol{x}$). The points
+of discontinuity are the integers for `ceil` and `floor`, the nonzero integers
+for `trunc`, $0$ for `sign`, and the half-integers for the two roundings. For
+example `ceil` of the box $[1.1, 2.0]$ is $[2, 2]$ with `Dac`: the restriction
+is constant, but $2$ is a point of discontinuity of `ceil`. `floor` of the same
+box is $[1, 2]$ with `Def`. NaI gives NaI.
+
+```mbti
+pub fn BallFloatDecorated::sign(Self) -> Self
+pub fn BallFloatDecorated::ceil(Self) -> Self
+pub fn BallFloatDecorated::floor(Self) -> Self
+pub fn BallFloatDecorated::trunc(Self) -> Self
+pub fn BallFloatDecorated::round_ties_to_even(Self) -> Self
+pub fn BallFloatDecorated::round_ties_to_away(Self) -> Self
+```
+
 ### `BallFloatDecorated::sin`, `BallFloatDecorated::cos`, `BallFloatDecorated::tan`, `BallFloatDecorated::sinpi`, `BallFloatDecorated::cospi`, `BallFloatDecorated::tanpi`, `BallFloatDecorated::asin`, `BallFloatDecorated::acos`, `BallFloatDecorated::atan`, `BallFloatDecorated::atan2`
 
 These are the decorated trigonometric functions and their inverses.
@@ -1747,6 +1819,7 @@ pub fn BallFloat::atan2(Self, Self) -> Self
 pub fn BallFloat::atanh(Self) -> Self
 pub fn BallFloat::cancel_minus(Self, Self) -> Self
 pub fn BallFloat::cancel_plus(Self, Self) -> Self
+pub fn BallFloat::ceil(Self) -> Self
 pub fn BallFloat::convex_hull(Self, Self) -> Self
 pub fn BallFloat::cos(Self) -> Self
 pub fn BallFloat::cosh(Self) -> Self
@@ -1762,6 +1835,7 @@ pub fn BallFloat::exp(Self) -> Self
 pub fn BallFloat::exp10(Self) -> Self
 pub fn BallFloat::exp2(Self) -> Self
 pub fn BallFloat::expm1(Self) -> Self
+pub fn BallFloat::floor(Self) -> Self
 pub fn BallFloat::fma(Self, Self, Self) -> Self
 pub fn BallFloat::from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Self
 pub fn BallFloat::from_coefficient(@bin_float.BinCoeff, precision? : Int32, negative? : Bool) -> Self
@@ -1805,6 +1879,9 @@ pub fn BallFloat::precision(Self) -> Int32
 pub fn BallFloat::radius(Self) -> @bin_float.BinFloat
 pub fn BallFloat::recip(Self) -> Self
 pub fn BallFloat::rootn(Self, Int32) -> Self
+pub fn BallFloat::round_ties_to_away(Self) -> Self
+pub fn BallFloat::round_ties_to_even(Self) -> Self
+pub fn BallFloat::sign(Self) -> Self
 pub fn BallFloat::sin(Self) -> Self
 pub fn BallFloat::sinh(Self) -> Self
 pub fn BallFloat::sinpi(Self) -> Self
@@ -1819,6 +1896,7 @@ pub fn BallFloat::tanh(Self) -> Self
 pub fn BallFloat::tanpi(Self) -> Self
 pub fn BallFloat::to_repr(Self) -> @debug.Repr
 pub fn BallFloat::to_string(Self) -> String
+pub fn BallFloat::trunc(Self) -> Self
 pub fn BallFloat::try_acos(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_acosh(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_asin(Self) -> Result[Self, @arithmetic.ArithmeticError]
@@ -1885,6 +1963,7 @@ pub fn BallFloatDecorated::atan2(Self, Self) -> Self
 pub fn BallFloatDecorated::atanh(Self) -> Self
 pub fn BallFloatDecorated::cancel_minus(Self, Self) -> Self
 pub fn BallFloatDecorated::cancel_plus(Self, Self) -> Self
+pub fn BallFloatDecorated::ceil(Self) -> Self
 pub fn BallFloatDecorated::convex_hull(Self, Self) -> Self
 pub fn BallFloatDecorated::cos(Self) -> Self
 pub fn BallFloatDecorated::cosh(Self) -> Self
@@ -1897,6 +1976,7 @@ pub fn BallFloatDecorated::exp(Self) -> Self
 pub fn BallFloatDecorated::exp10(Self) -> Self
 pub fn BallFloatDecorated::exp2(Self) -> Self
 pub fn BallFloatDecorated::expm1(Self) -> Self
+pub fn BallFloatDecorated::floor(Self) -> Self
 pub fn BallFloatDecorated::fma(Self, Self, Self) -> Self
 pub fn BallFloatDecorated::hypot(Self, Self) -> Self
 pub fn BallFloatDecorated::identical(Self, Self) -> Bool
@@ -1929,6 +2009,9 @@ pub fn BallFloatDecorated::pown(Self, Int32) -> Self
 pub fn BallFloatDecorated::precedes(Self, Self) -> Bool
 pub fn BallFloatDecorated::recip(Self) -> Self
 pub fn BallFloatDecorated::rootn(Self, Int32) -> Self
+pub fn BallFloatDecorated::round_ties_to_away(Self) -> Self
+pub fn BallFloatDecorated::round_ties_to_even(Self) -> Self
+pub fn BallFloatDecorated::sign(Self) -> Self
 pub fn BallFloatDecorated::sin(Self) -> Self
 pub fn BallFloatDecorated::sinh(Self) -> Self
 pub fn BallFloatDecorated::sinpi(Self) -> Self
@@ -1942,6 +2025,7 @@ pub fn BallFloatDecorated::tan(Self) -> Self
 pub fn BallFloatDecorated::tanh(Self) -> Self
 pub fn BallFloatDecorated::tanpi(Self) -> Self
 pub fn BallFloatDecorated::to_string(Self) -> String
+pub fn BallFloatDecorated::trunc(Self) -> Self
 pub impl Add for BallFloatDecorated
 pub impl Div for BallFloatDecorated
 pub impl Eq for BallFloatDecorated

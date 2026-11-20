@@ -39,8 +39,9 @@ cases, 107 elementary-core cases, 131 exponential/logarithmic cases, 1,428
 general-power cases, 176 trigonometric cases, 567 FMA cases, and 174
 integer-power cases.
 The hyperbolic and inverse-trigonometric phases add 107 and 61 cases,
-respectively. The `atan2` phase adds 375 cases and the extrema phase adds 38
-min/max cases, for an official aggregate of 4,656 cases. Every selected case must be executable;
+respectively. The `atan2` phase adds 375 cases, the extrema phase 38 min/max
+cases and the integer-functions phase 143 cases (`sign`, `ceil`, `floor`, `trunc`,
+`roundTiesToEven`, `roundTiesToAway`), for an official aggregate of 4,799 cases. Every selected case must be executable;
 unsupported and diagnostic classifications fail the gate.
 
 The phase planner is part of the contract. A phase declares its operation set,

@@ -552,6 +552,38 @@ an unbounded result becomes `dac` (this is how overflow is reported). NaI,
 the result of an invalid decorated construction, absorbs every operation, and
 is distinct from $\emptyset$, which is a valid set.
 
+#### Integer functions
+
+`sign`, `ceil`, `floor`, `trunc`, `roundTiesToEven` and `roundTiesToAway`
+(IEEE 1788-2015 Table 9.1) are nondecreasing with integer values, so the bare
+result is $[f(\underline{x}), f(\overline{x})]$ and no rounding happens. Their
+decoration needs one observation: a function with values in $\mathbb{Z}$ (or
+$\{-1, 0, 1\}$) restricted to an interval is continuous exactly when it is
+constant on it, by the intermediate value theorem. So the strongest
+decoration $d_g$ of 11.2 is `def` when $f(\underline{x}) \ne f(\overline{x})$.
+When $f$ is constant, `dac` holds, and `com` holds when in addition
+$\boldsymbol{x}$ is bounded and contains no point where $f$ is discontinuous
+on the real line. With $k = f(\underline{x}) = f(\overline{x})$ that last test
+is an endpoint comparison, because a constant box lies in a single step of the
+function:
+
+| Function | Points of discontinuity | $\boldsymbol{x}$ contains one iff |
+| --- | --- | --- |
+| `ceil` | integers, $\operatorname{ceil}(n) = n$ | $\overline{x} = k$ |
+| `floor` | integers, $\operatorname{floor}(n) = n$ | $\underline{x} = k$ |
+| `trunc` | nonzero integers | $k > 0$: $\underline{x} = k$; $k < 0$: $\overline{x} = k$; $k = 0$: never |
+| `sign` | $0$ | $k = 0$ |
+| `roundTiesToEven`, `roundTiesToAway` | $n + 1/2$ | $\underline{x} = k - 1/2$ or $\overline{x} = k + 1/2$ |
+
+This is why the ITF1788 corpus has `ceil([1.1, 2.0]_com) = [2, 2]_dac` (the
+restriction is constant, but $2$ is a point of discontinuity) next to
+`floor([-1.2, -1.1]_com) = [-2, -2]_com`. An unbounded box is never `com`, and
+is `def` for `ceil`, `floor`, `trunc` and the roundings (the function is not
+constant on it), `dac` for `sign` on a half line that excludes 0. The
+corpus's 55 decorated integer-function cases and the tests of the package
+(each function with the jump as the lower endpoint, the upper endpoint, a point
+box and in the interior) agree with this rule.
+
 ### Relations: certainly and possibly
 
 An interval stands for an unknown point, so a comparison of two intervals
@@ -803,7 +835,7 @@ trigonometric functions.
 
 **Evidence.** Package tests check directed endpoints, the far-addend and
 exponent-range cases, decorations and relations; the pinned ITF1788 corpus
-runs 4,656 cases in strict mode (see [conformance](../conformance/ball_float.md)).
+runs 4,799 cases in strict mode (see [conformance](../conformance/ball_float.md)).
 
 ### Known limitations
 

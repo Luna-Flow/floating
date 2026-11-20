@@ -110,3 +110,23 @@ test "ITL results are rounded at the requested precision (issue #62)" {
     assert_true(result.passed(), msg=case.id() + ": " + result.message())
   }
 }
+
+///|
+test "ITL integer functions of IEEE 1788-2015 Table 9.1 with their decorations" {
+  let source =
+    #|testcase integer_functions {
+    #|  ceil [1.1,2.0]_com = [2.0,2.0]_dac;
+    #|  floor [1.1,2.0]_com = [1.0,2.0]_def;
+    #|  floor [-1.2,-1.1]_com = [-2.0,-2.0]_com;
+    #|  sign [0.0,0.0]_dac = [0.0,0.0]_dac;
+    #|  sign [-1.0,2.0]_com = [-1.0,1.0]_def;
+    #|  trunc [-0.5,0.5]_com = [0.0,0.0]_com;
+    #|  roundTiesToEven [0.5,1.0]_com = [0.0,1.0]_def;
+    #|  roundTiesToAway [0.5,0.75]_com = [1.0,1.0]_dac;
+    #|}
+  let cases = @itl_expr.parse_itl(source).unwrap()
+  for case in cases {
+    let result = @itl_expr.execute_case(case)
+    assert_true(result.passed(), msg=case.id() + ": " + result.message())
+  }
+}

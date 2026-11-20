@@ -2,7 +2,7 @@
 
 ## Claim
 
-The current strict ITF1788 gate executes 4,656/4,656 selected cases with no failed, unsupported, or diagnostic rows. This is a claim about the pinned corpus revision, selected operation phases, and runner precision—not a claim of complete IEEE 1788 implementation.
+The current strict ITF1788 gate executes 4,799/4,799 selected cases with no failed, unsupported, or diagnostic rows. This is a claim about the pinned corpus revision, selected operation phases, and runner precision—not a claim of complete IEEE 1788 implementation.
 
 ## Clause traceability
 
@@ -10,9 +10,10 @@ IEEE Std 1788-2015 (set-based flavor) for `ball_float`. Status is `conforming` w
 
 | Clause | Level | API | Evidence | Status |
 | --- | --- | --- | --- | --- |
-| §4.2 set-based interval arithmetic flavor | required | `BallFloat`, `BallFloatDecorated` | ITF1788 strict gate (4,656 cases) | conforming for the selected phases |
+| §4.2 set-based interval arithmetic flavor | required | `BallFloat`, `BallFloatDecorated` | ITF1788 strict gate (4,799 cases) | conforming for the selected phases |
 | §4.2.2 compressed decorated interval arithmetic | optional | none | none | not implemented |
 | §9.1, §10.5.3 forward-mode arithmetic and elementary functions | required | `add`, `sub`, `mul`, `div`, `recip`, `sqr`, `sqrt`, `fma`, `pown`, `pow`, `rootn`, `exp`, `exp2`, `exp10`, `expm1`, `ln`, `log2`, `log10`, `log1p`, `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh` | ITF1788 phases: add/sub/mul/div 539, elementary core 107, exp/log 131, general power 1,428, trigonometric 176, `atan2` 375, hyperbolic 107, inverse trigonometric 61, FMA 567, integer power 174 | partial: the integer functions of Table 9.1 are not provided ([#257](https://github.com/Luna-Flow/floating/issues/257)); tightness per operation is in [Accuracy of operations](#accuracy-of-operations) |
+| §9.1 integer functions (Table 9.1) | required | `sign`, `ceil`, `floor`, `trunc`, `round_ties_to_even`, `round_ties_to_away` | ITF1788 integer-functions phase (143 cases); `library/src/ball_float/integer_functions_wbtest.mbt` | conforming |
 | §10.5.4 reverse-mode elementary functions | required | none | none | not implemented (issue [#21](https://github.com/Luna-Flow/floating/issues/21)) |
 | §10.5.5 two-output division | required | none | none | not implemented |
 | §9.2, §10.5.6 cancellative addition and subtraction | required | `cancel_plus`, `cancel_minus` | ITF1788 cancellation phase (242 cases) | conforming |
@@ -58,7 +59,7 @@ Expected results are compared by set meaning: endpoint containment, set relation
 
 ## Supported phases
 
-The strict matrix covers sets, relations, observations, cancellation, add/subtract/multiply/divide, elementary core, exponential/logarithmic functions, general power, trigonometric functions, `atan2`, hyperbolic functions, inverse trigonometric functions, FMA, integer power, and extrema. Phase operation sets are disjoint so a row is never counted twice.
+The strict matrix covers sets, relations, observations, cancellation, add/subtract/multiply/divide, elementary core, exponential/logarithmic functions, general power, trigonometric functions, `atan2`, hyperbolic functions, inverse trigonometric functions, FMA, integer power, extrema, and the integer functions. Phase operation sets are disjoint so a row is never counted twice.
 
 ## Decorations and fallbacks
 
