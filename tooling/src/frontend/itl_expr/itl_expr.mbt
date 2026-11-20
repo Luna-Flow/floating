@@ -741,7 +741,7 @@ fn execute_fma_case(case : ItlCase, precision : Int32) -> ItlResult {
 }
 
 ///|
-/// `sqrRev`, `absRev`, `coshRev` and `pownRev`, each also in the `...Bin` form
+/// `sqrRev`, `absRev`, `coshRev`, `pownRev`, `sinRev`, `cosRev` and `tanRev`, each also in the `...Bin` form
 /// of the corpus that takes the prior interval `x` before the power.
 fn algebraic_reverse_operation(name : String) -> Bool {
   match name {
@@ -752,7 +752,13 @@ fn algebraic_reverse_operation(name : String) -> Bool {
     | "coshRev"
     | "coshRevBin"
     | "pownRev"
-    | "pownRevBin" => true
+    | "pownRevBin"
+    | "sinRev"
+    | "sinRevBin"
+    | "cosRev"
+    | "cosRevBin"
+    | "tanRev"
+    | "tanRevBin" => true
     _ => false
   }
 }
@@ -820,6 +826,12 @@ fn execute_algebraic_reverse_case(
     c.abs_rev(x?=prior)
   } else if name.has_prefix("coshRev") {
     c.cosh_rev(x?=prior)
+  } else if name.has_prefix("sinRev") {
+    c.sin_rev(x?=prior)
+  } else if name.has_prefix("cosRev") {
+    c.cos_rev(x?=prior)
+  } else if name.has_prefix("tanRev") {
+    c.tan_rev(x?=prior)
   } else {
     c.pown_rev(power, x?=prior)
   }

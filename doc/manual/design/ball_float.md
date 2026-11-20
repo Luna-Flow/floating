@@ -643,6 +643,69 @@ nonempty parts, the same routine as `mul_rev`. The trivial decoration (`trv`)
 is attached by the decorated forms. All 360 corpus cases of these functions in
 `libieeep1788_tests_rev.itl` and `abs_rev.itl` agree.
 
+#### Reverse sine, cosine and tangent
+
+`sin_rev`, `cos_rev` and `tan_rev` (IEEE 1788-2015 10.5.4) return the hull of the part
+of a periodic union of intervals that lies in the prior $\boldsymbol{x}$. A piece end has
+the form $t = \tfrac{m}{2}\pi + \sigma\,\alpha(s)$ with an integer $m$, $\sigma = \pm 1$
+and $\alpha$ one of $\arcsin$, $\arccos$, $\arctan$ of an endpoint $s$ of $\boldsymbol{c}$ (a pole of
+$\tan$ has no $\alpha$). The result takes the piece ends that matter, so the
+comparison of a prior end with a piece end has to be exact; a wrong answer there moves
+a result end by a whole period (for example `sin_rev([0, 0], x = [RU(pi), 6])`).
+
+*Which piece ends can be floats.* If $t = d$ with $d$ a nonzero float, then $d$ is
+algebraic, and so is $s$. For $\sin d = \pm s$ the Lindemann-Weierstrass theorem says
+$e^{id}$ is transcendental, so $\sin d$ cannot be algebraic; the same holds for $\cos d$
+and $\tan d$. Every end is therefore irrational (a pole $\pm\pi/2 + \pi k$ and the ends
+from $s = \pm 1$ are nonzero rational multiples of $\pi$) except $t = 0$, which needs
+$m = 0$ and $\alpha = 0$: $\arcsin 0$ and $\arctan 0$, and $\arccos 1$. Those
+ends are compared with the prior by an exact test, and every other end has a strict
+answer for every float $d$. A pole therefore never equals a float, and the trigonometric
+reverse functions need no open flag.
+
+*Comparison and rounding.* Each end is evaluated as an enclosure at a working precision
+$w$, starting at $p + b + 96$ bits ($b$ the binary exponent of the larger prior end),
+from the certified enclosure of $\pi$ and the certified `asin`, `acos`, `atan` of the
+exact point $s$. A comparison with a prior end $d$ is decided as soon as the enclosure
+excludes $d$, else $w$ is doubled. The value written for a result end is the outward
+rounding of an enclosure that contains no float of the result precision, which is exactly
+$\operatorname{RD}(t)$ or $\operatorname{RU}(t)$; here too $w$ is doubled until that holds. The first
+step is enough for almost every input, and not for all: a float can lie within a small
+fraction of an ulp of a multiple of $\pi/2$, which is why the loop is needed. The loop is
+capped at 12 doublings (the same budget as the certified forward functions). At the cap an
+undecided comparison counts as met in both conditions (a piece that might meet the prior is
+never dropped) and the end written for such a piece is the prior's own end, a valid bound of
+both possibilities; a rounding is that of the last enclosure. The result is then an enclosure
+of the hull, possibly wider. A white-box test sets the cap to 0 and to 1 and checks, on cases
+of the reference test, that the result contains the hull and stays inside the prior. The pinned ITF1788 corpus never leaves the first
+step: its 136 cases need $w = p + b + 96$ at most.
+
+*Pieces and indices.* A piece $[\mathrm{lo}(k), \mathrm{hi}(k)]$ belongs to a family
+with $m = \text{offset} + \text{period} \cdot k$ (period 4 for $\sin$ and $\cos$, in units of
+$\pi/2$ twice, and 2 for $\tan$). The first piece that reaches the lower prior end $x_l$ has
+its upper end in a window of a dozen consecutive values of $m$ around $2 x_l/\pi$, which is
+computed exactly in rational arithmetic from the lower and upper bound of the enclosure of
+$\pi$, widened by a stated margin: an end lies in $[(m-2)\pi/2, (m+2)\pi/2]$ since
+$\lvert\alpha\rvert \le \pi$, so a piece below the window cannot reach $x_l$ and the
+predecessor of a piece above it already does. The same holds at $x_h$ with the lower ends.
+Every piece of the window is tested for meeting the prior (`hi >= x_l` and `lo <= x_h`, both
+exact), the lower end of the result is the minimum over the met pieces of $x_l$ or
+$\operatorname{RD}(\mathrm{lo})$, and the upper end the maximum of $x_h$ or
+$\operatorname{RU}(\mathrm{hi})$; no two transcendental ends are compared with each other, since
+$\operatorname{RD}$ is monotone. The work is two searches of a few pieces each, whatever
+the prior spans, and its cost follows the number of bits of the period index through the
+working precision. The only limit is the one of the forward functions: an end of the prior at
+or beyond $2^{\max(65536, 4p)+1}$ is kept (valid, not tight). It is decided before any work
+(the working precision comes only from the ends inside it, and a prior whose finite ends are
+all beyond it is returned at once), so such an end never costs $\pi$ at its precision.
+
+*Tightness against the corpus.* The tests compare the result with an enumeration of every
+piece (`trig_reverse_reference_wbtest.mbt`), with no index arithmetic in common with the
+implementation, over 4,200 random cases at precisions 24 and 53 that include priors with an end next
+to a piece end. Six distinct corpus cases (twelve with the decorated copies) have an
+expected value that is one or two ulps wider than the hull; they are listed on the
+[conformance page](../conformance/ball_float.md).
+
 ### Relations: certainly and possibly
 
 An interval stands for an unknown point, so a comparison of two intervals
@@ -894,7 +957,7 @@ trigonometric functions.
 
 **Evidence.** Package tests check directed endpoints, the far-addend and
 exponent-range cases, decorations and relations; the pinned ITF1788 corpus
-runs 5,692 cases in strict mode (see [conformance](../conformance/ball_float.md)).
+runs 5,828 cases in strict mode (see [conformance](../conformance/ball_float.md)).
 
 ### Known limitations
 
@@ -932,7 +995,8 @@ checks degrees `-1`, `-2` and `-3`.
 The package deliberately does not:
 
 - provide the IEEE 1788 reverse operations other than `mulRev` and
-  `mulRevToPair` (`sqrRev`, `powRev1`, …; issue 230);
+  `mulRevToPair`, `sqrRev`, `absRev`, `pownRev`, `coshRev`, `sinRev`, `cosRev` and
+  `tanRev` (`powRev1`, `powRev2`, …; issue 230);
 - promise tight results: fallbacks and the dependency problem may widen
   enclosures arbitrarily;
 - define a total order on intervals, or treat `Eq` as set equality;

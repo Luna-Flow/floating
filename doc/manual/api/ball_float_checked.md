@@ -275,6 +275,19 @@ pub fn BallFloatResult::pown_rev(Self, Int, x? : Self) -> Self
 pub fn BallFloatResult::cosh_rev(Self, x? : Self) -> Self
 ```
 
+### `BallFloatResult::sin_rev`, `BallFloatResult::cos_rev` and `BallFloatResult::tan_rev`
+
+These methods apply the `BallFloat` method of the same name to the interval part (see the
+[`ball_float` page](ball_float.md#ballfloatsin_rev-ballfloatcos_rev-and-ballfloattan_rev)).
+They cannot fail themselves; an earlier failure in the receiver or in the optional prior is
+passed on.
+
+```mbti
+pub fn BallFloatResult::sin_rev(Self, x? : Self) -> Self
+pub fn BallFloatResult::cos_rev(Self, x? : Self) -> Self
+pub fn BallFloatResult::tan_rev(Self, x? : Self) -> Self
+```
+
 ### `BallFloatResult::mul_rev` and `BallFloatResult::mul_rev_to_pair`
 
 These methods apply `BallFloat::mul_rev` and `BallFloat::mul_rev_to_pair` to
@@ -515,6 +528,7 @@ pub fn BallFloatResult::cancel_plus(Self, Self) -> Self
 pub fn BallFloatResult::ceil(Self) -> Self
 pub fn BallFloatResult::convex_hull(Self, Self) -> Self
 pub fn BallFloatResult::cos(Self) -> Self
+pub fn BallFloatResult::cos_rev(Self, x? : Self) -> Self
 pub fn BallFloatResult::cosh(Self) -> Self
 pub fn BallFloatResult::cosh_rev(Self, x? : Self) -> Self
 pub fn BallFloatResult::cospi(Self) -> Self
@@ -562,6 +576,7 @@ pub fn BallFloatResult::round_ties_to_away(Self) -> Self
 pub fn BallFloatResult::round_ties_to_even(Self) -> Self
 pub fn BallFloatResult::sign(Self) -> Self
 pub fn BallFloatResult::sin(Self) -> Self
+pub fn BallFloatResult::sin_rev(Self, x? : Self) -> Self
 pub fn BallFloatResult::sinh(Self) -> Self
 pub fn BallFloatResult::sinpi(Self) -> Self
 pub fn BallFloatResult::sqr(Self) -> Self
@@ -569,6 +584,7 @@ pub fn BallFloatResult::sqr_rev(Self, x? : Self) -> Self
 pub fn BallFloatResult::sqrt(Self) -> Self
 pub fn BallFloatResult::sub(Self, Self) -> Self
 pub fn BallFloatResult::tan(Self) -> Self
+pub fn BallFloatResult::tan_rev(Self, x? : Self) -> Self
 pub fn BallFloatResult::tanh(Self) -> Self
 pub fn BallFloatResult::tanpi(Self) -> Self
 pub fn BallFloatResult::trunc(Self) -> Self

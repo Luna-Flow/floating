@@ -296,6 +296,42 @@ pub fn BallFloatResult::pown_rev(
 }
 
 ///|
+/// `sinRev(c, x)` of Table 10.1; see `sqr_rev`.
+pub fn BallFloatResult::sin_rev(
+  self : BallFloatResult,
+  x? : BallFloatResult,
+) -> BallFloatResult {
+  match x {
+    Some(prior) => self.bind(fn(c) { prior.map(fn(p) { c.sin_rev(x=p) }) })
+    None => self.map(fn(c) { c.sin_rev() })
+  }
+}
+
+///|
+/// `cosRev(c, x)` of Table 10.1; see `sqr_rev`.
+pub fn BallFloatResult::cos_rev(
+  self : BallFloatResult,
+  x? : BallFloatResult,
+) -> BallFloatResult {
+  match x {
+    Some(prior) => self.bind(fn(c) { prior.map(fn(p) { c.cos_rev(x=p) }) })
+    None => self.map(fn(c) { c.cos_rev() })
+  }
+}
+
+///|
+/// `tanRev(c, x)` of Table 10.1; see `sqr_rev`.
+pub fn BallFloatResult::tan_rev(
+  self : BallFloatResult,
+  x? : BallFloatResult,
+) -> BallFloatResult {
+  match x {
+    Some(prior) => self.bind(fn(c) { prior.map(fn(p) { c.tan_rev(x=p) }) })
+    None => self.map(fn(c) { c.tan_rev() })
+  }
+}
+
+///|
 pub fn BallFloatResult::recip(self : BallFloatResult) -> BallFloatResult {
   self.map(fn(value) { value.recip() })
 }

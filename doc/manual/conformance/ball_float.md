@@ -2,7 +2,7 @@
 
 ## Claim
 
-The current strict ITF1788 gate executes 5,692/5,692 selected cases with no failed, unsupported, or diagnostic rows. This is a claim about the pinned corpus revision, selected operation phases, and runner precision—not a claim of complete IEEE 1788 implementation.
+The current strict ITF1788 gate executes 5,828/5,828 selected cases with no failed, unsupported, or diagnostic rows. This is a claim about the pinned corpus revision, selected operation phases, and runner precision—not a claim of complete IEEE 1788 implementation.
 
 ## Clause traceability
 
@@ -10,10 +10,10 @@ IEEE Std 1788-2015 (set-based flavor) for `ball_float`. Status is `conforming` w
 
 | Clause | Level | API | Evidence | Status |
 | --- | --- | --- | --- | --- |
-| §4.2 set-based interval arithmetic flavor | required | `BallFloat`, `BallFloatDecorated` | ITF1788 strict gate (5,692 cases) | conforming for the selected phases |
+| §4.2 set-based interval arithmetic flavor | required | `BallFloat`, `BallFloatDecorated` | ITF1788 strict gate (5,828 cases) | conforming for the selected phases |
 | §4.2.2 compressed decorated interval arithmetic | optional | none | none | not implemented |
 | §9.1, §10.5.3 forward-mode arithmetic and elementary functions | required | `add`, `sub`, `mul`, `div`, `recip`, `sqr`, `sqrt`, `fma`, `pown`, `pow`, `rootn`, `exp`, `exp2`, `exp10`, `expm1`, `ln`, `log2`, `log10`, `log1p`, `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh` | ITF1788 phases: add/sub/mul/div 539, elementary core 107, exp/log 131, general power 1,428, trigonometric 176, `atan2` 375, hyperbolic 107, inverse trigonometric 61, FMA 567, integer power 174 | partial: the integer functions of Table 9.1 are not provided ([#257](https://github.com/Luna-Flow/floating/issues/257)); tightness per operation is in [Accuracy of operations](#accuracy-of-operations) |
-| §10.5.4 reverse-mode elementary functions | required | `mul_rev`, `sqr_rev`, `abs_rev`, `pown_rev`, `cosh_rev` | ITF1788 multiplicative-reverse (`mulRev`, `mulRevTen`) and algebraic-reverse (`sqrRev`, `absRev`, `pownRev`, `coshRev` and their `Bin` forms) phases; `library/src/ball_float/mul_rev_wbtest.mbt`, `algebraic_reverse_wbtest.mbt` | partial (`sinRev`, `cosRev`, `tanRev`, `powRev1`, `powRev2`, `atan2Rev1`, `atan2Rev2` are not implemented; issue [#230](https://github.com/Luna-Flow/floating/issues/230)) |
+| §10.5.4 reverse-mode elementary functions | required | `mul_rev`, `sqr_rev`, `abs_rev`, `pown_rev`, `cosh_rev`, `sin_rev`, `cos_rev`, `tan_rev` | ITF1788 multiplicative-reverse (`mulRev`, `mulRevTen`), algebraic-reverse (`sqrRev`, `absRev`, `pownRev`, `coshRev`) and trigonometric-reverse (`sinRev`, `cosRev`, `tanRev`, and the `Bin` forms) phases; `library/src/ball_float/mul_rev_wbtest.mbt`, `algebraic_reverse_wbtest.mbt`, `trig_reverse_wbtest.mbt`, `trig_reverse_reference_wbtest.mbt` | partial (`powRev1`, `powRev2`, `atan2Rev1`, `atan2Rev2` are not implemented; issue [#230](https://github.com/Luna-Flow/floating/issues/230)) |
 | §10.5.5, §12.12.3 two-output division | required | `mul_rev_to_pair` | ITF1788 multiplicative-reverse phase (`mulRevToPair`, bare and decorated); `library/src/ball_float/mul_rev_wbtest.mbt` | conforming |
 | §9.2, §10.5.6 cancellative addition and subtraction | required | `cancel_plus`, `cancel_minus` | ITF1788 cancellation phase (242 cases) | conforming |
 | §9.3, §10.5.7 set operations | required | `intersection`, `convex_hull` | ITF1788 sets phase (20 cases) | conforming |
@@ -52,13 +52,39 @@ evidence for every case it runs, not only containment.
 | `expm1`, `log1p`, `sinpi`, `cospi`, `tanpi`, `hypot` | tightest when certified; valid otherwise | as for the certified functions above; `expm1` falls back to [−1, +∞), `log1p` to Entire | design; package tests only, no ITF1788 cases |
 | `rootn` | tightest when certified; valid otherwise | as for the certified functions above; the fallback is [0, +∞) for an even degree and Entire for an odd one | design; package tests only |
 
+## Corpus values wider than the exact result
+
+IEEE 1788-2015 12.12.4 asks the reverse-mode operations for an enclosure of the Level 1
+value, not for the tightest one (the tightest-or-accurate requirement of 12.10 is stated
+for the forward operations). Six statements of `libieeep1788_tests_rev.itl`, and their
+six decorated copies in the `_dec_` test cases, expect a value that is valid but one or
+two units wider than the exact hull in binary64. `ball_float` returns the exact hull, so the
+gate does not hold those cases to the corpus value: `testdata/interval/interpreter_refinements.json`
+records, for each, the corpus value and the exact value, and the gate requires the result to
+equal the exact value, which must lie inside the corpus value. The gate summary reports these
+cases on a line of their own. Every other case keeps exact equality with the corpus. The exact
+values are computed by `tools/itl_trig_reverse_oracle.py`, which evaluates `asin`, `acos`, `atan`
+and $\pi$ with Python's `decimal` and shares no code with `ball_float`; it also confirms that the
+other 124 trigonometric reverse statements equal the exact hull.
+
+| Statement | Corpus value | Exact hull | Corpus excess |
+| --- | --- | --- | --- |
+| `sinRevBin [0x1.FFFFFFFFFFFFFp-1, 1] [1.57, 1.58]` | `[0x1.921fb50442d18p+0, 0x1.921fb58442d1ap+0]` | `[0x1.921fb50442d18p+0, 0x1.921fb58442d19p+0]` | upper end, 1 unit |
+| `cosRevBin [-1, -1] [3.14, 3.15]` (the point $\pi$) | `[0x1.921fb54442d18p+1, 0x1.921fb54442d1ap+1]` | `[0x1.921fb54442d18p+1, 0x1.921fb54442d19p+1]` | upper end, 1 unit |
+| `cosRevBin [-1, -0x1.FFFFFFFFFFFFFp-1] [3.14, 3.15]` | `[0x1.921fb52442d18p+1, 0x1.921fb56442d1ap+1]` | `[0x1.921fb52442d18p+1, 0x1.921fb56442d19p+1]` | upper end, 1 unit |
+| `cosRevBin [-1, -0x1.FFFFFFFFFFFFFp-1] [-3.15, -3.14]` | `[-0x1.921fb56442d1ap+1, -0x1.921fb52442d18p+1]` | `[-0x1.921fb56442d19p+1, -0x1.921fb52442d18p+1]` | lower end, 1 unit |
+| `tanRevBin [0x1.D02967C31CDB4p+53, 0x1.D02967C31CDB5p+53] [-1.5708, 1.5708]` | `[-0x1.921fb54442d1bp+0, 0x1.921fb54442d19p+0]` | `[-0x1.921fb54442d19p+0, 0x1.921fb54442d19p+0]` | lower end, 2 units |
+| `tanRevBin [0x1.72CECE675D1FCp-52, 0x1.72CECE675D1FDp-52] [-3.15, 3.15]` | `[-0x1.921fb54442d19p+1, 0x1.921fb54442d1ap+1]` | `[-0x1.921fb54442d18p+1, 0x1.921fb54442d1ap+1]` | lower end, 1 unit |
+
+Whether to report the six values to the corpus's authors is left to the maintainer.
+
 ## Semantic oracle
 
 Expected results are compared by set meaning: endpoint containment, set relations, boolean relations, overlap states, numeric observations, and decorations use operation-specific comparators. A conservative interval may be valid when the contract permits widening; an enclosure that excludes an exact result is never valid.
 
 ## Supported phases
 
-The strict matrix covers sets, relations, observations, cancellation, add/subtract/multiply/divide, elementary core, exponential/logarithmic functions, general power, trigonometric functions, `atan2`, hyperbolic functions, inverse trigonometric functions, FMA, integer power, extrema, reverse multiplication (`mulRev`, `mulRevTen`, `mulRevToPair`), and the algebraic reverse functions (`sqrRev`, `absRev`, `pownRev`, `coshRev`). Phase operation sets are disjoint so a row is never counted twice.
+The strict matrix covers sets, relations, observations, cancellation, add/subtract/multiply/divide, elementary core, exponential/logarithmic functions, general power, trigonometric functions, `atan2`, hyperbolic functions, inverse trigonometric functions, FMA, integer power, extrema, the integer functions, reverse multiplication (`mulRev`, `mulRevTen`, `mulRevToPair`), the algebraic reverse functions (`sqrRev`, `absRev`, `pownRev`, `coshRev`), and the trigonometric reverse functions (`sinRev`, `cosRev`, `tanRev`). Phase operation sets are disjoint so a row is never counted twice.
 
 ## Decorations and fallbacks
 
@@ -66,7 +92,7 @@ Empty, Entire, and decorated NaI are separate states. Elementary kernels use dir
 
 ## Exclusions
 
-Reverse interval operations other than `mulRev`, `mulRevToPair`, `sqrRev`, `absRev`, `pownRev` and `coshRev`, every decoration rule outside the selected phases, arbitrary endpoint formats, and unpinned upstream revisions remain outside the claim.
+Reverse interval operations other than `mulRev`, `mulRevToPair`, `sqrRev`, `absRev`, `pownRev`, `coshRev`, `sinRev`, `cosRev` and `tanRev`, every decoration rule outside the selected phases, arbitrary endpoint formats, and unpinned upstream revisions remain outside the claim.
 
 ## Reproduction
 
