@@ -1795,13 +1795,13 @@ test "decimal interchange input accepts trim optional hash and lowercase" {
     "#A23003D",
     @decimal.DecimalInterchangeFormat::Decimal32,
   )
-  assert_true(bad_length == None)
+  assert_true(bad_length is Err(_))
   assert_true(
     @decimal.DecimalInterchange::from_hex(
       "#A23003D",
       @decimal.DecimalInterchangeFormat::Decimal32,
     )
-    is None,
+    is Err(_),
   )
 
   let bad_digit = @decimal.DecimalInterchange::from_hex(
@@ -1813,11 +1813,11 @@ test "decimal interchange input accepts trim optional hash and lowercase" {
       "#77FFFF3FCFF3FCFG",
       @decimal.DecimalInterchangeFormat::Decimal64,
     )
-    is None,
+    is Err(_),
   )
   match bad_digit {
-    None => ()
-    Some(_) => fail("expected invalid interchange digit to be rejected")
+    Err(_) => ()
+    Ok(_) => fail("expected invalid interchange digit to be rejected")
   }
 }
 
@@ -3334,12 +3334,14 @@ test "decimal context directed overflow follows gda rounding result selection" {
     "-9.999999999999999E+384",
     precision=32,
   ).unwrap()
-  let (down_positive_sci, _) = @decimal.Decimal::to_sci_string(
+  let (down_positive_sci_value, _) = @decimal.Decimal::from_string_ctx(
     "9.999999999999999E+384", down_ctx,
   )
-  let (down_negative_sci, _) = @decimal.Decimal::to_sci_string(
+  let down_positive_sci = down_positive_sci_value.to_sci_string()
+  let (down_negative_sci_value, _) = @decimal.Decimal::from_string_ctx(
     "-9.999999999999999E+384", down_ctx,
   )
+  let down_negative_sci = down_negative_sci_value.to_sci_string()
 
   let (down_positive, down_positive_flags) = positive.add_ctx(
     positive_rhs, down_ctx,
@@ -4569,13 +4571,14 @@ test "decimal gda string conversions format and report context flags" {
     e_max=999_999_999,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToAway,
   )
-  let (rounded, rounded_flags) = @decimal.Decimal::to_sci_string(
+  let (rounded_value, rounded_flags) = @decimal.Decimal::from_string_ctx(
     "1000000000", ctx,
   )
+  let rounded = rounded_value.to_sci_string()
   assert_eq(rounded, "1.00000000E+9")
   assert_false(rounded_flags.inexact())
 
-  let (finite_overflow, overflow_flags) = @decimal.Decimal::to_sci_string(
+  let (finite_overflow_value, overflow_flags) = @decimal.Decimal::from_string_ctx(
     "7e1000000000",
     @decimal.DecimalContext::new(
       precision=9,
@@ -4583,6 +4586,7 @@ test "decimal gda string conversions format and report context flags" {
       rounding=@decimal.DecimalRoundingMode::RoundTowardZero,
     ),
   )
+  let finite_overflow = finite_overflow_value.to_sci_string()
   assert_eq(finite_overflow, "9.99999999E+999999999")
   assert_true(overflow_flags.overflow())
   assert_true(overflow_flags.inexact())
@@ -4592,16 +4596,18 @@ test "decimal gda string conversions format and report context flags" {
     e_max=96,
     rounding=@decimal.DecimalRoundingMode::RoundTiesToEven,
   )
-  let (tiny, tiny_flags) = @decimal.Decimal::to_sci_string(
+  let (tiny_value, tiny_flags) = @decimal.Decimal::from_string_ctx(
     "1e-2147483647", tiny_ctx,
   )
+  let tiny = tiny_value.to_sci_string()
   assert_eq(tiny, "0E-101")
   assert_true(tiny_flags.underflow())
   assert_true(tiny_flags.inexact())
 
-  let (neg_tiny, neg_tiny_flags) = @decimal.Decimal::to_sci_string(
+  let (neg_tiny_value, neg_tiny_flags) = @decimal.Decimal::from_string_ctx(
     "-1e-2147483647", tiny_ctx,
   )
+  let neg_tiny = neg_tiny_value.to_sci_string()
   assert_eq(neg_tiny, "-0E-101")
   assert_true(neg_tiny_flags.underflow())
   assert_true(neg_tiny_flags.inexact())
@@ -4610,15 +4616,20 @@ test "decimal gda string conversions format and report context flags" {
 ///|
 test "decimal gda string conversions handle engineering zeros and syntax" {
   let ctx = @decimal.DecimalContext::new(precision=4)
-  let (eng, eng_flags) = @decimal.Decimal::to_eng_string("10e1", ctx)
+  let (eng_value, eng_flags) = @decimal.Decimal::from_string_ctx("10e1", ctx)
+  let eng = eng_value.to_eng_string()
   assert_eq(eng, "100")
   assert_false(eng_flags.has_error())
 
-  let (zero_eng, zero_flags) = @decimal.Decimal::to_eng_string("0e+1", ctx)
+  let (zero_eng_value, zero_flags) = @decimal.Decimal::from_string_ctx(
+    "0e+1", ctx,
+  )
+  let zero_eng = zero_eng_value.to_eng_string()
   assert_eq(zero_eng, "0.00E+3")
   assert_false(zero_flags.has_error())
 
-  let (bad, bad_flags) = @decimal.Decimal::to_sci_string("1E++1", ctx)
+  let (bad_value, bad_flags) = @decimal.Decimal::from_string_ctx("1E++1", ctx)
+  let bad = bad_value.to_sci_string()
   assert_eq(bad, "NaN")
   assert_true(bad_flags.invalid_operation())
 }
@@ -4627,15 +4638,22 @@ test "decimal gda string conversions handle engineering zeros and syntax" {
 test "decimal gda string conversions canonicalize special spellings and payloads" {
   let ctx = @decimal.DecimalContext::new(precision=8)
 
-  let (inf, inf_flags) = @decimal.Decimal::to_sci_string("+inf", ctx)
+  let (inf_value, inf_flags) = @decimal.Decimal::from_string_ctx("+inf", ctx)
+  let inf = inf_value.to_sci_string()
   assert_eq(inf, "Infinity")
   assert_false(inf_flags.has_error())
 
-  let (qnan, qnan_flags) = @decimal.Decimal::to_sci_string("-nan0007", ctx)
+  let (qnan_value, qnan_flags) = @decimal.Decimal::from_string_ctx(
+    "-nan0007", ctx,
+  )
+  let qnan = qnan_value.to_sci_string()
   assert_eq(qnan, "-NaN7")
   assert_false(qnan_flags.has_error())
 
-  let (snan, snan_flags) = @decimal.Decimal::to_eng_string("sNaN0000", ctx)
+  let (snan_value, snan_flags) = @decimal.Decimal::from_string_ctx(
+    "sNaN0000", ctx,
+  )
+  let snan = snan_value.to_eng_string()
   assert_eq(snan, "sNaN")
   assert_false(snan_flags.has_error())
 }
@@ -4644,13 +4662,17 @@ test "decimal gda string conversions canonicalize special spellings and payloads
 test "decimal gda string conversions enforce clamped nan payload bounds" {
   let ctx = @decimal.DecimalContext::new(precision=4)
 
-  let (allowed, allowed_flags) = @decimal.Decimal::to_sci_string("NaN123", ctx)
+  let (allowed_value, allowed_flags) = @decimal.Decimal::from_string_ctx(
+    "NaN123", ctx,
+  )
+  let allowed = allowed_value.to_sci_string()
   assert_eq(allowed, "NaN123")
   assert_false(allowed_flags.has_error())
 
-  let (too_wide, too_wide_flags) = @decimal.Decimal::to_sci_string(
+  let (too_wide_value, too_wide_flags) = @decimal.Decimal::from_string_ctx(
     "NaN1234", ctx,
   )
+  let too_wide = too_wide_value.to_sci_string()
   assert_eq(too_wide, "NaN")
   assert_true(too_wide_flags.invalid_operation())
 }

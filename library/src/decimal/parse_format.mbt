@@ -469,21 +469,13 @@ pub fn Decimal::from_string_ctx(
 }
 
 ///|
-pub fn Decimal::to_sci_string(
-  src : String,
-  ctx : DecimalContext,
-) -> (String, DecimalFlags) {
-  let (value, flags) = parse_decimal_string_ctx(src, ctx)
-  (format_sci_gda(value), flags)
+pub fn Decimal::to_sci_string(self : Decimal) -> String {
+  format_sci_gda(self)
 }
 
 ///|
-pub fn Decimal::to_eng_string(
-  src : String,
-  ctx : DecimalContext,
-) -> (String, DecimalFlags) {
-  let (value, flags) = parse_decimal_string_ctx(src, ctx)
-  (format_eng_gda(value), flags)
+pub fn Decimal::to_eng_string(self : Decimal) -> String {
+  format_eng_gda(self)
 }
 
 ///|

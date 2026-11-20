@@ -419,19 +419,21 @@ test "decimal from_string_ctx rounds and flags" {
 ### `Decimal::to_sci_string`, `to_eng_string`
 
 These functions implement the General Decimal Arithmetic `to-scientific-string`
-and `to-engineering-string` conversions of a text operand.
+and `to-engineering-string` conversions of a value.
 
 ```mbti
-pub fn Decimal::to_sci_string(String, DecimalContext) -> (String, DecimalFlags)
-pub fn Decimal::to_eng_string(String, DecimalContext) -> (String, DecimalFlags)
+pub fn Decimal::to_sci_string(Self) -> String
+pub fn Decimal::to_eng_string(Self) -> String
 ```
 
-Both take *text*, convert it with `from_string_ctx` and format the result.
+Both format the value they are called on; to convert text under a context,
+read it with `from_string_ctx` first, which also gives the flags of the
+conversion (`Decimal::from_string_ctx("1000000000", ctx).0.to_sci_string()`).
 Scientific form writes the coefficient with an exponent `E±n` whenever the
 exponent is positive or the adjusted exponent is below $-6$, and plain digits
 otherwise; engineering form uses an exponent that is a multiple of three.
 Special values are written `Infinity`, `-Infinity`, `NaN`, `sNaN`, with a
-payload such as `NaN7`. The flags are those of the conversion.
+payload such as `NaN7`.
 
 Values without a context are formatted by `Decimal::to_string` (the `Show`
 implementation), which uses the same scientific rule; see
@@ -1862,18 +1864,22 @@ kept, and a longer one keeps its low $p-1$ digits, in DPD and BID alike.
 These functions decode interchange hex text.
 
 ```mbti
-pub fn Decimal::from_interchange_hex(String, DecimalInterchangeFormat) -> Self?
-pub fn Decimal::from_interchange_hex_with_encoding(String, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> Self?
+pub fn Decimal::from_interchange_hex(String, DecimalInterchangeFormat) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Decimal::from_interchange_hex_with_encoding(String, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 The text may have surrounding ASCII whitespace and a leading `#`; it must have
-exactly the format's number of hex digits, in either case, or the result is
-`None`. Decoding is exact and keeps the exponent, the sign of zero, the NaN
+exactly the format's number of hex digits, in either case. Anything else is an
+`Err` (a parse error) that says what was wrong: the number of digits wanted and
+found (`"#A23003D"` for decimal32 has 7 of 8), or the first character that is
+not a hexadecimal digit and its place among the digits. The length is checked
+first. No bit pattern of the right length is refused: decoding is exact and keeps the exponent, the sign of zero, the NaN
 kind and payload. Non-canonical encodings decode to the value IEEE 754
 assigns them: a non-canonical DPD declet to its digits, a BID coefficient
 $\ge 10^{p}$ to zero, an out-of-range BID NaN payload to 0; the unused
 exponent bits of infinities and NaNs are ignored. The result has the format's
-precision.
+precision. `GdaInterchange::from_hex` of `decimal_gda` accepts the same texts
+and refuses the same ones, but its message is one sentence for both faults.
 
 ```moonbit
 ///|
@@ -1889,6 +1895,11 @@ test "decimal64 interchange in both encodings" {
   inspect(bid, content="#318000000000007D")
   let back = @decimal.Decimal::from_interchange_hex(dpd, fmt).unwrap()
   inspect(back, content="1.25")
+  // a text of the wrong length is an error that says so
+  match @decimal.Decimal::from_interchange_hex("#22300", fmt) {
+    Ok(_) => fail("expected a parse error")
+    Err(err) => assert_true(err.is_parse_error())
+  }
 }
 ```
 
@@ -1916,13 +1927,13 @@ full-width upper-case hex digits.
 These functions build an interchange value from text or from a `Decimal`.
 
 ```mbti
-pub fn DecimalInterchange::from_hex(String, DecimalInterchangeFormat) -> Self?
-pub fn DecimalInterchange::from_hex_with_encoding(String, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> Self?
+pub fn DecimalInterchange::from_hex(String, DecimalInterchangeFormat) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn DecimalInterchange::from_hex_with_encoding(String, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn DecimalInterchange::from_decimal(Decimal, DecimalInterchangeFormat) -> (Self, DecimalFlags)
 pub fn DecimalInterchange::from_decimal_with_encoding(Decimal, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> (Self, DecimalFlags)
 ```
 
-`from_hex` stores the bits unchanged (text rules as in
+`from_hex` stores the bits unchanged (text rules and errors as in
 `from_interchange_hex`). `from_decimal` encodes like `to_interchange_hex` and
 returns the same flags. The forms without an encoding use `DPD`.
 
@@ -2255,8 +2266,8 @@ pub fn Decimal::from_bin_float_ctx(@bin_float.BinFloat, DecimalContext) -> (Self
 pub fn Decimal::from_double(Double, precision? : Int32) -> Self
 pub fn Decimal::from_float(Float, precision? : Int32) -> Self
 pub fn Decimal::from_int(Int32, precision? : Int32) -> Self
-pub fn Decimal::from_interchange_hex(String, DecimalInterchangeFormat) -> Self?
-pub fn Decimal::from_interchange_hex_with_encoding(String, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> Self?
+pub fn Decimal::from_interchange_hex(String, DecimalInterchangeFormat) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Decimal::from_interchange_hex_with_encoding(String, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::from_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::from_string_ctx(String, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::get_payload(Self) -> @bigint.BigInt
@@ -2347,7 +2358,7 @@ pub fn Decimal::tanh_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::tanpi_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::to_bin_float(Self, precision? : Int32, mode? : @arithmetic.RoundingMode) -> @bin_float.BinFloat
 pub fn Decimal::to_bin_float_ctx(Self, @bin_float.BinaryContext) -> (@bin_float.BinFloat, @bin_float.BinaryFlags)
-pub fn Decimal::to_eng_string(String, DecimalContext) -> (String, DecimalFlags)
+pub fn Decimal::to_eng_string(Self) -> String
 pub fn Decimal::to_int64_ctx(Self, DecimalContext, exact? : Bool) -> (Int64?, DecimalFlags)
 pub fn Decimal::to_int_ctx(Self, DecimalContext, exact? : Bool) -> (Int32?, DecimalFlags)
 pub fn Decimal::to_integral_exact_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
@@ -2355,7 +2366,7 @@ pub fn Decimal::to_integral_value_ctx(Self, DecimalContext) -> (Self, DecimalFla
 pub fn Decimal::to_interchange_hex(Self, DecimalInterchangeFormat) -> (String, DecimalFlags)
 pub fn Decimal::to_interchange_hex_with_encoding(Self, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> (String, DecimalFlags)
 pub fn Decimal::to_repr(Self) -> @debug.Repr
-pub fn Decimal::to_sci_string(String, DecimalContext) -> (String, DecimalFlags)
+pub fn Decimal::to_sci_string(Self) -> String
 pub fn Decimal::to_string(Self) -> String
 pub fn Decimal::to_uint64_ctx(Self, DecimalContext, exact? : Bool) -> (UInt64?, DecimalFlags)
 pub fn Decimal::to_uint_ctx(Self, DecimalContext, exact? : Bool) -> (UInt32?, DecimalFlags)
@@ -2488,8 +2499,8 @@ pub fn DecimalInterchange::encoding(Self) -> DecimalInterchangeEncoding
 pub fn DecimalInterchange::format(Self) -> DecimalInterchangeFormat
 pub fn DecimalInterchange::from_decimal(Decimal, DecimalInterchangeFormat) -> (Self, DecimalFlags)
 pub fn DecimalInterchange::from_decimal_with_encoding(Decimal, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> (Self, DecimalFlags)
-pub fn DecimalInterchange::from_hex(String, DecimalInterchangeFormat) -> Self?
-pub fn DecimalInterchange::from_hex_with_encoding(String, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> Self?
+pub fn DecimalInterchange::from_hex(String, DecimalInterchangeFormat) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn DecimalInterchange::from_hex_with_encoding(String, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn DecimalInterchange::is_canonical(Self) -> Bool
 pub fn DecimalInterchange::to_decimal(Self) -> Decimal
 pub fn DecimalInterchange::to_decimal_ctx(Self) -> (Decimal, DecimalFlags)
