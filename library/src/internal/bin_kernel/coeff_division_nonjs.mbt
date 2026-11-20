@@ -72,7 +72,7 @@ fn bin_coeff_bz_div_2n_1n(
   if numerator.compare(denominator) < 0 {
     return (Coeff::zero(), numerator)
   }
-  if divisor_words <= bin_coeff_bz_leaf_words {
+  if divisor_words <= bin_coeff_bz_leaf_words || divisor_words % 2 != 0 {
     return bin_coeff_div_rem_knuth(numerator, denominator)
   }
   let half_words = divisor_words / 2
@@ -90,15 +90,36 @@ fn bin_coeff_bz_div_2n_1n(
 }
 
 ///|
+/// The length `n` in limbs to which `bin_coeff_div_rem_burnikel_ziegler`
+/// extends a divisor of `s` limbs. Burnikel and Ziegler, "Fast Recursive
+/// Division" (MPI-I-98-1-022, 1998), Algorithm 3 (D_{r/s}), steps 1 and 2: `m`
+/// is the number of division blocks, a power of two (the depth `log2 m` of the
+/// recursion), `j = ceil(s / m)` the length of a block and `n = j m`; the
+/// divisor is extended to `n` limbs on the right, which wastes less than `m`
+/// limbs, instead of to the next power of two, which wastes up to `s`
+/// (section 2.3: the report's `DIV_LIMIT` is the block length at which the
+/// recursion ends in school division, `bin_coeff_bz_leaf_words` here). `m` is
+/// the least power of two with `ceil(s / m) <= bin_coeff_bz_leaf_words`
+/// (the report writes `m DIV_LIMIT > s`; the two differ only when
+/// `s = m DIV_LIMIT`, where the block then has exactly `DIV_LIMIT` limbs and
+/// the leaf test `<=` of `bin_coeff_bz_div_2n_1n` stops there). The splits of
+/// `bin_coeff_bz_div_2n_1n` and `bin_coeff_bz_div_3n_2n` halve `n` exactly
+/// `log2 m` times before the leaf, so every length they halve is even.
+fn bin_coeff_bz_padded_words(divisor_words : Int32) -> Int32 {
+  let mut blocks = 1
+  while (divisor_words + blocks - 1) / blocks > bin_coeff_bz_leaf_words {
+    blocks *= 2
+  }
+  (divisor_words + blocks - 1) / blocks * blocks
+}
+
+///|
 fn bin_coeff_div_rem_burnikel_ziegler(
   numerator : Coeff,
   denominator : Coeff,
 ) -> (Coeff, Coeff) {
   let denominator_len = bin_coeff_word_len(denominator)
-  let mut normalized_words = 1
-  while normalized_words < denominator_len {
-    normalized_words *= 2
-  }
+  let normalized_words = bin_coeff_bz_padded_words(denominator_len)
   let normalization_shift = normalized_words * 64 - denominator.bit_length()
   let normalized_denominator = denominator.shift_left(normalization_shift)
   let normalized_numerator = numerator.shift_left(normalization_shift)
