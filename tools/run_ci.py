@@ -117,6 +117,12 @@ PACKAGE_STAGE_NAME = "PACKAGE: published contents"
 DOCS_STAGE_NAME = "DOCS: manual quality and examples"
 DOCS_EXAMPLES_STAGE_NAME = "DOCS: manual examples"
 
+# The targets whose unit tests the quick gate runs besides native. Empty: the pull-request
+# job is at the maintainer's budget, and these targets are tested by the nightly workflow
+# (`unit-tests` in `.github/workflows/nightly.yml`). To test js in the quick gate, change
+# this one line to `("js",)`.
+QUICK_TEST_TARGETS: tuple[str, ...] = ()
+
 # Quick gate lanes (see `ci_schedule`). Stages of the "moon" lane share the
 # default target directory `_build`, and `run_moon_clean_exec.sh` clears the
 # lock files of that directory, so they stay in order in one lane. The
@@ -131,6 +137,9 @@ QUICK_LANES: dict[str, tuple[str, str | None]] = {
     DOCS_EXAMPLES_STAGE_NAME: ("moon", None),
     "FORMAT: MoonBit sources": ("moon", None),
     "TEST: native": ("moon", None),
+    "TEST: js": ("moon", None),
+    "TEST: wasm": ("moon", None),
+    "TEST: wasm-gc": ("moon", None),
     "SMOKE: IEEE 754": ("moon", None),
     "IMPORTS: package independence": ("python", None),
     "DOCS: manual quality": ("python", None),
@@ -306,6 +315,23 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                     str(jobs),
                 ),
             ),
+            *[
+                Stage(
+                    f"TEST: {target}",
+                    (
+                        "sh",
+                        "tools/run_moon_clean_exec.sh",
+                        "test",
+                        "--target",
+                        target,
+                        "--deny-warn",
+                        "--frozen",
+                        "--jobs",
+                        str(jobs),
+                    ),
+                )
+                for target in QUICK_TEST_TARGETS
+            ],
             Stage(
                 "SMOKE: IEEE 754",
                 (
