@@ -378,3 +378,177 @@ fn binary_pair_mul(left : BinFloat, right : BinFloat) -> BinFloat? {
     ),
   )
 }
+
+///|
+/// Word `index` (0 to 4) of the 128-bit `high:low << shift`, `0 <= shift < 320`.
+fn binary_pair_shl_word5(
+  high : UInt64,
+  low : UInt64,
+  shift : Int32,
+  index : Int32,
+) -> UInt64 {
+  let source = index - shift / 64
+  let bit_shift = shift % 64
+  let part = if source == 0 { low } else if source == 1 { high } else { 0UL }
+  if bit_shift == 0 {
+    return part
+  }
+  let below = source - 1
+  let lower = if below == 0 { low } else if below == 1 { high } else { 0UL }
+  (part << bit_shift) | (lower >> (64 - bit_shift))
+}
+
+///|
+/// Division of two operands whose coefficients take at most two words, at a
+/// result precision of at most 128 bits, the range above the one-word division
+/// of `bin_float_fast_nonjs.mbt`. With `s = 128 - divisor_bits` and `scale`
+/// chosen so that the quotient has at least `precision + 2` bits, the
+/// dividend `<< (scale + s)` has at most 258 bits (five words) and the
+/// divisor `<< s` is a normalised two-word value, so the quotient has at most
+/// three words: Knuth's algorithm D with three steps, each dividing three words
+/// by two. The remainder is only tested against zero (one sticky bit under the
+/// quotient), as in `binary_fast_div`. Nothing is allocated but the result.
+fn binary_pair_div(left : BinFloat, right : BinFloat) -> BinFloat? {
+  let precision = Int32::max(left.precision_, right.precision_)
+  guard precision <= binary_pair_precision_limit else { return None }
+  guard left.class == FpClass::Finite && right.class == FpClass::Finite else {
+    return None
+  }
+  let mut dividend_high = 0UL
+  let mut dividend_low = 0UL
+  match left.coefficient_.0 {
+    Inline64(word) => dividend_low = word
+    Inline128(high, low) => {
+      dividend_high = high
+      dividend_low = low
+    }
+    Heap(_, _) => return None
+  }
+  let mut divisor_high = 0UL
+  let mut divisor_low = 0UL
+  match right.coefficient_.0 {
+    Inline64(word) => divisor_low = word
+    Inline128(high, low) => {
+      divisor_high = high
+      divisor_low = low
+    }
+    Heap(_, _) => return None
+  }
+  guard (dividend_high != 0UL || dividend_low != 0UL) &&
+    (divisor_high != 0UL || divisor_low != 0UL) else {
+    return None
+  }
+  let left_exponent = left.exponent2
+  let right_exponent = right.exponent2
+  guard left_exponent <= binary_fast_exponent_limit &&
+    left_exponent >= -binary_fast_exponent_limit &&
+    right_exponent <= binary_fast_exponent_limit &&
+    right_exponent >= -binary_fast_exponent_limit else {
+    return None
+  }
+  let dividend_bits = if dividend_high != 0UL {
+    64 + binary_fast_bits(dividend_high)
+  } else {
+    binary_fast_bits(dividend_low)
+  }
+  let divisor_bits = if divisor_high != 0UL {
+    64 + binary_fast_bits(divisor_high)
+  } else {
+    binary_fast_bits(divisor_low)
+  }
+  let scale = Int32::max(0, precision + 2 + divisor_bits - dividend_bits)
+  let normalization = 128 - divisor_bits
+  let shift = scale + normalization
+  // the shifted dividend has at most 258 bits: five words
+  guard dividend_bits + shift <= 258 else { return None }
+  let d1 = binary_pair_shl_word5(divisor_high, divisor_low, normalization, 1)
+  let d0 = binary_pair_shl_word5(divisor_high, divisor_low, normalization, 0)
+  let n4 = binary_pair_shl_word5(dividend_high, dividend_low, shift, 4)
+  let n3 = binary_pair_shl_word5(dividend_high, dividend_low, shift, 3)
+  let n2 = binary_pair_shl_word5(dividend_high, dividend_low, shift, 2)
+  let n1 = binary_pair_shl_word5(dividend_high, dividend_low, shift, 1)
+  let n0 = binary_pair_shl_word5(dividend_high, dividend_low, shift, 0)
+  // (n4, n3) < (d1, d0): the quotient has at most 131 bits
+  let mut r1 = n4
+  let mut r0 = n3
+  let mut q2 = 0UL
+  let mut q1 = 0UL
+  let mut q0 = 0UL
+  for step in 0..<3 {
+    let u2 = r1
+    let u1 = r0
+    let u0 = match step {
+      0 => n2
+      1 => n1
+      _ => n0
+    }
+    let mut trial = 0UL
+    let mut trial_remainder = 0UL
+    let mut remainder_overflow = false
+    if u2 >= d1 {
+      trial = 0xFFFF_FFFF_FFFF_FFFFUL
+      trial_remainder = u1 + d1
+      remainder_overflow = trial_remainder < u1
+    } else {
+      trial = binary_fast_div_wide(u2, u1, d1)
+      trial_remainder = u1 - trial * d1
+    }
+    while !remainder_overflow {
+      let product_high = binary_fast_mul_high(trial, d0)
+      let product_low = trial * d0
+      if product_high > trial_remainder ||
+        (product_high == trial_remainder && product_low > u0) {
+        trial -= 1UL
+        trial_remainder += d1
+        remainder_overflow = trial_remainder < d1
+      } else {
+        break
+      }
+    }
+    // (u2, u1, u0) - trial * (d1, d0)
+    let m0 = trial * d0
+    let high0 = binary_fast_mul_high(trial, d0)
+    let low1 = trial * d1
+    let m1 = low1 + high0
+    let m2 = binary_fast_mul_high(trial, d1) +
+      (if m1 < low1 { 1UL } else { 0UL })
+    let difference0 = u0 - m0
+    let borrow0 = if u0 < m0 { 1UL } else { 0UL }
+    let partial1 = u1 - m1
+    let borrow1a = if u1 < m1 { 1UL } else { 0UL }
+    let difference1 = partial1 - borrow0
+    let borrow1b = if partial1 < borrow0 { 1UL } else { 0UL }
+    let partial2 = u2 - m2
+    let borrow2a = if u2 < m2 { 1UL } else { 0UL }
+    let borrow1 = borrow1a + borrow1b
+    let borrow2b = if partial2 < borrow1 { 1UL } else { 0UL }
+    r0 = difference0
+    r1 = difference1
+    if borrow2a + borrow2b != 0UL {
+      // the estimate was one too large: add the divisor back
+      trial -= 1UL
+      let sum0 = r0 + d0
+      let carry0 = if sum0 < r0 { 1UL } else { 0UL }
+      r0 = sum0
+      r1 = r1 + d1 + carry0
+    }
+    match step {
+      0 => q2 = trial
+      1 => q1 = trial
+      _ => q0 = trial
+    }
+  }
+  let sticky = if r1 != 0UL || r0 != 0UL { 1UL } else { 0UL }
+  // one more low bit stands for "the remainder is not zero"
+  Some(
+    binary_pair_round(
+      left.negative != right.negative,
+      q2 >> 63,
+      (q2 << 1) | (q1 >> 63),
+      (q1 << 1) | (q0 >> 63),
+      (q0 << 1) | sticky,
+      left_exponent - right_exponent - scale - 1,
+      precision,
+    ),
+  )
+}

@@ -46,6 +46,11 @@ fn binary_pair_add(_left : BinFloat, _right : BinFloat) -> BinFloat? {
 }
 
 ///|
+fn binary_pair_div(_left : BinFloat, _right : BinFloat) -> BinFloat? {
+  None
+}
+
+///|
 fn binary_pair_mul(_left : BinFloat, _right : BinFloat) -> BinFloat? {
   None
 }

@@ -10,6 +10,8 @@ notes live in this file.
 
 - `bin_float`: `div` of operands wider than one word forms the quotient and the inexact flag from the working array of Knuth's algorithm directly (one shift pass for the scaling and the normalisation, no remainder value built), and the digit loop hoists the halves of the trial digit. Results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).
 
+- `bin_float`: `div` of operands whose coefficients take at most two words, at precisions from 61 to 128 bits, runs three 3-by-2 word steps of Knuth's algorithm on registers instead of the general coefficient division; only the result is allocated. Results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).
+
 ### Breaking
 
 - The flag and trap types share one access style: methods ([#438](https://github.com/Luna-Flow/floating/issues/438), item A5). The fields of `decimal.DecimalFlags`, `decimal_gda.DecimalFlags`, `GdaFlags`, `GdaTrapSet` and `BallFlags` are private; each flag is read with a method of the same name, as `BinaryFlags` already did. `GdaFlags::none` and `GdaTrapSet::none` are `new`, like every other flag constructor. `contains` stays on the types of packages that have a signal enum (`decimal`, `decimal_gda`); `has_error` is unchanged (true for `invalid_operation`, `conversion_syntax`, `division_by_zero`, `division_undefined`, `division_impossible`, `invalid_context`; false for overflow, underflow, inexact and the other conditions, which deliver a usable result).

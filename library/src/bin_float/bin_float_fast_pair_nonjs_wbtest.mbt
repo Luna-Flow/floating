@@ -195,3 +195,99 @@ test "pair paths decline what they do not cover" {
   )
   assert_true(binary_pair_mul(huge, huge) is None)
 }
+
+///|
+test "pair div equals the general path" {
+  let random = { coeff_state: 0x5EED0D1FUL, }
+  let mut fast = 0
+  for _ in 0..<400000 {
+    let around = random.below(300) - 150
+    let precision = fast_pair_precision(random)
+    let left = fast_coeff_operand(random, around, 128, precision)
+    let right = fast_coeff_operand(
+      random,
+      around + random.below(9) - 4,
+      128,
+      precision - random.below(3) + 1,
+    )
+    let general = left.div_ctx(
+        right,
+        BinaryContext::unbounded(max_precision(left, right)),
+      ).0
+    match binary_pair_div(left, right) {
+      Some(result) => {
+        fast += 1
+        assert_true(fast_test_same(result, general))
+      }
+      None => ()
+    }
+    assert_true(fast_test_same(left.div(right), general))
+  }
+  assert_true(fast > 300000)
+}
+
+///|
+test "pair div at boundary operands: exact quotients, all ones, tiny divisors, estimates at the top digit" {
+  let ones = Coeff::one().shift_left(128).sub_checked(Coeff::one()).unwrap()
+  let mut done = 0
+  let divisor_values = [
+    Coeff::one(),
+    Coeff::from_uint64(3UL),
+    Coeff::from_uint64(0xffff_ffff_ffff_ffffUL),
+    Coeff::one().shift_left(64).add(Coeff::one()),
+    Coeff::one().shift_left(127).add(Coeff::one()),
+    Coeff::one()
+    .shift_left(127)
+    .add(Coeff::from_uint64(0xffff_ffff_ffff_ffffUL)),
+    ones,
+    ones.sub_checked(Coeff::from_uint64(2UL)).unwrap(),
+  ]
+  for precision in [54, 61, 64, 65, 100, 127, 128] {
+    for divisor in divisor_values {
+      let dividends = [
+        Coeff::one(),
+        Coeff::from_uint64(0xffff_ffff_ffff_ffffUL),
+        Coeff::one().shift_left(127).add(Coeff::one()),
+        ones,
+        divisor,
+        divisor.add(Coeff::from_uint64(2UL)),
+      ]
+      for multiplier in [3UL, 0xffff_ffff_ffff_fffbUL] {
+        let product = divisor.mul(Coeff::from_uint64(multiplier))
+        if product.bit_length() <= 128 {
+          dividends.push(product)
+          dividends.push(product.add(Coeff::from_uint64(2UL)))
+        }
+      }
+      for dividend in dividends {
+        for exponent in [-70, -1, 0, 5, 131] {
+          for negative in [false, true] {
+            let left = BinFloat::make_coeff(
+              dividend,
+              exponent,
+              precision,
+              negative~,
+            )
+            let right = BinFloat::make_coeff(divisor, 3, precision)
+            if left.is_zero() || right.is_zero() {
+              continue
+            }
+            let general = left.div_ctx(
+                right,
+                BinaryContext::unbounded(max_precision(left, right)),
+              ).0
+            match binary_pair_div(left, right) {
+              Some(result) => {
+                done += 1
+                assert_true(fast_test_same(result, general))
+              }
+              None => ()
+            }
+            assert_true(fast_test_same(left.div(right), general))
+          }
+        }
+      }
+    }
+  }
+  assert_true(done > 3000)
+}
