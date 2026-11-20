@@ -67,7 +67,7 @@ the functions below.
 | add, subtract, shift | `Coeff::add`, `Coeff::sub_checked`, `Coeff::shift_left`, `Coeff::shift_right`, `Coeff::shl`, `Coeff::shr`, `bin_coeff_add_normalized_odd`, `bin_coeff_sub_normalized_odd` |
 | bit operations | `Coeff::bit_and`, `Coeff::bit_or`, `Coeff::bit_xor` |
 | multiply and divide | `Coeff::mul`, `Coeff::square`, `Coeff::div_rem_checked`, `bin_coeff_short_div_rem` |
-| number theory and roots | `Coeff::gcd`, `Coeff::pow_nat`, `bin_coeff_sqrt_rem_kernel` |
+| number theory and roots | `Coeff::gcd`, `Coeff::pow_nat`, `bin_coeff_sqrt_rem_kernel`, `bin_coeff_sqrt_rem_scaled` |
 | machine words | `binary_fast_bits`, `binary_fast_mul_high`, `binary_fast_div_wide`, `binary_fast_shl_high`, `binary_fast_shl_low` |
 
 The per-target thresholds (`bin_coeff_*_min_words`, `*_words`, `*_cutoff`) are
@@ -99,6 +99,8 @@ pub fn bin_coeff_inline(UInt64, UInt64) -> Coeff
 pub fn bin_coeff_short_div_rem(Coeff, Coeff) -> (Coeff, Coeff)
 
 pub fn bin_coeff_sqrt_rem_kernel(Coeff) -> (Coeff, Coeff)
+
+pub fn bin_coeff_sqrt_rem_scaled(Coeff, Int32) -> (Coeff, Coeff)
 
 pub fn bin_coeff_sub_normalized_odd(Coeff, Coeff) -> (Coeff, Int32)
 

@@ -17,6 +17,9 @@ notes live in this file.
   | `flags.inexact`, `flags.overflow`, `flags.underflow` on `BallFlags` | `flags.inexact()`, `flags.overflow()`, `flags.underflow()` (the methods already existed) |
   | `GdaFlags::none()` | `GdaFlags::new()` |
   | `GdaTrapSet::none()` | `GdaTrapSet::new()` |
+### Performance
+
+- `bin_float`: `sqrt` of a coefficient above 256 bits (precisions from about 128 bits up) runs the Karatsuba square root on limb arrays: the divisor of each level is the root of the upper part, used without a copy or a shift, the quotient, remainder and square are formed on arrays, and the radicand is shifted once instead of twice. Results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).
 
 ## 0.11.0 - 2026-11-20
 
