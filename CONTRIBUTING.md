@@ -184,6 +184,15 @@ relative links out of the package.
 - Run the quick `just pr` gate for ordinary changes and the complete `just ci`
   gate before publishing.
 - The GitHub Actions publish workflow reads the release version directly from the manifest of the selected module.
+- Tag and GitHub release: create them together with the publish of the library, in the same sitting, never later from memory (the release before this rule was published on 2026-11-12 without a GitHub release, which was added by hand on 2026-11-20). When the `library` publish workflow has succeeded, tag the merge commit of the version bump and create the release from it:
+
+  ```bash
+  gh release create vX.Y.Z --target <merge commit of the version bump> \
+    --title vX.Y.Z --notes-file <release notes>
+  ```
+
+  The notes are the `## X.Y.Z` section of `library/CHANGELOG.md` (rename the `## Unreleased` heading to `## X.Y.Z - date` in the bump commit, in both changelogs).
+- The tools module gets the same tag and the same GitHub release, with its own notes as a second section: a `### Tools module (Luna-Flow/floating-tools X.Y.Z)` section copied from the `## X.Y.Z` section of `tooling/CHANGELOG.md`; when the tools module is also published, say so in that section (`moon add Luna-Flow/floating-tools@X.Y.Z`). Why one tag and one release: both modules always have the same version, one version can have one tag, a reader looks for the release of a version in one place, and the tools publish is optional, so a second release would often be empty. If the tools module ever gets a different version scheme, it gets its own tag prefix (`tools-vX.Y.Z`) and its own release at that time.
 - If Mooncakes reports a duplicate version, bump the version before retrying.
 
 ## 7. Code Review
