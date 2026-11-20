@@ -880,16 +880,6 @@ fn dec_coeff_write_wide_unit(
 }
 
 ///|
-fn dec_coeff_pack_wide(coeff : DecCoeff) -> Array[UInt64] {
-  let wide_len = dec_coeff_unit_len(coeff)
-  let packed = Array::make(wide_len, 0UL)
-  for wide_index in 0..<wide_len {
-    packed[wide_index] = dec_coeff_limb_at(coeff, wide_index).to_uint64()
-  }
-  packed
-}
-
-///|
 fn dec_coeff_from_wide_accumulator(
   wide_units : Array[UInt64],
   wide_len : Int32,
@@ -1489,11 +1479,154 @@ fn dec_coeff_wide_multiply_coeff_by_unit_into(
 }
 
 ///|
+/// Normalizes the limbs of `coeff` (multiplied by `multiplier`, below the
+/// base) into `target[0..)` and returns the number of limbs written (the last
+/// limb is the carry, possibly zero, at index `unit_len`).
+fn dec_coeff_knuth_load(
+  coeff : DecCoeff,
+  multiplier : UInt64,
+  target : FixedArray[UInt64],
+) -> Unit {
+  let unit_len = dec_coeff_unit_len(coeff)
+  let mut carry = 0UL
+  for index in 0..<unit_len {
+    let current = dec_coeff_limb_at(coeff, index).to_uint64() * multiplier +
+      carry
+    carry = current / dec_coeff_wide_base
+    target.unsafe_set(index, current - carry * dec_coeff_wide_base)
+  }
+  target.unsafe_set(unit_len, carry)
+}
+
+///|
+/// Knuth's Algorithm D on limbs of base 10^9. `numerator` (`numerator_len`
+/// limbs, one more limb of room, already multiplied by the normalization
+/// unit) is divided in place by `denominator` (`denominator_len >= 2` limbs,
+/// normalized: the top limb is at least 5 * 10^8): the quotient limbs are
+/// written to `quotient[0..numerator_len - denominator_len]` and the
+/// normalized remainder is left in `numerator[0..denominator_len)`.
+fn dec_coeff_knuth_core(
+  numerator : FixedArray[UInt64],
+  numerator_len : Int32,
+  denominator : FixedArray[UInt64],
+  denominator_len : Int32,
+  quotient : Array[UInt32],
+) -> Unit {
+  let base = dec_coeff_wide_base
+  let top = denominator.unsafe_get(denominator_len - 1)
+  let second_top = denominator.unsafe_get(denominator_len - 2)
+  let mut shift = numerator_len - denominator_len
+  while shift >= 0 {
+    let upper = numerator.unsafe_get(shift + denominator_len)
+    let next = numerator.unsafe_get(shift + denominator_len - 1)
+    let pair = upper * base + next
+    let mut quotient_digit = pair / top
+    let mut remainder_digit = pair - quotient_digit * top
+    if quotient_digit >= base {
+      let excess = quotient_digit - (base - 1UL)
+      quotient_digit = base - 1UL
+      remainder_digit += excess * top
+    }
+    let below = numerator.unsafe_get(shift + denominator_len - 2)
+    while remainder_digit < base &&
+          quotient_digit * second_top > base * remainder_digit + below {
+      quotient_digit -= 1UL
+      remainder_digit += top
+      if remainder_digit >= base {
+        break
+      }
+    }
+    // numerator[shift..shift + denominator_len] -= quotient_digit * denominator
+    let mut carry = 0UL
+    let mut borrow = 0UL
+    for index in 0..<denominator_len {
+      let product = denominator.unsafe_get(index) * quotient_digit + carry
+      carry = product / base
+      let subtrahend = product - carry * base + borrow
+      let target = shift + index
+      let value = numerator.unsafe_get(target)
+      if value < subtrahend {
+        numerator.unsafe_set(target, value + base - subtrahend)
+        borrow = 1UL
+      } else {
+        numerator.unsafe_set(target, value - subtrahend)
+        borrow = 0UL
+      }
+    }
+    let top_target = shift + denominator_len
+    let top_subtrahend = carry + borrow
+    let top_value = numerator.unsafe_get(top_target)
+    if top_value < top_subtrahend {
+      numerator.unsafe_set(top_target, top_value + base - top_subtrahend)
+      // the digit was one too large: add the denominator back
+      quotient_digit -= 1UL
+      let mut add_carry = 0UL
+      for index in 0..<denominator_len {
+        let target = shift + index
+        let sum = numerator.unsafe_get(target) +
+          denominator.unsafe_get(index) +
+          add_carry
+        if sum >= base {
+          numerator.unsafe_set(target, sum - base)
+          add_carry = 1UL
+        } else {
+          numerator.unsafe_set(target, sum)
+          add_carry = 0UL
+        }
+      }
+      let corrected = numerator.unsafe_get(top_target) + add_carry
+      numerator.unsafe_set(
+        top_target,
+        if corrected >= base {
+          corrected - base
+        } else {
+          corrected
+        },
+      )
+    } else {
+      numerator.unsafe_set(top_target, top_value - top_subtrahend)
+    }
+    quotient[shift] = quotient_digit.to_uint()
+    shift -= 1
+  }
+}
+
+///|
+/// The normalized remainder `numerator[0..denominator_len)` divided by the
+/// normalization unit, as limbs (below the base, leading zeros allowed).
+fn dec_coeff_knuth_denormalize(
+  numerator : FixedArray[UInt64],
+  denominator_len : Int32,
+  normalization : UInt64,
+) -> Array[UInt32] {
+  let result = Array::make(denominator_len, 0U)
+  if normalization == 1UL {
+    for index in 0..<denominator_len {
+      result[index] = numerator.unsafe_get(index).to_uint()
+    }
+    return result
+  }
+  let mut residue = 0UL
+  let mut index = denominator_len - 1
+  while index >= 0 {
+    let current = residue * dec_coeff_wide_base + numerator.unsafe_get(index)
+    let quotient = current / normalization
+    result[index] = quotient.to_uint()
+    residue = current - quotient * normalization
+    index -= 1
+  }
+  guard residue == 0UL else {
+    abort("Knuth remainder is not divisible by the normalization unit")
+  }
+  result
+}
+
+///|
 pub fn dec_coeff_div_rem_knuth_repr(
   numerator : DecCoeff,
   denominator : DecCoeff,
 ) -> (DecCoeff, DecCoeff) {
-  let remainder_len = dec_coeff_unit_len(numerator)
+  let numerator_len = dec_coeff_unit_len(numerator)
   let denominator_len = dec_coeff_unit_len(denominator)
   if dec_coeff_compare_repr(numerator, denominator) < 0 {
     return (dec_coeff_zero(), numerator)
@@ -1505,155 +1638,29 @@ pub fn dec_coeff_div_rem_knuth_repr(
     )
     return (quotient, dec_coeff_from_int(residue))
   }
-  let max_shift = remainder_len - denominator_len
-  let quotient = Array::make(max_shift + 1, 0UL)
-  let normalized_denominator = Array::make(denominator_len + 1, 0UL)
-  let normalized_numerator = Array::make(remainder_len + 1, 0UL)
   let normalization = dec_coeff_wide_base /
     (dec_coeff_limb_at(denominator, denominator_len - 1).to_uint64() + 1UL)
-  ignore(
-    dec_coeff_wide_multiply_coeff_by_unit_into(
-      denominator, normalization, normalized_denominator,
-    ),
+  let normalized_denominator : FixedArray[UInt64] = FixedArray::make(
+    denominator_len + 1,
+    0UL,
   )
-  ignore(
-    dec_coeff_wide_multiply_coeff_by_unit_into(
-      numerator, normalization, normalized_numerator,
-    ),
+  let normalized_numerator : FixedArray[UInt64] = FixedArray::make(
+    numerator_len + 1,
+    0UL,
   )
-  let top = normalized_denominator[denominator_len - 1]
-  let second_top = normalized_denominator[denominator_len - 2]
-  let mut shift = max_shift
-  while true {
-    let upper = normalized_numerator[shift + denominator_len]
-    let next = normalized_numerator[shift + denominator_len - 1]
-    let mut quotient_digit = (upper * dec_coeff_wide_base + next) / top
-    let mut remainder_digit = (upper * dec_coeff_wide_base + next) % top
-    if quotient_digit >= dec_coeff_wide_base {
-      let excess = quotient_digit - (dec_coeff_wide_base - 1UL)
-      quotient_digit = dec_coeff_wide_base - 1UL
-      remainder_digit += excess * top
-    }
-    while remainder_digit < dec_coeff_wide_base &&
-          quotient_digit * second_top >
-          dec_coeff_wide_base * remainder_digit +
-          normalized_numerator[shift + denominator_len - 2] {
-      quotient_digit -= 1UL
-      remainder_digit += top
-      if remainder_digit >= dec_coeff_wide_base {
-        break
-      }
-    }
-    let mut carry = 0UL
-    let mut borrow = 0UL
-    for index in 0..<denominator_len {
-      let product = normalized_denominator[index] * quotient_digit + carry
-      let product_digit = product % dec_coeff_wide_base
-      carry = product / dec_coeff_wide_base
-      let subtrahend = product_digit + borrow
-      let target = shift + index
-      if normalized_numerator[target] < subtrahend {
-        normalized_numerator[target] = normalized_numerator[target] +
-          dec_coeff_wide_base -
-          subtrahend
-        borrow = 1UL
-      } else {
-        normalized_numerator[target] = normalized_numerator[target] - subtrahend
-        borrow = 0UL
-      }
-    }
-    let top_target = shift + denominator_len
-    let top_subtrahend = carry + borrow
-    let mut negative = false
-    if normalized_numerator[top_target] < top_subtrahend {
-      normalized_numerator[top_target] = normalized_numerator[top_target] +
-        dec_coeff_wide_base -
-        top_subtrahend
-      negative = true
-    } else {
-      normalized_numerator[top_target] = normalized_numerator[top_target] -
-        top_subtrahend
-    }
-    if negative {
-      quotient_digit -= 1UL
-      let mut add_carry = 0UL
-      for index in 0..<denominator_len {
-        let target = shift + index
-        let sum = normalized_numerator[target] +
-          normalized_denominator[index] +
-          add_carry
-        if sum >= dec_coeff_wide_base {
-          normalized_numerator[target] = sum - dec_coeff_wide_base
-          add_carry = 1UL
-        } else {
-          normalized_numerator[target] = sum
-          add_carry = 0UL
-        }
-      }
-      normalized_numerator[top_target] = normalized_numerator[top_target] +
-        add_carry
-      if normalized_numerator[top_target] >= dec_coeff_wide_base {
-        normalized_numerator[top_target] -= dec_coeff_wide_base
-      }
-    }
-    quotient[shift] = quotient_digit
-    if shift == 0 {
-      break
-    }
-    shift -= 1
-  }
-  let remainder_units = Array::make(denominator_len, 0UL)
-  let mut residue = 0UL
-  let mut index = denominator_len - 1
-  while true {
-    let current = residue * dec_coeff_wide_base + normalized_numerator[index]
-    remainder_units[index] = current / normalization
-    residue = current % normalization
-    if index == 0 {
-      break
-    }
-    index -= 1
-  }
-  let quotient_len = dec_coeff_wide_trim_units(quotient, quotient.length())
-  let remainder_len = dec_coeff_wide_trim_units(
-    remainder_units,
-    remainder_units.length(),
+  dec_coeff_knuth_load(denominator, normalization, normalized_denominator)
+  dec_coeff_knuth_load(numerator, normalization, normalized_numerator)
+  let quotient = Array::make(numerator_len - denominator_len + 1, 0U)
+  dec_coeff_knuth_core(
+    normalized_numerator, numerator_len, normalized_denominator, denominator_len,
+    quotient,
   )
-  if residue != 0UL {
-    let mut corrected_quotient = dec_coeff_from_wide_accumulator(
-      quotient, quotient_len,
-    )
-    let mut product = dec_coeff_multiply_repr(corrected_quotient, denominator)
-    let mut corrections = 0
-    while dec_coeff_compare_repr(product, numerator) > 0 {
-      guard !corrected_quotient.is_zero() else {
-        abort("Knuth quotient correction underflowed")
-      }
-      corrected_quotient = dec_coeff_magnitude_sub_unit(corrected_quotient, 1)
-      product = dec_coeff_magnitude_sub_repr(product, denominator)
-      corrections += 1
-      guard corrections <= denominator_len * 2 + 8 else {
-        abort("Knuth quotient correction exceeded guard")
-      }
-    }
-    let mut corrected_remainder = dec_coeff_magnitude_sub_repr(
-      numerator, product,
-    )
-    while dec_coeff_compare_repr(corrected_remainder, denominator) >= 0 {
-      corrected_quotient = dec_coeff_magnitude_add_unit(corrected_quotient, 1)
-      corrected_remainder = dec_coeff_magnitude_sub_repr(
-        corrected_remainder, denominator,
-      )
-      corrections += 1
-      guard corrections <= denominator_len * 2 + 8 else {
-        abort("Knuth remainder correction exceeded guard")
-      }
-    }
-    return (corrected_quotient, corrected_remainder)
-  }
+  let remainder = dec_coeff_knuth_denormalize(
+    normalized_numerator, denominator_len, normalization,
+  )
   (
-    dec_coeff_from_wide_accumulator(quotient, quotient_len),
-    dec_coeff_from_wide_accumulator(remainder_units, remainder_len),
+    dec_coeff_from_unit_accumulator(quotient, quotient.length()),
+    dec_coeff_from_unit_accumulator(remainder, remainder.length()),
   )
 }
 
@@ -1857,57 +1864,62 @@ fn dec_coeff_mul_schoolbook(lhs : DecCoeff, rhs : DecCoeff) -> DecCoeff {
   }
   let lhs_len = dec_coeff_unit_len(lhs)
   let rhs_len = dec_coeff_unit_len(rhs)
-  let lhs_wide_len = lhs_len
-  let rhs_wide_len = rhs_len
-  if Int32::min(lhs_wide_len, rhs_wide_len) <= 18 {
-    let result = Array::make(lhs_wide_len + rhs_wide_len + 1, 0U)
-    let columns = lhs_wide_len + rhs_wide_len - 1
+  // the limbs, read in place for a `Limbs` value (a `Small` one has two at most)
+  let lhs_units = match lhs {
+    Limbs(units, _) => units
+    Small(_) => dec_coeff_copy_limbs(lhs)
+  }
+  let rhs_units = match rhs {
+    Limbs(units, _) => units
+    Small(_) => dec_coeff_copy_limbs(rhs)
+  }
+  let result = Array::make(lhs_len + rhs_len + 1, 0U)
+  let base = dec_coeff_wide_base
+  if Int32::min(lhs_len, rhs_len) <= 18 {
+    // by columns: at most 18 products below 10^18 fit a word with the carry
+    let columns = lhs_len + rhs_len - 1
     let mut carry = 0UL
     for column in 0..<columns {
-      let lhs_start = Int32::max(0, column - (rhs_wide_len - 1))
-      let lhs_end = Int32::min(lhs_wide_len - 1, column)
+      let lhs_start = Int32::max(0, column - (rhs_len - 1))
+      let lhs_end = Int32::min(lhs_len - 1, column)
       let mut current = carry
       for lhs_index in lhs_start..<=lhs_end {
-        let rhs_index = column - lhs_index
-        current += dec_coeff_limb_at(lhs, lhs_index).to_uint64() *
-          dec_coeff_limb_at(rhs, rhs_index).to_uint64()
+        current += lhs_units.unsafe_get(lhs_index).to_uint64() *
+          rhs_units.unsafe_get(column - lhs_index).to_uint64()
       }
-      dec_coeff_write_wide_unit(result, column, current % dec_coeff_wide_base)
-      carry = current / dec_coeff_wide_base
+      carry = current / base
+      result.unsafe_set(column, (current - carry * base).to_uint())
     }
     let mut column = columns
     while carry != 0UL {
-      dec_coeff_write_wide_unit(result, column, carry % dec_coeff_wide_base)
-      carry = carry / dec_coeff_wide_base
+      let next = carry / base
+      result.unsafe_set(column, (carry - next * base).to_uint())
+      carry = next
       column += 1
     }
     return dec_coeff_from_unit_accumulator(result, result.length())
   }
-  let lhs_wide = dec_coeff_pack_wide(lhs)
-  let rhs_wide = dec_coeff_pack_wide(rhs)
-  let acc = Array::make(lhs_wide_len + rhs_wide_len + 1, 0UL)
-  for rhs_index in 0..<rhs_wide.length() {
-    let multiplier = rhs_wide[rhs_index]
+  // by rows, the partial sums kept as limbs below the base
+  for rhs_index in 0..<rhs_len {
+    let multiplier = rhs_units.unsafe_get(rhs_index).to_uint64()
     let mut carry = 0UL
-    for lhs_index in 0..<lhs_wide.length() {
-      let acc_index = lhs_index + rhs_index
-      let current = acc[acc_index] + lhs_wide[lhs_index] * multiplier + carry
-      acc[acc_index] = current % dec_coeff_wide_base
-      carry = current / dec_coeff_wide_base
+    for lhs_index in 0..<lhs_len {
+      let target = lhs_index + rhs_index
+      let current = result.unsafe_get(target).to_uint64() +
+        lhs_units.unsafe_get(lhs_index).to_uint64() * multiplier +
+        carry
+      carry = current / base
+      result.unsafe_set(target, (current - carry * base).to_uint())
     }
-    let mut acc_index = lhs_wide.length() + rhs_index
+    let mut target = lhs_len + rhs_index
     while carry != 0UL {
-      let current = acc[acc_index] + carry
-      acc[acc_index] = current % dec_coeff_wide_base
-      carry = current / dec_coeff_wide_base
-      acc_index += 1
+      let current = result.unsafe_get(target).to_uint64() + carry
+      carry = current / base
+      result.unsafe_set(target, (current - carry * base).to_uint())
+      target += 1
     }
   }
-  let mut acc_len = acc.length()
-  while acc_len > 1 && acc[acc_len - 1] == 0UL {
-    acc_len -= 1
-  }
-  dec_coeff_from_wide_accumulator(acc, acc_len)
+  dec_coeff_from_unit_accumulator(result, result.length())
 }
 
 ///|

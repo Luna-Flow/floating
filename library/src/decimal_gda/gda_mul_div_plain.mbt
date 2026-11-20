@@ -138,18 +138,13 @@ fn gda_div_plain(
   let rhs_digits = rhs.coefficient.digits10()
   let extra = Int32::max(0, precision + 2 + rhs_digits - lhs_digits)
   let negative = lhs.negative != rhs.negative
-  let numerator = if extra == 0 {
-    lhs.coefficient
-  } else {
-    dec_coeff_shift_power10_repr(lhs.coefficient, extra)
-  }
-  let (quotient, finite_expansion) = dec_coeff_round_div_expansion(
-    numerator,
+  // zero stands for a quotient with a finite decimal expansion
+  let quotient = dec_coeff_div_scaled_inexact(
+    lhs.coefficient,
+    extra,
     rhs.coefficient,
-    negative,
-    DecCoeffRounding::ZeroFiveUp,
   )
-  if finite_expansion {
+  if quotient.is_zero() {
     return None
   }
   let digits = quotient.digits10()

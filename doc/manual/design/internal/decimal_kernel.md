@@ -204,6 +204,30 @@ may be shared), `dec_coeff_round_pow10_coeff` is the same one-pass rounding into
 a new array and `dec_coeff_discards_nonzero` reads the discarded digits only;
 both return one scalar or coefficient and allocate no tuple.
 
+### Division and the product without scratch objects
+
+Knuth's algorithm D divides the normalized numerator in place: the numerator
+and the divisor are multiplied by $\lfloor B/(v_{n-1}+1) \rfloor$ into two
+`FixedArray[UInt64]` scratch arrays, each quotient limb is estimated from the
+top two limbs and the second limb of the divisor, corrected, and the product by
+the divisor is subtracted in place with a borrow; the quotient limbs go straight
+into the `Array[UInt32]` that becomes the result. The remainder is the
+normalized remainder divided by the normalization unit, which divides it
+exactly, so the old branch that multiplied the quotient back and corrected it
+was never taken and is gone (an abort now guards the invariant). The caller that
+needs only "the remainder is zero" reads the scratch array and builds nothing.
+`dec_coeff_div_scaled_inexact` is the division behind `decimal_gda`'s `divide`:
+the dividend $c\cdot 10^{s}$ is formed (a whole-limb shift and one multiplication
+by $10^{s \bmod 9}$) and normalized in the scratch array; with the remainder
+nonzero the exact quotient has a finite expansion iff the part $u$ of the divisor
+prime to 10 divides the remainder, and the valuations of 2 and 5 of the divisor,
+when below 9, are those of its lowest limb, so a divisor prime to 10 (the usual
+case) is decided with no division at all ($0 < r < u = $ divisor), and others
+need one division by a unit and a remainder test of a quotient of at most a few
+limbs. The schoolbook product reads the limbs of a `Limbs` value in place
+(a `Small` has two at most), accumulates by columns up to 18 limbs and by rows
+beyond, and stores limbs below the base into the result array directly.
+
 ## Correctness and invariants
 
 - **Canonical form.** A `Limbs` value has no leading zero limb and is at least

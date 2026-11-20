@@ -427,3 +427,178 @@ pub fn dec_coeff_exact_nth_root_repr(
     _ => None
   }
 }
+
+///|
+/// The quotient of `coefficient * 10^shift` by `denominator`, for a caller
+/// that rounds it once more (`ZeroFiveUp` as the general division of the
+/// decimal packages does): the integer quotient, incremented by one when a
+/// nonzero remainder leaves its last digit 0 or 5. Returns zero, which no
+/// quotient of a dividend scaled to at least the length of the divisor can
+/// be, when the decimal expansion of the exact quotient is finite (the
+/// remainder is zero, or the part of the divisor prime to 10 divides it):
+/// the caller then takes its general route. The answer is the one of
+/// `dec_coeff_round_div_expansion(coefficient * 10^shift, denominator, _,
+/// ZeroFiveUp)`; for the usual case (a divisor of at least two limbs that
+/// takes Knuth's algorithm) it is computed on one scratch array per operand,
+/// with the shift and the normalization done in place, the quotient written
+/// once and no remainder object unless the finite-expansion test needs one.
+pub fn dec_coeff_div_scaled_inexact(
+  coefficient : DecCoeff,
+  shift : Int32,
+  denominator : DecCoeff,
+) -> DecCoeff {
+  guard !coefficient.is_zero() && !denominator.is_zero() && shift >= 0 else {
+    abort(
+      "dec_coeff_div_scaled_inexact expects nonzero operands and shift >= 0",
+    )
+  }
+  let denominator_len = dec_coeff_unit_len(denominator)
+  let whole = shift / dec_coeff_dpun
+  let coefficient_len = dec_coeff_unit_len(coefficient)
+  // an upper bound of the limbs of the scaled numerator, and the exact count
+  // below; the algorithm is chosen on the exact count
+  let bound = whole + coefficient_len + 1
+  let lean = denominator_len >= 2 &&
+    dec_coeff_division_algorithm_for(bound, denominator) is Knuth &&
+    dec_coeff_division_algorithm_for(bound - 1, denominator) is Knuth
+  if !lean {
+    let (quotient, finite) = dec_coeff_round_div_expansion(
+      dec_coeff_shift_power10_repr(coefficient, shift),
+      denominator,
+      false,
+      DecCoeffRounding::ZeroFiveUp,
+    )
+    return if finite { dec_coeff_zero() } else { quotient }
+  }
+  let normalization = dec_coeff_wide_base /
+    (dec_coeff_limb_at(denominator, denominator_len - 1).to_uint64() + 1UL)
+  let normalized_denominator : FixedArray[UInt64] = FixedArray::make(
+    denominator_len + 1,
+    0UL,
+  )
+  dec_coeff_knuth_load(denominator, normalization, normalized_denominator)
+  // the scaled numerator: coefficient * 10^(shift mod 9), moved up `whole` limbs
+  let normalized_numerator : FixedArray[UInt64] = FixedArray::make(
+    bound + 1,
+    0UL,
+  )
+  let scale = dec_coeff_small_powers10[shift - whole * dec_coeff_dpun]
+  let mut carry = 0UL
+  for index in 0..<coefficient_len {
+    let current = dec_coeff_limb_at(coefficient, index).to_uint64() * scale +
+      carry
+    carry = current / dec_coeff_wide_base
+    normalized_numerator.unsafe_set(
+      whole + index,
+      current - carry * dec_coeff_wide_base,
+    )
+  }
+  normalized_numerator.unsafe_set(whole + coefficient_len, carry)
+  let numerator_len = if carry == 0UL { whole + coefficient_len } else { bound }
+  guard numerator_len >= denominator_len else {
+    let (quotient, finite) = dec_coeff_round_div_expansion(
+      dec_coeff_shift_power10_repr(coefficient, shift),
+      denominator,
+      false,
+      DecCoeffRounding::ZeroFiveUp,
+    )
+    return if finite { dec_coeff_zero() } else { quotient }
+  }
+  // normalize in place; the carry limb sits at index `numerator_len`
+  let mut multiply_carry = 0UL
+  for index in 0..<numerator_len {
+    let current = normalized_numerator.unsafe_get(index) * normalization +
+      multiply_carry
+    multiply_carry = current / dec_coeff_wide_base
+    normalized_numerator.unsafe_set(
+      index,
+      current - multiply_carry * dec_coeff_wide_base,
+    )
+  }
+  normalized_numerator.unsafe_set(numerator_len, multiply_carry)
+  let quotient = Array::make(numerator_len - denominator_len + 1, 0U)
+  dec_coeff_knuth_core(
+    normalized_numerator, numerator_len, normalized_denominator, denominator_len,
+    quotient,
+  )
+  let mut remainder_zero = true
+  for index in 0..<denominator_len {
+    if normalized_numerator.unsafe_get(index) != 0UL {
+      remainder_zero = false
+      break
+    }
+  }
+  if remainder_zero {
+    return dec_coeff_zero()
+  }
+  // the quotient is below the exact one: is the expansion of the exact one
+  // finite? It is iff the part `u` of the divisor prime to 10 divides the
+  // remainder (the dividend is `coefficient * 10^shift` and 10 is invertible
+  // modulo `u`). The valuations of 2 and 5 of the divisor are those of its
+  // lowest limb when they are below 9.
+  let low = dec_coeff_limb_at(denominator, 0).reinterpret_as_int()
+  let mut twos = 0
+  let mut fives = 0
+  let mut rest = low
+  while rest != 0 && rest % 2 == 0 {
+    twos += 1
+    rest = rest / 2
+  }
+  rest = low
+  while rest != 0 && rest % 5 == 0 {
+    fives += 1
+    rest = rest / 5
+  }
+  let mut finite = false
+  if low == 0 || twos >= dec_coeff_dpun || fives >= dec_coeff_dpun {
+    let remainder = dec_coeff_knuth_denormalize(
+      normalized_numerator, denominator_len, normalization,
+    )
+    finite = dec_coeff_has_finite_expansion_after(
+      denominator,
+      dec_coeff_from_unit_accumulator(remainder, remainder.length()),
+    )
+  } else if twos > 0 || fives > 0 {
+    let mut unit = 1
+    for _ in 0..<twos {
+      unit *= 2
+    }
+    for _ in 0..<fives {
+      unit *= 5
+    }
+    let part = dec_coeff_div_rem_by_unit_repr(denominator, unit).0
+    let remainder_units = dec_coeff_knuth_denormalize(
+      normalized_numerator, denominator_len, normalization,
+    )
+    let remainder = dec_coeff_from_unit_accumulator(
+      remainder_units,
+      remainder_units.length(),
+    )
+    finite = dec_coeff_compare_repr(remainder, part) >= 0 &&
+      dec_coeff_div_rem_repr(remainder, part).1.is_zero()
+  }
+  if finite {
+    return dec_coeff_zero()
+  }
+  // ZeroFiveUp: a nonzero remainder bumps a last digit of 0 or 5
+  let last = quotient[0].reinterpret_as_int() % 10
+  if last == 0 || last == 5 {
+    quotient[0] = quotient[0] + 1U
+  }
+  dec_coeff_from_unit_accumulator(quotient, quotient.length())
+}
+
+///|
+/// The exact finite-expansion test the general division uses, for a nonzero
+/// remainder: strip the factors 2 and 5 of the divisor and test whether the
+/// rest divides the remainder.
+fn dec_coeff_has_finite_expansion_after(
+  denominator : DecCoeff,
+  remainder : DecCoeff,
+) -> Bool {
+  let (without_tens, _, _) = trim_trailing_decimal_zeros_repr(denominator, 0)
+  let without_twos = dec_coeff_remove_factor_unit_repr(without_tens, 2)
+  let without_fives = dec_coeff_remove_factor_unit_repr(without_twos, 5)
+  dec_coeff_compare_repr(without_fives, dec_coeff_from_int(1)) == 0 ||
+  dec_coeff_div_rem_repr(remainder, without_fives).1.is_zero()
+}

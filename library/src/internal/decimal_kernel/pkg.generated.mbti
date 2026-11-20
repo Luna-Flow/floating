@@ -51,6 +51,8 @@ pub fn dec_coeff_div_rem_newton_try(DecCoeff, DecCoeff) -> (DecCoeff, DecCoeff)?
 
 pub fn dec_coeff_div_rem_repr(DecCoeff, DecCoeff) -> (DecCoeff, DecCoeff)
 
+pub fn dec_coeff_div_scaled_inexact(DecCoeff, Int32, DecCoeff) -> DecCoeff
+
 pub let dec_coeff_dpun : Int32
 
 pub fn dec_coeff_exact_nth_root_repr(DecCoeff, Int32) -> DecCoeff?

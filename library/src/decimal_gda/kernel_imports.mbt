@@ -43,6 +43,7 @@ using @decimal_kernel {
   dec_coeff_round_div_bigint,
   dec_coeff_round_div_pow10,
   dec_coeff_round_accumulator,
+  dec_coeff_div_scaled_inexact,
   dec_coeff_discards_nonzero,
   dec_coeff_round_pow10_coeff,
   dec_coeff_accumulator_digits,
