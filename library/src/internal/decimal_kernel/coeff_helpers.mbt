@@ -126,6 +126,56 @@ pub fn dec_coeff_integer_sqrt_rem_repr(n : DecCoeff) -> (DecCoeff, DecCoeff) {
 }
 
 ///|
+/// `2^a * 5^b` for the factors 2 and 5 of `denominator` when both valuations
+/// are below 9 and the lowest limb is nonzero (then they are the valuations of
+/// the whole number: `10^9` is divisible by `2^9` and `5^9`, so the higher limbs
+/// add nothing below that), so that the part of the denominator prime to 10 is
+/// `denominator / unit`; the unit is below `10^9` (at most `2^8 * 5^8`). Returns
+/// 0 when a valuation may be 9 or more (or the lowest limb is zero): the general
+/// case, which strips the factors by division.
+fn dec_coeff_two_five_unit(denominator : DecCoeff) -> Int32 {
+  let low = dec_coeff_limb_at(denominator, 0).reinterpret_as_int()
+  let mut twos = 0
+  let mut fives = 0
+  let mut rest = low
+  while rest != 0 && rest % 2 == 0 {
+    twos += 1
+    rest = rest / 2
+  }
+  rest = low
+  while rest != 0 && rest % 5 == 0 {
+    fives += 1
+    rest = rest / 5
+  }
+  if low == 0 || twos >= dec_coeff_dpun || fives >= dec_coeff_dpun {
+    return 0
+  }
+  let mut unit = 1
+  for _ in 0..<twos {
+    unit *= 2
+  }
+  for _ in 0..<fives {
+    unit *= 5
+  }
+  unit
+}
+
+///|
+/// Whether the quotient `numerator / denominator` of two integers has a finite
+/// decimal expansion.
+///
+/// Let `u` be the part of `denominator` prime to 10 (`denominator = 2^a 5^b u`
+/// with `u` prime to 10). In lowest terms the quotient has the denominator
+/// `denominator / gcd(numerator, denominator)`, and a fraction in lowest terms
+/// has a finite decimal expansion iff its denominator has no prime other than 2
+/// and 5. The primes of `u` are other than 2 and 5, and the gcd takes all of
+/// them out of the denominator exactly when `u` divides `numerator` (`u` and the
+/// factors 2 and 5 of the denominator are coprime, so the gcd contains the whole
+/// of `u` iff `u` divides `numerator`). Hence: finite iff `u` divides
+/// `numerator`. No gcd is formed: the valuations of 2 and 5 come from the lowest
+/// limb when both are below 9 (`dec_coeff_two_five_unit`; otherwise the factors
+/// are removed by division), and for a denominator prime to 10 the test is
+/// `denominator | numerator`.
 pub fn has_finite_decimal_expansion_repr(
   numerator : DecCoeff,
   denominator : DecCoeff,
@@ -133,13 +183,24 @@ pub fn has_finite_decimal_expansion_repr(
   guard !denominator.is_zero() else {
     abort("has_finite_decimal_expansion_repr expects denominator > 0")
   }
-  let (without_tens, _, _) = trim_trailing_decimal_zeros_repr(denominator, 0)
-  let without_twos = dec_coeff_remove_factor_unit_repr(without_tens, 2)
-  let without_fives = dec_coeff_remove_factor_unit_repr(without_twos, 5)
-  if dec_coeff_compare_repr(without_fives, dec_coeff_from_int(1)) == 0 {
+  if numerator.is_zero() {
     return true
   }
-  dec_coeff_div_rem_repr(numerator, without_fives).1.is_zero()
+  let unit = dec_coeff_two_five_unit(denominator)
+  let part = if unit == 0 {
+    let (without_tens, _, _) = trim_trailing_decimal_zeros_repr(denominator, 0)
+    let without_twos = dec_coeff_remove_factor_unit_repr(without_tens, 2)
+    dec_coeff_remove_factor_unit_repr(without_twos, 5)
+  } else if unit == 1 {
+    denominator
+  } else {
+    dec_coeff_div_rem_by_unit_repr(denominator, unit).0
+  }
+  if dec_coeff_matches_unit_repr(part, 1) {
+    return true
+  }
+  dec_coeff_compare_repr(numerator, part) >= 0 &&
+  dec_coeff_div_rem_repr(numerator, part).1.is_zero()
 }
 
 ///|
@@ -537,21 +598,9 @@ pub fn dec_coeff_div_scaled_inexact(
   // remainder (`u` divides the dividend `coefficient * 10^shift` iff it divides
   // the remainder, because `u` divides the divisor). The valuations of 2 and 5
   // of the divisor are those of its lowest limb when they are below 9.
-  let low = dec_coeff_limb_at(denominator, 0).reinterpret_as_int()
-  let mut twos = 0
-  let mut fives = 0
-  let mut rest = low
-  while rest != 0 && rest % 2 == 0 {
-    twos += 1
-    rest = rest / 2
-  }
-  rest = low
-  while rest != 0 && rest % 5 == 0 {
-    fives += 1
-    rest = rest / 5
-  }
+  let unit = dec_coeff_two_five_unit(denominator)
   let mut finite = false
-  if low == 0 || twos >= dec_coeff_dpun || fives >= dec_coeff_dpun {
+  if unit == 0 {
     let remainder = dec_coeff_knuth_denormalize(
       normalized_numerator, denominator_len, normalization,
     )
@@ -559,14 +608,7 @@ pub fn dec_coeff_div_scaled_inexact(
       denominator,
       dec_coeff_from_unit_accumulator(remainder, remainder.length()),
     )
-  } else if twos > 0 || fives > 0 {
-    let mut unit = 1
-    for _ in 0..<twos {
-      unit *= 2
-    }
-    for _ in 0..<fives {
-      unit *= 5
-    }
+  } else if unit > 1 {
     let part = dec_coeff_div_rem_by_unit_repr(denominator, unit).0
     let remainder_units = dec_coeff_knuth_denormalize(
       normalized_numerator, denominator_len, normalization,
