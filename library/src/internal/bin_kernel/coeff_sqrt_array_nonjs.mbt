@@ -295,6 +295,12 @@ pub fn bin_coeff_sqrt_rem_scaled(
 ///   and its exponent is two below that of the root.
 ///
 /// The caller tells the cases apart by the bit length (`<= precision + 1`).
+///
+/// If the result is `Heap(words, len)`, `words` is an array
+/// that no operand and no other value refers to (its length may exceed `len`),
+/// which the caller may keep, hand on or modify. Results of up to 128 bits are
+/// `Inline64` or `Inline128` and carry no array; `Coeff::zero()` is a shared
+/// constant, recognised by `is_zero()`.
 pub fn bin_coeff_sqrt_scaled_rounded(
   value : Coeff,
   scale : Int32,

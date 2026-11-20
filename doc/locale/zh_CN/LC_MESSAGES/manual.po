@@ -17293,10 +17293,14 @@ msgid "A `Heap` coefficient has `len >= 3` limbs, the top limb is nonzero, and n
 msgstr "`Heap` 系数有 `len >= 3` 个肢，最高肢非零，且没有函数会修改操作数的数组。"
 
 #: manual/design/internal/bin_kernel.md:56
+msgid "The producers of fresh values (`Coeff::mul` for nonzero operands, `bin_coeff_div_scaled_quotient`, `bin_coeff_div_short_quotient`, `bin_coeff_sqrt_scaled_rounded`) return a `Heap` coefficient whose array no operand and no other value refers to; inline results and the shared `Coeff::zero()` carry no array, and a shift by zero returns its receiver. A caller may keep or modify such an array."
+msgstr "生成新值的函数（对非零操作数的 `Coeff::mul`、`bin_coeff_div_scaled_quotient`、`bin_coeff_div_short_quotient`、`bin_coeff_sqrt_scaled_rounded`）返回的 `Heap` 系数拥有一个数组，任何操作数和其他值都不引用它；内联结果和共享的 `Coeff::zero()` 不带数组，移位量为零时返回接收者本身。调用者可以保留或修改这样的数组。"
+
+#: manual/design/internal/bin_kernel.md:57
 msgid "`Inline64` and `Inline128` are the only representations of values below $2^{128}$; `bin_coeff_from_words` normalizes."
 msgstr "`Inline64` 和 `Inline128` 是低于 $2^{128}$ 的值的唯一表示；`bin_coeff_from_words` 会做规范化。"
 
-#: manual/design/internal/bin_kernel.md:58
+#: manual/design/internal/bin_kernel.md:59
 msgid "No function aborts except on a violated precondition (a zero divisor, a negative shift)."
 msgstr "除违反前置条件（零除数、负移位）外，没有函数会中止。"
 

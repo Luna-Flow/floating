@@ -777,6 +777,15 @@ fn bin_coeff_square_schoolbook(value : Coeff) -> Coeff {
 }
 
 ///|
+/// The product. A zero operand returns the shared `Coeff::zero()`; for two
+/// nonzero operands (also `x * x`) the result follows the ownership rule:
+///
+/// If the result is `Heap(words, len)`, `words` is an array
+/// that no operand and no other value refers to (its length may exceed `len`),
+/// which the caller may keep, hand on or modify. Results of up to 128 bits are
+/// `Inline64` or `Inline128` and carry no array; `Coeff::zero()` is a shared
+/// constant, recognised by `is_zero()`.
+/// The operands are never modified.
 pub fn Coeff::mul(self : Coeff, other : Coeff) -> Coeff {
   if self.is_zero() || other.is_zero() {
     return Coeff::zero()
@@ -834,6 +843,8 @@ pub fn Coeff::square(self : Coeff) -> Coeff {
 }
 
 ///|
+/// A shift of zero, or a zero value, returns the receiver itself (the same
+/// array, not a copy); every other result is a new value as in `Coeff::mul`.
 pub fn Coeff::shift_left(self : Coeff, shift : Int32) -> Coeff {
   if shift < 0 {
     abort("Coeff shift count must be non-negative")
@@ -895,6 +906,9 @@ pub fn Coeff::shift_left(self : Coeff, shift : Int32) -> Coeff {
 }
 
 ///|
+/// A shift of zero, or a zero value, returns the receiver itself (the same
+/// array, not a copy); a shift of at least the bit length returns the shared
+/// `Coeff::zero()`; every other result is a new value as in `Coeff::mul`.
 pub fn Coeff::shift_right(self : Coeff, shift : Int32) -> Coeff {
   if shift < 0 {
     abort("Coeff shift count must be non-negative")
