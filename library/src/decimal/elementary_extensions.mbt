@@ -192,6 +192,16 @@ fn decimal_tiny_unary_result(
     Expm1 => (value, true, 2L)
     Log1p => (value, false, 2L)
     Cos => (Decimal::from_int(1, precision=ctx.precision), false, 2L)
+    // 0 < 1 - cospi(x) = 2 sin^2(pi x / 2) <= (pi x)^2 / 2 < 5 x^2 < 10^(2 top
+    // + 1) for 0 < |x| < 1/2: the same one-sided cluster below 1 as `cos`, one
+    // decade wider.
+    CosPi =>
+      return decimal_tiny_argument_result(
+        Decimal::from_int(1, precision=ctx.precision),
+        false,
+        2L * top + 1L,
+        ctx,
+      )
     Cosh => (Decimal::from_int(1, precision=ctx.precision), true, 2L)
     _ => return None
   }
