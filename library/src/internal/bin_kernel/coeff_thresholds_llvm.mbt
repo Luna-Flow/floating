@@ -40,8 +40,10 @@ let bin_coeff_limb32_karatsuba_cutoff : Int32 = 96
 let bin_coeff_limb32_min_words : Int32 = 1073741824
 
 ///|
-/// Whether Knuth's division runs on 64-bit digits (a 64-bit digit step costs
-/// four `i64.mul` on Wasm, so Wasm keeps 32-bit digits).
+/// Whether Knuth's division runs on 64-bit digits. True on every target: measured
+/// faster on Wasm (1.3 and 3.3 times at 2,048 and 8,192 bits) and Wasm-GC (1.9 and
+/// 3.3 times) as well as on Native (commit 27989825, issue 328), although a 64-bit
+/// digit step costs four `i64.mul` there.
 let bin_coeff_knuth_words_enabled : Bool = true
 
 ///|
