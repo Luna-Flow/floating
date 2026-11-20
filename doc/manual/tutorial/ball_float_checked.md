@@ -15,7 +15,7 @@ lists every method.
 | push uncertain inputs through a formula | `+ - * /` on `BallFloatResult` ([Propagate uncertainty](#propagate-uncertainty-through-a-formula)) |
 | treat an empty or unbounded result as a success or as a failure | `is_ok`, `bind` ([No information is not an error](#know-that-no-information-is-not-an-error), [Application rules](#turn-an-application-rule-into-an-error)) |
 | find out why an elementary function failed | `error()`, `certification_failure_detail()` ([Certification failures](#certification-failures)) |
-| square an interval that contains 0 tightly | `pow_int`, not `pow_nat` or `x * x` ([Powers](#powers-through-the-arithmetic-traits)) |
+| square an interval that contains 0 tightly | `pow_int`, not `x * x` ([Powers](#powers-through-the-arithmetic-traits)) |
 | decide a comparison at the end of a pipeline | `result()` and the enclosure traits ([Generic code](#generic-code-with-the-enclosure-relations)) |
 
 ## Quick start
@@ -192,12 +192,10 @@ test "certification failure carries a detail record" {
 
 ### Powers through the arithmetic traits
 
-`pow_nat` and `pow_int` go through the `PowNatChecked` and `PowIntChecked`
-traits of Luna-Flow/arithmetic. `pow_int` computes the power of one point of
-the interval (`BallFloat::pown`); for an interval containing zero this is
-tighter than repeated multiplication, which treats the two factors as
-independent. `pow_nat` *is* repeated multiplication, so it is as wide as the
-product:
+`pow_int` goes through the `PowIntChecked` trait of Luna-Flow/arithmetic. It
+computes the power of one point of the interval (`BallFloat::pown`); for an
+interval containing zero this is tighter than repeated multiplication, which
+treats the two factors as independent:
 
 ```moonbit
 ///|
@@ -208,10 +206,6 @@ test "a power is tighter than a product" {
       inspect(square.lower_bound().to_string(), content="0")
       inspect(product.lower_bound().to_string(), content="-1p0")
     }
-    _ => fail("unexpected error")
-  }
-  match x.pow_nat(2U).result() {
-    Ok(power) => inspect(power.lower_bound().to_string(), content="-1p0")
     _ => fail("unexpected error")
   }
 }
@@ -242,8 +236,8 @@ test "decide with an enclosure" {
   bits. An integer that needs more bits is still enclosed, but by a two-point
   interval rather than a point. Pass `precision=53` (or more) for large
   integers.
-- **`pow_nat` is not tighter than a product.** Use `pow_int` for even powers
-  of an interval that contains 0.
+- **A product is not a power.** Use `pow_int` for even powers of an interval
+  that contains 0; `x * x` treats the two factors as independent.
 - **Empty and whole are successes.** Test `is_empty` / `is_entire` on the
   final interval, or add a `bind` check.
 - **No decorations or flags.** The wrapper keeps neither IEEE 1788
@@ -252,7 +246,6 @@ test "decide with an enclosure" {
 - **Only the first error survives**, as in every checked wrapper.
 - **`[+inf, +inf]` is rejected.** IEEE 1788 intervals are subsets of the real
   line; use `whole()` or a half-infinite interval instead.
-- **`flat_map` is deprecated.** Use `bind`.
 
 ## Next steps
 

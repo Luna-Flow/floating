@@ -7,6 +7,6 @@ are distinct states; interval relations are not scalar total order.
 
 Public arithmetic includes set construction, containment/overlap relations,
 add/subtract/multiply/divide, FMA, integer and general power, exp/log/sqrt, and
-sin/cos/tan with certified fallbacks. `*_ctx` returns `BallFlags` when status is
+sin/cos/tan with certified fallbacks. `apply_ctx` returns `BallFlags` when status is
 needed. Reverse interval operations remain unsupported and tightness is not
 guaranteed when a safe fallback is required.

@@ -202,28 +202,6 @@ pub fn BallFloat::log1p_interval(self : BallFloat) -> BallFloat {
 }
 
 ///|
-pub fn BallFloat::exp_ctx(
-  self : BallFloat,
-  ctx : BallContext,
-) -> (BallFloat, BallFlags) {
-  self
-  .with_precision(ctx.precision + 32, RoundingMode::ToNearestEven)
-  .exp_interval()
-  .apply_ctx(ctx)
-}
-
-///|
-pub fn BallFloat::ln_ctx(
-  self : BallFloat,
-  ctx : BallContext,
-) -> (BallFloat, BallFlags) {
-  self
-  .with_precision(ctx.precision + 32, RoundingMode::ToNearestEven)
-  .ln_interval()
-  .apply_ctx(ctx)
-}
-
-///|
 fn ball_range_resource_failure(
   operation : String,
   precision : Int32,
@@ -392,7 +370,7 @@ pub fn BallFloat::try_sin_interval(
   if self.is_empty() {
     return Ok(self)
   }
-  if !self.is_bounded() {
+  if !self.is_common_interval() {
     return Ok(unit_interval(self.precision_))
   }
   let initial_work = Int32::max(
@@ -424,7 +402,7 @@ pub fn BallFloat::try_cos_interval(
   if self.is_empty() {
     return Ok(self)
   }
-  if !self.is_bounded() {
+  if !self.is_common_interval() {
     return Ok(unit_interval(self.precision_))
   }
   let initial_work = Int32::max(
@@ -456,7 +434,7 @@ pub fn BallFloat::try_tan_interval(
   if self.is_empty() {
     return Ok(self)
   }
-  if !self.is_bounded() {
+  if !self.is_common_interval() {
     return Ok(whole_real(self.precision_))
   }
   let initial_work = Int32::max(

@@ -198,7 +198,10 @@ fn decimal_pm1_tiny_scaled(
   let scaled = decimal_to_certified_ball(coefficient, work)
     .mul(slope)
     .mul(factor)
-  guard !scaled.is_empty() && !scaled.contains_zero() else { return None }
+  guard !scaled.is_empty() &&
+    !scaled.contains(@bin_float.BinFloat::zero(precision=scaled.precision())) else {
+    return None
+  }
   // The scaled endpoints are moderate: convert them in the widest math
   // context, so that no range representative replaces them.
   let wide = DecimalContext::raw(1, -999_999, 999_999)

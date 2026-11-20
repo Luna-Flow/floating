@@ -82,7 +82,7 @@ test "binary64 context applies directed overflow bounds" {
   )
   let source = BallFloat::from_bounds(max_finite, max_finite, precision=53)
   let increment = arithmetic_interval(3, 4)
-  let (result, flags) = source.add_ctx(increment, ctx)
+  let (result, flags) = (source + increment).apply_ctx(ctx)
   assert_eq(result.lower_bound().compare(max_finite), 0)
   assert_true(result.upper_bound().classify() == FpClass::Infinity)
   assert_true(flags.overflow)

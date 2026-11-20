@@ -50,7 +50,9 @@ test "ln_interval of a value just above 1 at high precision terminates" {
     let w = @bin_float.BinFloat::one(precision=300).add(
       elementary_range_power(exponent, 300),
     )
-    assert_true(BallFloat::exact(w, precision=300).ln_interval().is_bounded())
+    assert_true(
+      BallFloat::exact(w, precision=300).ln_interval().is_common_interval(),
+    )
   }
 }
 

@@ -332,7 +332,7 @@ pub fn BallFloat::try_sinpi_interval(
   if self.is_empty() {
     return Ok(self)
   }
-  if !self.is_bounded() {
+  if !self.is_common_interval() {
     return Ok(unit_interval(self.precision_))
   }
   self.try_sine_like_hull(pi_scaled_index_range(self), 0, fn(value, context) {
@@ -347,7 +347,7 @@ pub fn BallFloat::try_cospi_interval(
   if self.is_empty() {
     return Ok(self)
   }
-  if !self.is_bounded() {
+  if !self.is_common_interval() {
     return Ok(unit_interval(self.precision_))
   }
   self.try_sine_like_hull(pi_scaled_index_range(self), 1, fn(value, context) {
@@ -362,7 +362,7 @@ pub fn BallFloat::try_tanpi_interval(
   if self.is_empty() {
     return Ok(self)
   }
-  if !self.is_bounded() {
+  if !self.is_common_interval() {
     return Ok(whole_real(self.precision_))
   }
   let indices = pi_scaled_index_range(self)

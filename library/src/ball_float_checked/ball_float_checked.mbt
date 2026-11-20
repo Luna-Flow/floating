@@ -139,15 +139,6 @@ pub fn BallFloatResult::bind(
 }
 
 ///|
-#deprecated("Use bind instead")
-pub fn BallFloatResult::flat_map(
-  self : BallFloatResult,
-  f : (@ball_float.BallFloat) -> BallFloatResult,
-) -> BallFloatResult {
-  self.bind(f)
-}
-
-///|
 pub fn BallFloatResult::normalized(self : BallFloatResult) -> BallFloatResult {
   self.map(fn(value) { value.normalized() })
 }
@@ -156,9 +147,8 @@ pub fn BallFloatResult::normalized(self : BallFloatResult) -> BallFloatResult {
 pub fn BallFloatResult::with_precision(
   self : BallFloatResult,
   precision : Int32,
-  mode : @def.RoundingMode,
 ) -> BallFloatResult {
-  self.map(fn(value) { value.with_precision(precision, mode) })
+  self.map(fn(value) { value.with_precision(precision) })
 }
 
 ///|
@@ -209,19 +199,6 @@ pub fn BallFloatResult::div(
   BallFloatResult::from_result(
     ball_result_lift2(self.inner, other.inner, fn(lhs, rhs) { lhs / rhs }),
   )
-}
-
-///|
-pub fn BallFloatResult::pow_nat(
-  self : BallFloatResult,
-  exponent : UInt32,
-) -> BallFloatResult {
-  self.bind(fn(value) {
-    let ctx = @lf_arith.ArithmeticContext::new(value.precision())
-    BallFloatResult::from_result(
-      @lf_arith.PowNatChecked::pow_nat_checked(value, exponent, ctx),
-    )
-  })
 }
 
 ///|

@@ -50,11 +50,6 @@ fn is_pos_inf(x : @bin_float.BinFloat) -> Bool {
 }
 
 ///|
-fn is_finite_bound(x : @bin_float.BinFloat) -> Bool {
-  x.classify() == FpClass::Finite
-}
-
-///|
 fn interval_validation_error(
   lo : @bin_float.BinFloat,
   hi : @bin_float.BinFloat,
@@ -420,7 +415,7 @@ fn interval_center(x : BallFloat) -> @bin_float.BinFloat {
   guard !x.is_empty() else {
     abort("ball center is undefined for an empty interval")
   }
-  guard x.is_bounded() else {
+  guard x.is_common_interval() else {
     abort("ball center is undefined for unbounded intervals")
   }
   exact_half(exact_add(x.lo_, x.hi_))
@@ -431,7 +426,7 @@ fn interval_radius(x : BallFloat) -> @bin_float.BinFloat {
   guard !x.is_empty() else {
     abort("ball radius is undefined for an empty interval")
   }
-  guard x.is_bounded() else {
+  guard x.is_common_interval() else {
     abort("ball radius is undefined for unbounded intervals")
   }
   // A radius must not understate the half-width, even when it underflows.
@@ -555,20 +550,14 @@ fn pow_nat(base : BallFloat, exponent : UInt32, precision : Int32) -> BallFloat 
   }
   let mut n = exponent
   let mut result = BallFloat::from_int(1, precision~)
-  let mut factor = base.with_precision(precision, RoundingMode::ToNearestEven)
+  let mut factor = base.with_precision(precision)
   while n > 0U {
     if (n & 1U) == 1U {
-      result = (result * factor).with_precision(
-        precision,
-        RoundingMode::ToNearestEven,
-      )
+      result = (result * factor).with_precision(precision)
     }
     n = n >> 1
     if n > 0U {
-      factor = (factor * factor).with_precision(
-        precision,
-        RoundingMode::ToNearestEven,
-      )
+      factor = (factor * factor).with_precision(precision)
     }
   }
   result
@@ -580,7 +569,7 @@ fn add_ball_impl(a : BallFloat, b : BallFloat) -> BallFloat {
   if a.is_empty() || b.is_empty() {
     return empty_interval(precision)
   }
-  if a.is_bounded() && b.is_bounded() {
+  if a.is_common_interval() && b.is_common_interval() {
     return quantize_interval(
       exact_add(a.lo_, b.lo_, mode=RoundingMode::TowardNegative),
       exact_add(a.hi_, b.hi_, mode=RoundingMode::TowardPositive),
@@ -602,7 +591,7 @@ fn sub_ball_impl(a : BallFloat, b : BallFloat) -> BallFloat {
   if a.is_empty() || b.is_empty() {
     return empty_interval(precision)
   }
-  if a.is_bounded() && b.is_bounded() {
+  if a.is_common_interval() && b.is_common_interval() {
     return quantize_interval(
       exact_sub(a.lo_, b.hi_, mode=RoundingMode::TowardNegative),
       exact_sub(a.hi_, b.lo_, mode=RoundingMode::TowardPositive),
@@ -735,7 +724,7 @@ fn multiplication_bounds(
   b : BallFloat,
   precision : Int32,
 ) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
-  if a.is_bounded() && b.is_bounded() {
+  if a.is_common_interval() && b.is_common_interval() {
     let a_nonnegative = a.lo_.is_zero() || a.lo_.sign() == Sign::Positive
     let a_nonpositive = a.hi_.is_zero() || a.hi_.sign() == Sign::Negative
     let b_nonnegative = b.lo_.is_zero() || b.lo_.sign() == Sign::Positive
@@ -1048,11 +1037,6 @@ pub fn BallFloat::upper_bound(self : BallFloat) -> @bin_float.BinFloat {
 }
 
 ///|
-pub fn BallFloat::is_bounded(self : BallFloat) -> Bool {
-  !self.empty_ && is_finite_bound(self.lo_) && is_finite_bound(self.hi_)
-}
-
-///|
 pub fn BallFloat::is_entire(self : BallFloat) -> Bool {
   !self.empty_ && is_neg_inf(self.lo_) && is_pos_inf(self.hi_)
 }
@@ -1063,7 +1047,7 @@ pub fn BallFloat::is_empty(self : BallFloat) -> Bool {
 }
 
 ///|
-pub fn BallFloat::contains_zero(self : BallFloat) -> Bool {
+fn BallFloat::contains_zero(self : BallFloat) -> Bool {
   if self.is_empty() {
     return false
   }
@@ -1093,7 +1077,7 @@ pub fn BallFloat::width(self : BallFloat) -> @bin_float.BinFloat {
   if self.is_empty() {
     return @bin_float.BinFloat::zero(precision=self.precision_)
   }
-  if !self.is_bounded() {
+  if !self.is_common_interval() {
     return pos_inf(self.precision_)
   }
   upper_round_bound(
@@ -1123,7 +1107,7 @@ pub fn BallFloat::radius_extended(self : BallFloat) -> @bin_float.BinFloat {
   if self.is_empty() {
     return @bin_float.BinFloat::zero(precision=self.precision_)
   }
-  if !self.is_bounded() {
+  if !self.is_common_interval() {
     return pos_inf(self.precision_)
   }
   self.radius().with_precision(self.precision_, RoundingMode::TowardPositive)
@@ -1132,29 +1116,6 @@ pub fn BallFloat::radius_extended(self : BallFloat) -> @bin_float.BinFloat {
 ///|
 pub fn BallFloat::precision(self : BallFloat) -> Int32 {
   self.precision_
-}
-
-///|
-pub fn BallFloat::classify(self : BallFloat) -> FpClass {
-  if self.is_empty() {
-    FpClass::NaN
-  } else if self.is_bounded() {
-    FpClass::Finite
-  } else {
-    FpClass::Infinity
-  }
-}
-
-///|
-pub fn BallFloat::sign(self : BallFloat) -> Sign {
-  guard !self.is_empty() else { abort("empty interval has no sign") }
-  if self.lo_.sign() == Sign::Positive {
-    Sign::Positive
-  } else if self.hi_.sign() == Sign::Negative {
-    Sign::Negative
-  } else {
-    Sign::Zero
-  }
 }
 
 ///|
@@ -1185,7 +1146,6 @@ pub fn BallFloat::normalized(self : BallFloat) -> BallFloat {
 pub fn BallFloat::with_precision(
   self : BallFloat,
   precision : Int32,
-  _mode : RoundingMode,
 ) -> BallFloat {
   if self.is_empty() {
     empty_interval(precision)
@@ -1533,48 +1493,6 @@ pub fn BallFloat::contains(self : BallFloat, x : @bin_float.BinFloat) -> Bool {
 }
 
 ///|
-pub fn BallFloat::overlaps(self : BallFloat, other : BallFloat) -> Bool {
-  if self.is_empty() || other.is_empty() {
-    return false
-  }
-  self.lo_.compare(other.hi_) <= 0 && self.hi_.compare(other.lo_) >= 0
-}
-
-///|
-pub fn BallFloat::separated_from(self : BallFloat, other : BallFloat) -> Bool {
-  !self.overlaps(other)
-}
-
-///|
-pub fn BallFloat::definitely_lt(self : BallFloat, other : BallFloat) -> Bool {
-  if self.is_empty() || other.is_empty() {
-    return false
-  }
-  self.hi_.compare(other.lo_) < 0
-}
-
-///|
-pub fn BallFloat::definitely_le(self : BallFloat, other : BallFloat) -> Bool {
-  if self.is_empty() || other.is_empty() {
-    return false
-  }
-  self.hi_.compare(other.lo_) <= 0
-}
-
-///|
-pub fn BallFloat::definitely_gt(self : BallFloat, other : BallFloat) -> Bool {
-  if self.is_empty() || other.is_empty() {
-    return false
-  }
-  self.lo_.compare(other.hi_) > 0
-}
-
-///|
-pub fn BallFloat::maybe_eq(self : BallFloat, other : BallFloat) -> Bool {
-  self.overlaps(other)
-}
-
-///|
 pub fn BallFloat::set_equal(self : BallFloat, other : BallFloat) -> Bool {
   (self.is_empty() && other.is_empty()) ||
   (
@@ -1656,7 +1574,9 @@ pub fn BallFloat::disjoint(self : BallFloat, other : BallFloat) -> Bool {
 
 ///|
 pub fn BallFloat::is_common_interval(self : BallFloat) -> Bool {
-  self.is_bounded()
+  !self.empty_ &&
+  self.lo_.classify() == FpClass::Finite &&
+  self.hi_.classify() == FpClass::Finite
 }
 
 ///|
@@ -1686,10 +1606,10 @@ pub fn BallFloat::intersection(
 pub fn BallFloat::convex_hull(self : BallFloat, other : BallFloat) -> BallFloat {
   let precision = Int32::max(self.precision_, other.precision_)
   if self.is_empty() {
-    return other.with_precision(precision, RoundingMode::ToNearestEven)
+    return other.with_precision(precision)
   }
   if other.is_empty() {
-    return self.with_precision(precision, RoundingMode::ToNearestEven)
+    return self.with_precision(precision)
   }
   quantize_interval(
     bin_min(self.lo_, other.lo_),
@@ -1702,13 +1622,15 @@ pub fn BallFloat::convex_hull(self : BallFloat, other : BallFloat) -> BallFloat 
 pub fn BallFloat::cancel_plus(self : BallFloat, other : BallFloat) -> BallFloat {
   let precision = Int32::max(self.precision_, other.precision_)
   if self.is_empty() {
-    return if other.is_empty() || other.is_bounded() {
+    return if other.is_empty() || other.is_common_interval() {
       empty_interval(precision)
     } else {
       whole_real(precision)
     }
   }
-  if other.is_empty() || !self.is_bounded() || !other.is_bounded() {
+  if other.is_empty() ||
+    !self.is_common_interval() ||
+    !other.is_common_interval() {
     return whole_real(precision)
   }
   let lo = exact_add(self.lo_, other.hi_, mode=RoundingMode::TowardNegative)
@@ -1727,13 +1649,15 @@ pub fn BallFloat::cancel_minus(
 ) -> BallFloat {
   let precision = Int32::max(self.precision_, other.precision_)
   if self.is_empty() {
-    return if other.is_empty() || other.is_bounded() {
+    return if other.is_empty() || other.is_common_interval() {
       empty_interval(precision)
     } else {
       whole_real(precision)
     }
   }
-  if other.is_empty() || !self.is_bounded() || !other.is_bounded() {
+  if other.is_empty() ||
+    !self.is_common_interval() ||
+    !other.is_common_interval() {
     return whole_real(precision)
   }
   let lo = exact_sub(self.lo_, other.lo_, mode=RoundingMode::TowardNegative)
@@ -1839,22 +1763,31 @@ pub impl @lf_arith.Contains for BallFloat with fn contains(self, other) {
 
 ///|
 pub impl @lf_arith.Overlaps for BallFloat with fn overlaps(self, other) {
-  self.overlaps(other)
+  if self.is_empty() || other.is_empty() {
+    return false
+  }
+  self.lo_.compare(other.hi_) <= 0 && self.hi_.compare(other.lo_) >= 0
 }
 
 ///|
 pub impl @lf_arith.DefinitelyLt for BallFloat with fn definitely_lt(self, other) {
-  self.definitely_lt(other)
+  if self.is_empty() || other.is_empty() {
+    return false
+  }
+  self.hi_.compare(other.lo_) < 0
 }
 
 ///|
 pub impl @lf_arith.DefinitelyLe for BallFloat with fn definitely_le(self, other) {
-  self.definitely_le(other)
+  if self.is_empty() || other.is_empty() {
+    return false
+  }
+  self.hi_.compare(other.lo_) <= 0
 }
 
 ///|
 pub impl @lf_arith.MaybeEq for BallFloat with fn maybe_eq(self, other) {
-  self.maybe_eq(other)
+  @lf_arith.Overlaps::overlaps(self, other)
 }
 
 ///|
@@ -1864,9 +1797,9 @@ pub impl @lf_arith.DivChecked for BallFloat with fn div_checked(
   ctx,
 ) {
   let precision = ctx.precision
-  let lhs = self.with_precision(precision, RoundingMode::ToNearestEven)
-  let rhs = other.with_precision(precision, RoundingMode::ToNearestEven)
-  Ok(lhs.div(rhs).with_precision(precision, RoundingMode::ToNearestEven))
+  let lhs = self.with_precision(precision)
+  let rhs = other.with_precision(precision)
+  Ok(lhs.div(rhs).with_precision(precision))
 }
 
 ///|
@@ -1876,7 +1809,7 @@ pub impl @lf_arith.PowNatChecked for BallFloat with fn pow_nat_checked(
   ctx,
 ) {
   let precision = ctx.precision
-  let base = self.with_precision(precision, RoundingMode::ToNearestEven)
+  let base = self.with_precision(precision)
   Ok(pow_nat(base, exponent, precision))
 }
 
@@ -1887,8 +1820,8 @@ pub impl @lf_arith.PowIntChecked for BallFloat with fn pow_int_checked(
   ctx,
 ) {
   let precision = ctx.precision
-  let base = self.with_precision(precision, RoundingMode::ToNearestEven)
-  Ok(base.pown(exponent).with_precision(precision, RoundingMode::ToNearestEven))
+  let base = self.with_precision(precision)
+  Ok(base.pown(exponent).with_precision(precision))
 }
 
 ///|
@@ -1917,35 +1850,10 @@ pub impl Neg for BallFloat with fn neg(self) {
 }
 
 ///|
-pub impl @def.Floating for BallFloat with fn classify(self) {
-  self.classify()
-}
-
-///|
-pub impl @def.Floating for BallFloat with fn sign(self) {
-  self.sign()
-}
-
-///|
-pub impl @def.Floating for BallFloat with fn precision(self) {
-  self.precision()
-}
-
-///|
-pub impl @def.Floating for BallFloat with fn with_precision(self, precision) {
-  BallFloat::with_precision(self, precision, RoundingMode::ToNearestEven)
-}
-
-///|
-pub impl @def.Floating for BallFloat with fn normalized(self) {
-  self.normalized()
-}
-
-///|
 pub impl Show for BallFloat with fn to_string(self) {
   if self.is_empty() {
     "[empty]"
-  } else if self.is_bounded() {
+  } else if self.is_common_interval() {
     self.center().to_string() + " +/- " + self.radius().to_string()
   } else {
     "[" + self.lo_.to_string() + ", " + self.hi_.to_string() + "]"

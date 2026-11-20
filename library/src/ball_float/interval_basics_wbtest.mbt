@@ -222,3 +222,24 @@ fn coeff_gcd_kernel(
 ) -> @bin_float.BinCoeff {
   @bin_float.BinCoeff(left.0.gcd(right.0))
 }
+
+///|
+/// `is_common_interval` once called itself after `is_bounded` was folded into
+/// it, so every caller looped forever (found by the documentation examples,
+/// which reached it through the decimal elementary functions).
+test "is_common_interval terminates and classifies the shapes" {
+  let one = @bin_float.BinFloat::one(precision=53)
+  let inf = @bin_float.BinFloat::inf(Sign::Positive, precision=53)
+  assert_true(
+    BallFloat::from_bounds(one.neg(), one, precision=53).is_common_interval(),
+  )
+  assert_true(BallFloat::exact(one, precision=53).is_common_interval())
+  assert_false(BallFloat::empty(precision=53).is_common_interval())
+  assert_false(BallFloat::whole(precision=53).is_common_interval())
+  assert_false(
+    BallFloat::from_bounds(one, inf, precision=53).is_common_interval(),
+  )
+  assert_false(
+    BallFloat::from_bounds(inf.neg(), one, precision=53).is_common_interval(),
+  )
+}

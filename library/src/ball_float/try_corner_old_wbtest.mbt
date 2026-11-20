@@ -42,7 +42,7 @@ fn BallFloat::old_try_sinpi_interval(
   if self.is_empty() {
     return Ok(self)
   }
-  if !self.is_bounded() {
+  if !self.is_common_interval() {
     return Ok(unit_interval(self.precision_))
   }
   self
@@ -72,7 +72,7 @@ fn BallFloat::old_try_cospi_interval(
   if self.is_empty() {
     return Ok(self)
   }
-  if !self.is_bounded() {
+  if !self.is_common_interval() {
     return Ok(unit_interval(self.precision_))
   }
   self

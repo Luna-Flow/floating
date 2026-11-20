@@ -566,10 +566,10 @@ finite they are elements, so $\overline{x} < \underline{y}$; if
 $\overline{x} = +\infty$ or $\underline{y} = -\infty$, a large $\xi$ or a
 small $\eta$ violates $\xi < \eta$, and the endpoint test is false as well. The second line is the
 nonempty intersection of two intervals. "Possibly less" is the negation of
-"certainly not less", so the two families are dual: `definitely_lt(x, y)` is
+"certainly not less", so the two families are dual: `DefinitelyLt::definitely_lt(x, y)` is
 false exactly when some pair satisfies $\xi \ge \eta$. With empty operands the
 universal statements would be vacuously true, which would let a caller prove
-anything from an empty enclosure; the `definitely_*` relations therefore
+anything from an empty enclosure; the `DefinitelyLt` and `DefinitelyLe` relations (and `Overlaps`, `MaybeEq`) therefore
 return false for empty operands, whereas the IEEE 1788 relation `precedes`
 ($\forall\xi\,\forall\eta: \xi \le \eta$) is defined to be vacuously true.
 
@@ -697,7 +697,7 @@ $$
 
 because $F_q \subseteq F_p$ (a $q$-bit significand is a $p$-bit one padded with
 zeros): every $f \in F_q$ below $a$ is in $F_p$, hence below
-$\operatorname{RD}_p(a)$, and conversely. So `x.add_ctx(y, ctx)` equals a
+$\operatorname{RD}_p(a)$, and conversely. So `(x + y).apply_ctx(ctx)` equals a
 single outward rounding of the exact sum into the context whenever the
 operands are at least as precise as the context. Overflow is resolved in the
 enclosing direction: an upper endpoint above the range becomes $+\infty$, a
@@ -781,8 +781,7 @@ $n < -4096$ and 0 inside (Entire);  `with_precision` and
 `normalized` round the endpoints outward, which is the tightest enclosure and
 the identity on an interval already representable at the target precision, so
 `convex_hull` with an Empty operand and the checked capabilities do not widen
-either, and the `Floating` law "normalizing keeps the value" holds for
-`BallFloat` as set equality.
+either.
 
 **Decorations.** The decoration of a result is a true statement about the
 function evaluated, by the induction argument above.
