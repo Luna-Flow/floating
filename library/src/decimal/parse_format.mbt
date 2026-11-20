@@ -459,7 +459,7 @@ pub fn Decimal::parse(
   precision~ : Int32 = 34,
 ) -> Result[Decimal, @def.ArithmeticError] {
   let precision = Int32::max(1, precision)
-  let ctx = match DecimalContext::new(precision~) {
+  let ctx = match DecimalContext::try_new(precision~) {
     Err(error) => return Err(error)
     Ok(ctx) => ctx
   }

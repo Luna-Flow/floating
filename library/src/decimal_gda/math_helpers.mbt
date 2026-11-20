@@ -707,7 +707,7 @@ fn decimal_power_integer_below_e_min(
       precision=wp,
       e_min=-999_999_999,
       e_max=999_999_999,
-    ).unwrap()
+    )
     let one = Decimal::one(precision=wp)
     let factor0 = if count < 0 {
       decimal_div_finite_work(one, positive_base, wide).0
@@ -968,7 +968,7 @@ fn decimal_math_work_ctx(precision : Int32) -> DecimalContext {
     decimal_rounding=DecimalRoundingMode::HalfEven,
     e_min=-999_999,
     e_max=999_999,
-  ).unwrap()
+  )
 }
 
 ///|

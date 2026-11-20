@@ -51,19 +51,17 @@ test "decimal with the clamp fold and decimal_gda agree on a zero quantize and r
     let (name, precision, e_min, e_max) = entry
     let top = e_max - precision + 1
     let ieee = @decimal.DecimalContext::new(
-        precision~,
-        e_min~,
-        e_max~,
-        clamp=true,
-      )
-      .unwrap()
-      .with_clamp_fold(true)
+      precision~,
+      e_min~,
+      e_max~,
+      clamp=true,
+    ).with_clamp_fold(true)
     let gda = @decimal_gda.DecimalContext::new(
       precision~,
       e_min~,
       e_max~,
       clamp=true,
-    ).unwrap()
+    )
     // generated zero cases: every target around the top and up to e_max + 1,
     // both signs, cohorts of the operand, and the smallest targets
     let targets : Array[Int32] = [

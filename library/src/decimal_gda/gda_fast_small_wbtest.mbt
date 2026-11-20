@@ -73,7 +73,7 @@ fn gda_fast_context(random : GdaFastRandom) -> GdaContext {
   let e_min = if wide { -999999 } else { -random.below(40) }
   let e_max = if wide { 999999 } else { random.below(40) }
   match
-    GdaContext::new(
+    GdaContext::try_new(
       precision=precisions[random.below(12)],
       rounding=roundings[random.below(8)],
       e_min~,
@@ -252,7 +252,7 @@ test "fast quotient equals the general path" {
 
 ///|
 test "fast paths decline what they do not cover" {
-  let context = GdaContext::new(precision=16).unwrap()
+  let context = GdaContext::new(precision=16)
   let one = Decimal::from_string("1").unwrap()
   let wide = Decimal::from_string("12345678901234567890123").unwrap()
   assert_true(gda_fast_sum(one, wide, context, false) is None)
@@ -270,10 +270,10 @@ test "fast paths decline what they do not cover" {
   assert_true(
     gda_fast_quotient(one, Decimal::from_string("4").unwrap(), context) is None,
   )
-  let big = GdaContext::new(precision=34).unwrap()
+  let big = GdaContext::new(precision=34)
   assert_true(gda_fast_sum(one, one, big, false) is None)
-  let basic = GdaContext::new(precision=16, extended=false).unwrap()
+  let basic = GdaContext::new(precision=16, extended=false)
   assert_true(gda_fast_sum(one, one, basic, false) is None)
-  let zero_five = GdaContext::new(precision=16, rounding=ZeroFiveUp).unwrap()
+  let zero_five = GdaContext::new(precision=16, rounding=ZeroFiveUp)
   assert_true(gda_fast_sum(one, one, zero_five, false) is None)
 }

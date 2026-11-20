@@ -75,7 +75,7 @@ test "convertToInteger rounds in every direction with the exact flags (IEEE 754-
       decimal_rounding=issue226_mode(mode),
       e_min=-383,
       e_max=384,
-    ).unwrap()
+    )
     for exact in [false, true] {
       let label = "\{text} \{mode} exact=\{exact}"
       let (a, fa) = value.to_int_ctx(ctx, exact~)
@@ -109,7 +109,7 @@ test "convertToInteger rounds in every direction with the exact flags (IEEE 754-
 ///|
 test "convertToInteger ignores the precision and the exponent range of the context" {
   // A context with precision 3 does not round the integer: 123456 stays.
-  let ctx = DecimalContext::new(precision=3).unwrap()
+  let ctx = DecimalContext::new(precision=3)
   let (value, flags) = Decimal::from_string("123456")
     .unwrap()
     .to_int_ctx(ctx, exact=true)

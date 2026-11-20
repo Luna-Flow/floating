@@ -96,7 +96,7 @@ fn issue405_rows(
         e_max~,
         clamp~,
         extended~,
-      ).unwrap()
+      )
       let gda = GdaContext::new(
         precision~,
         rounding=mode.2,
@@ -104,7 +104,7 @@ fn issue405_rows(
         e_max~,
         clamp~,
         extended~,
-      ).unwrap()
+      )
       let x = Decimal::from_string(base).unwrap()
       let y = Decimal::from_string(exponent).unwrap()
       let (value, flags) = x.power_ctx(y, ctx)
@@ -148,7 +148,7 @@ test "power of infinity to a zero exponent is 1 and 0 to 0 keeps its rule (issue
     e_min=-10,
     e_max=0,
     clamp=true,
-  ).unwrap()
+  )
   let (value, flags) = Decimal::zero().power_ctx(Decimal::zero(), extended)
   assert_true(value.is_nan())
   assert_true(flags.invalid_operation)
@@ -158,7 +158,7 @@ test "power of infinity to a zero exponent is 1 and 0 to 0 keeps its rule (issue
     e_max=0,
     clamp=true,
     extended=false,
-  ).unwrap()
+  )
   let (one, flags) = Decimal::zero().power_ctx(Decimal::zero(), subset)
   assert_eq(issue405_value_text(one), "1")
   assert_eq(issue405_flags_text(flags), "........")
@@ -167,7 +167,7 @@ test "power of infinity to a zero exponent is 1 and 0 to 0 keeps its rule (issue
 ///|
 test "power to a non-zero exponent in a clamped context still folds down (issue 405)" {
   // The neighbour: 2 ** 1 is 2.0000 with Clamped, 1 ** 1 stays 1 (known open point).
-  let ctx = DecimalContext::new(precision=5, e_min=-10, e_max=0, clamp=true).unwrap()
+  let ctx = DecimalContext::new(precision=5, e_min=-10, e_max=0, clamp=true)
   let (two, flags) = Decimal::from_string("2")
     .unwrap()
     .power_ctx(Decimal::from_string("1").unwrap(), ctx)

@@ -212,7 +212,7 @@ test "decimal large negative-base powers mirror directed rounding" {
 /// bounded square-and-multiply helper.
 test "decimal large integer powers work in the default context" {
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
-  let context = DecimalContext::new().unwrap()
+  let context = DecimalContext::new()
   let cases = [
     ("1.0000000000001", "1E+11", "1.010050167084167552517081914852626"),
     ("0.999999", "1000000001", "5.073416477377115719975853397616633E-435"),
@@ -243,7 +243,7 @@ test "decimal large integer powers work in the default context" {
 /// and no unbounded certification loop.
 test "decimal large integer powers enforce the expansion budget" {
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
-  let context = DecimalContext::new().unwrap()
+  let context = DecimalContext::new()
   let (value, flags) = d("2").power_ctx(d("1E+9999999"), context)
   assert_true(value.is_infinite())
   assert_true(flags.overflow && flags.inexact)
@@ -266,7 +266,7 @@ test "decimal large integer powers enforce the expansion budget" {
 /// rounding must survive the large integer route, including sign reversal.
 test "decimal large integer powers honor all rounding modes" {
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
-  let context = DecimalContext::new().unwrap()
+  let context = DecimalContext::new()
   let modes = [
     (
       RoundingMode::ToNearestEven,
@@ -314,7 +314,7 @@ test "decimal large integer powers honor all rounding modes" {
 test "decimal large integer negative powers match directed oracle values" {
   let base = Decimal::from_string("-1.000001").unwrap()
   let exponent = Decimal::from_string("1000000001").unwrap()
-  let context = DecimalContext::new().unwrap()
+  let context = DecimalContext::new()
   let (ceiling, ceiling_flags) = base.power_ctx(
     exponent,
     context.with_rounding(RoundingMode::TowardPositive),
@@ -335,7 +335,7 @@ test "decimal large integer negative powers match directed oracle values" {
 /// Python decimal p=9 oracle strings for the default exponent limits.
 test "decimal large integer powers work at precision nine" {
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
-  let context = DecimalContext::new(precision=9).unwrap()
+  let context = DecimalContext::new(precision=9)
   let cases = [
     ("1.0000000000001", "1E+11", "1.01005017"),
     ("0.999999", "1000000001", "5.07341648E-435"),
@@ -357,7 +357,7 @@ test "decimal large integer powers work at precision nine" {
 /// bounded power path as their canonical coefficient form.
 test "decimal large integer exponent spellings preserve parity" {
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
-  let context = DecimalContext::new().unwrap()
+  let context = DecimalContext::new()
   for exponent in ["1.0E+30", "10E+29", "100E+28"] {
     let (value, flags) = d("-2").power_ctx(d(exponent), context)
     assert_eq(value.to_string(), "inf")
@@ -392,7 +392,7 @@ test "decimal large integer exponent spellings preserve parity" {
 /// the bounded coefficient materialization budget.
 test "decimal large integer powers keep signed zero and infinity" {
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
-  let context = DecimalContext::new().unwrap()
+  let context = DecimalContext::new()
   let (zero, zero_flags) = d("-0").power_ctx(d("1E+9999999"), context)
   let (infinity, infinity_flags) = d("-Inf").power_ctx(
     d("12345678901234567E+0"),
@@ -409,13 +409,13 @@ test "decimal large integer powers keep signed zero and infinity" {
 /// range admits it; a smaller range uses the IEEE overflow result.
 test "decimal large integer powers support extended and subset contexts" {
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
-  let extended = DecimalContext::new().unwrap()
+  let extended = DecimalContext::new()
   let subset = DecimalContext::new(
     precision=34,
     e_min=-999_999_999,
     e_max=384,
     extended=false,
-  ).unwrap()
+  )
   let (wide, wide_flags) = d("2").power_ctx(d("1E+9"), extended)
   let (narrow, narrow_flags) = d("2").power_ctx(d("1E+9"), subset)
   assert_eq(wide.to_string(), "4.612976001169069393116119221037316E+301029995")

@@ -107,14 +107,14 @@ fn issue351_run(
     e_min~,
     e_max~,
     clamp~,
-  ).unwrap()
+  )
   let gda = GdaContext::new(
     precision~,
     rounding=issue351_gda_mode(mode),
     e_min~,
     e_max~,
     clamp~,
-  ).unwrap()
+  )
   let x = Decimal::from_string(base).unwrap()
   let y = Decimal::from_string(exponent).unwrap()
   let (value, flags) = x.power_ctx(y, ctx)
@@ -167,7 +167,7 @@ test "power of 1E-5 to 1.2 in decimal64 is 1E-6 padded in every mode (issue 351)
 ///|
 test "power of a power of ten does not take the exact path in a restricted context (issue 351)" {
   // The context check of exp, ln, log10 and non-integral power comes first.
-  let wide = GdaContext::new(precision=16).unwrap()
+  let wide = GdaContext::new(precision=16)
   let outcome = power(
     Decimal::from_string("1E-5").unwrap(),
     Decimal::from_string("1.2").unwrap(),

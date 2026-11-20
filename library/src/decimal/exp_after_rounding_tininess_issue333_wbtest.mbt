@@ -29,7 +29,7 @@ fn exp_tiny_ctx(
     e_min=-10004,
     e_max=10001,
     tininess~,
-  ).unwrap()
+  )
 }
 
 ///|

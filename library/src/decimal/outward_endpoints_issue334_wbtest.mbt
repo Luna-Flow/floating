@@ -1,6 +1,6 @@
 ///|
 test "outward endpoints enclose the exact expansion" {
-  let ctx = DecimalContext::new(precision=20, e_min=-999999, e_max=999999).unwrap()
+  let ctx = DecimalContext::new(precision=20, e_min=-999999, e_max=999999)
   let texts = [
     "1E-30", "-1E-30", "123.456E-400", "-7.25E-3000", "9.99E+300", "-3.5E+250", "0.1",
     "-0.1", "1E-5000", "2E+5000",
@@ -24,7 +24,7 @@ test "outward endpoints enclose the exact expansion" {
 
 ///|
 test "wide-range expm1 of a tiny argument is fast and unchanged" {
-  let ctx = DecimalContext::new(precision=20, e_min=-999999, e_max=999999).unwrap()
+  let ctx = DecimalContext::new(precision=20, e_min=-999999, e_max=999999)
   for n in [1000, 100000, 300000] {
     let x = Decimal::from_string_ctx("1E-\{n}", ctx).0
     let (r, flags) = x.expm1_ctx(ctx)

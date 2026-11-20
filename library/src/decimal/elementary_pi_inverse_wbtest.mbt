@@ -502,7 +502,7 @@ test "tiny and huge operands: relative width of the enclosure" {
   let ctx = pm1_ctx(34, "half_even", -6143, 6144, true, "b")
   let out = StringBuilder()
   for x in ["1E-1999996", "-3E-1000000", "7E-9999", "1E-30"] {
-    let wide = DecimalContext::new(precision=34, e_min=-999999, e_max=999999).unwrap()
+    let wide = DecimalContext::new(precision=34, e_min=-999999, e_max=999999)
     out.write_string("asinpi(\{x}) = \{pii_call("asinpi", x, "", wide)}\n")
     out.write_string("atanpi(\{x}) = \{pii_call("atanpi", x, "", wide)}\n")
     out.write_string("acospi(\{x}) = \{pii_call("acospi", x, "", ctx)}\n")

@@ -103,7 +103,7 @@ Flags of earlier steps stay in `flags()` even when later steps are exact:
 ```moonbit
 ///|
 test "an early rounding is remembered" {
-  let ctx = @decimal.DecimalContext::new(precision=5, e_min=-99, e_max=99).unwrap()
+  let ctx = @decimal.DecimalContext::new(precision=5, e_min=-99, e_max=99)
   let r = @decimal_checked.DecimalChecked::parse("1.234567", ctx)
     .add(@decimal.Decimal::from_int(1))
     .mul(@decimal.Decimal::from_int(2))
@@ -184,7 +184,7 @@ test "a bounded context for ln" {
   inspect(good.value().to_string(), content="2.302585092994045684017991454684364")
   let bad = @decimal_checked.DecimalChecked::from_int(
     10,
-    @decimal.DecimalContext::new(precision=34).unwrap(),
+    @decimal.DecimalContext::new(precision=34),
   ).ln()
   inspect(flags(bad.raised()), content="invalid_context")
 }

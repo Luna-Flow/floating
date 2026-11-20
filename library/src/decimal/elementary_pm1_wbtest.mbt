@@ -105,7 +105,7 @@ fn pm1_ctx(
     e_max~,
     clamp~,
     tininess=if tininess == "a" { AfterRounding } else { BeforeRounding },
-  ).unwrap()
+  )
 }
 
 ///|
@@ -364,8 +364,8 @@ test "pm1 restricted contexts and operands give invalid_context" {
     precision=16,
     e_min=-1_000_000,
     e_max=1_000_000,
-  ).unwrap()
-  let ctx = DecimalContext::new(precision=16, e_min=-999_999, e_max=999_999).unwrap()
+  )
+  let ctx = DecimalContext::new(precision=16, e_min=-999_999, e_max=999_999)
   let out = StringBuilder()
   for op in pm1_ops {
     out.write_string("\{op} \{pm1_call(op, pm1_exact("0.5"), wide)} ")

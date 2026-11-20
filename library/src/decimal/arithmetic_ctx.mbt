@@ -876,7 +876,8 @@ pub fn Decimal::div_checked(
   self : Decimal,
   other : Decimal,
 ) -> Result[Decimal, @def.ArithmeticError] {
-  let ctx = match DecimalContext::new(precision=max_precision(self, other)) {
+  let ctx = match
+    DecimalContext::try_new(precision=max_precision(self, other)) {
     Err(error) => return Err(error)
     Ok(ctx) => ctx
   }
@@ -897,7 +898,7 @@ pub fn Decimal::div(self : Decimal, other : Decimal) -> Decimal {
 
 ///|
 pub fn Decimal::sqrt(self : Decimal) -> Result[Decimal, @def.ArithmeticError] {
-  let ctx = match DecimalContext::new(precision=self.precision_) {
+  let ctx = match DecimalContext::try_new(precision=self.precision_) {
     Err(error) => return Err(error)
     Ok(ctx) => ctx
   }

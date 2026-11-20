@@ -214,7 +214,7 @@ pub fn DecimalFlags::contains(
 }
 
 ///|
-pub fn DecimalContext::new(
+fn DecimalContext::build(
   precision~ : Int32 = 34,
   rounding~ : RoundingMode = RoundingMode::ToNearestEven,
   decimal_rounding? : DecimalRoundingMode,
@@ -223,7 +223,7 @@ pub fn DecimalContext::new(
   clamp~ : Bool = false,
   extended~ : Bool = true,
   tininess~ : DecimalTininessDetection = DecimalTininessDetection::BeforeRounding,
-) -> Result[DecimalContext, @def.ArithmeticError] {
+) -> Result[DecimalContext, String] {
   let bounds = @internal.DecimalExponentBounds::new(precision, e_min, e_max)
   guard bounds.is_valid() else {
     let reason = if precision <= 0 || precision > 999_999_999 {
@@ -235,7 +235,7 @@ pub fn DecimalContext::new(
     } else {
       "e_min must not exceed e_max"
     }
-    return Err(@def.ArithmeticError::domain_error(reason))
+    return Err(reason)
   }
   let decimal_rounding = match decimal_rounding {
     Some(mode) => mode
@@ -256,6 +256,36 @@ pub fn DecimalContext::new(
 }
 
 ///|
+/// Builds a context, or aborts with the message that names the invalid
+/// parameter (like `BinaryContext::new`). `try_new` returns the same check as
+/// an `Err` instead.
+pub fn DecimalContext::new(
+  precision~ : Int32 = 34,
+  rounding~ : RoundingMode = RoundingMode::ToNearestEven,
+  decimal_rounding? : DecimalRoundingMode,
+  e_min~ : Int32 = -999_999_999,
+  e_max~ : Int32 = 999_999_999,
+  clamp~ : Bool = false,
+  extended~ : Bool = true,
+  tininess~ : DecimalTininessDetection = DecimalTininessDetection::BeforeRounding,
+) -> DecimalContext {
+  match
+    DecimalContext::build(
+      precision~,
+      rounding~,
+      decimal_rounding?,
+      e_min~,
+      e_max~,
+      clamp~,
+      extended~,
+      tininess~,
+    ) {
+    Ok(context) => context
+    Err(reason) => abort("DecimalContext::new: " + reason)
+  }
+}
+
+///|
 pub fn DecimalContext::try_new(
   precision~ : Int32 = 34,
   rounding~ : RoundingMode = RoundingMode::ToNearestEven,
@@ -266,16 +296,20 @@ pub fn DecimalContext::try_new(
   extended~ : Bool = true,
   tininess~ : DecimalTininessDetection = DecimalTininessDetection::BeforeRounding,
 ) -> Result[DecimalContext, @def.ArithmeticError] {
-  DecimalContext::new(
-    precision~,
-    rounding~,
-    decimal_rounding?,
-    e_min~,
-    e_max~,
-    clamp~,
-    extended~,
-    tininess~,
-  )
+  match
+    DecimalContext::build(
+      precision~,
+      rounding~,
+      decimal_rounding?,
+      e_min~,
+      e_max~,
+      clamp~,
+      extended~,
+      tininess~,
+    ) {
+    Ok(context) => Ok(context)
+    Err(reason) => Err(@def.ArithmeticError::domain_error(reason))
+  }
 }
 
 ///|
@@ -425,7 +459,7 @@ pub fn DecimalContext::decimal32() -> DecimalContext {
     e_min=-95,
     e_max=96,
     clamp=true,
-  ).unwrap()
+  )
 }
 
 ///|
@@ -436,7 +470,7 @@ pub fn DecimalContext::decimal64() -> DecimalContext {
     e_min=-383,
     e_max=384,
     clamp=true,
-  ).unwrap()
+  )
 }
 
 ///|
@@ -447,14 +481,14 @@ pub fn DecimalContext::decimal128() -> DecimalContext {
     e_min=-6143,
     e_max=6144,
     clamp=true,
-  ).unwrap()
+  )
 }
 
 ///|
 pub fn DecimalContext::from_arithmetic_context(
   ctx : @lf_arith.ArithmeticContext,
 ) -> Result[DecimalContext, @def.ArithmeticError] {
-  DecimalContext::new(
+  DecimalContext::try_new(
     precision=ctx.precision,
     rounding=ctx.rounding,
     e_min=ctx.e_min.unwrap_or(-999_999_999),

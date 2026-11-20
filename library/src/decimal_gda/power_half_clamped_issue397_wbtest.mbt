@@ -101,14 +101,14 @@ fn issue397_run(
     e_min~,
     e_max~,
     clamp~,
-  ).unwrap()
+  )
   let gda = GdaContext::new(
     precision~,
     rounding=issue397_gda_mode(mode),
     e_min~,
     e_max~,
     clamp~,
-  ).unwrap()
+  )
   let x = Decimal::from_string(base).unwrap()
   let y = Decimal::from_string(exponent).unwrap()
   let (value, flags) = x.power_ctx(y, ctx)

@@ -16,7 +16,7 @@ fn issue187_context(
   clamp : Bool,
   mode : DecimalRoundingMode,
 ) -> DecimalContext {
-  DecimalContext::new(precision~, decimal_rounding=mode, clamp~).unwrap()
+  DecimalContext::new(precision~, decimal_rounding=mode, clamp~)
 }
 
 ///|

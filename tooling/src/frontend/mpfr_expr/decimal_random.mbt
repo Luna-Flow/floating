@@ -190,7 +190,7 @@ fn parse_decimal_random_row(
     _ => return Err("invalid decimal tininess " + tokens[7])
   }
   let context = match
-    @decimal.DecimalContext::new(
+    @decimal.DecimalContext::try_new(
       precision~,
       decimal_rounding=rounding,
       e_min~,

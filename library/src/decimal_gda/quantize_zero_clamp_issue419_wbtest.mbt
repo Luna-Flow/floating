@@ -60,8 +60,8 @@ test "quantize and rescale of a zero fold down under clamp and raise Clamped (is
   for row in issue419_rows {
     let (name, zero, quantum, expected, clamped) = row
     let (precision, e_min, e_max, clamp, extended) = issue419_parameters(name)
-    let ctx = DecimalContext::new(precision~, e_min~, e_max~, clamp~, extended~).unwrap()
-    let gda = GdaContext::new(precision~, e_min~, e_max~, clamp~, extended~).unwrap()
+    let ctx = DecimalContext::new(precision~, e_min~, e_max~, clamp~, extended~)
+    let gda = GdaContext::new(precision~, e_min~, e_max~, clamp~, extended~)
     let x = Decimal::from_string(zero).unwrap()
     let q = Decimal::from_string(quantum).unwrap()
     let label = "\{name} quantize \{zero} \{quantum}"
@@ -103,7 +103,7 @@ test "quantize and rescale of a zero fold down under clamp and raise Clamped (is
 
 ///|
 test "a non-zero quantize result is not changed by the zero fold (issue 419)" {
-  let ctx = DecimalContext::new(precision=16, e_min=-383, e_max=384, clamp=true).unwrap()
+  let ctx = DecimalContext::new(precision=16, e_min=-383, e_max=384, clamp=true)
   let d = fn(s : String) { Decimal::from_string(s).unwrap() }
   let (small, flags) = d("5").quantize(d("1E+380"), ctx)
   assert_eq(small.to_string(), "0E+369")

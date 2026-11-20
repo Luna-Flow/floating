@@ -43,7 +43,7 @@ fn issue265_run(
     e_max~,
     clamp~,
     extended~,
-  ).unwrap()
+  )
   let x = Decimal::from_string(args[0]).unwrap()
   let y = if args.length() > 1 {
     Decimal::from_string(args[1]).unwrap()

@@ -295,7 +295,7 @@ pub fn DecimalContext::equal(Self, Self) -> Bool
 pub fn DecimalContext::exact() -> Self
 pub fn DecimalContext::extended(Self) -> Bool
 pub fn DecimalContext::from_arithmetic_context(@arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn DecimalContext::new(precision? : Int32, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn DecimalContext::new(precision? : Int32, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Self
 pub fn DecimalContext::not_equal(Self, Self) -> Bool
 pub fn DecimalContext::precision(Self) -> Int32
 pub fn DecimalContext::refinement_limit(Self) -> Int32?
@@ -385,7 +385,7 @@ pub fn GdaContext::default() -> Self
 pub fn GdaContext::e_max(Self) -> Int32
 pub fn GdaContext::e_min(Self) -> Int32
 pub fn GdaContext::extended(Self) -> Bool
-pub fn GdaContext::new(precision? : Int32, rounding? : GdaRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, traps? : GdaTrapSet) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn GdaContext::new(precision? : Int32, rounding? : GdaRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, traps? : GdaTrapSet) -> Self
 pub fn GdaContext::precision(Self) -> Int32
 pub fn GdaContext::radix(Self) -> Int32
 pub fn GdaContext::reset(Self) -> Self
