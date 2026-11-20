@@ -1871,26 +1871,38 @@ integer-bound argument in this section.
 $p$-bit numbers, and $p$ ranges from 1 to $2^{28}$.
 
 **Choice.** `BinCoeff` stores up to 128 bits inline and larger values as
-little-endian 32-bit limbs (a host `bigint` on JavaScript), and dispatches
-on the shorter operand length $n$ in limbs:
+little-endian 64-bit limbs (a host `bigint` on JavaScript), and dispatches on
+the operand length $n$ in 64-bit limbs. Every threshold below is in 64-bit
+limbs:
 
-| Product | Native | LLVM | Wasm, Wasm-GC |
-| --- | ---: | ---: | ---: |
-| schoolbook below | 96 | 96 | 96 |
-| Karatsuba from | 96 | 96 | 96 |
-| Toom-3 from | 2048 | 2048 | 4096 |
-| two-prime NTT multiply from | 2048 | 2048 | 4096 |
-| NTT square from | 7168 | 7168 | 3072 |
-| recursive square from | 512 | 768 | 768 |
+| Product or square | Native, LLVM | Wasm, Wasm-GC |
+| --- | ---: | ---: |
+| schoolbook product below | 32 | 32 |
+| Karatsuba product from | 32 | 32 |
+| Karatsuba product on 32-bit limbs from | never | 160 |
+| Karatsuba square from | 36 | off |
+| square on 32-bit limbs from | never | 80 |
+| Toom-3 product from (balanced, where the NTT does not fit) | 4096 | 2048 |
+| two-prime NTT product from | 4096 | 2048 |
+| NTT square from | 3584 | 1536 |
 
-On Native and LLVM squaring runs a word-range Karatsuba square from 36 64-bit limbs (three half-size squares $a_0^2$, $a_1^2$ and $(a_0 - a_1)^2$ instead of three products) and keeps the NTT square for 7168 32-bit limbs and above (measured crossover).
+LLVM takes the Native values, which are unmeasured there. A product with
+$m > 2n$ limbs is cut inside the Karatsuba into $n$-limb blocks; a short
+operand against a long one beyond the NTT cutoff uses the NTT overlap-add.
+Squaring is a word-range Karatsuba square (three half-size squares $a_0^2$,
+$a_1^2$ and $(a_0 - a_1)^2$ instead of three products) on Native and LLVM, and
+the NTT square above its cutoff; Wasm keeps the 32-bit-limb route from 80
+limbs, where a 64-bit product costs four `i64.mul`.
 
-Sparse operands (few nonzero limbs) use a sparse product, and operands with
-$m > 2n$ limbs are cut into $n$-limb blocks. Division uses a one-limb loop,
-Knuth's algorithm D below 48 divisor limbs, Burnikel–Ziegler recursion from
-48 and a Newton reciprocal from 1024; GCD switches from the binary (Stein) algorithm to
-Lehmer batches above four limbs. The thresholds are measured, per target, by
-the benchmark suite; they are policy, not semantics.
+Operands with at least 4 limbs of which at most one eighth are nonzero use a
+sparse product of the nonzero limbs. Division uses a loop over half-limbs for a
+divisor below $2^{32}$, Knuth's algorithm D on 64-bit digits (32-bit digits on
+Wasm) below 96 divisor limbs, Burnikel–Ziegler recursion from 96 with leaves of
+up to 64 limbs, and never the Newton reciprocal (the routine stays for tests);
+GCD switches from the binary (Stein) algorithm to Lehmer batches above two
+limbs. The thresholds are measured, per target, by the benchmark suite; they
+are policy, not semantics. The 32-bit view of the storage exists only for the
+Wasm routes above.
 
 A Lehmer round is valid only when its single-word digits come from the same
 bit window of both operands: digits taken from each operand's own top limb

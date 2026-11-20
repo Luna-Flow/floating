@@ -1,6 +1,9 @@
 ///|
 /// Karatsuba multiplication on 32-bit limb ranges, the counterpart of the
-/// 64-bit-limb code in `bin_coeff_words_nonjs.mbt`. On Wasm and Wasm-GC a
+/// 64-bit-limb code in `bin_coeff_words_nonjs.mbt`; the file also holds the
+/// 32-bit view of the storage (`bin_coeff_limb_len`, `bin_coeff_limb`,
+/// `bin_coeff_from_limbs`), which nothing outside the 32-bit-limb routes uses.
+/// On Wasm and Wasm-GC a
 /// 64-bit limb product costs four `i64.mul` and the saving of the wider limb
 /// shrinks to the loop overhead, so above `bin_coeff_limb32_min_words` the
 /// operands are split into 32-bit limbs, multiplied here and packed back:
@@ -412,4 +415,230 @@ fn bin_coeff_mul_limb32(left : BinCoeff, right : BinCoeff) -> BinCoeff {
     }
     _ => bin_coeff_mul_schoolbook(left, right)
   }
+}
+
+///|
+/// Number of 32-bit limbs: the 32-bit view of the 64-bit storage, used only by
+/// the 32-bit-limb routes of Wasm and Wasm-GC in this file (multiplication,
+/// squaring, Knuth division) and by the tests that compare against them.
+fn bin_coeff_limb_len(value : BinCoeff) -> Int32 {
+  match value.repr {
+    Inline64(value) => if value >> 32 == 0UL { 1 } else { 2 }
+    Inline128(high, _) => if high >> 32 == 0UL { 3 } else { 4 }
+    Heap(words, len) =>
+      if words.unsafe_get(len - 1) >> 32 == 0UL {
+        2 * len - 1
+      } else {
+        2 * len
+      }
+  }
+}
+
+///|
+/// The `index`-th 32-bit limb of the 32-bit view.
+fn bin_coeff_limb(value : BinCoeff, index : Int32) -> UInt32 {
+  match value.repr {
+    Inline64(low) =>
+      match index {
+        0 => (low & bin_coeff_limb_mask).to_uint()
+        1 => (low >> 32).to_uint()
+        _ => 0U
+      }
+    Inline128(high, low) =>
+      match index {
+        0 => (low & bin_coeff_limb_mask).to_uint()
+        1 => (low >> 32).to_uint()
+        2 => (high & bin_coeff_limb_mask).to_uint()
+        3 => (high >> 32).to_uint()
+        _ => 0U
+      }
+    Heap(words, len) =>
+      if index >= 0 && index < 2 * len {
+        let word = words.unsafe_get(index >> 1)
+        if (index & 1) == 0 {
+          (word & bin_coeff_limb_mask).to_uint()
+        } else {
+          (word >> 32).to_uint()
+        }
+      } else {
+        0U
+      }
+  }
+}
+
+///|
+/// Builds a value from little-endian 32-bit limbs (the 32-bit view): the limbs
+/// are packed into 64-bit words.
+fn bin_coeff_from_limbs(
+  limbs : FixedArray[UInt32],
+  maximum_len : Int32,
+) -> BinCoeff {
+  let mut len = maximum_len
+  while len > 1 && limbs.unsafe_get(len - 1) == 0U {
+    len -= 1
+  }
+  if len <= 0 || (len == 1 && limbs.unsafe_get(0) == 0U) {
+    return BinCoeff::zero()
+  }
+  if len <= 2 {
+    let low = limbs.unsafe_get(0).to_uint64()
+    let high = if len == 2 {
+      limbs.unsafe_get(1).to_uint64() << 32
+    } else {
+      0UL
+    }
+    return { repr: Inline64(high | low), }
+  }
+  if len <= 4 {
+    let low = limbs.unsafe_get(0).to_uint64() |
+      (limbs.unsafe_get(1).to_uint64() << 32)
+    let high = limbs.unsafe_get(2).to_uint64() |
+      (if len == 4 { limbs.unsafe_get(3).to_uint64() << 32 } else { 0UL })
+    return bin_coeff_inline(high, low)
+  }
+  let word_len = (len + 1) / 2
+  let words = FixedArray::make(word_len, 0UL)
+  for index in 0..<word_len {
+    let low = limbs.unsafe_get(2 * index).to_uint64()
+    let high = if 2 * index + 1 < len {
+      limbs.unsafe_get(2 * index + 1).to_uint64() << 32
+    } else {
+      0UL
+    }
+    words.unsafe_set(index, high | low)
+  }
+  { repr: Heap(words, word_len), }
+}
+
+///|
+/// Knuth's algorithm D on 32-bit limbs (the Wasm route, see
+/// `bin_coeff_knuth_words_enabled`).
+fn bin_coeff_div_rem_knuth_limb32(
+  numerator : BinCoeff,
+  denominator : BinCoeff,
+) -> (BinCoeff, BinCoeff) {
+  let numerator_len = bin_coeff_limb_len(numerator)
+  let denominator_len = bin_coeff_limb_len(denominator)
+  let top = bin_coeff_limb(denominator, denominator_len - 1)
+  let normalization_shift = top.clz()
+  let divisor = FixedArray::make(denominator_len, 0UL)
+  let mut divisor_carry = 0UL
+  for index in 0..<denominator_len {
+    let shifted = (
+        bin_coeff_limb(denominator, index).to_uint64() << normalization_shift
+      ) |
+      divisor_carry
+    divisor.unsafe_set(index, shifted & bin_coeff_limb_mask)
+    divisor_carry = shifted >> bin_coeff_limb_bits
+  }
+  let dividend = FixedArray::make(numerator_len + 1, 0UL)
+  let mut dividend_carry = 0UL
+  for index in 0..<numerator_len {
+    let shifted = (
+        bin_coeff_limb(numerator, index).to_uint64() << normalization_shift
+      ) |
+      dividend_carry
+    dividend.unsafe_set(index, shifted & bin_coeff_limb_mask)
+    dividend_carry = shifted >> bin_coeff_limb_bits
+  }
+  dividend.unsafe_set(numerator_len, dividend_carry)
+  let quotient_len = numerator_len - denominator_len + 1
+  let quotient = FixedArray::make(quotient_len, 0U)
+  let divisor_top = divisor.unsafe_get(denominator_len - 1)
+  let divisor_next = divisor.unsafe_get(denominator_len - 2)
+  let mut offset = quotient_len - 1
+  while true {
+    let high = dividend.unsafe_get(offset + denominator_len)
+    let next = dividend.unsafe_get(offset + denominator_len - 1)
+    let mut trial = 0UL
+    let mut trial_remainder = 0UL
+    if high >= divisor_top {
+      trial = bin_coeff_limb_mask
+      trial_remainder = next + divisor_top
+    } else {
+      let trial_dividend = (high << bin_coeff_limb_bits) | next
+      trial = trial_dividend / divisor_top
+      trial_remainder = trial_dividend % divisor_top
+    }
+    let next_dividend = dividend.unsafe_get(offset + denominator_len - 2)
+    while trial_remainder < bin_coeff_limb_base &&
+          trial * divisor_next >
+          (trial_remainder << bin_coeff_limb_bits) + next_dividend {
+      trial -= 1UL
+      trial_remainder += divisor_top
+    }
+    let mut carry = 0UL
+    let mut borrow = 0UL
+    for index in 0..<denominator_len {
+      let product = trial * divisor.unsafe_get(index) + carry
+      carry = product >> bin_coeff_limb_bits
+      let low = product & bin_coeff_limb_mask
+      let current = dividend.unsafe_get(offset + index)
+      let subtrahend = low + borrow
+      if current < subtrahend {
+        dividend.unsafe_set(
+          offset + index,
+          current + bin_coeff_limb_base - subtrahend,
+        )
+        borrow = 1UL
+      } else {
+        dividend.unsafe_set(offset + index, current - subtrahend)
+        borrow = 0UL
+      }
+    }
+    let high_index = offset + denominator_len
+    let high_subtrahend = carry + borrow
+    let current_high = dividend.unsafe_get(high_index)
+    let underflow = current_high < high_subtrahend
+    dividend.unsafe_set(
+      high_index,
+      if underflow {
+        current_high + bin_coeff_limb_base - high_subtrahend
+      } else {
+        current_high - high_subtrahend
+      },
+    )
+    if underflow {
+      trial -= 1UL
+      let mut add_carry = 0UL
+      for index in 0..<denominator_len {
+        let sum = dividend.unsafe_get(offset + index) +
+          divisor.unsafe_get(index) +
+          add_carry
+        dividend.unsafe_set(offset + index, sum & bin_coeff_limb_mask)
+        add_carry = sum >> bin_coeff_limb_bits
+      }
+      dividend.unsafe_set(
+        high_index,
+        (dividend.unsafe_get(high_index) + add_carry) & bin_coeff_limb_mask,
+      )
+    }
+    quotient.unsafe_set(offset, trial.to_uint())
+    if offset == 0 {
+      break
+    }
+    offset -= 1
+  }
+  let remainder_limbs = FixedArray::make(denominator_len, 0U)
+  if normalization_shift == 0 {
+    for index in 0..<denominator_len {
+      remainder_limbs.unsafe_set(index, dividend.unsafe_get(index).to_uint())
+    }
+  } else {
+    for index in 0..<denominator_len {
+      let mut limb = dividend.unsafe_get(index) >> normalization_shift
+      if index + 1 < denominator_len {
+        limb = limb |
+          (
+            dividend.unsafe_get(index + 1) <<
+            (bin_coeff_limb_bits - normalization_shift)
+          )
+      }
+      remainder_limbs.unsafe_set(index, (limb & bin_coeff_limb_mask).to_uint())
+    }
+  }
+  (
+    bin_coeff_from_limbs(quotient, quotient_len),
+    bin_coeff_from_limbs(remainder_limbs, denominator_len),
+  )
 }

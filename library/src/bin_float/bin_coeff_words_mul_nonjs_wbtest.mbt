@@ -150,7 +150,7 @@ test "32-bit-limb squaring (the Wasm route) equals the schoolbook square" {
 }
 
 ///|
-test "32-bit limb slices of 64-bit storage equal the limb-by-limb view" {
+test "word slices of 64-bit storage equal the limb-by-limb view" {
   let random = { words_state: 0x7777_1111_3333_9999UL, }
   for len in [3, 4, 5, 9, 16, 33] {
     for pattern in 0..<5 {
@@ -158,29 +158,19 @@ test "32-bit limb slices of 64-bit storage equal the limb-by-limb view" {
         words_test_array(random, len, pattern),
         len,
       )
-      let limb_len = bin_coeff_limb_len(value)
-      for
-        start in [
-          0,
-          1,
-          2,
-          3,
-          limb_len / 2,
-          limb_len - 1,
-          limb_len,
-          limb_len + 2,
-        ] {
-        for length in [0, 1, 2, 3, 6, limb_len / 2, limb_len, limb_len + 5] {
-          let limbs = FixedArray::make(Int32::max(length, 1), 0U)
+      let word_len = bin_coeff_word_len(value)
+      for start in [0, 1, 2, word_len / 2, word_len - 1, word_len, word_len + 2] {
+        for length in [0, 1, 2, 3, word_len / 2, word_len, word_len + 5] {
+          let words = FixedArray::make(Int32::max(length, 1), 0UL)
           for index in 0..<length {
-            limbs[index] = bin_coeff_limb(value, start + index)
+            words[index] = bin_coeff_word(value, start + index)
           }
-          let expected = if length <= 0 || start >= limb_len {
+          let expected = if length <= 0 || start >= word_len {
             BinCoeff::zero()
           } else {
-            bin_coeff_from_limbs(limbs, Int32::min(length, limb_len - start))
+            bin_coeff_from_words(words, Int32::min(length, word_len - start))
           }
-          assert_eq(bin_coeff_slice(value, start, length), expected)
+          assert_eq(bin_coeff_word_slice(value, start, length), expected)
         }
       }
     }
@@ -298,8 +288,8 @@ test "BinCoeff square around the schoolbook, Karatsuba and NTT square cutoffs" {
 ///|
 test "BinCoeff square at the NTT square cutoff equals the Karatsuba square and product" {
   let random = { words_state: 0x1D1D_E2E2_4B4B_8F8FUL, }
-  // the NTT square starts at `bin_coeff_ntt_square_threshold` 32-bit limbs
-  let boundary = bin_coeff_ntt_square_threshold / 2
+  // the NTT square starts at `bin_coeff_ntt_square_min_words` limbs
+  let boundary = bin_coeff_ntt_square_min_words
   for len in [boundary - 1, boundary, boundary + 1] {
     for pattern in [0, 1] {
       let value = bin_coeff_from_words(

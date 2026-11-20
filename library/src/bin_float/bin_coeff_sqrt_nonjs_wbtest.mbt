@@ -79,12 +79,6 @@ test "BinCoeff sqrt divide-and-conquer random data" {
 }
 
 ///|
-test "BinCoeff sqrt cutoffs are inside the fixed-width kernel range" {
-  assert_true(bin_coeff_sqrt_dc_base_bits >= 128)
-  assert_true(bin_coeff_sqrt_dc_base_bits <= 512)
-}
-
-///|
 /// Large radicands, checked by the defining inequalities
 /// `root^2 <= value < (root + 1)^2` and `remainder = value - root^2` (no
 /// second implementation involved) and against the `BinCoeff` recursion.
