@@ -1377,6 +1377,9 @@ $w = 8192$; $g = 48$ guard bits therefore keep the enclosure within
 $2^{-(w+7)}$ relative width, which is the width of the current series. The
 kernel computes the true width and returns `None` when it exceeds that bound.
 
+*One full product per chunk.* The pair $(\ell, u)$ and the stage $[l, s]$ ($l \le e^{y} \cdot 2^F \le s$, both in units of $2^{-F}$) are folded as $(\lfloor \ell\, l / 2^F \rfloor,\; \lfloor u\, s / 2^F \rfloor + 1)$. Put $w = u - \ell$ and $r = s - l$, both short (below $2^{20}$ at all sizes used). Then $u\, s = \ell\, l + \ell\, r + w\, s$ exactly, so the upper end is formed from the product $\ell\, l$ that the lower end already needs, plus two products by short numbers: one full product and two unbalanced ones instead of two full products. The integers are the same as before, so no error term arises and the width argument above is unchanged. The first chunk starts from $\ell = u = 2^F$ and is the stage itself, $(l, s + 1)$, without a product.
+
+
 *Cost.* A stage with $m$-bit numerator at position $b$ needs
 $n_b \approx F / (b + \log_2 n_b)$ terms, each a product of the shrinking term
 by an $m$-bit integer, a shift and a division by a one-limb integer. For
@@ -1730,7 +1733,7 @@ balls with midpoints $a, b$ and radii $\alpha, \beta$ has midpoint
 $\lfloor a b / 2^F \rfloor$ and radius
 $\lceil (a \beta + b \alpha + \alpha \beta)/2^F \rceil + 2$, and the stages are
 folded by rotation, $C' = C c - S s$ and $S' = S c + C s$ (four ball products;
-the first stage is not multiplied at all), with the midpoint of the difference
+the first stage is not multiplied at all, and the last fold forms only the component the result reads, two ball products), with the midpoint of the difference
 required to be non-negative. The quadrant $n \bmod 4$ and the signs of $x$ and
 $R$ select which component is the result. It declines for $|x| < 2^{-64}$,
 $|x| \ge 2^{4096}$, when the reduced argument is smaller than $2^{-62}$, and
