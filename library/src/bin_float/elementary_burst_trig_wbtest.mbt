@@ -152,7 +152,13 @@ test "mutated bit-burst sin and cos are caught by the containment test" {
         reference,
       ),
     )
-    let biased = { mid_bias_bits: 64, split_reduce_terms: 0, pi_drop_bits: 0, }
+    let biased = {
+      mid_bias_bits: 64,
+      split_reduce_terms: 0,
+      pi_drop_bits: 0,
+      cos_swap_ends: false,
+      cos_no_plus_one: false,
+    }
     assert_true(
       burst_test_caught(
         binary_trig_bounds_burst(
@@ -171,6 +177,8 @@ test "mutated bit-burst sin and cos are caught by the containment test" {
       mid_bias_bits: 0,
       split_reduce_terms: 40,
       pi_drop_bits: 0,
+      cos_swap_ends: false,
+      cos_no_plus_one: false,
     }
     assert_true(
       burst_test_caught(
@@ -196,7 +204,13 @@ test "mutated bit-burst sin and cos are caught by the containment test" {
       large_reference,
     ),
   )
-  let coarse = { mid_bias_bits: 0, split_reduce_terms: 0, pi_drop_bits: 200, }
+  let coarse = {
+    mid_bias_bits: 0,
+    split_reduce_terms: 0,
+    pi_drop_bits: 200,
+    cos_swap_ends: false,
+    cos_no_plus_one: false,
+  }
   assert_true(
     burst_test_caught(
       binary_trig_bounds_burst(

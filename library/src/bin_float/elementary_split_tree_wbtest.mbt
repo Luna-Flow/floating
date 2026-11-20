@@ -168,3 +168,251 @@ test "exp and trig bursts contain the exact value at 256 bits more" {
     }
   }
 }
+
+///|
+/// The complex binary-splitting stage of `sin`/`cos` (the tree of `exp(i y)` with a
+/// real and an imaginary component) as it was before the real series of the sine,
+/// kept as the reference of the real stage.
+
+///|
+fn burst_trig_rotate(value : SplitInt, quarter_turns : Int32) -> SplitInt {
+  // Multiplication by i^quarter_turns on one component is a sign change.
+  if quarter_turns % 4 >= 2 {
+    SplitInt::make(!value.negative, value.magnitude)
+  } else {
+    value
+  }
+}
+
+///|
+/// Binary splitting state of the series of `exp(i y)`, `y = N / 2^s`: the
+/// real-valued state of `SplitState` (`p`, `q`, `q_shift`) with two components
+/// `t = (re, im)` and the number of `i` factors `leaves`. The merge of each
+/// component is `split_combine_t`, applied to the right component rotated by
+/// `i^leaves_left`; this rotation is the only difference from `SplitState`, and
+/// the reason the state is not shared with it.
+priv struct SplitComplexState {
+  leaves : Int32
+  q : Coeff
+  q_shift : Int32
+  re : SplitInt
+  im : SplitInt
+}
+
+///|
+/// Binary splitting of `sum_{k<n} prod_{i<=k} (i N) / (i 2^s)` on `[from, to)`
+/// (the series of `exp(i y)` with `i` the imaginary unit and the factor `i`
+/// written as the leaf `(0, N)`): `p = N^leaves`, `q = prod i`,
+/// `q_shift = s` per index from 1, `t = (re, im)` with `t = q 2^q_shift sum`,
+/// merged as `t = t_left q_right 2^q_shift_right + i^leaves_left p_left t_right`.
+fn split_trig_state(
+  from : Int32,
+  to : Int32,
+  powers : SplitPowers,
+  s : Int32,
+) -> SplitComplexState {
+  let numerator = powers.numerator
+  if to - from == 1 {
+    if from == 0 {
+      return {
+        leaves: 0,
+        q: Coeff::one(),
+        q_shift: 0,
+        re: SplitInt::make(false, Coeff::one()),
+        im: SplitInt::make(false, Coeff::zero()),
+      }
+    }
+    return {
+      leaves: 1,
+      q: Coeff::from_uint64(from.to_uint64()),
+      q_shift: s,
+      re: SplitInt::make(false, Coeff::zero()),
+      im: SplitInt::make(false, numerator),
+    }
+  }
+  if to - from == 2 && from >= 1 {
+    // Two leaves directly (the merge below with the leaf states
+    // `re = 0, im = N`): the right leaf is rotated by `i`, so `re = -N N` and
+    // `im = N (from + 1) 2^s`, `q = from (from + 1)`, `q_shift = 2 s`.
+    let next = Coeff::from_uint64((from + 1).to_uint64())
+    return {
+      leaves: 2,
+      q: Coeff::from_uint64(from.to_uint64() * (from + 1).to_uint64()),
+      q_shift: 2 * s,
+      re: SplitInt::make(true, powers.get(2)),
+      im: SplitInt::make(false, numerator.mul(next).shift_left(s)),
+    }
+  }
+  let middle = from + (to - from) / 2
+  let left = split_trig_state(from, middle, powers, s)
+  let right = split_trig_state(middle, to, powers, s)
+  // i^m (a + b i) = (a + b i), (-b + a i), (-a - b i), (b - a i) for m = 0..3.
+  let (rotated_re, rotated_im) = match left.leaves % 4 {
+    0 => (right.re, right.im)
+    1 => (burst_trig_rotate(right.im, 2), right.re)
+    2 => (burst_trig_rotate(right.re, 2), burst_trig_rotate(right.im, 2))
+    _ => (right.im, burst_trig_rotate(right.re, 2))
+  }
+  let left_power = powers.get(left.leaves)
+  {
+    leaves: left.leaves + right.leaves,
+    q: left.q.mul(right.q),
+    q_shift: left.q_shift + right.q_shift,
+    re: split_combine_t(left.re, left_power, rotated_re, right.q, right.q_shift),
+    im: split_combine_t(left.im, left_power, rotated_im, right.q, right.q_shift),
+  }
+}
+
+///|
+/// Binary-splitting stage: balls for `cos y` and `sin y` for `y = N / 2^s < 1`.
+/// The partial sums over `n` terms are the exact rationals `re / (q 2^(s(n-1)))`
+/// and `im / (q 2^(s(n-1)))`; with the choice of `n` of `burst_split_terms` the
+/// omitted terms of each alternating series are below 2 units in size, and the
+/// floor loses less than 1, so the quotient plus 1 with radius 2 contains each.
+fn burst_trig_split_stage(
+  numerator : Coeff,
+  s : Int32,
+  f : Int32,
+  mutation : BurstTrigMutation,
+) -> BurstRotation? {
+  let terms = Int32::max(
+    2,
+    fixed_split_terms(numerator, s, f) - mutation.split_reduce_terms,
+  )
+  let state = split_trig_state(0, terms, SplitPowers::new(numerator, terms), s)
+  guard !state.re.negative && !state.im.negative else { return None }
+  let bias = burst_trig_bias(mutation)
+  let ball = fn(value : Coeff) -> BurstBall {
+    let scaled = fixed_shift(value, f - state.q_shift)
+    {
+      mid: scaled.div_rem_checked(state.q).unwrap().0
+      .add(Coeff::one())
+      .add(bias),
+      rad: Coeff::from_uint64(2UL),
+    }
+  }
+  Some({ cos: ball(state.re.magnitude), sin: ball(state.im.magnitude), })
+}
+
+///|
+test "real sine tree equals the odd part of the complex tree" {
+  for case in split_tree_test_cases() {
+    let (numerator, s, terms) = case
+    let leaves = Int32::max(1, terms / 2)
+    let real = split_sin_state(
+      0,
+      leaves,
+      SplitPowers::new(numerator.square(), leaves),
+      s,
+    )
+    // The complex tree over 2 leaves - 1 indices holds the odd terms up to
+    // exponent 2 leaves - 1, the same partial sum of the sine.
+    let complex = split_trig_state(
+      0,
+      2 * leaves,
+      SplitPowers::new(numerator, 2 * leaves),
+      s,
+    )
+    // im / (q_c 2^qs_c) = N T / (2^s q_r 2^qs_r)
+    let left = complex.im.magnitude.mul(real.q).shift_left(real.q_shift + s)
+    let right = numerator
+      .mul(real.t.magnitude)
+      .mul(complex.q)
+      .shift_left(complex.q_shift)
+    assert_eq(complex.im.negative, real.t.negative)
+    assert_eq(left.compare(right), 0)
+  }
+}
+
+///|
+test "stage balls of the real sine series contain the complex stage balls" {
+  let mutation = burst_trig_no_mutation
+  let mut checked = 0
+  for f in [640, 1100, 2160] {
+    for bits in [16, 48, 120] {
+      for seed in [7UL, 8UL, 9UL] {
+        let numerator = burst_test_coefficient(bits, seed + bits.to_uint64())
+        let s = bits + 1 + (seed % 3UL).to_int()
+        let old = burst_trig_split_stage(numerator, s, f, mutation)
+        let new = burst_trig_split_stage_real(numerator, s, f, mutation)
+        match (old, new) {
+          (Some(a), Some(b)) => {
+            // Both balls contain the same sine and cosine, so they intersect.
+            let near = fn(x : BurstBall, y : BurstBall) -> Bool {
+              let distance = if x.mid.compare(y.mid) >= 0 {
+                x.mid.sub_checked(y.mid).unwrap()
+              } else {
+                y.mid.sub_checked(x.mid).unwrap()
+              }
+              distance.compare(x.rad.add(y.rad)) <= 0
+            }
+            assert_true(near(a.sin, b.sin))
+            assert_true(near(a.cos, b.cos))
+            // Not wider than the complex ball plus 2 units for the sine, and
+            // the cosine ball at most 3 units wider than twice the sine radius.
+            assert_true(b.sin.rad.compare(a.sin.rad) <= 0)
+            checked += 1
+          }
+          _ => ()
+        }
+      }
+    }
+  }
+  assert_true(checked > 20)
+}
+
+///|
+test "cosine ball from a sine ball: the plus one of the upper end and the clamp" {
+  let f = 10
+  let one_unit = Coeff::one().shift_left(f)
+  // A single point: the ends are the floor of the root and the floor plus one,
+  // so a cosine strictly between them (2^(2f) - s^2 is not a perfect square)
+  // is enclosed only with the plus one.
+  let sv = Coeff::from_uint64(777UL)
+  let (low, high) = burst_cos_from_sine_bounds(
+    sv, sv, f, burst_trig_no_mutation,
+  ).unwrap()
+  let exact = Coeff::one().shift_left(2 * f).sub_checked(sv.square()).unwrap()
+  let (root, remainder) = bin_coeff_sqrt_rem_kernel(exact)
+  assert_true(!remainder.is_zero())
+  assert_eq(low.compare(root), 0)
+  assert_eq(high.compare(root.add(Coeff::one())), 0)
+  // s = 0 (the clamp): the cosine is at most 1, the upper end is 2^f.
+  let (zero_low, zero_high) = burst_cos_from_sine_bounds(
+    Coeff::zero(),
+    Coeff::zero(),
+    f,
+    burst_trig_no_mutation,
+  ).unwrap()
+  assert_eq(zero_low.compare(one_unit), 0)
+  assert_eq(zero_high.compare(one_unit), 0)
+  // s above 2^f is declined.
+  assert_true(
+    burst_cos_from_sine_bounds(
+      Coeff::zero(),
+      one_unit.add(Coeff::one()),
+      f,
+      burst_trig_no_mutation,
+    )
+    is None,
+  )
+  // The two mutations change the ends.
+  let no_plus = { ..burst_trig_no_mutation, cos_no_plus_one: true, }
+  let (_, high_no_plus) = burst_cos_from_sine_bounds(sv, sv, f, no_plus).unwrap()
+  assert_eq(high_no_plus.compare(root), 0)
+  let swapped = { ..burst_trig_no_mutation, cos_swap_ends: true, }
+  let (low_swapped, high_swapped) = burst_cos_from_sine_bounds(
+    Coeff::from_uint64(100UL),
+    Coeff::from_uint64(900UL),
+    f,
+    swapped,
+  ).unwrap()
+  let (low_good, high_good) = burst_cos_from_sine_bounds(
+    Coeff::from_uint64(100UL),
+    Coeff::from_uint64(900UL),
+    f,
+    burst_trig_no_mutation,
+  ).unwrap()
+  assert_true(low_swapped.compare(low_good) > 0)
+  assert_true(high_swapped.compare(high_good) != 0)
+}
