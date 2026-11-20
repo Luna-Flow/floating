@@ -26,9 +26,7 @@ pub fn BallContext::try_new(precision? : Int32, e_min? : Int32, e_max? : Int32) 
 
 #derive(Eq)
 pub struct BallFlags {
-  inexact : Bool
-  overflow : Bool
-  underflow : Bool
+  // private fields
 }
 pub fn BallFlags::combine(Self, Self) -> Self
 pub fn BallFlags::equal(Self, Self) -> Bool

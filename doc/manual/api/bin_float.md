@@ -771,7 +771,7 @@ pub fn BinaryFlags::division_by_zero(Self) -> Bool
 pub fn BinaryFlags::invalid_operation(Self) -> Bool
 ```
 
-`new()` has every flag clear. A contextual operation returns only the flags it
+`new()` has every flag clear. There is no `contains`: that method exists only where a package has a signal enum, and the five accessors cover the five flags. A contextual operation returns only the flags it
 raised itself; nothing is sticky until you combine flags. The flags mean:
 `inexact`, the returned value differs from the exact result; `underflow`, the
 result is tiny and inexact; `overflow`, the rounded result exceeded the

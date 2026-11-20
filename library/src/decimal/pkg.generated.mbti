@@ -307,26 +307,27 @@ pub fn DecimalContext::with_tininess(Self, DecimalTininessDetection) -> Self
 
 #derive(Eq)
 pub struct DecimalFlags {
-  inexact : Bool
-  rounded : Bool
-  lost_digits : Bool
-  invalid_operation : Bool
-  division_by_zero : Bool
-  overflow : Bool
-  underflow : Bool
-  subnormal : Bool
-  clamped : Bool
-  conversion_syntax : Bool
-  division_impossible : Bool
-  division_undefined : Bool
-  invalid_context : Bool
+  // private fields
 }
+pub fn DecimalFlags::clamped(Self) -> Bool
 pub fn DecimalFlags::combine(Self, Self) -> Self
 pub fn DecimalFlags::contains(Self, DecimalSignal) -> Bool
+pub fn DecimalFlags::conversion_syntax(Self) -> Bool
+pub fn DecimalFlags::division_by_zero(Self) -> Bool
+pub fn DecimalFlags::division_impossible(Self) -> Bool
+pub fn DecimalFlags::division_undefined(Self) -> Bool
 pub fn DecimalFlags::equal(Self, Self) -> Bool
 pub fn DecimalFlags::has_error(Self) -> Bool
+pub fn DecimalFlags::inexact(Self) -> Bool
+pub fn DecimalFlags::invalid_context(Self) -> Bool
+pub fn DecimalFlags::invalid_operation(Self) -> Bool
+pub fn DecimalFlags::lost_digits(Self) -> Bool
 pub fn DecimalFlags::new() -> Self
 pub fn DecimalFlags::not_equal(Self, Self) -> Bool
+pub fn DecimalFlags::overflow(Self) -> Bool
+pub fn DecimalFlags::rounded(Self) -> Bool
+pub fn DecimalFlags::subnormal(Self) -> Bool
+pub fn DecimalFlags::underflow(Self) -> Bool
 
 pub struct DecimalInterchange {
   // private fields

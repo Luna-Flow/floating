@@ -209,16 +209,14 @@ when $e \ge e_{\min}$. See [Contexts and flags](#contexts-and-flags).
 
 ```mbti
 pub struct BallFlags {
-  inexact : Bool
-  overflow : Bool
-  underflow : Bool
+  // private fields
 } derive(Eq)
 ```
 
 `inexact` is set when an endpoint (or, for `midpoint_ctx`, the midpoint)
 changed; `overflow` when it was beyond $e_{\max}$; `underflow` when it is tiny
 and inexact, as IEEE 754 defines it (see
-[`BallFloat::apply_ctx`](#ballfloatapply_ctx)). The fields are readable; the accessor methods are listed under
+[`BallFloat::apply_ctx`](#ballfloatapply_ctx)). The fields are private; each flag is read with the accessor method of the same name, listed under
 [`BallFlags::new`](#ballflagsnew-ballflagscombine-ballflagsinexact-ballflagsoverflow-ballflagsunderflow).
 
 ## Construction
@@ -1752,9 +1750,7 @@ pub fn BallContext::try_new(precision? : Int32, e_min? : Int32, e_max? : Int32) 
 
 #derive(Eq)
 pub struct BallFlags {
-  inexact : Bool
-  overflow : Bool
-  underflow : Bool
+  // private fields
 }
 pub fn BallFlags::combine(Self, Self) -> Self
 pub fn BallFlags::equal(Self, Self) -> Bool

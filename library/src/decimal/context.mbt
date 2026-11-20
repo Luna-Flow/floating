@@ -92,19 +92,19 @@ pub struct DecimalContext {
 ///|
 #derive(Eq)
 pub struct DecimalFlags {
-  inexact : Bool
-  rounded : Bool
-  lost_digits : Bool
-  invalid_operation : Bool
-  division_by_zero : Bool
-  overflow : Bool
-  underflow : Bool
-  subnormal : Bool
-  clamped : Bool
-  conversion_syntax : Bool
-  division_impossible : Bool
-  division_undefined : Bool
-  invalid_context : Bool
+  priv inexact : Bool
+  priv rounded : Bool
+  priv lost_digits : Bool
+  priv invalid_operation : Bool
+  priv division_by_zero : Bool
+  priv overflow : Bool
+  priv underflow : Bool
+  priv subnormal : Bool
+  priv clamped : Bool
+  priv conversion_syntax : Bool
+  priv division_impossible : Bool
+  priv division_undefined : Bool
+  priv invalid_context : Bool
 }
 
 ///|
@@ -157,6 +157,84 @@ pub fn DecimalFlags::new() -> DecimalFlags {
 }
 
 ///|
+/// Whether the `inexact` status flag is set.
+pub fn DecimalFlags::inexact(self : DecimalFlags) -> Bool {
+  self.inexact
+}
+
+///|
+/// Whether the `rounded` status flag is set.
+pub fn DecimalFlags::rounded(self : DecimalFlags) -> Bool {
+  self.rounded
+}
+
+///|
+/// Whether the `lost_digits` status flag is set.
+pub fn DecimalFlags::lost_digits(self : DecimalFlags) -> Bool {
+  self.lost_digits
+}
+
+///|
+/// Whether the `invalid_operation` status flag is set.
+pub fn DecimalFlags::invalid_operation(self : DecimalFlags) -> Bool {
+  self.invalid_operation
+}
+
+///|
+/// Whether the `division_by_zero` status flag is set.
+pub fn DecimalFlags::division_by_zero(self : DecimalFlags) -> Bool {
+  self.division_by_zero
+}
+
+///|
+/// Whether the `overflow` status flag is set.
+pub fn DecimalFlags::overflow(self : DecimalFlags) -> Bool {
+  self.overflow
+}
+
+///|
+/// Whether the `underflow` status flag is set.
+pub fn DecimalFlags::underflow(self : DecimalFlags) -> Bool {
+  self.underflow
+}
+
+///|
+/// Whether the `subnormal` status flag is set.
+pub fn DecimalFlags::subnormal(self : DecimalFlags) -> Bool {
+  self.subnormal
+}
+
+///|
+/// Whether the `clamped` status flag is set.
+pub fn DecimalFlags::clamped(self : DecimalFlags) -> Bool {
+  self.clamped
+}
+
+///|
+/// Whether the `conversion_syntax` status flag is set.
+pub fn DecimalFlags::conversion_syntax(self : DecimalFlags) -> Bool {
+  self.conversion_syntax
+}
+
+///|
+/// Whether the `division_impossible` status flag is set.
+pub fn DecimalFlags::division_impossible(self : DecimalFlags) -> Bool {
+  self.division_impossible
+}
+
+///|
+/// Whether the `division_undefined` status flag is set.
+pub fn DecimalFlags::division_undefined(self : DecimalFlags) -> Bool {
+  self.division_undefined
+}
+
+///|
+/// Whether the `invalid_context` status flag is set.
+pub fn DecimalFlags::invalid_context(self : DecimalFlags) -> Bool {
+  self.invalid_context
+}
+
+///|
 pub fn DecimalFlags::combine(
   self : DecimalFlags,
   other : DecimalFlags,
@@ -179,6 +257,13 @@ pub fn DecimalFlags::combine(
 }
 
 ///|
+/// True when a condition that delivers no usable number, or a division by
+/// zero, is set: `invalid_operation`, `conversion_syntax`, `division_by_zero`,
+/// `division_undefined`, `division_impossible` or `invalid_context`. IEEE
+/// 754-2019 7.2 signals invalid operation when there is "no usefully
+/// definable result"; division by zero is included so that the checked
+/// arithmetic forms can return `Err`. Overflow, underflow, inexact and the
+/// other conditions deliver a usable result and are not errors.
 pub fn DecimalFlags::has_error(self : DecimalFlags) -> Bool {
   // `conversion_syntax` is a condition of the Invalid operation signal, like
   // `division_impossible` and `division_undefined`. Leaving it out made a

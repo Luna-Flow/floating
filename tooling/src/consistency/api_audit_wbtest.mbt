@@ -155,21 +155,21 @@ test "decimal interchange facade from_decimal preserves finite bits flags and fo
     wrapped32.format() == @decimal.DecimalInterchangeFormat::Decimal32,
   )
   assert_true(wrapped32_flags == encoded32_flags)
-  assert_true(wrapped32_flags.clamped)
+  assert_true(wrapped32_flags.clamped())
 
   assert_eq(wrapped64.to_hex(), encoded64)
   assert_true(
     wrapped64.format() == @decimal.DecimalInterchangeFormat::Decimal64,
   )
   assert_true(wrapped64_flags == encoded64_flags)
-  assert_true(wrapped64_flags.clamped)
+  assert_true(wrapped64_flags.clamped())
 
   assert_eq(wrapped128.to_hex(), encoded128)
   assert_true(
     wrapped128.format() == @decimal.DecimalInterchangeFormat::Decimal128,
   )
   assert_true(wrapped128_flags == encoded128_flags)
-  assert_true(wrapped128_flags.clamped)
+  assert_true(wrapped128_flags.clamped())
 }
 
 ///|
@@ -191,9 +191,9 @@ test "decimal interchange scalar encode preserves finite flags across formats" {
   assert_eq(encoded32, "#47F4C000")
   assert_eq(encoded64, "#47FD300000000000")
   assert_eq(encoded128, "#47FFD300000000000000000000000000")
-  assert_true(flags32.clamped)
-  assert_true(flags64.clamped)
-  assert_true(flags128.clamped)
+  assert_true(flags32.clamped())
+  assert_true(flags64.clamped())
+  assert_true(flags128.clamped())
 }
 
 ///|
