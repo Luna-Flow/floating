@@ -240,8 +240,10 @@ test "decimal coefficient dispatch covers operand shapes and thresholds" {
   let toom_algorithm = dec_coeff_mul_algorithm(toom, toom)
   let expected_toom = if dec_coeff_toom3_threshold <= 134 {
     Toom3
-  } else {
+  } else if dec_coeff_karatsuba_threshold <= 134 {
     Karatsuba
+  } else {
+    Schoolbook
   }
   assert_true(toom_algorithm == expected_toom)
   let ntt = dec_coeff_from_bigint_repr(pow10(5200) - 1N)

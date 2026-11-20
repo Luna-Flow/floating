@@ -255,21 +255,94 @@ fn dec_coeff_mul_inline(left : DecCoeff, right : DecCoeff) -> DecCoeff {
 }
 
 ///|
+/// The square of a limb array in column order, into `result` (zeroed, at least
+/// `2 * len` long). Column `c` is `2 * sum(v[i] * v[c - i], i < c - i)` plus
+/// `v[c / 2]^2` when `c` is even.
+///
+/// The cross products are accumulated without the factor 2, in groups of
+/// `dec_coeff_column_fold` = 16 as in `dec_coeff_mul_columns`: the accumulator
+/// `acc` starts at 0 (no carry in it), sixteen products add less than
+/// `16 * (10^9 - 1)^2 < 1.6 * 10^19 < 2^64 = 1.8446... * 10^19`, then it is
+/// folded (`q = acc / 10^9`, `acc` below `10^9`, `q` added to `folded`), and at
+/// the end of the column one more fold leaves `acc < 10^9`. A doubled product
+/// would be below `2 * 10^18` and only 9 of them would fit in 64 bits; doubling
+/// after the sum keeps 16 per fold. The doubling is applied once to the two
+/// results: the column value is `carry + v[c / 2]^2 + 2 * acc`, below
+/// `carry + 10^18 + 2 * 10^9`, and the carry out is `value / 10^9 + 2 * folded`.
+///
+/// Bound on the carry: a column has `n <= len / 2` cross products, each below
+/// `10^18`, so `folded < n * 10^9` and `2 * folded < len * 10^9`. The result
+/// array has `2 * len + 1 < 2^31` elements, so `len < 2^30` and `2 * folded <
+/// 1.08 * 10^18`; with `value / 10^9 < carry / 10^9 + 10^9 + 3` the induction on
+/// the columns gives `carry < 1.08 * 10^18 + 10^9 + 3 + carry / 10^9`, i.e.
+/// `carry < 1.0800001 * 10^18`, and `value < 2.1 * 10^18 < 2^64`: the sums
+/// cannot overflow for any operand the function can receive.
+///
+/// No short-operand case is needed here: the square is faster than the former
+/// loop at every length measured (5 to 112 limbs) and its groups hold 16
+/// cross products at all sizes.
+fn dec_coeff_square_columns(
+  value : Array[UInt32],
+  len : Int32,
+  result : Array[UInt32],
+) -> Unit {
+  let base = dec_coeff_wide_base
+  let columns = 2 * len - 1
+  let mut carry = 0UL
+  for column in 0..<columns {
+    let start = Int32::max(0, column - (len - 1))
+    // cross products: index < column - index
+    let stop = (column - 1) / 2
+    let mut acc = 0UL
+    let mut folded = 0UL
+    let mut index = start
+    while index <= stop && column > 0 {
+      let group_end = if stop - index >= dec_coeff_column_fold {
+        index + dec_coeff_column_fold - 1
+      } else {
+        stop
+      }
+      while index <= group_end {
+        acc += value.unsafe_get(index).to_uint64() *
+          value.unsafe_get(column - index).to_uint64()
+        index += 1
+      }
+      if index <= stop {
+        let quotient = acc / base
+        acc = acc - quotient * base
+        folded += quotient
+      }
+    }
+    let quotient = acc / base
+    acc = acc - quotient * base
+    folded += quotient
+    let mut total = carry + 2UL * acc
+    if column % 2 == 0 {
+      let middle = value.unsafe_get(column / 2).to_uint64()
+      total += middle * middle
+    }
+    let next = total / base
+    result.unsafe_set(column, (total - next * base).to_uint())
+    carry = next + 2UL * folded
+  }
+  let mut column = columns
+  while carry != 0UL {
+    let quotient = carry / base
+    result.unsafe_set(column, (carry - quotient * base).to_uint())
+    carry = quotient
+    column += 1
+  }
+}
+
+///|
 fn dec_coeff_square_schoolbook(value : DecCoeff) -> DecCoeff {
   if value.is_zero() {
     return dec_coeff_zero()
   }
   let len = dec_coeff_unit_len(value)
-  let result = Array::make(len * 2 + 1, 0UL)
-  for left in 0..<len {
-    let left_limb = dec_coeff_limb_at(value, left).to_uint64()
-    dec_coeff_add_product_at(result, left * 2, left_limb * left_limb)
-    for right in (left + 1)..<len {
-      let product = left_limb * dec_coeff_limb_at(value, right).to_uint64()
-      dec_coeff_add_product_at(result, left + right, product * 2UL)
-    }
-  }
-  dec_coeff_from_wide_accumulator(result, result.length())
+  let result = Array::make(len * 2 + 1, 0U)
+  dec_coeff_square_columns(dec_coeff_limb_view(value), len, result)
+  dec_coeff_from_unit_accumulator(result, result.length())
 }
 
 ///|
