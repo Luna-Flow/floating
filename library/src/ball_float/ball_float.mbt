@@ -475,7 +475,7 @@ fn quantize_center_radius(
   } else {
     rounded_center.sub_ctx(center, upward).0
   }
-  let center_error = difference.abs()
+  let center_error = difference
   let rounded_radius = outward_round(radius, precision)
   let total_radius = outward_sum(rounded_radius, center_error, precision)
   // The endpoints are the exact `rounded_center -/+ total_radius` (they are not
