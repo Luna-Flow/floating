@@ -180,3 +180,31 @@ test "scaled root returns an array that the radicand does not refer to" {
   }
   assert_true(heap_results > 50)
 }
+
+///|
+test "short product returns an array that no operand refers to" {
+  let mut heap_results = 0
+  for limbs in [13, 14, 17, 32, 33, 50, 63] {
+    for padding in [0, 3] {
+      for seed in 1..<8 {
+        let left = fresh_value(limbs, seed.to_uint64(), padding)
+        let right = fresh_value(limbs, (seed * 5).to_uint64(), 0)
+        let precision = limbs * 64
+        if bin_coeff_mul_short_ok(left, right, precision) {
+          let product = bin_coeff_mul_short(left, right, precision)
+          fresh_check(product, [left, right])
+          fresh_check(bin_coeff_mul_short(left, right, precision), [
+            left, right, product,
+          ])
+          // the product of a value with itself
+          fresh_check(bin_coeff_mul_short(left, left, precision), [left])
+          match fresh_array_of(product) {
+            Some(_) => heap_results += 1
+            None => assert_true(product.is_zero())
+          }
+        }
+      }
+    }
+  }
+  assert_true(heap_results > 50)
+}

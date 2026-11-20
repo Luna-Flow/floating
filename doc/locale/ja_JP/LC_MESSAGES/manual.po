@@ -17417,8 +17417,8 @@ msgid "A `Heap` coefficient has `len >= 3` limbs, the top limb is nonzero, and n
 msgstr "`Heap` の係数は `len >= 3` 個のリムを持ち、最上位リムは 0 ではなく、どの関数もオペランドの配列を変更しません。"
 
 #: manual/design/internal/bin_kernel.md:85
-msgid "The producers of fresh values (`Coeff::mul` for nonzero operands, `bin_coeff_div_scaled_quotient`, `bin_coeff_div_short_quotient`, `bin_coeff_sqrt_scaled_rounded`) return a `Heap` coefficient whose array no operand and no other value refers to; inline results and the shared `Coeff::zero()` carry no array, and a shift by zero returns its receiver. A caller may keep or modify such an array."
-msgstr "新しい値を作る関数（非零のオペランドに対する `Coeff::mul`、`bin_coeff_div_scaled_quotient`、`bin_coeff_div_short_quotient`、`bin_coeff_sqrt_scaled_rounded`）は、どのオペランドも他の値も参照しない配列を持つ `Heap` 係数を返す。インライン結果と共有の `Coeff::zero()` は配列を持たず、シフト量が 0 のときはレシーバ自身を返す。呼び出し側はそのような配列を保持または変更してよい。"
+msgid "The producers of fresh values (`Coeff::mul` for nonzero operands, `bin_coeff_div_scaled_quotient`, `bin_coeff_div_short_quotient`, `bin_coeff_mul_short`, `bin_coeff_sqrt_scaled_rounded`) return a `Heap` coefficient whose array no operand and no other value refers to; inline results and the shared `Coeff::zero()` carry no array, and a shift by zero returns its receiver. A caller may keep or modify such an array."
+msgstr "新しい値を作る関数（非零のオペランドに対する `Coeff::mul`、`bin_coeff_div_scaled_quotient`、`bin_coeff_div_short_quotient`、`bin_coeff_mul_short`、`bin_coeff_sqrt_scaled_rounded`）は、どのオペランドも他の値も参照しない配列を持つ `Heap` 係数を返す。インライン結果と共有の `Coeff::zero()` は配列を持たず、シフト量が 0 のときはレシーバ自身を返す。呼び出し側はそのような配列を保持または変更してよい。"
 
 #: manual/design/internal/bin_kernel.md:86
 msgid "`Inline64` and `Inline128` are the only representations of values below $2^{128}$; `bin_coeff_from_words` normalizes."
