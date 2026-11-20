@@ -94,210 +94,291 @@ fn binary_coeff_fast_len(value : Coeff) -> Int32 {
 }
 
 ///|
-/// Word `index` of `words << shift` (`words` has `len` words).
-fn binary_coeff_fast_aligned_word(
-  words : FixedArray[UInt64],
-  len : Int32,
-  shift : Int32,
-  index : Int32,
-) -> UInt64 {
-  let source = index - shift / 64
-  if source < 0 || source > len {
-    return 0UL
-  }
-  let bit_shift = shift % 64
-  let word = if source < len { words.unsafe_get(source) } else { 0UL }
-  if bit_shift == 0 {
-    word
-  } else if source == 0 {
-    word << bit_shift
-  } else {
-    (word << bit_shift) | (words.unsafe_get(source - 1) >> (64 - bit_shift))
-  }
-}
-
-///|
 /// `Some(precision)` when both operands are finite, nonzero, narrow enough,
 /// and have exponents far from the implementation limits.
 fn binary_coeff_fast_operands(left : BinFloat, right : BinFloat) -> Int32? {
-  let precision = Int32::max(left.precision_, right.precision_)
-  guard precision <= binary_coeff_fast_bits_limit else { return None }
-  guard left.class == FpClass::Finite && right.class == FpClass::Finite else {
-    return None
-  }
-  let left_exponent = left.exponent2
-  let right_exponent = right.exponent2
-  guard left_exponent <= binary_fast_exponent_limit &&
-    left_exponent >= -binary_fast_exponent_limit &&
-    right_exponent <= binary_fast_exponent_limit &&
-    right_exponent >= -binary_fast_exponent_limit else {
-    return None
-  }
-  guard !left.coefficient_.is_zero() && !right.coefficient_.is_zero() else {
-    return None
-  }
-  Some(precision)
-}
-
-///|
-/// Sums wider than this many words are added with whole-coefficient
-/// operations (bulk shifts and one addition), which beat the word loops
-/// there.
-let binary_coeff_fast_add_words_limit : Int32 = 24
-
-///|
-fn binary_coeff_fast_add_wide(
-  left : BinFloat,
-  right : BinFloat,
-  target : Int32,
-  left_shift : Int32,
-  right_shift : Int32,
-  precision : Int32,
-) -> BinFloat? {
-  let aligned_left = left.coefficient_.shift_left(left_shift)
-  let aligned_right = right.coefficient_.shift_left(right_shift)
-  if left.negative == right.negative {
-    return Some(
-      binary_coeff_fast_finish(
-        left.negative,
-        aligned_left.add(aligned_right),
-        target,
-        precision,
-        false,
-      ),
-    )
-  }
-  let comparison = aligned_left.compare(aligned_right)
-  if comparison == 0 {
-    None
-  } else if comparison > 0 {
-    Some(
-      binary_coeff_fast_finish(
-        left.negative,
-        aligned_left.sub_checked(aligned_right).unwrap(),
-        target,
-        precision,
-        false,
-      ),
-    )
+  if binary_coeff_fast_operands_ok(left, right) {
+    Some(Int32::max(left.precision_, right.precision_))
   } else {
-    Some(
-      binary_coeff_fast_finish(
-        right.negative,
-        aligned_right.sub_checked(aligned_left).unwrap(),
-        target,
-        precision,
-        false,
-      ),
-    )
+    None
   }
 }
 
 ///|
-fn binary_coeff_fast_add(left : BinFloat, right : BinFloat) -> BinFloat? {
-  guard binary_coeff_fast_operands(left, right) is Some(precision) else {
-    return None
+/// Whether both operands are finite, nonzero, narrow enough, and have
+/// exponents far from the implementation limits (the test of
+/// `binary_coeff_fast_operands`, without an option of a scalar).
+fn binary_coeff_fast_operands_ok(left : BinFloat, right : BinFloat) -> Bool {
+  let precision = Int32::max(left.precision_, right.precision_)
+  precision <= binary_coeff_fast_bits_limit &&
+  left.class == FpClass::Finite &&
+  right.class == FpClass::Finite &&
+  left.exponent2 <= binary_fast_exponent_limit &&
+  left.exponent2 >= -binary_fast_exponent_limit &&
+  right.exponent2 <= binary_fast_exponent_limit &&
+  right.exponent2 >= -binary_fast_exponent_limit &&
+  !left.coefficient_.is_zero() &&
+  !right.coefficient_.is_zero()
+}
+
+///|
+/// Word `index` of the window: `words` (`len` limbs) placed so that its bit 0
+/// is bit `64 * word_shift + bit_shift` of the window (`0 <= bit_shift < 64`;
+/// `word_shift` is negative when the operand is cut at the window bottom).
+/// Limbs outside the operand read as zero.
+fn bin_window_word(
+  words : FixedArray[UInt64],
+  len : Int32,
+  word_shift : Int32,
+  bit_shift : Int32,
+  index : Int32,
+) -> UInt64 {
+  let source = index - word_shift
+  let low = if source >= 0 && source < len {
+    words.unsafe_get(source)
+  } else {
+    0UL
   }
+  if bit_shift == 0 {
+    return low
+  }
+  let below = if source >= 1 && source <= len {
+    words.unsafe_get(source - 1)
+  } else {
+    0UL
+  }
+  (low << bit_shift) | (below >> (64 - bit_shift))
+}
+
+///|
+/// One pass over `count` limbs: `words = x + y + carry_in`, or
+/// `x - y - carry_in` (a borrow) when `subtract`; both operands are read
+/// through their shifts, and `y_len = 0` reads nothing of `y`. Returns the
+/// carry or borrow out of the top limb. A subtraction is the addition of the
+/// complement, `x + !y + (1 - borrow)`, so that one loop serves both. The
+/// limbs of the window where every source limb exists are read without any
+/// bounds test (a shifted limb is `(v[i] << b) | (v[i - 1] >> (64 - b))`,
+/// written with two shifts so that `b = 0` needs no branch); the few limbs at
+/// either end go through `bin_window_word`.
+fn bin_window_combine(
+  words : FixedArray[UInt64],
+  count : Int32,
+  x : FixedArray[UInt64],
+  x_len : Int32,
+  x_word_shift : Int32,
+  x_bit_shift : Int32,
+  y : FixedArray[UInt64],
+  y_len : Int32,
+  y_word_shift : Int32,
+  y_bit_shift : Int32,
+  subtract : Bool,
+  carry_in : UInt64,
+) -> UInt64 {
+  let mask = if subtract { 0xFFFFFFFFFFFFFFFFUL } else { 0UL }
+  let mut carry = if subtract { 1UL - carry_in } else { carry_in }
+  let use_y = y_len > 0
+  let mut low = x_word_shift + 1
+  let mut high = x_word_shift + x_len
+  if use_y {
+    low = Int32::max(low, y_word_shift + 1)
+    high = Int32::min(high, y_word_shift + y_len)
+  }
+  low = Int32::max(0, Int32::min(low, count))
+  high = Int32::min(count, Int32::max(high, low))
+  for index in 0..<low {
+    let a = bin_window_word(x, x_len, x_word_shift, x_bit_shift, index)
+    let b = bin_window_word(y, y_len, y_word_shift, y_bit_shift, index) ^ mask
+    let partial = a + b
+    let sum = partial + carry
+    let first = if partial < a { 1UL } else { 0UL }
+    let second = if sum < partial { 1UL } else { 0UL }
+    carry = first | second
+    words.unsafe_set(index, sum)
+  }
+  let x_down = 63 - x_bit_shift
+  if low < high {
+    // the previous source limb of each operand is carried in a register
+    let mut x_previous = x.unsafe_get(low - x_word_shift - 1)
+    if use_y {
+      let y_down = 63 - y_bit_shift
+      let mut y_previous = y.unsafe_get(low - y_word_shift - 1)
+      for index in low..<high {
+        let x_current = x.unsafe_get(index - x_word_shift)
+        let y_current = y.unsafe_get(index - y_word_shift)
+        let a = (x_current << x_bit_shift) | (x_previous >> 1 >> x_down)
+        let b = ((y_current << y_bit_shift) | (y_previous >> 1 >> y_down)) ^
+          mask
+        x_previous = x_current
+        y_previous = y_current
+        let partial = a + b
+        let sum = partial + carry
+        let first = if partial < a { 1UL } else { 0UL }
+        let second = if sum < partial { 1UL } else { 0UL }
+        carry = first | second
+        words.unsafe_set(index, sum)
+      }
+    } else {
+      for index in low..<high {
+        let x_current = x.unsafe_get(index - x_word_shift)
+        let a = (x_current << x_bit_shift) | (x_previous >> 1 >> x_down)
+        x_previous = x_current
+        let partial = a + mask
+        let sum = partial + carry
+        let first = if partial < a { 1UL } else { 0UL }
+        let second = if sum < partial { 1UL } else { 0UL }
+        carry = first | second
+        words.unsafe_set(index, sum)
+      }
+    }
+  }
+  for index in high..<count {
+    let a = bin_window_word(x, x_len, x_word_shift, x_bit_shift, index)
+    let b = bin_window_word(y, y_len, y_word_shift, y_bit_shift, index) ^ mask
+    let partial = a + b
+    let sum = partial + carry
+    let first = if partial < a { 1UL } else { 0UL }
+    let second = if sum < partial { 1UL } else { 0UL }
+    carry = first | second
+    words.unsafe_set(index, sum)
+  }
+  if subtract {
+    1UL - carry
+  } else {
+    carry
+  }
+}
+
+///|
+/// `words = -words` modulo `2^(64 * count)`.
+fn bin_window_negate(words : FixedArray[UInt64], count : Int32) -> Unit {
+  let mut carry = 1UL
+  for index in 0..<count {
+    let value = words.unsafe_get(index).lnot() + carry
+    carry = if carry == 1UL && value == 0UL { 1UL } else { 0UL }
+    words.unsafe_set(index, value)
+  }
+}
+
+///|
+/// Sum of two finite non-zero operands, rounded to nearest even at the
+/// larger precision, for coefficients wider than one word. The operand `x`
+/// with the larger top bit is placed in a window of `count` limbs whose bit 0
+/// has weight `2^base`, `base = max(min(e_x, e_y), top - (p + 3))`: `y` is
+/// read through its shift in the same pass, and when it reaches below the
+/// window its dropped part is non-zero (its coefficient is odd) and becomes
+/// the sticky bit; when it lies entirely below, none of its limbs is read.
+/// The window then holds the exact sum, or a truncated one with at least
+/// `p + 2` bits and the sticky bit, and `bin_finish_words` rounds it in place
+/// (design page, "Finishing a wide result in place", and the note on far-apart
+/// operands). Returns `None` for an exact zero sum and outside the range of
+/// the coefficient paths; the general path then answers.
+fn binary_coeff_fast_add(left : BinFloat, right : BinFloat) -> BinFloat? {
+  guard binary_coeff_fast_operands_ok(left, right) else { return None }
+  let precision = Int32::max(left.precision_, right.precision_)
   let left_bits = left.coefficient_.bit_length()
   let right_bits = right.coefficient_.bit_length()
   guard left_bits <= binary_coeff_fast_bits_limit &&
     right_bits <= binary_coeff_fast_bits_limit else {
     return None
   }
-  let left_exponent = left.exponent2
-  let right_exponent = right.exponent2
-  let gap = (left_exponent + left_bits - right_exponent - right_bits).to_int64()
-  let far = (precision + 3).to_int64()
-  guard gap <= far && gap >= -far else { return None }
-  let target = Int32::min(left_exponent, right_exponent)
-  let left_shift = left_exponent - target
-  let right_shift = right_exponent - target
-  let left_top = left_bits + left_shift
-  let right_top = right_bits + right_shift
-  let count = Int32::max(left_top, right_top) / 64 + 1
-  if count > binary_coeff_fast_add_words_limit {
-    return binary_coeff_fast_add_wide(
-      left, right, target, left_shift, right_shift, precision,
-    )
+  let left_top = left.exponent2 + left_bits
+  let right_top = right.exponent2 + right_bits
+  let left_is_x = left_top >= right_top
+  let x_coefficient = if left_is_x {
+    left.coefficient_
+  } else {
+    right.coefficient_
   }
+  let y_coefficient = if left_is_x {
+    right.coefficient_
+  } else {
+    left.coefficient_
+  }
+  let x_exponent = if left_is_x { left.exponent2 } else { right.exponent2 }
+  let y_exponent = if left_is_x { right.exponent2 } else { left.exponent2 }
+  let x_negative = if left_is_x { left.negative } else { right.negative }
+  let y_negative = if left_is_x { right.negative } else { left.negative }
+  let top = Int32::max(left_top, right_top)
+  let y_top = Int32::min(left_top, right_top)
+  let base = Int32::max(
+    Int32::min(x_exponent, y_exponent),
+    top - (precision + 3),
+  )
+  let count = (top - base) / 64 + 1
+  let x_shift = x_exponent - base
+  let y_shift = y_exponent - base
+  let sticky = y_shift < 0
+  let y_word_shift = if y_shift >= 0 {
+    y_shift / 64
+  } else {
+    -((63 - y_shift) / 64)
+  }
+  let y_bit_shift = y_shift - 64 * y_word_shift
+  let subtract = x_negative != y_negative
   let words = FixedArray::make(count, 0UL)
-  let left_words = binary_coeff_fast_array(left.coefficient_)
-  let left_len = binary_coeff_fast_len(left.coefficient_)
-  let right_words = binary_coeff_fast_array(right.coefficient_)
-  let right_len = binary_coeff_fast_len(right.coefficient_)
-  if left.negative == right.negative {
-    let mut carry = 0UL
-    for index in 0..<count {
-      let a = binary_coeff_fast_aligned_word(
-        left_words, left_len, left_shift, index,
-      )
-      let b = binary_coeff_fast_aligned_word(
-        right_words, right_len, right_shift, index,
-      )
-      let partial = a + b
-      let sum = partial + carry
-      carry = if partial < a || sum < partial { 1UL } else { 0UL }
-      words.unsafe_set(index, sum)
-    }
+  let borrow = bin_window_combine(
+    words,
+    count,
+    binary_coeff_fast_array(x_coefficient),
+    binary_coeff_fast_len(x_coefficient),
+    x_shift / 64,
+    x_shift % 64,
+    binary_coeff_fast_array(y_coefficient),
+    if y_top > base {
+      binary_coeff_fast_len(y_coefficient)
+    } else {
+      0
+    },
+    y_word_shift,
+    y_bit_shift,
+    subtract,
+    if subtract && sticky {
+      1UL
+    } else {
+      0UL
+    },
+  )
+  if !subtract {
     return Some(
-      binary_coeff_fast_finish(
-        left.negative,
-        bin_coeff_from_words(words, count),
-        target,
+      bin_finish_words(
+        x_negative,
+        words,
+        count,
+        base,
         precision,
-        false,
+        sticky,
+        BinaryRoundingMode::RoundTiesToEven,
       ),
     )
   }
-  // opposite signs: the larger aligned magnitude minus the smaller
-  let mut comparison = if left_top != right_top {
-    if left_top > right_top {
-      1
-    } else {
-      -1
+  // equal tops: the result is exact, and may be zero or negative
+  if y_top == top {
+    let mut nonzero = false
+    for index in 0..<count {
+      if words.unsafe_get(index) != 0UL {
+        nonzero = true
+        break
+      }
     }
+    if !nonzero {
+      return None
+    }
+  }
+  let negative = if borrow != 0UL {
+    bin_window_negate(words, count)
+    y_negative
   } else {
-    0
-  }
-  let mut index = count - 1
-  while comparison == 0 && index >= 0 {
-    let a = binary_coeff_fast_aligned_word(
-      left_words, left_len, left_shift, index,
-    )
-    let b = binary_coeff_fast_aligned_word(
-      right_words, right_len, right_shift, index,
-    )
-    if a != b {
-      comparison = if a > b { 1 } else { -1 }
-    }
-    index -= 1
-  }
-  if comparison == 0 {
-    return None
-  }
-  let negative = if comparison > 0 { left.negative } else { right.negative }
-  let mut borrow = 0UL
-  for index in 0..<count {
-    let left_word = binary_coeff_fast_aligned_word(
-      left_words, left_len, left_shift, index,
-    )
-    let right_word = binary_coeff_fast_aligned_word(
-      right_words, right_len, right_shift, index,
-    )
-    let a = if comparison > 0 { left_word } else { right_word }
-    let b = if comparison > 0 { right_word } else { left_word }
-    let partial = a - b
-    let difference = partial - borrow
-    borrow = if a < b || partial < borrow { 1UL } else { 0UL }
-    words.unsafe_set(index, difference)
+    x_negative
   }
   Some(
-    binary_coeff_fast_finish(
+    bin_finish_words(
       negative,
-      bin_coeff_from_words(words, count),
-      target,
+      words,
+      count,
+      base,
       precision,
-      false,
+      sticky,
+      BinaryRoundingMode::RoundTiesToEven,
     ),
   )
 }

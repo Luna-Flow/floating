@@ -615,6 +615,22 @@ $0 < 1 - \varepsilon < 1$, so the same substitution applies to the borrowed
 form. The complete argument, including the subnormal shift, is in the
 attachment below.
 
+### One aligned pass for the sum of wide operands
+
+**Problem.** The plain `add` of two coefficients wider than one word aligned each operand with a shift into a new array, added or compared and subtracted into a third, and then rounded: about ten passes over arrays of the size of the sum and six allocations, although the result needs $p$ bits.
+
+**Choice.** Let $X$ be the operand with the larger top bit $t$ and $Y$ the other, $e_X, e_Y$ the exponents of their lowest bits, and $K = p + 3$. The sum is formed in a window of $n = \lfloor (t - L) / 64 \rfloor + 1$ limbs whose bit 0 has weight $2^{L}$, with
+
+$$
+L = \max\bigl(\min(e_X, e_Y),\ t - K\bigr).
+$$
+
+So $n \le \lfloor (p + 3) / 64 \rfloor + 1$, whatever the exponent gap. One loop over the limbs reads both operands through their shifts (the word and bit shift are computed once) and writes $X \pm Y$ once. $X$ is never cut ($e_X \ge t - p > t - K$). When $Y$ reaches below the window, its dropped part is non-zero, because stored coefficients are odd (bit 0 of $Y$ is dropped), and that is the sticky flag; when $Y$ lies entirely below, none of its limbs is read. For a subtraction with a cut operand the loop starts with a borrow of one: $|X| - |Y| = (X - Y_t - 1) + (1 - f)$ with $Y_t$ the integer part and $0 < f < 1$, as in the previous section. The window then holds the exact result, or a truncated one with the sticky flag, which the finisher of the previous section rounds in place.
+
+**Why the window is enough.** If $Y$ is cut, then $e_Y < t - K$, so its top is below $t - K + p = t - 3$ and the gap between the tops is at least $4$. Then for an addition $W \ge 2^{K-1}$ has at least $p + 3$ bits, and for a subtraction $|X| - |Y| > 2^{t-1} - 2^{t-4} \ge 2^{t-2}$, so $W = X - Y_t - 1$ has at least $K - 1 = p + 2$ bits. By the argument of the finisher (the discarded part is $d + \varepsilon$ with integer $d$ and $0 < \varepsilon < 1$), $p + 1$ bits and the sticky flag decide every rounding direction. If $Y$ is not cut the result is exact. When the tops differ by at most one, the exact difference fits the window ($\min(e_X, e_Y) \ge t - 1 - p$), and any number of leading limbs may cancel: the finisher scans down to the top limb. For equal tops the difference is formed as $\text{left} - \text{right}$ and negated in place when the final borrow is set, so no comparison pass is needed; an all-zero window is the exact zero, which the general path signs.
+
+**Boundary.** The operands must satisfy the same range test as the other coefficient paths; the former limit on the exponent gap is gone, because a far operand costs only the sticky flag. The tests keep the previous path and compare bit for bit with it and with `add_ctx` and `sub_ctx`, in the sizes, gaps, cancellations and ties listed in the pull request.
+
 ### Fused multiply-add
 
 `fma_ctx` forms the product $c_x c_y 2^{e_x + e_y}$ exactly as a value whose

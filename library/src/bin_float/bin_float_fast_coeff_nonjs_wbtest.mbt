@@ -348,9 +348,15 @@ test "coefficient paths decline what they do not cover" {
   assert_true(binary_coeff_fast_sqrt(BinFloat::zero(precision=100)) is None)
   // exact cancellation is left to the general path
   assert_true(binary_coeff_fast_add(wide, wide.neg()) is None)
-  // operands whose exponents are far apart
+  // operands whose exponents are far apart are added through a sticky bit
   let far = BinFloat::make_coeff(Coeff::one(), 100000, 100)
-  assert_true(binary_coeff_fast_add(wide, far) is None)
+  match binary_coeff_fast_add(wide, far) {
+    Some(sum) =>
+      assert_true(
+        fast_test_same(sum, wide.add_ctx(far, BinaryContext::unbounded(200)).0),
+      )
+    None => abort("far operands are added by the coefficient path")
+  }
   // exponents near the implementation limits
   let huge = BinFloat::make_coeff(
     Coeff::one().shift_left(120).add(Coeff::one()),

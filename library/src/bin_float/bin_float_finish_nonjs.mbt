@@ -126,22 +126,40 @@ fn bin_finish_words(
   let length = if bits > position { (bits - position + 63) / 64 } else { 1 }
   let skip = position / 64
   let rest = position % 64
-  for index in 0..<length {
-    let source = skip + index
-    let low = if source < count { words.unsafe_get(source) } else { 0UL }
-    let high = if rest != 0 && source + 1 < count {
-      words.unsafe_get(source + 1)
+  if position != 0 {
+    // the limbs whose source and its neighbour above both exist need no test
+    let interior = Int32::max(0, Int32::min(length, count - skip - 1))
+    if rest == 0 {
+      for index in 0..<interior {
+        words.unsafe_set(index, words.unsafe_get(skip + index))
+      }
     } else {
-      0UL
+      let up = 64 - rest
+      for index in 0..<interior {
+        words.unsafe_set(
+          index,
+          (words.unsafe_get(skip + index) >> rest) |
+          (words.unsafe_get(skip + index + 1) << up),
+        )
+      }
     }
-    words.unsafe_set(
-      index,
-      if rest == 0 {
-        low
+    for index in interior..<length {
+      let source = skip + index
+      let low = if source < count { words.unsafe_get(source) } else { 0UL }
+      let high = if rest != 0 && source + 1 < count {
+        words.unsafe_get(source + 1)
       } else {
-        (low >> rest) | (high << (64 - rest))
-      },
-    )
+        0UL
+      }
+      words.unsafe_set(
+        index,
+        if rest == 0 {
+          low
+        } else {
+          (low >> rest) | (high << (64 - rest))
+        },
+      )
+    }
   }
   for index in length..<count {
     words.unsafe_set(index, 0UL)
