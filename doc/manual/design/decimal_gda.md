@@ -656,6 +656,34 @@ mode. When $e - 2f < 0$ the radicand $N$ is not an integer; the comparison is
 then made as $4c \gtrless (2s+1)^2\,10^{2f - e}$, still in integers, so no
 digit of $c$ is truncated. The GDA function always rounds half to even.
 
+*Plain roots.* The route above takes one root to find out whether the operand
+is a square and, for a non-square, a second one at the final position, with a
+midpoint comparison that forms three products as long as the radicand. A random
+operand is never a square, and the second root already knows: with
+$R = c\,10^{e - 2f}$, $s = \lfloor \sqrt{R} \rfloor$ and $\rho = R - s^2$, the
+root is exact iff $\rho = 0$, and otherwise $R > (s + \tfrac12)^2$ iff
+$\rho > s$ (because $(s + \tfrac12)^2 = s^2 + s + \tfrac14$ and $\rho$ is an
+integer), so the comparison of the midpoint is one comparison of $\rho$ with
+$s$. What must still be known is whether the operand is a square, without
+taking a root of it. Write the operand $c_0 10^{k}$ with $c_0$ not divisible
+by 10: its root is a decimal iff $k$ is even and $c_0$ is a square (if $k$ were
+odd, $10 c_0$ would have to be a square, so the root would be divisible by 10,
+and $10$ would divide $c_0$). `decimal_sqrt_plain` takes an operand whose $k$ is
+odd, or whose $c_0$ is not a square modulo 64, 63, 65 or 11 (a remainder by a
+word each, from the lowest limbs); the operands that pass all four tests, every
+square and about one non-square in 120, are left to the route above, so a
+square costs the five remainders more and no longer pays a root twice as long
+as it needs. The path also requires the root to be neither subnormal nor
+possibly beyond the range ($e_{\min} \le \lfloor \hat e/2 \rfloor < e_{\max}$, so
+the exponent of the result, after a carry too, is at most $e_{\max} - p + 1$
+and no clamp folds it) and the radicand to be an integer ($e - 2f \ge 0$,
+that is, a coefficient of at most $2p$ digits). The result has exactly $p$
+digits at the exponent $f$; `Inexact` and `Rounded` are raised. The white-box
+test compares it with the route above at the public level (value, every
+condition, the status of the context) on random operands of 1 to 130 digits,
+squares, near squares ($s^2 \pm 1$, $s^2 \pm s$) and random numbers, with all
+rounding modes, tight and wide ranges, clamping and trapped signals.
+
 ### Integer powers
 
 For an integer exponent $n$ the result is computed as the GDA specification
