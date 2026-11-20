@@ -658,7 +658,7 @@ invalid-operation grouping. The grouping happens on the raised side, in
 `GdaOutcome[T]` is the result of every GDA operation.
 
 ```mbti
-pub(all) enum GdaOutcome[T] {
+pub enum GdaOutcome[T] {
   Completed(T, GdaContext, GdaFlags)
   Trapped(GdaSignal, T, GdaContext, GdaFlags)
 }
@@ -666,6 +666,10 @@ pub(all) enum GdaOutcome[T] {
 
 Both variants carry the GDA-defined result, the next context and the
 conditions raised by this operation; `Trapped` also names the trap that fired.
+
+The enum is read-only outside the package: a caller can `match` on it and use
+the accessors, but only the GDA operations construct an outcome. To turn a
+trapped outcome into its defined result, use `GdaOutcome::resume_defined`.
 
 ### `GdaOutcome::value`, `GdaOutcome::next_context`, `GdaOutcome::raised`
 
@@ -679,6 +683,18 @@ pub fn[T] GdaOutcome::raised(Self[T]) -> GdaFlags
 
 `value` is the defined result also for `Trapped`, `next_context` the context
 with the updated status, and `raised` the conditions of this operation only.
+
+### `GdaOutcome::resume_defined`
+
+This is the only way to build a `Completed` outcome from a `Trapped` one.
+
+```mbti
+pub fn[T] GdaOutcome::resume_defined(Self[T]) -> Self[T]
+```
+
+`Completed` is returned unchanged; `Trapped(s, v, C, R)` becomes
+`Completed(v, C, none)`, the GDA rule for continuing after a trap with the
+defined result. `GdaDecimalChecked::resume_defined` calls it.
 
 ### Trap selection
 
@@ -2540,12 +2556,13 @@ pub fn GdaInterchangeFormat::context(Self) -> DecimalContext
 pub fn GdaInterchangeFormat::equal(Self, Self) -> Bool
 pub fn GdaInterchangeFormat::not_equal(Self, Self) -> Bool
 
-pub(all) enum GdaOutcome[T] {
+pub enum GdaOutcome[T] {
   Completed(T, GdaContext, GdaFlags)
   Trapped(GdaSignal, T, GdaContext, GdaFlags)
 }
 pub fn[T] GdaOutcome::next_context(Self[T]) -> GdaContext
 pub fn[T] GdaOutcome::raised(Self[T]) -> GdaFlags
+pub fn[T] GdaOutcome::resume_defined(Self[T]) -> Self[T]
 pub fn[T] GdaOutcome::value(Self[T]) -> T
 
 #derive(Eq)
