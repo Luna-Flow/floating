@@ -38,6 +38,13 @@ fn binary_scale_pow2(x : BinFloat, k : Int32) -> BinFloat {
 }
 
 ///|
+/// `x / 2` for a finite nonzero value, exactly and without a copy: the
+/// coefficient is already normalized (odd), so only the exponent changes.
+fn binary_halve_exact(x : BinFloat) -> BinFloat {
+  { ..x, exponent2: x.exponent2 - 1, }
+}
+
+///|
 /// The arithmetic-geometric mean of `1` and `x` (`0 < x < 1`, a finite value)
 /// by the plain iteration `u' = sqrt(u v)`, `v' = (u + v) / 2`, every operation
 /// rounded to nearest at `p` bits, until `|u - v| < 16 2^-p v` (tested through the
@@ -64,19 +71,37 @@ fn binary_agm_one(
   let mut v = BinFloat::one_raw(precision=p)
   let mut n = 0
   while n < 64 {
-    let next_u = u.mul_ctx(v, context).0.sqrt_ctx(context).0
-    let next_v = binary_scale_pow2(u.add_ctx(v, context).0, -1)
+    let product = u.mul_ctx(v, context).0
+    // The correctly rounded root at the precision of `product` (`p` bits), by
+    // the public square root, which takes the limb-array kernel; the context
+    // form of the root rounds to the same value but is 39 percent slower at
+    // 2140 bits.
+    let next_u = match product.sqrt() {
+      Ok(root) => root
+      Err(_) => product.sqrt_ctx(context).0
+    }
+    let next_v = binary_halve_exact(u.add_ctx(v, context).0)
     u = next_u
     v = next_v
     n += 1
+    if iteration_cap > 0 && n >= iteration_cap {
+      return Some((v, n))
+    }
+    // `|u - v| < 2^(top(v) - p + 3)` is tested only when the exponents allow
+    // it: if `top(v) - top(u) >= 2` (or the reverse) the two differ by more
+    // than half of the larger, which is not below `16 2^-p v` for `p > 5`.
+    let top_u = binary_top_bound(u)
+    let top_v = binary_top_bound(v)
+    if top_v - top_u >= 2L || top_u - top_v >= 2L {
+      continue
+    }
     let difference = if u.compare(v) <= 0 {
       v.sub_ctx(u, context).0
     } else {
       u.sub_ctx(v, context).0
     }
-    if (iteration_cap > 0 && n >= iteration_cap) ||
-      difference.is_zero() ||
-      binary_top_bound(difference) <= binary_top_bound(v) - p.to_int64() + 3 {
+    if difference.is_zero() ||
+      binary_top_bound(difference) <= top_v - p.to_int64() + 3L {
       return Some((v, n))
     }
   }
