@@ -148,9 +148,147 @@ pub fn dec_coeff_round_div(
 }
 
 ///|
+/// Whether the kept magnitude grows by one unit when `10^shift` divides the
+/// numerator with a nonzero remainder: `half_cmp` is the sign of
+/// `2 * remainder - 10^shift`, `last_limb` the lowest limb of the quotient.
+fn dec_coeff_pow10_round_increment(
+  last_limb : UInt32,
+  half_cmp : Int32,
+  negative : Bool,
+  mode : DecCoeffRounding,
+) -> Bool {
+  match mode {
+    Down => false
+    Ceiling => !negative
+    Floor => negative
+    Up => true
+    ZeroFiveUp => {
+      let last = last_limb.reinterpret_as_int() % 10
+      last == 0 || last == 5
+    }
+    HalfEven => half_cmp > 0 || (half_cmp == 0 && (last_limb & 0x01U) == 1U)
+    HalfUp => half_cmp >= 0
+    HalfDown => half_cmp > 0
+  }
+}
+
+///|
+/// Shifts the limbs `src[0..src_len)` of a value of `digits` digits right by
+/// `shift` digits (`0 < shift < digits`) into `dst` and returns what the
+/// rounding needs, packed as `has_remainder + 2 * (half_cmp + 1)`: the digit
+/// at position `shift - 1` and the digits below it are read before anything is
+/// written, then one pass writes the `ceil((digits - shift) / 9)` limbs of the
+/// quotient with one division by `10^(shift mod 9)` per source limb. `dst` may
+/// be `src` itself: limb `k` of the result is written after limb `k + 1` of the
+/// source was read and the write index never passes the read index.
+fn dec_coeff_shift_right_info(
+  src : Array[UInt32],
+  src_len : Int32,
+  digits : Int32,
+  shift : Int32,
+  dst : Array[UInt32],
+) -> Int32 {
+  let position = shift - 1
+  let round_limb = position / dec_coeff_dpun
+  let round_offset = position - round_limb * dec_coeff_dpun
+  let limb = src[round_limb].reinterpret_as_int()
+  let scale = dec_coeff_powers[round_offset]
+  let round_digit = limb / scale % 10
+  let mut lower_nonzero = limb % scale != 0
+  if !lower_nonzero {
+    for index in 0..<round_limb {
+      if src[index] != 0U {
+        lower_nonzero = true
+        break
+      }
+    }
+  }
+  let has_remainder = round_digit != 0 || lower_nonzero
+  let half_cmp = if round_digit < 5 {
+    -1
+  } else if round_digit > 5 || lower_nonzero {
+    1
+  } else {
+    0
+  }
+  let whole = shift / dec_coeff_dpun
+  let cut = shift - whole * dec_coeff_dpun
+  let out_len = (digits - shift + dec_coeff_dpun - 1) / dec_coeff_dpun
+  if cut == 0 {
+    for index in 0..<out_len {
+      dst[index] = src[whole + index]
+    }
+  } else {
+    let divisor = dec_coeff_powers[cut]
+    let multiplier = dec_coeff_powers[dec_coeff_dpun - cut]
+    let mut current = src[whole].reinterpret_as_int() / divisor
+    for index in 0..<out_len {
+      let next = whole + index + 1
+      if next < src_len {
+        let value = src[next].reinterpret_as_int()
+        let quotient = value / divisor
+        dst[index] = (current + (value - quotient * divisor) * multiplier).reinterpret_as_uint()
+        current = quotient
+      } else {
+        dst[index] = current.reinterpret_as_uint()
+      }
+    }
+  }
+  (if has_remainder { 1 } else { 0 }) + 2 * (half_cmp + 1)
+}
+
+///|
+/// Finishes a rounded quotient held in `units[0..len)` (limbs below the base,
+/// no leading zero limb): adds the rounding unit in place when `increment`,
+/// carrying through the limbs and appending one limb only when every limb
+/// carried, and builds the coefficient (two limbs or fewer are always below
+/// `10^18`, hence `Small`).
+fn dec_coeff_finish_owned_units(
+  units : Array[UInt32],
+  len : Int32,
+  increment : Bool,
+) -> DecCoeff {
+  let mut len = len
+  if units.length() > len {
+    units.truncate(len)
+  }
+  if increment {
+    let mut index = 0
+    while index < len {
+      let value = units[index] + 1U
+      if value == 1000000000U {
+        units[index] = 0U
+        index += 1
+      } else {
+        units[index] = value
+        break
+      }
+    }
+    if index == len {
+      units.push(1U)
+      len += 1
+    }
+  }
+  if len <= 2 {
+    let high = if len == 2 {
+      units[1].to_uint64() * dec_coeff_wide_base
+    } else {
+      0UL
+    }
+    return Small(units[0].to_uint64() + high)
+  }
+  let digits = (len - 1) * dec_coeff_dpun +
+    dec_coeff_small_digits(units[len - 1].to_uint64())
+  Limbs(units, digits)
+}
+
+///|
 /// `numerator / 10^shift` rounded to an integer in the given direction, and
-/// whether the division was inexact. The comparison of twice the remainder
-/// with `10^shift` is done on the limbs by `dec_coeff_div_pow10_round_info_repr`.
+/// whether the division was inexact. A coefficient of more than one word is
+/// shifted and rounded in one pass into one new array (the rounding unit is
+/// added there in place); only the whole-value cases (`shift` at least the
+/// digit count) take the general path through
+/// `dec_coeff_div_pow10_round_info_repr`.
 pub fn dec_coeff_round_div_pow10(
   numerator : DecCoeff,
   shift : Int32,
@@ -160,25 +298,41 @@ pub fn dec_coeff_round_div_pow10(
   guard shift >= 0 else {
     abort("dec_coeff_round_div_pow10 expects non-negative shift")
   }
+  if numerator is Limbs(units, digits) && shift > 0 && shift < digits {
+    let out_len = (digits - shift + dec_coeff_dpun - 1) / dec_coeff_dpun
+    let result = Array::make(out_len, 0U)
+    let info = dec_coeff_shift_right_info(
+      units,
+      units.length(),
+      digits,
+      shift,
+      result,
+    )
+    let has_remainder = (info & 1) == 1
+    let increment = has_remainder &&
+      dec_coeff_pow10_round_increment(
+        result[0],
+        (info >> 1) - 1,
+        negative,
+        mode,
+      )
+    return (
+      dec_coeff_finish_owned_units(result, out_len, increment),
+      has_remainder,
+    )
+  }
   let (quotient, has_remainder, half_cmp) = dec_coeff_div_pow10_round_info_repr(
     numerator, shift,
   )
   if !has_remainder {
     return (quotient, false)
   }
-  let should_increment = match mode {
-    Down => false
-    Ceiling => !negative
-    Floor => negative
-    Up => true
-    ZeroFiveUp => {
-      let last = dec_coeff_limb_at(quotient, 0).reinterpret_as_int() % 10
-      last == 0 || last == 5
-    }
-    HalfEven => half_cmp > 0 || (half_cmp == 0 && dec_coeff_is_odd(quotient))
-    HalfUp => half_cmp >= 0
-    HalfDown => half_cmp > 0
-  }
+  let should_increment = dec_coeff_pow10_round_increment(
+    dec_coeff_limb_at(quotient, 0),
+    half_cmp,
+    negative,
+    mode,
+  )
   (
     if should_increment {
       dec_coeff_magnitude_add_unit(quotient, 1)
@@ -187,6 +341,43 @@ pub fn dec_coeff_round_div_pow10(
     },
     has_remainder,
   )
+}
+
+///|
+/// The same rounding for a caller that owns the limb array of a value of
+/// `digits` digits (`units.length() == ceil(digits / 9)`, limbs below the
+/// base, no leading zero limb, `shift >= 0`): the array is shifted, rounded
+/// and truncated in place and becomes the limbs of the result, so nothing is
+/// copied. The caller must not use `units` afterwards.
+pub fn dec_coeff_round_div_pow10_owned(
+  units : Array[UInt32],
+  digits : Int32,
+  shift : Int32,
+  negative : Bool,
+  mode : DecCoeffRounding,
+) -> (DecCoeff, Bool) {
+  guard shift >= 0 && digits >= 1 else {
+    abort("dec_coeff_round_div_pow10_owned expects shift >= 0 and digits >= 1")
+  }
+  guard units.length() == (digits + dec_coeff_dpun - 1) / dec_coeff_dpun else {
+    abort("dec_coeff_round_div_pow10_owned expects one limb per nine digits")
+  }
+  if shift == 0 || shift >= digits {
+    let value = dec_coeff_from_unit_accumulator(units, units.length())
+    return dec_coeff_round_div_pow10(value, shift, negative, mode)
+  }
+  let out_len = (digits - shift + dec_coeff_dpun - 1) / dec_coeff_dpun
+  let info = dec_coeff_shift_right_info(
+    units,
+    units.length(),
+    digits,
+    shift,
+    units,
+  )
+  let has_remainder = (info & 1) == 1
+  let increment = has_remainder &&
+    dec_coeff_pow10_round_increment(units[0], (info >> 1) - 1, negative, mode)
+  (dec_coeff_finish_owned_units(units, out_len, increment), has_remainder)
 }
 
 ///|
