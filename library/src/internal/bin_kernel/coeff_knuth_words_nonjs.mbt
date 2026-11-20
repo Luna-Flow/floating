@@ -209,6 +209,12 @@ pub fn bin_coeff_div_scaled_ok(
 /// are one pass into the array that the quotient loop works on, and no
 /// remainder value is built: the remainder is zero exactly when the low limbs
 /// of the working array are.
+///
+/// If the result is `Heap(words, len)`, `words` is an array
+/// that no operand and no other value refers to (its length may exceed `len`),
+/// which the caller may keep, hand on or modify. Results of up to 128 bits are
+/// `Inline64` or `Inline128` and carry no array; `Coeff::zero()` is a shared
+/// constant, recognised by `is_zero()`.
 pub fn bin_coeff_div_scaled_quotient(
   dividend : Coeff,
   scale : Int32,
@@ -414,6 +420,13 @@ fn bin_coeff_knuth_short_core(
 /// the top of `Q` is a multiple of the spacing, so the interval does not
 /// straddle a change of the bit length. An exact quotient or a quotient near a
 /// grid point fails the test and is divided exactly.
+///
+/// If the result is `Heap(words, len)`, `words` is an array
+/// that no operand and no other value refers to (its length may exceed `len`),
+/// which the caller may keep, hand on or modify. Results of up to 128 bits are
+/// `Inline64` or `Inline128` and carry no array; `Coeff::zero()` is a shared
+/// constant, recognised by `is_zero()`.
+/// The shared zero is the "declined" answer.
 pub fn bin_coeff_div_short_quotient(
   dividend : Coeff,
   scale : Int32,
