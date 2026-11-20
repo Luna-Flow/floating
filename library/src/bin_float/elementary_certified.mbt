@@ -5171,8 +5171,27 @@ fn binary_trigonometric_bounds_series(
     upper.compare(quarter_pi.1) <= 0 else {
     return None
   }
+  // The reduction needed `work_precision` bits for the cancellation of a huge
+  // argument (its top bound is `top`); the reduced argument lies in
+  // (-pi/4, pi/4) and the series needs only the precision of the result:
+  // `work_precision - top`. The enclosure is rounded outward to it first.
+  let top = binary_top_bound(value)
+  let series_precision = if top > 256L {
+    Int32::max(64, work_precision - top.to_int())
+  } else {
+    work_precision
+  }
+  if series_precision >= work_precision {
+    return binary_reduced_trigonometric_bounds(
+      lower, upper, quadrant, operation, work_precision,
+    )
+  }
   binary_reduced_trigonometric_bounds(
-    lower, upper, quadrant, operation, work_precision,
+    lower.with_precision(series_precision, RoundingMode::TowardNegative),
+    upper.with_precision(series_precision, RoundingMode::TowardPositive),
+    quadrant,
+    operation,
+    series_precision,
   )
 }
 
