@@ -34,21 +34,6 @@ fn round_positive_decimal_div_pow10_repr(
 ///|
 
 ///|
-fn normalize_decimal_parts_gda(
-  negative : Bool,
-  magnitude : BigInt,
-  exponent10 : Int32,
-  precision : Int32,
-  mode : DecimalRoundingMode,
-) -> Decimal {
-  normalize_decimal_parts_gda_repr(
-    negative,
-    coeff_from_bigint(abs_bigint(magnitude)),
-    exponent10,
-    precision,
-    mode,
-  )
-}
 
 ///|
 fn normalize_decimal_parts_gda_repr(

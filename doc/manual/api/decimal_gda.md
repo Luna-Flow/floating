@@ -100,23 +100,27 @@ consumes it and is replaced by the quiet NaN with the same sign and payload.
 
 ### `Decimal::make`
 
-`make(c, e, p)` returns $c \cdot 10^{e}$ rounded to `p` significant digits and
-with trailing zeros removed.
+`make(c, e, p)` returns $c \cdot 10^{e}$ as a value of `p` digits of coefficient,
+the way the GDA to-number conversion does (page 21).
 
 ```mbti
-pub fn Decimal::make(@bigint.BigInt, Int, Int, rounding? : GdaRoundingMode) -> Self
+pub fn Decimal::make(@bigint.BigInt, Int, Int, mode? : GdaRoundingMode) -> Self
 ```
 
-The sign comes from the sign of `c`. Rounding uses `rounding` (default
-`HalfEven`), one of the eight modes of the context. Because trailing zeros are removed, `make(1200, 0, 34)` is
-`1.2E+3`; build from a string when the quantum matters. No flags are reported.
+The sign comes from the sign of `c`. The exponent is kept when `c` has at most
+`p` digits: `make(1200, 0, 34)` is `1200`, `make(1200, -2, 34)` is `12.00` and
+`make(0, 5, 5)` is `0E+5`. A longer coefficient is rounded once, in `mode`
+(default `HalfEven`, one of the eight modes of the context), to `p` digits, and
+the rounded coefficient is not reduced: `make(1000000, 0, 3)` is `1.00E+6`. To
+strip trailing zeros use `Decimal::normalized` or `Decimal::trim`. No flags are
+reported.
 
 ### `Decimal::from_int`, `Decimal::from_bigint`, `Decimal::from_double`, `Decimal::from_float`, `Decimal::from_bin_float`
 
 These convert binary values to decimal. An integer of at most `precision`
 digits keeps exponent 0 and an exact binary fraction takes the exponent closest
 to 0 (trailing zeros are removed only down to exponent 0); a longer or inexact
-value is rounded to exactly `precision` digits, half to even unless `rounding`
+value is rounded to exactly `precision` digits, half to even unless `mode`
 (for `from_bin_float`) says otherwise.
 
 ```mbti
@@ -124,14 +128,14 @@ pub fn Decimal::from_int(Int, precision? : Int) -> Self
 pub fn Decimal::from_bigint(@bigint.BigInt, precision? : Int) -> Self
 pub fn Decimal::from_double(Double, precision? : Int) -> Self
 pub fn Decimal::from_float(Float, precision? : Int) -> Self
-pub fn Decimal::from_bin_float(@bin_float.BinFloat, precision~ : Int, rounding? : GdaRoundingMode) -> Self
+pub fn Decimal::from_bin_float(@bin_float.BinFloat, precision~ : Int, mode? : GdaRoundingMode) -> Self
 ```
 
 `precision` defaults to 34 digits; for `from_bin_float` it is required and
 counts decimal digits, not the bits of the argument. A binary float $m \cdot 2^{k}$ with $k < 0$ is first written exactly
 as $m 5^{-k} \cdot 10^{k}$, so the conversion is exact whenever the result fits
-in `precision` digits; for example `from_double(0.1)` is the 34-digit
-rounding of the binary64 value nearest to $0.1$. NaNs become the quiet NaN
+in `precision` digits; for example `from_double(0.1)` is the exact binary64 value nearest to $0.1$
+rounded half to even to 34 digits. NaNs become the quiet NaN
 (sign kept by `from_double`), infinities keep their sign, zeros keep their
 sign (`from_bin_float` returns $+0$). `from_int(100)` is `100` (exponent 0),
 `from_int(99999, precision=3)` is `1.00E+5` and `from_double(0.5)` is `0.5`.
@@ -415,9 +419,9 @@ These return the default contexts of GDA 1.70 (page 16).
 
 ```mbti
 pub fn GdaContext::basic_default() -> Self
-pub fn GdaContext::decimal32(rounding? : GdaRoundingMode) -> Self
-pub fn GdaContext::decimal64(rounding? : GdaRoundingMode) -> Self
-pub fn GdaContext::decimal128(rounding? : GdaRoundingMode) -> Self
+pub fn GdaContext::decimal32(mode? : GdaRoundingMode) -> Self
+pub fn GdaContext::decimal64(mode? : GdaRoundingMode) -> Self
+pub fn GdaContext::decimal128(mode? : GdaRoundingMode) -> Self
 ```
 
 | Context | $p$ | rounding | $e_{\min}$ | $e_{\max}$ | clamp | extended | traps |
@@ -1702,7 +1706,7 @@ pub fn Decimal::equal(Self, Self) -> Bool
 pub fn Decimal::exp_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Decimal::exponent10(Self) -> Int32
 pub fn Decimal::from_bigint(@bigint.BigInt, precision? : Int32) -> Self
-pub fn Decimal::from_bin_float(@bin_float.BinFloat, precision~ : Int32, rounding? : GdaRoundingMode) -> Self
+pub fn Decimal::from_bin_float(@bin_float.BinFloat, precision~ : Int32, mode? : GdaRoundingMode) -> Self
 pub fn Decimal::from_double(Double, precision? : Int32) -> Self
 pub fn Decimal::from_float(Float, precision? : Int32) -> Self
 pub fn Decimal::from_int(Int32, precision? : Int32) -> Self
@@ -1717,7 +1721,7 @@ pub fn Decimal::is_qnan(Self) -> Bool
 pub fn Decimal::is_signed(Self) -> Bool
 pub fn Decimal::is_snan(Self) -> Bool
 pub fn Decimal::is_zero(Self) -> Bool
-pub fn Decimal::make(@bigint.BigInt, Int32, Int32, rounding? : GdaRoundingMode) -> Self
+pub fn Decimal::make(@bigint.BigInt, Int32, Int32, mode? : GdaRoundingMode) -> Self
 pub fn Decimal::max(Self, Self) -> Self
 pub fn Decimal::max_finite_contextual(@arithmetic.ArithmeticContext) -> Self
 pub fn Decimal::min(Self, Self) -> Self
