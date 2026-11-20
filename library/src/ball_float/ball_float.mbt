@@ -522,10 +522,18 @@ fn interval_radius(x : BallFloat) -> @bin_float.BinFloat {
   guard x.is_common_interval() else {
     abort("ball radius is undefined for unbounded intervals")
   }
-  // A radius must not understate the half-width, even when it underflows.
+  // The exact half-width `(upper - lower) / 2` (`exact_range`: nothing is rounded
+  // below the normal range; a radius must not understate the half-width, even
+  // there). Directed upward only where the range ends.
   exact_half(
-    exact_sub(x.hi_, x.lo_, mode=BinaryRoundingMode::RoundTowardPositive),
+    exact_sub(
+      x.hi_,
+      x.lo_,
+      mode=BinaryRoundingMode::RoundTowardPositive,
+      exact_range=true,
+    ),
     mode=BinaryRoundingMode::RoundTowardPositive,
+    exact_range=true,
   ).abs()
 }
 
