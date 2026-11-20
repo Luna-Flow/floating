@@ -451,7 +451,7 @@ test "BinFloat trigonometric reduction certifies arguments beyond linear reducti
 
 ///|
 test "BinFloat trigonometric resource failure retains proof details" {
-  let value = BinFloat::make(BinCoeff::one(), 1_100_000, 53)
+  let value = BinFloat::make(BinCoeff::one(), 8_100_000, 53)
   match value.try_cos_ctx(BinaryContext::binary64()) {
     Ok(_) => assert_true(false)
     Err(error) =>

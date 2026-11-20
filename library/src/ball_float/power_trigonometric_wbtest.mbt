@@ -115,7 +115,7 @@ test "trigonometric unbounded and extreme arguments degrade conservatively" {
     .set_equal(elementary_test_interval(-1.0, 1.0)),
   )
   let extreme = BallFloat::exact(
-    @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), 70000, 53),
+    @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), 8_100_000, 53),
     precision=53,
   )
   assert_true(

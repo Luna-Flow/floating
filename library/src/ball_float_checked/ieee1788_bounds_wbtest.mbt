@@ -64,7 +64,7 @@ test "checked elementary mirrors preserve domain errors" {
 ///|
 test "checked trigonometric mirrors preserve certification failures" {
   let extreme = BallFloatResult::exact(
-    @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), 70000, 53),
+    @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), 8_100_000, 53),
     precision=53,
   ).cos()
   assert_true(extreme.is_err())
