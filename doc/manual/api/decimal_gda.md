@@ -528,37 +528,37 @@ a formula.
 
 ### `GdaSignal`
 
-`GdaSignal` names the thirteen GDA conditions.
+`GdaSignal` names the nine signals of GDA 1.70. Each has a flag in the context
+status and a trap-enabler.
 
 ```mbti
 pub(all) enum GdaSignal {
-  ConversionSyntax
-  DivisionByZero
-  DivisionImpossible
-  DivisionUndefined
-  InvalidContext
-  InvalidOperation
-  Overflow
-  Underflow
-  Subnormal
-  Inexact
-  Rounded
   Clamped
+  DivisionByZero
+  Inexact
+  InvalidOperation
   LostDigits
+  Overflow
+  Rounded
+  Subnormal
+  Underflow
 }
 ```
 
-The GDA signals are `Clamped`, `DivisionByZero`, `Inexact`,
-`InvalidOperation`, `Overflow`, `Rounded`, `Subnormal` and `Underflow`.
-`ConversionSyntax`, `DivisionImpossible`, `DivisionUndefined` and
-`InvalidContext` are conditions that the specification reports through the
-`InvalidOperation` signal; the package keeps them as separate flags and traps
-so you can tell them apart. `LostDigits` is raised only in subset arithmetic.
+The eight signals of the specification (page 15) are `Clamped`,
+`DivisionByZero`, `Inexact`, `InvalidOperation`, `Overflow`, `Rounded`,
+`Subnormal` and `Underflow`; `LostDigits` is the ninth, raised only in subset
+arithmetic (Appendix A). The conditions of pages 51 and 52 that the text says
+signal invalid-operation (conversion syntax, division impossible, division
+undefined and invalid context) are not signals: they are conditions of
+`GdaFlags`, and raising any of them raises the signal `InvalidOperation`.
 
 ### `GdaFlags`
 
-`GdaFlags` is a set of conditions, used both for the conditions raised by one
-operation and for the sticky status of a context.
+`GdaFlags` is a set of conditions (the thirteen conditions the library raises,
+the fourteen of the specification without Insufficient storage), used both for
+the conditions raised by one operation and for the sticky status of a context.
+The decTest files name conditions, so the status keeps them apart.
 
 ```mbti
 pub struct GdaFlags {
@@ -569,14 +569,13 @@ pub struct GdaFlags {
 The fields are private. Each of the 13 conditions is read with a method of the
 same name, such as `raised().inexact()` or `status().division_by_zero()`; there
 is no public constructor besides `new`, so sets are built only with `new` and
-`combine`. `GdaTrapSet` reads the same way.
+`combine`. `GdaTrapSet` reads the same way, one method for each of the nine signals.
 
 ### `GdaFlags::new`, `GdaFlags::contains`, `GdaFlags::combine`
 
 `new` is the empty set, `combine` the field-wise union and `contains` the
-membership test with the GDA invalid-operation grouping. `contains` exists
-because this package has the signal enum `GdaSignal`; the accessor methods
-read one condition each.
+membership test of a *signal*, with the GDA invalid-operation grouping. The
+accessor methods read one *condition* each.
 
 ```mbti
 pub fn GdaFlags::new() -> Self
@@ -587,11 +586,18 @@ pub fn GdaFlags::combine(Self, Self) -> Self
 `combine` is associative, commutative and idempotent with `new()` as identity.
 `contains(s)` reads the field for `s`, except that `contains(InvalidOperation)`
 is true when any of `invalid_operation`, `conversion_syntax`,
-`division_impossible`, `division_undefined` or `invalid_context` is set.
+`division_impossible`, `division_undefined` or `invalid_context` is set. The
+accessor `invalid_operation()` reads the plain Invalid operation condition
+only, and the plain condition is not raised with every one of the four: a
+division undefined or impossible raises it, a conversion syntax error or an
+invalid context does not, as in decNumber, whose status word the decTest rows
+describe. Use `contains(InvalidOperation)` to ask whether the signal was
+raised.
 
 ### `GdaTrapSet`
 
-`GdaTrapSet` is the set of enabled traps.
+`GdaTrapSet` is the set of enabled trap-enablers, one for each of the nine
+signals.
 
 ```mbti
 pub struct GdaTrapSet {
@@ -610,9 +616,8 @@ pub fn GdaTrapSet::contains(Self, GdaSignal) -> Bool
 ```
 
 `new` enables no trap. `with_signal(s)` enables one trap (or disables it with
-`enabled=false`); `contains(s)` reads exactly the field for `s`, with no
-invalid-operation grouping. The grouping happens on the raised side, in
-`GdaFlags::contains`.
+`enabled=false`); `contains(s)` reads the trap-enabler of `s`. The trap of
+`InvalidOperation` fires for every condition that signals it.
 
 ### `GdaOutcome`
 
@@ -669,21 +674,18 @@ operation raised and $C$ the input context.
    whenever $R$ contains one of the four detailed invalid conditions.
 3. The trapped signal is the first $s$ in the order below with
    `raised.contains(s)` and `traps.contains(s)`: InvalidOperation,
-   DivisionByZero, DivisionUndefined, DivisionImpossible, InvalidContext,
-   ConversionSyntax, Overflow, Underflow, Subnormal, Inexact, Rounded,
-   Clamped, LostDigits. If there is one the outcome is `Trapped(s, v, C', R)`,
+   DivisionByZero, Overflow, Underflow, Subnormal, Inexact, Rounded, Clamped,
+   LostDigits. If there is one the outcome is `Trapped(s, v, C', R)`,
    otherwise `Completed(v, C', R)`.
 
 Because `contains(InvalidOperation)` covers the detailed invalid conditions,
-an `InvalidOperation` trap catches all of them, and it wins over a trap on the
-detailed condition itself.
+the one `InvalidOperation` trap catches all of them, and the trapped signal is
+`InvalidOperation` whichever condition raised it.
 
 ```moonbit
 ///|
 test "GDA context, status and traps" {
-  let ctx = @decimal_gda.GdaContext::decimal64()
-    .trap(DivisionUndefined)
-    .trap(InvalidOperation)
+  let ctx = @decimal_gda.GdaContext::decimal64().trap(InvalidOperation)
   let zero = @decimal_gda.Decimal::zero()
   let out = @decimal_gda.divide(zero, zero, ctx) // 0/0
   inspect(out.value(), content="nan")
@@ -1874,19 +1876,15 @@ pub fn GdaRoundingMode::not_equal(Self, Self) -> Bool
 
 #derive(Eq)
 pub(all) enum GdaSignal {
-  ConversionSyntax
-  DivisionByZero
-  DivisionImpossible
-  DivisionUndefined
-  InvalidContext
-  InvalidOperation
-  Overflow
-  Underflow
-  Subnormal
-  Inexact
-  Rounded
   Clamped
+  DivisionByZero
+  Inexact
+  InvalidOperation
   LostDigits
+  Overflow
+  Rounded
+  Subnormal
+  Underflow
 }
 pub fn GdaSignal::equal(Self, Self) -> Bool
 pub fn GdaSignal::not_equal(Self, Self) -> Bool
@@ -1897,13 +1895,9 @@ pub struct GdaTrapSet {
 }
 pub fn GdaTrapSet::clamped(Self) -> Bool
 pub fn GdaTrapSet::contains(Self, GdaSignal) -> Bool
-pub fn GdaTrapSet::conversion_syntax(Self) -> Bool
 pub fn GdaTrapSet::division_by_zero(Self) -> Bool
-pub fn GdaTrapSet::division_impossible(Self) -> Bool
-pub fn GdaTrapSet::division_undefined(Self) -> Bool
 pub fn GdaTrapSet::equal(Self, Self) -> Bool
 pub fn GdaTrapSet::inexact(Self) -> Bool
-pub fn GdaTrapSet::invalid_context(Self) -> Bool
 pub fn GdaTrapSet::invalid_operation(Self) -> Bool
 pub fn GdaTrapSet::lost_digits(Self) -> Bool
 pub fn GdaTrapSet::new() -> Self

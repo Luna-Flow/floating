@@ -21,14 +21,16 @@ and recovery.
 
 ### Signals, status and traps
 
-Let $\Sigma$ be the thirteen GDA signals (`ConversionSyntax`, `DivisionByZero`,
-`DivisionImpossible`, `DivisionUndefined`, `InvalidContext`,
-`InvalidOperation`, `Overflow`, `Underflow`, `Subnormal`, `Inexact`,
-`Rounded`, `Clamped`, `LostDigits`). A `GdaFlags` value is a subset of
-$\Sigma$, an element of $\mathbb{B}^{\Sigma}$, and `GdaFlags::combine` is
-union, field-wise OR. As for the IEEE flags, $(\mathbb{B}^{\Sigma}, \cup,
+Let $\Sigma$ be the nine GDA signals (`Clamped`, `DivisionByZero`, `Inexact`,
+`InvalidOperation`, `LostDigits`, `Overflow`, `Rounded`, `Subnormal`,
+`Underflow`) and let $\Gamma \supseteq \Sigma$ be the thirteen conditions of a
+`GdaFlags` value (the signals and the four detailed invalid conditions
+`ConversionSyntax`, `DivisionImpossible`, `DivisionUndefined`,
+`InvalidContext`). A `GdaFlags` value is a subset of $\Gamma$, an element of
+$\mathbb{B}^{\Gamma}$, and `GdaFlags::combine` is union, field-wise OR. As for the IEEE flags, $(\mathbb{B}^{\Gamma}, \cup,
 \varnothing)$ is a commutative idempotent monoid (a bounded join-semilattice).
-A `GdaTrapSet` is another subset $T \subseteq \Sigma$.
+A `GdaTrapSet` is a subset $T \subseteq \Sigma$, one trap-enabler for each
+signal.
 
 GDA groups four signals under *invalid operation*:
 $I = \{\texttt{ConversionSyntax}, \texttt{DivisionImpossible},
@@ -69,9 +71,8 @@ $$
 $$
 
 where the trap selector $\tau(r, T)$ is the first $s$ in the fixed priority
-list `InvalidOperation`, `DivisionByZero`, `DivisionUndefined`,
-`DivisionImpossible`, `InvalidContext`, `ConversionSyntax`, `Overflow`,
-`Underflow`, `Subnormal`, `Inexact`, `Rounded`, `Clamped`, `LostDigits` with
+list `InvalidOperation`, `DivisionByZero`, `Overflow`, `Underflow`,
+`Subnormal`, `Inexact`, `Rounded`, `Clamped`, `LostDigits` with
 $r \models s$ and $s \in T$. Note that the status is updated *before* the trap
 decision, so the trapped signal is in the next status, and that $v'$ is the
 defined result GDA prescribes for the condition (for example $\pm\infty$ for
@@ -79,8 +80,8 @@ division by zero), not a placeholder.
 
 ### The pipeline as a monad with an absorbing trap
 
-Write $O = \texttt{Completed}(V \times C \times \mathbb{B}^{\Sigma}) +
-\texttt{Trapped}(\Sigma \times V \times C \times \mathbb{B}^{\Sigma})$ for
+Write $O = \texttt{Completed}(V \times C \times \mathbb{B}^{\Gamma}) +
+\texttt{Trapped}(\Sigma \times V \times C \times \mathbb{B}^{\Gamma})$ for
 `GdaOutcome[Decimal]`. Every pipeline method is the bind of
 
 $$

@@ -180,9 +180,9 @@ test "GDA invalid conditions signal InvalidOperation" {
     GdaOutcome::Trapped(signal, value, context, raised) => {
       assert_true(signal == GdaSignal::InvalidOperation)
       assert_true(value.is_qnan())
-      assert_true(raised.contains(GdaSignal::ConversionSyntax))
+      assert_true(raised.conversion_syntax())
       assert_true(raised.contains(GdaSignal::InvalidOperation))
-      assert_true(context.status().contains(GdaSignal::ConversionSyntax))
+      assert_true(context.status().conversion_syntax())
       assert_true(context.status().contains(GdaSignal::InvalidOperation))
     }
     GdaOutcome::Completed(_, _, _) =>
@@ -214,4 +214,112 @@ test "GDA Decimal checked integer powers use the exact exponent" {
   assert_eq(nat_power(12345679U), "-1")
   assert_eq(nat_power(999999999U), "-1")
   assert_eq(nat_power(999999998U), "1")
+}
+
+///|
+/// GDA 1.70, pages 51 and 52: Conversion syntax, Division impossible, Division
+/// undefined and Invalid context each signal invalid-operation. The library
+/// raises the specific condition (the decTest files name conditions, and
+/// `Conversion_syntax` and `Invalid_context` come without the plain
+/// `Invalid_operation`); the signal is read with `contains` and trapped with the
+/// one trap-enabler of the signal.
+test "the four conditions that signal invalid-operation are raised, read and trapped as InvalidOperation" {
+  let plain = GdaContext::new(precision=5)
+  let trapping = plain.trap(GdaSignal::InvalidOperation)
+  let ten_to_ten = Decimal::from_string("1E+10").unwrap()
+  let one = Decimal::from_int(1)
+  let zero = Decimal::from_int(0)
+  let cases : Array[(String, GdaOutcome[Decimal], GdaOutcome[Decimal], Bool)] = [
+    // condition, untrapped outcome, trapped outcome, plain invalid_operation field
+    (
+      "conversion_syntax",
+      to_number("abc", plain),
+      to_number("abc", trapping),
+      false,
+    ),
+    (
+      "division_undefined",
+      divide(zero, zero, plain),
+      divide(zero, zero, trapping),
+      true,
+    ),
+    (
+      "division_impossible",
+      divide_integer(ten_to_ten, one, plain),
+      divide_integer(ten_to_ten, one, trapping),
+      true,
+    ),
+    (
+      "invalid_context",
+      exp(one, GdaContext::new(precision=5_000_000)),
+      exp(
+        one,
+        GdaContext::new(precision=5_000_000).trap(GdaSignal::InvalidOperation),
+      ),
+      false,
+    ),
+  ]
+  for case in cases {
+    let (name, untrapped, trapped, plain_field) = case
+    let raised = untrapped.raised()
+    let specific = match name {
+      "conversion_syntax" => raised.conversion_syntax()
+      "division_undefined" => raised.division_undefined()
+      "division_impossible" => raised.division_impossible()
+      _ => raised.invalid_context()
+    }
+    assert_true(specific)
+    assert_true(raised.contains(GdaSignal::InvalidOperation))
+    assert_eq(raised.invalid_operation(), plain_field)
+    assert_true(
+      untrapped.next_context().status().contains(GdaSignal::InvalidOperation),
+    )
+    match trapped {
+      Trapped(signal, _, _, _) =>
+        assert_true(signal == GdaSignal::InvalidOperation)
+      Completed(_, _, _) =>
+        fail("\{name} must trigger the InvalidOperation trap")
+    }
+  }
+}
+
+///|
+test "a trap-enabler exists for each of the nine signals and nothing else traps" {
+  let all : Array[GdaSignal] = [
+    Clamped,
+    DivisionByZero,
+    Inexact,
+    InvalidOperation,
+    LostDigits,
+    Overflow,
+    Rounded,
+    Subnormal,
+    Underflow,
+  ]
+  for signal in all {
+    let only = GdaTrapSet::new().with_signal(signal)
+    for other in all {
+      assert_eq(only.contains(other), other == signal)
+    }
+    assert_true(!only.with_signal(signal, enabled=false).contains(signal))
+  }
+}
+
+///|
+test "the first trapped signal follows the handler order" {
+  let traps = GdaTrapSet::new()
+    .with_signal(GdaSignal::Inexact)
+    .with_signal(GdaSignal::Rounded)
+    .with_signal(GdaSignal::Overflow)
+  let context = GdaContext::new(precision=3, e_min=-9, e_max=9, traps~)
+  // overflow raises Inexact and Rounded too: Overflow is the trapped signal
+  match
+    multiply(
+      Decimal::from_string("9.99E+9").unwrap(),
+      Decimal::from_int(10),
+      context,
+    ) {
+    Trapped(signal, _, _, _) => assert_true(signal == GdaSignal::Overflow)
+    Completed(_, _, _) => fail("overflow must trap")
+  }
 }

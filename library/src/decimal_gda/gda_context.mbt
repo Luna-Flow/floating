@@ -14,19 +14,18 @@ pub(all) enum GdaRoundingMode {
 ///|
 #derive(Eq)
 pub(all) enum GdaSignal {
-  ConversionSyntax
-  DivisionByZero
-  DivisionImpossible
-  DivisionUndefined
-  InvalidContext
-  InvalidOperation
-  Overflow
-  Underflow
-  Subnormal
-  Inexact
-  Rounded
+  /// The nine signals of GDA 1.70 (page 15 and, for `LostDigits`, Appendix A):
+  /// each has a flag and a trap-enabler. The finer conditions of the Invalid
+  /// operation signal are flags of `GdaFlags` only.
   Clamped
+  DivisionByZero
+  Inexact
+  InvalidOperation
   LostDigits
+  Overflow
+  Rounded
+  Subnormal
+  Underflow
 }
 
 ///|
@@ -50,19 +49,15 @@ pub struct GdaFlags {
 ///|
 #derive(Eq)
 pub struct GdaTrapSet {
-  priv conversion_syntax : Bool
-  priv division_by_zero : Bool
-  priv division_impossible : Bool
-  priv division_undefined : Bool
-  priv invalid_context : Bool
-  priv invalid_operation : Bool
-  priv overflow : Bool
-  priv underflow : Bool
-  priv subnormal : Bool
-  priv inexact : Bool
-  priv rounded : Bool
   priv clamped : Bool
+  priv division_by_zero : Bool
+  priv inexact : Bool
+  priv invalid_operation : Bool
   priv lost_digits : Bool
+  priv overflow : Bool
+  priv rounded : Bool
+  priv subnormal : Bool
+  priv underflow : Bool
 }
 
 ///|
@@ -194,26 +189,27 @@ pub fn GdaFlags::invalid_context(self : GdaFlags) -> Bool {
 }
 
 ///|
+/// Whether the signal was raised. `InvalidOperation` is raised by the Invalid
+/// operation condition and by the four conditions that GDA 1.70 says signal it
+/// (pages 51 and 52): conversion syntax, division impossible, division
+/// undefined and invalid context. The accessor `invalid_operation()` reads the
+/// plain Invalid operation condition only.
 pub fn GdaFlags::contains(self : GdaFlags, signal : GdaSignal) -> Bool {
   match signal {
-    ConversionSyntax => self.conversion_syntax
+    Clamped => self.clamped
     DivisionByZero => self.division_by_zero
-    DivisionImpossible => self.division_impossible
-    DivisionUndefined => self.division_undefined
-    InvalidContext => self.invalid_context
+    Inexact => self.inexact
     InvalidOperation =>
       self.invalid_operation ||
       self.conversion_syntax ||
       self.division_impossible ||
       self.division_undefined ||
       self.invalid_context
-    Overflow => self.overflow
-    Underflow => self.underflow
-    Subnormal => self.subnormal
-    Inexact => self.inexact
-    Rounded => self.rounded
-    Clamped => self.clamped
     LostDigits => self.lost_digits
+    Overflow => self.overflow
+    Rounded => self.rounded
+    Subnormal => self.subnormal
+    Underflow => self.underflow
   }
 }
 
@@ -275,19 +271,15 @@ fn decimal_flags_are_clear(flags : DecimalFlags) -> Bool {
 ///|
 pub fn GdaTrapSet::new() -> GdaTrapSet {
   {
-    conversion_syntax: false,
-    division_by_zero: false,
-    division_impossible: false,
-    division_undefined: false,
-    invalid_context: false,
-    invalid_operation: false,
-    overflow: false,
-    underflow: false,
-    subnormal: false,
-    inexact: false,
-    rounded: false,
     clamped: false,
+    division_by_zero: false,
+    inexact: false,
+    invalid_operation: false,
     lost_digits: false,
+    overflow: false,
+    rounded: false,
+    subnormal: false,
+    underflow: false,
   }
 }
 
@@ -346,68 +338,36 @@ pub fn GdaTrapSet::clamped(self : GdaTrapSet) -> Bool {
 }
 
 ///|
-/// Whether the `conversion_syntax` trap is set.
-pub fn GdaTrapSet::conversion_syntax(self : GdaTrapSet) -> Bool {
-  self.conversion_syntax
-}
-
-///|
-/// Whether the `division_impossible` trap is set.
-pub fn GdaTrapSet::division_impossible(self : GdaTrapSet) -> Bool {
-  self.division_impossible
-}
-
-///|
-/// Whether the `division_undefined` trap is set.
-pub fn GdaTrapSet::division_undefined(self : GdaTrapSet) -> Bool {
-  self.division_undefined
-}
-
-///|
-/// Whether the `invalid_context` trap is set.
-pub fn GdaTrapSet::invalid_context(self : GdaTrapSet) -> Bool {
-  self.invalid_context
-}
-
-///|
 pub fn GdaTrapSet::with_signal(
   self : GdaTrapSet,
   signal : GdaSignal,
   enabled~ : Bool = true,
 ) -> GdaTrapSet {
   match signal {
-    ConversionSyntax => { ..self, conversion_syntax: enabled, }
-    DivisionByZero => { ..self, division_by_zero: enabled, }
-    DivisionImpossible => { ..self, division_impossible: enabled, }
-    DivisionUndefined => { ..self, division_undefined: enabled, }
-    InvalidContext => { ..self, invalid_context: enabled, }
-    InvalidOperation => { ..self, invalid_operation: enabled, }
-    Overflow => { ..self, overflow: enabled, }
-    Underflow => { ..self, underflow: enabled, }
-    Subnormal => { ..self, subnormal: enabled, }
-    Inexact => { ..self, inexact: enabled, }
-    Rounded => { ..self, rounded: enabled, }
     Clamped => { ..self, clamped: enabled, }
+    DivisionByZero => { ..self, division_by_zero: enabled, }
+    Inexact => { ..self, inexact: enabled, }
+    InvalidOperation => { ..self, invalid_operation: enabled, }
     LostDigits => { ..self, lost_digits: enabled, }
+    Overflow => { ..self, overflow: enabled, }
+    Rounded => { ..self, rounded: enabled, }
+    Subnormal => { ..self, subnormal: enabled, }
+    Underflow => { ..self, underflow: enabled, }
   }
 }
 
 ///|
 pub fn GdaTrapSet::contains(self : GdaTrapSet, signal : GdaSignal) -> Bool {
   match signal {
-    ConversionSyntax => self.conversion_syntax
-    DivisionByZero => self.division_by_zero
-    DivisionImpossible => self.division_impossible
-    DivisionUndefined => self.division_undefined
-    InvalidContext => self.invalid_context
-    InvalidOperation => self.invalid_operation
-    Overflow => self.overflow
-    Underflow => self.underflow
-    Subnormal => self.subnormal
-    Inexact => self.inexact
-    Rounded => self.rounded
     Clamped => self.clamped
+    DivisionByZero => self.division_by_zero
+    Inexact => self.inexact
+    InvalidOperation => self.invalid_operation
     LostDigits => self.lost_digits
+    Overflow => self.overflow
+    Rounded => self.rounded
+    Subnormal => self.subnormal
+    Underflow => self.underflow
   }
 }
 
@@ -838,35 +798,26 @@ pub fn GdaContext::reset(self : GdaContext) -> GdaContext {
 
 ///|
 fn trapped_signal(raised : GdaFlags, traps : GdaTrapSet) -> GdaSignal? {
-  if raised.contains(GdaSignal::InvalidOperation) && traps.invalid_operation {
-    Some(GdaSignal::InvalidOperation)
-  } else if raised.division_by_zero && traps.division_by_zero {
-    Some(GdaSignal::DivisionByZero)
-  } else if raised.division_undefined && traps.division_undefined {
-    Some(GdaSignal::DivisionUndefined)
-  } else if raised.division_impossible && traps.division_impossible {
-    Some(GdaSignal::DivisionImpossible)
-  } else if raised.invalid_context && traps.invalid_context {
-    Some(GdaSignal::InvalidContext)
-  } else if raised.conversion_syntax && traps.conversion_syntax {
-    Some(GdaSignal::ConversionSyntax)
-  } else if raised.overflow && traps.overflow {
-    Some(GdaSignal::Overflow)
-  } else if raised.underflow && traps.underflow {
-    Some(GdaSignal::Underflow)
-  } else if raised.subnormal && traps.subnormal {
-    Some(GdaSignal::Subnormal)
-  } else if raised.inexact && traps.inexact {
-    Some(GdaSignal::Inexact)
-  } else if raised.rounded && traps.rounded {
-    Some(GdaSignal::Rounded)
-  } else if raised.clamped && traps.clamped {
-    Some(GdaSignal::Clamped)
-  } else if raised.lost_digits && traps.lost_digits {
-    Some(GdaSignal::LostDigits)
-  } else {
-    None
+  // The order is the one the trap handlers have always seen: the conditions
+  // that deliver no usable number first, then the exponent range, then the
+  // informational signals.
+  for
+    signal in [
+      GdaSignal::InvalidOperation,
+      DivisionByZero,
+      Overflow,
+      Underflow,
+      Subnormal,
+      Inexact,
+      Rounded,
+      Clamped,
+      LostDigits,
+    ] {
+    if raised.contains(signal) && traps.contains(signal) {
+      return Some(signal)
+    }
   }
+  None
 }
 
 ///|
