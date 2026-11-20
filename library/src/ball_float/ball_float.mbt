@@ -288,8 +288,9 @@ fn exact_sub(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
   mode~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
+  exact_range~ : Bool = false,
 ) -> @bin_float.BinFloat {
-  exact_add(a, b.neg(), mode~)
+  exact_add(a, b.neg(), mode~, exact_range~)
 }
 
 ///|
@@ -1298,9 +1299,12 @@ pub fn BallFloat::midpoint(self : BallFloat) -> @bin_float.BinFloat {
 
 ///|
 /// `rad` of IEEE 1788-2015 12.12.8, total: NaN for Empty, +infinity for an
-/// unbounded interval, and otherwise the smallest number of the precision with
-/// the interval inside `[m - r, m + r]`, where `m` is the value `midpoint`
-/// returns (not the exact center).
+/// unbounded interval, and otherwise "the smallest F-number r such that x is
+/// contained in the exact interval [m - r, m + r], where m is the value
+/// returned by mid(x)" (F: the format of the precision and the widest exponent
+/// range; `m` is the value `midpoint` returns, not the exact center). The
+/// distances `m - lower` and `upper - m` are formed exactly and the larger one
+/// is rounded upward once to the precision, which is that smallest number.
 pub fn BallFloat::radius(self : BallFloat) -> @bin_float.BinFloat {
   if self.is_empty() {
     return @bin_float.BinFloat::nan(precision=self.precision_)
@@ -1310,17 +1314,31 @@ pub fn BallFloat::radius(self : BallFloat) -> @bin_float.BinFloat {
   }
   let m = self.midpoint()
   let below = upper_round_bound(
-    exact_sub(m, self.lo_, mode=BinaryRoundingMode::RoundTowardPositive),
+    exact_sub(
+      m,
+      self.lo_,
+      mode=BinaryRoundingMode::RoundTowardPositive,
+      exact_range=true,
+    ),
     self.precision_,
   )
   let above = upper_round_bound(
-    exact_sub(self.hi_, m, mode=BinaryRoundingMode::RoundTowardPositive),
+    exact_sub(
+      self.hi_,
+      m,
+      mode=BinaryRoundingMode::RoundTowardPositive,
+      exact_range=true,
+    ),
     self.precision_,
   )
   bin_max(below, above)
 }
 
 ///|
+/// `wid` of IEEE 1788-2015 12.12.8: NaN for Empty, +infinity for an unbounded
+/// interval, and otherwise "the Level 1 value rounded toward +infinity": the
+/// exact difference `upper - lower` rounded upward once to the precision (the
+/// smallest number of the format that is at least the width).
 pub fn BallFloat::width(self : BallFloat) -> @bin_float.BinFloat {
   if self.is_empty() {
     return @bin_float.BinFloat::nan(precision=self.precision_)
@@ -1329,7 +1347,12 @@ pub fn BallFloat::width(self : BallFloat) -> @bin_float.BinFloat {
     return pos_inf(self.precision_)
   }
   upper_round_bound(
-    exact_sub(self.hi_, self.lo_, mode=BinaryRoundingMode::RoundTowardPositive),
+    exact_sub(
+      self.hi_,
+      self.lo_,
+      mode=BinaryRoundingMode::RoundTowardPositive,
+      exact_range=true,
+    ),
     self.precision_,
   )
 }
