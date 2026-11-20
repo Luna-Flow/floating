@@ -84,6 +84,30 @@ def mean(values: Sequence[float]) -> float:
 
 
 # ---------------------------------------------------------------------------
+# Seeds: one stream per run, case, side and purpose
+# ---------------------------------------------------------------------------
+
+SIDES = ("floating", "reference", "both")  # "both" is for a draw that belongs to neither side alone
+PURPOSES = ("net", "raw", "null", "raw-ratio")
+
+
+def derive_seed(run_seed: int, case_id: str, side: str, purpose: str) -> str:
+    """The bootstrap seed of one draw: a pure function of the run seed, the case, the side and the purpose.
+
+    Two sides, two cases or two purposes never share a stream, so the replicates
+    of the floating and the reference side are independent even when their data
+    are identical (the ratio forms replicate `b` of one side over replicate `b`
+    of the other only to build a distribution, not to pair them). The same
+    arguments always give the same seed, so a summary is reproducible.
+    """
+    if side not in SIDES:
+        raise ValueError(f"unknown side {side!r}")
+    if purpose not in PURPOSES:
+        raise ValueError(f"unknown purpose {purpose!r}")
+    return f"external-baseline-bootstrap:{run_seed}:{case_id}:{side}:{purpose}"
+
+
+# ---------------------------------------------------------------------------
 # Pairs
 # ---------------------------------------------------------------------------
 
@@ -195,8 +219,13 @@ class SideNet:
     replicates: tuple[float, ...]  # not stored in summaries; the ratio interval needs them
 
 
-def side_net(pairs: Pairs, seed: str, resamples: int, level: float = LEVEL) -> SideNet:
-    replicates = net_replicates(pairs, seed, resamples)
+def side_net(
+    pairs: Pairs, run_seed: int, case_id: str, side: str, resamples: int, level: float = LEVEL
+) -> SideNet:
+    """The net time of one side of one case; the bootstrap seed is derived, never passed in."""
+    if side == "both":
+        raise ValueError("a side's net time is drawn for floating or reference")
+    replicates = net_replicates(pairs, derive_seed(run_seed, case_id, side, "net"), resamples)
     low, high = interval(replicates, level)
     return SideNet(
         net_ns=net_time(pairs),

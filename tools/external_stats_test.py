@@ -70,15 +70,15 @@ class NetTimeTests(unittest.TestCase):
             st.net_replicates({}, "t", 4)
 
     def test_constant_data_gives_a_degenerate_interval(self) -> None:
-        side = st.side_net(constant_pairs(40.0, 9.0), "c", 200)
+        side = st.side_net(constant_pairs(40.0, 9.0), 1, "c", "floating", 200)
         self.assertEqual((side.net_ns, side.ci_low_ns, side.ci_high_ns), (31.0, 31.0, 31.0))
         self.assertEqual(side.pairs, 84)
         self.assertEqual(side.drift_pct, 0.0)
         self.assertEqual(side.order_pct, 0.0)
 
     def test_interval_brackets_the_net_and_narrows_with_less_noise(self) -> None:
-        loud = st.side_net(noisy_pairs(1, 100.0, 10.0, 0.05), "a", 400)
-        quiet = st.side_net(noisy_pairs(1, 100.0, 10.0, 0.005), "a", 400)
+        loud = st.side_net(noisy_pairs(1, 100.0, 10.0, 0.05), 1, "a", "floating", 400)
+        quiet = st.side_net(noisy_pairs(1, 100.0, 10.0, 0.005), 1, "a", "floating", 400)
         for side in (loud, quiet):
             self.assertLess(side.ci_low_ns, side.net_ns)
             self.assertGreater(side.ci_high_ns, side.net_ns)
@@ -92,6 +92,38 @@ class NetTimeTests(unittest.TestCase):
         self.assertGreater(st.drift_pct(pairs), 20.0)  # and the nulls show the drift
 
 
+class SeedTests(unittest.TestCase):
+    def test_derived_seeds_differ_by_run_case_side_and_purpose_and_reproduce(self) -> None:
+        seed = st.derive_seed(1, "binary/add/53", "floating", "net")
+        self.assertEqual(seed, st.derive_seed(1, "binary/add/53", "floating", "net"))
+        variants = {
+            st.derive_seed(2, "binary/add/53", "floating", "net"),
+            st.derive_seed(1, "binary/mul/53", "floating", "net"),
+            st.derive_seed(1, "binary/add/53", "reference", "net"),
+            st.derive_seed(1, "binary/add/53", "floating", "raw"),
+            st.derive_seed(1, "binary/add/53", "both", "raw-ratio"),
+        }
+        self.assertEqual(len(variants | {seed}), 6)
+        for bad in (("c", "left", "net"), ("c", "floating", "other")):
+            with self.assertRaises(ValueError):
+                st.derive_seed(1, *bad)
+        with self.assertRaises(ValueError):
+            st.side_net(constant_pairs(2.0, 1.0), 1, "c", "both", 10)
+
+    def test_two_sides_with_identical_data_get_different_draws_and_one_side_reproduces(self) -> None:
+        pairs = noisy_pairs(7, 100.0, 10.0, 0.05)
+        floating = st.side_net(pairs, 5, "case", "floating", 200)
+        reference = st.side_net(pairs, 5, "case", "reference", 200)
+        again = st.side_net(pairs, 5, "case", "floating", 200)
+        self.assertEqual(floating.replicates, again.replicates)  # same run seed, case and side: exactly the same draws
+        self.assertNotEqual(floating.replicates, reference.replicates)  # same data, same run seed and case: other draws
+        self.assertEqual(floating.net_ns, reference.net_ns)  # the point estimate is the same data's median
+        # not even the order of the drawn rounds is shared: the sorted replicates match far less often than chance of a copy
+        self.assertLess(sum(a == b for a, b in zip(floating.replicates, reference.replicates)), 100)
+        changed = st.side_net(pairs, 6, "case", "floating", 200)
+        self.assertNotEqual(floating.replicates, changed.replicates)
+
+
 class RatioTests(unittest.TestCase):
     def test_ratio_replicates_and_zero_reference(self) -> None:
         self.assertEqual(st.ratio_replicates([6.0, 9.0, 4.0], [2.0, 3.0, 0.0]), [3.0, 3.0, math.inf])
@@ -100,8 +132,8 @@ class RatioTests(unittest.TestCase):
             st.ratio_replicates([1.0], [1.0, 2.0])
 
     def test_interval_of_a_known_ratio(self) -> None:
-        floating = st.side_net(noisy_pairs(2, 310.0, 10.0, 0.01), "f", 400)
-        reference = st.side_net(noisy_pairs(3, 105.0, 5.0, 0.01), "r", 400)
+        floating = st.side_net(noisy_pairs(2, 310.0, 10.0, 0.01), 1, "x", "floating", 400)
+        reference = st.side_net(noisy_pairs(3, 105.0, 5.0, 0.01), 1, "x", "reference", 400)
         verdict = st.judge(floating, reference, raw_ci_high=3.2)
         self.assertLess(verdict.ci_low, 3.0)
         self.assertGreater(verdict.ci_high, 3.0)
