@@ -67,6 +67,45 @@ and this page. Do not add or rename guides without updating that list.
   marker for that version; `tools/doc_quality.py` rejects any other historical
   version.
 
+## Naming
+
+An operation is named after the standard of its package, in snake_case:
+IEEE 754-2019 for `bin_float` and `decimal` and their checked tiers, and the
+General Decimal Arithmetic Specification, version 1.70, for `decimal_gda` and
+its checked tier. A package has one spelling per operation: it carries no alias
+and never the name of the other standard for the same thing. For example,
+`decimal` names the IEEE `remainder` as `remainder_ctx`, and `decimal_gda` names
+the GDA `remainder-near` as `remainder_near`.
+
+- **Case.** `camelCase` names split at each capital (`minimumMagnitudeNumber` is
+  `minimum_magnitude_number`) and hyphens become underscores
+  (`round-to-integral-exact` is `round_to_integral_exact`). Digits and the
+  standard's own abbreviations stay attached to their word: `exp2m1`, `log2p1`,
+  `atan2`, `sinpi`.
+- **Suffixes.** `_ctx` marks a method that takes a context and returns the value
+  with its flags. `try_` marks the form that returns a `Result` for a
+  certification failure. `_checked` and `_contextual` are the forms of the
+  `Luna-Flow/arithmetic` traits. The checked tiers (`bin_float_checked`,
+  `decimal_checked`, `decimal_gda_checked`) keep the bare names.
+- **No standard name.** Where the standard has no name for something, such as an
+  accessor (`coefficient`), a constructor (`from_bigint`) or an encoding helper,
+  the spelling with the most uses stays, and the API page documents it.
+- **Documented exceptions.** These names are kept as they are, although the
+  rule would spell them otherwise:
+  - `add`, `sub`, `mul`, `div`, `neg`, `abs`, `sqrt`, `fma`;
+  - `ln`, `log1p`;
+  - `round`, `ceil`, `floor`, `trunc`, `to_integral_exact`,
+    `to_integral_value`;
+  - `sinpi` and its family;
+  - the flag name `division_by_zero`;
+  - `parse`, `to_sci_string`, `to_eng_string`;
+  - `to_hex`, `from_hex`, `to_interchange_hex` and `from_interchange_hex`;
+  - in `decimal_gda`, also `rescale` and the `logical_` prefix.
+- **Old names.** A renamed or removed operation keeps no alias. A name that had
+  one meaning is not reused with another meaning in the same release. The
+  release that renames or removes an operation lists the old name and its
+  replacement under **Breaking** in `library/CHANGELOG.md`.
+
 ## API snapshots
 
 Every API page ends with `## Complete public interface`, whose body is an exact
