@@ -22,6 +22,9 @@ using @bin_kernel {
   bin_coeff_div_short_quotient,
   bin_coeff_short_division_guard_bits,
   bin_coeff_div_scaled_quotient,
+  bin_coeff_mul_short,
+  bin_coeff_mul_short_ok,
+  bin_coeff_short_product_limbs,
 }
 
 ///|
@@ -394,6 +397,29 @@ fn binary_coeff_fast_mul(left : BinFloat, right : BinFloat) -> BinFloat? {
   guard left.coefficient_.bit_length() <= binary_coeff_fast_bits_limit &&
     right.coefficient_.bit_length() <= binary_coeff_fast_bits_limit else {
     return None
+  }
+  // short product: the high limbs only, used when its rounding is certain
+  if bin_coeff_mul_short_ok(left.coefficient_, right.coefficient_, precision) {
+    let approximate = bin_coeff_mul_short(
+      left.coefficient_,
+      right.coefficient_,
+      precision,
+    )
+    if !approximate.is_zero() {
+      return Some(
+        binary_coeff_fast_finish(
+          left.negative != right.negative,
+          approximate,
+          left.exponent2 +
+          right.exponent2 +
+          left.coefficient_.bit_length() +
+          right.coefficient_.bit_length() -
+          64 * bin_coeff_short_product_limbs(precision),
+          precision,
+          false,
+        ),
+      )
+    }
   }
   Some(
     binary_coeff_fast_finish(

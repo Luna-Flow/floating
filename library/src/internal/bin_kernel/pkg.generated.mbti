@@ -20,9 +20,15 @@ pub fn bin_coeff_from_words(FixedArray[UInt64], Int32) -> Coeff
 
 pub fn bin_coeff_inline(UInt64, UInt64) -> Coeff
 
+pub fn bin_coeff_mul_short(Coeff, Coeff, Int32) -> Coeff
+
+pub fn bin_coeff_mul_short_ok(Coeff, Coeff, Int32) -> Bool
+
 pub fn bin_coeff_short_div_rem(Coeff, Coeff) -> (Coeff, Coeff)
 
 pub let bin_coeff_short_division_guard_bits : Int32
+
+pub fn bin_coeff_short_product_limbs(Int32) -> Int32
 
 pub fn bin_coeff_sqrt_rem_kernel(Coeff) -> (Coeff, Coeff)
 

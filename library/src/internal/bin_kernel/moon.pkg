@@ -28,6 +28,8 @@ options(
     "coeff_sqrt_nonjs.mbt": [ "not", "js" ],
     "coeff_sqrt_array_nonjs.mbt": [ "not", "js" ],
     "coeff_fresh_array_nonjs_wbtest.mbt": [ "not", "js" ],
+    "coeff_short_mul_nonjs.mbt": [ "not", "js" ],
+    "coeff_short_mul_nonjs_wbtest.mbt": [ "not", "js" ],
     "coeff_div_scaled_nonjs_wbtest.mbt": [ "not", "js" ],
     "coeff_div_short_nonjs_wbtest.mbt": [ "not", "js" ],
     "coeff_sqrt_array_reference_nonjs_wbtest.mbt": [ "not", "js" ],

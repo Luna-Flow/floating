@@ -447,3 +447,71 @@ test "coefficient div equals the general path on exact quotients, neighbours and
   }
   assert_true(checked > 1000)
 }
+
+///|
+/// Products next to rounding boundaries through the short product: powers of
+/// two plus or minus small numbers (`(2^k + 1) (2^k - 1)`), all ones, a top
+/// limb just above half, at precisions around the limb boundaries.
+/// `binary_coeff_fast_mul` and the plain `mul` must equal `mul_ctx`.
+test "coefficient mul equals the general path on structured and random operands" {
+  let mut checked = 0
+  for limbs in [3, 4, 5, 8, 9, 17, 32, 33, 63, 64] {
+    for precision_offset in [0, -1, -63] {
+      let precision = limbs * 64 + precision_offset
+      let power = Coeff::one().shift_left(precision - 1)
+      let ones = Coeff::one()
+        .shift_left(precision)
+        .sub_checked(Coeff::one())
+        .unwrap()
+      let operands = [
+        power.add(Coeff::one()),
+        power.sub_checked(Coeff::one()).unwrap().add(Coeff::one()),
+        ones,
+        ones.sub_checked(Coeff::from_uint64(2UL)).unwrap(),
+        power.add(Coeff::one().shift_left(64)).add(Coeff::one()),
+        power.add(power.shift_right(1)).add(Coeff::one()),
+        Coeff::one().shift_left(precision / 2).add(Coeff::one()),
+        fast_coeff_value({ coeff_state: 31UL + limbs.to_uint64(), }, precision),
+        fast_coeff_value(
+          { coeff_state: 99UL + limbs.to_uint64(), },
+          precision - 17,
+        ),
+      ]
+      for left_coefficient in operands {
+        for right_coefficient in operands {
+          if left_coefficient.bit_length() > precision ||
+            right_coefficient.bit_length() > precision {
+            continue
+          }
+          for exponent in [-100, 0, 9] {
+            let left = BinFloat::make_coeff(
+              left_coefficient, exponent, precision,
+            )
+            let right = BinFloat::make_coeff(
+              right_coefficient,
+              exponent / 2,
+              precision,
+              negative=true,
+            )
+            if left.is_zero() || right.is_zero() {
+              continue
+            }
+            let general = left.mul_ctx(
+                right,
+                BinaryContext::unbounded(max_precision(left, right)),
+              ).0
+            match binary_coeff_fast_mul(left, right) {
+              Some(result) => {
+                checked += 1
+                assert_true(fast_test_same(result, general))
+              }
+              None => ()
+            }
+            assert_true(fast_test_same(left.mul(right), general))
+          }
+        }
+      }
+    }
+  }
+  assert_true(checked > 2000)
+}
