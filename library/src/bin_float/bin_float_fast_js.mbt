@@ -22,6 +22,22 @@ fn binary_fast_div(_left : BinFloat, _right : BinFloat) -> BinFloat? {
 }
 
 ///|
+fn binary_sqrt_ctx_words_ok(
+  _value : BinFloat,
+  _context : BinaryContext,
+) -> Bool {
+  false
+}
+
+///|
+fn binary_sqrt_ctx_words(
+  _value : BinFloat,
+  _context : BinaryContext,
+) -> (BinFloat, BinaryFlags) {
+  abort("binary_sqrt_ctx_words is not available on js")
+}
+
+///|
 fn binary_fast_sqrt(_value : BinFloat) -> BinFloat? {
   None
 }
