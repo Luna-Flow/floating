@@ -198,6 +198,8 @@ pub fn dec_coeff_matches_unit_repr(DecCoeff, Int32) -> Bool
 
 pub fn dec_coeff_mod_repr(DecCoeff, DecCoeff) -> DecCoeff
 
+pub fn dec_coeff_mod_unit(DecCoeff, Int32) -> Int32
+
 pub fn dec_coeff_multiply_by_unit_repr(DecCoeff, Int32) -> DecCoeff
 
 pub fn dec_coeff_multiply_repr(DecCoeff, DecCoeff) -> DecCoeff
@@ -364,5 +366,6 @@ pub fn SignedDecCoeff::sub(Self, Self) -> Self
 // Type aliases
 
 // Traits
+
 ```
 <!-- generated-api-end -->
