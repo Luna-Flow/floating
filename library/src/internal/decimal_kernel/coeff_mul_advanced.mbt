@@ -615,24 +615,11 @@ fn dec_coeff_mul_unbalanced(shorter : DecCoeff, longer : DecCoeff) -> DecCoeff {
     }
     return dec_coeff_from_wide_accumulator(accumulator, accumulator.length())
   }
-  let accumulator = Array::make(shorter_len + longer_len + 1, 0UL)
-  for right_index in 0..<longer_len {
-    let multiplier = dec_coeff_limb_at(longer, right_index).to_uint64()
-    if multiplier == 0UL {
-      continue
-    }
-    for left_index in 0..<shorter_len {
-      let limb = dec_coeff_limb_at(shorter, left_index).to_uint64()
-      if limb != 0UL {
-        dec_coeff_add_product_at(
-          accumulator,
-          left_index + right_index,
-          limb * multiplier,
-        )
-      }
-    }
-  }
-  dec_coeff_from_wide_accumulator(accumulator, accumulator.length())
+  // below the Karatsuba threshold: the column schoolbook of the balanced case
+  // (one word per column, a fold every 16 products), which works on any shape;
+  // the per-product loop it replaces took about 45 instructions a product
+  // against 5 to 11 here
+  dec_coeff_mul_schoolbook(shorter, longer)
 }
 
 ///|
