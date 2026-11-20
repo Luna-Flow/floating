@@ -1275,7 +1275,7 @@ test "decimal and hexadecimal text" {
   inspect(@bin_float.BinFloat::from_hex("0x3p-1", 53).unwrap(), content="3p-1")
   // 0x1.00000000000008p0 has 57 significant bits: binary64 rounds it, inexact.
   let (rounded, hex_flags) = @bin_float.BinFloat::from_hex_ctx("0x1.00000000000008p0", ctx).unwrap()
-  inspect(rounded, content="1")
+  inspect(rounded, content="1p0")
   inspect(hex_flags.inexact(), content="true")
 }
 ```
