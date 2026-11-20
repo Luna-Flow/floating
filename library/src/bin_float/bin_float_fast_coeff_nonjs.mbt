@@ -27,24 +27,11 @@ using @bin_kernel {
 let binary_coeff_fast_bits_limit : Int32 = 1048576
 
 ///|
-/// Whether any of the lowest `count` bits of `value` is set.
-fn binary_coeff_fast_low_nonzero(value : Coeff, count : Int32) -> Bool {
-  let whole = count / 64
-  let rest = count % 64
-  for index in 0..<whole {
-    if bin_coeff_word(value, index) != 0UL {
-      return true
-    }
-  }
-  rest != 0 && (bin_coeff_word(value, whole) & ((1UL << rest) - 1UL)) != 0UL
-}
-
-///|
 /// Rounds the nonzero `magnitude * 2^exponent`, plus a tiny positive amount
 /// when `inexact` (only allowed when `magnitude` has more than `precision`
 /// bits), to `precision` bits, to nearest even, and builds the result with an
-/// odd coefficient. The kept bits are copied once, into the array that
-/// becomes the coefficient.
+/// odd coefficient. The magnitude is copied once into a fresh array, which
+/// `bin_finish_words` rounds and normalises in place and keeps.
 fn binary_coeff_fast_finish(
   negative : Bool,
   magnitude : Coeff,
@@ -65,83 +52,23 @@ fn binary_coeff_fast_finish(
       precision,
     )
   }
-  let shift = bits - precision
-  let count = (precision + 63) / 64
+  let count = (bits + 63) / 64
   let words = FixedArray::make(count, 0UL)
-  let word_shift = shift / 64
-  let bit_shift = shift % 64
-  for index in 0..<count {
-    let low = bin_coeff_word(magnitude, word_shift + index)
-    words.unsafe_set(
-      index,
-      if bit_shift == 0 {
-        low
-      } else {
-        (low >> bit_shift) |
-        (bin_coeff_word(magnitude, word_shift + index + 1) << (64 - bit_shift))
-      },
-    )
-  }
-  let mut result_exponent = exponent + shift
-  // the bit below the kept ones and the sticky bits under it
-  let round_index = shift - 1
-  if ((bin_coeff_word(magnitude, round_index / 64) >> (round_index % 64)) & 1UL) ==
-    1UL {
-    let sticky = inexact ||
-      binary_coeff_fast_low_nonzero(magnitude, round_index)
-    if sticky || (words.unsafe_get(0) & 1UL) == 1UL {
-      let mut index = 0
-      while index < count {
-        let next = words.unsafe_get(index) + 1UL
-        words.unsafe_set(index, next)
-        if next != 0UL {
-          break
-        }
-        index += 1
+  match magnitude.0 {
+    Heap(source, _) => FixedArray::unsafe_blit(words, 0, source, 0, count)
+    _ =>
+      for index in 0..<count {
+        words.unsafe_set(index, bin_coeff_word(magnitude, index))
       }
-      if index == count {
-        // every kept bit was set: the sum is 2^(64 * count)
-        words.unsafe_set(0, 1UL)
-        result_exponent += 64 * count
-      }
-    }
   }
-  // odd coefficient
-  let mut first = 0
-  while words.unsafe_get(first) == 0UL {
-    first += 1
-  }
-  let zeros = 64 * first + words.unsafe_get(first).reinterpret_as_int64().ctz()
-  if zeros > 0 {
-    let skip = zeros / 64
-    let rest = zeros % 64
-    for index in 0..<count {
-      let low = if index + skip < count {
-        words.unsafe_get(index + skip)
-      } else {
-        0UL
-      }
-      let high = if index + skip + 1 < count {
-        words.unsafe_get(index + skip + 1)
-      } else {
-        0UL
-      }
-      words.unsafe_set(
-        index,
-        if rest == 0 {
-          low
-        } else {
-          (low >> rest) | (high << (64 - rest))
-        },
-      )
-    }
-    result_exponent += zeros
-  }
-  finite_normalized(
+  bin_finish_words(
     negative,
-    bin_coeff_from_words(words, count),
-    result_exponent,
+    words,
+    count,
+    exponent,
     precision,
+    inexact,
+    BinaryRoundingMode::RoundTiesToEven,
   )
 }
 
