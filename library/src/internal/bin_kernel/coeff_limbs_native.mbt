@@ -7,7 +7,11 @@
 /// same names in `coeff_limbs_other_nonjs.mbt`.
 
 ///|
-extern "C" fn luna_limbs_enabled() -> Int32 = "luna_limbs_enabled"
+extern "C" fn luna_limbs_mode() -> Int32 = "luna_limbs_mode"
+
+///|
+/// 1 when the assembly tier is compiled in (arm64 Apple), 0 when the `_asm` entries are the C rows.
+pub extern "C" fn luna_limbs_tier() -> Int32 = "luna_limbs_tier"
 
 ///|
 /// 1 when the stub was compiled with `unsigned __int128`, 0 for the 32-bit
@@ -27,7 +31,16 @@ pub extern "C" fn luna_limbs_arch_id() -> Int32 = "luna_limbs_arch_id"
 pub extern "C" fn luna_limbs_cpu_features() -> Int32 = "luna_limbs_cpu_features"
 
 ///|
-let bin_limbs_native : Bool = luna_limbs_enabled() != 0
+/// 1 when the build is Apple arm64 with clang or gcc, where the assembly tier must be active.
+pub extern "C" fn luna_limbs_expects_asm() -> Int32 = "luna_limbs_expects_asm"
+
+///|
+/// 1 when `LUNA_FLOATING_PORTABLE` or `LUNA_FLOATING_LIMBS` is set.
+pub extern "C" fn luna_limbs_override_set() -> Int32 = "luna_limbs_override_set"
+
+///|
+/// 0 portable MoonBit loops, 1 C rows, 2 assembly rows (see `luna_limbs.c`).
+let bin_limbs_mode : Int32 = luna_limbs_mode()
 
 ///|
 #borrow(r, a)
@@ -42,6 +55,17 @@ extern "C" fn luna_mul_1(
 
 ///|
 #borrow(r, a)
+extern "C" fn luna_mul_1_asm(
+  r : FixedArray[UInt64],
+  ro : Int32,
+  a : FixedArray[UInt64],
+  ao : Int32,
+  n : Int32,
+  b : UInt64,
+) -> UInt64 = "luna_mul_1_asm"
+
+///|
+#borrow(r, a)
 extern "C" fn luna_addmul_1(
   r : FixedArray[UInt64],
   ro : Int32,
@@ -53,6 +77,17 @@ extern "C" fn luna_addmul_1(
 
 ///|
 #borrow(r, a)
+extern "C" fn luna_addmul_1_asm(
+  r : FixedArray[UInt64],
+  ro : Int32,
+  a : FixedArray[UInt64],
+  ao : Int32,
+  n : Int32,
+  b : UInt64,
+) -> UInt64 = "luna_addmul_1_asm"
+
+///|
+#borrow(r, a)
 extern "C" fn luna_submul_1(
   r : FixedArray[UInt64],
   ro : Int32,
@@ -61,6 +96,17 @@ extern "C" fn luna_submul_1(
   n : Int32,
   b : UInt64,
 ) -> UInt64 = "luna_submul_1"
+
+///|
+#borrow(r, a)
+extern "C" fn luna_submul_1_asm(
+  r : FixedArray[UInt64],
+  ro : Int32,
+  a : FixedArray[UInt64],
+  ao : Int32,
+  n : Int32,
+  b : UInt64,
+) -> UInt64 = "luna_submul_1_asm"
 
 ///|
 #borrow(r, a, b)
@@ -76,6 +122,19 @@ extern "C" fn luna_school(
 ) -> Unit = "luna_school"
 
 ///|
+#borrow(r, a, b)
+extern "C" fn luna_school_asm(
+  r : FixedArray[UInt64],
+  ro : Int32,
+  a : FixedArray[UInt64],
+  ao : Int32,
+  an : Int32,
+  b : FixedArray[UInt64],
+  bo : Int32,
+  bn : Int32,
+) -> Unit = "luna_school_asm"
+
+///|
 #borrow(r, s)
 extern "C" fn luna_sqr_school(
   r : FixedArray[UInt64],
@@ -84,6 +143,16 @@ extern "C" fn luna_sqr_school(
   so : Int32,
   len : Int32,
 ) -> Unit = "luna_sqr_school"
+
+///|
+#borrow(r, s)
+extern "C" fn luna_sqr_school_asm(
+  r : FixedArray[UInt64],
+  ro : Int32,
+  s : FixedArray[UInt64],
+  so : Int32,
+  len : Int32,
+) -> Unit = "luna_sqr_school_asm"
 
 ///|
 /// Aborts unless `array[offset ..< offset + len]` lies inside the array.
@@ -123,10 +192,14 @@ pub fn bin_limbs_mul_1(
   n : Int32,
   b : UInt64,
 ) -> UInt64 {
-  if bin_limbs_native {
+  if bin_limbs_mode != 0 {
     bin_limbs_check_range(r, ro, n)
     bin_limbs_check_range(a, ao, n)
-    luna_mul_1(r, ro, a, ao, n, b)
+    if bin_limbs_mode == 2 {
+      luna_mul_1_asm(r, ro, a, ao, n, b)
+    } else {
+      luna_mul_1(r, ro, a, ao, n, b)
+    }
   } else {
     bin_limbs_mul_1_portable(r, ro, a, ao, n, b)
   }
@@ -141,10 +214,14 @@ pub fn bin_limbs_addmul_1(
   n : Int32,
   b : UInt64,
 ) -> UInt64 {
-  if bin_limbs_native {
+  if bin_limbs_mode != 0 {
     bin_limbs_check_range(r, ro, n)
     bin_limbs_check_range(a, ao, n)
-    luna_addmul_1(r, ro, a, ao, n, b)
+    if bin_limbs_mode == 2 {
+      luna_addmul_1_asm(r, ro, a, ao, n, b)
+    } else {
+      luna_addmul_1(r, ro, a, ao, n, b)
+    }
   } else {
     bin_limbs_addmul_1_portable(r, ro, a, ao, n, b)
   }
@@ -159,10 +236,14 @@ pub fn bin_limbs_submul_1(
   n : Int32,
   b : UInt64,
 ) -> UInt64 {
-  if bin_limbs_native {
+  if bin_limbs_mode != 0 {
     bin_limbs_check_range(r, ro, n)
     bin_limbs_check_range(a, ao, n)
-    luna_submul_1(r, ro, a, ao, n, b)
+    if bin_limbs_mode == 2 {
+      luna_submul_1_asm(r, ro, a, ao, n, b)
+    } else {
+      luna_submul_1(r, ro, a, ao, n, b)
+    }
   } else {
     bin_limbs_submul_1_portable(r, ro, a, ao, n, b)
   }
@@ -181,13 +262,17 @@ fn bin_limbs_school(
   bo : Int32,
   bn : Int32,
 ) -> Unit {
-  if bin_limbs_native && an > 0 && bn > 0 {
+  if bin_limbs_mode != 0 && an > 0 && bn > 0 {
     bin_limbs_check_range(r, ro, an + bn)
     bin_limbs_check_range(a, ao, an)
     bin_limbs_check_range(b, bo, bn)
     bin_limbs_check_disjoint(r, ro, an + bn, a, ao, an)
     bin_limbs_check_disjoint(r, ro, an + bn, b, bo, bn)
-    luna_school(r, ro, a, ao, an, b, bo, bn)
+    if bin_limbs_mode == 2 {
+      luna_school_asm(r, ro, a, ao, an, b, bo, bn)
+    } else {
+      luna_school(r, ro, a, ao, an, b, bo, bn)
+    }
   } else {
     bin_coeff_words_school(r, ro, a, ao, an, b, bo, bn)
   }
@@ -202,11 +287,15 @@ fn bin_limbs_sqr_school(
   so : Int32,
   len : Int32,
 ) -> Unit {
-  if bin_limbs_native && len > 0 {
+  if bin_limbs_mode != 0 && len > 0 {
     bin_limbs_check_range(r, ro, 2 * len)
     bin_limbs_check_range(s, so, len)
     bin_limbs_check_disjoint(r, ro, 2 * len, s, so, len)
-    luna_sqr_school(r, ro, s, so, len)
+    if bin_limbs_mode == 2 {
+      luna_sqr_school_asm(r, ro, s, so, len)
+    } else {
+      luna_sqr_school(r, ro, s, so, len)
+    }
   } else {
     bin_coeff_words_sqr_school(r, ro, s, so, len)
   }

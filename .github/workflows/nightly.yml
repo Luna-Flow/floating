@@ -14,10 +14,10 @@ concurrency:
 
 env:
   # The tier the default state of the arm64 job must report from the row primitives of
-  # `internal/bin_kernel`. Until the assembly tier is in, the build has only the C tier
-  # and reports `c` (or nothing, which `tools/check_limbs_tier.py` reads as `c`).
-  # When the assembly tier lands, change this one line to `asm`.
-  EXPECTED_DEFAULT_TIER: c
+  # `internal/bin_kernel`: the assembly tier (`asm`) is in, so the default state of an
+  # Apple arm64 runner reports `asm`. A build that falls back to the C rows reports `c` and
+  # fails this check.
+  EXPECTED_DEFAULT_TIER: asm
 
 jobs:
   conformance:
