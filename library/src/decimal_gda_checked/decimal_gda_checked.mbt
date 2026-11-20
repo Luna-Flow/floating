@@ -83,13 +83,7 @@ pub fn GdaDecimalChecked::trapped_signal(
 pub fn GdaDecimalChecked::resume_defined(
   self : GdaDecimalChecked,
 ) -> GdaDecimalChecked {
-  match self.outcome_ {
-    @decimal_gda.Completed(_, _, _) => self
-    @decimal_gda.Trapped(_, value, context, _) =>
-      GdaDecimalChecked::from_outcome(
-        @decimal_gda.Completed(value, context, @decimal_gda.GdaFlags::none()),
-      )
-  }
+  GdaDecimalChecked::from_outcome(self.outcome_.resume_defined())
 }
 
 ///|

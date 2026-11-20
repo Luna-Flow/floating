@@ -81,9 +81,19 @@ pub struct GdaContext {
 }
 
 ///|
-pub(all) enum GdaOutcome[T] {
+pub enum GdaOutcome[T] {
   Completed(T, GdaContext, GdaFlags)
   Trapped(GdaSignal, T, GdaContext, GdaFlags)
+}
+
+///|
+/// The GDA "defined result" of a trapped outcome: `Completed` is returned
+/// unchanged, `Trapped(s, v, C, R)` becomes `Completed(v, C, none)`.
+pub fn[T] GdaOutcome::resume_defined(self : GdaOutcome[T]) -> GdaOutcome[T] {
+  match self {
+    Completed(_, _, _) => self
+    Trapped(_, value, context, _) => Completed(value, context, GdaFlags::none())
+  }
 }
 
 ///|
