@@ -76,7 +76,7 @@ test "a zero quantize result above the top exponent folds down only with the opt
     let x = Decimal::from_string(zero).unwrap()
     let q = Decimal::from_string(quantum).unwrap()
     let label = "\{name} quantize \{zero} \{quantum}"
-    let (default_value, default_flags) = x.quantize(
+    let (default_value, default_flags) = x.quantize_ctx(
       q,
       issue234_context(name, false),
     )
@@ -85,7 +85,7 @@ test "a zero quantize result above the top exponent folds down only with the opt
       (label + " off", off),
     )
     assert_false(default_flags.clamped, msg=label + " off")
-    let (folded, flags) = x.quantize(q, issue234_context(name, true))
+    let (folded, flags) = x.quantize_ctx(q, issue234_context(name, true))
     assert_eq((label + " on", issue234_text(folded)), (label + " on", on))
     assert_eq(
       (label + " clamped", flags.clamped),
@@ -94,7 +94,7 @@ test "a zero quantize result above the top exponent folds down only with the opt
     assert_false(flags.inexact || flags.rounded, msg=label)
     // rescale takes the exponent as an integer and shares the path
     if !folded.is_nan() {
-      let (by_rescale, rescale_flags) = x.rescale(
+      let (by_rescale, rescale_flags) = x.rescale_ctx(
         Decimal::from_int(q.exponent10),
         issue234_context(name, true),
       )
@@ -121,8 +121,8 @@ test "the fold does not change a non-zero result and is off in every context (is
     ] {
     let x = Decimal::from_string(pair.0).unwrap()
     let q = Decimal::from_string(pair.1).unwrap()
-    let (a, fa) = x.quantize(q, off)
-    let (b, fb) = x.quantize(q, on)
+    let (a, fa) = x.quantize_ctx(q, off)
+    let (b, fb) = x.quantize_ctx(q, on)
     assert_eq(
       (pair.0, issue234_text(a), fa.clamped),
       (pair.0, issue234_text(b), fb.clamped),
@@ -166,7 +166,7 @@ test "other operations that produce such a zero already fold with or without the
       zero.mul_ctx(one, ctx),
       zero.div_ctx(one, ctx),
       Decimal::from_string("0").unwrap().scaleb_ctx(Decimal::from_int(380), ctx),
-      zero.to_integral_exact(ctx),
+      zero.to_integral_exact_ctx(ctx),
     ]
     for result in results {
       assert_eq(result.0.to_string(), "0E+369")

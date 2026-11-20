@@ -284,7 +284,7 @@ pub fn DecimalChecked::next_toward(Self, @decimal.Decimal) -> Self
 | `add`, `sub`, `mul`, `div` | `add_ctx`, … | $v \circ y$ correctly rounded |
 | `fma(m, a)` | `fma_ctx` | $v \cdot m + a$ with one rounding |
 | `sqrt` | `sqrt_ctx` | $\sqrt{v}$ correctly rounded |
-| `quantize(q)` | `quantize` | $v$ rounded to the exponent of `q` |
+| `quantize(q)` | `quantize_ctx` | $v$ rounded to the exponent of `q` |
 | `remainder(d)` | `remainder_ctx` | IEEE remainder $v - d \cdot n$, $n$ = $v/d$ rounded to nearest, ties to even |
 | `reduce` | `reduce_ctx` | $v$ with trailing zeros removed |
 | `minimum_number`, `maximum_number` | `minimum_number_ctx`, `maximum_number_ctx` | IEEE 754-2019 §9.6 `minimumNumber`/`maximumNumber`: a quiet NaN loses to a number, a signaling NaN gives the number and `invalid_operation` (the General Decimal Arithmetic `min`/`max` are in `decimal_gda`) |

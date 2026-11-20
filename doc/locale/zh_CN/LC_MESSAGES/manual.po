@@ -4134,12 +4134,12 @@ msgid "`precision` is 0 only for `exact()`."
 msgstr "只有 `exact()` 的 `precision` 为 0。"
 
 #: manual/api/decimal.md:545
-msgid "Read and set the opt-in fold-down of a zero `quantize` result."
-msgstr "读取和设置零 `quantize` 结果的可选折叠。"
+msgid "Read and set the opt-in fold-down of a zero `quantize_ctx` result."
+msgstr "读取和设置零 `quantize_ctx` 结果的可选折叠。"
 
 #: manual/api/decimal.md:552
-msgid "Under `clamp` the largest encodable exponent is $e_{\\max} - p + 1$ (369 in decimal64). IEEE 754-2019 §5.3.2 says nothing about a `quantize` result that is zero and whose requested exponent lies above it (the target must not exceed $e_{\\max}$): by default the exponent asked for is returned and nothing is raised, as before (`quantize(0, 1E+380)` is `0E+380`). With `with_clamp_fold(true)` that zero is folded down to $e_{\\max} - p + 1$ and `clamped` is raised (`0E+369`), which is what decNumber does (`decQuantizeOp` calls `decFinalize` for a zero operand). `rescale` shares the path. The option is `false` by default and in every preset, has no effect without `clamp`, does not change a non-zero result, and takes part in `==`; every other operation that produces such a zero already folds, with or without it."
-msgstr "在 `clamp` 下，最大可编码指数是 $e_{\\max} - p + 1$（decimal64 中为 369）。IEEE 754-2019 §5.3.2 对结果为零且所请求的指数高于它的 `quantize`（目标指数不得超过 $e_{\\max}$）没有任何规定：默认返回所请求的指数且不引发任何标志，和以前一样（`quantize(0, 1E+380)` 是 `0E+380`）。使用 `with_clamp_fold(true)` 时，该零被折叠到 $e_{\\max} - p + 1$ 并引发 `clamped`（`0E+369`），这正是 decNumber 的做法（`decQuantizeOp` 对零操作数调用 `decFinalize`）。`rescale` 共用这条路径。该选项默认以及在每个预设中都是 `false`，没有 `clamp` 时无效，不改变非零结果，并参与 `==`；其他产生这种零的运算本来就会折叠，无论有无该选项。"
+msgid "Under `clamp` the largest encodable exponent is $e_{\\max} - p + 1$ (369 in decimal64). IEEE 754-2019 §5.3.2 says nothing about a `quantize_ctx` result that is zero and whose requested exponent lies above it (the target must not exceed $e_{\\max}$): by default the exponent asked for is returned and nothing is raised, as before (`quantize_ctx(0, 1E+380)` is `0E+380`). With `with_clamp_fold(true)` that zero is folded down to $e_{\\max} - p + 1$ and `clamped` is raised (`0E+369`), which is what decNumber does (`decQuantizeOp` calls `decFinalize` for a zero operand). `rescale_ctx` shares the path. The option is `false` by default and in every preset, has no effect without `clamp`, does not change a non-zero result, and takes part in `==`; every other operation that produces such a zero already folds, with or without it."
+msgstr "在 `clamp` 下，最大可编码指数是 $e_{\\max} - p + 1$（decimal64 中为 369）。IEEE 754-2019 §5.3.2 对结果为零且所请求的指数高于它的 `quantize_ctx`（目标指数不得超过 $e_{\\max}$）没有任何规定：默认返回所请求的指数且不引发任何标志，和以前一样（`quantize_ctx(0, 1E+380)` 是 `0E+380`）。使用 `with_clamp_fold(true)` 时，该零被折叠到 $e_{\\max} - p + 1$ 并引发 `clamped`（`0E+369`），这正是 decNumber 的做法（`decQuantizeOp` 对零操作数调用 `decFinalize`）。`rescale_ctx` 共用这条路径。该选项默认以及在每个预设中都是 `false`，没有 `clamp` 时无效，不改变非零结果，并参与 `==`；其他产生这种零的运算本来就会折叠，无论有无该选项。"
 
 #: manual/api/decimal.md:587
 #: manual/api/decimal_gda.md:1343
@@ -4396,12 +4396,12 @@ msgid "These functions compute integer quotients and remainders."
 msgstr "这些函数计算整数商和余数。"
 
 #: manual/api/decimal.md:1071
-msgid "`divide_integer(x, y)` is $\\operatorname{trunc}(x/y)$ with preferred exponent 0. When the integer quotient needs more than $p$ digits, the result is NaN with `division_impossible` and `invalid_operation`. `remainder_trunc_ctx(x, y)` is $x - y\\cdot\\operatorname{trunc}(x/y)$ with the sign of $x$ (General Decimal Arithmetic *remainder*). `remainder_ctx(x, y)` is $x - y\\cdot n$ where $n$ is $x/y$ rounded to the nearest integer, ties to even (IEEE 754 *remainder*; the GDA name of it is `remainder-near`, which `decimal_gda` keeps). The remainder is exact when it fits, with preferred exponent $\\min(q_x, q_y)$, and its sign is that of $x$ when it is zero. $x \\operatorname{rem} 0$ and $\\infty \\operatorname{rem} y$ are invalid ($0 \\operatorname{rem} 0$ also raises `division_undefined`); $x \\operatorname{rem} \\infty = x$."
-msgstr "`divide_integer(x, y)` 为 $\\operatorname{trunc}(x/y)$，首选指数为 0。当整数商需要多于 $p$ 位数字时，结果为带 `division_impossible` 和 `invalid_operation` 的 NaN。`remainder_trunc_ctx(x, y)` 为 $x - y\\cdot\\operatorname{trunc}(x/y)$，符号与 $x$ 相同（General Decimal Arithmetic 的 *remainder*）。`remainder_ctx(x, y)` 为 $x - y\\cdot n$，其中 $n$ 是将 $x/y$ 就近舍入（偶数优先）得到的整数（IEEE 754 的 *remainder*；它的 GDA 名称是 `remainder-near`，由 `decimal_gda` 保留）。余数在可容纳时是精确的，首选指数为 $\\min(q_x, q_y)$；余数为零时其符号与 $x$ 相同。$x \\operatorname{rem} 0$ 与 $\\infty \\operatorname{rem} y$ 是无效的（$0 \\operatorname{rem} 0$ 还会引发 `division_undefined`）；$x \\operatorname{rem} \\infty = x$。"
+msgid "`divide_integer_ctx(x, y)` is $\\operatorname{trunc}(x/y)$ with preferred exponent 0. When the integer quotient needs more than $p$ digits, the result is NaN with `division_impossible` and `invalid_operation`. `remainder_trunc_ctx(x, y)` is $x - y\\cdot\\operatorname{trunc}(x/y)$ with the sign of $x$ (General Decimal Arithmetic *remainder*). `remainder_ctx(x, y)` is $x - y\\cdot n$ where $n$ is $x/y$ rounded to the nearest integer, ties to even (IEEE 754 *remainder*; the GDA name of it is `remainder-near`, which `decimal_gda` keeps). The remainder is exact when it fits, with preferred exponent $\\min(q_x, q_y)$, and its sign is that of $x$ when it is zero. $x \\operatorname{rem} 0$ and $\\infty \\operatorname{rem} y$ are invalid ($0 \\operatorname{rem} 0$ also raises `division_undefined`); $x \\operatorname{rem} \\infty = x$."
+msgstr "`divide_integer_ctx(x, y)` 为 $\\operatorname{trunc}(x/y)$，首选指数为 0。当整数商需要多于 $p$ 位数字时，结果为带 `division_impossible` 和 `invalid_operation` 的 NaN。`remainder_trunc_ctx(x, y)` 为 $x - y\\cdot\\operatorname{trunc}(x/y)$，符号与 $x$ 相同（General Decimal Arithmetic 的 *remainder*）。`remainder_ctx(x, y)` 为 $x - y\\cdot n$，其中 $n$ 是将 $x/y$ 就近舍入（偶数优先）得到的整数（IEEE 754 的 *remainder*；它的 GDA 名称是 `remainder-near`，由 `decimal_gda` 保留）。余数在可容纳时是精确的，首选指数为 $\\min(q_x, q_y)$；余数为零时其符号与 $x$ 相同。$x \\operatorname{rem} 0$ 与 $\\infty \\operatorname{rem} y$ 是无效的（$0 \\operatorname{rem} 0$ 还会引发 `division_undefined`）；$x \\operatorname{rem} \\infty = x$。"
 
 #: manual/api/decimal.md:1083
-msgid "In an extended clamped context, a zero `divide_integer` result has its exponent folded down to $e_{\\max}-p+1$ when exponent 0 is larger; the `clamped` flag is raised. Its sign is still the sign of the exact quotient."
-msgstr "在启用 clamp 的 extended 上下文中，若零商的首选指数 0 大于 $e_{\\max}-p+1$，`divide_integer` 会将其指数降低到该上限并设置 `clamped` 标志。结果符号仍为精确商的符号。"
+msgid "In an extended clamped context, a zero `divide_integer_ctx` result has its exponent folded down to $e_{\\max}-p+1$ when exponent 0 is larger; the `clamped` flag is raised. Its sign is still the sign of the exact quotient."
+msgstr "在启用 clamp 的 extended 上下文中，若零商的首选指数 0 大于 $e_{\\max}-p+1$，`divide_integer_ctx` 会将其指数降低到该上限并设置 `clamped` 标志。结果符号仍为精确商的符号。"
 
 #: manual/api/decimal.md:1087
 msgid "For example, `-8.95E-6` divided by `2.40E-5` with precision 9, $e_{\\min}=0$, $e_{\\max}=1$ and clamp enabled gives `-0E-7` with `clamped`. Folding a zero's exponent preserves its value and does not raise `rounded` or `inexact`. `remainder_trunc_ctx` applies exponent bounds to its own result; clamping its internal integer quotient does not contribute a `clamped` flag to the remainder."
@@ -4412,20 +4412,20 @@ msgid "Quantum and exponent operations"
 msgstr "量子与指数运算"
 
 #: manual/api/decimal.md:1109
-msgid "`quantize` rounds a value to the exponent of another value."
-msgstr "`quantize` 将值舍入到另一个值的指数。"
+msgid "`quantize_ctx` rounds a value to the exponent of another value."
+msgstr "`quantize_ctx` 将值舍入到另一个值的指数。"
 
 #: manual/api/decimal.md:1115
-msgid "`x.quantize(y, ctx)` returns the value of `x` with exponent $q_y$, rounding with the context's mode when digits are dropped (raising `rounded`, and `inexact` if they were non-zero). The result is NaN with `invalid_operation` when the target exponent is outside $[E_{\\text{tiny}}, e_{\\max}]$, when the resulting coefficient needs more than $p$ digits, when its adjusted exponent exceeds $e_{\\max}$, or when exactly one operand is infinite. Two infinities give the infinity of `x`. The quantum never silently changes to another value of the cohort range: if the result cannot have exponent $q_y$ the operation fails. The one exception is `clamp`: a target exponent in $(e_{\\max}-p+1,\\ e_{\\max}]$ is accepted and the result is then folded down to exponent $e_{\\max}-p+1$ with `clamped`, like every other result (`1E+384` quantized to `1E+384` in decimal64 is `1.000000000000000E+384`)."
-msgstr "`x.quantize(y, ctx)` 返回指数为 $q_y$ 的 `x` 的值，丢弃数字时以上下文的模式舍入（引发 `rounded`，若丢弃的数字非零还会引发 `inexact`）。当目标指数超出 $[E_{\\text{tiny}}, e_{\\max}]$、结果系数需要多于 $p$ 位数字、其调整后指数超过 $e_{\\max}$，或恰有一个操作数为无穷时，结果为带 `invalid_operation` 的 NaN。两个无穷产生 `x` 的无穷。量子从不悄然变为同值类范围内的另一个值：若结果无法具有指数 $q_y$，运算即失败。唯一的例外是 `clamp`：位于 $(e_{\\max}-p+1,\\ e_{\\max}]$ 的目标指数会被接受，随后结果像其他所有结果一样被折叠到指数 $e_{\\max}-p+1$ 并带 `clamped`（在 decimal64 中，将 `1E+384` 量化到 `1E+384` 得到 `1.000000000000000E+384`）。"
+msgid "`x.quantize_ctx(y, ctx)` returns the value of `x` with exponent $q_y$, rounding with the context's mode when digits are dropped (raising `rounded`, and `inexact` if they were non-zero). The result is NaN with `invalid_operation` when the target exponent is outside $[E_{\\text{tiny}}, e_{\\max}]$, when the resulting coefficient needs more than $p$ digits, when its adjusted exponent exceeds $e_{\\max}$, or when exactly one operand is infinite. Two infinities give the infinity of `x`. The quantum never silently changes to another value of the cohort range: if the result cannot have exponent $q_y$ the operation fails. The one exception is `clamp`: a target exponent in $(e_{\\max}-p+1,\\ e_{\\max}]$ is accepted and the result is then folded down to exponent $e_{\\max}-p+1$ with `clamped`, like every other result (`1E+384` quantized to `1E+384` in decimal64 is `1.000000000000000E+384`)."
+msgstr "`x.quantize_ctx(y, ctx)` 返回指数为 $q_y$ 的 `x` 的值，丢弃数字时以上下文的模式舍入（引发 `rounded`，若丢弃的数字非零还会引发 `inexact`）。当目标指数超出 $[E_{\\text{tiny}}, e_{\\max}]$、结果系数需要多于 $p$ 位数字、其调整后指数超过 $e_{\\max}$，或恰有一个操作数为无穷时，结果为带 `invalid_operation` 的 NaN。两个无穷产生 `x` 的无穷。量子从不悄然变为同值类范围内的另一个值：若结果无法具有指数 $q_y$，运算即失败。唯一的例外是 `clamp`：位于 $(e_{\\max}-p+1,\\ e_{\\max}]$ 的目标指数会被接受，随后结果像其他所有结果一样被折叠到指数 $e_{\\max}-p+1$ 并带 `clamped`（在 decimal64 中，将 `1E+384` 量化到 `1E+384` 得到 `1.000000000000000E+384`）。"
 
 #: manual/api/decimal.md:1145
-msgid "`rescale` sets the exponent to an integer operand."
-msgstr "`rescale` 将指数设为一个整数操作数。"
+msgid "`rescale_ctx` sets the exponent to an integer operand."
+msgstr "`rescale_ctx` 将指数设为一个整数操作数。"
 
 #: manual/api/decimal.md:1151
-msgid "`x.rescale(n, ctx)` is `quantize` with target exponent $n$, where $n$ must be a finite integer; any other second operand gives NaN with `invalid_operation`."
-msgstr "`x.rescale(n, ctx)` 即目标指数为 $n$ 的 `quantize`，其中 $n$ 必须是有限整数；任何其他第二操作数都产生带 `invalid_operation` 的 NaN。"
+msgid "`x.rescale_ctx(n, ctx)` is `quantize_ctx` with target exponent $n$, where $n$ must be a finite integer; any other second operand gives NaN with `invalid_operation`."
+msgstr "`x.rescale_ctx(n, ctx)` 即目标指数为 $n$ 的 `quantize_ctx`，其中 $n$ 必须是有限整数；任何其他第二操作数都产生带 `invalid_operation` 的 NaN。"
 
 #: manual/api/decimal.md:1157
 #: manual/api/decimal_gda.md:373
@@ -4449,8 +4449,8 @@ msgid "These functions round to an integer."
 msgstr "这些函数舍入到整数。"
 
 #: manual/api/decimal.md:1189
-msgid "A finite value with exponent $\\ge 0$ is already an integer and is returned unchanged, even when it is longer than $p$ digits (a `clamp` context still folds its exponent down). A value with negative exponent is quantized to exponent 0 with the context's rounding mode, at a working precision of $\\max(p, \\text{its digit count})$, so the integral part is never rounded to $p$ digits: at precision 3, `12345.6` gives `12346`. `to_integral_exact` reports `rounded`/`inexact` when digits are dropped; `to_integral_value` returns the same value with those two flags cleared. In a subset context the operand is first rounded to $p$ digits, with `lost_digits`. Infinities are returned unchanged; NaNs are quieted."
-msgstr "指数 $\\ge 0$ 的有限值本身已是整数，按原样返回，即使它长于 $p$ 位（`clamp` 上下文仍会把它的指数向下折叠）。指数为负的值以上下文的舍入模式、以 $\\max(p, \\text{其位数})$ 的工作精度量化到指数 0，因此整数部分从不被舍入到 $p$ 位：精度为 3 时，`12345.6` 得到 `12346`。丢弃数字时 `to_integral_exact` 报告 `rounded`/`inexact`；`to_integral_value` 返回相同的值，但清除这两个标志。在子集上下文中，操作数先被舍入到 $p$ 位并报告 `lost_digits`。无穷原样返回；NaN 被静默化。"
+msgid "A finite value with exponent $\\ge 0$ is already an integer and is returned unchanged, even when it is longer than $p$ digits (a `clamp` context still folds its exponent down). A value with negative exponent is quantized to exponent 0 with the context's rounding mode, at a working precision of $\\max(p, \\text{its digit count})$, so the integral part is never rounded to $p$ digits: at precision 3, `12345.6` gives `12346`. `to_integral_exact_ctx` reports `rounded`/`inexact` when digits are dropped; `to_integral_value_ctx` returns the same value with those two flags cleared. In a subset context the operand is first rounded to $p$ digits, with `lost_digits`. Infinities are returned unchanged; NaNs are quieted."
+msgstr "指数 $\\ge 0$ 的有限值本身已是整数，按原样返回，即使它长于 $p$ 位（`clamp` 上下文仍会把它的指数向下折叠）。指数为负的值以上下文的舍入模式、以 $\\max(p, \\text{其位数})$ 的工作精度量化到指数 0，因此整数部分从不被舍入到 $p$ 位：精度为 3 时，`12345.6` 得到 `12346`。丢弃数字时 `to_integral_exact_ctx` 报告 `rounded`/`inexact`；`to_integral_value_ctx` 返回相同的值，但清除这两个标志。在子集上下文中，操作数先被舍入到 $p$ 位并报告 `lost_digits`。无穷原样返回；NaN 被静默化。"
 
 #: manual/api/decimal.md:1200
 msgid "IEEE 754 §5.9 defines roundToIntegral for an operand in the context's format (at most $p$ digits), and for such an operand these are its results. An operand longer than $p$ digits is not a value of the format, so §5.9 does not cover it and the result is implementation-defined. The behaviour described above for such operands (a longer integer unchanged, a longer fraction quantized at $\\max(p, \\text{its digit count})$ digits) is the package's chosen, GDA-style behaviour: General Decimal Arithmetic rounds to an integral value at the operand's own precision."
@@ -14025,8 +14025,8 @@ msgid "The cohort member carries information numeric equality does not: `12.30` 
 msgstr "同值类成员携带着数值相等所不具备的信息：`12.30` 表示两位小数，`1.2E+3` 表示两位有效数字。因此 IEEE 754 为每个运算规定了一个**首选指数**，精确结果以指数最接近它的成员给出。首选指数源自精确结果自然所处的位置："
 
 #: manual/design/decimal.md:146
-msgid "For the sum and the product, the bracketed coefficient is an integer, so the preferred exponent is attained whenever the exact coefficient fits in $p$ digits: `1.20 + 3.40 = 4.60` and `1.25 × 2.50 = 3.1250`. For the quotient the exact result exists only when $c_a / c_b$ has a finite decimal expansion; it is then moved toward $q_a - q_b$ as far as $p$ digits allow, so `2.400 / 1.2 = 2.00`. An inexact normal result always uses all $p$ digits, which is the member with the smallest exponent; an inexact subnormal result ends at $E_{\\text{tiny}}$. `quantize` makes the exponent an explicit argument, and `reduce_ctx`/`normalized` choose the member with the largest exponent."
-msgstr "对于和与积，括号中的系数是整数，因此只要精确系数能放入 $p$ 位，就能达到首选指数：`1.20 + 3.40 = 4.60` 和 `1.25 × 2.50 = 3.1250`。对于商，只有当 $c_a / c_b$ 有有限十进制展开时精确结果才存在；此时在 $p$ 位允许的范围内尽量向 $q_a - q_b$ 移动，于是 `2.400 / 1.2 = 2.00`。不精确的正规结果总是用满 $p$ 位，即指数最小的成员；不精确的次正规结果止于 $E_{\\text{tiny}}$。`quantize` 把指数作为显式参数，`reduce_ctx`/`normalized` 则选择指数最大的成员。"
+msgid "For the sum and the product, the bracketed coefficient is an integer, so the preferred exponent is attained whenever the exact coefficient fits in $p$ digits: `1.20 + 3.40 = 4.60` and `1.25 × 2.50 = 3.1250`. For the quotient the exact result exists only when $c_a / c_b$ has a finite decimal expansion; it is then moved toward $q_a - q_b$ as far as $p$ digits allow, so `2.400 / 1.2 = 2.00`. An inexact normal result always uses all $p$ digits, which is the member with the smallest exponent; an inexact subnormal result ends at $E_{\\text{tiny}}$. `quantize_ctx` makes the exponent an explicit argument, and `reduce_ctx`/`normalized` choose the member with the largest exponent."
+msgstr "对于和与积，括号中的系数是整数，因此只要精确系数能放入 $p$ 位，就能达到首选指数：`1.20 + 3.40 = 4.60` 和 `1.25 × 2.50 = 3.1250`。对于商，只有当 $c_a / c_b$ 有有限十进制展开时精确结果才存在；此时在 $p$ 位允许的范围内尽量向 $q_a - q_b$ 移动，于是 `2.400 / 1.2 = 2.00`。不精确的正规结果总是用满 $p$ 位，即指数最小的成员；不精确的次正规结果止于 $E_{\\text{tiny}}$。`quantize_ctx` 把指数作为显式参数，`reduce_ctx`/`normalized` 则选择指数最大的成员。"
 
 #: manual/design/decimal.md:156
 msgid "For conversion from a character sequence, IEEE 754-2019 §5.2 selects the least possible exponent for an inexact result. Thus parsing `1.0001` at precision 3 gives `1.00`, and `99999` gives `1.00E+5`, since a carry into $10^p$ still leaves $p$ digits; an exact result uses the representable cohort member closest to the preferred exponent (parsing `1.000` at precision 3 also gives `1.00`)."
@@ -14311,8 +14311,8 @@ msgid "Zeros have no digits to pad, so their exponent is simply clamped into $[E
 msgstr "零没有可填充的数字，因此其指数只是被钳制到 $[E_{\\text{tiny}}, E_{\\text{top}}]$（无 `clamp` 时为 $[E_{\\text{tiny}}, e_{\\max}]$），若有改变则引发 `clamped`。"
 
 #: manual/design/decimal.md:574
-msgid "A zero is the one result `quantize` can return above $E_{\\text{top}}$: its target exponent only has to be at most $e_{\\max}$ (a zero has one digit, so $e_{\\max} - \\operatorname{digits} + 1 = e_{\\max}$ is the overflow bound of decNumber's `decQuantizeOp`), and the zero path then returns the exponent asked for without the finishing step. decNumber calls `decFinalize` there, whose clamp branch lowers the exponent to $E_{\\text{top}}$ and raises `clamped`. IEEE 754-2019 §5.3.2 is silent on this, so the default stays as it was and the fold is opt-in: `DecimalContext::with_clamp_fold(true)` (off in every preset) applies it to a zero `quantize` and `rescale` result under `clamp`. Every other operation already folds a zero through `finalize_finite_ctx`."
-msgstr "零是 `quantize` 能在 $E_{\\text{top}}$ 之上返回的唯一结果：它的目标指数只需不超过 $e_{\\max}$（零只有一位数字，所以 $e_{\\max} - \\operatorname{digits} + 1 = e_{\\max}$ 就是 decNumber 的 `decQuantizeOp` 的溢出界限），零的路径随后不经收尾步骤就返回所请求的指数。decNumber 在这里调用 `decFinalize`，其 clamp 分支把指数降到 $E_{\\text{top}}$ 并引发 `clamped`。IEEE 754-2019 §5.3.2 对此没有规定，所以默认保持原样，折叠是可选的：`DecimalContext::with_clamp_fold(true)`（在每个预设中都关闭）把它应用于 `clamp` 下零的 `quantize` 和 `rescale` 结果。其他运算本来就通过 `finalize_finite_ctx` 折叠零。"
+msgid "A zero is the one result `quantize_ctx` can return above $E_{\\text{top}}$: its target exponent only has to be at most $e_{\\max}$ (a zero has one digit, so $e_{\\max} - \\operatorname{digits} + 1 = e_{\\max}$ is the overflow bound of decNumber's `decQuantizeOp`), and the zero path then returns the exponent asked for without the finishing step. decNumber calls `decFinalize` there, whose clamp branch lowers the exponent to $E_{\\text{top}}$ and raises `clamped`. IEEE 754-2019 §5.3.2 is silent on this, so the default stays as it was and the fold is opt-in: `DecimalContext::with_clamp_fold(true)` (off in every preset) applies it to a zero `quantize_ctx` and `rescale_ctx` result under `clamp`. Every other operation already folds a zero through `finalize_finite_ctx`."
+msgstr "零是 `quantize_ctx` 能在 $E_{\\text{top}}$ 之上返回的唯一结果：它的目标指数只需不超过 $e_{\\max}$（零只有一位数字，所以 $e_{\\max} - \\operatorname{digits} + 1 = e_{\\max}$ 就是 decNumber 的 `decQuantizeOp` 的溢出界限），零的路径随后不经收尾步骤就返回所请求的指数。decNumber 在这里调用 `decFinalize`，其 clamp 分支把指数降到 $E_{\\text{top}}$ 并引发 `clamped`。IEEE 754-2019 §5.3.2 对此没有规定，所以默认保持原样，折叠是可选的：`DecimalContext::with_clamp_fold(true)`（在每个预设中都关闭）把它应用于 `clamp` 下零的 `quantize_ctx` 和 `rescale_ctx` 结果。其他运算本来就通过 `finalize_finite_ctx` 折叠零。"
 
 #: manual/design/decimal.md:585
 msgid "Flags as returned values"
@@ -14749,8 +14749,8 @@ msgid "**Exactness is visible.** `inexact` is raised if and only if the returned
 msgstr "**精确性可见。** 当且仅当返回值与精确结果不同时引发 `inexact`；只要有数字被丢弃就引发 `rounded`。非整数次幂的精确十进制结果违反了“仅当”这一方向。"
 
 #: manual/design/decimal.md:1314
-msgid "**Cohort preservation.** An exact result that fits is returned at the preferred exponent; `quantize` either returns exponent $q_y$ or fails."
-msgstr "**同值类保持。** 能放下的精确结果以首选指数返回；`quantize` 要么返回指数 $q_y$，要么失败。"
+msgid "**Cohort preservation.** An exact result that fits is returned at the preferred exponent; `quantize_ctx` either returns exponent $q_y$ or fails."
+msgstr "**同值类保持。** 能放下的精确结果以首选指数返回；`quantize_ctx` 要么返回指数 $q_y$，要么失败。"
 
 #: manual/design/decimal.md:1316
 msgid "**Flags.** `combine` is associative, commutative and idempotent with identity `new()`."
@@ -19425,8 +19425,8 @@ msgid "For decimal values the cohort member an operation returns is part of its 
 msgstr "对十进制值而言，运算返回同值类中的哪个成员是其契约的一部分。每个运算都指定一个**理想指数**：[^ideal]"
 
 #: manual/numeric_semantics.md:477
-msgid "When the exact result is representable, the operation returns the member of its cohort whose exponent is closest to the ideal one. For a sum or a product whose coefficient fits in $p$ digits that member has exactly the ideal exponent, since the exact coefficient is an integer at that exponent. A quotient may need a smaller exponent: $1/4$ has ideal exponent $0 - 0 = 0$, but $0.25$ needs exponent $-2$, so that is the result. When the result must be rounded, the operation returns the member with $p$ digits, the smallest exponent that holds the rounded value (fewer digits only for a subnormal result). Parsing preserves the quantum of the literal. `quantize(x, y)` rounds $x$ to the quantum of $y$; `reduce_ctx` (GDA `reduce`) and `normalized()` strip trailing zeros. Numeric comparison sees only the value; `same_quantum` and the total orders `total_order_compare` (IEEE) and `compare_total` (GDA) also see the cohort."
-msgstr "当精确结果可表示时，运算返回其同值类中指数最接近理想指数的成员。对于系数能放入 $p$ 位数字的和或积，该成员的指数恰好就是理想指数，因为精确系数在该指数下是整数。商可能需要更小的指数：$1/4$ 的理想指数为 $0 - 0 = 0$，但 $0.25$ 需要指数 $-2$，因此结果就是它。当结果必须舍入时，运算返回具有 $p$ 位数字的成员，即能容纳舍入值的最小指数（仅当结果为次正规数时位数才更少）。解析会保留字面量的量子。`quantize(x, y)` 将 $x$ 舍入到 $y$ 的量子；`reduce_ctx`（GDA `reduce`）和 `normalized()` 去除尾随零。数值比较只看值；`same_quantum` 以及全序 `total_order_compare`（IEEE）和 `compare_total`（GDA）还会区分同值类中的成员。"
+msgid "When the exact result is representable, the operation returns the member of its cohort whose exponent is closest to the ideal one. For a sum or a product whose coefficient fits in $p$ digits that member has exactly the ideal exponent, since the exact coefficient is an integer at that exponent. A quotient may need a smaller exponent: $1/4$ has ideal exponent $0 - 0 = 0$, but $0.25$ needs exponent $-2$, so that is the result. When the result must be rounded, the operation returns the member with $p$ digits, the smallest exponent that holds the rounded value (fewer digits only for a subnormal result). Parsing preserves the quantum of the literal. `quantize_ctx(x, y)` rounds $x$ to the quantum of $y$; `reduce_ctx` (GDA `reduce`) and `normalized()` strip trailing zeros. Numeric comparison sees only the value; `same_quantum` and the total orders `total_order_compare` (IEEE) and `compare_total` (GDA) also see the cohort."
+msgstr "当精确结果可表示时，运算返回其同值类中指数最接近理想指数的成员。对于系数能放入 $p$ 位数字的和或积，该成员的指数恰好就是理想指数，因为精确系数在该指数下是整数。商可能需要更小的指数：$1/4$ 的理想指数为 $0 - 0 = 0$，但 $0.25$ 需要指数 $-2$，因此结果就是它。当结果必须舍入时，运算返回具有 $p$ 位数字的成员，即能容纳舍入值的最小指数（仅当结果为次正规数时位数才更少）。解析会保留字面量的量子。`quantize_ctx(x, y)` 将 $x$ 舍入到 $y$ 的量子；`reduce_ctx`（GDA `reduce`）和 `normalized()` 去除尾随零。数值比较只看值；`same_quantum` 以及全序 `total_order_compare`（IEEE）和 `compare_total`（GDA）还会区分同值类中的成员。"
 
 #: manual/numeric_semantics.md:491
 msgid "IEEE 754-2019, clause 5.2 and table 5.1; Cowlishaw, *General Decimal Arithmetic Specification* 1.70, \"Arithmetic operations\"."
@@ -23594,8 +23594,8 @@ msgid "decimal tutorial"
 msgstr "decimal 教程"
 
 #: manual/tutorial/decimal.md:3
-msgid "This tutorial shows how to compute with decimal numbers that behave the way people write them: `0.1 + 0.2` is exactly `0.3`, `12.30` remembers that it has two decimal places, and every rounding is chosen by you and reported back to you. You will parse and format values, compute under a context and read its flags, round money with `quantize`, exchange decimal64 bits, and call certified elementary functions. The mathematics behind each step is in the [decimal design](../design/decimal.md); every function is specified in the [decimal API](../api/decimal.md)."
-msgstr "本教程展示如何使用行为与人们书写方式一致的十进制数进行计算：`0.1 + 0.2` 恰好等于 `0.3`，`12.30` 记得自己有两位小数，每一次舍入都由你选择并向你报告。你将解析和格式化值，在上下文下计算并读取其标志，用 `quantize` 对金额舍入，交换 decimal64 位模式，并调用经过认证的初等函数。每一步背后的数学见 [decimal 设计](../design/decimal.md)；每个函数都在 [decimal API](../api/decimal.md) 中有规定。"
+msgid "This tutorial shows how to compute with decimal numbers that behave the way people write them: `0.1 + 0.2` is exactly `0.3`, `12.30` remembers that it has two decimal places, and every rounding is chosen by you and reported back to you. You will parse and format values, compute under a context and read its flags, round money with `quantize_ctx`, exchange decimal64 bits, and call certified elementary functions. The mathematics behind each step is in the [decimal design](../design/decimal.md); every function is specified in the [decimal API](../api/decimal.md)."
+msgstr "本教程展示如何使用行为与人们书写方式一致的十进制数进行计算：`0.1 + 0.2` 恰好等于 `0.3`，`12.30` 记得自己有两位小数，每一次舍入都由你选择并向你报告。你将解析和格式化值，在上下文下计算并读取其标志，用 `quantize_ctx` 对金额舍入，交换 decimal64 位模式，并调用经过认证的初等函数。每一步背后的数学见 [decimal 设计](../design/decimal.md)；每个函数都在 [decimal API](../api/decimal.md) 中有规定。"
 
 #: manual/tutorial/decimal.md:14
 msgid "parse an amount and keep its decimal places"
@@ -23691,16 +23691,16 @@ msgid "`inexact` tells you that $100/3 \\cdot 3$ was not computed exactly; it is
 msgstr "`inexact` 告诉你 $100/3 \\cdot 3$ 没有被精确计算；它不是错误，因此 `has_error()` 仍为 false。`has_error()` 报告无效运算、无法解析的文本、除以零、不可能的除法和无效上下文。当你的应用关心 `overflow`、`underflow`、`inexact` 这些标志时，请逐个检查。"
 
 #: manual/tutorial/decimal.md:112
-msgid "Round money with `quantize`"
-msgstr "用 `quantize` 对金额舍入"
+msgid "Round money with `quantize_ctx`"
+msgstr "用 `quantize_ctx` 对金额舍入"
 
 #: manual/tutorial/decimal.md:114
-msgid "`quantize` gives a value the exponent of a template value. Choose the rounding mode in the context; commercial rounding is `HalfUp`, which the shared `RoundingMode` enum does not have, so pass `decimal_rounding`:"
-msgstr "`quantize` 使一个值具有模板值的指数。在上下文中选择舍入模式；商业舍入是 `HalfUp`，共享的 `RoundingMode` 枚举中没有它，因此请传入 `decimal_rounding`："
+msgid "`quantize_ctx` gives a value the exponent of a template value. Choose the rounding mode in the context; commercial rounding is `HalfUp`, which the shared `RoundingMode` enum does not have, so pass `decimal_rounding`:"
+msgstr "`quantize_ctx` 使一个值具有模板值的指数。在上下文中选择舍入模式；商业舍入是 `HalfUp`，共享的 `RoundingMode` 枚举中没有它，因此请传入 `decimal_rounding`："
 
 #: manual/tutorial/decimal.md:136
-msgid "Half-even (\"banker's\") rounding sends the tie `2.345` to the even last digit `4`; half-up sends it away from zero. `quantize` never silently picks another exponent: if the result would need more digits than the precision, you get NaN with `invalid_operation`."
-msgstr "半偶（“银行家”）舍入把平局 `2.345` 送到末位为偶数的 `4`；半上舍入则把它送向远离零的方向。`quantize` 从不悄悄选择另一个指数：如果结果所需的位数超过精度，你会得到带 `invalid_operation` 的 NaN。"
+msgid "Half-even (\"banker's\") rounding sends the tie `2.345` to the even last digit `4`; half-up sends it away from zero. `quantize_ctx` never silently picks another exponent: if the result would need more digits than the precision, you get NaN with `invalid_operation`."
+msgstr "半偶（“银行家”）舍入把平局 `2.345` 送到末位为偶数的 `4`；半上舍入则把它送向远离零的方向。`quantize_ctx` 从不悄悄选择另一个指数：如果结果所需的位数超过精度，你会得到带 `invalid_operation` 的 NaN。"
 
 #: manual/tutorial/decimal.md:141
 msgid "Convert to an integer"

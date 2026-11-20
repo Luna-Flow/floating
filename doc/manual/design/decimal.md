@@ -150,7 +150,7 @@ exact result exists only when $c_a / c_b$ has a finite decimal expansion; it is
 then moved toward $q_a - q_b$ as far as $p$ digits allow, so `2.400 / 1.2 =
 2.00`. An inexact normal result always uses all $p$ digits, which is the
 member with the smallest exponent; an inexact subnormal result ends at
-$E_{\text{tiny}}$. `quantize` makes the exponent an explicit argument, and
+$E_{\text{tiny}}$. `quantize_ctx` makes the exponent an explicit argument, and
 `reduce_ctx`/`normalized` choose the member with the largest exponent.
 
 For conversion from a character sequence, IEEE 754-2019 §5.2 selects the
@@ -571,7 +571,7 @@ Zeros have no digits to pad, so their exponent is simply clamped into
 $[E_{\text{tiny}}, E_{\text{top}}]$ (or $[E_{\text{tiny}}, e_{\max}]$ without
 `clamp`), raising `clamped` when it changes.
 
-A zero is the one result `quantize` can return above $E_{\text{top}}$: its
+A zero is the one result `quantize_ctx` can return above $E_{\text{top}}$: its
 target exponent only has to be at most $e_{\max}$ (a zero has one digit, so
 $e_{\max} - \operatorname{digits} + 1 = e_{\max}$ is the overflow bound of
 decNumber's `decQuantizeOp`), and the zero path then returns the exponent asked
@@ -579,7 +579,7 @@ for without the finishing step. decNumber calls `decFinalize` there, whose
 clamp branch lowers the exponent to $E_{\text{top}}$ and raises `clamped`.
 IEEE 754-2019 §5.3.2 is silent on this, so the default stays as it was and the
 fold is opt-in: `DecimalContext::with_clamp_fold(true)` (off in every preset)
-applies it to a zero `quantize` and `rescale` result under `clamp`. Every other
+applies it to a zero `quantize_ctx` and `rescale_ctx` result under `clamp`. Every other
 operation already folds a zero through `finalize_finite_ctx`.
 
 ### Flags as returned values
@@ -1312,7 +1312,7 @@ measurements do not show a crossover.
   Exact decimal results of non-integral powers violate the "only if"
   direction.
 - **Cohort preservation.** An exact result that fits is returned at the
-  preferred exponent; `quantize` either returns exponent $q_y$ or fails.
+  preferred exponent; `quantize_ctx` either returns exponent $q_y$ or fails.
 - **Flags.** `combine` is associative, commutative and idempotent with
   identity `new()`.
 - **Ordering.** `compare` is a total preorder (NaNs equal to each other and

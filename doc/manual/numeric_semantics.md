@@ -482,7 +482,7 @@ quotient may need a smaller exponent: $1/4$ has ideal exponent $0 - 0 = 0$,
 but $0.25$ needs exponent $-2$, so that is the result. When the result must be
 rounded, the operation returns the member with $p$ digits, the smallest
 exponent that holds the rounded value (fewer digits only for a subnormal
-result). Parsing preserves the quantum of the literal. `quantize(x, y)`
+result). Parsing preserves the quantum of the literal. `quantize_ctx(x, y)`
 rounds $x$ to the quantum of $y$; `reduce_ctx` (GDA `reduce`) and
 `normalized()` strip trailing zeros. Numeric comparison sees only the value;
 `same_quantum` and the total orders `total_order_compare` (IEEE) and
@@ -507,7 +507,7 @@ test "decimal results keep the ideal exponent" {
   inspect(one.div_ctx(four, ctx).0, content="0.25")
   let (cents, flags) = @decimal.Decimal::from_string("2.345")
     .unwrap()
-    .quantize(@decimal.Decimal::from_string("0.01").unwrap(), ctx)
+    .quantize_ctx(@decimal.Decimal::from_string("0.01").unwrap(), ctx)
   inspect(cents, content="2.34")
   inspect(flags.contains(@decimal.Inexact), content="true")
   let x = @decimal.Decimal::from_string("12.30").unwrap()

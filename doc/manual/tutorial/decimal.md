@@ -4,7 +4,7 @@ This tutorial shows how to compute with decimal numbers that behave the way
 people write them: `0.1 + 0.2` is exactly `0.3`, `12.30` remembers that it
 has two decimal places, and every rounding is chosen by you and reported back
 to you. You will parse and format values, compute under a context and read
-its flags, round money with `quantize`, exchange decimal64 bits, and call
+its flags, round money with `quantize_ctx`, exchange decimal64 bits, and call
 certified elementary functions. The mathematics behind each step is in
 the [decimal design](../design/decimal.md); every function is specified in the
 [decimal API](../api/decimal.md).
@@ -13,7 +13,7 @@ the [decimal design](../design/decimal.md); every function is specified in the
 | --- | --- |
 | parse an amount and keep its decimal places | [`Decimal::from_string`](#parse-amounts-and-keep-their-scale) |
 | compute with a fixed precision and see what was rounded | [`*_ctx` operations and `DecimalFlags`](#compute-under-a-context-and-keep-the-flags) |
-| round money to cents, half-even or half-up | [`quantize`](#round-money-with-quantize) |
+| round money to cents, half-even or half-up | [`quantize_ctx`](#round-money-with-quantize_ctx) |
 | get a guaranteed lower and upper bound | [directed rounding](#bound-a-result-from-both-sides) |
 | read or write decimal64 bits (DPD or BID) | [`DecimalInterchange`](#exchange-decimal64-bits) |
 | take a logarithm or an exponential | [`ln_ctx`, `try_ln_ctx`](#call-an-elementary-function) |
@@ -109,9 +109,9 @@ invalid contexts.
 Check the individual flags (`overflow`, `underflow`, `inexact`) when your
 application cares about them.
 
-### Round money with `quantize`
+### Round money with `quantize_ctx`
 
-`quantize` gives a value the exponent of a template value. Choose the rounding
+`quantize_ctx` gives a value the exponent of a template value. Choose the rounding
 mode in the context; commercial rounding is `HalfUp`, which the shared
 `RoundingMode` enum does not have, so pass `decimal_rounding`:
 
@@ -127,14 +127,14 @@ test "decimal round to cents" {
     e_max=384,
     decimal_rounding=@decimal.DecimalRoundingMode::HalfUp,
   )
-  inspect(d("2.345").quantize(cents, bankers).0, content="2.34")
-  inspect(d("2.345").quantize(cents, commercial).0, content="2.35")
-  inspect(d("7").quantize(cents, bankers).0, content="7.00")
+  inspect(d("2.345").quantize_ctx(cents, bankers).0, content="2.34")
+  inspect(d("2.345").quantize_ctx(cents, commercial).0, content="2.35")
+  inspect(d("7").quantize_ctx(cents, bankers).0, content="7.00")
 }
 ```
 
 Half-even ("banker's") rounding sends the tie `2.345` to the even last digit
-`4`; half-up sends it away from zero. `quantize` never silently picks another
+`4`; half-up sends it away from zero. `quantize_ctx` never silently picks another
 exponent: if the result would need more digits than the precision, you get NaN
 with `invalid_operation`.
 

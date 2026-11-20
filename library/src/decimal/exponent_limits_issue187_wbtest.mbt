@@ -249,7 +249,7 @@ test "rescale with an exponent operand beyond Int is invalid (#187)" {
     let (value, quantum) = pair
     let (result, flags) = Decimal::from_string(value)
       .unwrap()
-      .rescale(Decimal::from_string(quantum).unwrap(), ctx)
+      .rescale_ctx(Decimal::from_string(quantum).unwrap(), ctx)
     assert_eq(
       (value, quantum, result.to_string(), issue187_flags(flags)),
       (value, quantum, "nan", "..i....."),
