@@ -5,7 +5,7 @@
 /// option. `0.99951` is below `10^e_min = 1` before rounding (tiny, and
 /// inexact, so `underflow`) but rounds to `1.00` at three digits.
 test "decimal contexts detect tininess before rounding by default (#217)" {
-  let ctx = DecimalContext::new(precision=3, e_min=0, e_max=10).unwrap()
+  let ctx = DecimalContext::new(precision=3, e_min=0, e_max=10)
   assert_true(ctx.tininess() == DecimalTininessDetection::BeforeRounding)
   assert_true(
     DecimalContext::try_new(precision=3).unwrap().tininess() ==

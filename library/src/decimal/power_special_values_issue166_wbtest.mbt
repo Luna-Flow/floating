@@ -78,7 +78,7 @@ test "decimal power identities across formats modes and checked routes" {
   assert_eq(power_issue166_case(d("1").power_ctx(d("1.5"), down)), "1")
   assert_eq(power_issue166_case(d("1").power_ctx(d("Inf"), ceiling)), "1")
 
-  let restricted = DecimalContext::new(extended=false).unwrap()
+  let restricted = DecimalContext::new(extended=false)
   assert_eq(power_issue166_case(d("0").power_ctx(d("0"), restricted)), "1")
   assert_eq(
     power_issue166_case(d("0").power_ctx(d("-0.5"), restricted)),

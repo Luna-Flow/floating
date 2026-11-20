@@ -1,6 +1,6 @@
 ///|
 test "gda checked threads sticky status" {
-  let context = @decimal_gda.GdaContext::new(precision=3).unwrap()
+  let context = @decimal_gda.GdaContext::new(precision=3)
   let parsed = GdaDecimalChecked::parse("1.2345", context)
   assert_true(parsed.raised().contains(@decimal_gda.GdaSignal::Rounded))
   let result = parsed.add(@decimal_gda.Decimal::zero())
@@ -45,7 +45,7 @@ test "gda checked power of a power of ten with an integral k*y is exact in the d
       e_min=-383,
       e_max=384,
       clamp=true,
-    ).unwrap()
+    )
     let base = @decimal_gda.Decimal::from_string("1E-5").unwrap()
     let exponent = @decimal_gda.Decimal::from_string("1.2").unwrap()
     let result = GdaDecimalChecked::from_decimal(base, context).power(exponent)
@@ -66,7 +66,7 @@ test "gda checked power to a zero exponent is exactly 1 in a clamped context (is
     e_min=-10,
     e_max=0,
     clamp=true,
-  ).unwrap()
+  )
   let base = @decimal_gda.Decimal::from_string("9.99").unwrap()
   let result = GdaDecimalChecked::from_decimal(base, context).power(
     @decimal_gda.Decimal::zero(),
@@ -84,7 +84,7 @@ test "gda checked power to one half is the padded inexact result without Clamped
     e_min=-4,
     e_max=0,
     clamp=true,
-  ).unwrap()
+  )
   let base = @decimal_gda.Decimal::from_string("0.01").unwrap()
   let result = GdaDecimalChecked::from_decimal(base, context).power(
     @decimal_gda.Decimal::from_string("0.5").unwrap(),

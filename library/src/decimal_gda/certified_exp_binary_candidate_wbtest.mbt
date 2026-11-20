@@ -186,7 +186,7 @@ fn exp_candidate_context(random : ExpCandidateRandom) -> DecimalContext {
     e_min=-999999,
     e_max=999999,
     extended=true,
-  ).unwrap()
+  )
 }
 
 ///|
@@ -243,7 +243,7 @@ test "binary candidate exp at arguments whose result is near a rounding boundary
       e_min=-999999,
       e_max=999999,
       extended=true,
-    ).unwrap()
+    )
     let value = midpoint.ln_ctx(high).0
     assert_true(
       exp_candidate_same(
@@ -296,7 +296,7 @@ test "midpoint candidate exp equals the series candidate in standard contexts" {
         e_max~,
         extended~,
         clamp~,
-      ).unwrap()
+      )
       for _ in 0..<3 {
         let value = exp_candidate_argument(random)
         let new_attempts = @ref.Ref(0)
@@ -346,7 +346,7 @@ test "midpoint candidate exp with large arguments in wide exponent contexts" {
       e_max=999999,
       extended=true,
       clamp=true,
-    ).unwrap()
+    )
     for text in arguments {
       let value = Decimal::parse(text).unwrap()
       let new_attempts = @ref.Ref(0)

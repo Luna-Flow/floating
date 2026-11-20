@@ -15,7 +15,7 @@ fn issue211_flags(flags : DecimalFlags) -> String {
 /// (cross-check only; the specification is the authority). Context: precision
 /// 16, `e_min = -383`, `e_max = 384`, `clamp`.
 test "decimal_gda integer powers keep the repeated-multiplication exponent (#211)" {
-  let ctx = DecimalContext::new(precision=16, e_min=-383, e_max=384, clamp=true).unwrap()
+  let ctx = DecimalContext::new(precision=16, e_min=-383, e_max=384, clamp=true)
   let rows : Array[(String, String, String, String)] = [
     ("1.00", "2", "1.0000", "......"),
     ("1.00", "1", "1.00", "......"),

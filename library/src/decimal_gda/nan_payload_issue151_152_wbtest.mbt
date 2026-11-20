@@ -24,7 +24,7 @@ test "NaN propagation keeps a payload the clamped format can hold (#152)" {
   )
   assert_eq(pow10.nan_payload().to_string(), "0")
   // Without clamp the format keeps p digits.
-  let loose = DecimalContext::new(precision=16, e_min=-383, e_max=384).unwrap()
+  let loose = DecimalContext::new(precision=16, e_min=-383, e_max=384)
   let (kept, _) = long.add_ctx(one, loose)
   assert_eq(kept.nan_payload().to_string(), "1234567890123456")
   let (cut, _) = Decimal::quiet_nan(payload=12345678901234567N).add_ctx(

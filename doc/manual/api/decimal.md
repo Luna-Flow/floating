@@ -436,10 +436,11 @@ context operation receives its context as an argument.
 
 ### `DecimalContext::new`, `try_new`
 
-These constructors build a context from named parameters.
+`new` builds a context from named parameters and aborts on an invalid one;
+`try_new` takes the same parameters and returns a `Result`.
 
 ```mbti
-pub fn DecimalContext::new(precision? : Int, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn DecimalContext::new(precision? : Int, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Self
 pub fn DecimalContext::try_new(precision? : Int, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
@@ -454,8 +455,10 @@ pub fn DecimalContext::try_new(precision? : Int, rounding? : @arithmetic.Roundin
 | `tininess` | `BeforeRounding` | when a result counts as tiny |
 
 `precision` must be in `1..=999,999,999`, `e_min` in
-`-999,999,999..=0`, and `e_max` in `0..=999,999,999`. Both `new` and
-`try_new` return `Err(domain_error)` naming the invalid field. These bounds
+`-999,999,999..=0`, and `e_max` in `0..=999,999,999`. `try_new` returns
+`Err(domain_error)` naming the invalid field; `new` aborts with a message that
+names it, like `BinaryContext::new`, so use `try_new` for parameters that come
+from outside. These bounds
 adopt decNumber's `decContext.h` limits and keep Etiny, Etop and context
 exponent arithmetic within `Int`. GDA 1.70 specifies no fixed exponent limit
 and requires a balanced range; this library does not enforce that balance
@@ -594,7 +597,7 @@ test "a refinement limit makes a hard-to-round result fail" {
     precision=34,
     e_min=-999_999,
     e_max=999_999,
-  ).unwrap()
+  )
   inspect(context.refinement_limit() == Some(12), content="true")
   // exp(5E-34) lies just above the midpoint 1 + 5E-34 at 34 digits.
   let x = @decimal.Decimal::from_string("5E-34", precision=34).unwrap()
@@ -981,7 +984,7 @@ test "decimal context results are rounded once" {
   let (q, flags) = d("1").div_ctx(d("1.9999999999998E+101"), c32)
   inspect(q, content="1E-101")
   inspect(flags.underflow && flags.subnormal, content="true")
-  let down = @decimal.DecimalContext::new(precision=7, decimal_rounding=@decimal.DecimalRoundingMode::Down).unwrap()
+  let down = @decimal.DecimalContext::new(precision=7, decimal_rounding=@decimal.DecimalRoundingMode::Down)
   inspect(
     d("1598617.000000000001").add_ctx(d("-0.000000000002"), down).0,
     content="1598616",
@@ -1128,7 +1131,7 @@ test "decimal quantize to cents" {
   let (cents, flags) = d("12.3456").quantize(d("0.01"), ctx)
   inspect(cents, content="12.35")
   inspect(flags.inexact, content="true")
-  let small = @decimal.DecimalContext::new(precision=3, e_min=-99, e_max=99).unwrap()
+  let small = @decimal.DecimalContext::new(precision=3, e_min=-99, e_max=99)
   let (bad, bad_flags) = d("999.9").quantize(d("0.1"), small)
   inspect(bad.is_nan(), content="true")
   inspect(bad_flags.invalid_operation, content="true")
@@ -1933,7 +1936,7 @@ test "decimal exact and special elementary results" {
   inspect(d("0.008").rootn_ctx(3, c64).0, content="0.2")
   let c32 = @decimal.DecimalContext::decimal32()
   inspect(d("3.339434").power_ctx(d("3"), c32).0, content="37.24077")
-  let seven = @decimal.DecimalContext::new(precision=7).unwrap()
+  let seven = @decimal.DecimalContext::new(precision=7)
   inspect(d("-1").pown_ctx(12345679, seven).0, content="-1")
   inspect(d("-0").atan2_ctx(d("-1"), c64).0, content="-3.141592653589793")
   inspect(d("Inf").atan2_ctx(d("-Inf"), c64).0, content="2.356194490192345")
@@ -1953,7 +1956,7 @@ test "decimal certified elementary functions" {
   inspect(d("0.5").sinpi_ctx(ctx).0, content="1")
   let down = ctx.with_rounding(@def.RoundingMode::TowardZero)
   inspect(d("2").ln_ctx(down).0, content="0.6931471805599453")
-  match d("2").try_ln_ctx(@decimal.DecimalContext::new().unwrap()) {
+  match d("2").try_ln_ctx(@decimal.DecimalContext::new()) {
     Ok((value, flags)) => {
       inspect(value.is_nan(), content="true")
       inspect(flags.invalid_context, content="true")
@@ -2640,7 +2643,7 @@ pub fn DecimalContext::extended(Self) -> Bool
 pub fn DecimalContext::from_arithmetic_context(@arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn DecimalContext::ieee754(Self) -> Self
 pub fn DecimalContext::is754version2019(Self) -> Bool
-pub fn DecimalContext::new(precision? : Int32, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn DecimalContext::new(precision? : Int32, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Self
 pub fn DecimalContext::not_equal(Self, Self) -> Bool
 pub fn DecimalContext::precision(Self) -> Int32
 pub fn DecimalContext::refinement_limit(Self) -> Int32?

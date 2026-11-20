@@ -97,8 +97,8 @@ test "context-free literals overflow and underflow instead of failing" {
 test "products and quotients of extreme exponents do not wrap" {
   let big = Decimal::from_string("1E+1500000000").unwrap()
   let small = Decimal::from_string("1E-1500000000").unwrap()
-  let ctx = DecimalContext::new().unwrap()
-  let up = DecimalContext::new(rounding=RoundingMode::AwayFromZero).unwrap()
+  let ctx = DecimalContext::new()
+  let up = DecimalContext::new(rounding=RoundingMode::AwayFromZero)
   inspect(
     exponent_range_show(big.mul_ctx(big, ctx)),
     content="inf [overflow,inexact,rounded]",

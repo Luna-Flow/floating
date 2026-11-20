@@ -88,7 +88,7 @@ test "cospi next to zero is decided before the loop in every direction" {
         decimal_rounding=row.0,
         e_min=-383,
         e_max=384,
-      ).unwrap()
+      )
       assert_eq(
         "cospi(\{x}): " +
         huge_trig_show(fn(v, c) { v.try_cospi_ctx(c) }, x, ctx),

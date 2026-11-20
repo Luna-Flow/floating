@@ -59,7 +59,7 @@ test "atan2 zero exponent follows the context, not 0 (#332)" {
     e_min=-17,
     e_max=20,
     tininess=DecimalTininessDetection::BeforeRounding,
-  ).unwrap()
+  )
   inspect(
     atan2_zero_show("-3.4E-16", "7E+5", ctx),
     content="-0E-18 [inexact,rounded,underflow,subnormal,clamped]",
@@ -71,7 +71,7 @@ test "atan2 zero exponent follows the context, not 0 (#332)" {
     e_min=-3,
     e_max=9,
     clamp=true,
-  ).unwrap()
+  )
   inspect(
     atan2_zero_show("1E-20", "7", wide),
     content="0E-7 [inexact,rounded,underflow,subnormal,clamped]",
@@ -88,7 +88,7 @@ test "atan2 rounding away from zero is not a zero (#332)" {
     e_min=-383,
     e_max=384,
     clamp=true,
-  ).unwrap()
+  )
   inspect(
     atan2_zero_show("1E-500", "9", ctx),
     content="1E-398 [inexact,rounded,underflow,subnormal]",
@@ -99,7 +99,7 @@ test "atan2 rounding away from zero is not a zero (#332)" {
     e_min=-383,
     e_max=384,
     clamp=true,
-  ).unwrap()
+  )
   inspect(
     atan2_zero_show("-1E-500", "9", floor),
     content="-1E-398 [inexact,rounded,underflow,subnormal]",

@@ -64,7 +64,7 @@ fn convert_decimal_context(format : String, mode : String) -> DecimalContext {
     e_min~,
     e_max~,
     clamp=true,
-  ).unwrap()
+  )
 }
 
 ///|
@@ -151,7 +151,7 @@ test "binary to decimal: the MPFR mpfr_get_str rows" {
       decimal_rounding=convert_decimal_mode(mode),
       e_min=-999_999_999,
       e_max=999_999_999,
-    ).unwrap()
+    )
     let (actual, flags) = Decimal::from_bin_float_ctx(x, context)
     let label = "\{value} n\{digits} \{mode}"
     let text = coeff_bigint(actual.coefficient).to_string()
@@ -371,7 +371,7 @@ test "binary to decimal: an exact conversion returns the cohort member closest t
   for row in exact_cohort_rows {
     let (hexa, precision, coefficient, exponent, negative, rounded) = row
     let x = @bin_float.BinFloat::from_hex(hexa, 20000).unwrap()
-    let context = DecimalContext::new(precision~, e_min=-999_999, e_max=999_999).unwrap()
+    let context = DecimalContext::new(precision~, e_min=-999_999, e_max=999_999)
     let (actual, flags) = Decimal::from_bin_float_ctx(x, context)
     let label = "\{hexa} p\{precision}"
     // coefficient, exponent, sign and every flag, no stripping
@@ -432,7 +432,7 @@ test "binary to decimal: the surrogate path equals the exact expansion on every 
   for row in exact_cohort_rows {
     let (hexa, precision, _, _, _, _) = row
     let x = @bin_float.BinFloat::from_hex(hexa, 20000).unwrap()
-    let context = DecimalContext::new(precision~, e_min=-999_999, e_max=999_999).unwrap()
+    let context = DecimalContext::new(precision~, e_min=-999_999, e_max=999_999)
     convert_identical_to_exact_expansion("cohort " + hexa, x, context)
   }
   for row in mpfr_getstr_rows {
@@ -443,7 +443,7 @@ test "binary to decimal: the surrogate path equals the exact expansion on every 
       decimal_rounding=convert_decimal_mode(mode),
       e_min=-999_999_999,
       e_max=999_999_999,
-    ).unwrap()
+    )
     convert_identical_to_exact_expansion("getstr " + value, x, context)
   }
   for row in binary_to_decimal_rows {
@@ -467,7 +467,7 @@ test "binary to decimal: values beyond a binary exponent of 2^22 are correctly r
       decimal_rounding=convert_decimal_mode(mode),
       e_min=-999_999_999,
       e_max=999_999_999,
-    ).unwrap()
+    )
     let (actual, flags) = Decimal::from_bin_float_ctx(x, context)
     let label = "\{hexa} p\{precision} \{mode}"
     assert_eq(
@@ -495,7 +495,7 @@ test "binary to decimal: 2^5000000 in a wide context, and the work bound of an u
     precision=16,
     e_min=-999_999_999,
     e_max=999_999_999,
-  ).unwrap()
+  )
   let (value, flags) = Decimal::from_bin_float_ctx(huge, wide)
   assert_eq(value.to_string(), "9.513052773090666E+1505149")
   assert_true(flags.inexact && flags.rounded)

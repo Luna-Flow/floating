@@ -5,7 +5,7 @@
 
 ///|
 fn refinement_context(precision : Int32) -> DecimalContext {
-  DecimalContext::new(precision~, e_min=-999_999, e_max=999_999).unwrap()
+  DecimalContext::new(precision~, e_min=-999_999, e_max=999_999)
 }
 
 ///|

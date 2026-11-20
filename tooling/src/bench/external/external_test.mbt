@@ -232,7 +232,7 @@ fn decimal_context(size : Int32) -> @gda.GdaContext {
     rounding=HalfEven,
     e_min=-999999,
     e_max=999999,
-  ).unwrap()
+  )
 }
 
 ///|

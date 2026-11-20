@@ -21,7 +21,7 @@ test "cached decimal contexts equal a fresh build for every parameter set" {
             e_max=384,
             clamp~,
             extended~,
-          ).unwrap()
+          )
           let fresh = DecimalContext::new(
             precision~,
             rounding=arithmetic_rounding(mode),
@@ -31,7 +31,7 @@ test "cached decimal contexts equal a fresh build for every parameter set" {
             clamp~,
             extended~,
             tininess=DecimalTininessDetection::BeforeRounding,
-          ).unwrap()
+          )
           assert_true(ctx.decimal_context() == fresh)
           assert_true(
             ctx.mathematical_decimal_context() ==

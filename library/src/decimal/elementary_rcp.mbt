@@ -6,7 +6,7 @@
 /// The widest context the decimal math functions accept: used to convert a
 /// moderate binary endpoint to an exact decimal with no range representative.
 fn decimal_rcp_wide_ctx() -> DecimalContext {
-  DecimalContext::new(precision=1, e_min=-999_999, e_max=999_999).unwrap()
+  DecimalContext::new(precision=1, e_min=-999_999, e_max=999_999)
 }
 
 ///|

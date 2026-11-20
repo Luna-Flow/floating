@@ -57,9 +57,7 @@ fn issue234_context(name : String, fold : Bool) -> DecimalContext {
     }
   }
   let (_, precision, e_min, e_max, clamp) = found.unwrap()
-  DecimalContext::new(precision~, e_min~, e_max~, clamp~)
-  .unwrap()
-  .with_clamp_fold(fold)
+  DecimalContext::new(precision~, e_min~, e_max~, clamp~).with_clamp_fold(fold)
 }
 
 ///|
@@ -136,7 +134,7 @@ test "the fold does not change a non-zero result and is off in every context (is
       DecimalContext::decimal64(),
       DecimalContext::decimal128(),
       DecimalContext::exact(),
-      DecimalContext::new().unwrap(),
+      DecimalContext::new(),
       DecimalContext::try_new().unwrap(),
       DecimalContext::from_arithmetic_context(
         @lf_arith.ArithmeticContext::new(16),

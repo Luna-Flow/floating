@@ -4,7 +4,7 @@ test "etiny and etop equal the exponent bounds they replace" {
     for e_min in [0, -1, -101, -6176, -999_999_999] {
       for e_max in [0, 96, 6144, 999_999_999] {
         match
-          DecimalContext::new(
+          DecimalContext::try_new(
             precision~,
             e_min~,
             e_max~,

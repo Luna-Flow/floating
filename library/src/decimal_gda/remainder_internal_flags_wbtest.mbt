@@ -35,7 +35,7 @@ fn check_remainder_row(
     e_max=emax,
     clamp~,
     extended=ext,
-  ).unwrap()
+  )
   let a = Decimal::from_string(x).unwrap()
   let b = Decimal::from_string(y).unwrap()
   let r = if op == "rem" {
@@ -172,7 +172,7 @@ test "remainder keeps only the flags of the delivered remainder (issue 183)" {
         e_max=4,
         clamp~,
         extended~,
-      ).unwrap()
+      )
       let (value, flags) = x.remainder(y, ctx)
       assert_eq(value.to_string(), "6.00000000E-15")
       assert_true(flags == DecimalFlags::new())
@@ -184,7 +184,7 @@ test "remainder keeps only the flags of the delivered remainder (issue 183)" {
     e_min=-24,
     e_max=4,
     extended=false,
-  ).unwrap()
+  )
   let (value, flags) = Decimal::from_string("123456789")
     .unwrap()
     .remainder(Decimal::from_string("7").unwrap(), subset)
@@ -196,7 +196,7 @@ test "remainder keeps only the flags of the delivered remainder (issue 183)" {
 /// With a zero quotient the remainder is the dividend at the smaller exponent;
 /// only that result may be clamped, not the dividend at its own exponent.
 test "a zero-quotient remainder is clamped only at its result" {
-  let ctx = DecimalContext::new(precision=9, e_min=-24, e_max=4, clamp=true).unwrap()
+  let ctx = DecimalContext::new(precision=9, e_min=-24, e_max=4, clamp=true)
   let d = fn(s : String) { Decimal::from_string(s).unwrap() }
   let (r, r_flags) = d("-80E-3").remainder(d("4442621E-4"), ctx)
   assert_eq(r.to_string(), "-0.0800")
@@ -213,7 +213,7 @@ test "a zero-quotient remainder is clamped only at its result" {
 /// The reproduction of floating#183: the integer quotient `3` is clamped to
 /// `30000000E-7` when Emax - p + 1 = -7, and that must not alter the remainder.
 test "remainder keeps the exact quotient when the quotient would be clamped" {
-  let ctx = DecimalContext::new(precision=9, e_min=0, e_max=1, clamp=true).unwrap()
+  let ctx = DecimalContext::new(precision=9, e_min=0, e_max=1, clamp=true)
   let d = fn(s : String) { Decimal::from_string(s).unwrap() }
   let (r, f) = d("7E-8").remainder(d("2E-8"), ctx)
   assert_eq(r.to_string(), "1E-8")

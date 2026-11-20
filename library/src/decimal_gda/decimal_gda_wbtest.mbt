@@ -83,7 +83,7 @@ test "Decimal GDA checked parsing uses the arithmetic context" {
 
 ///|
 test "GDA divide_integer clamps zero quotient exponents" {
-  let ctx = DecimalContext::new(precision=9, e_min=0, e_max=1, clamp=true).unwrap()
+  let ctx = DecimalContext::new(precision=9, e_min=0, e_max=1, clamp=true)
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
   let (finite, finite_flags) = d("-8.95E-6").divide_integer(d("2.40E-5"), ctx)
   inspect(finite.to_string(), content="-0E-7")

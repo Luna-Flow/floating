@@ -143,7 +143,7 @@ pub fn context(
   clamp~ : Bool = false,
   extended~ : Bool = true,
 ) -> Result[GdaContext, @def.ArithmeticError] {
-  GdaContext::new(precision~, rounding~, e_min~, e_max~, clamp~, extended~)
+  GdaContext::try_new(precision~, rounding~, e_min~, e_max~, clamp~, extended~)
 }
 
 ///|

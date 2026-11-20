@@ -83,7 +83,7 @@ test "independent GDA native quick benchmark" {
   for digits in [1, 9, 18, 34, 128] {
     let source = gda_performance_source(digits)
     let precision = (digits * 2 + 4).max(9)
-    let context = GdaContext::new(
+    let context = GdaContext::try_new(
       precision~,
       e_min=-999999,
       e_max=999999,
@@ -110,12 +110,12 @@ test "independent GDA native quick benchmark" {
       parse(source, context).value()
     })
     gda_performance_cell(bencher, "context", digits, fn() {
-      GdaContext::new(precision~, e_min=-999999, e_max=999999)
+      GdaContext::try_new(precision~, e_min=-999999, e_max=999999)
     })
   }
   for digits in [9, 34] {
     let source = gda_performance_fraction(digits)
-    let context = GdaContext::new(
+    let context = GdaContext::try_new(
       precision=(digits + 8).max(17),
       e_min=-999999,
       e_max=999999,

@@ -311,11 +311,11 @@ fn gda_build_decimal_context(
     clamp~,
     extended~,
     tininess=DecimalTininessDetection::BeforeRounding,
-  ).unwrap()
+  )
 }
 
 ///|
-pub fn GdaContext::new(
+fn GdaContext::build(
   precision~ : Int32 = 34,
   rounding~ : GdaRoundingMode = GdaRoundingMode::HalfEven,
   e_min~ : Int32 = -999_999_999,
@@ -323,7 +323,7 @@ pub fn GdaContext::new(
   clamp~ : Bool = false,
   extended~ : Bool = true,
   traps~ : GdaTrapSet = GdaTrapSet::none(),
-) -> Result[GdaContext, @def.ArithmeticError] {
+) -> Result[GdaContext, String] {
   let bounds = @internal.DecimalExponentBounds::new(precision, e_min, e_max)
   guard bounds.is_valid() else {
     let message = if precision <= 0 || precision > 999_999_999 {
@@ -335,7 +335,7 @@ pub fn GdaContext::new(
     } else {
       "GdaContext e_min must not exceed e_max"
     }
-    return Err(@def.ArithmeticError::domain_error(message))
+    return Err(message)
   }
   let decimal_ = gda_build_decimal_context(
     precision, rounding, e_min, e_max, clamp, extended,
@@ -359,6 +359,34 @@ pub fn GdaContext::new(
 }
 
 ///|
+/// Builds a context, or aborts with the message that names the invalid
+/// parameter (like `BinaryContext::new`). `try_new` returns the same check as
+/// an `Err` instead.
+pub fn GdaContext::new(
+  precision~ : Int32 = 34,
+  rounding~ : GdaRoundingMode = GdaRoundingMode::HalfEven,
+  e_min~ : Int32 = -999_999_999,
+  e_max~ : Int32 = 999_999_999,
+  clamp~ : Bool = false,
+  extended~ : Bool = true,
+  traps~ : GdaTrapSet = GdaTrapSet::none(),
+) -> GdaContext {
+  match
+    GdaContext::build(
+      precision~,
+      rounding~,
+      e_min~,
+      e_max~,
+      clamp~,
+      extended~,
+      traps~,
+    ) {
+    Ok(context) => context
+    Err(reason) => abort(reason)
+  }
+}
+
+///|
 pub fn GdaContext::try_new(
   precision~ : Int32 = 34,
   rounding~ : GdaRoundingMode = GdaRoundingMode::HalfEven,
@@ -368,15 +396,19 @@ pub fn GdaContext::try_new(
   extended~ : Bool = true,
   traps~ : GdaTrapSet = GdaTrapSet::none(),
 ) -> Result[GdaContext, @def.ArithmeticError] {
-  GdaContext::new(
-    precision~,
-    rounding~,
-    e_min~,
-    e_max~,
-    clamp~,
-    extended~,
-    traps~,
-  )
+  match
+    GdaContext::build(
+      precision~,
+      rounding~,
+      e_min~,
+      e_max~,
+      clamp~,
+      extended~,
+      traps~,
+    ) {
+    Ok(context) => Ok(context)
+    Err(reason) => Err(@def.ArithmeticError::domain_error(reason))
+  }
 }
 
 ///|
@@ -417,7 +449,7 @@ let gda_basic_context_cache : GdaContext = GdaContext::new(
     underflow: true,
     clamped: true,
   },
-).unwrap()
+)
 
 ///|
 let gda_decimal32_context_cache : GdaContext = GdaContext::new(
@@ -425,7 +457,7 @@ let gda_decimal32_context_cache : GdaContext = GdaContext::new(
   e_min=-95,
   e_max=96,
   clamp=true,
-).unwrap()
+)
 
 ///|
 let gda_decimal64_context_cache : GdaContext = GdaContext::new(
@@ -433,7 +465,7 @@ let gda_decimal64_context_cache : GdaContext = GdaContext::new(
   e_min=-383,
   e_max=384,
   clamp=true,
-).unwrap()
+)
 
 ///|
 let gda_decimal128_context_cache : GdaContext = GdaContext::new(
@@ -441,7 +473,7 @@ let gda_decimal128_context_cache : GdaContext = GdaContext::new(
   e_min=-6143,
   e_max=6144,
   clamp=true,
-).unwrap()
+)
 
 ///|
 pub fn GdaContext::radix(_self : GdaContext) -> Int32 {

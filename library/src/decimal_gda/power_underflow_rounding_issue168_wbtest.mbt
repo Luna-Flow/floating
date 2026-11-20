@@ -26,7 +26,7 @@ fn issue168_context(
     e_min~,
     e_max~,
     clamp=true,
-  ).unwrap()
+  )
 }
 
 ///|

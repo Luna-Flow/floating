@@ -6,7 +6,7 @@ test "extreme e_min preserves exact parse and addition" {
     precision=34,
     e_min=-999_999_999,
     e_max=999_999_999,
-  ).unwrap()
+  )
   let (one, parse_flags) = Decimal::from_string_ctx("1", ctx)
   assert_eq(one.to_string(), "1")
   assert_true(parse_flags == DecimalFlags::new())
@@ -23,7 +23,7 @@ test "extreme e_max reports overflow without adjusted exponent wrap" {
     e_min=-999_999_999,
     e_max=999_999_999,
     clamp=true,
-  ).unwrap()
+  )
   let max = Decimal::make(999N, 999_999_997, 3)
 
   let (sum, sum_flags) = max.add_ctx(max, ctx)
@@ -56,7 +56,7 @@ test "quantize with extreme exponent distance returns invalid operation" {
     e_min=-999_999_999,
     e_max=999_999_999,
     clamp=true,
-  ).unwrap()
+  )
   let value = Decimal::make(1N, 1_999_999_996, 5)
   let quantum = Decimal::make(1N, -2_000_000_003, 5)
   let (result, flags) = value.quantize(quantum, ctx)
@@ -72,9 +72,9 @@ test "GDA decimal context rejects out of range fields without aborting" {
   assert_true(DecimalContext::try_new(precision=1_000_000_000) is Err(_))
   assert_true(DecimalContext::try_new(e_min=-1_000_000_000) is Err(_))
   assert_true(DecimalContext::try_new(e_max=1_000_000_000) is Err(_))
-  assert_true(DecimalContext::new(precision=1_000_000_000) is Err(_))
-  assert_true(DecimalContext::new(e_min=-1_000_000_000) is Err(_))
-  assert_true(DecimalContext::new(e_max=1_000_000_000) is Err(_))
+  assert_true(DecimalContext::try_new(precision=1_000_000_000) is Err(_))
+  assert_true(DecimalContext::try_new(e_min=-1_000_000_000) is Err(_))
+  assert_true(DecimalContext::try_new(e_max=1_000_000_000) is Err(_))
 }
 
 ///|
@@ -84,7 +84,7 @@ test "p=1 extreme division overflows without aborting" {
     precision=1,
     e_min=-999_999_999,
     e_max=999_999_999,
-  ).unwrap()
+  )
   let (value, flags) = Decimal::make(9N, 999_999_999, 1).div_ctx(
     Decimal::make(5N, -999_999_999, 1),
     ctx,
@@ -101,7 +101,7 @@ test "huge quantize and to-integral shifts round to zero" {
     precision=1,
     e_min=-999_999_999,
     e_max=999_999_999,
-  ).unwrap()
+  )
   let tiny = Decimal::make(1N, -2_147_483_648, 1)
   let (quantized, quantize_flags) = tiny.quantize(
     Decimal::make(1N, 999_999_999, 1),
@@ -124,7 +124,7 @@ test "huge quantize and to-integral shifts round to zero" {
 ///|
 /// Adjacent-value operations handle Int::min when the context Etiny is zero.
 test "next operations handle Int minimum with zero etiny" {
-  let ctx = DecimalContext::new(precision=1, e_min=0, e_max=999_999_999).unwrap()
+  let ctx = DecimalContext::new(precision=1, e_min=0, e_max=999_999_999)
   let tiny = Decimal::make(1N, -2_147_483_648, 34)
   let (plus, plus_flags) = tiny.next_plus(ctx)
   assert_eq(plus.to_string(), "1")
@@ -145,7 +145,7 @@ test "GDA fma far gap uses sticky addend without aborting" {
     precision=34,
     e_min=-999_999_999,
     e_max=999_999_999,
-  ).unwrap()
+  )
   let (value, flags) = Decimal::make(1N, -999_999_999, 34).fma_ctx(
     Decimal::make(1N, -999_999_999, 34),
     Decimal::make(1N, 999_999_999, 34),
@@ -168,7 +168,7 @@ test "GDA fma exact product boundary honors negative addend" {
     e_max=0,
     rounding=RoundingMode::TowardZero,
     decimal_rounding=DecimalRoundingMode::Down,
-  ).unwrap()
+  )
   let (value, flags) = Decimal::make(1N, 6, 2).fma_ctx(
     Decimal::make(1N, -5, 2),
     Decimal::make(-9N, -4, 2),
@@ -187,7 +187,7 @@ test "GDA fma exact product boundary follows floor without overflow" {
     e_min=-999_999_999,
     e_max=0,
     decimal_rounding=DecimalRoundingMode::Floor,
-  ).unwrap()
+  )
   let (value, flags) = Decimal::make(1N, 6, 2).fma_ctx(
     Decimal::make(1N, -5, 2),
     Decimal::make(-9N, -4, 2),
@@ -205,7 +205,7 @@ test "GDA fma product below Int range uses a bounded sticky alignment" {
     precision=34,
     e_min=-999_999_999,
     e_max=999_999_999,
-  ).unwrap()
+  )
   let (value, flags) = Decimal::make(1N, -2_147_483_648, 34).fma_ctx(
     Decimal::make(1N, -2_147_483_648, 34),
     Decimal::make(1N, 999_999_999, 34),
@@ -227,9 +227,9 @@ test "GdaContext rejects precision and exponent bounds outside adopted limits" {
   assert_true(GdaContext::try_new(precision=999_999_999) is Ok(_))
   assert_true(GdaContext::try_new(e_min=-999_999_999) is Ok(_))
   assert_true(GdaContext::try_new(e_max=999_999_999) is Ok(_))
-  assert_true(GdaContext::new(precision=999_999_999) is Ok(_))
-  assert_true(GdaContext::new(e_min=-999_999_999) is Ok(_))
-  assert_true(GdaContext::new(e_max=999_999_999) is Ok(_))
+  assert_true(GdaContext::try_new(precision=999_999_999) is Ok(_))
+  assert_true(GdaContext::try_new(e_min=-999_999_999) is Ok(_))
+  assert_true(GdaContext::try_new(e_max=999_999_999) is Ok(_))
   assert_true(GdaContext::try_new(precision=2_000_000_000) is Err(_))
   assert_true(GdaContext::try_new(precision=-1) is Err(_))
   assert_true(GdaContext::try_new(e_min=-2_147_483_648) is Err(_))
@@ -238,14 +238,14 @@ test "GdaContext rejects precision and exponent bounds outside adopted limits" {
   assert_true(GdaContext::try_new(e_max=1_000_000_000) is Err(_))
   assert_true(GdaContext::try_new(precision=0) is Err(_))
   assert_true(GdaContext::try_new(e_min=1, e_max=0) is Err(_))
-  assert_true(GdaContext::new(precision=2_000_000_000) is Err(_))
-  assert_true(GdaContext::new(precision=-1) is Err(_))
-  assert_true(GdaContext::new(e_min=-2_147_483_648) is Err(_))
-  assert_true(GdaContext::new(e_min=-1_000_000_000) is Err(_))
-  assert_true(GdaContext::new(e_max=2_147_483_647) is Err(_))
-  assert_true(GdaContext::new(e_max=1_000_000_000) is Err(_))
-  assert_true(GdaContext::new(precision=0) is Err(_))
-  assert_true(GdaContext::new(e_min=1, e_max=0) is Err(_))
+  assert_true(GdaContext::try_new(precision=2_000_000_000) is Err(_))
+  assert_true(GdaContext::try_new(precision=-1) is Err(_))
+  assert_true(GdaContext::try_new(e_min=-2_147_483_648) is Err(_))
+  assert_true(GdaContext::try_new(e_min=-1_000_000_000) is Err(_))
+  assert_true(GdaContext::try_new(e_max=2_147_483_647) is Err(_))
+  assert_true(GdaContext::try_new(e_max=1_000_000_000) is Err(_))
+  assert_true(GdaContext::try_new(precision=0) is Err(_))
+  assert_true(GdaContext::try_new(e_min=1, e_max=0) is Err(_))
 }
 
 ///|

@@ -1,6 +1,6 @@
 ///|
 test "GDA noninteger power preserves GDA cohort and flags" {
-  let context = GdaContext::new(precision=9, e_min=-999_999, e_max=999_999).unwrap()
+  let context = GdaContext::new(precision=9, e_min=-999_999, e_max=999_999)
   let base = Decimal::from_int(4, precision=32)
   let exponent = Decimal::from_string("0.5", precision=32).unwrap()
   let outcome = power(base, exponent, context)
@@ -13,7 +13,7 @@ test "GDA noninteger power preserves GDA cohort and flags" {
 /// GDA deliberately keeps its specification rules, including 0^0 = NaN.
 /// The official powx2015 vector is distinct from decimal's IEEE power rule.
 test "GDA power keeps zero-zero rule and official powx2015 vector" {
-  let context = GdaContext::new(precision=3, e_min=-999_999, e_max=999_999).unwrap()
+  let context = GdaContext::new(precision=3, e_min=-999_999, e_max=999_999)
   let zero_zero = power(Decimal::zero(), Decimal::zero(), context)
   assert_true(zero_zero.value().is_nan())
   assert_true(zero_zero.raised().contains(GdaSignal::InvalidOperation))
@@ -30,13 +30,13 @@ test "GDA power keeps zero-zero rule and official powx2015 vector" {
 
 ///|
 test "GDA transcendental operations finalize with half even" {
-  let half_even = GdaContext::new(precision=3, e_min=-999_999, e_max=999_999).unwrap()
+  let half_even = GdaContext::new(precision=3, e_min=-999_999, e_max=999_999)
   let upward = GdaContext::new(
     precision=3,
     rounding=GdaRoundingMode::Up,
     e_min=-999_999,
     e_max=999_999,
-  ).unwrap()
+  )
   let value = Decimal::from_string("0.01").unwrap()
   let even = exp(value, half_even)
   let directed = exp(value, upward)
@@ -56,7 +56,7 @@ test "GDA extreme exp uses HalfEven without endpoint expansion" {
     e_min=-383,
     e_max=384,
     extended=false,
-  ).unwrap()
+  )
   let outcome = exp(Decimal::from_int(-100_000_000), context)
   assert_true(outcome.value().is_zero())
   assert_true(outcome.raised().contains(GdaSignal::Rounded))
@@ -68,7 +68,7 @@ test "GDA extreme exp uses HalfEven without endpoint expansion" {
 
 ///|
 test "GDA finite extreme-range exp certifies without full decimal expansion" {
-  let context = GdaContext::new(precision=7, e_min=-999_999, e_max=999_999).unwrap()
+  let context = GdaContext::new(precision=7, e_min=-999_999, e_max=999_999)
   let outcome = exp(Decimal::from_int(-1_000_000), context)
   assert_eq(outcome.value().to_string(), "3.296831E-434295")
   assert_true(outcome.raised().contains(GdaSignal::Rounded))
@@ -83,7 +83,7 @@ test "GDA power certifies directed overflow and underflow cells" {
     rounding=GdaRoundingMode::Down,
     e_min=-99,
     e_max=99,
-  ).unwrap()
+  )
   let finite = power(
     Decimal::from_int(17),
     Decimal::from_string("81.27115").unwrap(),
@@ -102,7 +102,7 @@ test "GDA power certifies directed overflow and underflow cells" {
     rounding=GdaRoundingMode::Floor,
     e_min=-95,
     e_max=96,
-  ).unwrap()
+  )
   let underflow = power(
     Decimal::from_string("1e-101").unwrap(),
     Decimal::from_string("1.000001").unwrap(),
@@ -118,14 +118,14 @@ test "GDA square-root power preserves zero and tiny-result conditions" {
   let zero = power(
     Decimal::from_string("0.000").unwrap(),
     Decimal::from_string("0.5").unwrap(),
-    GdaContext::new(precision=9).unwrap(),
+    GdaContext::new(precision=9),
   )
   assert_eq(zero.value().to_string(), "0")
   assert_true(zero.raised() == GdaFlags::none())
   let tiny = power(
     Decimal::from_string("1E-20").unwrap(),
     Decimal::from_string("0.5").unwrap(),
-    GdaContext::new(precision=12, e_min=-9, e_max=9).unwrap(),
+    GdaContext::new(precision=12, e_min=-9, e_max=9),
   )
   assert_eq(tiny.value().to_string(), "1.0000000000E-10")
   assert_true(tiny.raised().contains(GdaSignal::Rounded))
@@ -142,7 +142,7 @@ test "GDA classic subset retains legacy math flags and adjacent ln" {
     e_min=-999_999,
     e_max=999_999,
     extended=false,
-  ).unwrap()
+  )
   let logarithm = ln(
     Decimal::from_string("0.99999991000000405").unwrap(),
     subset,
@@ -154,7 +154,7 @@ test "GDA classic subset retains legacy math flags and adjacent ln" {
     e_min=-383,
     e_max=384,
     extended=false,
-  ).unwrap()
+  )
   let tiny_exp = exp(Decimal::from_int(-1000), exp_subset)
   assert_true(tiny_exp.raised().contains(GdaSignal::Underflow))
   assert_true(tiny_exp.raised().contains(GdaSignal::Clamped))
@@ -164,7 +164,7 @@ test "GDA classic subset retains legacy math flags and adjacent ln" {
     e_min=-999_999_999,
     e_max=999_999_999,
     extended=false,
-  ).unwrap()
+  )
   let invalid = power(
     Decimal::from_int(7),
     Decimal::from_int(1_000_000_001),

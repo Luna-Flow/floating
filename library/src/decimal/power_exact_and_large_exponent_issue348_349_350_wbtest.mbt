@@ -33,7 +33,7 @@ fn issue348_decimal64(mode : DecimalRoundingMode) -> DecimalContext {
     e_min=-383,
     e_max=384,
     clamp=true,
-  ).unwrap()
+  )
 }
 
 ///|
@@ -254,7 +254,7 @@ test "issue 350: no clamped for an inexact pown result near 1" {
       e_min=-10,
       e_max=0,
       clamp=true,
-    ).unwrap()
+    )
     let (value, flags) = x.pown_ctx(-40, ctx)
     assert_eq(
       (mode, issue348_text(value), issue348_flags_text(flags)),
