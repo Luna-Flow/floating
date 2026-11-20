@@ -18,6 +18,7 @@ options(
     "coeff_ntt_nonjs_wbtest.mbt": [ "not", "js" ],
     "coeff_knuth_words_nonjs.mbt": [ "not", "js" ],
     "coeff_knuth_words_nonjs_wbtest.mbt": [ "not", "js" ],
+    "coeff_knuth_reciprocal_nonjs_wbtest.mbt": [ "not", "js" ],
     "coeff_limb32_nonjs.mbt": [ "not", "js" ],
     "coeff_limb32_square_nonjs.mbt": [ "not", "js" ],
     "coeff_nonjs.mbt": [ "not", "js" ],
