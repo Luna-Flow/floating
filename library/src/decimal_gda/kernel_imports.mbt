@@ -3,6 +3,7 @@
 // src/internal/decimal_kernel.
 using @decimal_kernel {
   type DecCoeff,
+  type DecSqrtRemainder,
   type DecCoeffRounding,
   coefficient_rotate_digits_repr,
   coefficient_shift_digits_repr,
@@ -57,6 +58,7 @@ using @decimal_kernel {
   dec_coeff_signed_step_unit_repr,
   dec_coeff_small_limit,
   dec_coeff_small_value,
+  dec_coeff_sqrt_rounding,
   dec_coeff_sqrt_should_increment,
   dec_coeff_square_repr,
   dec_coeff_to_bigint_repr,

@@ -90,8 +90,8 @@ fn exact_finite_sqrt(value : Decimal, precision : Int32) -> Decimal? {
   } else {
     (dec_coeff_multiply_by_unit_repr(normalized_coeff0, 10), normalized_exp - 1)
   }
-  let (root, remainder) = dec_coeff_integer_sqrt_rem_repr(radicand)
-  if remainder.is_zero() {
+  let (root, state) = dec_coeff_sqrt_rounding(radicand)
+  if state == DecSqrtRemainder::Zero {
     let exact = finite_with_exponent_repr(
       false,
       root,

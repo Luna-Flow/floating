@@ -132,11 +132,11 @@ fn decimal_sqrt_plain(
     operand.coefficient,
     scale.to_int(),
   )
-  let (root, remainder) = dec_coeff_integer_sqrt_rem_repr(radicand)
-  guard !remainder.is_zero() else { return None }
+  let (root, state) = dec_coeff_sqrt_rounding(radicand)
+  guard state != DecSqrtRemainder::Zero else { return None }
   let round_up = decimal_sqrt_should_increment(
     root,
-    if dec_coeff_compare_repr(remainder, root) > 0 {
+    if state == DecSqrtRemainder::AboveRoot {
       1
     } else {
       -1
