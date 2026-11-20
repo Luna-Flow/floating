@@ -8,6 +8,72 @@
 let decimal_value_precision_limit : Int32 = 999_999_999
 
 ///|
+/// The largest adjusted exponent a finite `Decimal` can hold, 2,147,483,646: a
+/// limit on `exponent + digits - 1`. A value is stored only if
+/// `e_tiny <= exponent` and `exponent + digits - 1 <= e_max` (a zero has one
+/// digit). It is the `e_max` of the working context of the plain operators, so
+/// `x + 0 == x` and `x * 1 == x` hold for every stored finite value.
+pub let gda_implementation_e_max : Int32 = 2_147_483_646
+
+///|
+/// The smallest exponent a finite `Decimal` can hold, -2,147,483,645: a limit on
+/// the exponent of the least digit (the `Etiny` of the working context of the
+/// plain operators, whatever the precision). A value is stored only if
+/// `e_tiny <= exponent` and `exponent + digits - 1 <= e_max`.
+pub let gda_implementation_e_tiny : Int32 = -2_147_483_645
+
+///|
+/// The text of the error of a finite value that does not fit the stored range.
+fn decimal_stored_range_message(
+  who : String,
+  exponent : Int64,
+  adjusted : Int64,
+) -> String {
+  who +
+  ": the exponent " +
+  exponent.to_string() +
+  " (adjusted exponent " +
+  adjusted.to_string() +
+  ") is outside the stored range; a finite value needs " +
+  gda_implementation_e_tiny.to_string() +
+  " <= exponent and exponent + digits - 1 <= " +
+  gda_implementation_e_max.to_string() +
+  " (gda_implementation_e_tiny and gda_implementation_e_max)"
+}
+
+///|
+/// `Some(message)` when the finite value `magnitude * 10^exponent10`, rounded to
+/// `precision` digits in `mode`, does not fit the stored range: its exponent
+/// would be below `gda_implementation_e_tiny`, or its adjusted exponent (after a
+/// carry of the rounding) above `gda_implementation_e_max`. A zero has one
+/// digit. Nothing is replaced silently.
+fn decimal_stored_range_violation(
+  negative : Bool,
+  magnitude : DecCoeff,
+  exponent10 : Int64,
+  precision : Int32,
+  mode : DecimalRoundingMode,
+  who : String,
+) -> String? {
+  let digits = if magnitude.is_zero() { 1 } else { magnitude.digits10() }
+  let dropped = if digits > precision { digits - precision } else { 0 }
+  let adjusted = exponent10 + (digits - 1).to_int64()
+  let lowest = exponent10 + dropped.to_int64()
+  if lowest < gda_implementation_e_tiny.to_int64() ||
+    adjusted > gda_implementation_e_max.to_int64() {
+    return Some(decimal_stored_range_message(who, exponent10, adjusted))
+  }
+  // A carry of the rounding into 10^precision raises the adjusted exponent.
+  if adjusted == gda_implementation_e_max.to_int64() &&
+    dropped > 0 &&
+    round_positive_decimal_div_pow10_repr(magnitude, dropped, negative, mode).0.digits10() >
+    precision {
+    return Some(decimal_stored_range_message(who, exponent10, adjusted + 1L))
+  }
+  None
+}
+
+///|
 /// The precision of a value made by a constructor, checked where the value is
 /// made. A precision outside `1..=999_999_999` aborts and names the function and
 /// the argument; there is no silent replacement.
@@ -171,18 +237,81 @@ pub fn Decimal::make(
   mode~ : GdaRoundingMode = GdaRoundingMode::HalfEven,
 ) -> Decimal {
   let precision = decimal_checked_precision(precision, "Decimal::make")
-  let magnitude = coeff_from_bigint(abs_bigint(coefficient))
-  if magnitude.is_zero() {
-    return finite_with_exponent_repr(false, magnitude, exponent10, precision)
+  match
+    decimal_make_checked(
+      coefficient, exponent10, precision, mode, "Decimal::make",
+    ) {
+    Ok(value) => value
+    Err(message) => abort(message)
   }
-  context_free_round_wide(
-    coefficient < bigint_zero(),
-    magnitude,
-    exponent10.to_int64(),
-    precision,
-    round_to_precision=true,
-    reduce=false,
-    mode=decimal_rounding(mode),
+}
+
+///|
+/// The `Result` form of [`Decimal::make`]: a precision outside
+/// `1..=999_999_999`, or a value whose exponent is below
+/// `gda_implementation_e_tiny` or whose adjusted exponent (after the rounding)
+/// is above `gda_implementation_e_max`, is a `domain_error` naming the limits
+/// and the offending exponent.
+pub fn Decimal::try_make(
+  coefficient : BigInt,
+  exponent10 : Int32,
+  precision : Int32,
+  mode~ : GdaRoundingMode = GdaRoundingMode::HalfEven,
+) -> Result[Decimal, @def.ArithmeticError] {
+  guard precision >= 1 && precision <= decimal_value_precision_limit else {
+    return Err(
+      @def.ArithmeticError::domain_error(
+        "Decimal::try_make: precision must be within 1..=999999999, got " +
+        precision.to_string(),
+      ),
+    )
+  }
+  match
+    decimal_make_checked(
+      coefficient, exponent10, precision, mode, "Decimal::try_make",
+    ) {
+    Ok(value) => Ok(value)
+    Err(message) => Err(@def.ArithmeticError::domain_error(message))
+  }
+}
+
+///|
+fn decimal_make_checked(
+  coefficient : BigInt,
+  exponent10 : Int32,
+  precision : Int32,
+  mode : GdaRoundingMode,
+  who : String,
+) -> Result[Decimal, String] {
+  let magnitude = coeff_from_bigint(abs_bigint(coefficient))
+  let negative = coefficient < bigint_zero()
+  match
+    decimal_stored_range_violation(
+      negative,
+      magnitude,
+      exponent10.to_int64(),
+      precision,
+      decimal_rounding(mode),
+      who,
+    ) {
+    Some(message) => return Err(message)
+    None => ()
+  }
+  if magnitude.is_zero() {
+    return Ok(
+      finite_with_exponent_repr(false, magnitude, exponent10, precision),
+    )
+  }
+  Ok(
+    context_free_round_wide(
+      negative,
+      magnitude,
+      exponent10.to_int64(),
+      precision,
+      round_to_precision=true,
+      reduce=false,
+      mode=decimal_rounding(mode),
+    ),
   )
 }
 

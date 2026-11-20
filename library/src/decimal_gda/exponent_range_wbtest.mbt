@@ -34,14 +34,37 @@ fn exponent_range_show(outcome : GdaOutcome[Decimal]) -> String {
 }
 
 ///|
-test "literal exponents beyond 1.5e9 are not saturated" {
+/// A text outside the stored range is a domain error naming both limits and the
+/// exponent; it is neither saturated nor replaced by a zero or an infinity.
+fn assert_outside_stored_range(
+  text : String,
+  precision~ : Int32 = 34,
+) -> Unit raise {
+  match Decimal::from_string(text, precision~) {
+    Ok(value) => fail("\{text} was accepted as \{value}")
+    Err(error) => {
+      assert_true(error.is_domain_error())
+      assert_true(error.message.contains("gda_implementation_e_tiny"))
+      assert_true(error.message.contains("gda_implementation_e_max"))
+      assert_true(error.message.contains("-2147483645"))
+      assert_true(error.message.contains("2147483646"))
+    }
+  }
+}
+
+///|
+test "literal exponents up to the stored range are kept" {
   inspect(
     Decimal::from_string("1e1600000000").unwrap().to_string(),
     content="1E+1600000000",
   )
   inspect(
-    Decimal::from_string("1e2147483647").unwrap().to_string(),
-    content="1E+2147483647",
+    Decimal::from_string("1e2147483646").unwrap().to_string(),
+    content="1E+2147483646",
+  )
+  inspect(
+    Decimal::from_string("9999999999999999999999999999999999e2147483613").unwrap(),
+    content="9.999999999999999999999999999999999E+2147483646",
   )
   // Rounding to the precision can bring the exponent back into range.
   inspect(
@@ -49,8 +72,36 @@ test "literal exponents beyond 1.5e9 are not saturated" {
     content="1.234567890123456789012345678901235E+2147483638",
   )
   inspect(
-    Decimal::from_string("0e-3000000000").unwrap().to_string(),
-    content="0E-2147483648",
+    Decimal::from_string("0e-2147483645").unwrap().to_string(),
+    content="0E-2147483645",
+  )
+  inspect(
+    Decimal::from_string("1e-2147483645").unwrap().to_string(),
+    content="1E-2147483645",
+  )
+}
+
+///|
+test "literals outside the stored range are rejected, not folded" {
+  // formerly a signed infinity, a zero of exponent -2^31, or a kept value
+  for
+    text in [
+      "1e2147483647", "12e2147483646", "1e2147483648", "1e3000000000", "-1e3000000000",
+      "1e99999999999999999999999999", "0e2147483647", "0e3000000000", "1e-2147483646",
+      "1e-2147483648", "-1e-3000000000", "0e-2147483646", "0e-3000000000", "123e-2147483650",
+      "15e-2147483649", "5e-2147483649", "10e-2147483649",
+    ] {
+    assert_outside_stored_range(text)
+  }
+  // 35 nines at the top round up, and the carry leaves the range
+  assert_outside_stored_range("99999999999999999999999999999999999e2147483612")
+  // the rounded exponent, not the written one, is below the floor
+  assert_outside_stored_range("1249e-2147483650", precision=3)
+  assert_outside_stored_range("2500000001e-2147483657", precision=3)
+  // the same number is accepted once its rounded exponent is in the range
+  inspect(
+    Decimal::from_string("1249e-2147483646", precision=3).unwrap(),
+    content="1.25E-2147483643",
   )
 }
 
@@ -63,62 +114,6 @@ test "context conversion of huge exponents overflows or underflows" {
   inspect(
     exponent_range_show(to_number("-1e-99999999999999999999999999", floor)),
     content="-1E-1000000032 [Underflow,Subnormal,Inexact,Rounded]",
-  )
-}
-
-///|
-test "context-free literals overflow and underflow instead of failing" {
-  // A valid numeric string always converts (IEEE 754 §5.12; GDA to-number):
-  // beyond the exponent range of a context-free value (adjusted exponent at
-  // most 2^31 - 1, stored exponent at least -2^31) it overflows to a signed
-  // infinity or rounds half-even to the smallest exponent.
-  inspect(Decimal::from_string("1e3000000000").unwrap(), content="inf")
-  inspect(Decimal::from_string("-1e3000000000").unwrap(), content="-inf")
-  inspect(Decimal::from_string("12e2147483647").unwrap(), content="inf")
-  inspect(
-    Decimal::from_string("1e99999999999999999999999999").unwrap(),
-    content="inf",
-  )
-  inspect(
-    Decimal::from_string("1e-3000000000").unwrap(),
-    content="0E-2147483648",
-  )
-  inspect(
-    Decimal::from_string("-1e-3000000000").unwrap(),
-    content="-0E-2147483648",
-  )
-  inspect(
-    Decimal::from_string("123e-2147483650").unwrap(),
-    content="1E-2147483648",
-  )
-  inspect(
-    Decimal::from_string("15e-2147483649").unwrap(),
-    content="2E-2147483648",
-  )
-  inspect(
-    Decimal::from_string("25e-2147483649").unwrap(),
-    content="2E-2147483648",
-  )
-  inspect(
-    Decimal::from_string("5e-2147483649").unwrap(),
-    content="0E-2147483648",
-  )
-  inspect(
-    Decimal::from_string("10e-2147483649").unwrap(),
-    content="1E-2147483648",
-  )
-  // A longer coefficient is rounded once, not first to the precision.
-  inspect(
-    Decimal::from_string("1249e-2147483650", precision=3).unwrap(),
-    content="1.2E-2147483647",
-  )
-  inspect(
-    Decimal::from_string("12501e-2147483651", precision=3).unwrap(),
-    content="1.3E-2147483647",
-  )
-  inspect(
-    Decimal::from_string("2500000001e-2147483657", precision=3).unwrap(),
-    content="3E-2147483648",
   )
 }
 
@@ -191,11 +186,21 @@ test "products and quotients of extreme exponents do not wrap" {
     nines + d("4E+2147483612"),
     content="9.999999999999999999999999999999999E+2147483646",
   )
-  // Rounding at the top of the range overflows according to the mode.
-  let top = d("9999E+2147483644")
+  // Rounding without a context at the top of the stored range follows the GDA
+  // Overflow rule of the working range: the carry into the next power of ten
+  // is an infinity, or the largest finite value of the width in the modes that
+  // round toward zero. It never produces a finite value above the limit.
+  let top = d("9999E+2147483643")
   inspect(top.with_precision(2, GdaRoundingMode::Up), content="inf")
+  inspect(top.with_precision(2, GdaRoundingMode::Ceiling), content="inf")
+  inspect(top.with_precision(2, GdaRoundingMode::HalfEven), content="inf")
   inspect(
     top.with_precision(2, GdaRoundingMode::Down),
-    content="9.9E+2147483647",
+    content="9.9E+2147483646",
   )
+  inspect(
+    top.with_precision(2, GdaRoundingMode::Floor),
+    content="9.9E+2147483646",
+  )
+  inspect((-top).with_precision(2, GdaRoundingMode::Floor), content="-inf")
 }

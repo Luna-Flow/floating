@@ -8,12 +8,12 @@
 /// does not wrap. It is not validated against the limits of `GdaContext::new`
 /// (the plain operators are the only users) and never leaves the package.
 fn gda_plain_working_context_build(precision : Int32) -> GdaContext {
-  let e_max = 2147483646
+  let e_max = gda_implementation_e_max
   // Etiny = Emin - p + 1 = -2,147,483,645: the exponent folding of an exponent
   // below the Int32 range leaves a sticky digit two places above the Int32
   // minimum, which a quantum of that size rounds away; a smaller Etiny would
   // keep it as a tiny non-zero result.
-  let e_min = -2147483645 + precision - 1
+  let e_min = gda_implementation_e_tiny + precision - 1
   let decimal_ : DecimalContext = {
     precision,
     rounding: RoundingMode::ToNearestEven,

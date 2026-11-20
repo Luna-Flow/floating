@@ -35,6 +35,10 @@ pub fn exp(Decimal, GdaContext) -> GdaOutcome[Decimal]
 
 pub fn fma(Decimal, Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
 
+pub let gda_implementation_e_max : Int32
+
+pub let gda_implementation_e_tiny : Int32
+
 pub fn is_normal(Decimal, GdaContext) -> GdaOutcome[Bool]
 
 pub fn is_subnormal(Decimal, GdaContext) -> GdaOutcome[Bool]
@@ -195,6 +199,7 @@ pub fn Decimal::to_repr(Self) -> @debug.Repr
 pub fn Decimal::to_sci_string(Self) -> String
 pub fn Decimal::to_string(Self) -> String
 pub fn Decimal::trim(Self) -> Self
+pub fn Decimal::try_make(@bigint.BigInt, Int32, Int32, mode? : GdaRoundingMode) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::with_precision(Self, Int32, GdaRoundingMode) -> Self
 pub fn Decimal::zero(precision? : Int32) -> Self
 pub fn Decimal::zero_contextual(@arithmetic.ArithmeticContext) -> Self

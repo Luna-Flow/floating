@@ -128,7 +128,9 @@ test "plain operators equal the free functions in a GdaContext::new context" {
 /// An exponent difference below `Int` with a dividend longer than the divisor:
 /// the quotient lies in the range, so it is rounded, not lost to infinity.
 test "plain division with an exponent difference below Int" {
-  let d = fn(text : String) { Decimal::from_string(text).unwrap() }
+  // the operands are beyond the stored range: no public constructor makes them,
+  // the engine must still not wrap
+  let d = fn(text : String) { decimal_text_unchecked(text) }
   // 1.2345E-2147483646 is below Etiny = -2147483645: rounds to zero
   inspect(d("12345E-2147483648") / d("1E+2"), content="0E-2147483645")
   // 9.9999E-2147483646 rounds up to one unit of Etiny
