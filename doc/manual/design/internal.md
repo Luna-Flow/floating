@@ -6,14 +6,13 @@ The binary, decimal and interval cores all reduce their hard steps to exact
 integer arithmetic: aligning exponents, removing trailing zeros, dividing with
 a rounding mode, enclosing a ratio between two dyadics. `internal` states
 these steps as small `BigInt` functions with proved invariants, so that the
-`consistency` tests can check each one against an oracle and the cores can
+tests of this package can check each one against an oracle and the cores can
 share what they have in common. It is internal so the cores can change the
 helpers together without a public compatibility promise.
 
 On the current branch the sharing is partial. The decimal cores use the
 string splitter, `round_positive_div`, the power caches and `digits10`; every
-core uses the refinement budget and `certified_failure`; `semantic` uses
-`ExactRat`. The hot paths of `bin_float` and the two decimal packages round with their
+core uses the refinement budget and `certified_failure`. The hot paths of `bin_float` and the two decimal packages round with their
 own limb kernels (`BinCoeff`, and `DecCoeff` in the subpackage
 `internal/decimal_kernel`, which `decimal` and `decimal_gda` share), which
 implement the same rounding table as `round_positive_div` but are not built
@@ -103,13 +102,6 @@ count) with `Int` and its context sees the same overflow or underflow as for
 the exact exponent. `split_decimal_string` keeps its `Int` signature and
 returns `None` when $q$ does not fit `Int`, rather than a different exponent.
 
-### Canonical rationals
-
-`ExactRat::new` divides by $\gcd(n, d)$ and makes the denominator positive.
-With a canonical form, derived structural equality *is* equality of rational
-numbers, which is what `semantic` needs to compare values across binary and
-decimal representations.
-
 ### Ziv-style refinement budget
 
 The certified elementary functions evaluate an enclosure at a working
@@ -172,7 +164,7 @@ $r = m - (q \ll s)$, so the same table applies for $m \ge 0$. For $m < 0$ the
 arithmetic shift gives $q = \lfloor m/2^{s} \rfloor < 0$ and $0 \le r < 2^{s}$,
 and the "magnitude" table is then applied to a negative $q$; the result is
 not $\pm|\circ(x)|$ (for example $m = -5$, $s = 1$, `TowardZero` gives $-3$).
-The function does not check the sign, so callers must pass magnitudes. The `consistency` tests check
+The function does not check the sign, so callers must pass magnitudes. The tests of this package check
 both functions against these formulas on ties and directed cases.
 
 **Factor removal.** `remove_factor10` and `trim_trailing_decimal_zeros`
@@ -197,7 +189,7 @@ least 32 bits) and at most `limit` refinements are made, so every refinement
 loop that checks `available()` terminates.
 
 **Abort contract.** `pow5`, `pow10` with a negative exponent,
-`round_positive_div` with $n < 0$ or $d \le 0$, `ExactRat::new` with $d = 0$,
+`round_positive_div` with $n < 0$ or $d \le 0$,
 `exact_divide_by_power_of_ten` with a negative shift and a non-zero
 coefficient, and dyadic constructors and roundings with a negative scale
 abort: these are programmer errors inside the cores, never reachable from user

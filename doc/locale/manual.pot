@@ -1106,7 +1106,7 @@ msgstr ""
 #: manual/api/frontend/itl_expr.md:276
 #: manual/api/frontend/mpfr_expr.md:536
 #: manual/api/frontend/testfloat_expr.md:407
-#: manual/api/internal.md:552
+#: manual/api/internal.md:506
 #: manual/api/internal/bin_kernel.md:77
 #: manual/api/internal/conformance.md:353
 #: manual/api/internal/decimal_kernel.md:92
@@ -1123,7 +1123,7 @@ msgstr ""
 #: manual/api/frontend/itl_expr.md:278
 #: manual/api/frontend/mpfr_expr.md:538
 #: manual/api/frontend/testfloat_expr.md:409
-#: manual/api/internal.md:554
+#: manual/api/internal.md:508
 #: manual/api/internal/bin_kernel.md:79
 #: manual/api/internal/conformance.md:355
 #: manual/api/internal/decimal_kernel.md:94
@@ -7309,8 +7309,8 @@ msgstr ""
 msgid "Helpers it uses"
 msgstr ""
 
-#: manual/api/internal.md:24
-msgid "The binary and decimal cores round their own coefficients with their own kernels. The remaining helpers (`round_shift`, `remove_factor10`, `trim_trailing_decimal_zeros`, `exact_divide_by_power_of_ten`, `compare_abs` and the `CertifiedDyadic` family) are exercised by the `consistency` and package tests only."
+#: manual/api/internal.md:23
+msgid "The binary and decimal cores round their own coefficients with their own kernels. The remaining helpers (`round_shift`, `remove_factor10`, `trim_trailing_decimal_zeros`, `exact_divide_by_power_of_ten`, `compare_abs` and the `CertifiedDyadic` family) are exercised by the tests of this package and of the cores only. `semantic` no longer uses `internal`: it owns its exact rational (`ExactRational`) and its normalization."
 msgstr ""
 
 #: manual/api/internal.md:30
@@ -7448,116 +7448,95 @@ msgid "The result $(\\mathit{neg}, D, q)$ satisfies $\\text{value} = (-1)^{\\mat
 msgstr ""
 
 #: manual/api/internal.md:295
-#: manual/api/semantic.md:44
-msgid "Exact rationals"
-msgstr ""
-
-#: manual/api/internal.md:299
-msgid "`ExactRat` is a rational number in lowest terms."
-msgstr ""
-
-#: manual/api/internal.md:309
-msgid "`ExactRat::new(n, d)` reduces $n/d$ to lowest terms with a positive denominator; the accessors return the reduced parts."
-msgstr ""
-
-#: manual/api/internal.md:318
-msgid "Aborts when $d = 0$. Zero is stored as $0/1$. Because the form is canonical, `==` on `ExactRat` is equality of rational numbers."
-msgstr ""
-
-#: manual/api/internal.md:323
-msgid "These methods compare canonical forms; use `==` and `!=`."
-msgstr ""
-
-#: manual/api/internal.md:341
-#: manual/design/internal.md:49
+#: manual/design/internal.md:48
 msgid "Dyadic enclosures"
 msgstr ""
 
-#: manual/api/internal.md:345
+#: manual/api/internal.md:299
 msgid "`CertifiedDyadic` is the dyadic rational $n \\cdot 2^{-s}$, where $n$ is `numerator_` and the scale $s$ = `scale_` is non-negative."
 msgstr ""
 
-#: manual/api/internal.md:355
+#: manual/api/internal.md:309
 msgid "The fields are readable but the struct cannot be built literally outside the package; build values with `new` or `from_int`."
 msgstr ""
 
-#: manual/api/internal.md:360
+#: manual/api/internal.md:314
 msgid "`new(n, s)` is $n \\cdot 2^{-s}$ (aborts if $s < 0$); `from_int(k)` is $k \\cdot 2^{0}$; the accessors return the fields."
 msgstr ""
 
-#: manual/api/internal.md:370
+#: manual/api/internal.md:324
 msgid "The representation is not normalized: $2 \\cdot 2^{-1}$ and $1 \\cdot 2^{0}$ are different values of the struct with the same number."
 msgstr ""
 
-#: manual/api/internal.md:375
+#: manual/api/internal.md:329
 msgid "These methods are exact arithmetic and comparison of dyadic numbers."
 msgstr ""
 
-#: manual/api/internal.md:385
+#: manual/api/internal.md:339
 msgid "`add` and `sub` align to the larger scale; `mul` adds the scales; `compare` compares the numbers (not the representations), so `new(2N, 1).compare(from_int(1))` is `0`."
 msgstr ""
 
-#: manual/api/internal.md:391
+#: manual/api/internal.md:345
 msgid "`x.round_down(s)` and `x.round_up(s)` are the largest dyadic $\\le x$ and the smallest dyadic $\\ge x$ with scale $s$: $\\lfloor x \\cdot 2^{s} \\rfloor \\cdot 2^{-s}$ and $\\lceil x \\cdot 2^{s} \\rceil \\cdot 2^{-s}$."
 msgstr ""
 
-#: manual/api/internal.md:401
+#: manual/api/internal.md:355
 msgid "Abort if $s < 0$. When $s$ is at least the current scale the value is re-expressed exactly (the numerator is shifted left). Both directions are true floor and ceiling for negative numbers too: $-5/4$ rounds down to $-2$ and up to $-1$ at scale $0$."
 msgstr ""
 
-#: manual/api/internal.md:408
+#: manual/api/internal.md:362
 msgid "`CertifiedInterval[T]` is an ordered pair `lower <= upper` used as an enclosure."
 msgstr ""
 
-#: manual/api/internal.md:420
+#: manual/api/internal.md:374
 msgid "`new(lower, upper, compare)` checks the order with the given comparison and builds the pair; `lower` and `upper` return the endpoints."
 msgstr ""
 
-#: manual/api/internal.md:429
+#: manual/api/internal.md:383
 msgid "When `compare(lower, upper) > 0`, `new` returns a certification-failure error for the operation `\"interval\"` with stage `EnclosurePropagation`, reason `InvalidEnclosure`, target and working precision 1 and 0 refinements."
 msgstr ""
 
-#: manual/api/internal.md:435
+#: manual/api/internal.md:389
 msgid "`certified_dyadic_fraction(n, d, s)` encloses $n/d$ between two dyadics of scale $s$."
 msgstr ""
 
-#: manual/api/internal.md:442
+#: manual/api/internal.md:396
 msgid "The result is $[\\lfloor n 2^{s}/d \\rfloor 2^{-s},\\ \\lceil n 2^{s}/d \\rceil 2^{-s}]$ for either sign of $n$: it contains $n/d$, has width $0$ or $2^{-s}$, and is a point exactly when $d \\mid n 2^{s}$. A non-positive $d$ gives a domain error."
 msgstr ""
 
-#: manual/api/internal.md:449
+#: manual/api/internal.md:403
 msgid "`certified_dyadic_div(a, b, s)` encloses the quotient $a/b$ of two dyadics at scale $s$."
 msgstr ""
 
-#: manual/api/internal.md:456
+#: manual/api/internal.md:410
 msgid "$b = 0$ gives a division-by-zero error. Otherwise the result is `certified_dyadic_fraction` applied to $a/b$ written with a positive denominator."
 msgstr ""
 
-#: manual/api/internal.md:476
+#: manual/api/internal.md:430
 msgid "Refinement budgets"
 msgstr ""
 
-#: manual/api/internal.md:480
+#: manual/api/internal.md:434
 msgid "`CertifiedRefinementBudget` tracks the working precision and the number of refinements of a Ziv-style evaluation loop."
 msgstr ""
 
-#: manual/api/internal.md:494
+#: manual/api/internal.md:448
 msgid "`new(p, limit?)` starts at working precision $\\max(1, p)$ with zero refinements. `limit` is `Some(n)`, a limit of $\\max(1, n)$ refinements (default `Some(12)`), or `None`, no count limit. `next()` increases the precision by $\\max(32, \\lfloor p/2 \\rfloor)$ and counts one refinement. `available()` is true while fewer than `n` refinements were made, and, for `None`, while the working precision does not exceed `certified_unbounded_work_cap` of the starting precision."
 msgstr ""
 
-#: manual/api/internal.md:510
+#: manual/api/internal.md:464
 msgid "`next` does not check `available`; a loop must test `available()` itself."
 msgstr ""
 
-#: manual/api/internal.md:529
+#: manual/api/internal.md:483
 msgid "`certified_refinement_continues(limit, attempt, work, precision)` tells a hand-written refinement loop whether it may run another step: `Some(n)` allows `attempt < max(1, n)`, `None` allows the step while `work` does not exceed `certified_unbounded_work_cap(precision)`. That cap is the larger of 8,000,000 and 256 times `precision`, at most 1,000,000,000."
 msgstr ""
 
-#: manual/api/internal.md:542
+#: manual/api/internal.md:496
 msgid "`certified_failure(operation, stage, reason, target_precision, budget)` builds the `ArithmeticError` a certified operation returns when it gives up."
 msgstr ""
 
-#: manual/api/internal.md:549
+#: manual/api/internal.md:503
 msgid "The error's detail records the operation name, stage, reason, target precision, and the budget's current working precision and refinement count."
 msgstr ""
 
@@ -8141,6 +8120,10 @@ msgstr ""
 
 #: manual/api/semantic.md:28
 msgid "The examples call the package as `@semantic.`, the representations as `@bin_float.`, `@decimal.` and `@ball_float.`, and `Sign` as `@def.Sign`. They assume this helper, which prints a semantic scalar as `numerator/denominator`:"
+msgstr ""
+
+#: manual/api/semantic.md:44
+msgid "Exact rationals"
 msgstr ""
 
 #: manual/api/semantic.md:48
@@ -9955,7 +9938,7 @@ msgstr ""
 #: manual/design/frontend/itl_expr.md:166
 #: manual/design/frontend/mpfr_expr.md:133
 #: manual/design/frontend/testfloat_expr.md:140
-#: manual/design/internal.md:219
+#: manual/design/internal.md:211
 #: manual/design/internal/conformance.md:129
 #: manual/design/internal/runner_cli.md:83
 #: manual/design/numeric_expr.md:194
@@ -10507,7 +10490,7 @@ msgstr ""
 #: manual/design/frontend/itl_expr.md:16
 #: manual/design/frontend/mpfr_expr.md:17
 #: manual/design/frontend/testfloat_expr.md:16
-#: manual/design/internal.md:25
+#: manual/design/internal.md:24
 #: manual/design/internal/bin_kernel.md:11
 #: manual/design/internal/conformance.md:12
 #: manual/design/internal/decimal_kernel.md:11
@@ -10961,7 +10944,7 @@ msgstr ""
 #: manual/design/frontend/itl_expr.md:76
 #: manual/design/frontend/mpfr_expr.md:59
 #: manual/design/frontend/testfloat_expr.md:74
-#: manual/design/internal.md:56
+#: manual/design/internal.md:55
 #: manual/design/internal/conformance.md:42
 #: manual/design/internal/decimal_kernel.md:51
 #: manual/design/internal/runner_cli.md:23
@@ -11123,7 +11106,7 @@ msgstr ""
 #: manual/design/frontend/itl_expr.md:133
 #: manual/design/frontend/mpfr_expr.md:105
 #: manual/design/frontend/testfloat_expr.md:113
-#: manual/design/internal.md:146
+#: manual/design/internal.md:138
 #: manual/design/internal/conformance.md:74
 #: manual/design/internal/decimal_kernel.md:138
 #: manual/design/internal/runner_cli.md:60
@@ -11200,7 +11183,7 @@ msgstr ""
 #: manual/design/frontend/itl_expr.md:156
 #: manual/design/frontend/mpfr_expr.md:123
 #: manual/design/frontend/testfloat_expr.md:130
-#: manual/design/internal.md:207
+#: manual/design/internal.md:199
 #: manual/design/internal/conformance.md:119
 #: manual/design/internal/runner_cli.md:74
 #: manual/design/numeric_expr.md:179
@@ -13849,7 +13832,7 @@ msgid "`floating` has four numeric cores with overlapping claims: a binary value
 msgstr ""
 
 #: manual/design/consistency.md:16
-msgid "Every finite value of every core denotes a rational number. Let $\\llbracket\\cdot\\rrbracket$ map a value to $\\mathbb{Q}$ (implemented by `semantic`, with `internal.ExactRat` as canonical form). The laws the suite checks have three shapes:"
+msgid "Every finite value of every core denotes a rational number. Let $\\llbracket\\cdot\\rrbracket$ map a value to $\\mathbb{Q}$ (implemented by `semantic`, with `ExactRational` as canonical form). The laws the suite checks have three shapes:"
 msgstr ""
 
 #: manual/design/consistency.md:21
@@ -13889,7 +13872,7 @@ msgid "Oracles over expectations"
 msgstr ""
 
 #: manual/design/consistency.md:52
-msgid "Where possible a test computes the expected result independently (with `BigInt`, `ExactRat` or `semantic`) instead of hard-coding output strings, so a law stays meaningful when formatting changes."
+msgid "Where possible a test computes the expected result independently (with `BigInt` or `semantic`) instead of hard-coding output strings, so a law stays meaningful when formatting changes."
 msgstr ""
 
 #: manual/design/consistency.md:58
@@ -16998,159 +16981,151 @@ msgid "internal design"
 msgstr ""
 
 #: manual/design/internal.md:5
-msgid "The binary, decimal and interval cores all reduce their hard steps to exact integer arithmetic: aligning exponents, removing trailing zeros, dividing with a rounding mode, enclosing a ratio between two dyadics. `internal` states these steps as small `BigInt` functions with proved invariants, so that the `consistency` tests can check each one against an oracle and the cores can share what they have in common. It is internal so the cores can change the helpers together without a public compatibility promise."
+msgid "The binary, decimal and interval cores all reduce their hard steps to exact integer arithmetic: aligning exponents, removing trailing zeros, dividing with a rounding mode, enclosing a ratio between two dyadics. `internal` states these steps as small `BigInt` functions with proved invariants, so that the tests of this package can check each one against an oracle and the cores can share what they have in common. It is internal so the cores can change the helpers together without a public compatibility promise."
 msgstr ""
 
 #: manual/design/internal.md:13
-msgid "On the current branch the sharing is partial. The decimal cores use the string splitter, `round_positive_div`, the power caches and `digits10`; every core uses the refinement budget and `certified_failure`; `semantic` uses `ExactRat`. The hot paths of `bin_float` and the two decimal packages round with their own limb kernels (`BinCoeff`, and `DecCoeff` in the subpackage `internal/decimal_kernel`, which `decimal` and `decimal_gda` share), which implement the same rounding table as `round_positive_div` but are not built on it, and several helpers (`round_shift`, `remove_factor10`, `trim_trailing_decimal_zeros`, the `CertifiedDyadic` family) are exercised only by tests. The table on the [API page](../api/internal.md#purpose) lists the users of each helper."
+msgid "On the current branch the sharing is partial. The decimal cores use the string splitter, `round_positive_div`, the power caches and `digits10`; every core uses the refinement budget and `certified_failure`. The hot paths of `bin_float` and the two decimal packages round with their own limb kernels (`BinCoeff`, and `DecCoeff` in the subpackage `internal/decimal_kernel`, which `decimal` and `decimal_gda` share), which implement the same rounding table as `round_positive_div` but are not built on it, and several helpers (`round_shift`, `remove_factor10`, `trim_trailing_decimal_zeros`, the `CertifiedDyadic` family) are exercised only by tests. The table on the [API page](../api/internal.md#purpose) lists the users of each helper."
 msgstr ""
 
-#: manual/design/internal.md:27
+#: manual/design/internal.md:26
 msgid "Integer division with remainder"
 msgstr ""
 
-#: manual/design/internal.md:29
+#: manual/design/internal.md:28
 msgid "For $n \\ge 0$ and $d > 0$ there are unique integers $q, r$ with $n = qd + r$ and $0 \\le r < d$ (Euclidean division). Then $q = \\lfloor n/d \\rfloor$, and $n/d$ is an integer exactly when $r = 0$. The fractional part is $r/d \\in [0, 1)$, and"
 msgstr ""
 
-#: manual/design/internal.md:38
+#: manual/design/internal.md:37
 #: manual/numeric_semantics.md:161
 msgid "Rounding to an integer"
 msgstr ""
 
-#: manual/design/internal.md:40
+#: manual/design/internal.md:39
 msgid "For a real $x$ and a rounding direction, $\\circ(x)$ is the integer chosen among $\\lfloor x \\rfloor$ and $\\lceil x \\rceil$: toward zero, toward $+\\infty$, toward $-\\infty$, away from zero, or to the nearest with ties to the even candidate.[^ieee]"
 msgstr ""
 
-#: manual/design/internal.md:45
+#: manual/design/internal.md:44
 msgid "IEEE 754-2019, clause 4.3, defines the rounding-direction attributes; the integer case is the same definition with $\\mathbb{Z}$ as the set of representable numbers."
 msgstr ""
 
-#: manual/design/internal.md:51
+#: manual/design/internal.md:50
 msgid "A dyadic number is $n \\cdot 2^{-s}$ with $n \\in \\mathbb{Z}$, $s \\ge 0$. For a real $x$ and a scale $s$, the dyadics of scale $s$ around $x$ are $\\lfloor x 2^{s} \\rfloor 2^{-s} \\le x \\le \\lceil x 2^{s} \\rceil 2^{-s}$, an interval of width at most $2^{-s}$."
 msgstr ""
 
-#: manual/design/internal.md:58
+#: manual/design/internal.md:57
 msgid "Magnitude and sign passed separately"
 msgstr ""
 
-#: manual/design/internal.md:60
+#: manual/design/internal.md:59
 msgid "`round_positive_div(n, d, negative, mode)` takes $n \\ge 0$ and the sign of the true quotient as a flag. Sign-magnitude is how the cores store their coefficients, and directed rounding of a magnitude depends on the sign: rounding $-2.5$ toward $-\\infty$ *increases* the magnitude. Keeping the sign as a separate argument makes the rule a single table and avoids negative remainders, whose convention differs between languages."
 msgstr ""
 
-#: manual/design/internal.md:67
+#: manual/design/internal.md:66
 msgid "Powers of ten and five from a shared cache"
 msgstr ""
 
-#: manual/design/internal.md:69
+#: manual/design/internal.md:68
 msgid "Decimal scaling uses $10^{k}$ and the binary-decimal conversions use $5^{k}$ (because $10^{k} = 5^{k} 2^{k}$ and the factor $2^{k}$ is a shift). The caches start with the 19 powers $k \\le 18$ ($10^{18}$ is the largest power of ten below $2^{63}$) and are extended on demand up to $k = 4096$; larger powers are computed directly on each call, so that an extreme exponent cannot make the cache grow without bound."
 msgstr ""
 
-#: manual/design/internal.md:75
+#: manual/design/internal.md:74
 msgid "Digit count without strings"
 msgstr ""
 
-#: manual/design/internal.md:77
+#: manual/design/internal.md:76
 msgid "`digits10` starts from the estimate $d_0 = \\lfloor b \\log_{10} 2 \\rfloor + 1$, where $b$ is the bit length of $|x|$, and corrects it by comparison with powers of ten. Since $2^{b-1} \\le |x| < 2^{b}$, the true digit count $d$ satisfies"
 msgstr ""
 
-#: manual/design/internal.md:86
+#: manual/design/internal.md:85
 msgid "and because $\\log_{10} 2 < 1$ the two bounds differ by at most one. So at most one downward correction is ever needed (the upward loop guards against floating-point error in the estimate), and the cost is a constant number of `BigInt` comparisons plus one power of ten."
 msgstr ""
 
-#: manual/design/internal.md:91
+#: manual/design/internal.md:90
 msgid "Wide exponent parsing"
 msgstr ""
 
-#: manual/design/internal.md:93
+#: manual/design/internal.md:92
 msgid "A decimal context may set $e_{\\max}$ anywhere in `Int`, and the context-free `parse` applies no exponent range at all, so no cap inside `Int` is safe: a literal exponent that is clamped to a smaller value can still be in range and silently changes the number. `split_decimal_string_wide` therefore returns the exponent $q$ as an `Int64`. The written exponent is read exactly up to $10^{18}$ and saturates there; with at most $2^{31}$ fraction digits, $|q| < 10^{18} + 2^{31}$, so the subtraction never overflows `Int64`. A saturated $q$ lies far outside `Int` and so outside every exponent a value or context can hold, which means a caller that compares $q$ (plus the digit count) with `Int` and its context sees the same overflow or underflow as for the exact exponent. `split_decimal_string` keeps its `Int` signature and returns `None` when $q$ does not fit `Int`, rather than a different exponent."
 msgstr ""
 
-#: manual/design/internal.md:106
-msgid "Canonical rationals"
-msgstr ""
-
-#: manual/design/internal.md:108
-msgid "`ExactRat::new` divides by $\\gcd(n, d)$ and makes the denominator positive. With a canonical form, derived structural equality *is* equality of rational numbers, which is what `semantic` needs to compare values across binary and decimal representations."
-msgstr ""
-
-#: manual/design/internal.md:113
+#: manual/design/internal.md:105
 msgid "Ziv-style refinement budget"
 msgstr ""
 
-#: manual/design/internal.md:115
+#: manual/design/internal.md:107
 msgid "The certified elementary functions evaluate an enclosure at a working precision $p_k$ and accept the result when both ends round to the same target number (Ziv's strategy[^ziv]); otherwise they retry at a higher precision. The budget fixes the schedule"
 msgstr ""
 
-#: manual/design/internal.md:124
+#: manual/design/internal.md:116
 msgid "with $L = 12$ refinements by default. For $p_k \\ge 64$ this is $p_k + \\lfloor p_k/2 \\rfloor = \\lfloor 3 p_k / 2 \\rfloor$, geometric growth with ratio $3/2$ up to the floor, so $p_L \\approx p_0 (3/2)^{L}$ (about $130\\,p_0$ for $L = 12$ and $p_0 \\ge 64$). For $p_k < 64$ the step is $32$ and $p_{k+1}/p_k = 1 + 32/p_k > 3/2$, so the ratio is at least $3/2$ (up to the floor) at every step. If one attempt at precision $p$ costs $C(p) \\ge c\\,p$ (at least linear), the total cost of all attempts is dominated by the last one:"
 msgstr ""
 
-#: manual/design/internal.md:138
+#: manual/design/internal.md:130
 msgid "which holds, up to the floors in the schedule, for $C(p) = c\\,p^{\\alpha}$ with $\\alpha \\ge 1$ in the geometric phase. Exhaustion is reported with `certified_failure`, which records the target and final working precision, instead of returning a value that is not certified."
 msgstr ""
 
-#: manual/design/internal.md:143
+#: manual/design/internal.md:135
 msgid "A. Ziv, \"Fast evaluation of elementary mathematical functions with correctly rounded last bit\", *ACM TOMS* 17(3), 1991."
 msgstr ""
 
-#: manual/design/internal.md:148
+#: manual/design/internal.md:140
 msgid "**Rounding table.** Let $n = qd + r$ with $0 \\le r < d$ and $x = (-1)^{\\sigma} n/d$. Then $|\\circ(x)| \\in \\{q, q+1\\}$, with $q + 1$ only if $r > 0$, and `round_positive_div` returns $|\\circ(x)|$:"
 msgstr ""
 
-#: manual/design/internal.md:162
+#: manual/design/internal.md:154
 msgid "*Proof.* $|x| = q + r/d$ lies in $[q, q+1)$. Toward zero takes the smaller magnitude. Toward $+\\infty$ takes the larger magnitude for a positive non-integer and the smaller for a negative one; toward $-\\infty$ is the mirror image. Away from zero takes the larger magnitude for any non-integer. For nearest, the distance to $q$ is $r/d$ and to $q+1$ is $1 - r/d$, so $q + 1$ is nearer iff $2r > d$, and $2r = d$ is the tie, broken toward the even one of $q, q+1$, which is $q + 1$ iff $q$ is odd. $\\square$"
 msgstr ""
 
-#: manual/design/internal.md:170
-msgid "`round_shift(m, s, …)` is the case $d = 2^{s}$ with $q = m \\gg s$ and $r = m - (q \\ll s)$, so the same table applies for $m \\ge 0$. For $m < 0$ the arithmetic shift gives $q = \\lfloor m/2^{s} \\rfloor < 0$ and $0 \\le r < 2^{s}$, and the \"magnitude\" table is then applied to a negative $q$; the result is not $\\pm|\\circ(x)|$ (for example $m = -5$, $s = 1$, `TowardZero` gives $-3$). The function does not check the sign, so callers must pass magnitudes. The `consistency` tests check both functions against these formulas on ties and directed cases."
+#: manual/design/internal.md:162
+msgid "`round_shift(m, s, …)` is the case $d = 2^{s}$ with $q = m \\gg s$ and $r = m - (q \\ll s)$, so the same table applies for $m \\ge 0$. For $m < 0$ the arithmetic shift gives $q = \\lfloor m/2^{s} \\rfloor < 0$ and $0 \\le r < 2^{s}$, and the \"magnitude\" table is then applied to a negative $q$; the result is not $\\pm|\\circ(x)|$ (for example $m = -5$, $s = 1$, `TowardZero` gives $-3$). The function does not check the sign, so callers must pass magnitudes. The tests of this package check both functions against these formulas on ties and directed cases."
 msgstr ""
 
-#: manual/design/internal.md:178
+#: manual/design/internal.md:170
 msgid "**Factor removal.** `remove_factor10` and `trim_trailing_decimal_zeros` preserve $c \\cdot 10^{e}$, removing one factor of 10 per step; the latter stops after `max_drop` steps."
 msgstr ""
 
-#: manual/design/internal.md:182
+#: manual/design/internal.md:174
 msgid "**Enclosure.** `certified_dyadic_fraction(n, d, s)` returns $\\ell = \\lfloor n 2^{s} / d \\rfloor 2^{-s}$ and $u = \\lceil n 2^{s} / d \\rceil 2^{-s}$; from $\\lfloor y \\rfloor \\le y \\le \\lceil y \\rceil$ with $y = n 2^{s}/d$ we get $\\ell \\le n/d \\le u$ and $u - \\ell \\le 2^{-s}$, with equality $\\ell = u$ iff $y \\in \\mathbb{Z}$. The floor of a negative ratio is computed as $-\\lceil |n| / d \\rceil$, so the enclosure is correct for both signs. `certified_dyadic_div` rewrites $a / b = (n_a 2^{s_b}) / (n_b 2^{s_a})$ with the sign moved to the numerator, so it inherits the same bound. `round_down` and `round_up` are the same floor and ceiling at a smaller scale, so $\\text{round\\_down}(x, s) \\le x \\le \\text{round\\_up}(x, s)$."
 msgstr ""
 
-#: manual/design/internal.md:195
+#: manual/design/internal.md:187
 msgid "**Budget.** The precision sequence is strictly increasing (each step adds at least 32 bits) and at most `limit` refinements are made, so every refinement loop that checks `available()` terminates."
 msgstr ""
 
-#: manual/design/internal.md:199
-msgid "**Abort contract.** `pow5`, `pow10` with a negative exponent, `round_positive_div` with $n < 0$ or $d \\le 0$, `ExactRat::new` with $d = 0$, `exact_divide_by_power_of_ten` with a negative shift and a non-zero coefficient, and dyadic constructors and roundings with a negative scale abort: these are programmer errors inside the cores, never reachable from user input. `round_shift` with a negative magnitude does not abort; it returns the value described above."
+#: manual/design/internal.md:191
+msgid "**Abort contract.** `pow5`, `pow10` with a negative exponent, `round_positive_div` with $n < 0$ or $d \\le 0$, `exact_divide_by_power_of_ten` with a negative shift and a non-zero coefficient, and dyadic constructors and roundings with a negative scale abort: these are programmer errors inside the cores, never reachable from user input. `round_shift` with a negative magnitude does not abort; it returns the value described above."
 msgstr ""
 
-#: manual/design/internal.md:209
+#: manual/design/internal.md:201
 msgid "**Rounding via floating point.** Converting to `Double` to round a ratio loses exactness beyond 53 bits; all helpers stay in `BigInt`."
 msgstr ""
 
-#: manual/design/internal.md:211
+#: manual/design/internal.md:203
 msgid "**Signed division with remainder.** Truncating and flooring division differ for negative operands; sign-magnitude avoids the ambiguity."
 msgstr ""
 
-#: manual/design/internal.md:213
+#: manual/design/internal.md:205
 msgid "**A normalized `CertifiedDyadic`.** Normalizing after every operation costs a trailing-zero scan; enclosures are compared with `compare`, which does not need canonical forms."
 msgstr ""
 
-#: manual/design/internal.md:216
+#: manual/design/internal.md:208
 msgid "**An unbounded power cache.** Pathological exponents would retain huge `BigInt` values for the life of the process."
 msgstr ""
 
-#: manual/design/internal.md:221
+#: manual/design/internal.md:213
 msgid "No floating-point formats, contexts or flags: the cores build them on these helpers."
 msgstr ""
 
-#: manual/design/internal.md:223
+#: manual/design/internal.md:215
 msgid "No decimal string formatting and no special values (`inf`, `nan`) in `split_decimal_string`."
 msgstr ""
 
-#: manual/design/internal.md:225
+#: manual/design/internal.md:217
 msgid "No public stability: the package is importable only inside `Luna-Flow/floating`."
 msgstr ""
 
-#: manual/design/internal.md:227
+#: manual/design/internal.md:219
 msgid "The power caches are process-wide mutable state, the only state in the package; they never change a result."
 msgstr ""
 
@@ -21602,7 +21577,7 @@ msgstr ""
 #: manual/tutorial/frontend/itl_expr.md:164
 #: manual/tutorial/frontend/mpfr_expr.md:158
 #: manual/tutorial/frontend/testfloat_expr.md:207
-#: manual/tutorial/internal.md:182
+#: manual/tutorial/internal.md:180
 #: manual/tutorial/internal/conformance.md:116
 #: manual/tutorial/internal/runner_cli.md:148
 #: manual/tutorial/numeric_expr.md:257
@@ -21675,7 +21650,7 @@ msgstr ""
 #: manual/tutorial/frontend/itl_expr.md:178
 #: manual/tutorial/frontend/mpfr_expr.md:174
 #: manual/tutorial/frontend/testfloat_expr.md:218
-#: manual/tutorial/internal.md:196
+#: manual/tutorial/internal.md:194
 #: manual/tutorial/internal/conformance.md:127
 #: manual/tutorial/internal/runner_cli.md:164
 #: manual/tutorial/numeric_expr.md:271
@@ -25421,46 +25396,42 @@ msgid "`bin_float`, `decimal`, `decimal_gda` and `ball_float` create their refin
 msgstr ""
 
 #: manual/tutorial/internal.md:172
-msgid "`semantic` uses `ExactRat` as the canonical exact value of finite binary and decimal numbers."
+msgid "The white-box tests of this package check these helpers against `BigInt` oracles."
 msgstr ""
 
-#: manual/tutorial/internal.md:174
-msgid "The `consistency` package tests these helpers against `BigInt` oracles."
-msgstr ""
-
-#: manual/tutorial/internal.md:175
+#: manual/tutorial/internal.md:173
 msgid "Run the package tests from a workspace containing the module: `moon test -p Luna-Flow/floating/internal`."
 msgstr ""
 
-#: manual/tutorial/internal.md:177
+#: manual/tutorial/internal.md:175
 msgid "The decimal cores parse literals with `split_decimal_string_wide`, which returns the exponent as an `Int64` so that they can overflow or underflow on it (see the [API page](../api/internal.md#split_decimal_string-split_decimal_string_wide))."
 msgstr ""
 
-#: manual/tutorial/internal.md:184
+#: manual/tutorial/internal.md:182
 msgid "**Signed inputs.** `round_positive_div` aborts on a negative numerator; pass the magnitude and the sign separately."
 msgstr ""
 
-#: manual/tutorial/internal.md:186
+#: manual/tutorial/internal.md:184
 msgid "**`round_shift` with $s \\le 0$** returns the input unchanged; it never shifts left. With a negative magnitude it floors instead of rounding the magnitude, so pass $|m|$ and the sign separately, as for `round_positive_div`."
 msgstr ""
 
-#: manual/tutorial/internal.md:190
+#: manual/tutorial/internal.md:188
 msgid "**Zero loses its exponent.** `remove_factor10` and `trim_trailing_decimal_zeros` return exponent 0 for a zero coefficient. Keep the original exponent yourself if the cohort of zero matters."
 msgstr ""
 
-#: manual/tutorial/internal.md:193
+#: manual/tutorial/internal.md:191
 msgid "**Unnormalized dyadics.** `CertifiedDyadic` values with different scales may be numerically equal; compare with `compare`, not by fields."
 msgstr ""
 
-#: manual/tutorial/internal.md:198
+#: manual/tutorial/internal.md:196
 msgid "[internal API](../api/internal.md)"
 msgstr ""
 
-#: manual/tutorial/internal.md:199
+#: manual/tutorial/internal.md:197
 msgid "[internal design](../design/internal.md)"
 msgstr ""
 
-#: manual/tutorial/internal.md:200
+#: manual/tutorial/internal.md:198
 msgid "[consistency tutorial](consistency.md) for the tests that cross-check these helpers."
 msgstr ""
 

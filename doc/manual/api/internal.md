@@ -19,13 +19,13 @@ code uses:
 | --- | --- |
 | `decimal`, `decimal_gda` | `split_decimal_string`, `round_positive_div`, `pow5`, `pow10`, `digits10`, `abs_bigint`, `bigint_zero`, `bigint_one`, `DecimalExponentBounds`, `decimal_exponent_limit`, `CertifiedRefinementBudget`, `certified_failure` |
 | `bin_float`, `ball_float` | `CertifiedRefinementBudget`, `certified_failure` |
-| `semantic` | `ExactRat` |
 
 The binary and decimal cores round their own coefficients with their own
 kernels. The remaining helpers (`round_shift`, `remove_factor10`,
 `trim_trailing_decimal_zeros`, `exact_divide_by_power_of_ten`, `compare_abs`
-and the `CertifiedDyadic` family) are exercised by the `consistency` and
-package tests only.
+and the `CertifiedDyadic` family) are exercised by the tests of this package
+and of the cores only. `semantic` no longer uses `internal`: it owns its exact
+rational (`ExactRational`) and its normalization.
 
 ## Decimal exponent bounds
 
@@ -289,52 +289,6 @@ test "split decimal string" {
   debug_inspect(@internal.split_decimal_string("1e"), content="None")
   debug_inspect(@internal.split_decimal_string("1e3000000000"), content="None")
   debug_inspect(@internal.split_decimal_string_wide("1e3000000000"), content="Some((false, \"1\", 3000000000))")
-}
-```
-
-## Exact rationals
-
-### `ExactRat`
-
-`ExactRat` is a rational number in lowest terms.
-
-```mbti
-pub struct ExactRat {
-  // private fields
-} derive(Eq)
-```
-
-### `ExactRat::new`, `ExactRat::numerator`, `ExactRat::denominator`
-
-`ExactRat::new(n, d)` reduces $n/d$ to lowest terms with a positive
-denominator; the accessors return the reduced parts.
-
-```mbti
-pub fn ExactRat::new(@bigint.BigInt, @bigint.BigInt) -> Self
-pub fn ExactRat::numerator(Self) -> @bigint.BigInt
-pub fn ExactRat::denominator(Self) -> @bigint.BigInt
-```
-
-Aborts when $d = 0$. Zero is stored as $0/1$. Because the form is canonical,
-`==` on `ExactRat` is equality of rational numbers.
-
-### `ExactRat::equal`, `ExactRat::not_equal`
-
-These methods compare canonical forms; use `==` and `!=`.
-
-```mbti
-pub fn ExactRat::equal(Self, Self) -> Bool
-pub fn ExactRat::not_equal(Self, Self) -> Bool
-```
-
-```moonbit
-///|
-test "exact rational" {
-  let r = @internal.ExactRat::new(-6N, -8N)
-  inspect(r.numerator(), content="3")
-  inspect(r.denominator(), content="4")
-  inspect(r == @internal.ExactRat::new(9N, 12N), content="true")
-  inspect(@internal.ExactRat::new(0N, -5N).denominator(), content="1")
 }
 ```
 
@@ -652,16 +606,6 @@ pub fn DecimalExponentBounds::etiny(Self) -> Int32
 pub fn DecimalExponentBounds::etop(Self) -> Int32
 pub fn DecimalExponentBounds::is_valid(Self) -> Bool
 pub fn DecimalExponentBounds::new(Int32, Int32, Int32) -> Self
-
-#derive(Eq)
-pub struct ExactRat {
-  // private fields
-}
-pub fn ExactRat::denominator(Self) -> @bigint.BigInt
-pub fn ExactRat::equal(Self, Self) -> Bool
-pub fn ExactRat::new(@bigint.BigInt, @bigint.BigInt) -> Self
-pub fn ExactRat::not_equal(Self, Self) -> Bool
-pub fn ExactRat::numerator(Self) -> @bigint.BigInt
 
 // Type aliases
 
