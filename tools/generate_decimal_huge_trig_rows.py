@@ -26,7 +26,7 @@ No row comes from the library under test:
   the exact enclosure [1 - 5 x^2, 1 - 4 x^2] (pi^2 / 2 = 4.93...), rounded by
   libmpdec (Python `decimal`).
 
-    python3 tools/generate_decimal_huge_trig_rows.py
+    python3 tools/generate_decimal_huge_trig_rows.py && moon fmt
     python3 tools/generate_decimal_huge_trig_rows.py --check
 """
 
@@ -140,7 +140,7 @@ def tiny_cospi_rows() -> list[table.TableRow]:
     return rows
 
 
-BINARY_OUTPUT = ROOT / "src/bin_float/huge_argument_trig_wbtest.mbt"
+BINARY_OUTPUT = ROOT / "library/src/bin_float/huge_argument_trig_wbtest.mbt"
 # (operation, k, precision): sin, cos, tan of 2^k, rounded to nearest even.
 BINARY_CASES = [
     (op, k, p)
@@ -235,7 +235,13 @@ def main(argv: list[str] | None = None) -> int:
         (BINARY_OUTPUT, render_binary(binary_rows())),
     ]
     if args.check:
-        bad = [str(path) for path, text in pairs if not table.check_table(path, text)]
+        def same(path: Path, text: str) -> bool:
+            if path.suffix == ".mbt":  # `moon fmt` rewraps the generated test
+                squeeze = lambda value: "".join(value.split()).replace(",)", ")").replace(",]", "]")
+                return path.is_file() and squeeze(path.read_text(encoding="utf-8")) == squeeze(text)
+            return table.check_table(path, text)
+
+        bad = [str(path) for path, text in pairs if not same(path, text)]
         if bad:
             print("stale tables:", *bad, file=sys.stderr)
             return 1
