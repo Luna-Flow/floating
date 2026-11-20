@@ -2938,10 +2938,8 @@ pub fn BinaryContext::with_refinement_limit(Self, Int32?) -> Self
 pub fn BinaryContext::with_rounding(Self, BinaryRoundingMode) -> Self
 pub fn BinaryContext::with_tininess(Self, TininessDetection) -> Self
 
-#derive(Eq, @debug.Debug)
-pub struct BinaryFlags {
-  // private fields
-}
+#derive(Eq)
+pub struct BinaryFlags(FlagBits)
 pub fn BinaryFlags::combine(Self, Self) -> Self
 pub fn BinaryFlags::division_by_zero(Self) -> Bool
 pub fn BinaryFlags::equal(Self, Self) -> Bool
@@ -2953,6 +2951,7 @@ pub fn BinaryFlags::not_equal(Self, Self) -> Bool
 pub fn BinaryFlags::overflow(Self) -> Bool
 pub fn BinaryFlags::to_repr(Self) -> @debug.Repr
 pub fn BinaryFlags::underflow(Self) -> Bool
+pub impl @debug.Debug for BinaryFlags
 
 #derive(Eq)
 pub struct BinaryInterchange {
@@ -3000,6 +2999,9 @@ pub fn BinaryRoundingMode::from_arithmetic(@arithmetic.RoundingMode) -> Self?
 pub fn BinaryRoundingMode::not_equal(Self, Self) -> Bool
 pub fn BinaryRoundingMode::to_arithmetic(Self) -> @arithmetic.RoundingMode?
 pub fn BinaryRoundingMode::to_repr(Self) -> @debug.Repr
+
+#derive(Eq)
+type FlagBits
 
 #derive(Eq, @debug.Debug)
 pub(all) enum TininessDetection {

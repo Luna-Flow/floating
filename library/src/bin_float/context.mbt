@@ -55,26 +55,53 @@ pub struct BinaryContext {
 }
 
 ///|
-#derive(Eq, Debug)
-pub struct BinaryFlags {
-  priv inexact : Bool
-  priv underflow : Bool
-  priv overflow : Bool
-  priv division_by_zero : Bool
-  priv invalid_operation : Bool
-  priv not_computed : Bool
+/// The bits of a flag set. The layout is private to the package (an abstract
+/// type: callers see its name and nothing of its representation); it is
+/// independent of the TestFloat bits of `to_testfloat_bits`. A newtype over a
+/// scalar is erased on every target, so a `BinaryFlags` is a scalar and the
+/// pair `(BinFloat, BinaryFlags)` of a contextual operation is one object.
+#derive(Eq)
+struct FlagBits(UInt32)
+
+///|
+/// The exception flags of one operation (IEEE 754-2019 7) and `not_computed`.
+/// The representation is private; read the flags by their methods.
+#derive(Eq)
+pub struct BinaryFlags(FlagBits)
+
+///|
+let binary_flag_inexact : UInt32 = 1U
+
+///|
+let binary_flag_underflow : UInt32 = 2U
+
+///|
+let binary_flag_overflow : UInt32 = 4U
+
+///|
+let binary_flag_division_by_zero : UInt32 = 8U
+
+///|
+let binary_flag_invalid_operation : UInt32 = 16U
+
+///|
+let binary_flag_not_computed : UInt32 = 32U
+
+///|
+#inline
+fn BinaryFlags::from_bits(bits : UInt32) -> BinaryFlags {
+  BinaryFlags(FlagBits(bits))
+}
+
+///|
+#inline
+fn BinaryFlags::has(self : BinaryFlags, flag : UInt32) -> Bool {
+  (self.0.0 & flag) != 0U
 }
 
 ///|
 pub fn BinaryFlags::new() -> BinaryFlags {
-  {
-    inexact: false,
-    underflow: false,
-    overflow: false,
-    division_by_zero: false,
-    invalid_operation: false,
-    not_computed: false,
-  }
+  BinaryFlags::from_bits(0U)
 }
 
 ///|
@@ -82,39 +109,32 @@ pub fn BinaryFlags::combine(
   self : BinaryFlags,
   other : BinaryFlags,
 ) -> BinaryFlags {
-  {
-    inexact: self.inexact || other.inexact,
-    underflow: self.underflow || other.underflow,
-    overflow: self.overflow || other.overflow,
-    division_by_zero: self.division_by_zero || other.division_by_zero,
-    invalid_operation: self.invalid_operation || other.invalid_operation,
-    not_computed: self.not_computed || other.not_computed,
-  }
+  BinaryFlags::from_bits(self.0.0 | other.0.0)
 }
 
 ///|
 pub fn BinaryFlags::inexact(self : BinaryFlags) -> Bool {
-  self.inexact
+  self.has(binary_flag_inexact)
 }
 
 ///|
 pub fn BinaryFlags::underflow(self : BinaryFlags) -> Bool {
-  self.underflow
+  self.has(binary_flag_underflow)
 }
 
 ///|
 pub fn BinaryFlags::overflow(self : BinaryFlags) -> Bool {
-  self.overflow
+  self.has(binary_flag_overflow)
 }
 
 ///|
 pub fn BinaryFlags::division_by_zero(self : BinaryFlags) -> Bool {
-  self.division_by_zero
+  self.has(binary_flag_division_by_zero)
 }
 
 ///|
 pub fn BinaryFlags::invalid_operation(self : BinaryFlags) -> Bool {
-  self.invalid_operation
+  self.has(binary_flag_invalid_operation)
 }
 
 ///|
@@ -124,27 +144,46 @@ pub fn BinaryFlags::invalid_operation(self : BinaryFlags) -> Bool {
 /// flag of IEEE 754-2019 and is distinct from `invalid_operation`, which reports an
 /// operation whose result the standard defines as invalid.
 pub fn BinaryFlags::not_computed(self : BinaryFlags) -> Bool {
-  self.not_computed
+  self.has(binary_flag_not_computed)
+}
+
+///|
+/// The same printed form as the record it replaced, one field per flag.
+pub impl @moonbitlang/core/debug.Debug for BinaryFlags with fn to_repr(self) {
+  @moonbitlang/core/debug.Repr::record({
+    "inexact": @moonbitlang/core/debug.Debug::to_repr(self.inexact()),
+    "underflow": @moonbitlang/core/debug.Debug::to_repr(self.underflow()),
+    "overflow": @moonbitlang/core/debug.Debug::to_repr(self.overflow()),
+    "division_by_zero": @moonbitlang/core/debug.Debug::to_repr(
+      self.division_by_zero(),
+    ),
+    "invalid_operation": @moonbitlang/core/debug.Debug::to_repr(
+      self.invalid_operation(),
+    ),
+    "not_computed": @moonbitlang/core/debug.Debug::to_repr(self.not_computed()),
+  })
 }
 
 ///|
 fn binary_inexact_flags(underflow : Bool) -> BinaryFlags {
-  { ..BinaryFlags::new(), inexact: true, underflow, }
+  BinaryFlags::from_bits(
+    binary_flag_inexact | (if underflow { binary_flag_underflow } else { 0U }),
+  )
 }
 
 ///|
 fn binary_overflow_flags() -> BinaryFlags {
-  { ..BinaryFlags::new(), inexact: true, overflow: true, }
+  BinaryFlags::from_bits(binary_flag_inexact | binary_flag_overflow)
 }
 
 ///|
 fn binary_division_by_zero_flags() -> BinaryFlags {
-  { ..BinaryFlags::new(), division_by_zero: true, }
+  BinaryFlags::from_bits(binary_flag_division_by_zero)
 }
 
 ///|
 fn binary_invalid_flags() -> BinaryFlags {
-  { ..BinaryFlags::new(), invalid_operation: true, }
+  BinaryFlags::from_bits(binary_flag_invalid_operation)
 }
 
 ///|
@@ -528,3 +567,5 @@ pub extend BinaryFlags with Eq::{not_equal, equal}
 
 ///|
 pub extend BinaryFlags with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|

@@ -4,7 +4,7 @@
 test "BinaryFlags not_computed is carried by new, combine and equality" {
   let clear = BinaryFlags::new()
   assert_false(clear.not_computed())
-  let raised : BinaryFlags = { ..BinaryFlags::new(), not_computed: true, }
+  let raised : BinaryFlags = BinaryFlags::from_bits(binary_flag_not_computed)
   assert_true(raised.not_computed())
   assert_false(raised.invalid_operation())
   assert_true(raised != clear)
@@ -13,7 +13,7 @@ test "BinaryFlags not_computed is carried by new, combine and equality" {
   assert_true(raised.combine(raised) == raised)
   assert_false(clear.combine(clear).not_computed())
   // the other flags are unaffected by it
-  let both = raised.combine({ ..BinaryFlags::new(), invalid_operation: true, })
+  let both = raised.combine(binary_invalid_flags())
   assert_true(both.not_computed() && both.invalid_operation())
   assert_false(both.inexact() || both.underflow() || both.overflow())
   assert_false(both.division_by_zero())

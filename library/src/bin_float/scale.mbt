@@ -6,7 +6,7 @@
 fn scaleb_count(n : BinFloat) -> Int32? {
   let wide = BinaryContext::new(precision=n.precision())
   let (integral, flags) = n.to_integral_exact_ctx(wide)
-  guard !flags.inexact else { return None }
+  guard !flags.inexact() else { return None }
   if integral.is_zero() {
     return Some(0)
   }

@@ -53,9 +53,10 @@ fn sib_check(
       )
       let (value, flags) = f(x, ctx)
       let (expected, expected_flags) = reference.round_ctx(ctx)
-      let expected_flags = {
-        ..expected_flags,
-        inexact: expected_flags.inexact() || reference_flags.inexact(),
+      let expected_flags = if reference_flags.inexact() {
+        expected_flags.combine(BinaryFlags::from_bits(binary_flag_inexact))
+      } else {
+        expected_flags
       }
       let label = "\{name}(\{x}) p=\{p} e_min=\{e_min} \{e2s_mode_name(mode)} \{e2s_tininess_name(tininess)}"
       assert_eq(
