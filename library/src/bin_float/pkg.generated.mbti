@@ -111,6 +111,7 @@ pub fn BinFloat::compare_quiet(Self, Self) -> (@def.PartialOrder, BinaryFlags)
 pub fn BinFloat::compare_signaling(Self, Self) -> (@def.PartialOrder, BinaryFlags)
 pub fn BinFloat::compound(Self, Int32) -> Self
 pub fn BinFloat::compound_ctx(Self, Int32, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::convert_format(Self, BinaryInterchangeFormat, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> (Self, BinaryFlags)
 pub fn BinFloat::copy_sign(Self, Self) -> Self
 pub fn BinFloat::cos(Self) -> Self
 pub fn BinFloat::cos_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
