@@ -147,21 +147,6 @@ pub fn context(
 }
 
 ///|
-pub fn decimal32_context() -> GdaContext {
-  GdaContext::decimal32()
-}
-
-///|
-pub fn decimal64_context() -> GdaContext {
-  GdaContext::decimal64()
-}
-
-///|
-pub fn decimal128_context() -> GdaContext {
-  GdaContext::decimal128()
-}
-
-///|
 pub fn parse(source : String, ctx : GdaContext) -> GdaOutcome[Decimal] {
   match gda_exact_small_integer_parse(source, ctx) {
     Some(value) => return gda_completed_exact(value, ctx)
