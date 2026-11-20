@@ -46,6 +46,18 @@ IMPORT_PATH = re.compile(r'"([^"\s]+)"')
 VERSION_LINE = re.compile(r'^version\s*=\s*"([^"]+)"', re.MULTILINE)
 
 
+# Throwaway sources that gates write into the source trees for the length of one run
+# (`tools/run_ieee_decimal.py`, `tools/check_doc_examples.py`, the retired decTest
+# generator). They are git-ignored, and a zip must never hold them even if an
+# interrupted gate left them behind.
+GENERATED_MARKERS = ("ieee_corpus_generated_", "_generated_doc_examples", ".generated_dectest", "_generated_dectest")
+
+
+def generated_paths(names: list[str]) -> list[str]:
+    """Packed paths that are throwaway generated sources."""
+    return [name for name in names if any(marker in name for marker in GENERATED_MARKERS)]
+
+
 def unexpected_paths(names: list[str], top_level_files: frozenset[str]) -> list[str]:
     """Packed paths outside the shape of a module: its top-level files and `src/`."""
     return [name for name in names if name not in top_level_files and not name.startswith("src/")]
@@ -68,7 +80,16 @@ def shape_violations(
     names: list[str], top_level_files: frozenset[str], required: frozenset[str], module: str
 ) -> list[str]:
     found: list[str] = []
-    unexpected = unexpected_paths(names, top_level_files)
+    generated = generated_paths(names)
+    if generated:
+        found.append(
+            summarize(
+                "packed paths are generated sources of a gate (an interrupted run left them; "
+                "remove them and rerun)",
+                generated,
+            )
+        )
+    unexpected = [name for name in unexpected_paths(names, top_level_files) if name not in generated]
     if unexpected:
         found.append(
             summarize(
