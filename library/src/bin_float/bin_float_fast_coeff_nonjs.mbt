@@ -79,6 +79,37 @@ fn binary_coeff_fast_finish(
 }
 
 ///|
+/// `binary_coeff_fast_finish` for a magnitude produced by the kernel: a heap
+/// coefficient returned by `Coeff::mul`, `bin_coeff_div_scaled_quotient`,
+/// `bin_coeff_div_short_quotient` or `bin_coeff_sqrt_scaled_rounded` owns its
+/// array (the contract in the kernel design page), so it is rounded in place
+/// without the copy; shorter results have no array.
+fn binary_coeff_fast_finish_owned(
+  negative : Bool,
+  magnitude : Coeff,
+  exponent : Int32,
+  precision : Int32,
+  inexact : Bool,
+) -> BinFloat {
+  match magnitude.0 {
+    Heap(words, len) =>
+      bin_finish_words(
+        negative,
+        words,
+        len,
+        exponent,
+        precision,
+        inexact,
+        BinaryRoundingMode::RoundTiesToEven,
+      )
+    _ =>
+      binary_coeff_fast_finish(
+        negative, magnitude, exponent, precision, inexact,
+      )
+  }
+}
+
+///|
 /// The little-endian words of `value`: the array of a heap coefficient itself
 /// (not to be modified), a fresh small array otherwise. The count comes from
 /// `binary_coeff_fast_len`; a returned tuple would be a heap object.
@@ -100,20 +131,9 @@ fn binary_coeff_fast_len(value : Coeff) -> Int32 {
 }
 
 ///|
-/// `Some(precision)` when both operands are finite, nonzero, narrow enough,
-/// and have exponents far from the implementation limits.
-fn binary_coeff_fast_operands(left : BinFloat, right : BinFloat) -> Int32? {
-  if binary_coeff_fast_operands_ok(left, right) {
-    Some(Int32::max(left.precision_, right.precision_))
-  } else {
-    None
-  }
-}
-
-///|
 /// Whether both operands are finite, nonzero, narrow enough, and have
-/// exponents far from the implementation limits (the test of
-/// `binary_coeff_fast_operands`, without an option of a scalar).
+/// exponents far from the implementation limits. The precision of the result
+/// is the larger of the two (an option of a scalar would be a heap object).
 fn binary_coeff_fast_operands_ok(left : BinFloat, right : BinFloat) -> Bool {
   let precision = Int32::max(left.precision_, right.precision_)
   precision <= binary_coeff_fast_bits_limit &&
@@ -397,9 +417,8 @@ fn binary_coeff_fast_add_signed(
 
 ///|
 fn binary_coeff_fast_mul(left : BinFloat, right : BinFloat) -> BinFloat? {
-  guard binary_coeff_fast_operands(left, right) is Some(precision) else {
-    return None
-  }
+  guard binary_coeff_fast_operands_ok(left, right) else { return None }
+  let precision = Int32::max(left.precision_, right.precision_)
   guard left.coefficient_.bit_length() <= binary_coeff_fast_bits_limit &&
     right.coefficient_.bit_length() <= binary_coeff_fast_bits_limit else {
     return None
@@ -412,8 +431,9 @@ fn binary_coeff_fast_mul(left : BinFloat, right : BinFloat) -> BinFloat? {
       precision,
     )
     if !approximate.is_zero() {
+      // a fresh array (`bin_coeff_mul_short`), rounded in place
       return Some(
-        binary_coeff_fast_finish(
+        binary_coeff_fast_finish_owned(
           left.negative != right.negative,
           approximate,
           left.exponent2 +
@@ -428,7 +448,7 @@ fn binary_coeff_fast_mul(left : BinFloat, right : BinFloat) -> BinFloat? {
     }
   }
   Some(
-    binary_coeff_fast_finish(
+    binary_coeff_fast_finish_owned(
       left.negative != right.negative,
       left.coefficient_.mul(right.coefficient_),
       left.exponent2 + right.exponent2,
@@ -440,9 +460,8 @@ fn binary_coeff_fast_mul(left : BinFloat, right : BinFloat) -> BinFloat? {
 
 ///|
 fn binary_coeff_fast_div(left : BinFloat, right : BinFloat) -> BinFloat? {
-  guard binary_coeff_fast_operands(left, right) is Some(precision) else {
-    return None
-  }
+  guard binary_coeff_fast_operands_ok(left, right) else { return None }
+  let precision = Int32::max(left.precision_, right.precision_)
   let dividend = left.coefficient_
   let divisor = right.coefficient_
   let dividend_bits = dividend.bit_length()
@@ -463,7 +482,7 @@ fn binary_coeff_fast_div(left : BinFloat, right : BinFloat) -> BinFloat? {
     )
     if !approximate.is_zero() {
       return Some(
-        binary_coeff_fast_finish(
+        binary_coeff_fast_finish_owned(
           left.negative != right.negative,
           approximate,
           left.exponent2 - right.exponent2 - short_scale,
@@ -476,7 +495,7 @@ fn binary_coeff_fast_div(left : BinFloat, right : BinFloat) -> BinFloat? {
   if bin_coeff_div_scaled_ok(dividend, scale, divisor) {
     // the lowest bit of the quotient is the inexact flag
     return Some(
-      binary_coeff_fast_finish(
+      binary_coeff_fast_finish_owned(
         left.negative != right.negative,
         bin_coeff_div_scaled_quotient(dividend, scale, divisor),
         left.exponent2 - right.exponent2 - scale - 1,
@@ -543,7 +562,7 @@ fn binary_coeff_fast_sqrt(value : BinFloat) -> BinFloat? {
   // exponent; a longer one carries its round and sticky bits two below it
   let adjust = if packed.bit_length() <= precision + 1 { 0 } else { -2 }
   Some(
-    binary_coeff_fast_finish(
+    binary_coeff_fast_finish_owned(
       false,
       packed,
       (exponent - scale) / 2 + adjust,

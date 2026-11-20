@@ -257,6 +257,8 @@ The coefficient is then $W \gg q$ written into the same array: the destination i
 
 **Why.** The result array is the only allocation besides the value itself, and the rounding is one probe of a few limbs plus one shifting loop. The finisher takes the direction as a parameter so that the contextual operations can use it; the plain operators pass round to nearest even. The tests keep the previous finisher and the contextual rounding as references and compare value, sign, exponent and precision bit for bit in every direction, on ties, on all-ones carries and on cancelled leading limbs.
 
+**Who owns the array.** The product (exact or short), the scaled and the short quotient and the packed square root of the coefficient kernel return a heap coefficient whose array nothing else refers to (the contract is stated in the kernel design page), so the fast paths of `mul`, `div` and `sqrt` hand it to the finisher as it is and it is rounded in place, with no copy. A coefficient of at most 128 bits has no array and takes the copying path; so does the rare division through a general quotient and remainder, whose array is not covered by the contract. The tests run each operation twice on the same operands, on a value with itself and on a copy of it, and check that no operand word changed.
+
 ### Division from quotient and remainder
 
 **Problem.** $a/b$ with $a = c_a 2^{e_a}$, $b = c_b 2^{e_b}$ is a rational

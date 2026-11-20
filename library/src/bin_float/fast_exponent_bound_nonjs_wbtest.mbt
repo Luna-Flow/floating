@@ -1,6 +1,6 @@
 // The fast coefficient paths (`binary_coeff_fast_mul`, `binary_coeff_fast_div`,
 // `binary_coeff_fast_add`) add and subtract Int32 exponents of their operands.
-// They cannot wrap: `binary_coeff_fast_operands` admits only operands whose
+// They cannot wrap: `binary_coeff_fast_operands_ok` admits only operands whose
 // exponents satisfy |e| <= binary_fast_exponent_limit = 2^28, so a sum or a
 // difference of two exponents is at most 2^29 in magnitude, and the division
 // scale is at most precision + 2 + bits(divisor) <= 2^20 + 2 + 2^20, so
