@@ -145,7 +145,7 @@ test "from_double at the default precision is the half-even 34-digit rounding of
     let x = bits.reinterpret_as_double()
     assert_eq(Decimal::from_double(x).to_sci_string(), expected)
     let flipped = if expected.has_prefix("-") {
-      expected[1:].to_string()
+      expected[1:].to_owned()
     } else {
       "-" + expected
     }
