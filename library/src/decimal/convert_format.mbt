@@ -163,7 +163,27 @@ fn decimal_surrogate_from_bin_float(
   x : @bin_float.BinFloat,
   ctx : DecimalContext,
 ) -> Decimal {
-  let digits = ctx.precision + 1
+  let (negative, coefficient, exponent) = decimal_surrogate_parts(
+    x,
+    ctx.precision,
+  )
+  finite_with_exponent_repr(
+    negative,
+    coefficient,
+    exponent,
+    Int32::max(1, coefficient.digits10()),
+  )
+}
+
+///|
+/// The sign, coefficient and exponent of the surrogate of `decimal_surrogate_from_bin_float`
+/// for a finite non-zero `x` and a precision of `precision` digits, without any
+/// context (the plain `from_bin_float` rounds them once, half-even).
+fn decimal_surrogate_parts(
+  x : @bin_float.BinFloat,
+  precision : Int32,
+) -> (Bool, DecCoeff, Int32) {
+  let digits = precision + 1
   let (text, flags) = x.to_decimal_string_ctx(
     digits,
     @bin_float.BinaryContext::unbounded(
@@ -201,19 +221,14 @@ fn decimal_surrogate_from_bin_float(
       // are appended up to `precision + 1` digits, and the one `apply_ctx`
       // rounds away is a zero: the `precision`-digit member with the exponent
       // closest to 0, flagged rounded, with no second rounding.
-      let pad = Int32::min(exponent, ctx.precision + 1 - coefficient.length())
+      let pad = Int32::min(exponent, precision + 1 - coefficient.length())
       if pad > 0 {
         coefficient = coefficient + "0".repeat(pad)
         exponent = exponent - pad
       }
     }
   }
-  finite_with_exponent_repr(
-    negative,
-    coeff_from_bigint(bigint_from_text(coefficient)),
-    exponent,
-    Int32::max(1, coefficient.length()),
-  )
+  (negative, coeff_from_bigint(bigint_from_text(coefficient)), exponent)
 }
 
 ///|
