@@ -92,7 +92,10 @@ def check_table(path: Path, rendered: str) -> bool:
     return path.is_file() and path.read_text(encoding="utf-8") == rendered
 
 
-TABLES = ("pi_inverse",)
+TABLES = ("pi_inverse", "huge_trig")
+# Rows that cost 20 to 60 seconds each (`1E+999999`): not in the gate; run them
+# with `python3 tools/run_huge_trig_extreme.py`.
+OPT_IN_TABLES = ("huge_trig_extreme",)
 
 
 def evaluate_run(
