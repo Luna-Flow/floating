@@ -23,7 +23,7 @@ test "== is set equality and ignores the precision tag (IEEE 1788-2015 Table 10.
   )
   assert_false(a == BallFloat::empty())
   assert_false(BallFloat::empty() == a)
-  assert_false(a == BallFloat::from_int(1))
+  assert_false(a == BallFloat::from_int(1, precision=53))
   // -0 and +0 bounds are the same set
   let z = @bin_float.BinFloat::zero(precision=53)
   assert_true(
@@ -33,7 +33,7 @@ test "== is set equality and ignores the precision tag (IEEE 1788-2015 Table 10.
 
 ///|
 test "== on decorated intervals is the equal relation: NaI is never equal, decorations are ignored" {
-  let x = BallFloat::from_int(2)
+  let x = BallFloat::from_int(2, precision=53)
   let com = BallFloatDecorated::new(x, decoration=Com)
   let trv = BallFloatDecorated::new(x, decoration=Trv)
   assert_true(com == trv)
@@ -49,11 +49,11 @@ test "== on decorated intervals is the equal relation: NaI is never equal, decor
 
 ///|
 test "from_int and from_coefficient default to 53 bits" {
-  assert_eq(BallFloat::from_int(5).precision(), 53)
+  assert_eq(BallFloat::from_int(5, precision=53).precision(), 53)
   assert_eq(
     BallFloat::from_coefficient(@bin_float.BinCoeff::from_uint64(5UL)).precision(),
     53,
   )
-  assert_true(BallFloat::from_int(1 << 30).is_singleton())
+  assert_true(BallFloat::from_int(1 << 30, precision=53).is_singleton())
   assert_eq(BallFloat::from_int(5, precision=16).precision(), 16)
 }

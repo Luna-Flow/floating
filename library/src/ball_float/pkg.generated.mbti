@@ -82,7 +82,7 @@ pub fn BallFloat::from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precisio
 pub fn BallFloat::from_coefficient(@bin_float.BinCoeff, precision? : Int32, negative? : Bool) -> Self
 pub fn BallFloat::from_double(Double, precision? : Int32) -> Self
 pub fn BallFloat::from_float(Float, precision? : Int32) -> Self
-pub fn BallFloat::from_int(Int32, precision? : Int32) -> Self
+pub fn BallFloat::from_int(Int32, precision~ : Int32) -> Self
 pub fn BallFloat::hypot(Self, Self) -> Self
 pub fn BallFloat::identical(Self, Self) -> Bool
 pub fn BallFloat::interior(Self, Self) -> Bool

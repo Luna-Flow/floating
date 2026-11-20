@@ -39,6 +39,16 @@ notes live in this file.
   | `x.compare_signal_ctx(y, ctx) -> (Decimal, DecimalFlags)` | `x.compare_signaling(y) -> (@def.PartialOrder, DecimalFlags)` | invalid for every unordered pair |
   | (new) | `compare_quiet_equal`, `compare_quiet_less`, `compare_quiet_less_equal`, `compare_quiet_unordered`, `compare_signaling_equal`, `compare_signaling_less`, `compare_signaling_less_equal` | `(Bool, DecimalFlags)`, the predicates `bin_float` has |
 
+- `decimal`, `ball_float`: conversions between the radices take a required precision and the rounding type of the radix of their result ([#438](https://github.com/Luna-Flow/floating/issues/438), item S8 for `decimal`, as `decimal_gda` already has). `Decimal::to_bin_float` counted its default precision in digits (the precision field of the decimal) where it makes bits, `Decimal::from_bin_float` counted bits where it makes digits, and `to_bin_float` took the `@arithmetic.RoundingMode` of neither radix. `BallFloat::from_int` defaulted to 53 bits without being asked.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `x.to_bin_float()`, `x.to_bin_float(precision=p)` | `x.to_bin_float(precision=p)` | required, counts bits, aborts outside `1..=binary_precision_max`; the default was the digits of `x` |
+  | `x.to_bin_float(mode=@arithmetic.RoundingMode::X)` | `x.to_bin_float(precision=p, mode=@bin_float.BinaryRoundingMode::Y)` | the rounding-direction attributes of IEEE 754-2019 4.3.1, which add ties-to-away; `ToNearestEven` is `RoundTiesToEven`, `TowardZero` is `RoundTowardZero`, `TowardPositive` is `RoundTowardPositive`, `TowardNegative` is `RoundTowardNegative`, `AwayFromZero` is the one of the sign |
+  | `Decimal::from_bin_float(b)`, `Decimal::from_bin_float(b, precision=d)` | `Decimal::from_bin_float(b, precision=d)` | required, counts digits; the default was the bits of `b` |
+  | (half-even only) | `Decimal::from_bin_float(b, precision=d, mode=DecimalRoundingMode::Y)` | `mode` defaults to `RoundTiesToEven`; new |
+  | `BallFloat::from_int(n)` | `BallFloat::from_int(n, precision=53)` | the precision is required; 53 was the default |
+
 - The flag and trap types share one access style: methods ([#438](https://github.com/Luna-Flow/floating/issues/438), item A5). The fields of `decimal.DecimalFlags`, `decimal_gda.DecimalFlags`, `GdaFlags`, `GdaTrapSet` and `BallFlags` are private; each flag is read with a method of the same name, as `BinaryFlags` already did. `GdaFlags::none` and `GdaTrapSet::none` are `new`, like every other flag constructor. `contains` stays on the types of packages that have a signal enum (`decimal`, `decimal_gda`); `has_error` is unchanged (true for `invalid_operation`, `conversion_syntax`, `division_by_zero`, `division_undefined`, `division_impossible`, `invalid_context`; false for overflow, underflow, inexact and the other conditions, which deliver a usable result).
 
   | before | after |
@@ -283,7 +293,7 @@ notes live in this file.
   | `x == y` on `BallFloat` (representation, precision tag included) | `x.identical(y)` | `==` is now `x.equal(y)`, the set equality |
   | `x == y` on `BallFloatDecorated` (representation) | `x.identical(y)` | `==` is now false when either is NaI, decorations ignored |
   | `x.set_equal(y)` | `x == y`, or `x.equal(y)` | `BallFloat` and `BallFloatDecorated`; the old derived `equal` (representation) is gone with it |
-  | `BallFloat::from_int(n)`, `from_coefficient(c)`, `BallFloatResult::from_int`, `from_coefficient` without `precision` | the same call, precision 53 | was 16; pass `precision=16` for the old enclosure |
+  | `BallFloat::from_int(n, precision=53)`, `from_coefficient(c)`, `BallFloatResult::from_int`, `from_coefficient` without `precision` | the same call, precision 53 | was 16; pass `precision=16` for the old enclosure |
 
 - `ball_float`: the observers are total and follow IEEE 1788-2015 12.12.8 ([#438](https://github.com/Luna-Flow/floating/issues/438), item B2). `midpoint` and `radius` no longer abort on the empty set or on a half-bounded interval; `width`, `magnitude`, `mignitude` return NaN, not 0, for the empty set; `BallFloat::try_new` returns an error where `new` aborts. The exact center and half-width of the ball view are no longer public.
 
@@ -1317,7 +1327,7 @@ notes live in this file.
 - Fixed `BallFloat::from_int` and `BallFloat::from_coefficient`, which rounded
   the value to the requested precision and wrapped the rounded result as a
   singleton, so the interval could exclude its own input
-  (`BallFloat::from_int(100001)` at the default 16 bits returned exactly
+  (`BallFloat::from_int(100001, precision=53)` at the default 16 bits returned exactly
   100000). They now build the value exactly and let the interval round outward.
 - Fixed `BallFloat::with_precision`, which rebuilt a bounded interval from
   `center()` and `radius()`. The center adds the endpoints in round-to-nearest

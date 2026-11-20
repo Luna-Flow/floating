@@ -6,12 +6,12 @@
 
 ///|
 test "issue 468: decimal_gda to_bin_float agrees with decimal at large exponents" {
-  let modes : Array[@lf_arith.RoundingMode] = [
-    @lf_arith.RoundingMode::ToNearestEven,
-    @lf_arith.RoundingMode::TowardZero,
-    @lf_arith.RoundingMode::TowardPositive,
-    @lf_arith.RoundingMode::TowardNegative,
-    @lf_arith.RoundingMode::AwayFromZero,
+  let modes : Array[@bin_float.BinaryRoundingMode] = [
+    @bin_float.BinaryRoundingMode::RoundTiesToEven,
+    @bin_float.BinaryRoundingMode::RoundTiesToAway,
+    @bin_float.BinaryRoundingMode::RoundTowardZero,
+    @bin_float.BinaryRoundingMode::RoundTowardPositive,
+    @bin_float.BinaryRoundingMode::RoundTowardNegative,
   ]
   let coefficients : Array[BigInt] = [
     1N, 3N, 7N, 123456789N, 9999999999999999999999999999999999N,
@@ -29,19 +29,7 @@ test "issue 468: decimal_gda to_bin_float agrees with decimal at large exponents
         for mode in modes {
           for precision in [24, 53, 113] {
             let expected = ieee.to_bin_float(precision~, mode~)
-            let actual = gda.to_bin_float(
-              precision~,
-              mode=match @bin_float.BinaryRoundingMode::from_arithmetic(mode) {
-                Some(rounding) => rounding
-                None =>
-                  // away from zero is the direction of the sign
-                  if negative {
-                    @bin_float.BinaryRoundingMode::RoundTowardNegative
-                  } else {
-                    @bin_float.BinaryRoundingMode::RoundTowardPositive
-                  }
-              },
-            )
+            let actual = gda.to_bin_float(precision~, mode~)
             inspect(actual.to_string() == expected.to_string(), content="true")
             inspect(
               actual.is_negative() == expected.is_negative(),

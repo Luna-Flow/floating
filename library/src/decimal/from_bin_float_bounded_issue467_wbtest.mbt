@@ -6,11 +6,15 @@
 
 ///|
 /// The exact expansion, as `from_bin_float` computed it before the bounded form.
-fn old_from_bin_float(x : @bin_float.BinFloat, precision : Int32) -> Decimal {
+fn old_from_bin_float(
+  x : @bin_float.BinFloat,
+  precision : Int32,
+  mode~ : DecimalRound = DecimalRound::HalfEven,
+) -> Decimal {
   let coefficient = BigInt::from_octets(x.coefficient().to_bytes_be())
   let signed = if x.is_negative() { -coefficient } else { coefficient }
   if x.exponent2() >= 0 {
-    decimal_from_integer_parts(signed << x.exponent2(), 0, precision)
+    decimal_from_integer_parts(signed << x.exponent2(), 0, precision, mode~)
   } else {
     let k = -x.exponent2()
     let mut magnitude = coeff_from_bigint(abs_bigint(signed * pow5(k)))
@@ -31,6 +35,7 @@ fn old_from_bin_float(x : @bin_float.BinFloat, precision : Int32) -> Decimal {
       },
       exponent,
       precision,
+      mode~,
     )
   }
 }
@@ -85,7 +90,10 @@ test "issue 467: the bounded form gives the result of the exact expansion" {
     for precision in [1, 2, 3, 5, 9, 17, 34, 100, 400] {
       let expected = old_from_bin_float(x, precision)
       inspect(
-        same_decimal(decimal_from_bin_float_surrogate(x, precision), expected),
+        same_decimal(
+          decimal_from_bin_float_surrogate(x, precision, DecimalRound::HalfEven),
+          expected,
+        ),
         content="true",
       )
       inspect(
@@ -107,4 +115,63 @@ test "issue 467: the cost does not depend on the binary exponent" {
     inspect(value.coefficient().to_string().length() <= 34, content="true")
     inspect(value.is_negative(), content="false")
   }
+}
+
+///|
+/// The rounding attribute is the one of the radix of the result: the bounded form
+/// and the exact expansion agree in each of the five `DecimalRoundingMode`s, for
+/// both signs, exact values and ties included (the surrogate keeps a sticky digit).
+test "issue 467: from_bin_float rounds in every DecimalRoundingMode like the exact expansion" {
+  let modes = [
+    DecimalRoundingMode::RoundTiesToEven,
+    DecimalRoundingMode::RoundTiesToAway,
+    DecimalRoundingMode::RoundTowardZero,
+    DecimalRoundingMode::RoundTowardPositive,
+    DecimalRoundingMode::RoundTowardNegative,
+  ]
+  for x in bin_float_rows() {
+    for precision in [1, 2, 3, 5, 9, 17, 34] {
+      for mode in modes {
+        let expected = old_from_bin_float(x, precision, mode=mode.round())
+        inspect(
+          same_decimal(Decimal::from_bin_float(x, precision~, mode~), expected),
+          content="true",
+        )
+        inspect(
+          same_decimal(
+            Decimal::from_bin_float(x.neg(), precision~, mode~),
+            old_from_bin_float(x.neg(), precision, mode=mode.round()),
+          ),
+          content="true",
+        )
+      }
+    }
+  }
+  // 0.5 at one digit is a tie: even gives 0.5 exactly (one digit), so use 2.5 and 3.5
+  let tie = @bin_float.BinFloat::from_double(2.5, precision=53)
+  inspect(Decimal::from_bin_float(tie, precision=1).to_string(), content="2")
+  inspect(
+    Decimal::from_bin_float(
+      tie,
+      precision=1,
+      mode=DecimalRoundingMode::RoundTiesToAway,
+    ).to_string(),
+    content="3",
+  )
+  inspect(
+    Decimal::from_bin_float(
+      tie,
+      precision=1,
+      mode=DecimalRoundingMode::RoundTowardPositive,
+    ).to_string(),
+    content="3",
+  )
+  inspect(
+    Decimal::from_bin_float(
+      tie,
+      precision=1,
+      mode=DecimalRoundingMode::RoundTowardZero,
+    ).to_string(),
+    content="2",
+  )
 }

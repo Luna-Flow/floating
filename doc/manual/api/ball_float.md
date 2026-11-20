@@ -311,11 +311,11 @@ aborts `exact` and makes `try_exact` return a domain error.
 an integer.
 
 ```mbti
-pub fn BallFloat::from_int(Int, precision? : Int) -> Self
+pub fn BallFloat::from_int(Int, precision~ : Int) -> Self
 pub fn BallFloat::from_coefficient(@bin_float.BinCoeff, precision? : Int, negative? : Bool) -> Self
 ```
 
-The default precision is 53. `from_coefficient` takes a non-negative
+The precision of `from_int` is required and counts bits (it was 53 by default). `from_coefficient` takes a non-negative
 `BinCoeff` magnitude and a separate sign. The integer is converted to a
 `BinFloat` exactly and then passed to `exact`, so the result is the singleton
 $\{n\}$ when $n$ fits in $p$ bits and the two-point interval
@@ -2196,7 +2196,7 @@ pub fn BallFloat::from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precisio
 pub fn BallFloat::from_coefficient(@bin_float.BinCoeff, precision? : Int32, negative? : Bool) -> Self
 pub fn BallFloat::from_double(Double, precision? : Int32) -> Self
 pub fn BallFloat::from_float(Float, precision? : Int32) -> Self
-pub fn BallFloat::from_int(Int32, precision? : Int32) -> Self
+pub fn BallFloat::from_int(Int32, precision~ : Int32) -> Self
 pub fn BallFloat::hypot(Self, Self) -> Self
 pub fn BallFloat::identical(Self, Self) -> Bool
 pub fn BallFloat::interior(Self, Self) -> Bool

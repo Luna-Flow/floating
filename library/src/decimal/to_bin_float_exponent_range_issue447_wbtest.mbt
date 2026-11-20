@@ -5,13 +5,13 @@
 // direction says, at a cost that does not depend on the exponent.
 
 ///|
-fn out_of_range_modes() -> Array[RoundingMode] {
+fn out_of_range_modes() -> Array[@bin_float.BinaryRoundingMode] {
   [
-    RoundingMode::ToNearestEven,
-    RoundingMode::TowardZero,
-    RoundingMode::TowardPositive,
-    RoundingMode::TowardNegative,
-    RoundingMode::AwayFromZero,
+    @bin_float.BinaryRoundingMode::RoundTiesToEven,
+    @bin_float.BinaryRoundingMode::RoundTiesToAway,
+    @bin_float.BinaryRoundingMode::RoundTowardZero,
+    @bin_float.BinaryRoundingMode::RoundTowardPositive,
+    @bin_float.BinaryRoundingMode::RoundTowardNegative,
   ]
 }
 
@@ -52,12 +52,13 @@ test "issue 447: to_bin_float at both ends of the exponent range, every rounding
 
 ///|
 test "issue 447: the reported cases do not panic" {
-  let tiny = Decimal::make(1N, -2147483645, 34).to_bin_float()
+  let tiny = Decimal::make(1N, -2147483645, 34).to_bin_float(precision=53)
   inspect(tiny.is_zero(), content="true")
-  let huge = Decimal::make(1N, 2147483646, 34).to_bin_float()
+  let huge = Decimal::make(1N, 2147483646, 34).to_bin_float(precision=53)
   inspect(@def.is_infinite(huge), content="true")
   let directed_up = Decimal::make(1N, -2147483645, 34).to_bin_float(
-    mode=RoundingMode::TowardPositive,
+    precision=53,
+    mode=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   inspect(directed_up.is_zero(), content="false")
   inspect(directed_up.is_negative(), content="false")
@@ -70,13 +71,10 @@ fn oracle_to_bin_float(
   coefficient : BigInt,
   exponent : Int32,
   precision : Int32,
-  mode : RoundingMode,
+  mode : @bin_float.BinaryRoundingMode,
 ) -> @bin_float.BinFloat {
   let value = Decimal::make(coefficient, exponent, 34)
   value.to_bin_float_ctx(
-    @bin_float.BinaryContext::new(
-      precision~,
-      rounding=bin_mode(mode, value.negative),
-    ),
+    @bin_float.BinaryContext::new(precision~, rounding=mode),
   ).0
 }

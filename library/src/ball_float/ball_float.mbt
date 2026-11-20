@@ -1152,7 +1152,7 @@ pub fn BallFloat::try_exact(
 }
 
 ///|
-pub fn BallFloat::from_int(n : Int32, precision~ : Int32 = 53) -> BallFloat {
+pub fn BallFloat::from_int(n : Int32, precision~ : Int32) -> BallFloat {
   // Build the integer exactly and let the interval round outward. Rounding it
   // to `precision` first produced a singleton that excluded its own input.
   BallFloat::exact(@bin_float.BinFloat::from_int(n, precision=32), precision~)

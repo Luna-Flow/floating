@@ -677,11 +677,11 @@ fn decimal_power_out_of_range(
   )
   let base_low = base.to_bin_float(
     precision=work,
-    mode=RoundingMode::TowardNegative,
+    mode=@bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
   let base_high = base.to_bin_float(
     precision=work,
-    mode=RoundingMode::TowardPositive,
+    mode=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   guard !base_low.is_zero() &&
     base_low.try_log2_ctx(down) is Ok((log_low, _)) &&
@@ -690,11 +690,11 @@ fn decimal_power_out_of_range(
   }
   let exponent_low = exponent.to_bin_float(
     precision=work,
-    mode=RoundingMode::TowardNegative,
+    mode=@bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
   let exponent_high = exponent.to_bin_float(
     precision=work,
-    mode=RoundingMode::TowardPositive,
+    mode=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   let lows = [
     log_low.mul_ctx(exponent_low, down).0,
