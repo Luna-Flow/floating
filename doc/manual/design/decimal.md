@@ -655,15 +655,28 @@ result is not a decimal), and a negative value that rounds to zero converts to
 destination's context, and returns the flags of that rounding.
 Decimal to decimal is `apply_ctx` of the format's context, so the preferred
 exponent $Q(\text{source})$ is the one the normalization keeps when the value
-fits. Binary to decimal forms the exact decimal expansion $c\,2^e$ with $c$
-odd ($c \cdot 5^{k}\cdot 10^{-k}$ for $e = -k < 0$: no trailing zero, so it is
-the exponent closest to 0 that holds the digits, and an integer keeps exponent
-0) and rounds it with `apply_ctx`; the digits are not formed for a value whose
-estimate $\lfloor 0.30103\,(\operatorname{bits} + e)\rfloor$ lies more than two
-beyond $e_{\max}$ or three below $E_{\text{tiny}}$, which stands for every such
-value in the rounding (overflow, or a result of zero or the least subnormal),
-and a binary exponent beyond $2^{22}$ that the range does not decide is
-refused. Decimal to binary is the exact decimal text rounded by
+fits. Binary to decimal does not form the expansion $c\,2^e$, whose cost grows
+with $|e|$: it takes the first $p + 1$ significant digits of $|x|$, truncated, from
+the correctly rounded digit string of `BinFloat::to_decimal_string_ctx`, appends a
+sticky digit $1$ when digits were dropped, and rounds that decimal once with
+`apply_ctx`. A rounding of a decimal depends on the digits beyond the kept ones
+only as zero, below half, a tie or above half, and the surrogate (the digits and
+the sticky digit) lies strictly inside the unit after the truncated digits as $x$
+does, so for every kept length up to $p$ (fewer digits for a subnormal result, so
+nothing is rounded twice) the result and its flags are those of $x$, and the
+tininess of the unrounded value is the one of $x$ (same leading digit). An exact
+value has no sticky digit; its trailing zeros are dropped and an integer takes
+exponent 0, the preferred exponent, or, when it has more than $p$ digits, the
+member closest to it (IEEE 754-2019 §5.2): zeros are appended up to $p + 1$ digits,
+and the zero that `apply_ctx` rounds away leaves the $p$-digit member with the
+exponent closest to 0 (`1E+20` in decimal64 is `1000000000000000E+5`, flagged
+rounded). The digits are not
+formed for a value whose estimate
+$\lfloor 0.30103\,(\operatorname{bits} + e)\rfloor$ lies more than two beyond
+$e_{\max}$ or three below $E_{\text{tiny}}$, which stands for every such value in
+the rounding (overflow, or a result of zero or the least subnormal). Only the
+unlimited precision of `exact()` needs the whole expansion, and a binary exponent
+beyond $2^{22}$ is then refused. Decimal to binary is the exact decimal text rounded by
 `BinFloat::from_string_ctx`, which is correctly rounded for any exponent and is
 checked against MPFR; the corpus runs both directions through the MPFR rows of
 `mpfr_strtofr` and `mpfr_get_str` and through exact rows for every pair of
