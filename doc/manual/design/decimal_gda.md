@@ -545,6 +545,28 @@ value once gives the result and the flags of the exact sum in every mode:
 at precision 7, `add(1598618.5, 1E-20)` under `HalfEven` is `1598619`, and
 `subtract(1598618, 9.9E-11)` under `ZeroFiveUp` is `1598617`.
 
+*Plain sums.* The general route of `add` and `subtract` passes through the
+context-taking engine (operand preparation, the sum, the normalizer, the
+finalizer, the outcome), whose temporaries are records and tuples: a 34-digit
+`add` made 28.9 allocations and a native library such as libmpdec makes none.
+When the context is extended and does not clamp, both operands are finite and
+nonzero, the smaller adjusted exponent is not below $\hat e_1 - p + 1$ (no
+operand is absorbed) and the nonzero exact sum has adjusted exponent in
+$[e_{\min}, e_{\max} - 1]$ (so after a possible carry into a digit beyond
+$p$ it can neither overflow nor be subnormal, and its exponent is not
+clamped), the result is the exact aligned sum rounded once to $p$ digits at the
+exponent $\min(e_1, e_2)$ plus the digits discarded, with `rounded` raised
+when digits were discarded and `inexact` when a nonzero one was. Dropping a
+run of zero digits first and then rounding the rest gives the same value,
+exponent and flags as rounding once. `gda_add_plain` computes exactly that: the
+sum is formed in one limb array and rounded in place by the kernel (see the
+design of `internal/decimal_kernel`), the flags are shared constants and the
+outcome is built once. Every other case returns `None` and takes the general
+route, which remains the definition; the white-box test compares both routes
+for `add` and `subtract` on random operands of 1 to 120 digits with mixed signs,
+cancellations and exponent gaps, at nine precisions and all eight rounding
+modes, with tight and wide exponent ranges, clamping and trapped signals.
+
 ### Division
 
 `divide` handles $0$, $\infty$ and exact divisions by powers of ten and by

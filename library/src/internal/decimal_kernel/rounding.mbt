@@ -507,3 +507,38 @@ pub fn dec_coeff_addend_rounding_step(
     ZeroFiveUp => if base_ends_zero_or_five { delta_direction } else { 0 }
   }
 }
+
+///|
+/// Rounds a freshly produced limb accumulator (`units[0..unit_len)`, limbs
+/// below the base, leading zero limbs allowed) to `target_digits` digits, in
+/// place and without a copy: the array becomes the limbs of the result. Returns
+/// the rounded magnitude, the number of digits discarded (0 when the value
+/// already fits), and whether a nonzero digit was discarded. The caller must
+/// not use `units` afterwards. This is the entry for a producer that owns its
+/// array (the aligned sum of an addition).
+pub fn dec_coeff_round_units_to_digits(
+  units : Array[UInt32],
+  unit_len : Int32,
+  target_digits : Int32,
+  negative : Bool,
+  mode : DecCoeffRounding,
+) -> (DecCoeff, Int32, Bool) {
+  guard unit_len >= 1 && target_digits >= 1 else {
+    abort(
+      "dec_coeff_round_units_to_digits expects unit_len >= 1 and digits >= 1",
+    )
+  }
+  let trimmed = dec_coeff_trim_units(units, unit_len)
+  let digits = dec_coeff_get_digits(units, trimmed)
+  if digits <= target_digits {
+    return (dec_coeff_from_unit_accumulator(units, trimmed), 0, false)
+  }
+  if units.length() > trimmed {
+    units.truncate(trimmed)
+  }
+  let discard = digits - target_digits
+  let (rounded, inexact) = dec_coeff_round_div_pow10_owned(
+    units, digits, discard, negative, mode,
+  )
+  (rounded, discard, inexact)
+}

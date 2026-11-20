@@ -662,13 +662,12 @@ fn dec_coeff_trim(
 }
 
 ///|
-fn dec_coeff_split_carry_3(carry : Int64) -> (Int32, Int64) {
+fn dec_coeff_carry_quotient(carry : Int64) -> Int64 {
   let base = 1000000000L
   if carry >= 0L {
-    ((carry % base).to_int(), carry / base)
+    carry / base
   } else {
-    let quotient = -((-carry + base - 1L) / base)
-    ((carry - quotient * base).to_int(), quotient)
+    -((-carry + base - 1L) / base)
   }
 }
 
@@ -722,8 +721,8 @@ pub fn dec_coeff_unit_add_sub(
       c[c_index] = carry.to_int().reinterpret_as_uint()
       carry = 0L
     } else {
-      let (digit, next) = dec_coeff_split_carry_3(carry)
-      c[c_index] = digit.reinterpret_as_uint()
+      let next = dec_coeff_carry_quotient(carry)
+      c[c_index] = (carry - next * 1000000000L).to_int().reinterpret_as_uint()
       carry = next
     }
     c_index += 1
@@ -741,8 +740,8 @@ pub fn dec_coeff_unit_add_sub(
       c[c_index] = carry.to_int().reinterpret_as_uint()
       carry = 0L
     } else {
-      let (digit, next) = dec_coeff_split_carry_3(carry)
-      c[c_index] = digit.reinterpret_as_uint()
+      let next = dec_coeff_carry_quotient(carry)
+      c[c_index] = (carry - next * 1000000000L).to_int().reinterpret_as_uint()
       carry = next
     }
     c_index += 1
