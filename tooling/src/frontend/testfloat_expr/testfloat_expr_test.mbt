@@ -20,6 +20,45 @@ test "TestFloat parser and executor preserve IEEE values and flags" {
 }
 
 ///|
+test "TestFloat format conversions read the operand in the source format and the result in the destination" {
+  // f64_to_f32: 1.0 is exact; 1 + 2^-52 rounds to 1 (inexact); 2^1000 overflows;
+  // a signaling NaN is quieted (invalid). The result column is binary32.
+  let spec = @testfloat_expr.TestFloatSpec::parse("f64_to_f32", "rnear_even").unwrap()
+  assert_eq(
+    spec.operation(),
+    @testfloat_expr.TestFloatOperation::ConvertFormat(
+      @bin_float.BinaryInterchangeFormat::Binary32,
+    ),
+  )
+  let source =
+    #|3FF0000000000000 3F800000 00
+    #|3FF0000000000001 3F800000 01
+    #|7E70000000000000 7F800000 05
+    #|7FF0000000000001 7FC00000 10
+    #|
+  let document = @testfloat_expr.parse_testfloat(
+    "inline.testfloat", source, spec,
+  ).unwrap()
+  assert_eq(document.case_count(), 4)
+  let summary = @testfloat_expr.execute_document(document)
+  assert_eq(summary.passed_cases(), 4)
+  assert_eq(summary.failed_cases(), 0)
+  // a wrong destination value is reported
+  let wrong = @testfloat_expr.parse_testfloat(
+    "wrong.testfloat", "3FF0000000000000 3F800001 00\n", spec,
+  ).unwrap()
+  assert_eq(@testfloat_expr.execute_document(wrong).failed_cases(), 1)
+  // widening: f16 to f64, exact
+  let widening = @testfloat_expr.TestFloatSpec::parse(
+    "f16_to_f64", "rnear_even",
+  ).unwrap()
+  let wide = @testfloat_expr.parse_testfloat(
+    "wide.testfloat", "3E00 3FF8000000000000 00\n", widening,
+  ).unwrap()
+  assert_eq(@testfloat_expr.execute_document(wide).passed_cases(), 1)
+}
+
+///|
 test "TestFloat parser reports malformed vector rows with source positions" {
   let spec = @testfloat_expr.TestFloatSpec::parse("f16_add", "rnear_even").unwrap()
   match
