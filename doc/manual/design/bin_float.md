@@ -1023,6 +1023,52 @@ commutes with directed rounding. No public function was added for it.
 $y = \lfloor x 2^{-n g} \rfloor$ (for $x^{1/n}$) or $\lfloor 2^{-n g} / x \rfloor$ (for $x^{-1/n}$);
 since $\lfloor v^{1/n} \rfloor = \lfloor \lfloor v \rfloor^{1/n} \rfloor$ for real $v \ge 0$ (an integer $r$ has $r^n \le v$ exactly when $r^n \le \lfloor v \rfloor$), $r_2 = \lfloor y^{1/n} \rfloor$ (the integer square root kernel for $n = 2$, the integer Newton root otherwise) is $\lfloor |x|^{\pm 1/n} / 2^{g} \rfloor$. The retained part is $r_2 \gg 1$, the round bit is the low bit of $r_2$, and the sticky bit is "the root is not exactly $r_2 2^{g}$", which holds unless $y$ was exact (no dropped bits, no remainder) and $y = r_2^n$: a boundary of any rounding direction is a multiple of half a unit, so a root strictly between $r_2$ and $r_2 + 1$ is on the same side of every boundary as $r_2$ with the sticky bit set. `binary_round_pack` then decides the result and the flags as for the square root, including the subnormal range and the tininess rule after rounding (a second root on the unbounded grid when it differs). The integer has about $n (p + 2)$ bits and the Newton steps of its root raise a number of that size to the power $n - 1$, so the path is used only where it is measurably faster than the certified `exp(ln(x) / n)` loop, which gets the fast `exp` and `ln` kernels from about 1500 bits on. Instructions retired, loop divided by integer root: for $n \le 12$ the integer root wins at every precision measured (53 to 32768 bits) by 2.4 to 300 times; for $13 \le n \le 32$ it wins by 6.7 to 49 times up to 1024 bits, but at 2048 bits $n = 16$ gains only 1.6 times, $n = 20$ 1.1 times, and $n = 24$ and $n = 32$ are 1.3 and 2.2 times slower. The gate is therefore $|n| \le 12$, or $|n| \le 32$ with context precision at most 1024 bits, and the loop elsewhere; the tests compare the public result with the loop on both sides of each bound. The exact roots of perfect powers are still decided before either path. Instructions retired per call (53, 128, 512 bits): `rsqrt` 57, 23 and 35 times fewer, `rootn` with $n = 3$ 2.1, 3.6 and 11 times fewer.
 
+### Trigonometric functions of huge arguments
+
+`sin`, `cos` and `tan` of an argument $x$ with $2^{k-1} \le |x| < 2^k$ reduce $x$ modulo
+$\pi/2$, which cancels the top $k$ bits of $x$: the reduction needs $\pi$ to
+$p + k + 96$ bits for a result of $p$ bits. The reduced argument lies in
+$(-\pi/4, \pi/4)$ and the series needs only the precision of the result, so
+for $k > 256$ the enclosure of the reduced argument is rounded outward to
+$p + 96$ bits before the series (the reduction and the series are separate
+precisions). The working precision of the reduction is limited to
+8,000,000 bits, so that every argument of the decimal operand range
+($10^{999999} < 2^{3321929}$) is evaluated; a larger work size is a
+`ResourceLimit` certification failure. The `decimal` driver passes a huge
+integer operand to `BinFloat` exactly (an integer $c \cdot 10^e$ is a dyadic
+rational) at the result precision, and `ball_float` evaluates a point interval
+by two directed evaluations without the rational index computation.
+
+The cost grows faster than linearly in $k$ because $\pi$ at $k$ bits is
+computed by binary splitting with a quasi-linear product (a call recomputes
+$\pi$: the cache keeps no entry above 65,536 bits). Native release build, one
+call of `Decimal::sin_ctx` in decimal64 (`cos` and `tan` cost the same), `p = 53`
+for the binary rows, on a quiet machine (the bench slot of the session notes of
+2026-11-20):
+
+| operation | seconds | instructions retired | peak memory |
+| --- | --- | --- | --- |
+| $\pi$ at 1,000,000 bits | 1.5 | 31.1e9 | 14.6 MB |
+| $\pi$ at 2,000,000 bits | 4.5 | 119.6e9 | 20.3 MB |
+| $\pi$ at 3,400,000 bits | 12.7 | 340.1e9 | 28.4 MB |
+| `sin` of `1E+300000` | 3.8 | 88.3e9 | 17.2 MB |
+| `sin` of `1E+600000` | 12.8 | 341.5e9 | 22.4 MB |
+| `sin` of `1E+999999` | 34.9 | 936.7e9 | 33.5 MB |
+
+The series change alone, `sin(2^k)` with $p = 53$ (origin/main before and after):
+
+| $k$ | before, seconds | before, instructions | after, seconds | after, instructions |
+| --- | --- | --- | --- | --- |
+| 50,000 | 0.40 | 10.2e9 | 0.01 | 0.19e9 |
+| 100,000 | 2.05 | 53.2e9 | 0.02 | 0.62e9 |
+| 200,000 | 8.82 | 232.2e9 | 0.08 | 2.19e9 |
+| 400,000 | 164 (loaded machine) | not measured | 0.30 | 7.78e9 |
+
+The expensive rows (`1E+999999`) are in the opt-in table
+`testdata/decimal/ieee/rows/huge_trig_extreme.txt`
+(`python3 tools/run_huge_trig_extreme.py`); the `1E+300000` class is in the
+full gate.
+
 ### Asymptotically fast elementary kernels (implemented, with open items)
 
 *Status: design and results for [#18](https://github.com/Luna-Flow/floating/issues/18).
