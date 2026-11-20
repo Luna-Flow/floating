@@ -366,6 +366,40 @@ pub fn BallFloatResult::pow_rev2(
 }
 
 ///|
+/// `atan2Rev1(b, c, x)` of Table 10.1 on the interval parts; only an earlier failure is
+/// passed on. The prior `x` is optional (default Entire).
+pub fn BallFloatResult::atan2_rev1(
+  self : BallFloatResult,
+  c : BallFloatResult,
+  x? : BallFloatResult,
+) -> BallFloatResult {
+  match x {
+    Some(prior) =>
+      self.bind(fn(b) {
+        c.bind(fn(cc) { prior.map(fn(p) { b.atan2_rev1(cc, x=p) }) })
+      })
+    None => self.bind(fn(b) { c.map(fn(cc) { b.atan2_rev1(cc) }) })
+  }
+}
+
+///|
+/// `atan2Rev2(a, c, x)` of Table 10.1 on the interval parts; only an earlier failure is
+/// passed on. The prior `x` is optional (default Entire).
+pub fn BallFloatResult::atan2_rev2(
+  self : BallFloatResult,
+  c : BallFloatResult,
+  x? : BallFloatResult,
+) -> BallFloatResult {
+  match x {
+    Some(prior) =>
+      self.bind(fn(a) {
+        c.bind(fn(cc) { prior.map(fn(p) { a.atan2_rev2(cc, x=p) }) })
+      })
+    None => self.bind(fn(a) { c.map(fn(cc) { a.atan2_rev2(cc) }) })
+  }
+}
+
+///|
 pub fn BallFloatResult::recip(self : BallFloatResult) -> BallFloatResult {
   self.map(fn(value) { value.recip() })
 }

@@ -306,6 +306,16 @@ It cannot fail itself; an earlier failure in the receiver, in `c` or in the opti
 pub fn BallFloatResult::pow_rev2(Self, Self, x? : Self) -> Self
 ```
 
+### `BallFloatResult::atan2_rev1` and `BallFloatResult::atan2_rev2`
+
+`BallFloat::atan2_rev1` and `BallFloat::atan2_rev2` on the interval parts (see the [`ball_float` page](ball_float.md#ballfloatatan2_rev1-and-ballfloatatan2_rev2)).
+They cannot fail themselves; an earlier failure in the receiver, in `c` or in the optional prior is passed on.
+
+```mbti
+pub fn BallFloatResult::atan2_rev1(Self, Self, x? : Self) -> Self
+pub fn BallFloatResult::atan2_rev2(Self, Self, x? : Self) -> Self
+```
+
 ### `BallFloatResult::mul_rev` and `BallFloatResult::mul_rev_to_pair`
 
 These methods apply `BallFloat::mul_rev` and `BallFloat::mul_rev_to_pair` to
@@ -539,6 +549,8 @@ pub fn BallFloatResult::asin(Self) -> Self
 pub fn BallFloatResult::asinh(Self) -> Self
 pub fn BallFloatResult::atan(Self) -> Self
 pub fn BallFloatResult::atan2(Self, Self) -> Self
+pub fn BallFloatResult::atan2_rev1(Self, Self, x? : Self) -> Self
+pub fn BallFloatResult::atan2_rev2(Self, Self, x? : Self) -> Self
 pub fn BallFloatResult::atanh(Self) -> Self
 pub fn BallFloatResult::bind(Self, (@ball_float.BallFloat) -> Self) -> Self
 pub fn BallFloatResult::cancel_minus(Self, Self) -> Self

@@ -53,6 +53,8 @@ pub fn BallFloat::asin(Self) -> Self
 pub fn BallFloat::asinh(Self) -> Self
 pub fn BallFloat::atan(Self) -> Self
 pub fn BallFloat::atan2(Self, Self) -> Self
+pub fn BallFloat::atan2_rev1(Self, Self, x? : Self) -> Self
+pub fn BallFloat::atan2_rev2(Self, Self, x? : Self) -> Self
 pub fn BallFloat::atanh(Self) -> Self
 pub fn BallFloat::cancel_minus(Self, Self) -> Self
 pub fn BallFloat::cancel_plus(Self, Self) -> Self
@@ -208,6 +210,8 @@ pub fn BallFloatDecorated::asin(Self) -> Self
 pub fn BallFloatDecorated::asinh(Self) -> Self
 pub fn BallFloatDecorated::atan(Self) -> Self
 pub fn BallFloatDecorated::atan2(Self, Self) -> Self
+pub fn BallFloatDecorated::atan2_rev1(Self, Self, x? : Self) -> Self
+pub fn BallFloatDecorated::atan2_rev2(Self, Self, x? : Self) -> Self
 pub fn BallFloatDecorated::atanh(Self) -> Self
 pub fn BallFloatDecorated::cancel_minus(Self, Self) -> Self
 pub fn BallFloatDecorated::cancel_plus(Self, Self) -> Self

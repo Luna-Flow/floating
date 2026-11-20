@@ -232,3 +232,23 @@ test "ITL powRev2: exact ends, an open end and the base 0" {
     assert_true(result.passed(), msg=case.id() + ": " + result.message())
   }
 }
+
+///|
+test "ITL atan2Rev1 and atan2Rev2: axis angles, the branch cut and the empty set" {
+  let source =
+    #|testcase atan2_reverse {
+    #|  atan2Rev1 [0.0,0.0] [1.0,2.0] [entire] = [0.0,infinity];
+    #|  atan2Rev1 [entire] [0.0,0.0] [entire] = [0.0,0.0];
+    #|  atan2Rev1 [0.0,0.0] [4.0,5.0] [entire] = [empty];
+    #|  atan2Rev1 [-1.0,-1.0] [3.1,4.0] [-1.0,0.0] = [0.0,0.0];
+    #|  atan2Rev2 [0.0,0.0] [3.1,4.0] [entire] = [-infinity,0.0];
+    #|  atan2Rev2 [0.0,0.0] [-4.0,-3.1] [entire] = [empty];
+    #|  atan2Rev2 [0.0,0.0] [0.0,0.0] [-1.0,0.0] = [empty];
+    #|  atan2Rev1 [0.0,0.0]_def [1.0,2.0]_def [entire]_def = [0.0,infinity]_trv;
+    #|}
+  let cases = @itl_expr.parse_itl(source).unwrap()
+  for case in cases {
+    let result = @itl_expr.execute_case(case)
+    assert_true(result.passed(), msg=case.id() + ": " + result.message())
+  }
+}

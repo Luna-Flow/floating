@@ -148,6 +148,12 @@
       "name": "power-reverse-2",
       "include": ["*rev.itl"],
       "operations": ["powRev2"]
+    },
+    {
+      "name": "atan2-reverse",
+      "directory": "generated",
+      "include": ["atan2_rev.itl"],
+      "operations": ["atan2Rev1", "atan2Rev2"]
     }
   ]
 }

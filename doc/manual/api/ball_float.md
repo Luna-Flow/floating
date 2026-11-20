@@ -1086,6 +1086,52 @@ test "pow_rev2" {
 }
 ```
 
+### `BallFloat::atan2_rev1` and `BallFloat::atan2_rev2`
+
+IEEE 1788-2015 Table 10.1, equations (6) and (7) of 10.5.4. `b.atan2_rev1(c, x?)` is the hull of
+$\{\, y \in \boldsymbol{x} \mid \exists\, b_0 \in \boldsymbol{b} : \operatorname{atan2}(y, b_0) \text{ is defined and in } \boldsymbol{c} \,\}$:
+the receiver is the abscissa interval $\boldsymbol{b}$ and the unknown is the ordinate $y$.
+`a.atan2_rev2(c, x?)` is the hull of
+$\{\, x_0 \in \boldsymbol{x} \mid \exists\, a_0 \in \boldsymbol{a} : \operatorname{atan2}(a_0, x_0) \text{ is defined and in } \boldsymbol{c} \,\}$:
+the receiver is the ordinate interval $\boldsymbol{a}$ and the unknown is the abscissa $x_0$. The optional prior
+$\boldsymbol{x}$ defaults to Entire.
+
+```mbti
+pub fn BallFloat::atan2_rev1(Self, Self, x? : Self) -> Self
+pub fn BallFloat::atan2_rev2(Self, Self, x? : Self) -> Self
+```
+
+$\operatorname{atan2}(y, x)$ is defined on the plane minus the origin, with the range $(-\pi, \pi]$ (Table 9.1,
+footnote f): the angle $\pi$ is attained on the half-line $y = 0$, $x < 0$, and $-\pi$ is never attained. With
+$\Theta = \boldsymbol{c} \cap (-\pi, \pi]$ the set is the projection of the sector
+$\{\, r(\cos t, \sin t) : r > 0,\ t \in \Theta \,\}$ on the axis of the unknown, cut by the strip of the
+given operand. The [design page](../design/ball_float.md#reverse-arctangent-of-two-arguments) has the case
+table by angle region and by the sign of the operand, the open ends, the branch cut and the origin. The set is
+empty when $\boldsymbol{c}$ has no point in $(-\pi, \pi]$ (for example $[4, 5]$), when an operand or the prior is
+Empty, and for the abscissa $\{0\}$ (Rev1) or the ordinate $\{0\}$ (Rev2) when $\boldsymbol{c}$ misses the
+angles $\pm\pi/2$ (Rev1) or $0$ and $\pi$ (Rev2); the origin is never part of the set.
+
+The result is the hull in the type: every comparison of a prior end with a piece end is exact, and an end written to
+the result is the exact directed rounding of the piece end. The exact ends are 0 and the infinities; every other end
+is $b_\text{end} \tan(c_\text{end})$ (Rev1) or $a_\text{end} / \tan(c_\text{end})$ (Rev2) of nonzero floats,
+which is irrational (the tangent of a nonzero algebraic number is transcendental), so it differs from every float
+and a loop that raises the working precision decides it, as in `sin_rev`. Whether an end of $\boldsymbol{c}$ is
+below or above a multiple of $\pi/2$ is decided exactly ($\pi$ is irrational, so a float is never equal to such a
+multiple).
+
+```moonbit
+///|
+test "atan2_rev1 and atan2_rev2" {
+  // the angle 0 with a positive abscissa: the ordinate is 0
+  assert_true(iv(1, 1).atan2_rev1(iv(0, 0)) == iv(0, 0))
+  // c = [4, 5] has no point in (-pi, pi]: Empty; so has the origin
+  assert_true(iv(1, 1).atan2_rev1(iv(4, 5)).is_empty())
+  assert_true(iv(0, 0).atan2_rev1(iv(0, 0)).is_empty())
+  // the angle 0 with the ordinate {0} and a prior x0 in [1, 2]: the abscissa interval of the prior
+  assert_true(iv(0, 0).atan2_rev2(iv(0, 0), x=iv(1, 2)) == iv(1, 2))
+}
+```
+
 ### `BallFloat::mul_rev_to_pair` and `BallFloat::mul_rev`
 
 IEEE 1788-2015 10.5.5 and Table 10.1. For intervals $\boldsymbol{b}$ and
@@ -2121,6 +2167,8 @@ pub fn BallFloat::asin(Self) -> Self
 pub fn BallFloat::asinh(Self) -> Self
 pub fn BallFloat::atan(Self) -> Self
 pub fn BallFloat::atan2(Self, Self) -> Self
+pub fn BallFloat::atan2_rev1(Self, Self, x? : Self) -> Self
+pub fn BallFloat::atan2_rev2(Self, Self, x? : Self) -> Self
 pub fn BallFloat::atanh(Self) -> Self
 pub fn BallFloat::cancel_minus(Self, Self) -> Self
 pub fn BallFloat::cancel_plus(Self, Self) -> Self
@@ -2276,6 +2324,8 @@ pub fn BallFloatDecorated::asin(Self) -> Self
 pub fn BallFloatDecorated::asinh(Self) -> Self
 pub fn BallFloatDecorated::atan(Self) -> Self
 pub fn BallFloatDecorated::atan2(Self, Self) -> Self
+pub fn BallFloatDecorated::atan2_rev1(Self, Self, x? : Self) -> Self
+pub fn BallFloatDecorated::atan2_rev2(Self, Self, x? : Self) -> Self
 pub fn BallFloatDecorated::atanh(Self) -> Self
 pub fn BallFloatDecorated::cancel_minus(Self, Self) -> Self
 pub fn BallFloatDecorated::cancel_plus(Self, Self) -> Self

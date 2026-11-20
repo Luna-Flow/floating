@@ -71,7 +71,7 @@ The `general-power` phase contains 1,428 `pow` cases and passes all cases on
 the native strict run. The `trigonometric` phase contains 176 `sin`, `cos`, and
 `tan` cases; the disjoint `atan2` phase contains 375 cases from the same pinned
 archive. Both pass the strict baseline. Reverse operations other than the
-multiplicative, algebraic, trigonometric, `powRev1` and `powRev2` ones remain unsupported (`atan2Rev1` and `atan2Rev2` have no corpus cases).
+multiplicative, algebraic, trigonometric, `powRev1` and `powRev2` ones are not in the corpus phases; `atan2Rev1` and `atan2Rev2` have no corpus cases and run from the generated directory (see `generated/README.md`), as the separate `atan2-reverse` phase.
 
 ## Interpreting Results
 
