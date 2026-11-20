@@ -72,8 +72,25 @@ fn parse_random_value(
     "-inf" => Ok(@bin_float.BinFloat::inf(@def.Sign::Negative))
     _ => {
       // Reading below the smallest subnormal of the parse precision would
-      // flush the value, so read at least at the precision of the row.
+      // round the value onto that grid, so read at least at the precision of
+      // the row and wide enough that the lowest written bit, 2^exponent, lies
+      // on the grid 2^(e_min - (width - 1)) of the implementation range.
       let precision = Int32::max(Int32::max(token.length() * 4, 8), precision)
+      let precision = match token.find("p") {
+        Some(index) =>
+          match parse_int(token[index + 1:].to_owned()) {
+            Some(exponent) =>
+              Int32::max(
+                precision,
+                Int32::min(
+                  @bin_float.binary_precision_max,
+                  @bin_float.binary_implementation_e_min - exponent + 1,
+                ),
+              )
+            None => precision
+          }
+        None => precision
+      }
       match @bin_float.BinFloat::from_hex(token, precision) {
         Ok(value) => Ok(value)
         Err(_) => Err("invalid exact value " + token)
