@@ -498,7 +498,7 @@ test "coefficient mul equals the general path on structured and random operands"
             }
             let general = left.mul_ctx(
                 right,
-                BinaryContext::unbounded(max_precision(left, right)),
+                BinaryContext::new(precision=max_precision(left, right)),
               ).0
             match binary_coeff_fast_mul(left, right) {
               Some(result) => {
