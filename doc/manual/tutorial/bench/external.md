@@ -113,6 +113,18 @@ the median time of the reference library, with a 95% bootstrap interval. Above
 1 means `floating` is slower. An asterisk marks a cell whose measurements
 spread more than the dispersion thresholds on the performance page.
 
+## Going further
+
+- Add a case: extend the matrix constants of `tools/external_baseline.py` (for
+  example `BINARY_PRECISIONS`) and the matching benchmark of
+  `tooling/src/bench/external`; the operand file is read by both sides, so the
+  new case is measured on the same inputs.
+- Understand the protocol: [bench/external design](../../design/bench/external.md)
+  states why the sides alternate and why the harness overhead is measured.
+- Read the numbers: [external baseline](../../performance/bench/external.md)
+  records the machine, the method and the ratios of the latest published
+  release.
+
 ## Common pitfalls
 
 - Compare runs only when `machine.json` agrees on CPU, compilers and library

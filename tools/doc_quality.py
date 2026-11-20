@@ -176,6 +176,7 @@ def check_links() -> list[str]:
         for path in (
             REPO_ROOT / "README.md",
             REPO_ROOT / "library" / "README.md",
+            REPO_ROOT / "tooling" / "README.md",
             REPO_ROOT / "CONTRIBUTING.md",
         )
         if path.exists()
@@ -235,6 +236,7 @@ def check_current_versions() -> list[str]:
         for path in (
             REPO_ROOT / "README.md",
             REPO_ROOT / "library" / "README.md",
+            REPO_ROOT / "tooling" / "README.md",
             REPO_ROOT / "CONTRIBUTING.md",
         )
         if path.exists()
@@ -428,6 +430,97 @@ def check_gda_claims() -> list[str]:
     return errors
 
 
+# The documentation standard of the tools module (the same pages as the library, see
+# doc/manual/conventions.md). Every package of `tooling/src` is checked; the library
+# packages keep their own, richer structure.
+TOOLING_API_HEADINGS = ("Purpose", "Importing", "Complete public interface")
+TOOLING_TUTORIAL_HEADINGS = ("Quick start", "Everyday tasks", "Going further", "Common pitfalls", "Next steps")
+TOOLING_DESIGN_HEADINGS = (
+    "Design goal",
+    "Mathematical background",
+    "Design decisions",
+    "Correctness and invariants",
+    "Alternatives rejected",
+    "Boundaries",
+)
+# A tutorial of a package with public items needs one example that compiles, unless
+# the items cannot run inside a test (`differential/harness` is asynchronous and
+# native only).
+TOOLING_NO_COMPILED_EXAMPLE = frozenset({"differential/harness"})
+MBTI_ITEM_RE = re.compile(
+    r"^pub(?:\(\w+\))?\s+(?:async\s+)?(?:fn|struct|enum|type|trait|let|const|suberror|typealias)\s+"
+    r"(?:\[.*?\]\s*)?([A-Za-z_]\w*(?:::\w+)?)",
+    re.MULTILINE,
+)
+
+
+def has_heading(text: str, title: str) -> bool:
+    return re.search(rf"^#{{2,6}}\s+{re.escape(title)}\s*$", text, re.MULTILINE) is not None
+
+
+def mbti_items(mbti: str) -> list[str]:
+    """Short names of the public items of an interface file (methods by their own name)."""
+    return sorted({match.group(1).split("::")[-1] for match in MBTI_ITEM_RE.finditer(mbti)})
+
+
+def tooling_standard_errors(
+    package: str, api: str, tutorial: str, design: str, mbti: str
+) -> list[str]:
+    errors: list[str] = []
+    errors.extend(
+        f"doc/manual/api/{package}.md: missing section {title}"
+        for title in TOOLING_API_HEADINGS
+        if not has_heading(api, title)
+    )
+    headings = " ".join(heading for _, heading in HEADING_RE.findall(api))
+    undocumented = [item for item in mbti_items(mbti) if item not in headings]
+    if undocumented:
+        errors.append(
+            f"doc/manual/api/{package}.md: public items without a heading: {', '.join(undocumented[:8])}"
+        )
+    if re.search(r"\|\s*I want to\s*\|\s*Use\s*\|", tutorial) is None:
+        errors.append(f"doc/manual/tutorial/{package}.md: missing the | I want to | Use | table")
+    errors.extend(
+        f"doc/manual/tutorial/{package}.md: missing section {title}"
+        for title in TOOLING_TUTORIAL_HEADINGS
+        if not has_heading(tutorial, title)
+    )
+    if (
+        mbti_items(mbti)
+        and package not in TOOLING_NO_COMPILED_EXAMPLE
+        and re.search(r"^```moonbit\s*$", tutorial, re.MULTILINE) is None
+    ):
+        errors.append(f"doc/manual/tutorial/{package}.md: no example that compiles")
+    errors.extend(
+        f"doc/manual/design/{package}.md: missing section {title}"
+        for title in TOOLING_DESIGN_HEADINGS
+        if not has_heading(design, title)
+    )
+    return errors
+
+
+def check_tooling_standard() -> list[str]:
+    errors: list[str] = []
+    source_root = REPO_ROOT / "tooling" / "src"
+    for package in sorted(package_paths()):
+        directory = source_root / package
+        if not (directory / "moon.pkg").exists():
+            continue
+        pages = {chapter: chapter_page(chapter, package) for chapter in ("api", "tutorial", "design")}
+        if not all(path.exists() for path in pages.values()):
+            continue  # check_package_doc_coverage reports the missing page
+        errors.extend(
+            tooling_standard_errors(
+                package,
+                pages["api"].read_text(encoding="utf-8"),
+                pages["tutorial"].read_text(encoding="utf-8"),
+                pages["design"].read_text(encoding="utf-8"),
+                (directory / "pkg.generated.mbti").read_text(encoding="utf-8"),
+            )
+        )
+    return errors
+
+
 def run_checks() -> list[str]:
     return [
         *check_retired_layout(),
@@ -439,6 +532,7 @@ def run_checks() -> list[str]:
         *check_orphan_pages(),
         *check_package_readme_coverage(),
         *check_api_snapshots(),
+        *check_tooling_standard(),
         *check_gda_claims(),
         *check_evidence_paths(),
         *check_conformance_checklist(),

@@ -177,7 +177,7 @@ msgstr ""
 #: manual/api/decimal.md:403
 #: manual/api/differential.md:44
 #: manual/numeric_semantics.md:301
-#: manual/tutorial/internal/runner_cli.md:106
+#: manual/tutorial/internal/runner_cli.md:116
 msgid "Meaning"
 msgstr ""
 
@@ -1011,7 +1011,7 @@ msgstr ""
 #: manual/api/def.md:421
 #: manual/api/frontend/gda_expr.md:457
 #: manual/api/frontend/itl_expr.md:263
-#: manual/api/frontend/mpfr_expr.md:516
+#: manual/api/frontend/mpfr_expr.md:523
 #: manual/api/frontend/testfloat_expr.md:358
 #: manual/api/internal/conformance.md:290
 #: manual/api/numeric_expr.md:298
@@ -1102,7 +1102,7 @@ msgstr ""
 #: manual/api/doc_examples.md:46
 #: manual/api/frontend/gda_expr.md:508
 #: manual/api/frontend/itl_expr.md:276
-#: manual/api/frontend/mpfr_expr.md:529
+#: manual/api/frontend/mpfr_expr.md:536
 #: manual/api/frontend/testfloat_expr.md:404
 #: manual/api/internal.md:582
 #: manual/api/internal/conformance.md:353
@@ -1118,7 +1118,7 @@ msgstr ""
 #: manual/api/decimal_gda.md:2034
 #: manual/api/frontend/gda_expr.md:510
 #: manual/api/frontend/itl_expr.md:278
-#: manual/api/frontend/mpfr_expr.md:531
+#: manual/api/frontend/mpfr_expr.md:538
 #: manual/api/frontend/testfloat_expr.md:406
 #: manual/api/internal.md:584
 #: manual/api/internal/conformance.md:355
@@ -3529,7 +3529,7 @@ msgid "Exit status"
 msgstr ""
 
 #: manual/api/cli.md:58
-#: manual/tutorial/internal/runner_cli.md:106
+#: manual/tutorial/internal/runner_cli.md:116
 msgid "Code"
 msgstr ""
 
@@ -6896,7 +6896,7 @@ msgstr ""
 
 #: manual/api/frontend/mpfr_expr.md:100
 #: manual/design/decimal_gda.md:610
-#: manual/tutorial/frontend/mpfr_expr.md:83
+#: manual/tutorial/frontend/mpfr_expr.md:81
 msgid "Integer powers"
 msgstr ""
 
@@ -7021,57 +7021,65 @@ msgstr ""
 msgid "Runs every row through the `try_*_ctx` form of the operation with the row's context, so a certification failure fails the row instead of becoming a quiet NaN. A row passes only when the result has the expected value *and* cohort (`compare_total` equal, so `1.0` and `1.00` differ) and the flags agree. The row id is the first field of the row."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:415
-msgid "`case_ids` lists the row ids in order, which the differential harness uses to name the failing case of a batch."
+#: manual/api/frontend/mpfr_expr.md:398
+msgid "`MpfrDecimalRandomDocument` is a parsed `mpfr-decimal-random-v1` corpus (IEEE `decimal` elementary functions against MPFR); `source` is the label it was parsed from, `case_count` the number of rows and `case_ids` their ids in order."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:418
-msgid "Diagnostics and results"
+#: manual/api/frontend/mpfr_expr.md:413
+msgid "`MpfrRandomDocument` is a parsed `mpfr-random-v1` corpus (binary operations against MPFR) with the same three accessors."
 msgstr ""
 
 #: manual/api/frontend/mpfr_expr.md:422
+msgid "`case_ids` lists the row ids in order, which the differential harness uses to name the failing case of a batch."
+msgstr ""
+
+#: manual/api/frontend/mpfr_expr.md:425
+msgid "Diagnostics and results"
+msgstr ""
+
+#: manual/api/frontend/mpfr_expr.md:429
 #: manual/api/frontend/testfloat_expr.md:218
 msgid "`ParseDiagnostic` is one invalid line."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:432
+#: manual/api/frontend/mpfr_expr.md:439
 #: manual/api/frontend/testfloat_expr.md:228
 msgid "These methods return the name given to the parser, the 1-based line number and the message."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:441
+#: manual/api/frontend/mpfr_expr.md:448
 msgid "Messages name the problem, for example `\"MPFR pow row must contain ten fields\"`, `\"invalid MPFR pow field\"` or `\"invalid MPFR elementary expected value\"`."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:447
+#: manual/api/frontend/mpfr_expr.md:454
 msgid "`CaseResult` is the outcome of one row."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:457
+#: manual/api/frontend/mpfr_expr.md:464
 msgid "These methods return the row id, whether the row passed, and a message."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:465
+#: manual/api/frontend/mpfr_expr.md:472
 msgid "The message is empty for a pass and otherwise shows expected and actual values in hexadecimal (and the compared flags for power and elementary rows)."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:470
+#: manual/api/frontend/mpfr_expr.md:477
 msgid "`RunSummary` aggregates the rows of one document."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:480
+#: manual/api/frontend/mpfr_expr.md:487
 msgid "These methods return the number of rows, and how many passed and failed."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:490
+#: manual/api/frontend/mpfr_expr.md:497
 msgid "`results` returns a copy of the per-row results; `success` is the verdict."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:497
+#: manual/api/frontend/mpfr_expr.md:504
 msgid "Every row is executed, so $\\text{total} = \\text{passed} + \\text{failed}$; `success` is true when no row failed. `results` returns the results in row order."
 msgstr ""
 
-#: manual/api/frontend/mpfr_expr.md:520
+#: manual/api/frontend/mpfr_expr.md:527
 msgid "These methods compare location and message and render a diagnostic for `Debug`. Use `==`, `!=` and `debug_inspect` in new code."
 msgstr ""
 
@@ -8287,7 +8295,7 @@ msgstr ""
 #: manual/conformance/bin_float.md:71
 #: manual/conformance/decimal.md:42
 #: manual/conformance/decimal_gda.md:15
-#: manual/index.md:56
+#: manual/index.md:69
 #: manual/performance_audit.md:155
 msgid "Evidence"
 msgstr ""
@@ -8645,11 +8653,12 @@ msgstr ""
 #: manual/conformance/bin_float.md:71
 #: manual/conformance/decimal.md:42
 #: manual/conformance/decimal_gda.md:15
-#: manual/index.md:56
-#: manual/index.md:65
-#: manual/index.md:76
-#: manual/index.md:86
-#: manual/index.md:97
+#: manual/index.md:69
+#: manual/index.md:78
+#: manual/index.md:89
+#: manual/index.md:99
+#: manual/index.md:112
+#: manual/index.md:120
 #: manual/numeric_semantics.md:582
 msgid "API"
 msgstr ""
@@ -9842,7 +9851,7 @@ msgstr ""
 #: manual/design/bin_float.md:1956
 #: manual/design/bin_float_checked.md:329
 #: manual/design/cli.md:71
-#: manual/design/cli/dispatch.md:32
+#: manual/design/cli/dispatch.md:48
 #: manual/design/cli/gda_expr_cli.md:67
 #: manual/design/cli/itl_expr_cli.md:59
 #: manual/design/cli/mpfr_expr_cli.md:51
@@ -9854,7 +9863,7 @@ msgstr ""
 #: manual/design/decimal_gda_checked.md:247
 #: manual/design/def.md:337
 #: manual/design/differential.md:168
-#: manual/design/differential/harness.md:26
+#: manual/design/differential/harness.md:41
 #: manual/design/doc_examples.md:36
 #: manual/design/frontend/gda_expr.md:225
 #: manual/design/frontend/itl_expr.md:166
@@ -10345,6 +10354,7 @@ msgstr ""
 #: manual/design/bin_float.md:30
 #: manual/design/bin_float_checked.md:13
 #: manual/design/cli.md:11
+#: manual/design/cli/dispatch.md:12
 #: manual/design/cli/gda_expr_cli.md:10
 #: manual/design/cli/itl_expr_cli.md:10
 #: manual/design/cli/mpfr_expr_cli.md:10
@@ -10356,6 +10366,7 @@ msgstr ""
 #: manual/design/decimal_gda_checked.md:20
 #: manual/design/def.md:16
 #: manual/design/differential.md:13
+#: manual/design/differential/harness.md:11
 #: manual/design/doc_examples.md:9
 #: manual/design/frontend/gda_expr.md:18
 #: manual/design/frontend/itl_expr.md:16
@@ -10796,7 +10807,7 @@ msgstr ""
 #: manual/design/bin_float.md:185
 #: manual/design/bin_float_checked.md:81
 #: manual/design/cli.md:18
-#: manual/design/cli/dispatch.md:12
+#: manual/design/cli/dispatch.md:18
 #: manual/design/cli/gda_expr_cli.md:21
 #: manual/design/cli/itl_expr_cli.md:18
 #: manual/design/cli/mpfr_expr_cli.md:16
@@ -10808,7 +10819,7 @@ msgstr ""
 #: manual/design/decimal_gda_checked.md:113
 #: manual/design/def.md:68
 #: manual/design/differential.md:95
-#: manual/design/differential/harness.md:11
+#: manual/design/differential/harness.md:18
 #: manual/design/doc_examples.md:14
 #: manual/design/frontend/gda_expr.md:117
 #: manual/design/frontend/itl_expr.md:76
@@ -10958,7 +10969,7 @@ msgstr ""
 #: manual/design/bin_float.md:1884
 #: manual/design/bin_float_checked.md:199
 #: manual/design/cli.md:52
-#: manual/design/cli/dispatch.md:25
+#: manual/design/cli/dispatch.md:31
 #: manual/design/cli/gda_expr_cli.md:50
 #: manual/design/cli/itl_expr_cli.md:45
 #: manual/design/cli/mpfr_expr_cli.md:36
@@ -10970,7 +10981,7 @@ msgstr ""
 #: manual/design/decimal_gda_checked.md:190
 #: manual/design/def.md:159
 #: manual/design/differential.md:145
-#: manual/design/differential/harness.md:20
+#: manual/design/differential/harness.md:27
 #: manual/design/doc_examples.md:25
 #: manual/design/frontend/gda_expr.md:174
 #: manual/design/frontend/itl_expr.md:133
@@ -11035,6 +11046,7 @@ msgstr ""
 #: manual/design/bin_float.md:1931
 #: manual/design/bin_float_checked.md:316
 #: manual/design/cli.md:62
+#: manual/design/cli/dispatch.md:38
 #: manual/design/cli/gda_expr_cli.md:60
 #: manual/design/cli/itl_expr_cli.md:53
 #: manual/design/cli/mpfr_expr_cli.md:44
@@ -11046,6 +11058,7 @@ msgstr ""
 #: manual/design/decimal_gda_checked.md:238
 #: manual/design/def.md:324
 #: manual/design/differential.md:156
+#: manual/design/differential/harness.md:33
 #: manual/design/doc_examples.md:30
 #: manual/design/frontend/gda_expr.md:214
 #: manual/design/frontend/itl_expr.md:156
@@ -13187,30 +13200,46 @@ msgid "The dispatcher has behaviour worth testing (argument scanning, the at-mos
 msgstr ""
 
 #: manual/design/cli/dispatch.md:14
-msgid "Return the exit code"
-msgstr ""
-
-#: manual/design/cli/dispatch.md:16
-msgid "`dispatch` returns an `Int32` and never calls `@sys.exit`, so a white-box test checks an invocation without spawning a process. The semantics of the options are those of the `cli` page and are unchanged by the split."
+msgid "None. The dispatcher is a pure function of the argument vector: its result and its output depend on nothing else, and the runners it calls are libraries whose results depend only on their arguments and the files they read."
 msgstr ""
 
 #: manual/design/cli/dispatch.md:20
-msgid "Runners stay libraries"
+msgid "Return the exit code"
 msgstr ""
 
 #: manual/design/cli/dispatch.md:22
+msgid "`dispatch` returns an `Int32` and never calls `@sys.exit`, so a white-box test checks an invocation without spawning a process. The semantics of the options are those of the `cli` page and are unchanged by the split."
+msgstr ""
+
+#: manual/design/cli/dispatch.md:26
+msgid "Runners stay libraries"
+msgstr ""
+
+#: manual/design/cli/dispatch.md:28
 msgid "The four runners (`cli/gda_expr_cli` and its siblings) are imported here and nowhere else; `cli` itself imports only this package and the process helpers."
 msgstr ""
 
-#: manual/design/cli/dispatch.md:27
+#: manual/design/cli/dispatch.md:33
 msgid "Exactly one runner is called per invocation, or none for invalid arguments or `--help`."
 msgstr ""
 
-#: manual/design/cli/dispatch.md:29
+#: manual/design/cli/dispatch.md:35
 msgid "The result equals the runner's return value, or `2` for an argument error, or `0` for `--help`."
 msgstr ""
 
-#: manual/design/cli/dispatch.md:34
+#: manual/design/cli/dispatch.md:40
+msgid "**Keep the dispatcher in `cli`.** A main package that holds test inputs (`.mbt.md` files) is deprecated by the toolchain, and its tests would need the process boundary."
+msgstr ""
+
+#: manual/design/cli/dispatch.md:43
+msgid "**A table of runners.** A `match` on the backend name is checked by the compiler, and each arm is one line."
+msgstr ""
+
+#: manual/design/cli/dispatch.md:45
+msgid "**Exit inside `dispatch`.** It would make every usage error untestable without spawning a process."
+msgstr ""
+
+#: manual/design/cli/dispatch.md:50
 msgid "No process exit, no file access of its own: those are in the runners and in `cli`."
 msgstr ""
 
@@ -15830,22 +15859,34 @@ msgid "The harness has behaviour worth testing (batch splitting, directive handl
 msgstr ""
 
 #: manual/design/differential/harness.md:13
+msgid "None of its own. A batch is valid when every row reproduces the expected value and flags of its oracle (MPFR, libmpdec); the rounding and flag semantics are those of the frontends it calls, and the statistics of the run are those of mare_mark (see the [differential design page](../../design/differential.md))."
+msgstr ""
+
+#: manual/design/differential/harness.md:20
 msgid "One public function"
 msgstr ""
 
-#: manual/design/differential/harness.md:15
+#: manual/design/differential/harness.md:22
 msgid "`run` is the only public item; the options, batches and the experiment specification stay private to the package. The behaviour, the command line and the record are those of the [`differential` design page](../../design/differential.md) and are unchanged by the split."
 msgstr ""
 
-#: manual/design/differential/harness.md:22
+#: manual/design/differential/harness.md:29
 msgid "The exit status is `2` for a bad command line or corpus, `1` when a batch disagrees with its oracle, and `0` otherwise."
 msgstr ""
 
-#: manual/design/differential/harness.md:24
+#: manual/design/differential/harness.md:31
 msgid "It does not implement or alter arithmetic: every row goes through a frontend."
 msgstr ""
 
-#: manual/design/differential/harness.md:28
+#: manual/design/differential/harness.md:35
+msgid "**Keep `run` in the main package.** A main package that holds test inputs (`.mbt.md` files) is deprecated by the toolchain, and the batching tests would live in an executable."
+msgstr ""
+
+#: manual/design/differential/harness.md:38
+msgid "**Several public functions.** Options and batches are details of one command line; exposing them would promise a stability they do not have."
+msgstr ""
+
+#: manual/design/differential/harness.md:43
 msgid "Native, JavaScript, Wasm and LLVM only (`moonbitlang/async`)."
 msgstr ""
 
@@ -16760,7 +16801,7 @@ msgid "where the $e$ are unit vectors in $\\mathbb{N}^{7}$. `RunSummary::from_re
 msgstr ""
 
 #: manual/design/internal/conformance.md:33
-#: manual/tutorial/frontend/testfloat_expr.md:166
+#: manual/tutorial/frontend/testfloat_expr.md:164
 msgid "Shards"
 msgstr ""
 
@@ -17694,790 +17735,837 @@ msgid "The module needs the MoonBit toolchain 0.10.20 or later (`moonc` ≥ 0.10
 msgstr ""
 
 #: manual/index.md:47
-msgid "Pages"
+msgid "Modules"
 msgstr ""
 
 #: manual/index.md:49
+msgid "The repository is a workspace of two modules. `Luna-Flow/floating` (directory `library/`) is the library: the numerical cores, the checked wrappers, `def`, `semantic`, `consistency` and the `internal` helpers. `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds the developer tools: expressions and corpus frontends, the conformance command line, the differential harness, the benchmarks and the documentation examples. The sections below say which module a package belongs to; their package names are import paths below the module name, so `bin_float` is `Luna-Flow/floating/bin_float` and `frontend/gda_expr` is `Luna-Flow/floating-tools/frontend/gda_expr`."
+msgstr ""
+
+#: manual/index.md:60
+msgid "Pages"
+msgstr ""
+
+#: manual/index.md:62
 msgid "Each documented package has a tutorial (how to use it), an API reference (what you can call) and a design page (why it works this way). The four numerical cores also have a conformance page (which standard behaviour is verified, and how) and a performance page (measurements and their method)."
 msgstr ""
 
-#: manual/index.md:54
+#: manual/index.md:67
 msgid "Numerical cores"
 msgstr ""
 
-#: manual/index.md:56
-#: manual/index.md:65
-#: manual/index.md:76
-#: manual/index.md:86
-#: manual/index.md:97
+#: manual/index.md:69
+#: manual/index.md:78
+#: manual/index.md:89
+#: manual/index.md:99
+#: manual/index.md:112
+#: manual/index.md:120
 msgid "Part"
 msgstr ""
 
-#: manual/index.md:56
-#: manual/index.md:65
-#: manual/index.md:76
-#: manual/index.md:86
-#: manual/index.md:97
+#: manual/index.md:69
+#: manual/index.md:78
+#: manual/index.md:89
+#: manual/index.md:99
+#: manual/index.md:112
+#: manual/index.md:120
 msgid "Tutorial"
 msgstr ""
 
-#: manual/index.md:56
-#: manual/index.md:65
-#: manual/index.md:76
-#: manual/index.md:86
-#: manual/index.md:97
+#: manual/index.md:69
+#: manual/index.md:78
+#: manual/index.md:89
+#: manual/index.md:99
+#: manual/index.md:112
+#: manual/index.md:120
 msgid "Design"
 msgstr ""
 
-#: manual/index.md:58
+#: manual/index.md:71
 msgid "`bin_float`: binary floating point, IEEE 754 binary operations, binary16/32/64/128 interchange"
 msgstr ""
 
-#: manual/index.md:58
+#: manual/index.md:71
 msgid "[tutorial](tutorial/bin_float.md)"
 msgstr ""
 
-#: manual/index.md:58
+#: manual/index.md:71
 msgid "[API](api/bin_float.md)"
 msgstr ""
 
-#: manual/index.md:58
+#: manual/index.md:71
 msgid "[design](design/bin_float.md)"
 msgstr ""
 
-#: manual/index.md:58
+#: manual/index.md:71
 msgid "[conformance](conformance/bin_float.md), [performance](performance/bin_float.md)"
 msgstr ""
 
-#: manual/index.md:59
+#: manual/index.md:72
 msgid "`decimal`: IEEE 754 decimal with per-operation flags and DPD/BID interchange"
 msgstr ""
 
-#: manual/index.md:59
+#: manual/index.md:72
 msgid "[tutorial](tutorial/decimal.md)"
 msgstr ""
 
-#: manual/index.md:59
+#: manual/index.md:72
 msgid "[API](api/decimal.md)"
 msgstr ""
 
-#: manual/index.md:59
+#: manual/index.md:72
 msgid "[design](design/decimal.md)"
 msgstr ""
 
-#: manual/index.md:59
+#: manual/index.md:72
 msgid "[conformance](conformance/decimal.md), [performance](performance/decimal.md)"
 msgstr ""
 
-#: manual/index.md:60
+#: manual/index.md:73
 msgid "`decimal_gda`: General Decimal Arithmetic with sticky status and traps"
 msgstr ""
 
-#: manual/index.md:60
+#: manual/index.md:73
 msgid "[tutorial](tutorial/decimal_gda.md)"
 msgstr ""
 
-#: manual/index.md:60
+#: manual/index.md:73
 msgid "[API](api/decimal_gda.md)"
 msgstr ""
 
-#: manual/index.md:60
+#: manual/index.md:73
 msgid "[design](design/decimal_gda.md)"
 msgstr ""
 
-#: manual/index.md:60
+#: manual/index.md:73
 msgid "[conformance](conformance/decimal_gda.md), [performance](performance/decimal_gda.md)"
 msgstr ""
 
-#: manual/index.md:61
+#: manual/index.md:74
 msgid "`ball_float`: outward-rounded bare and decorated intervals (IEEE 1788)"
 msgstr ""
 
-#: manual/index.md:61
+#: manual/index.md:74
 msgid "[tutorial](tutorial/ball_float.md)"
 msgstr ""
 
-#: manual/index.md:61
+#: manual/index.md:74
 msgid "[API](api/ball_float.md)"
 msgstr ""
 
-#: manual/index.md:61
+#: manual/index.md:74
 msgid "[design](design/ball_float.md)"
 msgstr ""
 
-#: manual/index.md:61
+#: manual/index.md:74
 msgid "[conformance](conformance/ball_float.md), [performance](performance/ball_float.md)"
 msgstr ""
 
-#: manual/index.md:63
+#: manual/index.md:76
 msgid "Composition and shared vocabulary"
 msgstr ""
 
-#: manual/index.md:67
+#: manual/index.md:80
 msgid "`def`: `Sign`, `PartialOrder`, the `Floating` trait, re-exported `arithmetic` types"
 msgstr ""
 
-#: manual/index.md:67
+#: manual/index.md:80
 msgid "[tutorial](tutorial/def.md)"
 msgstr ""
 
-#: manual/index.md:67
+#: manual/index.md:80
 msgid "[API](api/def.md)"
 msgstr ""
 
-#: manual/index.md:67
+#: manual/index.md:80
 msgid "[design](design/def.md)"
 msgstr ""
 
-#: manual/index.md:68
+#: manual/index.md:81
 msgid "`bin_float_checked`: binary pipelines that stop at the first error"
 msgstr ""
 
-#: manual/index.md:68
+#: manual/index.md:81
 msgid "[tutorial](tutorial/bin_float_checked.md)"
 msgstr ""
 
-#: manual/index.md:68
+#: manual/index.md:81
 msgid "[API](api/bin_float_checked.md)"
 msgstr ""
 
-#: manual/index.md:68
+#: manual/index.md:81
 msgid "[design](design/bin_float_checked.md)"
 msgstr ""
 
-#: manual/index.md:69
+#: manual/index.md:82
 msgid "`decimal_checked`: IEEE decimal pipelines that accumulate flags"
 msgstr ""
 
-#: manual/index.md:69
+#: manual/index.md:82
 msgid "[tutorial](tutorial/decimal_checked.md)"
 msgstr ""
 
-#: manual/index.md:69
+#: manual/index.md:82
 msgid "[API](api/decimal_checked.md)"
 msgstr ""
 
-#: manual/index.md:69
+#: manual/index.md:82
 msgid "[design](design/decimal_checked.md)"
 msgstr ""
 
-#: manual/index.md:70
+#: manual/index.md:83
 msgid "`decimal_gda_checked`: GDA pipelines that thread status and stop at traps"
 msgstr ""
 
-#: manual/index.md:70
+#: manual/index.md:83
 msgid "[tutorial](tutorial/decimal_gda_checked.md)"
 msgstr ""
 
-#: manual/index.md:70
+#: manual/index.md:83
 msgid "[API](api/decimal_gda_checked.md)"
 msgstr ""
 
-#: manual/index.md:70
+#: manual/index.md:83
 msgid "[design](design/decimal_gda_checked.md)"
 msgstr ""
 
-#: manual/index.md:71
+#: manual/index.md:84
 msgid "`ball_float_checked`: interval pipelines that stop at the first error"
 msgstr ""
 
-#: manual/index.md:71
+#: manual/index.md:84
 msgid "[tutorial](tutorial/ball_float_checked.md)"
 msgstr ""
 
-#: manual/index.md:71
+#: manual/index.md:84
 msgid "[API](api/ball_float_checked.md)"
 msgstr ""
 
-#: manual/index.md:71
+#: manual/index.md:84
 msgid "[design](design/ball_float_checked.md)"
 msgstr ""
 
-#: manual/index.md:72
+#: manual/index.md:85
 msgid "`semantic`: exact, representation-independent projection for comparisons across packages"
 msgstr ""
 
-#: manual/index.md:72
+#: manual/index.md:85
 msgid "[tutorial](tutorial/semantic.md)"
 msgstr ""
 
-#: manual/index.md:72
+#: manual/index.md:85
 msgid "[API](api/semantic.md)"
 msgstr ""
 
-#: manual/index.md:72
+#: manual/index.md:85
 msgid "[design](design/semantic.md)"
 msgstr ""
 
-#: manual/index.md:74
-msgid "Expressions and corpus frontends"
+#: manual/index.md:87
+msgid "Tools module: expressions and corpus frontends"
 msgstr ""
 
-#: manual/index.md:78
+#: manual/index.md:91
 msgid "`numeric_expr`: host-independent numeric expression syntax and evaluation"
 msgstr ""
 
-#: manual/index.md:78
+#: manual/index.md:91
 msgid "[tutorial](tutorial/numeric_expr.md)"
 msgstr ""
 
-#: manual/index.md:78
+#: manual/index.md:91
 msgid "[API](api/numeric_expr.md)"
 msgstr ""
 
-#: manual/index.md:78
+#: manual/index.md:91
 msgid "[design](design/numeric_expr.md)"
 msgstr ""
 
-#: manual/index.md:79
+#: manual/index.md:92
 msgid "`frontend/gda_expr`: parse and execute GDA `.decTest` files"
 msgstr ""
 
-#: manual/index.md:79
+#: manual/index.md:92
 msgid "[tutorial](tutorial/frontend/gda_expr.md)"
 msgstr ""
 
-#: manual/index.md:79
+#: manual/index.md:92
 msgid "[API](api/frontend/gda_expr.md)"
 msgstr ""
 
-#: manual/index.md:79
+#: manual/index.md:92
 msgid "[design](design/frontend/gda_expr.md)"
 msgstr ""
 
-#: manual/index.md:80
+#: manual/index.md:93
 msgid "`frontend/itl_expr`: parse and execute ITF1788 interval test rows"
 msgstr ""
 
-#: manual/index.md:80
+#: manual/index.md:93
 msgid "[tutorial](tutorial/frontend/itl_expr.md)"
 msgstr ""
 
-#: manual/index.md:80
+#: manual/index.md:93
 msgid "[API](api/frontend/itl_expr.md)"
 msgstr ""
 
-#: manual/index.md:80
+#: manual/index.md:93
 msgid "[design](design/frontend/itl_expr.md)"
 msgstr ""
 
-#: manual/index.md:81
+#: manual/index.md:94
 msgid "`frontend/mpfr_expr`: parse and execute pinned MPFR witnesses"
 msgstr ""
 
-#: manual/index.md:81
+#: manual/index.md:94
 msgid "[tutorial](tutorial/frontend/mpfr_expr.md)"
 msgstr ""
 
-#: manual/index.md:81
+#: manual/index.md:94
 msgid "[API](api/frontend/mpfr_expr.md)"
 msgstr ""
 
-#: manual/index.md:81
+#: manual/index.md:94
 msgid "[design](design/frontend/mpfr_expr.md)"
 msgstr ""
 
-#: manual/index.md:82
+#: manual/index.md:95
 msgid "`frontend/testfloat_expr`: parse and execute Berkeley TestFloat vectors"
 msgstr ""
 
-#: manual/index.md:82
+#: manual/index.md:95
 msgid "[tutorial](tutorial/frontend/testfloat_expr.md)"
 msgstr ""
 
-#: manual/index.md:82
+#: manual/index.md:95
 msgid "[API](api/frontend/testfloat_expr.md)"
 msgstr ""
 
-#: manual/index.md:82
+#: manual/index.md:95
 msgid "[design](design/frontend/testfloat_expr.md)"
 msgstr ""
 
-#: manual/index.md:84
-msgid "Conformance command line"
+#: manual/index.md:97
+msgid "Tools module: conformance command line"
 msgstr ""
 
-#: manual/index.md:88
+#: manual/index.md:101
 msgid "`cli`: native dispatcher for the four conformance backends"
 msgstr ""
 
-#: manual/index.md:88
+#: manual/index.md:101
 msgid "[tutorial](tutorial/cli.md)"
 msgstr ""
 
-#: manual/index.md:88
+#: manual/index.md:101
 msgid "[API](api/cli.md)"
 msgstr ""
 
-#: manual/index.md:88
+#: manual/index.md:101
 msgid "[design](design/cli.md)"
 msgstr ""
 
-#: manual/index.md:89
+#: manual/index.md:102
+msgid "`cli/dispatch`: the argument scanning and exit code of `cli`, as a library"
+msgstr ""
+
+#: manual/index.md:102
+msgid "[tutorial](tutorial/cli/dispatch.md)"
+msgstr ""
+
+#: manual/index.md:102
+msgid "[API](api/cli/dispatch.md)"
+msgstr ""
+
+#: manual/index.md:102
+msgid "[design](design/cli/dispatch.md)"
+msgstr ""
+
+#: manual/index.md:103
 msgid "`cli/gda_expr_cli`: file and output adapter for `.decTest` runs"
 msgstr ""
 
-#: manual/index.md:89
+#: manual/index.md:103
 msgid "[tutorial](tutorial/cli/gda_expr_cli.md)"
 msgstr ""
 
-#: manual/index.md:89
+#: manual/index.md:103
 msgid "[API](api/cli/gda_expr_cli.md)"
 msgstr ""
 
-#: manual/index.md:89
+#: manual/index.md:103
 msgid "[design](design/cli/gda_expr_cli.md)"
 msgstr ""
 
-#: manual/index.md:90
+#: manual/index.md:104
 msgid "`cli/itl_expr_cli`: file and JSON adapter for ITF1788 runs"
 msgstr ""
 
-#: manual/index.md:90
+#: manual/index.md:104
 msgid "[tutorial](tutorial/cli/itl_expr_cli.md)"
 msgstr ""
 
-#: manual/index.md:90
+#: manual/index.md:104
 msgid "[API](api/cli/itl_expr_cli.md)"
 msgstr ""
 
-#: manual/index.md:90
+#: manual/index.md:104
 msgid "[design](design/cli/itl_expr_cli.md)"
 msgstr ""
 
-#: manual/index.md:91
+#: manual/index.md:105
 msgid "`cli/mpfr_expr_cli`: command adapter for MPFR witness runs"
 msgstr ""
 
-#: manual/index.md:91
+#: manual/index.md:105
 msgid "[tutorial](tutorial/cli/mpfr_expr_cli.md)"
 msgstr ""
 
-#: manual/index.md:91
+#: manual/index.md:105
 msgid "[API](api/cli/mpfr_expr_cli.md)"
 msgstr ""
 
-#: manual/index.md:91
+#: manual/index.md:105
 msgid "[design](design/cli/mpfr_expr_cli.md)"
 msgstr ""
 
-#: manual/index.md:92
+#: manual/index.md:106
 msgid "`differential`: seeded random differential harness against MPFR and libmpdec"
 msgstr ""
 
-#: manual/index.md:92
+#: manual/index.md:106
 msgid "[tutorial](tutorial/differential.md)"
 msgstr ""
 
-#: manual/index.md:92
+#: manual/index.md:106
 msgid "[API](api/differential.md)"
 msgstr ""
 
-#: manual/index.md:92
+#: manual/index.md:106
 msgid "[design](design/differential.md)"
 msgstr ""
 
-#: manual/index.md:93
+#: manual/index.md:107
+msgid "`differential/harness`: the batches, specification and `run` of `differential`, as a library"
+msgstr ""
+
+#: manual/index.md:107
+msgid "[tutorial](tutorial/differential/harness.md)"
+msgstr ""
+
+#: manual/index.md:107
+msgid "[API](api/differential/harness.md)"
+msgstr ""
+
+#: manual/index.md:107
+msgid "[design](design/differential/harness.md)"
+msgstr ""
+
+#: manual/index.md:108
 msgid "`cli/testfloat_expr_cli`: command adapter for TestFloat runs"
 msgstr ""
 
-#: manual/index.md:93
+#: manual/index.md:108
 msgid "[tutorial](tutorial/cli/testfloat_expr_cli.md)"
 msgstr ""
 
-#: manual/index.md:93
+#: manual/index.md:108
 msgid "[API](api/cli/testfloat_expr_cli.md)"
 msgstr ""
 
-#: manual/index.md:93
+#: manual/index.md:108
 msgid "[design](design/cli/testfloat_expr_cli.md)"
 msgstr ""
 
-#: manual/index.md:95
-msgid "Infrastructure and evidence"
+#: manual/index.md:110
+msgid "Library infrastructure"
 msgstr ""
 
-#: manual/index.md:99
+#: manual/index.md:114
 msgid "`internal`: exact rationals, big-integer, parsing, normalization and rounding helpers"
 msgstr ""
 
-#: manual/index.md:99
+#: manual/index.md:114
 msgid "[tutorial](tutorial/internal.md)"
 msgstr ""
 
-#: manual/index.md:99
+#: manual/index.md:114
 msgid "[API](api/internal.md)"
 msgstr ""
 
-#: manual/index.md:99
+#: manual/index.md:114
 msgid "[design](design/internal.md)"
 msgstr ""
 
-#: manual/index.md:100
-msgid "`internal/conformance`: source locations, deterministic shards, case dispositions and summaries"
-msgstr ""
-
-#: manual/index.md:100
-msgid "[tutorial](tutorial/internal/conformance.md)"
-msgstr ""
-
-#: manual/index.md:100
-msgid "[API](api/internal/conformance.md)"
-msgstr ""
-
-#: manual/index.md:100
-msgid "[design](design/internal/conformance.md)"
-msgstr ""
-
-#: manual/index.md:101
+#: manual/index.md:115
 msgid "`internal/decimal_kernel`: exact integer arithmetic on decimal coefficients, shared by `decimal` and `decimal_gda`"
 msgstr ""
 
-#: manual/index.md:101
+#: manual/index.md:115
 msgid "[tutorial](tutorial/internal/decimal_kernel.md)"
 msgstr ""
 
-#: manual/index.md:101
+#: manual/index.md:115
 msgid "[API](api/internal/decimal_kernel.md)"
 msgstr ""
 
-#: manual/index.md:101
+#: manual/index.md:115
 msgid "[design](design/internal/decimal_kernel.md)"
 msgstr ""
 
-#: manual/index.md:102
-msgid "`internal/runner_cli`: shared command-line options, files, diagnostics and JSON"
-msgstr ""
-
-#: manual/index.md:102
-msgid "[tutorial](tutorial/internal/runner_cli.md)"
-msgstr ""
-
-#: manual/index.md:102
-msgid "[API](api/internal/runner_cli.md)"
-msgstr ""
-
-#: manual/index.md:102
-msgid "[design](design/internal/runner_cli.md)"
-msgstr ""
-
-#: manual/index.md:103
+#: manual/index.md:116
 msgid "`consistency`: white-box cross-package laws and API audits"
 msgstr ""
 
-#: manual/index.md:103
+#: manual/index.md:116
 msgid "[tutorial](tutorial/consistency.md)"
 msgstr ""
 
-#: manual/index.md:103
+#: manual/index.md:116
 msgid "[API](api/consistency.md)"
 msgstr ""
 
-#: manual/index.md:103
+#: manual/index.md:116
 msgid "[design](design/consistency.md)"
 msgstr ""
 
-#: manual/index.md:104
-msgid "`doc_examples`: executable documentation examples run by `just docs`"
-msgstr ""
-
-#: manual/index.md:104
-msgid "[tutorial](tutorial/doc_examples.md)"
-msgstr ""
-
-#: manual/index.md:104
-msgid "[API](api/doc_examples.md)"
-msgstr ""
-
-#: manual/index.md:104
-msgid "[design](design/doc_examples.md)"
-msgstr ""
-
-#: manual/index.md:105
-msgid "`bench`: shared Maremark benchmark infrastructure"
-msgstr ""
-
-#: manual/index.md:105
-msgid "[tutorial](tutorial/bench.md)"
-msgstr ""
-
-#: manual/index.md:105
-msgid "[API](api/bench.md)"
-msgstr ""
-
-#: manual/index.md:105
-msgid "[design](design/bench.md)"
-msgstr ""
-
-#: manual/index.md:106
-msgid "`bench/bin_float`: binary arithmetic and elementary-function benchmarks"
-msgstr ""
-
-#: manual/index.md:106
-msgid "[tutorial](tutorial/bench/bin_float.md)"
-msgstr ""
-
-#: manual/index.md:106
-msgid "[API](api/bench/bin_float.md)"
-msgstr ""
-
-#: manual/index.md:106
-msgid "[design](design/bench/bin_float.md)"
-msgstr ""
-
-#: manual/index.md:107
-msgid "`bench/decimal`: IEEE decimal benchmarks"
-msgstr ""
-
-#: manual/index.md:107
-msgid "[tutorial](tutorial/bench/decimal.md)"
-msgstr ""
-
-#: manual/index.md:107
-msgid "[API](api/bench/decimal.md)"
-msgstr ""
-
-#: manual/index.md:107
-msgid "[design](design/bench/decimal.md)"
-msgstr ""
-
-#: manual/index.md:108
-msgid "`bench/decimal_gda`: GDA decimal benchmarks"
-msgstr ""
-
-#: manual/index.md:108
-msgid "[tutorial](tutorial/bench/decimal_gda.md)"
-msgstr ""
-
-#: manual/index.md:108
-msgid "[API](api/bench/decimal_gda.md)"
-msgstr ""
-
-#: manual/index.md:108
-msgid "[design](design/bench/decimal_gda.md)"
-msgstr ""
-
-#: manual/index.md:109
-msgid "`bench/ball_float`: interval arithmetic benchmarks"
-msgstr ""
-
-#: manual/index.md:109
-msgid "[tutorial](tutorial/bench/ball_float.md)"
-msgstr ""
-
-#: manual/index.md:109
-msgid "[API](api/bench/ball_float.md)"
-msgstr ""
-
-#: manual/index.md:109
-msgid "[design](design/bench/ball_float.md)"
-msgstr ""
-
-#: manual/index.md:110
-msgid "`bench/external`: timing against MPFR and libmpdec on shared operands"
-msgstr ""
-
-#: manual/index.md:110
-msgid "[tutorial](tutorial/bench/external.md)"
-msgstr ""
-
-#: manual/index.md:110
-msgid "[API](api/bench/external.md)"
-msgstr ""
-
-#: manual/index.md:110
-msgid "[design](design/bench/external.md), [performance](performance/bench/external.md)"
-msgstr ""
-
-#: manual/index.md:112
-msgid "Guides"
-msgstr ""
-
-#: manual/index.md:114
-msgid "Guide"
-msgstr ""
-
-#: manual/index.md:114
-msgid "Read it for"
-msgstr ""
-
-#: manual/index.md:116
-msgid "[Getting started](getting_started.md)"
-msgstr ""
-
-#: manual/index.md:116
-msgid "choosing a package, installing, first values, contexts and failure models"
-msgstr ""
-
-#: manual/index.md:117
-msgid "[Numeric semantics](numeric_semantics.md)"
-msgstr ""
-
-#: manual/index.md:117
-msgid "the shared vocabulary: exact value and rounded result, rounding functions, ulp and unit roundoff, flags, quantum, signed zero, NaN, enclosures"
-msgstr ""
-
 #: manual/index.md:118
-msgid "[Architecture](architecture.md)"
-msgstr ""
-
-#: manual/index.md:118
-msgid "package layers, the numeric core pipeline, certified elementary functions, invariants"
-msgstr ""
-
-#: manual/index.md:119
-msgid "[Verification](verification.md)"
-msgstr ""
-
-#: manual/index.md:119
-msgid "the gates, the published conformance claims and how to reproduce them"
-msgstr ""
-
-#: manual/index.md:120
-msgid "[Performance audit](performance_audit.md)"
-msgstr ""
-
-#: manual/index.md:120
-msgid "proofs and evidence for the optimized arithmetic paths"
-msgstr ""
-
-#: manual/index.md:121
-msgid "[External baseline](performance/bench/external.md)"
-msgstr ""
-
-#: manual/index.md:121
-msgid "`floating` timed against MPFR and libmpdec: method, machine, ratios"
+msgid "Tools module: infrastructure and evidence"
 msgstr ""
 
 #: manual/index.md:122
-msgid "[Repository conventions](conventions.md)"
+msgid "`internal/conformance`: source locations, deterministic shards, case dispositions and summaries"
 msgstr ""
 
 #: manual/index.md:122
-msgid "documentation rules and the review checklist"
+msgid "[tutorial](tutorial/internal/conformance.md)"
+msgstr ""
+
+#: manual/index.md:122
+msgid "[API](api/internal/conformance.md)"
+msgstr ""
+
+#: manual/index.md:122
+msgid "[design](design/internal/conformance.md)"
+msgstr ""
+
+#: manual/index.md:123
+msgid "`internal/runner_cli`: shared command-line options, files, diagnostics and JSON"
+msgstr ""
+
+#: manual/index.md:123
+msgid "[tutorial](tutorial/internal/runner_cli.md)"
+msgstr ""
+
+#: manual/index.md:123
+msgid "[API](api/internal/runner_cli.md)"
+msgstr ""
+
+#: manual/index.md:123
+msgid "[design](design/internal/runner_cli.md)"
 msgstr ""
 
 #: manual/index.md:124
-msgid "The application surface is the numerical cores, `def` and the checked wrappers; `semantic` and `numeric_expr` are provisional integration surfaces. The other packages publish interfaces because repository tools compose them, and their design pages state narrower stability promises."
+msgid "`doc_examples`: executable documentation examples run by `just docs`"
+msgstr ""
+
+#: manual/index.md:124
+msgid "[tutorial](tutorial/doc_examples.md)"
+msgstr ""
+
+#: manual/index.md:124
+msgid "[API](api/doc_examples.md)"
+msgstr ""
+
+#: manual/index.md:124
+msgid "[design](design/doc_examples.md)"
+msgstr ""
+
+#: manual/index.md:125
+msgid "`bench`: shared Maremark benchmark infrastructure"
+msgstr ""
+
+#: manual/index.md:125
+msgid "[tutorial](tutorial/bench.md)"
+msgstr ""
+
+#: manual/index.md:125
+msgid "[API](api/bench.md)"
+msgstr ""
+
+#: manual/index.md:125
+msgid "[design](design/bench.md)"
+msgstr ""
+
+#: manual/index.md:126
+msgid "`bench/bin_float`: binary arithmetic and elementary-function benchmarks"
+msgstr ""
+
+#: manual/index.md:126
+msgid "[tutorial](tutorial/bench/bin_float.md)"
+msgstr ""
+
+#: manual/index.md:126
+msgid "[API](api/bench/bin_float.md)"
+msgstr ""
+
+#: manual/index.md:126
+msgid "[design](design/bench/bin_float.md)"
+msgstr ""
+
+#: manual/index.md:127
+msgid "`bench/decimal`: IEEE decimal benchmarks"
+msgstr ""
+
+#: manual/index.md:127
+msgid "[tutorial](tutorial/bench/decimal.md)"
+msgstr ""
+
+#: manual/index.md:127
+msgid "[API](api/bench/decimal.md)"
+msgstr ""
+
+#: manual/index.md:127
+msgid "[design](design/bench/decimal.md)"
+msgstr ""
+
+#: manual/index.md:128
+msgid "`bench/decimal_gda`: GDA decimal benchmarks"
+msgstr ""
+
+#: manual/index.md:128
+msgid "[tutorial](tutorial/bench/decimal_gda.md)"
+msgstr ""
+
+#: manual/index.md:128
+msgid "[API](api/bench/decimal_gda.md)"
+msgstr ""
+
+#: manual/index.md:128
+msgid "[design](design/bench/decimal_gda.md)"
 msgstr ""
 
 #: manual/index.md:129
-msgid "Exported types"
+msgid "`bench/ball_float`: interval arithmetic benchmarks"
 msgstr ""
 
-#: manual/index.md:131
-msgid "Binary floating point (`bin_float`)"
+#: manual/index.md:129
+msgid "[tutorial](tutorial/bench/ball_float.md)"
 msgstr ""
 
-#: manual/index.md:133
-msgid "Values: `BinFloat` (signed dyadic number with a precision, signed zeros, infinities and NaNs with payloads) and its exact coefficient `BinCoeff`"
+#: manual/index.md:129
+msgid "[API](api/bench/ball_float.md)"
 msgstr ""
 
-#: manual/index.md:135
-msgid "Contexts and status: `BinaryContext`, `BinaryRoundingMode`, `TininessDetection`, `BinaryFlags`"
+#: manual/index.md:129
+msgid "[design](design/bench/ball_float.md)"
+msgstr ""
+
+#: manual/index.md:130
+msgid "`bench/external`: timing against MPFR and libmpdec on shared operands"
+msgstr ""
+
+#: manual/index.md:130
+msgid "[tutorial](tutorial/bench/external.md)"
+msgstr ""
+
+#: manual/index.md:130
+msgid "[API](api/bench/external.md)"
+msgstr ""
+
+#: manual/index.md:130
+msgid "[design](design/bench/external.md), [performance](performance/bench/external.md)"
+msgstr ""
+
+#: manual/index.md:132
+msgid "Guides"
+msgstr ""
+
+#: manual/index.md:134
+msgid "Guide"
+msgstr ""
+
+#: manual/index.md:134
+msgid "Read it for"
+msgstr ""
+
+#: manual/index.md:136
+msgid "[Getting started](getting_started.md)"
+msgstr ""
+
+#: manual/index.md:136
+msgid "choosing a package, installing, first values, contexts and failure models"
 msgstr ""
 
 #: manual/index.md:137
-msgid "Interchange: `BinaryInterchange`, `BinaryInterchangeFormat` (binary16, 32, 64, 128 and wider)"
+msgid "[Numeric semantics](numeric_semantics.md)"
+msgstr ""
+
+#: manual/index.md:137
+msgid "the shared vocabulary: exact value and rounded result, rounding functions, ulp and unit roundoff, flags, quantum, signed zero, NaN, enclosures"
+msgstr ""
+
+#: manual/index.md:138
+msgid "[Architecture](architecture.md)"
+msgstr ""
+
+#: manual/index.md:138
+msgid "package layers, the numeric core pipeline, certified elementary functions, invariants"
 msgstr ""
 
 #: manual/index.md:139
-msgid "Limits: `binary_implementation_e_min`, `binary_implementation_e_max`, `binary_precision_max`"
+msgid "[Verification](verification.md)"
+msgstr ""
+
+#: manual/index.md:139
+msgid "the gates, the published conformance claims and how to reproduce them"
+msgstr ""
+
+#: manual/index.md:140
+msgid "[Performance audit](performance_audit.md)"
+msgstr ""
+
+#: manual/index.md:140
+msgid "proofs and evidence for the optimized arithmetic paths"
+msgstr ""
+
+#: manual/index.md:141
+msgid "[External baseline](performance/bench/external.md)"
+msgstr ""
+
+#: manual/index.md:141
+msgid "`floating` timed against MPFR and libmpdec: method, machine, ratios"
 msgstr ""
 
 #: manual/index.md:142
-msgid "Decimal floating point (`decimal`, `decimal_gda`)"
+msgid "[Repository conventions](conventions.md)"
+msgstr ""
+
+#: manual/index.md:142
+msgid "documentation rules and the review checklist"
 msgstr ""
 
 #: manual/index.md:144
-msgid "IEEE 754 decimal: `Decimal`, `DecimalContext`, `DecimalRoundingMode`, `DecimalTininessDetection`, `DecimalFlags`, `DecimalSignal`, and the DPD/BID interchange types `DecimalInterchange`, `DecimalInterchangeFormat`, `DecimalInterchangeEncoding`"
+msgid "The application surface is the numerical cores, `def` and the checked wrappers; `semantic` and `numeric_expr` are provisional integration surfaces. The other packages publish interfaces because repository tools compose them, and their design pages state narrower stability promises."
 msgstr ""
 
-#: manual/index.md:148
-msgid "General Decimal Arithmetic: `Decimal`, `GdaContext`, `GdaRoundingMode`, `GdaFlags`, `GdaSignal`, `GdaTrapSet`, `GdaOutcome`, `GdaInterchange`, `GdaInterchangeFormat`, and one free function per GDA operation (`add`, `divide`, `quantize`, `power`, ...)"
+#: manual/index.md:149
+msgid "Exported types"
+msgstr ""
+
+#: manual/index.md:151
+msgid "Binary floating point (`bin_float`)"
 msgstr ""
 
 #: manual/index.md:153
-msgid "Intervals (`ball_float`)"
+msgid "Values: `BinFloat` (signed dyadic number with a precision, signed zeros, infinities and NaNs with payloads) and its exact coefficient `BinCoeff`"
 msgstr ""
 
 #: manual/index.md:155
-msgid "`BallFloat` (bare interval), `BallFloatDecorated` with its `Decoration`, `OverlapState`"
+msgid "Contexts and status: `BinaryContext`, `BinaryRoundingMode`, `TininessDetection`, `BinaryFlags`"
 msgstr ""
 
 #: manual/index.md:157
-msgid "`BallContext` and `BallFlags` for intervals in a target format"
+msgid "Interchange: `BinaryInterchange`, `BinaryInterchangeFormat` (binary16, 32, 64, 128 and wider)"
 msgstr ""
 
 #: manual/index.md:159
-msgid "Pipelines and shared vocabulary"
+msgid "Limits: `binary_implementation_e_min`, `binary_implementation_e_max`, `binary_precision_max`"
 msgstr ""
 
-#: manual/index.md:161
-msgid "Checked wrappers: `BinFloatResult`, `DecimalChecked`, `GdaDecimalChecked`, `BallFloatResult`"
+#: manual/index.md:162
+msgid "Decimal floating point (`decimal`, `decimal_gda`)"
 msgstr ""
 
-#: manual/index.md:163
-msgid "`def`: `Sign`, `PartialOrder`, the `Floating` trait, `is_finite`, `is_infinite`, `is_nan`, `is_zero`, and the re-exported `RoundingMode`, `ArithmeticContext` and `ArithmeticError` of `Luna-Flow/arithmetic`"
+#: manual/index.md:164
+msgid "IEEE 754 decimal: `Decimal`, `DecimalContext`, `DecimalRoundingMode`, `DecimalTininessDetection`, `DecimalFlags`, `DecimalSignal`, and the DPD/BID interchange types `DecimalInterchange`, `DecimalInterchangeFormat`, `DecimalInterchangeEncoding`"
 msgstr ""
 
 #: manual/index.md:168
-msgid "`numeric_expr`: `Expr`, `Literal`, `Operation`, `SourceSpan`, `EvalError` and `evaluate`"
-msgstr ""
-
-#: manual/index.md:171
-msgid "Where to read next"
+msgid "General Decimal Arithmetic: `Decimal`, `GdaContext`, `GdaRoundingMode`, `GdaFlags`, `GdaSignal`, `GdaTrapSet`, `GdaOutcome`, `GdaInterchange`, `GdaInterchangeFormat`, and one free function per GDA operation (`add`, `divide`, `quantize`, `power`, ...)"
 msgstr ""
 
 #: manual/index.md:173
-msgid "**New to the library.** Read [getting started](getting_started.md), then the tutorial of the package you chose, for example the [`bin_float` tutorial](tutorial/bin_float.md) or the [`decimal` tutorial](tutorial/decimal.md). Keep [numeric semantics](numeric_semantics.md) open for the vocabulary."
+msgid "Intervals (`ball_float`)"
 msgstr ""
 
-#: manual/index.md:178
-msgid "**Using it in an application or library.** Read [numeric semantics](numeric_semantics.md) once, then work from the API pages of your packages. Before you rely on a standard behaviour, check the matching conformance page; for pipelines, read the tutorial of the checked wrapper."
+#: manual/index.md:175
+msgid "`BallFloat` (bare interval), `BallFloatDecorated` with its `Decoration`, `OverlapState`"
+msgstr ""
+
+#: manual/index.md:177
+msgid "`BallContext` and `BallFlags` for intervals in a target format"
+msgstr ""
+
+#: manual/index.md:179
+msgid "Pipelines and shared vocabulary"
+msgstr ""
+
+#: manual/index.md:181
+msgid "Checked wrappers: `BinFloatResult`, `DecimalChecked`, `GdaDecimalChecked`, `BallFloatResult`"
 msgstr ""
 
 #: manual/index.md:183
-msgid "**Contributing.** Read [architecture](architecture.md), [verification](verification.md) and the [repository conventions](conventions.md), then the design page of the package you change. Changes to an optimized path also need the [performance audit](performance_audit.md) and the package's performance page."
+msgid "`def`: `Sign`, `PartialOrder`, the `Floating` trait, `is_finite`, `is_infinite`, `is_nan`, `is_zero`, and the re-exported `RoundingMode`, `ArithmeticContext` and `ArithmeticError` of `Luna-Flow/arithmetic`"
 msgstr ""
 
-#: manual/index.md:190
-msgid "Evidence snapshot"
+#: manual/index.md:188
+msgid "`numeric_expr`: `Expr`, `Literal`, `Operation`, `SourceSpan`, `EvalError` and `evaluate`"
 msgstr ""
 
-#: manual/index.md:192
-msgid "The pinned GDA `official` corpus passes **64,986/64,986 legal executable scalar rows**, and `official0` passes 16,124/16,124. The 141 `#` placeholder or non-scalar rows are diagnostic exclusions."
+#: manual/index.md:191
+msgid "Where to read next"
 msgstr ""
 
-#: manual/index.md:195
-msgid "The binary TestFloat level-1 matrix passes 254,227,872 vectors across binary16/32/64/128, including fused multiply-add, remainder, round to integral, integer conversions and the comparison predicates, plus pinned MPFR square-root and elementary-function witnesses."
+#: manual/index.md:193
+msgid "**New to the library.** Read [getting started](getting_started.md), then the tutorial of the package you chose, for example the [`bin_float` tutorial](tutorial/bin_float.md) or the [`decimal` tutorial](tutorial/decimal.md). Keep [numeric semantics](numeric_semantics.md) open for the vocabulary."
 msgstr ""
 
-#: manual/index.md:199
-msgid "The strict ITF1788 aggregate passes 4,656/4,656 selected interval cases."
-msgstr ""
-
-#: manual/index.md:200
-msgid "The IEEE decimal gate covers decimal32/64/128 DPD and BID encodings, flags and arithmetic on four targets."
+#: manual/index.md:198
+msgid "**Using it in an application or library.** Read [numeric semantics](numeric_semantics.md) once, then work from the API pages of your packages. Before you rely on a standard behaviour, check the matching conformance page; for pipelines, read the tutorial of the checked wrapper."
 msgstr ""
 
 #: manual/index.md:203
-msgid "These finite results do not imply support for every operation, every future corpus revision or every real input. Read the conformance page of a package before turning a result into a compatibility claim."
+msgid "**Contributing.** Read [architecture](architecture.md), [verification](verification.md) and the [repository conventions](conventions.md), then the design page of the package you change. Changes to an optimized path also need the [performance audit](performance_audit.md) and the package's performance page."
 msgstr ""
 
-#: manual/index.md:207
-msgid "Validation"
+#: manual/index.md:210
+msgid "Evidence snapshot"
 msgstr ""
 
-#: manual/index.md:209
-msgid "Recommended checks before a release, from the repository root:"
+#: manual/index.md:212
+msgid "The pinned GDA `official` corpus passes **64,986/64,986 legal executable scalar rows**, and `official0` passes 16,124/16,124. The 141 `#` placeholder or non-scalar rows are diagnostic exclusions."
+msgstr ""
+
+#: manual/index.md:215
+msgid "The binary TestFloat level-1 matrix passes 254,227,872 vectors across binary16/32/64/128, including fused multiply-add, remainder, round to integral, integer conversions and the comparison predicates, plus pinned MPFR square-root and elementary-function witnesses."
 msgstr ""
 
 #: manual/index.md:219
+msgid "The strict ITF1788 aggregate passes 4,656/4,656 selected interval cases."
+msgstr ""
+
+#: manual/index.md:220
+msgid "The IEEE decimal gate covers decimal32/64/128 DPD and BID encodings, flags and arithmetic on four targets."
+msgstr ""
+
+#: manual/index.md:223
+msgid "These finite results do not imply support for every operation, every future corpus revision or every real input. Read the conformance page of a package before turning a result into a compatibility claim."
+msgstr ""
+
+#: manual/index.md:227
+msgid "Validation"
+msgstr ""
+
+#: manual/index.md:229
+msgid "Recommended checks before a release, from the repository root:"
+msgstr ""
+
+#: manual/index.md:239
 msgid "[Verification](verification.md) explains each gate and how to reproduce a published result."
 msgstr ""
 
-#: manual/index.md:222
+#: manual/index.md:242
 msgid "`pkg.generated.mbti` defines what is public, and source and tests define behaviour; if a page and the generated interface disagree, the interface wins."
 msgstr ""
 
@@ -20593,7 +20681,7 @@ msgstr ""
 #: manual/tutorial/bin_float.md:12
 #: manual/tutorial/bin_float_checked.md:11
 #: manual/tutorial/cli.md:7
-#: manual/tutorial/cli/dispatch.md:6
+#: manual/tutorial/cli/dispatch.md:7
 #: manual/tutorial/cli/gda_expr_cli.md:8
 #: manual/tutorial/cli/itl_expr_cli.md:7
 #: manual/tutorial/cli/mpfr_expr_cli.md:7
@@ -20605,7 +20693,7 @@ msgstr ""
 #: manual/tutorial/decimal_gda_checked.md:13
 #: manual/tutorial/def.md:12
 #: manual/tutorial/differential.md:8
-#: manual/tutorial/differential/harness.md:6
+#: manual/tutorial/differential/harness.md:8
 #: manual/tutorial/doc_examples.md:6
 #: manual/tutorial/frontend/gda_expr.md:10
 #: manual/tutorial/frontend/itl_expr.md:8
@@ -20631,7 +20719,7 @@ msgstr ""
 #: manual/tutorial/bin_float.md:12
 #: manual/tutorial/bin_float_checked.md:11
 #: manual/tutorial/cli.md:7
-#: manual/tutorial/cli/dispatch.md:6
+#: manual/tutorial/cli/dispatch.md:7
 #: manual/tutorial/cli/gda_expr_cli.md:8
 #: manual/tutorial/cli/itl_expr_cli.md:7
 #: manual/tutorial/cli/mpfr_expr_cli.md:7
@@ -20643,7 +20731,7 @@ msgstr ""
 #: manual/tutorial/decimal_gda_checked.md:13
 #: manual/tutorial/def.md:12
 #: manual/tutorial/differential.md:8
-#: manual/tutorial/differential/harness.md:6
+#: manual/tutorial/differential/harness.md:8
 #: manual/tutorial/doc_examples.md:6
 #: manual/tutorial/frontend/gda_expr.md:10
 #: manual/tutorial/frontend/itl_expr.md:8
@@ -20737,6 +20825,7 @@ msgstr ""
 #: manual/tutorial/bin_float.md:25
 #: manual/tutorial/bin_float_checked.md:21
 #: manual/tutorial/cli.md:15
+#: manual/tutorial/cli/dispatch.md:14
 #: manual/tutorial/cli/gda_expr_cli.md:17
 #: manual/tutorial/cli/itl_expr_cli.md:15
 #: manual/tutorial/cli/mpfr_expr_cli.md:15
@@ -20748,6 +20837,7 @@ msgstr ""
 #: manual/tutorial/decimal_gda_checked.md:22
 #: manual/tutorial/def.md:22
 #: manual/tutorial/differential.md:17
+#: manual/tutorial/differential/harness.md:15
 #: manual/tutorial/doc_examples.md:13
 #: manual/tutorial/frontend/gda_expr.md:20
 #: manual/tutorial/frontend/itl_expr.md:17
@@ -20788,7 +20878,7 @@ msgstr ""
 
 #: manual/tutorial/ball_float.md:87
 #: manual/tutorial/ball_float_checked.md:60
-#: manual/tutorial/bench.md:79
+#: manual/tutorial/bench.md:75
 #: manual/tutorial/bench/ball_float.md:31
 #: manual/tutorial/bench/bin_float.md:34
 #: manual/tutorial/bench/decimal.md:31
@@ -20797,10 +20887,11 @@ msgstr ""
 #: manual/tutorial/bin_float.md:63
 #: manual/tutorial/bin_float_checked.md:57
 #: manual/tutorial/cli.md:38
-#: manual/tutorial/cli/gda_expr_cli.md:58
-#: manual/tutorial/cli/itl_expr_cli.md:41
-#: manual/tutorial/cli/mpfr_expr_cli.md:41
-#: manual/tutorial/cli/testfloat_expr_cli.md:55
+#: manual/tutorial/cli/dispatch.md:36
+#: manual/tutorial/cli/gda_expr_cli.md:67
+#: manual/tutorial/cli/itl_expr_cli.md:47
+#: manual/tutorial/cli/mpfr_expr_cli.md:49
+#: manual/tutorial/cli/testfloat_expr_cli.md:62
 #: manual/tutorial/consistency.md:27
 #: manual/tutorial/decimal.md:56
 #: manual/tutorial/decimal_checked.md:56
@@ -20808,15 +20899,16 @@ msgstr ""
 #: manual/tutorial/decimal_gda_checked.md:56
 #: manual/tutorial/def.md:49
 #: manual/tutorial/differential.md:39
+#: manual/tutorial/differential/harness.md:34
 #: manual/tutorial/doc_examples.md:25
-#: manual/tutorial/frontend/gda_expr.md:56
-#: manual/tutorial/frontend/itl_expr.md:53
-#: manual/tutorial/frontend/mpfr_expr.md:52
-#: manual/tutorial/frontend/testfloat_expr.md:54
+#: manual/tutorial/frontend/gda_expr.md:54
+#: manual/tutorial/frontend/itl_expr.md:51
+#: manual/tutorial/frontend/mpfr_expr.md:50
+#: manual/tutorial/frontend/testfloat_expr.md:52
 #: manual/tutorial/internal.md:53
 #: manual/tutorial/internal/conformance.md:55
-#: manual/tutorial/internal/runner_cli.md:100
-#: manual/tutorial/numeric_expr.md:57
+#: manual/tutorial/internal/runner_cli.md:110
+#: manual/tutorial/numeric_expr.md:55
 #: manual/tutorial/semantic.md:51
 msgid "Everyday tasks"
 msgstr ""
@@ -20891,18 +20983,20 @@ msgstr ""
 
 #: manual/tutorial/ball_float.md:283
 #: manual/tutorial/ball_float_checked.md:168
-#: manual/tutorial/bench.md:198
+#: manual/tutorial/bench.md:194
 #: manual/tutorial/bench/ball_float.md:48
 #: manual/tutorial/bench/bin_float.md:51
 #: manual/tutorial/bench/decimal.md:48
 #: manual/tutorial/bench/decimal_gda.md:50
+#: manual/tutorial/bench/external.md:116
 #: manual/tutorial/bin_float.md:232
 #: manual/tutorial/bin_float_checked.md:182
 #: manual/tutorial/cli.md:73
-#: manual/tutorial/cli/gda_expr_cli.md:100
-#: manual/tutorial/cli/itl_expr_cli.md:70
-#: manual/tutorial/cli/mpfr_expr_cli.md:62
-#: manual/tutorial/cli/testfloat_expr_cli.md:81
+#: manual/tutorial/cli/dispatch.md:60
+#: manual/tutorial/cli/gda_expr_cli.md:109
+#: manual/tutorial/cli/itl_expr_cli.md:76
+#: manual/tutorial/cli/mpfr_expr_cli.md:70
+#: manual/tutorial/cli/testfloat_expr_cli.md:88
 #: manual/tutorial/consistency.md:64
 #: manual/tutorial/decimal.md:267
 #: manual/tutorial/decimal_checked.md:167
@@ -20910,15 +21004,16 @@ msgstr ""
 #: manual/tutorial/decimal_gda_checked.md:164
 #: manual/tutorial/def.md:166
 #: manual/tutorial/differential.md:173
+#: manual/tutorial/differential/harness.md:50
 #: manual/tutorial/doc_examples.md:52
-#: manual/tutorial/frontend/gda_expr.md:225
-#: manual/tutorial/frontend/itl_expr.md:153
-#: manual/tutorial/frontend/mpfr_expr.md:147
-#: manual/tutorial/frontend/testfloat_expr.md:193
+#: manual/tutorial/frontend/gda_expr.md:223
+#: manual/tutorial/frontend/itl_expr.md:151
+#: manual/tutorial/frontend/mpfr_expr.md:145
+#: manual/tutorial/frontend/testfloat_expr.md:191
 #: manual/tutorial/internal.md:165
 #: manual/tutorial/internal/conformance.md:109
-#: manual/tutorial/internal/runner_cli.md:126
-#: manual/tutorial/numeric_expr.md:243
+#: manual/tutorial/internal/runner_cli.md:136
+#: manual/tutorial/numeric_expr.md:241
 #: manual/tutorial/semantic.md:173
 msgid "Going further"
 msgstr ""
@@ -20961,20 +21056,20 @@ msgstr ""
 
 #: manual/tutorial/ball_float.md:375
 #: manual/tutorial/ball_float_checked.md:239
-#: manual/tutorial/bench.md:210
+#: manual/tutorial/bench.md:206
 #: manual/tutorial/bench/ball_float.md:56
 #: manual/tutorial/bench/bin_float.md:59
 #: manual/tutorial/bench/decimal.md:56
 #: manual/tutorial/bench/decimal_gda.md:58
-#: manual/tutorial/bench/external.md:116
+#: manual/tutorial/bench/external.md:128
 #: manual/tutorial/bin_float.md:365
 #: manual/tutorial/bin_float_checked.md:240
 #: manual/tutorial/cli.md:82
-#: manual/tutorial/cli/dispatch.md:21
-#: manual/tutorial/cli/gda_expr_cli.md:108
-#: manual/tutorial/cli/itl_expr_cli.md:78
-#: manual/tutorial/cli/mpfr_expr_cli.md:71
-#: manual/tutorial/cli/testfloat_expr_cli.md:90
+#: manual/tutorial/cli/dispatch.md:66
+#: manual/tutorial/cli/gda_expr_cli.md:117
+#: manual/tutorial/cli/itl_expr_cli.md:84
+#: manual/tutorial/cli/mpfr_expr_cli.md:79
+#: manual/tutorial/cli/testfloat_expr_cli.md:97
 #: manual/tutorial/consistency.md:71
 #: manual/tutorial/decimal.md:348
 #: manual/tutorial/decimal_checked.md:251
@@ -20982,16 +21077,16 @@ msgstr ""
 #: manual/tutorial/decimal_gda_checked.md:234
 #: manual/tutorial/def.md:246
 #: manual/tutorial/differential.md:184
-#: manual/tutorial/differential/harness.md:22
+#: manual/tutorial/differential/harness.md:59
 #: manual/tutorial/doc_examples.md:58
-#: manual/tutorial/frontend/gda_expr.md:241
-#: manual/tutorial/frontend/itl_expr.md:166
-#: manual/tutorial/frontend/mpfr_expr.md:160
-#: manual/tutorial/frontend/testfloat_expr.md:209
+#: manual/tutorial/frontend/gda_expr.md:239
+#: manual/tutorial/frontend/itl_expr.md:164
+#: manual/tutorial/frontend/mpfr_expr.md:158
+#: manual/tutorial/frontend/testfloat_expr.md:207
 #: manual/tutorial/internal.md:182
 #: manual/tutorial/internal/conformance.md:116
-#: manual/tutorial/internal/runner_cli.md:138
-#: manual/tutorial/numeric_expr.md:259
+#: manual/tutorial/internal/runner_cli.md:148
+#: manual/tutorial/numeric_expr.md:257
 #: manual/tutorial/semantic.md:223
 msgid "Common pitfalls"
 msgstr ""
@@ -21034,20 +21129,20 @@ msgstr ""
 
 #: manual/tutorial/ball_float.md:433
 #: manual/tutorial/ball_float_checked.md:257
-#: manual/tutorial/bench.md:226
+#: manual/tutorial/bench.md:222
 #: manual/tutorial/bench/ball_float.md:62
 #: manual/tutorial/bench/bin_float.md:65
 #: manual/tutorial/bench/decimal.md:62
 #: manual/tutorial/bench/decimal_gda.md:64
-#: manual/tutorial/bench/external.md:125
+#: manual/tutorial/bench/external.md:137
 #: manual/tutorial/bin_float.md:392
 #: manual/tutorial/bin_float_checked.md:264
 #: manual/tutorial/cli.md:94
-#: manual/tutorial/cli/dispatch.md:27
-#: manual/tutorial/cli/gda_expr_cli.md:120
-#: manual/tutorial/cli/itl_expr_cli.md:89
-#: manual/tutorial/cli/mpfr_expr_cli.md:80
-#: manual/tutorial/cli/testfloat_expr_cli.md:97
+#: manual/tutorial/cli/dispatch.md:74
+#: manual/tutorial/cli/gda_expr_cli.md:129
+#: manual/tutorial/cli/itl_expr_cli.md:95
+#: manual/tutorial/cli/mpfr_expr_cli.md:88
+#: manual/tutorial/cli/testfloat_expr_cli.md:104
 #: manual/tutorial/consistency.md:78
 #: manual/tutorial/decimal.md:376
 #: manual/tutorial/decimal_checked.md:271
@@ -21055,16 +21150,16 @@ msgstr ""
 #: manual/tutorial/decimal_gda_checked.md:248
 #: manual/tutorial/def.md:270
 #: manual/tutorial/differential.md:195
-#: manual/tutorial/differential/harness.md:27
+#: manual/tutorial/differential/harness.md:66
 #: manual/tutorial/doc_examples.md:63
-#: manual/tutorial/frontend/gda_expr.md:259
-#: manual/tutorial/frontend/itl_expr.md:180
-#: manual/tutorial/frontend/mpfr_expr.md:176
-#: manual/tutorial/frontend/testfloat_expr.md:220
+#: manual/tutorial/frontend/gda_expr.md:257
+#: manual/tutorial/frontend/itl_expr.md:178
+#: manual/tutorial/frontend/mpfr_expr.md:174
+#: manual/tutorial/frontend/testfloat_expr.md:218
 #: manual/tutorial/internal.md:196
 #: manual/tutorial/internal/conformance.md:127
-#: manual/tutorial/internal/runner_cli.md:154
-#: manual/tutorial/numeric_expr.md:273
+#: manual/tutorial/internal/runner_cli.md:164
+#: manual/tutorial/numeric_expr.md:271
 #: manual/tutorial/semantic.md:240
 msgid "Next steps"
 msgstr ""
@@ -21299,139 +21394,139 @@ msgid "understand the statistics"
 msgstr ""
 
 #: manual/tutorial/bench.md:16
-#: manual/tutorial/bench.md:229
+#: manual/tutorial/bench.md:225
 msgid "[bench design](../design/bench.md)"
 msgstr ""
 
 #: manual/tutorial/bench.md:20
-msgid "To use the reduction functions in your own module, add the library and import the package in `moon.pkg`:"
+msgid "To use the reduction functions in your own module, import the package in `moon.pkg`. The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`."
 msgstr ""
 
-#: manual/tutorial/bench.md:33
+#: manual/tutorial/bench.md:29
 msgid "The smallest useful program compares two paired sample arrays, for example per-call times measured before and after a change in the same ten blocks:"
 msgstr ""
 
-#: manual/tutorial/bench.md:47
+#: manual/tutorial/bench.md:43
 msgid "An 8 % slowdown is above the 3 % practical threshold, and every paired difference is positive, so the 95 % interval of the median difference lies above zero."
 msgstr ""
 
-#: manual/tutorial/bench.md:51
+#: manual/tutorial/bench.md:47
 msgid "The `floating` suites themselves run from a checkout of the repository. Run one suite from the repository root:"
 msgstr ""
 
-#: manual/tutorial/bench.md:58
+#: manual/tutorial/bench.md:54
 msgid "The command runs the skipped performance tests of `tooling/src/bench/bin_float` in release mode on the native target, then writes"
 msgstr ""
 
-#: manual/tutorial/bench.md:66
+#: manual/tutorial/bench.md:62
 msgid "The `.jsonl` file holds one versioned (`mmka_1`) event per line: every observation, the environment and the run summary. The `.analysis.txt` file holds the reduced results, one line per comparison, for example"
 msgstr ""
 
-#: manual/tutorial/bench.md:74
+#: manual/tutorial/bench.md:70
 msgid "meaning: for dataset 2 of `bin-float/mul`, the median paired difference between the `core/bin-float` path and the coefficient kernel is `core_pct` percent of the kernel's median per-call time (negative when the core is faster), and `full_pct` is the same for the checked path against the core."
 msgstr ""
 
-#: manual/tutorial/bench.md:81
+#: manual/tutorial/bench.md:77
 msgid "Choose a suite"
 msgstr ""
 
-#: manual/tutorial/bench.md:83
+#: manual/tutorial/bench.md:79
 msgid "Suite"
 msgstr ""
 
-#: manual/tutorial/bench.md:83
+#: manual/tutorial/bench.md:79
 msgid "Runs"
 msgstr ""
 
-#: manual/tutorial/bench.md:85
+#: manual/tutorial/bench.md:81
 msgid "all tests of `tooling/src/bench/bin_float` (arithmetic, elementary functions, square auto-tune)"
 msgstr ""
 
-#: manual/tutorial/bench.md:86
+#: manual/tutorial/bench.md:82
 msgid "only the binary elementary-function benchmark"
 msgstr ""
 
-#: manual/tutorial/bench.md:87
+#: manual/tutorial/bench.md:83
 msgid "only the `mul(x, x)` versus `square(x)` crossover"
 msgstr ""
 
-#: manual/tutorial/bench.md:91
+#: manual/tutorial/bench.md:87
 msgid "the four package suites"
 msgstr ""
 
-#: manual/tutorial/bench.md:93
+#: manual/tutorial/bench.md:89
 msgid "Add `--output PATH` to choose the artifact path or `--dry-run` to print the `moon test` commands without running them."
 msgstr ""
 
-#: manual/tutorial/bench.md:96
+#: manual/tutorial/bench.md:92
 msgid "Read an auto-tune result"
 msgstr ""
 
-#: manual/tutorial/bench.md:98
+#: manual/tutorial/bench.md:94
 msgid "The auto-tune suite prints one decision per dataset and a crossover:"
 msgstr ""
 
-#: manual/tutorial/bench.md:106
+#: manual/tutorial/bench.md:102
 msgid "`candidate` is the implementation with the smallest median per-call time on that dataset, and `samples` the number of valid confirmatory observations behind it. When the winner changes exactly once along the scales, the crossover line gives the last scale `below` the change and the first scale `at_or_above` it, and the policy line is the per-scale lookup table a kernel can embed. When it changes more than once the suite prints `MAREMARK_CROSSOVER=non-monotonic` and a `MAREMARK_POLICY=lookup` line; when it never changes, `MAREMARK_CROSSOVER=none` and no policy line."
 msgstr ""
 
-#: manual/tutorial/bench.md:115
+#: manual/tutorial/bench.md:111
 msgid "Check a regression in code"
 msgstr ""
 
-#: manual/tutorial/bench.md:117
+#: manual/tutorial/bench.md:113
 msgid "`confirmatory_regression` compares paired samples (same order, same blocks) and `is_significant_regression` applies the verdict:"
 msgstr ""
 
-#: manual/tutorial/bench.md:130
+#: manual/tutorial/bench.md:126
 msgid "A change of about 0.5 % is below the 3 % practical threshold, so it is not a regression even if it were statistically clear."
 msgstr ""
 
-#: manual/tutorial/bench.md:133
+#: manual/tutorial/bench.md:129
 msgid "Write a new benchmark"
 msgstr ""
 
-#: manual/tutorial/bench.md:135
+#: manual/tutorial/bench.md:131
 msgid "A benchmark is an `immutable_bench` specification plus a skipped async test that runs it and prints Maremark lines. The pattern used by every suite:"
 msgstr ""
 
-#: manual/tutorial/bench.md:194
+#: manual/tutorial/bench.md:190
 msgid "Keep the plan-compiles test unskipped: it checks the specification in every normal test run. Register the package in `tools/benchmark.py` so `just bench` collects its output."
 msgstr ""
 
-#: manual/tutorial/bench.md:200
+#: manual/tutorial/bench.md:196
 msgid "The protocol presets of Maremark fix warm-up, batch calibration, sample counts and order: `QuickCheck` (3 confirmatory blocks), `Development` (10 blocks, used by the suites) and `RegressionGate` (20 blocks, used by the auto-tune suite). See the [Maremark documentation](https://lunaflow.cn/en/mare_mark/)."
 msgstr ""
 
-#: manual/tutorial/bench.md:205
+#: manual/tutorial/bench.md:201
 msgid "[bench design](../design/bench.md) explains the estimators and the confidence interval."
 msgstr ""
 
-#: manual/tutorial/bench.md:207
+#: manual/tutorial/bench.md:203
 msgid "[Performance audit](../performance_audit.md) and the `performance/` pages record measured results."
 msgstr ""
 
-#: manual/tutorial/bench.md:212
+#: manual/tutorial/bench.md:208
 msgid "**Benchmarks are skipped by default.** `moon test` runs only the plan-compiles tests; use `just bench` (it passes `--include-skipped`, `--release` and `--no-parallelize`)."
 msgstr ""
 
-#: manual/tutorial/bench.md:215
+#: manual/tutorial/bench.md:211
 msgid "**Native only.** `tools/benchmark.py` accepts only the native target."
 msgstr ""
 
-#: manual/tutorial/bench.md:216
+#: manual/tutorial/bench.md:212
 msgid "**Pairing needs equal sample counts.** Both implementations of a comparison must have the same number of valid confirmatory observations; otherwise `paired_hotspot` returns `MismatchedPairs`."
 msgstr ""
 
-#: manual/tutorial/bench.md:219
+#: manual/tutorial/bench.md:215
 msgid "**Near ties go to the steadier candidate, not the faster one.** `tune_dataset` treats candidates within `practical_delta_pct` percent of the smallest median as tied and picks the one with the smaller interquartile range (then the smaller id), so a candidate whose median is slightly higher can win when its timings are less spread out. Use `0.0` to always take the smallest median."
 msgstr ""
 
-#: manual/tutorial/bench.md:228
+#: manual/tutorial/bench.md:224
 msgid "[bench API](../api/bench.md)"
 msgstr ""
 
-#: manual/tutorial/bench.md:230
+#: manual/tutorial/bench.md:226
 msgid "Per-core suites: [bin_float](bench/bin_float.md), [decimal](bench/decimal.md), [decimal_gda](bench/decimal_gda.md), [ball_float](bench/ball_float.md)."
 msgstr ""
 
@@ -21782,26 +21877,38 @@ msgid "A cell such as `37.5 [36.9, 38.2]` is the median time of `floating` divid
 msgstr ""
 
 #: manual/tutorial/bench/external.md:118
-msgid "Compare runs only when `machine.json` agrees on CPU, compilers and library versions."
-msgstr ""
-
-#: manual/tutorial/bench/external.md:120
-msgid "A validation failure is reported but does not stop the timing: look for `WARNING` lines and `validation_failed_cases` in `results.json`."
+msgid "Add a case: extend the matrix constants of `tools/external_baseline.py` (for example `BINARY_PRECISIONS`) and the matching benchmark of `tooling/src/bench/external`; the operand file is read by both sides, so the new case is measured on the same inputs."
 msgstr ""
 
 #: manual/tutorial/bench/external.md:122
+msgid "Understand the protocol: [bench/external design](../../design/bench/external.md) states why the sides alternate and why the harness overhead is measured."
+msgstr ""
+
+#: manual/tutorial/bench/external.md:124
+msgid "Read the numbers: [external baseline](../../performance/bench/external.md) records the machine, the method and the ratios of the latest published release."
+msgstr ""
+
+#: manual/tutorial/bench/external.md:130
+msgid "Compare runs only when `machine.json` agrees on CPU, compilers and library versions."
+msgstr ""
+
+#: manual/tutorial/bench/external.md:132
+msgid "A validation failure is reported but does not stop the timing: look for `WARNING` lines and `validation_failed_cases` in `results.json`."
+msgstr ""
+
+#: manual/tutorial/bench/external.md:134
 msgid "Do not run other heavy work during a measurement; the load average is recorded at the start only."
 msgstr ""
 
-#: manual/tutorial/bench/external.md:127
+#: manual/tutorial/bench/external.md:139
 msgid "[bench/external API](../../api/bench/external.md)"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:128
+#: manual/tutorial/bench/external.md:140
 msgid "[bench/external design](../../design/bench/external.md)"
 msgstr ""
 
-#: manual/tutorial/bench/external.md:129
+#: manual/tutorial/bench/external.md:141
 msgid "[External baseline results](../../performance/bench/external.md)"
 msgstr ""
 
@@ -22336,42 +22443,91 @@ msgid "cli/dispatch tutorial"
 msgstr ""
 
 #: manual/tutorial/cli/dispatch.md:3
-msgid "This tutorial calls the dispatcher of `floating-conformance` from MoonBit code instead of starting the executable."
+msgid "This tutorial calls the dispatcher of `floating-conformance` from MoonBit code instead of starting the executable, and shows how a new backend would be added behind it."
 msgstr ""
 
-#: manual/tutorial/cli/dispatch.md:8
+#: manual/tutorial/cli/dispatch.md:9
 msgid "get the exit code of an invocation"
 msgstr ""
 
-#: manual/tutorial/cli/dispatch.md:9
-msgid "run the executable itself"
+#: manual/tutorial/cli/dispatch.md:10
+msgid "see which arguments reach a runner"
 msgstr ""
 
-#: manual/tutorial/cli/dispatch.md:9
-msgid "[the `cli` tutorial](../cli.md)"
+#: manual/tutorial/cli/dispatch.md:10
+msgid "[forwarding](#everyday-tasks)"
 msgstr ""
 
 #: manual/tutorial/cli/dispatch.md:11
-msgid "Call the dispatcher"
+msgid "run the executable itself"
 msgstr ""
 
-#: manual/tutorial/cli/dispatch.md:13
-msgid "The first element is the program name, as in `@env.args()`:"
+#: manual/tutorial/cli/dispatch.md:11
+msgid "[the `cli` tutorial](../cli.md)"
 msgstr ""
 
-#: manual/tutorial/cli/dispatch.md:23
-msgid "**Index 0 is skipped.** Pass a program name even when a test has none."
+#: manual/tutorial/cli/dispatch.md:12
+msgid "add a backend"
+msgstr ""
+
+#: manual/tutorial/cli/dispatch.md:12
+#: manual/tutorial/differential/harness.md:13
+msgid "[going further](#going-further)"
+msgstr ""
+
+#: manual/tutorial/cli/dispatch.md:16
+msgid "The package ships inside the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository); there is nothing to install. Run its tests from the repository:"
 msgstr ""
 
 #: manual/tutorial/cli/dispatch.md:24
+msgid "Call the dispatcher with the program name first, as in `@env.args()`:"
+msgstr ""
+
+#: manual/tutorial/cli/dispatch.md:33
+msgid "`dispatch` prints a message and returns the exit code; it never exits the process."
+msgstr ""
+
+#: manual/tutorial/cli/dispatch.md:38
+msgid "Choose the exit code you expect"
+msgstr ""
+
+#: manual/tutorial/cli/dispatch.md:40
+msgid "`0` after `--help` (even after a valid `--backend`), `2` for a missing, repeated, empty or unknown backend, and otherwise the runner's own code:"
+msgstr ""
+
+#: manual/tutorial/cli/dispatch.md:53
+msgid "Forward arguments to a runner"
+msgstr ""
+
+#: manual/tutorial/cli/dispatch.md:55
+msgid "Everything except `--backend` and its value is forwarded, in order, with the program name first, so a runner sees the same vector as when it is called directly (see [`cli/gda_expr_cli`](gda_expr_cli.md) for the options of one runner)."
+msgstr ""
+
+#: manual/tutorial/cli/dispatch.md:62
+msgid "To add a backend, write a runner package `run(arguments) -> Int`, import it in `moon.pkg` of this package and add one arm to the `match backend` of `dispatch`; keep process exit in `cli`, which stays an entry point only."
+msgstr ""
+
+#: manual/tutorial/cli/dispatch.md:68
+msgid "**Index 0 is skipped.** Pass a program name even when a test has none."
+msgstr ""
+
+#: manual/tutorial/cli/dispatch.md:69
 msgid "**`--help` wins.** `[\"cli\", \"--backend\", \"gda\", \"--help\"]` prints the usage line and returns `0` without running a runner."
 msgstr ""
 
-#: manual/tutorial/cli/dispatch.md:29
+#: manual/tutorial/cli/dispatch.md:71
+msgid "**Relative paths.** The runners read their default corpora relative to the working directory; the tests of the module run in `tooling/`."
+msgstr ""
+
+#: manual/tutorial/cli/dispatch.md:76
 msgid "[cli/dispatch API](../../api/cli/dispatch.md) for the exact contract."
 msgstr ""
 
-#: manual/tutorial/cli/dispatch.md:30
+#: manual/tutorial/cli/dispatch.md:77
+msgid "[cli/dispatch design](../../design/cli/dispatch.md) for why it is a library."
+msgstr ""
+
+#: manual/tutorial/cli/dispatch.md:78
 msgid "[cli tutorial](../cli.md) for the executable."
 msgstr ""
 
@@ -22432,79 +22588,86 @@ msgid "From MoonBit code"
 msgstr ""
 
 #: manual/tutorial/cli/gda_expr_cli.md:42
-msgid "The runner is also a library. After `moon add Luna-Flow/floating@0.10.2`, import it and pass the argument vector, program name first:"
+msgid "The runner is also a library. The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`. Import it and pass the argument vector, program name first:"
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:55
+#: manual/tutorial/cli/gda_expr_cli.md:62
+#: manual/tutorial/cli/itl_expr_cli.md:45
+#: manual/tutorial/cli/mpfr_expr_cli.md:47
+#: manual/tutorial/cli/testfloat_expr_cli.md:60
+msgid "`just docs` runs the tests of this page in the module directory `tooling/`, so the corpus paths start with `../testdata`; use your own paths in your code."
+msgstr ""
+
+#: manual/tutorial/cli/gda_expr_cli.md:64
 msgid "`run` prints the same output as the executable and returns the exit status instead of exiting."
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:60
+#: manual/tutorial/cli/gda_expr_cli.md:69
 msgid "Run files and directories"
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:67
+#: manual/tutorial/cli/gda_expr_cli.md:76
 msgid "Files are sorted by path and executed as one run; a file named twice runs once."
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:70
+#: manual/tutorial/cli/gda_expr_cli.md:79
 msgid "Select rows"
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:77
+#: manual/tutorial/cli/gda_expr_cli.md:86
 msgid "A range matches ids of the same length that sort between its bounds."
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:79
+#: manual/tutorial/cli/gda_expr_cli.md:88
 #: manual/tutorial/internal/conformance.md:70
 msgid "Shard a run"
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:86
+#: manual/tutorial/cli/gda_expr_cli.md:95
 msgid "Shard `i` runs the rows whose position (after the `--cases` filter, across all files) is `i` modulo the shard count. Adding the JSON counters of all shards gives the counters of the unsharded run, except `totalCases`, which every shard already reports for the whole run."
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:91
+#: manual/tutorial/cli/gda_expr_cli.md:100
 msgid "Fail on unsupported rows"
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:97
+#: manual/tutorial/cli/gda_expr_cli.md:106
 msgid "With `--strict-supported` the exit status is `1` if any selected row is unsupported or legacy, even when all executed rows pass."
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:102
+#: manual/tutorial/cli/gda_expr_cli.md:111
 msgid "`just conformance run decimal_gda` fetches the pinned official corpora, splits them into the phases of `testdata/decimal_gda/interpreter_stages.json` and runs the shards in parallel with this runner."
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:105
+#: manual/tutorial/cli/gda_expr_cli.md:114
 msgid "[gda_expr tutorial](../frontend/gda_expr.md) explains the row semantics and the pass rule."
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:110
+#: manual/tutorial/cli/gda_expr_cli.md:119
 msgid "**`--help` returns `2`.** The runner prints its usage as an error; through the dispatcher, `--help` shows the dispatcher usage instead."
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:112
+#: manual/tutorial/cli/gda_expr_cli.md:121
 msgid "**First parse error only.** A malformed line stops the run with one `file:line:1: message`; fix it and rerun to see the next."
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:114
+#: manual/tutorial/cli/gda_expr_cli.md:123
 msgid "**Non-recursive directories.** Subdirectories are not searched."
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:115
+#: manual/tutorial/cli/gda_expr_cli.md:124
 msgid "**The suffix is case-sensitive.** A named file such as `add.dectest` or `add.txt` is the error `not a .decTest file: PATH` (exit `2`), and inside a directory such entries are skipped, so a directory without any `.decTest` file gives an empty run that exits with `0`."
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:122
+#: manual/tutorial/cli/gda_expr_cli.md:131
 msgid "[cli/gda_expr_cli API](../../api/cli/gda_expr_cli.md) for options, output keys and exit codes."
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:124
+#: manual/tutorial/cli/gda_expr_cli.md:133
 msgid "[cli/gda_expr_cli design](../../design/cli/gda_expr_cli.md)."
 msgstr ""
 
-#: manual/tutorial/cli/gda_expr_cli.md:125
+#: manual/tutorial/cli/gda_expr_cli.md:134
 msgid "[frontend/gda_expr tutorial](../frontend/gda_expr.md) for the row semantics."
 msgstr ""
 
@@ -22543,66 +22706,66 @@ msgid "With no path the runner executes `testdata/interval/smoke.itl` and prints
 msgstr ""
 
 #: manual/tutorial/cli/itl_expr_cli.md:33
-msgid "After `moon add Luna-Flow/floating@0.10.2`, import `\"Luna-Flow/floating-tools/cli/itl_expr_cli\"` in `moon.pkg` and call `run` with the argument vector, program name first:"
+msgid "The runner is also a library. The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`. Import `\"Luna-Flow/floating-tools/cli/itl_expr_cli\"` in `moon.pkg` and call `run` with the argument vector, program name first:"
 msgstr ""
 
-#: manual/tutorial/cli/itl_expr_cli.md:43
+#: manual/tutorial/cli/itl_expr_cli.md:49
 msgid "Run files"
 msgstr ""
 
-#: manual/tutorial/cli/itl_expr_cli.md:50
+#: manual/tutorial/cli/itl_expr_cli.md:56
 msgid "Paths must be files; they are read in the given order."
 msgstr ""
 
-#: manual/tutorial/cli/itl_expr_cli.md:52
+#: manual/tutorial/cli/itl_expr_cli.md:58
 msgid "Select operations"
 msgstr ""
 
-#: manual/tutorial/cli/itl_expr_cli.md:58
+#: manual/tutorial/cli/itl_expr_cli.md:64
 msgid "Only cases whose operation is one of the listed names are executed and counted."
 msgstr ""
 
-#: manual/tutorial/cli/itl_expr_cli.md:61
+#: manual/tutorial/cli/itl_expr_cli.md:67
 msgid "Make unsupported operations fail"
 msgstr ""
 
-#: manual/tutorial/cli/itl_expr_cli.md:67
+#: manual/tutorial/cli/itl_expr_cli.md:73
 msgid "Without the flag, unsupported cases are reported in `unsupportedIds` but do not change the exit status; diagnostic cases always do."
 msgstr ""
 
-#: manual/tutorial/cli/itl_expr_cli.md:72
+#: manual/tutorial/cli/itl_expr_cli.md:78
 msgid "`just conformance run interval` runs the phases listed in `testdata/interval/interpreter_stages.json` (files and operations per phase); add `--strict-supported` to forward strict mode to every phase."
 msgstr ""
 
-#: manual/tutorial/cli/itl_expr_cli.md:75
+#: manual/tutorial/cli/itl_expr_cli.md:81
 msgid "[itl_expr tutorial](../frontend/itl_expr.md) explains the cases and the pass rule."
 msgstr ""
 
-#: manual/tutorial/cli/itl_expr_cli.md:80
+#: manual/tutorial/cli/itl_expr_cli.md:86
 msgid "**No `--json` option.** The output is always JSON; passing `--json` is an unknown option (exit `2`)."
 msgstr ""
 
-#: manual/tutorial/cli/itl_expr_cli.md:82
+#: manual/tutorial/cli/itl_expr_cli.md:88
 msgid "**No sharding.** ITL files are small; the tooling parallelizes by phase."
 msgstr ""
 
-#: manual/tutorial/cli/itl_expr_cli.md:83
+#: manual/tutorial/cli/itl_expr_cli.md:89
 msgid "**All parse diagnostics are printed** as `PATH: MESSAGE`, and the run stops, even when the bad statement belongs to an operation you did not select."
 msgstr ""
 
-#: manual/tutorial/cli/itl_expr_cli.md:85
+#: manual/tutorial/cli/itl_expr_cli.md:91
 msgid "**Strict mode counts unknown operations.** Without `--operation`, cases such as `nums2interval 1.0 2.0 = …` are unsupported; they do not change the exit status unless `--strict-supported` is given."
 msgstr ""
 
-#: manual/tutorial/cli/itl_expr_cli.md:91
+#: manual/tutorial/cli/itl_expr_cli.md:97
 msgid "[cli/itl_expr_cli API](../../api/cli/itl_expr_cli.md)"
 msgstr ""
 
-#: manual/tutorial/cli/itl_expr_cli.md:92
+#: manual/tutorial/cli/itl_expr_cli.md:98
 msgid "[cli/itl_expr_cli design](../../design/cli/itl_expr_cli.md)"
 msgstr ""
 
-#: manual/tutorial/cli/itl_expr_cli.md:93
+#: manual/tutorial/cli/itl_expr_cli.md:99
 msgid "[frontend/itl_expr tutorial](../frontend/itl_expr.md) for the cases and the pass rule."
 msgstr ""
 
@@ -22636,59 +22799,59 @@ msgid "run all binary corpora"
 msgstr ""
 
 #: manual/tutorial/cli/mpfr_expr_cli.md:34
-msgid "After `moon add Luna-Flow/floating@0.10.2`, import `\"Luna-Flow/floating-tools/cli/mpfr_expr_cli\"` in `moon.pkg` and call `run`:"
+msgid "The runner is also a library. The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`. Import `\"Luna-Flow/floating-tools/cli/mpfr_expr_cli\"` in `moon.pkg` and call `run`:"
 msgstr ""
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:43
+#: manual/tutorial/cli/mpfr_expr_cli.md:51
 msgid "Run each format"
 msgstr ""
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:45
+#: manual/tutorial/cli/mpfr_expr_cli.md:53
 msgid "The runner reads exactly one file and picks the format from its content:"
 msgstr ""
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:53
-#: manual/tutorial/cli/testfloat_expr_cli.md:75
+#: manual/tutorial/cli/mpfr_expr_cli.md:61
+#: manual/tutorial/cli/testfloat_expr_cli.md:82
 msgid "JSON for scripts"
 msgstr ""
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:59
+#: manual/tutorial/cli/mpfr_expr_cli.md:67
 msgid "prints one object with `corpus`, `totalCases`, `passedCases`, `failedCases` and `failedIds`."
 msgstr ""
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:64
+#: manual/tutorial/cli/mpfr_expr_cli.md:72
 msgid "`just conformance run binary` runs the pinned MPFR square-root data and the elementary matrix together with the TestFloat matrix."
 msgstr ""
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:66
+#: manual/tutorial/cli/mpfr_expr_cli.md:74
 msgid "New elementary data is produced by `tools/generate_mpfr_elementary_oracle.c`; keep the `mpfr-elementary-v1` marker line so the runner detects the format."
 msgstr ""
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:68
+#: manual/tutorial/cli/mpfr_expr_cli.md:76
 msgid "[mpfr_expr tutorial](../frontend/mpfr_expr.md) explains the row formats and pass rules."
 msgstr ""
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:73
+#: manual/tutorial/cli/mpfr_expr_cli.md:81
 msgid "**One file per invocation.** Extra paths, missing paths, and the shard options all print the usage line and exit with `2`."
 msgstr ""
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:75
+#: manual/tutorial/cli/mpfr_expr_cli.md:83
 msgid "**A lone option is read as a path.** `mpfr --help` reports `cannot read file: --help`, not the usage line."
 msgstr ""
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:77
+#: manual/tutorial/cli/mpfr_expr_cli.md:85
 msgid "**Format detection is textual.** A square-root file that happens to contain `input_coefficient_hex` in a comment is parsed as power data."
 msgstr ""
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:82
+#: manual/tutorial/cli/mpfr_expr_cli.md:90
 msgid "[cli/mpfr_expr_cli API](../../api/cli/mpfr_expr_cli.md)"
 msgstr ""
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:83
+#: manual/tutorial/cli/mpfr_expr_cli.md:91
 msgid "[cli/mpfr_expr_cli design](../../design/cli/mpfr_expr_cli.md)"
 msgstr ""
 
-#: manual/tutorial/cli/mpfr_expr_cli.md:84
+#: manual/tutorial/cli/mpfr_expr_cli.md:92
 msgid "[frontend/mpfr_expr tutorial](../frontend/mpfr_expr.md) for the row formats."
 msgstr ""
 
@@ -22725,58 +22888,58 @@ msgid "Generate vectors with TestFloat's `testfloat_gen` and run them. `just con
 msgstr ""
 
 #: manual/tutorial/cli/testfloat_expr_cli.md:45
-msgid "After `moon add Luna-Flow/floating@0.10.2`, import `\"Luna-Flow/floating-tools/cli/testfloat_expr_cli\"` in `moon.pkg` and call `run` with the same arguments:"
+msgid "The runner is also a library. The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`. Import `\"Luna-Flow/floating-tools/cli/testfloat_expr_cli\"` in `moon.pkg` and call `run` with the same arguments:"
 msgstr ""
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:57
+#: manual/tutorial/cli/testfloat_expr_cli.md:64
 msgid "Match the generator options"
 msgstr ""
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:59
+#: manual/tutorial/cli/testfloat_expr_cli.md:66
 msgid "Pass the same function, rounding and tininess as the generator, and `--exact` when the vectors were generated with `-exact`:"
 msgstr ""
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:67
+#: manual/tutorial/cli/testfloat_expr_cli.md:74
 msgid "Shard a large file"
 msgstr ""
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:73
+#: manual/tutorial/cli/testfloat_expr_cli.md:80
 msgid "Shard `i` runs the vectors whose index is `i` modulo the shard count."
 msgstr ""
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:77
+#: manual/tutorial/cli/testfloat_expr_cli.md:84
 msgid "`--json` prints `function`, `rounding`, `tininess`, `exact`, `totalCases`, `selectedCases`, `passedCases`, `failedCases` and `failedIds` (`FUNCTION:LINE`)."
 msgstr ""
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:83
+#: manual/tutorial/cli/testfloat_expr_cli.md:90
 msgid "`just conformance run binary --level 1 --tininess after --tininess before` plans the full matrix, streams `testfloat_gen` output in chunks into temporary files, runs this runner on each chunk, and remaps the line-based ids to global vector numbers."
 msgstr ""
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:87
+#: manual/tutorial/cli/testfloat_expr_cli.md:94
 msgid "[testfloat_expr tutorial](../frontend/testfloat_expr.md) explains the pass rule."
 msgstr ""
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:92
+#: manual/tutorial/cli/testfloat_expr_cli.md:99
 msgid "**Exactly one file.** A second path is an error."
 msgstr ""
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:93
+#: manual/tutorial/cli/testfloat_expr_cli.md:100
 msgid "**Rounding defaults to `rnear_even`.** Always pass the generator's mode."
 msgstr ""
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:94
+#: manual/tutorial/cli/testfloat_expr_cli.md:101
 msgid "**Ids are line numbers of the file you pass.** When you split a stream into chunks, keep track of the offset yourself."
 msgstr ""
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:99
+#: manual/tutorial/cli/testfloat_expr_cli.md:106
 msgid "[cli/testfloat_expr_cli API](../../api/cli/testfloat_expr_cli.md)"
 msgstr ""
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:100
+#: manual/tutorial/cli/testfloat_expr_cli.md:107
 msgid "[cli/testfloat_expr_cli design](../../design/cli/testfloat_expr_cli.md)"
 msgstr ""
 
-#: manual/tutorial/cli/testfloat_expr_cli.md:101
+#: manual/tutorial/cli/testfloat_expr_cli.md:108
 msgid "[frontend/testfloat_expr tutorial](../frontend/testfloat_expr.md) for the pass rule."
 msgstr ""
 
@@ -23799,7 +23962,7 @@ msgid "check the committed fixtures"
 msgstr ""
 
 #: manual/tutorial/differential.md:11
-#: manual/tutorial/differential/harness.md:8
+#: manual/tutorial/differential/harness.md:10
 msgid "run a campaign"
 msgstr ""
 
@@ -23944,34 +24107,82 @@ msgid "differential/harness tutorial"
 msgstr ""
 
 #: manual/tutorial/differential/harness.md:3
-msgid "The harness is run through the `just random-diff` tooling; this page only says where its code lives."
+msgid "The harness is run through the `just random-diff` tooling, which builds the `differential` executable around it. This tutorial says where its code lives, how to test it and how to extend it; the campaign workflow is in the [differential tutorial](../differential.md)."
 msgstr ""
 
-#: manual/tutorial/differential/harness.md:8
+#: manual/tutorial/differential/harness.md:10
 msgid "[the `differential` tutorial](../differential.md)"
 msgstr ""
 
-#: manual/tutorial/differential/harness.md:9
-msgid "change the batching or the record"
+#: manual/tutorial/differential/harness.md:11
+msgid "test the harness"
 msgstr ""
 
 #: manual/tutorial/differential/harness.md:11
-msgid "Where the code is"
+msgid "[quick start](#quick-start)"
+msgstr ""
+
+#: manual/tutorial/differential/harness.md:12
+msgid "change the batching or the record"
+msgstr ""
+
+#: manual/tutorial/differential/harness.md:12
+msgid "[everyday tasks](#everyday-tasks)"
 msgstr ""
 
 #: manual/tutorial/differential/harness.md:13
-msgid "The files `batch.mbt` (corpus splitting and batch execution) and `harness.mbt` (options, experiment specification and `run`) live in `tooling/src/differential/harness`, with their white-box tests in `differential_wbtest.mbt`. Test them with:"
+msgid "add a family of rows"
 msgstr ""
 
-#: manual/tutorial/differential/harness.md:24
+#: manual/tutorial/differential/harness.md:17
+msgid "The package ships inside the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository); there is nothing to install. Test it from the repository (native only, because `moonbitlang/async` has no wasm-gc runtime):"
+msgstr ""
+
+#: manual/tutorial/differential/harness.md:25
+msgid "Run the committed fixtures through the whole stack:"
+msgstr ""
+
+#: manual/tutorial/differential/harness.md:31
+msgid "`run` is the only public function; the `differential` executable calls it with `@env.args()`."
+msgstr ""
+
+#: manual/tutorial/differential/harness.md:36
+msgid "Find the code"
+msgstr ""
+
+#: manual/tutorial/differential/harness.md:38
+msgid "`batch.mbt` splits a corpus into batches and executes one (`split_corpus`, `execute_batch`); `harness.mbt` holds the command-line options, the experiment specification and `run`; `differential_wbtest.mbt` tests the batching and the failure text with inline corpora."
+msgstr ""
+
+#: manual/tutorial/differential/harness.md:43
+msgid "Change how a corpus is split"
+msgstr ""
+
+#: manual/tutorial/differential/harness.md:45
+msgid "`split_corpus(text, size)` recognises the corpus kind from its header line and, for decimal corpora, repeats the directives (precision, rounding, exponent range) in front of the cases they govern, so a batch is always self-contained. Add a case to `differential_wbtest.mbt` with a small inline corpus before changing it, then run the command above."
+msgstr ""
+
+#: manual/tutorial/differential/harness.md:52
+msgid "A new family of rows needs three things: an oracle program that writes the rows (outside MoonBit, see `tools/generate_*`), a frontend that executes one row, and a `CorpusKind` that `split_corpus` recognises from the header line and `execute_batch` maps to that frontend. The manifest and the replay command of `tools/random_differential.py` pick it up by family name."
+msgstr ""
+
+#: manual/tutorial/differential/harness.md:61
 msgid "**No wasm-gc build.** `moonbitlang/async` has no wasm-gc runtime, so the package declares `supported_targets = \"all-wasm-gc\"`."
 msgstr ""
 
-#: manual/tutorial/differential/harness.md:29
+#: manual/tutorial/differential/harness.md:63
+msgid "**Exit status.** `run` exits the process (`2` for a bad command line or corpus, `1` for a disagreement): do not call it from a test."
+msgstr ""
+
+#: manual/tutorial/differential/harness.md:68
 msgid "[differential/harness API](../../api/differential/harness.md)."
 msgstr ""
 
-#: manual/tutorial/differential/harness.md:30
+#: manual/tutorial/differential/harness.md:69
+msgid "[differential/harness design](../../design/differential/harness.md)."
+msgstr ""
+
+#: manual/tutorial/differential/harness.md:70
 msgid "[differential tutorial](../differential.md) for the workflow."
 msgstr ""
 
@@ -24088,118 +24299,126 @@ msgstr ""
 #: manual/tutorial/frontend/itl_expr.md:19
 #: manual/tutorial/frontend/mpfr_expr.md:20
 #: manual/tutorial/frontend/testfloat_expr.md:23
-msgid "Add the library to your module and import the package in `moon.pkg`:"
+#: manual/tutorial/numeric_expr.md:21
+msgid "The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`."
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:34
+#: manual/tutorial/frontend/gda_expr.md:24
+#: manual/tutorial/frontend/itl_expr.md:21
+#: manual/tutorial/frontend/mpfr_expr.md:22
+#: manual/tutorial/frontend/testfloat_expr.md:25
+msgid "Import the package in `moon.pkg`:"
+msgstr ""
+
+#: manual/tutorial/frontend/gda_expr.md:32
 msgid "Parse two rows and execute them:"
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:52
+#: manual/tutorial/frontend/gda_expr.md:50
 msgid "A row has the form `id operation operand… -> expected condition…`. The directives above the rows (`precision:`, `rounding:`, …) set the context that every following row uses."
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:58
+#: manual/tutorial/frontend/gda_expr.md:56
 msgid "Read why a row failed"
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:60
+#: manual/tutorial/frontend/gda_expr.md:58
 msgid "A row passes only if both the result and the exact set of conditions (status flags) match. Each `CaseResult` carries a message for a failure:"
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:87
+#: manual/tutorial/frontend/gda_expr.md:85
 msgid "`bad2` has the right digits but omits `Inexact Rounded`; an extra flag is a failure just like a missing one."
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:90
+#: manual/tutorial/frontend/gda_expr.md:88
 msgid "Results are compared with their exponent"
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:92
+#: manual/tutorial/frontend/gda_expr.md:90
 msgid "The expected result is compared as a decimal *representation*, not only as a number: `2.0` and `2.00` have the same value but different exponents, and only the one with the right exponent passes. Signed zeros and NaN payloads are compared the same way."
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:115
+#: manual/tutorial/frontend/gda_expr.md:113
 msgid "Skipped rows and dispositions"
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:117
+#: manual/tutorial/frontend/gda_expr.md:115
 msgid "Some rows are not executed. Each result has a `CaseDisposition`: `Executable` rows are run; `Diagnostic` rows (a `#` placeholder operand or result, or a `?` operand) and `Unsupported` rows (an unknown operation, condition or rounding mode) are counted as skipped and never fail the run."
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:155
+#: manual/tutorial/frontend/gda_expr.md:153
 msgid "`success()` only says that no executable row failed. A strict runner also requires that nothing was unsupported; the CLI does this with `--strict-supported`."
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:159
+#: manual/tutorial/frontend/gda_expr.md:157
 msgid "Select rows and split work into shards"
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:161
+#: manual/tutorial/frontend/gda_expr.md:159
 msgid "`RunOptions` filters rows by id and selects one shard of the remaining rows. A filter is a comma-separated list of ids or ranges `first..last`, where a range matches ids of the same length that sort between the bounds:"
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:195
+#: manual/tutorial/frontend/gda_expr.md:193
 msgid "Shard `i` of `n` takes the rows whose position among the filtered rows is congruent to `i` modulo `n`, so the shards are disjoint and together cover every row. `RunSummary::merge` adds the counts back up."
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:199
+#: manual/tutorial/frontend/gda_expr.md:197
 msgid "Look at the parsed rows"
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:201
+#: manual/tutorial/frontend/gda_expr.md:199
 msgid "`parse_dectest` keeps each row's text and the context in force for it, so you can inspect a corpus without executing it:"
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:227
+#: manual/tutorial/frontend/gda_expr.md:225
 msgid "**Interchange rows.** In a context whose precision and exponent limits are exactly those of decimal32, decimal64 or decimal128, operands and results written as `#` followed by hexadecimal digits are IEEE 754 interchange encodings, and the result is compared bit for bit. Operands prefixed `32#`, `64#` or `128#` are read in that format."
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:232
+#: manual/tutorial/frontend/gda_expr.md:230
 msgid "**Expected `?`.** A result of `?` means \"any value\": only the conditions are compared."
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:234
+#: manual/tutorial/frontend/gda_expr.md:232
 msgid "**Your own executor.** Every `GdaCase` exposes `expression()`, a [`numeric_expr`](../numeric_expr.md) tree, so you can evaluate the same rows with your own callbacks, for example against another decimal library."
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:237
+#: manual/tutorial/frontend/gda_expr.md:235
 msgid "**Whole corpora.** `just conformance run decimal_gda` downloads the pinned official corpus, builds the native runner and executes all phases; see [verification](../../verification.md)."
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:243
+#: manual/tutorial/frontend/gda_expr.md:241
 msgid "**Parse errors reject the whole document.** `parse_dectest` returns all diagnostics and no document if any line is malformed; fix the line or drop it."
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:246
+#: manual/tutorial/frontend/gda_expr.md:244
 msgid "**The default context is not a decTest default.** Before any directive the context is precision 34, `half_even`, exponents $\\pm 999999999$, `extended: 1`, `clamp: 0`. Real files set their own directives."
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:249
+#: manual/tutorial/frontend/gda_expr.md:247
 msgid "**`success()` ignores skipped rows.** Check `unsupported_cases()` (or use the CLI's `--strict-supported`) if unsupported rows must fail the run."
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:251
+#: manual/tutorial/frontend/gda_expr.md:249
 msgid "**Doubled quotes.** Inside a quoted token, the delimiting quote written twice is one literal quote (`'1''2'` is the operand `1'2`), so a quoted token ends only at a single matching quote."
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:254
+#: manual/tutorial/frontend/gda_expr.md:252
 msgid "**Invalid contexts are skipped.** A non-positive precision directive (or `minexponent` above `maxexponent`) is accepted by the parser, and the rows under it are `Diagnostic`: they are counted in `diagnostic_cases()`, not executed."
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:261
+#: manual/tutorial/frontend/gda_expr.md:259
 msgid "[frontend/gda_expr API](../../api/frontend/gda_expr.md) for every item."
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:262
+#: manual/tutorial/frontend/gda_expr.md:260
 msgid "[frontend/gda_expr design](../../design/frontend/gda_expr.md) for the exact pass rule and the row-to-operation mapping."
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:264
+#: manual/tutorial/frontend/gda_expr.md:262
 msgid "[cli/gda_expr_cli tutorial](../cli/gda_expr_cli.md) for running corpora from the command line."
 msgstr ""
 
-#: manual/tutorial/frontend/gda_expr.md:266
+#: manual/tutorial/frontend/gda_expr.md:264
 msgid "[decimal_gda tutorial](../decimal_gda.md) for the arithmetic being tested."
 msgstr ""
 
@@ -24243,83 +24462,83 @@ msgstr ""
 msgid "[filter on `ItlCase::operation`](#going-further)"
 msgstr ""
 
-#: manual/tutorial/frontend/itl_expr.md:31
+#: manual/tutorial/frontend/itl_expr.md:29
 msgid "Parse a test case block and run it:"
 msgstr ""
 
-#: manual/tutorial/frontend/itl_expr.md:50
+#: manual/tutorial/frontend/itl_expr.md:48
 msgid "Each statement `operation operand… = expected;` becomes one `ItlCase` with the id `testcase:index`."
 msgstr ""
 
-#: manual/tutorial/frontend/itl_expr.md:55
+#: manual/tutorial/frontend/itl_expr.md:53
 msgid "Inspect parsed cases"
 msgstr ""
 
-#: manual/tutorial/frontend/itl_expr.md:74
+#: manual/tutorial/frontend/itl_expr.md:72
 msgid "A statement may span several lines; it ends at `;`. Bounds can be decimal or hexadecimal (`0x1.8p1`) text, and the literals `[empty]`, `[entire]` and `[nai]` are understood."
 msgstr ""
 
-#: manual/tutorial/frontend/itl_expr.md:78
+#: manual/tutorial/frontend/itl_expr.md:76
 msgid "Check decorations"
 msgstr ""
 
-#: manual/tutorial/frontend/itl_expr.md:80
+#: manual/tutorial/frontend/itl_expr.md:78
 msgid "A decoration suffix (`_com`, `_dac`, `_def`, `_trv`, `_ill`) on the expected value makes the decoration part of the test. Without a suffix only the set is compared. Failure messages print intervals in midpoint-radius form:"
 msgstr ""
 
-#: manual/tutorial/frontend/itl_expr.md:103
+#: manual/tutorial/frontend/itl_expr.md:101
 msgid "Numbers, booleans and overlap states"
 msgstr ""
 
-#: manual/tutorial/frontend/itl_expr.md:105
+#: manual/tutorial/frontend/itl_expr.md:103
 msgid "Besides interval results, ITL cases can expect a number (`inf`, `sup`, `mid`, `rad`, `wid`, `mag`, `mig`), a boolean (`isEmpty`, `subset`, `isMember`, …) or an overlap state name:"
 msgstr ""
 
-#: manual/tutorial/frontend/itl_expr.md:127
+#: manual/tutorial/frontend/itl_expr.md:125
 msgid "Unsupported and malformed cases"
 msgstr ""
 
-#: manual/tutorial/frontend/itl_expr.md:129
+#: manual/tutorial/frontend/itl_expr.md:127
 msgid "A case the executor does not implement is `Unsupported`, whatever its operands (`nums2interval 1.0 2.0` included); a case of a known operation whose operands cannot be read is a `Diagnostic`. Neither counts as a failure, but a diagnostic makes `success()` false:"
 msgstr ""
 
-#: manual/tutorial/frontend/itl_expr.md:155
+#: manual/tutorial/frontend/itl_expr.md:153
 msgid "**Corpus runs.** `just conformance run interval` fetches the pinned ITF1788 corpus, builds the native runner and runs the strict phases listed in `testdata/interval/interpreter_stages.json`; see [verification](../../verification.md)."
 msgstr ""
 
-#: manual/tutorial/frontend/itl_expr.md:159
+#: manual/tutorial/frontend/itl_expr.md:157
 msgid "**Filtering by operation.** The CLI's `--operation NAME` option keeps only cases of that operation; in code, filter `cases` by `operation()` before executing."
 msgstr ""
 
-#: manual/tutorial/frontend/itl_expr.md:162
+#: manual/tutorial/frontend/itl_expr.md:160
 msgid "**Precision.** `execute_case(case, precision=p)` reads bounds and rounds results at `p` bits, with the binary64 exponent range. The ITF1788 data is written for binary64, so keep the default `53` for corpus runs."
 msgstr ""
 
-#: manual/tutorial/frontend/itl_expr.md:168
+#: manual/tutorial/frontend/itl_expr.md:166
 msgid "**Decimal bounds are rounded to nearest.** As in ITF1788, a bound such as `0.1` is a floating constant of the format, read as the nearest binary64 number, so `[0.1,0.1]` is the singleton of that number, not an enclosure of one tenth. To test an enclosure of a decimal value, write its bounds in hexadecimal."
 msgstr ""
 
-#: manual/tutorial/frontend/itl_expr.md:173
+#: manual/tutorial/frontend/itl_expr.md:171
 msgid "**Signals are not checked.** ITL annotations such as `signal …` after the expected value make the expected value unreadable; such cases become unsupported or diagnostic rather than passing."
 msgstr ""
 
-#: manual/tutorial/frontend/itl_expr.md:176
+#: manual/tutorial/frontend/itl_expr.md:174
 msgid "**Parse errors reject the input.** `parse_itl` returns only diagnostics if any statement lacks `=` or an operation, or if the text ends inside a statement."
 msgstr ""
 
-#: manual/tutorial/frontend/itl_expr.md:182
+#: manual/tutorial/frontend/itl_expr.md:180
 msgid "[frontend/itl_expr API](../../api/frontend/itl_expr.md) for every item and the list of executed operations."
 msgstr ""
 
-#: manual/tutorial/frontend/itl_expr.md:184
+#: manual/tutorial/frontend/itl_expr.md:182
 msgid "[frontend/itl_expr design](../../design/frontend/itl_expr.md) for the pass rule."
 msgstr ""
 
-#: manual/tutorial/frontend/itl_expr.md:186
+#: manual/tutorial/frontend/itl_expr.md:184
 msgid "[cli/itl_expr_cli tutorial](../cli/itl_expr_cli.md) for running files from the command line."
 msgstr ""
 
-#: manual/tutorial/frontend/itl_expr.md:188
+#: manual/tutorial/frontend/itl_expr.md:186
 msgid "[ball_float tutorial](../ball_float.md) for the interval arithmetic being tested."
 msgstr ""
 
@@ -24351,91 +24570,91 @@ msgstr ""
 msgid "run the pinned corpora"
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:32
+#: manual/tutorial/frontend/mpfr_expr.md:30
 msgid "Check one square root: $\\sqrt{2^{-1074} \\cdot 2^{52}} = 2^{-511}$ at 53 bits, rounding to nearest:"
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:49
+#: manual/tutorial/frontend/mpfr_expr.md:47
 msgid "Numbers are written as hexadecimal significand and binary exponent: `0x10000000000000p-1074` is $2^{52} \\cdot 2^{-1074}$."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:54
+#: manual/tutorial/frontend/mpfr_expr.md:52
 msgid "Elementary functions with flags"
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:56
+#: manual/tutorial/frontend/mpfr_expr.md:54
 msgid "An elementary row names the function, the output precision and rounding, the operands, the expected result and three exception flags (inexact, invalid, division by zero). Unused operands are written `-` (second operand) and `0` (integer operand):"
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:80
+#: manual/tutorial/frontend/mpfr_expr.md:78
 msgid "`ln(0) = -inf` raises division by zero and `sqrt(-1)` is an invalid operation returning NaN; both flags are part of the check."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:85
+#: manual/tutorial/frontend/mpfr_expr.md:83
 msgid "A `pow` row splits each number into coefficient, binary exponent and sign:"
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:100
+#: manual/tutorial/frontend/mpfr_expr.md:98
 msgid "The fields are: precision, rounding, input coefficient (hex digits), input exponent, input sign (`1` negative), integer exponent, expected coefficient, expected exponent, expected sign, inexact flag. Here `0x6c0p-9` is $1728/512 = 27/8$."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:105
+#: manual/tutorial/frontend/mpfr_expr.md:103
 msgid "Read a failure"
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:126
+#: manual/tutorial/frontend/mpfr_expr.md:124
 msgid "The id is the operation (or `sqrt`/`pow`) and the line number."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:128
+#: manual/tutorial/frontend/mpfr_expr.md:126
 msgid "Parse errors"
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:130
+#: manual/tutorial/frontend/mpfr_expr.md:128
 msgid "Every malformed line is reported with its line number, and no document is returned:"
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:149
+#: manual/tutorial/frontend/mpfr_expr.md:147
 msgid "**Corpora.** `just conformance run binary` executes the pinned MPFR `tests/data/sqrt` file and the committed elementary matrix `testdata/bin_float/mpfr-4.2.2-elementary.txt` together with TestFloat; see [verification](../../verification.md). The generators for the elementary and power data are `tools/generate_mpfr_elementary_oracle.c` and `tools/generate_mpfr_pow_oracle.c`."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:155
+#: manual/tutorial/frontend/mpfr_expr.md:153
 msgid "**Which parser?** The CLI chooses the elementary format when the file contains `mpfr-elementary-v1`, the power format when it contains `input_coefficient_hex`, and the square-root format otherwise. Put the marker in a comment line."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:162
+#: manual/tutorial/frontend/mpfr_expr.md:160
 msgid "**Elementary rows compare numbers, not encodings.** Any NaN matches an expected `nan`, and a zero must have the expected sign. Square-root and power rows compare the whole `BinFloat`."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:165
+#: manual/tutorial/frontend/mpfr_expr.md:163
 msgid "**Square-root flags are not checked.** `sqrt` data rows compare only the value."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:167
+#: manual/tutorial/frontend/mpfr_expr.md:165
 msgid "**No exponent range.** Rows are executed in an unbounded context: there is no overflow, underflow or subnormal range, and an elementary or power row that reports overflow or underflow fails."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:170
+#: manual/tutorial/frontend/mpfr_expr.md:168
 msgid "**Binary operations need a second operand.** An elementary `pow`, `hypot` or `atan2` row with `-` as second operand is the parse diagnostic `invalid MPFR elementary field`."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:173
+#: manual/tutorial/frontend/mpfr_expr.md:171
 msgid "**Inputs are read at 512 bits.** Elementary and power operands with longer significands are rounded before the function is evaluated."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:178
+#: manual/tutorial/frontend/mpfr_expr.md:176
 msgid "[frontend/mpfr_expr API](../../api/frontend/mpfr_expr.md) for every item and the exact field layouts."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:180
+#: manual/tutorial/frontend/mpfr_expr.md:178
 msgid "[frontend/mpfr_expr design](../../design/frontend/mpfr_expr.md) for the pass rules."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:182
+#: manual/tutorial/frontend/mpfr_expr.md:180
 msgid "[cli/mpfr_expr_cli tutorial](../cli/mpfr_expr_cli.md) for running a file from the command line."
 msgstr ""
 
-#: manual/tutorial/frontend/mpfr_expr.md:184
+#: manual/tutorial/frontend/mpfr_expr.md:182
 msgid "[bin_float tutorial](../bin_float.md) for the functions being tested."
 msgstr ""
 
@@ -24479,95 +24698,95 @@ msgstr ""
 msgid "split a file over processes"
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:35
+#: manual/tutorial/frontend/testfloat_expr.md:33
 msgid "Check $1.5 \\times 2 = 3$ in binary64:"
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:51
+#: manual/tutorial/frontend/testfloat_expr.md:49
 msgid "The last field is the SoftFloat flag mask: `01` inexact, `02` underflow, `04` overflow, `08` division by zero (infinite), `10` invalid."
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:56
+#: manual/tutorial/frontend/testfloat_expr.md:54
 msgid "Values and flags are both checked"
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:58
+#: manual/tutorial/frontend/testfloat_expr.md:56
 msgid "A vector fails if either the encoded result or the flag mask differs:"
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:80
+#: manual/tutorial/frontend/testfloat_expr.md:78
 msgid "Ids are the function name and the line number."
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:82
+#: manual/tutorial/frontend/testfloat_expr.md:80
 msgid "NaN results"
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:84
+#: manual/tutorial/frontend/testfloat_expr.md:82
 msgid "When the expected result is a NaN, any quiet NaN is accepted, because IEEE 754 does not fix the payload or sign of a generated NaN. The flags must still match:"
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:103
+#: manual/tutorial/frontend/testfloat_expr.md:101
 msgid "Conversions to integers and the exact variants"
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:105
+#: manual/tutorial/frontend/testfloat_expr.md:103
 msgid "For `to_i32`, `to_i64`, `to_ui32` and `to_ui64` the result field is the integer in hexadecimal. With `exact=true` (TestFloat's `-exact`) an inexact conversion also raises the inexact flag. An invalid conversion is checked by its flags only:"
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:138
+#: manual/tutorial/frontend/testfloat_expr.md:136
 msgid "Comparisons"
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:140
+#: manual/tutorial/frontend/testfloat_expr.md:138
 msgid "The comparison functions expect `0` or `1`. The signaling predicates (`eq_signaling`, `le`, `lt`) raise invalid for any NaN operand; the quiet ones (`eq`, `le_quiet`, `lt_quiet`) only for signaling NaNs:"
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:168
+#: manual/tutorial/frontend/testfloat_expr.md:166
 msgid "`RunOptions` runs every `n`-th vector, starting at index `i`, so `n` processes can share one file:"
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:195
+#: manual/tutorial/frontend/testfloat_expr.md:193
 msgid "**Generating vectors.** `just conformance fetch binary` downloads the pinned SoftFloat and TestFloat sources, and `just conformance run binary --level 1` builds `testfloat_gen`, then generates and executes the matrix of all formats, operations and rounding modes. Tininess defaults to after rounding; add `--tininess after --tininess before` to run both modes for the operations that can underflow. See [verification](../../verification.md)."
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:202
+#: manual/tutorial/frontend/testfloat_expr.md:200
 msgid "**Tininess.** Pass `tininess=\"before\"` to `TestFloatSpec::parse` to match vectors generated with `-tininessbefore`; the default is after rounding."
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:204
+#: manual/tutorial/frontend/testfloat_expr.md:202
 msgid "**Function names.** The spec accepts TestFloat names: `f16_`, `f32_`, `f64_` or `f128_` followed by `add`, `sub`, `mul`, `div`, `sqrt`, `mulAdd`, `rem`, `roundToInt`, `to_i32`, `to_i64`, `to_ui32`, `to_ui64`, `eq`, `le`, `lt`, `eq_signaling`, `le_quiet` or `lt_quiet`."
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:211
+#: manual/tutorial/frontend/testfloat_expr.md:209
 msgid "**One function per document.** The spec applies to every line; split mixed files."
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:213
+#: manual/tutorial/frontend/testfloat_expr.md:211
 msgid "**The rounding argument is not optional.** `rem` and the comparisons ignore it, but `TestFloatSpec::parse` still needs a valid name such as `rnear_even`."
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:216
+#: manual/tutorial/frontend/testfloat_expr.md:214
 msgid "**`rodd` is not supported.** Only the five IEEE directions are accepted."
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:217
+#: manual/tutorial/frontend/testfloat_expr.md:215
 msgid "**`exact` matters.** Vectors from `-exact` runs contain the inexact flag for `roundToInt` and integer conversions; parse them with `exact=true`."
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:222
+#: manual/tutorial/frontend/testfloat_expr.md:220
 msgid "[frontend/testfloat_expr API](../../api/frontend/testfloat_expr.md) for every item."
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:224
+#: manual/tutorial/frontend/testfloat_expr.md:222
 msgid "[frontend/testfloat_expr design](../../design/frontend/testfloat_expr.md) for the exact pass rule."
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:226
+#: manual/tutorial/frontend/testfloat_expr.md:224
 msgid "[cli/testfloat_expr_cli tutorial](../cli/testfloat_expr_cli.md) for running vector files from the command line."
 msgstr ""
 
-#: manual/tutorial/frontend/testfloat_expr.md:228
+#: manual/tutorial/frontend/testfloat_expr.md:226
 msgid "[bin_float conformance](../../conformance/bin_float.md) for the published TestFloat claim."
 msgstr ""
 
@@ -24745,7 +24964,7 @@ msgstr ""
 
 #: manual/tutorial/internal/conformance.md:22
 #: manual/tutorial/internal/runner_cli.md:22
-msgid "There is nothing to install: the package ships inside `Luna-Flow/floating`. Run its tests from the repository:"
+msgid "There is nothing to install: the package ships inside the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository). Run its tests from the repository:"
 msgstr ""
 
 #: manual/tutorial/internal/conformance.md:29
@@ -24984,83 +25203,87 @@ msgstr ""
 msgid "A minimal runner (`run` receives the whole argument vector, program name first):"
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:102
-msgid "Follow the exit-code convention"
-msgstr ""
-
-#: manual/tutorial/internal/runner_cli.md:104
-msgid "All runners in `cli/` use the same codes, which `tools/*.py` relies on:"
-msgstr ""
-
-#: manual/tutorial/internal/runner_cli.md:108
-msgid "every executed case passed (and, in strict mode, nothing was unsupported)"
-msgstr ""
-
-#: manual/tutorial/internal/runner_cli.md:109
-msgid "at least one case failed, or strict mode found unsupported cases (`gda-expr` also counts legacy rows)"
-msgstr ""
-
-#: manual/tutorial/internal/runner_cli.md:110
-msgid "usage error, unreadable file, or parse diagnostic"
+#: manual/tutorial/internal/runner_cli.md:100
+msgid "The runner is an ordinary function, so a test can check its exit status without a process:"
 msgstr ""
 
 #: manual/tutorial/internal/runner_cli.md:112
-msgid "Add a runner-specific option"
+msgid "Follow the exit-code convention"
 msgstr ""
 
 #: manual/tutorial/internal/runner_cli.md:114
-msgid "`parse_common_options` leaves every argument it does not know in `remaining()`, in order. Parse your own options from that array and treat the rest as paths. Pass `allow_shard=false` if your runner cannot shard; the shard options then stay in `remaining()` and your parser should reject them as unknown."
+msgid "All runners in `cli/` use the same codes, which `tools/*.py` relies on:"
+msgstr ""
+
+#: manual/tutorial/internal/runner_cli.md:118
+msgid "every executed case passed (and, in strict mode, nothing was unsupported)"
+msgstr ""
+
+#: manual/tutorial/internal/runner_cli.md:119
+msgid "at least one case failed, or strict mode found unsupported cases (`gda-expr` also counts legacy rows)"
 msgstr ""
 
 #: manual/tutorial/internal/runner_cli.md:120
-msgid "Keep output machine-readable"
+msgid "usage error, unreadable file, or parse diagnostic"
 msgstr ""
 
 #: manual/tutorial/internal/runner_cli.md:122
+msgid "Add a runner-specific option"
+msgstr ""
+
+#: manual/tutorial/internal/runner_cli.md:124
+msgid "`parse_common_options` leaves every argument it does not know in `remaining()`, in order. Parse your own options from that array and treat the rest as paths. Pass `allow_shard=false` if your runner cannot shard; the shard options then stay in `remaining()` and your parser should reject them as unknown."
+msgstr ""
+
+#: manual/tutorial/internal/runner_cli.md:130
+msgid "Keep output machine-readable"
+msgstr ""
+
+#: manual/tutorial/internal/runner_cli.md:132
 msgid "Print exactly one JSON object per invocation when `--json` is given. Build it with `json_object` so the key order is the order you list, and use `json_int` for counts so they print as integers."
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:128
+#: manual/tutorial/internal/runner_cli.md:138
 msgid "The four runners in `cli/` are complete examples: [gda_expr_cli](../cli/gda_expr_cli.md), [itl_expr_cli](../cli/itl_expr_cli.md), [mpfr_expr_cli](../cli/mpfr_expr_cli.md) and [testfloat_expr_cli](../cli/testfloat_expr_cli.md)."
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:133
+#: manual/tutorial/internal/runner_cli.md:143
 msgid "Build the native dispatcher with `sh tools/run_moon_clean_exec.sh run --release --target native tooling/src/cli -- --help`."
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:135
+#: manual/tutorial/internal/runner_cli.md:145
 msgid "Run the helper tests from a workspace that contains the module: `moon test -p Luna-Flow/floating-tools/internal/runner_cli`."
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:140
+#: manual/tutorial/internal/runner_cli.md:150
 msgid "**Program name.** `parse_common_options` skips `arguments[0]`. Pass the full vector, not a slice without the program name, or the first real argument is lost."
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:143
+#: manual/tutorial/internal/runner_cli.md:153
 msgid "**Directories are not searched recursively.** `collect_files` lists only the direct entries of a directory."
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:145
+#: manual/tutorial/internal/runner_cli.md:155
 msgid "**Named files must have the suffix.** A file argument without the suffix is an error (`not a SUFFIX file: P`), so a mistyped name cannot pass as an empty run."
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:148
+#: manual/tutorial/internal/runner_cli.md:158
 msgid "**Option values use MoonBit integer syntax.** `0x10` and `1_000` are accepted as 16 and 1000; an argument starting with `--` is never taken as a value, so `--shard-count --json` is a missing count."
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:151
+#: manual/tutorial/internal/runner_cli.md:161
 msgid "**Native only in practice.** File access goes through `moonbitlang/x/fs`; the runners are built and run on the native target."
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:156
+#: manual/tutorial/internal/runner_cli.md:166
 msgid "[internal/runner_cli API](../../api/internal/runner_cli.md)"
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:157
+#: manual/tutorial/internal/runner_cli.md:167
 msgid "[internal/runner_cli design](../../design/internal/runner_cli.md)"
 msgstr ""
 
-#: manual/tutorial/internal/runner_cli.md:158
+#: manual/tutorial/internal/runner_cli.md:168
 msgid "[cli tutorial](../cli.md) for the dispatcher that calls the runners."
 msgstr ""
 
@@ -25112,107 +25335,107 @@ msgstr ""
 msgid "[checked value types](#going-further)"
 msgstr ""
 
-#: manual/tutorial/numeric_expr.md:25
+#: manual/tutorial/numeric_expr.md:23
 msgid "Add the package to `moon.pkg`:"
 msgstr ""
 
-#: manual/tutorial/numeric_expr.md:33
+#: manual/tutorial/numeric_expr.md:31
 msgid "Build `1 + 2` and evaluate it over `Int`:"
 msgstr ""
 
-#: manual/tutorial/numeric_expr.md:54
+#: manual/tutorial/numeric_expr.md:52
 msgid "`evaluate` decodes both literals, then calls the operation callback with the decoded arguments `[1, 2]`."
 msgstr ""
 
-#: manual/tutorial/numeric_expr.md:59
+#: manual/tutorial/numeric_expr.md:57
 msgid "Write a small interpreter"
 msgstr ""
 
-#: manual/tutorial/numeric_expr.md:61
+#: manual/tutorial/numeric_expr.md:59
 msgid "Most callers match on the operation name and the argument array. Matching the array pattern also checks the arity, which `numeric_expr` itself does not do:"
 msgstr ""
 
-#: manual/tutorial/numeric_expr.md:114
+#: manual/tutorial/numeric_expr.md:112
 msgid "`sum` shows that an operation may take any number of arguments; the callback decides."
 msgstr ""
 
-#: manual/tutorial/numeric_expr.md:117
+#: manual/tutorial/numeric_expr.md:115
 msgid "Evaluate over `BinFloat` and collect IEEE flags"
 msgstr ""
 
-#: manual/tutorial/numeric_expr.md:119
+#: manual/tutorial/numeric_expr.md:117
 msgid "The value type `V` can carry more than a number. Here every value is a `BinFloat` together with the IEEE flags raised so far, and each operation merges the flags of its arguments with its own:"
 msgstr ""
 
-#: manual/tutorial/numeric_expr.md:176
+#: manual/tutorial/numeric_expr.md:174
 msgid "The same tree could be evaluated over `@decimal_gda.Decimal` by swapping the two callbacks; nothing in the expression depends on the number type."
 msgstr ""
 
-#: manual/tutorial/numeric_expr.md:179
+#: manual/tutorial/numeric_expr.md:177
 msgid "Report errors at their source"
 msgstr ""
 
-#: manual/tutorial/numeric_expr.md:181
+#: manual/tutorial/numeric_expr.md:179
 msgid "Give every node the span of the text it came from. When a callback fails, the `EvalError` returns the failing node, so the span locates the error:"
 msgstr ""
 
-#: manual/tutorial/numeric_expr.md:212
+#: manual/tutorial/numeric_expr.md:210
 msgid "See the evaluation order"
 msgstr ""
 
-#: manual/tutorial/numeric_expr.md:214
+#: manual/tutorial/numeric_expr.md:212
 msgid "The callbacks run in post-order, left to right, and evaluation stops at the first failure. A trace makes this visible:"
 msgstr ""
 
-#: manual/tutorial/numeric_expr.md:240
+#: manual/tutorial/numeric_expr.md:238
 msgid "The literal `1` and both `add` nodes are never visited, because `bad` fails first."
 msgstr ""
 
-#: manual/tutorial/numeric_expr.md:245
+#: manual/tutorial/numeric_expr.md:243
 msgid "**Corpus frontends.** `frontend/gda_expr` lowers each `.decTest` row `id operation operands -> expected conditions` into `Expr::invoke(Operation::new(op), operands.map(Expr::literal))` and evaluates it with callbacks over `@decimal_gda`. Read [gda_expr](frontend/gda_expr.md) for a complete example of the pattern."
 msgstr ""
 
-#: manual/tutorial/numeric_expr.md:250
+#: manual/tutorial/numeric_expr.md:248
 msgid "**Richer values.** `V` can be an enum when operations return different kinds of results (numbers, booleans, strings), as `gda_expr` does for `compare`, `class` and `isnan`."
 msgstr ""
 
-#: manual/tutorial/numeric_expr.md:253
+#: manual/tutorial/numeric_expr.md:251
 msgid "**Typed errors.** `E` can be your own enum instead of `String`; `EvalError[E]` keeps it unchanged."
 msgstr ""
 
-#: manual/tutorial/numeric_expr.md:255
+#: manual/tutorial/numeric_expr.md:253
 msgid "**Checked pipelines.** If you want domain errors to stay values instead of stopping the evaluation, make `V` a checked type such as `@bin_float_checked.BinFloatResult` and let the callbacks always return `Ok`."
 msgstr ""
 
-#: manual/tutorial/numeric_expr.md:261
+#: manual/tutorial/numeric_expr.md:259
 msgid "**No arity check.** `Expr::invoke` accepts any number of arguments. Check the arity in `invoke` (an array pattern does it) and return `Err` on a mismatch."
 msgstr ""
 
-#: manual/tutorial/numeric_expr.md:263
+#: manual/tutorial/numeric_expr.md:261
 msgid "**Early stop.** After the first failure no further callback runs. Do not rely on side effects of callbacks for nodes to the right of a failing node."
 msgstr ""
 
-#: manual/tutorial/numeric_expr.md:265
+#: manual/tutorial/numeric_expr.md:263
 msgid "**Deep trees.** Evaluation is recursive; the stack depth equals the tree height. Very deep left-leaning trees (for example a sum of a million terms built as nested `add`) can exhaust the stack; build a flat `sum` node instead."
 msgstr ""
 
-#: manual/tutorial/numeric_expr.md:268
+#: manual/tutorial/numeric_expr.md:266
 msgid "**Default spans.** Without an explicit span a node reports `SourceSpan::new(\"\")`, whose line and column are `0`."
 msgstr ""
 
-#: manual/tutorial/numeric_expr.md:270
+#: manual/tutorial/numeric_expr.md:268
 msgid "**No literal parsing here.** A `Literal` stores raw text. Rounding, precision and flags of the conversion are decided entirely by your `decode` callback."
 msgstr ""
 
-#: manual/tutorial/numeric_expr.md:275
+#: manual/tutorial/numeric_expr.md:273
 msgid "[numeric_expr API](../api/numeric_expr.md) lists every item."
 msgstr ""
 
-#: manual/tutorial/numeric_expr.md:276
+#: manual/tutorial/numeric_expr.md:274
 msgid "[numeric_expr design](../design/numeric_expr.md) states the evaluation semantics and its invariants."
 msgstr ""
 
-#: manual/tutorial/numeric_expr.md:278
+#: manual/tutorial/numeric_expr.md:276
 msgid "[gda_expr tutorial](frontend/gda_expr.md) runs real decimal test rows through this package."
 msgstr ""
 

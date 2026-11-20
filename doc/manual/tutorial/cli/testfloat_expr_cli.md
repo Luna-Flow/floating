@@ -42,15 +42,22 @@ failed cases: 0
 
 ### From MoonBit code
 
-After `moon add Luna-Flow/floating@0.10.2`, import
+The runner is also a library. The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`. Import
 `"Luna-Flow/floating-tools/cli/testfloat_expr_cli"` in `moon.pkg` and call `run`
 with the same arguments:
 
-```moonbit nocheck
-let status = @testfloat_expr_cli.run([
-  "testfloat", "--function", "f64_mul", "--rounding", "rnear_even", "f64_mul.tv",
-])
+```moonbit
+///|
+test "run the TestFloat runner from MoonBit code" {
+  let status = @testfloat_expr_cli.run([
+    "testfloat", "--function", "f16_add", "--rounding", "rnear_even", "--tininess",
+    "after", "../testdata/bin_float/smoke/f16_add_rnear_even_after.testfloat",
+  ])
+  inspect(status, content="0")
+}
 ```
+
+`just docs` runs the tests of this page in the module directory `tooling/`, so the corpus paths start with `../testdata`; use your own paths in your code.
 
 ## Everyday tasks
 

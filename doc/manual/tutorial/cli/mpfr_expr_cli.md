@@ -31,12 +31,20 @@ failed cases: 0
 
 ### From MoonBit code
 
-After `moon add Luna-Flow/floating@0.10.2`, import
+The runner is also a library. The package belongs to the tools module `Luna-Flow/floating-tools` (directory `tooling/` of the repository, versioned with the library), not to the published library. Write your code as a package of this workspace or, once the tools module is published, run `moon add Luna-Flow/floating-tools@0.11.0`. Import
 `"Luna-Flow/floating-tools/cli/mpfr_expr_cli"` in `moon.pkg` and call `run`:
 
-```moonbit nocheck
-let status = @mpfr_expr_cli.run(["mpfr", "--json", "data/sqrt"])
+```moonbit
+///|
+test "run the MPFR runner from MoonBit code" {
+  let status = @mpfr_expr_cli.run([
+    "mpfr", "--json", "../testdata/bin_float/smoke/mpfr-hex-sqrt.txt",
+  ])
+  inspect(status, content="0")
+}
 ```
+
+`just docs` runs the tests of this page in the module directory `tooling/`, so the corpus paths start with `../testdata`; use your own paths in your code.
 
 ## Everyday tasks
 

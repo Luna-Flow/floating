@@ -9,6 +9,12 @@ package `cli` keeps only the process boundary: it reads `@env.args()` and calls
 (`.mbt.md` files) is deprecated by the toolchain: main packages will stop
 generating blackbox tests.
 
+## Mathematical background
+
+None. The dispatcher is a pure function of the argument vector: its result and
+its output depend on nothing else, and the runners it calls are libraries whose
+results depend only on their arguments and the files they read.
+
 ## Design decisions
 
 ### Return the exit code
@@ -28,6 +34,16 @@ nowhere else; `cli` itself imports only this package and the process helpers.
   or `--help`.
 - The result equals the runner's return value, or `2` for an argument error,
   or `0` for `--help`.
+
+## Alternatives rejected
+
+- **Keep the dispatcher in `cli`.** A main package that holds test inputs
+  (`.mbt.md` files) is deprecated by the toolchain, and its tests would need the
+  process boundary.
+- **A table of runners.** A `match` on the backend name is checked by the
+  compiler, and each arm is one line.
+- **Exit inside `dispatch`.** It would make every usage error untestable without
+  spawning a process.
 
 ## Boundaries
 
