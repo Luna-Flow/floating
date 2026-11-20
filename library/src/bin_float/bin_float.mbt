@@ -303,15 +303,25 @@ fn compare_finite(a : BinFloat, b : BinFloat) -> Int32 {
 
 ///|
 fn add_bin_impl(a : BinFloat, b : BinFloat) -> BinFloat {
-  match binary_fast_add(a, b) {
+  add_signed_impl(a, b, false)
+}
+
+///|
+/// `a + b`, or `a - b` when `flip`: the fast paths read the sign of `b`
+/// flipped, so a subtraction does not allocate the negated `b`.
+fn add_signed_impl(a : BinFloat, b : BinFloat, flip : Bool) -> BinFloat {
+  match binary_fast_add_signed(a, b, flip) {
     Some(result) => result
     None =>
-      match binary_pair_add(a, b) {
+      match binary_pair_add_signed(a, b, flip) {
         Some(result) => result
         None =>
-          match binary_coeff_fast_add(a, b) {
+          match binary_coeff_fast_add_signed(a, b, flip) {
             Some(result) => result
-            None => a.add_ctx(b, binary_working_context(max_precision(a, b))).0
+            None => {
+              let addend = if flip { b.neg() } else { b }
+              a.add_ctx(addend, binary_working_context(max_precision(a, b))).0
+            }
           }
       }
   }
@@ -1052,7 +1062,7 @@ pub fn BinFloat::add(self : BinFloat, other : BinFloat) -> BinFloat {
 
 ///|
 pub fn BinFloat::sub(self : BinFloat, other : BinFloat) -> BinFloat {
-  add_bin_impl(self, other.neg())
+  add_signed_impl(self, other, true)
 }
 
 ///|

@@ -93,7 +93,13 @@ fn binary_fast_round(
 }
 
 ///|
-fn binary_fast_add(left : BinFloat, right : BinFloat) -> BinFloat? {
+fn binary_fast_add_signed(
+  left : BinFloat,
+  right : BinFloat,
+  flip : Bool,
+) -> BinFloat? {
+  // `right` with its sign flipped when `flip` (a subtraction), without a new value
+  let right_negative = right.negative != flip
   let precision = Int32::max(left.precision_, right.precision_)
   guard precision <= 62 else { return None }
   guard binary_fast_is_word(left) && binary_fast_is_word(right) else {
@@ -124,7 +130,7 @@ fn binary_fast_add(left : BinFloat, right : BinFloat) -> BinFloat? {
   let left_low = binary_fast_shl_low(left_word, left_shift)
   let right_high = binary_fast_shl_high(right_word, right_shift)
   let right_low = binary_fast_shl_low(right_word, right_shift)
-  if left.negative == right.negative {
+  if left.negative == right_negative {
     let low = left_low + right_low
     let carry = if low < left_low { 1UL } else { 0UL }
     binary_fast_round_some(
@@ -152,7 +158,7 @@ fn binary_fast_add(left : BinFloat, right : BinFloat) -> BinFloat? {
     } else {
       let borrow = if right_low < left_low { 1UL } else { 0UL }
       binary_fast_round_some(
-        right.negative,
+        right_negative,
         right_high - left_high - borrow,
         right_low - left_low,
         target,

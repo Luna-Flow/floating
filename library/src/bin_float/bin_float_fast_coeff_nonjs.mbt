@@ -278,7 +278,13 @@ fn bin_window_negate(words : FixedArray[UInt64], count : Int32) -> Unit {
 /// (design page, "Finishing a wide result in place", and the note on far-apart
 /// operands). Returns `None` for an exact zero sum and outside the range of
 /// the coefficient paths; the general path then answers.
-fn binary_coeff_fast_add(left : BinFloat, right : BinFloat) -> BinFloat? {
+fn binary_coeff_fast_add_signed(
+  left : BinFloat,
+  right : BinFloat,
+  flip : Bool,
+) -> BinFloat? {
+  // `right` with its sign flipped when `flip` (a subtraction), without a new value
+  let right_negative = right.negative != flip
   guard binary_coeff_fast_operands_ok(left, right) else { return None }
   let precision = Int32::max(left.precision_, right.precision_)
   let left_bits = left.coefficient_.bit_length()
@@ -302,8 +308,8 @@ fn binary_coeff_fast_add(left : BinFloat, right : BinFloat) -> BinFloat? {
   }
   let x_exponent = if left_is_x { left.exponent2 } else { right.exponent2 }
   let y_exponent = if left_is_x { right.exponent2 } else { left.exponent2 }
-  let x_negative = if left_is_x { left.negative } else { right.negative }
-  let y_negative = if left_is_x { right.negative } else { left.negative }
+  let x_negative = if left_is_x { left.negative } else { right_negative }
+  let y_negative = if left_is_x { right_negative } else { left.negative }
   let top = Int32::max(left_top, right_top)
   let y_top = Int32::min(left_top, right_top)
   let base = Int32::max(
