@@ -115,12 +115,15 @@ class SamplingTests(unittest.TestCase):
 
 class CheckedInTableTests(unittest.TestCase):
     def test_tables_are_well_formed_cli_rows(self) -> None:
-        for name in table.TABLES:
+        for name in (*table.TABLES, *table.OPT_IN_TABLES):
             text = table.table_path(name).read_text(encoding="utf-8")
             self.assertIn("mpfr-decimal-random-v1", text.split("\n")[0])
             lines = table.data_lines(text)
-            self.assertGreater(len(lines), 5000, name)
-            self.assertEqual(len(lines), 19134)
+            if name == "pi_inverse":
+                self.assertGreater(len(lines), 5000, name)
+                self.assertEqual(len(lines), 19134)
+            else:
+                self.assertGreater(len(lines), 10, name)
             ids = [line.split()[0] for line in lines]
             self.assertEqual(len(set(ids)), len(ids), name)
             self.assertTrue(all(len(line.split()) == 13 for line in lines), name)
