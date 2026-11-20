@@ -128,12 +128,17 @@ fn bin_coeff_knuth_words_core(
     // dividend[offset ..= offset + n] -= trial * divisor
     let mut carry = 0UL
     let mut borrow = 0UL
+    let trial_low = trial & bin_coeff_limb_mask
+    let trial_high = trial >> 32
     for index in 0..<denominator_len {
-      let product_low = trial * divisor.unsafe_get(index)
-      let mut product_high = bin_coeff_mul_high(
-        trial,
-        divisor.unsafe_get(index),
-      )
+      let digit = divisor.unsafe_get(index)
+      let product_low = trial * digit
+      let digit_low = digit & bin_coeff_limb_mask
+      let digit_high = digit >> 32
+      let cross = trial_high * digit_low + ((trial_low * digit_low) >> 32)
+      let mut product_high = trial_high * digit_high +
+        (cross >> 32) +
+        ((trial_low * digit_high + (cross & bin_coeff_limb_mask)) >> 32)
       let low = product_low + carry
       if low < product_low {
         product_high += 1UL
@@ -175,4 +180,51 @@ fn bin_coeff_knuth_words_core(
     quotient.unsafe_set(offset, trial)
     offset -= 1
   }
+}
+
+///|
+/// The quotient of `dividend * 2^scale` by `divisor` and whether the division
+/// leaves a remainder, for a divisor of 2 to 95 limbs (Knuth's algorithm; a
+/// longer divisor, a one-limb divisor or a numerator below the divisor gives
+/// `None` and the caller uses the general division). The shift by `scale` and
+/// the normalising shift are one pass into the array that the quotient loop
+/// works on, and no remainder value is built: the remainder is zero exactly
+/// when the low limbs of the working array are.
+pub fn bin_coeff_div_scaled_quotient(
+  dividend : Coeff,
+  scale : Int32,
+  divisor : Coeff,
+) -> (Coeff, Bool)? {
+  let denominator_len = bin_coeff_word_len(divisor)
+  if denominator_len < 2 ||
+    denominator_len >= bin_coeff_bz_division_min_words ||
+    scale < 0 ||
+    dividend.is_zero() {
+    return None
+  }
+  let numerator_bits = dividend.bit_length() + scale
+  if numerator_bits < divisor.bit_length() {
+    return None
+  }
+  let numerator_len = (numerator_bits + 63) / 64
+  let normalization_shift = 64 -
+    bin_coeff_u64_bits(bin_coeff_word(divisor, denominator_len - 1))
+  let work = bin_coeff_words_shifted(
+    dividend,
+    scale + normalization_shift,
+    numerator_len + 1,
+  )
+  let normalized = bin_coeff_words_shifted(
+    divisor, normalization_shift, denominator_len,
+  )
+  let quotient_len = numerator_len - denominator_len + 1
+  let quotient = FixedArray::make(quotient_len, 0UL)
+  bin_coeff_knuth_words_core(
+    work, normalized, denominator_len, quotient, quotient_len,
+  )
+  let mut index = 0
+  while index < denominator_len && work.unsafe_get(index) == 0UL {
+    index += 1
+  }
+  Some((bin_coeff_from_words(quotient, quotient_len), index < denominator_len))
 }

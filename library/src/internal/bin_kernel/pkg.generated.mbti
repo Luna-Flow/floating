@@ -8,6 +8,8 @@ import {
 // Values
 pub fn bin_coeff_add_normalized_odd(Coeff, Coeff) -> (Coeff, Int32)
 
+pub fn bin_coeff_div_scaled_quotient(Coeff, Int32, Coeff) -> (Coeff, Bool)?
+
 pub fn bin_coeff_from_words(FixedArray[UInt64], Int32) -> Coeff
 
 pub fn bin_coeff_inline(UInt64, UInt64) -> Coeff

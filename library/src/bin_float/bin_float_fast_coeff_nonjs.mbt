@@ -15,7 +15,7 @@
 /// results are bit for bit those of the general path.
 
 ///|
-using @bin_kernel {bin_coeff_sqrt_rem_scaled}
+using @bin_kernel {bin_coeff_sqrt_rem_scaled, bin_coeff_div_scaled_quotient}
 
 ///|
 /// Coefficients wider than this, and precisions above it, are left to the
@@ -395,6 +395,18 @@ fn binary_coeff_fast_div(left : BinFloat, right : BinFloat) -> BinFloat? {
   // the quotient of `dividend * 2^scale / divisor` has at least
   // `precision + 2` bits
   let scale = Int32::max(0, precision + 2 + divisor_bits - dividend_bits)
+  if bin_coeff_div_scaled_quotient(dividend, scale, divisor)
+    is Some((quotient, inexact)) {
+    return Some(
+      binary_coeff_fast_finish(
+        left.negative != right.negative,
+        quotient,
+        left.exponent2 - right.exponent2 - scale,
+        precision,
+        inexact,
+      ),
+    )
+  }
   guard bin_coeff_short_div_rem_checked(dividend.shift_left(scale), divisor)
     is Some((quotient, remainder)) else {
     return None
