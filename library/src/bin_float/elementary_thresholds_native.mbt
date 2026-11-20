@@ -17,3 +17,9 @@ let binary_ln_burst_min_precision = 1152
 /// Working precision from which the bit-burst enclosure of `sin` and `cos`
 /// replaces the reduction and the series (measured crossover on this target).
 let binary_trig_burst_min_precision = 1536
+
+///|
+/// Working precision from which the outermost `ln` call starts with a Newton
+/// step on the table kernel (measured crossover on this target; the nested
+/// steps keep `binary_ln_burst_min_precision`).
+let binary_ln_entry_min_precision = 384

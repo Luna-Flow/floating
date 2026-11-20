@@ -197,3 +197,46 @@ test "ln results are identical with and without the Newton step" {
   }
   assert_true(compared > 150)
 }
+
+///|
+test "ln entry step on the table kernel contains the series enclosure" {
+  let mut checked = 0
+  let mut seed = 977UL
+  for work in [384, 448, 576, 704, 832, 1000, 1100, 1151, 1152, 1400, 2112] {
+    for _ in 0..<6 {
+      let value = burst_test_value(Int32::min(work, 1100), 1, false, seed)
+      seed += 1UL
+      match binary_ln_unit_bounds(value, work, entry=true) {
+        Some(bounds) => {
+          let reference = binary_ln_unit_bounds_series(value, work + 256).unwrap()
+          assert_true(burst_test_contains(bounds, reference))
+          checked += 1
+        }
+        None => ()
+      }
+    }
+  }
+  assert_true(checked > 60)
+}
+
+///|
+test "ln keeps its results when the Newton step starts at the entry threshold" {
+  let mut seed = 131UL
+  for precision in [300, 330, 450, 600, 900, 1000] {
+    for _ in 0..<4 {
+      let value = burst_test_value(precision, 1, false, seed)
+      seed += 1UL
+      let result = value.ln()
+      let work = precision + 320
+      let (low, high) = binary_ln_unit_bounds_series(value, work).unwrap()
+      assert_eq(
+        result,
+        low.with_precision(precision, RoundingMode::ToNearestEven),
+      )
+      assert_eq(
+        result,
+        high.with_precision(precision, RoundingMode::ToNearestEven),
+      )
+    }
+  }
+}

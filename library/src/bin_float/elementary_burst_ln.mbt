@@ -77,9 +77,15 @@ fn binary_ln_unit_burst_bounds(
   guard binary_ln_unit_bounds(rounded, start_precision) is Some((start, _)) else {
     return None
   }
-  guard binary_exp_bounds_burst(start, inner + 8) is Some((exp_low, exp_high)) else {
-    return None
+  // Below the nested-step threshold the argument is short enough for the
+  // table kernel; from it on the table kernel measured slower than the burst
+  // (see `binary_ln_burst_min_precision`), so `exp` is the burst enclosure.
+  let exp_bounds = if work_precision < binary_ln_burst_min_precision {
+    binary_exp_bounds(start, inner + 8)
+  } else {
+    binary_exp_bounds_burst(start, inner + 8)
   }
+  guard exp_bounds is Some((exp_low, exp_high)) else { return None }
   let precision = inner + 24
   let downward = BinaryContext::unbounded(
     precision,
