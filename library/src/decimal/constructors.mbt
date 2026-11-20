@@ -1,6 +1,13 @@
 ///|
 // Public constructors and binary/decimal conversion helpers.
 
+///|
+/// IEEE 754-2019 5.2: the member of the cohort asked for. A coefficient of at
+/// most `precision` digits keeps the exponent given (its cohort is not
+/// reduced, S7); a longer one is rounded to exactly `precision` digits. The
+/// value must be storable (`decimal_value_e_tiny`, `decimal_value_e_max`),
+/// checked after the rounding: `make` aborts otherwise, `try_make` returns the
+/// domain error.
 pub fn Decimal::make(
   coefficient : BigInt,
   exponent10 : Int32,
@@ -8,22 +15,50 @@ pub fn Decimal::make(
   mode~ : DecimalRoundingMode = DecimalRoundingMode::RoundTiesToEven,
 ) -> Decimal {
   let precision = decimal_check_precision("make", precision)
-  // IEEE 754-2019 5.2: the member of the cohort asked for. A coefficient of at
-  // most `precision` digits keeps the exponent given (its cohort is not
-  // reduced, S7); a longer one is rounded to exactly `precision` digits.
-  let negative = coefficient < bigint_zero()
-  let magnitude = coeff_from_bigint(abs_bigint(coefficient))
-  if magnitude.is_zero() {
-    return finite_with_exponent_repr(false, magnitude, exponent10, precision)
+  match
+    Decimal::make_checked(coefficient, exponent10, precision, mode.round()) {
+    Ok(value) => value
+    Err(message) => abort("Decimal::make: " + message)
   }
-  context_free_round_wide(
-    negative,
-    magnitude,
+}
+
+///|
+/// The `Result` form of `make`: the domain error of a value outside the stored
+/// range, an `Err` for a precision outside `1..=decimal_precision_max`.
+pub fn Decimal::try_make(
+  coefficient : BigInt,
+  exponent10 : Int32,
+  precision : Int32,
+  mode~ : DecimalRoundingMode = DecimalRoundingMode::RoundTiesToEven,
+) -> Result[Decimal, @def.ArithmeticError] {
+  if precision < 1 || precision > decimal_precision_max {
+    return Err(
+      @def.ArithmeticError::domain_error(
+        "Decimal::try_make: precision \{precision} must be within 1..=\{decimal_precision_max}",
+      ),
+    )
+  }
+  match
+    Decimal::make_checked(coefficient, exponent10, precision, mode.round()) {
+    Ok(value) => Ok(value)
+    Err(message) =>
+      Err(@def.ArithmeticError::domain_error("Decimal::try_make: " + message))
+  }
+}
+
+///|
+fn Decimal::make_checked(
+  coefficient : BigInt,
+  exponent10 : Int32,
+  precision : Int32,
+  mode : DecimalRound,
+) -> Result[Decimal, String] {
+  decimal_round_checked(
+    coefficient < bigint_zero(),
+    coeff_from_bigint(abs_bigint(coefficient)),
     exponent10.to_int64(),
     precision,
-    round_to_precision=true,
-    reduce=false,
-    mode=mode.round(),
+    mode,
   )
 }
 

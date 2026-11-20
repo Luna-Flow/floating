@@ -87,8 +87,8 @@ fn normalize_decimal_parts_gda_repr(
     return finite_with_exponent_repr(negative, dec_coeff_zero(), 0, precision)
   }
   if exponent10.to_int64() + (magnitude.digits10() - 1).to_int64() >=
-    2147483647L {
-    // At the top of `Int` a carry would wrap the exponent: round in `Int64`
+    decimal_value_e_max.to_int64() {
+    // At the top of the stored range a carry would leave it: round in `Int64`
     // and overflow as IEEE 754 §7.4 prescribes for the rounding mode.
     return context_free_round_wide(
       negative,

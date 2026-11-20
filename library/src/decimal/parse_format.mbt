@@ -421,19 +421,10 @@ pub fn Decimal::parse(
   match split_decimal_string_wide(src) {
     Some((negative, digits, exponent10)) => {
       let significant_digits = strip_leading_zero_digits(digits)
-      if significant_digits.length() == 0 {
-        // A zero keeps its value when its exponent is clamped to `Int`.
-        Ok(
-          finite_with_exponent_repr(
-            negative,
-            dec_coeff_zero(),
-            scaleb_int64_to_int(exponent10),
-            precision,
-          ),
-        )
+      let coeff = if significant_digits.length() == 0 {
+        dec_coeff_zero()
       } else {
-        let coeff = match
-          dec_coeff_from_decimal_digits_repr(significant_digits) {
+        match dec_coeff_from_decimal_digits_repr(significant_digits) {
           Some(value) => value
           None =>
             return Err(
@@ -442,20 +433,26 @@ pub fn Decimal::parse(
               ),
             )
         }
-        // IEEE 754 §5.12: a valid literal always converts. The digits are
-        // rounded once, to the precision and to the exponent range of a
-        // context-free value, so a literal too large for it is a signed
-        // infinity and one too small rounds toward a signed zero.
-        Ok(
-          context_free_round_wide(
-            negative,
-            coeff,
-            exponent10,
-            precision,
-            round_to_precision=true,
-            reduce=false,
-          ),
-        )
+      }
+      // IEEE 754 §5.12: a valid literal converts. The digits are rounded once
+      // to the precision; a value outside the stored range (after that
+      // rounding, a zero included) is refused, never replaced: read the text
+      // with `from_string_ctx` when a rounded value is wanted.
+      match
+        decimal_round_checked(
+          negative,
+          coeff,
+          exponent10,
+          precision,
+          DecimalRound::HalfEven,
+        ) {
+        Ok(value) => Ok(value)
+        Err(message) =>
+          Err(
+            @def.ArithmeticError::domain_error(
+              "Decimal::parse: " + message + ": " + src,
+            ),
+          )
       }
     }
     None =>

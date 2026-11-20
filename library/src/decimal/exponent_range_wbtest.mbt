@@ -24,58 +24,39 @@ test "literal exponents beyond 1.5e9 are not saturated" {
 }
 
 ///|
-test "context-free literals overflow and underflow instead of failing" {
-  // A valid numeric string always converts (IEEE 754 §5.12; GDA to-number):
-  // beyond the exponent range of a context-free value (adjusted exponent at
-  // most 2^31 - 1, stored exponent at least -2^31) it overflows to a signed
-  // infinity or rounds half-even to the smallest exponent.
-  inspect(Decimal::from_string("1e3000000000").unwrap(), content="inf")
-  inspect(Decimal::from_string("-1e3000000000").unwrap(), content="-inf")
-  inspect(Decimal::from_string("12e2147483647").unwrap(), content="inf")
+test "context-free literals outside the stored range are refused, not replaced" {
+  // A literal whose value, after the rounding to the precision, has an
+  // adjusted exponent above `decimal_value_e_max` or an exponent below
+  // `decimal_value_e_tiny` is an error: `from_string` is `None`, `parse` the
+  // domain error. `from_string_ctx` reads a text with a context when a rounded
+  // value is wanted.
+  for
+    text in [
+      "1e3000000000", "-1e3000000000", "12e2147483647", "1e2147483647", "1e99999999999999999999999999",
+      "1e-3000000000", "-1e-3000000000", "123e-2147483650", "15e-2147483649", "25e-2147483649",
+      "5e-2147483649", "10e-2147483649", "1e-2147483646", "0e2147483647", "0e-2147483646",
+      "-0e-3000000000",
+    ] {
+    assert_true(Decimal::from_string(text) is None, msg=text)
+    assert_true(Decimal::parse(text) is Err(_), msg=text)
+  }
+  // The rounding to the precision comes first: the exponent is checked after it.
   inspect(
-    Decimal::from_string("1e99999999999999999999999999").unwrap(),
-    content="inf",
+    Decimal::from_string("1249e-2147483646", precision=3).unwrap(),
+    content=(
+      #|1.25E-2147483643
+    ),
   )
   inspect(
-    Decimal::from_string("1e-3000000000").unwrap(),
-    content="0E-2147483648",
+    Decimal::from_string("12501e-2147483647", precision=3).unwrap(),
+    content=(
+      #|1.25E-2147483643
+    ),
   )
-  inspect(
-    Decimal::from_string("-1e-3000000000").unwrap(),
-    content="-0E-2147483648",
-  )
-  inspect(
-    Decimal::from_string("123e-2147483650").unwrap(),
-    content="1E-2147483648",
-  )
-  inspect(
-    Decimal::from_string("15e-2147483649").unwrap(),
-    content="2E-2147483648",
-  )
-  inspect(
-    Decimal::from_string("25e-2147483649").unwrap(),
-    content="2E-2147483648",
-  )
-  inspect(
-    Decimal::from_string("5e-2147483649").unwrap(),
-    content="0E-2147483648",
-  )
-  inspect(
-    Decimal::from_string("10e-2147483649").unwrap(),
-    content="1E-2147483648",
-  )
-  // A longer coefficient is rounded once, not first to the precision.
-  inspect(
-    Decimal::from_string("1249e-2147483650", precision=3).unwrap(),
-    content="1.2E-2147483647",
-  )
-  inspect(
-    Decimal::from_string("12501e-2147483651", precision=3).unwrap(),
-    content="1.3E-2147483647",
-  )
-  inspect(
-    Decimal::from_string("2500000001e-2147483657", precision=3).unwrap(),
-    content="3E-2147483648",
+  assert_true(Decimal::from_string("1249e-2147483646", precision=3) is Some(_))
+  assert_true(Decimal::from_string("1249e-2147483647", precision=3) is None)
+  assert_true(
+    Decimal::from_string("2500000001e-2147483657", precision=3) is None,
   )
 }
 
@@ -163,20 +144,18 @@ test "products and quotients of extreme exponents do not wrap" {
     ),
   )
   // A sum that rounds up past the largest adjusted exponent (2147483646) overflows.
-  let nines = d("9999999999999999999999999999999999E+2147483614")
-  inspect(nines + d("5E+2147483613"), content="inf")
-  inspect(-nines - d("5E+2147483613"), content="-inf")
+  let nines = d("9999999999999999999999999999999999E+2147483613")
+  inspect(nines + d("5E+2147483612"), content="inf")
+  inspect(-nines - d("5E+2147483612"), content="-inf")
   inspect(
-    nines + d("4E+2147483613"),
-    content=(
-      #|inf
-    ),
+    nines + d("4E+2147483612"),
+    content="9.999999999999999999999999999999999E+2147483646",
   )
   // Rounding at the top of the range overflows according to the mode.
-  let top = d("9999E+2147483644")
+  let top = d("9999E+2147483643")
   inspect(top.with_precision_round(2, DecimalRound::Up), content="inf")
   inspect(
     top.with_precision(2, DecimalRoundingMode::RoundTowardZero),
-    content="9.9E+2147483647",
+    content="9.9E+2147483646",
   )
 }

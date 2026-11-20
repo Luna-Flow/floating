@@ -41,7 +41,7 @@ fn coeff_trailing_decimal_zeros(coeff : DecCoeff) -> Int32 {
 fn decimal_check_precision(name : String, precision : Int32) -> Int32 {
   if precision < 1 || precision > decimal_precision_max {
     abort(
-      "Decimal::\{name}: precision must be within 1..=\{decimal_precision_max}",
+      "Decimal::\{name}: precision \{precision} must be within 1..=\{decimal_precision_max}",
     )
   }
   precision
@@ -583,10 +583,10 @@ fn context_free_round_wide(
   mode~ : DecimalRound = DecimalRound::HalfEven,
 ) -> Decimal {
   let precision = Int32::max(1, precision)
-  let min_exponent = -2147483648L
-  let max_exponent = 2147483647L
+  let min_exponent = decimal_value_e_tiny.to_int64()
+  let max_exponent = decimal_value_e_max.to_int64()
   if magnitude.is_zero() {
-    // A zero keeps its value when its exponent is clamped to `Int`.
+    // A zero keeps its value when its exponent is clamped to the stored range.
     return finite_with_exponent_repr(
       negative,
       magnitude,
@@ -649,7 +649,7 @@ fn context_free_round_wide(
       finite_with_exponent_repr(
         negative,
         dec_coeff_magnitude_sub_unit(dec_coeff_power10_repr(digits), 1),
-        2147483647 - digits + 1,
+        decimal_value_e_max - digits + 1,
         precision,
       )
     }
@@ -663,6 +663,91 @@ fn context_free_round_wide(
   } else {
     finite_with_exponent_repr(negative, rounded, target.to_int(), precision)
   }
+}
+
+///|
+/// The text of the refusal of a value outside the stored range: it names the
+/// offending exponent and both limits.
+fn decimal_value_range_message(
+  exponent10 : Int64,
+  adjusted : Int64,
+  rounded : (Int64, Int64)?,
+) -> String {
+  let base = "the value with exponent \{exponent10} (adjusted exponent \{adjusted}) is outside the range of a Decimal (smallest exponent \{decimal_value_e_tiny}, largest adjusted exponent \{decimal_value_e_max})"
+  match rounded {
+    Some((rounded_exponent, rounded_adjusted)) =>
+      base +
+      "; after the rounding to the precision its exponent is \{rounded_exponent} (adjusted exponent \{rounded_adjusted})"
+    None => base
+  }
+}
+
+///|
+/// The exact value `(-1)^negative * magnitude * 10^exponent10` as a stored
+/// value, or the reason why it is none: rounded once to `precision` digits when
+/// it is longer (a carry into `10^precision` leaves `10^(precision-1)` at the
+/// next exponent) and then checked against the stored range, so the check
+/// sees the exponent after the rounding. Nothing is replaced silently: a
+/// value below `decimal_value_e_tiny` or above `decimal_value_e_max` is an
+/// `Err`. A zero is treated like every finite value (its adjusted exponent is
+/// its exponent) and keeps the exponent given.
+fn decimal_round_checked(
+  negative : Bool,
+  magnitude : DecCoeff,
+  exponent10 : Int64,
+  precision : Int32,
+  mode : DecimalRound,
+) -> Result[Decimal, String] {
+  let min_exponent = decimal_value_e_tiny.to_int64()
+  let max_exponent = decimal_value_e_max.to_int64()
+  if magnitude.is_zero() {
+    return if exponent10 < min_exponent || exponent10 > max_exponent {
+      Err(decimal_value_range_message(exponent10, exponent10, None))
+    } else {
+      Ok(
+        finite_with_exponent_repr(
+          negative,
+          magnitude,
+          exponent10.to_int(),
+          precision,
+        ),
+      )
+    }
+  }
+  let digits = magnitude.digits10()
+  let given_adjusted = exponent10 + (digits - 1).to_int64()
+  let mut target = exponent10
+  let mut rounded = magnitude
+  if digits > precision {
+    let shift = (digits - precision).to_int64()
+    target = exponent10 + shift
+    rounded = round_positive_decimal_div_pow10_repr(
+        magnitude,
+        shift.to_int(),
+        negative,
+        mode,
+      ).0
+    if rounded.digits10() > precision {
+      rounded = dec_coeff_power10_repr(precision - 1)
+      target = target + 1L
+    }
+  }
+  if target < min_exponent ||
+    target + (rounded.digits10() - 1).to_int64() > max_exponent {
+    let rounded_adjusted = target + (rounded.digits10() - 1).to_int64()
+    return Err(
+      decimal_value_range_message(
+        exponent10,
+        given_adjusted,
+        if target == exponent10 {
+          None
+        } else {
+          Some((target, rounded_adjusted))
+        },
+      ),
+    )
+  }
+  Ok(finite_with_exponent_repr(negative, rounded, target.to_int(), precision))
 }
 
 ///|

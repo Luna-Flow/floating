@@ -17,6 +17,10 @@ pub let decimal_implementation_e_min : Int32
 
 pub let decimal_precision_max : Int32
 
+pub let decimal_value_e_max : Int32
+
+pub let decimal_value_e_tiny : Int32
+
 // Errors
 
 // Types and methods
@@ -216,6 +220,7 @@ pub fn Decimal::try_log10p1_ctx(Self, DecimalContext) -> Result[(Self, DecimalFl
 pub fn Decimal::try_log1p_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_log2_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_log2p1_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_make(@bigint.BigInt, Int32, Int32, mode? : DecimalRoundingMode) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::try_pow_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_pown_ctx(Self, Int32, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_powr_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
