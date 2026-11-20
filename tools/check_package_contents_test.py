@@ -26,6 +26,19 @@ class LibraryTests(unittest.TestCase):
             ["doc/x.md", "testdata/a", "tools/x.py", "justfile", "CONTRIBUTING.md", "moon.work", "tooling/moon.mod"],
         )
 
+    def test_generated_sources_are_rejected_in_every_module(self) -> None:
+        generated = [
+            "src/decimal/ieee_corpus_generated_00_wbtest.mbt",
+            "src/_generated_doc_examples/getting_started/README.mbt.md",
+            "src/.generated_dectest/a.mbt",
+            "src/consistency/_generated_dectest_wbtest.mbt",
+        ]
+        self.assertEqual(tool.generated_paths([*LIBRARY_NAMES, *generated]), generated)
+        for module, names, mod in (("library", LIBRARY_NAMES, GOOD_MOD), ("tools", TOOLS_NAMES, TOOLS_MOD)):
+            found = tool.violations(module, [*names, *generated], mod, "0.11.0")
+            self.assertEqual(len(found), 1, found)
+            self.assertIn("4 packed paths are generated sources", found[0])
+
     def test_a_missing_required_file_is_reported(self) -> None:
         self.assertEqual(
             tool.violations("library", ["moon.mod", "README.md", "LICENSE", "src/a.mbt"], GOOD_MOD),

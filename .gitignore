@@ -7,6 +7,11 @@ test.moon_db
 test.moon_db-shm
 test.moon_db-wal
 
+# Generated test sources: the IEEE corpus smoke writes them next to the decimal
+# tests for the length of one run, the manual examples write throwaway packages.
+# They are never tracked and never packed (tools/check_package_contents.py).
+library/src/decimal/ieee_corpus_generated_*_wbtest.mbt
+
 # Generated decTest artifacts
 library/src/.generated_dectest/
 library/src/.generated_dectest_runtime/
