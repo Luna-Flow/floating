@@ -158,6 +158,10 @@ pub fn add(
     Some(outcome) => return outcome
     None => ()
   }
+  match gda_fast_wide_sum(lhs, rhs, ctx, false) {
+    Some(outcome) => return outcome
+    None => ()
+  }
   match gda_add_plain(lhs, rhs, ctx, false) {
     Some(outcome) => return outcome
     None => ()
@@ -177,6 +181,10 @@ pub fn subtract(
     None => ()
   }
   match gda_fast_sum(lhs, rhs, ctx, true) {
+    Some(outcome) => return outcome
+    None => ()
+  }
+  match gda_fast_wide_sum(lhs, rhs, ctx, true) {
     Some(outcome) => return outcome
     None => ()
   }
