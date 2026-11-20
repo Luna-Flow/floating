@@ -983,7 +983,7 @@ def command_run(args: argparse.Namespace) -> int:
 # Quick check (floating side only, against the stored reference medians)
 # ---------------------------------------------------------------------------
 
-STORED_SUMMARY = SUMMARY_DIR / "summary-0.10.2.json"
+STORED_SUMMARY = SUMMARY_DIR / "summary-0.11.0.json"
 QUICK_TARGET_RATIO = 10.0
 
 

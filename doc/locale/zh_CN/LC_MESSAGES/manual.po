@@ -10139,8 +10139,8 @@ msgid "Repository conventions"
 msgstr "仓库约定"
 
 #: manual/conventions.md:3
-msgid "These rules add to the Luna-Flow documentation standard for `floating`; they never relax it. The manual describes the implementation on the current branch. The current version is **`0.11.0`**, the version in `library/moon.mod` and `tooling/moon.mod` (unreleased; the latest published release is `0.10.2`)."
-msgstr "这些规则是 `floating` 在 Luna-Flow 文档标准之上的补充，绝不会放宽该标准。本手册描述当前分支上的实现。当前版本为 **`0.11.0`**，即 `library/moon.mod` 和 `tooling/moon.mod` 中的版本（尚未发布；最新已发布版本为 `0.10.2`）。"
+msgid "These rules add to the Luna-Flow documentation standard for `floating`; they never relax it. The manual describes the implementation on the current branch. The current release is **`0.11.0`**, the version in `library/moon.mod` and `tooling/moon.mod`."
+msgstr "这些规则是 `floating` 在 Luna-Flow 文档标准之上的补充，绝不会放宽该标准。本手册描述当前分支上的实现。当前发布版本为 **`0.11.0`**，即 `library/moon.mod` 和 `tooling/moon.mod` 中的版本。"
 
 #: manual/conventions.md:7
 msgid "Chapters and guides"
@@ -18242,8 +18242,8 @@ msgid "floating"
 msgstr "floating"
 
 #: manual/index.md:3
-msgid "This manual documents the `main` branch of `Luna-Flow/floating`, which builds on the latest published release, `0.10.2`; the changes since that release are listed in the changelog."
-msgstr "本手册记录 `Luna-Flow/floating` 的 `main` 分支，它基于最新已发布版本 `0.10.2`；自该版本以来的变更列于变更日志中。"
+msgid "This manual documents the `main` branch of `Luna-Flow/floating`, which builds on the `0.11.0` release; the changes since that release are listed in the changelog."
+msgstr "本手册记录 `Luna-Flow/floating` 的 `main` 分支，它基于 `0.11.0` 版本；自该版本以来的变更列于变更日志中。"
 
 #: manual/index.md:7
 msgid "Overview"
@@ -22385,8 +22385,8 @@ msgid "Check the gaps quickly"
 msgstr "快速检查差距"
 
 #: manual/tutorial/bench/external.md:72
-msgid "`quick` times only `floating`, in two rounds with short batches, and divides by the MPFR and libmpdec medians stored in `testdata/external_baseline/summary-0.10.2.json` (`--stored` names another summary). Those reference timings do not change, so the C side is not built or run, and the runner does not wait for a quiet machine. The table shows the time of `floating`, the stored reference time, the ratio, the ratio of the stored run and a flag for ratios above `--target` (10 by default). The machine state of the stored run differs from today's, so read a single absolute ratio as a guide and decide a change by timing the old and the new build alternately on the same machine. The floating results are checked against an untimed pass of the same function, not against the C library; only `run` validates against MPFR and libmpdec."
-msgstr "`quick` 只对 `floating` 计时，用较短的批次跑两轮，并除以保存在 `testdata/external_baseline/summary-0.10.2.json` 中的 MPFR 与 libmpdec 中位数（`--stored` 可指定另一个汇总）。这些参考时间不会变化，所以不构建也不运行 C 一侧，运行器也不会等待机器安静。表中给出 `floating` 的时间、保存的参考时间、比值、保存的那次运行的比值，以及对超过 `--target`（默认 10）的比值的标记。保存的那次运行与今天的机器状态不同，因此单个绝对比值只能作参考；判断一项改动应在同一台机器上交替计时旧构建与新构建。`floating` 的结果与同一函数的一次不计时运行比对，而不是与 C 库比对；只有 `run` 才会与 MPFR 和 libmpdec 校验。"
+msgid "`quick` times only `floating`, in two rounds with short batches, and divides by the MPFR and libmpdec medians stored in `testdata/external_baseline/summary-0.11.0.json` (`--stored` names another summary). Those reference timings do not change, so the C side is not built or run, and the runner does not wait for a quiet machine. The table shows the time of `floating`, the stored reference time, the ratio, the ratio of the stored run and a flag for ratios above `--target` (10 by default). The machine state of the stored run differs from today's, so read a single absolute ratio as a guide and decide a change by timing the old and the new build alternately on the same machine. The floating results are checked against an untimed pass of the same function, not against the C library; only `run` validates against MPFR and libmpdec."
+msgstr "`quick` 只对 `floating` 计时，用较短的批次跑两轮，并除以保存在 `testdata/external_baseline/summary-0.11.0.json` 中的 MPFR 与 libmpdec 中位数（`--stored` 可指定另一个汇总）。这些参考时间不会变化，所以不构建也不运行 C 一侧，运行器也不会等待机器安静。表中给出 `floating` 的时间、保存的参考时间、比值、保存的那次运行的比值，以及对超过 `--target`（默认 10）的比值的标记。保存的那次运行与今天的机器状态不同，因此单个绝对比值只能作参考；判断一项改动应在同一台机器上交替计时旧构建与新构建。`floating` 的结果与同一函数的一次不计时运行比对，而不是与 C 库比对；只有 `run` 才会与 MPFR 和 libmpdec 校验。"
 
 #: manual/tutorial/bench/external.md:84
 msgid "Re-reduce and publish"

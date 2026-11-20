@@ -10119,7 +10119,7 @@ msgid "Repository conventions"
 msgstr ""
 
 #: manual/conventions.md:3
-msgid "These rules add to the Luna-Flow documentation standard for `floating`; they never relax it. The manual describes the implementation on the current branch. The current version is **`0.11.0`**, the version in `library/moon.mod` and `tooling/moon.mod` (unreleased; the latest published release is `0.10.2`)."
+msgid "These rules add to the Luna-Flow documentation standard for `floating`; they never relax it. The manual describes the implementation on the current branch. The current release is **`0.11.0`**, the version in `library/moon.mod` and `tooling/moon.mod`."
 msgstr ""
 
 #: manual/conventions.md:7
@@ -18123,7 +18123,7 @@ msgid "floating"
 msgstr ""
 
 #: manual/index.md:3
-msgid "This manual documents the `main` branch of `Luna-Flow/floating`, which builds on the latest published release, `0.10.2`; the changes since that release are listed in the changelog."
+msgid "This manual documents the `main` branch of `Luna-Flow/floating`, which builds on the `0.11.0` release; the changes since that release are listed in the changelog."
 msgstr ""
 
 #: manual/index.md:7
@@ -22266,7 +22266,7 @@ msgid "Check the gaps quickly"
 msgstr ""
 
 #: manual/tutorial/bench/external.md:72
-msgid "`quick` times only `floating`, in two rounds with short batches, and divides by the MPFR and libmpdec medians stored in `testdata/external_baseline/summary-0.10.2.json` (`--stored` names another summary). Those reference timings do not change, so the C side is not built or run, and the runner does not wait for a quiet machine. The table shows the time of `floating`, the stored reference time, the ratio, the ratio of the stored run and a flag for ratios above `--target` (10 by default). The machine state of the stored run differs from today's, so read a single absolute ratio as a guide and decide a change by timing the old and the new build alternately on the same machine. The floating results are checked against an untimed pass of the same function, not against the C library; only `run` validates against MPFR and libmpdec."
+msgid "`quick` times only `floating`, in two rounds with short batches, and divides by the MPFR and libmpdec medians stored in `testdata/external_baseline/summary-0.11.0.json` (`--stored` names another summary). Those reference timings do not change, so the C side is not built or run, and the runner does not wait for a quiet machine. The table shows the time of `floating`, the stored reference time, the ratio, the ratio of the stored run and a flag for ratios above `--target` (10 by default). The machine state of the stored run differs from today's, so read a single absolute ratio as a guide and decide a change by timing the old and the new build alternately on the same machine. The floating results are checked against an untimed pass of the same function, not against the C library; only `run` validates against MPFR and libmpdec."
 msgstr ""
 
 #: manual/tutorial/bench/external.md:84

@@ -9,6 +9,10 @@ module goes here (see `CONTRIBUTING.md`, "Release Checklist").
 
 ## Unreleased
 
+## 0.11.0 - 2026-11-21
+
+The first release of the changelog of the tools module: it has the version of the library, so 0.11.0 is the release in which the tools moved out of the library module ([#22](https://github.com/Luna-Flow/floating/issues/22), step A and B7), got their own README, manual standard and changelog, and follow the latest MoonBit toolchain (`moonc` >= 0.10.22).
+
 ### Fixed
 
 - The MoonBit toolchain of 2026-11-19 (`moon 0.1.20261119`, `moonc` 0.10.22) reports the import of `moonbitlang/async` in `tooling/src/differential/moon.pkg` as an unused package (error 0029 under `--deny-warn`), which turned CI red for `main` and every pull request from 2026-11-20 06:12 UTC ([#459](https://github.com/Luna-Flow/floating/issues/459)). `async fn main` needs no import any more; the import is removed. The module needs `moonc` ≥ 0.10.22. `supported_targets` (no wasm-gc) stays: the executable compiles for wasm-gc but the module fails to instantiate (`moon run --target wasm-gc`), and the `warnings = "-unused_package"` of the `bench/*` packages is still needed (removing it gives 14 errors on wasm-gc).

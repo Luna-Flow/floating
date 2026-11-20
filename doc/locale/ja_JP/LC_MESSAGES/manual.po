@@ -10139,8 +10139,8 @@ msgid "Repository conventions"
 msgstr "リポジトリの規約"
 
 #: manual/conventions.md:3
-msgid "These rules add to the Luna-Flow documentation standard for `floating`; they never relax it. The manual describes the implementation on the current branch. The current version is **`0.11.0`**, the version in `library/moon.mod` and `tooling/moon.mod` (unreleased; the latest published release is `0.10.2`)."
-msgstr "これらの規則は `floating` に対して Luna-Flow のドキュメント標準に追加されるものであり、標準を緩めることはありません。マニュアルは現在のブランチの実装を説明します。現在のバージョンは **`0.11.0`** で、これは `library/moon.mod` と `tooling/moon.mod` のバージョンです（未リリース。最新の公開リリースは `0.10.2` です）。"
+msgid "These rules add to the Luna-Flow documentation standard for `floating`; they never relax it. The manual describes the implementation on the current branch. The current release is **`0.11.0`**, the version in `library/moon.mod` and `tooling/moon.mod`."
+msgstr "これらの規則は `floating` に対して Luna-Flow のドキュメント標準に追加されるものであり、標準を緩めることはありません。マニュアルは現在のブランチの実装を説明します。現在のリリースは **`0.11.0`** で、これは `library/moon.mod` と `tooling/moon.mod` のバージョンです。"
 
 #: manual/conventions.md:7
 msgid "Chapters and guides"
@@ -18242,8 +18242,8 @@ msgid "floating"
 msgstr "floating"
 
 #: manual/index.md:3
-msgid "This manual documents the `main` branch of `Luna-Flow/floating`, which builds on the latest published release, `0.10.2`; the changes since that release are listed in the changelog."
-msgstr "このマニュアルは `Luna-Flow/floating` の `main` ブランチを説明しています。これは最新の公開リリース `0.10.2` を基にしており、そのリリース以降の変更は変更履歴に記載されています。"
+msgid "This manual documents the `main` branch of `Luna-Flow/floating`, which builds on the `0.11.0` release; the changes since that release are listed in the changelog."
+msgstr "このマニュアルは `Luna-Flow/floating` の `main` ブランチを説明しています。これは `0.11.0` リリースを基にしており、そのリリース以降の変更は変更履歴に記載されています。"
 
 #: manual/index.md:7
 msgid "Overview"
@@ -22385,8 +22385,8 @@ msgid "Check the gaps quickly"
 msgstr "差を手早く確認する"
 
 #: manual/tutorial/bench/external.md:72
-msgid "`quick` times only `floating`, in two rounds with short batches, and divides by the MPFR and libmpdec medians stored in `testdata/external_baseline/summary-0.10.2.json` (`--stored` names another summary). Those reference timings do not change, so the C side is not built or run, and the runner does not wait for a quiet machine. The table shows the time of `floating`, the stored reference time, the ratio, the ratio of the stored run and a flag for ratios above `--target` (10 by default). The machine state of the stored run differs from today's, so read a single absolute ratio as a guide and decide a change by timing the old and the new build alternately on the same machine. The floating results are checked against an untimed pass of the same function, not against the C library; only `run` validates against MPFR and libmpdec."
-msgstr "`quick` は `floating` だけを短いバッチで 2 ラウンド計測し、`testdata/external_baseline/summary-0.10.2.json` に保存された MPFR と libmpdec の中央値で割ります（`--stored` で別の要約を指定できます）。これらの参照時間は変わらないため、C 側はビルドも実行もせず、実行器は静かなマシンを待ちません。表には `floating` の時間、保存された参照時間、比、保存された実行の比、`--target`（既定は 10）を超える比の印が出ます。保存された実行とは今日のマシンの状態が違うので、単独の絶対的な比は目安として読み、変更の可否は同じマシンで古いビルドと新しいビルドを交互に計時して決めてください。`floating` の結果は、C ライブラリではなく同じ関数の計時しない 1 回の実行と照合します。MPFR と libmpdec に対して検証するのは `run` だけです。"
+msgid "`quick` times only `floating`, in two rounds with short batches, and divides by the MPFR and libmpdec medians stored in `testdata/external_baseline/summary-0.11.0.json` (`--stored` names another summary). Those reference timings do not change, so the C side is not built or run, and the runner does not wait for a quiet machine. The table shows the time of `floating`, the stored reference time, the ratio, the ratio of the stored run and a flag for ratios above `--target` (10 by default). The machine state of the stored run differs from today's, so read a single absolute ratio as a guide and decide a change by timing the old and the new build alternately on the same machine. The floating results are checked against an untimed pass of the same function, not against the C library; only `run` validates against MPFR and libmpdec."
+msgstr "`quick` は `floating` だけを短いバッチで 2 ラウンド計測し、`testdata/external_baseline/summary-0.11.0.json` に保存された MPFR と libmpdec の中央値で割ります（`--stored` で別の要約を指定できます）。これらの参照時間は変わらないため、C 側はビルドも実行もせず、実行器は静かなマシンを待ちません。表には `floating` の時間、保存された参照時間、比、保存された実行の比、`--target`（既定は 10）を超える比の印が出ます。保存された実行とは今日のマシンの状態が違うので、単独の絶対的な比は目安として読み、変更の可否は同じマシンで古いビルドと新しいビルドを交互に計時して決めてください。`floating` の結果は、C ライブラリではなく同じ関数の計時しない 1 回の実行と照合します。MPFR と libmpdec に対して検証するのは `run` だけです。"
 
 #: manual/tutorial/bench/external.md:84
 msgid "Re-reduce and publish"
