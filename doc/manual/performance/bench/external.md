@@ -407,6 +407,8 @@ on this page. The raw JSONL (about 12 MB) is not committed; its checksums and th
 checksums of the operand and reference files are in the published summary.
 `just bench external recompute SUMMARY SAMPLES` recomputes a summary from its
 samples; `just bench external compare OLD NEW` compares two summaries (net
-ratios when both are resolved, raw ratios otherwise); see the
+ratios when both are resolved, raw ratios otherwise) and `just bench external table OLD NEW...`
+writes the table of a run beside a release, as Markdown and CSV, one section per
+configuration; see the
 [tutorial](../../tutorial/bench/external.md) for the commands and the
 [API page](../../api/bench/external.md) for the benchmark cases.

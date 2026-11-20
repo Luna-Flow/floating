@@ -1075,6 +1075,181 @@ def render_changes(changes: Sequence[Change]) -> str:
 
 
 # ---------------------------------------------------------------------------
+# The comparison table of a release (pure)
+# ---------------------------------------------------------------------------
+
+TABLE_COLUMNS: tuple[str, ...] = (
+    "configuration", "case", "package", "size", "op", "reference_ns", "floating_ns", "old_ratio", "old_basis",
+    "new_ratio", "new_ci_low", "new_ci_high", "new_basis", "verdict", "quotient", "new_raw_ratio", "old_raw_ratio", "quotient_raw",
+)  # fmt: skip
+PACKAGES = {"binary": "bin_float", "decimal_gda": "decimal_gda"}
+TABLE_TOLERATED = "tolerated"  # the status of a case above the target and within the limit (a summary of the two-bound criterion)
+TABLE_STATUSES: tuple[str, ...] = (stats.MET, TABLE_TOLERATED, stats.NOT_MET, stats.UNRESOLVED, stats.NOT_APPLICABLE)
+
+
+@dataclass(frozen=True)
+class TableRow:
+    """One case of a new summary beside the same case of an old one."""
+
+    case: str
+    kind: str
+    op: str
+    size: int
+    reference_ns: float  # the net time of the reference side (v2), its median (v1)
+    floating_ns: float
+    old_ratio: float | None  # None when the old summary has no such case
+    old_basis: str  # "raw" (v1, and v2 cases that were unresolved) or "net"
+    new_ratio: float
+    new_ci_low: float
+    new_ci_high: float
+    new_basis: str  # "net", or "raw" for an unresolved case, whose raw ratio is shown instead
+    verdict: str  # a status of `stats`; an unresolved case adds its raw verdict
+    status: str
+    new_raw_ratio: float | None = None  # the ratio of medians of the new summary (every case of a v2 summary has it)
+    old_raw_ratio: float | None = None  # the ratio of medians of the old summary
+
+    @property
+    def quotient_raw(self) -> float | None:
+        """New raw ratio over old raw ratio: the same quantity on both sides (medians, the floor in both times). Empty when either is missing."""
+        if self.new_raw_ratio is None or self.old_raw_ratio is None or self.old_raw_ratio <= 0.0:
+            return None
+        return self.new_raw_ratio / self.old_raw_ratio
+
+    @property
+    def quotient(self) -> float | None:
+        """New over old: below 1 is faster. Not a like-for-like quotient when the bases differ (see the page)."""
+        return None if self.old_ratio is None or self.old_ratio <= 0.0 else self.new_ratio / self.old_ratio
+
+
+@dataclass(frozen=True)
+class TableSection:
+    """The table of one new summary: its configuration, its bounds, its rows and the counts of statuses."""
+
+    configuration: str
+    target: float | None
+    limit: float | None
+    rows: tuple[TableRow, ...]
+
+    @property
+    def counts(self) -> dict[str, int]:
+        return {status: sum(1 for row in self.rows if row.status == status) for status in TABLE_STATUSES}
+
+
+def _case_key(case_id: str) -> tuple[int, int, int, str]:
+    """Package, precision, operation: the order of the table."""
+    kind, op, size = case_id.split("/")
+    ops = BINARY_OPS if kind == "binary" else DECIMAL_OPS
+    return (list(PACKAGES).index(kind) if kind in PACKAGES else len(PACKAGES), int(size), ops.index(op) if op in ops else len(ops), case_id)
+
+
+def _raw_ratio(summary: dict[str, object], case: dict[str, Any]) -> float | None:
+    """The ratio of medians of a case: `ratio` in a v1 summary, `ratio_raw` in a v2 one."""
+    entry = case.get("ratio") if summary.get("schema") == SCHEMA_V1 else case.get("ratio_raw")
+    return None if entry is None else float(entry["ratio"])
+
+
+def _old_ratio(old: dict[str, object] | None, case_id: str) -> tuple[float | None, str, float | None]:
+    """The ratio of a case in the old summary, its basis, and its ratio of medians."""
+    if old is None:
+        return None, "raw", None
+    entry = next((c for c in old["cases"] if c["case"] == case_id), None)  # type: ignore[attr-defined]
+    if entry is None:
+        return None, "raw", None
+    ratio, basis = _ratio_of(old, entry)
+    return float(ratio["ratio"]), basis, _raw_ratio(old, entry)
+
+
+def table_section(old: dict[str, object] | None, new: dict[str, object]) -> TableSection:
+    """The rows of a v1 or v2 summary `new` (v2 normally) beside the ratio of the same case in `old` (v1 or v2)."""
+    v1 = new.get("schema") == SCHEMA_V1
+    protocol = {} if v1 else dict(new["protocol"])  # type: ignore[call-overload]
+    target = float(protocol["target_ratio"]) if "target_ratio" in protocol else None
+    limit = float(protocol.get("limit_ratio", protocol["target_ratio"])) if "target_ratio" in protocol else None
+    rows: list[TableRow] = []
+    new_cases: list[dict[str, Any]] = list(new["cases"])  # type: ignore[call-overload]
+    for case in sorted(new_cases, key=lambda c: _case_key(c["case"])):
+        kind, op, size = case["case"].split("/")
+        old_ratio, old_basis, old_raw = _old_ratio(old, case["case"])
+        if v1:
+            reference_ns, floating_ns = float(case["reference"]["median_ns"]), float(case["floating"]["median_ns"])
+            ratio, basis, status, verdict = case["ratio"], "raw", stats.NOT_APPLICABLE, stats.NOT_APPLICABLE
+        else:
+            reference_ns, floating_ns = float(case["reference"]["net"]["net_ns"]), float(case["floating"]["net"]["net_ns"])
+            status = str(case["status"])
+            if status == stats.UNRESOLVED:
+                ratio, basis = case["ratio_raw"], "raw"
+                verdict = f"{status} (raw {case['raw_status']})"
+            else:
+                ratio, basis, verdict = case["ratio_net"], "net", status
+        rows.append(
+            TableRow(case["case"], kind, op, int(size), reference_ns, floating_ns, old_ratio, old_basis,
+                     float(ratio["ratio"]), float(ratio["ci_low"]), float(ratio["ci_high"]), basis, verdict, status, _raw_ratio(new, case), old_raw)
+        )  # fmt: skip
+    return TableSection(summary_configuration(new), target, limit, tuple(rows))
+
+
+def _cell_ratio(row: TableRow) -> str:
+    return f"{format_ratio(row.new_ratio)} [{format_ratio(row.new_ci_low)}, {format_ratio(row.new_ci_high)}]" + (" (raw)" if row.new_basis == "raw" else "")
+
+
+def render_table_markdown(sections: Sequence[TableSection], old_name: str = "the old summary") -> str:
+    """One table per configuration with a line of counts; the quantities are explained in the text before the tables."""
+    out = [
+        f"The old ratio is the ratio of the median time of floating to that of the reference in {old_name}; a ratio marked (raw) "
+        "is a ratio of medians, the loop floor of the timing harness is in both times. The new ratio is the net ratio "
+        "(the floor subtracted on both sides) with its 95% interval, and the verdict is made on it. The two are not the same "
+        "quantity, so the quotient new / old is indicative, above all for the small cases whose time is mostly floor. "
+        "The column raw new / old divides the raw ratio of the new summary by the raw ratio of the old one: the same quantity "
+        "on both sides (medians, the floor in both times), so it is the like-for-like change since the old release; it is empty "
+        "when either raw ratio is missing. A new ratio marked (raw) is the raw ratio of an unresolved case. Below 1, a quotient "
+        "says floating got faster.",
+        "",
+    ]
+    for section in sections:
+        counts = section.counts
+        if section.target is None:
+            bounds = "no bounds (a v1 summary has no verdict)"
+        elif section.limit is not None and section.limit > section.target:
+            bounds = f"target {section.target:g}, limit {section.limit:g}"
+        else:
+            bounds = f"target {section.target:g}"
+        shown = [f"{counts[status]} {status.replace('_', ' ')}" for status in TABLE_STATUSES if counts[status] or status in (stats.MET, stats.NOT_MET)]
+        summary_line = f"{len(section.rows)} cases, no verdict." if section.target is None else ", ".join(shown) + f" of {len(section.rows)} cases."
+        out += [f"### Configuration `{section.configuration}` ({bounds})", "", f"**{summary_line}**", ""]
+        out += ["| case | reference | floating | old ratio | new ratio | verdict | new / old | raw new / old |", "| --- | ---: | ---: | ---: | --- | --- | ---: | ---: |"]
+        for row in section.rows:
+            old = "n/a" if row.old_ratio is None else f"{format_ratio(row.old_ratio)}" + (" (raw)" if row.old_basis == "raw" else "")
+            quotient = "n/a" if row.quotient is None else f"{row.quotient:.2f}"
+            raw_quotient = "n/a" if row.quotient_raw is None else f"{row.quotient_raw:.2f}"
+            out.append(f"| `{row.case}` | {format_ns(row.reference_ns)} | {format_ns(row.floating_ns)} | {old} | {_cell_ratio(row)} | {row.verdict} | {quotient} | {raw_quotient} |")
+        out.append("")
+    return "\n".join(out)
+
+
+def render_table_csv(sections: Sequence[TableSection]) -> str:
+    """All configurations in one CSV with the column `configuration`; numbers are plain floats (nanoseconds, ratios), empty when absent."""
+    import csv
+    import io
+
+    buffer = io.StringIO()
+    writer = csv.writer(buffer, lineterminator="\n")
+    writer.writerow(TABLE_COLUMNS)
+
+    def number(value: float | None) -> str:
+        return "" if value is None else repr(float(value))
+
+    for section in sections:
+        for row in section.rows:
+            writer.writerow(
+                [section.configuration, row.case, PACKAGES.get(row.kind, row.kind), row.size, row.op, number(row.reference_ns), number(row.floating_ns),
+                 number(row.old_ratio), row.old_basis if row.old_ratio is not None else "", number(row.new_ratio), number(row.new_ci_low),
+                 number(row.new_ci_high), row.new_basis, row.verdict, number(row.quotient), number(row.new_raw_ratio), number(row.old_raw_ratio),
+                 number(row.quotient_raw)]
+            )  # fmt: skip
+    return buffer.getvalue()
+
+
+# ---------------------------------------------------------------------------
 # The same case in two configurations (pure)
 # ---------------------------------------------------------------------------
 
@@ -1814,6 +1989,20 @@ def command_compare(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_table(args: argparse.Namespace) -> int:
+    """One table per new summary beside an old summary, as Markdown (stdout or `--markdown`) and CSV (`--csv`)."""
+    old = json.loads(args.old.read_text(encoding="utf-8"))
+    sections = [table_section(old, json.loads(path.read_text(encoding="utf-8"))) for path in args.new]
+    markdown = render_table_markdown(sections, args.old.name)
+    if args.markdown:
+        args.markdown.write_text(markdown, encoding="utf-8")
+    else:
+        print(markdown, end="")
+    if args.csv:
+        args.csv.write_text(render_table_csv(sections), encoding="utf-8")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -1896,6 +2085,13 @@ def build_parser() -> argparse.ArgumentParser:
     compare.add_argument("old", type=Path)
     compare.add_argument("new", type=Path)
     compare.set_defaults(func=command_compare)
+
+    table = sub.add_parser("table", help="a table of the new summaries beside an old one (Markdown, CSV), one section per configuration")
+    table.add_argument("old", type=Path, help="the summary to compare with (schema v1 or v2), e.g. testdata/external_baseline/summary-0.11.0.json")
+    table.add_argument("new", type=Path, nargs="+", help="the summaries of the new run, one per configuration")
+    table.add_argument("--markdown", type=Path, default=None, help="write the Markdown here instead of standard output")
+    table.add_argument("--csv", type=Path, default=None, help="also write all sections as one CSV")
+    table.set_defaults(func=command_table)
     return parser
 
 
