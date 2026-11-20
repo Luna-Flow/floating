@@ -387,6 +387,23 @@ fn quantize_finite_to_exponent(
   }
   let negative = value.negative
   if value.coefficient.is_zero() {
+    // A zero result above `e_max - precision + 1` cannot be encoded under
+    // `clamp`; with the opt-in fold it is folded down and flagged, as decNumber's
+    // `decFinalize` does (issue 234). Otherwise the exponent asked for is kept.
+    if ctx.clamp_fold && ctx.clamp && ctx.precision > 0 {
+      let top = etop(ctx, precision)
+      if target > top {
+        return (
+          finite_with_exponent_repr(
+            negative && ctx.extended,
+            dec_coeff_zero(),
+            top,
+            precision,
+          ),
+          { ..DecimalFlags::new(), clamped: true, },
+        )
+      }
+    }
     return (
       finite_with_exponent_repr(
         negative && ctx.extended,

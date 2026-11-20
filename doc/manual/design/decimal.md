@@ -571,6 +571,17 @@ Zeros have no digits to pad, so their exponent is simply clamped into
 $[E_{\text{tiny}}, E_{\text{top}}]$ (or $[E_{\text{tiny}}, e_{\max}]$ without
 `clamp`), raising `clamped` when it changes.
 
+A zero is the one result `quantize` can return above $E_{\text{top}}$: its
+target exponent only has to be at most $e_{\max}$ (a zero has one digit, so
+$e_{\max} - \operatorname{digits} + 1 = e_{\max}$ is the overflow bound of
+decNumber's `decQuantizeOp`), and the zero path then returns the exponent asked
+for without the finishing step. decNumber calls `decFinalize` there, whose
+clamp branch lowers the exponent to $E_{\text{top}}$ and raises `clamped`.
+IEEE 754-2019 §5.3.2 is silent on this, so the default stays as it was and the
+fold is opt-in: `DecimalContext::with_clamp_fold(true)` (off in every preset)
+applies it to a zero `quantize` and `rescale` result under `clamp`. Every other
+operation already folds a zero through `finalize_finite_ctx`.
+
 ### Flags as returned values
 
 **Problem.** IEEE 754 status flags are sticky process state in hardware; GDA

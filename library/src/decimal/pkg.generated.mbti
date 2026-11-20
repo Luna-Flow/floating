@@ -294,6 +294,7 @@ pub struct DecimalContext {
   // private fields
 }
 pub fn DecimalContext::clamp(Self) -> Bool
+pub fn DecimalContext::clamp_fold(Self) -> Bool
 pub fn DecimalContext::decimal128() -> Self
 pub fn DecimalContext::decimal32() -> Self
 pub fn DecimalContext::decimal64() -> Self
@@ -313,6 +314,7 @@ pub fn DecimalContext::refinement_limit(Self) -> Int32?
 pub fn DecimalContext::rounding(Self) -> @arithmetic.RoundingMode
 pub fn DecimalContext::tininess(Self) -> DecimalTininessDetection
 pub fn DecimalContext::try_new(precision? : Int32, rounding? : @arithmetic.RoundingMode, decimal_rounding? : DecimalRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, tininess? : DecimalTininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn DecimalContext::with_clamp_fold(Self, Bool) -> Self
 pub fn DecimalContext::with_refinement_limit(Self, Int32?) -> Self
 pub fn DecimalContext::with_rounding(Self, @arithmetic.RoundingMode) -> Self
 pub fn DecimalContext::with_tininess(Self, DecimalTininessDetection) -> Self

@@ -657,7 +657,7 @@ msgstr ""
 #: manual/api/ball_float_checked.md:313
 #: manual/api/bin_float.md:1489
 #: manual/api/bin_float_checked.md:492
-#: manual/api/decimal.md:1447
+#: manual/api/decimal.md:1482
 #: manual/api/frontend/mpfr_expr.md:156
 #: manual/design/decimal_gda.md:456
 msgid "Elementary functions"
@@ -953,7 +953,7 @@ msgid "These are the decorated hyperbolic functions and their inverses."
 msgstr ""
 
 #: manual/api/ball_float.md:1512
-#: manual/api/decimal.md:1855
+#: manual/api/decimal.md:1890
 #: manual/numeric_semantics.md:136
 msgid "Function"
 msgstr ""
@@ -1006,7 +1006,7 @@ msgstr ""
 #: manual/api/ball_float_checked.md:398
 #: manual/api/bin_float.md:2304
 #: manual/api/bin_float_checked.md:832
-#: manual/api/decimal.md:2085
+#: manual/api/decimal.md:2120
 #: manual/api/decimal_gda.md:1862
 #: manual/api/def.md:421
 #: manual/api/frontend/gda_expr.md:457
@@ -1092,7 +1092,7 @@ msgstr ""
 #: manual/api/cli/mpfr_expr_cli.md:73
 #: manual/api/cli/testfloat_expr_cli.md:76
 #: manual/api/consistency.md:49
-#: manual/api/decimal.md:2285
+#: manual/api/decimal.md:2320
 #: manual/api/decimal_checked.md:410
 #: manual/api/decimal_gda.md:2070
 #: manual/api/decimal_gda_checked.md:281
@@ -1114,7 +1114,7 @@ msgid "Complete public interface"
 msgstr ""
 
 #: manual/api/ball_float.md:1721
-#: manual/api/decimal.md:2287
+#: manual/api/decimal.md:2322
 #: manual/api/decimal_gda.md:2072
 #: manual/api/frontend/gda_expr.md:510
 #: manual/api/frontend/itl_expr.md:278
@@ -2161,7 +2161,7 @@ msgid "`e_min` and `e_max` return the bounds as given (`None` for an unbounded s
 msgstr ""
 
 #: manual/api/bin_float.md:755
-#: manual/api/decimal.md:530
+#: manual/api/decimal.md:565
 #: manual/api/decimal_gda.md:1331
 msgid "Read and set the refinement limit of the certified elementary functions."
 msgstr ""
@@ -2304,7 +2304,7 @@ msgid "`x.scaleb_ctx(n, ctx)` is $\\circ(x \\cdot 2^n)$ with the usual overflow 
 msgstr ""
 
 #: manual/api/bin_float.md:1073
-#: manual/api/decimal.md:1264
+#: manual/api/decimal.md:1299
 msgid "Comparison and ordering"
 msgstr ""
 
@@ -2414,7 +2414,7 @@ msgstr ""
 
 #: manual/api/bin_float.md:1324
 #: manual/api/decimal_gda.md:1740
-#: manual/design/decimal.md:663
+#: manual/design/decimal.md:674
 #: manual/tutorial/decimal_gda.md:346
 msgid "Interchange encodings"
 msgstr ""
@@ -2431,7 +2431,7 @@ msgstr ""
 #: manual/api/cli/mpfr_expr_cli.md:46
 #: manual/design/bin_float.md:77
 #: manual/design/decimal.md:87
-#: manual/design/decimal.md:669
+#: manual/design/decimal.md:680
 #: manual/design/frontend/mpfr_expr.md:48
 msgid "Format"
 msgstr ""
@@ -4174,564 +4174,572 @@ msgstr ""
 msgid "`precision` is 0 only for `exact()`."
 msgstr ""
 
+#: manual/api/decimal.md:530
+msgid "Read and set the opt-in fold-down of a zero `quantize` result."
+msgstr ""
+
 #: manual/api/decimal.md:537
+msgid "Under `clamp` the largest encodable exponent is $e_{\\max} - p + 1$ (369 in decimal64). IEEE 754-2019 §5.3.2 says nothing about a `quantize` result that is zero and whose requested exponent lies above it (the target must not exceed $e_{\\max}$): by default the exponent asked for is returned and nothing is raised, as before (`quantize(0, 1E+380)` is `0E+380`). With `with_clamp_fold(true)` that zero is folded down to $e_{\\max} - p + 1$ and `clamped` is raised (`0E+369`), which is what decNumber does (`decQuantizeOp` calls `decFinalize` for a zero operand). `rescale` shares the path. The option is `false` by default and in every preset, has no effect without `clamp`, does not change a non-zero result, and takes part in `==`; every other operation that produces such a zero already folds, with or without it."
+msgstr ""
+
+#: manual/api/decimal.md:572
 #: manual/api/decimal_gda.md:1338
 msgid "The certified elementary functions evaluate an enclosure at a growing working precision until both ends round alike. The limit is the number of evaluations: `Some(n)` allows `n` (a value below 1 counts as 1), the default is `Some(12)`, and `None` removes the count limit. When the limit is reached without a decision, `try_*_ctx` returns the `CertificationFailure` error with the refinement count, as before, and the plain and `*_ctx` forms return NaN with `invalid_operation`. With `None` the loop stops when the working precision passes a cap, the larger of 8,000,000 bits and 256 times the first working precision. The default changes no result. The field takes part in `==`: two contexts that differ only in the limit are different."
 msgstr ""
 
-#: manual/api/decimal.md:568
+#: manual/api/decimal.md:603
 msgid "These functions derive a context or describe its standard."
 msgstr ""
 
-#: manual/api/decimal.md:577
+#: manual/api/decimal.md:612
 msgid "`with_rounding` replaces both rounding fields (the decimal mode becomes `from_arithmetic(rounding)`). `with_tininess` replaces the tininess rule. `ieee754` returns the context unchanged: every context already follows the IEEE 754-2019 semantics of this package. `is754version2019` always returns `true`."
 msgstr ""
 
-#: manual/api/decimal.md:583
+#: manual/api/decimal.md:618
 msgid "Rounding modes and tininess"
 msgstr ""
 
-#: manual/api/decimal.md:587
+#: manual/api/decimal.md:622
 msgid "`DecimalRoundingMode` lists the eight decimal rounding directions."
 msgstr ""
 
-#: manual/api/decimal.md:602
+#: manual/api/decimal.md:637
 msgid "Let $x>0$ lie strictly between two adjacent representable coefficients $c$ and $c+1$ (in units of the last place). `Down` returns $c$, `Up` $c+1$; `Ceiling` and `Floor` round toward $+\\infty$ and $-\\infty$ (so they depend on the sign); `HalfEven`, `HalfUp` and `HalfDown` return the nearer of the two and break an exact tie toward the even coefficient, away from zero, and toward zero respectively; `ZeroFiveUp` returns $c+1$ when the last digit of $c$ is 0 or 5 and $c$ otherwise. IEEE 754 calls `HalfEven` roundTiesToEven, `HalfUp` roundTiesToAway, `Down` roundTowardZero, `Ceiling` roundTowardPositive and `Floor` roundTowardNegative."
 msgstr ""
 
-#: manual/api/decimal.md:614
+#: manual/api/decimal.md:649
 msgid "These functions map between decimal modes and the shared `@arithmetic.RoundingMode`."
 msgstr ""
 
-#: manual/api/decimal.md:630
+#: manual/api/decimal.md:665
 msgid "`to_arithmetic` returns `None` for `HalfUp`, `HalfDown` and `ZeroFiveUp`, which the shared enum does not have."
 msgstr ""
 
-#: manual/api/decimal.md:635
+#: manual/api/decimal.md:670
 msgid "`DecimalTininessDetection` chooses when a non-zero result is tiny."
 msgstr ""
 
-#: manual/api/decimal.md:644
+#: manual/api/decimal.md:679
 msgid "`BeforeRounding` (the default) calls a result tiny when the adjusted exponent of the exact result is below $e_{\\min}$, as IEEE 754-2019 §7.5 requires for decimal formats; `AfterRounding` uses the result rounded to $p$ digits with unbounded exponent and is a non-standard option for callers who want the binary-style rule. A tiny result raises `subnormal`, and also `underflow` when it is inexact."
 msgstr ""
 
-#: manual/api/decimal.md:651
+#: manual/api/decimal.md:686
 msgid "The two rules differ only for results just below $10^{e_{\\min}}$. With $p = 3$, $e_{\\min} = 0$ and `HalfEven`, `plus_ctx` of `0.9951` and of `0.99951` are both tiny by default and raise `underflow`, `subnormal` and `inexact`. Under `AfterRounding` only `0.9951` is (its rounding to three digits is $0.995 < 1$); `0.99951` rounds to $1.00$ and raises only `inexact`."
 msgstr ""
 
-#: manual/api/decimal.md:657
+#: manual/api/decimal.md:692
 msgid "Status flags"
 msgstr ""
 
-#: manual/api/decimal.md:661
+#: manual/api/decimal.md:696
 msgid "`DecimalFlags` records the conditions raised by one operation."
 msgstr ""
 
-#: manual/api/decimal.md:681
+#: manual/api/decimal.md:716
 #: manual/api/frontend/mpfr_expr.md:34
 msgid "Field"
 msgstr ""
 
-#: manual/api/decimal.md:681
+#: manual/api/decimal.md:716
 msgid "Raised when"
 msgstr ""
 
-#: manual/api/decimal.md:683
+#: manual/api/decimal.md:718
 msgid "the result differs from the exact result"
 msgstr ""
 
-#: manual/api/decimal.md:684
+#: manual/api/decimal.md:719
 msgid "digits were discarded, even if they were all zero"
 msgstr ""
 
-#: manual/api/decimal.md:685
+#: manual/api/decimal.md:720
 msgid "a subset-mode operand longer than $p$ lost non-zero digits"
 msgstr ""
 
-#: manual/api/decimal.md:686
+#: manual/api/decimal.md:721
 msgid "the operation is invalid (signaling NaN, $\\infty-\\infty$, $0\\times\\infty$, bad quantize, domain error)"
 msgstr ""
 
-#: manual/api/decimal.md:687
+#: manual/api/decimal.md:722
 msgid "an exact infinite result from finite operands ($x/0$, $\\ln 0$, $\\log_2 0$, $\\log_{10} 0$, $\\operatorname{logb} 0$, $\\operatorname{log1p}(-1)$, $\\operatorname{log2p1}(-1)$, $\\operatorname{log10p1}(-1)$, $\\operatorname{rSqrt}(\\pm 0)$, $\\operatorname{compound}(-1, n<0)$, $\\operatorname{powr}(\\pm 0, y<0)$)"
 msgstr ""
 
-#: manual/api/decimal.md:688
+#: manual/api/decimal.md:723
 msgid "the rounded result's adjusted exponent exceeds $e_{\\max}$"
 msgstr ""
 
-#: manual/api/decimal.md:689
+#: manual/api/decimal.md:724
 msgid "the result is tiny and inexact"
 msgstr ""
 
-#: manual/api/decimal.md:690
+#: manual/api/decimal.md:725
 msgid "the result is tiny"
 msgstr ""
 
-#: manual/api/decimal.md:691
+#: manual/api/decimal.md:726
 msgid "the exponent was changed to fit (fold-down or zero exponent clamp)"
 msgstr ""
 
-#: manual/api/decimal.md:692
+#: manual/api/decimal.md:727
 msgid "text could not be parsed"
 msgstr ""
 
-#: manual/api/decimal.md:693
+#: manual/api/decimal.md:728
 msgid "an integer quotient needs more than $p$ digits"
 msgstr ""
 
-#: manual/api/decimal.md:694
+#: manual/api/decimal.md:729
 msgid "$0/0$ (raised together with `invalid_operation`)"
 msgstr ""
 
-#: manual/api/decimal.md:695
+#: manual/api/decimal.md:730
 msgid "the context is outside the range an elementary function supports"
 msgstr ""
 
-#: manual/api/decimal.md:697
+#: manual/api/decimal.md:732
 msgid "Fields are public and read-only; the flags never accumulate implicitly."
 msgstr ""
 
-#: manual/api/decimal.md:701
+#: manual/api/decimal.md:736
 msgid "These functions create, merge and query flag sets."
 msgstr ""
 
-#: manual/api/decimal.md:710
+#: manual/api/decimal.md:745
 msgid "`new` has every flag clear. `combine` is the field-wise OR, so it is associative, commutative and idempotent with `new()` as identity. `contains` reads the flag named by a `DecimalSignal`. `has_error` is"
 msgstr ""
 
-#: manual/api/decimal.md:720
+#: manual/api/decimal.md:755
 msgid "the conditions for which IEEE 754 or General Decimal Arithmetic delivers no meaningful number (`conversion_syntax`, `division_impossible` and `division_undefined` are conditions of the Invalid operation signal). A failed `from_string_ctx`, which raises only `conversion_syntax`, therefore counts as an error. `has_error` does not include `overflow`, `underflow`, `inexact`, `rounded`, `subnormal`, `clamped` or `lost_digits`."
 msgstr ""
 
-#: manual/api/decimal.md:745
+#: manual/api/decimal.md:780
 msgid "`DecimalSignal` names one flag of `DecimalFlags`."
 msgstr ""
 
-#: manual/api/decimal.md:765
+#: manual/api/decimal.md:800
 msgid "Each constructor corresponds to the field of the same name."
 msgstr ""
 
-#: manual/api/decimal.md:767
+#: manual/api/decimal.md:802
 msgid "Plain operations without a context"
 msgstr ""
 
-#: manual/api/decimal.md:769
+#: manual/api/decimal.md:804
 msgid "The operators and the functions in this group take no context and return no flags. They are convenient for exact work and for generic code over the Luna-Flow algebra traits; use the [context arithmetic](#context-arithmetic) whenever rounding, the exponent range or flags matter."
 msgstr ""
 
-#: manual/api/decimal.md:776
+#: manual/api/decimal.md:811
 msgid "These functions are the arithmetic operators `+`, `-`, `*`, `/` and unary `-`."
 msgstr ""
 
-#: manual/api/decimal.md:786
+#: manual/api/decimal.md:821
 msgid "The result precision is $\\max(p_a, p_b)$ of the operand precision fields."
 msgstr ""
 
-#: manual/api/decimal.md:788
+#: manual/api/decimal.md:823
 msgid "`add`/`sub` compute the exact sum, round it half-even to that precision and return the reduced cohort member: `1.20 + 3.40` is `4.6`."
 msgstr ""
 
-#: manual/api/decimal.md:790
+#: manual/api/decimal.md:825
 msgid "`mul` returns the exact product with exponent $q_a+q_b$ and is **not rounded**: `1.25 * 2.50` is `3.1250`, and the coefficient may be longer than the precision field."
 msgstr ""
 
-#: manual/api/decimal.md:793
+#: manual/api/decimal.md:828
 msgid "`div` rounds the quotient half-even to that precision and reduces it. The quotient is computed with a few guard digits and rounded with `ZeroFiveUp` first, which makes the second rounding equal to one correct rounding: `15 / 83294` at five digits is `0.00018009`."
 msgstr ""
 
-#: manual/api/decimal.md:797
+#: manual/api/decimal.md:832
 msgid "`neg` flips the sign bit of every value, including zeros and NaNs."
 msgstr ""
 
-#: manual/api/decimal.md:799
+#: manual/api/decimal.md:834
 msgid "Special values: a NaN operand gives a quiet NaN with the first NaN's sign and payload; $\\infty-\\infty$, $0\\times\\infty$, $0/0$ and $\\infty/\\infty$ give a positive NaN; $x/0$ gives a signed infinity; finite$/\\infty$ gives $+0$. No context exponent range is applied, only the limits of the representation described under [`parse`](#decimalparse-from_string): a result whose adjusted exponent would exceed $2^{31}-1$ is a signed infinity, and a result that needs an exponent below $-2^{31}$ is rounded half-even to that exponent, possibly to a signed zero, as IEEE 754 §7.4 and §7.5 prescribe for that range (`1E+1500000000 * 1E+1500000000` is `inf`, `123E-2147483640 * 1E-10` is `1E-2147483648`). Exact cancellation gives $+0$; the sum of two negative zeros is $-0$."
 msgstr ""
 
-#: manual/api/decimal.md:826
+#: manual/api/decimal.md:861
 msgid "These functions change only the sign bit."
 msgstr ""
 
-#: manual/api/decimal.md:836
+#: manual/api/decimal.md:871
 msgid "They never round, never raise flags and keep exponent, payload and NaN kind. `abs` and `copy_abs` clear the sign, `copy_negate` flips it, `copy_sign` copies the sign bit of the second operand and `copy` returns its argument."
 msgstr ""
 
-#: manual/api/decimal.md:842
+#: manual/api/decimal.md:877
 msgid "These functions change the cohort member or the precision field."
 msgstr ""
 
-#: manual/api/decimal.md:850
+#: manual/api/decimal.md:885
 msgid "`normalized` returns the reduced member of the cohort (all trailing zeros removed, zero with exponent 0), rounding half-even to the value's own precision if the coefficient is longer. `trim` removes the trailing zeros of the fractional part: with a negative exponent it stops at exponent 0 (`12.300` becomes `12.3`, `1200` stays `1200`), with a positive exponent it removes all of them (`1.20E+3` becomes `1.2E+3`); a zero gets exponent 0. `with_precision(p, mode)` rounds a finite value to `p` digits with `mode`, reduces it and stores `p` as the precision field; special values only get the new precision field. All three are flag-free."
 msgstr ""
 
-#: manual/api/decimal.md:862
+#: manual/api/decimal.md:897
 msgid "These functions divide and take a square root, reporting domain errors as `Result`."
 msgstr ""
 
-#: manual/api/decimal.md:870
+#: manual/api/decimal.md:905
 msgid "`div_checked(a, b)` is `div_ctx` under `DecimalContext::new(precision=max(p_a, p_b))`; it returns `Err(division_by_zero)` for $x/0$ and `Err(domain_error)` for an invalid division. `sqrt` is `sqrt_ctx` under `DecimalContext::new(precision=p)` and returns `Err(domain_error)` for a negative non-zero operand. Both are correctly rounded half-even."
 msgstr ""
 
-#: manual/api/decimal.md:876
+#: manual/api/decimal.md:911
 msgid "Context arithmetic"
 msgstr ""
 
-#: manual/api/decimal.md:878
+#: manual/api/decimal.md:913
 msgid "Every function in this group takes a `DecimalContext` and returns `(result, flags)`. The result is the exact result rounded once to the context precision with the context's decimal rounding mode, then checked against the exponent range: overflow gives the rounding-mode-dependent result of the [design page](../design/decimal.md#overflow), a result whose exact magnitude is below $10^{e_{\\min}}$ is rounded directly to the subnormal grid $10^{E_{\\text{tiny}}}$ (a normal result is rounded only to $p$ digits, even when its exact exponent is below $E_{\\text{tiny}}$), and with `clamp` large exponents are folded down to $e_{\\max}-p+1$. When the exact result fits, the exponent is the *preferred exponent* of the operation, so cohorts carry information. NaN operands propagate as a quiet NaN with the first NaN's sign and payload (the payload is cut to its low $p$ digits, or $p-1$ with `clamp`, as in `from_string_ctx` and the interchange encodings); any signaling NaN operand raises `invalid_operation`."
 msgstr ""
 
-#: manual/api/decimal.md:893
+#: manual/api/decimal.md:928
 msgid "Near the underflow threshold the single rounding matters. In decimal32, the exact product `3.000001E-45 * 1.500001E-45` is $4.5000045000015\\cdot 10^{-90}$, a normal number whose exact exponent is below $E_{\\text{tiny}} = -101$; it is rounded once to seven digits, `4.500005E-90`. The quotient `1 / 1.9999999999998E+101` is $5.0000000000005\\cdot 10^{-102}$, which is subnormal; its guarded quotient is rounded once to the grid $10^{-101}$, giving `1E-101` with `inexact`, `underflow` and `subnormal`."
 msgstr ""
 
-#: manual/api/decimal.md:903
+#: manual/api/decimal.md:938
 msgid "These functions are the correctly rounded arithmetic operations."
 msgstr ""
 
-#: manual/api/decimal.md:912
+#: manual/api/decimal.md:947
 msgid "Preferred exponents: $\\min(q_a,q_b)$ for addition and subtraction, $q_a+q_b$ for multiplication, $q_a-q_b$ for division. An exact quotient is returned in the member closest to the preferred exponent; an inexact quotient has $p$ digits, except a subnormal one, which ends at $E_{\\text{tiny}}$. A zero sum is $+0$ except under `Floor` (where it is $-0$ if either operand is negative) or when both operands are $-0$."
 msgstr ""
 
-#: manual/api/decimal.md:919
+#: manual/api/decimal.md:954
 msgid "Special cases: $\\infty-\\infty$ and $0\\times\\infty$, $\\infty/\\infty$ give NaN with `invalid_operation`; $0/0$ gives NaN with `invalid_operation` and `division_undefined`; $x/0$ for finite non-zero $x$ gives a signed infinity with `division_by_zero`; finite$/\\infty$ gives a signed zero with exponent $E_{\\text{tiny}}$ and `clamped`."
 msgstr ""
 
-#: manual/api/decimal.md:925
+#: manual/api/decimal.md:960
 msgid "When one operand of `add_ctx` or `sub_ctx` lies entirely below every rounding boundary of the sum, an extended context does not align it digit by digit: it is replaced by a sticky unit of the same sign just below those boundaries, and the sum is rounded once (see the [design](../design/decimal.md#addition-with-a-far-smaller-addend)). With precision 7, `1598617.000000000001 - 0.000000000002` is `1598616` under `Down`, and `6.0000005E-73 + 1E-101` is `6.000001E-73` under `HalfEven`."
 msgstr ""
 
-#: manual/api/decimal.md:966
+#: manual/api/decimal.md:1001
 msgid "`fma_ctx` computes $x \\cdot y + z$ with a single rounding."
 msgstr ""
 
-#: manual/api/decimal.md:972
+#: manual/api/decimal.md:1007
 msgid "The product is formed exactly and added to `z` exactly; only the sum is rounded. $0\\times\\infty + z$ is invalid for a number or infinite `z`; when `z` is a quiet NaN the result is that NaN **without** `invalid_operation` (IEEE 754-2019 §7.2 leaves this case to the implementation). $\\infty \\cdot y + (-\\infty)$ with opposite signs is invalid. In a non-extended context the operation returns NaN with `invalid_operation`."
 msgstr ""
 
-#: manual/api/decimal.md:981
+#: manual/api/decimal.md:1016
 msgid "`sqrt_ctx` returns the correctly rounded square root."
 msgstr ""
 
-#: manual/api/decimal.md:987
+#: manual/api/decimal.md:1022
 msgid "The preferred exponent is $\\lfloor q/2 \\rfloor$. An exact root is returned in the member closest to it (`sqrt(0.0400)` is `0.20`); an inexact root has $p$ digits and raises `inexact` and `rounded`. $\\sqrt{-0} = -0$; a negative non-zero operand or $-\\infty$ gives NaN with `invalid_operation`; $\\sqrt{+\\infty}=+\\infty$."
 msgstr ""
 
-#: manual/api/decimal.md:995
+#: manual/api/decimal.md:1030
 msgid "These functions round one operand to the context."
 msgstr ""
 
-#: manual/api/decimal.md:1004
+#: manual/api/decimal.md:1039
 msgid "`apply_ctx` rounds a value to the context (precision, exponent range, clamping) and quiets a NaN, keeping the sign of zero. `plus_ctx` is $0 + x$ and `minus_ctx` is $0 - x$, the zero taking the operand's exponent, so a zero result follows the sign rule of addition: it is $-0$ under `Floor` (`TowardNegative`) when the zeros have opposite signs (`plus_ctx(-0)`, `minus_ctx(+0)`) and $+0$ otherwise. `abs_ctx` is $|x|$ rounded to the context; signaling NaNs raise `invalid_operation`."
 msgstr ""
 
-#: manual/api/decimal.md:1015
+#: manual/api/decimal.md:1050
 msgid "These functions compute integer quotients and remainders."
 msgstr ""
 
-#: manual/api/decimal.md:1024
+#: manual/api/decimal.md:1059
 msgid "`divide_integer(x, y)` is $\\operatorname{trunc}(x/y)$ with preferred exponent 0. When the integer quotient needs more than $p$ digits, the result is NaN with `division_impossible` and `invalid_operation`. `remainder(x, y)` is $x - y\\cdot\\operatorname{trunc}(x/y)$ with the sign of $x$ (General Decimal Arithmetic *remainder*). `remainder_near(x, y)` is $x - y\\cdot n$ where $n$ is $x/y$ rounded to the nearest integer, ties to even (IEEE 754 *remainder*); `remainder_ctx` is the same operation. The remainder is exact when it fits, with preferred exponent $\\min(q_x, q_y)$, and its sign is that of $x$ when it is zero. $x \\operatorname{rem} 0$ and $\\infty \\operatorname{rem} y$ are invalid ($0 \\operatorname{rem} 0$ also raises `division_undefined`); $x \\operatorname{rem} \\infty = x$."
 msgstr ""
 
-#: manual/api/decimal.md:1036
+#: manual/api/decimal.md:1071
 msgid "In an extended clamped context, a zero `divide_integer` result has its exponent folded down to $e_{\\max}-p+1$ when exponent 0 is larger; the `clamped` flag is raised. Its sign is still the sign of the exact quotient."
 msgstr ""
 
-#: manual/api/decimal.md:1040
+#: manual/api/decimal.md:1075
 msgid "For example, `-8.95E-6` divided by `2.40E-5` with precision 9, $e_{\\min}=0$, $e_{\\max}=1$ and clamp enabled gives `-0E-7` with `clamped`. Folding a zero's exponent preserves its value and does not raise `rounded` or `inexact`. `remainder` applies exponent bounds to its own result; clamping its internal integer quotient does not contribute a `clamped` flag to the remainder."
 msgstr ""
 
-#: manual/api/decimal.md:1058
+#: manual/api/decimal.md:1093
 msgid "Quantum and exponent operations"
 msgstr ""
 
-#: manual/api/decimal.md:1062
+#: manual/api/decimal.md:1097
 msgid "`quantize` rounds a value to the exponent of another value."
 msgstr ""
 
-#: manual/api/decimal.md:1068
+#: manual/api/decimal.md:1103
 msgid "`x.quantize(y, ctx)` returns the value of `x` with exponent $q_y$, rounding with the context's mode when digits are dropped (raising `rounded`, and `inexact` if they were non-zero). The result is NaN with `invalid_operation` when the target exponent is outside $[E_{\\text{tiny}}, e_{\\max}]$, when the resulting coefficient needs more than $p$ digits, when its adjusted exponent exceeds $e_{\\max}$, or when exactly one operand is infinite. Two infinities give the infinity of `x`. The quantum never silently changes to another value of the cohort range: if the result cannot have exponent $q_y$ the operation fails. The one exception is `clamp`: a target exponent in $(e_{\\max}-p+1,\\ e_{\\max}]$ is accepted and the result is then folded down to exponent $e_{\\max}-p+1$ with `clamped`, like every other result (`1E+384` quantized to `1E+384` in decimal64 is `1.000000000000000E+384`)."
 msgstr ""
 
-#: manual/api/decimal.md:1098
+#: manual/api/decimal.md:1133
 msgid "`rescale` sets the exponent to an integer operand."
 msgstr ""
 
-#: manual/api/decimal.md:1104
+#: manual/api/decimal.md:1139
 msgid "`x.rescale(n, ctx)` is `quantize` with target exponent $n$, where $n$ must be a finite integer; any other second operand gives NaN with `invalid_operation`."
 msgstr ""
 
-#: manual/api/decimal.md:1110
+#: manual/api/decimal.md:1145
 #: manual/api/decimal_gda.md:384
 msgid "`same_quantum` tests whether two values have the same exponent."
 msgstr ""
 
-#: manual/api/decimal.md:1116
+#: manual/api/decimal.md:1151
 msgid "Two finite values have the same quantum when their exponents are equal; two infinities, and two NaNs, always have the same quantum; any other pair does not. It never raises flags."
 msgstr ""
 
-#: manual/api/decimal.md:1122
+#: manual/api/decimal.md:1157
 msgid "These functions round a value to the context and remove trailing zeros."
 msgstr ""
 
-#: manual/api/decimal.md:1129
+#: manual/api/decimal.md:1164
 msgid "`reduce_ctx` applies the context, then removes trailing zeros while the exponent stays at most $e_{\\max}$ (with `clamp`, at most $e_{\\max}-p+1$). A zero becomes a zero with exponent 0 (keeping its sign in an extended context). `normalize_ctx` is the same operation under its older General Decimal Arithmetic name."
 msgstr ""
 
-#: manual/api/decimal.md:1137
+#: manual/api/decimal.md:1172
 msgid "These functions round to an integer."
 msgstr ""
 
-#: manual/api/decimal.md:1144
+#: manual/api/decimal.md:1179
 msgid "A finite value with exponent $\\ge 0$ is already an integer and is returned unchanged, even when it is longer than $p$ digits (a `clamp` context still folds its exponent down). A value with negative exponent is quantized to exponent 0 with the context's rounding mode, at a working precision of $\\max(p, \\text{its digit count})$, so the integral part is never rounded to $p$ digits: at precision 3, `12345.6` gives `12346`. `to_integral_exact` reports `rounded`/`inexact` when digits are dropped; `to_integral_value` returns the same value with those two flags cleared. In a subset context the operand is first rounded to $p$ digits, with `lost_digits`. Infinities are returned unchanged; NaNs are quieted."
 msgstr ""
 
-#: manual/api/decimal.md:1155
+#: manual/api/decimal.md:1190
 msgid "IEEE 754 §5.9 defines roundToIntegral for an operand in the context's format (at most $p$ digits), and for such an operand these are its results. An operand longer than $p$ digits is not a value of the format, so §5.9 does not cover it and the result is implementation-defined. The behaviour described above for such operands (a longer integer unchanged, a longer fraction quantized at $\\max(p, \\text{its digit count})$ digits) is the package's chosen, GDA-style behaviour: General Decimal Arithmetic rounds to an integral value at the operand's own precision."
 msgstr ""
 
-#: manual/api/decimal.md:1166
+#: manual/api/decimal.md:1201
 msgid "These functions are IEEE 754-2019 convertToInteger (§5.4.1, §5.8): they round a decimal to a fixed-width integer in the context's rounding direction."
 msgstr ""
 
-#: manual/api/decimal.md:1176
+#: manual/api/decimal.md:1211
 msgid "They have the shape of the `BinFloat` functions of the same names. The value is rounded to an integer with `decimal_rounding` of the context: ties to even, toward zero, toward positive, toward negative and ties to away are the five directions of §5.8, and half-down, away from zero and round-05up round as they round a decimal result. A NaN (quiet or signaling), an infinity and a value outside the range of the integer type give `None` with `invalid_operation`; the result of a negative value that rounds to zero is `0` (also for the unsigned types), and any other negative value is out of range for them. With `exact=true` (convertToIntegerExact) `inexact` is raised when rounding changed the value; without it the flags of a valid conversion are empty. The context's precision and exponent range play no part: an integer of any number of digits that fits the type is converted exactly. The conversion never forms the power of ten of the exponent: `1E+999999` is out of range and `1E-999999` rounds to zero (or to one unit in an away direction) at once."
 msgstr ""
 
-#: manual/api/decimal.md:1193
+#: manual/api/decimal.md:1228
 msgid "These functions scale by a power of ten and extract the adjusted exponent."
 msgstr ""
 
-#: manual/api/decimal.md:1200
+#: manual/api/decimal.md:1235
 msgid "`x.scaleb_ctx(n, ctx)` returns $x \\cdot 10^{n}$ by adding $n$ to the exponent; $n$ must be a finite integer with exponent 0 and $|n| \\le 2(e_{\\max}+p)$, otherwise the result is NaN with `invalid_operation`. The scaled value is then rounded once like every other context result: a coefficient longer than $p$ digits is rounded to $p$ digits (`12345678901234567890` scaled by 0 in decimal64 is `1.234567890123457E+19` with `inexact`), a subnormal result is rounded to $E_{\\text{tiny}}$, overflow gives the rounding-mode-dependent result with `overflow`, `inexact` and `rounded` (in decimal64 with `TowardZero`, `9E+384` scaled by 1 is `9.999999999999999E+384`), and `clamp` folds large exponents down. A zero keeps its sign and has its exponent clamped into the range with `clamped`: `0` scaled by 700 in decimal64 is `0E+369`."
 msgstr ""
 
-#: manual/api/decimal.md:1228
+#: manual/api/decimal.md:1263
 msgid "`logb_ctx(x)` returns the adjusted exponent $\\lfloor\\log_{10}|x|\\rfloor$ as an integer `Decimal`; $\\operatorname{logb}(\\pm 0) = -\\infty$ with `division_by_zero` and $\\operatorname{logb}(\\pm\\infty) = +\\infty$."
 msgstr ""
 
-#: manual/api/decimal.md:1232
+#: manual/api/decimal.md:1267
 msgid "Adjacent values"
 msgstr ""
 
-#: manual/api/decimal.md:1236
+#: manual/api/decimal.md:1271
 msgid "These functions return the neighbouring representable values."
 msgstr ""
 
-#: manual/api/decimal.md:1244
+#: manual/api/decimal.md:1279
 msgid "`next_plus` is the smallest representable value greater than `x` in the context and `next_minus` the largest smaller one, including subnormals down to $10^{E_{\\text{tiny}}}$ and the largest finite value $(10^{p}-1)\\,10^{e_{\\max}-p+1}$; `next_plus(-∞)` is the most negative finite value. They raise no flags for finite results. `next_toward(x, y)` moves `x` one step toward `y`; when $x = y$ it returns `x` with the sign of `y` for zeros. A step of `next_toward` that ends in an infinity raises `overflow`, `inexact` and `rounded`; one that ends subnormal or zero raises `underflow`, `subnormal`, `inexact` and `rounded`."
 msgstr ""
 
-#: manual/api/decimal.md:1268
+#: manual/api/decimal.md:1303
 msgid "`compare` is the numeric three-way comparison used by `Compare`, `==` and the comparison operators."
 msgstr ""
 
-#: manual/api/decimal.md:1275
+#: manual/api/decimal.md:1310
 msgid "`compare` returns $-1$, 0 or 1 by numeric value, with $-0 = +0$ and all members of a cohort equal. NaN has no numeric order, so that `Compare` stays a total preorder (sorting never aborts) every NaN compares equal to every other NaN and greater than every non-NaN. `equal` (`==`) agrees with `compare`: NaN `==` NaN is `true`. This is *not* IEEE equality; use [`compare_checked`](#decimalcompare_checked), `compare_ctx` or the NaN predicates when NaN must be unordered. The operator methods are listed under [trait implementations](#eq-and-compare-decimalequal-not_equal-op_lt-op_le-op_gt-op_ge)."
 msgstr ""
 
-#: manual/api/decimal.md:1299
+#: manual/api/decimal.md:1334
 msgid "`compare_checked` is the IEEE numeric comparison with NaN as an error."
 msgstr ""
 
-#: manual/api/decimal.md:1305
+#: manual/api/decimal.md:1340
 msgid "It returns `Ok(compare(x, y))` when neither operand is a NaN and `Err(unordered_comparison)` otherwise. It is the `CompareChecked` implementation."
 msgstr ""
 
-#: manual/api/decimal.md:1311
+#: manual/api/decimal.md:1346
 msgid "These functions are the General Decimal Arithmetic comparisons with a decimal result."
 msgstr ""
 
-#: manual/api/decimal.md:1319
+#: manual/api/decimal.md:1354
 msgid "They return the `Decimal` $-1$, 0 or 1, or a quiet NaN when an operand is a NaN. `compare_ctx` raises `invalid_operation` only for a signaling NaN; `compare_signal_ctx` raises it for every NaN (IEEE *signaling* comparison)."
 msgstr ""
 
-#: manual/api/decimal.md:1325
+#: manual/api/decimal.md:1360
 msgid "These functions implement the IEEE 754 `totalOrder` predicate as a three-way comparison."
 msgstr ""
 
-#: manual/api/decimal.md:1335
+#: manual/api/decimal.md:1370
 msgid "`compare_total` orders every representation:"
 msgstr ""
 
-#: manual/api/decimal.md:1342
+#: manual/api/decimal.md:1377
 msgid "Equal finite values are ordered by exponent: for positive values the smaller exponent comes first ($1.00 < 1.0$), for negative values the larger. NaNs of the same sign and kind are ordered by payload (reversed for negative NaNs). It returns 0 only for identical representations. `compare_total_magnitude` compares the absolute values. The `_ctx` forms first prepare the operands for the context (which only matters in subset mode) and return the flags of that step."
 msgstr ""
 
-#: manual/api/decimal.md:1352
+#: manual/api/decimal.md:1387
 msgid "These functions select by numeric order without a context."
 msgstr ""
 
-#: manual/api/decimal.md:1361
+#: manual/api/decimal.md:1396
 msgid "`min` and `max` return the other operand when exactly one is a quiet NaN, a quiet NaN when both are NaNs or either is signaling, and the receiver on ties. `clamp` returns `min` below the range, `max` above it, and the value (including a NaN) otherwise; it aborts when a bound is NaN or `min > max`. `clamp_checked` returns `Err(domain_error)` in those cases."
 msgstr ""
 
-#: manual/api/decimal.md:1369
+#: manual/api/decimal.md:1404
 msgid "These functions are the General Decimal Arithmetic `min`, `max`, `min-magnitude` and `max-magnitude` operations."
 msgstr ""
 
-#: manual/api/decimal.md:1379
+#: manual/api/decimal.md:1414
 msgid "A quiet NaN loses to a number; two NaNs give the first quieted; a signaling NaN gives a quiet NaN with `invalid_operation`. Numerically equal operands are separated by `compare_total` (so `min_ctx(1.0, 1.00)` is `1.00` and `min_ctx(-0, 0)` is `-0`). The selected value is rounded to the context."
 msgstr ""
 
-#: manual/api/decimal.md:1386
+#: manual/api/decimal.md:1421
 msgid "These twelve functions are the IEEE 754-2019 §9.6 minimum and maximum operations."
 msgstr ""
 
-#: manual/api/decimal.md:1404
+#: manual/api/decimal.md:1439
 msgid "`minimum_ctx` and `maximum_ctx` propagate NaN: any NaN operand gives a quiet NaN. The `_number_` variants return the number when exactly one operand is a NaN. In both, a signaling NaN raises `invalid_operation`. The magnitude variants compare $|x|$ and $|y|$ and fall back to the signed order on equal magnitudes. Ties are broken by `compare_total`, so $-0 < +0$. The `_mag_` spellings are aliases of the `_magnitude_` ones. The selected value is rounded to the context."
 msgstr ""
 
-#: manual/api/decimal.md:1412
+#: manual/api/decimal.md:1447
 msgid "Digit-wise operations"
 msgstr ""
 
-#: manual/api/decimal.md:1416
+#: manual/api/decimal.md:1451
 msgid "These functions apply Boolean operations digit by digit to *logical operands*."
 msgstr ""
 
-#: manual/api/decimal.md:1426
+#: manual/api/decimal.md:1461
 msgid "A logical operand is a finite, non-negative value with exponent 0 whose coefficient digits are all 0 or 1, such as `1101`. The operation works on the low $p$ digits and returns a logical operand; any other operand gives NaN with `invalid_operation`."
 msgstr ""
 
-#: manual/api/decimal.md:1433
+#: manual/api/decimal.md:1468
 msgid "These functions shift or rotate the coefficient digits."
 msgstr ""
 
-#: manual/api/decimal.md:1440
+#: manual/api/decimal.md:1475
 msgid "The coefficient is viewed as $p$ digits. A positive count $n$ moves digits toward the most significant end, a negative one toward the least significant end; `shift_ctx` fills with zeros and drops digits that leave the window, `rotate_ctx` wraps them around. The exponent and sign are kept. The count must be an integer with exponent 0 and $|n| \\le p$; otherwise the result is NaN with `invalid_operation`. Infinities are returned unchanged."
 msgstr ""
 
-#: manual/api/decimal.md:1449
+#: manual/api/decimal.md:1484
 msgid "Every elementary function exists in two forms. `f_ctx(x, ctx)` returns `(result, flags)`. `try_f_ctx(x, ctx)` returns the same pair in `Ok`, or `Err` with an `ArithmeticError` whose `certification_failure_detail()` names the operation, the target precision and the exhausted refinement budget when the result could not be certified. When certification fails, `f_ctx` returns NaN with `invalid_operation`."
 msgstr ""
 
-#: manual/api/decimal.md:1456
+#: manual/api/decimal.md:1491
 msgid "Transcendental results are **certified**: the implementation evaluates a guaranteed enclosure of $f(x)$ in [`ball_float`](ball_float.md) and accepts it only when both endpoints round to the same `Decimal` with the same flags (see the [design](../design/decimal.md#certified-elementary-functions)). Because rounding is monotone, an accepted result is the rounding of $f(x)$ in every `DecimalRoundingMode`. A list of exact cases (such as $\\log_{10} 1000 = 3$, $e^0 = 1$, $\\sin 0 = 0$, $\\operatorname{cospi}(1) = -1$, $\\operatorname{tanpi}(0.25) = 1$, $\\operatorname{acos}(1) = 0$, $x^{0.5}$, exact roots such as `rootn_ctx(0.008, 3)` $= 0.2$, exact norms such as `hypot_ctx(0.3, 0.4)` $= 0.5$) is decided before the enclosure loop and returned without `inexact`, and an exact binary result such as `power_ctx(4, 1.5)` $= 8$ is returned exactly by the enclosure itself. Integer powers are not certified: [`power_ctx`](#decimalpower_ctx-pown_ctx-rootn_ctx-hypot_ctx-try_power_ctx-try_pown_ctx-try_rootn_ctx-try_hypot_ctx) rounds them once, in an extended context, from the exact power or from refined directed bounds."
 msgstr ""
 
-#: manual/api/decimal.md:1472
+#: manual/api/decimal.md:1507
 msgid "[!NOTE] **Exact non-integral powers.** A power whose exact value is a representable decimal but not a binary fraction is decided in decimal before the loop, so in decimal64 `power_ctx(0.0016, 0.25)` is `0.2`, `power_ctx(32, 0.2)` is `2` and `power_ctx(0.04, 1.5)` is `0.008`, all without `inexact` and in every rounding mode. The exponent is reduced to $p/q$ in lowest terms — a decimal exponent is $c \\cdot 10^{-k}$, so $q$ keeps only the twos and fives the coefficient cannot cancel — and the power is exact exactly when $x$ itself is a perfect $q$-th power. The root is taken first and then raised to $p$, so the test never handles a number longer than the result. It finds every exact result of at most `precision + 1` digits, the only ones that sit on a rounding boundary; a longer exact value lies inside its rounding cell and the enclosure rounds it like any other."
 msgstr ""
 
-#: manual/api/decimal.md:1486
+#: manual/api/decimal.md:1521
 msgid "These operations return NaN with `invalid_context` when $p > 999\\,999$, $e_{\\max} > 999\\,999$ or $e_{\\min} < -999\\,999$, or when a finite operand has more than 999,999 digits or an adjusted exponent beyond about $\\pm 10^6$. Only `power_ctx` and `pown_ctx` handle their IEEE power cases before this restricted-context check. For example, `power_ctx(1, 1.1)` is exactly `1` even in a restricted context, while `ln_ctx(1)` and `exp_ctx(-inf)` still return `invalid_context`. Integral powers in `decimal` support counts through 999,999,999 for positive exponents and -1,999,999,997 for negative exponents; these are adopted decNumber implementation limits, not limits imposed by GDA 1.70. Integer powers above those counts use bounded square-and-multiply when the exact exponent coefficient has at most 4,096 decimal digits. Larger coefficients return NaN with `invalid_context` before expansion. Thus `power_ctx(2, 1E+9)` is finite under `DecimalContext::new()`, while `power_ctx(2, 1E+9999999)` is rejected within the fixed work bound. The same large input to `decimal_gda` still follows the GDA adapter's decNumber count limit and returns `invalid_operation`; IEEE `decimal` and `decimal_gda` therefore intentionally differ on this input. Non-integral powers such as `power_ctx(2, 1.5)` and `exp2_ctx(2)` remain subject to the elementary-function context limits."
 msgstr ""
 
-#: manual/api/decimal.md:1508
+#: manual/api/decimal.md:1543
 msgid "These functions are the General Decimal Arithmetic exponential and logarithms."
 msgstr ""
 
-#: manual/api/decimal.md:1520
+#: manual/api/decimal.md:1555
 msgid "$e^{\\pm 0} = 1$, $e^{+\\infty}=+\\infty$, $e^{-\\infty} = +0$. $\\ln$ and $\\log_{10}$ of $\\pm 0$ are $-\\infty$ with `division_by_zero` in an extended context, as IEEE 754-2019 §9.2.1 requires and as `log2_ctx`, `log1p_ctx` and `logb_ctx` do (General Decimal Arithmetic, which [`decimal_gda`](decimal_gda.md) follows, raises no condition here; a subset context makes a zero operand invalid); of $+\\infty$ are $+\\infty$, of a negative value or $-\\infty$ are NaN with `invalid_operation`; $\\ln 1 = 0$, and $\\log_{10}$ of a power of ten is the exact integer exponent. Arguments so large or small that $e^x$ certainly overflows or underflows are decided without evaluation."
 msgstr ""
 
-#: manual/api/decimal.md:1533
+#: manual/api/decimal.md:1568
 msgid "These functions compute powers, roots and the Euclidean norm."
 msgstr ""
 
-#: manual/api/decimal.md:1546
+#: manual/api/decimal.md:1581
 msgid "`power_ctx(x, y)` is the IEEE 754-2019 §9.2 power operation. A signaling NaN operand is quieted and raises `invalid_operation`; this takes precedence over the identities below. Otherwise $x^{\\pm 0}=1$, including for zero, infinity, and quiet NaN, and $\\operatorname{pow}(+1,y)=1$ for every $y$ (including quiet NaN). Also $\\operatorname{pow}(-1,\\pm\\infty)=1$. An infinite exponent classifies the magnitude of any other base: $|x|<1$ tends to zero for $+\\infty$ and infinity for $-\\infty$, while $|x|>1$ does the reverse; the sign of a negative base does not make these cases invalid."
 msgstr ""
 
-#: manual/api/decimal.md:1555
+#: manual/api/decimal.md:1590
 msgid "For a zero base and a negative integer exponent, an extended context returns the signed infinity selected by the zero sign and exponent parity, with `division_by_zero`: for example, $(-0)^{-1}=-\\infty$ and $(-0)^{-2}=+\\infty$. With `extended = false`, every negative integer power of zero instead returns NaN with `invalid_operation`, including $0^{-1}$ and $(-0)^{-1}$. In that subset context, positive integer powers preserve the zero sign by parity: $(-0)^3=-0$ and $(-0)^2=+0$. Zero raised to a negative non-integer exponent is positive infinity with `division_by_zero` in an extended context, and NaN with `invalid_operation` in a subset context."
 msgstr ""
 
-#: manual/api/decimal.md:1565
+#: manual/api/decimal.md:1600
 msgid "Integer powers within the bounded count use binary square-and-multiply. In extended contexts, an exact power is returned when it fits in $p$ digits; otherwise the result is correctly rounded. Subset contexts use $p + \\operatorname{digits}(|n|) + 1$ working digits with half-even intermediate rounding, then apply the reciprocal for a negative exponent. An integral exponent outside the bounded count is still supported: the magnitude is certified, and an odd power of a negative base swaps the directed rounding modes before restoring its sign. For large integer exponents the zero and infinity cases are decided from sign and parity without expanding the exponent: for example, `pown_ctx(-0, Int::max_value())` is `-0`, `pown_ctx(-0, Int::min_value())` is `+infinity` with `division_by_zero` in an extended context, and `pown_ctx(-infinity, Int::min_value())` is `+0`."
 msgstr ""
 
-#: manual/api/decimal.md:1578
+#: manual/api/decimal.md:1613
 msgid ""
 "For other integral exponents, an exact power is returned when it fits in $p$ digits and otherwise, in an extended context, the correctly rounded power (in decimal32, `power_ctx(3.339434, 3)` is `37.24077`; the exact cube is $37.240765000\\ldots$); $x^{0.5}$ is `sqrt_ctx`; positive non-integer powers are certified and negative bases with a finite non-integer exponent are invalid. These IEEE rules intentionally differ from [`decimal_gda`](decimal_gda.md), which follows General Decimal Arithmetic (including its `0^0` invalid result and the `powx2015` rounded `1.00` vector). `pown_ctx(x, n)` converts the integer `n` exactly, so $(-1)^{12345679}=-1$ at any precision. `rootn_ctx(x, n)` is $x^{1/n}$ for integer $n \\n"
 "e 0$; an even root of a negative value and $n=0$ are invalid, and $\\operatorname{rootn}(\\pm 0, n<0)$ is an infinity with `division_by_zero`; an exactly representable root is returned exactly (`rootn_ctx(0.008, 3)` is `0.2` with no flag). `hypot_ctx(x, y)` is $\\sqrt{x^2+y^2}$; it is $+\\infty$ if either operand is infinite, even if the other is a quiet NaN, and an exactly representable norm, or $|x|$ when $y$ is zero, is returned exactly (`hypot_ctx(0.3, 0.4)` is `0.5`)."
 msgstr ""
 
-#: manual/api/decimal.md:1596
+#: manual/api/decimal.md:1631
 msgid "An integral exponent with more than 4,096 digits is never expanded: for a base other than $\\pm 1$, $\\pm 0$ and $\\pm\\infty$ the magnitude $|y \\ln |x||$ is far beyond any context, so the result is the overflow or the underflow value of the rounding direction (decided from the base being above or below 1 and the sign of the exponent) and the sign follows the parity, not an `invalid_context`. A base with more than about 4,000 fractional digits, whose bound is not met, still returns NaN with `invalid_context`."
 msgstr ""
 
-#: manual/api/decimal.md:1604
+#: manual/api/decimal.md:1639
 msgid "An exact result is delivered in the cohort member whose exponent is closest to the preferred exponent of IEEE 754-2019 §9.2.2, $\\lfloor y\\,q_x \\rfloor$ for `power_ctx(x, y)` and $\\lfloor n\\,q_x \\rfloor$ for `pown_ctx(x, n)`, where $q_x$ is the exponent of the stored `x` and the member must fit in $p$ digits: in decimal64 `pown_ctx(1.00, 2)` is `1.0000`, `pown_ctx(-1.0, 3)` is `-1.000`, `pown_ctx(-1E+5, 5)` is `-1E+25` (exact, no flags), `power_ctx(1.00, 1.5)` is `1.000` and `power_ctx(4.00, 1.5)` is `8.000`; a negative exponent cannot reach a preferred exponent above the value (`pown_ctx(1.00, -2)` is `1`). The standard defines no preferred exponent when $y$ is infinite or a NaN, so `power_ctx(1.00, Infinity)` stays `1`. `decimal_gda` follows the repeated multiplication exponent of General Decimal Arithmetic instead."
 msgstr ""
 
-#: manual/api/decimal.md:1618
+#: manual/api/decimal.md:1653
 msgid "These functions are the IEEE 754-2019 §9.2 exponentials and logarithms in bases 2 and 10 and near zero. Each has the `f_ctx`/`try_f_ctx` shape described at the start of this section."
 msgstr ""
 
-#: manual/api/decimal.md:1636
+#: manual/api/decimal.md:1671
 msgid "These functions are $2^x - 1$, $10^x - 1$, $\\log_2(1 + x)$ and $\\log_{10}(1 + x)$ of IEEE 754-2019 §9.2, without the cancellation of `exp2(x) - 1` or the rounding of `1 + x` near zero. Each has the `f_ctx`/`try_f_ctx` shape described at the start of this section."
 msgstr ""
 
-#: manual/api/decimal.md:1652
+#: manual/api/decimal.md:1687
 msgid "The special values are those of §9.2.1: $f(\\pm 0) = \\pm 0$ and $f(+\\infty) = +\\infty$ for all four, $-\\infty \\mapsto -1$ for `exp2m1` and `exp10m1`, and $-1 \\mapsto -\\infty$ with `division_by_zero` for `log2p1` and `log10p1`, whose domain is $[-1, +\\infty]$ ($x < -1$, including $-\\infty$, is invalid). The exact results are $2^n - 1$ and $10^n - 1$ for an integer $n$ and the integer $k$ when $1 + x = 2^k$ (resp. $10^k$); they take the preferred exponent 0 of §9.2.2, so in decimal64 `exp2m1_ctx(4)` is `15`, `exp2m1_ctx(-1)` is `-0.5`, `exp10m1_ctx(-2.0)` is `-0.99` and `log2p1_ctx(-0.50)` is `-1`, all without flags. A context that cannot hold an exact value rounds it with its flags: `log2p1_ctx(32767)` at precision 1 is `2E+1` (a midpoint, `inexact`). $\\operatorname{log2p1}(1) = 1$ exactly and $\\operatorname{log10p1}(1) = \\log_{10} 2$; the rule $f(1) = +0$ of §9.2.1 belongs to `log`, `log2` and `log10` only. Results below the subnormal range are rounded, never replaced, so they keep the sign of $x$ (`exp2m1_ctx(-1E-500)` is `-0E-398` in decimal64, `-1E-398` when rounding toward $-\\infty$), and the same restricted contexts as `exp_ctx` give `invalid_context`."
 msgstr ""
 
-#: manual/api/decimal.md:1687
+#: manual/api/decimal.md:1722
 msgid "These functions are $1/\\sqrt{x}$, $(1 + x)^n$ for an `Int32` $n$ and $x^y = e^{y \\ln x}$ of IEEE 754-2019 §9.2. Each has the `f_ctx`/`try_f_ctx` shape described at the start of this section."
 msgstr ""
 
-#: manual/api/decimal.md:1700
+#: manual/api/decimal.md:1735
 msgid "`rsqrt_ctx` has domain $[0, +\\infty]$: $x < 0$ (including $-\\infty$) is invalid, $\\pm 0 \\mapsto \\pm\\infty$ with `division_by_zero` and $+\\infty \\mapsto +0$ (§9.2.1). It is exact when $x = 2^{2i}5^{2j}$; the result then takes the preferred exponent $-\\lfloor Q(x)/2 \\rfloor$ of §9.2.2, so in decimal64 `rsqrt_ctx(4.00)` is `0.5`, `rsqrt_ctx(1E+2)` is `0.1` and `rsqrt_ctx(1E-400)` is `1E+200`."
 msgstr ""
 
-#: manual/api/decimal.md:1707
+#: manual/api/decimal.md:1742
 msgid "`compound_ctx(x, n)` follows the list of §9.2.1: `compound(x, 0)` is 1 for $x \\ge -1$ and for a quiet NaN, $x < -1$ (also with $n = 0$) is invalid, `compound(-1, n)` is $+\\infty$ with `division_by_zero` for $n < 0$ and $+0$ for $n > 0$, `compound(±0, n)` is 1 and `compound(+∞, n)` is $+\\infty$ or $+0$. An exact result takes the preferred exponent $\\lfloor n \\min(0, Q(x)) \\rfloor$: `compound_ctx(0.10, 2)` is `1.2100` and `compound_ctx(0.00, 3)` is `1.000000`. Every $n$ of `Int32` is accepted, also the `Int32` minimum $-2^{31}$."
 msgstr ""
 
-#: manual/api/decimal.md:1716
+#: manual/api/decimal.md:1751
 msgid "`powr_ctx(x, y)` is $e^{y \\ln x}$, so its domain excludes $x < 0$ (invalid, also when $y$ is a quiet NaN). It returns a quiet NaN for a NaN operand even when $y = \\pm 0$, is invalid for `powr(±0, ±0)`, `powr(+∞, ±0)` and `powr(1, ±∞)`, and otherwise equals `power_ctx` on $|x|$ (results, cohort and flags): `powr_ctx(-0, 3)` is `0` where `power_ctx` gives `-0`."
 msgstr ""
 
-#: manual/api/decimal.md:1740
+#: manual/api/decimal.md:1775
 msgid "These functions are the trigonometric functions of $x$ and of $\\pi x$. Each has the `f_ctx`/`try_f_ctx` shape described at the start of this section."
 msgstr ""
 
-#: manual/api/decimal.md:1760
+#: manual/api/decimal.md:1795
 msgid "These functions are the inverse trigonometric functions; `atan2(y, x)` is the angle of the point $(x, y)$. Each has the `f_ctx`/`try_f_ctx` shape described at the start of this section."
 msgstr ""
 
-#: manual/api/decimal.md:1776
+#: manual/api/decimal.md:1811
 msgid "These functions are the inverse circular functions measured in half-revolutions of IEEE 754-2019 §9.2: $\\operatorname{asin}(x)/\\pi$, $\\operatorname{acos}(x)/\\pi$, $\\operatorname{atan}(x)/\\pi$ and $\\operatorname{atan2}(y, x)/\\pi$, the last with the ordinate as the receiver (`y.atan2pi_ctx(x, ctx)`) and a result in $[-1, 1]$. Each has the `f_ctx`/`try_f_ctx` shape described at the start of this section."
 msgstr ""
 
-#: manual/api/decimal.md:1794
+#: manual/api/decimal.md:1829
 msgid "The exact results are those of §9.2.1, and by Niven's theorem the only ones: $\\operatorname{asinPi}(\\pm 0) = \\pm 0$, $\\operatorname{asinPi}(\\pm 1) = \\pm\\tfrac12$; $\\operatorname{acosPi}(1) = +0$, $\\operatorname{acosPi}(-1) = 1$, $\\operatorname{acosPi}(\\pm 0) = \\tfrac12$; $\\operatorname{atanPi}(\\pm 0) = \\pm 0$, $\\operatorname{atanPi}(\\pm 1) = \\pm\\tfrac14$ and $\\operatorname{atanPi}(\\pm\\infty) = \\pm\\tfrac12$ with no exception; and the eleven rows of $\\operatorname{atan2Pi}$ for zero and infinite operands ($\\pm 0$, $\\pm 1$, $\\pm\\tfrac12$, $\\pm\\tfrac14$, $\\pm\\tfrac34$, the sign bit of a zero abscissa choosing the half-plane), plus $\\lvert y\\rvert = \\lvert x\\rvert$ for finite nonzero operands ($\\pm\\tfrac14$ for $x > 0$, $\\pm\\tfrac34$ for $x < 0$). None of them signals an exception. They take the preferred exponent 0 of §9.2.2, so $\\tfrac12$ is `0.5`, $\\tfrac14$ is `0.25`, $\\tfrac34$ is `0.75` and 1 is `1`, whatever the cohort of the operand; a context too narrow for the constant (precision 1) rounds it, with `inexact`. $\\lvert x\\rvert > 1$ (also $\\pm\\infty$) is invalid for `asinpi` and `acospi`. Every other result is inexact ($\\operatorname{asinPi}(\\pm\\tfrac12) = \\pm\\tfrac16$ and $\\operatorname{acosPi}(\\pm\\tfrac12) = \\tfrac13, \\tfrac23$ are not terminating decimals) and is correctly rounded, also next to the representable values $\\pm\\tfrac12$ and $\\pm 1$ that `atanpi` (large $\\lvert x\\rvert$), `acospi` (tiny $\\lvert x\\rvert$) and `atan2pi` (extreme ratios) approach from one side: there the rounding mode decides between the anchor and its neighbour."
 msgstr ""
 
-#: manual/api/decimal.md:1835
+#: manual/api/decimal.md:1870
 msgid "These functions are the hyperbolic functions and their inverses. Each has the `f_ctx`/`try_f_ctx` shape described at the start of this section."
 msgstr ""
 
-#: manual/api/decimal.md:1853
+#: manual/api/decimal.md:1888
 msgid "Domain and special values of the functions in these four groups:"
 msgstr ""
 
-#: manual/api/decimal.md:1855
+#: manual/api/decimal.md:1890
 msgid "Invalid (`invalid_operation`)"
 msgstr ""
 
-#: manual/api/decimal.md:1855
+#: manual/api/decimal.md:1890
 msgid "Pole (`division_by_zero`)"
 msgstr ""
 
-#: manual/api/decimal.md:1855
+#: manual/api/decimal.md:1890
 msgid "Exact cases"
 msgstr ""
 
-#: manual/api/decimal.md:1857
-#: manual/api/decimal.md:1858
-#: manual/api/decimal.md:1861
-#: manual/api/decimal.md:1866
-#: manual/api/decimal.md:1868
-#: manual/api/decimal.md:1869
-#: manual/api/decimal.md:1870
-#: manual/api/decimal.md:1871
-#: manual/api/decimal.md:1872
-#: manual/api/decimal.md:1873
-#: manual/api/decimal.md:1874
-#: manual/api/decimal.md:1875
-#: manual/api/decimal.md:1876
+#: manual/api/decimal.md:1892
+#: manual/api/decimal.md:1893
+#: manual/api/decimal.md:1896
+#: manual/api/decimal.md:1901
+#: manual/api/decimal.md:1903
+#: manual/api/decimal.md:1904
+#: manual/api/decimal.md:1905
+#: manual/api/decimal.md:1906
+#: manual/api/decimal.md:1907
+#: manual/api/decimal.md:1908
+#: manual/api/decimal.md:1909
+#: manual/api/decimal.md:1910
+#: manual/api/decimal.md:1911
 #: manual/api/decimal_gda.md:462
 #: manual/api/decimal_gda.md:463
 #: manual/api/decimal_gda.md:464
@@ -4753,215 +4761,215 @@ msgstr ""
 msgid "none"
 msgstr ""
 
-#: manual/api/decimal.md:1857
+#: manual/api/decimal.md:1892
 msgid "integer argument (via `power_ctx`), $\\pm 0 \\mapsto 1$, $-\\infty \\mapsto 0$, $+\\infty \\mapsto +\\infty$"
 msgstr ""
 
-#: manual/api/decimal.md:1859
+#: manual/api/decimal.md:1894
 msgid "$1 \\mapsto 0$, exact binary powers ($0.125 \\mapsto -3$), $+\\infty \\mapsto +\\infty$"
 msgstr ""
 
-#: manual/api/decimal.md:1861
+#: manual/api/decimal.md:1896
 msgid "$\\pm0 \\mapsto \\pm0$, $-\\infty\\mapsto -1$, $+\\infty \\mapsto +\\infty$; integer $n$: $2^n - 1$, $10^n - 1$"
 msgstr ""
 
-#: manual/api/decimal.md:1862
+#: manual/api/decimal.md:1897
 msgid "$\\pm0 \\mapsto \\pm0$, $+\\infty \\mapsto +\\infty$; $1 + x = 2^k$ (resp. $10^k$) $\\mapsto k$"
 msgstr ""
 
-#: manual/api/decimal.md:1864
+#: manual/api/decimal.md:1899
 msgid "$x<-1$, $-\\infty$ (any $n$)"
 msgstr ""
 
-#: manual/api/decimal.md:1864
+#: manual/api/decimal.md:1899
 msgid "$(x, 0) \\mapsto 1$, $(\\pm 0, n) \\mapsto 1$, $(-1, n>0) \\mapsto +0$, $+\\infty$ by the sign of $n$; exact powers"
 msgstr ""
 
-#: manual/api/decimal.md:1865
+#: manual/api/decimal.md:1900
 msgid "NaN for a NaN operand; otherwise as `power` on $\\lvert x\\rvert$"
 msgstr ""
 
-#: manual/api/decimal.md:1867
+#: manual/api/decimal.md:1902
 msgid "`tanpi` at odd half-integers"
 msgstr ""
 
-#: manual/api/decimal.md:1867
+#: manual/api/decimal.md:1902
 msgid "integers, half-integers, `tanpi` at odd quarter-integers ($\\pm 1$)"
 msgstr ""
 
-#: manual/api/decimal.md:1869
+#: manual/api/decimal.md:1904
 msgid "$\\pm 0$; $\\pm\\infty \\mapsto \\pm\\pi/2$ (certified)"
 msgstr ""
 
-#: manual/api/decimal.md:1871
+#: manual/api/decimal.md:1906
 msgid "$\\pm 0$; $\\pm 1 \\mapsto \\pm\\tfrac14$; $\\pm\\infty \\mapsto \\pm\\tfrac12$ (no exception)"
 msgstr ""
 
-#: manual/api/decimal.md:1872
+#: manual/api/decimal.md:1907
 msgid "the eleven exact rows of §9.2.1 ($\\pm0$, $\\pm\\tfrac12$, $\\pm\\tfrac14$, $\\pm\\tfrac34$, $\\pm1$) and $\\lvert y\\rvert = \\lvert x\\rvert \\mapsto \\pm\\tfrac14, \\pm\\tfrac34$"
 msgstr ""
 
-#: manual/api/decimal.md:1873
+#: manual/api/decimal.md:1908
 msgid "$\\operatorname{atan2}(\\pm 0, x) = \\pm 0$ for $x = +0$ or $x > 0$, and $\\operatorname{atan2}(y, +\\infty) = \\pm 0$ for finite $y$; any other zero or infinite operand gives $\\pi$, $\\pi/2$, $\\pi/4$ or $3\\pi/4$ with the sign of $y$ (certified)"
 msgstr ""
 
-#: manual/api/decimal.md:1874
+#: manual/api/decimal.md:1909
 msgid "$\\pm0\\mapsto\\pm0$; $\\sinh$, $\\operatorname{asinh}$ keep $\\pm\\infty$; $\\tanh(\\pm\\infty)=\\pm 1$"
 msgstr ""
 
-#: manual/api/decimal.md:1879
+#: manual/api/decimal.md:1914
 msgid "These special values follow IEEE 754-2019 §9.2.1: in decimal64, `atan2_ctx(-0, -1)` is `-3.141592653589793`, `atan2_ctx(+∞, -∞)` is `2.356194490192345` and `atan2_ctx(-1, +∞)` is `-0`."
 msgstr ""
 
-#: manual/api/decimal.md:1924
+#: manual/api/decimal.md:1959
 msgid "Interchange formats"
 msgstr ""
 
-#: manual/api/decimal.md:1928
+#: manual/api/decimal.md:1963
 msgid "`DecimalInterchangeFormat` names an IEEE 754 decimal interchange format."
 msgstr ""
 
-#: manual/api/decimal.md:1939
+#: manual/api/decimal.md:1974
 msgid "`context` returns `DecimalContext::decimal32()`, `decimal64()` or `decimal128()`."
 msgstr ""
 
-#: manual/api/decimal.md:1944
+#: manual/api/decimal.md:1979
 msgid "`DecimalInterchangeEncoding` selects how the coefficient is stored in the bits."
 msgstr ""
 
-#: manual/api/decimal.md:1954
+#: manual/api/decimal.md:1989
 msgid "`DPD` stores three decimal digits per 10-bit declet (densely packed decimal); `BID` stores the coefficient as a binary integer. Functions without an encoding argument use `DPD`."
 msgstr ""
 
-#: manual/api/decimal.md:1960
+#: manual/api/decimal.md:1995
 msgid "These functions encode a value as interchange bits written in hexadecimal."
 msgstr ""
 
-#: manual/api/decimal.md:1967
+#: manual/api/decimal.md:2002
 msgid "A finite value is first rounded with `apply_ctx` under the format context (its flags are returned), then encoded with its exponent, so the cohort is kept when it fits. The text is `#` followed by 8, 16 or 32 upper-case hex digits. Infinities are encoded with a zero trailing field. A NaN keeps its sign and kind, and its payload is stored as an integer, independent of the value's precision field (IEEE 754-2019 §3.5.2): a payload below $10^{p-1}$ is kept, and a longer one keeps its low $p-1$ digits, in DPD and BID alike. `NaN7` encodes to decimal64 as `#7C00000000000007` in both encodings."
 msgstr ""
 
-#: manual/api/decimal.md:1978
+#: manual/api/decimal.md:2013
 msgid "These functions decode interchange hex text."
 msgstr ""
 
-#: manual/api/decimal.md:1985
+#: manual/api/decimal.md:2020
 msgid "The text may have surrounding ASCII whitespace and a leading `#`; it must have exactly the format's number of hex digits, in either case, or the result is `None`. Decoding is exact and keeps the exponent, the sign of zero, the NaN kind and payload. Non-canonical encodings decode to the value IEEE 754 assigns them: a non-canonical DPD declet to its digits, a BID coefficient $\\ge 10^{p}$ to zero, an out-of-range BID NaN payload to 0; the unused exponent bits of infinities and NaNs are ignored. The result has the format's precision."
 msgstr ""
 
-#: manual/api/decimal.md:2013
+#: manual/api/decimal.md:2048
 msgid "`DecimalInterchange` holds the raw bits of one interchange value together with its format and encoding."
 msgstr ""
 
-#: manual/api/decimal.md:2025
+#: manual/api/decimal.md:2060
 msgid "Use it when bits must be inspected or kept exactly, including non-canonical encodings that a `Decimal` cannot represent. `format` and `encoding` return the format and encoding the bits belong to; `to_hex` writes `#` and the full-width upper-case hex digits."
 msgstr ""
 
-#: manual/api/decimal.md:2032
+#: manual/api/decimal.md:2067
 msgid "These functions build an interchange value from text or from a `Decimal`."
 msgstr ""
 
-#: manual/api/decimal.md:2041
+#: manual/api/decimal.md:2076
 msgid "`from_hex` stores the bits unchanged (text rules as in `from_interchange_hex`). `from_decimal` encodes like `to_interchange_hex` and returns the same flags. The forms without an encoding use `DPD`."
 msgstr ""
 
-#: manual/api/decimal.md:2047
+#: manual/api/decimal.md:2082
 msgid "These functions decode the stored bits."
 msgstr ""
 
-#: manual/api/decimal.md:2054
+#: manual/api/decimal.md:2089
 msgid "Decoding is exact. `to_decimal_ctx` additionally raises `subnormal` when the decoded value is subnormal in the format; no other flag is possible."
 msgstr ""
 
-#: manual/api/decimal.md:2059
+#: manual/api/decimal.md:2094
 msgid "These functions canonicalize the stored bits."
 msgstr ""
 
-#: manual/api/decimal.md:2066
+#: manual/api/decimal.md:2101
 msgid "`canonical` decodes and re-encodes in the same format and encoding: every non-canonical declet, out-of-range BID coefficient, and unused bit of an infinity or NaN is replaced by its canonical form. It is idempotent. `is_canonical` tests whether the bits are already canonical."
 msgstr ""
 
-#: manual/api/decimal.md:2073
+#: manual/api/decimal.md:2108
 msgid "These functions change only the sign bit of the stored bits."
 msgstr ""
 
-#: manual/api/decimal.md:2082
+#: manual/api/decimal.md:2117
 msgid "All other bits, canonical or not, are kept. `copy_sign` aborts unless both operands have the same format and encoding."
 msgstr ""
 
-#: manual/api/decimal.md:2087
+#: manual/api/decimal.md:2122
 msgid "`Zero`, `One`, `Ring` and the operator traits"
 msgstr ""
 
-#: manual/api/decimal.md:2089
+#: manual/api/decimal.md:2124
 msgid "`Decimal` implements the Luna-Flow algebra traits through the plain operators."
 msgstr ""
 
-#: manual/api/decimal.md:2111
+#: manual/api/decimal.md:2146
 msgid "`Zero::zero()` and `One::one()` are `Decimal::zero()` and `Decimal::one()`. The ring laws hold exactly for `+`, `-` and `*` as long as no sum is rounded (sums whose exact coefficient fits the operand precision, and every product, since `*` is exact); a rounded sum is only approximately associative. `from_natural` and `from_integer` are documented under [construction](#decimalfrom_natural-from_integer)."
 msgstr ""
 
-#: manual/api/decimal.md:2120
+#: manual/api/decimal.md:2155
 msgid "`Decimal` implements the `floating` scalar trait."
 msgstr ""
 
-#: manual/api/decimal.md:2126
+#: manual/api/decimal.md:2161
 msgid "The trait methods are `classify`, `sign`, `precision`, `with_precision` and `normalized`, all documented above; `@def.is_finite(x)` and the other generic predicates work through it."
 msgstr ""
 
-#: manual/api/decimal.md:2132
+#: manual/api/decimal.md:2167
 msgid "These functions implement the contextual traits of [`Luna-Flow/arithmetic`](https://lunaflow.cn/en/arithmetic/)."
 msgstr ""
 
-#: manual/api/decimal.md:2159
+#: manual/api/decimal.md:2194
 msgid "Each `*_contextual` operation converts the context with `DecimalContext::from_arithmetic_context`, runs the matching `*_ctx` operation and returns `Err(division_by_zero)` when `division_by_zero` was raised, `Err(domain_error)` when another `has_error` flag was raised, and otherwise `Ok` with diagnostics `inexact`, `rounded`, `overflow`, `underflow`, `subnormal` and `clamped` copied from the flags. Because the converted context has the default exponent range, `exp_contextual` without explicit `e_min`/`e_max` fails with `domain_error` (`invalid_context`)."
 msgstr ""
 
-#: manual/api/decimal.md:2168
+#: manual/api/decimal.md:2203
 msgid "`zero_contextual` and `one_contextual` have the context precision. `epsilon_contextual` is $10^{1-p}$ (`next_plus(1) - 1`). `min_normal_contextual` is $10^{e_{\\min}}$ (default $e_{\\min} = -999\\,999\\,999$). `max_finite_contextual` is $(10^{p}-1)\\,10^{e_{\\max}-p+1}$. `classify_contextual` is `classify`."
 msgstr ""
 
-#: manual/api/decimal.md:2176
+#: manual/api/decimal.md:2211
 msgid "These functions implement the checked traits of `Luna-Flow/arithmetic`."
 msgstr ""
 
-#: manual/api/decimal.md:2191
+#: manual/api/decimal.md:2226
 msgid "`parse_checked(s, ctx)` converts `ctx` to `DecimalContext` and uses `Decimal::from_string_ctx`, so the context's precision, rounding direction, exponent bounds and clamp setting apply. It returns the converted value; flags such as overflow remain available from `from_string_ctx`. Invalid syntax returns `Err(parse_error)`. `DivChecked::div_checked(x, y, ctx)` is `div_ctx` under the converted context with `Err(division_by_zero)` and `Err(domain_error)` as in [`div_checked`](#decimaldiv_checked-sqrt). `sqrt_checked` is `sqrt_ctx` under the converted context and fails for negative operands. `pow_nat_checked` and `pow_int_checked` call `power_ctx` with the integer exponent converted exactly (with at least ten digits, which hold every accepted exponent), so at precision 7 `(-1).pow_int_checked(12345679, ctx)` is `-1`. They return `Ok(1)` for a zero or quiet-NaN base with exponent zero, `Err(division_by_zero)` for a zero base with a negative exponent in an extended context, and `Err(domain_error)` for an invalid result such as a signaling NaN operand or a negative power of zero in a subset context. `pow_nat_checked` returns `Err(unsupported)` for exponents above 999,999,999. `CompareChecked` is [`compare_checked`](#decimalcompare_checked)."
 msgstr ""
 
-#: manual/api/decimal.md:2210
+#: manual/api/decimal.md:2245
 msgid "`Eq` and `Compare`: `Decimal::equal`, `not_equal`, `op_lt`, `op_le`, `op_gt`, `op_ge`"
 msgstr ""
 
-#: manual/api/decimal.md:2212
+#: manual/api/decimal.md:2247
 msgid "These are the operator methods of `Eq` and `Compare`."
 msgstr ""
 
-#: manual/api/decimal.md:2223
+#: manual/api/decimal.md:2258
 msgid "They are defined by [`compare`](#decimalcompare): `x == y` is `compare(x, y) == 0`, `x < y` is `compare(x, y) < 0`, and so on. Cohort members are equal (`1.0 == 1.00`), $-0 = +0$, every NaN equals every NaN and is greater than every number. Use `compare_total` to tell representations apart."
 msgstr ""
 
-#: manual/api/decimal.md:2229
+#: manual/api/decimal.md:2264
 msgid "Derived equality: `DecimalContext::equal`, `DecimalContext::not_equal`, `DecimalFlags::equal`, `DecimalFlags::not_equal`, `DecimalRoundingMode::equal`, `DecimalRoundingMode::not_equal`, `DecimalTininessDetection::equal`, `DecimalTininessDetection::not_equal`, `DecimalSignal::equal`, `DecimalSignal::not_equal`, `DecimalInterchangeFormat::equal`, `DecimalInterchangeFormat::not_equal`, `DecimalInterchangeEncoding::equal`, `DecimalInterchangeEncoding::not_equal`"
 msgstr ""
 
-#: manual/api/decimal.md:2231
+#: manual/api/decimal.md:2266
 msgid "These are the derived `Eq` methods of the context, flag and enum types."
 msgstr ""
 
-#: manual/api/decimal.md:2250
+#: manual/api/decimal.md:2285
 msgid "Contexts compare field by field (precision, both rounding fields, exponent limits, clamp, extended, tininess); flag sets compare all thirteen fields. `DecimalContext::from_arithmetic_context(ArithmeticContext::decimal64())` is equal to `DecimalContext::decimal64()`."
 msgstr ""
 
-#: manual/api/decimal.md:2255
+#: manual/api/decimal.md:2290
 msgid "`Show` and `Debug`: `Decimal::to_string`, `output`, `to_repr`"
 msgstr ""
 
-#: manual/api/decimal.md:2257
+#: manual/api/decimal.md:2292
 msgid "`Decimal` implements `Show` and `Debug`."
 msgstr ""
 
-#: manual/api/decimal.md:2266
+#: manual/api/decimal.md:2301
 msgid "`to_string` formats a value in scientific notation without a context. Finite values use the scientific-string rule of [`to_sci_string`](#decimalto_sci_string-to_eng_string), so trailing zeros and the exponent are visible: `1.20`, `1E+3`, `1.2E-7`. Special values are written in lower case: `inf`, `-inf`, `nan`, `snan`, `-nan12`. `output` writes the same text to a logger. `to_repr` is the derived structural representation used by `debug_inspect` and `assert_eq`."
 msgstr ""
 
@@ -8461,7 +8469,7 @@ msgstr ""
 
 #: manual/architecture.md:124
 #: manual/design/bin_float.md:734
-#: manual/design/decimal.md:736
+#: manual/design/decimal.md:747
 msgid "Certified elementary functions"
 msgstr ""
 
@@ -9790,7 +9798,7 @@ msgid "§5.3.2 quantize, quantum, sameQuantum"
 msgstr ""
 
 #: manual/conformance/decimal.md:54
-msgid "conforming; a zero result above `e_max - p + 1` under `clamp` is not folded down"
+msgid "conforming; a zero result above `e_max - p + 1` under `clamp` is not folded down by default, `DecimalContext::with_clamp_fold(true)` folds it (`library/src/decimal/clamp_fold_issue234_wbtest.mbt`)"
 msgstr ""
 
 #: manual/conformance/decimal.md:57
@@ -9904,7 +9912,7 @@ msgstr ""
 #: manual/design/cli/mpfr_expr_cli.md:51
 #: manual/design/cli/testfloat_expr_cli.md:55
 #: manual/design/consistency.md:70
-#: manual/design/decimal.md:1341
+#: manual/design/decimal.md:1352
 #: manual/design/decimal_checked.md:279
 #: manual/design/decimal_gda.md:885
 #: manual/design/decimal_gda_checked.md:247
@@ -11026,7 +11034,7 @@ msgstr ""
 #: manual/design/cli/mpfr_expr_cli.md:36
 #: manual/design/cli/testfloat_expr_cli.md:41
 #: manual/design/consistency.md:56
-#: manual/design/decimal.md:1271
+#: manual/design/decimal.md:1282
 #: manual/design/decimal_checked.md:196
 #: manual/design/decimal_gda.md:840
 #: manual/design/decimal_gda_checked.md:190
@@ -11103,7 +11111,7 @@ msgstr ""
 #: manual/design/cli/mpfr_expr_cli.md:44
 #: manual/design/cli/testfloat_expr_cli.md:48
 #: manual/design/consistency.md:63
-#: manual/design/decimal.md:1320
+#: manual/design/decimal.md:1331
 #: manual/design/decimal_checked.md:268
 #: manual/design/decimal_gda.md:869
 #: manual/design/decimal_gda_checked.md:238
@@ -13888,17 +13896,17 @@ msgid "exponents $E_{\\text{top}}-E_{\\text{tiny}}+1$"
 msgstr ""
 
 #: manual/design/decimal.md:89
-#: manual/design/decimal.md:671
+#: manual/design/decimal.md:682
 msgid "decimal32"
 msgstr ""
 
 #: manual/design/decimal.md:90
-#: manual/design/decimal.md:672
+#: manual/design/decimal.md:683
 msgid "decimal64"
 msgstr ""
 
 #: manual/design/decimal.md:91
-#: manual/design/decimal.md:673
+#: manual/design/decimal.md:684
 msgid "decimal128"
 msgstr ""
 
@@ -14211,526 +14219,530 @@ msgid "Zeros have no digits to pad, so their exponent is simply clamped into $[E
 msgstr ""
 
 #: manual/design/decimal.md:574
+msgid "A zero is the one result `quantize` can return above $E_{\\text{top}}$: its target exponent only has to be at most $e_{\\max}$ (a zero has one digit, so $e_{\\max} - \\operatorname{digits} + 1 = e_{\\max}$ is the overflow bound of decNumber's `decQuantizeOp`), and the zero path then returns the exponent asked for without the finishing step. decNumber calls `decFinalize` there, whose clamp branch lowers the exponent to $E_{\\text{top}}$ and raises `clamped`. IEEE 754-2019 §5.3.2 is silent on this, so the default stays as it was and the fold is opt-in: `DecimalContext::with_clamp_fold(true)` (off in every preset) applies it to a zero `quantize` and `rescale` result under `clamp`. Every other operation already folds a zero through `finalize_finite_ctx`."
+msgstr ""
+
+#: manual/design/decimal.md:585
 msgid "Flags as returned values"
 msgstr ""
 
-#: manual/design/decimal.md:576
+#: manual/design/decimal.md:587
 msgid "**Problem.** IEEE 754 status flags are sticky process state in hardware; GDA adds traps. Hidden state conflicts with the Luna-Flow rule that semantics are explicit, and makes concurrent or compositional code fragile."
 msgstr ""
 
-#: manual/design/decimal.md:580
+#: manual/design/decimal.md:591
 msgid "**Choice.** Each context operation returns its own `DecimalFlags`. `combine` is the field-wise OR, so flag sets form a commutative idempotent monoid with identity `DecimalFlags::new()`: accumulating them over a pipeline in any grouping gives the same set, which is exactly the sticky-flag semantics without the state. `decimal_checked` packages that accumulation; `decimal_gda` implements sticky status and traps as a separate model. The five IEEE exceptions map to `invalid_operation`, `division_by_zero`, `overflow`, `underflow` and `inexact`; the GDA conditions (`rounded`, `subnormal`, `clamped`, `lost_digits`, `conversion_syntax`, `division_impossible`, `division_undefined`, `invalid_context`) refine them."
 msgstr ""
 
-#: manual/design/decimal.md:591
+#: manual/design/decimal.md:602
 msgid "Quantize and same-quantum"
 msgstr ""
 
-#: manual/design/decimal.md:593
+#: manual/design/decimal.md:604
 msgid "`x.quantize(y)` returns the value of $x$ with exponent exactly $t = q_y$:"
 msgstr ""
 
-#: manual/design/decimal.md:603
+#: manual/design/decimal.md:614
 msgid "The result must be representable *at that exponent*: the new coefficient must have at most $p$ digits, $t$ must lie in $[E_{\\text{tiny}}, e_{\\max}]$ and the result's adjusted exponent must not exceed $e_{\\max}$. Otherwise the operation is invalid. It never substitutes another exponent, because the exponent is the contract (an amount quantized to cents must have two decimal places). The only change of exponent is the fold-down of [clamping](#clamping): with `clamp`, a target $t \\in (E_{\\text{top}}, e_{\\max}]$ is accepted and the result is stored at $E_{\\text{top}}$ with `clamped`, exactly like any other result in that range. Rounding a coefficient up can add a digit ($9.99 \\to 10.0$ at two digits of precision), which is why the digit check comes after rounding. `same_quantum` is the predicate $q_x = q_y$ (true for two infinities or two NaNs); it is the test to use before combining values whose exponents must agree."
 msgstr ""
 
-#: manual/design/decimal.md:618
+#: manual/design/decimal.md:629
 msgid "Conversion to integers"
 msgstr ""
 
-#: manual/design/decimal.md:620
+#: manual/design/decimal.md:631
 msgid "`to_int_ctx` and its three siblings (IEEE 754-2019 §5.4.1 and §5.8) share one function that rounds a finite value $c\\,10^{q}$ to an integer in the direction of the context and checks the range, so the four types differ only in their limits. A value with $q \\ge 0$ is an integer already; one with $q < 0$ is $c / 10^{-q}$ rounded by the same decision function that rounds decimal results (the kernel's rounding decisions: increment or not from the discarded digits and the mode), and `changed` is whether anything was discarded. The power of ten is never formed. An integer of 21 or more digits is out of range for every type ($2^{64}$ has 20 digits), so $\\operatorname{digits}(c) + q > 20$ is decided before any arithmetic, and a fraction with more than $\\operatorname{digits}(c) + 1$ places is the same as one with exactly that many: the value is below $0.1$, and the rounding decision only needs to know that the remainder is nonzero and below one half, so the shift is clamped to $\\operatorname{digits}(c) + 1$. `1E+999999` and `1E-999999` therefore cost as much as `1E+3` and `1E-3`. The invalid operation is signaled for a NaN, an infinity and an out-of-range result, and then only: `exact` adds `inexact` when `changed`, nothing else is ever raised (no `rounded`, no clamping: the result is not a decimal), and a negative value that rounds to zero converts to `0`."
 msgstr ""
 
-#: manual/design/decimal.md:640
+#: manual/design/decimal.md:651
 msgid "Conversions between formats"
 msgstr ""
 
-#: manual/design/decimal.md:642
+#: manual/design/decimal.md:653
 msgid "`convert_format`, `from_bin_float_ctx` and `to_bin_float_ctx` (IEEE 754-2019 §5.4.2) are thin on purpose: each rounds the exact source value once, in the destination's context, and returns the flags of that rounding. Decimal to decimal is `apply_ctx` of the format's context, so the preferred exponent $Q(\\text{source})$ is the one the normalization keeps when the value fits. Binary to decimal forms the exact decimal expansion $c\\,2^e$ with $c$ odd ($c \\cdot 5^{k}\\cdot 10^{-k}$ for $e = -k < 0$: no trailing zero, so it is the exponent closest to 0 that holds the digits, and an integer keeps exponent 0) and rounds it with `apply_ctx`; the digits are not formed for a value whose estimate $\\lfloor 0.30103\\,(\\operatorname{bits} + e)\\rfloor$ lies more than two beyond $e_{\\max}$ or three below $E_{\\text{tiny}}$, which stands for every such value in the rounding (overflow, or a result of zero or the least subnormal), and a binary exponent beyond $2^{22}$ that the range does not decide is refused. Decimal to binary is the exact decimal text rounded by `BinFloat::from_string_ctx`, which is correctly rounded for any exponent and is checked against MPFR; the corpus runs both directions through the MPFR rows of `mpfr_strtofr` and `mpfr_get_str` and through exact rows for every pair of decimal32/64/128 and binary16/32/64/128 (`tools/generate_decimal_conversion_rows.py`). A NaN keeps its sign and the payload it can hold ($p - 1$ digits, $p - 2$ bits), and a signaling NaN is quieted with the invalid operation exception."
 msgstr ""
 
-#: manual/design/decimal.md:665
+#: manual/design/decimal.md:676
 msgid "All three formats share one layout: a sign bit, a 5-bit *combination field* $G$, $w$ *exponent continuation* bits and a *trailing significand* of $10J$ bits, where $p = 3J + 1$:"
 msgstr ""
 
-#: manual/design/decimal.md:675
+#: manual/design/decimal.md:686
 msgid "The biased exponent $E = q + \\text{bias}$ has $w + 2$ bits whose top two bits take only the values 00, 01, 10; this is the $3\\cdot 2^{w}$ count derived above."
 msgstr ""
 
-#: manual/design/decimal.md:679
+#: manual/design/decimal.md:690
 msgid ""
 "**DPD.** The combination field holds the top two exponent bits and the leading digit $d_0$: if $G = ab\\,cde$ with $ab \\n"
 "e 11$, the exponent bits are $ab$ and $d_0 = cde \\in [0,7]$; if $G = 11\\,cd\\,e$ with $cd \\n"
 "e 11$, the exponent bits are $cd$ and $d_0 = 8 + e$. $G = 11110$ is infinity and $G = 11111$ is NaN, the next bit distinguishing signaling from quiet. The other $3J$ digits are stored in $J$ *declets*, 10 bits for 3 digits, by densely packed decimal.[^dpd] Three digits have 1000 values and 10 bits 1024 codes, an efficiency of $\\log_2 1000 / 10 = 99.66\\%$. Call a digit *small* if it is 0–7 (3 bits) and *large* if it is 8 or 9 (1 bit). The declet $pqr\\,stu\\,v\\,wxy$ uses $v = 0$ for three small digits, which are then stored verbatim in $pqr$, $stu$, $wxy$; $v = 1$ marks at least one large digit, and $wx$, then $st$, say which. Counting by the number of large digits,"
 msgstr ""
 
-#: manual/design/decimal.md:699
+#: manual/design/decimal.md:710
 msgid "and $512 + 384 + 96 + 8 = 1000$. The first three cases use exactly 512, 384 and 96 codes. The last case has 32 codes for 8 values: $r$, $u$, $y$ carry the low bits of the three digits and $p$, $q$ are ignored, so **24 codes are redundant**: each value with three large digits has four encodings, of which the one with $pq = 00$ is canonical. Decoding accepts all four, `canonical()` rewrites them. For example, `125` is the declet `0010100101` = `0x0A5` (three small digits) and `999` is `0011111111` = `0x0FF`, also written `0x1FF`, `0x2FF`, `0x3FF`."
 msgstr ""
 
-#: manual/design/decimal.md:707
+#: manual/design/decimal.md:718
 msgid "M. F. Cowlishaw, \"Densely packed decimal encoding\", *IEE Proceedings — Computers and Digital Techniques* 149(3), 2002. IEEE 754-2019 §3.5.2 gives the encoding tables; the code implements them as Boolean formulas, and the conformance corpus checks all 1024 declets."
 msgstr ""
 
-#: manual/design/decimal.md:712
+#: manual/design/decimal.md:723
 msgid "**BID.** The coefficient is stored as a binary integer. If the two bits after the sign are not 11, the next $w+2$ bits are the biased exponent and the remaining $10J + 3$ bits the coefficient. Otherwise the exponent follows the 11 and the coefficient is $2^{10J+3}$ plus the remaining $10J+1$ bits (\"100\" implied). Since $10^{7} - 1 < 2^{24}$, $10^{16}-1 < 2^{54}$ and $10^{34}-1 < 2^{114}$, every coefficient fits; encodings with a coefficient $\\ge 10^{p}$ are non-canonical and decode to zero."
 msgstr ""
 
-#: manual/design/decimal.md:733
+#: manual/design/decimal.md:744
 msgid "`DecimalInterchange` keeps the raw bits so that non-canonical input survives until the caller decides to canonicalize; arithmetic is always on `Decimal`."
 msgstr ""
 
-#: manual/design/decimal.md:738
+#: manual/design/decimal.md:749
 msgid "**Problem.** For transcendental $f$, $f(x)$ is irrational for almost every decimal $x$, so it can only be approximated; a correctly rounded result needs an approximation good enough to decide the rounding (the *table maker's dilemma*)."
 msgstr ""
 
-#: manual/design/decimal.md:743
+#: manual/design/decimal.md:754
 msgid "**Options.** A fixed-precision evaluation with an a-priori error bound (fast, but correctness then depends on the bound being right for every function and argument); Ziv's adaptive strategy[^ziv] with rigorous error bounds."
 msgstr ""
 
-#: manual/design/decimal.md:748
+#: manual/design/decimal.md:759
 msgid "**Choice.** A Ziv loop over rigorous enclosures. For an operation $f$ and input $x$:"
 msgstr ""
 
-#: manual/design/decimal.md:751
+#: manual/design/decimal.md:762
 msgid ""
 "Convert $x$ exactly into a binary interval: $\\underline{x} = \\n"
 "abla_w(x)$ and $\\overline{x} = \\Delta_w(x)$, `to_bin_float` with `TowardNegative` and `TowardPositive` at $w$ bits, so $x \\in [\\underline{x}, \\overline{x}]$."
 msgstr ""
 
-#: manual/design/decimal.md:755
+#: manual/design/decimal.md:766
 msgid ""
 "Evaluate $f$ on that interval with [`ball_float`](ball_float.md), which returns an interval $[L, U] \\n"
 "i f(x)$ for every point of the input interval."
 msgstr ""
 
-#: manual/design/decimal.md:757
+#: manual/design/decimal.md:768
 msgid "Convert $L$ and $U$ (dyadic, hence exact decimals) to `Decimal` exactly and round both with the target context. If both give the same representation (`compare_total` equal) and the same flags, return it."
 msgstr ""
 
-#: manual/design/decimal.md:760
+#: manual/design/decimal.md:771
 msgid "Otherwise increase $w \\leftarrow w + \\max(32, \\lfloor w/2 \\rfloor)$ and repeat; after $L$ evaluations report a certification failure, where $L$ is the refinement limit of the context (`DecimalContext::refinement_limit`, twelve by default; a value below one counts as one). With `with_refinement_limit(None)` the count is unbounded, but the loop stops, with the same failure, when $w$ exceeds $\\max(8\\,000\\,000,\\ 256\\,w_0)$ bits (at most $10^9$), so the work and the memory stay bounded. The default changes no result."
 msgstr ""
 
-#: manual/design/decimal.md:769
+#: manual/design/decimal.md:780
 msgid "The acceptance test is sound because rounding is monotone: $L \\le f(x) \\le U$ implies $\\circ(L) \\le \\circ(f(x)) \\le \\circ(U)$, and if the outer two are the same representation, so is the middle one. The flags transfer as well, provided $f(x)$ is not itself representable: then one endpoint differs from the common result, so both are inexact, and `overflow`, `subnormal` and `underflow` are monotone in $|f(x)|$ on an interval that does not contain zero. Representable results are therefore handled before the loop (below)."
 msgstr ""
 
-#: manual/design/decimal.md:778
+#: manual/design/decimal.md:789
 msgid "The initial working precision is $w_0 = \\max(128,\\ 4\\max(D, p) + 64)$ bits, where $D$ is the number of input digits: one decimal digit needs $\\log_2 10 \\approx 3.32 < 4$ bits, so $4\\max(D,p)$ bits represent the input and the target with margin, and 64 bits more cover the loss of the enclosure. The schedule grows by a factor of about $3/2$ per step (exactly $w + \\lfloor w/2 \\rfloor$ once $w \\ge 64$); the 12 evaluations use $w_0, w_1, \\ldots, w_{11}$, and the last one works with about $w_0 \\cdot (3/2)^{11} \\approx 86\\,w_0$ bits."
 msgstr ""
 
-#: manual/design/decimal.md:787
+#: manual/design/decimal.md:798
 msgid "Three kinds of inputs are decided outside the agreement test:"
 msgstr ""
 
-#: manual/design/decimal.md:789
+#: manual/design/decimal.md:800
 msgid "**Exact results.** If $f(x)$ is a representable decimal and the enclosure is not a point, $L < f(x) < U$ round to different neighbours in a directed mode, forever. In a half mode both endpoints round to $f(x)$ itself, but with `inexact`, so the agreement test would *accept* the right value with wrong flags and with all $p$ digits instead of the preferred exponent: the soundness argument above assumed that $f(x)$ is not representable. The code therefore detects exact cases before the loop (`exp(0)`, `ln(1)`, $\\log_{10} 10^{k}$, integer and half-integer arguments of `sinpi`/`cospi`/`tanpi`, odd quarter-integers of `tanpi`, `acos(1)`, integer arguments of `exp2`/`exp10`, $x^{1/2}$, integer powers, …). For the algebraic functions this is a finite integer computation: `rootn` strips the trailing zeros of the coefficient, aligns the exponent to a multiple of the degree $n$ and tests the integer $n$-th root (Newton's iteration from above) of the result, so $\\sqrt[3]{0.008} = 0.2$; `hypot` forms $x^2 + y^2$ exactly when the adjusted exponents of the operands differ by at most $p + 2$ (beyond that, $\\sqrt{x^2+y^2} - |x| \\approx y^2/(2|x|)$ is below the last digit the result could have) and tests it with the exact square root, so $\\operatorname{hypot}(0.3, 0.4) = 0.5$; a zero operand gives the other operand's magnitude. `ball_float` returns point intervals for exact binary results such as $\\log_2 8 = 3$, $\\log_2 0.125 = -3$ and $4^{1.5} = 8$. A power whose exact value is representable in decimal but not in binary is decided in decimal instead: the exponent is reduced to $p/q$ in lowest terms — a decimal exponent is $c \\cdot 10^{-k}$, so $q$ keeps only the twos and fives the coefficient cannot cancel — and the result is exact exactly when $x^{p/q}$ is a decimal. By Bézout there are integers $a, b$ with $ap + bq = 1$, so $x^{1/q} = (x^{p/q})^{a} x^{b}$ is rational whenever $x^{p/q}$ is, and a rational $q$-th root of a decimal is again a decimal (its denominator divides a power of ten). The test therefore writes $x = r \\cdot 10^{qe}$ with $r$ an integer keeping fewer than $q$ trailing zeros, decides whether $r$ is a perfect $q$-th power by a bisection over the root's digit count, and only then raises the root to $p$ (the reciprocal of the root, for a negative exponent). Every intermediate is then no longer than the result, so $0.0016^{0.25} = 0.2$, $32^{0.2} = 2$ and $(2^{1200} \\cdot 10^{-1200})^{1.5} = 2^{1800} \\cdot 10^{-1800}$ at precision 1000 are all decided at once, although $x^{3}$ in the last one has 1084 digits. Only a value of at most $p + 1$ significant digits can sit on a rounding boundary — a representable value in the directed modes, a midpoint in the half modes — so the search covers exactly those and leaves a longer exact value, which lies strictly inside its rounding cell, to the enclosure."
 msgstr ""
 
-#: manual/design/decimal.md:829
+#: manual/design/decimal.md:840
 msgid "**Integer powers** are not certified; they are rounded once from exact integer information. `power_ctx` with an integral exponent $n$ that does not fit in $p$ digits first runs the General Decimal Arithmetic square-and-multiply with $p + \\operatorname{digits}(n) + 2$ working digits. That scheme only ever discards zero digits of an exact power, so it reports `inexact` exactly when the true power is inexact, and it gives exact powers their GDA cohort and flags. In an extended context an inexact result is then replaced by the correctly rounded one. With $c$ the coefficient stripped of trailing zeros, if $|n| \\cdot \\operatorname{digits}(c) \\le \\max(4p, 64)$ the exact power $c^{|n|}$ is formed and rounded once (a negative $n$ divides once, correctly rounded). Otherwise $c^{|n|}$ has more than $p + 1$ significant digits and no trailing zero, so it is never a $p$-digit number or midpoint; lower and upper bounds from square-and-multiply in `Down` and `Up` at a working precision of $p + \\operatorname{digits}(n) + 8$ digits, doubled on each attempt, are refined until they round to the same representation. So $3.339434^3 = 37.240765000\\ldots$ is `37.24077` in decimal32. If the bounds leave the working exponent range, and in a context that is not extended, the GDA result is kept; its error is below one unit in the last place. A power that the exponent bounds place below $10^{E_{\\text{tiny}}-2}$ (including an exact power of ten below $10^{E_{\\text{tiny}}}$) is not evaluated: it rounds like any non-zero value below $\\tfrac12 10^{E_{\\text{tiny}}}$, to zero in the nearest modes and to $\\pm 10^{E_{\\text{tiny}}}$ when the rounding direction is away from zero for its sign (IEEE 754-2019 §7.5)."
 msgstr ""
 
-#: manual/design/decimal.md:854
+#: manual/design/decimal.md:865
 msgid "**Out-of-range results.** An enclosure such as $[0, \\text{tiny}]$ has endpoints that round with different flags. Any value $\\ge 10^{e_{\\max}+2}$ overflows identically, and any non-zero value $\\le 10^{E_{\\text{tiny}}-2} < \\tfrac12 10^{E_{\\text{tiny}}}$ rounds identically (to zero or to the smallest subnormal, depending only on the mode and sign), so far endpoints are replaced by such representatives; the binary test uses $3.322 > \\log_2 10$ so the replacement is conservative. `exp`, `exp2` and `exp10` share one decision (`decimal_exponential_coarse_extreme_result`, issue [#363](https://github.com/Luna-Flow/floating/issues/363)). For $b^x$ with $b \\in \\{e, 2, 10\\}$ let $k \\ge 1/\\log_{10} b$ be the integer 3, 4 or 1. Then $x \\ge k\\,(e_{\\max}+1)$ gives $b^x = 10^{x \\log_{10} b} \\ge 10^{e_{\\max}+1}$, above the largest finite number $(10^p - 1)\\,10^{e_{\\max}-p+1}$, so the overflow result of the rounding direction applies (IEEE 754-2019 §7.4); and $x \\le -k\\,(1 - E_{\\text{tiny}})$ gives $b^x \\le 10^{E_{\\text{tiny}}-1}$, below half of the smallest subnormal and, as $E_{\\text{tiny}} \\le e_{\\min}$, tiny before and after rounding, so the result is zero or the smallest subnormal by direction with `inexact`, `underflow` and `subnormal` (§7.5). The comparison is exact and the margin is the whole slack between $k$ and $1/\\log_{10} b$: an argument between the true boundary and the threshold is not decided here but by the Ziv loop, which is sound there because the threshold is at most $4\\,(1 - E_{\\text{tiny}})$ with $E_{\\text{tiny}} \\ge -1999997$, far below the exponent range of the binary enclosure. Without the decision a very negative argument (for `exp2`, beyond $2^{31}$ binades) has the enclosure $[0, \\text{tiny}]$ and never certifies. The decision is tested on both sides of each threshold and at results just inside and outside the range, in all eight rounding directions, by `library/src/decimal/exp_range_wbtest.mbt` and its generated rows. `power` bounds $y \\log_2 x$ with directed 128-bit arithmetic for the same purpose."
 msgstr ""
 
-#: manual/design/decimal.md:883
+#: manual/design/decimal.md:894
 msgid "**Enclosure of a non-integral power.** For a positive base the Ziv loop evaluates $x^y = \\exp(y \\ln x)$ in interval arithmetic: one `ln` enclosure, one interval product and one `exp` enclosure, instead of the four corners times two directions (eight correctly rounded binary powers) of `ball_float`'s `try_pow_interval`. The loop needs an enclosure, not tight endpoints, and correct rounding makes the delivered value independent of the enclosure's width, so the result, cohort and flags are those of the tighter evaluation. The composition loses about $\\lceil \\log_2 |y \\ln x| \\rceil$ bits of relative accuracy, because the relative error of $\\exp(t)$ is the absolute error of $t$. The initial working precision therefore grows by a bound of that quantity, taken from the adjusted exponents of $x$ and $y$ ($|\\ln x| \\le \\ln 10\\,(|\\operatorname{adjusted}(x)| + 1)$ and $|y| < 10^{\\operatorname{adjusted}(y)+1}$), so the first attempt usually decides ([#352](https://github.com/Luna-Flow/floating/issues/352))."
 msgstr ""
 
-#: manual/design/decimal.md:898
+#: manual/design/decimal.md:909
 msgid "**One layer for the newer §9.2 functions.** `exp2m1`, `exp10m1`, `log2p1` and `log10p1`, and the families that follow in [#236](https://github.com/Luna-Flow/floating/issues/236), take three decisions from one internal file (`elementary_range.mbt`) instead of writing them again: an exact result is formed as an exact decimal, rounded once by the context and then moved to the cohort member nearest the preferred exponent (`decimal_exact_constant`, which uses the cohort step of `power` with the preferred exponent as an argument), so a context that cannot hold the value rounds it with its own flags; a result whose certified bracket of $\\log_2$ lies above $\\log_2 10\\,(e_{\\max}+2)$ or below $\\log_2 10\\,(E_{\\text{tiny}}-2)$ rounds like the representative $10^{e_{\\max}+2}$ or $10^{E_{\\text{tiny}}-2}$ (`decimal_range_from_log2_bracket`, the former tail of the `power` range test); and every other result comes from the Ziv loop above. No result is a zero or an infinity chosen because the argument is small or large: a tiny result is the rounding of its certified endpoints, so subnormals, `Underflow` under either tininess rule, `Clamped` and the sign of a zero are those of the context."
 msgstr ""
 
-#: manual/design/decimal.md:917
+#: manual/design/decimal.md:928
 msgid "The four functions evaluate `expm1(x ln b)` and `log1p(x) / ln b` on the input interval ($\\ln 2$ and $\\ln 10$ as certified `ball_float` intervals). Both primitives are series in $x$, so the relative width of the enclosure is a few units of the working precision for every legal operand, down to $x = 10^{-1\\,999\\,996}$; no tiny-argument anchor is needed because the slopes $\\ln b$ and $1/\\ln b$ are irrational. Before the loop:"
 msgstr ""
 
-#: manual/design/decimal.md:924
+#: manual/design/decimal.md:935
 msgid "*Exact cases.* $b^x$ is rational only for an integer $x$ ($2^r$ and $10^r$ are irrational for a non-integer rational $r$), and $\\log_b(1+x)$ is rational only when $1+x = b^k$. For $0 < |n| \\le 4(p+2)$ the value $2^n-1$, $10^n-1$, $-(1-2^{-m})$ or $-(1-10^{-m})$ is formed and rounded once; $k$ is found from $x$ without forming $1+x$ ($x+1$ a power of two, compared first on its lowest nine digits; all nines; a coefficient $10^m - 5^m$ or $10^m - 1$ with $m$ fraction digits). The preferred exponent is 0 (IEEE 754-2019 §9.2.2), so `exp2m1(4)` is `15` and `log2p1(-0.50)` is `-1`."
 msgstr ""
 
-#: manual/design/decimal.md:932
+#: manual/design/decimal.md:943
 msgid "*Clusters.* For an integer $n > 4(p+2)$, $2^n$ has $D \\ge p+3$ digits and every rounding boundary of a $D$-digit integer is a multiple of the even number $5 \\cdot 10^{D-p-1}$; neither $2^n$ (no factor 5) nor the odd $2^n - 1$ is one, so both lie in one open rounding cell and `exp2m1(n)` is `exp2(n)`. $10^n - 1$ lies above the midpoint $10^n - 5 \\cdot 10^{n-p-1}$ and below $10^n$, where an enclosure can never separate it from the representable $10^n$; the representative $10^n - 10^{n-p-2}$ has the same rounding and is formed instead of a number of $n$ digits. Towards $-1$, for $x \\le -(p+2)$ (base 10) or $x \\le -(4p+8)$ (base 2) the value is $-1 + \\delta$ with $0 < \\delta \\le 10^{-(p+2)}$ and rounds like $-(1 - 10^{-(p+2)})$, as for `expm1`."
 msgstr ""
 
-#: manual/design/decimal.md:943
+#: manual/design/decimal.md:954
 msgid "*Overflow.* $x \\ge \\lceil 3.322\\,(e_{\\max}+2) \\rceil$ (base 2) or $x \\ge e_{\\max}+2$ (base 10) gives the overflow result of the context."
 msgstr ""
 
-#: manual/design/decimal.md:945
+#: manual/design/decimal.md:956
 msgid "*Below the subnormal range.* For $|x| \\le 10^{-5}$ all four satisfy $0 < |f(x)| < 3|x|$ with the sign of $x$, so $|x| < 10^{E_{\\text{tiny}}-3}$ puts $f(x)$ below $10^{E_{\\text{tiny}}-2}$, where it rounds like the representative $\\pm 10^{E_{\\text{tiny}}-2}$ that the enclosure would use for its endpoints. The result is that rounding, decided without converting $x$ to binary (the conversion of $10^{-1\\,999\\,997}$ alone costs about a second)."
 msgstr ""
 
-#: manual/design/decimal.md:952
+#: manual/design/decimal.md:963
 msgid "*Tiny arguments within the range.* For $|x| < 10^{-(p+11)}$, write $x = m\\,10^{q}$; then $f(x) = c\\,x\\,(1 + d)$ with $c = \\ln b$ or $1/\\ln b$ and $|d| \\le 2.31|x|$, so $f(x)/10^{q}$ lies in $c\\,m\\,[1 - 2^{k}, 1 + 2^{k}]$ for $2^{k} \\ge 4|x|$. The endpoints of that enclosure have a few dozen digits, where the binary endpoints of $f(x)$ itself would expand to about $0.7|q|$ digits; scaled back by $10^{q}$ they are rounded with the context and accepted under the same agreement test as the loop, which decides the rare value too close to a rounding boundary. The certified $\\ln 2$ and $\\ln 10$ intervals are kept per working precision. Both only change the cost: on 10,000 random rows of each function the executed instructions fell from 57 to 12 (`exp2m1`), 60 to 14 (`exp10m1`), 102 to 17 (`log2p1`) and 102 to 18 (`log10p1`) billion, the level of `exp` (13) and `log1p` (18)."
 msgstr ""
 
-#: manual/design/decimal.md:965
+#: manual/design/decimal.md:976
 msgid "*Poles and domain.* $x = -1$ is $-\\infty$ with `division_by_zero` and $x < -1$ is invalid for `log2p1` and `log10p1` (Table 9.1). Near $-1$ an operand of $D$ digits keeps $1 + x \\ge 10^{-D}$, which $w_0 = 4\\max(D,p)+64$ bits resolve, as for `log1p`."
 msgstr ""
 
-#: manual/design/decimal.md:970
+#: manual/design/decimal.md:981
 msgid "**`rSqrt`, `compound` and `powr`.** The three take their exact results from `decimal_exact_constant` and none of them expands a binary endpoint near an extreme power of ten."
 msgstr ""
 
-#: manual/design/decimal.md:974
+#: manual/design/decimal.md:985
 msgid "*`rsqrt`.* $1/\\sqrt{x}$ terminates exactly when $x = 2^{2i}5^{2j}$: with $c$ the coefficient stripped of trailing zeros and $e$ its exponent, $c$ is $2^a$ or $5^b$ with $a$ (or $b$) and $e$ even, and the value is $5^{a/2}10^{-(e+a)/2}$ or $2^{b/2}10^{-(e+b)/2}$. It is formed when it has at most $p + 1$ digits and given the preferred exponent $-\\lfloor Q(x)/2 \\rfloor$ (§9.2.2); a longer one ends in a 5 or a non-zero even digit beyond the $(p+1)$-th place, so it is neither representable nor a midpoint, and the enclosure decides it. Every other $x$ is written $x = s\\,10^{2k}$ with $s \\in [1, 100)$: the Ziv loop encloses $1/\\sqrt{s}$, whose endpoints are moderate, and multiplies them by $10^{-k}$ (an exponent shift) before the context rounds them, under the same agreement test. An operand $10^{-1\\,999\\,997}$ costs what $1$ costs."
 msgstr ""
 
-#: manual/design/decimal.md:986
+#: manual/design/decimal.md:997
 msgid "*`compound`.* The special values are the list of §9.2.1 (with $x < -1$ invalid also for $n = 0$, Table 9.1). For a tiny $x$, $(1+x)^n - 1$ has the sign of $nx$ and $|(1+x)^n - 1| \\le |nx|\\,e^{|nx|} < 10^{\\operatorname{adj}(x) + 12}$ for $|n| \\le 2^{31}$, so `decimal_tiny_argument_result` decides a one-sided neighbour of 1 and $1 + x$ (up to two million digits) is never formed. Otherwise $1 + x = c\\,10^{e}$ is formed exactly ($c$ without trailing zeros, $d$ digits, exponent $\\min(0, Q(x))$ before stripping). For $n > 0$, $c^n$ has more than $\\max((d-1)n, 0.301n)$ digits and no trailing zero, so beyond $p + 1$ digits it is neither representable nor a midpoint; shorter powers are formed and rounded once with the preferred exponent $\\lfloor n \\min(0, Q(x)) \\rfloor$. For $n < 0$, $c^{n}$ terminates only for $c = 2^a$ or $5^b$ (the values $5^{a|n|}10^{-(a+e)|n|}$ and $2^{b|n|}10^{-(b+e)|n|}$), formed while they have at most $p + 2$ digits. Every other case is the Ziv loop on $\\exp(n \\operatorname{log1p}(x))$ ($\\operatorname{log1p}$ of $x$ itself, so $1 + x$ is never rounded), after `decimal_range_from_log2_bracket` on $n \\operatorname{log1p}(x)/\\ln 2$ whenever $|n| \\max(\\operatorname{adj}(x) + 2, -Q(x), 1)$ does not already keep the result inside the range. `Int32`'s minimum $-2^{31}$ is taken as an `Int64`. `pown(1 + x, n)` is not used: when this function was written, its exponents beyond the machine count gave wrong values and some negative ones a spurious `Clamped` for a base near 1 (issues 348 and 350, since fixed), and the Ziv loop never forms $1 + x$."
 msgstr ""
 
-#: manual/design/decimal.md:1009
+#: manual/design/decimal.md:1020
 msgid ""
 "*`powr`.* §9.2.1 lists the invalid pairs $(\\pm 0, \\pm 0)$, $(+\\infty, \\pm 0)$, $(1, \\pm\\infty)$ and $x < 0$, and a NaN result for a NaN operand even when $y = \\pm 0$. Two cases are not stated and are read as follows [ambiguous]: $x < 0$ with $y$ a quiet NaN is invalid (the NaN rule is stated \"for $x \\ge 0$\"), and $+\\infty^{y}$ for $y \\n"
 "e 0$ and $x^{\\pm\\infty}$ for $x \\n"
 "otin \\{0, 1\\}$ follow $e^{y \\ln x}$ by continuity. Every remaining pair has $x \\ge 0$, where $x^y$ is the same function as `pow`, and the preferred exponents agree ($\\lfloor y Q(x) \\rfloor$), so the result is `power` on $|x|$ (a $-0$ is passed as $+0$, where `pow` would apply its odd-integer sign rule)."
 msgstr ""
 
-#: manual/design/decimal.md:1020
+#: manual/design/decimal.md:1031
 msgid "**`asinPi`, `acosPi`, `atanPi` and `atan2Pi`.** The four evaluate $\\operatorname{asin}(x)/\\pi$, $\\operatorname{acos}(x)/\\pi$, $\\operatorname{atan}(x)/\\pi$ and $\\operatorname{atan2}(y, x)/\\pi$ in the existing Ziv driver, with $\\pi$ enclosed as $[\\operatorname{RD}(\\pi), \\operatorname{RU}(\\pi)]$ taken from the cached binary-splitting constant of `bin_float` (twice the correctly rounded $\\pi/2$ of `atan(+inf)`, the same interval as $4\\operatorname{atan}(1)$ bit for bit) and the angle enclosure divided by it (error: the angle, $\\pi$ and the division, about 4 ulp relative)."
 msgstr ""
 
-#: manual/design/decimal.md:1030
+#: manual/design/decimal.md:1041
 msgid "*Exact results.* By Niven's theorem a rational $x$ has a rational $\\operatorname{asin}(x)/\\pi$ or $\\operatorname{acos}(x)/\\pi$ only at $0, \\pm\\tfrac12, \\pm 1$ and a rational $\\operatorname{atan}(x)/\\pi$ only at $0, \\pm 1$, so the dyadic exact results are those of §9.2.1 and $\\operatorname{atanPi}(\\pm 1) = \\pm\\tfrac14$, $\\operatorname{atan2Pi}(\\pm a, \\pm a) = \\pm\\tfrac14, \\pm\\tfrac34$. They are built by `decimal_exact_constant` at the preferred exponent 0 (§9.2.2). $\\pm\\tfrac16$, $\\tfrac13$ and $\\tfrac23$ do not terminate, so they sit strictly inside a rounding cell and the loop decides them. No Pi function is anchored at a tiny argument: $x/\\pi$ is irrational and nowhere near a representable value."
 msgstr ""
 
-#: manual/design/decimal.md:1041
+#: manual/design/decimal.md:1052
 msgid "*Clusters next to $\\pm\\tfrac12$ and $\\pm 1$.* These are the only inexact results that approach a representable value, and the distance does not depend on the digits of the operand, so $w_0 = 4D + 64$ cannot cover it. Each is decided by `decimal_tiny_argument_result` from a bound on the distance, one-sided: $\\operatorname{atanPi}(x) = \\pm(\\tfrac12 - \\delta)$ with $0 < \\delta < 1/(\\pi|x|) < 10^{-\\operatorname{adj}(x)}$ for a large $|x|$; $\\operatorname{acosPi}(x) = \\tfrac12 - \\operatorname{asin}(x)/\\pi$ with distance at most $|x|/2 < 10^{\\operatorname{adj}(x)+1}$ for a tiny $|x|$ (the easy one to miss: $\\operatorname{acos}$ of a tiny $x$ is near the irrational $\\pi/2$, but $\\operatorname{acosPi}$ is near the representable $\\tfrac12$, below it for $x > 0$ and above for $x < 0$); $\\operatorname{atan2Pi}(y, x)$ with $D = \\operatorname{adj}(y) - \\operatorname{adj}(x)$ is $\\pm(\\tfrac12 \\mp \\delta)$ with $\\delta < 10^{1-D}$ for a large ratio (below $\\tfrac12$ in magnitude for $x > 0$, above for $x < 0$), and $\\pm(1 - \\delta)$ with $\\delta < 10^{D+1}$ for $x < 0$ and a small ratio. The guard of `decimal_tiny_argument_result` (error exponent below the anchor's adjusted exponent minus $p + 3$) picks the threshold; between it and the moderate range the enclosure resolves the gap at the working precision. The tests compare every anchored result with the plain loop in all eight rounding modes, on both sides."
 msgstr ""
 
-#: manual/design/decimal.md:1061
+#: manual/design/decimal.md:1072
 msgid "*Tiny results.* For $|x| \\le 10^{-4}$, $\\operatorname{asin}(x)/x \\in [1, 1 + x^2]$ and $\\operatorname{atan}(x)/x \\in [1 - x^2, 1]$, and the same holds for $\\operatorname{atan2Pi}(y, x)$ with $x > 0$ and the ratio $y/x$. Once $x^2 < 2^{-(8\\max(D,p)+400)}$ the loop encloses the moderate value $(s/\\pi)(1 \\pm 2^{-k})$ with $s = x\\,10^{-\\operatorname{adj}(x)}$ (or the quotient of the two scaled mantissas) and shifts the endpoints by $10^{\\operatorname{adj}(x)}$ before the context rounds them, as for `rsqrt` (`decimal_certified_scaled_result`): an operand $10^{-1\\,999\\,996}$ costs what $10^{-300}$ costs, where the exact decimal endpoints of a binary number near $2^{-6.6\\cdot 10^6}$ have about two million digits (an unscaled `asinpi(7E-9999)` took more than a minute in a debug build before this path existed). For $\\operatorname{atan2Pi}(y, x)$ with $x > 0$ the derivation is: $\\operatorname{atan2Pi}(y, x) = \\operatorname{sign}(y) \\operatorname{atan}(r)/\\pi$ with $r = |y/x| = (s_y/s_x)\\,10^{D}$, where $s_y, s_x \\in [1, 10)$ are the operands scaled by their adjusted exponents and $D = \\operatorname{adj}(y) - \\operatorname{adj}(x)$, so $r < 10^{D+1}$; for $r \\le 1$, $\\operatorname{atan}(r)/r \\in [1 - r^2, 1]$, hence $\\operatorname{atan}(r)/\\pi = (s_y/(s_x \\pi))\\,10^{D}(1 - e)$ with $0 \\le e \\le r^2 < 10^{-t}$, $t = -(2D + 2)$, and the loop encloses the moderate factor $(s_y/(s_x\\pi))(1 - 2^{-k})$, $k \\le 3.32\\,t$, and shifts it by $D$. The path is taken when $3t \\ge 8\\max(D_{\\text{digits}}, p) + 400$, where it is decidable; the derivation itself needs only $t > 0$. The operands of every other case are first multiplied by $10^{-\\operatorname{adj}(x)}$ (the ratio, hence the angle, is unchanged), so operands with exponents of millions of digits and a moderate ratio cost what moderate operands cost. `library/src/decimal/atan2pi_scaled_wbtest.mbt` and the generated rows of `tools/generate_decimal_atan2pi_scaled_rows.py` (Python `decimal` at 450 digits, a cross-check only) cover ratios on both sides of the condition, both signs of $y$ and of $x$ (for $x < 0$ the result is $\\pm(1 - \\operatorname{atan}(r)/\\pi)$, next to $\\pm 1$, and takes the other anchored path), the four formats and all eight rounding directions; replacing $1 - 2^{-k}$ by $1 + 2^{-k}$ or the condition by $t > 0$ makes rows fail (checked by mutation)."
 msgstr ""
 
-#: manual/design/decimal.md:1095
+#: manual/design/decimal.md:1106
 msgid "Operands of extreme exponent and the cost of a first attempt"
 msgstr ""
 
-#: manual/design/decimal.md:1097
+#: manual/design/decimal.md:1108
 msgid "Four changes of issue [#378](https://github.com/Luna-Flow/floating/issues/378) keep the cost of a call independent of the size of its operands' exponents while the results stay those of correct rounding."
 msgstr ""
 
-#: manual/design/decimal.md:1101
+#: manual/design/decimal.md:1112
 msgid "*Conversion to binary.* For $x = c\\,10^{-s}$ the quotient $\\lfloor c\\,2^{u} / 10^{s} \\rfloor$ is formed once, with $u = p + 3 + \\lceil s \\log_2 10 \\rceil$ (so $10^s < 2^{u-p-3}$ and the quotient keeps at least $p + 3$ bits: two bits below the target position and a sticky bit), made odd when the remainder is not zero; the remainder test is a multiplication, not a second division, and the lower and upper bound of a ball come from the same quotient. For $|{\\rm exponent}_{10}| \\ge 4096$ the exact $5^s$ (rebuilt on every call above the power cache) is replaced by a lower and an upper bound $m\\,2^{k}$ with $m$ of $p + \\text{bits}(c) + 80$ bits, made by binary powering with a directed trim after every product; the two bounds are rounded in the requested mode and the result is kept only if they agree (monotonicity of rounding), otherwise the exact conversion decides, so the result is the exact conversion bit for bit. For a negative exponent the quotient of the bounds is used only when $2 s > 4\\,\\text{bits}(c)$, where $5^s > c$ guarantees that the division is inexact (the sticky bit is set)."
 msgstr ""
 
-#: manual/design/decimal.md:1116
+#: manual/design/decimal.md:1127
 msgid "*First working precision.* $\\max(64, \\lceil 3.3219281\\,\\max(D, p) \\rceil + 31)$ bits instead of $\\max(128, 4 \\max(D, p) + 64)$: the schedule grows by a factor of 1.5 when an enclosure does not decide, so a low start costs an attempt and never a result. On 16,536 rows (exp, exp2, exp10, expm1, the inverse functions of $\\pi$ and atan2Pi, five formats) the number of operand conversions was 14,489 before and 14,490 after."
 msgstr ""
 
-#: manual/design/decimal.md:1122
+#: manual/design/decimal.md:1133
 msgid "*Tiny arguments of exp, exp2, exp10, expm1 and log1p.* For $|x| < 10^{t}$, $t \\le -1$: $|b^x - 1| \\le |x|\\ln b\\,e^{|x| \\ln b} < 10^{t+1}$ for $b \\in \\{e, 2, 10\\}$ ($\\ln b < 2.31$, $e^{0.231} < 1.3$) with the sign of $x$, so the result is $1$ plus or minus less than $10^{t+1}$, one-sided next to the representable 1 and decided by `decimal_tiny_argument_result` once $t + 1 < -(p + 3)$; and $\\operatorname{expm1}(x) - x = x^2/2 + \\dots > 0$, $x - \\operatorname{log1p}(x) = x^2/2 - \\dots > 0$, both below $x^2$ for $0 < |x| < 1/2$, so expm1 lies above $x$ and log1p below it, within $10^{2t}$. Rows on both sides of the thresholds, both signs, three formats and all eight directions have independently computed expected values; flipping a side makes rows fail."
 msgstr ""
 
-#: manual/design/decimal.md:1133
+#: manual/design/decimal.md:1144
 msgid "*Exact tests before the loop.* An exact $n$-th root of a decimal needs $\\text{exponent} \\bmod n = 0$ once trailing zeros are removed ($c\\,10^{\\text{shift}}$ with $0 < \\text{shift} < n$ and $\\min(v_2(c), v_5(c)) = 0$ has $v_2$ or $v_5$ equal to the shift, not a multiple of $n$), and the root comes from the kernel (square roots first for even degrees, Newton from the root of the leading digits); `atan2` forms the exact ratio only when $2D < -(p + 4)$ with $D = \\operatorname{adj}(y) - \\operatorname{adj}(x)$, the necessary condition of the tiny-argument decision; `compound` does not form $1 + x$ when $x$ is an integer multiple of 10 with $\\operatorname{adj}(x) \\ge p + 2$ (the sum ends in 1: no power of 2, 5 or 10) or for $n > 0$ when $\\operatorname{adj}(x) < -(p + 2)$ (more than $p + 2$ digits); `sqrt` reuses the remainder of the integer root."
 msgstr ""
 
-#: manual/design/decimal.md:1144
+#: manual/design/decimal.md:1155
 msgid "*Negative integer power (#375).* For $n = |{\\rm count}|$, $|b|^n \\in [10^{n\\,lb}, 10^{n\\,ub})$ with $lb = \\operatorname{adj}(b)$, $ub = lb + 1$, hence $1/|b|^n \\in (10^{-n\\,ub}, 10^{-n\\,lb}]$: it overflows when $-n\\,ub > e_{\\max}$ and lies below half of the smallest subnormal when $-n\\,lb \\le E_{\\text{tiny}} - 2$; the exponent product of the exact path is formed in 64 bits."
 msgstr ""
 
-#: manual/design/decimal.md:1150
+#: manual/design/decimal.md:1161
 msgid "Outward-rounded endpoints"
 msgstr ""
 
-#: manual/design/decimal.md:1152
+#: manual/design/decimal.md:1163
 msgid "The Ziv driver turns the two binary endpoints $L \\le U$ of an enclosure into decimals and rounds both to the context. Expanding $c \\cdot 2^{-s}$ exactly costs $c \\cdot 5^{s}$, about $0.7 s$ digits, which is quadratic in the decimal exponent of the argument under a wide-range context (`1E-999990` took more than 80 s in `expm1`). For a non-degenerate enclosure the driver instead rounds $L$ down and $U$ up to $D = \\max(p + 12,\\ 0.3\\,b + 4)$ digits, $b$ being the bit length of the endpoint coefficients (so a refined enclosure is never widened beyond about one binary ulp). The powers $5^{s}$ and $2^{s}$ are computed by binary powering with a directed trim to $D + 4$ digits after every product: $O(\\log s)$ products of $D$-digit numbers, independent of $s$."
 msgstr ""
 
-#: manual/design/decimal.md:1163
+#: manual/design/decimal.md:1174
 msgid "*Soundness.* Every trim moves towards the chosen side (down for the lower magnitude bound, up for the upper one, with signs swapped for negative endpoints), and products of positive bounds are bounds, so by induction the computed power brackets the exact power, and $L' \\le L \\le U \\le U'$. Rounding to the context is monotone, so $\\mathrm{rnd}(L') = \\mathrm{rnd}(U')$ implies $\\mathrm{rnd}(x)$ is that value for every $x \\in [L, U]$, and the flags are compared as before. The guard digits only affect tightness, not soundness. A degenerate enclosure ($L = U$, binary-exact) keeps the exact expansion, and infinite, zero and out-of-range endpoints are converted as before. A certified result is unchanged; only an enclosure that straddles a rounding boundary at a distance below $10^{-D}$ relative is refused one step earlier, and the next refinement widens $D$ with the binary precision."
 msgstr ""
 
-#: manual/design/decimal.md:1176
+#: manual/design/decimal.md:1187
 msgid "The elementary functions refuse contexts with $p$ or $|e|$ above 999,999 (`invalid_context`; the decNumber limit, see the `decimal_gda` design page), which bounds the size of the exact endpoint conversions."
 msgstr ""
 
-#: manual/design/decimal.md:1180
+#: manual/design/decimal.md:1191
 msgid "A. Ziv, \"Fast evaluation of elementary mathematical functions with correctly rounded last bit\", *ACM TOMS* 17(3), 1991; J.-M. Muller et al., *Handbook of Floating-Point Arithmetic*, 2nd ed., Birkhäuser 2018, ch. 12; J. van der Hoeven, \"Ball arithmetic\", 2009, for the enclosure model."
 msgstr ""
 
-#: manual/design/decimal.md:1185
+#: manual/design/decimal.md:1196
 msgid "Coefficient kernels"
 msgstr ""
 
-#: manual/design/decimal.md:1187
+#: manual/design/decimal.md:1198
 msgid "**Problem.** Rounding at decimal positions needs fast division by powers of ten and fast digit counts; large precisions need sub-quadratic multiplication and division."
 msgstr ""
 
-#: manual/design/decimal.md:1191
+#: manual/design/decimal.md:1202
 msgid "**Choice.** `DecCoeff`, defined in the internal package `internal/decimal_kernel` that `decimal` shares with `decimal_gda` (neither package exposes it), is either a `Small(UInt64)` below $10^{18}$ or a little-endian array of base-$10^{9}$ limbs with no leading zero limb and a cached digit count. The package holds only status-free integer arithmetic; the finalizer, flags and contexts stay in each decimal package (see [the shared kernel](decimal_gda.md#a-gda-package-independent-of-decimal)). Base $10^9$ is the largest power of ten below $2^{30}$, so a limb product is below $10^{18} < 2^{60}$; shifting by a multiple of nine digits moves limbs, and `digits10` is a limb count plus the digits of the top limb. `BigInt` appears only at the public boundary."
 msgstr ""
 
-#: manual/design/decimal.md:1202
+#: manual/design/decimal.md:1213
 msgid "Multiplication dispatch:"
 msgstr ""
 
-#: manual/design/decimal.md:1204
+#: manual/design/decimal.md:1215
 msgid "Shape"
 msgstr ""
 
-#: manual/design/decimal.md:1204
+#: manual/design/decimal.md:1215
 msgid "Algorithm"
 msgstr ""
 
-#: manual/design/decimal.md:1204
+#: manual/design/decimal.md:1215
 #: manual/design/decimal_checked.md:263
 #: manual/design/decimal_gda_checked.md:233
 #: manual/design/def.md:317
 msgid "Cost"
 msgstr ""
 
-#: manual/design/decimal.md:1206
+#: manual/design/decimal.md:1217
 msgid "one limb each"
 msgstr ""
 
-#: manual/design/decimal.md:1206
+#: manual/design/decimal.md:1217
 msgid "inline"
 msgstr ""
 
-#: manual/design/decimal.md:1207
+#: manual/design/decimal.md:1218
 msgid "many zero limbs ($n_a' n_b' \\cdot 4 < n_a n_b$ non-zero limbs)"
 msgstr ""
 
-#: manual/design/decimal.md:1207
+#: manual/design/decimal.md:1218
 msgid "sparse products"
 msgstr ""
 
-#: manual/design/decimal.md:1208
+#: manual/design/decimal.md:1219
 msgid "balanced blocks of the short length"
 msgstr ""
 
-#: manual/design/decimal.md:1209
+#: manual/design/decimal.md:1220
 msgid "small"
 msgstr ""
 
-#: manual/design/decimal.md:1209
+#: manual/design/decimal.md:1220
 msgid "Comba columns / schoolbook"
 msgstr ""
 
-#: manual/design/decimal.md:1210
+#: manual/design/decimal.md:1221
 msgid "from the Karatsuba threshold"
 msgstr ""
 
-#: manual/design/decimal.md:1210
+#: manual/design/decimal.md:1221
 msgid "Karatsuba"
 msgstr ""
 
-#: manual/design/decimal.md:1211
+#: manual/design/decimal.md:1222
 msgid "from the Toom-3 threshold"
 msgstr ""
 
-#: manual/design/decimal.md:1211
-#: manual/design/decimal.md:1257
+#: manual/design/decimal.md:1222
+#: manual/design/decimal.md:1268
 #: manual/design/decimal_gda.md:830
 msgid "Toom-3"
 msgstr ""
 
-#: manual/design/decimal.md:1212
+#: manual/design/decimal.md:1223
 msgid "from the NTT threshold"
 msgstr ""
 
-#: manual/design/decimal.md:1212
+#: manual/design/decimal.md:1223
 msgid "two-prime NTT"
 msgstr ""
 
-#: manual/design/decimal.md:1214
+#: manual/design/decimal.md:1225
 msgid "The Comba kernel accumulates a column of $n$ limb products in a `UInt64` only when $\\min(n_a,n_b) \\le 18$: a column sum plus incoming carry is at most $18(10^{9}-1)^{2} + 2\\cdot 10^{10} < 1.8\\cdot 10^{19} < 2^{64}$, while 19 products could exceed $2^{64} \\approx 1.845\\cdot 10^{19}$."
 msgstr ""
 
-#: manual/design/decimal.md:1219
+#: manual/design/decimal.md:1230
 msgid "The NTT splits the coefficients into base-$10^5$ digits and convolves them modulo the primes $p_1 = 998\\,244\\,353 = 119\\cdot 2^{23} + 1$ and $p_2 = 754\\,974\\,721 = 45 \\cdot 2^{24} + 1$, both of which have $2^{23}$-th roots of unity, so transforms up to length $2^{23}$ exist. A convolution coefficient is a sum of at most $m = \\min(n_a, n_b)$ products of digits below $10^{5}$, hence below $m \\cdot 99999^{2}$; it is recovered exactly from its residues by the Chinese remainder theorem,"
 msgstr ""
 
-#: manual/design/decimal.md:1231
+#: manual/design/decimal.md:1242
 msgid "as long as $m \\cdot 99999^{2} < p_1 p_2 = 753\\,649\\,251\\,896\\,000\\,513$, i.e. $m < 7.5 \\cdot 10^{7}$. The transform limit $2^{23}$ allows at most $m = 2^{22}$, and $2^{22} \\cdot 99999^{2} = 41\\,942\\,201\\,143\\,394\\,304 < p_1 p_2$, so the bound always holds below the transform limit (the kernel checks it before every transform). Base $10^{9}$ digits would need $m\\cdot 10^{18} < p_1p_2$, impossible for any $m \\ge 1$, which is why the NTT uses smaller digits. When the bounds do not hold the kernel falls back to Toom-3."
 msgstr ""
 
-#: manual/design/decimal.md:1240
+#: manual/design/decimal.md:1251
 msgid "Division uses one-limb division, Knuth's Algorithm D,[^knuth] Burnikel–Ziegler recursive division, or Newton reciprocal division. Newton computes $r \\approx S/d$ for $S = B^{n+1}$ by $r_{k+1} = \\lfloor r_k (2S - d r_k)/S \\rfloor$: with $r_k = S/d - \\varepsilon_k$ one gets $S/d - r_{k+1} \\approx d\\,\\varepsilon_k^{2}/S$, so the number of correct limbs doubles per step. The iteration must increase monotonically from below; if it does not, or the final quotient correction takes more than $2n+8$ steps, the routine falls back to Burnikel–Ziegler, which itself falls back to Algorithm D on unsupported shapes."
 msgstr ""
 
-#: manual/design/decimal.md:1250
+#: manual/design/decimal.md:1261
 msgid "D. E. Knuth, *The Art of Computer Programming*, vol. 2, 3rd ed., §4.3.1 (Algorithm D) and §4.3.3; R. Brent and P. Zimmermann, *Modern Computer Arithmetic*, Cambridge 2010, §1.3–1.4 and §2.4 (NTT); C. Burnikel and J. Ziegler, \"Fast recursive division\", MPI-I-98-1-022, 1998."
 msgstr ""
 
-#: manual/design/decimal.md:1255
+#: manual/design/decimal.md:1266
 msgid "The crossovers are measured per target and stored in target-specific files:"
 msgstr ""
 
-#: manual/design/decimal.md:1257
+#: manual/design/decimal.md:1268
 #: manual/design/decimal_gda.md:830
 msgid "Target"
 msgstr ""
 
-#: manual/design/decimal.md:1257
+#: manual/design/decimal.md:1268
 #: manual/design/decimal_gda.md:830
 msgid "Karatsuba mul / square"
 msgstr ""
 
-#: manual/design/decimal.md:1257
+#: manual/design/decimal.md:1268
 #: manual/design/decimal_gda.md:830
 msgid "first NTT mul / square"
 msgstr ""
 
-#: manual/design/decimal.md:1257
+#: manual/design/decimal.md:1268
 #: manual/design/decimal_gda.md:830
 msgid "Burnikel–Ziegler"
 msgstr ""
 
-#: manual/design/decimal.md:1257
+#: manual/design/decimal.md:1268
 msgid "Newton"
 msgstr ""
 
-#: manual/design/decimal.md:1259
+#: manual/design/decimal.md:1270
 #: manual/design/decimal_gda.md:832
 #: manual/verification.md:202
 #: manual/verification.md:245
 msgid "native"
 msgstr ""
 
-#: manual/design/decimal.md:1259
+#: manual/design/decimal.md:1270
 #: manual/design/decimal_gda.md:832
 msgid "from 2,816"
 msgstr ""
 
-#: manual/design/decimal.md:1259
+#: manual/design/decimal.md:1270
 msgid "disabled"
 msgstr ""
 
-#: manual/design/decimal.md:1260
+#: manual/design/decimal.md:1271
 #: manual/design/decimal_gda.md:833
 msgid "LLVM"
 msgstr ""
 
-#: manual/design/decimal.md:1261
+#: manual/design/decimal.md:1272
 msgid "Wasm / Wasm-GC / JS"
 msgstr ""
 
-#: manual/design/decimal.md:1263
+#: manual/design/decimal.md:1274
 msgid "(limbs of nine digits). On native the NTT threshold also depends on the transform length — 1,728, 2,816, 4,608, 7,680, then 8,192 limbs for multiplication and 640, 1,040, 1,824, 3,648, 7,296, then 8,192 for squaring — and the Burnikel–Ziegler entry moves to 5,120 and 10,240 limbs for larger block lengths. These are dispatch boundaries: they change cost, never results. The native Newton path is implemented and tested but disabled, because native measurements do not show a crossover."
 msgstr ""
 
-#: manual/design/decimal.md:1273
+#: manual/design/decimal.md:1284
 msgid "**Representation.** A finite `Decimal` has $c \\ge 0$; `DecCoeff` limbs are canonical (no leading zero limb, exact digit count). A zero's sign is kept in the sign bit; `coefficient()` never carries a sign."
 msgstr ""
 
-#: manual/design/decimal.md:1276
+#: manual/design/decimal.md:1287
 msgid "**Single rounding.** Every context result of `+`, `-`, `×`, `/`, `fma`, `sqrt`, `scaleb`, quantize and the conversions is the exact result rounded once, in the normal and in the subnormal range; integer powers are correctly rounded in extended contexts; certified elementary results are correctly rounded whenever they are returned, and a failure is reported, never approximated. The exceptions are listed under [known deviations](#known-deviations)."
 msgstr ""
 
-#: manual/design/decimal.md:1283
+#: manual/design/decimal.md:1294
 msgid "**Error bound.** For normal results of those operations, $\\operatorname{fl}(x) = x(1+\\delta)$ with $|\\delta| \\le \\tfrac12 10^{1-p}$ in the half modes and $|\\delta| < 10^{1-p}$ in the directed modes."
 msgstr ""
 
-#: manual/design/decimal.md:1286
+#: manual/design/decimal.md:1297
 msgid "**Exactness is visible.** `inexact` is raised if and only if the returned value differs from the exact result; `rounded` whenever digits were dropped. Exact decimal results of non-integral powers violate the \"only if\" direction."
 msgstr ""
 
-#: manual/design/decimal.md:1290
+#: manual/design/decimal.md:1301
 msgid "**Cohort preservation.** An exact result that fits is returned at the preferred exponent; `quantize` either returns exponent $q_y$ or fails."
 msgstr ""
 
-#: manual/design/decimal.md:1292
+#: manual/design/decimal.md:1303
 msgid "**Flags.** `combine` is associative, commutative and idempotent with identity `new()`."
 msgstr ""
 
-#: manual/design/decimal.md:1294
+#: manual/design/decimal.md:1305
 msgid "**Ordering.** `compare` is a total preorder (NaNs equal to each other and above every number, $-0 = +0$); `compare_total` is a total order on representations and refines `compare` on non-NaN values."
 msgstr ""
 
-#: manual/design/decimal.md:1297
+#: manual/design/decimal.md:1308
 msgid "**Encodings.** Decoding then encoding canonical bits is the identity; encoding then decoding a value that fits the format is the identity, including cohort, sign of zero and NaN payload (DPD and BID)."
 msgstr ""
 
-#: manual/design/decimal.md:1300
+#: manual/design/decimal.md:1311
 msgid "**Complexity.** Comparison, addition, shifts and one-limb division are $O(n)$ in limbs; multiplication and division follow the dispatch table."
 msgstr ""
 
-#: manual/design/decimal.md:1303
+#: manual/design/decimal.md:1314
 msgid "Known deviations"
 msgstr ""
 
-#: manual/design/decimal.md:1305
+#: manual/design/decimal.md:1316
 msgid "No behaviour of the current branch contradicts the goals above. A deviation found later is listed here, reproduced in the [API reference](../api/decimal.md) next to the operation, and tracked in a GitHub issue together with the pull request that proposes a fix."
 msgstr ""
 
-#: manual/design/decimal.md:1310
+#: manual/design/decimal.md:1321
 msgid "The proofs of the midpoint test, the `ZeroFiveUp` double-rounding lemma, the overflow table, the fold-down bound, the certification lemma and the kernel bounds are collected in the attachment:"
 msgstr ""
 
-#: manual/design/decimal.md:1314
+#: manual/design/decimal.md:1325
 msgid "[Rounding proofs for decimal](../../attachments/design_decimal_rounding.typ)"
 msgstr ""
 
-#: manual/design/decimal.md:1316
+#: manual/design/decimal.md:1327
 msgid "The [conformance page](../conformance/decimal.md) records the finite evidence (fixed IEEE corpus, exhaustive declet check, MPFR-certified elementary rows, four targets)."
 msgstr ""
 
-#: manual/design/decimal.md:1322
+#: manual/design/decimal.md:1333
 msgid "**A binary `BigInt` coefficient.** Rounding at a decimal position needs a division by $10^{s}$ and a digit count at every operation; with a binary coefficient both are expensive, with base-$10^{9}$ limbs they are limb moves and one small division."
 msgstr ""
 
-#: manual/design/decimal.md:1326
+#: manual/design/decimal.md:1337
 msgid "**Ambient context and sticky flags.** Rejected for explicitness and composability; the flags monoid gives the same information."
 msgstr ""
 
-#: manual/design/decimal.md:1328
+#: manual/design/decimal.md:1339
 msgid "**A `compare` that aborts on NaN.** Sorting and generic `Compare` code would abort on data containing NaN. The current `compare` is a total preorder and IEEE semantics are available through `compare_checked`, `compare_ctx`, `compare_signal_ctx` and `compare_total`."
 msgstr ""
 
-#: manual/design/decimal.md:1332
+#: manual/design/decimal.md:1343
 msgid "**Fixed-precision transcendental kernels with an analytic error bound.** Faster for small precisions, but a correctness proof per function and per precision; the enclosure loop is correct by construction and its failure mode is explicit."
 msgstr ""
 
-#: manual/design/decimal.md:1336
+#: manual/design/decimal.md:1347
 msgid "**One package for IEEE and GDA.** Sticky status, traps and trap precedence change the type of every operation; they live in `decimal_gda`."
 msgstr ""
 
-#: manual/design/decimal.md:1338
+#: manual/design/decimal.md:1349
 msgid "**Normalizing every result.** Losing the cohort would make `12.30` and `12.3` indistinguishable and break quantum-sensitive protocols."
 msgstr ""
 
-#: manual/design/decimal.md:1343
+#: manual/design/decimal.md:1354
 msgid "`decimal` deliberately does not:"
 msgstr ""
 
-#: manual/design/decimal.md:1345
+#: manual/design/decimal.md:1356
 msgid "keep sticky status or traps (use `decimal_checked` or `decimal_gda`);"
 msgstr ""
 
-#: manual/design/decimal.md:1346
+#: manual/design/decimal.md:1357
 msgid "round the context-free operators to a context: `*` is exact, `+` and `/` round to the operand precision only, and none applies an exponent range;"
 msgstr ""
 
-#: manual/design/decimal.md:1348
+#: manual/design/decimal.md:1359
 msgid "guarantee correct rounding of integer powers longer than $p$ digits in a context that is not extended, or the exact flags of exact decimal results of non-integral powers (see [known deviations](#known-deviations));"
 msgstr ""
 
-#: manual/design/decimal.md:1351
+#: manual/design/decimal.md:1362
 msgid "guarantee that elementary-function certification succeeds: after the refinement limit of the context (twelve by default, `with_refinement_limit`; the last steps work with very wide numbers and can take a long time) it reports `CertificationFailure` (`try_*_ctx`) or NaN with `invalid_operation` (`*_ctx`);"
 msgstr ""
 
-#: manual/design/decimal.md:1355
+#: manual/design/decimal.md:1366
 msgid "evaluate elementary functions in contexts with precision or exponents above 999,999;"
 msgstr ""
 
-#: manual/design/decimal.md:1357
+#: manual/design/decimal.md:1368
 msgid "preserve NaN payloads through binary conversions;"
 msgstr ""
 
-#: manual/design/decimal.md:1358
+#: manual/design/decimal.md:1369
 msgid "expose its coefficient representation, kernel selection or thresholds;"
 msgstr ""
 
-#: manual/design/decimal.md:1359
+#: manual/design/decimal.md:1370
 msgid "claim conformance beyond the finite evidence on the [conformance page](../conformance/decimal.md)."
 msgstr ""
 
@@ -26924,11 +26936,11 @@ msgid "IEEE 754-2019 §5.3.2"
 msgstr ""
 
 #: manual/verification.md:703
-msgid "A zero `quantize` result above `e_max - p + 1` under `clamp` is not folded down or flagged `clamped` (General Decimal Arithmetic does)"
+msgid "A zero `quantize` (and `rescale`) result above `e_max - p + 1` under `clamp` is not folded down or flagged `clamped` by default (decNumber folds it)"
 msgstr ""
 
 #: manual/verification.md:703
-msgid "decided: opt-in GDA-style fold, default unchanged; [#234](https://github.com/Luna-Flow/floating/issues/234); see the pull request of issue #187"
+msgid "default unchanged; `DecimalContext::with_clamp_fold(true)` folds it with `clamped`; [#234](https://github.com/Luna-Flow/floating/issues/234)"
 msgstr ""
 
 #: manual/verification.md:704
