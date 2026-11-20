@@ -253,3 +253,256 @@ pub fn bin_coeff_div_scaled_quotient(
   )
   bin_coeff_from_words(quotient, quotient_len + 1)
 }
+
+///|
+/// Longest divisor, in limbs, that the short division handles; longer ones
+/// are left to the exact division (Burnikel-Ziegler from 96 limbs).
+let bin_coeff_short_division_max_words : Int32 = 256
+
+///|
+/// Extra bits that the caller adds to the scale of a short division, so that
+/// the approximate quotient carries guard bits under the rounding position
+/// (the error bound of `bin_coeff_div_short_quotient` is a few hundred units).
+pub let bin_coeff_short_division_guard_bits : Int32 = 32
+
+///|
+/// Whether `bin_coeff_div_short_quotient` handles `dividend * 2^scale` over
+/// `divisor`: a divisor of 2 to 256 limbs and a numerator at least as wide as
+/// the divisor.
+pub fn bin_coeff_div_short_ok(
+  dividend : Coeff,
+  scale : Int32,
+  divisor : Coeff,
+) -> Bool {
+  let denominator_len = bin_coeff_word_len(divisor)
+  denominator_len >= 2 &&
+  denominator_len <= bin_coeff_short_division_max_words &&
+  scale >= 0 &&
+  !dividend.is_zero() &&
+  dividend.bit_length() + scale >= divisor.bit_length()
+}
+
+///|
+/// The quotient loop of Knuth's algorithm D with a truncated divisor ("short
+/// division", the basecase of Harvey and Zimmermann's ShortDiv): the digit at
+/// position `k` subtracts `q * D_k * B^k` where `D_k` is the divisor with its
+/// lowest `max(0, denominator_len - 1 - k)` limbs set to zero. The digit
+/// estimate, the correction and the add-back are those of
+/// `bin_coeff_knuth_words_core`, with the add-back of `D_k`. The window stays
+/// non-negative after every digit (the estimate is at most one above the digit
+/// for the full divisor, and `D_k <= D`), so the digits satisfy
+/// `N = Q * D + R - S` with `0 <= R` the final window and
+/// `0 <= S < (denominator_len - 1) * B^denominator_len` the sum of the dropped
+/// products `q_k * (D mod B^l_k) * B^k` (each below `B^denominator_len`, and
+/// zero for `k >= denominator_len - 1`). The remainder `R` is left in
+/// `dividend[0 ..= denominator_len]`.
+fn bin_coeff_knuth_short_core(
+  dividend : FixedArray[UInt64],
+  divisor : FixedArray[UInt64],
+  denominator_len : Int32,
+  quotient : FixedArray[UInt64],
+  quotient_len : Int32,
+) -> Unit {
+  let divisor_top = divisor.unsafe_get(denominator_len - 1)
+  let divisor_next = divisor.unsafe_get(denominator_len - 2)
+  let mut offset = quotient_len - 1
+  while offset >= 0 {
+    let high = dividend.unsafe_get(offset + denominator_len)
+    let next = dividend.unsafe_get(offset + denominator_len - 1)
+    let after = dividend.unsafe_get(offset + denominator_len - 2)
+    let mut trial = 0UL
+    let mut trial_remainder = 0UL
+    let mut remainder_overflow = false
+    if high >= divisor_top {
+      trial = 0xFFFF_FFFF_FFFF_FFFFUL
+      trial_remainder = next + divisor_top
+      remainder_overflow = trial_remainder < next
+    } else {
+      trial = binary_fast_div_wide(high, next, divisor_top)
+      trial_remainder = next - trial * divisor_top
+    }
+    while !remainder_overflow {
+      let product_high = bin_coeff_mul_high(trial, divisor_next)
+      let product_low = trial * divisor_next
+      if product_high > trial_remainder ||
+        (product_high == trial_remainder && product_low > after) {
+        trial -= 1UL
+        trial_remainder += divisor_top
+        remainder_overflow = trial_remainder < divisor_top
+      } else {
+        break
+      }
+    }
+    // dividend[offset + skip ..= offset + n] -= trial * divisor[skip ..< n]
+    let skip = Int32::max(0, denominator_len - 1 - offset)
+    let mut carry = 0UL
+    let mut borrow = 0UL
+    let trial_low = trial & bin_coeff_limb_mask
+    let trial_high = trial >> 32
+    for index in skip..<denominator_len {
+      let digit = divisor.unsafe_get(index)
+      let product_low = trial * digit
+      let digit_low = digit & bin_coeff_limb_mask
+      let digit_high = digit >> 32
+      let cross = trial_high * digit_low + ((trial_low * digit_low) >> 32)
+      let mut product_high = trial_high * digit_high +
+        (cross >> 32) +
+        ((trial_low * digit_high + (cross & bin_coeff_limb_mask)) >> 32)
+      let low = product_low + carry
+      if low < product_low {
+        product_high += 1UL
+      }
+      carry = product_high
+      let current = dividend.unsafe_get(offset + index)
+      let difference = current - low
+      let borrow_one = if current < low { 1UL } else { 0UL }
+      let result = difference - borrow
+      let borrow_two = if difference < borrow { 1UL } else { 0UL }
+      dividend.unsafe_set(offset + index, result)
+      borrow = borrow_one + borrow_two
+    }
+    let high_index = offset + denominator_len
+    let current_high = dividend.unsafe_get(high_index)
+    let high_difference = current_high - carry
+    let high_borrow_one = if current_high < carry { 1UL } else { 0UL }
+    let high_result = high_difference - borrow
+    let high_borrow_two = if high_difference < borrow { 1UL } else { 0UL }
+    dividend.unsafe_set(high_index, high_result)
+    if high_borrow_one + high_borrow_two != 0UL {
+      trial -= 1UL
+      let mut add_carry = 0UL
+      for index in skip..<denominator_len {
+        let value = dividend.unsafe_get(offset + index)
+        let sum = value + divisor.unsafe_get(index)
+        let carry_one = if sum < value { 1UL } else { 0UL }
+        let total = sum + add_carry
+        let carry_two = if total < sum { 1UL } else { 0UL }
+        dividend.unsafe_set(offset + index, total)
+        add_carry = carry_one + carry_two
+      }
+      dividend.unsafe_set(
+        high_index,
+        dividend.unsafe_get(high_index) + add_carry,
+      )
+    }
+    quotient.unsafe_set(offset, trial)
+    offset -= 1
+  }
+}
+
+///|
+/// An approximate quotient `Q` of `dividend * 2^scale` by `divisor`, rounded
+/// correctly if it is returned, else `Coeff::zero()` (the caller then divides
+/// exactly). Requires `bin_coeff_div_short_ok`.
+///
+/// Error bound. With `N = dividend * 2^scale`, `D = divisor` (normalised by a
+/// shift to `n` limbs with the top bit set, so `D >= B^n / 2`; `B = 2^64`) and
+/// the digits of `bin_coeff_knuth_short_core`, `N / D - Q = (R - S) / D`, with
+/// `0 <= S < (n - 1) B^n`, hence `S / D < 2 (n - 1)`, and `0 <= R`, so
+/// `N / D > Q - 2 n`. The final window `R < (r1 * B + r0 + 1) * B^(n - 1)` for its
+/// top two limbs `r1, r0`, and `D >= D_top * B^(n - 1)`, so
+/// `N / D < Q + h` for `h = floor((r1 * B + r0) / D_top) + 2` (if `r1 < D_top`;
+/// otherwise the function declines). So `N / D` lies in `(Q - 2 n, Q + h)`
+/// whatever the quality of the digit estimates, which only moves `h`.
+///
+/// Rounding to `precision` bits: let `m = bit_length(Q) - precision - 1` (at
+/// least `guard_bits` of them: else decline). The grid of halfway and
+/// representable points has the spacing `2^m`, and no multiple of it lies in
+/// `[Q - 2 n, Q + h]` exactly when `r = Q mod 2^m` satisfies `r > 2 n` and
+/// `2^m - 1 - r >= h`. Then the rounded value of `N / D` (nearest, directed,
+/// any mode) is that of `Q`, and the result is inexact; the power of two at
+/// the top of `Q` is a multiple of the spacing, so the interval does not
+/// straddle a change of the bit length. An exact quotient or a quotient near a
+/// grid point fails the test and is divided exactly.
+pub fn bin_coeff_div_short_quotient(
+  dividend : Coeff,
+  scale : Int32,
+  divisor : Coeff,
+  precision : Int32,
+) -> Coeff {
+  let denominator_len = bin_coeff_word_len(divisor)
+  let numerator_bits = dividend.bit_length() + scale
+  let numerator_len = (numerator_bits + 63) / 64
+  let normalization_shift = 64 -
+    bin_coeff_u64_bits(bin_coeff_word(divisor, denominator_len - 1))
+  let work = bin_coeff_words_shifted(
+    dividend,
+    scale + normalization_shift,
+    numerator_len + 1,
+  )
+  let normalized = bin_coeff_words_shifted(
+    divisor, normalization_shift, denominator_len,
+  )
+  let quotient_len = numerator_len - denominator_len + 1
+  let quotient = FixedArray::make(quotient_len, 0UL)
+  bin_coeff_knuth_short_core(
+    work, normalized, denominator_len, quotient, quotient_len,
+  )
+  // the upper bound h of N / D - Q, from the top two limbs of the final window
+  let top = normalized.unsafe_get(denominator_len - 1)
+  let window_high = work.unsafe_get(denominator_len)
+  if window_high >= top {
+    return Coeff::zero()
+  }
+  let upper = binary_fast_div_wide(
+      window_high,
+      work.unsafe_get(denominator_len - 1),
+      top,
+    ) +
+    2UL
+  let lower = (2 * denominator_len).to_uint64()
+  // the quotient limbs, trimmed
+  let mut used = quotient_len
+  while used > 0 && quotient.unsafe_get(used - 1) == 0UL {
+    used -= 1
+  }
+  if used == 0 {
+    return Coeff::zero()
+  }
+  let bits = (used - 1) * 64 + bin_coeff_u64_bits(quotient.unsafe_get(used - 1))
+  let spacing_bits = bits - precision - 1
+  if spacing_bits < bin_coeff_short_division_guard_bits {
+    return Coeff::zero()
+  }
+  // r = Q mod 2^spacing_bits must exceed `lower`, and its complement within
+  // spacing_bits bits must be at least `upper`
+  let limbs = (spacing_bits + 63) / 64
+  let top_bits = spacing_bits - (limbs - 1) * 64
+  let top_mask = if top_bits == 64 {
+    0xFFFF_FFFF_FFFF_FFFFUL
+  } else {
+    (1UL << top_bits) - 1UL
+  }
+  let mut remainder_above = false
+  let mut complement_above = false
+  for index in 1..<limbs {
+    let word = if index == limbs - 1 {
+      quotient.unsafe_get(index) & top_mask
+    } else {
+      quotient.unsafe_get(index)
+    }
+    let full = if index == limbs - 1 {
+      top_mask
+    } else {
+      0xFFFF_FFFF_FFFF_FFFFUL
+    }
+    if word != 0UL {
+      remainder_above = true
+    }
+    if full - word != 0UL {
+      complement_above = true
+    }
+  }
+  let word0 = if limbs == 1 {
+    quotient.unsafe_get(0) & top_mask
+  } else {
+    quotient.unsafe_get(0)
+  }
+  let full0 = if limbs == 1 { top_mask } else { 0xFFFF_FFFF_FFFF_FFFFUL }
+  let remainder_ok = remainder_above || word0 > lower
+  let complement_ok = complement_above || full0 - word0 >= upper
+  if !remainder_ok || !complement_ok {
+    return Coeff::zero()
+  }
+  bin_coeff_from_words(quotient, quotient_len)
+}

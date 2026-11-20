@@ -18,6 +18,9 @@
 using @bin_kernel {
   bin_coeff_sqrt_scaled_rounded,
   bin_coeff_div_scaled_ok,
+  bin_coeff_div_short_ok,
+  bin_coeff_div_short_quotient,
+  bin_coeff_short_division_guard_bits,
   bin_coeff_div_scaled_quotient,
 }
 
@@ -419,6 +422,25 @@ fn binary_coeff_fast_div(left : BinFloat, right : BinFloat) -> BinFloat? {
   // the quotient of `dividend * 2^scale / divisor` has at least
   // `precision + 2` bits
   let scale = Int32::max(0, precision + 2 + divisor_bits - dividend_bits)
+  // short division: an approximate quotient with guard bits, used only when
+  // its rounding is certain (the exact division handles every other case)
+  let short_scale = scale + bin_coeff_short_division_guard_bits
+  if bin_coeff_div_short_ok(dividend, short_scale, divisor) {
+    let approximate = bin_coeff_div_short_quotient(
+      dividend, short_scale, divisor, precision,
+    )
+    if !approximate.is_zero() {
+      return Some(
+        binary_coeff_fast_finish(
+          left.negative != right.negative,
+          approximate,
+          left.exponent2 - right.exponent2 - short_scale,
+          precision,
+          false,
+        ),
+      )
+    }
+  }
   if bin_coeff_div_scaled_ok(dividend, scale, divisor) {
     // the lowest bit of the quotient is the inexact flag
     return Some(
