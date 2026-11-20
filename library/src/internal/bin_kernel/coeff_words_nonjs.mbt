@@ -23,22 +23,25 @@ fn bin_coeff_words_school(
   }
   for left_index in 0..<left_len {
     let left_word = left.unsafe_get(left_offset + left_index)
+    let left_low = left_word & bin_coeff_limb_mask
+    let left_high = left_word >> 32
     let mut carry = 0UL
     for right_index in 0..<right_len {
       let index = result_offset + left_index + right_index
       let right_word = right.unsafe_get(right_offset + right_index)
       let low = left_word * right_word
-      let mut high = bin_coeff_mul_high(left_word, right_word)
-      let sum = low + result.unsafe_get(index)
-      if sum < low {
-        high += 1UL
-      }
-      let total = sum + carry
-      if total < sum {
-        high += 1UL
-      }
+      let right_low = right_word & bin_coeff_limb_mask
+      let right_high = right_word >> 32
+      let cross = left_high * right_low + ((left_low * right_low) >> 32)
+      let product_high = left_high * right_high +
+        (cross >> 32) +
+        ((left_low * right_high + (cross & bin_coeff_limb_mask)) >> 32)
+      let partial = low + carry
+      let carry_one = if partial < low { 1UL } else { 0UL }
+      let total = partial + result.unsafe_get(index)
+      let carry_two = if total < partial { 1UL } else { 0UL }
       result.unsafe_set(index, total)
-      carry = high
+      carry = product_high + carry_one + carry_two
     }
     result.unsafe_set(result_offset + left_index + right_len, carry)
   }
@@ -470,22 +473,25 @@ fn bin_coeff_words_sqr_school(
   }
   for left_index in 0..<len {
     let left_word = source.unsafe_get(source_offset + left_index)
+    let left_low = left_word & bin_coeff_limb_mask
+    let left_high = left_word >> 32
     let mut carry = 0UL
     for right_index in (left_index + 1)..<len {
       let position = result_offset + left_index + right_index
       let right_word = source.unsafe_get(source_offset + right_index)
       let low = left_word * right_word
-      let mut high = bin_coeff_mul_high(left_word, right_word)
-      let sum = low + result.unsafe_get(position)
-      if sum < low {
-        high += 1UL
-      }
-      let total = sum + carry
-      if total < sum {
-        high += 1UL
-      }
+      let right_low = right_word & bin_coeff_limb_mask
+      let right_high = right_word >> 32
+      let cross = left_high * right_low + ((left_low * right_low) >> 32)
+      let product_high = left_high * right_high +
+        (cross >> 32) +
+        ((left_low * right_high + (cross & bin_coeff_limb_mask)) >> 32)
+      let partial = low + carry
+      let carry_one = if partial < low { 1UL } else { 0UL }
+      let total = partial + result.unsafe_get(position)
+      let carry_two = if total < partial { 1UL } else { 0UL }
       result.unsafe_set(position, total)
-      carry = high
+      carry = product_high + carry_one + carry_two
     }
     result.unsafe_set(result_offset + left_index + len, carry)
   }
