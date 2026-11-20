@@ -942,7 +942,7 @@ fn absorbed_sum_result(
 
 ///|
 fn nan_operand_flags(a : Decimal, b : Decimal) -> DecimalFlags {
-  if a.is_signaling_nan() || b.is_signaling_nan() {
+  if a.is_snan() || b.is_snan() {
     { ..DecimalFlags::new(), invalid_operation: true, }
   } else {
     DecimalFlags::new()

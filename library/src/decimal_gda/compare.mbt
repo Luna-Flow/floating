@@ -4,7 +4,7 @@
 fn plain_minmax_nan_result(lhs : Decimal, rhs : Decimal) -> Decimal? {
   match quiet_nan_pair_plain(lhs, rhs) {
     Some(value) =>
-      if lhs.is_signaling_nan() || rhs.is_signaling_nan() {
+      if lhs.is_snan() || rhs.is_snan() {
         Some(value)
       } else if lhs.is_nan() && rhs.is_nan() {
         Some(value)

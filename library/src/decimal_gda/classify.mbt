@@ -40,10 +40,10 @@ fn quiet_nan_pair_for_next_toward(
   rhs : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
-  if lhs.is_signaling_nan() {
+  if lhs.is_snan() {
     return Some(quiet_nan_operand(lhs, ctx))
   }
-  if rhs.is_signaling_nan() {
+  if rhs.is_snan() {
     return Some(quiet_nan_operand(rhs, ctx))
   }
   if lhs.is_nan() {
@@ -61,9 +61,9 @@ fn quiet_nan_pair(
   rhs : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
-  let selected = if lhs.is_signaling_nan() {
+  let selected = if lhs.is_snan() {
     Some(lhs)
-  } else if rhs.is_signaling_nan() {
+  } else if rhs.is_snan() {
     Some(rhs)
   } else if lhs.is_nan() {
     Some(lhs)
@@ -75,7 +75,7 @@ fn quiet_nan_pair(
   match selected {
     Some(operand) => {
       let (value, flags) = quiet_nan_operand(operand, ctx)
-      let has_signaling = lhs.is_signaling_nan() || rhs.is_signaling_nan()
+      let has_signaling = lhs.is_snan() || rhs.is_snan()
       return Some(
         (
           value,
@@ -98,14 +98,12 @@ fn quiet_nan_triplet(
   third : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
-  let has_signaling = first.is_signaling_nan() ||
-    second.is_signaling_nan() ||
-    third.is_signaling_nan()
-  let selected = if first.is_signaling_nan() {
+  let has_signaling = first.is_snan() || second.is_snan() || third.is_snan()
+  let selected = if first.is_snan() {
     Some(first)
-  } else if second.is_signaling_nan() {
+  } else if second.is_snan() {
     Some(second)
-  } else if third.is_signaling_nan() {
+  } else if third.is_snan() {
     Some(third)
   } else if first.is_nan() {
     Some(first)
@@ -193,18 +191,8 @@ pub fn Decimal::coefficient(self : Decimal) -> BigInt {
 }
 
 ///|
-pub fn Decimal::magnitude(self : Decimal) -> BigInt {
-  self.coefficient.to_bigint()
-}
-
-///|
 pub fn Decimal::exponent10(self : Decimal) -> Int32 {
   self.exponent10
-}
-
-///|
-pub fn Decimal::is_negative(self : Decimal) -> Bool {
-  self.negative
 }
 
 ///|
@@ -243,23 +231,13 @@ pub fn Decimal::is_negative_zero(self : Decimal) -> Bool {
 }
 
 ///|
-pub fn Decimal::is_quiet_nan(self : Decimal) -> Bool {
+pub fn Decimal::is_qnan(self : Decimal) -> Bool {
   self.class == FpClass::NaN && !self.signaling_nan
 }
 
 ///|
-pub fn Decimal::is_qnan(self : Decimal) -> Bool {
-  self.is_quiet_nan()
-}
-
-///|
-pub fn Decimal::is_signaling_nan(self : Decimal) -> Bool {
-  self.class == FpClass::NaN && self.signaling_nan
-}
-
-///|
 pub fn Decimal::is_snan(self : Decimal) -> Bool {
-  self.is_signaling_nan()
+  self.class == FpClass::NaN && self.signaling_nan
 }
 
 ///|
@@ -269,55 +247,6 @@ pub fn Decimal::nan_payload(self : Decimal) -> BigInt {
   } else {
     bigint_zero()
   }
-}
-
-///|
-pub fn Decimal::get_payload(self : Decimal) -> BigInt {
-  // IEEE 754-2019 §9.7 getPayload: -1 when the operand is not a NaN.
-  if self.class == FpClass::NaN {
-    self.nan_payload()
-  } else {
-    BigInt::from_int(-1)
-  }
-}
-
-///|
-/// IEEE 754-2019 §9.7 setPayload and setPayloadSignaling: a NaN carrying the
-/// payload when it is a non-negative integer the format can hold (at most
-/// `precision - 1` digits, like the trailing significand of an interchange
-/// NaN), otherwise +0 with preferred exponent 0. The receiver only supplies the
-/// format precision and the sign bit of a NaN result.
-fn Decimal::payload_result(
-  self : Decimal,
-  payload : BigInt,
-  signaling : Bool,
-) -> Decimal {
-  let precision = Int32::max(1, self.precision_)
-  let coefficient = coeff_from_bigint(payload)
-  if payload < BigInt::from_int(0) ||
-    (coeff_digits(coefficient) > precision - 1 && !coefficient.is_zero()) {
-    return Decimal::zero(precision~)
-  }
-  make_special_repr(
-    FpClass::NaN,
-    self.negative,
-    coefficient,
-    precision,
-    signaling,
-  )
-}
-
-///|
-pub fn Decimal::set_payload(self : Decimal, payload : BigInt) -> Decimal {
-  Decimal::payload_result(self, payload, false)
-}
-
-///|
-pub fn Decimal::set_payload_signaling(
-  self : Decimal,
-  payload : BigInt,
-) -> Decimal {
-  Decimal::payload_result(self, payload, true)
 }
 
 ///|

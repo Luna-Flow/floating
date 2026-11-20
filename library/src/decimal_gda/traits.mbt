@@ -524,12 +524,6 @@ pub extend Decimal with @Luna-Flow/arithmetic.PowNatChecked::{pow_nat_checked}
 pub extend Decimal with @Luna-Flow/arithmetic.PowIntChecked::{pow_int_checked}
 
 ///|
-pub extend Decimal with @Luna-Flow/luna-generic.FromNat::{from_natural}
-
-///|
-pub extend Decimal with @Luna-Flow/luna-generic.FromInteger::{from_integer}
-
-///|
 pub extend Decimal with Eq::{not_equal, equal}
 
 ///|

@@ -275,17 +275,6 @@ pub fn Decimal::remainder_near(
 }
 
 ///|
-// IEEE 754 remainder: the quotient is rounded to nearest, ties to even, and
-// the remainder is formed from the exact unrounded operands.
-pub fn Decimal::remainder_ctx(
-  self : Decimal,
-  other : Decimal,
-  ctx : DecimalContext,
-) -> (Decimal, DecimalFlags) {
-  self.remainder_near(other, ctx)
-}
-
-///|
 pub fn Decimal::quantize(
   self : Decimal,
   quantum : Decimal,

@@ -2369,7 +2369,7 @@ test "binary and decimal checked instances agree on special values (#262)" {
       fn(x : @decimal_gda.Decimal) { x.classify() == @def.FpClass::NaN },
       fn(x) { x.classify() == @def.FpClass::Infinity },
       fn(x) { x.classify() == @def.FpClass::Finite && x.is_zero() },
-      fn(x) { x.is_negative() },
+      fn(x) { x.is_signed() },
     )
   }
   let dec = fn(text) {
