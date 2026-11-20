@@ -35,6 +35,9 @@ fn decimal_plain_context(precision : Int32) -> DecimalContext {
 ///|
 pub fn Decimal::add(self : Decimal, other : Decimal) -> Decimal {
   let ctx = decimal_plain_context(max_precision(self, other))
+  if decimal_add_plain(self, other, ctx, false) is Some(result) {
+    return result.0
+  }
   if self.class == FpClass::Finite && other.class == FpClass::Finite {
     // the finite case of `add_ctx` without its operand and NaN preparation
     add_finite_values_ctx(self, other, ctx).0
@@ -46,6 +49,9 @@ pub fn Decimal::add(self : Decimal, other : Decimal) -> Decimal {
 ///|
 pub fn Decimal::sub(self : Decimal, other : Decimal) -> Decimal {
   let ctx = decimal_plain_context(max_precision(self, other))
+  if decimal_add_plain(self, other, ctx, true) is Some(result) {
+    return result.0
+  }
   if self.class == FpClass::Finite && other.class == FpClass::Finite {
     add_finite_values_ctx(self, other.neg(), ctx).0
   } else {
@@ -280,6 +286,9 @@ pub fn Decimal::add_ctx(
   other : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
+  if decimal_add_plain(self, other, ctx, false) is Some(result) {
+    return result
+  }
   match quiet_nan_pair(self, other, ctx) {
     Some(result) => return result
     None => ()
@@ -323,6 +332,9 @@ pub fn Decimal::sub_ctx(
   other : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
+  if decimal_add_plain(self, other, ctx, true) is Some(result) {
+    return result
+  }
   match quiet_nan_pair(self, other, ctx) {
     Some(result) => return result
     None => ()
@@ -341,6 +353,20 @@ pub fn Decimal::mul_ctx(
 
 ///|
 fn Decimal::decimal_mul_ctx_impl(
+  self : Decimal,
+  other : Decimal,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags) {
+  match decimal_mul_plain(self, other, ctx) {
+    Some(result) => result
+    None => self.decimal_mul_ctx_general(other, ctx)
+  }
+}
+
+///|
+/// The general route of `mul_ctx`: the definition of its behavior, which the
+/// plain case must agree with.
+fn Decimal::decimal_mul_ctx_general(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,
@@ -452,6 +478,20 @@ fn division_beyond_exponent_range(
 
 ///|
 fn Decimal::decimal_div_ctx_impl(
+  self : Decimal,
+  other : Decimal,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags) {
+  match decimal_div_plain(self, other, ctx) {
+    Some(result) => result
+    None => self.decimal_div_ctx_general(other, ctx)
+  }
+}
+
+///|
+/// The general route of `div_ctx`: the definition of its behavior, which the
+/// plain case must agree with.
+fn Decimal::decimal_div_ctx_general(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,
