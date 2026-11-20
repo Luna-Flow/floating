@@ -128,6 +128,11 @@ pub fn bin_coeff_mul_short_ok(
 /// `2^s - 1 - r >= m + 1`. When it does not, the true product is strictly
 /// between two grid points, the result is inexact, and its rounding in every
 /// mode is that of `H`.
+///
+/// Ownership of the result: if it is `Heap(words, len)`, `words` is an array
+/// that no operand and no other value refers to (its length may exceed `len`),
+/// which the caller may keep, hand on or modify. `Coeff::zero()` is the shared
+/// constant that answers "declined"; recognise it with `is_zero()`.
 pub fn bin_coeff_mul_short(
   left : Coeff,
   right : Coeff,
