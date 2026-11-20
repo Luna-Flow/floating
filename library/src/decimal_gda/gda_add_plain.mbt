@@ -146,24 +146,25 @@ fn gda_add_plain(
   } else {
     low_negative
   }
-  let (magnitude, discard, inexact) = dec_coeff_round_units_to_digits(
+  let sum_len = if signed_len < 0 { -signed_len } else { signed_len }
+  let exact_digits = dec_coeff_accumulator_digits(acc, sum_len)
+  let discard = if exact_digits > precision {
+    exact_digits - precision
+  } else {
+    0
+  }
+  // read before the rounding overwrites the array
+  let inexact = discard > 0 &&
+    dec_coeff_accumulator_discards_nonzero(acc, discard)
+  let magnitude = dec_coeff_round_accumulator(
     acc,
-    if signed_len < 0 {
-      -signed_len
-    } else {
-      signed_len
-    },
-    precision,
+    sum_len,
+    discard,
     negative,
     ctx.decimal_.decimal_rounding.kernel(),
   )
   if magnitude.is_zero() {
     return None
-  }
-  let exact_digits = if discard > 0 {
-    discard + precision
-  } else {
-    magnitude.digits10()
   }
   let exact_adjusted = target.to_int64() + exact_digits.to_int64() - 1L
   guard exact_adjusted >= ctx.e_min_.to_int64() &&

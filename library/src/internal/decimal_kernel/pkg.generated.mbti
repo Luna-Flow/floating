@@ -13,6 +13,10 @@ pub fn coefficient_shift_digits_repr(DecCoeff, Int32, Int32) -> DecCoeff
 
 pub fn compare_finite_magnitude_repr(DecCoeff, Int32, DecCoeff, Int32) -> Int32
 
+pub fn dec_coeff_accumulator_digits(Array[UInt32], Int32) -> Int32
+
+pub fn dec_coeff_accumulator_discards_nonzero(Array[UInt32], Int32) -> Bool
+
 pub fn dec_coeff_addend_rounding_step(Bool, Bool, Bool, Bool, Int32, DecCoeffRounding) -> Int32
 
 pub let dec_coeff_base : Int32
@@ -139,6 +143,8 @@ pub fn dec_coeff_pow_unit_repr(Int32, Int32) -> DecCoeff
 
 pub fn dec_coeff_power10_repr(Int32) -> DecCoeff
 
+pub fn dec_coeff_round_accumulator(Array[UInt32], Int32, Int32, Bool, DecCoeffRounding) -> DecCoeff
+
 pub fn dec_coeff_round_div(DecCoeff, DecCoeff, Bool, DecCoeffRounding) -> DecCoeff
 
 pub fn dec_coeff_round_div_bigint(@bigint.BigInt, @bigint.BigInt, Bool, DecCoeffRounding) -> @bigint.BigInt
@@ -150,8 +156,6 @@ pub fn dec_coeff_round_div_pow10(DecCoeff, Int32, Bool, DecCoeffRounding) -> (De
 pub fn dec_coeff_round_div_pow10_owned(Array[UInt32], Int32, Int32, Bool, DecCoeffRounding) -> (DecCoeff, Bool)
 
 pub fn dec_coeff_round_to_digits(DecCoeff, Int32, Int32, Bool, DecCoeffRounding) -> (DecCoeff, Int32, Bool, Bool)
-
-pub fn dec_coeff_round_units_to_digits(Array[UInt32], Int32, Int32, Bool, DecCoeffRounding) -> (DecCoeff, Int32, Bool)
 
 pub fn dec_coeff_shift_power10_mod_repr(DecCoeff, Int32, DecCoeff) -> DecCoeff
 

@@ -560,8 +560,11 @@ when digits were discarded and `inexact` when a nonzero one was. Dropping a
 run of zero digits first and then rounding the rest gives the same value,
 exponent and flags as rounding once. `gda_add_plain` computes exactly that: the
 sum is formed in one limb array and rounded in place by the kernel (see the
-design of `internal/decimal_kernel`), the flags are shared constants and the
-outcome is built once. Every other case returns `None` and takes the general
+design of `internal/decimal_kernel`), the flags are shared constants (`GdaFlags`
+and `DecimalFlags` are immutable records compared by value, so sharing is not
+observable) and the outcome is built once; when the status of the context
+already contains the raised conditions the outcome carries the input context
+itself. Every other case returns `None` and takes the general
 route, which remains the definition; the white-box test compares both routes
 for `add` and `subtract` on random operands of 1 to 120 digits with mixed signs,
 cancellations and exponent gaps, at nine precisions and all eight rounding

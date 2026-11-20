@@ -187,16 +187,17 @@ Values of two limbs or fewer are always below $10^{18}$ and are `Small`. The
 white-box test compares both entries with the previous implementation, kept
 in the test file, bit for bit.
 
-`dec_coeff_round_units_to_digits` is the entry for a producer that owns a
-fresh accumulator: the aligned sum of an addition forms its limbs in an array
-that nothing else sees, so the array is trimmed, its digits counted, and, when
-it has more than the target digits, rounded in place through
-`dec_coeff_round_div_pow10_owned`. It returns the rounded magnitude, the digits
-discarded and whether a nonzero digit was discarded, so the caller builds the
-flags without a second pass. The same release removed an allocation per
-carrying limb from `dec_coeff_unit_add_sub`: the helper that split a carry into
-a digit and the next carry returned a tuple, which allocates on the native
-backend on every call, and is now two scalar expressions.
+`dec_coeff_round_accumulator` is the entry for a producer that owns a fresh
+accumulator: the aligned sum of an addition forms its limbs in an array that
+nothing else sees. The caller reads the digit count
+(`dec_coeff_accumulator_digits`) and whether the digits to discard contain a
+nonzero one (`dec_coeff_accumulator_discards_nonzero`, a read of the array
+only) and then rounds in place; each call returns one scalar or the coefficient,
+so the path allocates no tuple (a returned tuple allocates on the native
+backend on every call), and the caller builds the flags without a second pass.
+The same release removed an allocation per carrying limb from
+`dec_coeff_unit_add_sub`: the helper that split a carry into a digit and the
+next carry returned a tuple and is now two scalar expressions.
 
 ## Correctness and invariants
 

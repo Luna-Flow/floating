@@ -181,13 +181,7 @@ fn dec_coeff_pow10_round_increment(
 /// quotient with one division by `10^(shift mod 9)` per source limb. `dst` may
 /// be `src` itself: limb `k` of the result is written after limb `k + 1` of the
 /// source was read and the write index never passes the read index.
-fn dec_coeff_shift_right_info(
-  src : Array[UInt32],
-  src_len : Int32,
-  digits : Int32,
-  shift : Int32,
-  dst : Array[UInt32],
-) -> Int32 {
+fn dec_coeff_round_info_bits(src : Array[UInt32], shift : Int32) -> Int32 {
   let position = shift - 1
   let round_limb = position / dec_coeff_dpun
   let round_offset = position - round_limb * dec_coeff_dpun
@@ -211,6 +205,18 @@ fn dec_coeff_shift_right_info(
   } else {
     0
   }
+  (if has_remainder { 1 } else { 0 }) + 2 * (half_cmp + 1)
+}
+
+///|
+fn dec_coeff_shift_right_info(
+  src : Array[UInt32],
+  src_len : Int32,
+  digits : Int32,
+  shift : Int32,
+  dst : Array[UInt32],
+) -> Int32 {
+  let info = dec_coeff_round_info_bits(src, shift)
   let whole = shift / dec_coeff_dpun
   let cut = shift - whole * dec_coeff_dpun
   let out_len = (digits - shift + dec_coeff_dpun - 1) / dec_coeff_dpun
@@ -234,7 +240,7 @@ fn dec_coeff_shift_right_info(
       }
     }
   }
-  (if has_remainder { 1 } else { 0 }) + 2 * (half_cmp + 1)
+  info
 }
 
 ///|
@@ -509,36 +515,64 @@ pub fn dec_coeff_addend_rounding_step(
 }
 
 ///|
-/// Rounds a freshly produced limb accumulator (`units[0..unit_len)`, limbs
-/// below the base, leading zero limbs allowed) to `target_digits` digits, in
-/// place and without a copy: the array becomes the limbs of the result. Returns
-/// the rounded magnitude, the number of digits discarded (0 when the value
-/// already fits), and whether a nonzero digit was discarded. The caller must
-/// not use `units` afterwards. This is the entry for a producer that owns its
-/// array (the aligned sum of an addition).
-pub fn dec_coeff_round_units_to_digits(
+/// Digit count of a limb accumulator (`units[0..unit_len)`, limbs below the
+/// base, leading zero limbs allowed; an all-zero accumulator has one digit).
+pub fn dec_coeff_accumulator_digits(
   units : Array[UInt32],
   unit_len : Int32,
-  target_digits : Int32,
+) -> Int32 {
+  guard unit_len >= 1 else {
+    abort("dec_coeff_accumulator_digits expects unit_len >= 1")
+  }
+  dec_coeff_get_digits(units, dec_coeff_trim_units(units, unit_len))
+}
+
+///|
+/// Whether discarding the lowest `discard` digits (`0 < discard < digits`) of a
+/// limb accumulator drops a nonzero digit. Reads the accumulator only.
+pub fn dec_coeff_accumulator_discards_nonzero(
+  units : Array[UInt32],
+  discard : Int32,
+) -> Bool {
+  guard discard >= 1 else {
+    abort("dec_coeff_accumulator_discards_nonzero expects discard >= 1")
+  }
+  (dec_coeff_round_info_bits(units, discard) & 1) == 1
+}
+
+///|
+/// Rounds a freshly produced limb accumulator (`units[0..unit_len)`, leading
+/// zero limbs allowed) after discarding its lowest `discard` digits, in place
+/// and without a copy: the array becomes the limbs of the result. `discard` is
+/// below the digit count of the accumulator (`dec_coeff_accumulator_digits`),
+/// or 0 for no rounding. The caller must not use `units` afterwards. This is
+/// the entry for a producer that owns its array (the aligned sum of an
+/// addition); it returns a coefficient only, so it allocates no tuple, and the
+/// inexact flag is `dec_coeff_accumulator_discards_nonzero`, read first.
+pub fn dec_coeff_round_accumulator(
+  units : Array[UInt32],
+  unit_len : Int32,
+  discard : Int32,
   negative : Bool,
   mode : DecCoeffRounding,
-) -> (DecCoeff, Int32, Bool) {
-  guard unit_len >= 1 && target_digits >= 1 else {
-    abort(
-      "dec_coeff_round_units_to_digits expects unit_len >= 1 and digits >= 1",
-    )
+) -> DecCoeff {
+  guard unit_len >= 1 && discard >= 0 else {
+    abort("dec_coeff_round_accumulator expects unit_len >= 1 and discard >= 0")
   }
   let trimmed = dec_coeff_trim_units(units, unit_len)
+  if discard == 0 {
+    return dec_coeff_from_unit_accumulator(units, trimmed)
+  }
   let digits = dec_coeff_get_digits(units, trimmed)
-  if digits <= target_digits {
-    return (dec_coeff_from_unit_accumulator(units, trimmed), 0, false)
+  guard discard < digits else {
+    abort("dec_coeff_round_accumulator expects discard below the digit count")
   }
   if units.length() > trimmed {
     units.truncate(trimmed)
   }
-  let discard = digits - target_digits
-  let (rounded, inexact) = dec_coeff_round_div_pow10_owned(
-    units, digits, discard, negative, mode,
-  )
-  (rounded, discard, inexact)
+  let out_len = (digits - discard + dec_coeff_dpun - 1) / dec_coeff_dpun
+  let info = dec_coeff_shift_right_info(units, trimmed, digits, discard, units)
+  let increment = (info & 1) == 1 &&
+    dec_coeff_pow10_round_increment(units[0], (info >> 1) - 1, negative, mode)
+  dec_coeff_finish_owned_units(units, out_len, increment)
 }
