@@ -3,7 +3,7 @@
 // whole range [-1, 1] / the whole line (plain forms). They are now tight.
 // Expected values: MPFR 4.2.2 at the exact argument
 // (tools/generate_decimal_huge_trig_rows.py; the same rows as
-// src/bin_float/huge_argument_trig_wbtest.mbt).
+// library/src/bin_float/huge_argument_trig_wbtest.mbt).
 
 ///|
 fn huge_trig_argument(k : Int32) -> BallFloat {
