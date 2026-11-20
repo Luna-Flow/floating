@@ -10,7 +10,7 @@ let binary_exp_burst_guard_bits : Int32 = 48
 ///|
 /// Position (bits after the binary point) at which the first chunk of the
 /// reduced argument ends, and the growth factor of the chunk boundaries.
-let binary_exp_burst_first_chunk : Int32 = 16 // the setting at large working precision; see `binary_burst_first_chunk`
+let binary_exp_burst_first_chunk : Int32 = 16 // the setting at large working precision; see `binary_exp_first_chunk_for`
 
 ///|
 let binary_exp_burst_chunk_factor : Int32 = 4
@@ -132,13 +132,13 @@ fn binary_exp_bounds_burst(
   split_min_terms? : Int32,
 ) -> (BinFloat, BinFloat)? {
   let first_chunk = first_chunk.unwrap_or(
-    binary_burst_first_chunk(work_precision),
+    binary_exp_first_chunk_for(work_precision),
   )
   let chunk_factor = chunk_factor.unwrap_or(
-    binary_burst_chunk_factor(work_precision),
+    binary_exp_chunk_factor_for(work_precision),
   )
   let split_min_terms = split_min_terms.unwrap_or(
-    binary_burst_split_min_terms(work_precision),
+    binary_exp_split_min_terms_for(work_precision),
   )
   let f = work_precision + binary_exp_burst_guard_bits
   guard fixed_exp_reduce(value, f, ln2_drop_bits=mutation.ln2_drop_bits)

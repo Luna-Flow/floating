@@ -45,3 +45,21 @@ fn binary_burst_chunk_factor(_work : Int32) -> Int32 {
 fn binary_burst_split_min_terms(_work : Int32) -> Int32 {
   binary_exp_burst_split_min_terms
 }
+
+///|
+/// Chunk constants of the `exp` bit-burst kernel as functions of the working
+/// precision: not measured on this target, the constants of
+/// `elementary_burst_exp.mbt` at every precision.
+fn binary_exp_first_chunk_for(_work : Int32) -> Int32 {
+  binary_exp_burst_first_chunk
+}
+
+///|
+fn binary_exp_chunk_factor_for(_work : Int32) -> Int32 {
+  binary_exp_burst_chunk_factor
+}
+
+///|
+fn binary_exp_split_min_terms_for(_work : Int32) -> Int32 {
+  binary_exp_burst_split_min_terms
+}
