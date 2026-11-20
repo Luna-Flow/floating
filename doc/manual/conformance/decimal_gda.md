@@ -24,7 +24,7 @@ General Decimal Arithmetic Specification 1.70 for `decimal_gda`, one row per ope
 | compare, compare-signal, compare-total, compare-total-mag | `compare_ctx`, `compare_signal_ctx`, `compare_total_ctx`, `compare_total_magnitude_ctx` | `compare.decTest`, `comparesig.decTest`, `comparetotal.decTest`, `comparetotmag.decTest` | conforming |
 | max, max-magnitude, min, min-magnitude | `max_ctx`, `max_mag_ctx`, `min_ctx`, `min_mag_ctx` | `max.decTest`, `maxmag.decTest`, `min.decTest`, `minmag.decTest` | conforming |
 | next-minus, next-plus, next-toward | `next_minus`, `next_plus`, `next_toward` | `nextminus.decTest`, `nextplus.decTest`, `nexttoward.decTest` | conforming |
-| quantize, rescale, same-quantum, reduce, trim | `quantize`, `rescale`, `same_quantum`, `reduce_ctx`, `trim` | `quantize.decTest`, `rescale.decTest`, `samequantum.decTest`, `reduce.decTest`, `trim.decTest` | conforming |
+| quantize, rescale, same-quantum, reduce, trim | `quantize`, `rescale`, `same_quantum`, `reduce_ctx`, `trim` | `quantize.decTest`, `rescale.decTest`, `samequantum.decTest`, `reduce.decTest`, `trim.decTest`; `library/src/decimal_gda/quantize_zero_clamp_issue419_wbtest.mbt` (a zero result above `e_max - precision + 1` under `clamp` is folded down with Clamped) | conforming |
 | round-to-integral-exact, round-to-integral-value | `to_integral_exact`, `to_integral_value` | `tointegralx.decTest`, `tointegral.decTest` | conforming |
 | scaleb, logb, rotate, shift | `scaleb_ctx`, `logb_ctx`, `rotate_ctx`, `shift_ctx` | `scaleb.decTest`, `logb.decTest`, `rotate.decTest`, `shift.decTest` | conforming |
 | and, or, xor, invert | `logical_and`, `logical_or`, `logical_xor`, `logical_invert` | `and.decTest`, `or.decTest`, `xor.decTest`, `invert.decTest` | conforming |

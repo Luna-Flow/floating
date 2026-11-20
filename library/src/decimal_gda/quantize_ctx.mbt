@@ -347,6 +347,25 @@ fn quantize_finite_to_exponent(
   }
   let negative = value.negative
   if value.coefficient.is_zero() {
+    // A zero takes the exponent asked for (at most `e_max`, the bound of
+    // `decQuantizeOp` for a one-digit zero), and then the finishing step of
+    // decNumber (`decFinalize`) folds an exponent above `e_max - precision + 1`
+    // down under `clamp` and raises Clamped, as every other zero result does
+    // (issue 419).
+    if ctx.clamp && ctx.precision > 0 {
+      let top = etop(ctx, precision)
+      if target > top {
+        return (
+          finite_with_exponent_repr(
+            negative && ctx.extended,
+            dec_coeff_zero(),
+            top,
+            precision,
+          ),
+          { ..DecimalFlags::new(), clamped: true, },
+        )
+      }
+    }
     return (
       finite_with_exponent_repr(
         negative && ctx.extended,
