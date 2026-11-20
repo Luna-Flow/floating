@@ -411,11 +411,11 @@ test "anchored results agree with the certified loop in all modes and ranges" {
           let plain = match op {
             "atanpi" =>
               decimal_certified_unary_result(value, ctx, op, fn(i) {
-                Ok(i.atan_interval().div(decimal_pi_ball(i.precision())))
+                Ok(i.atan().div(decimal_pi_ball(i.precision())))
               })
             "acospi" =>
               decimal_certified_unary_result(value, ctx, op, fn(i) {
-                Ok(i.acos_interval().div(decimal_pi_ball(i.precision())))
+                Ok(i.acos().div(decimal_pi_ball(i.precision())))
               })
             _ =>
               decimal_certified_binary_result(value, pm1_exact(y), ctx, op, fn(
@@ -423,7 +423,7 @@ test "anchored results agree with the certified loop in all modes and ranges" {
                 b,
               ) {
                 a
-                .try_atan2_interval(b)
+                .try_atan2(b)
                 .map(fn(t) { t.div(decimal_pi_ball(t.precision())) })
               })
           }
@@ -548,14 +548,14 @@ test "tiny operands: the scaled evaluation equals the plain certified loop" {
           (
             "asinpi",
             decimal_certified_unary_result(value, ctx, "asinpi", fn(i) {
-              Ok(i.asin_interval().div(decimal_pi_ball(i.precision())))
+              Ok(i.asin().div(decimal_pi_ball(i.precision())))
             }),
             value.try_asinpi_ctx(ctx),
           ),
           (
             "atanpi",
             decimal_certified_unary_result(value, ctx, "atanpi", fn(i) {
-              Ok(i.atan_interval().div(decimal_pi_ball(i.precision())))
+              Ok(i.atan().div(decimal_pi_ball(i.precision())))
             }),
             value.try_atanpi_ctx(ctx),
           ),
@@ -566,7 +566,7 @@ test "tiny operands: the scaled evaluation equals the plain certified loop" {
               b,
             ) {
               a
-              .try_atan2_interval(b)
+              .try_atan2(b)
               .map(fn(t) { t.div(decimal_pi_ball(t.precision())) })
             }),
             value.try_atan2pi_ctx(one, ctx),

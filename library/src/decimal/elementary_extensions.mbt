@@ -57,26 +57,26 @@ fn DecimalUnaryElementary::evaluate(
   input : @ball_float.BallFloat,
 ) -> Result[@ball_float.BallFloat, @def.ArithmeticError] {
   match self {
-    Exp2 => input.try_exp2_interval()
-    Exp10 => input.try_exp10_interval()
-    Expm1 => input.try_expm1_interval()
-    Log2 => input.try_log2_interval()
-    Log1p => input.try_log1p_interval()
-    Sin => input.try_sin_interval()
-    Cos => input.try_cos_interval()
-    Tan => input.try_tan_interval()
-    SinPi => input.try_sinpi_interval()
-    CosPi => input.try_cospi_interval()
-    TanPi => input.try_tanpi_interval()
-    Asin => input.try_asin_interval()
-    Acos => input.try_acos_interval()
-    Atan => input.try_atan_interval()
-    Sinh => input.try_sinh_interval()
-    Cosh => input.try_cosh_interval()
-    Tanh => input.try_tanh_interval()
-    Asinh => input.try_asinh_interval()
-    Acosh => input.try_acosh_interval()
-    Atanh => input.try_atanh_interval()
+    Exp2 => input.try_exp2()
+    Exp10 => input.try_exp10()
+    Expm1 => input.try_expm1()
+    Log2 => input.try_log2()
+    Log1p => input.try_log1p()
+    Sin => input.try_sin()
+    Cos => input.try_cos()
+    Tan => input.try_tan()
+    SinPi => input.try_sinpi()
+    CosPi => input.try_cospi()
+    TanPi => input.try_tanpi()
+    Asin => input.try_asin()
+    Acos => input.try_acos()
+    Atan => input.try_atan()
+    Sinh => input.try_sinh()
+    Cosh => input.try_cosh()
+    Tanh => input.try_tanh()
+    Asinh => input.try_asinh()
+    Acosh => input.try_acosh()
+    Atanh => input.try_atanh()
     Rootn(degree) => input.try_rootn(degree)
   }
 }
@@ -1311,7 +1311,7 @@ pub fn Decimal::try_atan2_ctx(
     }
   }
   decimal_certified_binary_result(ordinate, x, ctx, "atan2", fn(y, x_interval) {
-    y.try_atan2_interval(x_interval)
+    y.try_atan2(x_interval)
   }).map(fn(result) {
     // A result that rounds to zero keeps the exponent of the rounding (the
     // cohort member of least possible exponent, IEEE 754-2019 5.2, as for

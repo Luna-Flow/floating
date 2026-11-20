@@ -239,7 +239,7 @@ test "project intervals" {
   )
   inspect(show(x.lower) + " .. " + show(x.upper), content="1/1 .. 5/2")
   let whole = @semantic.SemanticInterval::from_ball_float(
-    @ball_float.BallFloat::whole(),
+    @ball_float.BallFloat::entire(),
   )
   inspect(show(whole.lower) + " .. " + show(whole.upper), content="-inf .. +inf")
   let empty = @semantic.SemanticInterval::from_ball_float(

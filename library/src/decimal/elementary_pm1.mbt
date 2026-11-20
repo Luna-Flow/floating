@@ -51,7 +51,7 @@ fn decimal_pm1_ln_base(
     Some(value) => return Ok(value)
     None => ()
   }
-  match @ball_float.BallFloat::from_int(base, precision~).try_ln_interval() {
+  match @ball_float.BallFloat::from_int(base, precision~).try_ln() {
     Ok(value) => {
       // The Ziv schedule visits a few precisions per target precision; keep
       // the table small for long-running programs with many precisions.
@@ -78,9 +78,9 @@ fn DecimalPm1::evaluate(
     Err(error) => Err(error)
     Ok(ln_base) =>
       if self.is_exp() {
-        input.mul(ln_base).try_expm1_interval()
+        input.mul(ln_base).try_expm1()
       } else {
-        input.try_log1p_interval().map(fn(value) { value.div(ln_base) })
+        input.try_log1p().map(fn(value) { value.div(ln_base) })
       }
   }
 }
@@ -199,7 +199,7 @@ fn decimal_pm1_tiny_scaled(
     .mul(slope)
     .mul(factor)
   guard !scaled.is_empty() &&
-    !scaled.contains(@bin_float.BinFloat::zero(precision=scaled.precision())) else {
+    !scaled.is_member(@bin_float.BinFloat::zero(precision=scaled.precision())) else {
     return None
   }
   // The scaled endpoints are moderate: convert them in the widest math

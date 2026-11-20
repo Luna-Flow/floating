@@ -4,7 +4,7 @@
 // subnormal of the precision] for y > 0 and its mirror image for y < 0.
 
 ///|
-test "try_atan2_interval of a quotient below the exponent range encloses zero tightly" {
+test "try_atan2 of a quotient below the exponent range encloses zero tightly" {
   let tiny_unit = @bin_float.BinFloat::make(
     @bin_float.BinCoeff::one(),
     -1073741875,
@@ -24,7 +24,7 @@ test "try_atan2_interval of a quotient below the exponent range encloses zero ti
         64,
       )
       let r = BallFloat::exact(y, precision=53)
-        .try_atan2_interval(BallFloat::exact(x, precision=53))
+        .try_atan2(BallFloat::exact(x, precision=53))
         .unwrap()
       let (low, high) = if negative {
         (tiny_unit.neg(), @bin_float.BinFloat::negative_zero())

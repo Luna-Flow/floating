@@ -34,7 +34,7 @@ fn BallFloat::unit_domain(self : BallFloat) -> BallFloat {
 }
 
 ///|
-pub fn BallFloat::try_asin_interval(
+pub fn BallFloat::try_asin(
   self : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
   self
@@ -45,7 +45,7 @@ pub fn BallFloat::try_asin_interval(
 }
 
 ///|
-pub fn BallFloat::try_acos_interval(
+pub fn BallFloat::try_acos(
   self : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
   self
@@ -56,7 +56,7 @@ pub fn BallFloat::try_acos_interval(
 }
 
 ///|
-pub fn BallFloat::try_atan_interval(
+pub fn BallFloat::try_atan(
   self : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
   self.try_certified_monotone(true, fn(value, context) {
@@ -151,7 +151,7 @@ fn atan2_extreme_corner(
 }
 
 ///|
-pub fn BallFloat::try_atan2_interval(
+pub fn BallFloat::try_atan2(
   self : BallFloat,
   abscissa : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
@@ -293,7 +293,7 @@ fn BallFloat::try_atan2_interval_corners(
 }
 
 ///|
-pub fn BallFloat::try_sinh_interval(
+pub fn BallFloat::try_sinh(
   self : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
   self.try_certified_monotone(true, fn(value, context) {
@@ -302,7 +302,7 @@ pub fn BallFloat::try_sinh_interval(
 }
 
 ///|
-pub fn BallFloat::try_cosh_interval(
+pub fn BallFloat::try_cosh(
   self : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
   self
@@ -313,7 +313,7 @@ pub fn BallFloat::try_cosh_interval(
 }
 
 ///|
-pub fn BallFloat::try_tanh_interval(
+pub fn BallFloat::try_tanh(
   self : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
   self.try_certified_monotone(true, fn(value, context) {
@@ -322,7 +322,7 @@ pub fn BallFloat::try_tanh_interval(
 }
 
 ///|
-pub fn BallFloat::try_asinh_interval(
+pub fn BallFloat::try_asinh(
   self : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
   self.try_certified_monotone(true, fn(value, context) {
@@ -331,7 +331,7 @@ pub fn BallFloat::try_asinh_interval(
 }
 
 ///|
-pub fn BallFloat::try_acosh_interval(
+pub fn BallFloat::try_acosh(
   self : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
   if self.is_empty() {
@@ -350,7 +350,7 @@ pub fn BallFloat::try_acosh_interval(
 }
 
 ///|
-pub fn BallFloat::try_atanh_interval(
+pub fn BallFloat::try_atanh(
   self : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
   if self.is_empty() {

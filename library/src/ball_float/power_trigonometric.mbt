@@ -168,42 +168,39 @@ fn unit_interval(precision : Int32) -> BallFloat {
 }
 
 ///|
-/// Total: the `try_sin_interval` form, or the range of the function when the kernel cannot
+/// Total: the `try_sin` form, or the range of the function when the kernel cannot
 /// certify a bound (issue 449).
-pub fn BallFloat::sin_interval(self : BallFloat) -> BallFloat {
-  match self.try_sin_interval() {
+pub fn BallFloat::sin(self : BallFloat) -> BallFloat {
+  match self.try_sin() {
     Ok(result) => result
     Err(_) => unit_interval(self.precision_)
   }
 }
 
 ///|
-/// Total: the `try_cos_interval` form, or the range of the function when the kernel cannot
+/// Total: the `try_cos` form, or the range of the function when the kernel cannot
 /// certify a bound (issue 449).
-pub fn BallFloat::cos_interval(self : BallFloat) -> BallFloat {
-  match self.try_cos_interval() {
+pub fn BallFloat::cos(self : BallFloat) -> BallFloat {
+  match self.try_cos() {
     Ok(result) => result
     Err(_) => unit_interval(self.precision_)
   }
 }
 
 ///|
-/// Total: the `try_tan_interval` form, or the range of the function when the kernel cannot
+/// Total: the `try_tan` form, or the range of the function when the kernel cannot
 /// certify a bound (issue 449).
-pub fn BallFloat::tan_interval(self : BallFloat) -> BallFloat {
-  match self.try_tan_interval() {
+pub fn BallFloat::tan(self : BallFloat) -> BallFloat {
+  match self.try_tan() {
     Ok(result) => result
     Err(_) => whole_real(self.precision_)
   }
 }
 
 ///|
-pub fn BallFloat::pow_interval(
-  self : BallFloat,
-  exponent : BallFloat,
-) -> BallFloat {
+pub fn BallFloat::pow(self : BallFloat, exponent : BallFloat) -> BallFloat {
   let precision = Int32::max(self.precision_, exponent.precision_)
-  match self.try_pow_interval(exponent) {
+  match self.try_pow(exponent) {
     Ok(result) => result
     Err(_) =>
       store_interval(

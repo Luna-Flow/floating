@@ -15,7 +15,7 @@ lists every method.
 | push uncertain inputs through a formula | `+ - * /` on `BallFloatResult` ([Propagate uncertainty](#propagate-uncertainty-through-a-formula)) |
 | treat an empty or unbounded result as a success or as a failure | `is_ok`, `bind` ([No information is not an error](#know-that-no-information-is-not-an-error), [Application rules](#turn-an-application-rule-into-an-error)) |
 | find out why an elementary function failed | `error()`, `certification_failure_detail()` ([Certification failures](#certification-failures)) |
-| square an interval that contains 0 tightly | `pow_int`, not `x * x` ([Powers](#powers-through-the-arithmetic-traits)) |
+| square an interval that contains 0 tightly | `pown`, not `x * x` ([Powers](#powers-through-the-arithmetic-traits)) |
 | decide a comparison at the end of a pipeline | `result()` and the enclosure traits ([Generic code](#generic-code-with-the-enclosure-relations)) |
 
 ## Quick start
@@ -192,7 +192,7 @@ test "certification failure carries a detail record" {
 
 ### Powers through the arithmetic traits
 
-`pow_int` goes through the `PowIntChecked` trait of Luna-Flow/arithmetic. It
+`pown` goes through the `PowIntChecked` trait of Luna-Flow/arithmetic. It
 computes the power of one point of the interval (`BallFloat::pown`); for an
 interval containing zero this is tighter than repeated multiplication, which
 treats the two factors as independent:
@@ -201,7 +201,7 @@ treats the two factors as independent:
 ///|
 test "a power is tighter than a product" {
   let x = reading(-1.0, 1.0)
-  match (x.pow_int(2).result(), (x * x).result()) {
+  match (x.pown(2).result(), (x * x).result()) {
     (Ok(square), Ok(product)) => {
       inspect(square.lower_bound().to_string(), content="0")
       inspect(product.lower_bound().to_string(), content="-1p0")
@@ -236,7 +236,7 @@ test "decide with an enclosure" {
   bits. An integer that needs more bits is still enclosed, but by a two-point
   interval rather than a point. Pass `precision=53` (or more) for large
   integers.
-- **A product is not a power.** Use `pow_int` for even powers of an interval
+- **A product is not a power.** Use `pown` for even powers of an interval
   that contains 0; `x * x` treats the two factors as independent.
 - **Empty and whole are successes.** Test `is_empty` / `is_entire` on the
   final interval, or add a `bind` check.
@@ -245,7 +245,7 @@ test "decide with an enclosure" {
   `ball_float` when you need them.
 - **Only the first error survives**, as in every checked wrapper.
 - **`[+inf, +inf]` is rejected.** IEEE 1788 intervals are subsets of the real
-  line; use `whole()` or a half-infinite interval instead.
+  line; use `entire()` or a half-infinite interval instead.
 
 ## Next steps
 

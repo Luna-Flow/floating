@@ -30,7 +30,7 @@ fn decimal_certified_exp_result_counted(
   while budget.available() {
     attempts.val += 1
     let input = decimal_to_certified_ball(value, budget.precision())
-    match input.try_exp_interval() {
+    match input.try_exp() {
       Ok(interval) => {
         let candidate = decimal_exp_ball_candidate(
           value,
@@ -97,7 +97,7 @@ fn decimal_certified_exp_result_reference(
   while budget.available() {
     attempts.val += 1
     let input = decimal_to_certified_ball(value, budget.precision())
-    match input.try_exp_interval() {
+    match input.try_exp() {
       Ok(interval) => {
         let candidate = if fast_attempt {
           decimal_ball_candidate(interval, ctx)

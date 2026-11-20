@@ -1,12 +1,12 @@
 ///|
 test "interval exponentials enclose results beyond the binary exponent range" {
-  let huge = BallFloat::from_int(1000000000, precision=53).exp_interval()
+  let huge = BallFloat::from_int(1000000000, precision=53).exp()
   assert_eq(
     huge.lower_bound().exponent2(),
     @bin_float.binary_implementation_e_max - 52,
   )
   assert_eq(huge.upper_bound().classify(), FpClass::Infinity)
-  let tiny = BallFloat::from_int(-1000000000, precision=53).exp_interval()
+  let tiny = BallFloat::from_int(-1000000000, precision=53).exp()
   assert_true(tiny.lower_bound().is_zero())
   assert_false(tiny.upper_bound().is_zero())
   assert_eq(

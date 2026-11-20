@@ -64,7 +64,7 @@ test "interval basics: division matches the 4-division original" {
 test "interval basics: sqrt matches the 4-root original" {
   for precision in [24, 128] {
     for a in basics_corpus(precision) {
-      assert_eq(a.sqrt_interval(), a.old_sqrt_interval())
+      assert_eq(a.sqrt(), a.old_sqrt_interval())
     }
   }
 }
@@ -131,8 +131,8 @@ fn same_try(
 test "corner selection: sinpi and cospi match the four-call original" {
   for precision in [24, 80] {
     for a in trig_corpus(precision) {
-      same_try(a.try_sinpi_interval(), a.old_try_sinpi_interval())
-      same_try(a.try_cospi_interval(), a.old_try_cospi_interval())
+      same_try(a.try_sinpi(), a.old_try_sinpi_interval())
+      same_try(a.try_cospi(), a.old_try_cospi_interval())
     }
   }
 }
@@ -154,7 +154,7 @@ test "corner selection: atan2 matches the corner-and-axis hull" {
         if j % 11 != 1 {
           continue
         }
-        same_try(a.try_atan2_interval(b), a.old_try_atan2_interval(b))
+        same_try(a.try_atan2(b), a.old_try_atan2_interval(b))
       }
     }
   }
@@ -190,7 +190,7 @@ test "corner selection: atan2 on every box of a sign-complete grid" {
   }
   for a in boxes {
     for b in boxes {
-      same_try(a.try_atan2_interval(b), a.old_try_atan2_interval(b))
+      same_try(a.try_atan2(b), a.old_try_atan2_interval(b))
     }
   }
 }
@@ -204,13 +204,13 @@ test "try_sin/cos/tan: huge arguments around the cutoff stay sound" {
   }
   let unit = unit_interval(precision)
   let near = power(3000)
-  assert_true(near.try_sin_interval().unwrap().subset(unit))
-  assert_true(near.try_cos_interval().unwrap().subset(unit))
-  assert_true(near.try_tan_interval() is Ok(_))
+  assert_true(near.try_sin().unwrap().subset(unit))
+  assert_true(near.try_cos().unwrap().subset(unit))
+  assert_true(near.try_tan() is Ok(_))
   let beyond = power(8_100_000)
-  assert_true(beyond.try_sin_interval() is Err(_))
-  assert_true(beyond.try_cos_interval() is Err(_))
-  assert_true(beyond.try_tan_interval() is Err(_))
+  assert_true(beyond.try_sin() is Err(_))
+  assert_true(beyond.try_cos() is Err(_))
+  assert_true(beyond.try_tan() is Err(_))
 }
 
 ///|
@@ -235,7 +235,7 @@ test "is_common_interval terminates and classifies the shapes" {
   )
   assert_true(BallFloat::exact(one, precision=53).is_common_interval())
   assert_false(BallFloat::empty(precision=53).is_common_interval())
-  assert_false(BallFloat::whole(precision=53).is_common_interval())
+  assert_false(BallFloat::entire(precision=53).is_common_interval())
   assert_false(
     BallFloat::from_bounds(one, inf, precision=53).is_common_interval(),
   )

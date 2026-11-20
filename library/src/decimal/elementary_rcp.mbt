@@ -221,7 +221,7 @@ pub fn Decimal::try_rsqrt_ctx(
     (-(even / 2L)).to_int(),
     ctx,
     "rsqrt",
-    fn(input) { Ok(input.sqrt_interval().reciprocal()) },
+    fn(input) { Ok(input.sqrt().recip()) },
   ).map(finish)
 }
 
@@ -482,8 +482,8 @@ fn decimal_compound_certified(
   if !in_range {
     match
       (
-        @ball_float.BallFloat::from_int(2, precision=bracket_precision).try_ln_interval(),
-        decimal_to_certified_ball(value, bracket_precision).try_log1p_interval(),
+        @ball_float.BallFloat::from_int(2, precision=bracket_precision).try_ln(),
+        decimal_to_certified_ball(value, bracket_precision).try_log1p(),
       ) {
       (Ok(ln2), Ok(log)) => {
         let log2 = log
@@ -506,11 +506,9 @@ fn decimal_compound_certified(
   }
   decimal_certified_unary_result(value, ctx, "compound", fn(input) {
     let precision = input.precision()
-    match input.try_log1p_interval() {
+    match input.try_log1p() {
       Ok(log) =>
-        log
-        .mul(@ball_float.BallFloat::from_int(n, precision~))
-        .try_exp_interval()
+        log.mul(@ball_float.BallFloat::from_int(n, precision~)).try_exp()
       Err(error) => Err(error)
     }
   })

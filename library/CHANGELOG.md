@@ -166,6 +166,44 @@ notes live in this file.
   | `BallFloatResult::pow_nat(n)` | `pow_int(n)` | `PowNatChecked` stays on `BallFloat::pow_nat_checked` |
   | `BallFloatResult::flat_map(f)` (deprecated) | `bind(f)` | |
 
+- `ball_float` and `ball_float_checked`: the operations are named as in IEEE 1788-2015 ([#438](https://github.com/Luna-Flow/floating/issues/438), item B1). The suffix `_interval` goes from the 26 elementary functions and from their `try_` forms (on `BallFloat` and on `BallFloatDecorated`), which makes the plain tier spell what the checked tier (`BallFloatResult::exp`, `sin`, `ln`, `log1p`, `pow`) already did; `ln` and `log1p` keep the spelling of `BinFloat`, as the naming rules list them as exceptions. The names of Table 9.1 (`sqr`, `recip`, `min`, `max`), 10.5.2 (`entire`), Table 10.3 (`strict_less`, `strict_precedes`) and 10.6.4 (`overlap`) replace the library's own spellings, and the point-membership method `contains` (which collided with the inclusion of `Contains::contains`) becomes `is_member` (10.6.3). The long observer names (`lower_bound`, `upper_bound`, `midpoint`, `width`, `radius`, `magnitude`, `mignitude`) stay as documented exceptions. No alias is kept.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `exp_interval`, `try_exp_interval` | `exp`, `try_exp` | `BallFloat` and `BallFloatDecorated` (the decorated type has no `try_` forms) |
+  | `exp2_interval`, `try_exp2_interval` | `exp2`, `try_exp2` | `BallFloat` and `BallFloatDecorated` (the decorated type has no `try_` forms) |
+  | `exp10_interval`, `try_exp10_interval` | `exp10`, `try_exp10` | `BallFloat` and `BallFloatDecorated` (the decorated type has no `try_` forms) |
+  | `expm1_interval`, `try_expm1_interval` | `expm1`, `try_expm1` | `BallFloat` and `BallFloatDecorated` (the decorated type has no `try_` forms) |
+  | `ln_interval`, `try_ln_interval` | `ln`, `try_ln` | strict rule would be `log`; kept as `BinFloat`.  `BallFloat` and `BallFloatDecorated` (the decorated type has no `try_` forms) |
+  | `log2_interval`, `try_log2_interval` | `log2`, `try_log2` | `BallFloat` and `BallFloatDecorated` (the decorated type has no `try_` forms) |
+  | `log10_interval`, `try_log10_interval` | `log10`, `try_log10` | `BallFloat` and `BallFloatDecorated` (the decorated type has no `try_` forms) |
+  | `log1p_interval`, `try_log1p_interval` | `log1p`, `try_log1p` | strict rule would be `logp1`; kept as `BinFloat`.  `BallFloat` and `BallFloatDecorated` (the decorated type has no `try_` forms) |
+  | `sin_interval`, `try_sin_interval` | `sin`, `try_sin` | `BallFloat` and `BallFloatDecorated` (the decorated type has no `try_` forms) |
+  | `cos_interval`, `try_cos_interval` | `cos`, `try_cos` | `BallFloat` and `BallFloatDecorated` (the decorated type has no `try_` forms) |
+  | `tan_interval`, `try_tan_interval` | `tan`, `try_tan` | `BallFloat` and `BallFloatDecorated` (the decorated type has no `try_` forms) |
+  | `sinpi_interval`, `try_sinpi_interval` | `sinpi`, `try_sinpi` | `BallFloat` and `BallFloatDecorated` (the decorated type has no `try_` forms) |
+  | `cospi_interval`, `try_cospi_interval` | `cospi`, `try_cospi` | `BallFloat` and `BallFloatDecorated` (the decorated type has no `try_` forms) |
+  | `tanpi_interval`, `try_tanpi_interval` | `tanpi`, `try_tanpi` | `BallFloat` and `BallFloatDecorated` (the decorated type has no `try_` forms) |
+  | `asin_interval`, `try_asin_interval` | `asin`, `try_asin` | `BallFloat` and `BallFloatDecorated` (the decorated type has no `try_` forms) |
+  | `acos_interval`, `try_acos_interval` | `acos`, `try_acos` | `BallFloat` and `BallFloatDecorated` (the decorated type has no `try_` forms) |
+  | `atan_interval`, `try_atan_interval` | `atan`, `try_atan` | `BallFloat` and `BallFloatDecorated` (the decorated type has no `try_` forms) |
+  | `atan2_interval`, `try_atan2_interval` | `atan2`, `try_atan2` | `BallFloat` and `BallFloatDecorated` (the decorated type has no `try_` forms) |
+  | `sinh_interval`, `try_sinh_interval` | `sinh`, `try_sinh` | `BallFloat` and `BallFloatDecorated` (the decorated type has no `try_` forms) |
+  | `cosh_interval`, `try_cosh_interval` | `cosh`, `try_cosh` | `BallFloat` and `BallFloatDecorated` (the decorated type has no `try_` forms) |
+  | `tanh_interval`, `try_tanh_interval` | `tanh`, `try_tanh` | `BallFloat` and `BallFloatDecorated` (the decorated type has no `try_` forms) |
+  | `asinh_interval`, `try_asinh_interval` | `asinh`, `try_asinh` | `BallFloat` and `BallFloatDecorated` (the decorated type has no `try_` forms) |
+  | `acosh_interval`, `try_acosh_interval` | `acosh`, `try_acosh` | `BallFloat` and `BallFloatDecorated` (the decorated type has no `try_` forms) |
+  | `atanh_interval`, `try_atanh_interval` | `atanh`, `try_atanh` | `BallFloat` and `BallFloatDecorated` (the decorated type has no `try_` forms) |
+  | `pow_interval`, `try_pow_interval` | `pow`, `try_pow` | `BallFloat` and `BallFloatDecorated` (the decorated type has no `try_` forms) |
+  | `sqrt_interval` | `sqrt` | no `try_` form (a directed square root cannot fail) |
+  | `square`, `reciprocal` | `sqr`, `recip` | `BallFloat`, `BallFloatDecorated` |
+  | `minimum`, `maximum` | `min`, `max` | `BallFloat`, `BallFloatDecorated` |
+  | `whole` | `entire` | `BallFloat`, `BallFloatResult` |
+  | `strictly_less`, `strictly_precedes` | `strict_less`, `strict_precedes` | `BallFloat`, `BallFloatDecorated` |
+  | `overlap_state` | `overlap` | `BallFloat`, `BallFloatDecorated` |
+  | `x.contains(point)` | `x.is_member(point)` | `BallFloat`, `BallFloatDecorated`; `@arithmetic.Contains::contains(x, y)` (inclusion) is unchanged |
+  | `BallFloatResult::pow_int(n)` | `BallFloatResult::pown(n)` | the plain tier already has `pown`; `PowIntChecked` keeps its trait name |
+
 ### Fixed
 
 - `ball_float`: the total elementary forms (`exp_interval`, `exp2_interval`, `exp10_interval`, `ln_interval`, `log2_interval`, `log10_interval`, `sin_interval`, `cos_interval`, `tan_interval`, `asin_interval`, `acos_interval`, `atan_interval`, the six hyperbolic functions and their inverses, `pow_interval`, `rootn`) are now the `try_` form with a fallback, one kernel instead of two ([#449](https://github.com/Luna-Flow/floating/issues/449); Closes #449). They used an exact-rational series of their own that aborted ("certified log series did not converge") from about 32,000 bits for `ln_interval` (about 150,000 for `exp_interval`, about 200,000 for `atan_interval`), and that lost all relative accuracy for a tiny argument in `sinh`, `tanh`, `asinh` and `atanh` (`sinh_interval` of `2^-300` at 53 bits was `[0, 3 * 2^-246]`, now two ulps wide). The `try_` forms used the `bin_float` kernels and had neither limit. Whenever the `try_` form succeeds, the total form returns the same interval; when it reports a certification failure the total form returns the range of the function over its domain (`[0, +inf)` for `exp`, `[-1, 1]` for `sin`, `[-pi/2, pi/2]` for `atan`, Entire for `ln`, and so on; the table is in the API page), which is valid at every precision and cannot itself fail. An argument outside the domain still gives Empty, decided before the kernel runs. Results of these functions can differ from the previous release in the last bit (the `try_` kernels round each endpoint directly); all 4,656 strict ITF1788 cases pass.

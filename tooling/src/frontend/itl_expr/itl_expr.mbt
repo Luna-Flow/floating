@@ -423,7 +423,7 @@ fn parse_interval(
   if literal == "[entire]" {
     return Some(
       @ball_float.BallFloatDecorated::new(
-        @ball_float.BallFloat::whole(precision~),
+        @ball_float.BallFloat::entire(precision~),
         decoration~,
       ),
     )
@@ -620,10 +620,10 @@ pub fn execute_case(case : ItlCase, precision~ : Int32 = 53) -> ItlResult {
     "sub" => (operands[0] - operands[1]).apply_ctx(ctx).0
     "mul" => (operands[0] * operands[1]).apply_ctx(ctx).0
     "div" => (operands[0] / operands[1]).apply_ctx(ctx).0
-    "pow" => operands[0].pow_interval(operands[1])
-    "atan2" => operands[0].atan2_interval(operands[1])
-    "min" => operands[0].minimum(operands[1]).apply_ctx(ctx).0
-    "max" => operands[0].maximum(operands[1]).apply_ctx(ctx).0
+    "pow" => operands[0].pow(operands[1])
+    "atan2" => operands[0].atan2(operands[1])
+    "min" => operands[0].min(operands[1]).apply_ctx(ctx).0
+    "max" => operands[0].max(operands[1]).apply_ctx(ctx).0
     _ =>
       return {
         id_: case.id_,
@@ -749,27 +749,27 @@ fn execute_interval_unary_case(case : ItlCase, precision : Int32) -> ItlResult {
     "pos" => operand.pos()
     "neg" => operand.neg()
     "abs" => operand.abs()
-    "recip" => operand.reciprocal()
-    "sqr" => operand.square()
-    "sqrt" => operand.sqrt_interval()
-    "exp" => operand.exp_interval()
-    "exp2" => operand.exp2_interval()
-    "exp10" => operand.exp10_interval()
-    "log" => operand.ln_interval()
-    "log2" => operand.log2_interval()
-    "log10" => operand.log10_interval()
-    "sin" => operand.sin_interval()
-    "cos" => operand.cos_interval()
-    "tan" => operand.tan_interval()
-    "atan" => operand.atan_interval()
-    "asin" => operand.asin_interval()
-    "acos" => operand.acos_interval()
-    "sinh" => operand.sinh_interval()
-    "cosh" => operand.cosh_interval()
-    "tanh" => operand.tanh_interval()
-    "asinh" => operand.asinh_interval()
-    "acosh" => operand.acosh_interval()
-    "atanh" => operand.atanh_interval()
+    "recip" => operand.recip()
+    "sqr" => operand.sqr()
+    "sqrt" => operand.sqrt()
+    "exp" => operand.exp()
+    "exp2" => operand.exp2()
+    "exp10" => operand.exp10()
+    "log" => operand.ln()
+    "log2" => operand.log2()
+    "log10" => operand.log10()
+    "sin" => operand.sin()
+    "cos" => operand.cos()
+    "tan" => operand.tan()
+    "atan" => operand.atan()
+    "asin" => operand.asin()
+    "acos" => operand.acos()
+    "sinh" => operand.sinh()
+    "cosh" => operand.cosh()
+    "tanh" => operand.tanh()
+    "asinh" => operand.asinh()
+    "acosh" => operand.acosh()
+    "atanh" => operand.atanh()
     _ => abort("unreachable unary interval operation")
   }
   let actual = unbounded.apply_ctx(result_context(precision)).0
@@ -873,7 +873,7 @@ fn execute_overlap_case(case : ItlCase, precision : Int32) -> ItlResult {
       message_: "",
     }
   }
-  let actual = overlap_name(left.overlap_state(right))
+  let actual = overlap_name(left.overlap(right))
   let passed = actual == case.expected_
   {
     id_: case.id_,
@@ -937,7 +937,7 @@ fn execute_boolean_case(case : ItlCase, precision : Int32) -> ItlResult {
         message_: "",
       }
     }
-    return boolean_result(case, container.contains(candidate))
+    return boolean_result(case, container.is_member(candidate))
   }
   guard case.operands_.length() >= 1 &&
     parse_boolean_interval(case.operands_[0], precision) is Some(left) else {
@@ -975,9 +975,9 @@ fn execute_boolean_case(case : ItlCase, precision : Int32) -> ItlResult {
     "interior" => left.interior(right)
     "disjoint" => left.disjoint(right)
     "precedes" => left.precedes(right)
-    "strictPrecedes" => left.strictly_precedes(right)
+    "strictPrecedes" => left.strict_precedes(right)
     "less" => left.less(right)
-    "strictLess" => left.strictly_less(right)
+    "strictLess" => left.strict_less(right)
     _ =>
       return {
         id_: case.id_,

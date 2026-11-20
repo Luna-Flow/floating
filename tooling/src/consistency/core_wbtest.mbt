@@ -5718,7 +5718,7 @@ test "decimal gda string conversions enforce clamped nan payload bounds" {
 test "ball_float exact containment works" {
   let x = binary_test_make(3N, -1, 16)
   let ball = @ball_float.BallFloat::exact(x)
-  assert_true(ball.contains(x))
+  assert_true(ball.is_member(x))
   assert_eq(ball.to_string(), "3p-1 +/- 0")
 }
 
@@ -5734,13 +5734,13 @@ test "ball_float constructors accept coefficient and float family inputs" {
     precision=20,
   )
   assert_true(
-    from_big.contains(@bin_float.BinFloat::from_int(42, precision=64)),
+    from_big.is_member(@bin_float.BinFloat::from_int(42, precision=64)),
   )
   assert_true(
-    from_double.contains(@bin_float.BinFloat::from_double(0.375, precision=64)),
+    from_double.is_member(@bin_float.BinFloat::from_double(0.375, precision=64)),
   )
   assert_true(
-    from_float.contains(@bin_float.BinFloat::from_double(0.375, precision=64)),
+    from_float.is_member(@bin_float.BinFloat::from_double(0.375, precision=64)),
   )
 }
 
@@ -5766,9 +5766,9 @@ test "ball_float arithmetic keeps exact scalar results enclosed" {
   let exact_quotient = @decimal.Decimal::from_string("1.2", precision=40)
     .unwrap()
     .to_bin_float(precision=80)
-  assert_true(sum.contains(exact_sum))
-  assert_true(product.contains(exact_product))
-  assert_true(quotient.contains(exact_quotient))
+  assert_true(sum.is_member(exact_sum))
+  assert_true(product.is_member(exact_product))
+  assert_true(quotient.is_member(exact_quotient))
 }
 
 ///|
@@ -5834,7 +5834,7 @@ test "ball_float implements checked enclosure-preserving power and division" {
     precision=12,
   )
   match square_checked(unit_ball, checked_ctx) {
-    Ok(value) => assert_true(value.contains(binary_test_make(9N, -2, 48)))
+    Ok(value) => assert_true(value.is_member(binary_test_make(9N, -2, 48)))
     Err(_) => fail("expected ball checked nat power to succeed")
   }
   let zero_crossing = @ball_float.BallFloat::new(
@@ -5915,7 +5915,7 @@ test "ball_float_checked keeps interval operations in one result category" {
     @bin_float.BinFloat::one(precision=16),
     precision=12,
   )
-  match (one.pow_int(2) / zero_crossing).pow_int(-1).result() {
+  match (one.pown(2) / zero_crossing).pown(-1).result() {
     Ok(value) => assert_true(value.is_entire())
     Err(_) => fail("expected ball result whole-real fallback to succeed")
   }
@@ -6100,7 +6100,7 @@ test "checked natural powers preserve unsigned exponent boundaries" {
     binary_context,
   ).unwrap()
   assert_true(interval_one.is_singleton())
-  assert_true(interval_one.contains(@bin_float.BinFloat::one(precision=53)))
+  assert_true(interval_one.is_member(@bin_float.BinFloat::one(precision=53)))
   let decimal_result = @lf_arith.PowNatChecked::pow_nat_checked(
     @decimal.Decimal::from_int(1),
     maximum,
@@ -6150,7 +6150,7 @@ test "BallFloat signed powers handle Int minimum" {
   let minimum = -2147483647 - 1
   let one = @ball_float.BallFloat::from_int(1, precision=53).pown(minimum)
   assert_true(one.is_singleton())
-  assert_true(one.contains(@bin_float.BinFloat::one(precision=53)))
+  assert_true(one.is_member(@bin_float.BinFloat::one(precision=53)))
   let crossing = @ball_float.BallFloat::from_bounds(
     @bin_float.BinFloat::from_int(-1, precision=53),
     @bin_float.BinFloat::from_int(1, precision=53),

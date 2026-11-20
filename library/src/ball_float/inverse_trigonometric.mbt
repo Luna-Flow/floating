@@ -1,28 +1,28 @@
 ///|
-/// Total: the `try_atan_interval` form, or the range of the function when the kernel cannot
+/// Total: the `try_atan` form, or the range of the function when the kernel cannot
 /// certify a bound (issue 449).
-pub fn BallFloat::atan_interval(self : BallFloat) -> BallFloat {
-  match self.try_atan_interval() {
+pub fn BallFloat::atan(self : BallFloat) -> BallFloat {
+  match self.try_atan() {
     Ok(result) => result
     Err(_) => half_pi_range(self.precision_)
   }
 }
 
 ///|
-/// Total: the `try_asin_interval` form, or the range of the function when the kernel cannot
+/// Total: the `try_asin` form, or the range of the function when the kernel cannot
 /// certify a bound (issue 449).
-pub fn BallFloat::asin_interval(self : BallFloat) -> BallFloat {
-  match self.try_asin_interval() {
+pub fn BallFloat::asin(self : BallFloat) -> BallFloat {
+  match self.try_asin() {
     Ok(result) => result
     Err(_) => half_pi_range(self.precision_)
   }
 }
 
 ///|
-/// Total: the `try_acos_interval` form, or the range of the function when the kernel cannot
+/// Total: the `try_acos` form, or the range of the function when the kernel cannot
 /// certify a bound (issue 449).
-pub fn BallFloat::acos_interval(self : BallFloat) -> BallFloat {
-  match self.try_acos_interval() {
+pub fn BallFloat::acos(self : BallFloat) -> BallFloat {
+  match self.try_acos() {
     Ok(result) => result
     Err(_) => pi_range(self.precision_)
   }
@@ -40,12 +40,9 @@ fn include_angle_hull(current : BallFloat, candidate : BallFloat) -> BallFloat {
 }
 
 ///|
-pub fn BallFloat::atan2_interval(
-  self : BallFloat,
-  abscissa : BallFloat,
-) -> BallFloat {
+pub fn BallFloat::atan2(self : BallFloat, abscissa : BallFloat) -> BallFloat {
   let precision = Int32::max(self.precision_, abscissa.precision_)
-  match self.try_atan2_interval(abscissa) {
+  match self.try_atan2(abscissa) {
     Ok(result) => result
     Err(_) => {
       let pi = certified_pi_interval(precision)

@@ -344,7 +344,7 @@ points inside it. The package uses three patterns.
   at an endpoint gives a half-unbounded result instead. Negative powers and
   division handle the pole at 0 by the rules of the previous sections.
 
-`pow_interval(x, y)` on the domain $\xi > 0$ (and $\xi = 0$, $\eta > 0$) writes
+`pow(x, y)` on the domain $\xi > 0$ (and $\xi = 0$, $\eta > 0$) writes
 $\xi^\eta = \exp(\eta u)$ with $u = \ln \xi$. The map $(u, \eta) \mapsto \eta u$
 is bilinear, so by the corner argument used for products its extrema over the
 box $[\ln \underline{x}, \ln \overline{x}] \times \boldsymbol{y}$ are at the
@@ -374,14 +374,14 @@ $c^*$ is the minimiser has to be written down, once per case.
 | Operation | Evaluations before | After |
 | --- | --- | --- |
 | interval division | 4 `div_ctx` | 2 (one directed quotient per bound) |
-| `sqrt_interval` | 4 `sqrt_ctx` | 2 |
+| `sqrt` | 4 `sqrt_ctx` | 2 |
 | product, one factor straddling zero, the other sign-definite | 4 products | 2 |
 | product with an unbounded factor | 8 products | 4 (the coefficient product of a finite pair is shared by both directions) |
 | `pown`, even exponent, negative or zero-containing interval | 4 or 3 `pown_ctx` | 2 |
-| `try_atan2_interval` | 8 to 16 `try_atan2_ctx` | 2 |
-| `try_sinpi_interval`, `try_cospi_interval` | 4 | 2 (also 2 with one extremum inside, 0 with an extremum of each kind) |
-| `try_sin_interval`, `try_cos_interval` | 8 exact-rational series per refinement round, plus $\pi$ per round | 2 correctly rounded binary evaluations, and one $\pi$ enclosure |
-| `try_tan_interval` | 8 series per round, plus $\pi$ per round | 2 evaluations, and one $\pi$ enclosure |
+| `try_atan2` | 8 to 16 `try_atan2_ctx` | 2 |
+| `try_sinpi`, `try_cospi` | 4 | 2 (also 2 with one extremum inside, 0 with an extremum of each kind) |
+| `try_sin`, `try_cos` | 8 exact-rational series per refinement round, plus $\pi$ per round | 2 correctly rounded binary evaluations, and one $\pi$ enclosure |
+| `try_tan` | 8 series per round, plus $\pi$ per round | 2 evaluations, and one $\pi$ enclosure |
 
 **Division and square root.** The lower bound of $\boldsymbol{x} /
 \boldsymbol{y}$ is one quotient of two endpoints (chosen by the signs, see
@@ -438,7 +438,7 @@ first refinement round ($p$ the precision of the interval, $m$ the binade of
 the larger endpoint). Its width, about $2^{-(w + 47)}$, is smaller than that of
 the rational enclosure of the old refinement loop (about $2^{-(w + 19)}$), so
 $K$ is contained in the first-round range of the old code. The old code
-decided a pole at its first round too, so `try_tan_interval` returns the whole
+decided a pole at its first round too, so `try_tan` returns the whole
 line only where the old code did. What is identical by construction: every
 endpoint value, and the result whenever the old code needed no refinement
 round. What is not: when the old code refined (an endpoint within about
@@ -452,7 +452,7 @@ which keeps the inclusion property. The tests compare old and new bit for bit
 on the binary64 number closest to a multiple of $\pi/2$
 ($6381956970095103 \cdot 2^{797}$) and on the correctly rounded $\pi/2$ and
 $3\pi/2$ with their neighbours at 24, 53 and 113 bits, and no input differs.
-The non-`try` `sin_interval`, `cos_interval` and `tan_interval` are these
+The non-`try` `sin`, `cos` and `tan` are these
 `try_` forms with a fallback: they return $[-1, 1]$ (Entire for `tan`) for an
 argument the kernel cannot certify, which the `try_` forms report as an
 error.
@@ -773,7 +773,7 @@ fundamental theorem, so does every composition.
 
 **Tightness.** Basic arithmetic, `square`, `pown`, `fma`, `abs`, `minimum`,
 `maximum`, `intersection`, `convex_hull` of non-empty operands and
-`sqrt_interval` return the outward rounding of the exact hull, so each
+`sqrt` return the outward rounding of the exact hull, so each
 endpoint is within one ulp of optimal. Trigonometric and arctangent endpoints
 are correctly directed roundings when certified; the other elementary
 functions are usually within a few ulps. Not tight: fallbacks; `pown` with
