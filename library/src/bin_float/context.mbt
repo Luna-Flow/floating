@@ -62,6 +62,7 @@ pub struct BinaryFlags {
   priv overflow : Bool
   priv division_by_zero : Bool
   priv invalid_operation : Bool
+  priv not_computed : Bool
 }
 
 ///|
@@ -72,6 +73,7 @@ pub fn BinaryFlags::new() -> BinaryFlags {
     overflow: false,
     division_by_zero: false,
     invalid_operation: false,
+    not_computed: false,
   }
 }
 
@@ -86,6 +88,7 @@ pub fn BinaryFlags::combine(
     overflow: self.overflow || other.overflow,
     division_by_zero: self.division_by_zero || other.division_by_zero,
     invalid_operation: self.invalid_operation || other.invalid_operation,
+    not_computed: self.not_computed || other.not_computed,
   }
 }
 
@@ -112,6 +115,16 @@ pub fn BinaryFlags::division_by_zero(self : BinaryFlags) -> Bool {
 ///|
 pub fn BinaryFlags::invalid_operation(self : BinaryFlags) -> Bool {
   self.invalid_operation
+}
+
+///|
+/// Whether the `not_computed` flag is set: the operation could not be carried out
+/// within a limit of the implementation (a certification that did not conclude, a
+/// context beyond what the kernels support) and the value is a NaN. It is not a
+/// flag of IEEE 754-2019 and is distinct from `invalid_operation`, which reports an
+/// operation whose result the standard defines as invalid.
+pub fn BinaryFlags::not_computed(self : BinaryFlags) -> Bool {
+  self.not_computed
 }
 
 ///|

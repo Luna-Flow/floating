@@ -798,7 +798,8 @@ test "a refinement limit makes a hard-to-round result fail" {
 
 ### `BinaryFlags`
 
-The five IEEE 754 exception flags raised by one or more operations.
+The five IEEE 754 exception flags raised by one or more operations, and
+`not_computed`, which reports a result the library could not compute.
 
 ```mbti
 pub struct BinaryFlags {
@@ -806,9 +807,9 @@ pub struct BinaryFlags {
 } derive(Eq, @debug.Debug)
 ```
 
-Two flag sets are `==` when all five flags agree.
+Two flag sets are `==` when all six flags agree.
 
-### `BinaryFlags::new`, `BinaryFlags::inexact`, `BinaryFlags::underflow`, `BinaryFlags::overflow`, `BinaryFlags::division_by_zero`, `BinaryFlags::invalid_operation`
+### `BinaryFlags::new`, `BinaryFlags::inexact`, `BinaryFlags::underflow`, `BinaryFlags::overflow`, `BinaryFlags::division_by_zero`, `BinaryFlags::invalid_operation`, `BinaryFlags::not_computed`
 
 Build an empty flag set and read the individual flags.
 
@@ -819,9 +820,10 @@ pub fn BinaryFlags::underflow(Self) -> Bool
 pub fn BinaryFlags::overflow(Self) -> Bool
 pub fn BinaryFlags::division_by_zero(Self) -> Bool
 pub fn BinaryFlags::invalid_operation(Self) -> Bool
+pub fn BinaryFlags::not_computed(Self) -> Bool
 ```
 
-`new()` has every flag clear. There is no `contains`: that method exists only where a package has a signal enum, and the five accessors cover the five flags. A contextual operation returns only the flags it
+`new()` has every flag clear. There is no `contains`: that method exists only where a package has a signal enum, and the six accessors cover the six flags. A contextual operation returns only the flags it
 raised itself; nothing is sticky until you combine flags. The flags mean:
 `inexact`, the returned value differs from the exact result; `underflow`, the
 result is tiny and inexact; `overflow`, the rounded result exceeded the
@@ -831,6 +833,11 @@ exact infinite result from finite operands (such as $1/0$ or $\log 0$);
 returned, or a signaling NaN was an operand. The non-`try` elementary
 functions also raise it when they return NaN for a domain error or a
 certification failure.
+`not_computed`, the operation could not be carried out within a limit of the
+implementation (a certification that did not conclude, a context beyond what the
+kernels support) and the value is a NaN; it is not a flag of IEEE 754-2019 and
+is distinct from `invalid_operation`. No operation raises it yet: the elementary
+functions will, in place of `invalid_operation`, when they fail to compute.
 
 ### `BinaryFlags::combine`
 
@@ -2915,6 +2922,7 @@ pub fn BinaryFlags::equal(Self, Self) -> Bool
 pub fn BinaryFlags::inexact(Self) -> Bool
 pub fn BinaryFlags::invalid_operation(Self) -> Bool
 pub fn BinaryFlags::new() -> Self
+pub fn BinaryFlags::not_computed(Self) -> Bool
 pub fn BinaryFlags::not_equal(Self, Self) -> Bool
 pub fn BinaryFlags::overflow(Self) -> Bool
 pub fn BinaryFlags::to_repr(Self) -> @debug.Repr
