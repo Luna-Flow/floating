@@ -10,6 +10,9 @@ The library module (`library/moon.mod`) may depend on `Luna-Flow/arithmetic` and
 `Luna-Flow/luna-generic` only, and none of its packages may import the tools
 module `Luna-Flow/floating-tools` (`tooling/`): benchmarks, command-line
 frontends and the differential harness live there (#22).
+No public package may name a type of an internal package in its generated interface
+(`pkg.generated.mbti`), except the definition of `BinCoeff` as a newtype over the binary
+kernel type: a public function taking the kernel type would be callable from outside.
 The three LICENSE files (repository root, `library/`, `tooling/`) must be
 byte-identical: each published package carries its own copy.
 The version of `library/moon.mod`, the version of `tooling/moon.mod` and the library
@@ -84,6 +87,33 @@ def violations(src: Path) -> list[str]:
         for path in imports_of(pkg_file):
             if is_module_path(path) and path not in allowed:
                 found.append(f"library/src/{directory} must not import {path}")
+    return found
+
+
+# The only line of a public interface that may name a type of an internal package:
+# the definition of `BinCoeff`, a newtype over the kernel type. A public function that
+# took or returned the kernel type would be callable from outside the module (an
+# internal type can be passed around, not used), so the rest of every public `.mbti`
+# must not mention an internal package (#22).
+INTERNAL_TYPE_LINE = re.compile(r"@(?:bin_kernel|decimal_kernel|internal)\b")
+ALLOWED_INTERNAL_TYPE_LINES = {
+    "bin_float": ("pub(all) struct BinCoeff(@bin_kernel.Coeff)",),
+}
+
+
+def interface_violations(src: Path) -> list[str]:
+    """Lines of the generated interfaces of the public packages that name an internal type."""
+    found: list[str] = []
+    for mbti in sorted(src.rglob("pkg.generated.mbti")):
+        directory = mbti.parent.relative_to(src).as_posix()
+        if directory == "internal" or directory.startswith("internal/"):
+            continue
+        allowed = ALLOWED_INTERNAL_TYPE_LINES.get(directory, ())
+        for number, line in enumerate(mbti.read_text(encoding="utf-8").splitlines(), start=1):
+            if INTERNAL_TYPE_LINE.search(line) and line.strip() not in allowed:
+                found.append(
+                    f"library/src/{directory}/pkg.generated.mbti:{number} names an internal type: {line.strip()}"
+                )
     return found
 
 
@@ -167,7 +197,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--root", type=Path, default=REPO_ROOT, help="repository root")
     args = parser.parse_args(argv)
-    found = violations(args.root / "library" / "src") + module_violations(args.root) + license_violations(args.root) + version_violations(args.root)
+    found = violations(args.root / "library" / "src") + interface_violations(args.root / "library" / "src") + module_violations(args.root) + license_violations(args.root) + version_violations(args.root)
     for line in found:
         print(f"check_imports: {line}", file=sys.stderr)
     if not found:
