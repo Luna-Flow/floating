@@ -152,6 +152,10 @@ test "from_hex_ctx: an exponent outside the 32-bit range overflows or underflows
   assert_eq(small.is_zero() && small.is_negative(), true)
   assert_eq(e2s_flags(small_flags), "IU-")
   assert_true(BinFloat::from_hex("0x1p99999999999", 53) is Err(_))
-  // beyond the limit read by the parser (10^12) it is an error in both
-  assert_true(BinFloat::from_hex_ctx("0x1p9999999999999", context) is Err(_))
+  // beyond the old limit of the parser (10^12) the field saturates (issue #597): the same
+  // result, the context overflows or underflows (more cases in hex_exponent_wbtest.mbt)
+  let (huge, huge_flags) = BinFloat::from_hex_ctx("0x1p9999999999999", context).unwrap()
+  assert_eq(huge.classify() == FpClass::Infinity, true)
+  assert_eq(e2s_flags(huge_flags), "I-O")
+  assert_true(BinFloat::from_hex("0x1p9999999999999", 53) is Err(_))
 }

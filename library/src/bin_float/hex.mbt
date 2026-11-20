@@ -1,7 +1,12 @@
 ///|
-/// Largest decimal exponent magnitude read before giving up; it keeps the arithmetic below in
-/// `Int64` and is far outside every exponent a `BinFloat` can hold.
-const BINARY_HEX_EXPONENT_LIMIT : Int64 = 1_000_000_000_000L
+/// The exponent field is read with saturation at this magnitude: once the accumulated value
+/// reaches a tenth of it, the value is the clamp, whatever digits follow (the test comes before
+/// the multiplication by ten, so the accumulator never wraps; `exponent_cap / 10` of
+/// `internal/core.mbt` does the same). It keeps the arithmetic below in `Int64`, and a field of any
+/// length is a valid text: the exponent 2^60 is far outside every range, so the value
+/// overflows or underflows like any other (`from_hex_ctx`), or is rejected as outside the 32-bit
+/// range by `from_hex`, which has to store the exact value.
+const BINARY_HEX_EXPONENT_CLAMP : Int64 = 1L << 60
 
 ///|
 /// A parsed hexSequence (§5.12.3) or special sequence (§5.12.1): the value is
@@ -18,7 +23,7 @@ priv enum BinaryHexLiteral {
 /// optional `+` or `-` sign, `inf`, `infinity`, `nan` and `snan` in any case, and
 /// `0x` or `0X`, a hexSignificand (`h.h`, `.h`, `h.` or `h` with one or more hex
 /// digits), `p` or `P`, and a decimal exponent with an optional sign and one or
-/// more digits. The exponent is read up to `BINARY_HEX_EXPONENT_LIMIT`.
+/// more digits (of any length: the value saturates at `BINARY_HEX_EXPONENT_CLAMP`).
 fn binary_parse_hex(
   source : String,
 ) -> Result[BinaryHexLiteral, @def.ArithmeticError] {
@@ -94,13 +99,17 @@ fn binary_parse_hex(
     guard character >= '0' && character <= '9' else {
       return Err(@def.ArithmeticError::parse_error("invalid binary exponent"))
     }
-    exponent = exponent * 10L + (character.to_int() - '0'.to_int()).to_int64()
-    guard exponent <= BINARY_HEX_EXPONENT_LIMIT else {
-      return Err(
-        @def.ArithmeticError::parse_error("binary exponent out of range"),
-      )
+    // Saturate before the multiplication can wrap: a value from a tenth of the clamp
+    // upward is the clamp, whatever digits follow.
+    if exponent >= BINARY_HEX_EXPONENT_CLAMP / 10L {
+      exponent = BINARY_HEX_EXPONENT_CLAMP
+    } else {
+      exponent = exponent * 10L + (character.to_int() - '0'.to_int()).to_int64()
     }
     index = index + 1
+  }
+  if exponent > BINARY_HEX_EXPONENT_CLAMP {
+    exponent = BINARY_HEX_EXPONENT_CLAMP
   }
   let scaled = (if exponent_negative { -exponent } else { exponent }) -
     4L * fraction_digits.to_int64()
@@ -212,7 +221,9 @@ pub fn BinFloat::from_hex_ctx(
         )
       Finite(negative~, magnitude~, exponent2~) => {
         // The exponent saturates at the 32-bit range: |value| is then at least
-        // 2^(2^31 - 1) or at most 2^(-2^31 + bits), far outside every range.
+        // 2^(2^31 - 1) or at most 2^(-2^31 + bits), far outside every range (the
+        // significand is a string in memory, so `bits` is far below 2^31). A zero
+        // significand is the zero of the sign, whatever the exponent.
         let clamped = if exponent2 > 2147483647L {
           2147483647
         } else if exponent2 < -2147483648L {
