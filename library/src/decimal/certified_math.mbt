@@ -378,13 +378,21 @@ fn decimal_certified_unary_result(
     @ball_float.BallFloat,
     @def.ArithmeticError,
   ],
+  extra_bits~ : Int32 = 0,
+  exact_evaluate~ : ((Int32) -> Result[
+    @ball_float.BallFloat,
+    @def.ArithmeticError,
+  ])? = None,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   let mut budget = CertifiedRefinementBudget::new(
-    decimal_certified_work_precision(value, ctx),
+    decimal_certified_work_precision(value, ctx) + extra_bits,
   )
   while budget.available() {
-    let input = decimal_to_certified_ball(value, budget.precision())
-    match evaluate(input) {
+    let evaluated = match exact_evaluate {
+      Some(exact) => exact(budget.precision())
+      None => evaluate(decimal_to_certified_ball(value, budget.precision()))
+    }
+    match evaluated {
       Ok(interval) =>
         match decimal_certified_target(interval, ctx) {
           Some(result) => return Ok(result)

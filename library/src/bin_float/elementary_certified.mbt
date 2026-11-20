@@ -5049,6 +5049,12 @@ fn binary_integer_mod4(value : BinFloat) -> Int32? {
 }
 
 ///|
+/// Largest working precision of the argument reduction of `sin`, `cos` and
+/// `tan` (bits): an argument of binary exponent `k` needs about `k` more bits
+/// than the result for the reduction modulo pi/2.
+let binary_trig_work_limit : Int32 = 8_000_000
+
+///|
 fn binary_trigonometric_reduction(
   value : BinFloat,
   half_pi : (BinFloat, BinFloat),
@@ -5354,14 +5360,14 @@ fn BinFloat::try_trigonometric_ctx(
       let required = context.precision.to_int64() +
         Int64::max(0L, adjusted_exponent) +
         96L
-      guard required <= 1_000_000L else {
+      guard required <= binary_trig_work_limit.to_int64() else {
         return Err(
           binary_certification_failure(
             operation.name(),
             @def.CertificationStage::RangeReduction,
             @def.CertificationFailureReason::ResourceLimit,
             context.precision,
-            1_000_000,
+            binary_trig_work_limit,
             0,
           ),
         )
@@ -5398,7 +5404,7 @@ fn BinFloat::try_trigonometric_ctx(
         Int32::max(required.to_int(), self.precision() + 16),
       )
       let mut certified_range = false
-      while budget.available() && budget.precision() <= 1_000_000 {
+      while budget.available() && budget.precision() <= binary_trig_work_limit {
         match binary_trigonometric_bounds(self, operation, budget.precision()) {
           Some(bounds) => {
             certified_range = true

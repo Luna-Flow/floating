@@ -1048,6 +1048,39 @@ pub fn BallFloat::try_log1p_interval(
 }
 
 ///|
+/// `sin`, `cos` or `tan` of an interval that is one nonzero point: no critical
+/// point or pole lies inside it (the point is a dyadic rational, `pi` is
+/// irrational), so the enclosure is the directed evaluations at the point. This
+/// skips the rational critical-index computation, which costs about as much as
+/// the evaluation itself for an argument of millions of bits.
+fn BallFloat::try_trig_point_interval(
+  self : BallFloat,
+  evaluate : (@bin_float.BinFloat, @bin_float.BinaryContext) -> Result[
+    (@bin_float.BinFloat, @bin_float.BinaryFlags),
+    @def.ArithmeticError,
+  ],
+) -> Result[BallFloat, @def.ArithmeticError]? {
+  if self.lo_.is_zero() || self.lo_.compare(self.hi_) != 0 {
+    return None
+  }
+  let downward = @bin_float.BinaryContext::unbounded(
+    self.precision_,
+    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+  )
+  let upward = @bin_float.BinaryContext::unbounded(
+    self.precision_,
+    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+  )
+  Some(
+    evaluate(self.lo_, downward).bind(fn(lower) {
+      evaluate(self.lo_, upward).map(fn(upper) {
+        store_interval(lower.0, upper.0, self.precision_)
+      })
+    }),
+  )
+}
+
+///|
 pub fn BallFloat::try_sin_interval(
   self : BallFloat,
 ) -> Result[BallFloat, @def.ArithmeticError] {
@@ -1061,10 +1094,16 @@ pub fn BallFloat::try_sin_interval(
     trig_initial_work(self.lo_, self.precision_),
     trig_initial_work(self.hi_, self.precision_),
   )
-  guard !trig_cutoff_exceeded(self) else {
+  guard !trig_work_limit_exceeded(self) else {
     return Err(
       ball_range_resource_failure("sin", self.precision_, initial_work),
     )
+  }
+  if self.try_trig_point_interval(fn(value, context) {
+      value.try_sin_ctx(context)
+    })
+    is Some(result) {
+    return result.map(BallFloat::with_canonical_zero_endpoints)
   }
   self
   .try_sine_like_hull(trig_critical_indices(self), 0, fn(value, context) {
@@ -1087,10 +1126,16 @@ pub fn BallFloat::try_cos_interval(
     trig_initial_work(self.lo_, self.precision_),
     trig_initial_work(self.hi_, self.precision_),
   )
-  guard !trig_cutoff_exceeded(self) else {
+  guard !trig_work_limit_exceeded(self) else {
     return Err(
       ball_range_resource_failure("cos", self.precision_, initial_work),
     )
+  }
+  if self.try_trig_point_interval(fn(value, context) {
+      value.try_cos_ctx(context)
+    })
+    is Some(result) {
+    return result.map(BallFloat::with_canonical_zero_endpoints)
   }
   self
   .try_sine_like_hull(trig_critical_indices(self), 1, fn(value, context) {
@@ -1113,17 +1158,22 @@ pub fn BallFloat::try_tan_interval(
     trig_initial_work(self.lo_, self.precision_),
     trig_initial_work(self.hi_, self.precision_),
   )
-  guard !trig_cutoff_exceeded(self) else {
+  guard !trig_work_limit_exceeded(self) else {
     return Err(
       ball_range_resource_failure("tan", self.precision_, initial_work),
     )
   }
   // A pole `pi/2 + k pi` (odd quarter-turn index) inside the interval makes
   // the hull the whole line; otherwise tangent is increasing on the arc.
-  let indices = trig_critical_indices(self)
-  if index_range_contains_residue(indices.0, indices.1, 1) ||
-    index_range_contains_residue(indices.0, indices.1, 3) {
-    return Ok(whole_real(self.precision_))
+  // A point (a nonzero dyadic rational) is no pole: the rational index
+  // computation is skipped, as for sin and cos.
+  let is_point = !self.lo_.is_zero() && self.lo_.compare(self.hi_) == 0
+  if !is_point {
+    let indices = trig_critical_indices(self)
+    if index_range_contains_residue(indices.0, indices.1, 1) ||
+      index_range_contains_residue(indices.0, indices.1, 3) {
+      return Ok(whole_real(self.precision_))
+    }
   }
   let downward = @bin_float.BinaryContext::unbounded(
     self.precision_,
