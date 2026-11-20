@@ -644,5 +644,3 @@ pub fn Decimal::from_bin_float(
       }
   }
 }
-
-///|
