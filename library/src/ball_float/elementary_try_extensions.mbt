@@ -364,6 +364,12 @@ pub fn BallFloat::try_atanh_interval(
   let restricted = self.intersection(
     store_interval(minus_one, one, self.precision_),
   )
+  // The domain is the open interval (-1, 1): the single point 1 or -1 (what is
+  // left of [1, +inf) or (-inf, -1]) has no image.
+  if restricted.is_singleton() &&
+    (restricted.lo_.compare(one) == 0 || restricted.lo_.compare(minus_one) == 0) {
+    return Ok(empty_interval(self.precision_))
+  }
   restricted.try_certified_monotone(true, fn(value, context) {
     value.try_atanh_ctx(context)
   })

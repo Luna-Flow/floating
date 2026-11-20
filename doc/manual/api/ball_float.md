@@ -878,16 +878,19 @@ $\boldsymbol{x}$ outside $D_f$ are ignored and the result is Empty when
 $\boldsymbol{x} \cap D_f$ is empty. The result precision is the argument's
 precision.
 
-Functions come in two forms. The total form (`exp_interval`, `sin_interval`,
-…) always returns a valid enclosure; when the certified evaluation exhausts
-its refinement budget it returns a wider, still valid, interval. The `try_`
-form (`try_exp_interval`, …) returns `Err(ArithmeticError)` in that case, with
-a certification-failure detail naming the operation, stage and reason.
-Except where noted, the `try_` forms evaluate each endpoint with the
-corresponding `bin_float` `try_*_ctx` function rounded toward $-\infty$ or
-$+\infty$; the total forms either call them or use the certified series of
-this package. Both forms return the same set on ordinary inputs; their bounds
-may differ by an ulp.
+Functions come in two forms, and there is one kernel. The `try_` form
+(`try_exp_interval`, …) evaluates each endpoint with the corresponding
+`bin_float` `try_*_ctx` function rounded toward $-\infty$ or $+\infty$, and
+returns `Err(ArithmeticError)` with a certification-failure detail naming the
+operation, stage and reason when that evaluation runs out of its work budget.
+The total form (`exp_interval`, `sin_interval`, …) is the `try_` form with a
+fallback: it returns the same interval whenever the `try_` form succeeds, and
+otherwise the range of the function over its domain (the fallbacks are listed
+below), which is a valid but wide enclosure. A total form never aborts, at any
+precision the type accepts; a domain error is not a failure (the result is
+Empty), so an argument outside the domain and a certification failure give
+different results. Nothing is computed twice: the total form calls the `try_`
+form once.
 
 ### `BallFloat::sqrt_interval`
 
@@ -919,19 +922,18 @@ pub fn BallFloat::try_expm1_interval(Self) -> Result[Self, @arithmetic.Arithmeti
 
 All four are increasing, so the result is
 $[\operatorname{RD} f(\underline{x}), \operatorname{RU} f(\overline{x})]$.
-`exp_interval` uses a certified Taylor series with argument halving and never
-needs a fallback; for $|\xi| \ge 2^{30}$ it returns
-$[\text{largest finite}, +\infty)$ or $[0, \text{smallest positive}]$, which
-is valid because $e^{2^{30}}$ exceeds $2^{e_{\max}+1}$ and $e^{-2^{30}}$ is
-below the smallest positive `BinFloat` at every precision.
-`exp2_interval` and `exp10_interval` evaluate $e^{\xi \ln b}$ at 96 extra bits
-and return exact powers for integer endpoints (for `exp2_interval`, exponents
-$e_{\min} \le n \le e_{\max}$, where $2^n$ is a normal `BinFloat`; for
-`exp10_interval`, exponents $0 \le n \le 100000$). An integer endpoint outside
-the exponent range keeps the outward-rounded series enclosure, so
-`exp2_interval` of $\{-1073742000\}$ is $[0, \text{smallest positive}]$ and of
-$\{2^{30}\}$ is $[\text{largest finite}, +\infty)$. The total
-`expm1_interval` falls back to $[-1, +\infty)$.
+For $|\xi| \ge 2^{30}$ the enclosure is $[\text{largest finite}, +\infty)$ or
+$[0, \text{smallest positive}]$, which is valid because $e^{2^{30}}$ exceeds
+$2^{e_{\max}+1}$ and $e^{-2^{30}}$ is below the smallest positive `BinFloat`
+at every precision. `exp2_interval` and `exp10_interval` return exact powers
+for integer endpoints whose power is representable at the interval's precision
+(`exp2_interval` of $\{10\}$ is $\{1024\}$, `exp10_interval` of $\{3\}$ is
+$\{1000\}$); an integer endpoint outside the exponent range keeps the
+outward-rounded enclosure, so `exp2_interval` of $\{-1073742000\}$ is
+$[0, \text{smallest positive}]$ and of $\{2^{30}\}$ is
+$[\text{largest finite}, +\infty)$. The fallback of the total forms is
+$[0, +\infty)$ for `exp`, `exp2` and `exp10` and $[-1, +\infty)$ for
+`expm1`.
 
 ### `BallFloat::ln_interval`, `BallFloat::log2_interval`, `BallFloat::log10_interval`, `BallFloat::log1p_interval`, `BallFloat::try_ln_interval`, `BallFloat::try_log2_interval`, `BallFloat::try_log10_interval`, `BallFloat::try_log1p_interval`
 
@@ -953,8 +955,9 @@ When the interval reaches the domain boundary ($\underline{x} \le 0$, or
 $\underline{x} \le -1$ for `log1p`) the lower endpoint is $-\infty$; when it
 lies entirely outside the domain ($\overline{x} \le 0$, or
 $\overline{x} < -1$ for `log1p`) the result is Empty. `log10_interval`
-returns exact integers at endpoints $10^k$, $0 \le k \le 9$. The total
-`log1p_interval` falls back to Entire.
+returns exact integers at endpoints $10^k$, $0 \le k \le 9$. The fallback of
+the total forms is Entire (an endpoint at or below the domain boundary is
+decided before the kernel runs and is not a failure).
 
 ```moonbit
 ///|
@@ -964,7 +967,7 @@ test "exponentials and logarithms" {
   inspect(fmt(iv(0, 4).ln_interval()), content="[-inf, 1.38630e+0]")
   inspect(fmt(iv(1, 1000).log10_interval()), content="[0.00000e+0, 3.00000e+0]")
   inspect(iv(-2, -1).ln_interval().is_empty(), content="true")
-  // Integer endpoints outside the exponent range keep the series enclosure.
+  // Integer endpoints outside the exponent range keep the outward-rounded enclosure.
   let below = @ball_float.BallFloat::from_int(-1073742000, precision=53).exp2_interval()
   inspect(below.lower_bound().to_string(), content="0")
   inspect(below.upper_bound().to_string(), content="1p-1073741875")
@@ -997,7 +1000,7 @@ is excluded, so `pow_interval([0, 0], y)` is Empty when $\overline{y} \le 0$.
 The result precision is the larger operand precision. A corner whose power is
 representable at the result precision, such as $16^{3/4} = 8$, gives that
 power exactly. The total
-form falls back to an evaluation of $e^{\eta \ln \xi}$ at 192 extra bits.
+form falls back to $[0, +\infty)$.
 
 ### `BallFloat::rootn` and `BallFloat::try_rootn`
 
@@ -1012,11 +1015,9 @@ pub fn BallFloat::try_rootn(Self, Int) -> Result[Self, @arithmetic.ArithmeticErr
 
 `rootn(x, 0)` and `rootn(x, Int min)` are Empty; `try_rootn(x, 0)` is a domain
 error. `rootn(x, 1)` is `x` and `rootn(x, 2)` is `sqrt_interval`. The total
-form evaluates other degrees through `pow_interval` with an enclosure of
-$1/n$, so it may be slightly wider than `try_rootn`; negative degrees are
-`rootn(x, -n).reciprocal()`. For negative $n$, `try_rootn` returns Entire
-when an odd root's argument contains 0 (wider than the total form when 0 is an
-endpoint). Exact roots are returned exactly for every degree, so
+form is `try_rootn` with a fallback ($[0, +\infty)$ for an even degree, Entire
+for an odd one). For negative $n$, `try_rootn` returns Entire when an odd
+root's argument contains 0. Exact roots are returned exactly for every degree, so
 `try_rootn({8}, -3)` is $\{1/2\}$.
 
 ```moonbit
@@ -1061,8 +1062,8 @@ pub fn BallFloat::try_cos_interval(Self) -> Result[Self, @arithmetic.ArithmeticE
 pub fn BallFloat::try_tan_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
-Both forms reduce each endpoint by a certified enclosure of $\pi/2$ and
-evaluate certified Taylor series. A critical point $k\pi/2$ inside the
+Both forms evaluate the `bin_float` functions at the endpoints (a point
+interval) or at the endpoints and the critical points. A critical point $k\pi/2$ inside the
 interval contributes the extremum $\pm 1$ of `sin`/`cos` (`sin` reaches $+1$
 at $k \equiv 1$ and $-1$ at $k \equiv 3 \pmod 4$, `cos` reaches $+1$ at
 $k \equiv 0$ and $-1$ at $k \equiv 2$); for `tan` an odd multiple of $\pi/2$
@@ -1070,10 +1071,10 @@ inside the interval (a pole) makes the result Entire. The set of candidate
 indices $k$ is computed from the enclosure of $\pi$ and can only be too large,
 which widens but never invalidates the result. Unbounded arguments give
 $[-1, 1]$ (Entire for `tan`). When the larger endpoint magnitude is at least
-$2^{\max(65536,\, 4p) + 1}$, the total forms return $[-1, 1]$ (Entire)
-without evaluating and the `try_` forms return a resource-limit error; the
-total forms use the same fallback when the certification budget (12 work
-precisions) is exhausted.
+$2^{\max(65536,\, 4p) + 1}$ the `try_` forms return a resource-limit error
+without evaluating; the total forms return $[-1, 1]$ (Entire for `tan`), the
+same fallback they use when the certification budget (12 work precisions) is
+exhausted.
 
 ### `BallFloat::sinpi_interval`, `BallFloat::cospi_interval`, `BallFloat::tanpi_interval`, `BallFloat::try_sinpi_interval`, `BallFloat::try_cospi_interval`, `BallFloat::try_tanpi_interval`
 
@@ -1124,11 +1125,10 @@ pub fn BallFloat::try_atan_interval(Self) -> Result[Self, @arithmetic.Arithmetic
 ```
 
 `asin` and `atan` are increasing and `acos` is decreasing, so only endpoints
-are evaluated. The total `atan_interval` uses a certified series with a
-Machin-formula enclosure of $\pi$ and falls back to $[0, \pi/2]$ or
-$[-\pi/2, 0]$ for an endpoint whose budget runs out; `asin` is computed as
-$\arctan(\xi/\sqrt{1 - \xi^2})$ and `acos` as $\pi/2 - \arcsin \xi$, at 64
-extra bits. `atan` of an infinite endpoint is $\pm\pi/2$.
+are evaluated. `atan` of an infinite endpoint is $\pm\pi/2$. The fallback of
+the total forms is $[-\pi/2, \pi/2]$ for `atan` and `asin` and $[0, \pi]$ for
+`acos`, with $\pi$ taken from a constant of at most 64 bits and rounded
+outward to the interval's precision, so the fallback itself cannot fail.
 
 ### `BallFloat::atan2_interval` and `BallFloat::try_atan2_interval`
 
@@ -1167,21 +1167,15 @@ pub fn BallFloat::try_acosh_interval(Self) -> Result[Self, @arithmetic.Arithmeti
 pub fn BallFloat::try_atanh_interval(Self) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
-`cosh` has its minimum 1 at 0; the others are monotone. The total forms
-evaluate the defining formulas ($(e^\xi - e^{-\xi})/2$,
-$\ln(\xi + \sqrt{\xi^2 + 1})$, $\tfrac12 \ln\frac{1+\xi}{1-\xi}$, …) in
-interval arithmetic at $w = p + 192$ bits at each endpoint, so they never
-fail; `tanh_interval` is clipped to $[-1, 1]$. `atanh` of an interval reaching
-$\pm 1$ is unbounded on that side. The `try_` forms use the certified
-`bin_float` kernels instead.
+`cosh` has its minimum 1 at 0; the others are monotone. `atanh` of an
+interval reaching $\pm 1$ is unbounded on that side, and an interval whose
+only point in the domain's closure is $1$ or $-1$ gives Empty. The fallback of
+the total forms is Entire for `sinh`, `asinh` and `atanh`, $[-1, 1]$ for
+`tanh`, $[1, +\infty)$ for `cosh` and $[0, +\infty)$ for `acosh`.
 
-The defining formulas of `sinh`, `tanh`, `asinh` and `atanh` cancel near 0:
-their absolute error is about $2^{-w}$, so for $|\xi|$ below roughly
-$2^{-190}$ the total forms are valid but far from tight. At 53 bits,
-`sinh_interval` of $\{2^{-300}\}$ is $[0, 3 \cdot 2^{-246}]$ while
-`try_sinh_interval` returns the two-ulp interval
-$[2^{-300}, (1 + 2^{-52})\,2^{-300}]$. Use the `try_` forms for tiny
-arguments.
+The total forms keep their relative accuracy for a tiny argument, since they
+are the `bin_float` kernels: at 53 bits `sinh_interval` of $\{2^{-300}\}$ is
+the two-ulp interval $[2^{-300}, (1 + 2^{-52})\,2^{-300}]$.
 
 ```moonbit
 ///|

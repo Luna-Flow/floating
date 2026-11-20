@@ -35,7 +35,8 @@ test "exp_interval at 160,000 bits returns an enclosure (issue 449)" {
 test "hyperbolic forms keep relative accuracy for a tiny argument" {
   let x = BallFloat::exact(total_forms_pow2(-300, 53), precision=53)
   let tiny = total_forms_pow2(-340, 53)
-  for y in [
+  for
+    y in [
       x.sinh_interval(),
       x.tanh_interval(),
       x.asinh_interval(),
@@ -43,5 +44,25 @@ test "hyperbolic forms keep relative accuracy for a tiny argument" {
     ] {
     assert_true(y.lower_bound().compare(@bin_float.BinFloat::zero()) > 0)
     assert_true(y.width().compare(tiny) <= 0)
+  }
+}
+
+///|
+/// `try_atanh_interval` of an interval whose only point in the domain's closure
+/// is 1 or -1 evaluated the pole and aborted ("ball lower bound must not be
+/// positive infinity"); the open domain leaves nothing, so the result is Empty.
+test "atanh of an interval meeting the closure of the domain at one point" {
+  let inf = @bin_float.BinFloat::inf(Sign::Positive, precision=53)
+  let one = @bin_float.BinFloat::one(precision=53)
+  for
+    b in [
+      (one, one),
+      (one, inf),
+      (inf.neg(), one.neg()),
+      (one.neg(), one.neg()),
+    ] {
+    let x = BallFloat::from_bounds(b.0, b.1, precision=53)
+    assert_true(x.atanh_interval().is_empty())
+    assert_true(x.try_atanh_interval().unwrap().is_empty())
   }
 }
