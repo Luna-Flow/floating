@@ -95,9 +95,19 @@ let bin_coeff_ntt_limb32_conversion = false
 /// Shortest short product, in limbs of the extended precision: below it the
 /// setup (two shifted operands, the product array, the rounding window) costs
 /// more than the rows save. Measured with the C rows (instructions per `mul`, two-count method): the short product over the schoolbook and Karatsuba product 1.05 at 17 limbs, 0.94 at 21, 0.86 at 25, 0.71 at 65, 0.84 at 129, 0.94 at 193, 1.02 at 257.
-let bin_coeff_short_product_min_limbs : Int32 = 20
+/// With `LUNA_FLOATING_PORTABLE` set the rows are the portable loops and the
+/// portable limits (13 and 64 limbs) apply.
+let bin_coeff_short_product_min_limbs : Int32 = if bin_limbs_native {
+  20
+} else {
+  13
+}
 
 ///|
 /// Longest short product, in limbs: above it the Karatsuba product is as cheap.
 /// See the minimum.
-let bin_coeff_short_product_max_limbs : Int32 = 192
+let bin_coeff_short_product_max_limbs : Int32 = if bin_limbs_native {
+  192
+} else {
+  64
+}
