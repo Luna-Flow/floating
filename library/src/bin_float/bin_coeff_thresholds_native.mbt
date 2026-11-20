@@ -86,3 +86,13 @@ let bin_coeff_words_square_cutoff : Int32 = 36
 /// Whether squaring runs the word-range Karatsuba square
 /// (`bin_coeff_words_sqr_scratch`) between the schoolbook square and the NTT.
 let bin_coeff_square_words_enabled = true
+
+///|
+/// Number of 32-bit limbs from which `BinCoeff::to_radix_string` formats by
+/// divide and conquer instead of dividing a copy of the limbs chunk by chunk.
+let bin_coeff_radix_format_dc_limbs = 6144
+
+///|
+/// Number of digit chunks from which `BinCoeff::parse` combines chunks by
+/// divide and conquer instead of accumulating them in place.
+let bin_coeff_radix_parse_dc_chunks = 4608
