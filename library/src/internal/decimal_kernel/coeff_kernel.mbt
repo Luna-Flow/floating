@@ -1479,9 +1479,10 @@ fn dec_coeff_wide_multiply_coeff_by_unit_into(
 }
 
 ///|
-/// Normalizes the limbs of `coeff` (multiplied by `multiplier`, below the
-/// base) into `target[0..)` and returns the number of limbs written (the last
-/// limb is the carry, possibly zero, at index `unit_len`).
+/// Writes the limbs of `coeff` multiplied by `multiplier` (below the base) to
+/// `target[0..unit_len]`: `unit_len + 1` limbs, the last one (index `unit_len`)
+/// the carry out of the top limb, possibly zero. `target` must have room for
+/// them.
 fn dec_coeff_knuth_load(
   coeff : DecCoeff,
   multiplier : UInt64,

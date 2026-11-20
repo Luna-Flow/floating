@@ -432,11 +432,12 @@ pub fn dec_coeff_exact_nth_root_repr(
 /// The quotient of `coefficient * 10^shift` by `denominator`, for a caller
 /// that rounds it once more (`ZeroFiveUp` as the general division of the
 /// decimal packages does): the integer quotient, incremented by one when a
-/// nonzero remainder leaves its last digit 0 or 5. Returns zero, which no
-/// quotient of a dividend scaled to at least the length of the divisor can
-/// be, when the decimal expansion of the exact quotient is finite (the
-/// remainder is zero, or the part of the divisor prime to 10 divides it):
-/// the caller then takes its general route. The answer is the one of
+/// nonzero remainder leaves its last digit 0 or 5. Returns zero when the
+/// decimal expansion of the exact quotient is finite (the remainder is zero,
+/// or the part of the divisor prime to 10 divides it): the caller then takes
+/// its general route. Zero is free as that signal because a quotient of zero
+/// with a nonzero remainder leaves as 1 after the `ZeroFiveUp` increment, so
+/// no returned quotient is zero. The answer is the one of
 /// `dec_coeff_round_div_expansion(coefficient * 10^shift, denominator, _,
 /// ZeroFiveUp)`; for the usual case (a divisor of at least two limbs that
 /// takes Knuth's algorithm) it is computed on one scratch array per operand,
@@ -533,9 +534,9 @@ pub fn dec_coeff_div_scaled_inexact(
   }
   // the quotient is below the exact one: is the expansion of the exact one
   // finite? It is iff the part `u` of the divisor prime to 10 divides the
-  // remainder (the dividend is `coefficient * 10^shift` and 10 is invertible
-  // modulo `u`). The valuations of 2 and 5 of the divisor are those of its
-  // lowest limb when they are below 9.
+  // remainder (`u` divides the dividend `coefficient * 10^shift` iff it divides
+  // the remainder, because `u` divides the divisor). The valuations of 2 and 5
+  // of the divisor are those of its lowest limb when they are below 9.
   let low = dec_coeff_limb_at(denominator, 0).reinterpret_as_int()
   let mut twos = 0
   let mut fives = 0
