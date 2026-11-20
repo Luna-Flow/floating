@@ -1136,6 +1136,65 @@ pub fn BinFloat::compare_signaling_less_equal(Self, Self) -> (Bool, BinaryFlags)
 derived from `compare_quiet` or `compare_signaling` and returns its flags; every
 predicate except `compare_quiet_unordered` is false on an unordered pair.
 
+### `BinFloat::compare_quiet_not_equal` and the other comparison predicates of Tables 5.1 and 5.2
+
+The fifteen predicates of IEEE 754-2019 5.11 not listed above.
+
+```mbti
+pub fn BinFloat::compare_quiet_greater(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_quiet_greater_equal(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_quiet_greater_unordered(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_quiet_less_unordered(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_quiet_not_equal(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_quiet_not_greater(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_quiet_not_less(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_quiet_ordered(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_signaling_greater(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_signaling_greater_equal(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_signaling_greater_unordered(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_signaling_less_unordered(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_signaling_not_equal(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_signaling_not_greater(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_signaling_not_less(Self, Self) -> (Bool, BinaryFlags)
+```
+
+Clause 5.11 lists 22 predicates, 10 in Table 5.1 (with the common mathematical
+symbols) and 12 in Table 5.2; with the seven above every one of them has a
+function. Each is defined from `compare_quiet` or `compare_signaling` through
+the relations that make it true, which is how the tables define it, and returns
+the flags of that comparison: a quiet predicate raises `invalid_operation` for
+a signaling NaN only, a signaling predicate for every NaN operand. The
+doc comment of each names its row. Name spelling follows the seven above:
+`compare_`, `quiet` or `signaling`, then the predicate name of the table in
+snake case. The pairs the standard states as negations of one another (the two
+predicates of one line of a table) return opposite values and the same flags.
+
+| Table | predicate | true relations |
+| --- | --- | --- |
+| 5.1 | `BinFloat::compare_quiet_equal` (`compareQuietEqual`) | equal |
+| 5.1 | `BinFloat::compare_quiet_not_equal` (`compareQuietNotEqual`) | less, greater, unordered |
+| 5.1 | `BinFloat::compare_signaling_greater` (`compareSignalingGreater`) | greater |
+| 5.1 | `BinFloat::compare_signaling_not_greater` (`compareSignalingNotGreater`) | less, equal, unordered |
+| 5.1 | `BinFloat::compare_signaling_greater_equal` (`compareSignalingGreaterEqual`) | equal, greater |
+| 5.1 | `BinFloat::compare_signaling_less_unordered` (`compareSignalingLessUnordered`) | less, unordered |
+| 5.1 | `BinFloat::compare_signaling_less` (`compareSignalingLess`) | less |
+| 5.1 | `BinFloat::compare_signaling_not_less` (`compareSignalingNotLess`) | equal, greater, unordered |
+| 5.1 | `BinFloat::compare_signaling_less_equal` (`compareSignalingLessEqual`) | less, equal |
+| 5.1 | `BinFloat::compare_signaling_greater_unordered` (`compareSignalingGreaterUnordered`) | greater, unordered |
+| 5.2 | `BinFloat::compare_signaling_equal` (`compareSignalingEqual`) | equal |
+| 5.2 | `BinFloat::compare_signaling_not_equal` (`compareSignalingNotEqual`) | less, greater, unordered |
+| 5.2 | `BinFloat::compare_quiet_greater` (`compareQuietGreater`) | greater |
+| 5.2 | `BinFloat::compare_quiet_not_greater` (`compareQuietNotGreater`) | less, equal, unordered |
+| 5.2 | `BinFloat::compare_quiet_greater_equal` (`compareQuietGreaterEqual`) | equal, greater |
+| 5.2 | `BinFloat::compare_quiet_less_unordered` (`compareQuietLessUnordered`) | less, unordered |
+| 5.2 | `BinFloat::compare_quiet_less` (`compareQuietLess`) | less |
+| 5.2 | `BinFloat::compare_quiet_not_less` (`compareQuietNotLess`) | equal, greater, unordered |
+| 5.2 | `BinFloat::compare_quiet_less_equal` (`compareQuietLessEqual`) | less, equal |
+| 5.2 | `BinFloat::compare_quiet_greater_unordered` (`compareQuietGreaterUnordered`) | greater, unordered |
+| 5.2 | `BinFloat::compare_quiet_unordered` (`compareQuietUnordered`) | unordered |
+| 5.2 | `BinFloat::compare_quiet_ordered` (`compareQuietOrdered`) | less, equal, greater |
+
+
 ### `BinFloat::total_order`, `BinFloat::total_order_mag`, `BinFloat::total_order_compare`
 
 The IEEE 754 `totalOrder` relation.
@@ -2590,13 +2649,28 @@ pub fn BinFloat::compare(Self, Self) -> Int32
 pub fn BinFloat::compare_checked(Self, Self) -> Result[Int32, @arithmetic.ArithmeticError]
 pub fn BinFloat::compare_quiet(Self, Self) -> (@def.PartialOrder, BinaryFlags)
 pub fn BinFloat::compare_quiet_equal(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_quiet_greater(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_quiet_greater_equal(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_quiet_greater_unordered(Self, Self) -> (Bool, BinaryFlags)
 pub fn BinFloat::compare_quiet_less(Self, Self) -> (Bool, BinaryFlags)
 pub fn BinFloat::compare_quiet_less_equal(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_quiet_less_unordered(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_quiet_not_equal(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_quiet_not_greater(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_quiet_not_less(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_quiet_ordered(Self, Self) -> (Bool, BinaryFlags)
 pub fn BinFloat::compare_quiet_unordered(Self, Self) -> (Bool, BinaryFlags)
 pub fn BinFloat::compare_signaling(Self, Self) -> (@def.PartialOrder, BinaryFlags)
 pub fn BinFloat::compare_signaling_equal(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_signaling_greater(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_signaling_greater_equal(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_signaling_greater_unordered(Self, Self) -> (Bool, BinaryFlags)
 pub fn BinFloat::compare_signaling_less(Self, Self) -> (Bool, BinaryFlags)
 pub fn BinFloat::compare_signaling_less_equal(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_signaling_less_unordered(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_signaling_not_equal(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_signaling_not_greater(Self, Self) -> (Bool, BinaryFlags)
+pub fn BinFloat::compare_signaling_not_less(Self, Self) -> (Bool, BinaryFlags)
 pub fn BinFloat::compound(Self, Int32) -> Self
 pub fn BinFloat::compound_ctx(Self, Int32, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::convert_format(Self, BinaryInterchangeFormat, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> (Self, BinaryFlags)
