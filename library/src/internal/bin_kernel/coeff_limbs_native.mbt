@@ -300,3 +300,111 @@ fn bin_limbs_sqr_school(
     bin_coeff_words_sqr_school(r, ro, s, so, len)
   }
 }
+
+///|
+#borrow(words, x, y)
+extern "C" fn luna_window_combine(
+  words : FixedArray[UInt64],
+  count : Int32,
+  x : FixedArray[UInt64],
+  x_len : Int32,
+  x_word_shift : Int32,
+  x_bit_shift : Int32,
+  y : FixedArray[UInt64],
+  y_len : Int32,
+  y_word_shift : Int32,
+  y_bit_shift : Int32,
+  subtract : Int32,
+  carry_in : UInt64,
+) -> UInt64 = "luna_window_combine"
+
+///|
+/// Shortest window, in limbs, that goes to the C body: the call into C, its
+/// range checks and the generic limbs at the two ends cost about 200
+/// instructions, which the portable body (no call, one edge limb at each end)
+/// does not pay, so below this length the portable body is faster. Measured
+/// (instructions per call, one operand shifted by one bit, 9 to 40 limbs of
+/// both operands, the two bodies in one executable): portable / C 323 / 337 at
+/// 12 limbs, 387 / 374 at 16, 451 / 411 at 20, 643 / 522 at 32; both operands
+/// shifted: 394 / 391 at 12, 478 / 441 at 16.
+let bin_limbs_window_c_min_count : Int32 = 14
+
+///|
+/// The window row of the wide sum of two coefficients, one pass over `count`
+/// limbs. Contract:
+///
+/// - Operands: `x` (`x_len` limbs) and `y` (`y_len` limbs), read only, each
+///   viewed through a window: limb `index` of the window of `w` with word
+///   shift `ws` and bit shift `bs` is `(w[index - ws] << bs) | (w[index - ws -
+///   1] >> (64 - bs))` (just `w[index - ws]` when `bs = 0`), a source index
+///   outside `0 ..< len` reading as zero. `0 <= x_bit_shift, y_bit_shift <=
+///   63`; the word shifts are within `-bin_limbs_window_max ..= bin_limbs_window_max`
+///   (2^28; the callers give magnitudes of at most 2^24: `y_word_shift` is
+///   negative when the operand is cut at the window bottom, and the callers'
+///   `x_word_shift` is not), and `count`, `x_len` and `y_len` are at most
+///   `bin_limbs_window_max` as well, so that no index sum wraps in either body.
+///   `y_len = 0` means no second operand: it reads as zero everywhere.
+///   Every combination of shifts is allowed; `x` and `y` may be the same
+///   array.
+/// - Result: `words[0 ..< count]` (`count >= 1`, `words` at least that long)
+///   receives `x_window + (y_window ^ mask) + carry` limb by limb, where
+///   `mask` is zero for an addition and all ones for a subtraction, and the
+///   carry in is `carry_in` for an addition and `1 - carry_in` for a
+///   subtraction (so that `x - y - carry_in`, `carry_in` a borrow, is
+///   `x + !y + (1 - carry_in)`). `words` must not be `x` or `y`.
+/// - Return: the carry out of the top limb for an addition, and `1 - carry
+///   out` (the borrow out) for a subtraction.
+/// - Past the shorter operand: limbs beyond an operand read as zero (for a
+///   subtraction a missing `y` reads as all ones after the mask), so the pass
+///   always runs over all `count` limbs.
+/// - It computes exactly the previous loop of `binary_coeff_fast_add_parts`
+///   (`bin_window_combine`), which is the reference of the tests.
+///
+/// Tiers: native with the C rows or the assembly tier calls the C body for
+/// windows of at least `bin_limbs_window_c_min_count` limbs (there is no
+/// assembly body for this row yet: the assembly tier runs the C one); shorter
+/// windows, the portable configuration and the other targets run
+/// `bin_limbs_window_combine_portable`.
+pub fn bin_limbs_window_combine(
+  words : FixedArray[UInt64],
+  count : Int32,
+  x : FixedArray[UInt64],
+  x_len : Int32,
+  x_word_shift : Int32,
+  x_bit_shift : Int32,
+  y : FixedArray[UInt64],
+  y_len : Int32,
+  y_word_shift : Int32,
+  y_bit_shift : Int32,
+  subtract : Bool,
+  carry_in : UInt64,
+) -> UInt64 {
+  bin_limbs_window_check(
+    words, count, x, x_len, x_word_shift, x_bit_shift, y, y_len, y_word_shift, y_bit_shift,
+  )
+  if bin_limbs_mode != 0 && count >= bin_limbs_window_c_min_count {
+    luna_window_combine(
+      words,
+      count,
+      x,
+      x_len,
+      x_word_shift,
+      x_bit_shift,
+      y,
+      y_len,
+      y_word_shift,
+      y_bit_shift,
+      if subtract {
+        1
+      } else {
+        0
+      },
+      carry_in,
+    )
+  } else {
+    bin_limbs_window_combine_portable(
+      words, count, x, x_len, x_word_shift, x_bit_shift, y, y_len, y_word_shift,
+      y_bit_shift, subtract, carry_in,
+    )
+  }
+}

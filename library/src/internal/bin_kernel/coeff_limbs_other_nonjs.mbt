@@ -63,3 +63,27 @@ fn bin_limbs_sqr_school(
 ) -> Unit {
   bin_coeff_words_sqr_school(r, ro, s, so, len)
 }
+
+///|
+pub fn bin_limbs_window_combine(
+  words : FixedArray[UInt64],
+  count : Int32,
+  x : FixedArray[UInt64],
+  x_len : Int32,
+  x_word_shift : Int32,
+  x_bit_shift : Int32,
+  y : FixedArray[UInt64],
+  y_len : Int32,
+  y_word_shift : Int32,
+  y_bit_shift : Int32,
+  subtract : Bool,
+  carry_in : UInt64,
+) -> UInt64 {
+  bin_limbs_window_check(
+    words, count, x, x_len, x_word_shift, x_bit_shift, y, y_len, y_word_shift, y_bit_shift,
+  )
+  bin_limbs_window_combine_portable(
+    words, count, x, x_len, x_word_shift, x_bit_shift, y, y_len, y_word_shift, y_bit_shift,
+    subtract, carry_in,
+  )
+}

@@ -147,133 +147,6 @@ fn binary_coeff_fast_scalars_ok(
 }
 
 ///|
-/// Word `index` of the window: `words` (`len` limbs) placed so that its bit 0
-/// is bit `64 * word_shift + bit_shift` of the window (`0 <= bit_shift < 64`;
-/// `word_shift` is negative when the operand is cut at the window bottom).
-/// Limbs outside the operand read as zero.
-fn bin_window_word(
-  words : FixedArray[UInt64],
-  len : Int32,
-  word_shift : Int32,
-  bit_shift : Int32,
-  index : Int32,
-) -> UInt64 {
-  let source = index - word_shift
-  let low = if source >= 0 && source < len {
-    words.unsafe_get(source)
-  } else {
-    0UL
-  }
-  if bit_shift == 0 {
-    return low
-  }
-  let below = if source >= 1 && source <= len {
-    words.unsafe_get(source - 1)
-  } else {
-    0UL
-  }
-  (low << bit_shift) | (below >> (64 - bit_shift))
-}
-
-///|
-/// One pass over `count` limbs: `words = x + y + carry_in`, or
-/// `x - y - carry_in` (a borrow) when `subtract`; both operands are read
-/// through their shifts, and `y_len = 0` reads nothing of `y`. Returns the
-/// carry or borrow out of the top limb. A subtraction is the addition of the
-/// complement, `x + !y + (1 - borrow)`, so that one loop serves both. The
-/// limbs of the window where every source limb exists are read without any
-/// bounds test (a shifted limb is `(v[i] << b) | (v[i - 1] >> (64 - b))`,
-/// written with two shifts so that `b = 0` needs no branch); the few limbs at
-/// either end go through `bin_window_word`.
-fn bin_window_combine(
-  words : FixedArray[UInt64],
-  count : Int32,
-  x : FixedArray[UInt64],
-  x_len : Int32,
-  x_word_shift : Int32,
-  x_bit_shift : Int32,
-  y : FixedArray[UInt64],
-  y_len : Int32,
-  y_word_shift : Int32,
-  y_bit_shift : Int32,
-  subtract : Bool,
-  carry_in : UInt64,
-) -> UInt64 {
-  let mask = if subtract { 0xFFFFFFFFFFFFFFFFUL } else { 0UL }
-  let mut carry = if subtract { 1UL - carry_in } else { carry_in }
-  let use_y = y_len > 0
-  let mut low = x_word_shift + 1
-  let mut high = x_word_shift + x_len
-  if use_y {
-    low = Int32::max(low, y_word_shift + 1)
-    high = Int32::min(high, y_word_shift + y_len)
-  }
-  low = Int32::max(0, Int32::min(low, count))
-  high = Int32::min(count, Int32::max(high, low))
-  for index in 0..<low {
-    let a = bin_window_word(x, x_len, x_word_shift, x_bit_shift, index)
-    let b = bin_window_word(y, y_len, y_word_shift, y_bit_shift, index) ^ mask
-    let partial = a + b
-    let sum = partial + carry
-    let first = if partial < a { 1UL } else { 0UL }
-    let second = if sum < partial { 1UL } else { 0UL }
-    carry = first | second
-    words.unsafe_set(index, sum)
-  }
-  let x_down = 63 - x_bit_shift
-  if low < high {
-    // the previous source limb of each operand is carried in a register
-    let mut x_previous = x.unsafe_get(low - x_word_shift - 1)
-    if use_y {
-      let y_down = 63 - y_bit_shift
-      let mut y_previous = y.unsafe_get(low - y_word_shift - 1)
-      for index in low..<high {
-        let x_current = x.unsafe_get(index - x_word_shift)
-        let y_current = y.unsafe_get(index - y_word_shift)
-        let a = (x_current << x_bit_shift) | (x_previous >> 1 >> x_down)
-        let b = ((y_current << y_bit_shift) | (y_previous >> 1 >> y_down)) ^
-          mask
-        x_previous = x_current
-        y_previous = y_current
-        let partial = a + b
-        let sum = partial + carry
-        let first = if partial < a { 1UL } else { 0UL }
-        let second = if sum < partial { 1UL } else { 0UL }
-        carry = first | second
-        words.unsafe_set(index, sum)
-      }
-    } else {
-      for index in low..<high {
-        let x_current = x.unsafe_get(index - x_word_shift)
-        let a = (x_current << x_bit_shift) | (x_previous >> 1 >> x_down)
-        x_previous = x_current
-        let partial = a + mask
-        let sum = partial + carry
-        let first = if partial < a { 1UL } else { 0UL }
-        let second = if sum < partial { 1UL } else { 0UL }
-        carry = first | second
-        words.unsafe_set(index, sum)
-      }
-    }
-  }
-  for index in high..<count {
-    let a = bin_window_word(x, x_len, x_word_shift, x_bit_shift, index)
-    let b = bin_window_word(y, y_len, y_word_shift, y_bit_shift, index) ^ mask
-    let partial = a + b
-    let sum = partial + carry
-    let first = if partial < a { 1UL } else { 0UL }
-    let second = if sum < partial { 1UL } else { 0UL }
-    carry = first | second
-    words.unsafe_set(index, sum)
-  }
-  if subtract {
-    1UL - carry
-  } else {
-    carry
-  }
-}
-
-///|
 /// `words = -words` modulo `2^(64 * count)`.
 fn bin_window_negate(words : FixedArray[UInt64], count : Int32) -> Unit {
   let mut carry = 1UL
@@ -408,7 +281,7 @@ fn binary_coeff_fast_add_parts(
   let y_bit_shift = y_shift - 64 * y_word_shift
   let subtract = x_negative != y_negative
   let words = FixedArray::make(count, 0UL)
-  let borrow = bin_window_combine(
+  let borrow = bin_limbs_window_combine(
     words,
     count,
     binary_coeff_fast_array(x_coefficient),

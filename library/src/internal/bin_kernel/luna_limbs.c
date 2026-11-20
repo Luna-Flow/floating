@@ -5,7 +5,9 @@
  * stays the reference: the results are bit for bit the same.
  *
  * Rules: unsigned arithmetic only, no assembly, no `restrict` (a row keeps the
- * sequential semantics of the MoonBit loop under any overlap), no static data
+ * sequential semantics of the MoonBit loop under any overlap, except the window
+ * row `luna_window_combine`, which reads four source limbs before it writes
+ * four and so requires that its output does not overlap its inputs), no static data
  * but the switch below, nothing beyond <stdint.h>, <stdlib.h> and moonbit.h.
  * The 64 by 64 to 128 bit product uses `unsigned __int128` where the compiler
  * has it and four 32-bit products otherwise (tcc, 32-bit targets, MSVC `cl`
@@ -350,4 +352,163 @@ MOONBIT_FFI_EXPORT void luna_sqr_school(uint64_t *r, int32_t ro, const uint64_t 
 
 MOONBIT_FFI_EXPORT void luna_sqr_school_asm(uint64_t *r, int32_t ro, const uint64_t *s, int32_t so, int32_t len) {
   luna_sqr_school_with(luna_row_addmul_1_asm, r, ro, s, so, len);
+}
+
+/* Forced inlining of the two helpers below, so that each call of `luna_win_interior` with
+ * constant flags becomes its own specialised loop. Only clang and gcc get the attribute; any
+ * other compiler (MSVC `cl`, tcc) takes plain `static inline`, which compiles everywhere: without
+ * inlining the specialisation is lost (the flags are tested per limb) and the results are the
+ * same. */
+#if defined(__clang__) || defined(__GNUC__)
+#define LUNA_FORCE_INLINE static inline __attribute__((always_inline))
+#else
+#define LUNA_FORCE_INLINE static inline
+#endif
+
+/* ---- the window row of the wide sum (`bin_limbs_window_combine`) ----
+ *
+ * words[0 .. count) = x_window + (y_window ^ mask) + carry, limb by limb, where
+ * the window of an operand `w` (`len` limbs) with word shift `ws` and bit shift
+ * `bs` (0 <= bs < 64) has limb i = (w[i - ws] << bs) | (w[i - ws - 1] >> (64 - bs)),
+ * a source limb outside 0 .. len - 1 reading as zero; mask is all ones for a
+ * subtraction (x + !y + 1 - borrow_in). Returns the carry out (the borrow out
+ * for a subtraction). The contract and the semantics are those of the MoonBit
+ * function of the same name in `coeff_limbs_portable_nonjs.mbt`, which is the
+ * reference of the differential test. `words` must not overlap `x` or `y`; `x`
+ * and `y` are only read. Index arithmetic is in 64 bits (the MoonBit wrapper bounds the word
+ * shifts and the lengths, see `bin_limbs_window_max`, so that the portable body's 32-bit index
+ * arithmetic cannot wrap either). */
+#if defined(__clang__) && defined(__has_builtin)
+#if __has_builtin(__builtin_addcll)
+#define LUNA_HAVE_ADDCLL 1
+#endif
+#endif
+LUNA_FORCE_INLINE uint64_t luna_add3(uint64_t a, uint64_t b, uint64_t *carry) {
+#if defined(LUNA_HAVE_ADDCLL)
+  unsigned long long out;
+  uint64_t sum = (uint64_t)__builtin_addcll(a, b, *carry, &out);
+  *carry = out;
+  return sum;
+#else
+  uint64_t partial = a + b;
+  uint64_t c1 = partial < a;
+  uint64_t sum = partial + *carry;
+  c1 |= sum < partial;
+  *carry = c1;
+  return sum;
+#endif
+}
+
+static inline uint64_t luna_win_word(const uint64_t *w, int64_t len, int64_t ws, int bs, int64_t index) {
+  int64_t source = index - ws;
+  uint64_t low = (source >= 0 && source < len) ? w[source] : 0;
+  if (bs == 0) {
+    return low;
+  }
+  uint64_t below = (source >= 1 && source <= len) ? w[source - 1] : 0;
+  return (low << bs) | (below >> (64 - bs));
+}
+
+/* the limb of a window from the current and the previous source limb */
+#define LUNA_SH(cur, prev, sh, bs, up) ((sh) ? (((cur) << (bs)) | ((prev) >> (up))) : (cur))
+
+/* The interior of the pass, limbs `low .. high` where every source limb of both operands exists
+ * (no bounds test), four limbs per iteration with one carry chain through the four sums (with
+ * clang this is `adds`, `adcs`, `adcs`, `adcs`), then the remaining limbs one at a time. The
+ * flags are constants at every call, so each call is its own specialised loop: `xbs`, `ybs` zero
+ * means that operand is read unshifted, `use_y` zero means no second operand. */
+LUNA_FORCE_INLINE void luna_win_interior(uint64_t *words, int64_t low, int64_t high, const uint64_t *x, int64_t xws, int xsh, int xbs, const uint64_t *y, int64_t yws, int ysh, int ybs, int use_y, uint64_t mask, uint64_t *carry_io) {
+  uint64_t carry = *carry_io;
+  int xup = 64 - xbs;
+  int yup = 64 - ybs;
+  uint64_t xp = xsh ? x[low - xws - 1] : 0;
+  uint64_t yp = (use_y && ysh) ? y[low - yws - 1] : 0;
+  int64_t i = low;
+  for (; i + 4 <= high; i += 4) {
+    uint64_t x0 = x[i - xws], x1 = x[i - xws + 1], x2 = x[i - xws + 2], x3 = x[i - xws + 3];
+    uint64_t a0 = LUNA_SH(x0, xp, xsh, xbs, xup), a1 = LUNA_SH(x1, x0, xsh, xbs, xup);
+    uint64_t a2 = LUNA_SH(x2, x1, xsh, xbs, xup), a3 = LUNA_SH(x3, x2, xsh, xbs, xup);
+    xp = x3;
+    uint64_t b0 = mask, b1 = mask, b2 = mask, b3 = mask;
+    if (use_y) {
+      uint64_t y0 = y[i - yws], y1 = y[i - yws + 1], y2 = y[i - yws + 2], y3 = y[i - yws + 3];
+      b0 = LUNA_SH(y0, yp, ysh, ybs, yup) ^ mask;
+      b1 = LUNA_SH(y1, y0, ysh, ybs, yup) ^ mask;
+      b2 = LUNA_SH(y2, y1, ysh, ybs, yup) ^ mask;
+      b3 = LUNA_SH(y3, y2, ysh, ybs, yup) ^ mask;
+      yp = y3;
+    }
+#if defined(LUNA_HAVE_ADDCLL)
+    unsigned long long c0, c1, c2, c3;
+    words[i] = (uint64_t)__builtin_addcll(a0, b0, carry, &c0);
+    words[i + 1] = (uint64_t)__builtin_addcll(a1, b1, c0, &c1);
+    words[i + 2] = (uint64_t)__builtin_addcll(a2, b2, c1, &c2);
+    words[i + 3] = (uint64_t)__builtin_addcll(a3, b3, c2, &c3);
+    carry = c3;
+#else
+    words[i] = luna_add3(a0, b0, &carry);
+    words[i + 1] = luna_add3(a1, b1, &carry);
+    words[i + 2] = luna_add3(a2, b2, &carry);
+    words[i + 3] = luna_add3(a3, b3, &carry);
+#endif
+  }
+  for (; i < high; i++) {
+    uint64_t xc = x[i - xws];
+    uint64_t a = LUNA_SH(xc, xp, xsh, xbs, xup);
+    xp = xc;
+    uint64_t b = mask;
+    if (use_y) {
+      uint64_t yc = y[i - yws];
+      b = LUNA_SH(yc, yp, ysh, ybs, yup) ^ mask;
+      yp = yc;
+    }
+    words[i] = luna_add3(a, b, &carry);
+  }
+  *carry_io = carry;
+}
+
+MOONBIT_FFI_EXPORT uint64_t luna_window_combine(uint64_t *words, int32_t count, const uint64_t *x, int32_t x_len, int32_t x_ws, int32_t x_bs, const uint64_t *y, int32_t y_len, int32_t y_ws, int32_t y_bs, int32_t subtract, uint64_t carry_in) {
+  uint64_t mask = subtract ? ~(uint64_t)0 : 0;
+  uint64_t carry = subtract ? 1 - carry_in : carry_in;
+  int use_y = y_len > 0;
+  int64_t low = (int64_t)x_ws + 1;
+  int64_t high = (int64_t)x_ws + x_len;
+  if (use_y) {
+    int64_t ylow = (int64_t)y_ws + 1;
+    int64_t yhigh = (int64_t)y_ws + y_len;
+    low = low > ylow ? low : ylow;
+    high = high < yhigh ? high : yhigh;
+  }
+  if (low > count) low = count;
+  if (low < 0) low = 0;
+  if (high > count) high = count;
+  if (high < low) high = low;
+  for (int64_t i = 0; i < low; i++) {
+    uint64_t a = luna_win_word(x, x_len, x_ws, x_bs, i);
+    uint64_t b = luna_win_word(y, y_len, y_ws, y_bs, i) ^ mask;
+    words[i] = luna_add3(a, b, &carry);
+  }
+  if (low < high) {
+    if (!use_y) {
+      if (x_bs == 0) {
+        luna_win_interior(words, low, high, x, x_ws, 0, 0, y, y_ws, 0, 0, 0, mask, &carry);
+      } else {
+        luna_win_interior(words, low, high, x, x_ws, 1, x_bs, y, y_ws, 0, 0, 0, mask, &carry);
+      }
+    } else if (x_bs == 0 && y_bs == 0) {
+      luna_win_interior(words, low, high, x, x_ws, 0, 0, y, y_ws, 0, 0, 1, mask, &carry);
+    } else if (x_bs == 0) {
+      luna_win_interior(words, low, high, x, x_ws, 0, 0, y, y_ws, 1, y_bs, 1, mask, &carry);
+    } else if (y_bs == 0) {
+      luna_win_interior(words, low, high, x, x_ws, 1, x_bs, y, y_ws, 0, 0, 1, mask, &carry);
+    } else {
+      luna_win_interior(words, low, high, x, x_ws, 1, x_bs, y, y_ws, 1, y_bs, 1, mask, &carry);
+    }
+  }
+  for (int64_t i = high; i < count; i++) {
+    uint64_t a = luna_win_word(x, x_len, x_ws, x_bs, i);
+    uint64_t b = luna_win_word(y, y_len, y_ws, y_bs, i) ^ mask;
+    words[i] = luna_add3(a, b, &carry);
+  }
+  return subtract ? 1 - carry : carry;
 }

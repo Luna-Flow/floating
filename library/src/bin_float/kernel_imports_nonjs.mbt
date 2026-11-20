@@ -8,4 +8,5 @@ using @bin_kernel {
   binary_fast_mul_high,
   binary_fast_shl_high,
   binary_fast_shl_low,
+  bin_limbs_window_combine,
 }
