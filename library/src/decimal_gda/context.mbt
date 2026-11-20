@@ -109,21 +109,26 @@ let decimal_exp_boundary_cache_next : @ref.Ref[Int32] = @ref.Ref(0)
 
 ///|
 fn DecimalFlags::new() -> DecimalFlags {
-  {
-    inexact: false,
-    rounded: false,
-    lost_digits: false,
-    invalid_operation: false,
-    division_by_zero: false,
-    overflow: false,
-    underflow: false,
-    subnormal: false,
-    clamped: false,
-    conversion_syntax: false,
-    division_impossible: false,
-    division_undefined: false,
-    invalid_context: false,
-  }
+  decimal_flags_none_value
+}
+
+///|
+/// The empty flag set, built once: the record is immutable, so every
+/// `DecimalFlags::new()` shares it instead of allocating 13 fields.
+let decimal_flags_none_value : DecimalFlags = {
+  inexact: false,
+  rounded: false,
+  lost_digits: false,
+  invalid_operation: false,
+  division_by_zero: false,
+  overflow: false,
+  underflow: false,
+  subnormal: false,
+  clamped: false,
+  conversion_syntax: false,
+  division_impossible: false,
+  division_undefined: false,
+  invalid_context: false,
 }
 
 ///|

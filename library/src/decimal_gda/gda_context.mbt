@@ -93,21 +93,26 @@ pub fn[T] GdaOutcome::resume_defined(self : GdaOutcome[T]) -> GdaOutcome[T] {
 
 ///|
 pub fn GdaFlags::new() -> GdaFlags {
-  {
-    conversion_syntax: false,
-    division_by_zero: false,
-    division_impossible: false,
-    division_undefined: false,
-    invalid_context: false,
-    invalid_operation: false,
-    overflow: false,
-    underflow: false,
-    subnormal: false,
-    inexact: false,
-    rounded: false,
-    clamped: false,
-    lost_digits: false,
-  }
+  gda_flags_none_value
+}
+
+///|
+/// The empty flag set, built once: the record is immutable, so every
+/// `GdaFlags::new()` shares it instead of allocating 13 fields.
+let gda_flags_none_value : GdaFlags = {
+  conversion_syntax: false,
+  division_by_zero: false,
+  division_impossible: false,
+  division_undefined: false,
+  invalid_context: false,
+  invalid_operation: false,
+  overflow: false,
+  underflow: false,
+  subnormal: false,
+  inexact: false,
+  rounded: false,
+  clamped: false,
+  lost_digits: false,
 }
 
 ///|
@@ -801,23 +806,74 @@ fn trapped_signal(raised : GdaFlags, traps : GdaTrapSet) -> GdaSignal? {
   // The order is the one the trap handlers have always seen: the conditions
   // that deliver no usable number first, then the exponent range, then the
   // informational signals.
-  for
-    signal in [
-      GdaSignal::InvalidOperation,
-      DivisionByZero,
-      Overflow,
-      Underflow,
-      Subnormal,
-      Inexact,
-      Rounded,
-      Clamped,
-      LostDigits,
-    ] {
-    if raised.contains(signal) && traps.contains(signal) {
-      return Some(signal)
-    }
+  if raised.contains(InvalidOperation) && traps.contains(InvalidOperation) {
+    return Some(InvalidOperation)
+  }
+  if raised.contains(DivisionByZero) && traps.contains(DivisionByZero) {
+    return Some(DivisionByZero)
+  }
+  if raised.contains(Overflow) && traps.contains(Overflow) {
+    return Some(Overflow)
+  }
+  if raised.contains(Underflow) && traps.contains(Underflow) {
+    return Some(Underflow)
+  }
+  if raised.contains(Subnormal) && traps.contains(Subnormal) {
+    return Some(Subnormal)
+  }
+  if raised.contains(Inexact) && traps.contains(Inexact) {
+    return Some(Inexact)
+  }
+  if raised.contains(Rounded) && traps.contains(Rounded) {
+    return Some(Rounded)
+  }
+  if raised.contains(Clamped) && traps.contains(Clamped) {
+    return Some(Clamped)
+  }
+  if raised.contains(LostDigits) && traps.contains(LostDigits) {
+    return Some(LostDigits)
   }
   None
+}
+
+///|
+/// The outcome of an operation that raised the conditions `raised` (not
+/// empty, no invalid operation): the status of the new context is the union of
+/// the old status and `raised`, the first trapped condition makes it `Trapped`.
+fn[T] complete_gda_raised(
+  value : T,
+  context : GdaContext,
+  raised : GdaFlags,
+) -> GdaOutcome[T] {
+  let next_context = {
+    ..context,
+    status_: if gda_flags_are_clear(context.status_) {
+      raised
+    } else {
+      context.status_.combine(raised)
+    },
+  }
+  match trapped_signal(raised, context.traps_) {
+    Some(signal) => Trapped(signal, value, next_context, raised)
+    None => Completed(value, next_context, raised)
+  }
+}
+
+///|
+fn gda_flags_are_clear(flags : GdaFlags) -> Bool {
+  !flags.conversion_syntax &&
+  !flags.division_by_zero &&
+  !flags.division_impossible &&
+  !flags.division_undefined &&
+  !flags.invalid_context &&
+  !flags.invalid_operation &&
+  !flags.overflow &&
+  !flags.underflow &&
+  !flags.subnormal &&
+  !flags.inexact &&
+  !flags.rounded &&
+  !flags.clamped &&
+  !flags.lost_digits
 }
 
 ///|
@@ -837,7 +893,11 @@ fn[T] complete_gda(
   }
   let next_context = {
     ..context,
-    status_: context.status_.combine(status_delta),
+    status_: if gda_flags_are_clear(context.status_) {
+      status_delta
+    } else {
+      context.status_.combine(status_delta)
+    },
   }
   match trapped_signal(raised, context.traps_) {
     Some(signal) => Trapped(signal, value, next_context, raised)

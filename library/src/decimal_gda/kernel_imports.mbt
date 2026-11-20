@@ -42,6 +42,7 @@ using @decimal_kernel {
   dec_coeff_round_div,
   dec_coeff_round_div_bigint,
   dec_coeff_round_div_pow10,
+  dec_coeff_round_units_to_digits,
   dec_coeff_round_to_digits,
   dec_coeff_shift_power10_mod_wide_repr,
   dec_coeff_shift_power10_repr,

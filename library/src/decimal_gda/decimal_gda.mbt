@@ -158,6 +158,10 @@ pub fn add(
     Some(outcome) => return outcome
     None => ()
   }
+  match gda_add_plain(lhs, rhs, ctx, false) {
+    Some(outcome) => return outcome
+    None => ()
+  }
   let (value, flags) = lhs.add_ctx(rhs, ctx.decimal_context())
   complete_decimal_gda(value, ctx, flags)
 }
@@ -173,6 +177,10 @@ pub fn subtract(
     None => ()
   }
   match gda_fast_sum(lhs, rhs, ctx, true) {
+    Some(outcome) => return outcome
+    None => ()
+  }
+  match gda_add_plain(lhs, rhs, ctx, true) {
     Some(outcome) => return outcome
     None => ()
   }
