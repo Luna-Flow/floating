@@ -402,7 +402,7 @@ msgid "`is_bounded` and `is_common_interval` (the IEEE 1788 name) are the same: 
 msgstr "`is_bounded` と `is_common_interval`（IEEE 1788 での名前）は同じもので、区間が空でなく両端点が有限であることを判定します。`is_singleton` は $\\underline{x} = \\overline{x}$ のとき成り立ちます。`contains_zero` は Empty に対して偽です。"
 
 #: manual/api/ball_float.md:478
-#: manual/design/decimal_gda.md:447
+#: manual/design/decimal_gda.md:451
 msgid "Precision"
 msgstr "精度"
 
@@ -663,7 +663,7 @@ msgstr "`minimum` は $[\\min(\\underline{x}, \\underline{y}), \\min(\\overline{
 #: manual/api/bin_float_checked.md:492
 #: manual/api/decimal.md:1447
 #: manual/api/frontend/mpfr_expr.md:156
-#: manual/design/decimal_gda.md:452
+#: manual/design/decimal_gda.md:456
 msgid "Elementary functions"
 msgstr "初等関数"
 
@@ -4156,7 +4156,7 @@ msgstr "clamp"
 #: manual/api/decimal_gda.md:462
 #: manual/api/decimal_gda.md:463
 #: manual/api/decimal_gda.md:464
-#: manual/design/decimal_gda.md:450
+#: manual/design/decimal_gda.md:454
 msgid "yes"
 msgstr "あり"
 
@@ -5371,7 +5371,7 @@ msgid "traps"
 msgstr "トラップ"
 
 #: manual/api/decimal_gda.md:461
-#: manual/design/decimal_gda.md:450
+#: manual/design/decimal_gda.md:454
 #: manual/numeric_semantics.md:305
 msgid "no"
 msgstr "いいえ"
@@ -6945,7 +6945,7 @@ msgid "`source` returns the name given to the parser and `case_count` the number
 msgstr "`source` はパーサに与えられた名前を、`case_count` は行数を返します。"
 
 #: manual/api/frontend/mpfr_expr.md:100
-#: manual/design/decimal_gda.md:610
+#: manual/design/decimal_gda.md:614
 #: manual/tutorial/frontend/mpfr_expr.md:81
 msgid "Integer powers"
 msgstr "整数べき"
@@ -9918,7 +9918,7 @@ msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行�
 #: manual/design/consistency.md:70
 #: manual/design/decimal.md:1341
 #: manual/design/decimal_checked.md:279
-#: manual/design/decimal_gda.md:881
+#: manual/design/decimal_gda.md:885
 #: manual/design/decimal_gda_checked.md:247
 #: manual/design/def.md:337
 #: manual/design/differential.md:168
@@ -10031,6 +10031,10 @@ msgstr "next-minus, next-plus, next-toward"
 #: manual/conformance/decimal_gda.md:27
 msgid "quantize, rescale, same-quantum, reduce, trim"
 msgstr "quantize, rescale, same-quantum, reduce, trim"
+
+#: manual/conformance/decimal_gda.md:27
+msgid "`quantize.decTest`, `rescale.decTest`, `samequantum.decTest`, `reduce.decTest`, `trim.decTest`; `library/src/decimal_gda/quantize_zero_clamp_issue419_wbtest.mbt` (a zero result above `e_max - precision + 1` under `clamp` is folded down with Clamped)"
+msgstr "`quantize.decTest`、`rescale.decTest`、`samequantum.decTest`、`reduce.decTest`、`trim.decTest`、`library/src/decimal_gda/quantize_zero_clamp_issue419_wbtest.mbt`（`clamp` のもとで `e_max - precision + 1` を超える零の結果は折り畳まれて Clamped が立つ）"
 
 #: manual/conformance/decimal_gda.md:28
 msgid "round-to-integral-exact, round-to-integral-value"
@@ -10893,7 +10897,7 @@ msgstr "集合の関係（`subset`、`interior`、`disjoint`、`set_equal`）と
 #: manual/design/consistency.md:36
 #: manual/design/decimal.md:253
 #: manual/design/decimal_checked.md:96
-#: manual/design/decimal_gda.md:386
+#: manual/design/decimal_gda.md:390
 #: manual/design/decimal_gda_checked.md:113
 #: manual/design/def.md:68
 #: manual/design/differential.md:95
@@ -11055,7 +11059,7 @@ msgstr "各区間は精度タグを持ち、二項演算は大きい方のタグ
 #: manual/design/consistency.md:56
 #: manual/design/decimal.md:1271
 #: manual/design/decimal_checked.md:196
-#: manual/design/decimal_gda.md:836
+#: manual/design/decimal_gda.md:840
 #: manual/design/decimal_gda_checked.md:190
 #: manual/design/def.md:159
 #: manual/design/differential.md:145
@@ -11135,7 +11139,7 @@ msgstr "現時点で未解決の制限はありません。負の次数の装飾
 #: manual/design/consistency.md:63
 #: manual/design/decimal.md:1320
 #: manual/design/decimal_checked.md:268
-#: manual/design/decimal_gda.md:865
+#: manual/design/decimal_gda.md:869
 #: manual/design/decimal_gda_checked.md:238
 #: manual/design/def.md:324
 #: manual/design/differential.md:156
@@ -12952,7 +12956,7 @@ msgid "Karatsuba square from"
 msgstr "Karatsuba 二乗、以上"
 
 #: manual/design/bin_float.md:1883
-#: manual/design/decimal_gda.md:828
+#: manual/design/decimal_gda.md:832
 msgid "off"
 msgstr "無効"
 
@@ -14010,7 +14014,7 @@ msgstr "各丸め方向は $c$ または $c + 1$（に $10^{t}$ を掛けたも�
 
 #: manual/design/decimal.md:188
 #: manual/design/decimal.md:492
-#: manual/design/decimal_gda.md:299
+#: manual/design/decimal_gda.md:303
 msgid "Mode"
 msgstr "モード"
 
@@ -14159,7 +14163,7 @@ msgstr ""
 "e 0$ のとき常に立てられます。丸めの前に末尾のゼロを落とすので、ゼロを捨てるだけなら `rounded` だけが立ちます。"
 
 #: manual/design/decimal.md:372
-#: manual/design/decimal_gda.md:548
+#: manual/design/decimal_gda.md:552
 msgid "Division"
 msgstr "除算"
 
@@ -14196,7 +14200,7 @@ msgid "`ZeroFiveUp` exists precisely to make such two-step schemes safe. If $x$ 
 msgstr "`ZeroFiveUp` はまさにこのような 2 段階の方式を安全にするために存在します。$x$ をまず `ZeroFiveUp` で $p + k$ 桁（$k \\ge 1$）に丸め、次に任意のモード $\\circ$ で $p$ 桁に丸めると、結果は $\\circ(x)$ に等しくなります。厳密でない `ZeroFiveUp` の結果は 0 と 5 以外の桁で終わるので、$p$ 桁の数にも $p$ 桁の中点にもならず、すべての $p$ 桁の数と中点に対して $x$ と同じ側にあるからです。証明は添付資料にあります。[^attachment] 上記のガード付き除算はこれに依拠しています。最終化ルーチンにはこのような補題は不要です。上で導いた目標指数 $t$ で 1 回だけ丸めるからです。"
 
 #: manual/design/decimal.md:420
-#: manual/design/decimal_gda.md:582
+#: manual/design/decimal_gda.md:586
 msgid "Square root"
 msgstr "平方根"
 
@@ -14237,7 +14241,7 @@ msgid "The finalizer works on the rounded coefficient $C'$ with $p$ digits and e
 msgstr "最終化ルーチンは $p$ 桁の丸められた係数 $C'$ と指数 $Q'$、すなわち指数範囲を無制限として丸めた値に対して処理を行います。"
 
 #: manual/design/decimal.md:483
-#: manual/design/decimal_gda.md:285
+#: manual/design/decimal_gda.md:289
 msgid "Overflow"
 msgstr "オーバーフロー"
 
@@ -14258,7 +14262,7 @@ msgid "If the exact value is below $10^{e_{\\min}}$ and needs an exponent below 
 msgstr "厳密な値が $10^{e_{\\min}}$ 未満で $E_{\\text{tiny}}$ 未満の指数を必要とする場合、それは非正規化数のグリッドへ 1 回だけ丸められます。シフト量は $s = E_{\\text{tiny}} - Q$ となり、保持する桁数が $p$ 未満の状態で上記の丸め規則が適用されます。結果は、その調整指数が $e_{\\min}$ 未満のとき**極小**です。調整指数は厳密な値で測る（`BeforeRounding`）か、指数無制限で $p$ 桁に丸めた値で測ります（`AfterRounding`）。IEEE 754-2019 §7.5 は十進形式に前者を要求するので、`BeforeRounding` が既定で、`AfterRounding` は明示的な非標準オプションです。2 つの規則が異なるのは、$10^{e_{\\min}}$ のすぐ下にあって $p$ 桁に丸めるとそれに達する値の場合だけです。判定が変わりうるのは厳密な調整指数が $e_{\\min} - 1$ の場合だけなので、$p$ 桁への追加の丸めはそこでだけ行われます。$p = 3$、$e_{\\min} = 0$ のとき、$0.9951$ と $0.99951$ は既定ではどちらも極小です（非正規化数のグリッドでの結果は `1.00`）。`AfterRounding` では $0.9951$ だけがそうで、3 桁で $0.995$ に丸められるためです。$0.99951$ は $1.00$ に丸められて極小になりません。極小な結果は `subnormal` を立て、極小**かつ**厳密でない結果は、IEEE 754 §7.5 がデフォルトの例外処理として要求するとおり `underflow` も立てます。ゼロに丸められた結果は指数 $E_{\\text{tiny}}$ と `clamped` を得ます。"
 
 #: manual/design/decimal.md:541
-#: manual/design/decimal_gda.md:268
+#: manual/design/decimal_gda.md:272
 msgid "Clamping"
 msgstr "クランプ"
 
@@ -14603,7 +14607,7 @@ msgstr "Toom-3 の閾値以上"
 
 #: manual/design/decimal.md:1211
 #: manual/design/decimal.md:1257
-#: manual/design/decimal_gda.md:826
+#: manual/design/decimal_gda.md:830
 msgid "Toom-3"
 msgstr "Toom-3"
 
@@ -14640,22 +14644,22 @@ msgid "The crossovers are measured per target and stored in target-specific file
 msgstr "切り替え点はターゲットごとに計測され、ターゲット固有のファイルに保存されています。"
 
 #: manual/design/decimal.md:1257
-#: manual/design/decimal_gda.md:826
+#: manual/design/decimal_gda.md:830
 msgid "Target"
 msgstr "ターゲット"
 
 #: manual/design/decimal.md:1257
-#: manual/design/decimal_gda.md:826
+#: manual/design/decimal_gda.md:830
 msgid "Karatsuba mul / square"
 msgstr "Karatsuba mul/square"
 
 #: manual/design/decimal.md:1257
-#: manual/design/decimal_gda.md:826
+#: manual/design/decimal_gda.md:830
 msgid "first NTT mul / square"
 msgstr "first NTT mul/square"
 
 #: manual/design/decimal.md:1257
-#: manual/design/decimal_gda.md:826
+#: manual/design/decimal_gda.md:830
 msgid "Burnikel–Ziegler"
 msgstr "Burnikel–Ziegler"
 
@@ -14664,14 +14668,14 @@ msgid "Newton"
 msgstr "Newton"
 
 #: manual/design/decimal.md:1259
-#: manual/design/decimal_gda.md:828
+#: manual/design/decimal_gda.md:832
 #: manual/verification.md:201
 #: manual/verification.md:244
 msgid "native"
 msgstr "native"
 
 #: manual/design/decimal.md:1259
-#: manual/design/decimal_gda.md:828
+#: manual/design/decimal_gda.md:832
 msgid "from 2,816"
 msgstr "2,816 以上"
 
@@ -14680,7 +14684,7 @@ msgid "disabled"
 msgstr "無効"
 
 #: manual/design/decimal.md:1260
-#: manual/design/decimal_gda.md:829
+#: manual/design/decimal_gda.md:833
 msgid "LLVM"
 msgstr "LLVM"
 
@@ -15157,286 +15161,286 @@ msgid "$p$ digits (always inexact, except `exp(0)`, `ln(1)`, `log10(10^k)`)"
 msgstr "$p$ 桁（`exp(0)`、`ln(1)`、`log10(10^k)` を除き、常に厳密でない）"
 
 #: manual/design/decimal_gda.md:143
-msgid "A zero result has no leading digit, so its exponent is simply the ideal one, clamped into $[E_{\\mathrm{tiny}}, e_{\\max}]$ (or $E_{\\mathrm{top}}$). The sign of an exact zero sum is $+$ unless both operands are negative, or the mode is `Floor` and either is; this is the decimal form of the IEEE rule that $x - x = +0$ except when rounding towards $-\\infty$."
-msgstr "ゼロの結果には先頭の桁がないので、その指数は単に理想指数を $[E_{\\mathrm{tiny}}, e_{\\max}]$（または $E_{\\mathrm{top}}$）にクランプしたものです。厳密にゼロとなる和の符号は、両方のオペランドが負である場合、またはモードが `Floor` でどちらかが負である場合を除いて $+$ です。これは、$-\\infty$ 方向への丸めの場合を除いて $x - x = +0$ とする IEEE の規則の 10 進版です。"
+msgid "A zero result has no leading digit, so its exponent is simply the ideal one, clamped into $[E_{\\mathrm{tiny}}, e_{\\max}]$ (or $E_{\\mathrm{top}}$). `quantize` and `rescale` of a zero follow the rule too: the requested exponent must be at most $e_{\\max}$, and under `clamp` one above $E_{\\mathrm{top}}$ is folded down to it with `clamped`, as decNumber's `decQuantizeOp` does by calling `decFinalize` for a zero. The sign of an exact zero sum is $+$ unless both operands are negative, or the mode is `Floor` and either is; this is the decimal form of the IEEE rule that $x - x = +0$ except when rounding towards $-\\infty$."
+msgstr "ゼロの結果には先頭の桁がないので、その指数は単に理想指数を $[E_{\\mathrm{tiny}}, e_{\\max}]$（または $E_{\\mathrm{top}}$）にクランプしたものです。零の `quantize` と `rescale` も同じ規則に従います。要求された指数は $e_{\\max}$ 以下でなければならず、`clamp` のもとで $E_{\\mathrm{top}}$ を超える指数は、decNumber の `decQuantizeOp` が零に対して `decFinalize` を呼ぶのと同じく、それに折り畳まれて `clamped` が立ちます。厳密にゼロとなる和の符号は、両方のオペランドが負である場合、またはモードが `Floor` でどちらかが負である場合を除いて $+$ です。これは、$-\\infty$ 方向への丸めの場合を除いて $x - x = +0$ とする IEEE の規則の 10 進版です。"
 
-#: manual/design/decimal_gda.md:163
+#: manual/design/decimal_gda.md:167
 msgid "Rounding to precision"
 msgstr "精度への丸め"
 
-#: manual/design/decimal_gda.md:165
+#: manual/design/decimal_gda.md:169
 msgid "Let the exact result be $(-1)^s c\\,10^{e}$ with $d(c) = p + k$, $k \\ge 1$. Divide off the $k$ low digits, $c = q\\,10^{k} + r$ with $0 \\le r < 10^k$. Every rounding mode returns $(-1)^s (q + \\delta)\\,10^{e+k}$ with an increment $\\delta \\in \\{0, 1\\}$, and the eight modes differ only in $\\delta$ (`should_increment_decimal_repr`):"
 msgstr "厳密な結果を $(-1)^s c\\,10^{e}$、$d(c) = p + k$、$k \\ge 1$ とします。下位 $k$ 桁を割り落として $c = q\\,10^{k} + r$、$0 \\le r < 10^k$ とします。すべての丸めモードは、インクリメント $\\delta \\in \\{0, 1\\}$ を用いて $(-1)^s (q + \\delta)\\,10^{e+k}$ を返し、8 つのモードは $\\delta$ だけが異なります（`should_increment_decimal_repr`）。"
 
-#: manual/design/decimal_gda.md:184
+#: manual/design/decimal_gda.md:188
 msgid "`ZeroFiveUp` reads \"round towards zero, unless the retained last digit is 0 or 5\". After it, a last digit of 0 or 5 means the rounding was exact, and any other last digit after an inexact rounding is never 0 or 5. Rounding the result again to at least one digit fewer, in any mode, therefore gives the same value as rounding the exact result once in that mode: the retained digit acts as a sticky digit, as round-to-odd does in binary. The comparison $2r$ versus $10^k$ is done exactly on the decimal limbs (`dec_coeff_div_pow10_round_info_repr` returns the quotient, whether $r > 0$, and the sign of $2r - 10^k$). If $q + \\delta = 10^p$ the result is renormalized to $10^{p-1} \\cdot 10^{e+k+1}$. Before rounding, the finalizer first tries to drop trailing zeros of $c$; when the exact coefficient is too long only because of zeros, the result is exact and only `Rounded` is raised."
 msgstr "`ZeroFiveUp` は「保持される最後の桁が 0 または 5 でない限り、ゼロ方向へ丸める」と読みます。これを適用した後では、最後の桁が 0 または 5 であれば丸めは厳密であり、厳密でない丸めの後の最後の桁が 0 や 5 になることはありません。したがって、結果をどのモードであれ少なくとも 1 桁少ない桁数へ再び丸めると、厳密な結果をそのモードで 1 回丸めたのと同じ値になります。保持された桁は、2 進における round-to-odd と同様に、スティッキー桁として働きます。$2r$ と $10^k$ の比較は 10 進のリム上で厳密に行われます（`dec_coeff_div_pow10_round_info_repr` は商、$r > 0$ かどうか、$2r - 10^k$ の符号を返します）。$q + \\delta = 10^p$ であれば、結果は $10^{p-1} \\cdot 10^{e+k+1}$ に再正規化されます。丸めの前に、最終化ルーチンはまず $c$ の末尾のゼロを落とそうとします。厳密な係数が長すぎる原因がゼロだけであれば、結果は厳密であり、`Rounded` だけが立てられます。"
 
-#: manual/design/decimal_gda.md:196
+#: manual/design/decimal_gda.md:200
 msgid "Let $u = 10^{e+k}$ be the unit in the last place of the result $\\hat x$. Since $|\\delta\\,10^k - r| \\le 10^k/2$ in the half modes and $< 10^k$ otherwise,"
 msgstr "$u = 10^{e+k}$ を結果 $\\hat x$ の最終桁の単位とします。half 系のモードでは $|\\delta\\,10^k - r| \\le 10^k/2$、それ以外では $< 10^k$ なので、"
 
-#: manual/design/decimal_gda.md:204
+#: manual/design/decimal_gda.md:208
 msgid "and since $c \\ge 10^{p+k-1}$ gives $|x| \\ge 10^{p-1} u$,"
 msgstr "そして $c \\ge 10^{p+k-1}$ から $|x| \\ge 10^{p-1} u$ が得られるので、"
 
-#: manual/design/decimal_gda.md:212
+#: manual/design/decimal_gda.md:216
 msgid "This is the decimal unit roundoff $\\mathbf u = \\frac12 10^{1-p}$ of the standard model $\\mathrm{fl}(x \\circ y) = (x \\circ y)(1 + \\varepsilon)$, $|\\varepsilon| \\le \\mathbf u$.[^higham] Rounding raises `Rounded` whenever $k \\ge 1$ digits are removed and `Inexact` whenever a removed digit was nonzero ($r > 0$)."
 msgstr "これは標準モデル $\\mathrm{fl}(x \\circ y) = (x \\circ y)(1 + \\varepsilon)$、$|\\varepsilon| \\le \\mathbf u$ における 10 進の単位丸め誤差 $\\mathbf u = \\frac12 10^{1-p}$ です。[^higham] 丸めは、$k \\ge 1$ 桁が取り除かれたときには常に `Rounded` を、取り除かれた桁にゼロでないものがあったとき（$r > 0$）には常に `Inexact` を立てます。"
 
-#: manual/design/decimal_gda.md:218
+#: manual/design/decimal_gda.md:222
 msgid "N. J. Higham, *Accuracy and Stability of Numerical Algorithms*, 2nd ed., SIAM 2002, §2.2. Decimal wobble is larger than binary: the relative spacing varies by a factor of 10 across a decade, against 2 in binary (Goldberg 1991, §1.2)."
 msgstr "N. J. Higham, *Accuracy and Stability of Numerical Algorithms*, 2nd ed., SIAM 2002, §2.2. 10 進の wobble は 2 進より大きく、相対間隔は 1 つの decade の中で 10 倍変化します（2 進では 2 倍）（Goldberg 1991, §1.2）。"
 
-#: manual/design/decimal_gda.md:223
+#: manual/design/decimal_gda.md:227
 msgid "The full proofs of this bound and of the other rounding facts on this page are in the attachment:"
 msgstr "この限界と、このページにある他の丸めに関する事実の完全な証明は、添付資料にあります。"
 
-#: manual/design/decimal_gda.md:226
+#: manual/design/decimal_gda.md:230
 msgid "[Rounding proofs for decimal_gda](../../attachments/design_decimal_gda_rounding.typ)"
 msgstr "[decimal_gda の丸めに関する証明](../../attachments/design_decimal_gda_rounding.typ)"
 
-#: manual/design/decimal_gda.md:228
+#: manual/design/decimal_gda.md:232
 msgid "Subnormal results and $E_{\\mathrm{tiny}}$"
 msgstr "非正規化数の結果と $E_{\\mathrm{tiny}}$"
 
-#: manual/design/decimal_gda.md:230
+#: manual/design/decimal_gda.md:234
 msgid "If the exact result has $\\hat e < e_{\\min}$ it is *tiny*. A tiny result may still need the unit $10^{E_{\\mathrm{tiny}}}$ at most, so the rounding position is not \"keep $p$ digits\" but \"keep the digits at or above $10^{E_{\\mathrm{tiny}}}$\". With an exact coefficient of $D$ digits and exponent $e$, rounding to $p$ digits would give the exponent $e + \\max(0, D - p)$; when that is below $E_{\\mathrm{tiny}}$ the finalizer instead removes $k = E_{\\mathrm{tiny}} - e$ digits, possibly all of them, in one rounding. A longer coefficient whose exponent is below $E_{\\mathrm{tiny}}$ but whose magnitude is normal is rounded once to $p$ digits; rounding it to the subnormal grid first would round twice (in decimal32, $3.000001\\cdot 10^{-45} \\times 1.500001\\cdot 10^{-45}$ is `4.500005E-90`). The absolute error is then bounded by the subnormal unit,"
 msgstr "厳密な結果が $\\hat e < e_{\\min}$ を持つとき、それは*極小*です。極小な結果が必要とする単位は高々 $10^{E_{\\mathrm{tiny}}}$ なので、丸めの位置は「$p$ 桁を残す」ではなく「$10^{E_{\\mathrm{tiny}}}$ 以上の桁を残す」になります。$D$ 桁の厳密な係数と指数 $e$ について、$p$ 桁に丸めると指数は $e + \\max(0, D - p)$ になります。それが $E_{\\mathrm{tiny}}$ を下回るとき、最終化ルーチンは代わりに 1 回の丸めで $k = E_{\\mathrm{tiny}} - e$ 桁を取り除きます（すべての桁を取り除くこともあります）。指数は $E_{\\mathrm{tiny}}$ を下回るが大きさは正規化数の範囲にある、より長い係数は、一度だけ $p$ 桁に丸められます。先に非正規化数の格子へ丸めると 2 回丸めることになります（decimal32 では $3.000001\\cdot 10^{-45} \\times 1.500001\\cdot 10^{-45}$ は `4.500005E-90` です）。このとき絶対誤差は非正規化数の単位で抑えられます。"
 
-#: manual/design/decimal_gda.md:248
+#: manual/design/decimal_gda.md:252
 msgid "but the relative error is not bounded by $\\mathbf u$ any more: the precision falls gradually from $p$ digits to 1 as $|x|$ drops from $10^{e_{\\min}}$ to $10^{E_{\\mathrm{tiny}}}$. The conditions record this: `Subnormal` is raised for every tiny result (GDA, and this package's GDA functions, detect tininess *before* rounding, from the exact $\\hat e$), `Underflow` when a tiny result is also inexact, and `Clamped` when it rounds to zero (the zero then takes the exponent $E_{\\mathrm{tiny}}$). Because tininess is decided before rounding, a result such as $0.9951$ at $p = 3$, $e_{\\min} = 0$ raises `Subnormal` and `Underflow` even though it rounds to the normal number `1.00`. The status-free layer additionally offers `DecimalTininessDetection::AfterRounding`, the IEEE 754 after-rounding rule: a result is tiny when its exact value rounded to $p$ digits with an unbounded exponent range has $\\hat e < e_{\\min}$. It changes only which results count as tiny, never the value. Only an exact value with $\\hat e = e_{\\min} - 1$ can be judged differently from `BeforeRounding` (rounding to $p$ digits can carry it into $10^{e_{\\min}}$), so the extra rounding is done only there. The grid matters: $0.9951$ rounds to $0.995$ at $p$ digits and is tiny, although its rounding at $E_{\\mathrm{tiny}} = -2$ is the normal `1.00`; $0.99951$ rounds to $1.00$ at $p$ digits and is not tiny."
 msgstr "しかし相対誤差はもはや $\\mathbf u$ では抑えられません。$|x|$ が $10^{e_{\\min}}$ から $10^{E_{\\mathrm{tiny}}}$ へ小さくなるにつれて、精度は $p$ 桁から 1 桁へと徐々に下がります。条件がこれを記録します。`Subnormal` はすべての極小な結果で立てられ（GDA、およびこのパッケージの GDA 関数は、厳密な $\\hat e$ から丸めの*前*に極小性を判定します）、`Underflow` は極小な結果が厳密でもない場合に、`Clamped` はゼロに丸められた場合に立てられます（そのときゼロは指数 $E_{\\mathrm{tiny}}$ をとります）。極小性は丸めの前に判定されるため、$p = 3$、$e_{\\min} = 0$ における $0.9951$ のような結果は、正規化数 `1.00` に丸められるにもかかわらず `Subnormal` と `Underflow` を立てます。ステータスを持たない層では `DecimalTininessDetection::AfterRounding` も提供されており、これは IEEE 754 の丸め後の規則です。結果は、その厳密な値を指数範囲を無制限として $p$ 桁に丸めたものが $\\hat e < e_{\\min}$ を満たすときに極小とされます。これはどの結果を極小とみなすかを変えるだけで、値は決して変えません。`BeforeRounding` と異なる判定になりうるのは $\\hat e = e_{\\min} - 1$ の厳密な値だけなので（$p$ 桁への丸めで $10^{e_{\\min}}$ に繰り上がることがあります）、追加の丸めはその場合にだけ行います。格子が重要です。$0.9951$ は $p$ 桁では $0.995$ に丸められて極小ですが、$E_{\\mathrm{tiny}} = -2$ での丸めは正規化数 `1.00` です。$0.99951$ は $p$ 桁で $1.00$ に丸められ、極小ではありません。"
 
-#: manual/design/decimal_gda.md:270
+#: manual/design/decimal_gda.md:274
 msgid "With `clamp`, a result with $e > E_{\\mathrm{top}}$ but $\\hat e \\le e_{\\max}$ is representable as a value but not as a triple. Since $\\hat e \\le e_{\\max}$ means $d(c) + e - 1 \\le e_{\\max}$, padding the coefficient with $e - E_{\\mathrm{top}}$ zeros gives"
 msgstr "`clamp` が有効な場合、$e > E_{\\mathrm{top}}$ だが $\\hat e \\le e_{\\max}$ である結果は、値としては表現可能ですが三つ組としては表現できません。$\\hat e \\le e_{\\max}$ は $d(c) + e - 1 \\le e_{\\max}$ を意味するので、係数に $e - E_{\\mathrm{top}}$ 個のゼロを付け足すと"
 
-#: manual/design/decimal_gda.md:280
+#: manual/design/decimal_gda.md:284
 msgid "so the padded triple has at most $p$ digits and the same value. The package does exactly this and raises `Clamped`; the value is unchanged, only the cohort member differs. Zeros are clamped the same way, by moving their exponent into $[E_{\\mathrm{tiny}}, E_{\\mathrm{top}}]$."
 msgstr "となり、付け足した三つ組は高々 $p$ 桁で、値も同じです。パッケージはまさにこれを行い、`Clamped` を立てます。値は変わらず、コホートのメンバーだけが異なります。ゼロも同様に、指数を $[E_{\\mathrm{tiny}}, E_{\\mathrm{top}}]$ の中へ移すことでクランプされます。"
 
-#: manual/design/decimal_gda.md:287
+#: manual/design/decimal_gda.md:291
 msgid "If the rounded result has $\\hat e > e_{\\max}$ the operation overflows: `Overflow`, `Inexact` and `Rounded` are raised and the result is either $\\pm\\infty$ or the largest finite number of the same sign, $N_{\\max} = (10^p - 1) \\cdot 10^{E_{\\mathrm{top}}}$. Which one follows from treating $\\infty$ as the representable number beyond $N_{\\max}$ and applying the mode's own direction: the half modes and `Up` move away from zero, so they reach $\\infty$; `Down` and `ZeroFiveUp` move towards zero (`ZeroFiveUp` would only round away from zero from a last digit 0 or 5, and the last digit of $N_{\\max}$ is 9), so they stop at $N_{\\max}$; `Ceiling` gives $+\\infty$ for a positive and $-N_{\\max}$ for a negative result, and `Floor` the mirror image (`overflow_to_infinity`):"
 msgstr "丸めた結果が $\\hat e > e_{\\max}$ を持つとき、演算はオーバーフローします。`Overflow`、`Inexact`、`Rounded` が立てられ、結果は $\\pm\\infty$ か、同じ符号の最大の有限数 $N_{\\max} = (10^p - 1) \\cdot 10^{E_{\\mathrm{top}}}$ のどちらかになります。どちらになるかは、$\\infty$ を $N_{\\max}$ の先にある表現可能な数とみなし、モード自身の方向を適用することで決まります。half 系のモードと `Up` はゼロから遠ざかる方向に動くので $\\infty$ に達し、`Down` と `ZeroFiveUp` はゼロ方向に動くので（`ZeroFiveUp` がゼロから遠ざかる方向に丸めるのは最後の桁が 0 または 5 の場合だけで、$N_{\\max}$ の最後の桁は 9 です）$N_{\\max}$ で止まります。`Ceiling` は正の結果に対して $+\\infty$、負の結果に対して $-N_{\\max}$ を与え、`Floor` はその鏡像になります（`overflow_to_infinity`）。"
 
-#: manual/design/decimal_gda.md:299
+#: manual/design/decimal_gda.md:303
 msgid "positive overflow"
 msgstr "正のオーバーフロー"
 
-#: manual/design/decimal_gda.md:299
+#: manual/design/decimal_gda.md:303
 msgid "negative overflow"
 msgstr "負のオーバーフロー"
 
-#: manual/design/decimal_gda.md:306
+#: manual/design/decimal_gda.md:310
 msgid "Conditions, signals and traps"
 msgstr "条件、シグナル、トラップ"
 
-#: manual/design/decimal_gda.md:308
+#: manual/design/decimal_gda.md:312
 msgid "GDA distinguishes *conditions* (what happened: division by zero, a result was rounded, a conversion was malformed, …), *signals* (the named events a condition triggers) and *traps* (signals the user has asked to interrupt the computation). The package keeps one flag per condition and maps conditions to the GDA signals by one rule: the four detailed invalid conditions `ConversionSyntax`, `DivisionImpossible`, `DivisionUndefined` and `InvalidContext` all signal `InvalidOperation`. Formally, let $\\mathcal S$ be the thirteen flags and let $\\iota \\subset \\mathcal S$ be the five invalid-family flags. For a flag set $R$ and a signal $\\sigma$,"
 msgstr "GDA は、*条件*（何が起きたか：ゼロ除算、結果が丸められた、変換の入力が不正だった、…）、*シグナル*（条件が引き起こす名前付きのイベント）、*トラップ*（ユーザーが計算を中断するよう求めたシグナル）を区別します。パッケージは条件ごとに 1 つのフラグを保持し、1 つの規則で条件を GDA のシグナルに対応付けます。4 つの詳細な無効条件 `ConversionSyntax`、`DivisionImpossible`、`DivisionUndefined`、`InvalidContext` はすべて `InvalidOperation` をシグナルします。形式的には、$\\mathcal S$ を 13 個のフラグ、$\\iota \\subset \\mathcal S$ を無効系統の 5 個のフラグとします。フラグ集合 $R$ とシグナル $\\sigma$ に対して、"
 
-#: manual/design/decimal_gda.md:326
+#: manual/design/decimal_gda.md:330
 msgid "which is `GdaFlags::contains`. An operation is then the state machine"
 msgstr "これが `GdaFlags::contains` です。このとき演算は次の状態機械になります。"
 
-#: manual/design/decimal_gda.md:337
+#: manual/design/decimal_gda.md:341
 msgid "where $(v, R) = F(\\vec x, \\pi(C))$ is the result and raised flags computed from the operands and the *policy* $\\pi(C)$ (precision, rounding, exponent range, clamp, extended) alone,"
 msgstr "ここで $(v, R) = F(\\vec x, \\pi(C))$ は、オペランドと*ポリシー* $\\pi(C)$（精度、丸め、指数範囲、クランプ、extended）だけから計算される結果と立てられたフラグであり、"
 
-#: manual/design/decimal_gda.md:347
+#: manual/design/decimal_gda.md:351
 msgid "and $\\tau$ is the first signal in the precedence list InvalidOperation, DivisionByZero, DivisionUndefined, DivisionImpossible, InvalidContext, ConversionSyntax, Overflow, Underflow, Subnormal, Inexact, Rounded, Clamped, LostDigits with $\\tau \\in^\\ast R$ and $\\tau \\in C.\\mathrm{traps}$, or $\\bot$ if there is none (`complete_gda` and `trapped_signal`)."
 msgstr "$\\tau$ は、優先順位リスト InvalidOperation, DivisionByZero, DivisionUndefined, DivisionImpossible, InvalidContext, ConversionSyntax, Overflow, Underflow, Subnormal, Inexact, Rounded, Clamped, LostDigits のうち、$\\tau \\in^\\ast R$ かつ $\\tau \\in C.\\mathrm{traps}$ を満たす最初のシグナル、そのようなものがなければ $\\bot$ です（`complete_gda` と `trapped_signal`）。"
 
-#: manual/design/decimal_gda.md:354
+#: manual/design/decimal_gda.md:358
 msgid "Three properties follow directly from the definition and are what users rely on:"
 msgstr "定義から直ちに 3 つの性質が従い、ユーザーはこれらに依拠しています。"
 
-#: manual/design/decimal_gda.md:357
+#: manual/design/decimal_gda.md:361
 msgid "**The value does not depend on status or traps.** $v$ and $R$ are functions of $(\\vec x, \\pi(C))$; status and traps only enter $C'$ and $\\tau$. Enabling a trap therefore never changes a result, and `Trapped` can carry the defined result."
 msgstr "**値はステータスにもトラップにも依存しない。** $v$ と $R$ は $(\\vec x, \\pi(C))$ の関数であり、ステータスとトラップは $C'$ と $\\tau$ にしか関与しません。したがってトラップを有効にしても結果が変わることはなく、`Trapped` は定義済みの結果を運ぶことができます。"
 
-#: manual/design/decimal_gda.md:361
+#: manual/design/decimal_gda.md:365
 msgid "**Status is monotone and idempotent.** $C.\\mathrm{status} \\subseteq C'.\\mathrm{status}$, and since $\\cup$ is associative, commutative and idempotent, the status after a threaded sequence is the union of all raised sets, independent of how the sequence is grouped."
 msgstr "**ステータスは単調かつ冪等である。** $C.\\mathrm{status} \\subseteq C'.\\mathrm{status}$ であり、$\\cup$ は結合的、可換、冪等なので、受け渡された一連の演算の後のステータスは、立てられたすべての集合の和集合であり、列のグループ化の仕方に依存しません。"
 
-#: manual/design/decimal_gda.md:365
+#: manual/design/decimal_gda.md:369
 msgid "**The trap choice is deterministic.** The precedence list is a total order on signals, so one operation selects at most one trap, whatever the order in which its conditions were detected."
 msgstr "**トラップの選択は決定的である。** 優先順位リストはシグナル上の全順序なので、条件がどの順序で検出されたかにかかわらず、1 つの演算が選ぶトラップは高々 1 つです。"
 
-#: manual/design/decimal_gda.md:388
+#: manual/design/decimal_gda.md:392
 msgid "Thread status through `GdaOutcome`, not global state"
 msgstr "ステータスはグローバル状態ではなく `GdaOutcome` で受け渡す"
 
-#: manual/design/decimal_gda.md:390
+#: manual/design/decimal_gda.md:394
 msgid "**Problem.** The GDA specification describes the context as a mutable object whose status flags operations set. Most implementations (decNumber, Python's `decimal`) keep a current context per thread."
 msgstr "**問題。** GDA 仕様はコンテキストを、演算がステータスフラグを設定する可変オブジェクトとして記述しています。ほとんどの実装（decNumber、Python の `decimal`）はスレッドごとにカレントコンテキストを保持します。"
 
-#: manual/design/decimal_gda.md:394
+#: manual/design/decimal_gda.md:398
 msgid "**Options.** (a) A mutable context passed by reference; (b) a thread-local or global current context; (c) an immutable context returned with every result."
 msgstr "**選択肢。** (a) 参照で渡される可変なコンテキスト。(b) スレッドローカルまたはグローバルなカレントコンテキスト。(c) すべての結果とともに返される不変なコンテキスト。"
 
-#: manual/design/decimal_gda.md:397
+#: manual/design/decimal_gda.md:401
 msgid "**Choice: (c).** Every GDA function returns `GdaOutcome`, and the caller passes `next_context()` to the next operation. The reasons are the properties above. Because $F$ reads only the policy, the state machine factors into a pure numerical part and a pure bookkeeping part, and both are referentially transparent: an expression can be re-evaluated, memoized or run on another thread without changing its result or its flags. A test runner can snapshot a context and run the same operation under it many times; the `.decTest` runner in [`frontend/gda_expr`](../api/frontend/gda_expr.md) does exactly that. MoonBit also has no thread-local storage, so (b) would mean process-global state, which Luna-Flow excludes. The cost is explicit threading; the [`decimal_gda_checked`](decimal_gda_checked.md) package removes it for linear pipelines. When nothing is raised, the input context is returned unchanged, so exact operations do not allocate a new context."
 msgstr "**選択：(c)。** すべての GDA 関数は `GdaOutcome` を返し、呼び出し側は `next_context()` を次の演算に渡します。理由は上記の性質です。$F$ はポリシーしか読まないので、状態機械は純粋な数値計算の部分と純粋な記録管理の部分に分解され、どちらも参照透過です。式は、結果やフラグを変えることなく、再評価したり、メモ化したり、別のスレッドで実行したりできます。テストランナーはコンテキストのスナップショットを取り、そのもとで同じ演算を何度も実行できます。[`frontend/gda_expr`](../api/frontend/gda_expr.md) の `.decTest` ランナーはまさにそれを行っています。また MoonBit にはスレッドローカルストレージがないので、(b) はプロセス全体のグローバル状態を意味することになり、Luna-Flow はそれを排除しています。代償は明示的な受け渡しですが、線形なパイプラインについては [`decimal_gda_checked`](decimal_gda_checked.md) パッケージがそれを不要にします。何も立てられなかった場合は入力のコンテキストがそのまま返されるので、厳密な演算が新しいコンテキストを割り当てることはありません。"
 
-#: manual/design/decimal_gda.md:411
+#: manual/design/decimal_gda.md:415
 msgid "Keep a trap's defined result"
 msgstr "トラップの定義済みの結果を保持する"
 
-#: manual/design/decimal_gda.md:413
+#: manual/design/decimal_gda.md:417
 msgid "In GDA a trap transfers control, but the specification still defines the result the operation would have delivered. Representing a trap as an error (`Result::Err`, `raise`) would discard that value. `Trapped` keeps the value, the next context and the raised set, so the caller can inspect, log or resume from it; property 1 guarantees it is the same value as without the trap."
 msgstr "GDA ではトラップは制御を移しますが、仕様は演算が返したはずの結果をそれでも定義しています。トラップをエラー（`Result::Err`、`raise`）として表現すると、その値が捨てられてしまいます。`Trapped` は値、次のコンテキスト、立てられた集合を保持するので、呼び出し側はそれを検査したり、ログに記録したり、そこから再開したりできます。性質 1 により、それはトラップがない場合と同じ値であることが保証されます。"
 
-#: manual/design/decimal_gda.md:419
+#: manual/design/decimal_gda.md:423
 msgid "Keep the detailed invalid conditions"
 msgstr "詳細な無効条件を保持する"
 
-#: manual/design/decimal_gda.md:421
+#: manual/design/decimal_gda.md:425
 msgid "The specification reports `ConversionSyntax`, `DivisionImpossible`, `DivisionUndefined` and `InvalidContext` through `InvalidOperation`. The package keeps them as separate flags *and* makes `contains(InvalidOperation)` true for each, and sets `invalid_operation` in the status whenever one is raised. A program that only knows the eight GDA signals sees exactly the GDA behaviour, while a test harness or a diagnostic can still tell a malformed literal from $0/0$. Placing `InvalidOperation` first in the precedence list makes an `InvalidOperation` trap catch all four, as the specification requires."
 msgstr "仕様は `ConversionSyntax`、`DivisionImpossible`、`DivisionUndefined`、`InvalidContext` を `InvalidOperation` を通じて報告します。パッケージはこれらを別々のフラグとして保持し、*かつ*それぞれについて `contains(InvalidOperation)` を真にし、いずれかが立てられたときは常にステータスに `invalid_operation` を設定します。8 つの GDA シグナルしか知らないプログラムにはちょうど GDA の振る舞いが見え、一方でテストハーネスや診断では不正なリテラルと $0/0$ を区別できます。`InvalidOperation` を優先順位リストの先頭に置くことで、仕様が要求するとおり、`InvalidOperation` のトラップが 4 つすべてを捕捉します。"
 
-#: manual/design/decimal_gda.md:431
+#: manual/design/decimal_gda.md:435
 msgid "One finalizer, special values first"
 msgstr "1 つの最終化ルーチン、特殊値を先に"
 
-#: manual/design/decimal_gda.md:433
+#: manual/design/decimal_gda.md:437
 msgid "Each operation first decides the special cases (NaN propagation, invalid operations, infinities, exact zeros), then builds an exact finite coefficient and exponent, and only then calls the finalizer. No coefficient algorithm sets a flag. This keeps the conditions a function of the exact result and the policy, independent of which multiplication or division kernel was chosen, and lets kernels be tuned without touching the standard-facing behaviour."
 msgstr "各演算はまず特殊なケース（NaN の伝播、無効演算、無限大、厳密なゼロ）を決定し、次に厳密な有限の係数と指数を構築し、その後で初めて最終化ルーチンを呼び出します。係数のアルゴリズムがフラグを設定することはありません。これにより、条件は厳密な結果とポリシーの関数となり、どの乗算・除算カーネルが選ばれたかに依存しません。また、標準に関わる振る舞いに触れずにカーネルを調整できます。"
 
-#: manual/design/decimal_gda.md:440
+#: manual/design/decimal_gda.md:444
 msgid "A GDA package independent of `decimal`"
 msgstr "`decimal` から独立した GDA パッケージ"
 
-#: manual/design/decimal_gda.md:442
+#: manual/design/decimal_gda.md:446
 msgid "IEEE 754-2008 decimal arithmetic grew out of GDA, so the two agree on most finite results, but their contracts differ:"
 msgstr "IEEE 754-2008 の 10 進算術は GDA から発展したものなので、両者はほとんどの有限の結果で一致しますが、契約は異なります。"
 
-#: manual/design/decimal_gda.md:445
+#: manual/design/decimal_gda.md:449
 msgid "Aspect"
 msgstr "観点"
 
-#: manual/design/decimal_gda.md:445
+#: manual/design/decimal_gda.md:449
 msgid "`decimal_gda` (GDA 1.70)"
 msgstr "`decimal_gda` (GDA 1.70)"
 
-#: manual/design/decimal_gda.md:445
+#: manual/design/decimal_gda.md:449
 msgid "`decimal` (IEEE 754-2019)"
 msgstr "`decimal` (IEEE 754-2019)"
 
-#: manual/design/decimal_gda.md:447
+#: manual/design/decimal_gda.md:451
 msgid "any $p \\ge 1$ per context"
 msgstr "コンテキストごとに任意の $p \\ge 1$"
 
-#: manual/design/decimal_gda.md:447
+#: manual/design/decimal_gda.md:451
 msgid "the format's $p$ (or a chosen one)"
 msgstr "形式の $p$（または選択した値）"
 
-#: manual/design/decimal_gda.md:448
+#: manual/design/decimal_gda.md:452
 msgid "Rounding modes"
 msgstr "丸めモード"
 
-#: manual/design/decimal_gda.md:448
+#: manual/design/decimal_gda.md:452
 msgid "eight, including `HalfUp`, `HalfDown`, `ZeroFiveUp`"
 msgstr "`HalfUp`、`HalfDown`、`ZeroFiveUp` を含む 8 種類"
 
-#: manual/design/decimal_gda.md:448
+#: manual/design/decimal_gda.md:452
 msgid "the IEEE attributes"
 msgstr "IEEE の属性"
 
-#: manual/design/decimal_gda.md:449
+#: manual/design/decimal_gda.md:453
 msgid "Conditions"
 msgstr "条件"
 
-#: manual/design/decimal_gda.md:449
+#: manual/design/decimal_gda.md:453
 msgid "sticky status in the context, traps with defined results"
 msgstr "コンテキスト内のスティッキーなステータス、定義済みの結果を伴うトラップ"
 
-#: manual/design/decimal_gda.md:449
+#: manual/design/decimal_gda.md:453
 msgid "per-operation flags returned with the value"
 msgstr "値とともに返される演算ごとのフラグ"
 
-#: manual/design/decimal_gda.md:450
+#: manual/design/decimal_gda.md:454
 msgid "Detailed invalid conditions, `LostDigits`, subset arithmetic"
 msgstr "詳細な無効条件、`LostDigits`、サブセット算術"
 
-#: manual/design/decimal_gda.md:451
+#: manual/design/decimal_gda.md:455
 msgid "Tininess"
 msgstr "極小性"
 
-#: manual/design/decimal_gda.md:451
+#: manual/design/decimal_gda.md:455
 msgid "before rounding"
 msgstr "丸め前"
 
-#: manual/design/decimal_gda.md:451
+#: manual/design/decimal_gda.md:455
 msgid "selectable"
 msgstr "選択可能"
 
-#: manual/design/decimal_gda.md:452
+#: manual/design/decimal_gda.md:456
 msgid "the IEEE recommended set"
 msgstr "IEEE の推奨演算の集合"
 
-#: manual/design/decimal_gda.md:453
+#: manual/design/decimal_gda.md:457
 msgid "Interchange"
 msgstr "交換形式"
 
-#: manual/design/decimal_gda.md:453
+#: manual/design/decimal_gda.md:457
 msgid "DPD"
 msgstr "DPD"
 
-#: manual/design/decimal_gda.md:453
+#: manual/design/decimal_gda.md:457
 msgid "DPD and BID"
 msgstr "DPD と BID"
 
-#: manual/design/decimal_gda.md:455
+#: manual/design/decimal_gda.md:459
 msgid "A shared core would have to carry the union of both state models, and a change made for one standard could silently change the other's results. The package therefore owns its value type, contexts, finalizer and DPD codec, and `tools/check_imports.py` (part of `just pr`) fails if it imports `decimal`, or the reverse."
 msgstr "共通のコアを持つと、両方の状態モデルの和を抱え込まなければならず、一方の標準のために行った変更が、もう一方の結果を黙って変えてしまうおそれがあります。そのためパッケージは独自の値の型、コンテキスト、最終化ルーチン、DPD コーデックを持ち、`decimal` をインポートした場合（または逆の場合）には `tools/check_imports.py`（`just pr` に含まれます）が失敗します。"
 
-#: manual/design/decimal_gda.md:461
+#: manual/design/decimal_gda.md:465
 msgid "What the two packages do share is the part that has no standard in it: the integer arithmetic on coefficients, in the internal package `internal/decimal_kernel`. It contains the limb representation, addition, subtraction, comparison, shifts by powers of ten, digit counts, and the multiplication and division algorithms with their per-target thresholds. Its functions are exact integer functions: they take coefficients and return coefficients, they raise no condition, and they know neither a rounding mode, a context nor a flag. A change there cannot change which condition an operation raises, only how fast the exact integer is found, and the kernel imports neither decimal package (`tools/check_imports.py` checks that too). Two copies of this code had already diverged: a fix in one did not reach the other, and `decimal` lacked the small-value fast paths of `decimal_gda`. The thresholds are therefore one set, measured on the shared kernel."
 msgstr "2 つのパッケージが共有するのは、標準の入り込まない部分、すなわち係数に対する整数演算で、内部パッケージ `internal/decimal_kernel` にあります。リムの表現、加算、減算、比較、10 のべきによるシフト、桁数の計算、そしてターゲットごとの閾値を持つ乗算・除算アルゴリズムを含みます。その関数は厳密な整数関数で、係数を受け取って係数を返し、条件を発生させず、丸めモードもコンテキストもフラグも知りません。そこでの変更が、ある演算がどの条件を発生させるかを変えることはなく、厳密な整数が求まる速さだけが変わります。また、カーネルはどちらの 10 進パッケージもインポートしません（これも `tools/check_imports.py` が検査します）。このコードの 2 つのコピーはすでに乖離していました。一方の修正がもう一方に届かず、`decimal` には `decimal_gda` の小さな値向けの高速経路がありませんでした。そのため閾値は 1 組になり、共有カーネル上で測定されています。"
 
-#: manual/design/decimal_gda.md:475
+#: manual/design/decimal_gda.md:479
 msgid "The rounding-direction decisions are shared too, because they are pure functions of a coefficient and the digits that were discarded: whether the kept magnitude grows by one unit in the last place, for the eight directions. Each package converts its own rounding-mode type into the kernel's direction enum with one total match, so the kernel knows neither type. What the decision is applied to, and every flag, clamp, subnormal and overflow rule around it, stays in the finalizer of each package. The same holds for the exact integer helpers that roots, logarithm series and the logical digit operations are built on."
 msgstr "丸め方向の判断も共有されます。これらは係数と捨てられた桁の純粋な関数、すなわち 8 つの方向について、保持される値が最後の桁で 1 単位増えるかどうかだからです。各パッケージは自分の丸めモードの型を、全域的な match でカーネルの方向の列挙型に変換するので、カーネルはどちらの型も知りません。判断を何に適用するか、およびその周りのフラグ、クランプ、非正規数、オーバーフローの規則はすべて、各パッケージの最終化ルーチンに残ります。累乗根、対数の級数、論理的な桁演算の土台となる厳密な整数ヘルパーについても同じです。"
 
-#: manual/design/decimal_gda.md:484
+#: manual/design/decimal_gda.md:488
 msgid "The status-free layer (`DecimalContext`, `DecimalFlags`, the `*_ctx` methods) is the package's own engine made public. It returns flags per operation like IEEE, which is convenient for adapters (the `Luna-Flow/arithmetic` trait implementations use it), but it implements the GDA arithmetic; the IEEE 754 contract lives in `decimal`."
 msgstr "ステータスを持たない層（`DecimalContext`、`DecimalFlags`、`*_ctx` メソッド）は、パッケージ自身のエンジンを公開したものです。IEEE のように演算ごとにフラグを返すのでアダプタにとって便利です（`Luna-Flow/arithmetic` のトレイト実装はこれを使っています）が、実装しているのは GDA の算術です。IEEE 754 の契約は `decimal` にあります。"
 
-#: manual/design/decimal_gda.md:490
+#: manual/design/decimal_gda.md:494
 msgid "Fast paths that are proven equivalent"
 msgstr "等価性が証明された高速経路"
 
-#: manual/design/decimal_gda.md:492
+#: manual/design/decimal_gda.md:496
 msgid "Two kinds of shortcut avoid the general machinery without changing any observable result."
 msgstr "2 種類の近道が、観測可能な結果を何も変えずに汎用の機構を回避します。"
 
-#: manual/design/decimal_gda.md:495
+#: manual/design/decimal_gda.md:499
 msgid "*Small exact integers.* `parse`, `add`, `subtract`, `multiply` and `fma` first check whether all operands are integers with exponent 0 and coefficients below $10^{18}$, the exact result is a nonzero integer below $10^{18}$ with at most $p$ digits, its adjusted exponent lies in $[e_{\\min}, e_{\\max}]$, exponent 0 is allowed by clamping, and the context is extended. Under these predicates the general path performs no rounding, raises no condition and returns exponent 0 (the ideal exponent of every one of these operations), so the shortcut returns `Completed(v, C, none)` with the same $v$. A zero result is excluded because its sign depends on the rounding mode."
 msgstr "*小さな厳密な整数。* `parse`、`add`、`subtract`、`multiply`、`fma` はまず次の条件を確認します。すべてのオペランドが指数 0 で係数が $10^{18}$ 未満の整数であること、厳密な結果が $10^{18}$ 未満で高々 $p$ 桁のゼロでない整数であること、その調整指数が $[e_{\\min}, e_{\\max}]$ にあること、クランプによって指数 0 が許されること、そしてコンテキストが extended であることです。これらの述語のもとでは、汎用の経路は丸めを行わず、条件を立てず、指数 0（これらの演算すべての理想指数）を返すので、近道は同じ $v$ で `Completed(v, C, none)` を返します。ゼロの結果は、その符号が丸めモードに依存するため除外されます。"
 
-#: manual/design/decimal_gda.md:505
+#: manual/design/decimal_gda.md:509
 msgid "*Absorbed addends.* When adding $x_1$ and a much smaller $x_2$ with $\\hat e_2 < \\hat e_1 - p + 1$, the exact sum need not be formed. Every digit of $x_2$ lies below the last retained digit of $x_1$, so $x_2$ influences the rounding only through its sign and its comparison with half a unit:"
 msgstr "*吸収される加数。* $x_1$ と、$\\hat e_2 < \\hat e_1 - p + 1$ を満たすはるかに小さい $x_2$ を加えるとき、厳密な和を作る必要はありません。$x_2$ のすべての桁は $x_1$ の保持される最後の桁より下にあるので、$x_2$ が丸めに影響するのは、その符号と半単位との比較を通じてだけです。"
 
-#: manual/design/decimal_gda.md:515
+#: manual/design/decimal_gda.md:519
 msgid "which is the rounding table above with $r$ replaced by a sticky representative of the same comparison class. `exact_base_small_addend_result` evaluates exactly that, with `compare_magnitude_to_half_ulp` comparing $x_2$ with $u/2$ exactly. The special case where $x_1$ is a power of ten and $x_2$ has the opposite sign (the unit below $x_1$ is ten times smaller) is excluded and takes the general path."
 msgstr "これは、上の丸めの表で $r$ を同じ比較クラスのスティッキーな代表値に置き換えたものです。`exact_base_small_addend_result` はまさにそれを評価し、`compare_magnitude_to_half_ulp` が $x_2$ と $u/2$ を厳密に比較します。$x_1$ が 10 のべきで $x_2$ が逆の符号を持つ特別な場合（$x_1$ のすぐ下の単位が 10 分の 1 になる）は除外され、汎用の経路をとります。"
 
-#: manual/design/decimal_gda.md:522
+#: manual/design/decimal_gda.md:526
 msgid "*Overflow of the larger addend.* The shortcut returns the overflow of $x_1$ rounded alone only when the sum overflows as well, because overflow is judged on the rounded sum (see Overflow above). That holds when $x_2$ has the sign of $x_1$ (the sum is larger in magnitude), or when $p \\ge 2$ and $\\hat e_1 \\ge e_{\\max} + 2$ (the sum is more than $0.9 \\cdot 10^{\\hat e_1}$). Otherwise an opposite sign can pull the sum back into range, so the case takes the general path: `add(9.5, -0.5)` at precision 1 and $e_{\\max} = 0$ is `9`, not an overflow. A non-extended context rounds the operands first, so the shortcut is unchanged there."
 msgstr "*大きい方の加数のオーバーフロー。* 和もオーバーフローする場合に限り、近道は $x_1$ を単独で丸めたオーバーフローを返します。オーバーフローは丸め後の和で判定されるためです (上のオーバーフローの節を参照)。これが成り立つのは、$x_2$ が $x_1$ と同符号 (和の絶対値が大きくなる) の場合、または $p \\ge 2$ かつ $\\hat e_1 \\ge e_{\\max} + 2$ (和が $0.9 \\cdot 10^{\\hat e_1}$ より大きい) の場合です。そうでなければ、異符号の加数が和を範囲内に引き戻し得るため、一般経路を通ります。精度 1、$e_{\\max} = 0$ の `add(9.5, -0.5)` は `9` であり、オーバーフローではありません。非拡張コンテキストは先にオペランドを丸めるので、そこでは近道は変わりません。"
 
-#: manual/design/decimal_gda.md:532
+#: manual/design/decimal_gda.md:536
 msgid "The argument needs $x_1$ itself to end at or above the last retained position, so this shortcut is taken only when $x_1$ fits the context exactly (and not under `ZeroFiveUp`, whose rounding depends on the last kept digit). When $x_1$ has digits below that position, or is exactly a midpoint, $x_2$ can still move the sum across a boundary that the comparison with $u/2$ does not see. An extended context then replaces $x_2$ by a *sticky unit*, as the `decimal` package does. Let $t$ be the target exponent of $x_1$ alone and $g = \\min(e_1, t - 2)$. Every digit of $x_1$ and every rounding boundary of the sum (the grid $10^{t}$, its midpoints, and the grid $10^{t-1}$ with its midpoints, which a cancellation can reach) lies on the grid $10^{g}$. If $0 < |x_2| < 10^{g}$, the sum lies strictly between the same two neighbours on that grid as $x_1 \\pm 10^{g-1}$, with the sign of $x_2$, so rounding that short value once gives the result and the flags of the exact sum in every mode: at precision 7, `add(1598618.5, 1E-20)` under `HalfEven` is `1598619`, and `subtract(1598618, 9.9E-11)` under `ZeroFiveUp` is `1598617`."
 msgstr "この議論では $x_1$ 自体が保持される最後の位置以上で終わっている必要があるため、この近道は $x_1$ がコンテキストにちょうど収まるときにだけ使われます（また、保持される最後の桁に丸めが依存する `ZeroFiveUp` では使われません）。$x_1$ がその位置より下に桁を持つとき、またはちょうど中点であるとき、$x_2$ は $u/2$ との比較では見えない境界を越えて和を動かすことがあります。そこで拡張コンテキストは、`decimal` パッケージと同様に、$x_2$ を*スティッキーな単位*に置き換えます。$t$ を $x_1$ 単独での目標指数とし、$g = \\min(e_1, t - 2)$ とします。$x_1$ のすべての桁と和のすべての丸めの境界（格子 $10^{t}$ とその中点、および桁落ちによって到達しうる格子 $10^{t-1}$ とその中点）は格子 $10^{g}$ 上にあります。$0 < |x_2| < 10^{g}$ ならば、和は $x_2$ の符号をとった $x_1 \\pm 10^{g-1}$ と同じ、その格子上の 2 つの隣接点の間に真に挟まれるので、その短い値を一度丸めれば、すべてのモードで厳密な和の結果とフラグが得られます。精度 7 では、`add(1598618.5, 1E-20)` は `HalfEven` で `1598619`、`subtract(1598618, 9.9E-11)` は `ZeroFiveUp` で `1598617` です。"
 
-#: manual/design/decimal_gda.md:550
+#: manual/design/decimal_gda.md:554
 msgid "`divide` handles $0$, $\\infty$ and exact divisions by powers of ten and by small exact divisors separately. Otherwise it scales the dividend by $10^{t}$ with $t = p + d(c_2) + 2$, so that $Q = c_1 10^{t} / c_2 \\ge 10^{p+2}$ has at least $p + 3$ integer digits, rounds $Q$ to an integer $q$ with `ZeroFiveUp` (explained below), and then rounds $q$ to $p$ digits in the context mode. Whether the quotient terminates is decided exactly (`has_finite_decimal_expansion_repr`: $c_1/c_2$ terminates iff $c_2 / \\gcd(c_1, c_2)$ has no prime factors other than 2 and 5), which selects the ideal-exponent cohort for exact quotients and forces `Inexact` with a $p$-digit coefficient for the others. An exact quotient that needs rounding, from any of these paths, goes to the subnormal grid only when its value is below $10^{e_{\\min}}$ and is otherwise rounded once to $p$ digits, as in the finalizer: at precision 5, `divide(77223, 16E+21)` is `4.8264E-18`."
 msgstr "`divide` は、$0$、$\\infty$、10 のべきによる厳密な除算、小さな厳密な除数による除算を別々に扱います。それ以外の場合は、被除数を $t = p + d(c_2) + 2$ として $10^{t}$ でスケールし、$Q = c_1 10^{t} / c_2 \\ge 10^{p+2}$ が少なくとも $p + 3$ 桁の整数部を持つようにします。そして $Q$ を `ZeroFiveUp`（後述）で整数 $q$ に丸め、さらに $q$ をコンテキストのモードで $p$ 桁に丸めます。商が有限小数になるかどうかは厳密に判定され（`has_finite_decimal_expansion_repr`：$c_1/c_2$ が有限小数になるのは $c_2 / \\gcd(c_1, c_2)$ が 2 と 5 以外の素因数を持たないとき、かつそのときに限る）、それによって厳密な商には理想指数のコホートが選ばれ、それ以外には $p$ 桁の係数で `Inexact` が強制されます。これらのいずれの経路から得られた、丸めを要する厳密な商も、その値が $10^{e_{\\min}}$ を下回るときにだけ非正規化数の格子へ丸められ、それ以外では最終化ルーチンと同様に一度だけ $p$ 桁に丸められます。精度 5 では `divide(77223, 16E+21)` は `4.8264E-18` です。"
 
-#: manual/design/decimal_gda.md:565
+#: manual/design/decimal_gda.md:569
 msgid ""
 "The two successive roundings are equivalent to one for the directed modes, because truncations compose: $\\lfloor \\lfloor y/10^j \\rfloor / 10^m \\rfloor = \\lfloor y/10^{j+m} \\rfloor$. For the half modes a first rounding in the context mode could *manufacture a tie*: the discarded digits of $q$ are exactly $50\\cdots0$ while $Q \\n"
 "e q$. At precision 1, $1/2222 = 0.00045004\\ldots$ would give $q = 4500$ (unit $10^{-7}$), and the second rounding would see a tie and return `0.0004`. The first rounding therefore uses `ZeroFiveUp`: when $Q \\n"
@@ -15446,63 +15450,63 @@ msgstr ""
 "e q$ なのに、$q$ の捨てられる桁がちょうど $50\\cdots0$ になる場合です。精度 1 では、$1/2222 = 0.00045004\\ldots$ から $q = 4500$（単位 $10^{-7}$）が得られ、2 回目の丸めはこれをタイとみなして `0.0004` を返してしまいます。そのため最初の丸めには `ZeroFiveUp` を使います。$Q \\n"
 "e q$ のとき、これは 0 と 5 以外の最後の桁を残すので、$q$ は $p$ 桁の数でも $p$ 桁の中点でもなく、そのようなすべての点に対して厳密に $Q$ と同じ側にあります。こうして 2 回目の丸めはすべてのモード $\\circ$ について $\\circ_p(Q)$ を返し、精度 1 での `divide(1, 2222)` は `0.0005` になります。[^gda-div-05up]"
 
-#: manual/design/decimal_gda.md:578
+#: manual/design/decimal_gda.md:582
 msgid "This is decNumber's `DEC_ROUND_05UP` device. With the context mode in the first rounding, a sweep of $c_1 < 20$, $c_2 < 3000$, $p \\le 3$ finds 12 misrounded quotients."
 msgstr "これは decNumber の `DEC_ROUND_05UP` の仕掛けです。最初の丸めにコンテキストのモードを使うと、$c_1 < 20$、$c_2 < 3000$、$p \\le 3$ を走査したときに、誤って丸められた商が 12 個見つかります。"
 
-#: manual/design/decimal_gda.md:584
+#: manual/design/decimal_gda.md:588
 msgid "`sqrt` first tries an exact root: it removes trailing zeros, makes the exponent even, takes the integer square root $(s, \\rho)$ with $s^2 + \\rho = c$ by Newton's iteration $a \\leftarrow \\lfloor (a + \\lfloor c/a \\rfloor)/2 \\rfloor$, and accepts $\\rho = 0$, then pads towards the ideal exponent $\\lfloor e/2 \\rfloor$ within $p$ digits. An exact root longer than $p$ digits is an exact value like any other, so the finalizer rounds it once, ties included: at $p = 1$, $\\sqrt{2.25} = 1.5$ is a tie and gives `2` in half-even and `1` in half-down. Otherwise the root is irrational and the package rounds it directly at the final position. With root exponent $f = \\max(E_{\\mathrm{tiny}}, \\lfloor \\hat e/2 \\rfloor - p + 1)$ it computes $s = \\lfloor \\sqrt{c\\,10^{e - 2f}} \\rfloor$ and decides the increment by comparing the radicand with the square of the midpoint, which is exact in integers:"
 msgstr "`sqrt` はまず厳密な平方根を試みます。末尾のゼロを取り除き、指数を偶数にし、Newton 反復 $a \\leftarrow \\lfloor (a + \\lfloor c/a \\rfloor)/2 \\rfloor$ によって $s^2 + \\rho = c$ となる整数平方根 $(s, \\rho)$ を求め、$\\rho = 0$ なら受理し、その後 $p$ 桁の範囲で理想指数 $\\lfloor e/2 \\rfloor$ に向けてゼロを付け足します。$p$ 桁より長い厳密な平方根は他の厳密な値と同じなので、最終化ルーチンはタイも含めてそれを 1 回だけ丸めます。$p = 1$ では $\\sqrt{2.25} = 1.5$ はタイであり、half-even では `2`、half-down では `1` になります。そうでない場合、平方根は無理数であり、パッケージは最終的な位置で直接丸めます。平方根の指数を $f = \\max(E_{\\mathrm{tiny}}, \\lfloor \\hat e/2 \\rfloor - p + 1)$ として $s = \\lfloor \\sqrt{c\\,10^{e - 2f}} \\rfloor$ を計算し、被開平数と中点の 2 乗を比較してインクリメントを決めます。これは整数で厳密に行えます。"
 
-#: manual/design/decimal_gda.md:602
+#: manual/design/decimal_gda.md:606
 msgid "Rounding once at $f$ (not first at $p$ digits and then again at $E_{\\mathrm{tiny}}$) avoids double rounding of tiny roots. Because exact roots were handled first, the comparison only ever decides an irrational root, which cannot equal a midpoint, so the strict comparison decides every mode. When $e - 2f < 0$ the radicand $N$ is not an integer; the comparison is then made as $4c \\gtrless (2s+1)^2\\,10^{2f - e}$, still in integers, so no digit of $c$ is truncated. The GDA function always rounds half to even."
 msgstr "（まず $p$ 桁で、次に $E_{\\mathrm{tiny}}$ で丸めるのではなく）$f$ で 1 回だけ丸めることで、極小な平方根の二重丸めを避けています。厳密な平方根は先に処理されているので、この比較が判定するのは無理数の平方根だけであり、それが中点に等しくなることはありえないので、厳密な比較ですべてのモードが決まります。$e - 2f < 0$ のとき、被開平数 $N$ は整数ではありません。このとき比較は $4c \\gtrless (2s+1)^2\\,10^{2f - e}$ として、やはり整数で行われるので、$c$ の桁が切り捨てられることはありません。GDA 関数は常に最近接偶数丸めを行います。"
 
-#: manual/design/decimal_gda.md:612
+#: manual/design/decimal_gda.md:616
 msgid "For an integer exponent $n$ the result is computed as the GDA specification prescribes: if the exact power fits in $p$ digits it is returned exactly with exponent $n e$; otherwise binary powering runs at working precision $w = p + d(|n|) + 2$ (one digit fewer in subset contexts) with half-even rounding after every product, and the final product is rounded to the context. A negative $n$ starts from a rounded $1/x$ in extended contexts and takes the reciprocal at the end in subset contexts. If that reciprocal already overflows the working context, the power overflows, and the sign of the result is the sign of $x^n$ (negative only for a negative $x$ and an odd $n$), not the sign of $x$: $(-0.07)^{-8}$ overflows to $+\\infty$ and $(-0.07)^{-7}$ to $-\\infty$. The reciprocal keeps the cohort of the division ($1 / 5 \\times 10^{-2}$ is $2 \\times 10^{1}$, not $20$), because the exponent of an exact power is the one repeated multiplication gives: $0.05^{-8}$ is $2.56 \\times 10^{10}$ with three digits and no `Rounded`."
 msgstr "整数の指数 $n$ に対しては、結果は GDA 仕様の規定どおりに計算されます。厳密なべきが $p$ 桁に収まれば、指数 $n e$ で厳密に返されます。そうでなければ、作業精度 $w = p + d(|n|) + 2$（サブセットコンテキストでは 1 桁少ない）で 2 進べき乗法を実行し、各積の後で最近接偶数丸めを行い、最後の積をコンテキストへ丸めます。負の $n$ は、拡張コンテキストでは丸めた $1/x$ から始め、サブセットコンテキストでは最後に逆数をとります。その逆数がすでに作業コンテキストをオーバーフローさせる場合、べき乗はオーバーフローし、結果の符号は $x$ の符号ではなく $x^n$ の符号 ($x$ が負で $n$ が奇数のときに限り負) になります。$(-0.07)^{-8}$ は $+\\infty$ に、$(-0.07)^{-7}$ は $-\\infty$ にオーバーフローします。逆数は除算が与えるコホートを保ちます ($1 / 5 \\times 10^{-2}$ は $2 \\times 10^{1}$ であり、$20$ ではありません)。正確なべき乗の指数は繰り返し乗算が与えるものだからです。$0.05^{-8}$ は 3 桁の $2.56 \\times 10^{10}$ で、`Rounded` は立ちません。"
 
-#: manual/design/decimal_gda.md:628
+#: manual/design/decimal_gda.md:632
 msgid "A zero exponent is decided before all of this: for a finite nonzero $x$ (and for $\\pm\\infty$) $x^0$ is the integer $1$ with exponent $0$ and no conditions in every context, a clamped one included (\"the result will be 1 and exact\"). It is not folded down, as decNumber does not (`decNumberPower` leaves by an early exit before its final rounding and clamping, `decCopyFit` and `decFinish`) and as libmpdec does not. The IEEE interchange encoders fold a result down themselves, at an exponent above $E_{\\max} - P_{\\max} + 1$, that is 90, 369 and 6111 for decimal32, decimal64 and decimal128, which the exponent $0$ of $1$ never reaches; only a clamped context with $e_{\\max} < p - 1$, which no IEEE format has, could tell the two results apart."
 msgstr "零指数はこれらすべてより先に決まります。有限の非零の $x$（および $\\pm\\infty$）について $x^0$ は指数 $0$ で条件を一切伴わない整数 $1$ で、clamp のある文脈でも同じです（「結果は 1 で厳密」）。折り畳まれないのは、decNumber が折り畳まないため（`decNumberPower` は最終的な丸めと clamp である `decCopyFit` と `decFinish` の前に早期終了で抜けます）で、libmpdec も折り畳みません。IEEE 交換形式のエンコーダは結果を自分で折り畳み、その閾値は指数が $E_{\\max} - P_{\\max} + 1$ を超える場合、すなわち decimal32、decimal64、decimal128 でそれぞれ 90、369、6111 で、$1$ の指数 $0$ はそこに届きません。$e_{\\max} < p - 1$ の clamp 文脈（IEEE 形式にはありません）でだけ、二つの結果を区別できます。"
 
-#: manual/design/decimal_gda.md:639
+#: manual/design/decimal_gda.md:643
 msgid "The working context never clamps. `Clamped` and `Rounded` therefore come from two places only: an intermediate rounding that discards non-zero digits makes the result inexact, and the final rounding to the context folds down an exponent above $E_{\\mathrm{top}}$ and raises `Clamped` when it does. An exact result such as $(-0.5)^{-2} = 4$ at precision 1 and $e_{\\max} = 0$ raises neither."
 msgstr "作業コンテキストは決してクランプしません。したがって `Clamped` と `Rounded` は 2 か所からだけ生じます。非ゼロの桁を捨てる途中の丸めは結果を不正確にし、コンテキストへの最終的な丸めは $E_{\\mathrm{top}}$ を超える指数を折り下げ、そのとき `Clamped` を立てます。精度 1、$e_{\\max} = 0$ の $(-0.5)^{-2} = 4$ のような正確な結果はどちらも立てません。"
 
-#: manual/design/decimal_gda.md:645
+#: manual/design/decimal_gda.md:649
 msgid "Write $\\mathbf u_w = \\frac12 10^{1-w}$ and let the accumulator hold $x^k(1 + \\theta_k)$. A squaring gives $x^{2k}(1+\\theta_k)^2(1+\\delta)$ and a multiplication by $x$ gives $x^{k+1}(1+\\theta_k)(1+\\delta)$ with $|\\delta| \\le \\mathbf u_w$, so $1 + |\\theta_{2k}| \\le (1+|\\theta_k|)^2(1+\\mathbf u_w)$ and $1 + |\\theta_{k+1}| \\le (1+|\\theta_k|)(1+\\mathbf u_w)$. By induction on the binary expansion, $1 + |\\theta_m| \\le (1+\\mathbf u_w)^{m-1}$ for every $m \\ge 1$: the error of binary powering is that of $m - 1$ successive roundings, although only about $2\\log_2 m$ products are formed.[^higham] Starting from a rounded reciprocal adds the factor $(1+\\mathbf u_w)^{|n|}$, because its error is raised to the power $|n|$. With $m$ the total exponent count ($|n| - 1$ for $n > 0$, $2|n| - 1$ for $n < 0$) and $m \\mathbf u_w \\le 10^{-p}$,"
 msgstr "$\\mathbf u_w = \\frac12 10^{1-w}$ とおき、アキュムレータが $x^k(1 + \\theta_k)$ を保持しているとします。2 乗すると $x^{2k}(1+\\theta_k)^2(1+\\delta)$、$x$ を掛けると $x^{k+1}(1+\\theta_k)(1+\\delta)$ となり（$|\\delta| \\le \\mathbf u_w$）、したがって $1 + |\\theta_{2k}| \\le (1+|\\theta_k|)^2(1+\\mathbf u_w)$ かつ $1 + |\\theta_{k+1}| \\le (1+|\\theta_k|)(1+\\mathbf u_w)$ です。2 進展開に関する帰納法により、すべての $m \\ge 1$ に対して $1 + |\\theta_m| \\le (1+\\mathbf u_w)^{m-1}$ が成り立ちます。2 進べき乗法の誤差は、積を約 $2\\log_2 m$ 個しか作らないにもかかわらず、$m - 1$ 回の連続した丸めの誤差に相当します。[^higham] 丸めた逆数から始めると、その誤差が $|n|$ 乗されるため、因子 $(1+\\mathbf u_w)^{|n|}$ が加わります。指数の総数を $m$（$n > 0$ では $|n| - 1$、$n < 0$ では $2|n| - 1$）とし、$m \\mathbf u_w \\le 10^{-p}$ とすると、"
 
-#: manual/design/decimal_gda.md:666
+#: manual/design/decimal_gda.md:670
 msgid "Since the exact result $y$ satisfies $|y| < 10^{p}\\,u$ for the unit $u$ in the last place of the rounded result, a relative error $\\theta$ is at most $|\\theta|\\,10^p$ units. This gives at most $0.05$ units in the last place for $n > 0$ and $0.1$ units for $n < 0$; adding the final rounding, an inexact integer power is within $0.55$ or $0.6$ units in the last place in the half modes and within $1.05$ or $1.1$ units in the directed modes. In subset contexts $w$ is one digit smaller, so the working error grows tenfold and the half-mode bound becomes about $1$ unit. None of this is correct rounding: a result whose exact value lies within $0.1$ units of a rounding boundary can round the wrong way. The specification does not require more for integer powers. Exponents so large that the result must overflow or underflow are detected beforehand from the bounds $n(\\hat e + 1) - 1$ and $n \\hat e$ on the result's adjusted exponent. The underflow shortcut is taken only when the upper bound is at most $E_{\\text{tiny}} - 2$, so the exact power is below $\\tfrac12 10^{E_{\\text{tiny}}}$, and the result is that value rounded in the context's rounding mode: zero in the half modes and `Down`, and $\\pm 10^{E_{\\text{tiny}}}$ when the mode rounds away from zero for the result's sign."
 msgstr "丸めた結果の最終桁の単位 $u$ に対して厳密な結果 $y$ は $|y| < 10^{p}\\,u$ を満たすので、相対誤差 $\\theta$ は高々 $|\\theta|\\,10^p$ 単位に相当します。これにより、$n > 0$ では最終桁の高々 $0.05$ 単位、$n < 0$ では $0.1$ 単位となります。最後の丸めを加えると、厳密でない整数べきは、half 系のモードでは最終桁の $0.55$ または $0.6$ 単位以内、方向付き丸めのモードでは $1.05$ または $1.1$ 単位以内に収まります。サブセットコンテキストでは $w$ が 1 桁小さいので、作業誤差は 10 倍になり、half 系のモードの上界は約 $1$ 単位になります。これはいずれも正しい丸めではありません。厳密な値が丸めの境界から $0.1$ 単位以内にある結果は、誤った側に丸められることがあります。仕様は整数べきについてそれ以上を要求していません。結果が必ずオーバーフローまたはアンダーフローするほど大きな指数は、結果の調整指数に対する上下界 $n(\\hat e + 1) - 1$ と $n \\hat e$ から事前に検出されます。アンダーフローの近道は上界が $E_{\\text{tiny}} - 2$ 以下のときにだけ使われ、このとき厳密なべきは $\\tfrac12 10^{E_{\\text{tiny}}}$ 未満です。結果はその値をコンテキストの丸めモードで丸めたもので、half 系のモードと `Down` ではゼロ、結果の符号について 0 から遠ざかる向きに丸めるモードでは $\\pm 10^{E_{\\text{tiny}}}$ です。"
 
-#: manual/design/decimal_gda.md:685
+#: manual/design/decimal_gda.md:689
 msgid "An inexact result is delivered with the coefficient of $p$ digits: the working arithmetic drops the trailing zeros of the rounded value, so they are restored after the final rounding (GDA 1.70: a result with more digits than the precision is \"rounded (shortened) to exactly precision digits\"; IEEE 754-2019 §5.2: the cohort member of least possible exponent for an inexact result), the same as for a non-integer exponent. `power(99999E-1, -1)` at precision 2 is `0.00010`. Only a subset context strips the zeros, as Appendix A prescribes, and a subnormal result has fewer digits because its exponent is $E_{\\mathrm{tiny}}$."
 msgstr "不正確な結果は $p$ 桁の係数で返されます。作業用の算術は丸めた値の末尾のゼロを落とすので、最終的な丸めのあとでそれを復元します (GDA 1.70：精度より桁数の多い結果は「ちょうど precision 桁に丸め (短縮) られる」。IEEE 754-2019 §5.2：不正確な結果には指数が可能な限り小さいコホートメンバを使う)。非整数の指数の場合と同じです。精度 2 の `power(99999E-1, -1)` は `0.00010` です。ゼロを落とすのは付録 A の定めるとおりサブセットコンテキストだけで、非正規数の結果は指数が $E_{\\mathrm{tiny}}$ なので桁数が少なくなります。"
 
-#: manual/design/decimal_gda.md:694
+#: manual/design/decimal_gda.md:698
 msgid "Tininess is judged on the exact power, before rounding (GDA 1.70: Subnormal when the adjusted exponent is below $e_{\\min}$ \"before any rounding\", Underflow when the result is also inexact). The working arithmetic only sees the power rounded to $w$ digits, so when the delivered result is exactly $10^{e_{\\min}}$ the side of the exact power is decided separately: the power is recomputed at precision $w' = p + d(|n|) + 6$, then doubled (five attempts in all), with relative error below $10^{d(|n|) + 2 - w'}$ (at most $2|n|$ roundings of $\\mathbf u_{w'}$), and compared with $10^{e_{\\min}}(1 \\pm 10^{d(|n|) + 2 - w'})$. A power outside that band is subnormal exactly when it is below $10^{e_{\\min}}$; for $1/1.00000000000000000001$ at $p = 1$ and $e_{\\min} = 0$ the exact value $0.99999999999999999999$ is separated at $w' = 32$, so the result `1` carries `Subnormal` and `Underflow`. The test is made only when tininess is detected before rounding, as GDA does."
 msgstr "微小性は丸めの前に、正確なべき乗で判定されます (GDA 1.70：調整指数が $e_{\\min}$ を下回れば「丸めの前に」Subnormal、結果が不正確でもあれば Underflow)。作業用の算術は $w$ 桁に丸めたべき乗しか見ないので、返す結果がちょうど $10^{e_{\\min}}$ のときは、正確なべき乗がどちら側にあるかを別に判定します。精度 $w' = p + d(|n|) + 6$ でべき乗を再計算し、それを倍にして (合計 5 回まで) 相対誤差を $10^{d(|n|) + 2 - w'}$ 未満 ($\\mathbf u_{w'}$ の丸めが高々 $2|n|$ 回) に抑え、$10^{e_{\\min}}(1 \\pm 10^{d(|n|) + 2 - w'})$ と比較します。その帯の外にあるべき乗は、$10^{e_{\\min}}$ を下回るときに限り非正規です。$p = 1$、$e_{\\min} = 0$ の $1/1.00000000000000000001$ では、正確な値 $0.99999999999999999999$ は $w' = 32$ で分離され、結果 `1` には `Subnormal` と `Underflow` が付きます。この判定は GDA と同じく、丸め前に微小性を検出する場合にだけ行います。"
 
-#: manual/design/decimal_gda.md:708
+#: manual/design/decimal_gda.md:712
 msgid "Correctly rounded `exp`, `ln`, `log10` and non-integer `power`"
 msgstr "正しく丸められた `exp`、`ln`、`log10` と整数でない `power`"
 
-#: manual/design/decimal_gda.md:710
+#: manual/design/decimal_gda.md:714
 msgid "These functions are evaluated by certified interval arithmetic and a Ziv-style refinement loop.[^ziv] For $f(x)$:"
 msgstr "これらの関数は、認証付きの区間演算と Ziv 流の精緻化ループによって評価されます。[^ziv] $f(x)$ について："
 
-#: manual/design/decimal_gda.md:713
+#: manual/design/decimal_gda.md:717
 msgid "**Exact cases first.** $\\exp 0 = 1$, $\\ln 1 = 0$, $\\log_{10} 10^k = k$, special operands, domain errors, and the cases `power` can decide exactly ($x^{1/2}$ via `sqrt`, powers of ten, $1^y$, guaranteed overflow or underflow, and exact rational powers: $y = a/q$ in lowest terms with $x$ a perfect $q$-th power, such as $4^{1.5} = 8$, the root taken before the power so no intermediate is longer than the result; and $10^k$ to a non-integral $y$ with $ky$ an integer, which is the exact $10^{ky}$ in every rounding mode, `decimal_power_ten_noninteger_result`) never reach the loop. An exact result is a boundary of its rounding cell in the directed modes (and an exact midpoint is one in the half modes), which the loop could never certify."
 msgstr "**まず厳密なケース。** $\\exp 0 = 1$、$\\ln 1 = 0$、$\\log_{10} 10^k = k$、特殊なオペランド、定義域エラー、および `power` が厳密に決定できるケース（`sqrt` による $x^{1/2}$、10 の冪、$1^y$、確実なオーバーフローまたはアンダーフロー、厳密な有理冪：$y = a/q$ が既約分数で $x$ が完全な $q$ 乗である場合、たとえば $4^{1.5} = 8$。冪の前に根を取るので、どの中間値も結果より長くなりません。さらに $10^k$ の非整数 $y$ 乗で $ky$ が整数の場合は、どの丸めモードでも厳密な $10^{ky}$ です。`decimal_power_ten_noninteger_result`）は、ループに入りません。方向付き丸めモードでは厳密な結果は丸めセルの境界であり（半値丸めモードでは厳密な中点も境界です）、ループはそれを認証できません。"
 
-#: manual/design/decimal_gda.md:724
+#: manual/design/decimal_gda.md:728
 msgid "**Enclose the input.** $x$ is converted to a binary ball $[x^-, x^+]$ at $w$ bits with directed rounding (`to_bin_float` towards $-\\infty$ and $+\\infty$), so $x \\in [x^-, x^+]$ exactly."
 msgstr "**入力を包含する。** $x$ は方向付き丸め（$-\\infty$ 方向と $+\\infty$ 方向への `to_bin_float`）によって $w$ ビットの 2 進ボール $[x^-, x^+]$ に変換されるので、厳密に $x \\in [x^-, x^+]$ となります。"
 
-#: manual/design/decimal_gda.md:727
+#: manual/design/decimal_gda.md:731
 msgid ""
 "**Enclose the output.** `ball_float` evaluates $f$ on the ball and returns $[L, U] \\n"
 "i f(x)$ (for `log10`, $\\ln$ divided by a cached enclosure of $\\ln 10$; for `power`, $\\exp(y \\ln x)$ through enclosures of $\\ln x$)."
@@ -15510,23 +15514,23 @@ msgstr ""
 "**出力を包含する。** `ball_float` はボール上で $f$ を評価し、$[L, U] \\n"
 "i f(x)$ を返します（`log10` では $\\ln$ を $\\ln 10$ のキャッシュされた包含区間で割り、`power` では $\\ln x$ の包含区間を通じて $\\exp(y \\ln x)$ を計算します）。"
 
-#: manual/design/decimal_gda.md:730
+#: manual/design/decimal_gda.md:734
 msgid "**Certify a candidate.** A decimal approximation $\\tilde y$ (the ball midpoint; `power` may use a decimal series evaluation) is rounded to $r$. The candidate is only a guess that the test below certifies: the result is $r$ when the whole enclosure lies strictly inside the rounding cell of $r$, and then the midpoint of the enclosure, which belongs to it, rounds to the same cell. `exp` therefore takes the midpoint (the series with the same number of digits when $|x| \\ge 10^3$, where the midpoint is a binary float of enormous exponent), converted to $\\max(p + 8, \\lfloor 0.31\\,w \\rfloor + 4)$ digits so that the conversion error is below the radius of the enclosure and cannot carry the candidate onto a cell boundary that the enclosure itself avoids. Let $(a, b)$ be the open interval of reals around $r$ that round to $r$: the two midpoints with the neighbours for the half modes, $(r, r^+)$ or $(r^-, r)$ for the directed ones (the real rounding cell of a directed mode is half-open, $[r, r^+)$ or $(r^-, r]$; the test uses the open interior, which is sufficient). Its endpoints are exact decimals; each is enclosed in binary, and the result is accepted when"
 msgstr "**候補を認証する。** 10 進の近似値 $\\tilde y$（ボールの中心。`power` は 10 進級数による評価も使えます）を $r$ に丸めます。候補値は下の検査で認証される推測にすぎません。包絡全体が $r$ の丸めセルの厳密な内部にあるとき結果は $r$ であり、その包絡に含まれる中点も同じセルに丸められます。したがって `exp` は中点を取り（$|x| \\ge 10^3$ のときは中点が巨大な指数の 2 進浮動小数点数になるため、同じ桁数の級数を使い）、変換誤差が包絡の半径より小さくなるよう $\\max(p + 8, \\lfloor 0.31\\,w \\rfloor + 4)$ 桁の 10 進数に変換します。こうすれば、包絡自身が避けているセル境界の上に候補値が乗ることはありません。$(a, b)$ を、$r$ に丸められる実数からなる $r$ のまわりの開区間とします。half 系のモードでは隣接値との 2 つの中点、方向付き丸めのモードでは $(r, r^+)$ または $(r^-, r)$ です（方向付き丸めのモードの実数の丸めセルは半開区間 $[r, r^+)$ または $(r^-, r]$ ですが、検査ではその開内部を使い、それで十分です）。その端点は厳密な 10 進数であり、それぞれを 2 進で包含し、次が成り立つとき結果を受理します。"
 
-#: manual/design/decimal_gda.md:750
+#: manual/design/decimal_gda.md:754
 msgid "which proves $\\mathrm{round}(f(x)) = r$. A second test rounds both exact dyadic endpoints $L$ and $U$ to the context; since every rounding mode is monotone, $\\mathrm{round}(L) = \\mathrm{round}(U) = r$ also proves $\\mathrm{round}(f(x)) = r$."
 msgstr "これにより $\\mathrm{round}(f(x)) = r$ が証明されます。2 つ目の判定では、厳密な 2 進有理数の端点 $L$ と $U$ の両方をコンテキストへ丸めます。すべての丸めモードは単調なので、$\\mathrm{round}(L) = \\mathrm{round}(U) = r$ からも $\\mathrm{round}(f(x)) = r$ が証明されます。"
 
-#: manual/design/decimal_gda.md:754
+#: manual/design/decimal_gda.md:758
 msgid "**Refine.** Otherwise the working precision grows, $w \\leftarrow w + \\max(32, \\lfloor w/2 \\rfloor)$; at most $L$ evaluations are made, where $L$ is the refinement limit of the `DecimalContext` (`DecimalContext::refinement_limit`, default twelve, so the last evaluation runs at roughly $1.5^{11} \\approx 86$ times the starting precision)."
 msgstr "**精緻化する。** そうでなければ作業精度を $w \\leftarrow w + \\max(32, \\lfloor w/2 \\rfloor)$ と増やします。評価は最大 $L$ 回で、$L$ は `DecimalContext` の精緻化の上限です（`DecimalContext::refinement_limit`、既定は 12 なので、最後の評価は開始時の精度のおよそ $1.5^{11} \\approx 86$ 倍で行われます）。"
 
-#: manual/design/decimal_gda.md:761
+#: manual/design/decimal_gda.md:765
 msgid "The starting precision is $w_0 = \\max(128, 4D + 64)$ bits with $D = \\max(d(c), p)$: four bits per decimal digit exceed $\\log_2 10 \\approx 3.32$, so the input is carried without loss of decimal information and 64 guard bits remain. For arguments with $\\hat e = 0$ in a wide, unclamped context with $p \\le 64$, a cheaper first attempt uses about $\\frac{10}{3} D + 12$ bits and falls back to $w_0$ if it cannot certify."
 msgstr "開始精度は $D = \\max(d(c), p)$ として $w_0 = \\max(128, 4D + 64)$ ビットです。10 進 1 桁あたり 4 ビットは $\\log_2 10 \\approx 3.32$ を上回るので、入力は 10 進の情報を失わずに運ばれ、64 ビットのガードビットが残ります。$p \\le 64$ の広いクランプなしのコンテキストで $\\hat e = 0$ の引数に対しては、約 $\\frac{10}{3} D + 12$ ビットを使う安価な初回試行を行い、認証できなければ $w_0$ にフォールバックします。"
 
-#: manual/design/decimal_gda.md:768
+#: manual/design/decimal_gda.md:772
 msgid ""
 "The loop always stops, after at most $L$ evaluations (twelve by default). With `with_refinement_limit(None)` the count is unbounded, but the loop still stops when the working precision passes $\\max(8\\,000\\,000,\\ 256\\,w_0)$ bits (at most $10^9$), with the same certification failure, so the work and the memory stay bounded. It certifies a result whenever $f(x)$ is neither a representable number nor a midpoint (for the half modes) and the budget is large enough, because the enclosure shrinks to a point while $f(x)$ stays at a positive distance from every rounding boundary. For `exp`, `ln` and `log10` this always holds after step 1: by the Lindemann–Weierstrass theorem $e^x$ is transcendental for rational $x \\n"
 "e 0$, hence $\\ln x$ is irrational for rational $x \\n"
@@ -15536,107 +15540,107 @@ msgstr ""
 "e 0$ に対して $e^x$ は超越数であり、したがって有理数 $x \\n"
 "e 1$ に対して $\\ln x$ は無理数です。また $\\log_{10} x$ が有理数になるのは 10 の整数べきの場合だけです。表現可能な数と中点は有理数です。それでも予算を使い切った場合（たとえば厳密な値が中点で、ステップ 1 で捕捉されない `power`）、`try_*` メソッドは認証の失敗を返し、GDA 関数は `InvalidOperation` を伴う NaN を返します。証明されていない結果を返すことは決してありません。"
 
-#: manual/design/decimal_gda.md:786
+#: manual/design/decimal_gda.md:790
 msgid "The GDA functions `exp`, `ln`, `log10` and `sqrt` pass a copy of the context with `HalfEven` rounding, because the specification defines these functions as correctly rounded with round-half-even regardless of the context mode; `power` uses the context's mode, as the specification and its test vectors require, and reports non-integer powers as `Inexact` with $p$ digits even when the power happens to be exact (`decimal_power_noninteger_gda_result`), and never as `Clamped` unless the result rounds to zero: the padded form of a nonzero result has an exponent of at most $e_{\\max} - p + 1$, so no fold-down is left to report, whatever route computed it (a square root for the exponent $0.5$, an exact rational power, a power of ten, the certified loop). The exact value is the correctly rounded one in every direction, so a directed mode never adds a unit in the last place: `power(1E-5, 1.2)` is `1E-6` padded to $p$ digits with `Inexact` and `Rounded` in every mode, as `power.decTest` rows powx2039 and powx2040 show for `1^y` in `ceiling`. Two more rules are implemented. First, these functions accept only contexts with $p$, $e_{\\max}$ and $-e_{\\min}$ at most 999,999 (`math_context_is_restricted`, raising `InvalidContext` otherwise). That is a deliberate implementation limit, decNumber's `DEC_MAX_MATH`, not a rule of the GDA operation text: the official decTest suite requires it (`power.decTest` powx4001 to powx4005 and the matching rows of `exp.decTest`, `ln.decTest` and `log10.decTest`), and GDA 1.70 permits it through the Invalid context condition, which covers a precision that exceeds the capability of the implementation. Second, in subset arithmetic `ln` reproduces the result of the classic reference algorithm, which can be one unit in the last place above the correctly rounded one (`decimal_ln_subset_result`), because the legacy subset test vectors encode that result."
 msgstr "GDA の関数 `exp`、`ln`、`log10`、`sqrt` には `HalfEven` 丸めの文脈のコピーを渡します。仕様がこれらの関数を、文脈のモードによらず round-half-even で正しく丸めるものと定めているためです。`power` は文脈のモードを使います。これは仕様とそのテストベクタが要求するもので、冪がたまたま厳密であっても、非整数冪を $p$ 桁の `Inexact` として報告します（`decimal_power_noninteger_gda_result`）。また、結果がゼロに丸められる場合を除き `Clamped` は立てません。非零の結果を桁数まで補った形の指数は $e_{\\max} - p + 1$ 以下で、報告すべき折り畳みが残らないためです（指数 $0.5$ の平方根、厳密な有理冪、10 の冪、認証ループのどの経路で求めても同じです）。厳密な値はどの方向でも正しく丸めた値なので、方向付きモードが最後の桁を 1 単位増やすことはありません。`power(1E-5, 1.2)` はどのモードでも $p$ 桁に補った `1E-6` で、`Inexact` と `Rounded` を伴います。`power.decTest` の powx2039 と powx2040 の行も、`ceiling` での `1^y` について同じ形を示します。さらに二つの規則を実装しています。第一に、これらの関数は $p$、$e_{\\max}$、$-e_{\\min}$ がいずれも 999,999 以下の文脈のみを受け付けます（`math_context_is_restricted`。そうでなければ `InvalidContext` を発生させます）。これは意図的な実装上の制限、すなわち decNumber の `DEC_MAX_MATH` であり、GDA の演算本文の規則ではありません。公式の decTest スイートが要求し（`power.decTest` の powx4001 から powx4005、および `exp.decTest`、`ln.decTest`、`log10.decTest` の対応する行）、GDA 1.70 は、精度が実装の能力を超える場合を含む Invalid context 条件によってこれを許容します。第二に、サブセット算術では `ln` は古典的な参照アルゴリズムの結果を再現し、正しく丸めた結果より最後の桁が 1 単位大きくなることがあります（`decimal_ln_subset_result`）。従来のサブセットのテストベクタがその結果を符号化しているためです。"
 
-#: manual/design/decimal_gda.md:808
+#: manual/design/decimal_gda.md:812
 msgid "A. Ziv, \"Fast evaluation of elementary mathematical functions with correctly rounded last bit\", *ACM TOMS* 17(3), 1991. On ball arithmetic see J. van der Hoeven, \"Ball arithmetic\", 2009, and F. Johansson, \"Arb: efficient arbitrary-precision midpoint-radius interval arithmetic\", *IEEE Trans. Computers* 66(8), 2017."
 msgstr "A. Ziv, \"Fast evaluation of elementary mathematical functions with correctly rounded last bit\", *ACM TOMS* 17(3), 1991. ボール演算については J. van der Hoeven, \"Ball arithmetic\", 2009、および F. Johansson, \"Arb: efficient arbitrary-precision midpoint-radius interval arithmetic\", *IEEE Trans. Computers* 66(8), 2017 を参照してください。"
 
-#: manual/design/decimal_gda.md:814
+#: manual/design/decimal_gda.md:818
 msgid "Coefficient representation and kernels"
 msgstr "係数の表現とカーネル"
 
-#: manual/design/decimal_gda.md:816
+#: manual/design/decimal_gda.md:820
 msgid "The kernel lives in `internal/decimal_kernel` and is shared with `decimal` (see the previous section). A coefficient is either `Small(UInt64)` for values below $10^{18}$ or an array of base-$10^9$ limbs with a cached digit count, both persistent: operations never mutate operand limbs. Decimal limbs make digit counts, trailing-zero removal, the half-unit comparison and the `ZeroFiveUp` last-digit test constant-time or linear without binary-to-decimal conversion. Multiplication and division choose among schoolbook, Karatsuba, Toom-3, a dual-modulus NTT, Knuth's algorithm D, Burnikel–Ziegler and Newton reciprocal division by limb count, with thresholds per target:"
 msgstr "カーネルは `internal/decimal_kernel` にあり、`decimal` と共有されます（前の節を参照）。係数は、$10^{18}$ 未満の値に対する `Small(UInt64)` か、桁数をキャッシュした基数 $10^9$ のリムの配列のどちらかで、どちらも永続的です。演算がオペランドのリムを書き換えることはありません。10 進のリムにより、桁数の計算、末尾のゼロの除去、半単位との比較、`ZeroFiveUp` の最終桁の判定が、2 進から 10 進への変換なしに定数時間または線形時間で行えます。乗算と除算は、リム数に応じて、筆算、Karatsuba、Toom-3、2 法 NTT、Knuth の Algorithm D、Burnikel–Ziegler、Newton の逆数除算から選択します。閾値はターゲットごとに次のとおりです。"
 
-#: manual/design/decimal_gda.md:826
+#: manual/design/decimal_gda.md:830
 msgid "Newton division"
 msgstr "Newton"
 
-#: manual/design/decimal_gda.md:830
+#: manual/design/decimal_gda.md:834
 msgid "Wasm, Wasm-GC, JS"
 msgstr "Wasm、Wasm-GC、JS"
 
-#: manual/design/decimal_gda.md:832
+#: manual/design/decimal_gda.md:836
 msgid "The thresholds are measured performance policy, not semantics: every kernel returns the exact product or quotient, so the choice cannot change a result or a flag. See [performance](../performance/decimal_gda.md) for the measurements."
 msgstr "閾値は計測に基づく性能上の方針であり、意味論ではありません。どのカーネルも厳密な積または商を返すので、選択によって結果やフラグが変わることはありません。計測結果は[性能](../performance/decimal_gda.md)を参照してください。"
 
-#: manual/design/decimal_gda.md:838
+#: manual/design/decimal_gda.md:842
 msgid "**Single rounding.** Every finite result other than integer `power`, the division case above and the to-integral operations on integers longer than $p$ digits is the exact result rounded once, so $|\\hat x - x| \\le \\frac12 u$ in the half modes and $< u$ otherwise, and $|\\hat x - x|/|x| \\le \\frac12 10^{1-p}$ outside the subnormal range."
 msgstr "**1 回だけの丸め。** 整数の `power`、上記の除算のケース、および $p$ 桁より長い整数に対する整数化演算を除くすべての有限の結果は、厳密な結果を 1 回だけ丸めたものです。したがって half 系のモードでは $|\\hat x - x| \\le \\frac12 u$、それ以外では $< u$ であり、非正規化数の範囲外では $|\\hat x - x|/|x| \\le \\frac12 10^{1-p}$ です。"
 
-#: manual/design/decimal_gda.md:843
+#: manual/design/decimal_gda.md:847
 msgid "**Ideal cohort.** An exact result is returned at the representable exponent nearest to its ideal exponent, so operations on exact data keep their quantum (`2.50 × 3 = 7.50`)."
 msgstr "**理想のコホート。** 厳密な結果は、その理想指数に最も近い表現可能な指数で返されるので、厳密なデータに対する演算は量子を保ちます（`2.50 × 3 = 7.50`）。"
 
-#: manual/design/decimal_gda.md:846
+#: manual/design/decimal_gda.md:850
 msgid "**Independence of status.** $F(\\vec x, C)$ depends on $C$ only through its policy: results never depend on the sticky status or the traps."
 msgstr "**ステータスからの独立性。** $F(\\vec x, C)$ はポリシーを通じてのみ $C$ に依存します。結果がスティッキーなステータスやトラップに依存することはありません。"
 
-#: manual/design/decimal_gda.md:848
+#: manual/design/decimal_gda.md:852
 msgid "**Status algebra.** Status only grows, and the status after a threaded sequence is the union of the raised sets."
 msgstr "**ステータスの代数。** ステータスは増えるだけであり、受け渡された一連の演算の後のステータスは、立てられた集合の和集合です。"
 
-#: manual/design/decimal_gda.md:850
+#: manual/design/decimal_gda.md:854
 msgid "**Trap determinism.** At most one trap fires per operation, selected by a fixed total order; `Trapped` carries the same value as `Completed` would."
 msgstr "**トラップの決定性。** 1 つの演算で発火するトラップは高々 1 つで、固定された全順序によって選ばれます。`Trapped` は `Completed` が運ぶはずの値と同じ値を運びます。"
 
-#: manual/design/decimal_gda.md:852
+#: manual/design/decimal_gda.md:856
 msgid "**Certified elementary functions.** A finite inexact result of `exp`, `ln`, `log10` or non-integer `power` is returned only together with a proof (Lemma 3 or 4 of the attachment) that it is the correctly rounded value; a failure to prove it yields NaN and `InvalidOperation`."
 msgstr "**認証付きの初等関数。** `exp`、`ln`、`log10`、整数でない `power` の有限で厳密でない結果は、それが正しく丸められた値であることの証明（添付資料の補題 3 または 4）とともにしか返されません。証明できなければ NaN と `InvalidOperation` になります。"
 
-#: manual/design/decimal_gda.md:856
+#: manual/design/decimal_gda.md:860
 msgid "**Total order.** `compare_total` is a total order on triples (sign, then class, then value, then exponent, then payload), and `Decimal::compare` is a total preorder in which NaNs form one class above all numbers."
 msgstr "**全順序。** `compare_total` は三つ組上の全順序（符号、次にクラス、次に値、次に指数、次にペイロード）であり、`Decimal::compare` は NaN がすべての数より上の 1 つのクラスをなす全前順序です。"
 
-#: manual/design/decimal_gda.md:859
+#: manual/design/decimal_gda.md:863
 msgid "**Evidence.** The pinned `official` test suite passes 64,986/64,986 legal executable scalar rows and the legacy `official0` suite 16,124/16,124 ([conformance](../conformance/decimal_gda.md)). These are finite claims: the half-mode division tie above and to-integral operands longer than the precision are not covered by any pinned row."
 msgstr "**証拠。** 固定された `official` テストスイートでは、正当な実行可能スカラー行 64,986/64,986 が、従来の `official0` スイートでは 16,124/16,124 が合格しています（[適合性](../conformance/decimal_gda.md)）。これらは有限の主張です。上記の half 系モードでの除算の中点（tie）のケースと、精度より長い to-integral のオペランドは、固定されたどの行でもカバーされていません。"
 
-#: manual/design/decimal_gda.md:867
+#: manual/design/decimal_gda.md:871
 msgid "**A mutable or global current context.** Rejected because it makes results and flags depend on evaluation order and hidden state (see the first design decision)."
 msgstr "**可変またはグローバルなカレントコンテキスト。** 結果とフラグが評価順序と隠れた状態に依存してしまうため不採用としました（最初の設計判断を参照）。"
 
-#: manual/design/decimal_gda.md:870
+#: manual/design/decimal_gda.md:874
 msgid "**Traps as errors.** Rejected because the GDA-defined result would be lost."
 msgstr "**エラーとしてのトラップ。** GDA で定義された結果が失われるため不採用としました。"
 
-#: manual/design/decimal_gda.md:871
+#: manual/design/decimal_gda.md:875
 msgid "**Sharing the engine with `decimal`.** Rejected because one standard's change could alter the other's results; a measured duplication is cheaper than an accidental semantic coupling."
 msgstr "**`decimal` とエンジンを共有すること。** 一方の標準の変更がもう一方の結果を変えうるため不採用としました。計測された重複は、偶発的な意味論上の結合よりも安上がりです。"
 
-#: manual/design/decimal_gda.md:874
+#: manual/design/decimal_gda.md:878
 msgid "**Binary floating point for elementary functions with a fixed number of guard digits.** Rejected because no fixed number of guard digits guarantees correct rounding (the table-maker's dilemma); certification with refinement does, and fails visibly when it cannot."
 msgstr "**固定数のガード桁を持つ 2 進浮動小数点による初等関数。** 固定数のガード桁では正しい丸めを保証できないため不採用としました（table-maker's dilemma）。精緻化を伴う認証は正しい丸めを保証し、できない場合は目に見える形で失敗します。"
 
-#: manual/design/decimal_gda.md:878
+#: manual/design/decimal_gda.md:882
 msgid "**Normalizing every result.** Rejected because the quantum is part of a GDA number; normalization is available explicitly as `reduce`."
 msgstr "**すべての結果を正規化すること。** 量子は GDA の数の一部なので不採用としました。正規化は `reduce` として明示的に利用できます。"
 
-#: manual/design/decimal_gda.md:883
+#: manual/design/decimal_gda.md:887
 msgid "The package implements the GDA operations and nothing else: no trigonometric, hyperbolic or other functions outside the specification, and no IEEE 754 operations other than the few extras of the status-free layer."
 msgstr "パッケージは GDA の演算だけを実装し、それ以外は何も実装しません。仕様外の三角関数、双曲線関数、その他の関数はなく、ステータスを持たない層のわずかな追加機能を除いて IEEE 754 の演算もありません。"
 
-#: manual/design/decimal_gda.md:886
+#: manual/design/decimal_gda.md:890
 msgid "It does not parse `.decTest` files, run test suites or read files; that is [`frontend/gda_expr`](../api/frontend/gda_expr.md) and the repository tools."
 msgstr "`.decTest` ファイルの解析、テストスイートの実行、ファイルの読み込みは行いません。それらは [`frontend/gda_expr`](../api/frontend/gda_expr.md) とリポジトリのツールの役割です。"
 
-#: manual/design/decimal_gda.md:888
+#: manual/design/decimal_gda.md:892
 msgid "It does not provide BID interchange; only DPD."
 msgstr "BID の交換形式は提供しません。DPD のみです。"
 
-#: manual/design/decimal_gda.md:889
+#: manual/design/decimal_gda.md:893
 msgid "It does not give correct rounding for integer powers beyond the GDA requirement."
 msgstr "整数べきについて GDA の要求を超える正しい丸めは提供しません。"
 
-#: manual/design/decimal_gda.md:891
+#: manual/design/decimal_gda.md:895
 msgid "It does not provide a mutable or global context, and contexts carry no identity: two contexts with the same fields are interchangeable."
 msgstr "可変またはグローバルなコンテキストは提供せず、コンテキストは同一性を持ちません。同じフィールドを持つ 2 つのコンテキストは交換可能です。"
 
-#: manual/design/decimal_gda.md:893
+#: manual/design/decimal_gda.md:897
 msgid "It does not store exponents beyond the 32-bit range. Literals and results outside it are not wrapped or rejected: context operations overflow or underflow against the context range, decided from the exact exponent, and the context-free conversions and operators overflow to a signed infinity or round to the exponent $-2^{31}$."
 msgstr "32 ビットの範囲を超える指数は格納しません。その範囲外のリテラルや結果は、ラップアラウンドも拒否もされません。コンテキスト演算は正確な指数からコンテキストの範囲に対するオーバーフローまたはアンダーフローを判定し、コンテキストなしの変換と演算子は符号付き無限大へオーバーフローするか、指数 $-2^{31}$ へ丸めます。"
 

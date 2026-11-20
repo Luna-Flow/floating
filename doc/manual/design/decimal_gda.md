@@ -141,7 +141,11 @@ $e$. The table summarizes the rules used by the package:
 | `plus`, `minus`, `abs`, `apply` | $e$ |
 
 A zero result has no leading digit, so its exponent is simply the ideal one,
-clamped into $[E_{\mathrm{tiny}}, e_{\max}]$ (or $E_{\mathrm{top}}$). The sign of
+clamped into $[E_{\mathrm{tiny}}, e_{\max}]$ (or $E_{\mathrm{top}}$). `quantize`
+and `rescale` of a zero follow the rule too: the requested exponent must be at
+most $e_{\max}$, and under `clamp` one above $E_{\mathrm{top}}$ is folded down to
+it with `clamped`, as decNumber's `decQuantizeOp` does by calling `decFinalize`
+for a zero. The sign of
 an exact zero sum is $+$ unless both operands are negative, or the mode is
 `Floor` and either is; this is the decimal form of the IEEE rule that
 $x - x = +0$ except when rounding towards $-\infty$.
