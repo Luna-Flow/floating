@@ -271,7 +271,7 @@ class PublishNameTests(unittest.TestCase):
         self.assertEqual(self.publish(None), [f"summary-{eb.module_version()}.json", "summary.md"])
 
     def test_the_stored_baseline_is_the_published_release_summary(self) -> None:
-        self.assertEqual(eb.STORED_SUMMARY.name, "summary-0.10.2.json")
+        self.assertEqual(eb.STORED_SUMMARY.name, "summary-0.11.0.json")
         self.assertTrue(eb.STORED_SUMMARY.is_file())
 
 

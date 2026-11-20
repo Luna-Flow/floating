@@ -2,7 +2,7 @@
 
 These rules add to the Luna-Flow documentation standard for `floating`; they
 never relax it. The manual describes the implementation on the current branch.
-The current version is **`0.11.0`**, the version in `library/moon.mod` and `tooling/moon.mod` (unreleased; the latest published release is `0.10.2`).
+The current release is **`0.11.0`**, the version in `library/moon.mod` and `tooling/moon.mod`.
 
 ## Chapters and guides
 

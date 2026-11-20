@@ -1,7 +1,7 @@
 # Contribution Guidelines
 
 This guide tracks the current repository workflow and follows the current
-documentation baseline: **`0.11.0`** (unreleased; the latest published release is `0.10.2`).
+documentation baseline: **`0.11.0`**.
 
 ## To Contributors
 

@@ -70,7 +70,7 @@ just bench external quick --ops exp ln --binary-precisions 53 512
 ```
 
 `quick` times only `floating`, in two rounds with short batches, and divides by
-the MPFR and libmpdec medians stored in `testdata/external_baseline/summary-0.10.2.json`
+the MPFR and libmpdec medians stored in `testdata/external_baseline/summary-0.11.0.json`
 (`--stored` names another summary). Those reference timings do not change, so
 the C side is not built or run, and the runner does not wait for a quiet
 machine. The table shows the time of `floating`, the stored reference time, the
@@ -97,7 +97,7 @@ repository.
 ### Compare two releases
 
 ```bash
-just bench external compare testdata/external_baseline/summary-0.10.2.json .tmp/external/results.json
+just bench external compare testdata/external_baseline/summary-0.11.0.json .tmp/external/results.json
 ```
 
 prints the ratio of every case in both files, the change in percent, and a
