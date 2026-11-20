@@ -1,7 +1,58 @@
 ///|
+fn abs_bigint(x : BigInt) -> BigInt {
+  if x < 0N {
+    -x
+  } else {
+    x
+  }
+}
+
+///|
+fn exact_rat_gcd(left : BigInt, right : BigInt) -> BigInt {
+  let mut left = abs_bigint(left)
+  let mut right = abs_bigint(right)
+  while !right.is_zero() {
+    let remainder = left % right
+    left = right
+    right = remainder
+  }
+  if left.is_zero() {
+    1N
+  } else {
+    left
+  }
+}
+
+///|
+/// A fraction in lowest terms with a positive denominator: the normalization
+/// invariant of `ExactRational`, which `semantic` owns (it left `internal`).
+#derive(Eq)
+priv struct ExactRat {
+  numerator : BigInt
+  denominator : BigInt
+}
+
+///|
+fn ExactRat::new(numerator : BigInt, denominator : BigInt) -> ExactRat {
+  guard !denominator.is_zero() else {
+    abort("exact rational denominator must be non-zero")
+  }
+  let (numerator, denominator) = if denominator < 0N {
+    (-numerator, -denominator)
+  } else {
+    (numerator, denominator)
+  }
+  if numerator.is_zero() {
+    return { numerator: 0N, denominator: 1N, }
+  }
+  let divisor = exact_rat_gcd(numerator, denominator)
+  { numerator: numerator / divisor, denominator: denominator / divisor, }
+}
+
+///|
 #derive(Eq)
 pub struct ExactRational {
-  priv inner : @internal.ExactRat
+  priv inner : ExactRat
 }
 
 ///|
@@ -51,17 +102,17 @@ pub fn ExactRational::new(
   numerator : BigInt,
   denominator : BigInt,
 ) -> ExactRational {
-  { inner: @internal.ExactRat::new(numerator, denominator), }
+  { inner: ExactRat::new(numerator, denominator), }
 }
 
 ///|
 pub fn ExactRational::numerator(self : ExactRational) -> BigInt {
-  self.inner.numerator()
+  self.inner.numerator
 }
 
 ///|
 pub fn ExactRational::denominator(self : ExactRational) -> BigInt {
-  self.inner.denominator()
+  self.inner.denominator
 }
 
 ///|
