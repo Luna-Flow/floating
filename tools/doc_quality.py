@@ -34,6 +34,11 @@ API_BLOCK_RE = re.compile(
 )
 MODULE_VERSION_RE = re.compile(r'^version\s*=\s*"([^"]+)"', re.MULTILINE)
 CHANGELOG_VERSION_RE = re.compile(r"^## (\d+\.\d+\.\d+)\b", re.MULTILINE)
+# A line may name a released version when it says so: the install command of the
+# latest published release (`moon add Luna-Flow/floating@0.10.2` stays correct
+# until the next release is published), the file name of its stored measurement
+# (`summary-0.10.2.json`), or an explicit "latest published" statement.
+PUBLISHED_VERSION_CONTEXT_RE = re.compile(r"moon add \S+@|summary-\d|latest published")
 HISTORICAL_BASELINE_RE = re.compile(
     r"<!-- historical-performance-baseline: (\d+\.\d+\.\d+) -->"
 )
@@ -216,6 +221,11 @@ def historical_versions() -> list[str]:
     return sorted(set(CHANGELOG_VERSION_RE.findall(changelog)) - {current})
 
 
+def names_version(line: str, version: str) -> bool:
+    """Whether `line` names `version` itself, not a longer one such as `0.10.20`."""
+    return re.search(rf"(?<![\w.]){re.escape(version)}(?!\w|\.\d)", line) is not None
+
+
 def check_current_versions() -> list[str]:
     errors: list[str] = []
     current = module_version()
@@ -236,7 +246,14 @@ def check_current_versions() -> list[str]:
         text = path.read_text(encoding="utf-8")
         allowed_historical = set(HISTORICAL_BASELINE_RE.findall(text))
         for version in historical:
-            if version in text and version not in allowed_historical:
+            if version in allowed_historical:
+                continue
+            stale = [
+                line
+                for line in text.splitlines()
+                if names_version(line, version) and not PUBLISHED_VERSION_CONTEXT_RE.search(line)
+            ]
+            if stale:
                 errors.append(
                     f"{path.relative_to(REPO_ROOT)}: stale {version} baseline; current is {current}"
                 )

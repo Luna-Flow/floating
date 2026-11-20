@@ -34,7 +34,7 @@ The repository is a `moon.work` workspace of two modules. The published
 library `Luna-Flow/floating` holds the shared vocabulary, the scalar and
 interval domains, the checked tiers, `semantic` and `consistency`; it
 depends on `Luna-Flow/arithmetic` and `Luna-Flow/luna-generic` only. The
-tools module `Luna-Flow/floating-tools` (directory `tooling/`, not published)
+tools module `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library)
 holds `numeric_expr`, the format frontends, the runtime adapters
 `internal/conformance` and `internal/runner_cli`, `cli`, `differential`,
 `bench` and `doc_examples`: everything that needs `mare_mark`, `async`, `x`

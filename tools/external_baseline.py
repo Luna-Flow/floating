@@ -1106,13 +1106,17 @@ def command_publish(args: argparse.Namespace) -> int:
 
     One `summary-<version>.json` is kept per release, so the ratios can be
     tracked from release to release with `compare`; `summary.md` is the latest.
+    The name follows `--version`, or the version of `library/moon.mod`: name the
+    measured release explicitly when the manifest already carries the next one.
+    The stored measurement of the latest published release (`STORED_SUMMARY`) keeps
+    its name and content.
     """
     SUMMARY_DIR.mkdir(parents=True, exist_ok=True)
     document = json.loads((args.out / "results.json").read_text(encoding="utf-8"))
     raw = sorted(args.out.glob("round-*/*.jsonl")) + sorted(args.out.glob("round-*/*.log"))
     document["raw_sha256"] = {str(path.relative_to(args.out)): sha256_file(path) for path in raw}
     document["raw_bytes"] = sum(path.stat().st_size for path in raw)
-    target = SUMMARY_DIR / f"summary-{module_version()}.json"
+    target = SUMMARY_DIR / f"summary-{args.version or module_version()}.json"
     target.write_text(json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     (SUMMARY_DIR / "summary.md").write_text((args.out / "results.md").read_text(encoding="utf-8"), encoding="utf-8")
     print(f"published {target}")
@@ -1174,6 +1178,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     publish = sub.add_parser("publish", help="copy the summary of a run into testdata/external_baseline")
     publish.add_argument("--out", type=Path, default=DEFAULT_OUT)
+    publish.add_argument("--version", help="release the run measures (default: the version of library/moon.mod)")
     publish.set_defaults(func=command_publish)
 
     compare = sub.add_parser("compare", help="compare the ratios of two published summaries")

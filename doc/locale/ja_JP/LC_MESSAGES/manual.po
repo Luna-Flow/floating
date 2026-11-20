@@ -8333,8 +8333,8 @@ msgid "Two modules"
 msgstr "2 つのモジュール"
 
 #: manual/architecture.md:33
-msgid "The repository is a `moon.work` workspace of two modules. The published library `Luna-Flow/floating` holds the shared vocabulary, the scalar and interval domains, the checked tiers, `semantic` and `consistency`; it depends on `Luna-Flow/arithmetic` and `Luna-Flow/luna-generic` only. The tools module `Luna-Flow/floating-tools` (directory `tooling/`, not published) holds `numeric_expr`, the format frontends, the runtime adapters `internal/conformance` and `internal/runner_cli`, `cli`, `differential`, `bench` and `doc_examples`: everything that needs `mare_mark`, `async`, `x` or `type_theory`. The tools module imports the library from the same working tree, so a change to a numeric package is tested by the tools in the same commit."
-msgstr "このリポジトリは 2 つのモジュールからなる `moon.work` ワークスペースです。公開ライブラリ `Luna-Flow/floating` は共有語彙、スカラー領域と区間領域、checked 層、`semantic`、`consistency` を含み、依存するのは `Luna-Flow/arithmetic` と `Luna-Flow/luna-generic` のみです。ツールモジュール `Luna-Flow/floating-tools`（ディレクトリ `tooling/`、非公開）は `numeric_expr`、各形式のフロントエンド、ランタイムアダプター `internal/conformance` と `internal/runner_cli`、`cli`、`differential`、`bench`、`doc_examples` を含み、`mare_mark`、`async`、`x`、`type_theory` を必要とするものはすべてここにあります。ツールモジュールは同じ作業ツリーからライブラリをインポートするため、数値パッケージの変更は同じコミットでツールによりテストされます。"
+msgid "The repository is a `moon.work` workspace of two modules. The published library `Luna-Flow/floating` holds the shared vocabulary, the scalar and interval domains, the checked tiers, `semantic` and `consistency`; it depends on `Luna-Flow/arithmetic` and `Luna-Flow/luna-generic` only. The tools module `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds `numeric_expr`, the format frontends, the runtime adapters `internal/conformance` and `internal/runner_cli`, `cli`, `differential`, `bench` and `doc_examples`: everything that needs `mare_mark`, `async`, `x` or `type_theory`. The tools module imports the library from the same working tree, so a change to a numeric package is tested by the tools in the same commit."
+msgstr "このリポジトリは 2 つのモジュールからなる `moon.work` ワークスペースです。公開ライブラリ `Luna-Flow/floating` は共有語彙、スカラー領域と区間領域、checked 層、`semantic`、`consistency` を含み、依存するのは `Luna-Flow/arithmetic` と `Luna-Flow/luna-generic` のみです。ツールモジュール `Luna-Flow/floating-tools`（ディレクトリ `tooling/`、ライブラリと同じバージョン）は `numeric_expr`、各形式のフロントエンド、ランタイムアダプター `internal/conformance` と `internal/runner_cli`、`cli`、`differential`、`bench`、`doc_examples` を含み、`mare_mark`、`async`、`x`、`type_theory` を必要とするものはすべてここにあります。ツールモジュールは同じ作業ツリーからライブラリをインポートするため、数値パッケージの変更は同じコミットでツールによりテストされます。"
 
 #: manual/architecture.md:45
 msgid "Standard boundaries"
@@ -9149,8 +9149,8 @@ msgid "bin_float conformance"
 msgstr "bin_float 適合性"
 
 #: manual/conformance/bin_float.md:3
-msgid "This page records the `0.10.2` binary floating-point semantic and test boundary. It is evidence for a stated, finite corpus; it is not a proof that any implementation can be correct for every real input."
-msgstr "この文書は `0.10.2` における 2 進浮動小数点の意味論と検証境界を記録します。有限のテストが全通過しても、すべての実数入力に対する形式的証明を意味しません。"
+msgid "This page records the `0.11.0` binary floating-point semantic and test boundary. It is evidence for a stated, finite corpus; it is not a proof that any implementation can be correct for every real input."
+msgstr "この文書は `0.11.0` における 2 進浮動小数点の意味論と検証境界を記録します。有限のテストが全通過しても、すべての実数入力に対する形式的証明を意味しません。"
 
 #: manual/conformance/bin_float.md:7
 msgid "Normative and research sources"
@@ -10121,8 +10121,8 @@ msgid "Repository conventions"
 msgstr "リポジトリの規約"
 
 #: manual/conventions.md:3
-msgid "These rules add to the Luna-Flow documentation standard for `floating`; they never relax it. The manual describes the implementation on the current branch. The current release is **`0.10.2`**, the version in `library/moon.mod`."
-msgstr "これらの規則は `floating` に対して Luna-Flow のドキュメント標準に追加されるものであり、標準を緩めることはありません。マニュアルは現在のブランチの実装を説明します。現在のリリースは **`0.10.2`** で、これは `library/moon.mod` のバージョンです。"
+msgid "These rules add to the Luna-Flow documentation standard for `floating`; they never relax it. The manual describes the implementation on the current branch. The current version is **`0.11.0`**, the version in `library/moon.mod` and `tooling/moon.mod` (unreleased; the latest published release is `0.10.2`)."
+msgstr "これらの規則は `floating` に対して Luna-Flow のドキュメント標準に追加されるものであり、標準を緩めることはありません。マニュアルは現在のブランチの実装を説明します。現在のバージョンは **`0.11.0`** で、これは `library/moon.mod` と `tooling/moon.mod` のバージョンです（未リリース。最新の公開リリースは `0.10.2` です）。"
 
 #: manual/conventions.md:7
 msgid "Chapters and guides"
@@ -17747,8 +17747,8 @@ msgid "floating"
 msgstr "floating"
 
 #: manual/index.md:3
-msgid "This manual documents the `main` branch of `Luna-Flow/floating`, which builds on the `0.10.2` release; the changes since that release are listed in the changelog."
-msgstr "このマニュアルは `Luna-Flow/floating` の `main` ブランチを説明しています。これは `0.10.2` リリースを基にしており、そのリリース以降の変更は変更履歴に記載されています。"
+msgid "This manual documents the `main` branch of `Luna-Flow/floating`, which builds on the latest published release, `0.10.2`; the changes since that release are listed in the changelog."
+msgstr "このマニュアルは `Luna-Flow/floating` の `main` ブランチを説明しています。これは最新の公開リリース `0.10.2` を基にしており、そのリリース以降の変更は変更履歴に記載されています。"
 
 #: manual/index.md:7
 msgid "Overview"

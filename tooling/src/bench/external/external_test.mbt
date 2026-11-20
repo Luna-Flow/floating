@@ -195,7 +195,7 @@ fn binary_spec(
       },
       input => op + ":" + input.size.to_string() + ":" + input.count.to_string(),
       [
-        @runner.Implementation::stateless("floating", "0.10.2", input => {
+        @runner.Implementation::stateless("floating", "0.11.0", input => {
           for i in 0..<input.count {
             input.out[i] = f(input.a[i], input.b[i])
           }
@@ -328,7 +328,7 @@ fn decimal_spec(
       },
       input => op + ":" + input.size.to_string() + ":" + input.count.to_string(),
       [
-        @runner.Implementation::stateless("floating", "0.10.2", input => {
+        @runner.Implementation::stateless("floating", "0.11.0", input => {
           for i in 0..<input.count {
             input.out[i] = f(input.a[i], input.b[i], input.context)
           }

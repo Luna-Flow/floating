@@ -150,7 +150,7 @@ fn make_spec(
     },
     batch => @generator.stable_fingerprint(describe(batch)),
   )
-  let floating = @runner.Implementation::stateless("floating", "0.10.2", (
+  let floating = @runner.Implementation::stateless("floating", "0.11.0", (
     batch : Batch,
   ) => {
     match execute_batch(batch) {

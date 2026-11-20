@@ -244,6 +244,37 @@ class ProtocolTests(unittest.TestCase):
             os.environ["PATH"] = old
 
 
+class PublishNameTests(unittest.TestCase):
+    def publish(self, version: str | None) -> list[str]:
+        import argparse
+        import contextlib
+        import io
+        import json
+        import tempfile
+        from pathlib import Path
+        from unittest.mock import patch
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            out = root / "out"
+            out.mkdir()
+            (out / "results.json").write_text(json.dumps({"cases": []}), encoding="utf-8")
+            (out / "results.md").write_text("# results\n", encoding="utf-8")
+            with patch.object(eb, "SUMMARY_DIR", root / "summaries"), contextlib.redirect_stdout(io.StringIO()):
+                eb.command_publish(argparse.Namespace(out=out, version=version))
+            return sorted(path.name for path in (root / "summaries").iterdir())
+
+    def test_the_summary_name_follows_the_explicit_version_not_the_manifest(self) -> None:
+        self.assertEqual(self.publish("0.10.2"), ["summary-0.10.2.json", "summary.md"])
+
+    def test_the_summary_name_defaults_to_the_manifest_version(self) -> None:
+        self.assertEqual(self.publish(None), [f"summary-{eb.module_version()}.json", "summary.md"])
+
+    def test_the_stored_baseline_is_the_published_release_summary(self) -> None:
+        self.assertEqual(eb.STORED_SUMMARY.name, "summary-0.10.2.json")
+        self.assertTrue(eb.STORED_SUMMARY.is_file())
+
+
 class QuickCheckTests(unittest.TestCase):
     def test_stored_medians_read_a_published_summary(self) -> None:
         summary = {"cases": [
