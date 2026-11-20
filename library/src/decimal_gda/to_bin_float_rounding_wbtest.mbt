@@ -6,14 +6,20 @@
 test "to_bin_float rounds the exact value once" {
   for entry in [("0.0003", 0.0003), ("0.00001", 0.00001), ("-0.0003", -0.0003)] {
     let (text, double) = entry
-    let value = Decimal::parse(text).unwrap().to_bin_float(precision=53)
+    let value = Decimal::from_string(text).unwrap().to_bin_float(precision=53)
     assert_eq(value.compare(@bin_float.BinFloat::from_double(double)), 0)
   }
   // The directed modes bracket the exact value by one unit in the last place.
-  let x = Decimal::parse("0.0003").unwrap()
+  let x = Decimal::from_string("0.0003").unwrap()
   let nearest = @bin_float.BinFloat::from_double(0.0003)
-  let down = x.to_bin_float(precision=53, mode=TowardZero)
-  let up = x.to_bin_float(precision=53, mode=AwayFromZero)
+  let down = x.to_bin_float(
+    precision=53,
+    mode=@bin_float.BinaryRoundingMode::RoundTowardZero,
+  )
+  let up = x.to_bin_float(
+    precision=53,
+    mode=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+  )
   assert_eq(down.compare(nearest), 0)
   assert_true(up.compare(nearest) > 0)
 }

@@ -141,12 +141,12 @@ pub fn Decimal::equal(Self, Self) -> Bool
 pub fn Decimal::exp_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Decimal::exponent10(Self) -> Int32
 pub fn Decimal::from_bigint(@bigint.BigInt, precision? : Int32) -> Self
-pub fn Decimal::from_bin_float(@bin_float.BinFloat, precision? : Int32) -> Self
+pub fn Decimal::from_bin_float(@bin_float.BinFloat, precision~ : Int32, rounding? : GdaRoundingMode) -> Self
 pub fn Decimal::from_double(Double, precision? : Int32) -> Self
 pub fn Decimal::from_float(Float, precision? : Int32) -> Self
 pub fn Decimal::from_int(Int32, precision? : Int32) -> Self
-pub fn Decimal::from_string(String, precision? : Int32) -> Self?
-pub fn Decimal::inf(@def.Sign, precision? : Int32) -> Self
+pub fn Decimal::from_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Decimal::inf(negative? : Bool, precision? : Int32) -> Self
 pub fn Decimal::is_canonical(Self) -> Bool
 pub fn Decimal::is_finite(Self) -> Bool
 pub fn Decimal::is_infinite(Self) -> Bool
@@ -156,7 +156,7 @@ pub fn Decimal::is_qnan(Self) -> Bool
 pub fn Decimal::is_signed(Self) -> Bool
 pub fn Decimal::is_snan(Self) -> Bool
 pub fn Decimal::is_zero(Self) -> Bool
-pub fn Decimal::make(@bigint.BigInt, Int32, Int32, mode? : @arithmetic.RoundingMode) -> Self
+pub fn Decimal::make(@bigint.BigInt, Int32, Int32, rounding? : GdaRoundingMode) -> Self
 pub fn Decimal::max(Self, Self) -> Self
 pub fn Decimal::max_finite_contextual(@arithmetic.ArithmeticContext) -> Self
 pub fn Decimal::min(Self, Self) -> Self
@@ -176,7 +176,6 @@ pub fn Decimal::op_gt(Self, Self) -> Bool
 pub fn Decimal::op_le(Self, Self) -> Bool
 pub fn Decimal::op_lt(Self, Self) -> Bool
 pub fn Decimal::output(Self, &Logger) -> Unit
-pub fn Decimal::parse(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::parse_checked(String, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::pow_int_checked(Self, Int32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
@@ -191,13 +190,13 @@ pub fn Decimal::sqrt_checked(Self, @arithmetic.ArithmeticContext) -> Result[Self
 pub fn Decimal::sqrt_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Decimal::sub(Self, Self) -> Self
 pub fn Decimal::sub_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
-pub fn Decimal::to_bin_float(Self, precision? : Int32, mode? : @arithmetic.RoundingMode) -> @bin_float.BinFloat
+pub fn Decimal::to_bin_float(Self, precision~ : Int32, mode? : @bin_float.BinaryRoundingMode) -> @bin_float.BinFloat
 pub fn Decimal::to_eng_string(Self) -> String
 pub fn Decimal::to_repr(Self) -> @debug.Repr
 pub fn Decimal::to_sci_string(Self) -> String
 pub fn Decimal::to_string(Self) -> String
 pub fn Decimal::trim(Self) -> Self
-pub fn Decimal::with_precision(Self, Int32, @arithmetic.RoundingMode) -> Self
+pub fn Decimal::with_precision(Self, Int32, GdaRoundingMode) -> Self
 pub fn Decimal::zero(precision? : Int32) -> Self
 pub fn Decimal::zero_contextual(@arithmetic.ArithmeticContext) -> Self
 pub impl @arithmetic.AbsContextual for Decimal
@@ -294,7 +293,7 @@ pub fn GdaInterchange::copy_negate(Self) -> Self
 pub fn GdaInterchange::copy_sign(Self, Self) -> Self
 pub fn GdaInterchange::format(Self) -> GdaInterchangeFormat
 pub fn GdaInterchange::from_decimal(Decimal, GdaInterchangeFormat) -> (Self, GdaFlags)
-pub fn GdaInterchange::from_hex(String, GdaInterchangeFormat) -> Self?
+pub fn GdaInterchange::from_hex(String, GdaInterchangeFormat) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn GdaInterchange::is_canonical(Self) -> Bool
 pub fn GdaInterchange::to_decimal(Self) -> Decimal
 pub fn GdaInterchange::to_hex(Self) -> String

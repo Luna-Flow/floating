@@ -5,7 +5,10 @@
 fn decimal_certification_invalid(
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  (Decimal::nan(precision=finite_precision_for_default(ctx)), invalid_flags())
+  (
+    Decimal::nan_raw(precision=finite_precision_for_default(ctx)),
+    invalid_flags(),
+  )
 }
 
 ///|
@@ -32,7 +35,7 @@ fn Decimal::try_log10_ctx(
     self.coefficient.is_zero() {
     return Ok(
       (
-        Decimal::nan(
+        Decimal::nan_raw(
           precision=finite_precision_for_coeff(dec_coeff_zero(), ctx),
         ),
         invalid_flags(),
@@ -49,21 +52,27 @@ fn Decimal::try_log10_ctx(
     FpClass::Infinity =>
       Ok(
         if value.negative {
-          (Decimal::nan(precision~), invalid_flags())
+          (Decimal::nan_raw(precision~), invalid_flags())
         } else {
-          (Decimal::inf(Sign::Positive, precision~), DecimalFlags::new())
+          (
+            Decimal::inf_with_sign(Sign::Positive, precision~),
+            DecimalFlags::new(),
+          )
         },
       )
     FpClass::Finite if value.coefficient.is_zero() =>
       Ok(
         if ctx.extended {
-          (Decimal::inf(Sign::Negative, precision~), DecimalFlags::new())
+          (
+            Decimal::inf_with_sign(Sign::Negative, precision~),
+            DecimalFlags::new(),
+          )
         } else {
-          (Decimal::nan(precision~), invalid_flags())
+          (Decimal::nan_raw(precision~), invalid_flags())
         },
       )
     FpClass::Finite if value.negative =>
-      Ok((Decimal::nan(precision~), invalid_flags()))
+      Ok((Decimal::nan_raw(precision~), invalid_flags()))
     FpClass::Finite if dec_coeff_compare_repr(
         remove_factor10_repr(value.coefficient, 0).0,
         dec_coeff_from_int(1),
@@ -100,13 +109,16 @@ fn Decimal::try_exp_ctx(
     FpClass::Infinity =>
       Ok(
         if value.negative {
-          (Decimal::zero(precision~), DecimalFlags::new())
+          (Decimal::zero_raw(precision~), DecimalFlags::new())
         } else {
-          (Decimal::inf(Sign::Positive, precision~), DecimalFlags::new())
+          (
+            Decimal::inf_with_sign(Sign::Positive, precision~),
+            DecimalFlags::new(),
+          )
         },
       )
     FpClass::Finite if value.coefficient.is_zero() =>
-      Ok((Decimal::one(precision~), DecimalFlags::new()))
+      Ok((Decimal::one_raw(precision~), DecimalFlags::new()))
     FpClass::Finite => decimal_certified_exp_result(value, ctx)
   }
   result.map(fn(value) { (value.0, operand_flags.combine(value.1)) })
@@ -134,7 +146,7 @@ fn Decimal::try_ln_ctx(
     self.coefficient.is_zero() {
     return Ok(
       (
-        Decimal::nan(
+        Decimal::nan_raw(
           precision=finite_precision_for_coeff(dec_coeff_zero(), ctx),
         ),
         invalid_flags(),
@@ -151,23 +163,29 @@ fn Decimal::try_ln_ctx(
     FpClass::Infinity =>
       Ok(
         if value.negative {
-          (Decimal::nan(precision~), invalid_flags())
+          (Decimal::nan_raw(precision~), invalid_flags())
         } else {
-          (Decimal::inf(Sign::Positive, precision~), DecimalFlags::new())
+          (
+            Decimal::inf_with_sign(Sign::Positive, precision~),
+            DecimalFlags::new(),
+          )
         },
       )
     FpClass::Finite if value.coefficient.is_zero() =>
       Ok(
         if ctx.extended {
-          (Decimal::inf(Sign::Negative, precision~), DecimalFlags::new())
+          (
+            Decimal::inf_with_sign(Sign::Negative, precision~),
+            DecimalFlags::new(),
+          )
         } else {
-          (Decimal::nan(precision~), invalid_flags())
+          (Decimal::nan_raw(precision~), invalid_flags())
         },
       )
     FpClass::Finite if value.negative =>
-      Ok((Decimal::nan(precision~), invalid_flags()))
+      Ok((Decimal::nan_raw(precision~), invalid_flags()))
     FpClass::Finite if is_finite_decimal_one(value) =>
-      Ok((Decimal::zero(precision~), DecimalFlags::new()))
+      Ok((Decimal::zero_raw(precision~), DecimalFlags::new()))
     FpClass::Finite => decimal_certified_ln_result(value, ctx)
   }
   result.map(fn(value) { (value.0, operand_flags.combine(value.1)) })
@@ -314,7 +332,7 @@ fn Decimal::power_ctx_impl(
     exponent.class == FpClass::Finite &&
     exponent.coefficient.is_zero() {
     let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
-    return (Decimal::one(precision~), DecimalFlags::new())
+    return (Decimal::one_raw(precision~), DecimalFlags::new())
   }
   match decimal_power_simple_ten_result(self, exponent, ctx) {
     Some(result) => return decimal_power_finalize_result(result, ctx)
@@ -368,7 +386,7 @@ fn Decimal::power_ctx_impl(
     None => ()
   }
   if decimal_power_operand_out_of_range(exponent) {
-    return (Decimal::nan(precision~), invalid_flags())
+    return (Decimal::nan_raw(precision~), invalid_flags())
   }
   match decimal_power_integer_is_odd(exponent) {
     Some(odd) =>
@@ -385,22 +403,22 @@ fn Decimal::power_ctx_impl(
               preferred,
               ctx,
             )
-          None => Decimal::one(precision~).plus_ctx(ctx)
+          None => Decimal::one_raw(precision~).plus_ctx(ctx)
         }
       }
     None => ()
   }
   let count = match decimal_power_gda_integer_count(exponent) {
     Some(value) => value
-    None => return (Decimal::nan(precision~), invalid_flags())
+    None => return (Decimal::nan_raw(precision~), invalid_flags())
   }
   match self.class {
     FpClass::NaN =>
       // Covered by quiet_nan_pair; keep the match total if the enum grows.
-      (Decimal::nan(precision~), invalid_flags())
+      (Decimal::nan_raw(precision~), invalid_flags())
     FpClass::Infinity =>
       if count == 0 {
-        (Decimal::one(precision~), DecimalFlags::new())
+        (Decimal::one_raw(precision~), DecimalFlags::new())
       } else if count < 0 {
         let negative = self.negative && (-count & 1) == 1
         (
@@ -408,25 +426,31 @@ fn Decimal::power_ctx_impl(
           DecimalFlags::new(),
         )
       } else if self.negative && (count & 1) == 1 {
-        (Decimal::inf(Sign::Negative, precision~), DecimalFlags::new())
+        (
+          Decimal::inf_with_sign(Sign::Negative, precision~),
+          DecimalFlags::new(),
+        )
       } else {
-        (Decimal::inf(Sign::Positive, precision~), DecimalFlags::new())
+        (
+          Decimal::inf_with_sign(Sign::Positive, precision~),
+          DecimalFlags::new(),
+        )
       }
     FpClass::Finite =>
       if self.coefficient.is_zero() {
         if count == 0 {
           if !ctx.extended {
-            return (Decimal::one(precision~), DecimalFlags::new())
+            return (Decimal::one_raw(precision~), DecimalFlags::new())
           }
-          return (Decimal::nan(precision~), invalid_flags())
+          return (Decimal::nan_raw(precision~), invalid_flags())
         }
         let negative = self.negative && (abs_int(count) & 1) == 1
         if count < 0 {
           if !ctx.extended {
-            return (Decimal::nan(precision~), invalid_flags())
+            return (Decimal::nan_raw(precision~), invalid_flags())
           }
           (
-            Decimal::inf(
+            Decimal::inf_with_sign(
               if negative {
                 Sign::Negative
               } else {
@@ -443,7 +467,7 @@ fn Decimal::power_ctx_impl(
           )
         }
       } else if count == 0 {
-        Decimal::one(precision~).plus_ctx(ctx)
+        Decimal::one_raw(precision~).plus_ctx(ctx)
       } else {
         decimal_power_integer_finite_result(self, count, ctx)
       }

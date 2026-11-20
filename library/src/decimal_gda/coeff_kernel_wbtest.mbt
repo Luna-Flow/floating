@@ -1521,14 +1521,7 @@ fn finalize_scaleb_finite_ctx_bigint_expected(
   let precision = finite_precision_for_coeff(value.coefficient, ctx)
   if !value.coefficient.is_zero() && adjusted_exponent(value) > ctx.e_max {
     return (
-      Decimal::inf(
-        if value.negative {
-          Sign::Negative
-        } else {
-          Sign::Positive
-        },
-        precision=value.precision_,
-      ),
+      Decimal::inf(negative=value.negative, precision=value.precision_),
       { ..DecimalFlags::new(), overflow: true, rounded: true, inexact: true, },
     )
   }
@@ -1590,14 +1583,7 @@ fn scaleb_finite_result_ctx_bigint_expected(
     BigInt::from_int(value.coefficient.digits10() - 1)
   if adjusted > BigInt::from_int(ctx.e_max) {
     return (
-      Decimal::inf(
-        if value.negative {
-          Sign::Negative
-        } else {
-          Sign::Positive
-        },
-        precision=value.precision_,
-      ),
+      Decimal::inf(negative=value.negative, precision=value.precision_),
       { ..DecimalFlags::new(), overflow: true, rounded: true, inexact: true, },
     )
   }

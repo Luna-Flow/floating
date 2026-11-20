@@ -459,22 +459,22 @@ fn add_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
   }
   let precision = max_precision(a, b)
   match (a.class, b.class) {
-    (FpClass::NaN, _) | (_, FpClass::NaN) => Decimal::nan(precision~)
+    (FpClass::NaN, _) | (_, FpClass::NaN) => Decimal::nan_raw(precision~)
     (FpClass::Infinity, FpClass::Infinity) =>
       if a.sign() == b.sign() {
-        a.with_precision(precision, RoundingMode::ToNearestEven)
+        a.with_precision_raw(precision, RoundingMode::ToNearestEven)
       } else {
-        Decimal::nan(precision~)
+        Decimal::nan_raw(precision~)
       }
     (FpClass::Infinity, _) =>
-      a.with_precision(precision, RoundingMode::ToNearestEven)
+      a.with_precision_raw(precision, RoundingMode::ToNearestEven)
     (_, FpClass::Infinity) =>
-      b.with_precision(precision, RoundingMode::ToNearestEven)
+      b.with_precision_raw(precision, RoundingMode::ToNearestEven)
     (FpClass::Finite, FpClass::Finite) if a.is_zero() && b.is_zero() =>
       if a.negative && b.negative {
-        Decimal::negative_zero(precision~)
+        Decimal::negative_zero_raw(precision~)
       } else {
-        Decimal::zero(precision~)
+        Decimal::zero_raw(precision~)
       }
     (FpClass::Finite, FpClass::Finite) if a.is_zero() =>
       normalize_decimal_parts_gda_repr(
@@ -507,7 +507,7 @@ fn add_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
         None => ()
       }
       if exact_aligned_gap_too_large(a, b) {
-        return Decimal::nan(precision~)
+        return Decimal::nan_raw(precision~)
       }
       let target = Int32::min(a.exponent10, b.exponent10)
       // Same Unit padding + decUnitAddSub mapping as GDA decAddOp
@@ -532,13 +532,13 @@ fn mul_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
   }
   let precision = max_precision(a, b)
   match (a.class, b.class) {
-    (FpClass::NaN, _) | (_, FpClass::NaN) => Decimal::nan(precision~)
+    (FpClass::NaN, _) | (_, FpClass::NaN) => Decimal::nan_raw(precision~)
     (FpClass::Infinity, FpClass::Finite)
     | (FpClass::Finite, FpClass::Infinity) =>
       if a.is_zero() || b.is_zero() {
-        Decimal::nan(precision~)
+        Decimal::nan_raw(precision~)
       } else {
-        Decimal::inf(
+        Decimal::inf_with_sign(
           if a.sign() == b.sign() {
             Sign::Positive
           } else {
@@ -548,7 +548,7 @@ fn mul_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
         )
       }
     (FpClass::Infinity, FpClass::Infinity) =>
-      Decimal::inf(
+      Decimal::inf_with_sign(
         if a.sign() == b.sign() {
           Sign::Positive
         } else {
@@ -560,9 +560,9 @@ fn mul_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
       if (a.is_zero() && !b.is_zero() && a.is_negative_zero()) ||
         (b.is_zero() && !a.is_zero() && b.is_negative_zero()) ||
         (a.is_zero() && b.is_zero() && a.negative != b.negative) {
-        Decimal::negative_zero(precision~)
+        Decimal::negative_zero_raw(precision~)
       } else {
-        Decimal::zero(precision~)
+        Decimal::zero_raw(precision~)
       }
     (FpClass::Finite, FpClass::Finite) =>
       context_free_round_wide(
@@ -584,12 +584,12 @@ fn div_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
   }
   let precision = max_precision(a, b)
   match (a.class, b.class) {
-    (FpClass::NaN, _) | (_, FpClass::NaN) => Decimal::nan(precision~)
+    (FpClass::NaN, _) | (_, FpClass::NaN) => Decimal::nan_raw(precision~)
     (_, FpClass::Finite) if b.is_zero() =>
       if a.is_zero() {
-        Decimal::nan(precision~)
+        Decimal::nan_raw(precision~)
       } else {
-        Decimal::inf(
+        Decimal::inf_with_sign(
           if a.sign() == b.sign() {
             Sign::Positive
           } else {
@@ -598,9 +598,9 @@ fn div_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
           precision~,
         )
       }
-    (FpClass::Infinity, FpClass::Infinity) => Decimal::nan(precision~)
+    (FpClass::Infinity, FpClass::Infinity) => Decimal::nan_raw(precision~)
     (FpClass::Infinity, _) =>
-      Decimal::inf(
+      Decimal::inf_with_sign(
         if a.sign() == b.sign() {
           Sign::Positive
         } else {
@@ -608,12 +608,12 @@ fn div_decimal_impl(a : Decimal, b : Decimal) -> Decimal {
         },
         precision~,
       )
-    (_, FpClass::Infinity) => Decimal::zero(precision~)
+    (_, FpClass::Infinity) => Decimal::zero_raw(precision~)
     (FpClass::Finite, FpClass::Finite) if a.is_zero() =>
       if a.negative != b.negative {
-        Decimal::negative_zero(precision~)
+        Decimal::negative_zero_raw(precision~)
       } else {
-        Decimal::zero(precision~)
+        Decimal::zero_raw(precision~)
       }
     (FpClass::Finite, FpClass::Finite) => {
       let extra = precision + b.coefficient.digits10() + 2
@@ -725,7 +725,7 @@ fn context_free_round_wide(
   }
   if target + (rounded.digits10() - 1).to_int64() > max_exponent {
     return if overflow_to_infinity(negative, mode) {
-      Decimal::inf(
+      Decimal::inf_with_sign(
         if negative {
           Sign::Negative
         } else {
@@ -1033,7 +1033,7 @@ fn invalid_context_flags() -> DecimalFlags {
 ///|
 fn invalid_context_result(ctx : DecimalContext) -> (Decimal, DecimalFlags) {
   (
-    Decimal::nan(precision=finite_precision_for_default(ctx)),
+    Decimal::nan_raw(precision=finite_precision_for_default(ctx)),
     invalid_context_flags(),
   )
 }
@@ -1052,7 +1052,7 @@ fn gda_context_is_restricted(ctx : DecimalContext) -> Bool {
 
 ///|
 fn decimal_compare_result(value : Int32, ctx : DecimalContext) -> Decimal {
-  Decimal::from_int(value, precision=finite_precision_for_default(ctx))
+  Decimal::from_int_raw(value, precision=finite_precision_for_default(ctx))
 }
 
 ///|
@@ -1311,13 +1311,13 @@ fn decimal_integer_quotient(
   let precision = finite_precision_for_default(ctx)
   match (dividend.class, other.class) {
     (FpClass::NaN, _) | (_, FpClass::NaN) =>
-      (Decimal::nan(precision~), nan_operand_flags(dividend, other))
+      (Decimal::nan_raw(precision~), nan_operand_flags(dividend, other))
     (_, FpClass::Finite) if other.is_zero() =>
       if dividend.is_zero() {
-        (Decimal::nan(precision~), div_zero_flags(true))
+        (Decimal::nan_raw(precision~), div_zero_flags(true))
       } else {
         (
-          Decimal::inf(
+          Decimal::inf_with_sign(
             if dividend.negative != other.negative {
               Sign::Negative
             } else {
@@ -1331,7 +1331,7 @@ fn decimal_integer_quotient(
     (FpClass::Infinity, _) | (_, FpClass::Infinity) =>
       if dividend.class == FpClass::Finite && other.class == FpClass::Infinity {
         if !ctx.extended {
-          (Decimal::zero(precision~), DecimalFlags::new())
+          (Decimal::zero_raw(precision~), DecimalFlags::new())
         } else {
           let zero = finite_with_exponent_repr(
             dividend.negative != other.negative,
@@ -1346,13 +1346,13 @@ fn decimal_integer_quotient(
           }
         }
       } else {
-        (Decimal::nan(precision~), invalid_flags())
+        (Decimal::nan_raw(precision~), invalid_flags())
       }
     (FpClass::Finite, FpClass::Finite) => {
       if finite_integer_quotient_is_zero(dividend, other) {
         let flags = divide_integer_zero_quotient_flags(dividend, other, ctx)
         if !ctx.extended {
-          return (Decimal::zero(precision~), flags)
+          return (Decimal::zero_raw(precision~), flags)
         }
         let zero = finite_with_exponent_repr(
           dividend.negative != other.negative,
@@ -1368,7 +1368,7 @@ fn decimal_integer_quotient(
       }
       if ctx.precision > 0 &&
         integer_quotient_digit_lower_bound(dividend, other) > ctx.precision {
-        return (Decimal::nan(precision~), div_impossible_flags())
+        return (Decimal::nan_raw(precision~), div_impossible_flags())
       }
       let quotient = match
         integer_quotient_by_power_of_ten_repr(dividend, other, false) {
@@ -1392,7 +1392,7 @@ fn decimal_integer_quotient(
       if ctx.precision > 0 &&
         !quotient.is_zero() &&
         quotient.digits10() > ctx.precision {
-        return (Decimal::nan(precision~), div_impossible_flags())
+        return (Decimal::nan_raw(precision~), div_impossible_flags())
       }
       let (value, flags) = finalize_finite_ctx(
         finite_with_exponent_repr(
@@ -1426,40 +1426,40 @@ fn decimal_nearest_integer_quotient(
   let precision = finite_precision_for_default(ctx)
   match (dividend.class, other.class) {
     (FpClass::NaN, _) | (_, FpClass::NaN) =>
-      (Decimal::nan(precision~), nan_operand_flags(dividend, other))
+      (Decimal::nan_raw(precision~), nan_operand_flags(dividend, other))
     (_, FpClass::Finite) if other.is_zero() =>
       if dividend.is_zero() {
-        (Decimal::nan(precision~), div_zero_flags(true))
+        (Decimal::nan_raw(precision~), div_zero_flags(true))
       } else {
-        (Decimal::nan(precision~), div_zero_flags(false))
+        (Decimal::nan_raw(precision~), div_zero_flags(false))
       }
     (FpClass::Infinity, _) | (_, FpClass::Infinity) =>
       if dividend.class == FpClass::Finite && other.class == FpClass::Infinity {
         if !ctx.extended {
-          (Decimal::zero(precision~), DecimalFlags::new())
+          (Decimal::zero_raw(precision~), DecimalFlags::new())
         } else if dividend.negative != other.negative {
-          (Decimal::negative_zero(precision~), DecimalFlags::new())
+          (Decimal::negative_zero_raw(precision~), DecimalFlags::new())
         } else {
-          (Decimal::zero(precision~), DecimalFlags::new())
+          (Decimal::zero_raw(precision~), DecimalFlags::new())
         }
       } else {
-        (Decimal::nan(precision~), invalid_flags())
+        (Decimal::nan_raw(precision~), invalid_flags())
       }
     (FpClass::Finite, FpClass::Finite) => {
       if finite_nearest_integer_quotient_is_zero(dividend, other) {
         let flags = divide_integer_zero_quotient_flags(dividend, other, ctx)
         return if !ctx.extended {
-          (Decimal::zero(precision~), flags)
+          (Decimal::zero_raw(precision~), flags)
         } else if dividend.negative != other.negative {
-          (Decimal::negative_zero(precision~), flags)
+          (Decimal::negative_zero_raw(precision~), flags)
         } else {
-          (Decimal::zero(precision~), flags)
+          (Decimal::zero_raw(precision~), flags)
         }
       }
       if limit_precision &&
         ctx.precision > 0 &&
         integer_quotient_digit_lower_bound(dividend, other) > ctx.precision {
-        return (Decimal::nan(precision~), div_impossible_flags())
+        return (Decimal::nan_raw(precision~), div_impossible_flags())
       }
       let quotient = match
         integer_quotient_by_power_of_ten_repr(dividend, other, true) {
@@ -1499,7 +1499,7 @@ fn decimal_nearest_integer_quotient(
         ctx.precision > 0 &&
         !quotient.is_zero() &&
         quotient.digits10() > ctx.precision {
-        return (Decimal::nan(precision~), div_impossible_flags())
+        return (Decimal::nan_raw(precision~), div_impossible_flags())
       }
       let quotient_precision = if limit_precision {
         precision
@@ -1529,7 +1529,7 @@ fn zero_quotient_remainder_result(
 ) -> (Decimal, DecimalFlags) {
   if !ctx.extended && dividend.coefficient.is_zero() {
     return (
-      Decimal::zero(precision=finite_precision_for_default(ctx)),
+      Decimal::zero_raw(precision=finite_precision_for_default(ctx)),
       DecimalFlags::new(),
     )
   }

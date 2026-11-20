@@ -10,14 +10,17 @@ fn Decimal::plus_ctx(
     FpClass::NaN => quiet_nan_operand(operand, ctx)
     FpClass::Infinity =>
       (
-        operand.with_precision(finite_precision_for_default(ctx), ctx.rounding),
+        operand.with_precision_raw(
+          finite_precision_for_default(ctx),
+          ctx.rounding,
+        ),
         DecimalFlags::new(),
       )
     FpClass::Finite =>
       if operand.coefficient.is_zero() {
         if !ctx.extended {
           (
-            Decimal::zero(precision=finite_precision_for_default(ctx)),
+            Decimal::zero_raw(precision=finite_precision_for_default(ctx)),
             DecimalFlags::new(),
           )
         } else {
@@ -52,14 +55,14 @@ fn Decimal::apply_ctx(
     FpClass::NaN => quiet_nan_operand(self, ctx)
     FpClass::Infinity =>
       (
-        self.with_precision(finite_precision_for_default(ctx), ctx.rounding),
+        self.with_precision_raw(finite_precision_for_default(ctx), ctx.rounding),
         DecimalFlags::new(),
       )
     FpClass::Finite => {
       if self.coefficient.is_zero() {
         if !ctx.extended {
           return (
-            Decimal::zero(precision=finite_precision_for_default(ctx)),
+            Decimal::zero_raw(precision=finite_precision_for_default(ctx)),
             DecimalFlags::new(),
           )
         }
@@ -92,7 +95,7 @@ fn Decimal::minus_ctx(
     FpClass::Finite if operand.coefficient.is_zero() =>
       if !ctx.extended {
         (
-          Decimal::zero(precision=finite_precision_for_default(ctx)),
+          Decimal::zero_raw(precision=finite_precision_for_default(ctx)),
           DecimalFlags::new(),
         )
       } else {

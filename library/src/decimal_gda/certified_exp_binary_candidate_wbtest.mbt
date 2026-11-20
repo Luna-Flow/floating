@@ -348,7 +348,7 @@ test "midpoint candidate exp with large arguments in wide exponent contexts" {
       clamp=true,
     )
     for text in arguments {
-      let value = Decimal::parse(text).unwrap()
+      let value = Decimal::from_string(text).unwrap()
       let new_attempts = @ref.Ref(0)
       let old_attempts = @ref.Ref(0)
       let actual = decimal_certified_exp_result_counted(

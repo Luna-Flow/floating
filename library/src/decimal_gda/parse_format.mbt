@@ -279,7 +279,7 @@ fn decimal_overflow_result(
   }
   if overflow_to_infinity(negative, ctx.decimal_rounding) {
     (
-      Decimal::inf(
+      Decimal::inf_with_sign(
         if negative {
           Sign::Negative
         } else {
@@ -411,7 +411,7 @@ fn parse_special_decimal_string_ctx(
     }
     return Some(
       (
-        Decimal::inf(
+        Decimal::inf_with_sign(
           if negative {
             Sign::Negative
           } else {
@@ -516,11 +516,22 @@ fn parse_decimal_string_ctx(
 }
 
 ///|
-pub fn Decimal::parse(
+/// GDA 1.70 to-number without a context (page 21): the string is read exactly
+/// and rounded once to `precision` digits of coefficient. `Err` for a precision
+/// outside `1..=999999999`, a string that is not a numeric string, and a NaN
+/// whose payload is wider than the coefficient less one digit (page 11).
+pub fn Decimal::from_string(
   src : String,
   precision~ : Int32 = 34,
 ) -> Result[Decimal, @def.ArithmeticError] {
-  let precision = Int32::max(1, precision)
+  guard precision >= 1 && precision <= decimal_value_precision_limit else {
+    return Err(
+      @def.ArithmeticError::domain_error(
+        "Decimal::from_string: precision must be within 1..=999999999, got " +
+        precision.to_string(),
+      ),
+    )
+  }
   let ctx = match DecimalContext::try_new(precision~) {
     Err(error) => return Err(error)
     Ok(ctx) => ctx
@@ -530,6 +541,20 @@ pub fn Decimal::parse(
       if flags.conversion_syntax {
         return Err(
           @def.ArithmeticError::parse_error("invalid decimal literal: " + src),
+        )
+      }
+      if value.class == FpClass::NaN &&
+        !value.coefficient.is_zero() &&
+        value.coefficient.digits10() > precision - 1 {
+        return Err(
+          @def.ArithmeticError::parse_error(
+            "NaN payload of " +
+            value.coefficient.digits10().to_string() +
+            " digits does not fit precision " +
+            precision.to_string() +
+            " (at most precision - 1 digits, GDA 1.70 page 11): " +
+            src,
+          ),
         )
       }
       return Ok(value)
@@ -583,12 +608,6 @@ pub fn Decimal::parse(
 }
 
 ///|
-pub fn Decimal::from_string(src : String, precision~ : Int32 = 34) -> Decimal? {
-  match Decimal::parse(src, precision~) {
-    Ok(value) => Some(value)
-    Err(_) => None
-  }
-}
 
 ///|
 fn Decimal::from_string_ctx(

@@ -146,7 +146,7 @@ fn decimal_power_finite_noninteger_operand_range_result(
       if decimal_math_operand_out_of_range(base) ||
         decimal_math_operand_out_of_range(exponent) {
         let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
-        Some((Decimal::nan(precision~), invalid_flags()))
+        Some((Decimal::nan_raw(precision~), invalid_flags()))
       } else {
         None
       }
@@ -185,7 +185,7 @@ fn decimal_power_one_finite_exponent_result(
       let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
       if adjusted_exponent(exponent) > 999_999 ||
         exponent.exponent10 + exponent.coefficient.digits10() < -1_999_996 {
-        Some((Decimal::nan(precision~), invalid_flags()))
+        Some((Decimal::nan_raw(precision~), invalid_flags()))
       } else {
         // GDA 1.70, power: the result is inexact unless the exponent is
         // integral and the result exact, so 1^y for a non-integral y is 1 with
@@ -317,7 +317,7 @@ fn decimal_power_adjacent_one_directed_result(
     return None
   }
   let precision = finite_precision_for_coeff(dec_coeff_from_int(1), ctx)
-  let one = Decimal::one(precision~)
+  let one = Decimal::one_raw(precision~)
   guard exponent.compare(one) < 0 else { return None }
   let flags = { ..DecimalFlags::new(), rounded: true, inexact: true, }
   if base.compare(one) > 0 {
@@ -410,7 +410,10 @@ fn decimal_power_finite_noninteger_domain_result(
   if base.coefficient.is_zero() {
     if exponent.negative && !exponent.coefficient.is_zero() {
       return Some(
-        (Decimal::inf(Sign::Positive, precision~), DecimalFlags::new()),
+        (
+          Decimal::inf_with_sign(Sign::Positive, precision~),
+          DecimalFlags::new(),
+        ),
       )
     }
     return Some(
@@ -421,7 +424,7 @@ fn decimal_power_finite_noninteger_domain_result(
     )
   }
   if base.negative {
-    return Some((Decimal::nan(precision~), invalid_flags()))
+    return Some((Decimal::nan_raw(precision~), invalid_flags()))
   }
   None
 }
@@ -595,7 +598,9 @@ fn decimal_power_integer_exact_result(
       Some(result) => Some(result)
       None =>
         if ctx.precision == 0 {
-          Some(decimal_div_finite_work(Decimal::one(precision~), exact, ctx))
+          Some(
+            decimal_div_finite_work(Decimal::one_raw(precision~), exact, ctx),
+          )
         } else {
           None
         }
@@ -610,7 +615,7 @@ fn decimal_power_integer_bounded_result(
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   let work_ctx = decimal_power_integer_work_ctx(count, ctx)
-  let one = Decimal::one(
+  let one = Decimal::one_raw(
     precision=finite_precision_for_coeff(dec_coeff_from_int(1), work_ctx),
   )
   let (factor0, initial_flags) = if count < 0 && ctx.extended {
@@ -708,7 +713,7 @@ fn decimal_power_integer_below_e_min(
       e_min=-999_999_999,
       e_max=999_999_999,
     )
-    let one = Decimal::one(precision=wp)
+    let one = Decimal::one_raw(precision=wp)
     let factor0 = if count < 0 {
       decimal_div_finite_work(one, positive_base, wide).0
     } else {
@@ -860,7 +865,7 @@ fn decimal_power_integer_finite_result(
   if required_precision > 999_999_999 {
     let negative = base.negative && (abs_int(count) & 1) == 1
     return (
-      Decimal::inf(
+      Decimal::inf_with_sign(
         if negative {
           Sign::Negative
         } else {
@@ -1394,7 +1399,7 @@ fn decimal_ln_near_one_series(
   work_ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   let precision = finite_precision_for_coeff(dec_coeff_from_int(1), work_ctx)
-  let one = Decimal::one(precision~)
+  let one = Decimal::one_raw(precision~)
   let threshold = decimal_math_small_threshold(work_ctx.precision)
   let (delta, delta_flags) = decimal_sub_finite_work(mantissa, one, work_ctx)
   guard delta.class == FpClass::Finite else { return (delta, delta_flags) }
@@ -1470,7 +1475,7 @@ fn _decimal_ln_positive_finite_work_result_with_ln10(
   let work_precision = work_ctx.precision
   let precision = finite_precision_for_coeff(dec_coeff_from_int(1), work_ctx)
   let adjusted = adjusted_exponent(value)
-  let one = Decimal::one(precision~)
+  let one = Decimal::one_raw(precision~)
   let near_threshold = finite_with_exponent_repr(
     false,
     dec_coeff_from_int(1),
@@ -1612,7 +1617,7 @@ fn decimal_exp_series_result(
   work_ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   let precision = finite_precision_for_coeff(dec_coeff_from_int(1), work_ctx)
-  let one = Decimal::one(precision~)
+  let one = Decimal::one_raw(precision~)
   let threshold = decimal_math_small_threshold(work_ctx.precision)
   let mut flags = DecimalFlags::new()
   let mut sum = one
@@ -1836,7 +1841,7 @@ fn decimal_power_infinite_exponent_result(
     FpClass::NaN => None
     FpClass::Infinity =>
       if base.negative {
-        Some((Decimal::nan(precision~), invalid_flags()))
+        Some((Decimal::nan_raw(precision~), invalid_flags()))
       } else if exponent.negative {
         Some(
           (
@@ -1845,12 +1850,22 @@ fn decimal_power_infinite_exponent_result(
           ),
         )
       } else {
-        Some((Decimal::inf(Sign::Positive, precision~), DecimalFlags::new()))
+        Some(
+          (
+            Decimal::inf_with_sign(Sign::Positive, precision~),
+            DecimalFlags::new(),
+          ),
+        )
       }
     FpClass::Finite =>
       if base.coefficient.is_zero() {
         if exponent.negative {
-          Some((Decimal::inf(Sign::Positive, precision~), DecimalFlags::new()))
+          Some(
+            (
+              Decimal::inf_with_sign(Sign::Positive, precision~),
+              DecimalFlags::new(),
+            ),
+          )
         } else {
           Some(
             (
@@ -1860,7 +1875,7 @@ fn decimal_power_infinite_exponent_result(
           )
         }
       } else if base.negative {
-        Some((Decimal::nan(precision~), invalid_flags()))
+        Some((Decimal::nan_raw(precision~), invalid_flags()))
       } else {
         let cmp = decimal_power_compare_abs_one(base, precision)
         if cmp == 0 {
@@ -1874,7 +1889,12 @@ fn decimal_power_infinite_exponent_result(
             ),
           )
         } else {
-          Some((Decimal::inf(Sign::Positive, precision~), DecimalFlags::new()))
+          Some(
+            (
+              Decimal::inf_with_sign(Sign::Positive, precision~),
+              DecimalFlags::new(),
+            ),
+          )
         }
       }
   }
@@ -1892,7 +1912,7 @@ fn decimal_power_infinite_base_noninteger_result(
     Some(_) => None
     None =>
       if base.negative {
-        Some((Decimal::nan(precision~), invalid_flags()))
+        Some((Decimal::nan_raw(precision~), invalid_flags()))
       } else if exponent.negative {
         Some(
           (
@@ -1901,7 +1921,12 @@ fn decimal_power_infinite_base_noninteger_result(
           ),
         )
       } else {
-        Some((Decimal::inf(Sign::Positive, precision~), DecimalFlags::new()))
+        Some(
+          (
+            Decimal::inf_with_sign(Sign::Positive, precision~),
+            DecimalFlags::new(),
+          ),
+        )
       }
   }
 }
@@ -2242,7 +2267,7 @@ fn decimal_power_exact_ten_result(
   if count_magnitude.is_zero() {
     return Some(
       decimal_apply_finite_ctx(
-        Decimal::one(
+        Decimal::one_raw(
           precision=finite_precision_for_coeff(dec_coeff_from_int(1), ctx),
         ),
         ctx,

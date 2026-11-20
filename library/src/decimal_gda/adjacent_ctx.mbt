@@ -156,10 +156,16 @@ fn decimal_next(
         if toward_positive {
           (max_finite_for(ctx, true), DecimalFlags::new())
         } else {
-          (Decimal::inf(Sign::Negative, precision~), DecimalFlags::new())
+          (
+            Decimal::inf_with_sign(Sign::Negative, precision~),
+            DecimalFlags::new(),
+          )
         }
       } else if toward_positive {
-        (Decimal::inf(Sign::Positive, precision~), DecimalFlags::new())
+        (
+          Decimal::inf_with_sign(Sign::Positive, precision~),
+          DecimalFlags::new(),
+        )
       } else {
         (max_finite_for(ctx, false), DecimalFlags::new())
       }
@@ -211,7 +217,7 @@ fn decimal_next(
         )
         if adjusted_exponent64(candidate) > ctx.e_max.to_int64() {
           (
-            Decimal::inf(
+            Decimal::inf_with_sign(
               if candidate.negative {
                 Sign::Negative
               } else {
@@ -321,11 +327,11 @@ fn Decimal::logb_ctx(
   match self.class {
     FpClass::NaN => quiet_nan_operand(self, ctx)
     FpClass::Infinity =>
-      (Decimal::inf(Sign::Positive, precision~), DecimalFlags::new())
+      (Decimal::inf_with_sign(Sign::Positive, precision~), DecimalFlags::new())
     FpClass::Finite =>
       if self.coefficient.is_zero() {
         (
-          Decimal::inf(Sign::Negative, precision~),
+          Decimal::inf_with_sign(Sign::Negative, precision~),
           { ..DecimalFlags::new(), division_by_zero: true, },
         )
       } else {

@@ -1,17 +1,227 @@
 ///|
 // Public constructors and binary/decimal conversion helpers.
 
-pub fn Decimal::make(
-  coefficient : BigInt,
-  exponent10 : Int32,
+///|
+/// The precision a value may carry: GDA 1.70 puts no limit on the length of a
+/// coefficient (page 9); the package adopts the decNumber limit, the same as
+/// for a context.
+let decimal_value_precision_limit : Int32 = 999_999_999
+
+///|
+/// The precision of a value made by a constructor, checked where the value is
+/// made. A precision outside `1..=999_999_999` aborts and names the function and
+/// the argument; there is no silent replacement.
+fn decimal_checked_precision(precision : Int32, who : String) -> Int32 {
+  guard precision >= 1 && precision <= decimal_value_precision_limit else {
+    abort(
+      who +
+      ": precision must be within 1..=999999999, got " +
+      precision.to_string(),
+    )
+  }
+  precision
+}
+
+///|
+/// GDA 1.70 (page 11): the payload of a NaN is zero or a positive integer no
+/// larger than the coefficient can represent less one digit, so at most
+/// `precision - 1` digits. A negative payload or one that is too wide aborts.
+fn decimal_checked_payload(
+  payload : BigInt,
   precision : Int32,
-  mode~ : RoundingMode = RoundingMode::ToNearestEven,
-) -> Decimal {
-  normalize_decimal(coefficient, exponent10, precision, mode)
+  who : String,
+) -> BigInt {
+  guard payload >= bigint_zero() else {
+    abort(who + ": the NaN payload must not be negative")
+  }
+  let digits = coeff_from_bigint(payload).digits10()
+  guard payload.is_zero() || digits <= precision - 1 else {
+    abort(
+      who +
+      ": the NaN payload has " +
+      digits.to_string() +
+      " digits, at most precision - 1 = " +
+      (precision - 1).to_string() +
+      " fit (GDA 1.70, page 11)",
+    )
+  }
+  payload
 }
 
 ///|
 pub fn Decimal::zero(precision~ : Int32 = 34) -> Decimal {
+  Decimal::zero_raw(
+    precision=decimal_checked_precision(precision, "Decimal::zero"),
+  )
+}
+
+///|
+pub fn Decimal::negative_zero(precision~ : Int32 = 34) -> Decimal {
+  Decimal::negative_zero_raw(
+    precision=decimal_checked_precision(precision, "Decimal::negative_zero"),
+  )
+}
+
+///|
+pub fn Decimal::one(precision~ : Int32 = 34) -> Decimal {
+  Decimal::one_raw(
+    precision=decimal_checked_precision(precision, "Decimal::one"),
+  )
+}
+
+///|
+pub fn Decimal::inf(
+  negative~ : Bool = false,
+  precision~ : Int32 = 34,
+) -> Decimal {
+  Decimal::inf_with_sign(
+    if negative {
+      Sign::Negative
+    } else {
+      Sign::Positive
+    },
+    precision=decimal_checked_precision(precision, "Decimal::inf"),
+  )
+}
+
+///|
+pub fn Decimal::nan(precision~ : Int32 = 34) -> Decimal {
+  Decimal::nan_raw(
+    precision=decimal_checked_precision(precision, "Decimal::nan"),
+  )
+}
+
+///|
+pub fn Decimal::quiet_nan(
+  payload~ : BigInt = bigint_zero(),
+  negative~ : Bool = false,
+  precision~ : Int32 = 34,
+) -> Decimal {
+  let precision = decimal_checked_precision(precision, "Decimal::quiet_nan")
+  Decimal::quiet_nan_raw(
+    payload=decimal_checked_payload(payload, precision, "Decimal::quiet_nan"),
+    negative~,
+    precision~,
+  )
+}
+
+///|
+pub fn Decimal::signaling_nan(
+  payload~ : BigInt = bigint_zero(),
+  negative~ : Bool = false,
+  precision~ : Int32 = 34,
+) -> Decimal {
+  let precision = decimal_checked_precision(precision, "Decimal::signaling_nan")
+  Decimal::signaling_nan_raw(
+    payload=decimal_checked_payload(
+      payload, precision, "Decimal::signaling_nan",
+    ),
+    negative~,
+    precision~,
+  )
+}
+
+///|
+pub fn Decimal::from_int(n : Int32, precision~ : Int32 = 34) -> Decimal {
+  Decimal::from_int_raw(
+    n,
+    precision=decimal_checked_precision(precision, "Decimal::from_int"),
+  )
+}
+
+///|
+pub fn Decimal::from_bigint(n : BigInt, precision~ : Int32 = 34) -> Decimal {
+  Decimal::from_bigint_raw(
+    n,
+    precision=decimal_checked_precision(precision, "Decimal::from_bigint"),
+  )
+}
+
+///|
+pub fn Decimal::from_double(x : Double, precision~ : Int32 = 34) -> Decimal {
+  Decimal::from_double_raw(
+    x,
+    precision=decimal_checked_precision(precision, "Decimal::from_double"),
+  )
+}
+
+///|
+pub fn Decimal::from_float(x : Float, precision~ : Int32 = 34) -> Decimal {
+  Decimal::from_float_raw(
+    x,
+    precision=decimal_checked_precision(precision, "Decimal::from_float"),
+  )
+}
+
+///|
+/// `coefficient * 10^exponent10` rounded to `precision` digits in `rounding`.
+pub fn Decimal::make(
+  coefficient : BigInt,
+  exponent10 : Int32,
+  precision : Int32,
+  rounding~ : GdaRoundingMode = GdaRoundingMode::HalfEven,
+) -> Decimal {
+  let precision = decimal_checked_precision(precision, "Decimal::make")
+  normalize_decimal_parts_gda(
+    coefficient < bigint_zero(),
+    abs_bigint(coefficient),
+    exponent10,
+    precision,
+    decimal_rounding(rounding),
+  )
+}
+
+///|
+/// The value with `precision` digits of coefficient, rounded in `rounding`.
+pub fn Decimal::with_precision(
+  self : Decimal,
+  precision : Int32,
+  rounding : GdaRoundingMode,
+) -> Decimal {
+  self.with_precision_decimal_mode(
+    decimal_checked_precision(precision, "Decimal::with_precision"),
+    decimal_rounding(rounding),
+  )
+}
+
+///|
+/// The binary value nearest to `self` in `mode` (IEEE 754-2019 4.3.1, the rounding
+/// attributes of the radix of the result), with `precision` bits. The precision
+/// is required and counts bits, from 1 to `@bin_float.binary_precision_max`;
+/// outside that range the call aborts.
+pub fn Decimal::to_bin_float(
+  self : Decimal,
+  precision~ : Int32,
+  mode~ : @bin_float.BinaryRoundingMode = @bin_float.BinaryRoundingMode::RoundTiesToEven,
+) -> @bin_float.BinFloat {
+  guard precision >= 1 && precision <= @bin_float.binary_precision_max else {
+    abort(
+      "Decimal::to_bin_float: precision must be within 1.." +
+      @bin_float.binary_precision_max.to_string() +
+      " bits, got " +
+      precision.to_string(),
+    )
+  }
+  self.to_bin_float_raw(precision~, mode~)
+}
+
+///|
+/// The decimal value of a binary one, rounded to `precision` decimal digits in
+/// `rounding`. The precision is required and counts digits.
+pub fn Decimal::from_bin_float(
+  x : @bin_float.BinFloat,
+  precision~ : Int32,
+  rounding~ : GdaRoundingMode = GdaRoundingMode::HalfEven,
+) -> Decimal {
+  Decimal::from_bin_float_raw(
+    x,
+    precision=decimal_checked_precision(precision, "Decimal::from_bin_float"),
+    mode=decimal_rounding(rounding),
+  )
+}
+
+///|
+fn Decimal::zero_raw(precision~ : Int32 = 34) -> Decimal {
   finite_with_exponent_repr(
     false,
     dec_coeff_zero(),
@@ -21,12 +231,12 @@ pub fn Decimal::zero(precision~ : Int32 = 34) -> Decimal {
 }
 
 ///|
-pub fn Decimal::negative_zero(precision~ : Int32 = 34) -> Decimal {
+fn Decimal::negative_zero_raw(precision~ : Int32 = 34) -> Decimal {
   finite_with_exponent_repr(true, dec_coeff_zero(), 0, Int32::max(1, precision))
 }
 
 ///|
-pub fn Decimal::one(precision~ : Int32 = 34) -> Decimal {
+fn Decimal::one_raw(precision~ : Int32 = 34) -> Decimal {
   finite_with_exponent_repr(
     false,
     dec_coeff_from_int(1),
@@ -36,7 +246,7 @@ pub fn Decimal::one(precision~ : Int32 = 34) -> Decimal {
 }
 
 ///|
-pub fn Decimal::inf(sign : Sign, precision~ : Int32 = 34) -> Decimal {
+fn Decimal::inf_with_sign(sign : Sign, precision~ : Int32 = 34) -> Decimal {
   make_special_repr(
     FpClass::Infinity,
     sign == Sign::Negative,
@@ -47,12 +257,12 @@ pub fn Decimal::inf(sign : Sign, precision~ : Int32 = 34) -> Decimal {
 }
 
 ///|
-pub fn Decimal::nan(precision~ : Int32 = 34) -> Decimal {
+fn Decimal::nan_raw(precision~ : Int32 = 34) -> Decimal {
   make_special_repr(FpClass::NaN, false, dec_coeff_zero(), precision, false)
 }
 
 ///|
-pub fn Decimal::quiet_nan(
+fn Decimal::quiet_nan_raw(
   payload~ : BigInt = bigint_zero(),
   negative~ : Bool = false,
   precision~ : Int32 = 34,
@@ -61,7 +271,7 @@ pub fn Decimal::quiet_nan(
 }
 
 ///|
-pub fn Decimal::signaling_nan(
+fn Decimal::signaling_nan_raw(
   payload~ : BigInt = bigint_zero(),
   negative~ : Bool = false,
   precision~ : Int32 = 34,
@@ -70,12 +280,12 @@ pub fn Decimal::signaling_nan(
 }
 
 ///|
-pub fn Decimal::from_int(n : Int32, precision~ : Int32 = 34) -> Decimal {
-  Decimal::from_bigint(BigInt::from_int(n), precision~)
+fn Decimal::from_int_raw(n : Int32, precision~ : Int32 = 34) -> Decimal {
+  Decimal::from_bigint_raw(BigInt::from_int(n), precision~)
 }
 
 ///|
-pub fn Decimal::from_bigint(n : BigInt, precision~ : Int32 = 34) -> Decimal {
+fn Decimal::from_bigint_raw(n : BigInt, precision~ : Int32 = 34) -> Decimal {
   decimal_from_integer_parts(n, 0, precision)
 }
 
@@ -88,6 +298,7 @@ fn decimal_from_integer_parts(
   value : BigInt,
   exponent10 : Int32,
   precision : Int32,
+  mode~ : DecimalRoundingMode = DecimalRoundingMode::HalfEven,
 ) -> Decimal {
   let negative = value < bigint_zero()
   let magnitude = coeff_from_bigint(abs_bigint(value))
@@ -102,38 +313,38 @@ fn decimal_from_integer_parts(
     precision,
     round_to_precision=true,
     reduce=false,
-    mode=DecimalRoundingMode::HalfEven,
+    mode~,
   )
 }
 
 ///|
-pub fn Decimal::from_double(x : Double, precision~ : Int32 = 34) -> Decimal {
+fn Decimal::from_double_raw(x : Double, precision~ : Int32 = 34) -> Decimal {
   let precision = Int32::max(1, precision)
   let bits = x.reinterpret_as_uint64()
   let negative = bits >> 63 != 0UL
   let exponent_bits = ((bits >> 52) & 0x7ffUL).to_int()
   let fraction_bits = bits & 0x000f_ffff_ffff_ffffUL
   if exponent_bits == 0x7ff && fraction_bits != 0UL {
-    return Decimal::quiet_nan(negative~, precision~)
+    return Decimal::quiet_nan_raw(negative~, precision~)
   }
   if exponent_bits == 0 && fraction_bits == 0UL {
     return if negative {
-      Decimal::negative_zero(precision~)
+      Decimal::negative_zero_raw(precision~)
     } else {
-      Decimal::zero(precision~)
+      Decimal::zero_raw(precision~)
     }
   }
   let bin = @bin_float.BinFloat::from_double(x, precision=53)
   match bin.classify() {
-    FpClass::NaN => Decimal::nan(precision~)
-    FpClass::Infinity => Decimal::inf(bin.sign(), precision~)
-    FpClass::Finite => Decimal::from_bin_float(bin, precision~)
+    FpClass::NaN => Decimal::nan_raw(precision~)
+    FpClass::Infinity => Decimal::inf_with_sign(bin.sign(), precision~)
+    FpClass::Finite => Decimal::from_bin_float_raw(bin, precision~)
   }
 }
 
 ///|
-pub fn Decimal::from_float(x : Float, precision~ : Int32 = 34) -> Decimal {
-  Decimal::from_double(x.to_double(), precision~)
+fn Decimal::from_float_raw(x : Float, precision~ : Int32 = 34) -> Decimal {
+  Decimal::from_double_raw(x.to_double(), precision~)
 }
 
 ///|
@@ -146,8 +357,11 @@ pub fn Decimal::from_float(x : Float, precision~ : Int32 = 34) -> Decimal {
 fn decimal_to_bin_float_out_of_range(
   value : Decimal,
   precision : Int32,
-  mode : RoundingMode,
+  binary_mode : @bin_float.BinaryRoundingMode,
 ) -> @bin_float.BinFloat? {
+  // ties-to-away rounds like ties-to-even where nothing but the direction of
+  // an overflow or underflow is decided
+  let mode = binary_mode.to_arithmetic().unwrap_or(RoundingMode::ToNearestEven)
   let adjusted = adjusted_exponent64(value)
   let e_max = @bin_float.binary_implementation_e_max.to_int64()
   let e_min = @bin_float.binary_implementation_e_min.to_int64()
@@ -193,7 +407,7 @@ let decimal_parser_conversion_exponent : Int32 = 4096
 fn decimal_to_bin_float_through_parser(
   value : Decimal,
   precision : Int32,
-  mode : RoundingMode,
+  mode : @bin_float.BinaryRoundingMode,
 ) -> @bin_float.BinFloat? {
   guard precision > 0 && precision <= @bin_float.binary_precision_max else {
     return None
@@ -205,10 +419,7 @@ fn decimal_to_bin_float_through_parser(
   match
     @bin_float.BinFloat::from_string_ctx(
       text,
-      @bin_float.BinaryContext::unbounded(
-        precision,
-        rounding=@bin_float.BinaryRoundingMode::from_arithmetic(mode),
-      ),
+      @bin_float.BinaryContext::unbounded(precision, rounding=mode),
     ) {
     Ok((result, _)) => Some(result)
     Err(_) => None
@@ -216,10 +427,44 @@ fn decimal_to_bin_float_through_parser(
 }
 
 ///|
-pub fn Decimal::to_bin_float(
+/// `BinFloat::make` in a rounding mode of IEEE 754-2019 4.3.1. `make` takes the
+/// five directions of `@arithmetic`, which lack ties-to-away: that mode rounds
+/// the exact value (the coefficient is kept whole) once to `precision` bits.
+fn decimal_bin_float_make(
+  coefficient : @bin_float.BinCoeff,
+  exponent2 : Int32,
+  precision : Int32,
+  negative : Bool,
+  mode : @bin_float.BinaryRoundingMode,
+) -> @bin_float.BinFloat {
+  match mode.to_arithmetic() {
+    Some(arithmetic) =>
+      @bin_float.BinFloat::make(
+        coefficient,
+        exponent2,
+        precision,
+        negative~,
+        mode=arithmetic,
+      )
+    None => {
+      let exact = @bin_float.BinFloat::make(
+        coefficient,
+        exponent2,
+        Int32::max(precision, coefficient.bit_length().to_int()),
+        negative~,
+      )
+      exact.round_ctx(
+        @bin_float.BinaryContext::unbounded(precision, rounding=mode),
+      ).0
+    }
+  }
+}
+
+///|
+fn Decimal::to_bin_float_raw(
   self : Decimal,
   precision~ : Int32 = self.precision_,
-  mode~ : RoundingMode = RoundingMode::ToNearestEven,
+  mode~ : @bin_float.BinaryRoundingMode = @bin_float.BinaryRoundingMode::RoundTiesToEven,
 ) -> @bin_float.BinFloat {
   match self.class {
     FpClass::NaN => @bin_float.BinFloat::nan(precision~)
@@ -241,12 +486,12 @@ pub fn Decimal::to_bin_float(
       }
       if self.exponent10 >= 0 {
         let magnitude = coeff_bigint(self.coefficient) * pow5(self.exponent10)
-        return @bin_float.BinFloat::make(
+        return decimal_bin_float_make(
           @bin_float.BinCoeff::from_bytes_be(magnitude.to_octets()),
           self.exponent10,
           precision,
-          negative=self.negative,
-          mode~,
+          self.negative,
+          mode,
         )
       }
       let scale = -self.exponent10
@@ -266,12 +511,12 @@ pub fn Decimal::to_bin_float(
       } else {
         truncated | bigint_one()
       }
-      @bin_float.BinFloat::make(
+      decimal_bin_float_make(
         @bin_float.BinCoeff::from_bytes_be(q.to_octets()),
         -binary_shift,
         precision,
-        negative=self.sign() == Sign::Negative,
-        mode~,
+        self.sign() == Sign::Negative,
+        mode,
       )
     }
   }
@@ -349,6 +594,7 @@ fn decimal_surrogate_parts(
 fn decimal_from_bin_float_surrogate(
   x : @bin_float.BinFloat,
   precision : Int32,
+  mode : DecimalRoundingMode,
 ) -> Decimal {
   let (negative, coefficient, exponent) = decimal_surrogate_parts(
     x,
@@ -361,7 +607,7 @@ fn decimal_from_bin_float_surrogate(
     precision,
     round_to_precision=true,
     reduce=false,
-    mode=DecimalRoundingMode::HalfEven,
+    mode~,
   )
 }
 
@@ -380,23 +626,29 @@ fn decimal_from_bin_float_is_bounded(
 }
 
 ///|
-pub fn Decimal::from_bin_float(
+fn Decimal::from_bin_float_raw(
   x : @bin_float.BinFloat,
   precision~ : Int32 = x.precision(),
+  mode~ : DecimalRoundingMode = DecimalRoundingMode::HalfEven,
 ) -> Decimal {
   match x.classify() {
-    FpClass::NaN => Decimal::nan(precision~)
-    FpClass::Infinity => Decimal::inf(x.sign(), precision~)
+    FpClass::NaN => Decimal::nan_raw(precision~)
+    FpClass::Infinity => Decimal::inf_with_sign(x.sign(), precision~)
     FpClass::Finite =>
       if x.is_zero() {
-        Decimal::zero(precision~)
+        Decimal::zero_raw(precision~)
       } else if decimal_from_bin_float_is_bounded(x, precision) {
-        decimal_from_bin_float_surrogate(x, precision)
+        decimal_from_bin_float_surrogate(x, precision, mode)
       } else {
         let coefficient = BigInt::from_octets(x.coefficient().to_bytes_be())
         let signed = if x.is_negative() { -coefficient } else { coefficient }
         if x.exponent2() >= 0 {
-          decimal_from_integer_parts(signed << x.exponent2(), 0, precision)
+          decimal_from_integer_parts(
+            signed << x.exponent2(),
+            0,
+            precision,
+            mode~,
+          )
         } else {
           // c * 2^-k = c * 5^k * 10^-k; an exact result takes the exponent
           // closest to 0, so trailing zeros go but never past exponent 0.
@@ -421,6 +673,7 @@ pub fn Decimal::from_bin_float(
             },
             exponent,
             precision,
+            mode~,
           )
         }
       }

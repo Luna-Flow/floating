@@ -188,9 +188,9 @@ test "products and quotients of extreme exponents do not wrap" {
   )
   // Rounding at the top of the range overflows according to the mode.
   let top = d("9999E+2147483644")
-  inspect(top.with_precision(2, RoundingMode::AwayFromZero), content="inf")
+  inspect(top.with_precision(2, GdaRoundingMode::Up), content="inf")
   inspect(
-    top.with_precision(2, RoundingMode::TowardZero),
+    top.with_precision(2, GdaRoundingMode::Down),
     content="9.9E+2147483647",
   )
 }

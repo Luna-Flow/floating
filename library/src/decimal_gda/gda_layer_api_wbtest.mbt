@@ -46,7 +46,7 @@ test "to_sci_string and to_eng_string print a number without a context" {
   let big = Decimal::from_string("123E+5").unwrap()
   inspect(big.to_sci_string(), content="1.23E+7")
   inspect(big.to_eng_string(), content="12.3E+6")
-  inspect(Decimal::inf(Sign::Negative).to_sci_string(), content="-Infinity")
+  inspect(Decimal::inf(negative=true).to_sci_string(), content="-Infinity")
   inspect(Decimal::quiet_nan(payload=12N).to_eng_string(), content="NaN12")
   inspect(Decimal::signaling_nan().to_sci_string(), content="sNaN")
 }

@@ -30,37 +30,8 @@ fn round_positive_decimal_div_pow10_repr(
 }
 
 ///|
-fn normalize_decimal(
-  coefficient : BigInt,
-  exponent10 : Int32,
-  precision : Int32,
-  mode : RoundingMode,
-) -> Decimal {
-  normalize_decimal_parts(
-    coefficient < bigint_zero(),
-    abs_bigint(coefficient),
-    exponent10,
-    precision,
-    mode,
-  )
-}
 
 ///|
-fn normalize_decimal_parts(
-  negative : Bool,
-  magnitude : BigInt,
-  exponent10 : Int32,
-  precision : Int32,
-  mode : RoundingMode,
-) -> Decimal {
-  normalize_decimal_parts_gda(
-    negative,
-    magnitude,
-    exponent10,
-    precision,
-    DecimalRoundingMode::from_arithmetic(mode),
-  )
-}
 
 ///|
 fn normalize_decimal_parts_gda(
@@ -867,10 +838,22 @@ fn Decimal::reduce_ctx(
 }
 
 ///|
-pub fn Decimal::with_precision(
+fn Decimal::with_precision_raw(
   self : Decimal,
   precision : Int32,
   mode : RoundingMode,
+) -> Decimal {
+  self.with_precision_decimal_mode(
+    precision,
+    DecimalRoundingMode::from_arithmetic(mode),
+  )
+}
+
+///|
+fn Decimal::with_precision_decimal_mode(
+  self : Decimal,
+  precision : Int32,
+  mode : DecimalRoundingMode,
 ) -> Decimal {
   match self.class {
     FpClass::Finite =>
@@ -879,7 +862,7 @@ pub fn Decimal::with_precision(
         self.coefficient,
         self.exponent10,
         precision,
-        DecimalRoundingMode::from_arithmetic(mode),
+        mode,
       )
     FpClass::Infinity => { ..self, precision_: Int32::max(1, precision), }
     FpClass::NaN => { ..self, precision_: Int32::max(1, precision), }

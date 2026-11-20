@@ -322,24 +322,24 @@ fn Decimal::add_ctx(
   let result = match (lhs.class, rhs.class) {
     (FpClass::Infinity, FpClass::Infinity) if lhs.negative != rhs.negative =>
       (
-        Decimal::nan(precision=finite_precision_for_default(ctx)),
+        Decimal::nan_raw(precision=finite_precision_for_default(ctx)),
         invalid_flags(),
       )
     (FpClass::Infinity, _) =>
       (
-        lhs.with_precision(finite_precision_for_default(ctx), ctx.rounding),
+        lhs.with_precision_raw(finite_precision_for_default(ctx), ctx.rounding),
         DecimalFlags::new(),
       )
     (_, FpClass::Infinity) =>
       (
-        rhs.with_precision(finite_precision_for_default(ctx), ctx.rounding),
+        rhs.with_precision_raw(finite_precision_for_default(ctx), ctx.rounding),
         DecimalFlags::new(),
       )
     (FpClass::Finite, FpClass::Finite) => add_finite_values_ctx(lhs, rhs, ctx)
     (FpClass::NaN, _) | (_, FpClass::NaN) =>
       // Covered by quiet_nan_pair; keep the match total if the enum grows.
       (
-        Decimal::nan(precision=finite_precision_for_default(ctx)),
+        Decimal::nan_raw(precision=finite_precision_for_default(ctx)),
         invalid_flags(),
       )
   }
@@ -387,19 +387,19 @@ fn Decimal::decimal_mul_ctx_impl(
   match (self.class, other.class) {
     (FpClass::NaN, _) | (_, FpClass::NaN) =>
       (
-        Decimal::nan(precision=finite_precision_for_default(ctx)),
+        Decimal::nan_raw(precision=finite_precision_for_default(ctx)),
         nan_operand_flags(self, other),
       )
     (FpClass::Infinity, FpClass::Finite)
     | (FpClass::Finite, FpClass::Infinity) =>
       if self.is_zero() || other.is_zero() {
         (
-          Decimal::nan(precision=finite_precision_for_default(ctx)),
+          Decimal::nan_raw(precision=finite_precision_for_default(ctx)),
           invalid_flags(),
         )
       } else {
         (
-          Decimal::inf(
+          Decimal::inf_with_sign(
             if self.negative == other.negative {
               Sign::Positive
             } else {
@@ -412,7 +412,7 @@ fn Decimal::decimal_mul_ctx_impl(
       }
     (FpClass::Infinity, FpClass::Infinity) =>
       (
-        Decimal::inf(
+        Decimal::inf_with_sign(
           if self.negative == other.negative {
             Sign::Positive
           } else {
@@ -570,11 +570,11 @@ fn Decimal::decimal_div_ctx_impl(
   }
   match (self.class, other.class) {
     (FpClass::NaN, _) | (_, FpClass::NaN) =>
-      (Decimal::nan(precision~), nan_operand_flags(self, other))
+      (Decimal::nan_raw(precision~), nan_operand_flags(self, other))
     (_, FpClass::Finite) if other.is_zero() =>
       if self.class == FpClass::Infinity {
         (
-          Decimal::inf(
+          Decimal::inf_with_sign(
             if self.negative == other.negative {
               Sign::Positive
             } else {
@@ -585,10 +585,10 @@ fn Decimal::decimal_div_ctx_impl(
           DecimalFlags::new(),
         )
       } else if self.is_zero() {
-        (Decimal::nan(precision~), div_zero_flags(true))
+        (Decimal::nan_raw(precision~), div_zero_flags(true))
       } else {
         (
-          Decimal::inf(
+          Decimal::inf_with_sign(
             if self.negative == other.negative {
               Sign::Positive
             } else {
@@ -600,10 +600,10 @@ fn Decimal::decimal_div_ctx_impl(
         )
       }
     (FpClass::Infinity, FpClass::Infinity) =>
-      (Decimal::nan(precision~), invalid_flags())
+      (Decimal::nan_raw(precision~), invalid_flags())
     (FpClass::Infinity, _) =>
       (
-        Decimal::inf(
+        Decimal::inf_with_sign(
           if self.negative == other.negative {
             Sign::Positive
           } else {
@@ -778,7 +778,7 @@ fn Decimal::decimal_fma_ctx_impl(
 ) -> (Decimal, DecimalFlags) {
   let precision = finite_precision_for_default(ctx)
   if !ctx.extended {
-    return (Decimal::nan(precision~), invalid_flags())
+    return (Decimal::nan_raw(precision~), invalid_flags())
   }
   let invalid_product = (
       self.class == FpClass::Infinity &&
@@ -793,7 +793,7 @@ fn Decimal::decimal_fma_ctx_impl(
   if invalid_product {
     match quiet_nan_triplet(self, multiplier, addend, ctx) {
       Some((value, flags)) => return (value, flags.combine(invalid_flags()))
-      None => return (Decimal::nan(precision~), invalid_flags())
+      None => return (Decimal::nan_raw(precision~), invalid_flags())
     }
   }
   match quiet_nan_triplet(self, multiplier, addend, ctx) {
@@ -801,12 +801,12 @@ fn Decimal::decimal_fma_ctx_impl(
     None => ()
   }
   if invalid_product {
-    return (Decimal::nan(precision~), invalid_flags())
+    return (Decimal::nan_raw(precision~), invalid_flags())
   }
   match (self.class, multiplier.class, addend.class) {
     (FpClass::NaN, _, _) | (_, FpClass::NaN, _) | (_, _, FpClass::NaN) =>
       (
-        Decimal::nan(precision~),
+        Decimal::nan_raw(precision~),
         nan_operand_flags(self, multiplier).combine(
           nan_operand_flags(self, addend),
         ),
@@ -814,9 +814,9 @@ fn Decimal::decimal_fma_ctx_impl(
     (FpClass::Infinity, FpClass::Finite, _)
     | (FpClass::Finite, FpClass::Infinity, _) =>
       if self.is_zero() || multiplier.is_zero() {
-        (Decimal::nan(precision~), invalid_flags())
+        (Decimal::nan_raw(precision~), invalid_flags())
       } else {
-        let product = Decimal::inf(
+        let product = Decimal::inf_with_sign(
           if self.negative != multiplier.negative {
             Sign::Negative
           } else {
@@ -830,14 +830,14 @@ fn Decimal::decimal_fma_ctx_impl(
             if product.negative == addend.negative {
               (product, DecimalFlags::new())
             } else {
-              (Decimal::nan(precision~), invalid_flags())
+              (Decimal::nan_raw(precision~), invalid_flags())
             }
           FpClass::NaN =>
-            (Decimal::nan(precision~), nan_operand_flags(self, addend))
+            (Decimal::nan_raw(precision~), nan_operand_flags(self, addend))
         }
       }
     (FpClass::Infinity, FpClass::Infinity, _) => {
-      let product = Decimal::inf(
+      let product = Decimal::inf_with_sign(
         if self.negative != multiplier.negative {
           Sign::Negative
         } else {
@@ -851,10 +851,10 @@ fn Decimal::decimal_fma_ctx_impl(
           if product.negative == addend.negative {
             (product, DecimalFlags::new())
           } else {
-            (Decimal::nan(precision~), invalid_flags())
+            (Decimal::nan_raw(precision~), invalid_flags())
           }
         FpClass::NaN =>
-          (Decimal::nan(precision~), nan_operand_flags(self, addend))
+          (Decimal::nan_raw(precision~), nan_operand_flags(self, addend))
       }
     }
     (FpClass::Finite, FpClass::Finite, _) => {
@@ -979,9 +979,12 @@ fn Decimal::decimal_fma_ctx_impl(
             allow_shortcuts=true,
           )
         FpClass::Infinity =>
-          (addend.with_precision(precision, ctx.rounding), DecimalFlags::new())
+          (
+            addend.with_precision_raw(precision, ctx.rounding),
+            DecimalFlags::new(),
+          )
         FpClass::NaN =>
-          (Decimal::nan(precision~), nan_operand_flags(self, addend))
+          (Decimal::nan_raw(precision~), nan_operand_flags(self, addend))
       }
     }
   }
@@ -1184,13 +1187,16 @@ fn Decimal::sqrt_ctx(
     FpClass::NaN => quiet_nan_operand(operand, ctx)
     FpClass::Infinity =>
       if operand.negative {
-        (Decimal::nan(precision~), invalid_flags())
+        (Decimal::nan_raw(precision~), invalid_flags())
       } else {
-        (Decimal::inf(Sign::Positive, precision~), DecimalFlags::new())
+        (
+          Decimal::inf_with_sign(Sign::Positive, precision~),
+          DecimalFlags::new(),
+        )
       }
     FpClass::Finite =>
       if operand.negative && !operand.coefficient.is_zero() {
-        (Decimal::nan(precision~), invalid_flags())
+        (Decimal::nan_raw(precision~), invalid_flags())
       } else if decimal_sqrt_tiny_result(operand, ctx) is Some(tiny) {
         tiny
       } else {
@@ -1221,7 +1227,7 @@ fn Decimal::sqrt_ctx(
   }
   let flags = operand_flags.combine(result.1)
   if !ctx.extended && result.0.is_zero() {
-    (Decimal::zero(precision~), flags)
+    (Decimal::zero_raw(precision~), flags)
   } else {
     (result.0, flags)
   }
