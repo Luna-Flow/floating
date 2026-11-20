@@ -27,7 +27,7 @@ just pr 8
 It is versioned with the library (`0.11.0` imports `Luna-Flow/floating@0.11.0`);
 once it is published to the registry, `moon add Luna-Flow/floating-tools@0.11.0`
 adds it to a module. It needs the MoonBit toolchain with `moonc` 0.10.22 or later (the `differential` executable uses `async fn main` without importing `moonbitlang/async`),
-and the dependencies `Luna-Flow/arithmetic`, `Luna-Flow/mare_mark`,
+and the dependencies `Luna-Flow/arithmetic`, `Luna-Flow/luna-generic`, `Luna-Flow/mare_mark`,
 `Luna-Flow/type_theory`, `moonbitlang/async` and `moonbitlang/x`.
 
 ## Quick start
@@ -74,6 +74,7 @@ test "parse two decTest rows and execute them" {
 | [`cli`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/cli.md), [`cli/dispatch`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/cli/dispatch.md) and the four `cli/*_expr_cli` runners | the `floating-conformance` executable and its libraries |
 | [`differential`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/differential.md), [`differential/harness`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/differential/harness.md) | the seeded random differential campaign and its library |
 | [`bench`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/bench.md) and `bench/*` | Maremark benchmark infrastructure, per-package suites and the timing against MPFR and libmpdec |
+| [`consistency`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/consistency.md) | cross-package laws and API audits of the library (white-box tests, no public items) |
 | `internal/conformance`, `internal/runner_cli` | summaries, shards, options and JSON shared by the runners |
 | [`doc_examples`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/doc_examples.md) | the documentation examples run by `just docs` |
 

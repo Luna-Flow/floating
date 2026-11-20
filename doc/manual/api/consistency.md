@@ -14,8 +14,9 @@ records the package's role and its (empty) interface; the
 
 ## Importing
 
-Nothing can be imported from `consistency`. Its `moon.pkg` imports the cores
-for white-box tests only:
+Nothing can be imported from `consistency`. It is a package of the tools module
+`Luna-Flow/floating-tools`; its `moon.pkg` imports the cores of the library for
+white-box tests only:
 
 ```moonbit nocheck
 import {
@@ -53,7 +54,7 @@ The package exports no MoonBit items.
 <!-- generated-api-start -->
 ```mbti
 // Generated using `moon info`, DON'T EDIT IT
-package "Luna-Flow/floating/consistency"
+package "Luna-Flow/floating-tools/consistency"
 
 // Values
 

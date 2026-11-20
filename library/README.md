@@ -79,7 +79,7 @@ Expression, corpus-frontend, CLI, benchmark and differential-testing packages
 are not part of this module: they live in the separate module
 `Luna-Flow/floating-tools` of the same repository, next to the library. The
 [package map](https://github.com/Luna-Flow/floating/blob/main/doc/manual/index.md) lists every package with its tutorial,
-API and design pages; `consistency` and `internal/*` stay in this module as
+API and design pages; `internal` and `internal/decimal_kernel` stay in this module as
 repository infrastructure.
 
 ## Documentation

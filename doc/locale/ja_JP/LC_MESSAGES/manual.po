@@ -1099,7 +1099,7 @@ msgstr "使われるのは `ctx.precision` だけです。オペランドは `wi
 #: manual/api/cli/itl_expr_cli.md:71
 #: manual/api/cli/mpfr_expr_cli.md:73
 #: manual/api/cli/testfloat_expr_cli.md:76
-#: manual/api/consistency.md:49
+#: manual/api/consistency.md:50
 #: manual/api/decimal.md:2310
 #: manual/api/decimal_checked.md:410
 #: manual/api/decimal_gda.md:2023
@@ -1540,7 +1540,7 @@ msgstr "各仕様には、通常のテスト実行で走り仕様がコンパイ
 #: manual/api/bench/decimal_gda.md:44
 #: manual/api/bench/external.md:70
 #: manual/api/cli.md:82
-#: manual/api/consistency.md:51
+#: manual/api/consistency.md:52
 #: manual/api/differential.md:99
 #: manual/api/doc_examples.md:48
 msgid "The package exports no MoonBit items."
@@ -3790,37 +3790,37 @@ msgid "`consistency` is a white-box test package. It exports no MoonBit items; i
 msgstr "`consistency` はホワイトボックステストのパッケージです。MoonBit の項目は何もエクスポートせず、その内容は `floating` のパッケージ*間*にまたがる法則を検査する約 250 個の決定的なテスト（現在のブランチでは `api_audit_wbtest.mbt` に 28 個、`core_wbtest.mbt` に 228 個）のスイートです。すなわち、2 進・10 進・GDA・区間の各コア、それらの checked ラッパー、`semantic`、共有の `internal` ヘルパーが、互いに、また厳密な `BigInt` および有理数のオラクルと一致することを検査します。このページはパッケージの役割と（空の）インターフェースを記録します。実行方法と拡張方法は[チュートリアル](../tutorial/consistency.md)で示し、何を検査するかは[設計ページ](../design/consistency.md)で説明します。"
 
 #: manual/api/consistency.md:17
-msgid "Nothing can be imported from `consistency`. Its `moon.pkg` imports the cores for white-box tests only:"
-msgstr "`consistency` からインポートできるものはありません。その `moon.pkg` はホワイトボックステストのためだけに各コアをインポートします。"
+msgid "Nothing can be imported from `consistency`. It is a package of the tools module `Luna-Flow/floating-tools`; its `moon.pkg` imports the cores of the library for white-box tests only:"
+msgstr "`consistency` からインポートできるものはありません。これはツールモジュール `Luna-Flow/floating-tools` のパッケージで、その `moon.pkg` はホワイトボックステストのためだけにライブラリの各コアをインポートします。"
 
-#: manual/api/consistency.md:38
+#: manual/api/consistency.md:39
 msgid "Test files"
 msgstr "テストファイル"
 
-#: manual/api/consistency.md:40
+#: manual/api/consistency.md:41
 #: manual/tutorial/bench/external.md:39
 msgid "File"
 msgstr "ファイル"
 
-#: manual/api/consistency.md:40
+#: manual/api/consistency.md:41
 #: manual/api/differential.md:66
 #: manual/tutorial/bench/external.md:39
 msgid "Content"
 msgstr "内容"
 
-#: manual/api/consistency.md:42
+#: manual/api/consistency.md:43
 msgid "audits of public behaviour that spans packages: `def` predicates, `internal` rounding and parsing helpers, error and context types, the decimal interchange facade (bit-exact encodings, canonical predicates, sign operations), checked compare of `bin_float`, generic checked traits through `Luna-Flow/arithmetic`, and the `semantic` interpretation of binary, decimal and interval values"
 msgstr "パッケージにまたがる公開動作の監査：`def` の述語、`internal` の丸めと構文解析のヘルパー、エラー型とコンテキスト型、10 進交換形式のファサード（ビット単位で厳密なエンコーディング、正準性の述語、符号演算）、`bin_float` の checked 比較、`Luna-Flow/arithmetic` を介した汎用 checked トレイト、および 2 進・10 進・区間の値に対する `semantic` の解釈"
 
-#: manual/api/consistency.md:43
+#: manual/api/consistency.md:44
 msgid "cross-package arithmetic laws: `internal` digit and trimming helpers against `BigInt`, `bin_float` exactness on dyadics and generic trait use, `decimal` and `decimal_gda` cohort, signed-zero and NaN-payload rules (many rows taken from the official decTest suite), `ball_float` enclosure properties, checked-pipeline closure, and total constructors"
 msgstr "パッケージ間の算術法則：`BigInt` と照合する `internal` の桁処理・末尾除去ヘルパー、2 進有理数（dyadic）に対する `bin_float` の厳密性と汎用トレイトの利用、`decimal` と `decimal_gda` のコホート・符号付きゼロ・NaN ペイロードの規則（多くの行は公式の decTest スイートから採録）、`ball_float` の包含性、checked パイプラインの閉包性、および全域的なコンストラクタ"
 
-#: manual/api/consistency.md:44
+#: manual/api/consistency.md:45
 msgid "helpers that build `BinFloat` values from `BigInt` for the tests above"
 msgstr "上記のテストのために `BigInt` から `BinFloat` の値を構築するヘルパー"
 
-#: manual/api/consistency.md:46
+#: manual/api/consistency.md:47
 msgid "All tests are white-box (`*_wbtest.mbt`) and import every core package for `wbtest` only, so the package adds nothing to any build of the library."
 msgstr "すべてのテストはホワイトボックス（`*_wbtest.mbt`）であり、すべてのコアパッケージを `wbtest` 用にのみインポートするため、このパッケージはライブラリのどのビルドにも何も追加しません。"
 
@@ -8340,8 +8340,8 @@ msgid "Two modules"
 msgstr "2 つのモジュール"
 
 #: manual/architecture.md:33
-msgid "The repository is a `moon.work` workspace of two modules. The published library `Luna-Flow/floating` holds the shared vocabulary, the scalar and interval domains, the checked tiers, `semantic` and `consistency`; it depends on `Luna-Flow/arithmetic` and `Luna-Flow/luna-generic` only. The tools module `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds `numeric_expr`, the format frontends, the runtime adapters `internal/conformance` and `internal/runner_cli`, `cli`, `differential`, `bench` and `doc_examples`: everything that needs `mare_mark`, `async`, `x` or `type_theory`. The tools module imports the library from the same working tree, so a change to a numeric package is tested by the tools in the same commit."
-msgstr "このリポジトリは 2 つのモジュールからなる `moon.work` ワークスペースです。公開ライブラリ `Luna-Flow/floating` は共有語彙、スカラー領域と区間領域、checked 層、`semantic`、`consistency` を含み、依存するのは `Luna-Flow/arithmetic` と `Luna-Flow/luna-generic` のみです。ツールモジュール `Luna-Flow/floating-tools`（ディレクトリ `tooling/`、ライブラリと同じバージョン）は `numeric_expr`、各形式のフロントエンド、ランタイムアダプター `internal/conformance` と `internal/runner_cli`、`cli`、`differential`、`bench`、`doc_examples` を含み、`mare_mark`、`async`、`x`、`type_theory` を必要とするものはすべてここにあります。ツールモジュールは同じ作業ツリーからライブラリをインポートするため、数値パッケージの変更は同じコミットでツールによりテストされます。"
+msgid "The repository is a `moon.work` workspace of two modules. The published library `Luna-Flow/floating` holds the shared vocabulary, the scalar and interval domains, the checked tiers and `semantic`; it depends on `Luna-Flow/arithmetic` and `Luna-Flow/luna-generic` only. The tools module `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds `numeric_expr`, the format frontends, the runtime adapters `internal/conformance` and `internal/runner_cli`, `cli`, `differential`, `bench`, `consistency` and `doc_examples`: everything that needs `mare_mark`, `async`, `x` or `type_theory`. The tools module imports the library from the same working tree, so a change to a numeric package is tested by the tools in the same commit."
+msgstr "このリポジトリは 2 つのモジュールからなる `moon.work` ワークスペースです。公開ライブラリ `Luna-Flow/floating` は共有語彙、スカラー領域と区間領域、checked 層、`semantic` を含み、依存するのは `Luna-Flow/arithmetic` と `Luna-Flow/luna-generic` のみです。ツールモジュール `Luna-Flow/floating-tools`（ディレクトリ `tooling/`、ライブラリと同じバージョン）は `numeric_expr`、各形式のフロントエンド、ランタイムアダプター `internal/conformance` と `internal/runner_cli`、`cli`、`differential`、`bench`、`consistency`、`doc_examples` を含み、`mare_mark`、`async`、`x`、`type_theory` を必要とするものはすべてここにあります。ツールモジュールは同じ作業ツリーからライブラリをインポートするため、数値パッケージの変更は同じコミットでツールによりテストされます。"
 
 #: manual/architecture.md:45
 msgid "Standard boundaries"
@@ -8682,7 +8682,7 @@ msgstr "レベル"
 #: manual/index.md:89
 #: manual/index.md:99
 #: manual/index.md:112
-#: manual/index.md:121
+#: manual/index.md:120
 #: manual/numeric_semantics.md:582
 msgid "API"
 msgstr "API"
@@ -9788,12 +9788,12 @@ msgid "§5.7 class, isCanonical, radix"
 msgstr "§5.7 class, isCanonical, radix"
 
 #: manual/conformance/decimal.md:60
-msgid "`library/src/decimal/class_of_wbtest.mbt` (all ten classes in decimal32, 64 and 128); `library/src/decimal/contextual_traits_wbtest.mbt`; `library/src/consistency/core_wbtest.mbt`"
-msgstr "`library/src/decimal/class_of_wbtest.mbt`（decimal32、64、128 の 10 個すべての分類）、`library/src/decimal/contextual_traits_wbtest.mbt`、`library/src/consistency/core_wbtest.mbt`"
+msgid "`library/src/decimal/class_of_wbtest.mbt` (all ten classes in decimal32, 64 and 128); `library/src/decimal/contextual_traits_wbtest.mbt`; `tooling/src/consistency/core_wbtest.mbt`"
+msgstr "`library/src/decimal/class_of_wbtest.mbt`（decimal32、64、128 の 10 個すべての分類）、`library/src/decimal/contextual_traits_wbtest.mbt`、`tooling/src/consistency/core_wbtest.mbt`"
 
 #: manual/conformance/decimal.md:61
-msgid "`testdata/decimal/ieee/total_order.json`: every ordered pair of cohorts, signed zeros, subnormals, infinities and quiet and signaling NaNs with payloads in decimal32/64/128 (18,816 pairs), expected values from a transcription of §5.10 cross-checked with libmpdec, run on four targets in the `DECIMAL: IEEE 754` gate; NaN payloads order by value, reversed for a negative sign (implementation-defined by §5.10 d) 5) iii)); `library/src/consistency/core_wbtest.mbt`"
-msgstr "`testdata/decimal/ieee/total_order.json`：decimal32/64/128 の cohort、符号付きゼロ、非正規数、無限大、payload 付きの quiet と signaling NaN のすべての順序対（18,816 対）。期待値は §5.10 を逐条に書き写したモデルから求め、libmpdec と照合し、`DECIMAL: IEEE 754` ゲートで 4 ターゲットで実行します。NaN は payload の値の順で、負符号では逆順です（§5.10 d) 5) iii) により実装定義）；`library/src/consistency/core_wbtest.mbt`"
+msgid "`testdata/decimal/ieee/total_order.json`: every ordered pair of cohorts, signed zeros, subnormals, infinities and quiet and signaling NaNs with payloads in decimal32/64/128 (18,816 pairs), expected values from a transcription of §5.10 cross-checked with libmpdec, run on four targets in the `DECIMAL: IEEE 754` gate; NaN payloads order by value, reversed for a negative sign (implementation-defined by §5.10 d) 5) iii)); `tooling/src/consistency/core_wbtest.mbt`"
+msgstr "`testdata/decimal/ieee/total_order.json`：decimal32/64/128 の cohort、符号付きゼロ、非正規数、無限大、payload 付きの quiet と signaling NaN のすべての順序対（18,816 対）。期待値は §5.10 を逐条に書き写したモデルから求め、libmpdec と照合し、`DECIMAL: IEEE 754` ゲートで 4 ターゲットで実行します。NaN は payload の値の順で、負符号では逆順です（§5.10 d) 5) iii) により実装定義）；`tooling/src/consistency/core_wbtest.mbt`"
 
 #: manual/conformance/decimal.md:62
 msgid "§5.12 decimal character conversion (decimal to decimal)"
@@ -10031,8 +10031,8 @@ msgid "canonical"
 msgstr "canonical"
 
 #: manual/conformance/decimal_gda.md:33
-msgid "no decTest file; `library/src/consistency/api_audit_wbtest.mbt`"
-msgstr "decTest ファイルなし; `library/src/consistency/api_audit_wbtest.mbt`"
+msgid "no decTest file; `tooling/src/consistency/api_audit_wbtest.mbt`"
+msgstr "decTest ファイルなし; `tooling/src/consistency/api_audit_wbtest.mbt`"
 
 #: manual/conformance/decimal_gda.md:34
 msgid "context: precision, rounding, clamp, exponent limits"
@@ -18286,8 +18286,8 @@ msgid "Modules"
 msgstr "モジュール"
 
 #: manual/index.md:49
-msgid "The repository is a workspace of two modules. `Luna-Flow/floating` (directory `library/`) is the library: the numerical cores, the checked wrappers, `def`, `semantic`, `consistency` and the `internal` helpers. `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds the developer tools: expressions and corpus frontends, the conformance command line, the differential harness, the benchmarks and the documentation examples. The sections below say which module a package belongs to; their package names are import paths below the module name, so `bin_float` is `Luna-Flow/floating/bin_float` and `frontend/gda_expr` is `Luna-Flow/floating-tools/frontend/gda_expr`."
-msgstr "このリポジトリは 2 つのモジュールからなるワークスペースです。`Luna-Flow/floating`（ディレクトリ `library/`）はライブラリで、数値コア、checked ラッパー、`def`、`semantic`、`consistency`、`internal` ヘルパーを含みます。`Luna-Flow/floating-tools`（ディレクトリ `tooling/`、ライブラリと同じバージョン）は開発者向けツールで、式とコーパスのフロントエンド、適合性コマンドライン、差分テストハーネス、ベンチマーク、ドキュメントの例を含みます。以下の節は各パッケージがどのモジュールに属するかを示します。パッケージ名はモジュール名の下のインポートパスなので、`bin_float` は `Luna-Flow/floating/bin_float`、`frontend/gda_expr` は `Luna-Flow/floating-tools/frontend/gda_expr` です。"
+msgid "The repository is a workspace of two modules. `Luna-Flow/floating` (directory `library/`) is the library: the numerical cores, the checked wrappers, `def`, `semantic` and the `internal` helpers. `Luna-Flow/floating-tools` (directory `tooling/`, versioned with the library) holds the developer tools: expressions and corpus frontends, the conformance command line, the differential harness, the benchmarks and the documentation examples. The sections below say which module a package belongs to; their package names are import paths below the module name, so `bin_float` is `Luna-Flow/floating/bin_float` and `frontend/gda_expr` is `Luna-Flow/floating-tools/frontend/gda_expr`."
+msgstr "このリポジトリは 2 つのモジュールからなるワークスペースです。`Luna-Flow/floating`（ディレクトリ `library/`）はライブラリで、数値コア、checked ラッパー、`def`、`semantic`、`internal` ヘルパーを含みます。`Luna-Flow/floating-tools`（ディレクトリ `tooling/`、ライブラリと同じバージョン）は開発者向けツールで、式とコーパスのフロントエンド、適合性コマンドライン、差分テストハーネス、ベンチマーク、パッケージ横断の一貫性テスト、ドキュメントの例を含みます。以下の節は各パッケージがどのモジュールに属するかを示します。パッケージ名はモジュール名の下のインポートパスなので、`bin_float` は `Luna-Flow/floating/bin_float`、`frontend/gda_expr` は `Luna-Flow/floating-tools/frontend/gda_expr` です。"
 
 #: manual/index.md:60
 msgid "Pages"
@@ -18306,7 +18306,7 @@ msgstr "数値コア"
 #: manual/index.md:89
 #: manual/index.md:99
 #: manual/index.md:112
-#: manual/index.md:121
+#: manual/index.md:120
 msgid "Part"
 msgstr "構成要素"
 
@@ -18315,7 +18315,7 @@ msgstr "構成要素"
 #: manual/index.md:89
 #: manual/index.md:99
 #: manual/index.md:112
-#: manual/index.md:121
+#: manual/index.md:120
 msgid "Tutorial"
 msgstr "チュートリアル"
 
@@ -18324,7 +18324,7 @@ msgstr "チュートリアル"
 #: manual/index.md:89
 #: manual/index.md:99
 #: manual/index.md:112
-#: manual/index.md:121
+#: manual/index.md:120
 msgid "Design"
 msgstr "設計"
 
@@ -18776,57 +18776,57 @@ msgstr "[API](api/internal/bin_kernel.md)"
 msgid "[design](design/internal/bin_kernel.md)"
 msgstr "[設計](design/internal/bin_kernel.md)"
 
-#: manual/index.md:117
-msgid "`consistency`: white-box cross-package laws and API audits"
-msgstr "`consistency`：ホワイトボックスによるパッケージ横断の法則と API 監査"
-
-#: manual/index.md:117
-msgid "[tutorial](tutorial/consistency.md)"
-msgstr "[チュートリアル](tutorial/consistency.md)"
-
-#: manual/index.md:117
-msgid "[API](api/consistency.md)"
-msgstr "[API](api/consistency.md)"
-
-#: manual/index.md:117
-msgid "[design](design/consistency.md)"
-msgstr "[設計](design/consistency.md)"
-
-#: manual/index.md:119
+#: manual/index.md:118
 msgid "Tools module: infrastructure and evidence"
 msgstr "ツールモジュール: インフラと証拠"
 
-#: manual/index.md:123
+#: manual/index.md:122
 msgid "`internal/conformance`: source locations, deterministic shards, case dispositions and summaries"
 msgstr "`internal/conformance`：ソース位置、決定的なシャード、ケースの処理区分、サマリー"
 
-#: manual/index.md:123
+#: manual/index.md:122
 msgid "[tutorial](tutorial/internal/conformance.md)"
 msgstr "[チュートリアル](tutorial/internal/conformance.md)"
 
-#: manual/index.md:123
+#: manual/index.md:122
 msgid "[API](api/internal/conformance.md)"
 msgstr "[API](api/internal/conformance.md)"
 
-#: manual/index.md:123
+#: manual/index.md:122
 msgid "[design](design/internal/conformance.md)"
 msgstr "[設計](design/internal/conformance.md)"
 
-#: manual/index.md:124
+#: manual/index.md:123
 msgid "`internal/runner_cli`: shared command-line options, files, diagnostics and JSON"
 msgstr "`internal/runner_cli`：共有のコマンドラインオプション、ファイル、診断、JSON"
 
-#: manual/index.md:124
+#: manual/index.md:123
 msgid "[tutorial](tutorial/internal/runner_cli.md)"
 msgstr "[チュートリアル](tutorial/internal/runner_cli.md)"
 
-#: manual/index.md:124
+#: manual/index.md:123
 msgid "[API](api/internal/runner_cli.md)"
 msgstr "[API](api/internal/runner_cli.md)"
 
-#: manual/index.md:124
+#: manual/index.md:123
 msgid "[design](design/internal/runner_cli.md)"
 msgstr "[設計](design/internal/runner_cli.md)"
+
+#: manual/index.md:124
+msgid "`consistency`: white-box cross-package laws and API audits"
+msgstr "`consistency`：ホワイトボックスによるパッケージ横断の法則と API 監査"
+
+#: manual/index.md:124
+msgid "[tutorial](tutorial/consistency.md)"
+msgstr "[チュートリアル](tutorial/consistency.md)"
+
+#: manual/index.md:124
+msgid "[API](api/consistency.md)"
+msgstr "[API](api/consistency.md)"
+
+#: manual/index.md:124
+msgid "[design](design/consistency.md)"
+msgstr "[設計](design/consistency.md)"
 
 #: manual/index.md:125
 msgid "`doc_examples`: executable documentation examples run by `just docs`"

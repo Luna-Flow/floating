@@ -47,8 +47,8 @@ The repository is a `moon.work` workspace of two modules, each in its own direct
 
 | Module | Directory | Contents | Dependencies |
 | --- | --- | --- | --- |
-| `Luna-Flow/floating` (published) | `library/` (`library/moon.mod`, `library/src/`) | the numeric packages: `def`, `internal`, `bin_float`, `decimal`, `decimal_gda`, `ball_float`, the `*_checked` tiers, `semantic`, `consistency` | `Luna-Flow/arithmetic`, `Luna-Flow/luna-generic` only |
-| `Luna-Flow/floating-tools` (same version as the library) | `tooling/` (`tooling/moon.mod`, `tooling/src/`) | benchmarks (`bench`), command-line programs (`cli`), the differential harness (`differential`), frontends (`frontend`, `numeric_expr`), `internal/conformance`, `internal/runner_cli`, `doc_examples` | the library from this working tree, plus `mare_mark`, `async`, `x`, `type_theory` |
+| `Luna-Flow/floating` (published) | `library/` (`library/moon.mod`, `library/src/`) | the numeric packages: `def`, `internal`, `bin_float`, `decimal`, `decimal_gda`, `ball_float`, the `*_checked` tiers, `semantic` | `Luna-Flow/arithmetic`, `Luna-Flow/luna-generic` only |
+| `Luna-Flow/floating-tools` (same version as the library) | `tooling/` (`tooling/moon.mod`, `tooling/src/`) | benchmarks (`bench`), command-line programs (`cli`), the differential harness (`differential`), frontends (`frontend`, `numeric_expr`), `internal/conformance`, `internal/runner_cli`, `consistency` (the cross-package tests), `doc_examples` | the library from this working tree, plus `mare_mark`, `async`, `x`, `type_theory` |
 
 A library package must never import the tools module or one of the tooling
 dependencies; `tools/check_imports.py` (stage "IMPORTS: package independence"
@@ -203,4 +203,4 @@ relative links out of the package.
 
 - All code submissions should undergo review.
 - Reviews should focus first on numeric correctness, semantic clarity, and missing tests, then on style and cleanup.
-- Changes that alter rounding, normalization, conversion, or enclosure behavior should include or update tests in `library/src/consistency`.
+- Changes that alter rounding, normalization, conversion, or enclosure behavior should include or update tests in `tooling/src/consistency`.

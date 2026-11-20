@@ -18,7 +18,7 @@ repository's test suite. Run it from the repository root (the wrapper keeps
 the build directory clean):
 
 ```bash
-sh tools/run_moon_clean_exec.sh test -p Luna-Flow/floating/consistency --target native
+sh tools/run_moon_clean_exec.sh test -p Luna-Flow/floating-tools/consistency --target native
 ```
 
 A passing run ends with `passed: N, failed: 0`. The suite is also part of
@@ -29,7 +29,7 @@ A passing run ends with `passed: N, failed: 0`. The suite is also part of
 ### Run one test
 
 ```bash
-sh tools/run_moon_clean_exec.sh test -p Luna-Flow/floating/consistency \
+sh tools/run_moon_clean_exec.sh test -p Luna-Flow/floating-tools/consistency \
   --filter "decimal quantize*"
 ```
 
