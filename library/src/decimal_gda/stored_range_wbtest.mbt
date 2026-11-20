@@ -1,14 +1,14 @@
 ///|
 /// Whether a finite `Decimal` is inside the stored range
-/// (`gda_implementation_e_tiny <= exponent`, `exponent + digits - 1 <=
-/// gda_implementation_e_max`); a value that is not finite is outside the
+/// (`gda_value_e_tiny <= exponent`, `exponent + digits - 1 <=
+/// gda_value_e_max`); a value that is not finite is outside the
 /// question.
 fn stored_in_range(x : Decimal) -> Bool {
   if !x.is_finite() {
     return true
   }
-  x.exponent10().to_int64() >= gda_implementation_e_tiny.to_int64() &&
-  adjusted_exponent64(x) <= gda_implementation_e_max.to_int64()
+  x.exponent10().to_int64() >= gda_value_e_tiny.to_int64() &&
+  adjusted_exponent64(x) <= gda_value_e_max.to_int64()
 }
 
 ///|
@@ -16,8 +16,8 @@ fn stored_in_range(x : Decimal) -> Bool {
 /// exponent at and near the two limits and in between, both signs, zeros.
 fn stored_range_values() -> Array[Decimal] {
   let values = []
-  let tiny = gda_implementation_e_tiny.to_int64()
-  let top = gda_implementation_e_max.to_int64()
+  let tiny = gda_value_e_tiny.to_int64()
+  let top = gda_value_e_max.to_int64()
   for digits in [1, 2, 3, 34, 35, 100] {
     // 10^(digits-1) * 7 + 3 keeps `digits` digits and is not a power of ten
     let mut coefficient = 7N
@@ -47,8 +47,7 @@ fn stored_range_values() -> Array[Decimal] {
       }
     }
   }
-  for
-    exponent in [gda_implementation_e_tiny, -1, 0, 1, gda_implementation_e_max] {
+  for exponent in [gda_value_e_tiny, -1, 0, 1, gda_value_e_max] {
     values.push(Decimal::make(0N, exponent, 34))
   }
   values
@@ -58,18 +57,18 @@ fn stored_range_values() -> Array[Decimal] {
 test "the limits are the range of the working context of the plain operators" {
   for precision in [1, 2, 7, 34, 100, 999_999_999] {
     let context = gda_plain_working_context(precision)
-    assert_eq(context.e_max_, gda_implementation_e_max)
-    assert_eq(etiny(context.decimal_), gda_implementation_e_tiny)
-    assert_eq(context.e_min_, gda_implementation_e_tiny + precision - 1)
+    assert_eq(context.e_max_, gda_value_e_max)
+    assert_eq(etiny(context.decimal_), gda_value_e_tiny)
+    assert_eq(context.e_min_, gda_value_e_tiny + precision - 1)
   }
-  assert_eq(gda_implementation_e_max, 2147483646)
-  assert_eq(gda_implementation_e_tiny, -2147483645)
+  assert_eq(gda_value_e_max, 2147483646)
+  assert_eq(gda_value_e_tiny, -2147483645)
 }
 
 ///|
 test "make and try_make accept the limits and reject one past each" {
-  let e_max = gda_implementation_e_max
-  let e_tiny = gda_implementation_e_tiny
+  let e_max = gda_value_e_max
+  let e_tiny = gda_value_e_tiny
   // accepted: 1, 34 digits and zero, at the exponent floor and at the top
   inspect(Decimal::make(1N, e_tiny, 34), content="1E-2147483645")
   inspect(Decimal::make(0N, e_tiny, 34), content="0E-2147483645")

@@ -35,9 +35,9 @@ pub fn exp(Decimal, GdaContext) -> GdaOutcome[Decimal]
 
 pub fn fma(Decimal, Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
 
-pub let gda_implementation_e_max : Int32
+pub let gda_value_e_max : Int32
 
-pub let gda_implementation_e_tiny : Int32
+pub let gda_value_e_tiny : Int32
 
 pub fn is_normal(Decimal, GdaContext) -> GdaOutcome[Bool]
 
