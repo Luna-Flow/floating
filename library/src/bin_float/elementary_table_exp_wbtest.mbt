@@ -6,8 +6,18 @@ fn table_test_pair(
   f : Int32,
 ) -> (BinFloat, BinFloat) {
   (
-    BinFloat::make_coeff(low, -f, f + 8, mode=RoundingMode::TowardNegative),
-    BinFloat::make_coeff(high, -f, f + 8, mode=RoundingMode::TowardPositive),
+    BinFloat::make_coeff(
+      low,
+      -f,
+      f + 8,
+      mode=BinaryRoundingMode::RoundTowardNegative,
+    ),
+    BinFloat::make_coeff(
+      high,
+      -f,
+      f + 8,
+      mode=BinaryRoundingMode::RoundTowardPositive,
+    ),
   )
 }
 
@@ -101,7 +111,7 @@ test "table exp: large n and multiples of ln 2" {
   for n in [1, 2, 3, 100, 1000, 100000, 1000000] {
     let value = ln2
       .mul(BinFloat::from_int(n, precision=40))
-      .with_precision(200, RoundingMode::TowardNegative)
+      .with_precision(200, BinaryRoundingMode::RoundTowardNegative)
     let work = 160
     match binary_exp_bounds_table(value, work) {
       Some(bounds) => {

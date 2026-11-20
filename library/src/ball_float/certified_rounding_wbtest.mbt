@@ -29,7 +29,7 @@ fn certified_rounding_value(
 
 ///|
 test "certified target rounding accepts only one rounded value" {
-  let context = @bin_float.BinaryContext::unbounded(3)
+  let context = @bin_float.BinaryContext::new(precision=3)
   let accepted = BallFloat::from_bounds(
     certified_rounding_value(16UL, -4),
     certified_rounding_value(17UL, -4),
@@ -56,12 +56,12 @@ test "certified target rounding respects directed modes" {
     certified_rounding_value(17UL, -4),
     precision=8,
   )
-  let downward = @bin_float.BinaryContext::unbounded(
-    3,
+  let downward = @bin_float.BinaryContext::new(
+    precision=3,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::unbounded(
-    3,
+  let upward = @bin_float.BinaryContext::new(
+    precision=3,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   assert_true(certified_target_rounding(interval, downward).1)

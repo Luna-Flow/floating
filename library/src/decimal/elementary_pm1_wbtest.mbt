@@ -521,8 +521,8 @@ test "pm1 enclosures stay relatively tight down to 10^-1999997" {
   // enclosure of f(x) keeps a relative width of a few ulps of the working
   // precision for every legal operand (no cancellation near zero, design note
   // of #236): at w = 200 bits the endpoints agree to at least 190 bits.
-  let up = @bin_float.BinaryContext::unbounded(
-    64,
+  let up = @bin_float.BinaryContext::new(
+    precision=64,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   let ops : Array[DecimalPm1] = [Exp2m1, Exp10m1, Log2p1, Log10p1]

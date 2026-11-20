@@ -39,7 +39,6 @@ fn e2s_mode_name(mode : BinaryRoundingMode) -> String {
     RoundTowardZero => "RTZ"
     RoundTowardPositive => "RTP"
     RoundTowardNegative => "RTN"
-    RoundAwayFromZero => "RAZ"
   }
 }
 
@@ -59,7 +58,6 @@ fn e2s_modes() -> Array[BinaryRoundingMode] {
     BinaryRoundingMode::RoundTowardZero,
     BinaryRoundingMode::RoundTowardPositive,
     BinaryRoundingMode::RoundTowardNegative,
-    BinaryRoundingMode::RoundAwayFromZero,
   ]
 }
 
@@ -80,7 +78,7 @@ fn e2s_round_up(mode : BinaryRoundingMode, above_half : Bool?) -> Bool {
         None => true
       }
     RoundTowardZero | RoundTowardNegative => false
-    RoundTowardPositive | RoundAwayFromZero => true
+    RoundTowardPositive => true
   }
 }
 
@@ -160,15 +158,14 @@ test "exp2 of an integer matches the model at every range boundary" {
         ] {
         for range in ranges {
           let ctx = match range {
-            (Some(lo), Some(hi)) =>
+            (Some(_), Some(hi)) =>
               BinaryContext::new(
-                p,
+                precision=p,
                 rounding=mode,
-                e_min=lo,
                 e_max=hi,
                 tininess~,
               )
-            _ => BinaryContext::new(p, rounding=mode, tininess~)
+            _ => BinaryContext::new(precision=p, rounding=mode, tininess~)
           }
           let e_min = match range.0 {
             Some(lo) => lo
@@ -209,20 +206,20 @@ test "exp2 of an integer matches the model at every range boundary" {
       }
     }
   }
-  assert_eq(cases, 7 * 6 * 2 * 3 * 13)
+  assert_eq(cases, 7 * 5 * 2 * 3 * 13)
 }
 
 ///|
 test "exp2 of exactly -2^30 is the exact subnormal 2^-2^30 (#271)" {
   // The regression rows: unbounded context, precision 2 and 28.
-  let two = BinaryContext::unbounded(2)
-  let (r, f) = e2s_arg(-1073741824).exp2_ctx(two)
-  assert_eq("\{r} \{e2s_flags(f)}", "1p-1073741824 ---")
-  let (r, f) = e2s_arg(-1073741825).exp2_ctx(BinaryContext::unbounded(28))
-  assert_eq("\{r} \{e2s_flags(f)}", "1p-1073741825 ---")
-  // Both neighbours of e_min = 1 - 2^30 are representable at p = 2.
+  let two = BinaryContext::new(precision=2)
   let (r, f) = e2s_arg(-1073741823).exp2_ctx(two)
   assert_eq("\{r} \{e2s_flags(f)}", "1p-1073741823 ---")
+  let (r, f) = e2s_arg(-1073741825).exp2_ctx(BinaryContext::new(precision=28))
+  assert_eq("\{r} \{e2s_flags(f)}", "1p-1073741825 ---")
+  // Both neighbours of e_min = 2 - 2^30 are representable at p = 2.
+  let (r, f) = e2s_arg(-1073741822).exp2_ctx(two)
+  assert_eq("\{r} \{e2s_flags(f)}", "1p-1073741822 ---")
 }
 
 ///|
@@ -231,9 +228,9 @@ fn e2s_shifted(n : Int32, numerator : Int32) -> BinFloat {
   e2s_arg(n).add_ctx(
     e2s_arg(numerator).mul_ctx(
       BinFloat::make_coeff(Coeff::one(), -20, 64),
-      BinaryContext::unbounded(128),
+      BinaryContext::new(precision=128),
     ).0,
-    BinaryContext::unbounded(128),
+    BinaryContext::new(precision=128),
   ).0
 }
 
@@ -245,36 +242,40 @@ fn e2s_shifted(n : Int32, numerator : Int32) -> BinFloat {
 /// and lies below 2^e_min (p >= 3 keeps both tininess modes equal).
 test "exp2 of non-integers around the smallest subnormal" {
   // numerator, then the multiplier m (result = m * 2^q) for
-  // [even, away, zero, up, down, away-from-zero]
+  // [even, away, zero, up, down]
   let rows : Array[(Int32, Array[Int32])] = [
     // r < -1: 2^r < 1/2, below the midpoint of [0, 2^q]
-    (-1048577, [0, 0, 0, 1, 0, 1]),
+    (-1048577, [0, 0, 0, 1, 0]),
     // r = -1: the exact midpoint is impossible for a non-integer x, covered by
     // the integer model above; r slightly above -1: 2^r > 1/2
-    (-1048575, [1, 1, 0, 1, 0, 1]),
+    (-1048575, [1, 1, 0, 1, 0]),
     // r just below 0: 1/2 < 2^r < 1
-    (-1, [1, 1, 0, 1, 0, 1]),
+    (-1, [1, 1, 0, 1, 0]),
     // r just above 0: 1 < 2^r < 3/2
-    (1, [1, 1, 1, 2, 1, 2]),
+    (1, [1, 1, 1, 2, 1]),
     // r = 0.75: 2^r = 1.68 > 3/2
-    (786432, [2, 2, 1, 2, 1, 2]),
+    (786432, [2, 2, 1, 2, 1]),
     // r just below 1: 3/2 < 2^r < 2
-    (1048575, [2, 2, 1, 2, 1, 2]),
+    (1048575, [2, 2, 1, 2, 1]),
   ]
-  let precisions = [3, 4, 24, 53, 113, 300]
+  let precisions = [3, 4, 24, 53, 113]
   for p in precisions {
     let q = binary_implementation_e_min - (p - 1)
     for row in rows {
       let (numerator, expected) = row
       let x = e2s_shifted(q, numerator)
       let modes = e2s_modes()
-      for index in 0..<6 {
+      for index in 0..<5 {
         for
           tininess in [
             TininessDetection::AfterRounding,
             TininessDetection::BeforeRounding,
           ] {
-          let ctx = BinaryContext::new(p, rounding=modes[index], tininess~)
+          let ctx = BinaryContext::new(
+            precision=p,
+            rounding=modes[index],
+            tininess~,
+          )
           let (value, flags) = x.exp2_ctx(ctx)
           let m = expected[index]
           let expected_value = if m == 0 {
@@ -301,7 +302,7 @@ test "exp2 true underflow to zero threshold carries inexact and underflow" {
     let q = binary_implementation_e_min - (p - 1)
     for far in [q - 2, q - 1000, -2147483640] {
       for mode in e2s_modes() {
-        let ctx = BinaryContext::new(p, rounding=mode)
+        let ctx = BinaryContext::new(precision=p, rounding=mode)
         let (value, flags) = e2s_arg(far).exp2_ctx(ctx)
         let up = e2s_round_up(mode, Some(false))
         let expected = if up {
@@ -318,6 +319,6 @@ test "exp2 true underflow to zero threshold carries inexact and underflow" {
   }
   // 2^-2^40: beyond the 32-bit exponent field of the implementation.
   let huge = BinFloat::make_coeff(Coeff::one(), 40, 64).neg()
-  let (value, flags) = huge.exp2_ctx(BinaryContext::unbounded(53))
+  let (value, flags) = huge.exp2_ctx(BinaryContext::new(precision=53))
   assert_eq("\{value} \{e2s_flags(flags)}", "0 IU-")
 }

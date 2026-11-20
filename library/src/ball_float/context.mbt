@@ -216,7 +216,7 @@ fn context_round_lower(
   }
   let rounded = value.with_precision(
     ctx.precision,
-    RoundingMode::TowardNegative,
+    @bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
   if finite_adjusted_exponent(rounded) > ctx.e_max {
     let overflowed = if rounded.sign() == Sign::Negative {
@@ -245,7 +245,7 @@ fn context_round_upper(
   }
   let rounded = value.with_precision(
     ctx.precision,
-    RoundingMode::TowardPositive,
+    @bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   if finite_adjusted_exponent(rounded) > ctx.e_max {
     let overflowed = if rounded.sign() == Sign::Positive {
@@ -329,14 +329,14 @@ pub fn BallFloat::midpoint_ctx(
   // rounds twice to nearest and can pick the wrong grid point.
   let normal_rounding = exact.with_precision(
     ctx.precision,
-    RoundingMode::ToNearestEven,
+    @bin_float.BinaryRoundingMode::RoundTiesToEven,
   )
   let rounded = if finite_adjusted_exponent(exact) < ctx.e_min {
     // A tiny center has fewer than `precision` bits above the grid, so the
     // final `with_precision` only sets the precision tag.
     context_round_subnormal(exact, ctx, RoundingMode::ToNearestEven).0.with_precision(
       ctx.precision,
-      RoundingMode::ToNearestEven,
+      @bin_float.BinaryRoundingMode::RoundTiesToEven,
     )
   } else {
     normal_rounding

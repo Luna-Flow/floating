@@ -37,7 +37,7 @@ fn sib_check(
   e_min : Int32,
   e_max : Int32,
 ) -> Int32 raise {
-  let (reference, reference_flags) = f(x, BinaryContext::unbounded(p + 120))
+  let (reference, reference_flags) = f(x, BinaryContext::new(precision=p + 120))
   let mut cases = 0
   for mode in e2s_modes() {
     for
@@ -45,7 +45,12 @@ fn sib_check(
         TininessDetection::AfterRounding,
         TininessDetection::BeforeRounding,
       ] {
-      let ctx = BinaryContext::new(p, rounding=mode, e_min~, e_max~, tininess~)
+      let ctx = BinaryContext::new(
+        precision=p,
+        rounding=mode,
+        e_max~,
+        tininess~,
+      )
       let (value, flags) = f(x, ctx)
       let (expected, expected_flags) = reference.round_ctx(ctx)
       let expected_flags = {
@@ -70,8 +75,8 @@ fn sib_around(center : Double) -> Array[BinFloat] {
   let result = [base]
   for shift in [10, 20, 40] {
     let step = BinFloat::make(BinCoeff::one(), -shift, 64)
-    result.push(base.add_ctx(step, BinaryContext::unbounded(256)).0)
-    result.push(base.sub_ctx(step, BinaryContext::unbounded(256)).0)
+    result.push(base.add_ctx(step, BinaryContext::new(precision=256)).0)
+    result.push(base.sub_ctx(step, BinaryContext::new(precision=256)).0)
   }
   result
 }

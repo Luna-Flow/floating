@@ -174,8 +174,8 @@ fn decimal_pm1_tiny_scaled(
   // working precision (a larger bound is still a bound).
   let t = 33L * (adjusted + 1L) / 10L
   let k = Int64::max(t + 2L, -(work.to_int64() + 8L)).to_int()
-  let exact = @bin_float.BinaryContext::unbounded(
-    -k + 4,
+  let exact = @bin_float.BinaryContext::new(
+    precision=-k + 4,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
   let one = @bin_float.BinFloat::from_int(1, precision=2)

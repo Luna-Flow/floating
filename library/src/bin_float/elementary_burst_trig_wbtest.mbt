@@ -15,14 +15,14 @@ fn burst_trig_test_corpus() -> Array[BinFloat] {
   for bits in [100, 300, 700, 1500] {
     let half_pi = pi_low.mul_ctx(
       BinFloat::make_coeff(Coeff::one(), -1, 1),
-      BinaryContext::unbounded(2400),
-    ).0.with_precision(bits, RoundingMode::TowardNegative)
+      BinaryContext::new(precision=2400),
+    ).0.with_precision(bits, BinaryRoundingMode::RoundTowardNegative)
     for k in [1, 2, 3, 4, 5, 7, 100, 12345, 1000003] {
       let product = half_pi.mul_ctx(
           BinFloat::from_int(k, precision=32),
-          BinaryContext::unbounded(bits + 40),
+          BinaryContext::new(precision=bits + 40),
         ).0
-      let context = BinaryContext::unbounded(bits + 40)
+      let context = BinaryContext::new(precision=bits + 40)
       values.push(product)
       values.push(product.neg())
       values.push(product.next_up_ctx(context).0)
@@ -215,7 +215,7 @@ test "sin and cos results equal the rounded series enclosure at high precision" 
           match reference_bounds {
             Some((low, high)) =>
               for mode in modes {
-                let context = BinaryContext::unbounded(bits, rounding=mode)
+                let context = BinaryContext::new(precision=bits, rounding=mode)
                 let (expected, unique, expected_flags) = binary_certified_inexact_target_rounding(
                   low, high, context,
                 )

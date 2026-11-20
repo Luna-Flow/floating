@@ -44,10 +44,10 @@ FORMATS = [
     ("binary128", 113, -16382, 16383),
     ("toy5", 5, -6, 7),
     ("toy2", 2, -2, 3),
-    # the implementation range of an unbounded context
-    ("unbounded53", 53, -1073741823, 1073741823),
+    # the implementation range: the context of a precision given alone (3.7)
+    ("unbounded53", 53, -1073741822, 1073741823),
 ]
-MODES = ["RNE", "RNA", "RTZ", "RTP", "RTN", "RAZ"]
+MODES = ["RNE", "RNA", "RTZ", "RTP", "RTN"]
 
 
 def round_grid(value: Fraction, grid: int, mode: str, negative: bool) -> int:

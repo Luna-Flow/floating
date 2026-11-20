@@ -18,7 +18,7 @@ fn agm_test_values(
       60,
     )
     seed += 1UL
-    let context = BinaryContext::unbounded(bits + k + 80)
+    let context = BinaryContext::new(precision=bits + k + 80)
     values.push(BinFloat::one_raw(precision=2).add_ctx(offset, context).0)
     values.push(
       BinFloat::from_int_raw(2, precision=2).sub_ctx(offset, context).0,
@@ -166,11 +166,11 @@ test "ln keeps its results when the AGM kernel runs" {
       let (low, high) = binary_ln_unit_bounds_series(value, precision + 320).unwrap()
       assert_eq(
         result,
-        low.with_precision(precision, RoundingMode::ToNearestEven),
+        low.with_precision(precision, BinaryRoundingMode::RoundTiesToEven),
       )
       assert_eq(
         result,
-        high.with_precision(precision, RoundingMode::ToNearestEven),
+        high.with_precision(precision, BinaryRoundingMode::RoundTiesToEven),
       )
     }
   }

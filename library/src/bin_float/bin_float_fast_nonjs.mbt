@@ -7,7 +7,7 @@
 /// infinity, a zero, a coefficient or precision that is too wide, exponents
 /// near the implementation limits, an exact zero sum), and the general path
 /// then answers, so the results, which are the results of
-/// `add_ctx`/`mul_ctx`/`div_ctx` with `BinaryContext::unbounded(max precision)`
+/// `add_ctx`/`mul_ctx`/`div_ctx` with `binary_working_context(max precision)`
 /// (round to nearest even), are bit for bit those of the general path.
 
 ///|

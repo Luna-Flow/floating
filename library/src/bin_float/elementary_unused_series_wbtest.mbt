@@ -6,21 +6,21 @@ fn binary_exp_bounds_reference(
   value : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  let downward = BinaryContext::unbounded(
-    work_precision,
+  let downward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
-    work_precision,
+  let upward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardPositive,
   )
   let mut lower = value.with_precision(
     work_precision,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   let mut upper = value.with_precision(
     work_precision,
-    RoundingMode::TowardPositive,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   let eighth = BinFloat::make_coeff(Coeff::one(), -3, work_precision)
   let half = BinFloat::make_coeff(Coeff::one(), -1, work_precision)
@@ -68,12 +68,12 @@ fn binary_reduced_trigonometric_bounds_reference(
     upper.compare(one) <= 0 else {
     return None
   }
-  let downward = BinaryContext::unbounded(
-    work_precision,
+  let downward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
-    work_precision,
+  let upward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardPositive,
   )
   let sin_lower = binary_sin_cos_series(lower, false, work_precision).unwrap()
@@ -191,7 +191,7 @@ test "exp enclosure skips the duplicate series without changing a bit" {
       let actual = binary_exp_bounds_series(value, work)
       let reference = binary_exp_bounds_reference(value, work)
       let exact = value
-        .with_precision(work, RoundingMode::TowardNegative)
+        .with_precision(work, BinaryRoundingMode::RoundTowardNegative)
         .compare(value) ==
         0
       if exact {
@@ -218,9 +218,9 @@ test "exp enclosure skips the duplicate series without changing a bit" {
 test "exp enclosure with a single series rounds like two series" {
   let contexts = [
     BinaryContext::binary64(),
-    BinaryContext::unbounded(24),
-    BinaryContext::unbounded(100),
-    BinaryContext::unbounded(53, rounding=RoundTowardZero),
+    BinaryContext::new(precision=24),
+    BinaryContext::new(precision=100),
+    BinaryContext::new(precision=53, rounding=RoundTowardZero),
   ]
   let values = [
     BinFloat::from_double(0.5, precision=53),

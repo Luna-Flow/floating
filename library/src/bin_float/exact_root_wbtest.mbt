@@ -3,7 +3,7 @@ fn exact_root_contexts(precision : Int32) -> Array[BinaryContext] {
   [RoundTiesToEven, RoundTowardNegative, RoundTowardPositive, RoundTowardZero].map(fn(
       mode,
     ) {
-      BinaryContext::unbounded(precision, rounding=mode)
+      BinaryContext::new(precision~, rounding=mode)
     },
   )
 }

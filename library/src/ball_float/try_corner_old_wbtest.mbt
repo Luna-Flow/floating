@@ -16,12 +16,12 @@ fn BallFloat::try_pi_scaled_endpoint_bounds(
   ),
   @def.ArithmeticError,
 ] {
-  let downward = @bin_float.BinaryContext::unbounded(
-    self.precision_,
+  let downward = @bin_float.BinaryContext::new(
+    precision=self.precision_,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::unbounded(
-    self.precision_,
+  let upward = @bin_float.BinaryContext::new(
+    precision=self.precision_,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   evaluate(self.lo_, downward).bind(fn(lower_down) {

@@ -121,8 +121,14 @@ test "LegacyBigIntBinFloat make preserves ties-even normalization" {
         256,
       )
       legacy_shadow_assert_equal(
-        wide_candidate.with_precision(precision, RoundingMode::ToNearestEven),
-        wide_legacy.with_precision(precision, RoundingMode::ToNearestEven),
+        wide_candidate.with_precision(
+          precision,
+          BinaryRoundingMode::RoundTiesToEven,
+        ),
+        wide_legacy.with_precision(
+          precision,
+          BinaryRoundingMode::RoundTiesToEven,
+        ),
         label="round",
       )
     }
@@ -166,7 +172,7 @@ test "LegacyBigIntBinFloat fixed-seed finite shadow" {
       label="sqrt",
     )
     legacy_shadow_assert_equal(
-      left.pown_ctx(7, BinaryContext::unbounded(left.precision())).0,
+      left.pown_ctx(7, BinaryContext::new(precision=left.precision())).0,
       legacy_left.pow_positive(7),
       label="pow_positive",
     )
@@ -268,7 +274,7 @@ test "LegacyBigIntBinFloat adapts signed zero and NaN metadata" {
   // The quiet NaN result is the same; the checked `sqrt` reports the invalid
   // operation of a signaling NaN (IEEE 754-2019 section 7.2 a), #262).
   legacy_shadow_assert_equal(
-    signaling_nan.sqrt_ctx(BinaryContext::unbounded(17)).0,
+    signaling_nan.sqrt_ctx(BinaryContext::new(precision=17)).0,
     legacy_signaling_nan.sqrt().unwrap(),
   )
   assert_true(signaling_nan.sqrt() is Err(_))

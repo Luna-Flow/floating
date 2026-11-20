@@ -43,7 +43,7 @@ test "issue 447: to_bin_float at both ends of the exponent range, every rounding
         let value = Decimal::make(signed, exponent, 34)
         let actual = value.to_bin_float(
           precision=53,
-          mode=@bin_float.BinaryRoundingMode::from_arithmetic(mode),
+          mode=bin_mode(mode, negative),
         )
         let expected = oracle_to_bin_float(signed, exponent, 53, mode)
         inspect(actual.to_string() == expected.to_string(), content="true")
@@ -79,9 +79,9 @@ fn oracle_to_bin_float(
   let text = coefficient.to_string() + "E" + exponent.to_string()
   @bin_float.BinFloat::from_string_ctx(
     text,
-    @bin_float.BinaryContext::unbounded(
-      precision,
-      rounding=@bin_float.BinaryRoundingMode::from_arithmetic(mode),
+    @bin_float.BinaryContext::new(
+      precision~,
+      rounding=bin_mode(mode, coefficient < BigInt::from_int(0)),
     ),
   ).unwrap().0
 }

@@ -13,12 +13,12 @@ fn old_hyperbolic_bounds(
       binary_exp_bounds(value.neg(), work_precision),
     ) {
     (Some(positive_exp), Some(negative_exp)) => {
-      let downward = BinaryContext::unbounded(
-        work_precision,
+      let downward = BinaryContext::new(
+        precision=work_precision,
         rounding=RoundTowardNegative,
       )
-      let upward = BinaryContext::unbounded(
-        work_precision,
+      let upward = BinaryContext::new(
+        precision=work_precision,
         rounding=RoundTowardPositive,
       )
       let half = BinFloat::make(BinCoeff::one(), -1, work_precision)

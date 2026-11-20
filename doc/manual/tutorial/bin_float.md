@@ -269,12 +269,12 @@ library:
 ///|
 test "an enclosure of the square root of two" {
   let two = @bin_float.BinFloat::from_int(2)
-  let down = @bin_float.BinaryContext::unbounded(
-    20,
+  let down = @bin_float.BinaryContext::new(
+    precision=20,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
-  let up = @bin_float.BinaryContext::unbounded(
-    20,
+  let up = @bin_float.BinaryContext::new(
+    precision=20,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   let (low, _) = two.sqrt_ctx(down)

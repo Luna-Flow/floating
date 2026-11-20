@@ -199,19 +199,11 @@ fn binary_round_decimal(
   // whose exponent range is shifted by k and shifting the result back rounds
   // the product once, exactly as the original context would.
   let shift = if literal.exponent >= 0L { scale_int } else { -scale_int }
-  let shifted_e_min = (context.range_e_min().to_int64() - shift.to_int64()).to_int()
-  let shifted_e_max = (context.range_e_max().to_int64() - shift.to_int64()).to_int()
-  let shifted = BinaryContext::new(
-    context.precision,
-    rounding=context.rounding,
-    e_min=shifted_e_min,
-    e_max=shifted_e_max,
-    tininess=context.tininess,
-  )
+  let shifted = context.shifted_range(shift.to_int64())
   let mut work = context.precision + 64
   while true {
-    let down = BinaryContext::unbounded(work, rounding=RoundTowardNegative)
-    let up = BinaryContext::unbounded(work, rounding=RoundTowardPositive)
+    let down = binary_working_context(work, rounding=RoundTowardNegative)
+    let up = binary_working_context(work, rounding=RoundTowardPositive)
     let five = BinFloat::from_int_raw(5, precision=work)
     let power_low = five.pown_ctx(scale_int, down).0
     let power_high = five.pown_ctx(scale_int, up).0
@@ -219,13 +211,13 @@ fn binary_round_decimal(
       digits,
       0,
       work,
-      mode=RoundingMode::TowardNegative,
+      mode=BinaryRoundingMode::RoundTowardNegative,
     )
     let digits_high = BinFloat::make_coeff(
       digits,
       0,
       work,
-      mode=RoundingMode::TowardPositive,
+      mode=BinaryRoundingMode::RoundTowardPositive,
     )
     let (low, high) = if literal.exponent >= 0L {
       (
@@ -301,7 +293,7 @@ pub fn BinFloat::from_string(
   if precision < 1 || precision > binary_precision_max {
     return Err(binary_precision_error("BinFloat::from_string", precision))
   }
-  BinFloat::from_string_ctx(source, BinaryContext::unbounded(precision)).map(fn(
+  BinFloat::from_string_ctx(source, binary_working_context(precision)).map(fn(
     result,
   ) {
     result.0

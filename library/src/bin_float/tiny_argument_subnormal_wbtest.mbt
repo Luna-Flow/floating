@@ -86,7 +86,11 @@ test "tiny arguments near the implementation subnormal limit round with their fl
                   TininessDetection::AfterRounding,
                   TininessDetection::BeforeRounding,
                 ] {
-                let ctx = BinaryContext::new(p, rounding=mode, tininess~)
+                let ctx = BinaryContext::new(
+                  precision=p,
+                  rounding=mode,
+                  tininess~,
+                )
                 let (value, flags) = run(x, ctx)
                 let (expected, expected_flags) = tiny_model(x, kind, ctx)
                 let label = "\{name}(\{x}) p=\{p} \{e2s_mode_name(mode)} \{e2s_tininess_name(tininess)}"
@@ -102,5 +106,5 @@ test "tiny arguments near the implementation subnormal limit round with their fl
       }
     }
   }
-  assert_eq(cases, 9 * 4 * 2 * 2 * 4 * 6 * 2)
+  assert_eq(cases, 9 * 4 * 2 * 2 * 4 * 5 * 2)
 }

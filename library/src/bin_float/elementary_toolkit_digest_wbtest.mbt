@@ -158,7 +158,7 @@ fn toolkit_digest_multiple(
 ) -> BinFloat {
   let scaled = base.0.mul_ctx(
       BinFloat::from_int(k, precision=64),
-      BinaryContext::unbounded(bits, rounding=RoundTowardNegative),
+      BinaryContext::new(precision=bits, rounding=RoundTowardNegative),
     ).0
   if step == 0 {
     scaled
@@ -170,7 +170,7 @@ fn toolkit_digest_multiple(
         64,
         negative=step < 0,
       ),
-      BinaryContext::unbounded(bits + 2),
+      BinaryContext::new(precision=bits + 2),
     ).0
   }
 }
@@ -289,7 +289,7 @@ fn toolkit_digest_trig_values(work : Int32) -> Array[BinFloat] {
   let half_pi = (
     pi.0.mul_ctx(
       BinFloat::make_coeff(Coeff::one(), -1, 1),
-      BinaryContext::unbounded(448, rounding=RoundTowardNegative),
+      BinaryContext::new(precision=448, rounding=RoundTowardNegative),
     ).0,
     pi.1,
   )

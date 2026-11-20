@@ -6,7 +6,7 @@
 /// 192-bit sum, a 256-bit product) and only the result is allocated. Each
 /// function returns `None` outside its range and the wider paths answer, so
 /// the results, which are the results of `add_ctx`/`mul_ctx` with
-/// `BinaryContext::unbounded(max precision)` (round to nearest even), are bit
+/// `binary_working_context(max precision)` (round to nearest even), are bit
 /// for bit those of the general path.
 
 ///|

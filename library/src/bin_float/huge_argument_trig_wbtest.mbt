@@ -35,7 +35,7 @@ test "sin, cos and tan of 2^k against MPFR at the exact argument" {
   for row in rows {
     let (op, k, p, expected) = row
     let x = BinFloat::make(BinCoeff::one(), k, 2)
-    let ctx = BinaryContext::unbounded(p)
+    let ctx = BinaryContext::new(precision=p)
     let value = match op {
       "sin" => x.try_sin_ctx(ctx).unwrap().0
       "cos" => x.try_cos_ctx(ctx).unwrap().0

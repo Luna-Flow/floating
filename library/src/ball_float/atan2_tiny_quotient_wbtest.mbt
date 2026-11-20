@@ -7,7 +7,7 @@
 test "try_atan2 of a quotient below the exponent range encloses zero tightly" {
   let tiny_unit = @bin_float.BinFloat::make(
     @bin_float.BinCoeff::one(),
-    -1073741875,
+    -1073741874,
     64,
   )
   for e in [1073741000, 540000000] {

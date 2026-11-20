@@ -235,12 +235,12 @@ pub fn BallFloat::try_expm1(
   if self.is_empty() {
     return Ok(self)
   }
-  let downward = @bin_float.BinaryContext::unbounded(
-    self.precision_,
+  let downward = @bin_float.BinaryContext::new(
+    precision=self.precision_,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::unbounded(
-    self.precision_,
+  let upward = @bin_float.BinaryContext::new(
+    precision=self.precision_,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   let lower = if is_neg_inf(self.lo_) {
@@ -271,8 +271,8 @@ pub fn BallFloat::try_ln(
   if self.hi_.compare(zero) <= 0 {
     return Ok(empty_interval(self.precision_))
   }
-  let upward = @bin_float.BinaryContext::unbounded(
-    self.precision_,
+  let upward = @bin_float.BinaryContext::new(
+    precision=self.precision_,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   let upper = self.hi_.try_ln_ctx(upward)
@@ -281,8 +281,8 @@ pub fn BallFloat::try_ln(
       store_interval(neg_inf(self.precision_), result.0, self.precision_)
     })
   }
-  let downward = @bin_float.BinaryContext::unbounded(
-    self.precision_,
+  let downward = @bin_float.BinaryContext::new(
+    precision=self.precision_,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
   self.lo_
@@ -305,12 +305,12 @@ pub fn BallFloat::try_log1p(
   if self.hi_.compare(minus_one) < 0 {
     return Ok(empty_interval(self.precision_))
   }
-  let downward = @bin_float.BinaryContext::unbounded(
-    self.precision_,
+  let downward = @bin_float.BinaryContext::new(
+    precision=self.precision_,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::unbounded(
-    self.precision_,
+  let upward = @bin_float.BinaryContext::new(
+    precision=self.precision_,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   let lower = if self.lo_.compare(minus_one) <= 0 {
@@ -346,12 +346,12 @@ fn BallFloat::try_trig_point_interval(
   if self.lo_.is_zero() || self.lo_.compare(self.hi_) != 0 {
     return None
   }
-  let downward = @bin_float.BinaryContext::unbounded(
-    self.precision_,
+  let downward = @bin_float.BinaryContext::new(
+    precision=self.precision_,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::unbounded(
-    self.precision_,
+  let upward = @bin_float.BinaryContext::new(
+    precision=self.precision_,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   Some(
@@ -458,12 +458,12 @@ pub fn BallFloat::try_tan(
       return Ok(whole_real(self.precision_))
     }
   }
-  let downward = @bin_float.BinaryContext::unbounded(
-    self.precision_,
+  let downward = @bin_float.BinaryContext::new(
+    precision=self.precision_,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::unbounded(
-    self.precision_,
+  let upward = @bin_float.BinaryContext::new(
+    precision=self.precision_,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   self.lo_

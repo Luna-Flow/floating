@@ -6,23 +6,23 @@ fn binary_sin_cos_series_reference(
   cosine : Bool,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  let downward = BinaryContext::unbounded(
-    work_precision,
+  let downward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
-    work_precision,
+  let upward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardPositive,
   )
   let negative = value.is_negative()
   let argument = if negative { value.neg() } else { value }
   let argument_lower = argument.with_precision(
     work_precision,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   let argument_upper = argument.with_precision(
     work_precision,
-    RoundingMode::TowardPositive,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   let square_lower = argument_lower.mul_ctx(argument_lower, downward).0
   let square_upper = argument_upper.mul_ctx(argument_upper, upward).0
@@ -159,8 +159,8 @@ test "fixed-point sine and cosine enclosures contain a tighter series enclosure"
           is Some((series_lower, series_upper)) else {
           continue
         }
-        let context = BinaryContext::unbounded(
-          work + 32,
+        let context = BinaryContext::new(
+          precision=work + 32,
           rounding=RoundTowardPositive,
         )
         let fixed_width = fixed_upper.sub_ctx(fixed_lower, context).0
@@ -202,7 +202,7 @@ test "fixed-point sine and cosine decline arguments they do not cover" {
 
 ///|
 test "sine and cosine agree with their identities after the fixed-point path" {
-  let context = BinaryContext::unbounded(100)
+  let context = BinaryContext::new(precision=100)
   for value in binary_sin_cos_fixed_test_values() {
     let (sine, _) = value.sin_ctx(context)
     let (cosine, _) = value.cos_ctx(context)

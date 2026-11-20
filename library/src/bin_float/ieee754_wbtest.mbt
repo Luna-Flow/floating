@@ -267,20 +267,20 @@ test "addition compresses extreme exponent gaps without losing direction" {
     binary_implementation_e_min - 52,
     53,
   )
-  let nearest_context = BinaryContext::unbounded(3)
+  let nearest_context = BinaryContext::new(precision=3)
   let (nearest_sum, nearest_sum_flags) = one.add_ctx(tiny, nearest_context)
   assert_eq(nearest_sum, BinFloat::one(precision=3))
   assert_true(nearest_sum_flags.inexact())
-  let upward_context = BinaryContext::unbounded(
-    3,
+  let upward_context = BinaryContext::new(
+    precision=3,
     rounding=BinaryRoundingMode::RoundTowardPositive,
   )
   let (upward_sum, upward_sum_flags) = one.add_ctx(tiny, upward_context)
   assert_eq(upward_sum.coefficient_, Coeff::from_uint64(5UL))
   assert_eq(upward_sum.exponent2(), -2)
   assert_true(upward_sum_flags.inexact())
-  let downward_context = BinaryContext::unbounded(
-    3,
+  let downward_context = BinaryContext::new(
+    precision=3,
     rounding=BinaryRoundingMode::RoundTowardNegative,
   )
   let (downward_difference, downward_difference_flags) = one.sub_ctx(
@@ -293,7 +293,7 @@ test "addition compresses extreme exponent gaps without losing direction" {
 
 ///|
 test "sqrt preserves exact roots when the scaled radicand is fractional" {
-  let context = BinaryContext::unbounded(11)
+  let context = BinaryContext::new(precision=11)
   let exact_input = BinFloat::make_coeff(Coeff::from_uint64(9UL), 100, 128)
   let (exact_root, exact_flags) = exact_input.sqrt_ctx(context)
   assert_eq(exact_root.coefficient_, Coeff::from_uint64(3UL))

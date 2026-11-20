@@ -32,10 +32,10 @@ fn decimal_pi_enclosure(
   precision : Int32,
 ) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
   let infinity = @bin_float.BinFloat::inf(Sign::Positive, precision~)
-  let exact = @bin_float.BinaryContext::unbounded(precision)
+  let exact = @bin_float.BinaryContext::new(precision~)
   let two = @bin_float.BinFloat::from_int(2, precision=2)
   let bound = fn(rounding) {
-    let context = @bin_float.BinaryContext::unbounded(precision, rounding~)
+    let context = @bin_float.BinaryContext::new(precision~, rounding~)
     match infinity.try_atan_ctx(context) {
       Ok(result) => result.0.mul_ctx(two, exact).0
       Err(error) => abort(error.message)

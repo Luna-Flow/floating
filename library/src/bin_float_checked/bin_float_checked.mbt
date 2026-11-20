@@ -152,7 +152,7 @@ pub fn BinFloatResult::normalized(self : BinFloatResult) -> BinFloatResult {
 pub fn BinFloatResult::with_precision(
   self : BinFloatResult,
   precision : Int32,
-  mode : @def.RoundingMode,
+  mode : @bin_float.BinaryRoundingMode,
 ) -> BinFloatResult {
   self.map(fn(value) { value.with_precision(precision, mode) })
 }
@@ -346,7 +346,7 @@ fn bin_result_try_elementary(
   ],
 ) -> BinFloatResult {
   value.bind(fn(number) {
-    let context = @bin_float.BinaryContext::unbounded(number.precision())
+    let context = @bin_float.BinaryContext::new(precision=number.precision())
     BinFloatResult::from_result(
       operation(number, context).bind(bin_result_checked_flags),
     )
@@ -580,8 +580,8 @@ pub fn BinFloatResult::hypot(
 ) -> BinFloatResult {
   BinFloatResult::from_result(
     bin_result_lift2_checked(self.inner, other.inner, fn(left, right) {
-      let context = @bin_float.BinaryContext::unbounded(
-        Int32::max(left.precision(), right.precision()),
+      let context = @bin_float.BinaryContext::new(
+        precision=Int32::max(left.precision(), right.precision()),
       )
       left.try_hypot_ctx(right, context).bind(bin_result_checked_flags)
     }),
@@ -641,7 +641,7 @@ pub fn BinFloatResult::rootn(
   degree : Int32,
 ) -> BinFloatResult {
   self.bind(fn(value) {
-    let context = @bin_float.BinaryContext::unbounded(value.precision())
+    let context = @bin_float.BinaryContext::new(precision=value.precision())
     BinFloatResult::from_result(
       value.try_rootn_ctx(degree, context).bind(bin_result_checked_flags),
     )
@@ -668,8 +668,8 @@ pub fn BinFloatResult::pow(
 ) -> BinFloatResult {
   BinFloatResult::from_result(
     bin_result_lift2_checked(self.inner, exponent.inner, fn(base, power) {
-      let context = @bin_float.BinaryContext::unbounded(
-        Int32::max(base.precision(), power.precision()),
+      let context = @bin_float.BinaryContext::new(
+        precision=Int32::max(base.precision(), power.precision()),
       )
       base.try_pow_ctx(power, context).bind(bin_result_checked_flags)
     }),
@@ -734,8 +734,8 @@ pub fn BinFloatResult::powr(
 ) -> BinFloatResult {
   BinFloatResult::from_result(
     bin_result_lift2_checked(self.inner, exponent.inner, fn(base, power) {
-      let context = @bin_float.BinaryContext::unbounded(
-        Int32::max(base.precision(), power.precision()),
+      let context = @bin_float.BinaryContext::new(
+        precision=Int32::max(base.precision(), power.precision()),
       )
       base.try_powr_ctx(power, context).bind(bin_result_checked_flags)
     }),
@@ -969,8 +969,8 @@ pub fn BinFloatResult::atan2pi(
       ordinate,
       horizontal,
     ) {
-      let context = @bin_float.BinaryContext::unbounded(
-        Int32::max(ordinate.precision(), horizontal.precision()),
+      let context = @bin_float.BinaryContext::new(
+        precision=Int32::max(ordinate.precision(), horizontal.precision()),
       )
       ordinate
       .try_atan2pi_ctx(horizontal, context)
@@ -1007,8 +1007,8 @@ pub fn BinFloatResult::atan2(
       ordinate,
       horizontal,
     ) {
-      let context = @bin_float.BinaryContext::unbounded(
-        Int32::max(ordinate.precision(), horizontal.precision()),
+      let context = @bin_float.BinaryContext::new(
+        precision=Int32::max(ordinate.precision(), horizontal.precision()),
       )
       ordinate.try_atan2_ctx(horizontal, context).bind(bin_result_checked_flags)
     }),

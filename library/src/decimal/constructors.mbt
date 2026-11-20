@@ -235,14 +235,14 @@ fn decimal_to_bin_float_directed(
       lo_k + e,
       precision,
       negative~,
-      mode~,
+      mode=bin_mode(mode, negative),
     )
     let high = @bin_float.BinFloat::make(
       @bin_float.BinCoeff::from_bytes_be((c * hi_m).to_octets()),
       hi_k + e,
       precision,
       negative~,
-      mode~,
+      mode=bin_mode(mode, negative),
     )
     return if low.compare(high) == 0 &&
       low.exponent2() == high.exponent2() &&
@@ -270,7 +270,7 @@ fn decimal_to_bin_float_directed(
       -f,
       precision,
       negative~,
-      mode~,
+      mode=bin_mode(mode, negative),
     ),
   )
 }
@@ -339,7 +339,7 @@ fn decimal_to_bin_float_out_of_range(
         e_max.to_int() + 4,
         precision,
         negative~,
-        mode~,
+        mode=bin_mode(mode, negative),
       ),
     )
   } else if adjusted + 1L < below {
@@ -349,7 +349,7 @@ fn decimal_to_bin_float_out_of_range(
         e_min.to_int() - precision - 8,
         precision,
         negative~,
-        mode~,
+        mode=bin_mode(mode, negative),
       ),
     )
   } else {
@@ -389,7 +389,7 @@ pub fn Decimal::to_bin_float(
         exponent,
         precision,
         negative=self.sign() == Sign::Negative,
-        mode~,
+        mode=bin_mode(mode, self.sign() == Sign::Negative),
       )
     }
   }
@@ -449,14 +449,14 @@ fn Decimal::to_bin_float_bounds(
       exponent,
       precision,
       negative~,
-      mode=RoundingMode::TowardNegative,
+      mode=@bin_float.BinaryRoundingMode::RoundTowardNegative,
     ),
     @bin_float.BinFloat::make(
       coefficient,
       exponent,
       precision,
       negative~,
-      mode=RoundingMode::TowardPositive,
+      mode=@bin_float.BinaryRoundingMode::RoundTowardPositive,
     ),
   )
 }
@@ -559,3 +559,28 @@ pub fn Decimal::from_bin_float(
 }
 
 ///|
+
+///|
+/// The IEEE 754-2019 attribute of an `@arithmetic` mode for a value of the
+/// given sign (`AwayFromZero` is the direction of the sign).
+fn bin_mode(
+  mode : @def.RoundingMode,
+  negative : Bool,
+) -> @bin_float.BinaryRoundingMode {
+  match mode {
+    @def.RoundingMode::ToNearestEven =>
+      @bin_float.BinaryRoundingMode::RoundTiesToEven
+    @def.RoundingMode::TowardZero =>
+      @bin_float.BinaryRoundingMode::RoundTowardZero
+    @def.RoundingMode::TowardPositive =>
+      @bin_float.BinaryRoundingMode::RoundTowardPositive
+    @def.RoundingMode::TowardNegative =>
+      @bin_float.BinaryRoundingMode::RoundTowardNegative
+    @def.RoundingMode::AwayFromZero =>
+      if negative {
+        @bin_float.BinaryRoundingMode::RoundTowardNegative
+      } else {
+        @bin_float.BinaryRoundingMode::RoundTowardPositive
+      }
+  }
+}

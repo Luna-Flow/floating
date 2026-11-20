@@ -186,8 +186,8 @@ fn decimal_surrogate_parts(
   let digits = precision + 1
   let (text, flags) = x.to_decimal_string_ctx(
     digits,
-    @bin_float.BinaryContext::unbounded(
-      53,
+    @bin_float.BinaryContext::new(
+      precision=53,
       rounding=@bin_float.BinaryRoundingMode::RoundTowardZero,
     ),
   )

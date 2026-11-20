@@ -6,21 +6,21 @@ fn binary_exp_bounds_series_reference(
   value : BinFloat,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
-  let downward = BinaryContext::unbounded(
-    work_precision,
+  let downward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardNegative,
   )
-  let upward = BinaryContext::unbounded(
-    work_precision,
+  let upward = BinaryContext::new(
+    precision=work_precision,
     rounding=RoundTowardPositive,
   )
   let mut lower = value.with_precision(
     work_precision,
-    RoundingMode::TowardNegative,
+    BinaryRoundingMode::RoundTowardNegative,
   )
   let mut upper = value.with_precision(
     work_precision,
-    RoundingMode::TowardPositive,
+    BinaryRoundingMode::RoundTowardPositive,
   )
   let eighth = BinFloat::make_coeff(Coeff::one(), -3, work_precision)
   let half = BinFloat::make_coeff(Coeff::one(), -1, work_precision)
@@ -108,11 +108,11 @@ test "fixed-point exp enclosure contains the series enclosure's true value" {
       }
       let fixed_width = fixed_upper.sub_ctx(
           fixed_lower,
-          BinaryContext::unbounded(work + 32, rounding=RoundTowardPositive),
+          BinaryContext::new(precision=work + 32, rounding=RoundTowardPositive),
         ).0
       let series_width = series_upper.sub_ctx(
           series_lower,
-          BinaryContext::unbounded(work + 32, rounding=RoundTowardPositive),
+          BinaryContext::new(precision=work + 32, rounding=RoundTowardPositive),
         ).0
       assert_true(
         fixed_width.compare(series_width.mul(BinFloat::from_int(8))) <= 0,
@@ -125,16 +125,16 @@ test "fixed-point exp enclosure contains the series enclosure's true value" {
 test "fixed-point exp path gives the same correctly rounded results" {
   let contexts = [
     BinaryContext::binary64(),
-    BinaryContext::unbounded(24),
-    BinaryContext::unbounded(100),
-    BinaryContext::unbounded(53, rounding=RoundTowardZero),
-    BinaryContext::unbounded(53, rounding=RoundTowardPositive),
+    BinaryContext::new(precision=24),
+    BinaryContext::new(precision=100),
+    BinaryContext::new(precision=53, rounding=RoundTowardZero),
+    BinaryContext::new(precision=53, rounding=RoundTowardPositive),
   ]
   for context in contexts {
     for value in binary_exp_fixed_test_values() {
       let value = value.with_precision(
         context.precision,
-        RoundingMode::ToNearestEven,
+        BinaryRoundingMode::RoundTiesToEven,
       )
       let mut work = context.precision + 64
       let mut expected : (BinFloat, BinaryFlags)? = None

@@ -24,9 +24,9 @@
 
 static const mpfr_prec_t precisions[] = {11, 24, 53, 113, 200};
 static const mpfr_rnd_t roundings[] = {
-    MPFR_RNDN, MPFR_RNDN, MPFR_RNDZ, MPFR_RNDU, MPFR_RNDD, MPFR_RNDA,
+    MPFR_RNDN, MPFR_RNDN, MPFR_RNDZ, MPFR_RNDU, MPFR_RNDD,
 };
-static const char *rounding_names[] = {"n", "na", "z", "u", "d", "a"};
+static const char *rounding_names[] = {"n", "na", "z", "u", "d"};
 #define PRECISION_COUNT (sizeof(precisions) / sizeof(precisions[0]))
 #define ROUNDING_COUNT (sizeof(roundings) / sizeof(roundings[0]))
 
@@ -254,8 +254,8 @@ static int generate_strtofr(long cases_per_cell, uint64_t seed) {
   };
   static const char *overflowing[] = {"1e323228497", "9e323228496",
                                       "1e400000000", "7.5e999999999"};
-  static const size_t to_infinity_positive[] = {0, 1, 3, 5};
-  static const size_t to_infinity_negative[] = {0, 1, 4, 5};
+  static const size_t to_infinity_positive[] = {0, 1, 3};
+  static const size_t to_infinity_negative[] = {0, 1, 4};
   for (size_t p = 0; p < PRECISION_COUNT; ++p) {
     if (precisions[p] != 24 && precisions[p] != 53 && precisions[p] != 113) continue;
     for (size_t r = 0; r < ROUNDING_COUNT; ++r) {
@@ -266,7 +266,7 @@ static int generate_strtofr(long cases_per_cell, uint64_t seed) {
     for (size_t i = 0; i < sizeof(overflowing) / sizeof(overflowing[0]); ++i) {
       char negative_text[64];
       snprintf(negative_text, sizeof(negative_text), "-%s", overflowing[i]);
-      for (size_t k = 0; k < 4; ++k) {
+      for (size_t k = 0; k < 3; ++k) {
         emit_strtofr(output, p, to_infinity_positive[k], overflowing[i]);
         emit_strtofr(output, p, to_infinity_negative[k], negative_text);
       }

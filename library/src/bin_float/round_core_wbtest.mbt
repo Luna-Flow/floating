@@ -82,8 +82,7 @@ fn old_round_dyadic(
   let bits = magnitude.bit_length()
   let exact_top = binary_exact_top(magnitude, exponent2)
   if bits <= context.precision &&
-    context.e_min is None &&
-    context.e_max is None &&
+    context.e_max == binary_implementation_e_max &&
     exact_top >= binary_implementation_e_min &&
     exact_top <= binary_implementation_e_max {
     return (
@@ -167,7 +166,6 @@ fn round_test_contexts() -> Array[BinaryContext] {
     BinaryRoundingMode::RoundTowardZero,
     BinaryRoundingMode::RoundTowardPositive,
     BinaryRoundingMode::RoundTowardNegative,
-    BinaryRoundingMode::RoundAwayFromZero,
   ]
   for mode in modes {
     for
@@ -179,14 +177,14 @@ fn round_test_contexts() -> Array[BinaryContext] {
       out.push(BinaryContext::binary32(rounding=mode, tininess~))
       out.push(BinaryContext::binary64(rounding=mode, tininess~))
       out.push(
-        BinaryContext::new(7, rounding=mode, e_min=-20, e_max=20, tininess~),
+        BinaryContext::new(precision=7, rounding=mode, e_max=20, tininess~),
       )
       out.push(
-        BinaryContext::new(1, rounding=mode, e_min=-3, e_max=3, tininess~),
+        BinaryContext::new(precision=1, rounding=mode, e_max=3, tininess~),
       )
     }
     for precision in [1, 2, 5, 24, 53, 64, 100, 200] {
-      out.push(BinaryContext::unbounded(precision, rounding=mode))
+      out.push(BinaryContext::new(precision~, rounding=mode))
     }
   }
   out
@@ -198,14 +196,8 @@ test "binary_round_dyadic agrees with the pre-#378 rounding core" {
   let contexts = round_test_contexts()
   let mut checked = 0
   for context in contexts {
-    let e_lo = match context.e_min() {
-      Some(v) => v
-      None => -300
-    }
-    let e_hi = match context.e_max() {
-      Some(v) => v
-      None => 300
-    }
+    let e_lo = Int32::max(context.e_min(), -300)
+    let e_hi = Int32::min(context.e_max(), 300)
     for _ in 0..<150 {
       let magnitude = round_test_magnitude(rng)
       let bits = magnitude.bit_length()
@@ -233,7 +225,9 @@ test "binary_round_dyadic agrees with the pre-#378 rounding core" {
 test "binary_round_dyadic boundaries on both sides of the exact early exit" {
   // Exactly representable values at, just inside and just beyond the range.
   for context in round_test_contexts() {
-    if context.e_min() is Some(e_min) && context.e_max() is Some(e_max) {
+    if context.e_max() < binary_implementation_e_max {
+      let e_min = context.e_min()
+      let e_max = context.e_max()
       let p = context.precision()
       for
         top in [

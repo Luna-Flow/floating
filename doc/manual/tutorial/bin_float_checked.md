@@ -140,8 +140,8 @@ test "the same logarithm at two precisions" {
   inspect(show(two.ln()), content="6243314768165359p-53")
   let single = @bin_float.BinaryContext::binary32()
   inspect(show(two.ln_ctx(single)), content="1453635p-21")
-  let down = @bin_float.BinaryContext::unbounded(
-    24,
+  let down = @bin_float.BinaryContext::new(
+    precision=24,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
   inspect(show(two.ln_ctx(down)), content="11629079p-24")

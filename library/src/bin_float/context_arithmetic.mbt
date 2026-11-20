@@ -90,7 +90,6 @@ fn binary_apply_round_bits(
     RoundTowardZero => false
     RoundTowardPositive => !negative && inexact
     RoundTowardNegative => negative && inexact
-    RoundAwayFromZero => inexact
   }
   if increment {
     retained.add(Coeff::one())
@@ -182,7 +181,7 @@ fn binary_overflow_to_infinity(
   mode : BinaryRoundingMode,
 ) -> Bool {
   match mode {
-    RoundTiesToEven | RoundTiesToAway | RoundAwayFromZero => true
+    RoundTiesToEven | RoundTiesToAway => true
     RoundTowardZero => false
     RoundTowardPositive => !negative
     RoundTowardNegative => negative
@@ -232,7 +231,6 @@ fn binary_tiny_nonzero_result(
   let rounds_away = match context.rounding {
     RoundTowardPositive => !negative
     RoundTowardNegative => negative
-    RoundAwayFromZero => true
     RoundTiesToEven | RoundTiesToAway | RoundTowardZero => false
   }
   let value = if rounds_away {
@@ -1083,7 +1081,7 @@ fn binary_pow_positive_approximation(
   exponent : UInt32,
   work_precision : Int32,
 ) -> (BinFloat, Int32, Int32) {
-  let work_context = BinaryContext::unbounded(
+  let work_context = binary_working_context(
     work_precision,
     rounding=BinaryRoundingMode::RoundTiesToEven,
   )
@@ -1332,7 +1330,7 @@ fn binary_pow_ziv(
       stats.divisions += 1
       BinFloat::one_raw(precision=work).div_ctx(
         base.abs(),
-        BinaryContext::unbounded(
+        binary_working_context(
           work,
           rounding=BinaryRoundingMode::RoundTiesToEven,
         ),
@@ -1404,8 +1402,8 @@ fn binary_pow_out_of_range(
     return None
   }
   // The cheap bound straddles a limit; refine it with certified log2 bounds.
-  let down = BinaryContext::unbounded(64, rounding=RoundTowardNegative)
-  let up = BinaryContext::unbounded(64, rounding=RoundTowardPositive)
+  let down = binary_working_context(64, rounding=RoundTowardNegative)
+  let up = binary_working_context(64, rounding=RoundTowardPositive)
   let magnitude = base.abs()
   guard magnitude.try_log2_ctx(down) is Ok((log_low, _)) &&
     magnitude.try_log2_ctx(up) is Ok((log_high, _)) else {

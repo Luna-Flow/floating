@@ -268,13 +268,13 @@ Rounding $t$ directly to two bits gives $1.5$ because $t > 1.25$:
 ///|
 test "double rounding to nearest differs from one rounding" {
   let t = @bin_float.BinFloat::from_double(1.2578125)
-  let nearest = @lf_arith.RoundingMode::ToNearestEven
+  let nearest = @bin_float.BinaryRoundingMode::RoundTiesToEven
   let twice = t.with_precision(3, nearest).with_precision(2, nearest)
   let once = t.with_precision(2, nearest)
   inspect(twice.to_string(), content="1p0")
   inspect(once.to_string(), content="3p-1")
   inspect(@def.Floating::with_precision(t, 2).to_string(), content="3p-1")
-  let toward_zero = @lf_arith.RoundingMode::TowardZero
+  let toward_zero = @bin_float.BinaryRoundingMode::RoundTowardZero
   let twice_rz = t.with_precision(3, toward_zero).with_precision(2, toward_zero)
   let once_rz = t.with_precision(2, toward_zero)
   inspect(twice_rz.to_string() == once_rz.to_string(), content="true")

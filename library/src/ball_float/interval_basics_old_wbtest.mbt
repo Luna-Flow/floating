@@ -6,12 +6,12 @@ fn old_division_bounds(
   denominator : @bin_float.BinFloat,
   precision : Int32,
 ) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
-  let downward = @bin_float.BinaryContext::unbounded(
-    precision,
+  let downward = @bin_float.BinaryContext::new(
+    precision~,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::unbounded(
-    precision,
+  let upward = @bin_float.BinaryContext::new(
+    precision~,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   (
@@ -231,12 +231,12 @@ fn old_sqrt_bounds(
   x : @bin_float.BinFloat,
   precision : Int32,
 ) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
-  let down = @bin_float.BinaryContext::unbounded(
-    precision,
+  let down = @bin_float.BinaryContext::new(
+    precision~,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
-  let up = @bin_float.BinaryContext::unbounded(
-    precision,
+  let up = @bin_float.BinaryContext::new(
+    precision~,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   (x.sqrt_ctx(down).0, x.sqrt_ctx(up).0)

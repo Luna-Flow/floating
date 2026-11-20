@@ -25,9 +25,9 @@ static const operation_spec operations[] = {
 
 static const mpfr_prec_t precisions[] = {24, 53, 113};
 static const mpfr_rnd_t roundings[] = {
-    MPFR_RNDN, MPFR_RNDN, MPFR_RNDZ, MPFR_RNDU, MPFR_RNDD, MPFR_RNDA,
+    MPFR_RNDN, MPFR_RNDN, MPFR_RNDZ, MPFR_RNDU, MPFR_RNDD,
 };
-static const char *rounding_names[] = {"n", "na", "z", "u", "d", "a"};
+static const char *rounding_names[] = {"n", "na", "z", "u", "d"};
 
 static uint64_t next_random(uint64_t *state) {
   *state = *state * UINT64_C(6364136223846793005) +

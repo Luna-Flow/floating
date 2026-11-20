@@ -35,11 +35,13 @@ pub impl @lf_arith.AddContextual for BinFloat with fn add_contextual(
   other,
   context,
 ) {
-  let (value, flags) = self.add_ctx(
-    other,
-    BinaryContext::from_arithmetic_context(context),
-  )
-  binary_contextual_outcome(value, flags)
+  match BinaryContext::from_arithmetic_context(context) {
+    Err(error) => Err(error)
+    Ok(bctx) => {
+      let (value, flags) = self.add_ctx(other, bctx)
+      binary_contextual_outcome(value, flags)
+    }
+  }
 }
 
 ///|
@@ -48,11 +50,13 @@ pub impl @lf_arith.SubContextual for BinFloat with fn sub_contextual(
   other,
   context,
 ) {
-  let (value, flags) = self.sub_ctx(
-    other,
-    BinaryContext::from_arithmetic_context(context),
-  )
-  binary_contextual_outcome(value, flags)
+  match BinaryContext::from_arithmetic_context(context) {
+    Err(error) => Err(error)
+    Ok(bctx) => {
+      let (value, flags) = self.sub_ctx(other, bctx)
+      binary_contextual_outcome(value, flags)
+    }
+  }
 }
 
 ///|
@@ -61,11 +65,13 @@ pub impl @lf_arith.MulContextual for BinFloat with fn mul_contextual(
   other,
   context,
 ) {
-  let (value, flags) = self.mul_ctx(
-    other,
-    BinaryContext::from_arithmetic_context(context),
-  )
-  binary_contextual_outcome(value, flags)
+  match BinaryContext::from_arithmetic_context(context) {
+    Err(error) => Err(error)
+    Ok(bctx) => {
+      let (value, flags) = self.mul_ctx(other, bctx)
+      binary_contextual_outcome(value, flags)
+    }
+  }
 }
 
 ///|
@@ -74,11 +80,13 @@ pub impl @lf_arith.DivContextual for BinFloat with fn div_contextual(
   other,
   context,
 ) {
-  let (value, flags) = self.div_ctx(
-    other,
-    BinaryContext::from_arithmetic_context(context),
-  )
-  binary_contextual_outcome(value, flags)
+  match BinaryContext::from_arithmetic_context(context) {
+    Err(error) => Err(error)
+    Ok(bctx) => {
+      let (value, flags) = self.div_ctx(other, bctx)
+      binary_contextual_outcome(value, flags)
+    }
+  }
 }
 
 ///|
@@ -86,10 +94,13 @@ pub impl @lf_arith.AbsContextual for BinFloat with fn abs_contextual(
   self,
   context,
 ) {
-  let (value, flags) = self
-    .abs()
-    .round_ctx(BinaryContext::from_arithmetic_context(context))
-  binary_contextual_outcome(value, flags)
+  match BinaryContext::from_arithmetic_context(context) {
+    Err(error) => Err(error)
+    Ok(bctx) => {
+      let (value, flags) = self.abs().round_ctx(bctx)
+      binary_contextual_outcome(value, flags)
+    }
+  }
 }
 
 ///|
@@ -97,10 +108,13 @@ pub impl @lf_arith.SqrtContextual for BinFloat with fn sqrt_contextual(
   self,
   context,
 ) {
-  let (value, flags) = self.sqrt_ctx(
-    BinaryContext::from_arithmetic_context(context),
-  )
-  binary_contextual_outcome(value, flags)
+  match BinaryContext::from_arithmetic_context(context) {
+    Err(error) => Err(error)
+    Ok(bctx) => {
+      let (value, flags) = self.sqrt_ctx(bctx)
+      binary_contextual_outcome(value, flags)
+    }
+  }
 }
 
 ///|
@@ -108,9 +122,13 @@ pub impl @lf_arith.ExpContextual for BinFloat with fn exp_contextual(
   self,
   context,
 ) {
-  match self.try_exp_ctx(BinaryContext::from_arithmetic_context(context)) {
-    Ok((value, flags)) => binary_contextual_outcome(value, flags)
+  match BinaryContext::from_arithmetic_context(context) {
     Err(error) => Err(error)
+    Ok(bctx) =>
+      match self.try_exp_ctx(bctx) {
+        Ok((value, flags)) => binary_contextual_outcome(value, flags)
+        Err(error) => Err(error)
+      }
   }
 }
 

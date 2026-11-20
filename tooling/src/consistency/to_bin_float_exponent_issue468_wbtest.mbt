@@ -31,7 +31,16 @@ test "issue 468: decimal_gda to_bin_float agrees with decimal at large exponents
             let expected = ieee.to_bin_float(precision~, mode~)
             let actual = gda.to_bin_float(
               precision~,
-              mode=@bin_float.BinaryRoundingMode::from_arithmetic(mode),
+              mode=match @bin_float.BinaryRoundingMode::from_arithmetic(mode) {
+                Some(rounding) => rounding
+                None =>
+                  // away from zero is the direction of the sign
+                  if negative {
+                    @bin_float.BinaryRoundingMode::RoundTowardNegative
+                  } else {
+                    @bin_float.BinaryRoundingMode::RoundTowardPositive
+                  }
+              },
             )
             inspect(actual.to_string() == expected.to_string(), content="true")
             inspect(

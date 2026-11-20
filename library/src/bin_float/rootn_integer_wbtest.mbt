@@ -52,7 +52,6 @@ fn rootn_contexts() -> Array[BinaryContext] {
       BinaryRoundingMode::RoundTowardZero,
       BinaryRoundingMode::RoundTowardPositive,
       BinaryRoundingMode::RoundTowardNegative,
-      BinaryRoundingMode::RoundAwayFromZero,
     ] {
     for
       tininess in [
@@ -62,11 +61,11 @@ fn rootn_contexts() -> Array[BinaryContext] {
       out.push(BinaryContext::binary16(rounding=mode, tininess~))
       out.push(BinaryContext::binary32(rounding=mode, tininess~))
       out.push(
-        BinaryContext::new(5, rounding=mode, e_min=-30, e_max=30, tininess~),
+        BinaryContext::new(precision=5, rounding=mode, e_max=30, tininess~),
       )
     }
     for p in [1, 2, 24, 53, 130] {
-      out.push(BinaryContext::unbounded(p, rounding=mode))
+      out.push(BinaryContext::new(precision=p, rounding=mode))
     }
   }
   out
@@ -98,23 +97,28 @@ fn rootn_small_contexts() -> Array[BinaryContext] {
     ),
     BinaryContext::binary64(rounding=BinaryRoundingMode::RoundTowardZero),
     BinaryContext::new(
-      5,
-      rounding=BinaryRoundingMode::RoundAwayFromZero,
-      e_min=-30,
+      precision=5,
+      rounding=BinaryRoundingMode::RoundTowardPositive,
       e_max=30,
     ),
-    BinaryContext::unbounded(1),
-    BinaryContext::unbounded(
-      24,
+    BinaryContext::new(precision=1),
+    BinaryContext::new(
+      precision=24,
       rounding=BinaryRoundingMode::RoundTowardPositive,
     ),
-    BinaryContext::unbounded(53),
-    BinaryContext::unbounded(
-      53,
+    BinaryContext::new(precision=53),
+    BinaryContext::new(
+      precision=53,
       rounding=BinaryRoundingMode::RoundTowardNegative,
     ),
-    BinaryContext::unbounded(130, rounding=BinaryRoundingMode::RoundTowardZero),
-    BinaryContext::unbounded(2, rounding=BinaryRoundingMode::RoundTiesToAway),
+    BinaryContext::new(
+      precision=130,
+      rounding=BinaryRoundingMode::RoundTowardZero,
+    ),
+    BinaryContext::new(
+      precision=2,
+      rounding=BinaryRoundingMode::RoundTiesToAway,
+    ),
   ]
 }
 
@@ -357,7 +361,7 @@ test "rootn gate: both sides of every precision bound agree with the certified l
         BinaryRoundingMode::RoundTiesToEven,
         BinaryRoundingMode::RoundTowardPositive,
       ] {
-      let context = BinaryContext::unbounded(precision, rounding=mode)
+      let context = BinaryContext::new(precision~, rounding=mode)
       let fresh = value.try_rootn_ctx(degree, context).unwrap()
       let reference = binary_rootn_certified_loop(
         value,

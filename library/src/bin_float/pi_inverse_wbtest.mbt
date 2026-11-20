@@ -66,10 +66,10 @@ fn pi_show(
 ///|
 fn pi_contexts() -> Array[BinaryContext] {
   [
-    BinaryContext::unbounded(53),
-    BinaryContext::unbounded(2),
+    BinaryContext::new(precision=53),
+    BinaryContext::new(precision=2),
     BinaryContext::binary64(),
-    BinaryContext::new(24, e_min=-6, e_max=7),
+    BinaryContext::new(precision=24, e_max=7),
   ]
 }
 
@@ -91,7 +91,6 @@ fn pi_expected_near(
     _ => false
   }
   let away = match mode {
-    RoundAwayFromZero => true
     RoundTowardPositive => !negative
     RoundTowardNegative => negative
     _ => false
@@ -243,7 +242,7 @@ test "the rational but non-dyadic angles are correctly rounded" {
   let mut cases = 0
   for p in [2, 3, 11, 24, 53] {
     for mode in e2s_modes() {
-      let ctx = BinaryContext::new(p, rounding=mode)
+      let ctx = BinaryContext::new(precision=p, rounding=mode)
       let quotient = fn(numerator : Int32, denominator : Int32) {
         BinFloat::from_int(numerator, precision=p + 100).div_ctx(
           BinFloat::from_int(denominator, precision=p + 100),
@@ -266,7 +265,7 @@ test "the rational but non-dyadic angles are correctly rounded" {
       }
     }
   }
-  assert_eq(cases, 5 * 6 * 4)
+  assert_eq(cases, 5 * 5 * 4)
 }
 
 ///|
@@ -274,7 +273,7 @@ test "atanpi of a huge argument sits next to the anchor 1/2" {
   let mut cases = 0
   for p in [2, 3, 8, 24, 53] {
     for mode in e2s_modes() {
-      let ctx = BinaryContext::new(p, rounding=mode)
+      let ctx = BinaryContext::new(precision=p, rounding=mode)
       // |x| = 1.5 * 2^t: atanPi = 1/2 - delta, 0 < delta < 2^-t, from t = p + 4
       // (decided by the Ziv loop) through t = p + 8 (the anchor rule) up to the
       // implementation limit.
@@ -291,7 +290,7 @@ test "atanpi of a huge argument sits next to the anchor 1/2" {
       }
     }
   }
-  assert_eq(cases, 5 * 6 * 8 * 2)
+  assert_eq(cases, 5 * 5 * 8 * 2)
 }
 
 ///|
@@ -299,7 +298,7 @@ test "acospi of a tiny argument clusters at 1/2" {
   let mut cases = 0
   for p in [2, 3, 8, 24, 53] {
     for mode in e2s_modes() {
-      let ctx = BinaryContext::new(p, rounding=mode)
+      let ctx = BinaryContext::new(precision=p, rounding=mode)
       // acosPi(x) = 1/2 - asin(x)/π with 0 < asin(x)/π < |x|/2: below 1/2 for
       // x > 0 and above it for x < 0.
       for t in [p + 3, p + 4, p + 5, p + 8, 2 * p + 20, 5000, 1073741000] {
@@ -315,7 +314,7 @@ test "acospi of a tiny argument clusters at 1/2" {
       }
     }
   }
-  assert_eq(cases, 5 * 6 * 7 * 2)
+  assert_eq(cases, 5 * 5 * 7 * 2)
 }
 
 ///|
@@ -323,7 +322,7 @@ test "atan2pi of an extreme ratio sits next to the anchors" {
   let mut cases = 0
   for p in [2, 3, 8, 24, 53] {
     for mode in e2s_modes() {
-      let ctx = BinaryContext::new(p, rounding=mode)
+      let ctx = BinaryContext::new(precision=p, rounding=mode)
       // D = top(y) - top(x) >= p + 4: atan2Pi = 1/2 - delta (x > 0) or 1/2 + delta
       // (x < 0), delta < 2^-D, the sign of y mirrors it. The reciprocal ratio
       // with a negative abscissa gives 1 - delta, delta < 2^-D, next to the
@@ -379,7 +378,7 @@ test "atan2pi with an exact quotient is atanpi of it" {
   let mut cases = 0
   for p in [2, 11, 53] {
     for mode in e2s_modes() {
-      let ctx = BinaryContext::new(p, rounding=mode)
+      let ctx = BinaryContext::new(precision=p, rounding=mode)
       for
         e in [
           -30, -3, 0, 3, 30, 200, 1000000, 1073741000, -1073741000, -1073741800,
@@ -435,9 +434,9 @@ fn pi_inverse_tiny_model(
   let pi = binary_pi_bounds(450).unwrap().0
   let reciprocal = BinFloat::one(precision=450).div_ctx(
       pi,
-      BinaryContext::unbounded(450),
+      BinaryContext::new(precision=450),
     ).0
-  let product = x.abs().mul_ctx(reciprocal, BinaryContext::unbounded(900)).0
+  let product = x.abs().mul_ctx(reciprocal, BinaryContext::new(precision=900)).0
   binary_round_dyadic(
     x.is_negative(),
     product.coefficient_.mul(factor),
@@ -458,7 +457,7 @@ fn pi_reference(
     -152L {
     pi_inverse_tiny_model(x, is_asin, ctx)
   } else {
-    let high = BinaryContext::unbounded(ctx.precision + 150)
+    let high = BinaryContext::new(precision=ctx.precision + 150)
     (if is_asin { x.asinpi_ctx(high) } else { x.atanpi_ctx(high) }).0.round_ctx(
       ctx,
     )
@@ -486,15 +485,14 @@ test "asinpi and atanpi of tiny arguments round as x / pi, also at the subnormal
             TininessDetection::BeforeRounding,
           ] {
           let ctx = match format {
-            (Some(lo), Some(hi)) =>
+            (Some(_), Some(hi)) =>
               BinaryContext::new(
-                p,
+                precision=p,
                 rounding=mode,
-                e_min=lo,
                 e_max=hi,
                 tininess~,
               )
-            _ => BinaryContext::unbounded(p, rounding=mode)
+            _ => BinaryContext::new(precision=p, rounding=mode)
           }
           let label = match format.0 {
             Some(lo) => lo.to_string()
@@ -543,7 +541,7 @@ test "atan2pi with a tiny ratio rounds as y / (pi x)" {
   let mut cases = 0
   for p in [2, 11, 24, 53] {
     for mode in e2s_modes() {
-      let ctx = BinaryContext::new(p, rounding=mode, e_min=-1022, e_max=1023)
+      let ctx = BinaryContext::new(precision=p, rounding=mode, e_max=1023)
       for e in [-1100, -1080, -1074, -1070, -1030, -1000, -500, -160] {
         for negative in [false, true] {
           let y = pi_x(3, e, negative~)
@@ -576,8 +574,8 @@ test "the results at p and at p + 150 agree on moderate arguments" {
   let mut cases = 0
   for p in [2, 5, 24, 53] {
     for mode in e2s_modes() {
-      let ctx = BinaryContext::new(p, rounding=mode)
-      let high = BinaryContext::unbounded(p + 150)
+      let ctx = BinaryContext::new(precision=p, rounding=mode)
+      let high = BinaryContext::new(precision=p + 150)
       for
         x in [
           pi_x(1, -3),

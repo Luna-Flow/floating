@@ -102,6 +102,30 @@ fn checked_exact(
 }
 
 ///|
+/// The IEEE 754-2019 attribute of an `@arithmetic` mode for a value of the
+/// given sign (`AwayFromZero` is the direction of the sign).
+fn bin_mode(
+  mode : RoundingMode,
+  negative : Bool,
+) -> @bin_float.BinaryRoundingMode {
+  match mode {
+    RoundingMode::ToNearestEven =>
+      @bin_float.BinaryRoundingMode::RoundTiesToEven
+    RoundingMode::TowardZero => @bin_float.BinaryRoundingMode::RoundTowardZero
+    RoundingMode::TowardPositive =>
+      @bin_float.BinaryRoundingMode::RoundTowardPositive
+    RoundingMode::TowardNegative =>
+      @bin_float.BinaryRoundingMode::RoundTowardNegative
+    RoundingMode::AwayFromZero =>
+      if negative {
+        @bin_float.BinaryRoundingMode::RoundTowardNegative
+      } else {
+        @bin_float.BinaryRoundingMode::RoundTowardPositive
+      }
+  }
+}
+
+///|
 /// Builds `coefficient * 2^exponent2` exactly. When the value lies outside the
 /// binary exponent range it cannot be stored exactly, and `mode` decides the
 /// side it is clamped to; endpoint computations pass the outward direction.
@@ -116,7 +140,7 @@ fn exact_make(
     exponent2,
     Int32::max(1, coefficient.bit_length()),
     negative~,
-    mode~,
+    mode=bin_mode(mode, negative),
   )
 }
 
@@ -280,7 +304,9 @@ fn outward_round(
   x : @bin_float.BinFloat,
   precision : Int32,
 ) -> @bin_float.BinFloat {
-  x.with_precision(precision, RoundingMode::AwayFromZero).abs()
+  x
+  .abs()
+  .with_precision(precision, @bin_float.BinaryRoundingMode::RoundTowardPositive)
 }
 
 ///|
@@ -309,7 +335,10 @@ fn quantize_center_radius(
     abort("ball radius must be non-negative")
   }
   let precision = Int32::max(1, precision)
-  let rounded_center = center.with_precision(precision, mode)
+  let rounded_center = center.with_precision(
+    precision,
+    bin_mode(mode, center.is_negative()),
+  )
   let center_error = outward_round(
     exact_sub(center, rounded_center).abs(),
     precision,
@@ -340,7 +369,10 @@ fn lower_round_bound(
       if x.precision() == precision {
         x
       } else {
-        x.with_precision(precision, RoundingMode::TowardNegative)
+        x.with_precision(
+          precision,
+          @bin_float.BinaryRoundingMode::RoundTowardNegative,
+        )
       }
     FpClass::Infinity =>
       if x.precision() == precision {
@@ -363,7 +395,10 @@ fn upper_round_bound(
       if x.precision() == precision {
         x
       } else {
-        x.with_precision(precision, RoundingMode::TowardPositive)
+        x.with_precision(
+          precision,
+          @bin_float.BinaryRoundingMode::RoundTowardPositive,
+        )
       }
     FpClass::Infinity =>
       if x.precision() == precision {
@@ -467,7 +502,7 @@ fn directed_division(
   }
   numerator.div_ctx(
     denominator,
-    @bin_float.BinaryContext::unbounded(precision, rounding~),
+    @bin_float.BinaryContext::new(precision~, rounding~),
   ).0
 }
 
@@ -1069,7 +1104,12 @@ pub fn BallFloat::midpoint(self : BallFloat) -> @bin_float.BinFloat {
   if self.is_entire() {
     return @bin_float.BinFloat::zero(precision=self.precision_)
   }
-  self.center().with_precision(self.precision_, RoundingMode::ToNearestEven)
+  self
+  .center()
+  .with_precision(
+    self.precision_,
+    @bin_float.BinaryRoundingMode::RoundTiesToEven,
+  )
 }
 
 ///|
@@ -1110,7 +1150,12 @@ pub fn BallFloat::radius_extended(self : BallFloat) -> @bin_float.BinFloat {
   if !self.is_common_interval() {
     return pos_inf(self.precision_)
   }
-  self.radius().with_precision(self.precision_, RoundingMode::TowardPositive)
+  self
+  .radius()
+  .with_precision(
+    self.precision_,
+    @bin_float.BinaryRoundingMode::RoundTowardPositive,
+  )
 }
 
 ///|
@@ -1241,10 +1286,7 @@ fn pown_endpoint(
   precision : Int32,
   rounding : @bin_float.BinaryRoundingMode,
 ) -> @bin_float.BinFloat {
-  value.pown_ctx(
-    exponent,
-    @bin_float.BinaryContext::unbounded(precision, rounding~),
-  ).0
+  value.pown_ctx(exponent, @bin_float.BinaryContext::new(precision~, rounding~)).0
 }
 
 ///|
@@ -1459,7 +1501,7 @@ fn directed_sqrt(
   } else {
     @bin_float.BinaryRoundingMode::RoundTowardNegative
   }
-  x.sqrt_ctx(@bin_float.BinaryContext::unbounded(precision, rounding~)).0
+  x.sqrt_ctx(@bin_float.BinaryContext::new(precision~, rounding~)).0
 }
 
 ///|

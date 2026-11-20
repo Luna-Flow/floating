@@ -74,9 +74,9 @@ fn oracle_to_bin_float(
 ) -> @bin_float.BinFloat {
   let value = Decimal::make(coefficient, exponent, 34)
   value.to_bin_float_ctx(
-    @bin_float.BinaryContext::unbounded(
-      precision,
-      rounding=@bin_float.BinaryRoundingMode::from_arithmetic(mode),
+    @bin_float.BinaryContext::new(
+      precision~,
+      rounding=bin_mode(mode, value.negative),
     ),
   ).0
 }

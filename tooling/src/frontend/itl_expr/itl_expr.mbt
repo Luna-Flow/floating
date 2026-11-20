@@ -389,7 +389,7 @@ fn parse_hex_bound(
       exponent - 4 * fractional_digits,
       Int32::max(precision, magnitude.bit_length()),
       negative~,
-    ).with_precision(precision, mode),
+    ).with_precision(precision, itl_bin_mode(mode, negative)),
   )
 }
 
@@ -994,3 +994,24 @@ pub extend ItlCase with Eq::{not_equal, equal}
 
 ///|
 pub extend ItlCase with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+/// The IEEE 754-2019 attribute of an `@arithmetic` mode for a value of the
+/// given sign (`AwayFromZero` is the direction of the sign).
+fn itl_bin_mode(
+  mode : @lf_arith.RoundingMode,
+  negative : Bool,
+) -> @bin_float.BinaryRoundingMode {
+  match mode {
+    ToNearestEven => @bin_float.BinaryRoundingMode::RoundTiesToEven
+    TowardZero => @bin_float.BinaryRoundingMode::RoundTowardZero
+    TowardPositive => @bin_float.BinaryRoundingMode::RoundTowardPositive
+    TowardNegative => @bin_float.BinaryRoundingMode::RoundTowardNegative
+    AwayFromZero =>
+      if negative {
+        @bin_float.BinaryRoundingMode::RoundTowardNegative
+      } else {
+        @bin_float.BinaryRoundingMode::RoundTowardPositive
+      }
+  }
+}

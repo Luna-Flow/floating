@@ -141,5 +141,5 @@ pub fn BinFloat::fma(
     self.precision_,
     Int32::max(multiplier.precision_, addend.precision_),
   )
-  self.fma_ctx(multiplier, addend, BinaryContext::unbounded(precision)).0
+  self.fma_ctx(multiplier, addend, binary_working_context(precision)).0
 }

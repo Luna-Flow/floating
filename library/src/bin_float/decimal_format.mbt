@@ -23,8 +23,8 @@ fn binary_decimal_exponent(value : BinFloat) -> Int32 {
     // Is |value| >= 10^(exponent + 1)? Decide with directed bounds of the power.
     let next = exponent + 1
     let work = 64
-    let down = BinaryContext::unbounded(work, rounding=RoundTowardNegative)
-    let up = BinaryContext::unbounded(work, rounding=RoundTowardPositive)
+    let down = binary_working_context(work, rounding=RoundTowardNegative)
+    let up = binary_working_context(work, rounding=RoundTowardPositive)
     let power_low = ten.pown_ctx(next, down).0
     let power_high = ten.pown_ctx(next, up).0
     if magnitude.compare(power_low) < 0 {
@@ -106,16 +106,16 @@ fn binary_scaled_decimal_integer(
   let mut work = digits * 4 + 64
   let ten = BinFloat::from_int_raw(10, precision=work)
   while true {
-    let down = BinaryContext::unbounded(work, rounding=RoundTowardNegative)
-    let up = BinaryContext::unbounded(work, rounding=RoundTowardPositive)
+    let down = binary_working_context(work, rounding=RoundTowardNegative)
+    let up = binary_working_context(work, rounding=RoundTowardPositive)
     let magnitude = value.abs()
     let low_value = magnitude.with_precision_raw(
       work,
-      RoundingMode::TowardNegative,
+      BinaryRoundingMode::RoundTowardNegative,
     )
     let high_value = magnitude.with_precision_raw(
       work,
-      RoundingMode::TowardPositive,
+      BinaryRoundingMode::RoundTowardPositive,
     )
     let (low, high) = if scale >= 0 {
       (
@@ -259,7 +259,11 @@ fn binary_shortest_digits(
     let (up, up_exponent, _) = binary_decimal_digits(
       value,
       digits,
-      RoundAwayFromZero,
+      if value.negative {
+        RoundTowardNegative
+      } else {
+        RoundTowardPositive
+      },
     )
     let render = fn(text : String, exponent : Int32) {
       (if value.negative { "-" } else { "" }) +
@@ -381,5 +385,5 @@ pub fn BinFloat::to_shortest_string_ctx(
 /// exponent range: `from_string(text, precision=self.precision())` returns
 /// this value. See `to_shortest_string_ctx` for IEEE formats with subnormals.
 pub fn BinFloat::to_shortest_string(self : BinFloat) -> String {
-  self.to_shortest_string_ctx(BinaryContext::unbounded(self.precision_))
+  self.to_shortest_string_ctx(binary_working_context(self.precision_))
 }

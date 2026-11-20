@@ -4,10 +4,10 @@
 /// scaling by 2 is exact (unbounded exponent range).
 fn certified_pi_interval(precision : Int32) -> BallFloat {
   let infinity = @bin_float.BinFloat::inf(Sign::Positive, precision~)
-  let exact = @bin_float.BinaryContext::unbounded(precision)
+  let exact = @bin_float.BinaryContext::new(precision~)
   let two = @bin_float.BinFloat::from_int(2, precision=2)
   let bound = fn(rounding) {
-    let context = @bin_float.BinaryContext::unbounded(precision, rounding~)
+    let context = @bin_float.BinaryContext::new(precision~, rounding~)
     match infinity.try_atan_ctx(context) {
       Ok(result) => result.0.mul_ctx(two, exact).0
       Err(error) => abort(error.message)
@@ -218,12 +218,12 @@ pub fn BallFloat::try_hypot(
   }
   let left = self.abs()
   let right = other.abs()
-  let downward = @bin_float.BinaryContext::unbounded(
-    precision,
+  let downward = @bin_float.BinaryContext::new(
+    precision~,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::unbounded(
-    precision,
+  let upward = @bin_float.BinaryContext::new(
+    precision~,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   left.lo_
@@ -242,12 +242,12 @@ fn try_pow_point_bounds(
   precision : Int32,
 ) -> Result[(@bin_float.BinFloat, @bin_float.BinFloat), @def.ArithmeticError] {
   let base = canonical_interval_endpoint(base, precision)
-  let downward = @bin_float.BinaryContext::unbounded(
-    precision,
+  let downward = @bin_float.BinaryContext::new(
+    precision~,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::unbounded(
-    precision,
+  let upward = @bin_float.BinaryContext::new(
+    precision~,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   base
@@ -368,12 +368,12 @@ pub fn BallFloat::try_tanpi(
   let indices = pi_scaled_index_range(self)
   let first_pole = first_odd_index_at_or_above(indices.0)
   let has_pole = signed_coeff_compare(first_pole, indices.1) <= 0
-  let downward = @bin_float.BinaryContext::unbounded(
-    self.precision_,
+  let downward = @bin_float.BinaryContext::new(
+    precision=self.precision_,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::unbounded(
-    self.precision_,
+  let upward = @bin_float.BinaryContext::new(
+    precision=self.precision_,
     rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   if !has_pole {
@@ -491,7 +491,10 @@ pub fn BallFloat::atanh(self : BallFloat) -> BallFloat {
 /// pi is evaluated at no more than 64 bits and rounded outward.
 fn half_pi_range(precision : Int32) -> BallFloat {
   let pi = pi_range(precision)
-  let bound = pi.hi_.with_precision(precision, RoundingMode::TowardPositive)
+  let bound = pi.hi_.with_precision(
+    precision,
+    @bin_float.BinaryRoundingMode::RoundTowardPositive,
+  )
   let half = BallFloat::exact(bound, precision~).div(
     BallFloat::from_int(2, precision~),
   )
@@ -504,7 +507,10 @@ fn pi_range(precision : Int32) -> BallFloat {
   let pi = certified_pi_interval(Int32::min(precision, 64))
   store_interval(
     @bin_float.BinFloat::zero(precision~),
-    pi.hi_.with_precision(precision, RoundingMode::TowardPositive),
+    pi.hi_.with_precision(
+      precision,
+      @bin_float.BinaryRoundingMode::RoundTowardPositive,
+    ),
     precision,
   )
 }

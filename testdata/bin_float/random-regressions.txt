@@ -3,20 +3,23 @@
 # Each row is annotated with the finding it reproduces. A row annotated
 # `xfail #N` is a known failure; the smoke run requires exactly the xfail rows
 # to fail, so a fixed row loses its marker and stays as a regression test.
+# Rows at the lower edge of an unbounded context carry the expected values of
+# e_min = 2 - 2^30 (IEEE 754-2019 3.3: emin = 1 - emax); the older comments give the
+# arguments of the findings, whose exact results moved by one binade.
 # #271 exp2 of an exactly representable subnormal returned +0 (unbounded context)
-reg.exp2.exact-subnormal exp2 n 2 - - - -0x1p30 - - 0 0x1p-1073741824 -
+reg.exp2.exact-subnormal exp2 n 2 - - - -0x1p30 - - 0 0x0p0 xu
 # #271 the same with the argument below -2^30
 reg.exp2.exact-subnormal-below exp2 z 28 - - - -0x40000001p0 - - 0 0x1p-1073741825 -
 # #272 pow of an exact power of two below 2^e_min: (1/4)^(2^29 + 1/2) = 2^-1073741825
-reg.pow.exact-subnormal pow n 3 - - - 0x1p-2 0x40000001p-1 - 0 0x1p-1073741825 -
+reg.pow.exact-subnormal pow n 3 - - - 0x1p-2 0x40000001p-1 - 0 0x0p0 xu
 # #272 the same at p = 2, where 2^-1073741825 is half the smallest subnormal (tie to even)
 reg.pow.exact-subnormal-tie pow n 2 - - - 0x1p-2 0x40000001p-1 - 0 0x0p0 xu
 # #272 and rounded up
-reg.pow.exact-subnormal-up pow u 2 - - - 0x1p-2 0x40000001p-1 - 0 0x1p-1073741824 xu
+reg.pow.exact-subnormal-up pow u 2 - - - 0x1p-2 0x40000001p-1 - 0 0x1p-1073741823 xu
 # #278 pown of a value between half and the whole smallest subnormal, rounded toward negative
 reg.pown.below-smallest-down pown d 40 - - - 0x3p0 - - -677455689 0x0p0 xu
 # #278 at p = 42 the value is between 2^q and 2^(q+1) and rounds down to the smallest subnormal 2^q
-reg.pown.below-smallest-down-next pown d 42 - - - 0x3p-1 - - -1835573839 0x1p-1073741864 xu
+reg.pown.below-smallest-down-next pown d 42 - - - 0x3p-1 - - -1835573839 0x0p0 xu
 # #275 hypot of operands with an exponent beyond 2^29 in magnitude, or near the subnormal limit
 reg.hypot.exponent-beyond-2e29 hypot n 53 - - - 0x1p-600000000 0x1p-600000000 - 0 0x16a09e667f3bcdp-600000052 x
 reg.hypot.exponent-beyond-2e29-unequal hypot n 53 - - - 0x1p-540000000 0x1p-540000001 - 0 0x23c6ef372fe95p-540000049 x
@@ -26,53 +29,53 @@ reg.hypot.negligible-subnormal-operand hypot u 53 - - - 0x1p-1073741780 0x1p-107
 reg.hypot.subnormal-result hypot d 53 - - - 0x3p-1073741860 0x3p-1073741860 - 0 0x10f87p-1073741874 xu
 # tiny arguments within a few bits of the implementation subnormal limit (offset or inner endpoint flushed)
 reg.tiny-arg.expm1.0 expm1 n 53 - - - 0x1p-1073741860 - - 0 0x1p-1073741860 xu
-reg.tiny-arg.expm1.1 expm1 u 53 - - - 0x1p-1073741860 - - 0 0x8001p-1073741875 xu
+reg.tiny-arg.expm1.1 expm1 u 53 - - - 0x1p-1073741860 - - 0 0x4001p-1073741874 xu
 reg.tiny-arg.expm1.2 expm1 d 53 - - - 0x1p-1073741860 - - 0 0x1p-1073741860 xu
-reg.tiny-arg.expm1.3 expm1 n 53 - - - 0x1p-1073741823 - - 0 0x1p-1073741823 x
-reg.tiny-arg.expm1.4 expm1 u 53 - - - 0x1p-1073741823 - - 0 0x10000000000001p-1073741875 x
-reg.tiny-arg.expm1.5 expm1 d 53 - - - 0x1p-1073741823 - - 0 0x1p-1073741823 x
+reg.tiny-arg.expm1.3 expm1 n 53 - - - 0x1p-1073741823 - - 0 0x1p-1073741823 xu
+reg.tiny-arg.expm1.4 expm1 u 53 - - - 0x1p-1073741823 - - 0 0x8000000000001p-1073741874 xu
+reg.tiny-arg.expm1.5 expm1 d 53 - - - 0x1p-1073741823 - - 0 0x1p-1073741823 xu
 reg.tiny-arg.log1p.6 log1p n 53 - - - 0x1p-1073741860 - - 0 0x1p-1073741860 xu
 reg.tiny-arg.log1p.7 log1p u 53 - - - 0x1p-1073741860 - - 0 0x1p-1073741860 xu
-reg.tiny-arg.log1p.8 log1p d 53 - - - 0x1p-1073741860 - - 0 0x7fffp-1073741875 xu
-reg.tiny-arg.log1p.9 log1p n 53 - - - 0x1p-1073741823 - - 0 0x1p-1073741823 x
-reg.tiny-arg.log1p.10 log1p u 53 - - - 0x1p-1073741823 - - 0 0x1p-1073741823 x
-reg.tiny-arg.log1p.11 log1p d 53 - - - 0x1p-1073741823 - - 0 0xfffffffffffffp-1073741875 xu
+reg.tiny-arg.log1p.8 log1p d 53 - - - 0x1p-1073741860 - - 0 0x3fffp-1073741874 xu
+reg.tiny-arg.log1p.9 log1p n 53 - - - 0x1p-1073741823 - - 0 0x1p-1073741823 xu
+reg.tiny-arg.log1p.10 log1p u 53 - - - 0x1p-1073741823 - - 0 0x1p-1073741823 xu
+reg.tiny-arg.log1p.11 log1p d 53 - - - 0x1p-1073741823 - - 0 0x7ffffffffffffp-1073741874 xu
 reg.tiny-arg.sinh.12 sinh n 53 - - - 0x1p-1073741860 - - 0 0x1p-1073741860 xu
-reg.tiny-arg.sinh.13 sinh u 53 - - - 0x1p-1073741860 - - 0 0x8001p-1073741875 xu
+reg.tiny-arg.sinh.13 sinh u 53 - - - 0x1p-1073741860 - - 0 0x4001p-1073741874 xu
 reg.tiny-arg.sinh.14 sinh d 53 - - - 0x1p-1073741860 - - 0 0x1p-1073741860 xu
-reg.tiny-arg.sinh.15 sinh n 53 - - - 0x1p-1073741823 - - 0 0x1p-1073741823 x
-reg.tiny-arg.sinh.16 sinh u 53 - - - 0x1p-1073741823 - - 0 0x10000000000001p-1073741875 x
-reg.tiny-arg.sinh.17 sinh d 53 - - - 0x1p-1073741823 - - 0 0x1p-1073741823 x
+reg.tiny-arg.sinh.15 sinh n 53 - - - 0x1p-1073741823 - - 0 0x1p-1073741823 xu
+reg.tiny-arg.sinh.16 sinh u 53 - - - 0x1p-1073741823 - - 0 0x8000000000001p-1073741874 xu
+reg.tiny-arg.sinh.17 sinh d 53 - - - 0x1p-1073741823 - - 0 0x1p-1073741823 xu
 reg.tiny-arg.tanh.18 tanh n 53 - - - 0x1p-1073741860 - - 0 0x1p-1073741860 xu
 reg.tiny-arg.tanh.19 tanh u 53 - - - 0x1p-1073741860 - - 0 0x1p-1073741860 xu
-reg.tiny-arg.tanh.20 tanh d 53 - - - 0x1p-1073741860 - - 0 0x7fffp-1073741875 xu
-reg.tiny-arg.tanh.21 tanh n 53 - - - 0x1p-1073741823 - - 0 0x1p-1073741823 x
-reg.tiny-arg.tanh.22 tanh u 53 - - - 0x1p-1073741823 - - 0 0x1p-1073741823 x
-reg.tiny-arg.tanh.23 tanh d 53 - - - 0x1p-1073741823 - - 0 0xfffffffffffffp-1073741875 xu
+reg.tiny-arg.tanh.20 tanh d 53 - - - 0x1p-1073741860 - - 0 0x3fffp-1073741874 xu
+reg.tiny-arg.tanh.21 tanh n 53 - - - 0x1p-1073741823 - - 0 0x1p-1073741823 xu
+reg.tiny-arg.tanh.22 tanh u 53 - - - 0x1p-1073741823 - - 0 0x1p-1073741823 xu
+reg.tiny-arg.tanh.23 tanh d 53 - - - 0x1p-1073741823 - - 0 0x7ffffffffffffp-1073741874 xu
 reg.tiny-arg.sin.24 sin n 53 - - - 0x1p-1073741860 - - 0 0x1p-1073741860 xu
 reg.tiny-arg.sin.25 sin u 53 - - - 0x1p-1073741860 - - 0 0x1p-1073741860 xu
-reg.tiny-arg.sin.26 sin d 53 - - - 0x1p-1073741860 - - 0 0x7fffp-1073741875 xu
-reg.tiny-arg.sin.27 sin n 53 - - - 0x1p-1073741823 - - 0 0x1p-1073741823 x
-reg.tiny-arg.sin.28 sin u 53 - - - 0x1p-1073741823 - - 0 0x1p-1073741823 x
-reg.tiny-arg.sin.29 sin d 53 - - - 0x1p-1073741823 - - 0 0xfffffffffffffp-1073741875 xu
+reg.tiny-arg.sin.26 sin d 53 - - - 0x1p-1073741860 - - 0 0x3fffp-1073741874 xu
+reg.tiny-arg.sin.27 sin n 53 - - - 0x1p-1073741823 - - 0 0x1p-1073741823 xu
+reg.tiny-arg.sin.28 sin u 53 - - - 0x1p-1073741823 - - 0 0x1p-1073741823 xu
+reg.tiny-arg.sin.29 sin d 53 - - - 0x1p-1073741823 - - 0 0x7ffffffffffffp-1073741874 xu
 reg.tiny-arg.asin.30 asin n 53 - - - 0x1p-1073741860 - - 0 0x1p-1073741860 xu
-reg.tiny-arg.asin.31 asin u 53 - - - 0x1p-1073741860 - - 0 0x8001p-1073741875 xu
+reg.tiny-arg.asin.31 asin u 53 - - - 0x1p-1073741860 - - 0 0x4001p-1073741874 xu
 reg.tiny-arg.asin.32 asin d 53 - - - 0x1p-1073741860 - - 0 0x1p-1073741860 xu
-reg.tiny-arg.asin.33 asin n 53 - - - 0x1p-1073741823 - - 0 0x1p-1073741823 x
-reg.tiny-arg.asin.34 asin u 53 - - - 0x1p-1073741823 - - 0 0x10000000000001p-1073741875 x
-reg.tiny-arg.asin.35 asin d 53 - - - 0x1p-1073741823 - - 0 0x1p-1073741823 x
+reg.tiny-arg.asin.33 asin n 53 - - - 0x1p-1073741823 - - 0 0x1p-1073741823 xu
+reg.tiny-arg.asin.34 asin u 53 - - - 0x1p-1073741823 - - 0 0x8000000000001p-1073741874 xu
+reg.tiny-arg.asin.35 asin d 53 - - - 0x1p-1073741823 - - 0 0x1p-1073741823 xu
 # #316 sinpi, tanpi and cospi of tiny arguments within a few bits of the implementation subnormal limit
 reg.pi-tiny-arg.sinpi.0 sinpi n 53 - - - 0x1p-1073741860 - - 0 0xc91p-1073741870 xu
 reg.pi-tiny-arg.sinpi.1 sinpi u 53 - - - 0x1p-1073741860 - - 0 0xc91p-1073741870 xu
-reg.pi-tiny-arg.sinpi.2 sinpi d 53 - - - 0x1p-1073741860 - - 0 0x1921fp-1073741875 xu
-reg.pi-tiny-arg.sinpi.3 sinpi n 53 - - - 0x1p-1073741870 - - 0 0x65p-1073741875 xu
-reg.pi-tiny-arg.sinpi.4 sinpi u 53 - - - 0x1p-1073741870 - - 0 0x65p-1073741875 xu
+reg.pi-tiny-arg.sinpi.2 sinpi d 53 - - - 0x1p-1073741860 - - 0 0xc90fp-1073741874 xu
+reg.pi-tiny-arg.sinpi.3 sinpi n 53 - - - 0x1p-1073741870 - - 0 0x19p-1073741873 xu
+reg.pi-tiny-arg.sinpi.4 sinpi u 53 - - - 0x1p-1073741870 - - 0 0x33p-1073741874 xu
 reg.pi-tiny-arg.sinpi.5 sinpi d 53 - - - 0x1p-1073741870 - - 0 0x19p-1073741873 xu
 reg.pi-tiny-arg.tanpi.6 tanpi n 53 - - - 0x1p-1073741860 - - 0 0xc91p-1073741870 xu
 reg.pi-tiny-arg.tanpi.7 tanpi u 53 - - - 0x1p-1073741860 - - 0 0xc91p-1073741870 xu
-reg.pi-tiny-arg.tanpi.8 tanpi d 53 - - - 0x1p-1073741860 - - 0 0x1921fp-1073741875 xu
-reg.pi-tiny-arg.tanpi.9 tanpi n 53 - - - 0x1p-1073741870 - - 0 0x65p-1073741875 xu
-reg.pi-tiny-arg.tanpi.10 tanpi u 53 - - - 0x1p-1073741870 - - 0 0x65p-1073741875 xu
+reg.pi-tiny-arg.tanpi.8 tanpi d 53 - - - 0x1p-1073741860 - - 0 0xc90fp-1073741874 xu
+reg.pi-tiny-arg.tanpi.9 tanpi n 53 - - - 0x1p-1073741870 - - 0 0x19p-1073741873 xu
+reg.pi-tiny-arg.tanpi.10 tanpi u 53 - - - 0x1p-1073741870 - - 0 0x33p-1073741874 xu
 reg.pi-tiny-arg.tanpi.11 tanpi d 53 - - - 0x1p-1073741870 - - 0 0x19p-1073741873 xu
 reg.pi-tiny-arg.cospi.12 cospi n 53 - - - 0x1p-1073741860 - - 0 0x1p0 x
 reg.pi-tiny-arg.cospi.13 cospi u 53 - - - 0x1p-1073741860 - - 0 0x1p0 x
@@ -86,7 +89,6 @@ reg.exp2m1.boundary.1 exp2m1 u 51 -16382 16383 a 0xffffffffffffffffp-50 - - 0 0x
 reg.exp2m1.boundary.2 exp2m1 n 89 -14 15 b 0x2e2a8be7ae1956be8fdf10b9fa4bbe5b9p-231 - - 0 0x1p-102 xu
 reg.exp2m1.boundary.3 exp2m1 na 126 -1022 1023 b 0xb8aa3b2c3ec0dd612ee7c1bf633bfb41a47p-1161 - - 0 0x200000007fffffffffffffffffffc8cdp-1147 x
 reg.exp2m1.boundary.4 exp2m1 d 163 -6 7 b 0x6fffffffff9p-40 - - 0 0x7efffffffd92f0ac1ca78c8984a56156dff96b371p-156 x
-reg.exp2m1.boundary.5 exp2m1 a 201 -14 15 b 0x10000000000000001p-60 - - 0 0xffff00000000000b17217f7d1cf79afa1db73885ca4cbcb595p-184 x
 reg.exp2m1.boundary.6 exp2m1 z 238 -16382 16383 a 0x2e2a91acfff2a19f4f64eeae3a4241a47p-16748 - - 0 0x1p-16619 xu
 reg.exp2m1.boundary.7 exp2m1 u 276 - - - 0x2e2a8e9c2c7731d7e9a5d0c478474be5b9p-1073741956 - - 0 0x3fffffbfffffffffffffffffffff919aafacecc7227f77a1fdaf99fce0f1d9a688b69p-1073742097 xu
 reg.exp10m1.boundary.0 exp10m1 z 14 -16382 16383 b -0x28f0a90b52e3405390b130ffe6e9486207bd1b30dp-159 - - 0 -0x3fffp-14 x
@@ -99,26 +101,19 @@ reg.exp10m1.boundary.6 exp10m1 u 238 -16382 16383 b 0x26878ee91d370c5d1c6b29a645
 reg.exp10m1.boundary.7 exp10m1 z 276 - - - 0x1344133d0e56615e2a577ed5307b96c655p-104 - - 0 0x80000058b90c1aa8a5c3921bfd611644976eb78cd7089bc39bbebd0887543e72281dfp1073741484 x
 reg.log10p1.boundary.0 log10p1 na 14 -126 127 b 0x24d7639c420da27064c0bb45766a8ae0b5p-258 - - 0 0x1p-126 x
 reg.log10p1.boundary.1 log10p1 n 51 -16382 16383 a 0x24d763776aaa2b0595be5213760ad4fa456a4a751f4bp-16554 - - 0 0x1p-16382 x
-reg.log10p1.boundary.2 log10p1 a 89 -14 15 b 0x24d763776a8553a2432b0b5fdafa6a4a751f4bp-251 - - 0 0x1p-102 xu
-reg.log10p1.boundary.3 log10p1 a 126 -1022 1023 a 0x24d763529346b39b106aafd04aff751f4bp-1279 - - 0 0x1p-1147 xu
 reg.log10p1.boundary.4 log10p1 n 163 -6 7 a 0x24d763776aaa2b05ba95b58ae0b5p-114 - - 0 0x3ee0272379370bd4eafe291cf05d6777bd3eb0243p-168 xu
 reg.log10p1.boundary.5 log10p1 n 201 -14 15 b 0x24d763776aaa2d5330cd2c3583655ba95b58ae0b5p-174 - - 0 0xfffb652fd72b20677fef77d0ca8dc76605418cfb0c73071947p-214 xu
-reg.log10p1.boundary.6 log10p1 a 238 -16382 16383 a 0x935d8ddff81ee38d94f986872c2f58ae0b5p-16758 - - 0 0x1p-16619 xu
-reg.log10p1.boundary.7 log10p1 a 276 - - - 0x24d765c4e0e1a1b05d4611343c0dae0b5p-1073742226 - - 0 0x1p-1073742097 xu
 reg.log2p1.boundary.0 log2p1 n 14 -126 127 a 0x58b90bfbe8e7c26175b1985a7dc65e4f1d9cc01f9p-289 - - 0 0x1p-126 x
-reg.log2p1.boundary.1 log2p1 a 51 -16382 16383 b 0x58b90bfbe8e7bcd58c38cdd01911432a1b0e2633fe07p-16557 - - 0 0x1p-16382 xu
 reg.log2p1.boundary.2 log2p1 d 89 -14 15 b 0x58b906705827fe4769247b7ce45c3fe07p-145 - - 0 0xfffe8d1e8c6191ee3b4349p-102 xu
 reg.log2p1.boundary.3 log2p1 u 126 -1022 1023 b 0x162e42ff52f2fb3162243348e57019cc01f9p-1163 - - 0 0x80000001ffffffffffffffffffff4e1p-1145 x
 reg.log2p1.boundary.4 log2p1 z 163 -6 7 b 0x58b90bfbe88f03c9e908f20f2c140e2633fe07p-157 - - 0 0x1fd3f4d0468703030006e01d61a530bff13e69d7p-163 xu
 reg.log2p1.boundary.5 log2p1 n 201 -14 15 b 0x58b90bfbe8e7bcd63daae5c7eae0bcd5e4f1d9cc01f9p-189 - - 0 0xfffe9d1e60058851c64a17d472de1560a04cdbd910224f7d3fp-214 xu
 reg.log2p1.boundary.6 log2p1 n 238 -16382 16383 b 0x58b9118779a77b6460bf381b1f95c01f9p-16513 - - 0 0x100000ffffffffffffffffffffffe9c1be99d4ed23c23635fecf9b59c0ebp-16618 x
-reg.log2p1.boundary.7 log2p1 a 276 - - - 0x58b90ba32fdbc0ecfd3503e7101f33fe07p-1073741958 - - 0 0x7fffff7fffffffffffffffffffff4e0e009fb96a53d3a354aa95e02e2c7a3356052f7p-1073742098 xu
 # #235 rSqrt, compound and powr: rows from tools/range_boundary_rows.py on the thresholds
 # (the compound rows are those where mpfr_compound_si 4.2.2 is itself wrong and the oracle uses the exact rational)
 reg.rsqrt.boundary.0 rsqrt n 151 -14 15 a 0xffffffffffp288 - - 0 0x1p-164 xu
 reg.rsqrt.boundary.1 rsqrt u 232 -6 7 a 0x10000000000000001p-78 - - 0 0xffffffffffffffff80000000000000005fffffffffffffffb000000001p-225 x
 reg.rsqrt.boundary.2 rsqrt n 29 -6 7 b 0xffffffp-40 - - 0 inf xo
-reg.rsqrt.boundary.3 rsqrt a 88 -6 7 b 0x1p186 - - 0 0x1p-93 -
 reg.rsqrt.boundary.4 rsqrt n 36 -14 15 a 0x3fffffffp68 - - 0 0x1p-49 xu
 reg.rsqrt.boundary.5 rsqrt n 51 -14 15 b 0xfffffffffffffp-24 - - 0 0x1p-14 x
 reg.rsqrt.boundary.6 rsqrt u 23 -14 15 a 0x10000000000000001p-96 - - 0 inf xo
@@ -136,15 +131,12 @@ reg.powr.boundary.1 powr n 249 -1022 1023 a 0x3p0 -0x284cf674853ea844220a0db0a66
 reg.powr.boundary.2 powr d 57 -6 7 b 0xb33333333333333p-60 -0x3e2ffd8e7a6709634ced911baf6609630ebd938d34ffp-170 - 0 0x1ffffffffffffffp-49 xo
 reg.powr.boundary.3 powr n 252 -6 7 a 0x3p0 -0xf246eb227e7eddf5065e07335afp-106 - 0 0x7fffffffffffffffffffffffffff545e376d6d9d5d58c32e8891db607e9c89bp-257 xu
 reg.powr.boundary.4 powr d 50 -6 7 b 0xb33333333333333p-60 -0x3669fddcab1a2836ace5e11b8e5fp-106 - 0 0x1p7 x
-reg.powr.boundary.5 powr a 42 - - - 0x3p0 0xa1849cc42fbc5c54aae654afa2eebdde47dp-110 - 0 inf xo
-reg.powr.boundary.6 powr a 172 -126 127 a 0x3p0 -0x17808bcf2deff932b19eaad753ecf9329a1e1f0825fdp-165 - 0 0x1p-297 xu
 reg.powr.boundary.7 powr d 266 -1022 1023 a 0x3p-1 0x36b450cf5b98403f6580508980a927b8b7p-123 - 0 0x3fff4e8ede053ad4f35d8a75c28c6b51e971e641b9f05c2d8da5d9ba14e936ef713p758 x
 # #235 asinPi, acosPi, atanPi and atan2Pi: rows from tools/range_boundary_rows.py on the underflow thresholds,
 # the anchors +-1/2 and +-1 for huge, tiny and extreme-ratio arguments, and next to +-1
-reg.asinpi.boundary.0 asinpi n 144 - - - 0x3243f6a8885a308d63758f4b6891308d313198a2e037p-1073742138 - - 0 0x1p-1073741966 xu
+reg.asinpi.boundary.0 asinpi n 144 - - - 0x3243f6a8885a308d63758f4b6891308d313198a2e037p-1073742138 - - 0 0x1p-1073741965 xu
 reg.asinpi.boundary.1 asinpi n 96 -14 15 b 0xfp-4 - - 0 0xc6134a21489e2dd3b0676e39p-97 x
 reg.asinpi.boundary.2 asinpi n 285 -1022 1023 b 0x3243f6a88827ec9688a93e725305ce675d1fc9p-1455 - - 0 0x0p0 xu
-reg.asinpi.boundary.3 asinpi a 218 -16382 16383 a 0x3243f6a8888c7483d9b9f2d36d683198a2e037p-16530 - - 0 0x10000000000ffffffffffffffffffdb4f1ba06946509c4178e1a497p-16598 x
 reg.asinpi.boundary.4 asinpi z 123 -1022 1023 b 0x3243f6dacc50d9158b6225d411cfa2e037p-1277 - - 0 0x0p0 xu
 reg.asinpi.boundary.5 asinpi n 237 -16382 16383 b -0x1fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffp-245 - - 0 -0x1ffffffffffffffffffffffffffffffae833e48d8ddf56b01ec541705659p-238 x
 reg.asinpi.boundary.6 asinpi u 62 -16382 16383 b 0x3243f6a8888c7483d9b9f2d36d683198a2e037p-16592 - - 0 0x1p-16443 xu
@@ -169,11 +161,9 @@ reg.atanpi.boundary.4 atanpi n 73 -1022 1023 a 0x30000000003p36 - - 0 0x1p-1 x
 reg.atanpi.boundary.5 atanpi n 198 -6 7 b 0xc90fdaa545a82cbd4a696b5e93f58a2e037p-341 - - 0 0x1p-203 xu
 reg.atanpi.boundary.6 atanpi d 219 -1022 1023 a 0xbffffffdp194 - - 0 0x7ffffffffffffffffffffffffffffffffffffffffffffffffffffffp-220 x
 reg.atanpi.boundary.7 atanpi u 191 -126 127 b 0x3243f6a8885a308d313198a2e037p-425 - - 0 0x1p-316 xu
-reg.atanpi.boundary.8 atanpi a 130 -16382 16383 a 0x2fffffffffffffffdp16316 - - 0 0x1p-1 x
 reg.atanpi.boundary.9 atanpi n 57 -1022 1023 a 0x3243f6a8885a308cfeeda1fa57dccf72cece675d1fc9p-1251 - - 0 0x0p0 xu
 reg.atan2pi.boundary.0 atan2pi d 98 - - - -0x1p104 -0x2ffffdp-21 - 0 -0x2000000000000000000000001p-98 x
 reg.atan2pi.boundary.1 atan2pi z 162 -6 7 a 0x3243f38448efa8078e28c58fc6acd1fc9p-295 0x1p0 - 0 0x0p0 xu
-reg.atan2pi.boundary.2 atan2pi a 37 - - - 0x1p-43 -0x3p-1 - 0 0x1p0 x
 reg.atan2pi.boundary.3 atan2pi z 175 -126 127 a -0x1p-181 0x2fffffffffffffffdp-65 - 0 -0x1b2995e7b7b603871a8579e00b3ed3p-300 xu
 reg.atan2pi.boundary.4 atan2pi na 297 -14 15 b -0x1p-301 -0x2ffffdp-21 - 0 -0x1p0 x
 reg.atan2pi.boundary.5 atan2pi d 257 -126 127 a -0x1p-266 0x3000003p-25 - 0 -0x36532b991c406df1be49d6325d3b7p-382 xu

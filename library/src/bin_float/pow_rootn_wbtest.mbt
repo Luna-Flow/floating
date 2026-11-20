@@ -255,7 +255,7 @@ test "BinFloat pow finds exact powers for large dyadic exponents" {
         BinaryRoundingMode::RoundTowardPositive,
         BinaryRoundingMode::RoundTowardZero,
       ] {
-      let context = BinaryContext::unbounded(work, rounding=mode)
+      let context = BinaryContext::new(precision=work, rounding=mode)
       for case in cases {
         let (base, exponent, coefficient, scale) = case
         assert_exact_result(

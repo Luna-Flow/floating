@@ -3,7 +3,7 @@
 /// on operands that are wider than one machine word. They run the same
 /// exact integer arithmetic as the general path
 /// (`add_ctx`/`mul_ctx`/`div_ctx`/`sqrt_ctx` with
-/// `BinaryContext::unbounded(max precision)`, round to nearest even) but skip
+/// `binary_working_context(max precision)`, round to nearest even) but skip
 /// the context, the exception flags, the result tuple and the repeated
 /// rounding decisions: the exact result (or, for a quotient, a truncated
 /// result carrying at least two bits more than the precision plus a sticky

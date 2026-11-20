@@ -117,7 +117,7 @@ test "decimal strings parse specials and reject malformed input" {
 
 ///|
 test "decimal strings with huge exponents stay cheap" {
-  let unbounded = BinaryContext::unbounded(53)
+  let unbounded = BinaryContext::new(precision=53)
   inspect(
     decimal_string_show("1e300000000", unbounded),
     content=(
@@ -174,7 +174,7 @@ test "decimal strings round-trip the host binary64 shortest form" {
 test "arbitrary precision parses agree with exact rational rounding" {
   // 1/3 at 200 bits: the decimal string of many threes approaches 1/3 from
   // below, so it rounds like the binary expansion of 0.333... truncated.
-  let context = BinaryContext::unbounded(200)
+  let context = BinaryContext::new(precision=200)
   let thirds = "0." + "3".repeat(80)
   let parsed = BinFloat::from_string_ctx(thirds, context).unwrap().0
   let exact = BinFloat::one(precision=200).div_ctx(
@@ -200,7 +200,7 @@ test "arbitrary precision parses agree with exact rational rounding" {
 test "decimal parses next to the exponent limit round correctly" {
   let near = BinFloat::from_string_ctx(
     "1e323228495",
-    BinaryContext::unbounded(24),
+    BinaryContext::new(precision=24),
   ).unwrap()
   assert_eq(
     near.0.compare(BinFloat::from_hex("0xc32e02p1073741795", 24).unwrap()),
@@ -210,13 +210,13 @@ test "decimal parses next to the exponent limit round correctly" {
   assert_false(near.1.overflow())
   let (over, over_flags) = BinFloat::from_string_ctx(
     "1e323228497",
-    BinaryContext::unbounded(24),
+    BinaryContext::new(precision=24),
   ).unwrap()
   assert_eq(over.to_hex(), "inf")
   assert_true(over_flags.overflow() && over_flags.inexact())
   let (negative, negative_flags) = BinFloat::from_string_ctx(
     "-9e323228496",
-    BinaryContext::unbounded(53, rounding=RoundTowardNegative),
+    BinaryContext::new(precision=53, rounding=RoundTowardNegative),
   ).unwrap()
   assert_eq(negative.to_hex(), "-inf")
   assert_true(negative_flags.overflow())

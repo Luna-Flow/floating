@@ -25,7 +25,7 @@ test "expm1 overflows from x log2(e) = e_max + 1 on, like exp" {
     let x = BinFloat::make(BinCoeff::from_uint64(numerator.to_uint64()), -1, 64)
     for p in [2, 24, 53] {
       for mode in e2s_modes() {
-        let ctx = BinaryContext::new(p, rounding=mode)
+        let ctx = BinaryContext::new(precision=p, rounding=mode)
         let (value, flags) = binary_defined_or_nan(x.try_expm1_ctx(ctx), ctx)
         let (expected, expected_flags) = x.exp_ctx(ctx)
         let label = "expm1(\{x}) p=\{p} \{e2s_mode_name(mode)}"
@@ -37,5 +37,5 @@ test "expm1 overflows from x log2(e) = e_max + 1 on, like exp" {
       }
     }
   }
-  assert_eq(cases, 54)
+  assert_eq(cases, 45)
 }

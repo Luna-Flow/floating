@@ -8,7 +8,7 @@
 /// midpoint `1 + 2^-53` between 1 and its successor at 53 bits: rounding to
 /// nearest needs more than 300 bits of the enclosure.
 fn refinement_hard_input() -> BinFloat {
-  let wide = BinaryContext::unbounded(330)
+  let wide = BinaryContext::new(precision=330)
   let one = BinFloat::from_int(1, precision=330)
   let step = one.scaleb_ctx(-53, wide).0
   let midpoint = one.add_ctx(step, wide).0
@@ -27,14 +27,14 @@ fn refinement_failed(
 
 ///|
 test "refinement limit: default is Some(12) and matches the explicit value" {
-  let context = BinaryContext::new(53)
+  let context = BinaryContext::new(precision=53)
   inspect(context.refinement_limit() == Some(12), content="true")
   inspect(
     BinaryContext::binary64().refinement_limit() == Some(12),
     content="true",
   )
   inspect(
-    BinaryContext::unbounded(24).refinement_limit() == Some(12),
+    BinaryContext::new(precision=24).refinement_limit() == Some(12),
     content="true",
   )
   let x = refinement_hard_input()
@@ -46,7 +46,7 @@ test "refinement limit: default is Some(12) and matches the explicit value" {
 ///|
 test "refinement limit: a hard-to-round exp fails at a small limit and succeeds at a larger one" {
   let x = refinement_hard_input()
-  let base = BinaryContext::new(53)
+  let base = BinaryContext::new(precision=53)
   // 117, 175, 262 and 393 bits: the fourth refinement step decides.
   inspect(
     refinement_failed(x.try_exp_ctx(base.with_refinement_limit(Some(1)))),
@@ -69,7 +69,7 @@ test "refinement limit: a hard-to-round exp fails at a small limit and succeeds 
 ///|
 test "refinement limit: 0, 1 and negative limits are one step" {
   let x = refinement_hard_input()
-  let base = BinaryContext::new(53)
+  let base = BinaryContext::new(precision=53)
   for limit in [0, 1, -5] {
     inspect(
       refinement_failed(x.try_exp_ctx(base.with_refinement_limit(Some(limit)))),
@@ -79,7 +79,7 @@ test "refinement limit: 0, 1 and negative limits are one step" {
   // An exact-in-one-step case needs only one step: 1 + 2^-60 rounds at once.
   let easy = BinFloat::from_int(1, precision=53).scaleb_ctx(
       -60,
-      BinaryContext::unbounded(53),
+      BinaryContext::new(precision=53),
     ).0
   let result = easy.try_exp_ctx(base.with_refinement_limit(Some(0)))
   inspect(result is Ok(_), content="true")
@@ -88,7 +88,7 @@ test "refinement limit: 0, 1 and negative limits are one step" {
 ///|
 test "refinement limit: the failure reports the refinements taken" {
   let x = refinement_hard_input()
-  let base = BinaryContext::new(53)
+  let base = BinaryContext::new(precision=53)
   match x.try_exp_ctx(base.with_refinement_limit(Some(2))) {
     Err(error) =>
       match error.certification_failure_detail() {
@@ -102,7 +102,7 @@ test "refinement limit: the failure reports the refinements taken" {
 ///|
 test "refinement limit: the exp family agrees with the default under None" {
   let x = refinement_hard_input()
-  let base = BinaryContext::new(53)
+  let base = BinaryContext::new(precision=53)
   let none = base.with_refinement_limit(None)
   inspect(
     x.try_expm1_ctx(none).unwrap().0 == x.try_expm1_ctx(base).unwrap().0,
@@ -130,7 +130,9 @@ test "refinement limit: contexts that differ only in the limit are different" {
     content="true",
   )
   inspect(
-    BinaryContext::from_arithmetic_context(@lf_arith.ArithmeticContext::new(53)).refinement_limit() ==
+    BinaryContext::from_arithmetic_context(@lf_arith.ArithmeticContext::new(53))
+    .unwrap()
+    .refinement_limit() ==
     Some(12),
     content="true",
   )

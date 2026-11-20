@@ -46,7 +46,7 @@ fn bin_coeff_round_shift_for_make(
   magnitude : Coeff,
   shift : Int32,
   negative : Bool,
-  mode : RoundingMode,
+  mode : BinaryRoundingMode,
 ) -> Coeff {
   if shift <= 0 || magnitude.is_zero() {
     return magnitude
@@ -59,11 +59,12 @@ fn bin_coeff_round_shift_for_make(
   let round_bit = magnitude.test_bit(shift - 1)
   let sticky = trailing_zeros < shift - 1
   let increment = match mode {
-    RoundingMode::TowardZero => false
-    RoundingMode::TowardPositive => !negative
-    RoundingMode::TowardNegative => negative
-    RoundingMode::AwayFromZero => true
-    RoundingMode::ToNearestEven => round_bit && (sticky || quotient.test_bit(0))
+    BinaryRoundingMode::RoundTowardZero => false
+    BinaryRoundingMode::RoundTowardPositive => !negative
+    BinaryRoundingMode::RoundTowardNegative => negative
+    BinaryRoundingMode::RoundTiesToAway => round_bit
+    BinaryRoundingMode::RoundTiesToEven =>
+      round_bit && (sticky || quotient.test_bit(0))
   }
   if increment {
     quotient.add(Coeff::one())
@@ -78,7 +79,7 @@ fn normalize_finite_odd(
   exponent2 : Int32,
   precision : Int32,
   negative : Bool,
-  mode : RoundingMode,
+  mode : BinaryRoundingMode,
   bits : Int32,
 ) -> BinFloat {
   // Underflow is decided on the exact value so that precision rounding cannot
@@ -92,6 +93,7 @@ fn normalize_finite_odd(
       precision,
       mode,
       exact_top == tiny_top - 1L && bits > 1,
+      exact_top == tiny_top - 1L && bits == 1,
     )
   }
   // The kept bits are bounded by the precision and by the range together: at
@@ -129,13 +131,14 @@ fn normalize_finite_odd(
 fn implementation_overflow(
   negative : Bool,
   precision : Int32,
-  mode : RoundingMode,
+  mode : BinaryRoundingMode,
 ) -> BinFloat {
   let to_infinity = match mode {
-    RoundingMode::ToNearestEven | RoundingMode::AwayFromZero => true
-    RoundingMode::TowardZero => false
-    RoundingMode::TowardPositive => !negative
-    RoundingMode::TowardNegative => negative
+    BinaryRoundingMode::RoundTiesToEven | BinaryRoundingMode::RoundTiesToAway =>
+      true
+    BinaryRoundingMode::RoundTowardZero => false
+    BinaryRoundingMode::RoundTowardPositive => !negative
+    BinaryRoundingMode::RoundTowardNegative => negative
   }
   if to_infinity {
     BinFloat::inf_raw(
@@ -158,19 +161,21 @@ fn implementation_overflow(
 
 ///|
 /// `above_half` is true when the magnitude lies strictly between half of the
-/// smallest subnormal and the smallest subnormal.
+/// smallest subnormal and the smallest subnormal, `at_half` when it is exactly
+/// half of it.
 fn implementation_underflow(
   negative : Bool,
   precision : Int32,
-  mode : RoundingMode,
+  mode : BinaryRoundingMode,
   above_half : Bool,
+  at_half : Bool,
 ) -> BinFloat {
   let to_smallest = match mode {
-    RoundingMode::ToNearestEven => above_half
-    RoundingMode::AwayFromZero => true
-    RoundingMode::TowardZero => false
-    RoundingMode::TowardPositive => !negative
-    RoundingMode::TowardNegative => negative
+    BinaryRoundingMode::RoundTiesToEven => above_half
+    BinaryRoundingMode::RoundTiesToAway => above_half || at_half
+    BinaryRoundingMode::RoundTowardZero => false
+    BinaryRoundingMode::RoundTowardPositive => !negative
+    BinaryRoundingMode::RoundTowardNegative => negative
   }
   if to_smallest {
     finite_normalized(
@@ -190,7 +195,7 @@ fn normalize_finite(
   exponent2 : Int32,
   precision : Int32,
   negative : Bool,
-  mode : RoundingMode,
+  mode : BinaryRoundingMode,
 ) -> BinFloat {
   let precision = Int32::max(1, precision)
   if coefficient.is_zero() {
@@ -228,7 +233,7 @@ fn finite_from_parts(
     exponent2,
     precision,
     negative,
-    RoundingMode::ToNearestEven,
+    BinaryRoundingMode::RoundTiesToEven,
   )
   value
 }
@@ -264,7 +269,7 @@ fn finite_from_uint64(
     exponent0,
     precision,
     negative,
-    RoundingMode::ToNearestEven,
+    BinaryRoundingMode::RoundTiesToEven,
     bits,
   )
 }
@@ -306,8 +311,7 @@ fn add_bin_impl(a : BinFloat, b : BinFloat) -> BinFloat {
         None =>
           match binary_coeff_fast_add(a, b) {
             Some(result) => result
-            None =>
-              a.add_ctx(b, BinaryContext::unbounded(max_precision(a, b))).0
+            None => a.add_ctx(b, binary_working_context(max_precision(a, b))).0
           }
       }
   }
@@ -323,8 +327,7 @@ fn mul_bin_impl(a : BinFloat, b : BinFloat) -> BinFloat {
         None =>
           match binary_coeff_fast_mul(a, b) {
             Some(result) => result
-            None =>
-              a.mul_ctx(b, BinaryContext::unbounded(max_precision(a, b))).0
+            None => a.mul_ctx(b, binary_working_context(max_precision(a, b))).0
           }
       }
   }
@@ -340,8 +343,7 @@ fn div_bin_impl(a : BinFloat, b : BinFloat) -> BinFloat {
         None =>
           match binary_coeff_fast_div(a, b) {
             Some(result) => result
-            None =>
-              a.div_ctx(b, BinaryContext::unbounded(max_precision(a, b))).0
+            None => a.div_ctx(b, binary_working_context(max_precision(a, b))).0
           }
       }
   }
@@ -353,7 +355,7 @@ fn sqrt_for_precision(
   precision : Int32,
 ) -> Result[BinFloat, @def.ArithmeticError] {
   binary_checked_result(
-    x.sqrt_ctx(BinaryContext::unbounded(precision)),
+    x.sqrt_ctx(binary_working_context(precision)),
     "sqrt requires a non-negative value",
   )
 }
@@ -455,7 +457,7 @@ pub fn BinFloat::make(
   exponent2 : Int32,
   precision : Int32,
   negative~ : Bool = false,
-  mode~ : RoundingMode = RoundingMode::ToNearestEven,
+  mode~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
 ) -> BinFloat {
   binary_check_precision("BinFloat::make", precision)
   BinFloat::make_coeff(coefficient.0, exponent2, precision, negative~, mode~)
@@ -467,7 +469,7 @@ fn BinFloat::make_coeff(
   exponent2 : Int32,
   precision : Int32,
   negative~ : Bool = false,
-  mode~ : RoundingMode = RoundingMode::ToNearestEven,
+  mode~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
 ) -> BinFloat {
   normalize_finite(coefficient, exponent2, precision, negative, mode)
 }
@@ -833,7 +835,7 @@ pub fn BinFloat::normalized(self : BinFloat) -> BinFloat {
 pub fn BinFloat::with_precision(
   self : BinFloat,
   precision : Int32,
-  mode : RoundingMode,
+  mode : BinaryRoundingMode,
 ) -> BinFloat {
   binary_check_precision("BinFloat::with_precision", precision)
   BinFloat::with_precision_raw(self, precision, mode)
@@ -843,7 +845,7 @@ pub fn BinFloat::with_precision(
 fn BinFloat::with_precision_raw(
   self : BinFloat,
   precision : Int32,
-  mode : RoundingMode,
+  mode : BinaryRoundingMode,
 ) -> BinFloat {
   match self.class {
     FpClass::Finite =>
@@ -1064,7 +1066,7 @@ pub fn BinFloat::div_checked(
   other : BinFloat,
 ) -> Result[BinFloat, @def.ArithmeticError] {
   binary_checked_result(
-    self.div_ctx(other, BinaryContext::unbounded(max_precision(self, other))),
+    self.div_ctx(other, binary_working_context(max_precision(self, other))),
     "invalid division",
   )
 }
@@ -1094,7 +1096,7 @@ pub fn BinFloat::pown(
   exponent : Int32,
 ) -> Result[BinFloat, @def.ArithmeticError] {
   binary_checked_result(
-    self.pown_ctx(exponent, BinaryContext::unbounded(self.precision_)),
+    self.pown_ctx(exponent, binary_working_context(self.precision_)),
     "invalid power",
     division_by_zero_message="negative exponent requires a non-zero base",
   )
@@ -1102,18 +1104,23 @@ pub fn BinFloat::pown(
 
 ///|
 pub impl @lf_arith.SqrtChecked for BinFloat with fn sqrt_checked(self, ctx) {
-  binary_checked_result(
-    self.sqrt_ctx(BinaryContext::from_arithmetic_context(ctx)),
-    "sqrt requires a non-negative value",
-  )
+  match BinaryContext::from_arithmetic_context(ctx) {
+    Err(error) => Err(error)
+    Ok(bctx) =>
+      binary_checked_result(
+        self.sqrt_ctx(bctx),
+        "sqrt requires a non-negative value",
+      )
+  }
 }
 
 ///|
 pub impl @lf_arith.DivChecked for BinFloat with fn div_checked(self, other, ctx) {
-  binary_checked_result(
-    self.div_ctx(other, BinaryContext::from_arithmetic_context(ctx)),
-    "invalid division",
-  )
+  match BinaryContext::from_arithmetic_context(ctx) {
+    Err(error) => Err(error)
+    Ok(bctx) =>
+      binary_checked_result(self.div_ctx(other, bctx), "invalid division")
+  }
 }
 
 ///|
@@ -1130,11 +1137,15 @@ pub impl @lf_arith.PowNatChecked for BinFloat with fn pow_nat_checked(
   exponent,
   ctx,
 ) {
-  binary_checked_result(
-    self.pow_nat_ctx(exponent, BinaryContext::from_arithmetic_context(ctx)),
-    "invalid power",
-    division_by_zero_message="negative exponent requires a non-zero base",
-  )
+  match BinaryContext::from_arithmetic_context(ctx) {
+    Err(error) => Err(error)
+    Ok(bctx) =>
+      binary_checked_result(
+        self.pow_nat_ctx(exponent, bctx),
+        "invalid power",
+        division_by_zero_message="negative exponent requires a non-zero base",
+      )
+  }
 }
 
 ///|
@@ -1143,11 +1154,15 @@ pub impl @lf_arith.PowIntChecked for BinFloat with fn pow_int_checked(
   exponent,
   ctx,
 ) {
-  binary_checked_result(
-    self.pown_ctx(exponent, BinaryContext::from_arithmetic_context(ctx)),
-    "invalid power",
-    division_by_zero_message="negative exponent requires a non-zero base",
-  )
+  match BinaryContext::from_arithmetic_context(ctx) {
+    Err(error) => Err(error)
+    Ok(bctx) =>
+      binary_checked_result(
+        self.pown_ctx(exponent, bctx),
+        "invalid power",
+        division_by_zero_message="negative exponent requires a non-zero base",
+      )
+  }
 }
 
 ///|
@@ -1197,7 +1212,7 @@ pub impl @def.Floating for BinFloat with fn precision(self) {
 
 ///|
 pub impl @def.Floating for BinFloat with fn with_precision(self, precision) {
-  BinFloat::with_precision(self, precision, RoundingMode::ToNearestEven)
+  BinFloat::with_precision(self, precision, BinaryRoundingMode::RoundTiesToEven)
 }
 
 ///|

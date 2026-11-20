@@ -158,7 +158,7 @@ pub fn BinFloat::log2_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::log2p1(Self) -> Self
 pub fn BinFloat::log2p1_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::logb_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
-pub fn BinFloat::make(BinCoeff, Int32, Int32, negative? : Bool, mode? : @arithmetic.RoundingMode) -> Self
+pub fn BinFloat::make(BinCoeff, Int32, Int32, negative? : Bool, mode? : BinaryRoundingMode) -> Self
 pub fn BinFloat::max(Self, Self) -> Self
 pub fn BinFloat::min(Self, Self) -> Self
 pub fn BinFloat::mul(Self, Self) -> Self
@@ -275,7 +275,7 @@ pub fn BinFloat::try_tan_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags),
 pub fn BinFloat::try_tanh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_tanpi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::ulp(Self) -> Self
-pub fn BinFloat::with_precision(Self, Int32, @arithmetic.RoundingMode) -> Self
+pub fn BinFloat::with_precision(Self, Int32, BinaryRoundingMode) -> Self
 pub fn BinFloat::zero(precision? : Int32) -> Self
 pub impl @arithmetic.AbsContextual for BinFloat
 pub impl @arithmetic.AddContextual for BinFloat
@@ -306,20 +306,23 @@ pub fn BinaryContext::binary128(rounding? : BinaryRoundingMode, tininess? : Tini
 pub fn BinaryContext::binary16(rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> Self
 pub fn BinaryContext::binary32(rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> Self
 pub fn BinaryContext::binary64(rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> Self
-pub fn BinaryContext::e_max(Self) -> Int32?
-pub fn BinaryContext::e_min(Self) -> Int32?
+pub fn BinaryContext::e_max(Self) -> Int32
+pub fn BinaryContext::e_min(Self) -> Int32
 pub fn BinaryContext::equal(Self, Self) -> Bool
-pub fn BinaryContext::from_arithmetic_context(@arithmetic.ArithmeticContext) -> Self
-pub fn BinaryContext::new(Int32, rounding? : BinaryRoundingMode, e_min? : Int32, e_max? : Int32, tininess? : TininessDetection) -> Self
+pub fn BinaryContext::from_arithmetic_context(@arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BinaryContext::new(precision? : Int32, e_max? : Int32, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> Self
 pub fn BinaryContext::not_equal(Self, Self) -> Bool
 pub fn BinaryContext::precision(Self) -> Int32
 pub fn BinaryContext::refinement_limit(Self) -> Int32?
 pub fn BinaryContext::rounding(Self) -> BinaryRoundingMode
 pub fn BinaryContext::tininess(Self) -> TininessDetection
 pub fn BinaryContext::to_repr(Self) -> @debug.Repr
-pub fn BinaryContext::try_new(Int32, rounding? : BinaryRoundingMode, e_min? : Int32, e_max? : Int32, tininess? : TininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BinaryContext::unbounded(Int32, rounding? : BinaryRoundingMode) -> Self
+pub fn BinaryContext::try_new(precision? : Int32, e_max? : Int32, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BinaryContext::with_e_max(Self, Int32) -> Self
+pub fn BinaryContext::with_precision(Self, Int32) -> Self
 pub fn BinaryContext::with_refinement_limit(Self, Int32?) -> Self
+pub fn BinaryContext::with_rounding(Self, BinaryRoundingMode) -> Self
+pub fn BinaryContext::with_tininess(Self, TininessDetection) -> Self
 
 #derive(Eq, @debug.Debug)
 pub struct BinaryFlags {
@@ -376,10 +379,9 @@ pub(all) enum BinaryRoundingMode {
   RoundTowardZero
   RoundTowardPositive
   RoundTowardNegative
-  RoundAwayFromZero
 }
 pub fn BinaryRoundingMode::equal(Self, Self) -> Bool
-pub fn BinaryRoundingMode::from_arithmetic(@arithmetic.RoundingMode) -> Self
+pub fn BinaryRoundingMode::from_arithmetic(@arithmetic.RoundingMode) -> Self?
 pub fn BinaryRoundingMode::not_equal(Self, Self) -> Bool
 pub fn BinaryRoundingMode::to_arithmetic(Self) -> @arithmetic.RoundingMode?
 pub fn BinaryRoundingMode::to_repr(Self) -> @debug.Repr

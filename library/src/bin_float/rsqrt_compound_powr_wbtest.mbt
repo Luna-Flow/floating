@@ -29,10 +29,10 @@
 ///|
 fn rcp_contexts() -> Array[BinaryContext] {
   [
-    BinaryContext::unbounded(53),
-    BinaryContext::unbounded(2),
+    BinaryContext::new(precision=53),
+    BinaryContext::new(precision=2),
     BinaryContext::binary64(),
-    BinaryContext::new(24, e_min=-6, e_max=7),
+    BinaryContext::new(precision=24, e_max=7),
   ]
 }
 
@@ -92,7 +92,7 @@ test "rsqrt of a power of four is exact, other values are correctly rounded" {
   let mut cases = 0
   for p in [2, 3, 24, 53] {
     for mode in e2s_modes() {
-      let ctx = BinaryContext::new(p, rounding=mode)
+      let ctx = BinaryContext::new(precision=p, rounding=mode)
       // 4^k: exact 2^-k
       for k in -30..<31 {
         let x = BinFloat::make(BinCoeff::one(), 2 * k, 64)
@@ -108,7 +108,7 @@ test "rsqrt of a power of four is exact, other values are correctly rounded" {
             exponent,
             64,
           )
-          let reference = x.rsqrt_ctx(BinaryContext::unbounded(p + 150)).0
+          let reference = x.rsqrt_ctx(BinaryContext::new(precision=p + 150)).0
           let (value, flags) = x.rsqrt_ctx(ctx)
           let (expected, expected_flags) = reference.round_ctx(ctx)
           let exact = numerator == 9 && exponent % 2 == 0
@@ -191,9 +191,8 @@ test "compound is the correctly rounded (1 + x)^n" {
           TininessDetection::BeforeRounding,
         ] {
         let ctx = BinaryContext::new(
-          p,
+          precision=p,
           rounding=mode,
-          e_min=-60,
           e_max=60,
           tininess~,
         )
@@ -210,7 +209,7 @@ test "compound is the correctly rounded (1 + x)^n" {
                 // exact rational reference: 1 + x is exact, then pown
                 let exact = BinFloat::one(precision=200).add_ctx(
                     x,
-                    BinaryContext::unbounded(200),
+                    BinaryContext::new(precision=200),
                   ).0
                 let (expected, expected_flags) = exact.pown_ctx(n, ctx)
                 let (value, flags) = x.compound_ctx(n, ctx)
@@ -233,7 +232,7 @@ test "compound is the correctly rounded (1 + x)^n" {
 test "compound of a tiny x is the neighbour of 1 chosen by the direction" {
   // (1 + x)^n = 1 + n x with |n x| far below a quarter of the spacing at 1
   for mode in e2s_modes() {
-    let ctx = BinaryContext::new(24, rounding=mode)
+    let ctx = BinaryContext::new(precision=24, rounding=mode)
     let tiny = BinFloat::make(BinCoeff::one(), -400, 64)
     for n in [3, 1000000] {
       for negative in [false, true] {
@@ -241,7 +240,7 @@ test "compound of a tiny x is the neighbour of 1 chosen by the direction" {
         let (value, flags) = x.compound_ctx(n, ctx)
         let positive_delta = !negative
         let up = match mode {
-          RoundTowardPositive | RoundAwayFromZero => true
+          RoundTowardPositive => true
           _ => false
         }
         let expected = if positive_delta && up {
@@ -317,7 +316,7 @@ test "powr of a positive x is pow, exact and correctly rounded" {
   let mut cases = 0
   for p in [2, 24, 53] {
     for mode in e2s_modes() {
-      let ctx = BinaryContext::new(p, rounding=mode)
+      let ctx = BinaryContext::new(precision=p, rounding=mode)
       for
         x in [
           BinFloat::from_int(2),
@@ -343,5 +342,5 @@ test "powr of a positive x is pow, exact and correctly rounded" {
       }
     }
   }
-  assert_eq(cases, 3 * 6 * 16)
+  assert_eq(cases, 3 * 5 * 16)
 }

@@ -35,22 +35,22 @@ test "conversions keep the low payload bits and quiet a signaling NaN that canno
     precision=53,
   )
   // precision 5: 3 payload bits, all kept
-  let kept = snan.with_precision(5, RoundingMode::ToNearestEven)
+  let kept = snan.with_precision(5, BinaryRoundingMode::RoundTiesToEven)
   assert_true(kept.is_signaling_nan())
   assert_eq(kept.nan_payload(), BinCoeff::from_uint64(0b110UL))
   // precision 4: 2 bits, 0b10 kept
-  let cut = snan.with_precision(4, RoundingMode::ToNearestEven)
+  let cut = snan.with_precision(4, BinaryRoundingMode::RoundTiesToEven)
   assert_true(cut.is_signaling_nan())
   assert_eq(cut.nan_payload(), BinCoeff::from_uint64(0b10UL))
   // precision 2 or 1: no payload bits, quiet
-  let none = snan.with_precision(2, RoundingMode::ToNearestEven)
+  let none = snan.with_precision(2, BinaryRoundingMode::RoundTiesToEven)
   assert_true(none.is_quiet_nan())
   assert_eq(none.nan_payload(), BinCoeff::zero())
   // low bits zero: the signaling NaN would have payload 0, so it is quiet
   let low = BinFloat::signaling_nan(
     payload=BinCoeff::from_uint64(0b100UL),
     precision=53,
-  ).with_precision(4, RoundingMode::ToNearestEven)
+  ).with_precision(4, BinaryRoundingMode::RoundTiesToEven)
   assert_true(low.is_quiet_nan())
   // from_double narrows the same way
   let sbits = 0x7ff0000000000007UL.reinterpret_as_double()

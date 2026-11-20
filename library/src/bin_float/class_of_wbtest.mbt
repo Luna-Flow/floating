@@ -108,15 +108,15 @@ test "class_of boundary between subnormal and normal follows emin" {
   inspect(smallest_normal.neg().class_of(ctx) == NegativeNormal, content="true")
   inspect(half.neg().class_of(ctx) == NegativeSubnormal, content="true")
   // The same value is normal in a context with a lower emin.
-  let wide = BinaryContext::new(24, e_min=-200, e_max=200)
+  let wide = BinaryContext::new(precision=24, e_max=201)
   inspect(half.class_of(wide) == PositiveNormal, content="true")
-  let narrow = BinaryContext::new(24, e_min=-100, e_max=100)
+  let narrow = BinaryContext::new(precision=24, e_max=101)
   inspect(smallest_normal.class_of(narrow) == PositiveSubnormal, content="true")
 }
 
 ///|
 test "class_of in an unbounded context treats ordinary values as normal" {
-  let ctx = BinaryContext::new(53)
+  let ctx = BinaryContext::new(precision=53)
   inspect(
     BinFloat::from_int(3, precision=53).class_of(ctx) == PositiveNormal,
     content="true",

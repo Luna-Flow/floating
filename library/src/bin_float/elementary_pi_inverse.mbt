@@ -47,8 +47,8 @@ fn binary_pi_scaled_enclosure(
   pi : (BinFloat, BinFloat),
   work : Int32,
 ) -> (BinFloat, BinFloat) {
-  let downward = BinaryContext::unbounded(work, rounding=RoundTowardNegative)
-  let upward = BinaryContext::unbounded(work, rounding=RoundTowardPositive)
+  let downward = binary_working_context(work, rounding=RoundTowardNegative)
+  let upward = binary_working_context(work, rounding=RoundTowardPositive)
   let lower = if angle.0.is_negative() {
     angle.0.div_ctx(pi.0, downward).0
   } else {
@@ -158,7 +158,7 @@ pub fn BinFloat::asinpi_ctx(
 
 ///|
 pub fn BinFloat::asinpi(self : BinFloat) -> BinFloat {
-  self.asinpi_ctx(BinaryContext::unbounded(self.precision())).0
+  self.asinpi_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -214,11 +214,11 @@ pub fn BinFloat::try_acospi_ctx(
           (
             half.sub_ctx(
               sine.1,
-              BinaryContext::unbounded(w, rounding=RoundTowardNegative),
+              binary_working_context(w, rounding=RoundTowardNegative),
             ).0,
             half.sub_ctx(
               sine.0,
-              BinaryContext::unbounded(w, rounding=RoundTowardPositive),
+              binary_working_context(w, rounding=RoundTowardPositive),
             ).0,
           ),
         )
@@ -238,7 +238,7 @@ pub fn BinFloat::acospi_ctx(
 
 ///|
 pub fn BinFloat::acospi(self : BinFloat) -> BinFloat {
-  self.acospi_ctx(BinaryContext::unbounded(self.precision())).0
+  self.acospi_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -293,7 +293,7 @@ pub fn BinFloat::atanpi_ctx(
 
 ///|
 pub fn BinFloat::atanpi(self : BinFloat) -> BinFloat {
-  self.atanpi_ctx(BinaryContext::unbounded(self.precision())).0
+  self.atanpi_ctx(binary_working_context(self.precision())).0
 }
 
 ///|
@@ -399,8 +399,8 @@ pub fn BinFloat::try_atan2pi_ctx(
       work,
       Int32::max(self.precision(), abscissa.precision()) + 16,
     )
-    let downward = BinaryContext::unbounded(w, rounding=RoundTowardNegative)
-    let upward = BinaryContext::unbounded(w, rounding=RoundTowardPositive)
+    let downward = binary_working_context(w, rounding=RoundTowardNegative)
+    let upward = binary_working_context(w, rounding=RoundTowardPositive)
     let ratio_lower = ordinate_magnitude.div_ctx(abscissa_magnitude, downward).0
     let ratio_upper = ordinate_magnitude.div_ctx(abscissa_magnitude, upward).0
     match
@@ -445,6 +445,6 @@ pub fn BinFloat::atan2pi_ctx(
 pub fn BinFloat::atan2pi(self : BinFloat, abscissa : BinFloat) -> BinFloat {
   self.atan2pi_ctx(
     abscissa,
-    BinaryContext::unbounded(Int32::max(self.precision(), abscissa.precision())),
+    binary_working_context(Int32::max(self.precision(), abscissa.precision())),
   ).0
 }

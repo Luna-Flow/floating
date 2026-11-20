@@ -6,7 +6,6 @@ pub(all) enum BinaryRoundingMode {
   RoundTowardZero
   RoundTowardPositive
   RoundTowardNegative
-  RoundAwayFromZero
 }
 
 ///|
@@ -26,14 +25,17 @@ pub(all) enum BinaryInterchangeFormat {
 }
 
 ///|
-/// Largest exponent of the leading bit that a finite `BinFloat` may carry.
-/// Unbounded contexts use this as their effective `e_max`.
+/// Largest exponent of the leading bit that a finite `BinFloat` may carry, and
+/// the `e_max` of a context given by its precision alone (the extendable
+/// precision format of IEEE 754-2019 3.7).
 pub let binary_implementation_e_max : Int32 = 1073741823
 
 ///|
-/// Smallest normal leading-bit exponent. Unbounded contexts use this as their
-/// effective `e_min`, with gradual underflow below it.
-pub let binary_implementation_e_min : Int32 = -1073741823
+/// Smallest normal leading-bit exponent, `1 - binary_implementation_e_max`
+/// (IEEE 754-2019 3.3: `emin = 1 - emax`), with gradual underflow below it. It is
+/// the `e_min` of every context whose `e_max` is the implementation limit, and
+/// no stored value has a leading bit below `e_min - precision + 1`.
+pub let binary_implementation_e_min : Int32 = -1073741822
 
 ///|
 /// Largest context precision. Together with the exponent range above it keeps
@@ -45,8 +47,9 @@ pub let binary_precision_max : Int32 = 268435456
 pub struct BinaryContext {
   priv precision : Int32
   priv rounding : BinaryRoundingMode
-  priv e_min : Int32?
-  priv e_max : Int32?
+  priv e_max : Int32
+  // 0 for every public context; the internal range shift of decimal parsing
+  priv e_min_offset : Int32
   priv tininess : TininessDetection
   priv refinement_limit : Int32?
 }
@@ -132,15 +135,17 @@ fn binary_invalid_flags() -> BinaryFlags {
 }
 
 ///|
+/// The IEEE 754-2019 4.3 attribute of an `@arithmetic` rounding mode, or `None`
+/// for `AwayFromZero`, which is not one of them.
 pub fn BinaryRoundingMode::from_arithmetic(
   mode : RoundingMode,
-) -> BinaryRoundingMode {
+) -> BinaryRoundingMode? {
   match mode {
-    RoundingMode::ToNearestEven => RoundTiesToEven
-    RoundingMode::TowardZero => RoundTowardZero
-    RoundingMode::TowardPositive => RoundTowardPositive
-    RoundingMode::TowardNegative => RoundTowardNegative
-    RoundingMode::AwayFromZero => RoundAwayFromZero
+    RoundingMode::ToNearestEven => Some(RoundTiesToEven)
+    RoundingMode::TowardZero => Some(RoundTowardZero)
+    RoundingMode::TowardPositive => Some(RoundTowardPositive)
+    RoundingMode::TowardNegative => Some(RoundTowardNegative)
+    RoundingMode::AwayFromZero => None
   }
 }
 
@@ -154,98 +159,139 @@ pub fn BinaryRoundingMode::to_arithmetic(
     RoundTowardZero => Some(RoundingMode::TowardZero)
     RoundTowardPositive => Some(RoundingMode::TowardPositive)
     RoundTowardNegative => Some(RoundingMode::TowardNegative)
-    RoundAwayFromZero => Some(RoundingMode::AwayFromZero)
   }
 }
 
 ///|
-pub fn BinaryContext::new(
+fn binary_context_error(
+  operation : String,
   precision : Int32,
-  rounding~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
-  e_min? : Int32,
+  e_max : Int32,
+) -> String? {
+  if precision < 1 || precision > binary_precision_max {
+    Some(
+      "\{operation}: precision must be within 1..=\{binary_precision_max} (got \{precision})",
+    )
+  } else if e_max < 1 || e_max > binary_implementation_e_max {
+    Some(
+      "\{operation}: e_max must be within 1..=\{binary_implementation_e_max} (got \{e_max})",
+    )
+  } else {
+    None
+  }
+}
+
+///|
+/// A context of IEEE 754-2019 3.3: the precision `p`, the exponent `e_max` and
+/// `e_min = 1 - e_max`, a rounding-direction attribute (4.3) and a tininess
+/// rule (7.5). Without `e_max` the context is the extendable precision format
+/// of 3.7 given by `p` alone, whose `e_max` is `binary_implementation_e_max`.
+/// Aborts on a precision outside `1..=binary_precision_max` or an `e_max`
+/// outside `1..=binary_implementation_e_max`.
+pub fn BinaryContext::new(
+  precision~ : Int32 = 53,
   e_max? : Int32,
+  rounding~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
   tininess~ : TininessDetection = TininessDetection::AfterRounding,
 ) -> BinaryContext {
-  guard precision > 0 else {
-    abort("BinaryContext::new: precision must be positive")
+  let e_max = match e_max {
+    Some(value) => value
+    None => binary_implementation_e_max
   }
-  guard precision <= binary_precision_max else {
-    abort("BinaryContext::new: precision exceeds binary_precision_max")
+  match binary_context_error("BinaryContext::new", precision, e_max) {
+    Some(error) => abort(error)
+    None => ()
   }
-  match (e_min, e_max) {
-    (Some(lower), Some(upper)) => {
-      guard lower <= upper else {
-        abort("BinaryContext::new: e_min must not exceed e_max")
-      }
-    }
-    _ => ()
-  }
-  { precision, rounding, e_min, e_max, tininess, refinement_limit: Some(12), }
-}
-
-///|
-pub fn BinaryContext::try_new(
-  precision : Int32,
-  rounding~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
-  e_min? : Int32,
-  e_max? : Int32,
-  tininess~ : TininessDetection = TininessDetection::AfterRounding,
-) -> Result[BinaryContext, @def.ArithmeticError] {
-  guard precision > 0 else {
-    return Err(
-      @def.ArithmeticError::domain_error(
-        "BinaryContext::try_new: precision must be positive",
-      ),
-    )
-  }
-  guard precision <= binary_precision_max else {
-    return Err(
-      @def.ArithmeticError::domain_error(
-        "BinaryContext::try_new: precision exceeds binary_precision_max",
-      ),
-    )
-  }
-  match (e_min, e_max) {
-    (Some(lower), Some(upper)) if lower <= upper => ()
-    (Some(_), None) | (None, Some(_)) | (None, None) => ()
-    (Some(_), Some(_)) =>
-      return Err(
-        @def.ArithmeticError::domain_error(
-          "BinaryContext::try_new: e_min must not exceed e_max",
-        ),
-      )
-  }
-  Ok({
+  {
     precision,
     rounding,
-    e_min,
     e_max,
+    e_min_offset: 0,
     tininess,
     refinement_limit: Some(12),
-  })
+  }
 }
 
 ///|
-pub fn BinaryContext::unbounded(
+/// `new` returning an error instead of aborting.
+pub fn BinaryContext::try_new(
+  precision~ : Int32 = 53,
+  e_max? : Int32,
+  rounding~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
+  tininess~ : TininessDetection = TininessDetection::AfterRounding,
+) -> Result[BinaryContext, @def.ArithmeticError] {
+  let e_max = match e_max {
+    Some(value) => value
+    None => binary_implementation_e_max
+  }
+  match binary_context_error("BinaryContext::try_new", precision, e_max) {
+    Some(error) => Err(@def.ArithmeticError::domain_error(error))
+    None =>
+      Ok({
+        precision,
+        rounding,
+        e_max,
+        e_min_offset: 0,
+        tininess,
+        refinement_limit: Some(12),
+      })
+  }
+}
+
+///|
+/// The working context of the kernels: `precision` bits in the implementation
+/// range, not validated (a work precision may exceed `binary_precision_max`).
+fn binary_working_context(
   precision : Int32,
   rounding~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
 ) -> BinaryContext {
-  BinaryContext::new(precision, rounding~)
+  {
+    precision,
+    rounding,
+    e_max: binary_implementation_e_max,
+    e_min_offset: 0,
+    tininess: TininessDetection::AfterRounding,
+    refinement_limit: Some(12),
+  }
 }
 
 ///|
+/// The context of an `@arithmetic.ArithmeticContext`. `AwayFromZero` is not an
+/// IEEE 754-2019 attribute, an `e_min` must equal `1 - e_max` (an `e_min` alone
+/// gives `e_max = 1 - e_min`), and the precision must be within
+/// `1..=binary_precision_max`; otherwise the result is an error. `clamp` is
+/// ignored.
 pub fn BinaryContext::from_arithmetic_context(
   context : @lf_arith.ArithmeticContext,
-) -> BinaryContext {
-  let rounding = BinaryRoundingMode::from_arithmetic(context.rounding)
+) -> Result[BinaryContext, @def.ArithmeticError] {
+  guard BinaryRoundingMode::from_arithmetic(context.rounding) is Some(rounding) else {
+    return Err(
+      @def.ArithmeticError::domain_error(
+        "BinaryContext::from_arithmetic_context: AwayFromZero is not an IEEE 754-2019 rounding-direction attribute",
+      ),
+    )
+  }
   match (context.e_min, context.e_max) {
     (Some(e_min), Some(e_max)) =>
-      BinaryContext::new(context.precision, rounding~, e_min~, e_max~)
+      if e_min != 1 - e_max {
+        Err(
+          @def.ArithmeticError::domain_error(
+            "BinaryContext::from_arithmetic_context: e_min must be 1 - e_max (IEEE 754-2019 3.3)",
+          ),
+        )
+      } else {
+        BinaryContext::try_new(precision=context.precision, e_max~, rounding~)
+      }
     (Some(e_min), None) =>
-      BinaryContext::new(context.precision, rounding~, e_min~)
+      BinaryContext::try_new(
+        precision=context.precision,
+        e_max=1 - e_min,
+        rounding~,
+      )
     (None, Some(e_max)) =>
-      BinaryContext::new(context.precision, rounding~, e_max~)
-    (None, None) => BinaryContext::unbounded(context.precision, rounding~)
+      BinaryContext::try_new(precision=context.precision, e_max~, rounding~)
+    (None, None) =>
+      BinaryContext::try_new(precision=context.precision, rounding~)
   }
 }
 
@@ -271,6 +317,49 @@ pub fn BinaryContext::with_refinement_limit(
 }
 
 ///|
+/// A copy with another precision; aborts outside `1..=binary_precision_max`.
+pub fn BinaryContext::with_precision(
+  self : BinaryContext,
+  precision : Int32,
+) -> BinaryContext {
+  match
+    binary_context_error("BinaryContext::with_precision", precision, self.e_max) {
+    Some(error) => abort(error)
+    None => { ..self, precision, }
+  }
+}
+
+///|
+pub fn BinaryContext::with_rounding(
+  self : BinaryContext,
+  rounding : BinaryRoundingMode,
+) -> BinaryContext {
+  { ..self, rounding, }
+}
+
+///|
+/// A copy with another `e_max` (and so `e_min = 1 - e_max`); aborts outside
+/// `1..=binary_implementation_e_max`.
+pub fn BinaryContext::with_e_max(
+  self : BinaryContext,
+  e_max : Int32,
+) -> BinaryContext {
+  match
+    binary_context_error("BinaryContext::with_e_max", self.precision, e_max) {
+    Some(error) => abort(error)
+    None => { ..self, e_max, }
+  }
+}
+
+///|
+pub fn BinaryContext::with_tininess(
+  self : BinaryContext,
+  tininess : TininessDetection,
+) -> BinaryContext {
+  { ..self, tininess, }
+}
+
+///|
 pub fn BinaryContext::precision(self : BinaryContext) -> Int32 {
   self.precision
 }
@@ -281,12 +370,13 @@ pub fn BinaryContext::rounding(self : BinaryContext) -> BinaryRoundingMode {
 }
 
 ///|
-pub fn BinaryContext::e_min(self : BinaryContext) -> Int32? {
-  self.e_min
+/// The smallest exponent of a normal number, `1 - e_max`.
+pub fn BinaryContext::e_min(self : BinaryContext) -> Int32 {
+  self.range_e_min()
 }
 
 ///|
-pub fn BinaryContext::e_max(self : BinaryContext) -> Int32? {
+pub fn BinaryContext::e_max(self : BinaryContext) -> Int32 {
   self.e_max
 }
 
@@ -297,18 +387,25 @@ pub fn BinaryContext::tininess(self : BinaryContext) -> TininessDetection {
 
 ///|
 fn BinaryContext::range_e_max(self : BinaryContext) -> Int32 {
-  match self.e_max {
-    Some(e_max) => Int32::min(e_max, binary_implementation_e_max)
-    None => binary_implementation_e_max
-  }
+  self.e_max
 }
 
 ///|
 fn BinaryContext::range_e_min(self : BinaryContext) -> Int32 {
-  match self.e_min {
-    Some(e_min) => Int32::max(e_min, binary_implementation_e_min)
-    None => binary_implementation_e_min
-  }
+  1 - self.e_max + self.e_min_offset
+}
+
+///|
+/// The context with both bounds moved down by `shift` (decimal parsing rounds a
+/// product in a range shifted by the power of two it factors out); not a
+/// 3.3-shaped context, and never visible to a caller.
+fn BinaryContext::shifted_range(
+  self : BinaryContext,
+  shift : Int64,
+) -> BinaryContext {
+  let e_max = (self.e_max.to_int64() - shift).to_int()
+  let e_min = (self.range_e_min().to_int64() - shift).to_int()
+  { ..self, e_max, e_min_offset: e_min - (1 - e_max), }
 }
 
 ///|
@@ -350,10 +447,9 @@ pub fn BinaryInterchangeFormat::context(
   tininess~ : TininessDetection = TininessDetection::AfterRounding,
 ) -> BinaryContext {
   BinaryContext::new(
-    self.precision(),
-    rounding~,
-    e_min=self.e_min(),
+    precision=self.precision(),
     e_max=self.e_max(),
+    rounding~,
     tininess~,
   )
 }

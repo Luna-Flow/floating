@@ -64,14 +64,14 @@ test "remainder with an exponent gap above 2^31 - 1 (#445)" {
 
 ///|
 test "the example of #445" {
-  let d = BinFloat::make(BinCoeff::from_uint64(3UL), -1073741875, 53)
-  let x = BinFloat::make(BinCoeff::one(), 1073741822, 53)
+  let d = BinFloat::make(BinCoeff::from_uint64(3UL), -1073741874, 53)
+  let x = BinFloat::make(BinCoeff::one(), 1073741823, 53)
   let r = x.remainder(d)
-  // 2^2147483697 mod 3 = 2: the nearest multiple is one above, so -1 quantum.
+  // 2^2147483697 (the gap of the exponents) mod 3 = 2: the nearest multiple is one above, so -1 quantum.
   assert_true(r.is_negative())
   assert_true(r.coefficient() == BinCoeff::one())
-  assert_eq(r.exponent2(), -1073741875)
-  let even = BinFloat::make(BinCoeff::one(), 1073741823, 53).remainder(d)
+  assert_eq(r.exponent2(), -1073741874)
+  let even = BinFloat::make(BinCoeff::one(), 1073741822, 53).remainder(d)
   assert_false(even.is_negative())
   assert_true(even.coefficient() == BinCoeff::one())
 }

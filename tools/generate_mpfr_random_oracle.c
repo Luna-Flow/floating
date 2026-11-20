@@ -101,7 +101,7 @@ static long rnd_log(rng_t *rng, long low, long high) {
 // ----------------------------------------------------------------- model ---
 
 #define IMPL_EMAX 1073741823L
-#define IMPL_EMIN (-1073741823L)
+#define IMPL_EMIN (1 - IMPL_EMAX)
 #define PREC_MAX 10000L
 
 typedef enum {
@@ -149,9 +149,9 @@ static const op_t operations[] = {
 #define ELEM2_END 41
 #define ELEM3_END 44
 
-static const char *rounding_names[] = {"n", "na", "z", "u", "d", "a"};
+static const char *rounding_names[] = {"n", "na", "z", "u", "d"};
 static const mpfr_rnd_t rounding_modes[] = {
-    MPFR_RNDN, MPFR_RNDN, MPFR_RNDZ, MPFR_RNDU, MPFR_RNDD, MPFR_RNDA,
+    MPFR_RNDN, MPFR_RNDN, MPFR_RNDZ, MPFR_RNDU, MPFR_RNDD,
 };
 #define R_NA 1
 
@@ -818,7 +818,7 @@ static void make_value(rng_t *rng, mpfr_t x, long bits, long leading, int neg,
 // ---- context -----------------------------------------------------------
 
 static void pick_rounding(rng_t *rng, row_t *row) {
-  row->rounding = (int)rnd_range(rng, 0, 5);
+  row->rounding = (int)rnd_range(rng, 0, 4);
 }
 
 static void pick_context(rng_t *rng, row_t *row, int allow_bounded) {
@@ -840,17 +840,17 @@ static void pick_context(rng_t *rng, row_t *row, int allow_bounded) {
     row->emin = 1 - e[k];
     row->precision = chance(rng, 7, 10) ? p[k] : pick_precision(rng);
   } else if (x < 70) {
-    row->emax = rnd_range(rng, 0, 40);
-    row->emin = 1 - row->emax + rnd_range(rng, -2, 2);
-    if (row->emin > row->emax) row->emin = row->emax;
+    // IEEE 754-2019 3.3: emin = 1 - emax, emax >= 1
+    row->emax = rnd_range(rng, 1, 40);
+    row->emin = 1 - row->emax;
     row->precision = pick_precision(rng);
   } else if (x < 85) {
     row->emax = rnd_log(rng, 100, 1L << 22);
-    row->emin = 1 - row->emax + rnd_range(rng, -3, 3);
+    row->emin = 1 - row->emax;
     row->precision = pick_precision(rng);
   } else {
-    row->emin = rnd_range(rng, -100, 100);
-    row->emax = row->emin + rnd_range(rng, 0, 100);
+    row->emax = rnd_range(rng, 1, 100);
+    row->emin = 1 - row->emax;
     row->precision = pick_precision(rng);
   }
 }
@@ -1680,7 +1680,7 @@ static void eval_rows(void) {
       exit(2);
     }
     row.rounding = -1;
-    for (int i = 0; i < 6; ++i) {
+    for (int i = 0; i < 5; ++i) {
       if (!strcmp(rounding_names[i], tokens[2])) row.rounding = i;
     }
     if (row.rounding < 0) {

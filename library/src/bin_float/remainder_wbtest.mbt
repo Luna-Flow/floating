@@ -116,7 +116,7 @@ test "remainder of huge exponent gaps uses modular reduction" {
 
 ///|
 test "remainder agrees with an exact quotient reference" {
-  let context = BinaryContext::unbounded(53)
+  let context = BinaryContext::new(precision=53)
   let mut state = 0x2545F4914F6CDD1DUL
   let next = fn() {
     state = state * 6364136223846793005UL + 1442695040888963407UL

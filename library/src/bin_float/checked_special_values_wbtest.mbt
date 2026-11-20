@@ -181,7 +181,6 @@ fn checked_contexts() -> Array[@lf_arith.ArithmeticContext] {
     @lf_arith.RoundingMode::TowardZero,
     @lf_arith.RoundingMode::TowardPositive,
     @lf_arith.RoundingMode::TowardNegative,
-    @lf_arith.RoundingMode::AwayFromZero,
   ]
   // binary32, binary64 and binary128 exponent ranges, plus unbounded.
   let formats = [(24, -126, 127), (53, -1022, 1023), (113, -16382, 16383)]
@@ -336,7 +335,7 @@ test "checked trait adapters follow the IEEE special-value table" {
   }
   assert_eq(failures, [])
   // 30 contexts x (100 div + 10 sqrt + 70 pown + 40 pow_nat) cases.
-  assert_eq(cases, 30 * (100 + 10 + 70 + 40))
+  assert_eq(cases, 24 * (100 + 10 + 70 + 40))
 }
 
 ///|
@@ -378,7 +377,6 @@ test "checked adapters return range exceptions in Ok" {
     @lf_arith.RoundingMode::TowardZero,
     @lf_arith.RoundingMode::TowardPositive,
     @lf_arith.RoundingMode::TowardNegative,
-    @lf_arith.RoundingMode::AwayFromZero,
   ]
   let huge = BinFloat::make(BinCoeff::one(), 1000, 53)
   let tiny = BinFloat::make(BinCoeff::one(), -1000, 53)
@@ -409,7 +407,7 @@ test "pown of a signaling NaN with a zero exponent is invalid (#286)" {
   // IEEE 754-2019 9.2.1: pown(x, 0) is 1 if x is not a signaling NaN; a
   // signaling NaN signals invalid (7.2 a) and delivers a quiet NaN that keeps
   // its payload (6.2).
-  let context = BinaryContext::unbounded(53)
+  let context = BinaryContext::new(precision=53)
   let payload = BinCoeff::from_uint64(19UL)
   for negative in [false, true] {
     let snan = BinFloat::signaling_nan(payload~, negative~, precision=53)

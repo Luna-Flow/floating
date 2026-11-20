@@ -39,14 +39,13 @@ fn pow_nan_operand(
 ///|
 fn pow_contexts() -> Array[BinaryContext] {
   [
-    BinaryContext::unbounded(53),
-    BinaryContext::unbounded(2),
+    BinaryContext::new(precision=53),
+    BinaryContext::new(precision=2),
     BinaryContext::binary64(),
-    BinaryContext::new(24, e_min=-6, e_max=7),
+    BinaryContext::new(precision=24, e_max=7),
     BinaryContext::new(
-      113,
+      precision=113,
       rounding=BinaryRoundingMode::RoundTowardZero,
-      e_min=-16382,
       e_max=16383,
     ),
   ]
@@ -156,7 +155,7 @@ test "pow keeps its quiet NaN shortcuts and propagation" {
 ///|
 test "pow_ctx and pow agree with try_pow_ctx on a signaling NaN" {
   let snan = pow_nan_operand("+snan", 3UL, 53)
-  let context = BinaryContext::unbounded(53)
+  let context = BinaryContext::new(precision=53)
   let (value, flags) = snan.pow_ctx(BinFloat::zero(), context)
   assert_true(value.is_quiet_nan())
   assert_true(flags.invalid_operation())

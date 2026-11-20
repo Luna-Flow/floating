@@ -340,7 +340,7 @@ fn add_test_pair_deep_tie(
 ///|
 fn add_test_check(left : BinFloat, right : BinFloat) -> Int32 raise {
   assert_true(left.coefficient_.is_odd() && right.coefficient_.is_odd())
-  let context = BinaryContext::unbounded(max_precision(left, right))
+  let context = BinaryContext::new(precision=max_precision(left, right))
   let general = left.add_ctx(right, context).0
   let reference = ref_add(left, right)
   let actual = binary_coeff_fast_add(left, right)

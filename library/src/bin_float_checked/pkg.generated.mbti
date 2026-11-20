@@ -122,7 +122,7 @@ pub fn BinFloatResult::tanh_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::tanpi(Self) -> Self
 pub fn BinFloatResult::tanpi_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::ulp(Self) -> Self
-pub fn BinFloatResult::with_precision(Self, Int32, @arithmetic.RoundingMode) -> Self
+pub fn BinFloatResult::with_precision(Self, Int32, @bin_float.BinaryRoundingMode) -> Self
 pub impl Add for BinFloatResult
 pub impl Div for BinFloatResult
 pub impl Mul for BinFloatResult

@@ -28,7 +28,6 @@ static const Rounding roundings[] = {
   {"z", MPFR_RNDZ},
   {"u", MPFR_RNDU},
   {"d", MPFR_RNDD},
-  {"a", MPFR_RNDA},
 };
 
 int main(void) {

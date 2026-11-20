@@ -352,7 +352,7 @@ fn decimal_certified_quarter_pi_multiple(
     // pi/4 = [RD(pi), RU(pi)] / 4, exact scaling of the cached enclosure.
     let pi = decimal_pi_enclosure(precision)
     let scale = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -2, 2)
-    let exact = @bin_float.BinaryContext::unbounded(precision)
+    let exact = @bin_float.BinaryContext::new(precision~)
     let quarter = @ball_float.BallFloat::from_bounds(
       pi.0.mul_ctx(scale, exact).0,
       pi.1.mul_ctx(scale, exact).0,
@@ -608,12 +608,12 @@ fn Decimal::try_unary_elementary_ctx(
     let (lower, upper) = value.to_bin_float_bounds(bits)
     if lower.compare(upper) == 0 {
       Some(fn(precision : Int32) {
-        let downward = @bin_float.BinaryContext::unbounded(
-          precision,
+        let downward = @bin_float.BinaryContext::new(
+          precision~,
           rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
         )
-        let upward = @bin_float.BinaryContext::unbounded(
-          precision,
+        let upward = @bin_float.BinaryContext::new(
+          precision~,
           rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
         )
         let low = match operation {

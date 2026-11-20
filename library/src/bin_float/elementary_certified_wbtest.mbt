@@ -268,7 +268,7 @@ test "BinFloat atan2 preserves axes and quadrants" {
 
 ///|
 test "BinFloat atan2 follows the IEEE signed-zero special cases" {
-  let context = BinaryContext::unbounded(53)
+  let context = BinaryContext::new(precision=53)
   let pz = BinFloat::zero()
   let nz = BinFloat::negative_zero()
   let m1 = BinFloat::from_int(-1)
@@ -366,7 +366,7 @@ test "BinFloat tanpi at integers takes the sign of sinpi over cospi" {
 test "BinFloat pi-scaled quarter is certified across release precisions" {
   for precision in [53, 128, 512] {
     let quarter = BinFloat::from_double(0.25, precision~)
-    let context = BinaryContext::unbounded(precision)
+    let context = BinaryContext::new(precision~)
     assert_true(
       quarter.try_sinpi_ctx(context) is Ok(_),
       msg="sinpi quarter at " + precision.to_string() + " bits",
@@ -414,11 +414,10 @@ test "BinFloat pi-scaled quarter honors every rounding mode" {
     BinaryRoundingMode::RoundTowardZero,
     BinaryRoundingMode::RoundTowardPositive,
     BinaryRoundingMode::RoundTowardNegative,
-    BinaryRoundingMode::RoundAwayFromZero,
   ]
   let sines : Array[BinFloat] = []
   for mode in modes {
-    let context = BinaryContext::unbounded(24, rounding=mode)
+    let context = BinaryContext::new(precision=24, rounding=mode)
     let (sine, sine_flags) = quarter.sinpi_ctx(context)
     let (cosine, cosine_flags) = quarter.cospi_ctx(context)
     let (tangent, tangent_flags) = quarter.tanpi_ctx(context)
@@ -430,7 +429,6 @@ test "BinFloat pi-scaled quarter honors every rounding mode" {
     sines.push(sine)
   }
   assert_eq(sines[2], sines[4])
-  assert_eq(sines[3], sines[5])
   assert_true(sines[4].compare(sines[0]) <= 0)
   assert_true(sines[0].compare(sines[3]) <= 0)
   assert_true(sines[4].compare(sines[1]) <= 0)
@@ -485,7 +483,7 @@ test "BinFloat expm1 and log1p preserve tiny nonzero inputs" {
 
 ///|
 test "certified target witness rejects equal values with unequal flags" {
-  let context = BinaryContext::unbounded(3)
+  let context = BinaryContext::new(precision=3)
   let exact = BinFloat::one(precision=4)
   let midpoint = BinFloat::make(BinCoeff::from_uint64(9UL), -3, 4)
   let (rounded, unique, flags) = binary_certified_target_rounding(
@@ -500,31 +498,36 @@ test "certified target witness rejects equal values with unequal flags" {
 test "BinFloat elementary functions honor every directed rounding mode" {
   let value = BinFloat::one(precision=53)
   let downward = value.exp_ctx(
-    BinaryContext::unbounded(
-      24,
+    BinaryContext::new(
+      precision=24,
       rounding=BinaryRoundingMode::RoundTowardNegative,
     ),
   )
   let upward = value.exp_ctx(
-    BinaryContext::unbounded(
-      24,
+    BinaryContext::new(
+      precision=24,
       rounding=BinaryRoundingMode::RoundTowardPositive,
     ),
   )
   let toward_zero = value.exp_ctx(
-    BinaryContext::unbounded(24, rounding=BinaryRoundingMode::RoundTowardZero),
-  )
-  let away = value.exp_ctx(
-    BinaryContext::unbounded(24, rounding=BinaryRoundingMode::RoundAwayFromZero),
+    BinaryContext::new(
+      precision=24,
+      rounding=BinaryRoundingMode::RoundTowardZero,
+    ),
   )
   let ties_even = value.exp_ctx(
-    BinaryContext::unbounded(24, rounding=BinaryRoundingMode::RoundTiesToEven),
+    BinaryContext::new(
+      precision=24,
+      rounding=BinaryRoundingMode::RoundTiesToEven,
+    ),
   )
   let ties_away = value.exp_ctx(
-    BinaryContext::unbounded(24, rounding=BinaryRoundingMode::RoundTiesToAway),
+    BinaryContext::new(
+      precision=24,
+      rounding=BinaryRoundingMode::RoundTiesToAway,
+    ),
   )
   assert_eq(toward_zero.0, downward.0)
-  assert_eq(away.0, upward.0)
   assert_true(downward.0.compare(ties_even.0) <= 0)
   assert_true(ties_even.0.compare(upward.0) <= 0)
   assert_true(downward.0.compare(ties_away.0) <= 0)

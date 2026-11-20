@@ -46,17 +46,13 @@ fn binary_round_dyadic_legacy_for_test(
     precision_rounded,
     binary_add_sat(exponent2, precision_shift),
   )
-  let range_shift = match context.e_min() {
-    Some(e_min) =>
-      Int32::max(
-        0,
-        binary_sub_sat(
-          binary_sub_sat(e_min, context.precision() - 1),
-          exponent2,
-        ),
-      )
-    None => 0
-  }
+  let range_shift = Int32::max(
+    0,
+    binary_sub_sat(
+      binary_sub_sat(context.e_min(), context.precision() - 1),
+      exponent2,
+    ),
+  )
   let shift = Int32::max(precision_shift, range_shift)
   let (retained, round_bit, sticky) = binary_split_shift_legacy_for_test(
     magnitude, shift,
@@ -212,7 +208,6 @@ test "far exponent addition matches exact alignment around cutoff" {
     BinaryRoundingMode::RoundTowardZero,
     BinaryRoundingMode::RoundTowardPositive,
     BinaryRoundingMode::RoundTowardNegative,
-    BinaryRoundingMode::RoundAwayFromZero,
   ]
   let gaps = [1, 4, 6, 7, 8, 10, 14, 15, 31]
   let coefficient_pairs = [
@@ -223,8 +218,8 @@ test "far exponent addition matches exact alignment around cutoff" {
   ]
   for mode in modes {
     let contexts = [
-      BinaryContext::unbounded(3, rounding=mode),
-      BinaryContext::unbounded(7, rounding=mode),
+      BinaryContext::new(precision=3, rounding=mode),
+      BinaryContext::new(precision=7, rounding=mode),
       BinaryContext::binary16(rounding=mode),
       BinaryContext::binary16(
         rounding=mode,
@@ -269,13 +264,13 @@ test "wide exponent gaps stay on bounded coefficient paths" {
   let tiny = BinFloat::make_coeff(Coeff::one(), -1000000, 53)
   assert_true(one.compare(tiny) > 0)
   assert_true(tiny.compare(one) < 0)
-  let nearest = one.add_ctx(tiny, BinaryContext::unbounded(precision))
+  let nearest = one.add_ctx(tiny, BinaryContext::new(precision~))
   assert_eq(nearest.0, BinFloat::one(precision~))
   assert_true(nearest.1.inexact())
   let upward = one.add_ctx(
     tiny,
-    BinaryContext::unbounded(
-      precision,
+    BinaryContext::new(
+      precision~,
       rounding=BinaryRoundingMode::RoundTowardPositive,
     ),
   )
@@ -304,12 +299,11 @@ test "optimized dyadic rounding matches legacy control flow" {
     BinaryRoundingMode::RoundTowardZero,
     BinaryRoundingMode::RoundTowardPositive,
     BinaryRoundingMode::RoundTowardNegative,
-    BinaryRoundingMode::RoundAwayFromZero,
   ]
   for mode in modes {
     let contexts = [
-      BinaryContext::unbounded(3, rounding=mode),
-      BinaryContext::unbounded(53, rounding=mode),
+      BinaryContext::new(precision=3, rounding=mode),
+      BinaryContext::new(precision=53, rounding=mode),
       BinaryContext::binary16(rounding=mode),
       BinaryContext::binary16(
         rounding=mode,
@@ -363,12 +357,11 @@ test "optimized rational rounding reuses equivalent target split" {
     BinaryRoundingMode::RoundTowardZero,
     BinaryRoundingMode::RoundTowardPositive,
     BinaryRoundingMode::RoundTowardNegative,
-    BinaryRoundingMode::RoundAwayFromZero,
   ]
   for mode in modes {
     let contexts = [
-      BinaryContext::unbounded(7, rounding=mode),
-      BinaryContext::unbounded(53, rounding=mode),
+      BinaryContext::new(precision=7, rounding=mode),
+      BinaryContext::new(precision=53, rounding=mode),
       BinaryContext::binary16(rounding=mode),
     ]
     for context in contexts {
@@ -409,13 +402,12 @@ test "single-track pow matches exact oracle across rounding modes" {
     BinaryRoundingMode::RoundTowardZero,
     BinaryRoundingMode::RoundTowardPositive,
     BinaryRoundingMode::RoundTowardNegative,
-    BinaryRoundingMode::RoundAwayFromZero,
   ]
   let exponents = [-15, -9, -7, -3, -2, -1, 1, 2, 3, 5, 7, 9, 15]
   for mode in modes {
     let contexts = [
-      BinaryContext::unbounded(7, rounding=mode),
-      BinaryContext::unbounded(53, rounding=mode),
+      BinaryContext::new(precision=7, rounding=mode),
+      BinaryContext::new(precision=53, rounding=mode),
       BinaryContext::binary16(rounding=mode),
       BinaryContext::binary16(
         rounding=mode,
@@ -466,7 +458,7 @@ test "single-track pow uses leading-bit chain without ordinary fallback" {
     base,
     7U,
     false,
-    BinaryContext::unbounded(1024),
+    BinaryContext::new(precision=1024),
   )
   let summary = stats.summary()
   assert_true(summary.0 <= 4)
@@ -484,7 +476,6 @@ test "single-track pow fixed-seed differential" {
     BinaryRoundingMode::RoundTowardZero,
     BinaryRoundingMode::RoundTowardPositive,
     BinaryRoundingMode::RoundTowardNegative,
-    BinaryRoundingMode::RoundAwayFromZero,
   ]
   let exponents = [-31, -17, -11, -5, -3, -1, 1, 3, 5, 7, 11, 17, 31]
   let mut state = 0x6a09_e667_f3bc_c909UL
@@ -499,7 +490,7 @@ test "single-track pow fixed-seed differential" {
     )
     let mode = modes[index % modes.length()]
     let context = if (index & 1) == 0 {
-      BinaryContext::unbounded(index % 61 + 3, rounding=mode)
+      BinaryContext::new(precision=index % 61 + 3, rounding=mode)
     } else {
       BinaryContext::binary16(
         rounding=mode,

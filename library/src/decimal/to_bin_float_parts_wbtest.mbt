@@ -20,7 +20,7 @@ fn to_bin_float_reference(
       value.exponent10,
       precision,
       negative=value.negative,
-      mode~,
+      mode=bin_mode(mode, value.negative),
     )
   }
   let scale = -value.exponent10
@@ -38,7 +38,7 @@ fn to_bin_float_reference(
     -binary_shift,
     precision,
     negative=value.sign() == Sign::Negative,
-    mode~,
+    mode=bin_mode(mode, value.sign() == Sign::Negative),
   )
 }
 
@@ -174,7 +174,7 @@ test "to_bin_float at large exponents equals exact integer arithmetic (not the o
       exponent,
       magnitude.bit_length() + 2,
       negative~,
-      mode=RoundingMode::ToNearestEven,
+      mode=@bin_float.BinaryRoundingMode::RoundTiesToEven,
     )
     assert_true(
       got.compare(expected) == 0 && got.is_negative() == negative,

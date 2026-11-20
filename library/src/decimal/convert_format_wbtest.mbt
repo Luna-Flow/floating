@@ -17,7 +17,6 @@ fn convert_binary_mode(name : String) -> @bin_float.BinaryRoundingMode {
       @bin_float.BinaryRoundingMode::RoundTowardPositive
     "d" | "toward_negative" =>
       @bin_float.BinaryRoundingMode::RoundTowardNegative
-    "a" => @bin_float.BinaryRoundingMode::RoundAwayFromZero
     _ => abort("unexpected binary rounding mode \{name}")
   }
 }
@@ -110,8 +109,8 @@ test "decimal to binary: the MPFR mpfr_strtofr rows" {
   for row in mpfr_strtofr_rows {
     let (literal, precision, mode, expected, inexact, overflow, underflow) = row
     let value = Decimal::from_string(literal, precision=200).unwrap()
-    let context = @bin_float.BinaryContext::unbounded(
-      precision,
+    let context = @bin_float.BinaryContext::new(
+      precision~,
       rounding=convert_binary_mode(mode),
     )
     let (actual, flags) = value.to_bin_float_ctx(context)

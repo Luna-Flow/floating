@@ -45,14 +45,16 @@ them.
 
 | Form | Example | Context | Result |
 | --- | --- | --- | --- |
-| plain | `x + y`, `x.exp()` | unbounded exponent range, nearest-even, precision of the operands | the value only |
+| plain | `x + y`, `x.exp()` | `BinaryContext::new(precision=p)`, nearest-even, `p` the precision of the operands | the value only |
 | contextual | `x.add_ctx(y, ctx)`, `x.exp_ctx(ctx)` | the given `BinaryContext` | `(value, flags)` |
 | checked | `x.try_exp_ctx(ctx)`, `x.div_checked(y)` | the given context, or the plain one | `Result` with an `@lf_arith.ArithmeticError` |
 
 The plain form of a binary operation works at the larger precision of the two
-operands (the largest of three for `fma`). Its exponent range is the
-implementation range below, so it overflows to an infinity and underflows to a
-signed zero or a tiny value only at about $2^{\pm 2^{30}}$.
+operands (the largest of three for `fma`). Its context is the extendable
+precision format of IEEE 754-2019 3.7 given by $p$ alone (see `BinaryContext`),
+whose exponent range is the implementation range below, so it overflows to an
+infinity and underflows to a signed zero or a tiny value only at about
+$2^{\pm 2^{30}}$.
 
 ## Values and limits
 
@@ -66,11 +68,13 @@ pub let binary_implementation_e_max : Int
 pub let binary_implementation_e_min : Int
 ```
 
-They are $2^{30}-1 = 1073741823$ and $-(2^{30}-1)$. An unbounded context, and
-every plain operation, uses them as $e_{\max}$ and $e_{\min}$: a result whose
-leading bit would lie above $e_{\max}$ overflows, and below $e_{\min}$ the
-value is subnormal with quantum $2^{e_{\min}-p+1}$. A context with explicit
-bounds is intersected with this range.
+They are $2^{30}-1 = 1073741823$ and $1 - (2^{30}-1) = -1073741822$, so
+$e_{\min} = 1 - e_{\max}$ as IEEE 754-2019 3.3 requires of every format. A
+context given by its precision alone, and every plain operation, uses them as
+$e_{\max}$ and $e_{\min}$: a result whose leading bit would lie above $e_{\max}$
+overflows, and below $e_{\min}$ the value is subnormal with quantum
+$2^{e_{\min}-p+1}$. The range of a context given by its precision alone is this range, so every
+stored value is a member of that context.
 
 ### `binary_precision_max`
 
@@ -366,8 +370,8 @@ pub fn BinFloat::is_nan(Self) -> Bool
 the exponent of its leading bit is at least the context's $e_{\min}$ and
 subnormal when it is below; a `BinFloat` carries no format, so the context
 decides, and `BinaryInterchangeFormat::context` gives the one of a binary
-interchange format. A context without `e_min` uses the implementation limit
-`binary_implementation_e_min`. `is_normal` and `is_subnormal` are true exactly
+interchange format. A context given by its precision alone has the implementation limit
+`binary_implementation_e_min` as `e_min`. `is_normal` and `is_subnormal` are true exactly
 for the normal and subnormal classes; `is_finite` is true for zeros,
 subnormals and normals, `is_infinite` for the two infinities and `is_nan` for
 both NaNs. None of them rounds or raises a flag, and `classify` keeps its
@@ -601,13 +605,14 @@ pub(all) enum BinaryRoundingMode {
   RoundTowardZero
   RoundTowardPositive
   RoundTowardNegative
-  RoundAwayFromZero
 } derive(Eq, @debug.Debug)
 ```
 
-The first five are the IEEE 754-2019 rounding directions (clause 4.3).
-`RoundAwayFromZero` is an extra directed mode (round the magnitude up), used by
-the GDA-style `@lf_arith.RoundingMode::AwayFromZero`. Each mode is a monotone
+These are the five IEEE 754-2019 rounding-direction attributes (clauses 4.3.1
+and 4.3.2); `RoundTiesToAway` is not required of a binary format but is defined.
+There is no away-from-zero mode: `@lf_arith.RoundingMode::AwayFromZero` has no
+IEEE 754-2019 counterpart and is refused by `from_arithmetic` and
+`from_arithmetic_context`. Each mode is a monotone
 map $\mathbb{R} \to F \cup \{\pm\infty\}$; the
 [design page](../design/bin_float.md#rounding-functions) defines them.
 
@@ -616,12 +621,13 @@ map $\mathbb{R} \to F \cup \{\pm\infty\}$; the
 Convert to and from `@lf_arith.RoundingMode`.
 
 ```mbti
-pub fn BinaryRoundingMode::from_arithmetic(@arithmetic.RoundingMode) -> Self
+pub fn BinaryRoundingMode::from_arithmetic(@arithmetic.RoundingMode) -> Self?
 pub fn BinaryRoundingMode::to_arithmetic(Self) -> @arithmetic.RoundingMode?
 ```
 
 `to_arithmetic(RoundTiesToAway)` is `None`, because `@lf_arith.RoundingMode`
-has no ties-to-away mode; the other modes map one to one.
+has no ties-to-away mode, and `from_arithmetic(AwayFromZero)` is `None`, because
+IEEE 754-2019 4.3 has no such attribute; the other modes map one to one.
 
 ### `TininessDetection`
 
@@ -642,8 +648,9 @@ signaled only for a tiny result that is also inexact.
 
 ### `BinaryContext`
 
-The precision, rounding direction, exponent range and tininess rule of one
-operation.
+The format and the attributes of one operation: the precision $p$, the
+exponent $e_{\max}$ (with $e_{\min} = 1 - e_{\max}$, IEEE 754-2019 3.3), the
+rounding-direction attribute and the tininess rule.
 
 ```mbti
 pub struct BinaryContext {
@@ -655,25 +662,28 @@ A context is an immutable value; there is no global or thread state.
 $e_{\min}$ and $e_{\max}$ are exponents of the leading bit, as in IEEE 754: a
 normal number satisfies $2^{e_{\min}} \le |x| < 2^{e_{\max}+1}$, the largest
 finite value is $(2 - 2^{1-p})\,2^{e_{\max}}$ and the smallest positive
-subnormal is $2^{e_{\min}-p+1}$. A missing bound means the implementation
-bound.
+subnormal is $2^{e_{\min}-p+1}$. A context has no separate $e_{\min}$: it is
+$1 - e_{\max}$. Without an `e_max` the context is the extendable precision
+format of IEEE 754-2019 3.7 specified by $p$ alone, and $e_{\max}$ is
+`binary_implementation_e_max`.
 
-### `BinaryContext::new`, `BinaryContext::try_new`, `BinaryContext::unbounded`
+### `BinaryContext::new`, `BinaryContext::try_new`
 
 Build a context.
 
 ```mbti
-pub fn BinaryContext::new(Int, rounding? : BinaryRoundingMode, e_min? : Int, e_max? : Int, tininess? : TininessDetection) -> Self
-pub fn BinaryContext::try_new(Int, rounding? : BinaryRoundingMode, e_min? : Int, e_max? : Int, tininess? : TininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BinaryContext::unbounded(Int, rounding? : BinaryRoundingMode) -> Self
+pub fn BinaryContext::new(precision=precision? : Int32, e_max? : Int32, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> Self
+pub fn BinaryContext::try_new(precision=precision? : Int32, e_max? : Int32, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
-The first argument is the precision $p$. Defaults: `RoundTiesToEven`, no
-explicit exponent bounds, `AfterRounding`. `new` aborts when
-$p \le 0$, $p >$ `binary_precision_max`, or both bounds are given with
-$e_{\min} > e_{\max}$; `try_new` returns a `domain_error` in those cases.
-`unbounded(p)` has no explicit bounds, so only the implementation range
-applies.
+Defaults: $p = 53$, `e_max = binary_implementation_e_max`, `RoundTiesToEven`,
+`AfterRounding`; `new()` is therefore the extendable format of 53 bits, and every
+operation of the package runs in it. `new` aborts when $p$ is outside $[1, 2^{28}]$ or $e_{\max}$ is outside
+$[1, 2^{30}-1]$, naming the parameter; `try_new`
+returns a `domain_error` in those cases. $e_{\max} \ge 1$ is what makes
+$e_{\min} = 1 - e_{\max} \le e_{\max}$; IEEE 754-2019 3.7 NOTE 3 recommends
+$p \ge 3$ and $e_{\max} \ge 2$, which are not enforced. There is no one-sided or
+asymmetric range: `unbounded(p)` and the `e_min` argument no longer exist.
 
 ### `BinaryContext::binary16`, `BinaryContext::binary32`, `BinaryContext::binary64`, `BinaryContext::binary128`
 
@@ -700,12 +710,14 @@ Each is `BinaryInterchangeFormat::context` of the format:
 Converts an `@lf_arith.ArithmeticContext`.
 
 ```mbti
-pub fn BinaryContext::from_arithmetic_context(@arithmetic.ArithmeticContext) -> Self
+pub fn BinaryContext::from_arithmetic_context(@arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
-Precision, rounding and the optional bounds are copied; the `clamp` field has
-no binary meaning and is ignored; tininess is `AfterRounding`. A precision
-outside $[1, 2^{28}]$ aborts, as in `new`.
+Precision and rounding are copied; the `clamp` field has no binary meaning and is
+ignored; tininess is `AfterRounding`. A given `e_min` must equal $1 - e_{\max}$,
+and `e_min` alone gives $e_{\max} = 1 - e_{\min}$. The result is an `Err` for
+`AwayFromZero`, an `e_min` that is not $1 - e_{\max}$, and a precision or
+`e_max` outside the limits of `try_new`.
 
 ### `BinaryContext::precision`, `BinaryContext::rounding`, `BinaryContext::e_min`, `BinaryContext::e_max`, `BinaryContext::tininess`
 
@@ -714,13 +726,26 @@ Read the fields of a context.
 ```mbti
 pub fn BinaryContext::precision(Self) -> Int
 pub fn BinaryContext::rounding(Self) -> BinaryRoundingMode
-pub fn BinaryContext::e_min(Self) -> Int?
-pub fn BinaryContext::e_max(Self) -> Int?
+pub fn BinaryContext::e_min(Self) -> Int32
+pub fn BinaryContext::e_max(Self) -> Int32
 pub fn BinaryContext::tininess(Self) -> TininessDetection
 ```
 
-`e_min` and `e_max` return the bounds as given (`None` for an unbounded side),
-not intersected with the implementation range.
+`e_min` is always $1 - e_{\max}$; both are plain integers.
+
+### `BinaryContext::with_precision`, `with_rounding`, `with_e_max`, `with_tininess`
+
+Copy a context with one parameter changed.
+
+```mbti
+pub fn BinaryContext::with_precision(Self, Int32) -> Self
+pub fn BinaryContext::with_rounding(Self, BinaryRoundingMode) -> Self
+pub fn BinaryContext::with_e_max(Self, Int32) -> Self
+pub fn BinaryContext::with_tininess(Self, TininessDetection) -> Self
+```
+
+`with_precision` and `with_e_max` abort outside the limits of `new`; there is no
+`try_with_*`.
 
 ### `BinaryContext::refinement_limit`, `BinaryContext::with_refinement_limit`
 
@@ -749,12 +774,12 @@ different.
 ```moonbit
 ///|
 test "a refinement limit makes a hard-to-round result fail" {
-  let wide = @bin_float.BinaryContext::unbounded(330)
+  let wide = @bin_float.BinaryContext::new(precision=330)
   let one = @bin_float.BinFloat::from_int(1, precision=330)
   let midpoint = one.add_ctx(one.scaleb_ctx(-53, wide).0, wide).0
   // exp(x) is within 2^-330 of the midpoint 1 + 2^-53.
   let x = midpoint.try_ln_ctx(wide).unwrap().0
-  let context = @bin_float.BinaryContext::new(53)
+  let context = @bin_float.BinaryContext::new(precision=53)
   inspect(context.refinement_limit() == Some(12), content="true")
   let short = context.with_refinement_limit(Some(1))
   inspect(x.try_exp_ctx(short) is Err(_), content="true")
@@ -1195,7 +1220,7 @@ case-insensitive words `inf`, `infinity`, `nan`, `qnan` and `snan`, with
 surrounding whitespace ignored. Anything else is a `parse_error`. The exact
 decimal value $D \cdot 10^k$ is rounded once under the context, for any number
 of digits and any exponent; overflow, underflow and inexact are reported as for
-arithmetic. `from_string(s, precision=p)` uses `unbounded(p)` (default 53) and
+arithmetic. `from_string(s, precision=p)` uses `BinaryContext::new(precision=p)` (default 53) and
 drops the flags.
 
 ### `BinFloat::to_decimal_string_ctx`
@@ -1231,7 +1256,7 @@ one with an even last digit. The layout follows ECMAScript `Number#toString`:
 positional notation for decimal exponents in $[-6, 21)$, otherwise
 `d.ddde±x`; unlike ECMAScript, $-0$ prints as `-0`. For binary64 values in
 `BinaryContext::binary64()` the result equals the host `Double` formatter.
-`to_shortest_string()` uses `unbounded(precision())`, so it is the shortest
+`to_shortest_string()` uses `BinaryContext::new(precision=precision())`, so it is the shortest
 string that `from_string(text, precision=x.precision())` maps back to `x`. An
 operand that is not representable in the context is first rounded into it
 (`round_ctx`, in the rounding direction of the context, with the overflow and
@@ -2320,7 +2345,8 @@ pub fn BinFloat::pow_int_checked(Self, Int, @arithmetic.ArithmeticContext) -> Re
 ```
 
 Each converts the `ArithmeticContext` with
-`BinaryContext::from_arithmetic_context` (which aborts for a precision above
+`BinaryContext::from_arithmetic_context` (an `Err` for `AwayFromZero`, a range
+that is not of the IEEE 754-2019 3.3 shape or a precision above
 `binary_precision_max`) and runs the contextual operation. The invalid flag
 becomes a `domain_error` and the division-by-zero flag a `division_by_zero`
 error; the other flags are dropped, so a NaN, an infinity, an overflow or an
@@ -2427,9 +2453,9 @@ pub fn BinaryContext::not_equal(Self, Self) -> Bool
 pub fn BinaryContext::to_repr(Self) -> @debug.Repr
 ```
 
-Equality compares the fields as given: `BinaryContext::new(53)` is not equal
-to `BinaryContext::new(53, e_max=binary_implementation_e_max)` although the
-two behave identically.
+Equality compares the fields, so `BinaryContext::new(precision=53)` equals
+`BinaryContext::new(precision=53, e_max=binary_implementation_e_max)`: there is
+one representation of every context.
 
 ### `BinaryFlags::equal`, `BinaryFlags::not_equal`, `BinaryFlags::to_repr`
 
@@ -2624,7 +2650,7 @@ pub fn BinFloat::log2_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::log2p1(Self) -> Self
 pub fn BinFloat::log2p1_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::logb_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
-pub fn BinFloat::make(BinCoeff, Int32, Int32, negative? : Bool, mode? : @arithmetic.RoundingMode) -> Self
+pub fn BinFloat::make(BinCoeff, Int32, Int32, negative? : Bool, mode? : BinaryRoundingMode) -> Self
 pub fn BinFloat::max(Self, Self) -> Self
 pub fn BinFloat::min(Self, Self) -> Self
 pub fn BinFloat::mul(Self, Self) -> Self
@@ -2741,7 +2767,7 @@ pub fn BinFloat::try_tan_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags),
 pub fn BinFloat::try_tanh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::try_tanpi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::ulp(Self) -> Self
-pub fn BinFloat::with_precision(Self, Int32, @arithmetic.RoundingMode) -> Self
+pub fn BinFloat::with_precision(Self, Int32, BinaryRoundingMode) -> Self
 pub fn BinFloat::zero(precision? : Int32) -> Self
 pub impl @arithmetic.AbsContextual for BinFloat
 pub impl @arithmetic.AddContextual for BinFloat
@@ -2772,20 +2798,23 @@ pub fn BinaryContext::binary128(rounding? : BinaryRoundingMode, tininess? : Tini
 pub fn BinaryContext::binary16(rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> Self
 pub fn BinaryContext::binary32(rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> Self
 pub fn BinaryContext::binary64(rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> Self
-pub fn BinaryContext::e_max(Self) -> Int32?
-pub fn BinaryContext::e_min(Self) -> Int32?
+pub fn BinaryContext::e_max(Self) -> Int32
+pub fn BinaryContext::e_min(Self) -> Int32
 pub fn BinaryContext::equal(Self, Self) -> Bool
-pub fn BinaryContext::from_arithmetic_context(@arithmetic.ArithmeticContext) -> Self
-pub fn BinaryContext::new(Int32, rounding? : BinaryRoundingMode, e_min? : Int32, e_max? : Int32, tininess? : TininessDetection) -> Self
+pub fn BinaryContext::from_arithmetic_context(@arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BinaryContext::new(precision? : Int32, e_max? : Int32, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> Self
 pub fn BinaryContext::not_equal(Self, Self) -> Bool
 pub fn BinaryContext::precision(Self) -> Int32
 pub fn BinaryContext::refinement_limit(Self) -> Int32?
 pub fn BinaryContext::rounding(Self) -> BinaryRoundingMode
 pub fn BinaryContext::tininess(Self) -> TininessDetection
 pub fn BinaryContext::to_repr(Self) -> @debug.Repr
-pub fn BinaryContext::try_new(Int32, rounding? : BinaryRoundingMode, e_min? : Int32, e_max? : Int32, tininess? : TininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BinaryContext::unbounded(Int32, rounding? : BinaryRoundingMode) -> Self
+pub fn BinaryContext::try_new(precision? : Int32, e_max? : Int32, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BinaryContext::with_e_max(Self, Int32) -> Self
+pub fn BinaryContext::with_precision(Self, Int32) -> Self
 pub fn BinaryContext::with_refinement_limit(Self, Int32?) -> Self
+pub fn BinaryContext::with_rounding(Self, BinaryRoundingMode) -> Self
+pub fn BinaryContext::with_tininess(Self, TininessDetection) -> Self
 
 #derive(Eq, @debug.Debug)
 pub struct BinaryFlags {
@@ -2842,10 +2871,9 @@ pub(all) enum BinaryRoundingMode {
   RoundTowardZero
   RoundTowardPositive
   RoundTowardNegative
-  RoundAwayFromZero
 }
 pub fn BinaryRoundingMode::equal(Self, Self) -> Bool
-pub fn BinaryRoundingMode::from_arithmetic(@arithmetic.RoundingMode) -> Self
+pub fn BinaryRoundingMode::from_arithmetic(@arithmetic.RoundingMode) -> Self?
 pub fn BinaryRoundingMode::not_equal(Self, Self) -> Bool
 pub fn BinaryRoundingMode::to_arithmetic(Self) -> @arithmetic.RoundingMode?
 pub fn BinaryRoundingMode::to_repr(Self) -> @debug.Repr
