@@ -256,11 +256,17 @@ fn split_combine_t(
   right_q : Coeff,
   right_q_shift : Int32,
 ) -> SplitInt {
+  if left_t.negative == right_t.negative {
+    return SplitInt::make(
+      left_t.negative,
+      left_t.magnitude
+      .mul(right_q)
+      .add_shifted_left(right_q_shift, right_t.magnitude.mul(left_p)),
+    )
+  }
   let scaled = left_t.magnitude.mul(right_q).shift_left(right_q_shift)
   let added = right_t.magnitude.mul(left_p)
-  if left_t.negative == right_t.negative {
-    SplitInt::make(left_t.negative, scaled.add(added))
-  } else if scaled.compare(added) >= 0 {
+  if scaled.compare(added) >= 0 {
     SplitInt::make(left_t.negative, scaled.sub_checked(added).unwrap())
   } else {
     SplitInt::make(right_t.negative, added.sub_checked(scaled).unwrap())
@@ -288,38 +294,97 @@ fn split_combine(left : SplitState, right : SplitState) -> SplitState {
 }
 
 ///|
-/// Splitting state of `sum_{k<n} N^k / (k! 2^(s k))` on `[from, to)`, the
-/// series of `exp(N / 2^s)`: `p = N^len`, `q = prod i`, `q_shift = s` per index
-/// from 1 and `t = q 2^q_shift sum`.
+/// The powers `N^k` of the numerator of one splitting tree. Every node of one
+/// level has the same number of leaves (the lengths of the ranges of a level
+/// differ by one), so the tree needs about `2 log2(terms)` distinct powers; each
+/// is made once, as a square or a product of two smaller ones, instead of one
+/// product of two child powers at every node.
+priv struct SplitPowers {
+  numerator : Coeff
+  cache : Array[Coeff?]
+}
+
+///|
+fn SplitPowers::new(numerator : Coeff, terms : Int32) -> SplitPowers {
+  { numerator, cache: Array::make(terms.to_int() + 1, None), }
+}
+
+///|
+fn SplitPowers::get(self : SplitPowers, k : Int32) -> Coeff {
+  if k == 0 {
+    return Coeff::one()
+  }
+  if k == 1 {
+    return self.numerator
+  }
+  match self.cache[k.to_int()] {
+    Some(value) => value
+    None => {
+      let low = k / 2
+      let value = if low == k - low {
+        self.get(low).square()
+      } else {
+        self.get(low).mul(self.get(k - low))
+      }
+      self.cache[k.to_int()] = Some(value)
+      value
+    }
+  }
+}
+
+///|
+/// Splitting state of `sum_{k<n} N^k / (k! 2^(s k))` on `[from, to)` without the
+/// power `p = N^leaves`: the merge needs only `p` of the left range, which is
+/// `N^(number of indices >= 1 of the left range)` from `SplitPowers`, and the
+/// final value uses `q`, `q_shift` and `t` only.
+priv struct SplitExpState {
+  q : Coeff
+  q_shift : Int32
+  t : Coeff
+}
+
+///|
+/// The series of `exp(N / 2^s)` on `[from, to)`: `q = prod i`, `q_shift = s` per
+/// index from 1 and `t = q 2^q_shift sum`, exact integers, merged as
+/// `t = t_left q_right 2^q_shift_right + N^leaves_left t_right`.
 fn split_exp_state(
   from : Int32,
   to : Int32,
-  numerator : Coeff,
+  powers : SplitPowers,
   s : Int32,
-) -> SplitState {
+) -> SplitExpState {
   if to - from == 1 {
     if from == 0 {
-      return {
-        p: Coeff::one(),
-        q: Coeff::one(),
-        q_shift: 0,
-        t_negative: false,
-        t: Coeff::one(),
-      }
+      return { q: Coeff::one(), q_shift: 0, t: Coeff::one(), }
     }
     return {
-      p: numerator,
       q: Coeff::from_uint64(from.to_uint64()),
       q_shift: s,
-      t_negative: false,
-      t: numerator,
+      t: powers.numerator,
+    }
+  }
+  if to - from == 2 && from >= 1 {
+    // Two leaves directly: `q = from (from + 1)`, `q_shift = 2 s` and
+    // `t = N (from + 1) 2^s + N N`, the merge of the two leaves without their
+    // states.
+    let next = Coeff::from_uint64((from + 1).to_uint64())
+    return {
+      q: Coeff::from_uint64(from.to_uint64() * (from + 1).to_uint64()),
+      q_shift: 2 * s,
+      t: powers.numerator.mul(next.shift_left(s).add(powers.numerator)),
     }
   }
   let middle = from + (to - from) / 2
-  split_combine(
-    split_exp_state(from, middle, numerator, s),
-    split_exp_state(middle, to, numerator, s),
-  )
+  let left = split_exp_state(from, middle, powers, s)
+  let right = split_exp_state(middle, to, powers, s)
+  let leaves_left = middle - Int32::max(from, 1)
+  {
+    q: left.q.mul(right.q),
+    q_shift: left.q_shift + right.q_shift,
+    t: left.t
+    .mul(right.q)
+    .add_shifted_left(right.q_shift, right.t.mul(powers.get(leaves_left))),
+  }
 }
 
 ///|

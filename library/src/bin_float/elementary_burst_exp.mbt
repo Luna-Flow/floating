@@ -82,7 +82,7 @@ fn burst_split_stage(
     2,
     fixed_split_terms(numerator, s, f) - mutation.split_reduce_terms,
   )
-  let state = split_exp_state(0, terms, numerator, s)
+  let state = split_exp_state(0, terms, SplitPowers::new(numerator, terms), s)
   let scaled = fixed_shift(state.t, f - state.q_shift)
   let lo = scaled.div_rem_checked(state.q).unwrap().0
   Some(
