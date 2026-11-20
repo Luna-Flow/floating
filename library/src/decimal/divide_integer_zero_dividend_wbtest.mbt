@@ -21,7 +21,7 @@ test "divide_integer and remainder accept a zero dividend" {
     let (r, r_flags) = x.remainder(y, context)
     assert_eq(r.to_string(), remainder)
     assert_true(r_flags == DecimalFlags::new())
-    let (n, n_flags) = x.remainder_near(y, context)
+    let (n, n_flags) = x.remainder_ctx(y, context)
     assert_eq(n.to_string(), remainder)
     assert_true(n_flags == DecimalFlags::new())
   }

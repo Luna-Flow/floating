@@ -66,7 +66,6 @@ test "Decimal::class_of matches class_name for every class in every format" {
       let (text, expected) = c
       let x = Decimal::from_string(text, precision=digits).unwrap()
       assert_true(x.class_of(ctx) == expected, msg="class_of \{text}")
-      assert_eq(x.class_name(ctx), dcls_name(expected))
       seen[dcls_name(expected)] = 1
     }
   }

@@ -271,8 +271,8 @@ pub fn DecimalChecked::sqrt(Self) -> Self
 pub fn DecimalChecked::quantize(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::remainder(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::reduce(Self) -> Self
-pub fn DecimalChecked::min(Self, @decimal.Decimal) -> Self
-pub fn DecimalChecked::max(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::minimum_number(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::maximum_number(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::next_minus(Self) -> Self
 pub fn DecimalChecked::next_plus(Self) -> Self
 pub fn DecimalChecked::next_toward(Self, @decimal.Decimal) -> Self
@@ -287,7 +287,7 @@ pub fn DecimalChecked::next_toward(Self, @decimal.Decimal) -> Self
 | `quantize(q)` | `quantize` | $v$ rounded to the exponent of `q` |
 | `remainder(d)` | `remainder_ctx` | IEEE remainder $v - d \cdot n$, $n$ = $v/d$ rounded to nearest, ties to even |
 | `reduce` | `reduce_ctx` | $v$ with trailing zeros removed |
-| `min`, `max` | `min_ctx`, `max_ctx` | General Decimal Arithmetic `min`/`max`: a quiet NaN loses to a number (IEEE 754-2008 minNum/maxNum, not the 2019 `minimum`) |
+| `minimum_number`, `maximum_number` | `minimum_number_ctx`, `maximum_number_ctx` | IEEE 754-2019 §9.6 `minimumNumber`/`maximumNumber`: a quiet NaN loses to a number, a signaling NaN gives the number and `invalid_operation` (the General Decimal Arithmetic `min`/`max` are in `decimal_gda`) |
 | `next_minus`, `next_plus`, `next_toward(t)` | same names | adjacent representable value |
 
 If an error is recorded, each method returns the state unchanged. Otherwise
@@ -475,8 +475,8 @@ pub fn DecimalChecked::log10p1(Self) -> Self
 pub fn DecimalChecked::log1p(Self) -> Self
 pub fn DecimalChecked::log2(Self) -> Self
 pub fn DecimalChecked::log2p1(Self) -> Self
-pub fn DecimalChecked::max(Self, @decimal.Decimal) -> Self
-pub fn DecimalChecked::min(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::maximum_number(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::minimum_number(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::minus(Self) -> Self
 pub fn DecimalChecked::mul(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::next_minus(Self) -> Self

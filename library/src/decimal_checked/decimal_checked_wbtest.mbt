@@ -128,3 +128,77 @@ test "decimal checked rsqrt compound powr mirror the try forms" {
     invalid.raised().contains(@decimal.DecimalSignal::InvalidOperation),
   )
 }
+
+///|
+test "decimal checked minimum_number and maximum_number treat a quiet NaN as missing" {
+  let context = @decimal.DecimalContext::decimal64()
+  let two = @decimal.Decimal::from_int(2)
+  let qnan = @decimal.Decimal::quiet_nan(payload=5N)
+  let minimum = DecimalChecked::from_decimal(qnan, context).minimum_number(two)
+  let maximum = DecimalChecked::from_decimal(two, context).maximum_number(qnan)
+  assert_eq(minimum.value().to_string(), "2")
+  assert_eq(maximum.value().to_string(), "2")
+  assert_false(
+    minimum.raised().contains(@decimal.DecimalSignal::InvalidOperation),
+  )
+  assert_false(
+    maximum.raised().contains(@decimal.DecimalSignal::InvalidOperation),
+  )
+  let both = DecimalChecked::from_decimal(qnan, context).maximum_number(qnan)
+  assert_true(both.value().is_quiet_nan())
+}
+
+///|
+test "decimal checked minimum_number and maximum_number return the number for a signaling NaN and signal invalid" {
+  let context = @decimal.DecimalContext::decimal64()
+  let two = @decimal.Decimal::from_int(2)
+  let snan = @decimal.Decimal::signaling_nan(payload=7N)
+  let minimum = DecimalChecked::from_decimal(two, context).minimum_number(snan)
+  let maximum = DecimalChecked::from_decimal(two, context).maximum_number(snan)
+  assert_eq(minimum.value().to_string(), "2")
+  assert_eq(maximum.value().to_string(), "2")
+  assert_true(
+    minimum.raised().contains(@decimal.DecimalSignal::InvalidOperation),
+  )
+  assert_true(
+    maximum.raised().contains(@decimal.DecimalSignal::InvalidOperation),
+  )
+  let both = DecimalChecked::from_decimal(
+    @decimal.Decimal::quiet_nan(payload=9N),
+    context,
+  ).minimum_number(snan)
+  assert_true(both.value().is_quiet_nan())
+  assert_true(both.raised().contains(@decimal.DecimalSignal::InvalidOperation))
+}
+
+///|
+test "decimal checked minimum_number and maximum_number order signed zeros and keep a cohort tie numerically equal" {
+  let context = @decimal.DecimalContext::decimal64()
+  let negative_zero = @decimal.Decimal::negative_zero()
+  let positive_zero = @decimal.Decimal::zero()
+  let minimum = DecimalChecked::from_decimal(positive_zero, context).minimum_number(
+    negative_zero,
+  )
+  let maximum = DecimalChecked::from_decimal(negative_zero, context).maximum_number(
+    positive_zero,
+  )
+  assert_true(minimum.value().is_negative())
+  assert_false(maximum.value().is_negative())
+  let one = match @decimal.Decimal::from_string("1.0") {
+    Some(value) => value
+    None => abort("1.0")
+  }
+  let one_more = match @decimal.Decimal::from_string("1.00") {
+    Some(value) => value
+    None => abort("1.00")
+  }
+  let tie_min = DecimalChecked::from_decimal(one, context).minimum_number(
+    one_more,
+  )
+  let tie_max = DecimalChecked::from_decimal(one, context).maximum_number(
+    one_more,
+  )
+  assert_eq(tie_min.value().compare(one), 0)
+  assert_eq(tie_max.value().compare(one), 0)
+  assert_true(tie_min.is_ok() && tie_max.is_ok())
+}

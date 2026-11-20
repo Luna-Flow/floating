@@ -46,7 +46,7 @@ test "a zero-quotient remainder is clamped only at its result" {
   let (r2, r2_flags) = d("4736E-3").remainder(d("91945766E-7"), ctx)
   assert_eq(r2.to_string(), "4.7360000")
   assert_true(r2_flags == DecimalFlags::new())
-  let (n, n_flags) = d("-73E-2").remainder_near(d("69846238E-6"), ctx)
+  let (n, n_flags) = d("-73E-2").remainder_ctx(d("69846238E-6"), ctx)
   assert_eq(n.to_string(), "-0.730000")
   assert_true(n_flags == DecimalFlags::new())
 }

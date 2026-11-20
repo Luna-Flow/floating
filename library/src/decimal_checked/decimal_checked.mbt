@@ -495,19 +495,19 @@ pub fn DecimalChecked::reduce(self : DecimalChecked) -> DecimalChecked {
 }
 
 ///|
-pub fn DecimalChecked::min(
+pub fn DecimalChecked::minimum_number(
   self : DecimalChecked,
   other : @decimal.Decimal,
 ) -> DecimalChecked {
-  self.record(self.value_.min_ctx(other, self.context_))
+  self.record(self.value_.minimum_number_ctx(other, self.context_))
 }
 
 ///|
-pub fn DecimalChecked::max(
+pub fn DecimalChecked::maximum_number(
   self : DecimalChecked,
   other : @decimal.Decimal,
 ) -> DecimalChecked {
-  self.record(self.value_.max_ctx(other, self.context_))
+  self.record(self.value_.maximum_number_ctx(other, self.context_))
 }
 
 ///|

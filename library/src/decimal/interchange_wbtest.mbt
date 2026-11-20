@@ -124,7 +124,7 @@ test "BID NaN payloads do not depend on the value precision" {
       encoding,
     ).unwrap()
     assert_eq(back.nan_payload().to_string(), "45")
-    assert_true(back.is_signaling_nan() && back.is_signed())
+    assert_true(back.is_signaling_nan() && back.is_negative())
   }
   let (hex, _) = Decimal::quiet_nan(payload=123N).to_interchange_hex_with_encoding(
     Decimal64,

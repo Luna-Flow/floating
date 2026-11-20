@@ -203,7 +203,7 @@ test "handle a checked result through def" {
 - `@def.is_zero` on a `BallFloat` is true for $[-1, 1]$: the predicate is
   defined through `sign`, which for an interval means "contains zero".
 - `Sign` cannot tell $-0$ from $+0$. Use the concrete package
-  (`BinFloat::is_negative_zero`, `Decimal::is_signed`) when the sign bit
+  (`BinFloat::is_negative_zero`, `Decimal::is_negative`) when the sign bit
   matters.
 - `PartialOrder` is not an ordering you can sort with: `Unordered` breaks
   trichotomy. Use the total orders of the concrete packages
