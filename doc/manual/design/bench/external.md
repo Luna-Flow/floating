@@ -200,17 +200,78 @@ and not adopted: it removes per-pass costs but not the per-operation cost of the
 harness (the closure call, the array traffic, the reference loop), which is the
 largest part of the floor, so a null would still be needed.
 
-### Two configurations of the floating side
+### Configurations of the floating side
 
 The floating side is built and published in named configurations, recorded as
 `floating_configuration` in the protocol block of the summary and in the names of
 the published files: `native` (the native limb primitives where the build has
-them) and `portable` (the portable path forced). The target of the baseline has
-to be reached by the portable path as well. The runner passes the name and the
-environment variables that select a configuration (`--configuration`,
-`--moon-env KEY=VALUE`); how a configuration is selected is defined by the kernel
-work, not by the benchmark. One summary, one samples file and one section of the
-manual page exist per configuration.
+them), `native-portable` (the portable path forced), and the runtimes `wasm` and
+`js`. The target of the baseline has to be reached by the portable path as well.
+The runner passes the name and the environment variables that select a
+configuration (`--configuration`, `--moon-env KEY=VALUE`); how the portable path
+is selected is defined by the kernel work, not by the benchmark. One summary, one
+samples file and one section of the manual page exist per configuration.
+
+### Runtimes other than native
+
+`--target native|wasm|js` chooses the `moon` target the floating side is built
+and run for (`wasm` runs under `moonrun`, `js` under node; the versions are
+recorded in `meta.runtime`). The reference side is always the native C process of
+MPFR and libmpdec, run in every round of the same run, so the number of a cell on
+another runtime is the library on that runtime against the native reference. That
+mixes two differences, the library and the runtime. The second ratio separates
+them: the net time of `floating` on the runtime over the net time of the same
+case in `native-portable`, which runs the same code path. It is computed at
+publishing time from the two samples files of the same release (they must have
+read the same operand file and used the same protocol; each has its own
+configuration in the seed of every draw, so the two resamplings are independent)
+and has an interval and no verdict. `wasm-gc` is not a target: the module
+initialiser of the `moonbitlang/async` dependency, which the driver links, casts
+between two struct types of the runtime's scheduler and is rejected by the runtime
+at validation (it reproduces with that package alone).
+
+The criterion of 3 is defined for the native configurations. For `wasm` and `js`
+the summary says `criterion_applies: false` and the status of every case is
+`not_applicable`; the page reports the two ratios and sets no target, and
+whether a criterion applies there is for the maintainer to decide.
+
+What the method does differently on a runtime that compiles while it runs:
+
+1. **Warm-up.** The code of a case may still be compiled during the first
+   blocks. The warm-up time is a number of the method, fixed per runtime before
+   any cell is measured, from the calibration experiment below. A flag `w` is
+   reported when the median net of the first third of the pairs of every round
+   differs from that of the last third by more than 5% of the net; it removes no
+   data.
+2. **The floor differs per runtime** and is measured in every pair, so the net
+   handles it. A call site of the null's closure can be inlined where that of the
+   case cannot, which makes the null cheaper than the harness part of the case and
+   the net slightly larger; it errs against the library, and nothing corrects it.
+3. **Calibration** of the batch size follows the warm-up, so it is done on warm code.
+
+#### The calibration experiment of the warm-up
+
+Fixed here before it is run. One experiment per runtime (`wasm`, `js`), in the
+bench window of the measurement, with `just bench external warmup --target T`:
+
+- Cases: `binary/add/53`, `binary/mul/512`, `binary/ln/2048` and
+  `decimal_gda/add/34` (a fast case, a mid-size case, an elementary function and a
+  decimal case; the same operand file as the measurement).
+- Warm-up times: 5, 50, 200, 1000 and 3000 ms. Each (warm-up, case) is run three
+  times, each in its own process, with no exploratory blocks and 60 confirmatory
+  pairs, the standard calibration target of 20 ms per block.
+- Statistic of a run: the warm-up drift `w` of the design above, the difference of
+  the median net of the first and of the last third of the 60 pairs, in percent of
+  the net.
+- Rule: the smallest warm-up for which every run (every case and every repeat)
+  has a drift of at most 2%; the warm-up of the runtime is twice that value, rounded
+  up to a whole 100 ms. If no warm-up reaches 2%, the experiment is reported and the
+  runtime is measured only with the `w` flag on and the longest warm-up, with the
+  result stated as not resolved by the method.
+- The value, the table of drifts and the versions of the runtime are published with
+  the first summary of the runtime and written into the `protocol` block of every
+  later one. The native value is the preset's 5 ms and is not part of the
+  experiment.
 
 ## Correctness and invariants
 

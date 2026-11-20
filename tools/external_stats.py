@@ -34,6 +34,7 @@ TARGET_RATIO = 3.0
 WIDTH_BOUND = 1.25  # ratio interval high / low above this: unresolved
 DRIFT_PCT = 5.0  # spread of the per-round null medians
 ORDER_PCT = 5.0  # difference of the mean net between null-first and case-first pairs
+WARM_PCT = 5.0  # difference of the median net of the first and the last third of the pairs of every round
 LEVEL = 0.95
 
 
@@ -45,6 +46,7 @@ class Rules:
     width_bound: float = WIDTH_BOUND
     drift_pct: float = DRIFT_PCT
     order_pct: float = ORDER_PCT
+    warm_pct: float = WARM_PCT
     level: float = LEVEL
 
 
@@ -91,20 +93,24 @@ SIDES = ("floating", "reference", "both")  # "both" is for a draw that belongs t
 PURPOSES = ("net", "raw", "null", "raw-ratio")
 
 
-def derive_seed(run_seed: int, case_id: str, side: str, purpose: str) -> str:
-    """The bootstrap seed of one draw: a pure function of the run seed, the case, the side and the purpose.
+def derive_seed(run_seed: int, configuration: str, case_id: str, side: str, purpose: str) -> str:
+    """The bootstrap seed of one draw: a pure function of the run seed, the configuration, the case, the side and the purpose.
 
-    Two sides, two cases or two purposes never share a stream, so the replicates
-    of the floating and the reference side are independent even when their data
-    are identical (the ratio forms replicate `b` of one side over replicate `b`
-    of the other only to build a distribution, not to pair them). The same
-    arguments always give the same seed, so a summary is reproducible.
+    Two sides, two cases, two purposes or two configurations never share a
+    stream, so the replicates of the floating and the reference side are
+    independent even when their data are identical, and so are the replicates
+    of the same case measured in two configurations (the ratio between two
+    configurations divides replicate `b` of one by replicate `b` of the other
+    only to build a distribution, not to pair them). The same arguments always
+    give the same seed, so a summary is reproducible.
     """
     if side not in SIDES:
         raise ValueError(f"unknown side {side!r}")
     if purpose not in PURPOSES:
         raise ValueError(f"unknown purpose {purpose!r}")
-    return f"external-baseline-bootstrap:{run_seed}:{case_id}:{side}:{purpose}"
+    if not configuration:
+        raise ValueError("a bootstrap seed needs the configuration")
+    return f"external-baseline-bootstrap:{run_seed}:{configuration}:{case_id}:{side}:{purpose}"
 
 
 # ---------------------------------------------------------------------------
@@ -203,6 +209,31 @@ def order_pct(pairs: Pairs) -> float:
     return 100.0 * gap / abs(centre)
 
 
+def warm_pct(pairs: Pairs) -> float:
+    """Difference (percent of the net time) of the median net of the first third and of the last third of the pairs of every round.
+
+    On a runtime that compiles while it runs, the early pairs of a round are
+    slower than the late ones until the code is warm; the first and the last
+    third are pooled over the rounds so that the medians rest on many pairs.
+    """
+    first: list[float] = []
+    last: list[float] = []
+    for key in sorted(pairs):
+        block = [pair.net_ns for pair in pairs[key]]
+        third = len(block) // 3
+        if third == 0:
+            continue
+        first.extend(block[:third])
+        last.extend(block[-third:])
+    if not first or not last:
+        return 0.0
+    centre = net_time(pairs)
+    gap = abs(median(first) - median(last))
+    if centre == 0.0:
+        return 0.0 if gap == 0.0 else math.inf
+    return 100.0 * gap / abs(centre)
+
+
 # ---------------------------------------------------------------------------
 # One side
 # ---------------------------------------------------------------------------
@@ -216,16 +247,17 @@ class SideNet:
     pairs: int
     drift_pct: float
     order_pct: float
+    warm_pct: float
     replicates: tuple[float, ...]  # not stored in summaries; the ratio interval needs them
 
 
 def side_net(
-    pairs: Pairs, run_seed: int, case_id: str, side: str, resamples: int, level: float = LEVEL
+    pairs: Pairs, run_seed: int, configuration: str, case_id: str, side: str, resamples: int, level: float = LEVEL
 ) -> SideNet:
     """The net time of one side of one case; the bootstrap seed is derived, never passed in."""
     if side == "both":
         raise ValueError("a side's net time is drawn for floating or reference")
-    replicates = net_replicates(pairs, derive_seed(run_seed, case_id, side, "net"), resamples)
+    replicates = net_replicates(pairs, derive_seed(run_seed, configuration, case_id, side, "net"), resamples)
     low, high = interval(replicates, level)
     return SideNet(
         net_ns=net_time(pairs),
@@ -234,6 +266,7 @@ def side_net(
         pairs=sum(len(block) for block in pairs.values()),
         drift_pct=drift_pct(pairs),
         order_pct=order_pct(pairs),
+        warm_pct=warm_pct(pairs),
         replicates=tuple(replicates),
     )
 
@@ -245,6 +278,7 @@ def side_net(
 MET = "met"
 NOT_MET = "not_met"
 UNRESOLVED = "unresolved"
+NOT_APPLICABLE = "not_applicable"  # the criterion is not defined for the configuration
 
 REASON_REFERENCE_ZERO = "reference net not above zero"
 REASON_FLOATING_ZERO = "floating net not above zero"
@@ -262,6 +296,7 @@ class Verdict:
     raw_status: str  # MET or NOT_MET by the raw ratio's upper end; the verdict of an unresolved case
     drift: bool  # either side's null drifted between rounds
     order: bool  # either side shows an order effect
+    warm: bool  # either side is still warming up between the first and the last third of its pairs
 
 
 def judge(
@@ -269,12 +304,15 @@ def judge(
     reference: SideNet,
     raw_ci_high: float,
     rules: Rules = Rules(),
+    criterion_applies: bool = True,
 ) -> Verdict:
     """Classify one case.
 
     `raw_ci_high` is the upper end of the interval of the raw median ratio;
     it decides an unresolved case, which is reported as `unresolved` and never
-    as `met`.
+    as `met`. Where the criterion is not defined (`criterion_applies` false) the
+    ratio and its interval are computed as usual and the status is
+    `not_applicable`, with no raw verdict and no borderline mark.
     """
     ratios = ratio_replicates(floating.replicates, reference.replicates)
     low, high = interval(ratios, rules.level)
@@ -290,8 +328,33 @@ def judge(
         reason = REASON_WIDE
     drift = floating.drift_pct > rules.drift_pct or reference.drift_pct > rules.drift_pct
     order = floating.order_pct > rules.order_pct or reference.order_pct > rules.order_pct
+    warm = floating.warm_pct > rules.warm_pct or reference.warm_pct > rules.warm_pct
+    if not criterion_applies:
+        return Verdict(point, low, high, NOT_APPLICABLE, "", False, NOT_APPLICABLE, drift, order, warm)
     if reason:
-        return Verdict(point, low, high, UNRESOLVED, reason, False, raw_status, drift, order)
+        return Verdict(point, low, high, UNRESOLVED, reason, False, raw_status, drift, order, warm)
     status = MET if high <= rules.target else NOT_MET
     borderline = low <= rules.target < high
-    return Verdict(point, low, high, status, "", borderline, raw_status, drift, order)
+    return Verdict(point, low, high, status, "", borderline, raw_status, drift, order, warm)
+
+
+@dataclass(frozen=True)
+class Between:
+    """The ratio of the net times of the same case in two configurations: no verdict, no criterion."""
+
+    ratio: float
+    ci_low: float
+    ci_high: float
+
+
+def ratio_between(numerator: SideNet, denominator: SideNet, level: float = LEVEL) -> Between:
+    """Net time of `numerator` over net time of `denominator`, with the interval of independent resampling.
+
+    Both come from `side_net` with their own configuration in the seed, so the
+    two replicate lists are independent streams. A denominator net at or below
+    zero gives an infinite ratio (the interval then reaches infinity).
+    """
+    replicates = ratio_replicates(numerator.replicates, denominator.replicates)
+    low, high = interval(replicates, level)
+    point = numerator.net_ns / denominator.net_ns if denominator.net_ns > 0.0 else math.inf
+    return Between(point, low, high)

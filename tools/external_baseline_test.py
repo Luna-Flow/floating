@@ -1,6 +1,7 @@
 import random
 import unittest
 from dataclasses import asdict
+from pathlib import Path
 
 import external_baseline as eb
 import external_stats as stats
@@ -393,7 +394,7 @@ class PublishNameTests(unittest.TestCase):
             root = Path(directory)
             out = root / "out"
             out.mkdir()
-            document = {"schema": eb.SCHEMA, "protocol": {"floating_configuration": configuration}, "cases": []}
+            document = {"schema": eb.SCHEMA, "protocol": {"floating_configuration": configuration, "criterion_applies": True}, "cases": []}
             (out / "results.json").write_text(json.dumps(document), encoding="utf-8")
             (out / "results.md").write_text("# results\n", encoding="utf-8")
             (out / "samples.json").write_text('{"schema": "x"}\n', encoding="utf-8")
@@ -525,6 +526,168 @@ class QuickCheckTests(unittest.TestCase):
         self.assertEqual(len(lines), 2)
         self.assertTrue(lines[0].startswith("case"))
         self.assertIn("binary/add/53", lines[1])
+
+
+class RuntimeTests(unittest.TestCase):
+    PROTOCOL = eb.Protocol(1, 1.0, 1.0, 1, 10, 10.0, 1, 4, 2, 100)
+
+    def collected(self, floating: tuple[float, float], reference: tuple[float, float]) -> eb.Collected:
+        collected = eb.Collected()
+        ReductionTests.fill(collected, "binary/add/53", floating=floating, reference=reference, rounds=3, blocks=6)
+        return collected
+
+    def summary_and_samples(self, configuration: str, target: str, floating: tuple[float, float], sha: str = "abc") -> tuple[dict[str, object], dict[str, object]]:
+        import json
+
+        collected = self.collected(floating, (5.0, 0.5))
+        protocol = eb.Protocol(1, 1.0, 1.0, 1, 10, 10.0, 1, 6, 3, 100)
+        results = eb.reduce_results(collected, protocol, 7, stats.Rules(), configuration, eb.criterion_applies_to(target))
+        summary = eb.summary_document(results, {"order_seed": 7, "inputs_sha256": sha}, protocol, configuration, stats.Rules(), target)
+        return json.loads(json.dumps(summary)), json.loads(json.dumps(eb.samples_document(collected)))
+
+    def test_targets_configurations_and_the_criterion(self) -> None:
+        self.assertEqual([eb.criterion_applies_to(t) for t in eb.TARGETS], [True, False, False])
+        self.assertEqual([eb.default_configuration(t) for t in eb.TARGETS], ["native", "wasm", "js"])
+        for bad in ("wasm-gc", "native-portable", ""):
+            with self.assertRaises(ValueError):
+                eb.valid_target(bad)
+        command = eb.moon_command(target="js")
+        self.assertEqual(command[command.index("--target") + 1], "js")
+        self.assertEqual(eb.moon_command()[eb.moon_command().index("--target") + 1], "native")
+        self.assertEqual(eb.runtime_versions("native"), {})
+
+    def test_a_runtime_summary_records_target_and_has_no_verdict(self) -> None:
+        summary, samples = self.summary_and_samples("wasm", "wasm", (130.0, 40.0))
+        self.assertEqual((summary["protocol"]["target"], summary["protocol"]["criterion_applies"]), ("wasm", False))
+        self.assertEqual(summary["protocol"]["target_ratio"], 3.0)
+        self.assertEqual(summary["protocol"]["warm_pct"], 5.0)
+        (case,) = summary["cases"]
+        self.assertEqual((case["status"], case["raw_status"], case["borderline"]), (stats.NOT_APPLICABLE, stats.NOT_APPLICABLE, False))
+        self.assertAlmostEqual(case["ratio_net"]["ratio"], 90.0 / 4.5)
+        recomputed = eb.recompute(samples, summary)
+        self.assertEqual(recomputed[0].status, stats.NOT_APPLICABLE)  # the flag survives the round trip
+        text = eb.render_markdown(recomputed, summary["protocol"])
+        self.assertNotIn(" met", text)
+        self.assertNotIn("cases meet the target", text)
+        self.assertIn("no verdict", text)
+        self.assertIn("Net ratio of `floating` on this runtime to the native MPFR", text)
+
+    def test_a_native_summary_keeps_its_verdict(self) -> None:
+        summary, _ = self.summary_and_samples("native-portable", "native", (30.0, 9.0))
+        self.assertTrue(summary["protocol"]["criterion_applies"])
+        self.assertIn(summary["cases"][0]["status"], (stats.MET, stats.NOT_MET, stats.UNRESOLVED))
+
+    def test_the_warm_flag_is_shown(self) -> None:
+        collected = eb.Collected()
+        for side, pairs, samples in (("f", collected.floating_pairs, collected.floating), ("r", collected.reference_pairs, collected.reference)):
+            cooling = {r: [stats.Pair(30.0 + 6.0 * (2 - j // 4) if side == "f" else 5.0, 10.0 if side == "f" else 0.5, False) for j in range(12)] for r in range(3)}
+            pairs["binary/add/53"] = cooling
+            samples["binary/add/53"] = {r: [p.case_ns for p in block] for r, block in cooling.items()}
+        protocol = eb.Protocol(1, 1.0, 1.0, 1, 10, 10.0, 1, 12, 3, 100)
+        (result,) = eb.reduce_results(collected, protocol, 1)
+        self.assertTrue(result.warm)
+        self.assertTrue(eb.net_cell(result).endswith(" w"))
+        self.assertIn("`w`:", eb.render_markdown([result]))
+
+    def test_the_ratio_between_two_configurations_and_its_guards(self) -> None:
+        wasm, wasm_samples = self.summary_and_samples("wasm", "wasm", (130.0, 40.0))
+        portable, portable_samples = self.summary_and_samples("native-portable", "native", (50.0, 10.0))
+        (row,) = eb.relative_rows(wasm_samples, wasm, portable_samples, portable)
+        self.assertEqual(row.case, "binary/add/53")
+        self.assertAlmostEqual(row.ratio.ratio, 90.0 / 40.0)  # (130 - 40) over (50 - 10)
+        text = eb.render_relative([row], "wasm", "native-portable")
+        self.assertIn("Ratio of `wasm` to `native-portable`", text)
+        self.assertIn("| add | 2.25 [", text)
+        other_inputs, other_samples = self.summary_and_samples("native-portable", "native", (50.0, 10.0), sha="zzz")
+        with self.assertRaises(ValueError):
+            eb.relative_rows(wasm_samples, wasm, other_samples, other_inputs)
+        with self.assertRaises(ValueError):
+            eb.relative_rows(wasm_samples, wasm, wasm_samples, wasm)  # the same configuration
+        changed = dict(portable)
+        changed["protocol"] = {**portable["protocol"], "resamples": 7}
+        with self.assertRaises(ValueError):
+            eb.relative_rows(wasm_samples, wasm, portable_samples, changed)
+
+    def test_the_warmup_experiment_uses_the_cases_of_the_design_page(self) -> None:
+        self.assertEqual(eb.WARMUP_CASES, ("binary/add/53", "binary/mul/512", "binary/ln/2048", "decimal_gda/add/34"))
+        parsed = eb.build_parser().parse_args(["warmup", "--target", "js"])
+        self.assertEqual((parsed.warmups_us, parsed.repeats, parsed.blocks, parsed.limit), ([5000.0, 50000.0, 200000.0, 1000000.0, 3000000.0], 3, 60, 2.0))
+        self.assertEqual(parsed.cases, list(eb.WARMUP_CASES))
+
+    def test_choose_warmup_takes_the_smallest_stable_value(self) -> None:
+        self.assertEqual(eb.choose_warmup({5000: [9.0, 1.0], 50000: [3.0, 1.0], 200000: [1.5, 0.5], 1000000: [0.2]}), 200000)
+        self.assertEqual(eb.choose_warmup({5000: [2.0], 50000: [2.5]}, limit_pct=2.0), 5000)
+        self.assertIsNone(eb.choose_warmup({5000: [9.0], 50000: [4.0]}))
+        self.assertIsNone(eb.choose_warmup({}))
+
+    def test_versions_sort_as_numbers(self) -> None:
+        names = ["0.9.0", "0.12.0", "0.12.0-rc.1", "0.10.2"]
+        self.assertEqual(max(names, key=eb.version_key), "0.12.0")
+        self.assertEqual(sorted(names, key=eb.version_key), ["0.9.0", "0.10.2", "0.12.0-rc.1", "0.12.0"])
+
+
+class PageCompositionTests(unittest.TestCase):
+    def publish_files(self, root: "Path", version: str, with_portable: bool) -> None:
+        import json
+
+        runtime = RuntimeTests()
+        wasm, wasm_samples = runtime.summary_and_samples("wasm", "wasm", (130.0, 40.0))
+        (root / eb.summary_name(version, "wasm")).write_text(json.dumps(wasm), encoding="utf-8")
+        eb.write_gzip(root / eb.samples_name(version, "wasm"), json.dumps(wasm_samples))
+        (root / eb.tables_name("wasm")).write_text("run tables\n", encoding="utf-8")
+        if with_portable:
+            portable, portable_samples = runtime.summary_and_samples("native-portable", "native", (50.0, 10.0))
+            (root / eb.summary_name(version, "native-portable")).write_text(json.dumps(portable), encoding="utf-8")
+            eb.write_gzip(root / eb.samples_name(version, "native-portable"), json.dumps(portable_samples))
+
+    def tables(self, with_portable: bool) -> str:
+        import tempfile
+        from pathlib import Path
+        from unittest.mock import patch
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self.publish_files(root, "0.12.0", with_portable)
+            with patch.object(eb, "SUMMARY_DIR", root):
+                return eb.page_tables("wasm")
+
+    def test_a_runtime_page_shows_its_ratio_to_native_portable(self) -> None:
+        text = self.tables(True)
+        self.assertTrue(text.startswith("run tables"))
+        self.assertIn("Ratio of `wasm` to `native-portable`", text)
+
+    def test_without_the_portable_files_the_page_says_so(self) -> None:
+        text = self.tables(False)
+        self.assertIn("not shown", text)
+        self.assertNotIn("Ratio of `wasm`", text)
+
+    def test_a_native_configuration_page_is_its_run_tables_only(self) -> None:
+        import json
+        import tempfile
+        from pathlib import Path
+        from unittest.mock import patch
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            summary, _ = RuntimeTests().summary_and_samples("native", "native", (30.0, 9.0))
+            (root / eb.summary_name("0.12.0", "native")).write_text(json.dumps(summary), encoding="utf-8")
+            (root / eb.tables_name("native")).write_text("native tables\n", encoding="utf-8")
+            with patch.object(eb, "SUMMARY_DIR", root):
+                self.assertEqual(eb.page_tables("native"), "native tables\n")
+
+    def test_published_summaries_pick_the_configuration_by_the_name_suffix(self) -> None:
+        import tempfile
+        from pathlib import Path
+        from unittest.mock import patch
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for name in ("summary-0.12.0-native.json", "summary-0.12.0-native-portable.json", "summary-0.11.0.json"):
+                (root / name).write_text("{}", encoding="utf-8")
+            with patch.object(eb, "SUMMARY_DIR", root):
+                self.assertEqual(sorted(eb.published_summaries("native")), ["0.12.0"])
+                self.assertEqual(sorted(eb.published_summaries("native-portable")), ["0.12.0"])
+                self.assertEqual(eb.published_summaries("wasm"), {})
 
 
 if __name__ == "__main__":

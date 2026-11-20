@@ -12,12 +12,16 @@ import {
   "moonbitlang/x/fs",
 } for "test"
 
-// `moonbitlang/async` has no wasm-gc runtime (moonbitlang/core#4584), so the
-// async test is built on native only: it reads files and environment
-// variables of the external-baseline runner (tools/external_baseline.py).
+// The async test reads the files and the environment variables of the
+// external-baseline runner (tools/external_baseline.py). It builds and runs on
+// native, wasm (under `moonrun`) and js (under node), which is how the runner
+// measures the floating side on those runtimes (`--target`). It is not built for
+// wasm-gc: the module initialiser of the `moonbitlang/async` dependency casts
+// between two struct types and is rejected by the runtime at validation, which
+// would fail the wasm-gc test stage.
 
 warnings = "-unused_package"
 
 options(
-  targets: { "external_async_test.mbt": [ "native" ] },
+  targets: { "external_async_test.mbt": [ "native", "wasm", "js" ] },
 )
