@@ -30,8 +30,12 @@ trait design, and test coverage are especially valuable.
 
 - Run `moon fmt` before committing to keep the repository consistent. It formats both
   modules of the workspace (see [Two modules](#two-modules)).
-- The repository targets the MoonBit toolchain 0.10.20 or later (`moonc` ≥ 0.10.20)
-  and builds with `--deny-warn`. Promote a trait-implementation method to
+- The repository follows the latest MoonBit toolchain without a pin (CI installs
+  `latest` on every run; today `moon 0.1.20261119`, `moonc` 0.10.22) and builds with
+  `--deny-warn`. The library module builds with `moonc` ≥ 0.10.20; the tools module
+  needs `moonc` ≥ 0.10.22, because the `differential` executable uses `async fn main`
+  without importing `moonbitlang/async` (older compilers reject that, newer ones
+  report the import as unused). Promote a trait-implementation method to
   dot syntax explicitly with `pub extend`; implicit promotion is deprecated.
 - Prefer `using`-imported names over repeated fully-qualified package references when the imported names are used repeatedly in a file.
 - Keep public APIs explicit about numeric semantics. If a function normalizes, rounds, or widens an enclosure, document that behavior.
