@@ -1265,6 +1265,65 @@ Each is defined from `compare_quiet` or `compare_signaling` and returns its
 flags; every predicate except `compare_quiet_unordered` is false on an
 unordered pair.
 
+### `Decimal::compare_quiet_not_equal` and the other comparison predicates of Tables 5.1 and 5.2
+
+The fifteen predicates of IEEE 754-2019 5.11 not listed above.
+
+```mbti
+pub fn Decimal::compare_quiet_greater(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_quiet_greater_equal(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_quiet_greater_unordered(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_quiet_less_unordered(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_quiet_not_equal(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_quiet_not_greater(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_quiet_not_less(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_quiet_ordered(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_signaling_greater(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_signaling_greater_equal(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_signaling_greater_unordered(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_signaling_less_unordered(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_signaling_not_equal(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_signaling_not_greater(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_signaling_not_less(Self, Self) -> (Bool, DecimalFlags)
+```
+
+Clause 5.11 lists 22 predicates, 10 in Table 5.1 (with the common mathematical
+symbols) and 12 in Table 5.2; with the seven above every one of them has a
+function. Each is defined from `compare_quiet` or `compare_signaling` through
+the relations that make it true, which is how the tables define it, and returns
+the flags of that comparison: a quiet predicate raises `invalid_operation` for
+a signaling NaN only, a signaling predicate for every NaN operand. The
+doc comment of each names its row. Name spelling follows the seven above:
+`compare_`, `quiet` or `signaling`, then the predicate name of the table in
+snake case. The pairs the standard states as negations of one another (the two
+predicates of one line of a table) return opposite values and the same flags.
+
+| Table | predicate | true relations |
+| --- | --- | --- |
+| 5.1 | `Decimal::compare_quiet_equal` (`compareQuietEqual`) | equal |
+| 5.1 | `Decimal::compare_quiet_not_equal` (`compareQuietNotEqual`) | less, greater, unordered |
+| 5.1 | `Decimal::compare_signaling_greater` (`compareSignalingGreater`) | greater |
+| 5.1 | `Decimal::compare_signaling_not_greater` (`compareSignalingNotGreater`) | less, equal, unordered |
+| 5.1 | `Decimal::compare_signaling_greater_equal` (`compareSignalingGreaterEqual`) | equal, greater |
+| 5.1 | `Decimal::compare_signaling_less_unordered` (`compareSignalingLessUnordered`) | less, unordered |
+| 5.1 | `Decimal::compare_signaling_less` (`compareSignalingLess`) | less |
+| 5.1 | `Decimal::compare_signaling_not_less` (`compareSignalingNotLess`) | equal, greater, unordered |
+| 5.1 | `Decimal::compare_signaling_less_equal` (`compareSignalingLessEqual`) | less, equal |
+| 5.1 | `Decimal::compare_signaling_greater_unordered` (`compareSignalingGreaterUnordered`) | greater, unordered |
+| 5.2 | `Decimal::compare_signaling_equal` (`compareSignalingEqual`) | equal |
+| 5.2 | `Decimal::compare_signaling_not_equal` (`compareSignalingNotEqual`) | less, greater, unordered |
+| 5.2 | `Decimal::compare_quiet_greater` (`compareQuietGreater`) | greater |
+| 5.2 | `Decimal::compare_quiet_not_greater` (`compareQuietNotGreater`) | less, equal, unordered |
+| 5.2 | `Decimal::compare_quiet_greater_equal` (`compareQuietGreaterEqual`) | equal, greater |
+| 5.2 | `Decimal::compare_quiet_less_unordered` (`compareQuietLessUnordered`) | less, unordered |
+| 5.2 | `Decimal::compare_quiet_less` (`compareQuietLess`) | less |
+| 5.2 | `Decimal::compare_quiet_not_less` (`compareQuietNotLess`) | equal, greater, unordered |
+| 5.2 | `Decimal::compare_quiet_less_equal` (`compareQuietLessEqual`) | less, equal |
+| 5.2 | `Decimal::compare_quiet_greater_unordered` (`compareQuietGreaterUnordered`) | greater, unordered |
+| 5.2 | `Decimal::compare_quiet_unordered` (`compareQuietUnordered`) | unordered |
+| 5.2 | `Decimal::compare_quiet_ordered` (`compareQuietOrdered`) | less, equal, greater |
+
+
 ### `Decimal::total_order`, `total_order_mag`, `total_order_compare`
 
 These functions implement the IEEE 754-2019 §5.10 `totalOrder` and
@@ -2258,13 +2317,28 @@ pub fn Decimal::compare(Self, Self) -> Int32
 pub fn Decimal::compare_checked(Self, Self) -> Result[Int32, @arithmetic.ArithmeticError]
 pub fn Decimal::compare_quiet(Self, Self) -> (@def.PartialOrder, DecimalFlags)
 pub fn Decimal::compare_quiet_equal(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_quiet_greater(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_quiet_greater_equal(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_quiet_greater_unordered(Self, Self) -> (Bool, DecimalFlags)
 pub fn Decimal::compare_quiet_less(Self, Self) -> (Bool, DecimalFlags)
 pub fn Decimal::compare_quiet_less_equal(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_quiet_less_unordered(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_quiet_not_equal(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_quiet_not_greater(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_quiet_not_less(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_quiet_ordered(Self, Self) -> (Bool, DecimalFlags)
 pub fn Decimal::compare_quiet_unordered(Self, Self) -> (Bool, DecimalFlags)
 pub fn Decimal::compare_signaling(Self, Self) -> (@def.PartialOrder, DecimalFlags)
 pub fn Decimal::compare_signaling_equal(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_signaling_greater(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_signaling_greater_equal(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_signaling_greater_unordered(Self, Self) -> (Bool, DecimalFlags)
 pub fn Decimal::compare_signaling_less(Self, Self) -> (Bool, DecimalFlags)
 pub fn Decimal::compare_signaling_less_equal(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_signaling_less_unordered(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_signaling_not_equal(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_signaling_not_greater(Self, Self) -> (Bool, DecimalFlags)
+pub fn Decimal::compare_signaling_not_less(Self, Self) -> (Bool, DecimalFlags)
 pub fn Decimal::compound_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::convert_format(Self, DecimalInterchangeFormat) -> (Self, DecimalFlags)
 pub fn Decimal::copy(Self) -> Self

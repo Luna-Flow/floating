@@ -435,6 +435,10 @@ notes live in this file.
   | --- | --- | --- |
   | none | `b.atan2_rev1(c, x?)`, `a.atan2_rev2(c, x?)` | `BallFloat`, `BallFloatDecorated`, `BallFloatResult`; no `try_` form, no input fails |
 
+### Added
+
+- `bin_float`, `decimal`: every comparison predicate of IEEE 754-2019 5.11 has a function ([#438](https://github.com/Luna-Flow/floating/issues/438), item N6). The clause lists 22 predicates, 10 in Table 5.1 and 12 in Table 5.2; `bin_float` had 7 and `decimal` none. Both now have the 15 others, with the names of the first seven (`compare_quiet_*`, `compare_signaling_*`): `not_equal`, `greater`, `greater_equal`, `not_greater`, `less_unordered`, `not_less` and `greater_unordered` for both kinds, and `compare_quiet_ordered`. Each returns `(Bool, flags)`, is defined from `compare_quiet` or `compare_signaling` and raises invalid where the table says (a signaling NaN for the quiet ones, any NaN for the signaling ones). Nothing existing changes in `bin_float`.
+
 ### Fixed
 
 - `ball_float`: `BallFloat::radius` and `BallFloat::width` returned a value far above the smallest bound for intervals in the subnormal range ([#579](https://github.com/Luna-Flow/floating/issues/579); present in 0.11.0). IEEE 1788-2015 12.12.8 defines `rad(x)` as the smallest F-number `r` with `x` inside `[m - r, m + r]` (`m = mid(x)`) and `wid(x)` as the Level 1 width rounded toward +infinity; the distances were made at their own bit length, so below the normal range a few-bit difference was rounded upward to the quantum of those few bits. They are now formed exactly and rounded upward once at the precision. Example: `[1, 3] * 2^(e_min - 60)` at 113 bits: `radius()` was `1p-1073741822` (`2^e_min`), it is `1p-1073741882`; `width()` was `1p-1073741823`, it is `1p-1073741881`. Away from the bottom of the range the results are identical (tested on 3,000 intervals). Tests check that the result is the smallest number with the property (the next number below fails it) on 3,000 intervals near the bottom of the range.
