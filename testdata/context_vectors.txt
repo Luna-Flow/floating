@@ -1,0 +1,88 @@
+# Boundary contexts with their verdict: the one list that the Python rules (tools/context_rules.py) and the library
+# constructors (tooling/src/consistency/context_vectors_wbtest.mbt) are both tested against.
+# Columns: standard precision e_min e_max rounding clamp tininess verdict      (`-`: the field is absent or not applicable)
+#   binary   bin_float, IEEE 754-2019 3.3: e_min = 1 - e_max; no range (`- -`) is the extendable format of 3.7;
+#            rounding n na z u d; tininess a (after rounding) or b (before)
+#   decimal  decimal, IEEE 754-2019: e_min = 1 - e_max, clamp 1, tininess b, rounding half_even half_up down ceiling floor
+#   gda      decimal_gda, GDA 1.70 page 10: e_min is -e_max, 1 - e_max or -e_max - 1; rounding of the eight GDA modes; clamp 0 or 1
+# The library constructors take a precision and an e_max (and a rounding, a tininess): a vector whose verdict depends
+# on a column they do not have (an e_min that is not 1 - e_max, clamp 0, tininess a for decimal, a rounding outside
+# their type) is checked by the Python rules only, and the MoonBit test skips it by name.
+
+# ---- binary: legal
+binary 1 0 1 n - a legal   # the smallest format: p = 1, e_max = 1
+binary 11 -14 15 n - a legal   # binary16
+binary 24 -126 127 n - a legal   # binary32
+binary 53 -1022 1023 n - a legal   # binary64
+binary 113 -16382 16383 n - a legal   # binary128
+binary 53 -6 7 n - b legal   # a small range, tininess before rounding
+binary 268435456 0 1 n - a legal   # the largest precision
+binary 53 -1073741822 1073741823 n - a legal   # the largest e_max
+binary 53 - - n - a legal   # a precision alone: the extendable format
+binary 53 - 1023 n - a legal   # e_min omitted: derived as 1 - e_max
+binary 53 -1022 1023 na - a legal
+binary 53 -1022 1023 z - a legal
+binary 53 -1022 1023 u - b legal
+binary 53 -1022 1023 d - b legal
+# ---- binary: illegal
+binary 0 - - n - a illegal   # precision 0
+binary 268435457 - - n - a illegal   # precision above the limit
+binary 53 1 0 n - a illegal   # e_max = 0
+binary 53 0 -1 n - a illegal   # negative e_max
+binary 53 -1073741823 1073741824 n - a illegal   # e_max above the limit
+binary 53 -1023 1023 n - a illegal   # e_min is not 1 - e_max
+binary 53 -1021 1023 n - a illegal   # e_min is not 1 - e_max
+binary 53 -1022 - n - a illegal   # a one-sided range: e_min without e_max
+binary 53 -1022 1023 a - a illegal   # round away from zero is not a rounding direction of 4.3
+binary 53 -1022 1023 n - c illegal   # tininess is a or b
+
+# ---- decimal: legal
+decimal 1 0 1 half_even 1 b legal             # the smallest format
+decimal 7 -94 95 half_even 1 b legal          # decimal32
+decimal 16 -382 383 half_up 1 b legal         # decimal64
+decimal 34 -6142 6143 down 1 b legal          # decimal128
+decimal 34 -999998 999999 ceiling 1 b legal
+decimal 34 -999998 999999 floor 1 b legal
+decimal 999999999 0 1 half_even 1 b legal     # the largest precision
+decimal 34 -999999998 999999999 half_even 1 b legal   # the largest e_max
+# ---- decimal: illegal
+decimal 0 0 1 half_even 1 b illegal           # precision 0
+decimal 1000000000 0 1 half_even 1 b illegal  # precision above the limit
+decimal 34 1 0 half_even 1 b illegal          # e_max = 0
+decimal 34 -999999999 1000000000 half_even 1 b illegal   # e_max above the limit
+decimal 34 -6143 6143 half_even 1 b illegal   # e_min is not 1 - e_max (the GDA symmetric range)
+decimal 34 -6142 6143 half_even 0 b illegal   # clamp 0: a result need not be a member of the format
+decimal 34 -6142 6143 half_even 1 a illegal   # decimal formats detect tininess before rounding (7.5)
+decimal 34 -6142 6143 half_down 1 b illegal   # not a rounding-direction attribute of 4.3
+decimal 34 -6142 6143 up 1 b illegal
+decimal 34 -6142 6143 05up 1 b illegal
+
+# ---- gda: legal
+gda 9 -999999999 999999999 half_up 0 - legal   # e_min = -e_max
+gda 34 -999999998 999999999 half_even 0 - legal   # e_min = 1 - e_max
+gda 34 -1000000000 999999999 half_even 0 - illegal   # e_min below the e_min limit
+gda 7 -95 96 half_even 1 - legal               # decimal32 as a GDA context
+gda 34 -100 99 half_even 0 - legal             # e_min = -e_max - 1
+gda 34 -99 99 half_even 0 - legal              # e_min = -e_max
+gda 34 -98 99 half_even 0 - legal              # e_min = 1 - e_max
+gda 1 0 0 half_even 0 - legal                  # e_max = 0, e_min = -e_max
+gda 1 -1 0 half_even 0 - legal                 # e_max = 0, e_min = -e_max - 1
+gda 34 -10 10 half_down 0 - legal
+gda 34 -10 10 down 0 - legal
+gda 34 -10 10 ceiling 1 - legal
+gda 34 -10 10 floor 0 - legal
+gda 34 -10 10 up 0 - legal
+gda 34 -10 10 05up 0 - legal
+gda 999999999 -10 10 half_even 0 - legal       # the largest precision
+# ---- gda: illegal
+gda 0 -10 10 half_even 0 - illegal             # precision 0
+gda 1000000000 -10 10 half_even 0 - illegal    # precision above the limit
+gda 34 -50 60 half_even 0 - illegal            # the magnitudes differ by more than one
+gda 34 -8 10 half_even 0 - illegal
+gda 34 -12 10 half_even 0 - illegal
+gda 34 1 10 half_even 0 - illegal              # e_min above 0
+gda 34 -10 -1 half_even 0 - illegal            # negative e_max
+gda 34 0 -1 half_even 0 - illegal              # e_min above e_max
+gda 34 -1 1000000000 half_even 0 - illegal     # e_max above the limit
+gda 34 -1000000001 1000000000 half_even 0 - illegal
+gda 1 1 0 half_even 0 - illegal                # e_max = 0 and e_min = 1 - e_max: e_min above 0
