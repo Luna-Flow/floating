@@ -244,3 +244,124 @@ test "one-word sqrt handles perfect squares, powers of two and odd exponents" {
     binary_fast_sqrt(BinFloat::inf(Sign::Positive, precision=53)) is None,
   )
 }
+
+///|
+/// A finite operand of exactly `precision` bits (top bit and low bit set), the
+/// full-width case of the benchmark and of binary64 use.
+fn fast_test_full_operand(
+  random : FastTestRandom,
+  precision : Int32,
+  around : Int32,
+) -> BinFloat {
+  let mut word = (random.next() << 13) | (random.next() & 0x1fffUL)
+  word = (word >> (64 - precision)) | (1UL << (precision - 1))
+  if random.below(4) != 0 {
+    word = word | 1UL
+  }
+  BinFloat::make_coeff(
+    Coeff::from_uint64(word),
+    around + random.below(17) - 8,
+    precision,
+    negative=random.below(2) == 0,
+  )
+}
+
+///|
+test "binary64 quotient and root equal the integer word path and the general path" {
+  let random = { state: 0xB0B0CAFE12345UL, }
+  let mut done = 0
+  for round in 0..<200000 {
+    let around = random.below(2000) - 1000
+    let left_precision = if round % 5 == 0 { 20 + random.below(34) } else { 53 }
+    let right_precision = if round % 7 == 0 {
+      20 + random.below(34)
+    } else {
+      53
+    }
+    let left = fast_test_full_operand(random, left_precision, around)
+    let right = fast_test_full_operand(random, right_precision, around)
+    let result_precision = Int32::max(left_precision, right_precision)
+    let quotient = binary_fast_div(left, right).unwrap()
+    let general_quotient = left.div_ctx(
+        right,
+        BinaryContext::unbounded(result_precision),
+      ).0
+    assert_true(fast_test_same(quotient, general_quotient))
+    if result_precision == 53 {
+      done += 1
+      assert_true(
+        fast_test_same(quotient, binary_fast_div_words(left, right).unwrap()),
+      )
+    }
+    let value = left.abs()
+    let root = binary_fast_sqrt(value).unwrap()
+    let general_root = sqrt_for_precision(value, left_precision).unwrap()
+    assert_true(fast_test_same(root, general_root))
+    if left_precision == 53 {
+      assert_true(fast_test_same(root, binary_fast_sqrt_words(value).unwrap()))
+    }
+  }
+  assert_true(done > 100000)
+}
+
+///|
+test "binary64 quotient and root at ties, exact results and powers of two" {
+  let words = [
+    1UL,
+    3UL,
+    5UL,
+    9UL,
+    0x1fffffffffffffUL,
+    0x10000000000001UL,
+    0x15555555555555UL,
+    0x1ffffffffffffeUL | 1UL,
+    0x10000000000000UL | 1UL,
+  ]
+  for left_word in words {
+    for right_word in words {
+      for exponent in [-3, -2, -1, 0, 1, 2, 3, 1000, -1001] {
+        let left = BinFloat::make_coeff(
+          Coeff::from_uint64(left_word),
+          exponent,
+          53,
+        )
+        let right = BinFloat::make_coeff(
+          Coeff::from_uint64(right_word),
+          exponent / 2,
+          53,
+          negative=true,
+        )
+        let quotient = binary_fast_div(left, right).unwrap()
+        assert_true(
+          fast_test_same(
+            quotient,
+            left.div_ctx(right, BinaryContext::unbounded(53)).0,
+          ),
+        )
+        assert_true(
+          fast_test_same(quotient, binary_fast_div_words(left, right).unwrap()),
+        )
+      }
+    }
+    for exponent in [-3, -2, -1, 0, 1, 2, 3, 1000, -1001] {
+      let value = BinFloat::make_coeff(
+        Coeff::from_uint64(left_word),
+        exponent,
+        53,
+      )
+      assert_true(
+        fast_test_same(
+          binary_fast_sqrt(value).unwrap(),
+          sqrt_for_precision(value, 53).unwrap(),
+        ),
+      )
+      let square = value.mul_ctx(value, BinaryContext::unbounded(53)).0
+      assert_true(
+        fast_test_same(
+          binary_fast_sqrt(square).unwrap(),
+          sqrt_for_precision(square, 53).unwrap(),
+        ),
+      )
+    }
+  }
+}

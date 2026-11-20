@@ -6,6 +6,10 @@ notes live in this file.
 
 ## Unreleased
 
+### Performance
+
+- `bin_float`: `div` and `sqrt` at precision 53 form the quotient or root of the two coefficients (at most 53 bits, exact in binary64) with one binary64 division or square root, which IEEE 754 rounds to nearest even exactly as the general path does. Results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).
+
 ### Breaking
 
 - The flag and trap types share one access style: methods ([#438](https://github.com/Luna-Flow/floating/issues/438), item A5). The fields of `decimal.DecimalFlags`, `decimal_gda.DecimalFlags`, `GdaFlags`, `GdaTrapSet` and `BallFlags` are private; each flag is read with a method of the same name, as `BinaryFlags` already did. `GdaFlags::none` and `GdaTrapSet::none` are `new`, like every other flag constructor. `contains` stays on the types of packages that have a signal enum (`decimal`, `decimal_gda`); `has_error` is unchanged (true for `invalid_operation`, `conversion_syntax`, `division_by_zero`, `division_undefined`, `division_impossible`, `invalid_context`; false for overflow, underflow, inexact and the other conditions, which deliver a usable result).
