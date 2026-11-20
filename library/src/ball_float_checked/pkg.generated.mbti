@@ -25,6 +25,9 @@ pub fn BallFloatResult::atan(Self) -> Self
 pub fn BallFloatResult::atan2(Self, Self) -> Self
 pub fn BallFloatResult::atanh(Self) -> Self
 pub fn BallFloatResult::bind(Self, (@ball_float.BallFloat) -> Self) -> Self
+pub fn BallFloatResult::cancel_minus(Self, Self) -> Self
+pub fn BallFloatResult::cancel_plus(Self, Self) -> Self
+pub fn BallFloatResult::convex_hull(Self, Self) -> Self
 pub fn BallFloatResult::cos(Self) -> Self
 pub fn BallFloatResult::cosh(Self) -> Self
 pub fn BallFloatResult::cospi(Self) -> Self
@@ -37,6 +40,7 @@ pub fn BallFloatResult::exp(Self) -> Self
 pub fn BallFloatResult::exp10(Self) -> Self
 pub fn BallFloatResult::exp2(Self) -> Self
 pub fn BallFloatResult::expm1(Self) -> Self
+pub fn BallFloatResult::fma(Self, Self, Self) -> Self
 pub fn BallFloatResult::from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Self
 pub fn BallFloatResult::from_coefficient(@bin_float.BinCoeff, precision? : Int32, negative? : Bool) -> Self
 pub fn BallFloatResult::from_double(Double, precision? : Int32) -> Self
@@ -44,6 +48,7 @@ pub fn BallFloatResult::from_float(Float, precision? : Int32) -> Self
 pub fn BallFloatResult::from_int(Int32, precision? : Int32) -> Self
 pub fn BallFloatResult::from_result(Result[@ball_float.BallFloat, @arithmetic.ArithmeticError]) -> Self
 pub fn BallFloatResult::hypot(Self, Self) -> Self
+pub fn BallFloatResult::intersection(Self, Self) -> Self
 pub fn BallFloatResult::is_err(Self) -> Bool
 pub fn BallFloatResult::is_ok(Self) -> Bool
 pub fn BallFloatResult::ln(Self) -> Self
@@ -51,17 +56,22 @@ pub fn BallFloatResult::log10(Self) -> Self
 pub fn BallFloatResult::log1p(Self) -> Self
 pub fn BallFloatResult::log2(Self) -> Self
 pub fn BallFloatResult::map(Self, (@ball_float.BallFloat) -> @ball_float.BallFloat) -> Self
+pub fn BallFloatResult::max(Self, Self) -> Self
+pub fn BallFloatResult::min(Self, Self) -> Self
 pub fn BallFloatResult::mul(Self, Self) -> Self
 pub fn BallFloatResult::neg(Self) -> Self
 pub fn BallFloatResult::normalized(Self) -> Self
 pub fn BallFloatResult::ok(@ball_float.BallFloat) -> Self
 pub fn BallFloatResult::pow(Self, Self) -> Self
 pub fn BallFloatResult::pown(Self, Int32) -> Self
+pub fn BallFloatResult::recip(Self) -> Self
 pub fn BallFloatResult::result(Self) -> Result[@ball_float.BallFloat, @arithmetic.ArithmeticError]
 pub fn BallFloatResult::rootn(Self, Int32) -> Self
 pub fn BallFloatResult::sin(Self) -> Self
 pub fn BallFloatResult::sinh(Self) -> Self
 pub fn BallFloatResult::sinpi(Self) -> Self
+pub fn BallFloatResult::sqr(Self) -> Self
+pub fn BallFloatResult::sqrt(Self) -> Self
 pub fn BallFloatResult::sub(Self, Self) -> Self
 pub fn BallFloatResult::tan(Self) -> Self
 pub fn BallFloatResult::tanh(Self) -> Self

@@ -135,7 +135,7 @@ pub(all) enum Decoration {
   Def
   Dac
   Com
-} derive(Eq, @debug.Debug)
+} derive(Compare, Eq, @debug.Debug)
 ```
 
 For a decorated result $(\boldsymbol{y}, d)$ of a function $f$ evaluated on
@@ -150,7 +150,8 @@ a box $\boldsymbol{x}$:
 | `Ill` | the value is NaI |
 
 Each property implies the ones below it, which is why the decorations are
-totally ordered. `Show` prints the lower-case IEEE 1788 names `com`, `dac`,
+totally ordered; `Decoration` derives `Compare` in that order, so `<`, `<=`,
+`>` and `>=` are the comparisons of decorations of IEEE 1788-2015 11.5.3. `Show` prints the lower-case IEEE 1788 names `com`, `dac`,
 `def`, `trv`, `ill`.
 
 ### `OverlapState`
@@ -180,12 +181,12 @@ pub(all) enum OverlapState {
 } derive(Eq, @debug.Debug)
 ```
 
-The constructors correspond to the IEEE 1788 states `bothEmpty`,
-`firstEmpty`, `secondEmpty`, `before`, `meets`, `overlaps`, `starts`,
-`containedBy`, `finishes`, `equal`, `after`, `metBy`, `overlappedBy`,
-`startedBy`, `contains` and `finishedBy`; `OverlapsState`, `EqualIntervals`
-and `ContainsInterval` carry a suffix only to avoid clashing with method names.
-`Undefined` is returned only by the decorated version when an operand is NaI.
+The constructors are the 16 states of IEEE 1788-2015 Table 10.7 (10.6.4),
+with the standard's names: `bothEmpty`, `firstEmpty`, `secondEmpty`, `before`,
+`meets`, `overlaps`, `starts`, `containedBy`, `finishes`, `equals`, `after`,
+`metBy`, `overlappedBy`, `startedBy`, `contains` and `finishedBy`. There is no
+17th state: the decorated `overlap` has no value for NaI (11.7.2) and returns
+`None`.
 
 ### `BallContext`
 
@@ -655,8 +656,8 @@ With Empty: `less` and `strictly_less` hold only when both are Empty;
 pub fn BallFloat::overlap(Self, Self) -> OverlapState
 ```
 
-The result is one of the sixteen states of [`OverlapState`](#overlapstate)
-other than `Undefined`; it is computed from the comparisons of the four
+The result is one of the sixteen states of [`OverlapState`](#overlapstate); it
+is computed from the comparisons of the four
 endpoints, testing equal endpoints first, so a singleton that coincides with
 an endpoint of the other interval gives `Starts`, `Finishes`, `StartedBy` or
 `FinishedBy` rather than `Meets` or `MetBy`, as IEEE 1788 requires.
@@ -673,7 +674,7 @@ test "relations" {
   inspect(iv(2, 3).interior(iv(1, 6)), content="true")
   inspect(iv(1, 3).interior(iv(1, 6)), content="false")
   debug_inspect(a.overlap(b), content="Meets")
-  debug_inspect(iv(1, 6).overlap(iv(2, 3)), content="ContainsInterval")
+  debug_inspect(iv(1, 6).overlap(iv(2, 3)), content="Contains")
 }
 ```
 
@@ -1338,10 +1339,12 @@ pub fn BallFloatDecorated::less(Self, Self) -> Bool
 pub fn BallFloatDecorated::strict_less(Self, Self) -> Bool
 pub fn BallFloatDecorated::precedes(Self, Self) -> Bool
 pub fn BallFloatDecorated::strict_precedes(Self, Self) -> Bool
-pub fn BallFloatDecorated::overlap(Self, Self) -> OverlapState
+pub fn BallFloatDecorated::overlap(Self, Self) -> OverlapState?
 ```
 
-`overlap_state` returns `Undefined` when an operand is NaI.
+`overlap` returns `None` when an operand is NaI, which has no value for a
+non-interval-valued operation (IEEE 1788-2015 11.7.2), and `Some(state)`
+otherwise.
 
 ### `BallFloatDecorated::intersection`, `BallFloatDecorated::convex_hull`, `BallFloatDecorated::cancel_plus`, `BallFloatDecorated::cancel_minus`
 
@@ -1487,7 +1490,7 @@ test "decorated intervals" {
   inspect(unbounded.decoration(), content="dac")
   let nai = @ball_float.BallFloatDecorated::nai()
   inspect((x + nai).to_string(), content="[nai]")
-  debug_inspect(nai.overlap(x), content="Undefined")
+  debug_inspect(nai.overlap(x), content="None")
 }
 ```
 
@@ -1876,7 +1879,7 @@ pub fn BallFloatDecorated::neg(Self) -> Self
 pub fn BallFloatDecorated::new(BallFloat, decoration? : Decoration) -> Self
 pub fn BallFloatDecorated::not_equal(Self, Self) -> Bool
 pub fn BallFloatDecorated::output(Self, &Logger) -> Unit
-pub fn BallFloatDecorated::overlap(Self, Self) -> OverlapState
+pub fn BallFloatDecorated::overlap(Self, Self) -> OverlapState?
 pub fn BallFloatDecorated::pos(Self) -> Self
 pub fn BallFloatDecorated::pow(Self, Self) -> Self
 pub fn BallFloatDecorated::pown(Self, Int32) -> Self
@@ -1903,7 +1906,7 @@ pub impl Mul for BallFloatDecorated
 pub impl Show for BallFloatDecorated
 pub impl Sub for BallFloatDecorated
 
-#derive(Eq, @debug.Debug)
+#derive(Compare, Eq, @debug.Debug)
 pub(all) enum Decoration {
   Ill
   Trv
@@ -1920,22 +1923,21 @@ pub impl Show for Decoration
 
 #derive(Eq, @debug.Debug)
 pub(all) enum OverlapState {
-  Undefined
   BothEmpty
   FirstEmpty
   SecondEmpty
   Before
   Meets
-  OverlapsState
+  Overlaps
   Starts
   ContainedBy
   Finishes
-  EqualIntervals
+  Equals
   After
   MetBy
   OverlappedBy
   StartedBy
-  ContainsInterval
+  Contains
   FinishedBy
 }
 pub fn OverlapState::equal(Self, Self) -> Bool

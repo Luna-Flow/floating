@@ -152,6 +152,100 @@ pub fn BallFloatResult::with_precision(
 }
 
 ///|
+/// `sqrt` of the interval part; a directed square root cannot fail.
+pub fn BallFloatResult::sqrt(self : BallFloatResult) -> BallFloatResult {
+  self.map(fn(value) { value.sqrt() })
+}
+
+///|
+pub fn BallFloatResult::sqr(self : BallFloatResult) -> BallFloatResult {
+  self.map(fn(value) { value.sqr() })
+}
+
+///|
+pub fn BallFloatResult::recip(self : BallFloatResult) -> BallFloatResult {
+  self.map(fn(value) { value.recip() })
+}
+
+///|
+pub fn BallFloatResult::min(
+  self : BallFloatResult,
+  other : BallFloatResult,
+) -> BallFloatResult {
+  BallFloatResult::from_result(
+    ball_result_lift2(self.inner, other.inner, fn(lhs, rhs) { lhs.min(rhs) }),
+  )
+}
+
+///|
+pub fn BallFloatResult::max(
+  self : BallFloatResult,
+  other : BallFloatResult,
+) -> BallFloatResult {
+  BallFloatResult::from_result(
+    ball_result_lift2(self.inner, other.inner, fn(lhs, rhs) { lhs.max(rhs) }),
+  )
+}
+
+///|
+/// `x * y + z` with one rounding of the interval operation.
+pub fn BallFloatResult::fma(
+  self : BallFloatResult,
+  factor : BallFloatResult,
+  addend : BallFloatResult,
+) -> BallFloatResult {
+  self.bind(fn(x) { factor.bind(fn(y) { addend.map(fn(z) { x.fma(y, z) }) }) })
+}
+
+///|
+pub fn BallFloatResult::intersection(
+  self : BallFloatResult,
+  other : BallFloatResult,
+) -> BallFloatResult {
+  BallFloatResult::from_result(
+    ball_result_lift2(self.inner, other.inner, fn(lhs, rhs) {
+      lhs.intersection(rhs)
+    }),
+  )
+}
+
+///|
+pub fn BallFloatResult::convex_hull(
+  self : BallFloatResult,
+  other : BallFloatResult,
+) -> BallFloatResult {
+  BallFloatResult::from_result(
+    ball_result_lift2(self.inner, other.inner, fn(lhs, rhs) {
+      lhs.convex_hull(rhs)
+    }),
+  )
+}
+
+///|
+pub fn BallFloatResult::cancel_plus(
+  self : BallFloatResult,
+  other : BallFloatResult,
+) -> BallFloatResult {
+  BallFloatResult::from_result(
+    ball_result_lift2(self.inner, other.inner, fn(lhs, rhs) {
+      lhs.cancel_plus(rhs)
+    }),
+  )
+}
+
+///|
+pub fn BallFloatResult::cancel_minus(
+  self : BallFloatResult,
+  other : BallFloatResult,
+) -> BallFloatResult {
+  BallFloatResult::from_result(
+    ball_result_lift2(self.inner, other.inner, fn(lhs, rhs) {
+      lhs.cancel_minus(rhs)
+    }),
+  )
+}
+
+///|
 pub fn BallFloatResult::neg(self : BallFloatResult) -> BallFloatResult {
   self.map(fn(value) { value.neg() })
 }

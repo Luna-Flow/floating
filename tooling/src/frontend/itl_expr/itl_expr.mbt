@@ -841,22 +841,21 @@ fn execute_numeric_case(case : ItlCase, precision : Int32) -> ItlResult {
 ///|
 fn overlap_name(state : @ball_float.OverlapState) -> String {
   match state {
-    Undefined => "undefined"
     BothEmpty => "bothEmpty"
     FirstEmpty => "firstEmpty"
     SecondEmpty => "secondEmpty"
     Before => "before"
     Meets => "meets"
-    OverlapsState => "overlaps"
+    Overlaps => "overlaps"
     Starts => "starts"
     ContainedBy => "containedBy"
     Finishes => "finishes"
-    EqualIntervals => "equals"
+    Equals => "equals"
     After => "after"
     MetBy => "metBy"
     OverlappedBy => "overlappedBy"
     StartedBy => "startedBy"
-    ContainsInterval => "contains"
+    Contains => "contains"
     FinishedBy => "finishedBy"
   }
 }
@@ -873,7 +872,10 @@ fn execute_overlap_case(case : ItlCase, precision : Int32) -> ItlResult {
       message_: "",
     }
   }
-  let actual = overlap_name(left.overlap(right))
+  let actual = match left.overlap(right) {
+    Some(state) => overlap_name(state)
+    None => "undefined"
+  }
   let passed = actual == case.expected_
   {
     id_: case.id_,

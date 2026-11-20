@@ -221,6 +221,16 @@ notes live in this file.
   | `x.contains(point)` | `x.is_member(point)` | `BallFloat`, `BallFloatDecorated`; `@arithmetic.Contains::contains(x, y)` (inclusion) is unchanged |
   | `BallFloatResult::pow_int(n)` | `BallFloatResult::pown(n)` | the plain tier already has `pown`; `PowIntChecked` keeps its trait name |
 
+- `ball_float` and `ball_float_checked`: `OverlapState` follows Table 10.7 of IEEE 1788-2015 and the checked tier has the operations it lacked ([#438](https://github.com/Luna-Flow/floating/issues/438), item B5). `Undefined`, which was not one of the 16 states, goes: the decorated `overlap` has no value for NaI (11.7.2) and returns an option. Also added, not breaking: `Decoration` derives `Compare` in the propagation order (the comparisons of decorations of 11.5.3), and `BallFloatResult` gets `sqrt`, `sqr`, `recip`, `min`, `max`, `fma`, `intersection`, `convex_hull`, `cancel_plus` and `cancel_minus`.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `OverlapState::OverlapsState` | `OverlapState::Overlaps` | Table 10.7 `overlaps` |
+  | `OverlapState::EqualIntervals` | `OverlapState::Equals` | `equals` |
+  | `OverlapState::ContainsInterval` | `OverlapState::Contains` | `contains` |
+  | `OverlapState::Undefined` | none | not a state; see the next row |
+  | `BallFloatDecorated::overlap(x, y) -> OverlapState`, `Undefined` for NaI | `-> OverlapState?`, `None` for NaI | `Some(state)` otherwise |
+
 ### Fixed
 
 - `ball_float`: the total elementary forms (`exp_interval`, `exp2_interval`, `exp10_interval`, `ln_interval`, `log2_interval`, `log10_interval`, `sin_interval`, `cos_interval`, `tan_interval`, `asin_interval`, `acos_interval`, `atan_interval`, the six hyperbolic functions and their inverses, `pow_interval`, `rootn`) are now the `try_` form with a fallback, one kernel instead of two ([#449](https://github.com/Luna-Flow/floating/issues/449); Closes #449). They used an exact-rational series of their own that aborted ("certified log series did not converge") from about 32,000 bits for `ln_interval` (about 150,000 for `exp_interval`, about 200,000 for `atan_interval`), and that lost all relative accuracy for a tiny argument in `sinh`, `tanh`, `asinh` and `atanh` (`sinh_interval` of `2^-300` at 53 bits was `[0, 3 * 2^-246]`, now two ulps wide). The `try_` forms used the `bin_float` kernels and had neither limit. Whenever the `try_` form succeeds, the total form returns the same interval; when it reports a certification failure the total form returns the range of the function over its domain (`[0, +inf)` for `exp`, `[-1, 1]` for `sin`, `[-pi/2, pi/2]` for `atan`, Entire for `ln`, and so on; the table is in the API page), which is valid at every precision and cannot itself fail. An argument outside the domain still gives Empty, decided before the kernel runs. Results of these functions can differ from the previous release in the last bit (the `try_` kernels round each endpoint directly); all 4,656 strict ITF1788 cases pass.

@@ -226,7 +226,7 @@ pub fn BallFloatDecorated::neg(Self) -> Self
 pub fn BallFloatDecorated::new(BallFloat, decoration? : Decoration) -> Self
 pub fn BallFloatDecorated::not_equal(Self, Self) -> Bool
 pub fn BallFloatDecorated::output(Self, &Logger) -> Unit
-pub fn BallFloatDecorated::overlap(Self, Self) -> OverlapState
+pub fn BallFloatDecorated::overlap(Self, Self) -> OverlapState?
 pub fn BallFloatDecorated::pos(Self) -> Self
 pub fn BallFloatDecorated::pow(Self, Self) -> Self
 pub fn BallFloatDecorated::pown(Self, Int32) -> Self
@@ -253,7 +253,7 @@ pub impl Mul for BallFloatDecorated
 pub impl Show for BallFloatDecorated
 pub impl Sub for BallFloatDecorated
 
-#derive(Eq, @debug.Debug)
+#derive(Compare, Eq, @debug.Debug)
 pub(all) enum Decoration {
   Ill
   Trv
@@ -270,22 +270,21 @@ pub impl Show for Decoration
 
 #derive(Eq, @debug.Debug)
 pub(all) enum OverlapState {
-  Undefined
   BothEmpty
   FirstEmpty
   SecondEmpty
   Before
   Meets
-  OverlapsState
+  Overlaps
   Starts
   ContainedBy
   Finishes
-  EqualIntervals
+  Equals
   After
   MetBy
   OverlappedBy
   StartedBy
-  ContainsInterval
+  Contains
   FinishedBy
 }
 pub fn OverlapState::equal(Self, Self) -> Bool

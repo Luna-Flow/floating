@@ -1,5 +1,5 @@
 ///|
-#derive(Eq, Debug)
+#derive(Eq, Compare, Debug)
 pub(all) enum Decoration {
   Ill
   Trv
@@ -190,11 +190,11 @@ pub fn BallFloatDecorated::strict_precedes(
 pub fn BallFloatDecorated::overlap(
   self : BallFloatDecorated,
   other : BallFloatDecorated,
-) -> OverlapState {
+) -> OverlapState? {
   if self.is_nai() || other.is_nai() {
-    Undefined
+    None
   } else {
-    self.interval_.overlap(other.interval_)
+    Some(self.interval_.overlap(other.interval_))
   }
 }
 

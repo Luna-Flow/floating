@@ -233,6 +233,35 @@ $\{\, s \circ t : s \in X, t \in Y \,\}$. Division by an interval that is
 exactly $\{0\}$ gives the empty set, and division by an interval that contains
 zero in its interior gives the whole line.
 
+### `BallFloatResult::sqrt`, `BallFloatResult::sqr`, `BallFloatResult::recip`
+
+These methods are `map` of the `BallFloat` method of the same name (IEEE
+1788-2015 Table 9.1): the directed square root, the square of one point
+(`sqr`, so the square of $[-1, 1]$ is $[0, 1]$) and the reciprocal. None of
+them can fail.
+
+```mbti
+pub fn BallFloatResult::sqrt(Self) -> Self
+pub fn BallFloatResult::sqr(Self) -> Self
+pub fn BallFloatResult::recip(Self) -> Self
+```
+
+### `BallFloatResult::min`, `BallFloatResult::max`, `BallFloatResult::fma`, `BallFloatResult::intersection`, `BallFloatResult::convex_hull`, `BallFloatResult::cancel_plus`, `BallFloatResult::cancel_minus`
+
+These methods combine two or three wrappers with the `BallFloat` method of the
+same name (Table 9.1 `min`, `max`, `fma`; 9.2 and 9.3 the cancellative and set
+operations). The first error comes first, in argument order, as for `add`.
+
+```mbti
+pub fn BallFloatResult::min(Self, Self) -> Self
+pub fn BallFloatResult::max(Self, Self) -> Self
+pub fn BallFloatResult::fma(Self, Self, Self) -> Self
+pub fn BallFloatResult::intersection(Self, Self) -> Self
+pub fn BallFloatResult::convex_hull(Self, Self) -> Self
+pub fn BallFloatResult::cancel_plus(Self, Self) -> Self
+pub fn BallFloatResult::cancel_minus(Self, Self) -> Self
+```
+
 ### `BallFloatResult::pown`
 
 `pown` raises an interval to an integer power through the
@@ -439,6 +468,9 @@ pub fn BallFloatResult::atan(Self) -> Self
 pub fn BallFloatResult::atan2(Self, Self) -> Self
 pub fn BallFloatResult::atanh(Self) -> Self
 pub fn BallFloatResult::bind(Self, (@ball_float.BallFloat) -> Self) -> Self
+pub fn BallFloatResult::cancel_minus(Self, Self) -> Self
+pub fn BallFloatResult::cancel_plus(Self, Self) -> Self
+pub fn BallFloatResult::convex_hull(Self, Self) -> Self
 pub fn BallFloatResult::cos(Self) -> Self
 pub fn BallFloatResult::cosh(Self) -> Self
 pub fn BallFloatResult::cospi(Self) -> Self
@@ -451,6 +483,7 @@ pub fn BallFloatResult::exp(Self) -> Self
 pub fn BallFloatResult::exp10(Self) -> Self
 pub fn BallFloatResult::exp2(Self) -> Self
 pub fn BallFloatResult::expm1(Self) -> Self
+pub fn BallFloatResult::fma(Self, Self, Self) -> Self
 pub fn BallFloatResult::from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Self
 pub fn BallFloatResult::from_coefficient(@bin_float.BinCoeff, precision? : Int32, negative? : Bool) -> Self
 pub fn BallFloatResult::from_double(Double, precision? : Int32) -> Self
@@ -458,6 +491,7 @@ pub fn BallFloatResult::from_float(Float, precision? : Int32) -> Self
 pub fn BallFloatResult::from_int(Int32, precision? : Int32) -> Self
 pub fn BallFloatResult::from_result(Result[@ball_float.BallFloat, @arithmetic.ArithmeticError]) -> Self
 pub fn BallFloatResult::hypot(Self, Self) -> Self
+pub fn BallFloatResult::intersection(Self, Self) -> Self
 pub fn BallFloatResult::is_err(Self) -> Bool
 pub fn BallFloatResult::is_ok(Self) -> Bool
 pub fn BallFloatResult::ln(Self) -> Self
@@ -465,17 +499,22 @@ pub fn BallFloatResult::log10(Self) -> Self
 pub fn BallFloatResult::log1p(Self) -> Self
 pub fn BallFloatResult::log2(Self) -> Self
 pub fn BallFloatResult::map(Self, (@ball_float.BallFloat) -> @ball_float.BallFloat) -> Self
+pub fn BallFloatResult::max(Self, Self) -> Self
+pub fn BallFloatResult::min(Self, Self) -> Self
 pub fn BallFloatResult::mul(Self, Self) -> Self
 pub fn BallFloatResult::neg(Self) -> Self
 pub fn BallFloatResult::normalized(Self) -> Self
 pub fn BallFloatResult::ok(@ball_float.BallFloat) -> Self
 pub fn BallFloatResult::pow(Self, Self) -> Self
 pub fn BallFloatResult::pown(Self, Int32) -> Self
+pub fn BallFloatResult::recip(Self) -> Self
 pub fn BallFloatResult::result(Self) -> Result[@ball_float.BallFloat, @arithmetic.ArithmeticError]
 pub fn BallFloatResult::rootn(Self, Int32) -> Self
 pub fn BallFloatResult::sin(Self) -> Self
 pub fn BallFloatResult::sinh(Self) -> Self
 pub fn BallFloatResult::sinpi(Self) -> Self
+pub fn BallFloatResult::sqr(Self) -> Self
+pub fn BallFloatResult::sqrt(Self) -> Self
 pub fn BallFloatResult::sub(Self, Self) -> Self
 pub fn BallFloatResult::tan(Self) -> Self
 pub fn BallFloatResult::tanh(Self) -> Self

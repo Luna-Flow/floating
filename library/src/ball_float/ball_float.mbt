@@ -10,22 +10,21 @@ pub struct BallFloat {
 ///|
 #derive(Eq, Debug)
 pub(all) enum OverlapState {
-  Undefined
   BothEmpty
   FirstEmpty
   SecondEmpty
   Before
   Meets
-  OverlapsState
+  Overlaps
   Starts
   ContainedBy
   Finishes
-  EqualIntervals
+  Equals
   After
   MetBy
   OverlappedBy
   StartedBy
-  ContainsInterval
+  Contains
   FinishedBy
 }
 
@@ -1721,7 +1720,7 @@ pub fn BallFloat::overlap(self : BallFloat, other : BallFloat) -> OverlapState {
   let self_hi_other_lo = self.hi_.compare(other.lo_)
   let self_lo_other_hi = self.lo_.compare(other.hi_)
   if lo_cmp == 0 && hi_cmp == 0 {
-    EqualIntervals
+    Equals
   } else if lo_cmp == 0 && hi_cmp < 0 {
     Starts
   } else if lo_cmp == 0 {
@@ -1741,9 +1740,9 @@ pub fn BallFloat::overlap(self : BallFloat, other : BallFloat) -> OverlapState {
   } else if lo_cmp > 0 && hi_cmp < 0 {
     ContainedBy
   } else if lo_cmp < 0 && hi_cmp > 0 {
-    ContainsInterval
+    Contains
   } else if lo_cmp < 0 {
-    OverlapsState
+    Overlaps
   } else {
     OverlappedBy
   }
