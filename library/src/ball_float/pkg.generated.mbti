@@ -115,6 +115,7 @@ pub fn BallFloat::pow(Self, Self) -> Self
 pub fn BallFloat::pow_int_checked(Self, Int32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::pow_rev1(Self, Self, x? : Self) -> Self
+pub fn BallFloat::pow_rev2(Self, Self, x? : Self) -> Self
 pub fn BallFloat::pown(Self, Int32) -> Self
 pub fn BallFloat::pown_rev(Self, Int32, x? : Self) -> Self
 pub fn BallFloat::precedes(Self, Self) -> Bool
@@ -257,6 +258,7 @@ pub fn BallFloatDecorated::overlap(Self, Self) -> OverlapState?
 pub fn BallFloatDecorated::pos(Self) -> Self
 pub fn BallFloatDecorated::pow(Self, Self) -> Self
 pub fn BallFloatDecorated::pow_rev1(Self, Self, x? : Self) -> Self
+pub fn BallFloatDecorated::pow_rev2(Self, Self, x? : Self) -> Self
 pub fn BallFloatDecorated::pown(Self, Int32) -> Self
 pub fn BallFloatDecorated::pown_rev(Self, Int32, x? : Self) -> Self
 pub fn BallFloatDecorated::precedes(Self, Self) -> Bool

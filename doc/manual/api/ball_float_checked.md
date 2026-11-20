@@ -297,6 +297,15 @@ It cannot fail itself; an earlier failure in the receiver, in `c` or in the opti
 pub fn BallFloatResult::pow_rev1(Self, Self, x? : Self) -> Self
 ```
 
+### `BallFloatResult::pow_rev2`
+
+`BallFloat::pow_rev2` on the interval parts (see the [`ball_float` page](ball_float.md#ballfloatpow_rev2)).
+It cannot fail itself; an earlier failure in the receiver, in `c` or in the optional prior is passed on.
+
+```mbti
+pub fn BallFloatResult::pow_rev2(Self, Self, x? : Self) -> Self
+```
+
 ### `BallFloatResult::mul_rev` and `BallFloatResult::mul_rev_to_pair`
 
 These methods apply `BallFloat::mul_rev` and `BallFloat::mul_rev_to_pair` to
@@ -577,6 +586,7 @@ pub fn BallFloatResult::normalized(Self) -> Self
 pub fn BallFloatResult::ok(@ball_float.BallFloat) -> Self
 pub fn BallFloatResult::pow(Self, Self) -> Self
 pub fn BallFloatResult::pow_rev1(Self, Self, x? : Self) -> Self
+pub fn BallFloatResult::pow_rev2(Self, Self, x? : Self) -> Self
 pub fn BallFloatResult::pown(Self, Int32) -> Self
 pub fn BallFloatResult::pown_rev(Self, Int32, x? : Self) -> Self
 pub fn BallFloatResult::recip(Self) -> Self

@@ -215,3 +215,20 @@ test "ITL powRev1: exact ends, a rounded end and the zero part" {
     assert_true(result.passed(), msg=case.id() + ": " + result.message())
   }
 }
+
+///|
+test "ITL powRev2: exact ends, an open end and the base 0" {
+  let source =
+    #|testcase pow_reverse_2 {
+    #|  powRev2 [2.0,2.0] [8.0,8.0] [entire] = [3.0,3.0];
+    #|  powRev2 [0.25,0.5] [2.0,4.0] [entire] = [-2.0,-0.5];
+    #|  powRev2 [2.0,infinity] [2.0,4.0] [-3.0,0.0] = [empty];
+    #|  powRev2 [0.0,0.0] [0.0,0.0] [entire] = [0.0,infinity];
+    #|  powRev2 [1.0,1.0] [2.0,4.0] [entire] = [empty];
+    #|}
+  let cases = @itl_expr.parse_itl(source).unwrap()
+  for case in cases {
+    let result = @itl_expr.execute_case(case)
+    assert_true(result.passed(), msg=case.id() + ": " + result.message())
+  }
+}

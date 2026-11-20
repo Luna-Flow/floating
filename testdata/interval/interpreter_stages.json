@@ -3,7 +3,7 @@
   "corpus": "itf1788",
   "refinements": "interpreter_refinements.json",
   "officialAggregate": {
-    "expectedCases": 6257,
+    "expectedCases": 6632,
     "phases": [
       "sets",
       "relations",
@@ -24,7 +24,8 @@
       "multiplicative-reverse",
       "algebraic-reverse",
       "trigonometric-reverse",
-      "power-reverse-1"
+      "power-reverse-1",
+      "power-reverse-2"
     ]
   },
   "phases": [
@@ -144,7 +145,7 @@
       "operations": ["powRev1"]
     },
     {
-      "name": "reverse",
+      "name": "power-reverse-2",
       "include": ["*rev.itl"],
       "operations": ["powRev2"]
     }

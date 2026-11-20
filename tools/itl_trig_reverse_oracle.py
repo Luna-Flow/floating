@@ -360,13 +360,22 @@ def main(argv: list[str] | None = None) -> int:
     if problems:
         print("\n".join(problems))
         return 1
-    document = {"schemaVersion": 1, "corpus": "itf1788", "refinements": entries}
+    # the file also holds the entries of the other oracles (powRev2: `itl_pow2_reverse_oracle.py`
+    # checks them); this oracle owns the entries of its own operations and keeps the rest
+    existing = (
+        json.loads(REFINEMENTS.read_text(encoding="utf-8")).get("refinements", [])
+        if REFINEMENTS.exists()
+        else []
+    )
+    others = [entry for entry in existing if entry["operation"] not in OPERATIONS]
+    document = {"schemaVersion": 1, "corpus": "itf1788", "refinements": entries + others}
     text = json.dumps(document, indent=2) + "\n"
     if args.write:
         REFINEMENTS.write_text(text, encoding="utf-8")
-        print(f"wrote {len(entries)} refinements")
+        print(f"wrote {len(entries)} refinements ({len(others)} of other operations kept)")
         return 0
-    if not REFINEMENTS.exists() or REFINEMENTS.read_text(encoding="utf-8") != text:
+    own = [entry for entry in existing if entry["operation"] in OPERATIONS]
+    if not REFINEMENTS.exists() or own != entries:
         print("interpreter_refinements.json differs from the oracle; run --write and review")
         return 1
     print(f"{len(entries)} refinements agree with the oracle")
