@@ -463,6 +463,12 @@ notes live in this file.
   | `x.exp_ctx(ctx)` (every plain elementary `_ctx`, 38 functions) after a certification failure: NaN with `invalid_operation` | NaN with `not_computed`, without `invalid_operation` | the plain form without `_ctx` is the `.0` of it; read the reason with the `try_` form |
   | `*_contextual`, `*_checked`, `BinFloatResult` mirrors: a result with `not_computed` | `Err(certification_failure)` | `invalid_operation` stays `Err(domain_error)`, `division_by_zero` stays `Err(division_by_zero)` |
 
+- `bin_float`: the domain case of the logarithms is a value in the `try_` forms ([#438](https://github.com/Luna-Flow/floating/issues/438), item S4, `bin_float`, exp/log family). `try_ln_ctx`, `try_log2_ctx`, `try_log10_ctx`, `try_log1p_ctx`, `try_log2p1_ctx` and `try_log10p1_ctx` returned `Err(domain_error)` for `x <= 0` (`x < -1` for the `p1` forms) although IEEE 754-2019 defines the result; `Err` is now only for a result that could not be computed (certification failure, resource limit).
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `x.try_ln_ctx(ctx)` (also `log2`, `log10`, `log1p`, `log2p1`, `log10p1`) for a value outside the domain: `Err(domain_error)` | `Ok((NaN, invalid_operation))` | the plain `ln_ctx` etc. returned this value already; `x = 0` stays `-inf` with `division_by_zero`; the other `try_` forms follow in the next steps of S4 |
+
 ### Added
 
 - `bin_float`, `decimal`: every comparison predicate of IEEE 754-2019 5.11 has a function ([#438](https://github.com/Luna-Flow/floating/issues/438), item N6). The clause lists 22 predicates, 10 in Table 5.1 and 12 in Table 5.2; `bin_float` had 7 and `decimal` none. Both now have the 15 others, with the names of the first seven (`compare_quiet_*`, `compare_signaling_*`): `not_equal`, `greater`, `greater_equal`, `not_greater`, `less_unordered`, `not_less` and `greater_unordered` for both kinds, and `compare_quiet_ordered`. Each returns `(Bool, flags)`, is defined from `compare_quiet` or `compare_signaling` and raises invalid where the table says (a signaling NaN for the quiet ones, any NaN for the signaling ones). Nothing existing changes in `bin_float`.

@@ -135,7 +135,15 @@ test "log2p1 and log10p1 special values and domain" {
         assert_true(flags.invalid_operation())
         assert_false(flags.division_by_zero())
       }
-      assert_true(pm1_try(name, BinFloat::from_int(-2), ctx) is Err(_))
+      // S4: a domain case is a value in the try_ form too, never an `Err`
+      match pm1_try(name, BinFloat::from_int(-2), ctx) {
+        Ok((nan, nan_flags)) => {
+          assert_true(nan.is_quiet_nan())
+          assert_true(nan_flags.invalid_operation())
+          assert_false(nan_flags.not_computed())
+        }
+        Err(_) => abort(name + ": a domain case must not be an Err")
+      }
       // NaNs
       let (value, flags) = pm1_run(name, BinFloat::quiet_nan(), ctx)
       assert_true(value.is_quiet_nan())

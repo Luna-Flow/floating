@@ -243,9 +243,10 @@ test "certified elementary functions" {
   inspect(two.ln().to_shortest_string(), content="0.6931471805599453")
   let (ln2, _) = two.ln_ctx(@bin_float.BinaryContext::binary128())
   inspect(ln2.to_shortest_string(), content="0.6931471805599453094172321214581766")
+  // ln(-2) is not real: a NaN with invalid_operation, not an Err
   match @bin_float.BinFloat::from_int(-2).try_ln_ctx(ctx) {
-    Ok(_) => fail("ln(-2) is not real")
-    Err(error) => inspect(error.message, content="ln requires a positive value")
+    Ok((value, flags)) => inspect("\{value} \{flags.invalid_operation()}", content="nan true")
+    Err(_) => fail("a domain case is not an Err")
   }
   let (sine, flags) = @bin_float.BinFloat::from_string("0.5")
     .unwrap()

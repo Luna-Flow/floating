@@ -1612,8 +1612,10 @@ argument for the value and the flags.
 When the attempts run out, `try_f_ctx` returns a `certification_failure`
 error whose `CertificationFailureDetail` names the operation, the stage
 (`RangeReduction` or `TargetRounding`), the reason and the last working
-precision. An argument outside the real domain gives a `domain_error` from
-`try_f_ctx`. The non-`try` forms turn a certification failure into a quiet NaN
+precision. An argument outside the real domain of `ln`, `log2`, `log10`, `log1p`, `log2p1`
+and `log10p1` is a value of `try_f_ctx`, a NaN with `invalid_operation`, as it is
+for the plain form; the other functions still give a `domain_error` from
+`try_f_ctx` (S4 is making each family a value). The non-`try` forms turn a certification failure into a quiet NaN
 with `not_computed` and a domain error into a quiet NaN with
 `invalid_operation`. NaN operands propagate quietly (a signaling NaN
 raises `invalid_operation`), and poles return a signed infinity with
@@ -2368,9 +2370,10 @@ test "elementary functions are correctly rounded" {
   inspect(@bin_float.BinFloat::from_int(8).log2(), content="3p0")
   let (big, flags) = @bin_float.BinFloat::from_int(1000).exp_ctx(ctx)
   inspect("\{big} \{flags.overflow()}", content="inf true")
+  // a domain case is a value in the try_ form too: a NaN with invalid_operation
   match @bin_float.BinFloat::from_int(-1).try_ln_ctx(ctx) {
-    Ok(_) => fail("ln(-1) has no real value")
-    Err(error) => inspect(error.is_domain_error(), content="true")
+    Ok((value, flags)) => inspect("\{value} \{flags.invalid_operation()}", content="nan true")
+    Err(_) => fail("a domain case is not an Err")
   }
   let (nan, nan_flags) = @bin_float.BinFloat::from_int(-1).ln_ctx(ctx)
   inspect("\{nan} \{nan_flags.invalid_operation()}", content="nan true")

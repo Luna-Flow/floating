@@ -55,6 +55,15 @@ fn binary_defined_or_nan(
 }
 
 ///|
+/// The value of a domain case of an elementary function (S4): a quiet NaN with
+/// `invalid_operation`, the result IEEE 754-2019 defines, in the `try_` forms as in
+/// the plain ones. `Err` of a `try_` form is only for a result that could not be
+/// computed.
+fn binary_invalid_value(context : BinaryContext) -> (BinFloat, BinaryFlags) {
+  (BinFloat::nan_raw(precision=context.precision), binary_invalid_flags())
+}
+
+///|
 fn binary_refinement_failure_for(
   operation : String,
   context : BinaryContext,
@@ -1696,7 +1705,7 @@ pub fn BinFloat::try_log1p_ctx(
     FpClass::Finite => {
       let one = BinFloat::one_raw(precision=self.precision())
       if self.compare(one.neg()) < 0 {
-        return Err(@def.ArithmeticError::domain_error("log1p requires x >= -1"))
+        return Ok(binary_invalid_value(context))
       }
       if self.compare(one.neg()) == 0 {
         return Ok(
@@ -1880,8 +1889,7 @@ pub fn BinFloat::try_log2_ctx(
           binary_division_by_zero_flags(),
         ),
       )
-    FpClass::Finite if self.is_negative() =>
-      Err(@def.ArithmeticError::domain_error("log2 requires a positive value"))
+    FpClass::Finite if self.is_negative() => Ok(binary_invalid_value(context))
     FpClass::Finite if self.compare(
         BinFloat::one_raw(precision=self.precision()),
       ) ==
@@ -2108,8 +2116,7 @@ pub fn BinFloat::try_log10_ctx(
           binary_division_by_zero_flags(),
         ),
       )
-    FpClass::Finite if self.negative() =>
-      Err(@def.ArithmeticError::domain_error("log10 requires a positive value"))
+    FpClass::Finite if self.negative() => Ok(binary_invalid_value(context))
     FpClass::Finite if self.compare(
         BinFloat::one_raw(precision=self.precision()),
       ) ==
@@ -2242,8 +2249,7 @@ pub fn BinFloat::try_ln_ctx(
           binary_division_by_zero_flags(),
         ),
       )
-    FpClass::Finite if self.negative() =>
-      Err(@def.ArithmeticError::domain_error("ln requires a positive value"))
+    FpClass::Finite if self.negative() => Ok(binary_invalid_value(context))
     FpClass::Finite => {
       let mut work = context.precision + 64
       let mut attempt = 0
