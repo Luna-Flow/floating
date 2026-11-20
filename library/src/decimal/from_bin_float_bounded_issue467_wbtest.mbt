@@ -175,3 +175,67 @@ test "issue 467: from_bin_float rounds in every DecimalRoundingMode like the exa
     content="2",
   )
 }
+
+///|
+/// `from_bin_float` on operands that take the bounded (surrogate) route, with the
+/// part discarded by the rounding exactly zero, one unit below half, exactly half and
+/// one unit above half, an even and an odd last kept digit, both signs, all five
+/// modes: the value is `T * 10^1100` with `T = D * 1000 + tail`, exact in a binary
+/// float of 3000 bits (`T * 5^1100 * 2^1100`), and the exact expansion decides.
+/// Only a positive binary exponent is built this way. For a negative one the
+/// expansion of a dyadic value `c * 2^-n` has about `0.7 n` digits, so a precision
+/// that leaves exactly one discarded digit (the 5 that ends it, the exact half)
+/// is about `0.7 n`, which breaks the bound `2 p <= n` of the bounded route: an
+/// exact half cannot be constructed there, and the arbitrary rows above cover the
+/// negative operands of that route.
+test "from_bin_float: the bounded route at the rounding boundaries in every mode" {
+  let modes = [
+    DecimalRoundingMode::RoundTiesToEven,
+    DecimalRoundingMode::RoundTiesToAway,
+    DecimalRoundingMode::RoundTowardZero,
+    DecimalRoundingMode::RoundTowardPositive,
+    DecimalRoundingMode::RoundTowardNegative,
+  ]
+  let five_1100 = pow5(1100)
+  for
+    kept in [
+      ("1", 1),
+      ("2", 1),
+      ("12", 2),
+      ("13", 2),
+      ("12345", 5),
+      ("12346", 5),
+      ("99999999999999999", 17),
+      ("1234567890123456789012345678901234", 34),
+      ("1234567890123456789012345678901235", 34),
+    ] {
+    let (digits, precision) = kept
+    for tail in [0, 499, 500, 501] {
+      let t = bigint_from_text(digits) * BigInt::from_int(1000) +
+        BigInt::from_int(tail)
+      let coefficient = @bin_float.BinCoeff::from_bytes_be(
+        (t * five_1100).to_octets(),
+      )
+      for negative in [false, true] {
+        let x = @bin_float.BinFloat::make(
+          coefficient,
+          1100,
+          3000,
+          negative~,
+          mode=@bin_float.BinaryRoundingMode::RoundTiesToEven,
+        )
+        assert_true(decimal_from_bin_float_is_bounded(x, precision))
+        for mode in modes {
+          let expected = old_from_bin_float(x, precision, mode=mode.round())
+          assert_true(
+            same_decimal(
+              Decimal::from_bin_float(x, precision~, mode~),
+              expected,
+            ),
+            msg="\{digits} tail \{tail} negative \{negative} p=\{precision}",
+          )
+        }
+      }
+    }
+  }
+}
