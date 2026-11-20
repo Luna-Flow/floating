@@ -306,7 +306,7 @@ pub fn BallFloat::midpoint_ctx(
       BallFlags::new(),
     )
   }
-  if !self.is_bounded() {
+  if !self.is_common_interval() {
     let max = context_max_finite(ctx)
     return (
       if is_neg_inf(self.lo_) {
@@ -351,42 +351,6 @@ pub fn BallFloat::midpoint_ctx(
   }
   let underflow = inexact && context_is_tiny(normal_rounding, ctx)
   (rounded, { inexact, overflow: false, underflow, })
-}
-
-///|
-pub fn BallFloat::add_ctx(
-  self : BallFloat,
-  other : BallFloat,
-  ctx : BallContext,
-) -> (BallFloat, BallFlags) {
-  (self + other).apply_ctx(ctx)
-}
-
-///|
-pub fn BallFloat::sub_ctx(
-  self : BallFloat,
-  other : BallFloat,
-  ctx : BallContext,
-) -> (BallFloat, BallFlags) {
-  (self - other).apply_ctx(ctx)
-}
-
-///|
-pub fn BallFloat::mul_ctx(
-  self : BallFloat,
-  other : BallFloat,
-  ctx : BallContext,
-) -> (BallFloat, BallFlags) {
-  (self * other).apply_ctx(ctx)
-}
-
-///|
-pub fn BallFloat::div_ctx(
-  self : BallFloat,
-  other : BallFloat,
-  ctx : BallContext,
-) -> (BallFloat, BallFlags) {
-  (self / other).apply_ctx(ctx)
 }
 
 ///|

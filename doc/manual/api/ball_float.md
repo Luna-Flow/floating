@@ -439,39 +439,29 @@ test "observers" {
 }
 ```
 
-### `BallFloat::precision`, `BallFloat::classify` and `BallFloat::sign`
+### `BallFloat::precision`
 
-`precision` returns the precision tag; `classify` and `sign` describe the
-interval in the vocabulary of scalar floating-point types.
+`precision` returns the precision tag.
 
 ```mbti
 pub fn BallFloat::precision(Self) -> Int
-pub fn BallFloat::classify(Self) -> @arithmetic.FpClass
-pub fn BallFloat::sign(Self) -> @def.Sign
 ```
 
-`classify` returns `NaN` for Empty, `Finite` for a bounded interval and
-`Infinity` for an unbounded one. `sign` returns `Positive` when
-$\underline{x} > 0$, `Negative` when $\overline{x} < 0$, and `Zero` otherwise:
-`Zero` means "the interval contains 0", not "the interval is $\{0\}$".
-`sign` aborts on Empty.
-
-### `BallFloat::is_empty`, `BallFloat::is_entire`, `BallFloat::is_bounded`, `BallFloat::is_common_interval`, `BallFloat::is_singleton`, `BallFloat::contains_zero`
+### `BallFloat::is_empty`, `BallFloat::is_entire`, `BallFloat::is_common_interval`, `BallFloat::is_singleton`
 
 These predicates test the shape of the set.
 
 ```mbti
 pub fn BallFloat::is_empty(Self) -> Bool
 pub fn BallFloat::is_entire(Self) -> Bool
-pub fn BallFloat::is_bounded(Self) -> Bool
 pub fn BallFloat::is_common_interval(Self) -> Bool
 pub fn BallFloat::is_singleton(Self) -> Bool
-pub fn BallFloat::contains_zero(Self) -> Bool
 ```
 
-`is_bounded` and `is_common_interval` (the IEEE 1788 name) are the same: the
-interval is non-empty with two finite endpoints. `is_singleton` holds when
-$\underline{x} = \overline{x}$. `contains_zero` is false for Empty.
+`is_common_interval` holds when the interval is non-empty with two finite
+endpoints (IEEE 1788-2015 10.6.3). `is_singleton` holds when
+$\underline{x} = \overline{x}$. To ask whether an interval contains 0, use
+`contains` with a zero.
 
 ## Precision
 
@@ -481,13 +471,13 @@ $\underline{x} = \overline{x}$. `contains_zero` is false for Empty.
 it.
 
 ```mbti
-pub fn BallFloat::with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
+pub fn BallFloat::with_precision(Self, Int) -> Self
 ```
 
 The endpoints are rounded outward: the lower bound toward $-\infty$ and the
-upper bound toward $+\infty$. `mode` is accepted for signature compatibility
-and is ignored, because outward rounding is the only direction that keeps the
-result an enclosure. Empty stays Empty with the new precision.
+upper bound toward $+\infty$, because outward rounding is the only direction
+that keeps the result an enclosure; there is no rounding-mode argument. Empty
+stays Empty with the new precision.
 
 > [!NOTE]
 > The result is the tightest representable enclosure of the input, so widening
@@ -511,7 +501,7 @@ test "with_precision keeps the endpoints" {
     53,
   )
   let x = @ball_float.BallFloat::from_bounds(one, next)
-  let y = x.with_precision(53, @lf_arith.RoundingMode::ToNearestEven)
+  let y = x.with_precision(53)
   inspect(y.lower_bound().to_string(), content="1p0")
   inspect(y.upper_bound().to_string(), content="4503599627370497p-52")
   inspect(y.set_equal(x), content="true")
@@ -531,8 +521,7 @@ pub fn BallFloat::normalized(Self) -> Self
 
 The stored endpoints are already representable at that precision, so the
 result is the same set as the input: `normalized` of $[1, 1 + 2^{-52}]$ at
-53 bits is $[1, 1 + 2^{-52}]$, and the `@def.Floating` law "normalizing keeps
-the value" holds. Empty stays Empty.
+53 bits is $[1, 1 + 2^{-52}]$. Empty stays Empty.
 
 ## Set operations
 
@@ -635,39 +624,6 @@ $(a, +\infty)$, so Entire is interior to itself). Empty is a subset of,
 interior to and disjoint from every interval. `set_equal` ignores the
 precision tag and the representation of the endpoints.
 
-### `BallFloat::overlaps`, `BallFloat::maybe_eq`, `BallFloat::separated_from`
-
-`overlaps` tests whether two intervals share a point; `maybe_eq` is the same
-relation read as "the two unknown points may be equal"; `separated_from` is its
-negation.
-
-```mbti
-pub fn BallFloat::overlaps(Self, Self) -> Bool
-pub fn BallFloat::maybe_eq(Self, Self) -> Bool
-pub fn BallFloat::separated_from(Self, Self) -> Bool
-```
-
-For non-empty operands `overlaps` is
-$\underline{x} \le \overline{y} \wedge \underline{y} \le \overline{x}$, which
-is $\boldsymbol{x} \cap \boldsymbol{y} \ne \emptyset$. `overlaps` is false and
-`separated_from` is true when an operand is Empty.
-
-### `BallFloat::definitely_lt`, `BallFloat::definitely_le`, `BallFloat::definitely_gt`
-
-These hold when the order holds for every pair of points.
-
-```mbti
-pub fn BallFloat::definitely_lt(Self, Self) -> Bool
-pub fn BallFloat::definitely_le(Self, Self) -> Bool
-pub fn BallFloat::definitely_gt(Self, Self) -> Bool
-```
-
-`x.definitely_lt(y)` is $\overline{x} < \underline{y}$,
-`definitely_le` is $\overline{x} \le \underline{y}$ and `definitely_gt` is
-$\underline{x} > \overline{y}$. All three are false when an operand is Empty
-(unlike `precedes`, which is vacuously true), so a `true` answer is always
-backed by at least one pair of points.
-
 ### `BallFloat::less`, `BallFloat::strictly_less`, `BallFloat::precedes`, `BallFloat::strictly_precedes`
 
 These are the order relations of IEEE 1788.
@@ -712,8 +668,8 @@ test "relations" {
   let b = iv(3, 6)
   inspect(a.precedes(b), content="true")
   inspect(a.strictly_precedes(b), content="false")
-  inspect(a.definitely_le(b), content="true")
-  inspect(a.maybe_eq(b), content="true")
+  inspect(@lf_arith.DefinitelyLe::definitely_le(a, b), content="true")
+  inspect(@lf_arith.MaybeEq::maybe_eq(a, b), content="true")
   inspect(iv(2, 3).interior(iv(1, 6)), content="true")
   inspect(iv(1, 3).interior(iv(1, 6)), content="false")
   debug_inspect(a.overlap_state(b), content="Meets")
@@ -1265,31 +1221,11 @@ $2^{-3}(1 + 2^{-10})$ becomes $2^{-3}$, which is already on the subnormal grid,
 and raises both `inexact` and `underflow`. An exact tiny endpoint raises
 nothing.
 
-### `BallFloat::add_ctx`, `BallFloat::sub_ctx`, `BallFloat::mul_ctx`, `BallFloat::div_ctx`
-
-These compute the operation and then apply the context.
-
-```mbti
-pub fn BallFloat::add_ctx(Self, Self, BallContext) -> (Self, BallFlags)
-pub fn BallFloat::sub_ctx(Self, Self, BallContext) -> (Self, BallFlags)
-pub fn BallFloat::mul_ctx(Self, Self, BallContext) -> (Self, BallFlags)
-pub fn BallFloat::div_ctx(Self, Self, BallContext) -> (Self, BallFlags)
-```
-
-`x.add_ctx(y, ctx)` is `(x + y).apply_ctx(ctx)`. When the operands' precision
-is at least the context precision, the double rounding gives the same
-endpoints as a single outward rounding into the context (see the
+There is no `add_ctx` or `exp_ctx`: the operation and the context are composed,
+`(x + y).apply_ctx(ctx)`. When the operands' precision is at least the context
+precision, the double rounding gives the same endpoints as a single outward
+rounding into the context (see the
 [design page](../design/ball_float.md#contexts-and-double-rounding)).
-
-### `BallFloat::exp_ctx` and `BallFloat::ln_ctx`
-
-`exp_ctx` and `ln_ctx` evaluate `exp_interval` and `ln_interval` at 32 bits
-more than the context precision and then apply the context.
-
-```mbti
-pub fn BallFloat::exp_ctx(Self, BallContext) -> (Self, BallFlags)
-pub fn BallFloat::ln_ctx(Self, BallContext) -> (Self, BallFlags)
-```
 
 ### `BallFloat::midpoint_ctx`
 
@@ -1318,7 +1254,7 @@ endpoints are themselves outside the context's range can do this.
 ///|
 test "contexts" {
   let ctx = @ball_float.BallContext::new(precision=8, e_min=-10, e_max=10)
-  let (third, flags) = iv(1, 1).div_ctx(iv(3, 3), ctx)
+  let (third, flags) = (iv(1, 1) / iv(3, 3)).apply_ctx(ctx)
   inspect(third.lower_bound().to_string(), content="85p-8")
   inspect(third.upper_bound().to_string(), content="171p-9")
   inspect(flags.inexact(), content="true")
@@ -1639,23 +1575,6 @@ The `Eq` implementations compare representations. For `BallFloat` and
 precision tags or endpoint precisions; use `set_equal` for sets. `to_repr`
 gives the structural `Debug` form.
 
-### `@def.Floating` for `BallFloat`
-
-`BallFloat` implements the `Floating` trait of [`def`](def.md) with
-`classify`, `sign`, `precision`, `with_precision` and `normalized` as
-described above, so the generic predicates `@def.is_finite` (bounded),
-`@def.is_infinite` (unbounded), `@def.is_nan` (Empty) and `@def.is_zero`
-(sign `Zero`, that is, contains 0) apply to intervals.
-
-```mbti
-pub impl @def.Floating for BallFloat
-```
-
-The laws of `Floating` that speak of keeping a value hold only as
-enclosures: `with_precision` and `normalized` return supersets of the input
-(see the warning under
-[`BallFloat::with_precision`](#ballfloatwith_precision)).
-
 ### `@arithmetic.Contains`, `@arithmetic.Overlaps`, `@arithmetic.DefinitelyLt`, `@arithmetic.DefinitelyLe`, `@arithmetic.MaybeEq`
 
 `BallFloat` implements the enclosure relation traits of `Luna-Flow/arithmetic`.
@@ -1669,7 +1588,20 @@ pub impl @arithmetic.MaybeEq for BallFloat
 ```
 
 `Contains::contains(x, y)` is `y.subset(x)` (set inclusion, not the
-point-taking method); the others call the methods of the same name.
+point-taking method). `Overlaps::overlaps(x, y)` is
+$\underline{x} \le \overline{y} \wedge \underline{y} \le \overline{x}$, that is
+$\boldsymbol{x} \cap \boldsymbol{y} \ne \emptyset$, and `MaybeEq::maybe_eq` is
+the same relation read as "the two unknown points may be equal".
+`DefinitelyLt::definitely_lt(x, y)` is $\overline{x} < \underline{y}$ and
+`DefinitelyLe::definitely_le(x, y)` is $\overline{x} \le \underline{y}$: they hold
+when the order holds for every pair of points. All four are false when an
+operand is Empty. This differs from `disjoint`, `precedes` and
+`strictly_precedes`, which are true for an Empty operand (IEEE 1788-2015
+Table 10.4): `overlaps` is false where `disjoint` is true, and
+`definitely_lt` is false where `strictly_precedes` is true, so a `true` answer
+of the traits is always backed by at least one pair of points. These are the
+generic interface of `Luna-Flow/arithmetic`; the interval package spells the
+standard relations `disjoint`, `precedes` and `strictly_precedes`.
 
 ### `BallFloat::div_checked`, `BallFloat::pow_nat_checked`, `BallFloat::pow_int_checked`
 
@@ -1722,7 +1654,6 @@ package "Luna-Flow/floating/ball_float"
 import {
   "Luna-Flow/arithmetic",
   "Luna-Flow/floating/bin_float",
-  "Luna-Flow/floating/def",
   "moonbitlang/core/debug",
 }
 
@@ -1762,7 +1693,6 @@ pub fn BallFloat::abs(Self) -> Self
 pub fn BallFloat::acos_interval(Self) -> Self
 pub fn BallFloat::acosh_interval(Self) -> Self
 pub fn BallFloat::add(Self, Self) -> Self
-pub fn BallFloat::add_ctx(Self, Self, BallContext) -> (Self, BallFlags)
 pub fn BallFloat::apply_ctx(Self, BallContext) -> (Self, BallFlags)
 pub fn BallFloat::asin_interval(Self) -> Self
 pub fn BallFloat::asinh_interval(Self) -> Self
@@ -1772,26 +1702,19 @@ pub fn BallFloat::atanh_interval(Self) -> Self
 pub fn BallFloat::cancel_minus(Self, Self) -> Self
 pub fn BallFloat::cancel_plus(Self, Self) -> Self
 pub fn BallFloat::center(Self) -> @bin_float.BinFloat
-pub fn BallFloat::classify(Self) -> @arithmetic.FpClass
 pub fn BallFloat::contains(Self, @bin_float.BinFloat) -> Bool
-pub fn BallFloat::contains_zero(Self) -> Bool
 pub fn BallFloat::convex_hull(Self, Self) -> Self
 pub fn BallFloat::cos_interval(Self) -> Self
 pub fn BallFloat::cosh_interval(Self) -> Self
 pub fn BallFloat::cospi_interval(Self) -> Self
-pub fn BallFloat::definitely_gt(Self, Self) -> Bool
-pub fn BallFloat::definitely_le(Self, Self) -> Bool
-pub fn BallFloat::definitely_lt(Self, Self) -> Bool
 pub fn BallFloat::disjoint(Self, Self) -> Bool
 pub fn BallFloat::div(Self, Self) -> Self
 pub fn BallFloat::div_checked(Self, Self, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BallFloat::div_ctx(Self, Self, BallContext) -> (Self, BallFlags)
 pub fn BallFloat::empty(precision? : Int32) -> Self
 pub fn BallFloat::equal(Self, Self) -> Bool
 pub fn BallFloat::exact(@bin_float.BinFloat, precision? : Int32) -> Self
 pub fn BallFloat::exp10_interval(Self) -> Self
 pub fn BallFloat::exp2_interval(Self) -> Self
-pub fn BallFloat::exp_ctx(Self, BallContext) -> (Self, BallFlags)
 pub fn BallFloat::exp_interval(Self) -> Self
 pub fn BallFloat::expm1_interval(Self) -> Self
 pub fn BallFloat::fma(Self, Self, Self) -> Self
@@ -1803,13 +1726,11 @@ pub fn BallFloat::from_int(Int32, precision? : Int32) -> Self
 pub fn BallFloat::hypot(Self, Self) -> Self
 pub fn BallFloat::interior(Self, Self) -> Bool
 pub fn BallFloat::intersection(Self, Self) -> Self
-pub fn BallFloat::is_bounded(Self) -> Bool
 pub fn BallFloat::is_common_interval(Self) -> Bool
 pub fn BallFloat::is_empty(Self) -> Bool
 pub fn BallFloat::is_entire(Self) -> Bool
 pub fn BallFloat::is_singleton(Self) -> Bool
 pub fn BallFloat::less(Self, Self) -> Bool
-pub fn BallFloat::ln_ctx(Self, BallContext) -> (Self, BallFlags)
 pub fn BallFloat::ln_interval(Self) -> Self
 pub fn BallFloat::log10_interval(Self) -> Self
 pub fn BallFloat::log1p_interval(Self) -> Self
@@ -1817,20 +1738,17 @@ pub fn BallFloat::log2_interval(Self) -> Self
 pub fn BallFloat::lower_bound(Self) -> @bin_float.BinFloat
 pub fn BallFloat::magnitude(Self) -> @bin_float.BinFloat
 pub fn BallFloat::maximum(Self, Self) -> Self
-pub fn BallFloat::maybe_eq(Self, Self) -> Bool
 pub fn BallFloat::midpoint(Self) -> @bin_float.BinFloat
 pub fn BallFloat::midpoint_ctx(Self, BallContext) -> (@bin_float.BinFloat, BallFlags)
 pub fn BallFloat::mignitude(Self) -> @bin_float.BinFloat
 pub fn BallFloat::minimum(Self, Self) -> Self
 pub fn BallFloat::mul(Self, Self) -> Self
-pub fn BallFloat::mul_ctx(Self, Self, BallContext) -> (Self, BallFlags)
 pub fn BallFloat::neg(Self) -> Self
 pub fn BallFloat::new(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Self
 pub fn BallFloat::normalized(Self) -> Self
 pub fn BallFloat::not_equal(Self, Self) -> Bool
 pub fn BallFloat::output(Self, &Logger) -> Unit
 pub fn BallFloat::overlap_state(Self, Self) -> OverlapState
-pub fn BallFloat::overlaps(Self, Self) -> Bool
 pub fn BallFloat::pow_int_checked(Self, Int32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::pow_interval(Self, Self) -> Self
 pub fn BallFloat::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
@@ -1841,9 +1759,7 @@ pub fn BallFloat::radius(Self) -> @bin_float.BinFloat
 pub fn BallFloat::radius_extended(Self) -> @bin_float.BinFloat
 pub fn BallFloat::reciprocal(Self) -> Self
 pub fn BallFloat::rootn(Self, Int32) -> Self
-pub fn BallFloat::separated_from(Self, Self) -> Bool
 pub fn BallFloat::set_equal(Self, Self) -> Bool
-pub fn BallFloat::sign(Self) -> @def.Sign
 pub fn BallFloat::sin_interval(Self) -> Self
 pub fn BallFloat::sinh_interval(Self) -> Self
 pub fn BallFloat::sinpi_interval(Self) -> Self
@@ -1852,7 +1768,6 @@ pub fn BallFloat::square(Self) -> Self
 pub fn BallFloat::strictly_less(Self, Self) -> Bool
 pub fn BallFloat::strictly_precedes(Self, Self) -> Bool
 pub fn BallFloat::sub(Self, Self) -> Self
-pub fn BallFloat::sub_ctx(Self, Self, BallContext) -> (Self, BallFlags)
 pub fn BallFloat::subset(Self, Self) -> Bool
 pub fn BallFloat::tan_interval(Self) -> Self
 pub fn BallFloat::tanh_interval(Self) -> Self
@@ -1893,7 +1808,7 @@ pub fn BallFloat::try_tanpi_interval(Self) -> Result[Self, @arithmetic.Arithmeti
 pub fn BallFloat::upper_bound(Self) -> @bin_float.BinFloat
 pub fn BallFloat::whole(precision? : Int32) -> Self
 pub fn BallFloat::width(Self) -> @bin_float.BinFloat
-pub fn BallFloat::with_precision(Self, Int32, @arithmetic.RoundingMode) -> Self
+pub fn BallFloat::with_precision(Self, Int32) -> Self
 pub impl @arithmetic.Contains for BallFloat
 pub impl @arithmetic.DefinitelyLe for BallFloat
 pub impl @arithmetic.DefinitelyLt for BallFloat
@@ -1902,7 +1817,6 @@ pub impl @arithmetic.MaybeEq for BallFloat
 pub impl @arithmetic.Overlaps for BallFloat
 pub impl @arithmetic.PowIntChecked for BallFloat
 pub impl @arithmetic.PowNatChecked for BallFloat
-pub impl @def.Floating for BallFloat
 pub impl Add for BallFloat
 pub impl Div for BallFloat
 pub impl Mul for BallFloat

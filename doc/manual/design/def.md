@@ -2,9 +2,9 @@
 
 ## Design goal
 
-`def` gives the four representations of `floating` (binary `BinFloat`, IEEE
-decimal `@decimal.Decimal`, GDA decimal `@decimal_gda.Decimal` and interval
-`BallFloat`) one vocabulary for the things they have in common: what class a
+`def` gives the three scalar representations of `floating` (binary `BinFloat`,
+IEEE decimal `@decimal.Decimal` and GDA decimal `@decimal_gda.Decimal`) one
+vocabulary for the things they have in common: what class a
 value belongs to, what its sign is, at what precision it is stored, how to move
 it to another precision, and which representative of its value it is. It also
 names the result of an IEEE comparison and re-exports the context and error
@@ -27,10 +27,7 @@ $$
 
 Several triples denote the same real: $(0, 15, -1)$ and $(0, 150, -2)$ both
 denote $1.5$ in radix ten, and $(0, 0, e)$ and $(1, 0, e)$ both denote $0$.
-Non-finite scalars denote $\pm\infty$ or are NaN, which denotes no number. A
-non-empty `BallFloat` with endpoints $\ell \le u$ denotes the closed set
-$X = \{\, t \in \mathbb{R} : \ell \le t \le u \,\}$ (with infinite endpoints
-meaning an unbounded side), and the empty interval denotes $\varnothing$.
+Non-finite scalars denote $\pm\infty$ or are NaN, which denotes no number.
 
 For a precision $p \ge 1$ let
 
@@ -71,8 +68,9 @@ are the same NaN. `PartialOrder` is this four-valued relation as a datatype.
 
 **Problem.** Generic code must be able to ask any representation a few
 questions, but the representations do not share arithmetic laws: binary and
-decimal operations round in different radices, GDA operations thread a sticky
-context, and interval operations return enclosures rather than rounded points.
+decimal operations round in different radices and GDA operations thread a sticky
+context. Intervals are deliberately not among them (see [Intervals are not
+`Floating`](#intervals-are-not-floating)).
 
 **Options.** (a) A broad "real number" trait with arithmetic, ordering and
 parsing. (b) A trait with only representation-independent observations and
@@ -82,7 +80,7 @@ re-precision. (c) No shared trait.
 `with_precision` and `normalized`. Arithmetic is taken from MoonBit's operator
 traits and from the capability traits of Luna-Flow/arithmetic (`SqrtChecked`,
 `AddContextual`, …), which each type implements only where it can honour the
-law. A single broad trait would force one law on all four domains; for example
+law. A single broad trait would force one law on all domains; for example
 an interval cannot implement a scalar `compare` without lying about overlapping
 operands. This follows the Luna-Flow principle that code depends on the
 smallest trait composition stating its requirements.
@@ -129,22 +127,20 @@ bit stays observable through the concrete packages. The scalar implementations
 return `Zero` for NaN because NaN has no position on the line; callers that
 care test `is_nan` first.
 
-For an interval $X = [\ell, u]$ the same question has three honest answers,
-and `BallFloat::sign` returns them as follows:
+### Intervals are not `Floating`
 
-$$
-\operatorname{sign}(X) =
-\begin{cases}
-\texttt{Positive} & \text{if } \ell > 0 \quad(\text{every member is positive}),\\
-\texttt{Negative} & \text{if } u < 0 \quad(\text{every member is negative}),\\
-\texttt{Zero} & \text{if } \ell \le 0 \le u \quad(0 \in X).
-\end{cases}
-$$
-
-The three cases are exhaustive and disjoint for non-empty $X$ because
-$\ell \le u$: if neither $\ell > 0$ nor $u < 0$, then $\ell \le 0 \le u$. So
-`Zero` on an interval means "contains zero", and `is_zero`, which is defined
-through `sign`, inherits that meaning.
+Up to 0.11 `BallFloat` implemented `Floating`, and every observation had to be
+read with an interval meaning: `sign` returned `Zero` for "contains 0" and
+aborted on the empty set, `is_zero` through it meant "contains 0", `is_nan`
+meant "empty", and `with_precision` ignored its rounding mode. A generic
+function written for scalars then gave answers that were true of no single
+number: `is_zero` of $[-1, 1]$ is true, but $[-1, 1] \ne \{0\}$. The names of
+those predicates are the scalar ones, so the interval meaning could not be
+told from the call site. `BallFloat` therefore does not implement `Floating`;
+its package spells the questions the way IEEE 1788-2015 does (`is_empty`,
+`is_entire`, `is_common_interval`, `is_singleton`, the comparisons of Table
+10.3, `contains` for a point) and re-rounds with `with_precision`, which always
+rounds outward.
 
 ### `PartialOrder` is the IEEE four-way relation
 
@@ -194,9 +190,8 @@ layer exists between the two repositories.
 
 The laws below are the contract of the trait. They are stated for a value $x$,
 a precision $p$ and a direction $m$; $q = \max(1, p)$. The three scalar
-implementations satisfy (F1)–(F5) and (F7), with the exponent-range exception
-of `BinFloat` stated below (F5). `BallFloat` satisfies (F1)–(F4), (F6) and
-(F7′). The laws are the contract between the four implementations and the generic
+implementations satisfy (F1)–(F5) and (F6), with the exponent-range exception
+of `BinFloat` stated below (F5). The laws are the contract between the three implementations and the generic
 code of this library; they are not an invitation to implement the trait
 elsewhere (see [Why `Floating` is declared open](#why-floating-is-declared-open)).
 
@@ -207,9 +202,7 @@ $$
 &\textbf{(F3) precision} && \texttt{precision}(x) \ge 1;\\
 &\textbf{(F4) re-precision} && \texttt{precision}(\texttt{with\_precision}(x, p, m)) = q;\\
 &\textbf{(F5) rounding} && x \text{ a finite scalar} \implies [\![\texttt{with\_precision}(x,p,m)]\!] = \circ_{m,q}([\![x]\!]);\\
-&\textbf{(F6) enclosure} && x \text{ an interval} \implies [\![x]\!] \subseteq [\![\texttt{with\_precision}(x,p,m)]\!];\\
-&\textbf{(F7) normal form} && x \text{ a scalar} \implies [\![\texttt{normalized}(x)]\!] = [\![x]\!],\quad \texttt{normalized}(\texttt{normalized}(x)) = \texttt{normalized}(x);\\
-&\textbf{(F7′) interval normal form} && x \text{ an interval} \implies [\![\texttt{normalized}(x)]\!] = [\![x]\!].
+&\textbf{(F6) normal form} && [\![\texttt{normalized}(x)]\!] = [\![x]\!],\quad \texttt{normalized}(\texttt{normalized}(x)) = \texttt{normalized}(x).
 \end{aligned}
 $$
 
@@ -229,47 +222,7 @@ $3 \cdot 2^{E-1}$ re-expressed with one bit and `AwayFromZero` becomes
 $+\infty$ instead of $2^{E+1}$.
 
 For non-finite scalars, `with_precision` keeps the class and the sign and only
-changes the stored precision, so (F4) still holds. (F2) for intervals is the
-three-case rule derived above; for scalars "the side of $0$" is `Zero` for
-$[\![x]\!] = 0$.
-
-**Why (F6) holds for `BallFloat`.** A `BallFloat` stores its endpoints
-$\ell \le u$. `with_precision` rounds the lower endpoint toward $-\infty$ and
-the upper one toward $+\infty$ at $q$ bits, so $\nabla_q(\ell) \le \ell \le t
-\le u \le \Delta_q(u)$ for every member $t$, whatever $m$ is; the direction
-$m$ is not used. Infinite endpoints stay infinite, an endpoint that leaves the
-`BinFloat` range is rounded in its own direction as in IEEE 754, which still
-encloses, and the empty interval maps to the empty interval. $[\nabla_q(\ell), \Delta_q(u)]$ is also the smallest
-interval with $q$-bit endpoints that contains $[\ell, u]$, so the result is the
-tightest enclosure, and by the consequences of (F5) below it is the identity
-when $\ell$ and $u$ are already $q$-bit numbers.
-
-**Why (F7′) holds for `BallFloat`.** `normalized` normalizes the two stored
-endpoints, which changes their representation but not their values, and
-stores them at the interval's own precision $q$ by rounding the lower one down
-and the upper one up. Both are already in $\mathbb{F}_{2,q}$, and rounding is
-the identity on its target set (see the consequences of (F5) below), so the
-result denotes the same set: with $q = 53$, $[1, 1 + 2^{-52}]$ stays
-$[1, 1 + 2^{-52}]$. Rebuilding the interval from its centre and radius would
-not keep it: the centre $1 + 2^{-53}$ needs 54 bits, and rounding it to 1 and
-adding the error to the radius gives $[1 - 2^{-52}, 1 + 2^{-52}]$. The
-endpoint form also makes `normalized` idempotent on the set.
-
-```moonbit
-///|
-test "interval normalization keeps the set" {
-  let x = @ball_float.BallFloat::from_bounds(
-    @bin_float.BinFloat::from_int(1),
-    @bin_float.BinFloat::from_hex("0x10000000000001p-52", 53).unwrap(),
-  )
-  let n = @def.Floating::normalized(x)
-  inspect(n.lower_bound().to_hex(), content="0x1p0")
-  inspect(n.upper_bound().to_hex(), content="0x10000000000001p-52")
-  inspect(n.set_equal(x), content="true")
-  let again = @def.Floating::normalized(n)
-  inspect(again.set_equal(n), content="true")
-}
-```
+changes the stored precision, so (F4) still holds. For scalars "the side of $0$" is `Zero` for $[\![x]\!] = 0$.
 
 ### Consequences of (F5)
 
@@ -337,8 +290,7 @@ test "double rounding to nearest differs from one rounding" {
 The four predicates are projections of `classify` and `sign`, so their
 correctness reduces to (F1) and (F2). `is_zero` evaluates `classify` first and
 uses short-circuit `&&`; it therefore never calls `sign` on a NaN-class value,
-which keeps it total on empty intervals although `BallFloat::sign` aborts
-there.
+which keeps it total on NaN.
 
 ### Cost
 
@@ -355,8 +307,7 @@ length for decimals, and linear in the coefficient bit length for binary.
 - **`Compare` for IEEE comparison.** An `Int` result cannot express
   *unordered*; see the derivation above.
 - **Separate `NegativeZero` / `PositiveZero` signs.** They would make `sign`
-  depend on the representation rather than the value, and the interval sign
-  has no analogue.
+  depend on the representation rather than the value.
 - **Defining local copies of `RoundingMode` and `ArithmeticContext`.** They
   would need conversions at every boundary with Luna-Flow/arithmetic.
 
@@ -371,8 +322,7 @@ length for decimals, and linear in the coefficient bit length for binary.
   (only the `BinFloat` implementation range applies); contexts and flags belong
   to the `*_ctx` APIs of the concrete packages and to the contextual traits of
   Luna-Flow/arithmetic.
-- `normalized` keeps the representation-independent value: the number on
-  scalars (F7) and the set on intervals (F7′).
+- `normalized` keeps the representation-independent value (F6).
 - `Sign` does not expose the sign bit of zeros or NaNs.
 - The laws are documented and tested by the implementations; the trait does not
   enforce them for downstream implementations.

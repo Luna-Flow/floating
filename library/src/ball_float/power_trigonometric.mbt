@@ -145,7 +145,7 @@ let trig_work_limit : Int64 = 8_000_000L
 /// `true` when the reduction of the argument needs more working bits than
 /// `trig_work_limit`: `precision + adjusted exponent + 96`.
 fn trig_work_limit_exceeded(value : BallFloat) -> Bool {
-  if !value.is_bounded() || value.is_empty() {
+  if !value.is_common_interval() || value.is_empty() {
     return false
   }
   let magnitude = value.magnitude()

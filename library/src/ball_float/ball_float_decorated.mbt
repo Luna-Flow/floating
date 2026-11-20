@@ -504,7 +504,7 @@ pub fn BallFloatDecorated::tanpi_interval(
   unary_result(
     self,
     result,
-    if !result.is_bounded() && !self.interval_.is_empty() {
+    if !result.is_common_interval() && !self.interval_.is_empty() {
       Trv
     } else {
       Com

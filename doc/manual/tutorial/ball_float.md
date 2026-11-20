@@ -13,9 +13,9 @@ output. The mathematics behind the guarantees is in the
 | enclose a known point, known bounds or a measurement $c \pm r$ | `exact`, `from_bounds`, `new` ([Build intervals](#build-intervals)) |
 | enclose a decimal constant such as 0.1 | directed `from_string_ctx` + `from_bounds` ([Enclose a decimal constant](#enclose-a-decimal-constant)) |
 | compute with `+ - * /` and read the bounds | operators, `lower_bound`, `upper_bound`, `width` ([Compute and read the result](#compute-and-read-the-result)) |
-| ask whether one uncertain value is certainly below another | `definitely_lt`, `maybe_eq`, `subset` ([Compare intervals](#compare-intervals)) |
+| ask whether one uncertain value is certainly below another | `DefinitelyLt`, `MaybeEq`, `subset` ([Compare intervals](#compare-intervals)) |
 | evaluate `sin`, `exp`, `ln`, … rigorously | `*_interval` and `try_*_interval` ([Evaluate elementary functions](#evaluate-elementary-functions)) |
-| round a result into binary32 or binary64 | `BallContext`, `apply_ctx`, `*_ctx` ([Round to a target format](#round-to-a-target-format)) |
+| round a result into binary32 or binary64 | `BallContext`, `apply_ctx` ([Round to a target format](#round-to-a-target-format)) |
 | know whether a function was defined and continuous on the input | `BallFloatDecorated` ([Decorations](#decorations)) |
 | write code for any enclosure type | `@lf_arith.DefinitelyLt` and friends ([Generic code](#generic-code-over-the-enclosure-traits)) |
 | report the first failure of a multi-step computation | [`ball_float_checked`](ball_float_checked.md) |
@@ -180,7 +180,7 @@ test "arithmetic on intervals" {
 
 Read the result with `lower_bound()` / `upper_bound()` for the endpoints,
 `width()` for $\overline{x} - \underline{x}$ rounded up, `midpoint()` for a
-representative point, and `is_bounded()` / `is_entire()` / `is_empty()` for
+representative point, and `is_common_interval()` / `is_entire()` / `is_empty()` for
 the shape.
 
 ### Compare intervals
@@ -203,9 +203,9 @@ test "relations" {
     @bin_float.BinFloat::from_int(12, precision=53),
     @bin_float.BinFloat::from_int(13, precision=53),
   )
-  inspect(a.definitely_lt(c), content="true") // every point of a < every point of c
-  inspect(a.definitely_lt(b), content="false") // not certain ...
-  inspect(a.maybe_eq(b), content="true") // ... because they share points
+  inspect(@lf_arith.DefinitelyLt::definitely_lt(a, c), content="true") // every point of a < every point of c
+  inspect(@lf_arith.DefinitelyLt::definitely_lt(a, b), content="false") // not certain ...
+  inspect(@lf_arith.MaybeEq::maybe_eq(a, b), content="true") // ... because they share points
   inspect(c.subset(b), content="true")
   inspect(a.contains(@bin_float.BinFloat::from_int(10, precision=53)), content="true")
   debug_inspect(a.overlap_state(b), content="OverlapsState")
@@ -213,9 +213,11 @@ test "relations" {
 ```
 
 `contains` tests a point; `subset`, `interior` and `set_equal` compare sets;
-`definitely_lt`, `definitely_le` and `definitely_gt` hold only when the order
-holds for every pair of points; `maybe_eq` (the same as `overlaps`) holds when
-some pair may be equal; `overlap_state` gives the full IEEE 1788 classification
+`DefinitelyLt::definitely_lt` and `DefinitelyLe::definitely_le` of
+Luna-Flow/arithmetic hold only when the order holds for every pair of points;
+`MaybeEq::maybe_eq` (and `Overlaps::overlaps`) holds when some pair may be
+equal; `disjoint`, `precedes` and `strictly_precedes` are the relations of
+IEEE 1788 and are true for an empty operand; `overlap_state` gives the full IEEE 1788 classification
 of two intervals.
 
 ### Evaluate elementary functions
@@ -259,7 +261,7 @@ the `try_` form returns an `ArithmeticError` describing the failure.
 
 `BallContext` describes a binary format (precision and exponent range).
 `apply_ctx` rounds an interval outward into it and reports what happened in
-`BallFlags`; the `*_ctx` operators compute and then apply the context.
+`BallFlags`; to round the result of an operation, apply the context to it.
 
 ```moonbit
 ///|
@@ -267,7 +269,7 @@ test "round into binary32" {
   let ctx = @ball_float.BallContext::binary32()
   let x = @ball_float.BallFloat::from_int(1, precision=64)
   let y = @ball_float.BallFloat::from_int(3, precision=64)
-  let (q, flags) = x.div_ctx(y, ctx)
+  let (q, flags) = (x / y).apply_ctx(ctx)
   inspect(q.precision(), content="24")
   inspect(show(q, 9), content="[3.33333313e-1, 3.33333344e-1]")
   inspect(flags.inexact(), content="true")
@@ -409,7 +411,7 @@ numbers.
 
 **Unbounded intervals have no center.** `center()`, `radius()` and
 `midpoint()` abort on the empty set and on half-bounded intervals
-(`midpoint()` returns 0 for the whole line). Check `is_bounded()` first, or
+(`midpoint()` returns 0 for the whole line). Check `is_common_interval()` first, or
 use `radius_extended()`, which returns $+\infty$ instead. `midpoint_ctx`
 follows the IEEE 1788 `mid` operation instead: NaN for the empty set and the
 largest finite value of the context, with the sign of the unbounded side, for

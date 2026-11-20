@@ -97,21 +97,22 @@ only errors in an arithmetic expression are those of its leaves.
 
 ### Powers go through the arithmetic traits
 
-`pow_nat` and `pow_int` call `PowNatChecked::pow_nat_checked` and
-`PowIntChecked::pow_int_checked` of Luna-Flow/arithmetic with
+`pow_int` calls `PowIntChecked::pow_int_checked` of Luna-Flow/arithmetic with
 `ArithmeticContext::new(x.precision())`. `BallFloat` reads only the precision
 from the context (rounding direction and exponent bounds have no meaning for an
 outward-rounded enclosure) and re-rounds the base and the result with
 `with_precision`, which is sound but can add one ulp per side. The two traits
-are implemented differently, and only one of them avoids the *dependency
-problem*. $X \cdot X$ treats the two factors as independent, so for
+`BallFloat` implements, `PowIntChecked` and `PowNatChecked`, are implemented
+differently, and only one of them avoids the *dependency problem*
+(`BallFloatResult` offers only `pow_int`; `PowNatChecked` is reached through
+`BallFloat::pow_nat_checked`). $X \cdot X$ treats the two factors as independent, so for
 $X = [-1, 1]$ it gives $[-1, 1]$, whereas $\{t^2 : t \in X\} = [0, 1]$.
 `pow_int` uses `BallFloat::pown`, which evaluates $t \mapsto t^n$ on the
-monotone pieces of one variable $t$ and returns $[0, 1]$. `pow_nat` uses binary
+monotone pieces of one variable $t$ and returns $[0, 1]$. `pow_nat_checked` uses binary
 powering, $X^{n} = X^{\lfloor n/2 \rfloor} \cdot X^{\lfloor n/2 \rfloor}
 \cdot X^{n \bmod 2}$ evaluated with interval products, so it encloses the
 larger set $\{t_1 t_2 \cdots t_n : t_i \in X\}$ and returns $[-1, 1]$; both
-are enclosures of $\{t^n\}$, but only `pow_int` is tight. `pow_nat(0)` starts
+are enclosures of $\{t^n\}$, but only `pow_int` is tight. `pow_nat_checked(0)` starts
 from $\{1\}$ without inspecting the base, so it maps an empty interval to
 $\{1\}$.
 
@@ -143,7 +144,7 @@ needs more bits than the precision.
   exactly the `ball_float` operations on successes; it inherits the one
   inclusion exception listed under
   [Known limitations](ball_float.md#known-limitations): `with_precision`
-  (also used by `normalized`, `pow_nat` and `pow_int`) can lose the smaller
+  (also used by `normalized` and `pow_int`) can lose the smaller
   endpoint of an interval whose endpoints are more than about $2^{16}$ binary
   orders of magnitude apart when the new precision exceeds about 65536 bits.
 - **Error determinism.** If the expression evaluates to $\mathrm{Err}(e)$,
@@ -162,8 +163,8 @@ needs more bits than the precision.
   of `ball_float` with a second propagation rule.
 - **Context variants (`exp_ctx`, …).** Enclosures are outward-rounded at the
   interval's precision; changing precision is done explicitly with
-  `with_precision`, which encloses for every rounding mode (but may widen by
-  one ulp per side).
+  `with_precision`, which always rounds outward (but may widen by one ulp per
+  side).
 - **Accumulating errors.** As for the binary wrapper, there is no combining
   operation on `ArithmeticError`.
 

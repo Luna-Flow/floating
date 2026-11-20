@@ -7,16 +7,6 @@ fn with_precision_power(
 }
 
 ///|
-/// Every rounding mode an interval can be re-quantized with.
-let with_precision_modes : Array[RoundingMode] = [
-  RoundingMode::ToNearestEven,
-  RoundingMode::TowardPositive,
-  RoundingMode::TowardNegative,
-  RoundingMode::TowardZero,
-  RoundingMode::AwayFromZero,
-]
-
-///|
 /// `BallFloat::with_precision` rebuilt a bounded interval from `center()` and
 /// `radius()`. The center adds the endpoints in round-to-nearest mode, which
 /// replaces an addend more than `far_addend_margin` bits below the larger one
@@ -28,7 +18,7 @@ test "BallFloat::with_precision keeps a far lower endpoint" {
   let hi = @bin_float.BinFloat::one(precision=53)
   let x = BallFloat::from_bounds(lo, hi, precision=53)
   assert_true(x.contains(lo))
-  let y = x.with_precision(70000, RoundingMode::ToNearestEven)
+  let y = x.with_precision(70000)
   assert_true(y.contains(lo))
   assert_true(y.contains(hi))
   assert_eq(y.lower_bound().exponent2(), -200000)
@@ -45,12 +35,10 @@ test "BallFloat::with_precision encloses across the far addend margin" {
       let (low, high) = pair
       let x = BallFloat::from_bounds(low, high, precision=53)
       for precision in [1, 8, 53, 65535, 65536, 65539, 70000, 131072] {
-        for mode in with_precision_modes {
-          let y = x.with_precision(precision, mode)
-          assert_true(y.contains(x.lower_bound()))
-          assert_true(y.contains(x.upper_bound()))
-          assert_eq(y.precision(), Int32::max(1, precision))
-        }
+        let y = x.with_precision(precision)
+        assert_true(y.contains(x.lower_bound()))
+        assert_true(y.contains(x.upper_bound()))
+        assert_eq(y.precision(), Int32::max(1, precision))
       }
     }
   }
@@ -64,7 +52,7 @@ test "BallFloat::with_precision widening keeps a wide interval exact" {
   let hi = @bin_float.BinFloat::one(precision=53)
   let x = BallFloat::from_bounds(lo, hi, precision=53)
   for precision in [65539, 70000, 200001] {
-    let y = x.with_precision(precision, RoundingMode::ToNearestEven)
+    let y = x.with_precision(precision)
     assert_eq(y.lower_bound().compare(lo), 0)
     assert_eq(y.upper_bound().compare(hi), 0)
   }
@@ -95,19 +83,13 @@ test "BallFloat::with_precision does not widen ordinary intervals" {
     let (lo, hi) = pair
     let x = BallFloat::from_bounds(lo, hi, precision=53)
     for precision in [8, 16, 24, 53, 113] {
-      for mode in with_precision_modes {
-        let y = x.with_precision(precision, mode)
-        let tightest = BallFloat::from_bounds(
-          x
-          .lower_bound()
-          .with_precision(precision, RoundingMode::TowardNegative),
-          x
-          .upper_bound()
-          .with_precision(precision, RoundingMode::TowardPositive),
-          precision~,
-        )
-        assert_true(y.set_equal(tightest))
-      }
+      let y = x.with_precision(precision)
+      let tightest = BallFloat::from_bounds(
+        x.lower_bound().with_precision(precision, RoundingMode::TowardNegative),
+        x.upper_bound().with_precision(precision, RoundingMode::TowardPositive),
+        precision~,
+      )
+      assert_true(y.set_equal(tightest))
     }
   }
 }
@@ -121,13 +103,7 @@ test "BallFloat::with_precision keeps degenerate intervals" {
     with_precision_power(2, 53),
     precision=53,
   )
-  for mode in with_precision_modes {
-    assert_true(x.with_precision(53, mode).set_equal(x))
-    assert_true(
-      BallFloat::empty(precision=53).with_precision(70000, mode).is_empty(),
-    )
-    assert_true(
-      BallFloat::whole(precision=53).with_precision(70000, mode).is_entire(),
-    )
-  }
+  assert_true(x.with_precision(53).set_equal(x))
+  assert_true(BallFloat::empty(precision=53).with_precision(70000).is_empty())
+  assert_true(BallFloat::whole(precision=53).with_precision(70000).is_entire())
 }

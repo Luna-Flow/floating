@@ -5783,11 +5783,10 @@ test "ball_float enclosure relations stay partial-order based" {
     binary_test_make(1N, -2, 8),
     precision=4,
   )
-  assert_true(cross.sign() == @def.Sign::Zero)
-  assert_true(cross.definitely_lt(right))
-  assert_true(cross.definitely_le(right))
-  assert_true(cross.separated_from(right))
-  assert_false(cross.maybe_eq(right))
+  assert_true(DefinitelyLt::definitely_lt(cross, right))
+  assert_true(DefinitelyLe::definitely_le(cross, right))
+  assert_true(cross.disjoint(right))
+  assert_false(MaybeEq::maybe_eq(cross, right))
   let (contains_rhs, overlaps_rhs, lt_rhs, le_rhs, maybe_eq_rhs) = enclosure_summary(
     cross, right,
   )
@@ -5824,7 +5823,7 @@ test "ball_float coefficient constructor keeps exact bounded interval" {
       @bin_float.BinCoeff::from_uint64(12UL),
     ).normalized(),
   )
-  assert_true(value.is_bounded())
+  assert_true(value.is_common_interval())
   assert_eq(value.lower_bound(), value.upper_bound())
 }
 
@@ -5916,7 +5915,7 @@ test "ball_float_checked keeps interval operations in one result category" {
     @bin_float.BinFloat::one(precision=16),
     precision=12,
   )
-  match (one.pow_nat(2U) / zero_crossing).pow_int(-1).result() {
+  match (one.pow_int(2) / zero_crossing).pow_int(-1).result() {
     Ok(value) => assert_true(value.is_entire())
     Err(_) => fail("expected ball result whole-real fallback to succeed")
   }

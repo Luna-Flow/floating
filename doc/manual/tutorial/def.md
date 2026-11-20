@@ -6,7 +6,7 @@ their class with the generic predicates, read IEEE comparison results as
 `PartialOrder`, and reuse the arithmetic context and error types that `def`
 re-exports. `def` itself does no arithmetic; the concrete packages
 ([`bin_float`](bin_float.md), [`decimal`](decimal.md),
-[`decimal_gda`](decimal_gda.md), [`ball_float`](ball_float.md)) do. The laws
+[`decimal_gda`](decimal_gda.md)) do. Intervals ([`ball_float`](ball_float.md)) are not `Floating`. The laws
 behind the trait are in the [design page](../design/def.md).
 
 | I want to | Use |
@@ -49,8 +49,8 @@ test "quick start: observe a value" {
 
 ### Write one function for every representation
 
-A function bounded by `F : @def.Floating` accepts binary, IEEE decimal, GDA
-decimal and interval values. Call the trait methods in their qualified form,
+A function bounded by `F : @def.Floating` accepts binary, IEEE decimal and GDA
+decimal values. Call the trait methods in their qualified form,
 `@def.Floating::classify(x)`, because MoonBit no longer turns trait methods
 into dot methods of a type parameter.
 
@@ -83,12 +83,8 @@ test "one summary for four representations" {
     summary(@decimal_gda.Decimal::from_string("-Infinity").unwrap()),
     content="infinite negative at precision 34",
   )
-  inspect(summary(@ball_float.BallFloat::empty()), content="nan")
 }
 ```
-
-The interval case shows why the NaN test comes first: the empty interval
-classifies as `NaN`, and `BallFloat::sign` aborts on it.
 
 ### Change precision generically
 
@@ -199,11 +195,8 @@ test "handle a checked result through def" {
 ## Common pitfalls
 
 - `Sign::Zero` does not mean "the value is zero". It is also returned for NaN
-  by the scalar types and for any interval that contains zero. Test
-  `@def.is_nan` first, and for intervals use `BallFloat::contains_zero` or the
-  bounds.
-- `@def.is_zero` on a `BallFloat` is true for $[-1, 1]$: the predicate is
-  defined through `sign`, which for an interval means "contains zero".
+  by the scalar types. Test `@def.is_nan` first. `BallFloat` is not
+  `Floating`: ask an interval `is_empty`, `is_common_interval` or `contains`.
 - `Sign` cannot tell $-0$ from $+0$. Use the concrete package
   (`BinFloat::is_negative_zero`, `Decimal::is_negative`) when the sign bit
   matters.
@@ -214,10 +207,6 @@ test "handle a checked result through def" {
   `BinFloat` still overflows at its implementation range of about
   $2^{\pm 2^{30}}$). When rounding must be observed, use the `*_ctx` operations
   of the concrete package.
-- On a `BallFloat`, `with_precision` returns the tightest enclosure of the
-  input at the new precision (the endpoints rounded outward), and
-  `normalized` returns the same set. Neither changes an interval that is
-  already representable at the target precision.
 - `with_precision(x, 0)` is not an error: the precision is clamped to 1.
 
 ## Next steps

@@ -23,35 +23,23 @@ fn endpoint_rounding_unit_interval() -> BallFloat {
 }
 
 ///|
-let endpoint_rounding_modes : Array[RoundingMode] = [
-  RoundingMode::ToNearestEven,
-  RoundingMode::TowardPositive,
-  RoundingMode::TowardNegative,
-  RoundingMode::TowardZero,
-  RoundingMode::AwayFromZero,
-]
-
-///|
 test "normalized keeps the interval" {
   let x = endpoint_rounding_unit_interval()
   assert_true(x.normalized().set_equal(x))
   assert_eq(x.normalized().precision(), 53)
-  assert_true(@def.Floating::normalized(x).set_equal(x))
 }
 
 ///|
 test "with_precision at the same precision keeps the interval" {
   let x = endpoint_rounding_unit_interval()
-  for mode in endpoint_rounding_modes {
-    assert_true(x.with_precision(53, mode).set_equal(x))
-  }
+  assert_true(x.with_precision(53).set_equal(x))
 }
 
 ///|
 test "with_precision rounds each endpoint outward" {
   let x = endpoint_rounding_unit_interval()
   // At 8 bits, 1 stays and 1 + 2^-52 rounds up to 1 + 2^-7.
-  let y = x.with_precision(8, RoundingMode::ToNearestEven)
+  let y = x.with_precision(8)
   assert_eq(y.lower_bound().compare(@bin_float.BinFloat::one()), 0)
   assert_eq(y.upper_bound().compare(endpoint_rounding_value(129UL, -7, 8)), 0)
   assert_eq(y.precision(), 8)

@@ -5,19 +5,13 @@ let audit_ctx : @lf_arith.ArithmeticContext = @lf_arith.ArithmeticContext::new(
 )
 
 ///|
-test "def predicates classify finite nan and enclosing zero consistently" {
+test "def predicates classify finite and nan consistently" {
   let finite = @bin_float.BinFloat::from_int(3, precision=8)
   let nan = @bin_float.BinFloat::nan(precision=8)
   let inf = @decimal.Decimal::inf(@def.Sign::Positive, precision=8)
-  let straddle = @ball_float.BallFloat::new(
-    @bin_float.BinFloat::zero(precision=8),
-    binary_test_make(1N, -2, 8),
-    precision=8,
-  )
   assert_true(@def.is_finite(finite))
   assert_true(@def.is_nan(nan))
   assert_true(@def.is_infinite(inf))
-  assert_true(@def.is_zero(straddle))
   assert_false(@def.is_zero(nan))
 }
 

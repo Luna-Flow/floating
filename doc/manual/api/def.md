@@ -4,7 +4,7 @@
 
 `def` is the shared vocabulary of the `floating` packages. It defines the sign
 classification `Sign`, the ten-valued IEEE class `IeeeClass`, the four-way comparison result `PartialOrder`, the
-`Floating` trait that every scalar or interval representation of this
+`Floating` trait that every scalar representation of this
 repository implements, four generic predicates built on that trait, and
 re-exports the context, rounding, classification and error types of
 [Luna-Flow/arithmetic](https://lunaflow.cn/en/arithmetic/) so that callers need
@@ -45,8 +45,7 @@ pub(all) enum Sign {
 `Zero` is returned for both signed zeros, so `Sign` does not distinguish $-0$
 from $+0$; use the concrete package (for example `BinFloat::is_negative_zero`)
 when the sign bit of a zero matters. The scalar implementations also return
-`Zero` for every NaN, and an interval returns `Zero` when it contains $0$ (see
-[`Floating::sign`](#floatingsign)). `Sign` is also the payload of
+`Zero` for every NaN (see [`Floating::sign`](#floatingsign)). `Sign` is also the payload of
 `SemanticScalar::Infinity` in the [`semantic`](semantic.md) package and the
 argument of constructors such as `BinFloat::inf`.
 
@@ -151,9 +150,10 @@ pub(open) trait Floating {
 }
 ```
 
-`Floating` is implemented by the types of this library only:
-`@bin_float.BinFloat`, `@decimal.Decimal`, `@decimal_gda.Decimal` and
-`@ball_float.BallFloat`. It is not an extension point: implementing it for a
+`Floating` is implemented by the scalar types of this library only:
+`@bin_float.BinFloat`, `@decimal.Decimal` and `@decimal_gda.Decimal`.
+`@ball_float.BallFloat` does not implement it (see [Intervals are not
+`Floating`](../design/def.md#intervals-are-not-floating)). It is not an extension point: implementing it for a
 type outside this module is not supported and is not covered by the
 compatibility promise, because methods may be added to the trait in a minor
 release. It is declared `pub(open)` only because the implementations are in
@@ -162,8 +162,7 @@ page](../design/def.md#why-floating-is-declared-open) gives the reason). Since t
 migration trait methods are not promoted automatically, so generic code calls
 them in the qualified form `@def.Floating::classify(x)`; the concrete types also
 provide inherent methods with the same names (`x.classify()`). The laws every
-implementation is expected to satisfy, and the places where `BallFloat` only
-satisfies a weaker form, are listed in the
+implementation is expected to satisfy are listed in the
 [design page](../design/def.md#the-floating-laws).
 
 ### `Floating::classify`
@@ -175,9 +174,7 @@ fn classify(Self) -> @arithmetic.FpClass
 ```
 
 For the scalar types this is the IEEE class with signalling and quiet NaNs
-merged. For `BallFloat` it is `Finite` for a bounded non-empty interval,
-`Infinity` for an interval with an infinite endpoint (including the entire
-line), and `NaN` for the empty interval. Total; never aborts.
+merged. Total; never aborts.
 
 ### `Floating::sign`
 
@@ -190,15 +187,6 @@ fn sign(Self) -> Sign
 | Implementation | `Negative` | `Zero` | `Positive` |
 | --- | --- | --- | --- |
 | `BinFloat`, both `Decimal`s | value $< 0$, including $-\infty$ | $\pm 0$ and every NaN | value $> 0$, including $+\infty$ |
-| `BallFloat` $[\ell, u]$ | $u < 0$ | $\ell \le 0 \le u$ | $\ell > 0$ |
-
-The interval rule also applies to unbounded intervals: $[-\infty, -1]$ is
-`Negative`.
-
-> [!WARNING]
-> `BallFloat::sign` aborts on the empty interval, which has no sign. Test
-> `@def.is_nan(x)` (true exactly for the empty interval) before calling `sign`
-> on an interval.
 
 ### `Floating::precision`
 
@@ -208,8 +196,7 @@ The interval rule also applies to unbounded intervals: $[-\infty, -1]$ is
 fn precision(Self) -> Int
 ```
 
-It counts significant bits for `BinFloat` and for the endpoints of a
-`BallFloat`, and significant decimal digits for both `Decimal` types. Every
+It counts significant bits for `BinFloat` and significant decimal digits for both `Decimal` types. Every
 constructor clamps the stored precision to at least $1$, so the result is
 always at least $1$.
 
@@ -225,7 +212,7 @@ fn with_precision(Self, Int) -> Self
 For a finite scalar the value is rounded to $q$ significant digits of its
 radix, to nearest with ties to even (IEEE 754-2019 4.3.1). The trait method has
 no rounding parameter, because it cannot return an error; the inherent
-`with_precision` of each concrete type takes a rounding mode. No context exponent bounds apply and no flags
+`with_precision` of each scalar type takes a rounding mode. No context exponent bounds apply and no flags
 are reported (use the `*_ctx` APIs of the concrete package for both). The
 decimal types have no other exponent limit. `BinFloat` keeps its
 implementation range: a result whose exponent leaves
@@ -234,12 +221,6 @@ $\pm(2^{30} - 1)$ (`binary_implementation_e_max`,
 finite value, or underflows, as in IEEE 754. Zeros keep their sign.
 Infinities and NaNs keep their class, sign and payload and only change the
 stored precision.
-
-For `BallFloat` the endpoints are rounded outward (the lower one toward
-$-\infty$, the upper one toward $+\infty$), so the result is the tightest
-enclosure of `x` at the new precision.
-An interval whose endpoints are already representable at `p` bits is returned
-unchanged.
 
 ### `Floating::normalized`
 
@@ -254,10 +235,6 @@ for both `Decimal` types it removes trailing zeros of the coefficient, so
 `1.500` becomes `1.5` (the cohort changes, the value does not) and `-0.000`
 becomes `-0`. Non-finite scalars are returned unchanged. On the scalar types
 `normalized` keeps the value and is idempotent.
-
-`BallFloat::normalized` normalizes the two endpoints and keeps them at the
-stored precision, so the interval denotes the same set: at 53 bits,
-$[1, 1 + 2^{-52}]$ stays $[1, 1 + 2^{-52}]$.
 
 ```moonbit
 ///|
@@ -289,11 +266,6 @@ test "Floating observations" {
     describe(@decimal_gda.Decimal::from_string("-Inf").unwrap()),
     content="infinite - precision=34",
   )
-  let around_zero = @ball_float.BallFloat::from_bounds(
-    @bin_float.BinFloat::from_int(-1),
-    @bin_float.BinFloat::from_int(1),
-  )
-  inspect(describe(around_zero), content="finite 0 precision=53")
 }
 
 ///|
@@ -311,16 +283,6 @@ test "Floating re-precision and normalization" {
   inspect(@def.Floating::normalized(cohort).to_string(), content="1.5")
 }
 
-///|
-test "BallFloat normalization keeps the set" {
-  let x = @ball_float.BallFloat::from_bounds(
-    @bin_float.BinFloat::from_int(1),
-    @bin_float.BinFloat::from_hex("0x10000000000001p-52", 53).unwrap(),
-  )
-  let n = @def.Floating::normalized(x)
-  inspect(n.lower_bound().to_hex(), content="0x1p0")
-  inspect(n.upper_bound().to_hex(), content="0x10000000000001p-52")
-}
 ```
 
 ## Generic predicates
@@ -345,12 +307,8 @@ $$
 \end{aligned}
 $$
 
-Exactly one of the first three is true for every value. For scalars `is_zero`
-is true for both signed zeros. For a `BallFloat`, `is_zero` is true for every
-bounded interval that *contains* zero (for example $[-1, 1]$), not only for
-$[0, 0]$; use `BallFloat::contains_zero` or compare the bounds when you mean
-something else. `is_zero` never calls `sign` on an empty interval, because the
-conjunction stops at `classify`.
+Exactly one of the first three is true for every value. `is_zero` is true for
+both signed zeros and false for NaN.
 
 ```moonbit
 ///|
@@ -360,12 +318,6 @@ test "generic predicates" {
     @def.is_finite(@decimal.Decimal::from_string("NaN").unwrap()),
     content="false",
   )
-  inspect(@def.is_nan(@ball_float.BallFloat::empty()), content="true")
-  let around_zero = @ball_float.BallFloat::from_bounds(
-    @bin_float.BinFloat::from_int(-1),
-    @bin_float.BinFloat::from_int(1),
-  )
-  inspect(@def.is_zero(around_zero), content="true")
 }
 ```
 

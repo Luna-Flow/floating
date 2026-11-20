@@ -98,7 +98,7 @@ fn old_multiplication_bounds(
   b : BallFloat,
   precision : Int32,
 ) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
-  if a.is_bounded() && b.is_bounded() {
+  if a.is_common_interval() && b.is_common_interval() {
     let a_nonnegative = a.lo_.is_zero() || a.lo_.sign() == Sign::Positive
     let a_nonpositive = a.hi_.is_zero() || a.hi_.sign() == Sign::Negative
     let b_nonnegative = b.lo_.is_zero() || b.lo_.sign() == Sign::Positive
