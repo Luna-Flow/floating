@@ -438,6 +438,51 @@ attachment.[^attachment] The guarded division above relies on it; the
 finalizer needs no such lemma, because it rounds once at the target exponent
 $t$ derived above.
 
+#### Plain sums, products and quotients
+
+The general route of `add_ctx`, `sub_ctx`, `mul_ctx` and `div_ctx` normalizes
+the exact result, finalizes it and returns flags, through temporaries that are
+records and tuples: a 34-digit sum made 20 allocations, a product 14 and a
+quotient 38. Most operations need none of that machinery. When both operands are
+finite and nonzero, the context has a precision $p$, and the result is neither
+absorbed, nor subnormal, nor beyond the range, nor folded down by the clamp,
+the result is the exact result rounded once to $p$ digits, with `inexact`
+raised when a nonzero digit was discarded and no other flag.
+
+The predicates are those of the finalizer turned around. The exact result has
+adjusted exponent $a$; the plain path requires $e_{\min} \le a \le e_{\max} - 1$.
+Then the result is not tiny (no subnormal rounding, no `underflow`), and a carry
+of the rounding into $10^{p}$ raises the adjusted exponent to at most $e_{\max}$,
+so it cannot overflow; the exponent of the rounded result is $a - p + 1$ or one
+more after a carry, never below $E_{\text{tiny}}$. For an exact result with
+fewer than $p$ digits the exponent is the exponent of the exact result, and in
+a clamping context the plain path requires it not to exceed
+$e_{\max} - p + 1$ (otherwise the finalizer folds the digits down, which the
+general route does). A sum also requires that the smaller adjusted exponent is
+not below $\hat e_1 - p + 1$ (no operand is absorbed; that case keeps its own
+sticky route) and a nonzero exact sum (the sign of a zero sum depends on the
+rounding direction); a product and a quotient require nonzero operands. A
+quotient with a finite decimal expansion is left to the general route, because
+its exponent follows the ideal-exponent rules.
+
+A sum is formed in one limb array and rounded in place by the kernel; a product
+is the exact product rounded at the digit count. A quotient is one division of
+$c_a \cdot 10^{k}$ with $k = \max(0, p + 2 + n_b - n_a)$ ($n_a$, $n_b$ the digit
+counts of the coefficients), which has at least $p + 2$ digits, rounded with
+`ZeroFiveUp` and then once to $p$ digits, which by the `ZeroFiveUp` lemma above equals one
+rounding of the exact quotient in every mode. The remainder test of that
+division also tells a terminating quotient from a non-terminating one. The flag
+sets are shared constants, like the empty set (`DecimalFlags` is an immutable
+record compared by value). A 34-digit `add_ctx` makes 5 allocations and 1,720
+instructions instead of 20 and 4,412, `mul_ctx` 8 and 2,478 instead of 14 and
+3,253, `div_ctx` 13 and 3,850 instead of 38 and 9,175.
+
+The general route stays the definition of the behavior, and the plain paths are
+checked against it: the white-box test compares both on random operands of 1 to
+130 digits with mixed signs, cancellations, exponent gaps and carries, at
+every rounding direction, in clamped and unclamped formats with tight and
+storage-wide exponent ranges, with operands placed at both ends of the range.
+
 #### Square root
 
 Exact roots are detected first: after removing trailing zeros and making the
