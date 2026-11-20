@@ -322,13 +322,20 @@ fn binary_shortest_digits(
 /// `[-6, 21)`, otherwise `d.ddde±x`. Parsing the result with
 /// `from_string_ctx(text, context)` under round-to-nearest-even returns this
 /// value, and unlike ECMAScript, negative zero prints as `-0` so its sign
-/// round-trips. The operand should be representable in the context, as doubles are
-/// in `BinaryContext::binary64()` (which prints 5e-324 for the smallest
-/// subnormal).
+/// round-trips. An operand that is not representable in the context is first
+/// rounded into it in the rounding direction of the context (with the overflow
+/// and underflow of the context), and the result is the shortest string of that
+/// rounded value: `inf` on overflow, `0` or `-0` on underflow. A double in `BinaryContext::binary64()`
+/// prints as itself (5e-324 for the smallest subnormal).
 pub fn BinFloat::to_shortest_string_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> String {
+  // The operand is first rounded into the context, in the rounding direction
+  // of the context (a value of the format prints as itself), so the search
+  // below always has a representable value.
+  let self = self.round_ctx(context).0
+  // The digits read back under round-to-nearest-even, whatever the direction.
   let context = { ..context, rounding: RoundTiesToEven, }
   match binary_special_string(self) {
     Some(text) => return text
