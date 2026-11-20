@@ -24,6 +24,15 @@ notes live in this file.
   | `GdaFlags::none()` | `GdaFlags::new()` |
   | `GdaTrapSet::none()` | `GdaTrapSet::new()` |
 
+- `decimal_gda`: `GdaSignal` and `GdaTrapSet` are the nine signals of GDA 1.70 ([#438](https://github.com/Luna-Flow/floating/issues/438), decision 13). The specification has eight signals (page 15) and `LostDigits` in Appendix A, one trap-enabler for each. Conversion syntax, division impossible, division undefined and invalid context are conditions that signal invalid-operation (pages 51 and 52), not signals: they stay flags of `GdaFlags` (still thirteen, because the decTest files name conditions) and a trap on `InvalidOperation` catches all four, as before. `GdaFlags::contains(InvalidOperation)` was already true for them; the trapped signal of such an outcome was already `InvalidOperation` when that trap was on.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `GdaSignal::ConversionSyntax`, `DivisionImpossible`, `DivisionUndefined`, `InvalidContext` | removed | read the condition with `flags.conversion_syntax()`, `division_impossible()`, `division_undefined()`, `invalid_context()`, or the signal with `flags.contains(InvalidOperation)` |
+  | `traps.with_signal(ConversionSyntax)` (and the three others), `ctx.trap(ConversionSyntax)` | `with_signal(InvalidOperation)`, `ctx.trap(InvalidOperation)` | a trap on one condition alone has no GDA counterpart; the one trap fires for all four |
+  | `GdaTrapSet::conversion_syntax()`, `division_impossible()`, `division_undefined()`, `invalid_context()` | removed | `traps.invalid_operation()` |
+  | `GdaOutcome::Trapped(ConversionSyntax, ...)` and the three others | `Trapped(InvalidOperation, ...)` | for a trap on one condition alone; the trap on `InvalidOperation` already reported `InvalidOperation` |
+  | order of the trapped signal | `InvalidOperation`, `DivisionByZero`, `Overflow`, `Underflow`, `Subnormal`, `Inexact`, `Rounded`, `Clamped`, `LostDigits` | the four detailed conditions are no longer in the list |
 - `decimal_gda`: contexts follow GDA 1.70 ([#438](https://github.com/Luna-Flow/floating/issues/438), context rules of the 0.12 plan). `GdaContext::new` and `try_new` accept an exponent range only when it satisfies page 10 of the specification: `e_min` is `-e_max`, `1 - e_max` or `-e_max - 1`. Before, any pair with `e_min <= 0 <= e_max` was accepted, so a context such as `e_min=-50, e_max=60` existed that no format has. `clamp` and `extended` stay as documented decNumber extensions (the official decTest files use both). The default contexts are named after the specification.
 
   | before | after | note |

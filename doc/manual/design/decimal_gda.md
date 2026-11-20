@@ -304,10 +304,11 @@ positive and $-N_{\max}$ for a negative result, and `Floor` the mirror image
 GDA distinguishes *conditions* (what happened: division by zero, a result was
 rounded, a conversion was malformed, …), *signals* (the named events a
 condition triggers) and *traps* (signals the user has asked to interrupt the
-computation). The package keeps one flag per condition and maps conditions to
-the GDA signals by one rule: the four detailed invalid conditions
-`ConversionSyntax`, `DivisionImpossible`, `DivisionUndefined` and
-`InvalidContext` all signal `InvalidOperation`. Formally, let $\mathcal S$ be
+computation). The package keeps one flag per condition (thirteen) and one
+trap-enabler per signal (nine), and maps conditions to the GDA signals by one
+rule: the four detailed invalid conditions conversion syntax, division
+impossible, division undefined and invalid context all signal
+`InvalidOperation` (GDA 1.70, pages 51 and 52). Formally, let $\mathcal S$ be
 the thirteen flags and let $\iota \subset \mathcal S$ be the five
 invalid-family flags. For a flag set $R$ and a signal $\sigma$,
 
@@ -341,8 +342,7 @@ C'.\mathrm{status} = C.\mathrm{status} \cup R \cup
 $$
 
 and $\tau$ is the first signal in the precedence list
-InvalidOperation, DivisionByZero, DivisionUndefined, DivisionImpossible,
-InvalidContext, ConversionSyntax, Overflow, Underflow, Subnormal, Inexact,
+InvalidOperation, DivisionByZero, Overflow, Underflow, Subnormal, Inexact,
 Rounded, Clamped, LostDigits with $\tau \in^\ast R$ and
 $\tau \in C.\mathrm{traps}$, or $\bot$ if there is none (`complete_gda` and
 `trapped_signal`).
@@ -414,11 +414,14 @@ from it; property 1 guarantees it is the same value as without the trap.
 
 ### Keep the detailed invalid conditions
 
-The specification reports `ConversionSyntax`, `DivisionImpossible`,
-`DivisionUndefined` and `InvalidContext` through `InvalidOperation`. The
-package keeps them as separate flags *and* makes `contains(InvalidOperation)`
+The specification reports conversion syntax, division impossible, division
+undefined and invalid context through the signal `InvalidOperation`. The
+package keeps them as separate *flags* and makes `contains(InvalidOperation)`
 true for each, and sets `invalid_operation` in the status whenever one is
-raised. A program that only knows the eight GDA signals sees exactly the GDA
+raised. They are not signals: the trap set has nine trap-enablers, the signals
+of the specification, so a trap cannot be set on a condition alone, which GDA
+has no trap-enabler for. The decTest files name conditions (`Conversion_syntax`,
+`Division_undefined`, ...), which is why the flags stay at thirteen. A program that only knows the GDA signals sees exactly the GDA
 behaviour, while a test harness or a diagnostic can still tell a malformed
 literal from $0/0$. Placing `InvalidOperation` first in the precedence list
 makes an `InvalidOperation` trap catch all four, as the specification

@@ -143,8 +143,10 @@ test "a trapped division keeps its defined result" {
 ```
 
 An `InvalidOperation` trap also catches the four detailed invalid conditions
-(`ConversionSyntax`, `DivisionImpossible`, `DivisionUndefined`,
-`InvalidContext`). The basic context enables it, so a malformed literal traps:
+(conversion syntax, division impossible, division undefined and invalid
+context), which are flags of the outcome but not signals: the nine signals of
+the specification are the only ones with a trap. The basic default context
+enables `InvalidOperation`, so a malformed literal traps:
 
 ```moonbit
 ///|

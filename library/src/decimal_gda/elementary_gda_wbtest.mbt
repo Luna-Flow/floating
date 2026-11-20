@@ -170,7 +170,8 @@ test "GDA classic subset retains legacy math flags and adjacent ln" {
     Decimal::from_int(1_000_000_001),
     power_subset,
   )
-  assert_true(invalid.raised().contains(GdaSignal::InvalidContext))
+  assert_true(invalid.raised().invalid_context())
+  assert_true(invalid.raised().contains(GdaSignal::InvalidOperation))
   assert_true(invalid.raised().contains(GdaSignal::Rounded))
   assert_true(invalid.raised().contains(GdaSignal::Inexact))
   assert_true(invalid.raised().contains(GdaSignal::LostDigits))

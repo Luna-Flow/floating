@@ -334,19 +334,15 @@ pub fn GdaRoundingMode::not_equal(Self, Self) -> Bool
 
 #derive(Eq)
 pub(all) enum GdaSignal {
-  ConversionSyntax
-  DivisionByZero
-  DivisionImpossible
-  DivisionUndefined
-  InvalidContext
-  InvalidOperation
-  Overflow
-  Underflow
-  Subnormal
-  Inexact
-  Rounded
   Clamped
+  DivisionByZero
+  Inexact
+  InvalidOperation
   LostDigits
+  Overflow
+  Rounded
+  Subnormal
+  Underflow
 }
 pub fn GdaSignal::equal(Self, Self) -> Bool
 pub fn GdaSignal::not_equal(Self, Self) -> Bool
@@ -357,13 +353,9 @@ pub struct GdaTrapSet {
 }
 pub fn GdaTrapSet::clamped(Self) -> Bool
 pub fn GdaTrapSet::contains(Self, GdaSignal) -> Bool
-pub fn GdaTrapSet::conversion_syntax(Self) -> Bool
 pub fn GdaTrapSet::division_by_zero(Self) -> Bool
-pub fn GdaTrapSet::division_impossible(Self) -> Bool
-pub fn GdaTrapSet::division_undefined(Self) -> Bool
 pub fn GdaTrapSet::equal(Self, Self) -> Bool
 pub fn GdaTrapSet::inexact(Self) -> Bool
-pub fn GdaTrapSet::invalid_context(Self) -> Bool
 pub fn GdaTrapSet::invalid_operation(Self) -> Bool
 pub fn GdaTrapSet::lost_digits(Self) -> Bool
 pub fn GdaTrapSet::new() -> Self
