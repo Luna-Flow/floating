@@ -104,7 +104,7 @@ test "constructors" {
   // A measurement: 5 +/- 2, stored as the endpoints [3, 7].
   let measured = @ball_float.BallFloat::new(five, two)
   inspect(show(measured, 3), content="[3.00e+0, 7.00e+0]")
-  inspect(measured.center().to_string(), content="5p0")
+  inspect(measured.midpoint().to_string(), content="5p0")
   inspect(measured.radius().to_string(), content="1p1")
   // Untrusted bounds: reversed endpoints are an error value, not an abort.
   let reversed = @ball_float.BallFloat::try_from_bounds(five, two)
@@ -114,9 +114,10 @@ test "constructors" {
 
 `from_bounds` and `exact` abort on invalid input (a NaN endpoint, reversed
 bounds, a non-finite point); their `try_` forms return the same condition as an
-`ArithmeticError`. `new(center, radius)` is a constructor view: the stored
-value is always the endpoint pair, and `center()` / `radius()` recompute the
-midpoint–radius form from it. The whole real line and the empty set are
+`ArithmeticError`, and so does `try_new(center, radius)` for a non-finite center
+or a negative or non-finite radius. `new(center, radius)` is a constructor view:
+the stored value is always the endpoint pair, and `midpoint()` / `radius()` read
+the midpoint–radius form back as IEEE 1788-2015 12.12.8 defines it. The whole real line and the empty set are
 `BallFloat::entire()` and `BallFloat::empty()`.
 
 ### Enclose a decimal constant
@@ -411,13 +412,14 @@ intervals `==` is false for NaI, even against itself.
 them with `less` (an IEEE 1788 set relation) as if it were a comparison of
 numbers.
 
-**Unbounded intervals have no center.** `center()`, `radius()` and
-`midpoint()` abort on the empty set and on half-bounded intervals
-(`midpoint()` returns 0 for the whole line). Check `is_common_interval()` first, or
-use `radius_extended()`, which returns $+\infty$ instead. `midpoint_ctx`
-follows the IEEE 1788 `mid` operation instead: NaN for the empty set and the
-largest finite value of the context, with the sign of the unbounded side, for
-a half-bounded interval.
+**Unbounded and empty intervals have no useful center.** `midpoint()`,
+`radius()`, `width()`, `magnitude()` and `mignitude()` are total and follow
+IEEE 1788-2015 12.12.8 instead of aborting: NaN for the empty set, `midpoint()`
+0 for the whole line and the largest finite value (with the sign of the
+unbounded side) for a half-bounded interval, `radius()` and `width()`
+$+\infty$ for any unbounded interval. Test `is_empty()` and
+`is_common_interval()` first when a NaN or an infinity would be a problem;
+`midpoint_ctx` takes the result format as a `BallContext`.
 
 **Integers wider than the precision.** `from_int(n, precision=p)` and
 `from_coefficient` enclose `n` exactly, but when `n` needs more than $p$ bits

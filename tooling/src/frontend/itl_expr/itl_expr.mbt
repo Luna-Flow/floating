@@ -819,7 +819,7 @@ fn execute_numeric_case(case : ItlCase, precision : Int32) -> ItlResult {
     "inf" => interval.lower_bound()
     "sup" => interval.upper_bound()
     "mid" => interval.midpoint_ctx(result_context(precision)).0
-    "rad" => interval.radius_extended()
+    "rad" => interval.radius()
     "wid" => interval.width()
     "mag" => interval.magnitude()
     "mig" => interval.mignitude()

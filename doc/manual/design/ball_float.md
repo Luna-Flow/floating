@@ -265,12 +265,20 @@ rebuilding an interval whose center needs more than $p$ bits widens it (see
 [Tightness](#correctness-and-invariants)). `normalized` accepts that;
 `with_precision` does not use the construction at all. It rounds the endpoints
 outward directly, which encloses the input at every precision and is the
-tightest representable enclosure, so its rounding-mode argument cannot narrow
-the result. The converse view is exact: `center` returns $(\underline{x} + \overline{x})/2$
-and `radius` returns $(\overline{x} - \underline{x})/2$, which are dyadic and
-need no rounding (the radius is rounded up only if it underflows the
-exponent range), so $[\text{center} - \text{radius}, \text{center} +
-\text{radius}]$ is exactly the stored interval. `Show` prints this pair.
+tightest representable enclosure, so it has no rounding-mode argument. The
+converse view inside the package is exact: the center is
+$(\underline{x} + \overline{x})/2$ and the half-width $(\overline{x} -
+\underline{x})/2$, which are dyadic and need no rounding (the half-width is
+rounded up only if it underflows the exponent range), so
+$[\text{center} - \text{half-width}, \text{center} + \text{half-width}]$ is
+exactly the stored interval. `Show` prints this pair. The public observers are
+not this pair: IEEE 1788-2015 12.12.8 defines `mid` as the center rounded to
+the format and `rad` as the smallest number of the format with the interval
+inside $[m - r, m + r]$ for that rounded $m$. The half-width around the exact
+center is too small when the center is not representable (it was returned as
+`radius` before 0.12, [issue 477](https://github.com/Luna-Flow/floating/issues/477)),
+so `radius` measures from `midpoint`: it is the larger of $m - \underline{x}$ and
+$\overline{x} - m$, rounded up.
 
 ### The dependency problem
 
@@ -621,9 +629,9 @@ sets have no midpoint–radius form, and the hulls in the
 [endpoint formulas](#endpoint-formulas) are exact before rounding, so
 inf–sup results are as tight as the precision allows. The cost is that both
 endpoints carry $p$ bits, so wide intervals at high precision store many
-useless bits. The midpoint–radius *view* (`new`, `center`, `radius`,
-`with_precision`) is kept for users who reason in $c \pm r$, with exact
-conversions derived [above](#from-midpointradius-to-endpoints).
+useless bits. The midpoint–radius *view* (`new`, `midpoint`, `radius`) is kept for users
+who reason in $c \pm r$, with the conversions derived
+[above](#from-midpointradius-to-endpoints).
 
 [^arb]: J. van der Hoeven, "Ball arithmetic", 2009; F. Johansson, "Arb: efficient
     arbitrary-precision midpoint-radius interval arithmetic", *IEEE Trans.
@@ -672,7 +680,7 @@ otherwise. Then:
 
 The alignment now costs at most about $M$ bits beyond the width of $A$,
 independent of the exponent gap. The surrogate is also used for the
-nearest-rounded sums inside `center`, where it is not exact; this is the
+nearest-rounded sums inside the center, where it is not exact; this is the
 source of the limitation noted in [Correctness](#known-limitations).
 
 ### Outward clamping at the exponent range
