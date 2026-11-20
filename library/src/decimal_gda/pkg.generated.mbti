@@ -236,13 +236,12 @@ pub impl Sub for Decimal
 pub struct GdaContext {
   // private fields
 }
-pub fn GdaContext::basic() -> Self
+pub fn GdaContext::basic_default() -> Self
 pub fn GdaContext::clamp(Self) -> Bool
 pub fn GdaContext::clear_status(Self) -> Self
-pub fn GdaContext::decimal128() -> Self
-pub fn GdaContext::decimal32() -> Self
-pub fn GdaContext::decimal64() -> Self
-pub fn GdaContext::default() -> Self
+pub fn GdaContext::decimal128(rounding? : GdaRoundingMode) -> Self
+pub fn GdaContext::decimal32(rounding? : GdaRoundingMode) -> Self
+pub fn GdaContext::decimal64(rounding? : GdaRoundingMode) -> Self
 pub fn GdaContext::e_max(Self) -> Int32
 pub fn GdaContext::e_min(Self) -> Int32
 pub fn GdaContext::extended(Self) -> Bool
@@ -256,7 +255,10 @@ pub fn GdaContext::status(Self) -> GdaFlags
 pub fn GdaContext::trap(Self, GdaSignal, enabled? : Bool) -> Self
 pub fn GdaContext::traps(Self) -> GdaTrapSet
 pub fn GdaContext::try_new(precision? : Int32, rounding? : GdaRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, traps? : GdaTrapSet) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn GdaContext::with_exponent_range(Self, e_min~ : Int32, e_max~ : Int32) -> Self
+pub fn GdaContext::with_precision(Self, Int32) -> Self
 pub fn GdaContext::with_refinement_limit(Self, Int32?) -> Self
+pub fn GdaContext::with_rounding(Self, GdaRoundingMode) -> Self
 pub fn GdaContext::with_traps(Self, GdaTrapSet) -> Self
 
 #derive(Eq)

@@ -149,7 +149,7 @@ An `InvalidOperation` trap also catches the four detailed invalid conditions
 ```moonbit
 ///|
 test "the InvalidOperation trap covers conversion syntax" {
-  let basic = @decimal_gda.GdaContext::basic()
+  let basic = @decimal_gda.GdaContext::basic_default()
   let out = @decimal_gda.to_number("1.2.3", basic)
   match out {
     @decimal_gda.GdaOutcome::Trapped(signal, value, _, raised) => {
@@ -320,7 +320,7 @@ test "generic contextual addition" {
 
 ### Subset arithmetic and lost digits
 
-`GdaContext::basic()` is the GDA *basic default context*: precision 9,
+`GdaContext::basic_default()` is the GDA *basic default context*: precision 9,
 `HalfUp`, `extended=false`, with the `DivisionByZero`, `InvalidOperation`,
 `Overflow`, `Underflow` and `Clamped` traps enabled. A non-extended context
 rounds operands that are longer than the precision before using them and
@@ -329,7 +329,7 @@ reports `LostDigits` when that loses information:
 ```moonbit
 ///|
 test "subset arithmetic rounds long operands" {
-  let basic = @decimal_gda.GdaContext::basic()
+  let basic = @decimal_gda.GdaContext::basic_default()
   let long = @decimal_gda.Decimal::from_string("1234567891").unwrap()
   let zero = @decimal_gda.Decimal::zero()
   let out = @decimal_gda.add(long, zero, basic)

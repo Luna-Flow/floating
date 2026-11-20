@@ -23,7 +23,7 @@ test "GDA outcomes retain sticky status and defined trap results" {
   let trapped = divide(
     operand,
     divisor,
-    GdaContext::basic().trap(GdaSignal::DivisionByZero),
+    GdaContext::basic_default().trap(GdaSignal::DivisionByZero),
   )
   match trapped {
     GdaOutcome::Trapped(signal, value, context, raised) => {
@@ -38,7 +38,7 @@ test "GDA outcomes retain sticky status and defined trap results" {
 
 ///|
 test "GDA context exposes radix ten" {
-  assert_eq(GdaContext::default().radix(), 10)
+  assert_eq(GdaContext::basic_default().radix(), 10)
 }
 
 ///|
@@ -47,7 +47,7 @@ test "GDA try_new preserves validated context fields" {
   let context = GdaContext::try_new(
     precision=17,
     rounding=GdaRoundingMode::Floor,
-    e_min=-21,
+    e_min=-34,
     e_max=34,
     clamp=true,
     extended=false,
@@ -55,7 +55,7 @@ test "GDA try_new preserves validated context fields" {
   ).unwrap()
   assert_eq(context.precision(), 17)
   assert_true(context.rounding() == GdaRoundingMode::Floor)
-  assert_eq(context.e_min(), -21)
+  assert_eq(context.e_min(), -34)
   assert_eq(context.e_max(), 34)
   assert_true(context.clamp())
   assert_false(context.extended())
@@ -134,7 +134,7 @@ test "GDA trap selection preserves signal precedence" {
 
 ///|
 test "GDA cached presets do not share sticky status or traps" {
-  let configured = GdaContext::basic().trap(GdaSignal::DivisionByZero)
+  let configured = GdaContext::basic_default().trap(GdaSignal::DivisionByZero)
   let outcome = divide(
     Decimal::one(precision=9),
     Decimal::zero(precision=9),
@@ -143,7 +143,7 @@ test "GDA cached presets do not share sticky status or traps" {
   assert_true(
     outcome.next_context().status().contains(GdaSignal::DivisionByZero),
   )
-  let fresh = GdaContext::basic()
+  let fresh = GdaContext::basic_default()
   assert_true(!fresh.status().contains(GdaSignal::DivisionByZero))
   assert_true(fresh.traps().contains(GdaSignal::DivisionByZero))
   assert_eq(GdaContext::decimal32().precision(), 7)
@@ -153,7 +153,7 @@ test "GDA cached presets do not share sticky status or traps" {
 
 ///|
 test "GDA basic context matches the 1.70 defaults" {
-  let ctx = GdaContext::basic()
+  let ctx = GdaContext::basic_default()
   assert_eq(ctx.precision(), 9)
   assert_true(ctx.rounding() == GdaRoundingMode::HalfUp)
   assert_true(!ctx.extended())

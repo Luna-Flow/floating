@@ -9,6 +9,7 @@ module goes here (see `CONTRIBUTING.md`, "Release Checklist").
 
 ## Unreleased
 
+- `frontend/gda_expr` reports an exponent range outside GDA 1.70 page 10 as a diagnostic row (invalid context); the frontend tests and the random-differential fixtures of `decimal_gda` use legal ranges (`tools/generate_libmpdec_random.py` validates every context it emits, and the fixture and regression rows were regenerated and rechecked against libmpdec).
 - `frontend/gda_expr` and the consistency tests call the GDA functions of `decimal_gda` only (the status-free engine is private there, [#438](https://github.com/Luna-Flow/floating/issues/438)); the corpus counts of the `decimal_gda` gate are unchanged.
 
 ## 0.11.0 - 2026-11-20

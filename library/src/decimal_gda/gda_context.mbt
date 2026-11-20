@@ -492,6 +492,13 @@ fn GdaContext::build(
     }
     return Err(message)
   }
+  // GDA 1.70 page 10: Emin and Emax have magnitudes that differ by at most
+  // one, so Emin is -Emax, 1 - Emax (IEEE 754) or -Emax - 1.
+  guard e_min == -e_max || e_min == 1 - e_max || e_min == -e_max - 1 else {
+    return Err(
+      "GdaContext e_min must be -e_max, 1 - e_max or -e_max - 1 (GDA 1.70, page 10)",
+    )
+  }
   let decimal_ = gda_build_decimal_context(
     precision, rounding, e_min, e_max, clamp, extended,
   )
@@ -567,28 +574,132 @@ pub fn GdaContext::try_new(
 }
 
 ///|
-pub fn GdaContext::basic() -> GdaContext {
+/// The basic default context of GDA 1.70 (page 16): precision 9, round-half-up,
+/// trap-enablers for every signal but inexact, rounded and subnormal. It also
+/// selects the X3.274 subset (`extended=false`, Appendix A). The values are
+/// created once and shared.
+pub fn GdaContext::basic_default() -> GdaContext {
   gda_basic_context_cache
 }
 
 ///|
-pub fn GdaContext::default() -> GdaContext {
-  gda_basic_context_cache
+/// An extended default context of GDA 1.70 (page 16) for the IEEE 754 decimal32
+/// format: precision 7, exponent range -95 to 96, clamped, no traps. `rounding`
+/// is round-half-even unless given.
+pub fn GdaContext::decimal32(rounding? : GdaRoundingMode) -> GdaContext {
+  match rounding {
+    None | Some(HalfEven) => gda_decimal32_context_cache
+    Some(mode) =>
+      GdaContext::new(
+        precision=7,
+        rounding=mode,
+        e_min=-95,
+        e_max=96,
+        clamp=true,
+      )
+  }
 }
 
 ///|
-pub fn GdaContext::decimal32() -> GdaContext {
-  gda_decimal32_context_cache
+/// The extended default context for decimal64: precision 16, exponent range
+/// -383 to 384, clamped, no traps.
+pub fn GdaContext::decimal64(rounding? : GdaRoundingMode) -> GdaContext {
+  match rounding {
+    None | Some(HalfEven) => gda_decimal64_context_cache
+    Some(mode) =>
+      GdaContext::new(
+        precision=16,
+        rounding=mode,
+        e_min=-383,
+        e_max=384,
+        clamp=true,
+      )
+  }
 }
 
 ///|
-pub fn GdaContext::decimal64() -> GdaContext {
-  gda_decimal64_context_cache
+/// The extended default context for decimal128: precision 34, exponent range
+/// -6143 to 6144, clamped, no traps.
+pub fn GdaContext::decimal128(rounding? : GdaRoundingMode) -> GdaContext {
+  match rounding {
+    None | Some(HalfEven) => gda_decimal128_context_cache
+    Some(mode) =>
+      GdaContext::new(
+        precision=34,
+        rounding=mode,
+        e_min=-6143,
+        e_max=6144,
+        clamp=true,
+      )
+  }
 }
 
 ///|
-pub fn GdaContext::decimal128() -> GdaContext {
-  gda_decimal128_context_cache
+/// Returns a copy with another precision. Aborts, naming the parameter, when
+/// the result is not a valid context. The status, traps and refinement limit
+/// are kept.
+pub fn GdaContext::with_precision(
+  self : GdaContext,
+  precision : Int32,
+) -> GdaContext {
+  self.rebuilt(
+    precision~,
+    rounding=self.rounding_,
+    e_min=self.e_min_,
+    e_max=self.e_max_,
+  )
+}
+
+///|
+/// Returns a copy with another rounding mode.
+pub fn GdaContext::with_rounding(
+  self : GdaContext,
+  rounding : GdaRoundingMode,
+) -> GdaContext {
+  self.rebuilt(
+    precision=self.precision_,
+    rounding~,
+    e_min=self.e_min_,
+    e_max=self.e_max_,
+  )
+}
+
+///|
+/// Returns a copy with another exponent range. `e_min` must be `-e_max`,
+/// `1 - e_max` or `-e_max - 1` (GDA 1.70, page 10); otherwise it aborts.
+pub fn GdaContext::with_exponent_range(
+  self : GdaContext,
+  e_min~ : Int32,
+  e_max~ : Int32,
+) -> GdaContext {
+  self.rebuilt(
+    precision=self.precision_,
+    rounding=self.rounding_,
+    e_min~,
+    e_max~,
+  )
+}
+
+///|
+fn GdaContext::rebuilt(
+  self : GdaContext,
+  precision~ : Int32,
+  rounding~ : GdaRoundingMode,
+  e_min~ : Int32,
+  e_max~ : Int32,
+) -> GdaContext {
+  let fresh = GdaContext::new(
+    precision~,
+    rounding~,
+    e_min~,
+    e_max~,
+    clamp=self.clamp_,
+    extended=self.extended_,
+    traps=self.traps_,
+  )
+  { ..fresh, status_: self.status_, }.with_refinement_limit(
+    self.refinement_limit(),
+  )
 }
 
 ///|

@@ -121,6 +121,24 @@ class Rng:
         return items[self.range(0, len(items) - 1)]
 
 
+def legal_exponent_range(emin: int, emax: int) -> bool:
+    """GDA 1.70 page 10: Emin and Emax differ in magnitude by at most one, so
+    Emin is -Emax, 1-Emax or -Emax-1; the decNumber limits keep both in range."""
+    return (
+        0 <= emax <= 999999999
+        and -999999999 <= emin <= 0
+        and emin in (-emax - 1, -emax, 1 - emax)
+    )
+
+
+def legalize_emin(emin: int, emax: int, ceiling: int = 0, floor: int = -999999999) -> int:
+    """The legal Emin nearest to `emin` for `emax`, within [floor, ceiling]."""
+    candidates = [c for c in (-emax, 1 - emax, -emax - 1) if floor <= c <= min(ceiling, 0)]
+    if not candidates:
+        raise ValueError(f"no legal Emin for Emax {emax} within [{floor}, {ceiling}]")
+    return min(candidates, key=lambda c: abs(c - emin))
+
+
 @dataclass(frozen=True)
 class Ctx:
     precision: int
@@ -128,6 +146,12 @@ class Ctx:
     emin: int
     emax: int
     clamp: int
+
+    def __post_init__(self) -> None:
+        # The corpus is correct by construction: no row has a context that GDA
+        # 1.70 cannot have (and `GdaContext::try_new` rejects).
+        if not legal_exponent_range(self.emin, self.emax):
+            raise ValueError(f"Emin {self.emin} and Emax {self.emax} are not a GDA 1.70 exponent range")
 
     def python(self) -> Context:
         mode = dict(ROUNDINGS)[self.rounding]
@@ -301,6 +325,12 @@ def pick_context(rng: Rng, family: str) -> Ctx:
             # contexts, the plain ones stay below.
             emax = min(emax, 999999)
             emin = max(emin, -999999)
+    # Every kind above draws Emin and Emax independently or by offsets: bring
+    # the pair to the nearest range GDA 1.70 allows (page 10). Elementary rows
+    # keep Emin below zero; the plain families keep the range inside 10^6.
+    ceiling = -1 if base_family(family) in ELEMENTARY else 0
+    floor = -999999 if base_family(family) in ELEMENTARY and not family.endswith("wide") else -999999999
+    emin = legalize_emin(emin, emax, ceiling, floor)
     return Ctx(precision, rounding, emin, emax, clamp)
 
 

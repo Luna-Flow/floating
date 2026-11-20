@@ -17,7 +17,7 @@ test "cached decimal contexts equal a fresh build for every parameter set" {
           let ctx = GdaContext::new(
             precision~,
             rounding=mode,
-            e_min=-398,
+            e_min=-384,
             e_max=384,
             clamp~,
             extended~,
@@ -26,7 +26,7 @@ test "cached decimal contexts equal a fresh build for every parameter set" {
             precision~,
             rounding=arithmetic_rounding(mode),
             decimal_rounding=decimal_rounding(mode),
-            e_min=-398,
+            e_min=-384,
             e_max=384,
             clamp~,
             extended~,

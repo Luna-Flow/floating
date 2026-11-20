@@ -9,7 +9,7 @@ test "gda interpreter judges overflow on the rounded result of add, subtract and
     #|precision: 1
     #|rounding: half_even
     #|maxexponent: 0
-    #|minexponent: -5
+    #|minexponent: -1
     #|clamp: 0
     #|ov1 add 9.5 -0.5 -> 9 Rounded
     #|ov2 subtract -9.5 -0.5 -> -9 Rounded
@@ -22,11 +22,12 @@ test "gda interpreter judges overflow on the rounded result of add, subtract and
     #|ov5 add 0.1 -9.1 -> -9 Rounded
     #|precision: 5
     #|maxexponent: 18
+    #|minexponent: -17
     #|ov6 fma 100000.00000000000000000000000000000000000001 -9999.9E+10 1E+0 -> -9.9999E+18 Inexact Rounded
     #|precision: 1
     #|rounding: half_even
     #|maxexponent: 5
-    #|minexponent: -1
+    #|minexponent: -4
     #|ov7 add 999E4 -1E7 -> -1E+4
     #|
   let document = @gda_expr.parse_dectest("overflow.decTest", source).unwrap()

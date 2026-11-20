@@ -317,12 +317,12 @@ class PowerExpectedDifferenceTests(unittest.TestCase):
         self.assertIsNone(generator.condition_difference(case, Decimal("1E-100"), (*names, "Underflow")))
 
     def test_subnormal_is_judged_before_rounding(self) -> None:
-        case = self.case(("0.0099999999999999999999999999", "8"), 1, -16, 10, 1)
+        case = self.case(("0.0099999999999999999999999999", "8"), 1, -16, 16, 1)
         row = generator.evaluate(case)
         self.assertEqual(row.classes, (generator.SUBNORMAL_CLASS,))
         self.assertEqual(row.conditions, ("Inexact", "Rounded", "Subnormal", "Underflow"))
         # The exact value 0.01^8 = 1E-16 is not below 10^emin: no class.
-        exact = self.case(("0.01", "8"), 1, -16, 10, 1)
+        exact = self.case(("0.01", "8"), 1, -16, 16, 1)
         self.assertIsNone(generator.condition_difference(exact, Decimal("1E-16"), ("Inexact", "Rounded")))
 
     def test_a_row_outside_every_shape_keeps_the_libmpdec_result(self) -> None:

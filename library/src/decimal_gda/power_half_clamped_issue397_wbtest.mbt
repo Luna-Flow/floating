@@ -102,7 +102,7 @@ fn issue397_run(
     e_max~,
     clamp~,
   )
-  let gda = GdaContext::new(
+  let gda = gda_context_unchecked(
     precision~,
     rounding=issue397_gda_mode(mode),
     e_min~,

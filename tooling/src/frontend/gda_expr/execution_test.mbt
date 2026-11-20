@@ -156,9 +156,20 @@ test "gda interpreter reports an invalid context as a diagnostic row" {
     negative_max, "diagnostic invalid context: maxexponent outside 0..=999999999",
   )
 
-  let valid_source =
+  // GDA 1.70 page 10: the magnitudes of Emin and Emax differ by at most one.
+  let unbalanced =
     #|precision: 9
     #|minexponent: 0
+    #|maxexponent: 999999999
+    #|z7 add 1 1 -> 2
+    #|
+  assert_diagnostic(
+    unbalanced, "diagnostic invalid context: minexponent is not -maxexponent, 1 - maxexponent or -maxexponent - 1",
+  )
+
+  let valid_source =
+    #|precision: 9
+    #|minexponent: -999999999
     #|maxexponent: 999999999
     #|z6 add 1 1 -> 2
     #|

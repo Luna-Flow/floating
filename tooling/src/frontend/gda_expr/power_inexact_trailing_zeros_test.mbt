@@ -8,8 +8,8 @@ test "gda interpreter keeps precision digits in an inexact integer power" {
     #|extended: 1
     #|precision: 2
     #|rounding: half_even
-    #|maxexponent: 0
-    #|minexponent: -5
+    #|maxexponent: 3
+    #|minexponent: -4
     #|clamp: 0
     #|tz1 power 99999E-1 -1 -> 0.00010 Inexact Rounded
     #|precision: 3
