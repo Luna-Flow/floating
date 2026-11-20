@@ -26,6 +26,8 @@ from decimal import Context, Decimal
 from fractions import Fraction
 from typing import Callable, Iterator, Sequence
 
+import context_rules
+
 # Exact integer powers have thousands of digits.
 sys.set_int_max_str_digits(0)
 MASK = (1 << 64) - 1
@@ -122,13 +124,8 @@ class Rng:
 
 
 def legal_exponent_range(emin: int, emax: int) -> bool:
-    """GDA 1.70 page 10: Emin and Emax differ in magnitude by at most one, so
-    Emin is -Emax, 1-Emax or -Emax-1; the decNumber limits keep both in range."""
-    return (
-        0 <= emax <= 999999999
-        and -999999999 <= emin <= 0
-        and emin in (-emax - 1, -emax, 1 - emax)
-    )
+    """GDA 1.70 page 10 (the rule lives in `context_rules`, shared with the other generators and the tests)."""
+    return context_rules.gda_exponent_range_is_legal(emin, emax)
 
 
 def legalize_emin(emin: int, emax: int, ceiling: int = 0, floor: int = -999999999) -> int:

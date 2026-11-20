@@ -12,6 +12,8 @@ from contextlib import contextmanager
 from collections.abc import Callable, Iterator
 from pathlib import Path, PurePosixPath
 
+import context_rules
+
 
 CorpusSync = Callable[[str, dict, bool, bool], None]
 
@@ -195,33 +197,9 @@ def staged_directory(destination: Path, prefix: str | None = None) -> Iterator[P
             shutil.rmtree(temporary)
 
 
-IEEE_DECIMAL_ROUNDINGS = ("half_even", "half_up", "down", "ceiling", "floor")
-IEEE_DECIMAL_PRECISION_MAX = 999_999_999
-IEEE_DECIMAL_E_MAX_LIMIT = 999_999_999
-
-
-def check_ieee_decimal_context(
-    precision: int, rounding: str, emin: int, emax: int, clamp: int, tininess: str
-) -> None:
-    """Reject a context that no IEEE 754-2019 decimal format has.
-
-    The one definition of a legal `decimal` context that the generators and the
-    runner share (the library enforces the same in `DecimalContext::try_new`):
-    precision and `emax` within the implementation limits, `emin = 1 - emax`
-    (3.3), every finite result a member of the format (`clamp` on), tininess
-    detected before rounding (7.5), and one of the five rounding-direction
-    attributes of 4.3. `half_up` is roundTiesToAway, `down` roundTowardZero,
-    `ceiling` roundTowardPositive and `floor` roundTowardNegative.
-    """
-    if not 1 <= precision <= IEEE_DECIMAL_PRECISION_MAX:
-        raise ValueError(f"precision {precision} outside 1..{IEEE_DECIMAL_PRECISION_MAX}")
-    if not 1 <= emax <= IEEE_DECIMAL_E_MAX_LIMIT:
-        raise ValueError(f"emax {emax} outside 1..{IEEE_DECIMAL_E_MAX_LIMIT}")
-    if emin != 1 - emax:
-        raise ValueError(f"emin {emin} is not 1 - emax ({1 - emax}): not an IEEE 754-2019 format")
-    if not clamp:
-        raise ValueError("clamp must be 1: every result of an IEEE format is a member of the format")
-    if tininess != "b":
-        raise ValueError("tininess must be b: decimal formats detect tininess before rounding (7.5)")
-    if rounding not in IEEE_DECIMAL_ROUNDINGS:
-        raise ValueError(f"rounding {rounding} is not a rounding-direction attribute of 4.3")
+# The definition of a legal context lives in `context_rules` (the one module the generators, the runners and the
+# tests share); these names stay for the callers that import them from here.
+IEEE_DECIMAL_ROUNDINGS = context_rules.DECIMAL_ROUNDINGS
+IEEE_DECIMAL_PRECISION_MAX = context_rules.DECIMAL_PRECISION_MAX
+IEEE_DECIMAL_E_MAX_LIMIT = context_rules.DECIMAL_E_MAX_LIMIT
+check_ieee_decimal_context = context_rules.check_ieee_decimal_context

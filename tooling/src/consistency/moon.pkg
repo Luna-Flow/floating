@@ -12,4 +12,14 @@ import {
   "Luna-Flow/floating/def",
   "Luna-Flow/floating-tools/semantic",
   "moonbitlang/core/string",
+  "moonbitlang/x/fs",
 } for "wbtest"
+
+warnings = "-unused_package"
+
+// The test reads `testdata/context_vectors.txt` through the file system, which
+// the other targets of the full gate do not need to repeat.
+
+options(
+  targets: { "context_vectors_wbtest.mbt": [ "native" ] },
+)
