@@ -7,7 +7,7 @@ import {
   "Luna-Flow/floating/decimal_gda",
   "Luna-Flow/floating/decimal_gda_checked",
   "Luna-Flow/floating/decimal_checked",
-  "Luna-Flow/floating/semantic",
+  "Luna-Flow/floating-tools/semantic",
   "Luna-Flow/floating-tools/numeric_expr",
   "Luna-Flow/floating-tools/frontend/gda_expr",
   "Luna-Flow/floating-tools/frontend/itl_expr",
