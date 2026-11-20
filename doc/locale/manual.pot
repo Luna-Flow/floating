@@ -12553,7 +12553,7 @@ msgid "7.78e9"
 msgstr ""
 
 #: manual/design/bin_float.md:1067
-msgid "The expensive rows (`1E+999999`) are in the opt-in table `testdata/decimal/ieee/rows/huge_trig_extreme.txt` (`python3 tools/run_huge_trig_extreme.py`); the `1E+300000` class is in the full gate."
+msgid "The rows from `1E+300000` upward are in the opt-in table `testdata/decimal/ieee/rows/huge_trig_extreme.txt` (`python3 tools/run_huge_trig_extreme.py`); the full gate has the `1E+100000` class."
 msgstr ""
 
 #: manual/design/bin_float.md:1072

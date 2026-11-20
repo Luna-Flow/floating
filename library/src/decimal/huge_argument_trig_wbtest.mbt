@@ -1,8 +1,8 @@
 // floating#377: sinpi, cospi and tanpi of a huge integer, cospi next to zero and
 // sin of an argument beyond the old cutoff. Expected values:
-// testdata/decimal/ieee/rows/huge_trig.txt (the full gate runs all 87 rows;
-// the `1E+999999` operands of sin, cos and tan are in huge_trig_extreme.txt,
-// run on demand).
+// testdata/decimal/ieee/rows/huge_trig.txt (the full gate runs all 84 rows;
+// the `1E+300000` to `1E+999999` operands of sin, cos and tan are in
+// huge_trig_extreme.txt, run on demand).
 
 ///|
 fn huge_trig_show(

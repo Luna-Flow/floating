@@ -4,11 +4,11 @@
 Writes two `mpfr-decimal-random-v1` tables (`decimal_row_table`):
 
 * `testdata/decimal/ieee/rows/huge_trig.txt`, run by the full gate
-  (`just gate decimal`) on every target: operands of 10^5 to 4 * 10^5 digits
-  (a few seconds each), the exact and tiny rows of `sinpi`, `cospi`, `tanpi`
+  (`just gate decimal`) on every target: operands of up to 10^5 digits
+  (a fraction of a second each on native, a few seconds on the slowest target), the exact and tiny rows of `sinpi`, `cospi`, `tanpi`
   and `cospi` next to zero;
 * `testdata/decimal/ieee/rows/huge_trig_extreme.txt`, NOT in the gate: operands
-  up to `1E+999999` (the whole operand range), 20 to 60 seconds each. Run it
+  from `1E+300000` to `1E+999999` (the whole operand range), 4 to 60 seconds each. Run it
   on demand:
 
       python3 tools/run_huge_trig_extreme.py [--target native]
@@ -58,11 +58,13 @@ GATE_CERTIFIED = [
     ("sin", "1E+20000", DECIMAL64, "half_even"),
     ("sin", "-1E+30000", DECIMAL64, "floor"),
     ("cos", "7.5E+30000", DECIMAL64, "ceiling"),
+    ("sin", "1E+100000", DECIMAL64, "half_even"),
+    ("tan", "-7.5E+100000", DECIMAL64, "half_up"),
+]
+EXTREME_CERTIFIED = [
     ("tan", "1E+300000", DECIMAL64, "half_even"),
     ("sin", "1E+300000", DECIMAL64, "half_even"),
     ("tan", "-7.5E+400000", DECIMAL64, "half_up"),
-]
-EXTREME_CERTIFIED = [
     ("cos", "1E+300000", DECIMAL64, "down"),
     ("sin", "1E+300000", DECIMAL128, "floor"),
     ("sin", "1E+999999", DECIMAL64, "half_even"),
