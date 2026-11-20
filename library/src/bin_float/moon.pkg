@@ -27,6 +27,8 @@ options(
     "bin_float_fast_nonjs.mbt": [ "not", "js" ],
     "bin_float_fast_coeff_nonjs.mbt": [ "not", "js" ],
     "bin_float_finish_nonjs.mbt": [ "not", "js" ],
+    "bin_finish_ctx_nonjs.mbt": [ "not", "js" ],
+    "bin_finish_ctx_nonjs_wbtest.mbt": [ "not", "js" ],
     "bin_float_finish_nonjs_wbtest.mbt": [ "not", "js" ],
     "bin_float_fast_coeff_add_wbtest.mbt": [ "not", "js" ],
     "bin_float_fast_coeff_owned_wbtest.mbt": [ "not", "js" ],

@@ -108,3 +108,32 @@ fn binary_compare_pair_magnitude(_left : BinFloat, _right : BinFloat) -> Int32 {
 /// The two-word paths do not exist on this target; the limit is only read by the
 /// dispatch of the plain operations.
 let binary_pair_precision_limit : Int32 = 128
+
+///|
+/// No word route on this target: the general route of the contextual operations.
+fn binary_ctx_add_words(
+  _left : BinFloat,
+  _right : BinFloat,
+  _flip : Bool,
+  _context : BinaryContext,
+) -> (BinFloat, BinaryFlags)? {
+  None
+}
+
+///|
+fn binary_ctx_mul_words(
+  _left : BinFloat,
+  _right : BinFloat,
+  _context : BinaryContext,
+) -> (BinFloat, BinaryFlags)? {
+  None
+}
+
+///|
+fn binary_ctx_div_words(
+  _left : BinFloat,
+  _right : BinFloat,
+  _context : BinaryContext,
+) -> (BinFloat, BinaryFlags)? {
+  None
+}
