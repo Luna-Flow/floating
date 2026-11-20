@@ -315,16 +315,9 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
             ),
             Stage(
                 "TEST: Python tooling",
-                (
-                    sys.executable,
-                    "-m",
-                    "unittest",
-                    "discover",
-                    "-s",
-                    "tools",
-                    "-p",
-                    "*_test.py",
-                ),
+                # `unittest discover -s tools -p "*_test.py"` with a guard: the stage
+                # fails if a test writes into the real repository (#417).
+                (sys.executable, "tools/run_python_tests.py"),
             ),
             Stage(
                 "SMOKE: DecimalGDA",

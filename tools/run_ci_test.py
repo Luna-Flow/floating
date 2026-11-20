@@ -129,7 +129,7 @@ class RunCiTests(unittest.TestCase):
         self.assertIn("--skip-package-tests", by_name["DOCS: manual examples"])
         self.assertIn("native", by_name["TEST: native"])
         self.assertIn("--deny-warn", by_name["TEST: native"])
-        self.assertIn("unittest", by_name["TEST: Python tooling"])
+        self.assertEqual(by_name["TEST: Python tooling"][1], "tools/run_python_tests.py")
         self.assertEqual(by_name["SMOKE: DecimalGDA"][-1], "decimal_gda")
         self.assertEqual(by_name["SMOKE: Binary"][-1], "binary")
         self.assertEqual(by_name["SMOKE: Random differential"][1], "tools/random_differential.py")
