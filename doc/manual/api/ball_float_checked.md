@@ -246,6 +246,21 @@ pub fn BallFloatResult::sqr(Self) -> Self
 pub fn BallFloatResult::recip(Self) -> Self
 ```
 
+### `BallFloatResult::sign`, `BallFloatResult::ceil`, `BallFloatResult::floor`, `BallFloatResult::trunc`, `BallFloatResult::round_ties_to_even`, `BallFloatResult::round_ties_to_away`
+
+These methods are `map` of the `BallFloat` integer functions of Table 9.1
+(see the [`ball_float` page](ball_float.md#ballfloatsign-ballfloatceil-ballfloatfloor-ballfloattrunc-ballfloatround_ties_to_even-ballfloatround_ties_to_away)).
+They are exact and cannot fail.
+
+```mbti
+pub fn BallFloatResult::sign(Self) -> Self
+pub fn BallFloatResult::ceil(Self) -> Self
+pub fn BallFloatResult::floor(Self) -> Self
+pub fn BallFloatResult::trunc(Self) -> Self
+pub fn BallFloatResult::round_ties_to_even(Self) -> Self
+pub fn BallFloatResult::round_ties_to_away(Self) -> Self
+```
+
 ### `BallFloatResult::min`, `BallFloatResult::max`, `BallFloatResult::fma`, `BallFloatResult::intersection`, `BallFloatResult::convex_hull`, `BallFloatResult::cancel_plus`, `BallFloatResult::cancel_minus`
 
 These methods combine two or three wrappers with the `BallFloat` method of the
@@ -470,6 +485,7 @@ pub fn BallFloatResult::atanh(Self) -> Self
 pub fn BallFloatResult::bind(Self, (@ball_float.BallFloat) -> Self) -> Self
 pub fn BallFloatResult::cancel_minus(Self, Self) -> Self
 pub fn BallFloatResult::cancel_plus(Self, Self) -> Self
+pub fn BallFloatResult::ceil(Self) -> Self
 pub fn BallFloatResult::convex_hull(Self, Self) -> Self
 pub fn BallFloatResult::cos(Self) -> Self
 pub fn BallFloatResult::cosh(Self) -> Self
@@ -483,6 +499,7 @@ pub fn BallFloatResult::exp(Self) -> Self
 pub fn BallFloatResult::exp10(Self) -> Self
 pub fn BallFloatResult::exp2(Self) -> Self
 pub fn BallFloatResult::expm1(Self) -> Self
+pub fn BallFloatResult::floor(Self) -> Self
 pub fn BallFloatResult::fma(Self, Self, Self) -> Self
 pub fn BallFloatResult::from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Self
 pub fn BallFloatResult::from_coefficient(@bin_float.BinCoeff, precision? : Int32, negative? : Bool) -> Self
@@ -510,6 +527,9 @@ pub fn BallFloatResult::pown(Self, Int32) -> Self
 pub fn BallFloatResult::recip(Self) -> Self
 pub fn BallFloatResult::result(Self) -> Result[@ball_float.BallFloat, @arithmetic.ArithmeticError]
 pub fn BallFloatResult::rootn(Self, Int32) -> Self
+pub fn BallFloatResult::round_ties_to_away(Self) -> Self
+pub fn BallFloatResult::round_ties_to_even(Self) -> Self
+pub fn BallFloatResult::sign(Self) -> Self
 pub fn BallFloatResult::sin(Self) -> Self
 pub fn BallFloatResult::sinh(Self) -> Self
 pub fn BallFloatResult::sinpi(Self) -> Self
@@ -519,6 +539,7 @@ pub fn BallFloatResult::sub(Self, Self) -> Self
 pub fn BallFloatResult::tan(Self) -> Self
 pub fn BallFloatResult::tanh(Self) -> Self
 pub fn BallFloatResult::tanpi(Self) -> Self
+pub fn BallFloatResult::trunc(Self) -> Self
 pub fn BallFloatResult::with_precision(Self, Int32) -> Self
 pub impl Add for BallFloatResult
 pub impl Div for BallFloatResult

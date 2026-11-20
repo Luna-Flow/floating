@@ -174,6 +174,46 @@ pub fn BallFloatResult::sqr(self : BallFloatResult) -> BallFloatResult {
 }
 
 ///|
+/// `sign` of Table 9.1: a subset of [-1, 1]. Exact, it cannot fail.
+pub fn BallFloatResult::sign(self : BallFloatResult) -> BallFloatResult {
+  self.map(fn(value) { value.sign() })
+}
+
+///|
+/// `ceil` of Table 9.1. Exact, it cannot fail.
+pub fn BallFloatResult::ceil(self : BallFloatResult) -> BallFloatResult {
+  self.map(fn(value) { value.ceil() })
+}
+
+///|
+/// `floor` of Table 9.1. Exact, it cannot fail.
+pub fn BallFloatResult::floor(self : BallFloatResult) -> BallFloatResult {
+  self.map(fn(value) { value.floor() })
+}
+
+///|
+/// `trunc` of Table 9.1. Exact, it cannot fail.
+pub fn BallFloatResult::trunc(self : BallFloatResult) -> BallFloatResult {
+  self.map(fn(value) { value.trunc() })
+}
+
+///|
+/// `roundTiesToEven` of Table 9.1. Exact, it cannot fail.
+pub fn BallFloatResult::round_ties_to_even(
+  self : BallFloatResult,
+) -> BallFloatResult {
+  self.map(fn(value) { value.round_ties_to_even() })
+}
+
+///|
+/// `roundTiesToAway` of Table 9.1. Exact, it cannot fail.
+pub fn BallFloatResult::round_ties_to_away(
+  self : BallFloatResult,
+) -> BallFloatResult {
+  self.map(fn(value) { value.round_ties_to_away() })
+}
+
+///|
 pub fn BallFloatResult::recip(self : BallFloatResult) -> BallFloatResult {
   self.map(fn(value) { value.recip() })
 }

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "corpus": "itf1788",
   "officialAggregate": {
-    "expectedCases": 4656,
+    "expectedCases": 4799,
     "phases": [
       "sets",
       "relations",
@@ -18,7 +18,8 @@
       "atan2",
       "fma",
       "integer-power",
-      "extrema"
+      "extrema",
+      "integer-functions"
     ]
   },
   "phases": [
@@ -88,6 +89,18 @@
       "name": "extrema",
       "include": ["*elem.itl"],
       "operations": ["min", "max"]
+    },
+    {
+      "name": "integer-functions",
+      "include": ["*elem.itl"],
+      "operations": [
+        "sign",
+        "ceil",
+        "floor",
+        "trunc",
+        "roundTiesToEven",
+        "roundTiesToAway"
+      ]
     },
     { "name": "reverse", "include": ["*rev.itl"] }
   ]

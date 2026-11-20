@@ -55,3 +55,22 @@ test "the new checked operations keep the first error" {
   assert_true(ok.cancel_minus(failed).is_err())
   assert_true(failed.min(ok).error().unwrap().message == "first")
 }
+
+///|
+test "the integer functions of Table 9.1 exist on the checked tier and agree with the plain tier" {
+  let x = @ball_float.BallFloat::from_bounds(
+    @bin_float.BinFloat::from_double(-1.5),
+    @bin_float.BinFloat::from_double(2.5),
+  )
+  let r = BallFloatResult::ok(x)
+  assert_true(parity_value(r.sign()) == x.sign())
+  assert_true(parity_value(r.ceil()) == x.ceil())
+  assert_true(parity_value(r.floor()) == x.floor())
+  assert_true(parity_value(r.trunc()) == x.trunc())
+  assert_true(parity_value(r.round_ties_to_even()) == x.round_ties_to_even())
+  assert_true(parity_value(r.round_ties_to_away()) == x.round_ties_to_away())
+  let failed = BallFloatResult::from_result(
+    Err(@def.ArithmeticError::domain_error("earlier failure")),
+  )
+  assert_true(failed.ceil().result() is Err(_))
+}
