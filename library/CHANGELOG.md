@@ -253,11 +253,25 @@ notes live in this file.
   | `x.set_equal(y)` | `x == y`, or `x.equal(y)` | `BallFloat` and `BallFloatDecorated`; the old derived `equal` (representation) is gone with it |
   | `BallFloat::from_int(n)`, `from_coefficient(c)`, `BallFloatResult::from_int`, `from_coefficient` without `precision` | the same call, precision 53 | was 16; pass `precision=16` for the old enclosure |
 
+- `ball_float`: the observers are total and follow IEEE 1788-2015 12.12.8 ([#438](https://github.com/Luna-Flow/floating/issues/438), item B2). `midpoint` and `radius` no longer abort on the empty set or on a half-bounded interval; `width`, `magnitude`, `mignitude` return NaN, not 0, for the empty set; `BallFloat::try_new` returns an error where `new` aborts. The exact center and half-width of the ball view are no longer public.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `x.midpoint()` on Empty or a half-bounded interval: abort | NaN; the largest finite number of the precision (widest exponent range) with the sign of the unbounded side | 0 for Entire, as before; `midpoint_ctx` takes the format |
+  | `x.radius()` on Empty or an unbounded interval: abort | NaN; `+inf` | |
+  | `x.radius()` on a bounded interval: the half-width around the exact center | the larger of `midpoint - lower` and `upper - midpoint`, rounded up | see Fixed ([#477](https://github.com/Luna-Flow/floating/issues/477)); equal to the old value when the center is representable |
+  | `x.radius_extended()` | `x.radius()` | the `+inf` for an unbounded interval is kept; Empty is NaN, not 0 |
+  | `x.center()` | `x.midpoint()` | the exact center is no longer public; `midpoint` is the center rounded to nearest |
+  | `x.width()`, `x.magnitude()`, `x.mignitude()` on Empty: 0 | NaN | 12.12.8 |
+  | `BallFloat::new(c, r)` aborting on a non-finite or negative argument | `BallFloat::try_new(c, r)` returns `Err` | `new` still aborts |
+
 ### Fixed
 
 - `ball_float`: the total elementary forms (`exp_interval`, `exp2_interval`, `exp10_interval`, `ln_interval`, `log2_interval`, `log10_interval`, `sin_interval`, `cos_interval`, `tan_interval`, `asin_interval`, `acos_interval`, `atan_interval`, the six hyperbolic functions and their inverses, `pow_interval`, `rootn`) are now the `try_` form with a fallback, one kernel instead of two ([#449](https://github.com/Luna-Flow/floating/issues/449); Closes #449). They used an exact-rational series of their own that aborted ("certified log series did not converge") from about 32,000 bits for `ln_interval` (about 150,000 for `exp_interval`, about 200,000 for `atan_interval`), and that lost all relative accuracy for a tiny argument in `sinh`, `tanh`, `asinh` and `atanh` (`sinh_interval` of `2^-300` at 53 bits was `[0, 3 * 2^-246]`, now two ulps wide). The `try_` forms used the `bin_float` kernels and had neither limit. Whenever the `try_` form succeeds, the total form returns the same interval; when it reports a certification failure the total form returns the range of the function over its domain (`[0, +inf)` for `exp`, `[-1, 1]` for `sin`, `[-pi/2, pi/2]` for `atan`, Entire for `ln`, and so on; the table is in the API page), which is valid at every precision and cannot itself fail. An argument outside the domain still gives Empty, decided before the kernel runs. Results of these functions can differ from the previous release in the last bit (the `try_` kernels round each endpoint directly); all 4,656 strict ITF1788 cases pass.
 
 - `ball_float`: `try_atanh_interval` (and so `atanh_interval`) aborted ("ball lower bound must not be positive infinity") for an interval whose only point in the closure of the domain is `1` or `-1` (`[1, 1]`, `[1, +inf]`, `[-inf, -1]`). The open domain leaves nothing, so the result is Empty.
+
+- `ball_float`: `BallFloat::radius` and `radius_extended` returned the half-width around the exact center, not the `rad` of IEEE 1788-2015 12.12.8, which is measured from the value `midpoint` returns ([#477](https://github.com/Luna-Flow/floating/issues/477); Closes #477). When the center is not representable, `midpoint` rounds it and `[midpoint - radius, midpoint + radius]` missed a bound: for `[1, 1 + 3 * 2^-52]` at 53 bits the midpoint is `1 + 2^-51` and the radius was `3 * 2^-53`, so the lower bound 1 was outside. `radius` is now the larger of `midpoint - lower` and `upper - midpoint`, rounded up, which is `2^-51` there.
 
 ### Performance
 

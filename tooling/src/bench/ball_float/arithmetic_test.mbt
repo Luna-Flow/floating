@@ -92,11 +92,11 @@ fn ball_matches(expected : @binary.BinFloat, output : BallOutput) -> Bool {
   match output {
     BinaryKernel(actual) => actual.compare(expected) == 0
     Core(actual) =>
-      actual.is_singleton() && actual.center().compare(expected) == 0
+      actual.is_singleton() && actual.lower_bound().compare(expected) == 0
     Checked(actual) =>
       match actual.result() {
         Ok(value) =>
-          value.is_singleton() && value.center().compare(expected) == 0
+          value.is_singleton() && value.lower_bound().compare(expected) == 0
         Err(_) => false
       }
   }
@@ -106,11 +106,11 @@ fn ball_matches(expected : @binary.BinFloat, output : BallOutput) -> Bool {
 fn ball_output_text(output : BallOutput) -> String {
   match output {
     BinaryKernel(value) => value.to_hex()
-    Core(value) => value.center().to_hex() + "+/-" + value.radius().to_hex()
+    Core(value) => value.midpoint().to_hex() + "+/-" + value.radius().to_hex()
     Checked(value) =>
       match value.result() {
         Ok(result) =>
-          result.center().to_hex() + "+/-" + result.radius().to_hex()
+          result.midpoint().to_hex() + "+/-" + result.radius().to_hex()
         Err(_) => "error"
       }
   }

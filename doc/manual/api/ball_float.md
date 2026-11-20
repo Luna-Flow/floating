@@ -10,8 +10,9 @@ results of the operation on points of its operands (the *inclusion property*).
 rounds results into a target binary format and reports `BallFlags`.
 
 Despite the name, the stored representation is the endpoint pair, not a
-midpoint and a radius: `BallFloat::new(center, radius)`, `center()` and
-`radius()` convert to and from the midpoint–radius view. The
+midpoint and a radius: `BallFloat::new(center, radius)` builds an interval from
+the midpoint–radius view, and `midpoint()` and `radius()` read it back as
+IEEE 1788-2015 12.12.8 defines them. The
 [tutorial](../tutorial/ball_float.md) shows typical use; the
 [design page](../design/ball_float.md) derives the formulas and proves the
 inclusion property. The fallible pipeline wrapper is
@@ -227,9 +228,12 @@ and inexact, as IEEE 754 defines it (see
 
 `BallFloat::new` builds the interval $[c - r, c + r]$ from a center and a
 radius, enlarged so that it is exact at the requested precision.
+`BallFloat::try_new` returns the same interval, or an `ArithmeticError` where
+`new` aborts.
 
 ```mbti
 pub fn BallFloat::new(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int) -> Self
+pub fn BallFloat::try_new(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 The default precision is the larger of the precisions of `center` and
@@ -244,8 +248,8 @@ $$
 which contains $[c - r, c + r]$ (proof in the
 [design page](../design/ball_float.md#from-midpointradius-to-endpoints)). The
 endpoints $\tilde c \pm R$ are formed exactly, so they may carry more than
-$p$ bits. Aborts when `center` or `radius` is not finite or when `radius` is
-negative. A precision below 1 is treated as 1.
+$p$ bits. `new` aborts, and `try_new` returns a domain error, when `center` or
+`radius` is not finite or when `radius` is negative. A precision below 1 is treated as 1.
 
 When $c$ already has at most $p$ bits and $r = 0$, the result is the
 singleton $\{c\}$. When $c$ needs more than $p$ bits, the rounding error of
@@ -355,51 +359,38 @@ pub fn BallFloat::upper_bound(Self) -> @bin_float.BinFloat
 For an unbounded side the endpoint is an infinity. For Empty they return
 $+\infty$ and $-\infty$ respectively, so test `is_empty` first.
 
-### `BallFloat::center` and `BallFloat::radius`
+### `BallFloat::midpoint` and `BallFloat::radius`
 
-`center` and `radius` return the midpoint–radius view of a bounded interval.
-
-```mbti
-pub fn BallFloat::center(Self) -> @bin_float.BinFloat
-pub fn BallFloat::radius(Self) -> @bin_float.BinFloat
-```
-
-`center` is $(\underline{x} + \overline{x})/2$ and `radius` is
-$(\overline{x} - \underline{x})/2$. Both are dyadic, so they are computed
-exactly (the radius is rounded up only if it underflows the exponent range),
-and $[\text{center} - \text{radius}, \text{center} + \text{radius}]$ is the
-stored interval. Both abort on Empty and on unbounded intervals.
-
-> [!NOTE]
-> For bounded intervals whose endpoints are more than about $2^{16}$ binary
-> orders of magnitude apart, neither value is exact: the smaller endpoint is
-> replaced by a sticky surrogate below the last bit of the larger one (see the
-> [design page](../design/ball_float.md#far-addends-bound-endpoint-sums-by-precision)),
-> rounded to nearest for `center` and upward for `radius`. The pair then
-> describes the stored set only approximately.
-
-### `BallFloat::midpoint`
-
-`midpoint` returns the center rounded to nearest at the interval's precision.
+`midpoint` is `mid` and `radius` is `rad` of IEEE 1788-2015 12.12.8 (the names
+`mid`, `rad`, `wid`, `inf`, `sup`, `mag` and `mig` are spelled out here; the
+standard's short names would sit next to `BinFloat::inf`, so the long names are
+a documented exception).
 
 ```mbti
 pub fn BallFloat::midpoint(Self) -> @bin_float.BinFloat
+pub fn BallFloat::radius(Self) -> @bin_float.BinFloat
 ```
 
-Entire has midpoint 0. Empty and half-bounded intervals abort.
+Both are total; none aborts. `midpoint` returns NaN for Empty, 0 for Entire,
+the largest finite number of the format (the interval's precision, the widest
+exponent range of `BinFloat`) with the sign of the unbounded side for a
+half-bounded interval, and otherwise the exact midpoint rounded to nearest
+(ties to even) at the interval's precision. `midpoint_ctx` is the same
+observer for a given `BallContext` as the result format. `radius` returns NaN
+for Empty, $+\infty$ for every unbounded interval, and otherwise the smallest
+number $r$ of the precision with $\boldsymbol{x} \subseteq [m - r, m + r]$, where
+$m$ is the value `midpoint` returns: the larger of $m - \underline{x}$ and
+$\overline{x} - m$, rounded up. This is measured from the rounded midpoint, not
+from the exact center, so `[midpoint - radius, midpoint + radius]` always
+contains the interval (before 0.12 the radius was the half-width and could miss
+a bound by up to half an ulp). For $[1, 1 + 3 \cdot 2^{-52}]$ at 53 bits the
+midpoint is $1 + 2^{-51}$ and the radius $2^{-51}$.
 
-### `BallFloat::width` and `BallFloat::radius_extended`
+### `BallFloat::width`
 
-`width` returns $\operatorname{RU}_p(\overline{x} - \underline{x})$ and
-`radius_extended` returns the radius rounded up to the interval's precision.
-
-```mbti
-pub fn BallFloat::width(Self) -> @bin_float.BinFloat
-pub fn BallFloat::radius_extended(Self) -> @bin_float.BinFloat
-```
-
-Both return 0 for Empty and $+\infty$ for unbounded intervals instead of
-aborting. Both are upper bounds of the exact value.
+`width` returns $\operatorname{RU}_p(\overline{x} - \underline{x})$, an upper bound
+of the exact width. It is NaN for Empty and $+\infty$ for unbounded
+intervals.
 
 ### `BallFloat::magnitude` and `BallFloat::mignitude`
 
@@ -424,15 +415,14 @@ $$
 $$
 
 because $|\xi|$ is convex, so its maximum over an interval is at an endpoint,
-and it is monotone on each side of 0. Both are exact. Empty gives 0 for both
-(IEEE 1788 leaves them undefined there); `magnitude` of an unbounded interval
-is $+\infty$.
+and it is monotone on each side of 0. Both are exact. Empty gives NaN for both
+(12.12.8); `magnitude` of an unbounded interval is $+\infty$.
 
 ```moonbit
 ///|
 test "observers" {
   let x = iv(-3, 5)
-  inspect(x.center().to_string(), content="1p0")
+  inspect(x.midpoint().to_string(), content="1p0")
   inspect(x.radius().to_string(), content="1p2")
   inspect(x.width().to_string(), content="1p3")
   inspect(x.magnitude().to_string(), content="5p0")
@@ -1550,8 +1540,9 @@ pub fn Decoration::output(Self, &Logger) -> Unit
 
 A bounded `BallFloat` prints as `center +/- radius` with both numbers in the
 exact `BinFloat` notation (`3p-1` is $3 \cdot 2^{-1}$), so the text denotes
-exactly the stored set (up to the far-endpoint case noted under
-[`BallFloat::center`](#ballfloatcenter-and-ballfloatradius)); an unbounded one
+exactly the stored set (up to the far-endpoint case: endpoints more than about
+$2^{16}$ binary orders of magnitude apart print with a sticky surrogate for the
+smaller one); an unbounded one
 prints as `[lo, hi]`, Empty as `[empty]`. A decorated interval appends `_` and
 the decoration; NaI prints as `[nai]`.
 
@@ -1725,7 +1716,6 @@ pub fn BallFloat::atan2(Self, Self) -> Self
 pub fn BallFloat::atanh(Self) -> Self
 pub fn BallFloat::cancel_minus(Self, Self) -> Self
 pub fn BallFloat::cancel_plus(Self, Self) -> Self
-pub fn BallFloat::center(Self) -> @bin_float.BinFloat
 pub fn BallFloat::convex_hull(Self, Self) -> Self
 pub fn BallFloat::cos(Self) -> Self
 pub fn BallFloat::cosh(Self) -> Self
@@ -1782,7 +1772,6 @@ pub fn BallFloat::pown(Self, Int32) -> Self
 pub fn BallFloat::precedes(Self, Self) -> Bool
 pub fn BallFloat::precision(Self) -> Int32
 pub fn BallFloat::radius(Self) -> @bin_float.BinFloat
-pub fn BallFloat::radius_extended(Self) -> @bin_float.BinFloat
 pub fn BallFloat::recip(Self) -> Self
 pub fn BallFloat::rootn(Self, Int32) -> Self
 pub fn BallFloat::sin(Self) -> Self
@@ -1822,6 +1811,7 @@ pub fn BallFloat::try_ln(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_log10(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_log1p(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_log2(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_new(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_pow(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_rootn(Self, Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_sin(Self) -> Result[Self, @arithmetic.ArithmeticError]

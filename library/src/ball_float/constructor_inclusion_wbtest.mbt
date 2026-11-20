@@ -32,6 +32,6 @@ test "BallFloat::from_coefficient contains coefficients wider than the precision
 ///|
 test "BallFloat::from_int stays exact when the precision is wide enough" {
   let ball = BallFloat::from_int(100001, precision=53)
-  assert_eq(ball.radius().classify(), FpClass::Finite)
-  assert_true(ball.radius().is_zero())
+  assert_eq(ball.half_width().classify(), FpClass::Finite)
+  assert_true(ball.half_width().is_zero())
 }

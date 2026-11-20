@@ -938,6 +938,35 @@ pub fn BallFloat::new(
 }
 
 ///|
+/// `new` that reports an invalid center or radius as an error: a center that
+/// is not finite, a radius that is not finite or is negative.
+pub fn BallFloat::try_new(
+  center : @bin_float.BinFloat,
+  radius : @bin_float.BinFloat,
+  precision~ : Int32 = Int32::max(center.precision(), radius.precision()),
+) -> Result[BallFloat, @def.ArithmeticError] {
+  guard center.classify() == FpClass::Finite else {
+    return Err(@def.ArithmeticError::domain_error("ball center must be finite"))
+  }
+  guard radius.classify() == FpClass::Finite else {
+    return Err(@def.ArithmeticError::domain_error("ball radius must be finite"))
+  }
+  guard radius.sign() != Sign::Negative else {
+    return Err(
+      @def.ArithmeticError::domain_error("ball radius must be non-negative"),
+    )
+  }
+  Ok(
+    quantize_center_radius(
+      center,
+      radius,
+      precision,
+      RoundingMode::ToNearestEven,
+    ),
+  )
+}
+
+///|
 pub fn BallFloat::from_bounds(
   lo : @bin_float.BinFloat,
   hi : @bin_float.BinFloat,
@@ -1089,32 +1118,66 @@ fn BallFloat::contains_zero(self : BallFloat) -> Bool {
 }
 
 ///|
-pub fn BallFloat::center(self : BallFloat) -> @bin_float.BinFloat {
+/// The exact midpoint, the center of the ball view; aborts on an empty or
+/// unbounded interval. Public observers use `midpoint` and `radius`.
+fn BallFloat::center(self : BallFloat) -> @bin_float.BinFloat {
   interval_center(self)
 }
 
 ///|
-pub fn BallFloat::radius(self : BallFloat) -> @bin_float.BinFloat {
+/// The half-width around the exact `center` (the radius of the ball view).
+fn BallFloat::half_width(self : BallFloat) -> @bin_float.BinFloat {
   interval_radius(self)
 }
 
 ///|
-pub fn BallFloat::midpoint(self : BallFloat) -> @bin_float.BinFloat {
-  if self.is_entire() {
-    return @bin_float.BinFloat::zero(precision=self.precision_)
-  }
-  self
-  .center()
-  .with_precision(
-    self.precision_,
-    @bin_float.BinaryRoundingMode::RoundTiesToEven,
+/// The context in which the observers of IEEE 1788-2015 12.12.8 return their
+/// result: the precision of the interval and the widest exponent range.
+fn observer_context(precision : Int32) -> BallContext {
+  BallContext::new(
+    precision~,
+    e_min=@bin_float.binary_implementation_e_min,
+    e_max=@bin_float.binary_implementation_e_max,
   )
+}
+
+///|
+/// `mid` of IEEE 1788-2015 12.12.8, total: NaN for Empty, 0 for Entire, the
+/// largest finite number of the format (precision, widest exponent range) with
+/// the sign of the unbounded side for a half-bounded interval, and the exact
+/// midpoint rounded to nearest otherwise. `midpoint_ctx` takes the format.
+pub fn BallFloat::midpoint(self : BallFloat) -> @bin_float.BinFloat {
+  self.midpoint_ctx(observer_context(self.precision_)).0
+}
+
+///|
+/// `rad` of IEEE 1788-2015 12.12.8, total: NaN for Empty, +infinity for an
+/// unbounded interval, and otherwise the smallest number of the precision with
+/// the interval inside `[m - r, m + r]`, where `m` is the value `midpoint`
+/// returns (not the exact center).
+pub fn BallFloat::radius(self : BallFloat) -> @bin_float.BinFloat {
+  if self.is_empty() {
+    return @bin_float.BinFloat::nan(precision=self.precision_)
+  }
+  if !self.is_common_interval() {
+    return pos_inf(self.precision_)
+  }
+  let m = self.midpoint()
+  let below = upper_round_bound(
+    exact_sub(m, self.lo_, mode=RoundingMode::TowardPositive),
+    self.precision_,
+  )
+  let above = upper_round_bound(
+    exact_sub(self.hi_, m, mode=RoundingMode::TowardPositive),
+    self.precision_,
+  )
+  bin_max(below, above)
 }
 
 ///|
 pub fn BallFloat::width(self : BallFloat) -> @bin_float.BinFloat {
   if self.is_empty() {
-    return @bin_float.BinFloat::zero(precision=self.precision_)
+    return @bin_float.BinFloat::nan(precision=self.precision_)
   }
   if !self.is_common_interval() {
     return pos_inf(self.precision_)
@@ -1128,33 +1191,20 @@ pub fn BallFloat::width(self : BallFloat) -> @bin_float.BinFloat {
 ///|
 pub fn BallFloat::magnitude(self : BallFloat) -> @bin_float.BinFloat {
   if self.is_empty() {
-    return @bin_float.BinFloat::zero(precision=self.precision_)
+    return @bin_float.BinFloat::nan(precision=self.precision_)
   }
   bin_max(self.lo_.abs(), self.hi_.abs())
 }
 
 ///|
 pub fn BallFloat::mignitude(self : BallFloat) -> @bin_float.BinFloat {
-  if self.is_empty() || self.contains_zero() {
+  if self.is_empty() {
+    return @bin_float.BinFloat::nan(precision=self.precision_)
+  }
+  if self.contains_zero() {
     return @bin_float.BinFloat::zero(precision=self.precision_)
   }
   bin_min(self.lo_.abs(), self.hi_.abs())
-}
-
-///|
-pub fn BallFloat::radius_extended(self : BallFloat) -> @bin_float.BinFloat {
-  if self.is_empty() {
-    return @bin_float.BinFloat::zero(precision=self.precision_)
-  }
-  if !self.is_common_interval() {
-    return pos_inf(self.precision_)
-  }
-  self
-  .radius()
-  .with_precision(
-    self.precision_,
-    @bin_float.BinaryRoundingMode::RoundTowardPositive,
-  )
 }
 
 ///|
@@ -1899,7 +1949,7 @@ pub impl Show for BallFloat with fn to_string(self) {
   if self.is_empty() {
     "[empty]"
   } else if self.is_common_interval() {
-    self.center().to_string() + " +/- " + self.radius().to_string()
+    self.center().to_string() + " +/- " + self.half_width().to_string()
   } else {
     "[" + self.lo_.to_string() + ", " + self.hi_.to_string() + "]"
   }

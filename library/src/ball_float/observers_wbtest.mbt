@@ -4,7 +4,7 @@ fn observer_exact_diff(
   b : @bin_float.BinFloat,
 ) -> @bin_float.BinFloat {
   // a - b exactly: both operands have a few hundred bits at most in these tests
-  a.sub_ctx(b, @bin_float.BinaryContext::unbounded(2000)).0
+  a.sub_ctx(b, @bin_float.BinaryContext::new(precision=2000)).0
 }
 
 ///|
@@ -50,7 +50,7 @@ test "radius is the larger distance from the midpoint, rounded up, for many inte
               -shift - p,
               64,
             ),
-            @bin_float.BinaryContext::unbounded(500),
+            @bin_float.BinaryContext::new(precision=500),
           ).0
         let x = BallFloat::from_bounds(lo, hi, precision=p)
         let m = x.midpoint()
@@ -61,10 +61,61 @@ test "radius is the larger distance from the midpoint, rounded up, for many inte
         assert_true(r.compare(far) >= 0)
         // smallest number of the format that covers it
         assert_eq(
-          r.compare(far.with_precision(p, RoundingMode::TowardPositive)),
+          r.compare(
+            far.with_precision(
+              p,
+              @bin_float.BinaryRoundingMode::RoundTowardPositive,
+            ),
+          ),
           0,
         )
       }
     }
   }
+}
+
+///|
+test "observers are total and follow 12.12.8 on Empty, Entire and half-bounded intervals" {
+  let one = @bin_float.BinFloat::one(precision=53)
+  let inf = @bin_float.BinFloat::inf(Sign::Positive, precision=53)
+  let empty = BallFloat::empty(precision=53)
+  for
+    v in [
+      empty.midpoint(),
+      empty.radius(),
+      empty.width(),
+      empty.magnitude(),
+      empty.mignitude(),
+    ] {
+    assert_eq(v.classify(), FpClass::NaN)
+  }
+  let entire = BallFloat::entire(precision=53)
+  assert_true(entire.midpoint().is_zero())
+  assert_eq(entire.radius().classify(), FpClass::Infinity)
+  assert_eq(entire.width().classify(), FpClass::Infinity)
+  let upper = BallFloat::from_bounds(one, inf, precision=53)
+  let lower = BallFloat::from_bounds(inf.neg(), one, precision=53)
+  assert_eq(upper.midpoint().classify(), FpClass::Finite)
+  assert_true(upper.midpoint().sign() == Sign::Positive)
+  assert_eq(lower.midpoint().classify(), FpClass::Finite)
+  assert_true(lower.midpoint().sign() == Sign::Negative)
+  assert_eq(upper.midpoint().compare(lower.midpoint().neg()), 0)
+  assert_eq(upper.radius().classify(), FpClass::Infinity)
+  assert_eq(lower.radius().classify(), FpClass::Infinity)
+  assert_eq(upper.mignitude().compare(one), 0)
+  assert_eq(upper.magnitude().classify(), FpClass::Infinity)
+}
+
+///|
+test "try_new reports an invalid center or radius" {
+  let one = @bin_float.BinFloat::one(precision=53)
+  let inf = @bin_float.BinFloat::inf(Sign::Positive, precision=53)
+  let nan = @bin_float.BinFloat::nan(precision=53)
+  assert_true(
+    BallFloat::try_new(one, one, precision=53).unwrap().is_member(one),
+  )
+  assert_true(BallFloat::try_new(inf, one, precision=53) is Err(_))
+  assert_true(BallFloat::try_new(nan, one, precision=53) is Err(_))
+  assert_true(BallFloat::try_new(one, inf, precision=53) is Err(_))
+  assert_true(BallFloat::try_new(one, one.neg(), precision=53) is Err(_))
 }

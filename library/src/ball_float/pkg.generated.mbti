@@ -51,7 +51,6 @@ pub fn BallFloat::atan2(Self, Self) -> Self
 pub fn BallFloat::atanh(Self) -> Self
 pub fn BallFloat::cancel_minus(Self, Self) -> Self
 pub fn BallFloat::cancel_plus(Self, Self) -> Self
-pub fn BallFloat::center(Self) -> @bin_float.BinFloat
 pub fn BallFloat::convex_hull(Self, Self) -> Self
 pub fn BallFloat::cos(Self) -> Self
 pub fn BallFloat::cosh(Self) -> Self
@@ -108,7 +107,6 @@ pub fn BallFloat::pown(Self, Int32) -> Self
 pub fn BallFloat::precedes(Self, Self) -> Bool
 pub fn BallFloat::precision(Self) -> Int32
 pub fn BallFloat::radius(Self) -> @bin_float.BinFloat
-pub fn BallFloat::radius_extended(Self) -> @bin_float.BinFloat
 pub fn BallFloat::recip(Self) -> Self
 pub fn BallFloat::rootn(Self, Int32) -> Self
 pub fn BallFloat::sin(Self) -> Self
@@ -148,6 +146,7 @@ pub fn BallFloat::try_ln(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_log10(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_log1p(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_log2(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BallFloat::try_new(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_pow(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_rootn(Self, Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::try_sin(Self) -> Result[Self, @arithmetic.ArithmeticError]
