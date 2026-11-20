@@ -87,3 +87,10 @@ pub fn bin_limbs_window_combine(
     subtract, carry_in,
   )
 }
+
+///|
+/// Smallest product, in limbs, that the NTT multiplies, besides the limit on
+/// the shorter operand (`bin_coeff_ntt_mul_min_words`): none on the targets
+/// without the native row implementations, where the limit on the shorter
+/// operand is the whole rule. The native value is in `coeff_thresholds_native.mbt`.
+let bin_coeff_ntt_mul_min_product_words : Int32 = 0
