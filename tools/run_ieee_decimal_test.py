@@ -1,3 +1,7 @@
+import contextlib
+import io
+import os
+import signal
 import unittest
 import json
 import subprocess
@@ -159,11 +163,24 @@ class IeeeDecimalCorpusTests(unittest.TestCase):
             self.assertEqual(checked["failedCases"], 1)
             self.assertNotEqual(checked["exitCode"], 0)
 
+    def temporary_root(self) -> tuple[tempfile.TemporaryDirectory[str], Path]:
+        directory = tempfile.TemporaryDirectory()
+        root = Path(directory.name)
+        (root / "library/src/decimal").mkdir(parents=True)
+        return directory, root
+
+    def assert_real_tree_untouched(self) -> None:
+        # While the generated files exist, a `moon` command that scans the real tree
+        # plans them and fails when they are deleted (#417): a test never writes there.
+        real = run_ieee_decimal.ROOT / "library/src/decimal"
+        self.assertEqual(list(real.glob(run_ieee_decimal.GENERATED_FIXTURE_GLOB)), [])
+
     def test_run_targets_runs_only_generated_files(self) -> None:
         calls: list[list[str]] = []
 
         def fake_run(command: list[str], **_: object) -> subprocess.CompletedProcess[str]:
             calls.append(command)
+            self.assert_real_tree_untouched()
             total = run_ieee_decimal.count_generated_tests(
                 run_ieee_decimal.split_fixture_test(run_ieee_decimal.render_moon_fixture_test())
             )
@@ -171,27 +188,68 @@ class IeeeDecimalCorpusTests(unittest.TestCase):
                 command, 0, stdout=f"Total tests: {total}, passed: {total}, failed: 0.\n", stderr=""
             )
 
-        with patch.object(run_ieee_decimal.subprocess, "run", fake_run):
-            results = run_ieee_decimal.run_targets(["native"], generated_only=True)
+        directory, root = self.temporary_root()
+        with directory, patch.object(run_ieee_decimal.subprocess, "run", fake_run):
+            results = run_ieee_decimal.run_targets(["native"], generated_only=True, root=root)
+            self.assertEqual(list((root / "library/src/decimal").iterdir()), [])
         self.assertEqual(results[0]["failedCases"], 0)
         paths = [item for item in calls[0] if item.endswith(".mbt")]
         self.assertTrue(paths)
         self.assertTrue(all("ieee_corpus_generated_" in item for item in paths))
         self.assertNotIn("library/src/decimal", calls[0])
+        self.assert_real_tree_untouched()
 
     def test_full_run_keeps_whole_package_on_every_target(self) -> None:
         calls: list[list[str]] = []
 
         def fake_run(command: list[str], **_: object) -> subprocess.CompletedProcess[str]:
             calls.append(command)
+            self.assert_real_tree_untouched()
             return subprocess.CompletedProcess(
                 command, 0, stdout="Total tests: 518, passed: 518, failed: 0.\n", stderr=""
             )
 
-        with patch.object(run_ieee_decimal.subprocess, "run", fake_run):
-            results = run_ieee_decimal.run_targets(["native", "js"])
+        directory, root = self.temporary_root()
+        with directory, patch.object(run_ieee_decimal.subprocess, "run", fake_run):
+            results = run_ieee_decimal.run_targets(["native", "js"], root=root)
         self.assertEqual([r["totalCases"] for r in results], [518, 518])
         self.assertTrue(all("library/src/decimal" in call for call in calls))
+        self.assert_real_tree_untouched()
+
+    def test_files_left_by_an_interrupted_run_are_removed_not_fatal(self) -> None:
+        directory, root = self.temporary_root()
+        with directory:
+            decimal_directory = root / "library/src/decimal"
+            stale = decimal_directory / "ieee_corpus_generated_99_wbtest.mbt"
+            stale.write_text("stale", encoding="utf-8")
+            kept = decimal_directory / "ordinary_wbtest.mbt"
+            kept.write_text("kept", encoding="utf-8")
+
+            def fake_run(command: list[str], **_: object) -> subprocess.CompletedProcess[str]:
+                self.assertFalse(stale.exists())
+                return subprocess.CompletedProcess(command, 0, stdout="Total tests: 1, passed: 1, failed: 0.\n", stderr="")
+
+            with patch.object(run_ieee_decimal.subprocess, "run", fake_run), contextlib.redirect_stderr(io.StringIO()) as notice:
+                run_ieee_decimal.run_targets(["native"], root=root)
+            self.assertIn("removed 1 generated IEEE fixture files", notice.getvalue())
+            self.assertEqual(sorted(path.name for path in decimal_directory.iterdir()), ["ordinary_wbtest.mbt"])
+
+    def test_a_sigterm_still_removes_the_generated_files(self) -> None:
+        directory, root = self.temporary_root()
+        with directory:
+            previous = signal.getsignal(signal.SIGTERM)
+
+            def fake_run(command: list[str], **_: object) -> subprocess.CompletedProcess[str]:
+                self.assertEqual(len(list((root / "library/src/decimal").glob(run_ieee_decimal.GENERATED_FIXTURE_GLOB))) > 0, True)
+                os.kill(os.getpid(), signal.SIGTERM)
+                raise AssertionError("the SIGTERM handler should have exited")
+
+            with patch.object(run_ieee_decimal.subprocess, "run", fake_run):
+                with self.assertRaises(SystemExit) as raised:
+                    run_ieee_decimal.run_targets(["native"], root=root)
+            self.assertEqual(raised.exception.code, 143)
+            self.assertEqual(list((root / "library/src/decimal").iterdir()), [])
+            self.assertIs(signal.getsignal(signal.SIGTERM), previous)
 
     def test_format_context_uses_normal_exponent_bounds(self) -> None:
         self.assertEqual(run_ieee_decimal.decimal_context("decimal32").Emin, -95)
