@@ -31,6 +31,7 @@ pub fn BallFloatResult::cancel_plus(Self, Self) -> Self
 pub fn BallFloatResult::ceil(Self) -> Self
 pub fn BallFloatResult::convex_hull(Self, Self) -> Self
 pub fn BallFloatResult::cos(Self) -> Self
+pub fn BallFloatResult::cos_rev(Self, x? : Self) -> Self
 pub fn BallFloatResult::cosh(Self) -> Self
 pub fn BallFloatResult::cosh_rev(Self, x? : Self) -> Self
 pub fn BallFloatResult::cospi(Self) -> Self
@@ -78,6 +79,7 @@ pub fn BallFloatResult::round_ties_to_away(Self) -> Self
 pub fn BallFloatResult::round_ties_to_even(Self) -> Self
 pub fn BallFloatResult::sign(Self) -> Self
 pub fn BallFloatResult::sin(Self) -> Self
+pub fn BallFloatResult::sin_rev(Self, x? : Self) -> Self
 pub fn BallFloatResult::sinh(Self) -> Self
 pub fn BallFloatResult::sinpi(Self) -> Self
 pub fn BallFloatResult::sqr(Self) -> Self
@@ -85,6 +87,7 @@ pub fn BallFloatResult::sqr_rev(Self, x? : Self) -> Self
 pub fn BallFloatResult::sqrt(Self) -> Self
 pub fn BallFloatResult::sub(Self, Self) -> Self
 pub fn BallFloatResult::tan(Self) -> Self
+pub fn BallFloatResult::tan_rev(Self, x? : Self) -> Self
 pub fn BallFloatResult::tanh(Self) -> Self
 pub fn BallFloatResult::tanpi(Self) -> Self
 pub fn BallFloatResult::trunc(Self) -> Self

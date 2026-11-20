@@ -36,6 +36,7 @@ INTERVAL_PHASES = (
     "integer-functions",
     "multiplicative-reverse",
     "algebraic-reverse",
+    "trigonometric-reverse",
 )
 SUPPORTED_TARGETS = ("native", "wasm", "wasm-gc", "js")
 
@@ -218,10 +219,29 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
             "BINARY: TestFloat + MPFR",
             conformance_command(BackendName.BINARY, jobs),
         ),
-        "interval": Stage(
-            "INTERVAL: IEEE 1788",
-            conformance_command(BackendName.INTERVAL, jobs),
-        ),
+        "interval": [
+            Stage(
+                "INTERVAL: IEEE 1788",
+                conformance_command(BackendName.INTERVAL, jobs),
+            ),
+            # The long run of the reverse trigonometric reference test (4,200
+            # cases, about 40 s): marked `#skip` so a plain `moon test` runs only
+            # its sample, and run here with `--include-skipped`.
+            Stage(
+                "INTERVAL: reverse trigonometric reference",
+                (
+                    "sh",
+                    "tools/run_moon_clean_exec.sh",
+                    "test",
+                    "library/src/ball_float/trig_reverse_reference_wbtest.mbt",
+                    "--include-skipped",
+                    "--target",
+                    "native",
+                    "--deny-warn",
+                    "--frozen",
+                ),
+            ),
+        ],
         "elementary": [
             Stage(
                 "ELEMENTARY: correctness and candidate workload",
@@ -433,7 +453,7 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
         suites["decimal"],
         *suites["decimal_gda"],
         suites["binary"],
-        suites["interval"],
+        *suites["interval"],
     ]
 
 

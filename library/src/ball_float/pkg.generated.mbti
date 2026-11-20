@@ -59,6 +59,7 @@ pub fn BallFloat::cancel_plus(Self, Self) -> Self
 pub fn BallFloat::ceil(Self) -> Self
 pub fn BallFloat::convex_hull(Self, Self) -> Self
 pub fn BallFloat::cos(Self) -> Self
+pub fn BallFloat::cos_rev(Self, x? : Self) -> Self
 pub fn BallFloat::cosh(Self) -> Self
 pub fn BallFloat::cosh_rev(Self, x? : Self) -> Self
 pub fn BallFloat::cospi(Self) -> Self
@@ -124,6 +125,7 @@ pub fn BallFloat::round_ties_to_away(Self) -> Self
 pub fn BallFloat::round_ties_to_even(Self) -> Self
 pub fn BallFloat::sign(Self) -> Self
 pub fn BallFloat::sin(Self) -> Self
+pub fn BallFloat::sin_rev(Self, x? : Self) -> Self
 pub fn BallFloat::sinh(Self) -> Self
 pub fn BallFloat::sinpi(Self) -> Self
 pub fn BallFloat::sqr(Self) -> Self
@@ -134,6 +136,7 @@ pub fn BallFloat::strict_precedes(Self, Self) -> Bool
 pub fn BallFloat::sub(Self, Self) -> Self
 pub fn BallFloat::subset(Self, Self) -> Bool
 pub fn BallFloat::tan(Self) -> Self
+pub fn BallFloat::tan_rev(Self, x? : Self) -> Self
 pub fn BallFloat::tanh(Self) -> Self
 pub fn BallFloat::tanpi(Self) -> Self
 pub fn BallFloat::to_repr(Self) -> @debug.Repr
@@ -209,6 +212,7 @@ pub fn BallFloatDecorated::cancel_plus(Self, Self) -> Self
 pub fn BallFloatDecorated::ceil(Self) -> Self
 pub fn BallFloatDecorated::convex_hull(Self, Self) -> Self
 pub fn BallFloatDecorated::cos(Self) -> Self
+pub fn BallFloatDecorated::cos_rev(Self, x? : Self) -> Self
 pub fn BallFloatDecorated::cosh(Self) -> Self
 pub fn BallFloatDecorated::cosh_rev(Self, x? : Self) -> Self
 pub fn BallFloatDecorated::cospi(Self) -> Self
@@ -260,6 +264,7 @@ pub fn BallFloatDecorated::round_ties_to_away(Self) -> Self
 pub fn BallFloatDecorated::round_ties_to_even(Self) -> Self
 pub fn BallFloatDecorated::sign(Self) -> Self
 pub fn BallFloatDecorated::sin(Self) -> Self
+pub fn BallFloatDecorated::sin_rev(Self, x? : Self) -> Self
 pub fn BallFloatDecorated::sinh(Self) -> Self
 pub fn BallFloatDecorated::sinpi(Self) -> Self
 pub fn BallFloatDecorated::sqr(Self) -> Self
@@ -270,6 +275,7 @@ pub fn BallFloatDecorated::strict_precedes(Self, Self) -> Bool
 pub fn BallFloatDecorated::sub(Self, Self) -> Self
 pub fn BallFloatDecorated::subset(Self, Self) -> Bool
 pub fn BallFloatDecorated::tan(Self) -> Self
+pub fn BallFloatDecorated::tan_rev(Self, x? : Self) -> Self
 pub fn BallFloatDecorated::tanh(Self) -> Self
 pub fn BallFloatDecorated::tanpi(Self) -> Self
 pub fn BallFloatDecorated::to_string(Self) -> String

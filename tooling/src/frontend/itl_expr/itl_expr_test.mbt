@@ -179,3 +179,22 @@ test "ITL algebraic reverse functions: bare, with a prior, and decorated" {
     assert_true(result.passed(), msg=case.id() + ": " + result.message())
   }
 }
+
+///|
+test "ITL trigonometric reverse functions: bare, with a prior, and decorated" {
+  let source =
+    #|testcase trigonometric_reverse {
+    #|  sinRev [0.0,0.0] = [entire];
+    #|  sinRevBin [0.0,0.0] [-1.0,1.0] = [0.0,0.0];
+    #|  sinRevBin [-0.0,-0.0] [3.0,3.5] = [0x1.921fb54442d18p+1,0x1.921fb54442d19p+1];
+    #|  cosRevBin [1.0,1.0]_com [-1.0,1.0]_com = [0.0,0.0]_trv;
+    #|  cosRev [-2.0,-1.1] = [empty];
+    #|  tanRev [0.0,0.0] = [entire];
+    #|  tanRevBin [0.0,0.0] [-1.5708,1.5708] = [0.0,0.0];
+    #|}
+  let cases = @itl_expr.parse_itl(source).unwrap()
+  for case in cases {
+    let result = @itl_expr.execute_case(case)
+    assert_true(result.passed(), msg=case.id() + ": " + result.message())
+  }
+}

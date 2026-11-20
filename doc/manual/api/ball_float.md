@@ -932,6 +932,64 @@ test "sqr_rev and pown_rev" {
 }
 ```
 
+### `BallFloat::sin_rev`, `BallFloat::cos_rev` and `BallFloat::tan_rev`
+
+IEEE 1788-2015 10.5.4 and Table 10.1. Each is the hull of
+$\{\, x \in \boldsymbol{x} \mid \varphi(x) \in \boldsymbol{c} \,\}$ for the receiver
+$\boldsymbol{c}$ and the optional prior $\boldsymbol{x}$ (default Entire).
+
+```mbti
+pub fn BallFloat::sin_rev(Self, x? : Self) -> Self
+pub fn BallFloat::cos_rev(Self, x? : Self) -> Self
+pub fn BallFloat::tan_rev(Self, x? : Self) -> Self
+```
+
+The preimage is a periodic union of intervals. With $\boldsymbol{c}' =
+\boldsymbol{c} \cap [-1, 1]$, $A = \arcsin \underline{c'}$ and $B = \arcsin
+\overline{c'}$, the preimage of `sin_rev` is $\bigcup_k [A + 2\pi k, B + 2\pi k]
+\cup [\pi - B + 2\pi k, \pi - A + 2\pi k]$; `cos_rev` and `tan_rev` are analogous
+(`tan_rev`: $\bigcup_k (\arctan \underline{c} + \pi k, \arctan \overline{c} + \pi k)$, a
+bound at $\pm\infty$ giving the pole $\pm\pi/2 + \pi k$, which is not in the domain).
+With the default prior the result is Entire for every $\boldsymbol{c}$ that meets the
+range of the function; $\boldsymbol{c}$ outside $[-1, 1]$ gives Empty for `sin_rev` and
+`cos_rev`, and $\boldsymbol{c} \supseteq [-1, 1]$ (`tan_rev`: $\boldsymbol{c} = $ Entire)
+returns the prior itself. With a bounded prior only the first and the last piece that
+meet it matter, so the cost does not depend on how many periods the prior spans.
+
+The result is the hull of the true set in the type: every comparison of a prior
+end with a piece end is decided exactly, and an end of the result that comes from a
+piece is the exact directed rounding of that end (`RD` for a lower end, `RU` for an upper
+end). This is the tightest result, and it can be narrower than a reference value that
+leaves an ulp of slack. For example `sin_rev([0, 0], x = [RU(pi), 7])` is
+$[RD(2\pi), RU(2\pi)]$ and `sin_rev([0, 0], x = [RU(pi), 6])` is Empty. How the ends are
+decided is on the [design page](../design/ball_float.md#reverse-sine-cosine-and-tangent).
+The one limit is the forward trigonometric one: an end of the prior at or beyond
+$2^{\max(65536, 4p) + 1}$ in magnitude is kept as it is (valid, not tight), decided before
+any work is done, and a prior whose finite ends are all beyond it is returned at once. For
+a prior end of magnitude $2^e$ inside the limit the cost grows with $e$ like the cost of the
+forward functions of the
+[trigonometric functions section](#ballfloatsin-ballfloatcos-ballfloattan-ballfloattry_sin-ballfloattry_cos-ballfloattry_tan),
+the working precision following $e$.
+
+```moonbit
+///|
+test "sin_rev with a prior" {
+  let rd_pi = @bin_float.BinFloat::from_double(3.141592653589793)
+  let ru_pi = @bin_float.BinFloat::from_double(3.1415926535897936)
+  let c = iv(0, 0)
+  // the multiples of pi in [3, 4]: only pi, which is not a float
+  let r = c.sin_rev(x=iv(3, 4))
+  assert_true(r.lower_bound().compare(rd_pi) == 0)
+  assert_true(r.upper_bound().compare(ru_pi) == 0)
+  // the prior starts above pi and ends before 2 pi: nothing
+  let six = @bin_float.BinFloat::from_int(6)
+  let beyond = @ball_float.BallFloat::from_bounds(ru_pi, six)
+  assert_true(c.sin_rev(x=beyond).is_empty())
+  // the default prior
+  assert_true(c.sin_rev().is_entire())
+}
+```
+
 ### `BallFloat::mul_rev_to_pair` and `BallFloat::mul_rev`
 
 IEEE 1788-2015 10.5.5 and Table 10.1. For intervals $\boldsymbol{b}$ and
@@ -1634,6 +1692,17 @@ pub fn BallFloatDecorated::pown_rev(Self, Int, x? : Self) -> Self
 pub fn BallFloatDecorated::cosh_rev(Self, x? : Self) -> Self
 ```
 
+### `BallFloatDecorated::sin_rev`, `BallFloatDecorated::cos_rev` and `BallFloatDecorated::tan_rev`
+
+The trivial decorated version of 11.7.1: NaI if any input (the interval or the prior) is
+NaI, else the bare result decorated `Trv`.
+
+```mbti
+pub fn BallFloatDecorated::sin_rev(Self, x? : Self) -> Self
+pub fn BallFloatDecorated::cos_rev(Self, x? : Self) -> Self
+pub fn BallFloatDecorated::tan_rev(Self, x? : Self) -> Self
+```
+
 ### `BallFloatDecorated::mul_rev_to_pair` and `BallFloatDecorated::mul_rev`
 
 `mul_rev_to_pair` follows 12.12.3. If either input is NaI both outputs are NaI.
@@ -1954,6 +2023,7 @@ pub fn BallFloat::cancel_plus(Self, Self) -> Self
 pub fn BallFloat::ceil(Self) -> Self
 pub fn BallFloat::convex_hull(Self, Self) -> Self
 pub fn BallFloat::cos(Self) -> Self
+pub fn BallFloat::cos_rev(Self, x? : Self) -> Self
 pub fn BallFloat::cosh(Self) -> Self
 pub fn BallFloat::cosh_rev(Self, x? : Self) -> Self
 pub fn BallFloat::cospi(Self) -> Self
@@ -2019,6 +2089,7 @@ pub fn BallFloat::round_ties_to_away(Self) -> Self
 pub fn BallFloat::round_ties_to_even(Self) -> Self
 pub fn BallFloat::sign(Self) -> Self
 pub fn BallFloat::sin(Self) -> Self
+pub fn BallFloat::sin_rev(Self, x? : Self) -> Self
 pub fn BallFloat::sinh(Self) -> Self
 pub fn BallFloat::sinpi(Self) -> Self
 pub fn BallFloat::sqr(Self) -> Self
@@ -2029,6 +2100,7 @@ pub fn BallFloat::strict_precedes(Self, Self) -> Bool
 pub fn BallFloat::sub(Self, Self) -> Self
 pub fn BallFloat::subset(Self, Self) -> Bool
 pub fn BallFloat::tan(Self) -> Self
+pub fn BallFloat::tan_rev(Self, x? : Self) -> Self
 pub fn BallFloat::tanh(Self) -> Self
 pub fn BallFloat::tanpi(Self) -> Self
 pub fn BallFloat::to_repr(Self) -> @debug.Repr
@@ -2104,6 +2176,7 @@ pub fn BallFloatDecorated::cancel_plus(Self, Self) -> Self
 pub fn BallFloatDecorated::ceil(Self) -> Self
 pub fn BallFloatDecorated::convex_hull(Self, Self) -> Self
 pub fn BallFloatDecorated::cos(Self) -> Self
+pub fn BallFloatDecorated::cos_rev(Self, x? : Self) -> Self
 pub fn BallFloatDecorated::cosh(Self) -> Self
 pub fn BallFloatDecorated::cosh_rev(Self, x? : Self) -> Self
 pub fn BallFloatDecorated::cospi(Self) -> Self
@@ -2155,6 +2228,7 @@ pub fn BallFloatDecorated::round_ties_to_away(Self) -> Self
 pub fn BallFloatDecorated::round_ties_to_even(Self) -> Self
 pub fn BallFloatDecorated::sign(Self) -> Self
 pub fn BallFloatDecorated::sin(Self) -> Self
+pub fn BallFloatDecorated::sin_rev(Self, x? : Self) -> Self
 pub fn BallFloatDecorated::sinh(Self) -> Self
 pub fn BallFloatDecorated::sinpi(Self) -> Self
 pub fn BallFloatDecorated::sqr(Self) -> Self
@@ -2165,6 +2239,7 @@ pub fn BallFloatDecorated::strict_precedes(Self, Self) -> Bool
 pub fn BallFloatDecorated::sub(Self, Self) -> Self
 pub fn BallFloatDecorated::subset(Self, Self) -> Bool
 pub fn BallFloatDecorated::tan(Self) -> Self
+pub fn BallFloatDecorated::tan_rev(Self, x? : Self) -> Self
 pub fn BallFloatDecorated::tanh(Self) -> Self
 pub fn BallFloatDecorated::tanpi(Self) -> Self
 pub fn BallFloatDecorated::to_string(Self) -> String
