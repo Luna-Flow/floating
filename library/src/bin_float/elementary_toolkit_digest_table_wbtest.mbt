@@ -79,5 +79,10 @@ let toolkit_digest_expected : Array[String] = [
   "exp_taylor 200 9/9 0e87b8d9488c4b03", "exp_taylor 300 9/9 e02e9bc5596c2c3d", "exp_taylor 600 9/9 cf874a2a920a450e",
   "exp_taylor 1200 9/9 58650ab599606382", "exp_taylor 2500 9/9 72ff6eb63d9670a0",
   "ln_agm 384 12/18 3611c7fca446f9d7", "ln_agm 640 12/18 dad4f1a1c1680b0f", "ln_agm 1024 12/18 c7d0870f58d1019e",
-  "ln_agm 2048 12/18 833166547de51c16",
+  "ln_agm 2048 12/18 833166547de51c16", "exp_burst_default 1088 31/38 ab80cf8fb484033f",
+  "exp_burst_default 2112 31/38 c247631039535bf6", "exp_burst_default 3072 31/38 5c73e85e70d143f6",
+  "exp_burst_default 4160 31/38 ffffd25e3329a9d5", "exp_burst_default 6208 31/38 cae751e3fbd2b2b0",
+  "trig_burst_default 1536 44/74 17e44af6d1048596", "trig_burst_default 2112 44/74 d8996dff6d9833e9",
+  "trig_burst_default 3072 44/74 5b8aa13adbb79cd6", "trig_burst_default 4160 44/74 bda3ab3a375ff165",
+  "trig_burst_default 6208 44/74 a56b2bdea4085579",
 ]

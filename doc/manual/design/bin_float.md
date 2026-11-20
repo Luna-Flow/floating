@@ -1419,6 +1419,8 @@ point (16, factor 4, split at 40 terms) was the fastest at 8256 bits (1.5 ms
 against 1.6 to 2.3 ms for the other tried settings) and within about 15 % of the
 fastest at 2112 bits.
 
+The sweep was repeated after the binary-splitting trees and the fold became cheaper (36 settings, 1024 to 8192 bits of precision, `exp` and `sin`, three arguments per size, instructions by the two-count method). The constants (16, 4, 40) stay the best at 8192 bits, but below that a larger first chunk and fewer splitting stages win, and the spread between arguments at one setting is 25 to 30 percent, so a setting is judged by its ratio to the old one on the same argument. On Native the constants are therefore functions of the working precision `w`: for `w <= 3000` the first chunk is 24 bits, the factor 8 and the splitting starts at 80 terms; for `3000 < w <= 6000` the same with factor 4; above 6000 the constants above. Against (16, 4, 40) the instructions per call are 0.69 to 0.99 for `sin` and 0.81 to 0.98 for `exp` at working precisions up to 4160, and the two settings are the same code above 6000. The other targets keep (16, 4, 40) at every precision (not measured). A different chunking gives a different but valid enclosure, so the digest rows of the kernels pin the old constants explicitly and new rows pin the kernels with the constants of the working precision.
+
 *Evidence for the `exp` kernel.* White-box tests
 (`elementary_burst_exp_wbtest.mbt`): the enclosure at $w$ contains the series
 enclosure at $w + 256$ for every argument the kernel accepts in a corpus of

@@ -210,7 +210,14 @@ test "mutated bit-burst kernels are caught by the containment test" {
   }
   assert_true(
     burst_test_caught(
-      binary_exp_bounds_burst(value, work, mutation=dropped),
+      binary_exp_bounds_burst(
+        value,
+        work,
+        mutation=dropped,
+        first_chunk=binary_exp_burst_first_chunk,
+        chunk_factor=binary_exp_burst_chunk_factor,
+        split_min_terms=binary_exp_burst_split_min_terms,
+      ),
       reference,
     ),
   )
@@ -223,7 +230,14 @@ test "mutated bit-burst kernels are caught by the containment test" {
   }
   assert_true(
     burst_test_caught(
-      binary_exp_bounds_burst(value, work, mutation=shortened),
+      binary_exp_bounds_burst(
+        value,
+        work,
+        mutation=shortened,
+        first_chunk=binary_exp_burst_first_chunk,
+        chunk_factor=binary_exp_burst_chunk_factor,
+        split_min_terms=binary_exp_burst_split_min_terms,
+      ),
       reference,
     ),
   )
@@ -244,7 +258,14 @@ test "mutated bit-burst kernels are caught by the containment test" {
   }
   assert_true(
     burst_test_caught(
-      binary_exp_bounds_burst(large, work, mutation=coarse),
+      binary_exp_bounds_burst(
+        large,
+        work,
+        mutation=coarse,
+        first_chunk=binary_exp_burst_first_chunk,
+        chunk_factor=binary_exp_burst_chunk_factor,
+        split_min_terms=binary_exp_burst_split_min_terms,
+      ),
       large_reference,
     ),
   )
