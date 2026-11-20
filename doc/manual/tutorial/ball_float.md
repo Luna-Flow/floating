@@ -249,9 +249,10 @@ test "elementary functions" {
 ```
 
 Every `*_interval` function has a total form, which always returns a valid
-enclosure, and most also have a `try_*_interval` form. The two differ only
-when the certified evaluation runs out of its precision budget: the total form
-then widens to a safe range (for example $[-1, 1]$ for `sin_interval`), and
+enclosure at any precision, and most also have a `try_*_interval` form. They
+use the same kernel and give the same interval whenever the certified
+evaluation succeeds. When it runs out of its work budget the total form widens
+to the range of the function (for example $[-1, 1]$ for `sin_interval`), and
 the `try_` form returns an `ArithmeticError` describing the failure.
 
 ### Round to a target format
@@ -366,9 +367,9 @@ chain of operations so that you test for failure once at the end.
 
 Each interval carries a working `precision` in bits; results of binary
 operations use the larger precision of the two operands. Arithmetic costs a
-few endpoint operations at that precision. Elementary functions evaluate
-certified series at about $p + 24$ to $p + 192$ bits and may try up to 12
-work precisions on hard inputs, so they cost several times more than one multiplication.
+few endpoint operations at that precision. Elementary functions evaluate the certified `bin_float` kernels at the
+interval's precision (with their own guard bits, up to 12 work precisions on
+hard inputs), so they cost several times more than one multiplication.
 Raising the precision narrows the rounding part of the width, but not the part
 that comes from the width of the inputs.
 
@@ -420,11 +421,6 @@ the result is the two-point interval of its $p$-bit neighbours, not a point.
 The default of 16 bits gives a singleton only for $|n| \le 2^{16}$ (and
 larger integers with enough trailing zero bits); pass a precision at least as
 large as the bit length of the integer.
-
-**Tiny arguments to hyperbolic functions.** The total `sinh_interval`,
-`tanh_interval`, `asinh_interval` and `atanh_interval` lose all relative
-accuracy for $|\xi|$ below about $2^{-190}$; use the `try_` forms for such
-arguments.
 
 **Inputs from `Double`.** `from_double(x)` encloses the binary value of `x`
 exactly; it cannot know which decimal number `x` approximated. Enclose decimal

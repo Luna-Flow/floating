@@ -54,39 +54,21 @@ fn first_odd_index_at_or_above(index : SignedBinCoeff) -> SignedBinCoeff {
 
 ///|
 pub fn BallFloat::rootn(self : BallFloat, degree : Int32) -> BallFloat {
-  if self.is_empty() || degree == 0 || degree == -2147483647 - 1 {
+  if self.is_empty() || degree == 0 {
     return BallFloat::empty(precision=self.precision_)
   }
-  if degree < 0 {
-    return self.rootn(-degree).reciprocal()
-  }
-  if degree == 1 {
-    return self
-  }
-  if degree == 2 {
-    return self.sqrt_interval()
-  }
-  let exponent = BallFloat::from_int(1, precision=self.precision_).div(
-    BallFloat::from_int(degree, precision=self.precision_),
-  )
-  if degree % 2 == 0 {
-    return self.pow_interval(exponent)
-  }
-  let zero = @bin_float.BinFloat::zero(precision=self.precision_)
-  let nonnegative = self.intersection(
-    store_interval(zero, pos_inf(self.precision_), self.precision_),
-  )
-  let nonpositive = self.intersection(
-    store_interval(neg_inf(self.precision_), zero, self.precision_),
-  )
-  let positive_result = nonnegative.pow_interval(exponent)
-  let negative_result = nonpositive.neg().pow_interval(exponent).neg()
-  if positive_result.is_empty() {
-    negative_result
-  } else if negative_result.is_empty() {
-    positive_result
-  } else {
-    negative_result.convex_hull(positive_result)
+  match self.try_rootn(degree) {
+    Ok(result) => result
+    Err(_) =>
+      if degree % 2 == 0 {
+        store_interval(
+          @bin_float.BinFloat::zero(precision=self.precision_),
+          pos_inf(self.precision_),
+          self.precision_,
+        )
+      } else {
+        whole_real(self.precision_)
+      }
   }
 }
 
@@ -435,214 +417,94 @@ pub fn BallFloat::try_tanpi_interval(
 }
 
 ///|
-fn certified_sinh_point(
-  value : @bin_float.BinFloat,
-  precision : Int32,
-) -> BallFloat {
-  let point = BallFloat::exact(value, precision~)
-  let two = BallFloat::from_int(2, precision~)
-  point.exp_interval().sub(point.neg().exp_interval()).div(two)
-}
-
-///|
+/// Total: the `try_sinh_interval` form, or the range of the function when the kernel cannot
+/// certify a bound (issue 449).
 pub fn BallFloat::sinh_interval(self : BallFloat) -> BallFloat {
-  if self.is_empty() {
-    return self
+  match self.try_sinh_interval() {
+    Ok(result) => result
+    Err(_) => whole_real(self.precision_)
   }
-  let work = self.precision_ + 192
-  let lower = if self.lo_.classify() == FpClass::Infinity {
-    neg_inf(work)
-  } else {
-    certified_sinh_point(self.lo_, work).lo_
-  }
-  let upper = if self.hi_.classify() == FpClass::Infinity {
-    pos_inf(work)
-  } else {
-    certified_sinh_point(self.hi_, work).hi_
-  }
-  quantize_interval(lower, upper, self.precision_)
 }
 
 ///|
-fn certified_cosh_point(
-  value : @bin_float.BinFloat,
-  precision : Int32,
-) -> BallFloat {
-  let point = BallFloat::exact(value, precision~)
-  let two = BallFloat::from_int(2, precision~)
-  point.exp_interval().add(point.neg().exp_interval()).div(two)
-}
-
-///|
+/// Total: the `try_cosh_interval` form, or the range of the function when the kernel cannot
+/// certify a bound (issue 449).
 pub fn BallFloat::cosh_interval(self : BallFloat) -> BallFloat {
-  if self.is_empty() {
-    return self
-  }
-  let work = self.precision_ + 192
-  let lower = if self.contains_zero() {
-    @bin_float.BinFloat::one(precision=work)
-  } else if self.hi_.sign() == Sign::Negative {
-    certified_cosh_point(self.hi_, work).lo_
-  } else {
-    certified_cosh_point(self.lo_, work).lo_
-  }
-  let outer_endpoint = if self.contains_zero() {
-    if self.lo_.abs().compare(self.hi_.abs()) >= 0 {
-      self.lo_
-    } else {
-      self.hi_
-    }
-  } else if self.hi_.sign() == Sign::Negative {
-    self.lo_
-  } else {
-    self.hi_
-  }
-  let upper = if outer_endpoint.classify() == FpClass::Infinity {
-    pos_inf(work)
-  } else {
-    certified_cosh_point(outer_endpoint, work).hi_
-  }
-  quantize_interval(lower, upper, self.precision_)
-}
-
-///|
-fn certified_tanh_nonnegative_point(
-  value : @bin_float.BinFloat,
-  precision : Int32,
-) -> BallFloat {
-  let point = BallFloat::exact(value, precision~)
-  let one = BallFloat::from_int(1, precision~)
-  let two = BallFloat::from_int(2, precision~)
-  let exponential = point.mul(two).exp_interval()
-  exponential.sub(one).div(exponential.add(one))
-}
-
-///|
-fn certified_tanh_point(
-  value : @bin_float.BinFloat,
-  precision : Int32,
-) -> BallFloat {
-  if value.classify() == FpClass::Infinity {
-    let limit = if value.sign() == Sign::Negative {
-      @bin_float.BinFloat::from_int(-1, precision~)
-    } else {
-      @bin_float.BinFloat::one(precision~)
-    }
-    return store_interval(limit, limit, precision)
-  }
-  if value.sign() == Sign::Negative {
-    certified_tanh_nonnegative_point(value.neg(), precision).neg()
-  } else {
-    certified_tanh_nonnegative_point(value, precision)
+  match self.try_cosh_interval() {
+    Ok(result) => result
+    Err(_) =>
+      store_interval(
+        @bin_float.BinFloat::one(precision=self.precision_),
+        pos_inf(self.precision_),
+        self.precision_,
+      )
   }
 }
 
 ///|
+/// Total: the `try_tanh_interval` form, or the range of the function when the kernel cannot
+/// certify a bound (issue 449).
 pub fn BallFloat::tanh_interval(self : BallFloat) -> BallFloat {
-  if self.is_empty() {
-    return self
+  match self.try_tanh_interval() {
+    Ok(result) => result
+    Err(_) => unit_interval(self.precision_)
   }
-  let work = self.precision_ + 192
-  let lower = certified_tanh_point(self.lo_, work)
-  let upper = certified_tanh_point(self.hi_, work)
-  quantize_interval(lower.lo_, upper.hi_, self.precision_).intersection(
-    store_interval(
-      @bin_float.BinFloat::from_int(-1, precision=self.precision_),
-      @bin_float.BinFloat::one(precision=self.precision_),
-      self.precision_,
-    ),
-  )
 }
 
 ///|
-fn certified_asinh_nonnegative(value : BallFloat) -> BallFloat {
-  let one = BallFloat::from_int(1, precision=value.precision_)
-  value.add(value.square().add(one).sqrt_interval()).ln_interval()
-}
-
-///|
+/// Total: the `try_asinh_interval` form, or the range of the function when the kernel cannot
+/// certify a bound (issue 449).
 pub fn BallFloat::asinh_interval(self : BallFloat) -> BallFloat {
-  if self.is_empty() {
-    return self
+  match self.try_asinh_interval() {
+    Ok(result) => result
+    Err(_) => whole_real(self.precision_)
   }
-  let work = self.precision_ + 192
-  let evaluate = fn(endpoint : @bin_float.BinFloat) {
-    if endpoint.sign() == Sign::Negative {
-      certified_asinh_nonnegative(
-        BallFloat::exact(endpoint.neg(), precision=work),
-      ).neg()
-    } else {
-      certified_asinh_nonnegative(BallFloat::exact(endpoint, precision=work))
-    }
-  }
-  let lower = if self.lo_.classify() == FpClass::Infinity {
-    neg_inf(work)
-  } else {
-    evaluate(self.lo_).lo_
-  }
-  let upper = if self.hi_.classify() == FpClass::Infinity {
-    pos_inf(work)
-  } else {
-    evaluate(self.hi_).hi_
-  }
-  quantize_interval(lower, upper, self.precision_)
 }
 
 ///|
+/// Total: the `try_acosh_interval` form, or the range of the function when the kernel cannot
+/// certify a bound (issue 449).
 pub fn BallFloat::acosh_interval(self : BallFloat) -> BallFloat {
-  let one = BallFloat::from_int(1, precision=self.precision_)
-  let domain = self.intersection(
-    store_interval(one.lo_, pos_inf(self.precision_), self.precision_),
-  )
-  if domain.is_empty() {
-    return domain
+  match self.try_acosh_interval() {
+    Ok(result) => result
+    Err(_) =>
+      store_interval(
+        @bin_float.BinFloat::zero(precision=self.precision_),
+        pos_inf(self.precision_),
+        self.precision_,
+      )
   }
-  let work = self.precision_ + 192
-  let evaluate = fn(endpoint : @bin_float.BinFloat) {
-    let point = BallFloat::exact(endpoint, precision=work)
-    let work_one = BallFloat::from_int(1, precision=work)
-    point.add(point.square().sub(work_one).sqrt_interval()).ln_interval()
-  }
-  let lower = evaluate(domain.lo_)
-  let upper = if domain.hi_.classify() == FpClass::Infinity {
-    pos_inf(work)
-  } else {
-    evaluate(domain.hi_).hi_
-  }
-  quantize_interval(lower.lo_, upper, self.precision_)
 }
 
 ///|
+/// Total: the `try_atanh_interval` form, or the range of the function when the kernel cannot
+/// certify a bound (issue 449).
 pub fn BallFloat::atanh_interval(self : BallFloat) -> BallFloat {
-  let one = BallFloat::from_int(1, precision=self.precision_)
-  let minus_one = @bin_float.BinFloat::from_int(-1, precision=self.precision_)
-  let domain = self.intersection(
-    store_interval(minus_one, one.hi_, self.precision_),
+  match self.try_atanh_interval() {
+    Ok(result) => result
+    Err(_) => whole_real(self.precision_)
+  }
+}
+
+///|
+/// `[-pi/2, pi/2]` as an enclosure that needs no kernel at the target precision:
+/// pi is evaluated at no more than 64 bits and rounded outward.
+fn half_pi_range(precision : Int32) -> BallFloat {
+  let pi = pi_range(precision)
+  let bound = pi.hi_.with_precision(precision, RoundingMode::TowardPositive)
+  let half = BallFloat::exact(bound, precision~).div(
+    BallFloat::from_int(2, precision~),
   )
-  if domain.is_empty() {
-    return domain
-  }
-  let negative_endpoint = domain.lo_.compare(minus_one) == 0
-  let positive_endpoint = domain.hi_.compare(one.hi_) == 0
-  if domain.is_singleton() && (negative_endpoint || positive_endpoint) {
-    return BallFloat::empty(precision=self.precision_)
-  }
-  let work = self.precision_ + 192
-  let evaluate = fn(endpoint : @bin_float.BinFloat) {
-    let point = BallFloat::exact(endpoint, precision=work)
-    let work_one = BallFloat::from_int(1, precision=work)
-    let two = BallFloat::from_int(2, precision=work)
-    work_one.add(point).div(work_one.sub(point)).ln_interval().div(two)
-  }
-  let lower = if negative_endpoint {
-    neg_inf(work)
-  } else {
-    evaluate(domain.lo_).lo_
-  }
-  let upper = if positive_endpoint {
-    pos_inf(work)
-  } else {
-    evaluate(domain.hi_).hi_
-  }
-  quantize_interval(lower, upper, self.precision_)
+  store_interval(half.hi_.neg(), half.hi_, precision)
+}
+
+///|
+/// `[0, pi]` at `precision` bits, from a constant of at most 64 bits.
+fn pi_range(precision : Int32) -> BallFloat {
+  let pi = certified_pi_interval(Int32::min(precision, 64))
+  store_interval(
+    @bin_float.BinFloat::zero(precision~),
+    pi.hi_.with_precision(precision, RoundingMode::TowardPositive),
+    precision,
+  )
 }

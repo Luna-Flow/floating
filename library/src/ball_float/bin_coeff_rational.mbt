@@ -1,5 +1,4 @@
 ///|
-#derive(Eq)
 priv struct SignedBinCoeff {
   negative : Bool
   magnitude : @bin_float.BinCoeff
@@ -11,21 +10,8 @@ fn coeff_one() -> @bin_float.BinCoeff {
 }
 
 ///|
-fn coeff_from_nonnegative_int(value : Int32) -> @bin_float.BinCoeff {
-  guard value >= 0 else {
-    abort("coefficient constructor requires a non-negative integer")
-  }
-  @bin_float.BinCoeff::from_uint64(value.to_uint64())
-}
-
-///|
 fn coeff_is_zero(value : @bin_float.BinCoeff) -> Bool {
   value.is_zero()
-}
-
-///|
-fn coeff_bits(value : @bin_float.BinCoeff) -> Int32 {
-  value.bit_length()
 }
 
 ///|
@@ -111,14 +97,6 @@ fn coeff_test_bit(value : @bin_float.BinCoeff, index : Int32) -> Bool {
 }
 
 ///|
-fn coeff_pow_nat(
-  value : @bin_float.BinCoeff,
-  exponent : UInt32,
-) -> @bin_float.BinCoeff {
-  @bin_float.BinCoeff(value.0.pow_nat(exponent))
-}
-
-///|
 fn coeff_increment(value : @bin_float.BinCoeff) -> @bin_float.BinCoeff {
   @bin_float.BinCoeff(value.0.add(@bin_kernel.Coeff::one()))
 }
@@ -142,11 +120,6 @@ fn coeff_div_exact(
   let (quotient, remainder) = coeff_div_rem(numerator, denominator)
   guard remainder.is_zero() else { abort("coefficient division is not exact") }
   quotient
-}
-
-///|
-fn coeff_to_uint64(value : @bin_float.BinCoeff) -> UInt64? {
-  value.to_uint64()
 }
 
 ///|
@@ -203,11 +176,6 @@ fn signed_coeff_is_zero(value : SignedBinCoeff) -> Bool {
 ///|
 fn signed_coeff_neg(value : SignedBinCoeff) -> SignedBinCoeff {
   signed_coeff_from_parts(!value.negative, value.magnitude)
-}
-
-///|
-fn signed_coeff_abs(value : SignedBinCoeff) -> SignedBinCoeff {
-  signed_coeff_from_parts(false, value.magnitude)
 }
 
 ///|

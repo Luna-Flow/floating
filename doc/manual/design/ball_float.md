@@ -452,97 +452,35 @@ which keeps the inclusion property. The tests compare old and new bit for bit
 on the binary64 number closest to a multiple of $\pi/2$
 ($6381956970095103 \cdot 2^{797}$) and on the correctly rounded $\pi/2$ and
 $3\pi/2$ with their neighbours at 24, 53 and 113 bits, and no input differs.
-The non-`try` `sin_interval`, `cos_interval` and `tan_interval` stay on the
-exact-rational path: they return a conservative result for an argument the
-series cannot certify, which the `try_` forms report as an error.
+The non-`try` `sin_interval`, `cos_interval` and `tan_interval` are these
+`try_` forms with a fallback: they return $[-1, 1]$ (Entire for `tan`) for an
+argument the kernel cannot certify, which the `try_` forms report as an
+error.
 
 ### Certified evaluation of transcendental endpoints
 
-$e^{\underline{x}}$ is not a dyadic number, so an endpoint needs a rational
-enclosure $L \le f(a) \le U$ of the exact value, after which
-$\operatorname{RD}_p(L)$ is a valid lower endpoint by property (i). The
-kernels of this package build $L$ and $U$ with exact rational arithmetic and
-directed `BinFloat` operations at a work precision $w > p$:
+$e^{\underline{x}}$ is not a dyadic number, so an endpoint needs a directed
+rounding of the exact value: $\operatorname{RD}_p(f(a))$ is a valid lower
+endpoint and $\operatorname{RU}_p(f(b))$ a valid upper endpoint by property
+(i). This package does not implement the series itself. Each endpoint is
+evaluated by the certified `try_*_ctx` function of
+[`bin_float`](bin_float.md) in an unbounded context of the interval's
+precision, rounded toward $-\infty$ for a lower bound and toward $+\infty$ for
+an upper bound; those functions refine a working precision until the two
+directed roundings agree (a Ziv-style acceptance test[^ziv]) and report a
+certification failure when the work budget runs out.
 
-- **exp.** For $2^{e} \le |a| < 2^{e+1}$ the argument is halved
-  $k = \max(0, e + 4)$ times so that $a' = |a|/2^k < 2^{-3}$, the Taylor
-  series $\sum_j t_j$, $t_j = a'^j/j!$, is summed with directed rounding, and
-  the result is squared $k$ times in interval arithmetic,
-  $e^{a} = (e^{a/2^k})^{2^k}$. If the enclosure of $e^{a'}$ has relative width
-  $\varepsilon$, its square has relative width
-  $(1+\varepsilon)^2 - 1 \approx 2\varepsilon$, so the $k$ squarings cost
-  about $k$ bits; the code reserves $w = p + 64 + 2k$. The series is cut
-  after a term $t_n$ with $n \ge 1$; every later ratio is
-  $t_{j+1}/t_j = a'/(j+1) \le \tfrac18 \cdot \tfrac12 = \tfrac1{16}$, so
-  $$
-  \sum_{j > n} t_j \le t_{n+1}\sum_{i \ge 0} 16^{-i} = \tfrac{16}{15} t_{n+1} \le 2 t_{n+1},
-  $$
-  and $2t_{n+1}$ is added to the upper sum. Negative arguments use
-  $e^{-a} = 1/e^{a}$. Arguments with $|a| < 2^{-(p+16)}$ give
-  $[1, 1 + 2^{-p}]$ or $[1 - 2^{-p}, 1]$ before rounding, since
-  $0 < e^{|a|} - 1 < 2|a|$ and $0 < 1 - e^{-|a|} < |a|$. For $|a| \ge 2^{30}$
-  the result is $[\text{largest finite}, +\infty)$ or
-  $[0, \text{smallest positive}]$ directly: the largest finite `BinFloat` is
-  below $2^{e_{\max}+1} = 2^{2^{30}}$, and $e^{2^{30}} = 2^{2^{30}/\ln 2}
-  \approx 2^{1.44 \cdot 2^{30}}$ exceeds it; the smallest positive value at
-  precision $p \le 2^{28}$ is at least $2^{-(2^{30} + 2^{28})}$, which exceeds
-  $e^{-2^{30}}$.
-- **ln.** For $a = m \cdot 2^{e}$ with $m \in [1, 2)$,
-  $\ln a = \ln m + e \ln 2$, and $\ln m = 2\operatorname{artanh} z =
-  2\sum_k z^{2k+1}/(2k+1)$ with $z = (m-1)/(m+1) \in [0, 1/3]$; $\ln 2$ is the
-  same series at $m = 2$. The ratio of consecutive terms is
-  $z^2 (2k+1)/(2k+3) \le z^2 \le 1/9$, so the omitted tail is at most
-  $t' \sum_{i \ge 0} 9^{-i} = \tfrac98 t'$ for the first omitted term $t'$,
-  and after doubling at most $\tfrac94 t' \le 3t'$, which is what the code
-  adds.
-- **π.** The interval functions that need $\pi$ itself (`atan2_interval`, the
-  inverse trigonometric functions at $\pm 1$) take
-  $[\operatorname{RD}(\pi), \operatorname{RU}(\pi)]$ at the working precision
-  from the cached binary-splitting constant of `bin_float`: `atan(+inf)` is
-  $\pi/2$ correctly rounded in each direction, and the scaling by 2 is exact.
-  The earlier per-call Machin evaluation produced the same intervals at every
-  precision tested (2 to 400 bits, `pi_source_wbtest.mbt`). The rational sine
-  and cosine series still use Machin's formula
-  $\pi = 16\arctan\tfrac15 - 4\arctan\tfrac1{239}$ with alternating series,
-  whose truncation error is bounded by the first omitted term.
-- **sin, cos.** The argument is reduced by the quadrant
-  $q = \lfloor 2a/\pi + 1/2 \rfloor$, computed with both $\pi^-$ and $\pi^+$;
-  if the two disagree the work precision is raised. The reduced argument
-  $r = a - q\pi/2 \in [-\pi/4, \pi/4]$ (as a rational interval) is fed to
-  Taylor series, and the quadrant maps $(\sin r, \cos r)$ to
-  $(\sin a, \cos a)$. The initial work precision is $p + 96$ plus the number
-  of integer bits of $|a|$, so that reducing a huge argument keeps enough
-  bits.[^reduction]
-
-[^reduction]: Payne–Hanek reduction would avoid the extra bits; this package
-    instead raises the work precision and caps it with the resource cutoff
-    described under the total and `try_` forms.
-
-The trigonometric and arctangent kernels add a Ziv-style
-acceptance test.[^ziv] Since $\operatorname{RD}_p$ is monotone,
-
-$$
-\operatorname{RD}_p(L) = \operatorname{RD}_p(U) \implies
-\operatorname{RD}_p(L) \le \operatorname{RD}_p(f(a)) \le \operatorname{RD}_p(U) = \operatorname{RD}_p(L),
-$$
-
-so when both $\operatorname{RD}$ and $\operatorname{RU}$ of $L$ and $U$ agree,
-the endpoints are the correctly directed roundings of $f(a)$. Otherwise the
-work precision $w$ grows to $w + \max(32, w/2)$; at most 12 work precisions
-are tried (`CertifiedRefinementBudget`). The exp and log kernels skip the test and keep
-$\operatorname{RD}_p(L)$, $\operatorname{RU}_p(U)$, which are always valid
-and, with their guard bits ($p + 64 + 2k$ for `exp`, $p + 24$ for `ln`,
-$p + 32$ for `log2`), almost always tight. The `try_` forms, and the total
-forms of `expm1`, `log1p`, `sinpi`, `cospi`, `tanpi`, `pow_interval`,
-`hypot` and `atan2` (which try them first), delegate the endpoints to the certified `try_*_ctx` functions of
-[`bin_float`](bin_float.md), evaluated in unbounded contexts rounded toward
-$-\infty$ and $+\infty$. The total hyperbolic functions and `asin`/`acos`
-evaluate their defining formulas in interval arithmetic at 64 to 192 extra
-bits, which is valid by the fundamental theorem. Validity is not tightness:
-$(e^{\xi} - e^{-\xi})/2$ subtracts two enclosures of numbers near 1, each
-about $2^{-w}$ wide, so for $|\xi| \ll 2^{-w+p}$ the relative width of the
-result is about $2^{-w}/|\xi|$, far above $2^{-p}$. The same cancellation
-affects `tanh`, `asinh` and `atanh` near 0.
+What this package adds is the interval analysis around the point kernels:
+the domain restriction (an argument outside the domain is dropped, and the
+result is Empty when nothing is left, which is decided by comparisons before
+any kernel runs), the monotonicity and critical-point analysis of the
+previous section (which endpoint gives which bound, where an extremum of
+`sin` or a pole of `tan` lies), the handling of infinite endpoints, and the
+fallback range. An enclosure of $\pi$ is needed only to locate critical points
+and poles of the trigonometric functions, and for the fallbacks of the inverse
+trigonometric functions; it comes from the cached binary-splitting constant of
+`bin_float` (`atan(+inf)` is $\pi/2$ correctly rounded in each direction,
+and the scaling by 2 is exact).
 
 [^ziv]: A. Ziv, "Fast evaluation of elementary mathematical functions with
     correctly rounded last bit", *ACM TOMS* 17(3), 1991; J.-M. Muller et al.,
@@ -775,15 +713,31 @@ or an argument may be too large to reduce. Aborting would break long
 computations; returning a silent wide interval hides a lost guarantee of
 tightness.
 
-*Chosen.* Both. The total forms return a valid fallback enclosure
-($[-1, 1]$ for `sin`/`cos`, Entire for `tan`, $[-\pi, \pi]$ for `atan2`,
-the composed formula for `pow`, `hypot` and `rootn`, the range bounds
-$[-1, +\infty)$ for `expm1`), which keeps the inclusion property; the `try_`
-forms return an `ArithmeticError` with a certification detail (operation,
-stage, reason, precision). Trigonometric reduction is capped: when the larger
-endpoint magnitude is at least $2^{\max(65536, 4p)+1}$, reduction would need
-more than that many bits, so the total forms return the fallback immediately
-and the `try_` forms report a resource limit.
+*Chosen.* Both, with one kernel. The `try_` forms return an
+`ArithmeticError` with a certification detail (operation, stage, reason,
+precision). The total form is the `try_` form with a fallback: when the `try_`
+form fails it returns the range of the function over its domain, which keeps
+the inclusion property: $[0, +\infty)$ for `exp`, `exp2`, `exp10`, `pow` and
+`hypot`, $[-1, +\infty)$ for `expm1`, Entire for the logarithms, `sinh`,
+`asinh`, `atanh`, `tan`, `tanpi` and `log1p`, $[-1, 1]$ for `sin`, `cos`,
+`sinpi`, `cospi` and `tanh`, $[1, +\infty)$ for `cosh`, $[0, +\infty)$ for
+`acosh`, $[-\pi/2, \pi/2]$ for `atan` and `asin`, $[0, \pi]$ for `acos`,
+$[-\pi, \pi]$ for `atan2`. The $\pi$ of a fallback is evaluated at no more
+than 64 bits and rounded outward, so a fallback cannot fail at any precision.
+The domain is decided before the kernel runs, so a failure is always a
+certification failure and never a domain error: an argument outside the domain
+gives Empty, a wide interval means the kernel gave up. Trigonometric reduction
+is capped: when the larger endpoint magnitude is at least
+$2^{\max(65536, 4p)+1}$, reduction would need more than that many bits, so the
+`try_` forms report a resource limit and the total forms return the fallback.
+
+*Why one kernel.* Until this was settled the total forms of fifteen functions
+had a kernel of their own (exact-rational series), which aborted at a high
+precision (about 32,000 bits for `ln`, issue 449) and lost all relative
+accuracy for a tiny argument in the hyperbolic functions, while the `try_`
+forms used the `bin_float` kernels and had neither limit. Keeping two kernels
+for the same function meant two sets of bugs, and results that depended on
+which form the caller chose.
 
 ### Decorations in a separate type
 
@@ -823,8 +777,7 @@ fundamental theorem, so does every composition.
 endpoint is within one ulp of optimal. Trigonometric and arctangent endpoints
 are correctly directed roundings when certified; the other elementary
 functions are usually within a few ulps. Not tight: fallbacks; `pown` with
-$n < -4096$ and 0 inside (Entire); the total hyperbolic functions for
-$|\xi| \lesssim 2^{-190}$ (cancellation, see above). `with_precision` and
+$n < -4096$ and 0 inside (Entire);  `with_precision` and
 `normalized` round the endpoints outward, which is the tightest enclosure and
 the identity on an interval already representable at the target precision, so
 `convex_hull` with an Empty operand and the checked capabilities do not widen
@@ -836,10 +789,10 @@ function evaluated, by the induction argument above.
 
 **Complexity.** Arithmetic performs at most four endpoint products or two
 sums, $O(M(p))$ for $p$-bit endpoints with multiplication cost $M(p)$, plus
-alignment of at most about $65536 + p$ bits for sums. Elementary functions sum
-series of $O(w)$ terms at work precision $w = p + O(1)$ (plus the
-integer bits of the argument for trigonometric reduction), with up to 12
-refinements growing $w$ geometrically.
+alignment of at most about $65536 + p$ bits for sums. Elementary functions cost one
+or two directed evaluations of the `bin_float` kernels at precision $p$ (see
+[`bin_float`](bin_float.md) for their cost), plus the index range for the
+trigonometric functions.
 
 **Evidence.** Package tests check directed endpoints, the far-addend and
 exponent-range cases, decorations and relations; the pinned ITF1788 corpus
