@@ -2570,9 +2570,7 @@ pub fn sqrt_for_precision(BinFloat, Int32) -> Result[BinFloat, @arithmetic.Arith
 
 // Types and methods
 #derive(@debug.Debug)
-pub struct BinCoeff {
-  // private fields
-}
+type BinCoeff
 pub fn BinCoeff::add(Self, Self) -> Self
 pub fn BinCoeff::bit_and(Self, Self) -> Self
 pub fn BinCoeff::bit_length(Self) -> Int32
