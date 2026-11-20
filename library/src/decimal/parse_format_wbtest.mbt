@@ -41,7 +41,7 @@ test "decimal parsing coefficient-native boundary paths preserve flags" {
 ///|
 test "decimal parse keeps the IEEE preferred cohort at its precision" {
   let p = fn(text : String) {
-    Decimal::parse(text, precision=3).unwrap().to_string()
+    Decimal::from_string(text, precision=3).unwrap().to_string()
   }
   inspect(p("1.0001"), content="1.00")
   inspect(p("1.000"), content="1.00")
@@ -54,7 +54,7 @@ test "decimal parse keeps the IEEE preferred cohort at its precision" {
 /// digits, so its cohort is not reduced.
 test "decimal parse keeps p digits when rounding carries into 10^p" {
   let p = fn(text : String) {
-    Decimal::parse(text, precision=3).unwrap().to_string()
+    Decimal::from_string(text, precision=3).unwrap().to_string()
   }
   inspect(p("99999"), content="1.00E+5")
   inspect(p("-99999"), content="-1.00E+5")
@@ -64,7 +64,7 @@ test "decimal parse keeps p digits when rounding carries into 10^p" {
   inspect(p("0.0009999"), content="0.00100")
   inspect(p("998.5"), content="998")
   inspect(
-    Decimal::parse("9.5", precision=1).unwrap().to_string(),
+    Decimal::from_string("9.5", precision=1).unwrap().to_string(),
     content="1E+1",
   )
 }

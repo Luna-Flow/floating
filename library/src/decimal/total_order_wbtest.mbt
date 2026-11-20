@@ -1,8 +1,8 @@
 ///|
 fn total_order_operand(source : String) -> Decimal {
   match Decimal::from_string(source) {
-    Some(value) => value
-    None => abort("total order operand: " + source)
+    Ok(value) => value
+    Err(_) => abort("total order operand: " + source)
   }
 }
 

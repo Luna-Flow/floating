@@ -356,13 +356,12 @@ pick its representative with `Integral::normalize` first, or use `lift_to`.
 
 ## Parsing and formatting
 
-### `Decimal::parse`, `from_string`
+### `Decimal::from_string`
 
-`parse` converts decimal text to a `Decimal` while keeping its quantum.
+`from_string` converts decimal text to a `Decimal` while keeping its quantum.
 
 ```mbti
-pub fn Decimal::parse(String, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Decimal::from_string(String, precision? : Int) -> Self?
+pub fn Decimal::from_string(String, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 The accepted syntax is an optional sign, digits with an optional decimal
@@ -374,7 +373,7 @@ and representation permit. For example, `"1.2300"` has coefficient 12300
 and exponent $-4$; `"1.0001"` at precision 3 rounds to `1.00`, and the exact
 `"1.000"` at precision 3 is `1.00` because its four coefficient digits do
 not fit. `"10001"` at precision 3 rounds to `1.00E+4`. Invalid text returns
-`Err(parse_error)` from `parse` and `None` from `from_string`.
+`Err(parse_error)`.
 
 No context exponent range is applied; the limits are those of the
 [stored range](#decimal_value_e_max-decimal_value_e_tiny): the exponent of the
@@ -382,7 +381,7 @@ value must be at least `decimal_value_e_tiny` ($-2\,147\,483\,645$) and its
 adjusted exponent at most `decimal_value_e_max` ($2\,147\,483\,646$), checked
 after the rounding to `precision` (a carry included) and for a zero as for any
 finite value. A text whose value is outside them is refused, never replaced:
-`from_string` returns `None` and `parse` the domain error, which names the
+`from_string` returns the domain error, which names the
 exponent and both limits (`"1e3000000000"`, `"12e2147483647"`, `"0e-2147483646"`
 are refused; `"1249e-2147483646"` at precision 3 is `1.25E-2147483643`, its
 exponent after the rounding being inside the range). Read the text with
@@ -397,7 +396,7 @@ infinity, a zero) and the `overflow` and `underflow` flags are wanted.
 pub fn Decimal::from_string_ctx(String, DecimalContext) -> (Self, DecimalFlags)
 ```
 
-The syntax is the one of `parse`. The value is rounded to the context
+The syntax is the one of `from_string`. The value is rounded to the context
 precision (raising `inexact` when non-zero digits are
 discarded), checked against the exponent range (overflow, underflow)
 and folded down. A NaN payload with more digits than the
@@ -2258,7 +2257,7 @@ pub fn Decimal::from_float(Float, precision? : Int32) -> Self
 pub fn Decimal::from_int(Int32, precision? : Int32) -> Self
 pub fn Decimal::from_interchange_hex(String, DecimalInterchangeFormat) -> Self?
 pub fn Decimal::from_interchange_hex_with_encoding(String, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> Self?
-pub fn Decimal::from_string(String, precision? : Int32) -> Self?
+pub fn Decimal::from_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::from_string_ctx(String, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::get_payload(Self) -> @bigint.BigInt
 pub fn Decimal::hypot_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
@@ -2314,7 +2313,6 @@ pub fn Decimal::op_gt(Self, Self) -> Bool
 pub fn Decimal::op_le(Self, Self) -> Bool
 pub fn Decimal::op_lt(Self, Self) -> Bool
 pub fn Decimal::output(Self, &Logger) -> Unit
-pub fn Decimal::parse(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::parse_checked(String, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::pow_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::pow_int_checked(Self, Int32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]

@@ -27,7 +27,7 @@ test "literal exponents beyond 1.5e9 are not saturated" {
 test "context-free literals outside the stored range are refused, not replaced" {
   // A literal whose value, after the rounding to the precision, has an
   // adjusted exponent above `decimal_value_e_max` or an exponent below
-  // `decimal_value_e_tiny` is an error: `from_string` is `None`, `parse` the
+  // `decimal_value_e_tiny` is an error: `from_string` returns the
   // domain error. `from_string_ctx` reads a text with a context when a rounded
   // value is wanted.
   for
@@ -37,8 +37,7 @@ test "context-free literals outside the stored range are refused, not replaced" 
       "5e-2147483649", "10e-2147483649", "1e-2147483646", "0e2147483647", "0e-2147483646",
       "-0e-3000000000",
     ] {
-    assert_true(Decimal::from_string(text) is None, msg=text)
-    assert_true(Decimal::parse(text) is Err(_), msg=text)
+    assert_true(Decimal::from_string(text) is Err(_), msg=text)
   }
   // The rounding to the precision comes first: the exponent is checked after it.
   inspect(
@@ -53,10 +52,10 @@ test "context-free literals outside the stored range are refused, not replaced" 
       #|1.25E-2147483643
     ),
   )
-  assert_true(Decimal::from_string("1249e-2147483646", precision=3) is Some(_))
-  assert_true(Decimal::from_string("1249e-2147483647", precision=3) is None)
+  assert_true(Decimal::from_string("1249e-2147483646", precision=3) is Ok(_))
+  assert_true(Decimal::from_string("1249e-2147483647", precision=3) is Err(_))
   assert_true(
-    Decimal::from_string("2500000001e-2147483657", precision=3) is None,
+    Decimal::from_string("2500000001e-2147483657", precision=3) is Err(_),
   )
 }
 

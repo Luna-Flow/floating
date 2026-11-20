@@ -103,18 +103,17 @@ test "the error names the exponent the caller gave, both limits and the rounded 
 }
 
 ///|
-test "from_string and parse accept the limits and refuse one beyond" {
-  assert_true(Decimal::from_string("1E2147483646") is Some(_))
-  assert_true(Decimal::from_string("12345E2147483642") is Some(_))
-  assert_true(Decimal::from_string("-0E2147483646") is Some(_))
-  assert_true(Decimal::from_string("1E-2147483645") is Some(_))
-  assert_true(Decimal::from_string("0E-2147483645") is Some(_))
-  assert_true(Decimal::from_string("1E2147483647") is None)
-  assert_true(Decimal::from_string("12345E2147483643") is None)
-  assert_true(Decimal::from_string("0E2147483647") is None)
-  assert_true(Decimal::from_string("1E-2147483646") is None)
-  assert_true(Decimal::from_string("0E-2147483646") is None)
-  assert_true(Decimal::parse("1E2147483647") is Err(_))
+test "from_string accepts the limits and refuse one beyond" {
+  assert_true(Decimal::from_string("1E2147483646") is Ok(_))
+  assert_true(Decimal::from_string("12345E2147483642") is Ok(_))
+  assert_true(Decimal::from_string("-0E2147483646") is Ok(_))
+  assert_true(Decimal::from_string("1E-2147483645") is Ok(_))
+  assert_true(Decimal::from_string("0E-2147483645") is Ok(_))
+  assert_true(Decimal::from_string("1E2147483647") is Err(_))
+  assert_true(Decimal::from_string("12345E2147483643") is Err(_))
+  assert_true(Decimal::from_string("0E2147483647") is Err(_))
+  assert_true(Decimal::from_string("1E-2147483646") is Err(_))
+  assert_true(Decimal::from_string("0E-2147483646") is Err(_))
   // a text outside the limits is read with a context when a rounded value is wanted
   let (value, flags) = Decimal::from_string_ctx(
     "1E2147483647",
@@ -168,11 +167,11 @@ test "every context-free function that returns a Decimal gives a non-finite or a
           "E" +
           exponent.to_string()
         match Decimal::from_string(text, precision=Int32::max(digits, 34)) {
-          Some(value) => {
+          Ok(value) => {
             assert_true(stored_range_storable(value), msg="from_string " + text)
             values.push(value)
           }
-          None => {
+          Err(_) => {
             // refused exactly when the adjusted exponent is beyond the limit
             let adjusted = exponent.to_int64() + (digits - 1).to_int64()
             assert_true(adjusted > decimal_value_e_max.to_int64(), msg=text)
