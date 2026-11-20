@@ -297,7 +297,7 @@ fn decimal_certified_target(
   guard lower is Some(lower) && upper is Some(upper) else { return None }
   let lower_result = decimal_apply_finite_ctx(lower, target_ctx)
   let upper_result = decimal_apply_finite_ctx(upper, target_ctx)
-  if lower_result.0.compare_total(upper_result.0) == 0 &&
+  if lower_result.0.total_order_compare(upper_result.0) == 0 &&
     lower_result.1 == upper_result.1 {
     Some(lower_result)
   } else {
@@ -361,7 +361,9 @@ fn decimal_tiny_argument_result(
   let target_ctx = decimal_math_result_ctx(ctx)
   let lower_result = decimal_apply_finite_ctx(lower, target_ctx)
   let upper_result = decimal_apply_finite_ctx(upper, target_ctx)
-  guard lower_result.0.compare_total(upper_result.0) == 0 else { return None }
+  guard lower_result.0.total_order_compare(upper_result.0) == 0 else {
+    return None
+  }
   let lower_status = { ..lower_result.1, rounded: false, inexact: false, }
   let upper_status = { ..upper_result.1, rounded: false, inexact: false, }
   guard lower_status == upper_status else { return None }

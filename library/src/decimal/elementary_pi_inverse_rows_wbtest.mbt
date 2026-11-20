@@ -4,7 +4,7 @@
 // The full table: the same rows as testdata/decimal/ieee/rows/pi_inverse.txt,
 // which the full gate also runs, through the conformance CLI, on every target.
 // Columns: op, rounding, precision, e_min, e_max, clamp, tininess, x, y,
-// expected (compared with compare_total), flags.
+// expected (compared with total_order_compare), flags.
 
 ///|
 fn pii_rows_0() -> Array[

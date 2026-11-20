@@ -224,7 +224,7 @@ test "operands with exponents near the Int limits give the specified results (#1
       "mul" => base.mul_ctx(second(), ctx)
       "fma" => base.fma_ctx(second(), third(), ctx)
       "sqrt" => base.sqrt_ctx(ctx)
-      "remainder" => base.remainder(second(), ctx)
+      "remainder" => base.remainder_trunc_ctx(second(), ctx)
       _ => fail("unexpected operation \{op}")
     }
     assert_eq(

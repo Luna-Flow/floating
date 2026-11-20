@@ -270,11 +270,11 @@ pub fn DecimalChecked::log10(self : DecimalChecked) -> DecimalChecked {
 }
 
 ///|
-pub fn DecimalChecked::power(
+pub fn DecimalChecked::pow(
   self : DecimalChecked,
   exponent : @decimal.Decimal,
 ) -> DecimalChecked {
-  self.record_result(self.value_.try_power_ctx(exponent, self.context_))
+  self.record_result(self.value_.try_pow_ctx(exponent, self.context_))
 }
 
 ///|
@@ -511,13 +511,13 @@ pub fn DecimalChecked::maximum_number(
 }
 
 ///|
-pub fn DecimalChecked::next_minus(self : DecimalChecked) -> DecimalChecked {
-  self.record(self.value_.next_minus(self.context_))
+pub fn DecimalChecked::next_down(self : DecimalChecked) -> DecimalChecked {
+  self.record(self.value_.next_down_ctx(self.context_))
 }
 
 ///|
-pub fn DecimalChecked::next_plus(self : DecimalChecked) -> DecimalChecked {
-  self.record(self.value_.next_plus(self.context_))
+pub fn DecimalChecked::next_up(self : DecimalChecked) -> DecimalChecked {
+  self.record(self.value_.next_up_ctx(self.context_))
 }
 
 ///|
@@ -525,5 +525,5 @@ pub fn DecimalChecked::next_toward(
   self : DecimalChecked,
   target : @decimal.Decimal,
 ) -> DecimalChecked {
-  self.record(self.value_.next_toward(target, self.context_))
+  self.record(self.value_.next_toward_ctx(target, self.context_))
 }

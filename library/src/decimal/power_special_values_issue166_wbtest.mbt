@@ -35,21 +35,21 @@ test "decimal power special values for zero exponents" {
     power_issue166_case(Decimal::signaling_nan().pown_ctx(0, ctx)),
     "nan invalid_operation",
   )
-  assert_eq(power_issue166_case(d("0").power_ctx(d("-0"), ctx)), "1")
-  assert_eq(power_issue166_case(d("1").power_ctx(d("NaN"), ctx)), "1")
+  assert_eq(power_issue166_case(d("0").pow_ctx(d("-0"), ctx)), "1")
+  assert_eq(power_issue166_case(d("1").pow_ctx(d("NaN"), ctx)), "1")
   assert_eq(
-    power_issue166_case(d("1").power_ctx(Decimal::signaling_nan(), ctx)),
+    power_issue166_case(d("1").pow_ctx(Decimal::signaling_nan(), ctx)),
     "nan invalid_operation",
   )
   assert_eq(
     power_issue166_case(
-      Decimal::signaling_nan().power_ctx(Decimal::quiet_nan(), ctx),
+      Decimal::signaling_nan().pow_ctx(Decimal::quiet_nan(), ctx),
     ),
     "nan invalid_operation",
   )
   assert_eq(
     power_issue166_case(
-      Decimal::quiet_nan().power_ctx(Decimal::signaling_nan(), ctx),
+      Decimal::quiet_nan().pow_ctx(Decimal::signaling_nan(), ctx),
     ),
     "nan invalid_operation",
   )
@@ -65,8 +65,8 @@ test "decimal power identities across formats modes and checked routes" {
   ]
   for base in [d("0"), d("-0"), d("Inf"), d("-Inf"), d("NaN")] {
     for ctx in contexts {
-      assert_eq(power_issue166_case(base.power_ctx(d("0"), ctx)), "1")
-      assert_eq(power_issue166_case(base.power_ctx(d("-0"), ctx)), "1")
+      assert_eq(power_issue166_case(base.pow_ctx(d("0"), ctx)), "1")
+      assert_eq(power_issue166_case(base.pow_ctx(d("-0"), ctx)), "1")
     }
   }
   let down = DecimalContext::decimal32().with_rounding(
@@ -75,13 +75,13 @@ test "decimal power identities across formats modes and checked routes" {
   let ceiling = DecimalContext::decimal128().with_rounding(
     @lf_arith.RoundingMode::TowardPositive,
   )
-  assert_eq(power_issue166_case(d("1").power_ctx(d("1.5"), down)), "1")
-  assert_eq(power_issue166_case(d("1").power_ctx(d("Inf"), ceiling)), "1")
+  assert_eq(power_issue166_case(d("1").pow_ctx(d("1.5"), down)), "1")
+  assert_eq(power_issue166_case(d("1").pow_ctx(d("Inf"), ceiling)), "1")
 
   let restricted = DecimalContext::new(extended=false)
-  assert_eq(power_issue166_case(d("0").power_ctx(d("0"), restricted)), "1")
+  assert_eq(power_issue166_case(d("0").pow_ctx(d("0"), restricted)), "1")
   assert_eq(
-    power_issue166_case(d("0").power_ctx(d("-0.5"), restricted)),
+    power_issue166_case(d("0").pow_ctx(d("-0.5"), restricted)),
     "nan invalid_operation",
   )
   for base in [d("0"), d("-0")] {
@@ -92,7 +92,7 @@ test "decimal power identities across formats modes and checked routes" {
       )
     }
   }
-  match d("0").try_power_ctx(d("0"), DecimalContext::decimal64()) {
+  match d("0").try_pow_ctx(d("0"), DecimalContext::decimal64()) {
     Ok((value, flags)) => {
       assert_eq(value.to_string(), "1")
       assert_false(flags.has_error())
@@ -142,10 +142,10 @@ test "decimal power identities across formats modes and checked routes" {
 test "decimal power handles signed zero infinity and Int exponent limits" {
   let ctx = DecimalContext::decimal64()
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
-  assert_eq(power_issue166_case(d("0").power_ctx(d("Inf"), ctx)), "0")
-  assert_eq(power_issue166_case(d("-0").power_ctx(d("Inf"), ctx)), "0")
-  assert_eq(power_issue166_case(d("0").power_ctx(d("-Inf"), ctx)), "inf")
-  assert_eq(power_issue166_case(d("-0").power_ctx(d("-Inf"), ctx)), "inf")
+  assert_eq(power_issue166_case(d("0").pow_ctx(d("Inf"), ctx)), "0")
+  assert_eq(power_issue166_case(d("-0").pow_ctx(d("Inf"), ctx)), "0")
+  assert_eq(power_issue166_case(d("0").pow_ctx(d("-Inf"), ctx)), "inf")
+  assert_eq(power_issue166_case(d("-0").pow_ctx(d("-Inf"), ctx)), "inf")
   assert_eq(power_issue166_case(d("-0").pown_ctx(2147483647, ctx)), "-0")
   assert_eq(
     power_issue166_case(d("-0").pown_ctx(-2147483648, ctx)),
@@ -159,8 +159,8 @@ test "decimal power handles signed zero infinity and Int exponent limits" {
   assert_eq(power_issue166_case(d("-Inf").pown_ctx(-2147483648, ctx)), "0")
   assert_eq(power_issue166_case(d("Inf").pown_ctx(2147483647, ctx)), "inf")
   assert_eq(power_issue166_case(d("Inf").pown_ctx(-2147483648, ctx)), "0")
-  assert_eq(power_issue166_case(d("-0").power_ctx(d("1E+30"), ctx)), "0")
-  assert_eq(power_issue166_case(d("-1").power_ctx(d("1E+30"), ctx)), "1")
+  assert_eq(power_issue166_case(d("-0").pow_ctx(d("1E+30"), ctx)), "0")
+  assert_eq(power_issue166_case(d("-1").pow_ctx(d("1E+30"), ctx)), "1")
 }
 
 ///|
@@ -169,17 +169,17 @@ test "decimal power handles signed zero infinity and Int exponent limits" {
 test "decimal power special values for one and infinite exponents" {
   let ctx = DecimalContext::decimal64()
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
-  assert_eq(power_issue166_case(d("1").power_ctx(d("1.5"), ctx)), "1")
-  assert_eq(power_issue166_case(d("-1").power_ctx(d("Inf"), ctx)), "1")
-  assert_eq(power_issue166_case(d("-1").power_ctx(d("-Inf"), ctx)), "1")
-  assert_eq(power_issue166_case(d("-0.5").power_ctx(d("Inf"), ctx)), "0")
-  assert_eq(power_issue166_case(d("-2").power_ctx(d("Inf"), ctx)), "inf")
-  assert_eq(power_issue166_case(d("-0.5").power_ctx(d("-Inf"), ctx)), "inf")
-  assert_eq(power_issue166_case(d("-2").power_ctx(d("-Inf"), ctx)), "0")
-  assert_eq(power_issue166_case(d("-Inf").power_ctx(d("Inf"), ctx)), "inf")
-  assert_eq(power_issue166_case(d("-Inf").power_ctx(d("2.5"), ctx)), "inf")
-  assert_eq(power_issue166_case(d("-Inf").power_ctx(d("-Inf"), ctx)), "0")
-  assert_eq(power_issue166_case(d("-Inf").power_ctx(d("-2.5"), ctx)), "0")
+  assert_eq(power_issue166_case(d("1").pow_ctx(d("1.5"), ctx)), "1")
+  assert_eq(power_issue166_case(d("-1").pow_ctx(d("Inf"), ctx)), "1")
+  assert_eq(power_issue166_case(d("-1").pow_ctx(d("-Inf"), ctx)), "1")
+  assert_eq(power_issue166_case(d("-0.5").pow_ctx(d("Inf"), ctx)), "0")
+  assert_eq(power_issue166_case(d("-2").pow_ctx(d("Inf"), ctx)), "inf")
+  assert_eq(power_issue166_case(d("-0.5").pow_ctx(d("-Inf"), ctx)), "inf")
+  assert_eq(power_issue166_case(d("-2").pow_ctx(d("-Inf"), ctx)), "0")
+  assert_eq(power_issue166_case(d("-Inf").pow_ctx(d("Inf"), ctx)), "inf")
+  assert_eq(power_issue166_case(d("-Inf").pow_ctx(d("2.5"), ctx)), "inf")
+  assert_eq(power_issue166_case(d("-Inf").pow_ctx(d("-Inf"), ctx)), "0")
+  assert_eq(power_issue166_case(d("-Inf").pow_ctx(d("-2.5"), ctx)), "0")
 }
 
 ///|
@@ -189,7 +189,7 @@ test "decimal power negative exponent on zero raises division by zero" {
   let ctx = DecimalContext::decimal64()
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
   assert_eq(
-    power_issue166_case(d("0").power_ctx(d("-0.5"), ctx)),
+    power_issue166_case(d("0").pow_ctx(d("-0.5"), ctx)),
     "inf division_by_zero",
   )
 }

@@ -71,7 +71,7 @@ test "hyperbolic functions overflow without expanding huge endpoints" {
   )
   let two = Decimal::from_int(2, precision=16)
   inspect(
-    elementary_range_show(two.power_ctx(huge, ctx)),
+    elementary_range_show(two.pow_ctx(huge, ctx)),
     content=(
       #|inf overflow=true underflow=false invalid=false
     ),

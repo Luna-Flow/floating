@@ -301,7 +301,7 @@ fn decimal_power_adjacent_one_directed_result(
       return None
     }
     let next = decimal_next(one, ctx, true).0
-    guard base.compare_total(next) == 0 else { return None }
+    guard base.total_order_compare(next) == 0 else { return None }
     if ctx.decimal_rounding == DecimalRoundingMode::Ceiling {
       Some((base, flags))
     } else {
@@ -313,7 +313,7 @@ fn decimal_power_adjacent_one_directed_result(
       return None
     }
     let previous = decimal_next(one, ctx, false).0
-    guard base.compare_total(previous) == 0 else { return None }
+    guard base.total_order_compare(previous) == 0 else { return None }
     if ctx.decimal_rounding == DecimalRoundingMode::Floor {
       Some((base, flags))
     } else {

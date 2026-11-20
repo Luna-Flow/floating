@@ -55,7 +55,7 @@ test "Decimal elementary domains and atan2 signed zeros are explicit" {
 test "Decimal try power exposes certified evaluation as Result" {
   let context = DecimalContext::decimal64().ieee754()
   match
-    Decimal::from_int(9).try_power_ctx(
+    Decimal::from_int(9).try_pow_ctx(
       Decimal::from_string("0.5").unwrap(),
       context,
     ) {
@@ -167,7 +167,7 @@ test "Decimal noninteger power preserves IEEE exact result semantics" {
   ).ieee754()
   let base = Decimal::from_int(4, precision=32)
   let exponent = Decimal::from_string("0.5", precision=32).unwrap()
-  let (ieee_value, ieee_flags) = base.power_ctx(exponent, ieee_context)
+  let (ieee_value, ieee_flags) = base.pow_ctx(exponent, ieee_context)
   assert_eq(ieee_value.to_string(), "2")
   assert_false(ieee_flags.rounded)
   assert_false(ieee_flags.inexact)

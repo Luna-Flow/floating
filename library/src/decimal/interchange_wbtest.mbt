@@ -44,7 +44,7 @@ test "DPD and BID share Decimal semantics across formats" {
     assert_false(bid_flags.has_error())
     let dpd = Decimal::from_interchange_hex_with_encoding(dpd_bits, format, DPD).unwrap()
     let bid = Decimal::from_interchange_hex_with_encoding(bid_bits, format, BID).unwrap()
-    assert_eq(dpd.compare_total(bid), 0)
+    assert_eq(dpd.total_order_compare(bid), 0)
     assert_eq(dpd.is_negative(), bid.is_negative())
   }
 }
@@ -269,7 +269,7 @@ test "IEEE DPD decimal32 decimal64 decimal128 fixed witnesses round trip" {
       formats[index],
       DPD,
     ).unwrap()
-    assert_eq(value.compare_total(expected), 0)
+    assert_eq(value.total_order_compare(expected), 0)
     assert_eq(
       value.to_interchange_hex_with_encoding(formats[index], DPD).0,
       bits[index],

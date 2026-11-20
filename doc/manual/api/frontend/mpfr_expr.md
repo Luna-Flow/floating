@@ -390,7 +390,7 @@ pub fn execute_decimal_random_data(MpfrDecimalRandomDocument) -> RunSummary
 Runs every row through the `try_*_ctx` form of the operation with the row's
 context, so a certification failure fails the row instead of becoming a quiet
 NaN. A row passes only when the result has the expected value *and* cohort
-(`compare_total` equal, so `1.0` and `1.00` differ) and the flags agree. The row
+(`total_order_compare` equal, so `1.0` and `1.00` differ) and the flags agree. The row
 id is the first field of the row.
 
 ### `MpfrDecimalRandomDocument`, `MpfrDecimalRandomDocument::source`, `MpfrDecimalRandomDocument::case_count`, `MpfrDecimalRandomDocument::case_ids`

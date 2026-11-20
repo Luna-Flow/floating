@@ -69,7 +69,7 @@ operators and by conversions that have no context argument. The fields are
 private; use the observers below. Two values with the same mathematical value
 but different exponents (for example `1.2` and `1.20`) are different members of
 the same *cohort*: they compare equal numerically but are distinguished by
-`quantum`, `same_quantum`, `compare_total`, formatting and interchange
+`quantum`, `same_quantum`, `total_order_compare`, formatting and interchange
 encoding.
 
 The derived `Debug` implementation is promoted as `Decimal::to_repr`; see
@@ -1058,19 +1058,19 @@ when the zeros have opposite signs (`plus_ctx(-0)`, `minus_ctx(+0)`) and $+0$
 otherwise. `abs_ctx` is $|x|$ rounded to the context; signaling NaNs raise
 `invalid_operation`.
 
-### `Decimal::divide_integer`, `remainder`, `remainder_ctx`
+### `Decimal::divide_integer`, `remainder_trunc_ctx`, `remainder_ctx`
 
 These functions compute integer quotients and remainders.
 
 ```mbti
 pub fn Decimal::divide_integer(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::remainder(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::remainder_trunc_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::remainder_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
 `divide_integer(x, y)` is $\operatorname{trunc}(x/y)$ with preferred exponent 0. When
 the integer quotient needs more than $p$ digits, the result is NaN with
-`division_impossible` and `invalid_operation`. `remainder(x, y)` is
+`division_impossible` and `invalid_operation`. `remainder_trunc_ctx(x, y)` is
 $x - y\cdot\operatorname{trunc}(x/y)$ with the sign of $x$ (General Decimal
 Arithmetic *remainder*). `remainder_ctx(x, y)` is $x - y\cdot n$ where $n$ is
 $x/y$ rounded to the nearest integer, ties to even (IEEE 754 *remainder*; the
@@ -1087,7 +1087,7 @@ raised. Its sign is still the sign of the exact quotient.
 For example, `-8.95E-6` divided by `2.40E-5` with precision 9, $e_{\min}=0$,
 $e_{\max}=1$ and clamp enabled gives `-0E-7` with `clamped`. Folding a zero's
 exponent preserves its value and does not raise `rounded` or `inexact`.
-`remainder` applies exponent bounds to its own result; clamping its internal
+`remainder_trunc_ctx` applies exponent bounds to its own result; clamping its internal
 integer quotient does not contribute a `clamped` flag to the remainder.
 
 ```moonbit
@@ -1096,9 +1096,9 @@ test "decimal remainders" {
   let ctx = @decimal.DecimalContext::decimal64()
   let d = fn(s : String) { @decimal.Decimal::from_string(s).unwrap() }
   inspect(d("10").divide_integer(d("3"), ctx).0, content="3")
-  inspect(d("10").remainder(d("3"), ctx).0, content="1")
+  inspect(d("10").remainder_trunc_ctx(d("3"), ctx).0, content="1")
   inspect(d("10").remainder_ctx(d("6"), ctx).0, content="-2")
-  inspect(d("-7.5").remainder(d("2"), ctx).0, content="-1.5")
+  inspect(d("-7.5").remainder_trunc_ctx(d("2"), ctx).0, content="-1.5")
 }
 ```
 
@@ -1276,23 +1276,23 @@ integer `Decimal`; $\operatorname{logb}(\pm 0) = -\infty$ with
 
 ## Adjacent values
 
-### `Decimal::next_plus`, `next_minus`, `next_toward`
+### `Decimal::next_up_ctx`, `next_down_ctx`, `next_toward_ctx`
 
 These functions return the neighbouring representable values.
 
 ```mbti
-pub fn Decimal::next_plus(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::next_minus(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::next_toward(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::next_up_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::next_down_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::next_toward_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
-`next_plus` is the smallest representable value greater than `x` in the
-context and `next_minus` the largest smaller one, including subnormals down to
+`next_up_ctx` is the smallest representable value greater than `x` in the
+context and `next_down_ctx` the largest smaller one, including subnormals down to
 $10^{E_{\text{tiny}}}$ and the largest finite value
-$(10^{p}-1)\,10^{e_{\max}-p+1}$; `next_plus(-∞)` is the most negative finite
-value. They raise no flags for finite results. `next_toward(x, y)` moves `x`
+$(10^{p}-1)\,10^{e_{\max}-p+1}$; `next_up_ctx(-∞)` is the most negative finite
+value. They raise no flags for finite results. `next_toward_ctx(x, y)` moves `x`
 one step toward `y`; when $x = y$ it returns `x` with the sign of `y` for
-zeros. A step of `next_toward` that ends in an infinity raises `overflow`,
+zeros. A step of `next_toward_ctx` that ends in an infinity raises `overflow`,
 `inexact` and `rounded`; one that ends subnormal or zero raises `underflow`,
 `subnormal`, `inexact` and `rounded`.
 
@@ -1301,8 +1301,8 @@ zeros. A step of `next_toward` that ends in an infinity raises `overflow`,
 test "decimal neighbours of one" {
   let ctx = @decimal.DecimalContext::decimal64()
   let one = @decimal.Decimal::one()
-  inspect(one.next_plus(ctx).0, content="1.000000000000001")
-  inspect(one.next_minus(ctx).0, content="0.9999999999999999")
+  inspect(one.next_up_ctx(ctx).0, content="1.000000000000001")
+  inspect(one.next_down_ctx(ctx).0, content="0.9999999999999999")
 }
 ```
 
@@ -1365,19 +1365,20 @@ They return the `Decimal` $-1$, 0 or 1, or a quiet NaN when an operand is a
 NaN. `compare_ctx` raises `invalid_operation` only for a signaling NaN;
 `compare_signal_ctx` raises it for every NaN (IEEE *signaling* comparison).
 
-### `Decimal::compare_total`, `compare_total_magnitude`, `compare_total_ctx`, `compare_total_magnitude_ctx`
+### `Decimal::total_order`, `total_order_mag`, `total_order_compare`
 
-These functions implement the IEEE 754 `totalOrder` predicate as a three-way
-comparison.
+These functions implement the IEEE 754-2019 §5.10 `totalOrder` and
+`totalOrderMag` predicates, and the same order as a three-way comparison.
 
 ```mbti
-pub fn Decimal::compare_total(Self, Self) -> Int
-pub fn Decimal::compare_total_magnitude(Self, Self) -> Int
-pub fn Decimal::compare_total_ctx(Self, Self, DecimalContext) -> (Int, DecimalFlags)
-pub fn Decimal::compare_total_magnitude_ctx(Self, Self, DecimalContext) -> (Int, DecimalFlags)
+pub fn Decimal::total_order(Self, Self) -> Bool
+pub fn Decimal::total_order_mag(Self, Self) -> Bool
+pub fn Decimal::total_order_compare(Self, Self) -> Int
 ```
 
-`compare_total` orders every representation:
+`total_order(x, y)` is `true` when `x` is ordered at or before `y`, and
+`total_order_compare(x, y)` is `-1`, `0` or `1` for the same order. The order
+covers every representation:
 
 $$
 -\text{NaN} < -\text{sNaN} < -\infty < \text{negative finite} < -0 < +0 <
@@ -1387,10 +1388,10 @@ $$
 Equal finite values are ordered by exponent: for positive values the smaller
 exponent comes first ($1.00 < 1.0$), for negative values the larger. NaNs of
 the same sign and kind are ordered by payload (reversed for negative NaNs).
-It returns 0 only for identical representations.
-`compare_total_magnitude` compares the absolute values. The `_ctx` forms
-first prepare the operands for the context (which only matters in subset
-mode) and return the flags of that step.
+`total_order_compare` returns 0 only for identical representations.
+`total_order_mag(x, y)` is `total_order` of the absolute values. None of them
+takes a context, rounds or raises a flag (the former `_ctx` forms prepared the
+operands for the context, which only mattered in subset mode).
 
 ### `Decimal::min`, `max`, `clamp`, `clamp_checked`
 
@@ -1409,7 +1410,7 @@ ties. `clamp` returns `min` below the range, `max` above it, and the value
 (including a NaN) otherwise; it aborts when a bound is NaN or `min > max`.
 `clamp_checked` returns `Err(domain_error)` in those cases.
 
-### `Decimal::minimum_ctx`, `maximum_ctx`, `minimum_number_ctx`, `maximum_number_ctx`, `minimum_magnitude_ctx`, `maximum_magnitude_ctx`, `minimum_number_magnitude_ctx`, `maximum_number_magnitude_ctx`
+### `Decimal::minimum_ctx`, `maximum_ctx`, `minimum_number_ctx`, `maximum_number_ctx`, `minimum_magnitude_ctx`, `maximum_magnitude_ctx`, `minimum_magnitude_number_ctx`, `maximum_magnitude_number_ctx`
 
 These eight functions are the IEEE 754-2019 §9.6 minimum and maximum
 operations. The General Decimal Arithmetic `min`, `max`, `min-magnitude` and
@@ -1422,15 +1423,15 @@ pub fn Decimal::minimum_number_ctx(Self, Self, DecimalContext) -> (Self, Decimal
 pub fn Decimal::maximum_number_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::minimum_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::maximum_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::minimum_number_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::maximum_number_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::minimum_magnitude_number_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::maximum_magnitude_number_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
 `minimum_ctx` and `maximum_ctx` propagate NaN: any NaN operand gives a quiet
 NaN. The `_number_` variants return the number when exactly one operand is a
 NaN. In both, a signaling NaN raises `invalid_operation`. The magnitude
 variants compare $|x|$ and $|y|$ and fall back to the signed order on equal
-magnitudes. Ties are broken by `compare_total`, so $-0 < +0$. The selected value is rounded
+magnitudes. Ties are broken by `total_order_compare`, so $-0 < +0$. The selected value is rounded
 to the context.
 
 ## Digit-wise operations
@@ -1488,16 +1489,16 @@ $\operatorname{tanpi}(0.25) = 1$, $\operatorname{acos}(1) = 0$, $x^{0.5}$,
 exact roots such as `rootn_ctx(0.008, 3)` $= 0.2$, exact norms such as
 `hypot_ctx(0.3, 0.4)` $= 0.5$) is decided before the enclosure loop and
 returned without `inexact`, and an exact binary result such as
-`power_ctx(4, 1.5)` $= 8$ is returned exactly by the enclosure itself. Integer
-powers are not certified: [`power_ctx`](#decimalpower_ctx-pown_ctx-rootn_ctx-hypot_ctx-try_power_ctx-try_pown_ctx-try_rootn_ctx-try_hypot_ctx)
+`pow_ctx(4, 1.5)` $= 8$ is returned exactly by the enclosure itself. Integer
+powers are not certified: [`pow_ctx`](#decimalpow_ctx-pown_ctx-rootn_ctx-hypot_ctx-try_pow_ctx-try_pown_ctx-try_rootn_ctx-try_hypot_ctx)
 rounds them once, in an extended context, from the exact power or from
 refined directed bounds.
 
 > [!NOTE]
 > **Exact non-integral powers.** A power whose exact value is a representable
 > decimal but not a binary fraction is decided in decimal before the loop, so
-> in decimal64 `power_ctx(0.0016, 0.25)` is `0.2`, `power_ctx(32, 0.2)` is `2`
-> and `power_ctx(0.04, 1.5)` is `0.008`, all without `inexact` and in every
+> in decimal64 `pow_ctx(0.0016, 0.25)` is `0.2`, `pow_ctx(32, 0.2)` is `2`
+> and `pow_ctx(0.04, 1.5)` is `0.008`, all without `inexact` and in every
 > rounding mode. The exponent is reduced to $p/q$ in lowest terms — a decimal
 > exponent is $c \cdot 10^{-k}$, so $q$ keeps only the twos and fives the
 > coefficient cannot cancel — and the power is exact exactly when $x$ itself
@@ -1510,8 +1511,8 @@ refined directed bounds.
 These operations return NaN with `invalid_context` when $p > 999\,999$,
 $e_{\max} > 999\,999$ or $e_{\min} < -999\,999$, or when a finite operand has
 more than 999,999 digits or an adjusted exponent beyond about $\pm 10^6$.
-Only `power_ctx` and `pown_ctx` handle their IEEE power cases before this
-restricted-context check. For example, `power_ctx(1, 1.1)` is exactly `1` even
+Only `pow_ctx` and `pown_ctx` handle their IEEE power cases before this
+restricted-context check. For example, `pow_ctx(1, 1.1)` is exactly `1` even
 in a restricted context, while `ln_ctx(1)` and `exp_ctx(-inf)` still return
 `invalid_context`. Integral powers in `decimal` support counts through
 999,999,999 for positive exponents and -1,999,999,997 for negative exponents;
@@ -1519,12 +1520,12 @@ these are adopted decNumber implementation limits, not limits imposed by GDA
 1.70. Integer powers above those counts use bounded square-and-multiply when
 the exact exponent coefficient has at most 4,096 decimal digits. Larger
 coefficients return NaN with `invalid_context` before expansion. Thus
-`power_ctx(2, 1E+9)` is finite under `DecimalContext::new()`, while
-`power_ctx(2, 1E+9999999)` is rejected within the fixed work bound. The same
+`pow_ctx(2, 1E+9)` is finite under `DecimalContext::new()`, while
+`pow_ctx(2, 1E+9999999)` is rejected within the fixed work bound. The same
 large input to `decimal_gda` still follows the GDA adapter's decNumber count
 limit and returns `invalid_operation`; IEEE `decimal` and `decimal_gda`
 therefore intentionally differ on this input. Non-integral powers such as
-`power_ctx(2, 1.5)` and `exp2_ctx(2)` remain subject to the elementary-function
+`pow_ctx(2, 1.5)` and `exp2_ctx(2)` remain subject to the elementary-function
 context limits.
 
 ### `Decimal::exp_ctx`, `ln_ctx`, `log10_ctx`, `try_exp_ctx`, `try_ln_ctx`, `try_log10_ctx`
@@ -1552,22 +1553,22 @@ $+\infty$ are $+\infty$, of a negative value or $-\infty$ are NaN with
 exact integer exponent. Arguments so large or small that $e^x$ certainly
 overflows or underflows are decided without evaluation.
 
-### `Decimal::power_ctx`, `pown_ctx`, `rootn_ctx`, `hypot_ctx`, `try_power_ctx`, `try_pown_ctx`, `try_rootn_ctx`, `try_hypot_ctx`
+### `Decimal::pow_ctx`, `pown_ctx`, `rootn_ctx`, `hypot_ctx`, `try_pow_ctx`, `try_pown_ctx`, `try_rootn_ctx`, `try_hypot_ctx`
 
 These functions compute powers, roots and the Euclidean norm.
 
 ```mbti
-pub fn Decimal::power_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::pow_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::pown_ctx(Self, Int, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rootn_ctx(Self, Int, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::hypot_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::try_power_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_pow_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_pown_ctx(Self, Int, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_rootn_ctx(Self, Int, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_hypot_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 ```
 
-`power_ctx(x, y)` is the IEEE 754-2019 §9.2 power operation. A signaling NaN
+`pow_ctx(x, y)` is the IEEE 754-2019 §9.2 power operation. A signaling NaN
 operand is quieted and raises `invalid_operation`; this takes precedence over
 the identities below. Otherwise $x^{\pm 0}=1$, including for zero, infinity,
 and quiet NaN, and $\operatorname{pow}(+1,y)=1$ for every $y$ (including quiet
@@ -1601,7 +1602,7 @@ extended context, and `pown_ctx(-infinity, Int::min_value())` is `+0`.
 
 For other integral exponents, an exact power is returned when it fits in $p$
 digits and otherwise, in an extended context, the correctly rounded power (in
-decimal32, `power_ctx(3.339434, 3)` is `37.24077`; the exact cube is
+decimal32, `pow_ctx(3.339434, 3)` is `37.24077`; the exact cube is
 $37.240765000\ldots$); $x^{0.5}$ is `sqrt_ctx`; positive non-integer powers
 are certified and negative bases with a finite non-integer exponent are
 invalid. These IEEE rules intentionally differ from
@@ -1627,14 +1628,14 @@ returns NaN with `invalid_context`.
 
 An exact result is delivered in the cohort member whose exponent is closest to
 the preferred exponent of IEEE 754-2019 §9.2.2, $\lfloor y\,q_x \rfloor$ for
-`power_ctx(x, y)` and $\lfloor n\,q_x \rfloor$ for `pown_ctx(x, n)`, where
+`pow_ctx(x, y)` and $\lfloor n\,q_x \rfloor$ for `pown_ctx(x, n)`, where
 $q_x$ is the exponent of the stored `x` and the member must fit in $p$ digits:
 in decimal64 `pown_ctx(1.00, 2)` is `1.0000`, `pown_ctx(-1.0, 3)` is `-1.000`,
-`pown_ctx(-1E+5, 5)` is `-1E+25` (exact, no flags), `power_ctx(1.00, 1.5)` is
-`1.000` and `power_ctx(4.00, 1.5)` is `8.000`; a negative exponent cannot reach
+`pown_ctx(-1E+5, 5)` is `-1E+25` (exact, no flags), `pow_ctx(1.00, 1.5)` is
+`1.000` and `pow_ctx(4.00, 1.5)` is `8.000`; a negative exponent cannot reach
 a preferred exponent above the value (`pown_ctx(1.00, -2)` is `1`). The
 standard defines no preferred exponent when $y$ is infinite or a NaN, so
-`power_ctx(1.00, Infinity)` stays `1`. `decimal_gda` follows the repeated
+`pow_ctx(1.00, Infinity)` stays `1`. `decimal_gda` follows the repeated
 multiplication exponent of General Decimal Arithmetic instead.
 
 ### `Decimal::exp2_ctx`, `exp10_ctx`, `expm1_ctx`, `log2_ctx`, `log1p_ctx`, `try_exp2_ctx`, `try_exp10_ctx`, `try_expm1_ctx`, `try_log2_ctx`, `try_log1p_ctx`
@@ -1740,8 +1741,8 @@ the `Int32` minimum $-2^{31}$.
 `powr_ctx(x, y)` is $e^{y \ln x}$, so its domain excludes $x < 0$ (invalid,
 also when $y$ is a quiet NaN). It returns a quiet NaN for a NaN operand even
 when $y = \pm 0$, is invalid for `powr(±0, ±0)`, `powr(+∞, ±0)` and
-`powr(1, ±∞)`, and otherwise equals `power_ctx` on $|x|$ (results, cohort and
-flags): `powr_ctx(-0, 3)` is `0` where `power_ctx` gives `-0`.
+`powr(1, ±∞)`, and otherwise equals `pow_ctx` on $|x|$ (results, cohort and
+flags): `powr_ctx(-0, 3)` is `0` where `pow_ctx` gives `-0`.
 
 ```moonbit
 ///|
@@ -1878,7 +1879,7 @@ Domain and special values of the functions in these four groups:
 
 | Function | Invalid (`invalid_operation`) | Pole (`division_by_zero`) | Exact cases |
 | --- | --- | --- | --- |
-| `exp2`, `exp10` | none | none | integer argument (via `power_ctx`), $\pm 0 \mapsto 1$, $-\infty \mapsto 0$, $+\infty \mapsto +\infty$ |
+| `exp2`, `exp10` | none | none | integer argument (via `pow_ctx`), $\pm 0 \mapsto 1$, $-\infty \mapsto 0$, $+\infty \mapsto +\infty$ |
 | `expm1` | none | none | $\pm0 \mapsto \pm0$, $-\infty\mapsto -1$, $+\infty \mapsto +\infty$ |
 | `log2` | $x<0$, $-\infty$ | $\pm 0 \mapsto -\infty$ | $1 \mapsto 0$, exact binary powers ($0.125 \mapsto -3$), $+\infty \mapsto +\infty$ |
 | `log1p` | $x<-1$, $-\infty$ | $-1 \mapsto -\infty$ | $\pm0 \mapsto \pm0$, $+\infty \mapsto +\infty$ |
@@ -1914,7 +1915,7 @@ test "decimal exact and special elementary results" {
   inspect(flags.inexact, content="false")
   inspect(d("0.008").rootn_ctx(3, c64).0, content="0.2")
   let c32 = @decimal.DecimalContext::decimal32()
-  inspect(d("3.339434").power_ctx(d("3"), c32).0, content="37.24077")
+  inspect(d("3.339434").pow_ctx(d("3"), c32).0, content="37.24077")
   let seven = @decimal.DecimalContext::new(precision=7)
   inspect(d("-1").pown_ctx(12345679, seven).0, content="-1")
   inspect(d("-0").atan2_ctx(d("-1"), c64).0, content="-3.141592653589793")
@@ -2190,7 +2191,7 @@ converted context has the default exponent range, `exp_contextual` without
 explicit `e_min`/`e_max` fails with `domain_error` (`invalid_context`).
 
 `zero_contextual` and `one_contextual` have the context precision.
-`epsilon_contextual` is $10^{1-p}$ (`next_plus(1) - 1`).
+`epsilon_contextual` is $10^{1-p}$ (`next_up_ctx(1) - 1`).
 `min_normal_contextual` is $10^{e_{\min}}$ (default $e_{\min} = -999\,999\,999$).
 `max_finite_contextual` is $(10^{p}-1)\,10^{e_{\max}-p+1}$.
 `classify_contextual` is `classify`.
@@ -2220,7 +2221,7 @@ returns `Err(parse_error)`. `DivChecked::div_checked(x, y, ctx)` is `div_ctx`
 under the converted context with `Err(division_by_zero)` and
 `Err(domain_error)` as in [`div_checked`](#decimaldiv_checked-sqrt).
 `sqrt_checked` is `sqrt_ctx` under the converted context and fails for
-negative operands. `pow_nat_checked` and `pow_int_checked` call `power_ctx`
+negative operands. `pow_nat_checked` and `pow_int_checked` call `pow_ctx`
 with the integer exponent converted exactly (with at least ten digits, which
 hold every accepted exponent), so at precision 7
 `(-1).pow_int_checked(12345679, ctx)` is `-1`. They return `Ok(1)` for a zero
@@ -2247,7 +2248,7 @@ pub fn Decimal::op_ge(Self, Self) -> Bool
 They are defined by [`compare`](#decimalcompare): `x == y` is
 `compare(x, y) == 0`, `x < y` is `compare(x, y) < 0`, and so on. Cohort
 members are equal (`1.0 == 1.00`), $-0 = +0$, every NaN equals every NaN and
-is greater than every number. Use `compare_total` to tell representations
+is greater than every number. Use `total_order_compare` to tell representations
 apart.
 
 ### Derived equality: `DecimalContext::equal`, `DecimalContext::not_equal`, `DecimalFlags::equal`, `DecimalFlags::not_equal`, `DecimalRoundingMode::equal`, `DecimalRoundingMode::not_equal`, `DecimalTininessDetection::equal`, `DecimalTininessDetection::not_equal`, `DecimalSignal::equal`, `DecimalSignal::not_equal`, `DecimalInterchangeFormat::equal`, `DecimalInterchangeFormat::not_equal`, `DecimalInterchangeEncoding::equal`, `DecimalInterchangeEncoding::not_equal`
@@ -2366,10 +2367,6 @@ pub fn Decimal::compare(Self, Self) -> Int32
 pub fn Decimal::compare_checked(Self, Self) -> Result[Int32, @arithmetic.ArithmeticError]
 pub fn Decimal::compare_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::compare_signal_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::compare_total(Self, Self) -> Int32
-pub fn Decimal::compare_total_ctx(Self, Self, DecimalContext) -> (Int32, DecimalFlags)
-pub fn Decimal::compare_total_magnitude(Self, Self) -> Int32
-pub fn Decimal::compare_total_magnitude_ctx(Self, Self, DecimalContext) -> (Int32, DecimalFlags)
 pub fn Decimal::compound_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::convert_format(Self, DecimalInterchangeFormat) -> (Self, DecimalFlags)
 pub fn Decimal::copy(Self) -> Self
@@ -2433,14 +2430,14 @@ pub fn Decimal::max(Self, Self) -> Self
 pub fn Decimal::max_finite_contextual(@arithmetic.ArithmeticContext) -> Self
 pub fn Decimal::maximum_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::maximum_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::maximum_magnitude_number_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::maximum_number_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::maximum_number_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::min(Self, Self) -> Self
 pub fn Decimal::min_normal_contextual(@arithmetic.ArithmeticContext) -> Self
 pub fn Decimal::minimum_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::minimum_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::minimum_magnitude_number_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::minimum_number_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::minimum_number_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::minus_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::mul(Self, Self) -> Self
 pub fn Decimal::mul_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
@@ -2449,9 +2446,9 @@ pub fn Decimal::nan(precision? : Int32) -> Self
 pub fn Decimal::nan_payload(Self) -> @bigint.BigInt
 pub fn Decimal::neg(Self) -> Self
 pub fn Decimal::negative_zero(precision? : Int32) -> Self
-pub fn Decimal::next_minus(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::next_plus(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::next_toward(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::next_down_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::next_toward_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::next_up_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::normalized(Self) -> Self
 pub fn Decimal::not_equal(Self, Self) -> Bool
 pub fn Decimal::one(precision? : Int32) -> Self
@@ -2464,9 +2461,9 @@ pub fn Decimal::output(Self, &Logger) -> Unit
 pub fn Decimal::parse(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::parse_checked(String, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::plus_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::pow_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::pow_int_checked(Self, Int32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Decimal::power_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::pown_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::powr_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::precision(Self) -> Int32
@@ -2474,8 +2471,8 @@ pub fn Decimal::quantize(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::quantum(Self) -> Int32
 pub fn Decimal::quiet_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int32) -> Self
 pub fn Decimal::reduce_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::remainder(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::remainder_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::remainder_trunc_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rescale(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rootn_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rotate_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
@@ -2514,6 +2511,9 @@ pub fn Decimal::to_sci_string(String, DecimalContext) -> (String, DecimalFlags)
 pub fn Decimal::to_string(Self) -> String
 pub fn Decimal::to_uint64_ctx(Self, DecimalContext, exact? : Bool) -> (UInt64?, DecimalFlags)
 pub fn Decimal::to_uint_ctx(Self, DecimalContext, exact? : Bool) -> (UInt32?, DecimalFlags)
+pub fn Decimal::total_order(Self, Self) -> Bool
+pub fn Decimal::total_order_compare(Self, Self) -> Int32
+pub fn Decimal::total_order_mag(Self, Self) -> Bool
 pub fn Decimal::trim(Self) -> Self
 pub fn Decimal::try_acos_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_acosh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
@@ -2543,7 +2543,7 @@ pub fn Decimal::try_log10p1_ctx(Self, DecimalContext) -> Result[(Self, DecimalFl
 pub fn Decimal::try_log1p_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_log2_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_log2p1_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
-pub fn Decimal::try_power_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_pow_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_pown_ctx(Self, Int32, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_powr_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_rootn_ctx(Self, Int32, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]

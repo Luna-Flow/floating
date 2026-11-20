@@ -143,7 +143,7 @@ fn decimal_remainder_extended_fast_result(
 }
 
 ///|
-pub fn Decimal::remainder(
+pub fn Decimal::remainder_trunc_ctx(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,

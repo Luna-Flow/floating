@@ -239,7 +239,7 @@ test "decimal integer powers below Etiny round in the rounding direction (#168)"
     let base = Decimal::from_string(operand).unwrap()
     let (value, flags) = match op {
       "pown" => base.pown_ctx(issue168_int(count), context)
-      "power" => base.power_ctx(Decimal::from_string(count).unwrap(), context)
+      "power" => base.pow_ctx(Decimal::from_string(count).unwrap(), context)
       _ => base.exp10_ctx(context)
     }
     assert_eq(

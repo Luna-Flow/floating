@@ -61,7 +61,7 @@ fn issue342_run(
     "multiply" => x.mul_ctx(y, ctx)
     "divide" => x.div_ctx(y, ctx)
     "fma" => x.fma_ctx(y, z, ctx)
-    "power" => x.power_ctx(y, ctx)
+    "power" => x.pow_ctx(y, ctx)
     "plus" => x.plus_ctx(ctx)
     _ => abort("unexpected operation \{op}")
   }

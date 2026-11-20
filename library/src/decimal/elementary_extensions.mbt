@@ -518,7 +518,7 @@ fn Decimal::try_unary_elementary_ctx(
           },
           precision~,
         )
-        return Ok(finish(base.power_ctx(value, ctx)))
+        return Ok(finish(base.pow_ctx(value, ctx)))
       }
       None => ()
     }
@@ -776,7 +776,7 @@ pub fn Decimal::try_pown_ctx(
   exponent : Int32,
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
-  self.try_power_ctx(decimal_pown_exponent(exponent, ctx), ctx)
+  self.try_pow_ctx(decimal_pown_exponent(exponent, ctx), ctx)
 }
 
 ///|
@@ -785,7 +785,7 @@ pub fn Decimal::pown_ctx(
   exponent : Int32,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  self.power_ctx(decimal_pown_exponent(exponent, ctx), ctx)
+  self.pow_ctx(decimal_pown_exponent(exponent, ctx), ctx)
 }
 
 ///|

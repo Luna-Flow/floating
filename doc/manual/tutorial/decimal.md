@@ -18,7 +18,7 @@ the [decimal design](../design/decimal.md); every function is specified in the
 | read or write decimal64 bits (DPD or BID) | [`DecimalInterchange`](#exchange-decimal64-bits) |
 | take a logarithm or an exponential | [`ln_ctx`, `try_ln_ctx`](#call-an-elementary-function) |
 | run generic `Ring` code on decimals | [the algebra traits](#generic-code-over-the-algebra-traits) |
-| sort stored values deterministically | [`compare_total`](#a-deterministic-order-for-storage) |
+| sort stored values deterministically | [`total_order_compare`](#a-deterministic-order-for-storage) |
 | accumulate flags over a long pipeline | [`decimal_checked`](decimal_checked.md) |
 
 ## Quick start
@@ -383,7 +383,7 @@ and range events become diagnostics.
 
 ### A deterministic order for storage
 
-`compare_total` orders every representation, including cohorts, signed zeros
+`total_order_compare` orders every representation, including cohorts, signed zeros
 and NaNs, so it is the right key for sorting stored values or deduplicating
 bit-exact records:
 
@@ -392,7 +392,7 @@ bit-exact records:
 test "decimal total order separates cohorts" {
   let d = fn(s : String) { @decimal.Decimal::from_string(s).unwrap() }
   let xs = [d("1.0"), d("-0"), d("1.00"), d("NaN"), d("0")]
-  xs.sort_by(fn(a, b) { a.compare_total(b) })
+  xs.sort_by(fn(a, b) { a.total_order_compare(b) })
   inspect(xs.map(fn(x) { x.to_string() }).join(" "), content="-0 0 1.00 1.0 nan")
 }
 ```

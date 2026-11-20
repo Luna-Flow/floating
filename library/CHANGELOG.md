@@ -8,6 +8,19 @@ notes live in this file.
 
 ### Breaking
 
+- `decimal`, `decimal_checked`: IEEE names ([#22](https://github.com/Luna-Flow/floating/issues/22), rows D08 word order, D10 to D13 of the naming decisions). The names follow IEEE 754-2019; there are no aliases, and the calls in this release's library, tooling, tools and manual are migrated.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `Decimal::minimum_number_magnitude_ctx`, `maximum_number_magnitude_ctx` | `minimum_magnitude_number_ctx`, `maximum_magnitude_number_ctx` | IEEE word order (`minimumMagnitudeNumber`) |
+  | `Decimal::power_ctx`, `try_power_ctx`; `DecimalChecked::power` | `pow_ctx`, `try_pow_ctx`; `DecimalChecked::pow` | the IEEE `pow` (§9.2) |
+  | `Decimal::compare_total` | `total_order_compare` | three-way, same order |
+  | (new) | `Decimal::total_order`, `total_order_mag` | the booleans of IEEE 754-2019 §5.10 (`x` at or before `y`, and of the absolute values), as in `bin_float` |
+  | `Decimal::compare_total_magnitude` | `a.abs().total_order_compare(b.abs())`, or `total_order_mag` | |
+  | `Decimal::compare_total_ctx`, `compare_total_magnitude_ctx` | `total_order_compare`, `total_order_mag` | the `_ctx` forms first rounded the operands into the context (subset mode only) and returned flags; totalOrder takes no context and raises no flag |
+  | `Decimal::remainder` (truncating, GDA) | `remainder_trunc_ctx` | this is the old truncating `remainder`; the IEEE remainder is `remainder_ctx` and was not renamed. A call that meant the truncating remainder must not end up on `remainder_ctx`: the results differ (`remainder(10, 6)` is `4`, `remainder_ctx(10, 6)` is `-2`) |
+  | `Decimal::next_minus`, `next_plus`, `next_toward` | `next_down_ctx`, `next_up_ctx`, `next_toward_ctx` | IEEE `nextDown`, `nextUp`; the checked tier keeps bare names: `DecimalChecked::next_down`, `next_up`, `next_toward` replace `next_minus`, `next_plus`, `next_toward` |
+
 - `decimal_gda`: `max_mag` and `min_mag` are spelled out ([#22](https://github.com/Luna-Flow/floating/issues/22), naming row G07; `max`, `min`, `max_ctx` and `min_ctx` keep their names, as GDA 1.70 names the operations `max`, `min`, `max-magnitude` and `min-magnitude`). The old names are removed without an alias; `decimal` and `decimal_gda_checked` are not affected. Migration:
 
   | before | after |
@@ -86,6 +99,8 @@ notes live in this file.
   | quiet NaN operand, overflow, underflow, inexact | unchanged | unchanged |
 
 ### Added
+
+- `decimal`: `Decimal::total_order` and `total_order_mag`, the boolean totalOrder and totalOrderMag predicates of IEEE 754-2019 §5.10 (see Breaking for the renamed three-way `total_order_compare`). The §5.10 corpus (all matrix cells of the four formats) runs against both the boolean and the three-way form.
 
 - `decimal`: the public constants `decimal_implementation_e_max` (999,999,999), `decimal_implementation_e_min` (-999,999,999) and `decimal_precision_max` (999,999,999), the counterpart of `binary_implementation_e_max`, `binary_implementation_e_min` and `binary_precision_max` ([#22](https://github.com/Luna-Flow/floating/issues/22)). They are the limits `DecimalContext::try_new` (and `new`) already enforced, now named, and the validation uses them, so the values cannot drift. The certified elementary functions keep their own lower limit (`|e| <= 999999`, `p <= 999999`), described in the manual. No behaviour changes.
 

@@ -78,7 +78,7 @@ fn decimal_certified_scaled_loop(
                 scale(upper),
                 target_ctx,
               )
-              if lower_result.0.compare_total(upper_result.0) == 0 &&
+              if lower_result.0.total_order_compare(upper_result.0) == 0 &&
                 lower_result.1 == upper_result.1 {
                 Some(lower_result)
               } else {
@@ -578,7 +578,7 @@ pub fn Decimal::try_powr_ctx(
   // (9.2.2). -0 is passed as +0, where pow would apply its odd-integer sign
   // rule.
   let base = if x_zero { { ..x, negative: false, } } else { x }
-  base.try_power_ctx(y, ctx).map(finish)
+  base.try_pow_ctx(y, ctx).map(finish)
 }
 
 ///|

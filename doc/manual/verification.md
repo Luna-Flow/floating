@@ -46,7 +46,7 @@ compiles all 19,134 of them into `library/src/decimal/elementary_pi_inverse_rows
 (`testdata/decimal/ieee/rows/pi_inverse.txt`, `mpfr-decimal-random-v1` rows, see
 `tooling/src/frontend/mpfr_expr`) that `just gate decimal` and the nightly run feed to the
 release-built conformance CLI on native, Wasm, Wasm-GC and JavaScript. Both compare
-value, cohort (`compare_total`) and all flags exactly.
+value, cohort (`total_order_compare`) and all flags exactly.
 
 This was not always so. While about 50 `atan2pi` rows with an operand of
 `1E-1999996` cost 90 % of a 466 s debug run, the quick gate compiled only a

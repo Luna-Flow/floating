@@ -485,7 +485,7 @@ exponent that holds the rounded value (fewer digits only for a subnormal
 result). Parsing preserves the quantum of the literal. `quantize(x, y)`
 rounds $x$ to the quantum of $y$; `reduce_ctx` (GDA `reduce`) and
 `normalized()` strip trailing zeros. Numeric comparison sees only the value;
-`same_quantum` and the total orders `compare_total` (IEEE) and
+`same_quantum` and the total orders `total_order_compare` (IEEE) and
 `compare_total` (GDA) also see the cohort.
 
 [^ideal]: IEEE 754-2019, clause 5.2 and table 5.1; Cowlishaw, *General Decimal
@@ -513,7 +513,7 @@ test "decimal results keep the ideal exponent" {
   let x = @decimal.Decimal::from_string("12.30").unwrap()
   let y = @decimal.Decimal::from_string("12.3").unwrap()
   inspect(x.compare(y), content="0")
-  inspect(x.compare_total(y), content="-1")
+  inspect(x.total_order_compare(y), content="-1")
 }
 ```
 
@@ -585,7 +585,7 @@ choosing the right one matters:
 | `compare_signaling`, `compare_signaling_less`, … (`bin_float`) | IEEE partial order | `Unordered`; *invalid* for any NaN | equal |
 | `compare_checked` | numeric order | `Err` with `UnorderedComparison` | equal |
 | `compare`, `<`, `<=`, sorting (`Compare`) | total preorder | every NaN equals every NaN and is above every number | equal |
-| `total_order`, `total_order_compare`, `total_order_mag` (`bin_float`), `compare_total` (decimal) | IEEE `totalOrder` on representations | ordered by sign, kind and payload | $-0 < +0$ |
+| `total_order`, `total_order_compare`, `total_order_mag` (`bin_float`), `total_order_compare` (decimal) | IEEE `totalOrder` on representations | ordered by sign, kind and payload | $-0 < +0$ |
 
 `compare` orders NaN above every number so that `Compare` is a total preorder
 and sorting never fails; it never aborts. Use the quiet predicates or

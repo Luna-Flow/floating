@@ -72,7 +72,7 @@ test "pow and pown results take the preferred exponent (#194)" {
     let (value, flags) = if op == "pown" {
       base.pown_ctx(issue194_int(count), ctx)
     } else {
-      base.power_ctx(Decimal::from_string(count).unwrap(), ctx)
+      base.pow_ctx(Decimal::from_string(count).unwrap(), ctx)
     }
     assert_eq(
       (op, operand, count, value.to_string(), issue194_flags(flags)),

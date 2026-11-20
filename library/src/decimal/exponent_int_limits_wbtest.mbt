@@ -15,7 +15,7 @@ test "context exponent minimum near Int::min does not wrap etiny" {
 
 ///|
 /// IEEE 754-2019 §§3.3 and 7.4: results beyond e_max overflow to infinity
-/// with Overflow, Inexact, and Rounded. next_plus is exact.
+/// with Overflow, Inexact, and Rounded. next_up_ctx is exact.
 test "extreme e_max reports overflow without adjusted exponent wrap" {
   let ctx = DecimalContext::new(
     precision=3,
@@ -32,7 +32,7 @@ test "extreme e_max reports overflow without adjusted exponent wrap" {
     { ..DecimalFlags::new(), overflow: true, inexact: true, rounded: true, },
   )
 
-  let (next, next_flags) = max.next_plus(ctx)
+  let (next, next_flags) = max.next_up_ctx(ctx)
   assert_true(next.is_infinite())
   assert_true(next_flags == DecimalFlags::new())
 
@@ -232,13 +232,13 @@ test "huge quantize and to-integral shifts round to zero" {
 test "next operations handle Int minimum with zero etiny" {
   let ctx = DecimalContext::new(precision=1, e_min=0, e_max=999_999_999)
   let tiny = Decimal::make(1N, -2_147_483_648, 34)
-  let (plus, plus_flags) = tiny.next_plus(ctx)
+  let (plus, plus_flags) = tiny.next_up_ctx(ctx)
   assert_eq(plus.to_string(), "1")
   assert_true(plus_flags == DecimalFlags::new())
-  let (minus, minus_flags) = tiny.next_minus(ctx)
+  let (minus, minus_flags) = tiny.next_down_ctx(ctx)
   assert_true(minus.is_zero())
   assert_true(minus_flags == DecimalFlags::new())
-  let (toward, toward_flags) = tiny.next_toward(Decimal::zero(), ctx)
+  let (toward, toward_flags) = tiny.next_toward_ctx(Decimal::zero(), ctx)
   assert_true(toward.is_zero())
   assert_true(
     toward_flags.underflow && toward_flags.inexact && toward_flags.rounded,

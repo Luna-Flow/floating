@@ -19,10 +19,7 @@ fn power_case(result : (Decimal, DecimalFlags)) -> String {
 test "decimal integer powers are correctly rounded" {
   let c32 = DecimalContext::decimal32()
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
-  assert_eq(
-    power_case(d("3.339434").power_ctx(d("3"), c32)),
-    "37.24077 inexact",
-  )
+  assert_eq(power_case(d("3.339434").pow_ctx(d("3"), c32)), "37.24077 inexact")
   assert_eq(power_case(d("4.329438").pown_ctx(5, c32)), "1521.099 inexact")
   // Bounds path: the exact power is far longer than the precision.
   assert_eq(
@@ -46,7 +43,7 @@ test "decimal pown keeps the integer exponent exact" {
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
   assert_eq(power_case(d("-1").pown_ctx(12345679, ctx)), "-1")
   assert_eq(
-    power_case(d("-1").power_ctx(d("12345679"), ctx)),
+    power_case(d("-1").pow_ctx(d("12345679"), ctx)),
     power_case(d("-1").pown_ctx(12345679, ctx)),
   )
   assert_eq(
@@ -107,17 +104,17 @@ test "decimal rootn handles large degrees" {
 test "decimal power returns exact non-integral powers" {
   let c32 = DecimalContext::decimal32()
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
-  assert_eq(power_case(d("4").power_ctx(d("1.5"), c32)), "8")
-  assert_eq(power_case(d("16").power_ctx(d("0.75"), c32)), "8")
-  assert_eq(power_case(d("16").power_ctx(d("-0.75"), c32)), "0.125")
-  assert_eq(power_case(d("0.25").power_ctx(d("1.5"), c32)), "0.125")
-  assert_eq(power_case(d("9").power_ctx(d("1.5"), c32)), "27")
+  assert_eq(power_case(d("4").pow_ctx(d("1.5"), c32)), "8")
+  assert_eq(power_case(d("16").pow_ctx(d("0.75"), c32)), "8")
+  assert_eq(power_case(d("16").pow_ctx(d("-0.75"), c32)), "0.125")
+  assert_eq(power_case(d("0.25").pow_ctx(d("1.5"), c32)), "0.125")
+  assert_eq(power_case(d("9").pow_ctx(d("1.5"), c32)), "27")
   // An irrational power is still rounded and inexact.
-  assert_eq(power_case(d("2").power_ctx(d("0.5"), c32)), "1.414214 inexact")
+  assert_eq(power_case(d("2").pow_ctx(d("0.5"), c32)), "1.414214 inexact")
   // 4^2048.5 = 2^4097 has 1234 digits, so it is rounded to the precision.
   let wide = DecimalContext::new(precision=34, e_max=999_999, e_min=-999_999)
   assert_eq(
-    power_case(d("4").power_ctx(d("2048.5"), wide)),
+    power_case(d("4").pow_ctx(d("2048.5"), wide)),
     "2.088777762826305013383505421433249E+1233 inexact",
   )
 }
@@ -130,9 +127,9 @@ test "decimal power returns exact non-integral powers" {
 test "decimal power rejects contexts outside the math function range" {
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
   let default_e_min = DecimalContext::new(precision=34, e_max=999_999)
-  let (value, flags) = d("4").power_ctx(d("2048.5"), default_e_min)
+  let (value, flags) = d("4").pow_ctx(d("2048.5"), default_e_min)
   assert_true(value.is_nan())
   assert_true(flags.contains(DecimalSignal::InvalidContext))
   // An integral power is unaffected by the math function restriction.
-  assert_eq(power_case(d("2").power_ctx(d("10"), default_e_min)), "1024")
+  assert_eq(power_case(d("2").pow_ctx(d("10"), default_e_min)), "1024")
 }

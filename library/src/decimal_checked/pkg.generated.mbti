@@ -64,13 +64,13 @@ pub fn DecimalChecked::maximum_number(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::minimum_number(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::minus(Self) -> Self
 pub fn DecimalChecked::mul(Self, @decimal.Decimal) -> Self
-pub fn DecimalChecked::next_minus(Self) -> Self
-pub fn DecimalChecked::next_plus(Self) -> Self
+pub fn DecimalChecked::next_down(Self) -> Self
 pub fn DecimalChecked::next_toward(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::next_up(Self) -> Self
 pub fn DecimalChecked::outcome(Self) -> (@decimal.Decimal, @decimal.DecimalFlags)
 pub fn DecimalChecked::parse(String, @decimal.DecimalContext) -> Self
 pub fn DecimalChecked::plus(Self) -> Self
-pub fn DecimalChecked::power(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::pow(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::pown(Self, Int32) -> Self
 pub fn DecimalChecked::powr(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::quantize(Self, @decimal.Decimal) -> Self

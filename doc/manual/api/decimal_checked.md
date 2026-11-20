@@ -253,7 +253,7 @@ test "raised versus accumulated flags" {
 
 ## Operations that cannot fail
 
-### `DecimalChecked::plus`, `minus`, `abs`, `add`, `sub`, `mul`, `div`, `fma`, `sqrt`, `quantize`, `remainder`, `reduce`, `min`, `max`, `next_minus`, `next_plus`, `next_toward`
+### `DecimalChecked::plus`, `minus`, `abs`, `add`, `sub`, `mul`, `div`, `fma`, `sqrt`, `quantize`, `remainder`, `reduce`, `minimum_number`, `maximum_number`, `next_down`, `next_up`, `next_toward`
 
 These methods apply the IEEE decimal operation of the same meaning to the
 current value and a plain `Decimal` operand under the stored context.
@@ -273,8 +273,8 @@ pub fn DecimalChecked::remainder(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::reduce(Self) -> Self
 pub fn DecimalChecked::minimum_number(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::maximum_number(Self, @decimal.Decimal) -> Self
-pub fn DecimalChecked::next_minus(Self) -> Self
-pub fn DecimalChecked::next_plus(Self) -> Self
+pub fn DecimalChecked::next_down(Self) -> Self
+pub fn DecimalChecked::next_up(Self) -> Self
 pub fn DecimalChecked::next_toward(Self, @decimal.Decimal) -> Self
 ```
 
@@ -288,7 +288,7 @@ pub fn DecimalChecked::next_toward(Self, @decimal.Decimal) -> Self
 | `remainder(d)` | `remainder_ctx` | IEEE remainder $v - d \cdot n$, $n$ = $v/d$ rounded to nearest, ties to even |
 | `reduce` | `reduce_ctx` | $v$ with trailing zeros removed |
 | `minimum_number`, `maximum_number` | `minimum_number_ctx`, `maximum_number_ctx` | IEEE 754-2019 §9.6 `minimumNumber`/`maximumNumber`: a quiet NaN loses to a number, a signaling NaN gives the number and `invalid_operation` (the General Decimal Arithmetic `min`/`max` are in `decimal_gda`) |
-| `next_minus`, `next_plus`, `next_toward(t)` | same names | adjacent representable value |
+| `next_down`, `next_up`, `next_toward(t)` | `next_down_ctx`, `next_up_ctx`, `next_toward_ctx` | adjacent representable value |
 
 If an error is recorded, each method returns the state unchanged. Otherwise
 the step $(v', r') = \mathrm{op}(v, c)$ gives the new state $(v', c, r',
@@ -319,7 +319,7 @@ test "exceptional results are values" {
 
 ## Operations that can record an error
 
-### `DecimalChecked::exp`, `exp2`, `exp10`, `expm1`, `exp2m1`, `exp10m1`, `ln`, `log2`, `log10`, `log1p`, `log2p1`, `log10p1`, `rsqrt`, `compound`, `powr`, `power`, `pown`, `rootn`, `hypot`, `sin`, `cos`, `tan`, `sinpi`, `cospi`, `tanpi`, `asin`, `acos`, `atan`, `atan2`, `asinpi`, `acospi`, `atanpi`, `atan2pi`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`
+### `DecimalChecked::exp`, `exp2`, `exp10`, `expm1`, `exp2m1`, `exp10m1`, `ln`, `log2`, `log10`, `log1p`, `log2p1`, `log10p1`, `rsqrt`, `compound`, `powr`, `pow`, `pown`, `rootn`, `hypot`, `sin`, `cos`, `tan`, `sinpi`, `cospi`, `tanpi`, `asin`, `acos`, `atan`, `atan2`, `asinpi`, `acospi`, `atanpi`, `atan2pi`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`
 
 These methods apply the certified `Decimal::try_*_ctx` functions of the same
 name.
@@ -340,7 +340,7 @@ pub fn DecimalChecked::log10p1(Self) -> Self
 pub fn DecimalChecked::rsqrt(Self) -> Self
 pub fn DecimalChecked::compound(Self, Int32) -> Self
 pub fn DecimalChecked::powr(Self, @decimal.Decimal) -> Self
-pub fn DecimalChecked::power(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::pow(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::pown(Self, Int) -> Self
 pub fn DecimalChecked::rootn(Self, Int) -> Self
 pub fn DecimalChecked::hypot(Self, @decimal.Decimal) -> Self
@@ -386,8 +386,8 @@ $(v, c, r, F, \mathrm{Some}(e))$: the value and flags before the step are kept.
 > ($\pm 999\,999\,999$), and any context built by `from_arithmetic_context`
 > from an `ArithmeticContext` without exponent bounds, makes them return NaN
 > with `invalid_context`. Use `decimal32()`, `decimal64()`, `decimal128()` or
-> explicit `e_min` / `e_max`. `power` and `pown` with an integral exponent,
-> and `power` with the exponent `0.5`, are not restricted.
+> explicit `e_min` / `e_max`. `pow` and `pown` with an integral exponent,
+> and `pow` with the exponent `0.5`, are not restricted.
 
 ```moonbit
 ///|
@@ -479,13 +479,13 @@ pub fn DecimalChecked::maximum_number(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::minimum_number(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::minus(Self) -> Self
 pub fn DecimalChecked::mul(Self, @decimal.Decimal) -> Self
-pub fn DecimalChecked::next_minus(Self) -> Self
-pub fn DecimalChecked::next_plus(Self) -> Self
+pub fn DecimalChecked::next_down(Self) -> Self
 pub fn DecimalChecked::next_toward(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::next_up(Self) -> Self
 pub fn DecimalChecked::outcome(Self) -> (@decimal.Decimal, @decimal.DecimalFlags)
 pub fn DecimalChecked::parse(String, @decimal.DecimalContext) -> Self
 pub fn DecimalChecked::plus(Self) -> Self
-pub fn DecimalChecked::power(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::pow(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::pown(Self, Int32) -> Self
 pub fn DecimalChecked::powr(Self, @decimal.Decimal) -> Self
 pub fn DecimalChecked::quantize(Self, @decimal.Decimal) -> Self
