@@ -48,39 +48,78 @@ pub fn compare_finite_magnitude_repr(
 }
 
 ///|
+/// Floor square root of a word below 10^18 and its remainder. The hardware
+/// root of the nearest double is within one of the answer (the word has at
+/// most 60 bits, the double 53), and two comparisons with exact products
+/// settle it; the root is below 10^9 so the products fit one word.
+fn dec_coeff_isqrt_word(value : UInt64) -> (UInt64, UInt64) {
+  let mut root = value.to_double().sqrt().to_uint64()
+  while root * root > value {
+    root -= 1UL
+  }
+  while (root + 1UL) * (root + 1UL) <= value {
+    root += 1UL
+  }
+  (root, value - root * root)
+}
+
+///|
+/// Floor square root `s` of `n` and the remainder `n - s*s`.
+///
+/// A coefficient of `D` digits is split as `n = hi * 10^(2t) + low` with
+/// `t` about `D/4`; the root of `hi` is found the same way, one level down
+/// (a word at the bottom, where the hardware root gives the answer), so that
+/// `(root(hi) + 1) * 10^t` is an overestimate of the root of `n` with about
+/// half of its digits right. Because `n < (hi + 1) * 10^(2t)` and
+/// `hi + 1 <= (root(hi) + 1)^2` the overestimate is never below the root.
+/// Newton's step `x -> (x + n / x) / 2` from a value at or above the floor
+/// root decreases monotonically to it and stays at or above it, so the
+/// iteration needs no start near a power of ten, and the working size doubles
+/// from the bottom up instead of every step running at full size.
+///
+/// The step's division also decides when to stop: for `x` at or above the
+/// root, `q = n / x` (floor) reaches `x` exactly when `x` is the root, and
+/// then `n = x*q + r` gives the remainder `r + x*(q - x)` with `q - x` in
+/// {0, 1, 2}, with no squaring.
 pub fn dec_coeff_integer_sqrt_rem_repr(n : DecCoeff) -> (DecCoeff, DecCoeff) {
   if dec_coeff_small_value(n) is Some(small) {
     if small <= 1UL {
       return (n, dec_coeff_zero())
     }
-    let mut approximation = dec_coeff_small_powers10[(n.digits10() + 1) / 2]
-    while true {
-      let next = (approximation + small / approximation) / 2UL
-      if next >= approximation {
-        let square = approximation * approximation
-        return (DecCoeff::Small(approximation), DecCoeff::Small(small - square))
-      }
-      approximation = next
-    } nobreak {
-      abort("small coefficient square-root iteration must terminate")
-    }
+    let (root, remainder) = dec_coeff_isqrt_word(small)
+    return (DecCoeff::Small(root), DecCoeff::Small(remainder))
   }
   if dec_coeff_compare_repr(n, dec_coeff_from_int(1)) <= 0 {
     return (n, dec_coeff_zero())
   }
-  // Exact-integer specialization of GDA SquareRoot's Newton step
-  // a = 0.5 * (a + f/a), using the same decimal Unit primitives
-  // (decNumber.c lines 2965-2978).
-  let mut approximation = dec_coeff_power10_repr((n.digits10() + 1) / 2)
+  let digits = n.digits10()
+  let half_shift = if digits / 4 > 1 { digits / 4 } else { 1 }
+  let high = dec_coeff_div_pow10_round_info_repr(n, 2 * half_shift).0
+  let (high_root, _) = dec_coeff_integer_sqrt_rem_repr(high)
+  let mut approximation = dec_coeff_shift_power10_repr(
+    dec_coeff_magnitude_add_unit(high_root, 1),
+    half_shift,
+  )
   while true {
-    let (quotient, _) = dec_coeff_div_rem_repr(n, approximation)
-    let sum = dec_coeff_magnitude_add_repr(approximation, quotient)
-    let next = dec_coeff_div_rem_by_unit_repr(sum, 2).0
-    if dec_coeff_compare_repr(next, approximation) >= 0 {
-      let square = dec_coeff_square_repr(approximation)
-      return (approximation, dec_coeff_magnitude_sub_repr(n, square))
+    let (quotient, remainder) = dec_coeff_div_rem_repr(n, approximation)
+    if dec_coeff_compare_repr(quotient, approximation) >= 0 {
+      let excess = dec_coeff_magnitude_sub_repr(quotient, approximation)
+      let units = match dec_coeff_small_value(excess) {
+        Some(value) => value.to_int()
+        None => abort("square-root quotient exceeds its root by more than two")
+      }
+      let tail = if units == 0 {
+        remainder
+      } else {
+        dec_coeff_magnitude_add_repr(
+          remainder,
+          dec_coeff_multiply_by_unit_repr(approximation, units),
+        )
+      }
+      return (approximation, tail)
     }
-    approximation = next
+    let sum = dec_coeff_magnitude_add_repr(approximation, quotient)
+    approximation = dec_coeff_div_rem_by_unit_repr(sum, 2).0
   } nobreak {
     (approximation, dec_coeff_zero())
   }
