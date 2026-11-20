@@ -126,12 +126,12 @@ are documented in `testdata/bin_float/README.md`, `testdata/decimal/README.md` (
   native, Wasm, Wasm-GC and JavaScript; LLVM is outside this gate. A committed
   elementary oracle adds 3,060 rows computed from 768-bit MPFR enclosures under
   the five IEEE decimal rounding-direction attributes.
-- **Interval.** The strict ITF1788 phases pass 5,332/5,332 selected cases:
+- **Interval.** The strict ITF1788 phases pass 5,692/5,692 selected cases:
   sets, relations, numeric observations, cancellation, arithmetic,
   elementary-core, exponentials and logarithms, general power, trigonometric,
   hyperbolic, inverse trigonometric, `atan2`, FMA, integer power, extrema, the
-  integer functions and reverse multiplication.
-  The other reverse operations remain unsupported.
+  integer functions, reverse multiplication and the algebraic reverse
+  functions. The other reverse operations remain unsupported.
 
 The committed smoke fixtures that `just pr` runs are subsets of these: the
 binary smoke, for example, has 7,467 rows (240 TestFloat vectors, 3

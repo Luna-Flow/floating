@@ -261,6 +261,20 @@ pub fn BallFloatResult::round_ties_to_even(Self) -> Self
 pub fn BallFloatResult::round_ties_to_away(Self) -> Self
 ```
 
+### `BallFloatResult::sqr_rev`, `BallFloatResult::abs_rev`, `BallFloatResult::pown_rev` and `BallFloatResult::cosh_rev`
+
+These methods apply the `BallFloat` method of the same name to the interval part
+(see the [`ball_float` page](ball_float.md#ballfloatsqr_rev-ballfloatabs_rev-ballfloatpown_rev-and-ballfloatcosh_rev)).
+They cannot fail themselves; an earlier failure in the receiver or in the
+optional prior is passed on.
+
+```mbti
+pub fn BallFloatResult::sqr_rev(Self, x? : Self) -> Self
+pub fn BallFloatResult::abs_rev(Self, x? : Self) -> Self
+pub fn BallFloatResult::pown_rev(Self, Int, x? : Self) -> Self
+pub fn BallFloatResult::cosh_rev(Self, x? : Self) -> Self
+```
+
 ### `BallFloatResult::mul_rev` and `BallFloatResult::mul_rev_to_pair`
 
 These methods apply `BallFloat::mul_rev` and `BallFloat::mul_rev_to_pair` to
@@ -486,6 +500,7 @@ pub struct BallFloatResult {
   // private fields
 }
 pub fn BallFloatResult::abs(Self) -> Self
+pub fn BallFloatResult::abs_rev(Self, x? : Self) -> Self
 pub fn BallFloatResult::acos(Self) -> Self
 pub fn BallFloatResult::acosh(Self) -> Self
 pub fn BallFloatResult::add(Self, Self) -> Self
@@ -501,6 +516,7 @@ pub fn BallFloatResult::ceil(Self) -> Self
 pub fn BallFloatResult::convex_hull(Self, Self) -> Self
 pub fn BallFloatResult::cos(Self) -> Self
 pub fn BallFloatResult::cosh(Self) -> Self
+pub fn BallFloatResult::cosh_rev(Self, x? : Self) -> Self
 pub fn BallFloatResult::cospi(Self) -> Self
 pub fn BallFloatResult::div(Self, Self) -> Self
 pub fn BallFloatResult::entire(precision? : Int32) -> Self
@@ -538,6 +554,7 @@ pub fn BallFloatResult::normalized(Self) -> Self
 pub fn BallFloatResult::ok(@ball_float.BallFloat) -> Self
 pub fn BallFloatResult::pow(Self, Self) -> Self
 pub fn BallFloatResult::pown(Self, Int32) -> Self
+pub fn BallFloatResult::pown_rev(Self, Int32, x? : Self) -> Self
 pub fn BallFloatResult::recip(Self) -> Self
 pub fn BallFloatResult::result(Self) -> Result[@ball_float.BallFloat, @arithmetic.ArithmeticError]
 pub fn BallFloatResult::rootn(Self, Int32) -> Self
@@ -548,6 +565,7 @@ pub fn BallFloatResult::sin(Self) -> Self
 pub fn BallFloatResult::sinh(Self) -> Self
 pub fn BallFloatResult::sinpi(Self) -> Self
 pub fn BallFloatResult::sqr(Self) -> Self
+pub fn BallFloatResult::sqr_rev(Self, x? : Self) -> Self
 pub fn BallFloatResult::sqrt(Self) -> Self
 pub fn BallFloatResult::sub(Self, Self) -> Self
 pub fn BallFloatResult::tan(Self) -> Self

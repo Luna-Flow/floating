@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "corpus": "itf1788",
   "officialAggregate": {
-    "expectedCases": 5332,
+    "expectedCases": 5692,
     "phases": [
       "sets",
       "relations",
@@ -20,7 +20,8 @@
       "integer-power",
       "extrema",
       "integer-functions",
-      "multiplicative-reverse"
+      "multiplicative-reverse",
+      "algebraic-reverse"
     ]
   },
   "phases": [
@@ -109,7 +110,7 @@
       "operations": ["mulRev", "mulRevTen", "mulRevToPair"]
     },
     {
-      "name": "reverse",
+      "name": "algebraic-reverse",
       "include": ["*rev.itl"],
       "operations": [
         "sqrRev",
@@ -118,14 +119,20 @@
         "absRevBin",
         "pownRev",
         "pownRevBin",
+        "coshRev",
+        "coshRevBin"
+      ]
+    },
+    {
+      "name": "reverse",
+      "include": ["*rev.itl"],
+      "operations": [
         "sinRev",
         "sinRevBin",
         "cosRev",
         "cosRevBin",
         "tanRev",
         "tanRevBin",
-        "coshRev",
-        "coshRevBin",
         "powRev1",
         "powRev2"
       ]

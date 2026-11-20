@@ -16,6 +16,7 @@ pub struct BallFloatResult {
   // private fields
 }
 pub fn BallFloatResult::abs(Self) -> Self
+pub fn BallFloatResult::abs_rev(Self, x? : Self) -> Self
 pub fn BallFloatResult::acos(Self) -> Self
 pub fn BallFloatResult::acosh(Self) -> Self
 pub fn BallFloatResult::add(Self, Self) -> Self
@@ -31,6 +32,7 @@ pub fn BallFloatResult::ceil(Self) -> Self
 pub fn BallFloatResult::convex_hull(Self, Self) -> Self
 pub fn BallFloatResult::cos(Self) -> Self
 pub fn BallFloatResult::cosh(Self) -> Self
+pub fn BallFloatResult::cosh_rev(Self, x? : Self) -> Self
 pub fn BallFloatResult::cospi(Self) -> Self
 pub fn BallFloatResult::div(Self, Self) -> Self
 pub fn BallFloatResult::entire(precision? : Int32) -> Self
@@ -68,6 +70,7 @@ pub fn BallFloatResult::normalized(Self) -> Self
 pub fn BallFloatResult::ok(@ball_float.BallFloat) -> Self
 pub fn BallFloatResult::pow(Self, Self) -> Self
 pub fn BallFloatResult::pown(Self, Int32) -> Self
+pub fn BallFloatResult::pown_rev(Self, Int32, x? : Self) -> Self
 pub fn BallFloatResult::recip(Self) -> Self
 pub fn BallFloatResult::result(Self) -> Result[@ball_float.BallFloat, @arithmetic.ArithmeticError]
 pub fn BallFloatResult::rootn(Self, Int32) -> Self
@@ -78,6 +81,7 @@ pub fn BallFloatResult::sin(Self) -> Self
 pub fn BallFloatResult::sinh(Self) -> Self
 pub fn BallFloatResult::sinpi(Self) -> Self
 pub fn BallFloatResult::sqr(Self) -> Self
+pub fn BallFloatResult::sqr_rev(Self, x? : Self) -> Self
 pub fn BallFloatResult::sqrt(Self) -> Self
 pub fn BallFloatResult::sub(Self, Self) -> Self
 pub fn BallFloatResult::tan(Self) -> Self

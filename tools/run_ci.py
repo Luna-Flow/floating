@@ -35,6 +35,7 @@ INTERVAL_PHASES = (
     "extrema",
     "integer-functions",
     "multiplicative-reverse",
+    "algebraic-reverse",
 )
 SUPPORTED_TARGETS = ("native", "wasm", "wasm-gc", "js")
 

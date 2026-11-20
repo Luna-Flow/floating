@@ -44,6 +44,7 @@ pub struct BallFloat {
   // private fields
 }
 pub fn BallFloat::abs(Self) -> Self
+pub fn BallFloat::abs_rev(Self, x? : Self) -> Self
 pub fn BallFloat::acos(Self) -> Self
 pub fn BallFloat::acosh(Self) -> Self
 pub fn BallFloat::add(Self, Self) -> Self
@@ -59,6 +60,7 @@ pub fn BallFloat::ceil(Self) -> Self
 pub fn BallFloat::convex_hull(Self, Self) -> Self
 pub fn BallFloat::cos(Self) -> Self
 pub fn BallFloat::cosh(Self) -> Self
+pub fn BallFloat::cosh_rev(Self, x? : Self) -> Self
 pub fn BallFloat::cospi(Self) -> Self
 pub fn BallFloat::disjoint(Self, Self) -> Bool
 pub fn BallFloat::div(Self, Self) -> Self
@@ -112,6 +114,7 @@ pub fn BallFloat::pow(Self, Self) -> Self
 pub fn BallFloat::pow_int_checked(Self, Int32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::pown(Self, Int32) -> Self
+pub fn BallFloat::pown_rev(Self, Int32, x? : Self) -> Self
 pub fn BallFloat::precedes(Self, Self) -> Bool
 pub fn BallFloat::precision(Self) -> Int32
 pub fn BallFloat::radius(Self) -> @bin_float.BinFloat
@@ -124,6 +127,7 @@ pub fn BallFloat::sin(Self) -> Self
 pub fn BallFloat::sinh(Self) -> Self
 pub fn BallFloat::sinpi(Self) -> Self
 pub fn BallFloat::sqr(Self) -> Self
+pub fn BallFloat::sqr_rev(Self, x? : Self) -> Self
 pub fn BallFloat::sqrt(Self) -> Self
 pub fn BallFloat::strict_less(Self, Self) -> Bool
 pub fn BallFloat::strict_precedes(Self, Self) -> Bool
@@ -190,6 +194,7 @@ pub struct BallFloatDecorated {
   // private fields
 }
 pub fn BallFloatDecorated::abs(Self) -> Self
+pub fn BallFloatDecorated::abs_rev(Self, x? : Self) -> Self
 pub fn BallFloatDecorated::acos(Self) -> Self
 pub fn BallFloatDecorated::acosh(Self) -> Self
 pub fn BallFloatDecorated::add(Self, Self) -> Self
@@ -205,6 +210,7 @@ pub fn BallFloatDecorated::ceil(Self) -> Self
 pub fn BallFloatDecorated::convex_hull(Self, Self) -> Self
 pub fn BallFloatDecorated::cos(Self) -> Self
 pub fn BallFloatDecorated::cosh(Self) -> Self
+pub fn BallFloatDecorated::cosh_rev(Self, x? : Self) -> Self
 pub fn BallFloatDecorated::cospi(Self) -> Self
 pub fn BallFloatDecorated::decoration(Self) -> Decoration
 pub fn BallFloatDecorated::disjoint(Self, Self) -> Bool
@@ -246,6 +252,7 @@ pub fn BallFloatDecorated::overlap(Self, Self) -> OverlapState?
 pub fn BallFloatDecorated::pos(Self) -> Self
 pub fn BallFloatDecorated::pow(Self, Self) -> Self
 pub fn BallFloatDecorated::pown(Self, Int32) -> Self
+pub fn BallFloatDecorated::pown_rev(Self, Int32, x? : Self) -> Self
 pub fn BallFloatDecorated::precedes(Self, Self) -> Bool
 pub fn BallFloatDecorated::recip(Self) -> Self
 pub fn BallFloatDecorated::rootn(Self, Int32) -> Self
@@ -256,6 +263,7 @@ pub fn BallFloatDecorated::sin(Self) -> Self
 pub fn BallFloatDecorated::sinh(Self) -> Self
 pub fn BallFloatDecorated::sinpi(Self) -> Self
 pub fn BallFloatDecorated::sqr(Self) -> Self
+pub fn BallFloatDecorated::sqr_rev(Self, x? : Self) -> Self
 pub fn BallFloatDecorated::sqrt(Self) -> Self
 pub fn BallFloatDecorated::strict_less(Self, Self) -> Bool
 pub fn BallFloatDecorated::strict_precedes(Self, Self) -> Bool

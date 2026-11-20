@@ -618,6 +618,31 @@ $\boldsymbol{b} = [-1, 1]$, $\boldsymbol{c} = [1, 1]$ the set avoids $(-1, 1)$,
 so the prior $[0, 0.5]$ gives Empty. All 533 corpus cases of `mulRev`,
 `mulRevTen` and `mulRevToPair` agree with the construction.
 
+#### Reverse functions of even and monotone algebraic functions
+
+`sqr_rev`, `abs_rev`, `cosh_rev` and `pown_rev` (IEEE 1788-2015 10.5.4) share
+one scheme. The preimage of $\boldsymbol{c}$ under $\varphi$ is a union of at
+most two intervals, found from the inverse of $\varphi$ at the ends of
+$\boldsymbol{c}$ after cutting $\boldsymbol{c}$ to the range of $\varphi$:
+
+- for an even $\varphi$ ($x^2$, $\lvert x\rvert$, $\cosh$, an even $x^p$) with
+  inverse $r$ on the positive side, and $\boldsymbol{c}' = \boldsymbol{c} \cap
+  \text{range}$: the two pieces $[-r(\overline{c'}), -r(\underline{c'})]$ and
+  $[r(\underline{c'}), r(\overline{c'})]$;
+- for an odd $x^p$ with $p > 0$, increasing: $[r(\underline{c}), r(\overline{c})]$;
+- for a negative power, $x^p$ is decreasing on each side of the pole 0, so the
+  roles of the two ends swap, $x = 0$ is excluded, and the end of a piece at 0 is
+  open: the unbounded end of $\boldsymbol{c}$ gives $r = 0$, which is only a
+  limit.
+
+Each finite end is one directed rounding of the exact root of one exact
+endpoint (`sqrt`, `rootn`, `acosh` of a point interval), so the closed pieces are
+the tightest in the type. The hull with the prior $\boldsymbol{x}$ meets each
+piece, with its open ends, with $\boldsymbol{x}$ and takes the hull of the
+nonempty parts, the same routine as `mul_rev`. The trivial decoration (`trv`)
+is attached by the decorated forms. All 360 corpus cases of these functions in
+`libieeep1788_tests_rev.itl` and `abs_rev.itl` agree.
+
 ### Relations: certainly and possibly
 
 An interval stands for an unknown point, so a comparison of two intervals
@@ -869,7 +894,7 @@ trigonometric functions.
 
 **Evidence.** Package tests check directed endpoints, the far-addend and
 exponent-range cases, decorations and relations; the pinned ITF1788 corpus
-runs 5,332 cases in strict mode (see [conformance](../conformance/ball_float.md)).
+runs 5,692 cases in strict mode (see [conformance](../conformance/ball_float.md)).
 
 ### Known limitations
 
