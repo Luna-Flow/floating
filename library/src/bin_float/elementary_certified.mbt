@@ -5315,6 +5315,21 @@ fn binary_trigonometric_bounds_series(
 }
 
 ///|
+/// `a - b` for `a >= b` rounded upward (a nonnegative upper bound of the distance).
+fn upward_distance(
+  a : BinFloat,
+  b : BinFloat,
+  upward : BinaryContext,
+) -> BinFloat {
+  a.sub_ctx(b, upward).0
+}
+
+///|
+/// Number of calls of `binary_reduced_trigonometric_bounds`: one per refinement
+/// round of the trigonometric functions. Read by the tests that bound the rounds.
+let binary_reduced_trigonometric_calls : Ref[Int32] = Ref(0)
+
+///|
 fn binary_reduced_trigonometric_bounds(
   lower : BinFloat,
   upper : BinFloat,
@@ -5322,6 +5337,7 @@ fn binary_reduced_trigonometric_bounds(
   operation : BinaryTrigonometricOperation,
   work_precision : Int32,
 ) -> (BinFloat, BinFloat)? {
+  binary_reduced_trigonometric_calls.val += 1
   let one = BinFloat::one_raw(precision=work_precision)
   guard lower.compare(upper) <= 0 &&
     lower.compare(one.neg()) >= 0 &&
@@ -5356,39 +5372,104 @@ fn binary_reduced_trigonometric_bounds(
     BinaryTrigonometricOperation::Cos => sine_first
     BinaryTrigonometricOperation::Tan => true
   }
-  let sin_bounds = if need_sin {
-    let sin_lower = binary_sin_cos_series(lower, false, work_precision).unwrap()
-    let sin_upper = if lower.compare(upper) == 0 {
-      sin_lower
+  // The reduced interval `[lower, upper]` has two distinct ends whenever the
+  // quadrant is not 0 (the reduction encloses `x - n pi / 2` from both ends of
+  // `pi`). Sine and cosine are 1-Lipschitz (`|sin'| = |cos| <= 1`, `|cos'| =
+  // |sin| <= 1`), so for ANY value `m` and `h` an upper bound of both
+  // `upper - m` and `m - lower` (here `m` the midpoint rounded to nearest and
+  // `h` the larger of the two differences, each rounded upward; soundness does
+  // not need `m` to lie in the interval, `h` covers both distances whatever `m`
+  // is), every `x` of the interval has `|f(x) - f(m)| <= h`, so `f(x)` lies in
+  // `[f(m)_low - h, f(m)_high + h]` (the two sums rounded outward): one series
+  // evaluation instead of one at each end. For `tan` the widened enclosures
+  // feed the unchanged quotient: the reduced argument is within `pi / 4`, so the
+  // cosine is at least `cos(pi / 4) = 0.7071` and `h` is a few units of the work
+  // precision, hence the widened cosine enclosure excludes 0 wherever the
+  // two-ended one did.
+  let point = lower.compare(upper) == 0
+  let middle = if point {
+    lower
+  } else {
+    let nearest = binary_working_context(work_precision)
+    binary_halve_bound(lower.add_ctx(upper, nearest).0, work_precision, nearest)
+  }
+  let radius = if point {
+    zero
+  } else {
+    let up = upward_distance(upper, middle, upward)
+    let down = upward_distance(middle, lower, upward)
+    if up.compare(down) >= 0 {
+      up
     } else {
-      binary_sin_cos_series(upper, false, work_precision).unwrap()
+      down
     }
-    (sin_lower.0, sin_upper.1)
+  }
+  // The widening must not cross a bound that the true value sits on, or within
+  // the directed-rounding unit of at every work precision: a widened end across
+  // such a bound can never be certified (the cosine of a tiny argument is
+  // `1 - x^2/2`, closer to 1 than any work precision resolves, and the
+  // enclosure `[.., 1 + h]` then straddles the breakpoint above 1 for ever,
+  // which in a directed mode never rounds to one value). A bound that the true
+  // value is strictly inside of is crossed harmlessly, refinement shrinks `h`.
+  // The range bounds of both functions are `-1` and `1`; the sine of an interval
+  // with ends of one sign has that sign, so its enclosure stops at 0 (`sin x` has
+  // the sign of `x` for `|x| <= 1`). A point interval is not widened.
+  let one = BinFloat::one_raw(precision=work_precision)
+  let clamp_range = fn(bounds : (BinFloat, BinFloat)) -> (BinFloat, BinFloat) {
+    (
+      if bounds.0.compare(one.neg()) < 0 {
+        one.neg()
+      } else {
+        bounds.0
+      },
+      if bounds.1.compare(one) > 0 {
+        one
+      } else {
+        bounds.1
+      },
+    )
+  }
+  let sin_bounds = if need_sin {
+    let series = binary_sin_cos_series(middle, false, work_precision).unwrap()
+    if point {
+      series
+    } else {
+      let widened = clamp_range(
+        (
+          series.0.sub_ctx(radius, downward).0,
+          series.1.add_ctx(radius, upward).0,
+        ),
+      )
+      if lower.compare(zero) > 0 && widened.0.compare(zero) < 0 {
+        (zero, widened.1)
+      } else if upper.compare(zero) < 0 && widened.1.compare(zero) > 0 {
+        (widened.0, zero)
+      } else {
+        widened
+      }
+    }
   } else {
     (zero, zero)
   }
   let cos_bounds = if !need_cos {
     (zero, zero)
   } else {
-    let cos_lower = binary_sin_cos_series(lower, true, work_precision).unwrap()
-    let cos_upper = if lower.compare(upper) == 0 {
-      cos_lower
+    let series = binary_sin_cos_series(middle, true, work_precision).unwrap()
+    let widened = if point {
+      series
     } else {
-      binary_sin_cos_series(upper, true, work_precision).unwrap()
-    }
-    if lower.compare(zero) <= 0 && upper.compare(zero) >= 0 {
-      (
-        if cos_lower.0.compare(cos_upper.0) < 0 {
-          cos_lower.0
-        } else {
-          cos_upper.0
-        },
-        BinFloat::one_raw(precision=work_precision),
+      clamp_range(
+        (
+          series.0.sub_ctx(radius, downward).0,
+          series.1.add_ctx(radius, upward).0,
+        ),
       )
-    } else if upper.compare(zero) <= 0 {
-      (cos_lower.0, cos_upper.1)
+    }
+    // An interval that contains 0 reaches 1.
+    if lower.compare(zero) <= 0 && upper.compare(zero) >= 0 {
+      (widened.0, one)
     } else {
-      (cos_upper.0, cos_lower.1)
+      widened
     }
   }
   let mapped = match quadrant % 4 {
