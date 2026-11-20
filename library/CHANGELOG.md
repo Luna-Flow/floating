@@ -6,12 +6,6 @@ notes live in this file.
 
 ## Unreleased
 
-### Performance
-
-- `bin_float`: `div` of operands wider than one word forms the quotient and the inexact flag from the working array of Knuth's algorithm directly (one shift pass for the scaling and the normalisation, no remainder value built), and the digit loop hoists the halves of the trial digit. Results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).
-
-- `bin_float`: `div` of operands whose coefficients take at most two words, at precisions from 61 to 128 bits, runs three 3-by-2 word steps of Knuth's algorithm on registers instead of the general coefficient division; only the result is allocated. Results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).
-
 ### Breaking
 
 - The flag and trap types share one access style: methods ([#438](https://github.com/Luna-Flow/floating/issues/438), item A5). The fields of `decimal.DecimalFlags`, `decimal_gda.DecimalFlags`, `GdaFlags`, `GdaTrapSet` and `BallFlags` are private; each flag is read with a method of the same name, as `BinaryFlags` already did. `GdaFlags::none` and `GdaTrapSet::none` are `new`, like every other flag constructor. `contains` stays on the types of packages that have a signal enum (`decimal`, `decimal_gda`); `has_error` is unchanged (true for `invalid_operation`, `conversion_syntax`, `division_by_zero`, `division_undefined`, `division_impossible`, `invalid_context`; false for overflow, underflow, inexact and the other conditions, which deliver a usable result).
@@ -33,6 +27,7 @@ notes live in this file.
   | `GdaTrapSet::conversion_syntax()`, `division_impossible()`, `division_undefined()`, `invalid_context()` | removed | `traps.invalid_operation()` |
   | `GdaOutcome::Trapped(ConversionSyntax, ...)` and the three others | `Trapped(InvalidOperation, ...)` | for a trap on one condition alone; the trap on `InvalidOperation` already reported `InvalidOperation` |
   | order of the trapped signal | `InvalidOperation`, `DivisionByZero`, `Overflow`, `Underflow`, `Subnormal`, `Inexact`, `Rounded`, `Clamped`, `LostDigits` | the four detailed conditions are no longer in the list |
+
 - `decimal_gda`: contexts follow GDA 1.70 ([#438](https://github.com/Luna-Flow/floating/issues/438), context rules of the 0.12 plan). `GdaContext::new` and `try_new` accept an exponent range only when it satisfies page 10 of the specification: `e_min` is `-e_max`, `1 - e_max` or `-e_max - 1`. Before, any pair with `e_min <= 0 <= e_max` was accepted, so a context such as `e_min=-50, e_max=60` existed that no format has. `clamp` and `extended` stay as documented decNumber extensions (the official decTest files use both). The default contexts are named after the specification.
 
   | before | after | note |
@@ -117,6 +112,10 @@ notes live in this file.
 - `ball_float`: `try_atanh_interval` (and so `atanh_interval`) aborted ("ball lower bound must not be positive infinity") for an interval whose only point in the closure of the domain is `1` or `-1` (`[1, 1]`, `[1, +inf]`, `[-inf, -1]`). The open domain leaves nothing, so the result is Empty.
 
 ### Performance
+
+- `bin_float`: `div` of operands wider than one word forms the quotient and the inexact flag from the working array of Knuth's algorithm directly (one shift pass for the scaling and the normalisation, no remainder value built), and the digit loop hoists the halves of the trial digit. Results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).
+
+- `bin_float`: `div` of operands whose coefficients take at most two words, at precisions from 61 to 128 bits, runs three 3-by-2 word steps of Knuth's algorithm on registers instead of the general coefficient division; only the result is allocated. Results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).
 
 - `bin_float`: `sqrt` of a coefficient above 256 bits (precisions from about 128 bits up) runs the Karatsuba square root on limb arrays: the divisor of each level is the root of the upper part, used without a copy or a shift, the quotient, remainder and square are formed on arrays, and the radicand is shifted once instead of twice. Results are unchanged ([#438](https://github.com/Luna-Flow/floating/issues/438)).
 
