@@ -21255,7 +21255,7 @@ msgstr ""
 #: manual/tutorial/cli/mpfr_expr_cli.md:70
 #: manual/tutorial/cli/testfloat_expr_cli.md:88
 #: manual/tutorial/consistency.md:64
-#: manual/tutorial/decimal.md:316
+#: manual/tutorial/decimal.md:319
 #: manual/tutorial/decimal_checked.md:167
 #: manual/tutorial/decimal_gda.md:274
 #: manual/tutorial/decimal_gda_checked.md:164
@@ -21328,7 +21328,7 @@ msgstr ""
 #: manual/tutorial/cli/mpfr_expr_cli.md:79
 #: manual/tutorial/cli/testfloat_expr_cli.md:97
 #: manual/tutorial/consistency.md:71
-#: manual/tutorial/decimal.md:397
+#: manual/tutorial/decimal.md:400
 #: manual/tutorial/decimal_checked.md:251
 #: manual/tutorial/decimal_gda.md:361
 #: manual/tutorial/decimal_gda_checked.md:234
@@ -21401,7 +21401,7 @@ msgstr ""
 #: manual/tutorial/cli/mpfr_expr_cli.md:88
 #: manual/tutorial/cli/testfloat_expr_cli.md:104
 #: manual/tutorial/consistency.md:78
-#: manual/tutorial/decimal.md:425
+#: manual/tutorial/decimal.md:428
 #: manual/tutorial/decimal_checked.md:271
 #: manual/tutorial/decimal_gda.md:393
 #: manual/tutorial/decimal_gda_checked.md:248
@@ -23421,151 +23421,151 @@ msgstr ""
 msgid "`to_int_ctx`, `to_int64_ctx`, `to_uint_ctx` and `to_uint64_ctx` round to a fixed-width integer in the context's direction and return `None` with `invalid_operation` for a NaN, an infinity or a value out of range. Pass `exact=true` to get `inexact` when rounding changed the value:"
 msgstr ""
 
-#: manual/tutorial/decimal.md:163
+#: manual/tutorial/decimal.md:166
 msgid "Convert between formats"
 msgstr ""
 
-#: manual/tutorial/decimal.md:165
+#: manual/tutorial/decimal.md:168
 msgid "`convert_format` moves a value to another decimal interchange format and `to_bin_float_ctx` and `from_bin_float_ctx` cross to and from the binary formats, all with the flags of the rounding:"
 msgstr ""
 
-#: manual/tutorial/decimal.md:187
+#: manual/tutorial/decimal.md:190
 msgid "Bound a result from both sides"
 msgstr ""
 
-#: manual/tutorial/decimal.md:189
+#: manual/tutorial/decimal.md:192
 msgid "Directed rounding gives guaranteed bounds. Rounding the same quotient toward $-\\infty$ and toward $+\\infty$ brackets the exact value:"
 msgstr ""
 
-#: manual/tutorial/decimal.md:205
+#: manual/tutorial/decimal.md:208
 msgid "The two results are adjacent decimal32 values, and $1/7$ lies strictly between them."
 msgstr ""
 
-#: manual/tutorial/decimal.md:208
+#: manual/tutorial/decimal.md:211
 msgid "Exchange decimal64 bits"
 msgstr ""
 
-#: manual/tutorial/decimal.md:210
+#: manual/tutorial/decimal.md:213
 msgid "Interchange formats are what databases, files and other languages exchange. Encode in the encoding your peer expects, and decode with the same one:"
 msgstr ""
 
-#: manual/tutorial/decimal.md:231
+#: manual/tutorial/decimal.md:234
 msgid "Both encodings keep the exponent, so `19.99` comes back with two decimal places. Bits you did not produce yourself may be non-canonical; keep them in a `DecimalInterchange` and call `canonical()` before comparing bit patterns."
 msgstr ""
 
-#: manual/tutorial/decimal.md:235
+#: manual/tutorial/decimal.md:238
 msgid "Call an elementary function"
 msgstr ""
 
-#: manual/tutorial/decimal.md:237
+#: manual/tutorial/decimal.md:240
 msgid "Logarithms, exponentials, powers and trigonometric functions are certified: the result is the correctly rounded value in every rounding mode, or an explicit failure. They need a context with a bounded exponent range, such as a format preset:"
 msgstr ""
 
-#: manual/tutorial/decimal.md:258
+#: manual/tutorial/decimal.md:261
 msgid "`try_ln_ctx` returns `Err` only if the result could not be certified within the refinement limit of the context (twelve steps by default; `ctx.with_refinement_limit(Some(24))` allows more and `ctx.with_refinement_limit(None)` removes the count limit, at the cost of a longer evaluation for a hard-to-round input); `ln_ctx` turns that case into NaN with `invalid_operation`. Exact results such as $\\log_{10} 1000 = 3$ come back without `inexact`."
 msgstr ""
 
-#: manual/tutorial/decimal.md:266
+#: manual/tutorial/decimal.md:269
 msgid "For a small rate or a small exponent, use the functions that keep the part near zero instead of computing `exp2(x) - 1` or `log2(1 + x)`: those lose the digits of $x$ when $1 + x$ is rounded. `exp2m1_ctx`, `exp10m1_ctx`, `log2p1_ctx` and `log10p1_ctx` compute $2^x - 1$, $10^x - 1$, $\\log_2(1 + x)$ and $\\log_{10}(1 + x)$ from $x$ itself:"
 msgstr ""
 
-#: manual/tutorial/decimal.md:285
+#: manual/tutorial/decimal.md:288
 msgid "Compound interest is `compound_ctx`: $(1 + r)^n$ for an integer number of periods, computed from the rate itself, exact when the power is a short decimal and keeping the scale of the rate:"
 msgstr ""
 
-#: manual/tutorial/decimal.md:300
+#: manual/tutorial/decimal.md:303
 msgid "Angles measured in half-revolutions avoid the rounded value of $\\pi$: `atan2pi_ctx` gives the direction of a point as a fraction of a half turn, and the quarter turns are exact."
 msgstr ""
 
-#: manual/tutorial/decimal.md:318
+#: manual/tutorial/decimal.md:321
 msgid "Generic code over the algebra traits"
 msgstr ""
 
-#: manual/tutorial/decimal.md:320
+#: manual/tutorial/decimal.md:323
 msgid "`Decimal` implements `Ring` from [luna-generic](https://lunaflow.cn/en/luna-generic/) through its plain operators, so generic code runs on it unchanged:"
 msgstr ""
 
-#: manual/tutorial/decimal.md:340
+#: manual/tutorial/decimal.md:343
 msgid "The plain operators have no context: `*` is exact, `+` rounds to the larger operand precision (34 digits by default) and returns the shortest cohort member. Code that needs a precision, an exponent range or flags should take a `DecimalContext` and call the `*_ctx` operations."
 msgstr ""
 
-#: manual/tutorial/decimal.md:345
+#: manual/tutorial/decimal.md:348
 msgid "The shared contextual traits"
 msgstr ""
 
-#: manual/tutorial/decimal.md:347
+#: manual/tutorial/decimal.md:350
 msgid "Code written against [`Luna-Flow/arithmetic`](https://lunaflow.cn/en/arithmetic/) uses `ArithmeticContext` and gets an `ArithmeticOutcome` with diagnostics:"
 msgstr ""
 
-#: manual/tutorial/decimal.md:366
+#: manual/tutorial/decimal.md:369
 msgid "Errors (`invalid_operation`, `division_by_zero`, …) become `Err`; inexactness and range events become diagnostics."
 msgstr ""
 
-#: manual/tutorial/decimal.md:369
+#: manual/tutorial/decimal.md:372
 msgid "Pipelines, GDA status and intervals"
 msgstr ""
 
-#: manual/tutorial/decimal.md:371
+#: manual/tutorial/decimal.md:374
 msgid "[`decimal_checked`](decimal_checked.md) wraps a value, its context and its accumulated flags, so a long pipeline does not need explicit `combine` calls."
 msgstr ""
 
-#: manual/tutorial/decimal.md:374
+#: manual/tutorial/decimal.md:377
 msgid "[`decimal_gda`](decimal_gda.md) implements the General Decimal Arithmetic model with sticky status and traps. Its values are a separate type; use it when you need `.decTest` behaviour, not IEEE per-operation flags."
 msgstr ""
 
-#: manual/tutorial/decimal.md:377
+#: manual/tutorial/decimal.md:380
 msgid "To enclose a decimal value in a binary interval, convert it twice with `to_bin_float(mode=TowardNegative)` and `to_bin_float(mode=TowardPositive)` and build a [`ball_float`](ball_float.md) ball from both bounds."
 msgstr ""
 
-#: manual/tutorial/decimal.md:381
+#: manual/tutorial/decimal.md:384
 msgid "A deterministic order for storage"
 msgstr ""
 
-#: manual/tutorial/decimal.md:383
+#: manual/tutorial/decimal.md:386
 msgid "`compare_total` orders every representation, including cohorts, signed zeros and NaNs, so it is the right key for sorting stored values or deduplicating bit-exact records:"
 msgstr ""
 
-#: manual/tutorial/decimal.md:399
+#: manual/tutorial/decimal.md:402
 msgid "**Elementary functions need a bounded context.** `DecimalContext::new()` has the exponent range $\\pm 999\\,999\\,999$, which is outside what the elementary functions accept; they return NaN with `invalid_context`. Use `decimal32()`/`decimal64()`/`decimal128()` or pass `e_min`/`e_max` within $\\pm 999\\,999$."
 msgstr ""
 
-#: manual/tutorial/decimal.md:404
+#: manual/tutorial/decimal.md:407
 msgid "**Operators are not context operations.** `*` never rounds, so repeated products grow without bound; `/` rounds half-even to the operand precision and applies no exponent range. Use `mul_ctx` and `div_ctx` when the result must be bounded, rounded in another mode, or reported through flags."
 msgstr ""
 
-#: manual/tutorial/decimal.md:408
+#: manual/tutorial/decimal.md:411
 msgid "**`==` is not IEEE equality.** `Eq` and `compare` treat every NaN as equal to every NaN and greater than every number, so sorting works. Use `compare_checked` or `is_nan` when a NaN must be unordered."
 msgstr ""
 
-#: manual/tutorial/decimal.md:411
+#: manual/tutorial/decimal.md:414
 msgid "**`has_error()` is narrow.** It ignores `inexact`, `overflow` and `underflow`. Check those flags yourself when they matter, for example `overflow` after a long product."
 msgstr ""
 
-#: manual/tutorial/decimal.md:414
+#: manual/tutorial/decimal.md:417
 msgid "**The checked powers convert the exponent at context precision.** `pow_int_checked` and `pow_nat_checked` turn the integer exponent into a `Decimal` with the context precision, so an exponent with more digits than the precision is rounded before the power is taken. Keep $|n| < 10^{p}$ or call `pown_ctx`, which converts the exponent exactly."
 msgstr ""
 
-#: manual/tutorial/decimal.md:419
+#: manual/tutorial/decimal.md:422
 msgid "**`with_rounding` cannot choose `HalfUp`, `HalfDown` or `ZeroFiveUp`.** Build the context with `DecimalContext::new(decimal_rounding=...)`."
 msgstr ""
 
-#: manual/tutorial/decimal.md:421
+#: manual/tutorial/decimal.md:424
 msgid "**Binary conversions lose decimal meaning.** `from_double(0.1)` is the exact binary value `0.1000000000000000055511151231257827` (rounded to 34 digits), not `0.1`; parse text instead."
 msgstr ""
 
-#: manual/tutorial/decimal.md:427
+#: manual/tutorial/decimal.md:430
 msgid "[decimal API](../api/decimal.md): every type and function with its exact semantics."
 msgstr ""
 
-#: manual/tutorial/decimal.md:429
+#: manual/tutorial/decimal.md:432
 msgid "[decimal design](../design/decimal.md): formats, cohorts, encodings, rounding, error bounds and certification."
 msgstr ""
 
-#: manual/tutorial/decimal.md:431
+#: manual/tutorial/decimal.md:434
 msgid "[decimal conformance](../conformance/decimal.md) and [decimal performance](../performance/decimal.md): the finite evidence and the measurement method."
 msgstr ""
 
-#: manual/tutorial/decimal.md:434
+#: manual/tutorial/decimal.md:437
 msgid "[`decimal_checked` tutorial](decimal_checked.md) and [`decimal_gda` tutorial](decimal_gda.md) for pipelines and GDA status."
 msgstr ""
 

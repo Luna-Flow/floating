@@ -151,12 +151,15 @@ test "decimal convert to integer" {
   let d = fn(s : String) { @decimal.Decimal::from_string(s).unwrap() }
   let bankers = @decimal.DecimalContext::decimal64()
   let (value, flags) = d("2.5").to_int_ctx(bankers, exact=true)
-  inspect(value, content="Some(2)")
+  debug_inspect(value, content="Some(2)")
   assert_true(flags.inexact)
   let (negative, flags) = d("-1").to_uint_ctx(bankers)
-  inspect(negative, content="None")
+  debug_inspect(negative, content="None")
   assert_true(flags.invalid_operation)
-  inspect(d("9223372036854775807").to_int64_ctx(bankers).0, content="Some(9223372036854775807)")
+  debug_inspect(
+    d("9223372036854775807").to_int64_ctx(bankers).0,
+    content="Some(9223372036854775807)",
+  )
 }
 ```
 

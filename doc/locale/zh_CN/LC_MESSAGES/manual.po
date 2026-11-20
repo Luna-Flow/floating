@@ -21376,7 +21376,7 @@ msgstr "`BallContext` 描述一种二进制格式（精度和指数范围）。`
 #: manual/tutorial/cli/mpfr_expr_cli.md:70
 #: manual/tutorial/cli/testfloat_expr_cli.md:88
 #: manual/tutorial/consistency.md:64
-#: manual/tutorial/decimal.md:316
+#: manual/tutorial/decimal.md:319
 #: manual/tutorial/decimal_checked.md:167
 #: manual/tutorial/decimal_gda.md:274
 #: manual/tutorial/decimal_gda_checked.md:164
@@ -21449,7 +21449,7 @@ msgstr "每个区间都带有以位为单位的工作 `precision`；二元运算
 #: manual/tutorial/cli/mpfr_expr_cli.md:79
 #: manual/tutorial/cli/testfloat_expr_cli.md:97
 #: manual/tutorial/consistency.md:71
-#: manual/tutorial/decimal.md:397
+#: manual/tutorial/decimal.md:400
 #: manual/tutorial/decimal_checked.md:251
 #: manual/tutorial/decimal_gda.md:361
 #: manual/tutorial/decimal_gda_checked.md:234
@@ -21522,7 +21522,7 @@ msgstr "**来自 `Double` 的输入。** `from_double(x)` 精确包络 `x` 的�
 #: manual/tutorial/cli/mpfr_expr_cli.md:88
 #: manual/tutorial/cli/testfloat_expr_cli.md:104
 #: manual/tutorial/consistency.md:78
-#: manual/tutorial/decimal.md:425
+#: manual/tutorial/decimal.md:428
 #: manual/tutorial/decimal_checked.md:271
 #: manual/tutorial/decimal_gda.md:393
 #: manual/tutorial/decimal_gda_checked.md:248
@@ -23544,151 +23544,151 @@ msgstr "转换为整数"
 msgid "`to_int_ctx`, `to_int64_ctx`, `to_uint_ctx` and `to_uint64_ctx` round to a fixed-width integer in the context's direction and return `None` with `invalid_operation` for a NaN, an infinity or a value out of range. Pass `exact=true` to get `inexact` when rounding changed the value:"
 msgstr "`to_int_ctx`、`to_int64_ctx`、`to_uint_ctx` 和 `to_uint64_ctx` 按上下文的方向舍入为定宽整数，对 NaN、无穷或超出范围的值返回 `None` 并带 `invalid_operation`。传入 `exact=true`，舍入改变了值时就会得到 `inexact`："
 
-#: manual/tutorial/decimal.md:163
+#: manual/tutorial/decimal.md:166
 msgid "Convert between formats"
 msgstr "在格式之间转换"
 
-#: manual/tutorial/decimal.md:165
+#: manual/tutorial/decimal.md:168
 msgid "`convert_format` moves a value to another decimal interchange format and `to_bin_float_ctx` and `from_bin_float_ctx` cross to and from the binary formats, all with the flags of the rounding:"
 msgstr "`convert_format` 把值移到另一个十进制交换格式，`to_bin_float_ctx` 和 `from_bin_float_ctx` 则跨到二进制格式以及从二进制格式回来，都带有舍入的标志："
 
-#: manual/tutorial/decimal.md:187
+#: manual/tutorial/decimal.md:190
 msgid "Bound a result from both sides"
 msgstr "从两侧界定结果"
 
-#: manual/tutorial/decimal.md:189
+#: manual/tutorial/decimal.md:192
 msgid "Directed rounding gives guaranteed bounds. Rounding the same quotient toward $-\\infty$ and toward $+\\infty$ brackets the exact value:"
 msgstr "定向舍入给出有保证的界。把同一个商分别向 $-\\infty$ 和向 $+\\infty$ 舍入，即可夹住精确值："
 
-#: manual/tutorial/decimal.md:205
+#: manual/tutorial/decimal.md:208
 msgid "The two results are adjacent decimal32 values, and $1/7$ lies strictly between them."
 msgstr "两个结果是相邻的 decimal32 值，$1/7$ 严格位于它们之间。"
 
-#: manual/tutorial/decimal.md:208
+#: manual/tutorial/decimal.md:211
 msgid "Exchange decimal64 bits"
 msgstr "交换 decimal64 位模式"
 
-#: manual/tutorial/decimal.md:210
+#: manual/tutorial/decimal.md:213
 msgid "Interchange formats are what databases, files and other languages exchange. Encode in the encoding your peer expects, and decode with the same one:"
 msgstr "交换格式是数据库、文件和其他语言之间交换数据所用的格式。请用对方期望的编码进行编码，并用同一编码解码："
 
-#: manual/tutorial/decimal.md:231
+#: manual/tutorial/decimal.md:234
 msgid "Both encodings keep the exponent, so `19.99` comes back with two decimal places. Bits you did not produce yourself may be non-canonical; keep them in a `DecimalInterchange` and call `canonical()` before comparing bit patterns."
 msgstr "两种编码都保留指数，因此 `19.99` 读回时仍有两位小数。不是你自己产生的位模式可能是非规范的；把它们保存在 `DecimalInterchange` 中，并在比较位模式之前调用 `canonical()`。"
 
-#: manual/tutorial/decimal.md:235
+#: manual/tutorial/decimal.md:238
 msgid "Call an elementary function"
 msgstr "调用初等函数"
 
-#: manual/tutorial/decimal.md:237
+#: manual/tutorial/decimal.md:240
 msgid "Logarithms, exponentials, powers and trigonometric functions are certified: the result is the correctly rounded value in every rounding mode, or an explicit failure. They need a context with a bounded exponent range, such as a format preset:"
 msgstr "对数、指数、幂和三角函数都经过认证：结果在每种舍入模式下都是正确舍入的值，或者是一个明确的失败。它们需要一个指数范围有界的上下文，例如某个格式预设："
 
-#: manual/tutorial/decimal.md:258
+#: manual/tutorial/decimal.md:261
 msgid "`try_ln_ctx` returns `Err` only if the result could not be certified within the refinement limit of the context (twelve steps by default; `ctx.with_refinement_limit(Some(24))` allows more and `ctx.with_refinement_limit(None)` removes the count limit, at the cost of a longer evaluation for a hard-to-round input); `ln_ctx` turns that case into NaN with `invalid_operation`. Exact results such as $\\log_{10} 1000 = 3$ come back without `inexact`."
 msgstr "`try_ln_ctx` 只在结果无法在上下文的细化限制内认证时返回 `Err`（默认十二步；`ctx.with_refinement_limit(Some(24))` 允许更多步，`ctx.with_refinement_limit(None)` 取消步数限制，代价是难舍入输入的求值更久）；`ln_ctx` 把这种情形变为带 `invalid_operation` 的 NaN。$\\log_{10} 1000 = 3$ 这类精确结果返回时不带 `inexact`。"
 
-#: manual/tutorial/decimal.md:266
+#: manual/tutorial/decimal.md:269
 msgid "For a small rate or a small exponent, use the functions that keep the part near zero instead of computing `exp2(x) - 1` or `log2(1 + x)`: those lose the digits of $x$ when $1 + x$ is rounded. `exp2m1_ctx`, `exp10m1_ctx`, `log2p1_ctx` and `log10p1_ctx` compute $2^x - 1$, $10^x - 1$, $\\log_2(1 + x)$ and $\\log_{10}(1 + x)$ from $x$ itself:"
 msgstr "对于很小的增长率或很小的指数，请使用保留零附近部分的函数，而不要计算 `exp2(x) - 1` 或 `log2(1 + x)`：后者在舍入 $1 + x$ 时会丢失 $x$ 的数字。`exp2m1_ctx`、`exp10m1_ctx`、`log2p1_ctx` 与 `log10p1_ctx` 直接由 $x$ 计算 $2^x - 1$、$10^x - 1$、$\\log_2(1 + x)$ 与 $\\log_{10}(1 + x)$："
 
-#: manual/tutorial/decimal.md:285
+#: manual/tutorial/decimal.md:288
 msgid "Compound interest is `compound_ctx`: $(1 + r)^n$ for an integer number of periods, computed from the rate itself, exact when the power is a short decimal and keeping the scale of the rate:"
 msgstr "复利就是 `compound_ctx`：对整数个期数计算 $(1 + r)^n$，直接由利率本身计算；当幂是较短的十进制数时结果精确，并保持利率的小数位："
 
-#: manual/tutorial/decimal.md:300
+#: manual/tutorial/decimal.md:303
 msgid "Angles measured in half-revolutions avoid the rounded value of $\\pi$: `atan2pi_ctx` gives the direction of a point as a fraction of a half turn, and the quarter turns are exact."
 msgstr "以半圈为单位度量角度可以避开舍入后的 $\\pi$ 值：`atan2pi_ctx` 把一个点的方向表示为半圈的几分之几，四分之一圈是精确的。"
 
-#: manual/tutorial/decimal.md:318
+#: manual/tutorial/decimal.md:321
 msgid "Generic code over the algebra traits"
 msgstr "基于代数 trait 的泛型代码"
 
-#: manual/tutorial/decimal.md:320
+#: manual/tutorial/decimal.md:323
 msgid "`Decimal` implements `Ring` from [luna-generic](https://lunaflow.cn/en/luna-generic/) through its plain operators, so generic code runs on it unchanged:"
 msgstr "`Decimal` 通过其普通运算符实现了 [luna-generic](https://lunaflow.cn/en/luna-generic/) 的 `Ring`，因此泛型代码无需修改即可在其上运行："
 
-#: manual/tutorial/decimal.md:340
+#: manual/tutorial/decimal.md:343
 msgid "The plain operators have no context: `*` is exact, `+` rounds to the larger operand precision (34 digits by default) and returns the shortest cohort member. Code that needs a precision, an exponent range or flags should take a `DecimalContext` and call the `*_ctx` operations."
 msgstr "普通运算符没有上下文：`*` 是精确的，`+` 舍入到较大的操作数精度（默认 34 位）并返回同值类中最短的成员。需要精度、指数范围或标志的代码应接收一个 `DecimalContext` 并调用 `*_ctx` 运算。"
 
-#: manual/tutorial/decimal.md:345
+#: manual/tutorial/decimal.md:348
 msgid "The shared contextual traits"
 msgstr "共享的 contextual trait"
 
-#: manual/tutorial/decimal.md:347
+#: manual/tutorial/decimal.md:350
 msgid "Code written against [`Luna-Flow/arithmetic`](https://lunaflow.cn/en/arithmetic/) uses `ArithmeticContext` and gets an `ArithmeticOutcome` with diagnostics:"
 msgstr "针对 [`Luna-Flow/arithmetic`](https://lunaflow.cn/en/arithmetic/) 编写的代码使用 `ArithmeticContext`，并得到带诊断信息的 `ArithmeticOutcome`："
 
-#: manual/tutorial/decimal.md:366
+#: manual/tutorial/decimal.md:369
 msgid "Errors (`invalid_operation`, `division_by_zero`, …) become `Err`; inexactness and range events become diagnostics."
 msgstr "错误（`invalid_operation`、`division_by_zero`……）变为 `Err`；不精确和范围事件变为诊断信息。"
 
-#: manual/tutorial/decimal.md:369
+#: manual/tutorial/decimal.md:372
 msgid "Pipelines, GDA status and intervals"
 msgstr "流水线、GDA 状态与区间"
 
-#: manual/tutorial/decimal.md:371
+#: manual/tutorial/decimal.md:374
 msgid "[`decimal_checked`](decimal_checked.md) wraps a value, its context and its accumulated flags, so a long pipeline does not need explicit `combine` calls."
 msgstr "[`decimal_checked`](decimal_checked.md) 包装一个值、它的上下文及其累积的标志，因此长流水线无需显式调用 `combine`。"
 
-#: manual/tutorial/decimal.md:374
+#: manual/tutorial/decimal.md:377
 msgid "[`decimal_gda`](decimal_gda.md) implements the General Decimal Arithmetic model with sticky status and traps. Its values are a separate type; use it when you need `.decTest` behaviour, not IEEE per-operation flags."
 msgstr "[`decimal_gda`](decimal_gda.md) 实现了带粘滞状态和陷阱的通用十进制算术模型。它的值是一个独立的类型；当你需要 `.decTest` 的行为而不是 IEEE 的逐运算标志时，请使用它。"
 
-#: manual/tutorial/decimal.md:377
+#: manual/tutorial/decimal.md:380
 msgid "To enclose a decimal value in a binary interval, convert it twice with `to_bin_float(mode=TowardNegative)` and `to_bin_float(mode=TowardPositive)` and build a [`ball_float`](ball_float.md) ball from both bounds."
 msgstr "要把十进制值包络在二进制区间中，可分别用 `to_bin_float(mode=TowardNegative)` 和 `to_bin_float(mode=TowardPositive)` 转换两次，再以这两个界构造一个 [`ball_float`](ball_float.md) 球。"
 
-#: manual/tutorial/decimal.md:381
+#: manual/tutorial/decimal.md:384
 msgid "A deterministic order for storage"
 msgstr "用于存储的确定性顺序"
 
-#: manual/tutorial/decimal.md:383
+#: manual/tutorial/decimal.md:386
 msgid "`compare_total` orders every representation, including cohorts, signed zeros and NaNs, so it is the right key for sorting stored values or deduplicating bit-exact records:"
 msgstr "`compare_total` 对每种表示（包括同值类、带符号零和 NaN）都给出顺序，因此它是对存储值排序或对逐位相同的记录去重的合适键："
 
-#: manual/tutorial/decimal.md:399
+#: manual/tutorial/decimal.md:402
 msgid "**Elementary functions need a bounded context.** `DecimalContext::new()` has the exponent range $\\pm 999\\,999\\,999$, which is outside what the elementary functions accept; they return NaN with `invalid_context`. Use `decimal32()`/`decimal64()`/`decimal128()` or pass `e_min`/`e_max` within $\\pm 999\\,999$."
 msgstr "**初等函数需要有界上下文。** `DecimalContext::new()` 的指数范围为 $\\pm 999\\,999\\,999$，超出了初等函数所接受的范围；它们会返回带 `invalid_context` 的 NaN。请使用 `decimal32()`/`decimal64()`/`decimal128()`，或传入 $\\pm 999\\,999$ 以内的 `e_min`/`e_max`。"
 
-#: manual/tutorial/decimal.md:404
+#: manual/tutorial/decimal.md:407
 msgid "**Operators are not context operations.** `*` never rounds, so repeated products grow without bound; `/` rounds half-even to the operand precision and applies no exponent range. Use `mul_ctx` and `div_ctx` when the result must be bounded, rounded in another mode, or reported through flags."
 msgstr "**运算符不是上下文运算。** `*` 从不舍入，因此反复相乘会无限增长；`/` 按半值取偶（half-even）舍入到操作数精度，且不应用指数范围。当结果必须有界、以其他模式舍入或通过标志报告时，请使用 `mul_ctx` 和 `div_ctx`。"
 
-#: manual/tutorial/decimal.md:408
+#: manual/tutorial/decimal.md:411
 msgid "**`==` is not IEEE equality.** `Eq` and `compare` treat every NaN as equal to every NaN and greater than every number, so sorting works. Use `compare_checked` or `is_nan` when a NaN must be unordered."
 msgstr "**`==` 不是 IEEE 相等。** `Eq` 和 `compare` 把每个 NaN 视为与每个 NaN 相等且大于每个数，这样排序才能正常工作。当 NaN 必须无序时，请使用 `compare_checked` 或 `is_nan`。"
 
-#: manual/tutorial/decimal.md:411
+#: manual/tutorial/decimal.md:414
 msgid "**`has_error()` is narrow.** It ignores `inexact`, `overflow` and `underflow`. Check those flags yourself when they matter, for example `overflow` after a long product."
 msgstr "**`has_error()` 的范围很窄。** 它忽略 `inexact`、`overflow` 和 `underflow`。当这些标志重要时，请自行检查，例如在长乘积之后检查 `overflow`。"
 
-#: manual/tutorial/decimal.md:414
+#: manual/tutorial/decimal.md:417
 msgid "**The checked powers convert the exponent at context precision.** `pow_int_checked` and `pow_nat_checked` turn the integer exponent into a `Decimal` with the context precision, so an exponent with more digits than the precision is rounded before the power is taken. Keep $|n| < 10^{p}$ or call `pown_ctx`, which converts the exponent exactly."
 msgstr "**checked 幂运算按上下文精度转换指数。** `pow_int_checked` 和 `pow_nat_checked` 会把整数指数转换为具有上下文精度的 `Decimal`，因此位数超过精度的指数会在求幂之前被舍入。请保持 $|n| < 10^{p}$，或调用会精确转换指数的 `pown_ctx`。"
 
-#: manual/tutorial/decimal.md:419
+#: manual/tutorial/decimal.md:422
 msgid "**`with_rounding` cannot choose `HalfUp`, `HalfDown` or `ZeroFiveUp`.** Build the context with `DecimalContext::new(decimal_rounding=...)`."
 msgstr "**`with_rounding` 无法选择 `HalfUp`、`HalfDown` 或 `ZeroFiveUp`。** 请用 `DecimalContext::new(decimal_rounding=...)` 构造上下文。"
 
-#: manual/tutorial/decimal.md:421
+#: manual/tutorial/decimal.md:424
 msgid "**Binary conversions lose decimal meaning.** `from_double(0.1)` is the exact binary value `0.1000000000000000055511151231257827` (rounded to 34 digits), not `0.1`; parse text instead."
 msgstr "**二进制转换会丢失十进制含义。** `from_double(0.1)` 是精确的二进制值 `0.1000000000000000055511151231257827`（舍入到 34 位），而不是 `0.1`；请改为解析文本。"
 
-#: manual/tutorial/decimal.md:427
+#: manual/tutorial/decimal.md:430
 msgid "[decimal API](../api/decimal.md): every type and function with its exact semantics."
 msgstr "[decimal API](../api/decimal.md)：每个类型和函数及其精确语义。"
 
-#: manual/tutorial/decimal.md:429
+#: manual/tutorial/decimal.md:432
 msgid "[decimal design](../design/decimal.md): formats, cohorts, encodings, rounding, error bounds and certification."
 msgstr "[decimal 设计](../design/decimal.md)：格式、同值类、编码、舍入、误差界与认证。"
 
-#: manual/tutorial/decimal.md:431
+#: manual/tutorial/decimal.md:434
 msgid "[decimal conformance](../conformance/decimal.md) and [decimal performance](../performance/decimal.md): the finite evidence and the measurement method."
 msgstr "[decimal 符合性](../conformance/decimal.md)和 [decimal 性能](../performance/decimal.md)：有限的证据与测量方法。"
 
-#: manual/tutorial/decimal.md:434
+#: manual/tutorial/decimal.md:437
 msgid "[`decimal_checked` tutorial](decimal_checked.md) and [`decimal_gda` tutorial](decimal_gda.md) for pipelines and GDA status."
 msgstr "关于流水线与 GDA 状态，见 [`decimal_checked` 教程](decimal_checked.md)和 [`decimal_gda` 教程](decimal_gda.md)。"
 

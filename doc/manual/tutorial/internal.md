@@ -103,7 +103,7 @@ test "parse then trim" {
   guard @internal.split_decimal_string("-0.012500e2") is Some((negative, digits, exponent)) else {
     fail("expected a literal")
   }
-  let coefficient = BigInt::from_string(digits)
+  let coefficient = @string.parse_bigint(digits)
   let (c, q, dropped) = @internal.trim_trailing_decimal_zeros(coefficient, exponent)
   inspect(negative, content="true")
   inspect(c, content="125")
