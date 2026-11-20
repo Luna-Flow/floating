@@ -136,30 +136,6 @@ pub fn Decimal::compare_ctx(
 }
 
 ///|
-pub fn Decimal::compare_total_ctx(
-  self : Decimal,
-  other : Decimal,
-  ctx : DecimalContext,
-) -> (Int32, DecimalFlags) {
-  let (lhs, rhs, operand_flags) = prepare_binary_operands_for_context(
-    self, other, ctx,
-  )
-  (lhs.compare_total(rhs), operand_flags)
-}
-
-///|
-pub fn Decimal::compare_total_magnitude_ctx(
-  self : Decimal,
-  other : Decimal,
-  ctx : DecimalContext,
-) -> (Int32, DecimalFlags) {
-  let (lhs, rhs, operand_flags) = prepare_binary_operands_for_context(
-    self, other, ctx,
-  )
-  (lhs.compare_total_magnitude(rhs), operand_flags)
-}
-
-///|
 pub fn Decimal::compare_signal_ctx(
   self : Decimal,
   other : Decimal,
@@ -213,7 +189,7 @@ pub fn Decimal::compare(self : Decimal, other : Decimal) -> Int32 {
 }
 
 ///|
-pub fn Decimal::compare_total(self : Decimal, other : Decimal) -> Int32 {
+pub fn Decimal::total_order_compare(self : Decimal, other : Decimal) -> Int32 {
   if self.negative != other.negative {
     return if self.negative { -1 } else { 1 }
   }
@@ -264,11 +240,16 @@ pub fn Decimal::compare_total(self : Decimal, other : Decimal) -> Int32 {
 }
 
 ///|
-pub fn Decimal::compare_total_magnitude(
-  self : Decimal,
-  other : Decimal,
-) -> Int32 {
-  { ..self, negative: false, }.compare_total({ ..other, negative: false, })
+/// IEEE 754-2019 totalOrder (§5.10): `x` is ordered at or before `y`.
+pub fn Decimal::total_order(self : Decimal, other : Decimal) -> Bool {
+  self.total_order_compare(other) <= 0
+}
+
+///|
+/// IEEE 754-2019 totalOrderMag (§5.10): totalOrder of the absolute values.
+pub fn Decimal::total_order_mag(self : Decimal, other : Decimal) -> Bool {
+  { ..self, negative: false, }.total_order_compare({ ..other, negative: false, }) <=
+  0
 }
 
 ///|

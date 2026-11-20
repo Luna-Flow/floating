@@ -154,7 +154,7 @@ pub impl @lf_arith.NumericFormatContextual for Decimal with fn epsilon_contextua
     Ok(dctx) => dctx
   }
   let one = Decimal::one(precision=context.precision)
-  one.next_plus(decimal_context).0.sub_ctx(one, decimal_context).0
+  one.next_up_ctx(decimal_context).0.sub_ctx(one, decimal_context).0
 }
 
 ///|
@@ -183,7 +183,7 @@ pub impl @lf_arith.NumericFormatContextual for Decimal with fn max_finite_contex
       )
     Ok(dctx) => dctx
   }
-  Decimal::inf(Sign::Positive, precision=context.precision).next_minus(
+  Decimal::inf(Sign::Positive, precision=context.precision).next_down_ctx(
     decimal_context,
   ).0
 }
@@ -281,7 +281,7 @@ pub impl @lf_arith.PowNatChecked for Decimal with fn pow_nat_checked(
     BigInt::from_uint(exponent),
     precision=checked_power_exponent_precision(ctx),
   )
-  let (value, flags) = self.power_ctx(exponent_decimal, dctx)
+  let (value, flags) = self.pow_ctx(exponent_decimal, dctx)
   if flags.division_by_zero {
     Err(
       @def.ArithmeticError::division_by_zero(
@@ -316,7 +316,7 @@ pub impl @lf_arith.PowIntChecked for Decimal with fn pow_int_checked(
     exponent,
     precision=checked_power_exponent_precision(ctx),
   )
-  let (value, flags) = self.power_ctx(exponent_decimal, dctx)
+  let (value, flags) = self.pow_ctx(exponent_decimal, dctx)
   if flags.division_by_zero {
     Err(
       @def.ArithmeticError::division_by_zero(

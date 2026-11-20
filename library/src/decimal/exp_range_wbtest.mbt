@@ -62,7 +62,7 @@ fn exp_range_call(
     "rootn" => a.try_rootn_ctx(exp_range_int(y), ctx)
     "sinh" => a.try_sinh_ctx(ctx)
     "cosh" => a.try_cosh_ctx(ctx)
-    "pow" => pm1_exact("3").try_power_ctx(pm1_exact(y), ctx)
+    "pow" => pm1_exact("3").try_pow_ctx(pm1_exact(y), ctx)
     "powr" => pm1_exact("2").try_powr_ctx(pm1_exact(y), ctx)
     "pown" => a.try_pown_ctx(exp_range_int(y), ctx)
     "compound" => a.try_compound_ctx(exp_range_int(y), ctx)
@@ -86,7 +86,7 @@ test "exp range generated rows: results just inside and outside the range" {
     let got = exp_range_call(op, x, y, ctx)
     let parts = got.split(" ").map(fn(s) { s.to_owned() }).collect()
     let ok = parts.length() == 2 &&
-      pm1_exact(parts[0]).compare_total(pm1_exact(expected)) == 0 &&
+      pm1_exact(parts[0]).total_order_compare(pm1_exact(expected)) == 0 &&
       parts[1] == flags
     if !ok {
       count += 1

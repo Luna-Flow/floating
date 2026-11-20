@@ -14,8 +14,8 @@ test "outward endpoints enclose the exact expansion" {
       let hi = decimal_outward_dyadic_endpoint(upper, ctx, digits, true).unwrap()
       let exact_lo = decimal_exact_dyadic_endpoint(lower, ctx).unwrap()
       let exact_hi = decimal_exact_dyadic_endpoint(upper, ctx).unwrap()
-      assert_true(lo.compare_total(exact_lo) <= 0)
-      assert_true(hi.compare_total(exact_hi) >= 0)
+      assert_true(lo.total_order_compare(exact_lo) <= 0)
+      assert_true(hi.total_order_compare(exact_hi) >= 0)
       assert_true(digits10(lo.coefficient.to_bigint()) <= digits + 1)
       assert_true(digits10(hi.coefficient.to_bigint()) <= digits + 1)
     }

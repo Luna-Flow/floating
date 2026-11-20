@@ -166,19 +166,19 @@ pub fn Decimal::try_ln_ctx(
 }
 
 ///|
-pub fn Decimal::power_ctx(
+pub fn Decimal::pow_ctx(
   self : Decimal,
   exponent : Decimal,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
-  match self.try_power_ctx(exponent, ctx) {
+  match self.try_pow_ctx(exponent, ctx) {
     Ok(result) => result
     Err(_) => decimal_elementary_invalid(ctx)
   }
 }
 
 ///|
-pub fn Decimal::try_power_ctx(
+pub fn Decimal::try_pow_ctx(
   self : Decimal,
   exponent : Decimal,
   ctx : DecimalContext,

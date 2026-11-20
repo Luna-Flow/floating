@@ -104,7 +104,7 @@ test "atan2pi generated rows: both sides of the scaled condition, all signs and 
     }
     let parts = got.split(" ").map(fn(s) { s.to_owned() }).collect()
     let ok = parts.length() == 2 &&
-      pm1_exact(parts[0]).compare_total(pm1_exact(expected)) == 0 &&
+      pm1_exact(parts[0]).total_order_compare(pm1_exact(expected)) == 0 &&
       parts[1] == flags
     if !ok {
       count += 1

@@ -79,7 +79,7 @@ fn decimal_ieee_extrema_ctx(
       lhs
     }
   } else {
-    let total = lhs.compare_total(rhs)
+    let total = lhs.total_order_compare(rhs)
     if select_minimum {
       if total <= 0 {
         lhs
@@ -142,7 +142,7 @@ pub fn Decimal::minimum_magnitude_ctx(
 }
 
 ///|
-pub fn Decimal::minimum_number_magnitude_ctx(
+pub fn Decimal::minimum_magnitude_number_ctx(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,
@@ -160,7 +160,7 @@ pub fn Decimal::maximum_magnitude_ctx(
 }
 
 ///|
-pub fn Decimal::maximum_number_magnitude_ctx(
+pub fn Decimal::maximum_magnitude_number_ctx(
   self : Decimal,
   other : Decimal,
   ctx : DecimalContext,

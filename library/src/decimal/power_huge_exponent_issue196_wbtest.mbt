@@ -402,7 +402,7 @@ test "integral exponents beyond 4096 digits overflow or underflow (#196)" {
     let ctx = { ..context, decimal_rounding: mode, rounding: context.rounding, }
     let (value, flags) = Decimal::from_string(base)
       .unwrap()
-      .power_ctx(Decimal::from_string(exponent).unwrap(), ctx)
+      .pow_ctx(Decimal::from_string(exponent).unwrap(), ctx)
     assert_eq(
       (base, exponent.length(), value.to_string(), issue196_flags(flags)),
       (base, exponent.length(), expected, expected_flags),

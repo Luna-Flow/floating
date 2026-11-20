@@ -200,7 +200,7 @@ test "issue 348: large integer exponents are correctly rounded" {
     let (x, y, mode, expected) = row
     let (value, flags) = Decimal::from_string(x)
       .unwrap()
-      .power_ctx(
+      .pow_ctx(
         Decimal::from_string(y).unwrap(),
         issue348_decimal64(issue348_mode(mode)),
       )
@@ -218,7 +218,7 @@ test "issue 348: pown at the Int32 minimum" {
   for mode in ["half_even", "down", "floor", "ceiling", "up"] {
     let ctx = issue348_decimal64(issue348_mode(mode))
     let (value, flags) = x.pown_ctx(-2147483648, ctx)
-    let (power, power_flags) = x.power_ctx(
+    let (power, power_flags) = x.pow_ctx(
       Decimal::from_string("-2147483648").unwrap(),
       ctx,
     )
@@ -260,7 +260,7 @@ test "issue 350: no clamped for an inexact pown result near 1" {
       (mode, issue348_text(value), issue348_flags_text(flags)),
       (mode, expected, "xr......"),
     )
-    let (value, flags) = x.power_ctx(Decimal::from_string("-40").unwrap(), ctx)
+    let (value, flags) = x.pow_ctx(Decimal::from_string("-40").unwrap(), ctx)
     assert_eq(
       (mode, issue348_text(value), issue348_flags_text(flags)),
       (mode, expected, "xr......"),
@@ -294,7 +294,7 @@ test "issue 349: exact powers of ten with a non-integral exponent" {
       let (x, y, expected, flags_text) = row
       let (value, flags) = Decimal::from_string(x)
         .unwrap()
-        .power_ctx(Decimal::from_string(y).unwrap(), ctx)
+        .pow_ctx(Decimal::from_string(y).unwrap(), ctx)
       let expected = if expected == "Infinity" &&
         (mode == "down" || mode == "floor" || mode == "05up") {
         "9.999999999999999E+384"
@@ -315,18 +315,12 @@ test "issue 349: exact powers of ten with a non-integral exponent" {
 test "issue 349: non-exact powers of ten are unchanged" {
   let (value, flags) = Decimal::from_string("1E-5")
     .unwrap()
-    .power_ctx(
-      Decimal::from_string("1.3").unwrap(),
-      issue348_decimal64(HalfEven),
-    )
+    .pow_ctx(Decimal::from_string("1.3").unwrap(), issue348_decimal64(HalfEven))
   assert_eq(issue348_text(value), "3.162277660168379E-7")
   assert_eq(issue348_flags_text(flags), "xr......")
   let (value, flags) = Decimal::from_string("-1E-5")
     .unwrap()
-    .power_ctx(
-      Decimal::from_string("1.2").unwrap(),
-      issue348_decimal64(HalfEven),
-    )
+    .pow_ctx(Decimal::from_string("1.2").unwrap(), issue348_decimal64(HalfEven))
   assert_true(value.is_nan())
   assert_true(flags.invalid_operation)
 }

@@ -701,7 +701,7 @@ fn assert_decimal_and_flags_eq(
   actual : (Decimal, DecimalFlags),
   expected : (Decimal, DecimalFlags),
 ) -> Unit raise {
-  assert_eq(actual.0.compare_total(expected.0), 0)
+  assert_eq(actual.0.total_order_compare(expected.0), 0)
   assert_eq(actual.1.inexact, expected.1.inexact)
   assert_eq(actual.1.rounded, expected.1.rounded)
   assert_eq(actual.1.invalid_operation, expected.1.invalid_operation)
@@ -1252,7 +1252,7 @@ test "decimal repr normalization matches bigint normalization on finite values" 
     value.exponent10,
     ctx,
   )
-  assert_eq(actual.0.compare_total(expected.0), 0)
+  assert_eq(actual.0.total_order_compare(expected.0), 0)
   assert_eq(actual.1.inexact, expected.1.inexact)
   assert_eq(actual.1.rounded, expected.1.rounded)
   assert_eq(actual.1.subnormal, expected.1.subnormal)
@@ -1279,5 +1279,5 @@ test "decimal repr gda normalization matches bigint normalization" {
     5,
     DecimalRoundingMode::HalfEven,
   )
-  assert_eq(actual.compare_total(expected), 0)
+  assert_eq(actual.total_order_compare(expected), 0)
 }

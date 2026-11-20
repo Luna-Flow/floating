@@ -5,7 +5,7 @@ about 5 MB) compiled into the debug test build of the `decimal` package. They
 are now plain `mpfr-decimal-random-v1` rows (see
 `tooling/src/frontend/mpfr_expr/decimal_random.mbt`) that the release-built
 `floating-conformance --backend mpfr` executable reads at run time and checks
-with `compare_total` (value, sign, cohort and exponent) and exact flag letters.
+with `total_order_compare` (value, sign, cohort and exponent) and exact flag letters.
 
 Row: `id op rounding precision emin emax clamp tininess a b n expected flags`.
 """

@@ -58,7 +58,7 @@ test "pi inverse generated rows: exact and certified results, cohort and flags" 
     // formatted only to describe a failure.
     let ok = match pii_try(op, x, y, ctx) {
       Ok((value, actual_flags)) =>
-        value.compare_total(pm1_exact(expected)) == 0 &&
+        value.total_order_compare(pm1_exact(expected)) == 0 &&
         pm1_flags_text(actual_flags) == flags
       Err(_) => false
     }
@@ -435,7 +435,7 @@ test "anchored results agree with the certified loop in all modes and ranges" {
           match (plain, fast) {
             (Ok(a), Ok(b)) => {
               assert_eq(
-                a.0.compare_total(b.0),
+                a.0.total_order_compare(b.0),
                 0,
                 msg="\{op} \{x} \{y} p=\{precision} \{mode}: \{a.0} vs \{b.0}",
               )
@@ -576,7 +576,7 @@ test "tiny operands: the scaled evaluation equals the plain certified loop" {
           match (case_.1, case_.2) {
             (Ok(a), Ok(b)) => {
               assert_eq(
-                a.0.compare_total(b.0),
+                a.0.total_order_compare(b.0),
                 0,
                 msg="\{case_.0} \{x} p=\{precision} \{mode}: \{a.0} vs \{b.0}",
               )

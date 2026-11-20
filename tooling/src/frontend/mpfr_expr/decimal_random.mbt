@@ -319,7 +319,7 @@ fn run_decimal_random_operation(
     "exp10m1" => a.try_exp10m1_ctx(ctx)
     "log2p1" => a.try_log2p1_ctx(ctx)
     "log10p1" => a.try_log10p1_ctx(ctx)
-    "pow" => a.try_power_ctx(case.b.unwrap(), ctx)
+    "pow" => a.try_pow_ctx(case.b.unwrap(), ctx)
     "hypot" => a.try_hypot_ctx(case.b.unwrap(), ctx)
     "atan2" => a.try_atan2_ctx(case.b.unwrap(), ctx)
     "rootn" => a.try_rootn_ctx(case.n, ctx)
@@ -354,7 +354,7 @@ fn run_decimal_random_case(case : DecimalRandomCase) -> (Bool, String) {
       )
     Ok((actual, flags)) => {
       let actual_flags = decimal_random_flags_text(flags)
-      let same_value = actual.compare_total(case.expected) == 0
+      let same_value = actual.total_order_compare(case.expected) == 0
       let passed = same_value && actual_flags == case.flags
       (
         passed,

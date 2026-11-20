@@ -59,7 +59,7 @@ test "rcp generated rows: exact and certified results, cohort and flags" {
     // formatted only to describe a failure.
     let ok = match rcp_try(op, x, y, n, ctx) {
       Ok((value, actual_flags)) =>
-        value.compare_total(pm1_exact(expected)) == 0 &&
+        value.total_order_compare(pm1_exact(expected)) == 0 &&
         pm1_flags_text(actual_flags) == flags
       Err(_) => false
     }
@@ -181,7 +181,7 @@ test "rsqrt by the scaled loop equals the plain certified loop" {
           let fast = value.try_rsqrt_ctx(ctx)
           match (plain, fast) {
             (Ok(a), Ok(b)) => {
-              assert_eq(a.0.compare_total(b.0), 0, msg="\{x} \{mode}")
+              assert_eq(a.0.total_order_compare(b.0), 0, msg="\{x} \{mode}")
               assert_eq(
                 pm1_flags_text(a.1),
                 pm1_flags_text(b.1),
@@ -320,7 +320,7 @@ test "compound of a tiny x is anchored and agrees with the certified loop" {
           let anchored = value.try_compound_ctx(n, ctx).unwrap()
           let certified = decimal_compound_certified(value, n, ctx).unwrap()
           assert_eq(
-            anchored.0.compare_total(certified.0),
+            anchored.0.total_order_compare(certified.0),
             0,
             msg="\{x} \{n} \{mode}",
           )

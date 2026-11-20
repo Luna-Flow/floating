@@ -18,7 +18,7 @@ test "divide_integer and remainder accept a zero dividend" {
     let (q, q_flags) = x.divide_integer(y, context)
     assert_eq(q.to_string(), quotient)
     assert_true(q_flags == DecimalFlags::new())
-    let (r, r_flags) = x.remainder(y, context)
+    let (r, r_flags) = x.remainder_trunc_ctx(y, context)
     assert_eq(r.to_string(), remainder)
     assert_true(r_flags == DecimalFlags::new())
     let (n, n_flags) = x.remainder_ctx(y, context)
@@ -57,7 +57,7 @@ test "divide_integer clamps a zero quotient over an infinite divisor" {
     assert_eq(q.to_string(), expected)
     assert_true(flags == { ..DecimalFlags::new(), clamped: true, })
     // x rem Inf is x itself, whose exponent 0 the clamp folds to -7.
-    let (r, r_flags) = x.remainder(y, ctx)
+    let (r, r_flags) = x.remainder_trunc_ctx(y, ctx)
     assert_eq(r.to_string(), remainder)
     assert_true(r_flags == { ..DecimalFlags::new(), clamped: true, })
   }

@@ -30,40 +30,40 @@ test "decimal power handles integral exponents beyond the bounded count" {
   let ctx = DecimalContext::decimal64()
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
   inspect(
-    power_issue167_case(d("-2").power_ctx(d("1E+30"), ctx)),
+    power_issue167_case(d("-2").pow_ctx(d("1E+30"), ctx)),
     content=(
       #|inf inexact rounded overflow
     ),
   )
   inspect(
-    power_issue167_case(d("-0.5").power_ctx(d("1E+30"), ctx)),
+    power_issue167_case(d("-0.5").pow_ctx(d("1E+30"), ctx)),
     content=(
       #|0E-398 inexact rounded underflow
     ),
   )
   inspect(
-    power_issue167_case(d("-0.5").power_ctx(d("-1E+30"), ctx)),
+    power_issue167_case(d("-0.5").pow_ctx(d("-1E+30"), ctx)),
     content=(
       #|inf inexact rounded overflow
     ),
   )
   inspect(
     power_issue167_case(
-      d("-1.000000000000001").power_ctx(d("12345678901234567"), ctx),
+      d("-1.000000000000001").pow_ctx(d("12345678901234567"), ctx),
     ),
     content=(
       #|-229964.1948529869 inexact rounded
     ),
   )
   inspect(
-    power_issue167_case(d("-0").power_ctx(d("-12345678901234567"), ctx)),
+    power_issue167_case(d("-0").pow_ctx(d("-12345678901234567"), ctx)),
     content=(
       #|-inf division_by_zero
     ),
   )
   inspect(
     power_issue167_case(
-      d("-1.000000000000001").power_ctx(d("-12345678901234567"), ctx),
+      d("-1.000000000000001").pow_ctx(d("-12345678901234567"), ctx),
     ),
     content=(
       #|-0.000004348503038219871 inexact rounded
@@ -78,37 +78,37 @@ test "decimal power handles zero and infinity at large integer exponents" {
   let ctx = DecimalContext::decimal64()
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
   inspect(
-    power_issue167_case(d("0").power_ctx(d("1E+30"), ctx)),
+    power_issue167_case(d("0").pow_ctx(d("1E+30"), ctx)),
     content=(
       #|0
     ),
   )
   inspect(
-    power_issue167_case(d("Inf").power_ctx(d("1E+30"), ctx)),
+    power_issue167_case(d("Inf").pow_ctx(d("1E+30"), ctx)),
     content=(
       #|inf
     ),
   )
   inspect(
-    power_issue167_case(d("-0").power_ctx(d("12345678901234567"), ctx)),
+    power_issue167_case(d("-0").pow_ctx(d("12345678901234567"), ctx)),
     content=(
       #|-0
     ),
   )
   inspect(
-    power_issue167_case(d("-0").power_ctx(d("-1E+30"), ctx)),
+    power_issue167_case(d("-0").pow_ctx(d("-1E+30"), ctx)),
     content=(
       #|inf division_by_zero
     ),
   )
   inspect(
-    power_issue167_case(d("-Inf").power_ctx(d("12345678901234567"), ctx)),
+    power_issue167_case(d("-Inf").pow_ctx(d("12345678901234567"), ctx)),
     content=(
       #|-inf
     ),
   )
   inspect(
-    power_issue167_case(d("-Inf").power_ctx(d("-12345678901234567"), ctx)),
+    power_issue167_case(d("-Inf").pow_ctx(d("-12345678901234567"), ctx)),
     content=(
       #|-0
     ),
@@ -158,25 +158,25 @@ test "decimal power keeps zero defined for tiny nonintegral exponents" {
   let ctx = DecimalContext::decimal64()
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
   inspect(
-    power_issue167_case(d("0").power_ctx(d("1E-2000000"), ctx)),
+    power_issue167_case(d("0").pow_ctx(d("1E-2000000"), ctx)),
     content=(
       #|0
     ),
   )
   inspect(
-    power_issue167_case(d("-0").power_ctx(d("1E-2000000"), ctx)),
+    power_issue167_case(d("-0").pow_ctx(d("1E-2000000"), ctx)),
     content=(
       #|0
     ),
   )
   inspect(
-    power_issue167_case(d("0").power_ctx(d("-1E-2000000"), ctx)),
+    power_issue167_case(d("0").pow_ctx(d("-1E-2000000"), ctx)),
     content=(
       #|inf division_by_zero
     ),
   )
   inspect(
-    power_issue167_case(d("-0").power_ctx(d("-1E-2000000"), ctx)),
+    power_issue167_case(d("-0").pow_ctx(d("-1E-2000000"), ctx)),
     content=(
       #|inf division_by_zero
     ),
@@ -197,12 +197,12 @@ test "decimal large negative-base powers mirror directed rounding" {
     RoundingMode::TowardPositive,
   )
   assert_eq(
-    base.power_ctx(exponent, up).0.to_string(),
-    d("1.000000000000001").power_ctx(exponent, down).0.neg().to_string(),
+    base.pow_ctx(exponent, up).0.to_string(),
+    d("1.000000000000001").pow_ctx(exponent, down).0.neg().to_string(),
   )
   assert_eq(
-    base.power_ctx(exponent, down).0.to_string(),
-    d("1.000000000000001").power_ctx(exponent, up).0.neg().to_string(),
+    base.pow_ctx(exponent, down).0.to_string(),
+    d("1.000000000000001").pow_ctx(exponent, up).0.neg().to_string(),
   )
 }
 
@@ -221,7 +221,7 @@ test "decimal large integer powers work in the default context" {
     ("1.01", "1E+10", "6.705416252570703534199491376911599E+43213737"),
   ]
   for (base, exponent, expected) in cases {
-    let (value, flags) = d(base).power_ctx(d(exponent), context)
+    let (value, flags) = d(base).pow_ctx(d(exponent), context)
     assert_eq(value.to_string(), expected)
     assert_true(flags.inexact)
     assert_true(flags.rounded)
@@ -244,7 +244,7 @@ test "decimal large integer powers work in the default context" {
 test "decimal large integer powers enforce the expansion budget" {
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
   let context = DecimalContext::new()
-  let (value, flags) = d("2").power_ctx(d("1E+9999999"), context)
+  let (value, flags) = d("2").pow_ctx(d("1E+9999999"), context)
   assert_true(value.is_infinite())
   assert_true(flags.overflow && flags.inexact)
   assert_false(flags.invalid_context)
@@ -255,7 +255,7 @@ test "decimal large integer powers enforce the expansion budget" {
   assert_true(exp2_flags.invalid_context)
   assert_true(exp10.is_nan())
   assert_true(exp10_flags.invalid_context)
-  let (small, small_flags) = d("0.5").power_ctx(d("1E+9999999"), context)
+  let (small, small_flags) = d("0.5").pow_ctx(d("1E+9999999"), context)
   assert_true(small.is_zero())
   assert_true(small_flags.underflow && small_flags.inexact)
 }
@@ -287,19 +287,16 @@ test "decimal large integer powers honor all rounding modes" {
     ),
   ]
   for (mode, expected) in modes {
-    let (value, flags) = d("2").power_ctx(
-      d("1E+9"),
-      context.with_rounding(mode),
-    )
+    let (value, flags) = d("2").pow_ctx(d("1E+9"), context.with_rounding(mode))
     assert_eq(value.to_string(), expected)
     assert_true(flags.inexact)
     assert_true(flags.rounded)
   }
-  let (ceiling, _) = d("-1.000001").power_ctx(
+  let (ceiling, _) = d("-1.000001").pow_ctx(
     d("1000000001"),
     context.with_rounding(RoundingMode::TowardPositive),
   )
-  let (floor, _) = d("-1.000001").power_ctx(
+  let (floor, _) = d("-1.000001").pow_ctx(
     d("1000000001"),
     context.with_rounding(RoundingMode::TowardNegative),
   )
@@ -315,11 +312,11 @@ test "decimal large integer negative powers match directed oracle values" {
   let base = Decimal::from_string("-1.000001").unwrap()
   let exponent = Decimal::from_string("1000000001").unwrap()
   let context = DecimalContext::new()
-  let (ceiling, ceiling_flags) = base.power_ctx(
+  let (ceiling, ceiling_flags) = base.pow_ctx(
     exponent,
     context.with_rounding(RoundingMode::TowardPositive),
   )
-  let (floor, floor_flags) = base.power_ctx(
+  let (floor, floor_flags) = base.pow_ctx(
     exponent,
     context.with_rounding(RoundingMode::TowardNegative),
   )
@@ -344,7 +341,7 @@ test "decimal large integer powers work at precision nine" {
     ("1.01", "1E+10", "6.70541625E+43213737"),
   ]
   for (base, exponent, expected) in cases {
-    let (value, flags) = d(base).power_ctx(d(exponent), context)
+    let (value, flags) = d(base).pow_ctx(d(exponent), context)
     assert_eq(value.to_string(), expected)
     assert_true(flags.inexact)
     assert_true(flags.rounded)
@@ -359,23 +356,23 @@ test "decimal large integer exponent spellings preserve parity" {
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
   let context = DecimalContext::new()
   for exponent in ["1.0E+30", "10E+29", "100E+28"] {
-    let (value, flags) = d("-2").power_ctx(d(exponent), context)
+    let (value, flags) = d("-2").pow_ctx(d(exponent), context)
     assert_eq(value.to_string(), "inf")
     assert_true(flags.overflow)
     assert_false(flags.invalid_context)
   }
-  let (value, flags) = d("-1.000000000000001").power_ctx(
+  let (value, flags) = d("-1.000000000000001").pow_ctx(
     d("12345678901234567E+0"),
     context,
   )
   assert_eq(value.to_string(), "-229964.1948529869209840694937236457")
   assert_true(flags.inexact)
   assert_true(flags.rounded)
-  let (even, even_flags) = d("-1.000001").power_ctx(
+  let (even, even_flags) = d("-1.000001").pow_ctx(
     d("1234567890123456789012345678900"),
     context,
   )
-  let (odd, odd_flags) = d("-1.000001").power_ctx(
+  let (odd, odd_flags) = d("-1.000001").pow_ctx(
     d("1234567890123456789012345678901"),
     context,
   )
@@ -393,8 +390,8 @@ test "decimal large integer exponent spellings preserve parity" {
 test "decimal large integer powers keep signed zero and infinity" {
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
   let context = DecimalContext::new()
-  let (zero, zero_flags) = d("-0").power_ctx(d("1E+9999999"), context)
-  let (infinity, infinity_flags) = d("-Inf").power_ctx(
+  let (zero, zero_flags) = d("-0").pow_ctx(d("1E+9999999"), context)
+  let (infinity, infinity_flags) = d("-Inf").pow_ctx(
     d("12345678901234567E+0"),
     context,
   )
@@ -416,8 +413,8 @@ test "decimal large integer powers support extended and subset contexts" {
     e_max=384,
     extended=false,
   )
-  let (wide, wide_flags) = d("2").power_ctx(d("1E+9"), extended)
-  let (narrow, narrow_flags) = d("2").power_ctx(d("1E+9"), subset)
+  let (wide, wide_flags) = d("2").pow_ctx(d("1E+9"), extended)
+  let (narrow, narrow_flags) = d("2").pow_ctx(d("1E+9"), subset)
   assert_eq(wide.to_string(), "4.612976001169069393116119221037316E+301029995")
   assert_false(wide_flags.invalid_context)
   assert_eq(narrow.to_string(), "inf")

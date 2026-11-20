@@ -215,7 +215,7 @@ fn decimal_pm1_tiny_scaled(
   let target_ctx = decimal_math_result_ctx(ctx)
   let lower_result = decimal_apply_finite_ctx(shift(lower), target_ctx)
   let upper_result = decimal_apply_finite_ctx(shift(upper), target_ctx)
-  if lower_result.0.compare_total(upper_result.0) == 0 &&
+  if lower_result.0.total_order_compare(upper_result.0) == 0 &&
     lower_result.1 == upper_result.1 {
     Some(lower_result)
   } else {
@@ -309,7 +309,7 @@ fn decimal_exp_m1_finite(
         // factor 5); the only integer in [2^n - 1, 2^n) is the odd 2^n - 1. So
         // 2^n - 1 and 2^n lie in one open rounding cell and round alike in
         // every mode, with the same flags: the result is exp2(n).
-        return Decimal::from_int(2, precision=target).try_power_ctx(value, ctx)
+        return Decimal::from_int(2, precision=target).try_pow_ctx(value, ctx)
       _ => {
         // 10^n - 1 (n nines) and 10^n - 10^(n - p - 2) (p + 2 nines) both lie
         // strictly between the midpoint 10^n - 5 * 10^(n - p - 1) and 10^n:

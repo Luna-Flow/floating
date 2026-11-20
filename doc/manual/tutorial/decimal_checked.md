@@ -18,7 +18,7 @@ lists every method.
 | see what only the last step did | [`raised()`](#audit-a-price-calculation) |
 | continue after a division by zero | [flagged values](#keep-going-after-a-division-by-zero) |
 | start a new audit period | [`clear_flags`](#start-a-new-audit-period) |
-| call `ln`, `exp` or `power` in a pipeline | [a bounded context](#elementary-functions-need-a-bounded-context) |
+| call `ln`, `exp` or `pow` in a pipeline | [a bounded context](#elementary-functions-need-a-bounded-context) |
 | use an `ArithmeticContext` | [`from_arithmetic_context`](#start-from-a-luna-flowarithmetic-context) |
 | hand the result to the contextual traits | [`result()`](#hand-the-result-to-the-contextual-traits) |
 
@@ -168,7 +168,7 @@ a 17-digit coefficient, so the multiplication discards a zero digit and raises
 
 ### Elementary functions need a bounded context
 
-Mathematical functions (`exp`, `ln`, `power`, the trigonometric family, …)
+Mathematical functions (`exp`, `ln`, `pow`, the trigonometric family, …)
 follow the General Decimal Arithmetic restriction to precision and exponent
 limits within $\pm 999\,999$. Use one of the interchange contexts or explicit
 bounds; with the default unbounded range they return NaN with

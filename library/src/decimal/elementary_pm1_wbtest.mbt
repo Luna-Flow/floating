@@ -166,7 +166,7 @@ test "pm1 generated rows: exact and MPFR-certified results, cohort and flags" {
     let want = pm1_exact(expected)
     match pm1_try(op, pm1_exact(x), ctx) {
       Ok((value, actual_flags)) =>
-        if value.compare_total(want) != 0 ||
+        if value.total_order_compare(want) != 0 ||
           pm1_flags_text(actual_flags) != flags {
           count += 1
           if count <= 20 {
@@ -621,7 +621,7 @@ test "pm1 2^n - 1 beyond the exact gate rounds like 2^n" {
         let m1 = x.exp2m1_ctx(ctx)
         let plain = x.exp2_ctx(ctx)
         assert_eq(
-          m1.0.compare_total(plain.0),
+          m1.0.total_order_compare(plain.0),
           0,
           msg="\{mode} \{precision} \{n}",
         )
@@ -727,7 +727,7 @@ fn pm1_call_power(
   exponent : String,
   ctx : DecimalContext,
 ) -> String {
-  let (value, flags) = base.power_ctx(pm1_exact(exponent), ctx)
+  let (value, flags) = base.pow_ctx(pm1_exact(exponent), ctx)
   "\{value} \{pm1_flags_text(flags)}"
 }
 
@@ -765,7 +765,7 @@ test "pm1 the tiny-argument shortcut gives the Ziv loop's result" {
                   op.evaluate(input)
                 }).unwrap()
                 assert_eq(
-                  fast.0.compare_total(slow.0),
+                  fast.0.total_order_compare(slow.0),
                   0,
                   msg="\{op.name()} \{mode} \{text}",
                 )

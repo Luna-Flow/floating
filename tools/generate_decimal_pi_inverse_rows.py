@@ -268,7 +268,7 @@ def render_sampled(rows: Rows, step: int = SAMPLE_STEP) -> str:
         "// arithmetic and certified MPFR 4.2.2 enclosures rounded by libmpdec; do not edit.",
         *what,
         "// Columns: op, rounding, precision, e_min, e_max, clamp, tininess, x, y,",
-        "// expected (compared with compare_total), flags.",
+        "// expected (compared with total_order_compare), flags.",
     ]
     kept = [rows.rows[index] for index in sampled_indices(rows, step)]
     chunks = [kept[i : i + CHUNK_ROWS] for i in range(0, len(kept), CHUNK_ROWS)]

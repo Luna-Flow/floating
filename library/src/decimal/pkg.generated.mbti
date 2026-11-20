@@ -52,10 +52,6 @@ pub fn Decimal::compare(Self, Self) -> Int32
 pub fn Decimal::compare_checked(Self, Self) -> Result[Int32, @arithmetic.ArithmeticError]
 pub fn Decimal::compare_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::compare_signal_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::compare_total(Self, Self) -> Int32
-pub fn Decimal::compare_total_ctx(Self, Self, DecimalContext) -> (Int32, DecimalFlags)
-pub fn Decimal::compare_total_magnitude(Self, Self) -> Int32
-pub fn Decimal::compare_total_magnitude_ctx(Self, Self, DecimalContext) -> (Int32, DecimalFlags)
 pub fn Decimal::compound_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::convert_format(Self, DecimalInterchangeFormat) -> (Self, DecimalFlags)
 pub fn Decimal::copy(Self) -> Self
@@ -119,14 +115,14 @@ pub fn Decimal::max(Self, Self) -> Self
 pub fn Decimal::max_finite_contextual(@arithmetic.ArithmeticContext) -> Self
 pub fn Decimal::maximum_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::maximum_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::maximum_magnitude_number_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::maximum_number_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::maximum_number_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::min(Self, Self) -> Self
 pub fn Decimal::min_normal_contextual(@arithmetic.ArithmeticContext) -> Self
 pub fn Decimal::minimum_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::minimum_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::minimum_magnitude_number_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::minimum_number_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::minimum_number_magnitude_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::minus_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::mul(Self, Self) -> Self
 pub fn Decimal::mul_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
@@ -135,9 +131,9 @@ pub fn Decimal::nan(precision? : Int32) -> Self
 pub fn Decimal::nan_payload(Self) -> @bigint.BigInt
 pub fn Decimal::neg(Self) -> Self
 pub fn Decimal::negative_zero(precision? : Int32) -> Self
-pub fn Decimal::next_minus(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::next_plus(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::next_toward(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::next_down_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::next_toward_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::next_up_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::normalized(Self) -> Self
 pub fn Decimal::not_equal(Self, Self) -> Bool
 pub fn Decimal::one(precision? : Int32) -> Self
@@ -150,9 +146,9 @@ pub fn Decimal::output(Self, &Logger) -> Unit
 pub fn Decimal::parse(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::parse_checked(String, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::plus_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::pow_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::pow_int_checked(Self, Int32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Decimal::power_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::pown_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::powr_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::precision(Self) -> Int32
@@ -160,8 +156,8 @@ pub fn Decimal::quantize(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::quantum(Self) -> Int32
 pub fn Decimal::quiet_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int32) -> Self
 pub fn Decimal::reduce_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::remainder(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::remainder_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
+pub fn Decimal::remainder_trunc_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rescale(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rootn_ctx(Self, Int32, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::rotate_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
@@ -200,6 +196,9 @@ pub fn Decimal::to_sci_string(String, DecimalContext) -> (String, DecimalFlags)
 pub fn Decimal::to_string(Self) -> String
 pub fn Decimal::to_uint64_ctx(Self, DecimalContext, exact? : Bool) -> (UInt64?, DecimalFlags)
 pub fn Decimal::to_uint_ctx(Self, DecimalContext, exact? : Bool) -> (UInt32?, DecimalFlags)
+pub fn Decimal::total_order(Self, Self) -> Bool
+pub fn Decimal::total_order_compare(Self, Self) -> Int32
+pub fn Decimal::total_order_mag(Self, Self) -> Bool
 pub fn Decimal::trim(Self) -> Self
 pub fn Decimal::try_acos_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_acosh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
@@ -229,7 +228,7 @@ pub fn Decimal::try_log10p1_ctx(Self, DecimalContext) -> Result[(Self, DecimalFl
 pub fn Decimal::try_log1p_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_log2_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_log2p1_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
-pub fn Decimal::try_power_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
+pub fn Decimal::try_pow_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_pown_ctx(Self, Int32, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_powr_ctx(Self, Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 pub fn Decimal::try_rootn_ctx(Self, Int32, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]

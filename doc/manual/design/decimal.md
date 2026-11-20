@@ -234,8 +234,8 @@ decimal64 has $u = \tfrac12 10^{-15} = 5\cdot 10^{-16}$, binary64 has $u =
 2^{-53} \approx 1.1 \cdot 10^{-16}$. The directed modes have
 $|\delta| < 10^{1-p} = 2u$. The machine epsilon, the distance from 1 to the
 next larger number, is $10^{1-p}$ — `epsilon_contextual` returns it and
-`next_plus(1)` in decimal64 is `1.000000000000001`. Below 1 the spacing is ten
-times smaller: `next_minus(1)` is `0.9999999999999999`.
+`next_up_ctx(1)` in decimal64 is `1.000000000000001`. Below 1 the spacing is ten
+times smaller: `next_down_ctx(1)` is `0.9999999999999999`.
 
 [^wobble]: Goldberg, "What every computer scientist should know about
 floating-point arithmetic", *ACM Computing Surveys* 23(1), 1991, §1.2;
@@ -780,7 +780,7 @@ input $x$:
    returns an interval $[L, U] \ni f(x)$ for every point of the input interval.
 3. Convert $L$ and $U$ (dyadic, hence exact decimals) to `Decimal` exactly and
    round both with the target context. If both give the same representation
-   (`compare_total` equal) and the same flags, return it.
+   (`total_order_compare` equal) and the same flags, return it.
 4. Otherwise increase $w \leftarrow w + \max(32, \lfloor w/2 \rfloor)$ and
    repeat; after $L$ evaluations report a certification failure, where $L$ is
    the refinement limit of the context (`DecimalContext::refinement_limit`,
@@ -851,7 +851,7 @@ Three kinds of inputs are decided outside the agreement test:
   a longer exact value, which lies strictly inside its rounding cell, to the
   enclosure.
 - **Integer powers** are not certified; they are rounded once from exact
-  integer information. `power_ctx` with an integral exponent $n$ that does
+  integer information. `pow_ctx` with an integral exponent $n$ that does
   not fit in $p$ digits first runs the General Decimal Arithmetic
   square-and-multiply with $p + \operatorname{digits}(n) + 2$ working
   digits. That scheme only ever discards zero digits of an exact power, so
@@ -1316,7 +1316,7 @@ measurements do not show a crossover.
 - **Flags.** `combine` is associative, commutative and idempotent with
   identity `new()`.
 - **Ordering.** `compare` is a total preorder (NaNs equal to each other and
-  above every number, $-0 = +0$); `compare_total` is a total order on
+  above every number, $-0 = +0$); `total_order_compare` is a total order on
   representations and refines `compare` on non-NaN values.
 - **Encodings.** Decoding then encoding canonical bits is the identity;
   encoding then decoding a value that fits the format is the identity,
@@ -1352,7 +1352,7 @@ four targets).
 - **A `compare` that aborts on NaN.** Sorting and generic `Compare` code would
   abort on data containing NaN. The current `compare` is a total preorder and
   IEEE semantics are available through `compare_checked`, `compare_ctx`,
-  `compare_signal_ctx` and `compare_total`.
+  `compare_signal_ctx` and `total_order_compare`.
 - **Fixed-precision transcendental kernels with an analytic error bound.**
   Faster for small precisions, but a correctness proof per function and per
   precision; the enclosure loop is correct by construction and its failure

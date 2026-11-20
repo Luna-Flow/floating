@@ -444,7 +444,7 @@ def render_moon_fixture_test() -> str:
             elif operation == "pown":
                 call = f"lhs.try_pown_ctx({row['integer']}, ctx).unwrap()"
             elif operation == "pow":
-                call = f"lhs.try_power_ctx({rhs}, ctx).unwrap()"
+                call = f"lhs.try_pow_ctx({rhs}, ctx).unwrap()"
             elif operation == "powr":
                 call = f"lhs.try_powr_ctx({rhs}, ctx).unwrap()"
             elif operation == "compound":
@@ -478,13 +478,19 @@ def render_moon_fixture_test() -> str:
     total_order = load_json(TOTAL_ORDER_PATH)
     for format_name, entry in total_order["formats"].items():
         operands = ", ".join(_moon_string(item) for item in entry["operands"])
-        for op, method in (("totalOrder", "compare_total"), ("totalOrderMag", "compare_total_magnitude")):
+        for op, method in (("totalOrder", "total_order"), ("totalOrderMag", "total_order_mag")):
             expected = ", ".join({"<": "-1", "=": "0", ">": "1"}[cell] for cell in entry[op])
             name = f"IEEE {op} {format_name}"
+            # The boolean form is `x <= y` of the matrix cell; the three-way
+            # `total_order_compare` is checked on the totalOrder matrix only.
+            three_way = (
+                [f"      assert_eq(lhs.total_order_compare(rhs), expected[i * n + j], msg=id)"]
+                if op == "totalOrder"
+                else []
+            )
             source.extend(
                 [
                     f"test {_moon_string(name)} {{",
-                    f"  let ctx = DecimalContext::{format_name}()",
                     f"  let operands = [{operands}]",
                     f"  let expected : Array[Int] = [{expected}]",
                     "  let n = operands.length()",
@@ -493,10 +499,9 @@ def render_moon_fixture_test() -> str:
                     "    for j in 0..<n {",
                     "      let rhs = Decimal::from_string(operands[j]).unwrap()",
                     "      let id = operands[i] + \" \" + operands[j]",
-                    f"      let (actual, flags) = lhs.{method}_ctx(rhs, ctx)",
-                    "      assert_eq(actual, expected[i * n + j], msg=id)",
-                    f"      assert_eq(lhs.{method}(rhs), expected[i * n + j], msg=id)",
-                    "      assert_ieee_fixture_flags(id, flags, [])",
+                    f"      assert_eq(lhs.{method}(rhs), expected[i * n + j] <= 0, msg=id)",
+                    f"      assert_eq(rhs.{method}(lhs), expected[i * n + j] >= 0, msg=id)",
+                    *three_way,
                     "    }",
                     "  }",
                     "}",

@@ -207,7 +207,7 @@ test "handle a checked result through def" {
   matters.
 - `PartialOrder` is not an ordering you can sort with: `Unordered` breaks
   trichotomy. Use the total orders of the concrete packages
-  (`BinFloat::total_order_compare`, `Decimal::compare_total`) for sorting.
+  (`BinFloat::total_order_compare`, `Decimal::total_order_compare`) for sorting.
 - `with_precision` reports no flags and ignores context exponent limits (a
   `BinFloat` still overflows at its implementation range of about
   $2^{\pm 2^{30}}$). When rounding must be observed, use the `*_ctx` operations

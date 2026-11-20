@@ -50,7 +50,7 @@ test "context and parse error types are exposed" {
     Some(value) =>
       assert_eq(
         value
-        .compare_total(
+        .total_order_compare(
           @decimal.Decimal::from_string("-7.50", precision=64).unwrap(),
         )
         .to_string(),
@@ -308,7 +308,7 @@ test "decimal interchange facade keeps wrapper canonical predicate distinct from
 
   assert_false(raw.is_canonical())
   assert_true(scalar.is_canonical())
-  assert_eq(scalar.compare_total(expected).to_string(), "0")
+  assert_eq(scalar.total_order_compare(expected).to_string(), "0")
 }
 
 ///|
@@ -391,15 +391,15 @@ test "decimal interchange facade sign transforms preserve finite raw bits and me
   )
   assert_true(signed64.format() == @decimal.DecimalInterchangeFormat::Decimal64)
   assert_eq(
-    abs64.to_decimal().compare_total(expected_positive64).to_string(),
+    abs64.to_decimal().total_order_compare(expected_positive64).to_string(),
     "0",
   )
   assert_eq(
-    negated64.to_decimal().compare_total(expected_negative64).to_string(),
+    negated64.to_decimal().total_order_compare(expected_negative64).to_string(),
     "0",
   )
   assert_eq(
-    signed64.to_decimal().compare_total(expected_negative64).to_string(),
+    signed64.to_decimal().total_order_compare(expected_negative64).to_string(),
     "0",
   )
 }
@@ -436,15 +436,15 @@ test "decimal interchange facade sign transforms preserve canonical decimal32 fi
   )
   assert_true(signed32.format() == @decimal.DecimalInterchangeFormat::Decimal32)
   assert_eq(
-    abs32.to_decimal().compare_total(expected_positive32).to_string(),
+    abs32.to_decimal().total_order_compare(expected_positive32).to_string(),
     "0",
   )
   assert_eq(
-    negated32.to_decimal().compare_total(expected_negative32).to_string(),
+    negated32.to_decimal().total_order_compare(expected_negative32).to_string(),
     "0",
   )
   assert_eq(
-    signed32.to_decimal().compare_total(expected_negative32).to_string(),
+    signed32.to_decimal().total_order_compare(expected_negative32).to_string(),
     "0",
   )
 }
@@ -707,15 +707,15 @@ test "decimal32 finite sign transforms stay aligned with direct interchange deco
     signed_from_pos.format() == @decimal.DecimalInterchangeFormat::Decimal32,
   )
   assert_eq(
-    abs_from_neg.to_decimal().compare_total(direct_pos).to_string(),
+    abs_from_neg.to_decimal().total_order_compare(direct_pos).to_string(),
     "0",
   )
   assert_eq(
-    negated_from_pos.to_decimal().compare_total(direct_neg).to_string(),
+    negated_from_pos.to_decimal().total_order_compare(direct_neg).to_string(),
     "0",
   )
   assert_eq(
-    signed_from_pos.to_decimal().compare_total(direct_neg).to_string(),
+    signed_from_pos.to_decimal().total_order_compare(direct_neg).to_string(),
     "0",
   )
 }
