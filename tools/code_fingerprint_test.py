@@ -566,6 +566,12 @@ class CompileCommandTests(unittest.TestCase):
 class CounterFamilyTests(unittest.TestCase):
     """Compiler counters inside names: generic instances, loop labels, `|` closures."""
 
+    def test_the_pipe_closure_counter_is_anchored_at_the_end_of_the_name(self) -> None:
+        # a hexadecimal run that starts with `7c` after an underscore is not a counter
+        self.assertEqual(cf.counter_stem("x__canon__7c8b1234__0"), "x__canon__7c8b1234__0")
+        self.assertEqual(cf.counter_stem("f_2efinalize_7c25726"), "f_2efinalize_7cN")
+        self.assertEqual(cf.counter_stem("f_2efinalize_7c25726$object"), "f_2efinalize_7cN$object")
+
     def test_the_stem_of_each_family_drops_its_counter(self) -> None:
         self.assertEqual(cf.counter_stem("_M0MPB4Iter4nextN6constrS1771GcE"), "_M0MPB4Iter4nextN6constrNGcE")
         self.assertEqual(cf.counter_stem("_M0FPB20fixed__choose__pivotN7sort__3S4066GsE"), "_M0FPB20fixed__choose__pivotN7sort__3NGsE")
