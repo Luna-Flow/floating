@@ -191,6 +191,10 @@ fn round_test_contexts() -> Array[BinaryContext] {
 }
 
 ///|
+// oracle: E
+// source: the old copy kept in the test (old_round_dyadic: the rounding core before #378, which rounds twice and normalizes fully), on random magnitudes and exponents around the range boundaries of 40 contexts
+// shares: the old copy calls the same binary_apply_round_bits, binary_split_shift, binary_overflow_result and binary_inexact_flags as the new core, so the equality says nothing about those four; the rows check them (three mutations of binary_apply_round_bits and the range shift pass this block and are killed by the rows)
+// underneath: level A, round_rows_wbtest.mbt (tools/generate_round_rows.py: Python integers, math.isqrt, the range rule of 7.4 and 7.5; 3,849 rows; library-ran: no), checked by the test "binary_round_dyadic and binary_round_sqrt against integer arithmetic at the range limits, five directions, both tininess rules" of round_rows_check_wbtest.mbt; same input class: the same context families (binary16, 32, 64, two toy formats, the implementation range at nine precisions), magnitudes of all ones, halfway, short and random, leading bits around e_min and e_max
 test "binary_round_dyadic agrees with the pre-#378 rounding core" {
   let rng : RoundCoreRng = { round_state: 20261120UL, }
   let contexts = round_test_contexts()
@@ -222,6 +226,10 @@ test "binary_round_dyadic agrees with the pre-#378 rounding core" {
 }
 
 ///|
+// oracle: E
+// source: the old copy kept in the test (old_round_dyadic: the rounding core before #378, which rounds twice and normalizes fully), on exactly representable values at, just inside and just beyond the range
+// shares: the old copy calls the same binary_apply_round_bits, binary_split_shift, binary_overflow_result and binary_inexact_flags as the new core, so the equality says nothing about those four; the rows check them (three mutations of binary_apply_round_bits and the range shift pass this block and are killed by the rows)
+// underneath: level A, round_rows_wbtest.mbt (tools/generate_round_rows.py: Python integers, math.isqrt, the range rule of 7.4 and 7.5; 3,849 rows; library-ran: no), checked by the test "binary_round_dyadic and binary_round_sqrt against integer arithmetic at the range limits, five directions, both tininess rules" of round_rows_check_wbtest.mbt; same input class: leading bits at e_min - 2 to e_max + 1 in the bounded contexts
 test "binary_round_dyadic boundaries on both sides of the exact early exit" {
   // Exactly representable values at, just inside and just beyond the range.
   for context in round_test_contexts() {

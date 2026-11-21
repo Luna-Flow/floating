@@ -2,6 +2,10 @@
 /// Deterministic range-boundary cases for the #378 changes (random testing
 /// cannot reach these exponents). Expected values come from the test-only
 /// copies of the code before #378, never from the new code alone.
+// oracle: E
+// source: the old copy kept in the test (old_round_dyadic: the rounding core before #378, which rounds twice and normalizes fully), all ones, halfway and powers of two with the leading bit at the implementation limits and around e_min and e_max
+// shares: the old copy calls the same binary_apply_round_bits, binary_split_shift, binary_overflow_result and binary_inexact_flags as the new core, so the equality says nothing about those four; the rows check them (three mutations of binary_apply_round_bits and the range shift pass this block and are killed by the rows)
+// underneath: level A, round_rows_wbtest.mbt (tools/generate_round_rows.py: Python integers, math.isqrt, the range rule of 7.4 and 7.5; 3,849 rows; library-ran: no), checked by the test "binary_round_dyadic and binary_round_sqrt against integer arithmetic at the range limits, five directions, both tininess rules" of round_rows_check_wbtest.mbt; same input class: the rows have the same magnitudes and the leading bits at the implementation limits
 test "round core agrees with the old one at the exponent limits and carries" {
   let lowest = binary_value_e_min
   let highest = binary_value_e_max
