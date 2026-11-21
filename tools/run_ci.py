@@ -287,6 +287,13 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                 "INTERVAL: oracle checks",
                 (sys.executable, "tools/itl_oracle_checks.py", "--require-corpus"),
             ),
+            # The untimed differential stage of BallFloat against two oracles (tools/ball_diff.py): the integer oracle
+            # decides every arithmetic row with nothing but CPython; MPFR decides all rows (exp and ln too) when its
+            # headers are found, and the report names the oracles that ran and the rows not checked without it.
+            Stage(
+                "INTERVAL: ball_float against the oracles",
+                (sys.executable, "tools/ball_diff.py", "run"),
+            ),
         ],
         "elementary": [
             Stage(

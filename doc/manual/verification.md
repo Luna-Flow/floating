@@ -192,9 +192,14 @@ threshold on both sides, results and operands in the subnormal band, operands
 whose exponents differ by far more than the precision, operands with fewer bits
 than the precision, bounds with more bits than the precision (the ball rounds
 them outward), and intervals with a zero bound. A class that does not reach its
-band is an error of the generator, decided from the oracle's own flags. A second
-oracle in Python integers, which shares nothing with MPFR, must agree with the
-MPFR one on every row it computes. A row that differs from MPFR today is listed
+band is an error of the generator, decided from the oracle's own flags. The stage is
+part of `just gate interval`. An oracle in Python integers, which shares nothing
+with MPFR, decides every arithmetic row with nothing but CPython and is the
+required one; MPFR decides all rows, `exp` and `ln` included, when its headers
+are found, and the two must agree on every arithmetic row. The report says which
+oracles ran and how many rows each decided, and on a machine without MPFR it
+lists the rows only MPFR decides as not checked. For `exp` and `ln` it also
+reports the excess over the tightest bound in units of the last place. A row that differs from MPFR today is listed
 with its issue in `tools/ball_diff_known.txt`; a new difference, or a listed row
 that agrees again, fails the run.
 

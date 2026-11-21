@@ -27,6 +27,7 @@ import argparse
 import math
 import os
 import random
+import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -635,6 +636,9 @@ INF = Value(False, 1, 10**12)  # a sentinel above every finite value (compare() 
 NEG_INF = Value(True, 1, 10**12)
 
 
+FLAGS: set[str] = set()  # what the integer oracle met while computing one row: o (overflow), s (subnormal result), z (underflow to zero)
+
+
 class Skipped(Exception):
     """A row the integer oracle does not compute (exponent gap above MAX_GAP)."""
 
@@ -647,6 +651,10 @@ def round_directed(num: int, exp: int, sticky: bool, negative: bool, up: bool, p
     if num == 0:
         return ZERO
     bits = num.bit_length()
+    if sticky and bits < p + 2:  # keep the unit of the remainder below the last bit of the result
+        num <<= p + 2 - bits
+        exp -= p + 2 - bits
+        bits = p + 2
     target = exp + bits - p
     if ranged:
         target = max(target, quantum(p))
@@ -659,12 +667,17 @@ def round_directed(num: int, exp: int, sticky: bool, negative: bool, up: bool, p
     if inexact and (up != negative):  # away from zero
         q += 1
     if q == 0:
+        if ranged:
+            FLAGS.add("z")
         return ZERO
     if q.bit_length() > p:
         q >>= 1
         target += 1
     result = Value(negative, q, target)
+    if ranged and result.lead() < EMIN:
+        FLAGS.add("s")
     if ranged and result.lead() > EMAX:
+        FLAGS.add("o")
         largest = max_finite(p)
         if up:
             return Value(True, largest.mantissa, largest.exponent) if negative else INF
@@ -706,7 +719,19 @@ def corner(op: str, args: Sequence[Value], p: int, up: bool) -> Value:
         top = max(e + m.bit_length() for m, e in live)
         low = min(e for _, e in live)
         if top - low > MAX_GAP:
-            raise Skipped()
+            # a far addend: the smaller term is far below the last bit of the larger one (the gap is above
+            # MAX_GAP), so it only decides the side: the exact sum is `big` plus a remainder below one unit of
+            # `big` scaled to p + 2 bits (same signs: a little above big; opposite signs: a little below it,
+            # that is above big - 1 unit)
+            if len(live) != 2:
+                raise Skipped()
+            (big, big_e), (tiny, tiny_e) = sorted(live, key=lambda t: t[1] + abs(t[0]).bit_length(), reverse=True)
+            scale = max(0, p + 2 - abs(big).bit_length())
+            if tiny_e + abs(tiny).bit_length() > big_e - scale:
+                raise Skipped()
+            negative = big < 0
+            num = (abs(big) << scale) - (0 if (tiny < 0) == negative else 1)
+            return round_directed(num, big_e - scale, True, negative, up, p)
         total = sum(m << (e - low) for m, e in live)
         return round_directed(abs(total), low, False, total < 0, up, p)
     if op in ("mul", "sqr"):
@@ -772,6 +797,47 @@ def py_oracle(row: Row) -> tuple[str, str]:
 
 def read(text: str) -> Value:
     return read_text(text)
+
+
+def py_hex(x: Value) -> str:
+    """The text the library reads (`0x<hex>p<exp>`, `inf`, `-inf`, `0x0p0`)."""
+    if x.mantissa == 0:
+        return "0x0p0"
+    if x.exponent == 10**12 and x.mantissa == 1:
+        return "-inf" if x.negative else "inf"
+    return f"{'-' if x.negative else ''}0x{x.mantissa:x}p{x.exponent}"
+
+
+def py_value(text: str) -> Value:
+    """A canonical text (`0b..p..`, `inf`, `-inf`, `0`, `-0`) back to a value."""
+    if text in ("inf", "-inf"):
+        return INF if text == "inf" else NEG_INF
+    if text in ("0", "-0"):
+        return ZERO
+    negative = text.startswith("-")
+    mantissa, exponent = text.lstrip("-")[2:].split("p")
+    return value(int(mantissa, 2), int(exponent), negative)
+
+
+def py_oracle_line(row: Row) -> str:
+    """One row of the oracle file (`id lo hi flags echo lohex hihex`) by the integer oracle; raises Skipped."""
+    FLAGS.clear()
+    lo_text, hi_text = py_oracle(row)
+    p = row.size
+    echoes = []
+    operand_subnormal = False
+    for lo, hi in row.operands:
+        pair = []
+        for bound, up in ((lo, False), (hi, True)):
+            rounded = round_directed(abs(bound.mantissa), bound.exponent, False, bound.negative, up, p, ranged=False)
+            operand_subnormal |= rounded.mantissa != 0 and rounded.lead() < EMIN
+            pair.append(py_text(rounded))
+        echoes.append(":".join(pair))
+    flags = set(FLAGS)
+    if operand_subnormal:
+        flags.add("i")
+    letters = "".join(flag for flag in "osiz" if flag in flags) or "-"
+    return f"{row.id} {lo_text} {hi_text} {letters} {','.join(echoes)} {py_hex(py_value(lo_text))} {py_hex(py_value(hi_text))}"
 
 
 def same_zero(text: str) -> str:
@@ -861,46 +927,153 @@ def parse_test_output(text: str) -> tuple[int, int, int, list[str]]:
     raise RuntimeError("the test printed no BALLDIFF_SUMMARY line:\n" + text[-3000:])
 
 
-def command_run(args: argparse.Namespace) -> int:
-    args.out.mkdir(parents=True, exist_ok=True)
-    rows = generate_rows(args.seed, args.precisions, args.per_cell, args.classes, args.ops)
-    inputs = args.out / "inputs.txt"
-    inputs.write_text(format_rows(rows, args.seed), encoding="utf-8")
-    oracle_binary = build_oracle(args.out, args.prefix, args.cc)
-    oracle_path = args.out / "oracle.txt"
-    done = capture([str(oracle_binary), str(inputs), str(oracle_path)])
-    if done.returncode != 0:
-        print("oracle failed:\n" + done.stdout)
-        return 2
-    oracle = parse_oracle(oracle_path.read_text(encoding="utf-8"))
-    table = coverage(rows, oracle)
-    print(render_coverage(table))
-    errors = check_coverage(table)
-    for error in errors:
-        print("GENERATOR ERROR: " + error)
-    agree, skipped, bad = crosscheck(rows, oracle)
-    print(f"oracle cross-check (MPFR against Python integers): {agree} rows agree, {skipped} skipped (exponent gap above {MAX_GAP} bits, or undecided), {len(bad)} disagree")
-    for line in bad[:20]:
-        print("ORACLE DISAGREEMENT: " + line)
-    errors += [f"the two oracles disagree on {len(bad)} rows"] if bad else []
-    env = dict(os.environ, BALLDIFF_INPUTS=str(inputs), BALLDIFF_ORACLE=str(oracle_path))
+def mpfr_available(prefix: Path, cc: str) -> bool:
+    """MPFR and GMP headers and a C compiler are there (the second oracle can be built)."""
+    return shutil.which(cc) is not None and (prefix / "include" / "mpfr.h").exists() and (prefix / "include" / "gmp.h").exists()
+
+
+def run_test(out_dir: Path, label: str, rows: Sequence[Row], oracle_text: str, seed: int) -> tuple[int, int, int, list[str], list[str]]:
+    """Runs the BallFloat test on `rows` against an oracle file: (rows, failed, undecided, failure lines, elementary lines)."""
+    inputs = out_dir / f"inputs_{label}.txt"
+    oracle = out_dir / f"oracle_{label}.txt"
+    inputs.write_text(format_rows(rows, seed), encoding="utf-8")
+    oracle.write_text(oracle_text, encoding="utf-8")
+    env = dict(os.environ, BALLDIFF_INPUTS=str(inputs), BALLDIFF_ORACLE=str(oracle))
     command = ["sh", "tools/run_moon_clean_exec.sh", "test", "--release", "tooling/src/differential/ball_mpfr", "--target", "native", "--no-parallelize"]  # fmt: skip
     done = capture(command, cwd=REPO_ROOT, env=env)
-    (args.out / "test.log").write_text(done.stdout, encoding="utf-8")
+    (out_dir / f"test_{label}.log").write_text(done.stdout, encoding="utf-8")
     total, failed, undecided, failures = parse_test_output(done.stdout)
+    elementary = [line for line in done.stdout.splitlines() if line.startswith("BALLDIFF_ELEM ")]
+    return total, failed, undecided, failures, elementary
+
+
+def excess_ulps(oracle: Value, got: Value, p: int) -> float:
+    """How far `got` is outside `oracle`, in units of the last place of `oracle` (0 when equal or inside; inf when got is infinite and oracle is not)."""
+    if compare(oracle, got) == 0:
+        return 0.0
+    if got in (INF, NEG_INF) or got.exponent == 10**12:
+        return math.inf
+    if oracle.mantissa == 0 or oracle.exponent == 10**12:
+        return math.inf
+    unit = max(oracle.lead() - (p - 1), quantum(p))
+    low = min(oracle.exponent, got.exponent, unit)
+    if max(oracle.exponent, got.exponent) - low > 20000:
+        return math.inf
+    a = (-1 if oracle.negative else 1) * (oracle.mantissa << (oracle.exponent - low))
+    b = (-1 if got.negative else 1) * (got.mantissa << (got.exponent - low))
+    return abs(a - b) / (1 << (unit - low))
+
+
+def excess_table(rows: Sequence[Row], oracle: dict[str, tuple[str, str, str, str]], elementary: Sequence[str]) -> list[str]:
+    """The excess of every exp and ln bound over the tightest one, per class, operation and precision: rows, rows with zero excess, the largest excess below and above, in units of the last place."""
+    by_id = {row.id: row for row in rows}
+    cells: dict[tuple[str, str, int], list[tuple[float, float]]] = {}
+    for line in elementary:
+        _, row_id, op, size, klass, got_lo, got_hi = line.split()
+        if row_id not in oracle:
+            continue
+        o_lo, o_hi = py_value(oracle[row_id][0]), py_value(oracle[row_id][1])
+        p = by_id[row_id].size
+        cells.setdefault((klass, op, p), []).append((excess_ulps(o_lo, py_value(got_lo), p), excess_ulps(o_hi, py_value(got_hi), p)))
+    out = ["| class | op | bits | rows | zero excess | largest excess below | largest excess above |", "| --- | --- | ---: | ---: | ---: | ---: | ---: |"]
+    for (klass, op, p), values in sorted(cells.items()):
+        zero = sum(1 for lo, hi in values if lo == 0 and hi == 0)
+        out.append(f"| {klass} | {op} | {p} | {len(values)} | {zero} | {max(v[0] for v in values):g} | {max(v[1] for v in values):g} |")
+    return out
+
+
+def command_run(args: argparse.Namespace) -> int:
+    """The stage: the integer oracle decides every arithmetic row (required), MPFR decides all rows when it can be built,
+    and the report says which oracles ran and how many rows each decided."""
+    args.out.mkdir(parents=True, exist_ok=True)
+    rows = generate_rows(args.seed, args.precisions, args.per_cell, args.classes, args.ops)
+    (args.out / "inputs.txt").write_text(format_rows(rows, args.seed), encoding="utf-8")
+    problems: list[str] = []
+    ran: set[str] = set()
+    failures_by_id: dict[str, str] = {}
+    undecided_total = 0
+
+    # the integer oracle: the arithmetic rows, nothing but CPython
+    python_rows: list[Row] = []
+    python_lines: list[str] = []
+    for row in rows:
+        if row.op not in ARITHMETIC_OPS:
+            continue
+        try:
+            python_lines.append(py_oracle_line(row))
+            python_rows.append(row)
+        except Skipped:
+            pass
+    python_oracle = parse_oracle("\n".join(python_lines))
+    print(f"oracle 1, Python integers: {len(python_rows)} of {len(rows)} rows decided")
+    if python_rows:
+        total, failed, undecided, failures, _ = run_test(args.out, "python", python_rows, "\n".join(python_lines) + "\n", args.seed)
+        print(f"  BallFloat against it: {total} rows, {failed} differ")
+        failures_by_id.update({line.split()[1]: line for line in failures})
+        ran.update(row.id for row in python_rows)
+        undecided_total += undecided
+
+    # MPFR: every row, when the headers are there
+    flag_source = dict(python_oracle)
+    mpfr_ok = (not args.no_mpfr) and mpfr_available(args.prefix, args.cc)
+    mpfr_rows: list[Row] = []
+    if mpfr_ok:
+        oracle_binary = build_oracle(args.out, args.prefix, args.cc)
+        done = capture([str(oracle_binary), str(args.out / "inputs.txt"), str(args.out / "oracle_mpfr_all.txt")])
+        if done.returncode != 0:
+            print("oracle failed:\n" + done.stdout)
+            return 2
+        mpfr_text = (args.out / "oracle_mpfr_all.txt").read_text(encoding="utf-8")
+        mpfr_oracle = parse_oracle(mpfr_text)
+        mpfr_rows = [row for row in rows if "u" not in mpfr_oracle[row.id][2]]
+        print(f"oracle 2, MPFR {mpfr_text.splitlines()[0].split('mpfr=')[-1]}: {len(mpfr_rows)} of {len(rows)} rows decided ({len(rows) - len(mpfr_rows)} undecided: mpfr_sqrt failed its exact check)")
+        agree, skipped, bad = crosscheck(rows, mpfr_oracle)
+        print(f"  the two oracles on the arithmetic rows: {agree} agree, {skipped} not compared, {len(bad)} disagree")
+        for line in bad[:20]:
+            print("ORACLE DISAGREEMENT: " + line)
+        problems += [f"the two oracles disagree on {len(bad)} rows"] if bad else []
+        flag_source.update(mpfr_oracle)
+        total, failed, undecided, failures, elementary = run_test(args.out, "mpfr", rows, mpfr_text, args.seed)
+        print(f"  BallFloat against it: {total} rows, {failed} differ, {undecided} undecided")
+        failures_by_id.update({line.split()[1]: line for line in failures})
+        ran.update(row.id for row in mpfr_rows)
+        undecided_total += undecided
+        table = excess_table(rows, mpfr_oracle, elementary)
+        if len(table) > 2:
+            print("excess of exp and ln over the tightest bound, in units of the last place of that bound:")
+            print("\n".join(table))
+    else:
+        reason = "--no-mpfr" if args.no_mpfr else f"no MPFR and GMP headers under {args.prefix}, or no C compiler"
+        print(f"oracle 2, MPFR: NOT RUN ({reason})")
+        if args.require_mpfr:
+            problems.append("MPFR is required (--require-mpfr) and was not run")
+
+    decided = {row.id for row in python_rows} | {row.id for row in mpfr_rows}
+    not_checked = [row for row in rows if row.id not in decided]
+    if not_checked:
+        kinds = sorted({f"{row.op}/{row.klass}" for row in not_checked})
+        print(f"NOT CHECKED: {len(not_checked)} rows ({', '.join(kinds[:12])}{', ...' if len(kinds) > 12 else ''}): only MPFR decides them and it did not run")
+
+    covered = [row for row in rows if row.id in flag_source]
+    table = coverage(covered, flag_source)
+    print(render_coverage(table))
+    for error in check_coverage(table):
+        print("GENERATOR ERROR: " + error)
+        problems.append(error)
+
     known = parse_known(KNOWN_FILE.read_text(encoding="utf-8")) if KNOWN_FILE.exists() else {}
-    unknown, still, stale = split_failures(failures, known, (row.id for row in rows))
+    unknown, still, stale = split_failures(list(failures_by_id.values()), known, ran)
     for line in unknown[:40]:
         print(line)
     for row_id in still:
         print(f"known difference {row_id} ({known[row_id]})")
     for row_id in stale:
-        print(f"STALE: {row_id} ({known[row_id]}) agrees with MPFR now: remove it from {KNOWN_FILE.name}")
+        print(f"STALE: {row_id} ({known[row_id]}) agrees now: remove it from {KNOWN_FILE.name}")
     print(
-        f"ball_float against MPFR: {total} rows, {failed} differ ({len(still)} known with an issue, {len(unknown)} new), "
-        f"{undecided} undecided (MPFR's answer failed an exact check), {len(stale)} stale known entries"
+        f"ball_float against the oracles: {len(ran)} rows checked, {len(failures_by_id)} differ ({len(still)} known with an issue, {len(unknown)} new), "
+        f"{undecided_total} undecided, {len(not_checked)} not checked, {len(stale)} stale known entries"
     )
-    return 0 if not unknown and not stale and not errors else 1
+    return 0 if not unknown and not stale and not problems else 1
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -922,6 +1095,8 @@ def build_parser() -> argparse.ArgumentParser:
     common(run)
     run.add_argument("--prefix", type=Path, default=Path(os.environ.get("EXTBENCH_PREFIX", "/opt/homebrew")), help="prefix holding include/ and lib/ of MPFR and GMP")
     run.add_argument("--cc", default=os.environ.get("CC", "cc"))
+    run.add_argument("--no-mpfr", action="store_true", help="do not run the MPFR oracle (the rows only MPFR decides are reported as not checked)")
+    run.add_argument("--require-mpfr", action="store_true", help="exit with status 1 when the MPFR oracle did not run")
     run.set_defaults(func=command_run)
     return parser
 

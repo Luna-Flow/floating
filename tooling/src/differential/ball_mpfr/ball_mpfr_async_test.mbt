@@ -206,6 +206,21 @@ async test "ball_float against the MPFR oracle: tightest results, directed round
     let elementary = row[1] == "exp" || row[1] == "ln"
     let mut reason = ""
     if elementary {
+      // the bounds of every `exp` and `ln` row, for the report of the excess over the tightest result
+      println(
+        "BALLDIFF_ELEM " +
+        row[0] +
+        " " +
+        row[1] +
+        " " +
+        row[2] +
+        " " +
+        row[3] +
+        " " +
+        got_lo +
+        " " +
+        got_hi,
+      )
       // valid only (12.10.2): enclose the tightest result, and not be much wider
       let lower = bound_verdict(
         read_bound(expected[5], size),
