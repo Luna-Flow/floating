@@ -319,6 +319,23 @@ extern "C" fn luna_window_combine(
 ) -> UInt64 = "luna_window_combine"
 
 ///|
+#borrow(words, x, y)
+extern "C" fn luna_window_combine_asm(
+  words : FixedArray[UInt64],
+  count : Int32,
+  x : FixedArray[UInt64],
+  x_len : Int32,
+  x_word_shift : Int32,
+  x_bit_shift : Int32,
+  y : FixedArray[UInt64],
+  y_len : Int32,
+  y_word_shift : Int32,
+  y_bit_shift : Int32,
+  subtract : Int32,
+  carry_in : UInt64,
+) -> UInt64 = "luna_window_combine_asm"
+
+///|
 /// Shortest window, in limbs, that goes to the C body: the call into C, its
 /// range checks and the generic limbs at the two ends cost about 200
 /// instructions, which the portable body (no call, one edge limb at each end)
@@ -328,6 +345,21 @@ extern "C" fn luna_window_combine(
 /// 12 limbs, 387 / 374 at 16, 451 / 411 at 20, 643 / 522 at 32; both operands
 /// shifted: 394 / 391 at 12, 478 / 441 at 16.
 let bin_limbs_window_c_min_count : Int32 = 14
+
+///|
+/// Shortest window, in limbs, that goes to the assembly interior on the
+/// assembly tier; windows from `bin_limbs_window_c_min_count` up to it run the C
+/// body. The assembly interior saves 3 to 4 instructions per limb with one
+/// operand shifted (6.3 against 9.4) and 6 to 9 with two, and a call costs about
+/// 55 instructions more than the C body's (seven register arguments, the
+/// previous limbs of the shifted operands, the registers saved around the block,
+/// the flag set and read back, the remainder), so it pays from about 25 limbs.
+/// `BinFloat::add` (two-count method, median of five runs, differences of at
+/// least 73M instructions): from 14 limbs it costs 2 percent more at 1,024 bits
+/// (17 limbs) and the same from 24 limbs at 1,024 to 1,536 bits; at 1,792 bits
+/// (29 limbs) it costs 0.99, at 2,048 bits 0.99, at 2,560 0.97, at 3,072 0.96,
+/// at 4,096 bits 0.93 of the C body's instructions.
+let bin_limbs_window_asm_min_count : Int32 = 24
 
 ///|
 /// The window row of the wide sum of two coefficients, one pass over `count`
@@ -360,10 +392,11 @@ let bin_limbs_window_c_min_count : Int32 = 14
 /// - It computes exactly the previous loop of `binary_coeff_fast_add_parts`
 ///   (`bin_window_combine`), which is the reference of the tests.
 ///
-/// Tiers: native with the C rows or the assembly tier calls the C body for
-/// windows of at least `bin_limbs_window_c_min_count` limbs (there is no
-/// assembly body for this row yet: the assembly tier runs the C one); shorter
-/// windows, the portable configuration and the other targets run
+/// Tiers: native with the C rows calls the C body for windows of at least
+/// `bin_limbs_window_c_min_count` limbs; the assembly tier calls the C body from
+/// there up to `bin_limbs_window_asm_min_count` limbs and the assembly interior
+/// (`luna_window_combine_asm`, four limbs per iteration, one carry chain) from
+/// there; shorter windows, the portable configuration and the other targets run
 /// `bin_limbs_window_combine_portable`.
 pub fn bin_limbs_window_combine(
   words : FixedArray[UInt64],
@@ -383,24 +416,45 @@ pub fn bin_limbs_window_combine(
     words, count, x, x_len, x_word_shift, x_bit_shift, y, y_len, y_word_shift, y_bit_shift,
   )
   if bin_limbs_mode != 0 && count >= bin_limbs_window_c_min_count {
-    luna_window_combine(
-      words,
-      count,
-      x,
-      x_len,
-      x_word_shift,
-      x_bit_shift,
-      y,
-      y_len,
-      y_word_shift,
-      y_bit_shift,
-      if subtract {
-        1
-      } else {
-        0
-      },
-      carry_in,
-    )
+    if bin_limbs_mode == 2 && count >= bin_limbs_window_asm_min_count {
+      luna_window_combine_asm(
+        words,
+        count,
+        x,
+        x_len,
+        x_word_shift,
+        x_bit_shift,
+        y,
+        y_len,
+        y_word_shift,
+        y_bit_shift,
+        if subtract {
+          1
+        } else {
+          0
+        },
+        carry_in,
+      )
+    } else {
+      luna_window_combine(
+        words,
+        count,
+        x,
+        x_len,
+        x_word_shift,
+        x_bit_shift,
+        y,
+        y_len,
+        y_word_shift,
+        y_bit_shift,
+        if subtract {
+          1
+        } else {
+          0
+        },
+        carry_in,
+      )
+    }
   } else {
     bin_limbs_window_combine_portable(
       words, count, x, x_len, x_word_shift, x_bit_shift, y, y_len, y_word_shift,

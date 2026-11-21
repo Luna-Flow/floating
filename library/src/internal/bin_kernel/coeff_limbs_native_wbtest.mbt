@@ -406,3 +406,147 @@ test "the wrappers equal the portable rows on random lengths and offsets" {
     assert_eq(r1, r2)
   }
 }
+
+///|
+/// The window row called through the two C entry points directly (the wrapper
+/// `bin_limbs_window_combine` sends short windows to the portable body, so these
+/// runners pin each body): the C interior and the assembly interior.
+fn window_run_c(
+  words : FixedArray[UInt64],
+  count : Int32,
+  x : FixedArray[UInt64],
+  x_len : Int32,
+  x_word_shift : Int32,
+  x_bit_shift : Int32,
+  y : FixedArray[UInt64],
+  y_len : Int32,
+  y_word_shift : Int32,
+  y_bit_shift : Int32,
+  subtract : Bool,
+  carry_in : UInt64,
+) -> UInt64 {
+  bin_limbs_window_check(
+    words, count, x, x_len, x_word_shift, x_bit_shift, y, y_len, y_word_shift, y_bit_shift,
+  )
+  luna_window_combine(
+    words,
+    count,
+    x,
+    x_len,
+    x_word_shift,
+    x_bit_shift,
+    y,
+    y_len,
+    y_word_shift,
+    y_bit_shift,
+    if subtract {
+      1
+    } else {
+      0
+    },
+    carry_in,
+  )
+}
+
+///|
+fn window_run_asm(
+  words : FixedArray[UInt64],
+  count : Int32,
+  x : FixedArray[UInt64],
+  x_len : Int32,
+  x_word_shift : Int32,
+  x_bit_shift : Int32,
+  y : FixedArray[UInt64],
+  y_len : Int32,
+  y_word_shift : Int32,
+  y_bit_shift : Int32,
+  subtract : Bool,
+  carry_in : UInt64,
+) -> UInt64 {
+  bin_limbs_window_check(
+    words, count, x, x_len, x_word_shift, x_bit_shift, y, y_len, y_word_shift, y_bit_shift,
+  )
+  luna_window_combine_asm(
+    words,
+    count,
+    x,
+    x_len,
+    x_word_shift,
+    x_bit_shift,
+    y,
+    y_len,
+    y_word_shift,
+    y_bit_shift,
+    if subtract {
+      1
+    } else {
+      0
+    },
+    carry_in,
+  )
+}
+
+///|
+test "the window row, C body called directly, equals the previous loop" {
+  window_check_all(window_run_c, 0x9E3779B97F4A7C15UL)
+}
+
+///|
+test "the window row, assembly body called directly, equals the previous loop" {
+  window_check_all(window_run_asm, 0xC2B2AE3D27D4EB4FUL)
+}
+
+///|
+/// The interior of the pass, lengths 0 to 9 by name: no block, one block, and
+/// each remainder 0 to 3 after one and after two blocks; the first block at
+/// limb 0 (word shifts -1) and the last block ending at the last limb (`count`
+/// equal to the interior) or followed by a tail; all-ones limbs with a carry in
+/// (the carry runs through every limb and every block boundary) and the same for
+/// the borrow of a subtraction; every combination of shifted and unshifted
+/// operands, and no second operand.
+test "the window row, assembly body: interior lengths 0 to 9, first block at limb 0, last block at the last limb, carries through every limb" {
+  let random = { words_state: 0x1F83D9ABFB41BD6BUL, }
+  let runs = [window_run_c, window_run_asm]
+  for run in runs {
+    for interior in 0..<=9 {
+      for tail in [0, 1, 5] {
+        let count = interior + tail
+        for y_len_kind in [0, 1] {
+          for x_shift in [0, 13, 63] {
+            for y_shift in [0, 13, 31] {
+              for subtract in [false, true] {
+                for carry_in in [0UL, 1UL] {
+                  for pattern in [0, 1, 2] {
+                    let x = window_test_array(random, interior + 1, pattern)
+                    let y = window_test_array(
+                      random,
+                      interior + 1,
+                      1 - pattern % 2,
+                    )
+                    window_check_one(
+                      run,
+                      count,
+                      x,
+                      -1,
+                      x_shift,
+                      y,
+                      if y_len_kind == 0 {
+                        0
+                      } else {
+                        interior + 1
+                      },
+                      -1,
+                      y_shift,
+                      subtract,
+                      carry_in,
+                    )
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

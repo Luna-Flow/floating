@@ -84,6 +84,7 @@ and the aliasing the callers use.
   the chain B carry, the loop). AArch64 has one carry flag and no
   multiply-accumulate with carry, so the two chains cannot be interleaved.
   Anywhere else the assembly entry points are the C rows.
+- Window row in assembly: the interior of the window pass of the wide sum (`bin_limbs_window_combine`) has an assembly body on Apple arm64: four limbs per iteration, one carry chain through the four sums (`adcs`, or `sbcs` for a subtraction) with a loop counter that does not touch the flags, so the chain runs through every block boundary; ten loops, by add or subtract and by which operands are shifted (a shifted limb costs `lsr`, `lsl`, `orr`). Per limb: 3.0 with no operand shifted, 6.0 with one, 9.0 with both, 2.5 and 5.5 without a second operand (from the disassembly of the built loops, 12, 24, 36, 10 and 22 instructions per block). The carry enters a loop as the C flag (`cmp x, #1`) and leaves it as `adc x, xzr, xzr`. The head, the tail and the remainder of up to three limbs stay the C code. The call costs about 55 instructions more than the C body (seven register arguments, one out-of-line function per loop), so the assembly interior is used from 24 limbs (`bin_limbs_window_asm_min_count`) and the C body from 14.
 - Selection: `LUNA_FLOATING_PORTABLE` (portable loops) and
   `LUNA_FLOATING_LIMBS=c` (C rows) are read once at start; the default is
   assembly where the tier exists, else C. The differential test compares all

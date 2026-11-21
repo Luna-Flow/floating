@@ -468,7 +468,98 @@ LUNA_FORCE_INLINE void luna_win_interior(uint64_t *words, int64_t low, int64_t h
   *carry_io = carry;
 }
 
-MOONBIT_FFI_EXPORT uint64_t luna_window_combine(uint64_t *words, int32_t count, const uint64_t *x, int32_t x_len, int32_t x_ws, int32_t x_bs, const uint64_t *y, int32_t y_len, int32_t y_ws, int32_t y_bs, int32_t subtract, uint64_t carry_in) {
+#if defined(LUNA_ASM_ARM64)
+/* ---- arm64 assembly interior of the window row ----------------------------------------------
+ * Carry convention (written once): the carry is the AArch64 C flag with the add-with-carry meaning,
+ * x + y + C. Before a loop `cmp c, #1` sets C to c (0 or 1); after it `adc c, xzr, xzr` reads C back.
+ * A subtraction runs `sbcs` (x - y - !C), which is x + ~y + C, so C = 1 means "no borrow", the same
+ * convention as the C code's `carry` (which holds 1 - borrow for a subtraction). The loop counter
+ * uses `sub` and `cbnz`, which do not touch the flags, so one carry chain runs through all four
+ * limbs of a block and through every block boundary. A shifted limb is (limb << bs) | (previous >> up)
+ * with up = 64 - bs, written as a shift by -bs (the shift uses the low six bits); the previous limb's
+ * high part stays in one register across blocks. Each loop is its own out-of-line function with seven
+ * arguments, all in registers (destination, the two sources at the first limb of the first block, the
+ * block count, the carry in, the two bit shifts), so the ten loops are not inlined into the head and
+ * the tail of the pass and the interface costs no stack. Add or subtract and the shifted operands are
+ * chosen by the caller, one function per loop. */
+#define LUNA_W_LDX "ldp x0, x1, [%[px]], #16\n ldp x2, x3, [%[px]], #16\n"
+#define LUNA_W_LDY "ldp x8, x9, [%[py]], #16\n ldp x10, x11, [%[py]], #16\n"
+#define LUNA_W_STO "stp x0, x1, [%[po]], #16\n stp x2, x3, [%[po]], #16\n"
+#define LUNA_W_LOOP "sub %[k], %[k], #1\n cbnz %[k], 1b\n"
+/* x16 = 64 - xbs and x17 = 64 - ybs as shift amounts (the shift uses the low six bits, so -bs works) */
+#define LUNA_W_SHX \
+  "lsr x4, x0, x16\n lsl x0, x0, %[xbs]\n orr x0, x0, x7\n" \
+  "lsr x5, x1, x16\n lsl x1, x1, %[xbs]\n orr x1, x1, x4\n" \
+  "lsr x6, x2, x16\n lsl x2, x2, %[xbs]\n orr x2, x2, x5\n" \
+  "lsr x7, x3, x16\n lsl x3, x3, %[xbs]\n orr x3, x3, x6\n"
+#define LUNA_W_SHY \
+  "lsr x12, x8, x17\n lsl x8, x8, %[ybs]\n orr x8, x8, x15\n" \
+  "lsr x13, x9, x17\n lsl x9, x9, %[ybs]\n orr x9, x9, x12\n" \
+  "lsr x14, x10, x17\n lsl x10, x10, %[ybs]\n orr x10, x10, x13\n" \
+  "lsr x15, x11, x17\n lsl x11, x11, %[ybs]\n orr x11, x11, x14\n"
+#define LUNA_W_CHAIN(OP) OP " x0, x0, x8\n " OP " x1, x1, x9\n " OP " x2, x2, x10\n " OP " x3, x3, x11\n"
+#define LUNA_W_CHAIN0(OP) OP " x0, x0, xzr\n " OP " x1, x1, xzr\n " OP " x2, x2, xzr\n " OP " x3, x3, xzr\n"
+#define LUNA_W_CLOBBER "x0","x1","x2","x3","x4","x5","x6","x7","x8","x9","x10","x11","x12","x13","x14","x15","x16","x17","cc","memory"
+/* seven arguments, all in registers: destination, the two sources (at the first limb of the first block),
+ * the block count, the carry limb in (0 or 1), the two bit shifts. The previous limbs of a shifted operand are
+ * read from px[-1] and py[-1]. Returns the carry out. */
+#define LUNA_W_FN(NAME, PRE, BODY) \
+__attribute__((noinline)) static uint64_t NAME(uint64_t *po, const uint64_t *px, const uint64_t *py, int64_t k, uint64_t c, uint64_t xbs, uint64_t ybs) { \
+  __asm__ volatile("neg x16, %[xbs]\n neg x17, %[ybs]\n" PRE "cmp %[c], #1\n 1:\n" BODY "adc %[c], xzr, xzr\n" \
+    : [po] "+r"(po), [px] "+r"(px), [py] "+r"(py), [k] "+r"(k), [c] "+r"(c) : [xbs] "r"(xbs), [ybs] "r"(ybs) : LUNA_W_CLOBBER); \
+  return c; \
+}
+#define PRE_X "ldur x7, [%[px], #-8]\n lsr x7, x7, x16\n"
+#define PRE_Y "ldur x15, [%[py], #-8]\n lsr x15, x15, x17\n"
+#define LUNA_W_ADD "adcs"
+#define LUNA_W_SUB "sbcs"
+LUNA_W_FN(luna_w_add_nn, "", LUNA_W_LDX LUNA_W_LDY LUNA_W_CHAIN(LUNA_W_ADD) LUNA_W_STO LUNA_W_LOOP)
+LUNA_W_FN(luna_w_sub_nn, "", LUNA_W_LDX LUNA_W_LDY LUNA_W_CHAIN(LUNA_W_SUB) LUNA_W_STO LUNA_W_LOOP)
+LUNA_W_FN(luna_w_add_sx, PRE_X, LUNA_W_LDX LUNA_W_SHX LUNA_W_LDY LUNA_W_CHAIN(LUNA_W_ADD) LUNA_W_STO LUNA_W_LOOP)
+LUNA_W_FN(luna_w_sub_sx, PRE_X, LUNA_W_LDX LUNA_W_SHX LUNA_W_LDY LUNA_W_CHAIN(LUNA_W_SUB) LUNA_W_STO LUNA_W_LOOP)
+LUNA_W_FN(luna_w_add_sy, PRE_Y, LUNA_W_LDX LUNA_W_LDY LUNA_W_SHY LUNA_W_CHAIN(LUNA_W_ADD) LUNA_W_STO LUNA_W_LOOP)
+LUNA_W_FN(luna_w_sub_sy, PRE_Y, LUNA_W_LDX LUNA_W_LDY LUNA_W_SHY LUNA_W_CHAIN(LUNA_W_SUB) LUNA_W_STO LUNA_W_LOOP)
+LUNA_W_FN(luna_w_add_sxy, PRE_X PRE_Y, LUNA_W_LDX LUNA_W_LDY LUNA_W_SHX LUNA_W_SHY LUNA_W_CHAIN(LUNA_W_ADD) LUNA_W_STO LUNA_W_LOOP)
+LUNA_W_FN(luna_w_sub_sxy, PRE_X PRE_Y, LUNA_W_LDX LUNA_W_LDY LUNA_W_SHX LUNA_W_SHY LUNA_W_CHAIN(LUNA_W_SUB) LUNA_W_STO LUNA_W_LOOP)
+LUNA_W_FN(luna_w_add_noy, "", LUNA_W_LDX LUNA_W_CHAIN0(LUNA_W_ADD) LUNA_W_STO LUNA_W_LOOP)
+LUNA_W_FN(luna_w_sub_noy, "", LUNA_W_LDX LUNA_W_CHAIN0(LUNA_W_SUB) LUNA_W_STO LUNA_W_LOOP)
+LUNA_W_FN(luna_w_add_noy_sx, PRE_X, LUNA_W_LDX LUNA_W_SHX LUNA_W_CHAIN0(LUNA_W_ADD) LUNA_W_STO LUNA_W_LOOP)
+LUNA_W_FN(luna_w_sub_noy_sx, PRE_X, LUNA_W_LDX LUNA_W_SHX LUNA_W_CHAIN0(LUNA_W_SUB) LUNA_W_STO LUNA_W_LOOP)
+
+/* The interior of the pass in assembly: whole blocks of four limbs, then the remaining zero to three
+ * limbs through the C interior with constant flags, as the C body does (a call with run-time flags
+ * would keep every branch). */
+static void luna_win_interior_asm(uint64_t *words, int64_t low, int64_t high, const uint64_t *x, int64_t xws, int xsh, int xbs, const uint64_t *y, int64_t yws, int ysh, int ybs, int use_y, uint64_t mask, uint64_t *carry_io) {
+  int64_t blocks = (high - low) >> 2;
+  if (blocks > 0) {
+    const uint64_t *px = x + (low - xws);
+    const uint64_t *py = use_y ? y + (low - yws) : x;
+    uint64_t c = *carry_io, sub = mask != 0;
+    uint64_t *po = words + low;
+    if (!use_y) {
+      if (!xsh) c = sub ? luna_w_sub_noy(po, px, py, blocks, c, xbs, ybs) : luna_w_add_noy(po, px, py, blocks, c, xbs, ybs);
+      else c = sub ? luna_w_sub_noy_sx(po, px, py, blocks, c, xbs, ybs) : luna_w_add_noy_sx(po, px, py, blocks, c, xbs, ybs);
+    } else if (!xsh && !ysh) c = sub ? luna_w_sub_nn(po, px, py, blocks, c, xbs, ybs) : luna_w_add_nn(po, px, py, blocks, c, xbs, ybs);
+    else if (xsh && !ysh) c = sub ? luna_w_sub_sx(po, px, py, blocks, c, xbs, ybs) : luna_w_add_sx(po, px, py, blocks, c, xbs, ybs);
+    else if (!xsh && ysh) c = sub ? luna_w_sub_sy(po, px, py, blocks, c, xbs, ybs) : luna_w_add_sy(po, px, py, blocks, c, xbs, ybs);
+    else c = sub ? luna_w_sub_sxy(po, px, py, blocks, c, xbs, ybs) : luna_w_add_sxy(po, px, py, blocks, c, xbs, ybs);
+    *carry_io = c;
+    low += 4 * blocks;
+  }
+  if (low < high) {
+    if (!use_y) {
+      if (!xsh) luna_win_interior(words, low, high, x, xws, 0, 0, y, yws, 0, 0, 0, mask, carry_io);
+      else luna_win_interior(words, low, high, x, xws, 1, xbs, y, yws, 0, 0, 0, mask, carry_io);
+    } else if (!xsh && !ysh) luna_win_interior(words, low, high, x, xws, 0, 0, y, yws, 0, 0, 1, mask, carry_io);
+    else if (!xsh) luna_win_interior(words, low, high, x, xws, 0, 0, y, yws, 1, ybs, 1, mask, carry_io);
+    else if (!ysh) luna_win_interior(words, low, high, x, xws, 1, xbs, y, yws, 0, 0, 1, mask, carry_io);
+    else luna_win_interior(words, low, high, x, xws, 1, xbs, y, yws, 1, ybs, 1, mask, carry_io);
+  }
+}
+#endif
+
+LUNA_FORCE_INLINE uint64_t luna_window_combine_impl(int use_asm, uint64_t *words, int32_t count, const uint64_t *x, int32_t x_len, int32_t x_ws, int32_t x_bs, const uint64_t *y, int32_t y_len, int32_t y_ws, int32_t y_bs, int32_t subtract, uint64_t carry_in) {
+  (void)use_asm;
   uint64_t mask = subtract ? ~(uint64_t)0 : 0;
   uint64_t carry = subtract ? 1 - carry_in : carry_in;
   int use_y = y_len > 0;
@@ -490,6 +581,11 @@ MOONBIT_FFI_EXPORT uint64_t luna_window_combine(uint64_t *words, int32_t count, 
     words[i] = luna_add3(a, b, &carry);
   }
   if (low < high) {
+#if defined(LUNA_ASM_ARM64)
+    if (use_asm) {
+      luna_win_interior_asm(words, low, high, x, x_ws, x_bs != 0, x_bs, y, y_ws, use_y && y_bs != 0, y_bs, use_y, mask, &carry);
+    } else
+#endif
     if (!use_y) {
       if (x_bs == 0) {
         luna_win_interior(words, low, high, x, x_ws, 0, 0, y, y_ws, 0, 0, 0, mask, &carry);
@@ -512,4 +608,13 @@ MOONBIT_FFI_EXPORT uint64_t luna_window_combine(uint64_t *words, int32_t count, 
     words[i] = luna_add3(a, b, &carry);
   }
   return subtract ? 1 - carry : carry;
+}
+
+MOONBIT_FFI_EXPORT uint64_t luna_window_combine(uint64_t *words, int32_t count, const uint64_t *x, int32_t x_len, int32_t x_ws, int32_t x_bs, const uint64_t *y, int32_t y_len, int32_t y_ws, int32_t y_bs, int32_t subtract, uint64_t carry_in) {
+  return luna_window_combine_impl(0, words, count, x, x_len, x_ws, x_bs, y, y_len, y_ws, y_bs, subtract, carry_in);
+}
+
+/* the same pass with the assembly interior where the tier exists, else the C body */
+MOONBIT_FFI_EXPORT uint64_t luna_window_combine_asm(uint64_t *words, int32_t count, const uint64_t *x, int32_t x_len, int32_t x_ws, int32_t x_bs, const uint64_t *y, int32_t y_len, int32_t y_ws, int32_t y_bs, int32_t subtract, uint64_t carry_in) {
+  return luna_window_combine_impl(1, words, count, x, x_len, x_ws, x_bs, y, y_len, y_ws, y_bs, subtract, carry_in);
 }
