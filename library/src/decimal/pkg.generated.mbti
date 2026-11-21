@@ -86,7 +86,6 @@ pub fn Decimal::cos_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::cosh_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::cospi_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::div(Self, Self) -> Self
-pub fn Decimal::div_checked(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::div_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Decimal::div_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::epsilon_contextual(@arithmetic.ArithmeticContext) -> Self

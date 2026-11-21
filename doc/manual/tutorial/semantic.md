@@ -184,7 +184,11 @@ test "errors compare by kind" {
     @semantic.SemanticScalar::from_bin_float,
   )
   let decimal = @semantic.semantic_scalar_result(
-    @decimal.Decimal::from_int(1).div_checked(@decimal.Decimal::zero()),
+    @lf_arith.DivChecked::div_checked(
+      @decimal.Decimal::from_int(1),
+      @decimal.Decimal::zero(),
+      @lf_arith.ArithmeticContext::new(34),
+    ),
     @semantic.SemanticScalar::from_decimal,
   )
   inspect(binary == decimal, content="true")

@@ -843,18 +843,17 @@ precision if the coefficient is longer. It is the only way to strip trailing zer
 reduces it and stores `p` as the precision field; special values only get the
 new precision field. All of them are flag-free.
 
-### `Decimal::div_checked`, `sqrt`
+### `Decimal::sqrt`
 
-`div_checked` divides, reporting domain errors as `Result`; `sqrt` takes the square root of the value under its own format.
+`sqrt` takes the square root of the value under its own format. The checked
+division is the trait method `DivChecked::div_checked(a, b, ctx)` (see
+[`parse_checked` and the checked traits](#decimalparse_checked-sqrt_checked-pow_nat_checked-pow_int_checked)); there is no inherent `Decimal::div_checked`.
 
 ```mbti
-pub fn Decimal::div_checked(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::sqrt(Self) -> Self
 ```
 
-`div_checked(a, b)` is `div_ctx` under `DecimalContext::new(precision=max(p_a,
-p_b))`; it returns `Err(division_by_zero)` for $x/0$ and `Err(domain_error)`
-for an invalid division. `sqrt` is `sqrt_ctx` in the working context of the plain
+`sqrt` is `sqrt_ctx` in the working context of the plain
 operators (precision $p$) and returns NaN for a negative non-zero
 operand (IEEE 754-2019 7.2; `sqrt_checked` reports it as `Err`). Both are
 correctly rounded half-even.
@@ -2185,8 +2184,8 @@ pub impl @arithmetic.PowIntChecked for Decimal
 exponent range applies. It returns the converted value; flags
 such as overflow remain available from `from_string_ctx`. Invalid syntax
 returns `Err(parse_error)`. `DivChecked::div_checked(x, y, ctx)` is `div_ctx`
-under the converted context with `Err(division_by_zero)` and
-`Err(domain_error)` as in [`div_checked`](#decimaldiv_checked-sqrt).
+under the converted context; it returns `Err(division_by_zero)` for the
+division-by-zero flag and `Err(domain_error)` for the invalid-operation flag.
 `sqrt_checked` is `sqrt_ctx` under the converted context and fails for
 negative operands. `pow_nat_checked` and `pow_int_checked` call `pow_ctx`
 with the integer exponent converted exactly (with at least ten digits, which
@@ -2365,7 +2364,6 @@ pub fn Decimal::cos_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::cosh_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::cospi_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::div(Self, Self) -> Self
-pub fn Decimal::div_checked(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::div_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Decimal::div_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::epsilon_contextual(@arithmetic.ArithmeticContext) -> Self

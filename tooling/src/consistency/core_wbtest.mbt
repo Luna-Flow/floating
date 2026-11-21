@@ -1375,8 +1375,10 @@ test "decimal arithmetic and display stay aligned" {
 
 ///|
 test "decimal checked division reports division by zero" {
-  let result = @decimal.Decimal::from_int(1, precision=20).div_checked(
+  let result = div_checked_generic(
+    @decimal.Decimal::from_int(1, precision=20),
     @decimal.Decimal::zero(precision=20),
+    ArithmeticContext::new(20),
   )
   match result {
     Ok(_) => fail("expected division by zero")
@@ -1388,11 +1390,16 @@ test "decimal checked division reports division by zero" {
 test "decimal checked division maps zero-zero and signaling nan to domain errors" {
   let zero = @decimal.Decimal::zero(precision=20)
   let snan = @decimal.Decimal::signaling_nan(payload=7N, precision=20)
-  match zero.div_checked(zero) {
+  match div_checked_generic(zero, zero, ArithmeticContext::new(20)) {
     Ok(_) => fail("expected zero divided by zero to be a domain error")
     Err(err) => assert_true(err.is_domain_error())
   }
-  match @decimal.Decimal::one(precision=20).div_checked(snan) {
+  match
+    div_checked_generic(
+      @decimal.Decimal::one(precision=20),
+      snan,
+      ArithmeticContext::new(20),
+    ) {
     Ok(_) => fail("expected signaling NaN division to be a domain error")
     Err(err) => assert_true(err.is_domain_error())
   }
