@@ -346,7 +346,12 @@ test "inherent checked operations follow the IEEE special-value table" {
     for a in names {
       let x = checked_operand(a, p)
       for b in names {
-        let actual = checked_render(x.div_checked(checked_operand(b, p)))
+        let actual = checked_render(
+          binary_checked_result(
+            x.div_ctx(checked_operand(b, p), BinaryContext::new(precision=p)),
+            "invalid division",
+          ),
+        )
         let expected = checked_expected_div(a, b)
         if actual != expected {
           failures.push("div(" + a + ", " + b + "): " + actual)

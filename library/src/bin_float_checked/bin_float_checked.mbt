@@ -337,7 +337,7 @@ pub fn BinFloatResult::sqrt_ctx(
 
 ///|
 /// Maps the flags of a contextual result to the checked tier, as
-/// `@bin_float.BinFloat::div_checked` does (#262): the invalid operation
+/// the `DivChecked` trait form of `BinFloat` does (#262): the invalid operation
 /// exception (IEEE 754-2019 section 7.2) becomes `DomainError`, divideByZero
 /// (section 7.3) becomes `DivisionByZero`, `not_computed` (a result the library
 /// could not compute, S4) becomes `CertificationFailure`, and every other result,

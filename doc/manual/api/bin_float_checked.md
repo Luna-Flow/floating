@@ -208,7 +208,7 @@ pub fn BinFloatResult::div(Self, Self) -> Self
 ```
 
 After the operand errors (left first), the result is
-`BinFloat::div_checked(lhs, rhs)`: a `DomainError` for $0/0$, $\infty/\infty$
+`DivChecked::div_checked` of `BinFloat` under the larger precision of the operands: a `DomainError` for $0/0$, $\infty/\infty$
 or a signaling NaN operand, a `DivisionByZero` error for a finite non-zero
 dividend over a zero divisor ($\pm 0$), and the IEEE 754-2019 result
 otherwise: a quiet NaN for a quiet NaN operand (NaN$/0$ included),

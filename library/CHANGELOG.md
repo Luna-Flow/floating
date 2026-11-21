@@ -611,6 +611,12 @@ notes live in this file.
   | `x.to_shortest_string_ctx(ctx)` is a `String` | `x.to_shortest_string_ctx(ctx).0` is the `String`; `.1` is the `BinaryFlags` |
   | `x.to_shortest_string()` | unchanged |
 
+- `bin_float`: the inherent `BinFloat::div_checked(Self, Self)` is removed ([#438](https://github.com/Luna-Flow/floating/issues/438), row S2). A method with the suffix `_checked` is the form of a checked trait of Luna-Flow/arithmetic and takes the `ArithmeticContext`; the inherent two-argument form was a second spelling of `div_ctx` under the working context followed by the flag filter, and no library code called it any more (`BinFloatResult::div` has used `div_ctx` since [#679](https://github.com/Luna-Flow/floating/pull/679)). `DivChecked::div_checked(x, y, ctx)` of `BinFloat` and `Interval` is unchanged.
+
+  | before | after |
+  | --- | --- |
+  | `x.div_checked(y)` | `@lf_arith.DivChecked::div_checked(x, y, ctx)` with an `ArithmeticContext` of the precision wanted; or `x.div_ctx(y, BinaryContext::new(precision=p))` and the flags |
+
 ### Added
 
 - `bin_float`, `decimal`: every comparison predicate of IEEE 754-2019 5.11 has a function ([#438](https://github.com/Luna-Flow/floating/issues/438), item N6). The clause lists 22 predicates, 10 in Table 5.1 and 12 in Table 5.2; `bin_float` had 7 and `decimal` none. Both now have the 15 others, with the names of the first seven (`compare_quiet_*`, `compare_signaling_*`): `not_equal`, `greater`, `greater_equal`, `not_greater`, `less_unordered`, `not_less` and `greater_unordered` for both kinds, and `compare_quiet_ordered`. Each returns `(Bool, flags)`, is defined from `compare_quiet` or `compare_signaling` and raises invalid where the table says (a signaling NaN for the quiet ones, any NaN for the signaling ones). Nothing existing changes in `bin_float`.

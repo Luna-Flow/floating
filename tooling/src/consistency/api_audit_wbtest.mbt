@@ -637,8 +637,10 @@ test "semantic scalar interpretation unifies binary and decimal rationals" {
 
 ///|
 test "semantic result interpretation totalizes checked failures" {
-  let checked = @bin_float.BinFloat::from_int(1, precision=16).div_checked(
+  let checked = @lf_arith.DivChecked::div_checked(
+    @bin_float.BinFloat::from_int(1, precision=16),
     @bin_float.BinFloat::zero(precision=16),
+    @lf_arith.ArithmeticContext::new(16),
   )
   let semantic = @semantic.semantic_scalar_result(checked, value => {
     @semantic.SemanticScalar::from_bin_float(value)

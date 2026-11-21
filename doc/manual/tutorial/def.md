@@ -182,8 +182,10 @@ fn describe_error(e : @def.ArithmeticError) -> String {
 
 ///|
 test "handle a checked result through def" {
-  let result = @bin_float.BinFloat::from_int(1).div_checked(
+  let result = @lf_arith.DivChecked::div_checked(
+    @bin_float.BinFloat::from_int(1),
     @bin_float.BinFloat::zero(),
+    @lf_arith.ArithmeticContext::new(53),
   )
   match result {
     Ok(_) => fail("expected an error")

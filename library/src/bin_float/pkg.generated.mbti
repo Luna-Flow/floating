@@ -117,7 +117,6 @@ pub fn BinFloat::cosh_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::cospi(Self) -> Self
 pub fn BinFloat::cospi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::div(Self, Self) -> Self
-pub fn BinFloat::div_checked(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BinFloat::div_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn BinFloat::div_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::equal(Self, Self) -> Bool
