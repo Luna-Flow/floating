@@ -77,3 +77,16 @@ class TableTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SameRadixOrderTest(unittest.TestCase):
+    def test_hex_pairs_are_ordered_at_any_exponent(self) -> None:
+        self.assertEqual(oracle.evaluate("[0x1p-1073741829, 0x1p-1073741830]", 8, False), ("err", "order"))
+        self.assertEqual(oracle.evaluate("[0x1p-1073741885, 0x1p-1073741886]", 64, False), ("err", "order"))
+        self.assertEqual(oracle.evaluate("[0x1p-1073741886, 0x1p-1073741885]", 64, False)[0], "ok")
+
+    def test_long_exponent_fields_of_uncertain_forms(self) -> None:
+        result = oracle.evaluate("1?1e1234567890123456789012345678901234567890", 53, False)
+        self.assertEqual(result[0], "ok")
+        self.assertEqual(oracle.flt_to_fraction(result[1]), 0)
+        self.assertEqual(result[2], float("inf"))

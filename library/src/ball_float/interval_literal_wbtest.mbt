@@ -139,11 +139,9 @@ test "interval literals: the table of the independent oracle" {
         fields.push(field.to_owned())
       }
       let literal = fields[0].replace_all(old="\\t", new="\t")
-      let precision : Int32 = match fields[1] {
-        "24" => 24
-        "53" => 53
-        "113" => 113
-        other => abort("bad precision " + other)
+      let mut precision : Int32 = 0
+      for c in fields[1] {
+        precision = precision * 10 + (c.to_int() - '0'.to_int())
       }
       let entry = (
         literal,
@@ -354,11 +352,21 @@ test "interval literals: the order of two bounds of different radices that is un
   let upper = "0x1266242e06c1b921f4e432aa84p217609"
   let both = BallFloat::from_string("[" + lower + "," + upper + "]").unwrap()
   assert_true(!both.is_empty())
-  let l = BallFloat::from_string("[" + lower + "]").unwrap()
-  let u = BallFloat::from_string("[" + upper + "]").unwrap()
-  // contains both bounds, in either order
-  assert_true(both.lo_.compare(l.lo_) <= 0 && both.lo_.compare(u.lo_) <= 0)
-  assert_true(both.hi_.compare(l.hi_) >= 0 && both.hi_.compare(u.hi_) >= 0)
+  // Expected bounds written out by `tools/interval_literal_oracle.py` (level A): both numbers
+  // are equal to 53 bits, so the result is the hull of the two outward roundings, which are
+  // the same interval; the single bounds are rows of the oracle table too.
+  let lo = @bin_float.BinFloat::from_hex("0x1266242e06c1b9p217657", 53).unwrap()
+  let hi = @bin_float.BinFloat::from_hex("0x1266242e06c1bap217657", 53).unwrap()
+  assert_eq(both.lo_.compare(lo), 0)
+  assert_eq(both.hi_.compare(hi), 0)
+  assert_eq(
+    BallFloat::from_string("[" + lower + "]").unwrap().lo_.compare(lo),
+    0,
+  )
+  assert_eq(
+    BallFloat::from_string("[" + upper + "]").unwrap().hi_.compare(hi),
+    0,
+  )
   // exponents within the limit are decided exactly: the same pair at 10^1000 is Err
   assert_true(BallFloat::from_string("[1e1000, 0x1p+3322]") is Ok(_))
   assert_true(BallFloat::from_string("[1e1000, 0x1p+3321]") is Err(_))

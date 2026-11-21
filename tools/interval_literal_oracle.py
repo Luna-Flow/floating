@@ -253,8 +253,39 @@ def compare_descs(a, b):
     ea = exact_if_small(a)
     eb = exact_if_small(b)
     if ea is None or eb is None:
+        # two numbers of one radix are ordered exactly whatever their exponents: by the
+        # sign, then the position of the leading digit, then the digits aligned
+        if a[0] == b[0] and a[0] in ("dec", "hex"):
+            return same_radix_order(a, b)
         return None
     return (ea > eb) - (ea < eb)
+
+
+def same_radix_order(a, b) -> int:
+    sa, ma, xa = a[1], a[2], a[3]
+    sb, mb, xb = b[1], b[2], b[3]
+    if ma == 0:
+        sa = 0
+    if mb == 0:
+        sb = 0
+    if sa != sb:
+        return (sa > sb) - (sa < sb)
+    if sa == 0:
+        return 0
+    base = 10 if a[0] == "dec" else 2
+    size = (lambda m: len(str(m))) if base == 10 else (lambda m: m.bit_length())
+    top_a, top_b = xa + size(ma), xb + size(mb)
+    if top_a != top_b:
+        magnitude = (top_a > top_b) - (top_a < top_b)
+    else:
+        # the same leading position: the exponents differ by less than the digit counts
+        shift = xa - xb
+        if shift >= 0:
+            left, right = ma * base**shift, mb
+        else:
+            left, right = ma, mb * base ** (-shift)
+        magnitude = (left > right) - (left < right)
+    return sa * magnitude
 
 
 def exact_if_small(desc):
@@ -309,8 +340,18 @@ def split_literal(text: str, p: int):
     raise Err("trailing")
 
 
+def round_uncertain(bound, p: int, up: bool):
+    """A bound of an uncertain form: an exact Fraction, or (when the exponent field is too long
+    for a Fraction) a decimal description (+-1, integer, exponent)."""
+    if isinstance(bound, tuple):
+        return round_desc(("dec",) + bound, p, up)
+    return round_fraction(bound, p, up)
+
+
 def uncertain_bounds(match: re.Match):
     sign, significand, radius, direction, exponent = match.groups()
+    if exponent is not None and abs(int(exponent)) > 1_000_000:
+        return uncertain_bounds_symbolic(sign, significand, radius, direction, int(exponent))
     digits_after = 0 if "." not in significand else len(significand) - significand.index(".") - 1
     m = Fraction(int(significand.replace(".", "")), 10**digits_after)
     m = -m if sign == "-" else m
@@ -327,6 +368,33 @@ def uncertain_bounds(match: re.Match):
     lower = m if direction == "u" else m - r * ulp
     upper = m if direction == "d" else m + r * ulp
     return (lower * scale, upper * scale)
+
+
+def uncertain_bounds_symbolic(sign, significand, radius, direction, exponent):
+    """The bounds of an uncertain form with a long exponent field as decimal descriptions
+    (sign, integer mantissa, exponent): the integers are scaled so that the radius is exact."""
+    digits_after = 0 if "." not in significand else len(significand) - significand.index(".") - 1
+    m = int(significand.replace(".", ""))
+    m = -m if sign == "-" else m
+    # work in units of 10^-(digits_after + 1): the default radius is half an ulp
+    unit = 10 * m
+    exponent_total = exponent - digits_after - 1
+
+    def desc(value):
+        if value == 0:
+            return (1, 0, 0)
+        return (1 if value > 0 else -1, abs(value), exponent_total)
+
+    if radius == "?":
+        if direction == "u":
+            return (desc(unit), INF)
+        if direction == "d":
+            return (-INF, desc(unit))
+        return (-INF, INF)
+    r = 5 if radius == "" else 10 * int(radius)
+    lower = unit if direction == "u" else unit - r
+    upper = unit if direction == "d" else unit + r
+    return (desc(lower), desc(upper))
 
 
 def evaluate(text: str, p: int, decorated: bool):
@@ -393,8 +461,8 @@ def evaluate(text: str, p: int, decorated: bool):
                     raise Err("uncertain-base" if not re.search(r"\d", head) else "uncertain-question")
                 raise Err("structure")
             lo_exact, hi_exact = uncertain_bounds(match)
-            lo = lo_exact if isinstance(lo_exact, float) else round_fraction(lo_exact, p, False)
-            hi = hi_exact if isinstance(hi_exact, float) else round_fraction(hi_exact, p, True)
+            lo = lo_exact if isinstance(lo_exact, float) else round_uncertain(lo_exact, p, False)
+            hi = hi_exact if isinstance(hi_exact, float) else round_uncertain(hi_exact, p, True)
             empty = False
             bounded = not (isinstance(lo_exact, float) or isinstance(hi_exact, float))
         if not decorated and decoration is not None:
@@ -497,6 +565,60 @@ FIXED = [
 ]
 
 
+# Exponent fields beyond every integer width (audit item 1 and 2 of the oracle rule), written as
+# data: long fields of both signs on decimal and hexadecimal bounds in the point, pair and
+# uncertain forms; the largest finite number, the first value above it, EMAX + 1; the smallest
+# subnormal, the tie below it and the first underflow; NaI and `_ill` literals.
+LONG_EXPONENTS = [
+    "9223372036854775807", "9223372036854775808", "10000000000000000000",
+    "18446744073709551615", "18446744073709551616", "18446744073709551617",
+    "1234567890123456789012345678901234567890",
+]
+LONG_PRECISIONS = (8, 24, 53, 64, 113)
+EMAX = (1 << 30) - 1
+
+
+def long_exponent_entries() -> list[tuple[str, int, bool]]:
+    entries = []
+    for p in LONG_PRECISIONS:
+        for exponent in LONG_EXPONENTS:
+            for sign in ("", "-"):
+                dec = f"1.5e{sign}{exponent}"
+                hexa = f"0x1.8p{sign}{exponent}"
+                for number in (dec, hexa):
+                    entries.append((f"[{number}]", p, False))
+                    entries.append((f"[-{number}, {number}]", p, False))
+                    entries.append((f"[{number}, {number}]", p, True))
+                entries.append((f"1?1e{sign}{exponent}", p, False))
+                entries.append((f"-3.5?2ue{sign}{exponent}", p, False))
+    return entries
+
+
+def range_edge_entries() -> list[tuple[str, int, bool]]:
+    entries = []
+    for p in LONG_PRECISIONS:
+        largest = f"0x{(1 << p) - 1:x}p{EMAX - p + 1}"
+        above = f"0x{(1 << (p + 1)) - 1:x}p{EMAX - p}"
+        smallest_exponent = -1073741821 - p
+        for text in (
+            f"[{largest}]", f"[-{largest}]", f"[{above}]", f"[-{above}]", f"[{largest}, {above}]",
+            f"[0x1p+{EMAX + 1}]", f"[-0x1p+{EMAX + 1}]", f"[0x1p+{EMAX}]",
+            f"[0x1p{smallest_exponent}]", f"[0x1p{smallest_exponent - 1}]", f"[0x3p{smallest_exponent - 2}]",
+            f"[0x1p{smallest_exponent - 2}]", f"[-0x1p{smallest_exponent - 1}]", f"[0x1p{smallest_exponent}, 0x1p{smallest_exponent - 1}]",
+        ):
+            entries.append((text, p, False))
+        entries.append((f"[{largest}]", p, True))
+        entries.append((f"[0x1p{smallest_exponent - 1}]", p, True))
+    for text in ("[1,2]_ill", "[entire]_ill", "[,]_ill", "[NaI]", "[nai]_ill", "[Nai]", "[]_ill", "[1]_ill", "3.56?1_ill"):
+        for decorated in (False, True):
+            entries.append((text, 53, decorated))
+    # a pair of two radices at the limit of the exact comparison (audit item 3)
+    entries.append(("[1e65537, 0x1266242e06c1b921f4e432aa84p217609]", 53, False))
+    entries.append(("[1e65537]", 53, False))
+    entries.append(("[0x1266242e06c1b921f4e432aa84p217609]", 53, False))
+    return entries
+
+
 def generated(rng: random.Random) -> list[tuple[str, int, bool]]:
     entries: list[tuple[str, int, bool]] = []
     precisions = (24, 53, 113)
@@ -588,6 +710,8 @@ def build() -> str:
         for decorated in (False, True):
             entries.append(entry_line(text, 53, decorated))
     for text, p, decorated in generated(rng):
+        entries.append(entry_line(text, p, decorated))
+    for text, p, decorated in long_exponent_entries() + range_edge_entries():
         entries.append(entry_line(text, p, decorated))
     chunks = [entries[i : i + CHUNK] for i in range(0, len(entries), CHUNK)]
     for index, chunk in enumerate(chunks):

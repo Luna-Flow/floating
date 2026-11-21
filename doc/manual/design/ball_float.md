@@ -923,7 +923,7 @@ longer than `interval_literal_max_length` is not parsed and gives Entire (12.11.
 patterns (a special form, the two bound strings of an inf-sup form cut at the comma, the groups of an uncertain pattern) to an exact `Fraction`, derives the uncertain form from the definition of the
 ulp, and rounds each bound with integer arithmetic against the stored range (gradual underflow to the quantum $2^{e_{\min}-p+1}$, the largest finite float
 $(2^p - 1) 2^{e_{\max}-p+1}$); it also checks every one of 20,000 rational literals against the rounded ends by cross-multiplication (the rounded lower end is not above the value
-and the float below it is below, and likewise for the upper end). The generated table (9,242 literals: the vectors of Tables 9.4 and 12.1, the negative
+and the float below it is below, and likewise for the upper end). The generated table (9,919 literals: the vectors of Tables 9.4 and 12.1, the negative
 examples, and random decimal, hexadecimal, rational, uncertain, decorated and special literals at precisions 24, 53 and 113, bare and decorated) is
 compared with the parser in `interval_literal_wbtest.mbt`.
 

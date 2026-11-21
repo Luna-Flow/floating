@@ -709,6 +709,10 @@ The same interval at 24 and at 113 bits is `==` and not `identical`; use
 has the precision that was asked for. Two empty intervals are identical when
 their precisions are equal.
 
+The same holds for any other part of the format of an interval that a later release
+adds (the optional exponent range of the 754-conforming types, issue 232): the format is not
+part of `==` or of `compare`; only `identical` may look at it.
+
 ### `BallFloat::less`, `BallFloat::strict_less`, `BallFloat::precedes`, `BallFloat::strict_precedes`
 
 These are the order relations of IEEE 1788.
