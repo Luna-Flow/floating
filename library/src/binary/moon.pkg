@@ -3,7 +3,7 @@ import {
   "moonbitlang/core/debug",
   "Luna-Flow/floating/def",
   "Luna-Flow/floating/internal",
-  "Luna-Flow/floating/internal/bin_kernel",
+  "Luna-Flow/floating/internal/binary_kernel",
 }
 
 import {

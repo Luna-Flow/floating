@@ -1,4 +1,4 @@
-# internal/bin_kernel tutorial
+# internal/binary_kernel tutorial
 
 The goal of this page is to show maintainers how to use the coefficient kernel
 when they add or change a binary operation, and how to keep a change to it safe
@@ -22,7 +22,7 @@ that exist only where a coefficient has 64-bit limbs):
 
 ```moonbit nocheck
 ///|
-using @bin_kernel { type Coeff, bin_coeff_short_div_rem }
+using @binary_kernel { type Coeff, bin_coeff_short_div_rem }
 ```
 
 A `Binary` stores its coefficient as a private `Coeff` field. The public type
@@ -77,9 +77,9 @@ thresholds of `binary`, in `elementary_thresholds_<target>.mbt`.
 
 ```bash
 just bin-kernel-ci
-sh tools/run_moon_clean_exec.sh test library/src/internal/bin_kernel --target native
+sh tools/run_moon_clean_exec.sh test library/src/internal/binary_kernel --target native
 ```
 
-The `internal/bin_kernel` tests carry the algorithm cross-checks, the
+The `internal/binary_kernel` tests carry the algorithm cross-checks, the
 dispatch tests and the regression digests that used to live in `binary`.
 `binary` keeps the tests that need a `Binary`.

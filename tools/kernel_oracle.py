@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Oracle for the coefficient kernel (`library/src/internal/bin_kernel`).
+"""Oracle for the coefficient kernel (`library/src/internal/binary_kernel`).
 
 Level A oracle in the sense of RULES.md ("the oracle of a test must be
 independent of the code under test"): every expected value here is computed
@@ -101,7 +101,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-KERNEL_TESTS = ROOT / "library/src/internal/bin_kernel"
+KERNEL_TESTS = ROOT / "library/src/internal/binary_kernel"
 REGRESSION_TEST = KERNEL_TESTS / "coeff_regression_wbtest.mbt"
 
 sys.set_int_max_str_digits(0)  # `int(text, radix)` of long texts, the oracle of the parse rows

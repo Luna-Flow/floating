@@ -118,7 +118,7 @@ pub fn bin_limbs_product(
   bn : Int32,
 ) -> Unit {
   if an < 1 || bn < 1 {
-    abort("bin_kernel limb product needs both lengths at least 1")
+    abort("binary_kernel limb product needs both lengths at least 1")
   }
   bin_limbs_product_portable(r, ro, a, ao, an, b, bo, bn)
 }

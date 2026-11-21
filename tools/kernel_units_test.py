@@ -32,7 +32,7 @@ def make_repo(root: Path, imports: str = '"moonbitlang/core/debug"') -> None:
 
 
 def fake_run(command: Any, cwd: Any = None) -> str:
-    return "moonc build-package ./library/src/internal/bin_kernel/a.mbt -g -O0\n"
+    return "moonc build-package ./library/src/internal/binary_kernel/a.mbt -g -O0\n"
 
 
 class KeyTests(unittest.TestCase):

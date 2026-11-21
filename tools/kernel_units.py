@@ -2,7 +2,7 @@
 
 The seven kernel stages of `just gate binary` (the product routes and the oracles under three
 states of the limb tier, and the oracle tables) take about 220 s and always ran in full. The
-package under test, `library/src/internal/bin_kernel`, is a leaf of the module: it imports only
+package under test, `library/src/internal/binary_kernel`, is a leaf of the module: it imports only
 `moonbitlang/core/...`, so nothing of the repository outside its own files is compiled into its
 test executable. A unit is therefore keyed by the content of those files, not by a fingerprint
 of compiled code:
@@ -50,7 +50,7 @@ import check_imports
 import code_fingerprint as cf
 import incremental as inc
 
-KERNEL_PACKAGE = "library/src/internal/bin_kernel"
+KERNEL_PACKAGE = "library/src/internal/binary_kernel"
 KERNEL_STAGE_PREFIX = "BINARY: kernel"
 CORE_PREFIX = "moonbitlang/core/"
 MODULE_FILES = ("library/moon.mod", "moon.work")

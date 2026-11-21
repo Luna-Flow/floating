@@ -2001,7 +2001,7 @@ integer-bound argument in this section.
 **Problem.** Precision costs integer multiplication and division of
 $p$-bit numbers, and $p$ ranges from 1 to $2^{28}$.
 
-**Choice.** The kernel is the internal package [`internal/bin_kernel`](internal/bin_kernel.md); `BinCoeff` is a newtype over its `Coeff`. `Coeff` stores up to 128 bits inline and larger values as
+**Choice.** The kernel is the internal package [`internal/binary_kernel`](internal/binary_kernel.md); `BinCoeff` is a newtype over its `Coeff`. `Coeff` stores up to 128 bits inline and larger values as
 little-endian 64-bit limbs (a host `bigint` on JavaScript), and dispatches on
 the operand length $n$ in 64-bit limbs. Every threshold below is in 64-bit
 limbs:

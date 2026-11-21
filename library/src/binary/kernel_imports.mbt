@@ -1,5 +1,5 @@
 ///|
-using @bin_kernel {
+using @binary_kernel {
   type Coeff,
   bin_coeff_sqrt_rem_kernel,
   bin_coeff_short_div_rem,

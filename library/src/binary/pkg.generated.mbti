@@ -4,7 +4,7 @@ package "Luna-Flow/floating/binary"
 import {
   "Luna-Flow/arithmetic",
   "Luna-Flow/floating/def",
-  "Luna-Flow/floating/internal/bin_kernel",
+  "Luna-Flow/floating/internal/binary_kernel",
   "moonbitlang/core/debug",
 }
 
@@ -23,7 +23,7 @@ pub fn BinCoeff::bit_length(Self) -> Int32
 pub fn BinCoeff::compare(Self, Self) -> Int32
 pub fn BinCoeff::equal(Self, Self) -> Bool
 pub fn BinCoeff::from_bytes_be(BytesView) -> Self
-pub fn BinCoeff::from_kernel(@bin_kernel.Coeff) -> Self
+pub fn BinCoeff::from_kernel(@binary_kernel.Coeff) -> Self
 pub fn BinCoeff::from_uint64(UInt64) -> Self
 pub fn BinCoeff::is_zero(Self) -> Bool
 pub fn BinCoeff::not_equal(Self, Self) -> Bool
@@ -35,7 +35,7 @@ pub fn BinCoeff::op_lt(Self, Self) -> Bool
 pub fn BinCoeff::output(Self, &Logger) -> Unit
 pub fn BinCoeff::parse(String, radix? : Int32) -> Result[Self, String]
 pub fn BinCoeff::to_bytes_be(Self) -> Bytes
-pub fn BinCoeff::to_kernel(Self) -> @bin_kernel.Coeff
+pub fn BinCoeff::to_kernel(Self) -> @binary_kernel.Coeff
 pub fn BinCoeff::to_radix_string(Self, Int32) -> String
 pub fn BinCoeff::to_repr(Self) -> @debug.Repr
 pub fn BinCoeff::to_string(Self) -> String
@@ -47,7 +47,7 @@ pub impl Show for BinCoeff
 pub impl @debug.Debug for BinCoeff
 
 #derive(@debug.Debug)
-pub struct Binary(@bin_kernel.BinRepr)
+pub struct Binary(@binary_kernel.BinRepr)
 pub fn Binary::abs(Self) -> Self
 pub fn Binary::abs_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Binary::acos(Self) -> Self

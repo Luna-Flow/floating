@@ -43,22 +43,22 @@ def write_mbti(src: Path, directory: str, text: str) -> None:
 
 
 class InterfaceViolationsTests(unittest.TestCase):
-    NEWTYPE = "pub fn BinCoeff::to_kernel(Self) -> @bin_kernel.Coeff\n"
+    NEWTYPE = "pub fn BinCoeff::to_kernel(Self) -> @binary_kernel.Coeff\n"
 
     def test_the_binary_coefficient_bridge_is_an_allowed_mention(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             src = Path(tmp)
             write_mbti(src, "binary", "package \"x\"\n\n" + self.NEWTYPE + "pub fn BinCoeff::one() -> Self\n")
-            write_mbti(src, "internal/bin_kernel", "pub fn f(Coeff) -> Coeff\n")
+            write_mbti(src, "internal/binary_kernel", "pub fn f(Coeff) -> Coeff\n")
             self.assertEqual(check_imports.interface_violations(src), [])
 
     def test_a_public_function_taking_the_kernel_type_fails(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             src = Path(tmp)
-            write_mbti(src, "binary", self.NEWTYPE + "pub fn take(@bin_kernel.Coeff) -> Int32\n")
+            write_mbti(src, "binary", self.NEWTYPE + "pub fn take(@binary_kernel.Coeff) -> Int32\n")
             self.assertEqual(
                 check_imports.interface_violations(src),
-                ["library/src/binary/pkg.generated.mbti:2 names an internal type: pub fn take(@bin_kernel.Coeff) -> Int32"],
+                ["library/src/binary/pkg.generated.mbti:2 names an internal type: pub fn take(@binary_kernel.Coeff) -> Int32"],
             )
 
     def test_the_definition_in_another_package_or_another_internal_type_fails(self) -> None:

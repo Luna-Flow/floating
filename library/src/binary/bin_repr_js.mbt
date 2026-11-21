@@ -3,13 +3,13 @@
 /// and the accessors (see `bin_repr_nonjs.mbt` for the other targets). A
 /// coefficient is a host bigint and every word path is absent, so a finite
 /// value, zero included, is `FinBig`. Nothing else matches on
-/// `@bin_kernel.BinRepr`.
+/// `@binary_kernel.BinRepr`.
 
 ///|
 #inline
 fn bin_repr_zero(negative : Bool, precision : Int32) -> Binary {
   Binary(
-    @bin_kernel.BinRepr::FinBig(
+    @binary_kernel.BinRepr::FinBig(
       negative~,
       coefficient=Coeff::zero(),
       exponent2=0,
@@ -27,14 +27,19 @@ fn bin_repr_finite(
   precision : Int32,
 ) -> Binary {
   Binary(
-    @bin_kernel.BinRepr::FinBig(negative~, coefficient~, exponent2~, precision~),
+    @binary_kernel.BinRepr::FinBig(
+      negative~,
+      coefficient~,
+      exponent2~,
+      precision~,
+    ),
   )
 }
 
 ///|
 #inline
 fn bin_repr_inf(negative : Bool, precision : Int32) -> Binary {
-  Binary(@bin_kernel.BinRepr::Inf(negative~, precision~))
+  Binary(@binary_kernel.BinRepr::Inf(negative~, precision~))
 }
 
 ///|
@@ -45,7 +50,9 @@ fn bin_repr_nan(
   payload : Coeff,
   precision : Int32,
 ) -> Binary {
-  Binary(@bin_kernel.BinRepr::NaN(negative~, signaling~, payload~, precision~))
+  Binary(
+    @binary_kernel.BinRepr::NaN(negative~, signaling~, payload~, precision~),
+  )
 }
 
 ///|

@@ -44,7 +44,7 @@ msgstr ""
 #: manual/api/frontend/mpfr_expr.md:3
 #: manual/api/frontend/testfloat_expr.md:3
 #: manual/api/internal.md:3
-#: manual/api/internal/bin_kernel.md:3
+#: manual/api/internal/binary_kernel.md:3
 #: manual/api/internal/conformance.md:3
 #: manual/api/internal/decimal_kernel.md:3
 #: manual/api/internal/runner_cli.md:3
@@ -89,7 +89,7 @@ msgstr ""
 #: manual/api/frontend/mpfr_expr.md:15
 #: manual/api/frontend/testfloat_expr.md:15
 #: manual/api/internal.md:56
-#: manual/api/internal/bin_kernel.md:23
+#: manual/api/internal/binary_kernel.md:23
 #: manual/api/internal/conformance.md:15
 #: manual/api/internal/decimal_kernel.md:18
 #: manual/api/internal/runner_cli.md:14
@@ -266,7 +266,7 @@ msgstr ""
 #: manual/api/frontend/mpfr_expr.md:537
 #: manual/api/frontend/testfloat_expr.md:418
 #: manual/api/internal.md:506
-#: manual/api/internal/bin_kernel.md:81
+#: manual/api/internal/binary_kernel.md:81
 #: manual/api/internal/conformance.md:359
 #: manual/api/internal/decimal_kernel.md:92
 #: manual/api/internal/runner_cli.md:209
@@ -664,7 +664,7 @@ msgid "A non-negative arbitrary-precision integer, used as the coefficient of a 
 msgstr ""
 
 #: manual/api/binary.md:107
-msgid "The inner type `@bin_kernel.Coeff` belongs to the internal package `internal/bin_kernel`, which only code inside `Luna-Flow/floating` can import. It carries no compatibility promise and a user cannot call a method on it, read it, compare it or build one: from outside the module a `BinCoeff` is abstract. Neither its constructor nor its field is visible outside `binary`; the other packages of the library reach the kernel type through the bridge `to_kernel` and `from_kernel` (below). The value is exact: on the native, LLVM and Wasm targets an inline 64- or 128-bit word or an array of 64-bit limbs, on JavaScript a host `bigint`; the representation is not observable, and the algorithm selection (schoolbook, Karatsuba, Toom-3, number-theoretic transform, staged division) is described in the [design page](../design/binary.md#the-coefficient-kernel). `Debug` prints the integer value."
+msgid "The inner type `@binary_kernel.Coeff` belongs to the internal package `internal/binary_kernel`, which only code inside `Luna-Flow/floating` can import. It carries no compatibility promise and a user cannot call a method on it, read it, compare it or build one: from outside the module a `BinCoeff` is abstract. Neither its constructor nor its field is visible outside `binary`; the other packages of the library reach the kernel type through the bridge `to_kernel` and `from_kernel` (below). The value is exact: on the native, LLVM and Wasm targets an inline 64- or 128-bit word or an array of 64-bit limbs, on JavaScript a host `bigint`; the representation is not observable, and the algorithm selection (schoolbook, Karatsuba, Toom-3, number-theoretic transform, staged division) is described in the [design page](../design/binary.md#the-coefficient-kernel). `Debug` prints the integer value."
 msgstr ""
 
 #: manual/api/binary.md:121
@@ -720,7 +720,7 @@ msgid "`compare` returns $-1$, $0$ or $1$; `equal` is numerical equality, which 
 msgstr ""
 
 #: manual/api/binary.md:206
-msgid "`BinCoeff` also implements `Eq`, `Compare`, `Show` and `Debug`; the promoted trait methods are listed under [Trait implementations](#trait-implementations). It has no arithmetic, shifts, bit operations or GCD: they are internal to the library (the package `internal/bin_kernel`), and arithmetic on values is done with `Binary` or, on a coefficient read with `coefficient()`, after converting it with `to_string` or `to_bytes_be`."
+msgid "`BinCoeff` also implements `Eq`, `Compare`, `Show` and `Debug`; the promoted trait methods are listed under [Trait implementations](#trait-implementations). It has no arithmetic, shifts, bit operations or GCD: they are internal to the library (the package `internal/binary_kernel`), and arithmetic on values is done with `Binary` or, on a coefficient read with `coefficient()`, after converting it with `to_string` or `to_bytes_be`."
 msgstr ""
 
 #: manual/api/binary.md:225
@@ -728,7 +728,7 @@ msgid "The value type"
 msgstr ""
 
 #: manual/api/binary.md:229
-msgid "A binary floating-point value: a finite dyadic number, a signed infinity or a NaN, with a working precision. Its representation is an internal type (`@bin_kernel.BinRepr`, like the coefficient of `BinCoeff`) that carries no compatibility promise and is read only inside the package; a value is one heap object."
+msgid "A binary floating-point value: a finite dyadic number, a signed infinity or a NaN, with a working precision. Its representation is an internal type (`@binary_kernel.BinRepr`, like the coefficient of `BinCoeff`) that carries no compatibility promise and is read only inside the package; a value is one heap object."
 msgstr ""
 
 #: manual/api/binary.md:239
@@ -3924,7 +3924,7 @@ msgstr ""
 #: manual/api/frontend/mpfr_expr.md:539
 #: manual/api/frontend/testfloat_expr.md:420
 #: manual/api/internal.md:508
-#: manual/api/internal/bin_kernel.md:83
+#: manual/api/internal/binary_kernel.md:83
 #: manual/api/internal/conformance.md:361
 #: manual/api/internal/decimal_kernel.md:94
 #: manual/api/internal/runner_cli.md:211
@@ -6243,7 +6243,7 @@ msgid "For valid inputs, `etiny` is $e_{\\min} - p + 1$ and `etop` is $e_{\\max}
 msgstr ""
 
 #: manual/api/internal.md:58
-#: manual/api/internal/bin_kernel.md:25
+#: manual/api/internal/binary_kernel.md:25
 #: manual/api/internal/conformance.md:17
 #: manual/api/internal/decimal_kernel.md:20
 #: manual/api/internal/runner_cli.md:16
@@ -6457,91 +6457,91 @@ msgstr ""
 msgid "The error's detail records the operation name, stage, reason, target precision, and the budget's current working precision and refinement count."
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:1
-msgid "internal/bin_kernel API"
+#: manual/api/internal/binary_kernel.md:1
+msgid "internal/binary_kernel API"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:5
-msgid "`internal/bin_kernel` holds the integer arithmetic on the coefficients of `Binary`: a non-negative arbitrary-precision integer `Coeff`, its comparison, addition, subtraction, shifts and bit operations, the multiplication algorithms (schoolbook, Karatsuba, Toom-3 and the two-prime NTT), division (Knuth's algorithm D and Burnikel-Ziegler), the integer square root, the GCD, and the conversions to and from bytes and text in any radix, with the per-target thresholds that choose between the algorithms. Every function is an exact function of its arguments. The package raises no condition and has no notion of a rounding mode, a context or a flag; those belong to `binary`. `internal/bin_kernel` also declares the internal enum `BinRepr`, the representation of `Binary` (one file per target: `repr_nonjs.mbt` and `repr_js.mbt`); see the design page of `binary`, section \"Representation of a value\". It is an internal package: code outside `Luna-Flow/floating` cannot import it. The public coefficient type `BinCoeff` of `binary` is a newtype over `Coeff` whose methods (construction, conversion, comparison and queries) forward to this package; the arithmetic exists only here. The name `Coeff` appears in the interface of `BinCoeff`, but a user outside the module cannot import this package and so cannot call or compare anything on it. See the [tutorial](../../tutorial/internal/bin_kernel.md) and the [design page](../../design/internal/bin_kernel.md)."
+#: manual/api/internal/binary_kernel.md:5
+msgid "`internal/binary_kernel` holds the integer arithmetic on the coefficients of `Binary`: a non-negative arbitrary-precision integer `Coeff`, its comparison, addition, subtraction, shifts and bit operations, the multiplication algorithms (schoolbook, Karatsuba, Toom-3 and the two-prime NTT), division (Knuth's algorithm D and Burnikel-Ziegler), the integer square root, the GCD, and the conversions to and from bytes and text in any radix, with the per-target thresholds that choose between the algorithms. Every function is an exact function of its arguments. The package raises no condition and has no notion of a rounding mode, a context or a flag; those belong to `binary`. `internal/binary_kernel` also declares the internal enum `BinRepr`, the representation of `Binary` (one file per target: `repr_nonjs.mbt` and `repr_js.mbt`); see the design page of `binary`, section \"Representation of a value\". It is an internal package: code outside `Luna-Flow/floating` cannot import it. The public coefficient type `BinCoeff` of `binary` is a newtype over `Coeff` whose methods (construction, conversion, comparison and queries) forward to this package; the arithmetic exists only here. The name `Coeff` appears in the interface of `BinCoeff`, but a user outside the module cannot import this package and so cannot call or compare anything on it. See the [tutorial](../../tutorial/internal/binary_kernel.md) and the [design page](../../design/internal/binary_kernel.md)."
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:33
+#: manual/api/internal/binary_kernel.md:33
 #: manual/api/internal/decimal_kernel.md:28
 msgid "and bring the names a package uses into scope once, for example in a file of its own:"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:41
+#: manual/api/internal/binary_kernel.md:41
 #: manual/api/internal/decimal_kernel.md:40
 msgid "The manual's example checker has no alias for internal subpackages, so the examples are marked `nocheck`."
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:44
+#: manual/api/internal/binary_kernel.md:44
 #: manual/api/internal/decimal_kernel.md:43
 msgid "The coefficient type"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:48
+#: manual/api/internal/binary_kernel.md:48
 msgid "A non-negative integer. On Native, LLVM, Wasm and Wasm-GC it is a newtype over `CoeffRepr`; on JavaScript it is a host `bigint`. The value is persistent: no function mutates an operand."
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:54
+#: manual/api/internal/binary_kernel.md:54
 msgid "The storage on the targets that are not JavaScript: `Inline64(low)` and `Inline128(high, low)` for values below $2^{64}$ and $2^{128}$, and `Heap(words, len)` for larger ones, with `len` little-endian 64-bit limbs of which the top one is nonzero. The constructors are readable because the word-sized fast paths of `binary` pattern-match on them; build values with the functions below."
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:61
+#: manual/api/internal/binary_kernel.md:61
 #: manual/api/internal/decimal_kernel.md:67
 msgid "Function families"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:63
+#: manual/api/internal/binary_kernel.md:63
 #: manual/api/internal/decimal_kernel.md:73
 msgid "Family"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:63
+#: manual/api/internal/binary_kernel.md:63
 #: manual/api/internal/decimal_kernel.md:73
 msgid "Functions"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:65
+#: manual/api/internal/binary_kernel.md:65
 #: manual/api/internal/decimal_kernel.md:75
 msgid "build and convert"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:66
+#: manual/api/internal/binary_kernel.md:66
 #: manual/api/internal/decimal_kernel.md:76
 msgid "shape"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:67
+#: manual/api/internal/binary_kernel.md:67
 msgid "compare"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:68
+#: manual/api/internal/binary_kernel.md:68
 msgid "add, subtract, shift"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:69
+#: manual/api/internal/binary_kernel.md:69
 msgid "bit operations"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:70
+#: manual/api/internal/binary_kernel.md:70
 msgid "multiply and divide"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:71
+#: manual/api/internal/binary_kernel.md:71
 msgid "number theory and roots"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:72
+#: manual/api/internal/binary_kernel.md:72
 msgid "limb rows (C on native, portable elsewhere)"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:73
+#: manual/api/internal/binary_kernel.md:73
 msgid "machine words"
 msgstr ""
 
-#: manual/api/internal/bin_kernel.md:75
+#: manual/api/internal/binary_kernel.md:75
 msgid "The per-target thresholds (`bin_coeff_*_min_words`, `*_words`, `*_cutoff`) are private: they live in `coeff_thresholds_<target>.mbt` and are selected by `moon.pkg`. Preconditions are checked with `abort` (a negative shift count, a zero divisor): they are programmer errors of the caller, never conditions of an operation."
 msgstr ""
 
@@ -8880,7 +8880,7 @@ msgid "`internal` and `internal/*`, `cli` and `cli/*`, `bench` and `bench/*`, `c
 msgstr ""
 
 #: manual/architecture.md:274
-#: manual/design/internal/bin_kernel.md:102
+#: manual/design/internal/binary_kernel.md:102
 msgid "Invariants"
 msgstr ""
 
@@ -10910,7 +10910,7 @@ msgstr ""
 #: manual/design/frontend/mpfr_expr.md:3
 #: manual/design/frontend/testfloat_expr.md:3
 #: manual/design/internal.md:3
-#: manual/design/internal/bin_kernel.md:3
+#: manual/design/internal/binary_kernel.md:3
 #: manual/design/internal/conformance.md:3
 #: manual/design/internal/decimal_kernel.md:3
 #: manual/design/internal/runner_cli.md:3
@@ -10954,7 +10954,7 @@ msgstr ""
 #: manual/design/frontend/mpfr_expr.md:17
 #: manual/design/frontend/testfloat_expr.md:16
 #: manual/design/internal.md:24
-#: manual/design/internal/bin_kernel.md:11
+#: manual/design/internal/binary_kernel.md:11
 #: manual/design/internal/conformance.md:12
 #: manual/design/internal/decimal_kernel.md:11
 #: manual/design/internal/runner_cli.md:13
@@ -12987,7 +12987,7 @@ msgid "**Problem.** Precision costs integer multiplication and division of $p$-b
 msgstr ""
 
 #: manual/design/binary.md:2004
-msgid "**Choice.** The kernel is the internal package [`internal/bin_kernel`](internal/bin_kernel.md); `BinCoeff` is a newtype over its `Coeff`. `Coeff` stores up to 128 bits inline and larger values as little-endian 64-bit limbs (a host `bigint` on JavaScript), and dispatches on the operand length $n$ in 64-bit limbs. Every threshold below is in 64-bit limbs:"
+msgid "**Choice.** The kernel is the internal package [`internal/binary_kernel`](internal/binary_kernel.md); `BinCoeff` is a newtype over its `Coeff`. `Coeff` stores up to 128 bits inline and larger values as little-endian 64-bit limbs (a host `bigint` on JavaScript), and dispatches on the operand length $n$ in 64-bit limbs. Every threshold below is in 64-bit limbs:"
 msgstr ""
 
 #: manual/design/binary.md:2009
@@ -17312,190 +17312,190 @@ msgstr ""
 msgid "The power caches are process-wide mutable state, the only state in the package; they never change a result."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:1
-msgid "internal/bin_kernel design"
+#: manual/design/internal/binary_kernel.md:1
+msgid "internal/binary_kernel design"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:5
+#: manual/design/internal/binary_kernel.md:5
 msgid "`Binary` is a rounding layer on top of one arithmetic: non-negative integers of up to $2^{28}$ bits. The integer part should be one package with one contract, so that an algorithm can be measured, replaced and tested without the floating-point layer, and so that the rounding layer cannot reach into it. The package therefore contains only functions from integers to integers."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:13
+#: manual/design/internal/binary_kernel.md:13
 msgid ""
 "A coefficient $c \\ge 0$ is stored as $c = \\sum_{i<n} w_i 2^{64 i}$ with $0 \\le w_i < 2^{64}$ and $w_{n-1} \\n"
 "e 0$; values below $2^{128}$ are kept in one or two machine words without an array. Every operation computes an exact result:"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:18
+#: manual/design/internal/binary_kernel.md:18
 #: manual/design/internal/decimal_kernel.md:22
 msgid "$\\operatorname{add}(a,b) = a + b$, $\\operatorname{sub}(a,b) = a - b$ for $a \\ge b$, $\\operatorname{mul}(a,b) = ab$;"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:20
+#: manual/design/internal/binary_kernel.md:20
 #: manual/design/internal/decimal_kernel.md:24
 msgid "$\\operatorname{divrem}(a,b) = (q,r)$ with $a = qb + r$ and $0 \\le r < b$;"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:21
+#: manual/design/internal/binary_kernel.md:21
 msgid "$\\operatorname{shift}(a,k) = a \\cdot 2^{k}$ and $\\lfloor a / 2^{k} \\rfloor$;"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:22
+#: manual/design/internal/binary_kernel.md:22
 msgid "the integer square root $s = \\lfloor \\sqrt{a} \\rfloor$ with remainder $a - s^2$, the GCD, and the digits of $a$ in any radix."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:25
+#: manual/design/internal/binary_kernel.md:25
 msgid "The algorithms behind them (schoolbook, Karatsuba, Toom-3, the two-prime NTT, Knuth's algorithm D, Burnikel-Ziegler, the Zimmermann square root, Lehmer GCD and the in-place radix conversion), their cutoffs and the argument that they all compute the same integers are in the section [The coefficient kernel](../binary.md#the-coefficient-kernel) of the `binary` design page. Because every path computes the same integers, the choice of algorithm cannot change a rounded result, a flag or an encoding."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:33
+#: manual/design/internal/binary_kernel.md:33
 msgid "Package boundary"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:35
+#: manual/design/internal/binary_kernel.md:35
 msgid "Decision"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:35
+#: manual/design/internal/binary_kernel.md:35
 msgid "Choice"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:35
+#: manual/design/internal/binary_kernel.md:35
 msgid "Reason"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:37
+#: manual/design/internal/binary_kernel.md:37
 msgid "Where the type lives"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:37
-msgid "`Coeff` is defined here; `BinCoeff` in `binary` is a newtype `struct BinCoeff(@bin_kernel.Coeff)`"
+#: manual/design/internal/binary_kernel.md:37
+msgid "`Coeff` is defined here; `BinCoeff` in `binary` is a newtype `struct BinCoeff(@binary_kernel.Coeff)`"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:37
+#: manual/design/internal/binary_kernel.md:37
 msgid "A re-export of an internal type (`pub using`) does not give another module (the tools module) the methods of the type; a newtype does, and it is erased."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:38
+#: manual/design/internal/binary_kernel.md:38
 msgid "Unwrapping"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:38
-msgid "`struct BinCoeff(@bin_kernel.Coeff)` (abstract, printed as `type BinCoeff` in the interface); `BinCoeff` has no arithmetic"
+#: manual/design/internal/binary_kernel.md:38
+msgid "`struct BinCoeff(@binary_kernel.Coeff)` (abstract, printed as `type BinCoeff` in the interface); `BinCoeff` has no arithmetic"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:38
+#: manual/design/internal/binary_kernel.md:38
 msgid "The other library packages (`interval`) do arithmetic on coefficients: `value.to_kernel()` gives them the kernel type and `BinCoeff::from_kernel(c)` wraps a result. Neither the constructor nor the field is visible outside `binary`, so no other package builds or reads a `BinCoeff` by hand, and both bridge functions are marked in the API page as internal (`#internal` has no effect on the generated interface or on the documentation tool). Outside the module the inner type is inert: a method call, `==` and a qualified call on it are compile errors, and the import is refused by the solver, so the field exposes no operation and no compatibility promise."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:39
+#: manual/design/internal/binary_kernel.md:39
 msgid "Why not a record wrapper"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:39
+#: manual/design/internal/binary_kernel.md:39
 msgid "A newtype, never `struct BinCoeff { kernel : Coeff }`"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:39
+#: manual/design/internal/binary_kernel.md:39
 msgid "A record wrapper allocates a second object per value: +49% retired instructions on a small `add` in the throwaway measurement. A newtype and a call across the package boundary cost nothing measurable."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:40
+#: manual/design/internal/binary_kernel.md:40
 #: manual/performance/binary.md:10
 msgid "Representation"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:40
+#: manual/design/internal/binary_kernel.md:40
 msgid "`Coeff` is a newtype over a three-case enum (`Inline64`, `Inline128`, `Heap`); `Binary` stores it directly"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:40
+#: manual/design/internal/binary_kernel.md:40
 msgid "One allocation per coefficient instead of two (10 to 15% fewer instructions per `Binary` operation at 53 to 512 bits, [#427](https://github.com/Luna-Flow/floating/pull/427))."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:41
+#: manual/design/internal/binary_kernel.md:41
 #: manual/verification.md:260
 #: manual/verification.md:303
 msgid "JavaScript"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:41
+#: manual/design/internal/binary_kernel.md:41
 msgid "`Coeff` is a host `bigint` (`coeff_js.mbt`); no kernel algorithms"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:41
+#: manual/design/internal/binary_kernel.md:41
 msgid "The host's arbitrary-precision integers are the kernel there."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:42
+#: manual/design/internal/binary_kernel.md:42
 msgid "Machine words"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:42
+#: manual/design/internal/binary_kernel.md:42
 msgid "`binary_fast_*` live here"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:42
+#: manual/design/internal/binary_kernel.md:42
 msgid "The word-wide `mul_high` and `div_wide` are used by the kernel and by the single-word paths of `binary`."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:44
+#: manual/design/internal/binary_kernel.md:44
 msgid "Limb rows and the native C stub"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:46
+#: manual/design/internal/binary_kernel.md:46
 msgid "The inner loops of the schoolbook product and square are row primitives on 64-bit limbs: `mul_1`, `addmul_1`, `submul_1` (each takes arrays and offsets in limbs and returns a carry limb), the whole-call `school` and `sqr_school`. Each has a portable MoonBit function (`coeff_limbs_portable_nonjs.mbt`, `coeff_words_nonjs.mbt`), which is the reference, and a C function of the same name in `luna_limbs.c`. On the native target the wrappers of `coeff_limbs_native.mbt` check every range once per call, then call the C function; on wasm, wasm-gc and llvm the wrappers of `coeff_limbs_other_nonjs.mbt` call the portable one; JavaScript has no limb loops. The results are the same bit for bit; a differential test per primitive (`coeff_limbs_native_wbtest.mbt`) compares the two on lengths 1 to 200, edge limbs, carries through every position and the aliasing the callers use."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:59
+#: manual/design/internal/binary_kernel.md:59
 msgid "The C file uses `unsigned __int128` where the compiler defines `__SIZEOF_INT128__` (gcc, clang) and four 32-bit products elsewhere. The intrinsics of MSVC (`_umul128`, `__umulh`) are not used: they have not been compiled and run, so `cl` takes the 32-bit branch (known follow-up)."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:63
+#: manual/design/internal/binary_kernel.md:63
 msgid "Test and benchmark knob: the environment variable `LUNA_FLOATING_PORTABLE`, read once at start, set to anything but empty or `0`, makes the native build run the portable loops. It changes speed only. `getenv` may warn on MSVC; that platform is untested."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:67
+#: manual/design/internal/binary_kernel.md:67
 msgid "Measured on arm64 (Apple clang, release): about 21 to 23 instructions per limb pair in the portable loop, 11 to 12 in C. x86-64: the stub compiles and its tests run in CI, no instruction table (not measured)."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:70
+#: manual/design/internal/binary_kernel.md:70
 msgid "Rows are not worth a C version for add, subtract and shifts: the portable loop is as short."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:72
+#: manual/design/internal/binary_kernel.md:72
 msgid "Assembly tier: on Apple arm64 (clang or gcc) the three rows, and through them `school` and `sqr_school`, have a third implementation in inline assembly in `luna_limbs.c`, written from the AArch64 instruction definitions. Four limbs per iteration, two carry chains in sequence: chain A adds the low words of the products and the high words of the previous limbs (`adds`, `adcs`, `adc`), chain B adds or subtracts the destination limbs, and the carry of chain B enters the next block as the initial flag (`cmp x, #1`). The lengths below a multiple of four are done first by the C row. Measured instructions per limb (arm64, row of 128 limbs): `mul_1` 4.9, `addmul_1` 6.9, `submul_1` 7.0 in assembly, 9.2, 12.1 and 13.1 in C. The floor of the loop: each limb needs a `mul`, a `umulh`, two carry additions and about 1.5 memory operations, 5.5 for `addmul_1`; the block adds 1.25 (finishing the chain A carry, the flag rebuild, the chain B carry, the loop). AArch64 has one carry flag and no multiply-accumulate with carry, so the two chains cannot be interleaved. Anywhere else the assembly entry points are the C rows."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:87
+#: manual/design/internal/binary_kernel.md:87
 msgid "`bin_limbs_product` (public, for the limb-array loops of `binary`): `r[ro ..< ro + an + bn] = a * b` in one call, rows over the limbs of `a` (pass the shorter operand or the multiplier as `a`), both lengths at least 1, `r` not overlapping the operands, every result limb written. On the native tiers with the C or assembly rows it is the schoolbook entry behind one set of range checks; on the portable tier and the other targets it is the loop of portable `mul_1` and `addmul_1` rows, so no target pays more. At 10 by 9 limbs it costs 868 instructions on the assembly tier and 1,145 on the C tier against 1,028 and 1,292 for `mul_1` and eight `addmul_1` through their wrappers (the wrappers and their checks are 134 of the C figure)."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:88
+#: manual/design/internal/binary_kernel.md:88
 msgid "Selection: `LUNA_FLOATING_PORTABLE` (portable loops) and `LUNA_FLOATING_LIMBS=c` (C rows) are read once at start; the default is assembly where the tier exists, else C. The differential test compares all three on the same arrays and logs the tier that ran. Linux arm64 has not been run; the tier is enabled for Apple arm64 only."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:94
+#: manual/design/internal/binary_kernel.md:94
 msgid "Thresholds"
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:96
+#: manual/design/internal/binary_kernel.md:96
 msgid "The cutoffs are named `*_min_words` or `*_words` (64-bit limbs) and chosen per target in `coeff_thresholds_<target>.mbt`. They are policy, not semantics: the dispatch tests cross every one of them and compare with the schoolbook result. The cutoffs of the elementary functions are not kernel policy and stay in `binary`."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:104
+#: manual/design/internal/binary_kernel.md:104
 msgid "A `Heap` coefficient has `len >= 3` limbs, the top limb is nonzero, and no function mutates the array of an operand."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:106
+#: manual/design/internal/binary_kernel.md:106
 msgid "The producers of fresh values (`Coeff::mul` for nonzero operands, `bin_coeff_div_scaled_quotient`, `bin_coeff_div_short_quotient`, `bin_coeff_mul_short`, `bin_coeff_sqrt_scaled_rounded`) return a `Heap` coefficient whose array no operand and no other value refers to; inline results and the shared `Coeff::zero()` carry no array, and a shift by zero returns its receiver. A caller may keep or modify such an array."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:107
+#: manual/design/internal/binary_kernel.md:107
 msgid "`Inline64` and `Inline128` are the only representations of values below $2^{128}$; `bin_coeff_from_words` normalizes."
 msgstr ""
 
-#: manual/design/internal/bin_kernel.md:109
+#: manual/design/internal/binary_kernel.md:109
 msgid "No function aborts except on a violated precondition (a zero divisor, a negative shift)."
 msgstr ""
 
@@ -20177,19 +20177,19 @@ msgid "[design](design/internal/decimal_kernel.md)"
 msgstr ""
 
 #: manual/index.md:116
-msgid "`internal/bin_kernel`: exact integer arithmetic on the coefficients of `binary`"
+msgid "`internal/binary_kernel`: exact integer arithmetic on the coefficients of `binary`"
 msgstr ""
 
 #: manual/index.md:116
-msgid "[tutorial](tutorial/internal/bin_kernel.md)"
+msgid "[tutorial](tutorial/internal/binary_kernel.md)"
 msgstr ""
 
 #: manual/index.md:116
-msgid "[API](api/internal/bin_kernel.md)"
+msgid "[API](api/internal/binary_kernel.md)"
 msgstr ""
 
 #: manual/index.md:116
-msgid "[design](design/internal/bin_kernel.md)"
+msgid "[design](design/internal/binary_kernel.md)"
 msgstr ""
 
 #: manual/index.md:118
@@ -22741,7 +22741,7 @@ msgstr ""
 #: manual/tutorial/frontend/mpfr_expr.md:9
 #: manual/tutorial/frontend/testfloat_expr.md:11
 #: manual/tutorial/internal.md:10
-#: manual/tutorial/internal/bin_kernel.md:9
+#: manual/tutorial/internal/binary_kernel.md:9
 #: manual/tutorial/internal/conformance.md:10
 #: manual/tutorial/internal/decimal_kernel.md:9
 #: manual/tutorial/internal/runner_cli.md:10
@@ -22781,7 +22781,7 @@ msgstr ""
 #: manual/tutorial/frontend/mpfr_expr.md:9
 #: manual/tutorial/frontend/testfloat_expr.md:11
 #: manual/tutorial/internal.md:10
-#: manual/tutorial/internal/bin_kernel.md:9
+#: manual/tutorial/internal/binary_kernel.md:9
 #: manual/tutorial/internal/conformance.md:10
 #: manual/tutorial/internal/decimal_kernel.md:9
 #: manual/tutorial/internal/runner_cli.md:10
@@ -26705,114 +26705,114 @@ msgstr ""
 msgid "[consistency tutorial](consistency.md) for the tests that cross-check these helpers."
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:1
-msgid "internal/bin_kernel tutorial"
+#: manual/tutorial/internal/binary_kernel.md:1
+msgid "internal/binary_kernel tutorial"
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:3
+#: manual/tutorial/internal/binary_kernel.md:3
 msgid "The goal of this page is to show maintainers how to use the coefficient kernel when they add or change a binary operation, and how to keep a change to it safe for every target. The package is internal to `Luna-Flow/floating`; the examples are written for code inside the module and are not compiled by the manual checker."
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:11
+#: manual/tutorial/internal/binary_kernel.md:11
 msgid "compute with exact coefficients in `binary`"
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:11
+#: manual/tutorial/internal/binary_kernel.md:11
 msgid "[the `Coeff` methods](#use-the-kernel-from-the-binary-package)"
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:12
+#: manual/tutorial/internal/binary_kernel.md:12
 #: manual/tutorial/internal/decimal_kernel.md:12
 msgid "add an algorithm or a fast path"
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:12
+#: manual/tutorial/internal/binary_kernel.md:12
 #: manual/tutorial/internal/decimal_kernel.md:12
 msgid "[change the kernel](#change-the-kernel)"
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:13
+#: manual/tutorial/internal/binary_kernel.md:13
 #: manual/tutorial/internal/decimal_kernel.md:13
 msgid "tune a threshold"
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:13
+#: manual/tutorial/internal/binary_kernel.md:13
 #: manual/tutorial/internal/decimal_kernel.md:13
 msgid "[per-target thresholds](#tune-a-threshold)"
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:14
+#: manual/tutorial/internal/binary_kernel.md:14
 #: manual/tutorial/internal/decimal_kernel.md:14
 msgid "decide where new code belongs"
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:14
+#: manual/tutorial/internal/binary_kernel.md:14
 msgid "[kernel or `binary`](#decide-where-new-code-belongs)"
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:15
+#: manual/tutorial/internal/binary_kernel.md:15
 #: manual/tutorial/internal/decimal_kernel.md:15
 msgid "run the kernel tests"
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:17
+#: manual/tutorial/internal/binary_kernel.md:17
 msgid "Use the kernel from the `binary` package"
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:19
+#: manual/tutorial/internal/binary_kernel.md:19
 msgid "`binary` imports the kernel and brings the names it uses into scope with `using` (in `kernel_imports.mbt`, and `kernel_imports_nonjs.mbt` for the names that exist only where a coefficient has 64-bit limbs):"
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:28
+#: manual/tutorial/internal/binary_kernel.md:28
 msgid "A `Binary` stores its coefficient as a private `Coeff` field. The public type `BinCoeff` is a newtype over it (`value.0` unwraps it and `BinCoeff(c)` wraps a result), so the kernel type shows in a public interface only as the field of `BinCoeff`, which is opaque outside the module, and the wrapping costs neither an allocation nor a call. A typical use computes the exact quotient and remainder and leaves rounding to `binary`:"
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:44
+#: manual/tutorial/internal/binary_kernel.md:44
 #: manual/tutorial/internal/decimal_kernel.md:43
 msgid "Decide where new code belongs"
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:46
+#: manual/tutorial/internal/binary_kernel.md:46
 msgid "Put code in the kernel when it is a function from coefficients (and plain integers) to coefficients or integers. Keep it in `binary` when it mentions a rounding mode, a precision, an exponent, a class, a flag or a `Binary`. The test is simple: the function must give the same answer for the same integers whoever calls it. `tools/check_imports.py` enforces the dependency half of the rule: the kernel imports nothing of this module."
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:53
+#: manual/tutorial/internal/binary_kernel.md:53
 #: manual/tutorial/internal/decimal_kernel.md:54
 msgid "Change the kernel"
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:55
+#: manual/tutorial/internal/binary_kernel.md:55
 msgid "Write the change as an exact integer function."
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:56
+#: manual/tutorial/internal/binary_kernel.md:56
 msgid "Add or extend a white-box test next to the others in the package that compares the result with `BigInt` at the limb boundaries (64, 128 and 192 bits), at the threshold lengths of every target, and on operands of ones, powers of two and sparse limbs."
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:60
+#: manual/tutorial/internal/binary_kernel.md:60
 msgid "Run `just bin-kernel-ci`, then `just gate binary 3` and `just gate interval 3`."
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:61
+#: manual/tutorial/internal/binary_kernel.md:61
 msgid "Measure retired instructions with the benchmark rows of the pull request against the previous build; a change that helps one operation and slows another needs a reason in the pull request."
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:65
+#: manual/tutorial/internal/binary_kernel.md:65
 #: manual/tutorial/internal/decimal_kernel.md:67
 msgid "Tune a threshold"
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:67
+#: manual/tutorial/internal/binary_kernel.md:67
 msgid "The crossovers between schoolbook, Karatsuba, Toom-3, the NTT, Knuth's division and Burnikel-Ziegler live in `coeff_thresholds_native.mbt`, `_llvm`, `_wasm` and `_wasm_gc`; `moon.pkg` selects the file by target. JavaScript has no kernel: its `Coeff` is a host `bigint`. A threshold only changes which exact algorithm runs. Change it with paired old and new builds on the target, and keep the dispatch tests that cross every threshold exactly. The cutoffs of the elementary functions (`binary_exp_burst_min_precision` and its siblings) are thresholds of `binary`, in `elementary_thresholds_<target>.mbt`."
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:76
+#: manual/tutorial/internal/binary_kernel.md:76
 #: manual/tutorial/internal/decimal_kernel.md:76
 msgid "Run the tests"
 msgstr ""
 
-#: manual/tutorial/internal/bin_kernel.md:83
-msgid "The `internal/bin_kernel` tests carry the algorithm cross-checks, the dispatch tests and the regression digests that used to live in `binary`. `binary` keeps the tests that need a `Binary`."
+#: manual/tutorial/internal/binary_kernel.md:83
+msgid "The `internal/binary_kernel` tests carry the algorithm cross-checks, the dispatch tests and the regression digests that used to live in `binary`. `binary` keeps the tests that need a `Binary`."
 msgstr ""
 
 #: manual/tutorial/internal/conformance.md:1
@@ -27961,7 +27961,7 @@ msgid "`ci.yml` runs `just pr` on every pull request and every push to `main`. I
 msgstr ""
 
 #: manual/verification.md:35
-msgid "`nightly.yml` runs `just gate` for `quick`, `decimal`, `decimal_gda`, `binary` and `interval` as parallel jobs every night and on demand. It caches the SHA-256-pinned upstream corpora by manifest hash (the hashes are still verified after download) and uploads each `summary.json` as an artifact, so the published results are reproduced outside maintainers' machines. It runs the gates with `--no-reuse` and restores no ledger. It also runs the unit tests of the whole workspace on `native`, without reuse (the audit of the native units of the pull-request gate), `js`, `wasm` and `wasm-gc` (the pull-request gate tests native and only type-checks these; `QUICK_TEST_TARGETS` in `tools/run_ci.py` is the one line that adds a target to it), and, on an arm64 macOS runner, the tests of `internal/bin_kernel` and `binary` on native with the row primitives portable (`LUNA_FLOATING_PORTABLE=1`), forced to the C tier (`LUNA_FLOATING_LIMBS=c`) and in the default state; `tools/check_limbs_tier.py` fails the job when the runner is not arm64, a state reports another tier than expected, or the switch did not take (`enabled=false` in the portable state, `enabled=true` in the others). The Linux runner is x86-64, so nothing else executes the arm64 code. `wasm-gc` runs the whole workspace except what needs `moonbitlang/async`, which has no wasm-gc runtime (its module initialiser is rejected by the runtime at validation); the workflow states the reason next to the job."
+msgid "`nightly.yml` runs `just gate` for `quick`, `decimal`, `decimal_gda`, `binary` and `interval` as parallel jobs every night and on demand. It caches the SHA-256-pinned upstream corpora by manifest hash (the hashes are still verified after download) and uploads each `summary.json` as an artifact, so the published results are reproduced outside maintainers' machines. It runs the gates with `--no-reuse` and restores no ledger. It also runs the unit tests of the whole workspace on `native`, without reuse (the audit of the native units of the pull-request gate), `js`, `wasm` and `wasm-gc` (the pull-request gate tests native and only type-checks these; `QUICK_TEST_TARGETS` in `tools/run_ci.py` is the one line that adds a target to it), and, on an arm64 macOS runner, the tests of `internal/binary_kernel` and `binary` on native with the row primitives portable (`LUNA_FLOATING_PORTABLE=1`), forced to the C tier (`LUNA_FLOATING_LIMBS=c`) and in the default state; `tools/check_limbs_tier.py` fails the job when the runner is not arm64, a state reports another tier than expected, or the switch did not take (`enabled=false` in the portable state, `enabled=true` in the others). The Linux runner is x86-64, so nothing else executes the arm64 code. `wasm-gc` runs the whole workspace except what needs `moonbitlang/async`, which has no wasm-gc runtime (its module initialiser is rejected by the runtime at validation); the workflow states the reason next to the job."
 msgstr ""
 
 #: manual/verification.md:56
@@ -28346,7 +28346,7 @@ msgid "The kernel stages"
 msgstr ""
 
 #: manual/verification.md:620
-msgid "The seven kernel stages of the binary gate (the product routes and the oracles under three states of the limb tier, and the oracle tables) took about 220 s and always ran in full. The package under test, `library/src/internal/bin_kernel`, is a leaf of the module: it imports only `moonbitlang/core/...`, so nothing else of the repository is compiled into its test executable. Each stage under each state is therefore a unit of its own, keyed by the content of the package's files (sources, tests, row tables, the native stub, `moon.pkg`) and of the module files, the command line (which holds the state), the `moon test` wrapper, the build commands that `moon test --dry-run` prints, the toolchain, the variables of the environment that `moon` and the stubs read, the verifier and, for the oracle tables, `tools/kernel_oracle.py` and the Python version. The key is of file content, which is coarser than code: a comment-only edit of the package reruns all seven. The program checks the two assumptions behind it: the package imports only `moonbitlang/core/...` (otherwise no kernel unit is reused) and `tools/kernel_oracle.py` imports only the standard library (otherwise that unit runs)."
+msgid "The seven kernel stages of the binary gate (the product routes and the oracles under three states of the limb tier, and the oracle tables) took about 220 s and always ran in full. The package under test, `library/src/internal/binary_kernel`, is a leaf of the module: it imports only `moonbitlang/core/...`, so nothing else of the repository is compiled into its test executable. Each stage under each state is therefore a unit of its own, keyed by the content of the package's files (sources, tests, row tables, the native stub, `moon.pkg`) and of the module files, the command line (which holds the state), the `moon test` wrapper, the build commands that `moon test --dry-run` prints, the toolchain, the variables of the environment that `moon` and the stubs read, the verifier and, for the oracle tables, `tools/kernel_oracle.py` and the Python version. The key is of file content, which is coarser than code: a comment-only edit of the package reruns all seven. The program checks the two assumptions behind it: the package imports only `moonbitlang/core/...` (otherwise no kernel unit is reused) and `tools/kernel_oracle.py` imports only the standard library (otherwise that unit runs)."
 msgstr ""
 
 #: manual/verification.md:633

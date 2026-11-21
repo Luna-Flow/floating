@@ -44,7 +44,7 @@ msgstr "bench API"
 #: manual/api/frontend/mpfr_expr.md:3
 #: manual/api/frontend/testfloat_expr.md:3
 #: manual/api/internal.md:3
-#: manual/api/internal/bin_kernel.md:3
+#: manual/api/internal/binary_kernel.md:3
 #: manual/api/internal/conformance.md:3
 #: manual/api/internal/decimal_kernel.md:3
 #: manual/api/internal/runner_cli.md:3
@@ -89,7 +89,7 @@ msgstr "`bench` 是 `floating` 共用的基准测试工具包，构建于 Marema
 #: manual/api/frontend/mpfr_expr.md:15
 #: manual/api/frontend/testfloat_expr.md:15
 #: manual/api/internal.md:56
-#: manual/api/internal/bin_kernel.md:23
+#: manual/api/internal/binary_kernel.md:23
 #: manual/api/internal/conformance.md:15
 #: manual/api/internal/decimal_kernel.md:18
 #: manual/api/internal/runner_cli.md:14
@@ -266,7 +266,7 @@ msgstr "对每个候选，它取该用例和数据集的有效确认性观测，
 #: manual/api/frontend/mpfr_expr.md:537
 #: manual/api/frontend/testfloat_expr.md:418
 #: manual/api/internal.md:506
-#: manual/api/internal/bin_kernel.md:81
+#: manual/api/internal/binary_kernel.md:81
 #: manual/api/internal/conformance.md:359
 #: manual/api/internal/decimal_kernel.md:92
 #: manual/api/internal/runner_cli.md:209
@@ -664,8 +664,8 @@ msgid "A non-negative arbitrary-precision integer, used as the coefficient of a 
 msgstr "一个非负的任意精度整数，用作 `Binary` 的系数以及交换编码的位模式。"
 
 #: manual/api/binary.md:107
-msgid "The inner type `@bin_kernel.Coeff` belongs to the internal package `internal/bin_kernel`, which only code inside `Luna-Flow/floating` can import. It carries no compatibility promise and a user cannot call a method on it, read it, compare it or build one: from outside the module a `BinCoeff` is abstract. Neither its constructor nor its field is visible outside `binary`; the other packages of the library reach the kernel type through the bridge `to_kernel` and `from_kernel` (below). The value is exact: on the native, LLVM and Wasm targets an inline 64- or 128-bit word or an array of 64-bit limbs, on JavaScript a host `bigint`; the representation is not observable, and the algorithm selection (schoolbook, Karatsuba, Toom-3, number-theoretic transform, staged division) is described in the [design page](../design/binary.md#the-coefficient-kernel). `Debug` prints the integer value."
-msgstr "内部类型 `@bin_kernel.Coeff` 属于内部包 `internal/bin_kernel`，只有 `Luna-Flow/floating` 内部的代码才能导入它。它不带任何兼容性承诺，用户也无法对它调用方法、读取、比较或构造：在模块之外，`BinCoeff` 是抽象的。它的构造函数和字段在 `binary` 之外都不可见；库的其他包通过桥接函数 `to_kernel` 和 `from_kernel`（见下）访问内核类型。其值是精确的：在 Native、LLVM 和 Wasm 目标上是内联的 64 位或 128 位字，或 64 位肢的数组；在 JavaScript 上是宿主 `bigint`；表示不可观察，算法选择（朴素乘法、Karatsuba、Toom-3、数论变换、分阶段除法）见[设计页](../design/binary.md#the-coefficient-kernel)。`Debug` 打印整数值。"
+msgid "The inner type `@binary_kernel.Coeff` belongs to the internal package `internal/binary_kernel`, which only code inside `Luna-Flow/floating` can import. It carries no compatibility promise and a user cannot call a method on it, read it, compare it or build one: from outside the module a `BinCoeff` is abstract. Neither its constructor nor its field is visible outside `binary`; the other packages of the library reach the kernel type through the bridge `to_kernel` and `from_kernel` (below). The value is exact: on the native, LLVM and Wasm targets an inline 64- or 128-bit word or an array of 64-bit limbs, on JavaScript a host `bigint`; the representation is not observable, and the algorithm selection (schoolbook, Karatsuba, Toom-3, number-theoretic transform, staged division) is described in the [design page](../design/binary.md#the-coefficient-kernel). `Debug` prints the integer value."
+msgstr "内部类型 `@binary_kernel.Coeff` 属于内部包 `internal/binary_kernel`，只有 `Luna-Flow/floating` 内部的代码才能导入它。它不带任何兼容性承诺，用户也无法对它调用方法、读取、比较或构造：在模块之外，`BinCoeff` 是抽象的。它的构造函数和字段在 `binary` 之外都不可见；库的其他包通过桥接函数 `to_kernel` 和 `from_kernel`（见下）访问内核类型。其值是精确的：在 Native、LLVM 和 Wasm 目标上是内联的 64 位或 128 位字，或 64 位肢的数组；在 JavaScript 上是宿主 `bigint`；表示不可观察，算法选择（朴素乘法、Karatsuba、Toom-3、数论变换、分阶段除法）见[设计页](../design/binary.md#the-coefficient-kernel)。`Debug` 打印整数值。"
 
 #: manual/api/binary.md:121
 msgid "`BinCoeff::to_kernel`, `BinCoeff::from_kernel` (internal bridge)"
@@ -720,16 +720,16 @@ msgid "`compare` returns $-1$, $0$ or $1$; `equal` is numerical equality, which 
 msgstr "`compare` 返回 $-1$、$0$ 或 $1$；`equal` 是数值相等，对自然数而言与表示相等相同。运算符 `<`、`<=`、`>`、`>=`、`==` 和 `!=` 使用它们（参见 [trait 实现](#trait-implementations)）。"
 
 #: manual/api/binary.md:206
-msgid "`BinCoeff` also implements `Eq`, `Compare`, `Show` and `Debug`; the promoted trait methods are listed under [Trait implementations](#trait-implementations). It has no arithmetic, shifts, bit operations or GCD: they are internal to the library (the package `internal/bin_kernel`), and arithmetic on values is done with `Binary` or, on a coefficient read with `coefficient()`, after converting it with `to_string` or `to_bytes_be`."
-msgstr "`BinCoeff` 还实现了 `Eq`、`Compare`、`Show` 和 `Debug`；提升后的 trait 方法列在 [Trait 实现](#trait-implementations)下。它没有算术、移位、位运算或 GCD：这些是库的内部功能（包 `internal/bin_kernel`），对值的算术请用 `Binary`，或者对用 `coefficient()` 读出的系数，先用 `to_string` 或 `to_bytes_be` 转换。"
+msgid "`BinCoeff` also implements `Eq`, `Compare`, `Show` and `Debug`; the promoted trait methods are listed under [Trait implementations](#trait-implementations). It has no arithmetic, shifts, bit operations or GCD: they are internal to the library (the package `internal/binary_kernel`), and arithmetic on values is done with `Binary` or, on a coefficient read with `coefficient()`, after converting it with `to_string` or `to_bytes_be`."
+msgstr "`BinCoeff` 还实现了 `Eq`、`Compare`、`Show` 和 `Debug`；提升后的 trait 方法列在 [Trait 实现](#trait-implementations)下。它没有算术、移位、位运算或 GCD：这些是库的内部功能（包 `internal/binary_kernel`），对值的算术请用 `Binary`，或者对用 `coefficient()` 读出的系数，先用 `to_string` 或 `to_bytes_be` 转换。"
 
 #: manual/api/binary.md:225
 msgid "The value type"
 msgstr "值类型"
 
 #: manual/api/binary.md:229
-msgid "A binary floating-point value: a finite dyadic number, a signed infinity or a NaN, with a working precision. Its representation is an internal type (`@bin_kernel.BinRepr`, like the coefficient of `BinCoeff`) that carries no compatibility promise and is read only inside the package; a value is one heap object."
-msgstr "一个二进制浮点值：有限的二进有理数、带符号的无穷或 NaN，并带有工作精度。其表示是内部类型（`@bin_kernel.BinRepr`，与 `BinCoeff` 的系数类似），不承诺兼容性，只在包内读取；一个值就是一个堆对象。"
+msgid "A binary floating-point value: a finite dyadic number, a signed infinity or a NaN, with a working precision. Its representation is an internal type (`@binary_kernel.BinRepr`, like the coefficient of `BinCoeff`) that carries no compatibility promise and is read only inside the package; a value is one heap object."
+msgstr "一个二进制浮点值：有限的二进有理数、带符号的无穷或 NaN，并带有工作精度。其表示是内部类型（`@binary_kernel.BinRepr`，与 `BinCoeff` 的系数类似），不承诺兼容性，只在包内读取；一个值就是一个堆对象。"
 
 #: manual/api/binary.md:239
 msgid "A finite value is $(-1)^s \\cdot c \\cdot 2^{e}$ with $s$ the sign bit, $c$ a `BinCoeff` and $e$ = `exponent2()`. Every value built through this API is normalized: a nonzero $c$ is odd (factors of two are moved into $e$), a zero has $c = 0$ and $e = 0$ and keeps its sign, and $c$ has at most `precision()` bits. The precision is an attribute of the value: plain operations work at the larger precision of their operands, and contextual operations stamp the context precision on their result."
@@ -3935,7 +3935,7 @@ msgstr "`to_string` 在不带上下文的情况下以科学记数法格式化值
 #: manual/api/frontend/mpfr_expr.md:539
 #: manual/api/frontend/testfloat_expr.md:420
 #: manual/api/internal.md:508
-#: manual/api/internal/bin_kernel.md:83
+#: manual/api/internal/binary_kernel.md:83
 #: manual/api/internal/conformance.md:361
 #: manual/api/internal/decimal_kernel.md:94
 #: manual/api/internal/runner_cli.md:211
@@ -6258,7 +6258,7 @@ msgid "For valid inputs, `etiny` is $e_{\\min} - p + 1$ and `etop` is $e_{\\max}
 msgstr "对于有效输入，`etiny` 为 $e_{\\min} - p + 1$，`etop` 为 $e_{\\max} - p + 1$。对于无效输入，`is_valid()` 返回 `false`；为使此内部值对所有输入都有定义，返回的端点仅会在必要时钳制，调用方必须先拒绝无效上下文，不能使用这些端点。"
 
 #: manual/api/internal.md:58
-#: manual/api/internal/bin_kernel.md:25
+#: manual/api/internal/binary_kernel.md:25
 #: manual/api/internal/conformance.md:17
 #: manual/api/internal/decimal_kernel.md:20
 #: manual/api/internal/runner_cli.md:16
@@ -6474,91 +6474,91 @@ msgstr "`certified_failure(operation, stage, reason, target_precision, budget)` 
 msgid "The error's detail records the operation name, stage, reason, target precision, and the budget's current working precision and refinement count."
 msgstr "该错误的详情记录运算名、阶段、原因、目标精度，以及预算当前的工作精度和细化次数。"
 
-#: manual/api/internal/bin_kernel.md:1
-msgid "internal/bin_kernel API"
-msgstr "internal/bin_kernel API"
+#: manual/api/internal/binary_kernel.md:1
+msgid "internal/binary_kernel API"
+msgstr "internal/binary_kernel API"
 
-#: manual/api/internal/bin_kernel.md:5
-msgid "`internal/bin_kernel` holds the integer arithmetic on the coefficients of `Binary`: a non-negative arbitrary-precision integer `Coeff`, its comparison, addition, subtraction, shifts and bit operations, the multiplication algorithms (schoolbook, Karatsuba, Toom-3 and the two-prime NTT), division (Knuth's algorithm D and Burnikel-Ziegler), the integer square root, the GCD, and the conversions to and from bytes and text in any radix, with the per-target thresholds that choose between the algorithms. Every function is an exact function of its arguments. The package raises no condition and has no notion of a rounding mode, a context or a flag; those belong to `binary`. `internal/bin_kernel` also declares the internal enum `BinRepr`, the representation of `Binary` (one file per target: `repr_nonjs.mbt` and `repr_js.mbt`); see the design page of `binary`, section \"Representation of a value\". It is an internal package: code outside `Luna-Flow/floating` cannot import it. The public coefficient type `BinCoeff` of `binary` is a newtype over `Coeff` whose methods (construction, conversion, comparison and queries) forward to this package; the arithmetic exists only here. The name `Coeff` appears in the interface of `BinCoeff`, but a user outside the module cannot import this package and so cannot call or compare anything on it. See the [tutorial](../../tutorial/internal/bin_kernel.md) and the [design page](../../design/internal/bin_kernel.md)."
-msgstr "`internal/bin_kernel` 提供 `Binary` 系数所需的整数算术：非负任意精度整数 `Coeff`，及其比较、加法、减法、移位和位运算；乘法算法（朴素乘法、Karatsuba、Toom-3 和双素数 NTT）；除法（Knuth 算法 D 与 Burnikel-Ziegler）；整数平方根；GCD；以及与字节和任意进制文本之间的转换，并带有在各算法之间选择的分目标阈值。每个函数都是其参数的精确函数。本包不抛出任何状况，也没有舍入模式、上下文或标志的概念，这些都属于 `binary`。`internal/bin_kernel` 还声明内部枚举 `BinRepr`，即 `Binary` 的表示（每个目标一个文件：`repr_nonjs.mbt` 和 `repr_js.mbt`）；参见 `binary` 设计页的“值的表示”一节。它是内部包：`Luna-Flow/floating` 之外的代码无法导入。`binary` 的公共系数类型 `BinCoeff` 是 `Coeff` 之上的 newtype，其方法（构造、转换、比较和查询）转发到本包；算术只存在于这里。`Coeff` 这个名字出现在 `BinCoeff` 的接口中，但模块之外的用户无法导入本包，因此无法对它调用或比较任何东西。参见[教程](../../tutorial/internal/bin_kernel.md)和[设计页](../../design/internal/bin_kernel.md)。"
+#: manual/api/internal/binary_kernel.md:5
+msgid "`internal/binary_kernel` holds the integer arithmetic on the coefficients of `Binary`: a non-negative arbitrary-precision integer `Coeff`, its comparison, addition, subtraction, shifts and bit operations, the multiplication algorithms (schoolbook, Karatsuba, Toom-3 and the two-prime NTT), division (Knuth's algorithm D and Burnikel-Ziegler), the integer square root, the GCD, and the conversions to and from bytes and text in any radix, with the per-target thresholds that choose between the algorithms. Every function is an exact function of its arguments. The package raises no condition and has no notion of a rounding mode, a context or a flag; those belong to `binary`. `internal/binary_kernel` also declares the internal enum `BinRepr`, the representation of `Binary` (one file per target: `repr_nonjs.mbt` and `repr_js.mbt`); see the design page of `binary`, section \"Representation of a value\". It is an internal package: code outside `Luna-Flow/floating` cannot import it. The public coefficient type `BinCoeff` of `binary` is a newtype over `Coeff` whose methods (construction, conversion, comparison and queries) forward to this package; the arithmetic exists only here. The name `Coeff` appears in the interface of `BinCoeff`, but a user outside the module cannot import this package and so cannot call or compare anything on it. See the [tutorial](../../tutorial/internal/binary_kernel.md) and the [design page](../../design/internal/binary_kernel.md)."
+msgstr "`internal/binary_kernel` 提供 `Binary` 系数所需的整数算术：非负任意精度整数 `Coeff`，及其比较、加法、减法、移位和位运算；乘法算法（朴素乘法、Karatsuba、Toom-3 和双素数 NTT）；除法（Knuth 算法 D 与 Burnikel-Ziegler）；整数平方根；GCD；以及与字节和任意进制文本之间的转换，并带有在各算法之间选择的分目标阈值。每个函数都是其参数的精确函数。本包不抛出任何状况，也没有舍入模式、上下文或标志的概念，这些都属于 `binary`。`internal/binary_kernel` 还声明内部枚举 `BinRepr`，即 `Binary` 的表示（每个目标一个文件：`repr_nonjs.mbt` 和 `repr_js.mbt`）；参见 `binary` 设计页的“值的表示”一节。它是内部包：`Luna-Flow/floating` 之外的代码无法导入。`binary` 的公共系数类型 `BinCoeff` 是 `Coeff` 之上的 newtype，其方法（构造、转换、比较和查询）转发到本包；算术只存在于这里。`Coeff` 这个名字出现在 `BinCoeff` 的接口中，但模块之外的用户无法导入本包，因此无法对它调用或比较任何东西。参见[教程](../../tutorial/internal/binary_kernel.md)和[设计页](../../design/internal/binary_kernel.md)。"
 
-#: manual/api/internal/bin_kernel.md:33
+#: manual/api/internal/binary_kernel.md:33
 #: manual/api/internal/decimal_kernel.md:28
 msgid "and bring the names a package uses into scope once, for example in a file of its own:"
 msgstr "然后把包用到的名字一次性引入作用域，例如放在单独的文件里："
 
-#: manual/api/internal/bin_kernel.md:41
+#: manual/api/internal/binary_kernel.md:41
 #: manual/api/internal/decimal_kernel.md:40
 msgid "The manual's example checker has no alias for internal subpackages, so the examples are marked `nocheck`."
 msgstr "本手册的示例检查器没有内部子包的别名，所以这些示例标为 `nocheck`。"
 
-#: manual/api/internal/bin_kernel.md:44
+#: manual/api/internal/binary_kernel.md:44
 #: manual/api/internal/decimal_kernel.md:43
 msgid "The coefficient type"
 msgstr "系数类型"
 
-#: manual/api/internal/bin_kernel.md:48
+#: manual/api/internal/binary_kernel.md:48
 msgid "A non-negative integer. On Native, LLVM, Wasm and Wasm-GC it is a newtype over `CoeffRepr`; on JavaScript it is a host `bigint`. The value is persistent: no function mutates an operand."
 msgstr "非负整数。在 Native、LLVM、Wasm 和 Wasm-GC 上它是 `CoeffRepr` 之上的 newtype；在 JavaScript 上它是宿主 `bigint`。值是持久的：没有任何函数会修改操作数。"
 
-#: manual/api/internal/bin_kernel.md:54
+#: manual/api/internal/binary_kernel.md:54
 msgid "The storage on the targets that are not JavaScript: `Inline64(low)` and `Inline128(high, low)` for values below $2^{64}$ and $2^{128}$, and `Heap(words, len)` for larger ones, with `len` little-endian 64-bit limbs of which the top one is nonzero. The constructors are readable because the word-sized fast paths of `binary` pattern-match on them; build values with the functions below."
 msgstr "非 JavaScript 目标上的存储：低于 $2^{64}$ 和 $2^{128}$ 的值分别用 `Inline64(low)` 和 `Inline128(high, low)`，更大的值用 `Heap(words, len)`，其中有 `len` 个小端 64 位肢，最高肢非零。构造器可读是因为 `binary` 的单字快速路径会对它们做模式匹配；构造值请使用下面的函数。"
 
-#: manual/api/internal/bin_kernel.md:61
+#: manual/api/internal/binary_kernel.md:61
 #: manual/api/internal/decimal_kernel.md:67
 msgid "Function families"
 msgstr "函数族"
 
-#: manual/api/internal/bin_kernel.md:63
+#: manual/api/internal/binary_kernel.md:63
 #: manual/api/internal/decimal_kernel.md:73
 msgid "Family"
 msgstr "族"
 
-#: manual/api/internal/bin_kernel.md:63
+#: manual/api/internal/binary_kernel.md:63
 #: manual/api/internal/decimal_kernel.md:73
 msgid "Functions"
 msgstr "函数"
 
-#: manual/api/internal/bin_kernel.md:65
+#: manual/api/internal/binary_kernel.md:65
 #: manual/api/internal/decimal_kernel.md:75
 msgid "build and convert"
 msgstr "构造与转换"
 
-#: manual/api/internal/bin_kernel.md:66
+#: manual/api/internal/binary_kernel.md:66
 #: manual/api/internal/decimal_kernel.md:76
 msgid "shape"
 msgstr "形态查询"
 
-#: manual/api/internal/bin_kernel.md:67
+#: manual/api/internal/binary_kernel.md:67
 msgid "compare"
 msgstr "比较"
 
-#: manual/api/internal/bin_kernel.md:68
+#: manual/api/internal/binary_kernel.md:68
 msgid "add, subtract, shift"
 msgstr "加、减、移位"
 
-#: manual/api/internal/bin_kernel.md:69
+#: manual/api/internal/binary_kernel.md:69
 msgid "bit operations"
 msgstr "位运算"
 
-#: manual/api/internal/bin_kernel.md:70
+#: manual/api/internal/binary_kernel.md:70
 msgid "multiply and divide"
 msgstr "乘与除"
 
-#: manual/api/internal/bin_kernel.md:71
+#: manual/api/internal/binary_kernel.md:71
 msgid "number theory and roots"
 msgstr "数论与开方"
 
-#: manual/api/internal/bin_kernel.md:72
+#: manual/api/internal/binary_kernel.md:72
 msgid "limb rows (C on native, portable elsewhere)"
 msgstr "肢行（native 上为 C，其他目标为可移植实现）"
 
-#: manual/api/internal/bin_kernel.md:73
+#: manual/api/internal/binary_kernel.md:73
 msgid "machine words"
 msgstr "机器字"
 
-#: manual/api/internal/bin_kernel.md:75
+#: manual/api/internal/binary_kernel.md:75
 msgid "The per-target thresholds (`bin_coeff_*_min_words`, `*_words`, `*_cutoff`) are private: they live in `coeff_thresholds_<target>.mbt` and are selected by `moon.pkg`. Preconditions are checked with `abort` (a negative shift count, a zero divisor): they are programmer errors of the caller, never conditions of an operation."
 msgstr "分目标阈值（`bin_coeff_*_min_words`、`*_words`、`*_cutoff`）是私有的：它们位于 `coeff_thresholds_<target>.mbt`，由 `moon.pkg` 选择。前置条件用 `abort` 检查（负的移位量、零除数）：它们是调用者的编程错误，而不是运算的状况。"
 
@@ -8910,7 +8910,7 @@ msgid "`internal` and `internal/*`, `cli` and `cli/*`, `bench` and `bench/*`, `c
 msgstr "`internal` 与 `internal/*`、`cli` 与 `cli/*`、`bench` 与 `bench/*`、`consistency` 以及 `doc_examples` 属于实现与验证基础设施。某个符号出现在 `pkg.generated.mbti` 中，并不意味着它成为长期的应用契约；依赖它之前请先阅读该包的设计页面。"
 
 #: manual/architecture.md:274
-#: manual/design/internal/bin_kernel.md:102
+#: manual/design/internal/binary_kernel.md:102
 msgid "Invariants"
 msgstr "不变量"
 
@@ -10940,7 +10940,7 @@ msgstr "bench 设计"
 #: manual/design/frontend/mpfr_expr.md:3
 #: manual/design/frontend/testfloat_expr.md:3
 #: manual/design/internal.md:3
-#: manual/design/internal/bin_kernel.md:3
+#: manual/design/internal/binary_kernel.md:3
 #: manual/design/internal/conformance.md:3
 #: manual/design/internal/decimal_kernel.md:3
 #: manual/design/internal/runner_cli.md:3
@@ -10984,7 +10984,7 @@ msgstr "`floating` 中的性能结论必须可复现，且不能与噪声混淆�
 #: manual/design/frontend/mpfr_expr.md:17
 #: manual/design/frontend/testfloat_expr.md:16
 #: manual/design/internal.md:24
-#: manual/design/internal/bin_kernel.md:11
+#: manual/design/internal/binary_kernel.md:11
 #: manual/design/internal/conformance.md:12
 #: manual/design/internal/decimal_kernel.md:11
 #: manual/design/internal/runner_cli.md:13
@@ -13066,8 +13066,8 @@ msgid "**Problem.** Precision costs integer multiplication and division of $p$-b
 msgstr "**问题。** 精度的代价来自 $p$ 位数的整数乘法和除法，而 $p$ 的范围从 1 到 $2^{28}$。"
 
 #: manual/design/binary.md:2004
-msgid "**Choice.** The kernel is the internal package [`internal/bin_kernel`](internal/bin_kernel.md); `BinCoeff` is a newtype over its `Coeff`. `Coeff` stores up to 128 bits inline and larger values as little-endian 64-bit limbs (a host `bigint` on JavaScript), and dispatches on the operand length $n$ in 64-bit limbs. Every threshold below is in 64-bit limbs:"
-msgstr "**选择。** 内核是内部包 [`internal/bin_kernel`](internal/bin_kernel.md)；`BinCoeff` 是其 `Coeff` 之上的 newtype。`Coeff` 内联存储至多 128 位，更大的值存为小端 64 位肢（在 JavaScript 上为宿主 `bigint`），并按操作数的 64 位肢长度 $n$ 分派。下面的每个阈值都以 64 位肢为单位："
+msgid "**Choice.** The kernel is the internal package [`internal/binary_kernel`](internal/binary_kernel.md); `BinCoeff` is a newtype over its `Coeff`. `Coeff` stores up to 128 bits inline and larger values as little-endian 64-bit limbs (a host `bigint` on JavaScript), and dispatches on the operand length $n$ in 64-bit limbs. Every threshold below is in 64-bit limbs:"
+msgstr "**选择。** 内核是内部包 [`internal/binary_kernel`](internal/binary_kernel.md)；`BinCoeff` 是其 `Coeff` 之上的 newtype。`Coeff` 内联存储至多 128 位，更大的值存为小端 64 位肢（在 JavaScript 上为宿主 `bigint`），并按操作数的 64 位肢长度 $n$ 分派。下面的每个阈值都以 64 位肢为单位："
 
 #: manual/design/binary.md:2009
 msgid "Product or square"
@@ -17427,15 +17427,15 @@ msgstr "不提供公开的稳定性保证：该包只能在 `Luna-Flow/floating`
 msgid "The power caches are process-wide mutable state, the only state in the package; they never change a result."
 msgstr "幂缓存是进程范围的可变状态，也是该包中唯一的状态；它们绝不会改变任何结果。"
 
-#: manual/design/internal/bin_kernel.md:1
-msgid "internal/bin_kernel design"
-msgstr "internal/bin_kernel 设计"
+#: manual/design/internal/binary_kernel.md:1
+msgid "internal/binary_kernel design"
+msgstr "internal/binary_kernel 设计"
 
-#: manual/design/internal/bin_kernel.md:5
+#: manual/design/internal/binary_kernel.md:5
 msgid "`Binary` is a rounding layer on top of one arithmetic: non-negative integers of up to $2^{28}$ bits. The integer part should be one package with one contract, so that an algorithm can be measured, replaced and tested without the floating-point layer, and so that the rounding layer cannot reach into it. The package therefore contains only functions from integers to integers."
 msgstr "`Binary` 是建立在同一种算术之上的舍入层：至多 $2^{28}$ 位的非负整数。整数部分应当是一个有单一契约的包，这样算法就可以脱离浮点层来测量、替换和测试，舍入层也无法越过它。因此本包只包含从整数到整数的函数。"
 
-#: manual/design/internal/bin_kernel.md:13
+#: manual/design/internal/binary_kernel.md:13
 msgid ""
 "A coefficient $c \\ge 0$ is stored as $c = \\sum_{i<n} w_i 2^{64 i}$ with $0 \\le w_i < 2^{64}$ and $w_{n-1} \\n"
 "e 0$; values below $2^{128}$ are kept in one or two machine words without an array. Every operation computes an exact result:"
@@ -17443,176 +17443,176 @@ msgstr ""
 "系数 $c \\ge 0$ 存为 $c = \\sum_{i<n} w_i 2^{64 i}$，其中 $0 \\le w_i < 2^{64}$，$w_{n-1} \\n"
 "e 0$；低于 $2^{128}$ 的值保存在一个或两个机器字中，不使用数组。每个运算都计算精确结果："
 
-#: manual/design/internal/bin_kernel.md:18
+#: manual/design/internal/binary_kernel.md:18
 #: manual/design/internal/decimal_kernel.md:22
 msgid "$\\operatorname{add}(a,b) = a + b$, $\\operatorname{sub}(a,b) = a - b$ for $a \\ge b$, $\\operatorname{mul}(a,b) = ab$;"
 msgstr "$\\operatorname{add}(a,b) = a + b$，当 $a \\ge b$ 时 $\\operatorname{sub}(a,b) = a - b$，$\\operatorname{mul}(a,b) = ab$；"
 
-#: manual/design/internal/bin_kernel.md:20
+#: manual/design/internal/binary_kernel.md:20
 #: manual/design/internal/decimal_kernel.md:24
 msgid "$\\operatorname{divrem}(a,b) = (q,r)$ with $a = qb + r$ and $0 \\le r < b$;"
 msgstr "$\\operatorname{divrem}(a,b) = (q,r)$，其中 $a = qb + r$ 且 $0 \\le r < b$；"
 
-#: manual/design/internal/bin_kernel.md:21
+#: manual/design/internal/binary_kernel.md:21
 msgid "$\\operatorname{shift}(a,k) = a \\cdot 2^{k}$ and $\\lfloor a / 2^{k} \\rfloor$;"
 msgstr "$\\operatorname{shift}(a,k) = a \\cdot 2^{k}$ 以及 $\\lfloor a / 2^{k} \\rfloor$；"
 
-#: manual/design/internal/bin_kernel.md:22
+#: manual/design/internal/binary_kernel.md:22
 msgid "the integer square root $s = \\lfloor \\sqrt{a} \\rfloor$ with remainder $a - s^2$, the GCD, and the digits of $a$ in any radix."
 msgstr "整数平方根 $s = \\lfloor \\sqrt{a} \\rfloor$ 及余数 $a - s^2$、GCD，以及 $a$ 在任意进制下的数位。"
 
-#: manual/design/internal/bin_kernel.md:25
+#: manual/design/internal/binary_kernel.md:25
 msgid "The algorithms behind them (schoolbook, Karatsuba, Toom-3, the two-prime NTT, Knuth's algorithm D, Burnikel-Ziegler, the Zimmermann square root, Lehmer GCD and the in-place radix conversion), their cutoffs and the argument that they all compute the same integers are in the section [The coefficient kernel](../binary.md#the-coefficient-kernel) of the `binary` design page. Because every path computes the same integers, the choice of algorithm cannot change a rounded result, a flag or an encoding."
 msgstr "它们背后的算法（朴素乘法、Karatsuba、Toom-3、双素数 NTT、Knuth 算法 D、Burnikel-Ziegler、Zimmermann 平方根、Lehmer GCD 和原地进制转换）、它们的分界点，以及所有路径计算同一整数的论证，都在 `binary` 设计页的[系数内核](../binary.md#the-coefficient-kernel)一节中。由于每条路径计算的整数相同，算法的选择不会改变任何舍入结果、标志或编码。"
 
-#: manual/design/internal/bin_kernel.md:33
+#: manual/design/internal/binary_kernel.md:33
 msgid "Package boundary"
 msgstr "包边界"
 
-#: manual/design/internal/bin_kernel.md:35
+#: manual/design/internal/binary_kernel.md:35
 msgid "Decision"
 msgstr "决策"
 
-#: manual/design/internal/bin_kernel.md:35
+#: manual/design/internal/binary_kernel.md:35
 msgid "Choice"
 msgstr "选择"
 
-#: manual/design/internal/bin_kernel.md:35
+#: manual/design/internal/binary_kernel.md:35
 msgid "Reason"
 msgstr "原因"
 
-#: manual/design/internal/bin_kernel.md:37
+#: manual/design/internal/binary_kernel.md:37
 msgid "Where the type lives"
 msgstr "类型的位置"
 
-#: manual/design/internal/bin_kernel.md:37
-msgid "`Coeff` is defined here; `BinCoeff` in `binary` is a newtype `struct BinCoeff(@bin_kernel.Coeff)`"
-msgstr "`Coeff` 定义在这里；`binary` 中的 `BinCoeff` 是 newtype `struct BinCoeff(@bin_kernel.Coeff)`"
+#: manual/design/internal/binary_kernel.md:37
+msgid "`Coeff` is defined here; `BinCoeff` in `binary` is a newtype `struct BinCoeff(@binary_kernel.Coeff)`"
+msgstr "`Coeff` 定义在这里；`binary` 中的 `BinCoeff` 是 newtype `struct BinCoeff(@binary_kernel.Coeff)`"
 
-#: manual/design/internal/bin_kernel.md:37
+#: manual/design/internal/binary_kernel.md:37
 msgid "A re-export of an internal type (`pub using`) does not give another module (the tools module) the methods of the type; a newtype does, and it is erased."
 msgstr "对内部类型的重新导出（`pub using`）不会让另一个模块（工具模块）获得该类型的方法；newtype 可以，而且它会被擦除。"
 
-#: manual/design/internal/bin_kernel.md:38
+#: manual/design/internal/binary_kernel.md:38
 msgid "Unwrapping"
 msgstr "解包"
 
-#: manual/design/internal/bin_kernel.md:38
-msgid "`struct BinCoeff(@bin_kernel.Coeff)` (abstract, printed as `type BinCoeff` in the interface); `BinCoeff` has no arithmetic"
-msgstr "`struct BinCoeff(@bin_kernel.Coeff)`（抽象，在接口中显示为 `type BinCoeff`）；`BinCoeff` 没有算术"
+#: manual/design/internal/binary_kernel.md:38
+msgid "`struct BinCoeff(@binary_kernel.Coeff)` (abstract, printed as `type BinCoeff` in the interface); `BinCoeff` has no arithmetic"
+msgstr "`struct BinCoeff(@binary_kernel.Coeff)`（抽象，在接口中显示为 `type BinCoeff`）；`BinCoeff` 没有算术"
 
-#: manual/design/internal/bin_kernel.md:38
+#: manual/design/internal/binary_kernel.md:38
 msgid "The other library packages (`interval`) do arithmetic on coefficients: `value.to_kernel()` gives them the kernel type and `BinCoeff::from_kernel(c)` wraps a result. Neither the constructor nor the field is visible outside `binary`, so no other package builds or reads a `BinCoeff` by hand, and both bridge functions are marked in the API page as internal (`#internal` has no effect on the generated interface or on the documentation tool). Outside the module the inner type is inert: a method call, `==` and a qualified call on it are compile errors, and the import is refused by the solver, so the field exposes no operation and no compatibility promise."
 msgstr "库的其他包（`interval`）要对系数做算术：`value.to_kernel()` 给它们内核类型，`BinCoeff::from_kernel(c)` 包装结果。构造函数和字段在 `binary` 之外都不可见，所以其他包不能手工构造或读取 `BinCoeff`，两个桥接函数在 API 页中都标记为内部（`#internal` 对生成的接口和文档工具都没有效果）。在模块之外，内部类型是惰性的：对它调用方法、使用 `==` 以及带限定的调用都是编译错误，导入则被求解器拒绝，因此该字段不暴露任何操作，也没有兼容性承诺。"
 
-#: manual/design/internal/bin_kernel.md:39
+#: manual/design/internal/binary_kernel.md:39
 msgid "Why not a record wrapper"
 msgstr "为什么不用记录包装"
 
-#: manual/design/internal/bin_kernel.md:39
+#: manual/design/internal/binary_kernel.md:39
 msgid "A newtype, never `struct BinCoeff { kernel : Coeff }`"
 msgstr "使用 newtype，绝不用 `struct BinCoeff { kernel : Coeff }`"
 
-#: manual/design/internal/bin_kernel.md:39
+#: manual/design/internal/binary_kernel.md:39
 msgid "A record wrapper allocates a second object per value: +49% retired instructions on a small `add` in the throwaway measurement. A newtype and a call across the package boundary cost nothing measurable."
 msgstr "记录包装会为每个值多分配一个对象：在一次性测量中，一次小数 `add` 多出 49% 的已退休指令。newtype 以及跨包边界的调用没有可测量的开销。"
 
-#: manual/design/internal/bin_kernel.md:40
+#: manual/design/internal/binary_kernel.md:40
 #: manual/performance/binary.md:10
 msgid "Representation"
 msgstr "Context、flags 与 interchange"
 
-#: manual/design/internal/bin_kernel.md:40
+#: manual/design/internal/binary_kernel.md:40
 msgid "`Coeff` is a newtype over a three-case enum (`Inline64`, `Inline128`, `Heap`); `Binary` stores it directly"
 msgstr "`Coeff` 是三种情形枚举（`Inline64`、`Inline128`、`Heap`）之上的 newtype；`Binary` 直接存储它"
 
-#: manual/design/internal/bin_kernel.md:40
+#: manual/design/internal/binary_kernel.md:40
 msgid "One allocation per coefficient instead of two (10 to 15% fewer instructions per `Binary` operation at 53 to 512 bits, [#427](https://github.com/Luna-Flow/floating/pull/427))."
 msgstr "每个系数一次分配而不是两次（在 53 到 512 位时每个 `Binary` 运算少 10% 到 15% 的指令，[#427](https://github.com/Luna-Flow/floating/pull/427)）。"
 
-#: manual/design/internal/bin_kernel.md:41
+#: manual/design/internal/binary_kernel.md:41
 #: manual/verification.md:260
 #: manual/verification.md:303
 msgid "JavaScript"
 msgstr "JavaScript"
 
-#: manual/design/internal/bin_kernel.md:41
+#: manual/design/internal/binary_kernel.md:41
 msgid "`Coeff` is a host `bigint` (`coeff_js.mbt`); no kernel algorithms"
 msgstr "`Coeff` 是宿主 `bigint`（`coeff_js.mbt`）；没有内核算法"
 
-#: manual/design/internal/bin_kernel.md:41
+#: manual/design/internal/binary_kernel.md:41
 msgid "The host's arbitrary-precision integers are the kernel there."
 msgstr "宿主的任意精度整数在那里就是内核。"
 
-#: manual/design/internal/bin_kernel.md:42
+#: manual/design/internal/binary_kernel.md:42
 msgid "Machine words"
 msgstr "机器字"
 
-#: manual/design/internal/bin_kernel.md:42
+#: manual/design/internal/binary_kernel.md:42
 msgid "`binary_fast_*` live here"
 msgstr "`binary_fast_*` 位于此处"
 
-#: manual/design/internal/bin_kernel.md:42
+#: manual/design/internal/binary_kernel.md:42
 msgid "The word-wide `mul_high` and `div_wide` are used by the kernel and by the single-word paths of `binary`."
 msgstr "字宽的 `mul_high` 和 `div_wide` 由内核和 `binary` 的单字路径共同使用。"
 
-#: manual/design/internal/bin_kernel.md:44
+#: manual/design/internal/binary_kernel.md:44
 msgid "Limb rows and the native C stub"
 msgstr "肢行与 native 的 C 桩"
 
-#: manual/design/internal/bin_kernel.md:46
+#: manual/design/internal/binary_kernel.md:46
 msgid "The inner loops of the schoolbook product and square are row primitives on 64-bit limbs: `mul_1`, `addmul_1`, `submul_1` (each takes arrays and offsets in limbs and returns a carry limb), the whole-call `school` and `sqr_school`. Each has a portable MoonBit function (`coeff_limbs_portable_nonjs.mbt`, `coeff_words_nonjs.mbt`), which is the reference, and a C function of the same name in `luna_limbs.c`. On the native target the wrappers of `coeff_limbs_native.mbt` check every range once per call, then call the C function; on wasm, wasm-gc and llvm the wrappers of `coeff_limbs_other_nonjs.mbt` call the portable one; JavaScript has no limb loops. The results are the same bit for bit; a differential test per primitive (`coeff_limbs_native_wbtest.mbt`) compares the two on lengths 1 to 200, edge limbs, carries through every position and the aliasing the callers use."
 msgstr "教科书式乘法与平方的内层循环是基于 64 位肢的行原语：`mul_1`、`addmul_1`、`submul_1`（参数为数组和以肢为单位的偏移，返回一个进位肢），以及整体调用的 `school` 与 `sqr_school`。每个原语都有一个可移植的 MoonBit 函数（`coeff_limbs_portable_nonjs.mbt`、`coeff_words_nonjs.mbt`），它是参照实现；`luna_limbs.c` 中有同名的 C 函数。在 native 目标上，`coeff_limbs_native.mbt` 的包装函数每次调用先检查一次所有范围，再调用 C 函数；在 wasm、wasm-gc 和 llvm 上，`coeff_limbs_other_nonjs.mbt` 的包装函数调用可移植版本；JavaScript 没有肢循环。结果逐位相同；每个原语都有差分测试（`coeff_limbs_native_wbtest.mbt`），在长度 1 到 200、边界肢、每个位置的进位以及调用方使用的别名情形下比较两者。"
 
-#: manual/design/internal/bin_kernel.md:59
+#: manual/design/internal/binary_kernel.md:59
 msgid "The C file uses `unsigned __int128` where the compiler defines `__SIZEOF_INT128__` (gcc, clang) and four 32-bit products elsewhere. The intrinsics of MSVC (`_umul128`, `__umulh`) are not used: they have not been compiled and run, so `cl` takes the 32-bit branch (known follow-up)."
 msgstr "C 文件在编译器定义了 `__SIZEOF_INT128__` 时（gcc、clang）使用 `unsigned __int128`，其他情况使用四个 32 位乘积。MSVC 的内建函数（`_umul128`、`__umulh`）未被使用：它们尚未编译和运行过，所以 `cl` 走 32 位分支（已知的后续工作）。"
 
-#: manual/design/internal/bin_kernel.md:63
+#: manual/design/internal/binary_kernel.md:63
 msgid "Test and benchmark knob: the environment variable `LUNA_FLOATING_PORTABLE`, read once at start, set to anything but empty or `0`, makes the native build run the portable loops. It changes speed only. `getenv` may warn on MSVC; that platform is untested."
 msgstr "测试与基准开关：环境变量 `LUNA_FLOATING_PORTABLE` 在启动时读取一次，设为非空且不为 `0` 的任何值时，native 构建运行可移植循环。它只改变速度。`getenv` 在 MSVC 上可能产生警告；该平台未经测试。"
 
-#: manual/design/internal/bin_kernel.md:67
+#: manual/design/internal/binary_kernel.md:67
 msgid "Measured on arm64 (Apple clang, release): about 21 to 23 instructions per limb pair in the portable loop, 11 to 12 in C. x86-64: the stub compiles and its tests run in CI, no instruction table (not measured)."
 msgstr "在 arm64（Apple clang，release）上的测量：可移植循环每个肢对约 21 到 23 条指令，C 为 11 到 12 条。x86-64：桩在 CI 中编译并运行测试，没有指令数表（未测量）。"
 
-#: manual/design/internal/bin_kernel.md:70
+#: manual/design/internal/binary_kernel.md:70
 msgid "Rows are not worth a C version for add, subtract and shifts: the portable loop is as short."
 msgstr "加法、减法和移位不值得做 C 版本：可移植循环已经同样短。"
 
-#: manual/design/internal/bin_kernel.md:72
+#: manual/design/internal/binary_kernel.md:72
 msgid "Assembly tier: on Apple arm64 (clang or gcc) the three rows, and through them `school` and `sqr_school`, have a third implementation in inline assembly in `luna_limbs.c`, written from the AArch64 instruction definitions. Four limbs per iteration, two carry chains in sequence: chain A adds the low words of the products and the high words of the previous limbs (`adds`, `adcs`, `adc`), chain B adds or subtracts the destination limbs, and the carry of chain B enters the next block as the initial flag (`cmp x, #1`). The lengths below a multiple of four are done first by the C row. Measured instructions per limb (arm64, row of 128 limbs): `mul_1` 4.9, `addmul_1` 6.9, `submul_1` 7.0 in assembly, 9.2, 12.1 and 13.1 in C. The floor of the loop: each limb needs a `mul`, a `umulh`, two carry additions and about 1.5 memory operations, 5.5 for `addmul_1`; the block adds 1.25 (finishing the chain A carry, the flag rebuild, the chain B carry, the loop). AArch64 has one carry flag and no multiply-accumulate with carry, so the two chains cannot be interleaved. Anywhere else the assembly entry points are the C rows."
 msgstr "汇编层：在 Apple arm64 上（clang 或 gcc），三个行原语以及基于它们的 `school` 和 `sqr_school` 有第三种实现，即 `luna_limbs.c` 中的内联汇编，依据 AArch64 指令定义编写。每次迭代处理四个肢，两条进位链依次执行：链 A 加上乘积的低字和前一个肢的高字（`adds`、`adcs`、`adc`），链 B 加上或减去目标肢，链 B 的进位作为初始标志进入下一个块（`cmp x, #1`）。不足四的倍数的长度先由 C 行处理。实测每肢指令数（arm64，128 肢的行）：汇编中 `mul_1` 为 4.9，`addmul_1` 为 6.9，`submul_1` 为 7.0；C 中分别为 9.2、12.1 和 13.1。循环的下限：每个肢需要一次 `mul`、一次 `umulh`、两次进位加法和约 1.5 次访存，`addmul_1` 为 5.5；每个块再加 1.25（结束链 A 的进位、重建标志、链 B 的进位、循环）。AArch64 只有一个进位标志，也没有带进位的乘加指令，所以两条链无法交错。在其他平台上，汇编入口就是 C 行。"
 
-#: manual/design/internal/bin_kernel.md:87
+#: manual/design/internal/binary_kernel.md:87
 msgid "`bin_limbs_product` (public, for the limb-array loops of `binary`): `r[ro ..< ro + an + bn] = a * b` in one call, rows over the limbs of `a` (pass the shorter operand or the multiplier as `a`), both lengths at least 1, `r` not overlapping the operands, every result limb written. On the native tiers with the C or assembly rows it is the schoolbook entry behind one set of range checks; on the portable tier and the other targets it is the loop of portable `mul_1` and `addmul_1` rows, so no target pays more. At 10 by 9 limbs it costs 868 instructions on the assembly tier and 1,145 on the C tier against 1,028 and 1,292 for `mul_1` and eight `addmul_1` through their wrappers (the wrappers and their checks are 134 of the C figure)."
 msgstr "`bin_limbs_product`（公开，供 `binary` 的肢数组循环使用）：一次调用完成 `r[ro ..< ro + an + bn] = a * b`，行遍历 `a` 的各个肢（把较短的操作数或乘数作为 `a`），两个长度至少为 1，`r` 不与操作数重叠，写满每一个结果肢。在使用 C 或汇编行的 native 层上，它是只经过一组范围检查的教科书乘法入口；在可移植层和其他目标上，它是可移植 `mul_1` 与 `addmul_1` 行的循环，因此任何目标都不会更慢。在 10 乘 9 个肢时，汇编层花费 868 条指令，C 层 1,145 条，而经过包装函数调用 `mul_1` 和八次 `addmul_1` 分别需要 1,028 和 1,292 条（包装函数及其检查占 C 层数字中的 134 条）。"
 
-#: manual/design/internal/bin_kernel.md:88
+#: manual/design/internal/binary_kernel.md:88
 msgid "Selection: `LUNA_FLOATING_PORTABLE` (portable loops) and `LUNA_FLOATING_LIMBS=c` (C rows) are read once at start; the default is assembly where the tier exists, else C. The differential test compares all three on the same arrays and logs the tier that ran. Linux arm64 has not been run; the tier is enabled for Apple arm64 only."
 msgstr "选择方式：`LUNA_FLOATING_PORTABLE`（可移植循环）和 `LUNA_FLOATING_LIMBS=c`（C 行）在启动时读取一次；有汇编层的平台默认使用汇编，否则使用 C。差分测试在相同数组上比较三者，并记录实际运行的层。Linux arm64 尚未运行过；该层只对 Apple arm64 启用。"
 
-#: manual/design/internal/bin_kernel.md:94
+#: manual/design/internal/binary_kernel.md:94
 msgid "Thresholds"
 msgstr "阈值"
 
-#: manual/design/internal/bin_kernel.md:96
+#: manual/design/internal/binary_kernel.md:96
 msgid "The cutoffs are named `*_min_words` or `*_words` (64-bit limbs) and chosen per target in `coeff_thresholds_<target>.mbt`. They are policy, not semantics: the dispatch tests cross every one of them and compare with the schoolbook result. The cutoffs of the elementary functions are not kernel policy and stay in `binary`."
 msgstr "分界点命名为 `*_min_words` 或 `*_words`（64 位肢），按目标在 `coeff_thresholds_<target>.mbt` 中选择。它们是策略而非语义：分派测试会恰好跨过每一个分界点，并与朴素乘法的结果比较。初等函数的分界点不是内核策略，仍留在 `binary`。"
 
-#: manual/design/internal/bin_kernel.md:104
+#: manual/design/internal/binary_kernel.md:104
 msgid "A `Heap` coefficient has `len >= 3` limbs, the top limb is nonzero, and no function mutates the array of an operand."
 msgstr "`Heap` 系数有 `len >= 3` 个肢，最高肢非零，且没有函数会修改操作数的数组。"
 
-#: manual/design/internal/bin_kernel.md:106
+#: manual/design/internal/binary_kernel.md:106
 msgid "The producers of fresh values (`Coeff::mul` for nonzero operands, `bin_coeff_div_scaled_quotient`, `bin_coeff_div_short_quotient`, `bin_coeff_mul_short`, `bin_coeff_sqrt_scaled_rounded`) return a `Heap` coefficient whose array no operand and no other value refers to; inline results and the shared `Coeff::zero()` carry no array, and a shift by zero returns its receiver. A caller may keep or modify such an array."
 msgstr "生成新值的函数（对非零操作数的 `Coeff::mul`、`bin_coeff_div_scaled_quotient`、`bin_coeff_div_short_quotient`、`bin_coeff_mul_short`、`bin_coeff_sqrt_scaled_rounded`）返回的 `Heap` 系数拥有一个数组，任何操作数和其他值都不引用它；内联结果和共享的 `Coeff::zero()` 不带数组，移位量为零时返回接收者本身。调用者可以保留或修改这样的数组。"
 
-#: manual/design/internal/bin_kernel.md:107
+#: manual/design/internal/binary_kernel.md:107
 msgid "`Inline64` and `Inline128` are the only representations of values below $2^{128}$; `bin_coeff_from_words` normalizes."
 msgstr "`Inline64` 和 `Inline128` 是低于 $2^{128}$ 的值的唯一表示；`bin_coeff_from_words` 会做规范化。"
 
-#: manual/design/internal/bin_kernel.md:109
+#: manual/design/internal/binary_kernel.md:109
 msgid "No function aborts except on a violated precondition (a zero divisor, a negative shift)."
 msgstr "除违反前置条件（零除数、负移位）外，没有函数会中止。"
 
@@ -20332,20 +20332,20 @@ msgid "[design](design/internal/decimal_kernel.md)"
 msgstr "[设计](design/internal/decimal_kernel.md)"
 
 #: manual/index.md:116
-msgid "`internal/bin_kernel`: exact integer arithmetic on the coefficients of `binary`"
-msgstr "`internal/bin_kernel`：`binary` 系数的精确整数算术"
+msgid "`internal/binary_kernel`: exact integer arithmetic on the coefficients of `binary`"
+msgstr "`internal/binary_kernel`：`binary` 系数的精确整数算术"
 
 #: manual/index.md:116
-msgid "[tutorial](tutorial/internal/bin_kernel.md)"
-msgstr "[教程](tutorial/internal/bin_kernel.md)"
+msgid "[tutorial](tutorial/internal/binary_kernel.md)"
+msgstr "[教程](tutorial/internal/binary_kernel.md)"
 
 #: manual/index.md:116
-msgid "[API](api/internal/bin_kernel.md)"
-msgstr "[API](api/internal/bin_kernel.md)"
+msgid "[API](api/internal/binary_kernel.md)"
+msgstr "[API](api/internal/binary_kernel.md)"
 
 #: manual/index.md:116
-msgid "[design](design/internal/bin_kernel.md)"
-msgstr "[设计](design/internal/bin_kernel.md)"
+msgid "[design](design/internal/binary_kernel.md)"
+msgstr "[设计](design/internal/binary_kernel.md)"
 
 #: manual/index.md:118
 msgid "Tools module: infrastructure and evidence"
@@ -22896,7 +22896,7 @@ msgstr "本教程介绍如何运行 `floating` 的基准测试套件、结果存
 #: manual/tutorial/frontend/mpfr_expr.md:9
 #: manual/tutorial/frontend/testfloat_expr.md:11
 #: manual/tutorial/internal.md:10
-#: manual/tutorial/internal/bin_kernel.md:9
+#: manual/tutorial/internal/binary_kernel.md:9
 #: manual/tutorial/internal/conformance.md:10
 #: manual/tutorial/internal/decimal_kernel.md:9
 #: manual/tutorial/internal/runner_cli.md:10
@@ -22936,7 +22936,7 @@ msgstr "我想要"
 #: manual/tutorial/frontend/mpfr_expr.md:9
 #: manual/tutorial/frontend/testfloat_expr.md:11
 #: manual/tutorial/internal.md:10
-#: manual/tutorial/internal/bin_kernel.md:9
+#: manual/tutorial/internal/binary_kernel.md:9
 #: manual/tutorial/internal/conformance.md:10
 #: manual/tutorial/internal/decimal_kernel.md:9
 #: manual/tutorial/internal/runner_cli.md:10
@@ -26862,115 +26862,115 @@ msgstr "[internal 设计](../design/internal.md)"
 msgid "[consistency tutorial](consistency.md) for the tests that cross-check these helpers."
 msgstr "[consistency 教程](consistency.md)：交叉检验这些辅助函数的测试。"
 
-#: manual/tutorial/internal/bin_kernel.md:1
-msgid "internal/bin_kernel tutorial"
-msgstr "internal/bin_kernel 教程"
+#: manual/tutorial/internal/binary_kernel.md:1
+msgid "internal/binary_kernel tutorial"
+msgstr "internal/binary_kernel 教程"
 
-#: manual/tutorial/internal/bin_kernel.md:3
+#: manual/tutorial/internal/binary_kernel.md:3
 msgid "The goal of this page is to show maintainers how to use the coefficient kernel when they add or change a binary operation, and how to keep a change to it safe for every target. The package is internal to `Luna-Flow/floating`; the examples are written for code inside the module and are not compiled by the manual checker."
 msgstr "本页向维护者说明：在添加或修改二进制运算时如何使用系数内核，以及如何让对它的修改在所有目标上保持安全。该包是 `Luna-Flow/floating` 的内部包；示例是为模块内部代码编写的，不会被手册检查器编译。"
 
-#: manual/tutorial/internal/bin_kernel.md:11
+#: manual/tutorial/internal/binary_kernel.md:11
 msgid "compute with exact coefficients in `binary`"
 msgstr "在 `binary` 中用精确系数计算"
 
-#: manual/tutorial/internal/bin_kernel.md:11
+#: manual/tutorial/internal/binary_kernel.md:11
 msgid "[the `Coeff` methods](#use-the-kernel-from-the-binary-package)"
 msgstr "[`Coeff` 的方法](#use-the-kernel-from-the-binary-package)"
 
-#: manual/tutorial/internal/bin_kernel.md:12
+#: manual/tutorial/internal/binary_kernel.md:12
 #: manual/tutorial/internal/decimal_kernel.md:12
 msgid "add an algorithm or a fast path"
 msgstr "添加算法或快速路径"
 
-#: manual/tutorial/internal/bin_kernel.md:12
+#: manual/tutorial/internal/binary_kernel.md:12
 #: manual/tutorial/internal/decimal_kernel.md:12
 msgid "[change the kernel](#change-the-kernel)"
 msgstr "[修改内核](#change-the-kernel)"
 
-#: manual/tutorial/internal/bin_kernel.md:13
+#: manual/tutorial/internal/binary_kernel.md:13
 #: manual/tutorial/internal/decimal_kernel.md:13
 msgid "tune a threshold"
 msgstr "调整阈值"
 
-#: manual/tutorial/internal/bin_kernel.md:13
+#: manual/tutorial/internal/binary_kernel.md:13
 #: manual/tutorial/internal/decimal_kernel.md:13
 msgid "[per-target thresholds](#tune-a-threshold)"
 msgstr "[各目标平台的阈值](#tune-a-threshold)"
 
-#: manual/tutorial/internal/bin_kernel.md:14
+#: manual/tutorial/internal/binary_kernel.md:14
 #: manual/tutorial/internal/decimal_kernel.md:14
 msgid "decide where new code belongs"
 msgstr "决定新代码该放在哪里"
 
-#: manual/tutorial/internal/bin_kernel.md:14
+#: manual/tutorial/internal/binary_kernel.md:14
 msgid "[kernel or `binary`](#decide-where-new-code-belongs)"
 msgstr "[内核还是 binary](#decide-where-new-code-belongs)"
 
-#: manual/tutorial/internal/bin_kernel.md:15
+#: manual/tutorial/internal/binary_kernel.md:15
 #: manual/tutorial/internal/decimal_kernel.md:15
 msgid "run the kernel tests"
 msgstr "运行内核测试"
 
-#: manual/tutorial/internal/bin_kernel.md:17
+#: manual/tutorial/internal/binary_kernel.md:17
 msgid "Use the kernel from the `binary` package"
 msgstr "在 binary 中使用内核"
 
-#: manual/tutorial/internal/bin_kernel.md:19
+#: manual/tutorial/internal/binary_kernel.md:19
 msgid "`binary` imports the kernel and brings the names it uses into scope with `using` (in `kernel_imports.mbt`, and `kernel_imports_nonjs.mbt` for the names that exist only where a coefficient has 64-bit limbs):"
 msgstr "`binary` 导入内核，并用 `using` 把用到的名字带入作用域（在 `kernel_imports.mbt` 中；只在系数有 64 位肢时才存在的名字在 `kernel_imports_nonjs.mbt` 中）："
 
-#: manual/tutorial/internal/bin_kernel.md:28
+#: manual/tutorial/internal/binary_kernel.md:28
 msgid "A `Binary` stores its coefficient as a private `Coeff` field. The public type `BinCoeff` is a newtype over it (`value.0` unwraps it and `BinCoeff(c)` wraps a result), so the kernel type shows in a public interface only as the field of `BinCoeff`, which is opaque outside the module, and the wrapping costs neither an allocation nor a call. A typical use computes the exact quotient and remainder and leaves rounding to `binary`:"
 msgstr "`Binary` 把系数存为私有的 `Coeff` 字段。公共类型 `BinCoeff` 是其上的 newtype（`value.0` 解包，`BinCoeff(c)` 包装结果），因此内核类型在公共接口中只作为 `BinCoeff` 的字段出现，而它在模块之外是不透明的，并且包装既不产生分配也不产生调用。典型用法是计算精确的商和余数，把舍入留给 `binary`："
 
-#: manual/tutorial/internal/bin_kernel.md:44
+#: manual/tutorial/internal/binary_kernel.md:44
 #: manual/tutorial/internal/decimal_kernel.md:43
 msgid "Decide where new code belongs"
 msgstr "决定新代码该放在哪里"
 
-#: manual/tutorial/internal/bin_kernel.md:46
+#: manual/tutorial/internal/binary_kernel.md:46
 msgid "Put code in the kernel when it is a function from coefficients (and plain integers) to coefficients or integers. Keep it in `binary` when it mentions a rounding mode, a precision, an exponent, a class, a flag or a `Binary`. The test is simple: the function must give the same answer for the same integers whoever calls it. `tools/check_imports.py` enforces the dependency half of the rule: the kernel imports nothing of this module."
 msgstr "当代码是从系数（和普通整数）到系数或整数的函数时，放进内核。当它涉及舍入模式、精度、指数、类别、标志或 `Binary` 时，留在 `binary`。判断很简单：无论谁调用，对相同的整数函数必须给出相同的答案。`tools/check_imports.py` 强制执行规则的依赖部分：内核不导入本模块的任何东西。"
 
-#: manual/tutorial/internal/bin_kernel.md:53
+#: manual/tutorial/internal/binary_kernel.md:53
 #: manual/tutorial/internal/decimal_kernel.md:54
 msgid "Change the kernel"
 msgstr "修改内核"
 
-#: manual/tutorial/internal/bin_kernel.md:55
+#: manual/tutorial/internal/binary_kernel.md:55
 msgid "Write the change as an exact integer function."
 msgstr "把修改写成精确的整数函数。"
 
-#: manual/tutorial/internal/bin_kernel.md:56
+#: manual/tutorial/internal/binary_kernel.md:56
 msgid "Add or extend a white-box test next to the others in the package that compares the result with `BigInt` at the limb boundaries (64, 128 and 192 bits), at the threshold lengths of every target, and on operands of ones, powers of two and sparse limbs."
 msgstr "在包内与其他测试放在一起添加或扩展白盒测试：在肢边界（64、128 和 192 位）、每个目标的阈值长度处，以及全 1、2 的幂和稀疏肢的操作数上，与 `BigInt` 比较结果。"
 
-#: manual/tutorial/internal/bin_kernel.md:60
+#: manual/tutorial/internal/binary_kernel.md:60
 msgid "Run `just bin-kernel-ci`, then `just gate binary 3` and `just gate interval 3`."
 msgstr "运行 `just bin-kernel-ci`，然后运行 `just gate binary 3` 和 `just gate interval 3`。"
 
-#: manual/tutorial/internal/bin_kernel.md:61
+#: manual/tutorial/internal/binary_kernel.md:61
 msgid "Measure retired instructions with the benchmark rows of the pull request against the previous build; a change that helps one operation and slows another needs a reason in the pull request."
 msgstr "用拉取请求的基准行与之前的构建比较已退休指令数；若修改使一个运算变快而另一个变慢，需要在拉取请求中说明原因。"
 
-#: manual/tutorial/internal/bin_kernel.md:65
+#: manual/tutorial/internal/binary_kernel.md:65
 #: manual/tutorial/internal/decimal_kernel.md:67
 msgid "Tune a threshold"
 msgstr "调整阈值"
 
-#: manual/tutorial/internal/bin_kernel.md:67
+#: manual/tutorial/internal/binary_kernel.md:67
 msgid "The crossovers between schoolbook, Karatsuba, Toom-3, the NTT, Knuth's division and Burnikel-Ziegler live in `coeff_thresholds_native.mbt`, `_llvm`, `_wasm` and `_wasm_gc`; `moon.pkg` selects the file by target. JavaScript has no kernel: its `Coeff` is a host `bigint`. A threshold only changes which exact algorithm runs. Change it with paired old and new builds on the target, and keep the dispatch tests that cross every threshold exactly. The cutoffs of the elementary functions (`binary_exp_burst_min_precision` and its siblings) are thresholds of `binary`, in `elementary_thresholds_<target>.mbt`."
 msgstr "朴素乘法、Karatsuba、Toom-3、NTT、Knuth 除法和 Burnikel-Ziegler 之间的分界点位于 `coeff_thresholds_native.mbt`、`_llvm`、`_wasm` 和 `_wasm_gc` 中；`moon.pkg` 按目标选择文件。JavaScript 没有内核：它的 `Coeff` 是宿主 `bigint`。阈值只改变运行哪个精确算法。请在目标上用新旧构建配对来修改，并保留恰好跨过每个阈值的分派测试。初等函数的分界点（`binary_exp_burst_min_precision` 及其同类）是 `binary` 的阈值，位于 `elementary_thresholds_<target>.mbt`。"
 
-#: manual/tutorial/internal/bin_kernel.md:76
+#: manual/tutorial/internal/binary_kernel.md:76
 #: manual/tutorial/internal/decimal_kernel.md:76
 msgid "Run the tests"
 msgstr "运行测试"
 
-#: manual/tutorial/internal/bin_kernel.md:83
-msgid "The `internal/bin_kernel` tests carry the algorithm cross-checks, the dispatch tests and the regression digests that used to live in `binary`. `binary` keeps the tests that need a `Binary`."
-msgstr "`internal/bin_kernel` 的测试包含原先位于 `binary` 的算法交叉检查、分派测试和回归摘要。`binary` 保留需要 `Binary` 的测试。"
+#: manual/tutorial/internal/binary_kernel.md:83
+msgid "The `internal/binary_kernel` tests carry the algorithm cross-checks, the dispatch tests and the regression digests that used to live in `binary`. `binary` keeps the tests that need a `Binary`."
+msgstr "`internal/binary_kernel` 的测试包含原先位于 `binary` 的算法交叉检查、分派测试和回归摘要。`binary` 保留需要 `Binary` 的测试。"
 
 #: manual/tutorial/internal/conformance.md:1
 msgid "internal/conformance tutorial"
@@ -28118,8 +28118,8 @@ msgid "`ci.yml` runs `just pr` on every pull request and every push to `main`. I
 msgstr "`ci.yml` 在每个拉取请求和每次推送到 `main` 时运行 `just pr`。它先恢复最新的验证账本，只有推送到 `main` 才会保存账本：GitHub 把缓存限定在创建它的引用上，因此拉取请求运行所保存的内容，`main` 和其他拉取请求都无法恢复。拉取请求闸门的 native 测试以增量单元运行（`tools/native_units.py`）。"
 
 #: manual/verification.md:35
-msgid "`nightly.yml` runs `just gate` for `quick`, `decimal`, `decimal_gda`, `binary` and `interval` as parallel jobs every night and on demand. It caches the SHA-256-pinned upstream corpora by manifest hash (the hashes are still verified after download) and uploads each `summary.json` as an artifact, so the published results are reproduced outside maintainers' machines. It runs the gates with `--no-reuse` and restores no ledger. It also runs the unit tests of the whole workspace on `native`, without reuse (the audit of the native units of the pull-request gate), `js`, `wasm` and `wasm-gc` (the pull-request gate tests native and only type-checks these; `QUICK_TEST_TARGETS` in `tools/run_ci.py` is the one line that adds a target to it), and, on an arm64 macOS runner, the tests of `internal/bin_kernel` and `binary` on native with the row primitives portable (`LUNA_FLOATING_PORTABLE=1`), forced to the C tier (`LUNA_FLOATING_LIMBS=c`) and in the default state; `tools/check_limbs_tier.py` fails the job when the runner is not arm64, a state reports another tier than expected, or the switch did not take (`enabled=false` in the portable state, `enabled=true` in the others). The Linux runner is x86-64, so nothing else executes the arm64 code. `wasm-gc` runs the whole workspace except what needs `moonbitlang/async`, which has no wasm-gc runtime (its module initialiser is rejected by the runtime at validation); the workflow states the reason next to the job."
-msgstr "`nightly.yml` 每晚并按需把 `quick`、`decimal`、`decimal_gda`、`binary` 和 `interval` 作为并行作业运行 `just gate`。它按清单哈希缓存由 SHA-256 固定的上游语料（下载后仍会校验哈希），并把每个 `summary.json` 作为制品上传，使发布的结果能在维护者的机器之外复现。它以 `--no-reuse` 运行各闸门，且不恢复账本。它还在 `native`（不复用，是对拉取请求闸门 native 单元的审计）、`js`、`wasm` 和 `wasm-gc` 上运行整个工作区的单元测试（拉取请求的闸门对这些目标只做类型检查，只在 native 上测试；`tools/run_ci.py` 中的 `QUICK_TEST_TARGETS` 是给闸门加一个目标的那一行），并在 arm64 macOS 运行器上，以行原语为可移植（`LUNA_FLOATING_PORTABLE=1`）、强制使用 C 层（`LUNA_FLOATING_LIMBS=c`）和默认状态三种方式，在 native 上运行 `internal/bin_kernel` 和 `binary` 的测试；当运行器不是 arm64、某个状态报告的层级不是预期的层级，或开关未生效（可移植状态下为 `enabled=false`，其余状态下为 `enabled=true`）时，`tools/check_limbs_tier.py` 会使该作业失败。Linux 运行器是 x86-64，所以没有别的东西会执行 arm64 代码。`wasm-gc` 运行整个工作区，只排除需要 `moonbitlang/async` 的部分，该包没有 wasm-gc 运行时（其模块初始化函数在验证时被运行时拒绝）；工作流在该作业旁边写明了原因。"
+msgid "`nightly.yml` runs `just gate` for `quick`, `decimal`, `decimal_gda`, `binary` and `interval` as parallel jobs every night and on demand. It caches the SHA-256-pinned upstream corpora by manifest hash (the hashes are still verified after download) and uploads each `summary.json` as an artifact, so the published results are reproduced outside maintainers' machines. It runs the gates with `--no-reuse` and restores no ledger. It also runs the unit tests of the whole workspace on `native`, without reuse (the audit of the native units of the pull-request gate), `js`, `wasm` and `wasm-gc` (the pull-request gate tests native and only type-checks these; `QUICK_TEST_TARGETS` in `tools/run_ci.py` is the one line that adds a target to it), and, on an arm64 macOS runner, the tests of `internal/binary_kernel` and `binary` on native with the row primitives portable (`LUNA_FLOATING_PORTABLE=1`), forced to the C tier (`LUNA_FLOATING_LIMBS=c`) and in the default state; `tools/check_limbs_tier.py` fails the job when the runner is not arm64, a state reports another tier than expected, or the switch did not take (`enabled=false` in the portable state, `enabled=true` in the others). The Linux runner is x86-64, so nothing else executes the arm64 code. `wasm-gc` runs the whole workspace except what needs `moonbitlang/async`, which has no wasm-gc runtime (its module initialiser is rejected by the runtime at validation); the workflow states the reason next to the job."
+msgstr "`nightly.yml` 每晚并按需把 `quick`、`decimal`、`decimal_gda`、`binary` 和 `interval` 作为并行作业运行 `just gate`。它按清单哈希缓存由 SHA-256 固定的上游语料（下载后仍会校验哈希），并把每个 `summary.json` 作为制品上传，使发布的结果能在维护者的机器之外复现。它以 `--no-reuse` 运行各闸门，且不恢复账本。它还在 `native`（不复用，是对拉取请求闸门 native 单元的审计）、`js`、`wasm` 和 `wasm-gc` 上运行整个工作区的单元测试（拉取请求的闸门对这些目标只做类型检查，只在 native 上测试；`tools/run_ci.py` 中的 `QUICK_TEST_TARGETS` 是给闸门加一个目标的那一行），并在 arm64 macOS 运行器上，以行原语为可移植（`LUNA_FLOATING_PORTABLE=1`）、强制使用 C 层（`LUNA_FLOATING_LIMBS=c`）和默认状态三种方式，在 native 上运行 `internal/binary_kernel` 和 `binary` 的测试；当运行器不是 arm64、某个状态报告的层级不是预期的层级，或开关未生效（可移植状态下为 `enabled=false`，其余状态下为 `enabled=true`）时，`tools/check_limbs_tier.py` 会使该作业失败。Linux 运行器是 x86-64，所以没有别的东西会执行 arm64 代码。`wasm-gc` 运行整个工作区，只排除需要 `moonbitlang/async` 的部分，该包没有 wasm-gc 运行时（其模块初始化函数在验证时被运行时拒绝）；工作流在该作业旁边写明了原因。"
 
 #: manual/verification.md:56
 msgid "`docs.yml` runs the organization's `lunadoc check` workflow."
@@ -28503,8 +28503,8 @@ msgid "The kernel stages"
 msgstr "内核阶段"
 
 #: manual/verification.md:620
-msgid "The seven kernel stages of the binary gate (the product routes and the oracles under three states of the limb tier, and the oracle tables) took about 220 s and always ran in full. The package under test, `library/src/internal/bin_kernel`, is a leaf of the module: it imports only `moonbitlang/core/...`, so nothing else of the repository is compiled into its test executable. Each stage under each state is therefore a unit of its own, keyed by the content of the package's files (sources, tests, row tables, the native stub, `moon.pkg`) and of the module files, the command line (which holds the state), the `moon test` wrapper, the build commands that `moon test --dry-run` prints, the toolchain, the variables of the environment that `moon` and the stubs read, the verifier and, for the oracle tables, `tools/kernel_oracle.py` and the Python version. The key is of file content, which is coarser than code: a comment-only edit of the package reruns all seven. The program checks the two assumptions behind it: the package imports only `moonbitlang/core/...` (otherwise no kernel unit is reused) and `tools/kernel_oracle.py` imports only the standard library (otherwise that unit runs)."
-msgstr "二进制门禁的七个内核阶段（三种极限状态下的乘积路径和预言机，以及预言机表）原本约需 220 秒，并且总是完整运行。被测的包 `library/src/internal/bin_kernel` 是模块的叶子：它只导入 `moonbitlang/core/...`，所以仓库的其他部分都不会被编译进它的测试可执行文件。因此，每个状态下的每个阶段都是一个单独的单元，其键由以下各项构成：包内文件（源文件、测试、行表、原生桩、`moon.pkg`）和模块文件的内容、命令行（其中包含状态）、`moon test` 包装脚本、`moon test --dry-run` 打印的构建命令、工具链、`moon` 和桩文件读取的环境变量、验证器，以及对预言机表而言的 `tools/kernel_oracle.py` 和 Python 版本。该键基于文件内容，比基于代码更粗：只改注释的修改也会让七个阶段全部重跑。程序检查其背后的两个假设：包只导入 `moonbitlang/core/...`（否则不复用任何内核单元），`tools/kernel_oracle.py` 只导入标准库（否则该单元运行）。"
+msgid "The seven kernel stages of the binary gate (the product routes and the oracles under three states of the limb tier, and the oracle tables) took about 220 s and always ran in full. The package under test, `library/src/internal/binary_kernel`, is a leaf of the module: it imports only `moonbitlang/core/...`, so nothing else of the repository is compiled into its test executable. Each stage under each state is therefore a unit of its own, keyed by the content of the package's files (sources, tests, row tables, the native stub, `moon.pkg`) and of the module files, the command line (which holds the state), the `moon test` wrapper, the build commands that `moon test --dry-run` prints, the toolchain, the variables of the environment that `moon` and the stubs read, the verifier and, for the oracle tables, `tools/kernel_oracle.py` and the Python version. The key is of file content, which is coarser than code: a comment-only edit of the package reruns all seven. The program checks the two assumptions behind it: the package imports only `moonbitlang/core/...` (otherwise no kernel unit is reused) and `tools/kernel_oracle.py` imports only the standard library (otherwise that unit runs)."
+msgstr "二进制门禁的七个内核阶段（三种极限状态下的乘积路径和预言机，以及预言机表）原本约需 220 秒，并且总是完整运行。被测的包 `library/src/internal/binary_kernel` 是模块的叶子：它只导入 `moonbitlang/core/...`，所以仓库的其他部分都不会被编译进它的测试可执行文件。因此，每个状态下的每个阶段都是一个单独的单元，其键由以下各项构成：包内文件（源文件、测试、行表、原生桩、`moon.pkg`）和模块文件的内容、命令行（其中包含状态）、`moon test` 包装脚本、`moon test --dry-run` 打印的构建命令、工具链、`moon` 和桩文件读取的环境变量、验证器，以及对预言机表而言的 `tools/kernel_oracle.py` 和 Python 版本。该键基于文件内容，比基于代码更粗：只改注释的修改也会让七个阶段全部重跑。程序检查其背后的两个假设：包只导入 `moonbitlang/core/...`（否则不复用任何内核单元），`tools/kernel_oracle.py` 只导入标准库（否则该单元运行）。"
 
 #: manual/verification.md:633
 msgid "A reused kernel stage is printed as `REUSED` with the commit it ran on and is not executed. A stage that ran is recorded when it passes and when its files are still those of the key (a stage runs for minutes: an edit meanwhile is reported as \"passed but not recorded\"). Each reusable stage is rerun with probability 2 %, drawn per stage (the \"at least one\" rule of the TestFloat units would rerun a stage on every run with only seven units); the seed is printed, and a sampled stage that fails although its key is recorded as passing is a defect of the system (status 70). `just verify binary` runs the stages this way; `--full-kernel` runs them in full."

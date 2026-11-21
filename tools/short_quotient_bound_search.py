@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Search for inputs where a weakened bound of the short quotient returns a wrongly rounded value.
 
-`bin_coeff_div_short_quotient` (library/src/internal/bin_kernel/coeff_knuth_words_nonjs.mbt) returns an
+`bin_coeff_div_short_quotient` (library/src/internal/binary_kernel/coeff_knuth_words_nonjs.mbt) returns an
 approximation `Q` of `floor(N / D)` unless `Q mod 2^m` is within `lower = 2 n` of a grid point from above
 or within `upper = floor(top two limbs of the final window / top limb of D) + 2` from below. This is a
 Python port of the quotient loop and of that test (written from the source), with the two bounds as

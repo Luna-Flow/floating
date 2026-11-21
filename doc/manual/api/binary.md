@@ -104,8 +104,8 @@ A non-negative arbitrary-precision integer, used as the coefficient of a
 type BinCoeff
 ```
 
-The inner type `@bin_kernel.Coeff` belongs to the internal package
-`internal/bin_kernel`, which only code inside `Luna-Flow/floating` can import.
+The inner type `@binary_kernel.Coeff` belongs to the internal package
+`internal/binary_kernel`, which only code inside `Luna-Flow/floating` can import.
 It carries no compatibility promise and a user cannot call a method on it, read
 it, compare it or build one: from outside the module a `BinCoeff` is abstract.
 Neither its constructor nor its field is visible outside `binary`; the other
@@ -126,8 +126,8 @@ has no use for them; they carry no compatibility promise, and the kernel type
 they exchange may change in any release.
 
 ```mbti
-pub fn BinCoeff::to_kernel(Self) -> @bin_kernel.Coeff
-pub fn BinCoeff::from_kernel(@bin_kernel.Coeff) -> Self
+pub fn BinCoeff::to_kernel(Self) -> @binary_kernel.Coeff
+pub fn BinCoeff::from_kernel(@binary_kernel.Coeff) -> Self
 ```
 
 Both carry `#internal`, which changes neither the generated interface nor the documentation tool, so this heading and the doc comments are what mark them as internal. Both are free: `BinCoeff` is a one-field tuple structure over the kernel type, and the bridge reads and wraps that field.
@@ -206,7 +206,7 @@ natural numbers is the same as equality of representations. The operators
 `BinCoeff` also implements `Eq`, `Compare`, `Show` and `Debug`; the promoted
 trait methods are listed under [Trait implementations](#trait-implementations).
 It has no arithmetic, shifts, bit operations or GCD: they are internal to the
-library (the package `internal/bin_kernel`), and arithmetic on values is done
+library (the package `internal/binary_kernel`), and arithmetic on values is done
 with `Binary` or, on a coefficient read with `coefficient()`, after
 converting it with `to_string` or `to_bytes_be`.
 
@@ -228,12 +228,12 @@ test "BinCoeff converts and compares exact natural numbers" {
 
 A binary floating-point value: a finite dyadic number, a signed infinity or a
 NaN, with a working precision. Its representation is an internal type
-(`@bin_kernel.BinRepr`, like the coefficient of `BinCoeff`) that carries no
+(`@binary_kernel.BinRepr`, like the coefficient of `BinCoeff`) that carries no
 compatibility promise and is read only inside the package; a value is one heap
 object.
 
 ```mbti
-pub struct Binary(@bin_kernel.BinRepr) derive(@debug.Debug)
+pub struct Binary(@binary_kernel.BinRepr) derive(@debug.Debug)
 ```
 
 A finite value is $(-1)^s \cdot c \cdot 2^{e}$ with $s$ the sign bit, $c$ a
@@ -2649,7 +2649,7 @@ package "Luna-Flow/floating/binary"
 import {
   "Luna-Flow/arithmetic",
   "Luna-Flow/floating/def",
-  "Luna-Flow/floating/internal/bin_kernel",
+  "Luna-Flow/floating/internal/binary_kernel",
   "moonbitlang/core/debug",
 }
 
@@ -2668,7 +2668,7 @@ pub fn BinCoeff::bit_length(Self) -> Int32
 pub fn BinCoeff::compare(Self, Self) -> Int32
 pub fn BinCoeff::equal(Self, Self) -> Bool
 pub fn BinCoeff::from_bytes_be(BytesView) -> Self
-pub fn BinCoeff::from_kernel(@bin_kernel.Coeff) -> Self
+pub fn BinCoeff::from_kernel(@binary_kernel.Coeff) -> Self
 pub fn BinCoeff::from_uint64(UInt64) -> Self
 pub fn BinCoeff::is_zero(Self) -> Bool
 pub fn BinCoeff::not_equal(Self, Self) -> Bool
@@ -2680,7 +2680,7 @@ pub fn BinCoeff::op_lt(Self, Self) -> Bool
 pub fn BinCoeff::output(Self, &Logger) -> Unit
 pub fn BinCoeff::parse(String, radix? : Int32) -> Result[Self, String]
 pub fn BinCoeff::to_bytes_be(Self) -> Bytes
-pub fn BinCoeff::to_kernel(Self) -> @bin_kernel.Coeff
+pub fn BinCoeff::to_kernel(Self) -> @binary_kernel.Coeff
 pub fn BinCoeff::to_radix_string(Self, Int32) -> String
 pub fn BinCoeff::to_repr(Self) -> @debug.Repr
 pub fn BinCoeff::to_string(Self) -> String
@@ -2692,7 +2692,7 @@ pub impl Show for BinCoeff
 pub impl @debug.Debug for BinCoeff
 
 #derive(@debug.Debug)
-pub struct Binary(@bin_kernel.BinRepr)
+pub struct Binary(@binary_kernel.BinRepr)
 pub fn Binary::abs(Self) -> Self
 pub fn Binary::abs_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Binary::acos(Self) -> Self

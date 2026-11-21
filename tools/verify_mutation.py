@@ -84,8 +84,8 @@ class Mutation:
 
 MUTATIONS: list[Mutation] = [
     Mutation(
-        "kernel-compare", "library/src/internal/bin_kernel/coeff_words_nonjs.mbt",
-        "bin_coeff_words_compare_padded", r"bin__kernel\d+bin__coeff__words__compare__padded$",
+        "kernel-compare", "library/src/internal/binary_kernel/coeff_words_nonjs.mbt",
+        "bin_coeff_words_compare_padded", r"binary__kernel\d+bin__coeff__words__compare__padded$",
         "      return if left < right { -1 } else { 1 }",
         "      return if left < right { 1 } else { -1 }", "behavioural",
     ),
@@ -113,7 +113,7 @@ MUTATIONS: list[Mutation] = [
         "    (Add, [left, right]) => arm_sub(left, right, context)", "behavioural",
     ),
     Mutation(
-        "initialiser", "library/src/internal/bin_kernel/coeff_sqrt_array_nonjs.mbt",
+        "initialiser", "library/src/internal/binary_kernel/coeff_sqrt_array_nonjs.mbt",
         "top-level let bin_coeff_sqrt_empty_scratch (an initialiser in `moonbit_init`, read by the sqrt arm and the MPFR frontend)",
         r"^moonbit_init$",
         "let bin_coeff_sqrt_empty_scratch : FixedArray[UInt64] = FixedArray::make(0, 0UL)",
@@ -272,14 +272,14 @@ def _kernel_mutations() -> list[tuple[Mutation, int, bool]]:
         (dataclasses.replace(source, name="kernel-source"), 7, True),
         (
             Mutation(
-                "kernel-test-file", "library/src/internal/bin_kernel/coeff_regression_wbtest.mbt",
+                "kernel-test-file", "library/src/internal/binary_kernel/coeff_regression_wbtest.mbt",
                 "a comment appended to a test file of the package", r"^$", "", "\n// a comment appended\n", "key-only",
             ),
             7, False,
         ),
         (
             Mutation(
-                "kernel-comment-only", "library/src/internal/bin_kernel/coeff_words_nonjs.mbt",
+                "kernel-comment-only", "library/src/internal/binary_kernel/coeff_words_nonjs.mbt",
                 "a comment appended to a source file of the package (the key is of file content: all units run)",
                 r"^$", "", "\n// a comment appended\n", "comment",
             ),
