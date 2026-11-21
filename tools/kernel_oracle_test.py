@@ -200,8 +200,39 @@ class RowSemanticsTests(unittest.TestCase):
         self.assertEqual(r - a * b, new - c * 2 ** (64 * n))
         self.assertTrue(0 <= c < 2**64)
 
+    def test_round_exact_quotient_uses_the_remainder_as_a_sticky_bit(self) -> None:
+        # without a remainder it is the rounding of the integer
+        for quotient in (0b101101, 0b101100, 0b100100, 0b101000):
+            self.assertEqual(oracle.round_exact_quotient(quotient, False, 3), oracle.round_product(quotient, 3))
+        # 0b100100 to 3 bits is an exact tie with an even kept part: down; a remainder breaks it upward
+        self.assertEqual(oracle.round_exact_quotient(0b100100, False, 3)[0], (0b1, 5))
+        self.assertEqual(oracle.round_exact_quotient(0b100100, True, 3)[0], (0b101, 3))
+        # an integer quotient on a grid point is exact, a remainder above it makes "up" one unit larger
+        self.assertEqual(oracle.round_exact_quotient(0b101000, False, 3)[2], (0b101, 3))
+        self.assertEqual(oracle.round_exact_quotient(0b101000, True, 3)[2], (0b11, 4))
+
+    def test_operand_specs_of_the_division_rows(self) -> None:
+        random = oracle.Random(1)
+        self.assertEqual(oracle.eval_spec("0:+D@1,-1@0", 5, random), (5 << 64) - 1)
+        self.assertEqual(oracle.eval_spec("0:+8000000000000000@2,+0000000000000001@0", 0, random), (1 << 191) + 1)
+        with self.assertRaises(AssertionError):
+            oracle.eval_spec("0:+1@0,-2@0", 0, random)  # a negative operand is refused
+
+    def test_knuth_events_sees_the_add_back_and_the_top_limb_estimate(self) -> None:
+        # (B - 1)(2^63 B + 1) B + 0 against 2^63 B^2 + 1 ... the estimate is one too large
+        d = (((1 << 63) << 64 | 1) << 64) | 1
+        n = (oracle.B64 - 1) * (((1 << 63) << 64) | 1) << 64
+        events = oracle.knuth_events(n, d)
+        self.assertEqual(events["addback"], 1)
+        # a window whose top limb equals the divisor's takes the B - 1 estimate
+        d = (1 << 191) | ((oracle.B64 - 1) << 64)
+        window = (1 << 255) | (1 << 128)  # top limb 2^63 above a divisor of three limbs
+        self.assertEqual(oracle.knuth_events(window, d)["top"], 1)
+        # an exact quotient of a random pair needs no correction
+        self.assertEqual(oracle.knuth_events(7 * d + 3, d)["addback"], 0)
+
     def test_every_table_is_registered_and_named(self) -> None:
-        self.assertEqual([table.name for table in oracle.TABLES], ["product", "short", "limbs", "window"])
+        self.assertEqual([table.name for table in oracle.TABLES], ["product", "short", "limbs", "window", "div"])
         for table in oracle.TABLES:
             names = table.names()
             self.assertEqual(len(names), len(set(names)), table.name)
