@@ -13,6 +13,16 @@
 //   pow, powr: the exponent y = 2^30 ln 2 / ln 3 with base 3;
 //   compound: (1 + x)^(2^20) with x = 2^1024 - 1 -+ 2^-60 (the exact threshold).
 // `m = floor(T * 2^-e)` for the 300-bit mantissa, `m` and `m + 1` the two arguments.
+// The functions that differ from the pure exponential (`expm1`, `exp10m1`, `sinh`:
+// the result is below `b^x` or `e^x / 2` by a factor `1 - d`; `cosh`: above it) decide
+// the unsafe side only with a margin of `2^(31 - w)` at the working precision `w`
+// (see `binary_exp_overflow_side`); a float inside the margin is refined until the
+// margin is below its distance from the threshold. No float whose distance from `T`
+// is below the difference `d` (below `2^-(2^30)`) can be written down at a feasible
+// precision (it would need more than 2^30 bits), so there is no written-out case of
+// the margin itself: the cases below are at distance about `2^-270`, which the loop
+// reaches at a working precision of about 300 bits.
+//
 // Below the threshold the exact result is in (Omax(p), 2^(e_max + 1)): RNE, RNA and the
 // direction toward the sign of the result round to 2^(e_max + 1) (overflow, inexact,
 // infinity); the other directions give Omax(p) = (2^p - 1) 2^(e_max + 1 - p) with only
