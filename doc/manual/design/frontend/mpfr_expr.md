@@ -81,7 +81,7 @@ square-root format carries its own input precision and is read at it.
 ### Numeric comparison for elementary rows
 
 The elementary matrix is generated for 29 functions across binary32/64/128
-precisions and all six rounding modes. Its expected NaNs carry no payload
+precisions and all five rounding modes. Its expected NaNs carry no payload
 information, and IEEE 754 leaves the payload of a generated NaN to the
 implementation, so the comparison treats all NaNs as equal. `compare` also
 identifies $+0$ and $-0$, but the sign of a zero result is specified (for

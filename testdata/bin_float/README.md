@@ -18,7 +18,7 @@ just conformance run binary --level 1 --tininess after --tininess before
 just gate binary 8
 ```
 
-`just conformance smoke binary` runs the committed 240-row TestFloat subset,
+`just conformance smoke binary` runs the committed 288-row TestFloat subset,
 three hexadecimal sqrt witnesses, 96 MPFR-generated integer-power witnesses,
 1,740 full-family elementary witnesses, 1,434 `mpfr_strtofr` witnesses and
 2,688 `mpfr_get_str` witnesses without downloading anything.
@@ -51,7 +51,7 @@ the 1,055 executable rows in the pinned `tests/data/sqrt` file, 1,434
 hash-pinned `mpfr_strtofr` cases and 2,688 hash-pinned `mpfr_get_str` cases
 (see Decimal Character Conversion below) plus 1,740
 hash-pinned cases covering 29 elementary operations, binary32/64/128
-precisions, and all six `BinaryRoundingMode` values. The runner
+precisions, and all five `BinaryRoundingMode` values. The runner
 requires exact encoded results and exception bits for non-NaN results. For a
 NaN result it requires a quiet NaN class and the exact exception bits, because
 IEEE 754 permits implementation choices for a generated NaN payload.
@@ -149,7 +149,7 @@ algorithms, results, and explicit non-claims.
 ## Seeded Random Differential Testing
 
 The fixed corpora above use fixed precisions and seeds. The random differential
-campaign adds precisions from 2 to 10,000, mixed operand widths, all six
+campaign adds precisions from 2 to 10,000, mixed operand widths, all five
 rounding directions, bounded and unbounded exponent ranges, and inputs built to
 sit on the edges of rounding, against GNU MPFR 4.2.2. It is driven by
 `tools/random_differential.py` (`just random-diff`) and recorded through the
