@@ -951,7 +951,6 @@ fn extended_mul(
   b : @bin_float.BinFloat,
   precision : Int32,
   mode : BinaryRoundingMode,
-  rounded~ : Bool = true,
 ) -> @bin_float.BinFloat {
   if a.is_zero() || b.is_zero() {
     return @bin_float.BinFloat::zero(precision~)
@@ -964,25 +963,16 @@ fn extended_mul(
     }
     return @bin_float.BinFloat::inf(sign, precision~)
   }
-  if rounded {
-    directed_mul(a, b, precision, mode)
-  } else {
-    // exact (the product of `fma` is not rounded before the sum): nothing is
-    // rounded below the normal range, and a product above the range is clamped
-    // at no fewer than `precision` bits (a lower bound of the largest finite
-    // number of the precision, not of a shorter one)
-    exact_mul(a, b, mode~, min_bits=precision, exact_range=true)
-  }
+  directed_mul(a, b, precision, mode)
 }
 
 ///|
 /// Both directed products of `extended_mul` with one coefficient product
-/// (`rounded`: rounded once to `precision` bits; otherwise exact).
+/// (each rounded once to `precision` bits).
 fn extended_mul_both(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
   precision : Int32,
-  rounded : Bool,
 ) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
   if a.is_zero() ||
     b.is_zero() ||
@@ -1006,10 +996,10 @@ fn extended_mul_both(
   }
   let coefficient = coeff_mul(a.coefficient(), b.coefficient())
   let negative = a.is_negative() != b.is_negative()
-  // `rounded`: each product is made at `max(bits, precision)` bits and rounded
-  // once to `precision` in its direction (`directed_mul`'s value); the one
-  // coefficient product is shared (measured cheaper than two `mul_ctx` at every
-  // width from 53 to 2,048 bits, by 20 to 40 percent)
+  // each product is made at `max(bits, precision)` bits and rounded once to
+  // `precision` in its direction (`directed_mul`'s value); the one coefficient
+  // product is shared (measured cheaper than two `mul_ctx` at every width from 53
+  // to 2,048 bits, by 20 to 40 percent)
   let min_bits = precision
   let down = exact_make(
     coefficient,
@@ -1017,7 +1007,6 @@ fn extended_mul_both(
     negative~,
     mode=BinaryRoundingMode::RoundTowardNegative,
     min_bits~,
-    exact_range=!rounded,
   )
   let up = exact_make(
     coefficient,
@@ -1025,39 +1014,16 @@ fn extended_mul_both(
     negative~,
     mode=BinaryRoundingMode::RoundTowardPositive,
     min_bits~,
-    exact_range=!rounded,
   )
-  if rounded {
-    (
-      directed_round(down, precision, BinaryRoundingMode::RoundTowardNegative),
-      directed_round(up, precision, BinaryRoundingMode::RoundTowardPositive),
-    )
-  } else {
-    (down, up)
-  }
+  (
+    directed_round(down, precision, BinaryRoundingMode::RoundTowardNegative),
+    directed_round(up, precision, BinaryRoundingMode::RoundTowardPositive),
+  )
 }
 
 ///|
-fn extended_add(
-  a : @bin_float.BinFloat,
-  b : @bin_float.BinFloat,
-  precision : Int32,
-  mode : BinaryRoundingMode,
-) -> @bin_float.BinFloat {
-  if a.classify() == FpClass::Infinity {
-    return a
-  }
-  if b.classify() == FpClass::Infinity {
-    return b
-  }
-  // exact (the sum of `fma` is rounded once, at the end); a sum above the range
-  // is clamped at no fewer than `precision` bits
-  exact_add(a, b, mode~, min_bits=precision, exact_range=true)
-}
-
-///|
-/// `extended_add` rounded once to `precision` bits in `mode` (an interval
-/// endpoint sum of an interval operation).
+/// An interval endpoint sum rounded once to `precision` bits in `mode`: an infinite
+/// addend is the result.
 fn extended_directed_add(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
@@ -1095,7 +1061,6 @@ fn multiplication_bounds(
   a : BallFloat,
   b : BallFloat,
   precision : Int32,
-  rounded~ : Bool = true,
 ) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
   if a.is_common_interval() && b.is_common_interval() {
     let a_nonnegative = a.lo_.is_zero() || a.lo_.sign() == Sign::Positive
@@ -1109,14 +1074,12 @@ fn multiplication_bounds(
           b.lo_,
           precision,
           BinaryRoundingMode::RoundTowardNegative,
-          rounded~,
         ),
         extended_mul(
           a.hi_,
           b.hi_,
           precision,
           BinaryRoundingMode::RoundTowardPositive,
-          rounded~,
         ),
       )
     }
@@ -1127,14 +1090,12 @@ fn multiplication_bounds(
           b.hi_,
           precision,
           BinaryRoundingMode::RoundTowardNegative,
-          rounded~,
         ),
         extended_mul(
           a.lo_,
           b.lo_,
           precision,
           BinaryRoundingMode::RoundTowardPositive,
-          rounded~,
         ),
       )
     }
@@ -1145,14 +1106,12 @@ fn multiplication_bounds(
           b.lo_,
           precision,
           BinaryRoundingMode::RoundTowardNegative,
-          rounded~,
         ),
         extended_mul(
           a.lo_,
           b.hi_,
           precision,
           BinaryRoundingMode::RoundTowardPositive,
-          rounded~,
         ),
       )
     }
@@ -1163,14 +1122,12 @@ fn multiplication_bounds(
           b.hi_,
           precision,
           BinaryRoundingMode::RoundTowardNegative,
-          rounded~,
         ),
         extended_mul(
           a.hi_,
           b.lo_,
           precision,
           BinaryRoundingMode::RoundTowardPositive,
-          rounded~,
         ),
       )
     }
@@ -1187,14 +1144,12 @@ fn multiplication_bounds(
           b.hi_,
           precision,
           BinaryRoundingMode::RoundTowardNegative,
-          rounded~,
         ),
         extended_mul(
           a.hi_,
           b.hi_,
           precision,
           BinaryRoundingMode::RoundTowardPositive,
-          rounded~,
         ),
       )
     }
@@ -1205,14 +1160,12 @@ fn multiplication_bounds(
           b.lo_,
           precision,
           BinaryRoundingMode::RoundTowardNegative,
-          rounded~,
         ),
         extended_mul(
           a.lo_,
           b.lo_,
           precision,
           BinaryRoundingMode::RoundTowardPositive,
-          rounded~,
         ),
       )
     }
@@ -1223,14 +1176,12 @@ fn multiplication_bounds(
           b.lo_,
           precision,
           BinaryRoundingMode::RoundTowardNegative,
-          rounded~,
         ),
         extended_mul(
           a.hi_,
           b.hi_,
           precision,
           BinaryRoundingMode::RoundTowardPositive,
-          rounded~,
         ),
       )
     }
@@ -1241,14 +1192,12 @@ fn multiplication_bounds(
           b.hi_,
           precision,
           BinaryRoundingMode::RoundTowardNegative,
-          rounded~,
         ),
         extended_mul(
           a.lo_,
           b.lo_,
           precision,
           BinaryRoundingMode::RoundTowardPositive,
-          rounded~,
         ),
       )
     }
@@ -1257,28 +1206,24 @@ fn multiplication_bounds(
       b.hi_,
       precision,
       BinaryRoundingMode::RoundTowardNegative,
-      rounded~,
     )
     let lower_right = extended_mul(
       a.hi_,
       b.lo_,
       precision,
       BinaryRoundingMode::RoundTowardNegative,
-      rounded~,
     )
     let upper_left = extended_mul(
       a.lo_,
       b.lo_,
       precision,
       BinaryRoundingMode::RoundTowardPositive,
-      rounded~,
     )
     let upper_right = extended_mul(
       a.hi_,
       b.hi_,
       precision,
       BinaryRoundingMode::RoundTowardPositive,
-      rounded~,
     )
     return (bin_min(lower_left, lower_right), bin_max(upper_left, upper_right))
   }
@@ -1291,7 +1236,7 @@ fn multiplication_bounds(
   let mut upper : @bin_float.BinFloat? = None
   for corner in corners {
     let (x, y) = corner
-    let (d, u) = extended_mul_both(x, y, precision, rounded)
+    let (d, u) = extended_mul_both(x, y, precision)
     lower = match lower {
       None => Some(d)
       Some(m) => Some(bin_min(m, d))
@@ -2455,6 +2400,98 @@ pub fn BallFloat::div(self : BallFloat, other : BallFloat) -> BallFloat {
 }
 
 ///|
+/// The sign class of an interval for the corners of a product: 0 when it is not
+/// below zero (`lo >= 0`, a zero of either sign counts), 1 when it is not above zero
+/// (`hi <= 0`, and not class 0), 2 when it contains both signs in its interior.
+fn product_class(x : BallFloat) -> Int32 {
+  let lo_nonnegative = x.lo_.is_zero() || x.lo_.sign() == Sign::Positive
+  let hi_nonpositive = x.hi_.is_zero() || x.hi_.sign() == Sign::Negative
+  if lo_nonnegative {
+    0
+  } else if hi_nonpositive {
+    1
+  } else {
+    2
+  }
+}
+
+///|
+/// The corners `(x, y)` of the box `a x b` (0 selects the lower end, 1 the upper) at
+/// which `x * y` is smallest (`lower = true`) or largest, by the sign classes of
+/// `a` and `b`: one corner, except two (the minimum is the smaller of `a.lo * b.hi`
+/// and `a.hi * b.lo`, the maximum the larger of `a.lo * b.lo` and `a.hi * b.hi`)
+/// when both contain both signs. The nine cases are those of `mul`. A corner is the
+/// two bits `x * 2 + y`; the result is the first corner in bits 0 and 1, the second
+/// in bits 2 and 3, and bit 4 says that there is a second one.
+fn product_corners(class_a : Int32, class_b : Int32, lower : Bool) -> Int32 {
+  match (class_a, class_b, lower) {
+    (0, 0, true) => 0b00
+    (0, 0, false) => 0b11
+    (0, 1, true) => 0b10
+    (0, 1, false) => 0b01
+    (0, _, true) => 0b10
+    (0, _, false) => 0b11
+    (1, 0, true) => 0b01
+    (1, 0, false) => 0b10
+    (1, 1, true) => 0b11
+    (1, 1, false) => 0b00
+    (1, _, true) => 0b01
+    (1, _, false) => 0b00
+    (_, 0, true) => 0b01
+    (_, 0, false) => 0b11
+    (_, 1, true) => 0b10
+    (_, 1, false) => 0b00
+    (_, _, true) => 0b10000 + (0b10 << 2) + 0b01
+    (_, _, false) => 0b10000 + (0b11 << 2) + 0b00
+  }
+}
+
+///|
+/// `x * y + z` of three endpoints, rounded once to `precision` bits in `mode` (the
+/// directed `fma_ctx`), with the conventions of interval arithmetic: an endpoint
+/// product 0 times infinity is 0 (the result is `z` rounded); an infinite product is
+/// the result. An infinite product never meets an infinite addend of the opposite
+/// sign: the corners of `product_corners` give a lower product that is never `+inf`
+/// beside a lower addend that is never `+inf`, and an upper product that is never
+/// `-inf` beside an upper addend that is never `-inf`, so the NaN of `inf - inf`
+/// is not reachable.
+fn fma_corner(
+  x : @bin_float.BinFloat,
+  y : @bin_float.BinFloat,
+  z : @bin_float.BinFloat,
+  precision : Int32,
+  mode : BinaryRoundingMode,
+) -> @bin_float.BinFloat {
+  if x.is_zero() || y.is_zero() {
+    return if mode == BinaryRoundingMode::RoundTowardNegative {
+      lower_round_bound(z, precision)
+    } else {
+      upper_round_bound(z, precision)
+    }
+  }
+  if x.classify() == FpClass::Infinity || y.classify() == FpClass::Infinity {
+    return @bin_float.BinFloat::inf(
+      if x.sign() == y.sign() {
+        Sign::Positive
+      } else {
+        Sign::Negative
+      },
+      precision~,
+    )
+  }
+  x.fma_ctx(y, z, @bin_float.BinaryContext::new(precision~, rounding=mode)).0
+}
+
+///|
+/// `fma` of IEEE 1788-2015 (tightest, 12.10.2): over the box of `a`, `b` and `c`
+/// the product is bilinear, so its smallest and largest values are at corners that
+/// the signs select (`product_corners`), and the sum with `c` is increasing in `c`, so
+/// the smallest value of `a * b + c` is the smallest product plus `c.lo` and the
+/// largest is the largest product plus `c.hi`. A directed rounding is monotone, so the
+/// lower bound is the minimum, over the candidate corners, of the downward `fma_ctx`
+/// of the corner with `c.lo`, and the upper bound the maximum of the upward `fma_ctx`
+/// with `c.hi`: each rounds the exact `x * y + z` of three endpoints of any bit length
+/// once, in the implementation range. The bounds are those of `fma_ctx`.
 pub fn BallFloat::fma(
   self : BallFloat,
   multiplier : BallFloat,
@@ -2467,28 +2504,58 @@ pub fn BallFloat::fma(
   if self.is_empty() || multiplier.is_empty() || addend.is_empty() {
     return empty_interval(precision)
   }
-  // exact products and sums: one rounding at the end
-  let (product_lo, product_hi) = multiplication_bounds(
-    self,
-    multiplier,
-    precision,
-    rounded=false,
+  let class_a = product_class(self)
+  let class_b = product_class(multiplier)
+  let corner = fn(code : Int32, z : @bin_float.BinFloat, mode) {
+    fma_corner(
+      if ((code >> 1) & 1) == 0 {
+        self.lo_
+      } else {
+        self.hi_
+      },
+      if (code & 1) == 0 {
+        multiplier.lo_
+      } else {
+        multiplier.hi_
+      },
+      z,
+      precision,
+      mode,
+    )
+  }
+  let lower_corners = product_corners(class_a, class_b, true)
+  let mut lo = corner(
+    lower_corners & 3,
+    addend.lo_,
+    BinaryRoundingMode::RoundTowardNegative,
   )
-  quantize_interval(
-    extended_add(
-      product_lo,
+  if lower_corners >= 16 {
+    let other = corner(
+      (lower_corners >> 2) & 3,
       addend.lo_,
-      precision,
       BinaryRoundingMode::RoundTowardNegative,
-    ),
-    extended_add(
-      product_hi,
-      addend.hi_,
-      precision,
-      BinaryRoundingMode::RoundTowardPositive,
-    ),
-    precision,
+    )
+    if other.compare(lo) < 0 {
+      lo = other
+    }
+  }
+  let upper_corners = product_corners(class_a, class_b, false)
+  let mut hi = corner(
+    upper_corners & 3,
+    addend.hi_,
+    BinaryRoundingMode::RoundTowardPositive,
   )
+  if upper_corners >= 16 {
+    let other = corner(
+      (upper_corners >> 2) & 3,
+      addend.hi_,
+      BinaryRoundingMode::RoundTowardPositive,
+    )
+    if other.compare(hi) > 0 {
+      hi = other
+    }
+  }
+  store_interval(lo, hi, precision)
 }
 
 ///|
