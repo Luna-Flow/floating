@@ -102,33 +102,12 @@ test "radius and width are unchanged away from the bottom of the range" {
     let interval = Interval::from_bounds(lo, hi, precision=53)
     let m = interval.midpoint()
     let old_width = upper_round_bound(
-      exact_sub(
-        min_bits=1,
-        interval.upper_bound(),
-        interval.lower_bound(),
-        mode=BinaryRoundingMode::RoundTowardPositive,
-      ),
+      exact_add_full(interval.upper_bound(), interval.lower_bound().neg()),
       53,
     )
     let old_radius = bin_max(
-      upper_round_bound(
-        exact_sub(
-          min_bits=1,
-          m,
-          interval.lower_bound(),
-          mode=BinaryRoundingMode::RoundTowardPositive,
-        ),
-        53,
-      ),
-      upper_round_bound(
-        exact_sub(
-          min_bits=1,
-          interval.upper_bound(),
-          m,
-          mode=BinaryRoundingMode::RoundTowardPositive,
-        ),
-        53,
-      ),
+      upper_round_bound(exact_add_full(m, interval.lower_bound().neg()), 53),
+      upper_round_bound(exact_add_full(interval.upper_bound(), m.neg()), 53),
     )
     assert_identical(interval.width(), old_width)
     assert_identical(interval.radius(), old_radius)

@@ -70,7 +70,6 @@ library/src/interval/context_rounding_wbtest.mbt::midpoint_ctx rounds to nearest
 library/src/interval/decorated_ill_issue443_wbtest.mbt::new with the decoration ill returns NaI (#443)	?
 library/src/interval/decorated_ill_issue443_wbtest.mbt::the other forbidden combinations of 11.5.2 are repaired (#443)	?
 library/src/interval/directed_bounds_wbtest.mbt::directed bounds at the two ends of the exponent range	?
-library/src/interval/directed_bounds_wbtest.mbt::directed endpoint sums, differences and products equal the exact route	?
 library/src/interval/directed_bounds_wbtest.mbt::gradual underflow of a short exact result keeps the correctly rounded bound	?
 library/src/interval/directed_bounds_wbtest.mbt::overflow of a short exact result keeps the correctly rounded bound	?
 library/src/interval/elementary_composed_wbtest.mbt::decorated composed functions lower partial domains	?
@@ -95,7 +94,6 @@ library/src/interval/equality_wbtest.mbt::from_int and from_coefficient default 
 library/src/interval/exp_overflow_edge_wbtest.mbt::exp of an interval across the overflow threshold keeps the lower end	?
 library/src/interval/exponent_range_wbtest.mbt::interval exponentials enclose results beyond the binary exponent range	?
 library/src/interval/exponent_range_wbtest.mbt::interval products clamp outward at the binary exponent range	?
-library/src/interval/far_addend_bottom_wbtest.mbt::a far addend is aligned over a bounded number of bits, whatever its precision label	?
 library/src/interval/far_addend_bottom_wbtest.mbt::add of a value far below the range floor is rounded to the unit of the precision	?
 library/src/interval/far_addend_bottom_wbtest.mbt::add, sub and cancel with endpoints of an inflated precision stay cheap and tight	?
 library/src/interval/far_addend_bottom_wbtest.mbt::fma of a product above the range has the largest finite number of the precision as its lower bound	?
@@ -149,7 +147,6 @@ library/src/interval/midpoint_margin_wbtest.mbt::midpoint_ctx of [1, 2^100000] a
 library/src/interval/midpoint_margin_wbtest.mbt::midpoint_ctx sweep around the margin, long	?
 library/src/interval/midpoint_margin_wbtest.mbt::midpoint_ctx sweep around the margin, sample	?
 library/src/interval/midpoint_subnormal_wbtest.mbt::a zero endpoint with the smallest stored value	?
-library/src/interval/midpoint_subnormal_wbtest.mbt::far from the edges the center is the same as before	?
 library/src/interval/midpoint_subnormal_wbtest.mbt::the center at the precision limit is rounded once at the limit	?
 library/src/interval/midpoint_subnormal_wbtest.mbt::the exact center datum equals lo + hi and its half	?
 library/src/interval/midpoint_subnormal_wbtest.mbt::the midpoint of an interval made from a center is a member	?

@@ -246,7 +246,7 @@ fn pow_end_class(
       // quantum `2^(e_min - P + 1)`, so the value `power * 2^exponent` is stored exactly iff
       // its LOWEST bit is at or above the quantum, `exponent >= e_min - P + 1`, that is
       // `P >= e_min - exponent + 1` (conservative when `power` is even: its lowest set bit is
-      // then higher). `exact_make` would pick the coefficient's own width and round.
+      // then higher). `exact_value` would pick the coefficient's own width and round.
       let needed = Int64::max(
         power.bit_length().to_int64(),
         e_min - exponent + 1L,
@@ -267,7 +267,7 @@ fn pow_end_class(
       }
       return Dyadic(datum)
     }
-    Dyadic(exact_make(power, exponent.to_int()))
+    Dyadic(exact_value(power, exponent.to_int()))
   } else {
     // 2^(-scaled) / m^p: its leading bit is -scaled - bitlen(m^p) + 1 or -scaled - bitlen(m^p)
     let top = -scaled - power.bit_length().to_int64()
@@ -504,12 +504,12 @@ fn pow_rational_round(
     } else {
       coeff_increment(quotient)
     }
-    exact_make(top, exponent).with_precision(
+    exact_value(top, exponent).with_precision(
       precision,
       BinaryRoundingMode::RoundTowardPositive,
     )
   } else {
-    exact_make(quotient, exponent).with_precision(
+    exact_value(quotient, exponent).with_precision(
       precision,
       BinaryRoundingMode::RoundTowardNegative,
     )

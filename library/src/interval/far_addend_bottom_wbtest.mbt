@@ -10,16 +10,12 @@
 //   the largest finite number of 200 bits = (2^200 - 1) * 2^(e_max + 1 - 200)
 //                     = 50 hex digits F, times 2^1073741624
 //
-// Before the change the stand-in for a far addend (`far_addend_surrogate`) was made
+// Before the change the stand-in for a far addend (a surrogate of the old exact route) was made
 // at one bit and rounded away to the quantum of one bit, `2^e_min`, much larger than
 // the addend: `fma` was looser than the tightest interval by that unit (#629). The
 // exact product and sum of `fma` were made at their own bit length, so a value
 // above the range was clamped at the largest finite number of that many bits (#631).
 //
-// COST: the stand-in lies `max(65,536, precision of the rounding)` places under the
-// large addend, whatever the precision label of the operands is (a value made with
-// `exact_range` below the normal range carries a label of up to 2^28): the tests
-// below bound the bit length of the aligned sum.
 
 ///|
 fn fab_value(
@@ -127,62 +123,6 @@ test "fma of a product above the range has the largest finite number of the prec
   let sum = x.fma(Interval::from_int(1, precision~), x)
   assert_true(sum.lower_bound().compare(fab_expected_max_200()) == 0)
   assert_true(sum.upper_bound().classify() == FpClass::Infinity)
-}
-
-///|
-/// The bit length of the coefficient of the sum `a + b` made by `exact_add` for an
-/// endpoint sum rounded to `precision` bits.
-fn fab_aligned_bits(
-  a : @bin_float.BinFloat,
-  b : @bin_float.BinFloat,
-  precision : Int32,
-  mode : BinaryRoundingMode,
-) -> Int32 {
-  exact_add(a, b, mode~, min_bits=precision, exact_range=true)
-  .coefficient()
-  .bit_length()
-}
-
-///|
-test "a far addend is aligned over a bounded number of bits, whatever its precision label" {
-  // 65,536 places of margin, the bits of the large addend, the 128 of the
-  // precision and a few for the stand-in itself
-  let bound = 65536 + 128 + 64 + 8
-  let precision = 128
-  let c = fab_value(253UL, -1073741782, precision)
-  // (1) the product of the first test: its label is capped at 2^28
-  let tiny = fab_value(1UL, -1073741800, precision)
-  let product = exact_mul(
-    tiny,
-    tiny,
-    mode=BinaryRoundingMode::RoundTowardPositive,
-    exact_range=true,
-  )
-  assert_true(product.precision() > 100000000)
-  for
-    mode in [
-      BinaryRoundingMode::RoundTowardPositive,
-      BinaryRoundingMode::RoundTowardNegative,
-    ] {
-    assert_true(fab_aligned_bits(c, product, precision, mode) <= bound)
-    assert_true(fab_aligned_bits(c, product.neg(), precision, mode) <= bound)
-    // (2) the addend of the second test
-    let far = fab_value(1UL, -1073741800 - 100000, precision)
-    assert_true(fab_aligned_bits(c, far, precision, mode) <= bound)
-    // (3) an operand that carries a precision of 2^28 (a user can pass one)
-    let inflated = @bin_float.BinFloat::make(
-      @bin_float.BinCoeff::from_uint64(5UL),
-      -1000000,
-      268435456,
-    )
-    let large = @bin_float.BinFloat::make(
-      @bin_float.BinCoeff::from_uint64(7UL),
-      1000000,
-      268435456,
-    )
-    assert_true(fab_aligned_bits(large, inflated, precision, mode) <= bound)
-    assert_true(fab_aligned_bits(inflated, large, precision, mode) <= bound)
-  }
 }
 
 ///|

@@ -2130,7 +2130,11 @@ before 0.12; it is for reading, not a literal (`from_string` does not read it),
 and its cost does not depend on the exponent range: an interval whose bounds
 have exponents a billion apart is written in a few characters. An interval with
 an infinite bound prints as `[l, u]` of binary numbers, Empty as `[empty]`;
-a decorated interval appends `_` and the decoration.
+a decorated interval appends `_` and the decoration. The center is the exact
+midpoint of the bounds for an exponent gap of less than 65,536 places; beyond
+it, it is a round-to-odd value at $p + 65{,}538$ bits (a number of about 65,000
+bits, not the exact midpoint). `midpoint` and `radius`, the functions of IEEE
+1788-2015 12.12.8, have $p$ bits.
 
 ```mbti
 pub fn Interval::to_midpoint_radius_string(Self) -> String

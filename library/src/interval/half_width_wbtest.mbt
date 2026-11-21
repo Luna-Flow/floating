@@ -88,15 +88,7 @@ test "away from the bottom of the range the half-width is unchanged" {
     )
     let (lo, hi) = if a.compare(b) <= 0 { (a, b) } else { (b, a) }
     let interval = Interval::from_bounds(lo, hi, precision=53)
-    let old = exact_half(
-      exact_sub(
-        min_bits=1,
-        interval.upper_bound(),
-        interval.lower_bound(),
-        mode=BinaryRoundingMode::RoundTowardPositive,
-      ),
-      mode=BinaryRoundingMode::RoundTowardPositive,
-    ).abs()
-    assert_identical(interval.half_width(), old)
+    let old = hw_expected(interval)
+    assert_eq(interval.half_width().compare(old), 0)
   }
 }

@@ -270,7 +270,7 @@ msgstr ""
 #: manual/api/internal/conformance.md:359
 #: manual/api/internal/decimal_kernel.md:92
 #: manual/api/internal/runner_cli.md:209
-#: manual/api/interval.md:2241
+#: manual/api/interval.md:2245
 #: manual/api/interval_checked.md:528
 #: manual/api/numeric_expr.md:339
 #: manual/api/semantic.md:373
@@ -3916,7 +3916,7 @@ msgstr ""
 #: manual/api/internal/conformance.md:361
 #: manual/api/internal/decimal_kernel.md:94
 #: manual/api/internal/runner_cli.md:211
-#: manual/api/interval.md:2243
+#: manual/api/interval.md:2247
 #: manual/api/numeric_expr.md:341
 msgid "This snapshot is the generated `pkg.generated.mbti` of the package. It is the authority when prose and interface disagree."
 msgstr ""
@@ -7973,36 +7973,36 @@ msgid "The text is `[empty]`, `[entire]` or `[l, u]` with the bounds written as 
 msgstr ""
 
 #: manual/api/interval.md:2127
-msgid "The midpoint-radius view, `center +/- half-width`, with both numbers in the `BinFloat` notation (`3p-1` is $3 \\cdot 2^{-1}$). It was the output of `Show` before 0.12; it is for reading, not a literal (`from_string` does not read it), and its cost does not depend on the exponent range: an interval whose bounds have exponents a billion apart is written in a few characters. An interval with an infinite bound prints as `[l, u]` of binary numbers, Empty as `[empty]`; a decorated interval appends `_` and the decoration."
+msgid "The midpoint-radius view, `center +/- half-width`, with both numbers in the `BinFloat` notation (`3p-1` is $3 \\cdot 2^{-1}$). It was the output of `Show` before 0.12; it is for reading, not a literal (`from_string` does not read it), and its cost does not depend on the exponent range: an interval whose bounds have exponents a billion apart is written in a few characters. An interval with an infinite bound prints as `[l, u]` of binary numbers, Empty as `[empty]`; a decorated interval appends `_` and the decoration. The center is the exact midpoint of the bounds for an exponent gap of less than 65,536 places; beyond it, it is a round-to-odd value at $p + 65{,}538$ bits (a number of about 65,000 bits, not the exact midpoint). `midpoint` and `radius`, the functions of IEEE 1788-2015 12.12.8, have $p$ bits."
 msgstr ""
 
-#: manual/api/interval.md:2142
+#: manual/api/interval.md:2146
 msgid "These are the derived `Eq` and `Debug` methods of the structures."
 msgstr ""
 
-#: manual/api/interval.md:2156
+#: manual/api/interval.md:2160
 msgid "These are the derived `Eq` and `Debug` methods of the enums."
 msgstr ""
 
-#: manual/api/interval.md:2167
+#: manual/api/interval.md:2171
 msgid "The `Eq` implementations of `Interval` and `DecoratedInterval` are the `equal` relation of IEEE 1788-2015 (12.12.9), not equality of representation: `==` compares sets, ignoring precision tags, and on decorated intervals it is false whenever one operand is NaI, so NaI is not equal to itself (as NaN is not), and decorations are ignored. `identical` is the equality of the datum. `to_repr` gives the structural `Debug` form. The `Eq` of `Decoration` and `OverlapState` is the equality of the variants."
 msgstr ""
 
-#: manual/api/interval.md:2177
+#: manual/api/interval.md:2181
 msgid "`Interval` implements the enclosure relation traits of `Luna-Flow/arithmetic`."
 msgstr ""
 
-#: manual/api/interval.md:2187
+#: manual/api/interval.md:2191
 msgid ""
 "`Contains::contains(x, y)` is `y.subset(x)` (set inclusion, not the point-taking method). `Overlaps::overlaps(x, y)` is $\\underline{x} \\le \\overline{y} \\wedge \\underline{y} \\le \\overline{x}$, that is $\\boldsymbol{x} \\cap \\boldsymbol{y} \\n"
 "e \\emptyset$, and `MaybeEq::maybe_eq` is the same relation read as \"the two unknown points may be equal\". `DefinitelyLt::definitely_lt(x, y)` is $\\overline{x} < \\underline{y}$ and `DefinitelyLe::definitely_le(x, y)` is $\\overline{x} \\le \\underline{y}$: they hold when the order holds for every pair of points. All four are false when an operand is Empty. This differs from `disjoint`, `precedes` and `strict_precedes`, which are true for an Empty operand (IEEE 1788-2015 Table 10.4): `overlaps` is false where `disjoint` is true, and `definitely_lt` is false where `strict_precedes` is true, so a `true` answer of the traits is always backed by at least one pair of points. These are the generic interface of `Luna-Flow/arithmetic`; the interval package spells the standard relations `disjoint`, `precedes` and `strict_precedes`."
 msgstr ""
 
-#: manual/api/interval.md:2205
+#: manual/api/interval.md:2209
 msgid "`Interval` implements `DivChecked`, `PowNatChecked` and `PowIntChecked`; their methods are promoted."
 msgstr ""
 
-#: manual/api/interval.md:2217
+#: manual/api/interval.md:2221
 msgid "Only `ctx.precision` is used: the operands are re-rounded to it with `with_precision`, the operation is applied, and the result is re-rounded outward (see [`Interval::with_precision`](#intervalwith_precision)). At the operands' own precision the result is that of the plain operation; at a lower precision it can be wider. They always return `Ok`. `div_checked` follows the division rules above (a divisor containing 0 gives an unbounded result, not an error). `pow_int_checked` uses `pown`. `pow_nat_checked` uses binary powering by repeated interval multiplication, which treats the factors as independent: for an argument containing 0 its result is wider than `pown`. An Empty base gives Empty for every exponent, including 0, as `pown` does."
 msgstr ""
 
@@ -8702,7 +8702,7 @@ msgid "Finalization is the semantic firewall. Kernels may compute exact sums, pr
 msgstr ""
 
 #: manual/architecture.md:91
-msgid "Operations whose exact value is enormous never materialize it. A far addend collapses to a sticky bit, the IEEE remainder reduces a huge dividend modulo $2y$ by square-and-multiply on $2^k$, rounding to an integer splits the coefficient by shifting, and interval endpoint sums drop an addend that lies more than $\\max(65536, p)$ bits below the other to a directed sticky term. Each shortcut feeds the finalizer exactly the round and sticky information the full computation would."
+msgid "Operations whose exact value is enormous never materialize it. A far addend collapses to a sticky bit, the IEEE remainder reduces a huge dividend modulo $2y$ by square-and-multiply on $2^k$, rounding to an integer splits the coefficient by shifting, and interval endpoint sums are the directed `add_ctx` of the binary layer, which does the same. Each shortcut feeds the finalizer exactly the round and sticky information the full computation would."
 msgstr ""
 
 #: manual/architecture.md:99
@@ -9892,7 +9892,7 @@ msgstr ""
 #: manual/design/internal.md:211
 #: manual/design/internal/conformance.md:129
 #: manual/design/internal/runner_cli.md:83
-#: manual/design/interval.md:1205
+#: manual/design/interval.md:1198
 #: manual/design/interval_checked.md:171
 #: manual/design/numeric_expr.md:194
 #: manual/design/semantic.md:229
@@ -11138,7 +11138,7 @@ msgstr ""
 #: manual/design/internal/conformance.md:74
 #: manual/design/internal/decimal_kernel.md:301
 #: manual/design/internal/runner_cli.md:60
-#: manual/design/interval.md:1133
+#: manual/design/interval.md:1126
 #: manual/design/interval_checked.md:138
 #: manual/design/numeric_expr.md:129
 #: manual/design/semantic.md:196
@@ -11192,7 +11192,7 @@ msgstr ""
 #: manual/design/internal.md:199
 #: manual/design/internal/conformance.md:119
 #: manual/design/internal/runner_cli.md:74
-#: manual/design/interval.md:1186
+#: manual/design/interval.md:1179
 #: manual/design/interval_checked.md:158
 #: manual/design/numeric_expr.md:179
 #: manual/design/semantic.md:216
@@ -18683,181 +18683,165 @@ msgid "S. M. Rump, \"Fast and parallel interval arithmetic\", *BIT* 39(3), 1999.
 msgstr ""
 
 #: manual/design/interval.md:1009
-msgid "Exact candidates, one directed rounding"
+msgid "Endpoint operations: one directed rounding of the exact result"
 msgstr ""
 
 #: manual/design/interval.md:1011
-msgid "*Problem.* Endpoint candidates can be computed with directed rounding at each step, or exactly and rounded once."
+msgid "*Problem.* Endpoint candidates can be computed with directed rounding at each step, or exactly and rounded once. Rounding at each step would not give the tightest enclosure; forming the exact value of a sum or a product by hand costs alignment and bookkeeping the binary layer already does."
 msgstr ""
 
-#: manual/design/interval.md:1014
-msgid "*Chosen.* Sums and products of `BinFloat` endpoints are formed exactly (the coefficient grows to hold them), and `quantize_interval` applies one $\\operatorname{RD}_p$/$\\operatorname{RU}_p$ at the end; by property (iii) the result is the tightest $p$-bit enclosure of the exact hull. Division and square root, whose exact results are not dyadic, are computed directly with directed rounding at precision $p$. The rule needs two safeguards, described next: bounded alignment of far-apart addends and outward clamping at the edge of the exponent range."
+#: manual/design/interval.md:1016
+msgid "*Chosen.* Every endpoint sum, difference and product of two `BinFloat` endpoints is one directed contextual operation of `bin_float` (`add_ctx`, `sub_ctx`, `mul_ctx`, `fma_ctx`) in a context of the precision $p$ of the result and the direction of the endpoint: lower endpoints toward $-\\infty$, upper endpoints toward $+\\infty$, radii and widths upward. Each of them computes as if its exact operands were summed or multiplied exactly and rounds that value once, so by property (iii) the result is the tightest $p$-bit endpoint. The exponent range is the one of the library, so the three issues that an exact route had to handle itself belong to the binary layer:"
 msgstr ""
 
-#: manual/design/interval.md:1023
-msgid "Far addends: bound endpoint sums by precision"
+#: manual/design/interval.md:1026
+msgid "*Far addends.* Adding $A = 2^{10^9}$ and $s = 2^{-10^9}$ exactly aligns two coefficients over two billion bits (about 750 MB for one interval addition, issue #24). `add_ctx` does not align them: a term whose leading bit lies beyond the rounding position only decides the side of the rounding, and it is a sticky bit there. Soundness and tightness do not depend on a bound for the distance, as the replacement of the small addend by a surrogate that earlier versions made here did, and no precision label of an operand enters."
 msgstr ""
 
-#: manual/design/interval.md:1025
-msgid "*Problem.* Adding $A = 2^{10^9}$ and $s = 2^{-10^9}$ exactly aligns the two coefficients and builds a two-billion-bit number (about 750 MB for one interval addition, issue #24)."
+#: manual/design/interval.md:1033
+msgid "*The edge of the exponent range.* A result beyond the range is clamped by the rounding mode of the operation: a lower endpoint to $-\\infty$ or the largest finite number, an upper endpoint to $+\\infty$ or the largest finite number, a tiny result to zero or the smallest positive number. This keeps, for example, $\\exp([10^9, 10^9])$ an enclosure $[\\text{largest finite}, +\\infty)$ instead of collapsing it."
 msgstr ""
 
-#: manual/design/interval.md:1029
-msgid "*Chosen.* Let $t(v)$ be the exponent of the leading bit of $v$, $e(A)$ the exponent of the last bit of the larger addend $A$, $M = \\max(65536, \\operatorname{prec}(A), \\operatorname{prec}(s))$ and $c = \\min(e(A), t(A) - M)$. If $t(s) < c - 2$, the small addend is replaced by a sticky surrogate $s' = \\operatorname{sign}(s)\\,2^{c-2}$ when $s$ pushes the sum in the rounding direction of the endpoint being computed, and by $s' = 0$ otherwise. Then:"
+#: manual/design/interval.md:1039
+msgid "*Gradual underflow.* A result below the normal range lies on the grid of the format, and the directed rounding goes to that grid, not to the grid of the few bits the exact result happens to have."
 msgstr ""
 
-#: manual/design/interval.md:1037
-msgid "**Soundness, for every precision.** $|s| < 2^{t(s)+1} \\le 2^{c-2}$. An upper endpoint with $s > 0$ gets $A + 2^{c-2} > A + s$; with $s < 0$ it gets $A > A + s$. Lower endpoints are symmetric. So the directed sum stays on the required side of the exact sum, which is all the inclusion property needs."
-msgstr ""
-
-#: manual/design/interval.md:1041
-msgid "**No loss of tightness when $p \\le M$.** The $p$-bit numbers near $A$ are multiples of $2^{t(A) - p}$, and $t(A) - p \\ge t(A) - M \\ge c$, so no $p$-bit number lies strictly between $A$ and $A \\pm 2^c$; both $A + s$ and $A + s'$ fall in the same gap and round to the same endpoint (Lemma 7 of the attachment)."
-msgstr ""
-
-#: manual/design/interval.md:1047
-msgid "The alignment now costs at most about $M$ bits beyond the width of $A$, independent of the exponent gap. The surrogate is also used for the nearest-rounded sums inside the center, where it is not exact; this is the source of the limitation noted in [Correctness](#known-limitations)."
-msgstr ""
-
-#: manual/design/interval.md:1052
-msgid "Outward clamping at the exponent range"
+#: manual/design/interval.md:1043
+msgid "The sign of a zero that is the result of an exact cancellation is the one of the direction ($-0$ toward $-\\infty$); it is not part of the interval (see the observers). Division and square root, whose exact results are not dyadic, are computed directly with directed rounding at precision $p$. The ball view (`center`, `half_width`, and so `midpoint`) needs the exact half-sum of the two bounds, not a rounded one: it adds the bounds rounded toward zero to $p + 65{,}538$ bits and makes the result odd when that rounding was inexact (round to odd), so that the one rounding that follows, to at most $p$ bits in any direction, is the rounding of the exact value; an exponent gap of less than 65,536 places gives the exact center."
 msgstr ""
 
 #: manual/design/interval.md:1054
-msgid "`BinFloat` has a finite (very wide) exponent range. An exact candidate beyond it cannot be stored, so the exact helpers take the direction of the endpoint being built: lower endpoints clamp toward $-\\infty$, upper endpoints toward $+\\infty$, radii round up, and exponent sums are computed in 64 bits and saturated. This keeps, for example, $\\exp([10^9, 10^9])$ an enclosure $[\\text{largest finite}, +\\infty)$ instead of collapsing it."
-msgstr ""
-
-#: manual/design/interval.md:1061
 msgid "Contexts and double rounding"
 msgstr ""
 
-#: manual/design/interval.md:1063
+#: manual/design/interval.md:1056
 msgid "`IntervalContext` carries a target precision $q$ and exponent range; `apply_ctx` rounds endpoints outward into it and the `*_ctx` operations compute at the operands' precision $p$ and then apply the context. Rounding twice is harmless for directed rounding when $q \\le p$:"
 msgstr ""
 
-#: manual/design/interval.md:1072
+#: manual/design/interval.md:1065
 msgid "because $F_q \\subseteq F_p$ (a $q$-bit significand is a $p$-bit one padded with zeros): every $f \\in F_q$ below $a$ is in $F_p$, hence below $\\operatorname{RD}_p(a)$, and conversely. So `(x + y).apply_ctx(ctx)` equals a single outward rounding of the exact sum into the context whenever the operands are at least as precise as the context. Overflow is resolved in the enclosing direction: an upper endpoint above the range becomes $+\\infty$, a positive lower endpoint becomes the largest finite number (still below the true value). Underflow rounds outward on the subnormal grid, so a tiny positive upper bound becomes the smallest subnormal and never 0. The flags are returned, never stored glointervaly."
 msgstr ""
 
-#: manual/design/interval.md:1083
+#: manual/design/interval.md:1076
 msgid "Total and `try_` forms"
 msgstr ""
 
-#: manual/design/interval.md:1085
+#: manual/design/interval.md:1078
 msgid "*Problem.* Certified evaluation can fail: the refinement budget may run out, or an argument may be too large to reduce. Aborting would break long computations; returning a silent wide interval hides a lost guarantee of tightness."
 msgstr ""
 
-#: manual/design/interval.md:1090
+#: manual/design/interval.md:1083
 msgid "*Chosen.* Both, with one kernel. The `try_` forms return an `ArithmeticError` with a certification detail (operation, stage, reason, precision). The total form is the `try_` form with a fallback: when the `try_` form fails it returns the range of the function over its domain, which keeps the inclusion property: $[0, +\\infty)$ for `exp`, `exp2`, `exp10`, `pow` and `hypot`, $[-1, +\\infty)$ for `expm1`, Entire for the logarithms, `sinh`, `asinh`, `atanh`, `tan`, `tanpi` and `log1p`, $[-1, 1]$ for `sin`, `cos`, `sinpi`, `cospi` and `tanh`, $[1, +\\infty)$ for `cosh`, $[0, +\\infty)$ for `acosh`, $[-\\pi/2, \\pi/2]$ for `atan` and `asin`, $[0, \\pi]$ for `acos`, $[-\\pi, \\pi]$ for `atan2`. The $\\pi$ of a fallback is evaluated at no more than 64 bits and rounded outward, so a fallback cannot fail at any precision. The domain is decided before the kernel runs, so a failure is always a certification failure and never a domain error: an argument outside the domain gives Empty, a wide interval means the kernel gave up. Trigonometric reduction is capped: when the larger endpoint magnitude is at least $2^{\\max(65536, 4p)+1}$, reduction would need more than that many bits, so the `try_` forms report a resource limit and the total forms return the fallback."
 msgstr ""
 
-#: manual/design/interval.md:1108
+#: manual/design/interval.md:1101
 msgid "*Why one kernel.* Until this was settled the total forms of fifteen functions had a kernel of their own (exact-rational series), which aborted at a high precision (about 32,000 bits for `ln`, issue 449) and lost all relative accuracy for a tiny argument in the hyperbolic functions, while the `try_` forms used the `bin_float` kernels and had neither limit. Keeping two kernels for the same function meant two sets of bugs, and results that depended on which form the caller chose."
 msgstr ""
 
-#: manual/design/interval.md:1116
+#: manual/design/interval.md:1109
 msgid "Decorations in a separate type"
 msgstr ""
 
-#: manual/design/interval.md:1118
+#: manual/design/interval.md:1111
 msgid "*Problem.* Decorations cost a field and a minimum per operation, and most users do not need them."
 msgstr ""
 
-#: manual/design/interval.md:1121
+#: manual/design/interval.md:1114
 msgid "*Chosen.* `Interval` is the bare set; `DecoratedInterval` wraps it with a decoration and the NaI state. Bare operations stay cheap and simple, and the decorated type cannot be mixed with bare values by accident."
 msgstr ""
 
-#: manual/design/interval.md:1125
+#: manual/design/interval.md:1118
 msgid "Precision as a tag"
 msgstr ""
 
-#: manual/design/interval.md:1127
+#: manual/design/interval.md:1120
 msgid "Each interval carries a precision tag; binary operations use the larger tag. This keeps a sequence of operations at the precision of its most precise input without a context argument, which is what a set-valued type needs to compose with operators (`x + y`). An `IntervalContext` is used when a specific format must be imposed."
 msgstr ""
 
-#: manual/design/interval.md:1135
+#: manual/design/interval.md:1128
 msgid ""
 "**Representation invariant.** A non-empty `Interval` has non-NaN endpoints, $\\underline{x} \\le \\overline{x}$, $\\underline{x} \\n"
 "e +\\infty$, $\\overline{x} \\n"
 "e -\\infty$ and precision $\\ge 1$; every construction path ends in `store_interval`, which checks this and aborts otherwise. Empty is a flag with endpoints $(+\\infty, -\\infty)$."
 msgstr ""
 
-#: manual/design/interval.md:1141
+#: manual/design/interval.md:1134
 msgid "**Inclusion.** Each public operation $F$ of `Interval` satisfies $f(\\boldsymbol{x}) \\subseteq F(\\boldsymbol{x})$, by the endpoint formulas and Corollary 2 for arithmetic, by the critical-point analysis and certified endpoint enclosures for elementary functions, and by the fallbacks for uncertified cases (the exceptions are listed under known limitations). By the fundamental theorem, so does every composition."
 msgstr ""
 
-#: manual/design/interval.md:1148
+#: manual/design/interval.md:1141
 msgid "**Tightness.** Basic arithmetic, `sqr`, `pown`, `fma`, `abs`, `min`, `max`, `intersection`, `convex_hull` of non-empty operands and `sqrt` return the outward rounding of the exact hull, so each endpoint is within one ulp of optimal. Trigonometric and arctangent endpoints are correctly directed roundings when certified; the other elementary functions are usually within a few ulps. Not tight: fallbacks; `pown` with $n < -4096$ and 0 inside (Entire);  `with_precision` and `normalized` round the endpoints outward, which is the tightest enclosure and the identity on an interval already representable at the target precision, so `convex_hull` with an Empty operand and the checked capabilities do not widen either."
 msgstr ""
 
-#: manual/design/interval.md:1160
+#: manual/design/interval.md:1153
 msgid "**Decorations.** The decoration of a result is a true statement about the function evaluated, by the induction argument above."
 msgstr ""
 
-#: manual/design/interval.md:1163
+#: manual/design/interval.md:1156
 msgid "**Complexity.** Arithmetic performs at most four endpoint products or two sums, $O(M(p))$ for $p$-bit endpoints with multiplication cost $M(p)$, plus alignment of at most about $65536 + p$ bits for sums. Elementary functions cost one or two directed evaluations of the `bin_float` kernels at precision $p$ (see [`bin_float`](bin_float.md) for their cost), plus the index range for the trigonometric functions."
 msgstr ""
 
-#: manual/design/interval.md:1170
+#: manual/design/interval.md:1163
 msgid "**Evidence.** Package tests check directed endpoints, the far-addend and exponent-range cases, decorations and relations; the pinned ITF1788 corpus runs 6,632 cases in strict mode (see [conformance](../conformance/interval.md))."
 msgstr ""
 
-#: manual/design/interval.md:1174
+#: manual/design/interval.md:1167
 msgid "Known limitations"
 msgstr ""
 
-#: manual/design/interval.md:1176
+#: manual/design/interval.md:1169
 msgid "The following inputs currently lose part of the input set, round or flag a result incorrectly, or return a set other than the specified one. Each is tracked in an issue with a proposed fix that is not merged yet; they are documented here so that callers can avoid them."
 msgstr ""
 
-#: manual/design/interval.md:1181
+#: manual/design/interval.md:1174
 msgid "No limitation is open at present. Decorated `rootn` with a negative degree lowers the decoration to `trv` when 0 is in the argument, as the decoration rules of IEEE 1788-2015 §11 require; `library/src/interval/interval_decorated_wbtest.mbt` checks degrees `-1`, `-2` and `-3`."
 msgstr ""
 
-#: manual/design/interval.md:1188
+#: manual/design/interval.md:1181
 msgid "**Midpoint–radius storage** (Arb-style): cheaper radii, but overestimating products and no representation for half-unbounded sets; see [above](#endpoints-not-midpoint-and-radius)."
 msgstr ""
 
-#: manual/design/interval.md:1191
+#: manual/design/interval.md:1184
 msgid "**Hardware `Double` endpoints with switched rounding modes:** fixed precision, process-global state, and rounding-mode control is not available on every MoonBit target."
 msgstr ""
 
-#: manual/design/interval.md:1194
+#: manual/design/interval.md:1187
 msgid "**Round to nearest and inflate by one ulp** (\"epsilon inflation\"): simpler, but about one ulp wider per endpoint than directed rounding, and only valid for operations whose nearest-rounded result is known to be within one ulp, which excludes most elementary function kernels."
 msgstr ""
 
-#: manual/design/interval.md:1198
+#: manual/design/interval.md:1191
 msgid "**Aborting on uncertified elementary functions:** a single hard argument would stop a whole computation; the `try_` forms cover callers who need the failure."
 msgstr ""
 
-#: manual/design/interval.md:1201
+#: manual/design/interval.md:1194
 msgid "**Treating division by zero-containing intervals as an error:** IEEE 1788 defines these results as sets (Entire, half-unbounded or empty), and extended division is what makes interval Newton methods work."
 msgstr ""
 
-#: manual/design/interval.md:1207
+#: manual/design/interval.md:1200
 msgid "The package deliberately does not:"
 msgstr ""
 
-#: manual/design/interval.md:1209
+#: manual/design/interval.md:1202
 msgid "provide reverse versions of division and reciprocal (Table 10.1 does not require them: change `z = x / y` to `x = y z` and use `mul_rev`);"
 msgstr ""
 
-#: manual/design/interval.md:1211
+#: manual/design/interval.md:1204
 msgid "promise tight results: fallbacks and the dependency problem may widen enclosures arbitrarily;"
 msgstr ""
 
-#: manual/design/interval.md:1213
+#: manual/design/interval.md:1206
 msgid "define a total order on intervals, or treat `Eq` as set equality;"
 msgstr ""
 
-#: manual/design/interval.md:1214
+#: manual/design/interval.md:1207
 msgid "convert decimal data outward on its own: `from_double` and `exact` enclose binary values, and enclosing a decimal literal is the caller's job (see the [tutorial](../tutorial/interval.md#enclose-a-decimal-constant));"
 msgstr ""
 
-#: manual/design/interval.md:1217
+#: manual/design/interval.md:1210
 msgid "implement intervals over decimal endpoints, complex intervals, interval vectors or matrices, or Taylor models;"
 msgstr ""
 
-#: manual/design/interval.md:1219
+#: manual/design/interval.md:1212
 msgid "report status through global flags: flags come back from `*_ctx` calls and decorations travel with values."
 msgstr ""
 

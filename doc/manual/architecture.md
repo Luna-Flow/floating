@@ -91,8 +91,8 @@ the rounding direction instead of being stored with a saturated exponent.
 Operations whose exact value is enormous never materialize it. A far addend
 collapses to a sticky bit, the IEEE remainder reduces a huge dividend modulo
 $2y$ by square-and-multiply on $2^k$, rounding to an integer splits the
-coefficient by shifting, and interval endpoint sums drop an addend that lies
-more than $\max(65536, p)$ bits below the other to a directed sticky term. Each
+coefficient by shifting, and interval endpoint sums are the directed `add_ctx`
+of the binary layer, which does the same. Each
 shortcut feeds the finalizer exactly the round and sticky information the full
 computation would.
 

@@ -1006,57 +1006,50 @@ who reason in $c \pm r$, with the conversions derived
 [^rump]: S. M. Rump, "Fast and parallel interval arithmetic", *BIT* 39(3),
     1999.
 
-### Exact candidates, one directed rounding
+### Endpoint operations: one directed rounding of the exact result
 
 *Problem.* Endpoint candidates can be computed with directed rounding at each
-step, or exactly and rounded once.
+step, or exactly and rounded once. Rounding at each step would not give the
+tightest enclosure; forming the exact value of a sum or a product by hand costs
+alignment and bookkeeping the binary layer already does.
 
-*Chosen.* Sums and products of `BinFloat` endpoints are formed exactly (the
-coefficient grows to hold them), and `quantize_interval` applies one
-$\operatorname{RD}_p$/$\operatorname{RU}_p$ at the end; by property (iii) the
-result is the tightest $p$-bit enclosure of the exact hull. Division and
-square root, whose exact results are not dyadic, are computed directly with
-directed rounding at precision $p$. The rule needs two safeguards, described
-next: bounded alignment of far-apart addends and outward clamping at the edge
-of the exponent range.
+*Chosen.* Every endpoint sum, difference and product of two `BinFloat`
+endpoints is one directed contextual operation of `bin_float` (`add_ctx`,
+`sub_ctx`, `mul_ctx`, `fma_ctx`) in a context of the precision $p$ of the
+result and the direction of the endpoint: lower endpoints toward $-\infty$,
+upper endpoints toward $+\infty$, radii and widths upward. Each of them
+computes as if its exact operands were summed or multiplied exactly and rounds
+that value once, so by property (iii) the result is the tightest $p$-bit
+endpoint. The exponent range is the one of the library, so the three issues
+that an exact route had to handle itself belong to the binary layer:
 
-### Far addends: bound endpoint sums by precision
+- *Far addends.* Adding $A = 2^{10^9}$ and $s = 2^{-10^9}$ exactly aligns two
+  coefficients over two billion bits (about 750 MB for one interval addition,
+  issue #24). `add_ctx` does not align them: a term whose leading bit lies
+  beyond the rounding position only decides the side of the rounding, and it is
+  a sticky bit there. Soundness and tightness do not depend on a bound for the
+  distance, as the replacement of the small addend by a surrogate that earlier
+  versions made here did, and no precision label of an operand enters.
+- *The edge of the exponent range.* A result beyond the range is clamped by the
+  rounding mode of the operation: a lower endpoint to $-\infty$ or the
+  largest finite number, an upper endpoint to $+\infty$ or the largest finite
+  number, a tiny result to zero or the smallest positive number. This keeps,
+  for example, $\exp([10^9, 10^9])$ an enclosure $[\text{largest finite},
+  +\infty)$ instead of collapsing it.
+- *Gradual underflow.* A result below the normal range lies on the grid of the
+  format, and the directed rounding goes to that grid, not to the grid of the
+  few bits the exact result happens to have.
 
-*Problem.* Adding $A = 2^{10^9}$ and $s = 2^{-10^9}$ exactly aligns the two
-coefficients and builds a two-billion-bit number (about 750 MB for one
-interval addition, issue #24).
-
-*Chosen.* Let $t(v)$ be the exponent of the leading bit of $v$, $e(A)$ the
-exponent of the last bit of the larger addend $A$,
-$M = \max(65536, \operatorname{prec}(A), \operatorname{prec}(s))$ and
-$c = \min(e(A), t(A) - M)$. If $t(s) < c - 2$, the small addend is replaced by
-a sticky surrogate $s' = \operatorname{sign}(s)\,2^{c-2}$ when $s$ pushes the
-sum in the rounding direction of the endpoint being computed, and by $s' = 0$
-otherwise. Then:
-
-- **Soundness, for every precision.** $|s| < 2^{t(s)+1} \le 2^{c-2}$. An upper
-  endpoint with $s > 0$ gets $A + 2^{c-2} > A + s$; with $s < 0$ it gets
-  $A > A + s$. Lower endpoints are symmetric. So the directed sum stays on the
-  required side of the exact sum, which is all the inclusion property needs.
-- **No loss of tightness when $p \le M$.** The $p$-bit numbers near $A$ are
-  multiples of $2^{t(A) - p}$, and $t(A) - p \ge t(A) - M \ge c$, so no
-  $p$-bit number lies strictly between $A$ and $A \pm 2^c$; both $A + s$ and
-  $A + s'$ fall in the same gap and round to the same endpoint (Lemma 7 of the
-  attachment).
-
-The alignment now costs at most about $M$ bits beyond the width of $A$,
-independent of the exponent gap. The surrogate is also used for the
-nearest-rounded sums inside the center, where it is not exact; this is the
-source of the limitation noted in [Correctness](#known-limitations).
-
-### Outward clamping at the exponent range
-
-`BinFloat` has a finite (very wide) exponent range. An exact candidate beyond
-it cannot be stored, so the exact helpers take the direction of the endpoint
-being built: lower endpoints clamp toward $-\infty$, upper endpoints toward
-$+\infty$, radii round up, and exponent sums are computed in 64 bits and
-saturated. This keeps, for example, $\exp([10^9, 10^9])$ an enclosure
-$[\text{largest finite}, +\infty)$ instead of collapsing it.
+The sign of a zero that is the result of an exact cancellation is the one of
+the direction ($-0$ toward $-\infty$); it is not part of the interval (see the
+observers). Division and square root, whose exact results are not dyadic, are
+computed directly with directed rounding at precision $p$. The ball view
+(`center`, `half_width`, and so `midpoint`) needs the exact half-sum of the two
+bounds, not a rounded one: it adds the bounds rounded toward zero to $p + 65{,}538$
+bits and makes the result odd when that rounding was inexact (round to odd), so
+that the one rounding that follows, to at most $p$ bits in any direction, is
+the rounding of the exact value; an exponent gap of less than 65,536 places
+gives the exact center.
 
 ### Contexts and double rounding
 

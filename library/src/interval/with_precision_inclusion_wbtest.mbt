@@ -9,8 +9,8 @@ fn with_precision_power(
 ///|
 /// `Interval::with_precision` rebuilt a bounded interval from `center()` and
 /// `radius()`. The center adds the endpoints in round-to-nearest mode, which
-/// replaces an addend more than `far_addend_margin` bits below the larger one
-/// with a sticky surrogate, while the radius drops that addend. Once the new
+/// replaced an addend far below the larger one
+/// with a sticky surrogate (of the exact route that the directed sums replaced), while the radius drops that addend. Once the new
 /// precision stored the surrogate exactly, `center - radius` landed above the
 /// original lower endpoint and the result lost it.
 test "Interval::with_precision keeps a far lower endpoint" {

@@ -144,27 +144,21 @@ fn checked_exact(
 }
 
 ///|
-/// Builds `coefficient * 2^exponent2` exactly. When the value lies outside the
-/// binary exponent range it cannot be stored exactly, and `mode` decides the
-/// side it is clamped to; endpoint computations pass the outward direction.
-///
-/// `exact_range`: the value is made at `max(bit length, e_min - exponent2 + 1)`
-/// bits, so that the quantum below the normal range of the make,
-/// `2^(e_min - bits + 1)`, is at most the lowest bit of the value and nothing is
-/// rounded; made at its own bit length, a value of a few bits below the normal
-/// range was rounded to the quantum of those few bits (to 0 for the sum of the
-/// endpoints of `[1, 3] * 2^(e_min - 60)`). Needs at most one bit more than the
-/// operands of a sum or of a halving have. `min_bits`: the value is made at no
-/// fewer bits (the precision of a directed result, see `directed_add`).
-fn exact_make(
+/// `coefficient * 2^exponent2` as a `BinFloat`, exactly. `exact_range`: the value is made at
+/// `max(bit length, e_min - exponent2 + 1)` bits, so that the quantum below the normal range of
+/// the make, `2^(e_min - bits + 1)`, is at most the lowest bit of the value and nothing is rounded
+/// (made at its own bit length, a value of a few bits below the normal range is rounded to the
+/// quantum of those few bits). A value outside the exponent range of the library is clamped by
+/// the make, on the side `mode` says (to the infinity or the largest finite value, to zero or the
+/// smallest positive value).
+fn exact_value(
   coefficient : @bin_float.BinCoeff,
   exponent2 : Int32,
   negative~ : Bool = false,
-  mode~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
-  min_bits~ : Int32 = 1,
   exact_range~ : Bool = false,
+  mode~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
 ) -> @bin_float.BinFloat {
-  let bits = Int32::max(min_bits, coefficient.bit_length())
+  let bits = Int32::max(1, coefficient.bit_length())
   let bits = if exact_range && !coefficient.is_zero() {
     Int32::min(
       @bin_float.binary_precision_max,
@@ -177,269 +171,102 @@ fn exact_make(
 }
 
 ///|
-/// Bits below the larger addend's leading bit that an endpoint sum keeps
-/// exactly; deeper addends become sticky surrogates.
-let far_addend_margin : Int32 = 65536
-
-///|
 fn exponent_top(x : @bin_float.BinFloat) -> Int64 {
   x.ilogb().unwrap().to_int64()
 }
 
 ///|
-/// Aligning two nonzero addends shifts by their exponent gap, which can be
-/// billions of bits. Below `cut`, at least `far_addend_margin` bits (and the
-/// operands' precision) under the larger addend's leading bit, the smaller
-/// addend is under one ulp at any working precision used here, so only its
-/// sign matters: it is replaced by 0 or `±2^(cut - 2)` on the side that keeps
-/// a directed sum on the requested side of the exact value. Nearest-rounded
-/// callers get the same sticky surrogate, which rounds like the exact sum.
-fn far_addend_surrogate(
-  a : @bin_float.BinFloat,
-  b : @bin_float.BinFloat,
-  mode : BinaryRoundingMode,
-  min_bits : Int32,
-) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
-  let a_is_large = exponent_top(a) >= exponent_top(b)
-  let (large, small) = if a_is_large { (a, b) } else { (b, a) }
-  // The margin is the precision the sum is rounded to (`min_bits`), not the
-  // precision of an operand: a value made with `exact_range` below the normal range
-  // carries a precision of up to 2^28, and the stand-in would then lie 2^28 places
-  // under the large addend (the sum is aligned over that many bits).
-  let margin = Int32::max(far_addend_margin, min_bits).to_int64()
-  let cut = Int64::min(
-    large.exponent2().to_int64(),
-    exponent_top(large) - margin,
-  )
-  if exponent_top(small) >= cut - 2L {
-    return (a, b)
-  }
-  // The surrogate pushes the sum up when true, down otherwise; sums that
-  // must not move in the small addend's direction drop it.
-  let keep = match mode {
-    BinaryRoundingMode::RoundTowardPositive => !small.is_negative()
-    BinaryRoundingMode::RoundTowardNegative => small.is_negative()
-    BinaryRoundingMode::RoundTowardZero =>
-      small.is_negative() != large.is_negative()
-    BinaryRoundingMode::RoundTiesToEven | BinaryRoundingMode::RoundTiesToAway =>
-      true
-  }
-  let surrogate = if keep {
-    // Exact even below the normal range: made at one bit it was rounded away to
-    // the quantum of one bit (2^e_min), much larger than the true addend, and a
-    // sum rounded to `precision` bits was then looser than the tightest one.
-    exact_make(
-      @bin_float.BinCoeff::one(),
-      (cut - 2L).to_int(),
-      negative=small.is_negative(),
-      mode=if small.is_negative() {
-        BinaryRoundingMode::RoundTowardNegative
-      } else {
-        BinaryRoundingMode::RoundTowardPositive
-      },
-      exact_range=true,
-    )
-  } else {
-    @bin_float.BinFloat::zero(precision=1)
-  }
-  if a_is_large {
-    (large, surrogate)
-  } else {
-    (surrogate, large)
-  }
-}
-
-///|
-fn exact_add(
-  a : @bin_float.BinFloat,
-  b : @bin_float.BinFloat,
-  mode~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
-  min_bits~ : Int32,
-  exact_range~ : Bool = false,
-) -> @bin_float.BinFloat {
-  if a.is_zero() {
-    return b
-  }
-  if b.is_zero() {
-    return a
-  }
-  let (a, b) = far_addend_surrogate(a, b, mode, min_bits)
-  if a.is_zero() {
-    return b
-  }
-  if b.is_zero() {
-    return a
-  }
-  let target = Int32::min(a.exponent2(), b.exponent2())
-  let left = coeff_shift_left(a.coefficient(), a.exponent2() - target)
-  let right = coeff_shift_left(b.coefficient(), b.exponent2() - target)
-  if a.is_negative() == b.is_negative() {
-    exact_make(
-      coeff_add(left, right),
-      target,
-      negative=a.is_negative(),
-      mode~,
-      min_bits~,
-      exact_range~,
-    )
-  } else {
-    let comparison = left.compare(right)
-    if comparison == 0 {
-      exact_make(@bin_float.BinCoeff::zero(), 0)
-    } else if comparison > 0 {
-      exact_make(
-        coeff_sub(left, right),
-        target,
-        negative=a.is_negative(),
-        mode~,
-        min_bits~,
-        exact_range~,
-      )
-    } else {
-      exact_make(
-        coeff_sub(right, left),
-        target,
-        negative=b.is_negative(),
-        mode~,
-        min_bits~,
-        exact_range~,
-      )
-    }
-  }
-}
-
-///|
-fn exact_sub(
-  a : @bin_float.BinFloat,
-  b : @bin_float.BinFloat,
-  mode~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
-  min_bits~ : Int32,
-  exact_range~ : Bool = false,
-) -> @bin_float.BinFloat {
-  exact_add(a, b.neg(), mode~, min_bits~, exact_range~)
-}
-
-///|
-fn exact_mul(
-  a : @bin_float.BinFloat,
-  b : @bin_float.BinFloat,
-  mode~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
-  min_bits~ : Int32 = 1,
-  exact_range~ : Bool = false,
-) -> @bin_float.BinFloat {
-  // Saturating keeps the direction of an out-of-range exponent sum; the
-  // binary layer then clamps it according to `mode`.
-  let exponent = a.exponent2().to_int64() + b.exponent2().to_int64()
-  let exponent = if exponent > 2147483647L {
-    2147483647
-  } else if exponent < -2147483648L {
-    -2147483648
-  } else {
-    exponent.to_int()
-  }
-  exact_make(
-    coeff_mul(a.coefficient(), b.coefficient()),
-    exponent,
-    negative=a.is_negative() != b.is_negative(),
-    mode~,
-    min_bits~,
-    exact_range~,
-  )
-}
-
-///|
-/// The two roundings of a directed result (the exact value made at
-/// `max(bits, precision)` bits, then rounded to `precision` bits) are one
-/// rounding only for a direction: the grid of `precision` bits is a subset of the
-/// grid of `max(bits, precision)` bits (same exponent range, finer quantum below
-/// the normal range), and rounding down (or up, or toward zero) to the finer grid
-/// and then to the coarser one is rounding to the coarser one. A nearest mode
-/// would round twice, so it is refused.
-fn directed_check_mode(mode : BinaryRoundingMode) -> Unit {
-  match mode {
-    BinaryRoundingMode::RoundTowardNegative
-    | BinaryRoundingMode::RoundTowardPositive
-    | BinaryRoundingMode::RoundTowardZero => ()
-    BinaryRoundingMode::RoundTiesToEven | BinaryRoundingMode::RoundTiesToAway =>
-      abort("directed bounds are rounded in a direction, not to nearest")
-  }
-}
-
-///|
-/// `x` rounded to `precision` bits in the direction `mode`.
-fn directed_round(
-  x : @bin_float.BinFloat,
-  precision : Int32,
-  mode : BinaryRoundingMode,
-) -> @bin_float.BinFloat {
-  if x.precision() == precision {
-    x
-  } else {
-    x.with_precision(precision, mode)
-  }
-}
-
-///|
-/// PR F (a contextual core that reads words) turns this into `add_ctx` in a
-/// context of `precision` bits and the direction `mode`: that is the oracle of
-/// `directed_bounds_wbtest.mbt`; it has 1 to 3 more allocations per call today
-/// and is equal in instructions within a few percent, except for `sub` and
-/// `add` at 512 bits (see the CHANGELOG).
-///
-/// `a + b` of two finite values rounded once to `precision` bits in the
-/// direction `mode`: the exact sum made at `max(bits, precision)` bits (so a
-/// short exact result is not rounded to its own bit length first) and rounded
-/// once. A zero operand returns the other one (rounded) and an exact
-/// cancellation is the positive zero of `precision` bits, as `exact_add` makes
-/// them; a sum rounded to zero keeps the sign of the exact value.
+/// `a + b` of two finite values rounded once to `precision` bits in the direction `mode`: the
+/// directed `add_ctx` of `bin_float` in the exponent range of the library. A zero operand
+/// returns the other one rounded; an exact cancellation is a zero (the sign of a stored zero is
+/// not part of the interval).
 fn directed_add(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
   precision : Int32,
   mode : BinaryRoundingMode,
 ) -> @bin_float.BinFloat {
-  directed_check_mode(mode)
-  directed_round(exact_add(a, b, mode~, min_bits=precision), precision, mode)
+  a.add_ctx(b, @bin_float.BinaryContext::new(precision~, rounding=mode)).0
 }
 
 ///|
-/// `a - b`, as `directed_add(a, -b)` (PR F: `sub_ctx`).
+/// `a - b` rounded once to `precision` bits in the direction `mode` (`sub_ctx`).
 fn directed_sub(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
   precision : Int32,
   mode : BinaryRoundingMode,
 ) -> @bin_float.BinFloat {
-  directed_check_mode(mode)
-  directed_round(exact_sub(a, b, mode~, min_bits=precision), precision, mode)
+  a.sub_ctx(b, @bin_float.BinaryContext::new(precision~, rounding=mode)).0
 }
 
 ///|
-/// `a * b` of two finite non-zero values rounded once to `precision` bits in
-/// the direction `mode` (PR F: `mul_ctx`; a product rounded to zero keeps its sign, as `make`
-/// does).
+/// `a * b` of two finite non-zero values rounded once to `precision` bits in the direction
+/// `mode` (`mul_ctx`; a product rounded to zero keeps its sign).
 fn directed_mul(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
   precision : Int32,
   mode : BinaryRoundingMode,
 ) -> @bin_float.BinFloat {
-  directed_check_mode(mode)
-  directed_round(exact_mul(a, b, mode~, min_bits=precision), precision, mode)
+  a.mul_ctx(b, @bin_float.BinaryContext::new(precision~, rounding=mode)).0
 }
 
 ///|
-fn exact_half(
-  x : @bin_float.BinFloat,
-  mode~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
-  exact_range~ : Bool = false,
-) -> @bin_float.BinFloat {
-  exact_make(
+/// `x / 2`, exactly (the exponent is lowered by one; the value is made wide enough that nothing
+/// is rounded below the normal range).
+fn halve(x : @bin_float.BinFloat) -> @bin_float.BinFloat {
+  exact_value(
     x.coefficient(),
     x.exponent2() - 1,
     negative=x.is_negative(),
-    mode~,
-    exact_range~,
+    exact_range=true,
+  )
+}
+
+///|
+/// Bits kept by the sum of the ball view: the sum of two bounds of `precision` bits whose
+/// exponents differ by more than this is not formed exactly (the part below is a sticky bit).
+let ball_view_margin : Int32 = 65536
+
+///|
+fn ball_view_bits(precision : Int32) -> Int32 {
+  Int32::min(
+    @bin_float.binary_precision_max,
+    Int32::max(precision, 1) + ball_view_margin + 2,
+  )
+}
+
+///|
+/// `a + b` of two finite values, rounded toward zero to `bits` bits and, when that rounding was
+/// inexact, made odd (round to odd: the last of the `bits` bits is set). A later rounding to at
+/// most `bits - 2` bits in any direction is then the rounding of the exact sum, once (no double
+/// rounding). The sum is exact when it has at most `bits` bits.
+fn odd_sum(
+  a : @bin_float.BinFloat,
+  b : @bin_float.BinFloat,
+  bits : Int32,
+) -> @bin_float.BinFloat {
+  let (sum, flags) = a.add_ctx(
+    b,
+    @bin_float.BinaryContext::new(
+      precision=bits,
+      rounding=BinaryRoundingMode::RoundTowardZero,
+    ),
+  )
+  if !flags.inexact() || sum.is_zero() {
+    return sum
+  }
+  // the coefficient is odd (normalized): place a final bit below its `bits` bits
+  let shift = bits - sum.coefficient().bit_length()
+  if shift <= 0 {
+    return sum
+  }
+  exact_value(
+    coeff_add(coeff_shift_left(sum.coefficient(), shift), coeff_one()),
+    sum.exponent2() - shift,
+    negative=sum.is_negative(),
+    exact_range=true,
   )
 }
 
@@ -562,6 +389,19 @@ fn empty_interval(precision : Int32) -> Interval {
 }
 
 ///|
+/// Whether a bound is so large that the sum or difference of two such bounds can leave the
+/// exponent range (the halves are then formed first: they are exact there).
+fn near_range_top(x : @bin_float.BinFloat) -> Bool {
+  !x.is_zero() &&
+  exponent_top(x) >= @bin_float.binary_implementation_e_max.to_int64() - 1L
+}
+
+///|
+/// The exact center `(lower + upper) / 2` of a bounded nonempty interval: the half of the sum
+/// of the bounds, the sum made odd when it has more than `ball_view_bits` bits (an exponent gap
+/// of more than 65,536 places), so that the caller rounds the result once, to at most `bits`
+/// bits. Near the top of the range the sum of the halves is formed instead (the sum of the
+/// bounds could overflow).
 fn interval_center(x : Interval, bits : Int32) -> @bin_float.BinFloat {
   guard !x.is_empty() else {
     abort("interval center is undefined for an empty interval")
@@ -569,16 +409,17 @@ fn interval_center(x : Interval, bits : Int32) -> @bin_float.BinFloat {
   guard x.is_common_interval() else {
     abort("interval center is undefined for unbounded intervals")
   }
-  // exact: the sum and its half are made wide enough that nothing is rounded
-  // below the normal range; the caller rounds the result once, to `bits` bits at
-  // most (the far-addend stand-in of the sum lies under those bits)
-  exact_half(
-    exact_add(x.lo_, x.hi_, min_bits=bits, exact_range=true),
-    exact_range=true,
-  )
+  let w = ball_view_bits(bits)
+  if near_range_top(x.lo_) || near_range_top(x.hi_) {
+    odd_sum(halve(x.lo_), halve(x.hi_), w)
+  } else {
+    halve(odd_sum(x.lo_, x.hi_, w))
+  }
 }
 
 ///|
+/// The half-width `(upper - lower) / 2` of a bounded nonempty interval, exact when it has at most
+/// `ball_view_bits` bits and rounded toward positive otherwise (a radius must not understate it).
 fn interval_radius(x : Interval) -> @bin_float.BinFloat {
   guard !x.is_empty() else {
     abort("interval radius is undefined for an empty interval")
@@ -586,20 +427,13 @@ fn interval_radius(x : Interval) -> @bin_float.BinFloat {
   guard x.is_common_interval() else {
     abort("interval radius is undefined for unbounded intervals")
   }
-  // The exact half-width `(upper - lower) / 2` (`exact_range`: nothing is rounded
-  // below the normal range; a radius must not understate the half-width, even
-  // there). Directed upward only where the range ends.
-  exact_half(
-    exact_sub(
-      x.hi_,
-      x.lo_,
-      mode=BinaryRoundingMode::RoundTowardPositive,
-      min_bits=x.precision_,
-      exact_range=true,
-    ),
-    mode=BinaryRoundingMode::RoundTowardPositive,
-    exact_range=true,
-  ).abs()
+  let w = ball_view_bits(x.precision_)
+  let up = BinaryRoundingMode::RoundTowardPositive
+  if near_range_top(x.lo_) || near_range_top(x.hi_) {
+    directed_sub(halve(x.hi_), halve(x.lo_), w, up).abs()
+  } else {
+    halve(directed_sub(x.hi_, x.lo_, w, up)).abs()
+  }
 }
 
 ///|
@@ -867,8 +701,10 @@ fn extended_mul(
 }
 
 ///|
-/// Both directed products of `extended_mul` with one coefficient product
-/// (each rounded once to `precision` bits).
+/// Both directed products of `extended_mul`, each rounded once to `precision` bits: the
+/// coefficient product is formed once and rounded by `BinFloat::make`, the rounding of the binary
+/// layer (gradual underflow and overflow included), toward negative and toward positive (two
+/// `mul_ctx` of the same operands would multiply twice; measured cheaper at 53, 128 and 512 bits).
 fn extended_mul_both(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
@@ -886,6 +722,7 @@ fn extended_mul_both(
     )
     return (r, r)
   }
+  // the exponent sum saturates, so that one beyond 32 bits keeps its direction
   let exponent = a.exponent2().to_int64() + b.exponent2().to_int64()
   let exponent = if exponent > 2147483647L {
     2147483647
@@ -896,28 +733,21 @@ fn extended_mul_both(
   }
   let coefficient = coeff_mul(a.coefficient(), b.coefficient())
   let negative = a.is_negative() != b.is_negative()
-  // each product is made at `max(bits, precision)` bits and rounded once to
-  // `precision` in its direction (`directed_mul`'s value); the one coefficient
-  // product is shared (measured cheaper than two `mul_ctx` at every width from 53
-  // to 2,048 bits, by 20 to 40 percent)
-  let min_bits = precision
-  let down = exact_make(
-    coefficient,
-    exponent,
-    negative~,
-    mode=BinaryRoundingMode::RoundTowardNegative,
-    min_bits~,
-  )
-  let up = exact_make(
-    coefficient,
-    exponent,
-    negative~,
-    mode=BinaryRoundingMode::RoundTowardPositive,
-    min_bits~,
-  )
   (
-    directed_round(down, precision, BinaryRoundingMode::RoundTowardNegative),
-    directed_round(up, precision, BinaryRoundingMode::RoundTowardPositive),
+    @bin_float.BinFloat::make(
+      coefficient,
+      exponent,
+      precision,
+      negative~,
+      mode=BinaryRoundingMode::RoundTowardNegative,
+    ),
+    @bin_float.BinFloat::make(
+      coefficient,
+      exponent,
+      precision,
+      negative~,
+      mode=BinaryRoundingMode::RoundTowardPositive,
+    ),
   )
 }
 
@@ -2049,6 +1879,7 @@ pub fn Interval::convex_hull(self : Interval, other : Interval) -> Interval {
 fn exact_add_full(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
+  mode~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
 ) -> @bin_float.BinFloat {
   if a.is_zero() {
     return b
@@ -2060,29 +1891,32 @@ fn exact_add_full(
   let left = coeff_shift_left(a.coefficient(), a.exponent2() - target)
   let right = coeff_shift_left(b.coefficient(), b.exponent2() - target)
   if a.is_negative() == b.is_negative() {
-    exact_make(
+    exact_value(
       coeff_add(left, right),
       target,
       negative=a.is_negative(),
       exact_range=true,
+      mode~,
     )
   } else {
     let comparison = left.compare(right)
     if comparison == 0 {
       @bin_float.BinFloat::zero(precision=1)
     } else if comparison > 0 {
-      exact_make(
+      exact_value(
         coeff_sub(left, right),
         target,
         negative=a.is_negative(),
         exact_range=true,
+        mode~,
       )
     } else {
-      exact_make(
+      exact_value(
         coeff_sub(right, left),
         target,
         negative=b.is_negative(),
         exact_range=true,
+        mode~,
       )
     }
   }
@@ -2140,11 +1974,10 @@ fn width_not_less(
 /// either operand is unbounded, when `x` is nonempty and `y` empty, and when
 /// `width(x) < width(y)`; Empty when `x` is empty and `y` bounded. The decision
 /// `width(x) < width(y)` is the exact sign of `(x2 - x1) - (y2 - y1)`
-/// (`width_not_less`: no rounding and no surrogate of a far addend), so equal
+/// (`width_not_less`: no rounding), so equal
 /// widths give a point and a width smaller by less than a unit of the end
 /// values is Entire; the ends are the end values rounded outward once at the
-/// precision (`exact_range`: nothing is rounded below the normal range; the
-/// far-addend surrogate of `exact_add` only widens them).
+/// precision (the directed `add_ctx` and `sub_ctx`).
 fn cancel_result(
   x : Interval,
   y : Interval,

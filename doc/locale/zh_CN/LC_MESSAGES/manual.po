@@ -270,7 +270,7 @@ msgstr "对每个候选，它取该用例和数据集的有效确认性观测，
 #: manual/api/internal/conformance.md:359
 #: manual/api/internal/decimal_kernel.md:92
 #: manual/api/internal/runner_cli.md:209
-#: manual/api/interval.md:2241
+#: manual/api/interval.md:2245
 #: manual/api/interval_checked.md:528
 #: manual/api/numeric_expr.md:339
 #: manual/api/semantic.md:373
@@ -3927,7 +3927,7 @@ msgstr "`to_string` 在不带上下文的情况下以科学记数法格式化值
 #: manual/api/internal/conformance.md:361
 #: manual/api/internal/decimal_kernel.md:94
 #: manual/api/internal/runner_cli.md:211
-#: manual/api/interval.md:2243
+#: manual/api/interval.md:2247
 #: manual/api/numeric_expr.md:341
 msgid "This snapshot is the generated `pkg.generated.mbti` of the package. It is the authority when prose and interface disagree."
 msgstr "此快照是该包生成的 `pkg.generated.mbti`。当正文与接口不一致时，以接口为准。"
@@ -8001,26 +8001,26 @@ msgid "The text is `[empty]`, `[entire]` or `[l, u]` with the bounds written as 
 msgstr "文本是 `[empty]`、`[entire]` 或 `[l, u]`，端点写成十六进制数（`0x1fffffp-3`；无穷端点写 `inf` 与 `-inf`），带装饰的区间再加 `_` 与装饰（NaI 为 `[nai]`）。这些端点就是所存储的端点，所以 `from_exact_string(x.to_exact_string(), precision=x.precision())` 与 `x` `identical`（不写带符号的零，13.4）。`from_exact_string` 按文本精确读入，绝不变宽。文本中的端点必须是 `precision` 位格式的数，与每个存储的端点一样：有效位多于 `precision` 的端点（`0x1.00000000000001p0` 有 57 位，与文本里有几个尾随的零无关，在 `precision=57` 下可读，在 53 下被拒绝）、超出本库指数范围的端点，或比范围下限以下 `precision` 位的网格更细的端点，会被拒绝并给出说明原因的解析错误；十进制或格式错误的端点、下端点大于上端点同样被拒绝。哪些端点能被表示由 IEEE 754-2019 5.12.3 的转换器决定（`BinFloat::from_hex_ctx` 报告 `inexact`），而不是数文本的位数，因此带小数部分的尾数（`0x1.8p0`、`0x.8p1`）、前导与尾随的零位以及大写都能读入。0.12 之前更宽的端点会被接受，并带有它自身位数的标签，因为该类型当时可以持有这样的端点；现在不能了。"
 
 #: manual/api/interval.md:2127
-msgid "The midpoint-radius view, `center +/- half-width`, with both numbers in the `BinFloat` notation (`3p-1` is $3 \\cdot 2^{-1}$). It was the output of `Show` before 0.12; it is for reading, not a literal (`from_string` does not read it), and its cost does not depend on the exponent range: an interval whose bounds have exponents a billion apart is written in a few characters. An interval with an infinite bound prints as `[l, u]` of binary numbers, Empty as `[empty]`; a decorated interval appends `_` and the decoration."
-msgstr "中点与半径的视图 `center +/- half-width`，两个数都用 `BinFloat` 记法（`3p-1` 是 $3 \\cdot 2^{-1}$）。它是 0.12 之前 `Show` 的输出；它供阅读，不是字面量（`from_string` 不读它），其代价不依赖于指数范围：端点指数相差十亿的区间也只需几个字符。带无穷端点的区间写成二进制数的 `[l, u]`，空区间写成 `[empty]`；带装饰的区间再追加 `_` 与装饰。"
+msgid "The midpoint-radius view, `center +/- half-width`, with both numbers in the `BinFloat` notation (`3p-1` is $3 \\cdot 2^{-1}$). It was the output of `Show` before 0.12; it is for reading, not a literal (`from_string` does not read it), and its cost does not depend on the exponent range: an interval whose bounds have exponents a billion apart is written in a few characters. An interval with an infinite bound prints as `[l, u]` of binary numbers, Empty as `[empty]`; a decorated interval appends `_` and the decoration. The center is the exact midpoint of the bounds for an exponent gap of less than 65,536 places; beyond it, it is a round-to-odd value at $p + 65{,}538$ bits (a number of about 65,000 bits, not the exact midpoint). `midpoint` and `radius`, the functions of IEEE 1788-2015 12.12.8, have $p$ bits."
+msgstr "中点–半径视图，`center +/- half-width`，两个数都用 `BinFloat` 记法（`3p-1` 即 $3 \\cdot 2^{-1}$）。0.12 之前它是 `Show` 的输出；它供阅读，不是字面量（`from_string` 不读它），其代价不依赖指数范围：端点指数相差十亿的区间只需写几个字符。有无穷端点的区间按二进制数 `[l, u]` 打印，Empty 打印为 `[empty]`；带装饰的区间追加 `_` 与装饰。指数间距小于 65,536 位时，中心是端点的精确中点；超出时，它是 $p + 65{,}538$ 位处舍入到奇数的值（约 65,000 位的数，不是精确中点）。`midpoint` 与 `radius` 是 IEEE 1788-2015 12.12.8 的函数，各为 $p$ 位。"
 
-#: manual/api/interval.md:2142
+#: manual/api/interval.md:2146
 msgid "These are the derived `Eq` and `Debug` methods of the structures."
 msgstr "这些是各结构体派生的 `Eq` 和 `Debug` 方法。"
 
-#: manual/api/interval.md:2156
+#: manual/api/interval.md:2160
 msgid "These are the derived `Eq` and `Debug` methods of the enums."
 msgstr "这些是各枚举派生的 `Eq` 和 `Debug` 方法。"
 
-#: manual/api/interval.md:2167
+#: manual/api/interval.md:2171
 msgid "The `Eq` implementations of `Interval` and `DecoratedInterval` are the `equal` relation of IEEE 1788-2015 (12.12.9), not equality of representation: `==` compares sets, ignoring precision tags, and on decorated intervals it is false whenever one operand is NaI, so NaI is not equal to itself (as NaN is not), and decorations are ignored. `identical` is the equality of the datum. `to_repr` gives the structural `Debug` form. The `Eq` of `Decoration` and `OverlapState` is the equality of the variants."
 msgstr "`Interval` 和 `DecoratedInterval` 的 `Eq` 实现是 IEEE 1788-2015（12.12.9）的 `equal` 关系，而不是表示的相等：`==` 比较集合，忽略精度标记；在带装饰的区间上，只要有一个操作数是 NaI 它就为假，所以 NaI 不等于它自己（NaN 同理），并且装饰被忽略。`identical` 是数据本身的相等。`to_repr` 给出结构化的 `Debug` 形式。`Decoration` 和 `OverlapState` 的 `Eq` 是各变体的相等。"
 
-#: manual/api/interval.md:2177
+#: manual/api/interval.md:2181
 msgid "`Interval` implements the enclosure relation traits of `Luna-Flow/arithmetic`."
 msgstr "`Interval` 实现了 `Luna-Flow/arithmetic` 的包络关系 trait。"
 
-#: manual/api/interval.md:2187
+#: manual/api/interval.md:2191
 msgid ""
 "`Contains::contains(x, y)` is `y.subset(x)` (set inclusion, not the point-taking method). `Overlaps::overlaps(x, y)` is $\\underline{x} \\le \\overline{y} \\wedge \\underline{y} \\le \\overline{x}$, that is $\\boldsymbol{x} \\cap \\boldsymbol{y} \\n"
 "e \\emptyset$, and `MaybeEq::maybe_eq` is the same relation read as \"the two unknown points may be equal\". `DefinitelyLt::definitely_lt(x, y)` is $\\overline{x} < \\underline{y}$ and `DefinitelyLe::definitely_le(x, y)` is $\\overline{x} \\le \\underline{y}$: they hold when the order holds for every pair of points. All four are false when an operand is Empty. This differs from `disjoint`, `precedes` and `strict_precedes`, which are true for an Empty operand (IEEE 1788-2015 Table 10.4): `overlaps` is false where `disjoint` is true, and `definitely_lt` is false where `strict_precedes` is true, so a `true` answer of the traits is always backed by at least one pair of points. These are the generic interface of `Luna-Flow/arithmetic`; the interval package spells the standard relations `disjoint`, `precedes` and `strict_precedes`."
@@ -8028,11 +8028,11 @@ msgstr ""
 "`Contains::contains(x, y)` 即 `y.subset(x)`（集合的包含，而不是接受点的那个方法）。`Overlaps::overlaps(x, y)` 为 $\\underline{x} \\le \\overline{y} \\wedge \\underline{y} \\le \\overline{x}$，即 $\\boldsymbol{x} \\cap \\boldsymbol{y} \\n"
 "e \\emptyset$，`MaybeEq::maybe_eq` 是同一关系，读作“两个未知的点可能相等”。`DefinitelyLt::definitely_lt(x, y)` 为 $\\overline{x} < \\underline{y}$，`DefinitelyLe::definitely_le(x, y)` 为 $\\overline{x} \\le \\underline{y}$：它们在对每一对点该序都成立时成立。四者在某个操作数为 Empty 时都为假。这与 `disjoint`、`precedes` 和 `strict_precedes` 不同，后三者在操作数为 Empty 时为真（IEEE 1788-2015 表 10.4）：`overlaps` 为假之处 `disjoint` 为真，`definitely_lt` 为假之处 `strict_precedes` 为真，因此这些 trait 返回 `true` 时总有至少一对点作为依据。它们是 `Luna-Flow/arithmetic` 的通用接口；区间包用 `disjoint`、`precedes` 和 `strict_precedes` 来拼写标准关系。"
 
-#: manual/api/interval.md:2205
+#: manual/api/interval.md:2209
 msgid "`Interval` implements `DivChecked`, `PowNatChecked` and `PowIntChecked`; their methods are promoted."
 msgstr "`Interval` 实现了 `DivChecked`、`PowNatChecked` 和 `PowIntChecked`；它们的方法被提升为该类型的方法。"
 
-#: manual/api/interval.md:2217
+#: manual/api/interval.md:2221
 msgid "Only `ctx.precision` is used: the operands are re-rounded to it with `with_precision`, the operation is applied, and the result is re-rounded outward (see [`Interval::with_precision`](#intervalwith_precision)). At the operands' own precision the result is that of the plain operation; at a lower precision it can be wider. They always return `Ok`. `div_checked` follows the division rules above (a divisor containing 0 gives an unbounded result, not an error). `pow_int_checked` uses `pown`. `pow_nat_checked` uses binary powering by repeated interval multiplication, which treats the factors as independent: for an argument containing 0 its result is wider than `pown`. An Empty base gives Empty for every exponent, including 0, as `pown` does."
 msgstr "只使用 `ctx.precision`：操作数先用 `with_precision` 重新舍入到该精度，再应用运算，然后将结果向外重新舍入（参见 [`Interval::with_precision`](#intervalwith_precision)）。在操作数自身的精度下，结果与普通运算相同；在更低的精度下结果可能更宽。它们总是返回 `Ok`。`div_checked` 遵循上述除法规则（除数包含 0 时给出无界结果，而不是错误）。`pow_int_checked` 使用 `pown`。`pow_nat_checked` 通过重复的区间乘法进行二进制求幂，这会把各因子视为相互独立：对于包含 0 的参数，其结果比 `pown` 更宽。与 `pown` 一样，Empty 底数对任何指数（包括 0）都给出 Empty。"
 
@@ -8732,8 +8732,8 @@ msgid "Finalization is the semantic firewall. Kernels may compute exact sums, pr
 msgstr "最终化（finalization）是语义防火墙。计算内核可以计算精确的和、积、商、根或保护位与粘滞位，但只有最终化器决定舍入后的值、同值类（cohort）、标志、陷阱、装饰以及区间端点的方向。它还对首位比特强制实施二进制实现的指数范围 $[1 - 2^{30},\\ 2^{30} - 1]$：超出该范围的结果会按舍入方向被归类为上溢或下溢，而不是以饱和指数存储。"
 
 #: manual/architecture.md:91
-msgid "Operations whose exact value is enormous never materialize it. A far addend collapses to a sticky bit, the IEEE remainder reduces a huge dividend modulo $2y$ by square-and-multiply on $2^k$, rounding to an integer splits the coefficient by shifting, and interval endpoint sums drop an addend that lies more than $\\max(65536, p)$ bits below the other to a directed sticky term. Each shortcut feeds the finalizer exactly the round and sticky information the full computation would."
-msgstr "精确值极其庞大的运算从不将其实际展开。相距很远的加数会折叠为一个粘滞位；IEEE 余数运算通过对 $2^k$ 平方再相乘，将巨大的被除数对 $2y$ 取模来约化；舍入到整数时通过移位拆分系数；区间端点求和时，若某个加数比另一个低超过 $\\max(65536, p)$ 比特，则将其舍弃为一个定向粘滞项。每种捷径都恰好向最终化器提供与完整计算相同的舍入位和粘滞信息。"
+msgid "Operations whose exact value is enormous never materialize it. A far addend collapses to a sticky bit, the IEEE remainder reduces a huge dividend modulo $2y$ by square-and-multiply on $2^k$, rounding to an integer splits the coefficient by shifting, and interval endpoint sums are the directed `add_ctx` of the binary layer, which does the same. Each shortcut feeds the finalizer exactly the round and sticky information the full computation would."
+msgstr "确切值极其庞大的运算从不把它实际构造出来。远处的加数坍缩为一个粘滞位，IEEE 取余用对 $2^k$ 的平方乘把巨大的被除数对 $2y$ 取模，取整通过移位拆分系数，区间端点的和则是二进制层的定向 `add_ctx`，它做的是同样的事。每一种捷径都只向终结器提供完整计算本该提供的舍入位与粘滞位。"
 
 #: manual/architecture.md:99
 msgid "Algorithm selection"
@@ -9922,7 +9922,7 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 #: manual/design/internal.md:211
 #: manual/design/internal/conformance.md:129
 #: manual/design/internal/runner_cli.md:83
-#: manual/design/interval.md:1205
+#: manual/design/interval.md:1198
 #: manual/design/interval_checked.md:171
 #: manual/design/numeric_expr.md:194
 #: manual/design/semantic.md:229
@@ -11170,7 +11170,7 @@ msgstr "`environment` 在每次运行中记录目标、配置文件和数据类�
 #: manual/design/internal/conformance.md:74
 #: manual/design/internal/decimal_kernel.md:301
 #: manual/design/internal/runner_cli.md:60
-#: manual/design/interval.md:1133
+#: manual/design/interval.md:1126
 #: manual/design/interval_checked.md:138
 #: manual/design/numeric_expr.md:129
 #: manual/design/semantic.md:196
@@ -11224,7 +11224,7 @@ msgstr "**尺度不变性。** 将所有样本乘以常数 $\\lambda > 0$ 会使
 #: manual/design/internal.md:199
 #: manual/design/internal/conformance.md:119
 #: manual/design/internal/runner_cli.md:74
-#: manual/design/interval.md:1186
+#: manual/design/interval.md:1179
 #: manual/design/interval_checked.md:158
 #: manual/design/numeric_expr.md:179
 #: manual/design/semantic.md:216
@@ -18833,98 +18833,82 @@ msgid "S. M. Rump, \"Fast and parallel interval arithmetic\", *BIT* 39(3), 1999.
 msgstr "S. M. Rump，\"Fast and parallel interval arithmetic\"，*BIT* 39(3)，1999。"
 
 #: manual/design/interval.md:1009
-msgid "Exact candidates, one directed rounding"
-msgstr "精确候选值，一次定向舍入"
+msgid "Endpoint operations: one directed rounding of the exact result"
+msgstr "端点运算：对精确结果做一次定向舍入"
 
 #: manual/design/interval.md:1011
-msgid "*Problem.* Endpoint candidates can be computed with directed rounding at each step, or exactly and rounded once."
-msgstr "*问题。* 端点候选值既可以在每一步都用定向舍入计算，也可以精确计算后只舍入一次。"
+msgid "*Problem.* Endpoint candidates can be computed with directed rounding at each step, or exactly and rounded once. Rounding at each step would not give the tightest enclosure; forming the exact value of a sum or a product by hand costs alignment and bookkeeping the binary layer already does."
+msgstr "*问题。* 端点候选值可以在每一步都做定向舍入来计算，也可以先精确计算、最后只舍入一次。每一步都舍入得不到最紧的包络；而手工构造一个和或积的精确值，要付出二进制层已经做过的对齐与簿记代价。"
 
-#: manual/design/interval.md:1014
-msgid "*Chosen.* Sums and products of `BinFloat` endpoints are formed exactly (the coefficient grows to hold them), and `quantize_interval` applies one $\\operatorname{RD}_p$/$\\operatorname{RU}_p$ at the end; by property (iii) the result is the tightest $p$-bit enclosure of the exact hull. Division and square root, whose exact results are not dyadic, are computed directly with directed rounding at precision $p$. The rule needs two safeguards, described next: bounded alignment of far-apart addends and outward clamping at the edge of the exponent range."
-msgstr "*选择。* `BinFloat` 端点的和与积精确构成（系数会增长以容纳它们），`quantize_interval` 在最后施加一次 $\\operatorname{RD}_p$/$\\operatorname{RU}_p$；由性质 (iii)，结果是精确凸包的最紧 $p$ 位包络。除法和平方根的精确结果不是二进有理数，因此直接在精度 $p$ 下以定向舍入计算。该规则需要两项保护措施，如下所述：对相距很远的加数做有界对齐，以及在指数范围边缘向外钳制。"
+#: manual/design/interval.md:1016
+msgid "*Chosen.* Every endpoint sum, difference and product of two `BinFloat` endpoints is one directed contextual operation of `bin_float` (`add_ctx`, `sub_ctx`, `mul_ctx`, `fma_ctx`) in a context of the precision $p$ of the result and the direction of the endpoint: lower endpoints toward $-\\infty$, upper endpoints toward $+\\infty$, radii and widths upward. Each of them computes as if its exact operands were summed or multiplied exactly and rounds that value once, so by property (iii) the result is the tightest $p$-bit endpoint. The exponent range is the one of the library, so the three issues that an exact route had to handle itself belong to the binary layer:"
+msgstr "*选择。* 两个 `BinFloat` 端点的每一个和、差、积，都是 `bin_float` 的一次定向上下文运算（`add_ctx`、`sub_ctx`、`mul_ctx`、`fma_ctx`），上下文取结果的精度 $p$ 与该端点的方向：下端点朝 $-\\infty$，上端点朝 $+\\infty$，半径与宽度向上。每个运算都按其精确操作数之和或积来计算，并把该值只舍入一次，因此由性质 (iii)，结果是最紧的 $p$ 位端点。指数范围是本库的指数范围，所以精确路线必须自己处理的三个问题，现在由二进制层承担："
 
-#: manual/design/interval.md:1023
-msgid "Far addends: bound endpoint sums by precision"
-msgstr "相距很远的加数：按精度界定端点和"
+#: manual/design/interval.md:1026
+msgid "*Far addends.* Adding $A = 2^{10^9}$ and $s = 2^{-10^9}$ exactly aligns two coefficients over two billion bits (about 750 MB for one interval addition, issue #24). `add_ctx` does not align them: a term whose leading bit lies beyond the rounding position only decides the side of the rounding, and it is a sticky bit there. Soundness and tightness do not depend on a bound for the distance, as the replacement of the small addend by a surrogate that earlier versions made here did, and no precision label of an operand enters."
+msgstr "*远处的加数。* 精确地把 $A = 2^{10^9}$ 与 $s = 2^{-10^9}$ 相加，会把两个系数对齐到二十亿位，构造出一个二十亿位的数（一次区间加法约 750 MB，issue #24）。`add_ctx` 不做这样的对齐：首位落在舍入位置之外的项只决定舍入的方向，在那里它就是一个粘滞位。正确性与紧致性不依赖对距离的任何界，不像早先版本在这里以替代量代换小加数那样，也不涉及操作数的精度标签。"
 
-#: manual/design/interval.md:1025
-msgid "*Problem.* Adding $A = 2^{10^9}$ and $s = 2^{-10^9}$ exactly aligns the two coefficients and builds a two-billion-bit number (about 750 MB for one interval addition, issue #24)."
-msgstr "*问题。* 精确地将 $A = 2^{10^9}$ 与 $s = 2^{-10^9}$ 相加会对齐两个系数，构造出一个二十亿位的数（一次区间加法约需 750 MB，见 issue #24）。"
+#: manual/design/interval.md:1033
+msgid "*The edge of the exponent range.* A result beyond the range is clamped by the rounding mode of the operation: a lower endpoint to $-\\infty$ or the largest finite number, an upper endpoint to $+\\infty$ or the largest finite number, a tiny result to zero or the smallest positive number. This keeps, for example, $\\exp([10^9, 10^9])$ an enclosure $[\\text{largest finite}, +\\infty)$ instead of collapsing it."
+msgstr "*指数范围的边缘。* 超出范围的结果按该运算的舍入模式截断：下端点为 $-\\infty$ 或最大有限数，上端点为 $+\\infty$ 或最大有限数，极小的结果为零或最小正数。例如这使 $\\exp([10^9, 10^9])$ 保持为包络 $[\\text{largest finite}, +\\infty)$，而不是坍缩。"
 
-#: manual/design/interval.md:1029
-msgid "*Chosen.* Let $t(v)$ be the exponent of the leading bit of $v$, $e(A)$ the exponent of the last bit of the larger addend $A$, $M = \\max(65536, \\operatorname{prec}(A), \\operatorname{prec}(s))$ and $c = \\min(e(A), t(A) - M)$. If $t(s) < c - 2$, the small addend is replaced by a sticky surrogate $s' = \\operatorname{sign}(s)\\,2^{c-2}$ when $s$ pushes the sum in the rounding direction of the endpoint being computed, and by $s' = 0$ otherwise. Then:"
-msgstr "*选择。* 设 $t(v)$ 为 $v$ 最高位的指数，$e(A)$ 为较大加数 $A$ 最低位的指数，$M = \\max(65536, \\operatorname{prec}(A), \\operatorname{prec}(s))$ 且 $c = \\min(e(A), t(A) - M)$。若 $t(s) < c - 2$，当 $s$ 将和推向所计算端点的舍入方向时，小加数被替换为粘滞替身 $s' = \\operatorname{sign}(s)\\,2^{c-2}$，否则替换为 $s' = 0$。于是："
+#: manual/design/interval.md:1039
+msgid "*Gradual underflow.* A result below the normal range lies on the grid of the format, and the directed rounding goes to that grid, not to the grid of the few bits the exact result happens to have."
+msgstr "*渐进下溢。* 低于正规范围的结果落在该格式的网格上，定向舍入舍到的是那个网格，而不是精确结果碰巧只有的那几位所决定的网格。"
 
-#: manual/design/interval.md:1037
-msgid "**Soundness, for every precision.** $|s| < 2^{t(s)+1} \\le 2^{c-2}$. An upper endpoint with $s > 0$ gets $A + 2^{c-2} > A + s$; with $s < 0$ it gets $A > A + s$. Lower endpoints are symmetric. So the directed sum stays on the required side of the exact sum, which is all the inclusion property needs."
-msgstr "**对任意精度均可靠。** $|s| < 2^{t(s)+1} \\le 2^{c-2}$。当 $s > 0$ 时，上端点得到 $A + 2^{c-2} > A + s$；当 $s < 0$ 时得到 $A > A + s$。下端点对称。因此定向和始终位于精确和所要求的一侧，而这正是包含性质所需的全部。"
-
-#: manual/design/interval.md:1041
-msgid "**No loss of tightness when $p \\le M$.** The $p$-bit numbers near $A$ are multiples of $2^{t(A) - p}$, and $t(A) - p \\ge t(A) - M \\ge c$, so no $p$-bit number lies strictly between $A$ and $A \\pm 2^c$; both $A + s$ and $A + s'$ fall in the same gap and round to the same endpoint (Lemma 7 of the attachment)."
-msgstr "**当 $p \\le M$ 时不损失紧致性。** $A$ 附近的 $p$ 位数是 $2^{t(A) - p}$ 的倍数，且 $t(A) - p \\ge t(A) - M \\ge c$，因此没有 $p$ 位数严格位于 $A$ 与 $A \\pm 2^c$ 之间；$A + s$ 和 $A + s'$ 落在同一间隙中，舍入到同一端点（附件中的引理 7）。"
-
-#: manual/design/interval.md:1047
-msgid "The alignment now costs at most about $M$ bits beyond the width of $A$, independent of the exponent gap. The surrogate is also used for the nearest-rounded sums inside the center, where it is not exact; this is the source of the limitation noted in [Correctness](#known-limitations)."
-msgstr "现在对齐的代价至多比 $A$ 的宽度多出约 $M$ 位，与指数差无关。该替身也用于中心内部的就近舍入求和，在那里它并不精确；这正是[正确性](#known-limitations)中所述局限的来源。"
-
-#: manual/design/interval.md:1052
-msgid "Outward clamping at the exponent range"
-msgstr "在指数范围边缘向外钳制"
+#: manual/design/interval.md:1043
+msgid "The sign of a zero that is the result of an exact cancellation is the one of the direction ($-0$ toward $-\\infty$); it is not part of the interval (see the observers). Division and square root, whose exact results are not dyadic, are computed directly with directed rounding at precision $p$. The ball view (`center`, `half_width`, and so `midpoint`) needs the exact half-sum of the two bounds, not a rounded one: it adds the bounds rounded toward zero to $p + 65{,}538$ bits and makes the result odd when that rounding was inexact (round to odd), so that the one rounding that follows, to at most $p$ bits in any direction, is the rounding of the exact value; an exponent gap of less than 65,536 places gives the exact center."
+msgstr "由精确相消得到的零，其符号取决于方向（朝 $-\\infty$ 为 $-0$）；它不属于区间（见观测量）。除法与平方根的精确结果不是二进有理数，直接以精度 $p$ 做定向舍入来计算。球视图（`center`、`half_width`，以及 `midpoint`）需要两个端点精确的半和，而不是舍入过的：它把两端点朝零舍入到 $p + 65{,}538$ 位相加，并在该舍入不精确时把结果变成奇数（舍入到奇数），这样随后向任意方向、至多 $p$ 位的那一次舍入，就是对精确值的舍入；指数间距小于 65,536 位时给出精确的中心。"
 
 #: manual/design/interval.md:1054
-msgid "`BinFloat` has a finite (very wide) exponent range. An exact candidate beyond it cannot be stored, so the exact helpers take the direction of the endpoint being built: lower endpoints clamp toward $-\\infty$, upper endpoints toward $+\\infty$, radii round up, and exponent sums are computed in 64 bits and saturated. This keeps, for example, $\\exp([10^9, 10^9])$ an enclosure $[\\text{largest finite}, +\\infty)$ instead of collapsing it."
-msgstr "`BinFloat` 具有有限（但非常宽）的指数范围。超出该范围的精确候选值无法存储，因此精确辅助函数会采用所构建端点的方向：下端点朝 $-\\infty$ 钳制，上端点朝 $+\\infty$ 钳制，半径向上舍入，指数之和以 64 位计算并饱和。例如，这能使 $\\exp([10^9, 10^9])$ 保持为包络 $[\\text{largest finite}, +\\infty)$，而不会坍缩。"
-
-#: manual/design/interval.md:1061
 msgid "Contexts and double rounding"
 msgstr "上下文与双重舍入"
 
-#: manual/design/interval.md:1063
+#: manual/design/interval.md:1056
 msgid "`IntervalContext` carries a target precision $q$ and exponent range; `apply_ctx` rounds endpoints outward into it and the `*_ctx` operations compute at the operands' precision $p$ and then apply the context. Rounding twice is harmless for directed rounding when $q \\le p$:"
 msgstr "`IntervalContext` 携带目标精度 $q$ 和指数范围；`apply_ctx` 将端点向外舍入到其中，`*_ctx` 运算先在操作数的精度 $p$ 下计算，再应用上下文。当 $q \\le p$ 时，对定向舍入而言舍入两次是无害的："
 
-#: manual/design/interval.md:1072
+#: manual/design/interval.md:1065
 msgid "because $F_q \\subseteq F_p$ (a $q$-bit significand is a $p$-bit one padded with zeros): every $f \\in F_q$ below $a$ is in $F_p$, hence below $\\operatorname{RD}_p(a)$, and conversely. So `(x + y).apply_ctx(ctx)` equals a single outward rounding of the exact sum into the context whenever the operands are at least as precise as the context. Overflow is resolved in the enclosing direction: an upper endpoint above the range becomes $+\\infty$, a positive lower endpoint becomes the largest finite number (still below the true value). Underflow rounds outward on the subnormal grid, so a tiny positive upper bound becomes the smallest subnormal and never 0. The flags are returned, never stored glointervaly."
 msgstr "因为 $F_q \\subseteq F_p$（$q$ 位有效数就是用零填充的 $p$ 位有效数）：$a$ 以下的每个 $f \\in F_q$ 都属于 $F_p$，因此也在 $\\operatorname{RD}_p(a)$ 以下，反之亦然。所以只要操作数至少与上下文一样精确，`(x + y).apply_ctx(ctx)` 就等于将精确和一次性向外舍入到上下文中。上溢按包络方向处理：超出范围的上端点变为 $+\\infty$，正的下端点变为最大有限数（仍低于真实值）。下溢在次正规数网格上向外舍入，因此极小的正上界变为最小次正规数，而绝不会变为 0。标志作为返回值给出，从不全局存储。"
 
-#: manual/design/interval.md:1083
+#: manual/design/interval.md:1076
 msgid "Total and `try_` forms"
 msgstr "全函数形式与 `try_` 形式"
 
-#: manual/design/interval.md:1085
+#: manual/design/interval.md:1078
 msgid "*Problem.* Certified evaluation can fail: the refinement budget may run out, or an argument may be too large to reduce. Aborting would break long computations; returning a silent wide interval hides a lost guarantee of tightness."
 msgstr "*问题。* 认证求值可能失败：细化预算可能耗尽，或参数可能大到无法约简。中止会打断长时间的计算；而悄无声息地返回宽区间则会掩盖紧致性保证的丧失。"
 
-#: manual/design/interval.md:1090
+#: manual/design/interval.md:1083
 msgid "*Chosen.* Both, with one kernel. The `try_` forms return an `ArithmeticError` with a certification detail (operation, stage, reason, precision). The total form is the `try_` form with a fallback: when the `try_` form fails it returns the range of the function over its domain, which keeps the inclusion property: $[0, +\\infty)$ for `exp`, `exp2`, `exp10`, `pow` and `hypot`, $[-1, +\\infty)$ for `expm1`, Entire for the logarithms, `sinh`, `asinh`, `atanh`, `tan`, `tanpi` and `log1p`, $[-1, 1]$ for `sin`, `cos`, `sinpi`, `cospi` and `tanh`, $[1, +\\infty)$ for `cosh`, $[0, +\\infty)$ for `acosh`, $[-\\pi/2, \\pi/2]$ for `atan` and `asin`, $[0, \\pi]$ for `acos`, $[-\\pi, \\pi]$ for `atan2`. The $\\pi$ of a fallback is evaluated at no more than 64 bits and rounded outward, so a fallback cannot fail at any precision. The domain is decided before the kernel runs, so a failure is always a certification failure and never a domain error: an argument outside the domain gives Empty, a wide interval means the kernel gave up. Trigonometric reduction is capped: when the larger endpoint magnitude is at least $2^{\\max(65536, 4p)+1}$, reduction would need more than that many bits, so the `try_` forms report a resource limit and the total forms return the fallback."
 msgstr "*采用的方案。* 两者都要，且只有一个内核。`try_` 形式返回带认证详情（运算、阶段、原因、精度）的 `ArithmeticError`。全函数形式就是带回退的 `try_` 形式：当 `try_` 形式失败时，它返回该函数在其定义域上的值域，这保持了包含性：`exp`、`exp2`、`exp10`、`pow` 和 `hypot` 为 $[0, +\\infty)$，`expm1` 为 $[-1, +\\infty)$，对数函数、`sinh`、`asinh`、`atanh`、`tan`、`tanpi` 和 `log1p` 为 Entire，`sin`、`cos`、`sinpi`、`cospi` 和 `tanh` 为 $[-1, 1]$，`cosh` 为 $[1, +\\infty)$，`acosh` 为 $[0, +\\infty)$，`atan` 和 `asin` 为 $[-\\pi/2, \\pi/2]$，`acos` 为 $[0, \\pi]$，`atan2` 为 $[-\\pi, \\pi]$。回退中的 $\\pi$ 以不超过 64 位的精度求值并向外舍入，所以回退在任何精度下都不会失败。定义域在内核运行之前就已判定，因此失败永远是认证失败而不是定义域错误：定义域之外的参数给出 Empty，宽区间则表示内核放弃了。三角约化有上限：当较大端点的绝对值至少为 $2^{\\max(65536, 4p)+1}$ 时，约化需要的位数超过该值，所以 `try_` 形式报告资源限制，全函数形式返回回退值。"
 
-#: manual/design/interval.md:1108
+#: manual/design/interval.md:1101
 msgid "*Why one kernel.* Until this was settled the total forms of fifteen functions had a kernel of their own (exact-rational series), which aborted at a high precision (about 32,000 bits for `ln`, issue 449) and lost all relative accuracy for a tiny argument in the hyperbolic functions, while the `try_` forms used the `bin_float` kernels and had neither limit. Keeping two kernels for the same function meant two sets of bugs, and results that depended on which form the caller chose."
 msgstr "*为什么只用一个内核。* 在这一点确定之前，十五个函数的全函数形式有自己的内核（精确有理级数），它在高精度下会中止（`ln` 约在 32,000 位，见 issue 449），并且双曲函数对很小的参数完全失去相对精度，而 `try_` 形式使用 `bin_float` 内核，没有这两个限制。同一个函数保留两个内核，意味着两套缺陷，以及取决于调用者选哪种形式的结果。"
 
-#: manual/design/interval.md:1116
+#: manual/design/interval.md:1109
 msgid "Decorations in a separate type"
 msgstr "装饰放在独立的类型中"
 
-#: manual/design/interval.md:1118
+#: manual/design/interval.md:1111
 msgid "*Problem.* Decorations cost a field and a minimum per operation, and most users do not need them."
 msgstr "*问题。* 装饰在每次运算中都要多耗费一个字段和一次取最小值，而大多数用户并不需要它们。"
 
-#: manual/design/interval.md:1121
+#: manual/design/interval.md:1114
 msgid "*Chosen.* `Interval` is the bare set; `DecoratedInterval` wraps it with a decoration and the NaI state. Bare operations stay cheap and simple, and the decorated type cannot be mixed with bare values by accident."
 msgstr "*选择。* `Interval` 是裸集合；`DecoratedInterval` 用装饰和 NaI 状态将其包装。裸运算保持廉价、简单，且装饰类型不会被意外地与裸值混用。"
 
-#: manual/design/interval.md:1125
+#: manual/design/interval.md:1118
 msgid "Precision as a tag"
 msgstr "精度作为标签"
 
-#: manual/design/interval.md:1127
+#: manual/design/interval.md:1120
 msgid "Each interval carries a precision tag; binary operations use the larger tag. This keeps a sequence of operations at the precision of its most precise input without a context argument, which is what a set-valued type needs to compose with operators (`x + y`). An `IntervalContext` is used when a specific format must be imposed."
 msgstr "每个区间都携带一个精度标签；二元运算使用较大的标签。这使一连串运算无需上下文参数即可保持在最精确输入的精度上，而集合值类型要与运算符（`x + y`）组合正需要这一点。需要强制指定特定格式时，使用 `IntervalContext`。"
 
-#: manual/design/interval.md:1135
+#: manual/design/interval.md:1128
 msgid ""
 "**Representation invariant.** A non-empty `Interval` has non-NaN endpoints, $\\underline{x} \\le \\overline{x}$, $\\underline{x} \\n"
 "e +\\infty$, $\\overline{x} \\n"
@@ -18934,83 +18918,83 @@ msgstr ""
 "e +\\infty$、$\\overline{x} \\n"
 "e -\\infty$ 以及精度 $\\ge 1$；每条构造路径都以 `store_interval` 结束，它检查上述条件，不满足则中止。空区间是一个标志，其端点为 $(+\\infty, -\\infty)$。"
 
-#: manual/design/interval.md:1141
+#: manual/design/interval.md:1134
 msgid "**Inclusion.** Each public operation $F$ of `Interval` satisfies $f(\\boldsymbol{x}) \\subseteq F(\\boldsymbol{x})$, by the endpoint formulas and Corollary 2 for arithmetic, by the critical-point analysis and certified endpoint enclosures for elementary functions, and by the fallbacks for uncertified cases (the exceptions are listed under known limitations). By the fundamental theorem, so does every composition."
 msgstr "**包含性。** `Interval` 的每个公开运算 $F$ 都满足 $f(\\boldsymbol{x}) \\subseteq F(\\boldsymbol{x})$：对算术运算依据端点公式和推论 2，对初等函数依据临界点分析和经认证的端点包络，对未认证的情形依据后备值（例外列于已知局限中）。由基本定理，每个复合运算也满足这一点。"
 
-#: manual/design/interval.md:1148
+#: manual/design/interval.md:1141
 msgid "**Tightness.** Basic arithmetic, `sqr`, `pown`, `fma`, `abs`, `min`, `max`, `intersection`, `convex_hull` of non-empty operands and `sqrt` return the outward rounding of the exact hull, so each endpoint is within one ulp of optimal. Trigonometric and arctangent endpoints are correctly directed roundings when certified; the other elementary functions are usually within a few ulps. Not tight: fallbacks; `pown` with $n < -4096$ and 0 inside (Entire);  `with_precision` and `normalized` round the endpoints outward, which is the tightest enclosure and the identity on an interval already representable at the target precision, so `convex_hull` with an Empty operand and the checked capabilities do not widen either."
 msgstr "**紧致性。** 基本算术、`sqr`、`pown`、`fma`、`abs`、`min`、`max`、非空操作数的 `intersection` 和 `convex_hull`，以及 `sqrt` 返回精确凸包的向外舍入，因此每个端点与最优值相差不超过一个 ulp。三角函数和反正切的端点在经过认证时是正确的定向舍入；其他初等函数通常在几个 ulp 之内。不紧致的情形有：回退；$n < -4096$ 且 0 位于内部时的 `pown`（Entire）。`with_precision` 和 `normalized` 将端点向外舍入，这是最紧包络，并且对在目标精度下已可表示的区间是恒等的，因此带 Empty 操作数的 `convex_hull` 和 checked 能力同样不会加宽。"
 
-#: manual/design/interval.md:1160
+#: manual/design/interval.md:1153
 msgid "**Decorations.** The decoration of a result is a true statement about the function evaluated, by the induction argument above."
 msgstr "**装饰。** 由上文的归纳论证，结果的装饰是关于所求值函数的一个真命题。"
 
-#: manual/design/interval.md:1163
+#: manual/design/interval.md:1156
 msgid "**Complexity.** Arithmetic performs at most four endpoint products or two sums, $O(M(p))$ for $p$-bit endpoints with multiplication cost $M(p)$, plus alignment of at most about $65536 + p$ bits for sums. Elementary functions cost one or two directed evaluations of the `bin_float` kernels at precision $p$ (see [`bin_float`](bin_float.md) for their cost), plus the index range for the trigonometric functions."
 msgstr "**复杂度。** 算术运算至多执行四次端点乘积或两次求和，对于 $p$ 位端点、乘法代价为 $M(p)$ 时为 $O(M(p))$，求和另需对齐至多约 $65536 + p$ 位。初等函数在精度 $p$ 下花费一到两次对 `bin_float` 内核的定向求值（其代价见 [`bin_float`](bin_float.md)），三角函数另需指标范围。"
 
-#: manual/design/interval.md:1170
+#: manual/design/interval.md:1163
 msgid "**Evidence.** Package tests check directed endpoints, the far-addend and exponent-range cases, decorations and relations; the pinned ITF1788 corpus runs 6,632 cases in strict mode (see [conformance](../conformance/interval.md))."
 msgstr "**证据。** 包测试检查定向端点、相距很远的加数与指数范围的情形、装饰和关系；固定版本的 ITF1788 语料在 strict 模式下运行 6,632 个用例（参见[符合性](../conformance/interval.md)）。"
 
-#: manual/design/interval.md:1174
+#: manual/design/interval.md:1167
 msgid "Known limitations"
 msgstr "已知局限"
 
-#: manual/design/interval.md:1176
+#: manual/design/interval.md:1169
 msgid "The following inputs currently lose part of the input set, round or flag a result incorrectly, or return a set other than the specified one. Each is tracked in an issue with a proposed fix that is not merged yet; they are documented here so that callers can avoid them."
 msgstr "以下输入目前会丢失输入集合的一部分、对结果做出错误的舍入或设置错误的标志，或返回与规定不同的集合。每一项都有对应的 issue 跟踪，并附有尚未合并的修复提案；它们记录于此，以便调用者避开。"
 
-#: manual/design/interval.md:1181
+#: manual/design/interval.md:1174
 msgid "No limitation is open at present. Decorated `rootn` with a negative degree lowers the decoration to `trv` when 0 is in the argument, as the decoration rules of IEEE 1788-2015 §11 require; `library/src/interval/interval_decorated_wbtest.mbt` checks degrees `-1`, `-2` and `-3`."
 msgstr "目前没有未解决的限制。负次数的装饰 `rootn` 在参数含 0 时会把装饰降为 `trv`，这正是 IEEE 1788-2015 §11 的装饰规则所要求的；`library/src/interval/interval_decorated_wbtest.mbt` 检查了次数 `-1`、`-2` 和 `-3`。"
 
-#: manual/design/interval.md:1188
+#: manual/design/interval.md:1181
 msgid "**Midpoint–radius storage** (Arb-style): cheaper radii, but overestimating products and no representation for half-unbounded sets; see [above](#endpoints-not-midpoint-and-radius)."
 msgstr "**中点–半径存储**（Arb 风格）：半径更廉价，但会高估乘积，且无法表示半无界集合；参见[上文](#endpoints-not-midpoint-and-radius)。"
 
-#: manual/design/interval.md:1191
+#: manual/design/interval.md:1184
 msgid "**Hardware `Double` endpoints with switched rounding modes:** fixed precision, process-global state, and rounding-mode control is not available on every MoonBit target."
 msgstr "**使用硬件 `Double` 端点并切换舍入模式：** 精度固定、依赖进程全局状态，且并非每个 MoonBit 目标都支持舍入模式控制。"
 
-#: manual/design/interval.md:1194
+#: manual/design/interval.md:1187
 msgid "**Round to nearest and inflate by one ulp** (\"epsilon inflation\"): simpler, but about one ulp wider per endpoint than directed rounding, and only valid for operations whose nearest-rounded result is known to be within one ulp, which excludes most elementary function kernels."
 msgstr "**就近舍入后膨胀一个 ulp**（\"epsilon 膨胀\"）：更简单，但每个端点比定向舍入宽约一个 ulp，且只对就近舍入结果已知误差在一个 ulp 以内的运算有效，这排除了大多数初等函数内核。"
 
-#: manual/design/interval.md:1198
+#: manual/design/interval.md:1191
 msgid "**Aborting on uncertified elementary functions:** a single hard argument would stop a whole computation; the `try_` forms cover callers who need the failure."
 msgstr "**对未认证的初等函数中止：** 单个困难参数就会使整个计算停止；需要获知失败的调用者可使用 `try_` 形式。"
 
-#: manual/design/interval.md:1201
+#: manual/design/interval.md:1194
 msgid "**Treating division by zero-containing intervals as an error:** IEEE 1788 defines these results as sets (Entire, half-unbounded or empty), and extended division is what makes interval Newton methods work."
 msgstr "**将除以含零区间视为错误：** IEEE 1788 将这些结果定义为集合（Entire、半无界或空集），而扩展除法正是区间 Newton 方法得以奏效的关键。"
 
-#: manual/design/interval.md:1207
+#: manual/design/interval.md:1200
 msgid "The package deliberately does not:"
 msgstr "本包有意不做以下事情："
 
-#: manual/design/interval.md:1209
+#: manual/design/interval.md:1202
 msgid "provide reverse versions of division and reciprocal (Table 10.1 does not require them: change `z = x / y` to `x = y z` and use `mul_rev`);"
 msgstr "提供除法与倒数的反向版本（表 10.1 不要求它们：把 `z = x / y` 改为 `x = y z` 并使用 `mul_rev`）；"
 
-#: manual/design/interval.md:1211
+#: manual/design/interval.md:1204
 msgid "promise tight results: fallbacks and the dependency problem may widen enclosures arbitrarily;"
 msgstr "承诺紧致的结果：后备值和依赖问题可能使包络任意变宽；"
 
-#: manual/design/interval.md:1213
+#: manual/design/interval.md:1206
 msgid "define a total order on intervals, or treat `Eq` as set equality;"
 msgstr "在区间上定义全序，或将 `Eq` 视为集合相等；"
 
-#: manual/design/interval.md:1214
+#: manual/design/interval.md:1207
 msgid "convert decimal data outward on its own: `from_double` and `exact` enclose binary values, and enclosing a decimal literal is the caller's job (see the [tutorial](../tutorial/interval.md#enclose-a-decimal-constant));"
 msgstr "自行将十进制数据向外转换：`from_double` 和 `exact` 包络的是二进制值，包络十进制字面量是调用者的职责（参见[教程](../tutorial/interval.md#enclose-a-decimal-constant)）；"
 
-#: manual/design/interval.md:1217
+#: manual/design/interval.md:1210
 msgid "implement intervals over decimal endpoints, complex intervals, interval vectors or matrices, or Taylor models;"
 msgstr "实现以十进制数为端点的区间、复球、区间向量或矩阵，或 Taylor 模型；"
 
-#: manual/design/interval.md:1219
+#: manual/design/interval.md:1212
 msgid "report status through global flags: flags come back from `*_ctx` calls and decorations travel with values."
 msgstr "通过全局标志报告状态：标志由 `*_ctx` 调用返回，装饰随值一起传递。"
 
@@ -29271,6 +29255,39 @@ msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 #: manual/verification.md:847
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "Exact candidates, one directed rounding"
+#~ msgstr "精确候选值，一次定向舍入"
+
+#~ msgid "*Problem.* Endpoint candidates can be computed with directed rounding at each step, or exactly and rounded once."
+#~ msgstr "*问题。* 端点候选值既可以在每一步都用定向舍入计算，也可以精确计算后只舍入一次。"
+
+#~ msgid "*Chosen.* Sums and products of `BinFloat` endpoints are formed exactly (the coefficient grows to hold them), and `quantize_interval` applies one $\\operatorname{RD}_p$/$\\operatorname{RU}_p$ at the end; by property (iii) the result is the tightest $p$-bit enclosure of the exact hull. Division and square root, whose exact results are not dyadic, are computed directly with directed rounding at precision $p$. The rule needs two safeguards, described next: bounded alignment of far-apart addends and outward clamping at the edge of the exponent range."
+#~ msgstr "*选择。* `BinFloat` 端点的和与积精确构成（系数会增长以容纳它们），`quantize_interval` 在最后施加一次 $\\operatorname{RD}_p$/$\\operatorname{RU}_p$；由性质 (iii)，结果是精确凸包的最紧 $p$ 位包络。除法和平方根的精确结果不是二进有理数，因此直接在精度 $p$ 下以定向舍入计算。该规则需要两项保护措施，如下所述：对相距很远的加数做有界对齐，以及在指数范围边缘向外钳制。"
+
+#~ msgid "Far addends: bound endpoint sums by precision"
+#~ msgstr "相距很远的加数：按精度界定端点和"
+
+#~ msgid "*Problem.* Adding $A = 2^{10^9}$ and $s = 2^{-10^9}$ exactly aligns the two coefficients and builds a two-billion-bit number (about 750 MB for one interval addition, issue #24)."
+#~ msgstr "*问题。* 精确地将 $A = 2^{10^9}$ 与 $s = 2^{-10^9}$ 相加会对齐两个系数，构造出一个二十亿位的数（一次区间加法约需 750 MB，见 issue #24）。"
+
+#~ msgid "*Chosen.* Let $t(v)$ be the exponent of the leading bit of $v$, $e(A)$ the exponent of the last bit of the larger addend $A$, $M = \\max(65536, \\operatorname{prec}(A), \\operatorname{prec}(s))$ and $c = \\min(e(A), t(A) - M)$. If $t(s) < c - 2$, the small addend is replaced by a sticky surrogate $s' = \\operatorname{sign}(s)\\,2^{c-2}$ when $s$ pushes the sum in the rounding direction of the endpoint being computed, and by $s' = 0$ otherwise. Then:"
+#~ msgstr "*选择。* 设 $t(v)$ 为 $v$ 最高位的指数，$e(A)$ 为较大加数 $A$ 最低位的指数，$M = \\max(65536, \\operatorname{prec}(A), \\operatorname{prec}(s))$ 且 $c = \\min(e(A), t(A) - M)$。若 $t(s) < c - 2$，当 $s$ 将和推向所计算端点的舍入方向时，小加数被替换为粘滞替身 $s' = \\operatorname{sign}(s)\\,2^{c-2}$，否则替换为 $s' = 0$。于是："
+
+#~ msgid "**Soundness, for every precision.** $|s| < 2^{t(s)+1} \\le 2^{c-2}$. An upper endpoint with $s > 0$ gets $A + 2^{c-2} > A + s$; with $s < 0$ it gets $A > A + s$. Lower endpoints are symmetric. So the directed sum stays on the required side of the exact sum, which is all the inclusion property needs."
+#~ msgstr "**对任意精度均可靠。** $|s| < 2^{t(s)+1} \\le 2^{c-2}$。当 $s > 0$ 时，上端点得到 $A + 2^{c-2} > A + s$；当 $s < 0$ 时得到 $A > A + s$。下端点对称。因此定向和始终位于精确和所要求的一侧，而这正是包含性质所需的全部。"
+
+#~ msgid "**No loss of tightness when $p \\le M$.** The $p$-bit numbers near $A$ are multiples of $2^{t(A) - p}$, and $t(A) - p \\ge t(A) - M \\ge c$, so no $p$-bit number lies strictly between $A$ and $A \\pm 2^c$; both $A + s$ and $A + s'$ fall in the same gap and round to the same endpoint (Lemma 7 of the attachment)."
+#~ msgstr "**当 $p \\le M$ 时不损失紧致性。** $A$ 附近的 $p$ 位数是 $2^{t(A) - p}$ 的倍数，且 $t(A) - p \\ge t(A) - M \\ge c$，因此没有 $p$ 位数严格位于 $A$ 与 $A \\pm 2^c$ 之间；$A + s$ 和 $A + s'$ 落在同一间隙中，舍入到同一端点（附件中的引理 7）。"
+
+#~ msgid "The alignment now costs at most about $M$ bits beyond the width of $A$, independent of the exponent gap. The surrogate is also used for the nearest-rounded sums inside the center, where it is not exact; this is the source of the limitation noted in [Correctness](#known-limitations)."
+#~ msgstr "现在对齐的代价至多比 $A$ 的宽度多出约 $M$ 位，与指数差无关。该替身也用于中心内部的就近舍入求和，在那里它并不精确；这正是[正确性](#known-limitations)中所述局限的来源。"
+
+#~ msgid "Outward clamping at the exponent range"
+#~ msgstr "在指数范围边缘向外钳制"
+
+#~ msgid "`BinFloat` has a finite (very wide) exponent range. An exact candidate beyond it cannot be stored, so the exact helpers take the direction of the endpoint being built: lower endpoints clamp toward $-\\infty$, upper endpoints toward $+\\infty$, radii round up, and exponent sums are computed in 64 bits and saturated. This keeps, for example, $\\exp([10^9, 10^9])$ an enclosure $[\\text{largest finite}, +\\infty)$ instead of collapsing it."
+#~ msgstr "`BinFloat` 具有有限（但非常宽）的指数范围。超出该范围的精确候选值无法存储，因此精确辅助函数会采用所构建端点的方向：下端点朝 $-\\infty$ 钳制，上端点朝 $+\\infty$ 钳制，半径向上舍入，指数之和以 64 位计算并饱和。例如，这能使 $\\exp([10^9, 10^9])$ 保持为包络 $[\\text{largest finite}, +\\infty)$，而不会坍缩。"
 
 #~ msgid "When $c$ already has at most $p$ bits and $r = 0$, the result is the singleton $\\{c\\}$. When $c$ needs more than $p$ bits, the rounding error of the center is added to the radius on *both* sides, so the interval is wider than $[\\operatorname{RD}_p(c - r), \\operatorname{RU}_p(c + r)]$; use `from_bounds` for the tightest enclosure of known bounds."
 #~ msgstr "当 $c$ 已至多有 $p$ 位且 $r = 0$ 时，结果为单点集 $\\{c\\}$。当 $c$ 需要多于 $p$ 位时，中心的舍入误差会在*两侧*都加到半径上，因此区间比 $[\\operatorname{RD}_p(c - r), \\operatorname{RU}_p(c + r)]$ 更宽；若要得到已知界的最紧包络，请使用 `from_bounds`。"

@@ -426,7 +426,7 @@ fn lit_round(n : NumLit, up : Bool, precision : Int32) -> @bin_float.BinFloat {
       } else {
         quotient
       }
-      let rounded = exact_make(top, -scale).with_precision(
+      let rounded = exact_value(top, -scale).with_precision(
         precision,
         if magnitude_up {
           @bin_float.BinaryRoundingMode::RoundTowardPositive
