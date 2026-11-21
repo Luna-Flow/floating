@@ -244,8 +244,26 @@ class RowSemanticsTests(unittest.TestCase):
         self.assertEqual(root, 6)
         self.assertGreater(shifted - root * root, root)
 
+    def test_radix_text_and_chunk_helpers(self) -> None:
+        # the chunked conversion agrees with the digit-by-digit one and keeps the zeros between chunks
+        for radix in (3, 7, 10, 36):
+            for number in (1, 2**64, 10**40 + 1, 36**30, 2**200 - 1):
+                self.assertEqual(oracle.to_radix_chunked(number, radix), oracle.to_radix(number, radix))
+        self.assertEqual(oracle.to_radix_chunked(10**40 + 1, 10), "1" + "0" * 39 + "1")
+        # chunk widths: the largest width with radix^width below 2^32
+        self.assertEqual([oracle.radix_chunk(r) for r in (3, 7, 10, 12, 36)], [20, 11, 9, 8, 6])
+        # pw_exponent: the largest power of the radix within the limbs
+        k = oracle.pw_exponent(10, 3)
+        self.assertLessEqual((10**k).bit_length(), 192)
+        self.assertGreater((10 ** (k + 1)).bit_length(), 192)
+        # a text of runs: the digit run and the pseudo-random digits stay below the radix
+        text = oracle.radix_text(7, "r*50,6*3,0*2", 5)
+        self.assertEqual(len(text), 55)
+        self.assertTrue(all(c in "0123456" for c in text))
+        self.assertEqual(text[50:], "66600"[:5])
+
     def test_every_table_is_registered_and_named(self) -> None:
-        self.assertEqual([table.name for table in oracle.TABLES], ["product", "short", "limbs", "window", "div", "sqrt"])
+        self.assertEqual([table.name for table in oracle.TABLES], ["product", "short", "limbs", "window", "div", "sqrt", "radix"])
         for table in oracle.TABLES:
             names = table.names()
             self.assertEqual(len(names), len(set(names)), table.name)
