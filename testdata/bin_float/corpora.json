@@ -50,5 +50,26 @@
       "seed": 20261014,
       "casesPerCell": 12
     }
+  },
+  "seededFixtures": {
+    "mpfr-4.2.2-random": {
+      "path": "testdata/bin_float/mpfr-4.2.2-random.txt",
+      "sha256": "b09acf32752d0f7dd0dc780606c7195fd76318f0d408468477c903ae6c335fb2",
+      "expectedCases": 650,
+      "generator": "tools/generate_mpfr_random_oracle.c",
+      "command": "python3 tools/random_differential.py fixtures",
+      "seed": 20261118,
+      "casesPerFamily": 50,
+      "mpfr": "4.2.2",
+      "regenerate": true
+    },
+    "random-regressions": {
+      "path": "testdata/bin_float/random-regressions.txt",
+      "sha256": "aefc85ab9db472d9b1b8fee89c851ad6745ad37106dac307f1a753fd3cdce357",
+      "expectedCases": 150,
+      "generator": "tools/random_differential_minimize.py",
+      "command": "python3 tools/random_differential.py minimize",
+      "regenerate": false
+    }
   }
 }

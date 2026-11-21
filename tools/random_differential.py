@@ -751,7 +751,9 @@ def cmd_fixtures(args: argparse.Namespace) -> int:
             decm_lines.extend(decm_oracle.generate(operation, FIXTURE_SEED, 0, DECM_FIXTURE_COUNT))
         FIXTURES["decimal"].write_text("\n".join(decm_lines) + "\n", encoding="utf-8")
     for name in ("binary", "decimal_gda", "decimal"):
-        print(f"{FIXTURES[name].relative_to(REPO_ROOT)}: {FIXTURES[name].stat().st_size:,} bytes")
+        target = FIXTURES[name]
+        shown = target.relative_to(REPO_ROOT) if target.is_relative_to(REPO_ROOT) else target
+        print(f"{shown}: {target.stat().st_size:,} bytes")
     return 0
 
 

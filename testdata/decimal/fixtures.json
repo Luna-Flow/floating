@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "fixtures": {
+    "mpfr-decimal-random": {
+      "path": "testdata/decimal/random/mpfr-decimal-random.txt",
+      "sha256": "baf906beb908cd9975bf2ab4e820a8173f1ee7c986bd1ec5483f79dc3a3e1cad",
+      "generator": "tools/generate_mpfr_decimal_random.py",
+      "command": "python3 tools/random_differential.py fixtures",
+      "seed": 20261118,
+      "casesPerOperation": 12,
+      "mpfr": "4.2.2",
+      "regenerate": true
+    },
+    "mpfr-decimal-random-regressions": {
+      "path": "testdata/decimal/random/mpfr-decimal-random-regressions.txt",
+      "sha256": "24a2dc574698843040456c81e290a989dc8acdf08bb06162f48bdcc441a837f8",
+      "generator": "tools/random_differential_minimize.py",
+      "command": "python3 tools/random_differential.py minimize",
+      "regenerate": false
+    },
+    "mpfr-4.2.2-elementary-interval": {
+      "path": "testdata/decimal/ieee/mpfr-4.2.2-elementary-interval.txt",
+      "sha256": "a87ae1fbb8879dc5e2d3992c0b00d5d1ee58992ee1a6e82b9b8cf1a2634a46e0",
+      "generator": "tools/generate_mpfr_decimal_interval_oracle.c",
+      "seed": 20260715,
+      "mpfr": "4.2.2",
+      "regenerate": false
+    },
+    "pi_inverse": {
+      "path": "testdata/decimal/ieee/rows/pi_inverse.txt",
+      "sha256": "e1c43261a6d53d5be6be896d68d4061dabc99248dee2824d9a3b810130da643a",
+      "generator": "tools/generate_decimal_pi_inverse_rows.py",
+      "command": "python3 tools/generate_decimal_pi_inverse_rows.py --check",
+      "regenerate": false
+    },
+    "huge_trig": {
+      "path": "testdata/decimal/ieee/rows/huge_trig.txt",
+      "sha256": "bc23246917e6913c0f3f8efd6f6482f00341f2811208da207ccbd278d263a715",
+      "generator": "tools/generate_decimal_huge_trig_rows.py",
+      "command": "python3 tools/generate_decimal_huge_trig_rows.py --check",
+      "regenerate": false
+    },
+    "huge_trig_extreme": {
+      "path": "testdata/decimal/ieee/rows/huge_trig_extreme.txt",
+      "sha256": "b678dc28fc3da59c5aa2f3ea2280d613e24a99f5261f9046d8bda728272dddf2",
+      "generator": "tools/generate_decimal_huge_trig_rows.py",
+      "command": "python3 tools/generate_decimal_huge_trig_rows.py --check",
+      "regenerate": false
+    },
+    "dectest_ieee_excerpt": {
+      "path": "testdata/decimal/ieee/dectest_ieee_excerpt.json",
+      "sha256": "9e7d8bcd0a8b95041454687c08db18f61f0373e0b957d676d3f933972dbed72b",
+      "generator": "hand-selected rows of dectest.zip (archiveSha256 in the file; not compared with the archive)",
+      "regenerate": false
+    }
+  }
+}
