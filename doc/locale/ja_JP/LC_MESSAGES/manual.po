@@ -1270,7 +1270,7 @@ msgstr "NaI はコンテキストの精度を持つ NaI のままです。"
 #: manual/api/decimal.md:2076
 #: manual/api/decimal_gda.md:1458
 #: manual/api/def.md:414
-#: manual/api/frontend/gda_expr.md:457
+#: manual/api/frontend/gda_expr.md:464
 #: manual/api/frontend/itl_expr.md:263
 #: manual/api/frontend/mpfr_expr.md:524
 #: manual/api/frontend/testfloat_expr.md:361
@@ -1354,7 +1354,7 @@ msgstr "使われるのは `ctx.precision` だけです。オペランドは `wi
 #: manual/api/differential/ball_mpfr.md:31
 #: manual/api/differential/harness.md:39
 #: manual/api/doc_examples.md:46
-#: manual/api/frontend/gda_expr.md:508
+#: manual/api/frontend/gda_expr.md:515
 #: manual/api/frontend/itl_expr.md:276
 #: manual/api/frontend/mpfr_expr.md:537
 #: manual/api/frontend/testfloat_expr.md:407
@@ -1371,7 +1371,7 @@ msgstr "公開インターフェース全体"
 #: manual/api/ball_float.md:2196
 #: manual/api/decimal.md:2276
 #: manual/api/decimal_gda.md:1654
-#: manual/api/frontend/gda_expr.md:510
+#: manual/api/frontend/gda_expr.md:517
 #: manual/api/frontend/itl_expr.md:278
 #: manual/api/frontend/mpfr_expr.md:539
 #: manual/api/frontend/testfloat_expr.md:409
@@ -6795,8 +6795,8 @@ msgid "`RunOptions` selects which rows `execute_documents` runs."
 msgstr "`RunOptions` は `execute_documents` が実行する行を選択します。"
 
 #: manual/api/frontend/gda_expr.md:277
-msgid "`RunOptions::new(shard_count?, shard_index?, strict_supported?, case_filter?)` builds the options."
-msgstr "`RunOptions::new(shard_count?, shard_index?, strict_supported?, case_filter?)` はオプションを構築します。"
+msgid "`RunOptions::new(shard_count?, shard_index?, strict_supported?, case_filter?, deviations?)` builds the options."
+msgstr "`RunOptions::new(shard_count?, shard_index?, strict_supported?, case_filter?, deviations?)` はオプションを構築します。"
 
 #: manual/api/frontend/gda_expr.md:284
 msgid "Defaults: one shard, index 0, `strict_supported` off, empty filter (all rows). Aborts unless `shard_count > 0` and `0 <= shard_index < shard_count`."
@@ -6807,94 +6807,98 @@ msgid "`case_filter` is a comma-separated list of selectors, each trimmed. A sel
 msgstr "`case_filter` はカンマ区切りのセレクタのリストで、各セレクタは前後の空白が除去されます。セレクタ `id` はその id にちょうど一致します。セレクタ `first..last` は、`first` および `last` と同じ長さを持ち、文字列順でその間にあるすべての id に一致します。そのため、`add001..add099` は番号付きのブロックを選択します。"
 
 #: manual/api/frontend/gda_expr.md:292
+msgid "`deviations` records deviations of the corpus as `(key, corpus value, held value)` with `key` written `file:id`, the file name without its directory and the row id. A listed row is judged against the held value when its result token is still the corpus value (a changed token fails the row, naming the record) and counts as the verdict `deviation`; the default is none."
+msgstr "`deviations` はコーパスの逸脱を `(key, コーパスの値, 保持する値)` として記録します。`key` は `file:id` と書き、ディレクトリを除いたファイル名と行 id です。ある行の結果トークンがまだコーパスの値であれば、その行は保持する値に対して判定され（トークンが変わっていれば、その記録を示して行は失敗します）、判定の種類 `deviation` として数えられます。既定では記録はありません。"
+
+#: manual/api/frontend/gda_expr.md:298
 msgid "`strict_supported` is stored for callers; `execute_documents` itself does not read it. The CLI uses it to turn unsupported rows into a failing exit code."
 msgstr "`strict_supported` は呼び出し側のために保持されるもので、`execute_documents` 自体はこれを読みません。CLI はこれを使って、サポートされない行を失敗の終了コードに変えます。"
 
-#: manual/api/frontend/gda_expr.md:297
+#: manual/api/frontend/gda_expr.md:303
 msgid "These accessors return the option values."
 msgstr "これらのアクセサはオプションの値を返します。"
 
-#: manual/api/frontend/gda_expr.md:306
+#: manual/api/frontend/gda_expr.md:313
 #: manual/api/frontend/itl_expr.md:160
 #: manual/api/frontend/testfloat_expr.md:299
 #: manual/getting_started.md:13
 msgid "Results"
 msgstr "結果"
 
-#: manual/api/frontend/gda_expr.md:310
+#: manual/api/frontend/gda_expr.md:317
 msgid "`CaseDisposition` says whether a row was executed and, if not, why."
 msgstr "`CaseDisposition` は行が実行されたかどうか、また実行されなかった場合はその理由を示します。"
 
-#: manual/api/frontend/gda_expr.md:321
+#: manual/api/frontend/gda_expr.md:328
 msgid "The string is a short reason such as `\"diagnostic interchange/non-scalar row\"` or `\"unsupported operation frobnicate\"`. `Legacy` exists for the shared result model; the current executor never assigns it."
 msgstr "文字列は `\"diagnostic interchange/non-scalar row\"` や `\"unsupported operation frobnicate\"` のような短い理由です。`Legacy` は共通の結果モデルのために存在しますが、現在のエグゼキュータがこれを割り当てることはありません。"
 
-#: manual/api/frontend/gda_expr.md:328
+#: manual/api/frontend/gda_expr.md:335
 msgid "`CaseResult` is the outcome of one selected row."
 msgstr "`CaseResult` は選択された 1 つの行の結果です。"
 
-#: manual/api/frontend/gda_expr.md:338
+#: manual/api/frontend/gda_expr.md:345
 msgid "These methods return the row id, its disposition, whether it passed, and a message: empty for a pass, `\"skipped\"` for a non-executable row, `\"evaluation failed\"` when an operand could not be decoded or the operation rejected its operands, and otherwise a `\"result mismatch: expected …, actual …\"` or `\"status flags mismatch: expected …, actual …\"` text."
 msgstr "これらのメソッドは行 id、その処置区分、合格したかどうか、およびメッセージを返します。メッセージは、合格なら空、実行対象でない行なら `\"skipped\"`、オペランドをデコードできなかったか演算がオペランドを拒否した場合は `\"evaluation failed\"`、それ以外は `\"result mismatch: expected …, actual …\"` または `\"status flags mismatch: expected …, actual …\"` というテキストです。"
 
-#: manual/api/frontend/gda_expr.md:354
+#: manual/api/frontend/gda_expr.md:361
 msgid "`RunSummary` aggregates the results of a run."
 msgstr "`RunSummary` は 1 回の実行の結果を集計します。"
 
-#: manual/api/frontend/gda_expr.md:364
+#: manual/api/frontend/gda_expr.md:371
 msgid "`total_cases` returns the number of rows that match the filter, counted over all shards; `selected_cases` returns the number of rows this shard executed or skipped."
 msgstr "`total_cases` はフィルタに一致する行の数（全シャード合計）を返し、`selected_cases` はこのシャードで実行またはスキップされた行の数を返します。"
 
-#: manual/api/frontend/gda_expr.md:373
+#: manual/api/frontend/gda_expr.md:380
 msgid "Every shard of one run reports the same `total_cases`. Rows removed by the filter are counted nowhere."
 msgstr "1 回の実行のすべてのシャードは同じ `total_cases` を報告します。フィルタで除かれた行はどこにも数えられません。"
 
-#: manual/api/frontend/gda_expr.md:378
+#: manual/api/frontend/gda_expr.md:385
 msgid "These methods return the number of selected rows that were evaluated, and how many of them passed and failed."
 msgstr "これらのメソッドは、評価された選択行の数と、そのうち合格した数および失敗した数を返します。"
 
-#: manual/api/frontend/gda_expr.md:389
+#: manual/api/frontend/gda_expr.md:396
 msgid "These methods return the number of selected rows that were not evaluated, in total and by disposition."
 msgstr "これらのメソッドは、評価されなかった選択行の数を、合計と処置区分ごとに返します。"
 
-#: manual/api/frontend/gda_expr.md:399
+#: manual/api/frontend/gda_expr.md:406
 msgid "`legacy_cases` is always 0 with the current executor. The counters of one summary satisfy"
 msgstr "現在の実行器では `legacy_cases` は常に 0 です。1 つのサマリのカウンタは次を満たします。"
 
-#: manual/api/frontend/gda_expr.md:412
+#: manual/api/frontend/gda_expr.md:419
 msgid "`results` returns a copy of the per-row results in execution order; `success` is true when no executable row failed."
 msgstr "`results` は行ごとの結果のコピーを実行順に返します。`success` は実行対象の行が 1 つも失敗しなかったとき真です。"
 
-#: manual/api/frontend/gda_expr.md:420
+#: manual/api/frontend/gda_expr.md:427
 msgid "Skipped rows do not affect `success`."
 msgstr "スキップされた行は `success` に影響しません。"
 
-#: manual/api/frontend/gda_expr.md:424
+#: manual/api/frontend/gda_expr.md:431
 msgid "`RunSummary::merge(parts)` combines the summaries of the shards of one run."
 msgstr "`RunSummary::merge(parts)` は 1 回の実行の各シャードの要約を結合します。"
 
-#: manual/api/frontend/gda_expr.md:430
+#: manual/api/frontend/gda_expr.md:437
 msgid "All counters except `total_cases` are added; `total_cases` is the maximum of the parts (every shard reports the same total). Results are concatenated in the order of `parts`. Merging the $n$ shards of a run gives the same counters as an unsharded run."
 msgstr "`total_cases` 以外のすべてのカウンタは加算されます。`total_cases` は各部分の最大値です（どのシャードも同じ合計を報告します）。結果は `parts` の順に連結されます。1 回の実行の $n$ 個のシャードをマージすると、シャード分割しない実行と同じカウンタが得られます。"
 
-#: manual/api/frontend/gda_expr.md:459
+#: manual/api/frontend/gda_expr.md:466
 #: manual/api/frontend/testfloat_expr.md:363
 msgid "These methods come from `derive(Eq, @debug.Debug)`. Use `==`, `!=` and `debug_inspect` in new code."
 msgstr "これらのメソッドは `derive(Eq, @debug.Debug)` に由来します。新しいコードでは `==`、`!=`、`debug_inspect` を使用してください。"
 
-#: manual/api/frontend/gda_expr.md:464
+#: manual/api/frontend/gda_expr.md:471
 msgid "`equal` compares all seven directive fields, `not_equal` is its negation and `to_repr` renders the record for `Debug`."
 msgstr "`equal` は 7 つのディレクティブのフィールドをすべて比較し、`not_equal` はその否定、`to_repr` は `Debug` 用にレコードを表示します。"
 
-#: manual/api/frontend/gda_expr.md:473
+#: manual/api/frontend/gda_expr.md:480
 msgid "`execute_documents` uses this equality to reuse the converted context of the previous row."
 msgstr "`execute_documents` はこの等価性を使って、前の行で変換済みのコンテキストを再利用します。"
 
-#: manual/api/frontend/gda_expr.md:478
+#: manual/api/frontend/gda_expr.md:485
 msgid "`equal` compares span and message; `to_repr` renders both."
 msgstr "`equal` はソース範囲とメッセージを比較し、`to_repr` はその両方を表示します。"
 
-#: manual/api/frontend/gda_expr.md:488
+#: manual/api/frontend/gda_expr.md:495
 msgid "`equal` compares the shard, the strict flag and the filter text; `to_repr` renders them."
 msgstr "`equal` はシャード、厳格フラグ、フィルタのテキストを比較し、`to_repr` はそれらを表示します。"
 
@@ -9494,7 +9498,7 @@ msgstr "`mulRev`、`mulRevToPair`、`sqrRev`、`absRev`、`pownRev`、`coshRev`�
 
 #: manual/conformance/ball_float.md:97
 #: manual/conformance/decimal.md:93
-#: manual/conformance/decimal_gda.md:96
+#: manual/conformance/decimal_gda.md:121
 #: manual/performance/ball_float.md:26
 #: manual/performance/decimal.md:35
 #: manual/performance/decimal_gda.md:35
@@ -10468,42 +10472,50 @@ msgid "The claim covers legal scalar rows in the pinned corpora. Placeholder/non
 msgstr "宣言は固定 corpus の legal scalar row だけを対象にします。placeholder/non-scalar invalid row、future directive、固定されていない revision、無限の decimal string 空間は対象外です。"
 
 #: manual/conformance/decimal_gda.md:65
+msgid "Deviations of the corpus"
+msgstr "コーパスの逸脱"
+
+#: manual/conformance/decimal_gda.md:67
+msgid "The pinned corpora are decNumber's test suite, and decNumber's mathematical functions use the tolerance the specification gives: of `exp`, `ln` and `log10` the specification says that an inexact result \"will be rounded using the round-half-even algorithm\" and \"should be correctly rounded, but may be up to 1 ulp ... in error\" (GDA 1.70, pages 29 and 30). The library returns the correctly rounded value in both arithmetics. Where a row of the corpus holds the other value, one unit in the last place away and inside the tolerance, the row is recorded in `testdata/decimal_gda/deviations.tsv` with the corpus value, the held value, the value of decNumber 3.68 and what the held value rests on: the corpus value is not wrong, the row is recorded because the two texts differ. The stage judges the row against the held value, reports it as the verdict `deviation`, and fails it if the result token of the row stops being the recorded corpus value. Nothing is reported upstream. There is one: `official0/ln0.decTest` row `ln116` (`ln 0.99999991000000405` at 17 digits, subset arithmetic) expects `-8.9999999999999879E-8`, decNumber's value, where the correctly rounded result is `-8.9999999999999878E-8` (the exact value is `-8.99999999999998784999918E-8`). The extended row `official/ln.decTest` `lnx116` lists the correctly rounded value, and decNumber itself returns the other one for it, as it does for `lnx732`. Every other row of `exp`, `ln`, `log10` and `squareroot` of the two corpora (4,816 and 3,652 rows of the supported operations) equals the correctly rounded result of CPython `decimal` in its own context, apart from rows that depend on the exponent range of CPython or on the subset rules that CPython does not have."
+msgstr "固定されたコーパスは decNumber のテストスイートであり、decNumber の数学関数は仕様が与える許容誤差を使います。仕様は `exp`、`ln`、`log10` について、不正確な結果は「round-half-even アルゴリズムで丸められる」こと、また「正しく丸められるべきだが、最大 1 ulp ... の誤差があってもよい」ことを定めています（GDA 1.70、29 ページと 30 ページ）。ライブラリは両方の算術で正しく丸めた値を返します。コーパスの行が別の値（最終桁の 1 単位違いで許容誤差の内側）を持つ場合、その行はコーパスの値、保持する値、decNumber 3.68 の値、保持する値の根拠とともに `testdata/decimal_gda/deviations.tsv` に記録されます。コーパスの値が誤りなのではなく、2 つのテキストが異なるために記録されるだけです。このステージはその行を保持する値に対して判定し、判定の種類 `deviation` として報告し、行の結果トークンが記録されたコーパスの値でなくなった場合は失敗とします。上流への報告は行いません。該当は 1 行です。`official0/ln0.decTest` の `ln116`（17 桁、サブセット算術の `ln 0.99999991000000405`）は decNumber の値 `-8.9999999999999879E-8` を期待しますが、正しく丸めた結果は `-8.9999999999999878E-8` です（厳密値は `-8.99999999999998784999918E-8`）。拡張算術の行 `official/ln.decTest` の `lnx116` は正しく丸めた値を挙げており、decNumber 自身はこれに別の値を返し、`lnx732` でも同様です。2 つのコーパスの `exp`、`ln`、`log10`、`squareroot` のその他すべての行（対応する演算の 4,816 行と 3,652 行）は、CPython `decimal` が自身のコンテキストで返す正しく丸めた結果と等しく、CPython の指数範囲や CPython にないサブセット規則に依存する行は除きます。"
+
+#: manual/conformance/decimal_gda.md:90
 msgid "Known deviations outside the corpus"
 msgstr "コーパス外の既知の逸脱"
 
-#: manual/conformance/decimal_gda.md:67
+#: manual/conformance/decimal_gda.md:92
 msgid "A passing corpus is a finite claim. Review of the implementation found these behaviours, none of which has a pinned row:"
 msgstr "コーパスへの合格は有限の主張にすぎません。実装のレビューにより次の挙動が見つかっていますが、いずれにも固定された行はありません。"
 
-#: manual/conformance/decimal_gda.md:70
+#: manual/conformance/decimal_gda.md:95
 msgid "Integer `power` is accurate to about 0.55 units in the last place (0.6 for negative exponents), not correctly rounded, as the specification allows."
 msgstr "整数の `power` の精度は最終桁の単位で約 0.55（負の指数では 0.6）であり、正しく丸められてはいませんが、これは仕様で許されています。"
 
-#: manual/conformance/decimal_gda.md:72
+#: manual/conformance/decimal_gda.md:97
 msgid "An exponent of `power` with more than nine digits is not computed: the result is NaN with Invalid operation, the limit of the decNumber design (the specification states none). Python `decimal` (libmpdec) and the IEEE `decimal` package compute these powers."
 msgstr "`power` の指数が 10 桁以上のときは計算されません。結果は Invalid operation を伴う NaN で、decNumber の設計上の制限です (仕様にはこの制限はありません)。Python `decimal` (libmpdec) と IEEE `decimal` パッケージはこれらのべき乗を計算します。"
 
-#: manual/conformance/decimal_gda.md:76
+#: manual/conformance/decimal_gda.md:101
 msgid "In the directed rounding modes an inexact `power` can differ from libmpdec in the last digit, because the specification allows an inexact `power` to be up to one unit in the last place from the correctly rounded result and libmpdec is not correctly rounded there either."
 msgstr "方向付き丸めモードでは、不正確な `power` は最後の桁が libmpdec と異なることがあります。仕様は不正確な `power` が正しく丸めた結果から最大 1 ulp ずれることを許しており、libmpdec もそこでは正しい丸めではないためです。"
 
-#: manual/conformance/decimal_gda.md:80
+#: manual/conformance/decimal_gda.md:105
 msgid "`power` of a zero base and a negative exponent is an infinity with no condition raised, as in libmpdec: the Division by zero condition of the specification applies when \"the dividend was not zero\". The IEEE `decimal` package signals divideByZero for it (IEEE 754-2019 §9.2.1)."
 msgstr "ゼロの底と負の指数の `power` は無限大で、条件は立ちません (libmpdec と同じ)。仕様の Division by zero は「被除数がゼロでない」場合に当てはまります。IEEE `decimal` パッケージはこれに divideByZero を立てます (IEEE 754-2019 §9.2.1)。"
 
-#: manual/conformance/decimal_gda.md:85
+#: manual/conformance/decimal_gda.md:110
 msgid "Isolation and native benchmark"
 msgstr "分離とネイティブベンチマーク"
 
-#: manual/conformance/decimal_gda.md:87
+#: manual/conformance/decimal_gda.md:112
 msgid "Production dependency scans require `decimal_gda`, `decimal_gda_checked`, and `frontend/gda_expr` to contain no IEEE `decimal` import or GDA profile bridge. IEEE tests and its independent conformance corpus are run separately."
 msgstr "Production dependency scan は `decimal_gda`、`decimal_gda_checked`、 `frontend/gda_expr` に IEEE `decimal` import または GDA profile bridge がないことを要求します。IEEE test と independent conformance corpus は別に実行します。"
 
-#: manual/conformance/decimal_gda.md:91
+#: manual/conformance/decimal_gda.md:116
 msgid "The quick benchmark builds only the current engine in an isolated snapshot and runs three native samples per cell. It reports arithmetic, parser, context, and elementary timing observations without treating performance as a conformance requirement or comparing against a historical adapter."
 msgstr "Quick benchmark は current engine だけを isolated snapshot で build し、cell ごとに 3 native sample を実行します。Arithmetic、parser、context、elementary の timing を観測しますが、performance を conformance requirement にせず、historical adapter とも比較しません。"
 
-#: manual/conformance/decimal_gda.md:105
+#: manual/conformance/decimal_gda.md:130
 msgid "See [the decimal_gda data guide](../../../testdata/decimal_gda/README.md) for manifests, filters, phases, JSON output, and failure triage."
 msgstr "manifest、filter、phase、JSON output、failure triage は[decimal_gda data guide](../../../testdata/decimal_gda/README.md)を参照してください。"
 

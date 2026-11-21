@@ -933,8 +933,13 @@ fn invoke_decimal_operation(
 fn compare_evaluated(
   case : GdaCase,
   actual : EvaluatedValue,
+  held? : String,
 ) -> Result[String, String] {
-  let expected = case.expected()
+  let written = case.expected()
+  let expected = match held {
+    Some(value) => value
+    None => written
+  }
   let actual_flags = match actual.value {
     DecimalValue(value) if expected.has_prefix("32#") =>
       actual.flags.combine(
@@ -969,7 +974,7 @@ fn compare_evaluated(
   // value was judged. A value is compared as text (the to-scientific-string of the
   // result against the result token, GDA 1.70; no number is read from the result
   // token) except for the kinds named below.
-  let mut kind = "text"
+  let mut kind = if held is Some(_) { "deviation" } else { "text" }
   if expected == "?" {
     // the corpus does not give the value of this row (subset rows): flags only
     kind = "value-not-checked"
@@ -1040,9 +1045,22 @@ fn compare_evaluated(
 }
 
 ///|
+/// The file name of a path: the text after the last `/`.
+fn source_file_name(path : String) -> String {
+  let mut start = 0
+  for index in 0..<path.length() {
+    if path[index] == '/' {
+      start = index + 1
+    }
+  }
+  path[start:].to_owned()
+}
+
+///|
 fn execute_case(
   case : GdaCase,
   resolved_context : ResolvedContext?,
+  held? : String,
 ) -> CaseResult {
   let disposition = case_disposition(case, resolved_context)
   match disposition {
@@ -1072,7 +1090,7 @@ fn execute_case(
   )
   match result {
     Ok(actual) =>
-      match compare_evaluated(case, actual) {
+      match compare_evaluated(case, actual, held?) {
         Ok(kind) => case_result(case.id(), disposition, true, message=kind)
         Err(message) => case_result(case.id(), disposition, false, message~)
       }
@@ -1137,7 +1155,34 @@ pub fn execute_documents(
           resolved
         }
       }
-      let result = execute_case(case, resolved_context)
+      let key = source_file_name(document.source()) + ":" + case.id()
+      let mut held : String? = None
+      for deviation in options.deviations() {
+        if deviation.0 == key {
+          if deviation.1 != case.expected() {
+            results.push(
+              case_result(
+                case.id(),
+                Executable,
+                false,
+                message="deviation of " +
+                  key +
+                  " records the corpus value " +
+                  deviation.1 +
+                  ", the row has " +
+                  case.expected(),
+              ),
+            )
+            held = Some("")
+          } else {
+            held = Some(deviation.2)
+          }
+        }
+      }
+      if held is Some("") {
+        continue
+      }
+      let result = execute_case(case, resolved_context, held?)
       results.push(result)
     }
   }

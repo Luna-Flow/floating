@@ -62,6 +62,31 @@ unsupported, legacy, passed, and failed counts remain separate.
 
 The claim covers legal scalar rows in the pinned corpora. Placeholder/non-scalar invalid rows, future directives, unpinned revisions, and an unbounded universe of decimal strings remain outside it.
 
+## Deviations of the corpus
+
+The pinned corpora are decNumber's test suite, and decNumber's mathematical
+functions use the tolerance the specification gives: of `exp`, `ln` and `log10` the
+specification says that an inexact result "will be rounded using the round-half-even
+algorithm" and "should be correctly rounded, but may be up to 1 ulp ... in error"
+(GDA 1.70, pages 29 and 30). The library returns the correctly rounded value in both
+arithmetics. Where a row of the corpus holds the other value, one unit in the last
+place away and inside the tolerance, the row is recorded in
+`testdata/decimal_gda/deviations.tsv` with the corpus value, the held value, the value
+of decNumber 3.68 and what the held value rests on: the corpus value is not wrong,
+the row is recorded because the two texts differ. The stage judges the row against
+the held value, reports it as the verdict `deviation`, and fails it if the result
+token of the row stops being the recorded corpus value. Nothing is reported upstream.
+There is one: `official0/ln0.decTest` row `ln116` (`ln 0.99999991000000405` at 17
+digits, subset arithmetic) expects `-8.9999999999999879E-8`, decNumber's value, where
+the correctly rounded result is `-8.9999999999999878E-8` (the exact value is
+`-8.99999999999998784999918E-8`). The extended row `official/ln.decTest` `lnx116`
+lists the correctly rounded value, and decNumber itself returns the other one for it,
+as it does for `lnx732`. Every other row of `exp`, `ln`, `log10` and `squareroot` of
+the two corpora (4,816 and 3,652 rows of the supported operations) equals the
+correctly rounded result of CPython `decimal` in its own context, apart from rows
+that depend on the exponent range of CPython or on the subset rules that CPython does
+not have.
+
 ## Known deviations outside the corpus
 
 A passing corpus is a finite claim. Review of the implementation found these

@@ -1270,7 +1270,7 @@ msgstr "NaI 仍为 NaI，并带上上下文精度。"
 #: manual/api/decimal.md:2076
 #: manual/api/decimal_gda.md:1458
 #: manual/api/def.md:414
-#: manual/api/frontend/gda_expr.md:457
+#: manual/api/frontend/gda_expr.md:464
 #: manual/api/frontend/itl_expr.md:263
 #: manual/api/frontend/mpfr_expr.md:524
 #: manual/api/frontend/testfloat_expr.md:361
@@ -1354,7 +1354,7 @@ msgstr "只使用 `ctx.precision`：操作数先用 `with_precision` 重新舍�
 #: manual/api/differential/ball_mpfr.md:31
 #: manual/api/differential/harness.md:39
 #: manual/api/doc_examples.md:46
-#: manual/api/frontend/gda_expr.md:508
+#: manual/api/frontend/gda_expr.md:515
 #: manual/api/frontend/itl_expr.md:276
 #: manual/api/frontend/mpfr_expr.md:537
 #: manual/api/frontend/testfloat_expr.md:407
@@ -1371,7 +1371,7 @@ msgstr "完整公共接口"
 #: manual/api/ball_float.md:2196
 #: manual/api/decimal.md:2276
 #: manual/api/decimal_gda.md:1654
-#: manual/api/frontend/gda_expr.md:510
+#: manual/api/frontend/gda_expr.md:517
 #: manual/api/frontend/itl_expr.md:278
 #: manual/api/frontend/mpfr_expr.md:539
 #: manual/api/frontend/testfloat_expr.md:409
@@ -6795,8 +6795,8 @@ msgid "`RunOptions` selects which rows `execute_documents` runs."
 msgstr "`RunOptions` 选择 `execute_documents` 运行哪些行。"
 
 #: manual/api/frontend/gda_expr.md:277
-msgid "`RunOptions::new(shard_count?, shard_index?, strict_supported?, case_filter?)` builds the options."
-msgstr "`RunOptions::new(shard_count?, shard_index?, strict_supported?, case_filter?)` 构建选项。"
+msgid "`RunOptions::new(shard_count?, shard_index?, strict_supported?, case_filter?, deviations?)` builds the options."
+msgstr "`RunOptions::new(shard_count?, shard_index?, strict_supported?, case_filter?, deviations?)` 构建选项。"
 
 #: manual/api/frontend/gda_expr.md:284
 msgid "Defaults: one shard, index 0, `strict_supported` off, empty filter (all rows). Aborts unless `shard_count > 0` and `0 <= shard_index < shard_count`."
@@ -6807,94 +6807,98 @@ msgid "`case_filter` is a comma-separated list of selectors, each trimmed. A sel
 msgstr "`case_filter` 是逗号分隔的选择器列表，每个选择器都会被修剪。选择器 `id` 精确匹配该 id。选择器 `first..last` 匹配所有与 `first` 和 `last` 长度相同、且按字符串顺序位于两者之间的 id，因此 `add001..add099` 选择一个编号区段。"
 
 #: manual/api/frontend/gda_expr.md:292
+msgid "`deviations` records deviations of the corpus as `(key, corpus value, held value)` with `key` written `file:id`, the file name without its directory and the row id. A listed row is judged against the held value when its result token is still the corpus value (a changed token fails the row, naming the record) and counts as the verdict `deviation`; the default is none."
+msgstr "`deviations` 以 `(key, 语料值, 所持值)` 记录语料的偏差，其中 `key` 写作 `file:id`，即不含目录的文件名和行 id。当某一行的结果记号仍是语料值时，按所持值评判该行（记号变化则该行失败并指明该记录），并计为判定种类 `deviation`；默认没有记录。"
+
+#: manual/api/frontend/gda_expr.md:298
 msgid "`strict_supported` is stored for callers; `execute_documents` itself does not read it. The CLI uses it to turn unsupported rows into a failing exit code."
 msgstr "`strict_supported` 仅为调用方保存；`execute_documents` 本身并不读取它。CLI 用它将不受支持的行转换为失败的退出码。"
 
-#: manual/api/frontend/gda_expr.md:297
+#: manual/api/frontend/gda_expr.md:303
 msgid "These accessors return the option values."
 msgstr "这些访问器返回选项值。"
 
-#: manual/api/frontend/gda_expr.md:306
+#: manual/api/frontend/gda_expr.md:313
 #: manual/api/frontend/itl_expr.md:160
 #: manual/api/frontend/testfloat_expr.md:299
 #: manual/getting_started.md:13
 msgid "Results"
 msgstr "结果"
 
-#: manual/api/frontend/gda_expr.md:310
+#: manual/api/frontend/gda_expr.md:317
 msgid "`CaseDisposition` says whether a row was executed and, if not, why."
 msgstr "`CaseDisposition` 说明一行是否被执行，若未执行则说明原因。"
 
-#: manual/api/frontend/gda_expr.md:321
+#: manual/api/frontend/gda_expr.md:328
 msgid "The string is a short reason such as `\"diagnostic interchange/non-scalar row\"` or `\"unsupported operation frobnicate\"`. `Legacy` exists for the shared result model; the current executor never assigns it."
 msgstr "字符串是一个简短的原因，例如 `\"diagnostic interchange/non-scalar row\"` 或 `\"unsupported operation frobnicate\"`。`Legacy` 是为共享的结果模型而存在的；当前的执行器从不赋予它。"
 
-#: manual/api/frontend/gda_expr.md:328
+#: manual/api/frontend/gda_expr.md:335
 msgid "`CaseResult` is the outcome of one selected row."
 msgstr "`CaseResult` 是一个被选中行的结果。"
 
-#: manual/api/frontend/gda_expr.md:338
+#: manual/api/frontend/gda_expr.md:345
 msgid "These methods return the row id, its disposition, whether it passed, and a message: empty for a pass, `\"skipped\"` for a non-executable row, `\"evaluation failed\"` when an operand could not be decoded or the operation rejected its operands, and otherwise a `\"result mismatch: expected …, actual …\"` or `\"status flags mismatch: expected …, actual …\"` text."
 msgstr "这些方法返回行 id、其处置结果、是否通过，以及一条消息：通过时为空，不可执行的行为 `\"skipped\"`，操作数无法解码或运算拒绝其操作数时为 `\"evaluation failed\"`，否则为 `\"result mismatch: expected …, actual …\"` 或 `\"status flags mismatch: expected …, actual …\"` 文本。"
 
-#: manual/api/frontend/gda_expr.md:354
+#: manual/api/frontend/gda_expr.md:361
 msgid "`RunSummary` aggregates the results of a run."
 msgstr "`RunSummary` 汇总一次运行的结果。"
 
-#: manual/api/frontend/gda_expr.md:364
+#: manual/api/frontend/gda_expr.md:371
 msgid "`total_cases` returns the number of rows that match the filter, counted over all shards; `selected_cases` returns the number of rows this shard executed or skipped."
 msgstr "`total_cases` 返回与过滤器匹配的行数（所有分片合计）；`selected_cases` 返回本分片执行或跳过的行数。"
 
-#: manual/api/frontend/gda_expr.md:373
+#: manual/api/frontend/gda_expr.md:380
 msgid "Every shard of one run reports the same `total_cases`. Rows removed by the filter are counted nowhere."
 msgstr "同一次运行的每个分片都报告相同的 `total_cases`。被过滤器移除的行不计入任何计数。"
 
-#: manual/api/frontend/gda_expr.md:378
+#: manual/api/frontend/gda_expr.md:385
 msgid "These methods return the number of selected rows that were evaluated, and how many of them passed and failed."
 msgstr "这些方法返回被求值的选中行数，以及其中通过和失败的行数。"
 
-#: manual/api/frontend/gda_expr.md:389
+#: manual/api/frontend/gda_expr.md:396
 msgid "These methods return the number of selected rows that were not evaluated, in total and by disposition."
 msgstr "这些方法返回未被求值的选中行数，包括总数和按处置类别划分的数目。"
 
-#: manual/api/frontend/gda_expr.md:399
+#: manual/api/frontend/gda_expr.md:406
 msgid "`legacy_cases` is always 0 with the current executor. The counters of one summary satisfy"
 msgstr "在当前执行器下，`legacy_cases` 始终为 0。同一个汇总的各计数器满足"
 
-#: manual/api/frontend/gda_expr.md:412
+#: manual/api/frontend/gda_expr.md:419
 msgid "`results` returns a copy of the per-row results in execution order; `success` is true when no executable row failed."
 msgstr "`results` 返回按执行顺序排列的每行结果的副本；当没有可执行行失败时，`success` 为真。"
 
-#: manual/api/frontend/gda_expr.md:420
+#: manual/api/frontend/gda_expr.md:427
 msgid "Skipped rows do not affect `success`."
 msgstr "跳过的行不影响 `success`。"
 
-#: manual/api/frontend/gda_expr.md:424
+#: manual/api/frontend/gda_expr.md:431
 msgid "`RunSummary::merge(parts)` combines the summaries of the shards of one run."
 msgstr "`RunSummary::merge(parts)` 合并一次运行中各分片的摘要。"
 
-#: manual/api/frontend/gda_expr.md:430
+#: manual/api/frontend/gda_expr.md:437
 msgid "All counters except `total_cases` are added; `total_cases` is the maximum of the parts (every shard reports the same total). Results are concatenated in the order of `parts`. Merging the $n$ shards of a run gives the same counters as an unsharded run."
 msgstr "除 `total_cases` 之外的所有计数器都相加；`total_cases` 取各部分的最大值（每个分片报告的总数相同）。结果按 `parts` 的顺序拼接。合并一次运行的 $n$ 个分片，得到的计数器与不分片运行相同。"
 
-#: manual/api/frontend/gda_expr.md:459
+#: manual/api/frontend/gda_expr.md:466
 #: manual/api/frontend/testfloat_expr.md:363
 msgid "These methods come from `derive(Eq, @debug.Debug)`. Use `==`, `!=` and `debug_inspect` in new code."
 msgstr "这些方法来自 `derive(Eq, @debug.Debug)`。新代码请使用 `==`、`!=` 和 `debug_inspect`。"
 
-#: manual/api/frontend/gda_expr.md:464
+#: manual/api/frontend/gda_expr.md:471
 msgid "`equal` compares all seven directive fields, `not_equal` is its negation and `to_repr` renders the record for `Debug`."
 msgstr "`equal` 比较全部七个指令字段，`not_equal` 是其否定，`to_repr` 为 `Debug` 渲染该记录。"
 
-#: manual/api/frontend/gda_expr.md:473
+#: manual/api/frontend/gda_expr.md:480
 msgid "`execute_documents` uses this equality to reuse the converted context of the previous row."
 msgstr "`execute_documents` 利用这种相等性来复用上一行已转换的上下文。"
 
-#: manual/api/frontend/gda_expr.md:478
+#: manual/api/frontend/gda_expr.md:485
 msgid "`equal` compares span and message; `to_repr` renders both."
 msgstr "`equal` 比较源范围和消息；`to_repr` 渲染两者。"
 
-#: manual/api/frontend/gda_expr.md:488
+#: manual/api/frontend/gda_expr.md:495
 msgid "`equal` compares the shard, the strict flag and the filter text; `to_repr` renders them."
 msgstr "`equal` 比较分片、严格标志和过滤器文本；`to_repr` 渲染它们。"
 
@@ -9494,7 +9498,7 @@ msgstr "`mulRev`、`mulRevToPair`、`sqrRev`、`absRev`、`pownRev`、`coshRev`�
 
 #: manual/conformance/ball_float.md:97
 #: manual/conformance/decimal.md:93
-#: manual/conformance/decimal_gda.md:96
+#: manual/conformance/decimal_gda.md:121
 #: manual/performance/ball_float.md:26
 #: manual/performance/decimal.md:35
 #: manual/performance/decimal_gda.md:35
@@ -10468,42 +10472,50 @@ msgid "The claim covers legal scalar rows in the pinned corpora. Placeholder/non
 msgstr "声明只覆盖固定语料中的合法标量行。placeholder/non-scalar 非法行、未来 directive、未固定 revision 和无限十进制字符串空间不在其内。"
 
 #: manual/conformance/decimal_gda.md:65
+msgid "Deviations of the corpus"
+msgstr "语料的偏差"
+
+#: manual/conformance/decimal_gda.md:67
+msgid "The pinned corpora are decNumber's test suite, and decNumber's mathematical functions use the tolerance the specification gives: of `exp`, `ln` and `log10` the specification says that an inexact result \"will be rounded using the round-half-even algorithm\" and \"should be correctly rounded, but may be up to 1 ulp ... in error\" (GDA 1.70, pages 29 and 30). The library returns the correctly rounded value in both arithmetics. Where a row of the corpus holds the other value, one unit in the last place away and inside the tolerance, the row is recorded in `testdata/decimal_gda/deviations.tsv` with the corpus value, the held value, the value of decNumber 3.68 and what the held value rests on: the corpus value is not wrong, the row is recorded because the two texts differ. The stage judges the row against the held value, reports it as the verdict `deviation`, and fails it if the result token of the row stops being the recorded corpus value. Nothing is reported upstream. There is one: `official0/ln0.decTest` row `ln116` (`ln 0.99999991000000405` at 17 digits, subset arithmetic) expects `-8.9999999999999879E-8`, decNumber's value, where the correctly rounded result is `-8.9999999999999878E-8` (the exact value is `-8.99999999999998784999918E-8`). The extended row `official/ln.decTest` `lnx116` lists the correctly rounded value, and decNumber itself returns the other one for it, as it does for `lnx732`. Every other row of `exp`, `ln`, `log10` and `squareroot` of the two corpora (4,816 and 3,652 rows of the supported operations) equals the correctly rounded result of CPython `decimal` in its own context, apart from rows that depend on the exponent range of CPython or on the subset rules that CPython does not have."
+msgstr "固定的语料是 decNumber 的测试套件，而 decNumber 的数学函数使用规范给出的容差：规范对 `exp`、`ln` 和 `log10` 规定，不精确的结果“将按 round-half-even 算法舍入”，并且“应当正确舍入，但可以有至多 1 ulp ... 的误差”（GDA 1.70，第 29 和 30 页）。库在两种算术中都返回正确舍入的值。语料某一行若持有另一个值（相差一个末位单位、处于容差之内），该行就记录在 `testdata/decimal_gda/deviations.tsv` 中，写明语料值、所持值、decNumber 3.68 的值以及所持值的依据：语料值并没有错，记录该行只是因为两个文本不同。该阶段按所持值判定这一行，以判定类型 `deviation` 报告它，并且在该行的结果记号不再是所记录的语料值时判其失败。不向上游报告任何事项。目前只有一行：`official0/ln0.decTest` 的 `ln116`（17 位、子集算术下的 `ln 0.99999991000000405`）期望 `-8.9999999999999879E-8`，即 decNumber 的值，而正确舍入的结果是 `-8.9999999999999878E-8`（精确值为 `-8.99999999999998784999918E-8`）。扩展行 `official/ln.decTest` 的 `lnx116` 列出的是正确舍入的值，而 decNumber 本身对它返回另一个值，对 `lnx732` 也是如此。两个语料中其余所有 `exp`、`ln`、`log10` 和 `squareroot` 的行（受支持运算的 4,816 行和 3,652 行）都等于 CPython `decimal` 在其自身上下文中的正确舍入结果，但依赖 CPython 的指数范围或 CPython 所没有的子集规则的行除外。"
+
+#: manual/conformance/decimal_gda.md:90
 msgid "Known deviations outside the corpus"
 msgstr "语料之外的已知偏差"
 
-#: manual/conformance/decimal_gda.md:67
+#: manual/conformance/decimal_gda.md:92
 msgid "A passing corpus is a finite claim. Review of the implementation found these behaviours, none of which has a pinned row:"
 msgstr "通过语料只是一个有限的声明。对实现的审查发现了以下行为，它们都没有对应的固定行："
 
-#: manual/conformance/decimal_gda.md:70
+#: manual/conformance/decimal_gda.md:95
 msgid "Integer `power` is accurate to about 0.55 units in the last place (0.6 for negative exponents), not correctly rounded, as the specification allows."
 msgstr "整数 `power` 的精度约为 0.55 个末位单位（负指数时为 0.6），并非正确舍入，这是规范所允许的。"
 
-#: manual/conformance/decimal_gda.md:72
+#: manual/conformance/decimal_gda.md:97
 msgid "An exponent of `power` with more than nine digits is not computed: the result is NaN with Invalid operation, the limit of the decNumber design (the specification states none). Python `decimal` (libmpdec) and the IEEE `decimal` package compute these powers."
 msgstr "`power` 的指数超过九位时不做计算：结果是带 Invalid operation 的 NaN，这是 decNumber 设计的限制 (规范没有这样的限制)。Python `decimal` (libmpdec) 和 IEEE `decimal` 包会计算这些幂。"
 
-#: manual/conformance/decimal_gda.md:76
+#: manual/conformance/decimal_gda.md:101
 msgid "In the directed rounding modes an inexact `power` can differ from libmpdec in the last digit, because the specification allows an inexact `power` to be up to one unit in the last place from the correctly rounded result and libmpdec is not correctly rounded there either."
 msgstr "在定向舍入模式下，不精确的 `power` 可能在最后一位与 libmpdec 不同，因为规范允许不精确的 `power` 与正确舍入的结果相差至多一个末位单位，而 libmpdec 在这些模式下也不是正确舍入。"
 
-#: manual/conformance/decimal_gda.md:80
+#: manual/conformance/decimal_gda.md:105
 msgid "`power` of a zero base and a negative exponent is an infinity with no condition raised, as in libmpdec: the Division by zero condition of the specification applies when \"the dividend was not zero\". The IEEE `decimal` package signals divideByZero for it (IEEE 754-2019 §9.2.1)."
 msgstr "零底数和负指数的 `power` 是无穷，不引发任何条件，与 libmpdec 相同：规范的 Division by zero 条件适用于“被除数不为零”的情形。IEEE `decimal` 包对此引发 divideByZero (IEEE 754-2019 §9.2.1)。"
 
-#: manual/conformance/decimal_gda.md:85
+#: manual/conformance/decimal_gda.md:110
 msgid "Isolation and native benchmark"
 msgstr "隔离与原生基准测试"
 
-#: manual/conformance/decimal_gda.md:87
+#: manual/conformance/decimal_gda.md:112
 msgid "Production dependency scans require `decimal_gda`, `decimal_gda_checked`, and `frontend/gda_expr` to contain no IEEE `decimal` import or GDA profile bridge. IEEE tests and its independent conformance corpus are run separately."
 msgstr "生产依赖扫描要求 `decimal_gda`、`decimal_gda_checked` 与 `frontend/gda_expr` 不包含 IEEE `decimal` import 或 GDA profile bridge。IEEE 测试和独立一致性语料单独运行。"
 
-#: manual/conformance/decimal_gda.md:91
+#: manual/conformance/decimal_gda.md:116
 msgid "The quick benchmark builds only the current engine in an isolated snapshot and runs three native samples per cell. It reports arithmetic, parser, context, and elementary timing observations without treating performance as a conformance requirement or comparing against a historical adapter."
 msgstr "快速 benchmark 只在隔离快照中构建当前引擎，每个 cell 运行 3 个 native sample。它报告算术、parser、context 与 elementary 的耗时观察值，不把性能作为 conformance 要求，也不与历史 adapter 比较。"
 
-#: manual/conformance/decimal_gda.md:105
+#: manual/conformance/decimal_gda.md:130
 msgid "See [the decimal_gda data guide](../../../testdata/decimal_gda/README.md) for manifests, filters, phases, JSON output, and failure triage."
 msgstr "manifest、过滤、phase、JSON 输出和失败排查见[decimal_gda 数据指南](../../../testdata/decimal_gda/README.md)。"
 

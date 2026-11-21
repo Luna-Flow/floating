@@ -229,6 +229,7 @@ pub struct RunOptions {
   priv shard : @conformance.ShardSpec
   priv strict_supported : Bool
   priv case_filter : String
+  priv deviations : Array[(String, String, String)]
 }
 
 ///|
@@ -237,11 +238,13 @@ pub fn RunOptions::new(
   shard_index~ : Int32 = 0,
   strict_supported~ : Bool = false,
   case_filter~ : String = "",
+  deviations~ : Array[(String, String, String)] = [],
 ) -> RunOptions {
   {
     shard: @conformance.ShardSpec::new(shard_count, shard_index),
     strict_supported,
     case_filter,
+    deviations,
   }
 }
 
@@ -258,6 +261,18 @@ pub fn RunOptions::shard_index(self : RunOptions) -> Int32 {
 ///|
 pub fn RunOptions::strict_supported(self : RunOptions) -> Bool {
   self.strict_supported
+}
+
+///|
+/// The recorded deviations of the corpus: `(file, row id, corpus value, held value)` is
+/// written `file:id`, corpus value, held value in this order of the tuple
+/// `(key, corpus_value, held_value)` with `key = file ":" id`. A row listed here is
+/// judged against the held value when its result token still is the corpus value
+/// (a changed token fails the row), and is reported as the kind `deviation`.
+pub fn RunOptions::deviations(
+  self : RunOptions,
+) -> Array[(String, String, String)] {
+  self.deviations.copy()
 }
 
 ///|
