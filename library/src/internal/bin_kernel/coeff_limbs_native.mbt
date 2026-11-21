@@ -279,6 +279,48 @@ fn bin_limbs_school(
 }
 
 ///|
+/// The product of two limb ranges, `r[ro ..< ro + an + bn] = a[ao ..< ao + an] *
+/// b[bo ..< bo + bn]`: all `an + bn` result limbs are written, the top one being
+/// the carry limb. Both lengths are at least 1 and `r` does not overlap `a` or
+/// `b` (aborts otherwise, as does a range outside an array, where the C or
+/// assembly rows run; the portable path checks nothing). The rows run over the
+/// limbs of `a` (each is one multiplier of the whole of `b`), so pass the shorter
+/// operand or the multiplier as `a`: a row costs a call and a carry limb, and the
+/// longer rows of `b` amortise both. On the native tiers with the C or assembly
+/// rows it is one call into the schoolbook row loop (about 160 instructions
+/// fewer than `mul_1` and `addmul_1` through their wrappers at 10 by 9 limbs); on
+/// the portable tier and the other targets it is that loop of portable rows, so
+/// no target pays more. The result is the same on every tier.
+pub fn bin_limbs_product(
+  r : FixedArray[UInt64],
+  ro : Int32,
+  a : FixedArray[UInt64],
+  ao : Int32,
+  an : Int32,
+  b : FixedArray[UInt64],
+  bo : Int32,
+  bn : Int32,
+) -> Unit {
+  if an < 1 || bn < 1 {
+    abort("bin_kernel limb product needs both lengths at least 1")
+  }
+  if bin_limbs_mode != 0 {
+    bin_limbs_check_range(r, ro, an + bn)
+    bin_limbs_check_range(a, ao, an)
+    bin_limbs_check_range(b, bo, bn)
+    bin_limbs_check_disjoint(r, ro, an + bn, a, ao, an)
+    bin_limbs_check_disjoint(r, ro, an + bn, b, bo, bn)
+    if bin_limbs_mode == 2 {
+      luna_school_asm(r, ro, a, ao, an, b, bo, bn)
+    } else {
+      luna_school(r, ro, a, ao, an, b, bo, bn)
+    }
+  } else {
+    bin_limbs_product_portable(r, ro, a, ao, an, b, bo, bn)
+  }
+}
+
+///|
 /// `r[ro ..< ro + 2 len] = s[so ..< so + len]^2`, `r` not overlapping `s`.
 fn bin_limbs_sqr_school(
   r : FixedArray[UInt64],

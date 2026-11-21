@@ -94,3 +94,31 @@ pub fn bin_limbs_window_combine(
 /// without the native row implementations, where the limit on the shorter
 /// operand is the whole rule. The native value is in `coeff_thresholds_native.mbt`.
 let bin_coeff_ntt_mul_min_product_words : Int32 = 0
+
+///|
+/// The product of two limb ranges, `r[ro ..< ro + an + bn] = a[ao ..< ao + an] *
+/// b[bo ..< bo + bn]`: all `an + bn` result limbs are written, the top one being
+/// the carry limb. Both lengths are at least 1 and `r` does not overlap `a` or
+/// `b` (nothing is checked on this target). The rows run over the
+/// limbs of `a` (each is one multiplier of the whole of `b`), so pass the shorter
+/// operand or the multiplier as `a`: a row costs a call and a carry limb, and the
+/// longer rows of `b` amortise both. On the native tiers with the C or assembly
+/// rows it is one call into the schoolbook row loop (about 160 instructions
+/// fewer than `mul_1` and `addmul_1` through their wrappers at 10 by 9 limbs); on
+/// the portable tier and the other targets it is that loop of portable rows, so
+/// no target pays more. The result is the same on every tier.
+pub fn bin_limbs_product(
+  r : FixedArray[UInt64],
+  ro : Int32,
+  a : FixedArray[UInt64],
+  ao : Int32,
+  an : Int32,
+  b : FixedArray[UInt64],
+  bo : Int32,
+  bn : Int32,
+) -> Unit {
+  if an < 1 || bn < 1 {
+    abort("bin_kernel limb product needs both lengths at least 1")
+  }
+  bin_limbs_product_portable(r, ro, a, ao, an, b, bo, bn)
+}

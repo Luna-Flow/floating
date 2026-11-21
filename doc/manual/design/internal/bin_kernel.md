@@ -84,6 +84,7 @@ and the aliasing the callers use.
   the chain B carry, the loop). AArch64 has one carry flag and no
   multiply-accumulate with carry, so the two chains cannot be interleaved.
   Anywhere else the assembly entry points are the C rows.
+- `bin_limbs_product` (public, for the limb-array loops of `bin_float`): `r[ro ..< ro + an + bn] = a * b` in one call, rows over the limbs of `a` (pass the shorter operand or the multiplier as `a`), both lengths at least 1, `r` not overlapping the operands, every result limb written. On the native tiers with the C or assembly rows it is the schoolbook entry behind one set of range checks; on the portable tier and the other targets it is the loop of portable `mul_1` and `addmul_1` rows, so no target pays more. At 10 by 9 limbs it costs 868 instructions on the assembly tier and 1,145 on the C tier against 1,028 and 1,292 for `mul_1` and eight `addmul_1` through their wrappers (the wrappers and their checks are 134 of the C figure).
 - Selection: `LUNA_FLOATING_PORTABLE` (portable loops) and
   `LUNA_FLOATING_LIMBS=c` (C rows) are read once at start; the default is
   assembly where the tier exists, else C. The differential test compares all

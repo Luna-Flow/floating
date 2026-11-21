@@ -332,3 +332,31 @@ fn bin_limbs_window_combine_portable(
     carry
   }
 }
+
+///|
+/// `r[ro ..< ro + an + bn] = a[ao ..< ao + an] * b[bo ..< bo + bn]` as one `mul_1`
+/// and `an - 1` `addmul_1` rows: row `j` multiplies `b` by the limb `a[ao + j]`
+/// and its carry limb is the result limb `ro + j + bn`. The reference form of
+/// `bin_limbs_product`; `r` does not overlap `a` or `b`, both lengths are at
+/// least 1, and nothing is checked.
+fn bin_limbs_product_portable(
+  r : FixedArray[UInt64],
+  ro : Int32,
+  a : FixedArray[UInt64],
+  ao : Int32,
+  an : Int32,
+  b : FixedArray[UInt64],
+  bo : Int32,
+  bn : Int32,
+) -> Unit {
+  r.unsafe_set(
+    ro + bn,
+    bin_limbs_mul_1_portable(r, ro, b, bo, bn, a.unsafe_get(ao)),
+  )
+  for j in 1..<an {
+    r.unsafe_set(
+      ro + j + bn,
+      bin_limbs_addmul_1_portable(r, ro + j, b, bo, bn, a.unsafe_get(ao + j)),
+    )
+  }
+}

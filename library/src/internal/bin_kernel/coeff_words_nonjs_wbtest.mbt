@@ -488,3 +488,73 @@ test "panic the window row rejects a word shift beyond its contract" {
     ),
   )
 }
+
+///|
+/// `bin_limbs_product` against the schoolbook product `bin_coeff_words_school`
+/// and against the loop of rows it replaces (`bin_limbs_mul_1` then
+/// `bin_limbs_addmul_1` through their wrappers, as the series loops had it): the
+/// same `an + bn` result limbs, and no limb outside them touched. Lengths 1 to 40
+/// on both operands (every pair of the sizes below), six operand patterns (random,
+/// all ones, zero, alternating, a single top bit, random with zero limbs), result
+/// and sources at offsets 0 and (3, 2, 1) of larger arrays.
+test "the limb product equals the schoolbook product and the loop of rows it replaces" {
+  let random = { words_state: 0x7F4A7C159E3779B9UL, }
+  let sizes = [1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 15, 16, 17, 31, 33, 40]
+  let mut cases = 0
+  for an in sizes {
+    for bn in sizes {
+      for pattern in 0..<6 {
+        for offsets in [(0, 0, 0), (3, 2, 1)] {
+          let (ro, ao, bo) = offsets
+          let a = window_test_array(random, an + ao + 2, pattern)
+          let b = window_test_array(random, bn + bo + 2, (pattern + 1) % 6)
+          let expected = FixedArray::make(an + bn + ro + 3, 0x5A5AUL)
+          let looped = FixedArray::make(an + bn + ro + 3, 0x5A5AUL)
+          let actual = FixedArray::make(an + bn + ro + 3, 0x5A5AUL)
+          bin_coeff_words_school(expected, ro, a, ao, an, b, bo, bn)
+          // the loop of rows as the series loops had it
+          looped.unsafe_set(
+            ro + bn,
+            bin_limbs_mul_1(looped, ro, b, bo, bn, a.unsafe_get(ao)),
+          )
+          for j in 1..<an {
+            looped.unsafe_set(
+              ro + j + bn,
+              bin_limbs_addmul_1(
+                looped,
+                ro + j,
+                b,
+                bo,
+                bn,
+                a.unsafe_get(ao + j),
+              ),
+            )
+          }
+          bin_limbs_product(actual, ro, a, ao, an, b, bo, bn)
+          assert_eq(actual, expected)
+          assert_eq(looped, expected)
+          cases += 1
+        }
+      }
+    }
+  }
+  assert_eq(cases, 16 * 16 * 6 * 2)
+}
+
+///|
+/// The contract's edges: the carry limb is written (all `an + bn` limbs of a
+/// dirty result are replaced), a single-limb operand on either side, and the
+/// largest limbs everywhere (every column carries).
+test "the limb product writes every result limb: dirty result, one-limb operands, all-ones" {
+  for an in [1, 2, 9] {
+    for bn in [1, 3, 10] {
+      let a = FixedArray::make(an, 0xFFFF_FFFF_FFFF_FFFFUL)
+      let b = FixedArray::make(bn, 0xFFFF_FFFF_FFFF_FFFFUL)
+      let expected = FixedArray::make(an + bn, 0xDEADUL)
+      let actual = FixedArray::make(an + bn, 0xBEEFUL)
+      bin_coeff_words_school(expected, 0, a, 0, an, b, 0, bn)
+      bin_limbs_product(actual, 0, a, 0, an, b, 0, bn)
+      assert_eq(actual, expected)
+    }
+  }
+}
