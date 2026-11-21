@@ -840,6 +840,22 @@ notes live in this file.
 
 - `bin_float`: the wide `mul` and `div` hand the product, the short product, the short quotient and the exact scaled quotient from the kernel to the in-place finisher as an array, without the coefficient box between them (kernel entries `bin_words_mul`, `bin_words_mul_short`, `bin_words_div_short_quotient`, `bin_words_div_scaled_quotient`, `bin_words_sqrt_scaled_rounded`, with the `Coeff` forms as wrappers over them; `bin_decline_words` is the shared empty array that answers "declined"). One heap object less per call, counted in a run: `mul` 512 bits 4 to 3 and 2,048 bits 6 to 5, `div` 6 to 5 at both sizes; `add` (control) 3 and the `sqrt` of the probe operands (29 and 41 objects) unchanged. Instructions per call on native: `mul` 512 bits 1,791 / 1,540 (assembly tier), 2,048 bits 8,141 / 7,931; `div` 512 bits 3,844 / 3,641, 2,048 bits 11,851 / 11,648; `sqrt` and `add` unchanged within noise. Results are unchanged (the array forms against the coefficient forms on every route, and the existing corpus) ([#438](https://github.com/Luna-Flow/floating/issues/438), section 8).
 
+- `bin_float`: the thresholds of `ln` on native are re-measured after the fixed-point series moved to limb arrays (which made the series 0.3 to 0.4 of its cost at up to 576 bits): the outermost call starts with the Newton step from 768 working bits (it was 384) and uses the arithmetic-geometric mean from 1152 (it was 640); below 768 the series runs. Crossovers measured on the assembly rows and on the C rows alike (series against Newton step against mean, instructions per call, mean over five arguments in [1.1, 1.9]); the results are unchanged. Instructions per call of the public `ln`, two builds, median of five runs (range in brackets, over the two arguments 5.3 and 7.7), every measured difference at least 52 million instructions:
+
+  | precision (work bits) | before: instructions | after: instructions | ratio |
+  | --- | --- | --- | --- |
+  | 256 (320) | 76,398 (59,589 to 90,461) | 76,592 (60,714 to 91,616) | 1.003 |
+  | 320 (384) | 160,978 (151,358 to 170,635) | 97,813 (76,902 to 120,810) | 0.608 |
+  | 512 (576) | 221,630 (203,150 to 238,545) | 186,823 (143,220 to 230,175) | 0.843 |
+  | 576 (640) | 414,202 (411,499 to 417,562) | 227,386 (175,193 to 279,891) | 0.549 |
+  | 640 (704) | 431,362 (427,449 to 436,844) | 271,158 (204,327 to 339,401) | 0.629 |
+  | 704 (768) | 440,963 (427,600 to 450,178) | 298,713 (271,998 to 321,288) | 0.677 |
+  | 832 (896) | 498,822 (493,885 to 502,663) | 356,811 (328,491 to 386,800) | 0.715 |
+  | 960 (1024) | 545,822 (532,425 to 553,818) | 505,242 (467,515 to 541,728) | 0.926 |
+  | 1056 (1120) | 564,538 (552,957 to 574,132) | 536,864 (490,801 to 582,171) | 0.951 |
+  | 1088 (1152) | 613,736 (611,284 to 617,186) | 613,350 (606,577 to 623,220) | 0.999 |
+  | 1280 (1344) | 666,712 (645,752 to 684,013) | 667,173 (652,242 to 681,736) | 1.001 |
+
 ## 0.11.0 - 2026-11-20
 
 0.11.0 is the performance round of the binary and decimal cores (64-bit coefficient limbs, the certified elementary functions, the shared decimal kernel), the conformance additions (the remaining IEEE 754-2019 §9.2 functions, `convert_format`, totalOrder, `class_of`, and the fixes that the differential campaigns found), and step B of [#22](https://github.com/Luna-Flow/floating/issues/22): the library module is split from the developer tools, public surfaces are narrowed and operations are named after their standards. The breaking changes come first, with their migration tables; 0.12 completes them ([#438](https://github.com/Luna-Flow/floating/issues/438)).
