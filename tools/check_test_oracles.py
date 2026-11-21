@@ -104,6 +104,8 @@ def parse_blocks(path: Path, root: Path = REPO) -> list[Block]:
             continue
         comment: list[str] = []
         cursor = index - 1
+        while cursor >= 0 and lines[cursor].lstrip().startswith("#"):  # attributes such as #skip(...)
+            cursor -= 1
         while cursor >= 0 and lines[cursor].lstrip().startswith("//"):
             text = lines[cursor].strip()
             if text != "///|":

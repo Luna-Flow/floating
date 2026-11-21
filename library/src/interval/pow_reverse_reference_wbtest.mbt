@@ -329,8 +329,6 @@ test "pow_rev1 reference fallback: the cap at 0 and at 1 never misses a point" {
   pwr_check(113, 6, 113UL, cap=0)
 }
 
-#skip("long run: the interval gate runs it with --include-skipped")
-
 ///|
 /// The long run: 700 cases at each of three precisions, run by the interval gate with
 /// `--include-skipped`.
@@ -338,6 +336,7 @@ test "pow_rev1 reference fallback: the cap at 0 and at 1 never misses a point" {
 // source: the exponent-side reference: the forward pow at 200 bits and a bisection over the prior; no code of pow_reverse.mbt; the case is checked for the exact hull (tightness) where the test says so, and for enclosure and containment in the prior in the capped fallback
 // shares: forward Interval::pow at 200 bits, Interval add/sub at 200 bits
 // primitives: forward pow: forward_reference_wbtest.mbt (MPFR rows, level A, tightness, 80 rows with a point exponent, while pow_rev1 uses an interval exponent); add, sub: ITF1788 and the MPFR differential stage
+#skip("long run: the interval gate runs it with --include-skipped")
 test "pow_rev1 reference long: against the forward pow at 200 bits" {
   pwr_check(24, 700, 1UL)
   pwr_check(53, 700, 2UL)
