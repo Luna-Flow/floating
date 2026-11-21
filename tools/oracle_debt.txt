@@ -244,12 +244,6 @@ library/src/binary/atan_single_evaluation_wbtest.mbt::atan single evaluation con
 library/src/binary/atan_single_evaluation_wbtest.mbt::atan2 single evaluation contains the high-precision old enclosure	C
 library/src/binary/atan_single_evaluation_wbtest.mbt::atan2 with exponents far apart agrees with the analytic limits	S
 library/src/binary/atan_single_evaluation_wbtest.mbt::pi series enclosure contains pi and differs from the old one only by an ulp	E
-library/src/binary/bin_div_long_wbtest.mbt::div and div_ctx of full-width operands above the recursive-division threshold are correctly rounded	C
-library/src/binary/bin_div_long_wbtest.mbt::div_ctx of wide operands: rounding bits all zero, all one, exactly half, in five directions	C
-library/src/binary/binary_compare_nonjs_wbtest.mbt::word compare with signs and zeros equals the general path	C
-library/src/binary/binary_compare_nonjs_wbtest.mbt::word comparison leaves a wider operand to the general path	A
-library/src/binary/binary_compare_nonjs_wbtest.mbt::word comparison of magnitudes equals the general path	B
-library/src/binary/binary_compare_nonjs_wbtest.mbt::word comparison: equal values, neighbours and the exponent differences around 64	B
 library/src/binary/checked_special_values_wbtest.mbt::checked adapters return range exceptions in Ok	A
 library/src/binary/checked_special_values_wbtest.mbt::checked trait adapters follow the IEEE special-value table	A
 library/src/binary/checked_special_values_wbtest.mbt::inherent checked operations follow the IEEE special-value table	A

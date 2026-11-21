@@ -46,6 +46,10 @@ fn cmp_reference(a : Binary, b : Binary) -> Int32 {
 }
 
 ///|
+// oracle: B
+// source: binary_compare_shifted on the coefficients and exponents (Coeff shift and compare: the general comparison, a different algorithm from the word comparison under test); random lengths of 1 to 128 bits, equal, adjacent and far leading-bit exponents
+// shares: binary_compare_shifted, Coeff shift_left and compare; the word comparison is binary_compare_pair_magnitude and binary_compare_magnitude
+// primitives: Coeff::shift_left and Coeff::compare on coefficients of up to 128 bits plus a shift: level A in the bin_kernel tests (shifts and comparison against Python integers)
 test "word comparison of magnitudes equals the general path" {
   let state = Ref(0x9e3779b97f4a7c15UL)
   let mut checked = 0
@@ -88,6 +92,10 @@ test "word comparison of magnitudes equals the general path" {
 }
 
 ///|
+// oracle: A, B
+// source: equal values compare 0 and the same coefficient one exponent higher compares -1 and 1: written out; the neighbours (coefficient plus 2) are compared with binary_compare_shifted (B)
+// shares: binary_compare_shifted for the neighbours
+// primitives: Coeff::add, Coeff::shift_left, Coeff::compare: level A in the bin_kernel tests
 test "word comparison: equal values, neighbours and the exponent differences around 64" {
   let state = Ref(0x2545f4914f6cdd1dUL)
   for bits in [1, 2, 3, 53, 63, 64, 65, 66, 127, 128] {
@@ -122,6 +130,9 @@ test "word comparison: equal values, neighbours and the exponent differences aro
 }
 
 ///|
+// oracle: A
+// source: the return code 2 (declined) of binary_compare_pair_magnitude and the orders 1 and -1 for 5 * 2^200 + 1 against 3 are written out
+// shares: nothing
 test "word comparison leaves a wider operand to the general path" {
   let wide = finite_normalized(
     false,
@@ -154,6 +165,10 @@ fn cmp_signed_reference(a : Binary, b : Binary) -> Int32 {
 }
 
 ///|
+// oracle: B
+// source: cmp_signed_reference: the sign and zero rules written out in the test (zeros equal, a negative below a positive, negated order for two negatives) on top of binary_compare_shifted for the magnitudes (B)
+// shares: binary_compare_shifted for the magnitudes
+// primitives: Coeff::shift_left and Coeff::compare: level A in the bin_kernel tests
 test "word compare with signs and zeros equals the general path" {
   let state = Ref(0x2545f4914f6cdd1dUL)
   let values : Array[Binary] = []
