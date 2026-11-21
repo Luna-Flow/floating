@@ -19,7 +19,7 @@
   "seededFixtures": {
     "libmpdec-random": {
       "path": "testdata/decimal_gda/random/libmpdec-random.decTest",
-      "sha256": "df451a90bd6219f03a1145f837bfdc93caeab1d9ba1336ab4a6fa457ff396849",
+      "sha256": "d5d4e5b47cf3dc7feeb49ed87ec6c863cb2bb2d387b34ea4271a05fe80ff000b",
       "generator": "tools/generate_libmpdec_random.py",
       "command": "python3 tools/random_differential.py fixtures",
       "seed": 20261118,
