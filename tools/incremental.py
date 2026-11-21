@@ -306,11 +306,12 @@ def decide(
 
     Units with a record are reused, except `max(1, ceil(rate * n))` of them (n = the number of
     units with a record, at least one when n > 0), chosen at random, which are sampled: run
-    for real and compared. Units in input order.
+    for real and compared. Units in input order. A rate of 0 or less samples nothing; only the
+    system's own mutation test uses it (the gates always sample).
     """
     candidates = sorted(unit for unit, (_, record) in lookups.items() if record is not None)
     sampled: set[str] = set()
-    if candidates:
+    if candidates and rate > 0:
         sampled = set(rng.sample(candidates, min(len(candidates), max(1, math.ceil(rate * len(candidates))))))
     out = []
     for unit, (reason, record) in lookups.items():

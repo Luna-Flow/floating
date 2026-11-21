@@ -215,6 +215,10 @@ class DecideTests(unittest.TestCase):
             self.assertEqual(sum(d.action == "reuse" for d in decisions), reusable - expected)
             self.assertEqual(sum(d.action == "run" for d in decisions), 2)
 
+    def test_a_rate_of_zero_samples_nothing(self) -> None:
+        decisions = inc.decide(self.lookups(10, 0), random.Random(1), rate=0.0)
+        self.assertEqual([d.action for d in decisions], ["reuse"] * 10)
+
     def test_the_seed_decides_the_sample(self) -> None:
         def pick(seed: int) -> list[str]:
             return [d.unit for d in inc.decide(self.lookups(100, 0), random.Random(seed)) if d.action == "sample"]

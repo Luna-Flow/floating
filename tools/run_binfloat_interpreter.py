@@ -533,6 +533,21 @@ def incremental_environment(args: argparse.Namespace, output: Path) -> increment
     return incremental.Environment(ledger, context.builder, commit, dirty, str(output), seed, rate=args.sample_rate)
 
 
+def crash_payload(error: Exception, frontend: str) -> dict:
+    """The result of a unit whose interpreter crashed or failed to start: a failure of that unit
+    (never recorded), so that one crash does not hide the verdict of the other units."""
+    return {
+        "frontend": frontend,
+        "totalCases": 0,
+        "selectedCases": 0,
+        "passedCases": 0,
+        "failedCases": 1,
+        "failedIds": [f"interpreter failed: {str(error)[:200]}"],
+        "arms": [],
+        "elapsedSeconds": 0.0,
+    }
+
+
 def testfloat_unit(task: dict, generator_hash: str) -> incremental.UnitSpec:
     generator = " ".join(testfloat_generator_command(task)[1:])
     return incremental.UnitSpec(
@@ -555,6 +570,20 @@ def mpfr_corpora(manifest: dict) -> list[tuple[Path, int, str]]:
     return corpora
 
 
+def guarded_testfloat_task(task: dict, output: Path, chunk_cases: int) -> dict:
+    try:
+        return run_testfloat_task(task, output, chunk_cases)
+    except RuntimeError as error:
+        return crash_payload(error, "testfloat")
+
+
+def guarded_mpfr_path(path: Path, expected_cases: int, output: Path, output_name: str) -> dict:
+    try:
+        return run_mpfr_path(path, expected_cases, output, output_name)
+    except RuntimeError as error:
+        return crash_payload(error, "mpfr")
+
+
 def run_incremental(
     args: argparse.Namespace, manifest: dict, tasks: list[dict], output: Path, environment: incremental.Environment
 ) -> tuple[list[dict], list[dict], list[incremental.Outcome], incremental.Tally]:
@@ -568,7 +597,7 @@ def run_incremental(
         results = ordered_parallel_map(
             [by_name[unit.name] for unit in selected],
             args.jobs,
-            lambda task: run_testfloat_task(task, output, args.chunk_cases),
+            lambda task: guarded_testfloat_task(task, output, args.chunk_cases),
             progress,
             lambda task: task["function"],
         )
@@ -586,7 +615,7 @@ def run_incremental(
         ]
 
         def run_files(selected: Sequence[incremental.UnitSpec]) -> list[dict]:
-            return [run_mpfr_path(corpora[u.name][0], corpora[u.name][1], output, u.name) for u in selected]
+            return [guarded_mpfr_path(corpora[u.name][0], corpora[u.name][1], output, u.name) for u in selected]
 
         try:
             mpfr_outcomes, mpfr_tally = incremental.run_units(mpfr_units, environment, run_files)
@@ -869,6 +898,16 @@ def main(argv: list[str] | None = None) -> int:
                 "sampled": tally.sampled,
                 "failed": tally.failed,
                 "reusedByCommit": incremental.reused_by_commit(outcomes),
+                "units": [
+                    {
+                        "unit": o.unit,
+                        "status": o.status,
+                        "commit": o.commit,
+                        "arms": o.payload.get("arms", []),
+                        "failedCases": o.payload.get("failedCases"),
+                    }
+                    for o in outcomes
+                ],
             }
         report_path = output / "summary.json"
         report_path.write_text(
