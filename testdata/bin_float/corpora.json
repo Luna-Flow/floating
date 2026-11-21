@@ -54,7 +54,7 @@
   "seededFixtures": {
     "mpfr-4.2.2-random": {
       "path": "testdata/bin_float/mpfr-4.2.2-random.txt",
-      "sha256": "b09acf32752d0f7dd0dc780606c7195fd76318f0d408468477c903ae6c335fb2",
+      "sha256": "326069070ae3ea92962f432bf6483a8619daad297afcdc92e7285998b3c1d3ad",
       "expectedCases": 650,
       "generator": "tools/generate_mpfr_random_oracle.c",
       "command": "python3 tools/random_differential.py fixtures",
@@ -65,7 +65,7 @@
     },
     "random-regressions": {
       "path": "testdata/bin_float/random-regressions.txt",
-      "sha256": "aefc85ab9db472d9b1b8fee89c851ad6745ad37106dac307f1a753fd3cdce357",
+      "sha256": "6d01c1eaa1dcc6c21f3052584026382d16c800cbbd001e74726fc908c0fbf714",
       "expectedCases": 150,
       "generator": "tools/random_differential_minimize.py",
       "command": "python3 tools/random_differential.py minimize",
