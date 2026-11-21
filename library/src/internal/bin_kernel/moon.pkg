@@ -26,6 +26,8 @@ options(
     "coeff_limbs_oracle_wbtest.mbt": [ "not", "js" ],
     "coeff_limbs_oracle_rows_wbtest.mbt": [ "not", "js" ],
     "coeff_window_oracle_rows_wbtest.mbt": [ "not", "js" ],
+    "coeff_div_oracle_wbtest.mbt": [ "not", "js" ],
+    "coeff_div_oracle_rows_wbtest.mbt": [ "not", "js" ],
     "coeff_knuth_words_nonjs.mbt": [ "not", "js" ],
     "coeff_knuth_words_nonjs_wbtest.mbt": [ "not", "js" ],
     "coeff_knuth_reciprocal_nonjs_wbtest.mbt": [ "not", "js" ],
