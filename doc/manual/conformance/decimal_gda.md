@@ -35,6 +35,18 @@ General Decimal Arithmetic Specification 1.70 for `decimal_gda`, one row per ope
 | status flags and traps (Appendix and Exceptional conditions) | `GdaOutcome`, `GdaContext::with_traps` | every decTest row checks the flag set; trap enablement is covered by the runner's directive handling | conforming |
 | subset arithmetic (Appendix A) | `extended = false` contexts | pinned subset corpus `dectest0.zip` (32 files, 31 with `extended: 0`) in the `DECIMAL_GDA: official0 decTest` gate stage; `library/src/decimal_gda/` white-box tests | conforming |
 
+## decTest rows behind statements of the API page
+
+The [API page](../api/decimal_gda.md) states these rules without naming the rows of the corpus that check them.
+
+| Statement of the API page | decTest rows |
+| --- | --- |
+| `exp`, `ln`, `log10` and `power` with a non-integer exponent accept only a context within the [implementation limit](../api/decimal_gda.md#implementation-limit-of-exp-ln-log10-and-power) 999,999 | `power.decTest` rows powx4001 to powx4005; rows expx901 to expx906, lnx901 to lnx906 and logx901 to logx906 of `exp.decTest`, `ln.decTest` and `log10.decTest`, in a section that decTest labels decNumber's restricted range for the mathematical functions |
+| `exp(-Infinity)` under a context beyond that limit is `Invalid_context` | row `expx901` |
+| `pow_int_checked` returns `Err(unsupported)` for a positive exponent above 999,999,999 under a context without exponent bounds within $\pm 999\,999$ | rows `powx1183` and `powx1184` |
+| the official decTest files use the parameters `clamp` and `extended` | `clamp:` in 30,649 rows; `extended: 0` in all 16,162 rows of `dectest0` |
+| a NaN payload wider than the interchange format keeps its low digits, and no flag is raised | the decTest interchange rows have no payload wider than their format |
+
 ## Legacy corpus
 
 The pinned `official0` corpus passes 16,124/16,124 legal executable rows with zero failures. It is retained for historical compatibility checks, not as the definition of the current surface.
