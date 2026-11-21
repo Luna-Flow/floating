@@ -120,3 +120,28 @@ test "checked tier errors name the operation" {
     Ok(_) => abort("the forced failure must be an error")
   }
 }
+
+///|
+// oracle: A
+// source: expected values written out from IEEE 754-2019 7.3 (a finite non-zero dividend over zero is a division by zero) and 7.2 (0/0 is invalid, here a domain error); the one-set-of-exits contract of the checked tiers (`is_ok`, `is_err`, `error`, `result`)
+// shares: nothing
+test "error is the failure of a pipeline and None for a success" {
+  let good = BinFloatResult::from_int(6).div(BinFloatResult::from_int(3))
+  assert_true(good.is_ok() && good.error() is None)
+  assert_true(!good.is_err())
+  let by_zero = BinFloatResult::from_int(1).div(BinFloatResult::from_int(0))
+  assert_true(by_zero.is_err())
+  match by_zero.error() {
+    Some(error) => assert_true(error.is_division_by_zero())
+    None => fail("division by zero must carry its error")
+  }
+  // The error of the left operand wins, and `error` agrees with `result`.
+  let first = BinFloatResult::err(@def.ArithmeticError::unsupported("first"))
+  let both = first.add(by_zero)
+  match (both.error(), both.result()) {
+    (Some(e), Err(r)) => assert_true(e == r)
+    _ => fail("error and result must agree")
+  }
+  assert_true(both.error().unwrap().is_unsupported())
+  assert_true(both.error().unwrap() == first.error().unwrap())
+}
