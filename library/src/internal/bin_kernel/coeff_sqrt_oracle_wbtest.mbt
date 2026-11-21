@@ -27,6 +27,11 @@
 /// normalisation by an even number of bits. The recursion has no counter: that a
 /// row reaches a given level is read from the sizes, not checked at run time;
 /// the mutations of the pull request show which defects the rows catch.
+///
+/// Two findings of the mutations, not defects: a wrong `bin_coeff_isqrt128` makes
+/// the kernel loop without end (its settle loop has no bound), and
+/// `bin_coeff_isqrt64` is not reachable from the routes of this table (it is called
+/// only for a 128-bit value with a zero high word).
 
 ///|
 fn sqrt_oracle_radicand(row : Array[String]) -> Coeff raise {
@@ -95,7 +100,7 @@ fn sqrt_oracle_run_where(where_ : String) -> Int32 raise {
 ///|
 // oracle: A
 // source: roots, remainders and packed rounded roots computed by tools/kernel_oracle.py with math.isqrt; the radicands are verified against CPython digests first
-// shares: nothing
+// shares: the construction of the operands (regression_value, Coeff::square, add, sub_checked), verified per row against the CPython digest of the radicand before the route is called
 test "oracle: square root routes against CPython, radicands up to 4,100 bits" {
   assert_true(sqrt_oracle_run_where("pr") > 1000)
 }
@@ -103,7 +108,7 @@ test "oracle: square root routes against CPython, radicands up to 4,100 bits" {
 ///|
 // oracle: A
 // source: roots, remainders and packed rounded roots computed by tools/kernel_oracle.py with math.isqrt; the radicands are verified against CPython digests first
-// shares: nothing
+// shares: the construction of the operands (regression_value, Coeff::square, add, sub_checked), verified per row against the CPython digest of the radicand before the route is called
 #skip("binary gate stage: radicands from 4,101 to 65,537 bits")
 test "oracle: square root routes against CPython, radicands from 4,101 to 65,537 bits" {
   assert_true(sqrt_oracle_run_where("gate") > 100)
