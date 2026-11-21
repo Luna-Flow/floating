@@ -491,7 +491,8 @@ pub fn GdaContext::decimal128(mode? : GdaRoundingMode) -> Self
 
 `basic_default` is what the specification calls the *basic default context*:
 precision 9, round-half-up, and every trap enabled except inexact, rounded and
-subnormal. The library also sets `extended=false` for it (the X3.274 subset of
+subnormal (GDA 1.70 page 16); the library also leaves the lost-digits trap off, because
+Appendix A sets it to 0 in default contexts. The library also sets `extended=false` for it (the X3.274 subset of
 Appendix A); the text of the context does not set that parameter. `decimal32`, `decimal64` and `decimal128` are the
 *extended default contexts* for the IEEE 754 formats: round-half-even, no traps;
 `rounding` replaces the mode when given. `GdaContext::new()` is not
@@ -551,8 +552,8 @@ pub fn GdaContext::with_refinement_limit(Self, Int?) -> Self
 `Some(12)` times by default. A rare argument close to a rounding boundary may
 need more: `with_refinement_limit(Some(24))` allows 24 steps and `None` removes
 the count (the working precision then stops at a resource bound). A limit below
-1 is one step. When the limit is reached, the plain functions report
-`invalid_context` and [`try_exp`, `try_ln`, `try_log10`, `try_power`](#try_exp-try_ln-try_log10-try_power)
+1 is one step. When the limit is reached, the plain functions return a NaN with
+`invalid_operation` and [`try_exp`, `try_ln`, `try_log10`, `try_power`](#try_exp-try_ln-try_log10-try_power)
 return `Err`.
 
 ### `GdaContext::trap`, `GdaContext::with_traps`, `GdaContext::clear_flags`, `GdaContext::reset`
@@ -1022,8 +1023,7 @@ Every case the specification defines (domain errors, signaling NaNs,
 a context beyond the supported exponent range, which `exp` and its siblings
 report as `invalid_context`) is an `Ok` outcome exactly as the plain function
 returns it. `Err` means the refinement limit or a resource bound stopped the
-computation, where the plain function reports `invalid_context` for want of a
-better condition.
+computation, where the plain function returns a NaN with `invalid_operation`.
 
 ### `reduce`
 
@@ -1277,22 +1277,23 @@ pub impl Div for Decimal
 pub impl Neg for Decimal
 ```
 
-Each operator runs the free function of the same name in a private working
-context and returns its value: precision $P$, the larger precision attribute of
+`+`, `-`, `*` and `/` run the free functions `add`, `subtract`, `multiply` and
+`divide` in a private working context and return their value: precision $P$, the larger precision attribute of
 the operands, half-even rounding, the extended rules, no clamp and no traps.
 The result is therefore a member of the cohort GDA prescribes: `+` and `-`
 keep the smaller exponent (`1.10 + 3.50` is `4.60`), `*` adds the exponents,
 `/` starts from the difference of the exponents and removes only the trailing
 zeros that exact quotients allow (`1.5 / 0.5` is `3`, `1.50 / 0.5` is `3.0`),
-and a product or a quotient with more than $P$ digits is rounded to $P$ digits
-(`*` is no longer exact). `x + 0 == x` and `x * 1 == x` hold because equality compares values, not members
+and a result of any of the four operations with more than $P$ digits is rounded to
+$P$ digits (`*` is no longer exact). `x + 0 == x` and `x * 1 == x` hold because equality compares values, not members
 of the cohort, and for every stored finite value, because the working range
 below is the [stored range](#gda_value_e_max-gda_value_e_tiny).
 
 The working exponent range cannot be built with
-[`GdaContext::new`](#gdacontextnew-gdacontexttry_new), because GDA limits the
-exponent range of a context to $\pm 999{,}999{,}999$ and this one fills the
-`Int` range: the largest adjusted exponent is $2^{31}-2 = 2{,}147{,}483{,}646$
+[`GdaContext::new`](#gdacontextnew-gdacontexttry_new), because that function
+limits the exponent range of a context to $\pm 999{,}999{,}999$ (limits adopted
+from decNumber; GDA 1.70 page 9 allows a limit Elimit without giving a value)
+and this one fills the `Int` range: the largest adjusted exponent is $2^{31}-2 = 2{,}147{,}483{,}646$
 and the smallest exponent is $\text{Etiny} = -2^{31}+3 = -2{,}147{,}483{,}645$
 for every $P$ (so `Etiny` is always a valid `Int` exponent). A result above the range is a signed infinity
 (`1E+1500000000 * 1E+1500000000` is `inf`); one below it is rounded half to
@@ -1301,8 +1302,10 @@ without signals: NaN operands give a quiet NaN, $\infty - \infty$,
 $0 \times \infty$, $0/0$ and $\infty/\infty$ give NaN, $x/0$ gives a signed
 infinity and $x/\infty$ gives a signed zero. Use the free functions with a
 `GdaContext` when you need another precision, rounding, range or the signals.
-`neg` is
-[`Decimal::neg`](#decimalneg-decimalabs-decimalcopy-decimalcopy_abs-decimalcopy_negate-decimalcopy_sign).
+Unary `-` is
+[`Decimal::neg`](#decimalneg-decimalabs-decimalcopy-decimalcopy_abs-decimalcopy_negate-decimalcopy_sign):
+it flips the sign bit and uses no context, so the context, the precision $P$, the
+cohort rules and the working range above apply to `+`, `-`, `*` and `/` only.
 
 ### `Decimal::sqrt`
 

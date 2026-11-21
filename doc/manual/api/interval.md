@@ -30,7 +30,7 @@ Conventions used on this page:
 - The exponent range of `Binary` endpoints is the implementation range of
   `binary`: leading-bit exponents up to $e_{\max} = 2^{30} - 1$, and
   nonzero magnitudes down to $2^{e_{\min} - p + 1}$ with
-  $e_{\min} = -(2^{30} - 1)$. Use an `IntervalContext` to impose a narrower range.
+  $e_{\min} = 1 - e_{\max} = -(2^{30} - 2)$. Use an `IntervalContext` to impose a narrower range.
 - The *precision* of an interval is between 1 and `binary_precision_max`
   (268,435,456) bits, the limits of a `BinaryContext`. A constructor that
   returns a value aborts on a precision outside them and names the limits; the
@@ -167,25 +167,25 @@ totally ordered; `Decoration` derives `Compare` in that order, so `<`, `<=`,
 of the relative position of two intervals.
 
 ```mbti
+#derive(Eq, @debug.Debug)
 pub(all) enum OverlapState {
-  Undefined
   BothEmpty
   FirstEmpty
   SecondEmpty
   Before
   Meets
-  OverlapsState
+  Overlaps
   Starts
   ContainedBy
   Finishes
-  EqualIntervals
+  Equals
   After
   MetBy
   OverlappedBy
   StartedBy
-  ContainsInterval
+  Contains
   FinishedBy
-} derive(Eq, @debug.Debug)
+}
 ```
 
 The constructors are the 16 states of IEEE 1788-2015 Table 10.7 (10.6.4),
@@ -558,7 +558,7 @@ stays Empty with the new precision.
 > center, so at 53 bits $[1, 1 + 2^{-52}]$ became $[1 - 2^{-52}, 1 + 2^{-52}]$.
 > `normalized`, `convex_hull` with an Empty operand, the checked capabilities
 > (`div_checked`, `pow_nat_checked`, `pow_int_checked`) and the
-> `pow_nat`/`pown` methods of `interval_checked` round endpoints the same
+> `pown` method of `interval_checked` round endpoints the same
 > way and do not widen a representable interval either.
 
 ```moonbit
@@ -611,8 +611,7 @@ $[\min(\underline{x}, \underline{y}), \max(\overline{x}, \overline{y})]$),
 exact apart from the final outward rounding to the larger precision. Disjoint
 intervals intersect to Empty, and an Empty operand makes the intersection
 Empty. When one operand of `convex_hull` is Empty, the result is the other
-operand passed through `with_precision`, so it can be one ulp wider per side
-than that operand (see the warning under
+operand at the larger of the two precisions, which is exact (see the note under
 [`Interval::with_precision`](#intervalwith_precision)).
 
 ### `Interval::cancel_plus` and `Interval::cancel_minus`
@@ -1104,7 +1103,7 @@ An exponent of magnitude $2^{10^9}$ is decided at once because the sign of $\ln(
 test "pow_rev1" {
   // x^2 in [4, 4] with x > 0: x = 2
   assert_true(iv(2, 2).pow_rev1(iv(4, 4)) == iv(2, 2))
-  // x^beta in [0.25, 0.5] for beta in [-4, -2]: the upper end 0.25^(1/-2) = 2 is exact
+  // x^beta in [1, 1] for beta in [-4, -2] with the prior x = [1, 1]: x = 1
   let r = iv(-4, -2).pow_rev1(iv(1, 1), x=iv(1, 1))
   assert_true(r == iv(1, 1))
   // 0^beta = 0 for beta > 0
@@ -1312,10 +1311,12 @@ pub fn Interval::try_expm1(Self) -> Result[Self, @arithmetic.ArithmeticError]
 
 All four are increasing, so the result is
 $[\operatorname{RD} f(\underline{x}), \operatorname{RU} f(\overline{x})]$.
-For $|\xi| \ge 2^{30}$ the enclosure is $[\text{largest finite}, +\infty)$ or
-$[0, \text{smallest positive}]$, which is valid because $e^{2^{30}}$ exceeds
-$2^{e_{\max}+1}$ and $e^{-2^{30}}$ is below the smallest positive `Binary`
-at every precision. `exp2` and `exp10` return exact powers
+For $\xi \ge 2^{30}$ the enclosure of all four is
+$[\text{largest finite}, +\infty)$; for $\xi \le -2^{30}$ that of `exp`, `exp2`
+and `exp10` is $[0, \text{smallest positive}]$, and that of `expm1` is
+$[-1, -(1 - 2^{-p})]$, as $e^{\xi} - 1$ lies just above $-1$. The first is valid
+because $e^{2^{30}}$ exceeds $2^{e_{\max}+1}$, and the second because
+$e^{-2^{30}}$ is below the smallest positive `Binary` at every precision. `exp2` and `exp10` return exact powers
 for integer endpoints whose power is representable at the interval's precision
 (`exp2` of $\{10\}$ is $\{1024\}$, `exp10` of $\{3\}$ is
 $\{1000\}$); an integer endpoint outside the exponent range keeps the
@@ -1483,7 +1484,9 @@ Here the critical points are the exact half-integers $k/2$, located from the
 dyadic endpoints without approximating $\pi$. `tanpi` returns a
 half-unbounded interval when a pole is exactly an endpoint and no other pole
 lies in the interval (for example $[1/2, 1]$ gives $(-\infty, 0]$, whose upper
-endpoint is $\tan \pi = -0$), Empty for
+bound is 0, read as $+0$ by `upper_bound` (IEEE 1788-2015 12.12.8); $\tan \pi$ is
+$-0$ in IEEE 754-2019 9.2, but the sign of a stored zero is not part of the
+interval), Empty for
 the singleton of a pole, and Entire when a pole lies inside. Unbounded
 arguments and fallbacks give $[-1, 1]$ (Entire for `tanpi`).
 
@@ -1781,7 +1784,9 @@ pub fn DecoratedInterval::is_member(Self, @binary.Binary) -> Bool
 ### `DecoratedInterval::equal`, `DecoratedInterval::identical`, `DecoratedInterval::subset`, `DecoratedInterval::interior`, `DecoratedInterval::disjoint`, `DecoratedInterval::less`, `DecoratedInterval::strict_less`, `DecoratedInterval::precedes`, `DecoratedInterval::strict_precedes`, `DecoratedInterval::overlap`
 
 These relations apply the bare relation to the intervals and return false
-when an operand is NaI.
+when an operand is NaI, except `identical`, which is the equality of datums
+(IEEE 1788-2015 12.3): it is true for two NaI and false for NaI against any
+other value.
 
 ```mbti
 pub fn DecoratedInterval::equal(Self, Self) -> Bool
@@ -2091,9 +2096,9 @@ the interval itself.
 
 ```mbti
 pub fn Interval::to_exact_string(Self) -> String
-pub fn Interval::from_exact_string(String, precision~ : Int32 = ..) -> Result[Interval, @def.ArithmeticError]
+pub fn Interval::from_exact_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn DecoratedInterval::to_exact_string(Self) -> String
-pub fn DecoratedInterval::from_exact_string(String, precision~ : Int32 = ..) -> Result[DecoratedInterval, @def.ArithmeticError]
+pub fn DecoratedInterval::from_exact_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 The text is `[empty]`, `[entire]` or `[l, u]` with the bounds written as

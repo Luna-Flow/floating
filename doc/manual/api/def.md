@@ -216,8 +216,8 @@ no rounding parameter, because it cannot return an error; the inherent
 are reported (use the `*_ctx` APIs of the concrete package for both). The
 decimal types have no other exponent limit. `Binary` keeps its
 implementation range: a result whose exponent leaves
-$\pm(2^{30} - 1)$ (`binary_value_e_max`,
-`binary_value_e_min`) overflows to an infinity or to the largest
+$[1 - e_{\max}, e_{\max}]$ with $e_{\max} = 2^{30} - 1$
+(`binary_value_e_max`, `binary_value_e_min`) overflows to an infinity or to the largest
 finite value, or underflows, as in IEEE 754. Zeros keep their sign.
 Infinities and NaNs keep their class, sign and payload and only change the
 stored precision.

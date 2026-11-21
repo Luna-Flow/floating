@@ -64,8 +64,8 @@ The largest and smallest exponent of the leading bit that a finite `Binary`
 may carry.
 
 ```mbti
-pub let binary_value_e_max : Int
-pub let binary_value_e_min : Int
+pub let binary_value_e_max : Int32
+pub let binary_value_e_min : Int32
 ```
 
 They are $2^{30}-1 = 1073741823$ and $1 - (2^{30}-1) = -1073741822$, so
@@ -87,7 +87,7 @@ constructors of `BinaryChecked`) returns an `ArithmeticError` of kind
 `DomainError`. A precision is never replaced by another one.
 
 ```mbti
-pub let binary_precision_max : Int
+pub let binary_precision_max : Int32
 ```
 
 It is $2^{28} = 268435456$ bits. Together with the exponent range it keeps
@@ -147,9 +147,9 @@ pub fn BinCoeff::from_uint64(UInt64) -> Self
 Convert between a coefficient and digits.
 
 ```mbti
-pub fn BinCoeff::parse(String, radix? : Int) -> Result[Self, String]
+pub fn BinCoeff::parse(String, radix? : Int32) -> Result[Self, String]
 pub fn BinCoeff::to_string(Self) -> String
-pub fn BinCoeff::to_radix_string(Self, Int) -> String
+pub fn BinCoeff::to_radix_string(Self, Int32) -> String
 ```
 
 `parse` reads a digit string in base `radix` (default 10, letters for digits
@@ -184,7 +184,7 @@ Queries.
 
 ```mbti
 pub fn BinCoeff::is_zero(Self) -> Bool
-pub fn BinCoeff::bit_length(Self) -> Int
+pub fn BinCoeff::bit_length(Self) -> Int32
 ```
 
 `bit_length` is $\lfloor \log_2 c \rfloor + 1$ for $c > 0$ and $0$ for zero.
@@ -194,7 +194,7 @@ pub fn BinCoeff::bit_length(Self) -> Int
 Exact comparison.
 
 ```mbti
-pub fn BinCoeff::compare(Self, Self) -> Int
+pub fn BinCoeff::compare(Self, Self) -> Int32
 pub fn BinCoeff::equal(Self, Self) -> Bool
 ```
 
@@ -272,12 +272,12 @@ Builds a finite value $(-1)^{\text{negative}} \cdot c \cdot 2^{e}$ rounded to
 `precision` bits.
 
 ```mbti
-pub fn Binary::make(BinCoeff, Int, Int, negative? : Bool, mode? : @arithmetic.RoundingMode) -> Self
+pub fn Binary::make(BinCoeff, Int32, Int32, negative? : Bool, mode? : BinaryRoundingMode) -> Self
 ```
 
 The arguments are the coefficient, the exponent $e$ and the precision. When
 the coefficient has more significant bits than the precision it is rounded
-with `mode` (default `ToNearestEven`). The result is normalized. A precision
+with `mode` (default `RoundTiesToEven`). The result is normalized. A precision
 outside `1..=binary_precision_max` aborts. A value outside the implementation exponent range is
 replaced as an overflow or underflow would be: above it by $\pm\infty$ or, for
 a mode that rounds toward zero, the largest finite magnitude
@@ -295,8 +295,8 @@ additionally reports the flags.
 Build a value from an integer.
 
 ```mbti
-pub fn Binary::from_coefficient(BinCoeff, precision? : Int, negative? : Bool) -> Self
-pub fn Binary::from_int(Int, precision? : Int) -> Self
+pub fn Binary::from_coefficient(BinCoeff, precision? : Int32, negative? : Bool) -> Self
+pub fn Binary::from_int(Int32, precision? : Int32) -> Self
 ```
 
 The default precision is 53. The integer is rounded to nearest-even when it
@@ -308,8 +308,8 @@ has more significant bits than the precision; `from_int(n)` is exact for every
 Decode a host binary64 or binary32 value exactly.
 
 ```mbti
-pub fn Binary::from_double(Double, precision? : Int) -> Self
-pub fn Binary::from_float(Float, precision? : Int) -> Self
+pub fn Binary::from_double(Double, precision? : Int32) -> Self
+pub fn Binary::from_float(Float, precision? : Int32) -> Self
 ```
 
 The defaults are 53 and 24 bits, so the conversion is exact. `from_double`
@@ -329,10 +329,10 @@ decimal literal directly.
 Build the constants $+0$, $-0$, $1$ and $\pm\infty$.
 
 ```mbti
-pub fn Binary::zero(precision? : Int) -> Self
-pub fn Binary::negative_zero(precision? : Int) -> Self
-pub fn Binary::one(precision? : Int) -> Self
-pub fn Binary::inf(negative? : Bool, precision? : Int) -> Self
+pub fn Binary::zero(precision? : Int32) -> Self
+pub fn Binary::negative_zero(precision? : Int32) -> Self
+pub fn Binary::one(precision? : Int32) -> Self
+pub fn Binary::inf(negative? : Bool, precision? : Int32) -> Self
 ```
 
 The default precision is 53, and it must be within
@@ -344,9 +344,9 @@ $-\infty$; the default is $+\infty$, as `Decimal::inf` has it.
 Build NaNs.
 
 ```mbti
-pub fn Binary::nan(precision? : Int) -> Self
-pub fn Binary::quiet_nan(payload? : BinCoeff, negative? : Bool, precision? : Int) -> Self
-pub fn Binary::signaling_nan(payload? : BinCoeff, negative? : Bool, precision? : Int) -> Self
+pub fn Binary::nan(precision? : Int32) -> Self
+pub fn Binary::quiet_nan(payload? : BinCoeff, negative? : Bool, precision? : Int32) -> Self
+pub fn Binary::signaling_nan(payload? : BinCoeff, negative? : Bool, precision? : Int32) -> Self
 ```
 
 `nan()` is a positive quiet NaN with payload 0. A signaling NaN always has a
@@ -430,8 +430,8 @@ Return the stored representation.
 
 ```mbti
 pub fn Binary::coefficient(Self) -> BinCoeff
-pub fn Binary::exponent2(Self) -> Int
-pub fn Binary::precision(Self) -> Int
+pub fn Binary::exponent2(Self) -> Int32
+pub fn Binary::precision(Self) -> Int32
 ```
 
 For a finite value the number is `coefficient()` $\times 2^{\texttt{exponent2()}}$
@@ -463,12 +463,11 @@ identity on them; infinities and NaNs are returned unchanged.
 Rounds a value to a new working precision.
 
 ```mbti
-pub fn Binary::with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
+pub fn Binary::with_precision(Self, Int32, BinaryRoundingMode) -> Self
 ```
 
 A finite value with more significant bits than the new precision is rounded
-in the given direction (`@lf_arith.RoundingMode` has no ties-to-away mode;
-use `apply_ctx` for it). Zeros, infinities and NaNs only change their
+in the given direction (a `BinaryRoundingMode`, ties to away included). Zeros, infinities and NaNs only change their
 precision attribute. No flags are reported; use `apply_ctx` when they matter.
 
 ### `Binary::ulp`
@@ -571,7 +570,7 @@ exact.
 Raise a value to an integer power.
 
 ```mbti
-pub fn Binary::pown(Self, Int) -> Self
+pub fn Binary::pown(Self, Int32) -> Self
 ```
 
 The result is $x^n$ correctly rounded to
@@ -753,7 +752,7 @@ and `e_min` alone gives $e_{\max} = 1 - e_{\min}$. The result is an `Err` for
 Read the fields of a context.
 
 ```mbti
-pub fn BinaryContext::precision(Self) -> Int
+pub fn BinaryContext::precision(Self) -> Int32
 pub fn BinaryContext::rounding(Self) -> BinaryRoundingMode
 pub fn BinaryContext::e_min(Self) -> Int32
 pub fn BinaryContext::e_max(Self) -> Int32
@@ -792,8 +791,8 @@ both ends round alike. The limit is the number of refinement steps: `Some(n)`
 allows `n` of them (a value below 1 counts as 1), the default is `Some(12)`,
 and `None` removes the count limit. When the limit is reached without a
 decision, `try_*_ctx` returns the `CertificationFailure` error with the
-refinement count, as before, and the plain and `*_ctx` forms return a quiet
-NaN with `invalid_operation`. With `None` the loop still stops when the working
+refinement count, and the plain and `*_ctx` forms return a quiet
+NaN with `not_computed`. With `None` the loop still stops when the working
 precision passes a cap, the larger of 8,000,000 bits and 256 times the first
 working precision, and the trigonometric work limit of 8,000,000 bits still
 refuses an argument that would need more. The default changes no result.
@@ -851,16 +850,15 @@ result is tiny and inexact; `overflow`, the rounded result exceeded the
 largest finite value (always together with `inexact`); `division_by_zero`, an
 exact infinite result from finite operands (such as $1/0$ or $\log 0$);
 `invalid_operation`, no useful real result exists and a quiet NaN was
-returned, or a signaling NaN was an operand. The non-`try` elementary
-functions also raise it when they return NaN for a domain error (the `try_`
-forms still return an `Err` for one; they become values in a later step of S4).
+returned, or a signaling NaN was an operand. The elementary
+functions also raise it when they return NaN for a domain case, in the `try_`
+forms as in the plain ones.
 `not_computed`, the operation could not be carried out within a limit of the
 implementation (a certification that did not conclude, a context beyond what the
 kernels support) and the value is a NaN; it is not a flag of IEEE 754-2019 and
 is distinct from `invalid_operation`. The non-`try` elementary functions raise it
-when the `try_` form returns an `Err` of the certification-failure kind (they
-raised `invalid_operation` before), and the checked tiers turn it into that
-`Err`.
+when the `try_` form returns an `Err` of the certification-failure kind, and
+the checked tiers turn it into that `Err`.
 
 ### `BinaryFlags::combine`
 
@@ -964,7 +962,7 @@ so huge exponent gaps cost $O(\log)$ multiplications.
 Integer power $\circ(x^n)$ under a context.
 
 ```mbti
-pub fn Binary::pown_ctx(Self, Int, BinaryContext) -> (Self, BinaryFlags)
+pub fn Binary::pown_ctx(Self, Int32, BinaryContext) -> (Self, BinaryFlags)
 ```
 
 This is IEEE 754 `pown`. $x^0 = 1$ without a
@@ -1028,9 +1026,9 @@ IEEE `convertToInteger` to a machine integer, rounding in the context's
 direction.
 
 ```mbti
-pub fn Binary::to_int_ctx(Self, BinaryContext, exact? : Bool) -> (Int?, BinaryFlags)
+pub fn Binary::to_int_ctx(Self, BinaryContext, exact? : Bool) -> (Int32?, BinaryFlags)
 pub fn Binary::to_int64_ctx(Self, BinaryContext, exact? : Bool) -> (Int64?, BinaryFlags)
-pub fn Binary::to_uint_ctx(Self, BinaryContext, exact? : Bool) -> (UInt?, BinaryFlags)
+pub fn Binary::to_uint_ctx(Self, BinaryContext, exact? : Bool) -> (UInt32?, BinaryFlags)
 pub fn Binary::to_uint64_ctx(Self, BinaryContext, exact? : Bool) -> (UInt64?, BinaryFlags)
 ```
 
@@ -1132,7 +1130,7 @@ test "IEEE integral, integer and neighbour operations" {
 Numerical three-way comparison that is total on every value.
 
 ```mbti
-pub fn Binary::compare(Self, Self) -> Int
+pub fn Binary::compare(Self, Self) -> Int32
 pub impl Compare for Binary
 ```
 
@@ -1151,7 +1149,7 @@ explains the choice.
 Numerical comparison that rejects NaN.
 
 ```mbti
-pub fn Binary::compare_checked(Self, Self) -> Result[Int, @arithmetic.ArithmeticError]
+pub fn Binary::compare_checked(Self, Self) -> Result[Int32, @arithmetic.ArithmeticError]
 pub impl @arithmetic.CompareChecked for Binary
 ```
 
@@ -1257,7 +1255,7 @@ The IEEE 754 `totalOrder` relation.
 ```mbti
 pub fn Binary::total_order(Self, Self) -> Bool
 pub fn Binary::total_order_mag(Self, Self) -> Bool
-pub fn Binary::total_order_compare(Self, Self) -> Int
+pub fn Binary::total_order_compare(Self, Self) -> Int32
 ```
 
 `total_order_compare` orders all values as
@@ -1631,7 +1629,8 @@ and upward for $U$, at a working precision $w$ that starts at $p + 64$ bits
 (or at the operand precision plus 16 when that is larger, for `rootn`, the
 inverse trigonometric and the hyperbolic functions). If $L$ and $U$ round to
 the same value with the same flags, that value is returned; otherwise $w$
-grows by $\max(32, \lfloor w/2 \rfloor)$, for at most 12 attempts. Because
+grows by $\max(32, \lfloor w/2 \rfloor)$, for at most as many attempts as the
+refinement limit of the context allows (default 12, `None` for no limit). Because
 rounding is monotone, a returned value is the correctly rounded result
 $\circ(f(x))$, never an uncertified approximation; the
 [design page](../design/binary.md#certified-elementary-functions) gives the
@@ -1777,9 +1776,9 @@ pub fn Binary::try_ln_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @a
 ```
 
 The domain is $x > 0$. $\ln 1 = +0$ exactly; $\ln(\pm 0) = -\infty$ with
-`division_by_zero`; $\ln(+\infty) = +\infty$. A negative finite argument is a
-`domain_error`, while $-\infty$ gives a quiet NaN with `invalid_operation`
-also from `try_ln_ctx`.
+`division_by_zero`; $\ln(+\infty) = +\infty$. A negative argument, finite or
+$-\infty$, is a domain case: a quiet NaN with `invalid_operation`, also from
+`try_ln_ctx`.
 
 ### `Binary::try_exp_directed_pair`, `Binary::try_ln_directed_pair`
 
@@ -1804,7 +1803,7 @@ pub fn Binary::try_log1p_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags),
 
 The domain is $x > -1$. $\operatorname{log1p}(\pm 0) = \pm 0$,
 $\operatorname{log1p}(-1) = -\infty$ with `division_by_zero`, a finite
-$x < -1$ is a `domain_error`, and $-\infty$ gives a quiet NaN with
+$x < -1$ and $-\infty$ are a domain case, a quiet NaN with
 `invalid_operation`.
 
 ### `Binary::log2p1`, `Binary::log2p1_ctx`, `Binary::try_log2p1_ctx`
@@ -1819,8 +1818,8 @@ pub fn Binary::try_log2p1_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags)
 
 The domain is $x \ge -1$ (Table 9.1). $\operatorname{log2p1}(\pm 0) = \pm 0$,
 $\operatorname{log2p1}(+\infty) = +\infty$, $\operatorname{log2p1}(-1) = -\infty$
-with `division_by_zero`, a finite $x < -1$ is a `domain_error`, and $-\infty$
-gives a quiet NaN with `invalid_operation`. $x = 2^k - 1$ (and
+with `division_by_zero`, a finite $x < -1$ and $-\infty$ are a domain case, a
+quiet NaN with `invalid_operation`. $x = 2^k - 1$ (and
 $x = -(1 - 2^{-k})$) gives the exact integer $k$ (and $-k$).
 
 ### `Binary::log10p1`, `Binary::log10p1_ctx`, `Binary::try_log10p1_ctx`
@@ -1889,11 +1888,12 @@ The cases are tried in this order, as in IEEE 754-2019 §9.2.1:
 6. A zero $x$: $(\pm 0)^{y < 0}$ is an infinity with `division_by_zero` and
    $(\pm 0)^{y > 0}$ a zero, negative only for $x = -0$ and an odd integral
    $y$; so $(-0)^{3/4} = +0$.
-7. A negative finite $x$ with a non-integral $y$ is a `domain_error`. With an
+7. A negative finite $x$ with a non-integral $y$ is a domain case, a quiet NaN
+   with `invalid_operation`. With an
    integral $y$ (here $|y| \ge 2^{31}$) the result is $|x|^y$ for an even $y$
    and $-|x|^y$ for an odd one, computed with the directed rounding modes
    swapped.
-8. $y = \pm 2^{-k}$ with $1 \le k \le 29$ is `try_rootn_ctx(x, \pm 2^k)`.
+8. $y = \pm 2^{-k}$ with $1 \le k \le 29$ is `try_rootn_ctx(x, n)` with $n = \pm 2^k$.
 9. A result certainly outside the exponent range is decided from certified
    bounds on $\log_2 x$.
 10. An exactly dyadic result is computed and rounded once. For
@@ -1926,16 +1926,16 @@ pub fn Binary::rootn_ctx(Self, Int, BinaryContext) -> (Self, BinaryFlags)
 pub fn Binary::try_rootn_ctx(Self, Int, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 ```
 
-$n = 0$ is a `domain_error`, an invalid operation, for every $x$, a quiet NaN and $\pm 0$ included (IEEE 754-2019 Table 9.1, "n = 0: invalid operation"); it is not `division_by_zero`, which §7.3 keeps for an exact infinite result on finite operands, here $\operatorname{rootn}(\pm 0, n)$ with $n < 0$. `rootn_ctx` then returns a quiet NaN with `invalid`. Every other `Int` degree is supported, including
+$n = 0$ is a domain case, an invalid operation, for every $x$, a quiet NaN and $\pm 0$ included (IEEE 754-2019 Table 9.1, "n = 0: invalid operation"); it is not `division_by_zero`, which IEEE 754-2019 7.3 keeps for an exact infinite result on finite operands, here $\operatorname{rootn}(\pm 0, n)$ with $n < 0$. `rootn_ctx` then returns a quiet NaN with `invalid_operation`. Every other `Int` degree is supported, including
 `Int.min`; a NaN propagates. A negative $n$ gives $x^{-1/|n|}$.
 
 | $x$ | odd $n > 0$ | even $n > 0$ | odd $n < 0$ | even $n < 0$ |
 | --- | --- | --- | --- | --- |
 | $+\infty$ | $+\infty$ | $+\infty$ | $+0$ | $+0$ |
-| $-\infty$ | $-\infty$ | `domain_error` | $-0$ | `domain_error` |
+| $-\infty$ | $-\infty$ | domain case | $-0$ | domain case |
 | $+0$ | $+0$ | $+0$ | $+\infty$, `division_by_zero` | $+\infty$, `division_by_zero` |
 | $-0$ | $-0$ | $+0$ | $-\infty$, `division_by_zero` | $+\infty$, `division_by_zero` |
-| finite $x < 0$ | $-\vert x\vert^{1/n}$ | `domain_error` | $-\vert x\vert^{1/n}$ | `domain_error` |
+| finite $x < 0$ | $-\vert x\vert^{1/n}$ | domain case | $-\vert x\vert^{1/n}$ | domain case |
 
 So $\operatorname{rootn}(-8, 3) = -2$. $n = 1$ rounds $x$ into the context and
 $n = -1$ is the correctly rounded $1/x$. For any other degree an exact root is
@@ -1960,7 +1960,7 @@ pub fn Binary::try_rsqrt_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags),
 $\operatorname{rSqrt}(\pm 0) = \pm\infty$ with `division_by_zero`, so
 $\operatorname{rSqrt}(-0) = -\infty$ (MPFR's `mpfr_rec_sqrt` returns $+\infty$
 there by its own convention, and the oracle rows follow the standard). A
-negative finite $x$ and $-\infty$ are a `domain_error` (Table 9.1,
+negative finite $x$ and $-\infty$ are a domain case (Table 9.1,
 "$x < 0$: invalid operation"); a signaling NaN is invalid and a quiet NaN
 propagates. A positive finite $x$ is `rootn_ctx(x, -2)`: a power of four
 $4^k$ gives the exact $2^{-k}$ without `inexact`, and an exponent far outside
@@ -1983,7 +1983,7 @@ them:
 | $x$ | $n < 0$ | $n = 0$ | $n > 0$ |
 | --- | --- | --- | --- |
 | quiet NaN | quiet NaN | $1$ | quiet NaN |
-| $-\infty$, finite $x < -1$ | `domain_error` | `domain_error` | `domain_error` |
+| $-\infty$, finite $x < -1$ | domain case | domain case | domain case |
 | $-1$ | $+\infty$, `division_by_zero` | $1$ | $+0$ |
 | $\pm 0$ | $1$ | $1$ | $1$ |
 | $+\infty$ | $+0$ | $1$ | $+\infty$ |
@@ -2007,8 +2007,8 @@ pub fn Binary::powr_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn Binary::try_powr_ctx(Self, Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 ```
 
-The cases are tried in this order, as in §9.2.1; every `domain_error` below is
-a quiet NaN with `invalid_operation` from `powr_ctx`:
+The cases are tried in this order, as in IEEE 754-2019 9.2.1; every domain case below is
+a quiet NaN with `invalid_operation`, from `powr_ctx` and `try_powr_ctx` alike:
 
 1. A signaling NaN operand is invalid; a quiet NaN base gives a quiet NaN.
 2. A negative $x$ ($-\infty$ included, a quiet NaN exponent too) is invalid:
@@ -2062,13 +2062,13 @@ pub fn Binary::sin_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn Binary::try_sin_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 ```
 
-$\sin(\pm 0) = \pm 0$ exactly; an infinite argument is a `domain_error`. The
+$\sin(\pm 0) = \pm 0$ exactly; an infinite argument is a domain case. The
 argument is reduced by an enclosure of $\pi/2$ computed at a working precision
 of at least $p + \max(0, \lfloor\log_2|x|\rfloor + 1) + 96$ bits, so the
 quadrant is certain for every finite input. When that starting precision
-exceeds $10^6$ bits, that is for $|x| \ge 2^{10^6 - p - 96}$, the result is a
+exceeds 8,000,000 bits, that is for $|x| \ge 2^{8{,}000{,}000 - p - 96}$, the result is a
 `certification_failure` with stage `RangeReduction` and reason
-`ResourceLimit`, returned at once; no attempt goes beyond $10^6$ bits.
+`ResourceLimit`, returned at once; no attempt goes beyond 8,000,000 bits.
 
 ### `Binary::cos`, `Binary::cos_ctx`, `Binary::try_cos_ctx`
 
@@ -2109,7 +2109,7 @@ pub fn Binary::try_sinpi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags),
 The period is reduced exactly on the binary representation, so huge
 arguments cost nothing extra. For integral $n$, $\operatorname{sinpi}(n)$ is
 $\pm 0$ with the sign of $n$; at $n + \frac12$ it is $\pm 1$. An infinite
-argument is a `domain_error`. By Niven's theorem these are the only dyadic
+argument is a domain case. By Niven's theorem these are the only dyadic
 arguments with a dyadic result.
 
 ### `Binary::cospi`, `Binary::cospi_ctx`, `Binary::try_cospi_ctx`
@@ -2155,7 +2155,7 @@ pub fn Binary::try_asin_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), 
 ```
 
 The domain is $[-1, 1]$; a finite argument outside it and both infinities are
-a `domain_error`. $\operatorname{asin}(\pm 0) = \pm 0$ and
+a domain case. $\operatorname{asin}(\pm 0) = \pm 0$ and
 $\operatorname{asin}(\pm 1) = \pm\pi/2$ correctly rounded.
 
 ### `Binary::acos`, `Binary::acos_ctx`, `Binary::try_acos_ctx`
@@ -2169,7 +2169,7 @@ pub fn Binary::try_acos_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), 
 ```
 
 The domain is $[-1, 1]$; a finite argument outside it and both infinities are
-a `domain_error`, and a NaN propagates as for `asin`. On $[-1, 1]$ the result
+a domain case, and a NaN propagates as for `asin`. On $[-1, 1]$ the result
 is $\pi/2 - \operatorname{asin}(x)$ evaluated as one enclosure;
 $\operatorname{acos}(1) = +0$ exactly and $\operatorname{acos}(-1) = \pi$
 correctly rounded.
@@ -2227,7 +2227,7 @@ pub fn Binary::try_asinpi_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags)
 ```
 
 The domain is $[-1, 1]$ (Table 9.1): $|x| > 1$ and $\pm\infty$ are a
-`domain_error` (a quiet NaN with `invalid_operation` from `asinpi_ctx`).
+domain case, a quiet NaN with `invalid_operation`.
 $\operatorname{asinPi}(\pm 0) = \pm 0$ with no exception, and
 $\operatorname{asinPi}(\pm 1) = \pm 1/2$ exactly. $\operatorname{asinPi}(\pm 1/2)
 = \pm 1/6$ is rational but not dyadic, so it is rounded and `inexact` like every
@@ -2321,7 +2321,8 @@ pub fn Binary::try_sinh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags), 
 ```
 
 $\sinh(\pm 0) = \pm 0$ and $\sinh(\pm\infty) = \pm\infty$. Certain overflow
-is decided before the loop from $|\sinh x| \ge e^{|x|}/4$.
+is decided before the loop from $|\sinh x| \ge e^{|x|}/4$, which holds for
+$|x| \ge (\ln 2)/2$ (and overflow needs $|x|$ far above that).
 
 ### `Binary::cosh`, `Binary::cosh_ctx`, `Binary::try_cosh_ctx`
 
@@ -2372,7 +2373,7 @@ pub fn Binary::try_acosh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags),
 ```
 
 The domain is $x \ge 1$; any smaller argument, $-\infty$ included, is a
-`domain_error`. $\operatorname{acosh}(1) = +0$ and
+domain case. $\operatorname{acosh}(1) = +0$ and
 $\operatorname{acosh}(+\infty) = +\infty$.
 
 ### `Binary::atanh`, `Binary::atanh_ctx`, `Binary::try_atanh_ctx`
@@ -2386,7 +2387,7 @@ pub fn Binary::try_atanh_ctx(Self, BinaryContext) -> Result[(Self, BinaryFlags),
 ```
 
 The domain is $|x| \le 1$; outside it, infinities included, the result is a
-`domain_error`. $\operatorname{atanh}(\pm 0) = \pm 0$ and
+domain case. $\operatorname{atanh}(\pm 0) = \pm 0$ and
 $\operatorname{atanh}(\pm 1) = \pm\infty$ with `division_by_zero`.
 
 ```moonbit
@@ -2433,15 +2434,16 @@ test "elementary functions are correctly rounded" {
 
 ### `Binary::equal`, `Binary::not_equal`
 
-Structural equality, the derived `Eq`.
+The numerical equality of `compare`, the hand-written `Eq`.
 
 ```mbti
 pub fn Binary::equal(Self, Self) -> Bool
 pub fn Binary::not_equal(Self, Self) -> Bool
 ```
 
-See [`Binary`](#binary): this compares representations, not numbers, so
-`==` distinguishes $\pm 0$ and precisions and identifies equal NaNs.
+See [`Binary`](#binary): `==` and `!=` compare numbers, so `-0 == +0`,
+precisions are ignored and every NaN equals every NaN; `identical` is the
+structural question.
 
 ### `Binary::op_lt`, `Binary::op_le`, `Binary::op_gt`, `Binary::op_ge`
 
