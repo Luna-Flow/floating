@@ -117,15 +117,31 @@ fn binary_scaled_decimal_integer(
       work,
       BinaryRoundingMode::RoundTowardPositive,
     )
+    // 10^|scale| alone can leave the exponent range (the value is then near
+    // the opposite end of it), so the power is applied in two directed halves.
+    let first = scale / 2
+    let second = scale - first
     let (low, high) = if scale >= 0 {
       (
-        low_value.div_ctx(ten.pown_ctx(scale, up).0, down).0,
-        high_value.div_ctx(ten.pown_ctx(scale, down).0, up).0,
+        low_value.div_ctx(ten.pown_ctx(first, up).0, down).0.div_ctx(
+          ten.pown_ctx(second, up).0,
+          down,
+        ).0,
+        high_value.div_ctx(ten.pown_ctx(first, down).0, up).0.div_ctx(
+          ten.pown_ctx(second, down).0,
+          up,
+        ).0,
       )
     } else {
       (
-        low_value.mul_ctx(ten.pown_ctx(-scale, down).0, down).0,
-        high_value.mul_ctx(ten.pown_ctx(-scale, up).0, up).0,
+        low_value.mul_ctx(ten.pown_ctx(-first, down).0, down).0.mul_ctx(
+          ten.pown_ctx(-second, down).0,
+          down,
+        ).0,
+        high_value.mul_ctx(ten.pown_ctx(-first, up).0, up).0.mul_ctx(
+          ten.pown_ctx(-second, up).0,
+          up,
+        ).0,
       )
     }
     let (signed_low, signed_high) = if value.negative() {
