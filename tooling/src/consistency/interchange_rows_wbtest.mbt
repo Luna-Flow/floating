@@ -3,7 +3,7 @@
 // producer: tools/generate_interchange_rows.py with tools/decimal_interchange_oracle.py (the layout of IEEE 754-2019 3.5.2 in
 //   Python, checked against testdata/decimal/ieee/decimal*_dpd.json; rounding to the format by Python integers)
 // input: per format 29 finite values (exact, clamped, largest, smallest, zeros, more digits than the format with the ties and a
-//   carry, overflow, underflow), both signs, quiet and signaling NaN with payloads 0, 12345, 54321, infinities
+//   carry, overflow, underflow), both signs, quiet and signaling NaN with payloads 0, 12345, 54321 and two of the full width of the format (6.2.3), infinities
 // Columns: decimal text, format, expected word, inexact, overflow, underflow.
 // library-ran: no
 
@@ -80,6 +80,14 @@ fn interchange_rows() -> Array[(String, String, String, Bool, Bool, Bool)] {
     ("sNaN54321", "decimal32", "#7E0151A1", false, false, false),
     ("-NaN54321", "decimal32", "#FC0151A1", false, false, false),
     ("-sNaN54321", "decimal32", "#FE0151A1", false, false, false),
+    ("NaN999999", "decimal32", "#7C03FCFF", false, false, false),
+    ("sNaN999999", "decimal32", "#7E03FCFF", false, false, false),
+    ("-NaN999999", "decimal32", "#FC03FCFF", false, false, false),
+    ("-sNaN999999", "decimal32", "#FE03FCFF", false, false, false),
+    ("NaN123456", "decimal32", "#7C028E56", false, false, false),
+    ("sNaN123456", "decimal32", "#7E028E56", false, false, false),
+    ("-NaN123456", "decimal32", "#FC028E56", false, false, false),
+    ("-sNaN123456", "decimal32", "#FE028E56", false, false, false),
     ("Infinity", "decimal32", "#78000000", false, false, false),
     ("-Infinity", "decimal32", "#F8000000", false, false, false),
     ("1E0", "decimal64", "#2238000000000001", false, false, false),
@@ -196,6 +204,30 @@ fn interchange_rows() -> Array[(String, String, String, Bool, Bool, Bool)] {
     ("sNaN54321", "decimal64", "#7E000000000151A1", false, false, false),
     ("-NaN54321", "decimal64", "#FC000000000151A1", false, false, false),
     ("-sNaN54321", "decimal64", "#FE000000000151A1", false, false, false),
+    (
+      "NaN999999999999999", "decimal64", "#7C00FF3FCFF3FCFF", false, false, false,
+    ),
+    (
+      "sNaN999999999999999", "decimal64", "#7E00FF3FCFF3FCFF", false, false, false,
+    ),
+    (
+      "-NaN999999999999999", "decimal64", "#FC00FF3FCFF3FCFF", false, false, false,
+    ),
+    (
+      "-sNaN999999999999999", "decimal64", "#FE00FF3FCFF3FCFF", false, false, false,
+    ),
+    (
+      "NaN123456789012345", "decimal64", "#7C00A395BCF049C5", false, false, false,
+    ),
+    (
+      "sNaN123456789012345", "decimal64", "#7E00A395BCF049C5", false, false, false,
+    ),
+    (
+      "-NaN123456789012345", "decimal64", "#FC00A395BCF049C5", false, false, false,
+    ),
+    (
+      "-sNaN123456789012345", "decimal64", "#FE00A395BCF049C5", false, false, false,
+    ),
     ("Infinity", "decimal64", "#7800000000000000", false, false, false),
     ("-Infinity", "decimal64", "#F800000000000000", false, false, false),
     (
@@ -465,6 +497,38 @@ fn interchange_rows() -> Array[(String, String, String, Bool, Bool, Bool)] {
     (
       "-sNaN54321", "decimal128", "#FE0000000000000000000000000151A1", false, false,
       false,
+    ),
+    (
+      "NaN999999999999999999999999999999999", "decimal128", "#7C000FF3FCFF3FCFF3FCFF3FCFF3FCFF",
+      false, false, false,
+    ),
+    (
+      "sNaN999999999999999999999999999999999", "decimal128", "#7E000FF3FCFF3FCFF3FCFF3FCFF3FCFF",
+      false, false, false,
+    ),
+    (
+      "-NaN999999999999999999999999999999999", "decimal128", "#FC000FF3FCFF3FCFF3FCFF3FCFF3FCFF",
+      false, false, false,
+    ),
+    (
+      "-sNaN999999999999999999999999999999999", "decimal128", "#FE000FF3FCFF3FCFF3FCFF3FCFF3FCFF",
+      false, false, false,
+    ),
+    (
+      "NaN123456789012345678901234567890123", "decimal128", "#7C000A395BCF049C5DE08D4D2E7078A3",
+      false, false, false,
+    ),
+    (
+      "sNaN123456789012345678901234567890123", "decimal128", "#7E000A395BCF049C5DE08D4D2E7078A3",
+      false, false, false,
+    ),
+    (
+      "-NaN123456789012345678901234567890123", "decimal128", "#FC000A395BCF049C5DE08D4D2E7078A3",
+      false, false, false,
+    ),
+    (
+      "-sNaN123456789012345678901234567890123", "decimal128", "#FE000A395BCF049C5DE08D4D2E7078A3",
+      false, false, false,
     ),
     (
       "Infinity", "decimal128", "#78000000000000000000000000000000", false, false,

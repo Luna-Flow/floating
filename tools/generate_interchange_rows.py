@@ -61,7 +61,10 @@ def all_rows() -> list[Row]:
                 rows.append(
                     (text, fmt.name, oracle.hex_word(word, fmt), "inexact" in flags, "overflow" in flags, "underflow" in flags)
                 )
-        for payload in (0, 12345, 54321):
+        width = fmt.precision - 1
+        full = int("9" * width)
+        distinct = int(("1234567890" * 4)[:width])
+        for payload in (0, 12345, 54321, full, distinct):
             for negative in (False, True):
                 for signaling in (False, True):
                     word = oracle.encode_nan(negative, signaling, payload, fmt)
@@ -81,7 +84,7 @@ def render(rows: list[Row]) -> str:
         "// producer: tools/generate_interchange_rows.py with tools/decimal_interchange_oracle.py (the layout of IEEE 754-2019 3.5.2 in",
         "//   Python, checked against testdata/decimal/ieee/decimal*_dpd.json; rounding to the format by Python integers)",
         "// input: per format 29 finite values (exact, clamped, largest, smallest, zeros, more digits than the format with the ties and a",
-        "//   carry, overflow, underflow), both signs, quiet and signaling NaN with payloads 0, 12345, 54321, infinities",
+        "//   carry, overflow, underflow), both signs, quiet and signaling NaN with payloads 0, 12345, 54321 and two of the full width of the format (6.2.3), infinities",
         "// Columns: decimal text, format, expected word, inexact, overflow, underflow.",
         "// library-ran: no",
         "",
