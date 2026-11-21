@@ -539,6 +539,14 @@ notes live in this file.
   | `x == y` (structural) | `x == y` | where the number is meant: `-0 == +0`, precisions ignored, a NaN equal to a NaN |
   | (new) | `BinFloat::identical` | the old `==` |
 
+- `decimal`: the inherent `Decimal::div_checked(x, y)` is removed from the public interface; the `_checked` name now belongs to the trait form only (`DivChecked::div_checked(x, y, ctx)`, [#438](https://github.com/Luna-Flow/floating/issues/438), item S2). The trait form takes the context explicitly, so a precision is never taken from the operands behind the caller's back.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `x.div_checked(y)` | `x.div_checked(y, ArithmeticContext::new(p))` | the trait method; `p` was `max(precision of x, precision of y)` |
+  | `x.div_checked(y)` | `x.div_ctx(y, ctx)` and test the flags | a `DecimalContext` and the flags instead of a `Result` |
+  | `x.div_checked(y)` | `x / y` | an infinity or a NaN instead of `Err`, as the plain operators |
+
 ### Added
 
 - `bin_float`, `decimal`: every comparison predicate of IEEE 754-2019 5.11 has a function ([#438](https://github.com/Luna-Flow/floating/issues/438), item N6). The clause lists 22 predicates, 10 in Table 5.1 and 12 in Table 5.2; `bin_float` had 7 and `decimal` none. Both now have the 15 others, with the names of the first seven (`compare_quiet_*`, `compare_signaling_*`): `not_equal`, `greater`, `greater_equal`, `not_greater`, `less_unordered`, `not_less` and `greater_unordered` for both kinds, and `compare_quiet_ordered`. Each returns `(Bool, flags)`, is defined from `compare_quiet` or `compare_signaling` and raises invalid where the table says (a signaling NaN for the quiet ones, any NaN for the signaling ones). Nothing existing changes in `bin_float`.

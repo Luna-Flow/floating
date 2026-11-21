@@ -864,26 +864,6 @@ fn Decimal::decimal_fma_ctx_impl(
 }
 
 ///|
-pub fn Decimal::div_checked(
-  self : Decimal,
-  other : Decimal,
-) -> Result[Decimal, @def.ArithmeticError] {
-  let ctx = match
-    DecimalContext::try_new(precision=max_precision(self, other)) {
-    Err(error) => return Err(error)
-    Ok(ctx) => ctx
-  }
-  let (value, flags) = self.div_ctx(other, ctx)
-  if flags.division_by_zero {
-    Err(@def.ArithmeticError::division_by_zero("division by zero"))
-  } else if flags.invalid_operation {
-    Err(@def.ArithmeticError::domain_error("invalid decimal division"))
-  } else {
-    Ok(value)
-  }
-}
-
-///|
 pub fn Decimal::div(self : Decimal, other : Decimal) -> Decimal {
   self.decimal_div_ctx_impl(
     other,
