@@ -9,7 +9,8 @@ import run_ci
 class RunCiTests(unittest.TestCase):
     def test_decimal_scope_only_runs_ieee_suite(self) -> None:
         stages = run_ci.stages_for("decimal", 3)
-        self.assertEqual(len(stages), 2)
+        self.assertEqual(len(stages), 3)
+        self.assertIn("tools/decimal_kernel_oracle.py", stages[2].command)
         self.assertIn("tools/conformance.py", stages[1].command)
         backend_index = stages[1].command.index("--backend") + 1
         self.assertEqual(stages[1].command[backend_index], "decimal")
@@ -50,7 +51,7 @@ class RunCiTests(unittest.TestCase):
 
     def test_all_scope_covers_repository_and_three_suites(self) -> None:
         stages = run_ci.stages_for("all", 5)
-        self.assertEqual(len(stages), 32)
+        self.assertEqual(len(stages), 33)
         self.assertEqual(
             [stage.name.split(": ")[0] for stage in stages],
             [
@@ -69,6 +70,7 @@ class RunCiTests(unittest.TestCase):
                 "TEST",
                 "TEST",
                 "TEST",
+                "DECIMAL",
                 "DECIMAL",
                 "DECIMAL_GDA",
                 "DECIMAL_GDA",
