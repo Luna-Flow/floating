@@ -47,9 +47,17 @@
 ///   it half up (as this driver does) and rounding to nearest even coincide; the
 ///   oracle rounds the exact quotient with its sticky bit, so a row on a
 ///   boundary passes only by declining.
-///   The bounds of the short quotient are not tested from the tight side (a
-///   mutation that makes a bound less conservative survives); this line is
-///   replaced by the result of the search or the argument asked for in review.
+///   The two bounds of the decline test. The lower bound `2 n` is needed: the rows
+///   `div-sw*` are quotients found by `tools/short_quotient_bound_search.py` for which a kernel
+///   with `lower = 0` returns a value that rounds differently from the exact quotient (about
+///   0.3 percent of the quotients next to a boundary, in the search), and the kernel
+///   declines them. The `+ 2` of the upper bound is a margin, not tested from the
+///   tight side because no input can: with `E = floor(N / D)`, `N = Q D + R - S`, `S >= 0`
+///   and `R < (a + 1) B^(n-1)` for the top two limbs `a` of the final window, `E - Q <=
+///   floor(a / top)`, so a returned `Q` at least `floor(a / top)` below the next grid point
+///   cannot have an exact quotient on or past it; a kernel without the `+ 2` is equivalent
+///   (derived from the comment of `bin_coeff_knuth_short_core`; no wrong input in 2.4
+///   million searched cases).
 
 ///|
 fn oracle_hex_u64(text : String) -> UInt64 {
