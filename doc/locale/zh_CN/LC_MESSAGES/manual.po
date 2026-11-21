@@ -9606,7 +9606,7 @@ msgstr "`mulRev`、`mulRevToPair`、`sqrRev`、`absRev`、`pownRev`、`coshRev`�
 
 #: manual/conformance/ball_float.md:116
 #: manual/conformance/decimal.md:93
-#: manual/conformance/decimal_gda.md:121
+#: manual/conformance/decimal_gda.md:125
 #: manual/performance/ball_float.md:26
 #: manual/performance/decimal.md:35
 #: manual/performance/decimal_gda.md:35
@@ -10596,34 +10596,34 @@ msgid "A passing corpus is a finite claim. Review of the implementation found th
 msgstr "通过语料只是一个有限的声明。对实现的审查发现了以下行为，它们都没有对应的固定行："
 
 #: manual/conformance/decimal_gda.md:95
-msgid "Integer `power` is accurate to about 0.55 units in the last place (0.6 for negative exponents), not correctly rounded, as the specification allows."
-msgstr "整数 `power` 的精度约为 0.55 个末位单位（负指数时为 0.6），并非正确舍入，这是规范所允许的。"
+msgid "Integer `power` is not correctly rounded, as the specification allows. In the nearest rounding modes the result is within about 0.55 units in the last place of the exact value (0.6 for negative exponents). In the directed modes it is within one unit in the last place of the correctly rounded result, and up to 1.03 units from the exact value (measured on 8,320 random cases in both arithmetics against Python `decimal`; no case at two or more units)."
+msgstr "整数 `power` 并非正确舍入，规范允许这样。在就近舍入模式下，结果与精确值相差约 0.55 个末位单位以内（负指数为 0.6）。在定向舍入模式下，结果与正确舍入的结果相差一个末位单位以内，与精确值最多相差 1.03 个末位单位（在两种算术中对 8,320 个随机用例与 Python `decimal` 比较的实测；没有相差两个或更多单位的用例）。"
 
-#: manual/conformance/decimal_gda.md:97
+#: manual/conformance/decimal_gda.md:101
 msgid "An exponent of `power` with more than nine digits is not computed: the result is NaN with Invalid operation, the limit of the decNumber design (the specification states none). Python `decimal` (libmpdec) and the IEEE `decimal` package compute these powers."
 msgstr "`power` 的指数超过九位时不做计算：结果是带 Invalid operation 的 NaN，这是 decNumber 设计的限制 (规范没有这样的限制)。Python `decimal` (libmpdec) 和 IEEE `decimal` 包会计算这些幂。"
 
-#: manual/conformance/decimal_gda.md:101
+#: manual/conformance/decimal_gda.md:105
 msgid "In the directed rounding modes an inexact `power` can differ from libmpdec in the last digit, because the specification allows an inexact `power` to be up to one unit in the last place from the correctly rounded result and libmpdec is not correctly rounded there either."
 msgstr "在定向舍入模式下，不精确的 `power` 可能在最后一位与 libmpdec 不同，因为规范允许不精确的 `power` 与正确舍入的结果相差至多一个末位单位，而 libmpdec 在这些模式下也不是正确舍入。"
 
-#: manual/conformance/decimal_gda.md:105
+#: manual/conformance/decimal_gda.md:109
 msgid "`power` of a zero base and a negative exponent is an infinity with no condition raised, as in libmpdec: the Division by zero condition of the specification applies when \"the dividend was not zero\". The IEEE `decimal` package signals divideByZero for it (IEEE 754-2019 §9.2.1)."
 msgstr "零底数和负指数的 `power` 是无穷，不引发任何条件，与 libmpdec 相同：规范的 Division by zero 条件适用于“被除数不为零”的情形。IEEE `decimal` 包对此引发 divideByZero (IEEE 754-2019 §9.2.1)。"
 
-#: manual/conformance/decimal_gda.md:110
+#: manual/conformance/decimal_gda.md:114
 msgid "Isolation and native benchmark"
 msgstr "隔离与原生基准测试"
 
-#: manual/conformance/decimal_gda.md:112
+#: manual/conformance/decimal_gda.md:116
 msgid "Production dependency scans require `decimal_gda`, `decimal_gda_checked`, and `frontend/gda_expr` to contain no IEEE `decimal` import or GDA profile bridge. IEEE tests and its independent conformance corpus are run separately."
 msgstr "生产依赖扫描要求 `decimal_gda`、`decimal_gda_checked` 与 `frontend/gda_expr` 不包含 IEEE `decimal` import 或 GDA profile bridge。IEEE 测试和独立一致性语料单独运行。"
 
-#: manual/conformance/decimal_gda.md:116
+#: manual/conformance/decimal_gda.md:120
 msgid "The quick benchmark builds only the current engine in an isolated snapshot and runs three native samples per cell. It reports arithmetic, parser, context, and elementary timing observations without treating performance as a conformance requirement or comparing against a historical adapter."
 msgstr "快速 benchmark 只在隔离快照中构建当前引擎，每个 cell 运行 3 个 native sample。它报告算术、parser、context 与 elementary 的耗时观察值，不把性能作为 conformance 要求，也不与历史 adapter 比较。"
 
-#: manual/conformance/decimal_gda.md:130
+#: manual/conformance/decimal_gda.md:134
 msgid "See [the decimal_gda data guide](../../../testdata/decimal_gda/README.md) for manifests, filters, phases, JSON output, and failure triage."
 msgstr "manifest、过滤、phase、JSON 输出和失败排查见[decimal_gda 数据指南](../../../testdata/decimal_gda/README.md)。"
 
@@ -11133,7 +11133,9 @@ msgstr "*断言：* $[c - r, c + r] \\subseteq [\\tilde c - R, \\tilde c + R]$�
 msgid ""
 "The endpoints $\\tilde c \\pm R$ are then formed exactly (they may have more than $p$ bits). The construction is sound but not idempotent: whenever $\\tilde c \\n"
 "e c$, the displacement $|c - \\tilde c|$ is added on both sides, so rebuilding an interval whose center needs more than $p$ bits widens it (see [Tightness](#correctness-and-invariants)). `normalized` accepts that; `with_precision` does not use the construction at all. It rounds the endpoints outward directly, which encloses the input at every precision and is the tightest representable enclosure, so it has no rounding-mode argument. The converse view inside the package is exact: the center is $(\\underline{x} + \\overline{x})/2$ and the half-width $(\\overline{x} - \\underline{x})/2$, which are dyadic and need no rounding (the half-width is rounded up only if it underflows the exponent range), so $[\\text{center} - \\text{half-width}, \\text{center} + \\text{half-width}]$ is exactly the stored interval. `to_ball_string` prints this pair (`Show` is the inf-sup literal of 13.3). The public observers are not this pair: IEEE 1788-2015 12.12.8 defines `mid` as the center rounded to the format and `rad` as the smallest number of the format with the interval inside $[m - r, m + r]$ for that rounded $m$. The half-width around the exact center is too small when the center is not representable (it was returned as `radius` before 0.12, [issue 477](https://github.com/Luna-Flow/floating/issues/477)), so `radius` measures from `midpoint`: it is the larger of $m - \\underline{x}$ and $\\overline{x} - m$, rounded up."
-msgstr "随后精确地构成端点 $\\tilde c \\pm R$（它们可能多于 $p$ 位）。该构造是可靠的，但不是幂等的：只要 $\\tilde c \\ne c$，位移 $|c - \\tilde c|$ 就会被加到两侧，因此重建一个中心需要多于 $p$ 位的区间会使其变宽（参见[紧致性](#correctness-and-invariants)）。`normalized` 接受这一点；`with_precision` 则完全不使用该构造。它直接把端点向外取整，这在任何精度下都包含输入，并且是可表示的最紧包络，因此它没有舍入模式参数。包内的反向视图是精确的：中心为 $(\\underline{x} + \\overline{x})/2$，半宽为 $(\\overline{x} - \\underline{x})/2$，它们都是二进有理数，无需舍入（半宽仅在低于指数范围下溢时才向上舍入），因此 $[\\text{center} - \\text{half-width}, \\text{center} + \\text{half-width}]$ 恰好就是所存储的区间。`to_ball_string` 打印的正是这一对值（`Show` 是 13.3 的 inf-sup 字面量）。公开的观测量并不是这一对：IEEE 1788-2015 12.12.8 把 `mid` 定义为舍入到该格式的中心，把 `rad` 定义为满足区间位于 $[m - r, m + r]$（$m$ 为该舍入后的值）的该格式下最小的数。当中心不可表示时，精确中心处的半宽过小（0.12 之前它被作为 `radius` 返回，[issue 477](https://github.com/Luna-Flow/floating/issues/477)），所以 `radius` 从 `midpoint` 量起：它是 $m - \\underline{x}$ 与 $\\overline{x} - m$ 中较大者，向上舍入。"
+msgstr ""
+"随后精确地构成端点 $\\tilde c \\pm R$（它们可能多于 $p$ 位）。该构造是可靠的，但不是幂等的：只要 $\\tilde c \\n"
+"e c$，位移 $|c - \\tilde c|$ 就会被加到两侧，因此重建一个中心需要多于 $p$ 位的区间会使其变宽（参见[紧致性](#correctness-and-invariants)）。`normalized` 接受这一点；`with_precision` 则完全不使用该构造。它直接把端点向外取整，这在任何精度下都包含输入，并且是可表示的最紧包络，因此它没有舍入模式参数。包内的反向视图是精确的：中心为 $(\\underline{x} + \\overline{x})/2$，半宽为 $(\\overline{x} - \\underline{x})/2$，它们都是二进有理数，无需舍入（半宽仅在低于指数范围下溢时才向上舍入），因此 $[\\text{center} - \\text{half-width}, \\text{center} + \\text{half-width}]$ 恰好就是所存储的区间。`to_ball_string` 打印的正是这一对值（`Show` 是 13.3 的 inf-sup 字面量）。公开的观测量并不是这一对：IEEE 1788-2015 12.12.8 把 `mid` 定义为舍入到该格式的中心，把 `rad` 定义为满足区间位于 $[m - r, m + r]$（$m$ 为该舍入后的值）的该格式下最小的数。当中心不可表示时，精确中心处的半宽过小（0.12 之前它被作为 `radius` 返回，[issue 477](https://github.com/Luna-Flow/floating/issues/477)），所以 `radius` 从 `midpoint` 量起：它是 $m - \\underline{x}$ 与 $\\overline{x} - m$ 中较大者，向上舍入。"
 
 #: manual/design/ball_float.md:283
 msgid "The dependency problem"
@@ -29088,6 +29090,9 @@ msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 #: manual/verification.md:758
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "Integer `power` is accurate to about 0.55 units in the last place (0.6 for negative exponents), not correctly rounded, as the specification allows."
+#~ msgstr "整数 `power` 的精度约为 0.55 个末位单位（负指数时为 0.6），并非正确舍入，这是规范所允许的。"
 
 #~ msgid "`Show` writes an interval in an exact text form."
 #~ msgstr "`Show` 以精确的文本形式输出区间。"
