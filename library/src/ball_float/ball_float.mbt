@@ -2102,6 +2102,92 @@ pub fn BallFloat::convex_hull(self : BallFloat, other : BallFloat) -> BallFloat 
 }
 
 ///|
+/// `a + b` made exactly, with no surrogate for a far addend: a term of an exact
+/// sign test is never replaced.
+fn exact_add_full(
+  a : @bin_float.BinFloat,
+  b : @bin_float.BinFloat,
+) -> @bin_float.BinFloat {
+  if a.is_zero() {
+    return b
+  }
+  if b.is_zero() {
+    return a
+  }
+  let target = Int32::min(a.exponent2(), b.exponent2())
+  let left = coeff_shift_left(a.coefficient(), a.exponent2() - target)
+  let right = coeff_shift_left(b.coefficient(), b.exponent2() - target)
+  if a.is_negative() == b.is_negative() {
+    exact_make(
+      coeff_add(left, right),
+      target,
+      negative=a.is_negative(),
+      exact_range=true,
+    )
+  } else {
+    let comparison = left.compare(right)
+    if comparison == 0 {
+      @bin_float.BinFloat::zero(precision=1)
+    } else if comparison > 0 {
+      exact_make(
+        coeff_sub(left, right),
+        target,
+        negative=a.is_negative(),
+        exact_range=true,
+      )
+    } else {
+      exact_make(
+        coeff_sub(right, left),
+        target,
+        negative=b.is_negative(),
+        exact_range=true,
+      )
+    }
+  }
+}
+
+///|
+/// Whether `x1 - x2 - y1 + y2 >= 0`, the sum of four finite values taken
+/// exactly: `width(y) <= width(x)` for `x = [x2, x1]` and `y = [y2, y1]`, the
+/// condition under which `cancelMinus(x, y)` and `cancelPlus(x, y)` have a Level
+/// 1 value (IEEE 1788-2015 10.5.6, 12.12.5). The terms are added from the
+/// largest leading bit down; once the partial sum is not zero and every term to
+/// come has its leading bit more than 2 places below the lowest bit of the sum,
+/// the sign of the sum is the sign of the whole (a term billions of places away
+/// is never aligned).
+fn width_not_less(
+  x1 : @bin_float.BinFloat,
+  x2 : @bin_float.BinFloat,
+  y1 : @bin_float.BinFloat,
+  y2 : @bin_float.BinFloat,
+) -> Bool {
+  let terms : Array[@bin_float.BinFloat] = []
+  for t in [x1, x2.neg(), y1.neg(), y2] {
+    if !t.is_zero() {
+      terms.push(t)
+    }
+  }
+  // insertion sort by leading bit, largest first
+  for i in 1..<terms.length() {
+    let mut j = i
+    while j > 0 && exponent_top(terms[j - 1]) < exponent_top(terms[j]) {
+      let t = terms[j]
+      terms[j] = terms[j - 1]
+      terms[j - 1] = t
+      j -= 1
+    }
+  }
+  let mut acc = @bin_float.BinFloat::zero(precision=1)
+  for t in terms {
+    if !acc.is_zero() && exponent_top(t) + 3L < acc.exponent2().to_int64() {
+      return !acc.is_negative()
+    }
+    acc = exact_add_full(acc, t)
+  }
+  acc.is_zero() || !acc.is_negative()
+}
+
+///|
 /// `cancelMinus` and `cancelPlus` of IEEE 1788-2015 (9.2, 10.5.6, 12.12.5): for
 /// nonempty bounded `x = [x1, x2]` and `y = [y1, y2]` the Level 1 value of
 /// `cancelMinus(x, y)` is defined "if and only if the width of x is not less
@@ -2111,20 +2197,23 @@ pub fn BallFloat::convex_hull(self : BallFloat, other : BallFloat) -> BallFloat 
 /// otherwise. It shall return Empty if the Level 1 value is Empty": Entire when
 /// either operand is unbounded, when `x` is nonempty and `y` empty, and when
 /// `width(x) < width(y)`; Empty when `x` is empty and `y` bounded. The decision
-/// `width(x) < width(y)` is `lower > upper` of the two exact end values (equal
-/// widths give a point, not Entire), so it is made on the exact end values
-/// (`exact_range`: nothing is rounded below the normal range; the far-addend
-/// surrogate of `exact_add` applies beyond a gap of 65,536 bits plus the
-/// precision) and the ends are rounded outward once at the precision.
+/// `width(x) < width(y)` is the exact sign of `(x2 - x1) - (y2 - y1)`
+/// (`width_not_less`: no rounding and no surrogate of a far addend), so equal
+/// widths give a point and a width smaller by less than a unit of the end
+/// values is Entire; the ends are the end values rounded outward once at the
+/// precision (`exact_range`: nothing is rounded below the normal range; the
+/// far-addend surrogate of `exact_add` only widens them).
 fn cancel_result(
+  x : BallFloat,
+  y : BallFloat,
   lo : @bin_float.BinFloat,
   hi : @bin_float.BinFloat,
   precision : Int32,
 ) -> BallFloat {
-  if lo.compare(hi) > 0 {
-    whole_real(precision)
-  } else {
+  if width_not_less(x.hi_, x.lo_, y.hi_, y.lo_) {
     quantize_interval(lo, hi, precision)
+  } else {
+    whole_real(precision)
   }
 }
 
@@ -2155,7 +2244,7 @@ pub fn BallFloat::cancel_plus(self : BallFloat, other : BallFloat) -> BallFloat 
     mode=BinaryRoundingMode::RoundTowardPositive,
     exact_range=true,
   )
-  cancel_result(lo, hi, precision)
+  cancel_result(self, other, lo, hi, precision)
 }
 
 ///|
@@ -2188,7 +2277,7 @@ pub fn BallFloat::cancel_minus(
     mode=BinaryRoundingMode::RoundTowardPositive,
     exact_range=true,
   )
-  cancel_result(lo, hi, precision)
+  cancel_result(self, other, lo, hi, precision)
 }
 
 ///|
