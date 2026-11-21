@@ -173,12 +173,16 @@ It is evidence about speed, not a conformance gate, and is not part of `just pr`
 
 `python3 tools/ball_diff.py run` checks `BallFloat` against MPFR with no timing.
 A seeded generator writes rows of operand intervals for `add`, `sub`, `mul`,
-`div`, `sqr`, `sqrt` and `fma`; `tools/ball_mpfr_oracle.c` computes the tightest
+`div`, `sqr`, `sqrt`, `fma`, `exp` and `ln`; `tools/ball_mpfr_oracle.c` computes the tightest
 result of every row with MPFR directly (one directed rounding per bound, in the
 exponent range and with the gradual underflow of `bin_float`, defined once in
 `tools/mpfr_ours.h`); the test of `tooling/src/differential/ball_mpfr` runs the
 rows on `BallFloat` and compares both bounds as canonical text. IEEE 1788-2015
-12.10.2 makes these operations tightest, so the bounds must be equal. The
+12.10.2 makes the first seven operations tightest, so the bounds must be equal;
+`exp` and `ln` are only required to be valid, so their result must enclose the
+tightest one and must not be wider than 1,024 units of the last place (the
+standard says "should be accurate"), with `exp` rows at the overflow and
+underflow thresholds and `ln` rows at the ends of the range. The
 classes of operands are ordinary values, results one unit from the overflow
 threshold on both sides, results and operands in the subnormal band, operands
 whose exponents differ by far more than the precision, operands with fewer bits

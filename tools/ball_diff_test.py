@@ -34,12 +34,46 @@ class ValueTests(unittest.TestCase):
         self.assertEqual(bd.one_ulp_up(bd.value(0b1111, 0), 4), bd.value(0b1000, 1))  # a carry into a new binade
         self.assertEqual(bd.one_ulp_up(bd.value(0b11, 0), 4), bd.value(0b100, 0))  # fewer bits than p: one unit of its last bit
 
+    def test_nothing_above_the_largest_finite_value(self) -> None:
+        top = bd.max_finite(4)
+        self.assertEqual(bd.one_ulp_up(top, 4), top)
+        self.assertEqual(bd.step(top, 1, 4), top)
+        self.assertEqual(bd.step(top, -1, 4), bd.value(14, bd.EMAX + 1 - 4))
+        self.assertEqual(bd.step(bd.value(5, 0, negative=True), 2, 4), bd.value(3, 0, negative=True))
+
     def test_max_finite_and_quantum(self) -> None:
         self.assertEqual(bd.max_finite(4), bd.value(15, bd.EMAX + 1 - 4))
         self.assertEqual(bd.quantum(53), bd.EMIN - 52)
 
     def test_round_shift_ties_to_even(self) -> None:
         self.assertEqual([bd.round_shift(x, 2) for x in (4, 5, 6, 7, 10, 14)], [1, 1, 2, 2, 2, 4])
+
+
+class Ln2Tests(unittest.TestCase):
+    """Oracle: level A (ln 2 = 0.B17217F7D1CF79ABC9E3B398... in hexadecimal, and 2^30 ln 2 = 744261117.95...)."""
+
+    def test_the_digits(self) -> None:
+        self.assertEqual(bd.LN2 >> (bd.LN2_BITS - 64), 0xB17217F7D1CF79AB)
+
+    def test_the_overflow_threshold_of_exp(self) -> None:
+        threshold = bd.times_ln2(bd.EMAX + 1, 53)  # (2^30) ln 2
+        self.assertEqual(threshold.mantissa.bit_length(), 53)
+        from decimal import Decimal, getcontext
+
+        getcontext().prec = 40
+        # ln 2 = 0.693147180559945309417232121458176568... (a published constant), times 2^30
+        exact = Decimal("0.693147180559945309417232121458176568") * Decimal(2**30)
+        approx = Decimal(threshold.mantissa) / Decimal(1 << -threshold.exponent)
+        self.assertLess(abs(approx - exact), Decimal("1e-6"))  # 53 bits of a number of 30 bits: 2^-23 resolution
+        self.assertEqual(bd.times_ln2(-3, 8), bd.times_ln2(3, 8).neg())
+
+    def test_the_threshold_rows_straddle_it(self) -> None:
+        rows = bd.generate_rows(per_cell=28, classes=["XOV"], precisions=[53])
+        centre = bd.times_ln2(bd.EMAX + 1, 53)
+        below = [r for r in rows if r.size == 53 and bd.compare(r.operands[0][1], centre) < 0]
+        above = [r for r in rows if r.size == 53 and bd.compare(r.operands[0][0], centre) > 0]
+        self.assertTrue(below and above)  # arguments on both sides of the threshold (to the precision)
+        self.assertEqual({r.size for r in bd.generate_rows(per_cell=1, classes=["XOV"], precisions=[53])}, {53, 117, 146, 175, 292})
 
 
 class PartnerTests(unittest.TestCase):
@@ -154,7 +188,7 @@ class RowTests(unittest.TestCase):
         second = bd.generate_rows(per_cell=6)
         self.assertEqual([r.line() for r in first], [r.line() for r in second])
         self.assertEqual(len({r.id for r in first}), len(first))
-        applicable = sum(len(ops) * len(bd.PRECISIONS) * 6 for ops, _ in bd.CLASSES.values())
+        applicable = sum(len(ops) * len(bd.PRECISIONS) * 6 for ops, _ in bd.CLASSES.values()) + len(bd.CLASS_PRECISIONS["XOV"]) * 6
         self.assertEqual(len(first), applicable)
         for row in first:
             self.assertEqual(len(row.operands), bd.ARITY[row.op])
