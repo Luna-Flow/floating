@@ -191,8 +191,18 @@ test "away from the bottom of the range fma is unchanged" {
       high = bin_max(high, c)
     }
     let old = quantize_interval(
-      exact_add(low, zl, mode=BinaryRoundingMode::RoundTowardNegative),
-      exact_add(high, zh, mode=BinaryRoundingMode::RoundTowardPositive),
+      exact_add(
+        min_bits=1,
+        low,
+        zl,
+        mode=BinaryRoundingMode::RoundTowardNegative,
+      ),
+      exact_add(
+        min_bits=1,
+        high,
+        zh,
+        mode=BinaryRoundingMode::RoundTowardPositive,
+      ),
       53,
     )
     let result = x.fma(y, z)

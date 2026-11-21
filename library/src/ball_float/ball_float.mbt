@@ -240,7 +240,7 @@ fn exact_add(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
   mode~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
-  min_bits~ : Int32 = 1,
+  min_bits~ : Int32,
   exact_range~ : Bool = false,
 ) -> @bin_float.BinFloat {
   if a.is_zero() {
@@ -299,7 +299,7 @@ fn exact_sub(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
   mode~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
-  min_bits~ : Int32 = 1,
+  min_bits~ : Int32,
   exact_range~ : Bool = false,
 ) -> @bin_float.BinFloat {
   exact_add(a, b.neg(), mode~, min_bits~, exact_range~)
@@ -594,7 +594,7 @@ fn quantize_interval(
 }
 
 ///|
-fn interval_center(x : BallFloat) -> @bin_float.BinFloat {
+fn interval_center(x : BallFloat, bits : Int32) -> @bin_float.BinFloat {
   guard !x.is_empty() else {
     abort("ball center is undefined for an empty interval")
   }
@@ -602,9 +602,10 @@ fn interval_center(x : BallFloat) -> @bin_float.BinFloat {
     abort("ball center is undefined for unbounded intervals")
   }
   // exact: the sum and its half are made wide enough that nothing is rounded
-  // below the normal range; `midpoint_ctx` rounds the result once
+  // below the normal range; the caller rounds the result once, to `bits` bits at
+  // most (the far-addend stand-in of the sum lies under those bits)
   exact_half(
-    exact_add(x.lo_, x.hi_, min_bits=x.precision_, exact_range=true),
+    exact_add(x.lo_, x.hi_, min_bits=bits, exact_range=true),
     exact_range=true,
   )
 }
@@ -1508,7 +1509,7 @@ fn BallFloat::contains_zero(self : BallFloat) -> Bool {
 /// The exact midpoint, the center of the ball view; aborts on an empty or
 /// unbounded interval. Public observers use `midpoint` and `radius`.
 fn BallFloat::center(self : BallFloat) -> @bin_float.BinFloat {
-  interval_center(self)
+  interval_center(self, self.precision_)
 }
 
 ///|

@@ -256,7 +256,8 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
             ),
             # The long runs of the reverse trigonometric reference test (4,200
             # cases, about 40 s) and of the pow_rev1 and pow_rev2 reference tests (2,100
-            # cases each) and of the atan2 reverse reference test (3,000 cases): marked `#skip` so a plain `moon test` runs only its sample,
+            # cases each) and of the atan2 reverse reference test (3,000 cases) and the long sweep of the
+            # `midpoint_ctx` margin test (about 10 s): marked `#skip` so a plain `moon test` runs only its sample,
             # and run here with `--include-skipped`.
             Stage(
                 "INTERVAL: reverse trigonometric reference",
@@ -268,6 +269,7 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                     "library/src/ball_float/pow_reverse_reference_wbtest.mbt",
                     "library/src/ball_float/pow_reverse2_reference_wbtest.mbt",
                     "library/src/ball_float/atan2_reverse_reference_wbtest.mbt",
+                    "library/src/ball_float/midpoint_margin_wbtest.mbt",
                     "--include-skipped",
                     "--target",
                     "native",

@@ -167,11 +167,13 @@ test "away from the bottom of the range the result is the same as before" {
     let y = cn_ball(b, b + d + delta, exponent, 53)
     // the old formula: exact ends made at their own bit length, decision, ends
     let old_lo = exact_sub(
+      min_bits=1,
       x.lower_bound(),
       y.lower_bound(),
       mode=BinaryRoundingMode::RoundTowardNegative,
     )
     let old_hi = exact_sub(
+      min_bits=1,
       x.upper_bound(),
       y.upper_bound(),
       mode=BinaryRoundingMode::RoundTowardPositive,

@@ -89,7 +89,12 @@ test "the midpoint of intervals at the bottom of the range is not zero" {
   )
   inspect(m.to_string(), content="1p-1073741881")
   inspect(flags.inexact(), content="false")
-  assert_eq(interval_center(ball).compare(mid_value(1UL, e_min - 59, 200)), 0)
+  assert_eq(
+    interval_center(ball, ball.precision()).compare(
+      mid_value(1UL, e_min - 59, 200),
+    ),
+    0,
+  )
 }
 
 ///|
@@ -128,8 +133,8 @@ test "far from the edges the center is the same as before" {
     let (lo, hi) = if a.compare(b) <= 0 { (a, b) } else { (b, a) }
     let ball = BallFloat::from_bounds(lo, hi, precision=53)
     assert_eq(
-      interval_center(ball),
-      exact_half(exact_add(ball.lower_bound(), ball.upper_bound())),
+      interval_center(ball, ball.precision()),
+      exact_half(exact_add(min_bits=1, ball.lower_bound(), ball.upper_bound())),
     )
     assert_eq(
       ball.midpoint(),
@@ -148,7 +153,10 @@ test "a zero endpoint with the smallest stored value" {
   let ball = BallFloat::from_bounds(zero, smallest, precision=53)
   assert_true(ball.midpoint().is_zero())
   assert_true(ball.is_member(ball.midpoint()))
-  inspect(interval_center(ball).to_string(), content="1p-1073741875")
+  inspect(
+    interval_center(ball, ball.precision()).to_string(),
+    content="1p-1073741875",
+  )
   // three times the smallest: 1.5 * smallest, a tie between 1 and 2 times it,
   // the even one is 2 * smallest = 1p-1073741873
   let ball = BallFloat::from_bounds(
@@ -176,7 +184,7 @@ test "the exact center datum equals lo + hi and its half" {
     let y = (mid_next(state) % (1UL << bits_y)) | 1UL
     let a = mid_value(x, e_min - 60 + (mid_next(state) % 70UL).to_int(), 200)
     let b = mid_value(y, e_min - 60 + (mid_next(state) % 70UL).to_int(), 200)
-    let sum = exact_add(a, b, exact_range=true)
+    let sum = exact_add(min_bits=1, a, b, exact_range=true)
     let reference = a.add_ctx(b, wide).0
     assert_eq(sum.compare(reference), 0)
     let halved = exact_half(sum, exact_range=true)
