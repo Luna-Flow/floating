@@ -164,11 +164,10 @@ fn Decimal::pi_asin_like(
   ctx : DecimalContext,
   acos : Bool,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
-  if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
-    return Err(
-      decimal_context_limit(if acos { "acospi" } else { "asinpi" }, ctx),
-    )
-  }
+  // Special operands and exact points are answered in every context (IEEE
+  // 754-2019 9.2.1); the limit is tested before the first computation.
+  let limited = math_context_is_restricted(ctx) ||
+    decimal_math_operand_out_of_range(self)
   if self.class == FpClass::NaN {
     return Ok(quiet_nan_operand(self, ctx))
   }
@@ -181,23 +180,27 @@ fn Decimal::pi_asin_like(
   if comparison > 0 {
     return Ok(decimal_elementary_invalid(ctx))
   }
-  if self.coefficient.is_zero() {
-    return Ok(
-      if acos {
-        decimal_pi_constant(false, 5, -1, ctx)
-      } else {
-        decimal_elementary_zero(self.negative, ctx)
-      },
+  // 9.2.1 lists asinPi(+-0) = +-0 and acosPi(1) = +0; the other exact points
+  // (acosPi(0), acosPi(-1), asinPi(+-1)) are exact results of ordinary
+  // operands and follow the limit.
+  if self.coefficient.is_zero() && !acos {
+    return Ok(decimal_elementary_zero(self.negative, ctx))
+  }
+  if acos && comparison == 0 && !self.negative {
+    return Ok(decimal_elementary_zero(false, ctx))
+  }
+  if limited {
+    return Err(
+      decimal_context_limit(if acos { "acospi" } else { "asinpi" }, ctx),
     )
+  }
+  if self.coefficient.is_zero() {
+    return Ok(decimal_pi_constant(false, 5, -1, ctx))
   }
   if comparison == 0 {
     return Ok(
       if acos {
-        if self.negative {
-          decimal_pi_constant(false, 1, 0, ctx)
-        } else {
-          decimal_elementary_zero(false, ctx)
-        }
+        decimal_pi_constant(false, 1, 0, ctx)
       } else {
         decimal_pi_constant(self.negative, 5, -1, ctx)
       },
@@ -285,9 +288,8 @@ pub fn Decimal::try_atanpi_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
-  if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
-    return Err(decimal_context_limit("atanpi", ctx))
-  }
+  let limited = math_context_is_restricted(ctx) ||
+    decimal_math_operand_out_of_range(self)
   if self.class == FpClass::NaN {
     return Ok(quiet_nan_operand(self, ctx))
   }
@@ -298,7 +300,11 @@ pub fn Decimal::try_atanpi_ctx(
   if self.coefficient.is_zero() {
     return Ok(decimal_elementary_zero(self.negative, ctx))
   }
-  // atanPi(+-1) = +-1/4.
+  if limited {
+    return Err(decimal_context_limit("atanpi", ctx))
+  }
+  // atanPi(+-1) = +-1/4: an exact result of an ordinary operand, not listed
+  // in 9.2.1, so it follows the limit.
   if decimal_pi_is_unit(self) {
     return Ok(decimal_pi_constant(self.negative, 25, -2, ctx))
   }
@@ -348,11 +354,9 @@ pub fn Decimal::try_atan2pi_ctx(
   abscissa : Decimal,
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
-  if math_context_is_restricted(ctx) ||
+  let limited = math_context_is_restricted(ctx) ||
     decimal_math_operand_out_of_range(self) ||
-    decimal_math_operand_out_of_range(abscissa) {
-    return Err(decimal_context_limit("atan2pi", ctx))
-  }
+    decimal_math_operand_out_of_range(abscissa)
   match quiet_nan_pair(self, abscissa, ctx) {
     Some(result) => return Ok(result)
     None => ()
@@ -398,6 +402,9 @@ pub fn Decimal::try_atan2pi_ctx(
         decimal_elementary_zero(negative, ctx)
       },
     )
+  }
+  if limited {
+    return Err(decimal_context_limit("atan2pi", ctx))
   }
   // Finite nonzero operands: |y| = |x| is the only exact angle.
   let magnitude_y = { ..self, negative: false, }

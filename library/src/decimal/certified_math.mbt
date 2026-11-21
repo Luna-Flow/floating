@@ -1,21 +1,44 @@
 ///|
-fn decimal_certified_work_precision(
-  value : Decimal,
-  ctx : DecimalContext,
-) -> Int32 {
+/// The first working precision of the certified loop, in bits, formed in 64
+/// bits (`need` digits are `need * log2 10 < 3.321929 need` bits plus 31 guard
+/// bits, at least 64). In `Int32` the product wrapped for more than about 646
+/// million digits and the work precision came out as 64.
+fn decimal_certified_work_bits(value : Decimal, ctx : DecimalContext) -> Int64 {
   let digits = if value.class == FpClass::Finite {
     value.coefficient.digits10()
   } else {
     1
   }
-  let target = decimal_math_target_precision(ctx)
-  let need = Int32::max(digits, target)
-  // `need` decimal digits are `need log2 10 < 3.3219281 need` bits; 31 bits of
-  // guard cover the loss of one evaluation. The schedule grows the precision by
-  // a factor of 1.5 when an enclosure does not decide, so a start that is too low
-  // costs an attempt, not a result: the results are those of correct rounding at
-  // any starting precision.
-  Int32::max(64, (need.to_int64() * 3_321_929L / 1_000_000L).to_int() + 31)
+  let need = Int32::max(digits, decimal_math_target_precision(ctx))
+  Int64::max(64L, need.to_int64() * 3_321_929L / 1_000_000L + 31L)
+}
+
+///|
+/// The one place that refuses a certified evaluation whose first working
+/// precision exceeds what a binary format holds (`binary_precision_max`
+/// bits, bin_float/context.mbt:43; about 80.8 million decimal digits): the
+/// context-limit error, at once and before any refinement. Every certified
+/// loop calls it with its first working precision.
+fn decimal_certified_work_refusal(
+  initial_bits : Int64,
+  operation : String,
+  ctx : DecimalContext,
+) -> @def.ArithmeticError? {
+  if initial_bits > @bin_float.binary_precision_max.to_int64() {
+    Some(decimal_context_limit(operation, ctx))
+  } else {
+    None
+  }
+}
+
+///|
+/// `decimal_certified_work_bits` as an `Int32`, saturated (never wrapped); the
+/// loops refuse a precision above `binary_precision_max` before they use it.
+fn decimal_certified_work_precision(
+  value : Decimal,
+  ctx : DecimalContext,
+) -> Int32 {
+  Int64::min(decimal_certified_work_bits(value, ctx), 2_147_483_647L).to_int()
 }
 
 ///|
@@ -396,8 +419,12 @@ fn decimal_certified_unary_result(
   extra_bits~ : Int32 = 0,
   exact_evaluate~ : ((Int32) -> Result[@interval.Interval, @def.ArithmeticError])? = None,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
+  let initial = decimal_certified_work_bits(value, ctx) + extra_bits.to_int64()
+  if decimal_certified_work_refusal(initial, operation, ctx) is Some(error) {
+    return Err(error)
+  }
   let mut budget = CertifiedRefinementBudget::new(
-    decimal_certified_work_precision(value, ctx) + extra_bits,
+    initial.to_int(),
     limit=ctx.refinement_limit,
   )
   while budget.available() {
@@ -434,12 +461,16 @@ fn decimal_certified_binary_result(
   ],
   guard_bits~ : Int32 = 0,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
-  let mut budget = CertifiedRefinementBudget::new(
-    Int32::max(
-      decimal_certified_work_precision(left, ctx),
-      decimal_certified_work_precision(right, ctx),
+  let initial = Int64::max(
+      decimal_certified_work_bits(left, ctx),
+      decimal_certified_work_bits(right, ctx),
     ) +
-    guard_bits,
+    guard_bits.to_int64()
+  if decimal_certified_work_refusal(initial, operation, ctx) is Some(error) {
+    return Err(error)
+  }
+  let mut budget = CertifiedRefinementBudget::new(
+    initial.to_int(),
     limit=ctx.refinement_limit,
   )
   while budget.available() {

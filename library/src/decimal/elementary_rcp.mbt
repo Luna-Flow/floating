@@ -48,6 +48,10 @@ fn decimal_certified_scaled_loop(
   operation : String,
   evaluate : (Int32) -> Result[@interval.Interval, @def.ArithmeticError],
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
+  if decimal_certified_work_refusal(initial.to_int64(), operation, ctx)
+    is Some(error) {
+    return Err(error)
+  }
   let wide = decimal_rcp_wide_ctx()
   let target_ctx = decimal_math_result_ctx(ctx)
   let mut budget = CertifiedRefinementBudget::new(
@@ -174,9 +178,8 @@ pub fn Decimal::try_rsqrt_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
-  if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
-    return Err(decimal_context_limit("rsqrt", ctx))
-  }
+  let limited = math_context_is_restricted(ctx) ||
+    decimal_math_operand_out_of_range(self)
   if self.class == FpClass::NaN {
     return Ok(quiet_nan_operand(self, ctx))
   }
@@ -198,6 +201,9 @@ pub fn Decimal::try_rsqrt_ctx(
   }
   if self.negative {
     return Ok(decimal_elementary_invalid(ctx))
+  }
+  if limited {
+    return Err(decimal_context_limit("rsqrt", ctx))
   }
   match decimal_rsqrt_exact_result(self, ctx) {
     Some(result) => return Ok(result)
@@ -245,9 +251,8 @@ pub fn Decimal::try_compound_ctx(
   n : Int32,
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
-  if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
-    return Err(decimal_context_limit("compound", ctx))
-  }
+  let limited = math_context_is_restricted(ctx) ||
+    decimal_math_operand_out_of_range(self)
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   // 9.2: a signaling NaN signals invalid; 9.2.1: "compound(x, 0) is 1 for
   // x >= -1 or quiet NaN", "compound(qNaN, n) is qNaN for n != 0".
@@ -300,6 +305,9 @@ pub fn Decimal::try_compound_ctx(
         decimal_elementary_zero(false, ctx)
       },
     )
+  }
+  if limited {
+    return Err(decimal_context_limit("compound", ctx))
   }
   // Tiny x: (1 + x)^n - 1 has the sign of n x and |(1 + x)^n - 1| <=
   // |n x| e^|n x| < 10^(adjusted(x) + 12) for |n| <= 2^31, so the result is a
