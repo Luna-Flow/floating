@@ -617,7 +617,12 @@ notes live in this file.
   | --- | --- |
   | `x.div_checked(y)` | `@lf_arith.DivChecked::div_checked(x, y, ctx)` with an `ArithmeticContext` of the precision wanted; or `x.div_ctx(y, BinaryContext::new(precision=p))` and the flags |
 
-### Added
+- `bin_float`: `BinCoeff` is abstract ([#438](https://github.com/Luna-Flow/floating/issues/438)). It was `pub(all) struct BinCoeff(@bin_kernel.Coeff)`: the constructor `BinCoeff(c)` and the field `value.0` were public, but their type belongs to the internal package `internal/bin_kernel`, which no code outside `Luna-Flow/floating` can import, so a user could write them only with a kernel value that the library had handed out. Now neither the constructor nor the field is visible outside `bin_float`, and there is no supported access to the kernel value. Everything a user can do with a coefficient is done with its public functions: build one with `BinCoeff::zero`, `one`, `from_uint64`, `from_bytes_be` or `parse`; read it with `to_uint64`, `to_bytes_be`, `to_string`, `to_radix_string`, `bit_length` and `is_zero`; compare it with `compare`, `equal` and the operators of `Eq` and `Compare`. The representation is unchanged (a one-field tuple structure, no extra allocation). For readers of the source: the other packages of the module use `BinCoeff::to_kernel` and `BinCoeff::from_kernel`, marked internal.
+
+  | before | after |
+  | --- | --- |
+  | `@bin_float.BinCoeff(c)`, `value.0`, `x.coefficient().0` in user code | not supported: use `from_uint64`, `from_bytes_be`, `parse` to build and `to_uint64`, `to_bytes_be`, `to_radix_string`, `bit_length`, `compare` to read |
+  | (packages of this module only) `@bin_float.BinCoeff(c)`, `value.0` | `@bin_float.BinCoeff::from_kernel(c)`, `value.to_kernel()` |
 
 - `bin_float`, `decimal`: every comparison predicate of IEEE 754-2019 5.11 has a function ([#438](https://github.com/Luna-Flow/floating/issues/438), item N6). The clause lists 22 predicates, 10 in Table 5.1 and 12 in Table 5.2; `bin_float` had 7 and `decimal` none. Both now have the 15 others, with the names of the first seven (`compare_quiet_*`, `compare_signaling_*`): `not_equal`, `greater`, `greater_equal`, `not_greater`, `less_unordered`, `not_less` and `greater_unordered` for both kinds, and `compare_quiet_ordered`. Each returns `(Bool, flags)`, is defined from `compare_quiet` or `compare_signaling` and raises invalid where the table says (a signaling NaN for the quiet ones, any NaN for the signaling ones). Nothing existing changes in `bin_float`.
 

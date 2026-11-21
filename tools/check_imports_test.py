@@ -43,9 +43,9 @@ def write_mbti(src: Path, directory: str, text: str) -> None:
 
 
 class InterfaceViolationsTests(unittest.TestCase):
-    NEWTYPE = "pub(all) struct BinCoeff(@bin_kernel.Coeff)\n"
+    NEWTYPE = "pub fn BinCoeff::to_kernel(Self) -> @bin_kernel.Coeff\n"
 
-    def test_the_binary_coefficient_definition_is_the_one_allowed_mention(self) -> None:
+    def test_the_binary_coefficient_bridge_is_an_allowed_mention(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             src = Path(tmp)
             write_mbti(src, "bin_float", "package \"x\"\n\n" + self.NEWTYPE + "pub fn BinCoeff::one() -> Self\n")

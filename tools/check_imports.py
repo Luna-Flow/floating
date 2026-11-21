@@ -11,8 +11,10 @@ The library module (`library/moon.mod`) may depend on `Luna-Flow/arithmetic` and
 module `Luna-Flow/floating-tools` (`tooling/`): benchmarks, command-line
 frontends and the differential harness live there (#22).
 No public package may name a type of an internal package in its generated interface
-(`pkg.generated.mbti`), except the definition of `BinCoeff` as a newtype over the binary
-kernel type: a public function taking the kernel type would be callable from outside.
+(`pkg.generated.mbti`), except the definition of `BinFloat` as a newtype over the binary
+kernel type and the two bridge functions `BinCoeff::to_kernel` and `BinCoeff::from_kernel`,
+which the other packages of the module need: any other public function taking the kernel
+type would be callable from outside.
 The three LICENSE files (repository root, `library/`, `tooling/`) must be
 byte-identical: each published package carries its own copy.
 The version of `library/moon.mod`, the version of `tooling/moon.mod` and the library
@@ -91,15 +93,18 @@ def violations(src: Path) -> list[str]:
 
 
 # The only lines of a public interface that may name a type of an internal package:
-# the definitions of `BinCoeff` and `BinFloat`, newtypes over the kernel types
-# `Coeff` and `BinRepr` (a public struct cannot wrap a private enum). A public function that
+# the definition of `BinFloat`, a newtype over the kernel type `BinRepr` (a public struct
+# cannot wrap a private enum), and the two bridge functions of `BinCoeff`, the abstract
+# newtype over the kernel type `Coeff`, which the other packages of the module call (their
+# doc comments and the API page mark them as internal). A public function that
 # took or returned the kernel type would be callable from outside the module (an
 # internal type can be passed around, not used), so the rest of every public `.mbti`
 # must not mention an internal package (#22).
 INTERNAL_TYPE_LINE = re.compile(r"@(?:bin_kernel|decimal_kernel|internal)\b")
 ALLOWED_INTERNAL_TYPE_LINES = {
     "bin_float": (
-        "pub(all) struct BinCoeff(@bin_kernel.Coeff)",
+        "pub fn BinCoeff::from_kernel(@bin_kernel.Coeff) -> Self",
+        "pub fn BinCoeff::to_kernel(Self) -> @bin_kernel.Coeff",
         "pub struct BinFloat(@bin_kernel.BinRepr)",
     ),
 }

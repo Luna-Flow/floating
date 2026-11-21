@@ -31,23 +31,25 @@ fn coeff_gcd(
   // general big-integer gcd. Rationals built from binary floats have
   // power-of-two denominators, so this is the common case.
   if coeff_is_zero(left) || coeff_is_zero(right) {
-    return @bin_float.BinCoeff(left.0.gcd(right.0))
+    return @bin_float.BinCoeff::from_kernel(
+      left.to_kernel().gcd(right.to_kernel()),
+    )
   }
-  if right.0.ctz() == right.bit_length() - 1 {
-    return @bin_float.BinCoeff(
+  if right.to_kernel().ctz() == right.bit_length() - 1 {
+    return @bin_float.BinCoeff::from_kernel(
       @bin_kernel.Coeff::one().shift_left(
-        Int32::min(left.0.ctz(), right.0.ctz()),
+        Int32::min(left.to_kernel().ctz(), right.to_kernel().ctz()),
       ),
     )
   }
-  if left.0.ctz() == left.bit_length() - 1 {
-    return @bin_float.BinCoeff(
+  if left.to_kernel().ctz() == left.bit_length() - 1 {
+    return @bin_float.BinCoeff::from_kernel(
       @bin_kernel.Coeff::one().shift_left(
-        Int32::min(left.0.ctz(), right.0.ctz()),
+        Int32::min(left.to_kernel().ctz(), right.to_kernel().ctz()),
       ),
     )
   }
-  @bin_float.BinCoeff(left.0.gcd(right.0))
+  @bin_float.BinCoeff::from_kernel(left.to_kernel().gcd(right.to_kernel()))
 }
 
 ///|
@@ -55,7 +57,7 @@ fn coeff_mul(
   left : @bin_float.BinCoeff,
   right : @bin_float.BinCoeff,
 ) -> @bin_float.BinCoeff {
-  @bin_float.BinCoeff(left.0.mul(right.0))
+  @bin_float.BinCoeff::from_kernel(left.to_kernel().mul(right.to_kernel()))
 }
 
 ///|
@@ -63,7 +65,7 @@ fn coeff_shift_left(
   value : @bin_float.BinCoeff,
   shift : Int32,
 ) -> @bin_float.BinCoeff {
-  @bin_float.BinCoeff(value.0.shift_left(shift))
+  @bin_float.BinCoeff::from_kernel(value.to_kernel().shift_left(shift))
 }
 
 ///|
@@ -71,7 +73,7 @@ fn coeff_add(
   left : @bin_float.BinCoeff,
   right : @bin_float.BinCoeff,
 ) -> @bin_float.BinCoeff {
-  @bin_float.BinCoeff(left.0.add(right.0))
+  @bin_float.BinCoeff::from_kernel(left.to_kernel().add(right.to_kernel()))
 }
 
 ///|
@@ -80,7 +82,9 @@ fn coeff_sub(
   left : @bin_float.BinCoeff,
   right : @bin_float.BinCoeff,
 ) -> @bin_float.BinCoeff {
-  @bin_float.BinCoeff(left.0.sub_checked(right.0).unwrap())
+  @bin_float.BinCoeff::from_kernel(
+    left.to_kernel().sub_checked(right.to_kernel()).unwrap(),
+  )
 }
 
 ///|
@@ -88,17 +92,19 @@ fn coeff_shift_right(
   value : @bin_float.BinCoeff,
   shift : Int32,
 ) -> @bin_float.BinCoeff {
-  @bin_float.BinCoeff(value.0.shift_right(shift))
+  @bin_float.BinCoeff::from_kernel(value.to_kernel().shift_right(shift))
 }
 
 ///|
 fn coeff_test_bit(value : @bin_float.BinCoeff, index : Int32) -> Bool {
-  value.0.test_bit(index)
+  value.to_kernel().test_bit(index)
 }
 
 ///|
 fn coeff_increment(value : @bin_float.BinCoeff) -> @bin_float.BinCoeff {
-  @bin_float.BinCoeff(value.0.add(@bin_kernel.Coeff::one()))
+  @bin_float.BinCoeff::from_kernel(
+    value.to_kernel().add(@bin_kernel.Coeff::one()),
+  )
 }
 
 ///|
@@ -106,10 +112,14 @@ fn coeff_div_rem(
   numerator : @bin_float.BinCoeff,
   denominator : @bin_float.BinCoeff,
 ) -> (@bin_float.BinCoeff, @bin_float.BinCoeff) {
-  let (quotient, remainder) = numerator.0
-    .div_rem_checked(denominator.0)
+  let (quotient, remainder) = numerator
+    .to_kernel()
+    .div_rem_checked(denominator.to_kernel())
     .unwrap()
-  (@bin_float.BinCoeff(quotient), @bin_float.BinCoeff(remainder))
+  (
+    @bin_float.BinCoeff::from_kernel(quotient),
+    @bin_float.BinCoeff::from_kernel(remainder),
+  )
 }
 
 ///|
@@ -125,7 +135,8 @@ fn coeff_div_exact(
 ///|
 fn coeff_mod_int(value : @bin_float.BinCoeff, divisor : Int32) -> Int32 {
   guard divisor > 0 else { abort("coefficient modulus must be positive") }
-  value.0
+  value
+  .to_kernel()
   .div_rem_checked(@bin_kernel.Coeff::from_uint64(divisor.to_uint64()))
   .unwrap().1
   .to_uint64()
