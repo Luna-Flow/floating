@@ -176,6 +176,7 @@ pub fn run(arguments : Array[String]) -> Int32 {
               },
             ),
           ),
+          ("frontend", @runner_cli.json_string("mpfr")),
           ("totalCases", @runner_cli.json_int(summary.total_cases())),
           ("passedCases", @runner_cli.json_int(summary.passed_cases())),
           ("failedCases", @runner_cli.json_int(summary.failed_cases())),

@@ -78,6 +78,9 @@ fn summary_json(
   }
   @runner_cli.json_stringify(
     @runner_cli.json_object([
+      // The frontend whose `run` produced this summary: written by the code that ran, so
+      // that a runner can check the route through the dispatcher (incremental verification).
+      ("frontend", @runner_cli.json_string("testfloat")),
       ("function", @runner_cli.json_string(options.function_name)),
       ("rounding", @runner_cli.json_string(options.rounding)),
       ("tininess", @runner_cli.json_string(options.tininess)),
@@ -87,6 +90,7 @@ fn summary_json(
       ("passedCases", @runner_cli.json_int(summary.passed_cases())),
       ("failedCases", @runner_cli.json_int(summary.failed_cases())),
       ("failedIds", @runner_cli.json_strings(failed_ids)),
+      ("arms", @runner_cli.json_strings(summary.arms())),
     ]),
   )
 }
