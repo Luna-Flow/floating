@@ -275,14 +275,33 @@ fn decimal_coeff_from_be_bytes(bytes : Bytes) -> DecCoeff {
 }
 
 ///|
+/// A bound of an interval without the sign of a zero. `BallFloat::lower_bound` returns -0 for
+/// a zero lower bound (IEEE 1788-2015 12.12.8), while a decimal endpoint that is certified
+/// against another is compared in the total order, which tells -0 from +0: a zero bound is the
+/// zero of the result, whatever the sign the accessor gives it.
+fn certified_bound(value : @bin_float.BinFloat) -> @bin_float.BinFloat {
+  if value.is_zero() {
+    @bin_float.BinFloat::zero(precision=value.precision())
+  } else {
+    value
+  }
+}
+
+///|
 fn decimal_certified_target(
   interval : @ball_float.BallFloat,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
   guard !interval.is_empty() else { return None }
   let target_ctx = ctx
-  let lower = decimal_exact_dyadic_endpoint(interval.lower_bound(), target_ctx)
-  let upper = decimal_exact_dyadic_endpoint(interval.upper_bound(), target_ctx)
+  let lower = decimal_exact_dyadic_endpoint(
+    certified_bound(interval.lower_bound()),
+    target_ctx,
+  )
+  let upper = decimal_exact_dyadic_endpoint(
+    certified_bound(interval.upper_bound()),
+    target_ctx,
+  )
   guard lower is Some(lower) && upper is Some(upper) else { return None }
   let lower_result = decimal_apply_finite_ctx(lower, target_ctx)
   let upper_result = decimal_apply_finite_ctx(upper, target_ctx)
