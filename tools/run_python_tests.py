@@ -168,6 +168,16 @@ def git_status(root: Path = REPO_ROOT, paths: tuple[str, ...] = GIT_STATUS_PATHS
     return result.stdout if result.returncode == 0 else ""
 
 
+def skip_summary(skipped: list[tuple[object, str]]) -> list[str]:
+    """One line per skip reason with the count, so that a skipped check is visible in the output."""
+    reasons: dict[str, int] = {}
+    for _, reason in skipped:
+        reasons[reason] = reasons.get(reason, 0) + 1
+    lines = [f"run_python_tests: {len(skipped)} tests skipped" + (":" if skipped else "")]
+    lines += [f"  {count} x {reason}" for reason, count in sorted(reasons.items())]
+    return lines
+
+
 def main(argv: list[str] | None = None) -> int:
     arguments = list(sys.argv[1:] if argv is None else argv)
     tools = REPO_ROOT / "tools"
@@ -179,6 +189,7 @@ def main(argv: list[str] | None = None) -> int:
         )
         result = unittest.TextTestRunner(stream=sys.stderr, verbosity=0).run(suite)
     after = git_status()
+    print("\n".join(skip_summary(result.skipped)), file=sys.stderr)
     status = 0 if result.wasSuccessful() else 1
     if hits:
         print("run_python_tests: tests wrote into the real repository (use a temporary directory):", file=sys.stderr)

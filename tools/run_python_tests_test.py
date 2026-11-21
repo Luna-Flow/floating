@@ -60,6 +60,22 @@ class ProtectedWriteTests(unittest.TestCase):
         self.assertIsNone(runner.protected_relative("/definitely/elsewhere", self.root))
 
 
+class SkipSummaryTests(unittest.TestCase):
+    def test_skips_are_counted_by_reason(self) -> None:
+        skipped = [(None, "the ITF1788 corpus is not installed")] * 3 + [(None, "no MPFR")]
+        self.assertEqual(
+            runner.skip_summary(skipped),
+            [
+                "run_python_tests: 4 tests skipped:",
+                "  1 x no MPFR",
+                "  3 x the ITF1788 corpus is not installed",
+            ],
+        )
+
+    def test_no_skip_is_still_one_line(self) -> None:
+        self.assertEqual(runner.skip_summary([]), ["run_python_tests: 0 tests skipped"])
+
+
 class StatusComparisonTests(unittest.TestCase):
     def setUp(self) -> None:
         self.directory = tempfile.TemporaryDirectory()
