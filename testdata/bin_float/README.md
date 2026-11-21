@@ -20,7 +20,7 @@ just gate binary 8
 
 `just conformance smoke binary` runs the committed 288-row TestFloat subset,
 three hexadecimal sqrt witnesses, 96 MPFR-generated integer-power witnesses,
-1,740 full-family elementary witnesses, 1,434 `mpfr_strtofr` witnesses and
+1,740 full-family elementary witnesses, 3,699 `mpfr_strtofr` witnesses and
 2,688 `mpfr_get_str` witnesses without downloading anything.
 `just conformance fetch binary` verifies SHA-256 and
 installs the external artifacts under `.tmp/`. `just gate binary` builds the reference
@@ -47,7 +47,7 @@ Its 468 tasks contain 254,227,872 vectors: 7,461,360 for the five arithmetic
 operations and 246,766,512 for the IEEE operations (245,329,920 of them
 mulAdd). Invalid integer conversions are compared by flags only, because
 SoftFloat returns platform-specific sentinels where the API returns `None`. The MPFR part executes every one of
-the 1,055 executable rows in the pinned `tests/data/sqrt` file, 1,434
+the 1,055 executable rows in the pinned `tests/data/sqrt` file, 3,699
 hash-pinned `mpfr_strtofr` cases and 2,688 hash-pinned `mpfr_get_str` cases
 (see Decimal Character Conversion below) plus 1,740
 hash-pinned cases covering 29 elementary operations, binary32/64/128
