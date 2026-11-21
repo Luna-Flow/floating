@@ -1,0 +1,333 @@
+import os
+import subprocess
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+from unittest.mock import patch
+
+import incremental as inc
+import stage_units as su
+
+L = su.L
+SPEC_MOON = su.StageSpec("T: moon", "moon", (f"{L}/low",))
+SPEC_PY = su.StageSpec("T: python", "python", declared=("tools/check.py", "data/"))
+OK = (0, "Total tests: 7, passed: 7, failed: 0.\n")
+
+
+class CoveredTest(unittest.TestCase):
+    def test_files_directories_and_ignored_parts(self) -> None:
+        declared = ("tools/a.py", "data/")
+        self.assertTrue(su.covered("tools/a.py", declared))
+        self.assertTrue(su.covered("data/x/y.itl", declared))
+        self.assertTrue(su.covered("data", declared))  # the directory itself (a listing)
+        self.assertTrue(su.covered("tools/__pycache__/a.cpython.pyc", declared))
+        self.assertTrue(su.covered(".git/HEAD", declared))
+        self.assertFalse(su.covered("tools/b.py", declared))
+        self.assertFalse(su.covered("data2/x", declared))  # not a prefix match of the directory name
+        self.assertFalse(su.covered("library/src/a.mbt", declared))
+
+    def test_audit_parsing_and_the_undeclared_set(self) -> None:
+        audit = su.parse_audit("R tools/a.py\nR data/x\nD data\nD library/src\nR tools/b.py\nS /bin/ls\nS /usr/bin/python3\n")
+        self.assertEqual(su.undeclared(audit, ("tools/a.py", "data/")), ["library/src", "tools/b.py"])
+        self.assertEqual(su.undeclared(su.parse_audit("D tools\nD .\nD testdata\n"), ("tools/a.py", "testdata/interval/")), [])  # listing above a declared entry
+        self.assertEqual(su.unseen_programs(audit, sys.executable), ["/bin/ls"])
+
+
+class KeyTest(unittest.TestCase):
+    def key(self, spec: su.StageSpec, **change: str) -> str:
+        unit = su.StageUnit(spec, ("cmd",))
+        base = dict(content="c", modules="m", compile_commands="x", wrapper="w", hook="h", toolchain="t", verifier="v", python_version="3.13", ambient="")
+        base.update(change)
+        return su.key_parts(unit, **base)[0]
+
+    def test_every_input_of_a_moon_unit_changes_its_key(self) -> None:
+        reference = self.key(SPEC_MOON)
+        for part, value in (("content", "c2"), ("modules", "m2"), ("compile_commands", "y"), ("wrapper", "w2"), ("toolchain", "t2"), ("verifier", "v2"), ("ambient", "MOON_X=1")):
+            self.assertNotEqual(self.key(SPEC_MOON, **{part: value}), reference, part)
+        self.assertEqual(self.key(SPEC_MOON, hook="h2", python_version="2"), reference)  # not inputs of a moon stage
+
+    def test_every_input_of_a_python_unit_changes_its_key(self) -> None:
+        reference = self.key(SPEC_PY)
+        for part, value in (("content", "c2"), ("hook", "h2"), ("python_version", "3.14"), ("toolchain", "t2"), ("verifier", "v2")):
+            self.assertNotEqual(self.key(SPEC_PY, **{part: value}), reference, part)
+        self.assertEqual(self.key(SPEC_PY, modules="m2", wrapper="w2", compile_commands="y"), reference)
+
+    def test_the_declaration_and_the_command_are_in_the_key(self) -> None:
+        other = su.StageSpec("T: python", "python", declared=("tools/check.py", "data/", "more/"))
+        self.assertNotEqual(self.key(SPEC_PY), self.key(other))
+        a = su.key_parts(su.StageUnit(SPEC_PY, ("a",)), "c", "m", "x", "w", "h", "t", "v", "p", "")[0]
+        b = su.key_parts(su.StageUnit(SPEC_PY, ("b",)), "c", "m", "x", "w", "h", "t", "v", "p", "")[0]
+        self.assertNotEqual(a, b)
+
+
+class RealAuditHookTest(unittest.TestCase):
+    """The hook itself, in a real interpreter: what a stage reads, lists and starts."""
+
+    def setUp(self) -> None:
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name).resolve()
+        (self.root / "tools/stage_audit").mkdir(parents=True)
+        (self.root / "tools/stage_audit/sitecustomize.py").write_text((su.Path(__file__).parent / "stage_audit/sitecustomize.py").read_text())
+        (self.root / "data").mkdir()
+        (self.root / "library").mkdir()
+        (self.root / "data/a.txt").write_text("a")
+        (self.root / "other.txt").write_text("b")
+        (self.root / "tools/check.py").write_text("")
+
+    def run_script(self, body: str) -> su.Audit:
+        script = self.root / "tools/check.py"
+        script.write_text(body)
+        log = self.root / "audit.log"
+        env = su.audit_environment(self.root, log, os.environ)
+        result = subprocess.run([sys.executable, str(script)], cwd=self.root, env=env, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        return su.parse_audit(log.read_text() if log.exists() else "")
+
+    def test_a_declared_read_is_inside_and_an_undeclared_one_is_found(self) -> None:
+        audit = self.run_script("print(open('data/a.txt').read()); print(open('other.txt').read())")
+        self.assertIn("data/a.txt", audit.reads)
+        self.assertIn("other.txt", audit.reads)
+        self.assertEqual(su.undeclared(audit, ("tools/check.py", "data/")), ["other.txt"])
+
+    def test_a_listing_and_a_glob_of_an_undeclared_directory_are_found(self) -> None:
+        audit = self.run_script("import os, glob; os.listdir('library'); glob.glob('other*.txt'); glob.glob('data/*.txt')")
+        self.assertIn("library", audit.listings)
+        self.assertEqual(su.undeclared(audit, ("tools/check.py", "data/")), ["library", "other*.txt"])
+
+    def test_writes_are_not_reads_and_outside_the_root_is_ignored(self) -> None:
+        audit = self.run_script("open('out.txt', 'w').write('x'); open('/etc/hosts').read()")
+        self.assertNotIn("out.txt", audit.reads)
+        self.assertEqual(su.undeclared(audit, ("tools/check.py", "data/")), [])
+
+    def test_a_child_python_process_and_another_program_are_seen(self) -> None:
+        audit = self.run_script(
+            "import subprocess, sys\n"
+            "subprocess.run([sys.executable, '-c', \"open('other.txt').read()\"])\n"
+            "subprocess.run(['ls', '.'], capture_output=True)\n"
+        )
+        self.assertIn("other.txt", audit.reads)  # read by the child
+        self.assertEqual([Path(p).name for p in su.unseen_programs(audit, sys.executable)], ["ls"])
+
+    def test_the_hook_does_not_change_what_the_stage_prints(self) -> None:
+        script = self.root / "tools/check.py"
+        script.write_text("print(open('data/a.txt').read())")
+        plain = subprocess.run([sys.executable, str(script)], cwd=self.root, capture_output=True, text=True).stdout
+        env = su.audit_environment(self.root, self.root / "audit.log", os.environ)
+        audited = subprocess.run([sys.executable, str(script)], cwd=self.root, env=env, capture_output=True, text=True).stdout
+        self.assertEqual(plain, audited)
+
+
+class Fixture(unittest.TestCase):
+    def setUp(self) -> None:
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        files = {
+            "library/moon.mod": 'name = "Luna-Flow/floating"\n',
+            "tooling/moon.mod": 'name = "Luna-Flow/floating-tools"\nsource = "src"\n',
+            "moon.work": "members = []\n",
+            "tools/run_moon_clean_exec.sh": "exec moon \"$@\"\n",
+            su.AUDIT_FILE: "# hook\n",
+            "library/src/def/moon.pkg": "",
+            "library/src/def/a.mbt": "fn a() -> Int { 1 }\n",
+            "library/src/low/moon.pkg": f'import {{ "{L}/def" }}\n',
+            "library/src/low/b.mbt": "fn b() -> Int { 2 }\n",
+            "library/src/other/moon.pkg": f'import {{ "{L}/def" }}\n',
+            "library/src/other/d.mbt": "fn d() -> Int { 4 }\n",
+            "library/src/io/moon.pkg": 'import { "moonbitlang/x/fs" }\n',
+            "library/src/io/e.mbt": "fn e() -> Int { 5 }\n",
+            "tools/check.py": "print('x')\n",
+            "tools/unrelated.py": "print('y')\n",
+            "data/x.itl": "x\n",
+            "elsewhere/y.txt": "y\n",
+        }
+        for name, text in files.items():
+            path = self.root / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(text)
+        patcher = patch.dict(su.SPECS, {"t": (SPEC_MOON, SPEC_PY)})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.stages = [("T: moon", ("sh", "x", "test")), ("T: python", ("python3", "tools/check.py"))]
+
+    def plan(self, scope: str = "t", dry: str = "dry") -> su.Plan:
+        return su.make_plan(scope, self.stages, self.root, inc.Ledger(self.root / "ledger.jsonl"), 1, rate=0.0, environ={}, run=lambda *a, **k: dry)
+
+    def edit(self, name: str, text: str = "// edit\n") -> None:
+        with (self.root / name).open("a") as stream:
+            stream.write(text)
+
+
+class MutationTest(Fixture):
+    """Which units a change reaches (synthetic repository of the same shape)."""
+
+    def changed(self, before: su.Plan, after: su.Plan) -> set[str]:
+        return {u for u in after.keys if before.keys.get(u) != after.keys[u]}
+
+    def test_a_package_in_the_closure_reaches_the_moon_unit_only(self) -> None:
+        base = self.plan()
+        self.assertEqual(set(base.keys), {"T: moon", "T: python"})
+        self.edit("library/src/def/a.mbt")
+        self.assertEqual(self.changed(base, self.plan()), {"T: moon"})
+
+    def test_a_package_outside_the_closure_reaches_nothing(self) -> None:
+        base = self.plan()
+        self.edit("library/src/other/d.mbt")
+        self.assertEqual(self.changed(base, self.plan()), set())
+
+    def test_a_declared_file_or_directory_reaches_the_python_unit_only(self) -> None:
+        base = self.plan()
+        self.edit("tools/check.py")
+        self.assertEqual(self.changed(base, self.plan()), {"T: python"})
+        base = self.plan()
+        self.edit("data/x.itl")
+        self.assertEqual(self.changed(base, self.plan()), {"T: python"})
+        base = self.plan()
+        (self.root / "data/new.itl").write_text("new")  # a new file in a declared directory
+        self.assertEqual(self.changed(base, self.plan()), {"T: python"})
+
+    def test_an_undeclared_file_reaches_nothing_which_is_why_the_audit_exists(self) -> None:
+        base = self.plan()
+        self.edit("tools/unrelated.py")
+        self.edit("elsewhere/y.txt")
+        self.assertEqual(self.changed(base, self.plan()), set())
+
+    def test_module_files_the_wrapper_and_the_hook_reach_the_right_units(self) -> None:
+        base = self.plan()
+        self.edit("moon.work", "# x\n")
+        self.assertEqual(self.changed(base, self.plan()), {"T: moon"})
+        base = self.plan()
+        self.edit("tools/run_moon_clean_exec.sh", "# x\n")
+        self.assertEqual(self.changed(base, self.plan()), {"T: moon"})
+        base = self.plan()
+        self.edit(su.AUDIT_FILE, "# x\n")
+        self.assertEqual(self.changed(base, self.plan()), {"T: python"})
+        base = self.plan()
+        self.assertEqual(self.changed(base, self.plan(dry="another command line")), {"T: moon"})
+
+    def test_a_missing_declared_file_disables_reuse_and_so_does_a_dry_run_without_output(self) -> None:
+        (self.root / "tools/check.py").unlink()
+        self.assertIn("does not exist", self.plan().disabled)
+        (self.root / "tools/check.py").write_text("x")
+        self.assertIn("could not print", self.plan(dry="").disabled)
+
+    def test_a_moon_unit_whose_closure_imports_the_file_system_is_not_keyed(self) -> None:
+        spec = su.StageSpec("T: moon", "moon", (f"{L}/io",))
+        with patch.dict(su.SPECS, {"t": (spec,)}):
+            plan = self.plan()
+        self.assertIn("T: moon", plan.unit_disabled)
+        self.assertNotIn("T: moon", plan.keys)
+
+
+class RunStageTest(Fixture):
+    def setUp(self) -> None:
+        super().setUp()
+        original = su.unchanged
+        su.unchanged = lambda plan, unit: True  # type: ignore[assignment]
+        self.addCleanup(setattr, su, "unchanged", original)
+        self.lines: list[str] = []
+        self.tally = su.Tally()
+        self.commits: dict[str, int] = {}
+
+    def run_one(self, plan: su.Plan, name: str, execute) -> int:  # noqa: ANN001
+        unit = next(u for u in plan.units if u.name == name)
+        return su.run_stage(plan, unit, execute, self.tally, self.commits, self.lines.append, environ={})
+
+    def test_a_pass_is_recorded_and_the_next_run_reuses_it_without_executing(self) -> None:
+        plan = self.plan()
+        for name in ("T: moon", "T: python"):
+            self.assertEqual(self.run_one(plan, name, lambda c, e: OK if "test" in c else (0, "")), 0)
+        self.assertEqual(self.tally.ran, 2)
+        self.assertTrue(all(plan.ledger.result(k) for k in plan.keys.values()))
+        again = self.plan()
+        again.actions = {"T: moon": "reuse", "T: python": "reuse"}
+        calls: list[tuple[str, ...]] = []
+        for name in ("T: moon", "T: python"):
+            self.assertEqual(self.run_one(again, name, lambda c, e: calls.append(c) or (1, "")), 0)
+        self.assertEqual(calls, [])
+        self.assertEqual(sum(line.startswith("REUSED") for line in self.lines), 2)
+        self.assertFalse(any(line.startswith("PASS") and "REUSED" in line for line in self.lines))
+
+    def test_a_moon_stage_with_zero_tests_or_a_missing_package_fails_and_records_nothing(self) -> None:
+        for text in ("Total tests: 0, passed: 0, failed: 0.\n", "Warning: package x not found\nTotal tests: 5, passed: 5, failed: 0.\n", "no line\n"):
+            plan = self.plan()
+            self.assertEqual(self.run_one(plan, "T: moon", lambda c, e, t=text: (0, t)), 1, text)
+            self.assertIsNone(plan.ledger.result(plan.keys["T: moon"]))
+
+    def test_a_sampled_rerun_that_fails_is_a_defect(self) -> None:
+        plan = self.plan()
+        plan.actions["T: moon"] = "sample"
+        self.assertEqual(self.run_one(plan, "T: moon", lambda c, e: (1, "Total tests: 1, passed: 0, failed: 1.")), inc.EXIT_DEFECT)
+
+    def test_a_python_stage_that_reads_outside_its_declaration_is_a_defect_and_is_not_recorded(self) -> None:
+        plan = self.plan()
+
+        def execute(command: tuple[str, ...], env) -> tuple[int, str]:  # noqa: ANN001
+            Path(env["STAGE_AUDIT_LOG"]).write_text("R tools/check.py\nR data/x.itl\nR elsewhere/y.txt\nD elsewhere\n")  # a new input, not declared
+            return 0, ""
+
+        status = self.run_one(plan, "T: python", execute)
+        self.assertEqual(status, inc.EXIT_DEFECT)
+        self.assertIsNone(plan.ledger.result(plan.keys["T: python"]))
+        self.assertTrue(any("elsewhere/y.txt" in line and "declaration" in line for line in self.lines))
+
+    def test_a_python_stage_reading_only_declared_files_is_recorded(self) -> None:
+        plan = self.plan()
+
+        def execute(command: tuple[str, ...], env) -> tuple[int, str]:  # noqa: ANN001
+            Path(env["STAGE_AUDIT_LOG"]).write_text("R tools/check.py\nR data/x.itl\nD data\nR tools/__pycache__/check.pyc\n")
+            return 0, ""
+
+        self.assertEqual(self.run_one(plan, "T: python", execute), 0)
+        self.assertIsNotNone(plan.ledger.result(plan.keys["T: python"]))
+
+    def test_a_python_stage_that_starts_another_program_passes_but_is_not_recorded(self) -> None:
+        plan = self.plan()
+
+        def execute(command: tuple[str, ...], env) -> tuple[int, str]:  # noqa: ANN001
+            Path(env["STAGE_AUDIT_LOG"]).write_text("R tools/check.py\nS /usr/bin/mpfr-tool\n")
+            return 0, ""
+
+        self.assertEqual(self.run_one(plan, "T: python", execute), 0)
+        self.assertIsNone(plan.ledger.result(plan.keys["T: python"]))
+        self.assertTrue(any("not recorded" in line for line in self.lines))
+
+    def test_a_not_keyed_moon_unit_runs_and_says_why(self) -> None:
+        spec = su.StageSpec("T: moon", "moon", (f"{L}/io",))
+        with patch.dict(su.SPECS, {"t": (spec,)}):
+            plan = self.plan()
+        self.assertEqual(self.run_one(plan, "T: moon", lambda c, e: OK), 0)
+        self.assertTrue(any("not keyed" in line for line in self.lines))
+
+    def test_a_disabled_plan_runs_every_stage(self) -> None:
+        plan = self.plan()
+        plan.disabled = "no key can be formed: x"
+        calls: list[int] = []
+        self.assertEqual(self.run_one(plan, "T: moon", lambda c, e: calls.append(1) or OK), 0)
+        self.assertEqual(calls, [1])
+        self.assertEqual(self.tally.reused, 0)
+
+
+class RealRepositoryTest(unittest.TestCase):
+    def test_the_specs_name_stages_of_the_gates_and_declare_files_that_exist(self) -> None:
+        import run_ci
+
+        for scope, specs in su.SPECS.items():
+            names = [s.name for s in run_ci.stages_for(scope, 3)]
+            for spec in specs:
+                self.assertIn(spec.stage, names, spec.stage)
+                for item in spec.declared:
+                    self.assertTrue((su.nu.REPO_ROOT / item.rstrip("/")).exists(), item)
+
+    def test_the_moon_specs_have_pure_closures(self) -> None:
+        packages = su.nu.discover_packages(su.nu.REPO_ROOT)
+        for specs in su.SPECS.values():
+            for spec in specs:
+                if spec.kind == "moon":
+                    self.assertEqual(su.nu.impure_imports(spec.packages, packages), [], spec.stage)
+
+
+if __name__ == "__main__":
+    unittest.main()

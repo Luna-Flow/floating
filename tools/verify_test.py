@@ -23,7 +23,7 @@ class VerifyTests(unittest.TestCase):
         self.assertEqual(len(stages), len(run_ci.stages_for("binary", 3)))
 
     def test_a_scope_without_an_incremental_stage_is_refused(self) -> None:
-        self.assertEqual(verify.run("interval", 3, dry_run=True), 2)
+        self.assertEqual(verify.run("elementary", 3, dry_run=True), 2)
 
 
 if __name__ == "__main__":

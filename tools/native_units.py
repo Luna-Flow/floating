@@ -520,10 +520,10 @@ def run_plan(
     return 0, tally, commits
 
 
-def run_tee(command: Sequence[str], cwd: Path) -> tuple[int, str]:
+def run_tee(command: Sequence[str], cwd: Path, env: Mapping[str, str] | None = None) -> tuple[int, str]:
     """Run a command, show its output as it comes (stdout and stderr together) and return the
     status and the whole output."""
-    process = subprocess.Popen(list(command), cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, errors="replace")
+    process = subprocess.Popen(list(command), cwd=cwd, env=None if env is None else dict(env), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, errors="replace")
     assert process.stdout is not None
     lines: list[str] = []
     for line in process.stdout:
