@@ -43,6 +43,13 @@
 ///   it must not decline when the exact quotient is farther than
 ///   `2 (2 n + 8)` units of the last limb from every rounding boundary
 ///   (`must`, the oracle's own bound).
+///   A returned approximation is never on a grid point or a midpoint, so rounding
+///   it half up (as this driver does) and rounding to nearest even coincide; the
+///   oracle rounds the exact quotient with its sticky bit, so a row on a
+///   boundary passes only by declining.
+///   The bounds of the short quotient are not tested from the tight side (a
+///   mutation that makes a bound less conservative survives); this line is
+///   replaced by the result of the search or the argument asked for in review.
 
 ///|
 fn oracle_hex_u64(text : String) -> UInt64 {

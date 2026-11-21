@@ -231,8 +231,21 @@ class RowSemanticsTests(unittest.TestCase):
         # an exact quotient of a random pair needs no correction
         self.assertEqual(oracle.knuth_events(7 * d + 3, d)["addback"], 0)
 
+    def test_sqrt_rows_use_the_floor_root_and_the_packed_rounding(self) -> None:
+        random = oracle.Random(1)
+        self.assertEqual(oracle.eval_spec("0:+0A@0", 0, random), 10)
+        # radicand 10: root 3, remainder 1, not above the root: the packed value is 4 * 3 + 0 + 1
+        # at precision 1 below the root length (root 3 has 2 bits; precision 1 is the exact case)
+        line = oracle.sqrt_line(("t-rounded", "rounded", "v", "0:+0A@0", 0, 0, 0, "pr"))
+        self.assertIsNotNone(line)
+        # a square minus one has the largest remainder, above the root: it rounds up
+        shifted = 7 * 7 - 1
+        root = oracle.math.isqrt(shifted)
+        self.assertEqual(root, 6)
+        self.assertGreater(shifted - root * root, root)
+
     def test_every_table_is_registered_and_named(self) -> None:
-        self.assertEqual([table.name for table in oracle.TABLES], ["product", "short", "limbs", "window", "div"])
+        self.assertEqual([table.name for table in oracle.TABLES], ["product", "short", "limbs", "window", "div", "sqrt"])
         for table in oracle.TABLES:
             names = table.names()
             self.assertEqual(len(names), len(set(names)), table.name)
