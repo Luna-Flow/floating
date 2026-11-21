@@ -6,7 +6,7 @@
 version 1.70) by M. F. Cowlishaw. Its `Decimal` is a sign, an arbitrary-length
 decimal coefficient and a decimal exponent; its `GdaContext` carries the
 precision, rounding mode, exponent limits, clamping, the extended/subset
-switch, the sticky status and the enabled traps; and every GDA operation is a
+switch, the sticky flags and the enabled traps; and every GDA operation is a
 pure function that returns a `GdaOutcome` holding the defined result, the next
 context and the conditions it raised. The [tutorial](../tutorial/decimal_gda.md)
 shows the package in use; the [design page](../design/decimal_gda.md) derives
@@ -213,7 +213,7 @@ gives `Err` of the domain-error kind that names both limits and the exponent. It
 not a malformed literal, and it is no longer folded into an infinity or a zero
 (`"1e3000000000"` and `"1e-3000000000"` are errors). Use the package function
 [`to_number`](#to_number) when a rounded value is wanted or when the exponent
-limits, flags, status or traps of a context must apply.
+limits, flags or traps of a context must apply.
 
 ### `Decimal::to_string`, `Decimal::output`
 
@@ -405,7 +405,7 @@ for two NaNs, and false otherwise.
 
 ### `GdaContext`
 
-`GdaContext` is the immutable GDA context: arithmetic policy plus sticky status
+`GdaContext` is the immutable GDA context: arithmetic policy plus sticky flags
 plus enabled traps.
 
 ```mbti
@@ -415,14 +415,14 @@ pub struct GdaContext {
 ```
 
 The policy is precision $p \ge 1$, a `GdaRoundingMode`, $e_{\min} \le e_{\max}$,
-`clamp` and `extended`. The status is a `GdaFlags` value that operations only
-ever enlarge; the traps are a `GdaTrapSet`. Neither status nor traps influence
+`clamp` and `extended`. The flags are a `GdaFlags` value that operations only
+ever enlarge; the traps are a `GdaTrapSet`. Neither flags nor traps influence
 the numerical result of an operation: they only decide the next context and
 whether the outcome is `Completed` or `Trapped`.
 
 ### `GdaContext::new`, `GdaContext::try_new`
 
-`new` builds a context with an empty status and aborts on an invalid
+`new` builds a context with an empty set of flags and aborts on an invalid
 parameter; `try_new` takes the same parameters and returns a `Result`.
 
 ```mbti
@@ -509,7 +509,7 @@ pub fn GdaContext::with_exponent_range(Self, e_min~ : Int, e_max~ : Int) -> Self
 ```
 
 The result is checked like `new`: a precision or exponent range outside the
-rules above aborts. The sticky status, the traps, `clamp`, `extended` and the
+rules above aborts. The sticky flags, the traps, `clamp`, `extended` and the
 refinement limit are kept.
 
 ### `GdaContext::precision`, `GdaContext::rounding`, `GdaContext::e_min`, `GdaContext::e_max`, `GdaContext::clamp`, `GdaContext::extended`, `GdaContext::radix`
@@ -528,12 +528,12 @@ pub fn GdaContext::radix(Self) -> Int
 
 `radix` always returns 10.
 
-### `GdaContext::status`, `GdaContext::traps`
+### `GdaContext::flags`, `GdaContext::traps`
 
-These read the sticky status and the enabled traps.
+These read the sticky flags and the enabled traps.
 
 ```mbti
-pub fn GdaContext::status(Self) -> GdaFlags
+pub fn GdaContext::flags(Self) -> GdaFlags
 pub fn GdaContext::traps(Self) -> GdaTrapSet
 ```
 
@@ -555,20 +555,20 @@ the count (the working precision then stops at a resource bound). A limit below
 `invalid_context` and [`try_exp`, `try_ln`, `try_log10`, `try_power`](#try_exp-try_ln-try_log10-try_power)
 return `Err`.
 
-### `GdaContext::trap`, `GdaContext::with_traps`, `GdaContext::clear_status`, `GdaContext::reset`
+### `GdaContext::trap`, `GdaContext::with_traps`, `GdaContext::clear_flags`, `GdaContext::reset`
 
-These return a new context with changed traps or status; the receiver is not
+These return a new context with changed traps or flags; the receiver is not
 modified.
 
 ```mbti
 pub fn GdaContext::trap(Self, GdaSignal, enabled? : Bool) -> Self
 pub fn GdaContext::with_traps(Self, GdaTrapSet) -> Self
-pub fn GdaContext::clear_status(Self) -> Self
+pub fn GdaContext::clear_flags(Self) -> Self
 pub fn GdaContext::reset(Self) -> Self
 ```
 
 `trap(s)` enables (or with `enabled=false` disables) one trap; `with_traps`
-replaces the whole set. `clear_status` empties the status and keeps the traps;
+replaces the whole set. `clear_flags` empties the flags and keeps the traps;
 `reset` empties both.
 
 ### `GdaRoundingMode`
@@ -602,7 +602,7 @@ a formula.
 ### `GdaSignal`
 
 `GdaSignal` names the nine signals of GDA 1.70. Each has a flag in the context
-status and a trap-enabler.
+flags and a trap-enabler.
 
 ```mbti
 pub(all) enum GdaSignal {
@@ -630,8 +630,8 @@ undefined and invalid context) are not signals: they are conditions of
 
 `GdaFlags` is a set of conditions (the thirteen conditions the library raises,
 the fourteen of the specification without Insufficient storage), used both for
-the conditions raised by one operation and for the sticky status of a context.
-The decTest files name conditions, so the status keeps them apart.
+the conditions raised by one operation and for the sticky flags of a context.
+The decTest files name conditions, so the flags keep them apart.
 
 ```mbti
 pub struct GdaFlags {
@@ -722,7 +722,7 @@ pub fn[T] GdaOutcome::raised(Self[T]) -> GdaFlags
 ```
 
 `value` is the defined result also for `Trapped`, `next_context` the context
-with the updated status, and `raised` the conditions of this operation only.
+with the updated flags, and `raised` the conditions of this operation only.
 
 ### `GdaOutcome::completed`, `GdaOutcome::absorb`
 
@@ -736,7 +736,7 @@ pub fn[T, U] GdaOutcome::absorb(Self[T], Self[U]) -> Self[T]
 `completed(v, c)` is the outcome of an operation that raised nothing: `v` and `c`
 unchanged, empty `raised`. `a.absorb(b)` keeps the value, the context (traps
 included) and the trap of `a`; the conditions that `b` raised join `raised` and the
-sticky status of the next context (with `invalid_operation` set when one of the
+sticky flags of the next context (with `invalid_operation` set when one of the
 four detailed invalid conditions is among them); when `a` completed and `b`
 trapped, the result is `Trapped` with the signal of `b`. The traps of `a` are not
 tested against the conditions of `b`. [`GdaDecimalChecked`](decimal_gda_checked.md)
@@ -761,8 +761,8 @@ operation raised and $C$ the input context.
 
 1. If $R$ is empty the outcome is `Completed(v, C, none)`: the very same
    context comes back.
-2. Otherwise the next context is $C$ with status
-   $C.\mathrm{status} \cup R$, where the `invalid_operation` flag is also set
+2. Otherwise the next context is $C$ with flags
+   $C.\mathrm{flags} \cup R$, where the `invalid_operation` flag is also set
    whenever $R$ contains one of the four detailed invalid conditions.
 3. The trapped signal is the first $s$ in the order below with
    `raised.contains(s)` and `traps.contains(s)`: InvalidOperation,
@@ -776,7 +776,7 @@ the one `InvalidOperation` trap catches all of them, and the trapped signal is
 
 ```moonbit
 ///|
-test "GDA context, status and traps" {
+test "GDA context, flags and traps" {
   let ctx = @decimal_gda.GdaContext::decimal64().trap(InvalidOperation)
   let zero = @decimal_gda.Decimal::zero()
   let out = @decimal_gda.divide(zero, zero, ctx) // 0/0
@@ -788,8 +788,8 @@ test "GDA context, status and traps" {
       inspect(signal == InvalidOperation, content="true")
     @decimal_gda.GdaOutcome::Completed(_, _, _) => fail("expected a trap")
   }
-  inspect(out.next_context().status().invalid_operation(), content="true")
-  inspect(ctx.status() == @decimal_gda.GdaFlags::new(), content="true")
+  inspect(out.next_context().flags().invalid_operation(), content="true")
+  inspect(ctx.flags() == @decimal_gda.GdaFlags::new(), content="true")
   inspect(ctx.reset().traps() == @decimal_gda.GdaTrapSet::new(), content="true")
 }
 ```
@@ -1894,20 +1894,20 @@ pub struct GdaContext {
 }
 pub fn GdaContext::basic_default() -> Self
 pub fn GdaContext::clamp(Self) -> Bool
-pub fn GdaContext::clear_status(Self) -> Self
+pub fn GdaContext::clear_flags(Self) -> Self
 pub fn GdaContext::decimal128(rounding? : GdaRoundingMode) -> Self
 pub fn GdaContext::decimal32(rounding? : GdaRoundingMode) -> Self
 pub fn GdaContext::decimal64(rounding? : GdaRoundingMode) -> Self
 pub fn GdaContext::e_max(Self) -> Int32
 pub fn GdaContext::e_min(Self) -> Int32
 pub fn GdaContext::extended(Self) -> Bool
+pub fn GdaContext::flags(Self) -> GdaFlags
 pub fn GdaContext::new(precision? : Int32, rounding? : GdaRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, traps? : GdaTrapSet) -> Self
 pub fn GdaContext::precision(Self) -> Int32
 pub fn GdaContext::radix(Self) -> Int32
 pub fn GdaContext::refinement_limit(Self) -> Int32?
 pub fn GdaContext::reset(Self) -> Self
 pub fn GdaContext::rounding(Self) -> GdaRoundingMode
-pub fn GdaContext::status(Self) -> GdaFlags
 pub fn GdaContext::trap(Self, GdaSignal, enabled? : Bool) -> Self
 pub fn GdaContext::traps(Self) -> GdaTrapSet
 pub fn GdaContext::try_new(precision? : Int32, rounding? : GdaRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, traps? : GdaTrapSet) -> Result[Self, @arithmetic.ArithmeticError]

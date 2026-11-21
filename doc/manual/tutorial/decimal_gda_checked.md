@@ -3,18 +3,18 @@
 This tutorial shows how to run a General Decimal Arithmetic (GDA) calculation
 as a pipeline that honours GDA traps: you choose a `GdaContext` with the traps
 your application needs, start a `GdaDecimalChecked`, chain operations, detect
-the step that trapped, inspect the sticky status, and decide explicitly whether
+the step that trapped, inspect the sticky flags, and decide explicitly whether
 to continue. This is the model of Python's `decimal` module and of the GDA test
-suites: status flags are sticky, and an enabled trap stops the computation.
+suites: flags flags are sticky, and an enabled trap stops the computation.
 The operations come from [`decimal_gda`](decimal_gda.md); the
-[design page](../design/decimal_gda_checked.md) proves the status and trap laws;
+[design page](../design/decimal_gda_checked.md) proves the flags and trap laws;
 the [API reference](../api/decimal_gda_checked.md) lists every method.
 
 | I want to | Use |
 | --- | --- |
 | Start a pipeline from text or a value | [`GdaDecimalChecked::to_number`, `from_decimal`](#quick-start) |
 | Decide which conditions stop the calculation | [`GdaContext::trap`](#choose-the-traps) |
-| See what the latest step raised and what happened so far | [`raised()`, `status()`](#read-the-sticky-status) |
+| See what the latest step raised and what happened so far | [`raised()`, `status()`](#read-the-sticky-flags) |
 | Find the step that trapped | [`is_err()`, `error()`, `result()`](#nothing-runs-after-a-trap) |
 | Continue with the defined result after a trap | [`resume_defined()`](#resume-deliberately) |
 | Run a function that returns no number, or a `try_` form | [`value()` and `context()`, `from_outcome`](#combine-with-the-plain-gda-functions) |
@@ -106,14 +106,14 @@ test "trap inexact results" {
 }
 ```
 
-### Read the sticky status
+### Read the sticky flags
 
 `raised()` holds the signals of the latest operation, `status()` every signal
-since the context was created or its status was last cleared:
+since the context was created or its flags was last cleared:
 
 ```moonbit
 ///|
-test "status is sticky" {
+test "flags is sticky" {
   let ctx = @decimal_gda.GdaContext::new(precision=5)
   let d = fn(v : @decimal_gda.Decimal) {
     @decimal_gda_checked.GdaDecimalChecked::from_decimal(v, ctx)
@@ -123,7 +123,7 @@ test "status is sticky" {
     .multiply(d(@decimal_gda.Decimal::from_int(2)))
   inspect(r.value().to_string(), content="4.4692")
   inspect(gda_flags(r.raised()), content="")
-  inspect(gda_flags(r.status()), content="inexact,rounded")
+  inspect(gda_flags(r.flags()), content="inexact,rounded")
 }
 ```
 
@@ -150,7 +150,7 @@ test "short circuit after a trap" {
 
 ### Resume deliberately
 
-`resume_defined()` accepts the defined result and continues. The status still
+`resume_defined()` accepts the defined result and continues. The flags still
 records the trapped signal, so the decision is visible afterwards:
 
 ```moonbit
@@ -166,7 +166,7 @@ test "resume with the defined result" {
   let resumed = trapped.resume_defined().minus()
   inspect(resumed.is_err(), content="false")
   inspect(resumed.value().to_string(), content="-inf")
-  inspect(gda_flags(resumed.status()), content="division_by_zero")
+  inspect(gda_flags(resumed.flags()), content="division_by_zero")
 }
 ```
 
@@ -179,7 +179,7 @@ again.
 
 GDA classifies conversion syntax, impossible and undefined divisions and invalid
 contexts as *invalid-operation conditions*. A context that traps
-`InvalidOperation` therefore stops on a malformed string, and the status gains
+`InvalidOperation` therefore stops on a malformed string, and the flags gains
 `invalid_operation` next to the specific condition:
 
 ```moonbit
@@ -194,7 +194,7 @@ test "a malformed literal" {
     r.error() == Some(@decimal_gda.GdaSignal::InvalidOperation),
     content="true",
   )
-  inspect(gda_flags(r.status()), content="invalid_operation,conversion_syntax")
+  inspect(gda_flags(r.flags()), content="invalid_operation,conversion_syntax")
 }
 ```
 
@@ -256,9 +256,9 @@ the previous state.
 - **`basic_default()` traps, `new()` does not.** Choose the context deliberately.
 - **`raised()` versus `status()`.** The first is the latest step, the second
   the sticky history.
-- **`resume_defined` keeps the status and the traps.** It clears only the
-  trap marker and `raised()`. Clear the status with
-  `GdaContext::clear_status` on a context and start a new pipeline if needed.
+- **`resume_defined` keeps the flags and the traps.** It clears only the
+  trap marker and `raised()`. Clear the flags with
+  `GdaContext::clear_flags` on a context and start a new pipeline if needed.
 - **No errors.** Traps are not converted to `ArithmeticError`; check
   `is_err()`.
 - **Two decimal packages.** `decimal_gda.Decimal` is not
@@ -268,7 +268,7 @@ the previous state.
 ## Next steps
 
 - [`decimal_gda_checked` design](../design/decimal_gda_checked.md): sticky
-  status as a monoid, the trap predicate and the short-circuit proof.
+  flags as a monoid, the trap predicate and the short-circuit proof.
 - [`decimal_gda_checked` API](../api/decimal_gda_checked.md): every method.
 - [`decimal_gda` tutorial](decimal_gda.md): contexts, rounding modes and the
   full GDA operation set.

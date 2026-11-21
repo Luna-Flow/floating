@@ -239,20 +239,20 @@ pub struct GdaContext {
 }
 pub fn GdaContext::basic_default() -> Self
 pub fn GdaContext::clamp(Self) -> Bool
-pub fn GdaContext::clear_status(Self) -> Self
+pub fn GdaContext::clear_flags(Self) -> Self
 pub fn GdaContext::decimal128(rounding? : GdaRoundingMode) -> Self
 pub fn GdaContext::decimal32(rounding? : GdaRoundingMode) -> Self
 pub fn GdaContext::decimal64(rounding? : GdaRoundingMode) -> Self
 pub fn GdaContext::e_max(Self) -> Int32
 pub fn GdaContext::e_min(Self) -> Int32
 pub fn GdaContext::extended(Self) -> Bool
+pub fn GdaContext::flags(Self) -> GdaFlags
 pub fn GdaContext::new(precision? : Int32, rounding? : GdaRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, traps? : GdaTrapSet) -> Self
 pub fn GdaContext::precision(Self) -> Int32
 pub fn GdaContext::radix(Self) -> Int32
 pub fn GdaContext::refinement_limit(Self) -> Int32?
 pub fn GdaContext::reset(Self) -> Self
 pub fn GdaContext::rounding(Self) -> GdaRoundingMode
-pub fn GdaContext::status(Self) -> GdaFlags
 pub fn GdaContext::trap(Self, GdaSignal, enabled? : Bool) -> Self
 pub fn GdaContext::traps(Self) -> GdaTrapSet
 pub fn GdaContext::try_new(precision? : Int32, rounding? : GdaRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, traps? : GdaTrapSet) -> Result[Self, @arithmetic.ArithmeticError]

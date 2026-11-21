@@ -68,7 +68,7 @@ pub struct GdaContext {
   priv e_max_ : Int32
   priv clamp_ : Bool
   priv extended_ : Bool
-  priv status_ : GdaFlags
+  priv flags_ : GdaFlags
   priv traps_ : GdaTrapSet
   // derived from the fields above, built once by `GdaContext::new`
   priv decimal_ : DecimalContext
@@ -484,7 +484,7 @@ fn GdaContext::build(
     e_max_: e_max,
     clamp_: clamp,
     extended_: extended,
-    status_: GdaFlags::new(),
+    flags_: GdaFlags::new(),
     traps_: traps,
     decimal_,
     mathematical_: {
@@ -672,7 +672,7 @@ fn GdaContext::rebuilt(
     extended=self.extended_,
     traps=self.traps_,
   )
-  { ..fresh, status_: self.status_, }.with_refinement_limit(
+  { ..fresh, flags_: self.flags_, }.with_refinement_limit(
     self.refinement_limit(),
   )
 }
@@ -752,8 +752,8 @@ pub fn GdaContext::rounding(self : GdaContext) -> GdaRoundingMode {
 }
 
 ///|
-pub fn GdaContext::status(self : GdaContext) -> GdaFlags {
-  self.status_
+pub fn GdaContext::flags(self : GdaContext) -> GdaFlags {
+  self.flags_
 }
 
 ///|
@@ -802,13 +802,13 @@ pub fn GdaContext::trap(
 }
 
 ///|
-pub fn GdaContext::clear_status(self : GdaContext) -> GdaContext {
-  { ..self, status_: GdaFlags::new(), }
+pub fn GdaContext::clear_flags(self : GdaContext) -> GdaContext {
+  { ..self, flags_: GdaFlags::new(), }
 }
 
 ///|
 pub fn GdaContext::reset(self : GdaContext) -> GdaContext {
-  { ..self, status_: GdaFlags::new(), traps_: GdaTrapSet::new(), }
+  { ..self, flags_: GdaFlags::new(), traps_: GdaTrapSet::new(), }
 }
 
 ///|
@@ -855,7 +855,7 @@ fn[T] complete_gda_raised(
   context : GdaContext,
   raised : GdaFlags,
 ) -> GdaOutcome[T] {
-  let next_context = gda_context_with_status(context, raised)
+  let next_context = gda_context_with_flags(context, raised)
   match trapped_signal(raised, context.traps_) {
     Some(signal) => Trapped(signal, value, next_context, raised)
     None => Completed(value, next_context, raised)
@@ -887,19 +887,16 @@ fn gda_flags_include(status : GdaFlags, delta : GdaFlags) -> Bool {
 /// context itself is returned and no record is built; contexts are immutable
 /// values compared by value, so sharing the input is not observable. A clear
 /// status takes `delta` itself instead of a 13-field union.
-fn gda_context_with_status(
-  context : GdaContext,
-  delta : GdaFlags,
-) -> GdaContext {
-  if gda_flags_include(context.status_, delta) {
+fn gda_context_with_flags(context : GdaContext, delta : GdaFlags) -> GdaContext {
+  if gda_flags_include(context.flags_, delta) {
     context
   } else {
     {
       ..context,
-      status_: if gda_flags_are_clear(context.status_) {
+      flags_: if gda_flags_are_clear(context.flags_) {
         delta
       } else {
-        context.status_.combine(delta)
+        context.flags_.combine(delta)
       },
     }
   }
@@ -937,7 +934,7 @@ fn[T] complete_gda(
   } else {
     raised
   }
-  let next_context = gda_context_with_status(context, status_delta)
+  let next_context = gda_context_with_flags(context, status_delta)
   match trapped_signal(raised, context.traps_) {
     Some(signal) => Trapped(signal, value, next_context, raised)
     None => Completed(value, next_context, raised)
@@ -976,7 +973,7 @@ pub fn[T, U] GdaOutcome::absorb(
   }
   match self {
     Completed(value, context, raised) => {
-      let next = { ..context, status_: context.status_.combine(status_delta), }
+      let next = { ..context, flags_: context.flags_.combine(status_delta), }
       let merged = raised.combine(extra)
       match other {
         Trapped(signal, _, _, _) => Trapped(signal, value, next, merged)
@@ -987,7 +984,7 @@ pub fn[T, U] GdaOutcome::absorb(
       Trapped(
         signal,
         value,
-        { ..context, status_: context.status_.combine(status_delta), },
+        { ..context, flags_: context.flags_.combine(status_delta), },
         raised.combine(extra),
       )
   }

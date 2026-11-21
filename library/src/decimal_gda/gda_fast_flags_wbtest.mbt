@@ -19,10 +19,10 @@ fn gda_fast_trap_context(random : GdaFastRandom) -> GdaContext {
   // conditions, to hit every branch of the status update
   match random.below(5) {
     0 => with_traps
-    1 => gda_context_with_status(with_traps, gda_flags_rounded_only)
-    2 => gda_context_with_status(with_traps, gda_flags_rounded_inexact)
+    1 => gda_context_with_flags(with_traps, gda_flags_rounded_only)
+    2 => gda_context_with_flags(with_traps, gda_flags_rounded_inexact)
     3 =>
-      gda_context_with_status(with_traps, { ..GdaFlags::new(), clamped: true, })
+      gda_context_with_flags(with_traps, { ..GdaFlags::new(), clamped: true, })
     _ => with_traps
   }
 }

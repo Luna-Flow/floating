@@ -4118,8 +4118,8 @@ msgid "decimal_gda API"
 msgstr "decimal_gda API"
 
 #: manual/api/decimal_gda.md:5
-msgid "`decimal_gda` implements the General Decimal Arithmetic Specification (GDA, version 1.70) by M. F. Cowlishaw. Its `Decimal` is a sign, an arbitrary-length decimal coefficient and a decimal exponent; its `GdaContext` carries the precision, rounding mode, exponent limits, clamping, the extended/subset switch, the sticky status and the enabled traps; and every GDA operation is a pure function that returns a `GdaOutcome` holding the defined result, the next context and the conditions it raised. The [tutorial](../tutorial/decimal_gda.md) shows the package in use; the [design page](../design/decimal_gda.md) derives the rules stated here."
-msgstr "`decimal_gda` 实现了 M. F. Cowlishaw 的 General Decimal Arithmetic 规范（GDA，1.70 版）。其 `Decimal` 由符号、任意长度的十进制系数和十进制指数组成；其 `GdaContext` 携带精度、舍入模式、指数限制、钳制、扩展/子集开关、粘滞状态以及已启用的陷阱；每个 GDA 运算都是纯函数，返回一个 `GdaOutcome`，其中包含所定义的结果、下一个上下文以及它所引发的条件。[教程](../tutorial/decimal_gda.md)展示了该包的用法；[设计页面](../design/decimal_gda.md)推导了此处陈述的规则。"
+msgid "`decimal_gda` implements the General Decimal Arithmetic Specification (GDA, version 1.70) by M. F. Cowlishaw. Its `Decimal` is a sign, an arbitrary-length decimal coefficient and a decimal exponent; its `GdaContext` carries the precision, rounding mode, exponent limits, clamping, the extended/subset switch, the sticky flags and the enabled traps; and every GDA operation is a pure function that returns a `GdaOutcome` holding the defined result, the next context and the conditions it raised. The [tutorial](../tutorial/decimal_gda.md) shows the package in use; the [design page](../design/decimal_gda.md) derives the rules stated here."
+msgstr "`decimal_gda` 实现了 M. F. Cowlishaw 的 General Decimal Arithmetic 规范（GDA，1.70 版）。其 `Decimal` 由符号、任意长度的十进制系数和十进制指数组成；其 `GdaContext` 携带精度、舍入模式、指数限制、钳制、扩展/子集开关、粘滞标志以及已启用的陷阱；每个 GDA 运算都是纯函数，返回一个 `GdaOutcome`，其中包含所定义的结果、下一个上下文以及它所引发的条件。[教程](../tutorial/decimal_gda.md)展示了该包的用法；[设计页面](../design/decimal_gda.md)推导了此处陈述的规则。"
 
 #: manual/api/decimal_gda.md:15
 msgid "The package does not depend on the IEEE 754 package `decimal`. It publishes the GDA layer only (`Decimal`, `GdaContext`, the `Gda*` types and the functions named after the GDA operations) and adapters to the `Luna-Flow/arithmetic` and `Luna-Flow/luna-generic` traits. The status-free engine the functions are built on is private to the package."
@@ -4202,8 +4202,8 @@ msgid "This reads a GDA numeric string without a GDA context."
 msgstr "该函数在没有 GDA 上下文的情况下读取 GDA 数值字符串。"
 
 #: manual/api/decimal_gda.md:200
-msgid "Accepted syntax is the GDA numeric-string grammar: an optional sign, digits with an optional decimal point, an optional exponent `E±n`, or `Infinity`/`Inf`/`NaN`/`sNaN` (case-insensitive) with an optional decimal NaN payload. The exponent is kept exactly, so `from_string(\"2.50\")` has exponent $-2$. A literal with more than `precision` (default 34) significant digits is rounded half to even and its trailing zeros are removed. A malformed literal gives `Err(parse_error)`; so does a precision outside `1..=999999999` (`Err` of the domain-error kind) and a NaN whose payload is wider than `precision - 1` digits (page 11). No context exponent range applies, only the [stored range](#gda_value_e_max-gda_value_e_tiny): a literal whose value (zero included) has an exponent below `gda_value_e_tiny` after the rounding, or an adjusted exponent above `gda_value_e_max`, gives `Err` of the domain-error kind that names both limits and the exponent. It is not a malformed literal, and it is no longer folded into an infinity or a zero (`\"1e3000000000\"` and `\"1e-3000000000\"` are errors). Use the package function [`to_number`](#to_number) when a rounded value is wanted or when the exponent limits, flags, status or traps of a context must apply."
-msgstr "可接受的语法为 GDA 数值字符串文法：可选符号、带可选小数点的数字、可选指数 `E±n`，或者 `Infinity`/`Inf`/`NaN`/`sNaN`（不区分大小写）并可带十进制 NaN 载荷。指数被精确保留，因此 `from_string(\"2.50\")` 的指数为 $-2$。有效数字多于 `precision`（默认 34）位的字面量按半值取偶舍入，并去除尾随零。格式错误的字面量得到 `Err(parse_error)`；精度超出 `1..=999999999`（`Err` 为定义域错误一类）和载荷宽于 `precision - 1` 位的 NaN（第 11 页）也是如此。不适用任何上下文指数范围，只适用[存储范围](#gda_value_e_max-gda_value_e_tiny)：其值（包括零）在舍入之后的指数低于 `gda_value_e_tiny`，或调整指数高于 `gda_value_e_max` 的字面量，得到指明两个限制和该指数的定义域错误一类的 `Err`。它不是格式错误的字面量，也不再被折叠成无穷或零（`\"1e3000000000\"` 和 `\"1e-3000000000\"` 都是错误）。需要舍入后的值，或必须应用上下文的指数限制、标志、状态或陷阱时，请使用包函数 [`to_number`](#to_number)。"
+msgid "Accepted syntax is the GDA numeric-string grammar: an optional sign, digits with an optional decimal point, an optional exponent `E±n`, or `Infinity`/`Inf`/`NaN`/`sNaN` (case-insensitive) with an optional decimal NaN payload. The exponent is kept exactly, so `from_string(\"2.50\")` has exponent $-2$. A literal with more than `precision` (default 34) significant digits is rounded half to even and its trailing zeros are removed. A malformed literal gives `Err(parse_error)`; so does a precision outside `1..=999999999` (`Err` of the domain-error kind) and a NaN whose payload is wider than `precision - 1` digits (page 11). No context exponent range applies, only the [stored range](#gda_value_e_max-gda_value_e_tiny): a literal whose value (zero included) has an exponent below `gda_value_e_tiny` after the rounding, or an adjusted exponent above `gda_value_e_max`, gives `Err` of the domain-error kind that names both limits and the exponent. It is not a malformed literal, and it is no longer folded into an infinity or a zero (`\"1e3000000000\"` and `\"1e-3000000000\"` are errors). Use the package function [`to_number`](#to_number) when a rounded value is wanted or when the exponent limits, flags or traps of a context must apply."
+msgstr "可接受的语法为 GDA 数值字符串文法：可选符号、带可选小数点的数字、可选指数 `E±n`，或者 `Infinity`/`Inf`/`NaN`/`sNaN`（不区分大小写）并可带十进制 NaN 载荷。指数被精确保留，因此 `from_string(\"2.50\")` 的指数为 $-2$。有效数字多于 `precision`（默认 34）位的字面量按半值取偶舍入，并去除尾随零。格式错误的字面量得到 `Err(parse_error)`；精度超出 `1..=999999999`（`Err` 为定义域错误一类）和载荷宽于 `precision - 1` 位的 NaN（第 11 页）也是如此。不适用任何上下文指数范围，只适用[存储范围](#gda_value_e_max-gda_value_e_tiny)：其值（包括零）在舍入之后的指数低于 `gda_value_e_tiny`，或调整指数高于 `gda_value_e_max` 的字面量，得到指明两个限制和该指数的定义域错误一类的 `Err`。它不是格式错误的字面量，也不再被折叠成无穷或零（`\"1e3000000000\"` 和 `\"1e-3000000000\"` 都是错误）。需要舍入后的值，或必须应用上下文的指数限制、标志、标志或陷阱时，请使用包函数 [`to_number`](#to_number)。"
 
 #: manual/api/decimal_gda.md:220
 msgid "These print the value in GDA scientific notation, with lowercase special values."
@@ -4298,16 +4298,16 @@ msgid "The GDA context"
 msgstr "GDA 上下文"
 
 #: manual/api/decimal_gda.md:408
-msgid "`GdaContext` is the immutable GDA context: arithmetic policy plus sticky status plus enabled traps."
-msgstr "`GdaContext` 是不可变的 GDA 上下文：算术策略加上粘滞状态，再加上已启用的陷阱。"
+msgid "`GdaContext` is the immutable GDA context: arithmetic policy plus sticky flags plus enabled traps."
+msgstr "`GdaContext` 是不可变的 GDA 上下文：算术策略加上粘滞标志，再加上已启用的陷阱。"
 
 #: manual/api/decimal_gda.md:417
-msgid "The policy is precision $p \\ge 1$, a `GdaRoundingMode`, $e_{\\min} \\le e_{\\max}$, `clamp` and `extended`. The status is a `GdaFlags` value that operations only ever enlarge; the traps are a `GdaTrapSet`. Neither status nor traps influence the numerical result of an operation: they only decide the next context and whether the outcome is `Completed` or `Trapped`."
-msgstr "策略包括精度 $p \\ge 1$、一个 `GdaRoundingMode`、$e_{\\min} \\le e_{\\max}$、`clamp` 以及 `extended`。状态是一个 `GdaFlags` 值，运算只会使它增大；陷阱是一个 `GdaTrapSet`。状态和陷阱都不影响运算的数值结果：它们只决定下一个上下文，以及结果是 `Completed` 还是 `Trapped`。"
+msgid "The policy is precision $p \\ge 1$, a `GdaRoundingMode`, $e_{\\min} \\le e_{\\max}$, `clamp` and `extended`. The flags are a `GdaFlags` value that operations only ever enlarge; the traps are a `GdaTrapSet`. Neither flags nor traps influence the numerical result of an operation: they only decide the next context and whether the outcome is `Completed` or `Trapped`."
+msgstr "策略包括精度 $p \\ge 1$、一个 `GdaRoundingMode`、$e_{\\min} \\le e_{\\max}$、`clamp` 以及 `extended`。标志是一个 `GdaFlags` 值，运算只会使它增大；陷阱是一个 `GdaTrapSet`。标志和陷阱都不影响运算的数值结果：它们只决定下一个上下文，以及结果是 `Completed` 还是 `Trapped`。"
 
 #: manual/api/decimal_gda.md:425
-msgid "`new` builds a context with an empty status and aborts on an invalid parameter; `try_new` takes the same parameters and returns a `Result`."
-msgstr "`new` 构造状态为空的上下文，参数无效时中止；`try_new` 接受相同的参数并返回 `Result`。"
+msgid "`new` builds a context with an empty set of flags and aborts on an invalid parameter; `try_new` takes the same parameters and returns a `Result`."
+msgstr "`new` 构造标志为空的上下文，参数无效时中止；`try_new` 接受相同的参数并返回 `Result`。"
 
 #: manual/api/decimal_gda.md:433
 msgid "Defaults: `precision=34`, `rounding=HalfEven`, `e_min=-999_999_999`, `e_max=999_999_999`, `clamp=false`, `extended=true`, no traps. The parameters must satisfy these rules, and `try_new` returns `Err(domain_error)` naming the invalid one while `new` aborts with the same message:"
@@ -4379,8 +4379,8 @@ msgid "These return a copy with one setting changed."
 msgstr "这些函数返回改变了一项设置的副本。"
 
 #: manual/api/decimal_gda.md:511
-msgid "The result is checked like `new`: a precision or exponent range outside the rules above aborts. The sticky status, the traps, `clamp`, `extended` and the refinement limit are kept."
-msgstr "结果与 `new` 一样受到检查：精度或指数范围若不符合上述规则则中止。粘滞状态、陷阱、`clamp`、`extended` 和细化限制都会保留。"
+msgid "The result is checked like `new`: a precision or exponent range outside the rules above aborts. The sticky flags, the traps, `clamp`, `extended` and the refinement limit are kept."
+msgstr "结果与 `new` 一样受到检查：精度或指数范围若不符合上述规则则中止。粘滞标志、陷阱、`clamp`、`extended` 和细化限制都会保留。"
 
 #: manual/api/decimal_gda.md:517
 msgid "These read the arithmetic policy."
@@ -4391,8 +4391,8 @@ msgid "`radix` always returns 10."
 msgstr "`radix` 总是返回 10。"
 
 #: manual/api/decimal_gda.md:533
-msgid "These read the sticky status and the enabled traps."
-msgstr "这些函数读取粘滞状态和已启用的陷阱。"
+msgid "These read the sticky flags and the enabled traps."
+msgstr "这些函数读取粘滞标志和已启用的陷阱。"
 
 #: manual/api/decimal_gda.md:542
 msgid "These read and set the number of refinement steps of the certified elementary functions."
@@ -4403,12 +4403,12 @@ msgid "`exp`, `ln`, `log10` and `power` refine an enclosure of the result at mos
 msgstr "`exp`、`ln`、`log10` 和 `power` 默认至多细化包络 `Some(12)` 次。极少数非常接近舍入边界的参数可能需要更多：`with_refinement_limit(Some(24))` 允许 24 步，`None` 取消步数限制（此时工作精度在某个资源上限处停止）。小于 1 的限制按一步计。达到限制时，普通函数报告 `invalid_context`，而 [`try_exp`、`try_ln`、`try_log10`、`try_power`](#try_exp-try_ln-try_log10-try_power) 返回 `Err`。"
 
 #: manual/api/decimal_gda.md:560
-msgid "These return a new context with changed traps or status; the receiver is not modified."
-msgstr "这些函数返回陷阱或状态被修改后的新上下文；接收者本身不被修改。"
+msgid "These return a new context with changed traps or flags; the receiver is not modified."
+msgstr "这些函数返回陷阱或标志被修改后的新上下文；接收者本身不被修改。"
 
 #: manual/api/decimal_gda.md:570
-msgid "`trap(s)` enables (or with `enabled=false` disables) one trap; `with_traps` replaces the whole set. `clear_status` empties the status and keeps the traps; `reset` empties both."
-msgstr "`trap(s)` 启用（或在 `enabled=false` 时禁用）一个陷阱；`with_traps` 替换整个集合。`clear_status` 清空状态并保留陷阱；`reset` 将两者都清空。"
+msgid "`trap(s)` enables (or with `enabled=false` disables) one trap; `with_traps` replaces the whole set. `clear_flags` empties the flags and keeps the traps; `reset` empties both."
+msgstr "`trap(s)` 启用（或在 `enabled=false` 时禁用）一个陷阱；`with_traps` 替换整个集合。`clear_flags` 清空标志并保留陷阱；`reset` 将两者都清空。"
 
 #: manual/api/decimal_gda.md:576
 msgid "`GdaRoundingMode` lists the eight GDA rounding modes."
@@ -4423,16 +4423,16 @@ msgid "Signals, flags and traps"
 msgstr "信号、标志与陷阱"
 
 #: manual/api/decimal_gda.md:604
-msgid "`GdaSignal` names the nine signals of GDA 1.70. Each has a flag in the context status and a trap-enabler."
-msgstr "`GdaSignal` 列出 GDA 1.70 的九种信号。每种信号在上下文状态中有一个标志，并有一个陷阱使能。"
+msgid "`GdaSignal` names the nine signals of GDA 1.70. Each has a flag in the context flags and a trap-enabler."
+msgstr "`GdaSignal` 列出 GDA 1.70 的九种信号。每种信号在上下文标志中有一个标志，并有一个陷阱使能。"
 
 #: manual/api/decimal_gda.md:621
 msgid "The eight signals of the specification (page 15) are `Clamped`, `DivisionByZero`, `Inexact`, `InvalidOperation`, `Overflow`, `Rounded`, `Subnormal` and `Underflow`; `LostDigits` is the ninth, raised only in subset arithmetic (Appendix A). The conditions of pages 51 and 52 that the text says signal invalid-operation (conversion syntax, division impossible, division undefined and invalid context) are not signals: they are conditions of `GdaFlags`, and raising any of them raises the signal `InvalidOperation`."
 msgstr "规范的八种信号（第 15 页）是 `Clamped`、`DivisionByZero`、`Inexact`、`InvalidOperation`、`Overflow`、`Rounded`、`Subnormal` 和 `Underflow`；`LostDigits` 是第九种，仅在子集算术中引发（附录 A）。第 51 和 52 页中文本称其发出 invalid-operation 的那些条件（转换语法错误、除法不可行、除法未定义和无效上下文）不是信号：它们是 `GdaFlags` 的条件，引发其中任何一个都会引发信号 `InvalidOperation`。"
 
 #: manual/api/decimal_gda.md:631
-msgid "`GdaFlags` is a set of conditions (the thirteen conditions the library raises, the fourteen of the specification without Insufficient storage), used both for the conditions raised by one operation and for the sticky status of a context. The decTest files name conditions, so the status keeps them apart."
-msgstr "`GdaFlags` 是条件的集合（库引发的十三种条件，即规范的十四种条件去掉 Insufficient storage），既用于表示单个运算引发的条件，也用于表示上下文的粘滞状态。decTest 文件按条件命名，因此状态把它们区分开。"
+msgid "`GdaFlags` is a set of conditions (the thirteen conditions the library raises, the fourteen of the specification without Insufficient storage), used both for the conditions raised by one operation and for the sticky flags of a context. The decTest files name conditions, so the flags keep them apart."
+msgstr "`GdaFlags` 是条件的集合（库引发的十三种条件，即规范的十四种条件去掉 Insufficient storage），既用于表示单个运算引发的条件，也用于表示上下文的粘滞标志。decTest 文件按条件命名，因此标志把它们区分开。"
 
 #: manual/api/decimal_gda.md:642
 msgid "The fields are private. Each of the 13 conditions is read with a method of the same name, such as `raised().inexact()` or `status().division_by_zero()`; there is no public constructor besides `new`, so sets are built only with `new` and `combine`. `GdaTrapSet` reads the same way, one method for each of the nine signals."
@@ -4475,16 +4475,16 @@ msgid "These read the fields that both variants share, without a `match`."
 msgstr "这些函数读取两个变体共有的字段，无需 `match`。"
 
 #: manual/api/decimal_gda.md:724
-msgid "`value` is the defined result also for `Trapped`, `next_context` the context with the updated status, and `raised` the conditions of this operation only."
-msgstr "`value` 是定义的结果（对 `Trapped` 亦然），`next_context` 是状态已更新的上下文，`raised` 只包含本次运算的条件。"
+msgid "`value` is the defined result also for `Trapped`, `next_context` the context with the updated flags, and `raised` the conditions of this operation only."
+msgstr "`value` 是定义的结果（对 `Trapped` 亦然），`next_context` 是标志已更新的上下文，`raised` 只包含本次运算的条件。"
 
 #: manual/api/decimal_gda.md:729
 msgid "These build the outcomes a pipeline needs."
 msgstr "这些函数构造流水线所需的 outcome。"
 
 #: manual/api/decimal_gda.md:736
-msgid "`completed(v, c)` is the outcome of an operation that raised nothing: `v` and `c` unchanged, empty `raised`. `a.absorb(b)` keeps the value, the context (traps included) and the trap of `a`; the conditions that `b` raised join `raised` and the sticky status of the next context (with `invalid_operation` set when one of the four detailed invalid conditions is among them); when `a` completed and `b` trapped, the result is `Trapped` with the signal of `b`. The traps of `a` are not tested against the conditions of `b`. [`GdaDecimalChecked`](decimal_gda_checked.md) uses it for the right operand of a binary operation."
-msgstr "`completed(v, c)` 是什么都没有引发的运算的 outcome：`v` 和 `c` 不变，`raised` 为空。`a.absorb(b)` 保留 `a` 的值、上下文（包括陷阱）和陷阱；`b` 引发的条件并入 `raised` 和下一个上下文的粘滞状态（其中含四个细分的无效条件之一时设置 `invalid_operation`）；当 `a` 已完成而 `b` 陷入陷阱时，结果是带 `b` 的信号的 `Trapped`。`a` 的陷阱不会对 `b` 的条件进行检测。[`GdaDecimalChecked`](decimal_gda_checked.md) 用它处理二元运算的右操作数。"
+msgid "`completed(v, c)` is the outcome of an operation that raised nothing: `v` and `c` unchanged, empty `raised`. `a.absorb(b)` keeps the value, the context (traps included) and the trap of `a`; the conditions that `b` raised join `raised` and the sticky flags of the next context (with `invalid_operation` set when one of the four detailed invalid conditions is among them); when `a` completed and `b` trapped, the result is `Trapped` with the signal of `b`. The traps of `a` are not tested against the conditions of `b`. [`GdaDecimalChecked`](decimal_gda_checked.md) uses it for the right operand of a binary operation."
+msgstr "`completed(v, c)` 是什么都没有引发的运算的 outcome：`v` 和 `c` 不变，`raised` 为空。`a.absorb(b)` 保留 `a` 的值、上下文（包括陷阱）和陷阱；`b` 引发的条件并入 `raised` 和下一个上下文的粘滞标志（其中含四个细分的无效条件之一时设置 `invalid_operation`）；当 `a` 已完成而 `b` 陷入陷阱时，结果是带 `b` 的信号的 `Trapped`。`a` 的陷阱不会对 `b` 的条件进行检测。[`GdaDecimalChecked`](decimal_gda_checked.md) 用它处理二元运算的右操作数。"
 
 #: manual/api/decimal_gda.md:747
 msgid "This is the only way to build a `Completed` outcome from a `Trapped` one."
@@ -4507,8 +4507,8 @@ msgid "If $R$ is empty the outcome is `Completed(v, C, none)`: the very same con
 msgstr "若 $R$ 为空，结果为 `Completed(v, C, none)`：返回的正是同一个上下文。"
 
 #: manual/api/decimal_gda.md:764
-msgid "Otherwise the next context is $C$ with status $C.\\mathrm{status} \\cup R$, where the `invalid_operation` flag is also set whenever $R$ contains one of the four detailed invalid conditions."
-msgstr "否则，下一个上下文是状态为 $C.\\mathrm{status} \\cup R$ 的 $C$；只要 $R$ 包含四种细分无效条件之一，`invalid_operation` 标志也会被设置。"
+msgid "Otherwise the next context is $C$ with flags $C.\\mathrm{flags} \\cup R$, where the `invalid_operation` flag is also set whenever $R$ contains one of the four detailed invalid conditions."
+msgstr "否则，下一个上下文是标志为 $C.\\mathrm{flags} \\cup R$ 的 $C$；只要 $R$ 包含四种细分无效条件之一，`invalid_operation` 标志也会被设置。"
 
 #: manual/api/decimal_gda.md:767
 msgid "The trapped signal is the first $s$ in the order below with `raised.contains(s)` and `traps.contains(s)`: InvalidOperation, DivisionByZero, Overflow, Underflow, Subnormal, Inexact, Rounded, Clamped, LostDigits. If there is one the outcome is `Trapped(s, v, C', R)`, otherwise `Completed(v, C', R)`."
@@ -4851,8 +4851,8 @@ msgid "decimal_gda_checked API"
 msgstr "decimal_gda_checked API"
 
 #: manual/api/decimal_gda_checked.md:5
-msgid "`decimal_gda_checked` provides `GdaDecimalChecked`, a pipeline over the General Decimal Arithmetic (GDA) operations of [`decimal_gda`](decimal_gda.md). It holds exactly one `GdaOutcome[Decimal]`: the current defined value, the next context (whose sticky `status` accumulates every signal raised so far), the signals raised by the latest operation, and, if a trap fired, the trapped signal. An operation on a completed state runs the GDA operation with the stored context; an operation on a trapped state does nothing. `resume_defined()` is the only way to continue after a trap. The right operand of a binary operation is a pipeline too: its conditions join the result and its trap short-circuits (see [Operations](#operations)). The package never produces an `ArithmeticError`. The [tutorial](../tutorial/decimal_gda_checked.md) walks through traps and recovery; the [design page](../design/decimal_gda_checked.md) models the pipeline as a state monad with an absorbing trap and proves the sticky-status laws."
-msgstr "`decimal_gda_checked` 提供 `GdaDecimalChecked`，即基于 [`decimal_gda`](decimal_gda.md) 中通用十进制算术（GDA）运算的流水线。它恰好持有一个 `GdaOutcome[Decimal]`：当前的定义值、下一个上下文（其粘滞的 `status` 累积迄今为止引发的所有信号）、最近一次运算引发的信号，以及（若有陷阱触发）被捕获的信号。对已完成状态执行运算时，会在所存储的上下文下执行相应的 GDA 运算；对已陷入陷阱的状态执行运算则不做任何事。`resume_defined()` 是陷阱触发后继续执行的唯一途径。二元运算的右操作数也是流水线：其条件并入结果，其陷阱会使运算短路（见[运算](#operations)）。本包从不产生 `ArithmeticError`。[教程](../tutorial/decimal_gda_checked.md) 逐步讲解陷阱与恢复；[设计页面](../design/decimal_gda_checked.md) 将该流水线建模为带吸收性陷阱的状态单子，并证明了粘滞状态的定律。"
+msgid "`decimal_gda_checked` provides `GdaDecimalChecked`, a pipeline over the General Decimal Arithmetic (GDA) operations of [`decimal_gda`](decimal_gda.md). It holds exactly one `GdaOutcome[Decimal]`: the current defined value, the next context (whose sticky `flags` accumulates every signal raised so far), the signals raised by the latest operation, and, if a trap fired, the trapped signal. An operation on a completed state runs the GDA operation with the stored context; an operation on a trapped state does nothing. `resume_defined()` is the only way to continue after a trap. The right operand of a binary operation is a pipeline too: its conditions join the result and its trap short-circuits (see [Operations](#operations)). The package never produces an `ArithmeticError`. The [tutorial](../tutorial/decimal_gda_checked.md) walks through traps and recovery; the [design page](../design/decimal_gda_checked.md) models the pipeline as a state monad with an absorbing trap and proves the sticky-flags laws."
+msgstr "`decimal_gda_checked` 提供 `GdaDecimalChecked`，即基于 [`decimal_gda`](decimal_gda.md) 中通用十进制算术（GDA）运算的流水线。它恰好持有一个 `GdaOutcome[Decimal]`：当前的定义值、下一个上下文（其粘滞的 `status` 累积迄今为止引发的所有信号）、最近一次运算引发的信号，以及（若有陷阱触发）被捕获的信号。对已完成标志执行运算时，会在所存储的上下文下执行相应的 GDA 运算；对已陷入陷阱的标志执行运算则不做任何事。`resume_defined()` 是陷阱触发后继续执行的唯一途径。二元运算的右操作数也是流水线：其条件并入结果，其陷阱会使运算短路（见[运算](#operations)）。本包从不产生 `ArithmeticError`。[教程](../tutorial/decimal_gda_checked.md) 逐步讲解陷阱与恢复；[设计页面](../design/decimal_gda_checked.md) 将该流水线建模为带吸收性陷阱的标志单子，并证明了粘滞标志的定律。"
 
 #: manual/api/decimal_gda_checked.md:22
 msgid "Add both packages to your `moon.pkg`; the pipeline takes `decimal_gda` values and contexts:"
@@ -4883,8 +4883,8 @@ msgid "`from_decimal(value, context)` rounds a value into the context with the G
 msgstr "`from_decimal(value, context)` 通过 GDA `apply` 运算将值舍入到上下文中（即类似 *plus* 的、转换到该上下文的操作）。"
 
 #: manual/api/decimal_gda_checked.md:89
-msgid "The signals of the rounding are raised, merged into the status and checked against the traps, so construction itself can trap."
-msgstr "舍入所引发的信号会被引发、合并到状态中并与陷阱比对，因此构造本身也可能触发陷阱。"
+msgid "The signals of the rounding are raised, merged into the flags and checked against the traps, so construction itself can trap."
+msgstr "舍入所引发的信号会被引发、合并到标志中并与陷阱比对，因此构造本身也可能触发陷阱。"
 
 #: manual/api/decimal_gda_checked.md:94
 msgid "`to_number(source, context)` is the GDA *to-number* conversion of a string."
@@ -4899,8 +4899,8 @@ msgid "These methods return the wrapped outcome and its components."
 msgstr "这些方法返回所包装的结果及其各组成部分。"
 
 #: manual/api/decimal_gda_checked.md:118
-msgid "`value()` is the defined result, also when trapped. `context()` is the next context, including its updated status and its traps. `raised()` holds the signals of the latest operation only. `status()` is `context().status()`, the sticky union of everything raised since the context's status was last cleared; whenever any invalid-operation condition (`conversion_syntax`, `division_impossible`, `division_undefined`, `invalid_context`) is raised, the status also gets `invalid_operation`."
-msgstr "`value()` 是定义结果，在陷入陷阱时亦然。`context()` 是下一个上下文，包括其更新后的状态及陷阱设置。`raised()` 仅保存最近一次运算的信号。`status()` 为 `context().status()`，即自上下文状态上次清除以来所引发的全部信号的粘滞并集；每当引发任何无效运算条件（`conversion_syntax`、`division_impossible`、`division_undefined`、`invalid_context`）时，状态中也会加入 `invalid_operation`。"
+msgid "`value()` is the defined result, also when trapped. `context()` is the next context, including its updated flags and its traps. `raised()` holds the signals of the latest operation only. `status()` is `context().flags()`, the sticky union of everything raised since the context's flags was last cleared; whenever any invalid-operation condition (`conversion_syntax`, `division_impossible`, `division_undefined`, `invalid_context`) is raised, the flags also gets `invalid_operation`."
+msgstr "`value()` 是定义结果，在陷入陷阱时亦然。`context()` 是下一个上下文，包括其更新后的标志及陷阱设置。`raised()` 仅保存最近一次运算的信号。`status()` 为 `context().flags()`，即自上下文标志上次清除以来所引发的全部信号的粘滞并集；每当引发任何无效运算条件（`conversion_syntax`、`division_impossible`、`division_undefined`、`invalid_context`）时，标志中也会加入 `invalid_operation`。"
 
 #: manual/api/decimal_gda_checked.md:128
 msgid "These report whether a trap fired and which signal it was."
@@ -4919,8 +4919,8 @@ msgid "`resume_defined()` continues a trapped pipeline with its defined result."
 msgstr "`resume_defined()` 以已陷入陷阱的流水线的定义结果继续执行。"
 
 #: manual/api/decimal_gda_checked.md:156
-msgid "On `Trapped(signal, value, context, raised)` it returns `Completed(value, context, GdaFlags::new())`: the value and the context (with its status, which already contains the trapped signal) are kept, the trap marker and the latest-step flags are dropped. On a completed pipeline it does nothing. Traps stay enabled in the context, so the same condition traps again if it recurs."
-msgstr "对于 `Trapped(signal, value, context, raised)`，它返回 `Completed(value, context, GdaFlags::new())`：值和上下文（其状态中已包含被捕获的信号）被保留，陷阱标记和最近一步的标志被丢弃。对于已完成的流水线，它不做任何事。陷阱在上下文中保持启用，因此同一条件若再次出现会再次触发陷阱。"
+msgid "On `Trapped(signal, value, context, raised)` it returns `Completed(value, context, GdaFlags::new())`: the value and the context (with its flags, which already contains the trapped signal) are kept, the trap marker and the latest-step flags are dropped. On a completed pipeline it does nothing. Traps stay enabled in the context, so the same condition traps again if it recurs."
+msgstr "对于 `Trapped(signal, value, context, raised)`，它返回 `Completed(value, context, GdaFlags::new())`：值和上下文（其标志中已包含被捕获的信号）被保留，陷阱标记和最近一步的标志被丢弃。对于已完成的流水线，它不做任何事。陷阱在上下文中保持启用，因此同一条件若再次出现会再次触发陷阱。"
 
 #: manual/api/decimal_gda_checked.md:193
 #: manual/api/frontend/itl_expr.md:115
@@ -4941,16 +4941,16 @@ msgid "If `a` is trapped, the result is `a`."
 msgstr "若 `a` 已陷入陷阱，结果就是 `a`。"
 
 #: manual/api/decimal_gda_checked.md:205
-msgid "Otherwise, if `b` is trapped, no operation runs: the result keeps the value and the context of `a`, the conditions of `b` join `raised` and the status, and the trap of `b` is the trap of the result."
-msgstr "否则，若 `b` 已陷入陷阱，则不执行运算：结果保留 `a` 的值和上下文，`b` 的条件并入 `raised` 和状态，`b` 的陷阱就是结果的陷阱。"
+msgid "Otherwise, if `b` is trapped, no operation runs: the result keeps the value and the context of `a`, the conditions of `b` join `raised` and the flags, and the trap of `b` is the trap of the result."
+msgstr "否则，若 `b` 已陷入陷阱，则不执行运算：结果保留 `a` 的值和上下文，`b` 的条件并入 `raised` 和标志，`b` 的陷阱就是结果的陷阱。"
 
 #: manual/api/decimal_gda_checked.md:208
-msgid "Otherwise the operation runs under the context of `a`, and the conditions that `b` raised join `raised` of the result and the status of its context. The traps of `a` are not tested against the conditions of `b`: `b` decided its own."
-msgstr "否则，运算在 `a` 的上下文下执行，`b` 引发的条件并入结果的 `raised` 及其上下文的状态。`a` 的陷阱不会对 `b` 的条件进行检测：`b` 已自行决定了它的陷阱。"
+msgid "Otherwise the operation runs under the context of `a`, and the conditions that `b` raised join `raised` of the result and the flags of its context. The traps of `a` are not tested against the conditions of `b`: `b` decided its own."
+msgstr "否则，运算在 `a` 的上下文下执行，`b` 引发的条件并入结果的 `raised` 及其上下文的标志。`a` 的陷阱不会对 `b` 的条件进行检测：`b` 已自行决定了它的陷阱。"
 
 #: manual/api/decimal_gda_checked.md:212
-msgid "`fma` applies the same rules to its two operands. The GDA operation computes the result under `c`'s precision, rounding, exponent limits, clamping and extended mode; if it raises no signal the context is passed on unchanged with empty `raised`; otherwise the raised signals are merged into the status of the next context and, if one of them is enabled in `c.traps()`, the outcome is `Trapped`. The mathematical functions `exp`, `ln`, `log10` and `power` with a non-integer exponent need precision and exponent limits within $\\pm 999\\,999$; otherwise they return NaN with `invalid_context`, which an `InvalidOperation` trap catches."
-msgstr "`fma` 对它的两个操作数应用同样的规则。GDA 运算在 `c` 的精度、舍入、指数界限、钳制和扩展模式下计算结果；若未引发任何信号，则上下文原样传递且 `raised` 为空；否则，引发的信号会合并到下一个上下文的状态中，若其中有信号在 `c.traps()` 中启用，结果即为 `Trapped`。数学函数 `exp`、`ln`、`log10` 以及带非整数指数的 `power` 要求精度和指数界限位于 $\\pm 999\\,999$ 之内；否则返回 NaN 并伴随 `invalid_context`，`InvalidOperation` 陷阱会捕获它。"
+msgid "`fma` applies the same rules to its two operands. The GDA operation computes the result under `c`'s precision, rounding, exponent limits, clamping and extended mode; if it raises no signal the context is passed on unchanged with empty `raised`; otherwise the raised signals are merged into the flags of the next context and, if one of them is enabled in `c.traps()`, the outcome is `Trapped`. The mathematical functions `exp`, `ln`, `log10` and `power` with a non-integer exponent need precision and exponent limits within $\\pm 999\\,999$; otherwise they return NaN with `invalid_context`, which an `InvalidOperation` trap catches."
+msgstr "`fma` 对它的两个操作数应用同样的规则。GDA 运算在 `c` 的精度、舍入、指数界限、钳制和扩展模式下计算结果；若未引发任何信号，则上下文原样传递且 `raised` 为空；否则，引发的信号会合并到下一个上下文的标志中，若其中有信号在 `c.traps()` 中启用，结果即为 `Trapped`。数学函数 `exp`、`ln`、`log10` 以及带非整数指数的 `power` 要求精度和指数界限位于 $\\pm 999\\,999$ 之内；否则返回 NaN 并伴随 `invalid_context`，`InvalidOperation` 陷阱会捕获它。"
 
 #: manual/api/decimal_gda_checked.md:222
 msgid "The operations that return a number are all here: `apply`, `plus`, `minus`, `abs`, `add`, `subtract`, `multiply`, `divide`, `divide_integer`, `fma`, `remainder`, `remainder_near`, `power`, `sqrt`, `exp`, `ln`, `log10`, `quantize`, `rescale`, `reduce`, `round_to_integral_exact`, `round_to_integral_value`, `scaleb`, `shift`, `rotate`, `logb`, `logical_and`, `logical_or`, `logical_xor`, `logical_invert`, `next_minus`, `next_plus`, `next_toward`, `compare`, `compare_signal`, `max`, `min`, `max_magnitude` and `min_magnitude`. The functions of `decimal_gda` that return a string, a boolean or an integer (`class_name`, `is_normal`, `is_subnormal`, `compare_total`, `compare_total_magnitude`) and the `try_` forms are called on `value()` and `context()`."
@@ -15439,8 +15439,8 @@ msgid "**The value does not depend on status or traps.** $v$ and $R$ are functio
 msgstr "**值不依赖于状态或陷阱。** $v$ 和 $R$ 是 $(\\vec x, \\pi(C))$ 的函数；状态和陷阱只进入 $C'$ 和 $\\tau$。因此启用陷阱永远不会改变结果，并且 `Trapped` 可以携带有定义的结果。"
 
 #: manual/design/decimal_gda.md:357
-msgid "**Status is monotone and idempotent.** $C.\\mathrm{status} \\subseteq C'.\\mathrm{status}$, and since $\\cup$ is associative, commutative and idempotent, the status after a threaded sequence is the union of all raised sets, independent of how the sequence is grouped."
-msgstr "**状态单调且幂等。** $C.\\mathrm{status} \\subseteq C'.\\mathrm{status}$，又由于 $\\cup$ 满足结合律、交换律和幂等律，串联执行一系列运算之后的状态就是所有引发集合的并，与该序列如何分组无关。"
+msgid "**Status is monotone and idempotent.** $C.\\mathrm{flags} \\subseteq C'.\\mathrm{flags}$, and since $\\cup$ is associative, commutative and idempotent, the status after a threaded sequence is the union of all raised sets, independent of how the sequence is grouped."
+msgstr "**状态单调且幂等。** $C.\\mathrm{flags} \\subseteq C'.\\mathrm{flags}$，又由于 $\\cup$ 满足结合律、交换律和幂等律，串联执行一系列运算之后的状态就是所有引发集合的并，与该序列如何分组无关。"
 
 #: manual/design/decimal_gda.md:361
 msgid "**The trap choice is deterministic.** The precedence list is a total order on signals, so one operation selects at most one trap, whatever the order in which its conditions were detected."
@@ -25329,16 +25329,16 @@ msgid "decimal_gda tutorial"
 msgstr "decimal_gda 教程"
 
 #: manual/tutorial/decimal_gda.md:3
-msgid "This tutorial teaches you to compute with `decimal_gda`, the package that implements Cowlishaw's General Decimal Arithmetic (GDA): decimal numbers that keep their trailing zeros, a context that fixes precision, rounding and exponent limits, sticky status that records what happened, and traps that stop a calculation while still handing you the defined result. By the end you can thread a context through a calculation, round money, handle traps, overflow and underflow, call the elementary functions and pick the right comparison. The mathematics behind each rule is on the [design page](../design/decimal_gda.md); every public name is on the [API page](../api/decimal_gda.md)."
-msgstr "本教程教你使用 `decimal_gda` 进行计算。该包实现了 Cowlishaw 的通用十进制算术（GDA）：保留尾随零的十进制数，确定精度、舍入和指数界限的上下文，记录所发生情况的粘滞状态，以及在终止计算的同时仍把确定结果交给你的陷阱。学完之后，你将能够在计算中传递上下文、对金额舍入、处理陷阱、上溢和下溢、调用初等函数，并选择合适的比较方式。每条规则背后的数学见[设计页面](../design/decimal_gda.md)；所有公开名称都在 [API 页面](../api/decimal_gda.md)上。"
+msgid "This tutorial teaches you to compute with `decimal_gda`, the package that implements Cowlishaw's General Decimal Arithmetic (GDA): decimal numbers that keep their trailing zeros, a context that fixes precision, rounding and exponent limits, sticky flags that records what happened, and traps that stop a calculation while still handing you the defined result. By the end you can thread a context through a calculation, round money, handle traps, overflow and underflow, call the elementary functions and pick the right comparison. The mathematics behind each rule is on the [design page](../design/decimal_gda.md); every public name is on the [API page](../api/decimal_gda.md)."
+msgstr "本教程教你使用 `decimal_gda` 进行计算。该包实现了 Cowlishaw 的通用十进制算术（GDA）：保留尾随零的十进制数，确定精度、舍入和指数界限的上下文，记录所发生情况的粘滞标志，以及在终止计算的同时仍把确定结果交给你的陷阱。学完之后，你将能够在计算中传递上下文、对金额舍入、处理陷阱、上溢和下溢、调用初等函数，并选择合适的比较方式。每条规则背后的数学见[设计页面](../design/decimal_gda.md)；所有公开名称都在 [API 页面](../api/decimal_gda.md)上。"
 
 #: manual/tutorial/decimal_gda.md:15
 msgid "Read a number under a context"
 msgstr "在上下文下读取一个数"
 
 #: manual/tutorial/decimal_gda.md:16
-msgid "Carry status from one operation to the next"
-msgstr "把状态从一个运算传递到下一个运算"
+msgid "Carry flags from one operation to the next"
+msgstr "把标志从一个运算传递到下一个运算"
 
 #: manual/tutorial/decimal_gda.md:17
 msgid "Round an amount to cents"
@@ -25385,8 +25385,8 @@ msgid "Every GDA operation takes its operands and a `GdaContext` and returns a `
 msgstr "每个 GDA 运算都接收操作数和一个 `GdaContext`，并返回一个 `GdaOutcome`：结果、下一步要使用的上下文，以及该运算引发的情形。"
 
 #: manual/tutorial/decimal_gda.md:58
-msgid "`raised()` describes this one operation. `next_context().status()` is sticky: it collects every condition since the context was created or cleared."
-msgstr "`raised()` 描述的是这一个运算。`next_context().status()` 是粘滞的：它收集自上下文创建或清除以来的所有情形。"
+msgid "`raised()` describes this one operation. `next_context().flags()` is sticky: it collects every condition since the context was created or cleared."
+msgstr "`raised()` 描述的是这一个运算。`next_context().flags()` 是粘滞的：它收集自上下文创建或清除以来的所有情形。"
 
 #: manual/tutorial/decimal_gda.md:63
 msgid "Thread the context through a calculation"
@@ -25413,8 +25413,8 @@ msgid "Handle a trap without losing the result"
 msgstr "处理陷阱而不丢失结果"
 
 #: manual/tutorial/decimal_gda.md:123
-msgid "Enable a trap by deriving a new context with `trap`. A trapped operation returns `Trapped(signal, value, next_context, raised)`: the GDA-defined result is still there, and the sticky status is still updated."
-msgstr "用 `trap` 派生出一个新上下文即可启用陷阱。被陷阱捕获的运算返回 `Trapped(signal, value, next_context, raised)`：GDA 定义的结果仍然在其中，粘滞状态也照样更新。"
+msgid "Enable a trap by deriving a new context with `trap`. A trapped operation returns `Trapped(signal, value, next_context, raised)`: the GDA-defined result is still there, and the sticky flags is still updated."
+msgstr "用 `trap` 派生出一个新上下文即可启用陷阱。被陷阱捕获的运算返回 `Trapped(signal, value, next_context, raised)`：GDA 定义的结果仍然在其中，粘滞标志也照样更新。"
 
 #: manual/tutorial/decimal_gda.md:145
 msgid "An `InvalidOperation` trap also catches the four detailed invalid conditions (conversion syntax, division impossible, division undefined and invalid context), which are flags of the outcome but not signals: the nine signals of the specification are the only ones with a trap. The basic default context enables `InvalidOperation`, so a malformed literal traps:"
@@ -25481,8 +25481,8 @@ msgid "`GdaInterchange` holds a decimal32, decimal64 or decimal128 bit pattern i
 msgstr "`GdaInterchange` 以密集压缩十进制（DPD）编码保存 decimal32、decimal64 或 decimal128 位模式，写作 `#` 加十六进制数字："
 
 #: manual/tutorial/decimal_gda.md:361
-msgid "**Reusing the original context.** Status only accumulates if you pass `next_context()` on. A trap set or status you put on a context also travels with every context derived from it."
-msgstr "**重复使用原始上下文。** 只有把 `next_context()` 传递下去，状态才会累积。你在某个上下文上设置的陷阱集合或状态，也会随从它派生的每个上下文一起传递。"
+msgid "**Reusing the original context.** Status only accumulates if you pass `next_context()` on. A trap set or flags you put on a context also travels with every context derived from it."
+msgstr "**重复使用原始上下文。** 只有把 `next_context()` 传递下去，标志才会累积。你在某个上下文上设置的陷阱集合或标志，也会随从它派生的每个上下文一起传递。"
 
 #: manual/tutorial/decimal_gda.md:364
 msgid "**Treating `Trapped` as \"no value\".** A trap changes the variant, not the result; read the value with `value()` before you decide to stop."
@@ -25537,8 +25537,8 @@ msgid "decimal_gda_checked tutorial"
 msgstr "decimal_gda_checked 教程"
 
 #: manual/tutorial/decimal_gda_checked.md:3
-msgid "This tutorial shows how to run a General Decimal Arithmetic (GDA) calculation as a pipeline that honours GDA traps: you choose a `GdaContext` with the traps your application needs, start a `GdaDecimalChecked`, chain operations, detect the step that trapped, inspect the sticky status, and decide explicitly whether to continue. This is the model of Python's `decimal` module and of the GDA test suites: status flags are sticky, and an enabled trap stops the computation. The operations come from [`decimal_gda`](decimal_gda.md); the [design page](../design/decimal_gda_checked.md) proves the status and trap laws; the [API reference](../api/decimal_gda_checked.md) lists every method."
-msgstr "本教程展示如何把一次通用十进制算术（GDA）计算作为遵守 GDA 陷阱的流水线来运行：你选择一个带有应用所需陷阱的 `GdaContext`，开始一个 `GdaDecimalChecked`，串联运算，找出触发陷阱的步骤，检查粘滞状态，并显式决定是否继续。这正是 Python 的 `decimal` 模块和 GDA 测试套件所采用的模型：状态标志是粘滞的，已启用的陷阱会终止计算。运算来自 [`decimal_gda`](decimal_gda.md)；[设计页面](../design/decimal_gda_checked.md)证明了状态与陷阱的定律；[API 参考](../api/decimal_gda_checked.md)列出了所有方法。"
+msgid "This tutorial shows how to run a General Decimal Arithmetic (GDA) calculation as a pipeline that honours GDA traps: you choose a `GdaContext` with the traps your application needs, start a `GdaDecimalChecked`, chain operations, detect the step that trapped, inspect the sticky flags, and decide explicitly whether to continue. This is the model of Python's `decimal` module and of the GDA test suites: flags flags are sticky, and an enabled trap stops the computation. The operations come from [`decimal_gda`](decimal_gda.md); the [design page](../design/decimal_gda_checked.md) proves the flags and trap laws; the [API reference](../api/decimal_gda_checked.md) lists every method."
+msgstr "本教程展示如何把一次通用十进制算术（GDA）计算作为遵守 GDA 陷阱的流水线来运行：你选择一个带有应用所需陷阱的 `GdaContext`，开始一个 `GdaDecimalChecked`，串联运算，找出触发陷阱的步骤，检查粘滞标志，并显式决定是否继续。这正是 Python 的 `decimal` 模块和 GDA 测试套件所采用的模型：标志标志是粘滞的，已启用的陷阱会终止计算。运算来自 [`decimal_gda`](decimal_gda.md)；[设计页面](../design/decimal_gda_checked.md)证明了标志与陷阱的定律；[API 参考](../api/decimal_gda_checked.md)列出了所有方法。"
 
 #: manual/tutorial/decimal_gda_checked.md:15
 msgid "Start a pipeline from text or a value"
@@ -25585,12 +25585,12 @@ msgid "A `GdaContext` carries a trap set. The predefined contexts differ: `GdaCo
 msgstr "`GdaContext` 携带一个陷阱集合。各预定义上下文有所不同：`GdaContext::basic_default()`（GDA basic 上下文：精度 9、`HalfUp`）捕获 `DivisionByZero`、`InvalidOperation`、`Overflow`、`Underflow` 和 `Clamped`；`decimal32()`、`decimal64()`、`decimal128()` 和 `new(...)` 不捕获任何信号。用 `trap` 添加或移除陷阱："
 
 #: manual/tutorial/decimal_gda_checked.md:109
-msgid "Read the sticky status"
-msgstr "读取粘滞状态"
+msgid "Read the sticky flags"
+msgstr "读取粘滞标志"
 
 #: manual/tutorial/decimal_gda_checked.md:111
-msgid "`raised()` holds the signals of the latest operation, `status()` every signal since the context was created or its status was last cleared:"
-msgstr "`raised()` 保存最近一次运算的信号，`status()` 保存自上下文创建或其状态上次被清除以来的所有信号："
+msgid "`raised()` holds the signals of the latest operation, `status()` every signal since the context was created or its flags was last cleared:"
+msgstr "`raised()` 保存最近一次运算的信号，`status()` 保存自上下文创建或其标志上次被清除以来的所有信号："
 
 #: manual/tutorial/decimal_gda_checked.md:130
 msgid "Nothing runs after a trap"
@@ -25605,8 +25605,8 @@ msgid "Resume deliberately"
 msgstr "有意识地恢复"
 
 #: manual/tutorial/decimal_gda_checked.md:153
-msgid "`resume_defined()` accepts the defined result and continues. The status still records the trapped signal, so the decision is visible afterwards:"
-msgstr "`resume_defined()` 接受确定结果并继续执行。状态仍然记录着被捕获的信号，因此这一决定事后可见："
+msgid "`resume_defined()` accepts the defined result and continues. The flags still records the trapped signal, so the decision is visible afterwards:"
+msgstr "`resume_defined()` 接受确定结果并继续执行。标志仍然记录着被捕获的信号，因此这一决定事后可见："
 
 #: manual/tutorial/decimal_gda_checked.md:173
 msgid "The traps are still enabled after resuming: dividing by zero again traps again."
@@ -25617,8 +25617,8 @@ msgid "Syntax errors are invalid operations"
 msgstr "语法错误属于无效运算"
 
 #: manual/tutorial/decimal_gda_checked.md:180
-msgid "GDA classifies conversion syntax, impossible and undefined divisions and invalid contexts as *invalid-operation conditions*. A context that traps `InvalidOperation` therefore stops on a malformed string, and the status gains `invalid_operation` next to the specific condition:"
-msgstr "GDA 把转换语法错误、不可能的除法、未定义的除法和无效上下文归类为*无效运算情形*。因此，捕获 `InvalidOperation` 的上下文会在遇到格式错误的字符串时停止，并且状态中除具体情形外还会加入 `invalid_operation`："
+msgid "GDA classifies conversion syntax, impossible and undefined divisions and invalid contexts as *invalid-operation conditions*. A context that traps `InvalidOperation` therefore stops on a malformed string, and the flags gains `invalid_operation` next to the specific condition:"
+msgstr "GDA 把转换语法错误、不可能的除法、未定义的除法和无效上下文归类为*无效运算情形*。因此，捕获 `InvalidOperation` 的上下文会在遇到格式错误的字符串时停止，并且标志中除具体情形外还会加入 `invalid_operation`："
 
 #: manual/tutorial/decimal_gda_checked.md:201
 msgid "Mathematical functions need bounded contexts"
@@ -25649,8 +25649,8 @@ msgid "**`raised()` versus `status()`.** The first is the latest step, the secon
 msgstr "**`raised()` 与 `status()`。** 前者是最近一步，后者是粘滞的历史。"
 
 #: manual/tutorial/decimal_gda_checked.md:259
-msgid "**`resume_defined` keeps the status and the traps.** It clears only the trap marker and `raised()`. Clear the status with `GdaContext::clear_status` on a context and start a new pipeline if needed."
-msgstr "**`resume_defined` 保留状态和陷阱。** 它只清除陷阱标记和 `raised()`。如有需要，请在上下文上用 `GdaContext::clear_status` 清除状态，并开始一条新的流水线。"
+msgid "**`resume_defined` keeps the flags and the traps.** It clears only the trap marker and `raised()`. Clear the flags with `GdaContext::clear_flags` on a context and start a new pipeline if needed."
+msgstr "**`resume_defined` 保留标志和陷阱。** 它只清除陷阱标记和 `raised()`。如有需要，请在上下文上用 `GdaContext::clear_flags` 清除标志，并开始一条新的流水线。"
 
 #: manual/tutorial/decimal_gda_checked.md:262
 msgid "**No errors.** Traps are not converted to `ArithmeticError`; check `is_err()`."
@@ -25661,8 +25661,8 @@ msgid "**Two decimal packages.** `decimal_gda.Decimal` is not `decimal.Decimal`;
 msgstr "**两个十进制包。** `decimal_gda.Decimal` 不是 `decimal.Decimal`；不带陷阱的 IEEE 风格标志累积见 [`decimal_checked`](decimal_checked.md)。"
 
 #: manual/tutorial/decimal_gda_checked.md:270
-msgid "[`decimal_gda_checked` design](../design/decimal_gda_checked.md): sticky status as a monoid, the trap predicate and the short-circuit proof."
-msgstr "[`decimal_gda_checked` 设计](../design/decimal_gda_checked.md)：作为幺半群的粘滞状态、陷阱谓词以及短路的证明。"
+msgid "[`decimal_gda_checked` design](../design/decimal_gda_checked.md): sticky flags as a monoid, the trap predicate and the short-circuit proof."
+msgstr "[`decimal_gda_checked` 设计](../design/decimal_gda_checked.md)：作为幺半群的粘滞标志、陷阱谓词以及短路的证明。"
 
 #: manual/tutorial/decimal_gda_checked.md:272
 msgid "[`decimal_gda_checked` API](../api/decimal_gda_checked.md): every method."
@@ -34493,7 +34493,7 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路
 #~ msgstr "唯一必须记住的规则"
 
 #~ msgid "Every operation returns a `GdaOutcome`. Thread `next_context()` into the next operation when status must accumulate."
-#~ msgstr "每次操作都返回 `GdaOutcome`。需要累积 status 时，把 `next_context()` 传给下一步。 `raised()` 只描述当前操作，`next_context().status()` 描述整条已 thread 管线。"
+#~ msgstr "每次操作都返回 `GdaOutcome`。需要累积 status 时，把 `next_context()` 传给下一步。 `raised()` 只描述当前操作，`next_context().flags()` 描述整条已 thread 管线。"
 
 #~ msgid "Parse And Calculate"
 #~ msgstr "Parse 与计算"
@@ -34501,8 +34501,8 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路
 #~ msgid "The parse result preserves the input cohort. Division receives the context returned by parsing, so any parse condition remains in the sticky status."
 #~ msgstr "Parse 保留 cohort；把 parse 后的 context 传给 divide，parse condition 才会留在 sticky status。"
 
-#~ msgid "Use `clear_status()` to start a new observation window while retaining traps. Use `reset()` only when both status and trap configuration should return to defaults."
-#~ msgstr "`clear_status()` 开始新的观察窗口并保留 traps；`reset()` 同时重置 status 与 traps。"
+#~ msgid "Use `clear_flags()` to start a new observation window while retaining traps. Use `reset()` only when both status and trap configuration should return to defaults."
+#~ msgstr "`clear_flags()` 开始新的观察窗口并保留 traps；`reset()` 同时重置 status 与 traps。"
 
 #~ msgid "Configure And Handle A Trap"
 #~ msgstr "配置并处理 Trap"

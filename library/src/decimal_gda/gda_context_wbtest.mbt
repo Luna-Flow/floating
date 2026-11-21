@@ -15,7 +15,7 @@ test "GDA outcomes retain sticky status and defined trap results" {
     GdaOutcome::Completed(value, context, raised) => {
       assert_true(value.is_infinite())
       assert_true(raised.contains(GdaSignal::DivisionByZero))
-      assert_true(context.status().contains(GdaSignal::DivisionByZero))
+      assert_true(context.flags().contains(GdaSignal::DivisionByZero))
     }
     GdaOutcome::Trapped(_, _, _, _) =>
       fail("explicitly disabled traps must complete")
@@ -30,7 +30,7 @@ test "GDA outcomes retain sticky status and defined trap results" {
       assert_true(signal == GdaSignal::DivisionByZero)
       assert_true(value.is_infinite())
       assert_true(raised.contains(GdaSignal::DivisionByZero))
-      assert_true(context.status().contains(GdaSignal::DivisionByZero))
+      assert_true(context.flags().contains(GdaSignal::DivisionByZero))
     }
     GdaOutcome::Completed(_, _, _) => fail("enabled trap must trap")
   }
@@ -59,7 +59,7 @@ test "GDA try_new preserves validated context fields" {
   assert_eq(context.e_max(), 34)
   assert_true(context.clamp())
   assert_false(context.extended())
-  assert_true(context.status() == GdaFlags::new())
+  assert_true(context.flags() == GdaFlags::new())
   assert_true(context.traps() == traps)
 }
 
@@ -104,7 +104,7 @@ test "GDA exact outcomes preserve sticky status without raising flags" {
   match outcome {
     GdaOutcome::Completed(value, context, raised) => {
       assert_eq(value.to_string(), "2")
-      assert_true(context.status().contains(GdaSignal::DivisionByZero))
+      assert_true(context.flags().contains(GdaSignal::DivisionByZero))
       assert_true(raised == GdaFlags::new())
     }
     GdaOutcome::Trapped(_, _, _, _) => fail("exact addition must complete")
@@ -141,10 +141,10 @@ test "GDA cached presets do not share sticky status or traps" {
     configured,
   )
   assert_true(
-    outcome.next_context().status().contains(GdaSignal::DivisionByZero),
+    outcome.next_context().flags().contains(GdaSignal::DivisionByZero),
   )
   let fresh = GdaContext::basic_default()
-  assert_true(!fresh.status().contains(GdaSignal::DivisionByZero))
+  assert_true(!fresh.flags().contains(GdaSignal::DivisionByZero))
   assert_true(fresh.traps().contains(GdaSignal::DivisionByZero))
   assert_eq(GdaContext::decimal32().precision(), 7)
   assert_eq(GdaContext::decimal64().precision(), 16)
@@ -157,7 +157,7 @@ test "GDA basic context matches the 1.70 defaults" {
   assert_eq(ctx.precision(), 9)
   assert_true(ctx.rounding() == GdaRoundingMode::HalfUp)
   assert_true(!ctx.extended())
-  assert_true(ctx.status() == GdaFlags::new())
+  assert_true(ctx.flags() == GdaFlags::new())
   let traps = ctx.traps()
   assert_true(traps.contains(GdaSignal::Clamped))
   assert_true(traps.contains(GdaSignal::DivisionByZero))
@@ -182,8 +182,8 @@ test "GDA invalid conditions signal InvalidOperation" {
       assert_true(value.is_qnan())
       assert_true(raised.conversion_syntax())
       assert_true(raised.contains(GdaSignal::InvalidOperation))
-      assert_true(context.status().conversion_syntax())
-      assert_true(context.status().contains(GdaSignal::InvalidOperation))
+      assert_true(context.flags().conversion_syntax())
+      assert_true(context.flags().contains(GdaSignal::InvalidOperation))
     }
     GdaOutcome::Completed(_, _, _) =>
       fail("ConversionSyntax must trigger the InvalidOperation trap")
@@ -272,7 +272,7 @@ test "the four conditions that signal invalid-operation are raised, read and tra
     assert_true(raised.contains(GdaSignal::InvalidOperation))
     assert_eq(raised.invalid_operation(), plain_field)
     assert_true(
-      untrapped.next_context().status().contains(GdaSignal::InvalidOperation),
+      untrapped.next_context().flags().contains(GdaSignal::InvalidOperation),
     )
     match trapped {
       Trapped(signal, _, _, _) =>

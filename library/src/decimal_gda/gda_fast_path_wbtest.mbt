@@ -7,7 +7,7 @@ fn assert_gda_fast_matches_generic(
   assert_true(fast.value() == generic.0)
   assert_true(fast.raised() == gda_flags_from_decimal(generic.1))
   assert_true(
-    fast.next_context().status() == context.status().combine(fast.raised()),
+    fast.next_context().flags() == context.flags().combine(fast.raised()),
   )
 }
 

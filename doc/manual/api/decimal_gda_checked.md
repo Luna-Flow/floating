@@ -5,7 +5,7 @@
 `decimal_gda_checked` provides `GdaDecimalChecked`, a pipeline over the General
 Decimal Arithmetic (GDA) operations of [`decimal_gda`](decimal_gda.md). It holds
 exactly one `GdaOutcome[Decimal]`: the current defined value, the next context
-(whose sticky `status` accumulates every signal raised so far), the signals
+(whose sticky `flags` accumulates every signal raised so far), the signals
 raised by the latest operation, and, if a trap fired, the trapped signal. An
 operation on a completed state runs the GDA operation with the stored context;
 an operation on a trapped state does nothing. `resume_defined()` is the only way
@@ -14,7 +14,7 @@ too: its conditions join the result and its trap short-circuits (see
 [Operations](#operations)). The package never produces an `ArithmeticError`. The
 [tutorial](../tutorial/decimal_gda_checked.md) walks through traps and
 recovery; the [design page](../design/decimal_gda_checked.md) models the
-pipeline as a state monad with an absorbing trap and proves the sticky-status
+pipeline as a state monad with an absorbing trap and proves the sticky-flags
 laws.
 
 ## Importing
@@ -86,7 +86,7 @@ A `Trapped` outcome gives a trapped pipeline.
 pub fn GdaDecimalChecked::from_decimal(@decimal_gda.Decimal, @decimal_gda.GdaContext) -> Self
 ```
 
-The signals of the rounding are raised, merged into the status and checked
+The signals of the rounding are raised, merged into the flags and checked
 against the traps, so construction itself can trap.
 
 ### `GdaDecimalChecked::to_number`
@@ -103,7 +103,7 @@ conversion syntax as an invalid-operation condition, a context that traps
 
 ## Observation
 
-### `GdaDecimalChecked::outcome`, `GdaDecimalChecked::value`, `GdaDecimalChecked::context`, `GdaDecimalChecked::raised`, `GdaDecimalChecked::status`
+### `GdaDecimalChecked::outcome`, `GdaDecimalChecked::value`, `GdaDecimalChecked::context`, `GdaDecimalChecked::raised`, `GdaDecimalChecked::flags`
 
 These methods return the wrapped outcome and its components.
 
@@ -112,16 +112,16 @@ pub fn GdaDecimalChecked::outcome(Self) -> @decimal_gda.GdaOutcome[@decimal_gda.
 pub fn GdaDecimalChecked::value(Self) -> @decimal_gda.Decimal
 pub fn GdaDecimalChecked::context(Self) -> @decimal_gda.GdaContext
 pub fn GdaDecimalChecked::raised(Self) -> @decimal_gda.GdaFlags
-pub fn GdaDecimalChecked::status(Self) -> @decimal_gda.GdaFlags
+pub fn GdaDecimalChecked::flags(Self) -> @decimal_gda.GdaFlags
 ```
 
 `value()` is the defined result, also when trapped. `context()` is the next
-context, including its updated status and its traps. `raised()` holds the
-signals of the latest operation only. `status()` is `context().status()`, the
-sticky union of everything raised since the context's status was last cleared;
+context, including its updated flags and its traps. `raised()` holds the
+signals of the latest operation only. `status()` is `context().flags()`, the
+sticky union of everything raised since the context's flags was last cleared;
 whenever any invalid-operation condition (`conversion_syntax`,
 `division_impossible`, `division_undefined`, `invalid_context`) is raised, the
-status also gets `invalid_operation`.
+flags also gets `invalid_operation`.
 
 ### `GdaDecimalChecked::error`, `GdaDecimalChecked::result`, `GdaDecimalChecked::is_ok`, `GdaDecimalChecked::is_err`
 
@@ -155,7 +155,7 @@ pub fn GdaDecimalChecked::resume_defined(Self) -> Self
 
 On `Trapped(signal, value, context, raised)` it returns
 `Completed(value, context, GdaFlags::new())`: the value and the context (with
-its status, which already contains the trapped signal) are kept, the trap
+its flags, which already contains the trapped signal) are kept, the trap
 marker and the latest-step flags are dropped. On a completed pipeline it does
 nothing. Traps stay enabled in the context, so the same condition traps again
 if it recurs.
@@ -180,13 +180,13 @@ test "a trap stops the pipeline until it is resumed" {
   )
   inspect(trapped.value().to_string(), content="inf")
   inspect(gda_flags(trapped.raised()), content="division_by_zero")
-  inspect(gda_flags(trapped.status()), content="inexact,rounded,division_by_zero")
+  inspect(gda_flags(trapped.flags()), content="inexact,rounded,division_by_zero")
   inspect(trapped.add(d(one)).is_err(), content="true")
   let resumed = trapped.resume_defined()
   inspect(gda_flags(resumed.raised()), content="")
   let next = resumed.minus()
   inspect(next.value().to_string(), content="-inf")
-  inspect(gda_flags(next.status()), content="inexact,rounded,division_by_zero")
+  inspect(gda_flags(next.flags()), content="inexact,rounded,division_by_zero")
 }
 ```
 
@@ -203,16 +203,16 @@ other operands (`other`, `multiplier`, `addend`, `exponent`, `quantum`,
 pipeline that produced them are not lost. Rules for a binary operation `a.op(b)`:
 1. If `a` is trapped, the result is `a`.
 2. Otherwise, if `b` is trapped, no operation runs: the result keeps the value and
-   the context of `a`, the conditions of `b` join `raised` and the status, and the
+   the context of `a`, the conditions of `b` join `raised` and the flags, and the
    trap of `b` is the trap of the result.
 3. Otherwise the operation runs under the context of `a`, and the conditions
-   that `b` raised join `raised` of the result and the status of its context. The
+   that `b` raised join `raised` of the result and the flags of its context. The
    traps of `a` are not tested against the conditions of `b`: `b` decided its own.
 
 `fma` applies the same rules to its two operands. The GDA operation computes the
 result under `c`'s precision, rounding, exponent limits, clamping and extended
 mode; if it raises no signal the context is passed on unchanged with empty
-`raised`; otherwise the raised signals are merged into the status of the next
+`raised`; otherwise the raised signals are merged into the flags of the next
 context and, if one of them is enabled in `c.traps()`, the outcome is
 `Trapped`. The mathematical functions `exp`, `ln`, `log10` and `power` with a
 non-integer exponent need precision and exponent limits within
@@ -233,7 +233,7 @@ functions of `decimal_gda` that return a string, a boolean or an integer
 
 ```moonbit
 ///|
-test "sticky status across operations" {
+test "sticky flags across operations" {
   let ctx = @decimal_gda.GdaContext::new(precision=5)
   let parsed = @decimal_gda_checked.GdaDecimalChecked::to_number("1.234567", ctx)
   inspect(parsed.value().to_string(), content="1.2346")
@@ -243,7 +243,7 @@ test "sticky status across operations" {
   }
   let added = parsed.add(d(@decimal_gda.Decimal::zero()))
   inspect(gda_flags(added.raised()), content="")
-  inspect(gda_flags(added.status()), content="inexact,rounded")
+  inspect(gda_flags(added.flags()), content="inexact,rounded")
   let e = @decimal_gda_checked.GdaDecimalChecked::to_number(
     "2",
     @decimal_gda.GdaContext::decimal64(),
@@ -346,6 +346,7 @@ pub fn GdaDecimalChecked::divide(Self, Self) -> Self
 pub fn GdaDecimalChecked::divide_integer(Self, Self) -> Self
 pub fn GdaDecimalChecked::error(Self) -> @decimal_gda.GdaSignal?
 pub fn GdaDecimalChecked::exp(Self) -> Self
+pub fn GdaDecimalChecked::flags(Self) -> @decimal_gda.GdaFlags
 pub fn GdaDecimalChecked::fma(Self, Self, Self) -> Self
 pub fn GdaDecimalChecked::from_decimal(@decimal_gda.Decimal, @decimal_gda.GdaContext) -> Self
 pub fn GdaDecimalChecked::from_outcome(@decimal_gda.GdaOutcome[@decimal_gda.Decimal]) -> Self
@@ -384,7 +385,6 @@ pub fn GdaDecimalChecked::round_to_integral_value(Self) -> Self
 pub fn GdaDecimalChecked::scaleb(Self, Self) -> Self
 pub fn GdaDecimalChecked::shift(Self, Self) -> Self
 pub fn GdaDecimalChecked::sqrt(Self) -> Self
-pub fn GdaDecimalChecked::status(Self) -> @decimal_gda.GdaFlags
 pub fn GdaDecimalChecked::subtract(Self, Self) -> Self
 pub fn GdaDecimalChecked::to_number(String, @decimal_gda.GdaContext) -> Self
 pub fn GdaDecimalChecked::value(Self) -> @decimal_gda.Decimal

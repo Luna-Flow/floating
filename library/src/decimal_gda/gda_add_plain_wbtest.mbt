@@ -88,9 +88,9 @@ fn add_plain_same_outcome(
 ) -> Bool {
   match (a, b) {
     (Completed(v, c, f), Completed(w, d, g)) =>
-      add_plain_same_decimal(v, w) && c.status_ == d.status_ && f == g
+      add_plain_same_decimal(v, w) && c.flags_ == d.flags_ && f == g
     (Trapped(s, v, c, f), Trapped(t, w, d, g)) =>
-      s == t && add_plain_same_decimal(v, w) && c.status_ == d.status_ && f == g
+      s == t && add_plain_same_decimal(v, w) && c.flags_ == d.flags_ && f == g
     _ => false
   }
 }
@@ -272,7 +272,7 @@ test "add and subtract plain path, chained contexts" {
       acc_general = expected.value()
       plain_ctx = outcome.next_context()
       general_ctx = expected.next_context()
-      if plain_ctx.status_ != general_ctx.status_ {
+      if plain_ctx.flags_ != general_ctx.flags_ {
         fail("chained status differs")
       }
     }
@@ -309,9 +309,9 @@ test "shared empty flag sets are never written" {
   let ctx = GdaContext::new(precision=7)
     .trap(Inexact)
     .trap(Rounded, enabled=false)
-    .clear_status()
+    .clear_flags()
     .reset()
-  assert_true(ctx.status_ == fresh_gda)
+  assert_true(ctx.flags_ == fresh_gda)
   // operations that raise flags on a context whose status is the shared value
   let wide = GdaContext::new(precision=400)
   let a = to_number("1234567890123456789012345678901234567", wide).value()
@@ -328,7 +328,7 @@ test "shared empty flag sets are never written" {
   }
   assert_true(GdaFlags::new() == fresh_gda)
   assert_true(GdaFlags::new() == none)
-  assert_true(GdaContext::new(precision=3).status_ == fresh_gda)
+  assert_true(GdaContext::new(precision=3).flags_ == fresh_gda)
   assert_true(
     gda_flags_rounded_only.rounded() && !gda_flags_rounded_only.inexact(),
   )

@@ -29,7 +29,7 @@ test "GDA context threads sticky status" {
   )
   inspect(divided.value().to_string(), content="6.1700")
   inspect(
-    divided.next_context().status().contains(@decimal_gda.GdaSignal::Inexact),
+    divided.next_context().flags().contains(@decimal_gda.GdaSignal::Inexact),
     content="false",
   )
 }

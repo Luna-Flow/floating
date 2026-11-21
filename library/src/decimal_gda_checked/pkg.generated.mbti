@@ -23,6 +23,7 @@ pub fn GdaDecimalChecked::divide(Self, Self) -> Self
 pub fn GdaDecimalChecked::divide_integer(Self, Self) -> Self
 pub fn GdaDecimalChecked::error(Self) -> @decimal_gda.GdaSignal?
 pub fn GdaDecimalChecked::exp(Self) -> Self
+pub fn GdaDecimalChecked::flags(Self) -> @decimal_gda.GdaFlags
 pub fn GdaDecimalChecked::fma(Self, Self, Self) -> Self
 pub fn GdaDecimalChecked::from_decimal(@decimal_gda.Decimal, @decimal_gda.GdaContext) -> Self
 pub fn GdaDecimalChecked::from_outcome(@decimal_gda.GdaOutcome[@decimal_gda.Decimal]) -> Self
@@ -61,7 +62,6 @@ pub fn GdaDecimalChecked::round_to_integral_value(Self) -> Self
 pub fn GdaDecimalChecked::scaleb(Self, Self) -> Self
 pub fn GdaDecimalChecked::shift(Self, Self) -> Self
 pub fn GdaDecimalChecked::sqrt(Self) -> Self
-pub fn GdaDecimalChecked::status(Self) -> @decimal_gda.GdaFlags
 pub fn GdaDecimalChecked::subtract(Self, Self) -> Self
 pub fn GdaDecimalChecked::to_number(String, @decimal_gda.GdaContext) -> Self
 pub fn GdaDecimalChecked::value(Self) -> @decimal_gda.Decimal

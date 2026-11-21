@@ -43,7 +43,7 @@ test "cached decimal contexts equal a fresh build for every parameter set" {
           // changing the traps or the status keeps the cached contexts valid
           let trapped = ctx.trap(Overflow)
           assert_true(trapped.decimal_context() == fresh)
-          assert_true(ctx.clear_status().decimal_context() == fresh)
+          assert_true(ctx.clear_flags().decimal_context() == fresh)
         }
       }
     }

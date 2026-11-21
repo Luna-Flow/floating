@@ -4118,8 +4118,8 @@ msgid "decimal_gda API"
 msgstr "decimal_gda API"
 
 #: manual/api/decimal_gda.md:5
-msgid "`decimal_gda` implements the General Decimal Arithmetic Specification (GDA, version 1.70) by M. F. Cowlishaw. Its `Decimal` is a sign, an arbitrary-length decimal coefficient and a decimal exponent; its `GdaContext` carries the precision, rounding mode, exponent limits, clamping, the extended/subset switch, the sticky status and the enabled traps; and every GDA operation is a pure function that returns a `GdaOutcome` holding the defined result, the next context and the conditions it raised. The [tutorial](../tutorial/decimal_gda.md) shows the package in use; the [design page](../design/decimal_gda.md) derives the rules stated here."
-msgstr "`decimal_gda` は M. F. Cowlishaw による General Decimal Arithmetic 仕様（GDA、バージョン 1.70）を実装します。その `Decimal` は符号、任意長の十進係数、十進指数からなります。`GdaContext` は精度、丸めモード、指数の上下限、クランプ、拡張/サブセットのスイッチ、スティッキーなステータス、有効なトラップを保持します。すべての GDA 演算は純粋関数で、定義された結果、次のコンテキスト、発生した条件を保持する `GdaOutcome` を返します。[チュートリアル](../tutorial/decimal_gda.md)ではこのパッケージの使用例を示し、[設計ページ](../design/decimal_gda.md)ではここで述べる規則を導出します。"
+msgid "`decimal_gda` implements the General Decimal Arithmetic Specification (GDA, version 1.70) by M. F. Cowlishaw. Its `Decimal` is a sign, an arbitrary-length decimal coefficient and a decimal exponent; its `GdaContext` carries the precision, rounding mode, exponent limits, clamping, the extended/subset switch, the sticky flags and the enabled traps; and every GDA operation is a pure function that returns a `GdaOutcome` holding the defined result, the next context and the conditions it raised. The [tutorial](../tutorial/decimal_gda.md) shows the package in use; the [design page](../design/decimal_gda.md) derives the rules stated here."
+msgstr "`decimal_gda` は M. F. Cowlishaw による General Decimal Arithmetic 仕様（GDA、バージョン 1.70）を実装します。その `Decimal` は符号、任意長の十進係数、十進指数からなります。`GdaContext` は精度、丸めモード、指数の上下限、クランプ、拡張/サブセットのスイッチ、スティッキーなフラグ、有効なトラップを保持します。すべての GDA 演算は純粋関数で、定義された結果、次のコンテキスト、発生した条件を保持する `GdaOutcome` を返します。[チュートリアル](../tutorial/decimal_gda.md)ではこのパッケージの使用例を示し、[設計ページ](../design/decimal_gda.md)ではここで述べる規則を導出します。"
 
 #: manual/api/decimal_gda.md:15
 msgid "The package does not depend on the IEEE 754 package `decimal`. It publishes the GDA layer only (`Decimal`, `GdaContext`, the `Gda*` types and the functions named after the GDA operations) and adapters to the `Luna-Flow/arithmetic` and `Luna-Flow/luna-generic` traits. The status-free engine the functions are built on is private to the package."
@@ -4202,8 +4202,8 @@ msgid "This reads a GDA numeric string without a GDA context."
 msgstr "これらは GDA コンテキストなしで GDA の数値文字列を読み取ります。"
 
 #: manual/api/decimal_gda.md:200
-msgid "Accepted syntax is the GDA numeric-string grammar: an optional sign, digits with an optional decimal point, an optional exponent `E±n`, or `Infinity`/`Inf`/`NaN`/`sNaN` (case-insensitive) with an optional decimal NaN payload. The exponent is kept exactly, so `from_string(\"2.50\")` has exponent $-2$. A literal with more than `precision` (default 34) significant digits is rounded half to even and its trailing zeros are removed. A malformed literal gives `Err(parse_error)`; so does a precision outside `1..=999999999` (`Err` of the domain-error kind) and a NaN whose payload is wider than `precision - 1` digits (page 11). No context exponent range applies, only the [stored range](#gda_value_e_max-gda_value_e_tiny): a literal whose value (zero included) has an exponent below `gda_value_e_tiny` after the rounding, or an adjusted exponent above `gda_value_e_max`, gives `Err` of the domain-error kind that names both limits and the exponent. It is not a malformed literal, and it is no longer folded into an infinity or a zero (`\"1e3000000000\"` and `\"1e-3000000000\"` are errors). Use the package function [`to_number`](#to_number) when a rounded value is wanted or when the exponent limits, flags, status or traps of a context must apply."
-msgstr "受理される構文は GDA の数値文字列の文法です。省略可能な符号、省略可能な小数点を含む数字列、省略可能な指数 `E±n`、または `Infinity`/`Inf`/`NaN`/`sNaN`（大文字小文字を区別しない）と省略可能な十進の NaN ペイロードです。指数はそのまま保たれるため、`from_string(\"2.50\")` の指数は $-2$ です。`precision`（既定 34）より多くの有効数字を持つリテラルは half to even で丸められ、末尾のゼロが除去されます。不正なリテラルは `Err(parse_error)` を与えます。`1..=999999999` の範囲外の精度（定義域エラーの `Err`）と、ペイロードが `precision - 1` 桁より広い NaN（11 ページ）も同様です。コンテキストの指数範囲は適用されず、[格納範囲](#gda_value_e_max-gda_value_e_tiny)だけが適用されます。値（ゼロも含む）が丸めたあとで指数が `gda_value_e_tiny` より小さくなるリテラル、または調整指数が `gda_value_e_max` より大きくなるリテラルは、2 つの限界と該当する指数を示す定義域エラー種別の `Err` になります。不正なリテラルではなく、無限大やゼロへ折りたたまれることもありません（`\"1e3000000000\"` と `\"1e-3000000000\"` はエラーです）。丸めた値が欲しい場合や、コンテキストの指数の上下限、フラグ、ステータス、トラップを適用する必要がある場合は、パッケージ関数 [`to_number`](#to_number) を使用してください。"
+msgid "Accepted syntax is the GDA numeric-string grammar: an optional sign, digits with an optional decimal point, an optional exponent `E±n`, or `Infinity`/`Inf`/`NaN`/`sNaN` (case-insensitive) with an optional decimal NaN payload. The exponent is kept exactly, so `from_string(\"2.50\")` has exponent $-2$. A literal with more than `precision` (default 34) significant digits is rounded half to even and its trailing zeros are removed. A malformed literal gives `Err(parse_error)`; so does a precision outside `1..=999999999` (`Err` of the domain-error kind) and a NaN whose payload is wider than `precision - 1` digits (page 11). No context exponent range applies, only the [stored range](#gda_value_e_max-gda_value_e_tiny): a literal whose value (zero included) has an exponent below `gda_value_e_tiny` after the rounding, or an adjusted exponent above `gda_value_e_max`, gives `Err` of the domain-error kind that names both limits and the exponent. It is not a malformed literal, and it is no longer folded into an infinity or a zero (`\"1e3000000000\"` and `\"1e-3000000000\"` are errors). Use the package function [`to_number`](#to_number) when a rounded value is wanted or when the exponent limits, flags or traps of a context must apply."
+msgstr "受理される構文は GDA の数値文字列の文法です。省略可能な符号、省略可能な小数点を含む数字列、省略可能な指数 `E±n`、または `Infinity`/`Inf`/`NaN`/`sNaN`（大文字小文字を区別しない）と省略可能な十進の NaN ペイロードです。指数はそのまま保たれるため、`from_string(\"2.50\")` の指数は $-2$ です。`precision`（既定 34）より多くの有効数字を持つリテラルは half to even で丸められ、末尾のゼロが除去されます。不正なリテラルは `Err(parse_error)` を与えます。`1..=999999999` の範囲外の精度（定義域エラーの `Err`）と、ペイロードが `precision - 1` 桁より広い NaN（11 ページ）も同様です。コンテキストの指数範囲は適用されず、[格納範囲](#gda_value_e_max-gda_value_e_tiny)だけが適用されます。値（ゼロも含む）が丸めたあとで指数が `gda_value_e_tiny` より小さくなるリテラル、または調整指数が `gda_value_e_max` より大きくなるリテラルは、2 つの限界と該当する指数を示す定義域エラー種別の `Err` になります。不正なリテラルではなく、無限大やゼロへ折りたたまれることもありません（`\"1e3000000000\"` と `\"1e-3000000000\"` はエラーです）。丸めた値が欲しい場合や、コンテキストの指数の上下限、フラグ、フラグ、トラップを適用する必要がある場合は、パッケージ関数 [`to_number`](#to_number) を使用してください。"
 
 #: manual/api/decimal_gda.md:220
 msgid "These print the value in GDA scientific notation, with lowercase special values."
@@ -4298,15 +4298,15 @@ msgid "The GDA context"
 msgstr "GDA コンテキスト"
 
 #: manual/api/decimal_gda.md:408
-msgid "`GdaContext` is the immutable GDA context: arithmetic policy plus sticky status plus enabled traps."
-msgstr "`GdaContext` は不変の GDA コンテキストで、演算ポリシー、スティッキーなステータス、有効なトラップからなります。"
+msgid "`GdaContext` is the immutable GDA context: arithmetic policy plus sticky flags plus enabled traps."
+msgstr "`GdaContext` は不変の GDA コンテキストで、演算ポリシー、スティッキーなフラグ、有効なトラップからなります。"
 
 #: manual/api/decimal_gda.md:417
-msgid "The policy is precision $p \\ge 1$, a `GdaRoundingMode`, $e_{\\min} \\le e_{\\max}$, `clamp` and `extended`. The status is a `GdaFlags` value that operations only ever enlarge; the traps are a `GdaTrapSet`. Neither status nor traps influence the numerical result of an operation: they only decide the next context and whether the outcome is `Completed` or `Trapped`."
-msgstr "ポリシーは精度 $p \\ge 1$、`GdaRoundingMode`、$e_{\\min} \\le e_{\\max}$、`clamp`、`extended` です。ステータスは演算によって拡大されることしかない `GdaFlags` 値で、トラップは `GdaTrapSet` です。ステータスもトラップも演算の数値結果には影響せず、次のコンテキストと、結果が `Completed` か `Trapped` かを決めるだけです。"
+msgid "The policy is precision $p \\ge 1$, a `GdaRoundingMode`, $e_{\\min} \\le e_{\\max}$, `clamp` and `extended`. The flags are a `GdaFlags` value that operations only ever enlarge; the traps are a `GdaTrapSet`. Neither flags nor traps influence the numerical result of an operation: they only decide the next context and whether the outcome is `Completed` or `Trapped`."
+msgstr "ポリシーは精度 $p \\ge 1$、`GdaRoundingMode`、$e_{\\min} \\le e_{\\max}$、`clamp`、`extended` です。フラグは演算によって拡大されることしかない `GdaFlags` 値で、トラップは `GdaTrapSet` です。フラグもトラップも演算の数値結果には影響せず、次のコンテキストと、結果が `Completed` か `Trapped` かを決めるだけです。"
 
 #: manual/api/decimal_gda.md:425
-msgid "`new` builds a context with an empty status and aborts on an invalid parameter; `try_new` takes the same parameters and returns a `Result`."
+msgid "`new` builds a context with an empty set of flags and aborts on an invalid parameter; `try_new` takes the same parameters and returns a `Result`."
 msgstr "`new` は空の状態のコンテキストを作り、無効なパラメーターがあれば中止します。`try_new` は同じパラメーターを受け取り `Result` を返します。"
 
 #: manual/api/decimal_gda.md:433
@@ -4379,7 +4379,7 @@ msgid "These return a copy with one setting changed."
 msgstr "これらは設定を 1 つ変えたコピーを返します。"
 
 #: manual/api/decimal_gda.md:511
-msgid "The result is checked like `new`: a precision or exponent range outside the rules above aborts. The sticky status, the traps, `clamp`, `extended` and the refinement limit are kept."
+msgid "The result is checked like `new`: a precision or exponent range outside the rules above aborts. The sticky flags, the traps, `clamp`, `extended` and the refinement limit are kept."
 msgstr "結果は `new` と同様に検査され、精度または指数範囲が上記の規則に反すると中止します。累積状態、トラップ、`clamp`、`extended`、精緻化の上限は保たれます。"
 
 #: manual/api/decimal_gda.md:517
@@ -4391,8 +4391,8 @@ msgid "`radix` always returns 10."
 msgstr "`radix` は常に 10 を返します。"
 
 #: manual/api/decimal_gda.md:533
-msgid "These read the sticky status and the enabled traps."
-msgstr "これらはスティッキーなステータスと有効なトラップを読み取ります。"
+msgid "These read the sticky flags and the enabled traps."
+msgstr "これらはスティッキーなフラグと有効なトラップを読み取ります。"
 
 #: manual/api/decimal_gda.md:542
 msgid "These read and set the number of refinement steps of the certified elementary functions."
@@ -4403,12 +4403,12 @@ msgid "`exp`, `ln`, `log10` and `power` refine an enclosure of the result at mos
 msgstr "`exp`、`ln`、`log10`、`power` は、既定では結果の包含を最大 `Some(12)` 回精緻化します。丸めの境界のごく近くにあるまれな引数ではさらに必要になることがあり、`with_refinement_limit(Some(24))` で 24 ステップまで許し、`None` で回数の上限を外します（その場合、作業精度は資源上の上限で止まります）。1 未満の上限は 1 ステップとして扱われます。上限に達すると、通常の関数は `invalid_context` を報告し、[`try_exp`、`try_ln`、`try_log10`、`try_power`](#try_exp-try_ln-try_log10-try_power) は `Err` を返します。"
 
 #: manual/api/decimal_gda.md:560
-msgid "These return a new context with changed traps or status; the receiver is not modified."
-msgstr "これらはトラップまたはステータスを変更した新しいコンテキストを返します。レシーバは変更されません。"
+msgid "These return a new context with changed traps or flags; the receiver is not modified."
+msgstr "これらはトラップまたはフラグを変更した新しいコンテキストを返します。レシーバは変更されません。"
 
 #: manual/api/decimal_gda.md:570
-msgid "`trap(s)` enables (or with `enabled=false` disables) one trap; `with_traps` replaces the whole set. `clear_status` empties the status and keeps the traps; `reset` empties both."
-msgstr "`trap(s)` は 1 つのトラップを有効にします（`enabled=false` なら無効にします）。`with_traps` は集合全体を置き換えます。`clear_status` はステータスを空にしてトラップを保持し、`reset` は両方を空にします。"
+msgid "`trap(s)` enables (or with `enabled=false` disables) one trap; `with_traps` replaces the whole set. `clear_flags` empties the flags and keeps the traps; `reset` empties both."
+msgstr "`trap(s)` は 1 つのトラップを有効にします（`enabled=false` なら無効にします）。`with_traps` は集合全体を置き換えます。`clear_flags` はフラグを空にしてトラップを保持し、`reset` は両方を空にします。"
 
 #: manual/api/decimal_gda.md:576
 msgid "`GdaRoundingMode` lists the eight GDA rounding modes."
@@ -4423,7 +4423,7 @@ msgid "Signals, flags and traps"
 msgstr "シグナル、フラグ、トラップ"
 
 #: manual/api/decimal_gda.md:604
-msgid "`GdaSignal` names the nine signals of GDA 1.70. Each has a flag in the context status and a trap-enabler."
+msgid "`GdaSignal` names the nine signals of GDA 1.70. Each has a flag in the context flags and a trap-enabler."
 msgstr "`GdaSignal` は GDA 1.70 の 9 つのシグナルを表します。各シグナルにはコンテキストの状態のフラグと、トラップ有効化が 1 つずつあります。"
 
 #: manual/api/decimal_gda.md:621
@@ -4431,7 +4431,7 @@ msgid "The eight signals of the specification (page 15) are `Clamped`, `Division
 msgstr "仕様の 8 つのシグナル（15 ページ）は `Clamped`、`DivisionByZero`、`Inexact`、`InvalidOperation`、`Overflow`、`Rounded`、`Subnormal`、`Underflow` で、`LostDigits` は 9 つ目として、サブセット算術（付録 A）でのみ発生します。51 ページと 52 ページで本文が invalid-operation を発生させるとする条件（変換構文エラー、除算不可能、除算未定義、無効なコンテキスト）はシグナルではなく `GdaFlags` の条件であり、これらのいずれかが発生すると `InvalidOperation` シグナルが発生します。"
 
 #: manual/api/decimal_gda.md:631
-msgid "`GdaFlags` is a set of conditions (the thirteen conditions the library raises, the fourteen of the specification without Insufficient storage), used both for the conditions raised by one operation and for the sticky status of a context. The decTest files name conditions, so the status keeps them apart."
+msgid "`GdaFlags` is a set of conditions (the thirteen conditions the library raises, the fourteen of the specification without Insufficient storage), used both for the conditions raised by one operation and for the sticky flags of a context. The decTest files name conditions, so the flags keep them apart."
 msgstr "`GdaFlags` は条件の集合（ライブラリが発生させる 13 の条件。仕様の 14 の条件から Insufficient storage を除いたもの）で、1 つの演算が発生させた条件にも、コンテキストの累積状態にも使います。decTest ファイルは条件の名前を使うため、状態は条件を区別して保持します。"
 
 #: manual/api/decimal_gda.md:642
@@ -4475,15 +4475,15 @@ msgid "These read the fields that both variants share, without a `match`."
 msgstr "これらは、`match` を使わずに、両方のバリアントが共有するフィールドを読み取ります。"
 
 #: manual/api/decimal_gda.md:724
-msgid "`value` is the defined result also for `Trapped`, `next_context` the context with the updated status, and `raised` the conditions of this operation only."
-msgstr "`value` は `Trapped` でも定義された結果であり、`next_context` はステータスが更新されたコンテキスト、`raised` はこの演算の条件だけです。"
+msgid "`value` is the defined result also for `Trapped`, `next_context` the context with the updated flags, and `raised` the conditions of this operation only."
+msgstr "`value` は `Trapped` でも定義された結果であり、`next_context` はフラグが更新されたコンテキスト、`raised` はこの演算の条件だけです。"
 
 #: manual/api/decimal_gda.md:729
 msgid "These build the outcomes a pipeline needs."
 msgstr "これらはパイプラインが必要とする outcome を構築します。"
 
 #: manual/api/decimal_gda.md:736
-msgid "`completed(v, c)` is the outcome of an operation that raised nothing: `v` and `c` unchanged, empty `raised`. `a.absorb(b)` keeps the value, the context (traps included) and the trap of `a`; the conditions that `b` raised join `raised` and the sticky status of the next context (with `invalid_operation` set when one of the four detailed invalid conditions is among them); when `a` completed and `b` trapped, the result is `Trapped` with the signal of `b`. The traps of `a` are not tested against the conditions of `b`. [`GdaDecimalChecked`](decimal_gda_checked.md) uses it for the right operand of a binary operation."
+msgid "`completed(v, c)` is the outcome of an operation that raised nothing: `v` and `c` unchanged, empty `raised`. `a.absorb(b)` keeps the value, the context (traps included) and the trap of `a`; the conditions that `b` raised join `raised` and the sticky flags of the next context (with `invalid_operation` set when one of the four detailed invalid conditions is among them); when `a` completed and `b` trapped, the result is `Trapped` with the signal of `b`. The traps of `a` are not tested against the conditions of `b`. [`GdaDecimalChecked`](decimal_gda_checked.md) uses it for the right operand of a binary operation."
 msgstr "`completed(v, c)` は何も発生させなかった演算の outcome で、`v` と `c` は変わらず、`raised` は空です。`a.absorb(b)` は `a` の値、コンテキスト（トラップを含む）、トラップを保ち、`b` が発生させた条件は `raised` と次のコンテキストの累積状態に加わります（4 つの詳細な無効条件のいずれかが含まれるときは `invalid_operation` が設定されます）。`a` が完了し `b` がトラップされたときは、`b` のシグナルを持つ `Trapped` になります。`a` のトラップは `b` の条件に対しては検査されません。[`GdaDecimalChecked`](decimal_gda_checked.md) は二項演算の右オペランドにこれを使います。"
 
 #: manual/api/decimal_gda.md:747
@@ -4507,8 +4507,8 @@ msgid "If $R$ is empty the outcome is `Completed(v, C, none)`: the very same con
 msgstr "$R$ が空なら、結果は `Completed(v, C, none)` で、まったく同じコンテキストが返ります。"
 
 #: manual/api/decimal_gda.md:764
-msgid "Otherwise the next context is $C$ with status $C.\\mathrm{status} \\cup R$, where the `invalid_operation` flag is also set whenever $R$ contains one of the four detailed invalid conditions."
-msgstr "そうでなければ、次のコンテキストはステータスを $C.\\mathrm{status} \\cup R$ とした $C$ です。ここで、$R$ が 4 つの詳細な無効条件のいずれかを含むときは `invalid_operation` フラグも設定されます。"
+msgid "Otherwise the next context is $C$ with flags $C.\\mathrm{flags} \\cup R$, where the `invalid_operation` flag is also set whenever $R$ contains one of the four detailed invalid conditions."
+msgstr "そうでなければ、次のコンテキストはフラグを $C.\\mathrm{flags} \\cup R$ とした $C$ です。ここで、$R$ が 4 つの詳細な無効条件のいずれかを含むときは `invalid_operation` フラグも設定されます。"
 
 #: manual/api/decimal_gda.md:767
 msgid "The trapped signal is the first $s$ in the order below with `raised.contains(s)` and `traps.contains(s)`: InvalidOperation, DivisionByZero, Overflow, Underflow, Subnormal, Inexact, Rounded, Clamped, LostDigits. If there is one the outcome is `Trapped(s, v, C', R)`, otherwise `Completed(v, C', R)`."
@@ -4851,8 +4851,8 @@ msgid "decimal_gda_checked API"
 msgstr "decimal_gda_checked API"
 
 #: manual/api/decimal_gda_checked.md:5
-msgid "`decimal_gda_checked` provides `GdaDecimalChecked`, a pipeline over the General Decimal Arithmetic (GDA) operations of [`decimal_gda`](decimal_gda.md). It holds exactly one `GdaOutcome[Decimal]`: the current defined value, the next context (whose sticky `status` accumulates every signal raised so far), the signals raised by the latest operation, and, if a trap fired, the trapped signal. An operation on a completed state runs the GDA operation with the stored context; an operation on a trapped state does nothing. `resume_defined()` is the only way to continue after a trap. The right operand of a binary operation is a pipeline too: its conditions join the result and its trap short-circuits (see [Operations](#operations)). The package never produces an `ArithmeticError`. The [tutorial](../tutorial/decimal_gda_checked.md) walks through traps and recovery; the [design page](../design/decimal_gda_checked.md) models the pipeline as a state monad with an absorbing trap and proves the sticky-status laws."
-msgstr "`decimal_gda_checked` は `GdaDecimalChecked` を提供します。これは [`decimal_gda`](decimal_gda.md) の General Decimal Arithmetic（GDA）演算を連結するパイプラインです。このパイプラインはちょうど 1 つの `GdaOutcome[Decimal]` を保持し、その内容は現在の定義済みの値、次のコンテキスト（そのスティッキーな `status` はこれまでに発生したすべてのシグナルを蓄積します）、直近の演算で発生したシグナル、そしてトラップが発火した場合はトラップされたシグナルです。完了状態に対する演算は、保存されたコンテキストで GDA 演算を実行します。トラップ状態に対する演算は何もしません。トラップ後に処理を続行する唯一の方法は `resume_defined()` です。二項演算の右オペランドもパイプラインで、その条件は結果に加わり、そのトラップは演算を打ち切ります（[演算](#operations)を参照）。このパッケージが `ArithmeticError` を生成することはありません。トラップと復帰の流れは[チュートリアル](../tutorial/decimal_gda_checked.md)で説明しています。[設計ページ](../design/decimal_gda_checked.md)では、パイプラインを吸収的なトラップを持つ状態モナドとしてモデル化し、スティッキーなステータスの法則を証明しています。"
+msgid "`decimal_gda_checked` provides `GdaDecimalChecked`, a pipeline over the General Decimal Arithmetic (GDA) operations of [`decimal_gda`](decimal_gda.md). It holds exactly one `GdaOutcome[Decimal]`: the current defined value, the next context (whose sticky `flags` accumulates every signal raised so far), the signals raised by the latest operation, and, if a trap fired, the trapped signal. An operation on a completed state runs the GDA operation with the stored context; an operation on a trapped state does nothing. `resume_defined()` is the only way to continue after a trap. The right operand of a binary operation is a pipeline too: its conditions join the result and its trap short-circuits (see [Operations](#operations)). The package never produces an `ArithmeticError`. The [tutorial](../tutorial/decimal_gda_checked.md) walks through traps and recovery; the [design page](../design/decimal_gda_checked.md) models the pipeline as a state monad with an absorbing trap and proves the sticky-flags laws."
+msgstr "`decimal_gda_checked` は `GdaDecimalChecked` を提供します。これは [`decimal_gda`](decimal_gda.md) の General Decimal Arithmetic（GDA）演算を連結するパイプラインです。このパイプラインはちょうど 1 つの `GdaOutcome[Decimal]` を保持し、その内容は現在の定義済みの値、次のコンテキスト（そのスティッキーな `status` はこれまでに発生したすべてのシグナルを蓄積します）、直近の演算で発生したシグナル、そしてトラップが発火した場合はトラップされたシグナルです。完了状態に対する演算は、保存されたコンテキストで GDA 演算を実行します。トラップ状態に対する演算は何もしません。トラップ後に処理を続行する唯一の方法は `resume_defined()` です。二項演算の右オペランドもパイプラインで、その条件は結果に加わり、そのトラップは演算を打ち切ります（[演算](#operations)を参照）。このパッケージが `ArithmeticError` を生成することはありません。トラップと復帰の流れは[チュートリアル](../tutorial/decimal_gda_checked.md)で説明しています。[設計ページ](../design/decimal_gda_checked.md)では、パイプラインを吸収的なトラップを持つ状態モナドとしてモデル化し、スティッキーなフラグの法則を証明しています。"
 
 #: manual/api/decimal_gda_checked.md:22
 msgid "Add both packages to your `moon.pkg`; the pipeline takes `decimal_gda` values and contexts:"
@@ -4883,8 +4883,8 @@ msgid "`from_decimal(value, context)` rounds a value into the context with the G
 msgstr "`from_decimal(value, context)` は GDA の `apply` 演算（コンテキストへの *plus* 相当の変換）によって値をコンテキストに丸めます。"
 
 #: manual/api/decimal_gda_checked.md:89
-msgid "The signals of the rounding are raised, merged into the status and checked against the traps, so construction itself can trap."
-msgstr "丸めで生じたシグナルは発生させられ、ステータスにマージされ、トラップと照合されます。したがって構築そのものがトラップすることもあります。"
+msgid "The signals of the rounding are raised, merged into the flags and checked against the traps, so construction itself can trap."
+msgstr "丸めで生じたシグナルは発生させられ、フラグにマージされ、トラップと照合されます。したがって構築そのものがトラップすることもあります。"
 
 #: manual/api/decimal_gda_checked.md:94
 msgid "`to_number(source, context)` is the GDA *to-number* conversion of a string."
@@ -4899,8 +4899,8 @@ msgid "These methods return the wrapped outcome and its components."
 msgstr "これらのメソッドはラップされた結果とその構成要素を返します。"
 
 #: manual/api/decimal_gda_checked.md:118
-msgid "`value()` is the defined result, also when trapped. `context()` is the next context, including its updated status and its traps. `raised()` holds the signals of the latest operation only. `status()` is `context().status()`, the sticky union of everything raised since the context's status was last cleared; whenever any invalid-operation condition (`conversion_syntax`, `division_impossible`, `division_undefined`, `invalid_context`) is raised, the status also gets `invalid_operation`."
-msgstr "`value()` は定義済みの結果で、トラップされた場合にも得られます。`context()` は次のコンテキストで、更新されたステータスとトラップ設定を含みます。`raised()` は直近の演算のシグナルのみを保持します。`status()` は `context().status()` であり、コンテキストのステータスが最後にクリアされて以降に発生したすべてのシグナルのスティッキーな和集合です。不正演算条件（`conversion_syntax`、`division_impossible`、`division_undefined`、`invalid_context`）のいずれかが発生すると、ステータスには `invalid_operation` も加わります。"
+msgid "`value()` is the defined result, also when trapped. `context()` is the next context, including its updated flags and its traps. `raised()` holds the signals of the latest operation only. `status()` is `context().flags()`, the sticky union of everything raised since the context's flags was last cleared; whenever any invalid-operation condition (`conversion_syntax`, `division_impossible`, `division_undefined`, `invalid_context`) is raised, the flags also gets `invalid_operation`."
+msgstr "`value()` は定義済みの結果で、トラップされた場合にも得られます。`context()` は次のコンテキストで、更新されたフラグとトラップ設定を含みます。`raised()` は直近の演算のシグナルのみを保持します。`status()` は `context().flags()` であり、コンテキストのフラグが最後にクリアされて以降に発生したすべてのシグナルのスティッキーな和集合です。不正演算条件（`conversion_syntax`、`division_impossible`、`division_undefined`、`invalid_context`）のいずれかが発生すると、フラグには `invalid_operation` も加わります。"
 
 #: manual/api/decimal_gda_checked.md:128
 msgid "These report whether a trap fired and which signal it was."
@@ -4919,8 +4919,8 @@ msgid "`resume_defined()` continues a trapped pipeline with its defined result."
 msgstr "`resume_defined()` はトラップされたパイプラインをその定義済みの結果で続行します。"
 
 #: manual/api/decimal_gda_checked.md:156
-msgid "On `Trapped(signal, value, context, raised)` it returns `Completed(value, context, GdaFlags::new())`: the value and the context (with its status, which already contains the trapped signal) are kept, the trap marker and the latest-step flags are dropped. On a completed pipeline it does nothing. Traps stay enabled in the context, so the same condition traps again if it recurs."
-msgstr "`Trapped(signal, value, context, raised)` に対しては `Completed(value, context, GdaFlags::new())` を返します。値とコンテキスト（トラップされたシグナルをすでに含むステータスを伴う）は保持され、トラップの印と直近ステップのフラグは破棄されます。完了状態のパイプラインに対しては何もしません。トラップはコンテキスト内で有効なままなので、同じ条件が再び起きれば再度トラップされます。"
+msgid "On `Trapped(signal, value, context, raised)` it returns `Completed(value, context, GdaFlags::new())`: the value and the context (with its flags, which already contains the trapped signal) are kept, the trap marker and the latest-step flags are dropped. On a completed pipeline it does nothing. Traps stay enabled in the context, so the same condition traps again if it recurs."
+msgstr "`Trapped(signal, value, context, raised)` に対しては `Completed(value, context, GdaFlags::new())` を返します。値とコンテキスト（トラップされたシグナルをすでに含むフラグを伴う）は保持され、トラップの印と直近ステップのフラグは破棄されます。完了状態のパイプラインに対しては何もしません。トラップはコンテキスト内で有効なままなので、同じ条件が再び起きれば再度トラップされます。"
 
 #: manual/api/decimal_gda_checked.md:193
 #: manual/api/frontend/itl_expr.md:115
@@ -4941,16 +4941,16 @@ msgid "If `a` is trapped, the result is `a`."
 msgstr "`a` がトラップされていれば、結果は `a` です。"
 
 #: manual/api/decimal_gda_checked.md:205
-msgid "Otherwise, if `b` is trapped, no operation runs: the result keeps the value and the context of `a`, the conditions of `b` join `raised` and the status, and the trap of `b` is the trap of the result."
+msgid "Otherwise, if `b` is trapped, no operation runs: the result keeps the value and the context of `a`, the conditions of `b` join `raised` and the flags, and the trap of `b` is the trap of the result."
 msgstr "そうでなく `b` がトラップされていれば、演算は行われません。結果は `a` の値とコンテキストを保ち、`b` の条件が `raised` と状態に加わり、`b` のトラップが結果のトラップになります。"
 
 #: manual/api/decimal_gda_checked.md:208
-msgid "Otherwise the operation runs under the context of `a`, and the conditions that `b` raised join `raised` of the result and the status of its context. The traps of `a` are not tested against the conditions of `b`: `b` decided its own."
+msgid "Otherwise the operation runs under the context of `a`, and the conditions that `b` raised join `raised` of the result and the flags of its context. The traps of `a` are not tested against the conditions of `b`: `b` decided its own."
 msgstr "そうでなければ、演算は `a` のコンテキストのもとで行われ、`b` が発生させた条件は結果の `raised` とそのコンテキストの状態に加わります。`a` のトラップは `b` の条件に対しては検査されません。`b` が自分のトラップを決めているためです。"
 
 #: manual/api/decimal_gda_checked.md:212
-msgid "`fma` applies the same rules to its two operands. The GDA operation computes the result under `c`'s precision, rounding, exponent limits, clamping and extended mode; if it raises no signal the context is passed on unchanged with empty `raised`; otherwise the raised signals are merged into the status of the next context and, if one of them is enabled in `c.traps()`, the outcome is `Trapped`. The mathematical functions `exp`, `ln`, `log10` and `power` with a non-integer exponent need precision and exponent limits within $\\pm 999\\,999$; otherwise they return NaN with `invalid_context`, which an `InvalidOperation` trap catches."
-msgstr "`fma` は 2 つのオペランドに同じ規則を適用します。GDA 演算は `c` の精度、丸め、指数の上下限、クランプ、拡張モードのもとで結果を計算します。シグナルが発生しなければコンテキストは変更されずに引き継がれ、`raised` は空になります。そうでなければ発生したシグナルが次のコンテキストのステータスにマージされ、そのいずれかが `c.traps()` で有効になっていれば結果は `Trapped` になります。数学関数 `exp`、`ln`、`log10`、および非整数の指数を持つ `power` は精度と指数の上下限が $\\pm 999\\,999$ 以内であることを必要とし、そうでない場合は `invalid_context` を伴う NaN を返し、これは `InvalidOperation` トラップで捕捉されます。"
+msgid "`fma` applies the same rules to its two operands. The GDA operation computes the result under `c`'s precision, rounding, exponent limits, clamping and extended mode; if it raises no signal the context is passed on unchanged with empty `raised`; otherwise the raised signals are merged into the flags of the next context and, if one of them is enabled in `c.traps()`, the outcome is `Trapped`. The mathematical functions `exp`, `ln`, `log10` and `power` with a non-integer exponent need precision and exponent limits within $\\pm 999\\,999$; otherwise they return NaN with `invalid_context`, which an `InvalidOperation` trap catches."
+msgstr "`fma` は 2 つのオペランドに同じ規則を適用します。GDA 演算は `c` の精度、丸め、指数の上下限、クランプ、拡張モードのもとで結果を計算します。シグナルが発生しなければコンテキストは変更されずに引き継がれ、`raised` は空になります。そうでなければ発生したシグナルが次のコンテキストのフラグにマージされ、そのいずれかが `c.traps()` で有効になっていれば結果は `Trapped` になります。数学関数 `exp`、`ln`、`log10`、および非整数の指数を持つ `power` は精度と指数の上下限が $\\pm 999\\,999$ 以内であることを必要とし、そうでない場合は `invalid_context` を伴う NaN を返し、これは `InvalidOperation` トラップで捕捉されます。"
 
 #: manual/api/decimal_gda_checked.md:222
 msgid "The operations that return a number are all here: `apply`, `plus`, `minus`, `abs`, `add`, `subtract`, `multiply`, `divide`, `divide_integer`, `fma`, `remainder`, `remainder_near`, `power`, `sqrt`, `exp`, `ln`, `log10`, `quantize`, `rescale`, `reduce`, `round_to_integral_exact`, `round_to_integral_value`, `scaleb`, `shift`, `rotate`, `logb`, `logical_and`, `logical_or`, `logical_xor`, `logical_invert`, `next_minus`, `next_plus`, `next_toward`, `compare`, `compare_signal`, `max`, `min`, `max_magnitude` and `min_magnitude`. The functions of `decimal_gda` that return a string, a boolean or an integer (`class_name`, `is_normal`, `is_subnormal`, `compare_total`, `compare_total_magnitude`) and the `try_` forms are called on `value()` and `context()`."
@@ -15439,8 +15439,8 @@ msgid "**The value does not depend on status or traps.** $v$ and $R$ are functio
 msgstr "**値はステータスにもトラップにも依存しない。** $v$ と $R$ は $(\\vec x, \\pi(C))$ の関数であり、ステータスとトラップは $C'$ と $\\tau$ にしか関与しません。したがってトラップを有効にしても結果が変わることはなく、`Trapped` は定義済みの結果を運ぶことができます。"
 
 #: manual/design/decimal_gda.md:357
-msgid "**Status is monotone and idempotent.** $C.\\mathrm{status} \\subseteq C'.\\mathrm{status}$, and since $\\cup$ is associative, commutative and idempotent, the status after a threaded sequence is the union of all raised sets, independent of how the sequence is grouped."
-msgstr "**ステータスは単調かつ冪等である。** $C.\\mathrm{status} \\subseteq C'.\\mathrm{status}$ であり、$\\cup$ は結合的、可換、冪等なので、受け渡された一連の演算の後のステータスは、立てられたすべての集合の和集合であり、列のグループ化の仕方に依存しません。"
+msgid "**Status is monotone and idempotent.** $C.\\mathrm{flags} \\subseteq C'.\\mathrm{flags}$, and since $\\cup$ is associative, commutative and idempotent, the status after a threaded sequence is the union of all raised sets, independent of how the sequence is grouped."
+msgstr "**ステータスは単調かつ冪等である。** $C.\\mathrm{flags} \\subseteq C'.\\mathrm{flags}$ であり、$\\cup$ は結合的、可換、冪等なので、受け渡された一連の演算の後のステータスは、立てられたすべての集合の和集合であり、列のグループ化の仕方に依存しません。"
 
 #: manual/design/decimal_gda.md:361
 msgid "**The trap choice is deterministic.** The precedence list is a total order on signals, so one operation selects at most one trap, whatever the order in which its conditions were detected."
@@ -25329,16 +25329,16 @@ msgid "decimal_gda tutorial"
 msgstr "decimal_gda チュートリアル"
 
 #: manual/tutorial/decimal_gda.md:3
-msgid "This tutorial teaches you to compute with `decimal_gda`, the package that implements Cowlishaw's General Decimal Arithmetic (GDA): decimal numbers that keep their trailing zeros, a context that fixes precision, rounding and exponent limits, sticky status that records what happened, and traps that stop a calculation while still handing you the defined result. By the end you can thread a context through a calculation, round money, handle traps, overflow and underflow, call the elementary functions and pick the right comparison. The mathematics behind each rule is on the [design page](../design/decimal_gda.md); every public name is on the [API page](../api/decimal_gda.md)."
-msgstr "このチュートリアルでは、Cowlishaw の General Decimal Arithmetic (GDA) を実装するパッケージ `decimal_gda` を使った計算方法を学びます。末尾のゼロを保持する十進数、精度・丸め・指数の限界を固定するコンテキスト、何が起きたかを記録するスティッキーなステータス、そして定義済みの結果を渡しつつ計算を停止させるトラップです。最後には、計算を通してコンテキストを受け渡し、金額を丸め、トラップ・オーバーフロー・アンダーフローを処理し、初等関数を呼び出し、適切な比較を選べるようになります。各規則の背後にある数学は[設計ページ](../design/decimal_gda.md)に、すべての公開名は [API ページ](../api/decimal_gda.md)にあります。"
+msgid "This tutorial teaches you to compute with `decimal_gda`, the package that implements Cowlishaw's General Decimal Arithmetic (GDA): decimal numbers that keep their trailing zeros, a context that fixes precision, rounding and exponent limits, sticky flags that records what happened, and traps that stop a calculation while still handing you the defined result. By the end you can thread a context through a calculation, round money, handle traps, overflow and underflow, call the elementary functions and pick the right comparison. The mathematics behind each rule is on the [design page](../design/decimal_gda.md); every public name is on the [API page](../api/decimal_gda.md)."
+msgstr "このチュートリアルでは、Cowlishaw の General Decimal Arithmetic (GDA) を実装するパッケージ `decimal_gda` を使った計算方法を学びます。末尾のゼロを保持する十進数、精度・丸め・指数の限界を固定するコンテキスト、何が起きたかを記録するスティッキーなフラグ、そして定義済みの結果を渡しつつ計算を停止させるトラップです。最後には、計算を通してコンテキストを受け渡し、金額を丸め、トラップ・オーバーフロー・アンダーフローを処理し、初等関数を呼び出し、適切な比較を選べるようになります。各規則の背後にある数学は[設計ページ](../design/decimal_gda.md)に、すべての公開名は [API ページ](../api/decimal_gda.md)にあります。"
 
 #: manual/tutorial/decimal_gda.md:15
 msgid "Read a number under a context"
 msgstr "コンテキストのもとで数を読み取る"
 
 #: manual/tutorial/decimal_gda.md:16
-msgid "Carry status from one operation to the next"
-msgstr "ある演算から次の演算へステータスを引き継ぐ"
+msgid "Carry flags from one operation to the next"
+msgstr "ある演算から次の演算へフラグを引き継ぐ"
 
 #: manual/tutorial/decimal_gda.md:17
 msgid "Round an amount to cents"
@@ -25385,8 +25385,8 @@ msgid "Every GDA operation takes its operands and a `GdaContext` and returns a `
 msgstr "すべての GDA 演算はオペランドと `GdaContext` を受け取り、`GdaOutcome` を返します。それは結果、次に使うコンテキスト、そしてこの演算が発生させた条件からなります。"
 
 #: manual/tutorial/decimal_gda.md:58
-msgid "`raised()` describes this one operation. `next_context().status()` is sticky: it collects every condition since the context was created or cleared."
-msgstr "`raised()` はこの一回の演算を記述します。`next_context().status()` はスティッキーであり、コンテキストが作成またはクリアされて以降のすべての条件を集めます。"
+msgid "`raised()` describes this one operation. `next_context().flags()` is sticky: it collects every condition since the context was created or cleared."
+msgstr "`raised()` はこの一回の演算を記述します。`next_context().flags()` はスティッキーであり、コンテキストが作成またはクリアされて以降のすべての条件を集めます。"
 
 #: manual/tutorial/decimal_gda.md:63
 msgid "Thread the context through a calculation"
@@ -25413,8 +25413,8 @@ msgid "Handle a trap without losing the result"
 msgstr "結果を失わずにトラップを処理する"
 
 #: manual/tutorial/decimal_gda.md:123
-msgid "Enable a trap by deriving a new context with `trap`. A trapped operation returns `Trapped(signal, value, next_context, raised)`: the GDA-defined result is still there, and the sticky status is still updated."
-msgstr "`trap` で新しいコンテキストを派生させることでトラップを有効にします。トラップされた演算は `Trapped(signal, value, next_context, raised)` を返します。GDA が定義する結果は依然としてそこにあり、スティッキーなステータスも更新されています。"
+msgid "Enable a trap by deriving a new context with `trap`. A trapped operation returns `Trapped(signal, value, next_context, raised)`: the GDA-defined result is still there, and the sticky flags is still updated."
+msgstr "`trap` で新しいコンテキストを派生させることでトラップを有効にします。トラップされた演算は `Trapped(signal, value, next_context, raised)` を返します。GDA が定義する結果は依然としてそこにあり、スティッキーなフラグも更新されています。"
 
 #: manual/tutorial/decimal_gda.md:145
 msgid "An `InvalidOperation` trap also catches the four detailed invalid conditions (conversion syntax, division impossible, division undefined and invalid context), which are flags of the outcome but not signals: the nine signals of the specification are the only ones with a trap. The basic default context enables `InvalidOperation`, so a malformed literal traps:"
@@ -25481,8 +25481,8 @@ msgid "`GdaInterchange` holds a decimal32, decimal64 or decimal128 bit pattern i
 msgstr "`GdaInterchange` は、densely packed decimal (DPD) エンコーディングの decimal32、decimal64、decimal128 のビットパターンを保持し、`#` と十六進数字で表記します。"
 
 #: manual/tutorial/decimal_gda.md:361
-msgid "**Reusing the original context.** Status only accumulates if you pass `next_context()` on. A trap set or status you put on a context also travels with every context derived from it."
-msgstr "**元のコンテキストを使い回す。** ステータスが蓄積されるのは `next_context()` を引き継いだ場合だけです。コンテキストに設定したトラップ集合やステータスは、そこから派生したすべてのコンテキストにも引き継がれます。"
+msgid "**Reusing the original context.** Status only accumulates if you pass `next_context()` on. A trap set or flags you put on a context also travels with every context derived from it."
+msgstr "**元のコンテキストを使い回す。** フラグが蓄積されるのは `next_context()` を引き継いだ場合だけです。コンテキストに設定したトラップ集合やフラグは、そこから派生したすべてのコンテキストにも引き継がれます。"
 
 #: manual/tutorial/decimal_gda.md:364
 msgid "**Treating `Trapped` as \"no value\".** A trap changes the variant, not the result; read the value with `value()` before you decide to stop."
@@ -25537,8 +25537,8 @@ msgid "decimal_gda_checked tutorial"
 msgstr "decimal_gda_checked チュートリアル"
 
 #: manual/tutorial/decimal_gda_checked.md:3
-msgid "This tutorial shows how to run a General Decimal Arithmetic (GDA) calculation as a pipeline that honours GDA traps: you choose a `GdaContext` with the traps your application needs, start a `GdaDecimalChecked`, chain operations, detect the step that trapped, inspect the sticky status, and decide explicitly whether to continue. This is the model of Python's `decimal` module and of the GDA test suites: status flags are sticky, and an enabled trap stops the computation. The operations come from [`decimal_gda`](decimal_gda.md); the [design page](../design/decimal_gda_checked.md) proves the status and trap laws; the [API reference](../api/decimal_gda_checked.md) lists every method."
-msgstr "このチュートリアルでは、GDA のトラップを尊重するパイプラインとして General Decimal Arithmetic (GDA) の計算を実行する方法を示します。アプリケーションが必要とするトラップを持つ `GdaContext` を選び、`GdaDecimalChecked` を開始し、演算を連鎖させ、トラップしたステップを検出し、スティッキーなステータスを調べ、続行するかどうかを明示的に決めます。これは Python の `decimal` モジュールや GDA のテストスイートのモデルです。ステータスフラグはスティッキーであり、有効なトラップは計算を停止させます。演算は [`decimal_gda`](decimal_gda.md) に由来します。ステータスとトラップの法則は[設計ページ](../design/decimal_gda_checked.md)で証明し、すべてのメソッドは [API リファレンス](../api/decimal_gda_checked.md)に一覧があります。"
+msgid "This tutorial shows how to run a General Decimal Arithmetic (GDA) calculation as a pipeline that honours GDA traps: you choose a `GdaContext` with the traps your application needs, start a `GdaDecimalChecked`, chain operations, detect the step that trapped, inspect the sticky flags, and decide explicitly whether to continue. This is the model of Python's `decimal` module and of the GDA test suites: flags flags are sticky, and an enabled trap stops the computation. The operations come from [`decimal_gda`](decimal_gda.md); the [design page](../design/decimal_gda_checked.md) proves the flags and trap laws; the [API reference](../api/decimal_gda_checked.md) lists every method."
+msgstr "このチュートリアルでは、GDA のトラップを尊重するパイプラインとして General Decimal Arithmetic (GDA) の計算を実行する方法を示します。アプリケーションが必要とするトラップを持つ `GdaContext` を選び、`GdaDecimalChecked` を開始し、演算を連鎖させ、トラップしたステップを検出し、スティッキーなフラグを調べ、続行するかどうかを明示的に決めます。これは Python の `decimal` モジュールや GDA のテストスイートのモデルです。フラグフラグはスティッキーであり、有効なトラップは計算を停止させます。演算は [`decimal_gda`](decimal_gda.md) に由来します。フラグとトラップの法則は[設計ページ](../design/decimal_gda_checked.md)で証明し、すべてのメソッドは [API リファレンス](../api/decimal_gda_checked.md)に一覧があります。"
 
 #: manual/tutorial/decimal_gda_checked.md:15
 msgid "Start a pipeline from text or a value"
@@ -25585,12 +25585,12 @@ msgid "A `GdaContext` carries a trap set. The predefined contexts differ: `GdaCo
 msgstr "`GdaContext` はトラップ集合を持ちます。定義済みのコンテキストはそれぞれ異なります。`GdaContext::basic_default()`（GDA の基本コンテキスト: 精度 9、`HalfUp`）は `DivisionByZero`、`InvalidOperation`、`Overflow`、`Underflow`、`Clamped` をトラップし、`decimal32()`、`decimal64()`、`decimal128()`、`new(...)` は何もトラップしません。トラップの追加・削除は `trap` で行います。"
 
 #: manual/tutorial/decimal_gda_checked.md:109
-msgid "Read the sticky status"
-msgstr "スティッキーなステータスを読み取る"
+msgid "Read the sticky flags"
+msgstr "スティッキーなフラグを読み取る"
 
 #: manual/tutorial/decimal_gda_checked.md:111
-msgid "`raised()` holds the signals of the latest operation, `status()` every signal since the context was created or its status was last cleared:"
-msgstr "`raised()` は最新の演算のシグナルを保持し、`status()` はコンテキストが作成されて以降、またはそのステータスが最後にクリアされて以降のすべてのシグナルを保持します。"
+msgid "`raised()` holds the signals of the latest operation, `status()` every signal since the context was created or its flags was last cleared:"
+msgstr "`raised()` は最新の演算のシグナルを保持し、`status()` はコンテキストが作成されて以降、またはそのフラグが最後にクリアされて以降のすべてのシグナルを保持します。"
 
 #: manual/tutorial/decimal_gda_checked.md:130
 msgid "Nothing runs after a trap"
@@ -25605,8 +25605,8 @@ msgid "Resume deliberately"
 msgstr "意図的に再開する"
 
 #: manual/tutorial/decimal_gda_checked.md:153
-msgid "`resume_defined()` accepts the defined result and continues. The status still records the trapped signal, so the decision is visible afterwards:"
-msgstr "`resume_defined()` は定義済みの結果を受け入れて続行します。ステータスはトラップされたシグナルを記録したままなので、その判断は後からでも確認できます。"
+msgid "`resume_defined()` accepts the defined result and continues. The flags still records the trapped signal, so the decision is visible afterwards:"
+msgstr "`resume_defined()` は定義済みの結果を受け入れて続行します。フラグはトラップされたシグナルを記録したままなので、その判断は後からでも確認できます。"
 
 #: manual/tutorial/decimal_gda_checked.md:173
 msgid "The traps are still enabled after resuming: dividing by zero again traps again."
@@ -25617,8 +25617,8 @@ msgid "Syntax errors are invalid operations"
 msgstr "構文エラーは無効演算である"
 
 #: manual/tutorial/decimal_gda_checked.md:180
-msgid "GDA classifies conversion syntax, impossible and undefined divisions and invalid contexts as *invalid-operation conditions*. A context that traps `InvalidOperation` therefore stops on a malformed string, and the status gains `invalid_operation` next to the specific condition:"
-msgstr "GDA は変換構文、不可能な除算と未定義の除算、無効なコンテキストを*無効演算の条件*に分類します。したがって `InvalidOperation` をトラップするコンテキストは不正な文字列で停止し、ステータスには個別の条件に加えて `invalid_operation` が記録されます。"
+msgid "GDA classifies conversion syntax, impossible and undefined divisions and invalid contexts as *invalid-operation conditions*. A context that traps `InvalidOperation` therefore stops on a malformed string, and the flags gains `invalid_operation` next to the specific condition:"
+msgstr "GDA は変換構文、不可能な除算と未定義の除算、無効なコンテキストを*無効演算の条件*に分類します。したがって `InvalidOperation` をトラップするコンテキストは不正な文字列で停止し、フラグには個別の条件に加えて `invalid_operation` が記録されます。"
 
 #: manual/tutorial/decimal_gda_checked.md:201
 msgid "Mathematical functions need bounded contexts"
@@ -25649,8 +25649,8 @@ msgid "**`raised()` versus `status()`.** The first is the latest step, the secon
 msgstr "**`raised()` と `status()` の違い。** 前者は最新のステップ、後者はスティッキーな履歴です。"
 
 #: manual/tutorial/decimal_gda_checked.md:259
-msgid "**`resume_defined` keeps the status and the traps.** It clears only the trap marker and `raised()`. Clear the status with `GdaContext::clear_status` on a context and start a new pipeline if needed."
-msgstr "**`resume_defined` はステータスとトラップを保持する。** クリアするのはトラップの印と `raised()` だけです。必要なら、コンテキストに対して `GdaContext::clear_status` でステータスをクリアし、新しいパイプラインを開始してください。"
+msgid "**`resume_defined` keeps the flags and the traps.** It clears only the trap marker and `raised()`. Clear the flags with `GdaContext::clear_flags` on a context and start a new pipeline if needed."
+msgstr "**`resume_defined` はフラグとトラップを保持する。** クリアするのはトラップの印と `raised()` だけです。必要なら、コンテキストに対して `GdaContext::clear_flags` でフラグをクリアし、新しいパイプラインを開始してください。"
 
 #: manual/tutorial/decimal_gda_checked.md:262
 msgid "**No errors.** Traps are not converted to `ArithmeticError`; check `is_err()`."
@@ -25661,8 +25661,8 @@ msgid "**Two decimal packages.** `decimal_gda.Decimal` is not `decimal.Decimal`;
 msgstr "**二つの十進パッケージ。** `decimal_gda.Decimal` は `decimal.Decimal` ではありません。トラップなしの IEEE 流のフラグ蓄積は [`decimal_checked`](decimal_checked.md) です。"
 
 #: manual/tutorial/decimal_gda_checked.md:270
-msgid "[`decimal_gda_checked` design](../design/decimal_gda_checked.md): sticky status as a monoid, the trap predicate and the short-circuit proof."
-msgstr "[`decimal_gda_checked` の設計](../design/decimal_gda_checked.md): モノイドとしてのスティッキーなステータス、トラップ述語、短絡の証明。"
+msgid "[`decimal_gda_checked` design](../design/decimal_gda_checked.md): sticky flags as a monoid, the trap predicate and the short-circuit proof."
+msgstr "[`decimal_gda_checked` の設計](../design/decimal_gda_checked.md): モノイドとしてのスティッキーなフラグ、トラップ述語、短絡の証明。"
 
 #: manual/tutorial/decimal_gda_checked.md:272
 msgid "[`decimal_gda_checked` API](../api/decimal_gda_checked.md): every method."
@@ -34259,7 +34259,7 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体の
 #~ msgstr "覚えるべき一つの規則"
 
 #~ msgid "Every operation returns a `GdaOutcome`. Thread `next_context()` into the next operation when status must accumulate."
-#~ msgstr "全 operation は `GdaOutcome` を返します。Status を累積する場合は `next_context()` を次へ渡します。 `raised()` は current operation、`next_context().status()` は threaded history です。"
+#~ msgstr "全 operation は `GdaOutcome` を返します。Status を累積する場合は `next_context()` を次へ渡します。 `raised()` は current operation、`next_context().flags()` は threaded history です。"
 
 #~ msgid "Parse And Calculate"
 #~ msgstr "Parse と計算"
@@ -34267,8 +34267,8 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体の
 #~ msgid "The parse result preserves the input cohort. Division receives the context returned by parsing, so any parse condition remains in the sticky status."
 #~ msgstr "Parse は cohort を保持し、returned context を渡すことで parse condition も sticky status に残ります。"
 
-#~ msgid "Use `clear_status()` to start a new observation window while retaining traps. Use `reset()` only when both status and trap configuration should return to defaults."
-#~ msgstr "`clear_status()` は traps を保持して observation window を開始、`reset()` は両方を default に戻します。"
+#~ msgid "Use `clear_flags()` to start a new observation window while retaining traps. Use `reset()` only when both status and trap configuration should return to defaults."
+#~ msgstr "`clear_flags()` は traps を保持して observation window を開始、`reset()` は両方を default に戻します。"
 
 #~ msgid "Configure And Handle A Trap"
 #~ msgstr "Trap の設定と処理"
