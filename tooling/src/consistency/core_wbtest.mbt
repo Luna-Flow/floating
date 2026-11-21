@@ -4694,7 +4694,7 @@ test "interval exact containment works" {
   let interval = @interval.Interval::exact(x)
   assert_true(interval.is_member(x))
   assert_eq(interval.to_string(), "[1.5, 1.5]")
-  assert_eq(interval.to_ball_string(), "3p-1 +/- 0")
+  assert_eq(interval.to_midpoint_radius_string(), "3p-1 +/- 0")
 }
 
 ///|
@@ -4721,7 +4721,7 @@ test "interval constructors accept coefficient and float family inputs" {
 
 ///|
 test "interval radius rounds outward at lower precision" {
-  let interval = @interval.Interval::new(
+  let interval = @interval.Interval::from_midpoint_radius(
     @bin_float.BinFloat::zero(precision=8),
     binary_test_make(9N, -4, 8),
     precision=2,
@@ -4748,12 +4748,12 @@ test "interval arithmetic keeps exact scalar results enclosed" {
 
 ///|
 test "interval enclosure relations stay partial-order based" {
-  let cross = @interval.Interval::new(
+  let cross = @interval.Interval::from_midpoint_radius(
     binary_test_make(1N, -2, 8),
     binary_test_make(1N, -1, 8),
     precision=4,
   )
-  let right = @interval.Interval::new(
+  let right = @interval.Interval::from_midpoint_radius(
     @bin_float.BinFloat::from_int(2, precision=8),
     binary_test_make(1N, -2, 8),
     precision=4,
@@ -4778,7 +4778,7 @@ test "interval division by a divisor containing zero returns whole real enclosur
     @bin_float.BinFloat::from_int(1, precision=16),
     precision=8,
   )
-  let divisor = @interval.Interval::new(
+  let divisor = @interval.Interval::from_midpoint_radius(
     @bin_float.BinFloat::zero(precision=16),
     @bin_float.BinFloat::one(precision=16),
     precision=8,
@@ -4813,7 +4813,7 @@ test "interval implements checked enclosure-preserving power and division" {
     Ok(value) => assert_true(value.is_member(binary_test_make(9N, -2, 48)))
     Err(_) => fail("expected interval checked nat power to succeed")
   }
-  let zero_crossing = @interval.Interval::new(
+  let zero_crossing = @interval.Interval::from_midpoint_radius(
     @bin_float.BinFloat::zero(precision=24),
     @bin_float.BinFloat::one(precision=24),
     precision=12,

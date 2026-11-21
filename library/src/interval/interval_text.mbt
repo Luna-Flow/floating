@@ -8,7 +8,7 @@
 //   one unit in the last place of widening at each end.
 // - `to_exact_string`: hexadecimal bounds, which are exact (13.4); `from_exact_string` recovers
 //   the datum (`identical`).
-// - `to_ball_string`: the midpoint-radius view `m +/- r`; it is not a literal.
+// - `to_midpoint_radius_string`: the midpoint-radius view `m +/- r`; it is not a literal.
 
 ///|
 /// A bound whose leading bit is beyond this magnitude is written in hexadecimal by `Show`:
@@ -182,7 +182,7 @@ pub fn Interval::to_exact_string(self : Interval) -> String {
 /// Both numbers are written as `BinFloat::to_string` writes them, so the cost does not depend
 /// on the exponent range (an interval whose bounds have exponents a billion apart is written
 /// in a few characters).
-pub fn Interval::to_ball_string(self : Interval) -> String {
+pub fn Interval::to_midpoint_radius_string(self : Interval) -> String {
   if self.is_empty() {
     "[empty]"
   } else if self.is_common_interval() {
@@ -264,7 +264,7 @@ fn hex_mantissa_digits(text : String) -> Int32 {
 /// at all, and then reports `inexact` (the test of the reader, not a count of digits). The
 /// bound keeps its own bit count, whatever the precision of the interval: 13.4 asks for the
 /// datum back, and the type has intervals with ends of more bits than the precision (an end
-/// of `new` or `cancel_minus` kept unrounded). A bound is refused when it is beyond the
+/// of `from_midpoint_radius` or `cancel_minus` kept unrounded). A bound is refused when it is beyond the
 /// exponent range of the library (overflow or underflow in the reader), or finer than the
 /// grid of the larger of its own bit count and the precision below the range floor, which no
 /// stored bound is.
@@ -332,7 +332,7 @@ fn exact_bound(
 /// IEEE 1788-2015 13.4 `exactToInterval`: the interval of an exact text, read exactly and
 /// never widened. `precision` is the precision of the interval, not a limit on the bounds: a
 /// bound with more bits than `precision` is kept as it is, as the type keeps such ends (an end
-/// of `new` or of `cancel_minus` that is not rounded), so `from_exact_string(x.to_exact_string(),
+/// of `from_midpoint_radius` or of `cancel_minus` that is not rounded), so `from_exact_string(x.to_exact_string(),
 /// precision=x.precision())` is `identical` to `x` for every interval of the type. The call is
 /// refused (a parse error naming the reason) only for what cannot be an interval of the
 /// library: a decimal or malformed bound, a bound beyond the exponent range, a lower bound

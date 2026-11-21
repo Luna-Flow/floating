@@ -111,9 +111,21 @@ test "try_new reports an invalid center or radius" {
   let one = @bin_float.BinFloat::one(precision=53)
   let inf = @bin_float.BinFloat::inf(Sign::Positive, precision=53)
   let nan = @bin_float.BinFloat::nan(precision=53)
-  assert_true(Interval::try_new(one, one, precision=53).unwrap().is_member(one))
-  assert_true(Interval::try_new(inf, one, precision=53) is Err(_))
-  assert_true(Interval::try_new(nan, one, precision=53) is Err(_))
-  assert_true(Interval::try_new(one, inf, precision=53) is Err(_))
-  assert_true(Interval::try_new(one, one.neg(), precision=53) is Err(_))
+  assert_true(
+    Interval::try_from_midpoint_radius(one, one, precision=53)
+    .unwrap()
+    .is_member(one),
+  )
+  assert_true(
+    Interval::try_from_midpoint_radius(inf, one, precision=53) is Err(_),
+  )
+  assert_true(
+    Interval::try_from_midpoint_radius(nan, one, precision=53) is Err(_),
+  )
+  assert_true(
+    Interval::try_from_midpoint_radius(one, inf, precision=53) is Err(_),
+  )
+  assert_true(
+    Interval::try_from_midpoint_radius(one, one.neg(), precision=53) is Err(_),
+  )
 }

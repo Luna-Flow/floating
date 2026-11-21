@@ -90,10 +90,18 @@ test "panic Interval::with_precision aborts on precision 0" {
 test "try_new rejects a precision outside 1..=binary_precision_max" {
   let one = @bin_float.BinFloat::from_int(1)
   let zero = @bin_float.BinFloat::from_int(0)
-  assert_true(Interval::try_new(one, zero, precision=0) is Err(_))
   assert_true(
-    Interval::try_new(one, zero, precision=@bin_float.binary_precision_max + 1)
+    Interval::try_from_midpoint_radius(one, zero, precision=0) is Err(_),
+  )
+  assert_true(
+    Interval::try_from_midpoint_radius(
+      one,
+      zero,
+      precision=@bin_float.binary_precision_max + 1,
+    )
     is Err(_),
   )
-  assert_true(Interval::try_new(one, zero, precision=1) is Ok(_))
+  assert_true(
+    Interval::try_from_midpoint_radius(one, zero, precision=1) is Ok(_),
+  )
 }

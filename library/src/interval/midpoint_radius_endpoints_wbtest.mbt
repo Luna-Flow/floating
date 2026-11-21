@@ -1,4 +1,4 @@
-// The endpoints of `Interval::new(c, r, precision=p)` are the exact
+// The endpoints of `Interval::from_midpoint_radius(c, r, precision=p)` are the exact
 // `c' - R` and `c' + R` (`c'` the center rounded to `p` bits, `R` the radius
 // rounded upward to `p` bits plus the upward rounding error of the center): the
 // interval is symmetric around `c'` (issue #581). They were made at their own bit
@@ -59,7 +59,7 @@ fn ne_expected(
 }
 
 ///|
-test "the endpoints of Interval::new are the exact center minus and plus the radius" {
+test "the endpoints of Interval::from_midpoint_radius are the exact center minus and plus the radius" {
   let state = Ref(0x2545f4914f6cdd1dUL)
   let e_min = @bin_float.binary_implementation_e_min
   for _ in 0..<4000 {
@@ -76,7 +76,7 @@ test "the endpoints of Interval::new are the exact center minus and plus the rad
     )
     let precisions = [24, 53, 113]
     let p = precisions[(ne_next(state) % 3UL).to_int()]
-    let interval = Interval::new(c, r, precision=p)
+    let interval = Interval::from_midpoint_radius(c, r, precision=p)
     let (lo, hi, rounded) = ne_expected(c, r, p)
     if interval.lower_bound().compare(lo) != 0 ||
       interval.upper_bound().compare(hi) != 0 {
@@ -103,7 +103,7 @@ test "away from the bottom of the range the endpoints are unchanged" {
       (ne_next(state) % 400UL).to_int() - 250,
       53,
     )
-    let interval = Interval::new(c, r, precision=53)
+    let interval = Interval::from_midpoint_radius(c, r, precision=53)
     let (lo, hi, _) = ne_expected(c, r, 53)
     assert_eq(interval.lower_bound().compare(lo), 0)
     assert_eq(interval.upper_bound().compare(hi), 0)
@@ -118,7 +118,7 @@ test "the first case of the issue" {
   // [16627796940284301, 16627796940309199] * 2^-1073741874
   let c = ne_value(133022375522373997UL, -1073741877, 200)
   let r = ne_value(389UL, -1073741869, 200)
-  let interval = Interval::new(c, r, precision=53)
+  let interval = Interval::from_midpoint_radius(c, r, precision=53)
   inspect(
     interval.lower_bound().to_string(),
     content="16627796940284301p-1073741874",

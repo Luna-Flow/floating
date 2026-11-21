@@ -767,12 +767,16 @@ pub impl Show for DecoratedInterval with fn to_string(self) {
 
 ///|
 /// The midpoint-radius view of the interval followed by `_` and the decoration; see
-/// `Interval::to_ball_string` (not a literal).
-pub fn DecoratedInterval::to_ball_string(self : DecoratedInterval) -> String {
+/// `Interval::to_midpoint_radius_string` (not a literal).
+pub fn DecoratedInterval::to_midpoint_radius_string(
+  self : DecoratedInterval,
+) -> String {
   if self.is_nai() {
     "[nai]"
   } else {
-    self.interval_.to_ball_string() + "_" + self.decoration_.to_string()
+    self.interval_.to_midpoint_radius_string() +
+    "_" +
+    self.decoration_.to_string()
   }
 }
 

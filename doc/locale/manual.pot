@@ -6859,7 +6859,7 @@ msgid "`interval` is interval arithmetic over `BinFloat` endpoints. An `Interval
 msgstr ""
 
 #: manual/api/interval.md:12
-msgid "Despite the name, the stored representation is the endpoint pair, not a midpoint and a radius: `Interval::new(center, radius)` builds an interval from the midpoint–radius view, and `midpoint()` and `radius()` read it back as IEEE 1788-2015 12.12.8 defines them. The [tutorial](../tutorial/interval.md) shows typical use; the [design page](../design/interval.md) derives the formulas and proves the inclusion property. The fallible pipeline wrapper is [`interval_checked`](interval_checked.md)."
+msgid "Despite the name, the stored representation is the endpoint pair, not a midpoint and a radius: `Interval::from_midpoint_radius(center, radius)` builds an interval from the midpoint–radius view, and `midpoint()` and `radius()` read it back as IEEE 1788-2015 12.12.8 defines them. The [tutorial](../tutorial/interval.md) shows typical use; the [design page](../design/interval.md) derives the formulas and proves the inclusion property. The fallible pipeline wrapper is [`interval_checked`](interval_checked.md)."
 msgstr ""
 
 #: manual/api/interval.md:21
@@ -6975,7 +6975,7 @@ msgid "`inexact` is set when an endpoint (or, for `midpoint_ctx`, the midpoint) 
 msgstr ""
 
 #: manual/api/interval.md:235
-msgid "`Interval::new` builds the interval $[c - r, c + r]$ from a center and a radius, enlarged so that it is exact at the requested precision. `Interval::try_new` returns the same interval, or an `ArithmeticError` where `new` aborts."
+msgid "`Interval::from_midpoint_radius` builds the interval $[c - r, c + r]$ from a center and a radius, enlarged so that it is exact at the requested precision. `Interval::try_from_midpoint_radius` returns the same interval, or an `ArithmeticError` where `from_midpoint_radius` aborts."
 msgstr ""
 
 #: manual/api/interval.md:245
@@ -6983,7 +6983,7 @@ msgid "The default precision is the larger of the precisions of `center` and `ra
 msgstr ""
 
 #: manual/api/interval.md:254
-msgid "which contains $[c - r, c + r]$ (proof in the [design page](../design/interval.md#from-midpointradius-to-endpoints)). The endpoints $\\tilde c \\pm R$ are formed exactly, so they may carry more than $p$ bits. `new` aborts, and `try_new` returns a domain error, when `center` or `radius` is not finite or when `radius` is negative, and when `precision` is outside `1..=binary_precision_max`."
+msgid "which contains $[c - r, c + r]$ (proof in the [design page](../design/interval.md#from-midpointradius-to-endpoints)). The endpoints $\\tilde c \\pm R$ are formed exactly, so they may carry more than $p$ bits. `from_midpoint_radius` aborts, and `try_from_midpoint_radius` returns a domain error, when `center` or `radius` is not finite or when `radius` is negative, and when `precision` is outside `1..=binary_precision_max`."
 msgstr ""
 
 #: manual/api/interval.md:261
@@ -7123,7 +7123,7 @@ msgid "The sign of a zero follows 12.12.8: in a format with a signed zero a Leve
 msgstr ""
 
 #: manual/api/interval.md:439
-msgid "The label of an endpoint, `endpoint.precision()`, is the precision $p$ of the interval exactly when the endpoint is a number of the format of $p$ bits (at most $p$ significant bits and on the grid of $p$ bits, the band below the range floor included); the infinities and the zeros carry $p$ too. The one exception is an exact endpoint that is not such a number (an end of `new` or of `cancel_minus` kept unrounded with more than $p$ bits, or finer than the grid of $p$ bits below the range floor): it keeps the label of its own bit count. `BinFloat`'s `==` agrees with `compare` and ignores the label (`BinFloat::identical` compares it), so `x.lower_bound() == y` holds for a value `y` of the same number; `Interval`'s own `==` and `identical` compare the endpoints by value and never read a label. The sign of a stored zero is not part of the interval: the accessors decide it, as the paragraph above says."
+msgid "The label of an endpoint, `endpoint.precision()`, is the precision $p$ of the interval exactly when the endpoint is a number of the format of $p$ bits (at most $p$ significant bits and on the grid of $p$ bits, the band below the range floor included); the infinities and the zeros carry $p$ too. The one exception is an exact endpoint that is not such a number (an end of `from_midpoint_radius` or of `cancel_minus` kept unrounded with more than $p$ bits, or finer than the grid of $p$ bits below the range floor): it keeps the label of its own bit count. `BinFloat`'s `==` agrees with `compare` and ignores the label (`BinFloat::identical` compares it), so `x.lower_bound() == y` holds for a value `y` of the same number; `Interval`'s own `==` and `identical` compare the endpoints by value and never read a label. The sign of a stored zero is not part of the interval: the accessors decide it, as the paragraph above says."
 msgstr ""
 
 #: manual/api/interval.md:451
@@ -7957,7 +7957,7 @@ msgid "IEEE 1788-2015 13.4 `intervalToExact` and `exactToInterval`: a text that 
 msgstr ""
 
 #: manual/api/interval.md:2110
-msgid "The text is `[empty]`, `[entire]` or `[l, u]` with the bounds written as hexadecimal numbers (`0x1fffffp-3`; `inf` and `-inf` for an infinite bound), and for a decorated interval `_` and the decoration (`[nai]` for NaI). The bounds are the stored bounds, so `from_exact_string(x.to_exact_string(), precision=x.precision())` is `identical` to `x` (no signed zero is written, 13.4). `from_exact_string` reads the text exactly, at whatever bit count its bounds have, and never widens it: `precision` is the precision of the interval, not a limit on the bounds. A bound with more bits than `precision` is kept as it is, with the label of its own bit count (`lower_bound().precision()` is 57 for `0x1.00000000000001p0`, whatever zero digits the text has), as the type keeps such ends (an end of `new` or of `cancel_minus` that is not rounded), so the round trip above holds for every interval of the type, and `[0x1.00000000000001p0, 0x2p0]` at precision 53 is the interval with that exact lower end and precision 53, neither `[1, 2]` nor an error. The call is refused (a parse error naming the reason) only for what cannot be an interval of the library: a decimal or malformed bound, a bound beyond the exponent range of the library (or finer than the grid of the larger of its own bit count and `precision` below the range floor), a lower bound above the upper bound. Which bounds are representable at all is decided by the converter of IEEE 754-2019 5.12.3 (`BinFloat::from_hex_ctx` reports `inexact`), not by counting digits of the text, so a fractional mantissa (`0x1.8p0`, `0x.8p1`), leading and trailing zero digits and upper case are read."
+msgid "The text is `[empty]`, `[entire]` or `[l, u]` with the bounds written as hexadecimal numbers (`0x1fffffp-3`; `inf` and `-inf` for an infinite bound), and for a decorated interval `_` and the decoration (`[nai]` for NaI). The bounds are the stored bounds, so `from_exact_string(x.to_exact_string(), precision=x.precision())` is `identical` to `x` (no signed zero is written, 13.4). `from_exact_string` reads the text exactly, at whatever bit count its bounds have, and never widens it: `precision` is the precision of the interval, not a limit on the bounds. A bound with more bits than `precision` is kept as it is, with the label of its own bit count (`lower_bound().precision()` is 57 for `0x1.00000000000001p0`, whatever zero digits the text has), as the type keeps such ends (an end of `from_midpoint_radius` or of `cancel_minus` that is not rounded), so the round trip above holds for every interval of the type, and `[0x1.00000000000001p0, 0x2p0]` at precision 53 is the interval with that exact lower end and precision 53, neither `[1, 2]` nor an error. The call is refused (a parse error naming the reason) only for what cannot be an interval of the library: a decimal or malformed bound, a bound beyond the exponent range of the library (or finer than the grid of the larger of its own bit count and `precision` below the range floor), a lower bound above the upper bound. Which bounds are representable at all is decided by the converter of IEEE 754-2019 5.12.3 (`BinFloat::from_hex_ctx` reports `inexact`), not by counting digits of the text, so a fractional mantissa (`0x1.8p0`, `0x.8p1`), leading and trailing zero digits and upper case are read."
 msgstr ""
 
 #: manual/api/interval.md:2141
@@ -8007,7 +8007,7 @@ msgid "Add the wrapper and the endpoint package to your `moon.pkg`:"
 msgstr ""
 
 #: manual/api/interval_checked.md:28
-msgid "The examples refer to the packages as `@interval_checked.`, `@interval.`, `@bin_float.`, `@def.` (for the `Sign` of an infinity) and `@lf_arith.` (for `Luna-Flow/arithmetic`). They print a result with this helper (`to_ball_string` of a bounded interval is `center +/- radius` in exact binary notation, `mpe` meaning $m \\cdot 2^{e}$):"
+msgid "The examples refer to the packages as `@interval_checked.`, `@interval.`, `@bin_float.`, `@def.` (for the `Sign` of an infinity) and `@lf_arith.` (for `Luna-Flow/arithmetic`). They print a result with this helper (`to_midpoint_radius_string` of a bounded interval is `center +/- radius` in exact binary notation, `mpe` meaning $m \\cdot 2^{e}$):"
 msgstr ""
 
 #: manual/api/interval_checked.md:48
@@ -10286,7 +10286,7 @@ msgid "§13.3 interval text output (`intervalToText`)"
 msgstr ""
 
 #: manual/conformance/interval.md:27
-msgid "`Show` (`to_string`, `output`) for `Interval` and `DecoratedInterval`; `to_ball_string` is the midpoint-radius view"
+msgid "`Show` (`to_string`, `output`) for `Interval` and `DecoratedInterval`; `to_midpoint_radius_string` is the midpoint-radius view"
 msgstr ""
 
 #: manual/conformance/interval.md:27
@@ -17997,7 +17997,7 @@ msgid "From midpoint–radius to endpoints"
 msgstr ""
 
 #: manual/design/interval.md:242
-msgid "Users often know a value as $c \\pm r$. `Interval::new(c, r, precision=p)` rounds the center to nearest, $\\tilde c = \\operatorname{RN}_p(c)$, and stores"
+msgid "Users often know a value as $c \\pm r$. `Interval::from_midpoint_radius(c, r, precision=p)` rounds the center to nearest, $\\tilde c = \\operatorname{RN}_p(c)$, and stores"
 msgstr ""
 
 #: manual/design/interval.md:250
@@ -18007,7 +18007,7 @@ msgstr ""
 #: manual/design/interval.md:261
 msgid ""
 "The endpoints $\\tilde c \\pm R$ are then formed exactly (they may have more than $p$ bits). The construction is sound but not idempotent: whenever $\\tilde c \\n"
-"e c$, the displacement $|c - \\tilde c|$ is added on both sides, so rebuilding an interval whose center needs more than $p$ bits widens it (see [Tightness](#correctness-and-invariants)). `normalized` accepts that; `with_precision` does not use the construction at all. It rounds the endpoints outward directly, which encloses the input at every precision and is the tightest representable enclosure, so it has no rounding-mode argument. The converse view inside the package is exact: the center is $(\\underline{x} + \\overline{x})/2$ and the half-width $(\\overline{x} - \\underline{x})/2$, which are dyadic and need no rounding (the half-width is rounded up only if it underflows the exponent range), so $[\\text{center} - \\text{half-width}, \\text{center} + \\text{half-width}]$ is exactly the stored interval. `to_ball_string` prints this pair (`Show` is the inf-sup literal of 13.3). The public observers are not this pair: IEEE 1788-2015 12.12.8 defines `mid` as the center rounded to the format and `rad` as the smallest number of the format with the interval inside $[m - r, m + r]$ for that rounded $m$. The half-width around the exact center is too small when the center is not representable (it was returned as `radius` before 0.12, [issue 477](https://github.com/Luna-Flow/floating/issues/477)), so `radius` measures from `midpoint`: it is the larger of $m - \\underline{x}$ and $\\overline{x} - m$, rounded up."
+"e c$, the displacement $|c - \\tilde c|$ is added on both sides, so rebuilding an interval whose center needs more than $p$ bits widens it (see [Tightness](#correctness-and-invariants)). `normalized` accepts that; `with_precision` does not use the construction at all. It rounds the endpoints outward directly, which encloses the input at every precision and is the tightest representable enclosure, so it has no rounding-mode argument. The converse view inside the package is exact: the center is $(\\underline{x} + \\overline{x})/2$ and the half-width $(\\overline{x} - \\underline{x})/2$, which are dyadic and need no rounding (the half-width is rounded up only if it underflows the exponent range), so $[\\text{center} - \\text{half-width}, \\text{center} + \\text{half-width}]$ is exactly the stored interval. `to_midpoint_radius_string` prints this pair (`Show` is the inf-sup literal of 13.3). The public observers are not this pair: IEEE 1788-2015 12.12.8 defines `mid` as the center rounded to the format and `rad` as the smallest number of the format with the interval inside $[m - r, m + r]$ for that rounded $m$. The half-width around the exact center is too small when the center is not representable (it was returned as `radius` before 0.12, [issue 477](https://github.com/Luna-Flow/floating/issues/477)), so `radius` measures from `midpoint`: it is the larger of $m - \\underline{x}$ and $\\overline{x} - m$, rounded up."
 msgstr ""
 
 #: manual/design/interval.md:283
@@ -18661,7 +18661,7 @@ msgid "*Options.* (a) midpoint–radius storage with low-precision radii; (b) en
 msgstr ""
 
 #: manual/design/interval.md:1002
-msgid "*Chosen: (b).* IEEE 1788 is defined on endpoints, half-unbounded and empty sets have no midpoint–radius form, and the hulls in the [endpoint formulas](#endpoint-formulas) are exact before rounding, so inf–sup results are as tight as the precision allows. The cost is that both endpoints carry $p$ bits, so wide intervals at high precision store many useless bits. The midpoint–radius *view* (`new`, `midpoint`, `radius`) is kept for users who reason in $c \\pm r$, with the conversions derived [above](#from-midpointradius-to-endpoints)."
+msgid "*Chosen: (b).* IEEE 1788 is defined on endpoints, half-unbounded and empty sets have no midpoint–radius form, and the hulls in the [endpoint formulas](#endpoint-formulas) are exact before rounding, so inf–sup results are as tight as the precision allows. The cost is that both endpoints carry $p$ bits, so wide intervals at high precision store many useless bits. The midpoint–radius *view* (`from_midpoint_radius`, `midpoint`, `radius`) is kept for users who reason in $c \\pm r$, with the conversions derived [above](#from-midpointradius-to-endpoints)."
 msgstr ""
 
 #: manual/design/interval.md:1011
@@ -27111,7 +27111,7 @@ msgid "enclose a known point, known bounds or a measurement $c \\pm r$"
 msgstr ""
 
 #: manual/tutorial/interval.md:13
-msgid "`exact`, `from_bounds`, `new` ([Build intervals](#build-intervals))"
+msgid "`exact`, `from_bounds`, `from_midpoint_radius` ([Build intervals](#build-intervals))"
 msgstr ""
 
 #: manual/tutorial/interval.md:14
@@ -27199,7 +27199,7 @@ msgid "Choose the constructor by what you know about the value."
 msgstr ""
 
 #: manual/tutorial/interval.md:115
-msgid "`from_bounds` and `exact` abort on invalid input (a NaN endpoint, reversed bounds, a non-finite point); their `try_` forms return the same condition as an `ArithmeticError`, and so does `try_new(center, radius)` for a non-finite center or a negative or non-finite radius. `new(center, radius)` is a constructor view: the stored value is always the endpoint pair, and `midpoint()` / `radius()` read the midpoint–radius form back as IEEE 1788-2015 12.12.8 defines it. The whole real line and the empty set are `Interval::entire()` and `Interval::empty()`."
+msgid "`from_bounds` and `exact` abort on invalid input (a NaN endpoint, reversed bounds, a non-finite point); their `try_` forms return the same condition as an `ArithmeticError`, and so does `try_from_midpoint_radius(center, radius)` for a non-finite center or a negative or non-finite radius. `from_midpoint_radius(center, radius)` is a constructor view: the stored value is always the endpoint pair, and `midpoint()` / `radius()` read the midpoint–radius form back as IEEE 1788-2015 12.12.8 defines it. The whole real line and the empty set are `Interval::entire()` and `Interval::empty()`."
 msgstr ""
 
 #: manual/tutorial/interval.md:123
@@ -27411,7 +27411,7 @@ msgid "The upper bound printed in lowest terms is $6243314768165360 \\cdot 2^{-5
 msgstr ""
 
 #: manual/tutorial/interval_checked.md:62
-msgid "The remaining examples print results with this helper; a bounded interval prints as `centre +/- radius` in exact binary notation (`to_ball_string`; `to_string` is the portable literal `[l, u]`):"
+msgid "The remaining examples print results with this helper; a bounded interval prints as `centre +/- radius` in exact binary notation (`to_midpoint_radius_string`; `to_string` is the portable literal `[l, u]`):"
 msgstr ""
 
 #: manual/tutorial/interval_checked.md:76

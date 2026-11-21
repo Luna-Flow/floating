@@ -28,14 +28,14 @@ import {
 The examples refer to the packages as `@interval_checked.`,
 `@interval.`, `@bin_float.`, `@def.` (for the `Sign` of an infinity) and
 `@lf_arith.` (for `Luna-Flow/arithmetic`). They print a result with this
-helper (`to_ball_string` of a bounded interval is `center +/- radius` in exact binary
+helper (`to_midpoint_radius_string` of a bounded interval is `center +/- radius` in exact binary
 notation, `mpe` meaning $m \cdot 2^{e}$):
 
 ```moonbit
 ///|
 fn show(r : @interval_checked.IntervalResult) -> String {
   match r.result() {
-    Ok(v) => v.to_ball_string()
+    Ok(v) => v.to_midpoint_radius_string()
     Err(e) => "error: " + e.message
   }
 }
