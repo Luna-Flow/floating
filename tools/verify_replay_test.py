@@ -16,6 +16,9 @@ class ClassifyTests(unittest.TestCase):
         self.assertEqual(vr.classify(base, snap("b", {"u1": "k1", "u2": "k2"})), "none")
         self.assertEqual(vr.classify(base, snap("b", {"u1": "k1", "u2": "x"})), "arm")
         self.assertEqual(vr.classify(base, snap("b", {"u1": "x", "u2": "k2"}, frames={"testfloat": "g", "mpfr": "f"})), "frame")
+        self.assertEqual(vr.classify(base, snap("b", {"u1": "x", "u2": "k2"}, frames={"testfloat": "f", "mpfr": "g"})), "mpfr")
+        # the MPFR frame changed and the start-up closure too: every unit reruns, the cause is the start-up code
+        self.assertEqual(vr.classify(base, snap("b", {"u1": "x", "u2": "y"}, startup="t", frames={"testfloat": "f", "mpfr": "g"})), "start-up")
         self.assertEqual(vr.classify(base, snap("b", {"u1": "x", "u2": "y"}, startup="t")), "start-up")
         # a change in the frame wins over one in the start-up code: it reruns the units whatever the attribution
         self.assertEqual(vr.classify(base, snap("b", {"u1": "x", "u2": "y"}, startup="t", frames={"testfloat": "g", "mpfr": "f"})), "frame")

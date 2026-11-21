@@ -65,20 +65,23 @@ def changed_units(previous: Mapping[str, str], current: Mapping[str, str]) -> li
 
 
 def classify(previous: Snapshot, current: Snapshot) -> str:
-    """The kind of change between two builds, from the keys alone.
+    """The kind of change between two builds, from the keys alone, by cause.
 
-    `none`: no key changed. `frame`: the code reachable from the entry of a frontend changed,
-    start-up code left out (a parser, a dispatcher, a kernel function shared by the frame, the arm
-    set); whatever else changed, this is the cause that reruns the units. `start-up`: the frames
-    are unchanged and the start-up closure changed (an initialiser): the only kind of change that
-    an attribution of the initialisers can narrow. `arm`: only an arm's closure changed.
+    `none`: no key changed. `frame`: the frame of the TestFloat frontend (the code reachable from
+    its entry, start-up code left out) changed: the 534 tasks rerun whatever else changed.
+    `start-up`: that frame is unchanged and the start-up closure changed (an initialiser, or code
+    that only the start-up reaches): every unit reruns, and it is the only kind of change that an
+    attribution of the initialisers can narrow. `mpfr`: only the frame of the MPFR frontend
+    changed (its files rerun). `arm`: only an arm's closure changed.
     """
     if not changed_units(previous.result, current.result):
         return "none"
-    if dict(previous.frames) != dict(current.frames):
+    if previous.frames.get("testfloat") != current.frames.get("testfloat"):
         return "frame"
     if previous.startup != current.startup:
         return "start-up"
+    if previous.frames.get("mpfr") != current.frames.get("mpfr"):
+        return "mpfr"
     return "arm"
 
 
@@ -128,7 +131,7 @@ def format_table(rows: Sequence[Row], total_units: int, full_seconds: float) -> 
     lines.append("")
     lines.append("| kind of change | commits | mean units that would run | mean estimated time | mean share of the full stage |")
     lines.append("| --- | --- | --- | --- | --- |")
-    for kind in ("none", "arm", "frame", "start-up"):
+    for kind in ("none", "arm", "mpfr", "frame", "start-up"):
         chosen = [r for r in rows if r.kind == kind]
         if not chosen:
             lines.append(f"| {kind} | 0 | | | |")
