@@ -322,7 +322,7 @@ test "exp results are identical with and without the bit-burst kernel" {
           let actual = value.try_exp_ctx(context)
           match (reference, actual) {
             (Some((expected, expected_flags)), Ok((result, flags))) => {
-              assert_true(result == expected)
+              assert_true(result.identical(expected))
               assert_true(flags == expected_flags)
               compared += 1
             }

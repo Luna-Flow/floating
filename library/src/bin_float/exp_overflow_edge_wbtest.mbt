@@ -68,7 +68,7 @@ test "exp at the overflow threshold rounds by the clause 7.4 rules on both sides
         if to_infinity {
           value.classify() == FpClass::Infinity && !value.is_negative()
         } else {
-          value == exp_edge_omax(p)
+          value.identical(exp_edge_omax(p))
         }
       }
       // above: overflow in every direction

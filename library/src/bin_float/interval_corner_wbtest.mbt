@@ -99,7 +99,7 @@ test "sign-aware product and quotient bounds equal the four-candidate versions" 
                 let fresh = binary_product_bounds(left, right, downward, upward)
                 let old = old_product_bounds(left, right, downward, upward)
                 assert_true(
-                  fresh.0 == old.0 && fresh.1 == old.1,
+                  fresh.0.identical(old.0) && fresh.1.identical(old.1),
                   msg="product \{a0} \{a1} \{b0} \{b1}",
                 )
                 let fq = binary_quotient_bounds(left, right, downward, upward)
@@ -107,7 +107,7 @@ test "sign-aware product and quotient bounds equal the four-candidate versions" 
                 match (fq, oq) {
                   (Some(f), Some(o)) =>
                     assert_true(
-                      f.0 == o.0 && f.1 == o.1,
+                      f.0.identical(o.0) && f.1.identical(o.1),
                       msg="quotient \{a0} \{a1} \{b0} \{b1}",
                     )
                   (None, None) => ()

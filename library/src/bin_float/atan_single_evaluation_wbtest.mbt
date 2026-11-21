@@ -607,7 +607,7 @@ test "atan of huge finite arguments is pi/2 rounded by the mode (both sides of 2
       let expected = atan_half_pi(context)
       match x.try_atan_ctx(context) {
         Ok((value, flags)) => {
-          assert_true(value == expected, msg="atan e=\{e}")
+          assert_true(value.identical(expected), msg="atan e=\{e}")
           assert_true(flags.inexact())
         }
         Err(_) => fail("atan failed for 3*2^\{e}")
@@ -625,12 +625,13 @@ test "atan of huge finite arguments is pi/2 rounded by the mode (both sides of 2
       ).neg()
       match x.neg().try_atan_ctx(context) {
         Ok((value, _)) =>
-          assert_true(value == mirror_expected, msg="-atan e=\{e}")
+          assert_true(value.identical(mirror_expected), msg="-atan e=\{e}")
         Err(_) => fail("atan failed for -3*2^\{e}")
       }
       // atan2(x, 1) is the same angle.
       match x.try_atan2_ctx(BinFloat::one(precision=64), context) {
-        Ok((value, _)) => assert_true(value == expected, msg="atan2 e=\{e}")
+        Ok((value, _)) =>
+          assert_true(value.identical(expected), msg="atan2 e=\{e}")
         Err(_) => fail("atan2(x, 1) failed for 3*2^\{e}")
       }
     }
@@ -812,7 +813,7 @@ test "pi series enclosure contains pi and differs from the old one only by an ul
     let reference = binary_pi_bounds(w + 200).unwrap()
     assert_true(fresh.0.compare(reference.0) <= 0, msg="pi lower w=\{w}")
     assert_true(fresh.1.compare(reference.1) >= 0, msg="pi upper w=\{w}")
-    if fresh.0 != old.0 || fresh.1 != old.1 {
+    if !fresh.0.identical(old.0) || !fresh.1.identical(old.1) {
       differing += 1
       // within one unit in the last place of the old bounds
       let ulp = BinFloat::make(BinCoeff::one(), old.1.exponent2(), 2)

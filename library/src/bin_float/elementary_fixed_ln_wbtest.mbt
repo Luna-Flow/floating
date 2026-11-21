@@ -169,7 +169,7 @@ fn binary_ln_fixed_test_values() -> Array[BinFloat] {
 
 ///|
 fn binary_ln_fixed_same_class(left : BinFloat, right : BinFloat) -> Bool {
-  left == right && left.precision() == right.precision()
+  left.identical(right)
 }
 
 ///|

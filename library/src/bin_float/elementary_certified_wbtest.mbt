@@ -2,9 +2,9 @@
 test "BinFloat certified exp and ln special values" {
   let context = BinaryContext::binary64()
   let (exp_zero, _) = BinFloat::zero().exp_ctx(context)
-  assert_eq(exp_zero, BinFloat::one())
+  assert_identical(exp_zero, BinFloat::one())
   let (ln_one, _) = BinFloat::one().ln_ctx(context)
-  assert_eq(ln_one, BinFloat::zero())
+  assert_identical(ln_one, BinFloat::zero())
   let (ln_negative, flags) = BinFloat::from_int(-1).ln_ctx(context)
   assert_true(ln_negative.is_quiet_nan())
   assert_true(flags.invalid_operation())
@@ -49,29 +49,35 @@ test "BinFloat exact elementary identities preserve exact flags" {
     assert_true(!flags.inexact())
   }
   let (hundred, hundred_flags) = BinFloat::from_int(2).exp10_ctx(context)
-  assert_eq(hundred, BinFloat::from_int(100))
+  assert_identical(hundred, BinFloat::from_int(100))
   assert_true(!hundred_flags.inexact())
   let (binary_logarithm, binary_flags) = BinFloat::make(BinCoeff::one(), 9, 53).log2_ctx(
     context,
   )
-  assert_eq(binary_logarithm, BinFloat::from_int(9))
+  assert_identical(binary_logarithm, BinFloat::from_int(9))
   assert_true(!binary_flags.inexact())
   let (decimal_logarithm, decimal_flags) = BinFloat::from_int(1000).log10_ctx(
     context,
   )
-  assert_eq(decimal_logarithm, BinFloat::from_int(3))
+  assert_identical(decimal_logarithm, BinFloat::from_int(3))
   assert_true(!decimal_flags.inexact())
   let (cube_root, cube_root_flags) = BinFloat::make(
     BinCoeff::from_uint64(27UL),
     -3,
     53,
   ).rootn_ctx(3, context)
-  assert_eq(cube_root, BinFloat::make(BinCoeff::from_uint64(3UL), -1, 53))
+  assert_identical(
+    cube_root,
+    BinFloat::make(BinCoeff::from_uint64(3UL), -1, 53),
+  )
   assert_true(!cube_root_flags.inexact())
   let exact_square = BinFloat::make(BinCoeff::from_uint64(441UL), -8, 53)
   let half = BinFloat::make(BinCoeff::one(), -1, 53)
   let (power_root, power_root_flags) = exact_square.pow_ctx(half, context)
-  assert_eq(power_root, BinFloat::make(BinCoeff::from_uint64(21UL), -4, 53))
+  assert_identical(
+    power_root,
+    BinFloat::make(BinCoeff::from_uint64(21UL), -4, 53),
+  )
   assert_true(!power_root_flags.inexact())
 }
 
@@ -81,14 +87,14 @@ test "BinFloat certified logarithm range reduction handles ordinary inputs" {
   assert_true(natural > BinFloat::from_int(2))
   assert_true(natural < BinFloat::from_int(3))
   let decimal = BinFloat::from_int(10).log10()
-  assert_eq(decimal, BinFloat::one())
+  assert_identical(decimal, BinFloat::one())
 }
 
 ///|
 test "BinFloat hypot rounds the exact sum of squares" {
   let result = BinFloat::from_int(3).hypot(BinFloat::from_int(4))
-  assert_eq(result, BinFloat::from_int(5))
-  assert_eq(
+  assert_identical(result, BinFloat::from_int(5))
+  assert_identical(
     BinFloat::inf(Sign::Negative).hypot(BinFloat::zero()),
     BinFloat::inf(Sign::Positive),
   )
@@ -96,7 +102,7 @@ test "BinFloat hypot rounds the exact sum of squares" {
 
 ///|
 test "BinFloat pown preserves the standard integer-power semantics" {
-  assert_eq(BinFloat::from_int(2).pown(10), BinFloat::from_int(1024))
+  assert_identical(BinFloat::from_int(2).pown(10), BinFloat::from_int(1024))
 }
 
 ///|
@@ -114,10 +120,10 @@ test "BinFloat logarithms preserve IEEE zero and domain flags" {
 ///|
 test "BinFloat rootn uses certified logarithm and exponential bounds" {
   let result = BinFloat::from_int(8).rootn(3)
-  assert_eq(result, BinFloat::from_int(2))
+  assert_identical(result, BinFloat::from_int(2))
   let negative = BinFloat::from_int(-8).rootn(3)
-  assert_eq(negative, BinFloat::from_int(-2))
-  assert_eq(
+  assert_identical(negative, BinFloat::from_int(-2))
+  assert_identical(
     BinFloat::from_int(2).rootn(-1),
     BinFloat::make(BinCoeff::one(), -1, 53),
   )
@@ -137,14 +143,14 @@ test "BinFloat rootn uses certified logarithm and exponential bounds" {
 
 ///|
 test "BinFloat pow separates integer and positive non-integer domains" {
-  assert_eq(
+  assert_identical(
     BinFloat::from_int(-2).pow(BinFloat::from_int(3)),
     BinFloat::from_int(-8),
   )
   let square_root = BinFloat::from_int(9).pow(
     BinFloat::make(BinCoeff::one(), -1, 53),
   )
-  assert_eq(square_root, BinFloat::from_int(3))
+  assert_identical(square_root, BinFloat::from_int(3))
   let invalid = BinFloat::from_int(-2).try_pow_ctx(
     BinFloat::make(BinCoeff::one(), -1, 53),
     BinaryContext::binary64(),
@@ -162,12 +168,12 @@ test "BinFloat pow separates integer and positive non-integer domains" {
 ///|
 test "BinFloat certified hyperbolic functions preserve identities" {
   let zero = BinFloat::zero()
-  assert_eq(zero.sinh(), zero)
-  assert_eq(zero.cosh(), BinFloat::one())
-  assert_eq(zero.tanh(), zero)
+  assert_identical(zero.sinh(), zero)
+  assert_identical(zero.cosh(), BinFloat::one())
+  assert_identical(zero.tanh(), zero)
   let one = BinFloat::one()
-  assert_eq(one.sinh().neg(), one.neg().sinh())
-  assert_eq(one.cosh(), one.neg().cosh())
+  assert_identical(one.sinh().neg(), one.neg().sinh())
+  assert_identical(one.cosh(), one.neg().cosh())
   assert_true(one.tanh() > zero)
   assert_true(one.tanh() < one)
 }
@@ -175,11 +181,11 @@ test "BinFloat certified hyperbolic functions preserve identities" {
 ///|
 test "BinFloat inverse hyperbolic functions preserve domains and identities" {
   let zero = BinFloat::zero()
-  assert_eq(zero.asinh(), zero)
-  assert_eq(zero.atanh(), zero)
-  assert_eq(BinFloat::one().acosh(), zero)
+  assert_identical(zero.asinh(), zero)
+  assert_identical(zero.atanh(), zero)
+  assert_identical(BinFloat::one().acosh(), zero)
   let one = BinFloat::one()
-  assert_eq(one.asinh().neg(), one.neg().asinh())
+  assert_identical(one.asinh().neg(), one.neg().asinh())
   let invalid = BinFloat::zero().try_acosh_ctx(BinaryContext::binary64())
   // S4: a domain case is a value in the try_ form
   match invalid {
@@ -198,24 +204,24 @@ test "BinFloat inverse hyperbolic functions preserve domains and identities" {
 ///|
 test "BinFloat certified atan preserves origin and odd symmetry" {
   let zero = BinFloat::zero()
-  assert_eq(zero.atan(), zero)
+  assert_identical(zero.atan(), zero)
   let one = BinFloat::one()
   let positive = one.atan()
   assert_true(positive > BinFloat::make(BinCoeff::one(), -1, 53))
   assert_true(positive < one)
-  assert_eq(positive.neg(), one.neg().atan())
+  assert_identical(positive.neg(), one.neg().atan())
 }
 
 ///|
 test "BinFloat inverse trigonometric functions preserve domains" {
   let zero = BinFloat::zero()
   let one = BinFloat::one()
-  assert_eq(zero.asin(), zero)
-  assert_eq(one.acos(), zero)
+  assert_identical(zero.asin(), zero)
+  assert_identical(one.acos(), zero)
   let negative_one_acos = one.neg().acos()
   assert_true(negative_one_acos > BinFloat::from_int(3))
   assert_true(negative_one_acos < BinFloat::from_int(4))
-  assert_eq(one.asin().neg(), one.neg().asin())
+  assert_identical(one.asin().neg(), one.neg().asin())
   let invalid = BinFloat::from_int(2).try_asin_ctx(BinaryContext::binary64())
   // S4: a domain case is a value in the try_ form
   match invalid {
@@ -281,7 +287,7 @@ test "BinFloat inverse trigonometric half-angle reduction reaches its certified 
 test "BinFloat atan2 preserves axes and quadrants" {
   let zero = BinFloat::zero()
   let one = BinFloat::one()
-  assert_eq(zero.atan2(one), zero)
+  assert_identical(zero.atan2(one), zero)
   assert_true(one.atan2(zero) > one)
   assert_true(one.atan2(one) > zero)
   assert_true(one.atan2(one.neg()) > one)
@@ -309,23 +315,23 @@ test "BinFloat atan2 follows the IEEE signed-zero special cases" {
   // atan2(±0, -0) and atan2(±0, x < 0) are ±π.
   for abscissa in [nz, m1, ninf] {
     let (positive, positive_flags) = pz.atan2_ctx(abscissa, context)
-    assert_eq(positive, pi)
+    assert_identical(positive, pi)
     assert_true(positive_flags.inexact())
     let (negative, _) = nz.atan2_ctx(abscissa, context)
-    assert_eq(negative, pi.neg())
+    assert_identical(negative, pi.neg())
   }
   // A nonzero ordinate over a zero abscissa is still ±π/2.
   let (half_pi, _) = pinf.atan_ctx(context)
-  assert_eq(BinFloat::one().atan2_ctx(nz, context).0, half_pi)
-  assert_eq(m1.atan2_ctx(pz, context).0, half_pi.neg())
+  assert_identical(BinFloat::one().atan2_ctx(nz, context).0, half_pi)
+  assert_identical(m1.atan2_ctx(pz, context).0, half_pi.neg())
 }
 
 ///|
 test "BinFloat trigonometric functions preserve axis identities" {
   let zero = BinFloat::zero()
-  assert_eq(zero.sin(), zero)
-  assert_eq(zero.cos(), BinFloat::one())
-  assert_eq(zero.tan(), zero)
+  assert_identical(zero.sin(), zero)
+  assert_identical(zero.cos(), BinFloat::one())
+  assert_identical(zero.tan(), zero)
   let one = BinFloat::one()
   assert_true(one.sin() > BinFloat::make(BinCoeff::from_uint64(3UL), -2, 53))
   assert_true(one.sin() < one)
@@ -338,18 +344,18 @@ test "BinFloat trigonometric functions preserve axis identities" {
 test "BinFloat pi-scaled functions preserve exact integer and half-integer identities" {
   let one = BinFloat::one()
   let half = BinFloat::make(BinCoeff::one(), -1, 53)
-  assert_eq(one.sinpi(), BinFloat::zero())
-  assert_eq(one.cospi(), one.neg())
+  assert_identical(one.sinpi(), BinFloat::zero())
+  assert_identical(one.cospi(), one.neg())
   assert_true(one.tanpi().is_negative_zero())
-  assert_eq(half.sinpi(), one)
-  assert_eq(half.cospi(), BinFloat::zero())
+  assert_identical(half.sinpi(), one)
+  assert_identical(half.cospi(), BinFloat::zero())
   let negative_half = half.neg()
-  assert_eq(negative_half.sinpi(), one.neg())
-  assert_eq(negative_half.tanpi(), BinFloat::inf(Sign::Negative))
+  assert_identical(negative_half.sinpi(), one.neg())
+  assert_identical(negative_half.tanpi(), BinFloat::inf(Sign::Negative))
   assert_true(BinFloat::from_int(-1).sinpi().is_negative_zero())
   let huge_integer = BinFloat::make(BinCoeff::one(), 40, 53)
   assert_true(huge_integer.sinpi().is_zero())
-  assert_eq(huge_integer.cospi(), BinFloat::one())
+  assert_identical(huge_integer.cospi(), BinFloat::one())
   assert_true(huge_integer.tanpi().is_zero())
 }
 
@@ -380,8 +386,11 @@ test "BinFloat tanpi at integers takes the sign of sinpi over cospi" {
   assert_true(huge.neg().tanpi().is_negative_zero())
   // tanPi(n + 1/2) alternates: +inf for even n, -inf for odd n.
   let half = BinFloat::make(BinCoeff::one(), -1, 53)
-  assert_eq(half.tanpi(), BinFloat::inf(Sign::Positive))
-  assert_eq(half.add(BinFloat::one()).tanpi(), BinFloat::inf(Sign::Negative))
+  assert_identical(half.tanpi(), BinFloat::inf(Sign::Positive))
+  assert_identical(
+    half.add(BinFloat::one()).tanpi(),
+    BinFloat::inf(Sign::Negative),
+  )
 }
 
 ///|
@@ -402,10 +411,10 @@ test "BinFloat pi-scaled quarter is certified across release precisions" {
       msg="tanpi quarter at " + precision.to_string() + " bits",
     )
     let (positive_tangent, positive_flags) = quarter.tanpi_ctx(context)
-    assert_eq(positive_tangent, BinFloat::one(precision~))
+    assert_identical(positive_tangent, BinFloat::one(precision~))
     assert_true(!positive_flags.inexact())
     let (negative_tangent, negative_flags) = quarter.neg().tanpi_ctx(context)
-    assert_eq(negative_tangent, BinFloat::one(precision~).neg())
+    assert_identical(negative_tangent, BinFloat::one(precision~).neg())
     assert_true(!negative_flags.inexact())
   }
 }
@@ -423,8 +432,11 @@ test "BinFloat pi-scaled exact quadrant reduction covers every quarter boundary"
       assert_true(value.try_tanpi_ctx(context) is Ok(_))
     }
   }
-  assert_eq(quarter.tanpi_ctx(context).0, BinFloat::one())
-  assert_eq(quarter.add(half).tanpi_ctx(context).0, BinFloat::one().neg())
+  assert_identical(quarter.tanpi_ctx(context).0, BinFloat::one())
+  assert_identical(
+    quarter.add(half).tanpi_ctx(context).0,
+    BinFloat::one().neg(),
+  )
 }
 
 ///|
@@ -443,14 +455,14 @@ test "BinFloat pi-scaled quarter honors every rounding mode" {
     let (sine, sine_flags) = quarter.sinpi_ctx(context)
     let (cosine, cosine_flags) = quarter.cospi_ctx(context)
     let (tangent, tangent_flags) = quarter.tanpi_ctx(context)
-    assert_eq(sine, cosine)
+    assert_identical(sine, cosine)
     assert_true(sine_flags.inexact())
     assert_true(cosine_flags.inexact())
-    assert_eq(tangent, BinFloat::one(precision=24))
+    assert_identical(tangent, BinFloat::one(precision=24))
     assert_true(!tangent_flags.inexact())
     sines.push(sine)
   }
-  assert_eq(sines[2], sines[4])
+  assert_identical(sines[2], sines[4])
   assert_true(sines[4].compare(sines[0]) <= 0)
   assert_true(sines[0].compare(sines[3]) <= 0)
   assert_true(sines[4].compare(sines[1]) <= 0)
@@ -511,7 +523,7 @@ test "certified target witness rejects equal values with unequal flags" {
   let (rounded, unique, flags) = binary_certified_target_rounding(
     exact, midpoint, context,
   )
-  assert_eq(rounded, BinFloat::one(precision=3))
+  assert_identical(rounded, BinFloat::one(precision=3))
   assert_false(unique)
   assert_true(flags.inexact())
 }
@@ -542,7 +554,7 @@ test "certified target rounding accepts one rounded value with equal flags" {
     context,
   )
   assert_true(unique)
-  assert_eq(value, BinFloat::one(precision=3))
+  assert_identical(value, BinFloat::one(precision=3))
   assert_true(flags.inexact())
   // 16/16 is exact (value 1, no flags) and 17/16 is inexact (value 1): equal
   // values with unequal flags are not a witness
@@ -579,12 +591,12 @@ test "certified target rounding respects directed modes" {
     low, high, downward,
   )
   assert_true(down_unique)
-  assert_eq(down_value, BinFloat::one(precision=3))
+  assert_identical(down_value, BinFloat::one(precision=3))
   let (up_value, up_unique, _) = binary_certified_target_rounding(
     low, high, upward,
   )
   assert_true(up_unique)
-  assert_eq(up_value, BinFloat::make(BinCoeff::from_uint64(5UL), -2, 3))
+  assert_identical(up_value, BinFloat::make(BinCoeff::from_uint64(5UL), -2, 3))
   // 16/16 is exact and 17/16 is not: the flags differ in either direction,
   // and upward the values (1 and 1.25) differ as well
   let exact = certified_rounding_endpoint(16UL)
@@ -629,7 +641,7 @@ test "BinFloat elementary functions honor every directed rounding mode" {
       rounding=BinaryRoundingMode::RoundTiesToAway,
     ),
   )
-  assert_eq(toward_zero.0, downward.0)
+  assert_identical(toward_zero.0, downward.0)
   assert_true(downward.0.compare(ties_even.0) <= 0)
   assert_true(ties_even.0.compare(upward.0) <= 0)
   assert_true(downward.0.compare(ties_away.0) <= 0)

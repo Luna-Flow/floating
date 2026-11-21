@@ -263,7 +263,7 @@ test "sin and cos results equal the rounded series enclosure at high precision" 
                   } else {
                     value.sin_ctx(context)
                   }
-                  assert_true(result == expected)
+                  assert_true(result.identical(expected))
                   assert_true(flags == expected_flags)
                   compared += 1
                 }

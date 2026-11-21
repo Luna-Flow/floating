@@ -33,18 +33,18 @@ test "exp of an interval across the overflow threshold keeps the lower end" {
     300,
   )
   let result = ball.exp()
-  assert_true(result.lower_bound() == expected_lower)
+  assert_true(result.lower_bound().identical(expected_lower))
   assert_true(is_pos_inf(result.upper_bound()))
   match ball.try_exp() {
     Ok(checked) => {
-      assert_true(checked.lower_bound() == expected_lower)
+      assert_true(checked.lower_bound().identical(expected_lower))
       assert_true(is_pos_inf(checked.upper_bound()))
     }
     Err(_) => assert_true(false)
   }
   // the point forms: the lower end finite and tight, the upper end past it
   let point_below = BallFloat::exact(below).exp()
-  assert_true(point_below.lower_bound() == expected_lower)
+  assert_true(point_below.lower_bound().identical(expected_lower))
   let point_above = BallFloat::exact(above).exp()
   assert_true(is_pos_inf(point_above.upper_bound()))
   assert_true(point_above.lower_bound().compare(expected_lower) >= 0)

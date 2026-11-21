@@ -520,6 +520,13 @@ notes live in this file.
   | `x.pown(n)` -> `Result[BinFloat, ArithmeticError]`, `Err(division_by_zero)` for `0^negative`, `Err(domain_error)` for a signaling NaN | `x.pown(n) -> BinFloat`: `+-inf`, a quiet NaN | `pown_ctx(n, ctx).1` for the flags |
   | the messages `sqrt requires a non-negative value`, `invalid power`, `negative exponent requires a non-zero base` of `BinFloatResult::sqrt` and `pown` | `invalid operation`, `division by zero` | the kinds of the errors are unchanged |
 
+- `bin_float`: `BinFloat`'s `==` agrees with `compare`, and the structural equality is `identical` ([#438](https://github.com/Luna-Flow/floating/issues/438), item S3). The derived `Eq` was structural: it compared sign (the sign of a zero), class, coefficient, exponent, precision and the NaN kind, so `-0 != +0` and `one(precision=53) != one(precision=24)`. `a == b` is now exactly `a.compare(b) == 0`: the same number whatever the precision, `-0 == +0`, and every NaN equal to every NaN (the total preorder of `<`, `<=` and sorting; `Decimal` and `decimal_gda` follow the same rule, see `numeric_semantics.md`). It is not IEEE equality: `compare_quiet_equal` and the 5.11 predicates are, and `identical` is the structural one. `BinFloat` has no `Hash` and nothing in the repository keys a map or a set on it, and no exported type derives `Eq` over a `BinFloat` field (`BinFloatResult` has no `Eq`, the `==` of `BallFloat` compares its bounds by `compare`). The sites of the repository that relied on the structural meaning were moved to `identical`, not weakened: 114 `assert_eq` (6 of them on a value with its flags) and about 60 lines of `==`/`!=` in the tests of `bin_float`, `ball_float`, `bin_float_checked` and `tooling`, the two comparisons that certify a rounding as one datum in `bin_float` (`elementary_certified`, `context_arithmetic`), and the two MPFR comparisons of `tooling` (`execute_sqrt_data`, `execute_pown_data`: the sign of a zero is part of the MPFR row). One site changed meaning on purpose: `decimal`'s test for a degenerate interval (`lower_bound == upper_bound`, `certified_math`) is numerical, as intended.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `x == y` (structural) | `x.identical(y)` | where the sign of a zero, the precision label or the NaN kind matters |
+  | `x == y` (structural) | `x == y` | where the number is meant: `-0 == +0`, precisions ignored, a NaN equal to a NaN |
+  | (new) | `BinFloat::identical` | the old `==` |
 
 ### Added
 

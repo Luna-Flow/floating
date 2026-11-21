@@ -212,8 +212,8 @@ test "sine and cosine agree with their identities after the fixed-point path" {
       BinFloat::make_coeff(Coeff::one(), -95, 100),
     )
     let (odd, _) = value.neg().sin_ctx(context)
-    assert_eq(odd, sine.neg())
+    assert_identical(odd, sine.neg())
     let (even, _) = value.neg().cos_ctx(context)
-    assert_eq(even, cosine)
+    assert_identical(even, cosine)
   }
 }

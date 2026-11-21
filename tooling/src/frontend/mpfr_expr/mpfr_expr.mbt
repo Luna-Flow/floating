@@ -314,7 +314,7 @@ pub fn execute_sqrt_data(document : MpfrDocument) -> RunSummary {
           rounding=case.rounding,
         ),
       ).0
-    let passed = actual == case.expected
+    let passed = actual.identical(case.expected)
     let result : CaseResult = {
       inner: @conformance.CaseResult::executable(
         case.id,
@@ -350,7 +350,7 @@ pub fn execute_pow_data(document : MpfrPowDocument) -> RunSummary {
         rounding=case.rounding,
       ),
     )
-    let passed = actual.0 == case.expected &&
+    let passed = actual.0.identical(case.expected) &&
       actual.1.inexact() == case.inexact &&
       !actual.1.underflow() &&
       !actual.1.overflow() &&

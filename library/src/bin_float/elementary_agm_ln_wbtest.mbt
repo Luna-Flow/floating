@@ -164,11 +164,11 @@ test "ln keeps its results when the AGM kernel runs" {
       seed += 1UL
       let result = value.ln()
       let (low, high) = binary_ln_unit_bounds_series(value, precision + 320).unwrap()
-      assert_eq(
+      assert_identical(
         result,
         low.with_precision(precision, BinaryRoundingMode::RoundTiesToEven),
       )
-      assert_eq(
+      assert_identical(
         result,
         high.with_precision(precision, BinaryRoundingMode::RoundTiesToEven),
       )

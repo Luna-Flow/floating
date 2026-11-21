@@ -2,7 +2,7 @@
 /// A binary floating-point datum. The representation (`@bin_kernel.BinRepr`) is
 /// internal and read only through the accessors of `bin_repr_nonjs.mbt` and
 /// `bin_repr_js.mbt`; the newtype costs nothing: a value is one heap object.
-#derive(Eq, Debug)
+#derive(Debug)
 pub struct BinFloat(@bin_kernel.BinRepr)
 
 ///|
@@ -1234,6 +1234,29 @@ pub impl Div for BinFloat with fn div(self, other) {
 ///|
 pub impl Neg for BinFloat with fn neg(self) {
   self.neg()
+}
+
+///|
+/// `==` agrees with `compare`: `a == b` exactly when `a.compare(b) == 0`, so the two
+/// numbers are equal whatever their precisions (`-0 == +0`,
+/// `one(precision=53) == one(precision=24)`) and every NaN equals every other NaN,
+/// the order in which `<`, `<=` and sorting work (a total preorder: every NaN equal to
+/// every NaN and above every number). It is not IEEE equality: use
+/// `compare_quiet_equal` (IEEE Std 754-2019 5.6.1, 5.11) when a NaN must be unordered,
+/// and `identical` for the structural question (sign of zero, kind and payload of a NaN,
+/// the precision). `Decimal` (`decimal` and `decimal_gda`) follows the same rule.
+pub impl Eq for BinFloat with fn equal(self, other) {
+  self.compare(other) == 0
+}
+
+///|
+/// The structural equality: the same class, sign (the sign of a zero included),
+/// coefficient, exponent, precision, and for a NaN the same kind and payload. It
+/// distinguishes `-0` from `+0` and a value of precision 53 from the same value of
+/// precision 24, and a NaN is identical to an identical NaN; use `==` for the
+/// numerical question.
+pub fn BinFloat::identical(self : BinFloat, other : BinFloat) -> Bool {
+  self.0 == other.0
 }
 
 ///|

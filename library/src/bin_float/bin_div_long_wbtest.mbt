@@ -69,7 +69,7 @@ fn div_long_check_constructed(
   )
   // value = retained * 2^1 (the quotient N / d lies in [q, q + 1))
   let expected = finite_from_parts(negative, retained, 1, precision)
-  assert_eq(actual, expected)
+  assert_identical(actual, expected)
   assert_eq(flags.inexact(), round_bit || sticky)
   assert_eq(flags.overflow(), false)
   assert_eq(flags.underflow(), false)
@@ -175,7 +175,7 @@ test "div and div_ctx of full-width operands above the recursive-division thresh
     let quotient = a.div(b)
     assert_true(div_long_within_half_ulp(a, b, quotient))
     let (general, flags) = a.div_ctx(b, BinaryContext::new(precision=bits))
-    assert_eq(general, quotient)
+    assert_identical(general, quotient)
     assert_true(flags.inexact())
     // a divisor that is a multiple structure: a = q b exactly
     let q = div_long_coeff(random, 700)
@@ -190,6 +190,6 @@ test "div and div_ctx of full-width operands above the recursive-division thresh
       BinaryContext::new(precision=800),
     )
     assert_eq(exact_flags.inexact(), false)
-    assert_eq(exact, finite_from_parts(false, q, -b.exponent2_(), 800))
+    assert_identical(exact, finite_from_parts(false, q, -b.exponent2_(), 800))
   }
 }

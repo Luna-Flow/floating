@@ -11,12 +11,12 @@ test "far addends do not materialize the exponent gap" {
   let tiny = far_addend_power(-1000000000)
   let sum = big.add(tiny)
   // The exact sum lies strictly inside (2^1e9, 2^1e9 + ulp).
-  assert_eq(sum.lower_bound(), big.lower_bound())
+  assert_identical(sum.lower_bound(), big.lower_bound())
   assert_true(sum.upper_bound().compare(big.upper_bound()) > 0)
   assert_true(sum.is_member(big.lower_bound()) == true)
   let difference = big.sub(tiny)
   assert_true(difference.lower_bound().compare(big.lower_bound()) < 0)
-  assert_eq(difference.upper_bound(), big.upper_bound())
+  assert_identical(difference.upper_bound(), big.upper_bound())
   let reversed = tiny.add(big)
   assert_true(reversed.equal(sum))
 }
@@ -27,8 +27,8 @@ test "near addends stay exact" {
   let small = far_addend_power(-60)
   let sum = one.add(small)
   // 1 + 2^-60 needs 61 bits; at 53 bits it is enclosed by [1, 1 + 2^-52].
-  assert_eq(sum.lower_bound(), one.lower_bound())
-  assert_eq(
+  assert_identical(sum.lower_bound(), one.lower_bound())
+  assert_identical(
     sum.upper_bound(),
     @bin_float.BinFloat::make(
       @bin_float.BinCoeff::from_uint64((1UL << 52) + 1UL),

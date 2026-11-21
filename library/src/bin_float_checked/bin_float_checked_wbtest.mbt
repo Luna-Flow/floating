@@ -15,7 +15,7 @@ test "checked elementary operations preserve certified failures" {
 test "checked elementary operations compose successful values" {
   let result = BinFloatResult::from_int(0).exp().ln().result()
   match result {
-    Ok(value) => assert_eq(value, @bin_float.BinFloat::zero())
+    Ok(value) => assert_identical(value, @bin_float.BinFloat::zero())
     Err(_) => assert_true(false)
   }
 }
@@ -26,7 +26,7 @@ test "checked hypot preserves exact results" {
     .hypot(BinFloatResult::from_int(4))
     .result()
   match result {
-    Ok(value) => assert_eq(value, @bin_float.BinFloat::from_int(5))
+    Ok(value) => assert_identical(value, @bin_float.BinFloat::from_int(5))
     Err(_) => assert_true(false)
   }
 }

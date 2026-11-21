@@ -153,7 +153,7 @@ fn rootn_compare(
   )
   match reference {
     Ok(old) => {
-      assert_true(fresh.0 == old.0, msg="value \{label}")
+      assert_true(fresh.0.identical(old.0), msg="value \{label}")
       assert_true(fresh.1 == old.1, msg="flags \{label}")
       rootn_checked.val += 1
     }
@@ -320,7 +320,7 @@ test "rootn of large degrees keeps the certified loop" {
       (if degree < 0 { -degree } else { degree }).to_int64(),
       context,
     ).unwrap()
-    assert_true(fresh.0 == reference.0 && fresh.1 == reference.1)
+    assert_true(fresh.0.identical(reference.0) && fresh.1 == reference.1)
   }
 }
 
@@ -371,7 +371,7 @@ test "rootn gate: both sides of every precision bound agree with the certified l
         context,
       ).unwrap()
       assert_true(
-        fresh.0 == reference.0 && fresh.1 == reference.1,
+        fresh.0.identical(reference.0) && fresh.1 == reference.1,
         msg="gate n=\{degree} p=\{precision}",
       )
     }

@@ -157,7 +157,7 @@ test "fixed-point exp path gives the same correctly rounded results" {
       match expected {
         Some((result, flags)) => {
           let (actual, actual_flags) = value.exp_ctx(context)
-          assert_eq(actual, result)
+          assert_identical(actual, result)
           assert_eq(actual_flags, flags)
         }
         None => ()

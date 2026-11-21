@@ -206,7 +206,9 @@ test "fixed ln bounds equal the Coeff loop on exact values" {
             work,
             mode=BinaryRoundingMode::RoundTowardPositive,
           )
-          assert_true(lower == expected_lower && upper == expected_upper)
+          assert_true(
+            lower.identical(expected_lower) && upper.identical(expected_upper),
+          )
           assert_true(
             lower.precision() == expected_lower.precision() &&
             upper.precision() == expected_upper.precision(),

@@ -133,12 +133,12 @@ fn db_check(
   old : @bin_float.BinFloat,
   mode : BinaryRoundingMode,
 ) -> Int32 {
-  if new != reference {
+  if !new.identical(reference) {
     abort(
       "\{label()}: new \{new} differs from the min_bits reference \{reference}",
     )
   }
-  if new == old {
+  if new.identical(old) {
     return 0
   }
   let order = new.compare(old)
@@ -242,18 +242,21 @@ fn db_endpoint_case(
       db_bound(exact_sub(min_bits=1, a, b, mode~), precision, mode),
       mode,
     )
-    if directed_add(a, b, precision, mode) !=
-      db_oracle_add(a, b, precision, mode) {
+    if !directed_add(a, b, precision, mode).identical(
+        db_oracle_add(a, b, precision, mode),
+      ) {
       abort("add(\{a}, \{b}, \{precision}) differs from add_ctx")
     }
-    if directed_sub(a, b, precision, mode) !=
-      db_oracle_sub(a, b, precision, mode) {
+    if !directed_sub(a, b, precision, mode).identical(
+        db_oracle_sub(a, b, precision, mode),
+      ) {
       abort("sub(\{a}, \{b}, \{precision}) differs from sub_ctx")
     }
     if !a.is_zero() &&
       !b.is_zero() &&
-      directed_mul(a, b, precision, mode) !=
-      a.mul_ctx(b, db_context(precision, mode)).0 {
+      !directed_mul(a, b, precision, mode).identical(
+        a.mul_ctx(b, db_context(precision, mode)).0,
+      ) {
       abort("mul(\{a}, \{b}, \{precision}) differs from mul_ctx")
     }
     // `extended_mul` returns +0 for a zero operand and the product otherwise
@@ -275,9 +278,12 @@ fn db_endpoint_case(
   }
   // the two directed products of one coefficient product
   let (down, up) = extended_mul_both(a, b, precision)
-  if down !=
-    extended_mul(a, b, precision, BinaryRoundingMode::RoundTowardNegative) ||
-    up != extended_mul(a, b, precision, BinaryRoundingMode::RoundTowardPositive) {
+  if !down.identical(
+      extended_mul(a, b, precision, BinaryRoundingMode::RoundTowardNegative),
+    ) ||
+    !up.identical(
+      extended_mul(a, b, precision, BinaryRoundingMode::RoundTowardPositive),
+    ) {
     abort(
       "extended_mul_both(\{a}, \{b}, \{precision}) differs from two products",
     )
@@ -618,7 +624,7 @@ fn db_interval_check(
     abort("\{label()}: precision or emptiness differs")
   }
   let mut tighter = 0
-  if new.lo_ != old.lo_ {
+  if !new.lo_.identical(old.lo_) {
     if new.lo_.compare(old.lo_) < 0 {
       abort(
         "\{label()}: lower bound \{new.lo_} is below the old one \{old.lo_}",
@@ -626,7 +632,7 @@ fn db_interval_check(
     }
     tighter += 1
   }
-  if new.hi_ != old.hi_ {
+  if !new.hi_.identical(old.hi_) {
     if new.hi_.compare(old.hi_) > 0 {
       abort(
         "\{label()}: upper bound \{new.hi_} is above the old one \{old.hi_}",
@@ -662,10 +668,10 @@ test "interval add, sub, radius and width equal the old exact route or lie insid
       // upper bounds of a width and a radius: equal to the old ones or below
       assert_true(a.width().compare(db_old_width(a)) <= 0)
       assert_true(a.radius().compare(db_old_radius(a)) <= 0)
-      if a.width() != db_old_width(a) {
+      if !a.width().identical(db_old_width(a)) {
         tighter += 1
       }
-      if a.radius() != db_old_radius(a) {
+      if !a.radius().identical(db_old_radius(a)) {
         tighter += 1
       }
     }

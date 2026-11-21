@@ -239,11 +239,11 @@ test "issue 262 rows through the checked traits" {
   assert_eq(sqrt(nan), "ok:nan")
   assert_eq(sqrt(BinFloat::from_int(-1)), "err:invalid")
   assert_eq(sqrt(BinFloat::negative_zero()), "ok:-0")
-  assert_eq(
+  assert_identical(
     @lf_arith.SqrtChecked::sqrt_checked(BinFloat::from_int(4), ctx).unwrap(),
     BinFloat::from_int(2),
   )
-  assert_eq(
+  assert_identical(
     @lf_arith.DivChecked::div_checked(
       BinFloat::from_int(6),
       BinFloat::from_int(-3),
@@ -461,7 +461,7 @@ test "pown of a signaling NaN with a zero exponent is invalid (#286)" {
         qnan.pow_nat_ctx(0U, context),
       ] {
       let (value, flags) = result
-      assert_eq(value, BinFloat::one(precision=53))
+      assert_identical(value, BinFloat::one(precision=53))
       assert_eq(flags.to_testfloat_bits(), 0)
     }
   }

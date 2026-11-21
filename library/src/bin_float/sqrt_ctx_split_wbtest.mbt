@@ -139,7 +139,7 @@ fn sqctx_check(
   let (odd, exponent) = sqctx_odd(magnitude, exponent2)
   let actual = binary_round_sqrt(odd, exponent, context)
   let expected = sqctx_round_reference(odd, exponent, context)
-  assert_eq(actual, expected)
+  assert_identical_with_flags(actual, expected)
 }
 
 ///|
@@ -297,7 +297,7 @@ test "sqrt_ctx on finite values equals the reference through BinFloat" {
             value.exponent2_(),
             context,
           )
-          assert_eq(actual, expected)
+          assert_identical(actual, expected)
           assert_eq(actual_flags, expected_flags)
         }
       }

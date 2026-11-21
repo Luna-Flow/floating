@@ -89,6 +89,6 @@ test "away from the bottom of the range the half-width is unchanged" {
       ),
       mode=BinaryRoundingMode::RoundTowardPositive,
     ).abs()
-    assert_eq(ball.half_width(), old)
+    assert_identical(ball.half_width(), old)
   }
 }

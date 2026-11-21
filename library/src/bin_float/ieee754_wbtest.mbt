@@ -199,11 +199,11 @@ test "from_int preserves exact and rounded construction semantics" {
         precision,
         negative~,
       )
-      assert_eq(BinFloat::from_int(value, precision~), expected)
+      assert_identical(BinFloat::from_int(value, precision~), expected)
     }
   }
   let minimum_int = -2147483647 - 1
-  assert_eq(
+  assert_identical(
     BinFloat::from_int(minimum_int, precision=64),
     BinFloat::make_coeff(Coeff::from_uint64(2147483648UL), 0, 64, negative=true),
   )
@@ -269,7 +269,7 @@ test "addition compresses extreme exponent gaps without losing direction" {
   )
   let nearest_context = BinaryContext::new(precision=3)
   let (nearest_sum, nearest_sum_flags) = one.add_ctx(tiny, nearest_context)
-  assert_eq(nearest_sum, BinFloat::one(precision=3))
+  assert_identical(nearest_sum, BinFloat::one(precision=3))
   assert_true(nearest_sum_flags.inexact())
   let upward_context = BinaryContext::new(
     precision=3,

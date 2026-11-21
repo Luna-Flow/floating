@@ -57,7 +57,7 @@ test "nextUp agrees with the host double successor" {
     let up = BinFloat::from_double(number).next_up_ctx(context).0
     let bits = number.reinterpret_as_uint64()
     let host = (if number > 0.0 { bits + 1UL } else { bits - 1UL }).reinterpret_as_double()
-    assert_eq(up, BinFloat::from_double(host), msg="\{number}")
+    assert_identical(up, BinFloat::from_double(host), msg="\{number}")
   }
 }
 

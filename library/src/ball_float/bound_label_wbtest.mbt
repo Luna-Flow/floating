@@ -138,10 +138,14 @@ test "labels of the bounds: written-out cases" {
   let ball = BallFloat::new(root, ulp, precision=53)
   assert_true(ball.lower_bound().precision() == 53)
   assert_true(ball.upper_bound().precision() == 53)
-  // a bound compares equal (derived `==`) with the value of the same number and precision
+  // a bound is identical (the structural equality, which reads the label) to the
+  // value of the same number made at 53 bits
   assert_true(
-    ball.lower_bound() ==
-    ball.lower_bound().with_precision(53, BinaryRoundingMode::RoundTiesToEven),
+    ball
+    .lower_bound()
+    .identical(
+      ball.lower_bound().with_precision(53, BinaryRoundingMode::RoundTiesToEven),
+    ),
   )
   // (2) wide ends: new(1, 2^-100, p = 24) has the exact ends 1 -/+ 2^-100 of 100
   // bits, kept unrounded with the label of their own bit count; the center 1 is

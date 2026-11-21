@@ -40,7 +40,7 @@ test "refinement limit: default is Some(12) and matches the explicit value" {
   let x = refinement_hard_input()
   let a = x.try_exp_ctx(context)
   let b = x.try_exp_ctx(context.with_refinement_limit(Some(12)))
-  inspect(a.unwrap().0 == b.unwrap().0, content="true")
+  inspect(a.unwrap().0.identical(b.unwrap().0), content="true")
 }
 
 ///|
@@ -63,7 +63,7 @@ test "refinement limit: a hard-to-round exp fails at a small limit and succeeds 
   let four = x.try_exp_ctx(base.with_refinement_limit(Some(4))).unwrap().0
   let twelve = x.try_exp_ctx(base).unwrap().0
   let none = x.try_exp_ctx(base.with_refinement_limit(None)).unwrap().0
-  inspect(four == twelve && twelve == none, content="true")
+  inspect(four.identical(twelve) && twelve.identical(none), content="true")
 }
 
 ///|
@@ -105,11 +105,11 @@ test "refinement limit: the exp family agrees with the default under None" {
   let base = BinaryContext::new(precision=53)
   let none = base.with_refinement_limit(None)
   inspect(
-    x.try_expm1_ctx(none).unwrap().0 == x.try_expm1_ctx(base).unwrap().0,
+    x.try_expm1_ctx(none).unwrap().0.identical(x.try_expm1_ctx(base).unwrap().0),
     content="true",
   )
   inspect(
-    x.try_exp2_ctx(none).unwrap().0 == x.try_exp2_ctx(base).unwrap().0,
+    x.try_exp2_ctx(none).unwrap().0.identical(x.try_exp2_ctx(base).unwrap().0),
     content="true",
   )
 }

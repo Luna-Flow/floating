@@ -11,7 +11,10 @@ test "binary_bounds_at_ends evaluates a point once and gives the two-ends result
       })
       assert_eq(calls, 1)
       let reference = binary_exp_bounds(x, w).unwrap()
-      assert_true(point.unwrap() == reference)
+      let (point_low, point_high) = point.unwrap()
+      assert_true(
+        point_low.identical(reference.0) && point_high.identical(reference.1),
+      )
       // Distinct ends: both are evaluated, lower of the first and upper of the
       // second.
       let mut pair_calls = 0
@@ -22,7 +25,8 @@ test "binary_bounds_at_ends evaluates a point once and gives the two-ends result
       assert_eq(pair_calls, 2)
       let low = binary_exp_bounds(x, w).unwrap()
       let high = binary_exp_bounds(y, w).unwrap()
-      assert_true(pair.unwrap() == (low.0, high.1))
+      let (pair_low, pair_high) = pair.unwrap()
+      assert_true(pair_low.identical(low.0) && pair_high.identical(high.1))
     }
   }
   // A missing end gives None.

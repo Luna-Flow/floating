@@ -128,7 +128,7 @@ test "radius and width are unchanged away from the bottom of the range" {
         53,
       ),
     )
-    assert_eq(ball.width(), old_width)
-    assert_eq(ball.radius(), old_radius)
+    assert_identical(ball.width(), old_width)
+    assert_identical(ball.radius(), old_radius)
   }
 }

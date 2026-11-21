@@ -60,11 +60,14 @@ test "the midpoint of intervals at the bottom of the range is not zero" {
         let m = ball.midpoint()
         // the endpoints of the ball are the ones rounded outward to p bits
         let expected = mid_oracle(ball.lower_bound(), ball.upper_bound(), p)
-        assert_eq(m, expected)
+        assert_identical(m, expected)
         assert_true(ball.is_member(m))
         // endpoints that p bits hold exactly: the midpoint is (x + y) / 2 * 2^(e_min - shift)
         if shift <= p - 1 {
-          assert_eq(m, mid_value(((x + y) / 2).to_uint64(), e_min - shift, p))
+          assert_identical(
+            m,
+            mid_value(((x + y) / 2).to_uint64(), e_min - shift, p),
+          )
         }
         cases += 1
       }
@@ -114,7 +117,10 @@ test "the midpoint of a seeded class near the bottom of the range is the correct
     let precision = precisions[(mid_next(state) % 4UL).to_int()]
     let ball = BallFloat::from_bounds(lo, hi, precision~)
     let m = ball.midpoint()
-    assert_eq(m, mid_oracle(ball.lower_bound(), ball.upper_bound(), precision))
+    assert_identical(
+      m,
+      mid_oracle(ball.lower_bound(), ball.upper_bound(), precision),
+    )
     assert_true(ball.is_member(m))
     checked += 1
   }
@@ -132,11 +138,11 @@ test "far from the edges the center is the same as before" {
     let b = mid_value(y, (mid_next(state) % 400UL).to_int() - 200, 53)
     let (lo, hi) = if a.compare(b) <= 0 { (a, b) } else { (b, a) }
     let ball = BallFloat::from_bounds(lo, hi, precision=53)
-    assert_eq(
+    assert_identical(
       interval_center(ball, ball.precision()),
       exact_half(exact_add(min_bits=1, ball.lower_bound(), ball.upper_bound())),
     )
-    assert_eq(
+    assert_identical(
       ball.midpoint(),
       mid_oracle(ball.lower_bound(), ball.upper_bound(), 53),
     )

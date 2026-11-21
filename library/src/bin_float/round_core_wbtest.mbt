@@ -213,7 +213,7 @@ test "binary_round_dyadic agrees with the pre-#378 rounding core" {
       let negative = rng.next() % 2UL == 0UL
       let fresh = binary_round_dyadic(negative, magnitude, exponent2, context)
       let old = old_round_dyadic(negative, magnitude, exponent2, context)
-      assert_eq(fresh.0, old.0)
+      assert_identical(fresh.0, old.0)
       assert_eq(fresh.1, old.1)
       checked += 1
     }
@@ -252,7 +252,7 @@ test "binary_round_dyadic boundaries on both sides of the exact early exit" {
               let old = old_round_dyadic(
                 negative, magnitude, exponent2, context,
               )
-              assert_eq(fresh.0, old.0)
+              assert_identical(fresh.0, old.0)
               assert_eq(fresh.1, old.1)
             }
           }
