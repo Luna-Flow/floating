@@ -193,6 +193,7 @@ fn binary_ziv_round(
   operation : String,
   context : BinaryContext,
   bounds_at : (Int32) -> (BinFloat, BinFloat)?,
+  edge_side? : (Int32) -> Bool?,
 ) -> Result[(BinFloat, BinaryFlags), @def.ArithmeticError] {
   let mut budget = CertifiedRefinementBudget::new(
     context.precision + 64,
@@ -201,11 +202,26 @@ fn binary_ziv_round(
   while budget.available() {
     match bounds_at(budget.precision()) {
       Some(bounds) => {
-        let (result, unique, flags) = binary_certified_inexact_target_rounding(
-          bounds.0,
-          bounds.1,
-          context,
-        )
+        let (result, unique, flags) = match edge_side {
+          // The enclosure overflows the implementation range: the side of the
+          // argument against the overflow threshold decides
+          // (`binary_certified_edge_rounding`).
+          Some(side) =>
+            binary_certified_edge_rounding(
+              bounds.0,
+              bounds.1,
+              context,
+              budget.precision(),
+              false,
+              fn() { side(budget.precision()) },
+            )
+          None =>
+            binary_certified_inexact_target_rounding(
+              bounds.0,
+              bounds.1,
+              context,
+            )
+        }
         if unique {
           return Ok((result, flags))
         }

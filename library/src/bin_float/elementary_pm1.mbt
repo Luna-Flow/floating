@@ -136,9 +136,28 @@ fn binary_try_exp_base_minus_one(
     Some(result) => return Ok(result)
     None => ()
   }
-  binary_ziv_round(operation, context, fn(work) {
-    binary_exp_base_minus_one_bounds(value, ln_base_bounds, work)
-  })
+  binary_ziv_round(
+    operation,
+    context,
+    fn(work) { binary_exp_base_minus_one_bounds(value, ln_base_bounds, work) },
+    edge_side=fn(work) {
+      if base_is_two {
+        // 2^x - 1 >= 2^(e_max + 1) once x exceeds e_max + 1 (an integer x was
+        // decided above); compared exactly.
+        Some(
+          value.compare(
+            BinFloat::from_int_raw(
+              binary_implementation_e_max + 1,
+              precision=32,
+            ),
+          ) >
+          0,
+        )
+      } else {
+        binary_exp_overflow_side(value, work, decimal=true)
+      }
+    },
+  )
 }
 
 ///|

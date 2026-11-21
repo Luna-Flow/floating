@@ -1333,34 +1333,119 @@ fn binary_log2_bounds(
 }
 
 ///|
-/// Which side of the overflow threshold `(e_max + 1) ln 2` of `exp` (at the
-/// implementation `e_max`) the finite argument lies: `Some(true)` when it is at
-/// or above it (the result is at least `2^(e_max + 1)`), `Some(false)` when it is
-/// below it (the result is below `2^(e_max + 1)`), `None` when `ln 2` at
-/// `work_precision` does not decide it. The argument is never equal to the
+/// Which side of an overflow threshold `count * ln 2` (`count * ln 2 / ln 10` when
+/// `decimal`) the finite nonnegative argument lies: `Some(true)` when it is at or
+/// above it, `Some(false)` when it is below it, `None` when the constants at
+/// `work_precision` do not decide it. For `exp`, `expm1` and `exp2`-like
+/// functions `count` is `e_max + 1` (`exp(x) >= 2^(e_max + 1)`), for `sinh` and
+/// `cosh` it is `e_max + 2` (`e^x / 2 >= 2^(e_max + 1)`, the factor `1 - e^(-2x)`
+/// of `sinh` is below `2^-(2^30)` and cannot change the side of a float), for
+/// `exp10` it is `e_max + 1` with `decimal`. The argument never equals the
 /// threshold, which is irrational.
-fn binary_exp_overflow_side(value : BinFloat, work_precision : Int32) -> Bool? {
+fn binary_exp_overflow_side(
+  value : BinFloat,
+  work_precision : Int32,
+  count~ : Int32 = binary_implementation_e_max + 1,
+  decimal~ : Bool = false,
+) -> Bool? {
+  binary_exp_interval_overflow_side(
+    value,
+    value,
+    work_precision,
+    count~,
+    decimal~,
+  )
+}
+
+///|
+/// `binary_exp_overflow_side` for an argument known to lie in `[lower, upper]`
+/// (a product `y ln x` of two enclosures): `Some(true)` when all of it is at or
+/// above the threshold, `Some(false)` when all of it is below, `None` when it
+/// straddles the threshold at `work_precision`.
+fn binary_exp_interval_overflow_side(
+  lower : BinFloat,
+  upper : BinFloat,
+  work_precision : Int32,
+  count~ : Int32 = binary_implementation_e_max + 1,
+  decimal~ : Bool = false,
+) -> Bool? {
   guard binary_ln2_bounds(work_precision) is Some((low, high)) else {
     return None
   }
-  let scale = BinFloat::from_int_raw(
-    binary_implementation_e_max + 1,
-    precision=work_precision,
+  let down = binary_working_context(
+    work_precision,
+    rounding=RoundTowardNegative,
   )
-  let threshold_low = low.mul_ctx(
-      scale,
-      binary_working_context(work_precision, rounding=RoundTowardNegative),
-    ).0
-  let threshold_high = high.mul_ctx(
-      scale,
-      binary_working_context(work_precision, rounding=RoundTowardPositive),
-    ).0
-  if value.compare(threshold_high) >= 0 {
+  let up = binary_working_context(work_precision, rounding=RoundTowardPositive)
+  let scale = BinFloat::from_int_raw(count, precision=work_precision)
+  let (low, high) = if decimal {
+    guard binary_ln10_bounds(work_precision) is Some((ten_low, ten_high)) else {
+      return None
+    }
+    (low.div_ctx(ten_high, down).0, high.div_ctx(ten_low, up).0)
+  } else {
+    (low, high)
+  }
+  let threshold_low = low.mul_ctx(scale, down).0
+  let threshold_high = high.mul_ctx(scale, up).0
+  if lower.compare(threshold_high) >= 0 {
     Some(true)
-  } else if value.compare(threshold_low) <= 0 {
+  } else if upper.compare(threshold_low) <= 0 {
     Some(false)
   } else {
     None
+  }
+}
+
+///|
+/// The target rounding of an enclosure `[lower, upper]` of a result that is
+/// finite in exact arithmetic but whose enclosure overflows the implementation
+/// range (an end is infinite): the loops cannot certify such an enclosure at any
+/// working precision when the argument lies closer to the overflow threshold than
+/// the pre-check decides, because the finite end saturates at the largest finite
+/// value of the working precision. `side` says which side of the threshold the
+/// argument is on (`binary_exp_overflow_side`): at or above it the result
+/// overflows in every direction (clause 7.4) and is returned at once; below it
+/// the overflowed end is replaced by the largest finite value of the working
+/// precision `w`, which rounds exactly as every value in `[that value,
+/// 2^(e_max + 1))` does, value and flags, in every direction when `w >= p + 2`
+/// (the breakpoints of a rounding to `p` bits next to `2^(e_max + 1)` are
+/// `2^(e_max + 1) (1 - 2^-p)` and `2^(e_max + 1) (1 - 2^-(p + 1))`, both below
+/// `Omax(w) = 2^(e_max + 1) (1 - 2^-w)`); undecided: not certified. `negative`
+/// mirrors it for a result below zero (the lower end is `-inf`).
+fn binary_certified_edge_rounding(
+  lower : BinFloat,
+  upper : BinFloat,
+  context : BinaryContext,
+  work : Int32,
+  negative : Bool,
+  side : () -> Bool?,
+) -> (BinFloat, Bool, BinaryFlags) {
+  let overflowed = if negative {
+    lower.classify() == FpClass::Infinity && upper.classify() == FpClass::Finite
+  } else {
+    upper.classify() == FpClass::Infinity && lower.classify() == FpClass::Finite
+  }
+  if !overflowed {
+    return binary_certified_inexact_target_rounding(lower, upper, context)
+  }
+  guard work >= context.precision + 2 else {
+    return (lower, false, BinaryFlags::new())
+  }
+  match side() {
+    Some(true) => {
+      let (value, flags) = binary_overflow_result(negative, context)
+      (value, true, flags)
+    }
+    Some(false) => {
+      let largest = binary_max_finite(negative, binary_working_context(work))
+      if negative {
+        binary_certified_inexact_target_rounding(largest, upper, context)
+      } else {
+        binary_certified_inexact_target_rounding(lower, largest, context)
+      }
+    }
+    None => (lower, false, BinaryFlags::new())
   }
 }
 
@@ -1411,31 +1496,16 @@ pub fn BinFloat::try_exp_ctx(
             ) {
         match binary_exp_bounds(self, work) {
           Some(bounds) => {
-            let mut upper = bounds.1
-            let mut usable = true
-            // The enclosure overflows the implementation range: its upper end is
-            // `+inf` and its lower end saturates at the largest finite value of the
-            // working precision, so it can never separate a result at or just
-            // above `2^(e_max + 1)` from one just below. The side of the argument
-            // against the threshold `(e_max + 1) ln 2` decides it.
-            if upper.classify() == FpClass::Infinity &&
-              bounds.0.classify() == FpClass::Finite {
-              match binary_exp_overflow_side(self, work) {
-                Some(true) => return Ok(binary_overflow_result(false, context))
-                Some(false) =>
-                  upper = binary_max_finite(false, binary_working_context(work))
-                None => usable = false
-              }
-            }
-            if usable {
-              let (result, unique, flags) = binary_certified_inexact_target_rounding(
-                bounds.0,
-                upper,
-                context,
-              )
-              if unique {
-                return Ok((result, flags))
-              }
+            let (result, unique, flags) = binary_certified_edge_rounding(
+              bounds.0,
+              bounds.1,
+              context,
+              work,
+              false,
+              fn() { binary_exp_overflow_side(self, work) },
+            )
+            if unique {
+              return Ok((result, flags))
             }
           }
           None =>
@@ -1688,10 +1758,13 @@ pub fn BinFloat::try_expm1_ctx(
       while budget.available() {
         match binary_expm1_bounds(self, budget.precision()) {
           Some(bounds) => {
-            let (result, unique, flags) = binary_certified_inexact_target_rounding(
+            let (result, unique, flags) = binary_certified_edge_rounding(
               bounds.0,
               bounds.1,
               context,
+              budget.precision(),
+              false,
+              fn() { binary_exp_overflow_side(self, budget.precision()) },
             )
             if unique {
               return Ok((result, flags))
@@ -2085,10 +2158,13 @@ pub fn BinFloat::try_exp10_ctx(
                 binary_exp_bounds(point, work)
               }) {
               Some(exp_bounds) => {
-                let (result, unique, flags) = binary_certified_inexact_target_rounding(
+                let (result, unique, flags) = binary_certified_edge_rounding(
                   exp_bounds.0,
                   exp_bounds.1,
                   context,
+                  work,
+                  false,
+                  fn() { binary_exp_overflow_side(self, work, decimal=true) },
                 )
                 if unique {
                   return Ok((result, flags))
@@ -3270,7 +3346,20 @@ pub fn BinFloat::try_pow_ctx(
             binary_exp_bounds(point, work)
           }) {
           Some(exp_bounds) => {
-            let (result, unique, flags) = if inexact_result {
+            let (result, unique, flags) = if exp_bounds.1.classify() ==
+              FpClass::Infinity &&
+              exp_bounds.0.classify() == FpClass::Finite {
+              // x^y = exp(y ln x) overflowed the implementation range: the
+              // enclosure of y ln x against the threshold decides, as for exp.
+              binary_certified_edge_rounding(
+                exp_bounds.0,
+                exp_bounds.1,
+                context,
+                work,
+                false,
+                fn() { binary_exp_interval_overflow_side(lower, upper, work) },
+              )
+            } else if inexact_result {
               binary_certified_inexact_target_rounding(
                 exp_bounds.0,
                 exp_bounds.1,
@@ -3336,6 +3425,54 @@ fn BinaryHyperbolicOperation::name(self : BinaryHyperbolicOperation) -> String {
 }
 
 ///|
+/// The enclosure of `sinh |x|` or `cosh |x|` for an argument whose `e^|x|` overflows
+/// the implementation range: `sinh |x| = e^(|x| - ln 2) (1 - e^(-2 |x|))` and
+/// `cosh |x| = e^(|x| - ln 2) (1 + e^(-2 |x|))` with `e^(-2 |x|)` below the
+/// working precision (the argument is above 2^29, so below `2^-(2^30)`), taken as
+/// one outward unit `2^-(work - 1)`; `ln 2` and the difference are formed 40 bits
+/// wider than the working precision (the argument has up to 30 integer bits).
+fn binary_hyperbolic_edge_bounds(
+  magnitude : BinFloat,
+  operation : BinaryHyperbolicOperation,
+  work_precision : Int32,
+) -> (BinFloat, BinFloat)? {
+  let wide = work_precision + 40
+  guard binary_ln2_bounds(wide) is Some((ln2_low, ln2_high)) else {
+    return None
+  }
+  let down_wide = binary_working_context(wide, rounding=RoundTowardNegative)
+  let up_wide = binary_working_context(wide, rounding=RoundTowardPositive)
+  let exponent_low = magnitude.sub_ctx(ln2_high, down_wide).0
+  let exponent_high = magnitude.sub_ctx(ln2_low, up_wide).0
+  guard binary_exp_bounds(exponent_low, work_precision) is Some(low_bounds) &&
+    binary_exp_bounds(exponent_high, work_precision) is Some(high_bounds) else {
+    return None
+  }
+  let down = binary_working_context(
+    work_precision,
+    rounding=RoundTowardNegative,
+  )
+  let up = binary_working_context(work_precision, rounding=RoundTowardPositive)
+  let unit = BinFloat::make_coeff(
+    Coeff::one(),
+    -(work_precision - 1),
+    work_precision,
+  )
+  let one = BinFloat::one_raw(precision=work_precision)
+  let lower = match operation {
+    BinaryHyperbolicOperation::Sinh =>
+      low_bounds.0.mul_ctx(one.sub_ctx(unit, down).0, down).0
+    _ => low_bounds.0
+  }
+  let upper = match operation {
+    BinaryHyperbolicOperation::Cosh =>
+      high_bounds.1.mul_ctx(one.add_ctx(unit, up).0, up).0
+    _ => high_bounds.1
+  }
+  Some((lower, upper))
+}
+
+///|
 fn binary_hyperbolic_bounds(
   value : BinFloat,
   operation : BinaryHyperbolicOperation,
@@ -3378,6 +3515,30 @@ fn binary_hyperbolic_bounds(
         ).0,
         positive_exp.1.add_ctx(negative_exp.1, upward).0.mul_ctx(half, upward).0,
       )
+      // `e^|x|` overflowed the implementation range although the result may not
+      // (sinh and cosh are about `e^|x| / 2`): the enclosure then cannot reach the
+      // result next to `2^(e_max + 1)`, so it comes from `exp(|x| - ln 2)`.
+      if !(operation is BinaryHyperbolicOperation::Tanh) &&
+        (
+          sinh.0.classify() == FpClass::Infinity ||
+          sinh.1.classify() == FpClass::Infinity ||
+          cosh.1.classify() == FpClass::Infinity
+        ) {
+        guard binary_hyperbolic_edge_bounds(
+            value.abs(),
+            operation,
+            work_precision,
+          )
+          is Some(edge) else {
+          return None
+        }
+        return if operation is BinaryHyperbolicOperation::Sinh &&
+          value.is_negative() {
+          Some((edge.1.neg(), edge.0.neg()))
+        } else {
+          Some(edge)
+        }
+      }
       match operation {
         BinaryHyperbolicOperation::Sinh => Some(sinh)
         BinaryHyperbolicOperation::Cosh => Some(cosh)
@@ -3517,11 +3678,30 @@ fn BinFloat::try_hyperbolic_ctx(
             ) {
         match binary_hyperbolic_bounds(self, operation, work) {
           Some(bounds) => {
-            let (result, unique, flags) = binary_certified_inexact_target_rounding(
-              bounds.0,
-              bounds.1,
-              context,
-            )
+            let (result, unique, flags) = if operation
+              is BinaryHyperbolicOperation::Tanh {
+              binary_certified_inexact_target_rounding(
+                bounds.0,
+                bounds.1,
+                context,
+              )
+            } else {
+              binary_certified_edge_rounding(
+                bounds.0,
+                bounds.1,
+                context,
+                work,
+                operation is BinaryHyperbolicOperation::Sinh &&
+                self.is_negative(),
+                fn() {
+                  binary_exp_overflow_side(
+                    self.abs(),
+                    work,
+                    count=binary_implementation_e_max + 2,
+                  )
+                },
+              )
+            }
             if unique {
               return Ok((result, flags))
             }
