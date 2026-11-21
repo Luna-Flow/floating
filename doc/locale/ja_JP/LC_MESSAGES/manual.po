@@ -1270,7 +1270,7 @@ msgstr "NaI はコンテキストの精度を持つ NaI のままです。"
 #: manual/api/frontend/itl_expr.md:263
 #: manual/api/frontend/mpfr_expr.md:524
 #: manual/api/frontend/testfloat_expr.md:361
-#: manual/api/internal/conformance.md:290
+#: manual/api/internal/conformance.md:296
 #: manual/api/numeric_expr.md:298
 #: manual/api/semantic.md:336
 msgid "Trait implementations"
@@ -1356,7 +1356,7 @@ msgstr "使われるのは `ctx.precision` だけです。オペランドは `wi
 #: manual/api/frontend/testfloat_expr.md:407
 #: manual/api/internal.md:506
 #: manual/api/internal/bin_kernel.md:81
-#: manual/api/internal/conformance.md:353
+#: manual/api/internal/conformance.md:359
 #: manual/api/internal/decimal_kernel.md:92
 #: manual/api/internal/runner_cli.md:209
 #: manual/api/numeric_expr.md:339
@@ -1373,7 +1373,7 @@ msgstr "公開インターフェース全体"
 #: manual/api/frontend/testfloat_expr.md:409
 #: manual/api/internal.md:508
 #: manual/api/internal/bin_kernel.md:83
-#: manual/api/internal/conformance.md:355
+#: manual/api/internal/conformance.md:361
 #: manual/api/internal/decimal_kernel.md:94
 #: manual/api/internal/runner_cli.md:211
 #: manual/api/numeric_expr.md:341
@@ -8004,26 +8004,26 @@ msgid "These accessors return the skip counters, in total and per disposition."
 msgstr "これらのアクセサはスキップのカウンタを、合計と処置区分ごとに返します。"
 
 #: manual/api/internal/conformance.md:252
-msgid "`results()` returns a copy of the results in counting order; `success()` is the verdict."
-msgstr "`results()` は集計順に結果のコピーを返し、`success()` は判定です。"
+msgid "`results()` returns a copy of the results in counting order; `success()` is the verdict, and `success_with_counts` is the verdict that also states how many skipped, diagnostic, legacy and unsupported cases there must be."
+msgstr "`results()` は結果のコピーを数えた順に返します。`success()` は判定であり、`success_with_counts` はスキップ、診断、レガシー、未対応のケースがそれぞれ何件あるべきかも指定する判定です。"
 
-#: manual/api/internal/conformance.md:260
+#: manual/api/internal/conformance.md:262
 msgid "The identities"
 msgstr "次の恒等式"
 
-#: manual/api/internal/conformance.md:270
-msgid "hold for every summary built by `from_results` or `merge`. `success()` is `failed_cases() == 0`; skipped cases never make it false, and a summary with no executable case (including `merge([])`) is a success. Frontends that need a stricter verdict (`itl_expr` also fails on diagnostics) add their own rule."
-msgstr "は `from_results` または `merge` で構築されたすべてのサマリで成り立ちます。`success()` は `failed_cases() == 0` です。スキップされたケースがこれを偽にすることはなく、実行可能なケースを持たないサマリ（`merge([])` を含む）は成功です。より厳格な判定を必要とするフロントエンド（`itl_expr` は診断でも失敗とします）は独自の規則を追加します。"
+#: manual/api/internal/conformance.md:272
+msgid "hold for every summary built by `from_results` or `merge`. `success()` is `failed_cases() == 0`; skipped cases never make it false, and a summary with no executable case (including `merge([])`) is a success. Frontends that need a stricter verdict (`itl_expr` also fails on diagnostics) add their own rule. `success_with_counts` is `success()` and exactly the four stated counts: a corpus or phase with a known number of skipped cases uses it, so that a row that silently turns into a skipped or unsupported case fails the run instead of passing."
+msgstr "は `from_results` または `merge` で構築されたすべてのサマリで成り立ちます。`success()` は `failed_cases() == 0` です。スキップされたケースがこれを偽にすることはなく、実行可能なケースを持たないサマリ（`merge([])` を含む）は成功です。より厳格な判定を必要とするフロントエンド（`itl_expr` は診断でも失敗とします）は独自の規則を追加します。`success_with_counts` は `success()` に加えて、指定された 4 つの件数と正確に一致することを要求します。スキップ件数が既知のコーパスやフェーズはこれを使うので、黙ってスキップや未対応のケースに変わった行は、通過せずに実行を失敗させます。"
 
-#: manual/api/internal/conformance.md:292
+#: manual/api/internal/conformance.md:298
 msgid "All five types derive `Eq` and `Debug`; the promoted methods below compare all fields and render values. Use `==`, `!=` and `debug_inspect` in new code."
 msgstr "5 つの型はすべて `Eq` と `Debug` を derive しています。以下の昇格メソッドはすべてのフィールドを比較し、値を表示します。新しいコードでは `==`、`!=`、`debug_inspect` を使用してください。"
 
-#: manual/api/internal/conformance.md:311
+#: manual/api/internal/conformance.md:317
 msgid "Two dispositions with the same constructor and different reasons are different."
 msgstr "コンストラクタが同じでも理由が異なる 2 つの処置区分は異なります。"
 
-#: manual/api/internal/conformance.md:338
+#: manual/api/internal/conformance.md:344
 msgid "Summary equality includes the order of the result list, so a merged summary equals the serial summary only in its counters, not as a value (see the [design page](../../design/internal/conformance.md))."
 msgstr "サマリの等価性には結果リストの順序が含まれるため、マージされたサマリが逐次実行のサマリと等しいのはカウンタについてだけで、値としては等しくありません（[設計ページ](../../design/internal/conformance.md)を参照）。"
 
@@ -28962,6 +28962,9 @@ msgstr "公開 API を絞ると、条項から API への対応が変わるこ�
 #: manual/verification.md:751
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体のロードマップは [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "`results()` returns a copy of the results in counting order; `success()` is the verdict."
+#~ msgstr "`results()` は集計順に結果のコピーを返し、`success()` は判定です。"
 
 #~ msgid "The committed smoke fixtures that `just pr` runs are subsets of these: the binary smoke, for example, has 7,467 rows (240 TestFloat vectors, 3 square-root witnesses, 120 integer-power witnesses, 2,088 elementary witnesses, 1,716 `strtofr` witnesses and 3,300 decimal output witnesses)."
 #~ msgstr "`just pr` が実行するコミット済みスモークフィクスチャは、これらの部分集合です。たとえば二進のスモークは 7,467 行（TestFloat ベクトル 240、平方根の証人 3、整数べきの証人 120、初等関数の証人 2,088、`strtofr` の証人 1,716、十進出力の証人 3,300）です。"

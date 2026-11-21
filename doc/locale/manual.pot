@@ -1259,7 +1259,7 @@ msgstr ""
 #: manual/api/frontend/itl_expr.md:263
 #: manual/api/frontend/mpfr_expr.md:524
 #: manual/api/frontend/testfloat_expr.md:361
-#: manual/api/internal/conformance.md:290
+#: manual/api/internal/conformance.md:296
 #: manual/api/numeric_expr.md:298
 #: manual/api/semantic.md:336
 msgid "Trait implementations"
@@ -1343,7 +1343,7 @@ msgstr ""
 #: manual/api/frontend/testfloat_expr.md:407
 #: manual/api/internal.md:506
 #: manual/api/internal/bin_kernel.md:81
-#: manual/api/internal/conformance.md:353
+#: manual/api/internal/conformance.md:359
 #: manual/api/internal/decimal_kernel.md:92
 #: manual/api/internal/runner_cli.md:209
 #: manual/api/numeric_expr.md:339
@@ -1360,7 +1360,7 @@ msgstr ""
 #: manual/api/frontend/testfloat_expr.md:409
 #: manual/api/internal.md:508
 #: manual/api/internal/bin_kernel.md:83
-#: manual/api/internal/conformance.md:355
+#: manual/api/internal/conformance.md:361
 #: manual/api/internal/decimal_kernel.md:94
 #: manual/api/internal/runner_cli.md:211
 #: manual/api/numeric_expr.md:341
@@ -7974,26 +7974,26 @@ msgid "These accessors return the skip counters, in total and per disposition."
 msgstr ""
 
 #: manual/api/internal/conformance.md:252
-msgid "`results()` returns a copy of the results in counting order; `success()` is the verdict."
+msgid "`results()` returns a copy of the results in counting order; `success()` is the verdict, and `success_with_counts` is the verdict that also states how many skipped, diagnostic, legacy and unsupported cases there must be."
 msgstr ""
 
-#: manual/api/internal/conformance.md:260
+#: manual/api/internal/conformance.md:262
 msgid "The identities"
 msgstr ""
 
-#: manual/api/internal/conformance.md:270
-msgid "hold for every summary built by `from_results` or `merge`. `success()` is `failed_cases() == 0`; skipped cases never make it false, and a summary with no executable case (including `merge([])`) is a success. Frontends that need a stricter verdict (`itl_expr` also fails on diagnostics) add their own rule."
+#: manual/api/internal/conformance.md:272
+msgid "hold for every summary built by `from_results` or `merge`. `success()` is `failed_cases() == 0`; skipped cases never make it false, and a summary with no executable case (including `merge([])`) is a success. Frontends that need a stricter verdict (`itl_expr` also fails on diagnostics) add their own rule. `success_with_counts` is `success()` and exactly the four stated counts: a corpus or phase with a known number of skipped cases uses it, so that a row that silently turns into a skipped or unsupported case fails the run instead of passing."
 msgstr ""
 
-#: manual/api/internal/conformance.md:292
+#: manual/api/internal/conformance.md:298
 msgid "All five types derive `Eq` and `Debug`; the promoted methods below compare all fields and render values. Use `==`, `!=` and `debug_inspect` in new code."
 msgstr ""
 
-#: manual/api/internal/conformance.md:311
+#: manual/api/internal/conformance.md:317
 msgid "Two dispositions with the same constructor and different reasons are different."
 msgstr ""
 
-#: manual/api/internal/conformance.md:338
+#: manual/api/internal/conformance.md:344
 msgid "Summary equality includes the order of the result list, so a merged summary equals the serial summary only in its counters, not as a value (see the [design page](../../design/internal/conformance.md))."
 msgstr ""
 
