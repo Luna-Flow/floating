@@ -49,7 +49,7 @@ fn binary_exp_small_fixed_bounds(
     work_precision,
     mode=BinaryRoundingMode::RoundTowardPositive,
   )
-  if !value.is_negative() {
+  if !value.is_sign_minus() {
     return Some((lower, upper))
   }
   let one = Binary::one_raw(precision=work_precision)

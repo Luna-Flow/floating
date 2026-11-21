@@ -45,7 +45,7 @@ fn to_binary_reference(
 ///|
 fn to_binary_same(a : @binary.Binary, b : @binary.Binary) -> Bool {
   a.compare(b) == 0 &&
-  a.is_negative() == b.is_negative() &&
+  a.is_sign_minus() == b.is_sign_minus() &&
   a.precision() == b.precision() &&
   a.exponent2() == b.exponent2() &&
   a.coefficient() == b.coefficient()
@@ -182,7 +182,7 @@ test "to_binary at large exponents equals exact integer arithmetic (not the old 
       mode=@binary.BinaryRoundingMode::RoundTiesToEven,
     )
     assert_true(
-      got.compare(expected) == 0 && got.is_negative() == negative,
+      got.compare(expected) == 0 && got.is_sign_minus() == negative,
       msg="\{text[:Int32::min(40, text.length())].to_owned()} p=\{precision} \{mode}",
     )
   }

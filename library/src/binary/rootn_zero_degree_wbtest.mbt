@@ -65,10 +65,10 @@ test "rootn of zero with a negative degree is the divideByZero case" {
       for zero in [Binary::zero(), Binary::negative_zero()] {
         let (value, flags) = zero.rootn_ctx(degree, context)
         let odd = degree % 2 != 0
-        let negative = zero.is_negative() && odd
+        let negative = zero.is_sign_minus() && odd
         let label = "rootn(\{zero}, \{degree})"
         assert_eq(value.classify(), FpClass::Infinity, msg=label)
-        assert_eq(value.is_negative(), negative, msg=label)
+        assert_eq(value.is_sign_minus(), negative, msg=label)
         assert_true(flags.division_by_zero(), msg=label)
         assert_false(flags.invalid_operation(), msg=label)
       }

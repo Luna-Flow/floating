@@ -152,7 +152,7 @@ fn binary_inexact_inner_endpoint(
   // new point.
   let shift = Int32::max(1, context.precision + 3 - coefficient.bit_length())
   let scaled = coefficient.shift_left(shift)
-  let grows = toward_positive != endpoint.is_negative()
+  let grows = toward_positive != endpoint.is_sign_minus()
   let moved = if grows {
     scaled.add(Coeff::one())
   } else {
@@ -171,7 +171,7 @@ fn binary_inexact_inner_endpoint(
     moved,
     endpoint.exponent2() - shift,
     Int32::max(1, width.to_int()),
-    negative=endpoint.is_negative(),
+    negative=endpoint.is_sign_minus(),
   )
 }
 
@@ -624,7 +624,7 @@ fn binary_log2_linear_out_of_range(
     BinaryRoundingMode::RoundTowardPositive,
   )
   let log_low = value_low.mul_ctx(
-      if value_low.is_negative() {
+      if value_low.is_sign_minus() {
         scale_high
       } else {
         scale_low
@@ -632,7 +632,7 @@ fn binary_log2_linear_out_of_range(
       down,
     ).0
   let log_high = value_high.mul_ctx(
-      if value_high.is_negative() {
+      if value_high.is_sign_minus() {
         scale_low
       } else {
         scale_high
@@ -729,7 +729,7 @@ fn binary_tanh_saturation(
   if magnitude.compare(threshold) <= 0 {
     return None
   }
-  let negative = value.is_negative()
+  let negative = value.is_sign_minus()
   let toward_zero = match context.rounding {
     RoundTowardZero => true
     RoundTowardPositive => negative
@@ -1201,7 +1201,7 @@ fn binary_atanh_small_bounds(
   value : Binary,
   work_precision : Int32,
 ) -> (Binary, Binary)? {
-  if value.is_negative() {
+  if value.is_sign_minus() {
     match binary_atanh_small_positive_bounds(value.neg(), work_precision) {
       Some(positive) => Some((positive.1.neg(), positive.0.neg()))
       None => None
@@ -1742,7 +1742,7 @@ pub fn Binary::try_expm1_ctx(
     FpClass::Infinity =>
       Ok(
         (
-          if self.is_negative() {
+          if self.is_sign_minus() {
             Binary::one_raw(precision=context.precision).neg()
           } else {
             Binary::inf_raw(Sign::Positive, precision=context.precision)
@@ -1752,14 +1752,14 @@ pub fn Binary::try_expm1_ctx(
       )
     FpClass::Finite if self.is_zero() => Ok(self.apply_ctx(context))
     FpClass::Finite => {
-      if self.is_negative() &&
+      if self.is_sign_minus() &&
         binary_expm1_negative_saturation(self, context) is Some(result) {
         return Ok(result)
       }
       // For x >= 64, e^x - 1 >= e^(x - 2^-60) (e^(x - d) >= 1 / d once x - d >=
       // 60 ln 2), which decides the overflow window [e_max + 1, e_max + 2) in
       // log2 that the offset of the next check leaves open.
-      if !self.is_negative() &&
+      if !self.is_sign_minus() &&
         self.compare(Binary::from_int_raw(64, precision=7)) >= 0 &&
         binary_log2_linear_out_of_range(
           self.sub_ctx(
@@ -1780,7 +1780,7 @@ pub fn Binary::try_expm1_ctx(
         return Ok(result)
       }
       // expm1(x) >= exp(x) / 2 once it can overflow; it never underflows below -1.
-      if !self.is_negative() &&
+      if !self.is_sign_minus() &&
         binary_log2_linear_out_of_range(
           self, binary_log2_e_bounds, 2, -1, false, false, context,
         )
@@ -1860,7 +1860,7 @@ pub fn Binary::try_log1p_ctx(
           },
         ),
       )
-    FpClass::Infinity if self.is_negative() =>
+    FpClass::Infinity if self.is_sign_minus() =>
       Ok((Binary::nan_raw(precision=context.precision), binary_invalid_flags()))
     FpClass::Infinity =>
       Ok(
@@ -1952,7 +1952,7 @@ pub fn Binary::try_exp2_ctx(
     FpClass::Infinity =>
       Ok(
         (
-          if self.is_negative() {
+          if self.is_sign_minus() {
             Binary::zero_raw(precision=context.precision)
           } else {
             Binary::inf_raw(Sign::Positive, precision=context.precision)
@@ -2038,7 +2038,7 @@ pub fn Binary::try_log2_ctx(
           },
         ),
       )
-    FpClass::Infinity if self.is_negative() =>
+    FpClass::Infinity if self.is_sign_minus() =>
       Ok((Binary::nan_raw(precision=context.precision), binary_invalid_flags()))
     FpClass::Infinity =>
       Ok(
@@ -2054,7 +2054,7 @@ pub fn Binary::try_log2_ctx(
           binary_division_by_zero_flags(),
         ),
       )
-    FpClass::Finite if self.is_negative() => Ok(binary_invalid_value(context))
+    FpClass::Finite if self.is_sign_minus() => Ok(binary_invalid_value(context))
     FpClass::Finite if self.compare(Binary::one_raw(precision=self.precision())) ==
       0 =>
       Ok((Binary::zero_raw(precision=context.precision), BinaryFlags::new()))
@@ -2802,7 +2802,7 @@ fn binary_exact_rootn_int64(value : Binary, degree : Int64) -> Binary? {
           coefficient,
           (value.exponent2().to_int64() / degree).to_int(),
           Int32::max(1, coefficient.bit_length()),
-          negative=value.is_negative(),
+          negative=value.is_sign_minus(),
         ),
       )
     None => None
@@ -3016,7 +3016,7 @@ fn binary_exact_bounded_int(value : Binary) -> Int32? {
   match value.coefficient_().shift_left(value.exponent2()).to_uint64() {
     Some(magnitude) => {
       let integer = magnitude.reinterpret_as_int64().to_int()
-      Some(if value.is_negative() { -integer } else { integer })
+      Some(if value.is_sign_minus() { -integer } else { integer })
     }
     None => None
   }
@@ -3031,7 +3031,7 @@ fn binary_exact_unit_fraction_degree(value : Binary) -> Int32? {
     return None
   }
   let degree = 1 << -value.exponent2()
-  Some(if value.is_negative() { -degree } else { degree })
+  Some(if value.is_sign_minus() { -degree } else { degree })
 }
 
 ///|
@@ -3084,7 +3084,7 @@ fn binary_pow_exactness(
 ) -> BinaryPowExactness {
   guard base.classify() == FpClass::Finite &&
     !base.is_zero() &&
-    !base.is_negative() &&
+    !base.is_sign_minus() &&
     exponent.classify() == FpClass::Finite &&
     !exponent.is_zero() else {
     return Undecided
@@ -3114,7 +3114,7 @@ fn binary_pow_exactness(
     None => return NotBreakpoint
   }
   let unit_root = root.compare(Coeff::one()) == 0
-  guard unit_root || !exponent.is_negative() else { return NotBreakpoint }
+  guard unit_root || !exponent.is_sign_minus() else { return NotBreakpoint }
   let numerator = match exponent.coefficient_().to_uint64() {
     Some(value) if value < 1UL << 31 => value.reinterpret_as_int64()
     // r^m with r >= 3 and m >= 2^31 has more than precision + 1 bits.
@@ -3132,7 +3132,7 @@ fn binary_pow_exactness(
     root.pow_nat(numerator.to_int().reinterpret_as_uint())
   }
   let scale = (base.exponent2() / degree).to_int64() *
-    (if exponent.is_negative() { -numerator } else { numerator })
+    (if exponent.is_sign_minus() { -numerator } else { numerator })
   guard scale >= -2147483648L && scale <= 2147483647L else { return Undecided }
   // Rounded as a dyadic: a Binary::make of power * 2^scale would flush it to
   // zero when it lies below 2^e_min, before the context rounds it.
@@ -3203,11 +3203,11 @@ pub fn Binary::try_pow_ctx(
   }
   // The result of a zero or infinite base is negative only for a negative base
   // and an odd integer exponent.
-  let negative_result = self.is_negative() && exponent_odd
+  let negative_result = self.is_sign_minus() && exponent_odd
   if self.classify() == FpClass::Infinity {
     return Ok(
       (
-        if exponent.is_negative() {
+        if exponent.is_sign_minus() {
           if negative_result {
             Binary::negative_zero_raw(precision=context.precision)
           } else {
@@ -3228,7 +3228,7 @@ pub fn Binary::try_pow_ctx(
     )
   }
   if self.is_zero() {
-    if exponent.is_negative() {
+    if exponent.is_sign_minus() {
       return Ok(
         (
           Binary::inf_raw(
@@ -3254,7 +3254,7 @@ pub fn Binary::try_pow_ctx(
       ),
     )
   }
-  if self.is_negative() {
+  if self.is_sign_minus() {
     guard exponent_integer else { return Ok(binary_invalid_value(context)) }
     // An integer exponent beyond the `pown` range: |x|^y, negated for an odd
     // y, which also mirrors the directed rounding modes.
@@ -3294,8 +3294,8 @@ pub fn Binary::try_pow_ctx(
     self.try_log2_ctx(range_up) is Ok((log_high, _)) &&
     !log_low.is_zero() &&
     !log_high.is_zero() &&
-    log_low.is_negative() == log_high.is_negative() {
-    let (value, scale) = if log_low.is_negative() {
+    log_low.is_sign_minus() == log_high.is_sign_minus() {
+    let (value, scale) = if log_low.is_sign_minus() {
       (exponent.neg(), (log_high.neg(), log_low.neg()))
     } else {
       (exponent, (log_low, log_high))
@@ -3568,7 +3568,7 @@ fn binary_hyperbolic_bounds(
           return None
         }
         return if operation is BinaryHyperbolicOperation::Sinh &&
-          value.is_negative() {
+          value.is_sign_minus() {
           Some((edge.1.neg(), edge.0.neg()))
         } else {
           Some(edge)
@@ -3631,7 +3631,7 @@ fn Binary::try_hyperbolic_ctx(
             BinaryHyperbolicOperation::Cosh =>
               Binary::inf_raw(Sign::Positive, precision=context.precision)
             BinaryHyperbolicOperation::Tanh =>
-              if self.is_negative() {
+              if self.is_sign_minus() {
                 Binary::one_raw(precision=context.precision).neg()
               } else {
                 Binary::one_raw(precision=context.precision)
@@ -3665,7 +3665,7 @@ fn Binary::try_hyperbolic_ctx(
           2,
           -2,
           false,
-          operation is BinaryHyperbolicOperation::Sinh && self.is_negative(),
+          operation is BinaryHyperbolicOperation::Sinh && self.is_sign_minus(),
           context,
         )
         is Some(result) {
@@ -3681,14 +3681,14 @@ fn Binary::try_hyperbolic_ctx(
         BinaryHyperbolicOperation::Sinh =>
           binary_tiny_argument_result(
             self,
-            !self.is_negative(),
+            !self.is_sign_minus(),
             3L * binary_top_bound(self),
             context,
           )
         BinaryHyperbolicOperation::Tanh =>
           binary_tiny_argument_result(
             self,
-            self.is_negative(),
+            self.is_sign_minus(),
             3L * binary_top_bound(self),
             context,
           )
@@ -3727,7 +3727,7 @@ fn Binary::try_hyperbolic_ctx(
                 context,
                 work,
                 operation is BinaryHyperbolicOperation::Sinh &&
-                self.is_negative(),
+                self.is_sign_minus(),
                 fn() {
                   binary_exp_overflow_side(
                     self.abs(),
@@ -3995,7 +3995,7 @@ fn Binary::try_inverse_hyperbolic_ctx(
               BinaryFlags::new(),
             ),
           )
-        BinaryInverseHyperbolicOperation::Acosh if !self.is_negative() =>
+        BinaryInverseHyperbolicOperation::Acosh if !self.is_sign_minus() =>
           Ok(
             (
               Binary::inf_raw(Sign::Positive, precision=context.precision),
@@ -4049,7 +4049,7 @@ fn Binary::try_inverse_hyperbolic_ctx(
         binary_tiny_argument_result(
           self,
           (operation == BinaryInverseHyperbolicOperation::Atanh) !=
-          self.is_negative(),
+          self.is_sign_minus(),
           3L * binary_top_bound(self),
           context,
         )
@@ -4069,7 +4069,7 @@ fn Binary::try_inverse_hyperbolic_ctx(
             match binary_asinh_positive_bounds(self.abs(), work) {
               Some(positive) =>
                 Some(
-                  if self.is_negative() {
+                  if self.is_sign_minus() {
                     (positive.1.neg(), positive.0.neg())
                   } else {
                     positive
@@ -4532,8 +4532,8 @@ fn binary_atan_pair_bounds(
     let zero = Binary::zero_raw(precision=work_precision)
     return Some((zero, zero))
   }
-  if lo.is_negative() && !lo.is_zero() {
-    if hi.is_negative() || hi.is_zero() {
+  if lo.is_sign_minus() && !lo.is_zero() {
+    if hi.is_sign_minus() || hi.is_zero() {
       match
         binary_atan_positive_pair_bounds(hi.neg(), lo.neg(), work_precision) {
         Some(positive) => Some((positive.1.neg(), positive.0.neg()))
@@ -4646,7 +4646,7 @@ pub fn Binary::try_atan_ctx(
               rounding=RoundTowardPositive,
             )
             let half = Binary::make_coeff(Coeff::one(), -1, work)
-            let bounds = if self.is_negative() {
+            let bounds = if self.is_sign_minus() {
               (
                 pi.1.mul_ctx(half, upward).0.neg(),
                 pi.0.mul_ctx(half, downward).0.neg(),
@@ -4843,7 +4843,7 @@ pub fn Binary::try_asin_ctx(
                 rounding=RoundTowardPositive,
               )
               let half = Binary::make_coeff(Coeff::one(), -1, work)
-              let bounds = if self.is_negative() {
+              let bounds = if self.is_sign_minus() {
                 (
                   pi.1.mul_ctx(half, upward).0.neg(),
                   pi.0.mul_ctx(half, downward).0.neg(),
@@ -4875,7 +4875,7 @@ pub fn Binary::try_asin_ctx(
       // |x| <= 1/2: 0 < asin x - x <= |x|^3 (sign of x).
       if binary_tiny_argument_result(
           self,
-          !self.is_negative(),
+          !self.is_sign_minus(),
           3L * binary_top_bound(self),
           context,
         )
@@ -5199,17 +5199,19 @@ pub fn Binary::try_atan2_ctx(
   // A zero ordinate keeps its sign: atan2(±0, x) is ±0 when x is +0 or
   // positive and ±π when x is -0 or negative (IEEE 754-2019 §9.2.1).
   let fraction = if self_infinite && abscissa_infinite {
-    Some((if abscissa.is_negative() { 3 } else { 1 }, 2, self.is_negative()))
+    Some(
+      (if abscissa.is_sign_minus() { 3 } else { 1 }, 2, self.is_sign_minus()),
+    )
   } else if self.is_zero() {
-    if abscissa.is_negative() {
-      Some((1, 0, self.is_negative()))
+    if abscissa.is_sign_minus() {
+      Some((1, 0, self.is_sign_minus()))
     } else {
       None
     }
   } else if self_infinite || abscissa.is_zero() {
-    Some((1, 1, self.is_negative()))
-  } else if abscissa_infinite && abscissa.is_negative() {
-    Some((1, 0, self.is_negative()))
+    Some((1, 1, self.is_sign_minus()))
+  } else if abscissa_infinite && abscissa.is_sign_minus() {
+    Some((1, 0, self.is_sign_minus()))
   } else {
     None
   }
@@ -5248,10 +5250,10 @@ pub fn Binary::try_atan2_ctx(
     }
     None => ()
   }
-  if abscissa_infinite && !abscissa.is_negative() {
+  if abscissa_infinite && !abscissa.is_sign_minus() {
     return Ok(
       (
-        if self.is_negative() {
+        if self.is_sign_minus() {
           Binary::negative_zero_raw(precision=context.precision)
         } else {
           Binary::zero_raw(precision=context.precision)
@@ -5281,11 +5283,11 @@ pub fn Binary::try_atan2_ctx(
   // strictly between 0 and a quarter of it, which rounds exactly as the
   // quotient `y / x` does: zero or the smallest subnormal, inexact and
   // underflow (the sign is that of y).
-  if !abscissa.is_negative() {
+  if !abscissa.is_sign_minus() {
     let distance = binary_pi_top(self) - binary_pi_top(abscissa)
     if distance <=
       context.range_e_min().to_int64() - context.precision.to_int64() - 2L {
-      return Ok(binary_tiny_nonzero_result(self.is_negative(), context))
+      return Ok(binary_tiny_nonzero_result(self.is_sign_minus(), context))
     }
   }
   let mut work = Int32::max(
@@ -5373,7 +5375,7 @@ fn binary_sin_cos_series(
     work_precision,
     rounding=RoundTowardPositive,
   )
-  let negative = value.is_negative()
+  let negative = value.is_sign_minus()
   let argument = if negative { value.neg() } else { value }
   let argument_lower = argument.with_precision_raw(
     work_precision,
@@ -5475,7 +5477,7 @@ fn binary_floor_integer(value : Binary) -> Binary? {
   } else {
     quotient.shift_left(shift).compare(magnitude) != 0
   }
-  let floor_magnitude = if value.is_negative() && has_remainder {
+  let floor_magnitude = if value.is_sign_minus() && has_remainder {
     quotient.add(Coeff::one())
   } else {
     quotient
@@ -5485,7 +5487,7 @@ fn binary_floor_integer(value : Binary) -> Binary? {
     0,
     Int32::max(1, floor_magnitude.bit_length()),
   )
-  Some(if value.is_negative() { integer.neg() } else { integer })
+  Some(if value.is_sign_minus() { integer.neg() } else { integer })
 }
 
 ///|
@@ -5507,7 +5509,7 @@ fn binary_integer_mod4(value : Binary) -> Int32? {
     (if value.coefficient_().test_bit(1) { 2 } else { 0 })
   }
   Some(
-    if value.is_negative() && magnitude_residue != 0 {
+    if value.is_sign_minus() && magnitude_residue != 0 {
       4 - magnitude_residue
     } else {
       magnitude_residue
@@ -5955,14 +5957,14 @@ fn Binary::try_trigonometric_ctx(
         BinaryTrigonometricOperation::Sin =>
           binary_tiny_argument_result(
             self,
-            self.is_negative(),
+            self.is_sign_minus(),
             3L * binary_top_bound(self),
             context,
           )
         BinaryTrigonometricOperation::Tan =>
           binary_tiny_argument_result(
             self,
-            !self.is_negative(),
+            !self.is_sign_minus(),
             3L * binary_top_bound(self),
             context,
           )

@@ -127,7 +127,7 @@ fn binary_ln_unit_agm_bounds(
 ) -> (Binary, Binary)? {
   guard value.classify() == FpClass::Finite &&
     !value.is_zero() &&
-    !value.is_negative() else {
+    !value.is_sign_minus() else {
     return None
   }
   let two = Binary::from_int_raw(2, precision=2)

@@ -5,7 +5,7 @@
 /// and not through `to_hex`, so that the writer of the library is not in the
 /// comparison either.
 fn canonical_bound(x : @binary.Binary) -> String {
-  let negative = x.is_negative()
+  let negative = x.is_sign_minus()
   match x.classify() {
     NaN => "nan"
     Infinity => if negative { "-inf" } else { "inf" }

@@ -88,7 +88,7 @@ pub fn Decimal::exponent10(Self) -> Int
 `precision` is the working precision stored in the value: the precision of a format a context could have, `1..=999999999` (`decimal_precision_max`). Every constructor that returns a `Decimal` aborts on a precision outside that range, naming the function; the operations that return a `Result` return `Err`.
 `coefficient` returns the non-negative coefficient $c$;
 for a NaN they return the payload and for an infinity `0`. The sign is never
-part of the coefficient: use `is_negative`. `exponent10` returns the stored
+part of the coefficient: use `is_sign_minus`. `exponent10` returns the stored
 exponent $q$; for special values it is `0`. The IEEE 754-2019 operation
 `quantum` is `quantum_ctx` (below), not an accessor.
 
@@ -98,22 +98,22 @@ test "decimal representation observers" {
   let x = @decimal.Decimal::from_string("-12.300").unwrap()
   inspect(x.coefficient(), content="12300")
   inspect(x.exponent10(), content="-3")
-  inspect(x.is_negative(), content="true")
+  inspect(x.is_sign_minus(), content="true")
   inspect(x.precision(), content="34")
 }
 ```
 
-### `Decimal::sign`, `is_negative`
+### `Decimal::sign`, `is_sign_minus`
 
 These observers report the sign of a value.
 
 ```mbti
 pub fn Decimal::sign(Self) -> @def.Sign
-pub fn Decimal::is_negative(Self) -> Bool
+pub fn Decimal::is_sign_minus(Self) -> Bool
 ```
 
 `sign` returns `@def.Sign::Zero` for both zeros and for every NaN, and
-`Negative`/`Positive` otherwise. `is_negative` returns the stored sign bit, so it
+`Negative`/`Positive` otherwise. `is_sign_minus` returns the stored sign bit, so it
 is `true` for $-0$, for $-\infty$ and for a negative NaN.
 
 ### `Decimal::classify`, `class_of`
@@ -2482,10 +2482,10 @@ pub fn Decimal::is_canonical(Self) -> Bool
 pub fn Decimal::is_finite(Self) -> Bool
 pub fn Decimal::is_infinite(Self) -> Bool
 pub fn Decimal::is_nan(Self) -> Bool
-pub fn Decimal::is_negative(Self) -> Bool
 pub fn Decimal::is_negative_zero(Self) -> Bool
 pub fn Decimal::is_normal(Self, DecimalContext) -> Bool
 pub fn Decimal::is_quiet_nan(Self) -> Bool
+pub fn Decimal::is_sign_minus(Self) -> Bool
 pub fn Decimal::is_signaling_nan(Self) -> Bool
 pub fn Decimal::is_subnormal(Self, DecimalContext) -> Bool
 pub fn Decimal::is_zero(Self) -> Bool

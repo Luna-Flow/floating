@@ -45,7 +45,7 @@ test "DPD and BID share Decimal semantics across formats" {
     let dpd = Decimal::from_interchange_hex_with_encoding(dpd_bits, format, DPD).unwrap()
     let bid = Decimal::from_interchange_hex_with_encoding(bid_bits, format, BID).unwrap()
     assert_eq(dpd.total_order_compare(bid), 0)
-    assert_eq(dpd.is_negative(), bid.is_negative())
+    assert_eq(dpd.is_sign_minus(), bid.is_sign_minus())
   }
 }
 
@@ -124,7 +124,7 @@ test "BID NaN payloads do not depend on the value precision" {
       encoding,
     ).unwrap()
     assert_eq(back.nan_payload().to_string(), "45")
-    assert_true(back.is_signaling_nan() && back.is_negative())
+    assert_true(back.is_signaling_nan() && back.is_sign_minus())
   }
   let (hex, _) = Decimal::quiet_nan(payload=123N).to_interchange_hex_with_encoding(
     Decimal64,
@@ -287,7 +287,7 @@ test "IEEE BID decimal32 decimal64 decimal128 zero witnesses round trip" {
       BID,
     ).unwrap()
     assert_true(value.is_zero())
-    assert_false(value.is_negative())
+    assert_false(value.is_sign_minus())
     assert_eq(
       value.to_interchange_hex_with_encoding(formats[index], BID).0,
       bits[index],

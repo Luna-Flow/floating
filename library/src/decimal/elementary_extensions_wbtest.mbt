@@ -33,7 +33,7 @@ test "Decimal pi-scaled functions follow IEEE exact special values" {
   assert_false(half_cosine_flags.inexact)
   let (half_tangent, half_tangent_flags) = half.tanpi_ctx(context)
   assert_true(half_tangent.is_infinite())
-  assert_false(half_tangent.is_negative())
+  assert_false(half_tangent.is_sign_minus())
   assert_true(half_tangent_flags.division_by_zero)
 }
 

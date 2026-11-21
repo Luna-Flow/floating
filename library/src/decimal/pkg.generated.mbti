@@ -117,10 +117,10 @@ pub fn Decimal::is_canonical(Self) -> Bool
 pub fn Decimal::is_finite(Self) -> Bool
 pub fn Decimal::is_infinite(Self) -> Bool
 pub fn Decimal::is_nan(Self) -> Bool
-pub fn Decimal::is_negative(Self) -> Bool
 pub fn Decimal::is_negative_zero(Self) -> Bool
 pub fn Decimal::is_normal(Self, DecimalContext) -> Bool
 pub fn Decimal::is_quiet_nan(Self) -> Bool
+pub fn Decimal::is_sign_minus(Self) -> Bool
 pub fn Decimal::is_signaling_nan(Self) -> Bool
 pub fn Decimal::is_subnormal(Self, DecimalContext) -> Bool
 pub fn Decimal::is_zero(Self) -> Bool

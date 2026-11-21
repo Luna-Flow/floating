@@ -885,7 +885,7 @@ fn pack_exact(
   let (precision, width, emax) = format_layout(format)
   let fraction_bits = precision - 1
   let one = @bigint.BigInt::from_int(1)
-  let sign = if value.is_negative() || value.is_negative_zero() {
+  let sign = if value.is_sign_minus() || value.is_negative_zero() {
     one << (width - 1)
   } else {
     @bigint.BigInt::from_int(0)

@@ -1060,7 +1060,7 @@ notes live in this file.
 
   | row | removed | use instead |
   | --- | --- | --- |
-  | G01 | `Decimal::is_negative` | `Decimal::is_signed` |
+  | G01 | `Decimal::is_sign_minus` | `Decimal::is_signed` |
   | G02 | `Decimal::is_quiet_nan`, `Decimal::is_signaling_nan` | `Decimal::is_qnan`, `Decimal::is_snan` |
   | G03 | `Decimal::magnitude` | `Decimal::coefficient` |
   | G04 | `Decimal::get_payload`, `Decimal::set_payload`, `Decimal::set_payload_signaling` | `Decimal::nan_payload` for reading; the IEEE 754-2019 §9.7 operations are in `decimal`; to build a NaN with a payload, `Decimal::quiet_nan(payload=)` and `Decimal::signaling_nan(payload=)` |

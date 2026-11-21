@@ -13,7 +13,7 @@
 ///|
 fn zs(x : @binary.Binary) -> String {
   if x.is_zero() {
-    if x.is_negative() {
+    if x.is_sign_minus() {
       "-0"
     } else {
       "+0"

@@ -58,7 +58,7 @@ test "atan2 of a quotient below the implementation range rounds like the quotien
           "\{label} => \{a2t_text(value, flags)}",
           "\{label} => \{a2t_text(expected, expected_flags)}",
         )
-        assert_eq(value.is_negative(), negative)
+        assert_eq(value.is_sign_minus(), negative)
         cases += 1
       }
     }

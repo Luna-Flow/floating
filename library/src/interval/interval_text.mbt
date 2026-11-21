@@ -90,7 +90,7 @@ fn endpoint_text(
   precision : Int32,
 ) -> String {
   if x.is_infinite() {
-    return if x.is_negative() { "-inf" } else { "inf" }
+    return if x.is_sign_minus() { "-inf" } else { "inf" }
   }
   if x.is_zero() {
     return "0"
@@ -142,7 +142,7 @@ fn interval_portable_text(x : Interval) -> String {
 ///|
 fn exact_bound_text(x : @binary.Binary) -> String {
   if x.is_infinite() {
-    return if x.is_negative() { "-inf" } else { "inf" }
+    return if x.is_sign_minus() { "-inf" } else { "inf" }
   }
   // A zero bound is written without a sign (13.4: no signed zero): the observers return -0 for
   // a zero lower bound (12.12.8), and the text of [0, 1] is [0x0p0, 0x1p0], like the literal.
@@ -154,7 +154,7 @@ fn exact_bound_text(x : @binary.Binary) -> String {
   // through `normalize_finite` (binary.mbt), which strips the trailing zero bits into the
   // exponent (`normalize_finite_odd`, the `final_shift` step). The test "the stored coefficient
   // is odd" in interval_text_wbtest.mbt guards the invariant.
-  (if x.is_negative() { "-" } else { "" }) +
+  (if x.is_sign_minus() { "-" } else { "" }) +
   "0x" +
   x.coefficient().to_radix_string(16) +
   "p" +

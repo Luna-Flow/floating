@@ -29,7 +29,7 @@ fn directed_pair_values(p : Int32, seed0 : UInt64) -> Array[Binary] {
 ///|
 fn directed_pair_same(a : Binary, b : Binary) -> Bool {
   a.classify() == b.classify() &&
-  a.is_negative() == b.is_negative() &&
+  a.is_sign_minus() == b.is_sign_minus() &&
   a.precision() == b.precision() &&
   (a.classify() != FpClass::Finite || a.compare(b) == 0)
 }

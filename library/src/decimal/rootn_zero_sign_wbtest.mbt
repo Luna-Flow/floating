@@ -8,14 +8,14 @@ test "rootn of a zero follows the parity of the degree" {
   for n in [1, 2, 3, 4, 100, 101] {
     let (value, flags) = negative_zero.rootn_ctx(n, ctx)
     assert_true(value.is_zero())
-    assert_eq(value.is_negative(), n % 2 != 0)
+    assert_eq(value.is_sign_minus(), n % 2 != 0)
     assert_true(flags == DecimalFlags::new())
-    assert_false(zero.rootn_ctx(n, ctx).0.is_negative())
+    assert_false(zero.rootn_ctx(n, ctx).0.is_sign_minus())
   }
   for n in [-1, -2, -3, -4] {
     let (value, flags) = negative_zero.rootn_ctx(n, ctx)
     assert_true(value.is_infinite())
-    assert_eq(value.is_negative(), n % 2 != 0)
+    assert_eq(value.is_sign_minus(), n % 2 != 0)
     assert_true(flags.division_by_zero)
   }
 }

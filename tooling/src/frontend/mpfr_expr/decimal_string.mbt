@@ -153,7 +153,7 @@ pub fn execute_strtofr_data(document : MpfrStrtofrDocument) -> RunSummary {
       Ok((actual, flags)) => {
         // `compare` treats -0 and +0 as equal; MPFR results carry the sign.
         let same_value = actual.compare(case.expected) == 0 &&
-          actual.is_negative() == case.expected.is_negative() &&
+          actual.is_sign_minus() == case.expected.is_sign_minus() &&
           actual.classify() == case.expected.classify()
         let passed = same_value &&
           flags.inexact() == case.inexact &&
@@ -394,7 +394,7 @@ pub fn execute_decimal_output_data(
           Some((actual_digits, actual_exponent)) => {
             let passed = actual_digits == expected_digits &&
               actual_exponent == expected_exponent10 &&
-              text.has_prefix("-") == value.is_negative() &&
+              text.has_prefix("-") == value.is_sign_minus() &&
               flags.inexact() == inexact &&
               !flags.overflow() &&
               !flags.underflow()
@@ -433,7 +433,7 @@ pub fn execute_decimal_output_data(
           @binary.Binary::from_string(text, precision=value.precision()) {
           Ok(parsed) =>
             parsed.compare(value) == 0 &&
-            parsed.is_negative() == value.is_negative()
+            parsed.is_sign_minus() == value.is_sign_minus()
           Err(_) => false
         }
         let passed = reads_back && count == expected_digit_count

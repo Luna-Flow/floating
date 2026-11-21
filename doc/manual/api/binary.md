@@ -366,19 +366,19 @@ encodings.
 
 ## Observing a value
 
-### `Binary::classify`, `Binary::sign`, `Binary::is_negative`
+### `Binary::classify`, `Binary::sign`, `Binary::is_sign_minus`
 
 Report the class and sign of a value.
 
 ```mbti
 pub fn Binary::classify(Self) -> @arithmetic.FpClass
 pub fn Binary::sign(Self) -> @def.Sign
-pub fn Binary::is_negative(Self) -> Bool
+pub fn Binary::is_sign_minus(Self) -> Bool
 ```
 
 `classify` returns `Finite`, `Infinity` or `NaN` (zeros are `Finite`). `sign`
 is `Zero` for every zero and every NaN, and `Positive` or `Negative` otherwise.
-`is_negative` returns the sign bit itself, which is set for $-0$, $-\infty$
+`is_sign_minus` returns the sign bit itself, which is set for $-0$, $-\infty$
 and negative NaNs. `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and
 `@def.is_zero` work on `Binary` through the `Floating` trait; the
 methods of the next section give the same answers without the trait.
@@ -2800,10 +2800,10 @@ pub fn Binary::inf(negative? : Bool, precision? : Int32) -> Self
 pub fn Binary::is_finite(Self) -> Bool
 pub fn Binary::is_infinite(Self) -> Bool
 pub fn Binary::is_nan(Self) -> Bool
-pub fn Binary::is_negative(Self) -> Bool
 pub fn Binary::is_negative_zero(Self) -> Bool
 pub fn Binary::is_normal(Self, BinaryContext) -> Bool
 pub fn Binary::is_quiet_nan(Self) -> Bool
+pub fn Binary::is_sign_minus(Self) -> Bool
 pub fn Binary::is_signaling_nan(Self) -> Bool
 pub fn Binary::is_subnormal(Self, BinaryContext) -> Bool
 pub fn Binary::is_zero(Self) -> Bool

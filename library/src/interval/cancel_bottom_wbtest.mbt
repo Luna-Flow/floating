@@ -76,8 +76,8 @@ test "equal widths give a point, with a canonical zero" {
   // representative of [0, 0]. The canonical zero is a property of storage, which the
   // observers do not expose.
   let z = cn_interval(3L, 5L, u, 113).cancel_minus(cn_interval(3L, 5L, u, 113))
-  assert_true(z.lower_bound().is_zero() && z.lower_bound().is_negative())
-  assert_true(z.upper_bound().is_zero() && !z.upper_bound().is_negative())
+  assert_true(z.lower_bound().is_zero() && z.lower_bound().is_sign_minus())
+  assert_true(z.upper_bound().is_zero() && !z.upper_bound().is_sign_minus())
   assert_true(!z.is_entire())
 }
 

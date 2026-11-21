@@ -554,7 +554,7 @@ def render_moon_interchange_tests() -> list[str]:
                 "  for row in rows {",
                 "    let (id, bits, kind, negative, payload, exponent, canonical) = row",
                 f"    let value = Decimal::from_interchange_hex_with_encoding(bits, DecimalInterchangeFormat::{kinds[fmt]}, DecimalInterchangeEncoding::{encoding}).unwrap()",
-                "    assert_eq(value.is_negative() || value.is_negative_zero(), negative, msg=id + \" sign\")",
+                "    assert_eq(value.is_sign_minus() || value.is_negative_zero(), negative, msg=id + \" sign\")",
                 "    match kind {",
                 "      \"infinity\" => assert_true(value.is_infinite(), msg=id)",
                 "      \"qnan\" | \"snan\" => {",

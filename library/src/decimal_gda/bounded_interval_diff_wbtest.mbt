@@ -42,7 +42,7 @@ fn interval_reference(
 fn interval_same_bin(a : @binary.Binary, b : @binary.Binary) -> Bool {
   a.compare(b) == 0 &&
   a.precision() == b.precision() &&
-  a.is_negative() == b.is_negative() &&
+  a.is_sign_minus() == b.is_sign_minus() &&
   a.exponent2() == b.exponent2() &&
   a.coefficient().to_bytes_be() == b.coefficient().to_bytes_be()
 }

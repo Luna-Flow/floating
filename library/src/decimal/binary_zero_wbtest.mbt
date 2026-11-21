@@ -13,11 +13,11 @@ test "binary conversions keep the sign of zero (IEEE 754 5.4.2, 6.3)" {
     content="true",
   )
   let back = Decimal::negative_zero().to_binary(precision=53)
-  assert_true(back.is_zero() && back.is_negative())
+  assert_true(back.is_zero() && back.is_sign_minus())
   let back_positive = Decimal::zero().to_binary(precision=53)
-  assert_true(back_positive.is_zero() && !back_positive.is_negative())
+  assert_true(back_positive.is_zero() && !back_positive.is_sign_minus())
   let exponent_zero = Decimal::from_string("-0.000")
     .unwrap()
     .to_binary(precision=53)
-  assert_true(exponent_zero.is_zero() && exponent_zero.is_negative())
+  assert_true(exponent_zero.is_zero() && exponent_zero.is_sign_minus())
 }

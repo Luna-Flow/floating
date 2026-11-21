@@ -217,7 +217,7 @@ test "Binary pow decides parity of large integer exponents" {
     BinaryContext::binary64(rounding=RoundTowardPositive),
   )
   assert_true(upward_power.classify() == FpClass::Finite)
-  assert_true(upward_power.is_negative())
+  assert_true(upward_power.is_sign_minus())
   assert_true(upward_flags.overflow())
   // A negative base with a non-integer exponent stays invalid.
   guard Binary::from_int(-4).try_pow_ctx(pow_rootn_dyadic(1UL, -1), context)

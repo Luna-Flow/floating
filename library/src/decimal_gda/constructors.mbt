@@ -814,7 +814,7 @@ fn Decimal::from_binary_raw(
         // the exact value `c * 2^e2` as a decimal coefficient and exponent,
         // in the decimal kernel: no big integer and no second conversion
         let c = decimal_coeff_from_be_bytes(x.coefficient().to_bytes_be())
-        let negative = x.is_negative()
+        let negative = x.is_sign_minus()
         let e2 = x.exponent2()
         if e2 >= 0 {
           let magnitude = if e2 == 0 {

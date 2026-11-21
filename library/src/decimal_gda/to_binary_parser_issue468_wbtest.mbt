@@ -44,7 +44,7 @@ fn same_binary(a : @binary.Binary, b : @binary.Binary) -> Bool {
   a.to_string() == b.to_string() &&
   a.coefficient() == b.coefficient() &&
   a.exponent2() == b.exponent2() &&
-  a.is_negative() == b.is_negative() &&
+  a.is_sign_minus() == b.is_sign_minus() &&
   a.is_zero() == b.is_zero() &&
   a.precision() == b.precision()
 }

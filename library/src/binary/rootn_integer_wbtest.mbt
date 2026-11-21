@@ -131,7 +131,7 @@ fn rootn_compare(
   label : String,
 ) -> Unit raise {
   let magnitude_degree = if degree < 0 { -degree } else { degree }
-  if magnitude_degree % 2 == 0 && value.is_negative() {
+  if magnitude_degree % 2 == 0 && value.is_sign_minus() {
     return
   }
   // Exact roots take the exactness path before either method.

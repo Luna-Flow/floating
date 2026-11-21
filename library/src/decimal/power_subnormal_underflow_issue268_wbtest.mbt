@@ -61,7 +61,7 @@ fn issue268_run(
 ///|
 fn issue268_value_text(value : Decimal) -> String {
   if value.is_infinite() {
-    if value.is_negative() {
+    if value.is_sign_minus() {
       "-Infinity"
     } else {
       "Infinity"

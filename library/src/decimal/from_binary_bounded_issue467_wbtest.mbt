@@ -12,7 +12,7 @@ fn old_from_binary(
   mode~ : DecimalRound = DecimalRound::HalfEven,
 ) -> Decimal {
   let coefficient = BigInt::from_octets(x.coefficient().to_bytes_be())
-  let signed = if x.is_negative() { -coefficient } else { coefficient }
+  let signed = if x.is_sign_minus() { -coefficient } else { coefficient }
   if x.exponent2() >= 0 {
     decimal_from_integer_parts(signed << x.exponent2(), 0, precision, mode~)
   } else {
@@ -28,7 +28,7 @@ fn old_from_binary(
       exponent = exponent + 1
     }
     decimal_from_integer_parts(
-      if x.is_negative() {
+      if x.is_sign_minus() {
         -coeff_bigint(magnitude)
       } else {
         coeff_bigint(magnitude)
@@ -44,7 +44,7 @@ fn old_from_binary(
 fn same_decimal(a : Decimal, b : Decimal) -> Bool {
   a.coefficient() == b.coefficient() &&
   a.exponent10() == b.exponent10() &&
-  a.is_negative() == b.is_negative() &&
+  a.is_sign_minus() == b.is_sign_minus() &&
   a.precision() == b.precision() &&
   a.is_zero() == b.is_zero()
 }
@@ -113,7 +113,7 @@ test "issue 467: the cost does not depend on the binary exponent" {
     let x = three.scaleb_ctx(@binary.Binary::from_int(exponent), wide).0
     let value = Decimal::from_binary(x, precision=34)
     inspect(value.coefficient().to_string().length() <= 34, content="true")
-    inspect(value.is_negative(), content="false")
+    inspect(value.is_sign_minus(), content="false")
   }
 }
 

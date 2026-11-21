@@ -178,7 +178,7 @@ fn pow_end_class(
   }
   let (big_c, gamma) = pow_split(c)
   let (u, j) = pow_split(beta)
-  let negative = beta.is_negative()
+  let negative = beta.is_sign_minus()
   // q = u * 2^max(j, 0): a q beyond the range a root or a divisor of gamma can
   // have decides "not rational" at once
   if j > 62L {

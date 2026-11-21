@@ -155,10 +155,10 @@ pub fn Binary::inf(negative? : Bool, precision? : Int32) -> Self
 pub fn Binary::is_finite(Self) -> Bool
 pub fn Binary::is_infinite(Self) -> Bool
 pub fn Binary::is_nan(Self) -> Bool
-pub fn Binary::is_negative(Self) -> Bool
 pub fn Binary::is_negative_zero(Self) -> Bool
 pub fn Binary::is_normal(Self, BinaryContext) -> Bool
 pub fn Binary::is_quiet_nan(Self) -> Bool
+pub fn Binary::is_sign_minus(Self) -> Bool
 pub fn Binary::is_signaling_nan(Self) -> Bool
 pub fn Binary::is_subnormal(Self, BinaryContext) -> Bool
 pub fn Binary::is_zero(Self) -> Bool

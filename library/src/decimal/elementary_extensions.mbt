@@ -417,7 +417,7 @@ fn Decimal::try_unary_elementary_ctx(
       Sinh | Asinh =>
         Ok(
           (
-            Decimal::inf(negative=self.is_negative(), precision~),
+            Decimal::inf(negative=self.is_sign_minus(), precision~),
             DecimalFlags::new(),
           ),
         )

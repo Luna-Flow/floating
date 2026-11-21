@@ -123,12 +123,12 @@ fn binary_add_aligned_legacy_for_test(
   let right_coefficient = right
     .coefficient_()
     .shift_left(right.exponent2() - target)
-  if left.is_negative() == right.is_negative() {
+  if left.is_sign_minus() == right.is_sign_minus() {
     let (sum, normalization_shift) = bin_coeff_add_normalized_odd(
       left_coefficient, right_coefficient,
     )
     return binary_round_dyadic(
-      left.is_negative(),
+      left.is_sign_minus(),
       sum,
       binary_add_sat(target, normalization_shift),
       context,
@@ -151,7 +151,7 @@ fn binary_add_aligned_legacy_for_test(
       left_coefficient, right_coefficient,
     )
     return binary_round_dyadic(
-      left.is_negative(),
+      left.is_sign_minus(),
       difference,
       binary_add_sat(target, normalization_shift),
       context,
@@ -161,7 +161,7 @@ fn binary_add_aligned_legacy_for_test(
     right_coefficient, left_coefficient,
   )
   binary_round_dyadic(
-    right.is_negative(),
+    right.is_sign_minus(),
     difference,
     binary_add_sat(target, normalization_shift),
     context,

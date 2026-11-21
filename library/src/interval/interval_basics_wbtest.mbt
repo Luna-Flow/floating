@@ -33,8 +33,8 @@ test "interval basics: multiplication matches the 4/8-product original" {
         let (olo, ohi) = old_multiplication_bounds(a, b, p)
         assert_eq(lo.to_string(), olo.to_string())
         assert_eq(hi.to_string(), ohi.to_string())
-        assert_eq(lo.is_negative(), olo.is_negative())
-        assert_eq(hi.is_negative(), ohi.is_negative())
+        assert_eq(lo.is_sign_minus(), olo.is_sign_minus())
+        assert_eq(hi.is_sign_minus(), ohi.is_sign_minus())
       }
     }
   }
@@ -53,8 +53,8 @@ test "interval basics: division matches the 4-division original" {
         let r = quotient_interval_nonzero_denominator(a, b, p)
         let o = old_quotient_interval_nonzero_denominator(a, b, p)
         assert_eq(r, o)
-        assert_eq(r.lo_.is_negative(), o.lo_.is_negative())
-        assert_eq(r.hi_.is_negative(), o.hi_.is_negative())
+        assert_eq(r.lo_.is_sign_minus(), o.lo_.is_sign_minus())
+        assert_eq(r.hi_.is_sign_minus(), o.hi_.is_sign_minus())
       }
     }
   }
@@ -208,8 +208,8 @@ fn same_try(
       assert_eq(x, y)
       assert_eq(x.lo_.to_string(), y.lo_.to_string())
       assert_eq(x.hi_.to_string(), y.hi_.to_string())
-      assert_eq(x.lo_.is_negative(), y.lo_.is_negative())
-      assert_eq(x.hi_.is_negative(), y.hi_.is_negative())
+      assert_eq(x.lo_.is_sign_minus(), y.lo_.is_sign_minus())
+      assert_eq(x.hi_.is_sign_minus(), y.hi_.is_sign_minus())
     }
     (Err(_), Err(_)) => ()
     _ => fail("result kinds differ")

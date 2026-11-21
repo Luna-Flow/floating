@@ -183,7 +183,7 @@ pub fn Decimal::from_double(x : Double, precision~ : Int32 = 34) -> Decimal {
   let bin = @binary.Binary::from_double(x, precision=53)
   match bin.classify() {
     FpClass::NaN => Decimal::nan(precision~)
-    FpClass::Infinity => Decimal::inf(negative=bin.is_negative(), precision~)
+    FpClass::Infinity => Decimal::inf(negative=bin.is_sign_minus(), precision~)
     FpClass::Finite => Decimal::from_binary(bin, precision~)
   }
 }
@@ -439,7 +439,7 @@ pub fn Decimal::to_binary(
   match self.class {
     FpClass::NaN => @binary.Binary::nan(precision~)
     FpClass::Infinity =>
-      @binary.Binary::inf(negative=self.is_negative(), precision~)
+      @binary.Binary::inf(negative=self.is_sign_minus(), precision~)
     FpClass::Finite => {
       // IEEE 754-2019 §5.4.2 and §6.3: conversions keep the sign of zero.
       if self.coefficient.is_zero() {
@@ -592,11 +592,11 @@ pub fn Decimal::from_binary(
   let precision = decimal_check_precision("from_binary", precision)
   match x.classify() {
     FpClass::NaN => Decimal::nan(precision~)
-    FpClass::Infinity => Decimal::inf(negative=x.is_negative(), precision~)
+    FpClass::Infinity => Decimal::inf(negative=x.is_sign_minus(), precision~)
     FpClass::Finite =>
       // IEEE 754-2019 §5.4.2 and §6.3: conversions keep the sign of zero.
       if x.is_zero() {
-        if x.is_negative() {
+        if x.is_sign_minus() {
           Decimal::negative_zero(precision~)
         } else {
           Decimal::zero(precision~)
@@ -605,7 +605,7 @@ pub fn Decimal::from_binary(
         decimal_from_binary_surrogate(x, precision, mode.round())
       } else {
         let coefficient = BigInt::from_octets(x.coefficient().to_bytes_be())
-        let signed = if x.is_negative() { -coefficient } else { coefficient }
+        let signed = if x.is_sign_minus() { -coefficient } else { coefficient }
         if x.exponent2() >= 0 {
           decimal_from_integer_parts(
             signed << x.exponent2(),
@@ -632,7 +632,7 @@ pub fn Decimal::from_binary(
             exponent = exponent + 1
           }
           decimal_from_integer_parts(
-            if x.is_negative() {
+            if x.is_sign_minus() {
               -coeff_bigint(magnitude)
             } else {
               coeff_bigint(magnitude)

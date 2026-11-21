@@ -21,7 +21,7 @@ fn binary_test_make(
 ///|
 fn binary_test_signed_bigint(value : @binary.Binary) -> BigInt {
   let magnitude = bigint_from_text(value.coefficient().to_string())
-  if value.is_negative() {
+  if value.is_sign_minus() {
     -magnitude
   } else {
     magnitude

@@ -53,7 +53,7 @@ fn fast_test_operand(random : FastTestRandom, around : Int32) -> Binary {
 fn fast_test_same(actual : Binary, expected : Binary) -> Bool {
   actual.identical(expected) &&
   actual.precision() == expected.precision() &&
-  actual.is_negative() == expected.is_negative() &&
+  actual.is_sign_minus() == expected.is_sign_minus() &&
   actual.exponent2() == expected.exponent2()
 }
 

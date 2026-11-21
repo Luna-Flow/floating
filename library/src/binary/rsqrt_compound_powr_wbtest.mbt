@@ -91,7 +91,7 @@ test "rsqrt special values" {
     }
     // NaNs
     let (value, flags) = Binary::quiet_nan(negative=true).rsqrt_ctx(ctx)
-    assert_true(value.is_quiet_nan() && value.is_negative())
+    assert_true(value.is_quiet_nan() && value.is_sign_minus())
     assert_eq(flags, BinaryFlags::new())
     let (value, flags) = Binary::signaling_nan().rsqrt_ctx(ctx)
     assert_true(value.is_quiet_nan() && flags.invalid_operation())

@@ -101,7 +101,7 @@ let checked_ctx : ArithmeticContext = ArithmeticContext::new(
 ///|
 fn decimal_coeff_signed(x : @decimal.Decimal) -> BigInt {
   let magnitude = x.coefficient()
-  if x.is_negative() && !x.coefficient().is_zero() {
+  if x.is_sign_minus() && !x.coefficient().is_zero() {
     -magnitude
   } else {
     magnitude
@@ -405,7 +405,7 @@ test "decimal parse accepts special values and rejects malformed special payload
   match @decimal.Decimal::from_string("-Infinity", precision=12) {
     Ok(value) => {
       assert_true(value.classify() == @lf_arith.FpClass::Infinity)
-      assert_true(value.is_negative())
+      assert_true(value.is_sign_minus())
     }
     Err(_) => fail("expected infinity parse to succeed")
   }
@@ -421,7 +421,7 @@ test "decimal parse accepts special values and rejects malformed special payload
   match @decimal.Decimal::from_string("-sNaN9", precision=8) {
     Ok(value) => {
       assert_true(value.is_signaling_nan())
-      assert_true(value.is_negative())
+      assert_true(value.is_sign_minus())
       assert_eq(value.nan_payload(), 9N)
     }
     Err(_) => fail("expected signaling NaN parse to succeed")
@@ -451,8 +451,8 @@ test "decimal preserves signed zero through GDA-ready observers" {
   assert_true(neg.is_zero())
   assert_false(pos.is_negative_zero())
   assert_true(neg.is_negative_zero())
-  assert_false(pos.is_negative())
-  assert_true(neg.is_negative())
+  assert_false(pos.is_sign_minus())
+  assert_true(neg.is_sign_minus())
   assert_eq(pos.to_string(), "0.00")
   assert_eq(neg.to_string(), "-0.00")
   assert_true(pos == neg)
@@ -484,8 +484,8 @@ test "decimal observers distinguish sign from signedness on specials" {
   assert_true(neg_inf.sign() == @def.Sign::Negative)
   assert_true(qnan.sign() == @def.Sign::Zero)
   assert_true(snan.sign() == @def.Sign::Zero)
-  assert_true(qnan.is_negative())
-  assert_true(snan.is_negative())
+  assert_true(qnan.is_sign_minus())
+  assert_true(snan.is_sign_minus())
   assert_true(qnan.class_of(ctx) == @def.IeeeClass::QuietNaN)
   assert_true(snan.class_of(ctx) == @def.IeeeClass::SignalingNaN)
 }
@@ -1101,7 +1101,7 @@ test "decimal qnan snan and payload stay observable" {
   let signaling = @decimal.Decimal::signaling_nan(payload=7N, precision=9)
   assert_true(quiet.is_quiet_nan())
   assert_false(quiet.is_signaling_nan())
-  assert_true(quiet.is_negative())
+  assert_true(quiet.is_sign_minus())
   assert_eq(quiet.nan_payload(), 42N)
   assert_eq(quiet.to_string(), "-nan42")
   assert_true(signaling.is_signaling_nan())
@@ -1158,7 +1158,7 @@ test "decimal multiplication propagates nan payloads" {
   let (signaled, signal_flags) = @decimal.Decimal::one().mul_ctx(signaling, ctx)
   assert_eq(quiet_product.to_string(), "-nan12345")
   assert_true(quiet_product.is_quiet_nan())
-  assert_true(quiet_product.is_negative())
+  assert_true(quiet_product.is_sign_minus())
   assert_eq(quiet_product.nan_payload(), 12345N)
   assert_false(quiet_flags.invalid_operation())
   assert_eq(signaled.to_string(), "nan23")
@@ -1205,7 +1205,7 @@ test "decimal division propagates nan payloads" {
   let (signaled, signal_flags) = @decimal.Decimal::one().div_ctx(signaling, ctx)
   assert_eq(quiet_quotient.to_string(), "-nan95")
   assert_true(quiet_quotient.is_quiet_nan())
-  assert_true(quiet_quotient.is_negative())
+  assert_true(quiet_quotient.is_sign_minus())
   assert_eq(quiet_quotient.nan_payload(), 95N)
   assert_false(quiet_flags.invalid_operation())
   assert_eq(signaled.to_string(), "nan93")
@@ -1259,7 +1259,7 @@ test "plain decimal arithmetic preserves nan payloads and quiets snans" {
   let div_result = @decimal.Decimal::from_int(1) / qnan
   assert_eq(add_result.to_string(), "-nan17")
   assert_true(add_result.is_quiet_nan())
-  assert_true(add_result.is_negative())
+  assert_true(add_result.is_sign_minus())
   assert_eq(add_result.nan_payload(), 17N)
   assert_eq(mul_result.to_string(), "nan23")
   assert_true(mul_result.is_quiet_nan())
@@ -1267,7 +1267,7 @@ test "plain decimal arithmetic preserves nan payloads and quiets snans" {
   assert_eq(mul_result.nan_payload(), 23N)
   assert_eq(div_result.to_string(), "-nan17")
   assert_true(div_result.is_quiet_nan())
-  assert_true(div_result.is_negative())
+  assert_true(div_result.is_sign_minus())
   assert_eq(div_result.nan_payload(), 17N)
 }
 
@@ -1304,7 +1304,7 @@ test "IEEE decimal fma preserves first nan payload and signals snans" {
   assert_eq(signal_result.nan_payload(), 7N)
   assert_true(signal_flags.invalid_operation())
   assert_eq(negative_signal_result.to_string(), "-nan23")
-  assert_true(negative_signal_result.is_negative())
+  assert_true(negative_signal_result.is_sign_minus())
   assert_eq(negative_signal_result.nan_payload(), 23N)
   assert_true(negative_signal_flags.invalid_operation())
 }
@@ -1326,13 +1326,13 @@ test "decimal fma handles infinite addends with direct infinity semantics" {
   )
 
   assert_true(finite_plus_inf.is_infinite())
-  assert_false(finite_plus_inf.is_negative())
+  assert_false(finite_plus_inf.is_sign_minus())
   assert_false(finite_plus_inf_flags.invalid_operation())
   assert_true(matching_inf.is_infinite())
-  assert_false(matching_inf.is_negative())
+  assert_false(matching_inf.is_sign_minus())
   assert_false(matching_inf_flags.invalid_operation())
   assert_true(negative_finite_plus_inf.is_infinite())
-  assert_false(negative_finite_plus_inf.is_negative())
+  assert_false(negative_finite_plus_inf.is_sign_minus())
   assert_false(negative_finite_plus_inf_flags.invalid_operation())
   assert_true(opposite_inf.is_nan())
   assert_true(opposite_inf_flags.invalid_operation())
@@ -1355,11 +1355,11 @@ test "decimal fma preserves directed overflow when tiny addend cannot affect res
   let (positive, positive_flags) = positive_lhs.fma_ctx(rhs, third, ctx)
   let (negative, negative_flags) = lhs.fma_ctx(rhs, third, ctx_negative)
   assert_true(positive.is_infinite())
-  assert_false(positive.is_negative())
+  assert_false(positive.is_sign_minus())
   assert_true(positive_flags.overflow())
   assert_true(positive_flags.inexact())
   assert_true(negative.is_infinite())
-  assert_true(negative.is_negative())
+  assert_true(negative.is_sign_minus())
   assert_true(negative_flags.overflow())
   assert_true(negative_flags.inexact())
 }
@@ -1482,7 +1482,7 @@ test "binary and decimal checked instances agree on special values (#262)" {
       fn(x : @binary.Binary) { x.classify() == @def.FpClass::NaN },
       fn(x) { x.classify() == @def.FpClass::Infinity },
       fn(x) { x.classify() == @def.FpClass::Finite && x.is_zero() },
-      fn(x) { x.is_negative() },
+      fn(x) { x.is_sign_minus() },
     )
   }
   let dec_render = fn(result) {
@@ -1491,7 +1491,7 @@ test "binary and decimal checked instances agree on special values (#262)" {
       fn(x : @decimal.Decimal) { x.classify() == @def.FpClass::NaN },
       fn(x) { x.classify() == @def.FpClass::Infinity },
       fn(x) { x.classify() == @def.FpClass::Finite && x.is_zero() },
-      fn(x) { x.is_negative() },
+      fn(x) { x.is_sign_minus() },
     )
   }
   let gda_render = fn(result) {
@@ -1586,11 +1586,11 @@ test "decimal from_double and from_float preserve nan sign bit" {
     precision=20,
   )
   assert_true(from_double_pos.is_quiet_nan())
-  assert_false(from_double_pos.is_negative())
+  assert_false(from_double_pos.is_sign_minus())
   assert_true(from_double_neg.is_quiet_nan())
-  assert_true(from_double_neg.is_negative())
+  assert_true(from_double_neg.is_sign_minus())
   assert_true(from_float_neg.is_quiet_nan())
-  assert_true(from_float_neg.is_negative())
+  assert_true(from_float_neg.is_sign_minus())
 }
 
 ///|
@@ -2009,7 +2009,7 @@ test "decimal interchange canonicalizes specials and preserves payloads" {
     @decimal.DecimalInterchangeFormat::Decimal64,
   ).unwrap()
   assert_true(inf.is_infinite())
-  assert_false(inf.is_negative())
+  assert_false(inf.is_sign_minus())
   let snan = @decimal.Decimal::from_interchange_hex(
     "#7FFFFFFFFFFFFFFF",
     @decimal.DecimalInterchangeFormat::Decimal64,
@@ -2066,16 +2066,16 @@ test "decimal interchange decodes multi-format special encodings directly" {
     @decimal.DecimalInterchangeFormat::Decimal128,
   ).unwrap()
   assert_true(qnan32.is_quiet_nan())
-  assert_false(qnan32.is_negative())
+  assert_false(qnan32.is_sign_minus())
   assert_eq(qnan32.nan_payload(), 12345N)
   assert_true(neg_qnan32.is_quiet_nan())
-  assert_true(neg_qnan32.is_negative())
+  assert_true(neg_qnan32.is_sign_minus())
   assert_eq(neg_qnan32.nan_payload(), 12345N)
   assert_true(snan128.is_signaling_nan())
-  assert_false(snan128.is_negative())
+  assert_false(snan128.is_sign_minus())
   assert_eq(snan128.nan_payload(), 12345N)
   assert_true(neg_snan128.is_signaling_nan())
-  assert_true(neg_snan128.is_negative())
+  assert_true(neg_snan128.is_sign_minus())
   assert_eq(neg_snan128.nan_payload(), 12345N)
 }
 
@@ -2117,9 +2117,9 @@ test "decimal interchange special roundtrips preserve class sign and payload acr
   assert_true(inf32.is_infinite())
   assert_true(inf64.is_infinite())
   assert_true(inf128.is_infinite())
-  assert_true(inf32.is_negative())
-  assert_true(inf64.is_negative())
-  assert_true(inf128.is_negative())
+  assert_true(inf32.is_sign_minus())
+  assert_true(inf64.is_sign_minus())
+  assert_true(inf128.is_sign_minus())
 
   let (qnan32_bits, _) = neg_qnan.to_interchange_hex(
     @decimal.DecimalInterchangeFormat::Decimal32,
@@ -2145,9 +2145,9 @@ test "decimal interchange special roundtrips preserve class sign and payload acr
   assert_true(qnan32.is_quiet_nan())
   assert_true(qnan64.is_quiet_nan())
   assert_true(qnan128.is_quiet_nan())
-  assert_true(qnan32.is_negative())
-  assert_true(qnan64.is_negative())
-  assert_true(qnan128.is_negative())
+  assert_true(qnan32.is_sign_minus())
+  assert_true(qnan64.is_sign_minus())
+  assert_true(qnan128.is_sign_minus())
   assert_eq(qnan32.nan_payload(), 12345N)
   assert_eq(qnan64.nan_payload(), 12345N)
   assert_eq(qnan128.nan_payload(), 12345N)
@@ -2176,9 +2176,9 @@ test "decimal interchange special roundtrips preserve class sign and payload acr
   assert_true(snan32.is_signaling_nan())
   assert_true(snan64.is_signaling_nan())
   assert_true(snan128.is_signaling_nan())
-  assert_true(snan32.is_negative())
-  assert_true(snan64.is_negative())
-  assert_true(snan128.is_negative())
+  assert_true(snan32.is_sign_minus())
+  assert_true(snan64.is_sign_minus())
+  assert_true(snan128.is_sign_minus())
   assert_eq(snan32.nan_payload(), 12345N)
   assert_eq(snan64.nan_payload(), 12345N)
   assert_eq(snan128.nan_payload(), 12345N)
@@ -2386,10 +2386,10 @@ test "decimal interchange wrapper decodes special values through to_decimal" {
   let qnan = raw_qnan.to_decimal()
   let snan = raw_snan.to_decimal()
   assert_true(qnan.is_quiet_nan())
-  assert_true(qnan.is_negative())
+  assert_true(qnan.is_sign_minus())
   assert_eq(qnan.nan_payload(), 999999999999999N)
   assert_true(snan.is_signaling_nan())
-  assert_true(snan.is_negative())
+  assert_true(snan.is_sign_minus())
   assert_eq(snan.nan_payload(), 999999999999999N)
 
   let raw_qnan32 = @decimal.DecimalInterchange::from_hex(
@@ -2413,16 +2413,16 @@ test "decimal interchange wrapper decodes special values through to_decimal" {
   let qnan128 = raw_qnan128.to_decimal()
   let snan128 = raw_snan128.to_decimal()
   assert_true(qnan32.is_quiet_nan())
-  assert_true(qnan32.is_negative())
+  assert_true(qnan32.is_sign_minus())
   assert_eq(qnan32.nan_payload(), 12345N)
   assert_true(snan32.is_signaling_nan())
-  assert_true(snan32.is_negative())
+  assert_true(snan32.is_sign_minus())
   assert_eq(snan32.nan_payload(), 12345N)
   assert_true(qnan128.is_quiet_nan())
-  assert_true(qnan128.is_negative())
+  assert_true(qnan128.is_sign_minus())
   assert_eq(qnan128.nan_payload(), 12345N)
   assert_true(snan128.is_signaling_nan())
-  assert_true(snan128.is_negative())
+  assert_true(snan128.is_sign_minus())
   assert_eq(snan128.nan_payload(), 12345N)
 }
 
@@ -2469,7 +2469,7 @@ test "decimal interchange sign transforms preserve special payload bits" {
   ).unwrap()
   let qnan32_abs = neg_qnan32.copy_abs().to_decimal()
   assert_true(qnan32_abs.is_quiet_nan())
-  assert_false(qnan32_abs.is_negative())
+  assert_false(qnan32_abs.is_sign_minus())
   assert_eq(qnan32_abs.nan_payload(), 12345N)
 
   let neg_snan128 = @decimal.DecimalInterchange::from_hex(
@@ -2482,7 +2482,7 @@ test "decimal interchange sign transforms preserve special payload bits" {
   ).unwrap()
   let snan128_signed = neg_snan128.copy_sign(pos_inf128).to_decimal()
   assert_true(snan128_signed.is_signaling_nan())
-  assert_false(snan128_signed.is_negative())
+  assert_false(snan128_signed.is_sign_minus())
   assert_eq(snan128_signed.nan_payload(), 12345N)
 }
 
@@ -2521,10 +2521,10 @@ test "decimal interchange sign transforms preserve bits across decimal32 and dec
     "0",
   )
   assert_true(qnan32_positive.is_quiet_nan())
-  assert_false(qnan32_positive.is_negative())
+  assert_false(qnan32_positive.is_sign_minus())
   assert_eq(qnan32_positive.nan_payload(), 12345N)
   assert_true(inf32_negative.is_infinite())
-  assert_true(inf32_negative.is_negative())
+  assert_true(inf32_negative.is_sign_minus())
 
   let finite128 = @decimal.DecimalInterchange::from_hex(
     "#77FFFFF3FCFF3FCFF3FCFF3FCFF3FCFF",
@@ -2564,10 +2564,10 @@ test "decimal interchange sign transforms preserve bits across decimal32 and dec
     "0",
   )
   assert_true(qnan128_positive.is_quiet_nan())
-  assert_false(qnan128_positive.is_negative())
+  assert_false(qnan128_positive.is_sign_minus())
   assert_eq(qnan128_positive.nan_payload(), 12345N)
   assert_true(inf128_negative.is_infinite())
-  assert_true(inf128_negative.is_negative())
+  assert_true(inf128_negative.is_sign_minus())
 }
 
 ///|
@@ -3084,7 +3084,7 @@ test "decimal context zero plus huge finite overflows without scaling zero" {
   let huge = @decimal.Decimal::from_string("-9.999E+999999999", precision=64).unwrap()
   let (sum, flags) = @decimal.Decimal::zero(precision=64).add_ctx(huge, ctx)
   assert_true(sum.classify() == @lf_arith.FpClass::Infinity)
-  assert_true(sum.is_negative())
+  assert_true(sum.is_sign_minus())
   assert_true(flags.overflow())
   assert_true(flags.inexact())
 }
@@ -3626,18 +3626,18 @@ test "decimal quantize propagates special operands with quieting semantics" {
     neg_inf, ctx,
   )
   assert_true(qnan_result.is_quiet_nan())
-  assert_true(qnan_result.is_negative())
+  assert_true(qnan_result.is_sign_minus())
   assert_eq(qnan_result.nan_payload(), 2345N)
   assert_false(qnan_flags.invalid_operation())
   assert_true(snan_result.is_quiet_nan())
-  assert_true(snan_result.is_negative())
+  assert_true(snan_result.is_sign_minus())
   assert_eq(snan_result.nan_payload(), 67890N)
   assert_true(snan_flags.invalid_operation())
   assert_true(inf_result.is_infinite())
-  assert_false(inf_result.is_negative())
+  assert_false(inf_result.is_sign_minus())
   assert_false(inf_flags.has_error())
   assert_true(neg_quantum_inf.is_infinite())
-  assert_false(neg_quantum_inf.is_negative())
+  assert_false(neg_quantum_inf.is_sign_minus())
   assert_false(neg_quantum_inf_flags.has_error())
 }
 
@@ -3798,7 +3798,7 @@ test "decimal to_integral_exact preserves integral cohorts and special payloads"
   assert_true(snan_integral.is_quiet_nan())
   assert_eq(snan_integral.nan_payload(), 80N)
   assert_true(inf_integral.is_infinite())
-  assert_false(inf_integral.is_negative())
+  assert_false(inf_integral.is_sign_minus())
   assert_false(huge_flags.has_error())
   assert_false(pos_zero_flags.has_error())
   assert_false(neg_zero_flags.has_error())
@@ -3820,7 +3820,7 @@ test "decimal copy preserves gda representation semantics" {
   assert_eq(copied_finite.to_string(), "7.50")
   assert_eq(copied_finite.exponent10(), finite.exponent10())
   assert_true(copied_snan.is_signaling_nan())
-  assert_true(copied_snan.is_negative())
+  assert_true(copied_snan.is_sign_minus())
   assert_eq(copied_snan.nan_payload(), 777N)
   assert_eq(copied_snan.to_string(), "-snan777")
 }

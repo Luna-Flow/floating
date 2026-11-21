@@ -145,7 +145,7 @@ fn decimal_out_of_range_endpoint(
   if top * 1000000L >= huge * decimal_log2_10_upper_ppm {
     return Some(
       finite_with_exponent(
-        value.is_negative(),
+        value.is_sign_minus(),
         BigInt::from_int(1),
         huge.to_int(),
         1,
@@ -156,7 +156,7 @@ fn decimal_out_of_range_endpoint(
   if (top + 1L) * 1000000L <= tiny * decimal_log2_10_upper_ppm {
     return Some(
       finite_with_exponent(
-        value.is_negative(),
+        value.is_sign_minus(),
         BigInt::from_int(1),
         tiny.to_int(),
         1,
@@ -177,7 +177,7 @@ fn decimal_exact_dyadic_endpoint(
   if value.classify() == FpClass::Infinity {
     return Some(
       finite_with_exponent(
-        value.is_negative(),
+        value.is_sign_minus(),
         BigInt::from_int(1),
         ctx.e_max + 2,
         1,
@@ -221,7 +221,7 @@ fn decimal_exact_dyadic_endpoint(
   }
   Some(
     finite_with_exponent_repr(
-      value.is_negative(),
+      value.is_sign_minus(),
       magnitude,
       exponent10,
       magnitude.digits10(),

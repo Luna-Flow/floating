@@ -15,7 +15,7 @@ fn from_binary_reference(
     decimal_from_binary_surrogate(x, precision, mode)
   } else {
     let coefficient = BigInt::from_octets(x.coefficient().to_bytes_be())
-    let signed = if x.is_negative() { -coefficient } else { coefficient }
+    let signed = if x.is_sign_minus() { -coefficient } else { coefficient }
     if x.exponent2() >= 0 {
       decimal_from_integer_parts(signed << x.exponent2(), 0, precision, mode~)
     } else {
@@ -33,7 +33,7 @@ fn from_binary_reference(
         exponent = exponent + 1
       }
       decimal_from_integer_parts(
-        if x.is_negative() {
+        if x.is_sign_minus() {
           -coeff_bigint(magnitude)
         } else {
           coeff_bigint(magnitude)

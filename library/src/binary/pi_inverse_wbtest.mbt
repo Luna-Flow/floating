@@ -442,7 +442,7 @@ fn pi_inverse_tiny_model(
     ).0
   let product = x.abs().mul_ctx(reciprocal, BinaryContext::new(precision=900)).0
   binary_round_dyadic(
-    x.is_negative(),
+    x.is_sign_minus(),
     product.coefficient_().mul(factor),
     product.exponent2() - 300,
     ctx,

@@ -23,7 +23,7 @@ test "IEEE 754 interchange preserves observable zero and NaN state" {
 
   let signaling_nan = binary16_value("FC01")
   assert_true(signaling_nan.is_signaling_nan())
-  assert_true(signaling_nan.is_negative())
+  assert_true(signaling_nan.is_sign_minus())
   assert_eq(signaling_nan.nan_payload_coeff().to_string(), "1")
 
   let quiet_nan = binary16_value("7E2A")

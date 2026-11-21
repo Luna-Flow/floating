@@ -380,7 +380,10 @@ pub fn Interval::midpoint_ctx(
   if !rounded.is_zero() && finite_adjusted_exponent(rounded) > ctx.e_max {
     // Round to nearest overflows to an infinity of the center's sign.
     return (
-      @binary.Binary::inf(negative=exact.is_negative(), precision=ctx.precision),
+      @binary.Binary::inf(
+        negative=exact.is_sign_minus(),
+        precision=ctx.precision,
+      ),
       { inexact: true, overflow: true, underflow: false, },
     )
   }

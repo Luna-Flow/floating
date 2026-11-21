@@ -124,7 +124,7 @@ fn binary_rootn_integer(
   degree : Int32,
   context : BinaryContext,
 ) -> (Binary, BinaryFlags) {
-  let negative = value.is_negative()
+  let negative = value.is_sign_minus()
   let reciprocal = degree < 0
   let n = if reciprocal { -degree } else { degree }
   let coefficient = value.coefficient_()

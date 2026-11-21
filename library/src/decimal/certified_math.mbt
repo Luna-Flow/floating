@@ -89,7 +89,7 @@ fn decimal_out_of_range_endpoint(
   if top * 1000000L >= huge * decimal_log2_10_upper_ppm {
     return Some(
       finite_with_exponent(
-        value.is_negative(),
+        value.is_sign_minus(),
         BigInt::from_int(1),
         huge.to_int(),
         1,
@@ -100,7 +100,7 @@ fn decimal_out_of_range_endpoint(
   if (top + 1L) * 1000000L <= tiny * decimal_log2_10_upper_ppm {
     return Some(
       finite_with_exponent(
-        value.is_negative(),
+        value.is_sign_minus(),
         BigInt::from_int(1),
         tiny.to_int(),
         1,
@@ -121,7 +121,7 @@ fn decimal_exact_dyadic_endpoint(
   if value.classify() == FpClass::Infinity {
     return Some(
       finite_with_exponent(
-        value.is_negative(),
+        value.is_sign_minus(),
         BigInt::from_int(1),
         decimal_int_from_int64_clamped(ctx.e_max.to_int64() + 2L),
         1,
@@ -151,7 +151,7 @@ fn decimal_exact_dyadic_endpoint(
   }
   Some(
     finite_with_exponent(
-      value.is_negative(),
+      value.is_sign_minus(),
       magnitude,
       exponent10,
       digits10(magnitude),
@@ -236,7 +236,7 @@ fn decimal_outward_dyadic_endpoint(
   }
   // Magnitude direction: the upper endpoint grows away from zero when positive,
   // the lower one when negative.
-  let up = upper != value.is_negative()
+  let up = upper != value.is_sign_minus()
   let coefficient = BigInt::from_octets(value.coefficient().to_bytes_be())
   let exponent2 = value.exponent2()
   // Four guard digits keep the accumulated trimming error far below `digits`.
@@ -263,7 +263,7 @@ fn decimal_outward_dyadic_endpoint(
   }
   Some(
     finite_with_exponent(
-      value.is_negative(),
+      value.is_sign_minus(),
       magnitude,
       exponent10.to_int(),
       digits10(magnitude),

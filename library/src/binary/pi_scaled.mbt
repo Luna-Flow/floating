@@ -16,7 +16,7 @@ fn binary_scaled_integer_mod4(value : Binary, shift : Int32) -> Int32? {
     (if value.coefficient_().test_bit(1) { 2 } else { 0 })
   }
   Some(
-    if value.is_negative() && magnitude_residue != 0 {
+    if value.is_sign_minus() && magnitude_residue != 0 {
       4 - magnitude_residue
     } else {
       magnitude_residue
@@ -35,7 +35,7 @@ fn binary_pi_scaled_exact(
   let four_times = binary_scaled_integer_mod4(value, 2)
   match (integer, twice) {
     (Some(n), _) => {
-      let sine = if value.is_negative() {
+      let sine = if value.is_sign_minus() {
         Binary::negative_zero_raw(precision=context.precision)
       } else {
         Binary::zero_raw(precision=context.precision)
@@ -47,7 +47,7 @@ fn binary_pi_scaled_exact(
       }
       // tanPi takes the sign of sinPi(n) / cosPi(n) (IEEE 754-2019 §9.2.1,
       // C23 Annex F): -0 for positive odd and +0 for negative odd n.
-      let tangent = if value.is_negative() != (n % 2 != 0) {
+      let tangent = if value.is_sign_minus() != (n % 2 != 0) {
         Binary::negative_zero_raw(precision=context.precision)
       } else {
         Binary::zero_raw(precision=context.precision)
@@ -72,7 +72,7 @@ fn binary_pi_scaled_exact(
         BinaryTrigonometricOperation::Cos => cosine
         BinaryTrigonometricOperation::Tan =>
           Binary::inf_raw(
-            if sine.is_negative() {
+            if sine.is_sign_minus() {
               Sign::Negative
             } else {
               Sign::Positive
@@ -117,7 +117,7 @@ fn binary_pi_periodic_remainder(value : Binary) -> Binary? {
   }
   if value.exponent2() >= 1 {
     return Some(
-      if value.is_negative() {
+      if value.is_sign_minus() {
         Binary::negative_zero_raw(precision=value.precision())
       } else {
         Binary::zero_raw(precision=value.precision())
@@ -134,7 +134,7 @@ fn binary_pi_periodic_remainder(value : Binary) -> Binary? {
   }
   if residue.is_zero() {
     return Some(
-      if value.is_negative() {
+      if value.is_sign_minus() {
         Binary::negative_zero_raw(precision=value.precision())
       } else {
         Binary::zero_raw(precision=value.precision())
@@ -149,7 +149,7 @@ fn binary_pi_periodic_remainder(value : Binary) -> Binary? {
     value.exponent2(),
     Int32::max(value.precision(), residue.bit_length()),
   )
-  Some(if value.is_negative() { reduced.neg() } else { reduced })
+  Some(if value.is_sign_minus() { reduced.neg() } else { reduced })
 }
 
 ///|

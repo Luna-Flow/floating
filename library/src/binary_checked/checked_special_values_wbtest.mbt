@@ -38,7 +38,7 @@ fn wrapper_render(result : BinaryChecked) -> String {
         _ => "err:other"
       }
     Ok(value) => {
-      let sign = if value.is_negative() { "-" } else { "+" }
+      let sign = if value.is_sign_minus() { "-" } else { "+" }
       match value.classify() {
         @def.FpClass::NaN =>
           if value.is_signaling_nan() {

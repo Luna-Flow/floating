@@ -71,7 +71,7 @@ fn binary_log2p1_exact_exponent(value : Binary) -> Int32? {
   let coefficient = value.coefficient_()
   let next = coefficient.add(Coeff::one())
   let power_of_two = next.shift_right(next.ctz()).compare(Coeff::one()) == 0
-  if !value.is_negative() {
+  if !value.is_sign_minus() {
     if value.exponent2() == 0 && power_of_two {
       Some(next.bit_length() - 1)
     } else {
@@ -90,7 +90,7 @@ fn binary_log2p1_exact_exponent(value : Binary) -> Int32? {
 /// `x = 10^k - 1` for a positive integer `x` (an odd `c` with exponent 0):
 /// `k`, found by comparing `c + 1` with the powers of ten of the right size.
 fn binary_log10p1_exact_exponent(value : Binary) -> Int32? {
-  if value.is_negative() || value.exponent2() != 0 {
+  if value.is_sign_minus() || value.exponent2() != 0 {
     return None
   }
   let next = value.coefficient_().add(Coeff::one())
@@ -119,7 +119,7 @@ fn binary_try_exp_base_minus_one(
 ) -> Result[(Binary, BinaryFlags), @def.ArithmeticError] {
   // 2^x - 1 = -1 + d with d < 2^-(p + 3) once x <= -(p + 3); for 10^x it is
   // enough that x <= -ceil((p + 3) / 3), as 10^(-1/3) < 1/2.
-  if value.is_negative() {
+  if value.is_sign_minus() {
     let limit = if saturation_is_third {
       -((saturation_limit + 2) / 3)
     } else {
@@ -175,7 +175,7 @@ pub fn Binary::try_exp2m1_ctx(
     FpClass::Infinity =>
       Ok(
         (
-          if self.is_negative() {
+          if self.is_sign_minus() {
             Binary::one_raw(precision=context.precision).neg()
           } else {
             Binary::inf_raw(Sign::Positive, precision=context.precision)
@@ -233,7 +233,7 @@ pub fn Binary::try_exp10m1_ctx(
     FpClass::Infinity =>
       Ok(
         (
-          if self.is_negative() {
+          if self.is_sign_minus() {
             Binary::one_raw(precision=context.precision).neg()
           } else {
             Binary::inf_raw(Sign::Positive, precision=context.precision)
@@ -304,7 +304,7 @@ fn binary_try_log_base_p1(
   match value.class() {
     FpClass::NaN => abort("unreachable " + operation + " NaN")
     FpClass::Infinity =>
-      if value.is_negative() {
+      if value.is_sign_minus() {
         Ok(
           (Binary::nan_raw(precision=context.precision), binary_invalid_flags()),
         )

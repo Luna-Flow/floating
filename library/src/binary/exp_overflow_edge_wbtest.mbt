@@ -66,7 +66,7 @@ test "exp at the overflow threshold rounds by the clause 7.4 rules on both sides
       }
       let same = fn(value : Binary) -> Bool {
         if to_infinity {
-          value.classify() == FpClass::Infinity && !value.is_negative()
+          value.classify() == FpClass::Infinity && !value.is_sign_minus()
         } else {
           value.identical(exp_edge_omax(p))
         }

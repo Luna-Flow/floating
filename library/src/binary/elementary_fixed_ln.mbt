@@ -23,7 +23,7 @@ fn binary_ln_unit_fixed_bounds(
 ) -> (Binary, Binary)? {
   guard value.classify() == FpClass::Finite &&
     !value.is_zero() &&
-    !value.is_negative() else {
+    !value.is_sign_minus() else {
     return None
   }
   let rounded = value.with_precision_raw(

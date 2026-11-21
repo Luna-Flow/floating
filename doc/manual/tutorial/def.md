@@ -200,7 +200,7 @@ test "handle a checked result through def" {
   by the scalar types. Test `@def.is_nan` first. `Interval` is not
   `Floating`: ask an interval `is_empty`, `is_common_interval` or `contains`.
 - `Sign` cannot tell $-0$ from $+0$. Use the concrete package
-  (`Binary::is_negative_zero`, `Decimal::is_negative`) when the sign bit
+  (`Binary::is_negative_zero`, `Decimal::is_sign_minus`) when the sign bit
   matters.
 - `PartialOrder` is not an ordering you can sort with: `Unordered` breaks
   trichotomy. Use the total orders of the concrete packages

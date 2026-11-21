@@ -167,7 +167,7 @@ pub fn Decimal::exponent10(self : Decimal) -> Int32 {
 }
 
 ///|
-pub fn Decimal::is_negative(self : Decimal) -> Bool {
+pub fn Decimal::is_sign_minus(self : Decimal) -> Bool {
   self.negative
 }
 

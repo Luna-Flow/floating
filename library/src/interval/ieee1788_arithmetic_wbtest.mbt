@@ -207,7 +207,7 @@ test "IEEE 1788 pown preserves infinity, signed zero, and Int min" {
   // not part of it.
   assert_true(
     negative_unbounded.upper_bound().is_zero() &&
-    !negative_unbounded.upper_bound().is_negative(),
+    !negative_unbounded.upper_bound().is_sign_minus(),
   )
   let minimum_exponent = -2147483647 - 1
   assert_true(
@@ -226,7 +226,7 @@ test "IEEE 1788 pown preserves infinity, signed zero, and Int min" {
   // the lower bound is the Level 1 value 0, which `inf` returns as -0 (12.12.8; the old
   // assertion claimed +0)
   assert_true(tiny.lower_bound().is_zero())
-  assert_true(tiny.lower_bound().is_negative())
+  assert_true(tiny.lower_bound().is_sign_minus())
   assert_eq(tiny.upper_bound().coefficient(), @binary.BinCoeff::one())
   assert_eq(
     tiny.upper_bound().exponent2(),

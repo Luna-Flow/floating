@@ -96,7 +96,7 @@ test "make rounds a value whose lowest bit is below the smallest quantum (#441)"
           let label = "p=\{precision} mode=\{mode_index} neg=\{negative} c=\{c} k=\{k}"
           assert_eq(actual.exponent2(), expected.exponent2(), msg=label)
           assert_true(actual.coefficient() == expected.coefficient(), msg=label)
-          assert_eq(actual.is_negative(), expected.is_negative(), msg=label)
+          assert_eq(actual.is_sign_minus(), expected.is_sign_minus(), msg=label)
           // The stored value is on the grid: no bit below the quantum.
           if !actual.is_zero() {
             assert_true(actual.exponent2() >= q, msg=label)

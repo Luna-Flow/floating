@@ -797,7 +797,9 @@ msgid "Report the class and sign of a value."
 msgstr "报告值的类别和符号。"
 
 #: manual/api/binary.md:379
-msgid "`classify` returns `Finite`, `Infinity` or `NaN` (zeros are `Finite`). `sign` is `Zero` for every zero and every NaN, and `Positive` or `Negative` otherwise. `is_negative` returns the sign bit itself, which is set for $-0$, $-\\infty$ and negative NaNs. `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and `@def.is_zero` work on `Binary` through the `Floating` trait; the methods of the next section give the same answers without the trait."
+#, fuzzy
+#| msgid "`classify` returns `Finite`, `Infinity` or `NaN` (zeros are `Finite`). `sign` is `Zero` for every zero and every NaN, and `Positive` or `Negative` otherwise. `is_negative` returns the sign bit itself, which is set for $-0$, $-\\infty$ and negative NaNs. `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and `@def.is_zero` work on `Binary` through the `Floating` trait; the methods of the next section give the same answers without the trait."
+msgid "`classify` returns `Finite`, `Infinity` or `NaN` (zeros are `Finite`). `sign` is `Zero` for every zero and every NaN, and `Positive` or `Negative` otherwise. `is_sign_minus` returns the sign bit itself, which is set for $-0$, $-\\infty$ and negative NaNs. `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and `@def.is_zero` work on `Binary` through the `Floating` trait; the methods of the next section give the same answers without the trait."
 msgstr "`classify` 返回 `Finite`、`Infinity` 或 `NaN`（零属于 `Finite`）。`sign` 对所有零和所有 NaN 为 `Zero`，否则为 `Positive` 或 `Negative`。`is_negative` 返回符号位本身，它对 $-0$、$-\\infty$ 和负 NaN 是置位的。`@def.is_finite`、`@def.is_nan`、`@def.is_infinite` 和 `@def.is_zero` 通过 `Floating` trait 作用于 `Binary`；下一节的方法不经过 trait 给出相同的答案。"
 
 #: manual/api/binary.md:388
@@ -2953,7 +2955,9 @@ msgid "These observers return the stored representation of a value."
 msgstr "这些观察函数返回值的存储表示。"
 
 #: manual/api/decimal.md:88
-msgid "`precision` is the working precision stored in the value: the precision of a format a context could have, `1..=999999999` (`decimal_precision_max`). Every constructor that returns a `Decimal` aborts on a precision outside that range, naming the function; the operations that return a `Result` return `Err`. `coefficient` returns the non-negative coefficient $c$; for a NaN they return the payload and for an infinity `0`. The sign is never part of the coefficient: use `is_negative`. `exponent10` returns the stored exponent $q$; for special values it is `0`. The IEEE 754-2019 operation `quantum` is `quantum_ctx` (below), not an accessor."
+#, fuzzy
+#| msgid "`precision` is the working precision stored in the value: the precision of a format a context could have, `1..=999999999` (`decimal_precision_max`). Every constructor that returns a `Decimal` aborts on a precision outside that range, naming the function; the operations that return a `Result` return `Err`. `coefficient` returns the non-negative coefficient $c$; for a NaN they return the payload and for an infinity `0`. The sign is never part of the coefficient: use `is_negative`. `exponent10` returns the stored exponent $q$; for special values it is `0`. The IEEE 754-2019 operation `quantum` is `quantum_ctx` (below), not an accessor."
+msgid "`precision` is the working precision stored in the value: the precision of a format a context could have, `1..=999999999` (`decimal_precision_max`). Every constructor that returns a `Decimal` aborts on a precision outside that range, naming the function; the operations that return a `Result` return `Err`. `coefficient` returns the non-negative coefficient $c$; for a NaN they return the payload and for an infinity `0`. The sign is never part of the coefficient: use `is_sign_minus`. `exponent10` returns the stored exponent $q$; for special values it is `0`. The IEEE 754-2019 operation `quantum` is `quantum_ctx` (below), not an accessor."
 msgstr "`precision` 是值中存储的工作精度：即上下文可能具有的某个格式的精度，范围 `1..=999999999`（`decimal_precision_max`）。每个返回 `Decimal` 的构造函数在精度超出该范围时都会中止，并指出函数名；返回 `Result` 的运算则返回 `Err`。`coefficient` 返回非负系数 $c$；对 NaN 返回载荷，对无穷返回 `0`。符号从不属于系数：请使用 `is_negative`。`exponent10` 返回存储的指数 $q$；对特殊值为 `0`。IEEE 754-2019 的操作 `quantum` 是下面的 `quantum_ctx`，不是访问器。"
 
 #: manual/api/decimal.md:108
@@ -2961,7 +2965,9 @@ msgid "These observers report the sign of a value."
 msgstr "这些观察函数报告值的符号。"
 
 #: manual/api/decimal.md:115
-msgid "`sign` returns `@def.Sign::Zero` for both zeros and for every NaN, and `Negative`/`Positive` otherwise. `is_negative` returns the stored sign bit, so it is `true` for $-0$, for $-\\infty$ and for a negative NaN."
+#, fuzzy
+#| msgid "`sign` returns `@def.Sign::Zero` for both zeros and for every NaN, and `Negative`/`Positive` otherwise. `is_negative` returns the stored sign bit, so it is `true` for $-0$, for $-\\infty$ and for a negative NaN."
+msgid "`sign` returns `@def.Sign::Zero` for both zeros and for every NaN, and `Negative`/`Positive` otherwise. `is_sign_minus` returns the stored sign bit, so it is `true` for $-0$, for $-\\infty$ and for a negative NaN."
 msgstr "`sign` 对两个零以及所有 NaN 返回 `@def.Sign::Zero`，其余情况返回 `Negative`/`Positive`。`is_negative` 返回存储的符号位，因此对 $-0$、$-\\infty$ 以及负 NaN 都为 `true`。"
 
 #: manual/api/decimal.md:121
@@ -25761,8 +25767,8 @@ msgid "`Sign::Zero` does not mean \"the value is zero\". It is also returned for
 msgstr "`Sign::Zero` 并不意味着“值为零”。标量类型对 NaN 也返回它。请先检验 `@def.is_nan`。`Interval` 不是 `Floating`：对区间请使用 `is_empty`、`is_common_interval` 或 `contains`。"
 
 #: manual/tutorial/def.md:202
-msgid "`Sign` cannot tell $-0$ from $+0$. Use the concrete package (`Binary::is_negative_zero`, `Decimal::is_negative`) when the sign bit matters."
-msgstr "`Sign` 无法区分 $-0$ 和 $+0$。当符号位重要时，请使用具体的包（`Binary::is_negative_zero`、`Decimal::is_negative`）。"
+msgid "`Sign` cannot tell $-0$ from $+0$. Use the concrete package (`Binary::is_negative_zero`, `Decimal::is_sign_minus`) when the sign bit matters."
+msgstr "`Sign` 无法区分 $-0$ 和 $+0$。当符号位重要时，请使用具体的包（`Binary::is_negative_zero`、`Decimal::is_sign_minus`）。"
 
 #: manual/tutorial/def.md:205
 msgid "`PartialOrder` is not an ordering you can sort with: `Unordered` breaks trichotomy. Use the total orders of the concrete packages (`Binary::total_order_compare`, `Decimal::total_order_compare`) for sorting."

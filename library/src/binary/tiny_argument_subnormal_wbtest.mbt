@@ -33,8 +33,8 @@ fn tiny_model(
   let sign_up = match kind {
     0 => true
     1 => false
-    2 => !x.is_negative()
-    _ => x.is_negative()
+    2 => !x.is_sign_minus()
+    _ => x.is_sign_minus()
   }
   let base = Coeff::one().shift_left(300)
   let factor = if sign_up {
@@ -44,7 +44,7 @@ fn tiny_model(
   }
   let magnitude = x.coefficient_().mul(factor)
   let (value, flags) = binary_round_dyadic(
-    x.is_negative(),
+    x.is_sign_minus(),
     magnitude,
     x.exponent2() - 300,
     ctx,
