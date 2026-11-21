@@ -31,7 +31,7 @@ fn fm_point(v : @binary.Binary, precision : Int32) -> Interval {
 
 ///|
 test "the fma of the issue is the exact point" {
-  let e_min = @binary.binary_implementation_e_min
+  let e_min = @binary.binary_value_e_min
   let t = fm_value(1UL, e_min - 3, false)
   let one = fm_value(1UL, 0, false)
   let z = fm_point(t, 53).fma(fm_point(one, 53), fm_point(t, 53))
@@ -81,7 +81,7 @@ fn fm_expected(
 ///|
 test "fma near the bottom of the range is the tightest interval" {
   let state = Ref(0x9e3779b97f4a7c15UL)
-  let e_min = @binary.binary_implementation_e_min
+  let e_min = @binary.binary_value_e_min
   let precisions = [53, 113, 128]
   for _ in 0..<2500 {
     let p = precisions[(fm_next(state) % 3UL).to_int()]

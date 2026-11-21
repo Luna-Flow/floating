@@ -1592,7 +1592,7 @@ pub fn IntervalContext::try_new(precision? : Int, e_max? : Int) -> Result[Self, 
 ```
 
 The defaults are precision 53 and, for `e_max`, the implementation limit
-`binary_implementation_e_max` of `binary`, the same as
+`binary_value_e_max` of `binary`, the same as
 `BinaryContext::new` given a precision alone (so `IntervalContext::new()` is not
 binary64: use `binary64()` for that). The legality of the pair is decided by
 `BinaryContext::try_new`, so `binary` and `interval` have one definition

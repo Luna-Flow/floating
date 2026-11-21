@@ -18,13 +18,13 @@ test "exact results inside the implementation range are unchanged" {
     ),
   )
   inspect(
-    exponent_range_power(binary_implementation_e_max).to_string(),
+    exponent_range_power(binary_value_e_max).to_string(),
     content=(
       #|1p1073741823
     ),
   )
   inspect(
-    exponent_range_power(binary_implementation_e_min - 52).to_string(),
+    exponent_range_power(binary_value_e_min - 52).to_string(),
     content=(
       #|1p-1073741874
     ),
@@ -112,7 +112,7 @@ test "plain construction honours the rounding mode at the range limits" {
     ),
   )
   // Exactly half of the smallest subnormal ties to zero; three quarters rounds up.
-  let half_exponent = binary_implementation_e_min - 53
+  let half_exponent = binary_value_e_min - 53
   inspect(
     Binary::make(one, half_exponent, 53).to_string(),
     content=(

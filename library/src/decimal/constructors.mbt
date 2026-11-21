@@ -388,8 +388,8 @@ fn decimal_to_binary_out_of_range(
   mode : @binary.BinaryRoundingMode,
 ) -> @binary.Binary? {
   let adjusted = adjusted_exponent64(value)
-  let e_max = @binary.binary_implementation_e_max.to_int64()
-  let e_min = @binary.binary_implementation_e_min.to_int64()
+  let e_max = @binary.binary_value_e_max.to_int64()
+  let e_min = @binary.binary_value_e_min.to_int64()
   let above = (e_max + 2L) * 30103L / 100000L + 2L
   let below = (e_min - precision.to_int64() - 4L) * 30103L / 100000L - 3L
   let negative = value.negative

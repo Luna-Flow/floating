@@ -24,22 +24,22 @@ test "ilogb equals exponent2 plus the bit length minus one on every width class"
   ]
   // exponents that keep the leading bit inside the stored range, both ends
   let tops = [
-    binary_implementation_e_min - 1,
-    binary_implementation_e_min,
+    binary_value_e_min - 1,
+    binary_value_e_min,
     -1000,
     -1,
     0,
     1,
     1000,
-    binary_implementation_e_max - 1,
-    binary_implementation_e_max,
+    binary_value_e_max - 1,
+    binary_value_e_max,
   ]
   let mut checked = 0
   for bits in lengths {
     for top in tops {
       // the exponent of the lowest bit that puts the leading bit at `top`
       let exponent = top - (bits - 1)
-      if exponent < binary_implementation_e_min - 800 {
+      if exponent < binary_value_e_min - 800 {
         continue
       }
       let precision = Int32::max(bits, 24)
@@ -69,19 +69,15 @@ test "ilogb of the special values and of the stored range" {
   assert_eq(Binary::inf(negative=true).ilogb(), None)
   assert_eq(Binary::nan().ilogb(), None)
   // the largest and the smallest stored magnitudes of a 53-bit format
-  let largest = Binary::make(BinCoeff::one(), binary_implementation_e_max, 53)
-  assert_eq(largest.ilogb(), Some(binary_implementation_e_max))
-  let smallest = Binary::make(
-    BinCoeff::one(),
-    binary_implementation_e_min - 52,
-    53,
-  )
-  assert_eq(smallest.ilogb(), Some(binary_implementation_e_min - 52))
+  let largest = Binary::make(BinCoeff::one(), binary_value_e_max, 53)
+  assert_eq(largest.ilogb(), Some(binary_value_e_max))
+  let smallest = Binary::make(BinCoeff::one(), binary_value_e_min - 52, 53)
+  assert_eq(smallest.ilogb(), Some(binary_value_e_min - 52))
   // a subnormal: the leading bit of 3 * 2^(e_min - 52) is e_min - 51
   let subnormal = Binary::make(
     BinCoeff::from_uint64(3UL),
-    binary_implementation_e_min - 52,
+    binary_value_e_min - 52,
     53,
   )
-  assert_eq(subnormal.ilogb(), Some(binary_implementation_e_min - 51))
+  assert_eq(subnormal.ilogb(), Some(binary_value_e_min - 51))
 }

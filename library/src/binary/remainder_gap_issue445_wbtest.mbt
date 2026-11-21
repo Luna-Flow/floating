@@ -19,7 +19,7 @@ fn r445_pow2_mod(n : Int64, c : Int64, order : Int64) -> Int64 {
 
 ///|
 test "remainder with an exponent gap above 2^31 - 1 (#445)" {
-  let ey = binary_implementation_e_min - 52
+  let ey = binary_value_e_min - 52
   // (c, multiplicative order of 2 modulo c)
   let moduli = [(3L, 2L), (5L, 4L), (7L, 3L), (9L, 6L), (11L, 10L), (13L, 12L)]
   let gaps = [2147483646L, 2147483647L, 2147483648L, 2147483649L, 2147483697L]

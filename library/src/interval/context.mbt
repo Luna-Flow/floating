@@ -50,7 +50,7 @@ pub fn IntervalFlags::underflow(self : IntervalFlags) -> Bool {
 /// `precision` bits and the exponent range `[1 - e_max, e_max]`. The legality
 /// of the pair is decided by `@binary.BinaryContext`, so the two packages
 /// have one definition of a format. `e_max` absent is the implementation limit
-/// `@binary.binary_implementation_e_max`.
+/// `@binary.binary_value_e_max`.
 pub fn IntervalContext::try_new(
   precision~ : Int32 = 53,
   e_max? : Int32,

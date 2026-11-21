@@ -158,7 +158,7 @@ and their design pages state narrower stability promises.
   `TininessDetection`, `BinaryFlags`
 - Interchange: `BinaryInterchange`, `BinaryInterchangeFormat` (binary16, 32,
   64, 128 and wider)
-- Limits: `binary_implementation_e_min`, `binary_implementation_e_max`,
+- Limits: `binary_value_e_min`, `binary_value_e_max`,
   `binary_precision_max`
 
 ### Decimal floating point (`decimal`, `decimal_gda`)

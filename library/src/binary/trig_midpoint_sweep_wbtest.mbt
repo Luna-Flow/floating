@@ -38,7 +38,7 @@ fn trig_sweep_arguments(pi_scaled : Bool) -> Array[Binary] {
   // next quanta above it, where the midpoint and the distances are rounded to the
   // quantum of the work precision.
   for p in [2, 3, 24, 53, 113] {
-    let bottom = binary_implementation_e_min - (p - 1)
+    let bottom = binary_value_e_min - (p - 1)
     for c in [1UL, 2UL, 3UL, 5UL] {
       let x = Binary::make_coeff(Coeff::from_uint64(c), bottom, 128)
       values.push(x)
@@ -57,7 +57,7 @@ fn trig_sweep_arguments(pi_scaled : Bool) -> Array[Binary] {
         .add(Coeff::one())
       let x = Binary::make_coeff(
         coefficient,
-        binary_implementation_e_min - depth - (bits - 1),
+        binary_value_e_min - depth - (bits - 1),
         width,
       )
       values.push(x)

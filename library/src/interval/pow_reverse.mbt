@@ -230,8 +230,8 @@ fn pow_end_class(
   let power = coeff_pow_two_power(m, squarings)
   // a value outside the normal range [2^e_min, 2^(e_max + 1)) cannot be stored exactly:
   // its end is decided by the loop, which stops at the limits of the range
-  let e_max = @binary.binary_implementation_e_max.to_int64()
-  let e_min = @binary.binary_implementation_e_min.to_int64()
+  let e_max = @binary.binary_value_e_max.to_int64()
+  let e_min = @binary.binary_value_e_min.to_int64()
   if !negative || m_is_one {
     let exponent = if negative { -scaled } else { scaled }
     let top = exponent + power.bit_length().to_int64() - 1L
@@ -355,15 +355,15 @@ fn pow_enclosure(
     Interval::exact(ln2_up, precision=64)
   }
   let beyond = if side > 0 {
-    t.lo_.compare(times_ln2(@binary.binary_implementation_e_max + 1).hi_) >= 0
+    t.lo_.compare(times_ln2(@binary.binary_value_e_max + 1).hi_) >= 0
   } else {
-    t.hi_.compare(times_ln2(@binary.binary_implementation_e_min - w).lo_) <= 0
+    t.hi_.compare(times_ln2(@binary.binary_value_e_min - w).lo_) <= 0
   }
   if beyond {
     return if side > 0 {
       let largest = @binary.Binary::make(
         coeff_sub(coeff_shift_left(coeff_one(), w), coeff_one()),
-        @binary.binary_implementation_e_max - w + 1,
+        @binary.binary_value_e_max - w + 1,
         w,
       )
       {
@@ -376,7 +376,7 @@ fn pow_enclosure(
     } else {
       let smallest = @binary.Binary::make(
         coeff_one(),
-        @binary.binary_implementation_e_min - w + 1,
+        @binary.binary_value_e_min - w + 1,
         w,
       )
       {
@@ -413,7 +413,7 @@ fn pow_enclosure(
   // the quantum shrinks with `w` while the value is fixed.
   let certified_floor = @binary.Binary::make(
     coeff_sub(coeff_shift_left(coeff_one(), w - 64), coeff_one()),
-    @binary.binary_implementation_e_max - (w - 64) + 1,
+    @binary.binary_value_e_max - (w - 64) + 1,
     w,
   )
   let straddles = side > 0 &&

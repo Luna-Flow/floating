@@ -58,14 +58,14 @@ $2^{\pm 2^{30}}$.
 
 ## Values and limits
 
-### `binary_implementation_e_max`, `binary_implementation_e_min`
+### `binary_value_e_max`, `binary_value_e_min`
 
 The largest and smallest exponent of the leading bit that a finite `Binary`
 may carry.
 
 ```mbti
-pub let binary_implementation_e_max : Int
-pub let binary_implementation_e_min : Int
+pub let binary_value_e_max : Int
+pub let binary_value_e_min : Int
 ```
 
 They are $2^{30}-1 = 1073741823$ and $1 - (2^{30}-1) = -1073741822$, so
@@ -404,7 +404,7 @@ the exponent of its leading bit is at least the context's $e_{\min}$ and
 subnormal when it is below; a `Binary` carries no format, so the context
 decides, and `BinaryInterchangeFormat::context` gives the one of a binary
 interchange format. A context given by its precision alone has the implementation limit
-`binary_implementation_e_min` as `e_min`. `is_normal` and `is_subnormal` are true exactly
+`binary_value_e_min` as `e_min`. `is_normal` and `is_subnormal` are true exactly
 for the normal and subnormal classes; `is_finite` is true for zeros,
 subnormals and normals, `is_infinite` for the two infinities and `is_nan` for
 both NaNs. None of them rounds or raises a flag, and `classify` keeps its
@@ -694,7 +694,7 @@ finite value is $(2 - 2^{1-p})\,2^{e_{\max}}$ and the smallest positive
 subnormal is $2^{e_{\min}-p+1}$. A context has no separate $e_{\min}$: it is
 $1 - e_{\max}$. Without an `e_max` the context is the extendable precision
 format of IEEE 754-2019 3.7 specified by $p$ alone, and $e_{\max}$ is
-`binary_implementation_e_max`.
+`binary_value_e_max`.
 
 ### `BinaryContext::new`, `BinaryContext::try_new`
 
@@ -705,7 +705,7 @@ pub fn BinaryContext::new(precision=precision? : Int32, e_max? : Int32, rounding
 pub fn BinaryContext::try_new(precision=precision? : Int32, e_max? : Int32, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
-Defaults: $p = 53$, `e_max = binary_implementation_e_max`, `RoundTiesToEven`,
+Defaults: $p = 53$, `e_max = binary_value_e_max`, `RoundTiesToEven`,
 `AfterRounding`; `new()` is therefore the extendable format of 53 bits, and every
 operation of the package runs in it. `new` aborts when $p$ is outside $[1, 2^{28}]$ or $e_{\max}$ is outside
 $[1, 2^{30}-1]$, naming the parameter; `try_new`
@@ -2607,7 +2607,7 @@ pub fn BinaryContext::to_repr(Self) -> @debug.Repr
 ```
 
 Equality compares the fields, so `BinaryContext::new(precision=53)` equals
-`BinaryContext::new(precision=53, e_max=binary_implementation_e_max)`: there is
+`BinaryContext::new(precision=53, e_max=binary_value_e_max)`: there is
 one representation of every context.
 
 ### `BinaryFlags::equal`, `BinaryFlags::not_equal`, `BinaryFlags::to_repr`
@@ -2654,11 +2654,11 @@ import {
 }
 
 // Values
-pub let binary_implementation_e_max : Int32
-
-pub let binary_implementation_e_min : Int32
-
 pub let binary_precision_max : Int32
+
+pub let binary_value_e_max : Int32
+
+pub let binary_value_e_min : Int32
 
 // Errors
 

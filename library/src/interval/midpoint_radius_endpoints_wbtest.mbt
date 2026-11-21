@@ -46,7 +46,7 @@ fn ne_expected(
 ///|
 test "the endpoints of Interval::from_midpoint_radius are the hull of the exact center minus and plus the radius, rounded outward" {
   let state = Ref(0x2545f4914f6cdd1dUL)
-  let e_min = @binary.binary_implementation_e_min
+  let e_min = @binary.binary_value_e_min
   for _ in 0..<4000 {
     let bits = 1 + (ne_next(state) % 60UL).to_int()
     let c = ne_value(

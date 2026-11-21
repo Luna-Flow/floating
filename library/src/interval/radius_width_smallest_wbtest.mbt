@@ -31,7 +31,7 @@ fn rw_covers(
 
 ///|
 fn rw_interval(state : Ref[UInt64]) -> Interval {
-  let e_min = @binary.binary_implementation_e_min
+  let e_min = @binary.binary_value_e_min
   let bits_x = 1 + (mid_next(state) % 60UL).to_int()
   let bits_y = 1 + (mid_next(state) % 60UL).to_int()
   let x = (mid_next(state) % (1UL << bits_x)) | 1UL
@@ -49,7 +49,7 @@ fn rw_interval(state : Ref[UInt64]) -> Interval {
 
 ///|
 test "radius and width of the interval of the issue" {
-  let e_min = @binary.binary_implementation_e_min
+  let e_min = @binary.binary_value_e_min
   let interval = Interval::from_bounds(
     mid_value(1UL, e_min - 60, 200),
     mid_value(3UL, e_min - 60, 200),

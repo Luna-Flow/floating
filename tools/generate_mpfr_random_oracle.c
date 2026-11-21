@@ -106,7 +106,7 @@ static long rnd_log(rng_t *rng, long low, long high) {
 // `tooling/src/consistency/oracle_constants_wbtest.mbt` and
 // `tools/oracle_constants_test.py` fail until it does). The value is the
 // decision of the library: the exponent of the leading bit of a stored value
-// is below 2^30 (`binary_implementation_e_max`), and `emin = 1 - emax`
+// is below 2^30 (`binary_value_e_max`), and `emin = 1 - emax`
 // (IEEE 754-2019 3.3).
 #define IMPL_EMAX 1073741823L
 #define IMPL_EMIN (1 - IMPL_EMAX)

@@ -53,7 +53,7 @@ decimal.getcontext().prec = 140
 # `tooling/src/consistency/oracle_constants_wbtest.mbt` and
 # `tools/oracle_constants_test.py` fail when either side changes alone).
 # `emin = 1 - emax` is IEEE 754-2019 3.3; the value of `emax`, 2^30 - 1, is the
-# decision of the library (`binary_implementation_e_max`).
+# decision of the library (`binary_value_e_max`).
 IMPL_EMIN = -1073741822  # 1 - IMPL_EMAX (IEEE 754-2019 3.3)
 IMPL_EMAX = 1073741823
 HEADER = "# mpfr-random-v1 range-boundary rows (expected columns are filled by the oracle)"

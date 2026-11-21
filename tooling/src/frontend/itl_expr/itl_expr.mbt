@@ -440,7 +440,7 @@ fn bound_labels_hold(x : @interval.Interval) -> Bool {
       b.is_zero() ||
       (
         b.coefficient().bit_length() <= p &&
-        b.exponent2() >= @binary.binary_implementation_e_min - p + 1
+        b.exponent2() >= @binary.binary_value_e_min - p + 1
       )
     if fits != (b.precision() == p) {
       return false

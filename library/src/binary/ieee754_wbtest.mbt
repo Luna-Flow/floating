@@ -212,16 +212,8 @@ test "from_int preserves exact and rounded construction semantics" {
 ///|
 test "context arithmetic keeps extreme exponents classified" {
   let context = BinaryContext::binary16()
-  let minimum = Binary::make_coeff(
-    Coeff::one(),
-    binary_implementation_e_min - 52,
-    53,
-  )
-  let maximum = Binary::make_coeff(
-    Coeff::one(),
-    binary_implementation_e_max,
-    53,
-  )
+  let minimum = Binary::make_coeff(Coeff::one(), binary_value_e_min - 52, 53)
+  let maximum = Binary::make_coeff(Coeff::one(), binary_value_e_max, 53)
   let (tiny, tiny_flags) = minimum.apply_ctx(context)
   assert_true(tiny.is_zero())
   assert_eq(tiny_flags.to_testfloat_bits(), 0x03)
@@ -240,18 +232,18 @@ test "context arithmetic keeps extreme exponents classified" {
 test "finite normalization never wraps extreme exponents" {
   let maximum = Binary::make_coeff(
     Coeff::from_uint64(2UL),
-    binary_implementation_e_max - 1,
+    binary_value_e_max - 1,
     53,
   )
   assert_eq(maximum.coefficient_(), Coeff::one())
-  assert_eq(maximum.exponent2(), binary_implementation_e_max)
+  assert_eq(maximum.exponent2(), binary_value_e_max)
   let minimum = Binary::make_coeff(
     Coeff::from_uint64(4UL),
-    binary_implementation_e_min - 54,
+    binary_value_e_min - 54,
     53,
   )
   assert_eq(minimum.coefficient_(), Coeff::one())
-  assert_eq(minimum.exponent2(), binary_implementation_e_min - 52)
+  assert_eq(minimum.exponent2(), binary_value_e_min - 52)
   // Beyond the implementation range the value is classified, not wrapped.
   let over = Binary::make_coeff(Coeff::from_uint64(2UL), 2147483647, 53)
   assert_eq(over.classify(), FpClass::Infinity)
@@ -262,11 +254,7 @@ test "finite normalization never wraps extreme exponents" {
 ///|
 test "addition compresses extreme exponent gaps without losing direction" {
   let one = Binary::one(precision=53)
-  let tiny = Binary::make_coeff(
-    Coeff::one(),
-    binary_implementation_e_min - 52,
-    53,
-  )
+  let tiny = Binary::make_coeff(Coeff::one(), binary_value_e_min - 52, 53)
   let nearest_context = BinaryContext::new(precision=3)
   let (nearest_sum, nearest_sum_flags) = one.add_ctx(tiny, nearest_context)
   assert_identical(nearest_sum, Binary::one(precision=3))

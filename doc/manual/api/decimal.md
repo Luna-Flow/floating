@@ -200,7 +200,7 @@ constructors from integers, floats and binary floats cannot produce one; an
 operation that rounds (the plain operators, `with_precision`) overflows to an
 infinity or the largest finite value of the rounding direction, or underflows
 to the smallest exponent, like a context result. These are not the limits of a
-context (`decimal_implementation_e_max`, below): a context is narrower than
+context (`decimal_context_e_max_limit`, below): a context is narrower than
 what can be stored, and a value outside every context range can still be
 stored and is rounded when a context operation reads it.
 
@@ -465,22 +465,22 @@ detected before rounding (§7.5). There is no option for any of this. No
 operation reads ambient state: every context operation receives its context as
 an argument.
 
-### `decimal_implementation_e_max`, `decimal_implementation_e_min`, `decimal_precision_max`
+### `decimal_context_e_max_limit`, `decimal_context_e_min_limit`, `decimal_precision_max`
 
 The limits of the context parameters that `DecimalContext::try_new` accepts.
 
 ```mbti
-pub let decimal_implementation_e_max : Int
-pub let decimal_implementation_e_min : Int
+pub let decimal_context_e_max_limit : Int
+pub let decimal_context_e_min_limit : Int
 pub let decimal_precision_max : Int
 ```
 
 They are $999\,999\,999$, $-999\,999\,998$ ($1 - e_{\max}$, the smallest
 $e_{\min}$ of a context) and $999\,999\,999$, the decNumber `decContext.h`
-limits (`decimal_implementation_e_min` was $-999\,999\,999$ before 0.12).
+limits (`decimal_context_e_min_limit` was $-999\,999\,999$ before 0.12).
 `try_new` and `new` check `precision` and `e_max` against these constants
 (`precision` in `1..=decimal_precision_max`, `e_max` in
-`1..=decimal_implementation_e_max`), so the values cannot drift from the
+`1..=decimal_context_e_max_limit`), so the values cannot drift from the
 validation. They bound the context only: the certified elementary functions
 have their own, lower limit ($e_{\max} \le 999\,999$ and $p \le 999\,999$), which is
 documented in [Elementary functions](#elementary-functions).
@@ -2376,9 +2376,9 @@ import {
 }
 
 // Values
-pub let decimal_implementation_e_max : Int32
+pub let decimal_context_e_max_limit : Int32
 
-pub let decimal_implementation_e_min : Int32
+pub let decimal_context_e_min_limit : Int32
 
 pub let decimal_precision_max : Int32
 

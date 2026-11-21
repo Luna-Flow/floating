@@ -28,14 +28,14 @@ pub(all) enum BinaryInterchangeFormat {
 /// Largest exponent of the leading bit that a finite `Binary` may carry, and
 /// the `e_max` of a context given by its precision alone (the extendable
 /// precision format of IEEE 754-2019 3.7).
-pub let binary_implementation_e_max : Int32 = 1073741823
+pub let binary_value_e_max : Int32 = 1073741823
 
 ///|
-/// Smallest normal leading-bit exponent, `1 - binary_implementation_e_max`
+/// Smallest normal leading-bit exponent, `1 - binary_value_e_max`
 /// (IEEE 754-2019 3.3: `emin = 1 - emax`), with gradual underflow below it. It is
 /// the `e_min` of every context whose `e_max` is the implementation limit, and
 /// no stored value has a leading bit below `e_min - precision + 1`.
-pub let binary_implementation_e_min : Int32 = -1073741822
+pub let binary_value_e_min : Int32 = -1073741822
 
 ///|
 /// Largest context precision. Together with the exponent range above it keeps
@@ -232,9 +232,9 @@ fn binary_context_error(
     Some(
       "\{operation}: precision must be within 1..=\{binary_precision_max} (got \{precision})",
     )
-  } else if e_max < 1 || e_max > binary_implementation_e_max {
+  } else if e_max < 1 || e_max > binary_value_e_max {
     Some(
-      "\{operation}: e_max must be within 1..=\{binary_implementation_e_max} (got \{e_max})",
+      "\{operation}: e_max must be within 1..=\{binary_value_e_max} (got \{e_max})",
     )
   } else {
     None
@@ -245,9 +245,9 @@ fn binary_context_error(
 /// A context of IEEE 754-2019 3.3: the precision `p`, the exponent `e_max` and
 /// `e_min = 1 - e_max`, a rounding-direction attribute (4.3) and a tininess
 /// rule (7.5). Without `e_max` the context is the extendable precision format
-/// of 3.7 given by `p` alone, whose `e_max` is `binary_implementation_e_max`.
+/// of 3.7 given by `p` alone, whose `e_max` is `binary_value_e_max`.
 /// Aborts on a precision outside `1..=binary_precision_max` or an `e_max`
-/// outside `1..=binary_implementation_e_max`.
+/// outside `1..=binary_value_e_max`.
 pub fn BinaryContext::new(
   precision~ : Int32 = 53,
   e_max? : Int32,
@@ -256,7 +256,7 @@ pub fn BinaryContext::new(
 ) -> BinaryContext {
   let e_max = match e_max {
     Some(value) => value
-    None => binary_implementation_e_max
+    None => binary_value_e_max
   }
   match binary_context_error("BinaryContext::new", precision, e_max) {
     Some(error) => abort(error)
@@ -282,7 +282,7 @@ pub fn BinaryContext::try_new(
 ) -> Result[BinaryContext, @def.ArithmeticError] {
   let e_max = match e_max {
     Some(value) => value
-    None => binary_implementation_e_max
+    None => binary_value_e_max
   }
   match binary_context_error("BinaryContext::try_new", precision, e_max) {
     Some(error) => Err(@def.ArithmeticError::domain_error(error))
@@ -308,7 +308,7 @@ fn binary_working_context(
   {
     precision,
     rounding,
-    e_max: binary_implementation_e_max,
+    e_max: binary_value_e_max,
     e_min_offset: 0,
     tininess: TininessDetection::AfterRounding,
     refinement_limit: Some(12),
@@ -399,7 +399,7 @@ pub fn BinaryContext::with_rounding(
 
 ///|
 /// A copy with another `e_max` (and so `e_min = 1 - e_max`); aborts outside
-/// `1..=binary_implementation_e_max`.
+/// `1..=binary_value_e_max`.
 pub fn BinaryContext::with_e_max(
   self : BinaryContext,
   e_max : Int32,

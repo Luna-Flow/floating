@@ -164,7 +164,7 @@ fn binary_inexact_inner_endpoint(
   let lowest = (endpoint.exponent2() - shift).to_int64()
   let width = Int64::max(
     moved.bit_length().to_int64(),
-    binary_implementation_e_min.to_int64() - lowest + 1L,
+    binary_value_e_min.to_int64() - lowest + 1L,
   )
   guard width <= 1073741824L else { return endpoint }
   Binary::make_coeff(
@@ -198,7 +198,7 @@ fn binary_tiny_argument_result(
   // when the anchor is within a few bits of the implementation subnormal limit.
   let offset_width = Int64::max(
     1L,
-    binary_implementation_e_min.to_int64() - offset_exponent + 2L,
+    binary_value_e_min.to_int64() - offset_exponent + 2L,
   )
   guard offset_width <= 1073741824L else { return None }
   let offset = Binary::make_coeff(
@@ -1366,7 +1366,7 @@ fn binary_log2_bounds(
 fn binary_exp_overflow_side(
   value : Binary,
   work_precision : Int32,
-  count~ : Int32 = binary_implementation_e_max + 1,
+  count~ : Int32 = binary_value_e_max + 1,
   decimal~ : Bool = false,
   inexact_above~ : Bool = false,
   inexact_below~ : Bool = false,
@@ -1391,7 +1391,7 @@ fn binary_exp_interval_overflow_side(
   lower : Binary,
   upper : Binary,
   work_precision : Int32,
-  count~ : Int32 = binary_implementation_e_max + 1,
+  count~ : Int32 = binary_value_e_max + 1,
   decimal~ : Bool = false,
   inexact_above~ : Bool = false,
   inexact_below~ : Bool = false,
@@ -2498,7 +2498,7 @@ fn binary_hypot_negligible_operand(
   // A Binary of width w stores nothing below 2^(e_min - (w - 1)), so the
   // power of two is built wide enough to be kept, not flushed to zero or to
   // 2^e_min when it lies in the implementation subnormal range.
-  let width = binary_implementation_e_min.to_int64() - (bound - 1L) + 2L
+  let width = binary_value_e_min.to_int64() - (bound - 1L) + 2L
   guard width <= 1073741824L else { return None }
   let replacement = Binary::make_coeff(
     Coeff::one(),
@@ -3732,7 +3732,7 @@ fn Binary::try_hyperbolic_ctx(
                   binary_exp_overflow_side(
                     self.abs(),
                     work,
-                    count=binary_implementation_e_max + 2,
+                    count=binary_value_e_max + 2,
                     inexact_above=operation is BinaryHyperbolicOperation::Sinh,
                     inexact_below=operation is BinaryHyperbolicOperation::Cosh,
                   )

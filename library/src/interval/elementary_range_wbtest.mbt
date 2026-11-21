@@ -24,7 +24,7 @@ test "exp2 encloses integer endpoints beyond the exponent range" {
   // Integer endpoints inside the range stay exact.
   for
     n in [
-      @binary.binary_implementation_e_min, -1074, 0, 1023, @binary.binary_implementation_e_max,
+      @binary.binary_value_e_min, -1074, 0, 1023, @binary.binary_value_e_max,
     ] {
     let y = Interval::from_int(n, precision=53).exp2()
     let expected = elementary_range_power(n, 53)

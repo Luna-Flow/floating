@@ -235,7 +235,7 @@ static int generate_strtofr(long cases_per_cell, uint64_t seed) {
   // Specials and range limits. MPFR writes a value as 0.1xxx * 2^e with
   // emax = 2^30 - 1, so its largest finite value has the leading bit 2^30 - 2,
   // one binade below Binary's implementation limit (leading bit 2^30 - 1,
-  // see binary_implementation_e_max). The two agree on every input that
+  // see binary_value_e_max). The two agree on every input that
   // overflows to infinity, so the rows above the limit are only emitted for
   // the directions that deliver infinity, and the finite rows stay well below
   // the top binade.

@@ -49,8 +49,8 @@ let db_precisions : Array[Int32] = [24, 53, 64, 113, 128, 200]
 /// 1, near the two ends of the stored range, or very far from 1).
 fn db_operand(state : Ref[UInt64]) -> @binary.Binary {
   let precision = db_precisions[db_below(state, db_precisions.length())]
-  let e_min = @binary.binary_implementation_e_min
-  let e_max = @binary.binary_implementation_e_max
+  let e_min = @binary.binary_value_e_min
+  let e_max = @binary.binary_value_e_max
   let exponent = match db_below(state, 6) {
     0 => db_below(state, 600) - 300
     1 => e_min - 60 + db_below(state, 120)
@@ -206,8 +206,8 @@ test "directed endpoint sums, differences and products equal the exact reference
 /// Exact results of 1 to 3 bits at leading-bit exponents `e_min - 1`, `e_min`,
 /// `e_max` and one above (overflow), in 24, 53 and 113 bits.
 test "directed bounds at the two ends of the exponent range" {
-  let e_min = @binary.binary_implementation_e_min
-  let e_max = @binary.binary_implementation_e_max
+  let e_min = @binary.binary_value_e_min
+  let e_max = @binary.binary_value_e_max
   let mut cases = 0
   for
     top in [e_min - 3, e_min - 2, e_min - 1, e_min, e_min + 1, e_max - 1, e_max] {
@@ -269,7 +269,7 @@ test "directed bounds at the two ends of the exponent range" {
 /// The two corner cases named by value (level A, worked out by hand): an exact result of fewer
 /// bits than the working precision.
 test "gradual underflow of a short exact result keeps the correctly rounded bound" {
-  let e_min = @binary.binary_implementation_e_min
+  let e_min = @binary.binary_value_e_min
   // 2^(e_min - 3) + 2^(e_min - 3) = 2^(e_min - 2): one bit, below the normal
   // range of every precision, representable exactly at 53 bits: both directions give it
   let part = @binary.Binary::make(@binary.BinCoeff::one(), e_min - 3, 53)
@@ -283,7 +283,7 @@ test "gradual underflow of a short exact result keeps the correctly rounded boun
 
 ///|
 test "overflow of a short exact result keeps the correctly rounded bound" {
-  let e_max = @binary.binary_implementation_e_max
+  let e_max = @binary.binary_value_e_max
   // 2^e_max + 2^e_max = 2^(e_max + 1): one bit, above the largest finite value
   let part = @binary.Binary::make(@binary.BinCoeff::one(), e_max, 53)
   let sum_down = directed_add(

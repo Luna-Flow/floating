@@ -120,7 +120,7 @@ that many significant digits and to read back as the same value with
 
 Two differences from MPFR shape the corpus. MPFR writes a value as
 `0.1xxx × 2^e`, so its largest finite value has the leading bit `2^30 - 2` and
-its smallest `-2^30`; `binary_implementation_e_max` and `_e_min` are
+its smallest `-2^30`; `binary_value_e_max` and `_e_min` are
 `2^30 - 1` and `1 - 2^30` for the leading bit, one binade higher at both ends.
 Inputs beyond the range are therefore only included for the rounding directions
 that deliver an infinity or a zero in both. And MPFR has no subnormals (it

@@ -283,7 +283,7 @@ test "pow_rev1: ends beyond the exponent range for beta = 2^-31, 2^-35, 2^-40 re
 fn pw_smallest(p : Int32) -> @binary.Binary {
   @binary.Binary::make(
     @binary.BinCoeff::from_uint64(1UL),
-    @binary.binary_implementation_e_min - p + 1,
+    @binary.binary_value_e_min - p + 1,
     p,
   )
 }
@@ -293,7 +293,7 @@ fn pw_smallest(p : Int32) -> @binary.Binary {
 fn pw_largest(p : Int32) -> @binary.Binary {
   @binary.Binary::make(
     coeff_sub(coeff_shift_left(coeff_one(), p), coeff_one()),
-    @binary.binary_implementation_e_max - p + 1,
+    @binary.binary_value_e_max - p + 1,
     p,
   )
 }
@@ -323,7 +323,7 @@ fn pw_two_less(p : Int32) -> @binary.Binary {
 test "pow_rev1: the edge of the exponent range, at 53 and 113 bits" {
   for p in [53, 113] {
     let ctx = @binary.BinaryContext::new(precision=p)
-    let e_max = @binary.binary_implementation_e_max.to_int64()
+    let e_max = @binary.binary_value_e_max.to_int64()
     let two = pw_num(2.0, p)
     let c_two = pw_box(two, two, p)
     let c_less = pw_box(pw_two_less(p), pw_two_less(p), p)
@@ -449,7 +449,7 @@ test "pow_rev1: an exact end in the subnormal range returns at once" {
     // the Rational class: 1 / (3 * 2^(e_min + 0)) = 2^e_min / 3, beta = -1, below the normal range
     let three_two = @binary.Binary::make(
       @binary.BinCoeff::from_uint64(3UL),
-      -@binary.binary_implementation_e_min,
+      -@binary.binary_value_e_min,
       p,
     )
     let r = pw_box(pw_num(-1.0, p), pw_num(-1.0, p), p).pow_rev1(
@@ -462,7 +462,7 @@ test "pow_rev1: an exact end in the subnormal range returns at once" {
       (Interval::exact(x, precision=p + 8) *
       Interval::exact(pw_num(3.0, p + 8), precision=p + 8)).lo_
     }
-    let e_min_value = pw_pow2(@binary.binary_implementation_e_min, p)
+    let e_min_value = pw_pow2(@binary.binary_value_e_min, p)
     assert_true(threefold(r.lo_).compare(e_min_value) < 0)
     assert_true(threefold(r.hi_).compare(e_min_value) > 0)
   }
@@ -478,7 +478,7 @@ test "pow_rev1: an exact end in the subnormal range returns at once" {
 test "pow_rev1: an exact subnormal end with a wide coefficient is exact" {
   for p in [53, 113] {
     let ctx = @binary.BinaryContext::new(precision=p)
-    let e_min = @binary.binary_implementation_e_min
+    let e_min = @binary.binary_value_e_min
     let one = pw_num(1.0, p)
     let zero = pw_num(0.0, p)
     // case 1: b = 1, c = v = 3 * 2^(e_min - 5), bitlen 2, top = e_min - 4: needs 6 bits

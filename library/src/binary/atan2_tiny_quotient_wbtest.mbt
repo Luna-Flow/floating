@@ -89,7 +89,7 @@ test "atan2 across the shortcut boundary agrees with atan of the quotient" {
               y_exponent.to_int(),
               Int32::max(
                 64,
-                (binary_implementation_e_min.to_int64() - y_exponent + 70L).to_int(),
+                (binary_value_e_min.to_int64() - y_exponent + 70L).to_int(),
               ),
               negative~,
             )
@@ -98,10 +98,7 @@ test "atan2 across the shortcut boundary agrees with atan of the quotient" {
               BinCoeff::from_uint64(coefficient),
               d.to_int(),
               // wide enough that the value is stored, not flushed
-              Int32::max(
-                64,
-                (binary_implementation_e_min.to_int64() - d + 70L).to_int(),
-              ),
+              Int32::max(64, (binary_value_e_min.to_int64() - d + 70L).to_int()),
               negative~,
             )
             let (value, flags) = y.try_atan2_ctx(x, c).unwrap()
