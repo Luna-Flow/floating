@@ -178,6 +178,9 @@ fn issue266_check(
 /// corpus has 126 inexact power rows whose coefficient ends in 0 and no inexact normal row
 /// with fewer than `precision` digits. Expected values: Python `decimal` (libmpdec 4.0.0)
 /// as oracle, checked against the clauses by hand; the oracle is not the specification.
+// oracle: A
+// source: CPython decimal rows plus decTest powx028/powx706/powx1186; 52/52 rows re-run in Python, 0 disagree
+// shares: nothing
 test "an inexact integer power keeps precision digits, trailing zeros included (#266)" {
   let rows : Array[
     (

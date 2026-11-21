@@ -1,44 +1,75 @@
 ///|
+// oracle: A
+// source: library contract, precision outside 1..999,999,999 aborts (decNumber DEC_MAX_DIGITS limit, not a GDA
+//   1.70 clause); no computed value
+// shares: nothing
 test "panic Decimal::zero aborts on precision 0" {
   ignore(Decimal::zero(precision=0))
 }
 
 ///|
+// oracle: A
+// source: library contract, precision outside 1..999,999,999 aborts (decNumber DEC_MAX_DIGITS limit, not a GDA
+//   1.70 clause); no computed value
+// shares: nothing
 test "panic Decimal::one aborts on a precision above the limit" {
   ignore(Decimal::one(precision=1_000_000_000))
 }
 
 ///|
+// oracle: A
+// source: library contract: precision outside 1..999,999,999 aborts (decNumber DEC_MAX_DIGITS limit adopted by the library, not a GDA 1.70 clause); no computed value
+// shares: nothing
 test "panic Decimal::nan aborts on a negative precision" {
   ignore(Decimal::nan(precision=-3))
 }
 
 ///|
+// oracle: A
+// source: library contract: precision outside 1..999,999,999 aborts (decNumber DEC_MAX_DIGITS limit adopted by the library, not a GDA 1.70 clause); no computed value
+// shares: nothing
 test "panic Decimal::from_int aborts on precision 0" {
   ignore(Decimal::from_int(7, precision=0))
 }
 
 ///|
+// oracle: A
+// source: library contract: precision outside 1..999,999,999 aborts (decNumber DEC_MAX_DIGITS limit adopted by the library, not a GDA 1.70 clause); no computed value
+// shares: nothing
 test "panic Decimal::make aborts on precision 0" {
   ignore(Decimal::make(12N, 0, 0))
 }
 
 ///|
+// oracle: A
+// source: library contract, precision outside 1..999,999,999 aborts (decNumber DEC_MAX_DIGITS limit, not a GDA
+//   1.70 clause); no computed value
+// shares: nothing
 test "panic Decimal::from_double aborts on precision 0" {
   ignore(Decimal::from_double(1.5, precision=0))
 }
 
 ///|
+// oracle: A
+// source: library contract: precision outside 1..999,999,999 aborts (decNumber DEC_MAX_DIGITS limit adopted by the
+//   library, not a GDA 1.70 clause); no computed value
+// shares: nothing
 test "panic Decimal::inf aborts on precision 0" {
   ignore(Decimal::inf(precision=0))
 }
 
 ///|
+// oracle: A
+// source: library contract: precision outside 1..999,999,999 aborts (decNumber DEC_MAX_DIGITS limit adopted by the library, not a GDA 1.70 clause); no computed value
+// shares: nothing
 test "panic Decimal::with_precision aborts on precision 0" {
   ignore(Decimal::from_int(5).with_precision(0, GdaRoundingMode::HalfEven))
 }
 
 ///|
+// oracle: A
+// source: hand: precision 1 and 999,999,999 accepted
+// shares: nothing
 test "the limits of the precision are accepted" {
   assert_eq(Decimal::zero(precision=1).precision(), 1)
   assert_eq(Decimal::zero(precision=999_999_999).precision(), 999_999_999)
@@ -49,6 +80,9 @@ test "the limits of the precision are accepted" {
 
 ///|
 /// GDA 1.70, page 11: a payload is no larger than the coefficient less one digit.
+// oracle: A
+// source: GDA 1.70 page 11 payload rule; hand literals
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "a NaN payload has at most precision - 1 digits" {
   assert_eq(Decimal::quiet_nan(payload=99N, precision=3).to_string(), "nan99")
   assert_eq(
@@ -60,21 +94,33 @@ test "a NaN payload has at most precision - 1 digits" {
 }
 
 ///|
+// oracle: A
+// source: GDA p11: payload at most precision-1 digits; 100 has 3 digits at p3
+// shares: nothing
 test "panic quiet_nan aborts on a payload of precision digits" {
   ignore(Decimal::quiet_nan(payload=100N, precision=3))
 }
 
 ///|
+// oracle: A
+// source: GDA p11: at precision 1 no payload digit is allowed
+// shares: nothing
 test "panic signaling_nan aborts on a payload at precision 1" {
   ignore(Decimal::signaling_nan(payload=1N, precision=1))
 }
 
 ///|
+// oracle: A
+// source: contract: payload must be non-negative
+// shares: nothing
 test "panic quiet_nan aborts on a negative payload" {
   ignore(Decimal::quiet_nan(payload=-5N))
 }
 
 ///|
+// oracle: A
+// source: hand: precision limits 1..999,999,999; NaN payload at most precision-1 digits (GDA p11)
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "from_string returns Err for a precision outside the limits and a wide payload" {
   assert_true(Decimal::from_string("1", precision=0) is Err(_))
   assert_true(Decimal::from_string("1", precision=1_000_000_000) is Err(_))
@@ -92,6 +138,9 @@ test "from_string returns Err for a precision outside the limits and a wide payl
 }
 
 ///|
+// oracle: A
+// source: hand: malformed text is Err, a well-formed 8-digit hex pattern is Ok
+// shares: nothing
 test "GdaInterchange::from_hex returns Err for text that is not a pattern" {
   assert_true(GdaInterchange::from_hex("#12", Decimal32) is Err(_))
   assert_true(GdaInterchange::from_hex("zzzzzzzz", Decimal32) is Err(_))
@@ -99,6 +148,11 @@ test "GdaInterchange::from_hex returns Err for text that is not a pattern" {
 }
 
 ///|
+// oracle: A
+// source: CPython: Decimal(0.1) = 0.1000000000000000055511..., rounded to 5 digits Down 0.10000, Up 0.10001, half-
+//   even 0.10000; the last assertion pins the precision field of the result to the requested 20 (API
+//   contract, written out)
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "from_binary takes a required precision in digits and a rounding mode" {
   let tenth = @binary.Binary::from_double(0.1, precision=53)
   let down = Decimal::from_binary(
@@ -115,18 +169,20 @@ test "from_binary takes a required precision in digits and a rounding mode" {
 }
 
 ///|
+// oracle: A
+// source: hand: 1.125 is the exact tie between 1.0 and 1.25 at 3 bits, so the default ties-to-even gives 1
+//   and ties-to-away and toward-positive give 1.25 (and -1.25 for -1.125 to away); the expected strings are
+//   literals in the printed form coefficient p exponent (1.25 = 5p-2) written out (the old expected side built them with Binary::from_double, a sibling package)
+// shares: Binary::to_string (printing the result) and Decimal::from_string (reading the input)
 test "to_binary takes the rounding modes of the radix of the result" {
   // 1.125 is exactly between 1.0 and 1.25 at three bits
   let tie = Decimal::from_string("1.125").unwrap()
-  assert_eq(
-    tie.to_binary(precision=3).to_string(),
-    @binary.Binary::from_double(1.0, precision=3).to_string(),
-  )
+  assert_eq(tie.to_binary(precision=3).to_string(), "1p0")
   assert_eq(
     tie
     .to_binary(precision=3, mode=@binary.BinaryRoundingMode::RoundTiesToAway)
     .to_string(),
-    @binary.Binary::from_double(1.25, precision=3).to_string(),
+    "5p-2",
   )
   assert_eq(
     tie
@@ -135,23 +191,30 @@ test "to_binary takes the rounding modes of the radix of the result" {
       mode=@binary.BinaryRoundingMode::RoundTowardPositive,
     )
     .to_string(),
-    @binary.Binary::from_double(1.25, precision=3).to_string(),
+    "5p-2",
   )
   let negative_tie = Decimal::from_string("-1.125").unwrap()
   assert_eq(
     negative_tie
     .to_binary(precision=3, mode=@binary.BinaryRoundingMode::RoundTiesToAway)
     .to_string(),
-    @binary.Binary::from_double(-1.25, precision=3).to_string(),
+    "-5p-2",
   )
 }
 
 ///|
+// oracle: A
+// source: library contract, precision outside 1..999,999,999 aborts (decNumber DEC_MAX_DIGITS limit, not a GDA
+//   1.70 clause); no computed value
+// shares: nothing
 test "panic to_binary aborts on precision 0" {
   ignore(Decimal::from_int(3).to_binary(precision=0))
 }
 
 ///|
+// oracle: A
+// source: CPython plus with each mode: 1.23E+4, 1.236E+4, 1.236E+4, 1.234E+4, 1.234E+4, 1.24E+4 all agree
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "make and with_precision take a GDA rounding mode" {
   assert_eq(
     Decimal::make(12345N, 0, 3, mode=GdaRoundingMode::HalfUp).to_string(),
@@ -183,8 +246,14 @@ test "make and with_precision take a GDA rounding mode" {
 }
 
 ///|
-/// IEEE 754-2019 3.5.2 and 6.2.3: a payload wider than the trailing significand
-/// field keeps its low digits; no flag names the loss.
+/// IEEE 754-2019 3.5.2: the payload of a decimal32 NaN is at most 6 digits (the trailing significand field); keeping
+/// the low digits of a wider payload is the rule of this library (6.2.3 leaves the diagnostic information to the
+/// language), and no flag names the loss.
+// oracle: A, S
+// source: the payload width of decimal32 (6 digits) is IEEE 754-2019 3.5.2, written out in the expected strings
+//   567890 and 123456; which digits a wider payload keeps (the low ones) is the library's own rule, not a clause of
+//   the standard, and is pinned here by the literal 567890 (S)
+// shares: nothing
 test "an interchange NaN keeps the low digits of a payload that is too wide" {
   let wide = Decimal::quiet_nan(payload=12345678901234567890N, negative=true)
   let (encoded, flags) = GdaInterchange::from_decimal(wide, Decimal32)
@@ -201,6 +270,10 @@ test "an interchange NaN keeps the low digits of a payload that is too wide" {
 
 ///|
 /// S7: `make` keeps the exponent it is given when the coefficient fits.
+// oracle: A
+// source: hand by to-scientific-string (cohort kept, zero exponents); CPython plus agrees on the 1000000 and
+//   1234567 rows
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "make keeps the given exponent and does not reduce a rounded coefficient" {
   assert_eq(Decimal::make(1200N, 0, 34).to_string(), "1200")
   assert_eq(Decimal::make(100N, 0, 5).to_string(), "100")

@@ -176,6 +176,9 @@ fn issue265_check(
 /// a negative base; an overflowing reciprocal must not carry the base's sign into
 /// the result. Expected values: Python `decimal` (libmpdec 4.0.0) as oracle, checked
 /// against the clause by hand; the oracle is not the specification.
+// oracle: A
+// source: CPython decimal rows checked against GDA power sign rule; 102/102 re-run, 0 disagree
+// shares: nothing
 test "power overflows with the sign of the power, not of the reciprocal (#265)" {
   let rows : Array[
     (

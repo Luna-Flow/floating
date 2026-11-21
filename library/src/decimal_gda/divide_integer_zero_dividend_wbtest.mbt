@@ -4,6 +4,10 @@
 /// zeros instead of rejecting the division as impossible. (Moved from the
 /// `decimal` package, which no longer has `divide_integer` and the truncating
 /// remainder.)
+// oracle: A
+// source: 5 rows (signed-zero dividends with exponents): CPython decimal32 context (p7 -95..96 clamp 1)
+//   divide_int, remainder, remainder_near agree on all 5 rows (values and no flags)
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "divide_integer and remainder accept a zero dividend" {
   let context = DecimalContext::decimal32()
   let cases = [

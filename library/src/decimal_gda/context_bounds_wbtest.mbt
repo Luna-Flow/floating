@@ -27,6 +27,10 @@ fn context_bounds_row(value : Decimal, raised : GdaFlags) -> String {
 /// GDA 1.70, Finite numbers; decNumber `decContext.h`: the adopted limits
 /// require `e_min <= 0 <= e_max`.  D-F1 deliberately does not impose GDA's
 /// separate balanced-range rule.
+// oracle: A
+// source: decNumber decContext.h limits (precision 1..999999999, emin -999999999..0, emax 0..999999999) written
+//   out
+// shares: nothing
 test "GDA DecimalContext rejects exponent bounds with invalid signs" {
   assert_true(DecimalContext::try_new(precision=1) is Ok(_))
   assert_true(DecimalContext::try_new(precision=0) is Err(_))
@@ -249,6 +253,9 @@ fn context_bounds_case(
 }
 
 ///|
+// oracle: A
+// source: decTest exp.decTest expx901-906, rows checked against testdata/decimal_gda/official/exp.decTest
+// shares: nothing
 test "decTest expx901-906: exp requires bounded contexts" {
   // exp.decTest: extended 1, half_even, maxExponent 999 / minExponent -999
   // before the restriction rows.
@@ -264,6 +271,9 @@ test "decTest expx901-906: exp requires bounded contexts" {
 }
 
 ///|
+// oracle: A
+// source: decTest ln.decTest lnx901-906 and log10.decTest logx901-906, checked against the corpus files
+// shares: nothing
 test "decTest lnx901-906 and logx901-906: logarithms require bounded contexts" {
   let ln_row = fn(x, p, e_min, e_max) raise {
     context_bounds_case("ln", [x], p, e_min, e_max)
@@ -287,6 +297,9 @@ test "decTest lnx901-906 and logx901-906: logarithms require bounded contexts" {
 }
 
 ///|
+// oracle: A
+// source: decTest power.decTest powx4001-4006, checked against the corpus file
+// shares: nothing
 test "decTest powx4001-4006: non-integral power requires bounded contexts" {
   // power.decTest: extended 1, half_even, maxExponent 384 / minExponent -383
   // before the restriction rows.
@@ -302,6 +315,9 @@ test "decTest powx4001-4006: non-integral power requires bounded contexts" {
 }
 
 ///|
+// oracle: A
+// source: hand: decNumber default range, e = 2.718281828459045 (16 digits), error text of the adapter
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "an ArithmeticContext without exponent bounds is an invalid context for exp (#111)" {
   let one = Decimal::from_string("1").unwrap()
   // The translation keeps the default decNumber-limit range; it does not pick bounds.
@@ -374,6 +390,10 @@ test "an ArithmeticContext without exponent bounds is an invalid context for exp
 }
 
 ///|
+// oracle: A
+// source: hand: 7^1000000000 is far beyond Emax 999999, so Infinity; the error kind and the invalid-context
+//   message are literals of the library contract of issue 111, not from the standard
+// shares: nothing
 test "checked integer powers report an invalid context, not a domain error (#111)" {
   let seven = Decimal::from_int(7, precision=9)
   let error = @lf_arith.PowIntChecked::pow_int_checked(

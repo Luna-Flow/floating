@@ -175,6 +175,10 @@ fn issue306_check(
 /// GDA 1.70 *power*: the result is inexact unless the exponent is integral and the result exact, so
 /// 1^1.03 is `1.0000 Inexact Rounded` at precision 5. Expected values: Python `decimal` (libmpdec 4.0.0)
 /// as oracle, checked against the clause by hand; the oracle is not the specification.
+// oracle: A
+// source: 29 power rows of 1^non-integer (GDA 1.70 power: inexact unless exponent integral and result exact;
+//   powx2017 shape), CPython decimal (libmpdec 4.0.0) agrees 29 of 29
+// shares: nothing
 test "the power of 1 to a non-integer exponent is inexact whatever Emax is (#306)" {
   let rows : Array[
     (

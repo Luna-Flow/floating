@@ -1,4 +1,7 @@
 ///|
+// oracle: A
+// source: 4**0.5 at p9: literal 2.00000000, Rounded and Inexact; CPython agrees (2.00000000 Inexact Rounded)
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "GDA noninteger power preserves GDA cohort and flags" {
   let context = GdaContext::new(precision=9, e_min=-999_999, e_max=999_999)
   let base = Decimal::from_int(4, precision=32)
@@ -12,6 +15,10 @@ test "GDA noninteger power preserves GDA cohort and flags" {
 ///|
 /// GDA deliberately keeps its specification rules, including 0^0 = NaN.
 /// The official powx2015 vector is distinct from decimal's IEEE power rule.
+// oracle: A
+// source: 0**0 = NaN with InvalidOperation (GDA power rule, powx2015 row named in the title) and 1**12.3 at p3
+//   -> 1.00 Rounded Inexact; CPython agrees on both
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "GDA power keeps zero-zero rule and official powx2015 vector" {
   let context = GdaContext::new(precision=3, e_min=-999_999, e_max=999_999)
   let zero_zero = power(Decimal::zero(), Decimal::zero(), context)
@@ -29,6 +36,11 @@ test "GDA power keeps zero-zero rule and official powx2015 vector" {
 }
 
 ///|
+// oracle: A
+// source: GDA 1.70 exp/ln/log10: inexact results are rounded with round-half-even; CPython 3.13 agrees on all
+//   values (it also ignores Up for exp); decNumber 3.68 rounds the exp Up row to 1.02 (it honors the context
+//   mode), so that row follows the specification text and not decNumber
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "GDA transcendental operations finalize with half even" {
   let half_even = GdaContext::new(precision=3, e_min=-999_999, e_max=999_999)
   let upward = GdaContext::new(
@@ -49,6 +61,10 @@ test "GDA transcendental operations finalize with half even" {
 }
 
 ///|
+// oracle: A
+// source: GDA rule 'exp rounded half-even' (spec text), flags hand-derived; CPython exp(-1E8) p7 range
+//   -383..384 Up gives 0E-389 with Underflow Subnormal Inexact Rounded Clamped (agrees)
+// shares: nothing
 test "GDA extreme exp uses HalfEven without endpoint expansion" {
   let context = GdaContext::new(
     precision=7,
@@ -67,6 +83,10 @@ test "GDA extreme exp uses HalfEven without endpoint expansion" {
 }
 
 ///|
+// oracle: A
+// source: literal 3.296831E-434295; CPython exp(-1E6) at p7 gives 3.296831E-434295 Inexact Rounded, no
+//   Underflow (agrees)
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "GDA finite extreme-range exp certifies without full decimal expansion" {
   let context = GdaContext::new(precision=7, e_min=-999_999, e_max=999_999)
   let outcome = exp(Decimal::from_int(-1_000_000), context)
@@ -77,6 +97,11 @@ test "GDA finite extreme-range exp certifies without full decimal expansion" {
 }
 
 ///|
+// oracle: A
+// source: 17**81.27115 down p7 range +-99 -> 9.999973E+99; 81.27116 -> 9.999999E+99 with Overflow;
+//   1E-101**1.000001 floor p7 range -95..96 -> 0E-101 with Underflow Subnormal; CPython agrees on all
+//   three values and the flags
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "GDA power certifies directed overflow and underflow cells" {
   let down = GdaContext::new(
     precision=7,
@@ -114,6 +139,10 @@ test "GDA power certifies directed overflow and underflow cells" {
 }
 
 ///|
+// oracle: A
+// source: 0.000**0.5 -> 0 with no flags and 1E-20**0.5 at p12 range -9..9 -> 1.0000000000E-10 with Underflow
+//   Subnormal Rounded Inexact; CPython agrees on values and flags
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "GDA square-root power preserves zero and tiny-result conditions" {
   let zero = power(
     Decimal::from_string("0.000").unwrap(),
@@ -148,6 +177,11 @@ test "GDA square-root power preserves zero and tiny-result conditions" {
 /// half_even: `decNumberLn` decNumber.c:1256 calls `decLnOp`, whose result is cut at
 /// line 5795; decNumber fails lnx116 and lnx732 itself): ln116 is a recorded
 /// deviation of the corpus (`testdata/decimal_gda/deviations.tsv`, issue 649).
+// oracle: A
+// source: literal -8.9999999999999878E-8: exact value from CPython at 50 digits (-8.99999999999998784999918E-8)
+//   rounded to 17 digits; the corpus row ln116 expects ...879 (decNumber tolerance), recorded deviation
+//   issue 649; CPython at p17 gives ...878 in half_up and half_even
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "ln of the subset is correctly rounded, as the extended arithmetic (ln116, lnx116)" {
   let operand = Decimal::from_string("0.99999991000000405").unwrap()
   for extended in [false, true] {
@@ -168,6 +202,12 @@ test "ln of the subset is correctly rounded, as the extended arithmetic (ln116, 
 }
 
 ///|
+// oracle: A
+// source: decNumber 3.68 built with DECSUBSET=1 (tools/decnumber_probe.c, extended=0): exp(-1000) at precision 7,
+//   Emin -383, Emax 384 raises Underflow and Clamped (flags xr---usc); power(7, 1000000001) at precision 9 with the
+//   exponent range of +-999999999 is NaN with Inexact, Rounded, Invalid context and Lost digits; the
+//   InvalidOperation flag follows the Invalid context condition of GDA 1.70 ("occurs and signals invalid-operation")
+// shares: nothing
 test "GDA classic subset retains legacy math flags" {
   let exp_subset = GdaContext::new(
     precision=7,

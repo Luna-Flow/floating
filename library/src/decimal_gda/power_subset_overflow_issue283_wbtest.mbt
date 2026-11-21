@@ -175,6 +175,9 @@ fn issue283_check(
 /// A subset context (`extended: 0`) overflows when the reciprocal of a tiny positive power leaves the
 /// working range; the result is the overflow result of the context, not an abort. Expected values:
 /// Python `decimal` (libmpdec 4.0.0) for the value and flag set; the oracle is not the specification.
+// oracle: A
+// source: CPython decimal rows (extended context); 22/22 re-run, 0 disagree
+// shares: nothing
 test "a subset-context power whose reciprocal overflows returns the overflow result (#283)" {
   let rows : Array[
     (

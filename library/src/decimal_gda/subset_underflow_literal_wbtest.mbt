@@ -8,6 +8,10 @@
 /// Inexact, Rounded, Subnormal and Underflow and no Clamped; with the extended
 /// arithmetic it is the subnormal member at Etiny (-1000000011), `0E-1000000011`
 /// with Clamped or `1E-1000000011` for the modes that round away.
+// oracle: A
+// source: decNumber 3.68 built with DECSUBSET=1 for the 20 subset rows (sha256 in docstring); 20 extended rows
+//   re-run in CPython, 0 disagree
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "to_number of a literal far below the range: the subset gives 0, the extended arithmetic Etiny" {
   let rows = [
     (true, "half_even", "1e-1000000014", "0", "xrsu."),
@@ -87,6 +91,9 @@ test "to_number of a literal far below the range: the subset gives 0, the extend
 /// extended 0, precision 9, half_up, Emax 999, Emin -999): the quantum is a
 /// literal far below the range, read as `0`, so the quantization is to the
 /// units. The frontend used to rewrite the exponent before the library read it.
+// oracle: A
+// source: decTest quantize0 rows qua530 and qua531 (extended 0)
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "quantize by a quantum that underflows to zero in the subset (qua530, qua531)" {
   let subset = GdaContext::new(
     precision=9,
