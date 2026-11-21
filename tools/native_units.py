@@ -33,6 +33,23 @@ were drawn for the sampled rerun (probability `rate` each, the seed is printed) 
 invocation: a failure there is a defect of the system (exit status 70), not of the change.
 Reused units are reported as `REUSED` with the commit they ran on, never as passed.
 
+A pass is read from moon's output as well as its exit status (`judge`): moon exits 0 when a `-p`
+name selects nothing (a warning, or nothing at all), so an invocation without a `Total tests: N`
+line, with N = 0, with failed tests or with a `not found` warning is a failure of the stage and
+records nothing. The number of tests of the invocation is in the PASS line and in the record. The
+module names and source directories are read from `library/moon.mod` and `tooling/moon.mod` and
+must be the constants of this file, else reuse is off. `--no-reuse` runs the stage as it was (every
+package in one `moon test`, no discovery) and records every keyed unit on a pass.
+
+The two modules this stage depends on that are not in the repository, `Luna-Flow/arithmetic` and
+`Luna-Flow/luna-generic`, are in the key by the version in `moon.mod`, not by the content of
+`.mooncakes`.
+
+Which job is the audit: this program is the pull-request stage. The complete native run without
+reuse, by the plain `moon test --target native --deny-warn --frozen`, must be a scheduled job
+(`unit-tests` of `.github/workflows/nightly.yml`, added with the workflow change); it must not go
+through this program, so that the audit does not share the discovery of packages.
+
 Usage: python3 tools/native_units.py [--jobs N] [--no-reuse] [--sample-rate R] [--sample-seed S]
        [--ledger FILE] [--plan-only] [--dry-run]
 The functions are pure unless their name says they touch files or processes.
@@ -44,6 +61,7 @@ import argparse
 import dataclasses
 import os
 import random
+import re
 import subprocess
 import sys
 import time
@@ -209,6 +227,34 @@ def unit_key(
     return inc.digest(*(f"{k}={v}" for k, v in sorted(parts.items()))), parts
 
 
+NOT_FOUND = re.compile(r"package .*not found", re.IGNORECASE)
+TOTAL_TESTS = re.compile(r"Total tests: (\d+), passed: (\d+), failed: (\d+)")
+
+
+def judge(status: int, output: str) -> tuple[int, str]:
+    """(exit status, why) of a `moon test` invocation from its status and output: moon exits 0 when
+    a package name selects nothing, so a pass needs a `Total tests` line with tests, none failed and
+    no `not found` warning. The second item is the problem, empty for a pass."""
+    if status != 0:
+        return status, f"moon exited {status}"
+    totals = TOTAL_TESTS.findall(output)
+    if NOT_FOUND.search(output):
+        return 1, f"moon warned: {NOT_FOUND.search(output).group(0)}"  # type: ignore[union-attr]
+    if not totals:
+        return 1, "moon printed no `Total tests` line"
+    total, passed, failed = (int(x) for x in totals[-1])
+    if total == 0:
+        return 1, "moon ran 0 tests"
+    if failed or passed != total:
+        return 1, f"moon reports {failed} failed, {passed} of {total} passed"
+    return 0, ""
+
+
+def test_count(output: str) -> int:
+    totals = TOTAL_TESTS.findall(output)
+    return int(totals[-1][0]) if totals else 0
+
+
 def to_run(units: Sequence[Unit], actions: Mapping[str, str]) -> tuple[list[str], list[str]]:
     """(packages of the units that run, packages of the units that are sampled), each sorted,
     a package in the first list never in the second."""
@@ -244,6 +290,32 @@ def summary_line(tally: Tally, seed: int, rate: float, commits: Mapping[str, int
 # ---------------------------------------------------------------------------------------
 # Files, processes and the ledger
 # ---------------------------------------------------------------------------------------
+
+
+MANIFEST_NAME = re.compile(r'^name\s*=\s*"([^"]+)"', re.MULTILINE)
+MANIFEST_SOURCE = re.compile(r'^source\s*=\s*"([^"]+)"', re.MULTILINE)
+
+
+def manifest_problem(text: str, module: str, root: str, manifest: str) -> str | None:
+    """Why a `moon.mod` is not the module and source directory this program assumes, or None.
+    The source directory is `src` when the manifest names none."""
+    name = MANIFEST_NAME.search(text)
+    source = MANIFEST_SOURCE.search(text)
+    found_name = name.group(1) if name else None
+    found_root = f"{Path(manifest).parent.as_posix()}/{source.group(1) if source else 'src'}"
+    if found_name != module:
+        return f"{manifest} names the module {found_name!r}, this program assumes {module!r}"
+    if found_root != root:
+        return f"{manifest} has the source directory {found_root!r}, this program assumes {root!r}"
+    return None
+
+
+def check_manifests(repo_root: Path) -> None:
+    """Raise ValueError when a module of `SOURCE_ROOTS` is not what its `moon.mod` says."""
+    for (module, root), manifest in zip(SOURCE_ROOTS, ("library/moon.mod", "tooling/moon.mod")):
+        problem = manifest_problem((repo_root / manifest).read_text(encoding="utf-8"), module, root, manifest)
+        if problem:
+            raise ValueError(problem)
 
 
 def discover_packages(repo_root: Path) -> dict[str, Package]:
@@ -291,6 +363,8 @@ class Plan:
     dirty: bool
     repo_root: Path
     packages: dict[str, Package] = dataclasses.field(default_factory=dict)
+    reuse: bool = True
+    last_tests: int = 0
 
 
 def make_plan(
@@ -308,6 +382,7 @@ def make_plan(
     commit, dirty = inc.git_head(repo_root)
     plan = Plan([], {}, {}, {}, {}, "", "", ledger, seed, rate, commit, dirty, repo_root)
     try:
+        check_manifests(repo_root)
         plan.packages = discover_packages(repo_root)
         plan.units = make_units(plan.packages, heavy)
         env = dict(os.environ if environ is None else environ)
@@ -325,6 +400,9 @@ def make_plan(
             if not compile_commands:
                 plan.disabled = f"moon could not print the build of '{unit.name}'"
                 return plan
+            if NOT_FOUND.search(compile_commands):
+                plan.disabled = f"moon did not find a package of '{unit.name}': {NOT_FOUND.search(compile_commands).group(0)}"  # type: ignore[union-attr]
+                return plan
             plan.keys[unit.name], plan.parts[unit.name] = unit_key(
                 unit, plan.digests[unit.name], compile_commands, plan.modules, wrapper, toolchain, verifier, ambient
             )
@@ -334,6 +412,7 @@ def make_plan(
         return plan
     drawn = ku.decide_units(plan.keys, lambda k: ledger.result(k) is not None, random.Random(seed), rate)
     plan.actions = {u.name: drawn.get(u.name, "run") for u in plan.units}
+    plan.reuse = reuse
     if not reuse:
         plan.actions = {u.name: "run" for u in plan.units}
     return plan
@@ -347,7 +426,7 @@ def unchanged(plan: Plan, unit: Unit) -> bool:
     )
 
 
-def record_pass(plan: Plan, unit: Unit, seconds: float, shared_with: int) -> bool:
+def record_pass(plan: Plan, unit: Unit, seconds: float, shared_with: int, tests: int = 0) -> bool:
     """Append the passing run of a unit; only for a keyed unit whose files are unchanged."""
     import socket
 
@@ -360,7 +439,7 @@ def record_pass(plan: Plan, unit: Unit, seconds: float, shared_with: int) -> boo
                 "key": plan.keys[unit.name],
                 "unit": f"{STAGE} [{unit.name}]",
                 "parts": plan.parts[unit.name],
-                "result": {"passed": True, "seconds": round(seconds, 1), "units_in_the_run": shared_with},
+                "result": {"passed": True, "seconds": round(seconds, 1), "units_in_the_run": shared_with, "tests_in_the_run": tests},
                 "commit": plan.commit + ("+dirty" if plan.dirty else ""),
                 "dirty": plan.dirty,
                 "date": time.strftime("%Y-%m-%dT%H:%M:%S%z"),
@@ -375,15 +454,28 @@ def record_pass(plan: Plan, unit: Unit, seconds: float, shared_with: int) -> boo
 def run_plan(
     plan: Plan,
     jobs: int,
-    execute: Callable[[tuple[str, ...]], int],
+    execute: Callable[[tuple[str, ...]], tuple[int, str]],
     out: Callable[[str], None] = print,
 ) -> tuple[int, Tally, dict[str, int]]:
     """Run what the plan says. Returns (exit status, tally, commits of the reused units)."""
     tally = Tally(disabled=plan.disabled)
     commits: dict[str, int] = {}
-    if plan.disabled:
-        status = execute(whole_command(jobs))
+    if plan.disabled or not plan.reuse:
+        started = time.monotonic()
+        raw_status, output = execute(whole_command(jobs))
+        status, why = judge(raw_status, output)
+        plan.last_tests = test_count(output)
+        seconds = time.monotonic() - started
         tally.failed += status != 0
+        if status != 0:
+            out(f"FAIL  {STAGE} [whole stage] {why}, {seconds:.1f}s")
+            return status, tally, commits
+        tally.ran = len(plan.units)
+        if not plan.disabled:
+            by_name = {u.name: u for u in plan.units}
+            for unit in plan.units:
+                if unit.keyed and not record_pass(plan, by_name[unit.name], seconds, len(plan.units), plan.last_tests):
+                    tally.unrecorded += 1
         return status, tally, commits
     for unit in plan.units:
         if plan.actions[unit.name] == "reuse":
@@ -402,27 +494,42 @@ def run_plan(
             continue
         chosen = [u for u in plan.units if plan.actions[u.name] == ("sample" if sampled else "run")]
         started = time.monotonic()
-        status = execute(test_command(NATIVE_ARGUMENTS, members, jobs))
+        raw_status, output = execute(test_command(NATIVE_ARGUMENTS, members, jobs))
+        status, why = judge(raw_status, output)
+        tests = test_count(output)
         seconds = time.monotonic() - started
         names = ", ".join(u.name for u in chosen)
         if status != 0:
             tally.failed += 1
-            out(f"FAIL  {STAGE} [{label}: {names}] exit {status}, {seconds:.1f}s")
+            out(f"FAIL  {STAGE} [{label}: {names}] {why}, {seconds:.1f}s")
             if sampled:
                 out(f"DEFECT  {STAGE}: the key of {names} is recorded as passing and the sampled rerun failed: a defect of the incremental system, not of the change")
                 return inc.EXIT_DEFECT, tally, commits
             return status, tally, commits
-        out(f"PASS  {STAGE} [{label}: {names}], {seconds:.1f}s ({len(members)} packages in one moon invocation)")
+        out(f"PASS  {STAGE} [{label}: {names}], {seconds:.1f}s ({len(members)} packages, {tests} tests in one moon invocation)")
         for unit in chosen:
             if sampled:
                 tally.sampled += 1
                 continue
             tally.ran += 1
             if unit.keyed and not plan.disabled:
-                if not record_pass(plan, by_name[unit.name], seconds, len(chosen)):
+                if not record_pass(plan, by_name[unit.name], seconds, len(chosen), tests):
                     tally.unrecorded += 1
                     out(f"NOTE  {unit.name} passed but was not recorded (its files changed during the run)")
     return 0, tally, commits
+
+
+def run_tee(command: Sequence[str], cwd: Path) -> tuple[int, str]:
+    """Run a command, show its output as it comes (stdout and stderr together) and return the
+    status and the whole output."""
+    process = subprocess.Popen(list(command), cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, errors="replace")
+    assert process.stdout is not None
+    lines: list[str] = []
+    for line in process.stdout:
+        sys.stdout.write(line)
+        sys.stdout.flush()
+        lines.append(line)
+    return process.wait(), "".join(lines)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -445,8 +552,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"{unit.name}: {len(unit.members)} packages, {'keyed' if unit.keyed else 'not keyed: ' + unit.why_not}, action {plan.actions.get(unit.name, 'run')}")
         return 0
 
-    def execute(command: tuple[str, ...]) -> int:
-        return subprocess.run(command, cwd=REPO_ROOT).returncode
+    def execute(command: tuple[str, ...]) -> tuple[int, str]:
+        return run_tee(command, REPO_ROOT)
 
     status, tally, commits = run_plan(plan, args.jobs, execute)
     print(summary_line(tally, seed, args.sample_rate, commits))

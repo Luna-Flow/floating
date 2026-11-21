@@ -9,6 +9,13 @@ L = nu.LIBRARY
 T = nu.TOOLING
 
 
+OK = (0, "Total tests: 10, passed: 10, failed: 0.\n")
+FAILED = (1, "Total tests: 10, passed: 9, failed: 1.\n")
+# the real texts of moon 0.1.2026 for a `-p` name that selects nothing (measured by the manager)
+NOT_FOUND_TEXT = "Warning: package `Luna-Flow/floating/nonexistent` not found\nTotal tests: 0, passed: 0, failed: 0.\n"
+SILENT_TEXT = "Total tests: 23, passed: 23, failed: 0.\n"
+
+
 def pkg(pid: str, *imports: str) -> nu.Package:
     return nu.Package(pid, pid.replace(L, "library/src").replace(T, "tooling/src"), tuple(imports))
 
@@ -120,7 +127,7 @@ class RunTest(unittest.TestCase):
             self.ledger.append([{"kind": "result", "key": key, "unit": name, "commit": "abcdef0123456789", "result": {"passed": True}}])
         calls: list[tuple[str, ...]] = []
         lines: list[str] = []
-        status, tally, commits = nu.run_plan(plan, 3, lambda c: calls.append(c) or 0, lines.append)
+        status, tally, commits = nu.run_plan(plan, 3, lambda c: calls.append(c) or OK, lines.append)
         self.assertEqual(status, 0)
         self.assertEqual(len(calls), 1)  # only the unit that is not keyed
         self.assertEqual(calls[0][calls[0].index("-p") + 1:calls[0].index("--target")], (f"{T}/bench",))
@@ -130,7 +137,7 @@ class RunTest(unittest.TestCase):
 
     def test_a_pass_records_every_keyed_unit_of_the_run(self) -> None:
         plan = self.plan({u.name: "run" for u in self.units})
-        status, tally, _ = nu.run_plan(plan, 3, lambda c: 0, lambda line: None)
+        status, tally, _ = nu.run_plan(plan, 3, lambda c: OK, lambda line: None)
         self.assertEqual(status, 0)
         self.assertEqual(tally.ran, 4)
         recorded = [plan.ledger.result(k) for k in plan.keys.values()]
@@ -139,7 +146,7 @@ class RunTest(unittest.TestCase):
 
     def test_a_failure_records_nothing(self) -> None:
         plan = self.plan({u.name: "run" for u in self.units})
-        status, tally, _ = nu.run_plan(plan, 3, lambda c: 1, lambda line: None)
+        status, tally, _ = nu.run_plan(plan, 3, lambda c: FAILED, lambda line: None)
         self.assertEqual(status, 1)
         self.assertEqual(tally.failed, 1)
         self.assertTrue(all(plan.ledger.result(k) is None for k in plan.keys.values()))
@@ -150,7 +157,7 @@ class RunTest(unittest.TestCase):
         actions["rest (not keyed)"] = "run"
         plan = self.plan(actions)
         lines: list[str] = []
-        status, tally, _ = nu.run_plan(plan, 3, lambda c: 1 if f"{L}/interval" in c else 0, lines.append)
+        status, tally, _ = nu.run_plan(plan, 3, lambda c: FAILED if f"{L}/interval" in c else OK, lines.append)
         self.assertEqual(status, inc.EXIT_DEFECT)
         self.assertTrue(any(line.startswith("DEFECT") for line in lines))
 
@@ -163,7 +170,7 @@ class RunTest(unittest.TestCase):
         for key in plan.keys.values():
             self.ledger.append([{"kind": "result", "key": key, "unit": "x", "commit": "c1", "result": {"passed": True}}])
         calls: list[tuple[str, ...]] = []
-        nu.run_plan(plan, 3, lambda c: calls.append(c) or 0, lambda line: None)
+        nu.run_plan(plan, 3, lambda c: calls.append(c) or OK, lambda line: None)
         packages = [c[c.index("-p") + 1:c.index("--target")] for c in calls]
         self.assertEqual(packages, [(f"{T}/bench", f"{L}/bin_float"), (f"{L}/interval",)])
 
@@ -171,7 +178,7 @@ class RunTest(unittest.TestCase):
         plan = self.plan({})
         plan.disabled = "no key can be formed: x"
         calls: list[tuple[str, ...]] = []
-        status, tally, _ = nu.run_plan(plan, 2, lambda c: calls.append(c) or 0, lambda line: None)
+        status, tally, _ = nu.run_plan(plan, 2, lambda c: calls.append(c) or OK, lambda line: None)
         self.assertEqual(calls, [nu.whole_command(2)])
         self.assertNotIn("-p", calls[0])
         self.assertIn("not reusable", nu.summary_line(tally, 1, 0.02, {}))
@@ -180,21 +187,117 @@ class RunTest(unittest.TestCase):
         plan = self.plan({u.name: "run" for u in self.units})
         plan.digests[f"{L}/interval"] = "stale"
         nu.unchanged = lambda p, u: p.digests[u.name] != "stale"  # type: ignore[assignment]
-        status, tally, _ = nu.run_plan(plan, 3, lambda c: 0, lambda line: None)
+        status, tally, _ = nu.run_plan(plan, 3, lambda c: OK, lambda line: None)
         self.assertEqual(tally.unrecorded, 1)
         self.assertIsNone(plan.ledger.result(plan.keys[f"{L}/interval"]))
+
+
+class JudgeTest(unittest.TestCase):
+    def test_a_real_pass(self) -> None:
+        self.assertEqual(nu.judge(*OK), (0, ""))
+
+    def test_exit_zero_with_a_package_not_found_is_a_failure(self) -> None:
+        status, why = nu.judge(0, NOT_FOUND_TEXT)
+        self.assertEqual(status, 1)
+        self.assertIn("not found", why)
+
+    def test_exit_zero_with_zero_tests_and_with_no_total_line_is_a_failure(self) -> None:
+        self.assertEqual(nu.judge(0, "Total tests: 0, passed: 0, failed: 0.\n")[0], 1)
+        self.assertEqual(nu.judge(0, "nothing\n")[0], 1)
+
+    def test_failed_tests_and_a_failing_status_are_failures(self) -> None:
+        self.assertEqual(nu.judge(*FAILED)[0], 1)
+        self.assertEqual(nu.judge(2, "Total tests: 5, passed: 5, failed: 0.")[0], 2)
+
+    def test_the_test_count_is_read(self) -> None:
+        self.assertEqual(nu.test_count(SILENT_TEXT), 23)
+        self.assertEqual(nu.test_count("none"), 0)
+
+    def test_the_wrong_name_dropped_silently_is_not_caught_by_the_output_alone(self) -> None:
+        # moon drops an unknown name next to a known one without a word (23 tests, no warning):
+        # that case is covered by the manifest check, not by `judge`
+        self.assertEqual(nu.judge(0, SILENT_TEXT), (0, ""))
+
+
+class ManifestTest(unittest.TestCase):
+    def test_the_manifests_of_this_repository_match_the_constants(self) -> None:
+        nu.check_manifests(nu.REPO_ROOT)
+
+    def test_a_renamed_module_or_source_directory_is_a_problem(self) -> None:
+        good = 'name = "Luna-Flow/floating"\n'
+        self.assertIsNone(nu.manifest_problem(good, nu.LIBRARY, "library/src", "library/moon.mod"))
+        self.assertIn("names the module", nu.manifest_problem('name = "Luna-Flow/other"\n', nu.LIBRARY, "library/src", "library/moon.mod") or "")
+        self.assertIn("source directory", nu.manifest_problem(good + 'source = "lib"\n', nu.LIBRARY, "library/src", "library/moon.mod") or "")
+        self.assertIsNone(nu.manifest_problem('name = "Luna-Flow/floating-tools"\nsource = "src"\n', nu.TOOLING, "tooling/src", "tooling/moon.mod"))
+
+    def test_a_mismatch_disables_reuse(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for name, text in (("library/moon.mod", 'name = "Luna-Flow/renamed"\n'), ("tooling/moon.mod", 'name = "Luna-Flow/floating-tools"\n')):
+                (root / name).parent.mkdir(parents=True, exist_ok=True)
+                (root / name).write_text(text)
+            plan = nu.make_plan(root, inc.Ledger(root / "l.jsonl"), 1, environ={}, run=lambda *a, **k: "dry")
+            self.assertIn("names the module", plan.disabled)
+
+    def test_a_dry_run_that_says_not_found_disables_reuse(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            MutationTest.build(root)
+            plan = nu.make_plan(root, inc.Ledger(root / "l.jsonl"), 1, environ={}, run=lambda *a, **k: "Warning: package `x/y` not found", heavy=(f"{L}/low", f"{L}/top"))
+            self.assertIn("did not find a package", plan.disabled)
+
+
+class RunOutputTest(RunTest):
+    def test_exit_zero_with_a_package_not_found_fails_the_stage_and_records_nothing(self) -> None:
+        plan = self.plan({u.name: "run" for u in self.units})
+        lines: list[str] = []
+        status, tally, _ = nu.run_plan(plan, 3, lambda c: (0, NOT_FOUND_TEXT), lines.append)
+        self.assertEqual(status, 1)
+        self.assertTrue(all(plan.ledger.result(k) is None for k in plan.keys.values()))
+        self.assertTrue(any("not found" in line for line in lines))
+
+    def test_zero_tests_and_no_total_line_fail_the_stage(self) -> None:
+        for text in ("Total tests: 0, passed: 0, failed: 0.\n", "no total\n"):
+            plan = self.plan({u.name: "run" for u in self.units})
+            status, _, _ = nu.run_plan(plan, 3, lambda c: (0, text), lambda line: None)
+            self.assertEqual(status, 1, text)
+            self.assertTrue(all(plan.ledger.result(k) is None for k in plan.keys.values()))
+
+    def test_a_sampled_rerun_with_zero_tests_is_a_defect(self) -> None:
+        actions = {u.name: "reuse" for u in self.units}
+        actions["rest (not keyed)"] = "run"
+        actions[f"{L}/interval"] = "sample"
+        plan = self.plan(actions)
+        status, _, _ = nu.run_plan(plan, 3, lambda c: OK if f"{L}/interval" not in c else (0, NOT_FOUND_TEXT), lambda line: None)
+        self.assertEqual(status, inc.EXIT_DEFECT)
+
+    def test_the_test_count_is_in_the_pass_line_and_the_record(self) -> None:
+        plan = self.plan({u.name: "run" for u in self.units})
+        lines: list[str] = []
+        nu.run_plan(plan, 3, lambda c: OK, lines.append)
+        self.assertTrue(any(line.startswith("PASS") and "10 tests" in line for line in lines))
+        record = plan.ledger.result(plan.keys[f"{L}/interval"])
+        self.assertEqual(record["result"]["tests_in_the_run"], 10)
+
+    def test_no_reuse_runs_the_whole_stage_and_records_every_keyed_unit(self) -> None:
+        plan = self.plan({u.name: "run" for u in self.units})
+        plan.reuse = False
+        calls: list[tuple[str, ...]] = []
+        status, tally, _ = nu.run_plan(plan, 2, lambda c: calls.append(c) or OK, lambda line: None)
+        self.assertEqual(calls, [nu.whole_command(2)])
+        self.assertEqual((status, tally.ran), (0, 4))
+        self.assertTrue(all(plan.ledger.result(k) is not None for k in plan.keys.values()))
+        self.assertEqual(plan.ledger.result(plan.keys[f"{L}/interval"])["result"]["tests_in_the_run"], 10)
 
 
 class MutationTest(unittest.TestCase):
     """The keys of a small repository of the same shape: which units a change reaches."""
 
-    def setUp(self) -> None:
-        self.tmp = tempfile.TemporaryDirectory()
-        self.addCleanup(self.tmp.cleanup)
-        self.root = Path(self.tmp.name)
+    @staticmethod
+    def build(root: Path) -> None:
         files = {
             "library/moon.mod": "name = \"Luna-Flow/floating\"\n",
-            "tooling/moon.mod": "name = \"Luna-Flow/floating-tools\"\n",
+            "tooling/moon.mod": "name = \"Luna-Flow/floating-tools\"\nsource = \"src\"\n",
             "moon.work": "members = []\n",
             nu.WRAPPER: "exec moon \"$@\"\n",
             "library/src/def/moon.pkg": "",
@@ -211,9 +314,15 @@ class MutationTest(unittest.TestCase):
             "tooling/src/fs/f.mbt": "fn f() -> Int { 6 }\n",
         }
         for name, text in files.items():
-            path = self.root / name
+            path = root / name
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(text)
+
+    def setUp(self) -> None:
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.build(self.root)
         self.heavy = (f"{L}/low", f"{L}/top")
 
     def keys(self, environ: dict[str, str] | None = None, dry: str = "dry") -> dict[str, str]:
