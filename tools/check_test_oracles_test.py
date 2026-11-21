@@ -41,6 +41,20 @@ class OracleCheckTest(unittest.TestCase):
         self.assertEqual(problems, [])
         self.assertEqual(declared["A"], 1)
 
+    def test_a_declaration_above_an_attribute_line_counts(self) -> None:
+        problems, declared, _ = self.one(
+            '''\
+            ///|
+            // oracle: A
+            // source: written out from IEEE 754-2019 7.2 for the ten operand classes
+            // shares: nothing
+            #skip("long run")
+            test "x" { }
+            '''
+        )
+        self.assertEqual(problems, [])
+        self.assertEqual(declared["A"], 1)
+
     def test_a_continued_value_is_joined(self) -> None:
         problems, _, _ = self.one(
             '''\

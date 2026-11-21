@@ -323,8 +323,6 @@ test "reference fallback: with the cap at 0 and at 1 the result contains the hul
   }
 }
 
-#skip("long run: the interval gate runs it with --include-skipped")
-
 ///|
 /// The long run: 700 cases per function at precisions 24 and 53 (4,200 in all, about
 /// 40 s). Skipped in a plain `moon test`; the interval gate runs it with
@@ -333,30 +331,29 @@ test "reference fallback: with the cap at 0 and at 1 the result contains the hul
 // source: piece enumeration over every period index at 200 bits (ref_pieces: asin, acos, atan of the end of c, shifted by k pi), hull and comparisons decided by enclosure; no code of trig_reverse.mbt; the case is checked for the exact hull (tightness) where the test says so, and for enclosure and containment in the prior in the capped fallback
 // shares: asin, acos, atan of Interval at 200 bits on p-bit points, Interval add/sub/mul at 200 bits, ref_pi_interval
 // primitives: forward asin, acos, atan: forward_reference_wbtest.mbt (MPFR rows, level A, tightness, 40 rows per operation and precision 24 and 53, not the inputs of the seeded sweep); pi: pi_reference_wbtest.mbt; add, sub, mul: ITF1788 and the MPFR differential stage (128 and 512 bits)
+#skip("long run: the interval gate runs it with --include-skipped")
 test "reference long: sin_rev against the enumeration of every piece" {
   ref_check(0, 24, 700, 1UL)
   ref_check(0, 53, 700, 2UL)
 }
 
-#skip("long run: the interval gate runs it with --include-skipped")
-
 ///|
 // oracle: B
 // source: piece enumeration over every period index at 200 bits (ref_pieces: asin, acos, atan of the end of c, shifted by k pi), hull and comparisons decided by enclosure; no code of trig_reverse.mbt; the case is checked for the exact hull (tightness) where the test says so, and for enclosure and containment in the prior in the capped fallback
 // shares: asin, acos, atan of Interval at 200 bits on p-bit points, Interval add/sub/mul at 200 bits, ref_pi_interval
 // primitives: forward asin, acos, atan: forward_reference_wbtest.mbt (MPFR rows, level A, tightness, 40 rows per operation and precision 24 and 53, not the inputs of the seeded sweep); pi: pi_reference_wbtest.mbt; add, sub, mul: ITF1788 and the MPFR differential stage (128 and 512 bits)
+#skip("long run: the interval gate runs it with --include-skipped")
 test "reference long: cos_rev against the enumeration of every piece" {
   ref_check(1, 24, 700, 3UL)
   ref_check(1, 53, 700, 4UL)
 }
 
-#skip("long run: the interval gate runs it with --include-skipped")
-
 ///|
 // oracle: B
 // source: piece enumeration over every period index at 200 bits (ref_pieces: asin, acos, atan of the end of c, shifted by k pi), hull and comparisons decided by enclosure; no code of trig_reverse.mbt; the case is checked for the exact hull (tightness) where the test says so, and for enclosure and containment in the prior in the capped fallback
 // shares: asin, acos, atan of Interval at 200 bits on p-bit points, Interval add/sub/mul at 200 bits, ref_pi_interval
 // primitives: forward asin, acos, atan: forward_reference_wbtest.mbt (MPFR rows, level A, tightness, 40 rows per operation and precision 24 and 53, not the inputs of the seeded sweep); pi: pi_reference_wbtest.mbt; add, sub, mul: ITF1788 and the MPFR differential stage (128 and 512 bits)
+#skip("long run: the interval gate runs it with --include-skipped")
 test "reference long: tan_rev against the enumeration of every piece" {
   ref_check(2, 24, 700, 5UL)
   ref_check(2, 53, 700, 6UL)
