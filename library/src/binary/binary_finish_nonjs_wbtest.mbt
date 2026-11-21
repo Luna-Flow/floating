@@ -167,6 +167,10 @@ fn finish_test_magnitude(random : FastCoeffRandom, precision : Int32) -> Coeff {
 }
 
 ///|
+// oracle: B
+// source: binary_round_dyadic on the same magnitude (Coeff shift and the rounding core), every direction, exact magnitude and magnitude plus a tiny amount (sticky): a different algorithm from the route under test. The general route is itself checked against exact arithmetic on the inputs this test draws from (precisions from 2 to 8192, all five directions, ties, carries between words, borrow, cancellation, far operands, exact quotients, perfect squares) by the tests "add, mul, div and sqrt are rounded once, exactly: rows from exact arithmetic" and "add, mul, div and sqrt without a context: the ties-to-even rows" of arith_rows_check_wbtest.mbt (rows of arith_rows_wbtest.mbt from tools/generate_arith_rows.py: Python fractions and math.isqrt, library-ran: no); the exponent-range edges of binary16, binary32 and binary64 are rows there for add, mul and div.
+// shares: both routes call binary_inexact_flags for the flags of an exact result and the Binary constructors (finite_normalized, bin_repr_word) to build the value, which the differential does not check and the table does through the flags and the printed value; the rounding decision is written twice, in the word, pair or limb finish of the fast route and in binary_apply_round_bits behind binary_round_dyadic / binary_round_rational / binary_round_sqrt in the general route, so it is not shared; fast_test_same compares value, precision label, sign and exponent
+// primitives: Coeff::add, Coeff::sub_checked, Coeff::mul, Coeff::shift_left, binary_round_dyadic, binary_round_rational, binary_round_sqrt: level A on the same operations and widths in arith_rows_wbtest.mbt and, up to 128 bits, in the TestFloat gate
 test "bin_finish_words equals binary_round_dyadic in every mode" {
   let random = { coeff_state: 0x5EED1234UL, }
   for iteration in 0..<40000 {
@@ -210,6 +214,10 @@ test "bin_finish_words equals binary_round_dyadic in every mode" {
 }
 
 ///|
+// oracle: E
+// source: ref_finish, the finish of 0.11 kept verbatim in the test; no independent value of its own
+// shares: finite_normalized and the Coeff word accessors
+// underneath: the same finish step is the last step of every add, mul, div and sqrt row of arith_rows_wbtest.mbt (A, p 2 to 4097, five directions, ties and all-ones carries); bin_finish_words is B against binary_round_dyadic in the block above
 test "binary_coeff_fast_finish equals the finish of 0.11" {
   let random = { coeff_state: 0xF1A15E11UL, }
   for iteration in 0..<40000 {

@@ -77,6 +77,10 @@ fn owned_test_check(left : Binary, right : Binary) -> Int32 raise {
 }
 
 ///|
+// oracle: B, S
+// source: mul_ctx, div_ctx and sqrt_ctx general routes (Coeff operation, then the rounding core) against the in-place coefficient paths; the operand words are snapshot before and compared after, and a second call gives the same result (S)
+// shares: Coeff arithmetic and the rounding core (the general route); fast_test_same
+// primitives: Coeff::mul, binary_round_dyadic, binary_round_rational, binary_round_sqrt: level A on mul, div and sqrt at these widths in arith_rows_wbtest.mbt
 test "mul, div and sqrt round the kernel arrays in place without touching the operands" {
   let random = { coeff_state: 0x0B0A12D5UL, }
   let mut covered = 0

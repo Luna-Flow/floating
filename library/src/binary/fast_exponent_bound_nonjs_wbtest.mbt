@@ -8,6 +8,9 @@
 // Operands outside that window take the general path, which works in Int64.
 
 ///|
+// oracle: S
+// source: an inequality between two constants of the code (binary_fast_exponent_limit, binary_coeff_fast_bits_limit) and 2^31 written out
+// shares: the two constants
 test "the fast path exponent window cannot wrap an Int32 (bound)" {
   let limit = binary_fast_exponent_limit.to_int64()
   let bits = binary_coeff_fast_bits_limit.to_int64()
@@ -18,6 +21,9 @@ test "the fast path exponent window cannot wrap an Int32 (bound)" {
 }
 
 ///|
+// oracle: A
+// source: the results 2^(2e) and 2^(-2e) are written out by the exponent rule of the product and the quotient of powers of two
+// shares: Binary::make and the accessors (construction and reading only)
 test "mul and div at the edge of the fast window and just outside it agree" {
   let limit = binary_fast_exponent_limit
   let ctx = BinaryContext::new(precision=53)
