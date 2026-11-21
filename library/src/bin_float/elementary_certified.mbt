@@ -1334,19 +1334,42 @@ fn binary_log2_bounds(
 
 ///|
 /// Which side of an overflow threshold `count * ln 2` (`count * ln 2 / ln 10` when
-/// `decimal`) the finite nonnegative argument lies: `Some(true)` when it is at or
-/// above it, `Some(false)` when it is below it, `None` when the constants at
-/// `work_precision` do not decide it. For `exp`, `expm1` and `exp2`-like
-/// functions `count` is `e_max + 1` (`exp(x) >= 2^(e_max + 1)`), for `sinh` and
-/// `cosh` it is `e_max + 2` (`e^x / 2 >= 2^(e_max + 1)`, the factor `1 - e^(-2x)`
-/// of `sinh` is below `2^-(2^30)` and cannot change the side of a float), for
-/// `exp10` it is `e_max + 1` with `decimal`. The argument never equals the
-/// threshold, which is irrational.
+/// `decimal`) the finite nonnegative argument lies: `Some(true)` when the result
+/// is certainly at or above `2^(e_max + 1)`, `Some(false)` when it is certainly
+/// below, `None` when the constants at `work_precision` do not decide it.
+///
+/// Which side is exact depends on the function; the argument `x` of the
+/// exponential is compared with `T = count * ln 2` (never equal, `ln 2` is
+/// irrational):
+/// - `exp`, `exp10`, `pow`, `powr`, `compound`: the result is the exponential,
+///   at or above `2^(e_max + 1)` exactly when `x >= T`: both sides exact, no
+///   margin (`count = e_max + 1`; for `exp10` with `decimal`; for the powers the
+///   argument is the enclosure of `y ln x`).
+/// - `expm1`, `exp10m1`: `f = b^x - 1 < b^x`, so `x <= T` still gives a result
+///   below the threshold (exact), but `x >= T` does not give `f >= 2^(e_max + 1)`:
+///   `f` reaches it from `T' = log_b(2^(e_max + 1) + 1) = T + d`, `0 < d < 2^-(2^30)`.
+///   `inexact_above` makes "at or above" require `x >= T_high + margin`.
+/// - `sinh` (`count = e_max + 2`, `x` the magnitude): `f = (e^x / 2)(1 - e^(-2x))
+///   < e^x / 2`: same as `expm1`, `inexact_above`.
+/// - `cosh` (`count = e_max + 2`): `f = (e^x / 2)(1 + e^(-2x)) > e^x / 2`, so
+///   `x >= T` gives `f >= 2^(e_max + 1)` (exact) but `x <= T` does not give
+///   `f < 2^(e_max + 1)`: `inexact_below` makes "below" require
+///   `x <= T_low - margin`.
+/// The margin is `2^(top - w + 1)` with `top` the binary exponent bound of the
+/// threshold (`2^(31 - w)` for the thresholds near `2^29.5`), at least one unit in
+/// the last place of `T_high` at the working precision `w`; the difference `d`
+/// of the unsafe functions is below `2^-(2^30)`, so the margin covers it while
+/// `w < 2^29` (a larger working precision returns `None`, the safe failure).
+/// Inside the margin the side is not decided and the loop refines (the margin
+/// halves with every extra bit of `w`, while a float at distance `delta` from
+/// `T` is decided once `2^(31 - w) < delta`).
 fn binary_exp_overflow_side(
   value : BinFloat,
   work_precision : Int32,
   count~ : Int32 = binary_implementation_e_max + 1,
   decimal~ : Bool = false,
+  inexact_above~ : Bool = false,
+  inexact_below~ : Bool = false,
 ) -> Bool? {
   binary_exp_interval_overflow_side(
     value,
@@ -1354,6 +1377,8 @@ fn binary_exp_overflow_side(
     work_precision,
     count~,
     decimal~,
+    inexact_above~,
+    inexact_below~,
   )
 }
 
@@ -1361,15 +1386,20 @@ fn binary_exp_overflow_side(
 /// `binary_exp_overflow_side` for an argument known to lie in `[lower, upper]`
 /// (a product `y ln x` of two enclosures): `Some(true)` when all of it is at or
 /// above the threshold, `Some(false)` when all of it is below, `None` when it
-/// straddles the threshold at `work_precision`.
+/// straddles the threshold (or its margin) at `work_precision`.
 fn binary_exp_interval_overflow_side(
   lower : BinFloat,
   upper : BinFloat,
   work_precision : Int32,
   count~ : Int32 = binary_implementation_e_max + 1,
   decimal~ : Bool = false,
+  inexact_above~ : Bool = false,
+  inexact_below~ : Bool = false,
 ) -> Bool? {
   guard binary_ln2_bounds(work_precision) is Some((low, high)) else {
+    return None
+  }
+  guard work_precision < 536870912 || !(inexact_above || inexact_below) else {
     return None
   }
   let down = binary_working_context(
@@ -1388,9 +1418,24 @@ fn binary_exp_interval_overflow_side(
   }
   let threshold_low = low.mul_ctx(scale, down).0
   let threshold_high = high.mul_ctx(scale, up).0
-  if lower.compare(threshold_high) >= 0 {
+  let margin = BinFloat::make_coeff(
+    Coeff::one(),
+    (binary_top_bound(threshold_high) - work_precision.to_int64() + 1L).to_int(),
+    1,
+  )
+  let above = if inexact_above {
+    threshold_high.add_ctx(margin, up).0
+  } else {
+    threshold_high
+  }
+  let below = if inexact_below {
+    threshold_low.sub_ctx(margin, down).0
+  } else {
+    threshold_low
+  }
+  if lower.compare(above) >= 0 {
     Some(true)
-  } else if upper.compare(threshold_low) <= 0 {
+  } else if upper.compare(below) <= 0 {
     Some(false)
   } else {
     None
@@ -1764,7 +1809,13 @@ pub fn BinFloat::try_expm1_ctx(
               context,
               budget.precision(),
               false,
-              fn() { binary_exp_overflow_side(self, budget.precision()) },
+              fn() {
+                binary_exp_overflow_side(
+                  self,
+                  budget.precision(),
+                  inexact_above=true,
+                )
+              },
             )
             if unique {
               return Ok((result, flags))
@@ -3698,6 +3749,8 @@ fn BinFloat::try_hyperbolic_ctx(
                     self.abs(),
                     work,
                     count=binary_implementation_e_max + 2,
+                    inexact_above=operation is BinaryHyperbolicOperation::Sinh,
+                    inexact_below=operation is BinaryHyperbolicOperation::Cosh,
                   )
                 },
               )

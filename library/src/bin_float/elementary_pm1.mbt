@@ -143,7 +143,10 @@ fn binary_try_exp_base_minus_one(
     edge_side=fn(work) {
       if base_is_two {
         // 2^x - 1 >= 2^(e_max + 1) once x exceeds e_max + 1 (an integer x was
-        // decided above); compared exactly.
+        // decided above); compared exactly: a float above e_max + 1 = 2^30 is at
+        // least one unit in the last place of the argument above it, at least
+        // 2^-(precision of x) beyond `T' = log2(2^(e_max + 1) + 1)`, which lies
+        // above 2^30 by less than 2^-(2^30).
         Some(
           value.compare(
             BinFloat::from_int_raw(
@@ -154,7 +157,8 @@ fn binary_try_exp_base_minus_one(
           0,
         )
       } else {
-        binary_exp_overflow_side(value, work, decimal=true)
+        // 10^x - 1 < 10^x: "at or above" carries the margin of the side function.
+        binary_exp_overflow_side(value, work, decimal=true, inexact_above=true)
       }
     },
   )
