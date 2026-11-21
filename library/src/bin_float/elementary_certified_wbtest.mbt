@@ -126,8 +126,12 @@ test "BinFloat rootn uses certified logarithm and exponential bounds" {
     BinaryContext::binary64(),
   )
   match even_domain {
-    Ok(_) => assert_true(false)
-    Err(error) => assert_true(error.is_domain_error())
+    Ok((value, flags)) => {
+      assert_true(value.is_nan())
+      assert_true(flags.invalid_operation())
+      assert_false(flags.not_computed())
+    }
+    Err(_) => assert_true(false)
   }
 }
 
@@ -146,8 +150,12 @@ test "BinFloat pow separates integer and positive non-integer domains" {
     BinaryContext::binary64(),
   )
   match invalid {
-    Ok(_) => assert_true(false)
-    Err(error) => assert_true(error.is_domain_error())
+    Ok((value, flags)) => {
+      assert_true(value.is_nan())
+      assert_true(flags.invalid_operation())
+      assert_false(flags.not_computed())
+    }
+    Err(_) => assert_true(false)
   }
 }
 

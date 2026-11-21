@@ -42,13 +42,16 @@ fn rcp_inf(negative : Bool) -> BinFloat {
 }
 
 ///|
-/// Renders a `try_` result as `value flags` (invalid inputs as `err`).
+/// Renders a `try_` result as `value flags`: the inexact, underflow and overflow
+/// letters of `e2s_flags`, `Z` for divideByZero, `V` for invalid_operation and `N`
+/// for not_computed (a case that signals invalid is told apart from a quiet NaN
+/// that propagates); an `Err` as `err`.
 fn rcp_show(
   result : Result[(BinFloat, BinaryFlags), @def.ArithmeticError],
 ) -> String {
   match result {
     Ok((value, flags)) =>
-      "\{value} \{e2s_flags(flags)}\{if flags.division_by_zero() { "Z" } else { "" }}"
+      "\{value} \{e2s_flags(flags)}\{if flags.division_by_zero() { "Z" } else { "" }}\{if flags.invalid_operation() { "V" } else { "" }}\{if flags.not_computed() { "N" } else { "" }}"
     Err(_) => "err"
   }
 }
@@ -76,7 +79,15 @@ test "rsqrt special values" {
       ] {
       let (value, flags) = below.rsqrt_ctx(ctx)
       assert_true(value.is_quiet_nan() && flags.invalid_operation())
-      assert_true(below.try_rsqrt_ctx(ctx) is Err(_))
+      // S4: a domain case is a value in the try_ form too
+      match below.try_rsqrt_ctx(ctx) {
+        Ok((nan, nan_flags)) => {
+          assert_true(nan.is_nan())
+          assert_true(nan_flags.invalid_operation())
+          assert_false(nan_flags.not_computed())
+        }
+        Err(_) => abort("a domain case must not be an Err")
+      }
     }
     // NaNs
     let (value, flags) = BinFloat::quiet_nan(negative=true).rsqrt_ctx(ctx)
@@ -164,7 +175,7 @@ test "compound special values" {
         rcp_inf(true),
       ] {
       for n in [-3, 0, 3] {
-        assert_eq(render(below, n), "err")
+        assert_eq(render(below, n), "nan ---V")
         let (value, flags) = below.compound_ctx(n, ctx)
         assert_true(value.is_quiet_nan() && flags.invalid_operation())
       }
@@ -279,22 +290,22 @@ test "powr special values" {
       assert_eq(render(z, rcp_inf(true)), "inf ---")
       assert_eq(render(z, BinFloat::from_int(3)), "0 ---")
       assert_eq(render(z, inf), "0 ---")
-      assert_eq(render(z, zero), "err")
-      assert_eq(render(z, minus_zero), "err")
+      assert_eq(render(z, zero), "nan ---V")
+      assert_eq(render(z, minus_zero), "nan ---V")
     }
     // powr(+1, y) = 1 for finite y; powr(+1, +-inf) is invalid
     assert_eq(render(one, BinFloat::from_int(-7)), "1p0 ---")
     assert_eq(render(one, BinFloat::quiet_nan()), "nan ---")
-    assert_eq(render(one, inf), "err")
-    assert_eq(render(one, rcp_inf(true)), "err")
+    assert_eq(render(one, inf), "nan ---V")
+    assert_eq(render(one, rcp_inf(true)), "nan ---V")
     // x < 0 (and -inf) is invalid, whatever y
     for below in [BinFloat::from_int(-2), rcp_inf(true)] {
       for y in [two, zero, inf, BinFloat::quiet_nan()] {
-        assert_eq(render(below, y), "err")
+        assert_eq(render(below, y), "nan ---V")
       }
     }
     // powr(+inf, y)
-    assert_eq(render(inf, zero), "err")
+    assert_eq(render(inf, zero), "nan ---V")
     assert_eq(render(inf, two), "inf ---")
     assert_eq(render(inf, BinFloat::from_int(-2)), "0 ---")
     // quiet NaNs: powr(x, qNaN) and powr(qNaN, y) are qNaN, no exception

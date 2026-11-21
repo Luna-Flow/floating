@@ -486,6 +486,12 @@ notes live in this file.
   | `x.try_asin_ctx(ctx)` (also `acos`, `acosh`, `atanh`, `asinpi`, `acospi`) for a value outside the domain: `Err(domain_error)` | `Ok((NaN, invalid_operation))` | the plain `asin_ctx` etc. returned this value already |
   | `x.try_sin_ctx(ctx)` (also `cos`, `tan`, `sinpi`, `cospi`, `tanpi`) for an infinity: `Err(domain_error)` | `Ok((NaN, invalid_operation))` | the same value as the plain form; the checked mirror (`BinFloatResult`) is still a `domain_error`, with the message `invalid operation` |
 
+- `bin_float`: the domain case of the power and root functions is a value in the `try_` forms ([#438](https://github.com/Luna-Flow/floating/issues/438), item S4, `bin_float`, power family; the last family). `try_rootn_ctx`, `try_pow_ctx`, `try_powr_ctx`, `try_rsqrt_ctx` and `try_compound_ctx` returned `Err(domain_error)` for a case IEEE 754-2019 defines as invalid (`rootn` with degree 0 or an even degree of a negative value, `pow` of a negative base with a non-integer exponent, `powr` for `x < 0` and its indeterminate forms, `rsqrt` of a negative value, `compound` for `x < -1`). With the previous steps no `try_` form of an elementary function returns a domain `Err` any more: `Err` means only that the result could not be computed.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `x.try_rootn_ctx(n, ctx)` (also `pow`, `powr`, `rsqrt`, `compound`) for a domain case: `Err(domain_error)` | `Ok((NaN, invalid_operation))` | the plain `rootn_ctx` etc. returned this value already |
+
 ### Added
 
 - `bin_float`, `decimal`: every comparison predicate of IEEE 754-2019 5.11 has a function ([#438](https://github.com/Luna-Flow/floating/issues/438), item N6). The clause lists 22 predicates, 10 in Table 5.1 and 12 in Table 5.2; `bin_float` had 7 and `decimal` none. Both now have the 15 others, with the names of the first seven (`compare_quiet_*`, `compare_signaling_*`): `not_equal`, `greater`, `greater_equal`, `not_greater`, `less_unordered`, `not_less` and `greater_unordered` for both kinds, and `compare_quiet_ordered`. Each returns `(Bool, flags)`, is defined from `compare_quiet` or `compare_signaling` and raises invalid where the table says (a signaling NaN for the quiet ones, any NaN for the signaling ones). Nothing existing changes in `bin_float`.

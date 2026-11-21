@@ -14,15 +14,6 @@ test "a certification failure is a NaN with not_computed and without invalid_ope
   assert_true(value.is_nan())
   assert_true(flags.not_computed())
   assert_false(flags.invalid_operation())
-  // a domain `Err` (the try_ forms of this package still return one for now) is
-  // the invalid case, never not_computed
-  let domain = @def.ArithmeticError::domain_error(
-    "ln requires a positive value",
-  )
-  let (nan, nan_flags) = binary_defined_or_nan(Err(domain), context)
-  assert_true(nan.is_nan())
-  assert_true(nan_flags.invalid_operation())
-  assert_false(nan_flags.not_computed())
   // an ordinary result is passed through
   let (one, one_flags) = binary_defined_or_nan(
     Ok((BinFloat::from_int(1), BinaryFlags::new())),

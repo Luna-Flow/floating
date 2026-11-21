@@ -71,10 +71,13 @@ test "BinFloat rootn of negative infinity follows the degree parity" {
   let context = BinaryContext::binary64()
   let negative_infinity = BinFloat::inf(Sign::Negative)
   for degree in [2, -2, 4, -4] {
-    guard negative_infinity.try_rootn_ctx(degree, context) is Err(error) else {
-      fail("rootn(-inf, " + degree.to_string() + ") must be invalid")
+    guard negative_infinity.try_rootn_ctx(degree, context)
+      is Ok((nan, nan_flags)) else {
+      fail("rootn(-inf, " + degree.to_string() + ") must be a value")
     }
-    assert_true(error.is_domain_error())
+    // S4: invalid is a value in the try_ form
+    assert_true(nan.is_nan() && nan_flags.invalid_operation())
+    assert_false(nan_flags.not_computed())
     let (value, flags) = negative_infinity.rootn_ctx(degree, context)
     assert_true(value.is_quiet_nan())
     assert_true(flags.invalid_operation())
@@ -224,10 +227,11 @@ test "BinFloat pow decides parity of large integer exponents" {
   assert_true(upward_flags.overflow())
   // A negative base with a non-integer exponent stays invalid.
   guard BinFloat::from_int(-4).try_pow_ctx(pow_rootn_dyadic(1UL, -1), context)
-    is Err(error) else {
-    fail("pow(-4, 0.5) must be invalid")
+    is Ok((nan, nan_flags)) else {
+    fail("pow(-4, 0.5) must be a value")
   }
-  assert_true(error.is_domain_error())
+  assert_true(nan.is_nan() && nan_flags.invalid_operation())
+  assert_false(nan_flags.not_computed())
 }
 
 ///|

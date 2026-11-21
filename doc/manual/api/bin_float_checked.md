@@ -481,7 +481,7 @@ test "powers and roots" {
   inspect(show(r(3).pow_nat(10)), content="59049p0")
   inspect(show(r(0).pown(-1)), content="error: negative exponent requires a non-zero base")
   inspect(show(r(-8).rootn(3)), content="-1p1")
-  inspect(show(r(8).rootn(0)), content="error: rootn degree must not be zero")
+  inspect(show(r(8).rootn(0)), content="error: invalid operation")
   inspect(show(r(3).hypot(r(4))), content="5p0")
 }
 ```

@@ -37,8 +37,15 @@ test "rootn with degree zero is invalid for every operand and never divideByZero
   for context in contexts {
     for operand in operands {
       let label = "rootn(\{operand.0}, 0)"
-      // The try_ form reports the domain error.
-      assert_true(operand.1.try_rootn_ctx(0, context) is Err(_), msg=label)
+      // S4: the try_ form returns the value too, a NaN with invalid_operation.
+      match operand.1.try_rootn_ctx(0, context) {
+        Ok((nan, nan_flags)) => {
+          assert_true(nan.is_nan(), msg=label)
+          assert_true(nan_flags.invalid_operation(), msg=label)
+          assert_false(nan_flags.not_computed(), msg=label)
+        }
+        Err(_) => abort(label + ": a domain case must not be an Err")
+      }
       // The contextual form delivers a quiet NaN with invalid only.
       let (value, flags) = operand.1.rootn_ctx(0, context)
       assert_true(value.is_quiet_nan(), msg=label + " is a quiet NaN")
