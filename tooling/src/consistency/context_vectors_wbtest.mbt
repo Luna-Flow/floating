@@ -202,7 +202,16 @@ test "the library constructors agree with testdata/context_vectors.txt" {
     }
   }
   assert_true(disagreements.is_empty(), msg=disagreements.join(" | "))
-  assert_true(checked > 45)
-  assert_true(skipped > 5)
-  assert_true(checked + skipped == vectors.length())
+  // Stated numbers (the list is `testdata/context_vectors.txt`, 69 vectors):
+  // 57 are checked against the constructors and 12 are skipped by name because
+  // the constructors lack a column of the vector (see the header of the file).
+  // The numbers are exact on purpose: a vector that turns from checked into
+  // skipped, or a deleted line, must change these numbers in the same commit,
+  // not pass a lower bound. Oracle of the verdicts (level A): the file, written
+  // from IEEE 754-2019 3.3 and 3.7 and GDA 1.70 page 10; its limits are the
+  // library's own constants (hand-copied: see the test of the constants in
+  // `consistency/oracle_constants_wbtest.mbt`).
+  assert_eq(vectors.length(), 69)
+  assert_eq(checked, 57)
+  assert_eq(skipped, 12)
 }
