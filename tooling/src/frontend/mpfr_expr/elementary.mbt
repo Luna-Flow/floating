@@ -117,6 +117,14 @@ fn elementary_operation_is_binary(operation : MpfrElementaryOperation) -> Bool {
 }
 
 ///|
+/// The precision at which an operand token is read: `max(512, 4 * length)`, so
+/// that the digits written always fit (a row whose operand has more bits than its
+/// result precision is read exactly, never rounded).
+fn operand_precision(token : String) -> Int32 {
+  Int32::max(512, token.length() * 4)
+}
+
+///|
 pub fn parse_elementary_data(
   source : String,
   text : String,
@@ -140,16 +148,19 @@ pub fn parse_elementary_data(
     let operation = parse_elementary_operation(tokens[0])
     let output_precision = parse_int(tokens[1])
     let rounding = parse_rounding(tokens[2])
-    // The operands of a row have at most as many bits as its result precision
-    // (the wide logarithm rows reach 1152 bits), so they are read exactly.
-    let operand_precision = Int32::max(512, output_precision.unwrap_or(512))
-    let left = @bin_float.BinFloat::from_hex(tokens[3], operand_precision)
+    // An operand is read at a precision that cannot round it: four bits per
+    // character of its token (at least 512), more than its hexadecimal digits hold.
+    let left = @bin_float.BinFloat::from_hex(
+      tokens[3],
+      operand_precision(tokens[3]),
+    )
     let right = if tokens[4] == "-" {
       Ok(None)
     } else {
-      @bin_float.BinFloat::from_hex(tokens[4], operand_precision).map(value => {
-        Some(value)
-      })
+      @bin_float.BinFloat::from_hex(tokens[4], operand_precision(tokens[4])).map(value => {
+          Some(value)
+        },
+      )
     }
     let integer = parse_int(tokens[5])
     let inexact = parse_bool_digit(tokens[7])
