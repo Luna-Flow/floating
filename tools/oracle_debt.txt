@@ -9,11 +9,6 @@ library/src/interval/algebraic_reverse_wbtest.mbt::pown_rev: negative powers exc
 library/src/interval/algebraic_reverse_wbtest.mbt::pown_rev: p = 0, 1, even and odd positive powers	?
 library/src/interval/algebraic_reverse_wbtest.mbt::sqr_rev rounds the root outward	?
 library/src/interval/algebraic_reverse_wbtest.mbt::sqr_rev: the examples of IEEE 1788-2015 10.5.4	?
-library/src/interval/atan2_reverse_reference_wbtest.mbt::atan2 reverse reference fallback: the cap at 0 and at 1 never misses a point	?
-library/src/interval/atan2_reverse_reference_wbtest.mbt::atan2 reverse reference long: against the forward atan2 at 200 bits	?
-library/src/interval/atan2_reverse_reference_wbtest.mbt::atan2 reverse reference sample: against the forward atan2 at 200 bits	?
-library/src/interval/atan2_reverse_wbtest.mbt::atan2_rev1 and atan2_rev2: an angle one float from pi/2 or pi gives a huge result	?
-library/src/interval/atan2_reverse_wbtest.mbt::atan2_rev1 and atan2_rev2: extreme operands return at once	?
 library/src/interval/atan2_tiny_quotient_wbtest.mbt::try_atan2 of a quotient below the exponent range encloses zero tightly	?
 library/src/interval/atan2_wbtest.mbt::atan2 identifies signed zero endpoints with the real interval zero	?
 library/src/interval/atan2_wbtest.mbt::certified atan2 handles axes and branch cut	?
@@ -155,9 +150,6 @@ library/src/interval/observers_wbtest.mbt::observers are total and follow 12.12.
 library/src/interval/observers_wbtest.mbt::radius covers the interval around the midpoint (issue 477)	?
 library/src/interval/observers_wbtest.mbt::radius is the larger distance from the midpoint, rounded up, for many intervals	?
 library/src/interval/observers_wbtest.mbt::try_new reports an invalid center or radius	?
-library/src/interval/pow_reverse2_reference_wbtest.mbt::pow_rev2 reference fallback: the cap at 0 and at 1 never misses a point	?
-library/src/interval/pow_reverse2_reference_wbtest.mbt::pow_rev2 reference long: against the forward pow at 200 bits	?
-library/src/interval/pow_reverse2_reference_wbtest.mbt::pow_rev2 reference sample: against the forward pow at 200 bits	?
 library/src/interval/pow_reverse2_wbtest.mbt::pow_rev2 classes: a high power of a small base is decided exactly, a huge one is Unknown	?
 library/src/interval/pow_reverse2_wbtest.mbt::pow_rev2 classes: ln(c) / ln(a) by the multiplicative Euclidean algorithm	?
 library/src/interval/pow_reverse2_wbtest.mbt::pow_rev2 rational ends: comparison and directed rounding	?
@@ -167,9 +159,6 @@ library/src/interval/pow_reverse2_wbtest.mbt::pow_rev2: bases and results at the
 library/src/interval/pow_reverse2_wbtest.mbt::pow_rev2: extreme bases, results and prior ends return at once	?
 library/src/interval/pow_reverse2_wbtest.mbt::pow_rev2: the examples of the corpus and open ends against a prior touching 0	?
 library/src/interval/pow_reverse2_wbtest.mbt::pow_rev2: the result keeps the precision of the operands and a decorated form is trv	?
-library/src/interval/pow_reverse_reference_wbtest.mbt::pow_rev1 reference fallback: the cap at 0 and at 1 never misses a point	?
-library/src/interval/pow_reverse_reference_wbtest.mbt::pow_rev1 reference long: against the forward pow at 200 bits	?
-library/src/interval/pow_reverse_reference_wbtest.mbt::pow_rev1 reference sample: against the forward pow at 200 bits	?
 library/src/interval/pow_reverse_wbtest.mbt::classes of c^(1/beta): dyadic, rational and not dyadic, irrational, over the budget	?
 library/src/interval/pow_reverse_wbtest.mbt::decorated and the unbounded forms	?
 library/src/interval/pow_reverse_wbtest.mbt::pow_rev1: an exact end in the subnormal range returns at once	?
@@ -192,11 +181,6 @@ library/src/interval/total_forms_wbtest.mbt::atanh of an interval meeting the cl
 library/src/interval/total_forms_wbtest.mbt::exp at 160,000 bits returns an enclosure (issue 449)	?
 library/src/interval/total_forms_wbtest.mbt::hyperbolic forms keep relative accuracy for a tiny argument	S
 library/src/interval/total_forms_wbtest.mbt::ln at 32,000 bits returns a tight enclosure (issue 449)	?
-library/src/interval/trig_reverse_reference_wbtest.mbt::reference fallback: with the cap at 0 and at 1 the result contains the hull	?
-library/src/interval/trig_reverse_reference_wbtest.mbt::reference long: cos_rev against the enumeration of every piece	?
-library/src/interval/trig_reverse_reference_wbtest.mbt::reference long: sin_rev against the enumeration of every piece	?
-library/src/interval/trig_reverse_reference_wbtest.mbt::reference long: tan_rev against the enumeration of every piece	?
-library/src/interval/trig_reverse_reference_wbtest.mbt::reference sample: sin_rev, cos_rev and tan_rev against the enumeration of every piece	?
 library/src/interval/trig_reverse_wbtest.mbt::cos_rev: the corner cases, the pieces and the shortcuts	?
 library/src/interval/trig_reverse_wbtest.mbt::decorated trigonometric reverse functions are trivially decorated (11.7.1)	?
 library/src/interval/trig_reverse_wbtest.mbt::regression: a prior end of 2^-1000000000 returns at once	?

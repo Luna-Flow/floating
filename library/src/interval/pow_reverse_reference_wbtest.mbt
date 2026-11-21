@@ -306,6 +306,10 @@ fn pwr_check(
 ///|
 /// The sample that runs with every test run (fixed seeds, three precisions: 24, 53 and
 /// 113).
+// oracle: B
+// source: the exponent-side reference: the forward pow at 200 bits and a bisection over the prior; no code of pow_reverse.mbt; the case is checked for the exact hull (tightness) where the test says so, and for enclosure and containment in the prior in the capped fallback
+// shares: forward Interval::pow at 200 bits, Interval add/sub at 200 bits
+// primitives: forward pow: forward_reference_wbtest.mbt (MPFR rows, level A, tightness, 80 rows with a point exponent, while pow_rev1 uses an interval exponent); add, sub: ITF1788 and the MPFR differential stage
 test "pow_rev1 reference sample: against the forward pow at 200 bits" {
   pwr_check(24, 8, 101UL)
   pwr_check(53, 8, 102UL)
@@ -315,16 +319,25 @@ test "pow_rev1 reference sample: against the forward pow at 200 bits" {
 ///|
 /// The fallback: with no refinement (cap 0) and one (cap 1) every float certainly in the
 /// set is still in the result, which stays inside the prior.
+// oracle: B
+// source: the exponent-side reference: the forward pow at 200 bits and a bisection over the prior; no code of pow_reverse.mbt; the case is checked for the exact hull (tightness) where the test says so, and for enclosure and containment in the prior in the capped fallback
+// shares: forward Interval::pow at 200 bits, Interval add/sub at 200 bits
+// primitives: forward pow: forward_reference_wbtest.mbt (MPFR rows, level A, tightness, 80 rows with a point exponent, while pow_rev1 uses an interval exponent); add, sub: ITF1788 and the MPFR differential stage
 test "pow_rev1 reference fallback: the cap at 0 and at 1 never misses a point" {
   pwr_check(24, 6, 111UL, cap=0)
   pwr_check(53, 6, 112UL, cap=1)
   pwr_check(113, 6, 113UL, cap=0)
 }
 
+#skip("long run: the interval gate runs it with --include-skipped")
+
 ///|
 /// The long run: 700 cases at each of three precisions, run by the interval gate with
 /// `--include-skipped`.
-#skip("long run: the interval gate runs it with --include-skipped")
+// oracle: B
+// source: the exponent-side reference: the forward pow at 200 bits and a bisection over the prior; no code of pow_reverse.mbt; the case is checked for the exact hull (tightness) where the test says so, and for enclosure and containment in the prior in the capped fallback
+// shares: forward Interval::pow at 200 bits, Interval add/sub at 200 bits
+// primitives: forward pow: forward_reference_wbtest.mbt (MPFR rows, level A, tightness, 80 rows with a point exponent, while pow_rev1 uses an interval exponent); add, sub: ITF1788 and the MPFR differential stage
 test "pow_rev1 reference long: against the forward pow at 200 bits" {
   pwr_check(24, 700, 1UL)
   pwr_check(53, 700, 2UL)

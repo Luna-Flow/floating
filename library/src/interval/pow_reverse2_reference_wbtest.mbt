@@ -244,6 +244,10 @@ fn pw2_check(
 ///|
 /// The sample that runs with every test run (fixed seeds, three precisions: 24, 53 and
 /// 113).
+// oracle: B
+// source: the base-side reference: the forward pow at 200 bits and a bisection over the prior; no code of pow_reverse2.mbt; the case is checked for the exact hull (tightness) where the test says so, and for enclosure and containment in the prior in the capped fallback
+// shares: forward Interval::pow at 200 bits, Interval add/sub at 200 bits
+// primitives: forward pow: forward_reference_wbtest.mbt (MPFR rows, level A, tightness, 80 rows with a point exponent); add, sub: ITF1788 and the MPFR differential stage
 test "pow_rev2 reference sample: against the forward pow at 200 bits" {
   pw2_check(24, 8, 201UL)
   pw2_check(53, 8, 202UL)
@@ -253,16 +257,25 @@ test "pow_rev2 reference sample: against the forward pow at 200 bits" {
 ///|
 /// The fallback: with no refinement (cap 0) and one (cap 1) every float certainly in the
 /// set is still in the result, which stays inside the prior.
+// oracle: B
+// source: the base-side reference: the forward pow at 200 bits and a bisection over the prior; no code of pow_reverse2.mbt; the case is checked for the exact hull (tightness) where the test says so, and for enclosure and containment in the prior in the capped fallback
+// shares: forward Interval::pow at 200 bits, Interval add/sub at 200 bits
+// primitives: forward pow: forward_reference_wbtest.mbt (MPFR rows, level A, tightness, 80 rows with a point exponent); add, sub: ITF1788 and the MPFR differential stage
 test "pow_rev2 reference fallback: the cap at 0 and at 1 never misses a point" {
   pw2_check(24, 6, 211UL, cap=0)
   pw2_check(53, 6, 212UL, cap=1)
   pw2_check(113, 6, 213UL, cap=0)
 }
 
+#skip("long run: the interval gate runs it with --include-skipped")
+
 ///|
 /// The long run: 700 cases at each of three precisions, run by the interval gate with
 /// `--include-skipped`.
-#skip("long run: the interval gate runs it with --include-skipped")
+// oracle: B
+// source: the base-side reference: the forward pow at 200 bits and a bisection over the prior; no code of pow_reverse2.mbt; the case is checked for the exact hull (tightness) where the test says so, and for enclosure and containment in the prior in the capped fallback
+// shares: forward Interval::pow at 200 bits, Interval add/sub at 200 bits
+// primitives: forward pow: forward_reference_wbtest.mbt (MPFR rows, level A, tightness, 80 rows with a point exponent); add, sub: ITF1788 and the MPFR differential stage
 test "pow_rev2 reference long: against the forward pow at 200 bits" {
   pw2_check(24, 700, 21UL)
   pw2_check(53, 700, 22UL)

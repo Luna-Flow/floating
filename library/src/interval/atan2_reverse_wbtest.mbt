@@ -207,53 +207,63 @@ test "atan2: the branch cut and the half-open range" {
 
 ///|
 /// A float next to pi (or pi/2): the tangent (cotangent) is huge and the working precision
-/// follows it; the result contains the reference quotient at 200 bits and is two adjacent
-/// floats, of the order `2^p` times the factor.
+/// follows it. The result is the tightest one, the two adjacent floats around the exact value
+/// `tan(c)` (Rev1, b = 1) or `cot(c)` (Rev2, b = 1), whose enclosure at 200 bits comes from MPFR.
+// oracle: A
+// source: tan and cot of the float next to pi/2 and pi, rounded down and up to 200 bits by MPFR (tools/interval_forward_oracle.py), then rounded again down and up to p bits here: the tightest result; the floats next to pi/2 and pi come from ref_pi_interval (Python integers)
+// shares: a2_near (with_precision of binary); forward_reference_table
 test "atan2_rev1 and atan2_rev2: an angle one float from pi/2 or pi gives a huge result" {
+  let down = @binary.BinaryRoundingMode::RoundTowardNegative
+  let up = @binary.BinaryRoundingMode::RoundTowardPositive
   for p in [53, 113] {
     let ctx = @binary.BinaryContext::new(precision=p)
     let one = pw_box(pw_num(1.0, p), pw_num(1.0, p), p)
     // Rev1 next to pi/2: y = 1 * tan(c) is positive and about 2^p
     let c1 = a2_near(1, p)
     let r1 = one.atan2_rev1(pw_box(c1, c1, p))
-    let e1 = Interval::exact(c1, precision=200).tan()
-    assert_true(r1.lo_.compare(e1.lo_) <= 0 && r1.hi_.compare(e1.hi_) >= 0)
+    let e1 = fwd_find("tan", c1)
+    assert_true(r1.lo_.compare(e1.lo.with_precision(p, down)) == 0)
+    assert_true(r1.hi_.compare(e1.hi.with_precision(p, up)) == 0)
     assert_true(r1.lo_.next_up_ctx(ctx).0.compare(r1.hi_) == 0)
     assert_true(pow_adjusted_exponent(r1.lo_) >= (p - 4).to_int64())
     // Rev2 next to pi: x0 = 1 * cot(c) is negative and about -2^p
     let c2 = a2_near(2, p)
     let r2 = one.atan2_rev2(pw_box(c2, c2, p))
-    let e2 = Interval::exact(pw_num(1.0, 200), precision=200) /
-      Interval::exact(c2, precision=200).tan()
-    assert_true(r2.lo_.compare(e2.lo_) <= 0 && r2.hi_.compare(e2.hi_) >= 0)
+    let e2 = fwd_find("cot", c2)
+    assert_true(r2.lo_.compare(e2.lo.with_precision(p, down)) == 0)
+    assert_true(r2.hi_.compare(e2.hi.with_precision(p, up)) == 0)
     assert_true(r2.lo_.next_up_ctx(ctx).0.compare(r2.hi_) == 0)
     assert_true(pow_adjusted_exponent(r2.lo_.neg()) >= (p - 4).to_int64())
-    println(
-      "HUGE p=\{p} rev1=[\{r1.lo_.to_string()}, \{r1.hi_.to_string()}] rev2=[\{r2.lo_.to_string()}, \{r2.hi_.to_string()}]",
-    )
   }
 }
 
 ///|
+// oracle: A
+// source: tan(0.5) and cot(0.5) rounded down and up to 200 bits by MPFR (tools/interval_forward_oracle.py), scaled by the exact power of two 2^(+-1e9) (a shift of the exponent), then rounded to 53 bits: the tightest result
+// shares: Interval::mul only to scale by a power of two (exact)
 test "atan2_rev1 and atan2_rev2: extreme operands return at once" {
   let p = 53
+  let down = @binary.BinaryRoundingMode::RoundTowardNegative
+  let up = @binary.BinaryRoundingMode::RoundTowardPositive
   let huge = pw_pow2(1000000000, p)
   let tiny = pw_pow2(-1000000000, p)
   let half = pw_num(0.5, p)
+  let t = fwd_find("tan", half)
+  let k = fwd_find("cot", half)
   for factor in [huge, tiny] {
     let b = pw_box(factor, factor, p)
     let c = pw_box(half, half, p)
-    let reference = Interval::exact(factor, precision=200) *
-      Interval::exact(half, precision=200).tan()
+    let scale = Interval::exact(factor, precision=200)
+    // Rev1: y = b tan(c)
+    let reference = scale * Interval::from_bounds(t.lo, t.hi, precision=200)
     let r1 = b.atan2_rev1(c)
-    assert_true(r1.lo_.compare(reference.lo_) <= 0)
-    assert_true(r1.hi_.compare(reference.hi_) >= 0)
-    // Rev2: x0 = a0 cot(c)
-    let reference2 = Interval::exact(factor, precision=200) /
-      Interval::exact(half, precision=200).tan()
+    assert_true(r1.lo_.compare(reference.lo_.with_precision(p, down)) == 0)
+    assert_true(r1.hi_.compare(reference.hi_.with_precision(p, up)) == 0)
+    // Rev2: x0 = b cot(c)
+    let reference2 = scale * Interval::from_bounds(k.lo, k.hi, precision=200)
     let r2 = b.atan2_rev2(c)
-    assert_true(r2.lo_.compare(reference2.lo_) <= 0)
-    assert_true(r2.hi_.compare(reference2.hi_) >= 0)
+    assert_true(r2.lo_.compare(reference2.lo_.with_precision(p, down)) == 0)
+    assert_true(r2.hi_.compare(reference2.hi_.with_precision(p, up)) == 0)
   }
   // prior ends of magnitude 2^+-1e9
   let one = pw_box(pw_num(1.0, p), pw_num(1.0, p), p)
