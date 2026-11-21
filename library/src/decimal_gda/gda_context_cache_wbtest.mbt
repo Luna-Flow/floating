@@ -1,4 +1,9 @@
 ///|
+// oracle: S
+// source: cache invariance: a cached context equals a fresh build with the same parameters; no numeric value is
+//   computed
+// shares: gda_build_decimal_context, arithmetic_rounding and decimal_rounding (the fresh build uses the same
+//   rounding-mode mapping as the cache, so a wrong mapping cancels: this block does not test the mapping)
 test "cached decimal contexts equal a fresh build for every parameter set" {
   let modes : Array[GdaRoundingMode] = [
     HalfEven,

@@ -1041,131 +1041,17 @@ library/src/decimal_gda/coeff_kernel_wbtest.mbt::optimized decimal coefficient s
 library/src/decimal_gda/coeff_kernel_wbtest.mbt::repr gda normalization rounds to the precision and reduces, as libmpdec	?
 library/src/decimal_gda/coeff_kernel_wbtest.mbt::repr normalization gives the libmpdec result and flags on finite values	?
 library/src/decimal_gda/coeff_kernel_wbtest.mbt::scaleb count extracts exponent-zero integers from coeff repr	?
-library/src/decimal_gda/compare_nan_wbtest.mbt::GDA decimal compare orders NaN after every number instead of aborting	?
-library/src/decimal_gda/constructor_checks_wbtest.mbt::GdaInterchange::from_hex returns Err for text that is not a pattern	?
-library/src/decimal_gda/constructor_checks_wbtest.mbt::a NaN payload has at most precision - 1 digits	?
-library/src/decimal_gda/constructor_checks_wbtest.mbt::an interchange NaN keeps the low digits of a payload that is too wide	?
-library/src/decimal_gda/constructor_checks_wbtest.mbt::from_binary takes a required precision in digits and a rounding mode	?
-library/src/decimal_gda/constructor_checks_wbtest.mbt::from_string returns Err for a precision outside the limits and a wide payload	?
-library/src/decimal_gda/constructor_checks_wbtest.mbt::make and with_precision take a GDA rounding mode	?
-library/src/decimal_gda/constructor_checks_wbtest.mbt::make keeps the given exponent and does not reduce a rounded coefficient	?
-library/src/decimal_gda/constructor_checks_wbtest.mbt::panic Decimal::from_double aborts on precision 0	?
-library/src/decimal_gda/constructor_checks_wbtest.mbt::panic Decimal::from_int aborts on precision 0	?
-library/src/decimal_gda/constructor_checks_wbtest.mbt::panic Decimal::inf aborts on precision 0	?
-library/src/decimal_gda/constructor_checks_wbtest.mbt::panic Decimal::make aborts on precision 0	?
-library/src/decimal_gda/constructor_checks_wbtest.mbt::panic Decimal::nan aborts on a negative precision	?
-library/src/decimal_gda/constructor_checks_wbtest.mbt::panic Decimal::one aborts on a precision above the limit	?
-library/src/decimal_gda/constructor_checks_wbtest.mbt::panic Decimal::with_precision aborts on precision 0	?
-library/src/decimal_gda/constructor_checks_wbtest.mbt::panic Decimal::zero aborts on precision 0	?
-library/src/decimal_gda/constructor_checks_wbtest.mbt::panic quiet_nan aborts on a negative payload	?
-library/src/decimal_gda/constructor_checks_wbtest.mbt::panic quiet_nan aborts on a payload of precision digits	?
-library/src/decimal_gda/constructor_checks_wbtest.mbt::panic signaling_nan aborts on a payload at precision 1	?
-library/src/decimal_gda/constructor_checks_wbtest.mbt::panic to_binary aborts on precision 0	?
-library/src/decimal_gda/constructor_checks_wbtest.mbt::the limits of the precision are accepted	?
-library/src/decimal_gda/constructor_checks_wbtest.mbt::to_binary takes the rounding modes of the radix of the result	?
-library/src/decimal_gda/context_bounds_wbtest.mbt::GDA DecimalContext rejects exponent bounds with invalid signs	?
-library/src/decimal_gda/context_bounds_wbtest.mbt::an ArithmeticContext without exponent bounds is an invalid context for exp (#111)	?
-library/src/decimal_gda/context_bounds_wbtest.mbt::checked integer powers report an invalid context, not a domain error (#111)	?
-library/src/decimal_gda/context_bounds_wbtest.mbt::decTest expx901-906: exp requires bounded contexts	?
-library/src/decimal_gda/context_bounds_wbtest.mbt::decTest lnx901-906 and logx901-906: logarithms require bounded contexts	?
-library/src/decimal_gda/context_bounds_wbtest.mbt::decTest powx4001-4006: non-integral power requires bounded contexts	?
-library/src/decimal_gda/context_new_wbtest.mbt::DecimalContext::new accepts the valid range and agrees with try_new	?
-library/src/decimal_gda/context_new_wbtest.mbt::DecimalContext::try_new names the invalid parameter	?
-library/src/decimal_gda/context_new_wbtest.mbt::GdaContext accepts only the exponent ranges of GDA 1.70 page 10	?
-library/src/decimal_gda/context_new_wbtest.mbt::GdaContext setters rebuild a valid context and keep status, traps and the refinement limit	?
-library/src/decimal_gda/context_new_wbtest.mbt::GdaContext::new accepts the valid range and agrees with try_new	?
-library/src/decimal_gda/context_new_wbtest.mbt::GdaContext::try_new names the invalid parameter	?
-library/src/decimal_gda/context_new_wbtest.mbt::panic DecimalContext::new aborts on e_max below zero	?
-library/src/decimal_gda/context_new_wbtest.mbt::panic DecimalContext::new aborts on e_min above zero	?
-library/src/decimal_gda/context_new_wbtest.mbt::panic DecimalContext::new aborts on precision 0	?
-library/src/decimal_gda/context_new_wbtest.mbt::panic DecimalContext::new aborts on precision above the limit	?
-library/src/decimal_gda/context_new_wbtest.mbt::panic DecimalContext::new aborts when e_min exceeds e_max	?
-library/src/decimal_gda/context_new_wbtest.mbt::panic GdaContext::new aborts on an exponent range outside GDA 1.70 page 10	?
-library/src/decimal_gda/context_new_wbtest.mbt::panic GdaContext::new aborts on e_max below zero	?
-library/src/decimal_gda/context_new_wbtest.mbt::panic GdaContext::new aborts on e_min above zero	?
-library/src/decimal_gda/context_new_wbtest.mbt::panic GdaContext::new aborts on precision 0	?
-library/src/decimal_gda/context_new_wbtest.mbt::panic GdaContext::new aborts on precision above the limit	?
-library/src/decimal_gda/context_new_wbtest.mbt::panic GdaContext::new aborts when e_min exceeds e_max	?
-library/src/decimal_gda/context_new_wbtest.mbt::panic GdaContext::with_exponent_range aborts outside the GDA 1.70 rule	?
-library/src/decimal_gda/context_new_wbtest.mbt::the presets take a rounding mode and keep the extended default otherwise	?
-library/src/decimal_gda/context_rounding_wbtest.mbt::gda add rounds sums with a far smaller addend once	?
-library/src/decimal_gda/context_rounding_wbtest.mbt::gda divide rounds subnormal quotients once	?
-library/src/decimal_gda/context_rounding_wbtest.mbt::gda rounds normal results below Etiny once	?
-library/src/decimal_gda/context_rounding_wbtest.mbt::gda scaleb rounds, clamps and overflows like other operations	?
-library/src/decimal_gda/decimal_gda_wbtest.mbt::Decimal GDA checked parsing uses the arithmetic context	?
-library/src/decimal_gda/decimal_gda_wbtest.mbt::GDA divide_integer clamps zero quotient exponents	?
-library/src/decimal_gda/decimal_gda_wbtest.mbt::GDA facade selects signaling NaN precedence	?
-library/src/decimal_gda/decimal_gda_wbtest.mbt::decimal direct constructors preserve public representations	?
-library/src/decimal_gda/divide_integer_infinite_divisor_wbtest.mbt::divide_integer clamps a zero quotient over an infinite divisor	?
-library/src/decimal_gda/divide_integer_zero_dividend_wbtest.mbt::divide_integer and remainder accept a zero dividend	?
-library/src/decimal_gda/division_double_rounding_wbtest.mbt::gda divide rounds once near a manufactured midpoint	?
-library/src/decimal_gda/division_double_rounding_wbtest.mbt::gda divide stays exact when the quotient terminates	?
-library/src/decimal_gda/elementary_gda_wbtest.mbt::GDA classic subset retains legacy math flags	?
-library/src/decimal_gda/elementary_gda_wbtest.mbt::GDA extreme exp uses HalfEven without endpoint expansion	?
-library/src/decimal_gda/elementary_gda_wbtest.mbt::GDA finite extreme-range exp certifies without full decimal expansion	?
-library/src/decimal_gda/elementary_gda_wbtest.mbt::GDA noninteger power preserves GDA cohort and flags	?
-library/src/decimal_gda/elementary_gda_wbtest.mbt::GDA power certifies directed overflow and underflow cells	?
-library/src/decimal_gda/elementary_gda_wbtest.mbt::GDA power keeps zero-zero rule and official powx2015 vector	?
-library/src/decimal_gda/elementary_gda_wbtest.mbt::GDA square-root power preserves zero and tiny-result conditions	?
-library/src/decimal_gda/elementary_gda_wbtest.mbt::GDA transcendental operations finalize with half even	?
-library/src/decimal_gda/elementary_gda_wbtest.mbt::ln of the subset is correctly rounded, as the extended arithmetic (ln116, lnx116)	?
-library/src/decimal_gda/elementary_range_wbtest.mbt::certified results far outside the decimal range stay bounded	?
-library/src/decimal_gda/elementary_range_wbtest.mbt::power far outside the decimal range stays bounded	?
-library/src/decimal_gda/etiny_direct_wbtest.mbt::etiny and etop equal the exponent bounds they replace	C
-library/src/decimal_gda/exponent_limits_issue145_wbtest.mbt::GDA decimal context rejects out of range fields without aborting	?
-library/src/decimal_gda/exponent_limits_issue145_wbtest.mbt::GDA fma exact product boundary follows floor without overflow	?
-library/src/decimal_gda/exponent_limits_issue145_wbtest.mbt::GDA fma exact product boundary honors negative addend	?
-library/src/decimal_gda/exponent_limits_issue145_wbtest.mbt::GDA fma far gap uses sticky addend without aborting	?
-library/src/decimal_gda/exponent_limits_issue145_wbtest.mbt::GDA fma product below Int range uses a bounded sticky alignment	?
-library/src/decimal_gda/exponent_limits_issue145_wbtest.mbt::GdaContext rejects exponent bounds with invalid signs	?
-library/src/decimal_gda/exponent_limits_issue145_wbtest.mbt::GdaContext rejects precision and exponent bounds outside adopted limits	?
-library/src/decimal_gda/exponent_limits_issue145_wbtest.mbt::extreme e_max reports overflow without adjusted exponent wrap	?
-library/src/decimal_gda/exponent_limits_issue145_wbtest.mbt::extreme e_min preserves exact parse and addition	?
-library/src/decimal_gda/exponent_limits_issue145_wbtest.mbt::huge quantize and to-integral shifts round to zero	?
-library/src/decimal_gda/exponent_limits_issue145_wbtest.mbt::next operations handle Int minimum with zero etiny	?
-library/src/decimal_gda/exponent_limits_issue145_wbtest.mbt::p=1 extreme division overflows without aborting	?
-library/src/decimal_gda/exponent_limits_issue145_wbtest.mbt::quantize with extreme exponent distance returns invalid operation	?
-library/src/decimal_gda/exponent_limits_issue187_wbtest.mbt::operands with exponents near the Int limits give the specified results (#187)	?
-library/src/decimal_gda/exponent_limits_issue187_wbtest.mbt::rescale with an exponent operand beyond Int is invalid (#187)	?
-library/src/decimal_gda/exponent_range_wbtest.mbt::context conversion of huge exponents overflows or underflows	?
-library/src/decimal_gda/exponent_range_wbtest.mbt::literal exponents up to the stored range are kept	?
-library/src/decimal_gda/exponent_range_wbtest.mbt::literals outside the stored range are rejected, not folded	?
-library/src/decimal_gda/exponent_range_wbtest.mbt::products and quotients of extreme exponents do not wrap	A
-library/src/decimal_gda/extrema_wbtest.mbt::GDA min and max keep the preferred NaN diagnostics	?
-library/src/decimal_gda/extrema_wbtest.mbt::GDA min and max order signed zeros by the total order in the extended mode	?
-library/src/decimal_gda/extrema_wbtest.mbt::GDA subset min and max clean the selected zero	?
 library/src/decimal_gda/from_binary_bounded_issue467_wbtest.mbt::issue 467: the bounded form gives the result of the exact expansion	E
 library/src/decimal_gda/from_binary_bounded_issue467_wbtest.mbt::issue 467: the cost does not depend on the binary exponent	S
-library/src/decimal_gda/from_double_rows_wbtest.mbt::from_double at the default precision is the half-even 34-digit rounding of the exact value	?
 library/src/decimal_gda/gda_add_plain_wbtest.mbt::add and subtract plain path equals the general route, 1 to 16 digits	?
 library/src/decimal_gda/gda_add_plain_wbtest.mbt::add and subtract plain path equals the general route, 17 to 40 digits	?
 library/src/decimal_gda/gda_add_plain_wbtest.mbt::add and subtract plain path equals the general route, 41 to 120 digits	?
 library/src/decimal_gda/gda_add_plain_wbtest.mbt::add and subtract plain path, carries into the next digit	?
 library/src/decimal_gda/gda_add_plain_wbtest.mbt::add and subtract plain path, chained contexts	?
 library/src/decimal_gda/gda_add_plain_wbtest.mbt::shared empty flag sets are never written	?
-library/src/decimal_gda/gda_coeff_storage_wbtest.mbt::GDA coefficient power table is read only	?
-library/src/decimal_gda/gda_coeff_storage_wbtest.mbt::GDA coefficient scalar and limb paths remain canonical	?
-library/src/decimal_gda/gda_coeff_storage_wbtest.mbt::GDA coefficient stores one through eighteen digits inline	?
-library/src/decimal_gda/gda_context_cache_wbtest.mbt::cached decimal contexts equal a fresh build for every parameter set	?
-library/src/decimal_gda/gda_context_wbtest.mbt::GDA Decimal checked integer powers use the exact exponent	?
-library/src/decimal_gda/gda_context_wbtest.mbt::GDA Decimal checked powers preserve arithmetic exponent bounds	?
-library/src/decimal_gda/gda_context_wbtest.mbt::GDA Decimal contextual conversion preserves exponent bounds and clamp	?
-library/src/decimal_gda/gda_context_wbtest.mbt::GDA basic context matches the 1.70 defaults	?
-library/src/decimal_gda/gda_context_wbtest.mbt::GDA cached presets do not share sticky status or traps	?
-library/src/decimal_gda/gda_context_wbtest.mbt::GDA context exposes radix ten	?
-library/src/decimal_gda/gda_context_wbtest.mbt::GDA exact outcomes preserve sticky status without raising flags	?
-library/src/decimal_gda/gda_context_wbtest.mbt::GDA invalid conditions signal InvalidOperation	?
-library/src/decimal_gda/gda_context_wbtest.mbt::GDA outcomes retain sticky status and defined trap results	?
-library/src/decimal_gda/gda_context_wbtest.mbt::GDA trap selection preserves signal precedence	?
-library/src/decimal_gda/gda_context_wbtest.mbt::GDA try_new preserves validated context fields	?
-library/src/decimal_gda/gda_context_wbtest.mbt::a trap-enabler exists for each of the nine signals and nothing else traps	?
-library/src/decimal_gda/gda_context_wbtest.mbt::the first trapped signal follows the handler order	?
-library/src/decimal_gda/gda_context_wbtest.mbt::the four conditions that signal invalid-operation are raised, read and trapped as InvalidOperation	?
 library/src/decimal_gda/gda_fast_flags_wbtest.mbt::a fast product that drops only zeros raises Rounded without Inexact	?
 library/src/decimal_gda/gda_fast_flags_wbtest.mbt::fast paths decline a zero, a NaN, an infinity and a wide operand	?
 library/src/decimal_gda/gda_fast_flags_wbtest.mbt::fast paths raise the general route's conditions, status and traps	?
-library/src/decimal_gda/gda_fast_path_wbtest.mbt::GDA exact small wrapper paths match generic finalization	?
-library/src/decimal_gda/gda_fast_path_wbtest.mbt::GDA small wrapper paths fall back at semantic boundaries	?
 library/src/decimal_gda/gda_fast_small_wbtest.mbt::fast paths decline what they do not cover	?
 library/src/decimal_gda/gda_fast_small_wbtest.mbt::fast product equals the general path	?
 library/src/decimal_gda/gda_fast_small_wbtest.mbt::fast quotient equals the general path	?
@@ -1181,16 +1067,11 @@ library/src/decimal_gda/gda_fast_wide_wbtest.mbt::wide sum: drop of 1, 18 and 19
 library/src/decimal_gda/gda_fast_wide_wbtest.mbt::wide sum: operands of 1, 2, 3 and 4 limbs in every pairing	?
 library/src/decimal_gda/gda_fast_wide_wbtest.mbt::wide sum: precision 1, 9, 10, 18, 19, 34, 36 and 37 (declined)	?
 library/src/decimal_gda/gda_fast_wide_wbtest.mbt::wide sum: the largest accepted exponent gap and the first declined, from both sides	?
-library/src/decimal_gda/gda_layer_api_wbtest.mbt::GdaContext carries the refinement limit of the elementary functions	?
-library/src/decimal_gda/gda_layer_api_wbtest.mbt::interchange formats expose their extended default context	?
-library/src/decimal_gda/gda_layer_api_wbtest.mbt::to_sci_string and to_eng_string print a number without a context	?
-library/src/decimal_gda/gda_layer_api_wbtest.mbt::try_exp, try_ln, try_log10 and try_power agree with the plain functions	?
 library/src/decimal_gda/gda_mul_div_plain_wbtest.mbt::multiply and divide plain paths equal the general route, 1 to 16 digits	?
 library/src/decimal_gda/gda_mul_div_plain_wbtest.mbt::multiply and divide plain paths equal the general route, 17 to 40 digits	?
 library/src/decimal_gda/gda_mul_div_plain_wbtest.mbt::multiply and divide plain paths equal the general route, 41 to 120 digits	?
 library/src/decimal_gda/gda_mul_div_plain_wbtest.mbt::multiply and divide plain paths, carries into the next digit	?
 library/src/decimal_gda/gda_mul_div_plain_wbtest.mbt::multiply and divide plain paths, chained contexts	?
-library/src/decimal_gda/gda_scaled_repr_wbtest.mbt::scaled representation of a tiny value is zero without a power of ten	?
 library/src/decimal_gda/gda_sqrt_plain_wbtest.mbt::sqrt plain at the rounding boundary and at a carry	?
 library/src/decimal_gda/gda_sqrt_plain_wbtest.mbt::sqrt plain declines a subnormal and an out-of-range root and agrees	?
 library/src/decimal_gda/gda_sqrt_plain_wbtest.mbt::sqrt plain declines a tiny operand and agrees	?
@@ -1201,93 +1082,18 @@ library/src/decimal_gda/gda_sqrt_plain_wbtest.mbt::sqrt plain equals the general
 library/src/decimal_gda/gda_sqrt_plain_wbtest.mbt::sqrt plain equals the general route (short operands)	?
 library/src/decimal_gda/gda_sqrt_plain_wbtest.mbt::sqrt plain keeps the ideal exponent of exact roots	?
 library/src/decimal_gda/gda_sqrt_plain_wbtest.mbt::sqrt plain on the exact rows that raise Rounded without Inexact	?
-library/src/decimal_gda/identical_wbtest.mbt::identical is the same datum, precision attribute included	?
-library/src/decimal_gda/nan_payload_issue151_152_wbtest.mbt::NaN propagation keeps a payload the clamped format can hold (#152)	A
-library/src/decimal_gda/overflow_rounded_result_issue264_wbtest.mbt::add, subtract and fma judge overflow on the rounded result (#264)	A
-library/src/decimal_gda/parse_format_issue180_wbtest.mbt::decimal_gda parse keeps the rounded cohort for literals longer than the precision (#180)	A
-library/src/decimal_gda/plain_add_exponent_gap_issue446_wbtest.mbt::issue 446: a gap above 2^31 - 1 between a small and a large exponent	A
-library/src/decimal_gda/plain_add_exponent_gap_issue446_wbtest.mbt::issue 446: a gap below 2^31 - 1 costs nothing and rounds like add_ctx	C
-library/src/decimal_gda/plain_add_exponent_gap_issue446_wbtest.mbt::issue 446: plain add and sub with an exponent gap above 2^31 - 1 do not panic	A
-library/src/decimal_gda/plain_add_exponent_gap_issue446_wbtest.mbt::issue 446: the exact context cannot panic through the exponent gap	A
-library/src/decimal_gda/plain_add_exponent_gap_issue446_wbtest.mbt::issue 446: the sticky absorption gives the result of the exact aligned sum	E
-library/src/decimal_gda/plain_division_wide_difference_wbtest.mbt::plain division with an exponent difference above Int	?
 library/src/decimal_gda/plain_operators_wbtest.mbt::plain division with an exponent difference below Int	A
 library/src/decimal_gda/plain_operators_wbtest.mbt::plain operators equal the libmpdec results of the working context	?
 library/src/decimal_gda/plain_operators_wbtest.mbt::plain operators on special values and zero divisors	A
 library/src/decimal_gda/plain_operators_wbtest.mbt::plain operators return the member of the cohort that GDA names	A
 library/src/decimal_gda/plain_operators_wbtest.mbt::plain sqrt returns the value, NaN outside the domain	A
 library/src/decimal_gda/plain_operators_wbtest.mbt::x + 0 is x for stored values	S
-library/src/decimal_gda/plus_minus_zero_sign_wbtest.mbt::plus and minus of a zero follow the add and subtract sign rule	A
-library/src/decimal_gda/power_cohort_issue211_wbtest.mbt::decimal_gda integer powers keep the repeated-multiplication exponent (#211)	A
-library/src/decimal_gda/power_exact_directed_wbtest.mbt::power decides exact non-integral results in every rounding mode	B
-library/src/decimal_gda/power_exact_directed_wbtest.mbt::power decides exact non-integral results past base^p's size (#138)	B
-library/src/decimal_gda/power_exact_directed_wbtest.mbt::power decides exact powers with large reduced exponents	A
-library/src/decimal_gda/power_exact_directed_wbtest.mbt::power rounds an exact result longer than the precision	A
-library/src/decimal_gda/power_half_clamped_issue397_wbtest.mbt::a result that rounds to zero keeps Clamped (issue 397)	A
 library/src/decimal_gda/power_half_clamped_issue397_wbtest.mbt::power with exponent one half or minus one half is the padded inexact result without Clamped (issue 397)	A
-library/src/decimal_gda/power_half_clamped_issue397_wbtest.mbt::the rows of issue 397 (clamped, e_max below precision - 1)	A
-library/src/decimal_gda/power_half_clamped_issue397_wbtest.mbt::the spellings of the exponent one half agree (issue 397)	A
-library/src/decimal_gda/power_inexact_clamped_issue305_wbtest.mbt::an inexact integer power that rounds to a power of ten is not Clamped (#305)	A
-library/src/decimal_gda/power_inexact_trailing_zeros_issue266_wbtest.mbt::an inexact integer power keeps precision digits, trailing zeros included (#266)	A
-library/src/decimal_gda/power_one_inexact_issue306_wbtest.mbt::the power of 1 to a non-integer exponent is inexact whatever Emax is (#306)	A
-library/src/decimal_gda/power_overflow_sign_issue265_wbtest.mbt::power overflows with the sign of the power, not of the reciprocal (#265)	A
-library/src/decimal_gda/power_reciprocal_cohort_issue284_wbtest.mbt::an exact negative integer power keeps the cohort of its reciprocal (#284)	A
-library/src/decimal_gda/power_spurious_clamped_issue267_wbtest.mbt::power signals Clamped only when the result exponent was altered (#267)	A
-library/src/decimal_gda/power_subnormal_underflow_issue268_wbtest.mbt::an integer power just below 10^Emin is subnormal although it rounds to 10^Emin (#268)	A
-library/src/decimal_gda/power_subnormal_underflow_issue342_wbtest.mbt::an inexact subnormal integer power raises Underflow (#342)	A
-library/src/decimal_gda/power_subset_overflow_issue283_wbtest.mbt::a subset-context power whose reciprocal overflows returns the overflow result (#283)	A
-library/src/decimal_gda/power_ten_clamp_issue287_wbtest.mbt::a power of ten above Etop is folded down and flagged Clamped (#287)	A
-library/src/decimal_gda/power_ten_noninteger_issue351_wbtest.mbt::power of 1E-5 to 1.2 in decimal64 is 1E-6 padded in every mode (issue 351)	A
-library/src/decimal_gda/power_ten_noninteger_issue351_wbtest.mbt::power of a power of ten does not take the exact path in a restricted context (issue 351)	A
-library/src/decimal_gda/power_ten_noninteger_issue351_wbtest.mbt::power of a power of ten with a non-integral k*y keeps the certified path (issue 351)	A
-library/src/decimal_gda/power_ten_noninteger_issue351_wbtest.mbt::power of a power of ten with an integral k*y is exact in every mode (issue 351)	A
-library/src/decimal_gda/power_underflow_rounding_issue168_wbtest.mbt::decimal integer powers below Etiny round in the rounding direction (#168)	A
-library/src/decimal_gda/power_zero_exponent_issue405_wbtest.mbt::power of a finite nonzero base to a zero exponent is exactly 1 in every context (issue 405)	A
-library/src/decimal_gda/power_zero_exponent_issue405_wbtest.mbt::power of infinity to a zero exponent is 1 and 0 to 0 keeps its rule (issue 405)	A
-library/src/decimal_gda/power_zero_exponent_issue405_wbtest.mbt::power to a non-zero exponent in a clamped context still folds down (issue 405)	A
-library/src/decimal_gda/preferred_cohort_issue150_wbtest.mbt::integer and binary constructors return the preferred cohort (#150)	A
-library/src/decimal_gda/quantize_zero_clamp_issue419_wbtest.mbt::a non-zero quantize result is not changed by the zero fold (issue 419)	A
-library/src/decimal_gda/quantize_zero_clamp_issue419_wbtest.mbt::quantize and rescale of a zero fold down under clamp and raise Clamped (issue 419)	A
-library/src/decimal_gda/refinement_limit_wbtest.mbt::refinement limit: 0, 1 and negative limits are one step	S
-library/src/decimal_gda/refinement_limit_wbtest.mbt::refinement limit: a hard-to-round exp fails below a threshold and succeeds from it on	C
-library/src/decimal_gda/refinement_limit_wbtest.mbt::refinement limit: contexts that differ only in the limit are different	A
-library/src/decimal_gda/refinement_limit_wbtest.mbt::refinement limit: default is Some(12) and matches the explicit value	C
-library/src/decimal_gda/remainder_internal_flags_wbtest.mbt::a zero-quotient remainder is clamped only at its result	A
-library/src/decimal_gda/remainder_internal_flags_wbtest.mbt::remainder and remainder_near follow the exact quotient (extended contexts)	A
-library/src/decimal_gda/remainder_internal_flags_wbtest.mbt::remainder and remainder_near in subset contexts do not use the clamped quotient	C
-library/src/decimal_gda/remainder_internal_flags_wbtest.mbt::remainder keeps only the flags of the delivered remainder (issue 183)	A
-library/src/decimal_gda/remainder_internal_flags_wbtest.mbt::remainder keeps the exact quotient when the quotient would be clamped	A
-library/src/decimal_gda/remainder_million_digit_quotient_wbtest.mbt::remainder avoids materializing a million-digit quotient	A
-library/src/decimal_gda/semantic_gda_wbtest.mbt::GDA binary and ternary operations prioritize signaling nan payloads	A
-library/src/decimal_gda/semantic_gda_wbtest.mbt::GDA decimal context translation rejects out of range bounds	A
-library/src/decimal_gda/semantic_gda_wbtest.mbt::GDA exp boundary cache stays bounded and preserves hits	S
-library/src/decimal_gda/semantic_gda_wbtest.mbt::GDA huge remainders report DivisionImpossible	A
-library/src/decimal_gda/semantic_gda_wbtest.mbt::GDA unary operations use before-rounding tininess	A
-library/src/decimal_gda/sqrt_ctx_wbtest.mbt::GDA inexact sqrt always uses half-even	A
-library/src/decimal_gda/sqrt_ctx_wbtest.mbt::GDA sqrt rounds directly at subnormal precision	A
-library/src/decimal_gda/stored_range_wbtest.mbt::constructors without an exponent stay inside the stored range	S
-library/src/decimal_gda/stored_range_wbtest.mbt::make and try_make accept the limits and reject one past each	A
-library/src/decimal_gda/stored_range_wbtest.mbt::no function without a context leaves the stored range	S
-library/src/decimal_gda/stored_range_wbtest.mbt::the limits are the range of the working context of the plain operators	C
-library/src/decimal_gda/stored_range_wbtest.mbt::x + 0, x * 1 and x - 0 equal x for every stored finite value	S
-library/src/decimal_gda/subset_underflow_literal_wbtest.mbt::quantize by a quantum that underflows to zero in the subset (qua530, qua531)	?
-library/src/decimal_gda/subset_underflow_literal_wbtest.mbt::to_number of a literal far below the range: the subset gives 0, the extended arithmetic Etiny	?
 library/src/decimal_gda/to_binary_exponent_range_issue447_wbtest.mbt::issue 447: the reported cases do not panic	A
 library/src/decimal_gda/to_binary_exponent_range_issue447_wbtest.mbt::issue 447: to_binary at both ends of the exponent range, every rounding mode	B
 library/src/decimal_gda/to_binary_parser_issue468_wbtest.mbt::issue 468: the parser path gives the result of the expansion in every mode	E
 library/src/decimal_gda/to_binary_rounding_wbtest.mbt::to_binary rounds the exact value once	A
-library/src/decimal_gda/to_eng_exponent_limits_wbtest.mbt::engineering format extends adjusted exponent without wrapping	A
-library/src/decimal_gda/to_eng_exponent_limits_wbtest.mbt::engineering format preserves maximum zero exponent	A
-library/src/decimal_gda/to_eng_exponent_limits_wbtest.mbt::engineering format preserves minimum finite exponent	A
-library/src/decimal_gda/to_integral_wbtest.mbt::to_integral keeps integral parts longer than the precision	A
-library/src/decimal_gda/zero_fold_issue234_wbtest.mbt::a zero quantize result above the top exponent folds down and raises Clamped (issue 234)	A
 library/src/decimal_gda_checked/decimal_gda_checked_wbtest.mbt::gda checked covers the operations of the free functions that return a decimal	A
-library/src/decimal_gda_checked/decimal_gda_checked_wbtest.mbt::gda checked merges the conditions and the trap of the right operand	A
-library/src/decimal_gda_checked/decimal_gda_checked_wbtest.mbt::gda checked power of a power of ten with an integral k*y is exact in the directed modes (issue 351)	A
-library/src/decimal_gda_checked/decimal_gda_checked_wbtest.mbt::gda checked power to a zero exponent is exactly 1 in a clamped context (issue 405)	A
-library/src/decimal_gda_checked/decimal_gda_checked_wbtest.mbt::gda checked power to one half is the padded inexact result without Clamped (issue 397)	A
-library/src/decimal_gda_checked/decimal_gda_checked_wbtest.mbt::gda checked threads sticky status	A
-library/src/decimal_gda_checked/decimal_gda_checked_wbtest.mbt::gda checked traps short circuit and preserve defined results	A
 library/src/internal/binary_kernel/coeff_basecase_loop_nonjs_wbtest.mbt::high word of a word product equals the previous form and the exact product	E
 library/src/internal/binary_kernel/coeff_basecase_loop_nonjs_wbtest.mbt::schoolbook and word products and squares of edge limbs match BigInt	A
 library/src/internal/binary_kernel/coeff_dispatch_nonjs_wbtest.mbt::NTT conversions on 64-bit limbs and on the 32-bit view agree	C

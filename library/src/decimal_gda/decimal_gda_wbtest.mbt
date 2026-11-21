@@ -1,4 +1,7 @@
 ///|
+// oracle: A
+// source: hand from GDA 1.70 NaN rules: sNaN operand wins, payload kept, Invalid_operation
+// shares: BigInt::to_string (printing the payload, a different package)
 test "GDA facade selects signaling NaN precedence" {
   let lhs = Decimal::signaling_nan(
     payload=@bigint.BigInt::from_int(7),
@@ -12,6 +15,9 @@ test "GDA facade selects signaling NaN precedence" {
 }
 
 ///|
+// oracle: A
+// source: hand: construction literals; min Int -2147483648
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "decimal direct constructors preserve public representations" {
   let zero = Decimal::zero(precision=1)
   assert_true(zero.is_zero())
@@ -33,6 +39,10 @@ test "decimal direct constructors preserve public representations" {
 }
 
 ///|
+// oracle: A
+// source: hand: GDA parse rounding by mode (1.239 -> 1.23, 1.231 ceiling 1.24, -1.231 ceiling -1.23, 1E+200
+//   decimal32 overflow Infinity); Python agrees
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "Decimal GDA checked parsing uses the arithmetic context" {
   let context = @lf_arith.ArithmeticContext::new(
     3,
@@ -82,6 +92,14 @@ test "Decimal GDA checked parsing uses the arithmetic context" {
 }
 
 ///|
+// oracle: A
+// source: hand derivation from the clamp rule of GDA 1.70 (Clamped: the exponent of a result has been altered; the
+//   zero quotient has the exponent 0, folded to Emax - precision + 1 = -7), cross-checked with both reference
+//   implementations on one row each: -1 // Inf agrees with decNumber 3.68 (tools/decnumber_probe.c: -0E-7,
+//   Clamped only) and differs from libmpdec (CPython: -0, no flag); -8.95E-6 // 2.40E-5 agrees with CPython decimal
+//   (-0E-7, Clamped only) and differs from decNumber (-0, no flag; decNumber folds 1 // 3 to 0E-7 with Clamped but
+//   not this quotient)
+// shares: nothing
 test "GDA divide_integer clamps zero quotient exponents" {
   let ctx = DecimalContext::new(precision=9, e_min=0, e_max=1, clamp=true)
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }

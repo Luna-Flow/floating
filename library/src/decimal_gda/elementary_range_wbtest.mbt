@@ -5,6 +5,11 @@ fn elementary_range_show(result : (Decimal, DecimalFlags)) -> String {
 }
 
 ///|
+// oracle: A
+// source: literal text of the results: exp(+-1E300), exp(+-1E9) at decimal64 -> inf overflow / 0E-398
+//   underflow; CPython agrees on all four values and flags (Overflow; Underflow Subnormal Inexact Rounded
+//   Clamped)
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "certified results far outside the decimal range stay bounded" {
   let ctx = DecimalContext::decimal64()
   let huge = Decimal::from_string_ctx("1E300", ctx).0
@@ -36,6 +41,10 @@ test "certified results far outside the decimal range stay bounded" {
 }
 
 ///|
+// oracle: A
+// source: literal text: 2**1E300 -> inf overflow, 2**-1E300 and 0.5**1E300 -> 0E-398 underflow; CPython agrees
+//   on all three
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "power far outside the decimal range stays bounded" {
   let ctx = DecimalContext::decimal64()
   let huge = Decimal::from_string_ctx("1E300", ctx).0

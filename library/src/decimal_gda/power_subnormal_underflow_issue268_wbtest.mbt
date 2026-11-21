@@ -178,6 +178,11 @@ fn issue268_check(
 /// separately when the delivered result is exactly 10^Emin. Expected values: the sides from
 /// exact rational arithmetic, the rest from Python `decimal` (libmpdec 4.0.0); the oracle is
 /// not the specification.
+// oracle: A
+// source: sides (tiny or not) from exact Fraction arithmetic on all 43 rows; values and the other flags from
+//   CPython 3.13 (libmpdec 4.0.0), which agrees on 41 rows; on 2 rows (1000000000000008E-14 ^ -2 and
+//   99999999999999999993E-22 ^ 4) CPython omits Underflow and Subnormal
+// shares: nothing
 test "an integer power just below 10^Emin is subnormal although it rounds to 10^Emin (#268)" {
   let rows : Array[
     (

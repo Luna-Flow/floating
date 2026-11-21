@@ -56,6 +56,12 @@ fn issue419_text(value : Decimal) -> String {
 }
 
 ///|
+// oracle: A
+// source: the 23 rows re-run with decNumber 3.68 (the reference implementation, built with DECSUBSET=1, zip sha256
+//   14ec2cf30b58758493a7661b78b80abfb281652b61a425b85cda83173518fe25; tools/decnumber_probe.c, operation quantize,
+//   extended=0 for the 3 subset rows): value and Clamped of every row agree; the 20 other rows also agree with
+//   CPython decimal (libmpdec 4.0.0, clamp=1). The rescale and adapter assertions reuse the expected literals
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "quantize and rescale of a zero fold down under clamp and raise Clamped (issue 419)" {
   for row in issue419_rows {
     let (name, zero, quantum, expected, clamped) = row
@@ -102,6 +108,9 @@ test "quantize and rescale of a zero fold down under clamp and raise Clamped (is
 }
 
 ///|
+// oracle: A
+// source: CPython quantize prec 16 Emin -383 Emax 384 clamp: 0E+369 xr...c; 123.46 xr
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "a non-zero quantize result is not changed by the zero fold (issue 419)" {
   let ctx = DecimalContext::new(precision=16, e_min=-383, e_max=384, clamp=true)
   let d = fn(s : String) { Decimal::from_string(s).unwrap() }

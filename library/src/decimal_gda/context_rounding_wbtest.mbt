@@ -29,6 +29,9 @@ fn gda_rounding_dec(text : String) -> Decimal {
 /// when the larger operand has digits below the rounding position or sits on a
 /// midpoint, and for ZeroFiveUp whenever the addend lowers the magnitude.
 /// Expected values agree with Python's decimal module.
+// oracle: A
+// source: Python decimal (libmpdec 4.0.0) prec 7, 4 single rows and 5 rounding-mode rows, 9 of 9 agree
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "gda add rounds sums with a far smaller addend once" {
   let ctx = fn(mode : GdaRoundingMode) {
     GdaContext::new(precision=7, rounding=mode)
@@ -76,6 +79,9 @@ test "gda add rounds sums with a far smaller addend once" {
 /// to the context precision. 3.000001E-45 * 1.500001E-45 is exactly
 /// 4.5000045000015E-90; rounding it to the subnormal grid first produced the
 /// tie 4.5000045E-90, which the second rounding sent to even.
+// oracle: A
+// source: Python decimal: re-ran all rows in decimal32 context (p7 emin-95 emax96 clamp 1 half-even)
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "gda rounds normal results below Etiny once" {
   let c32 = GdaContext::decimal32()
   let d = gda_rounding_dec
@@ -96,6 +102,9 @@ test "gda rounds normal results below Etiny once" {
 /// 1 / 1.9999999999998E+101 = 5.0000000000005E-102. Rounding the guarded
 /// quotient to seven digits gave the tie 5.000000E-102, which the subnormal
 /// rounding then sent to 0E-101.
+// oracle: A
+// source: Python decimal: 1/1.9999999999998E+101 and the three 77223/16E+21 families re-run
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "gda divide rounds subnormal quotients once" {
   inspect(
     gda_rounding_show(
@@ -132,6 +141,9 @@ test "gda divide rounds subnormal quotients once" {
 /// a zero exponent is clamped into range, a coefficient longer than the
 /// precision is rounded once, and overflow follows the rounding direction
 /// (IEEE 754-2019 7.4).
+// oracle: A
+// source: Python decimal scaleb in decimal32 and decimal64 contexts, re-run
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "gda scaleb rounds, clamps and overflows like other operations" {
   let c32 = GdaContext::decimal32()
   let c64 = GdaContext::decimal64()
