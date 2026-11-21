@@ -52,31 +52,21 @@ fn binary_ln_unit_fixed_bounds(
   let fractional = work_precision + 16 + lz
   let z = numerator.shift_left(fractional).div_rem_checked(denominator).unwrap().0
   let square = z.mul(z).shift_right(fractional)
-  let stop = Coeff::one().shift_left(6)
-  let mut power = z
-  let mut sum = z
-  let mut index = 0
-  while index < 10000 {
-    index += 1
-    power = power.mul(square).shift_right(fractional)
-    if power.compare(stop) < 0 {
-      let slack = Coeff::from_uint64((2 * index + 70).to_uint64())
-      let lower = BinFloat::make_coeff(
-        sum.shift_left(1),
-        -fractional,
-        work_precision,
-        mode=BinaryRoundingMode::RoundTowardNegative,
-      )
-      let upper = BinFloat::make_coeff(
-        sum.add(slack).shift_left(1),
-        -fractional,
-        work_precision,
-        mode=BinaryRoundingMode::RoundTowardPositive,
-      )
-      return Some((lower, upper))
-    }
-    let divisor = Coeff::from_uint64((2 * index + 1).to_uint64())
-    sum = sum.add(power.div_rem_checked(divisor).unwrap().0)
+  guard binary_ln_artanh_loop(z, square, fractional) is Some((sum, index)) else {
+    return None
   }
-  None
+  let slack = Coeff::from_uint64((2 * index + 70).to_uint64())
+  let lower = BinFloat::make_coeff(
+    sum.shift_left(1),
+    -fractional,
+    work_precision,
+    mode=BinaryRoundingMode::RoundTowardNegative,
+  )
+  let upper = BinFloat::make_coeff(
+    sum.add(slack).shift_left(1),
+    -fractional,
+    work_precision,
+    mode=BinaryRoundingMode::RoundTowardPositive,
+  )
+  Some((lower, upper))
 }
