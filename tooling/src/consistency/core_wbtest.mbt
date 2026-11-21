@@ -1068,8 +1068,17 @@ test "decimal apply_ctx clamps finite fold-down without rounded flag" {
   let ctx = @decimal.DecimalContext::new(precision=16, e_max=384)
   let pos = @decimal.Decimal::from_string("1.23E+384", precision=32).unwrap()
   let neg_zero = @decimal.Decimal::from_string("-0E+500", precision=32).unwrap()
-  let (pos_value, _) = pos.apply_ctx(ctx)
-  let (neg_zero_value, _) = neg_zero.apply_ctx(ctx)
+  let (pos_value, pos_flags) = pos.apply_ctx(ctx)
+  let (neg_zero_value, neg_zero_flags) = neg_zero.apply_ctx(ctx)
+  // The fold-down pads the coefficient with zeros and loses no digit: the
+  // result is exact, nothing is rounded, no exception is raised (IEEE 754-2019
+  // 7.4 to 7.6: no overflow, underflow or inexact). Expected flags written out.
+  for flags in [pos_flags, neg_zero_flags] {
+    assert_false(flags.inexact())
+    assert_false(flags.overflow())
+    assert_false(flags.underflow())
+    assert_false(flags.has_error())
+  }
   assert_eq(
     pos_value
     .total_order_compare(
@@ -4780,12 +4789,11 @@ test "ball_float coefficient constructor keeps exact bounded interval" {
   let value = @ball_float.BallFloat::from_coefficient(
     @bin_float.BinCoeff::from_uint64(12UL),
   ).normalized()
-  assert_eq(
-    value,
-    @ball_float.BallFloat::from_coefficient(
-      @bin_float.BinCoeff::from_uint64(12UL),
-    ).normalized(),
-  )
+  // Oracle (level A): the exact bounds 12 and 12, written out (the coefficient
+  // constructor of an exact integer must give the point interval [12, 12]).
+  let twelve = @bin_float.BinFloat::from_int(12)
+  assert_eq(value.lower_bound().compare(twelve), 0)
+  assert_eq(value.upper_bound().compare(twelve), 0)
   assert_true(value.is_common_interval())
   assert_eq(value.lower_bound(), value.upper_bound())
 }

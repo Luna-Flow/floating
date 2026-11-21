@@ -628,6 +628,20 @@ test "decimal remainder-only division matches BigInt" {
 }
 
 ///|
+/// Number of base 10^9 units of a nonnegative `BigInt`, from its decimal text:
+/// ceil(digits / 9), and one unit for zero. Oracle: `BigInt::to_string` and
+/// integer arithmetic only (level B: it shares the BigInt printer with the
+/// `to_bigint` comparisons of the same test, which have the BigInt arithmetic
+/// as their oracle).
+fn bigint_unit_len_reference(value : BigInt) -> Int32 {
+  (value.to_string().length() + 8) / 9
+}
+
+///|
+// Oracle of this block: core `BigInt` arithmetic (level B, shared primitive:
+// the conversion `dec_coeff_from_bigint_repr` / `to_bigint`, which every
+// comparison here goes through). The unit lengths are compared with
+// `bigint_unit_len_reference`, not with the function's own result.
 test "optimized decimal coefficient primitives match BigInt boundaries" {
   let boundaries : Array[BigInt] = [
     0N, 1N, 2N, 9N, 10N, 99N, 999N, 1000N, 1001N, 999999N, 1000000N, 1000001N, 999999999N,
@@ -640,7 +654,10 @@ test "optimized decimal coefficient primitives match BigInt boundaries" {
       let right = dec_coeff_from_bigint_repr(right_bigint)
       let sum = dec_coeff_magnitude_add_repr(left, right)
       assert_eq(sum.to_bigint(), left_bigint + right_bigint)
-      assert_eq(dec_coeff_unit_len(sum), dec_coeff_unit_len(sum))
+      assert_eq(
+        dec_coeff_unit_len(sum),
+        bigint_unit_len_reference(left_bigint + right_bigint),
+      )
       let product = dec_coeff_multiply_repr(left, right)
       assert_eq(product.to_bigint(), left_bigint * right_bigint)
       if left_bigint >= right_bigint {
@@ -648,7 +665,7 @@ test "optimized decimal coefficient primitives match BigInt boundaries" {
         assert_eq(difference.to_bigint(), left_bigint - right_bigint)
         assert_eq(
           dec_coeff_unit_len(difference),
-          dec_coeff_unit_len(difference),
+          bigint_unit_len_reference(left_bigint - right_bigint),
         )
       }
       if !right_bigint.is_zero() {
@@ -936,7 +953,7 @@ fn limbs_are_canonical(coeff : DecCoeff) -> Bool {
   match coeff {
     Small(value) => value < dec_coeff_small_limit
     Limbs(units, digits) => {
-      let mut ok = units.length() >= 3 || units.length() >= 1
+      let mut ok = units.length() >= 3
       for unit in units {
         if unit >= 1_000_000_000U {
           ok = false

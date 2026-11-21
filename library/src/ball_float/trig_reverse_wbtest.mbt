@@ -170,17 +170,17 @@ test "sin_rev: a gap, merging pieces, the default prior and the shortcuts" {
     assert_true(tr_same(c.sin_rev(x=tr_box(t1_lo, t2_lo, p)), t1_lo, t1_hi))
     // one unit above the piece start t2 at the upper end of the prior: met
     assert_true(tr_same(c.sin_rev(x=tr_box(t1_hi, t2_hi, p)), t2_lo, t2_hi))
-    // the whole of the first period
+    // the whole of the first period: sin t is in [0, 1/2] for t in [0, pi/6]
+    // and in [5 pi/6, pi]; the prior x = [0, 3] cuts the second piece at 3
+    // (5 pi/6 = 2.618 < 3 < pi), so the hull of the two pieces is [0, 3].
+    // Oracle (level A): the two ends are the written numbers 0 and 3, exact at
+    // every precision; no value of the library's pi is involved.
     assert_true(
       tr_same(
         c.sin_rev(x=tr_box(zero, tr_num(3.0, p), p)),
         zero,
-        tr_num(3.0, p).with_precision(
-          p,
-          @bin_float.BinaryRoundingMode::RoundTiesToEven,
-        ),
-      ) ||
-      true,
+        tr_num(3.0, p),
+      ),
     )
     // c = [1/2, 1]: the pieces [pi/6, pi/2] and [pi/2, 5 pi/6] share the end pi/2
     let c2 = tr_box(half, one, p)
