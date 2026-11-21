@@ -83,7 +83,7 @@ fn binary_sin_cos_fixed_series(
         work_precision,
         mode=BinaryRoundingMode::RoundTowardPositive,
       )
-      return if cosine || !value.is_negative() {
+      return if cosine || !value.is_sign_minus() {
         Some((lower, upper))
       } else {
         Some((upper.neg(), lower.neg()))

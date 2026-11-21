@@ -48,7 +48,7 @@ fn to_binary_reference(
 fn to_binary_same(a : @binary.Binary, b : @binary.Binary) -> Bool {
   a.compare(b) == 0 &&
   a.precision() == b.precision() &&
-  a.is_negative() == b.is_negative() &&
+  a.is_sign_minus() == b.is_sign_minus() &&
   a.exponent2() == b.exponent2() &&
   a.coefficient().to_bytes_be() == b.coefficient().to_bytes_be()
 }
@@ -331,7 +331,7 @@ fn written_expect(
     .to_binary_raw(precision~, mode~)
   assert_eq(x.coefficient().to_uint64(), Some(coefficient))
   assert_eq(x.exponent2(), exponent2)
-  assert_eq(x.is_negative(), negative)
+  assert_eq(x.is_sign_minus(), negative)
 }
 
 ///|

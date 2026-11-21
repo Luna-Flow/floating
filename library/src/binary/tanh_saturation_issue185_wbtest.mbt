@@ -286,7 +286,7 @@ test "tanh saturates to the correctly rounded value for large arguments (#185)" 
         precision,
         text,
         value.compare(want),
-        value.is_negative(),
+        value.is_sign_minus(),
         flags.inexact(),
       ),
       (precision, text, 0, expected.has_prefix("-"), true),

@@ -18,7 +18,7 @@ test "quantum_ctx of a finite operand is 1E+q with the exponent q of the operand
     let x = Decimal::from_string_ctx(operand, ctx).0
     let (result, flags) = x.quantum_ctx(ctx)
     if result.to_string() != expected ||
-      result.is_negative() ||
+      result.is_sign_minus() ||
       flags != DecimalFlags::new() {
       count += 1
       if count <= 10 {
@@ -41,7 +41,7 @@ test "quantum_ctx of infinities and NaNs (5.3.2, 6.2)" {
   for text in ["Infinity", "-Infinity"] {
     let (result, flags) = d(text).quantum_ctx(ctx)
     assert_eq(result.to_string(), "inf")
-    assert_false(result.is_negative())
+    assert_false(result.is_sign_minus())
     assert_true(flags == DecimalFlags::new())
   }
   let (quiet, quiet_flags) = d("NaN9").quantum_ctx(ctx)

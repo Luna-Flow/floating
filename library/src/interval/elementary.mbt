@@ -97,7 +97,7 @@ fn rat_from_finite_bin(value : @binary.Binary) -> CertifiedRat {
     )
   } else {
     certified_rat_coeff(
-      signed_coeff_from_parts(value.is_negative(), value.coefficient()),
+      signed_coeff_from_parts(value.is_sign_minus(), value.coefficient()),
       coeff_shift_left(coeff_one(), -value.exponent2()),
     )
   }

@@ -28,7 +28,7 @@ fn toolkit_digest_float(value : Binary) -> String {
   value.exponent2().to_string() +
   "p" +
   value.precision().to_string() +
-  (if value.is_negative() { "n" } else { "+" })
+  (if value.is_sign_minus() { "n" } else { "+" })
 }
 
 ///|

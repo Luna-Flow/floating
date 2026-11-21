@@ -255,12 +255,12 @@ test "decimal interchange facade decodes specials through to_decimal" {
   let snan = neg_snan.to_decimal()
 
   assert_true(inf.classify() == @lf_arith.FpClass::Infinity)
-  assert_false(inf.is_negative())
+  assert_false(inf.is_sign_minus())
   assert_true(qnan.is_quiet_nan())
-  assert_true(qnan.is_negative())
+  assert_true(qnan.is_sign_minus())
   assert_eq(qnan.nan_payload(), 12345N)
   assert_true(snan.is_signaling_nan())
-  assert_true(snan.is_negative())
+  assert_true(snan.is_sign_minus())
   assert_eq(snan.nan_payload(), 12345N)
 }
 
@@ -313,10 +313,10 @@ test "decimal interchange facade sign transforms preserve observable special mea
   let inf32_negative = pos_inf32.copy_negate().to_decimal()
 
   assert_true(qnan32_positive.is_quiet_nan())
-  assert_false(qnan32_positive.is_negative())
+  assert_false(qnan32_positive.is_sign_minus())
   assert_eq(qnan32_positive.nan_payload(), 12345N)
   assert_true(inf32_negative.is_infinite())
-  assert_true(inf32_negative.is_negative())
+  assert_true(inf32_negative.is_sign_minus())
 }
 
 ///|

@@ -137,7 +137,7 @@ test "functions of an exponential near the overflow threshold decide by the side
           )
           if to_infinity {
             assert_true(got.classify() == FpClass::Infinity)
-            assert_true(got.is_negative() == negative)
+            assert_true(got.is_sign_minus() == negative)
           } else {
             assert_true(got == omax)
           }

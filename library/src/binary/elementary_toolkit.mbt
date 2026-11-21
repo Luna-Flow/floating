@@ -582,7 +582,7 @@ fn fixed_exp_reduce(
   }
   // Euclidean division: x = n L + R with 0 <= R < L.
   let (quotient, remainder) = magnitude.div_rem_checked(ln2_int).unwrap()
-  let negative = value.is_negative()
+  let negative = value.is_sign_minus()
   guard quotient.to_uint64() is Some(quotient_value) &&
     quotient_value < 536870912UL else {
     return None

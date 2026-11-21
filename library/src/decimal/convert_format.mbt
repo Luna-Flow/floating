@@ -41,7 +41,7 @@ fn decimal_exact_from_binary(x : @binary.Binary) -> Decimal {
     coefficient = coefficient >> zeros
     exponent = exponent + zeros
   }
-  let signed = if x.is_negative() { -coefficient } else { coefficient }
+  let signed = if x.is_sign_minus() { -coefficient } else { coefficient }
   if exponent >= 0 {
     let integer = signed << exponent
     decimal_from_integer_parts(
@@ -101,25 +101,25 @@ pub fn Decimal::from_binary_ctx(
       let value = if x.is_signaling_nan() {
         Decimal::signaling_nan(
           payload~,
-          negative=x.is_negative(),
+          negative=x.is_sign_minus(),
           precision=ctx.precision,
         )
       } else {
         Decimal::quiet_nan(
           payload~,
-          negative=x.is_negative(),
+          negative=x.is_sign_minus(),
           precision=ctx.precision,
         )
       }
       value.apply_ctx(ctx)
     }
     FpClass::Infinity =>
-      Decimal::inf(negative=x.is_negative(), precision=ctx.precision).apply_ctx(
+      Decimal::inf(negative=x.is_sign_minus(), precision=ctx.precision).apply_ctx(
         ctx,
       )
     FpClass::Finite =>
       if x.is_zero() {
-        (if x.is_negative() {
+        (if x.is_sign_minus() {
           Decimal::negative_zero(precision=ctx.precision)
         } else {
           Decimal::zero(precision=ctx.precision)
@@ -129,12 +129,12 @@ pub fn Decimal::from_binary_ctx(
           x.exponent2().to_int64()
         let estimate = binary_decimal_magnitude(bits)
         if estimate > ctx.e_max.to_int64() + 2L {
-          return decimal_range_marker(x.is_negative(), ctx.e_max + 3).apply_ctx(
+          return decimal_range_marker(x.is_sign_minus(), ctx.e_max + 3).apply_ctx(
             ctx,
           )
         }
         if estimate < etiny(ctx).to_int64() - 3L {
-          return decimal_range_marker(x.is_negative(), etiny(ctx) - 3).apply_ctx(
+          return decimal_range_marker(x.is_sign_minus(), etiny(ctx) - 3).apply_ctx(
             ctx,
           )
         }
@@ -288,7 +288,7 @@ pub fn Decimal::to_binary_ctx(
     FpClass::Infinity =>
       (
         @binary.Binary::inf(
-          negative=self.is_negative(),
+          negative=self.is_sign_minus(),
           precision=context.precision(),
         ),
         @binary.BinaryFlags::new(),

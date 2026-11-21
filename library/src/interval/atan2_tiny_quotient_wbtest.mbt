@@ -29,8 +29,8 @@ test "try_atan2 of a quotient below the exponent range encloses zero tightly" {
       // quotient, a -0 upper bound. 12.12.8 requires `inf` to return -0 for a Level 1 value of 0
       // and `sup` +0: a zero lower bound is -0 (negative) for either sign of the quotient, and
       // a zero upper bound is +0.
-      assert_true(r.lower_bound().is_negative())
-      assert_true(!r.upper_bound().is_negative())
+      assert_true(r.lower_bound().is_sign_minus())
+      assert_true(!r.upper_bound().is_sign_minus())
     }
   }
 }

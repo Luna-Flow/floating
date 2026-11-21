@@ -537,8 +537,8 @@ test "pm1 enclosures stay relatively tight down to 10^-1999997" {
       let interval = op.evaluate(input).unwrap()
       let lower = interval.lower_bound()
       let upper = interval.upper_bound()
-      assert_eq(lower.is_negative(), x.negative, msg="\{op.name()} \{text}")
-      assert_eq(upper.is_negative(), x.negative, msg="\{op.name()} \{text}")
+      assert_eq(lower.is_sign_minus(), x.negative, msg="\{op.name()} \{text}")
+      assert_eq(upper.is_sign_minus(), x.negative, msg="\{op.name()} \{text}")
       let width = upper.sub_ctx(lower, up).0
       assert_true(
         width.is_zero() || pm1_top(width) <= pm1_top(lower) - 190L,

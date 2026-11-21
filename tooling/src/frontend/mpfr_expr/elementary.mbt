@@ -312,7 +312,7 @@ pub fn execute_elementary_data(document : MpfrElementaryDocument) -> RunSummary 
         let passed = actual.compare(case.expected) == 0 &&
           (
             !actual.is_zero() ||
-            actual.is_negative() == case.expected.is_negative()
+            actual.is_sign_minus() == case.expected.is_sign_minus()
           ) &&
           flags.inexact() == case.inexact &&
           flags.invalid_operation() == case.invalid &&

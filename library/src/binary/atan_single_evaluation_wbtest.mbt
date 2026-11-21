@@ -75,7 +75,7 @@ fn old_atan_small_bounds(
   value : Binary,
   work_precision : Int32,
 ) -> (Binary, Binary)? {
-  if value.is_negative() {
+  if value.is_sign_minus() {
     match old_atan_small_positive_bounds(value.neg(), work_precision) {
       Some(positive) => Some((positive.1.neg(), positive.0.neg()))
       None => None
@@ -127,7 +127,7 @@ fn old_atan_finite_bounds(
       let lower_denominator = one.add_ctx(lower_hypot.0, downward).0
       let upper_denominator = one.add_ctx(upper_hypot.0, upward).0
       let lower_ratio = lower_value.div_ctx(
-          if lower_value.is_negative() {
+          if lower_value.is_sign_minus() {
             lower_denominator
           } else {
             upper_denominator
@@ -135,7 +135,7 @@ fn old_atan_finite_bounds(
           downward,
         ).0
       let upper_ratio = upper_value.div_ctx(
-          if upper_value.is_negative() {
+          if upper_value.is_sign_minus() {
             upper_denominator
           } else {
             lower_denominator
@@ -720,7 +720,7 @@ test "atan2 with exponents far apart agrees with the analytic limits" {
                   )
                   // For x < 0 the magnitude is pi/2 + tiny: one ulp above
                   // pi/2 only when rounding the magnitude away from zero.
-                  let near = if value.is_negative() {
+                  let near = if value.is_sign_minus() {
                     value.neg()
                   } else {
                     value
@@ -736,7 +736,7 @@ test "atan2 with exponents far apart agrees with the analytic limits" {
                   )
                 } else if !xsign {
                   // x > 0: the result is y/x rounded (tiny, no cancellation).
-                  assert_true(value.is_negative() == ysign)
+                  assert_true(value.is_sign_minus() == ysign)
                 } else {
                   // x < 0: +-pi, one tiny step inside.
                   let two_half = atan_exact_two(
@@ -752,7 +752,7 @@ test "atan2 with exponents far apart agrees with the analytic limits" {
                   assert_true(
                     value.abs().compare(Binary::from_int(4, precision=2)) < 0,
                   )
-                  assert_true(value.is_negative() == ysign)
+                  assert_true(value.is_sign_minus() == ysign)
                 }
               }
             }

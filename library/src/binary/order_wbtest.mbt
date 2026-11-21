@@ -17,7 +17,7 @@ test "copySign keeps the magnitude and NaN payload" {
   )
   let signed_nan = nan.copy_sign(negative)
   inspect(
-    "\{signed_nan.is_negative()} \{signed_nan.nan_payload() == payload}",
+    "\{signed_nan.is_sign_minus()} \{signed_nan.nan_payload() == payload}",
     content=(
       #|true true
     ),

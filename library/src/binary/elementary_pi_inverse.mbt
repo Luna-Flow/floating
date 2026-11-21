@@ -49,12 +49,12 @@ fn binary_pi_scaled_enclosure(
 ) -> (Binary, Binary) {
   let downward = binary_working_context(work, rounding=RoundTowardNegative)
   let upward = binary_working_context(work, rounding=RoundTowardPositive)
-  let lower = if angle.0.is_negative() {
+  let lower = if angle.0.is_sign_minus() {
     angle.0.div_ctx(pi.0, downward).0
   } else {
     angle.0.div_ctx(pi.1, downward).0
   }
-  let upper = if angle.1.is_negative() {
+  let upper = if angle.1.is_sign_minus() {
     angle.1.div_ctx(pi.1, upward).0
   } else {
     angle.1.div_ctx(pi.0, upward).0
@@ -136,7 +136,7 @@ pub fn Binary::try_asinpi_ctx(
   }
   // asinPi(±1) = ±1/2.
   if comparison == 0 {
-    return Ok(binary_pi_constant(self.is_negative(), 1UL, -1, context))
+    return Ok(binary_pi_constant(self.is_sign_minus(), 1UL, -1, context))
   }
   binary_ziv_round("asinpi", context, fn(work) {
     let w = Int32::max(work, self.precision() + 16)
@@ -182,7 +182,7 @@ pub fn Binary::try_acospi_ctx(
   // acosPi(1) = +0, acosPi(-1) = 1, acosPi(±0) = 1/2: exact constants.
   if comparison == 0 {
     return Ok(
-      if self.is_negative() {
+      if self.is_sign_minus() {
         binary_pi_constant(false, 1UL, 0, context)
       } else {
         binary_pi_signed_zero(false, context)
@@ -196,7 +196,7 @@ pub fn Binary::try_acospi_ctx(
   // within that distance of 1/2, above it for a negative x.
   if binary_tiny_argument_result(
       binary_pi_half(false),
-      self.is_negative(),
+      self.is_sign_minus(),
       binary_top_bound(self) - 1L,
       context,
     )
@@ -252,21 +252,21 @@ pub fn Binary::try_atanpi_ctx(
   }
   // atanPi(±∞) = ±1/2 with no exception.
   if self.classify() == FpClass::Infinity {
-    return Ok(binary_pi_constant(self.is_negative(), 1UL, -1, context))
+    return Ok(binary_pi_constant(self.is_sign_minus(), 1UL, -1, context))
   }
   if self.is_zero() {
     return Ok(self.apply_ctx(context))
   }
   // atanPi(±1) = ±1/4.
   if self.abs().compare(Binary::one_raw(precision=self.precision())) == 0 {
-    return Ok(binary_pi_constant(self.is_negative(), 1UL, -2, context))
+    return Ok(binary_pi_constant(self.is_sign_minus(), 1UL, -2, context))
   }
   // 2^top <= |x| huge: atanPi(x) = ±(1/2 − δ), 0 < δ < 1/(π |x|) < 2^(-top).
   let top = binary_pi_top(self)
   if top >= context.precision.to_int64() + 8L &&
     binary_tiny_argument_result(
-      binary_pi_half(self.is_negative()),
-      self.is_negative(),
+      binary_pi_half(self.is_sign_minus()),
+      self.is_sign_minus(),
       -top,
       context,
     )
@@ -306,8 +306,8 @@ pub fn Binary::try_atan2pi_ctx(
     Some(result) => return Ok(result)
     None => ()
   }
-  let negative = self.is_negative()
-  let behind = abscissa.is_negative()
+  let negative = self.is_sign_minus()
+  let behind = abscissa.is_sign_minus()
   let self_infinite = self.classify() == FpClass::Infinity
   let abscissa_infinite = abscissa.classify() == FpClass::Infinity
   // The exact constants of 9.2.1 (a zero ordinate keeps its sign; the sign

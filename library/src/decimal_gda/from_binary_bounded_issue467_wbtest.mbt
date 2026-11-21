@@ -8,7 +8,7 @@
 /// The exact expansion, as `from_binary` computed it before the bounded form.
 fn old_from_binary(x : @binary.Binary, precision : Int32) -> Decimal {
   let coefficient = BigInt::from_octets(x.coefficient().to_bytes_be())
-  let signed = if x.is_negative() { -coefficient } else { coefficient }
+  let signed = if x.is_sign_minus() { -coefficient } else { coefficient }
   if x.exponent2() >= 0 {
     decimal_from_integer_parts(signed << x.exponent2(), 0, precision)
   } else {
@@ -24,7 +24,7 @@ fn old_from_binary(x : @binary.Binary, precision : Int32) -> Decimal {
       exponent = exponent + 1
     }
     decimal_from_integer_parts(
-      if x.is_negative() {
+      if x.is_sign_minus() {
         -coeff_bigint(magnitude)
       } else {
         coeff_bigint(magnitude)

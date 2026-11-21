@@ -144,7 +144,7 @@ fn binary_positive_exp_minus_one_overflow(
   base_is_two : Bool,
   context : BinaryContext,
 ) -> (Binary, BinaryFlags)? {
-  if value.is_negative() || value.compare(Binary::one_raw()) < 0 {
+  if value.is_sign_minus() || value.compare(Binary::one_raw()) < 0 {
     return None
   }
   if value.compare(Binary::from_int_raw(64, precision=7)) >= 0 {

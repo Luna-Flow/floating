@@ -86,7 +86,7 @@ test "exp2m1 and exp10m1 special values" {
         negative=true,
       )
       let (value, flags) = pm1_run(name, qnan, ctx)
-      assert_true(value.is_quiet_nan() && value.is_negative())
+      assert_true(value.is_quiet_nan() && value.is_sign_minus())
       assert_eq(
         value.nan_payload().to_string(),
         nan_payload_in(BinCoeff::from_uint64(9UL), ctx.precision()),

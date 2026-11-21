@@ -153,7 +153,7 @@ pub fn SemanticScalar::from_binary(x : @binary.Binary) -> SemanticScalar {
   match x.classify() {
     @lf_arith.FpClass::Finite => {
       let magnitude = BigInt::from_octets(x.coefficient().to_bytes_be())
-      let signed = if x.is_negative() { -magnitude } else { magnitude }
+      let signed = if x.is_sign_minus() { -magnitude } else { magnitude }
       Rational(ExactRational::from_scaled_integer(signed, 2, x.exponent2()))
     }
     @lf_arith.FpClass::Infinity => Infinity(x.sign())

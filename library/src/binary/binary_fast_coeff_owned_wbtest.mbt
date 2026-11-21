@@ -57,7 +57,7 @@ fn owned_test_check(left : Binary, right : Binary) -> Int32 raise {
     }
     None => ()
   }
-  if !left.is_negative() {
+  if !left.is_sign_minus() {
     let root = left.sqrt_ctx(BinaryContext::new(precision=left.precision())).0
     match binary_coeff_fast_sqrt(left) {
       Some(result) => {

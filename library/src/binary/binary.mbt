@@ -786,7 +786,7 @@ pub fn Binary::sign(self : Binary) -> Sign {
 }
 
 ///|
-pub fn Binary::is_negative(self : Binary) -> Bool {
+pub fn Binary::is_sign_minus(self : Binary) -> Bool {
   self.negative()
 }
 

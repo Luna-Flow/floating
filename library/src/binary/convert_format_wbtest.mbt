@@ -143,7 +143,7 @@ test "convert_format: signaling NaN is quieted with invalid, also to the same fo
   for format in cf_formats() {
     let (value, flags) = snan.convert_format(format)
     assert_eq(value.is_quiet_nan(), true)
-    assert_eq(value.is_negative(), true)
+    assert_eq(value.is_sign_minus(), true)
     assert_eq(flags.invalid_operation(), true)
     assert_eq(e2s_flags(flags), "---")
   }

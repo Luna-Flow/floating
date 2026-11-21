@@ -216,7 +216,7 @@ fn halve(x : @binary.Binary) -> @binary.Binary {
   exact_value(
     x.coefficient(),
     x.exponent2() - 1,
-    negative=x.is_negative(),
+    negative=x.is_sign_minus(),
     exact_range=true,
   )
 }
@@ -262,7 +262,7 @@ fn odd_sum(
   exact_value(
     coeff_add(coeff_shift_left(sum.coefficient(), shift), coeff_one()),
     sum.exponent2() - shift,
-    negative=sum.is_negative(),
+    negative=sum.is_sign_minus(),
     exact_range=true,
   )
 }
@@ -320,7 +320,7 @@ fn lower_round_bound(x : @binary.Binary, precision : Int32) -> @binary.Binary {
       if x.precision() == precision {
         x
       } else {
-        @binary.Binary::inf(negative=x.is_negative(), precision~)
+        @binary.Binary::inf(negative=x.is_sign_minus(), precision~)
       }
     FpClass::NaN => abort("interval bounds must not be NaN")
   }
@@ -343,7 +343,7 @@ fn upper_round_bound(x : @binary.Binary, precision : Int32) -> @binary.Binary {
       if x.precision() == precision {
         x
       } else {
-        @binary.Binary::inf(negative=x.is_negative(), precision~)
+        @binary.Binary::inf(negative=x.is_sign_minus(), precision~)
       }
     FpClass::NaN => abort("interval bounds must not be NaN")
   }
@@ -690,7 +690,7 @@ fn extended_mul_both(
     exponent.to_int()
   }
   let coefficient = coeff_mul(a.coefficient(), b.coefficient())
-  let negative = a.is_negative() != b.is_negative()
+  let negative = a.is_sign_minus() != b.is_sign_minus()
   (
     @binary.Binary::make(
       coefficient,
@@ -1832,11 +1832,11 @@ fn exact_add_full(
   let target = Int32::min(a.exponent2(), b.exponent2())
   let left = coeff_shift_left(a.coefficient(), a.exponent2() - target)
   let right = coeff_shift_left(b.coefficient(), b.exponent2() - target)
-  if a.is_negative() == b.is_negative() {
+  if a.is_sign_minus() == b.is_sign_minus() {
     exact_value(
       coeff_add(left, right),
       target,
-      negative=a.is_negative(),
+      negative=a.is_sign_minus(),
       exact_range=true,
       mode~,
     )
@@ -1848,7 +1848,7 @@ fn exact_add_full(
       exact_value(
         coeff_sub(left, right),
         target,
-        negative=a.is_negative(),
+        negative=a.is_sign_minus(),
         exact_range=true,
         mode~,
       )
@@ -1856,7 +1856,7 @@ fn exact_add_full(
       exact_value(
         coeff_sub(right, left),
         target,
-        negative=b.is_negative(),
+        negative=b.is_sign_minus(),
         exact_range=true,
         mode~,
       )
@@ -1898,11 +1898,11 @@ fn width_not_less(
   let mut acc = @binary.Binary::zero(precision=1)
   for t in terms {
     if !acc.is_zero() && exponent_top(t) + 3L < acc.exponent2().to_int64() {
-      return !acc.is_negative()
+      return !acc.is_sign_minus()
     }
     acc = exact_add_full(acc, t)
   }
-  acc.is_zero() || !acc.is_negative()
+  acc.is_zero() || !acc.is_sign_minus()
 }
 
 ///|

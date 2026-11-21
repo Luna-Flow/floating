@@ -16,23 +16,23 @@ fn exact_sum_rounded(
       x.coefficient(),
       x.exponent2(),
       precision,
-      negative=x.is_negative(),
+      negative=x.is_sign_minus(),
       mode~,
     )
   }
   let target = Int32::min(a.exponent2(), b.exponent2())
   let left = coeff_shift_left(a.coefficient(), a.exponent2() - target)
   let right = coeff_shift_left(b.coefficient(), b.exponent2() - target)
-  let (coefficient, negative) = if a.is_negative() == b.is_negative() {
-    (coeff_add(left, right), a.is_negative())
+  let (coefficient, negative) = if a.is_sign_minus() == b.is_sign_minus() {
+    (coeff_add(left, right), a.is_sign_minus())
   } else {
     let order = left.compare(right)
     if order == 0 {
       (@binary.BinCoeff::zero(), false)
     } else if order > 0 {
-      (coeff_sub(left, right), a.is_negative())
+      (coeff_sub(left, right), a.is_sign_minus())
     } else {
-      (coeff_sub(right, left), b.is_negative())
+      (coeff_sub(right, left), b.is_sign_minus())
     }
   }
   @binary.Binary::make(coefficient, target, precision, negative~, mode~)
@@ -60,7 +60,7 @@ fn exact_product_rounded(
     coeff_mul(a.coefficient(), b.coefficient()),
     exponent,
     precision,
-    negative=a.is_negative() != b.is_negative(),
+    negative=a.is_sign_minus() != b.is_sign_minus(),
     mode~,
   )
 }
@@ -72,7 +72,7 @@ fn exact_mul_full(a : @binary.Binary, b : @binary.Binary) -> @binary.Binary {
   exact_value(
     coeff_mul(a.coefficient(), b.coefficient()),
     a.exponent2() + b.exponent2(),
-    negative=a.is_negative() != b.is_negative(),
+    negative=a.is_sign_minus() != b.is_sign_minus(),
     exact_range=true,
   )
 }

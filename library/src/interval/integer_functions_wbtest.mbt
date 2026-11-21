@@ -171,6 +171,6 @@ test "integer functions: results are exact at a large precision and zero bounds 
   )
   let r = x.ceil()
   assert_true(r.upper_bound().is_zero())
-  assert_false(r.upper_bound().is_negative())
+  assert_false(r.upper_bound().is_sign_minus())
   assert_eq(r.precision(), 200)
 }

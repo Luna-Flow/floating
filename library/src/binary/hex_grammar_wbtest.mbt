@@ -32,7 +32,11 @@ fn assert_same_value(
   expected : Binary,
 ) -> Unit raise {
   assert_eq(actual.to_hex(), expected.to_hex(), msg=source)
-  assert_eq(actual.is_negative(), expected.is_negative(), msg=source + " sign")
+  assert_eq(
+    actual.is_sign_minus(),
+    expected.is_sign_minus(),
+    msg=source + " sign",
+  )
   assert_eq(actual.precision(), expected.precision(), msg=source + " precision")
 }
 
@@ -114,14 +118,14 @@ test "§5.12.1 infinities and NaNs in any case with an optional sign" {
   for source in ["inf", "INF", "+Inf", "infinity", "+INFINITY", "InFiNiTy"] {
     let x = Binary::from_hex(source, 53).unwrap()
     assert_true(
-      x.classify() == FpClass::Infinity && !x.is_negative(),
+      x.classify() == FpClass::Infinity && !x.is_sign_minus(),
       msg=source,
     )
   }
   for source in ["-inf", "-Infinity"] {
     let x = Binary::from_hex(source, 53).unwrap()
     assert_true(
-      x.classify() == FpClass::Infinity && x.is_negative(),
+      x.classify() == FpClass::Infinity && x.is_sign_minus(),
       msg=source,
     )
   }
@@ -140,7 +144,7 @@ test "§5.12.1 infinities and NaNs in any case with an optional sign" {
     let (x, flags) = Binary::from_hex_ctx(source, context).unwrap()
     let (y, _) = Binary::from_string_ctx(source, context).unwrap()
     assert_eq(x.classify() == y.classify(), true, msg=source)
-    assert_eq(x.is_negative(), y.is_negative(), msg=source)
+    assert_eq(x.is_sign_minus(), y.is_sign_minus(), msg=source)
     assert_eq(x.is_signaling_nan(), y.is_signaling_nan(), msg=source)
     assert_eq(flags, BinaryFlags::new(), msg=source)
   }
@@ -195,7 +199,7 @@ test "§5.12.3 round trip: from_hex(to_hex(x)) recovers x" {
   for x in [Binary::inf(), Binary::inf(negative=true), Binary::negative_zero()] {
     let back = Binary::from_hex(x.to_hex(), 53).unwrap()
     assert_eq(back.to_hex(), x.to_hex())
-    assert_eq(back.is_negative(), x.is_negative())
+    assert_eq(back.is_sign_minus(), x.is_sign_minus())
   }
   assert_true(
     Binary::from_hex(Binary::quiet_nan().to_hex(), 53).unwrap().is_quiet_nan(),

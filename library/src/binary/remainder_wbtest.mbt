@@ -149,7 +149,7 @@ test "remainder agrees with an exact quotient reference" {
       msg="\{x} rem \{y}",
     )
     if expected == 0L {
-      assert_eq(actual.0.is_negative(), x < 0L, msg="zero sign \{x} rem \{y}")
+      assert_eq(actual.0.is_sign_minus(), x < 0L, msg="zero sign \{x} rem \{y}")
     }
   }
 }

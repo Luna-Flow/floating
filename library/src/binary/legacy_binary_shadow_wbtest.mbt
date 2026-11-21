@@ -6,7 +6,7 @@ fn legacy_shadow_assert_equal(
 ) -> Unit raise {
   if candidate.classify() != legacy.classify() ||
     candidate.sign() != legacy.sign() ||
-    candidate.is_negative() != legacy.is_negative() ||
+    candidate.is_sign_minus() != legacy.is_negative() ||
     candidate.precision() != legacy.precision() ||
     candidate.exponent2() != legacy.exponent2() ||
     candidate.coefficient().to_string() != legacy.coefficient().to_string() {
@@ -25,7 +25,7 @@ fn legacy_shadow_assert_equal(
   }
   assert_true(candidate.classify() == legacy.classify())
   assert_true(candidate.sign() == legacy.sign())
-  assert_true(candidate.is_negative() == legacy.is_negative())
+  assert_true(candidate.is_sign_minus() == legacy.is_negative())
   assert_true(candidate.precision() == legacy.precision())
   assert_true(candidate.exponent2() == legacy.exponent2())
   assert_eq(

@@ -585,21 +585,24 @@ fn legacy_binary_from_candidate(value : Binary) -> LegacyBigIntBinary {
   match value.classify() {
     FpClass::Finite =>
       LegacyBigIntBinary::make(
-        if value.is_negative() && !magnitude.is_zero() {
+        if value.is_sign_minus() && !magnitude.is_zero() {
           -magnitude
         } else {
           magnitude
         },
         value.exponent2(),
         value.precision(),
-        negative_zero=value.is_negative(),
+        negative_zero=value.is_sign_minus(),
       )
     FpClass::Infinity =>
-      LegacyBigIntBinary::inf(value.is_negative(), precision=value.precision())
+      LegacyBigIntBinary::inf(
+        value.is_sign_minus(),
+        precision=value.precision(),
+      )
     FpClass::NaN =>
       LegacyBigIntBinary::nan(
         precision=value.precision(),
-        negative=value.is_negative(),
+        negative=value.is_sign_minus(),
         signaling=value.is_signaling_nan(),
         payload=bigint_from_text(value.nan_payload().to_string()),
       )

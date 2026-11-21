@@ -119,8 +119,8 @@ test "identical compares every field of the representation" {
 
 ///|
 test "inf takes the sign as a flag" {
-  assert_false(Decimal::inf().is_negative())
-  assert_true(Decimal::inf(negative=true, precision=7).is_negative())
+  assert_false(Decimal::inf().is_sign_minus())
+  assert_true(Decimal::inf(negative=true, precision=7).is_sign_minus())
   assert_eq(Decimal::inf(negative=true).to_string(), "-inf")
 }
 

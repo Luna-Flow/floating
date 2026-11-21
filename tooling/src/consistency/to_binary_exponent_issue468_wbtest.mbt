@@ -32,7 +32,7 @@ test "issue 468: decimal_gda to_binary agrees with decimal at large exponents" {
             let actual = gda.to_binary(precision~, mode~)
             inspect(actual.to_string() == expected.to_string(), content="true")
             inspect(
-              actual.is_negative() == expected.is_negative(),
+              actual.is_sign_minus() == expected.is_sign_minus(),
               content="true",
             )
           }

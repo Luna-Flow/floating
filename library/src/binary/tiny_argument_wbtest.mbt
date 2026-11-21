@@ -10,7 +10,7 @@ fn tiny_expected(
     RoundTiesToEven | RoundTiesToAway => true
     RoundTowardPositive => !above
     RoundTowardNegative => above
-    RoundTowardZero => above != anchor.is_negative()
+    RoundTowardZero => above != anchor.is_sign_minus()
   }
   if toward_anchor {
     anchor

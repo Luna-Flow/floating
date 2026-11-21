@@ -80,8 +80,8 @@ test "pow signals a signaling NaN base or exponent in every shortcut" {
           assert_true(result.is_quiet_nan(), msg=label + " is quiet")
           assert_true(flags.invalid_operation(), msg=label + " raises invalid")
           assert_eq(
-            result.is_negative(),
-            snan.is_negative(),
+            result.is_sign_minus(),
+            snan.is_sign_minus(),
             msg=label + " sign",
           )
           assert_eq(
@@ -140,7 +140,7 @@ test "pow keeps its quiet NaN shortcuts and propagation" {
           q.try_pow_ctx(other, context).unwrap()
         }
         assert_true(result.is_quiet_nan())
-        assert_true(result.is_negative())
+        assert_true(result.is_sign_minus())
         assert_eq(
           result.nan_payload().to_string(),
           nan_payload_in(BinCoeff::from_uint64(9UL), context.precision()),

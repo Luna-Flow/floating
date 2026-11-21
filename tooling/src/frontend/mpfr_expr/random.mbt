@@ -314,7 +314,7 @@ fn same_random_value(
   }
   @def.is_infinite(actual) == @def.is_infinite(expected) &&
   @def.is_zero(actual) == @def.is_zero(expected) &&
-  actual.is_negative() == expected.is_negative() &&
+  actual.is_sign_minus() == expected.is_sign_minus() &&
   actual.compare(expected) == 0
 }
 
@@ -474,7 +474,7 @@ fn run_random_getstr(case : MpfrRandomCase) -> (Bool, String) {
     Some((digits, exponent)) => {
       let actual = digits + "e" + exponent.to_string()
       let passed = actual == case.expected &&
-        text.has_prefix("-") == value.is_negative() &&
+        text.has_prefix("-") == value.is_sign_minus() &&
         actual_flags == case.flags
       (
         passed,
@@ -511,7 +511,8 @@ fn run_random_shortest(case : MpfrRandomCase) -> (Bool, String) {
   let reads_back = match
     @binary.Binary::from_string(text, precision=value.precision()) {
     Ok(parsed) =>
-      parsed.compare(value) == 0 && parsed.is_negative() == value.is_negative()
+      parsed.compare(value) == 0 &&
+      parsed.is_sign_minus() == value.is_sign_minus()
     Err(_) => false
   }
   let passed = reads_back && count.to_string() == case.expected

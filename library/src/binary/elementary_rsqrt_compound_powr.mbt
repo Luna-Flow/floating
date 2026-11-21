@@ -35,14 +35,14 @@ pub fn Binary::try_rsqrt_ctx(
   match self.class() {
     FpClass::NaN => abort("unreachable rsqrt NaN")
     FpClass::Infinity =>
-      if self.is_negative() {
+      if self.is_sign_minus() {
         Ok(binary_invalid_value(context))
       } else {
         Ok((Binary::zero_raw(precision=context.precision), BinaryFlags::new()))
       }
     FpClass::Finite if self.is_zero() =>
-      Ok(binary_pole_result(self.is_negative(), context))
-    FpClass::Finite if self.is_negative() => Ok(binary_invalid_value(context))
+      Ok(binary_pole_result(self.is_sign_minus(), context))
+    FpClass::Finite if self.is_sign_minus() => Ok(binary_invalid_value(context))
     FpClass::Finite => self.try_rootn_ctx(-2, context)
   }
 }
@@ -96,7 +96,10 @@ fn binary_compound_general(
   // |n x| < 2^31 * 2^(top + 1) <= 2^-(p + 9): 1 + n x is just beside 1.
   if top + 32L < -(p + 9L) {
     return Ok(
-      binary_compound_tiny_result(value.is_negative() == (degree < 0), context),
+      binary_compound_tiny_result(
+        value.is_sign_minus() == (degree < 0),
+        context,
+      ),
     )
   }
   // 1 + x exactly, while it fits: then it is `pown` of an exact base, which
@@ -177,7 +180,7 @@ pub fn Binary::try_compound_ctx(
         Ok((binary_quiet_nan(self, context.precision), BinaryFlags::new()))
       }
     FpClass::Infinity =>
-      if self.is_negative() {
+      if self.is_sign_minus() {
         Ok(binary_invalid_value(context))
       } else if degree == 0 {
         Ok((one, BinaryFlags::new()))
@@ -247,7 +250,7 @@ pub fn Binary::try_powr_ctx(
   if self.class() == FpClass::NaN {
     return Ok((binary_quiet_nan(self, context.precision), BinaryFlags::new()))
   }
-  if self.is_negative() && !self.is_zero() {
+  if self.is_sign_minus() && !self.is_zero() {
     return Ok(binary_invalid_value(context))
   }
   if exponent.class() == FpClass::NaN {
@@ -263,7 +266,7 @@ pub fn Binary::try_powr_ctx(
     if y_zero {
       return Ok(binary_invalid_value(context))
     }
-    if y_infinite && exponent.is_negative() {
+    if y_infinite && exponent.is_sign_minus() {
       return Ok(
         (
           Binary::inf_raw(Sign::Positive, precision=context.precision),
@@ -271,7 +274,7 @@ pub fn Binary::try_powr_ctx(
         ),
       )
     }
-    if exponent.is_negative() {
+    if exponent.is_sign_minus() {
       return Ok(binary_pole_result(false, context))
     }
     return Ok(
@@ -284,7 +287,7 @@ pub fn Binary::try_powr_ctx(
       return Ok(binary_invalid_value(context))
     }
     return Ok(
-      if exponent.is_negative() {
+      if exponent.is_sign_minus() {
         (Binary::zero_raw(precision=context.precision), BinaryFlags::new())
       } else {
         (

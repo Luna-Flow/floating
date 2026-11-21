@@ -14,7 +14,7 @@ fn binary_sin_cos_series_reference(
     precision=work_precision,
     rounding=RoundTowardPositive,
   )
-  let negative = value.is_negative()
+  let negative = value.is_sign_minus()
   let argument = if negative { value.neg() } else { value }
   let argument_lower = argument.with_precision(
     work_precision,

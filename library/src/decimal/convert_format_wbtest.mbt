@@ -78,19 +78,19 @@ fn convert_binary_matches(
   match expected {
     "+inf" => {
       assert_true(actual.classify() == FpClass::Infinity, msg=label)
-      assert_false(actual.is_negative(), msg=label)
+      assert_false(actual.is_sign_minus(), msg=label)
     }
     "-inf" => {
       assert_true(actual.classify() == FpClass::Infinity, msg=label)
-      assert_true(actual.is_negative(), msg=label)
+      assert_true(actual.is_sign_minus(), msg=label)
     }
     "0" => {
       assert_true(actual.is_zero(), msg=label)
-      assert_false(actual.is_negative(), msg=label)
+      assert_false(actual.is_sign_minus(), msg=label)
     }
     "-0" => {
       assert_true(actual.is_zero(), msg=label)
-      assert_true(actual.is_negative(), msg=label)
+      assert_true(actual.is_sign_minus(), msg=label)
     }
     _ => {
       let value = @binary.Binary::from_hex(expected, precision).unwrap()
@@ -165,7 +165,7 @@ test "binary to decimal: the MPFR mpfr_get_str rows" {
         (label, cohort_coefficient, cohort_exponent),
       )
     }
-    assert_eq((label, actual.negative), (label, x.is_negative()))
+    assert_eq((label, actual.negative), (label, x.is_sign_minus()))
   }
 }
 
@@ -294,7 +294,7 @@ test "convertFormat of NaNs: payload, sign and the signaling exception (IEEE 754
     negative=true,
   ).to_binary_ctx(context)
   assert_true(kept.classify() == FpClass::NaN)
-  assert_true(kept.is_negative())
+  assert_true(kept.is_sign_minus())
   assert_eq(kept.nan_payload().to_string(), "300")
   assert_false(flags.invalid_operation())
   // binary16 holds 9 payload bits: 512 + 5 keeps its low 9 bits
@@ -334,7 +334,7 @@ test "convertFormat of NaNs: payload, sign and the signaling exception (IEEE 754
 test "convertFormat of infinities and zeros keeps the sign" {
   let b64 = @binary.BinaryContext::binary64()
   let (inf, flags) = Decimal::inf(negative=true).to_binary_ctx(b64)
-  assert_true(inf.classify() == FpClass::Infinity && inf.is_negative())
+  assert_true(inf.classify() == FpClass::Infinity && inf.is_sign_minus())
   assert_false(flags.inexact())
   let (zero, flags) = Decimal::negative_zero().to_binary_ctx(b64)
   assert_true(zero.is_negative_zero())

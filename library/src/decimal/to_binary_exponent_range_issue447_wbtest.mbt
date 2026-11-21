@@ -44,7 +44,7 @@ test "issue 447: to_binary at both ends of the exponent range, every rounding mo
         let actual = value.to_binary(precision=53, mode~)
         let expected = oracle_to_binary(signed, exponent, 53, mode)
         inspect(actual.to_string() == expected.to_string(), content="true")
-        inspect(actual.is_negative() == negative, content="true")
+        inspect(actual.is_sign_minus() == negative, content="true")
       }
     }
   }
@@ -61,7 +61,7 @@ test "issue 447: the reported cases do not panic" {
     mode=@binary.BinaryRoundingMode::RoundTowardPositive,
   )
   inspect(directed_up.is_zero(), content="false")
-  inspect(directed_up.is_negative(), content="false")
+  inspect(directed_up.is_sign_minus(), content="false")
 }
 
 ///|

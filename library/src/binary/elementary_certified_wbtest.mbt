@@ -301,7 +301,7 @@ test "Binary atan2 follows the IEEE signed-zero special cases" {
   // atan2(±0, +0) and atan2(±0, x > 0) are ±0, exact.
   for abscissa in [pz, Binary::one(), pinf] {
     let (positive, positive_flags) = pz.atan2_ctx(abscissa, context)
-    assert_true(positive.is_zero() && !positive.is_negative())
+    assert_true(positive.is_zero() && !positive.is_sign_minus())
     assert_eq(positive_flags, BinaryFlags::new())
     let (negative, negative_flags) = nz.atan2_ctx(abscissa, context)
     assert_true(negative.is_negative_zero())
@@ -367,17 +367,17 @@ test "Binary tanpi at integers takes the sign of sinpi over cospi" {
   for n in [2, 4, -1, -3] {
     let (tangent, flags) = Binary::from_int(n).tanpi_ctx(context)
     assert_true(
-      tangent.is_zero() && !tangent.is_negative(),
+      tangent.is_zero() && !tangent.is_sign_minus(),
       msg="tanpi(" + n.to_string() + ")",
     )
     assert_eq(flags, BinaryFlags::new())
   }
   assert_true(Binary::zero().tanpi().is_zero())
-  assert_true(!Binary::zero().tanpi().is_negative())
+  assert_true(!Binary::zero().tanpi().is_sign_minus())
   assert_true(Binary::negative_zero().tanpi().is_negative_zero())
   // Every binary64 value with |x| >= 2^53 is an even integer.
   let huge = Binary::make(BinCoeff::one(), 60, 53)
-  assert_true(!huge.tanpi().is_negative())
+  assert_true(!huge.tanpi().is_sign_minus())
   assert_true(huge.neg().tanpi().is_negative_zero())
   // tanPi(n + 1/2) alternates: +inf for even n, -inf for odd n.
   let half = Binary::make(BinCoeff::one(), -1, 53)

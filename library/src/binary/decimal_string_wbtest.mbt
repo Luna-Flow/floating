@@ -161,7 +161,7 @@ test "decimal strings round-trip the host binary64 shortest form" {
     let parsed = Binary::from_string_ctx(text, context).unwrap().0
     assert_eq(parsed.compare(Binary::from_double(number)), 0, msg=text)
     assert_eq(
-      parsed.is_negative(),
+      parsed.is_sign_minus(),
       number < 0.0 || (number == 0.0 && 1.0 / number < 0.0),
       msg=text,
     )

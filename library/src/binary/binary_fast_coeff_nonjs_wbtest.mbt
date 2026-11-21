@@ -162,7 +162,7 @@ test "coefficient add of near-equal and cancelling values" {
       fast_coeff_value(random, 1 + random.below(40)),
       left.exponent2() + random.below(20) - 10,
       precision,
-      negative=left.is_negative(),
+      negative=left.is_sign_minus(),
     )
     let right = if random.below(3) == 0 {
       left.neg()

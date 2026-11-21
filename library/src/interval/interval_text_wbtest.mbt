@@ -428,7 +428,7 @@ test "a zero bound has no sign in the texts" {
     let x = Interval::from_bounds(pair.0, pair.1)
     inspect(x.to_string(), content="[0, 1]")
     inspect(x.to_exact_string(), content="[0x0p0, 0x1p0]")
-    assert_true(x.lower_bound().is_negative())
+    assert_true(x.lower_bound().is_sign_minus())
   }
   for pair in [(one.neg(), zero), (one.neg(), negative_zero)] {
     let x = Interval::from_bounds(pair.0, pair.1)

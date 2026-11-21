@@ -41,7 +41,7 @@ test "hypot of an infinity and a signaling NaN is a quiet NaN with invalid" {
             value.nan_payload().to_string(),
             nan_payload_in(BinCoeff::from_uint64(0x2bUL), context.precision()),
           )
-          assert_eq(value.is_negative(), negative)
+          assert_eq(value.is_sign_minus(), negative)
           assert_true(flags.invalid_operation())
           assert_false(flags.inexact() || flags.overflow() || flags.underflow())
           cases += 1

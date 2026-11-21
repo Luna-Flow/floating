@@ -38,7 +38,7 @@ fn pi_tiny_model(
   let product = x.abs().mul_ctx(pi, BinaryContext::new(precision=900)).0
   let factor = if kind == 0 { below } else { above }
   binary_round_dyadic(
-    x.is_negative(),
+    x.is_sign_minus(),
     product.coefficient_().mul(factor),
     product.exponent2() - 300,
     ctx,

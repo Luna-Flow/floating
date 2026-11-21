@@ -450,7 +450,7 @@ fn binary_trig_bounds_burst(
   })
   guard chunks_ok else { return None }
   let mut negative = negative_quadrant
-  if !cosine && value.is_negative() {
+  if !cosine && value.is_sign_minus() {
     negative = !negative
   }
   if uses_sine && reduced_negative {

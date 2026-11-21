@@ -134,7 +134,11 @@ test "from_hex_ctx agrees with from_hex where from_hex succeeds" {
         BinaryContext::new(precision=p),
       ).unwrap()
       assert_eq(value.to_hex(), old.to_hex(), msg="\{source} \{p}")
-      assert_eq(value.is_negative(), old.is_negative(), msg="\{source} \{p}")
+      assert_eq(
+        value.is_sign_minus(),
+        old.is_sign_minus(),
+        msg="\{source} \{p}",
+      )
     }
   }
 }
@@ -147,7 +151,7 @@ test "from_hex_ctx: an exponent outside the 32-bit range overflows or underflows
   assert_eq(big.classify() == FpClass::Infinity, true)
   assert_eq(e2s_flags(big_flags), "I-O")
   let (small, small_flags) = Binary::from_hex_ctx("-0x1p-99999999999", context).unwrap()
-  assert_eq(small.is_zero() && small.is_negative(), true)
+  assert_eq(small.is_zero() && small.is_sign_minus(), true)
   assert_eq(e2s_flags(small_flags), "IU-")
   assert_true(Binary::from_hex("0x1p99999999999", 53) is Err(_))
   // beyond the old limit of the parser (10^12) the field saturates (issue #597): the same

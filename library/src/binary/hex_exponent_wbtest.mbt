@@ -28,7 +28,7 @@ fn hex_exponent_check(
       ).unwrap()
       assert_true(
         hex_value.compare(dec_value) == 0 &&
-        hex_value.is_negative() == dec_value.is_negative(),
+        hex_value.is_sign_minus() == dec_value.is_sign_minus(),
         msg="\{label} \{hex_text} mode#\{mode_index} p=\{precision}: \{hex_value} vs \{dec_value}",
       )
       assert_eq(
@@ -93,14 +93,15 @@ test "from_hex_ctx: a zero significand is the zero of the sign for any exponent 
             sign + "0x0p" + exp_sign + exponent,
             context,
           ).unwrap()
-          assert_true(value.is_zero() && value.is_negative() == (sign == "-"))
+          assert_true(value.is_zero() && value.is_sign_minus() == (sign == "-"))
           assert_eq(flags, BinaryFlags::new())
           let (decimal, _) = Binary::from_string_ctx(
             sign + "0e" + exp_sign + exponent,
             context,
           ).unwrap()
           assert_true(
-            decimal.is_zero() && decimal.is_negative() == value.is_negative(),
+            decimal.is_zero() &&
+            decimal.is_sign_minus() == value.is_sign_minus(),
           )
         }
       }
@@ -116,14 +117,14 @@ test "from_hex_ctx: the result of a huge exponent in each rounding direction, wi
     rounding=BinaryRoundingMode::RoundTowardPositive,
   )
   let (inf, f1) = Binary::from_hex_ctx("0x1p1000000000001", up).unwrap()
-  assert_true(inf.classify() == FpClass::Infinity && !inf.is_negative())
+  assert_true(inf.classify() == FpClass::Infinity && !inf.is_sign_minus())
   assert_true(f1.overflow() && f1.inexact())
   let zero_dir = BinaryContext::new(
     precision=53,
     rounding=BinaryRoundingMode::RoundTowardZero,
   )
   let (largest, f2) = Binary::from_hex_ctx("0x1p1000000000001", zero_dir).unwrap()
-  assert_true(largest.classify() == FpClass::Finite && !largest.is_negative())
+  assert_true(largest.classify() == FpClass::Finite && !largest.is_sign_minus())
   assert_true(f2.overflow() && f2.inexact())
   // the negative literal toward negative infinity: -inf; toward positive: the largest negative
   let down = BinaryContext::new(
@@ -132,12 +133,13 @@ test "from_hex_ctx: the result of a huge exponent in each rounding direction, wi
   )
   let (neg_inf_value, f3) = Binary::from_hex_ctx("-0x1p1000000000001", down).unwrap()
   assert_true(
-    neg_inf_value.classify() == FpClass::Infinity && neg_inf_value.is_negative(),
+    neg_inf_value.classify() == FpClass::Infinity &&
+    neg_inf_value.is_sign_minus(),
   )
   assert_true(f3.overflow())
   // 0x1p-1000000000001: below the smallest stored value
   let (tiny, f4) = Binary::from_hex_ctx("0x1p-1000000000001", up).unwrap()
-  assert_true(!tiny.is_zero() && !tiny.is_negative())
+  assert_true(!tiny.is_zero() && !tiny.is_sign_minus())
   assert_true(f4.underflow() && f4.inexact())
   let (flushed, f5) = Binary::from_hex_ctx("0x1p-1000000000001", zero_dir).unwrap()
   assert_true(flushed.is_zero())
