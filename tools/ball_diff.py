@@ -14,7 +14,9 @@ its band is an error, see `check_coverage`).
     python3 tools/ball_diff.py run [--out DIR]     rows, oracle, test, verdict
 
 Operations: add, sub, mul, div, sqr, sqrt, fma (IEEE 1788-2015 12.10.2: the basic
-operations shall be tightest, so the bounds must be equal). Row format
+operations shall be tightest, so the bounds must be equal), and exp and ln (valid
+only: the result must enclose the tightest one, and may not be wider than
+`ACCURATE_ULPS` units of the last place; no second oracle, MPFR only). Row format
 (`ball-diff-v1`): `id op size class operand...`, an operand is `lo:hi`, two values
 `[-]0x<hex>p<exp>`, exact.
 """
@@ -38,12 +40,17 @@ KNOWN_FILE = REPO_ROOT / "tools" / "ball_diff_known.txt"
 SEED = 20261121
 PRECISIONS: tuple[int, ...] = (53, 128, 512)
 ROWS_PER_CELL = 12
+# precisions added to a class: the rows of issue 569 (exp at the overflow threshold) failed from 146 bits up
+CLASS_PRECISIONS: dict[str, tuple[int, ...]] = {"XOV": (117, 146, 175, 292)}
 
 EMAX = (1 << 30) - 1  # the largest leading-bit exponent of a finite value of bin_float
 EMIN = 1 - EMAX  # the smallest normal number is 2**EMIN
 
-OPS: tuple[str, ...] = ("add", "sub", "mul", "div", "sqr", "sqrt", "fma")
-ARITY = {"add": 2, "sub": 2, "mul": 2, "div": 2, "sqr": 1, "sqrt": 1, "fma": 3}
+OPS: tuple[str, ...] = ("add", "sub", "mul", "div", "sqr", "sqrt", "fma", "exp", "ln")
+ARITY = {"add": 2, "sub": 2, "mul": 2, "div": 2, "sqr": 1, "sqrt": 1, "fma": 3, "exp": 1, "ln": 1}
+ARITHMETIC_OPS = ("add", "sub", "mul", "div", "sqr", "sqrt", "fma")
+ELEMENTARY_OPS = ("exp", "ln")
+ACCURATE_ULPS = 1024  # an enclosing result wider than this many units of the last place is reported (the standard says "should be accurate")
 
 # class -> operations it applies to, and the oracle flag it must reach in at least one row of every cell
 CLASSES: dict[str, tuple[tuple[str, ...], str | None]] = {
@@ -53,7 +60,10 @@ CLASSES: dict[str, tuple[tuple[str, ...], str | None]] = {
     "FAR": (("add", "sub", "fma"), None),  # operands of very different exponents
     "FEW": (OPS, None),  # operands with fewer significant bits than the precision
     "WIDE": (OPS, None),  # bounds with more bits than the precision: the ball rounds them outward
-    "Z": (("add", "sub", "mul", "div", "sqr", "sqrt", "fma"), None),  # intervals with a zero bound
+    "Z": (("add", "sub", "mul", "div", "sqr", "sqrt", "fma", "exp"), None),  # intervals with a zero bound
+    "XOV": (("exp",), "o"),  # exp at the overflow threshold (issue 569): arguments next to (e_max + 1) ln 2
+    "XUF": (("exp",), "sz"),  # exp at the underflow thresholds: arguments next to e_min ln 2 and to the smallest subnormal and its half
+    "LNE": (("ln",), None),  # ln at the ends of the range and next to 1
 }
 
 
@@ -147,15 +157,18 @@ def with_lead(rng: random.Random, p: int, lead: int) -> Value:
 
 
 def one_ulp_up(x: Value, p: int) -> Value:
-    """The next value of at least the same precision above x, for a positive x of up to p bits."""
+    """The next value of at least the same precision above x, for a positive x of up to p bits;
+    x itself when that would be above the largest finite value."""
     m, e = x.mantissa, x.exponent
     if m.bit_length() < p:  # fewer bits: add one unit of the last bit it has
-        return value(m + 1, e)
-    m += 1
-    if m.bit_length() > p:
-        m >>= 1
-        e += 1
-    return value(m, e)
+        up = value(m + 1, e)
+    else:
+        m += 1
+        if m.bit_length() > p:
+            m >>= 1
+            e += 1
+        up = value(m, e)
+    return x if up.lead() > EMAX else up
 
 
 Interval = tuple[Value, Value]
@@ -213,6 +226,46 @@ def square_root_of(target_n: int, target_e: int, p: int) -> Value:
 
 
 # ---------------------------------------------------------------------------
+# ln 2 and the arguments of exp and ln at the thresholds
+# ---------------------------------------------------------------------------
+
+LN2_BITS = 1400
+
+
+def ln2_fixed(bits: int = LN2_BITS) -> int:
+    """ln 2 * 2^bits, floor, from the series sum 1/(k 2^k) in integers (error below 2^-bits * 2)."""
+    total = 0
+    k = 1
+    term = 1 << bits
+    while term:
+        term >>= 1
+        total += term // k
+        k += 1
+    return total
+
+
+LN2 = ln2_fixed()
+
+
+def times_ln2(n: int, p: int) -> Value:
+    """n * ln 2 rounded to p bits (the series is exact to 2^-1400 relative to 1; p <= 512 and |n| < 2^31 leave 800 spare bits)."""
+    scaled = abs(n) * LN2
+    bits = scaled.bit_length()
+    shift = bits - p
+    mantissa = round_shift(scaled, shift)
+    exponent = shift - LN2_BITS
+    return fit(mantissa, exponent, p) if n >= 0 else fit(mantissa, exponent, p).neg()
+
+
+def step(x: Value, k: int, p: int) -> Value:
+    """x moved by k units of its last place (k may be negative), keeping p bits, zero never reached by the callers."""
+    sign = -1 if x.negative else 1
+    mantissa = sign * x.mantissa + k
+    moved = value(abs(mantissa), x.exponent, mantissa < 0)
+    return x if moved.lead() > EMAX else moved
+
+
+# ---------------------------------------------------------------------------
 # Row generators
 # ---------------------------------------------------------------------------
 
@@ -235,6 +288,11 @@ def finish_operands(op: str, p: int, a: Interval, b: Interval, c: Interval, rng:
     if op == "sqrt":
         # the interval of the absolute values of the two bounds, in order
         x, y = Value(False, a[0].mantissa, a[0].exponent), Value(False, a[1].mantissa, a[1].exponent)
+        return [(y, x) if compare(x, y) > 0 else (x, y)]
+    if op == "ln":
+        x, y = Value(False, a[0].mantissa, a[0].exponent), Value(False, a[1].mantissa, a[1].exponent)
+        x = x if x.mantissa else value(1, a[1].exponent)
+        y = y if y.mantissa else x
         return [(y, x) if compare(x, y) > 0 else (x, y)]
     if op == "div":
         if b[0].negative != b[1].negative:  # contains zero: use its negative or positive half
@@ -398,6 +456,58 @@ def class_z(op: str, p: int, i: int, rng: random.Random) -> Operands:
     return finish_operands(op, p, a, b, c, rng)
 
 
+def exp_interval(x: Value, p: int, i: int) -> Interval:
+    """A point, an interval of one or a few units of the last place above x, or one around x (a step either side)."""
+    shape = i % 4
+    if shape == 0:
+        return (x, x)
+    if shape == 1:
+        return (x, step(x, 1, p))
+    if shape == 2:
+        return (step(x, -1, p), step(x, 2, p))
+    return (step(x, -3, p), step(x, 3, p))
+
+
+def class_xov(op: str, p: int, i: int, rng: random.Random) -> Operands:
+    """exp at the overflow threshold: arguments next to (EMAX + 1) ln 2, on both sides of it."""
+    centre = times_ln2(EMAX + 1, p)
+    k = (i // 4) % 7 - 3
+    return [exp_interval(step(centre, k, p), p, i)]
+
+
+def class_xuf(op: str, p: int, i: int, rng: random.Random) -> Operands:
+    """exp at the underflow side: next to the smallest normal number, the smallest subnormal and its half."""
+    targets = [EMIN, quantum(p) + 1, quantum(p), quantum(p) - 1, EMIN - p // 2]
+    centre = times_ln2(targets[i % len(targets)], p)  # the targets are negative exponents: x = n ln 2 with n < 0
+    k = (i // len(targets)) % 5 - 2
+    return [exp_interval(step(centre, k, p), p, i // 2)]
+
+
+def class_lne(op: str, p: int, i: int, rng: random.Random) -> Operands:
+    """ln at the ends of the range and next to 1 (the result next to zero)."""
+    kind = i % 6
+    if kind == 0:
+        x = max_finite(p)
+    elif kind == 1:
+        x = value(1, quantum(p))
+    elif kind == 2:
+        x = value(1 << (p - 1), 1 - p)  # 1
+    elif kind == 3:
+        x = value((1 << (p - 1)) + 1, 1 - p)  # 1 + one unit
+    elif kind == 4:
+        x = value(1 << (p - 1), EMIN - (p - 1))  # the smallest normal number
+    else:
+        x = value((1 << p) - 1, -p)  # 1 - one unit
+    shape = (i // 6) % 3
+    if kind == 0:  # the largest finite value: nothing above it
+        return [[(x, x), (step(x, -1, p), x), (step(x, -3, p), x)][shape]]
+    if shape == 0:
+        return [(x, x)]
+    if shape == 1:
+        return [(step(x, -1, p), step(x, 1, p))] if x.mantissa > 1 else [(x, step(x, 1, p))]
+    return [(x, step(x, 2, p))]
+
+
 GENERATORS: dict[str, Callable[[str, int, int, random.Random], Operands]] = {
     "R": class_r,
     "OV": class_ov,
@@ -406,6 +516,9 @@ GENERATORS: dict[str, Callable[[str, int, int, random.Random], Operands]] = {
     "FEW": class_few,
     "WIDE": class_wide,
     "Z": class_z,
+    "XOV": class_xov,
+    "XUF": class_xuf,
+    "LNE": class_lne,
 }
 
 
@@ -419,8 +532,13 @@ class Row:
 
     def __post_init__(self) -> None:
         for lo, hi in self.operands:
+            for bound in (lo, hi):
+                if bound.mantissa and (bound.lead() > EMAX or (bound.exponent + (bound.mantissa & -bound.mantissa).bit_length() - 1) < quantum(self.size)):
+                    raise ValueError(f"row {self.id}: the operand {bound.text()} is not a number of the format (above the largest finite value or off the grid of the smallest subnormal)")
             if compare(lo, hi) > 0:
                 raise ValueError(f"row {self.id}: lower bound {lo.text()} above upper bound {hi.text()}")
+        if self.op == "ln" and compare(self.operands[0][0], ZERO) <= 0:
+            raise ValueError(f"row {self.id}: ln of an interval that is not positive")
         if self.op == "sqrt" and self.operands[0][0].negative:
             raise ValueError(f"row {self.id}: sqrt of an interval below zero")
         if self.op == "div":
@@ -444,7 +562,7 @@ def generate_rows(seed: int = SEED, precisions: Sequence[int] = PRECISIONS, per_
         for op in applicable:
             if op not in wanted_ops:
                 continue
-            for p in precisions:
+            for p in sorted(set(precisions) | set(CLASS_PRECISIONS.get(klass, ()))):
                 rng = random.Random(f"ball-diff:{seed}:{op}:{klass}:{p}")
                 for i in range(per_cell):
                     operands = GENERATORS[klass](op, p, i, rng)
@@ -615,7 +733,10 @@ def corner(op: str, args: Sequence[Value], p: int, up: bool) -> Value:
 
 
 def py_oracle(row: Row) -> tuple[str, str]:
-    """The tightest interval of a row, by the integer oracle: (lo, hi) canonical texts; raises Skipped."""
+    """The tightest interval of a row, by the integer oracle: (lo, hi) canonical texts; raises Skipped
+    (the elementary functions have no second oracle: exp and ln are only required to enclose)."""
+    if row.op in ELEMENTARY_OPS:
+        raise Skipped()
     p = row.size
     # the operands as the ball holds them: every bound rounded outward to p bits, without a range
     operands = [(round_directed(abs(read(lo).mantissa), read(lo).exponent, False, read(lo).negative, False, p, ranged=False),

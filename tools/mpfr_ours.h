@@ -127,6 +127,29 @@ OURS_UNUSED static void ours_print(FILE *out, const mpfr_t x) {
   }
 }
 
+/* The same value as `[-]0x<hex>p<exponent>`, `inf`, `-inf`, `nan`, `0x0p0`, `-0x0p0`: the text the library reads (BinFloat::from_hex). */
+OURS_UNUSED static void ours_print_hex(FILE *out, const mpfr_t x) {
+  if (mpfr_nan_p(x)) {
+    fputs("nan", out);
+  } else if (mpfr_inf_p(x)) {
+    fputs(mpfr_signbit(x) ? "-inf" : "inf", out);
+  } else if (mpfr_zero_p(x)) {
+    fputs(mpfr_signbit(x) ? "-0x0p0" : "0x0p0", out);
+  } else {
+    mpz_t m;
+    mpz_init(m);
+    mpfr_exp_t e = mpfr_get_z_2exp(m, x);
+    int negative = mpz_sgn(m) < 0;
+    mpz_abs(m, m);
+    char *digits = mpz_get_str(NULL, 16, m);
+    fprintf(out, "%s0x%sp%ld", negative ? "-" : "", digits, (long)e);
+    void (*freefunc)(void *, size_t);
+    mp_get_memory_functions(NULL, NULL, &freefunc);
+    freefunc(digits, strlen(digits) + 1);
+    mpz_clear(m);
+  }
+}
+
 /* The two zeros are one number in the set-based interval flavour: compare them as equal. */
 OURS_UNUSED static int ours_cmp_endpoint(const mpfr_t a, const mpfr_t b) {
   if (mpfr_zero_p(a) && mpfr_zero_p(b)) return 0;

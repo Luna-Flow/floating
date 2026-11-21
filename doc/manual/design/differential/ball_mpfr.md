@@ -26,6 +26,10 @@ over the corners $c$ (four for `mul` and `div`, eight for `fma`, the two ends fo
 
 The oracle prints `0b<odd integer>p<exponent>`, `inf`, `-inf`, `0`, `-0`; the test builds the same text from the accessors of the value (class, sign, coefficient, exponent), not from `to_hex`. The operands are compared too: the oracle echoes each operand bound after the outward rounding to the precision, and the test compares it with the bound the library holds after `from_hex` and `from_bounds`, so a misreading cannot produce a matching wrong result. The two zeros are one number in the set-based flavour and compare equal.
 
+### `exp` and `ln` must enclose, not be equal
+
+IEEE 1788-2015 12.10.2 requires only a valid result for `exp` and `ln` (and says it should be accurate), so the bounds may differ from the tightest ones. The test requires that the library result encloses the oracle's (the oracle's bounds are read from the hexadecimal text the oracle prints) and that each bound is at most 1,024 units of the last place of the oracle's bound outside it; an infinite or zero oracle bound must be met exactly. A result that encloses but is wider is reported as a failing row with that reason (the shape of issue 569). `exp` and `ln` have no second oracle: MPFR is the only one.
+
 ### Generated rows are checked by the oracle's flags
 
 Rows that aim at a band (overflow threshold, subnormal band) are built from integer mantissa arithmetic with the target product, quotient or square written as an integer and an exponent, never as an integer of $2^{2^{30}}$. Whether a class reached its band is not trusted to the generator: the oracle reports overflow, a subnormal result or operand, and underflow to zero, and a class without any such row is an error.
@@ -45,6 +49,6 @@ Rows that aim at a band (overflow threshold, subnormal band) are built from inte
 
 ## Boundaries
 
-- The stage covers `add`, `sub`, `mul`, `div`, `sqr`, `sqrt` and `fma` at 53, 128 and 512 bits; the elementary and reverse functions have their own rows.
+- The stage covers `add`, `sub`, `mul`, `div`, `sqr`, `sqrt`, `fma`, `exp` and `ln` at 53, 128 and 512 bits (`exp` at the overflow threshold also at 117, 146, 175 and 292 bits); the other elementary functions and the reverse functions have their own rows.
 - It needs MPFR and GMP headers; it is not part of `just pr` and is not wired into `tools/run_ci.py`.
 - The two oracles share the correctness of the standard definition of directed rounding; MPFR is the one implementation used for the C side.

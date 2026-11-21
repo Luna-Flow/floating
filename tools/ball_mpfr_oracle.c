@@ -12,7 +12,8 @@
  *
  *   ball_mpfr_oracle INPUT OUTPUT
  *
- * Output rows: `id lo hi flags echo`. `lo` and `hi` are canonical texts;
+ * Output rows: `id lo hi flags echo lohex hihex` (the hexadecimal texts of the bounds are
+ * for the operations whose result is only required to enclose, see the test). `lo` and `hi` are canonical texts;
  * `echo` is the canonical text of every operand bound after the outward
  * rounding to `size` bits, `lo:hi,lo:hi`, so that the library's reading of the
  * same text can be checked; `flags` is `-` or a subset of `o` (a bound
@@ -212,6 +213,26 @@ static void compute_fma(const ival *a, const ival *b, const ival *c, long p, iva
   mpfr_clear(t);
 }
 
+/* exp and ln are increasing: one directed evaluation per bound. */
+typedef int (*op1_t)(mpfr_t, const mpfr_t, mpfr_rnd_t);
+
+static void directed1(mpfr_t y, op1_t op, const mpfr_t a, mpfr_rnd_t rnd) {
+  mpfr_clear_flags();
+  int ternary = op(y, a, rnd);
+  int over = mpfr_overflow_p() != 0;
+  int under = mpfr_underflow_p() != 0;
+  ours_subnormalize(y, ternary, rnd);
+  note_result(y, over, under);
+}
+
+static void compute_increasing(op1_t op, const ival *a, ival *out) {
+  directed1(out->lo, op, a->lo, MPFR_RNDD);
+  directed1(out->hi, op, a->hi, MPFR_RNDU);
+}
+
+static int op_exp(mpfr_t y, const mpfr_t a, mpfr_rnd_t r) { return mpfr_exp(y, a, r); }
+static int op_log(mpfr_t y, const mpfr_t a, mpfr_rnd_t r) { return mpfr_log(y, a, r); }
+
 /* Reading and outward rounding of the operands. */
 static void read_operand(ival *x, const char *token, long p) {
   char *copy = strdup(token);
@@ -282,7 +303,11 @@ int main(int argc, char **argv) {
     else if (strcmp(op, "div") == 0) corners2(op_div, &x[0], &x[1], p, &r);
     else if (strcmp(op, "sqr") == 0) compute_sqr(&x[0], p, &r);
     else if (strcmp(op, "sqrt") == 0) compute_sqrt(&x[0], p, &r);
-    else if (strcmp(op, "fma") == 0) compute_fma(&x[0], &x[1], &x[2], p, &r);
+    else if (strcmp(op, "exp") == 0) compute_increasing(op_exp, &x[0], &r);
+    else if (strcmp(op, "ln") == 0) {
+      if (mpfr_sgn(x[0].lo) <= 0) die("ln of an interval that is not positive is not a row of this stage");
+      compute_increasing(op_log, &x[0], &r);
+    } else if (strcmp(op, "fma") == 0) compute_fma(&x[0], &x[1], &x[2], p, &r);
     else die("unknown operation");
     fprintf(out, "%s ", id);
     ours_print(out, r.lo);
@@ -303,6 +328,10 @@ int main(int argc, char **argv) {
       if (i > 0) fputc(',', out);
       echo_operand(out, &x[i]);
     }
+    fputc(' ', out);
+    ours_print_hex(out, r.lo);
+    fputc(' ', out);
+    ours_print_hex(out, r.hi);
     fputc('\n', out);
     for (int i = 0; i < arity; i++) {
       mpfr_clear(x[i].lo);
