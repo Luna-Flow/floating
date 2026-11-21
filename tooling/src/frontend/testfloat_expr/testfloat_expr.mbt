@@ -487,8 +487,7 @@ fn execute_case(case : TestFloatCase, spec : TestFloatSpec) -> CaseResult {
   )
   let operands = case.operands.map(fn(value) { value.to_bin_float() })
   match case.expected {
-    Encoded(expected) =>
-      execute_float_case(case, spec, context, operands, expected)
+    Encoded(_) => execute_float_case(case, spec, context, operands)
     Integer(expected) =>
       execute_integer_case(case, spec, context, operands[0], expected)
     Boolean(expected) => execute_boolean_case(case, spec, operands, expected)
@@ -516,7 +515,6 @@ fn execute_float_case(
   spec : TestFloatSpec,
   context : @bin_float.BinaryContext,
   operands : Array[@bin_float.BinFloat],
-  expected : @bin_float.BinaryInterchange,
 ) -> CaseResult {
   // The result format: the destination of a format conversion, else the format
   // of the operands.
@@ -545,6 +543,22 @@ fn execute_float_case(
         operand.to_integral_value_ctx(context)
       }
     _ => abort("invalid parsed TestFloat operand arity")
+  }
+  judge_float_result(case, result_format, spec, actual, flags)
+}
+
+///|
+/// Judges the result of a contextual operation against the vector.
+fn judge_float_result(
+  case : TestFloatCase,
+  result_format : @bin_float.BinaryInterchangeFormat,
+  spec : TestFloatSpec,
+  actual : @bin_float.BinFloat,
+  flags : @bin_float.BinaryFlags,
+) -> CaseResult {
+  let expected = match case.expected {
+    Encoded(value) => value
+    _ => abort("a float case has an encoded expected value")
   }
   let (encoded, encoding_flags) = @bin_float.BinaryInterchange::from_bin_float(
     actual,
