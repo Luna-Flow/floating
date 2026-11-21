@@ -176,8 +176,8 @@ pub fn SemanticScalar::from_decimal(x : @decimal.Decimal) -> SemanticScalar {
 }
 
 ///|
-pub fn SemanticInterval::from_ball_float(
-  x : @ball_float.BallFloat,
+pub fn SemanticInterval::from_interval(
+  x : @interval.Interval,
 ) -> SemanticInterval {
   {
     lower: SemanticScalar::from_bin_float(x.lower_bound()),

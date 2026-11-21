@@ -54,8 +54,8 @@ fn DecimalUnaryElementary::name(self : DecimalUnaryElementary) -> String {
 ///|
 fn DecimalUnaryElementary::evaluate(
   self : DecimalUnaryElementary,
-  input : @ball_float.BallFloat,
-) -> Result[@ball_float.BallFloat, @def.ArithmeticError] {
+  input : @interval.Interval,
+) -> Result[@interval.Interval, @def.ArithmeticError] {
   match self {
     Exp2 => input.try_exp2()
     Exp10 => input.try_exp10()
@@ -345,13 +345,13 @@ fn decimal_certified_quarter_pi_multiple(
     let pi = decimal_pi_enclosure(precision)
     let scale = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -2, 2)
     let exact = @bin_float.BinaryContext::new(precision~)
-    let quarter = @ball_float.BallFloat::from_bounds(
+    let quarter = @interval.Interval::from_bounds(
       pi.0.mul_ctx(scale, exact).0,
       pi.1.mul_ctx(scale, exact).0,
       precision~,
     )
     let multiple = quarter.mul(
-      @ball_float.BallFloat::from_int(quarters, precision~),
+      @interval.Interval::from_int(quarters, precision~),
     )
     Ok(if negative { multiple.neg() } else { multiple })
   })
@@ -612,7 +612,7 @@ fn Decimal::try_unary_elementary_ctx(
         }
         low.bind(fn(a) {
           high.map(fn(b) {
-            @ball_float.BallFloat::from_bounds(a.0, b.0, precision~)
+            @interval.Interval::from_bounds(a.0, b.0, precision~)
           })
         })
       })

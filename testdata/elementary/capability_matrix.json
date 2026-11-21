@@ -5,7 +5,7 @@
     "bin_float": "IEEE 754-2019",
     "decimal": "IEEE 754-2019",
     "decimal_gda": "General Decimal Arithmetic",
-    "ball_float": "IEEE 1788-2015"
+    "interval": "IEEE 1788-2015"
   },
   "families": [
     {
@@ -13,7 +13,7 @@
       "bin_float": "required-0.8.0",
       "decimal": "required-0.8.0",
       "decimal_gda": "exp-ln-log10-only",
-      "ball_float": "standard",
+      "interval": "standard",
       "oracle": "MPFR/libmpdec-allcr1/Arb",
       "performanceCell": "elementary/exp-log"
     },
@@ -22,7 +22,7 @@
       "bin_float": "required-0.8.0",
       "decimal": "required-0.8.0",
       "decimal_gda": "power-sqrt-only",
-      "ball_float": "rootn-standard-hypot-extension",
+      "interval": "rootn-standard-hypot-extension",
       "oracle": "exact-rational/MPFR/Arb/ITF1788",
       "performanceCell": "elementary/power-root"
     },
@@ -31,7 +31,7 @@
       "bin_float": "required-0.8.0",
       "decimal": "required-0.8.0",
       "decimal_gda": "unavailable",
-      "ball_float": "standard",
+      "interval": "standard",
       "oracle": "MPFR/Arb/ITF1788",
       "performanceCell": "elementary/trigonometric"
     },
@@ -40,7 +40,7 @@
       "bin_float": "required-0.8.0",
       "decimal": "required-0.8.0",
       "decimal_gda": "unavailable",
-      "ball_float": "standard",
+      "interval": "standard",
       "oracle": "MPFR/Arb/ITF1788",
       "performanceCell": "elementary/hyperbolic"
     },
@@ -49,28 +49,28 @@
       "bin_float": "required-0.8.0",
       "decimal": "required-0.8.0",
       "decimal_gda": "unavailable",
-      "ball_float": "extension",
+      "interval": "extension",
       "oracle": "MPFR/Arb",
       "performanceCell": "elementary/extensions"
     }
   ],
   "operationStatus": [
     {
-      "surface": "ball_float",
+      "surface": "interval",
       "standard": "IEEE 1788-2015",
       "operations": ["exp", "exp2", "exp10", "log", "log2", "log10", "pow", "sin", "cos", "tan", "asin", "acos", "atan", "atan2", "sinh", "cosh", "tanh", "asinh", "acosh", "atanh"],
       "status": "verified-strict-itf-4656",
       "evidence": "Pinned ITF1788 official aggregate passed 4656/4656, including 107 hyperbolic, 61 inverse-trigonometric, and 375 upstream atan2 cases"
     },
     {
-      "surface": "ball_float",
+      "surface": "interval",
       "standard": "IEEE 1788-2015",
       "operations": ["rootn"],
       "status": "implemented-unverified-by-pinned-itf",
       "evidence": "white-box exact identity and domain tests"
     },
     {
-      "surface": "ball_float",
+      "surface": "interval",
       "standard": "extension",
       "operations": ["expm1", "log1p", "hypot", "sinpi", "cospi", "tanpi"],
       "status": "implemented-extension",

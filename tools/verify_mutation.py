@@ -116,8 +116,8 @@ MUTATIONS: list[Mutation] = [
         "let bin_coeff_sqrt_empty_scratch : FixedArray[UInt64] = FixedArray::make(1, 0UL)", "key-only",
     ),
     Mutation(
-        "ball-float", "library/src/ball_float/ball_float_decorated.mbt",
-        "BallFloatDecorated::is_empty", r"ball__float\d+BallFloatDecorated\d+is__empty$",
+        "interval", "library/src/interval/interval_decorated.mbt",
+        "DecoratedInterval::is_empty", r"floating8interval\d+DecoratedInterval\d+is__empty$",
         "  !self.is_nai() && self.interval_.is_empty()",
         "  self.is_nai() && self.interval_.is_empty()", "key-only",
     ),

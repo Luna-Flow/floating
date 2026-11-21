@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""An oracle for atan2Rev1 and atan2Rev2 that shares no code with `ball_float`.
+"""An oracle for atan2Rev1 and atan2Rev2 that shares no code with `interval`.
 
 IEEE 1788-2015 10.5.4, equations (6) and (7), Table 10.1:
 

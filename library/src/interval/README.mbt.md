@@ -1,0 +1,12 @@
+# `interval`
+
+`interval` is the stable outward-rounded interval surface. `Interval` uses
+lower/upper endpoints, `IntervalContext` applies directed rounding, and
+`DecoratedInterval` adds IEEE 1788 decorations and NaI. Empty, Entire, and NaI
+are distinct states; interval relations are not scalar total order.
+
+Public arithmetic includes set construction, containment/overlap relations,
+add/subtract/multiply/divide, FMA, integer and general power, exp/log/sqrt, and
+sin/cos/tan with certified fallbacks. `apply_ctx` returns `IntervalFlags` when status is
+needed. Reverse interval operations remain unsupported and tightness is not
+guaranteed when a safe fallback is required.

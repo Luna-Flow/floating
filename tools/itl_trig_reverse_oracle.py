@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""An oracle for sinRev, cosRev and tanRev that shares no code with `ball_float`.
+"""An oracle for sinRev, cosRev and tanRev that shares no code with `interval`.
 
 It evaluates asin, acos, atan and pi with Python's `decimal` at 260 digits and
 encloses every value in an interval of width 2 * 10^-230, lists every piece of

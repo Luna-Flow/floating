@@ -15,11 +15,11 @@ is spelled.
 | arbitrary-precision binary values, IEEE 754 binary formats | `bin_float` | `BinFloat` | value, or `(value, BinaryFlags)` under a `BinaryContext` |
 | IEEE 754 decimal arithmetic and decimal32/64/128 interchange | `decimal` | `Decimal` | value, or `(value, DecimalFlags)` under a `DecimalContext` |
 | General Decimal Arithmetic with sticky status and traps | `decimal_gda` | `Decimal` | `GdaOutcome[Decimal]` with the next `GdaContext` |
-| certified enclosures of real results (IEEE 1788) | `ball_float` | `BallFloat`, `BallFloatDecorated` | an interval, or `(interval, BallFlags)` under a `BallContext` |
+| certified enclosures of real results (IEEE 1788) | `interval` | `Interval`, `DecoratedInterval` | an interval, or `(interval, IntervalFlags)` under an `IntervalContext` |
 | a binary pipeline that stops at the first error | `bin_float_checked` | `BinFloatResult` | `Result[BinFloat, ArithmeticError]` inside a wrapper |
 | an IEEE decimal pipeline that accumulates flags | `decimal_checked` | `DecimalChecked` | defined value plus latest and accumulated `DecimalFlags` |
 | a GDA pipeline that stops at a trap | `decimal_gda_checked` | `GdaDecimalChecked` | one threaded `GdaOutcome[Decimal]` |
-| an interval pipeline that stops at the first error | `ball_float_checked` | `BallFloatResult` | `Result[BallFloat, ArithmeticError]` inside a wrapper |
+| an interval pipeline that stops at the first error | `interval_checked` | `IntervalResult` | `Result[Interval, ArithmeticError]` inside a wrapper |
 | comparing values across packages | `semantic` | `SemanticScalar`, `SemanticInterval` | exact rationals, deliberately dropping metadata |
 
 `def` holds the small vocabulary all of them share (`Sign`, `PartialOrder`,
@@ -53,7 +53,7 @@ import {
   "Luna-Flow/arithmetic" @lf_arith,
   "Luna-Flow/floating/bin_float",
   "Luna-Flow/floating/decimal",
-  "Luna-Flow/floating/ball_float",
+  "Luna-Flow/floating/interval",
 }
 ```
 
@@ -65,8 +65,8 @@ package, and its files share one namespace. By convention the manual imports
 ## Build values
 
 A `BinFloat` is an exact dyadic number $c \cdot 2^e$ with a precision; a
-`Decimal` is $c \cdot 10^q$ and remembers the quantum $q$ of its literal; a
-`BallFloat` is an interval with binary endpoints.
+`Decimal` is $c \cdot 10^q$ and remembers the quantum $q$ of its literal; an
+`Interval` is an interval with binary endpoints.
 
 ```moonbit
 ///|
@@ -84,7 +84,7 @@ test "first values" {
   inspect(price, content="12.3400")
   inspect(price.quantum(), content="-4")
   // Every real number from 1 through 2.
-  let interval = @ball_float.BallFloat::from_bounds(
+  let interval = @interval.Interval::from_bounds(
     @bin_float.BinFloat::from_int(1),
     @bin_float.BinFloat::from_int(2),
   )
@@ -98,9 +98,9 @@ test "first values" {
 
 Other constructors: `BinFloat::from_int`, `from_double`, `from_string` and
 `from_string_ctx` (correctly rounded decimal parsing), `from_hex`;
-`Decimal::from_int`, `from_string` and `from_string_ctx`; `BallFloat::from_int`,
+`Decimal::from_int`, `from_string` and `from_string_ctx`; `Interval::from_int`,
 `from_double`, `exact` and `from_bounds`. Constructors take an optional
-`precision`; `BallFloat::from_int` defaults to 53 bits, as the other
+`precision`; `Interval::from_int` defaults to 53 bits, as the other
 constructors.
 
 ## Choose a context
@@ -153,9 +153,9 @@ matches what your caller must observe:
 - `Result[T, ArithmeticError]` from checked operations (`div_checked`,
   `sqrt`, `compare_checked`, `from_string`, the `try_*_ctx` elementary
   functions).
-- `BinaryFlags`, `DecimalFlags` and `BallFlags` beside a defined result.
+- `BinaryFlags`, `DecimalFlags` and `IntervalFlags` beside a defined result.
 - `GdaOutcome[T]`, which keeps the GDA-defined result even when a trap fires.
-- The pipeline wrappers: `BinFloatResult` and `BallFloatResult` stop at the
+- The pipeline wrappers: `BinFloatResult` and `IntervalResult` stop at the
   first error; `DecimalChecked` keeps defined NaN and infinity results and
   accumulates flags; `GdaDecimalChecked` stops at a trap and keeps its
   outcome.
@@ -189,10 +189,10 @@ erases semantics the standards make observable.
   to every other NaN and above every number, and $-0 = +0$. For IEEE
   semantics use `compare_checked`, the quiet and signaling predicates of
   `bin_float`, or the `total_order*` functions.
-- `==` on `BinFloat` and `BallFloat` compares representations (sign of zero and
+- `==` on `BinFloat` and `Interval` compares representations (sign of zero and
   precision included); `==` on `Decimal` compares values. Use
   `compare(a, b) == 0` for numeric equality of binary values.
-- A `BallFloat` has containment and set relations (`contains`, `subset`,
+- An `Interval` has containment and set relations (`contains`, `subset`,
   `definitely_lt`, …), not a scalar order. A result is correct when it encloses
   the exact result; tightness is a separate quality.
 - `SemanticScalar` compares mathematical values across packages and drops
@@ -209,4 +209,4 @@ erases semantics the standards make observable.
 - Each package has a tutorial, an API reference and a design page; start with
   the [`bin_float` tutorial](./tutorial/bin_float.md), the
   [`decimal` tutorial](./tutorial/decimal.md) or the
-  [`ball_float` tutorial](./tutorial/ball_float.md).
+  [`interval` tutorial](./tutorial/interval.md).

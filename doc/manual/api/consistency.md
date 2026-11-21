@@ -28,8 +28,8 @@ import {
   "Luna-Flow/floating/decimal_checked",
   "Luna-Flow/floating/decimal_gda",
   "Luna-Flow/floating/decimal_gda_checked",
-  "Luna-Flow/floating/ball_float",
-  "Luna-Flow/floating/ball_float_checked",
+  "Luna-Flow/floating/interval",
+  "Luna-Flow/floating/interval_checked",
   "Luna-Flow/floating/def",
   "Luna-Flow/floating/internal",
   "Luna-Flow/floating-tools/semantic",
@@ -41,7 +41,7 @@ import {
 | File | Content |
 | --- | --- |
 | `api_audit_wbtest.mbt` | audits of public behaviour that spans packages: `def` predicates, `internal` rounding and parsing helpers, error and context types, the decimal interchange facade (bit-exact encodings, canonical predicates, sign operations), checked compare of `bin_float`, generic checked traits through `Luna-Flow/arithmetic`, and the `semantic` interpretation of binary, decimal and interval values |
-| `core_wbtest.mbt` | cross-package arithmetic laws: `internal` digit and trimming helpers against `BigInt`, `bin_float` exactness on dyadics and generic trait use, `decimal` and `decimal_gda` cohort, signed-zero and NaN-payload rules (many rows taken from the official decTest suite), `ball_float` enclosure properties, checked-pipeline closure, and total constructors |
+| `core_wbtest.mbt` | cross-package arithmetic laws: `internal` digit and trimming helpers against `BigInt`, `bin_float` exactness on dyadics and generic trait use, `decimal` and `decimal_gda` cohort, signed-zero and NaN-payload rules (many rows taken from the official decTest suite), `interval` enclosure properties, checked-pipeline closure, and total constructors |
 | `bin_coeff_migration_wbtest.mbt` | helpers that build `BinFloat` values from `BigInt` for the tests above |
 
 All tests are white-box (`*_wbtest.mbt`) and import every core package for

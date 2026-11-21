@@ -18,8 +18,8 @@ packages its examples use, for tests only:
 
 ```moonbit nocheck
 import {
-  "Luna-Flow/floating/ball_float",
-  "Luna-Flow/floating/ball_float_checked",
+  "Luna-Flow/floating/interval",
+  "Luna-Flow/floating/interval_checked",
   "Luna-Flow/floating/bin_float",
   "Luna-Flow/floating/bin_float_checked",
   "Luna-Flow/floating/decimal",

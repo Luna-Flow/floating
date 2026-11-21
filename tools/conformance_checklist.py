@@ -23,7 +23,7 @@ STANDARDS = (
     ("IEEE 754-2019: bin_float", "bin_float.md"),
     ("IEEE 754-2019: decimal", "decimal.md"),
     ("General Decimal Arithmetic 1.70: decimal_gda", "decimal_gda.md"),
-    ("IEEE 1788-2015: ball_float", "ball_float.md"),
+    ("IEEE 1788-2015: interval", "interval.md"),
 )
 STATES = ("conforming", "partial", "not implemented", "not applicable")
 

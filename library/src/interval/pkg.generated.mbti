@@ -1,0 +1,347 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Luna-Flow/floating/interval"
+
+import {
+  "Luna-Flow/arithmetic",
+  "Luna-Flow/floating/bin_float",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub let interval_literal_max_length : Int32
+
+// Errors
+
+// Types and methods
+pub struct DecoratedInterval {
+  // private fields
+}
+pub fn DecoratedInterval::abs(Self) -> Self
+pub fn DecoratedInterval::abs_rev(Self, x? : Self) -> Self
+pub fn DecoratedInterval::acos(Self) -> Self
+pub fn DecoratedInterval::acosh(Self) -> Self
+pub fn DecoratedInterval::add(Self, Self) -> Self
+pub fn DecoratedInterval::apply_ctx(Self, IntervalContext) -> (Self, IntervalFlags)
+pub fn DecoratedInterval::asin(Self) -> Self
+pub fn DecoratedInterval::asinh(Self) -> Self
+pub fn DecoratedInterval::atan(Self) -> Self
+pub fn DecoratedInterval::atan2(Self, Self) -> Self
+pub fn DecoratedInterval::atan2_rev1(Self, Self, x? : Self) -> Self
+pub fn DecoratedInterval::atan2_rev2(Self, Self, x? : Self) -> Self
+pub fn DecoratedInterval::atanh(Self) -> Self
+pub fn DecoratedInterval::cancel_minus(Self, Self) -> Self
+pub fn DecoratedInterval::cancel_plus(Self, Self) -> Self
+pub fn DecoratedInterval::ceil(Self) -> Self
+pub fn DecoratedInterval::convex_hull(Self, Self) -> Self
+pub fn DecoratedInterval::cos(Self) -> Self
+pub fn DecoratedInterval::cos_rev(Self, x? : Self) -> Self
+pub fn DecoratedInterval::cosh(Self) -> Self
+pub fn DecoratedInterval::cosh_rev(Self, x? : Self) -> Self
+pub fn DecoratedInterval::cospi(Self) -> Self
+pub fn DecoratedInterval::decoration(Self) -> Decoration
+pub fn DecoratedInterval::disjoint(Self, Self) -> Bool
+pub fn DecoratedInterval::div(Self, Self) -> Self
+pub fn DecoratedInterval::equal(Self, Self) -> Bool
+pub fn DecoratedInterval::exp(Self) -> Self
+pub fn DecoratedInterval::exp10(Self) -> Self
+pub fn DecoratedInterval::exp2(Self) -> Self
+pub fn DecoratedInterval::expm1(Self) -> Self
+pub fn DecoratedInterval::floor(Self) -> Self
+pub fn DecoratedInterval::fma(Self, Self, Self) -> Self
+pub fn DecoratedInterval::from_exact_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn DecoratedInterval::from_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn DecoratedInterval::hypot(Self, Self) -> Self
+pub fn DecoratedInterval::identical(Self, Self) -> Bool
+pub fn DecoratedInterval::interior(Self, Self) -> Bool
+pub fn DecoratedInterval::intersection(Self, Self) -> Self
+pub fn DecoratedInterval::interval(Self) -> Interval
+pub fn DecoratedInterval::is_common_interval(Self) -> Bool
+pub fn DecoratedInterval::is_empty(Self) -> Bool
+pub fn DecoratedInterval::is_entire(Self) -> Bool
+pub fn DecoratedInterval::is_member(Self, @bin_float.BinFloat) -> Bool
+pub fn DecoratedInterval::is_nai(Self) -> Bool
+pub fn DecoratedInterval::is_singleton(Self) -> Bool
+pub fn DecoratedInterval::less(Self, Self) -> Bool
+pub fn DecoratedInterval::ln(Self) -> Self
+pub fn DecoratedInterval::log10(Self) -> Self
+pub fn DecoratedInterval::log1p(Self) -> Self
+pub fn DecoratedInterval::log2(Self) -> Self
+pub fn DecoratedInterval::max(Self, Self) -> Self
+pub fn DecoratedInterval::min(Self, Self) -> Self
+pub fn DecoratedInterval::mul(Self, Self) -> Self
+pub fn DecoratedInterval::mul_rev(Self, Self, x? : Self) -> Self
+pub fn DecoratedInterval::mul_rev_to_pair(Self, Self) -> (Self, Self)
+pub fn DecoratedInterval::nai(precision? : Int32) -> Self
+pub fn DecoratedInterval::neg(Self) -> Self
+pub fn DecoratedInterval::new(Interval, decoration? : Decoration) -> Self
+pub fn DecoratedInterval::not_equal(Self, Self) -> Bool
+pub fn DecoratedInterval::output(Self, &Logger) -> Unit
+pub fn DecoratedInterval::overlap(Self, Self) -> OverlapState?
+pub fn DecoratedInterval::pos(Self) -> Self
+pub fn DecoratedInterval::pow(Self, Self) -> Self
+pub fn DecoratedInterval::pow_rev1(Self, Self, x? : Self) -> Self
+pub fn DecoratedInterval::pow_rev2(Self, Self, x? : Self) -> Self
+pub fn DecoratedInterval::pown(Self, Int32) -> Self
+pub fn DecoratedInterval::pown_rev(Self, Int32, x? : Self) -> Self
+pub fn DecoratedInterval::precedes(Self, Self) -> Bool
+pub fn DecoratedInterval::recip(Self) -> Self
+pub fn DecoratedInterval::rootn(Self, Int32) -> Self
+pub fn DecoratedInterval::round_ties_to_away(Self) -> Self
+pub fn DecoratedInterval::round_ties_to_even(Self) -> Self
+pub fn DecoratedInterval::sign(Self) -> Self
+pub fn DecoratedInterval::sin(Self) -> Self
+pub fn DecoratedInterval::sin_rev(Self, x? : Self) -> Self
+pub fn DecoratedInterval::sinh(Self) -> Self
+pub fn DecoratedInterval::sinpi(Self) -> Self
+pub fn DecoratedInterval::sqr(Self) -> Self
+pub fn DecoratedInterval::sqr_rev(Self, x? : Self) -> Self
+pub fn DecoratedInterval::sqrt(Self) -> Self
+pub fn DecoratedInterval::strict_less(Self, Self) -> Bool
+pub fn DecoratedInterval::strict_precedes(Self, Self) -> Bool
+pub fn DecoratedInterval::sub(Self, Self) -> Self
+pub fn DecoratedInterval::subset(Self, Self) -> Bool
+pub fn DecoratedInterval::tan(Self) -> Self
+pub fn DecoratedInterval::tan_rev(Self, x? : Self) -> Self
+pub fn DecoratedInterval::tanh(Self) -> Self
+pub fn DecoratedInterval::tanpi(Self) -> Self
+pub fn DecoratedInterval::to_ball_string(Self) -> String
+pub fn DecoratedInterval::to_exact_string(Self) -> String
+pub fn DecoratedInterval::to_string(Self) -> String
+pub fn DecoratedInterval::trunc(Self) -> Self
+pub impl Add for DecoratedInterval
+pub impl Div for DecoratedInterval
+pub impl Eq for DecoratedInterval
+pub impl Mul for DecoratedInterval
+pub impl Show for DecoratedInterval
+pub impl Sub for DecoratedInterval
+
+#derive(Compare, Eq, @debug.Debug)
+pub(all) enum Decoration {
+  Ill
+  Trv
+  Def
+  Dac
+  Com
+}
+pub fn Decoration::equal(Self, Self) -> Bool
+pub fn Decoration::not_equal(Self, Self) -> Bool
+pub fn Decoration::output(Self, &Logger) -> Unit
+pub fn Decoration::to_repr(Self) -> @debug.Repr
+pub fn Decoration::to_string(Self) -> String
+pub impl Show for Decoration
+
+#derive(@debug.Debug)
+pub struct Interval {
+  // private fields
+}
+pub fn Interval::abs(Self) -> Self
+pub fn Interval::abs_rev(Self, x? : Self) -> Self
+pub fn Interval::acos(Self) -> Self
+pub fn Interval::acosh(Self) -> Self
+pub fn Interval::add(Self, Self) -> Self
+pub fn Interval::apply_ctx(Self, IntervalContext) -> (Self, IntervalFlags)
+pub fn Interval::asin(Self) -> Self
+pub fn Interval::asinh(Self) -> Self
+pub fn Interval::atan(Self) -> Self
+pub fn Interval::atan2(Self, Self) -> Self
+pub fn Interval::atan2_rev1(Self, Self, x? : Self) -> Self
+pub fn Interval::atan2_rev2(Self, Self, x? : Self) -> Self
+pub fn Interval::atanh(Self) -> Self
+pub fn Interval::cancel_minus(Self, Self) -> Self
+pub fn Interval::cancel_plus(Self, Self) -> Self
+pub fn Interval::ceil(Self) -> Self
+pub fn Interval::convex_hull(Self, Self) -> Self
+pub fn Interval::cos(Self) -> Self
+pub fn Interval::cos_rev(Self, x? : Self) -> Self
+pub fn Interval::cosh(Self) -> Self
+pub fn Interval::cosh_rev(Self, x? : Self) -> Self
+pub fn Interval::cospi(Self) -> Self
+pub fn Interval::disjoint(Self, Self) -> Bool
+pub fn Interval::div(Self, Self) -> Self
+pub fn Interval::div_checked(Self, Self, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::empty(precision? : Int32) -> Self
+pub fn Interval::entire(precision? : Int32) -> Self
+pub fn Interval::equal(Self, Self) -> Bool
+pub fn Interval::exact(@bin_float.BinFloat, precision? : Int32) -> Self
+pub fn Interval::exp(Self) -> Self
+pub fn Interval::exp10(Self) -> Self
+pub fn Interval::exp2(Self) -> Self
+pub fn Interval::expm1(Self) -> Self
+pub fn Interval::floor(Self) -> Self
+pub fn Interval::fma(Self, Self, Self) -> Self
+pub fn Interval::from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Self
+pub fn Interval::from_coefficient(@bin_float.BinCoeff, precision? : Int32, negative? : Bool) -> Self
+pub fn Interval::from_double(Double, precision? : Int32) -> Self
+pub fn Interval::from_exact_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::from_float(Float, precision? : Int32) -> Self
+pub fn Interval::from_int(Int32, precision~ : Int32) -> Self
+pub fn Interval::from_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::hypot(Self, Self) -> Self
+pub fn Interval::identical(Self, Self) -> Bool
+pub fn Interval::interior(Self, Self) -> Bool
+pub fn Interval::intersection(Self, Self) -> Self
+pub fn Interval::is_common_interval(Self) -> Bool
+pub fn Interval::is_empty(Self) -> Bool
+pub fn Interval::is_entire(Self) -> Bool
+pub fn Interval::is_member(Self, @bin_float.BinFloat) -> Bool
+pub fn Interval::is_singleton(Self) -> Bool
+pub fn Interval::less(Self, Self) -> Bool
+pub fn Interval::ln(Self) -> Self
+pub fn Interval::log10(Self) -> Self
+pub fn Interval::log1p(Self) -> Self
+pub fn Interval::log2(Self) -> Self
+pub fn Interval::lower_bound(Self) -> @bin_float.BinFloat
+pub fn Interval::magnitude(Self) -> @bin_float.BinFloat
+pub fn Interval::max(Self, Self) -> Self
+pub fn Interval::midpoint(Self) -> @bin_float.BinFloat
+pub fn Interval::midpoint_ctx(Self, IntervalContext) -> (@bin_float.BinFloat, IntervalFlags)
+pub fn Interval::mignitude(Self) -> @bin_float.BinFloat
+pub fn Interval::min(Self, Self) -> Self
+pub fn Interval::mul(Self, Self) -> Self
+pub fn Interval::mul_rev(Self, Self, x? : Self) -> Self
+pub fn Interval::mul_rev_to_pair(Self, Self) -> (Self, Self)
+pub fn Interval::neg(Self) -> Self
+pub fn Interval::new(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Self
+pub fn Interval::normalized(Self) -> Self
+pub fn Interval::not_equal(Self, Self) -> Bool
+pub fn Interval::output(Self, &Logger) -> Unit
+pub fn Interval::overlap(Self, Self) -> OverlapState
+pub fn Interval::pow(Self, Self) -> Self
+pub fn Interval::pow_int_checked(Self, Int32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::pow_rev1(Self, Self, x? : Self) -> Self
+pub fn Interval::pow_rev2(Self, Self, x? : Self) -> Self
+pub fn Interval::pown(Self, Int32) -> Self
+pub fn Interval::pown_rev(Self, Int32, x? : Self) -> Self
+pub fn Interval::precedes(Self, Self) -> Bool
+pub fn Interval::precision(Self) -> Int32
+pub fn Interval::radius(Self) -> @bin_float.BinFloat
+pub fn Interval::recip(Self) -> Self
+pub fn Interval::rootn(Self, Int32) -> Self
+pub fn Interval::round_ties_to_away(Self) -> Self
+pub fn Interval::round_ties_to_even(Self) -> Self
+pub fn Interval::sign(Self) -> Self
+pub fn Interval::sin(Self) -> Self
+pub fn Interval::sin_rev(Self, x? : Self) -> Self
+pub fn Interval::sinh(Self) -> Self
+pub fn Interval::sinpi(Self) -> Self
+pub fn Interval::sqr(Self) -> Self
+pub fn Interval::sqr_rev(Self, x? : Self) -> Self
+pub fn Interval::sqrt(Self) -> Self
+pub fn Interval::strict_less(Self, Self) -> Bool
+pub fn Interval::strict_precedes(Self, Self) -> Bool
+pub fn Interval::sub(Self, Self) -> Self
+pub fn Interval::subset(Self, Self) -> Bool
+pub fn Interval::tan(Self) -> Self
+pub fn Interval::tan_rev(Self, x? : Self) -> Self
+pub fn Interval::tanh(Self) -> Self
+pub fn Interval::tanpi(Self) -> Self
+pub fn Interval::to_ball_string(Self) -> String
+pub fn Interval::to_exact_string(Self) -> String
+pub fn Interval::to_repr(Self) -> @debug.Repr
+pub fn Interval::to_string(Self) -> String
+pub fn Interval::trunc(Self) -> Self
+pub fn Interval::try_acos(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_acosh(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_asin(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_asinh(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_atan(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_atan2(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_atanh(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_cos(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_cosh(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_cospi(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_exact(@bin_float.BinFloat, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_exp(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_exp10(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_exp2(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_expm1(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_from_double(Double, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_from_float(Float, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_hypot(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_ln(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_log10(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_log1p(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_log2(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_new(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_pow(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_rootn(Self, Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_sin(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_sinh(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_sinpi(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_tan(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_tanh(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_tanpi(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::upper_bound(Self) -> @bin_float.BinFloat
+pub fn Interval::width(Self) -> @bin_float.BinFloat
+pub fn Interval::with_precision(Self, Int32) -> Self
+pub impl @arithmetic.Contains for Interval
+pub impl @arithmetic.DefinitelyLe for Interval
+pub impl @arithmetic.DefinitelyLt for Interval
+pub impl @arithmetic.DivChecked for Interval
+pub impl @arithmetic.MaybeEq for Interval
+pub impl @arithmetic.Overlaps for Interval
+pub impl @arithmetic.PowIntChecked for Interval
+pub impl @arithmetic.PowNatChecked for Interval
+pub impl Add for Interval
+pub impl Div for Interval
+pub impl Eq for Interval
+pub impl Mul for Interval
+pub impl Neg for Interval
+pub impl Show for Interval
+pub impl Sub for Interval
+
+pub struct IntervalContext {
+  // private fields
+}
+pub fn IntervalContext::binary128() -> Self
+pub fn IntervalContext::binary16() -> Self
+pub fn IntervalContext::binary32() -> Self
+pub fn IntervalContext::binary64() -> Self
+pub fn IntervalContext::e_max(Self) -> Int32
+pub fn IntervalContext::e_min(Self) -> Int32
+pub fn IntervalContext::new(precision? : Int32, e_max? : Int32) -> Self
+pub fn IntervalContext::precision(Self) -> Int32
+pub fn IntervalContext::try_new(precision? : Int32, e_max? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn IntervalContext::with_e_max(Self, Int32) -> Self
+pub fn IntervalContext::with_precision(Self, Int32) -> Self
+
+#derive(Eq)
+pub struct IntervalFlags {
+  // private fields
+}
+pub fn IntervalFlags::combine(Self, Self) -> Self
+pub fn IntervalFlags::equal(Self, Self) -> Bool
+pub fn IntervalFlags::inexact(Self) -> Bool
+pub fn IntervalFlags::new() -> Self
+pub fn IntervalFlags::not_equal(Self, Self) -> Bool
+pub fn IntervalFlags::overflow(Self) -> Bool
+pub fn IntervalFlags::underflow(Self) -> Bool
+
+#derive(Eq, @debug.Debug)
+pub(all) enum OverlapState {
+  BothEmpty
+  FirstEmpty
+  SecondEmpty
+  Before
+  Meets
+  Overlaps
+  Starts
+  ContainedBy
+  Finishes
+  Equals
+  After
+  MetBy
+  OverlappedBy
+  StartedBy
+  Contains
+  FinishedBy
+}
+pub fn OverlapState::equal(Self, Self) -> Bool
+pub fn OverlapState::not_equal(Self, Self) -> Bool
+pub fn OverlapState::to_repr(Self) -> @debug.Repr
+
+// Type aliases
+
+// Traits

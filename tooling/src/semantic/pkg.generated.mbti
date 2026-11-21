@@ -3,10 +3,10 @@ package "Luna-Flow/floating-tools/semantic"
 
 import {
   "Luna-Flow/arithmetic",
-  "Luna-Flow/floating/ball_float",
   "Luna-Flow/floating/bin_float",
   "Luna-Flow/floating/decimal",
   "Luna-Flow/floating/def",
+  "Luna-Flow/floating/interval",
   "moonbitlang/core/bigint",
 }
 
@@ -49,7 +49,7 @@ pub struct SemanticInterval {
   upper : SemanticScalar
 }
 pub fn SemanticInterval::equal(Self, Self) -> Bool
-pub fn SemanticInterval::from_ball_float(@ball_float.BallFloat) -> Self
+pub fn SemanticInterval::from_interval(@interval.Interval) -> Self
 pub fn SemanticInterval::not_equal(Self, Self) -> Bool
 
 #derive(Eq)

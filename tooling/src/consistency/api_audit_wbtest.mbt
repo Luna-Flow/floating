@@ -650,13 +650,13 @@ test "semantic result interpretation totalizes checked failures" {
 }
 
 ///|
-test "semantic interval interpretation preserves ball bounds" {
-  let ball = @ball_float.BallFloat::from_bounds(
+test "semantic interval interpretation preserves interval bounds" {
+  let interval = @interval.Interval::from_bounds(
     binary_test_make(1N, -1, 16),
     binary_test_make(3N, -1, 16),
     precision=16,
   )
-  let interval = @semantic.SemanticInterval::from_ball_float(ball)
+  let interval = @semantic.SemanticInterval::from_interval(interval)
   assert_true(
     interval.lower ==
     @semantic.SemanticScalar::Rational(@semantic.ExactRational::new(1N, 2N)),

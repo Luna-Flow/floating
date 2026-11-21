@@ -12,7 +12,7 @@
 test "a point enclosure keeps its exact decimal endpoints" {
   let ctx = DecimalContext::new(precision=34)
   let third = @bin_float.BinFloat::from_double(1.0 / 3.0)
-  let point = @ball_float.BallFloat::from_bounds(third, third, precision=53)
+  let point = @interval.Interval::from_bounds(third, third, precision=53)
   let (lower, upper) = decimal_certified_endpoints(point, ctx)
   let expected = "0.333333333333333314829616256247390992939472198486328125"
   assert_true(lower.unwrap().to_string() == expected)
@@ -26,7 +26,7 @@ test "a point enclosure whose bounds are zeros of different sign is exact" {
   let positive_zero = @bin_float.BinFloat::zero(precision=24)
   assert_true(negative_zero == positive_zero)
   assert_false(negative_zero.identical(positive_zero))
-  let point = @ball_float.BallFloat::from_bounds(
+  let point = @interval.Interval::from_bounds(
     negative_zero,
     positive_zero,
     precision=53,

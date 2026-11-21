@@ -64,7 +64,7 @@ class InterfaceViolationsTests(unittest.TestCase):
     def test_the_definition_in_another_package_or_another_internal_type_fails(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             src = Path(tmp)
-            write_mbti(src, "ball_float", self.NEWTYPE)
+            write_mbti(src, "interval", self.NEWTYPE)
             write_mbti(src, "decimal", "pub fn g() -> @decimal_kernel.DecCoeff\n")
             self.assertEqual(len(check_imports.interface_violations(src)), 2)
 

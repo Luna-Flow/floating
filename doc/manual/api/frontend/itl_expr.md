@@ -4,7 +4,7 @@
 
 `frontend/itl_expr` parses interval test cases in the ITL format of the
 ITF1788 suite (test data for the IEEE 1788-2015 interval standard) and executes
-them against `ball_float`. It is a pure library: the command-line runner is
+them against `interval`. It is a pure library: the command-line runner is
 [`cli/itl_expr_cli`](../cli/itl_expr_cli.md). The
 [tutorial](../../tutorial/frontend/itl_expr.md) walks through the workflow and
 the [design page](../../design/frontend/itl_expr.md) gives the pass rule.
@@ -92,8 +92,8 @@ pub fn execute_case(ItlCase, precision? : Int) -> ItlResult
 `precision` (default `53`, must be positive) is the significand precision of
 the interval format the case runs in: bounds are read at `precision` bits and
 interval and number results are rounded with
-`@ball_float.BallContext::new(precision=precision)`, which has the binary64
-exponent range. The default `53` is `BallContext::binary64()`, the format of the
+`@interval.IntervalContext::new(precision=precision)`, which has the binary64
+exponent range. The default `53` is `IntervalContext::binary64()`, the format of the
 ITF1788 data.
 
 Operands and expected values are read as follows. An interval literal is
@@ -185,7 +185,7 @@ pub struct ItlResult {
 
 These methods return the case id, the disposition, whether the case passed,
 and a message: empty on success, `"expected E, got A"` on a mismatch (intervals
-printed by `BallFloatDecorated::to_string`), and a short reason or the
+printed by `DecoratedInterval::to_string`), and a short reason or the
 offending text otherwise.
 
 ```mbti

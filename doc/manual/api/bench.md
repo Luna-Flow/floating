@@ -10,7 +10,7 @@ comparisons with bootstrap confidence intervals, a regression verdict, and
 per-dataset auto-tuning decisions. The per-core suites
 [bench/bin_float](bench/bin_float.md), [bench/decimal](bench/decimal.md),
 [bench/decimal_gda](bench/decimal_gda.md) and
-[bench/ball_float](bench/ball_float.md) use it. The
+[bench/interval](bench/interval.md) use it. The
 [tutorial](../tutorial/bench.md) shows how to run the suites and the
 [design page](../design/bench.md) derives the statistics.
 

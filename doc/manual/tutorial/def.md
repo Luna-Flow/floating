@@ -6,7 +6,7 @@ their class with the generic predicates, read IEEE comparison results as
 `PartialOrder`, and reuse the arithmetic context and error types that `def`
 re-exports. `def` itself does no arithmetic; the concrete packages
 ([`bin_float`](bin_float.md), [`decimal`](decimal.md),
-[`decimal_gda`](decimal_gda.md)) do. Intervals ([`ball_float`](ball_float.md)) are not `Floating`. The laws
+[`decimal_gda`](decimal_gda.md)) do. Intervals ([`interval`](interval.md)) are not `Floating`. The laws
 behind the trait are in the [design page](../design/def.md).
 
 | I want to | Use |
@@ -195,7 +195,7 @@ test "handle a checked result through def" {
 ## Common pitfalls
 
 - `Sign::Zero` does not mean "the value is zero". It is also returned for NaN
-  by the scalar types. Test `@def.is_nan` first. `BallFloat` is not
+  by the scalar types. Test `@def.is_nan` first. `Interval` is not
   `Floating`: ask an interval `is_empty`, `is_common_interval` or `contains`.
 - `Sign` cannot tell $-0$ from $+0$. Use the concrete package
   (`BinFloat::is_negative_zero`, `Decimal::is_negative`) when the sign bit

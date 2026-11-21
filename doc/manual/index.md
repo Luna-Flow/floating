@@ -8,7 +8,7 @@ changelog.
 
 `floating` is arbitrary-precision floating-point arithmetic for MoonBit:
 binary values with IEEE 754 semantics at any precision, IEEE 754 and General
-Decimal Arithmetic decimals, and certified interval (ball) arithmetic
+Decimal Arithmetic decimals, and certified interval arithmetic
 following IEEE 1788. Precision, rounding, exponent range, special values,
 status flags, traps and enclosures are explicit values in every API rather
 than hidden global state.
@@ -71,7 +71,7 @@ verified, and how) and a performance page (measurements and their method).
 | `bin_float`: binary floating point, IEEE 754 binary operations, binary16/32/64/128 interchange | [tutorial](tutorial/bin_float.md) | [API](api/bin_float.md) | [design](design/bin_float.md) | [conformance](conformance/bin_float.md), [performance](performance/bin_float.md) |
 | `decimal`: IEEE 754 decimal with per-operation flags and DPD/BID interchange | [tutorial](tutorial/decimal.md) | [API](api/decimal.md) | [design](design/decimal.md) | [conformance](conformance/decimal.md), [performance](performance/decimal.md) |
 | `decimal_gda`: General Decimal Arithmetic with sticky status and traps | [tutorial](tutorial/decimal_gda.md) | [API](api/decimal_gda.md) | [design](design/decimal_gda.md) | [conformance](conformance/decimal_gda.md), [performance](performance/decimal_gda.md) |
-| `ball_float`: outward-rounded bare and decorated intervals (IEEE 1788) | [tutorial](tutorial/ball_float.md) | [API](api/ball_float.md) | [design](design/ball_float.md) | [conformance](conformance/ball_float.md), [performance](performance/ball_float.md) |
+| `interval`: outward-rounded bare and decorated intervals (IEEE 1788) | [tutorial](tutorial/interval.md) | [API](api/interval.md) | [design](design/interval.md) | [conformance](conformance/interval.md), [performance](performance/interval.md) |
 
 ### Composition and shared vocabulary
 
@@ -81,7 +81,7 @@ verified, and how) and a performance page (measurements and their method).
 | `bin_float_checked`: binary pipelines that stop at the first error | [tutorial](tutorial/bin_float_checked.md) | [API](api/bin_float_checked.md) | [design](design/bin_float_checked.md) |
 | `decimal_checked`: IEEE decimal pipelines that accumulate flags | [tutorial](tutorial/decimal_checked.md) | [API](api/decimal_checked.md) | [design](design/decimal_checked.md) |
 | `decimal_gda_checked`: GDA pipelines that thread status and stop at traps | [tutorial](tutorial/decimal_gda_checked.md) | [API](api/decimal_gda_checked.md) | [design](design/decimal_gda_checked.md) |
-| `ball_float_checked`: interval pipelines that stop at the first error | [tutorial](tutorial/ball_float_checked.md) | [API](api/ball_float_checked.md) | [design](design/ball_float_checked.md) |
+| `interval_checked`: interval pipelines that stop at the first error | [tutorial](tutorial/interval_checked.md) | [API](api/interval_checked.md) | [design](design/interval_checked.md) |
 
 ### Tools module: expressions and corpus frontends
 
@@ -104,7 +104,7 @@ verified, and how) and a performance page (measurements and their method).
 | `cli/mpfr_expr_cli`: command adapter for MPFR witness runs | [tutorial](tutorial/cli/mpfr_expr_cli.md) | [API](api/cli/mpfr_expr_cli.md) | [design](design/cli/mpfr_expr_cli.md) |
 | `differential`: seeded random differential harness against MPFR and libmpdec | [tutorial](tutorial/differential.md) | [API](api/differential.md) | [design](design/differential.md) |
 | `differential/harness`: the batches, specification and `run` of `differential`, as a library | [tutorial](tutorial/differential/harness.md) | [API](api/differential/harness.md) | [design](design/differential/harness.md) |
-| `differential/ball_mpfr`: the untimed differential stage of `BallFloat` against MPFR | [tutorial](tutorial/differential/ball_mpfr.md) | [API](api/differential/ball_mpfr.md) | [design](design/differential/ball_mpfr.md) |
+| `differential/interval_mpfr`: the untimed differential stage of `Interval` against MPFR | [tutorial](tutorial/differential/interval_mpfr.md) | [API](api/differential/interval_mpfr.md) | [design](design/differential/interval_mpfr.md) |
 | `cli/testfloat_expr_cli`: command adapter for TestFloat runs | [tutorial](tutorial/cli/testfloat_expr_cli.md) | [API](api/cli/testfloat_expr_cli.md) | [design](design/cli/testfloat_expr_cli.md) |
 
 ### Library infrastructure
@@ -128,7 +128,7 @@ verified, and how) and a performance page (measurements and their method).
 | `bench/bin_float`: binary arithmetic and elementary-function benchmarks | [tutorial](tutorial/bench/bin_float.md) | [API](api/bench/bin_float.md) | [design](design/bench/bin_float.md) |
 | `bench/decimal`: IEEE decimal benchmarks | [tutorial](tutorial/bench/decimal.md) | [API](api/bench/decimal.md) | [design](design/bench/decimal.md) |
 | `bench/decimal_gda`: GDA decimal benchmarks | [tutorial](tutorial/bench/decimal_gda.md) | [API](api/bench/decimal_gda.md) | [design](design/bench/decimal_gda.md) |
-| `bench/ball_float`: interval arithmetic benchmarks | [tutorial](tutorial/bench/ball_float.md) | [API](api/bench/ball_float.md) | [design](design/bench/ball_float.md) |
+| `bench/interval`: interval arithmetic benchmarks | [tutorial](tutorial/bench/interval.md) | [API](api/bench/interval.md) | [design](design/bench/interval.md) |
 | `bench/external`: timing against MPFR and libmpdec on shared operands | [tutorial](tutorial/bench/external.md) | [API](api/bench/external.md) | [design](design/bench/external.md), [performance](performance/bench/external.md) |
 
 ### Guides
@@ -172,16 +172,16 @@ and their design pages state narrower stability promises.
   `GdaInterchangeFormat`, and one free function per GDA operation (`add`,
   `divide`, `quantize`, `power`, ...)
 
-### Intervals (`ball_float`)
+### Intervals (`interval`)
 
-- `BallFloat` (bare interval), `BallFloatDecorated` with its `Decoration`,
+- `Interval` (bare interval), `DecoratedInterval` with its `Decoration`,
   `OverlapState`
-- `BallContext` and `BallFlags` for intervals in a target format
+- `IntervalContext` and `IntervalFlags` for intervals in a target format
 
 ### Pipelines and shared vocabulary
 
 - Checked wrappers: `BinFloatResult`, `DecimalChecked`, `GdaDecimalChecked`,
-  `BallFloatResult`
+  `IntervalResult`
 - `def`: `Sign`, `PartialOrder`, the `Floating` trait, `is_finite`,
   `is_infinite`, `is_nan`, `is_zero`, and the re-exported `RoundingMode`,
   `ArithmeticContext` and `ArithmeticError` of `Luna-Flow/arithmetic`

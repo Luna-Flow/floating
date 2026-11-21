@@ -4,7 +4,7 @@
 
 `cli/itl_expr_cli` is the command-line runner for ITF1788 `.itl` interval
 test files. It parses them with [`frontend/itl_expr`](../frontend/itl_expr.md),
-executes every case against `ball_float` and prints a JSON report. It is
+executes every case against `interval` and prints a JSON report. It is
 normally reached as `floating-conformance --backend itl …`. See the
 [tutorial](../../tutorial/cli/itl_expr_cli.md) and the
 [design page](../../design/cli/itl_expr_cli.md).

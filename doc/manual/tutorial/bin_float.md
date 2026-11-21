@@ -287,8 +287,8 @@ test "an enclosure of the square root of two" {
 }
 ```
 
-`ball_float` packages this idea as midpoint–radius arithmetic; see the
-[ball_float tutorial](ball_float.md).
+`interval` packages this idea as midpoint–radius arithmetic; see the
+[interval tutorial](interval.md).
 
 ### Use fused and exact IEEE operations
 
@@ -428,7 +428,7 @@ precision for an algorithm instead of widening and narrowing repeatedly. The
 - [bin_float conformance](../conformance/bin_float.md): the TestFloat and MPFR
   evidence.
 - [bin_float_checked tutorial](bin_float_checked.md) and
-  [ball_float tutorial](ball_float.md): pipelines and enclosures built on
+  [interval tutorial](interval.md): pipelines and enclosures built on
   `BinFloat`.
 - [Luna-Flow arithmetic](https://lunaflow.cn/en/arithmetic/): the checked and
   contextual traits.

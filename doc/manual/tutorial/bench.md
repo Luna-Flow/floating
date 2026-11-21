@@ -81,7 +81,7 @@ faster), and `full_pct` is the same for the checked path against the core.
 | `just bench elementary` | only the binary elementary-function benchmark |
 | `just bench decimal` | `tooling/src/bench/decimal` |
 | `just bench decimal-gda` | `tooling/src/bench/decimal_gda` |
-| `just bench ball-float` | `tooling/src/bench/ball_float` |
+| `just bench interval` | `tooling/src/bench/interval` |
 | `just bench all` | the four package suites |
 
 Add `--output PATH` to choose the artifact path or `--dry-run` to print the
@@ -203,4 +203,4 @@ collects its output.
 - [bench API](../api/bench.md)
 - [bench design](../design/bench.md)
 - Per-core suites: [bin_float](bench/bin_float.md), [decimal](bench/decimal.md),
-  [decimal_gda](bench/decimal_gda.md), [ball_float](bench/ball_float.md).
+  [decimal_gda](bench/decimal_gda.md), [interval](bench/interval.md).

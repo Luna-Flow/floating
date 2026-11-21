@@ -1,0 +1,17 @@
+import {
+  "Luna-Flow/floating/interval",
+  "Luna-Flow/floating/bin_float" @binary,
+  "moonbitlang/async",
+  "moonbitlang/core/env",
+  "moonbitlang/core/string",
+  "moonbitlang/x/fs",
+} for "test"
+
+warnings = "-unused_package"
+
+// The differential stage reads files and the environment, which only the
+// native target of the runner (tools/interval_diff.py) provides.
+
+options(
+  targets: { "interval_mpfr_async_test.mbt": [ "native" ] },
+)

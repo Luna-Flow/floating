@@ -13,8 +13,8 @@ invariants every layer keeps.
 | --- | --- | --- |
 | Shared vocabulary | `def` | `Sign`, `PartialOrder`, the `Floating` trait, predicates, re-exported `arithmetic` types |
 | Scalar domains | `bin_float`, `decimal`, `decimal_gda` | binary, IEEE decimal and GDA decimal values with their contexts and status |
-| Interval domain | `ball_float` | bare and decorated outward-rounded real enclosures |
-| Checked composition | `bin_float_checked`, `decimal_checked`, `decimal_gda_checked`, `ball_float_checked` | pipelines that keep each domain's error, flag or trap state |
+| Interval domain | `interval` | bare and decorated outward-rounded real enclosures |
+| Checked composition | `bin_float_checked`, `decimal_checked`, `decimal_gda_checked`, `interval_checked` | pipelines that keep each domain's error, flag or trap state |
 | Semantic projection | `semantic` | exact, representation-independent observations |
 | Syntax | `numeric_expr` | source spans, literals, primitive calls, callback evaluation |
 | Format frontends | `frontend/gda_expr`, `frontend/itl_expr`, `frontend/mpfr_expr`, `frontend/testfloat_expr` | parse one external corpus grammar and execute typed cases |
@@ -23,8 +23,8 @@ invariants every layer keeps.
 
 Package boundaries come from `moon.pkg`; files inside a package organize the
 implementation but do not create namespaces. Dependencies point downward: every
-numeric package depends on `def` and `internal`, `ball_float` builds on
-`bin_float`, `decimal` and `decimal_gda` use `bin_float` and `ball_float` for
+numeric package depends on `def` and `internal`, `interval` builds on
+`bin_float`, `decimal` and `decimal_gda` use `bin_float` and `interval` for
 their certified elementary functions, the checked packages wrap their domain,
 and nothing numerical depends on a frontend, a CLI or a benchmark.
 
@@ -52,7 +52,7 @@ state:
 | `bin_float` | IEEE 754-2019 binary arithmetic at any precision, binary16/32/64/128 interchange | value + `BinaryFlags` |
 | `decimal` | IEEE 754-2019 decimal arithmetic, decimal32/64/128 DPD and BID interchange | value + `DecimalFlags` |
 | `decimal_gda` | General Decimal Arithmetic Specification 1.70, scalar operations | `GdaOutcome` with raised flags, sticky next context, optional trap |
-| `ball_float` | IEEE 1788-2015 bare and decorated intervals, for the declared operation set | enclosure, decoration or NaI, optional `BallFlags` |
+| `interval` | IEEE 1788-2015 bare and decorated intervals, for the declared operation set | enclosure, decoration or NaI, optional `IntervalFlags` |
 
 The separation prevents lossy conversions such as treating a GDA trap as an
 IEEE flag, an IEEE infinity as a generic error, or Empty, Entire and NaI as
@@ -76,8 +76,8 @@ immutable operand value(s) + explicit context
 trailing zero bits, an exponent, a precision, and NaN state (signaling bit and
 payload). `Decimal` and the GDA `Decimal` each store a sign, a package-owned
 base-$10^9$ coefficient, an exponent that is the quantum, a precision and the
-special state. `BallFloat` stores two `BinFloat` endpoints, a precision and an
-Empty marker; `BallFloatDecorated` adds a decoration without changing the bare
+special state. `Interval` stores two `BinFloat` endpoints, a precision and an
+Empty marker; `DecoratedInterval` adds a decoration without changing the bare
 representation.
 
 Finalization is the semantic firewall. Kernels may compute exact sums,
@@ -168,7 +168,7 @@ hardest known cases of $\exp$ and $\ln$ need a little more than $2p$ bits,
 far below that, but no such bound is known for every precision, so a failure
 remains possible in principle and is reported rather than hidden.
 
-`bin_float` owns the scalar dyadic certificates. `ball_float` lifts them over
+`bin_float` owns the scalar dyadic certificates. `interval` lifts them over
 endpoints, critical points, poles and domain boundaries. `decimal` and
 `decimal_gda` convert exact decimal inputs to directed dyadic bounds, run the
 binary certificate, and convert the certified endpoints back through exact
@@ -209,14 +209,14 @@ No numerical package relies on an ambient rounding mode.
   outputs that callers `combine`.
 - `decimal_gda` returns a new context whose status includes the raised flags,
   then selects at most one trap by fixed precedence.
-- `BallContext` fixes the endpoint precision and exponent bounds and returns
-  `BallFlags`.
+- `IntervalContext` fixes the endpoint precision and exponent bounds and returns
+  `IntervalFlags`.
 - `BinFloat`, `Decimal` and GDA `Decimal` implement the contextual traits of
   `Luna-Flow/arithmetic` (`AddContextual`, …, `ExpContextual`), so generic code
   can run all three under one `ArithmeticContext`;
   `BinaryContext::from_arithmetic_context` and the decimal equivalents carry
   its precision, rounding, exponent bounds and clamp.
-- `BinFloatResult` and `BallFloatResult` keep the first `ArithmeticError`.
+- `BinFloatResult` and `IntervalResult` keep the first `ArithmeticError`.
 - `DecimalChecked` keeps defined IEEE results, accumulates flags, and keeps
   certification errors separately.
 - `GdaDecimalChecked` threads one outcome, stops on `Trapped`, and resumes only

@@ -4689,22 +4689,22 @@ test "decimal gda string conversions enforce clamped nan payload bounds" {
 }
 
 ///|
-test "ball_float exact containment works" {
+test "interval exact containment works" {
   let x = binary_test_make(3N, -1, 16)
-  let ball = @ball_float.BallFloat::exact(x)
-  assert_true(ball.is_member(x))
-  assert_eq(ball.to_string(), "[1.5, 1.5]")
-  assert_eq(ball.to_ball_string(), "3p-1 +/- 0")
+  let interval = @interval.Interval::exact(x)
+  assert_true(interval.is_member(x))
+  assert_eq(interval.to_string(), "[1.5, 1.5]")
+  assert_eq(interval.to_ball_string(), "3p-1 +/- 0")
 }
 
 ///|
-test "ball_float constructors accept coefficient and float family inputs" {
-  let from_big = @ball_float.BallFloat::from_coefficient(
+test "interval constructors accept coefficient and float family inputs" {
+  let from_big = @interval.Interval::from_coefficient(
     @bin_float.BinCoeff::from_uint64(42UL),
     precision=20,
   )
-  let from_double = @ball_float.BallFloat::from_double(0.375, precision=20)
-  let from_float = @ball_float.BallFloat::from_float(
+  let from_double = @interval.Interval::from_double(0.375, precision=20)
+  let from_float = @interval.Interval::from_float(
     Float::from_double(0.375),
     precision=20,
   )
@@ -4720,19 +4720,19 @@ test "ball_float constructors accept coefficient and float family inputs" {
 }
 
 ///|
-test "ball_float radius rounds outward at lower precision" {
-  let ball = @ball_float.BallFloat::new(
+test "interval radius rounds outward at lower precision" {
+  let interval = @interval.Interval::new(
     @bin_float.BinFloat::zero(precision=8),
     binary_test_make(9N, -4, 8),
     precision=2,
   )
-  assert_eq(ball.radius().to_string(), "3p-2")
+  assert_eq(interval.radius().to_string(), "3p-2")
 }
 
 ///|
-test "ball_float arithmetic keeps exact scalar results enclosed" {
-  let a = @ball_float.BallFloat::exact(binary_test_make(3N, -1, 8), precision=3)
-  let b = @ball_float.BallFloat::exact(binary_test_make(5N, -2, 8), precision=3)
+test "interval arithmetic keeps exact scalar results enclosed" {
+  let a = @interval.Interval::exact(binary_test_make(3N, -1, 8), precision=3)
+  let b = @interval.Interval::exact(binary_test_make(5N, -2, 8), precision=3)
   let sum = a + b
   let product = a * b
   let quotient = a / b
@@ -4747,13 +4747,13 @@ test "ball_float arithmetic keeps exact scalar results enclosed" {
 }
 
 ///|
-test "ball_float enclosure relations stay partial-order based" {
-  let cross = @ball_float.BallFloat::new(
+test "interval enclosure relations stay partial-order based" {
+  let cross = @interval.Interval::new(
     binary_test_make(1N, -2, 8),
     binary_test_make(1N, -1, 8),
     precision=4,
   )
-  let right = @ball_float.BallFloat::new(
+  let right = @interval.Interval::new(
     @bin_float.BinFloat::from_int(2, precision=8),
     binary_test_make(1N, -2, 8),
     precision=4,
@@ -4773,12 +4773,12 @@ test "ball_float enclosure relations stay partial-order based" {
 }
 
 ///|
-test "ball_float division by a divisor containing zero returns whole real enclosure" {
-  let numerator = @ball_float.BallFloat::exact(
+test "interval division by a divisor containing zero returns whole real enclosure" {
+  let numerator = @interval.Interval::exact(
     @bin_float.BinFloat::from_int(1, precision=16),
     precision=8,
   )
-  let divisor = @ball_float.BallFloat::new(
+  let divisor = @interval.Interval::new(
     @bin_float.BinFloat::zero(precision=16),
     @bin_float.BinFloat::one(precision=16),
     precision=8,
@@ -4792,8 +4792,8 @@ test "ball_float division by a divisor containing zero returns whole real enclos
 // source: the bounds are compared with the written value 12 (the coefficient constructor of an exact integer
 //   must give the point interval [12, 12]); is_common_interval is a consistency check
 // shares: nothing
-test "ball_float coefficient constructor keeps exact bounded interval" {
-  let value = @ball_float.BallFloat::from_coefficient(
+test "interval coefficient constructor keeps exact bounded interval" {
+  let value = @interval.Interval::from_coefficient(
     @bin_float.BinCoeff::from_uint64(12UL),
   ).normalized()
   let twelve = @bin_float.BinFloat::from_int(12)
@@ -4804,16 +4804,16 @@ test "ball_float coefficient constructor keeps exact bounded interval" {
 }
 
 ///|
-test "ball_float implements checked enclosure-preserving power and division" {
-  let unit_ball = @ball_float.BallFloat::exact(
+test "interval implements checked enclosure-preserving power and division" {
+  let unit_interval = @interval.Interval::exact(
     binary_test_make(3N, -1, 24),
     precision=12,
   )
-  match square_checked(unit_ball, checked_ctx) {
+  match square_checked(unit_interval, checked_ctx) {
     Ok(value) => assert_true(value.is_member(binary_test_make(9N, -2, 48)))
-    Err(_) => fail("expected ball checked nat power to succeed")
+    Err(_) => fail("expected interval checked nat power to succeed")
   }
-  let zero_crossing = @ball_float.BallFloat::new(
+  let zero_crossing = @interval.Interval::new(
     @bin_float.BinFloat::zero(precision=24),
     @bin_float.BinFloat::one(precision=24),
     precision=12,
@@ -4822,7 +4822,7 @@ test "ball_float implements checked enclosure-preserving power and division" {
     Ok(value) => assert_true(value.is_entire())
     Err(_) => fail("expected whole-real fallback for zero-containing inverse")
   }
-  match div_checked_generic(unit_ball, zero_crossing, checked_ctx) {
+  match div_checked_generic(unit_interval, zero_crossing, checked_ctx) {
     Ok(value) => assert_true(value.is_entire())
     Err(_) => fail("expected whole-real checked division fallback")
   }
@@ -4886,23 +4886,23 @@ test "decimal_gda_checked threads context and short-circuits traps" {
 }
 
 ///|
-test "ball_float_checked keeps interval operations in one result category" {
-  let one = @ball_float_checked.BallFloatResult::from_int(1, precision=12)
-  let zero_crossing = @ball_float_checked.BallFloatResult::from_bounds(
+test "interval_checked keeps interval operations in one result category" {
+  let one = @interval_checked.IntervalResult::from_int(1, precision=12)
+  let zero_crossing = @interval_checked.IntervalResult::from_bounds(
     binary_test_make(-1N, 0, 16),
     @bin_float.BinFloat::one(precision=16),
     precision=12,
   )
   match (one.pown(2) / zero_crossing).pown(-1).result() {
     Ok(value) => assert_true(value.is_entire())
-    Err(_) => fail("expected ball result whole-real fallback to succeed")
+    Err(_) => fail("expected interval result whole-real fallback to succeed")
   }
-  let invalid = @ball_float_checked.BallFloatResult::from_double(
+  let invalid = @interval_checked.IntervalResult::from_double(
     0.0 / 0.0,
     precision=12,
   )
   match (invalid + one).result() {
-    Ok(_) => fail("expected invalid ball source to short-circuit")
+    Ok(_) => fail("expected invalid interval source to short-circuit")
     Err(err) => assert_true(err.is_domain_error())
   }
 }
@@ -5068,7 +5068,7 @@ test "checked natural powers preserve unsigned exponent boundaries" {
     0,
   )
   let interval_one = @lf_arith.PowNatChecked::pow_nat_checked(
-    @ball_float.BallFloat::from_int(1, precision=53),
+    @interval.Interval::from_int(1, precision=53),
     maximum,
     binary_context,
   ).unwrap()
@@ -5108,8 +5108,8 @@ test "binary checked clamps reject external invalid bounds without aborting" {
 
 ///|
 test "context try constructors totalize invalid and optional parameters" {
-  assert_true(@ball_float.BallContext::try_new(precision=0) is Err(_))
-  assert_true(@ball_float.BallContext::try_new(e_max=0) is Err(_))
+  assert_true(@interval.IntervalContext::try_new(precision=0) is Err(_))
+  assert_true(@interval.IntervalContext::try_new(e_max=0) is Err(_))
   assert_true(@bin_float.BinaryContext::try_new(precision=0) is Err(_))
   assert_true(
     @bin_float.BinaryContext::try_new(precision=53, e_max=11) is Ok(_),
@@ -5125,12 +5125,12 @@ test "context try constructors totalize invalid and optional parameters" {
 }
 
 ///|
-test "BallFloat signed powers handle Int minimum" {
+test "Interval signed powers handle Int minimum" {
   let minimum = -2147483647 - 1
-  let one = @ball_float.BallFloat::from_int(1, precision=53).pown(minimum)
+  let one = @interval.Interval::from_int(1, precision=53).pown(minimum)
   assert_true(one.is_singleton())
   assert_true(one.is_member(@bin_float.BinFloat::one(precision=53)))
-  let crossing = @ball_float.BallFloat::from_bounds(
+  let crossing = @interval.Interval::from_bounds(
     @bin_float.BinFloat::from_int(-1, precision=53),
     @bin_float.BinFloat::from_int(1, precision=53),
   ).pown(minimum)

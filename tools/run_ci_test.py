@@ -295,8 +295,8 @@ class RunCiTests(unittest.TestCase):
 
     def test_interval_gate_ends_with_the_differential_stage(self) -> None:
         stage = run_ci.stages_for("interval", 2)[-1]
-        self.assertEqual(stage.name, "INTERVAL: ball_float against the oracles")
-        self.assertEqual(stage.command[1:], ("tools/ball_diff.py", "run"))
+        self.assertEqual(stage.name, "INTERVAL: interval against the oracles")
+        self.assertEqual(stage.command[1:], ("tools/interval_diff.py", "run"))
 
     def test_elementary_gate_pairs_correctness_and_performance(self) -> None:
         stages = run_ci.stages_for("elementary", 2)

@@ -556,6 +556,20 @@ notes live in this file.
   | `DecimalChecked::from_outcome(v, ctx, flags)` | `DecimalChecked::from_decimal(v, ctx)` | rounds `v` into `ctx` and records the flags of that rounding; a flag set that no operation raised cannot be stated |
   | `p.outcome()` | `p.value()` and `p.flags()`, or `p.result()` | `result()` is `Err(error)` or `Ok((value, flags))` |
 
+- The inf-sup interval type is renamed, with its package ([#438](https://github.com/Luna-Flow/floating/issues/438)). The type of this package stores two bounds, which is the inf-sup type of IEEE 1788-2015 12.5.2; the names `BallFloat` and `ball_float` are kept free for a mid-radius type that a later minor version adds. No behaviour changes. There is no alias for an old name. The entries of this section that were written before this change name the interface of 0.11.0 (`BallFloat`, `ball_float`); the table below maps those names.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | package `ball_float` (`library/src/ball_float`), import `Luna-Flow/floating/ball_float` | package `interval` (`library/src/interval`), import `Luna-Flow/floating/interval` | the files `ball_float.mbt` and `ball_float_decorated.mbt` are `interval.mbt` and `interval_decorated.mbt` |
+  | package `ball_float_checked` | package `interval_checked` | `library/src/ball_float_checked` is `library/src/interval_checked` |
+  | `BallFloat` | `Interval` | every method, trait implementation and function of the type keeps its name |
+  | `BallFloatDecorated` | `DecoratedInterval` | |
+  | `BallContext` | `IntervalContext` | |
+  | `BallFlags` | `IntervalFlags` | |
+  | `BallFloatResult` | `IntervalResult` | |
+  | `to_ball_string` | `to_ball_string` | not renamed: it names the midpoint-radius view, not the type |
+  | `@ball_float.BallFloat::from_bounds(a, b)` | `@interval.Interval::from_bounds(a, b)` | the alias in a `moon.pkg` is the caller's choice; inside a package named `interval` an alias `@interval` is refused, give it another |
+
 ### Added
 
 - `bin_float`, `decimal`: every comparison predicate of IEEE 754-2019 5.11 has a function ([#438](https://github.com/Luna-Flow/floating/issues/438), item N6). The clause lists 22 predicates, 10 in Table 5.1 and 12 in Table 5.2; `bin_float` had 7 and `decimal` none. Both now have the 15 others, with the names of the first seven (`compare_quiet_*`, `compare_signaling_*`): `not_equal`, `greater`, `greater_equal`, `not_greater`, `less_unordered`, `not_less` and `greater_unordered` for both kinds, and `compare_quiet_ordered`. Each returns `(Bool, flags)`, is defined from `compare_quiet` or `compare_signaling` and raises invalid where the table says (a signaling NaN for the quiet ones, any NaN for the signaling ones). Nothing existing changes in `bin_float`.

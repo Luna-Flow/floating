@@ -94,7 +94,7 @@ fn decimal_candidate_work_precision(
 fn decimal_to_certified_ball(
   value : Decimal,
   precision : Int32,
-) -> @ball_float.BallFloat {
+) -> @interval.Interval {
   let lower = value.to_bin_float_raw(
     precision~,
     mode=@bin_float.BinaryRoundingMode::RoundTowardNegative,
@@ -103,7 +103,7 @@ fn decimal_to_certified_ball(
     precision~,
     mode=@bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
-  @ball_float.BallFloat::from_bounds(lower, upper, precision~)
+  @interval.Interval::from_bounds(lower, upper, precision~)
 }
 
 ///|
@@ -275,7 +275,7 @@ fn decimal_coeff_from_be_bytes(bytes : Bytes) -> DecCoeff {
 }
 
 ///|
-/// A bound of an interval without the sign of a zero. `BallFloat::lower_bound` returns -0 for
+/// A bound of an interval without the sign of a zero. `Interval::lower_bound` returns -0 for
 /// a zero lower bound (IEEE 1788-2015 12.12.8), while a decimal endpoint that is certified
 /// against another is compared in the total order, which tells -0 from +0: a zero bound is the
 /// zero of the result, whatever the sign the accessor gives it.
@@ -289,7 +289,7 @@ fn certified_bound(value : @bin_float.BinFloat) -> @bin_float.BinFloat {
 
 ///|
 fn decimal_certified_target(
-  interval : @ball_float.BallFloat,
+  interval : @interval.Interval,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
   guard !interval.is_empty() else { return None }
@@ -486,7 +486,7 @@ fn decimal_exact_midpoint(left : Decimal, right : Decimal) -> Decimal? {
 
 ///|
 fn decimal_certified_half_even_candidate(
-  interval : @ball_float.BallFloat,
+  interval : @interval.Interval,
   candidate : Decimal,
   source : Decimal,
   ctx : DecimalContext,
@@ -562,7 +562,7 @@ fn decimal_certified_half_even_candidate(
 
 ///|
 fn decimal_ball_candidate(
-  interval : @ball_float.BallFloat,
+  interval : @interval.Interval,
   ctx : DecimalContext,
 ) -> Decimal {
   Decimal::from_bin_float_raw(
@@ -590,7 +590,7 @@ fn decimal_ball_candidate(
 /// boundary of the cell, or onto it, when the enclosure itself does not.
 fn decimal_exp_ball_candidate(
   value : Decimal,
-  interval : @ball_float.BallFloat,
+  interval : @interval.Interval,
   ctx : DecimalContext,
   work_precision : Int32,
 ) -> Decimal {
@@ -641,7 +641,7 @@ fn decimal_exp_series_candidate(value : Decimal, digits : Int32) -> Decimal {
 ///|
 priv struct DecimalCertifiedLn10Cache {
   precision : Int32
-  interval : @ball_float.BallFloat?
+  interval : @interval.Interval?
 }
 
 ///|
@@ -654,12 +654,12 @@ let decimal_certified_ln10_cache : @ref.Ref[DecimalCertifiedLn10Cache] = @ref.Re
 ///|
 fn decimal_certified_ln10_interval(
   precision : Int32,
-) -> Result[@ball_float.BallFloat, @def.ArithmeticError] {
+) -> Result[@interval.Interval, @def.ArithmeticError] {
   let cached = decimal_certified_ln10_cache.val
   if cached.precision == precision && cached.interval is Some(interval) {
     return Ok(interval)
   }
-  let input = @ball_float.BallFloat::from_int(10, precision~)
+  let input = @interval.Interval::from_int(10, precision~)
   input
   .try_ln()
   .map(fn(interval) {
@@ -670,7 +670,7 @@ fn decimal_certified_ln10_interval(
 
 ///|
 fn decimal_certified_finite_candidate(
-  interval : @ball_float.BallFloat,
+  interval : @interval.Interval,
   candidate : Decimal,
   ctx : DecimalContext,
   work_precision : Int32,
@@ -725,10 +725,10 @@ fn decimal_power_candidate(
 fn decimal_bounded_ball(
   value : Decimal,
   precision : Int32,
-) -> @ball_float.BallFloat? {
+) -> @interval.Interval? {
   match decimal_bounded_binary_interval(value, precision) {
     Some((lower, upper)) =>
-      Some(@ball_float.BallFloat::from_bounds(lower, upper, precision~))
+      Some(@interval.Interval::from_bounds(lower, upper, precision~))
     None => None
   }
 }
@@ -943,8 +943,8 @@ fn decimal_certified_unary_candidate_result(
   value : Decimal,
   ctx : DecimalContext,
   operation : String,
-  evaluate : (@ball_float.BallFloat) -> Result[
-    @ball_float.BallFloat,
+  evaluate : (@interval.Interval) -> Result[
+    @interval.Interval,
     @def.ArithmeticError,
   ],
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {

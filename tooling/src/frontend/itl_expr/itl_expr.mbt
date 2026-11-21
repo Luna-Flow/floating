@@ -282,7 +282,7 @@ pub fn parse_itl(source : String) -> Result[Array[ItlCase], Array[String]] {
 }
 
 ///|
-fn parse_decoration(src : String) -> @ball_float.Decoration? {
+fn parse_decoration(src : String) -> @interval.Decoration? {
   match src {
     "ill" => Some(Ill)
     "trv" => Some(Trv)
@@ -343,7 +343,7 @@ fn case_literals(case : ItlCase) -> String {
 fn parse_interval(
   src : String,
   precision : Int32,
-) -> @ball_float.BallFloatDecorated? {
+) -> @interval.DecoratedInterval? {
   let (literal, decoration_src) = split_literal_decoration(
     src.trim().to_owned(),
   )
@@ -356,20 +356,20 @@ fn parse_interval(
     None => Com
   }
   if literal == "[nai]" {
-    return Some(@ball_float.BallFloatDecorated::nai(precision~))
+    return Some(@interval.DecoratedInterval::nai(precision~))
   }
   if literal == "[empty]" {
     return Some(
-      @ball_float.BallFloatDecorated::new(
-        @ball_float.BallFloat::empty(precision~),
+      @interval.DecoratedInterval::new(
+        @interval.Interval::empty(precision~),
         decoration~,
       ),
     )
   }
   if literal == "[entire]" {
     return Some(
-      @ball_float.BallFloatDecorated::new(
-        @ball_float.BallFloat::entire(precision~),
+      @interval.DecoratedInterval::new(
+        @interval.Interval::entire(precision~),
         decoration~,
       ),
     )
@@ -388,8 +388,8 @@ fn parse_interval(
     return None
   }
   Some(
-    @ball_float.BallFloatDecorated::new(
-      @ball_float.BallFloat::from_bounds(lo, hi, precision~),
+    @interval.DecoratedInterval::new(
+      @interval.Interval::from_bounds(lo, hi, precision~),
       decoration~,
     ),
   )
@@ -398,15 +398,15 @@ fn parse_interval(
 ///|
 /// The interval format of a run: `precision` significand bits with the
 /// binary64 exponent range, the range the ITF1788 data is written for.
-/// `precision = 53` is exactly `BallContext::binary64()`.
-fn result_context(precision : Int32) -> @ball_float.BallContext {
-  @ball_float.BallContext::new(precision~, e_max=1023)
+/// `precision = 53` is exactly `IntervalContext::binary64()`.
+fn result_context(precision : Int32) -> @interval.IntervalContext {
+  @interval.IntervalContext::new(precision~, e_max=1023)
 }
 
 ///|
 fn intervals_equal(
-  actual : @ball_float.BallFloatDecorated,
-  expected : @ball_float.BallFloatDecorated,
+  actual : @interval.DecoratedInterval,
+  expected : @interval.DecoratedInterval,
   compare_decoration : Bool,
 ) -> Bool {
   if actual.is_nai() || expected.is_nai() {
@@ -428,12 +428,12 @@ fn intervals_equal(
 ///|
 /// The labels of the bounds of an interval that an executed statement produced
 /// (oracle level S, an invariant of the representation: the comment of
-/// `BallFloat`): a bound is labelled with the precision of the interval exactly when
+/// `Interval`): a bound is labelled with the precision of the interval exactly when
 /// it is a number of that format (at most that many significant bits and on the grid
 /// of that precision, the band below the range floor included), the infinities and
 /// the zeros included; an exact end that is not such a number has another label.
 /// Written with the public accessors only.
-fn bound_labels_hold(x : @ball_float.BallFloat) -> Bool {
+fn bound_labels_hold(x : @interval.Interval) -> Bool {
   let p = x.precision()
   for b in [x.lower_bound(), x.upper_bound()] {
     let fits = b.is_infinite() ||
@@ -568,7 +568,7 @@ pub fn execute_case(case : ItlCase, precision~ : Int32 = 53) -> ItlResult {
       message_: "unsupported operation",
     }
   }
-  let operands : Array[@ball_float.BallFloatDecorated] = []
+  let operands : Array[@interval.DecoratedInterval] = []
   for src in case.operands_ {
     match parse_interval(src, precision) {
       Some(value) => operands.push(value)
@@ -753,7 +753,7 @@ fn execute_algebraic_reverse_case(
       message_: name,
     }
   }
-  let operands : Array[@ball_float.BallFloatDecorated] = []
+  let operands : Array[@interval.DecoratedInterval] = []
   for index in 0..<intervals {
     match parse_interval(case.operands_[index], precision) {
       Some(value) => operands.push(value)
@@ -788,7 +788,7 @@ fn execute_algebraic_reverse_case(
     }
   }
   let c = operands[0]
-  let prior : @ball_float.BallFloatDecorated? = if has_prior {
+  let prior : @interval.DecoratedInterval? = if has_prior {
     Some(operands[1])
   } else {
     None
@@ -835,7 +835,7 @@ fn execute_mul_rev_case(case : ItlCase, precision : Int32) -> ItlResult {
     case.operation_ == "powRev2" ||
     case.operation_ == "atan2Rev1" ||
     case.operation_ == "atan2Rev2"
-  let operands : Array[@ball_float.BallFloatDecorated] = []
+  let operands : Array[@interval.DecoratedInterval] = []
   for src in case.operands_ {
     match parse_interval(src, precision) {
       Some(value) => operands.push(value)
@@ -866,7 +866,7 @@ fn execute_mul_rev_case(case : ItlCase, precision : Int32) -> ItlResult {
       message_: case.expected_,
     }
   }
-  let expected : Array[@ball_float.BallFloatDecorated] = []
+  let expected : Array[@interval.DecoratedInterval] = []
   for word in expected_words {
     match parse_interval(word, precision) {
       Some(value) => expected.push(value)
@@ -882,7 +882,7 @@ fn execute_mul_rev_case(case : ItlCase, precision : Int32) -> ItlResult {
     }
   }
   let ctx = result_context(precision)
-  let actual : Array[@ball_float.BallFloatDecorated] = if case.operation_ ==
+  let actual : Array[@interval.DecoratedInterval] = if case.operation_ ==
     "powRev1" {
     [operands[0].pow_rev1(operands[1], x=operands[2]).apply_ctx(ctx).0]
   } else if case.operation_ == "powRev2" {
@@ -1041,7 +1041,7 @@ fn execute_numeric_case(case : ItlCase, precision : Int32) -> ItlResult {
 }
 
 ///|
-fn overlap_name(state : @ball_float.OverlapState) -> String {
+fn overlap_name(state : @interval.OverlapState) -> String {
   match state {
     BothEmpty => "bothEmpty"
     FirstEmpty => "firstEmpty"
@@ -1095,7 +1095,7 @@ fn execute_overlap_case(case : ItlCase, precision : Int32) -> ItlResult {
 fn parse_boolean_interval(
   src : String,
   precision : Int32,
-) -> @ball_float.BallFloatDecorated? {
+) -> @interval.DecoratedInterval? {
   parse_interval(src, precision)
 }
 

@@ -3,7 +3,7 @@
  *
  * Header-only (static functions, no state of its own) so that the C programs
  * that produce oracle values for the library (the differential stage of
- * `tools/ball_diff.py`, the row tables of the elementary and reverse functions)
+ * `tools/interval_diff.py`, the row tables of the elementary and reverse functions)
  * use one definition of:
  *
  *   - reading a value as the library writes it (`[-]0x<hex>p<exp>`, `inf`, `-inf`,

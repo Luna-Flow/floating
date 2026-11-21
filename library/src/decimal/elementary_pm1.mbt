@@ -39,19 +39,19 @@ fn DecimalPm1::is_exp(self : DecimalPm1) -> Bool {
 /// of a precision is a pure function of it, so a cached one is the interval
 /// the evaluation would compute again (the results do not change, only the
 /// cost of every Ziv step and every call).
-let decimal_pm1_ln_cache : Map[Int64, @ball_float.BallFloat] = Map([])
+let decimal_pm1_ln_cache : Map[Int64, @interval.Interval] = Map([])
 
 ///|
 fn decimal_pm1_ln_base(
   base : Int32,
   precision : Int32,
-) -> Result[@ball_float.BallFloat, @def.ArithmeticError] {
+) -> Result[@interval.Interval, @def.ArithmeticError] {
   let key = precision.to_int64() * 16L + base.to_int64()
   match decimal_pm1_ln_cache.get(key) {
     Some(value) => return Ok(value)
     None => ()
   }
-  match @ball_float.BallFloat::from_int(base, precision~).try_ln() {
+  match @interval.Interval::from_int(base, precision~).try_ln() {
     Ok(value) => {
       // The Ziv schedule visits a few precisions per target precision; keep
       // the table small for long-running programs with many precisions.
@@ -71,8 +71,8 @@ fn decimal_pm1_ln_base(
 /// working precision near zero (no cancellation).
 fn DecimalPm1::evaluate(
   self : DecimalPm1,
-  input : @ball_float.BallFloat,
-) -> Result[@ball_float.BallFloat, @def.ArithmeticError] {
+  input : @interval.Interval,
+) -> Result[@interval.Interval, @def.ArithmeticError] {
   let precision = input.precision()
   match decimal_pm1_ln_base(self.base(), precision) {
     Err(error) => Err(error)
@@ -134,14 +134,14 @@ fn decimal_pm1_below_subnormal_range(
 fn DecimalPm1::slope(
   self : DecimalPm1,
   precision : Int32,
-) -> Result[@ball_float.BallFloat, @def.ArithmeticError] {
+) -> Result[@interval.Interval, @def.ArithmeticError] {
   match decimal_pm1_ln_base(self.base(), precision) {
     Err(error) => Err(error)
     Ok(ln_base) =>
       if self.is_exp() {
         Ok(ln_base)
       } else {
-        Ok(@ball_float.BallFloat::from_int(1, precision~).div(ln_base))
+        Ok(@interval.Interval::from_int(1, precision~).div(ln_base))
       }
   }
 }
@@ -183,7 +183,7 @@ fn decimal_pm1_tiny_scaled(
       @bin_float.BinFloat::from_int(k, precision=32),
       exact,
     ).0
-  let factor = @ball_float.BallFloat::from_bounds(
+  let factor = @interval.Interval::from_bounds(
     one.sub_ctx(bound, exact).0,
     one.add_ctx(bound, exact).0,
     precision=work,

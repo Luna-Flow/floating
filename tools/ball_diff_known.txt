@@ -1,2 +1,0 @@
-# Rows of `tools/ball_diff.py` whose result differs from MPFR today, each with the issue that tracks it.
-# A row that agrees again is an error (remove it here); a new difference is an error (file an issue).

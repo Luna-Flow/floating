@@ -1433,7 +1433,7 @@ the result could not be certified. When certification fails, `f_ctx` returns
 NaN with `invalid_operation`.
 
 Transcendental results are **certified**: the implementation evaluates a
-guaranteed enclosure of $f(x)$ in [`ball_float`](ball_float.md) and accepts it
+guaranteed enclosure of $f(x)$ in [`interval`](interval.md) and accepts it
 only when both endpoints round to the same `Decimal` with the same flags (see
 the [design](../design/decimal.md#certified-elementary-functions)). Because
 rounding is monotone, an accepted result is the rounding of $f(x)$ in every
