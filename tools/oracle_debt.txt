@@ -1299,19 +1299,14 @@ library/src/decimal_gda_checked/decimal_gda_checked_wbtest.mbt::gda checked thre
 library/src/decimal_gda_checked/decimal_gda_checked_wbtest.mbt::gda checked traps short circuit and preserve defined results	A
 library/src/internal/bin_kernel/coeff_basecase_loop_nonjs_wbtest.mbt::high word of a word product equals the previous form and the exact product	E
 library/src/internal/bin_kernel/coeff_basecase_loop_nonjs_wbtest.mbt::schoolbook and word products and squares of edge limbs match BigInt	A
-library/src/internal/bin_kernel/coeff_dispatch_nonjs_wbtest.mbt::Burnikel-Ziegler division equals Knuth around the limb cutoffs	C
 library/src/internal/bin_kernel/coeff_dispatch_nonjs_wbtest.mbt::NTT conversions on 64-bit limbs and on the 32-bit view agree	C
 library/src/internal/bin_kernel/coeff_dispatch_nonjs_wbtest.mbt::NTT overlap-add and the NTT product equal the word Karatsuba product	B
 library/src/internal/bin_kernel/coeff_dispatch_nonjs_wbtest.mbt::bit operations on limbs equal the 32-bit limb loops	B
 library/src/internal/bin_kernel/coeff_dispatch_nonjs_wbtest.mbt::bits, bytes and power-of-two radixes on 64-bit limbs	B
-library/src/internal/bin_kernel/coeff_dispatch_nonjs_wbtest.mbt::division by one-limb divisors equals the Knuth division	C
 library/src/internal/bin_kernel/coeff_dispatch_nonjs_wbtest.mbt::sparse products equal the schoolbook product	B
 library/src/internal/bin_kernel/coeff_dispatch_nonjs_wbtest.mbt::unbalanced products through the limb array blocks equal the schoolbook product	B
-library/src/internal/bin_kernel/coeff_div_scaled_nonjs_wbtest.mbt::scaled quotient equals the general division and BigInt	C
 library/src/internal/bin_kernel/coeff_div_short_nonjs_wbtest.mbt::short quotient on exact quotients and their neighbours	A
 library/src/internal/bin_kernel/coeff_div_short_nonjs_wbtest.mbt::short quotient rounds like the exact quotient on random operands	A
-library/src/internal/bin_kernel/coeff_division_nonjs_wbtest.mbt::Burnikel-Ziegler equals Knuth around every padding boundary j * 2^k	C
-library/src/internal/bin_kernel/coeff_division_nonjs_wbtest.mbt::Burnikel-Ziegler on unbalanced shapes equals Knuth: quotient of 1 limb, 8 and 64 times the divisor	C
 library/src/internal/bin_kernel/coeff_division_nonjs_wbtest.mbt::Coeff reciprocal Newton division is exact	A
 library/src/internal/bin_kernel/coeff_division_nonjs_wbtest.mbt::Coeff reciprocal Newton production threshold	A
 library/src/internal/bin_kernel/coeff_division_nonjs_wbtest.mbt::the padded length of Burnikel-Ziegler is j * 2^k with j <= leaf, never more than 2^k - 1 above the divisor	S
@@ -1345,16 +1340,13 @@ library/src/internal/bin_kernel/coeff_ntt_route_native_wbtest.mbt::Toom-3 and th
 library/src/internal/bin_kernel/coeff_ntt_route_native_wbtest.mbt::the default product equals the NTT product on every shape and pattern	C
 library/src/internal/bin_kernel/coeff_ntt_route_native_wbtest.mbt::the default product equals the NTT product: balanced above 4,096, below, with ratio above 2 and at the product limit	C
 library/src/internal/bin_kernel/coeff_radix_nonjs_wbtest.mbt::in-place and divide-and-conquer radix conversion agree on both sides of every cutoff	B
-library/src/internal/bin_kernel/coeff_radix_nonjs_wbtest.mbt::radix conversion in place equals the chunk-by-chunk reference around the cutoffs	C
 library/src/internal/bin_kernel/coeff_radix_nonjs_wbtest.mbt::radix conversion of powers of the radix and their neighbours at chunk edges	S
 library/src/internal/bin_kernel/coeff_radix_nonjs_wbtest.mbt::radix parsing rejects a bad digit in any chunk	A
 library/src/internal/bin_kernel/coeff_regression_wbtest.mbt::Coeff regression digests (recorded with the 32-bit-limb implementation)	E
 library/src/internal/bin_kernel/coeff_short_mul_nonjs_wbtest.mbt::short product on products next to rounding boundaries	A
 library/src/internal/bin_kernel/coeff_short_mul_nonjs_wbtest.mbt::short product rounds like the exact product on random operands	A
-library/src/internal/bin_kernel/coeff_sqrt_array_reference_nonjs_wbtest.mbt::in-place square root recursion equals the Coeff recursion	C
 library/src/internal/bin_kernel/coeff_sqrt_nonjs_wbtest.mbt::Coeff sqrt divide-and-conquer around the base-case and kernel cutoffs	A
 library/src/internal/bin_kernel/coeff_sqrt_nonjs_wbtest.mbt::Coeff sqrt divide-and-conquer random data	A
-library/src/internal/bin_kernel/coeff_sqrt_nonjs_wbtest.mbt::Coeff sqrt word recursion on large and adversarial radicands	C
 library/src/internal/bin_kernel/coeff_sqrt_words_nonjs_wbtest.mbt::fixed-width restoring square roots return zero for zero at once	A
 library/src/internal/bin_kernel/coeff_sqrt_words_nonjs_wbtest.mbt::word square root of a word	A
 library/src/internal/bin_kernel/coeff_sqrt_words_nonjs_wbtest.mbt::word square roots at every width up to 256 bits	A
