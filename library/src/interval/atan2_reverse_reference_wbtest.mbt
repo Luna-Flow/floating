@@ -414,6 +414,10 @@ fn at2_check(
 ///|
 /// The sample that runs with every test run (fixed seeds, three precisions: 24, 53 and
 /// 113, both operations).
+// oracle: B
+// source: the set of angles tested against c with forward atan2 at 200 bits and a monotonicity argument on the cells; no code of atan2_reverse.mbt; the case is checked for the exact hull (tightness) where the test says so, and for enclosure and containment in the prior in the capped fallback
+// shares: forward Interval::atan2 at 200 bits, ref_pi_interval, Interval add/sub/mul
+// primitives: forward atan2: forward_reference_wbtest.mbt (MPFR rows, level A, tightness, 80 rows, not the inputs of the seeded sweep); pi: pi_reference_wbtest.mbt; add, sub, mul: ITF1788 and the MPFR differential stage
 test "atan2 reverse reference sample: against the forward atan2 at 200 bits" {
   at2_check(1, 24, 6, 301UL)
   at2_check(1, 53, 6, 302UL)
@@ -426,6 +430,10 @@ test "atan2 reverse reference sample: against the forward atan2 at 200 bits" {
 ///|
 /// The fallback: with no refinement (cap 0) and one (cap 1) every float certainly in the
 /// set is still in the result, which stays inside the prior.
+// oracle: B
+// source: the set of angles tested against c with forward atan2 at 200 bits and a monotonicity argument on the cells; no code of atan2_reverse.mbt; the case is checked for the exact hull (tightness) where the test says so, and for enclosure and containment in the prior in the capped fallback
+// shares: forward Interval::atan2 at 200 bits, ref_pi_interval, Interval add/sub/mul
+// primitives: forward atan2: forward_reference_wbtest.mbt (MPFR rows, level A, tightness, 80 rows, not the inputs of the seeded sweep); pi: pi_reference_wbtest.mbt; add, sub, mul: ITF1788 and the MPFR differential stage
 test "atan2 reverse reference fallback: the cap at 0 and at 1 never misses a point" {
   at2_check(1, 24, 5, 321UL, cap=0)
   at2_check(1, 53, 5, 322UL, cap=1)
@@ -433,10 +441,15 @@ test "atan2 reverse reference fallback: the cap at 0 and at 1 never misses a poi
   at2_check(2, 113, 5, 332UL, cap=1)
 }
 
+#skip("long run: the interval gate runs it with --include-skipped")
+
 ///|
 /// The long run: 500 cases per operation at each of three precisions, run by the interval
 /// gate with `--include-skipped`.
-#skip("long run: the interval gate runs it with --include-skipped")
+// oracle: B
+// source: the set of angles tested against c with forward atan2 at 200 bits and a monotonicity argument on the cells; no code of atan2_reverse.mbt; the case is checked for the exact hull (tightness) where the test says so, and for enclosure and containment in the prior in the capped fallback
+// shares: forward Interval::atan2 at 200 bits, ref_pi_interval, Interval add/sub/mul
+// primitives: forward atan2: forward_reference_wbtest.mbt (MPFR rows, level A, tightness, 80 rows, not the inputs of the seeded sweep); pi: pi_reference_wbtest.mbt; add, sub, mul: ITF1788 and the MPFR differential stage
 test "atan2 reverse reference long: against the forward atan2 at 200 bits" {
   for rev in [1, 2] {
     at2_check(rev, 24, 500, 41UL + rev.to_uint64())
