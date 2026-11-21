@@ -20,6 +20,7 @@ import time
 from collections.abc import Callable, Sequence
 from pathlib import Path
 
+import gate_lock
 import incremental
 import kernel_units
 import run_ci
@@ -101,6 +102,25 @@ def run_stages(
 
 
 def run(
+    scope: str,
+    jobs: int,
+    dry_run: bool = False,
+    kernel_incremental: bool = True,
+    seed: int | None = None,
+    rate: float = kernel_units.DEFAULT_RATE,
+    ledger_path: Path | None = None,
+    kernel_only: bool = False,
+    plan_only: bool = False,
+) -> int:
+    """`verify` of a scope. One run per worktree (`tools/gate_lock.py`), except `--dry-run` and
+    `--plan-only`, which run no stage."""
+    arguments = (scope, jobs, dry_run, kernel_incremental, seed, rate, ledger_path, kernel_only, plan_only)
+    if dry_run or plan_only:
+        return run_unlocked(*arguments)
+    return gate_lock.guarded(REPO_ROOT, f"verify.py {scope} {jobs}", lambda: run_unlocked(*arguments))
+
+
+def run_unlocked(
     scope: str,
     jobs: int,
     dry_run: bool = False,

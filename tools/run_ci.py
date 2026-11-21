@@ -10,6 +10,7 @@ import time
 from dataclasses import dataclass, replace
 from pathlib import Path
 
+import gate_lock
 from ci_schedule import Outcome, execute
 from conformance_ui import Console, Progress, format_duration
 from conformance_runtime import BackendName
@@ -634,6 +635,14 @@ def run_parallel(stages: list[Stage], console: Console) -> int:
 
 
 def run(scope: str, jobs: int, dry_run: bool = False, reuse: bool = True) -> int:
+    """Run the gate of a scope. One run per worktree (`tools/gate_lock.py`): a second run in the
+    same worktree refuses at once; a `--dry-run` takes no lock."""
+    if dry_run:
+        return run_stages(scope, jobs, dry_run, reuse)
+    return gate_lock.guarded(REPO_ROOT, f"run_ci.py {scope} {jobs}", lambda: run_stages(scope, jobs, dry_run, reuse))
+
+
+def run_stages(scope: str, jobs: int, dry_run: bool, reuse: bool) -> int:
     stages = stages_for(scope, jobs, reuse)
     console = Console()
     console.heading("LUNAFLOW CI", f"scope={scope}, workers={jobs}")
