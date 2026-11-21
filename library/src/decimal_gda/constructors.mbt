@@ -584,6 +584,41 @@ fn decimal_to_bin_float_through_parser(
 }
 
 ///|
+/// Steps of division by 5 the divisibility test takes before it gives up (each
+/// is a pass over the limbs): a coefficient that has more than this many factors
+/// 5 left after its trailing zeros is decided by one product instead.
+let decimal_pow5_test_steps : Int32 = 8
+
+///|
+/// Whether `5^k` divides the (non-zero) coefficient, as `1` (yes) or `0` (no),
+/// or `2` when it is not decided within `decimal_pow5_test_steps` steps. The
+/// trailing zeros count first (`10^z` divides `c` and has `z` factors 5): when
+/// `z >= k` the answer is yes; otherwise `5^(k - z)` is tested on the
+/// stripped coefficient, which stops at the first division by 5 that leaves a
+/// remainder, the first one for most coefficients (one limb is read, nothing
+/// is allocated).
+fn decimal_coeff_pow5_divisibility(coeff : DecCoeff, k : Int32) -> Int32 {
+  let (stripped, _, zeros) = trim_trailing_decimal_zeros_repr(coeff, 0)
+  if zeros >= k {
+    return 1
+  }
+  let mut value = stripped
+  let wanted = k - zeros
+  let mut steps = 0
+  while steps < wanted {
+    if dec_coeff_mod_unit(value, 5) != 0 {
+      return 0
+    }
+    if steps == decimal_pow5_test_steps {
+      return 2
+    }
+    value = dec_coeff_div_rem_by_unit_repr(value, 5).0
+    steps += 1
+  }
+  1
+}
+
+///|
 fn Decimal::to_bin_float_raw(
   self : Decimal,
   precision~ : Int32 = self.precision_,
@@ -625,15 +660,27 @@ fn Decimal::to_bin_float_raw(
       // mode; rounding the quotient in the target mode first would round a
       // value just above a binary midpoint onto it, and ties-to-even would
       // then go the wrong way.
+      //
+      // `c * 2^s / 10^k = (c * 2^(s - k)) / 5^k` (`s >= k`, since `s =
+      // precision + 4k + 2`): the divisor is 5^k, a third shorter than 10^k,
+      // and the division is exact exactly when 5^k divides `c` (the power of
+      // two is coprime to 5), which the decimal limbs answer (trailing zeros
+      // first, then a few divisions by 5, else one product) without a second
+      // big-integer division.
       let binary_shift = precision + scale * 4 + 2
-      let numerator = abs_bigint(coeff_bigint(self.coefficient)) << binary_shift
-      let denominator = pow10(scale)
-      let truncated = numerator / denominator
-      let q = if (numerator % denominator).is_zero() {
-        truncated
-      } else {
-        truncated | bigint_one()
+      let numerator = abs_bigint(coeff_bigint(self.coefficient)) <<
+        (binary_shift - scale)
+      let divisor = pow5(scale)
+      let truncated = numerator / divisor
+      let exact = match
+        decimal_coeff_pow5_divisibility(self.coefficient, scale) {
+        1 => true
+        0 => false
+        // many factors 5 (a value written in decimal that is a dyadic rational,
+        // `c = m * 5^k`): one product instead of a division per factor
+        _ => truncated * divisor == numerator
       }
+      let q = if exact { truncated } else { truncated | bigint_one() }
       @bin_float.BinFloat::make(
         @bin_float.BinCoeff::from_bytes_be(q.to_octets()),
         -binary_shift,
@@ -777,7 +824,10 @@ fn Decimal::from_bin_float_raw(
           decimal_from_coeff_parts(negative, magnitude, 0, precision, mode~)
         } else {
           // c * 2^-k = c * 5^k * 10^-k; an exact result takes the exponent
-          // closest to 0, so trailing zeros go but never past exponent 0.
+          // closest to 0, so trailing zeros go but never past exponent 0. A
+          // `BinFloat` coefficient is odd, so `c * 5^k` is odd and ends in a 5:
+          // the trim is a one-limb test that never fires today, kept so that
+          // the rule holds if the binary normalisation ever changes.
           let k = -e2
           let (magnitude, exponent, _) = trim_trailing_decimal_zeros_repr(
             dec_coeff_multiply_repr(c, dec_coeff_pow_unit_repr(5, k)),
