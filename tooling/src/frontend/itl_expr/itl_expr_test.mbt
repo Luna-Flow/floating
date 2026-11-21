@@ -84,6 +84,29 @@ test "ITL bounds are floating constants of the target format" {
 }
 
 ///|
+test "ITL reads a decimal constant once: 1 + 2^-53 + 1e-130 is above the tie (double rounding)" {
+  // 1 + 2^-53 is the tie between 1 and 1 + 2^-52 at 53 bits, and the 1e-130
+  // puts the constant just above it, so the nearest number is 1 + 2^-52. The
+  // former reader rounded the decimal to 2*53+16 digits first, which dropped
+  // the 1e-130, and then to 53 bits: the tie went to even, 1. Now the library
+  // reads the constant once: 0x1.0000000000001p0 (was 0x1p0).
+  let digits = "1.0000000000000001110223024625156540423631668090820312500000000000000000000000000000000000000000000000000000000000000000000000000001"
+  let source = "testcase double_rounding {\n  inf [\{digits},2] = 0x1.0000000000001p0;\n}\n"
+  let cases = @itl_expr.parse_itl(source).unwrap()
+  let result = @itl_expr.execute_case(cases[0])
+  assert_true(result.passed(), msg=result.message())
+}
+
+///|
+test "ITL names the literal the library rejects" {
+  let source = "testcase bad {\n  inf [1.2.3,4] = 1.0;\n}\n"
+  let cases = @itl_expr.parse_itl(source).unwrap()
+  let result = @itl_expr.execute_case(cases[0])
+  assert_false(result.passed())
+  assert_true(result.message().contains("1.2.3"), msg=result.message())
+}
+
+///|
 test "ITL results are rounded at the requested precision (issue #62)" {
   let source =
     #|testcase precision {

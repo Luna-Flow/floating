@@ -300,39 +300,27 @@ fn split_literal_decoration(src : String) -> (String, String?) {
 }
 
 ///|
-fn parse_bound(
-  src : String,
-  precision : Int32,
-  mode : @lf_arith.RoundingMode,
-) -> @bin_float.BinFloat? {
+/// One floating constant of an ITF1788 statement, read once to the nearest
+/// number of the format by the library's correctly rounded readers
+/// (IEEE 754-2019 convertFromDecimalCharacter and convertFromHexCharacter).
+/// The exponent range is the binary64 one. A literal the library rejects is
+/// `None`; callers print it.
+fn parse_bound(src : String, precision : Int32) -> @bin_float.BinFloat? {
   let normalized = src.trim().to_owned()
-  if normalized == "-inf" || normalized == "-infinity" {
-    Some(@bin_float.BinFloat::inf(@def.Sign::Negative, precision~))
-  } else if normalized == "+inf" ||
-    normalized == "inf" ||
-    normalized == "+infinity" ||
-    normalized == "infinity" {
-    Some(@bin_float.BinFloat::inf(@def.Sign::Positive, precision~))
+  let context = @bin_float.BinaryContext::new(precision~, e_max=1023)
+  let unsigned = if normalized.has_prefix("-") || normalized.has_prefix("+") {
+    normalized[1:].to_owned()
   } else {
-    if normalized.has_prefix("0x") ||
-      normalized.has_prefix("0X") ||
-      normalized.has_prefix("-0x") ||
-      normalized.has_prefix("-0X") ||
-      normalized.has_prefix("+0x") ||
-      normalized.has_prefix("+0X") {
-      return parse_hex_bound(normalized, precision, mode)
-    }
-    match
-      @decimal.Decimal::from_string(normalized, precision=precision * 2 + 16) {
-      Ok(value) =>
-        Some(
-          value.to_bin_float(
-            precision~,
-            mode=itl_bin_mode(mode, normalized.has_prefix("-")),
-          ),
-        )
-      Err(_) => None
-    }
+    normalized
+  }
+  let result = if unsigned.has_prefix("0x") || unsigned.has_prefix("0X") {
+    @bin_float.BinFloat::from_hex_ctx(normalized, context)
+  } else {
+    @bin_float.BinFloat::from_string_ctx(normalized, context)
+  }
+  match result {
+    Ok((value, _)) => Some(value)
+    Err(_) => None
   }
 }
 
@@ -346,57 +334,9 @@ fn parse_int_option(src : String) -> Int32? {
 }
 
 ///|
-fn parse_hex_bound(
-  src : String,
-  precision : Int32,
-  mode : @lf_arith.RoundingMode,
-) -> @bin_float.BinFloat? {
-  let negative = src.has_prefix("-")
-  let unsigned = if negative || src.has_prefix("+") {
-    src[1:].to_owned()
-  } else {
-    src
-  }
-  guard unsigned.has_prefix("0x") || unsigned.has_prefix("0X") else {
-    return None
-  }
-  let exponent_index = match find_char(unsigned, 'p') {
-    Some(index) => index
-    None =>
-      match find_char(unsigned, 'P') {
-        Some(index) => index
-        None => return None
-      }
-  }
-  let mantissa = unsigned[2:exponent_index].to_owned()
-  let exponent_src = unsigned[exponent_index + 1:].to_owned()
-  guard parse_int_option(exponent_src) is Some(exponent) else { return None }
-  let digits = StringBuilder()
-  let mut fractional_digits = 0
-  let mut after_point = false
-  for index in 0..<mantissa.length() {
-    let ch = mantissa[index]
-    if ch == '.' {
-      after_point = true
-    } else {
-      digits.write_char(Int32::unsafe_to_char(ch.to_int()))
-      if after_point {
-        fractional_digits += 1
-      }
-    }
-  }
-  guard @bin_float.BinCoeff::parse(digits.to_string(), radix=16)
-    is Ok(magnitude) else {
-    return None
-  }
-  Some(
-    @bin_float.BinFloat::make(
-      magnitude,
-      exponent - 4 * fractional_digits,
-      Int32::max(precision, magnitude.bit_length()),
-      negative~,
-    ).with_precision(precision, itl_bin_mode(mode, negative)),
-  )
+/// The literals of a statement, for a diagnostic that names what was rejected.
+fn case_literals(case : ItlCase) -> String {
+  case.operands_.join(" ") + " => " + case.expected_
 }
 
 ///|
@@ -443,10 +383,8 @@ fn parse_interval(
   // constants of the target type (C99 6.4.4.2), not as an IEEE 1788 interval
   // literal for textToInterval: each bound is read as the nearest number of
   // the format, so `[17.1,17.1]` is a singleton in the corpus.
-  guard parse_bound(lower_src, precision, @lf_arith.RoundingMode::ToNearestEven)
-    is Some(lo) &&
-    parse_bound(upper_src, precision, @lf_arith.RoundingMode::ToNearestEven)
-    is Some(hi) else {
+  guard parse_bound(lower_src, precision) is Some(lo) &&
+    parse_bound(upper_src, precision) is Some(hi) else {
     return None
   }
   Some(
@@ -682,7 +620,7 @@ fn execute_pown_case(case : ItlCase, precision : Int32) -> ItlResult {
       id_: case.id_,
       disposition_: Diagnostic("invalid pown operands"),
       passed_: false,
-      message_: case.operation_,
+      message_: case_literals(case),
     }
   }
   guard parse_interval(case.expected_, precision) is Some(expected) else {
@@ -721,7 +659,7 @@ fn execute_fma_case(case : ItlCase, precision : Int32) -> ItlResult {
       id_: case.id_,
       disposition_: Diagnostic("invalid fma operands"),
       passed_: false,
-      message_: case.operation_,
+      message_: case_literals(case),
     }
   }
   guard parse_interval(case.expected_, precision) is Some(expected) else {
@@ -972,7 +910,7 @@ fn execute_interval_unary_case(case : ItlCase, precision : Int32) -> ItlResult {
       id_: case.id_,
       disposition_: Diagnostic("invalid unary interval operand"),
       passed_: false,
-      message_: case.operation_,
+      message_: case_literals(case),
     }
   }
   guard parse_interval(case.expected_, precision) is Some(expected) else {
@@ -1042,15 +980,10 @@ fn execute_numeric_case(case : ItlCase, precision : Int32) -> ItlResult {
       id_: case.id_,
       disposition_: Diagnostic("invalid numeric operand"),
       passed_: false,
-      message_: case.operation_,
+      message_: case_literals(case),
     }
   }
-  guard parse_bound(
-      case.expected_,
-      precision,
-      @lf_arith.RoundingMode::ToNearestEven,
-    )
-    is Some(expected) else {
+  guard parse_bound(case.expected_, precision) is Some(expected) else {
     return {
       id_: case.id_,
       disposition_: Diagnostic("invalid numeric expected value"),
@@ -1113,7 +1046,7 @@ fn execute_overlap_case(case : ItlCase, precision : Int32) -> ItlResult {
       id_: case.id_,
       disposition_: Diagnostic("invalid overlap operands"),
       passed_: false,
-      message_: "",
+      message_: case_literals(case),
     }
   }
   let actual = match left.overlap(right) {
@@ -1169,18 +1102,13 @@ fn execute_boolean_case(case : ItlCase, precision : Int32) -> ItlResult {
   }
   if case.operation_ == "isMember" {
     guard case.operands_.length() == 2 &&
-      parse_bound(
-        case.operands_[0],
-        precision,
-        @lf_arith.RoundingMode::ToNearestEven,
-      )
-      is Some(candidate) &&
+      parse_bound(case.operands_[0], precision) is Some(candidate) &&
       parse_boolean_interval(case.operands_[1], precision) is Some(container) else {
       return {
         id_: case.id_,
         disposition_: Diagnostic("invalid isMember operands"),
         passed_: false,
-        message_: "",
+        message_: case_literals(case),
       }
     }
     return boolean_result(case, container.is_member(candidate))
@@ -1191,7 +1119,7 @@ fn execute_boolean_case(case : ItlCase, precision : Int32) -> ItlResult {
       id_: case.id_,
       disposition_: Diagnostic("invalid interval operand"),
       passed_: false,
-      message_: case.operation_,
+      message_: case_literals(case),
     }
   }
   let unary = match case.operation_ {
@@ -1240,24 +1168,3 @@ pub extend ItlCase with Eq::{not_equal, equal}
 
 ///|
 pub extend ItlCase with @moonbitlang/core/debug.Debug::{to_repr}
-
-///|
-/// The IEEE 754-2019 attribute of an `@arithmetic` mode for a value of the
-/// given sign (`AwayFromZero` is the direction of the sign).
-fn itl_bin_mode(
-  mode : @lf_arith.RoundingMode,
-  negative : Bool,
-) -> @bin_float.BinaryRoundingMode {
-  match mode {
-    ToNearestEven => @bin_float.BinaryRoundingMode::RoundTiesToEven
-    TowardZero => @bin_float.BinaryRoundingMode::RoundTowardZero
-    TowardPositive => @bin_float.BinaryRoundingMode::RoundTowardPositive
-    TowardNegative => @bin_float.BinaryRoundingMode::RoundTowardNegative
-    AwayFromZero =>
-      if negative {
-        @bin_float.BinaryRoundingMode::RoundTowardNegative
-      } else {
-        @bin_float.BinaryRoundingMode::RoundTowardPositive
-      }
-  }
-}
