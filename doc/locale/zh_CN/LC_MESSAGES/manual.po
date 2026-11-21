@@ -5316,7 +5316,7 @@ msgstr "无法从 `doc_examples` 导入任何内容。它的 `moon.pkg` 导入�
 
 #: manual/api/doc_examples.md:38
 #: manual/api/interval.md:274
-#: manual/conventions.md:154
+#: manual/conventions.md:179
 msgid "Examples"
 msgstr "示例"
 
@@ -10772,8 +10772,8 @@ msgid "**Suffixes.** `_ctx` marks a method that takes a context and returns the 
 msgstr "**后缀。** `_ctx` 标记接受上下文并返回值及其标志的方法。`try_` 标记在认证失败时返回 `Result` 的形式。`_checked` 和 `_contextual` 是 `Luna-Flow/arithmetic` trait 的形式。检查层（`binary_checked`、`decimal_checked`、`decimal_gda_checked`）保留不带后缀的名字。"
 
 #: manual/conventions.md:90
-msgid "**No standard name.** Where the standard has no name for something, such as an accessor (`coefficient`), a constructor (`from_bigint`) or an encoding helper, the spelling with the most uses stays, and the API page documents it."
-msgstr "**标准没有名字的情形。** 标准没有给某事物命名时，例如访问器（`coefficient`）、构造函数（`from_bigint`）或编码辅助函数，保留使用最多的拼写，并由 API 页面记录。"
+msgid "**No standard name.** Where the standard has no name for something, such as a constructor (`from_bigint`) or an encoding helper, the spelling with the most uses stays, and the API page documents it."
+msgstr "**没有标准名称。** 标准没有给某事物命名时，例如构造函数（`from_bigint`）或编码辅助函数，沿用使用最多的拼写，并由 API 页面记录。"
 
 #: manual/conventions.md:93
 msgid "**Documented exceptions.** These names are kept as they are, although the rule would spell them otherwise:"
@@ -10800,106 +10800,138 @@ msgid "**Context in `decimal_gda`.** An operation that takes the context is a fr
 msgstr "**`decimal_gda` 中的上下文。** 接受上下文的运算是以 GDA 运算命名的自由函数，上下文 `GdaContext` 作最后一个参数，返回 `GdaOutcome`；GDA 1.70 称不受上下文影响的静默运算是 `Decimal` 的方法（`copy`、`copy_sign`、`same_quantum`、`is_*` 谓词）。`compare_total` 和 `compare_total_magnitude` 虽然全序本身不使用上下文，却是自由函数：在子集上下文（`extended=false`）中，操作数先被舍入到该精度（GDA 1.70 附录 A），而同名的 `Decimal` 方法不这样做。0.12 的设计起初认为它们不涉及上下文且静默；子集语料 `dectest0` 的 32 行 `comparetotal` 表明，这只在扩展上下文中成立。"
 
 #: manual/conventions.md:116
+msgid "**Kept names with the standard's term.** These names differ from the word of the standard and are kept on purpose; the API page of each says so:"
+msgstr "**保留的名称及标准的术语。** 下列名称与标准用词不同，有意保留；每个名称的 API 页面都会说明："
+
+#: manual/conventions.md:118
+msgid "`coefficient` and `BinCoeff`: IEEE 754-2019 2.1 and 3.3 call the component the significand (an integer when the exponent is $q$), and the standard does not use the word coefficient. The General Decimal Arithmetic Specification does (\"coefficient – an integer which is zero or positive\"), and one word for the integer view is used in all four packages;"
+msgstr "`coefficient` 与 `BinCoeff`：IEEE 754-2019 的 2.1 和 3.3 把这一部分称为有效数（significand，指数为 $q$ 时视为整数），标准不使用 coefficient 一词。General Decimal Arithmetic 规范使用它（“coefficient – an integer which is zero or positive”），四个包里整数视图都用这一个词；"
+
+#: manual/conventions.md:123
+msgid "the `*RoundingMode` types: 754-2019 4.3 says rounding-direction attribute;"
+msgstr "`*RoundingMode` 类型：754-2019 的 4.3 称为舍入方向属性（rounding-direction attribute）；"
+
+#: manual/conventions.md:124
+msgid "`is_signaling_nan`, `is_quiet_nan` and `class_of`: 754-2019 5.7.2 has isSignaling and `class(x)`;"
+msgstr "`is_signaling_nan`、`is_quiet_nan` 与 `class_of`：754-2019 的 5.7.2 为 isSignaling 与 `class(x)`；"
+
+#: manual/conventions.md:126
+msgid "`DPD` and `BID`: 754-2019 3.5.2 speaks of the decimal encoding and the binary encoding of the significand (a declet is three decimal digits in ten bits, 2.1); the abbreviations are the usual names of the two encodings;"
+msgstr "`DPD` 与 `BID`：754-2019 的 3.5.2 讲的是有效数的十进制编码与二进制编码（declet 是十个比特中的三位十进制数字，2.1）；这两个缩写是这两种编码的通用名称；"
+
+#: manual/conventions.md:129
+msgid "`normalized`: it returns the canonical representation of a value, not the normal number of 754-2019 2.1 (a finite non-zero number of at least the smallest normal magnitude);"
+msgstr "`normalized`：它返回值的规范表示，不是 754-2019 2.1 的规格化数（正规数，幅值不小于最小正规幅值的有限非零数）；"
+
+#: manual/conventions.md:132
+msgid "`exponent2` and `exponent10`: the exponent of 754-2019 2.1 is $e$ or $q$ according to the view of the significand, so the suffix says the radix of the integer power."
+msgstr "`exponent2` 与 `exponent10`：754-2019 2.1 的指数是 $e$ 还是 $q$ 取决于有效数的视图，所以后缀说明整数次幂的基数。"
+
+#: manual/conventions.md:135
+msgid "**Names of this release that are not the standard's.** `min_num` and `max_num` (binary, `decimal`) are the minNum and maxNum of IEEE 754-2008, which 754-2019 replaced by the operations of 9.6 (see the NOTE of 5.3.1); the name says which operation it is. `signum` is the three-valued classification of the sign of a scalar (`Negative`, `Zero`, `Positive`; `Zero` for both zeros and for NaN); the sign of 754-2019 is a bit, `is_sign_minus` (5.7.2)."
+msgstr "**本版本中不是标准用语的名称。** `min_num` 与 `max_num`（binary、`decimal`）是 IEEE 754-2008 的 minNum 与 maxNum，754-2019 以 9.6 的运算取代了它们（见 5.3.1 的 NOTE）；名称说明它是哪个运算。`signum` 是标量符号的三值分类（`Negative`、`Zero`、`Positive`；两个零和 NaN 都是 `Zero`）；754-2019 的符号是一个比特，即 `is_sign_minus`（5.7.2）。"
+
+#: manual/conventions.md:141
 msgid "**Old names.** A renamed or removed operation keeps no alias. A name that had one meaning is not reused with another meaning in the same release. The release that renames or removes an operation lists the old name and its replacement under **Breaking** in `library/CHANGELOG.md`."
 msgstr "**旧名字。** 被改名或删除的操作不保留别名。一个曾有某种含义的名字，不会在同一版本里被用作另一种含义。改名或删除操作的版本，在 `library/CHANGELOG.md` 的 **Breaking** 下列出旧名字及其替代。"
 
-#: manual/conventions.md:121
+#: manual/conventions.md:146
 msgid "API snapshots"
 msgstr "API 快照"
 
-#: manual/conventions.md:123
+#: manual/conventions.md:148
 msgid "Every API page ends with `## Complete public interface`, whose body is an exact copy of the package's `pkg.generated.mbti` between the markers `<!-- generated-api-start -->` and `<!-- generated-api-end -->`, fenced as `mbti`. Individual signatures in the page body are `mbti` blocks too. `tools/doc_quality.py` compares the snapshot with the generated file (it also accepts the older `moonbit` fence), so regenerate it whenever `moon info` changes the interface."
 msgstr "每个 API 页面都以 `## Complete public interface` 结尾，其正文是该包 `pkg.generated.mbti` 的精确副本，位于 `<!-- generated-api-start -->` 与 `<!-- generated-api-end -->` 标记之间，并用 `mbti` 代码块围起。页面正文中的单个签名也使用 `mbti` 代码块。`tools/doc_quality.py` 会将快照与生成的文件进行比较（也接受旧的 `moonbit` 代码块），因此每当 `moon info` 改变接口时都要重新生成快照。"
 
-#: manual/conventions.md:131
+#: manual/conventions.md:156
 msgid "Numeric documentation rules"
 msgstr "数值文档规则"
 
-#: manual/conventions.md:133
+#: manual/conventions.md:158
 msgid "Use `precision`, `rounding`, `classify`, `signum`, `normalized`, `exponent`, `context` and `flags` as defined in [numeric semantics](./numeric_semantics.md)."
 msgstr "按照[数值语义](./numeric_semantics.md)中的定义使用 `precision`、`rounding`、`classify`、`signum`、`normalized`、`exponent`、`context` 和 `flags`。"
 
-#: manual/conventions.md:136
+#: manual/conventions.md:161
 msgid "Separate the stored representation, the exact value, the rounded result, status flags, checked errors and interval enclosures."
 msgstr "区分存储表示、精确值、舍入结果、状态标志、checked 错误和区间包络。"
 
-#: manual/conventions.md:138
+#: manual/conventions.md:163
 msgid "State when parsing preserves the exponent and when normalization changes the cohort without changing the value."
 msgstr "说明解析何时保留指数，以及规范化何时在不改变值的情况下改变同值类（cohort）。"
 
-#: manual/conventions.md:140
+#: manual/conventions.md:165
 msgid "Name the order an API uses. `compare`, `<` and sorting are a total preorder that puts every NaN above every number; the IEEE partial order (with *unordered*) and `totalOrder` are separate APIs. Never imply a scalar order for interval values."
 msgstr "指明 API 所使用的序。`compare`、`<` 和排序是一个全预序，它把每个 NaN 排在所有数之上；IEEE 偏序（含 *unordered*）和 `totalOrder` 是单独的 API。切勿暗示区间值存在标量序。"
 
-#: manual/conventions.md:144
+#: manual/conventions.md:169
 msgid "For `*_ctx` APIs, document both the returned value and the flags."
 msgstr "对于 `*_ctx` API，同时说明返回值和标志。"
 
-#: manual/conventions.md:145
+#: manual/conventions.md:170
 msgid "For checked APIs and wrappers, document the domain-specific transition: a result error, IEEE flag accumulation, or a GDA trap short-circuit and its recovery."
 msgstr "对于 checked API 和包装器，说明其特定于数值域的状态转换：结果错误、IEEE 标志累积，或 GDA 陷阱短路及其恢复。"
 
-#: manual/conventions.md:148
+#: manual/conventions.md:173
 msgid "Document `decimal` and `decimal_gda` as separate contracts: IEEE operations return per-operation flags, while GDA operations thread sticky status and traps through `GdaOutcome`."
 msgstr "必须把 `decimal` 与 `decimal_gda` 写成两个独立合同：IEEE 运算返回逐 operation flags，GDA 运算通过 `GdaOutcome` 传递 sticky status 与 traps。"
 
-#: manual/conventions.md:151
+#: manual/conventions.md:176
 msgid "Write mathematics in TeX (`$…$`, `$$…$$`) and cite the standard clause or classical result a derivation relies on."
 msgstr "用 TeX（`$…$`、`$$…$$`）书写数学内容，并引用推导所依赖的标准条款或经典结果。"
 
-#: manual/conventions.md:156
+#: manual/conventions.md:181
 msgid "Runnable examples are complete top-level items, normally a `test` block, fenced `moonbit`, and they show their output with `inspect`. They must compile and pass against the current branch."
 msgstr "可运行的示例是完整的顶层项，通常是一个 `test` 块，用 `moonbit` 代码块围起，并用 `inspect` 展示输出。它们必须能在当前分支上编译并通过。"
 
-#: manual/conventions.md:159
+#: manual/conventions.md:184
 msgid "Partial snippets, signatures in prose, executable-package code and `internal/*` code that cannot be imported from outside the module, and `moon.pkg` snippets are fenced `moonbit nocheck`; shell commands are fenced `bash`. `tools/check_doc_examples.py`, run by `just docs`, compiles and runs every other `moonbit` block of the manual."
 msgstr "不完整的片段、行文中的签名、可执行包的代码、无法从模块外部导入的 `internal/*` 代码，以及 `moon.pkg` 片段，使用 `moonbit nocheck` 代码块；shell 命令使用 `bash` 代码块。由 `just docs` 运行的 `tools/check_doc_examples.py` 会编译并运行手册中其余所有 `moonbit` 代码块。"
 
-#: manual/conventions.md:164
+#: manual/conventions.md:189
 msgid "Import aliases: `@lf_alg` for `Luna-Flow/luna-generic` and `@lf_arith` for `Luna-Flow/arithmetic`; floating packages use their default aliases (`@binary`, `@decimal`, …)."
 msgstr "导入别名：`Luna-Flow/luna-generic` 使用 `@lf_alg`，`Luna-Flow/arithmetic` 使用 `@lf_arith`；floating 的各个包使用其默认别名（`@binary`、`@decimal`、…）。"
 
-#: manual/conventions.md:167
+#: manual/conventions.md:192
 msgid "Call only what the `.mbti` lists. For example, `Binary` has no `to_double` or `is_finite` method; use `to_shortest_string` and `@def.is_finite(x)`."
 msgstr "只调用 `.mbti` 中列出的内容。例如，`Binary` 没有 `to_double` 或 `is_finite` 方法；请使用 `to_shortest_string` 和 `@def.is_finite(x)`。"
 
-#: manual/conventions.md:171
+#: manual/conventions.md:196
 msgid "Translations"
 msgstr "翻译"
 
-#: manual/conventions.md:173
+#: manual/conventions.md:198
 msgid "English pages in `doc/manual` are the only source. Translations live in the gettext catalogs `doc/locale/<locale>/LC_MESSAGES/manual.po` for the locales in `doc/conf.json` and are never edited as page copies. Do not translate identifiers, package names, paths, commands, version strings or mathematics. Typst attachments live in `doc/attachments/` and are shared by all locales."
 msgstr "`doc/manual` 中的英文页面是唯一的源文本。译文存放在 gettext 目录 `doc/locale/<locale>/LC_MESSAGES/manual.po` 中，覆盖 `doc/conf.json` 所列的语言区域，绝不以页面副本的形式编辑。不要翻译标识符、包名、路径、命令、版本字符串或数学内容。Typst 附件位于 `doc/attachments/`，由所有语言区域共享。"
 
-#: manual/conventions.md:179
+#: manual/conventions.md:204
 msgid "Review checklist"
 msgstr "审核清单"
 
-#: manual/conventions.md:181
+#: manual/conventions.md:206
 msgid "Run `moon info` and compare each changed `pkg.generated.mbti` with its API page; refresh the `## Complete public interface` snapshot."
 msgstr "运行 `moon info`，将每个有改动的 `pkg.generated.mbti` 与其 API 页面进行比较，并刷新 `## Complete public interface` 快照。"
 
-#: manual/conventions.md:183
+#: manual/conventions.md:208
 msgid "Check that every `moon.pkg` still has its `api/`, `tutorial/` and `design/` pages (and the evidence pages of the four cores)."
 msgstr "检查每个 `moon.pkg` 仍有对应的 `api/`、`tutorial/` 和 `design/` 页面（以及四个核心的证据页面）。"
 
-#: manual/conventions.md:185
+#: manual/conventions.md:210
 msgid "Compile and run every changed example (`moonbit` blocks) against the current branch."
 msgstr "针对当前分支编译并运行每个有改动的示例（`moonbit` 代码块）。"
 
-#: manual/conventions.md:187
+#: manual/conventions.md:212
 msgid "Run `just docs`: `tools/doc_quality.py`, the manual examples and the `tooling/src/doc_examples` tests."
 msgstr "运行 `just docs`：它会运行 `tools/doc_quality.py`、手册示例以及 `tooling/src/doc_examples` 测试。"
 
-#: manual/conventions.md:189
+#: manual/conventions.md:214
 msgid "Run `lunadoc update` to refresh `doc/locale/manual.pot` and merge the catalogs, translate new and fuzzy entries, then check `lunadoc status` (coverage per locale) and `lunadoc check --compile` (layout, catalogs, links and Typst attachments)."
 msgstr "运行 `lunadoc update` 以刷新 `doc/locale/manual.pot` 并合并翻译目录，翻译新增和 fuzzy 条目，然后检查 `lunadoc status`（各语言区域的覆盖率）和 `lunadoc check --compile`（布局、翻译目录、链接和 Typst 附件）。"
 
-#: manual/conventions.md:193
+#: manual/conventions.md:218
 msgid "Run `moon fmt`, `moon check --target all --deny-warn`, the relevant tests, and `just pr` before submitting."
 msgstr "提交前运行 `moon fmt`、`moon check --target all --deny-warn`、相关测试以及 `just pr`。"
 
-#: manual/conventions.md:195
+#: manual/conventions.md:220
 msgid "On a release bump, update `library/moon.mod`, the version in `library/README.md`, this page and `library/CHANGELOG.md` together."
 msgstr "版本发布时，同时更新 `library/moon.mod`、`library/README.md` 中的版本号、本页以及 `library/CHANGELOG.md`。"
 
