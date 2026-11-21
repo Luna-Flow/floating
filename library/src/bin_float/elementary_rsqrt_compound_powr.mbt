@@ -133,23 +133,32 @@ fn binary_compound_general(
     reach < context.range_e_min().to_int64() - context.precision.to_int64() {
     return Ok(binary_tiny_nonzero_result(false, context))
   }
-  binary_ziv_round("compound", context, fn(work) {
-    let downward = binary_working_context(work, rounding=RoundTowardNegative)
-    let upward = binary_working_context(work, rounding=RoundTowardPositive)
-    guard binary_log1p_bounds(value, work) is Some(logarithm) else {
-      return None
-    }
-    let count = BinFloat::from_int_raw(degree, precision=32)
-    let scaled = binary_product_bounds(
-      logarithm,
-      (count, count),
-      downward,
-      upward,
-    )
-    binary_bounds_at_ends(scaled.0, scaled.1, fn(point) {
-      binary_exp_bounds(point, work)
-    })
-  })
+  let argument = Ref((BinFloat::zero_raw(), BinFloat::zero_raw()))
+  binary_ziv_round(
+    "compound",
+    context,
+    fn(work) {
+      let downward = binary_working_context(work, rounding=RoundTowardNegative)
+      let upward = binary_working_context(work, rounding=RoundTowardPositive)
+      guard binary_log1p_bounds(value, work) is Some(logarithm) else {
+        return None
+      }
+      let count = BinFloat::from_int_raw(degree, precision=32)
+      let scaled = binary_product_bounds(
+        logarithm,
+        (count, count),
+        downward,
+        upward,
+      )
+      argument.val = scaled
+      binary_bounds_at_ends(scaled.0, scaled.1, fn(point) {
+        binary_exp_bounds(point, work)
+      })
+    },
+    edge_side=fn(work) {
+      binary_exp_interval_overflow_side(argument.val.0, argument.val.1, work)
+    },
+  )
 }
 
 ///|

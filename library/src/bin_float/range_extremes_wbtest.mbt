@@ -116,8 +116,17 @@ test "hyperbolic bounds agree with the old kernel where exp leaves the range" {
                   // The old tanh yields a NaN end (inf / inf) where the
                   // enclosure is useless anyway; the new one is [0, inf].
                   if !r.0.is_quiet_nan() && !r.1.is_quiet_nan() {
-                    assert_true(f.0.compare(r.0) <= 0, msg="lower \{x} \{w}")
-                    assert_true(f.1.compare(r.1) >= 0, msg="upper \{x} \{w}")
+                    // Where the result overflows the implementation range (an
+                    // infinite end) the finite end is a saturation: the old
+                    // enclosure halved `e^|x|`, which saturated at half the largest
+                    // finite value, the new one comes from `exp(|x| - ln 2)` and
+                    // saturates at the largest finite value, a valid and tighter
+                    // bound of a result beyond it; only finite enclosures compare.
+                    if f.1.classify() != FpClass::Infinity &&
+                      f.0.classify() != FpClass::Infinity {
+                      assert_true(f.0.compare(r.0) <= 0, msg="lower \{x} \{w}")
+                      assert_true(f.1.compare(r.1) >= 0, msg="upper \{x} \{w}")
+                    }
                   }
                 None => ()
               }
