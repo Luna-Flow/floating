@@ -3,7 +3,7 @@
 // after #271. Each case is compared with an independent construction: the
 // function is evaluated in an unbounded context with `p + 120` bits, which is
 // far from every boundary in these narrow ranges, and that value is rounded
-// into the narrow context by `round_ctx`, whose rounding and tininess logic is
+// into the narrow context by `apply_ctx`, whose rounding and tininess logic is
 // tested on its own. The result is irrational (or not a rounding breakpoint),
 // so the result is inexact unless the reference already was, and the clauses
 // decide the rest:
@@ -52,7 +52,7 @@ fn sib_check(
         tininess~,
       )
       let (value, flags) = f(x, ctx)
-      let (expected, expected_flags) = reference.round_ctx(ctx)
+      let (expected, expected_flags) = reference.apply_ctx(ctx)
       let expected_flags = if reference_flags.inexact() {
         expected_flags.combine(BinaryFlags::from_bits(binary_flag_inexact))
       } else {

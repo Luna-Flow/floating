@@ -20,7 +20,7 @@
 // a known direction: larger magnitude than x for sinh, tan, asin, atanh,
 // smaller for tanh, asinh, sin, numerically above x for expm1 and below x for
 // log1p (x +- x^2/2). No breakpoint
-// lies between f(x) and x(1 +- 2^-300), so rounding that dyadic with `round_ctx`
+// lies between f(x) and x(1 +- 2^-300), so rounding that dyadic with `apply_ctx`
 // (which owns the range rules) is the correctly rounded result and its flags.
 
 ///|

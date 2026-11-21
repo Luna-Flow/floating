@@ -339,7 +339,7 @@ test "exp10m1 of a small integer is the correctly rounded 10^n - 1" {
 
 ///|
 /// The functions at every range threshold of narrow ranges, against the
-/// function in a context `p + 120` bits wide rounded by `round_ctx` (which owns
+/// function in a context `p + 120` bits wide rounded by `apply_ctx` (which owns
 /// the range, subnormal and tininess rules).
 test "the four functions decide underflow and overflow like the reference" {
   let log10_2 = 0.3010299956639812

@@ -603,6 +603,14 @@ notes live in this file.
   | `BinFloat::inf(Sign::Negative)` | `BinFloat::inf(negative=true)` |
   | `BinFloat::inf(x.sign(), precision=p)` | `BinFloat::inf(negative=x.is_negative(), precision=p)` |
 
+- `bin_float`: `BinFloat::round_ctx` is `apply_ctx`, and `to_shortest_string_ctx` returns `(String, BinaryFlags)` ([#438](https://github.com/Luna-Flow/floating/issues/438), row N3). `apply_ctx` is the name `Decimal` and `Interval` use for "round into the context's format", so the one operation has one name in the three number types. `to_shortest_string_ctx` follows the `_ctx` convention of returning the value with its flags: the flags are those of the rounding of the operand into the context that the function already performed (`inexact`, `overflow`, `underflow`), no flag for a value of the format, a NaN or an infinity. There is no alias.
+
+  | before | after |
+  | --- | --- |
+  | `x.round_ctx(ctx)` | `x.apply_ctx(ctx)` |
+  | `x.to_shortest_string_ctx(ctx)` is a `String` | `x.to_shortest_string_ctx(ctx).0` is the `String`; `.1` is the `BinaryFlags` |
+  | `x.to_shortest_string()` | unchanged |
+
 ### Added
 
 - `bin_float`, `decimal`: every comparison predicate of IEEE 754-2019 5.11 has a function ([#438](https://github.com/Luna-Flow/floating/issues/438), item N6). The clause lists 22 predicates, 10 in Table 5.1 and 12 in Table 5.2; `bin_float` had 7 and `decimal` none. Both now have the 15 others, with the names of the first seven (`compare_quiet_*`, `compare_signaling_*`): `not_equal`, `greater`, `greater_equal`, `not_greater`, `less_unordered`, `not_less` and `greater_unordered` for both kinds, and `compare_quiet_ordered`. Each returns `(Bool, flags)`, is defined from `compare_quiet` or `compare_signaling` and raises invalid where the table says (a signaling NaN for the quiet ones, any NaN for the signaling ones). Nothing existing changes in `bin_float`.

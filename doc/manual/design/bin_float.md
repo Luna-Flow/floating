@@ -372,8 +372,8 @@ $\Omega = 65504$ and $\frac12\operatorname{ulp}(\Omega) = 16$:
 ///|
 test "binary16 overflow threshold under nearest rounding" {
   let ctx = @bin_float.BinaryContext::binary16()
-  let (below, below_flags) = @bin_float.BinFloat::from_int(65519).round_ctx(ctx)
-  let (at, at_flags) = @bin_float.BinFloat::from_int(65520).round_ctx(ctx)
+  let (below, below_flags) = @bin_float.BinFloat::from_int(65519).apply_ctx(ctx)
+  let (at, at_flags) = @bin_float.BinFloat::from_int(65520).apply_ctx(ctx)
   inspect("\{below} \{below_flags.overflow()}", content="2047p5 false")
   inspect("\{at} \{at_flags.overflow()}", content="inf true")
 }
@@ -598,12 +598,12 @@ the same partition for `Decimal`.
 
 ### Format conversion
 
-`convert_format` is `round_ctx` in the destination format's context, so the
+`convert_format` is `apply_ctx` in the destination format's context, so the
 conversion inherits the one rounding step of the dyadic finalizer: a destination
 with at least the precision and range of the source is exact (the value
 needs at most $p_{\text{source}} \le p_{\text{destination}}$ bits and its exponent
 is inside the wider range), and a narrower one rounds once, with the flags of
-clause 7. The only extra step is the payload of a NaN: `round_ctx` keeps the
+clause 7. The only extra step is the payload of a NaN: `apply_ctx` keeps the
 whole payload of a `BinFloat` only for a context of at least the same
 precision (a NaN of precision $p$ has $p - 2$ payload bits, so every operation
 and constructor that delivers a NaN at another precision truncates, 6.2.3), and
@@ -2112,7 +2112,7 @@ that `nan > 1` is true under `<`, so code that needs IEEE semantics must use
 - **Correct rounding.** For every arithmetic operation, conversion and
   elementary function and every context, the returned finite value equals
   $\circ(r)$ for the exact real result $r$, with the range rules above. By
-  (R1), $\circ(r) = r$ and no flag is raised whenever $r \in F$; `round_ctx`
+  (R1), $\circ(r) = r$ and no flag is raised whenever $r \in F$; `apply_ctx`
   is idempotent.
 - **Flags.** `inexact` iff $\circ(r) \ne r$;
   `overflow` implies `inexact`; `underflow` iff tiny (per the context rule)

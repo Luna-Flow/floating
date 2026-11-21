@@ -271,7 +271,7 @@ $2^{e_{\min} - p + 1}$ by $\pm 0$ or, for a mode that rounds away from zero
 `make` rounds precision and range together, in `mode`: a value between the
 smallest subnormal and $2^{e_{\min}}$ keeps only the bits on the subnormal
 grid $2^{e_{\min} - p + 1}$ (at least one), so the stored value never has a bit
-below that grid. This matters only at magnitudes near $2^{-2^{30}}$; `round_ctx`
+below that grid. This matters only at magnitudes near $2^{-2^{30}}$; `apply_ctx`
 additionally reports the flags.
 
 ### `BinFloat::from_coefficient`, `BinFloat::from_int`
@@ -452,8 +452,8 @@ pub fn BinFloat::with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
 
 A finite value with more significant bits than the new precision is rounded
 in the given direction (`@lf_arith.RoundingMode` has no ties-to-away mode;
-use `round_ctx` for it). Zeros, infinities and NaNs only change their
-precision attribute. No flags are reported; use `round_ctx` when they matter.
+use `apply_ctx` for it). Zeros, infinities and NaNs only change their
+precision attribute. No flags are reported; use `apply_ctx` when they matter.
 
 ### `BinFloat::ulp`
 
@@ -883,12 +883,12 @@ $2^{e_{\min}-p+1}$. The returned value carries the context precision. A NaN
 operand produces the first NaN operand quieted, with its sign and payload, and
 `invalid_operation` only when some operand was a signaling NaN.
 
-### `BinFloat::round_ctx`
+### `BinFloat::apply_ctx`
 
 Rounds a value into a context.
 
 ```mbti
-pub fn BinFloat::round_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::apply_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 ```
 
 This is the IEEE conversion of a wider value to a narrower format. Finite
@@ -980,7 +980,7 @@ test "contextual operations return value and flags" {
   let ctx = @bin_float.BinaryContext::binary32()
   let one = @bin_float.BinFloat::one()
   let (third, flags) = one.div_ctx(@bin_float.BinFloat::from_int(3), ctx)
-  inspect(third.to_shortest_string_ctx(ctx), content="0.33333334")
+  inspect(third.to_shortest_string_ctx(ctx).0, content="0.33333334")
   inspect(flags.inexact(), content="true")
   let (inf, zero_flags) = one.div_ctx(@bin_float.BinFloat::zero(), ctx)
   inspect("\{inf} \{zero_flags.division_by_zero()}", content="inf true")
@@ -1120,7 +1120,7 @@ test "IEEE integral, integer and neighbour operations" {
   let (up, _) = @bin_float.BinFloat::one().next_up_ctx(ctx)
   inspect(up.to_hex(), content="0x10000000000001p-52")
   let (tiny, _) = @bin_float.BinFloat::zero().next_up_ctx(ctx)
-  inspect(tiny.to_shortest_string_ctx(ctx), content="5e-324")
+  inspect(tiny.to_shortest_string_ctx(ctx).0, content="5e-324")
 }
 ```
 
@@ -1375,7 +1375,7 @@ Formats the shortest decimal that reads back as the same value.
 
 ```mbti
 pub fn BinFloat::to_shortest_string(Self) -> String
-pub fn BinFloat::to_shortest_string_ctx(Self, BinaryContext) -> String
+pub fn BinFloat::to_shortest_string_ctx(Self, BinaryContext) -> (String, BinaryFlags)
 ```
 
 `to_shortest_string_ctx(x, ctx)` returns the decimal with the fewest
@@ -1389,11 +1389,13 @@ positional notation for decimal exponents in $[-6, 21)$, otherwise
 `to_shortest_string()` uses `BinaryContext::new(precision=precision())`, so it is the shortest
 string that `from_string(text, precision=x.precision())` maps back to `x`. An
 operand that is not representable in the context is first rounded into it
-(`round_ctx`, in the rounding direction of the context, with the overflow and
+(`apply_ctx`, in the rounding direction of the context, with the overflow and
 underflow of the context), and the result is the shortest string of that
 rounded value: `inf` or `-inf` on overflow, `0` or `-0` on underflow (the
 largest finite value for a direction that rounds toward zero). A value of the
-format prints as itself.
+format prints as itself. The second component is the flags of that rounding
+(`inexact`, `overflow`, `underflow`); it is empty for a value of the format, a
+NaN or an infinity.
 
 ### `BinFloat::from_hex`, `BinFloat::from_hex_ctx`, `BinFloat::to_hex`
 
@@ -1561,7 +1563,7 @@ rounded under `rounding` and `tininess` with `inexact`, `underflow` and
 the source already has the destination's precision (the canonicalizing
 conversion). A NaN payload is kept when the destination holds it and truncated to
 its low bits otherwise (§6.2.3), so the result is exactly what decoding
-`to_interchange` returns. `round_ctx` and `to_interchange` stay.
+`to_interchange` returns. `apply_ctx` and `to_interchange` stay.
 
 ```moonbit
 ///|
@@ -1588,7 +1590,7 @@ pub fn BinaryInterchange::from_bin_float(BinFloat, BinaryInterchangeFormat, roun
 pub fn BinFloat::to_interchange(Self, BinaryInterchangeFormat, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> (BinaryInterchange, BinaryFlags)
 ```
 
-The two are the same operation: `round_ctx` with the format's context, then
+The two are the same operation: `apply_ctx` with the format's context, then
 encoding. A signaling NaN is encoded as a quiet NaN with `invalid_operation`,
 and a payload is truncated to the payload field.
 
@@ -2536,7 +2538,7 @@ pub fn BinFloat::exp_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@
 ```
 
 Each runs the matching `*_ctx` method (for `abs`, `abs` followed by
-`round_ctx`; for `exp`, `try_exp_ctx`) under the converted context. A result
+`apply_ctx`; for `exp`, `try_exp_ctx`) under the converted context. A result
 with `division_by_zero` becomes a `division_by_zero` error and one with
 `invalid_operation` a `domain_error`, one with `not_computed` a
 `certification_failure`; a certification failure of `exp` is returned as is. Otherwise the value is returned with `ArithmeticDiagnostics`
@@ -2699,6 +2701,7 @@ pub fn BinFloat::acospi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::add(Self, Self) -> Self
 pub fn BinFloat::add_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn BinFloat::add_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::apply_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::asin(Self) -> Self
 pub fn BinFloat::asin_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::asinh(Self) -> Self
@@ -2850,7 +2853,6 @@ pub fn BinFloat::remainder_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::rootn(Self, Int32) -> Self
 pub fn BinFloat::rootn_ctx(Self, Int32, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::round(Self) -> Self
-pub fn BinFloat::round_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::round_ties_even(Self) -> Self
 pub fn BinFloat::rsqrt(Self) -> Self
 pub fn BinFloat::rsqrt_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
@@ -2885,7 +2887,7 @@ pub fn BinFloat::to_integral_value_ctx(Self, BinaryContext) -> (Self, BinaryFlag
 pub fn BinFloat::to_interchange(Self, BinaryInterchangeFormat, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> (BinaryInterchange, BinaryFlags)
 pub fn BinFloat::to_repr(Self) -> @debug.Repr
 pub fn BinFloat::to_shortest_string(Self) -> String
-pub fn BinFloat::to_shortest_string_ctx(Self, BinaryContext) -> String
+pub fn BinFloat::to_shortest_string_ctx(Self, BinaryContext) -> (String, BinaryFlags)
 pub fn BinFloat::to_string(Self) -> String
 pub fn BinFloat::to_uint64_ctx(Self, BinaryContext, exact? : Bool) -> (UInt64?, BinaryFlags)
 pub fn BinFloat::to_uint_ctx(Self, BinaryContext, exact? : Bool) -> (UInt32?, BinaryFlags)

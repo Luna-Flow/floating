@@ -222,10 +222,10 @@ test "context arithmetic keeps extreme exponents classified" {
     binary_implementation_e_max,
     53,
   )
-  let (tiny, tiny_flags) = minimum.round_ctx(context)
+  let (tiny, tiny_flags) = minimum.apply_ctx(context)
   assert_true(tiny.is_zero())
   assert_eq(tiny_flags.to_testfloat_bits(), 0x03)
-  let (huge, huge_flags) = maximum.round_ctx(context)
+  let (huge, huge_flags) = maximum.apply_ctx(context)
   assert_eq(binary16_bits(huge, context), "7C00")
   assert_eq(huge_flags.to_testfloat_bits(), 0x05)
   let (sqrt_huge, sqrt_huge_flags) = maximum.sqrt_ctx(context)

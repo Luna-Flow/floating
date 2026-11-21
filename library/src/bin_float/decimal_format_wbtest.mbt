@@ -85,7 +85,7 @@ test "shortest output matches the host binary64 formatter" {
     }
     let value = BinFloat::from_double(number)
     assert_eq(
-      value.to_shortest_string_ctx(BinaryContext::binary64()),
+      value.to_shortest_string_ctx(BinaryContext::binary64()).0,
       number.to_string(),
       msg="\{number}",
     )
@@ -99,7 +99,7 @@ test "shortest output matches the host binary64 formatter" {
     assert_eq(
       BinFloat::from_double(number).to_shortest_string_ctx(
         BinaryContext::binary64(),
-      ),
+      ).0,
       number.to_string(),
       msg="\{number}",
     )

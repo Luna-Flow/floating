@@ -106,7 +106,7 @@ pub impl @lf_arith.AbsContextual for BinFloat with fn abs_contextual(
   match BinaryContext::from_arithmetic_context(context) {
     Err(error) => Err(error)
     Ok(bctx) => {
-      let (value, flags) = self.abs().round_ctx(bctx)
+      let (value, flags) = self.abs().apply_ctx(bctx)
       binary_contextual_outcome("abs", value, flags)
     }
   }

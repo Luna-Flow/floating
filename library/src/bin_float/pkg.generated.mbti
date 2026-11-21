@@ -57,6 +57,7 @@ pub fn BinFloat::acospi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::add(Self, Self) -> Self
 pub fn BinFloat::add_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn BinFloat::add_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::apply_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::asin(Self) -> Self
 pub fn BinFloat::asin_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::asinh(Self) -> Self
@@ -208,7 +209,6 @@ pub fn BinFloat::remainder_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::rootn(Self, Int32) -> Self
 pub fn BinFloat::rootn_ctx(Self, Int32, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::round(Self) -> Self
-pub fn BinFloat::round_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::round_ties_even(Self) -> Self
 pub fn BinFloat::rsqrt(Self) -> Self
 pub fn BinFloat::rsqrt_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
@@ -243,7 +243,7 @@ pub fn BinFloat::to_integral_value_ctx(Self, BinaryContext) -> (Self, BinaryFlag
 pub fn BinFloat::to_interchange(Self, BinaryInterchangeFormat, rounding? : BinaryRoundingMode, tininess? : TininessDetection) -> (BinaryInterchange, BinaryFlags)
 pub fn BinFloat::to_repr(Self) -> @debug.Repr
 pub fn BinFloat::to_shortest_string(Self) -> String
-pub fn BinFloat::to_shortest_string_ctx(Self, BinaryContext) -> String
+pub fn BinFloat::to_shortest_string_ctx(Self, BinaryContext) -> (String, BinaryFlags)
 pub fn BinFloat::to_string(Self) -> String
 pub fn BinFloat::to_uint64_ctx(Self, BinaryContext, exact? : Bool) -> (UInt64?, BinaryFlags)
 pub fn BinFloat::to_uint_ctx(Self, BinaryContext, exact? : Bool) -> (UInt32?, BinaryFlags)

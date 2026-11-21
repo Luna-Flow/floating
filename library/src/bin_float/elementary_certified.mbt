@@ -113,8 +113,8 @@ fn binary_certified_target_rounding(
   upper : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, Bool, BinaryFlags) {
-  let (lower_value, lower_flags) = lower.round_ctx(context)
-  let (upper_value, upper_flags) = upper.round_ctx(context)
+  let (lower_value, lower_flags) = lower.apply_ctx(context)
+  let (upper_value, upper_flags) = upper.apply_ctx(context)
   (
     lower_value,
     lower_value.identical(upper_value) && lower_flags == upper_flags,
@@ -1750,7 +1750,7 @@ pub fn BinFloat::try_expm1_ctx(
           BinaryFlags::new(),
         ),
       )
-    FpClass::Finite if self.is_zero() => Ok(self.round_ctx(context))
+    FpClass::Finite if self.is_zero() => Ok(self.apply_ctx(context))
     FpClass::Finite => {
       if self.is_negative() &&
         binary_expm1_negative_saturation(self, context) is Some(result) {
@@ -1885,7 +1885,7 @@ pub fn BinFloat::try_log1p_ctx(
         )
       }
       if self.is_zero() {
-        return Ok(self.round_ctx(context))
+        return Ok(self.apply_ctx(context))
       }
       if binary_tiny_argument_result(
           self,
@@ -2067,7 +2067,7 @@ pub fn BinFloat::try_log2_ctx(
     FpClass::Finite => {
       if self.coefficient_().compare(Coeff::one()) == 0 {
         let exact = BinFloat::from_int_raw(self.exponent2(), precision=64)
-        return Ok(exact.round_ctx(context))
+        return Ok(exact.apply_ctx(context))
       }
       let mut budget = CertifiedRefinementBudget::new(
         context.precision + 64,
@@ -2158,7 +2158,7 @@ pub fn BinFloat::try_exp10_ctx(
             exponent,
             Int32::max(1, coefficient.bit_length()),
           )
-          return Ok(exact.round_ctx(context))
+          return Ok(exact.apply_ctx(context))
         }
         _ => ()
       }
@@ -2303,7 +2303,7 @@ pub fn BinFloat::try_log10_ctx(
         )
         if self.coefficient_().compare(expected_coefficient) == 0 {
           let exact = BinFloat::from_int_raw(decimal_exponent, precision=64)
-          return Ok(exact.round_ctx(context))
+          return Ok(exact.apply_ctx(context))
         }
       }
       let mut work = context.precision + 64
@@ -2977,7 +2977,7 @@ pub fn BinFloat::try_rootn_ctx(
             ),
           )
         }
-        return Ok(self.round_ctx(context))
+        return Ok(self.apply_ctx(context))
       }
       // An exact root r is returned as r, or as the correctly rounded 1 / r for
       // a negative degree; the Ziv loop below cannot certify an exact result.
@@ -2985,7 +2985,7 @@ pub fn BinFloat::try_rootn_ctx(
         Some(exact) =>
           return Ok(
             if degree > 0 {
-              exact.round_ctx(context)
+              exact.apply_ctx(context)
             } else {
               BinFloat::one_raw(precision=context.precision).div_ctx(
                 exact, context,
@@ -4689,7 +4689,7 @@ pub fn BinFloat::try_atan_ctx(
       }
       Err(binary_refinement_failure_state("atan", context, work, attempt))
     }
-    FpClass::Finite if self.is_zero() => Ok(self.round_ctx(context))
+    FpClass::Finite if self.is_zero() => Ok(self.apply_ctx(context))
     FpClass::Finite => {
       let mut work = Int32::max(context.precision + 64, self.precision() + 16)
       let mut attempt = 0
@@ -4837,7 +4837,7 @@ pub fn BinFloat::try_asin_ctx(
         return Ok(binary_invalid_value(context))
       }
       if self.is_zero() {
-        return Ok(self.round_ctx(context))
+        return Ok(self.apply_ctx(context))
       }
       if self.abs().compare(one) == 0 {
         let mut work = context.precision + 64
@@ -4995,8 +4995,8 @@ pub fn BinFloat::try_acos_ctx(
               rounding=RoundTowardPositive,
             )
             let (result, unique, flags) = binary_certified_inexact_target_rounding(
-              pi.0.round_ctx(downward).0,
-              pi.1.round_ctx(upward).0,
+              pi.0.apply_ctx(downward).0,
+              pi.1.apply_ctx(upward).0,
               context,
             )
             if unique {
@@ -5946,7 +5946,7 @@ fn BinFloat::try_trigonometric_ctx(
           if operation == BinaryTrigonometricOperation::Cos {
             BinFloat::one_raw(precision=context.precision)
           } else {
-            self.round_ctx(context).0
+            self.apply_ctx(context).0
           },
           BinaryFlags::new(),
         ),

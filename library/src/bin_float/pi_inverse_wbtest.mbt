@@ -461,7 +461,7 @@ fn pi_reference(
     pi_inverse_tiny_model(x, is_asin, ctx)
   } else {
     let high = BinaryContext::new(precision=ctx.precision + 150)
-    (if is_asin { x.asinpi_ctx(high) } else { x.atanpi_ctx(high) }).0.round_ctx(
+    (if is_asin { x.asinpi_ctx(high) } else { x.atanpi_ctx(high) }).0.apply_ctx(
       ctx,
     )
   }
@@ -599,7 +599,7 @@ test "the results at p and at p + 150 agree on moderate arguments" {
           ("atanpi", fn(v, c) { v.atanpi_ctx(c) }),
         ]
         for (name, f) in unary {
-          let reference = f(x, high).0.round_ctx(ctx).0
+          let reference = f(x, high).0.apply_ctx(ctx).0
           let (value, flags) = f(x, ctx)
           assert_eq(
             "\{name}(\{x}) \{e2s_mode_name(mode)} p=\{p}: \{value}",
@@ -618,7 +618,7 @@ test "the results at p and at p + 150 agree on moderate arguments" {
           (pi_x(1, 20), pi_x(3, 3)),
           (pi_x(13, -30), pi_x(7, -29, negative=true)),
         ] {
-        let reference = y.atan2pi_ctx(x, high).0.round_ctx(ctx).0
+        let reference = y.atan2pi_ctx(x, high).0.apply_ctx(ctx).0
         let (value, flags) = y.atan2pi_ctx(x, ctx)
         assert_eq(
           "atan2pi(\{y}, \{x}) \{e2s_mode_name(mode)} p=\{p}: \{value}",

@@ -374,20 +374,20 @@ fn binary_shortest_digits(
 pub fn BinFloat::to_shortest_string_ctx(
   self : BinFloat,
   context : BinaryContext,
-) -> String {
+) -> (String, BinaryFlags) {
   // The operand is first rounded into the context, in the rounding direction
   // of the context (a value of the format prints as itself), so the search
   // below always has a representable value.
-  let self = self.round_ctx(context).0
+  let (self, flags) = self.apply_ctx(context)
   // The digits read back under round-to-nearest-even, whatever the direction.
   let context = { ..context, rounding: RoundTiesToEven, }
   match binary_special_string(self) {
-    Some(text) => return text
+    Some(text) => return (text, flags)
     None => ()
   }
   let sign = if self.negative() { "-" } else { "" }
   if self.coefficient_is_zero() {
-    return sign + "0"
+    return (sign + "0", flags)
   }
   let (digits, exponent) = binary_shortest_digits(self, context)
   let count = digits.length()
@@ -414,7 +414,7 @@ pub fn BinFloat::to_shortest_string_ctx(
     (if exponent < 0 { "-" } else { "+" }) +
     exponent.abs().to_string()
   }
-  sign + body
+  (sign + body, flags)
 }
 
 ///|
@@ -422,5 +422,5 @@ pub fn BinFloat::to_shortest_string_ctx(
 /// exponent range: `from_string(text, precision=self.precision())` returns
 /// this value. See `to_shortest_string_ctx` for IEEE formats with subnormals.
 pub fn BinFloat::to_shortest_string(self : BinFloat) -> String {
-  self.to_shortest_string_ctx(binary_working_context(self.precision_()))
+  self.to_shortest_string_ctx(binary_working_context(self.precision_())).0
 }

@@ -52,7 +52,7 @@ test "one third, two precisions" {
   inspect((one / three).to_shortest_string(), content="0.3333333333333333")
   let binary32 = @bin_float.BinaryContext::binary32()
   let (third, flags) = one.div_ctx(three, binary32)
-  inspect(third.to_shortest_string_ctx(binary32), content="0.33333334")
+  inspect(third.to_shortest_string_ctx(binary32).0, content="0.33333334")
   inspect(flags.inexact(), content="true")
 }
 ```
@@ -121,7 +121,7 @@ test "a binary16 computation with accumulated flags" {
     .mul_ctx(@bin_float.BinFloat::from_string("0.0001").unwrap(), half)
   let all = add_flags.combine(mul_flags)
   inspect(sum, content="inf")
-  inspect(product.to_shortest_string_ctx(half), content="1e-7")
+  inspect(product.to_shortest_string_ctx(half).0, content="1e-7")
   inspect(
     "\{all.overflow()} \{all.underflow()} \{all.inexact()}",
     content="true true true",
@@ -208,7 +208,7 @@ in the context's direction, and reports whether digits were dropped.
 test "decimal output" {
   let ctx = @bin_float.BinaryContext::binary64()
   let tenth = @bin_float.BinFloat::from_string("0.1").unwrap()
-  inspect(tenth.to_shortest_string_ctx(ctx), content="0.1")
+  inspect(tenth.to_shortest_string_ctx(ctx).0, content="0.1")
   let (exact, exact_flags) = tenth.to_decimal_string_ctx(55, ctx)
   inspect(exact, content="1.000000000000000055511151231257827021181583404541015625e-1")
   inspect(exact_flags.inexact(), content="false")
@@ -333,8 +333,8 @@ test "tininess before and after rounding" {
   let before = @bin_float.BinaryContext::binary16(
     tininess=@bin_float.TininessDetection::BeforeRounding,
   )
-  let (a, a_flags) = x.round_ctx(after)
-  let (b, b_flags) = x.round_ctx(before)
+  let (a, a_flags) = x.apply_ctx(after)
+  let (b, b_flags) = x.apply_ctx(before)
   inspect("\{a} \{a_flags.underflow()}", content="1p-14 false")
   inspect("\{b} \{b_flags.underflow()}", content="1p-14 true")
 }
@@ -413,7 +413,7 @@ precision for an algorithm instead of widening and narrowing repeatedly. The
   `0x3p-1` are both $1.5$, but `0x1.8` is rejected, and an inexact conversion
   looks like an exact one; use `from_hex_ctx` (or `from_string_ctx` for decimal
   text) when the rounding direction or the flags matter.
-- **`with_precision` hides flags.** Use `round_ctx` when you need to know that
+- **`with_precision` hides flags.** Use `apply_ctx` when you need to know that
   narrowing was inexact or overflowed.
 - **The sign of a zero is an input.** IEEE 754 special cases read it:
   `atan2` of $(-0, -1)$ is $-\pi$ but of $(+0, -1)$ is $+\pi$, `tanpi(1)` is

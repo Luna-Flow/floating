@@ -282,7 +282,7 @@ pub fn BinaryInterchange::from_bin_float(
   rounding~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
   tininess~ : TininessDetection = TininessDetection::AfterRounding,
 ) -> (BinaryInterchange, BinaryFlags) {
-  let (rounded, flags) = value.round_ctx(format.context(rounding~, tininess~))
+  let (rounded, flags) = value.apply_ctx(format.context(rounding~, tininess~))
   ({ format, bits: binary_encode_rounded(rounded, format), }, flags)
 }
 
@@ -316,7 +316,7 @@ pub fn BinFloat::convert_format(
   rounding~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
   tininess~ : TininessDetection = TininessDetection::AfterRounding,
 ) -> (BinFloat, BinaryFlags) {
-  let (value, flags) = self.round_ctx(format.context(rounding~, tininess~))
+  let (value, flags) = self.apply_ctx(format.context(rounding~, tininess~))
   if value.class() == FpClass::NaN {
     // The payload field of the format has precision - 2 bits below the quiet bit.
     let payload_mask = Coeff::one()

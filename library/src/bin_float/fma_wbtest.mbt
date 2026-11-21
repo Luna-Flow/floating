@@ -169,7 +169,7 @@ test "fma products beyond the exponent range" {
 
 ///|
 /// Independent reference: build the exact sum from coefficients with every
-/// bit retained, then round once with `round_ctx`.
+/// bit retained, then round once with `apply_ctx`.
 fn fma_reference(
   a : BinFloat,
   b : BinFloat,
@@ -206,7 +206,7 @@ fn fma_reference(
     magnitude.shift_right(magnitude.ctz()),
     target + magnitude.ctz(),
     magnitude.bit_length(),
-  ).round_ctx(context)
+  ).apply_ctx(context)
 }
 
 ///|

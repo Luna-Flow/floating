@@ -132,7 +132,7 @@ pub fn BinFloat::try_asinpi_ctx(
   }
   // f(±0) = ±0 with no exception.
   if self.is_zero() {
-    return Ok(self.round_ctx(context))
+    return Ok(self.apply_ctx(context))
   }
   // asinPi(±1) = ±1/2.
   if comparison == 0 {
@@ -255,7 +255,7 @@ pub fn BinFloat::try_atanpi_ctx(
     return Ok(binary_pi_constant(self.is_negative(), 1UL, -1, context))
   }
   if self.is_zero() {
-    return Ok(self.round_ctx(context))
+    return Ok(self.apply_ctx(context))
   }
   // atanPi(±1) = ±1/4.
   if self.abs().compare(BinFloat::one_raw(precision=self.precision())) == 0 {

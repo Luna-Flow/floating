@@ -243,7 +243,7 @@ msgstr "各候補について、当該ケースとデータセットの有効な
 #: manual/api/bench/decimal_gda.md:42
 #: manual/api/bench/external.md:80
 #: manual/api/bench/interval.md:43
-#: manual/api/bin_float.md:2639
+#: manual/api/bin_float.md:2641
 #: manual/api/bin_float_checked.md:840
 #: manual/api/cli.md:80
 #: manual/api/cli/dispatch.md:38
@@ -736,8 +736,8 @@ msgid "Builds a finite value $(-1)^{\\text{negative}} \\cdot c \\cdot 2^{e}$ rou
 msgstr "`precision` ビットに丸めた有限値 $(-1)^{\\text{negative}} \\cdot c \\cdot 2^{e}$ を構築します。"
 
 #: manual/api/bin_float.md:262
-msgid "The arguments are the coefficient, the exponent $e$ and the precision. When the coefficient has more significant bits than the precision it is rounded with `mode` (default `ToNearestEven`). The result is normalized. A precision outside `1..=binary_precision_max` aborts. A value outside the implementation exponent range is replaced as an overflow or underflow would be: above it by $\\pm\\infty$ or, for a mode that rounds toward zero, the largest finite magnitude $(2^p - 1)\\,2^{e_{\\max} - p + 1}$; below the smallest implementation subnormal $2^{e_{\\min} - p + 1}$ by $\\pm 0$ or, for a mode that rounds away from zero (and for nearest when the value exceeds half of it), by that subnormal. `make` rounds precision and range together, in `mode`: a value between the smallest subnormal and $2^{e_{\\min}}$ keeps only the bits on the subnormal grid $2^{e_{\\min} - p + 1}$ (at least one), so the stored value never has a bit below that grid. This matters only at magnitudes near $2^{-2^{30}}$; `round_ctx` additionally reports the flags."
-msgstr "引数は係数、指数 $e$、精度です。係数の有効ビット数が精度より多い場合は `mode`（既定は `ToNearestEven`）で丸められます。結果は正規化されます。`1..=binary_precision_max` の範囲外の精度は中断します。実装の指数範囲外の値は、オーバーフローやアンダーフローの場合と同様に置き換えられます。範囲を上回る場合は $\\pm\\infty$、またはゼロ方向に丸めるモードでは最大の有限な絶対値 $(2^p - 1)\\,2^{e_{\\max} - p + 1}$ に、実装の最小の非正規化数 $2^{e_{\\min} - p + 1}$ を下回る場合は $\\pm 0$、またはゼロから離れる方向に丸めるモード（および値がその半分を超える場合の最近接丸め）ではその非正規化数に置き換えられます。`make` は精度と範囲をまとめて `mode` で丸めます。最小の非正規化数と $2^{e_{\\min}}$ の間の値は、非正規化数の格子 $2^{e_{\\min} - p + 1}$ 上のビット（少なくとも 1 ビット）だけを保持するので、格納される値にその格子より下のビットはありません。これが問題になるのは絶対値が $2^{-2^{30}}$ 付近の場合だけで、`round_ctx` はさらにフラグを報告します。"
+msgid "The arguments are the coefficient, the exponent $e$ and the precision. When the coefficient has more significant bits than the precision it is rounded with `mode` (default `ToNearestEven`). The result is normalized. A precision outside `1..=binary_precision_max` aborts. A value outside the implementation exponent range is replaced as an overflow or underflow would be: above it by $\\pm\\infty$ or, for a mode that rounds toward zero, the largest finite magnitude $(2^p - 1)\\,2^{e_{\\max} - p + 1}$; below the smallest implementation subnormal $2^{e_{\\min} - p + 1}$ by $\\pm 0$ or, for a mode that rounds away from zero (and for nearest when the value exceeds half of it), by that subnormal. `make` rounds precision and range together, in `mode`: a value between the smallest subnormal and $2^{e_{\\min}}$ keeps only the bits on the subnormal grid $2^{e_{\\min} - p + 1}$ (at least one), so the stored value never has a bit below that grid. This matters only at magnitudes near $2^{-2^{30}}$; `apply_ctx` additionally reports the flags."
+msgstr "引数は係数、指数 $e$、精度です。係数の有効ビット数が精度より多い場合は `mode`（既定は `ToNearestEven`）で丸められます。結果は正規化されます。`1..=binary_precision_max` の範囲外の精度は中断します。実装の指数範囲外の値は、オーバーフローやアンダーフローの場合と同様に置き換えられます。範囲を上回る場合は $\\pm\\infty$、またはゼロ方向に丸めるモードでは最大の有限な絶対値 $(2^p - 1)\\,2^{e_{\\max} - p + 1}$ に、実装の最小の非正規化数 $2^{e_{\\min} - p + 1}$ を下回る場合は $\\pm 0$、またはゼロから離れる方向に丸めるモード（および値がその半分を超える場合の最近接丸め）ではその非正規化数に置き換えられます。`make` は精度と範囲をまとめて `mode` で丸めます。最小の非正規化数と $2^{e_{\\min}}$ の間の値は、非正規化数の格子 $2^{e_{\\min} - p + 1}$ 上のビット（少なくとも 1 ビット）だけを保持するので、格納される値にその格子より下のビットはありません。これが問題になるのは絶対値が $2^{-2^{30}}$ 付近の場合だけで、`apply_ctx` はさらにフラグを報告します。"
 
 #: manual/api/bin_float.md:279
 msgid "Build a value from an integer."
@@ -829,8 +829,8 @@ msgid "Rounds a value to a new working precision."
 msgstr "値を新しい作業精度に丸めます。"
 
 #: manual/api/bin_float.md:453
-msgid "A finite value with more significant bits than the new precision is rounded in the given direction (`@lf_arith.RoundingMode` has no ties-to-away mode; use `round_ctx` for it). Zeros, infinities and NaNs only change their precision attribute. No flags are reported; use `round_ctx` when they matter."
-msgstr "新しい精度より多くの有効ビットを持つ有限な値は、指定された方向に丸められます（`@lf_arith.RoundingMode` には ties-to-away モードがないので、その場合は `round_ctx` を使ってください）。ゼロ、無限大、NaN は精度属性だけが変わります。フラグは報告されないので、フラグが重要な場合は `round_ctx` を使ってください。"
+msgid "A finite value with more significant bits than the new precision is rounded in the given direction (`@lf_arith.RoundingMode` has no ties-to-away mode; use `apply_ctx` for it). Zeros, infinities and NaNs only change their precision attribute. No flags are reported; use `apply_ctx` when they matter."
+msgstr "新しい精度より多くの有効ビットを持つ有限な値は、指定された方向に丸められます（`@lf_arith.RoundingMode` には ties-to-away モードがないので、その場合は `apply_ctx` を使ってください）。ゼロ、無限大、NaN は精度属性だけが変わります。フラグは報告されないので、フラグが重要な場合は `apply_ctx` を使ってください。"
 
 #: manual/api/bin_float.md:460
 msgid "Returns the unit in the last place of a finite value at its own precision."
@@ -1329,33 +1329,33 @@ msgid "Formats the shortest decimal that reads back as the same value."
 msgstr "同じ値として読み戻せる最短の十進表記に整形します。"
 
 #: manual/api/bin_float.md:1381
-msgid "`to_shortest_string_ctx(x, ctx)` returns the decimal with the fewest significant digits that `from_string_ctx(_, ctx)` maps back to $x$ under round-to-nearest-even (the context's own rounding direction is ignored). When two candidates of that length read back, the nearer one is chosen, then the one with an even last digit. The layout follows ECMAScript `Number#toString`: positional notation for decimal exponents in $[-6, 21)$, otherwise `d.ddde±x`; unlike ECMAScript, $-0$ prints as `-0`. For binary64 values in `BinaryContext::binary64()` the result equals the host `Double` formatter. `to_shortest_string()` uses `BinaryContext::new(precision=precision())`, so it is the shortest string that `from_string(text, precision=x.precision())` maps back to `x`. An operand that is not representable in the context is first rounded into it (`round_ctx`, in the rounding direction of the context, with the overflow and underflow of the context), and the result is the shortest string of that rounded value: `inf` or `-inf` on overflow, `0` or `-0` on underflow (the largest finite value for a direction that rounds toward zero). A value of the format prints as itself."
-msgstr "`to_shortest_string_ctx(x, ctx)` は、`from_string_ctx(_, ctx)` が最近接偶数丸めのもとで $x$ に戻す十進数のうち、有効桁数が最少のものを返します（コンテキスト自身の丸め方向は無視されます）。その長さの候補が 2 つ読み戻せる場合は、より近い方を、次に最終桁が偶数の方を選びます。レイアウトは ECMAScript の `Number#toString` に従い、十進指数が $[-6, 21)$ にあるときは位取り表記、それ以外は `d.ddde±x` です。ECMAScript と異なり、$-0$ は `-0` と出力されます。`BinaryContext::binary64()` における binary64 の値では、結果はホストの `Double` の整形と一致します。`to_shortest_string()` は `BinaryContext::new(precision=precision())` を用いるので、`from_string(text, precision=x.precision())` が `x` に戻す最短の文字列になります。コンテキストで表現できないオペランドは、まずそのコンテキストへ丸められ（`round_ctx`、コンテキストの丸め方向で、コンテキストのオーバーフローとアンダーフローを伴う）、結果はその丸め後の値の最短の文字列になります。オーバーフローでは `inf` または `-inf`、アンダーフローでは `0` または `-0` です（ゼロ方向に丸める方向では最大の有限値になります）。形式に属する値はそのまま出力されます。"
+msgid "`to_shortest_string_ctx(x, ctx)` returns the decimal with the fewest significant digits that `from_string_ctx(_, ctx)` maps back to $x$ under round-to-nearest-even (the context's own rounding direction is ignored). When two candidates of that length read back, the nearer one is chosen, then the one with an even last digit. The layout follows ECMAScript `Number#toString`: positional notation for decimal exponents in $[-6, 21)$, otherwise `d.ddde±x`; unlike ECMAScript, $-0$ prints as `-0`. For binary64 values in `BinaryContext::binary64()` the result equals the host `Double` formatter. `to_shortest_string()` uses `BinaryContext::new(precision=precision())`, so it is the shortest string that `from_string(text, precision=x.precision())` maps back to `x`. An operand that is not representable in the context is first rounded into it (`apply_ctx`, in the rounding direction of the context, with the overflow and underflow of the context), and the result is the shortest string of that rounded value: `inf` or `-inf` on overflow, `0` or `-0` on underflow (the largest finite value for a direction that rounds toward zero). A value of the format prints as itself. The second component is the flags of that rounding (`inexact`, `overflow`, `underflow`); it is empty for a value of the format, a NaN or an infinity."
+msgstr "`to_shortest_string_ctx(x, ctx)` は、`from_string_ctx(_, ctx)` が最近接偶数丸めのもとで $x$ に戻す十進数のうち、有効桁数が最少のものを返します（コンテキスト自身の丸め方向は無視されます）。その長さの候補が 2 つ読み戻せる場合は、より近い方を、次に最終桁が偶数の方を選びます。レイアウトは ECMAScript の `Number#toString` に従い、十進指数が $[-6, 21)$ にあるときは位取り表記、それ以外は `d.ddde±x` です。ECMAScript と異なり、$-0$ は `-0` と出力されます。`BinaryContext::binary64()` における binary64 の値では、結果はホストの `Double` の整形と一致します。`to_shortest_string()` は `BinaryContext::new(precision=precision())` を用いるので、`from_string(text, precision=x.precision())` が `x` に戻す最短の文字列になります。コンテキストで表現できないオペランドは、まずそのコンテキストへ丸められ（`apply_ctx`、コンテキストの丸め方向で、コンテキストのオーバーフローとアンダーフローを伴う）、結果はその丸め後の値の最短の文字列になります。オーバーフローでは `inf` または `-inf`、アンダーフローでは `0` または `-0` です（ゼロ方向に丸める方向では最大の有限値になります）。形式に属する値はそのまま出力されます。 第二の要素はその丸めのフラグ（`inexact`、`overflow`、`underflow`）です。形式内の値、NaN、無限大では空です。"
 
-#: manual/api/bin_float.md:1400
+#: manual/api/bin_float.md:1402
 msgid "Read and write the exact value with a hexadecimal coefficient."
 msgstr "十六進の係数で厳密な値を読み書きします。"
 
-#: manual/api/bin_float.md:1408
+#: manual/api/bin_float.md:1410
 msgid "The syntax is the IEEE 754-2019 §5.12.3 hexSequence: an optional sign, `0x` or `0X`, hexadecimal digits with at most one point (`1.8`, `.8` or `1.`), and a required `p` or `P` exponent with an optional sign and decimal digits. The value is the hexadecimal significand times $2^{\\text{exponent}}$, so `0x3p-1` and `0x1.8p0` are both $1.5$. `from_hex(s, p)` rounds once to precision `p` with nearest-even and reports no flags; a `p` outside `1..=binary_precision_max` is an `Err`. `from_hex_ctx(s, context)` is the §5.12.3 conversion: it rounds the exact value once under the rounding direction, precision, exponent range and tininess rule of `context` and returns the `inexact`, `underflow` and `overflow` flags, like `from_string_ctx`. An exponent field of any length is a valid text: it is read with saturation at $2^{60}$, as the decimal reader does, so an exponent outside the 32-bit range overflows or underflows there (the result of the context with its flags, in every rounding direction) instead of being a parse error, and a zero significand is the zero of the sign for any exponent. `from_hex`, which stores the exact value, reports an exponent outside the 32-bit range as a parse error (a zero significand is still a zero). Both accept `inf`, `infinity`, `nan` and `snan` in any case with an optional sign (§5.12.1); `snan` gives a signaling NaN. Surrounding whitespace is trimmed; any other text is a `parse_error`. `to_hex` prints the stored coefficient in lower case, `0x0p0` or `-0x0p0` for a zero, and `nan`/`inf` with a sign."
 msgstr "構文は IEEE 754-2019 §5.12.3 の hexSequence です。省略可能な符号、`0x` または `0X`、小数点を高々 1 つ含む 16 進数字（`1.8`、`.8`、`1.`）、そして必須の `p` または `P` の指数（省略可能な符号と 10 進数字）からなります。値は 16 進の仮数に $2^{\\text{exponent}}$ を掛けたもので、`0x3p-1` と `0x1.8p0` はどちらも $1.5$ です。`from_hex(s, p)` は最近接偶数で精度 `p` に 1 回だけ丸め、フラグを報告しません。`p` が `1..=binary_precision_max` の範囲外なら `Err` です。`from_hex_ctx(s, context)` は §5.12.3 の変換です。`context` の丸め方向、精度、指数範囲、tininess 規則のもとで正確な値を 1 回だけ丸め、`from_string_ctx` と同様に `inexact`、`underflow`、`overflow` のフラグを返します。任意の長さの指数フィールドは有効なテキストです。10 進の読み取りと同様に $2^{60}$ で飽和して読むので、32 ビットの範囲を超える指数は、ここでは構文エラーではなくオーバーフローまたはアンダーフロー（コンテキストの結果とそのフラグ。すべての丸め方向で）になり、有効数字が 0 なら、どの指数でも符号付きの 0 です。厳密な値を格納する `from_hex` は、32 ビットの範囲を超える指数を構文エラーとして報告します（有効数字が 0 なら 0 のままです）。どちらも、大文字小文字を問わず省略可能な符号付きの `inf`、`infinity`、`nan`、`snan`（§5.12.1）を受け付け、`snan` はシグナリング NaN になります。前後の空白は取り除かれ、それ以外の文字列は `parse_error` です。`to_hex` は格納された係数を小文字で出力し、ゼロは `0x0p0` または `-0x0p0`、`nan`/`inf` は符号付きで出力します。"
 
-#: manual/api/bin_float.md:1450
+#: manual/api/bin_float.md:1452
 #: manual/api/decimal_gda.md:1339
 #: manual/design/decimal.md:750
 #: manual/tutorial/decimal_gda.md:344
 msgid "Interchange encodings"
 msgstr "交換エンコーディング"
 
-#: manual/api/bin_float.md:1454
+#: manual/api/bin_float.md:1456
 msgid "The four IEEE 754 binary interchange formats."
 msgstr "IEEE 754 の 4 つの二進交換形式。"
 
-#: manual/api/bin_float.md:1467
+#: manual/api/bin_float.md:1469
 msgid "The parameters of a format."
 msgstr "形式のパラメータ。"
 
-#: manual/api/bin_float.md:1479
+#: manual/api/bin_float.md:1481
 #: manual/api/cli/mpfr_expr_cli.md:46
 #: manual/design/bin_float.md:107
 #: manual/design/decimal.md:89
@@ -1364,59 +1364,59 @@ msgstr "形式のパラメータ。"
 msgid "Format"
 msgstr "形式"
 
-#: manual/api/bin_float.md:1488
+#: manual/api/bin_float.md:1490
 msgid "Returns the `BinaryContext` of the format."
 msgstr "形式の `BinaryContext` を返します。"
 
-#: manual/api/bin_float.md:1496
+#: manual/api/bin_float.md:1498
 msgid "An encoded value: a format and its bit pattern."
 msgstr "エンコードされた値、すなわち形式とそのビットパターンです。"
 
-#: manual/api/bin_float.md:1504
+#: manual/api/bin_float.md:1506
 msgid "Equality compares the format and the bits, so two encodings of NaN with different payloads differ and $\\pm 0$ differ."
 msgstr "等価性は形式とビットを比較するため、ペイロードの異なる NaN の 2 つのエンコーディングは異なり、$\\pm 0$ も異なります。"
 
-#: manual/api/bin_float.md:1509
+#: manual/api/bin_float.md:1511
 msgid "Return the format and the bit pattern of an encoding."
 msgstr "エンコーディングの形式とビットパターンを返します。"
 
-#: manual/api/bin_float.md:1516
+#: manual/api/bin_float.md:1518
 msgid "`bits()` is the encoding as a natural number below $2^k$, $k$ = `total_bits`: the sign bit is bit $k-1$, the biased exponent field the next $w$ bits and the trailing significand field the low $p-1$ bits."
 msgstr "`bits()` はエンコーディングを $2^k$（$k$ = `total_bits`）未満の自然数として表したものです。符号ビットはビット $k-1$、続く $w$ ビットがバイアス付き指数フィールド、下位 $p-1$ ビットが後続仮数フィールドです。"
 
-#: manual/api/bin_float.md:1522
+#: manual/api/bin_float.md:1524
 msgid "Build or print an encoding."
 msgstr "エンコーディングを構築または出力します。"
 
-#: manual/api/bin_float.md:1530
+#: manual/api/bin_float.md:1532
 msgid "`from_bits` keeps the low `total_bits` bits. `from_hex` needs exactly `total_bits / 4` hexadecimal digits, optionally prefixed with `0x` or `#`, and returns `None` otherwise. `to_hex` prints upper-case digits padded to the full width."
 msgstr "`from_bits` は下位 `total_bits` ビットを保持します。`from_hex` はちょうど `total_bits / 4` 桁の十六進数字（省略可能な接頭辞 `0x` または `#` 付き）を必要とし、そうでなければ `None` を返します。`to_hex` は全幅までゼロ埋めした大文字の数字を出力します。"
 
-#: manual/api/bin_float.md:1537
+#: manual/api/bin_float.md:1539
 msgid "Decodes an encoding exactly."
 msgstr "エンコーディングを厳密にデコードします。"
 
-#: manual/api/bin_float.md:1543
+#: manual/api/bin_float.md:1545
 msgid "The result has the format precision. Normal and subnormal numbers, signed zeros and infinities decode exactly; a NaN keeps its sign and payload (the fraction without the quiet bit), and a signaling NaN stays signaling. No host `Float` or `Double` is involved."
 msgstr "結果は形式の精度を持ちます。正規化数と非正規化数、符号付きゼロ、無限大は厳密にデコードされます。NaN は符号とペイロード（quiet ビットを除いた仮数部）を保持し、signaling NaN は signaling のままです。ホストの `Float` や `Double` は一切関与しません。"
 
-#: manual/api/bin_float.md:1550
+#: manual/api/bin_float.md:1552
 msgid "Convert a value to a binary interchange format and return it as a `BinFloat`."
 msgstr "値を二進交換形式へ変換し、`BinFloat` として返します。"
 
-#: manual/api/bin_float.md:1556
-msgid "The IEEE 754-2019 §5.4.2 formatOf-convertFormat operation, with the parameters of `to_interchange` and the value instead of the encoding. A conversion to a wider precision and range is exact and raises nothing; to a narrower one the value is rounded under `rounding` and `tininess` with `inexact`, `underflow` and `overflow`. A signaling NaN gives a quiet NaN and `invalid_operation`, also when the source already has the destination's precision (the canonicalizing conversion). A NaN payload is kept when the destination holds it and truncated to its low bits otherwise (§6.2.3), so the result is exactly what decoding `to_interchange` returns. `round_ctx` and `to_interchange` stay."
-msgstr "IEEE 754-2019 §5.4.2 の formatOf-convertFormat 演算で、引数は `to_interchange` と同じ、返すのはエンコードではなく値です。精度と範囲がともに広い形式への変換は正確で、フラグは立ちません。狭い形式への変換は `rounding` と `tininess` に従って丸められ、`inexact`、`underflow`、`overflow` を返します。signaling NaN は quiet NaN と `invalid_operation` になります（元の精度がすでに変換先の精度に等しい場合も同じで、正準化の変換です）。NaN のペイロードは変換先が保持できる場合は保たれ、そうでなければ下位ビットに切り詰められます（§6.2.3）。したがって結果は `to_interchange` をデコードして得られる値と正確に一致します。`round_ctx` と `to_interchange` は変わりません。"
+#: manual/api/bin_float.md:1558
+msgid "The IEEE 754-2019 §5.4.2 formatOf-convertFormat operation, with the parameters of `to_interchange` and the value instead of the encoding. A conversion to a wider precision and range is exact and raises nothing; to a narrower one the value is rounded under `rounding` and `tininess` with `inexact`, `underflow` and `overflow`. A signaling NaN gives a quiet NaN and `invalid_operation`, also when the source already has the destination's precision (the canonicalizing conversion). A NaN payload is kept when the destination holds it and truncated to its low bits otherwise (§6.2.3), so the result is exactly what decoding `to_interchange` returns. `apply_ctx` and `to_interchange` stay."
+msgstr "IEEE 754-2019 §5.4.2 の formatOf-convertFormat 演算で、引数は `to_interchange` と同じ、返すのはエンコードではなく値です。精度と範囲がともに広い形式への変換は正確で、フラグは立ちません。狭い形式への変換は `rounding` と `tininess` に従って丸められ、`inexact`、`underflow`、`overflow` を返します。signaling NaN は quiet NaN と `invalid_operation` になります（元の精度がすでに変換先の精度に等しい場合も同じで、正準化の変換です）。NaN のペイロードは変換先が保持できる場合は保たれ、そうでなければ下位ビットに切り詰められます（§6.2.3）。したがって結果は `to_interchange` をデコードして得られる値と正確に一致します。`apply_ctx` と `to_interchange` は変わりません。"
 
-#: manual/api/bin_float.md:1584
+#: manual/api/bin_float.md:1586
 msgid "Round a value into a format and encode it."
 msgstr "値を形式へ丸めてエンコードします。"
 
-#: manual/api/bin_float.md:1591
-msgid "The two are the same operation: `round_ctx` with the format's context, then encoding. A signaling NaN is encoded as a quiet NaN with `invalid_operation`, and a payload is truncated to the payload field."
-msgstr "2 つは同じ演算です。形式のコンテキストで `round_ctx` を行い、その後エンコードします。signaling NaN は `invalid_operation` とともに quiet NaN としてエンコードされ、ペイロードはペイロードフィールドに切り詰められます。"
+#: manual/api/bin_float.md:1593
+msgid "The two are the same operation: `apply_ctx` with the format's context, then encoding. A signaling NaN is encoded as a quiet NaN with `invalid_operation`, and a payload is truncated to the payload field."
+msgstr "2 つは同じ演算です。形式のコンテキストで `apply_ctx` を行い、その後エンコードします。signaling NaN は `invalid_operation` とともに quiet NaN としてエンコードされ、ペイロードはペイロードフィールドに切り詰められます。"
 
-#: manual/api/bin_float.md:1615
+#: manual/api/bin_float.md:1617
 #: manual/api/bin_float_checked.md:489
 #: manual/api/decimal.md:1466
 #: manual/api/frontend/mpfr_expr.md:156
@@ -1426,23 +1426,23 @@ msgstr "2 つは同じ演算です。形式のコンテキストで `round_ctx` 
 msgid "Elementary functions"
 msgstr "初等関数"
 
-#: manual/api/bin_float.md:1617
+#: manual/api/bin_float.md:1619
 msgid "Each elementary function has three forms:"
 msgstr "各初等関数には 3 つの形式があります:"
 
-#: manual/api/bin_float.md:1619
+#: manual/api/bin_float.md:1621
 msgid "`f(x)` rounds to nearest-even at the precision of `x` (the larger precision for two operands) with the implementation exponent range;"
 msgstr "`f(x)` は、実装の指数範囲で `x` の精度（2 オペランドの場合は大きい方の精度）へ最近接偶数丸めします。"
 
-#: manual/api/bin_float.md:1621
+#: manual/api/bin_float.md:1623
 msgid "`f_ctx(x, ctx)` rounds under `ctx` and returns `(value, flags)`;"
 msgstr "`f_ctx(x, ctx)` は `ctx` のもとで丸め、`(value, flags)` を返します。"
 
-#: manual/api/bin_float.md:1622
+#: manual/api/bin_float.md:1624
 msgid "`try_f_ctx(x, ctx)` returns the same pair in `Ok`, or an `@lf_arith.ArithmeticError`."
 msgstr "`try_f_ctx(x, ctx)` は同じ組を `Ok` で返すか、`@lf_arith.ArithmeticError` を返します。"
 
-#: manual/api/bin_float.md:1625
+#: manual/api/bin_float.md:1627
 msgid ""
 "All three run the same certified algorithm. It computes an enclosure $[L, U] \\n"
 "i f(x)$ whose every internal operation is rounded downward for $L$ and upward for $U$, at a working precision $w$ that starts at $p + 64$ bits (or at the operand precision plus 16 when that is larger, for `rootn`, the inverse trigonometric and the hyperbolic functions). If $L$ and $U$ round to the same value with the same flags, that value is returned; otherwise $w$ grows by $\\max(32, \\lfloor w/2 \\rfloor)$, for at most 12 attempts. Because rounding is monotone, a returned value is the correctly rounded result $\\circ(f(x))$, never an uncertified approximation; the [design page](../design/bin_float.md#certified-elementary-functions) gives the argument for the value and the flags."
@@ -1450,75 +1450,75 @@ msgstr ""
 "3 つとも同じ認証付きアルゴリズムを実行します。これは包含区間 $[L, U] \\n"
 "i f(x)$ を計算し、その内部演算はすべて $L$ では下向きに、$U$ では上向きに丸められます。作業精度 $w$ は $p + 64$ ビットから始まります（`rootn`、逆三角関数、双曲線関数では、オペランドの精度に 16 を加えた値の方が大きければそちらから始まります）。$L$ と $U$ が同じフラグで同じ値に丸められれば、その値が返されます。そうでなければ $w$ を $\\max(32, \\lfloor w/2 \\rfloor)$ だけ増やし、最大 12 回試行します。丸めは単調なので、返される値は正しく丸められた結果 $\\circ(f(x))$ であり、認証されていない近似値になることはありません。[設計ページ](../design/bin_float.md#certified-elementary-functions)では値とフラグについての論証を示しています。"
 
-#: manual/api/bin_float.md:1637
+#: manual/api/bin_float.md:1639
 msgid "When the attempts run out, `try_f_ctx` returns a `certification_failure` error whose `CertificationFailureDetail` names the operation, the stage (`RangeReduction` or `TargetRounding`), the reason and the last working precision. An argument outside the real domain of `ln`, `log2`, `log10`, `log1p`, `log2p1`, `log10p1`, `asin`, `acos`, `acosh`, `atanh`, `asinpi` and `acospi`, and an infinite argument of the trigonometric functions (`sin`, `cos`, `tan`, `sinpi`, `cospi`, `tanpi`), is a value of `try_f_ctx`, a NaN with `invalid_operation`, as it is for the plain form, and so is a domain case of `rootn`, `pow`, `powr`, `rsqrt` and `compound`: `try_f_ctx` returns `Err` only for a result that could not be computed. The non-`try` forms turn that `Err` into a quiet NaN with `not_computed`. NaN operands propagate quietly (a signaling NaN raises `invalid_operation`), and poles return a signed infinity with `division_by_zero` (for example $\\ln 0 = -\\infty$, $\\operatorname{atanh}(1) = +\\infty$). Exactly representable results that an enclosure cannot isolate are detected before the loop, for example $\\log_2 2^k = k$, $2^n$ for integral $n$, $10^n$ for integral $n \\ge 0$, dyadic powers such as $16^{3/4} = 8$, exact roots such as $\\operatorname{rootn}(8, -3) = 1/2$, $\\sin(\\pm 0) = \\pm 0$ and $\\operatorname{sinpi}(1/2) = 1$; each function lists its own cases below. They are rounded once from their exact value, so their flags are right in every rounding mode."
 msgstr "試行回数を使い果たした場合、`try_f_ctx` は `certification_failure` エラーを返し、その `CertificationFailureDetail` は演算、段階（`RangeReduction` または `TargetRounding`）、理由、最後の作業精度を示します。`ln`、`log2`、`log10`、`log1p`、`log2p1`、`log10p1`、`asin`、`acos`、`acosh`、`atanh`、`asinpi`、`acospi` の実数の定義域外の引数、および三角関数（`sin`、`cos`、`tan`、`sinpi`、`cospi`、`tanpi`）の無限大の引数に対しては、`try_f_ctx` は値、すなわち `invalid_operation` を伴う NaN を返し、`try` でない形式と同じです。`rootn`、`pow`、`powr`、`rsqrt`、`compound` の定義域の場合も同様で、`try_f_ctx` は計算できなかった結果に対してだけ `Err` を返します。`try` でない形式は、その `Err` を `not_computed` を伴う quiet NaN に変えます。NaN のオペランドは quiet に伝播し（signaling NaN は `invalid_operation` を立てます）、極では `division_by_zero` とともに符号付き無限大が返されます（たとえば $\\ln 0 = -\\infty$、$\\operatorname{atanh}(1) = +\\infty$）。包含区間では分離できない厳密に表現可能な結果はループの前に検出されます。たとえば $\\log_2 2^k = k$、整数 $n$ に対する $2^n$、整数 $n \\ge 0$ に対する $10^n$、$16^{3/4} = 8$ のような 2 進有理数のべき、$\\operatorname{rootn}(8, -3) = 1/2$ のような厳密な根、$\\sin(\\pm 0) = \\pm 0$、$\\operatorname{sinpi}(1/2) = 1$ などです。各関数のケースは以下でそれぞれ列挙します。これらは厳密な値から一度だけ丸められるため、どの丸めモードでもフラグは正しくなります。"
 
-#: manual/api/bin_float.md:1657
+#: manual/api/bin_float.md:1659
 msgid "Every result that reaches the loop is not a rounding breakpoint, so an enclosure end that is itself representable (such as $1$ for $e^x$ or $x$ for $\\sin x$ at a tiny $x$) cannot be the result. The functions other than `rootn` move such an end just inside the enclosure before rounding it; `pow` does so once its exactness test has excluded a breakpoint. In addition, `sin`, `tan`, `asin`, `sinh`, `tanh`, `asinh` and `atanh` decide an argument with $|x|^3$ below the target spacing at $x$ directly from $|f(x) - x| \\le |x|^3$, and `cos`, `cosh`, `expm1` and `log1p` do the same with $x^2$ (around $1$ for `cos` and `cosh`, around $x$ for the others), before the loop. Tiny arguments are therefore certified in every rounding mode: `sin` of $2^{-6000}$ at 53 bits is $2^{-6000}$ with `inexact`, and $e^{2^{-20000}}$ rounded toward zero is $1$ with `inexact`."
 msgstr "ループに到達する結果はどれも丸めのブレークポイントではないため、それ自体が表現可能な包含区間の端（たとえば $e^x$ に対する $1$ や、ごく小さな $x$ における $\\sin x$ に対する $x$）が結果になることはありません。`rootn` 以外の関数は、そのような端を丸める前に包含区間のすぐ内側へ移します。`pow` は、厳密性の判定によって丸めのブレークポイントが除外された時点でそうします。さらにループの前に、`sin`、`tan`、`asin`、`sinh`、`tanh`、`asinh`、`atanh` は、$|x|^3$ が $x$ における目標の間隔を下回る引数を $|f(x) - x| \\le |x|^3$ から直接決定し、`cos`、`cosh`、`expm1`、`log1p` は $x^2$ を用いて同じことを行います（`cos` と `cosh` では $1$ の周り、その他では $x$ の周り）。したがって、ごく小さな引数はどの丸めモードでも認証されます。53 ビットでの $2^{-6000}$ の `sin` は `inexact` を伴う $2^{-6000}$ であり、ゼロ方向に丸めた $e^{2^{-20000}}$ は `inexact` を伴う $1$ です。"
 
-#: manual/api/bin_float.md:1672
+#: manual/api/bin_float.md:1674
 msgid "The exponential $e^x$."
 msgstr "指数関数 $e^x$。"
 
-#: manual/api/bin_float.md:1680
+#: manual/api/bin_float.md:1682
 msgid "Defined on all of $\\mathbb{R}$: $e^{\\pm 0} = 1$ exactly, $e^{-\\infty} = +0$ and $e^{+\\infty} = +\\infty$. Results certainly beyond the exponent range are decided from certified bounds on $\\log_2 e$ before the main loop, so huge arguments overflow or underflow with the correct flags instead of failing."
 msgstr "$\\mathbb{R}$ 全体で定義されます。$e^{\\pm 0} = 1$（厳密）、$e^{-\\infty} = +0$、$e^{+\\infty} = +\\infty$ です。確実に指数範囲を超える結果はメインループの前に $\\log_2 e$ の認証付き上下界から判定されるため、非常に大きな引数は失敗せずに正しいフラグとともにオーバーフローまたはアンダーフローします。"
 
-#: manual/api/bin_float.md:1687
+#: manual/api/bin_float.md:1689
 msgid "$e^x - 1$ without the cancellation of `exp(x) - 1` near zero."
 msgstr "$e^x - 1$。ゼロ付近での `exp(x) - 1` の桁落ちを避けます。"
 
-#: manual/api/bin_float.md:1695
+#: manual/api/bin_float.md:1697
 msgid "$\\operatorname{expm1}(\\pm 0) = \\pm 0$, $\\operatorname{expm1}(-\\infty) = -1$ and $\\operatorname{expm1}(+\\infty) = +\\infty$. For $x \\le -(p+3)\\ln 2$ the value lies within $2^{-(p+3)}$ above $-1$, and the result is decided from the rounding direction alone: $-1$, or $-(1 - 2^{-p})$ when rounding toward zero or $+\\infty$, always inexact."
 msgstr "$\\operatorname{expm1}(\\pm 0) = \\pm 0$、$\\operatorname{expm1}(-\\infty) = -1$、$\\operatorname{expm1}(+\\infty) = +\\infty$ です。$x \\le -(p+3)\\ln 2$ では値は $-1$ の上 $2^{-(p+3)}$ 以内にあり、結果は丸めの方向だけから決まります。$-1$、またはゼロ方向や $+\\infty$ 方向への丸めでは $-(1 - 2^{-p})$ であり、常に不正確です。"
 
-#: manual/api/bin_float.md:1703
+#: manual/api/bin_float.md:1705
 msgid "$2^x - 1$ without the cancellation of `exp2(x) - 1` near zero."
 msgstr "$2^x - 1$。`exp2(x) - 1` が零付近で起こす桁落ちを避けます。"
 
-#: manual/api/bin_float.md:1711
+#: manual/api/bin_float.md:1713
 msgid "IEEE 754-2019 §9.2: $\\operatorname{exp2m1}(\\pm 0) = \\pm 0$, $\\operatorname{exp2m1}(-\\infty) = -1$ and $\\operatorname{exp2m1}(+\\infty) = +\\infty$, with no exception. An integral $x$ gives the exact integer $2^x - 1$ (or $-(1 - 2^{x})$ for $x < 0$), rounded as a dyadic: exact or a rounding tie while it has at most $p + 1$ bits, and otherwise the neighbour of $2^x$ chosen by the rounding direction without forming $2^x - 1$. For $x \\le -(p + 3)$ the value lies within $2^{-(p+3)}$ above $-1$ and the rounding direction alone decides (as for `expm1`). A result certainly beyond the exponent range is decided before the main loop, so $x$ near $e_{\\max} + 1$ overflows with the correct flags."
 msgstr "IEEE 754-2019 §9.2: $\\operatorname{exp2m1}(\\pm 0) = \\pm 0$、$\\operatorname{exp2m1}(-\\infty) = -1$、$\\operatorname{exp2m1}(+\\infty) = +\\infty$ で、いずれも例外はありません。整数の $x$ は厳密な整数 $2^x - 1$（$x < 0$ では $-(1 - 2^{x})$）を与え、二進有理数として丸められます。$p + 1$ ビット以下なら厳密か丸めの同点で、それより大きければ $2^x - 1$ を作らずに、丸め方向が $2^x$ の隣の値を選びます。$x \\le -(p + 3)$ では値は $-1$ の上 $2^{-(p+3)}$ 以内にあり、丸め方向だけで決まります（`expm1` と同じです）。指数範囲を確実に超える結果は主ループの前に決まるので、$e_{\\max} + 1$ に近い $x$ は正しいフラグ付きでオーバーフローします。"
 
-#: manual/api/bin_float.md:1723
+#: manual/api/bin_float.md:1725
 msgid "$10^x - 1$ without the cancellation of `exp10(x) - 1` near zero."
 msgstr "$10^x - 1$。`exp10(x) - 1` が零付近で起こす桁落ちを避けます。"
 
-#: manual/api/bin_float.md:1731
+#: manual/api/bin_float.md:1733
 msgid "IEEE 754-2019 §9.2: the special values of `exp2m1`. A positive integer $x \\le \\max(4096, p)$ gives the exact integer $10^x - 1$, rounded as a dyadic. Saturation towards $-1$ and the overflow decision follow `exp2m1`, with $\\log_2 10$ in place of 1."
 msgstr "IEEE 754-2019 §9.2: 特殊値は `exp2m1` と同じです。$\\max(4096, p)$ 以下の正の整数 $x$ は厳密な整数 $10^x - 1$ を与え、二進有理数として丸められます。$-1$ への飽和とオーバーフローの判定は `exp2m1` と同じで、1 の代わりに $\\log_2 10$ を使います。"
 
-#: manual/api/bin_float.md:1738
+#: manual/api/bin_float.md:1740
 msgid "The power of two $2^x$."
 msgstr "2 のべき $2^x$。"
 
-#: manual/api/bin_float.md:1746
+#: manual/api/bin_float.md:1748
 msgid "An integral $x$ with $|x| < 2^{31}$ gives the exact $2^x$, rounded into the context only when it leaves the exponent range. The other special values are those of `exp`."
 msgstr "$|x| < 2^{31}$ の整数 $x$ は厳密な $2^x$ を与え、指数範囲を外れる場合に限りコンテキストへ丸められます。その他の特殊値は `exp` と同じです。"
 
-#: manual/api/bin_float.md:1752
+#: manual/api/bin_float.md:1754
 msgid "The power of ten $10^x$."
 msgstr "10 のべき $10^x$。"
 
-#: manual/api/bin_float.md:1760
+#: manual/api/bin_float.md:1762
 msgid "An integral $x$ in $[0, \\max(4096, p)]$ gives the exact $10^x = 5^x 2^x$, rounded once. For a larger integral $x$ the odd part $5^x$ has more than $p + 1$ bits, so the result is neither representable nor a midpoint, and a negative integral $x$ gives a value that is never dyadic; both are always inexact. The other special values are those of `exp`."
 msgstr "$[0, \\max(4096, p)]$ の整数 $x$ は厳密な $10^x = 5^x 2^x$ を与え、一度だけ丸められます。それより大きい整数 $x$ では奇数部分 $5^x$ が $p + 1$ ビットを超えるため、結果は表現可能でも中点でもありません。また、負の整数 $x$ が与える値は決して 2 進有理数になりません。どちらも常に不正確です。その他の特殊値は `exp` と同じです。"
 
-#: manual/api/bin_float.md:1768
+#: manual/api/bin_float.md:1770
 msgid "The natural logarithm $\\ln x$."
 msgstr "自然対数 $\\ln x$。"
 
-#: manual/api/bin_float.md:1776
+#: manual/api/bin_float.md:1778
 msgid "The domain is $x > 0$. $\\ln 1 = +0$ exactly; $\\ln(\\pm 0) = -\\infty$ with `division_by_zero`; $\\ln(+\\infty) = +\\infty$. A negative finite argument is a `domain_error`, while $-\\infty$ gives a quiet NaN with `invalid_operation` also from `try_ln_ctx`."
 msgstr "定義域は $x > 0$ です。$\\ln 1 = +0$（厳密）、$\\ln(\\pm 0) = -\\infty$ で `division_by_zero` が立ち、$\\ln(+\\infty) = +\\infty$ です。負の有限な引数は `domain_error` ですが、$-\\infty$ は `try_ln_ctx` からも `invalid_operation` を伴う quiet NaN を与えます。"
 
-#: manual/api/bin_float.md:1783
+#: manual/api/bin_float.md:1785
 msgid "The two directed roundings of $e^x$ or $\\ln x$ in one call, for the interval types."
 msgstr "一回の呼び出しで $e^x$ または $\\ln x$ の二つの向き付き丸めを得る。区間型のためのものである。"
 
-#: manual/api/bin_float.md:1790
+#: manual/api/bin_float.md:1792
 msgid ""
 "`x.try_exp_directed_pair(p)` returns the values of `x.try_exp_ctx` at precision $p$ under `RoundTowardNegative` and under `RoundTowardPositive`, as `(low, high)`, and the error of the first of the two calls that fails; `try_ln_directed_pair` is the same for `try_ln_ctx`. For every operand the result is exactly what the two calls give. Where one certified enclosure can decide both roundings (a finite $x \\n"
 "e 0$ with an in-range result for `exp`, a finite positive $x \\n"
@@ -1528,302 +1528,302 @@ msgstr ""
 "e 0$ で結果が範囲内、`ln` では有限の正の $x \\n"
 "e 1$）、評価は二回でなく一回で済む。それ以外の被演算子は二回の呼び出し自身が答える。"
 
-#: manual/api/bin_float.md:1794
+#: manual/api/bin_float.md:1796
 msgid "$\\ln(1 + x)$ without the rounding of `1 + x`."
 msgstr "$\\ln(1 + x)$。`1 + x` の丸めを避けます。"
 
-#: manual/api/bin_float.md:1802
+#: manual/api/bin_float.md:1804
 msgid "The domain is $x > -1$. $\\operatorname{log1p}(\\pm 0) = \\pm 0$, $\\operatorname{log1p}(-1) = -\\infty$ with `division_by_zero`, a finite $x < -1$ is a `domain_error`, and $-\\infty$ gives a quiet NaN with `invalid_operation`."
 msgstr "定義域は $x > -1$ です。$\\operatorname{log1p}(\\pm 0) = \\pm 0$、$\\operatorname{log1p}(-1) = -\\infty$ で `division_by_zero` が立ち、有限な $x < -1$ は `domain_error`、$-\\infty$ は `invalid_operation` を伴う quiet NaN を与えます。"
 
-#: manual/api/bin_float.md:1809
+#: manual/api/bin_float.md:1811
 msgid "$\\log_2(1 + x)$ without the rounding of `1 + x`."
 msgstr "$\\log_2(1 + x)$。`1 + x` の丸めを経由しません。"
 
-#: manual/api/bin_float.md:1817
+#: manual/api/bin_float.md:1819
 msgid "The domain is $x \\ge -1$ (Table 9.1). $\\operatorname{log2p1}(\\pm 0) = \\pm 0$, $\\operatorname{log2p1}(+\\infty) = +\\infty$, $\\operatorname{log2p1}(-1) = -\\infty$ with `division_by_zero`, a finite $x < -1$ is a `domain_error`, and $-\\infty$ gives a quiet NaN with `invalid_operation`. $x = 2^k - 1$ (and $x = -(1 - 2^{-k})$) gives the exact integer $k$ (and $-k$)."
 msgstr "定義域は $x \\ge -1$ です（表 9.1）。$\\operatorname{log2p1}(\\pm 0) = \\pm 0$、$\\operatorname{log2p1}(+\\infty) = +\\infty$、$\\operatorname{log2p1}(-1) = -\\infty$ は `division_by_zero` を伴い、有限の $x < -1$ は `domain_error`、$-\\infty$ は `invalid_operation` を伴う静かな NaN になります。$x = 2^k - 1$（および $x = -(1 - 2^{-k})$）は厳密な整数 $k$（および $-k$）を与えます。"
 
-#: manual/api/bin_float.md:1825
+#: manual/api/bin_float.md:1827
 msgid "$\\log_{10}(1 + x)$ without the rounding of `1 + x`."
 msgstr "$\\log_{10}(1 + x)$。`1 + x` の丸めを経由しません。"
 
-#: manual/api/bin_float.md:1833
+#: manual/api/bin_float.md:1835
 msgid "The special values of `log2p1`. $x = 10^k - 1$ for an integer $k \\ge 1$ gives the exact integer $k$."
 msgstr "特殊値は `log2p1` と同じです。整数 $k \\ge 1$ について $x = 10^k - 1$ は厳密な整数 $k$ を与えます。"
 
-#: manual/api/bin_float.md:1838
+#: manual/api/bin_float.md:1840
 msgid "The binary logarithm $\\log_2 x$."
 msgstr "2 を底とする対数 $\\log_2 x$。"
 
-#: manual/api/bin_float.md:1846
+#: manual/api/bin_float.md:1848
 msgid "Special values and domain as for `ln`. A power of two $2^k$ gives the exact integer $k$, rounded into the context."
 msgstr "特殊値と定義域は `ln` と同じです。2 のべき $2^k$ は厳密な整数 $k$ を与え、コンテキストへ丸められます。"
 
-#: manual/api/bin_float.md:1851
+#: manual/api/bin_float.md:1853
 msgid "The decimal logarithm $\\log_{10} x$."
 msgstr "常用対数 $\\log_{10} x$。"
 
-#: manual/api/bin_float.md:1859
+#: manual/api/bin_float.md:1861
 msgid "Special values and domain as for `ln`. $x = 10^k$ with $k \\ge 1$ (stored as the coefficient $5^k$ and exponent $k$) gives the exact integer $k$, rounded into the context, at any precision that holds $10^k$."
 msgstr "特殊値と定義域は `ln` と同じです。$10^k$ を保持できる任意の精度で、$k \\ge 1$ の $x = 10^k$（係数 $5^k$ と指数 $k$ として格納されます）は厳密な整数 $k$ を与え、それがコンテキストへ丸められます。"
 
-#: manual/api/bin_float.md:1865
+#: manual/api/bin_float.md:1867
 msgid "The real power $x^y$."
 msgstr "実数のべき $x^y$。"
 
-#: manual/api/bin_float.md:1873
+#: manual/api/bin_float.md:1875
 msgid "The cases are tried in this order, as in IEEE 754-2019 §9.2.1:"
 msgstr "ケースは IEEE 754-2019 §9.2.1 と同様に、次の順に試されます。"
 
-#: manual/api/bin_float.md:1875
+#: manual/api/bin_float.md:1877
 msgid "$x^{\\pm 0} = 1$ for every $x$, and $1^y = 1$ for every $y$, NaN included (also a signaling NaN, without `invalid_operation`)."
 msgstr "すべての $x$ に対して $x^{\\pm 0} = 1$、すべての $y$ に対して $1^y = 1$ であり、NaN も含みます（signaling NaN でも `invalid_operation` は立ちません）。"
 
-#: manual/api/bin_float.md:1877
+#: manual/api/bin_float.md:1879
 msgid "An integral $y$ with $|y| < 2^{31}$ is `pown_ctx(x, y)`."
 msgstr "$|y| < 2^{31}$ の整数 $y$ は `pown_ctx(x, y)` です。"
 
-#: manual/api/bin_float.md:1878
+#: manual/api/bin_float.md:1880
 msgid "A NaN operand propagates."
 msgstr "NaN のオペランドは伝播します。"
 
-#: manual/api/bin_float.md:1879
+#: manual/api/bin_float.md:1881
 msgid "An infinite $y$: $(\\pm 1)^{\\pm\\infty} = 1$; otherwise the result is $+\\infty$ when $|x| > 1$ and $y = +\\infty$ or $|x| < 1$ and $y = -\\infty$, and $+0$ in the other two cases, $x = \\pm 0$ included ($(\\pm 0)^{-\\infty} = +\\infty$). No flag is raised."
 msgstr "無限大の $y$：$(\\pm 1)^{\\pm\\infty} = 1$ です。それ以外では、$|x| > 1$ かつ $y = +\\infty$、または $|x| < 1$ かつ $y = -\\infty$ のとき結果は $+\\infty$、残りの 2 つの場合は $+0$ で、$x = \\pm 0$ も含みます（$(\\pm 0)^{-\\infty} = +\\infty$）。フラグは立ちません。"
 
-#: manual/api/bin_float.md:1883
+#: manual/api/bin_float.md:1885
 msgid "An infinite $x$: $(\\pm\\infty)^{y < 0}$ is a zero and $(\\pm\\infty)^{y > 0}$ an infinity, negative only for $x = -\\infty$ and an odd integral $y$. No flag is raised."
 msgstr "無限大の $x$：$(\\pm\\infty)^{y < 0}$ はゼロ、$(\\pm\\infty)^{y > 0}$ は無限大で、$x = -\\infty$ かつ $y$ が奇数の整数のときに限り負になります。フラグは立ちません。"
 
-#: manual/api/bin_float.md:1886
+#: manual/api/bin_float.md:1888
 msgid "A zero $x$: $(\\pm 0)^{y < 0}$ is an infinity with `division_by_zero` and $(\\pm 0)^{y > 0}$ a zero, negative only for $x = -0$ and an odd integral $y$; so $(-0)^{3/4} = +0$."
 msgstr "ゼロの $x$：$(\\pm 0)^{y < 0}$ は `division_by_zero` を伴う無限大、$(\\pm 0)^{y > 0}$ はゼロで、$x = -0$ かつ $y$ が奇数の整数のときに限り負になります。したがって $(-0)^{3/4} = +0$ です。"
 
-#: manual/api/bin_float.md:1889
+#: manual/api/bin_float.md:1891
 msgid "A negative finite $x$ with a non-integral $y$ is a `domain_error`. With an integral $y$ (here $|y| \\ge 2^{31}$) the result is $|x|^y$ for an even $y$ and $-|x|^y$ for an odd one, computed with the directed rounding modes swapped."
 msgstr "負の有限の $x$ と整数でない $y$ の組は `domain_error` です。整数の $y$（ここでは $|y| \\ge 2^{31}$）では、結果は偶数の $y$ に対して $|x|^y$、奇数の $y$ に対して $-|x|^y$ であり、有向丸めのモードを入れ替えて計算されます。"
 
-#: manual/api/bin_float.md:1893
+#: manual/api/bin_float.md:1895
 msgid "$y = \\pm 2^{-k}$ with $1 \\le k \\le 29$ is `try_rootn_ctx(x, \\pm 2^k)`."
 msgstr "$1 \\le k \\le 29$ の $y = \\pm 2^{-k}$ は `try_rootn_ctx(x, \\pm 2^k)` です。"
 
-#: manual/api/bin_float.md:1894
+#: manual/api/bin_float.md:1896
 msgid "A result certainly outside the exponent range is decided from certified bounds on $\\log_2 x$."
 msgstr "確実に指数範囲外となる結果は、$\\log_2 x$ の認証付き限界から判定されます。"
 
-#: manual/api/bin_float.md:1896
+#: manual/api/bin_float.md:1898
 msgid "An exactly dyadic result is computed and rounded once. For $x = c \\cdot 2^e$ and $y = m / 2^k$ ($c$, $m$ odd, $1 \\le k \\le 30$) it exists exactly when $2^k$ divides $e$ and $c$ is a perfect $2^k$-th power $r$ (tested as for `rootn`, for coefficients of any size); then $x^y = r^m \\cdot 2^{me/2^k}$, which is dyadic for $m < 0$ only when $r = 1$. So $16^{3/4} = 8$ without `inexact`. A dyadic result whose odd part would need more than $2p + 64$ bits is not a rounding breakpoint and is left to the next step."
 msgstr "厳密に 2 進有理数となる結果は計算されて一度だけ丸められます。$x = c \\cdot 2^e$ と $y = m / 2^k$（$c$、$m$ は奇数、$1 \\le k \\le 30$）に対して、そのような結果が存在するのは、$2^k$ が $e$ を割り切り、かつ $c$ が完全 $2^k$ 乗 $r$ であるとき、かつそのときに限ります（`rootn` と同様に、任意の大きさの係数について検査します）。このとき $x^y = r^m \\cdot 2^{me/2^k}$ であり、$m < 0$ では $r = 1$ のときに限り 2 進有理数です。したがって $16^{3/4} = 8$ は `inexact` なしで得られます。奇数部分が $2p + 64$ ビットを超える 2 進有理数の結果は丸めのブレークポイントではないため、次のステップに委ねられます。"
 
-#: manual/api/bin_float.md:1904
+#: manual/api/bin_float.md:1906
 msgid "Otherwise the value is certified from enclosures of $e^{y \\ln x}$."
 msgstr "それ以外の場合は、$e^{y \\ln x}$ の包含区間から値を認証します。"
 
-#: manual/api/bin_float.md:1906
+#: manual/api/bin_float.md:1908
 msgid "Integrality and parity of $y$ are read from its odd coefficient: a finite nonzero $y$ is integral when `exponent2()` $\\ge 0$ and odd when it is $0$. When step 10 has shown that the result is not a rounding breakpoint, step 11 moves a representable enclosure end just inside before rounding, so an exponent so small that $x^y$ lies closer to $1$ than the target spacing is still certified: $2^{2^{-16000}}$ in `binary128()` is $1$ with `inexact`. A few results with a power-of-two base that step 10 cannot classify (an exponent of magnitude at least $2^{31}$, or a scale outside the 32-bit range) keep the plain test."
 msgstr "$y$ が整数かどうか、およびその偶奇は奇数の係数から読み取ります。有限で非ゼロの $y$ は `exponent2()` $\\ge 0$ のとき整数であり、それが $0$ のとき奇数です。ステップ 10 で結果が丸めのブレークポイントでないことが示された場合、ステップ 11 は丸める前に表現可能な包含区間の端をすぐ内側へ移すため、$x^y$ が目標の間隔よりも $1$ に近くなるほど小さい指数でも認証されます。`binary128()` での $2^{2^{-16000}}$ は `inexact` を伴う $1$ です。底が 2 のべきで、ステップ 10 が分類できない少数の結果（大きさが $2^{31}$ 以上の指数、または 32 ビットの範囲外のスケール）は通常の判定のままです。"
 
-#: manual/api/bin_float.md:1918
+#: manual/api/bin_float.md:1920
 msgid "The real $n$-th root $x^{1/n}$."
 msgstr "実数の $n$ 乗根 $x^{1/n}$。"
 
-#: manual/api/bin_float.md:1926
+#: manual/api/bin_float.md:1928
 msgid "$n = 0$ is a `domain_error`, an invalid operation, for every $x$, a quiet NaN and $\\pm 0$ included (IEEE 754-2019 Table 9.1, \"n = 0: invalid operation\"); it is not `division_by_zero`, which §7.3 keeps for an exact infinite result on finite operands, here $\\operatorname{rootn}(\\pm 0, n)$ with $n < 0$. `rootn_ctx` then returns a quiet NaN with `invalid`. Every other `Int` degree is supported, including `Int.min`; a NaN propagates. A negative $n$ gives $x^{-1/|n|}$."
 msgstr "$n = 0$ は `domain_error`、つまり無効操作であり、静かな NaN や $\\pm 0$ を含むすべての $x$ で成り立ちます（IEEE 754-2019 表 9.1「n = 0: invalid operation」）。これは `division_by_zero` ではありません。§7.3 はそれを有限オペランドに対する厳密な無限大の結果、ここでは $n < 0$ の $\\operatorname{rootn}(\\pm 0, n)$ のためにとってあります。このとき `rootn_ctx` は `invalid` を伴う静かな NaN を返します。そのほかの `Int` の次数はすべて、`Int.min` を含めて扱えます。NaN は伝播します。負の $n$ は $x^{-1/|n|}$ を与えます。"
 
-#: manual/api/bin_float.md:1929
+#: manual/api/bin_float.md:1931
 msgid "odd $n > 0$"
 msgstr "奇数の $n > 0$"
 
-#: manual/api/bin_float.md:1929
+#: manual/api/bin_float.md:1931
 msgid "even $n > 0$"
 msgstr "偶数の $n > 0$"
 
-#: manual/api/bin_float.md:1929
+#: manual/api/bin_float.md:1931
 msgid "odd $n < 0$"
 msgstr "奇数の $n < 0$"
 
-#: manual/api/bin_float.md:1929
+#: manual/api/bin_float.md:1931
 msgid "even $n < 0$"
 msgstr "偶数の $n < 0$"
 
-#: manual/api/bin_float.md:1935
+#: manual/api/bin_float.md:1937
 msgid "finite $x < 0$"
 msgstr "有限の $x < 0$"
 
-#: manual/api/bin_float.md:1937
+#: manual/api/bin_float.md:1939
 msgid "So $\\operatorname{rootn}(-8, 3) = -2$. $n = 1$ rounds $x$ into the context and $n = -1$ is the correctly rounded $1/x$. For any other degree an exact root is detected when $|n|$ divides the exponent of $x = c \\cdot 2^e$ and the odd coefficient $c$ (of any size) is a perfect $|n|$-th power $r$; the result is then $\\pm r \\cdot 2^{e/|n|}$ rounded once, or for $n < 0$ the correctly rounded reciprocal of it. So $\\operatorname{rootn}(8, -3) = 1/2$ without `inexact` in every rounding mode, and an exact square root of a 6001-bit coefficient is found as well."
 msgstr "したがって $\\operatorname{rootn}(-8, 3) = -2$ です。$n = 1$ は $x$ をコンテキストへ丸め、$n = -1$ は正しく丸められた $1/x$ です。それ以外の次数では、$|n|$ が $x = c \\cdot 2^e$ の指数を割り切り、奇数の係数 $c$（大きさは任意）が完全 $|n|$ 乗 $r$ であるとき、厳密な根が検出されます。このとき結果は一度だけ丸めた $\\pm r \\cdot 2^{e/|n|}$、$n < 0$ ではその正しく丸められた逆数です。したがって $\\operatorname{rootn}(8, -3) = 1/2$ はどの丸めモードでも `inexact` なしで得られ、6001 ビットの係数の厳密な平方根も同様に検出されます。"
 
-#: manual/api/bin_float.md:1948
+#: manual/api/bin_float.md:1950
 msgid "The reciprocal square root $1/\\sqrt{x}$ (`rSqrt` of IEEE 754-2019 §9.2)."
 msgstr "逆平方根 $1/\\sqrt{x}$（IEEE 754-2019 §9.2 の `rSqrt`）。"
 
-#: manual/api/bin_float.md:1956
+#: manual/api/bin_float.md:1958
 msgid "§9.2.1: $\\operatorname{rSqrt}(+\\infty) = +0$ with no exception and $\\operatorname{rSqrt}(\\pm 0) = \\pm\\infty$ with `division_by_zero`, so $\\operatorname{rSqrt}(-0) = -\\infty$ (MPFR's `mpfr_rec_sqrt` returns $+\\infty$ there by its own convention, and the oracle rows follow the standard). A negative finite $x$ and $-\\infty$ are a `domain_error` (Table 9.1, \"$x < 0$: invalid operation\"); a signaling NaN is invalid and a quiet NaN propagates. A positive finite $x$ is `rootn_ctx(x, -2)`: a power of four $4^k$ gives the exact $2^{-k}$ without `inexact`, and an exponent far outside the range is decided without forming the root."
 msgstr "§9.2.1: $\\operatorname{rSqrt}(+\\infty) = +0$ で例外はなく、$\\operatorname{rSqrt}(\\pm 0) = \\pm\\infty$ は `division_by_zero` を伴うので、$\\operatorname{rSqrt}(-0) = -\\infty$ です（MPFR の `mpfr_rec_sqrt` は独自の規約でここで $+\\infty$ を返し、オラクル行は標準に従います）。負の有限の $x$ と $-\\infty$ は `domain_error` です（表 9.1「$x < 0$: 無効演算」）。シグナリング NaN は無効で、静かな NaN は伝播します。正の有限の $x$ は `rootn_ctx(x, -2)` で、4 のべき $4^k$ は `inexact` なしで厳密な $2^{-k}$ を与え、指数が範囲を大きく外れる場合は平方根を作らずに判定します。"
 
-#: manual/api/bin_float.md:1968
+#: manual/api/bin_float.md:1970
 msgid "The compound factor $(1 + x)^n$ for an integer $n$, with the exact sum $1 + x$ (interest and growth rates, without the rounding of `1 + x`)."
 msgstr "整数 $n$ に対する複利係数 $(1 + x)^n$。正確な和 $1 + x$ を使います（利率や成長率向けで、`1 + x` の丸めを経由しません）。"
 
-#: manual/api/bin_float.md:1977
+#: manual/api/bin_float.md:1979
 msgid "The special values of §9.2.1 are decided first, a signaling NaN before any of them:"
 msgstr "まず §9.2.1 の特殊値を判定し、シグナリング NaN はそのどれよりも先に扱います。"
 
-#: manual/api/bin_float.md:1982
+#: manual/api/bin_float.md:1984
 msgid "quiet NaN"
 msgstr "静かな NaN"
 
-#: manual/api/bin_float.md:1983
+#: manual/api/bin_float.md:1985
 msgid "$-\\infty$, finite $x < -1$"
 msgstr "$-\\infty$、有限の $x < -1$"
 
-#: manual/api/bin_float.md:1988
+#: manual/api/bin_float.md:1990
 msgid "Otherwise $1 + x$ is formed exactly (for any operand up to $2^{26}$ bits) and the result is `pown_ctx(1 + x, n)`, so the exact cases, the range decision and the single rounding are those of `pown`. When $|n x|$ is below $2^{-(p + 9)}$ the result is the neighbour of $1$ (or $1$) that the rounding direction chooses, always inexact and never an underflow. A wider operand (beyond $2^{26}$ bits) is not representable in the context and is certified from $n \\cdot \\operatorname{log1p}(x)$."
 msgstr "それ以外では $1 + x$ を厳密に作り（オペランドが $2^{26}$ ビット以下の場合）、結果は `pown_ctx(1 + x, n)` です。したがって厳密なケース、範囲の判定、1 回の丸めは `pown` と同じです。$|n x|$ が $2^{-(p + 9)}$ 未満のときは、丸め方向が選ぶ $1$ の隣の値（または $1$）で、常に不正確になりアンダーフローはしません。それより広いオペランド（$2^{26}$ ビット超）はコンテキストで表現できず、$n \\cdot \\operatorname{log1p}(x)$ から認証します。"
 
-#: manual/api/bin_float.md:1998
+#: manual/api/bin_float.md:2000
 msgid "The real power $x^y$ defined as $\\exp(y \\ln x)$, so that the domain excludes a negative $x$ (`powr` of IEEE 754-2019 §9.2)."
 msgstr "実数のべき $x^y$ で、$\\exp(y \\ln x)$ として定義されるため、定義域に負の $x$ を含みません（IEEE 754-2019 §9.2 の `powr`）。"
 
-#: manual/api/bin_float.md:2007
+#: manual/api/bin_float.md:2009
 msgid "The cases are tried in this order, as in §9.2.1; every `domain_error` below is a quiet NaN with `invalid_operation` from `powr_ctx`:"
 msgstr "§9.2.1 と同じ順序で場合を判定します。以下の `domain_error` は、`powr_ctx` では `invalid_operation` を伴う静かな NaN になります。"
 
-#: manual/api/bin_float.md:2010
+#: manual/api/bin_float.md:2012
 msgid "A signaling NaN operand is invalid; a quiet NaN base gives a quiet NaN."
 msgstr "シグナリング NaN のオペランドは無効で、静かな NaN の底は静かな NaN を与えます。"
 
-#: manual/api/bin_float.md:2011
+#: manual/api/bin_float.md:2013
 msgid "A negative $x$ ($-\\infty$ included, a quiet NaN exponent too) is invalid: $\\operatorname{powr}(x, y)$ for $x < 0$ is never a real number."
 msgstr "負の $x$（$-\\infty$ を含み、指数が静かな NaN の場合も同じ）は無効です。$x < 0$ の $\\operatorname{powr}(x, y)$ は実数になりません。"
 
-#: manual/api/bin_float.md:2013
+#: manual/api/bin_float.md:2015
 msgid "A quiet NaN $y$ gives a quiet NaN."
 msgstr "静かな NaN の $y$ は静かな NaN を与えます。"
 
-#: manual/api/bin_float.md:2014
+#: manual/api/bin_float.md:2016
 msgid "$x = \\pm 0$: $y = \\pm 0$ is invalid; $y = -\\infty$ gives $+\\infty$ with no exception; a finite $y < 0$ gives $+\\infty$ with `division_by_zero`; $y > 0$ gives $+0$."
 msgstr "$x = \\pm 0$: $y = \\pm 0$ は無効、$y = -\\infty$ は例外なしで $+\\infty$、有限の $y < 0$ は `division_by_zero` を伴う $+\\infty$、$y > 0$ は $+0$ を与えます。"
 
-#: manual/api/bin_float.md:2017
+#: manual/api/bin_float.md:2019
 msgid "$x = +\\infty$: $y = \\pm 0$ is invalid; $y < 0$ gives $+0$; $y > 0$ gives $+\\infty$."
 msgstr "$x = +\\infty$: $y = \\pm 0$ は無効、$y < 0$ は $+0$、$y > 0$ は $+\\infty$ を与えます。"
 
-#: manual/api/bin_float.md:2019
+#: manual/api/bin_float.md:2021
 msgid "$x = +1$: $\\pm\\infty$ is invalid, any other $y$ gives $1$."
 msgstr "$x = +1$: $\\pm\\infty$ は無効で、それ以外の $y$ は $1$ を与えます。"
 
-#: manual/api/bin_float.md:2020
+#: manual/api/bin_float.md:2022
 msgid "$y = \\pm 0$ gives $1$."
 msgstr "$y = \\pm 0$ は $1$ を与えます。"
 
-#: manual/api/bin_float.md:2021
+#: manual/api/bin_float.md:2023
 msgid "Otherwise $x > 0$ and $y$ is finite and nonzero: `try_pow_ctx(x, y)`, which owns the exact dyadic cases, the range decision and the rounding."
 msgstr "それ以外では $x > 0$ かつ $y$ は有限で非零です。`try_pow_ctx(x, y)` が、厳密な二進有理数のケース、範囲の判定、丸めを担当します。"
 
-#: manual/api/bin_float.md:2024
+#: manual/api/bin_float.md:2026
 msgid "So $\\operatorname{powr}(\\pm 0, \\pm 0)$, $\\operatorname{powr}(+\\infty, \\pm 0)$ and $\\operatorname{powr}(1, \\pm\\infty)$ are invalid operations, where `pow` gives $1$ for the first two and for $1^{\\pm\\infty}$ (§9.2.1)."
 msgstr "したがって $\\operatorname{powr}(\\pm 0, \\pm 0)$、$\\operatorname{powr}(+\\infty, \\pm 0)$、$\\operatorname{powr}(1, \\pm\\infty)$ は無効演算ですが、`pow` は前の二つと $1^{\\pm\\infty}$ に $1$ を与えます（§9.2.1）。"
 
-#: manual/api/bin_float.md:2030
+#: manual/api/bin_float.md:2032
 msgid "$\\sqrt{x^2 + y^2}$ without intermediate overflow or underflow."
 msgstr "$\\sqrt{x^2 + y^2}$。途中でのオーバーフローやアンダーフローは起きません。"
 
-#: manual/api/bin_float.md:2038
+#: manual/api/bin_float.md:2040
 msgid "The squares are formed exactly and one correctly rounded square root is taken, so the result is $\\circ(\\sqrt{x^2+y^2})$ and exact when the root is. $\\operatorname{hypot}(\\pm\\infty, y) = +\\infty$ even when $y$ is a NaN (`invalid_operation` is raised only for a signaling NaN). When the smaller operand $b$ is too small to move $\\sqrt{a^2 + b^2}$ past the next rounding breakpoint above $|a|$, it is replaced by a power of two that rounds the same way: for $|a| = c \\cdot 2^e$ with leading bit $2^t$ and $g = \\min(e, t - p - 1)$, every $|b| < 2^{g - 3}$ becomes $2^{g - 3}$. The exact sum stays small however far apart the exponents are: $\\operatorname{hypot}(1, 2^{-600000})$ is $1$ with `inexact`. The exact sum is refused with a `certification_failure` only when its two squares would still be shifted against each other by more than $10^6$ bits, which needs an operand or target precision near $500\\,000$ bits."
 msgstr "2 つの平方は厳密に作られ、正しく丸められた平方根を 1 回だけ取るため、結果は $\\circ(\\sqrt{x^2+y^2})$ であり、根が厳密なら結果も厳密です。$y$ が NaN の場合でも $\\operatorname{hypot}(\\pm\\infty, y) = +\\infty$ です（`invalid_operation` は signaling NaN に対してのみ立ちます）。小さい方のオペランド $b$ が小さすぎて、$\\sqrt{a^2 + b^2}$ を $|a|$ の上にある次の丸めのブレークポイントの先へ動かせない場合、$b$ は同じように丸められる 2 のべきに置き換えられます。先頭ビットが $2^t$ である $|a| = c \\cdot 2^e$ と $g = \\min(e, t - p - 1)$ に対して、$|b| < 2^{g - 3}$ はすべて $2^{g - 3}$ になります。指数がどれほど離れていても厳密な和は小さいままです。$\\operatorname{hypot}(1, 2^{-600000})$ は `inexact` を伴う $1$ です。厳密な和が `certification_failure` で拒否されるのは、2 つの平方が互いになお $10^6$ ビットを超えてずれる場合に限られ、これにはオペランドまたは目標の精度が $500\\,000$ ビット近くになる必要があります。"
 
-#: manual/api/bin_float.md:2054
+#: manual/api/bin_float.md:2056
 msgid "The sine of an argument in radians."
 msgstr "ラジアン単位の引数の正弦。"
 
-#: manual/api/bin_float.md:2062
+#: manual/api/bin_float.md:2064
 msgid "$\\sin(\\pm 0) = \\pm 0$ exactly; an infinite argument is a `domain_error`. The argument is reduced by an enclosure of $\\pi/2$ computed at a working precision of at least $p + \\max(0, \\lfloor\\log_2|x|\\rfloor + 1) + 96$ bits, so the quadrant is certain for every finite input. When that starting precision exceeds $10^6$ bits, that is for $|x| \\ge 2^{10^6 - p - 96}$, the result is a `certification_failure` with stage `RangeReduction` and reason `ResourceLimit`, returned at once; no attempt goes beyond $10^6$ bits."
 msgstr "$\\sin(\\pm 0) = \\pm 0$（厳密）であり、無限大の引数は `domain_error` です。引数は少なくとも $p + \\max(0, \\lfloor\\log_2|x|\\rfloor + 1) + 96$ ビットの作業精度で計算した $\\pi/2$ の包含区間によって還元されるため、すべての有限な入力に対して象限は確実に定まります。この開始精度が $10^6$ ビットを超える場合、すなわち $|x| \\ge 2^{10^6 - p - 96}$ の場合、結果は段階 `RangeReduction`、理由 `ResourceLimit` の `certification_failure` となり、直ちに返されます。どの試行も $10^6$ ビットを超えることはありません。"
 
-#: manual/api/bin_float.md:2072
+#: manual/api/bin_float.md:2074
 msgid "The cosine of an argument in radians."
 msgstr "ラジアン単位の引数の余弦。"
 
-#: manual/api/bin_float.md:2080
+#: manual/api/bin_float.md:2082
 msgid "$\\cos(\\pm 0) = 1$ exactly. Reduction, domain and limits as for `sin`."
 msgstr "$\\cos(\\pm 0) = 1$（厳密）。還元、定義域、制限は `sin` と同じです。"
 
-#: manual/api/bin_float.md:2084
+#: manual/api/bin_float.md:2086
 msgid "The tangent of an argument in radians."
 msgstr "ラジアン単位の引数の正接。"
 
-#: manual/api/bin_float.md:2092
+#: manual/api/bin_float.md:2094
 msgid "$\\tan(\\pm 0) = \\pm 0$ exactly. Reduction, domain and limits as for `sin`. No binary argument is an odd multiple of $\\pi/2$, so there is no pole; an enclosure of the cosine that contains zero is refined like any other."
 msgstr "$\\tan(\\pm 0) = \\pm 0$（厳密）。還元、定義域、制限は `sin` と同じです。$\\pi/2$ の奇数倍となる二進の引数は存在しないため、極はありません。ゼロを含む余弦の包含区間も、他と同様に精密化されます。"
 
-#: manual/api/bin_float.md:2106
+#: manual/api/bin_float.md:2108
 msgid "The period is reduced exactly on the binary representation, so huge arguments cost nothing extra. For integral $n$, $\\operatorname{sinpi}(n)$ is $\\pm 0$ with the sign of $n$; at $n + \\frac12$ it is $\\pm 1$. An infinite argument is a `domain_error`. By Niven's theorem these are the only dyadic arguments with a dyadic result."
 msgstr "周期は二進表現上で厳密に還元されるため、非常に大きな引数でも追加のコストはかかりません。整数 $n$ に対して $\\operatorname{sinpi}(n)$ は $n$ の符号を持つ $\\pm 0$ であり、$n + \\frac12$ では $\\pm 1$ です。無限大の引数は `domain_error` です。Niven の定理により、2 進有理数の結果を与える 2 進有理数の引数はこれらだけです。"
 
-#: manual/api/bin_float.md:2122
+#: manual/api/bin_float.md:2124
 msgid "$\\operatorname{cospi}(n) = (-1)^n$ for integral $n$ and $\\operatorname{cospi}(n + \\frac12) = +0$. Reduction and domain as for `sinpi`."
 msgstr "整数 $n$ に対して $\\operatorname{cospi}(n) = (-1)^n$、$\\operatorname{cospi}(n + \\frac12) = +0$ です。還元と定義域は `sinpi` と同じです。"
 
-#: manual/api/bin_float.md:2136
+#: manual/api/bin_float.md:2138
 msgid "For integral $n$, $\\operatorname{tanpi}(n)$ is a zero with the sign of $\\operatorname{sinpi}(n) / \\operatorname{cospi}(n)$: $-0$ for positive odd and negative even $n$ (including $-0$), $+0$ otherwise, so `tanpi(1)` is $-0$ and `tanpi(-1)` is $+0$. $\\operatorname{tanpi}(n + \\frac12)$ is $+\\infty$ for even $n$ and $-\\infty$ for odd $n$, with `division_by_zero`; $\\operatorname{tanpi}(n \\pm \\frac14) = \\pm 1$ exactly. Reduction and domain as for `sinpi`."
 msgstr "整数 $n$ に対して、$\\operatorname{tanpi}(n)$ は $\\operatorname{sinpi}(n) / \\operatorname{cospi}(n)$ の符号を持つゼロです。正の奇数および負の偶数の $n$（$-0$ を含む）では $-0$、それ以外では $+0$ なので、`tanpi(1)` は $-0$、`tanpi(-1)` は $+0$ です。$\\operatorname{tanpi}(n + \\frac12)$ は偶数の $n$ では $+\\infty$、奇数の $n$ では $-\\infty$ で、`division_by_zero` が立ちます。$\\operatorname{tanpi}(n \\pm \\frac14) = \\pm 1$（厳密）です。還元と定義域は `sinpi` と同じです。"
 
-#: manual/api/bin_float.md:2146
+#: manual/api/bin_float.md:2148
 msgid "The arcsine, with values in $[-\\pi/2, \\pi/2]$."
 msgstr "逆正弦。値は $[-\\pi/2, \\pi/2]$ の範囲にあります。"
 
-#: manual/api/bin_float.md:2154
+#: manual/api/bin_float.md:2156
 msgid "The domain is $[-1, 1]$; a finite argument outside it and both infinities are a `domain_error`. $\\operatorname{asin}(\\pm 0) = \\pm 0$ and $\\operatorname{asin}(\\pm 1) = \\pm\\pi/2$ correctly rounded."
 msgstr "定義域は $[-1, 1]$ です。その外の有限な引数と両方の無限大は `domain_error` です。$\\operatorname{asin}(\\pm 0) = \\pm 0$、$\\operatorname{asin}(\\pm 1) = \\pm\\pi/2$（正しく丸められます）です。"
 
-#: manual/api/bin_float.md:2160
+#: manual/api/bin_float.md:2162
 msgid "The arccosine, with values in $[0, \\pi]$."
 msgstr "逆余弦。値は $[0, \\pi]$ の範囲にあります。"
 
-#: manual/api/bin_float.md:2168
+#: manual/api/bin_float.md:2170
 msgid "The domain is $[-1, 1]$; a finite argument outside it and both infinities are a `domain_error`, and a NaN propagates as for `asin`. On $[-1, 1]$ the result is $\\pi/2 - \\operatorname{asin}(x)$ evaluated as one enclosure; $\\operatorname{acos}(1) = +0$ exactly and $\\operatorname{acos}(-1) = \\pi$ correctly rounded."
 msgstr "定義域は $[-1, 1]$ です。その外の有限な引数と両方の無限大は `domain_error` であり、NaN は `asin` と同様に伝播します。$[-1, 1]$ 上では、結果は 1 つの包含区間として評価した $\\pi/2 - \\operatorname{asin}(x)$ です。$\\operatorname{acos}(1) = +0$（厳密）、$\\operatorname{acos}(-1) = \\pi$（正しく丸められます）です。"
 
-#: manual/api/bin_float.md:2176
+#: manual/api/bin_float.md:2178
 msgid "The arctangent, with values in $[-\\pi/2, \\pi/2]$."
 msgstr "逆正接。値は $[-\\pi/2, \\pi/2]$ の範囲にあります。"
 
-#: manual/api/bin_float.md:2184
+#: manual/api/bin_float.md:2186
 msgid "Defined on all of $\\mathbb{R}$: $\\operatorname{atan}(\\pm 0) = \\pm 0$ and $\\operatorname{atan}(\\pm\\infty) = \\pm\\pi/2$ correctly rounded."
 msgstr "$\\mathbb{R}$ 全体で定義されます。$\\operatorname{atan}(\\pm 0) = \\pm 0$、$\\operatorname{atan}(\\pm\\infty) = \\pm\\pi/2$（正しく丸められます）です。"
 
-#: manual/api/bin_float.md:2189
+#: manual/api/bin_float.md:2191
 msgid "The angle of the point $(x, y)$ for `y.atan2(x)`, in $[-\\pi, \\pi]$."
 msgstr "`y.atan2(x)` における点 $(x, y)$ の角度。値は $[-\\pi, \\pi]$ の範囲にあります。"
 
-#: manual/api/bin_float.md:2197
+#: manual/api/bin_float.md:2199
 msgid "The receiver is the ordinate $y$. The special cases follow IEEE 754-2019 §9.2.1; $x \\ge +0$ below means $+0$ or a positive $x$, $x \\le -0$ means $-0$ or a negative $x$, infinities included:"
 msgstr "レシーバは縦座標 $y$ です。特殊な場合は IEEE 754-2019 §9.2.1 に従います。以下で $x \\ge +0$ は $+0$ または正の $x$ を、$x \\le -0$ は $-0$ または負の $x$ を表し、いずれも無限大を含みます。"
 
-#: manual/api/bin_float.md:2201
-#: manual/api/bin_float.md:2285
+#: manual/api/bin_float.md:2203
+#: manual/api/bin_float.md:2287
 msgid "result"
 msgstr "結果"
 
-#: manual/api/bin_float.md:2203
+#: manual/api/bin_float.md:2205
 msgid "$\\pm 0$ (exact)"
 msgstr "$\\pm 0$（厳密）"
 
-#: manual/api/bin_float.md:2207
-#: manual/api/bin_float.md:2291
+#: manual/api/bin_float.md:2209
+#: manual/api/bin_float.md:2293
 msgid "finite"
 msgstr "有限"
 
-#: manual/api/bin_float.md:2208
-#: manual/api/bin_float.md:2209
 #: manual/api/bin_float.md:2210
-#: manual/api/bin_float.md:2292
-#: manual/api/bin_float.md:2293
+#: manual/api/bin_float.md:2211
+#: manual/api/bin_float.md:2212
 #: manual/api/bin_float.md:2294
+#: manual/api/bin_float.md:2295
+#: manual/api/bin_float.md:2296
 msgid ""
 "finite $y \\n"
 "e 0$"
@@ -1831,111 +1831,111 @@ msgstr ""
 "有限の $y \\n"
 "e 0$"
 
-#: manual/api/bin_float.md:2208
+#: manual/api/bin_float.md:2210
 msgid "$\\pm\\pi/2$ (sign of $y$)"
 msgstr "$\\pm\\pi/2$（符号は $y$ に従う）"
 
-#: manual/api/bin_float.md:2209
+#: manual/api/bin_float.md:2211
 msgid "$\\pm 0$ (sign of $y$, exact)"
 msgstr "$\\pm 0$（符号は $y$ に従う、厳密）"
 
-#: manual/api/bin_float.md:2210
+#: manual/api/bin_float.md:2212
 msgid "$\\pm\\pi$ (sign of $y$)"
 msgstr "$\\pm\\pi$（符号は $y$ に従う）"
 
-#: manual/api/bin_float.md:2212
+#: manual/api/bin_float.md:2214
 msgid "A NaN operand propagates. Multiples of $\\pi$ are correctly rounded and `inexact`. So $\\operatorname{atan2}(-0, -0) = -\\pi$ and $\\operatorname{atan2}(-0, +0) = -0$."
 msgstr "NaN のオペランドは伝播します。$\\pi$ の倍数は正しく丸められ、`inexact` になります。したがって $\\operatorname{atan2}(-0, -0) = -\\pi$、$\\operatorname{atan2}(-0, +0) = -0$ です。"
 
-#: manual/api/bin_float.md:2218
+#: manual/api/bin_float.md:2220
 msgid "$\\operatorname{asin}(x)/\\pi$, the angle in half-revolutions (`asinPi` of IEEE 754-2019 §9.2)."
 msgstr "$\\operatorname{asin}(x)/\\pi$。半回転を単位とする角度です（IEEE 754-2019 §9.2 の `asinPi`）。"
 
-#: manual/api/bin_float.md:2226
+#: manual/api/bin_float.md:2228
 msgid "The domain is $[-1, 1]$ (Table 9.1): $|x| > 1$ and $\\pm\\infty$ are a `domain_error` (a quiet NaN with `invalid_operation` from `asinpi_ctx`). $\\operatorname{asinPi}(\\pm 0) = \\pm 0$ with no exception, and $\\operatorname{asinPi}(\\pm 1) = \\pm 1/2$ exactly. $\\operatorname{asinPi}(\\pm 1/2) = \\pm 1/6$ is rational but not dyadic, so it is rounded and `inexact` like every other argument (by Niven's theorem these are the only rational values). For a tiny $x$ the result is $x/\\pi$ up to a relative error of order $x^2$ and is rounded from a certified enclosure whatever the exponent range, down to the implementation subnormal limit."
 msgstr "定義域は $[-1, 1]$ です（表 9.1）。$|x| > 1$ と $\\pm\\infty$ は `domain_error`（`asinpi_ctx` では `invalid_operation` を伴う静かな NaN）です。$\\operatorname{asinPi}(\\pm 0) = \\pm 0$ は例外なし、$\\operatorname{asinPi}(\\pm 1) = \\pm 1/2$ は厳密です。$\\operatorname{asinPi}(\\pm 1/2) = \\pm 1/6$ は有理数ですが二進有理数ではないので、他の引数と同様に丸められ `inexact` になります（Niven の定理により、有理数値はこれらだけです）。微小な $x$ の結果は相対誤差が $x^2$ 程度の $x/\\pi$ で、指数範囲にかかわらず、実装の非正規数の限界まで、認証された包絡から丸められます。"
 
-#: manual/api/bin_float.md:2246
+#: manual/api/bin_float.md:2248
 msgid "The domain is $[-1, 1]$ as for `asinpi`. $\\operatorname{acosPi}(1) = +0$, $\\operatorname{acosPi}(-1) = 1$ and $\\operatorname{acosPi}(\\pm 0) = 1/2$, exact and without exception (§9.2.1). For a tiny $|x|$ the result is $1/2 \\mp \\delta$ with $0 < \\delta < |x|/2$, so it clusters at the representable $1/2$: when $|x| < 2^{-(p + 4)}$ the rounding direction alone decides between $1/2$ and its neighbour on that side (below for $x > 0$, above for $x < 0$), before the main loop, and the result is always `inexact`."
 msgstr "定義域は `asinpi` と同じ $[-1, 1]$ です。$\\operatorname{acosPi}(1) = +0$、$\\operatorname{acosPi}(-1) = 1$、$\\operatorname{acosPi}(\\pm 0) = 1/2$ は、いずれも厳密で例外なしです（§9.2.1）。微小な $|x|$ では結果は $1/2 \\mp \\delta$（$0 < \\delta < |x|/2$）で、表現可能な $1/2$ に集まります。$|x| < 2^{-(p + 4)}$ のときは、主ループの前に、$1/2$ かその側の隣の値（$x > 0$ では下、$x < 0$ では上）かを丸め方向だけで決め、結果は常に `inexact` です。"
 
-#: manual/api/bin_float.md:2264
+#: manual/api/bin_float.md:2266
 msgid "Defined on all of $\\mathbb{R}$. $\\operatorname{atanPi}(\\pm 0) = \\pm 0$ with no exception, $\\operatorname{atanPi}(\\pm\\infty) = \\pm 1/2$ with no exception (§9.2.1) and $\\operatorname{atanPi}(\\pm 1) = \\pm 1/4$ exactly. For $|x| \\ge 2^{p + 8}$ the result is $\\pm(1/2 - \\delta)$ with $0 < \\delta < 2^{-t}$ for $2^t \\le |x|$, so the rounding direction alone decides between $\\pm 1/2$ and its neighbour inside, without forming a value that close to $1/2$. A tiny $x$ gives $x/\\pi$ rounded from a certified enclosure (underflow with the flags of §7.5 and §7.6)."
 msgstr "$\\mathbb{R}$ 全体で定義されます。$\\operatorname{atanPi}(\\pm 0) = \\pm 0$ は例外なし、$\\operatorname{atanPi}(\\pm\\infty) = \\pm 1/2$ も例外なし（§9.2.1）、$\\operatorname{atanPi}(\\pm 1) = \\pm 1/4$ は厳密です。$|x| \\ge 2^{p + 8}$ では結果は $\\pm(1/2 - \\delta)$（$2^t \\le |x|$ のとき $0 < \\delta < 2^{-t}$）で、$1/2$ にそこまで近い値を作らずに、$\\pm 1/2$ かその内側の隣の値かを丸め方向だけで決めます。微小な $x$ は $x/\\pi$ を与え、認証された包絡から丸められます（§7.5 と §7.6 のフラグでアンダーフロー）。"
 
-#: manual/api/bin_float.md:2274
+#: manual/api/bin_float.md:2276
 msgid "$\\operatorname{atan2}(y, x)/\\pi$ for `y.atan2pi(x)`, in $[-1, 1]$."
 msgstr "`y.atan2pi(x)` の $\\operatorname{atan2}(y, x)/\\pi$ で、範囲は $[-1, 1]$ です。"
 
-#: manual/api/bin_float.md:2282
+#: manual/api/bin_float.md:2284
 msgid "The receiver is the ordinate $y$. Every special case of §9.2.1 is an exact constant that signals no exception:"
 msgstr "レシーバーは縦座標 $y$ です。§9.2.1 の特殊なケースはすべて、例外を伴わない厳密な定数です。"
 
-#: manual/api/bin_float.md:2292
+#: manual/api/bin_float.md:2294
 msgid "$\\pm 1/2$ (sign of $y$)"
 msgstr "$\\pm 1/2$（$y$ の符号）"
 
-#: manual/api/bin_float.md:2293
+#: manual/api/bin_float.md:2295
 msgid "$\\pm 0$ (sign of $y$)"
 msgstr "$\\pm 0$（$y$ の符号）"
 
-#: manual/api/bin_float.md:2294
+#: manual/api/bin_float.md:2296
 msgid "$\\pm 1$ (sign of $y$)"
 msgstr "$\\pm 1$（$y$ の符号）"
 
-#: manual/api/bin_float.md:2296
+#: manual/api/bin_float.md:2298
 msgid "For finite nonzero operands $\\operatorname{atan2Pi}(y, x)$ is $\\operatorname{atan}(|y/x|)/\\pi$ for $x > 0$ and $1 - \\operatorname{atan}(|y/x|)/\\pi$ for $x < 0$, with the sign of $y$. $|y| = |x|$ gives the exact $\\pm 1/4$ or $\\pm 3/4$. With $D$ the difference of the leading-bit exponents of $y$ and $x$ (so $2^{D-1} < |y/x| < 2^{D+1}$), an extreme ratio is decided from the anchors before the main loop, from $|D| \\ge p + 8$: $D \\ge p + 8$ gives $1/2 - \\delta$ ($1/2 + \\delta$ for $x < 0$) with $0 < \\delta < 2^{-D}$, and $D \\le -(p + 8)$ with $x < 0$ gives $1 - \\delta$ with $0 < \\delta < 2^{D}$, each rounded by direction alone. With $x > 0$ and a tiny ratio the result is $\\approx t/\\pi$; when $D$ is below a quarter of the smallest subnormal ($D \\le e_{\\min} - p - 1$) it is the tiny nonzero result of the direction with `underflow` and `inexact`. The ratio $y/x$ itself is never formed outside the range where it is representable, so operands at the two ends of the exponent range are handled."
 msgstr "有限で非零のオペランドでは、$\\operatorname{atan2Pi}(y, x)$ は $x > 0$ で $\\operatorname{atan}(|y/x|)/\\pi$、$x < 0$ で $1 - \\operatorname{atan}(|y/x|)/\\pi$ で、符号は $y$ の符号です。$|y| = |x|$ は厳密な $\\pm 1/4$ または $\\pm 3/4$ を与えます。$D$ を $y$ と $x$ の最上位ビットの指数の差とすると（$2^{D-1} < |y/x| < 2^{D+1}$）、極端な比は主ループの前にアンカーから決まり、$|D| \\ge p + 8$ から適用されます。$D \\ge p + 8$ は $1/2 - \\delta$（$x < 0$ では $1/2 + \\delta$）、$0 < \\delta < 2^{-D}$、$x < 0$ で $D \\le -(p + 8)$ は $1 - \\delta$（$0 < \\delta < 2^{D}$）を与え、いずれも丸め方向だけで丸められます。$x > 0$ で比が小さいときの結果はおよそ $t/\\pi$ で、$D$ が最小の非正規数の 4 分の 1 を下回る（$D \\le e_{\\min} - p - 1$）ときは、方向が決める微小な非零の結果になり、`underflow` と `inexact` を伴います。比 $y/x$ 自体は、表現できない範囲では決して作られないので、指数範囲の両端にあるオペランドも扱えます。"
 
-#: manual/api/bin_float.md:2312
+#: manual/api/bin_float.md:2314
 msgid "The hyperbolic sine."
 msgstr "双曲線正弦。"
 
-#: manual/api/bin_float.md:2320
+#: manual/api/bin_float.md:2322
 msgid "$\\sinh(\\pm 0) = \\pm 0$ and $\\sinh(\\pm\\infty) = \\pm\\infty$. Certain overflow is decided before the loop from $|\\sinh x| \\ge e^{|x|}/4$."
 msgstr "$\\sinh(\\pm 0) = \\pm 0$、$\\sinh(\\pm\\infty) = \\pm\\infty$ です。確実なオーバーフローはループの前に $|\\sinh x| \\ge e^{|x|}/4$ から判定されます。"
 
-#: manual/api/bin_float.md:2325
+#: manual/api/bin_float.md:2327
 msgid "The hyperbolic cosine."
 msgstr "双曲線余弦。"
 
-#: manual/api/bin_float.md:2333
+#: manual/api/bin_float.md:2335
 msgid "$\\cosh(\\pm 0) = 1$ and $\\cosh(\\pm\\infty) = +\\infty$; certain overflow is decided as for `sinh`."
 msgstr "$\\cosh(\\pm 0) = 1$、$\\cosh(\\pm\\infty) = +\\infty$ です。確実なオーバーフローは `sinh` と同様に判定されます。"
 
-#: manual/api/bin_float.md:2338
+#: manual/api/bin_float.md:2340
 msgid "The hyperbolic tangent."
 msgstr "双曲線正接。"
 
-#: manual/api/bin_float.md:2346
+#: manual/api/bin_float.md:2348
 msgid "$\\tanh(\\pm 0) = \\pm 0$ and $\\tanh(\\pm\\infty) = \\pm 1$ exactly."
 msgstr "$\\tanh(\\pm 0) = \\pm 0$、$\\tanh(\\pm\\infty) = \\pm 1$（いずれも厳密）です。"
 
-#: manual/api/bin_float.md:2350
+#: manual/api/bin_float.md:2352
 msgid "The inverse hyperbolic sine."
 msgstr "逆双曲線正弦。"
 
-#: manual/api/bin_float.md:2358
+#: manual/api/bin_float.md:2360
 msgid "Defined on all of $\\mathbb{R}$; $\\operatorname{asinh}(\\pm 0) = \\pm 0$ and $\\operatorname{asinh}(\\pm\\infty) = \\pm\\infty$."
 msgstr "$\\mathbb{R}$ 全体で定義され、$\\operatorname{asinh}(\\pm 0) = \\pm 0$、$\\operatorname{asinh}(\\pm\\infty) = \\pm\\infty$ です。"
 
-#: manual/api/bin_float.md:2363
+#: manual/api/bin_float.md:2365
 msgid "The inverse hyperbolic cosine."
 msgstr "逆双曲線余弦。"
 
-#: manual/api/bin_float.md:2371
+#: manual/api/bin_float.md:2373
 msgid "The domain is $x \\ge 1$; any smaller argument, $-\\infty$ included, is a `domain_error`. $\\operatorname{acosh}(1) = +0$ and $\\operatorname{acosh}(+\\infty) = +\\infty$."
 msgstr "定義域は $x \\ge 1$ です。それより小さい引数（$-\\infty$ を含む）はすべて `domain_error` です。$\\operatorname{acosh}(1) = +0$、$\\operatorname{acosh}(+\\infty) = +\\infty$ です。"
 
-#: manual/api/bin_float.md:2377
+#: manual/api/bin_float.md:2379
 msgid "The inverse hyperbolic tangent."
 msgstr "逆双曲線正接。"
 
-#: manual/api/bin_float.md:2385
+#: manual/api/bin_float.md:2387
 msgid "The domain is $|x| \\le 1$; outside it, infinities included, the result is a `domain_error`. $\\operatorname{atanh}(\\pm 0) = \\pm 0$ and $\\operatorname{atanh}(\\pm 1) = \\pm\\infty$ with `division_by_zero`."
 msgstr "定義域は $|x| \\le 1$ です。その外（無限大を含む）では結果は `domain_error` です。$\\operatorname{atanh}(\\pm 0) = \\pm 0$、$\\operatorname{atanh}(\\pm 1) = \\pm\\infty$ で `division_by_zero` が立ちます。"
 
-#: manual/api/bin_float.md:2429
+#: manual/api/bin_float.md:2431
 #: manual/api/bin_float_checked.md:820
 #: manual/api/decimal.md:2146
 #: manual/api/decimal_gda.md:1458
@@ -1952,95 +1952,95 @@ msgstr "定義域は $|x| \\le 1$ です。その外（無限大を含む）で�
 msgid "Trait implementations"
 msgstr "トレイト実装"
 
-#: manual/api/bin_float.md:2433
+#: manual/api/bin_float.md:2435
 msgid "Structural equality, the derived `Eq`."
 msgstr "構造的な等価性、すなわち導出された `Eq` です。"
 
-#: manual/api/bin_float.md:2440
+#: manual/api/bin_float.md:2442
 msgid "See [`BinFloat`](#binfloat): this compares representations, not numbers, so `==` distinguishes $\\pm 0$ and precisions and identifies equal NaNs."
 msgstr "[`BinFloat`](#binfloat) を参照してください。これは数ではなく表現を比較するため、`==` は $\\pm 0$ と精度を区別し、等しい NaN 同士を同一とみなします。"
 
-#: manual/api/bin_float.md:2445
+#: manual/api/bin_float.md:2447
 msgid "The `Compare` methods behind `<`, `<=`, `>` and `>=`."
 msgstr "`<`、`<=`、`>`、`>=` の背後にある `Compare` メソッド。"
 
-#: manual/api/bin_float.md:2454
+#: manual/api/bin_float.md:2456
 msgid "They use [`compare`](#binfloatcompare), so NaN is greater than every number: `nan > x` is `true`. Use the [IEEE predicates](#binfloatcompare_quiet_equal-binfloatcompare_quiet_less-binfloatcompare_quiet_less_equal-binfloatcompare_quiet_unordered-binfloatcompare_signaling_equal-binfloatcompare_signaling_less-binfloatcompare_signaling_less_equal) when NaN must be unordered."
 msgstr "これらは [`compare`](#binfloatcompare) を使うため、NaN はすべての数より大きくなります。`nan > x` は `true` です。NaN を順序付けられないものとして扱う必要がある場合は、[IEEE の述語](#binfloatcompare_quiet_equal-binfloatcompare_quiet_less-binfloatcompare_quiet_less_equal-binfloatcompare_quiet_unordered-binfloatcompare_signaling_equal-binfloatcompare_signaling_less-binfloatcompare_signaling_less_equal)を使ってください。"
 
-#: manual/api/bin_float.md:2460
+#: manual/api/bin_float.md:2462
 msgid "The `Show` and `Debug` methods."
 msgstr "`Show` と `Debug` のメソッド。"
 
-#: manual/api/bin_float.md:2467
+#: manual/api/bin_float.md:2469
 msgid "`output` writes the exact `c p e` form of [`to_string`](#binfloatto_string). `to_repr` (used by `debug_inspect`) shows every private field."
 msgstr "`output` は [`to_string`](#binfloatto_string) の厳密な `c p e` 形式を書き出します。`to_repr`（`debug_inspect` が使用）はすべての非公開フィールドを表示します。"
 
-#: manual/api/bin_float.md:2472
+#: manual/api/bin_float.md:2474
 msgid "The shared floating-point vocabulary of `floating`."
 msgstr "`floating` で共有される浮動小数点の語彙です。"
 
-#: manual/api/bin_float.md:2478
+#: manual/api/bin_float.md:2480
 msgid "`classify`, `sign`, `precision`, `with_precision` and `normalized` are the inherent methods above. Generic code uses `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and `@def.is_zero`."
 msgstr "`classify`、`sign`、`precision`、`with_precision`、`normalized` は上記の固有メソッドです。汎用コードでは `@def.is_finite`、`@def.is_nan`、`@def.is_infinite`、`@def.is_zero` を使います。"
 
-#: manual/api/bin_float.md:2484
+#: manual/api/bin_float.md:2486
 msgid "`@lf_arith` traits whose methods return `Result`."
 msgstr "メソッドが `Result` を返す `@lf_arith` のトレイトです。"
 
-#: manual/api/bin_float.md:2497
+#: manual/api/bin_float.md:2499
 msgid "Each converts the `ArithmeticContext` with `BinaryContext::from_arithmetic_context` (an `Err` for `AwayFromZero`, a range that is not of the IEEE 754-2019 3.3 shape or a precision above `binary_precision_max`) and runs the contextual operation. The invalid flag becomes a `domain_error` and the division-by-zero flag a `division_by_zero` error; the other flags are dropped, so a NaN, an infinity, an overflow or an underflow is the IEEE 754-2019 default result in `Ok`, as for the `Double` instances of Luna-Flow/arithmetic. `sqrt_checked` is a `domain_error` for a negative nonzero argument (including $-\\infty$) and a signaling NaN; a quiet NaN of either sign is `Ok`. `DivChecked::div_checked` is a `domain_error` for $0/0$, $\\infty/\\infty$ and a signaling NaN operand, and a `division_by_zero` error for a finite non-zero dividend over a signed zero; NaN$/0$ and $\\infty/0$ are `Ok`. `pow_int_checked` is a `division_by_zero` error for a zero base with a negative exponent, and both powers are a `domain_error` for a signaling NaN base, zero exponent included. The trait's `div_checked(x, y, ctx)` takes a context; the inherent [`BinFloat::div_checked`](#binfloatdiv_checked) does not. `CompareChecked::compare_checked` is the inherent [`compare_checked`](#binfloatcompare_checked)."
 msgstr "それぞれ `BinaryContext::from_arithmetic_context`（`AwayFromZero`、IEEE 754-2019 3.3 の形でない範囲、または `binary_precision_max` を超える精度に対しては `Err`）で `ArithmeticContext` を変換し、contextual 演算を実行します。invalid フラグは `domain_error` に、ゼロ除算フラグは `division_by_zero` エラーになります。その他のフラグは破棄されるため、NaN、無限大、オーバーフロー、アンダーフローは Luna-Flow/arithmetic の `Double` インスタンスと同様に、IEEE 754-2019 のデフォルト結果として `Ok` に入ります。`sqrt_checked` は負の非ゼロの引数（$-\\infty$ を含む）と signaling NaN に対して `domain_error` であり、どちらの符号の quiet NaN も `Ok` です。`DivChecked::div_checked` は $0/0$、$\\infty/\\infty$、signaling NaN のオペランドに対して `domain_error`、有限な非ゼロの被除数を符号付きゼロで割る場合は `division_by_zero` エラーであり、NaN$/0$ と $\\infty/0$ は `Ok` です。`pow_int_checked` はゼロの底と負の指数に対して `division_by_zero` エラーであり、どちらの冪も signaling NaN の底に対しては（ゼロの指数を含め）`domain_error` です。トレイトの `div_checked(x, y, ctx)` はコンテキストを受け取りますが、固有メソッドの [`BinFloat::div_checked`](#binfloatdiv_checked) は受け取りません。`CompareChecked::compare_checked` は固有メソッドの [`compare_checked`](#binfloatcompare_checked) です。"
 
-#: manual/api/bin_float.md:2519
+#: manual/api/bin_float.md:2521
 msgid "`@lf_arith` traits that return an `ArithmeticOutcome` with diagnostics."
 msgstr "診断情報付きの `ArithmeticOutcome` を返す `@lf_arith` のトレイトです。"
 
-#: manual/api/bin_float.md:2538
-msgid "Each runs the matching `*_ctx` method (for `abs`, `abs` followed by `round_ctx`; for `exp`, `try_exp_ctx`) under the converted context. A result with `division_by_zero` becomes a `division_by_zero` error and one with `invalid_operation` a `domain_error`, one with `not_computed` a `certification_failure`; a certification failure of `exp` is returned as is. Otherwise the value is returned with `ArithmeticDiagnostics` whose `inexact` and `rounded` are the inexact flag and whose `overflow` and `underflow` are the matching flags."
-msgstr "それぞれ、変換されたコンテキストのもとで対応する `*_ctx` メソッド（`abs` では `abs` の後に `round_ctx`、`exp` では `try_exp_ctx`）を実行します。`division_by_zero` を伴う結果は `division_by_zero` エラーに、`invalid_operation` を伴う結果は `domain_error` に、`not_computed` を伴う結果は `certification_failure` になります。`exp` の認証失敗はそのまま返されます。それ以外の場合、値は `ArithmeticDiagnostics` とともに返され、その `inexact` と `rounded` は inexact フラグ、`overflow` と `underflow` は対応するフラグです。"
+#: manual/api/bin_float.md:2540
+msgid "Each runs the matching `*_ctx` method (for `abs`, `abs` followed by `apply_ctx`; for `exp`, `try_exp_ctx`) under the converted context. A result with `division_by_zero` becomes a `division_by_zero` error and one with `invalid_operation` a `domain_error`, one with `not_computed` a `certification_failure`; a certification failure of `exp` is returned as is. Otherwise the value is returned with `ArithmeticDiagnostics` whose `inexact` and `rounded` are the inexact flag and whose `overflow` and `underflow` are the matching flags."
+msgstr "それぞれ、変換されたコンテキストのもとで対応する `*_ctx` メソッド（`abs` では `abs` の後に `apply_ctx`、`exp` では `try_exp_ctx`）を実行します。`division_by_zero` を伴う結果は `division_by_zero` エラーに、`invalid_operation` を伴う結果は `domain_error` に、`not_computed` を伴う結果は `certification_failure` になります。`exp` の認証失敗はそのまま返されます。それ以外の場合、値は `ArithmeticDiagnostics` とともに返され、その `inexact` と `rounded` は inexact フラグ、`overflow` と `underflow` は対応するフラグです。"
 
-#: manual/api/bin_float.md:2548
+#: manual/api/bin_float.md:2550
 msgid "The `Compare` and `Eq` methods of `BinCoeff`, behind `<`, `<=`, `>`, `>=` and `!=`."
 msgstr "`<`、`<=`、`>`、`>=`、`!=` の背後にある、`BinCoeff` の `Compare` と `Eq` のメソッド。"
 
-#: manual/api/bin_float.md:2563
+#: manual/api/bin_float.md:2565
 msgid "They agree with [`BinCoeff::compare`](#bincoeffcompare-bincoeffequal)."
 msgstr "これらは [`BinCoeff::compare`](#bincoeffcompare-bincoeffequal) と一致します。"
 
-#: manual/api/bin_float.md:2567
+#: manual/api/bin_float.md:2569
 msgid "The `Show` and `Debug` methods of `BinCoeff`; `to_repr` is the integer value."
 msgstr "`BinCoeff` の `Show` と `Debug` のメソッドです。`to_repr` は整数値です。"
 
-#: manual/api/bin_float.md:2574
+#: manual/api/bin_float.md:2576
 msgid "`output` writes the decimal digits of [`to_string`](#bincoeffparse-bincoeffto_string-bincoeffto_radix_string)."
 msgstr "`output` は [`to_string`](#bincoeffparse-bincoeffto_string-bincoeffto_radix_string) の十進数字を書き出します。"
 
-#: manual/api/bin_float.md:2578
+#: manual/api/bin_float.md:2580
 msgid "The derived `Eq` and `Debug` methods of `BinaryRoundingMode`."
 msgstr "`BinaryRoundingMode` の導出された `Eq` と `Debug` のメソッド。"
 
-#: manual/api/bin_float.md:2588
+#: manual/api/bin_float.md:2590
 msgid "The derived `Eq` and `Debug` methods of `TininessDetection`."
 msgstr "`TininessDetection` の導出された `Eq` と `Debug` のメソッド。"
 
-#: manual/api/bin_float.md:2598
+#: manual/api/bin_float.md:2600
 msgid "The derived `Eq` and `Debug` methods of `BinaryContext`."
 msgstr "`BinaryContext` の導出された `Eq` と `Debug` のメソッド。"
 
-#: manual/api/bin_float.md:2606
+#: manual/api/bin_float.md:2608
 msgid "Equality compares the fields, so `BinaryContext::new(precision=53)` equals `BinaryContext::new(precision=53, e_max=binary_implementation_e_max)`: there is one representation of every context."
 msgstr "等値性はフィールドを比較するので、`BinaryContext::new(precision=53)` は `BinaryContext::new(precision=53, e_max=binary_implementation_e_max)` に等しくなります。すべてのコンテキストの表現は 1 つだけです。"
 
-#: manual/api/bin_float.md:2612
+#: manual/api/bin_float.md:2614
 msgid "The derived `Eq` and `Debug` methods of `BinaryFlags`."
 msgstr "`BinaryFlags` の導出された `Eq` と `Debug` のメソッド。"
 
-#: manual/api/bin_float.md:2622
+#: manual/api/bin_float.md:2624
 msgid "The derived `Eq` and `Debug` methods of `BinaryInterchangeFormat`."
 msgstr "`BinaryInterchangeFormat` の導出された `Eq` と `Debug` のメソッド。"
 
-#: manual/api/bin_float.md:2632
+#: manual/api/bin_float.md:2634
 msgid "The derived `Eq` of `BinaryInterchange`: format and bits must agree."
 msgstr "`BinaryInterchange` の導出された `Eq`。形式とビットが一致しなければなりません。"
 
@@ -12248,8 +12248,8 @@ msgid "Format conversion"
 msgstr "形式変換"
 
 #: manual/design/bin_float.md:601
-msgid "`convert_format` is `round_ctx` in the destination format's context, so the conversion inherits the one rounding step of the dyadic finalizer: a destination with at least the precision and range of the source is exact (the value needs at most $p_{\\text{source}} \\le p_{\\text{destination}}$ bits and its exponent is inside the wider range), and a narrower one rounds once, with the flags of clause 7. The only extra step is the payload of a NaN: `round_ctx` keeps the whole payload of a `BinFloat` only for a context of at least the same precision (a NaN of precision $p$ has $p - 2$ payload bits, so every operation and constructor that delivers a NaN at another precision truncates, 6.2.3), and a format holds $p - 2$ payload bits below the quiet bit, so the payload is masked to its low bits, which makes the result the value that decoding `to_interchange` returns and keeps the clause 6.2.3 round trip (narrower to wider to the same narrower format) exact. The independent oracle is Berkeley TestFloat: all twelve pairs among binary16, 32, 64 and 128 in the gate, five rounding directions and both tininess rules for the narrowing pairs; a widening pair does not round, so it is one task."
-msgstr "`convert_format` は変換先の形式の文脈での `round_ctx` なので、二進有理数の終結処理の唯一の丸めをそのまま引き継ぎます。変換先の精度と範囲が元の形式以上なら変換は正確で（値に必要なのは高々 $p_{\\text{source}} \\le p_{\\text{destination}}$ ビットで、指数はより広い範囲に入ります）、狭い形式なら 1 回だけ丸められ、第 7 条のフラグが付きます。追加の手順は NaN のペイロードだけです。`round_ctx` が `BinFloat` のペイロードをすべて保持するのは、文脈の精度が NaN 自身の精度以上の場合だけです（精度 $p$ の NaN は $p - 2$ ビットのペイロードを持つので、別の精度で NaN を返すすべての演算とコンストラクタは切り詰めます。6.2.3）。形式が quiet ビットの下に持てるペイロードは $p - 2$ ビットなので、ペイロードは下位ビットにマスクされます。これで結果は `to_interchange` をデコードして得られる値になり、第 6.2.3 条の往復（狭い形式から広い形式へ、そして同じ狭い形式へ）が正確に保たれます。独立したオラクルは Berkeley TestFloat で、ゲートでは binary16、32、64、128 の間の 12 組すべてを、狭める組では 5 つの丸め方向と両方の tininess 規則で実行します。広げる組は丸めないので 1 タスクです。"
+msgid "`convert_format` is `apply_ctx` in the destination format's context, so the conversion inherits the one rounding step of the dyadic finalizer: a destination with at least the precision and range of the source is exact (the value needs at most $p_{\\text{source}} \\le p_{\\text{destination}}$ bits and its exponent is inside the wider range), and a narrower one rounds once, with the flags of clause 7. The only extra step is the payload of a NaN: `apply_ctx` keeps the whole payload of a `BinFloat` only for a context of at least the same precision (a NaN of precision $p$ has $p - 2$ payload bits, so every operation and constructor that delivers a NaN at another precision truncates, 6.2.3), and a format holds $p - 2$ payload bits below the quiet bit, so the payload is masked to its low bits, which makes the result the value that decoding `to_interchange` returns and keeps the clause 6.2.3 round trip (narrower to wider to the same narrower format) exact. The independent oracle is Berkeley TestFloat: all twelve pairs among binary16, 32, 64 and 128 in the gate, five rounding directions and both tininess rules for the narrowing pairs; a widening pair does not round, so it is one task."
+msgstr "`convert_format` は変換先の形式の文脈での `apply_ctx` なので、二進有理数の終結処理の唯一の丸めをそのまま引き継ぎます。変換先の精度と範囲が元の形式以上なら変換は正確で（値に必要なのは高々 $p_{\\text{source}} \\le p_{\\text{destination}}$ ビットで、指数はより広い範囲に入ります）、狭い形式なら 1 回だけ丸められ、第 7 条のフラグが付きます。追加の手順は NaN のペイロードだけです。`apply_ctx` が `BinFloat` のペイロードをすべて保持するのは、文脈の精度が NaN 自身の精度以上の場合だけです（精度 $p$ の NaN は $p - 2$ ビットのペイロードを持つので、別の精度で NaN を返すすべての演算とコンストラクタは切り詰めます。6.2.3）。形式が quiet ビットの下に持てるペイロードは $p - 2$ ビットなので、ペイロードは下位ビットにマスクされます。これで結果は `to_interchange` をデコードして得られる値になり、第 6.2.3 条の往復（狭い形式から広い形式へ、そして同じ狭い形式へ）が正確に保たれます。独立したオラクルは Berkeley TestFloat で、ゲートでは binary16、32、64、128 の間の 12 組すべてを、狭める組では 5 つの丸め方向と両方の tininess 規則で実行します。広げる組は丸めないので 1 タスクです。"
 
 #: manual/design/bin_float.md:618
 msgid "Far-apart operands in addition"
@@ -13115,8 +13115,8 @@ msgid "**Canonical form.** Every finite value produced by the API has $c$ odd or
 msgstr "**正準形。** API が生成するすべての有限値は、$c$ が奇数または $c = 0, e = 0$ であり、$\\operatorname{bits}(c) \\le$ その精度を満たします。保存される指数が飽和することはありません（飽和する指数は、先にオーバーフローまたはアンダーフローとして分類されます）。"
 
 #: manual/design/bin_float.md:2112
-msgid "**Correct rounding.** For every arithmetic operation, conversion and elementary function and every context, the returned finite value equals $\\circ(r)$ for the exact real result $r$, with the range rules above. By (R1), $\\circ(r) = r$ and no flag is raised whenever $r \\in F$; `round_ctx` is idempotent."
-msgstr "**正しい丸め。** すべての算術演算、変換、初等関数、すべてのコンテキストについて、返される有限値は、上記の範囲規則のもとで厳密な実数の結果 $r$ に対する $\\circ(r)$ に等しくなります。(R1) により、$r \\in F$ のときは常に $\\circ(r) = r$ であり、フラグは発生しません。`round_ctx` は冪等です。"
+msgid "**Correct rounding.** For every arithmetic operation, conversion and elementary function and every context, the returned finite value equals $\\circ(r)$ for the exact real result $r$, with the range rules above. By (R1), $\\circ(r) = r$ and no flag is raised whenever $r \\in F$; `apply_ctx` is idempotent."
+msgstr "**正しい丸め。** すべての算術演算、変換、初等関数、すべてのコンテキストについて、返される有限値は、上記の範囲規則のもとで厳密な実数の結果 $r$ に対する $\\circ(r)$ に等しくなります。(R1) により、$r \\in F$ のときは常に $\\circ(r) = r$ であり、フラグは発生しません。`apply_ctx` は冪等です。"
 
 #: manual/design/bin_float.md:2117
 msgid ""
@@ -23934,8 +23934,8 @@ msgid "**`from_hex` needs the `p` exponent and reports no flags.** `0x1.8p0` and
 msgstr "**`from_hex` は `p` 指数が必要で、フラグを報告しません。** `0x1.8p0` と `0x3p-1` はどちらも $1.5$ ですが、`0x1.8` は拒否されます。不正確な変換は正確な変換と見分けがつきません。丸め方向やフラグが必要なときは `from_hex_ctx`（10 進文字列なら `from_string_ctx`）を使ってください。"
 
 #: manual/tutorial/bin_float.md:416
-msgid "**`with_precision` hides flags.** Use `round_ctx` when you need to know that narrowing was inexact or overflowed."
-msgstr "**`with_precision` はフラグを隠す。** 精度の縮小が inexact だったか、オーバーフローしたかを知る必要がある場合は `round_ctx` を使ってください。"
+msgid "**`with_precision` hides flags.** Use `apply_ctx` when you need to know that narrowing was inexact or overflowed."
+msgstr "**`with_precision` はフラグを隠す。** 精度の縮小が inexact だったか、オーバーフローしたかを知る必要がある場合は `apply_ctx` を使ってください。"
 
 #: manual/tutorial/bin_float.md:418
 msgid "**The sign of a zero is an input.** IEEE 754 special cases read it: `atan2` of $(-0, -1)$ is $-\\pi$ but of $(+0, -1)$ is $+\\pi$, `tanpi(1)` is $-0$, and $(-0)^{-1}$ is $-\\infty$. Keep zeros as they come; normalising $-0$ to $+0$ changes these results."

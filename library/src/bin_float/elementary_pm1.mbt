@@ -186,7 +186,7 @@ pub fn BinFloat::try_exp2m1_ctx(
           BinaryFlags::new(),
         ),
       )
-    FpClass::Finite if self.is_zero() => Ok(self.round_ctx(context))
+    FpClass::Finite if self.is_zero() => Ok(self.apply_ctx(context))
     FpClass::Finite => {
       match binary_exact_bounded_int(self) {
         Some(n) => return Ok(binary_pow2_minus_one_integer(n, context))
@@ -244,7 +244,7 @@ pub fn BinFloat::try_exp10m1_ctx(
           BinaryFlags::new(),
         ),
       )
-    FpClass::Finite if self.is_zero() => Ok(self.round_ctx(context))
+    FpClass::Finite if self.is_zero() => Ok(self.apply_ctx(context))
     FpClass::Finite => {
       // 10^n - 1 for a small integer n >= 1 is an exact integer, whose
       // rounding is exact or a tie; a larger power is left to the loop, as for
@@ -332,7 +332,7 @@ fn binary_try_log_base_p1(
         return Ok(binary_pole_result(true, context))
       }
       if value.is_zero() {
-        return Ok(value.round_ctx(context))
+        return Ok(value.apply_ctx(context))
       }
       match exact_exponent(value) {
         Some(k) => return Ok(binary_integer_result(k, context))
