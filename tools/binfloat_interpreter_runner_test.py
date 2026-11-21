@@ -184,7 +184,7 @@ class BinFloatInterpreterRunnerTests(unittest.TestCase):
     def test_decimal_string_mpfr_corpora_are_hash_pinned(self):
         manifest = RUNNER.load_json(RUNNER.DEFAULT_MANIFEST)
         expected = {
-            "mpfr-4.2.2-strtofr": 1434,
+            "mpfr-4.2.2-strtofr": 3699,
             "mpfr-4.2.2-decimal-output": 2688,
         }
         for name, cases in expected.items():
