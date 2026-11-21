@@ -132,14 +132,15 @@ fn bin_finish_words(
       for index in 0..<interior {
         words.unsafe_set(index, words.unsafe_get(skip + index))
       }
-    } else {
+    } else if interior > 0 {
+      // one load per limb: the source limb above is the next one's lower
+      // neighbour (a limb is read twice in the two-load form of the loop)
       let up = 64 - rest
+      let mut current = words.unsafe_get(skip)
       for index in 0..<interior {
-        words.unsafe_set(
-          index,
-          (words.unsafe_get(skip + index) >> rest) |
-          (words.unsafe_get(skip + index + 1) << up),
-        )
+        let next = words.unsafe_get(skip + index + 1)
+        words.unsafe_set(index, (current >> rest) | (next << up))
+        current = next
       }
     }
     for index in interior..<length {
@@ -160,8 +161,10 @@ fn bin_finish_words(
       )
     }
   }
-  for index in length..<count {
-    words.unsafe_set(index, 0UL)
+  if length < count {
+    for index in length..<count {
+      words.unsafe_set(index, 0UL)
+    }
   }
   if increment {
     words.unsafe_set(0, words.unsafe_get(0) | 1UL)
