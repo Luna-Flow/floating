@@ -83,6 +83,39 @@ fn load_documents(
 }
 
 ///|
+/// The kinds of verdict of the passing executable rows and their counts, in a fixed
+/// order: `text` (the to-scientific-string of the result against the result token),
+/// `hex` (an interchange pattern against the hexadecimal text of the encoding),
+/// `format-prefixed` (a result token that is a number in a named format, read by the
+/// library: the only kind that passes through its reader), `value-not-checked`
+/// (the corpus gives `?`: flags only).
+fn verdict_kinds(summary : @gda_expr.RunSummary) -> Array[(String, Int32)] {
+  let names = ["text", "hex", "format-prefixed", "value-not-checked"]
+  let counts : Array[Int32] = [0, 0, 0, 0]
+  for result in summary.results() {
+    if result.disposition() is @gda_expr.Executable && result.passed() {
+      for index in 0..<names.length() {
+        if result.message() == names[index] {
+          counts[index] = counts[index] + 1
+        }
+      }
+    }
+  }
+  [
+    for index in 0..<names.length() => (names[index], counts[index])
+  ]
+}
+
+///|
+fn verdict_kinds_json(summary : @gda_expr.RunSummary) -> Json {
+  let fields : Array[(String, Json)] = []
+  for kind in verdict_kinds(summary) {
+    fields.push((kind.0, @runner_cli.json_int(kind.1)))
+  }
+  @runner_cli.json_object(fields)
+}
+
+///|
 fn summary_json(summary : @gda_expr.RunSummary, options : CliOptions) -> String {
   let failed_ids : Array[String] = []
   for result in summary.results() {
@@ -105,6 +138,7 @@ fn summary_json(summary : @gda_expr.RunSummary, options : CliOptions) -> String 
           ("failedCases", @runner_cli.json_int(summary.failed_cases())),
           ("skippedCases", @runner_cli.json_int(summary.skipped_cases())),
           ("failedIds", @runner_cli.json_strings(failed_ids)),
+          ("verdictKinds", verdict_kinds_json(summary)),
           ("shardCount", @runner_cli.json_int(options.shard_count)),
           ("shardIndex", @runner_cli.json_int(options.shard_index)),
         ]),
@@ -122,6 +156,9 @@ fn print_text(summary : @gda_expr.RunSummary, options : CliOptions) -> Unit {
   println("passed cases: " + summary.passed_cases().to_string())
   println("failed cases: " + summary.failed_cases().to_string())
   println("skipped cases: " + summary.skipped_cases().to_string())
+  for kind in verdict_kinds(summary) {
+    println("verdict " + kind.0 + ": " + kind.1.to_string())
+  }
   println(
     "shard: " +
     options.shard_index.to_string() +

@@ -216,54 +216,7 @@ fn decode_decimal(
   token : String,
   context : GdaContext,
 ) -> @decimal_gda.Decimal? {
-  decode_decimal_literal(saturate_operand_exponent(token), context)
-}
-
-///|
-/// decTest converts an operand with "sufficient precision so that rounding
-/// of the operand is avoided" under the exponent limits of the directives
-/// (dtfile.html). With the reference implementation's maximum precision of
-/// 999,999,999 digits that gives an operand exponent range of about
-/// $\pm 2 \cdot 10^9$: `1e-1000000008` keeps its exponent (`quax854`),
-/// while `1e3000000000` overflows and `1e-12345678903` underflows, which a
-/// subset context turns into 0 (`qua531`). Saturating the written exponent
-/// at 2,000,000,000, beyond every test context's range, reproduces that
-/// range; the context-free conversion alone would round such a literal to
-/// the limits of `Int` instead.
-fn saturate_operand_exponent(token : String) -> String {
-  let normalized = normalize_token(token)
-  let mut marker = -1
-  for index in 0..<normalized.length() {
-    if normalized[index] == 'e' || normalized[index] == 'E' {
-      marker = index
-    }
-  }
-  guard marker > 0 && !normalized.has_prefix("#") else { return token }
-  let mut start = marker + 1
-  let negative = start < normalized.length() && normalized[start] == '-'
-  if start < normalized.length() &&
-    (normalized[start] == '-' || normalized[start] == '+') {
-    start += 1
-  }
-  for index in start..<normalized.length() {
-    guard normalized[index] >= '0' && normalized[index] <= '9' else {
-      return token
-    }
-  }
-  // Leading zeros do not change the exponent.
-  while start < normalized.length() - 1 && normalized[start] == '0' {
-    start += 1
-  }
-  guard normalized.length() - start > 10 ||
-    (
-      normalized.length() - start == 10 &&
-      normalized[start:].to_owned() > "2000000000"
-    ) else {
-    return token
-  }
-  normalized[:marker].to_owned() +
-  (if negative { "E-" } else { "E+" }) +
-  "2000000000"
+  decode_decimal_literal(token, context)
 }
 
 ///|
@@ -306,18 +259,28 @@ fn decode_decimal_literal(
       None => None
     }
   } else {
-    // GDA operations take their operands exactly, so read every digit: the
-    // token length bounds the number of significant digits.
-    match
-      @decimal_gda.Decimal::from_string(
-        normalized,
-        precision=Int32::max(
-          64,
-          Int32::max(context.precision(), normalized.length()),
-        ),
-      ) {
-      Ok(value) => Some(value)
-      Err(_) => None
+    // decTest (dtfile.html, "Processing of a test case line"): an operand is
+    // converted with the to-number conversion under a context of sufficient
+    // precision (the token length bounds the number of significant digits, so the
+    // operand is not rounded) and of the widest exponent range a GDA context can
+    // have (-999999999..999999999). No exponent field is rewritten: the library
+    // reads the text.
+    match resolve_context(context) {
+      Some(resolved) =>
+        Some(
+          @decimal_gda.to_number(
+            normalized,
+            @decimal_gda.GdaContext::new(
+              precision=Int32::max(1, normalized.length()),
+              rounding=@decimal_gda.GdaRoundingMode::HalfEven,
+              e_min=-999_999_999,
+              e_max=999_999_999,
+              clamp=false,
+              extended=resolved.gda.extended(),
+            ),
+          ).value(),
+        )
+      None => None
     }
   }
 }
@@ -970,7 +933,7 @@ fn invoke_decimal_operation(
 fn compare_evaluated(
   case : GdaCase,
   actual : EvaluatedValue,
-) -> Result[Unit, String] {
+) -> Result[String, String] {
   let expected = case.expected()
   let actual_flags = match actual.value {
     DecimalValue(value) if expected.has_prefix("32#") =>
@@ -1002,29 +965,41 @@ fn compare_evaluated(
       )
     _ => actual.flags
   }
-  if expected != "?" {
+  // The kind of verdict of a passing row, reported in the stage's summary: how the
+  // value was judged. A value is compared as text (the to-scientific-string of the
+  // result against the result token, GDA 1.70; no number is read from the result
+  // token) except for the kinds named below.
+  let mut kind = "text"
+  if expected == "?" {
+    // the corpus does not give the value of this row (subset rows): flags only
+    kind = "value-not-checked"
+  } else {
     let value_matches = match actual.value {
       DecimalValue(value) =>
         if expected.has_prefix("#") {
+          // an interchange pattern: the hexadecimal text of the encoding against
+          // the result token, as text
+          kind = "hex"
           match interchange_format(case.context()) {
             Some(format) =>
               @decimal_gda.GdaInterchange::from_decimal(value, format).0.to_hex() ==
               uppercase_ascii(expected)
             None => false
           }
-        } else {
+        } else if expected.has_prefix("32#") ||
+          expected.has_prefix("64#") ||
+          expected.has_prefix("128#") {
+          // a result token that is a number in a named format (its text is not a
+          // to-scientific-string, for example `64#0E10`): read by the library and
+          // compared as a number; the only rows whose verdict passes through the
+          // library's reader of a result token
+          kind = "format-prefixed"
           match decode_decimal(expected, case.context()) {
-            Some(target) =>
-              if expected.has_prefix("32#") ||
-                expected.has_prefix("64#") ||
-                expected.has_prefix("128#") {
-                value.compare(target) == 0
-              } else {
-                value.to_string() == expected ||
-                value.compare_total(target) == 0
-              }
+            Some(target) => value.compare(target) == 0
             None => false
           }
+        } else {
+          value.to_sci_string() == expected
         }
       IntValue(value) => value.to_string() == expected
       BoolValue(value) => {
@@ -1035,6 +1010,7 @@ fn compare_evaluated(
       }
       TextValue(value) =>
         if expected.has_prefix("#") {
+          kind = "hex"
           uppercase_ascii(value) == uppercase_ascii(expected)
         } else {
           value == expected
@@ -1042,7 +1018,7 @@ fn compare_evaluated(
     }
     guard value_matches else {
       let actual_text = match actual.value {
-        DecimalValue(value) => value.to_string()
+        DecimalValue(value) => value.to_sci_string()
         IntValue(value) => value.to_string()
         BoolValue(value) => value.to_string()
         TextValue(value) => value
@@ -1060,7 +1036,7 @@ fn compare_evaluated(
       decimal_flags_text(actual_flags),
     )
   }
-  Ok(())
+  Ok(kind)
 }
 
 ///|
@@ -1097,7 +1073,7 @@ fn execute_case(
   match result {
     Ok(actual) =>
       match compare_evaluated(case, actual) {
-        Ok(_) => case_result(case.id(), disposition, true)
+        Ok(kind) => case_result(case.id(), disposition, true, message=kind)
         Err(message) => case_result(case.id(), disposition, false, message~)
       }
     Err(_) =>
