@@ -15,5 +15,30 @@
       "sha256": "f74c6657ba2b934110ff4729c4394e5bd4c8848e7c82716f0f9016484a23a655",
       "expectedDecTestFiles": 32
     }
+  },
+  "seededFixtures": {
+    "libmpdec-random": {
+      "path": "testdata/decimal_gda/random/libmpdec-random.decTest",
+      "sha256": "df451a90bd6219f03a1145f837bfdc93caeab1d9ba1336ab4a6fa457ff396849",
+      "generator": "tools/generate_libmpdec_random.py",
+      "command": "python3 tools/random_differential.py fixtures",
+      "seed": 20261118,
+      "casesPerFamily": 50,
+      "libmpdec": "4.0.0",
+      "regenerate": true
+    },
+    "random-regressions": {
+      "path": "testdata/decimal_gda/random/random-regressions.decTest",
+      "sha256": "c80e100d1a17ff75f46d829fa74f9c5158c398b1d18f282393dc7da7ccb95039",
+      "generator": "tools/random_differential_minimize.py",
+      "command": "python3 tools/random_differential.py minimize",
+      "regenerate": false
+    },
+    "smoke": {
+      "path": "testdata/decimal_gda/smoke.decTest",
+      "sha256": "f9d907915e6435bb2aa5a2d8c6c1e9b4d8e367b8ed177c336dd26eec0b3f4f50",
+      "generator": "hand-written",
+      "regenerate": false
+    }
   }
 }
