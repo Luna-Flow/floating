@@ -10174,11 +10174,15 @@ msgid "§9.1, §10.5.3 forward-mode arithmetic and elementary functions"
 msgstr ""
 
 #: manual/conformance/interval.md:15
-msgid "ITF1788 phases: add/sub/mul/div 539, elementary core 107, exp/log 131, general power 1,428, trigonometric 176, `atan2` 375, hyperbolic 107, inverse trigonometric 61, FMA 567, integer power 174"
+msgid "`add`, `sub`, `mul`, `div`, `recip`, `sqr`, `sqrt`, `fma`, `pown`, `pow`, `rootn`, `exp`, `exp2`, `exp10`, `expm1`, `ln`, `log2`, `log10`, `log1p`, `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`, and the integer functions `sign`, `ceil`, `floor`, `trunc`, `round_ties_to_even`, `round_ties_to_away`"
 msgstr ""
 
 #: manual/conformance/interval.md:15
-msgid "partial: the integer functions of Table 9.1 are not provided ([#257](https://github.com/Luna-Flow/floating/issues/257)); tightness per operation is in [Accuracy of operations](#accuracy-of-operations)"
+msgid "ITF1788 phases: add/sub/mul/div 539, elementary core 107, exp/log 131, general power 1,428, trigonometric 176, `atan2` 375, hyperbolic 107, inverse trigonometric 61, FMA 567, integer power 174, integer functions 143 (ITF1788, an external corpus: level A); `library/src/interval/integer_functions_wbtest.mbt`: expected bounds and decorations written out from the definitions of Table 9.1 (footnotes h, i, j) and 11.2, not computed by the code (level A)"
+msgstr ""
+
+#: manual/conformance/interval.md:15
+msgid "conforming: the integer functions of Table 9.1 are provided ([#257](https://github.com/Luna-Flow/floating/issues/257)); tightness per operation is in [Accuracy of operations](#accuracy-of-operations)"
 msgstr ""
 
 #: manual/conformance/interval.md:16
@@ -28545,7 +28549,7 @@ msgid "§4.2.2 compressed decorated interval arithmetic [optional] (not implemen
 msgstr ""
 
 #: manual/verification.md:694
-msgid "§9.1, §10.5.3 forward-mode arithmetic and elementary functions [required] (partial)"
+msgid "§9.1, §10.5.3 forward-mode arithmetic and elementary functions [required]"
 msgstr ""
 
 #: manual/verification.md:695
