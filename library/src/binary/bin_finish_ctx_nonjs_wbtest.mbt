@@ -62,6 +62,10 @@ fn wf_partner(state : Ref[UInt64], a : Binary) -> Binary {
 }
 
 ///|
+// oracle: B
+// source: add_ctx_general (Coeff addition, then binary_round_dyadic), value, representation and flags, every rounding direction and both tininess rules, contexts of 1 to 62 bits: a different algorithm from the route under test. The general route is itself checked against exact arithmetic on the inputs this test draws from (precisions from 2 to 8192, all five directions, ties, carries between words, borrow, cancellation, far operands, exact quotients, perfect squares) by the tests "add, mul, div and sqrt are rounded once, exactly: rows from exact arithmetic" and "add, mul, div and sqrt without a context: the ties-to-even rows" of arith_rows_check_wbtest.mbt (rows of arith_rows_wbtest.mbt from tools/generate_arith_rows.py: Python fractions and math.isqrt, library-ran: no); the exponent-range edges of binary16, binary32 and binary64 are rows there for add, mul and div.
+// shares: Coeff arithmetic and binary_round_dyadic (the general route)
+// primitives: Coeff::add, Coeff::sub_checked, Coeff::mul, Coeff::shift_left, binary_round_dyadic, binary_round_rational, binary_round_sqrt: level A on the same operations and widths in arith_rows_wbtest.mbt and, up to 128 bits, in the TestFloat gate
 test "the word route of add_ctx and sub_ctx equals the general route" {
   let state = Ref(0x9e3779b97f4a7c15UL)
   let modes = [
@@ -118,6 +122,10 @@ test "the word route of add_ctx and sub_ctx equals the general route" {
 }
 
 ///|
+// oracle: B
+// source: add_ctx_general against the public add_ctx and sub_ctx (the public function dispatches to the word route and otherwise to add_ctx_general): a different algorithm from the route under test. The general route is itself checked against exact arithmetic on the inputs this test draws from (precisions from 2 to 8192, all five directions, ties, carries between words, borrow, cancellation, far operands, exact quotients, perfect squares) by the tests "add, mul, div and sqrt are rounded once, exactly: rows from exact arithmetic" and "add, mul, div and sqrt without a context: the ties-to-even rows" of arith_rows_check_wbtest.mbt (rows of arith_rows_wbtest.mbt from tools/generate_arith_rows.py: Python fractions and math.isqrt, library-ran: no); the exponent-range edges of binary16, binary32 and binary64 are rows there for add, mul and div.
+// shares: both routes call binary_inexact_flags for the flags of an exact result and the Binary constructors (finite_normalized, bin_repr_word) to build the value, which the differential does not check and the table does through the flags and the printed value; the rounding decision is written twice, in the word, pair or limb finish of the fast route and in binary_apply_round_bits behind binary_round_dyadic / binary_round_rational / binary_round_sqrt in the general route, so it is not shared; fast_test_same compares value, precision label, sign and exponent
+// primitives: Coeff::add, Coeff::sub_checked, Coeff::mul, Coeff::shift_left, binary_round_dyadic, binary_round_rational, binary_round_sqrt: level A on the same operations and widths in arith_rows_wbtest.mbt and, up to 128 bits, in the TestFloat gate
 test "add_ctx and sub_ctx are unchanged on the public path" {
   // through the public functions the word route and the general route agree
   let state = Ref(0x2545f4914f6cdd1dUL)
@@ -137,6 +145,10 @@ test "add_ctx and sub_ctx are unchanged on the public path" {
 }
 
 ///|
+// oracle: B
+// source: mul_ctx_general (Coeff product, then binary_round_dyadic), value, representation and flags, every direction and tininess rule: a different algorithm from the route under test. The general route is itself checked against exact arithmetic on the inputs this test draws from (precisions from 2 to 8192, all five directions, ties, carries between words, borrow, cancellation, far operands, exact quotients, perfect squares) by the tests "add, mul, div and sqrt are rounded once, exactly: rows from exact arithmetic" and "add, mul, div and sqrt without a context: the ties-to-even rows" of arith_rows_check_wbtest.mbt (rows of arith_rows_wbtest.mbt from tools/generate_arith_rows.py: Python fractions and math.isqrt, library-ran: no); the exponent-range edges of binary16, binary32 and binary64 are rows there for add, mul and div.
+// shares: both routes call binary_inexact_flags for the flags of an exact result and the Binary constructors (finite_normalized, bin_repr_word) to build the value, which the differential does not check and the table does through the flags and the printed value; the rounding decision is written twice, in the word, pair or limb finish of the fast route and in binary_apply_round_bits behind binary_round_dyadic / binary_round_rational / binary_round_sqrt in the general route, so it is not shared; fast_test_same compares value, precision label, sign and exponent
+// primitives: Coeff::add, Coeff::sub_checked, Coeff::mul, Coeff::shift_left, binary_round_dyadic, binary_round_rational, binary_round_sqrt: level A on the same operations and widths in arith_rows_wbtest.mbt and, up to 128 bits, in the TestFloat gate
 test "the word route of mul_ctx equals the general route" {
   let state = Ref(0x5851f42d4c957f2dUL)
   let modes = [
@@ -182,6 +194,10 @@ test "the word route of mul_ctx equals the general route" {
 }
 
 ///|
+// oracle: B
+// source: div_ctx_general (Coeff division, then binary_round_rational), value, representation and flags, every direction and tininess rule: a different algorithm from the route under test. The general route is itself checked against exact arithmetic on the inputs this test draws from (precisions from 2 to 8192, all five directions, ties, carries between words, borrow, cancellation, far operands, exact quotients, perfect squares) by the tests "add, mul, div and sqrt are rounded once, exactly: rows from exact arithmetic" and "add, mul, div and sqrt without a context: the ties-to-even rows" of arith_rows_check_wbtest.mbt (rows of arith_rows_wbtest.mbt from tools/generate_arith_rows.py: Python fractions and math.isqrt, library-ran: no); the exponent-range edges of binary16, binary32 and binary64 are rows there for add, mul and div.
+// shares: both routes call binary_inexact_flags for the flags of an exact result and the Binary constructors (finite_normalized, bin_repr_word) to build the value, which the differential does not check and the table does through the flags and the printed value; the rounding decision is written twice, in the word, pair or limb finish of the fast route and in binary_apply_round_bits behind binary_round_dyadic / binary_round_rational / binary_round_sqrt in the general route, so it is not shared; fast_test_same compares value, precision label, sign and exponent
+// primitives: Coeff::add, Coeff::sub_checked, Coeff::mul, Coeff::shift_left, binary_round_dyadic, binary_round_rational, binary_round_sqrt: level A on the same operations and widths in arith_rows_wbtest.mbt and, up to 128 bits, in the TestFloat gate
 test "the word route of div_ctx equals the general route" {
   let state = Ref(0x2545f4914f6cdd1dUL)
   let modes = [

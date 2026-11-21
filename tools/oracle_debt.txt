@@ -246,50 +246,10 @@ library/src/binary/atan_single_evaluation_wbtest.mbt::atan2 with exponents far a
 library/src/binary/atan_single_evaluation_wbtest.mbt::pi series enclosure contains pi and differs from the old one only by an ulp	E
 library/src/binary/bin_div_long_wbtest.mbt::div and div_ctx of full-width operands above the recursive-division threshold are correctly rounded	C
 library/src/binary/bin_div_long_wbtest.mbt::div_ctx of wide operands: rounding bits all zero, all one, exactly half, in five directions	C
-library/src/binary/bin_finish_ctx_nonjs_wbtest.mbt::add_ctx and sub_ctx are unchanged on the public path	B
-library/src/binary/bin_finish_ctx_nonjs_wbtest.mbt::the word route of add_ctx and sub_ctx equals the general route	B
-library/src/binary/bin_finish_ctx_nonjs_wbtest.mbt::the word route of div_ctx equals the general route	B
-library/src/binary/bin_finish_ctx_nonjs_wbtest.mbt::the word route of mul_ctx equals the general route	B
 library/src/binary/binary_compare_nonjs_wbtest.mbt::word compare with signs and zeros equals the general path	C
 library/src/binary/binary_compare_nonjs_wbtest.mbt::word comparison leaves a wider operand to the general path	A
 library/src/binary/binary_compare_nonjs_wbtest.mbt::word comparison of magnitudes equals the general path	B
 library/src/binary/binary_compare_nonjs_wbtest.mbt::word comparison: equal values, neighbours and the exponent differences around 64	B
-library/src/binary/binary_fast_coeff_add_wbtest.mbt::aligned add pass equals the previous path and add_ctx, 129 to 256 bits	C
-library/src/binary/binary_fast_coeff_add_wbtest.mbt::aligned add pass equals the previous path and add_ctx, 2048 bits	C
-library/src/binary/binary_fast_coeff_add_wbtest.mbt::aligned add pass equals the previous path and add_ctx, 512 and 1024 bits	C
-library/src/binary/binary_fast_coeff_add_wbtest.mbt::aligned add pass equals the previous path and add_ctx, 8192 bits	C
-library/src/binary/binary_fast_coeff_nonjs_wbtest.mbt::coefficient add equals the general path	C
-library/src/binary/binary_fast_coeff_nonjs_wbtest.mbt::coefficient add of near-equal and cancelling values	C
-library/src/binary/binary_fast_coeff_nonjs_wbtest.mbt::coefficient add of very wide operands equals the general path	B
-library/src/binary/binary_fast_coeff_nonjs_wbtest.mbt::coefficient div equals the general path	C
-library/src/binary/binary_fast_coeff_nonjs_wbtest.mbt::coefficient div equals the general path on exact quotients, neighbours and hard divisors	C
-library/src/binary/binary_fast_coeff_nonjs_wbtest.mbt::coefficient finish equals binary_round_dyadic	B
-library/src/binary/binary_fast_coeff_nonjs_wbtest.mbt::coefficient mul equals the general path	C
-library/src/binary/binary_fast_coeff_nonjs_wbtest.mbt::coefficient mul equals the general path on structured and random operands	C
-library/src/binary/binary_fast_coeff_nonjs_wbtest.mbt::coefficient paths decline what they do not cover	B
-library/src/binary/binary_fast_coeff_nonjs_wbtest.mbt::coefficient sqrt equals the general path	B
-library/src/binary/binary_fast_coeff_owned_wbtest.mbt::mul, div and sqrt round the kernel arrays in place without touching the operands	C
-library/src/binary/binary_fast_nonjs_wbtest.mbt::binary64 quotient and root at ties, exact results and powers of two	B
-library/src/binary/binary_fast_nonjs_wbtest.mbt::binary64 quotient and root equal the integer word path and the general path	C
-library/src/binary/binary_fast_nonjs_wbtest.mbt::one-word add equals the general path	C
-library/src/binary/binary_fast_nonjs_wbtest.mbt::one-word div equals the general path	C
-library/src/binary/binary_fast_nonjs_wbtest.mbt::one-word mul equals the general path	C
-library/src/binary/binary_fast_nonjs_wbtest.mbt::one-word paths decline what they do not cover	S
-library/src/binary/binary_fast_nonjs_wbtest.mbt::one-word paths handle ties, carries and cancellation	C
-library/src/binary/binary_fast_nonjs_wbtest.mbt::one-word sqrt equals the general path	C
-library/src/binary/binary_fast_nonjs_wbtest.mbt::one-word sqrt handles perfect squares, powers of two and odd exponents	C
-library/src/binary/binary_fast_nonjs_wbtest.mbt::sqrt_ctx on words equals the general path: edges and random, every direction and range	B
-library/src/binary/binary_fast_pair_nonjs_wbtest.mbt::pair add and mul at every alignment of all-ones operands	B
-library/src/binary/binary_fast_pair_nonjs_wbtest.mbt::pair add equals the general path	C
-library/src/binary/binary_fast_pair_nonjs_wbtest.mbt::pair add of near-equal and cancelling values	C
-library/src/binary/binary_fast_pair_nonjs_wbtest.mbt::pair add with the two-word alignment equals the previous pair add and the general path	C
-library/src/binary/binary_fast_pair_nonjs_wbtest.mbt::pair div at boundary operands: exact quotients, all ones, tiny divisors, estimates at the top digit	C
-library/src/binary/binary_fast_pair_nonjs_wbtest.mbt::pair div equals the general path	C
-library/src/binary/binary_fast_pair_nonjs_wbtest.mbt::pair mul equals the general path	C
-library/src/binary/binary_fast_pair_nonjs_wbtest.mbt::pair paths decline what they do not cover	A
-library/src/binary/binary_fast_pair_nonjs_wbtest.mbt::sub without a negated operand equals add of the negation and the general path	C
-library/src/binary/binary_finish_nonjs_wbtest.mbt::bin_finish_words equals binary_round_dyadic in every mode	B
-library/src/binary/binary_finish_nonjs_wbtest.mbt::binary_coeff_fast_finish equals the finish of 0.11	E
 library/src/binary/checked_special_values_wbtest.mbt::checked adapters return range exceptions in Ok	A
 library/src/binary/checked_special_values_wbtest.mbt::checked trait adapters follow the IEEE special-value table	A
 library/src/binary/checked_special_values_wbtest.mbt::inherent checked operations follow the IEEE special-value table	A
@@ -457,8 +417,6 @@ library/src/binary/exponent_range_wbtest.mbt::plain construction honours the rou
 library/src/binary/exponent_range_wbtest.mbt::plain operations overflow to infinity instead of saturating	A
 library/src/binary/exponent_range_wbtest.mbt::plain operations underflow to zero instead of saturating	A
 library/src/binary/exponent_range_wbtest.mbt::unbounded contexts report overflow and underflow at the range limits	A
-library/src/binary/fast_exponent_bound_nonjs_wbtest.mbt::mul and div at the edge of the fast window and just outside it agree	A
-library/src/binary/fast_exponent_bound_nonjs_wbtest.mbt::the fast path exponent window cannot wrap an Int32 (bound)	S
 library/src/binary/flags_not_computed_outcomes_wbtest.mbt::a certification failure is a NaN with not_computed and without invalid_operation	A
 library/src/binary/flags_not_computed_outcomes_wbtest.mbt::checked tier: not_computed is the certification failure, invalid_operation the domain error	A
 library/src/binary/flags_not_computed_outcomes_wbtest.mbt::exp: a forced failure, a domain-free ordinary case and an invalid operand	S
