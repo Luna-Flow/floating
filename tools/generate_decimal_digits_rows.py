@@ -35,6 +35,13 @@ TIE_WINDOW = 29
 
 Row = tuple[int, int, int, str]
 
+# `binary_ten_power_applied` splits a power of ten above this count
+# (`decimal_format_split_power` in decimal_format.mbt).
+SPLIT_POWER = 1 << 28
+THRESHOLD_COEFFICIENT = 3
+THRESHOLD_DIGITS = (7, 34)
+THRESHOLD_COUNTS = (SPLIT_POWER - 1, SPLIT_POWER, SPLIT_POWER + 1)
+
 
 def exponents_for(coefficient: int) -> list[int]:
     """The exponents probed for one coefficient: both ends of the range and some inside."""
@@ -43,6 +50,51 @@ def exponents_for(coefficient: int) -> list[int]:
     low_end = [IMPLEMENTATION_E_MIN + step for step in (0, 1, 100, 122)]
     high_end = [highest - step for step in (0, 1, 122, 1000)]
     return sorted(set(low_end + inside + high_end))
+
+
+def decimal_exponent(coefficient: int, exponent: int) -> int:
+    """The exponent of the first decimal digit of `coefficient * 2^exponent`."""
+    with localcontext() as context:
+        context.prec = GUARD_DIGITS
+        context.Emax = decimal.MAX_EMAX
+        context.Emin = decimal.MIN_EMIN
+        return (Decimal(coefficient) * (Decimal(2) ** exponent)).adjusted()
+
+
+def scale_of(coefficient: int, exponent: int, digits: int) -> int:
+    """The power of ten `binary_scaled_decimal_integer` is asked for: exponent - digits + 1."""
+    return decimal_exponent(coefficient, exponent) - digits + 1
+
+
+def exponent_for_scale(coefficient: int, digits: int, scale: int) -> int:
+    """A binary exponent whose value has `scale_of(...) == scale` at `digits` digits."""
+    wanted = scale + digits - 1
+    guess = round(wanted * 3.321928094887362)
+    for exponent in sorted(range(guess - 4, guess + 5), key=lambda e: abs(e - guess)):
+        if decimal_exponent(coefficient, exponent) == wanted:
+            return exponent
+    raise ValueError(f"no exponent for scale {scale} at {digits} digits")
+
+
+def threshold_rows() -> list[tuple[int, int, int]]:
+    """Rows whose |scale| is one below, at and one above the split threshold, both signs."""
+    rows: list[tuple[int, int, int]] = []
+    for count in THRESHOLD_COUNTS:
+        for scale in (count, -count):
+            for digits in THRESHOLD_DIGITS:
+                exponent = exponent_for_scale(THRESHOLD_COEFFICIENT, digits, scale)
+                rows.append((THRESHOLD_COEFFICIENT, exponent, digits))
+    return rows
+
+
+def sides_covered(rows: list[tuple[int, int, int]]) -> bool:
+    """Whether every sign of the scale has a row at or below the threshold and one above it."""
+    scales = [scale_of(c, e, d) for c, e, d in rows]
+    return all(
+        any(0 < sign * scale <= SPLIT_POWER for scale in scales)
+        and any(sign * scale > SPLIT_POWER for scale in scales)
+        for sign in (1, -1)
+    )
 
 
 def decimal_text(coefficient: int, exponent: int, digits: int) -> str:
@@ -69,12 +121,16 @@ def decimal_text(coefficient: int, exponent: int, digits: int) -> str:
 
 
 def build_rows() -> list[Row]:
-    return [
-        (coefficient, exponent, digits, decimal_text(coefficient, exponent, digits))
+    probes = [
+        (coefficient, exponent, digits)
         for coefficient in COEFFICIENTS
         for exponent in exponents_for(coefficient)
         for digits in DIGIT_COUNTS
     ]
+    edges = threshold_rows()
+    if not sides_covered(edges):
+        raise ValueError("the threshold rows do not cover both sides for both signs")
+    return [(c, e, d, decimal_text(c, e, d)) for c, e, d in probes + edges]
 
 
 def render_block(rows: list[Row], python_version: str, libmpdec_version: str) -> str:
