@@ -421,7 +421,32 @@ fn intervals_equal(
     left.upper_bound().compare(right.upper_bound()) == 0
   }
   intervals_match &&
+  bound_labels_hold(left) &&
   (!compare_decoration || actual.decoration() == expected.decoration())
+}
+
+///|
+/// The labels of the bounds of an interval that an executed statement produced
+/// (oracle level S, an invariant of the representation: the comment of
+/// `BallFloat`): a bound is labelled with the precision of the interval exactly when
+/// it is a number of that format (at most that many significant bits and on the grid
+/// of that precision, the band below the range floor included), the infinities and
+/// the zeros included; an exact end that is not such a number has another label.
+/// Written with the public accessors only.
+fn bound_labels_hold(x : @ball_float.BallFloat) -> Bool {
+  let p = x.precision()
+  for b in [x.lower_bound(), x.upper_bound()] {
+    let fits = b.is_infinite() ||
+      b.is_zero() ||
+      (
+        b.coefficient().bit_length() <= p &&
+        b.exponent2() >= @bin_float.binary_implementation_e_min - p + 1
+      )
+    if fits != (b.precision() == p) {
+      return false
+    }
+  }
+  true
 }
 
 ///|

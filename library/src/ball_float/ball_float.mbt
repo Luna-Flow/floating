@@ -1,4 +1,22 @@
 ///|
+/// An interval of `precision_` bits: the closed interval `[lo_, hi_]` of two
+/// `BinFloat`s, or the empty set.
+///
+/// Labels of the bounds. A stored bound is labelled `precision_` (its
+/// `precision()` is the precision of the interval) exactly when it is a number of
+/// the format of `precision_` bits (at most `precision_` significant bits and on
+/// the grid of `precision_` bits, the band below the range floor included),
+/// and so are the infinities and the zeros. The one exception is an exact end that
+/// is not such a number: an end with more than `precision_` bits (a `from_bounds`
+/// of wide ends, an end of `new` or of `cancel_minus` kept unrounded) or finer than
+/// the grid of `precision_` bits below the range floor keeps the label of its own
+/// bit count. `BinFloat`'s derived `==` compares labels, so `x.lower_bound() == y`
+/// is `true` for a bound and a value of the same number and the same precision; the
+/// `==` of `BallFloat` compares the bounds by value and `identical` compares the
+/// bounds by value and the precision of the interval: neither reads a label.
+/// The sign of a stored zero is unspecified: the accessors decide.
+/// `store_interval` and `empty_interval` are the only writers of the fields, and
+/// `store_interval` stamps the labels.
 #derive(Debug)
 pub struct BallFloat {
   priv lo_ : @bin_float.BinFloat
@@ -565,7 +583,54 @@ fn store_interval(
   precision : Int32,
 ) -> BallFloat {
   validate_interval(lo, hi)
-  { lo_: lo, hi_: hi, precision_: checked_precision(precision), empty_: false, }
+  let precision = checked_precision(precision)
+  {
+    lo_: stamped_bound(lo, precision),
+    hi_: stamped_bound(hi, precision),
+    precision_: precision,
+    empty_: false,
+  }
+}
+
+///|
+/// Whether the finite non-zero `x` is a number of the format of `precision` bits
+/// in the widest exponent range: at most `precision` significant bits, on the grid
+/// of `precision` bits (the band below the range floor included).
+fn bound_fits(x : @bin_float.BinFloat, precision : Int32) -> Bool {
+  x.coefficient().bit_length() <= precision &&
+  x.exponent2() >= @bin_float.binary_implementation_e_min - precision + 1
+}
+
+///|
+/// `x` with the label `precision` when it is a number of that format (so the value
+/// is not changed: the rounding is exact), the infinities and the zeros included;
+/// otherwise `x` itself, which keeps the label of its own bit count.
+fn stamped_bound(
+  x : @bin_float.BinFloat,
+  precision : Int32,
+) -> @bin_float.BinFloat {
+  if x.precision() == precision {
+    return x
+  }
+  match x.classify() {
+    FpClass::Infinity => @bin_float.BinFloat::inf(x.sign(), precision~)
+    FpClass::NaN => x
+    FpClass::Finite =>
+      if x.is_zero() {
+        if x.is_negative() {
+          @bin_float.BinFloat::negative_zero(precision~)
+        } else {
+          @bin_float.BinFloat::zero(precision~)
+        }
+      } else if bound_fits(x, precision) {
+        x.with_precision(
+          precision,
+          @bin_float.BinaryRoundingMode::RoundTiesToEven,
+        )
+      } else {
+        x
+      }
+  }
 }
 
 ///|

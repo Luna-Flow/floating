@@ -436,6 +436,18 @@ whatever sign of zero the interval was built from; `[0, 0]` has the representati
 $(-0, +0)$. An interval is a set: the sign of a stored zero is not part of it. The derived
 `Eq` of `BinFloat` distinguishes $-0$ from $+0$, so compare bounds with `compare`, not `==`.
 
+The label of an endpoint, `endpoint.precision()`, is the precision $p$ of the
+interval exactly when the endpoint is a number of the format of $p$ bits (at most
+$p$ significant bits and on the grid of $p$ bits, the band below the range floor
+included); the infinities and the zeros carry $p$ too. The one exception is an
+exact endpoint that is not such a number (an end of `new` or of `cancel_minus`
+kept unrounded with more than $p$ bits, or finer than the grid of $p$ bits below
+the range floor): it keeps the label of its own bit count. `BinFloat`'s `==`
+compares the label, so `x.lower_bound() == y` holds for a value `y` of the same
+number and the same precision; `BallFloat`'s own `==` and `identical` compare the
+endpoints by value and never read a label.
+The sign of a stored zero is not part of the interval: the accessors decide it, as the paragraph above says.
+
 ### `BallFloat::midpoint` and `BallFloat::radius`
 
 `midpoint` is `mid` and `radius` is `rad` of IEEE 1788-2015 12.12.8 (the names
