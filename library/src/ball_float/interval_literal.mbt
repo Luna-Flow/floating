@@ -390,23 +390,13 @@ fn lit_round(n : NumLit, up : Bool, precision : Int32) -> @bin_float.BinFloat {
       if digits == "0" {
         @bin_float.BinFloat::zero(precision~)
       } else {
-        // `from_hex_ctx` rejects a binary exponent beyond 10^12 in magnitude (the limit lies between 10^12 and 10^13) ("binary
-        // exponent out of range"), although the value is then far beyond the stored range;
-        // the significand has at most 4 bits per character of a string of at most
-        // `interval_literal_max_length` characters, so an exponent clamped to 2^39 gives the
-        // same class (above the range, or below the smallest stored value)
-        let clamped = if exponent > 549755813888L {
-          549755813888L
-        } else if exponent < -549755813888L {
-          -549755813888L
-        } else {
-          exponent
-        }
+        // `from_hex_ctx` reads an exponent field of any length (it saturates, issue 597), so the
+        // saturated exponent of the literal goes through as it is
         let text = (if negative { "-" } else { "" }) +
           "0x" +
           digits +
           "p" +
-          clamped.to_string()
+          exponent.to_string()
         match @bin_float.BinFloat::from_hex_ctx(text, context) {
           Ok((value, _)) => value
           Err(error) =>

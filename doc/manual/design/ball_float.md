@@ -902,7 +902,7 @@ the correctly rounded directed conversions of `BinFloat` (`from_string_ctx`, `fr
 and a rational is divided by integer division to a quotient of at least $p + 3$ bits with the sticky remainder (the same
 rule as the exact rational ends of `pow_rev1`). A literal whose exact value is beyond the stored range is therefore decided
 by those conversions from the exponent without forming the value, and `1e400000000` has the lower end the largest finite
-float and the upper end $+\infty$. `from_hex_ctx` rejects a binary exponent beyond $10^{12}$ in magnitude, although the value is then far beyond the stored range, so the exponent of a hexadecimal description is clamped to $\pm 2^{39}$ first (the significand has at most $4 \cdot 65{,}536$ bits, so the class, above the range or below the smallest stored value, is unchanged); `from_string_ctx` accepts every exponent. The invariants are checked: a failure of a converter or of the digit parser aborts instead of returning a bound.
+float and the upper end $+\infty$. Both converters accept an exponent field of any length (`from_hex_ctx` saturates it at $2^{60}$ like `from_string_ctx`; before issue 597 it rejected an exponent beyond $10^{12}$ and the parser clamped it). The invariants are checked: a failure of a converter or of the digit parser aborts instead of returning a bound.
 
 *The order $l \le u$.* It is decided from the exact values, so rounding never makes a nonempty literal Empty and an empty one nonempty: two
 decimal bounds are compared by the adjusted exponent and then the digit strings (trailing zeros removed, the shorter padded with
