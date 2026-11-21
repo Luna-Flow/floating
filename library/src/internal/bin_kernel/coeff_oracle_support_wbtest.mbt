@@ -118,3 +118,13 @@ fn oracle_residues(value : Coeff) -> Array[UInt64] {
     second,
   ]
 }
+
+///|
+/// A decimal integer with an optional leading minus sign.
+fn oracle_signed(text : String) -> Int32 {
+  if text.length() > 0 && text[0] == '-' {
+    -oracle_int(text[1:].to_owned())
+  } else {
+    oracle_int(text)
+  }
+}

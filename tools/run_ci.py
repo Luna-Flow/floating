@@ -67,15 +67,19 @@ KERNEL_PRODUCT_ROUTES_TEST = (
 )
 
 
-# The product oracle (tools/kernel_oracle.py, level A): the products and squares of the
-# kernel at the sizes where its routes switch, and the overlap-add rows, against
-# digests and residues computed by CPython. Its `#skip` tests run here in the three
-# states of the row implementation.
-KERNEL_PRODUCT_ORACLE_TEST = (
+# The kernel oracles (tools/kernel_oracle.py, level A): the products and squares of the
+# kernel at the sizes where its routes switch and the overlap-add rows, the short
+# product, the limb rows and the window row, against digests and residues computed by
+# CPython. Their tests are named `oracle: ...`; the slow ones are `#skip`, so this runs
+# them with `--include-skipped`, in the three states of the row implementation.
+KERNEL_ORACLE_TEST = (
     "sh",
     "tools/run_moon_clean_exec.sh",
     "test",
-    "library/src/internal/bin_kernel/coeff_product_oracle_wbtest.mbt",
+    "-p",
+    "Luna-Flow/floating/internal/bin_kernel",
+    "-F",
+    "oracle:*",
     "--include-skipped",
     "--target",
     "native",
@@ -271,7 +275,7 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                 (sys.executable, "tools/kernel_oracle.py", "--check", "--all"),
             ),
             *(
-                Stage(f"BINARY: kernel product oracle ({state})", (*prefix, *KERNEL_PRODUCT_ORACLE_TEST))
+                Stage(f"BINARY: kernel oracles ({state})", (*prefix, *KERNEL_ORACLE_TEST))
                 for state, prefix in (
                     ("default", ()),
                     ("C rows", ("env", "LUNA_FLOATING_LIMBS=c")),
