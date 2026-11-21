@@ -102,18 +102,19 @@ host `Double`, so a signaling `Float` NaN may arrive quiet (see
 
 ## Observation
 
-### `BinFloatResult::result`, `BinFloatResult::is_ok`, `BinFloatResult::is_err`
+### `BinFloatResult::result`, `BinFloatResult::error`, `BinFloatResult::is_ok`, `BinFloatResult::is_err`
 
-These methods expose the wrapped `Result` and test its branch.
+These methods expose the wrapped `Result`, its error, and test its branch. They are the exits of the pipeline types of the checked tiers: `DecimalChecked` and `GdaDecimalChecked` have the same four.
 
 ```mbti
 pub fn BinFloatResult::result(Self) -> Result[@bin_float.BinFloat, @arithmetic.ArithmeticError]
+pub fn BinFloatResult::error(Self) -> @arithmetic.ArithmeticError?
 pub fn BinFloatResult::is_ok(Self) -> Bool
 pub fn BinFloatResult::is_err(Self) -> Bool
 ```
 
-`is_err(r) == !is_ok(r)`. Call `result()` once, at the boundary where the
-error is handled.
+`is_err(r) == !is_ok(r)`, and `error(r)` is `Some(e)` exactly when `result(r)`
+is `Err(e)`. Call `result()` once, at the boundary where the error is handled.
 
 ## Composition
 
@@ -897,6 +898,7 @@ pub fn BinFloatResult::cospi_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::div(Self, Self) -> Self
 pub fn BinFloatResult::div_ctx(Self, Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::err(@arithmetic.ArithmeticError) -> Self
+pub fn BinFloatResult::error(Self) -> @arithmetic.ArithmeticError?
 pub fn BinFloatResult::exp(Self) -> Self
 pub fn BinFloatResult::exp10(Self) -> Self
 pub fn BinFloatResult::exp10_ctx(Self, @bin_float.BinaryContext) -> Self

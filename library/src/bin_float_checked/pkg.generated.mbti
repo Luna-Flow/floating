@@ -52,6 +52,7 @@ pub fn BinFloatResult::cospi_ctx(Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::div(Self, Self) -> Self
 pub fn BinFloatResult::div_ctx(Self, Self, @bin_float.BinaryContext) -> Self
 pub fn BinFloatResult::err(@arithmetic.ArithmeticError) -> Self
+pub fn BinFloatResult::error(Self) -> @arithmetic.ArithmeticError?
 pub fn BinFloatResult::exp(Self) -> Self
 pub fn BinFloatResult::exp10(Self) -> Self
 pub fn BinFloatResult::exp10_ctx(Self, @bin_float.BinaryContext) -> Self

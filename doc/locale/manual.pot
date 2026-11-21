@@ -244,7 +244,7 @@ msgstr ""
 #: manual/api/bench/external.md:80
 #: manual/api/bench/interval.md:43
 #: manual/api/bin_float.md:2626
-#: manual/api/bin_float_checked.md:840
+#: manual/api/bin_float_checked.md:841
 #: manual/api/cli.md:80
 #: manual/api/cli/dispatch.md:38
 #: manual/api/cli/gda_expr_cli.md:83
@@ -1004,7 +1004,7 @@ msgid "`combine` is a bitwise OR: associative, commutative and idempotent with `
 msgstr ""
 
 #: manual/api/bin_float.md:861
-#: manual/api/bin_float_checked.md:263
+#: manual/api/bin_float_checked.md:264
 msgid "Contextual arithmetic"
 msgstr ""
 
@@ -1407,7 +1407,7 @@ msgid "The two are the same operation: `apply_ctx` with the format's context, th
 msgstr ""
 
 #: manual/api/bin_float.md:1602
-#: manual/api/bin_float_checked.md:489
+#: manual/api/bin_float_checked.md:490
 #: manual/api/decimal.md:1466
 #: manual/api/frontend/mpfr_expr.md:156
 #: manual/api/interval.md:1263
@@ -1919,7 +1919,7 @@ msgid "The domain is $|x| \\le 1$; outside it, infinities included, the result i
 msgstr ""
 
 #: manual/api/bin_float.md:2416
-#: manual/api/bin_float_checked.md:820
+#: manual/api/bin_float_checked.md:821
 #: manual/api/decimal.md:2146
 #: manual/api/decimal_gda.md:1458
 #: manual/api/def.md:414
@@ -2111,384 +2111,384 @@ msgid "Observation"
 msgstr ""
 
 #: manual/api/bin_float_checked.md:107
-msgid "These methods expose the wrapped `Result` and test its branch."
+msgid "These methods expose the wrapped `Result`, its error, and test its branch. They are the exits of the pipeline types of the checked tiers: `DecimalChecked` and `GdaDecimalChecked` have the same four."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:115
-msgid "`is_err(r) == !is_ok(r)`. Call `result()` once, at the boundary where the error is handled."
+#: manual/api/bin_float_checked.md:116
+msgid "`is_err(r) == !is_ok(r)`, and `error(r)` is `Some(e)` exactly when `result(r)` is `Err(e)`. Call `result()` once, at the boundary where the error is handled."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:118
+#: manual/api/bin_float_checked.md:119
 #: manual/api/interval_checked.md:182
 msgid "Composition"
 msgstr ""
 
-#: manual/api/bin_float_checked.md:122
+#: manual/api/bin_float_checked.md:123
 msgid "`map(f)` applies an infallible function to a success and leaves an error unchanged."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:129
+#: manual/api/bin_float_checked.md:130
 msgid "$\\texttt{map}(\\texttt{Ok}(x), f) = \\texttt{Ok}(f(x))$ and $\\texttt{map}(\\texttt{Err}(e), f) = \\texttt{Err}(e)$; `f` is not called on an error. `map` can never turn a success into an error."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:135
+#: manual/api/bin_float_checked.md:136
 msgid "`bind(f)` applies a function that may itself fail."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:141
+#: manual/api/bin_float_checked.md:142
 msgid "$\\texttt{bind}(\\texttt{Ok}(x), f) = f(x)$ and $\\texttt{bind}(\\texttt{Err}(e), f) = \\texttt{Err}(e)$. With `ok` it satisfies the monad laws (left and right identity, associativity), derived in the [design page](../design/bin_float_checked.md#the-monad-laws)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:166
+#: manual/api/bin_float_checked.md:167
 #: manual/api/interval_checked.md:198
 msgid "Unary value maps"
 msgstr ""
 
-#: manual/api/bin_float_checked.md:170
+#: manual/api/bin_float_checked.md:171
 msgid "These methods are `map` of the `BinFloat` method of the same name; they never introduce an error."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:181
+#: manual/api/bin_float_checked.md:182
 msgid "`with_precision(p, mode)` rounds to $\\max(1,p)$ bits in direction `mode` with an unbounded exponent; `ulp` is the unit in the last place at the value's precision (NaN for non-finite values)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:185
+#: manual/api/bin_float_checked.md:186
 #: manual/api/interval.md:770
 #: manual/api/interval_checked.md:217
 msgid "Arithmetic"
 msgstr ""
 
-#: manual/api/bin_float_checked.md:189
+#: manual/api/bin_float_checked.md:190
 msgid "These methods combine two wrappers with the `BinFloat` operator."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:197
+#: manual/api/bin_float_checked.md:198
 msgid "If `self` is an error it is returned; otherwise if `other` is an error that error is returned; otherwise the result is `Ok(lhs op rhs)`. The `BinFloat` operators round to nearest-even at the larger of the two operand precisions and never fail: invalid cases such as $\\infty - \\infty$ produce a successful NaN."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:204
+#: manual/api/bin_float_checked.md:205
 msgid "`div` divides two wrappers and reports invalid divisions and division by zero."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:210
+#: manual/api/bin_float_checked.md:211
 msgid "After the operand errors (left first), the result is `DivChecked::div_checked` of `BinFloat` under the larger precision of the operands: a `DomainError` for $0/0$, $\\infty/\\infty$ or a signaling NaN operand, a `DivisionByZero` error for a finite non-zero dividend over a zero divisor ($\\pm 0$), and the IEEE 754-2019 result otherwise: a quiet NaN for a quiet NaN operand (NaN$/0$ included), $\\pm\\infty$ for $\\infty/0$, and the rounded quotient."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:219
+#: manual/api/bin_float_checked.md:220
 msgid "These methods take the smaller or larger operand with `BinFloat::min` / `BinFloat::max`, which ignore a NaN operand in favour of the other one and return the receiver when the operands compare equal (so `min(-0, +0)` is $-0$ and `min(+0, -0)` is $+0$)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:231
+#: manual/api/bin_float_checked.md:232
 msgid "`clamp(min~, max~)` restricts a value to an interval."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:237
+#: manual/api/bin_float_checked.md:238
 msgid "Errors are taken in the order `self`, `min`, `max`; then `BinFloat::clamp_checked` returns a `DomainError` when a bound is NaN or when `min > max`, and the clamped value otherwise."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:267
+#: manual/api/bin_float_checked.md:268
 msgid "These methods apply the `BinFloat::*_ctx` operation under an explicit `BinaryContext` and keep only its value."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:277
+#: manual/api/bin_float_checked.md:278
 msgid "The result has the context's precision, rounding direction and exponent range, with IEEE overflow, underflow and subnormal handling. The flags of the step are mapped as in `add`, `div` and the elementary methods: invalid operation is a `DomainError` and divideByZero a `DivisionByZero`; overflow, underflow and inexact are dropped. So `div_ctx` by a zero divisor is `DivisionByZero`, and $0/0$, $\\infty/\\infty$, $\\infty - \\infty$ and $0 \\cdot \\infty$ are `DomainError`, exactly as without a context; a quiet NaN operand is still a successful NaN. The full table is in the [design page](../design/bin_float_checked.md). Use `BinFloat::div_ctx` and its siblings when the raw default result and the flags matter."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:302
+#: manual/api/bin_float_checked.md:303
 msgid "Powers and roots"
 msgstr ""
 
-#: manual/api/bin_float_checked.md:306
+#: manual/api/bin_float_checked.md:307
 msgid "`sqrt` takes the square root at the operand's precision; `sqrt_ctx` under a context."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:314
+#: manual/api/bin_float_checked.md:315
 msgid "`sqrt` is `BinFloat::sqrt`, which returns a `DomainError` for a negative non-zero argument, including $-\\infty$, and for a signaling NaN; $\\sqrt{-0} = -0$ and a quiet NaN of either sign gives a successful NaN. `sqrt_ctx` does the same under a context: a negative argument is a `DomainError`."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:321
+#: manual/api/bin_float_checked.md:322
 msgid "These methods raise a value to an integer power."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:329
+#: manual/api/bin_float_checked.md:330
 msgid "`pow_nat(n)` calls the Luna-Flow/arithmetic trait method `PowNatChecked::pow_nat_checked` with `ArithmeticContext::new(x.precision())`, which `bin_float` maps to the binary context of that precision (`BinaryContext::new(precision=p)`) with nearest-even rounding. `pown` returns a `DivisionByZero` error for a zero base with a negative exponent, a `DomainError` for a signaling NaN base, zero exponent included (as does `pow_nat`), and the rounded power otherwise, at the operand's precision. The `_ctx` forms map the flags the same way: a `DivisionByZero` error for a zero base with a negative exponent and a `DomainError` for a signaling NaN base."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:340
+#: manual/api/bin_float_checked.md:341
 msgid "`rootn(n)` computes the real $n$-th root with `BinFloat::try_rootn_ctx`."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:347
+#: manual/api/bin_float_checked.md:348
 msgid "`rootn` uses an unbounded context at the operand's precision; `rootn_ctx` the given context. Both report a `DomainError` for degree $0$ (for every operand, a quiet NaN and $\\pm 0$ included, and never `DivisionByZero`: IEEE 754-2019 Table 9.1, \"n = 0: invalid operation\"), for an even root of a negative number ($-\\infty$ included) and for a signaling NaN, a `DivisionByZero` error for $\\operatorname{rootn}(\\pm 0, n)$ with $n < 0$ (IEEE 754-2019 §9.2.1), and can report a `CertificationFailure`. Odd roots of negative numbers are negative: `rootn(-8, 3)` is $-2$. The full table of special values is in [`BinFloat::rootn`](bin_float.md#binfloatrootn-binfloatrootn_ctx-binfloattry_rootn_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:357
+#: manual/api/bin_float_checked.md:358
 msgid "`pow(y)` computes $x^{y}$ for a binary exponent with `BinFloat::try_pow_ctx`."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:364
+#: manual/api/bin_float_checked.md:365
 msgid "`pow` uses an unbounded context at the larger operand precision. Errors of the operands come first (base, then exponent); the operation itself reports a `DomainError` for a negative finite base with a non-integer exponent (for example $(-2)^{0.5}$) and for a signaling NaN operand, a `DivisionByZero` error for a zero base with a finite negative exponent ($(\\pm 0)^{-1.5}$, IEEE 754-2019 §9.2.1), and can report a `CertificationFailure`. A base of $-0$, a negative base with an integral exponent of any size and an infinite exponent all give the IEEE 754 values listed in [`BinFloat::pow`](bin_float.md#binfloatpow-binfloatpow_ctx-binfloattry_pow_ctx), for example $(-1)^{\\infty} = 1$ and $(-0)^{0.75} = +0$."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:377
+#: manual/api/bin_float_checked.md:378
 msgid "$1/\\sqrt{x}$, delegated to [`BinFloat::try_rsqrt_ctx`](bin_float.md#binfloatrsqrt-binfloatrsqrt_ctx-binfloattry_rsqrt_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:384
+#: manual/api/bin_float_checked.md:385
 msgid "Errors: a `DomainError` for a negative operand ($-\\infty$ included) and for a signaling NaN; a `DivisionByZero` error for $\\operatorname{rSqrt}(\\pm 0)$."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:389
+#: manual/api/bin_float_checked.md:390
 msgid "$(1 + x)^n$, delegated to [`BinFloat::try_compound_ctx`](bin_float.md#binfloatcompound-binfloatcompound_ctx-binfloattry_compound_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:396
+#: manual/api/bin_float_checked.md:397
 msgid "Errors: a `DomainError` below $-1$ ($-\\infty$ included) and for a signaling NaN; a `DivisionByZero` error for $\\operatorname{compound}(-1, n)$ with $n < 0$."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:401
+#: manual/api/bin_float_checked.md:402
 msgid "$x^y$ for $x \\ge 0$, delegated to [`BinFloat::try_powr_ctx`](bin_float.md#binfloatpowr-binfloatpowr_ctx-binfloattry_powr_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:408
+#: manual/api/bin_float_checked.md:409
 msgid "Errors of the operands come first (base, then exponent). The operation reports a `DomainError` for a negative base, for a signaling NaN, and for the invalid pairs $(\\pm 0, \\pm 0)$, $(+\\infty, \\pm 0)$ and $(1, \\pm\\infty)$, and a `DivisionByZero` error for $(\\pm 0, y)$ with a finite $y < 0$."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:415
+#: manual/api/bin_float_checked.md:416
 msgid "$\\operatorname{asin}(x)/\\pi$, delegated to [`BinFloat::try_asinpi_ctx`](bin_float.md#binfloatasinpi-binfloatasinpi_ctx-binfloattry_asinpi_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:422
+#: manual/api/bin_float_checked.md:423
 msgid "Errors: a `DomainError` for $|x| > 1$ ($\\pm\\infty$ included) and for a signaling NaN."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:426
+#: manual/api/bin_float_checked.md:427
 msgid "$\\operatorname{acos}(x)/\\pi$, delegated to [`BinFloat::try_acospi_ctx`](bin_float.md#binfloatacospi-binfloatacospi_ctx-binfloattry_acospi_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:433
+#: manual/api/bin_float_checked.md:434
 msgid "Errors: as `asinpi`."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:437
+#: manual/api/bin_float_checked.md:438
 msgid "$\\operatorname{atan}(x)/\\pi$, delegated to [`BinFloat::try_atanpi_ctx`](bin_float.md#binfloatatanpi-binfloatatanpi_ctx-binfloattry_atanpi_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:444
+#: manual/api/bin_float_checked.md:445
 msgid "Errors: a `DomainError` for a signaling NaN only; $\\pm\\infty$ gives $\\pm 1/2$."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:448
+#: manual/api/bin_float_checked.md:449
 msgid "The angle of the point $(\\text{abscissa}, \\text{self})$ in half-revolutions, delegated to [`BinFloat::try_atan2pi_ctx`](bin_float.md#binfloatatan2pi-binfloatatan2pi_ctx-binfloattry_atan2pi_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:456
+#: manual/api/bin_float_checked.md:457
 msgid "Errors are taken in the order ordinate, abscissa, operation. `atan2pi` uses `BinaryContext::new(precision=p)` at the larger operand precision. Zero and infinite operands give exact constants with no exception; a signaling NaN operand is a `DomainError`."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:463
+#: manual/api/bin_float_checked.md:464
 msgid "`hypot(y)` computes $\\sqrt{x^2 + y^2}$ without intermediate overflow, with `BinFloat::try_hypot_ctx`."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:471
+#: manual/api/bin_float_checked.md:472
 msgid "`hypot` uses an unbounded context at the larger operand precision. A signaling NaN operand is a `DomainError`; `hypot` raises no other exception (overflow and underflow are values)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:491
+#: manual/api/bin_float_checked.md:492
 msgid "Each unary elementary function `name` has two wrapper methods. `name()` is `bind` of `BinFloat::try_name_ctx` under `BinaryContext::new(precision=x.precision())`, that is nearest-even rounding to the operand's precision with no exponent limit; `name_ctx(ctx)` uses the given context instead. A success is the correctly rounded value of `bin_float`. The flags of the step are mapped as for `div`: the invalid operation exception (a signaling NaN operand, or an argument outside the domain of IEEE 754-2019 Table 9.1) is a `DomainError`, divideByZero (a pole, §9.2) is a `DivisionByZero` error, and overflow, underflow and inexact are dropped. Besides the errors listed below, every function can report a `CertificationFailure` when `bin_float` cannot certify the rounding within its refinement budget (see [`bin_float` elementary functions](bin_float.md#elementary-functions)); the `CertificationFailureDetail` names the function. The messages of the other errors name it too: `name: invalid operation` and `name: division by zero`, so that in a chain of steps the message says which one failed. A quiet NaN operand gives a successful NaN."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:511
+#: manual/api/bin_float_checked.md:512
 msgid "$e^x$, delegated to [`BinFloat::try_exp_ctx`](bin_float.md#binfloatexp-binfloatexp_ctx-binfloattry_exp_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:520
+#: manual/api/bin_float_checked.md:521
 msgid "$e^x - 1$, delegated to [`BinFloat::try_expm1_ctx`](bin_float.md#binfloatexpm1-binfloatexpm1_ctx-binfloattry_expm1_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:529
+#: manual/api/bin_float_checked.md:530
 msgid "$2^x - 1$, delegated to [`BinFloat::try_exp2m1_ctx`](bin_float.md#binfloatexp2m1-binfloatexp2m1_ctx-binfloattry_exp2m1_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:536
+#: manual/api/bin_float_checked.md:537
 msgid "Errors: a signaling NaN is a `DomainError`; $-\\infty$ gives $-1$."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:540
+#: manual/api/bin_float_checked.md:541
 msgid "$10^x - 1$, delegated to [`BinFloat::try_exp10m1_ctx`](bin_float.md#binfloatexp10m1-binfloatexp10m1_ctx-binfloattry_exp10m1_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:547
+#: manual/api/bin_float_checked.md:548
 msgid "Errors: as `exp2m1`."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:551
+#: manual/api/bin_float_checked.md:552
 msgid "$2^x$, delegated to [`BinFloat::try_exp2_ctx`](bin_float.md#binfloatexp2-binfloatexp2_ctx-binfloattry_exp2_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:560
+#: manual/api/bin_float_checked.md:561
 msgid "$10^x$, delegated to [`BinFloat::try_exp10_ctx`](bin_float.md#binfloatexp10-binfloatexp10_ctx-binfloattry_exp10_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:569
+#: manual/api/bin_float_checked.md:570
 msgid "$\\ln x$, delegated to [`BinFloat::try_ln_ctx`](bin_float.md#binfloatln-binfloatln_ctx-binfloattry_ln_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:576
+#: manual/api/bin_float_checked.md:577
 msgid "Errors: a `DomainError` for a negative argument, $-\\infty$ included; a `DivisionByZero` error for $\\ln(\\pm 0)$."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:580
+#: manual/api/bin_float_checked.md:581
 msgid "$\\ln(1 + x)$, delegated to [`BinFloat::try_log1p_ctx`](bin_float.md#binfloatlog1p-binfloatlog1p_ctx-binfloattry_log1p_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:587
+#: manual/api/bin_float_checked.md:588
 msgid "Errors: a `DomainError` below $-1$, $-\\infty$ included; a `DivisionByZero` error for $\\operatorname{log1p}(-1)$."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:591
+#: manual/api/bin_float_checked.md:592
 msgid "$\\log_2(1 + x)$, delegated to [`BinFloat::try_log2p1_ctx`](bin_float.md#binfloatlog2p1-binfloatlog2p1_ctx-binfloattry_log2p1_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:598
+#: manual/api/bin_float_checked.md:599
 msgid "Errors: a `DomainError` below $-1$, $-\\infty$ included, and for a signaling NaN; a `DivisionByZero` error for $\\operatorname{log2p1}(-1)$."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:602
+#: manual/api/bin_float_checked.md:603
 msgid "$\\log_{10}(1 + x)$, delegated to [`BinFloat::try_log10p1_ctx`](bin_float.md#binfloatlog10p1-binfloatlog10p1_ctx-binfloattry_log10p1_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:609
+#: manual/api/bin_float_checked.md:610
 msgid "Errors: as `log2p1`."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:613
+#: manual/api/bin_float_checked.md:614
 msgid "$\\log_2 x$, delegated to [`BinFloat::try_log2_ctx`](bin_float.md#binfloatlog2-binfloatlog2_ctx-binfloattry_log2_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:620
+#: manual/api/bin_float_checked.md:621
 msgid "Errors: a `DomainError` for a negative argument, $-\\infty$ included; a `DivisionByZero` error for $\\log_2(\\pm 0)$."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:624
+#: manual/api/bin_float_checked.md:625
 msgid "$\\log_{10} x$, delegated to [`BinFloat::try_log10_ctx`](bin_float.md#binfloatlog10-binfloatlog10_ctx-binfloattry_log10_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:631
+#: manual/api/bin_float_checked.md:632
 msgid "Errors: a `DomainError` for a negative argument, $-\\infty$ included; a `DivisionByZero` error for $\\log_{10}(\\pm 0)$."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:635
+#: manual/api/bin_float_checked.md:636
 msgid "$\\sin x$, delegated to [`BinFloat::try_sin_ctx`](bin_float.md#binfloatsin-binfloatsin_ctx-binfloattry_sin_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:642
-#: manual/api/bin_float_checked.md:653
-#: manual/api/bin_float_checked.md:664
-#: manual/api/bin_float_checked.md:675
-#: manual/api/bin_float_checked.md:686
+#: manual/api/bin_float_checked.md:643
+#: manual/api/bin_float_checked.md:654
+#: manual/api/bin_float_checked.md:665
+#: manual/api/bin_float_checked.md:676
+#: manual/api/bin_float_checked.md:687
 msgid "Errors: a `DomainError` for an infinite argument."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:646
+#: manual/api/bin_float_checked.md:647
 msgid "$\\cos x$, delegated to [`BinFloat::try_cos_ctx`](bin_float.md#binfloatcos-binfloatcos_ctx-binfloattry_cos_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:657
+#: manual/api/bin_float_checked.md:658
 msgid "$\\tan x$, delegated to [`BinFloat::try_tan_ctx`](bin_float.md#binfloattan-binfloattan_ctx-binfloattry_tan_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:668
+#: manual/api/bin_float_checked.md:669
 msgid "$\\sin(\\pi x)$, delegated to [`BinFloat::try_sinpi_ctx`](bin_float.md#binfloatsinpi-binfloatsinpi_ctx-binfloattry_sinpi_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:679
+#: manual/api/bin_float_checked.md:680
 msgid "$\\cos(\\pi x)$, delegated to [`BinFloat::try_cospi_ctx`](bin_float.md#binfloatcospi-binfloatcospi_ctx-binfloattry_cospi_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:690
+#: manual/api/bin_float_checked.md:691
 msgid "$\\tan(\\pi x)$, delegated to [`BinFloat::try_tanpi_ctx`](bin_float.md#binfloattanpi-binfloattanpi_ctx-binfloattry_tanpi_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:697
+#: manual/api/bin_float_checked.md:698
 msgid "Errors: a `DomainError` for an infinite argument; a `DivisionByZero` error at half-integers, the poles of §9.2.1."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:701
+#: manual/api/bin_float_checked.md:702
 msgid "$\\arcsin x$, delegated to [`BinFloat::try_asin_ctx`](bin_float.md#binfloatasin-binfloatasin_ctx-binfloattry_asin_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:708
-#: manual/api/bin_float_checked.md:719
+#: manual/api/bin_float_checked.md:709
+#: manual/api/bin_float_checked.md:720
 msgid "Errors: a `DomainError` outside $[-1, 1]$, infinities included."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:712
+#: manual/api/bin_float_checked.md:713
 msgid "$\\arccos x$, delegated to [`BinFloat::try_acos_ctx`](bin_float.md#binfloatacos-binfloatacos_ctx-binfloattry_acos_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:723
+#: manual/api/bin_float_checked.md:724
 msgid "$\\arctan x$, delegated to [`BinFloat::try_atan_ctx`](bin_float.md#binfloatatan-binfloatatan_ctx-binfloattry_atan_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:732
+#: manual/api/bin_float_checked.md:733
 msgid "$\\sinh x$, delegated to [`BinFloat::try_sinh_ctx`](bin_float.md#binfloatsinh-binfloatsinh_ctx-binfloattry_sinh_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:741
+#: manual/api/bin_float_checked.md:742
 msgid "$\\cosh x$, delegated to [`BinFloat::try_cosh_ctx`](bin_float.md#binfloatcosh-binfloatcosh_ctx-binfloattry_cosh_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:750
+#: manual/api/bin_float_checked.md:751
 msgid "$\\tanh x$, delegated to [`BinFloat::try_tanh_ctx`](bin_float.md#binfloattanh-binfloattanh_ctx-binfloattry_tanh_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:759
+#: manual/api/bin_float_checked.md:760
 msgid "$\\operatorname{asinh} x$, delegated to [`BinFloat::try_asinh_ctx`](bin_float.md#binfloatasinh-binfloatasinh_ctx-binfloattry_asinh_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:768
+#: manual/api/bin_float_checked.md:769
 msgid "$\\operatorname{acosh} x$, delegated to [`BinFloat::try_acosh_ctx`](bin_float.md#binfloatacosh-binfloatacosh_ctx-binfloattry_acosh_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:775
+#: manual/api/bin_float_checked.md:776
 msgid "Errors: a `DomainError` below $1$."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:779
+#: manual/api/bin_float_checked.md:780
 msgid "$\\operatorname{atanh} x$, delegated to [`BinFloat::try_atanh_ctx`](bin_float.md#binfloatatanh-binfloatatanh_ctx-binfloattry_atanh_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:786
+#: manual/api/bin_float_checked.md:787
 msgid "Errors: a `DomainError` for $|x| > 1$; a `DivisionByZero` error for $\\operatorname{atanh}(\\pm 1)$."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:790
+#: manual/api/bin_float_checked.md:791
 msgid "The angle of the point $(\\text{abscissa}, \\text{self})$, delegated to [`BinFloat::try_atan2_ctx`](bin_float.md#binfloatatan2-binfloatatan2_ctx-binfloattry_atan2_ctx)."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:798
+#: manual/api/bin_float_checked.md:799
 msgid "Errors are taken in the order ordinate, abscissa, operation. `atan2` uses `BinaryContext::new(precision=p)` at the larger operand precision. Signed zeros follow IEEE 754: `atan2` of $(-0, -0)$ is $-\\pi$ and of $(-0, +0)$ is $-0$. A signaling NaN operand is a `DomainError`; `atan2` raises no other exception."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:822
+#: manual/api/bin_float_checked.md:823
 msgid "`Add`, `Sub`, `Mul`, `Div` and `Neg` for `BinFloatResult`"
 msgstr ""
 
-#: manual/api/bin_float_checked.md:824
+#: manual/api/bin_float_checked.md:825
 #: manual/api/interval_checked.md:517
 msgid "The operators `+`, `-`, `*`, `/` and unary `-` call `add`, `sub`, `mul`, `div` and `neg`."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:835
+#: manual/api/bin_float_checked.md:836
 msgid "So `/` on wrappers reports division by zero, while `/` on plain `BinFloat` values returns an infinity."
 msgstr ""
 
-#: manual/api/bin_float_checked.md:838
+#: manual/api/bin_float_checked.md:839
 msgid "Deprecated"
 msgstr ""
 
-#: manual/api/bin_float_checked.md:842
+#: manual/api/bin_float_checked.md:843
 #: manual/api/decimal_checked.md:389
 #: manual/api/decimal_gda_checked.md:320
 #: manual/api/def.md:430

@@ -115,6 +115,17 @@ pub fn BinFloatResult::result(
 }
 
 ///|
+/// The error of a failed pipeline, `None` for a success: the exit that
+/// `DecimalChecked` and `GdaDecimalChecked` have beside `result`, `is_ok` and
+/// `is_err`.
+pub fn BinFloatResult::error(self : BinFloatResult) -> @def.ArithmeticError? {
+  match self.inner {
+    Ok(_) => None
+    Err(error) => Some(error)
+  }
+}
+
+///|
 pub fn BinFloatResult::is_ok(self : BinFloatResult) -> Bool {
   match self.inner {
     Ok(_) => true
