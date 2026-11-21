@@ -30,6 +30,18 @@ from dataclasses import dataclass
 # Limits and vocabularies
 # ---------------------------------------------------------------------------
 
+# The limits below are the library's own limits, written here on purpose: the
+# rules keep their own copy of the numbers so that they stay independent of the
+# library, and `tooling/src/consistency/oracle_constants_wbtest.mbt` and
+# `tools/oracle_constants_test.py` fail when a limit changes on one side only.
+# Where each comes from:
+# - binary: the range of IEEE 754-2019 3.3 (`emin = 1 - emax`, `emax >= 1`) and
+#   3.7 (extendable formats); the maxima are decisions of the library
+#   (`binary_precision_max` 2^28, `binary_implementation_e_max` 2^30 - 1: every
+#   coefficient exponent stays in a 32-bit `Int`).
+# - decimal and GDA: GDA 1.70 page 10 and the limits 999,999,999 of the
+#   reference implementation's Context, adopted by the library
+#   (`decimal_precision_max`, `decimal_implementation_e_max`).
 BINARY_PRECISION_MAX = 268_435_456
 BINARY_E_MAX_LIMIT = 1_073_741_823
 BINARY_ROUNDINGS = ("n", "na", "z", "u", "d")  # roundTiesToEven, roundTiesToAway, toward zero, up, down

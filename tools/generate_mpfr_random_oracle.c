@@ -100,8 +100,19 @@ static long rnd_log(rng_t *rng, long low, long high) {
 
 // ----------------------------------------------------------------- model ---
 
+// The implementation range of the library, written here on purpose: the oracle
+// keeps its own copy of the number so that it stays independent of the library
+// (a change of the library constant must change this one, and the test
+// `tooling/src/consistency/oracle_constants_wbtest.mbt` and
+// `tools/oracle_constants_test.py` fail until it does). The value is the
+// decision of the library: the exponent of the leading bit of a stored value
+// is below 2^30 (`binary_implementation_e_max`), and `emin = 1 - emax`
+// (IEEE 754-2019 3.3).
 #define IMPL_EMAX 1073741823L
 #define IMPL_EMIN (1 - IMPL_EMAX)
+// The largest precision this oracle draws; it is a cap of the oracle program
+// (time and memory of the MPFR evaluation), not a limit of the library
+// (`binary_precision_max` is 268435456).
 #define PREC_MAX 10000L
 
 typedef enum {
