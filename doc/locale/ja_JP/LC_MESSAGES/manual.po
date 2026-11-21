@@ -10204,12 +10204,16 @@ msgid "§9.1, §10.5.3 forward-mode arithmetic and elementary functions"
 msgstr "§9.1, §10.5.3 順方向モードの算術と初等関数"
 
 #: manual/conformance/interval.md:15
-msgid "ITF1788 phases: add/sub/mul/div 539, elementary core 107, exp/log 131, general power 1,428, trigonometric 176, `atan2` 375, hyperbolic 107, inverse trigonometric 61, FMA 567, integer power 174"
-msgstr "ITF1788 フェーズ：add/sub/mul/div 539, 初等関数コア 107, exp/log 131, 一般べき 1,428, 三角関数 176, `atan2` 375, 双曲線関数 107, 逆三角関数 61, FMA 567, 整数べき 174"
+msgid "`add`, `sub`, `mul`, `div`, `recip`, `sqr`, `sqrt`, `fma`, `pown`, `pow`, `rootn`, `exp`, `exp2`, `exp10`, `expm1`, `ln`, `log2`, `log10`, `log1p`, `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`, and the integer functions `sign`, `ceil`, `floor`, `trunc`, `round_ties_to_even`, `round_ties_to_away`"
+msgstr "`add`、`sub`、`mul`、`div`、`recip`、`sqr`、`sqrt`、`fma`、`pown`、`pow`、`rootn`、`exp`、`exp2`、`exp10`、`expm1`、`ln`、`log2`、`log10`、`log1p`、`sin`、`cos`、`tan`、`asin`、`acos`、`atan`、`atan2`、`sinh`、`cosh`、`tanh`、`asinh`、`acosh`、`atanh`、および整数関数 `sign`、`ceil`、`floor`、`trunc`、`round_ties_to_even`、`round_ties_to_away`"
 
 #: manual/conformance/interval.md:15
-msgid "partial: the integer functions of Table 9.1 are not provided ([#257](https://github.com/Luna-Flow/floating/issues/257)); tightness per operation is in [Accuracy of operations](#accuracy-of-operations)"
-msgstr "部分準拠：表 9.1 の整数関数は提供していません（[#257](https://github.com/Luna-Flow/floating/issues/257)）。演算ごとの緊密性は[演算の精度](#accuracy-of-operations)を参照"
+msgid "ITF1788 phases: add/sub/mul/div 539, elementary core 107, exp/log 131, general power 1,428, trigonometric 176, `atan2` 375, hyperbolic 107, inverse trigonometric 61, FMA 567, integer power 174, integer functions 143 (ITF1788, an external corpus: level A); `library/src/interval/integer_functions_wbtest.mbt`: expected bounds and decorations written out from the definitions of Table 9.1 (footnotes h, i, j) and 11.2, not computed by the code (level A)"
+msgstr "ITF1788 フェーズ：add/sub/mul/div 539, 初等関数コア 107, exp/log 131, 一般べき 1,428, 三角関数 176, `atan2` 375, 双曲線関数 107, 逆三角関数 61, FMA 567, 整数べき 174、整数関数 143（ITF1788、外部コーパス：A 級）。`library/src/interval/integer_functions_wbtest.mbt`：期待する端と装飾は表 9.1（脚注 h、i、j）と 11.2 の定義から書き下したもので、被テストコードでは計算していない（A 級）"
+
+#: manual/conformance/interval.md:15
+msgid "conforming: the integer functions of Table 9.1 are provided ([#257](https://github.com/Luna-Flow/floating/issues/257)); tightness per operation is in [Accuracy of operations](#accuracy-of-operations)"
+msgstr "準拠：表 9.1 の整数関数を提供しています（[#257](https://github.com/Luna-Flow/floating/issues/257)）。演算ごとの緊密性は[演算の精度](#accuracy-of-operations)を参照"
 
 #: manual/conformance/interval.md:16
 msgid "§10.5.4 reverse-mode elementary functions"
@@ -28704,8 +28708,8 @@ msgid "§4.2.2 compressed decorated interval arithmetic [optional] (not implemen
 msgstr "§4.2.2 圧縮された装飾付き区間算術 [任意] （未実装）"
 
 #: manual/verification.md:694
-msgid "§9.1, §10.5.3 forward-mode arithmetic and elementary functions [required] (partial)"
-msgstr "§9.1、§10.5.3 前進モードの算術と初等関数 [必須] （部分準拠）"
+msgid "§9.1, §10.5.3 forward-mode arithmetic and elementary functions [required]"
+msgstr "§9.1、§10.5.3 前進モードの算術と初等関数 [必須]"
 
 #: manual/verification.md:695
 msgid "§10.5.4 reverse-mode elementary functions [required]"
@@ -31510,9 +31514,6 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体の
 
 #~ msgid "IEEE minimum / maximum"
 #~ msgstr "IEEE の最小値 / 最大値"
-
-#~ msgid "`exp`, `exp2`, `exp10`, `expm1`, `ln`, `log2`, `log10`, `log1p`, `power`, `pown`, `rootn`, `hypot`, `sin`, `cos`, `tan`, `sinpi`, `cospi`, `tanpi`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh` and `atanh` apply the certified `Decimal::try_*_ctx` functions."
-#~ msgstr "`exp`、`exp2`、`exp10`、`expm1`、`ln`、`log2`、`log10`、`log1p`、`power`、`pown`、`rootn`、`hypot`、`sin`、`cos`、`tan`、`sinpi`、`cospi`、`tanpi`、`asin`、`acos`、`atan`、`atan2`、`sinh`、`cosh`、`tanh`、`asinh`、`acosh`、`atanh` は、認証付きの `Decimal::try_*_ctx` 関数を適用します。"
 
 #~ msgid "[!WARNING] On the current branch `divide` can misround in the half modes when the quotient has a non-terminating expansion whose discarded part lies within a very small distance of one half unit: at precision 1, `divide(1, 2222)` returns `0.0004` where GDA requires `0.0005`. See the [design page](../design/decimal_gda.md#division) for the cause."
 #~ msgstr "[!WARNING] 現在のブランチでは、商が循環する（有限で終わらない）展開を持ち、その捨てられる部分が半単位から非常に近い距離にある場合、half 系のモードで `divide` が誤った丸めをすることがあります。精度 1 で `divide(1, 2222)` は、GDA が `0.0005` を要求するところ `0.0004` を返します。原因は[設計ページ](../design/decimal_gda.md#division)を参照してください。"
