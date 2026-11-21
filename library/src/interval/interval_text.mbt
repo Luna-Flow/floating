@@ -262,12 +262,10 @@ fn hex_mantissa_digits(text : String) -> Int32 {
 /// (`BinFloat::from_hex_ctx`) in a context wide enough for the digits of the text and for the
 /// precision of the interval, so that it rounds only when the bound cannot be represented
 /// at all, and then reports `inexact` (the test of the reader, not a count of digits). The
-/// bound keeps its own bit count, whatever the precision of the interval: 13.4 asks for the
-/// datum back, and the type has intervals with ends of more bits than the precision (an end
-/// of `from_midpoint_radius` or `cancel_minus` kept unrounded). A bound is refused when it is beyond the
-/// exponent range of the library (overflow or underflow in the reader), or finer than the
-/// grid of the larger of its own bit count and the precision below the range floor, which no
-/// stored bound is.
+/// bound must be a number of the format of the interval (every stored bound is one): a bound
+/// with more significant bits than `precision`, one finer than the grid of `precision` bits
+/// below the range floor, or one beyond the exponent range of the library is refused, and
+/// the error names the reason.
 fn exact_bound(
   text : String,
   precision : Int32,
@@ -296,46 +294,38 @@ fn exact_bound(
             "` is beyond the exponent range of the library",
           ),
         )
-      } else if value.is_zero() ||
-        value.is_infinite() ||
-        value.exponent2() >=
-        @bin_float.binary_implementation_e_min -
-        Int32::max(precision, value.coefficient().bit_length()) +
-        1 {
-        // A bound with more bits than the precision keeps the label of its own bit count (the
-        // type comment of `Interval`), whatever the context of the reader was: an exact
-        // relabel, so the label does not depend on how many zero digits the text has.
-        let bits = value.coefficient().bit_length()
-        if !value.is_zero() && !value.is_infinite() && bits > precision {
-          Ok(
-            value.with_precision(
-              bits,
-              @bin_float.BinaryRoundingMode::RoundTiesToEven,
-            ),
-          )
-        } else {
-          Ok(value)
-        }
-      } else {
+      } else if value.is_zero() || value.is_infinite() {
+        Ok(value)
+      } else if value.coefficient().bit_length() > precision {
         Err(
           lit_error(
             "the bound `" +
             text +
-            "` is finer than the grid below the range floor",
+            "` has more than \{precision} significant bits, so it is not a number of the format of the interval",
           ),
         )
+      } else if value.exponent2() <
+        @bin_float.binary_implementation_e_min - precision + 1 {
+        Err(
+          lit_error(
+            "the bound `" +
+            text +
+            "` is finer than the grid of the format below the range floor",
+          ),
+        )
+      } else {
+        Ok(value)
       }
   }
 }
 
 ///|
 /// IEEE 1788-2015 13.4 `exactToInterval`: the interval of an exact text, read exactly and
-/// never widened. `precision` is the precision of the interval, not a limit on the bounds: a
-/// bound with more bits than `precision` is kept as it is, as the type keeps such ends (an end
-/// of `from_midpoint_radius` or of `cancel_minus` that is not rounded), so `from_exact_string(x.to_exact_string(),
-/// precision=x.precision())` is `identical` to `x` for every interval of the type. The call is
-/// refused (a parse error naming the reason) only for what cannot be an interval of the
-/// library: a decimal or malformed bound, a bound beyond the exponent range, a lower bound
+/// never widened, so `from_exact_string(x.to_exact_string(), precision=x.precision())` is
+/// `identical` to `x` for every interval of the type. The call is refused (a parse error
+/// naming the reason) for what cannot be an interval of the format of `precision` bits: a
+/// decimal or malformed bound, a bound that is not a number of the format (more significant
+/// bits than `precision`, finer than its grid, beyond the exponent range), a lower bound
 /// above the upper one. A point after the digits, leading and trailing zero digits and upper
 /// case are read.
 pub fn Interval::from_exact_string(

@@ -185,7 +185,7 @@ test "away from the bottom of the range the result is the same as before" {
     let old = if old_lo.compare(old_hi) > 0 {
       whole_real(53)
     } else {
-      quantize_interval(old_lo, old_hi, 53)
+      store_interval(old_lo, old_hi, 53)
     }
     let new = x.cancel_minus(y)
     assert_identical(new.lower_bound(), old.lower_bound())

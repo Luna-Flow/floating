@@ -2,21 +2,17 @@
 /// An interval of `precision_` bits: the closed interval `[lo_, hi_]` of two
 /// `BinFloat`s, or the empty set.
 ///
-/// Labels of the bounds. A stored bound is labelled `precision_` (its
-/// `precision()` is the precision of the interval) exactly when it is a number of
-/// the format of `precision_` bits (at most `precision_` significant bits and on
-/// the grid of `precision_` bits, the band below the range floor included),
-/// and so are the infinities and the zeros. The one exception is an exact end that
-/// is not such a number: an end with more than `precision_` bits (a `from_bounds`
-/// of wide ends, an end of `from_midpoint_radius` or of `cancel_minus` kept unrounded) or finer than
-/// the grid of `precision_` bits below the range floor keeps the label of its own
-/// bit count. `BinFloat`'s `==` agrees with `compare` and ignores a label (`identical`
-/// compares it), so `x.lower_bound() == y` is `true` for a bound and a value of the same
-/// number; the `==` of `Interval` compares the bounds by value and `identical` compares
-/// the bounds by value and the precision of the interval: neither reads a label.
+/// The bounds. Every stored bound is a number of the format of `precision_` bits
+/// (at most `precision_` significant bits, on the grid of `precision_` bits, the
+/// band below the range floor included, in the exponent range of the library) or an
+/// infinity, and its `precision()` is `precision_`: the format of a bound is the
+/// format of the interval (the inf-sup type of IEEE 1788-2015 12.5.2). A constructor
+/// or an operation whose exact end is not such a number rounds it outward (the lower
+/// end down, the upper end up). `BinFloat`'s `==` agrees with `compare`; the `==` of
+/// `Interval` compares the bounds by value and `identical` compares the bounds by value
+/// and the precision of the interval.
 /// The sign of a stored zero is unspecified: the accessors decide.
-/// `store_interval` and `empty_interval` are the only writers of the fields, and
-/// `store_interval` stamps the labels.
+/// `store_interval` and `empty_interval` are the only writers of the fields.
 #derive(Debug)
 pub struct Interval {
   priv lo_ : @bin_float.BinFloat
@@ -129,7 +125,7 @@ fn checked_interval(
   }
   match interval_validation_error(lo, hi) {
     Some(message) => Err(message)
-    None => Ok(quantize_interval(lo, hi, precision))
+    None => Ok(store_interval(lo, hi, precision))
   }
 }
 
@@ -448,31 +444,13 @@ fn exact_half(
 }
 
 ///|
-fn outward_round(
-  x : @bin_float.BinFloat,
-  precision : Int32,
-) -> @bin_float.BinFloat {
-  x
-  .abs()
-  .with_precision(precision, @bin_float.BinaryRoundingMode::RoundTowardPositive)
-}
-
-///|
-fn outward_sum(
-  a : @bin_float.BinFloat,
-  b : @bin_float.BinFloat,
-  precision : Int32,
-) -> @bin_float.BinFloat {
-  // both addends are non-negative: the directed sum is the outward one
-  directed_add(a, b, precision, BinaryRoundingMode::RoundTowardPositive)
-}
-
-///|
-fn quantize_center_radius(
+/// The hull in the format of `precision` bits of `[center - radius, center + radius]`
+/// (IEEE 1788-2015 12.12.7, `midRadToInterval`): the exact `center - radius` rounded down
+/// and the exact `center + radius` rounded up, once each.
+fn midpoint_radius_interval(
   center : @bin_float.BinFloat,
   radius : @bin_float.BinFloat,
   precision : Int32,
-  mode : BinaryRoundingMode,
 ) -> Interval {
   guard center.classify() == FpClass::Finite else {
     abort("interval center must be finite")
@@ -484,43 +462,20 @@ fn quantize_center_radius(
     abort("interval radius must be non-negative")
   }
   let precision = checked_precision(precision)
-  let rounded_center = center.with_precision(precision, mode)
-  // The error of rounding the center, rounded upward once to `precision` bits:
-  // the difference is taken in the order that makes it non-negative, so the
-  // upward direction is the outward one. (`exact_sub` made the difference at
-  // its own bit length in the nearest mode, and below the normal range a
-  // difference of a few bits rounded to zero: the interval then missed the
-  // center.)
-  let upward = @bin_float.BinaryContext::new(
-    precision~,
-    rounding=BinaryRoundingMode::RoundTowardPositive,
-  )
-  let difference = if center.compare(rounded_center) >= 0 {
-    center.sub_ctx(rounded_center, upward).0
-  } else {
-    rounded_center.sub_ctx(center, upward).0
-  }
-  let center_error = difference
-  let rounded_radius = outward_round(radius, precision)
-  let total_radius = outward_sum(rounded_radius, center_error, precision)
-  // The endpoints are the exact `rounded_center -/+ total_radius` (they are not
-  // rounded to `precision` bits: later operations round to their own precision),
-  // made with `exact_range` so that a result of a few bits below the normal range
-  // is not rounded outward to the quantum of those few bits.
-  let lo = exact_sub(
-    rounded_center,
-    total_radius,
-    mode=BinaryRoundingMode::RoundTowardNegative,
-    min_bits=precision,
-    exact_range=true,
-  )
-  let hi = exact_add(
-    rounded_center,
-    total_radius,
-    mode=BinaryRoundingMode::RoundTowardPositive,
-    min_bits=precision,
-    exact_range=true,
-  )
+  let lo = center.sub_ctx(
+      radius,
+      @bin_float.BinaryContext::new(
+        precision~,
+        rounding=BinaryRoundingMode::RoundTowardNegative,
+      ),
+    ).0
+  let hi = center.add_ctx(
+      radius,
+      @bin_float.BinaryContext::new(
+        precision~,
+        rounding=BinaryRoundingMode::RoundTowardPositive,
+      ),
+    ).0
   store_interval(lo, hi, precision)
 }
 
@@ -577,6 +532,9 @@ fn upper_round_bound(
 }
 
 ///|
+/// The interval `[lo, hi]` in the format of `precision` bits. A bound that is already a
+/// number of that format (the case of every result of an operation) is only relabelled,
+/// which does not change its value; any other bound is rounded outward (`lo` down, `hi` up).
 fn store_interval(
   lo : @bin_float.BinFloat,
   hi : @bin_float.BinFloat,
@@ -585,51 +543,10 @@ fn store_interval(
   validate_interval(lo, hi)
   let precision = checked_precision(precision)
   {
-    lo_: stamped_bound(lo, precision),
-    hi_: stamped_bound(hi, precision),
+    lo_: lower_round_bound(lo, precision),
+    hi_: upper_round_bound(hi, precision),
     precision_: precision,
     empty_: false,
-  }
-}
-
-///|
-/// Whether the finite non-zero `x` is a number of the format of `precision` bits
-/// in the widest exponent range: at most `precision` significant bits, on the grid
-/// of `precision` bits (the band below the range floor included).
-fn bound_fits(x : @bin_float.BinFloat, precision : Int32) -> Bool {
-  x.coefficient().bit_length() <= precision &&
-  x.exponent2() >= @bin_float.binary_implementation_e_min - precision + 1
-}
-
-///|
-/// `x` with the label `precision` when it is a number of that format (so the value
-/// is not changed: the rounding is exact), the infinities and the zeros included;
-/// otherwise `x` itself, which keeps the label of its own bit count.
-fn stamped_bound(
-  x : @bin_float.BinFloat,
-  precision : Int32,
-) -> @bin_float.BinFloat {
-  if x.precision() == precision {
-    return x
-  }
-  match x.classify() {
-    FpClass::Infinity => @bin_float.BinFloat::inf(x.sign(), precision~)
-    FpClass::NaN => x
-    FpClass::Finite =>
-      if x.is_zero() {
-        if x.is_negative() {
-          @bin_float.BinFloat::negative_zero(precision~)
-        } else {
-          @bin_float.BinFloat::zero(precision~)
-        }
-      } else if bound_fits(x, precision) {
-        x.with_precision(
-          precision,
-          @bin_float.BinaryRoundingMode::RoundTiesToEven,
-        )
-      } else {
-        x
-      }
   }
 }
 
@@ -642,20 +559,6 @@ fn empty_interval(precision : Int32) -> Interval {
     precision_: precision,
     empty_: true,
   }
-}
-
-///|
-fn quantize_interval(
-  lo : @bin_float.BinFloat,
-  hi : @bin_float.BinFloat,
-  precision : Int32,
-) -> Interval {
-  let precision = checked_precision(precision)
-  store_interval(
-    lower_round_bound(lo, precision),
-    upper_round_bound(hi, precision),
-    precision,
-  )
 }
 
 ///|
@@ -701,7 +604,7 @@ fn interval_radius(x : Interval) -> @bin_float.BinFloat {
 
 ///|
 fn zero_radius_interval(x : @bin_float.BinFloat, precision : Int32) -> Interval {
-  quantize_interval(x, x, precision)
+  store_interval(x, x, precision)
 }
 
 ///|
@@ -800,7 +703,7 @@ fn quotient_interval_nonzero_denominator(
   } else {
     extended_division_bound(numerator.lo_, denominator.hi_, precision, true)
   }
-  quantize_interval(lower, upper, precision)
+  store_interval(lower, upper, precision)
 }
 
 ///|
@@ -830,7 +733,7 @@ fn add_interval_impl(a : Interval, b : Interval) -> Interval {
     return empty_interval(precision)
   }
   if a.is_common_interval() && b.is_common_interval() {
-    return quantize_interval(
+    return store_interval(
       directed_add(
         a.lo_,
         b.lo_,
@@ -848,7 +751,7 @@ fn add_interval_impl(a : Interval, b : Interval) -> Interval {
   }
   // Lower endpoints are finite or -inf and upper ones finite or +inf, so the
   // extended sums never meet opposite infinities.
-  quantize_interval(
+  store_interval(
     extended_directed_add(
       a.lo_,
       b.lo_,
@@ -872,7 +775,7 @@ fn sub_interval_impl(a : Interval, b : Interval) -> Interval {
     return empty_interval(precision)
   }
   if a.is_common_interval() && b.is_common_interval() {
-    return quantize_interval(
+    return store_interval(
       directed_sub(
         a.lo_,
         b.hi_,
@@ -888,7 +791,7 @@ fn sub_interval_impl(a : Interval, b : Interval) -> Interval {
       precision,
     )
   }
-  quantize_interval(
+  store_interval(
     extended_directed_sub(
       a.lo_,
       b.hi_,
@@ -1253,7 +1156,7 @@ fn mul_interval_impl(a : Interval, b : Interval) -> Interval {
     return empty_interval(precision)
   }
   let (lo, hi) = multiplication_bounds(a, b, precision)
-  quantize_interval(lo, hi, precision)
+  store_interval(lo, hi, precision)
 }
 
 ///|
@@ -1315,12 +1218,7 @@ pub fn Interval::from_midpoint_radius(
   radius : @bin_float.BinFloat,
   precision~ : Int32 = Int32::max(center.precision(), radius.precision()),
 ) -> Interval {
-  quantize_center_radius(
-    center,
-    radius,
-    precision,
-    BinaryRoundingMode::RoundTiesToEven,
-  )
+  midpoint_radius_interval(center, radius, precision)
 }
 
 ///|
@@ -1349,14 +1247,7 @@ pub fn Interval::try_from_midpoint_radius(
   if precision_error(precision) is Some(message) {
     return Err(@def.ArithmeticError::domain_error(message))
   }
-  Ok(
-    quantize_center_radius(
-      center,
-      radius,
-      precision,
-      BinaryRoundingMode::RoundTiesToEven,
-    ),
-  )
+  Ok(midpoint_radius_interval(center, radius, precision))
 }
 
 ///|
@@ -1661,7 +1552,7 @@ pub fn Interval::normalized(self : Interval) -> Interval {
   } else {
     // Normalize the endpoints themselves; rebuilding the interval from its
     // center and radius would round outward a second time and widen it.
-    quantize_interval(
+    store_interval(
       self.lo_.normalized(),
       self.hi_.normalized(),
       self.precision_,
@@ -1683,7 +1574,7 @@ pub fn Interval::with_precision(self : Interval, precision : Int32) -> Interval 
   if self.is_empty() {
     empty_interval(precision)
   } else {
-    quantize_interval(self.lo_, self.hi_, precision)
+    store_interval(self.lo_, self.hi_, precision)
   }
 }
 
@@ -1754,7 +1645,7 @@ pub fn Interval::sqr(self : Interval) -> Interval {
       BinaryRoundingMode::RoundTowardNegative,
     )
   }
-  quantize_interval(lower, upper, self.precision_)
+  store_interval(lower, upper, self.precision_)
 }
 
 ///|
@@ -1786,14 +1677,14 @@ fn pown_positive(
   let down = @bin_float.BinaryRoundingMode::RoundTowardNegative
   let up = @bin_float.BinaryRoundingMode::RoundTowardPositive
   if pown_exponent_is_odd(exponent) {
-    return quantize_interval(
+    return store_interval(
       pown_endpoint(value.lo_, exponent, precision, down),
       pown_endpoint(value.hi_, exponent, precision, up),
       precision,
     )
   }
   if value.contains_zero() {
-    return quantize_interval(
+    return store_interval(
       @bin_float.BinFloat::zero(precision~),
       bin_max(
         pown_endpoint(value.lo_, exponent, precision, up),
@@ -1803,13 +1694,13 @@ fn pown_positive(
     )
   }
   if value.hi_.sign() == Sign::Negative {
-    quantize_interval(
+    store_interval(
       pown_endpoint(value.hi_, exponent, precision, down),
       pown_endpoint(value.lo_, exponent, precision, up),
       precision,
     )
   } else {
-    quantize_interval(
+    store_interval(
       pown_endpoint(value.lo_, exponent, precision, down),
       pown_endpoint(value.hi_, exponent, precision, up),
       precision,
@@ -1830,7 +1721,7 @@ fn pown_negative(
   }
   if !value.contains_zero() {
     if value.hi_.sign() == Sign::Negative && !pown_exponent_is_odd(exponent) {
-      return quantize_interval(
+      return store_interval(
         pown_endpoint(
           value.lo_,
           exponent,
@@ -1846,7 +1737,7 @@ fn pown_negative(
         precision,
       )
     }
-    return quantize_interval(
+    return store_interval(
       pown_endpoint(
         value.hi_,
         exponent,
@@ -1864,7 +1755,7 @@ fn pown_negative(
   }
   if pown_exponent_is_odd(exponent) {
     if lo_is_zero {
-      return quantize_interval(
+      return store_interval(
         pown_endpoint(
           value.hi_,
           exponent,
@@ -1876,7 +1767,7 @@ fn pown_negative(
       )
     }
     if hi_is_zero {
-      return quantize_interval(
+      return store_interval(
         neg_inf(precision),
         pown_endpoint(
           value.lo_,
@@ -1919,7 +1810,7 @@ fn pown_negative(
       ),
     )
   }
-  quantize_interval(lower, pos_inf(precision), precision)
+  store_interval(lower, pos_inf(precision), precision)
 }
 
 ///|
@@ -1955,7 +1846,7 @@ pub fn Interval::min(self : Interval, other : Interval) -> Interval {
   if self.is_empty() || other.is_empty() {
     return empty_interval(precision)
   }
-  quantize_interval(
+  store_interval(
     bin_min(self.lo_, other.lo_),
     bin_min(self.hi_, other.hi_),
     precision,
@@ -1968,7 +1859,7 @@ pub fn Interval::max(self : Interval, other : Interval) -> Interval {
   if self.is_empty() || other.is_empty() {
     return empty_interval(precision)
   }
-  quantize_interval(
+  store_interval(
     bin_max(self.lo_, other.lo_),
     bin_max(self.hi_, other.hi_),
     precision,
@@ -2010,7 +1901,7 @@ pub fn Interval::sqrt(self : Interval) -> Interval {
   } else {
     directed_sqrt(self.hi_, self.precision_, true)
   }
-  quantize_interval(lower, upper, self.precision_)
+  store_interval(lower, upper, self.precision_)
 }
 
 ///|
@@ -2132,7 +2023,7 @@ pub fn Interval::intersection(self : Interval, other : Interval) -> Interval {
   if lo.compare(hi) > 0 {
     empty_interval(precision)
   } else {
-    quantize_interval(lo, hi, precision)
+    store_interval(lo, hi, precision)
   }
 }
 
@@ -2145,7 +2036,7 @@ pub fn Interval::convex_hull(self : Interval, other : Interval) -> Interval {
   if other.is_empty() {
     return self.with_precision(precision)
   }
-  quantize_interval(
+  store_interval(
     bin_min(self.lo_, other.lo_),
     bin_max(self.hi_, other.hi_),
     precision,
@@ -2262,7 +2153,7 @@ fn cancel_result(
   precision : Int32,
 ) -> Interval {
   if width_not_less(x.hi_, x.lo_, y.hi_, y.lo_) {
-    quantize_interval(lo, hi, precision)
+    store_interval(lo, hi, precision)
   } else {
     whole_real(precision)
   }
@@ -2283,20 +2174,16 @@ pub fn Interval::cancel_plus(self : Interval, other : Interval) -> Interval {
     !other.is_common_interval() {
     return whole_real(precision)
   }
-  let lo = exact_add(
-    self.lo_,
-    other.hi_,
-    mode=BinaryRoundingMode::RoundTowardNegative,
-    min_bits=precision,
-    exact_range=true,
+  let down = @bin_float.BinaryContext::new(
+    precision~,
+    rounding=BinaryRoundingMode::RoundTowardNegative,
   )
-  let hi = exact_add(
-    self.hi_,
-    other.lo_,
-    mode=BinaryRoundingMode::RoundTowardPositive,
-    min_bits=precision,
-    exact_range=true,
+  let up = @bin_float.BinaryContext::new(
+    precision~,
+    rounding=BinaryRoundingMode::RoundTowardPositive,
   )
+  let lo = self.lo_.add_ctx(other.hi_, down).0
+  let hi = self.hi_.add_ctx(other.lo_, up).0
   cancel_result(self, other, lo, hi, precision)
 }
 
@@ -2315,20 +2202,16 @@ pub fn Interval::cancel_minus(self : Interval, other : Interval) -> Interval {
     !other.is_common_interval() {
     return whole_real(precision)
   }
-  let lo = exact_add(
-    self.lo_,
-    other.lo_.neg(),
-    mode=BinaryRoundingMode::RoundTowardNegative,
-    min_bits=precision,
-    exact_range=true,
+  let down = @bin_float.BinaryContext::new(
+    precision~,
+    rounding=BinaryRoundingMode::RoundTowardNegative,
   )
-  let hi = exact_add(
-    self.hi_,
-    other.hi_.neg(),
-    mode=BinaryRoundingMode::RoundTowardPositive,
-    min_bits=precision,
-    exact_range=true,
+  let up = @bin_float.BinaryContext::new(
+    precision~,
+    rounding=BinaryRoundingMode::RoundTowardPositive,
   )
+  let lo = self.lo_.sub_ctx(other.lo_, down).0
+  let hi = self.hi_.sub_ctx(other.hi_, up).0
   cancel_result(self, other, lo, hi, precision)
 }
 

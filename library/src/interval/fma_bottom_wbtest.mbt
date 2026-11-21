@@ -190,7 +190,7 @@ test "away from the bottom of the range fma is unchanged" {
     for c in cands_hi {
       high = bin_max(high, c)
     }
-    let old = quantize_interval(
+    let old = store_interval(
       exact_add(
         min_bits=1,
         low,

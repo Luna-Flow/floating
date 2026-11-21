@@ -162,7 +162,6 @@ library/src/interval/mul_rev_wbtest.mbt::mul_rev: the hull is taken of the set, 
 library/src/interval/mul_rev_wbtest.mbt::mul_rev_to_pair: the examples of 10.5.5	?
 library/src/interval/mul_rev_wbtest.mbt::mul_rev_to_pair: the two components are ordered, whichever side of zero c lies	?
 library/src/interval/midpoint_radius_endpoints_wbtest.mbt::away from the bottom of the range the endpoints are unchanged	?
-library/src/interval/midpoint_radius_endpoints_wbtest.mbt::the endpoints of Interval::from_midpoint_radius are the exact center minus and plus the radius	?
 library/src/interval/midpoint_radius_endpoints_wbtest.mbt::the first case of the issue	none
 library/src/interval/observers_wbtest.mbt::observers are total and follow 12.12.8 on Empty, Entire and half-bounded intervals	?
 library/src/interval/observers_wbtest.mbt::radius covers the interval around the midpoint (issue 477)	?

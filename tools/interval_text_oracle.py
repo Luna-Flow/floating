@@ -348,16 +348,16 @@ def read_dyadic(text: str):
 
 
 def representable(sign: int, n: int, e: int, p: int) -> bool:
-    """A bound the library can store at interval precision p: zero, or a number whose odd
-    mantissa has b bits, whose leading bit is at most EMAX, and which lies on the grid of
-    max(b, p) bits below the range floor."""
+    """A bound that is a number of the format of p bits in the range of the library: zero, or a
+    number whose odd mantissa has b <= p bits, whose leading bit is at most EMAX, and which lies
+    on the grid of p bits below the range floor."""
     if n == 0:
         return True
     while n % 2 == 0:
         n //= 2
         e += 1
     b = n.bit_length()
-    return e + b - 1 <= E_MAX and e >= E_MIN - max(b, p) + 1
+    return b <= p and e + b - 1 <= E_MAX and e >= E_MIN - p + 1
 
 
 def dy_key(sign: int, n: int, e: int):
@@ -407,9 +407,10 @@ def dy_text(sign: int, n: int, e: int) -> str:
 
 def exact_read_entry(text: str, p: int) -> str:
     """text, precision, ok|err, the expected exact text (or empty). The rule: an exact text is
-    read exactly at whatever bit count its bounds have; it is refused only for what cannot be an
-    interval of the library (not [l, u], a decimal or malformed bound, a bound beyond the exponent
-    range or finer than its grid below the range floor, lower above upper)."""
+    read exactly; it is refused for what cannot be an interval of the format of p bits (not [l, u],
+    a decimal or malformed bound, a bound that is not a number of the format: more than p
+    significant bits, beyond the exponent range, finer than the grid below the range floor;
+    lower above upper)."""
     err = "\t".join([text, str(p), "err", ""])
     t = text.strip()
     low = t.lower()
@@ -459,25 +460,6 @@ EXACT_FIXED = [
 ]
 
 
-def wide_show_rows(rng: random.Random) -> list[tuple]:
-    """Intervals whose bounds have more bits than the precision (the ends of `new` and of
-    `cancel_minus` that are kept unrounded): (lo, hi, p) with bounds of p + 1 to p + 8 bits."""
-    rows = []
-    for index in range(400):
-        p = (2, 8, 24, 53, 64, 113, 256)[index % 7]
-        values = []
-        for _ in range(2):
-            b = p + rng.randint(1, 8)
-            m = (rng.getrandbits(b - 1) << 1 | 1) | (1 << (b - 1))
-            v = Fraction(m) * Fraction(2) ** rng.randint(-60, 60)
-            values.append(-v if rng.random() < 0.4 else v)
-        if index % 5 == 0:
-            values[1] = values[0]
-        lo, hi = sorted(values)
-        rows.append((lo, hi, p))
-    return rows
-
-
 def exact_read_rows(rng: random.Random) -> list[str]:
     rows = []
     for text in EXACT_FIXED:
@@ -486,7 +468,7 @@ def exact_read_rows(rng: random.Random) -> list[str]:
     for p in (2, 8, 24, 53, 113, 256):
         for b in (1, 2, p, p + 1, p + 7):
             m = (1 << (b - 1)) | 1 if b > 1 else 1
-            floor_e = E_MIN - max(b, p) + 1
+            floor_e = E_MIN - p + 1
             top_e = E_MAX - b + 1
             for e, tail in ((floor_e, "inf"), (floor_e - 1, "inf"), (floor_e + 1, "inf")):
                 rows.append(exact_read_entry(f"[0x{m:x}p{e}, {tail}]", p))
@@ -552,21 +534,6 @@ def build() -> str:
         lines.append("  )")
         lines.append("}")
         lines.append("")
-    wide = [entry(*row) for row in wide_show_rows(random.Random(1788015))]
-    wide_chunks = [wide[i : i + CHUNK] for i in range(0, len(wide), CHUNK)]
-    for index, chunk in enumerate(wide_chunks):
-        lines.append("///|")
-        lines.append(f"fn wide_text_table_{index}() -> String {{")
-        lines.append("  (")
-        lines.extend("    #|" + e for e in chunk)
-        lines.append("  )")
-        lines.append("}")
-        lines.append("")
-    lines.append("///|")
-    lines.append("fn wide_text_tables() -> Array[String] {")
-    lines.extend(array_lines("wide_text_table", len(wide_chunks)))
-    lines.append("}")
-    lines.append("")
     exact_rows = exact_read_rows(random.Random(1788014))
     exact_chunks = [exact_rows[i : i + CHUNK] for i in range(0, len(exact_rows), CHUNK)]
     for index, chunk in enumerate(exact_chunks):

@@ -1,18 +1,18 @@
-// The labels of the bounds of an `Interval` (the comment of the type): a stored
-// bound has `precision() == p`, the precision of the interval, exactly when it is a
-// number of the format of `p` bits (at most `p` significant bits and on the grid of
-// `p` bits, the band below the range floor included), and so do the infinities and
-// the zeros; an exact end that is not such a number keeps another label.
+// The bounds of an `Interval` (the comment of the type): every stored bound is a
+// number of the format of `p` bits, the precision of the interval (at most `p`
+// significant bits and on the grid of `p` bits, the band below the range floor
+// included) or an infinity, and its `precision()` is `p`.
 //
 // ORACLE (level S, self-consistency: an invariant of the representation, not a
 // value): the rule is checked on every bound of the result of every public
 // operation of the package for a seeded corpus (`db_interval` of
 // `directed_bounds_wbtest.mbt`: random precisions 24 to 200, endpoints of 1 to 40
-// random bytes anywhere in the exponent range, zero and infinite ends), and by the
-// written-out cases at the end of the file (a wide end, an end below the range
-// floor, the ends of `Interval::from_midpoint_radius(sqrt 3, 1024 ulp, 53)`). The corpus is
-// the same for every operation: the test does not say what the value is, only what
-// it is labelled.
+// random bytes anywhere in the exponent range, zero and infinite ends), and the
+// values of the written-out cases at the end of the file are level A (worked out by
+// hand from the definition of the rounding of IEEE 1788-2015 12.12.7: the largest
+// number of 24 bits below `1 - 2^-100` is `1 - 2^-24`, and so on). The corpus is
+// the same for every operation: it does not say what the value is, only that it is
+// a number of the format.
 
 ///|
 fn bl_fits(x : @bin_float.BinFloat, p : Int32) -> Bool {
@@ -31,8 +31,8 @@ fn bl_check(x : Interval) -> String {
   let mut failure = ""
   for b in [x.lower_bound(), x.upper_bound()] {
     let fits = bl_fits(b, p)
-    if fits != (b.precision() == p) && failure == "" {
-      failure = "bound \{b} of \{x} has the label \{b.precision()} for the precision \{p} (fits: \{fits})"
+    if !(fits && b.precision() == p) && failure == "" {
+      failure = "bound \{b} of \{x} has the label \{b.precision()} for the precision \{p} (a number of the format: \{fits})"
     }
   }
   failure
@@ -149,15 +149,15 @@ test "labels of the bounds: written-out cases" {
       .with_precision(53, BinaryRoundingMode::RoundTiesToEven),
     ),
   )
-  // (2) wide ends: new(1, 2^-100, p = 24) has the exact ends 1 -/+ 2^-100 of 100
-  // bits, kept unrounded with the label of their own bit count; the center 1 is
-  // a number of 24 bits and the radius 2^-100 a number of the grid: labelled 24
+  // (2) from_midpoint_radius(1, 2^-100, p = 24) has the exact hull [1 - 2^-100, 1 + 2^-100];
+  // rounded outward to 24 bits it is [1 - 2^-24, 1 + 2^-23] (the numbers of 24 bits next
+  // to 1 are 1 - 2^-24 below and 1 + 2^-23 above)
   let one = @bin_float.BinFloat::one(precision=53)
   let tiny = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -100, 24)
   let w = Interval::from_midpoint_radius(one, tiny, precision=24)
-  assert_true(w.lower_bound().precision() >= 100)
-  assert_true(w.upper_bound().precision() >= 100)
-  assert_true(w.lower_bound().coefficient().bit_length() == 100)
+  assert_true(w.lower_bound().precision() == 24)
+  assert_true(w.upper_bound().precision() == 24)
+  inspect(w.to_exact_string(), content="[0xffffffp-24, 0x800001p-23]")
   // `from_bounds` rounds wide ends outward: labelled 24
   let narrow = @bin_float.BinFloat::make(
     @bin_float.BinCoeff::from_uint64(3UL),
@@ -167,29 +167,25 @@ test "labels of the bounds: written-out cases" {
   let rounded = Interval::from_bounds(w.lower_bound(), narrow, precision=24)
   assert_true(rounded.lower_bound().precision() == 24)
   assert_true(rounded.upper_bound().precision() == 24)
-  // (3) the rule on a number finer than the grid of 24 bits below the range floor
-  // (2^(e_min - 30)) and on the smallest positive number of 24 bits
-  // (2^(e_min - 23)), through the stamping of the single writer
+  // (3) a number finer than the grid of 24 bits below the range floor (2^(e_min - 30)) is
+  // rounded outward to the grid (2^(e_min - 23) is the smallest positive number of 24 bits)
   let e_min = @bin_float.binary_implementation_e_min
   let fine = @bin_float.BinFloat::make(
     @bin_float.BinCoeff::one(),
     e_min - 30,
     31,
   )
-  assert_true(stamped_bound(fine, 24).precision() == 31)
-  let grid = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::one(),
-    e_min - 23,
-    24,
-  )
+  let floor = Interval::from_bounds(fine, fine, precision=24)
+  assert_true(floor.lower_bound().is_zero())
+  assert_true(floor.lower_bound().precision() == 24)
+  assert_true(floor.upper_bound().precision() == 24)
   assert_true(
-    stamped_bound(
-      grid.with_precision(24, BinaryRoundingMode::RoundTiesToEven),
-      53,
-    ).precision() ==
-    53,
+    floor
+    .upper_bound()
+    .identical(
+      @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), e_min - 23, 24),
+    ),
   )
-  assert_true(stamped_bound(fine, 53).precision() == 53)
   // (4) zeros and infinities carry p, the empty interval too
   let z = Interval::from_bounds(
     @bin_float.BinFloat::zero(precision=7),
