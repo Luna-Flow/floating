@@ -54,15 +54,32 @@ def pi_bounds(fraction_bits: int = FRACTION_BITS) -> tuple[int, int]:
     return lo, hi
 
 
+def check_rounding_claim(lo: int, hi: int, max_precision: int = FRACTION_BITS) -> None:
+    """`ref_pi_interval(p)` claims to be `[RD(pi), RU(pi)]` at p bits: the interval `[RD(lo), RU(hi)]`
+    must be exactly one unit in the last place wide for every p from 2 to `max_precision`, or a
+    number of p bits could fall between the two bounds. Raises ValueError naming the first p that fails."""
+    length = lo.bit_length()
+    if hi.bit_length() != length:
+        raise ValueError("the bounds of pi do not have the same length")
+    for p in range(2, max_precision + 1):
+        shift = length - p
+        down = lo >> shift
+        up = -((-hi) >> shift)  # ceiling
+        if up - down != 1:
+            raise ValueError(f"[RD(lo), RU(hi)] at p = {p} bits is {up - down} units wide, not 1")
+
+
 def render() -> str:
     lo, hi = pi_bounds()
+    check_rounding_claim(lo, hi)
     lines = [
         "///|",
         "// oracle-file: A",
         "// producer: tools/interval_pi_oracle.py",
         "// input: pi by Machin's formula in Python integers, 2048 fractional bits, outward margin",
         "// library-ran: no",
-        "// shares: nothing; ref_pi_interval(p) is [RD(pi), RU(pi)] at p bits (p <= 2048), built with Binary::from_hex and with_precision only",
+        "// shares: Binary::from_hex (reads the literal, exact at 2200 bits) and Binary::with_precision (directed rounding to p bits); ref_pi_interval(p) is [RD(pi), RU(pi)] at p bits (p <= 2048), which the generator proves for every p from 2 to 2048",
+        "//   from_hex is right on these inputs by the hexadecimal reader tests of the binary package (hex.mbt and its tables), with_precision by the rounding tests of binary and by certified_pi_wbtest.mbt, which compares the result with the Python bounds for 11 precisions",
         "// check: python3 tools/interval_pi_oracle.py --check",
         "",
         "///|",

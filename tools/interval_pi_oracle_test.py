@@ -35,5 +35,16 @@ class PiBoundsTest(unittest.TestCase):
         self.assertGreaterEqual(Fraction(hi, 1 << 256), Fraction(hi2, 1 << 512) - Fraction(1, 1 << 256))
 
 
+class RoundingClaimTest(unittest.TestCase):
+    def test_the_claim_holds_for_every_precision(self) -> None:
+        lo, hi = oracle.pi_bounds()
+        oracle.check_rounding_claim(lo, hi)
+
+    def test_a_wide_pair_is_refused_with_the_precision(self) -> None:
+        lo, hi = oracle.pi_bounds()
+        with self.assertRaisesRegex(ValueError, "p = 2010 bits"):
+            oracle.check_rounding_claim(lo, hi + (1 << 40))
+
+
 if __name__ == "__main__":
     unittest.main()
