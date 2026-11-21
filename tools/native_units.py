@@ -233,8 +233,8 @@ TOTAL_TESTS = re.compile(r"Total tests: (\d+), passed: (\d+), failed: (\d+)")
 
 def judge(status: int, output: str) -> tuple[int, str]:
     """(exit status, why) of a `moon test` invocation from its status and output: moon exits 0 when
-    a package name selects nothing, so a pass needs a `Total tests` line with tests, none failed and
-    no `not found` warning. The second item is the problem, empty for a pass."""
+    a package name selects nothing, so a pass needs at least one `Total tests` line, every line with
+    tests and none failed, and no `not found` warning. The counts of several lines are summed. The second item is the problem, empty for a pass."""
     if status != 0:
         return status, f"moon exited {status}"
     totals = TOTAL_TESTS.findall(output)
@@ -242,17 +242,17 @@ def judge(status: int, output: str) -> tuple[int, str]:
         return 1, f"moon warned: {NOT_FOUND.search(output).group(0)}"  # type: ignore[union-attr]
     if not totals:
         return 1, "moon printed no `Total tests` line"
-    total, passed, failed = (int(x) for x in totals[-1])
-    if total == 0:
-        return 1, "moon ran 0 tests"
-    if failed or passed != total:
-        return 1, f"moon reports {failed} failed, {passed} of {total} passed"
+    for index, (total_text, passed_text, failed_text) in enumerate(totals, start=1):
+        total, passed, failed = int(total_text), int(passed_text), int(failed_text)
+        if total == 0:
+            return 1, f"moon ran 0 tests (`Total tests` line {index} of {len(totals)})"
+        if failed or passed != total:
+            return 1, f"moon reports {failed} failed, {passed} of {total} passed (`Total tests` line {index} of {len(totals)})"
     return 0, ""
 
 
 def test_count(output: str) -> int:
-    totals = TOTAL_TESTS.findall(output)
-    return int(totals[-1][0]) if totals else 0
+    return sum(int(total) for total, _, _ in TOTAL_TESTS.findall(output))
 
 
 def to_run(units: Sequence[Unit], actions: Mapping[str, str]) -> tuple[list[str], list[str]]:
@@ -471,6 +471,7 @@ def run_plan(
             out(f"FAIL  {STAGE} [whole stage] {why}, {seconds:.1f}s")
             return status, tally, commits
         tally.ran = len(plan.units)
+        out(f"PASS  {STAGE} [whole stage], {seconds:.1f}s ({plan.last_tests} tests in one moon invocation)")
         if not plan.disabled:
             by_name = {u.name: u for u in plan.units}
             for unit in plan.units:

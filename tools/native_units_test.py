@@ -178,7 +178,8 @@ class RunTest(unittest.TestCase):
         plan = self.plan({})
         plan.disabled = "no key can be formed: x"
         calls: list[tuple[str, ...]] = []
-        status, tally, _ = nu.run_plan(plan, 2, lambda c: calls.append(c) or OK, lambda line: None)
+        lines: list[str] = []
+        status, tally, _ = nu.run_plan(plan, 2, lambda c: calls.append(c) or OK, lines.append)
         self.assertEqual(calls, [nu.whole_command(2)])
         self.assertNotIn("-p", calls[0])
         self.assertIn("not reusable", nu.summary_line(tally, 1, 0.02, {}))
@@ -208,6 +209,14 @@ class JudgeTest(unittest.TestCase):
     def test_failed_tests_and_a_failing_status_are_failures(self) -> None:
         self.assertEqual(nu.judge(*FAILED)[0], 1)
         self.assertEqual(nu.judge(2, "Total tests: 5, passed: 5, failed: 0.")[0], 2)
+
+    def test_every_total_line_counts_not_only_the_last(self) -> None:
+        good = "Total tests: 5, passed: 5, failed: 0.\n"
+        for bad in ("Total tests: 0, passed: 0, failed: 0.\n", "Total tests: 3, passed: 2, failed: 1.\n"):
+            self.assertEqual(nu.judge(0, bad + good)[0], 1, bad)
+            self.assertEqual(nu.judge(0, good + bad)[0], 1, bad)
+        self.assertEqual(nu.judge(0, good + good), (0, ""))
+        self.assertEqual(nu.test_count(good + good), 10)
 
     def test_the_test_count_is_read(self) -> None:
         self.assertEqual(nu.test_count(SILENT_TEXT), 23)
@@ -283,9 +292,11 @@ class RunOutputTest(RunTest):
         plan = self.plan({u.name: "run" for u in self.units})
         plan.reuse = False
         calls: list[tuple[str, ...]] = []
-        status, tally, _ = nu.run_plan(plan, 2, lambda c: calls.append(c) or OK, lambda line: None)
+        lines: list[str] = []
+        status, tally, _ = nu.run_plan(plan, 2, lambda c: calls.append(c) or OK, lines.append)
         self.assertEqual(calls, [nu.whole_command(2)])
         self.assertEqual((status, tally.ran), (0, 4))
+        self.assertTrue(any(line.startswith("PASS") and "whole stage" in line and "10 tests" in line for line in lines))
         self.assertTrue(all(plan.ledger.result(k) is not None for k in plan.keys.values()))
         self.assertEqual(plan.ledger.result(plan.keys[f"{L}/interval"])["result"]["tests_in_the_run"], 10)
 
