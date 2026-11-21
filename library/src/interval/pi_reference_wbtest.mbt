@@ -3,7 +3,8 @@
 // producer: tools/interval_pi_oracle.py
 // input: pi by Machin's formula in Python integers, 2048 fractional bits, outward margin
 // library-ran: no
-// shares: nothing; ref_pi_interval(p) is [RD(pi), RU(pi)] at p bits (p <= 2048), built with Binary::from_hex and with_precision only
+// shares: Binary::from_hex (reads the literal, exact at 2200 bits) and Binary::with_precision (directed rounding to p bits); ref_pi_interval(p) is [RD(pi), RU(pi)] at p bits (p <= 2048), which the generator proves for every p from 2 to 2048
+//   from_hex is right on these inputs by the hexadecimal reader tests of the binary package (hex.mbt and its tables), with_precision by the rounding tests of binary and by certified_pi_wbtest.mbt, which compares the result with the Python bounds for 11 precisions
 // check: python3 tools/interval_pi_oracle.py --check
 
 ///|
