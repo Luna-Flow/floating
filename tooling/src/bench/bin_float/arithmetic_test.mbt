@@ -85,6 +85,10 @@ fn binary_input(operation : BinaryOperation, bits : Int32) -> BinaryInput {
 }
 
 ///|
+/// Timing harness check. The expected coefficient is computed with core `BigInt`
+/// when the input is built (another implementation, level A for integer
+/// arithmetic on these operands), but this benchmark makes no claim about
+/// `bin_float` results: it checks that the timed kernel paths agree.
 fn binary_expected(
   _operation : BinaryOperation,
   input : BinaryInput,

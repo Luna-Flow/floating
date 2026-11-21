@@ -84,10 +84,24 @@ iterations and by eight.
   allocated before timing), reading files, and printing. Process start-up and
   the first warm-up passes are outside the measured blocks.
 - **Correctness.** Before it is timed, every `floating` output is compared with
-  the MPFR or libmpdec result for the same operand (all 427 comparisons, 61 cases in 7 rounds, were equal). Both
+  the MPFR or libmpdec result for the same operand, as canonical text: the
+  reference text (`%Ra` of MPFR, `mpd_to_sci` of libmpdec) and the text the
+  library prints are each reduced by one small parser of the benchmark package
+  (binary: sign, odd integer significand and exponent, or `0`, `-0`, `inf`,
+  `nan`; decimal: sign, coefficient with its trailing zeros, exponent), so the
+  sign of zero, the decimal cohort, infinities and NaN are compared and no
+  reader of the library stands between the reference and the verdict. A case
+  checks its 8 distinct operand sets; the rounds and blocks repeat the same
+  check, so the published run (59 cases, 7 rounds) makes 8 checks per case,
+  not one per round (an earlier version of this page counted 427 comparisons
+  that way). A run without a reference file (`quick`) is not validated and says
+  so (`EXTBENCH_NOT_VALIDATED`, never `EXTBENCH_FAILED=0`). Both
   libraries round every result correctly (MPFR always; libmpdec with
   `allcr = 1`; `floating` by certified refinement), so at equal precision the
-  results are identical and the ratio compares equal work.
+  results are identical and the ratio compares equal work. The reference side
+  is another implementation (level A); the benchmark specs of the other
+  `bench` packages compare the library with itself or with its own sibling and
+  are timing harness checks, not validation.
 - **Not trivially cached.** The operands are 8 distinct random sets per case,
   every result is overwritten on the next pass, and neither library keeps a
   result cache. Both keep internal caches of constants such as $\pi$ and
