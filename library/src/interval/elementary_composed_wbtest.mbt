@@ -109,3 +109,23 @@ test "decorated composed functions lower partial domains" {
   assert_true(DecoratedInterval::nai().is_nai())
   assert_eq(DecoratedInterval::nai().decoration(), Ill)
 }
+
+///|
+// oracle: A
+// source: written out from Table 10.5 of IEEE 1788-2015 (rootn(x, q) is defined for a nonzero integer q only, so degree 0 has no point of the domain and the interval extension is empty)
+// shares: nothing
+test "rootn of degree 0 and of an empty interval is empty, with the precision of the operand" {
+  for p in [24, 53, 113] {
+    let x = Interval::from_double(2.0, precision=p)
+    let zero_degree = x.rootn(0)
+    assert_true(zero_degree.is_empty())
+    assert_eq(zero_degree.precision(), p)
+    let empty = Interval::empty(precision=p)
+    for degree in [-3, -2, 0, 2, 3] {
+      assert_true(empty.rootn(degree).is_empty())
+      assert_eq(empty.rootn(degree).precision(), p)
+    }
+    assert_true(empty.try_rootn(0) is Err(_))
+    assert_true(x.try_rootn(0) is Err(_))
+  }
+}
