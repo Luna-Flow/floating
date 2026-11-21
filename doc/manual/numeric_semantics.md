@@ -593,11 +593,13 @@ choosing the right one matters:
 and sorting never fails; it never aborts. Use the quiet predicates or
 `compare_checked` when NaN must be treated as unordered.
 
-Equality follows the type. `Decimal`'s `==` is numeric for finite values
-(`-0 == 0.00`) and treats two NaNs as equal. `BinFloat` and `BallFloat` derive
-`Eq`, so their `==` compares representations, including the sign of zero and
-the precision: `-0 == +0` is false there, while `compare` returns `0`. Use
-`compare(...) == 0` or `compare_quiet_equal` for numeric equality of binary values.
+`==` agrees with `compare` in the three number types: `a == b` exactly when `a.compare(b) == 0`.
+`Decimal`'s `==` is numeric for finite values (`-0 == 0.00`) and treats two NaNs as
+equal; `BinFloat`'s `==` ignores the sign of a zero and the precision (`-0 == +0`) and
+treats two NaNs as equal too. This is the total preorder of sorting, not IEEE equality:
+use `compare_quiet_equal` or `compare_quiet` when a NaN must be unordered, and `identical`
+(`BinFloat`) for the structural question (the sign of a zero, the precision, the NaN
+kind). `BallFloat`'s `==` compares the endpoints by value.
 
 ```moonbit
 ///|
@@ -614,7 +616,9 @@ test "choosing a comparison" {
   let pos_zero = @bin_float.BinFloat::zero()
   inspect(neg_zero.compare(pos_zero), content="0")
   inspect(neg_zero.total_order_compare(pos_zero), content="-1")
-  inspect(neg_zero == pos_zero, content="false")
+  inspect(neg_zero == pos_zero, content="true")
+  inspect(neg_zero.identical(pos_zero), content="false")
+  inspect(nan == nan, content="true")
 }
 ```
 

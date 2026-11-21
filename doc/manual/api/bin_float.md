@@ -217,7 +217,7 @@ compatibility promise and is read only inside the package; a value is one heap
 object.
 
 ```mbti
-pub struct BinFloat(@bin_kernel.BinRepr) derive(Eq, @debug.Debug)
+pub struct BinFloat(@bin_kernel.BinRepr) derive(@debug.Debug)
 ```
 
 A finite value is $(-1)^s \cdot c \cdot 2^{e}$ with $s$ the sign bit, $c$ a
@@ -228,11 +228,27 @@ bits. The precision is an attribute of the value: plain operations work at the
 larger precision of their operands, and contextual operations stamp the
 context precision on their result.
 
-The derived `Eq` is structural, not numerical. Two values are `==` when sign,
-class, coefficient, exponent, precision and NaN state all agree, so
-`one(precision=53) != one(precision=24)`, `-0 != +0`, and a NaN is `==` to an
-identical NaN. Use `compare`, `compare_quiet` or `total_order` for numerical
-questions.
+`==` agrees with `compare`: `a == b` exactly when `a.compare(b) == 0`, so two values
+are equal when they are the same number, whatever their precisions
+(`one(precision=53) == one(precision=24)`, `-0 == +0`), and every NaN equals every
+other NaN. This is the total preorder in which `<`, `<=` and sorting work (every NaN
+equal to every NaN and above every number), the rule of `Decimal` too. It is not IEEE
+equality: use `compare_quiet_equal` (IEEE Std 754-2019 5.6.1, 5.11) when a NaN must be
+unordered. `BinFloat` has no `Hash`. `identical` is the structural question.
+
+### `BinFloat::identical`
+
+```mbti
+pub fn BinFloat::identical(Self, Self) -> Bool
+```
+
+The structural equality of two values: the same class, sign (the sign of a zero
+included), coefficient, exponent and precision, and for a NaN the same signaling
+bit and payload. It distinguishes `-0` from `+0`, a value of precision 53 from the
+same value of precision 24, and two NaNs of different kind or payload, and a NaN
+is identical to an identical NaN. It is what `==` was before 0.12; use it where a
+result is checked as a datum (a test of the sign of a zero or of the precision
+stamped by a contextual operation), and `==` where the number is meant.
 
 ### `BinFloat::make`
 
@@ -1293,7 +1309,9 @@ test "three different orders on BinFloat" {
   inspect("\{unordered} \{flags.invalid_operation()}", content="true false")
   inspect(neg_zero.compare(zero), content="0")
   inspect(neg_zero.total_order_compare(zero), content="-1")
-  inspect(neg_zero == zero, content="false")
+  inspect(neg_zero == zero, content="true")
+  inspect(neg_zero.identical(zero), content="false")
+  inspect(nan == nan, content="true")
   let values = [nan, @bin_float.BinFloat::inf(@def.Sign::Positive), zero, @bin_float.BinFloat::from_int(-3)]
   values.sort()
   inspect(values.map(fn(v) { v.to_string() }).join(" "), content="-3p0 0 inf nan")
@@ -2668,7 +2686,7 @@ pub impl Eq for BinCoeff
 pub impl Show for BinCoeff
 pub impl @debug.Debug for BinCoeff
 
-#derive(Eq, @debug.Debug)
+#derive(@debug.Debug)
 pub struct BinFloat(@bin_kernel.BinRepr)
 pub fn BinFloat::abs(Self) -> Self
 pub fn BinFloat::abs_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
@@ -2771,6 +2789,7 @@ pub fn BinFloat::from_string(String, precision? : Int32) -> Result[Self, @arithm
 pub fn BinFloat::from_string_ctx(String, BinaryContext) -> Result[(Self, BinaryFlags), @arithmetic.ArithmeticError]
 pub fn BinFloat::hypot(Self, Self) -> Self
 pub fn BinFloat::hypot_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
+pub fn BinFloat::identical(Self, Self) -> Bool
 pub fn BinFloat::ilogb(Self) -> Int32?
 pub fn BinFloat::inf(@def.Sign, precision? : Int32) -> Self
 pub fn BinFloat::is_finite(Self) -> Bool
@@ -2933,6 +2952,7 @@ pub impl @def.Floating for BinFloat
 pub impl Add for BinFloat
 pub impl Compare for BinFloat
 pub impl Div for BinFloat
+pub impl Eq for BinFloat
 pub impl Mul for BinFloat
 pub impl Neg for BinFloat
 pub impl Show for BinFloat

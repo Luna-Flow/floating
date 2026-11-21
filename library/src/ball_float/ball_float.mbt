@@ -10,10 +10,10 @@
 /// is not such a number: an end with more than `precision_` bits (a `from_bounds`
 /// of wide ends, an end of `new` or of `cancel_minus` kept unrounded) or finer than
 /// the grid of `precision_` bits below the range floor keeps the label of its own
-/// bit count. `BinFloat`'s derived `==` compares labels, so `x.lower_bound() == y`
-/// is `true` for a bound and a value of the same number and the same precision; the
-/// `==` of `BallFloat` compares the bounds by value and `identical` compares the
-/// bounds by value and the precision of the interval: neither reads a label.
+/// bit count. `BinFloat`'s `==` agrees with `compare` and ignores a label (`identical`
+/// compares it), so `x.lower_bound() == y` is `true` for a bound and a value of the same
+/// number; the `==` of `BallFloat` compares the bounds by value and `identical` compares
+/// the bounds by value and the precision of the interval: neither reads a label.
 /// The sign of a stored zero is unspecified: the accessors decide.
 /// `store_interval` and `empty_interval` are the only writers of the fields, and
 /// `store_interval` stamps the labels.

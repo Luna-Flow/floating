@@ -234,7 +234,7 @@ fn binary_reduced_agree(
     (None, None) => true
     (Some(a), Some(b)) =>
       if lower.compare(upper) == 0 {
-        a.0 == b.0 && a.1 == b.1
+        a.0.identical(b.0) && a.1.identical(b.1)
       } else if operation == BinaryTrigonometricOperation::Tan {
         true
       } else {

@@ -186,7 +186,7 @@ test "ln results are identical with and without the Newton step" {
         match
           (burst_ln_test_series(value, context), value.try_ln_ctx(context)) {
           (Some((expected, expected_flags)), Ok((result, flags))) => {
-            assert_true(result == expected)
+            assert_true(result.identical(expected))
             assert_true(flags == expected_flags)
             compared += 1
           }
@@ -229,11 +229,11 @@ test "ln keeps its results when the Newton step starts at the entry threshold" {
       let result = value.ln()
       let work = precision + 320
       let (low, high) = binary_ln_unit_bounds_series(value, work).unwrap()
-      assert_eq(
+      assert_identical(
         result,
         low.with_precision(precision, BinaryRoundingMode::RoundTiesToEven),
       )
-      assert_eq(
+      assert_identical(
         result,
         high.with_precision(precision, BinaryRoundingMode::RoundTiesToEven),
       )

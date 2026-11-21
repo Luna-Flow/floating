@@ -97,7 +97,7 @@ test "the word route of add_ctx and sub_ctx equals the general route" {
             },
             context,
           )
-          if value != expected || flags != expected_flags {
+          if !value.identical(expected) || flags != expected_flags {
             abort(
               "\{a} \{if flip { "-" } else { "+" }} \{b} p=\{precision}: word \{value} \{flags.inexact()}, general \{expected} \{expected_flags.inexact()}",
             )
@@ -127,10 +127,12 @@ test "add_ctx and sub_ctx are unchanged on the public path" {
     let context = BinaryContext::new(precision=53)
     let (sum, sum_flags) = a.add_ctx(b, context)
     let (expected, expected_flags) = a.add_ctx_general(b, context)
-    assert_true(sum == expected && sum_flags == expected_flags)
+    assert_true(sum.identical(expected) && sum_flags == expected_flags)
     let (difference, difference_flags) = a.sub_ctx(b, context)
     let (expected, expected_flags) = a.add_ctx_general(b.neg(), context)
-    assert_true(difference == expected && difference_flags == expected_flags)
+    assert_true(
+      difference.identical(expected) && difference_flags == expected_flags,
+    )
   }
 }
 
@@ -162,7 +164,7 @@ test "the word route of mul_ctx equals the general route" {
     match binary_ctx_mul_words(a, b, context) {
       Some((value, flags)) => {
         let (expected, expected_flags) = a.mul_ctx_general(b, context)
-        if value != expected || flags != expected_flags {
+        if !value.identical(expected) || flags != expected_flags {
           abort(
             "\{a} * \{b} p=\{context.precision}: word \{value}, general \{expected}",
           )
@@ -207,7 +209,7 @@ test "the word route of div_ctx equals the general route" {
     match binary_ctx_div_words(a, b, context) {
       Some((value, flags)) => {
         let (expected, expected_flags) = a.div_ctx_general(b, context)
-        if value != expected || flags != expected_flags {
+        if !value.identical(expected) || flags != expected_flags {
           abort(
             "\{a} / \{b} p=\{context.precision}: word \{value}, general \{expected}",
           )

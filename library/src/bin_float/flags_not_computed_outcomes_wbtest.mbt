@@ -38,7 +38,7 @@ test "exp: a forced failure, a domain-free ordinary case and an invalid operand"
   let one = BinFloat::from_int(1)
   let (ok, ok_flags) = one.try_exp_ctx(base).unwrap()
   let (plain, plain_flags) = one.exp_ctx(base)
-  assert_true(plain == ok)
+  assert_true(plain.identical(ok))
   assert_true(plain_flags == ok_flags)
   assert_false(ok_flags.not_computed() || ok_flags.invalid_operation())
   // an invalid operand (a signaling NaN): a value with invalid_operation

@@ -383,7 +383,7 @@ test "bin_float coefficient constructor normalizes canonical dyadics" {
   let value = @bin_float.BinFloat::from_coefficient(
     @bin_float.BinCoeff::from_uint64(12UL),
   )
-  assert_eq(value, binary_test_make(12N, 0, 53).normalized())
+  assert_true(value.identical(binary_test_make(12N, 0, 53).normalized()))
   assert_eq(binary_test_signed_bigint(value), 3N)
   assert_eq(value.exponent2(), 2)
 }
@@ -4789,7 +4789,7 @@ test "ball_float coefficient constructor keeps exact bounded interval" {
   assert_eq(value.lower_bound().compare(twelve), 0)
   assert_eq(value.upper_bound().compare(twelve), 0)
   assert_true(value.is_common_interval())
-  assert_eq(value.lower_bound(), value.upper_bound())
+  assert_true(value.lower_bound().identical(value.upper_bound()))
 }
 
 ///|

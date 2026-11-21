@@ -117,7 +117,7 @@ fn binary_certified_target_rounding(
   let (upper_value, upper_flags) = upper.round_ctx(context)
   (
     lower_value,
-    lower_value == upper_value && lower_flags == upper_flags,
+    lower_value.identical(upper_value) && lower_flags == upper_flags,
     if lower_flags == upper_flags {
       lower_flags
     } else {

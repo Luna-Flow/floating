@@ -72,7 +72,7 @@ test "round core agrees with the old one at the exponent limits and carries" {
           )
           let old = old_round_dyadic(negative, magnitude, exponent2, context)
           assert_true(
-            fresh.0 == old.0,
+            fresh.0.identical(old.0),
             msg="value top=\{top} bits=\{bits} p=\{p}",
           )
           assert_true(
@@ -202,12 +202,18 @@ test "sign-aware corners agree with the old ones when products overflow and quot
             if a0.compare(a1) <= 0 && b0.compare(b1) <= 0 {
               let f = binary_product_bounds((a0, a1), (b0, b1), down, up)
               let o = old_product_bounds((a0, a1), (b0, b1), down, up)
-              assert_true(f.0 == o.0 && f.1 == o.1, msg="product")
+              assert_true(
+                f.0.identical(o.0) && f.1.identical(o.1),
+                msg="product",
+              )
               let fq = binary_quotient_bounds((a0, a1), (b0, b1), down, up)
               let oq = old_quotient_bounds((a0, a1), (b0, b1), down, up)
               match (fq, oq) {
                 (Some(x), Some(y)) =>
-                  assert_true(x.0 == y.0 && x.1 == y.1, msg="quotient")
+                  assert_true(
+                    x.0.identical(y.0) && x.1.identical(y.1),
+                    msg="quotient",
+                  )
                 (None, None) => ()
                 _ => fail("quotient presence")
               }

@@ -98,7 +98,7 @@ test "BinFloat rootn and pow return exact roots of coefficients over 4096 bits" 
     )
     // A negative degree divides once with the context rounding.
     let (reciprocal, flags) = square.rootn_ctx(-2, context)
-    assert_eq(reciprocal, BinFloat::one().div_ctx(expected, context).0)
+    assert_identical(reciprocal, BinFloat::one().div_ctx(expected, context).0)
     assert_true(flags.inexact())
   }
   for context in exact_root_contexts(9003) {

@@ -97,7 +97,7 @@ fn convert_binary_matches(
     _ => {
       let value = @bin_float.BinFloat::from_hex(expected, precision).unwrap()
       assert_true(
-        value.equal(actual),
+        value.identical(actual),
         msg="\{label}: \{actual.to_hex()} != \{expected}",
       )
     }

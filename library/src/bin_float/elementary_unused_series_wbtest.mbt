@@ -152,8 +152,8 @@ fn binary_unused_series_same(
 ) -> Bool {
   match (left, right) {
     (Some((left_low, left_high)), Some((right_low, right_high))) =>
-      left_low == right_low &&
-      left_high == right_high &&
+      left_low.identical(right_low) &&
+      left_high.identical(right_high) &&
       left_low.precision() == right_low.precision() &&
       left_high.precision() == right_high.precision()
     (None, None) => true
@@ -256,7 +256,7 @@ test "exp enclosure with a single series rounds like two series" {
       match expected {
         Some((result, flags)) => {
           let (actual, actual_flags) = value.exp_ctx(context)
-          assert_eq(actual, result)
+          assert_identical(actual, result)
           assert_eq(actual_flags, flags)
         }
         None => ()

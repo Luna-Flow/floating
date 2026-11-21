@@ -188,8 +188,8 @@ test "away from the bottom of the range the result is the same as before" {
       quantize_interval(old_lo, old_hi, 53)
     }
     let new = x.cancel_minus(y)
-    assert_eq(new.lower_bound(), old.lower_bound())
-    assert_eq(new.upper_bound(), old.upper_bound())
+    assert_identical(new.lower_bound(), old.lower_bound())
+    assert_identical(new.upper_bound(), old.upper_bound())
   }
 }
 

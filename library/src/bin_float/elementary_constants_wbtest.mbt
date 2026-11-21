@@ -5,8 +5,8 @@ fn binary_constant_test_same(
 ) -> Bool {
   match (left, right) {
     (Some((left_low, left_high)), Some((right_low, right_high))) =>
-      left_low == right_low &&
-      left_high == right_high &&
+      left_low.identical(right_low) &&
+      left_high.identical(right_high) &&
       left_low.precision() == right_low.precision() &&
       left_high.precision() == right_high.precision()
     (None, None) => true
@@ -117,8 +117,8 @@ test "elementary functions are unchanged by cache state and call order" {
   let second_sin = inputs.map(value => value.sin_ctx(context))
   let second_cos = inputs.map(value => value.cos_ctx(context))
   for index in 0..<inputs.length() {
-    assert_eq(first_ln[index], second_ln[index])
-    assert_eq(first_sin[index], second_sin[index])
-    assert_eq(first_cos[index], second_cos[index])
+    assert_identical_with_flags(first_ln[index], second_ln[index])
+    assert_identical_with_flags(first_sin[index], second_sin[index])
+    assert_identical_with_flags(first_cos[index], second_cos[index])
   }
 }

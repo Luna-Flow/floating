@@ -249,7 +249,7 @@ test "far exponent addition matches exact alignment around cutoff" {
               let expected = binary_add_aligned_legacy_for_test(
                 left, right, context,
               )
-              assert_true(actual.0 == expected.0)
+              assert_true(actual.0.identical(expected.0))
               assert_true(actual.1 == expected.1)
             }
           }
@@ -267,7 +267,7 @@ test "wide exponent gaps stay on bounded coefficient paths" {
   assert_true(one.compare(tiny) > 0)
   assert_true(tiny.compare(one) < 0)
   let nearest = one.add_ctx(tiny, BinaryContext::new(precision~))
-  assert_eq(nearest.0, BinFloat::one(precision~))
+  assert_identical(nearest.0, BinFloat::one(precision~))
   assert_true(nearest.1.inexact())
   let upward = one.add_ctx(
     tiny,
@@ -322,7 +322,7 @@ test "optimized dyadic rounding matches legacy control flow" {
             let expected = binary_round_dyadic_legacy_for_test(
               negative, magnitude, exponent2, context,
             )
-            assert_true(actual.0 == expected.0)
+            assert_true(actual.0.identical(expected.0))
             assert_true(actual.1 == expected.1)
           }
         }
@@ -377,7 +377,7 @@ test "optimized rational rounding reuses equivalent target split" {
               let expected = binary_round_rational_legacy_for_test(
                 negative, numerator, denominator, exponent2, context,
               )
-              assert_true(actual.0 == expected.0)
+              assert_true(actual.0.identical(expected.0))
               assert_true(actual.1 == expected.1)
             }
           }
@@ -435,7 +435,7 @@ test "single-track pow matches exact oracle across rounding modes" {
               let expected = binary_pow_exact_magnitude(
                 base, magnitude, reciprocal, context,
               )
-              assert_true(actual.0 == expected.0)
+              assert_true(actual.0.identical(expected.0))
               assert_true(actual.1 == expected.1)
             }
           }
@@ -512,7 +512,7 @@ test "single-track pow fixed-seed differential" {
     let expected = binary_pow_exact_magnitude(
       base, magnitude, reciprocal, context,
     )
-    assert_true(actual.0 == expected.0)
+    assert_true(actual.0.identical(expected.0))
     assert_true(actual.1 == expected.1)
   }
 }

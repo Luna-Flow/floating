@@ -247,7 +247,7 @@ test "fma agrees with an exact-sum reference on random operands" {
       let context = BinaryContext::new(precision~, rounding=mode, e_max=1023)
       let expected = fma_reference(a, b, c, context)
       let actual = a.fma_ctx(b, c, context)
-      assert_eq(
+      assert_identical_with_flags(
         actual,
         expected,
         msg="\{a} * \{b} + \{c} under mode \{mode_index}",

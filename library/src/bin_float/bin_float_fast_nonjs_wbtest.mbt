@@ -56,7 +56,7 @@ fn fast_test_operand(random : FastTestRandom, around : Int32) -> BinFloat {
 
 ///|
 fn fast_test_same(actual : BinFloat, expected : BinFloat) -> Bool {
-  actual == expected &&
+  actual.identical(expected) &&
   actual.precision() == expected.precision() &&
   actual.is_negative() == expected.is_negative() &&
   actual.exponent2() == expected.exponent2()
@@ -393,7 +393,7 @@ fn sqrt_words_check(
   let value = finite_from_parts(false, Coeff::from_uint64(odd), exponent2, 64)
   let actual = value.sqrt_ctx(context)
   let expected = binary_round_sqrt(Coeff::from_uint64(odd), exponent2, context)
-  assert_eq(actual, expected)
+  assert_identical_with_flags(actual, expected)
 }
 
 ///|

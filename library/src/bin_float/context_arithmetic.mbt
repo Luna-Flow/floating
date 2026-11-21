@@ -1301,7 +1301,7 @@ fn binary_pow_can_round_interval(
   }
   let lower_rounded = lower.round_ctx(context)
   let upper_rounded = upper.round_ctx(context)
-  if lower_rounded.0 != upper_rounded.0 {
+  if !lower_rounded.0.identical(upper_rounded.0) {
     return None
   }
   if lower_rounded.1.overflow() != upper_rounded.1.overflow() {

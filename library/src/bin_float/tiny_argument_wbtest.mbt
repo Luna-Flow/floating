@@ -75,7 +75,11 @@ test "BinFloat elementary functions certify tiny arguments" {
           guard function(x, context) is Ok((value, flags)) else {
             fail(label + " failed to certify")
           }
-          assert_eq(value, tiny_expected(anchor, above, context), msg=label)
+          assert_identical(
+            value,
+            tiny_expected(anchor, above, context),
+            msg=label,
+          )
           assert_eq(flags.to_testfloat_bits(), 1, msg=label)
         }
       }
@@ -88,7 +92,7 @@ test "BinFloat elementary functions certify tiny arguments" {
     guard x.try_sin_ctx(context) is Ok((value, flags)) else {
       fail("binary128 sin(2^-8000) failed to certify")
     }
-    assert_eq(value, tiny_expected(x, false, context))
+    assert_identical(value, tiny_expected(x, false, context))
     assert_true(flags.inexact())
   }
 }
@@ -113,7 +117,7 @@ test "BinFloat hypot ignores the exponent gap of a negligible operand" {
       guard left.try_hypot_ctx(right, context) is Ok((value, flags)) else {
         fail("hypot(" + left.to_hex() + ", " + right.to_hex() + ") failed")
       }
-      assert_eq(value, tiny_expected(large, true, context))
+      assert_identical(value, tiny_expected(large, true, context))
       assert_eq(flags.to_testfloat_bits(), 1)
     }
   }
@@ -126,7 +130,7 @@ test "BinFloat hypot ignores the exponent gap of a negligible operand" {
         BinFloat::make_coeff(Coeff::one(), -40, 53),
       ] {
       let (value, flags) = BinFloat::one().hypot_ctx(small, context)
-      assert_eq(value, tiny_expected(BinFloat::one(), true, context))
+      assert_identical(value, tiny_expected(BinFloat::one(), true, context))
       assert_true(flags.inexact())
     }
   }
@@ -141,10 +145,10 @@ test "BinFloat exp10 and log10 stay exact past 10^4096" {
     5000,
     12000,
   )
-  assert_eq(power, expected)
+  assert_identical(power, expected)
   assert_eq(power_flags, BinaryFlags::new())
   let (logarithm, logarithm_flags) = expected.log10_ctx(context)
-  assert_eq(logarithm, BinFloat::from_int(5000, precision=12000))
+  assert_identical(logarithm, BinFloat::from_int(5000, precision=12000))
   assert_eq(logarithm_flags, BinaryFlags::new())
 }
 
@@ -179,7 +183,7 @@ test "BinFloat pow certifies tiny exponents" {
         fail(label + " failed to certify")
       }
       let one = BinFloat::one(precision=context.precision)
-      assert_eq(value, tiny_expected(one, above, context), msg=label)
+      assert_identical(value, tiny_expected(one, above, context), msg=label)
       assert_eq(flags.to_testfloat_bits(), 1, msg=label)
     }
   }

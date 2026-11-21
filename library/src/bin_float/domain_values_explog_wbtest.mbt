@@ -118,7 +118,7 @@ test "exp/log family: domain case, could-not-compute case and ordinary case" {
       msg=name + " ordinary flags",
     )
     let (plain_ok, plain_ok_flags) = plain(three, base)
-    assert_true(plain_ok == ok, msg=name + " plain = try")
+    assert_true(plain_ok.identical(ok), msg=name + " plain = try")
     assert_true(
       plain_ok_flags == ok_flags,
       msg=name + " plain flags = try flags",

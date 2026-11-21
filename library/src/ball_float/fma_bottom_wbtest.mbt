@@ -206,7 +206,7 @@ test "away from the bottom of the range fma is unchanged" {
       53,
     )
     let result = x.fma(y, z)
-    assert_eq(result.lower_bound(), old.lower_bound())
-    assert_eq(result.upper_bound(), old.upper_bound())
+    assert_identical(result.lower_bound(), old.lower_bound())
+    assert_identical(result.upper_bound(), old.upper_bound())
   }
 }

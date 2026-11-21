@@ -20,7 +20,7 @@ fn assert_exact_result(
   label : String,
 ) -> Unit raise {
   guard result is Ok((value, flags)) else { fail(label + ": unexpected error") }
-  assert_eq(value, expected, msg=label)
+  assert_identical(value, expected, msg=label)
   assert_eq(flags, BinaryFlags::new(), msg=label)
 }
 
@@ -49,7 +49,7 @@ test "BinFloat rootn returns exact results for negative degrees" {
     -3,
     BinaryContext::binary64(),
   )
-  assert_eq(
+  assert_identical(
     third,
     BinFloat::one().div_ctx(BinFloat::from_int(3), BinaryContext::binary64()).0,
   )
@@ -134,7 +134,7 @@ test "BinFloat pow returns exact dyadic results without inexact" {
     pow_rootn_dyadic(3UL, -1).neg(),
     BinaryContext::binary64(),
   )
-  assert_eq(
+  assert_identical(
     reciprocal,
     BinFloat::one().div_ctx(BinFloat::from_int(216), BinaryContext::binary64()).0,
   )
@@ -206,17 +206,17 @@ test "BinFloat pow decides parity of large integer exponents" {
     ] {
     let (exponent, expected) = case
     let (value, flags) = BinFloat::negative_zero().pow_ctx(exponent, context)
-    assert_eq(value, expected)
+    assert_identical(value, expected)
     assert_true(flags.division_by_zero())
   }
   // (-2)^(2^32) overflows to +inf; (-1.5)^(2^31 + 1) overflows to -inf, or
   // to -max under round toward positive.
   let (even_power, even_flags) = BinFloat::from_int(-2).pow_ctx(even, context)
-  assert_eq(even_power, positive_infinity)
+  assert_identical(even_power, positive_infinity)
   assert_true(even_flags.overflow())
   let minus_three_halves = pow_rootn_dyadic(3UL, -1).neg()
   let (odd_power, odd_flags) = minus_three_halves.pow_ctx(odd, context)
-  assert_eq(odd_power, negative_infinity)
+  assert_identical(odd_power, negative_infinity)
   assert_true(odd_flags.overflow())
   let (upward_power, upward_flags) = minus_three_halves.pow_ctx(
     odd,

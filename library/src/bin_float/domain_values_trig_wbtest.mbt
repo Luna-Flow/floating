@@ -166,7 +166,7 @@ test "trigonometric family: domain case, could-not-compute case and ordinary cas
       msg=name + " ordinary flags",
     )
     let (plain_ok, plain_ok_flags) = plain(ordinary, base)
-    assert_true(plain_ok == ok, msg=name + " plain = try")
+    assert_true(plain_ok.identical(ok), msg=name + " plain = try")
     assert_true(
       plain_ok_flags == ok_flags,
       msg=name + " plain flags = try flags",
