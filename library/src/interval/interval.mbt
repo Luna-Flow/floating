@@ -225,15 +225,15 @@ fn halve(x : @bin_float.BinFloat) -> @bin_float.BinFloat {
 }
 
 ///|
-/// Bits kept by the sum of the ball view: the sum of two bounds of `precision` bits whose
+/// Bits kept by the sum of the exact center: the sum of two bounds of `precision` bits whose
 /// exponents differ by more than this is not formed exactly (the part below is a sticky bit).
-let ball_view_margin : Int32 = 65536
+let center_margin : Int32 = 65536
 
 ///|
-fn ball_view_bits(precision : Int32) -> Int32 {
+fn center_bits(precision : Int32) -> Int32 {
   Int32::min(
     @bin_float.binary_precision_max,
-    Int32::max(precision, 1) + ball_view_margin + 2,
+    Int32::max(precision, 1) + center_margin + 2,
   )
 }
 
@@ -398,7 +398,7 @@ fn near_range_top(x : @bin_float.BinFloat) -> Bool {
 
 ///|
 /// The exact center `(lower + upper) / 2` of a bounded nonempty interval: the half of the sum
-/// of the bounds, the sum made odd when it has more than `ball_view_bits` bits (an exponent gap
+/// of the bounds, the sum made odd when it has more than `center_bits` bits (an exponent gap
 /// of more than 65,536 places), so that the caller rounds the result once, to at most `bits`
 /// bits. Near the top of the range the sum of the halves is formed instead (the sum of the
 /// bounds could overflow).
@@ -409,30 +409,11 @@ fn interval_center(x : Interval, bits : Int32) -> @bin_float.BinFloat {
   guard x.is_common_interval() else {
     abort("interval center is undefined for unbounded intervals")
   }
-  let w = ball_view_bits(bits)
+  let w = center_bits(bits)
   if near_range_top(x.lo_) || near_range_top(x.hi_) {
     odd_sum(halve(x.lo_), halve(x.hi_), w)
   } else {
     halve(odd_sum(x.lo_, x.hi_, w))
-  }
-}
-
-///|
-/// The half-width `(upper - lower) / 2` of a bounded nonempty interval, exact when it has at most
-/// `ball_view_bits` bits and rounded toward positive otherwise (a radius must not understate it).
-fn interval_radius(x : Interval) -> @bin_float.BinFloat {
-  guard !x.is_empty() else {
-    abort("interval radius is undefined for an empty interval")
-  }
-  guard x.is_common_interval() else {
-    abort("interval radius is undefined for unbounded intervals")
-  }
-  let w = ball_view_bits(x.precision_)
-  let up = BinaryRoundingMode::RoundTowardPositive
-  if near_range_top(x.lo_) || near_range_top(x.hi_) {
-    directed_sub(halve(x.hi_), halve(x.lo_), w, up).abs()
-  } else {
-    halve(directed_sub(x.hi_, x.lo_, w, up)).abs()
   }
 }
 
@@ -1244,19 +1225,6 @@ fn Interval::contains_zero(self : Interval) -> Bool {
     return false
   }
   self.is_member(@bin_float.BinFloat::zero(precision=self.precision_))
-}
-
-///|
-/// The exact midpoint, the center of the midpoint-radius view; aborts on an empty or
-/// unbounded interval. Public observers use `midpoint` and `radius`.
-fn Interval::center(self : Interval) -> @bin_float.BinFloat {
-  interval_center(self, self.precision_)
-}
-
-///|
-/// The half-width around the exact `center` (the radius of the midpoint-radius view).
-fn Interval::half_width(self : Interval) -> @bin_float.BinFloat {
-  interval_radius(self)
 }
 
 ///|

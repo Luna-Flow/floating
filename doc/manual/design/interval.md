@@ -257,19 +257,7 @@ ends $\tilde c \pm R$ were kept exact with more than $p$ bits, which made the ty
 hold bounds that were not numbers of its format; the hull above replaced it (the
 changelog states the largest difference). `with_precision` rounds the endpoints
 outward directly, which encloses the input at every precision and is the tightest
-representable enclosure, so it has no rounding-mode argument. The converse view inside the package is exact: the center is
-$(\underline{x} + \overline{x})/2$ and the half-width $(\overline{x} -
-\underline{x})/2$, which are dyadic and need no rounding (the half-width is
-rounded up only if it underflows the exponent range), so
-$[\text{center} - \text{half-width}, \text{center} + \text{half-width}]$ is
-exactly the stored interval. `to_midpoint_radius_string` prints this pair (`Show` is the inf-sup literal of 13.3). The public observers are
-not this pair: IEEE 1788-2015 12.12.8 defines `mid` as the center rounded to
-the format and `rad` as the smallest number of the format with the interval
-inside $[m - r, m + r]$ for that rounded $m$. The half-width around the exact
-center is too small when the center is not representable (it was returned as
-`radius` before 0.12, [issue 477](https://github.com/Luna-Flow/floating/issues/477)),
-so `radius` measures from `midpoint`: it is the larger of $m - \underline{x}$ and
-$\overline{x} - m$, rounded up.
+representable enclosure, so it has no rounding-mode argument. The midpoint-radius view of the interval is the pair that IEEE 1788-2015 12.12.8 defines: `to_midpoint_radius_string` prints `midpoint()` and `radius()`, numbers of the format of $p$ bits. `mid` is the exact center $(\underline{x} + \overline{x})/2$ rounded to nearest (ties to even), and `rad` is the smallest number of the format with the interval inside $[m - r, m + r]$ for that rounded $m$: `radius` measures from `midpoint`, it is the larger of $m - \underline{x}$ and $\overline{x} - m$, rounded up, so the printed pair encloses the interval (`Interval::radius`). The half-width around the exact center would be too small when the center is not representable (it was returned as `radius` before 0.12, [issue 477](https://github.com/Luna-Flow/floating/issues/477)); and the exact center of bounds that are billions of places apart is a number of billions of bits, which a text view cannot print: before 0.12 the text printed the exact center and half-width, with a stand-in beyond a gap of 65,536 places that was not the center.
 
 ### The dependency problem
 
@@ -1043,9 +1031,8 @@ that an exact route had to handle itself belong to the binary layer:
 The sign of a zero that is the result of an exact cancellation is the one of
 the direction ($-0$ toward $-\infty$); it is not part of the interval (see the
 observers). Division and square root, whose exact results are not dyadic, are
-computed directly with directed rounding at precision $p$. The ball view
-(`center`, `half_width`, and so `midpoint`) needs the exact half-sum of the two
-bounds, not a rounded one: it adds the bounds rounded toward zero to $p + 65{,}538$
+computed directly with directed rounding at precision $p$. The midpoint
+needs the exact half-sum of the two bounds, not a rounded one: it adds the bounds rounded toward zero to $p + 65{,}538$
 bits and makes the result odd when that rounding was inexact (round to odd), so
 that the one rounding that follows, to at most $p$ bits in any direction, is
 the rounding of the exact value; an exponent gap of less than 65,536 places

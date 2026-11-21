@@ -2124,17 +2124,17 @@ test "exact text" {
 
 ### `Interval::to_midpoint_radius_string`, `DecoratedInterval::to_midpoint_radius_string`
 
-The midpoint-radius view, `center +/- half-width`, with both numbers in the
-`BinFloat` notation (`3p-1` is $3 \cdot 2^{-1}$). It was the output of `Show`
-before 0.12; it is for reading, not a literal (`from_string` does not read it),
-and its cost does not depend on the exponent range: an interval whose bounds
-have exponents a billion apart is written in a few characters. An interval with
-an infinite bound prints as `[l, u]` of binary numbers, Empty as `[empty]`;
-a decorated interval appends `_` and the decoration. The center is the exact
-midpoint of the bounds for an exponent gap of less than 65,536 places; beyond
-it, it is a round-to-odd value at $p + 65{,}538$ bits (a number of about 65,000
-bits, not the exact midpoint). `midpoint` and `radius`, the functions of IEEE
-1788-2015 12.12.8, have $p$ bits.
+The midpoint-radius view, `midpoint +/- radius`: the two functions of IEEE 1788-2015
+12.12.8 ([`Interval::midpoint` and `Interval::radius`](#intervalmidpoint-and-intervalradius)),
+numbers of the format of the interval, written in the `BinFloat` notation (`3p-1` is
+$3 \cdot 2^{-1}$). The radius is taken about the midpoint and covers both bounds, so the
+printed pair encloses the interval. Before 0.12 `Show` printed the view; since then it is for
+reading, not a literal (`from_string` does not read it), and its cost does not depend on the
+exponent range: an interval whose bounds have exponents a billion apart is written with
+numbers of $p$ bits. An interval with an infinite bound prints as `[l, u]` of binary numbers,
+Empty as `[empty]`; a decorated interval appends `_` and the decoration. Before the change of
+0.12 the text printed the exact center and half-width, and a number of about 65,000 bits for
+bounds more than 65,536 places apart.
 
 ```mbti
 pub fn Interval::to_midpoint_radius_string(Self) -> String

@@ -60,7 +60,7 @@ are adjacent 53-bit numbers, and $\ln 2$ lies between them.
 ## Everyday tasks
 
 The remaining examples print results with this helper; a bounded interval
-prints as `centre +/- radius` in exact binary notation (`to_midpoint_radius_string`; `to_string` is the
+prints as `midpoint +/- radius` in binary notation (`to_midpoint_radius_string`; `to_string` is the
 portable literal `[l, u]`):
 
 ```moonbit
