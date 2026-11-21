@@ -390,14 +390,17 @@ test "decimal elementary functions: domain, could-not-compute and ordinary outco
 test "decimal checked tier: the two kinds of Err stay apart" {
   let nan = Decimal::nan()
   match
-    contextual_outcome(nan, { ..DecimalFlags::new(), invalid_operation: true, }) {
+    contextual_outcome("exp", nan, {
+      ..DecimalFlags::new(),
+      invalid_operation: true,
+    }) {
     Err(error) => {
       assert_true(error.is_domain_error())
       assert_false(error.is_certification_failure())
     }
     Ok(_) => abort("invalid_operation must be an Err")
   }
-  match contextual_outcome(nan, not_computed_flags()) {
+  match contextual_outcome("exp", nan, not_computed_flags()) {
     Err(error) => {
       assert_true(error.is_certification_failure())
       assert_false(error.is_domain_error())
@@ -405,11 +408,16 @@ test "decimal checked tier: the two kinds of Err stay apart" {
     Ok(_) => abort("not_computed must be an Err")
   }
   match
-    contextual_outcome(nan, { ..DecimalFlags::new(), division_by_zero: true, }) {
+    contextual_outcome("exp", nan, {
+      ..DecimalFlags::new(),
+      division_by_zero: true,
+    }) {
     Err(error) => assert_true(error.is_division_by_zero())
     Ok(_) => abort("division_by_zero must be an Err")
   }
-  assert_true(contextual_outcome(Decimal::one(), DecimalFlags::new()) is Ok(_))
+  assert_true(
+    contextual_outcome("exp", Decimal::one(), DecimalFlags::new()) is Ok(_),
+  )
   // through the public forms: a domain case and a plain addition that cannot be done
   let context = @lf_arith.ArithmeticContext::new(16)
   match Decimal::from_string("-1").unwrap().sqrt_contextual(context) {

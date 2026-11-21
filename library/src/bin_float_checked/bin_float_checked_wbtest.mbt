@@ -67,3 +67,56 @@ test "constructors return Err for a precision outside 1..=binary_precision_max" 
     ).is_err(),
   )
 }
+
+///|
+/// Follow-up of S4: the errors of the checked tier name the operation, so that in a
+/// chain of `BinFloatResult` operations the message says which step failed. The
+/// expected texts and kinds are written out (oracle level A).
+test "checked tier errors name the operation" {
+  // a domain case: the domain error of `ln`
+  match BinFloatResult::from_int(-4).ln().result() {
+    Err(error) => {
+      assert_true(error.is_domain_error())
+      assert_eq(error.message, "ln: invalid operation")
+    }
+    Ok(_) => abort("ln(-4) must be an error")
+  }
+  // a pole: the division error of `ln`
+  match BinFloatResult::from_int(0).ln().result() {
+    Err(error) => {
+      assert_true(error.is_division_by_zero())
+      assert_eq(error.message, "ln: division by zero")
+    }
+    Ok(_) => abort("ln(0) must be an error")
+  }
+  // the step that failed in a chain is the one named
+  match BinFloatResult::from_int(3).sqrt().asin().result() {
+    Err(error) => {
+      assert_true(error.is_domain_error())
+      assert_eq(error.message, "asin: invalid operation")
+    }
+    Ok(_) => abort("asin of a value above 1 must be an error")
+  }
+  // could not compute: the certification failure carries the operation's name
+  let wide = @bin_float.BinaryContext::new(precision=330)
+  let one = @bin_float.BinFloat::from_int(1, precision=330)
+  let midpoint = one.add_ctx(
+      one.scaleb_ctx(@bin_float.BinFloat::from_int(-53), wide).0,
+      wide,
+    ).0
+  let hard = midpoint.try_ln_ctx(wide).unwrap().0
+  let limited = @bin_float.BinaryContext::new(precision=53).with_refinement_limit(
+    Some(1),
+  )
+  match BinFloatResult::ok(hard).exp_ctx(limited).result() {
+    Err(error) => {
+      assert_true(error.is_certification_failure())
+      assert_false(error.is_domain_error())
+      match error.certification_failure_detail() {
+        Some(detail) => assert_eq(detail.operation(), "exp")
+        None => abort("a certification failure has a detail")
+      }
+    }
+    Ok(_) => abort("the forced failure must be an error")
+  }
+}
