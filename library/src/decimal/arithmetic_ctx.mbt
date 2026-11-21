@@ -153,7 +153,17 @@ fn add_finite_values_ctx(
     }
     return (base, base_flags)
   }
-  if ctx.precision > 0 && allow_shortcuts {
+  // The shortcut forms exponents of the order `high_adjusted - 2 * precision`
+  // in `Int`; it is left to the exact path when those would wrap (issue 676).
+  let shortcut_exponents_fit = ctx.precision > 0 &&
+    Int64::max(
+      adjusted_exponent(lhs_value).to_int64(),
+      adjusted_exponent(rhs_value).to_int64(),
+    ) -
+    2L * ctx.precision.to_int64() -
+    4L >=
+    -2147483648L
+  if ctx.precision > 0 && allow_shortcuts && shortcut_exponents_fit {
     let self_adjusted = adjusted_exponent(lhs_value)
     let other_adjusted = adjusted_exponent(rhs_value)
     let precision = finite_precision_for_default(ctx)
@@ -590,10 +600,15 @@ fn Decimal::decimal_div_ctx_general(
       // the delivered value alone cannot tell a tiny quotient that rounded up
       // to 10^e_min from a normal one.
       let (value, flags) = if ctx.precision > 0 {
-        let (value, flags) = normalize_decimal_parts_ctx_repr(
+        // The exponent of the guarded quotient is formed in 64 bits: the
+        // difference of two stored exponents plus the guard digits leaves
+        // `Int` (issue 676).
+        let (value, flags) = normalize_decimal_parts_ctx_wide_repr(
           self.negative != other.negative,
           q,
-          self.exponent10 - other.exponent10 - extra,
+          self.exponent10.to_int64() -
+          other.exponent10.to_int64() -
+          extra.to_int64(),
           ctx,
         )
         (value, { ..flags, inexact: true, })
