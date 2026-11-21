@@ -724,6 +724,30 @@ notes live in this file.
   | `BallFloat::try_ln` | 256 | 564,721 (563,814 to 573,846) | 288,244 (286,092 to 295,024) | 801 | 406 |
   | `BallFloat::try_ln` | 1024 | 1,107,675 (1,089,874 to 1,118,904) | 566,072 (564,804 to 567,397) | 1,401 | 706 |
 
+- `bin_float`: the fixed-point series of `ln` (the artanh loop of `binary_ln_unit_fixed_bounds`, used up to about 576 bits and as the base of the Newton step) keeps its state in five limb arrays allocated once per call instead of four `Coeff` results per term: the product by the limb rows, the floor by 2^F as one copy pass, the division by the odd term index in place by two hardware divisions per limb (the divisor is at most 20001), and the sum with a carry. Every integer is the one the `Coeff` loop computes, so the bounds are bit identical (the `Coeff` loop is kept in the tests as the reference); JavaScript keeps the `Coeff` loop (no limb rows there). Instructions and allocations per call, two builds, median of five runs (range in brackets), every measured difference at least 57 million instructions:
+
+  | call | instructions before | instructions after | ratio | allocations before | allocations after |
+  | --- | --- | --- | --- | --- | --- |
+  | fixed series, 117 work bits | 55,885 (55,439 to 56,022) | 16,308 (15,724 to 16,320) | 0.292 | 87 | 16 |
+  | fixed series, 181 work bits | 87,112 (87,008 to 87,176) | 23,648 (23,570 to 23,682) | 0.271 | 133 | 18 |
+  | fixed series, 320 work bits | 159,493 (159,415 to 159,636) | 46,084 (46,068 to 46,140) | 0.289 | 229 | 18 |
+  | fixed series, 576 work bits | 322,338 (322,252 to 322,872) | 124,637 (124,540 to 124,656) | 0.387 | 402 | 18 |
+  | `ln`, 53 bits | 68,582 (68,494 to 68,602) | 26,976 (26,965 to 27,017) | 0.393 | 91 | 16 |
+  | `ln`, 128 bits | 107,252 (106,354 to 107,815) | 37,555 (37,498 to 37,595) | 0.350 | 156 | 29 |
+  | `ln`, 512 bits | 316,814 (316,357 to 317,418) | 205,866 (205,548 to 206,000) | 0.650 | 413 | 206 |
+  | `log2`, 53 bits | 77,154 (77,056 to 77,266) | 35,611 (35,476 to 36,057) | 0.462 | 101 | 26 |
+  | `log2`, 128 bits | 118,387 (118,103 to 118,600) | 48,652 (48,520 to 49,411) | 0.411 | 173 | 46 |
+  | `log2`, 512 bits | 329,686 (329,544 to 329,819) | 219,223 (218,671 to 219,984) | 0.665 | 425 | 218 |
+  | `log10`, 53 bits | 100,587 (100,479 to 101,871) | 59,058 (58,970 to 59,119) | 0.587 | 133 | 58 |
+  | `log10`, 128 bits | 151,280 (151,157 to 151,449) | 81,580 (81,455 to 81,880) | 0.539 | 229 | 102 |
+  | `log10`, 512 bits | 375,413 (375,290 to 375,639) | 264,351 (260,902 to 264,728) | 0.704 | 481 | 274 |
+  | `log1p`, 53 bits | 88,904 (88,816 to 88,917) | 33,901 (33,730 to 34,009) | 0.381 | 116 | 16 |
+  | `log1p`, 128 bits | 138,530 (138,402 to 138,661) | 46,611 (46,605 to 46,625) | 0.336 | 197 | 29 |
+  | `log1p`, 512 bits | 367,971 (366,520 to 368,747) | 220,926 (219,410 to 221,562) | 0.600 | 482 | 207 |
+  | `exp` (control, not on this path), 53 bits | 40,321 (40,266 to 40,328) | 40,284 (40,020 to 40,421) | 0.999 | 65 | 65 |
+  | `exp` (control, not on this path), 128 bits | 50,900 (50,268 to 51,671) | 51,791 (51,717 to 51,873) | 1.018 | 82 | 82 |
+  | `exp` (control, not on this path), 512 bits | 119,333 (118,971 to 120,205) | 119,454 (119,413 to 119,664) | 1.001 | 147 | 147 |
+
 ## 0.11.0 - 2026-11-20
 
 0.11.0 is the performance round of the binary and decimal cores (64-bit coefficient limbs, the certified elementary functions, the shared decimal kernel), the conformance additions (the remaining IEEE 754-2019 §9.2 functions, `convert_format`, totalOrder, `class_of`, and the fixes that the differential campaigns found), and step B of [#22](https://github.com/Luna-Flow/floating/issues/22): the library module is split from the developer tools, public surfaces are narrowed and operations are named after their standards. The breaking changes come first, with their migration tables; 0.12 completes them ([#438](https://github.com/Luna-Flow/floating/issues/438)).
