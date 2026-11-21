@@ -35,27 +35,6 @@ fn quiet_nan_operand(
 }
 
 ///|
-fn quiet_nan_pair_for_next_toward(
-  lhs : Decimal,
-  rhs : Decimal,
-  ctx : DecimalContext,
-) -> (Decimal, DecimalFlags)? {
-  if lhs.is_signaling_nan() {
-    return Some(quiet_nan_operand(lhs, ctx))
-  }
-  if rhs.is_signaling_nan() {
-    return Some(quiet_nan_operand(rhs, ctx))
-  }
-  if lhs.is_nan() {
-    return Some(quiet_nan_operand(lhs, ctx))
-  }
-  if rhs.is_nan() {
-    return Some(quiet_nan_operand(rhs, ctx))
-  }
-  None
-}
-
-///|
 fn quiet_nan_pair(
   lhs : Decimal,
   rhs : Decimal,

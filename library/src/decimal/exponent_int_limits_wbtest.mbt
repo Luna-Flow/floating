@@ -93,9 +93,6 @@ test "next operations handle Int minimum with zero etiny" {
   let (minus, minus_flags) = tiny.next_down_ctx(ctx)
   assert_true(minus.is_zero())
   assert_true(minus_flags == DecimalFlags::new())
-  let (toward, toward_flags) = tiny.next_toward_ctx(Decimal::zero(), ctx)
-  assert_true(toward.is_zero())
-  assert_true(toward_flags.underflow && toward_flags.inexact)
 }
 
 ///|

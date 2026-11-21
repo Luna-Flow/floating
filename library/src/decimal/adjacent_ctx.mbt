@@ -78,25 +78,6 @@ fn next_quantum(
 }
 
 ///|
-fn next_toward_flags(
-  source : Decimal,
-  result : Decimal,
-  ctx : DecimalContext,
-) -> DecimalFlags {
-  guard source.class == FpClass::Finite else { return DecimalFlags::new() }
-  if result.class == FpClass::Infinity {
-    return { ..DecimalFlags::new(), overflow: true, inexact: true, }
-  }
-  guard result.class == FpClass::Finite else { return DecimalFlags::new() }
-  if result.coefficient.is_zero() ||
-    adjusted_exponent64(result) < ctx.e_min.to_int64() {
-    { ..DecimalFlags::new(), underflow: true, inexact: true, }
-  } else {
-    DecimalFlags::new()
-  }
-}
-
-///|
 fn finite_next_candidate_repr(
   negative : Bool,
   magnitude : DecCoeff,
@@ -255,34 +236,6 @@ pub fn Decimal::next_down_ctx(
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags) {
   decimal_next(self, ctx, false)
-}
-
-///|
-pub fn Decimal::next_toward_ctx(
-  self : Decimal,
-  other : Decimal,
-  ctx : DecimalContext,
-) -> (Decimal, DecimalFlags) {
-  match quiet_nan_pair_for_next_toward(self, other, ctx) {
-    Some(result) => result
-    None => {
-      let cmp = self.compare(other)
-      if cmp == 0 {
-        if self.class == FpClass::Finite &&
-          other.class == FpClass::Finite &&
-          self.coefficient.is_zero() &&
-          other.coefficient.is_zero() {
-          ({ ..self, negative: other.negative, }, DecimalFlags::new())
-        } else {
-          (self, DecimalFlags::new())
-        }
-      } else {
-        let toward_positive = cmp < 0
-        let (next, next_flags) = decimal_next(self, ctx, toward_positive)
-        (next, next_flags.combine(next_toward_flags(self, next, ctx)))
-      }
-    }
-  }
 }
 
 ///|

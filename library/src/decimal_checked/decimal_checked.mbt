@@ -557,11 +557,3 @@ pub fn DecimalChecked::next_down(self : DecimalChecked) -> DecimalChecked {
 pub fn DecimalChecked::next_up(self : DecimalChecked) -> DecimalChecked {
   self.record(self.value_.next_up_ctx(self.context_))
 }
-
-///|
-pub fn DecimalChecked::next_toward(
-  self : DecimalChecked,
-  target : DecimalChecked,
-) -> DecimalChecked {
-  self.join(target, fn(a, b, ctx) { Ok(a.next_toward_ctx(b, ctx)) })
-}

@@ -3,11 +3,7 @@
 // from Python `decimal`): the IEEE 754-2019 operations on contexts of IEEE
 // formats. The value is compared with `total_order_compare` (so the cohort, the
 // sign of a zero and a NaN payload count); the five IEEE flags are compared on
-// every row. The flags of `next_toward` are not CPython's: IEEE 754-2019 has no
-// nextToward, and the operation follows the nextafter rule of IEEE 754-1985 and
-// ISO C (overflow and inexact for a finite operand and an infinite result, underflow
-// and inexact for a subnormal or zero result when the operands differ, otherwise
-// none), which the generator writes (`next_toward_flags`) and the API page states.
+// every row.
 
 ///|
 fn ieee_ops_mode(name : String) -> DecimalRoundingMode {
@@ -46,7 +42,6 @@ fn ieee_ops_call(
   match op {
     "next_up" => a.next_up_ctx(ctx)
     "next_down" => a.next_down_ctx(ctx)
-    "next_toward" => a.next_toward_ctx(b, ctx)
     "logb" => a.logb_ctx(ctx)
     "scaleb" => a.scaleb_ctx(b, ctx)
     "remainder" => a.remainder_ctx(b, ctx)
@@ -66,13 +61,8 @@ fn ieee_ops_call(
 
 ///|
 test "IEEE operations on legal contexts agree with the Python decimal oracle" {
-  // a guard against a generator that silently loses rows: the table size and the
-  // size of the `next_toward` family
-  inspect(ieee_ops_rows.length(), content="7479")
-  inspect(
-    ieee_ops_rows.filter(fn(row) { row.0 == "next_toward" }).length(),
-    content="510",
-  )
+  // a guard against a generator that silently loses rows: the table size
+  inspect(ieee_ops_rows.length(), content="6969")
   let failures = StringBuilder()
   let mut count = 0
   let per_op : Map[String, Int32] = Map([])

@@ -1648,10 +1648,6 @@ tooling/src/consistency/core_wbtest.mbt::decimal multiply preserves official zer
 tooling/src/consistency/core_wbtest.mbt::decimal next plus and minus cover official zero and ultra-tiny representatives	?
 tooling/src/consistency/core_wbtest.mbt::decimal next plus and minus follow gda adjacent finite lattice	?
 tooling/src/consistency/core_wbtest.mbt::decimal next plus and minus preserve tiny zero cohort representatives	?
-tooling/src/consistency/core_wbtest.mbt::decimal next toward follows direction and reports status flags	?
-tooling/src/consistency/core_wbtest.mbt::decimal next_toward matches official underflow and clamped representatives	?
-tooling/src/consistency/core_wbtest.mbt::decimal next_toward preserves zero cohort when lhs equals rhs	?
-tooling/src/consistency/core_wbtest.mbt::decimal next_toward toward negative infinity matches official representatives	?
 tooling/src/consistency/core_wbtest.mbt::decimal observers distinguish sign from signedness on specials	?
 tooling/src/consistency/core_wbtest.mbt::decimal official dectest math subsets stay aligned after gda fixes	?
 tooling/src/consistency/core_wbtest.mbt::decimal parse accepts special values and rejects malformed special payloads	?
