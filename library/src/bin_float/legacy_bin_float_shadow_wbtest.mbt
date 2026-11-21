@@ -167,7 +167,7 @@ test "LegacyBigIntBinFloat fixed-seed finite shadow" {
     let positive_left = left.abs()
     let legacy_positive_left = legacy_bin_float_from_candidate(positive_left)
     legacy_shadow_assert_equal(
-      positive_left.sqrt().unwrap(),
+      positive_left.sqrt(),
       legacy_positive_left.sqrt().unwrap(),
       label="sqrt",
     )
@@ -277,17 +277,25 @@ test "LegacyBigIntBinFloat adapts signed zero and NaN metadata" {
     signaling_nan.sqrt_ctx(BinaryContext::new(precision=17)).0,
     legacy_signaling_nan.sqrt().unwrap(),
   )
-  assert_true(signaling_nan.sqrt() is Err(_))
+  // S4: the candidate's `sqrt` is a value, the invalid operation is its flag
+  assert_true(signaling_nan.sqrt().is_quiet_nan())
+  assert_true(
+    signaling_nan.sqrt_ctx(BinaryContext::new(precision=17)).1.invalid_operation(),
+  )
   legacy_shadow_assert_equal(
-    negative_zero.sqrt().unwrap(),
+    negative_zero.sqrt(),
     legacy_negative_zero.sqrt().unwrap(),
   )
-  match
-    (
-      BinFloat::from_int(-1, precision=17).sqrt(),
-      LegacyBigIntBinFloat::make(-legacy_bin_one(), 0, 17).sqrt(),
-    ) {
-    (Err(_), Err(_)) => ()
-    _ => abort("candidate and legacy sqrt domain results differ")
+  // the candidate's domain result is a NaN with invalid_operation, the legacy type
+  // still reports an `Err`
+  assert_true(BinFloat::from_int(-1, precision=17).sqrt().is_nan())
+  assert_true(
+    BinFloat::from_int(-1, precision=17).sqrt_ctx(
+      BinaryContext::new(precision=17),
+    ).1.invalid_operation(),
+  )
+  match LegacyBigIntBinFloat::make(-legacy_bin_one(), 0, 17).sqrt() {
+    Err(_) => ()
+    Ok(_) => abort("the legacy sqrt of a negative value must be an Err")
   }
 }

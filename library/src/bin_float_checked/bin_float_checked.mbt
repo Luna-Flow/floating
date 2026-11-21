@@ -303,7 +303,16 @@ pub fn BinFloatResult::clamp(
 
 ///|
 pub fn BinFloatResult::sqrt(self : BinFloatResult) -> BinFloatResult {
-  self.bind(fn(value) { BinFloatResult::from_result(value.sqrt()) })
+  self.bind(fn(value) {
+    BinFloatResult::from_result(
+      bin_result_checked_flags(
+        "sqrt",
+        value.sqrt_ctx(
+          @bin_float.BinaryContext::new(precision=value.precision()),
+        ),
+      ),
+    )
+  })
 }
 
 ///|
@@ -646,7 +655,17 @@ pub fn BinFloatResult::pown(
   self : BinFloatResult,
   exponent : Int32,
 ) -> BinFloatResult {
-  self.bind(fn(value) { BinFloatResult::from_result(value.pown(exponent)) })
+  self.bind(fn(value) {
+    BinFloatResult::from_result(
+      bin_result_checked_flags(
+        "pown",
+        value.pown_ctx(
+          exponent,
+          @bin_float.BinaryContext::new(precision=value.precision()),
+        ),
+      ),
+    )
+  })
 }
 
 ///|

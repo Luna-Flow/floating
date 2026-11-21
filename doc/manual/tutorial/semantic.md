@@ -206,7 +206,7 @@ projections. Square roots of perfect squares are exact in both radices:
 test "binary and decimal agree on exact square roots" {
   for n in [1, 4, 9, 144, 1024] {
     let b = @semantic.semantic_scalar_result(
-      @bin_float.BinFloat::from_int(n).sqrt(),
+      Ok(@bin_float.BinFloat::from_int(n).sqrt()),
       @semantic.SemanticScalar::from_bin_float,
     )
     let d = @semantic.semantic_scalar_result(

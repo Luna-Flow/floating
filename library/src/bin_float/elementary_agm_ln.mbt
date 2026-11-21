@@ -76,10 +76,7 @@ fn binary_agm_one(
     // the public square root, which takes the limb-array kernel; the context
     // form of the root rounds to the same value but is 39 percent slower at
     // 2140 bits.
-    let next_u = match product.sqrt() {
-      Ok(root) => root
-      Err(_) => product.sqrt_ctx(context).0
-    }
+    let next_u = product.sqrt()
     let next_v = binary_halve_exact(u.add_ctx(v, context).0)
     u = next_u
     v = next_v

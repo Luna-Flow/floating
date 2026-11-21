@@ -196,7 +196,7 @@ pub fn BinFloat::pow(Self, Self) -> Self
 pub fn BinFloat::pow_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::pow_int_checked(Self, Int32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BinFloat::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BinFloat::pown(Self, Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BinFloat::pown(Self, Int32) -> Self
 pub fn BinFloat::pown_ctx(Self, Int32, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::powr(Self, Self) -> Self
 pub fn BinFloat::powr_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
@@ -220,7 +220,7 @@ pub fn BinFloat::sinh(Self) -> Self
 pub fn BinFloat::sinh_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::sinpi(Self) -> Self
 pub fn BinFloat::sinpi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
-pub fn BinFloat::sqrt(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BinFloat::sqrt(Self) -> Self
 pub fn BinFloat::sqrt_checked(Self, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BinFloat::sqrt_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn BinFloat::sqrt_ctx(Self, BinaryContext) -> (Self, BinaryFlags)

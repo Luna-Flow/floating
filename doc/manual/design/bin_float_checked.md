@@ -247,7 +247,9 @@ root and $g$ the checked logarithm:
 ```moonbit
 ///|
 test "monad laws on checked arrows" {
-  let f = fn(x : @bin_float.BinFloat) { @bin_float_checked.BinFloatResult::from_result(x.sqrt()) }
+  let f = fn(x : @bin_float.BinFloat) {
+    @bin_float_checked.BinFloatResult::ok(x).sqrt()
+  }
   let g = fn(x : @bin_float.BinFloat) {
     @bin_float_checked.BinFloatResult::ok(x).ln()
   }

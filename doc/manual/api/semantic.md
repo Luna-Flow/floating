@@ -325,7 +325,7 @@ test "checked results become semantic results" {
     content="true",
   )
   let root = @semantic.semantic_scalar_result(
-    @bin_float.BinFloat::from_int(4).sqrt(),
+    Ok(@bin_float.BinFloat::from_int(4).sqrt()),
     @semantic.SemanticScalar::from_bin_float,
   )
   let two = @semantic.SemanticScalar::from_decimal(@decimal.Decimal::from_int(2))

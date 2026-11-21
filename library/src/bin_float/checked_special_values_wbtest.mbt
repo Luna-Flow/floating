@@ -352,15 +352,43 @@ test "inherent checked operations follow the IEEE special-value table" {
           failures.push("div(" + a + ", " + b + "): " + actual)
         }
       }
-      let sqrt_actual = checked_render(x.sqrt())
-      if sqrt_actual != checked_expected_sqrt(a) {
+      // S4 (PR 5): `sqrt` and `pown` return a value; the invalid operation and the
+      // pole are read through the flags of `sqrt_ctx` / `pown_ctx`. The expected
+      // outcomes are those of the IEEE table (level A), the `err:invalid` and
+      // `err:div0` rows of the checked tier now being a NaN, an infinity and a flag.
+      let working = BinaryContext::new(precision=p)
+      let sqrt_actual = checked_render(Ok(x.sqrt()))
+      let sqrt_table = checked_expected_sqrt(a)
+      let sqrt_expected = if sqrt_table == "err:invalid" {
+        "ok:nan"
+      } else {
+        sqrt_table
+      }
+      if sqrt_actual != sqrt_expected {
         failures.push("sqrt(" + a + "): " + sqrt_actual)
+      }
+      if x.sqrt_ctx(working).1.invalid_operation() !=
+        (sqrt_table == "err:invalid") {
+        failures.push("sqrt(" + a + "): the invalid flag")
       }
       for n in -3..<=3 {
         let expected = checked_expected_pown(a, n)
-        let pown = checked_render(x.pown(n))
-        if pown != expected {
+        let pown = checked_render(Ok(x.pown(n)))
+        let value_expected = if expected == "err:invalid" {
+          "ok:nan"
+        } else if expected == "err:div0" {
+          // pown(+-0, n < 0) is +-inf, negative for -0 with an odd n
+          checked_signed(checked_is_neg(a) && n % 2 != 0, "inf")
+        } else {
+          expected
+        }
+        if pown != value_expected {
           failures.push("pown(" + a + ", " + n.to_string() + "): " + pown)
+        }
+        let pown_flags = x.pown_ctx(n, working).1
+        if pown_flags.invalid_operation() != (expected == "err:invalid") ||
+          pown_flags.division_by_zero() != (expected == "err:div0") {
+          failures.push("pown(" + a + ", " + n.to_string() + "): the flags")
         }
       }
     }

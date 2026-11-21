@@ -289,10 +289,7 @@ test "coefficient sqrt equals the general path" {
     } else {
       base.abs()
     }
-    let general = match sqrt_for_precision(value, value.precision()) {
-      Ok(result) => result
-      Err(_) => abort("sqrt of a non-negative value failed")
-    }
+    let general = sqrt_for_precision(value, value.precision())
     match binary_coeff_fast_sqrt(value) {
       Some(result) => {
         fast += 1
@@ -303,10 +300,7 @@ test "coefficient sqrt equals the general path" {
       }
       None => ()
     }
-    match value.sqrt() {
-      Ok(result) => assert_true(fast_test_same(result, general))
-      Err(_) => abort("sqrt of a non-negative value failed")
-    }
+    assert_true(fast_test_same(value.sqrt(), general))
   }
   assert_true(fast > 15000)
   assert_true(squares > 3000)

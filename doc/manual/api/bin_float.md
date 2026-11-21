@@ -537,13 +537,14 @@ signed infinity.
 Correctly rounded square root.
 
 ```mbti
-pub fn BinFloat::sqrt(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BinFloat::sqrt(Self) -> Self
 ```
 
-`x.sqrt()` rounds $\sqrt{x}$ to nearest-even at the precision of `x`. It returns a
-`domain_error` for an invalid operation: a negative nonzero argument
-(including $-\infty$) or a signaling NaN. $\sqrt{-0} = -0$, and a quiet NaN
-of either sign gives `Ok` of a quiet NaN. For a square root at another precision
+`x.sqrt()` rounds $\sqrt{x}$ to nearest-even at the precision of `x`: it is
+`sqrt_ctx` under the working context and never fails. An invalid operation (IEEE
+754-2019 7.2: a negative nonzero argument, $-\infty$ included, or a signaling NaN)
+is a quiet NaN, and the flag is read through `sqrt_ctx(...).1.invalid_operation()`.
+$\sqrt{-0} = -0$, and a quiet NaN of either sign gives a quiet NaN. For a square root at another precision
 or rounding direction use `sqrt_ctx`; its results under `RoundTowardNegative`
 and `RoundTowardPositive` enclose $\sqrt{x}$ and coincide when the root is
 exact.
@@ -553,15 +554,16 @@ exact.
 Raise a value to an integer power.
 
 ```mbti
-pub fn BinFloat::pown(Self, Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BinFloat::pown(Self, Int) -> Self
 ```
 
 The result is $x^n$ correctly rounded to
-nearest-even at the precision of `x`, computed as in `pown_ctx`. A zero
-base with a negative exponent is a `division_by_zero` error, and a signaling
-NaN base a `domain_error` for every exponent, zero included (IEEE 754-2019
-§9.2.1 excludes it from $x^0 = 1$); $x^0 = 1$ for every other $x$, a quiet NaN
-included.
+nearest-even at the precision of `x`, computed as in `pown_ctx`, and never fails. A zero
+base with a negative exponent is an infinity (the sign of the base for an odd
+exponent; `pown_ctx(...).1.division_by_zero()` is the pole), and a signaling
+NaN base a quiet NaN for every exponent, zero included (IEEE 754-2019
+§9.2.1 excludes it from $x^0 = 1$; `invalid_operation` through `pown_ctx`);
+$x^0 = 1$ for every other $x$, a quiet NaN included.
 
 ### `BinFloat::fma`
 
@@ -598,7 +600,7 @@ test "plain arithmetic rounds once at the operand precision" {
   inspect(third.to_shortest_string(), content="0.3333333333333333")
   inspect(one / @bin_float.BinFloat::zero(), content="inf")
   inspect(@bin_float.BinFloat::from_int(7).remainder(@bin_float.BinFloat::from_int(2)), content="-1p0")
-  inspect(@bin_float.BinFloat::from_int(3).pown(-2).unwrap().to_shortest_string(), content="0.1111111111111111")
+  inspect(@bin_float.BinFloat::from_int(3).pown(-2).to_shortest_string(), content="0.1111111111111111")
 }
 ```
 
@@ -2818,7 +2820,7 @@ pub fn BinFloat::pow(Self, Self) -> Self
 pub fn BinFloat::pow_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::pow_int_checked(Self, Int32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BinFloat::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn BinFloat::pown(Self, Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BinFloat::pown(Self, Int32) -> Self
 pub fn BinFloat::pown_ctx(Self, Int32, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::powr(Self, Self) -> Self
 pub fn BinFloat::powr_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
@@ -2842,7 +2844,7 @@ pub fn BinFloat::sinh(Self) -> Self
 pub fn BinFloat::sinh_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::sinpi(Self) -> Self
 pub fn BinFloat::sinpi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
-pub fn BinFloat::sqrt(Self) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn BinFloat::sqrt(Self) -> Self
 pub fn BinFloat::sqrt_checked(Self, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BinFloat::sqrt_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn BinFloat::sqrt_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
