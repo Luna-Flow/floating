@@ -71,8 +71,10 @@ jobs:
       - name: update registry
         run: sh tools/run_moon_clean_exec.sh update
 
+      # No ledger is restored here and `--no-reuse` runs every incremental unit of the quick
+      # scope: the nightly gates are the full runs.
       - name: gate
-        run: just gate ${{ matrix.scope }} 4
+        run: just gate ${{ matrix.scope }} 4 --no-reuse
 
       - name: upload summaries
         if: always()
@@ -84,7 +86,11 @@ jobs:
           retention-days: 30
 
   # The unit tests of the whole workspace on the targets that the pull-request gate only
-  # type-checks (`CHECK: other targets`): the per-target files (`*_js.mbt`, the
+  # type-checks (`CHECK: other targets`), and the native tests of every package without reuse: the
+  # pull-request gate runs those as incremental units (`tools/native_units.py`), so this
+  # `native` entry is the audit of them. It is the plain `moon test` of the whole workspace, not
+  # a call of that tool, so that it shares nothing with the tool's discovery of packages. The
+  # per-target files (`*_js.mbt`, the
   # `*_nonjs` side of every pair, the threshold files) are run here and nowhere else.
   # Measured on main dbc9bc6a on a shared machine: js 29 s, wasm 87 s, wasm-gc 79 s. The
   # pull-request gate does not run them (its budget is about 3 minutes); to run js there,
@@ -107,6 +113,7 @@ jobs:
       fail-fast: false
       matrix:
         target:
+          - native
           - js
           - wasm
           - wasm-gc

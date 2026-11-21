@@ -27,13 +27,19 @@ Translation catalogs are checked separately by `lunadoc check`, which the
 
 ## Continuous integration
 
-- `ci.yml` runs `just pr` on every pull request and every push to `main`.
+- `ci.yml` runs `just pr` on every pull request and every push to `main`. It restores
+  the newest verification ledger first and only a push to `main` saves one: GitHub
+  scopes a cache to the ref that created it, so what a pull-request run would save
+  can be restored by neither `main` nor another pull request. The native tests of
+  the pull-request gate run as incremental units (`tools/native_units.py`).
 - `nightly.yml` runs `just gate` for `quick`, `decimal`, `decimal_gda`,
   `binary` and `interval` as parallel jobs every night and on demand. It
   caches the SHA-256-pinned upstream corpora by manifest hash (the hashes are
   still verified after download) and uploads each `summary.json` as an
   artifact, so the published results are reproduced outside maintainers'
-  machines. It also runs the unit tests of the whole workspace on `js`, `wasm`
+  machines. It runs the gates with `--no-reuse` and restores no ledger. It also runs the
+  unit tests of the whole workspace on `native`, without reuse (the audit of the
+  native units of the pull-request gate), `js`, `wasm`
   and `wasm-gc` (the pull-request gate tests native and only type-checks these;
   `QUICK_TEST_TARGETS` in `tools/run_ci.py` is the one line that adds a target to
   it),

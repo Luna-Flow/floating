@@ -38,5 +38,29 @@ jobs:
       - name: update registry
         run: sh tools/run_moon_clean_exec.sh update
 
+      # The verification ledger (`tools/incremental.py`): results of units that passed on a tree
+      # that the key describes. Every run restores the newest ledger; only a push to main saves one.
+      # GitHub scopes a cache to the ref that created it: a pull-request run reads the caches of
+      # the default branch but what it would save belongs to `refs/pull/<n>/merge`, which neither
+      # main nor another pull request can restore. So a ledger that a later run trusts is one
+      # that a push to main wrote (the restore-only action below cannot save at all). The key is
+      # new for every run (the run id), the prefix restores the newest entry. A unit reused from
+      # the ledger is printed as REUSED with its commit; 2 % of the reusable units are rerun, and
+      # a failing sampled rerun is exit status 70. The toolchain digest is in every key, so a new
+      # compiler or runner image reruns everything once.
+      - name: restore verification ledger
+        uses: actions/cache/restore@v6
+        with:
+          path: .tmp/verification-ledger
+          key: verification-ledger-${{ github.run_id }}
+          restore-keys: verification-ledger-
+
       - name: quick repository gate
         run: just pr
+
+      - name: save verification ledger
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && !cancelled() }}
+        uses: actions/cache/save@v6
+        with:
+          path: .tmp/verification-ledger
+          key: verification-ledger-${{ github.run_id }}-${{ github.run_attempt }}
