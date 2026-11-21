@@ -66,7 +66,7 @@ fn quot_rational_class(
   let zeros = pow_trailing_zeros(den)
   if den.bit_length() == zeros + 1 {
     // den = 2^zeros
-    let value = exact_make(num, -zeros)
+    let value = exact_value(num, -zeros)
     QDyadic(if negative { value.neg() } else { value })
   } else {
     QRational(negative, num, den)
@@ -258,12 +258,12 @@ fn quot_rational_round(
     } else {
       coeff_increment(quotient)
     }
-    exact_make(top, exponent).with_precision(
+    exact_value(top, exponent).with_precision(
       precision,
       BinaryRoundingMode::RoundTowardPositive,
     )
   } else {
-    exact_make(quotient, exponent).with_precision(
+    exact_value(quotient, exponent).with_precision(
       precision,
       BinaryRoundingMode::RoundTowardNegative,
     )

@@ -89,7 +89,7 @@ fn rev_signed_to_bin(value : SignedBinCoeff) -> @bin_float.BinFloat {
   if signed_coeff_is_zero(value) {
     @bin_float.BinFloat::zero(precision=1)
   } else {
-    exact_make(signed_coeff_magnitude(value), 0, negative=value.negative)
+    exact_value(signed_coeff_magnitude(value), 0, negative=value.negative)
   }
 }
 

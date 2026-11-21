@@ -1,44 +1,18 @@
-// The rewritten endpoint operations (`directed_add`, `directed_sub`,
-// `directed_mul`, and their interval users) against the exact route they
-// replace, and against `add_ctx`, `sub_ctx` and `mul_ctx` as an independent
-// oracle. Two references, both private test code over the exact route:
-//   `min_bits = p`: the exact value made at `max(bits, p)` bits and rounded once
-//                   to `p` in the direction: the new value must EQUAL it;
-//   unmodified:     the exact value made at `bits` bits (the old code): the new
-//                   value equals it except when the exact result has fewer bits
-//                   than `p` and lies below the normal range or in the overflow
-//                   band, where the new value is the correctly rounded one and
-//                   lies inside the old one.
-
-///|
-/// The exact endpoint sum of the old route of `fma` (removed from the library with
-/// the replacement of that route by the directed `fma_ctx`; kept here as the reference
-/// of this level E test): an infinite addend is the result, otherwise the exact sum at
-/// its own bit length, nothing rounded below the normal range.
-fn db_extended_add(
-  a : @bin_float.BinFloat,
-  b : @bin_float.BinFloat,
-  _precision : Int32,
-  mode : BinaryRoundingMode,
-) -> @bin_float.BinFloat {
-  if a.classify() == FpClass::Infinity {
-    return a
-  }
-  if b.classify() == FpClass::Infinity {
-    return b
-  }
-  exact_add(a, b, mode~, min_bits=1, exact_range=true)
-}
-
-///|
-/// The exact endpoint product of the old route of `fma`, as above.
-fn db_extended_mul_exact(
-  a : @bin_float.BinFloat,
-  b : @bin_float.BinFloat,
-  mode : BinaryRoundingMode,
-) -> @bin_float.BinFloat {
-  exact_mul(a, b, mode~, min_bits=1, exact_range=true)
-}
+// The endpoint operations (`directed_add`, `directed_sub`, `directed_mul`, `extended_mul_both`
+// and their interval users: `add`, `sub`, `radius`, `width`) against an exact reference.
+//
+// ORACLE (level B): the exact sum or product of the two operands formed by integer arithmetic
+// (`exact_sum_rounded`, `exact_product_rounded`: aligned `BinCoeff` sums and products, no rounding,
+// no surrogate for a far addend) and then rounded once to the precision in the direction by
+// `BinFloat::make`. The shared primitives are
+// `BinCoeff` arithmetic and `BinFloat::make`, which have level A oracles in
+// the binary gate (TestFloat, MPFR rows); the code under test is `add_ctx`, `sub_ctx` and `mul_ctx`
+// reached through `directed_*`. The new value must EQUAL the reference (a zero of either sign
+// counts as the same value).
+// Before the change the code under test was a route that made the exact value itself; its results
+// were compared with this reference in this file for the 6,000 random endpoint cases, the 672
+// range-edge cases and the 2,500 interval cases below, with no difference except the sign of a
+// zero from an exact cancellation (a directed `add_ctx` toward negative gives -0).
 
 ///|
 fn db_next(state : Ref[UInt64]) -> UInt64 {
@@ -111,45 +85,22 @@ fn db_operand(state : Ref[UInt64]) -> @bin_float.BinFloat {
 }
 
 ///|
-fn db_bound(
-  x : @bin_float.BinFloat,
-  precision : Int32,
-  mode : BinaryRoundingMode,
-) -> @bin_float.BinFloat {
-  match mode {
-    BinaryRoundingMode::RoundTowardNegative => lower_round_bound(x, precision)
-    _ => upper_round_bound(x, precision)
-  }
+fn db_same(a : @bin_float.BinFloat, b : @bin_float.BinFloat) -> Bool {
+  // the sign of a zero is not part of the value (an exact cancellation is -0 toward negative)
+  a.identical(b) ||
+  (a.is_zero() && b.is_zero() && a.precision() == b.precision())
 }
 
 ///|
-/// The new value must equal the reference exactly; it must equal the old value
-/// or lie inside it (a lower bound not below, an upper bound not above).
-/// Returns 1 when the new value is strictly inside the old one.
+/// The new value must equal the reference exactly.
 fn db_check(
   label : () -> String,
   new : @bin_float.BinFloat,
   reference : @bin_float.BinFloat,
-  old : @bin_float.BinFloat,
-  mode : BinaryRoundingMode,
-) -> Int32 {
-  if !new.identical(reference) {
-    abort(
-      "\{label()}: new \{new} differs from the min_bits reference \{reference}",
-    )
+) -> Unit {
+  if !db_same(new, reference) {
+    abort("\{label()}: new \{new} differs from the reference \{reference}")
   }
-  if new.identical(old) {
-    return 0
-  }
-  let order = new.compare(old)
-  let inside = match mode {
-    BinaryRoundingMode::RoundTowardNegative => order >= 0
-    _ => order <= 0
-  }
-  if !inside {
-    abort("\{label()}: new \{new} is not inside the old value \{old}")
-  }
-  1
 }
 
 ///|
@@ -161,120 +112,48 @@ fn db_modes() -> Array[BinaryRoundingMode] {
 }
 
 ///|
-/// The same values through a second engine: `add_ctx`, `sub_ctx` and `mul_ctx` in
-/// a context of `precision` bits and the direction (IEEE 754-2019 3.7), with the
-/// zero rules of the exact route: a zero operand returns the other one rounded,
-/// an exact cancellation is +0. The exact route is the implementation; this is
-/// the independent oracle that is not built on `make`.
-fn db_context(
-  precision : Int32,
-  mode : BinaryRoundingMode,
-) -> @bin_float.BinaryContext {
-  @bin_float.BinaryContext::new(precision~, rounding=mode)
+/// Whether the reference can align the two values: a zero or an infinity, or an exponent gap of
+/// less than 1,000,000 places.
+fn db_near(a : @bin_float.BinFloat, b : @bin_float.BinFloat) -> Bool {
+  a.is_zero() ||
+  b.is_zero() ||
+  a.classify() != FpClass::Finite ||
+  b.classify() != FpClass::Finite ||
+  Int64::abs(a.exponent2().to_int64() - b.exponent2().to_int64()) < 1000000L
 }
 
 ///|
-fn db_oracle_sum(
-  result : (@bin_float.BinFloat, @bin_float.BinaryFlags),
-  precision : Int32,
-) -> @bin_float.BinFloat {
-  let (value, flags) = result
-  if value.is_zero() && !flags.inexact() {
-    @bin_float.BinFloat::zero(precision~)
-  } else {
-    value
-  }
-}
-
-///|
-fn db_oracle_add(
-  a : @bin_float.BinFloat,
-  b : @bin_float.BinFloat,
-  precision : Int32,
-  mode : BinaryRoundingMode,
-) -> @bin_float.BinFloat {
-  if a.is_zero() {
-    return directed_round(b, precision, mode)
-  }
-  if b.is_zero() {
-    return directed_round(a, precision, mode)
-  }
-  db_oracle_sum(a.add_ctx(b, db_context(precision, mode)), precision)
-}
-
-///|
-fn db_oracle_sub(
-  a : @bin_float.BinFloat,
-  b : @bin_float.BinFloat,
-  precision : Int32,
-  mode : BinaryRoundingMode,
-) -> @bin_float.BinFloat {
-  if a.is_zero() {
-    return directed_round(b.neg(), precision, mode)
-  }
-  if b.is_zero() {
-    return directed_round(a, precision, mode)
-  }
-  db_oracle_sum(a.sub_ctx(b, db_context(precision, mode)), precision)
-}
-
-///|
-/// One sum, one difference and one product of `a` and `b` in `precision` bits,
-/// both directions. Returns the number of strictly tighter results.
+/// One sum, one difference and one product of `a` and `b` in `precision` bits, both directions,
+/// against the exact reference rounded once.
 fn db_endpoint_case(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
   precision : Int32,
-) -> Int32 {
-  let mut tighter = 0
+) -> Unit {
+  // the reference aligns the two operands over their exponent gap: gaps of more than 1,000,000
+  // places are left to the far-addend tests and to the differential stage against MPFR
+  let near = db_near(a, b)
   for mode in db_modes() {
-    tighter += db_check(
-      fn() { "add(\{a}, \{b}, \{precision})" },
-      directed_add(a, b, precision, mode),
-      db_bound(exact_add(a, b, mode~, min_bits=precision), precision, mode),
-      db_bound(exact_add(min_bits=1, a, b, mode~), precision, mode),
-      mode,
-    )
-    tighter += db_check(
-      fn() { "sub(\{a}, \{b}, \{precision})" },
-      directed_sub(a, b, precision, mode),
-      db_bound(exact_sub(a, b, mode~, min_bits=precision), precision, mode),
-      db_bound(exact_sub(min_bits=1, a, b, mode~), precision, mode),
-      mode,
-    )
-    if !directed_add(a, b, precision, mode).identical(
-        db_oracle_add(a, b, precision, mode),
-      ) {
-      abort("add(\{a}, \{b}, \{precision}) differs from add_ctx")
-    }
-    if !directed_sub(a, b, precision, mode).identical(
-        db_oracle_sub(a, b, precision, mode),
-      ) {
-      abort("sub(\{a}, \{b}, \{precision}) differs from sub_ctx")
-    }
-    if !a.is_zero() &&
-      !b.is_zero() &&
-      !directed_mul(a, b, precision, mode).identical(
-        a.mul_ctx(b, db_context(precision, mode)).0,
-      ) {
-      abort("mul(\{a}, \{b}, \{precision}) differs from mul_ctx")
+    if near {
+      db_check(
+        fn() { "add(\{a}, \{b}, \{precision})" },
+        directed_add(a, b, precision, mode),
+        exact_sum_rounded(a, b, precision, mode),
+      )
+      db_check(
+        fn() { "sub(\{a}, \{b}, \{precision})" },
+        directed_sub(a, b, precision, mode),
+        exact_sum_rounded(a, b.neg(), precision, mode),
+      )
     }
     // `extended_mul` returns +0 for a zero operand and the product otherwise
     let new = extended_mul(a, b, precision, mode)
     let reference = if a.is_zero() || b.is_zero() {
       @bin_float.BinFloat::zero(precision~)
     } else {
-      db_bound(exact_mul(a, b, mode~, min_bits=precision), precision, mode)
+      exact_product_rounded(a, b, precision, mode)
     }
-    let old = db_extended_mul_exact(a, b, mode)
-    let old = if old.is_zero() { old } else { db_bound(old, precision, mode) }
-    tighter += db_check(
-      fn() { "mul(\{a}, \{b}, \{precision})" },
-      new,
-      reference,
-      old,
-      mode,
-    )
+    db_check(fn() { "mul(\{a}, \{b}, \{precision})" }, new, reference)
   }
   // the two directed products of one coefficient product
   let (down, up) = extended_mul_both(a, b, precision)
@@ -288,13 +167,11 @@ fn db_endpoint_case(
       "extended_mul_both(\{a}, \{b}, \{precision}) differs from two products",
     )
   }
-  tighter
 }
 
 ///|
-test "directed endpoint sums, differences and products equal the exact route" {
+test "directed endpoint sums, differences and products equal the exact reference rounded once" {
   let state = Ref(0x9e3779b97f4a7c15UL)
-  let mut tighter = 0
   let mut cases = 0
   for _ in 0..<6000 {
     let a = db_operand(state)
@@ -319,13 +196,10 @@ test "directed endpoint sums, differences and products equal the exact route" {
     if b.classify() != FpClass::Finite {
       continue
     }
-    tighter += db_endpoint_case(a, b, precision)
+    db_endpoint_case(a, b, precision)
     cases += 1
   }
   assert_true(cases > 5000)
-  println(
-    "directed endpoint cases \{cases}, strictly tighter results \{tighter}",
-  )
 }
 
 ///|
@@ -334,7 +208,6 @@ test "directed endpoint sums, differences and products equal the exact route" {
 test "directed bounds at the two ends of the exponent range" {
   let e_min = @bin_float.binary_implementation_e_min
   let e_max = @bin_float.binary_implementation_e_max
-  let mut tighter = 0
   let mut cases = 0
   for
     top in [e_min - 3, e_min - 2, e_min - 1, e_min, e_min + 1, e_max - 1, e_max] {
@@ -365,7 +238,7 @@ test "directed bounds at the two ends of the exponent range" {
           for other in [half, neighbour, half.neg()] {
             if half.classify() == FpClass::Finite &&
               other.classify() == FpClass::Finite {
-              tighter += db_endpoint_case(half, other, precision)
+              db_endpoint_case(half, other, precision)
               cases += 1
             }
           }
@@ -382,7 +255,7 @@ test "directed bounds at the two ends of the exponent range" {
             precision,
           )
           if a.classify() == FpClass::Finite && b.classify() == FpClass::Finite {
-            tighter += db_endpoint_case(a, b, precision)
+            db_endpoint_case(a, b, precision)
             cases += 1
           }
         }
@@ -390,61 +263,30 @@ test "directed bounds at the two ends of the exponent range" {
     }
   }
   assert_true(cases > 500)
-  assert_true(tighter > 0)
-  println("range-edge cases \{cases}, strictly tighter results \{tighter}")
 }
 
 ///|
-/// The two corner cases named by value: an exact result of fewer bits than the
-/// working precision.
+/// The two corner cases named by value (level A, worked out by hand): an exact result of fewer
+/// bits than the working precision.
 test "gradual underflow of a short exact result keeps the correctly rounded bound" {
   let e_min = @bin_float.binary_implementation_e_min
   // 2^(e_min - 3) + 2^(e_min - 3) = 2^(e_min - 2): one bit, below the normal
-  // range of every precision, representable exactly at 53 bits
+  // range of every precision, representable exactly at 53 bits: both directions give it
   let part = @bin_float.BinFloat::make(
     @bin_float.BinCoeff::one(),
     e_min - 3,
     53,
   )
-  let sum_down = directed_add(
-    part,
-    part,
-    53,
-    BinaryRoundingMode::RoundTowardNegative,
-  )
-  let sum_up = directed_add(
-    part,
-    part,
-    53,
-    BinaryRoundingMode::RoundTowardPositive,
-  )
-  let old_down = lower_round_bound(
-    exact_add(
-      min_bits=1,
-      part,
-      part,
-      mode=BinaryRoundingMode::RoundTowardNegative,
-    ),
+  let expected = @bin_float.BinFloat::make(
+    @bin_float.BinCoeff::one(),
+    e_min - 2,
     53,
   )
-  let old_up = upper_round_bound(
-    exact_add(
-      min_bits=1,
-      part,
-      part,
-      mode=BinaryRoundingMode::RoundTowardPositive,
-    ),
-    53,
-  )
-  assert_eq(sum_down.ilogb(), Some(e_min - 2))
-  assert_eq(sum_up.ilogb(), Some(e_min - 2))
-  // today's bounds were made at one bit: the lower one rounds to zero and the
-  // upper one to 2^(e_min - 1), twice the exact value 2^(e_min - 2); the new
-  // bounds are the exact value in both directions
-  inspect(old_down.is_zero(), content="true")
-  assert_eq(old_up.ilogb(), Some(e_min - 1))
-  assert_true(old_down.compare(sum_down) < 0)
-  assert_true(sum_up.compare(old_up) < 0)
+  for mode in db_modes() {
+    let sum = directed_add(part, part, 53, mode)
+    assert_eq(sum.ilogb(), Some(e_min - 2))
+    assert_eq(sum.compare(expected), 0)
+  }
 }
 
 ///|
@@ -464,36 +306,17 @@ test "overflow of a short exact result keeps the correctly rounded bound" {
     53,
     BinaryRoundingMode::RoundTowardPositive,
   )
-  let old_down = lower_round_bound(
-    exact_add(
-      min_bits=1,
-      part,
-      part,
-      mode=BinaryRoundingMode::RoundTowardNegative,
-    ),
+  // the upper bound of a positive overflow is infinity
+  inspect(sum_up.classify() == FpClass::Infinity, content="true")
+  // the lower bound is the largest finite value of 53 bits, (2^53 - 1) * 2^(e_max - 52)
+  let largest = @bin_float.BinFloat::make(
+    @bin_float.BinCoeff::from_uint64((1UL << 53) - 1UL),
+    e_max - 52,
     53,
   )
-  // the upper bound of a positive overflow is infinity in both
-  inspect(sum_up.classify() == FpClass::Infinity, content="true")
-  inspect(
-    upper_round_bound(
-      exact_add(
-        min_bits=1,
-        part,
-        part,
-        mode=BinaryRoundingMode::RoundTowardPositive,
-      ),
-      53,
-    ).classify() ==
-    FpClass::Infinity,
-    content="true",
-  )
-  // the lower bound is the largest finite value of 53 bits (all ones); the old
-  // one was made at one bit, where the largest finite value is 3 * 2^(e_max - 1)
   assert_eq(sum_down.ilogb(), Some(e_max))
   assert_eq(sum_down.coefficient().bit_length(), 53)
-  assert_eq(old_down.coefficient().bit_length(), 2)
-  assert_true(old_down.compare(sum_down) <= 0)
+  assert_eq(sum_down.compare(largest), 0)
 }
 
 ///|
@@ -511,172 +334,107 @@ fn db_interval(state : Ref[UInt64]) -> Interval {
 }
 
 ///|
-/// The old interval operations, copied over the exact route.
-fn db_old_add(a : Interval, b : Interval) -> Interval {
-  let precision = Int32::max(a.precision_, b.precision_)
-  if a.is_common_interval() && b.is_common_interval() {
-    return store_interval(
-      exact_add(
-        min_bits=1,
-        a.lo_,
-        b.lo_,
-        mode=BinaryRoundingMode::RoundTowardNegative,
-      ),
-      exact_add(
-        min_bits=1,
-        a.hi_,
-        b.hi_,
-        mode=BinaryRoundingMode::RoundTowardPositive,
-      ),
-      precision,
-    )
+/// The endpoint sum of the reference: an infinite addend is the result, otherwise the exact sum
+/// rounded once.
+fn db_ref_sum(
+  a : @bin_float.BinFloat,
+  b : @bin_float.BinFloat,
+  precision : Int32,
+  mode : BinaryRoundingMode,
+) -> @bin_float.BinFloat {
+  if a.classify() == FpClass::Infinity {
+    return a
   }
+  if b.classify() == FpClass::Infinity {
+    return b
+  }
+  exact_sum_rounded(a, b, precision, mode)
+}
+
+///|
+/// The interval sum of the reference: the exact endpoint sums rounded outward once.
+fn db_ref_add(a : Interval, b : Interval) -> Interval {
+  let p = Int32::max(a.precision_, b.precision_)
   store_interval(
-    db_extended_add(a.lo_, b.lo_, 1, BinaryRoundingMode::RoundTowardNegative),
-    db_extended_add(a.hi_, b.hi_, 1, BinaryRoundingMode::RoundTowardPositive),
-    precision,
+    db_ref_sum(a.lo_, b.lo_, p, BinaryRoundingMode::RoundTowardNegative),
+    db_ref_sum(a.hi_, b.hi_, p, BinaryRoundingMode::RoundTowardPositive),
+    p,
   )
 }
 
 ///|
-fn db_old_sub(a : Interval, b : Interval) -> Interval {
-  let precision = Int32::max(a.precision_, b.precision_)
-  if a.is_common_interval() && b.is_common_interval() {
-    return store_interval(
-      exact_sub(
-        min_bits=1,
-        a.lo_,
-        b.hi_,
-        mode=BinaryRoundingMode::RoundTowardNegative,
-      ),
-      exact_sub(
-        min_bits=1,
-        a.hi_,
-        b.lo_,
-        mode=BinaryRoundingMode::RoundTowardPositive,
-      ),
-      precision,
-    )
-  }
+fn db_ref_sub(a : Interval, b : Interval) -> Interval {
+  let p = Int32::max(a.precision_, b.precision_)
   store_interval(
-    db_extended_add(
-      a.lo_,
-      b.hi_.neg(),
-      1,
-      BinaryRoundingMode::RoundTowardNegative,
-    ),
-    db_extended_add(
-      a.hi_,
-      b.lo_.neg(),
-      1,
-      BinaryRoundingMode::RoundTowardPositive,
-    ),
-    precision,
+    db_ref_sum(a.lo_, b.hi_.neg(), p, BinaryRoundingMode::RoundTowardNegative),
+    db_ref_sum(a.hi_, b.lo_.neg(), p, BinaryRoundingMode::RoundTowardPositive),
+    p,
   )
 }
 
 ///|
-fn db_old_width(x : Interval) -> @bin_float.BinFloat {
-  upper_round_bound(
-    exact_sub(
-      min_bits=1,
-      x.hi_,
-      x.lo_,
-      mode=BinaryRoundingMode::RoundTowardPositive,
-    ),
+fn db_ref_width(x : Interval) -> @bin_float.BinFloat {
+  exact_sum_rounded(
+    x.hi_,
+    x.lo_.neg(),
     x.precision_,
+    BinaryRoundingMode::RoundTowardPositive,
   )
 }
 
 ///|
-fn db_old_radius(x : Interval) -> @bin_float.BinFloat {
+fn db_ref_radius(x : Interval) -> @bin_float.BinFloat {
   let m = x.midpoint()
-  let below = upper_round_bound(
-    exact_sub(
-      min_bits=1,
-      m,
-      x.lo_,
-      mode=BinaryRoundingMode::RoundTowardPositive,
-    ),
-    x.precision_,
+  let up = BinaryRoundingMode::RoundTowardPositive
+  bin_max(
+    exact_sum_rounded(m, x.lo_.neg(), x.precision_, up),
+    exact_sum_rounded(x.hi_, m.neg(), x.precision_, up),
   )
-  let above = upper_round_bound(
-    exact_sub(
-      min_bits=1,
-      x.hi_,
-      m,
-      mode=BinaryRoundingMode::RoundTowardPositive,
-    ),
-    x.precision_,
-  )
-  bin_max(below, above)
 }
 
 ///|
-/// The new interval has the old one's precision; each endpoint is the old one or
-/// inside it (and an endpoint that is zero is the same zero).
+/// The new interval has the reference's precision and equal endpoints (a zero of either sign is
+/// the same value).
 fn db_interval_check(
   label : () -> String,
   new : Interval,
-  old : Interval,
-) -> Int32 {
-  if new.precision_ != old.precision_ || new.empty_ != old.empty_ {
+  reference : Interval,
+) -> Unit {
+  if new.precision_ != reference.precision_ || new.empty_ != reference.empty_ {
     abort("\{label()}: precision or emptiness differs")
   }
-  let mut tighter = 0
-  if !new.lo_.identical(old.lo_) {
-    if new.lo_.compare(old.lo_) < 0 {
-      abort(
-        "\{label()}: lower bound \{new.lo_} is below the old one \{old.lo_}",
-      )
-    }
-    tighter += 1
+  if !db_same(new.lo_, reference.lo_) || !db_same(new.hi_, reference.hi_) {
+    abort("x")
   }
-  if !new.hi_.identical(old.hi_) {
-    if new.hi_.compare(old.hi_) > 0 {
-      abort(
-        "\{label()}: upper bound \{new.hi_} is above the old one \{old.hi_}",
-      )
-    }
-    tighter += 1
-  }
-  tighter
 }
 
 ///|
-test "interval add, sub, radius and width equal the old exact route or lie inside it" {
+test "interval add, sub, radius and width equal the exact reference rounded outward" {
   let state = Ref(0x2545f4914f6cdd1dUL)
-  let mut tighter = 0
   let mut cases = 0
+  let mut compared = 0
   for _ in 0..<2500 {
     let a = db_interval(state)
     let b = db_interval(state)
-    tighter += db_interval_check(
-      fn() { "add \{a} \{b}" },
-      a.add(b),
-      db_old_add(a, b),
-    )
-    tighter += db_interval_check(
-      fn() { "sub \{a} \{b}" },
-      a.sub(b),
-      db_old_sub(a, b),
-    )
-    // (width and radius add exact integers as long as the exponent gap of the
-    // endpoints: only gaps below 4,000 bits are compared here)
+    if !a.is_empty() && !b.is_empty() {
+      if db_near(a.lo_, b.lo_) && db_near(a.hi_, b.hi_) {
+        db_interval_check(fn() { "add \{a} \{b}" }, a.add(b), db_ref_add(a, b))
+        compared += 1
+      }
+      if db_near(a.lo_, b.hi_) && db_near(a.hi_, b.lo_) {
+        db_interval_check(fn() { "sub \{a} \{b}" }, a.sub(b), db_ref_sub(a, b))
+        compared += 1
+      }
+    }
+    // (the reference of width and radius adds exact integers as long as the exponent gap
+    // of the endpoints: only gaps below 4,000 bits are compared here)
     let gap = Int32::abs(a.hi_.exponent2() - a.lo_.exponent2())
     if a.is_common_interval() && gap < 4000 {
-      // upper bounds of a width and a radius: equal to the old ones or below
-      assert_true(a.width().compare(db_old_width(a)) <= 0)
-      assert_true(a.radius().compare(db_old_radius(a)) <= 0)
-      if !a.width().identical(db_old_width(a)) {
-        tighter += 1
-      }
-      if !a.radius().identical(db_old_radius(a)) {
-        tighter += 1
-      }
+      assert_true(db_same(a.width(), db_ref_width(a)))
+      assert_true(db_same(a.radius(), db_ref_radius(a)))
     }
     cases += 1
   }
   assert_true(cases == 2500)
-  println("interval cases \{cases}, strictly tighter endpoints \{tighter}")
+  assert_true(compared > 1000)
 }

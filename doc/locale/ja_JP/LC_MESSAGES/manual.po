@@ -270,7 +270,7 @@ msgstr "各候補について、当該ケースとデータセットの有効な
 #: manual/api/internal/conformance.md:359
 #: manual/api/internal/decimal_kernel.md:92
 #: manual/api/internal/runner_cli.md:209
-#: manual/api/interval.md:2241
+#: manual/api/interval.md:2245
 #: manual/api/interval_checked.md:528
 #: manual/api/numeric_expr.md:339
 #: manual/api/semantic.md:373
@@ -3927,7 +3927,7 @@ msgstr "`to_string` はコンテキストなしで値を科学表記で書式化
 #: manual/api/internal/conformance.md:361
 #: manual/api/internal/decimal_kernel.md:94
 #: manual/api/internal/runner_cli.md:211
-#: manual/api/interval.md:2243
+#: manual/api/interval.md:2247
 #: manual/api/numeric_expr.md:341
 msgid "This snapshot is the generated `pkg.generated.mbti` of the package. It is the authority when prose and interface disagree."
 msgstr "このスナップショットは、パッケージの生成された `pkg.generated.mbti` です。説明文とインターフェースが食い違う場合は、こちらが正となります。"
@@ -8001,26 +8001,26 @@ msgid "The text is `[empty]`, `[entire]` or `[l, u]` with the bounds written as 
 msgstr "テキストは `[empty]`、`[entire]` または `[l, u]` で、端は十六進数で書く（`0x1fffffp-3`。無限の端は `inf` と `-inf`）。装飾付きの区間には `_` と装飾が続く（NaI は `[nai]`）。端は保存された端そのものなので、`from_exact_string(x.to_exact_string(), precision=x.precision())` は `x` と `identical` である（符号付きの零は書かない、13.4）。`from_exact_string` はテキストを厳密に読み、決して広げない。テキストの端は、保存されるすべての端と同様に、`precision` ビット形式の数でなければならない。有効ビットが `precision` より多い端（`0x1.00000000000001p0` は 57 ビットで、末尾の零の数によらず、`precision=57` では読め 53 では拒否される）、ライブラリの指数範囲を超える端、範囲下限以下で `precision` ビットの格子より細かい端は、理由を示す構文エラーで拒否される。十進または不正な端、下端が上端より大きい場合も同様である。どの端が表現できるかは IEEE 754-2019 5.12.3 の変換器が決め（`BinFloat::from_hex_ctx` が `inexact` を報告する）、テキストの桁数を数えることでは決めないので、小数部を持つ仮数（`0x1.8p0`、`0x.8p1`）、先頭と末尾の零の桁、大文字が読める。0.12 より前は、型がそのような端を保持できたため、より広い端は受け入れられ自身のビット数のラベルを持っていたが、今はできない。"
 
 #: manual/api/interval.md:2127
-msgid "The midpoint-radius view, `center +/- half-width`, with both numbers in the `BinFloat` notation (`3p-1` is $3 \\cdot 2^{-1}$). It was the output of `Show` before 0.12; it is for reading, not a literal (`from_string` does not read it), and its cost does not depend on the exponent range: an interval whose bounds have exponents a billion apart is written in a few characters. An interval with an infinite bound prints as `[l, u]` of binary numbers, Empty as `[empty]`; a decorated interval appends `_` and the decoration."
-msgstr "中点と半径の見方 `center +/- half-width` で、二つの数はどちらも `BinFloat` の表記（`3p-1` は $3 \\cdot 2^{-1}$）。0.12 より前の `Show` の出力であり、読むためのもので、リテラルではない（`from_string` は読まない）。コストは指数範囲に依存せず、端の指数が 10 億も離れた区間でも数文字で書ける。無限の端を持つ区間は二進数の `[l, u]`、空集合は `[empty]` と書き、装飾付きの区間は `_` と装飾を続ける。"
+msgid "The midpoint-radius view, `center +/- half-width`, with both numbers in the `BinFloat` notation (`3p-1` is $3 \\cdot 2^{-1}$). It was the output of `Show` before 0.12; it is for reading, not a literal (`from_string` does not read it), and its cost does not depend on the exponent range: an interval whose bounds have exponents a billion apart is written in a few characters. An interval with an infinite bound prints as `[l, u]` of binary numbers, Empty as `[empty]`; a decorated interval appends `_` and the decoration. The center is the exact midpoint of the bounds for an exponent gap of less than 65,536 places; beyond it, it is a round-to-odd value at $p + 65{,}538$ bits (a number of about 65,000 bits, not the exact midpoint). `midpoint` and `radius`, the functions of IEEE 1788-2015 12.12.8, have $p$ bits."
+msgstr "中点・半径ビュー、`center +/- half-width`。両方の数は `BinFloat` 表記です（`3p-1` は $3 \\cdot 2^{-1}$）。0.12 より前は `Show` の出力でした。読むためのもので、リテラルではなく（`from_string` は読みません）、コストは指数範囲に依存しません。端点の指数が 10 億離れた区間でも数文字で書けます。無限の端点を持つ区間は二進数の `[l, u]`、Empty は `[empty]` と出力され、装飾付きの区間には `_` と装飾が付きます。指数の差が 65,536 桁未満なら、中心は端点の厳密な中点です。それを超えると、$p + 65{,}538$ ビットでの奇数への丸めの値（約 65,000 ビットの数で、厳密な中点ではありません）になります。`midpoint` と `radius` は IEEE 1788-2015 12.12.8 の関数で、それぞれ $p$ ビットです。"
 
-#: manual/api/interval.md:2142
+#: manual/api/interval.md:2146
 msgid "These are the derived `Eq` and `Debug` methods of the structures."
 msgstr "これらは構造体の導出された `Eq` および `Debug` メソッドです。"
 
-#: manual/api/interval.md:2156
+#: manual/api/interval.md:2160
 msgid "These are the derived `Eq` and `Debug` methods of the enums."
 msgstr "これらは列挙型の導出された `Eq` および `Debug` メソッドです。"
 
-#: manual/api/interval.md:2167
+#: manual/api/interval.md:2171
 msgid "The `Eq` implementations of `Interval` and `DecoratedInterval` are the `equal` relation of IEEE 1788-2015 (12.12.9), not equality of representation: `==` compares sets, ignoring precision tags, and on decorated intervals it is false whenever one operand is NaI, so NaI is not equal to itself (as NaN is not), and decorations are ignored. `identical` is the equality of the datum. `to_repr` gives the structural `Debug` form. The `Eq` of `Decoration` and `OverlapState` is the equality of the variants."
 msgstr "`Interval` と `DecoratedInterval` の `Eq` 実装は、表現の等しさではなく IEEE 1788-2015（12.12.9）の `equal` 関係です。`==` は精度タグを無視して集合を比較します。装飾付き区間では、どちらかのオペランドが NaI なら偽になるので、NaI は自分自身とも等しくなりません（NaN と同様）。装飾は無視されます。`identical` はデータそのものの等しさです。`to_repr` は構造的な `Debug` 形式を与えます。`Decoration` と `OverlapState` の `Eq` は各バリアントの等しさです。"
 
-#: manual/api/interval.md:2177
+#: manual/api/interval.md:2181
 msgid "`Interval` implements the enclosure relation traits of `Luna-Flow/arithmetic`."
 msgstr "`Interval` は `Luna-Flow/arithmetic` の包含関係トレイトを実装します。"
 
-#: manual/api/interval.md:2187
+#: manual/api/interval.md:2191
 msgid ""
 "`Contains::contains(x, y)` is `y.subset(x)` (set inclusion, not the point-taking method). `Overlaps::overlaps(x, y)` is $\\underline{x} \\le \\overline{y} \\wedge \\underline{y} \\le \\overline{x}$, that is $\\boldsymbol{x} \\cap \\boldsymbol{y} \\n"
 "e \\emptyset$, and `MaybeEq::maybe_eq` is the same relation read as \"the two unknown points may be equal\". `DefinitelyLt::definitely_lt(x, y)` is $\\overline{x} < \\underline{y}$ and `DefinitelyLe::definitely_le(x, y)` is $\\overline{x} \\le \\underline{y}$: they hold when the order holds for every pair of points. All four are false when an operand is Empty. This differs from `disjoint`, `precedes` and `strict_precedes`, which are true for an Empty operand (IEEE 1788-2015 Table 10.4): `overlaps` is false where `disjoint` is true, and `definitely_lt` is false where `strict_precedes` is true, so a `true` answer of the traits is always backed by at least one pair of points. These are the generic interface of `Luna-Flow/arithmetic`; the interval package spells the standard relations `disjoint`, `precedes` and `strict_precedes`."
@@ -8028,11 +8028,11 @@ msgstr ""
 "`Contains::contains(x, y)` は `y.subset(x)` です（集合の包含であり、点を受け取るメソッドではありません）。`Overlaps::overlaps(x, y)` は $\\underline{x} \\le \\overline{y} \\wedge \\underline{y} \\le \\overline{x}$、すなわち $\\boldsymbol{x} \\cap \\boldsymbol{y} \\n"
 "e \\emptyset$ で、`MaybeEq::maybe_eq` は同じ関係を「2 つの未知の点が等しいかもしれない」と読んだものです。`DefinitelyLt::definitely_lt(x, y)` は $\\overline{x} < \\underline{y}$、`DefinitelyLe::definitely_le(x, y)` は $\\overline{x} \\le \\underline{y}$ で、すべての点の組についてその順序が成り立つときに成り立ちます。4 つとも、オペランドが Empty のときは偽です。これは Empty のオペランドに対して真になる `disjoint`、`precedes`、`strict_precedes` とは異なります（IEEE 1788-2015 表 10.4）。`overlaps` が偽のところで `disjoint` は真、`definitely_lt` が偽のところで `strict_precedes` は真なので、これらのトレイトが `true` を返すときは、必ず少なくとも 1 組の点がその根拠になっています。これらは `Luna-Flow/arithmetic` の汎用インターフェースで、区間パッケージは標準の関係を `disjoint`、`precedes`、`strict_precedes` と綴ります。"
 
-#: manual/api/interval.md:2205
+#: manual/api/interval.md:2209
 msgid "`Interval` implements `DivChecked`, `PowNatChecked` and `PowIntChecked`; their methods are promoted."
 msgstr "`Interval` は `DivChecked`、`PowNatChecked`、`PowIntChecked` を実装し、それらのメソッドは昇格されています。"
 
-#: manual/api/interval.md:2217
+#: manual/api/interval.md:2221
 msgid "Only `ctx.precision` is used: the operands are re-rounded to it with `with_precision`, the operation is applied, and the result is re-rounded outward (see [`Interval::with_precision`](#intervalwith_precision)). At the operands' own precision the result is that of the plain operation; at a lower precision it can be wider. They always return `Ok`. `div_checked` follows the division rules above (a divisor containing 0 gives an unbounded result, not an error). `pow_int_checked` uses `pown`. `pow_nat_checked` uses binary powering by repeated interval multiplication, which treats the factors as independent: for an argument containing 0 its result is wider than `pown`. An Empty base gives Empty for every exponent, including 0, as `pown` does."
 msgstr "使われるのは `ctx.precision` だけです。オペランドは `with_precision` でその精度に丸め直され、演算が適用され、結果が外向きに丸め直されます（[`Interval::with_precision`](#intervalwith_precision) を参照）。オペランド自身の精度では結果は通常の演算と同じで、より低い精度では広くなることがあります。常に `Ok` を返します。`div_checked` は上記の除算規則に従います（0 を含む除数はエラーではなく非有界な結果を与えます）。`pow_int_checked` は `pown` を用います。`pow_nat_checked` は区間の乗算の繰り返しによる二進べき乗を用い、因子を独立なものとして扱うため、0 を含む引数に対しては結果が `pown` より広くなります。`pown` と同様に、Empty の底は指数 0 を含むすべての指数で Empty を与えます。"
 
@@ -8732,8 +8732,8 @@ msgid "Finalization is the semantic firewall. Kernels may compute exact sums, pr
 msgstr "最終化（finalization）は意味論上のファイアウォールです。カーネルは厳密な和、積、商、根、あるいはガードビットやスティッキービットを計算できますが、丸められた値、コホート、フラグ、トラップ、装飾、区間端点の方向を決めるのはファイナライザだけです。ファイナライザはまた、先頭ビットについて二進実装の指数範囲 $[1 - 2^{30},\\ 2^{30} - 1]$ を強制します。この範囲外の結果は、飽和した指数で格納されるのではなく、丸め方向に応じてオーバーフローまたはアンダーフローとして分類されます。"
 
 #: manual/architecture.md:91
-msgid "Operations whose exact value is enormous never materialize it. A far addend collapses to a sticky bit, the IEEE remainder reduces a huge dividend modulo $2y$ by square-and-multiply on $2^k$, rounding to an integer splits the coefficient by shifting, and interval endpoint sums drop an addend that lies more than $\\max(65536, p)$ bits below the other to a directed sticky term. Each shortcut feeds the finalizer exactly the round and sticky information the full computation would."
-msgstr "厳密値が巨大になる演算では、その値を実体化しません。遠く離れた加数はスティッキービットに縮約され、IEEE の剰余は $2^k$ 上の二乗乗算法によって巨大な被除数を $2y$ を法として縮約し、整数への丸めはシフトによって係数を分割し、区間端点の和では、もう一方より $\\max(65536, p)$ ビットを超えて下位にある加数を方向付きのスティッキー項に落とします。いずれの近道も、完全な計算が与えるのとまったく同じ丸め情報とスティッキー情報をファイナライザに渡します。"
+msgid "Operations whose exact value is enormous never materialize it. A far addend collapses to a sticky bit, the IEEE remainder reduces a huge dividend modulo $2y$ by square-and-multiply on $2^k$, rounding to an integer splits the coefficient by shifting, and interval endpoint sums are the directed `add_ctx` of the binary layer, which does the same. Each shortcut feeds the finalizer exactly the round and sticky information the full computation would."
+msgstr "厳密値が巨大になる演算は、それを実体化しません。遠く離れた加数は粘着ビットに畳み込まれ、IEEE の剰余は巨大な被除数を $2^k$ の二乗乗算で $2y$ を法として縮約し、整数への丸めは係数をシフトで分割し、区間端点の和は二進層の方向付き `add_ctx` で、これも同じことを行います。どの近道も、完全な計算が与えるはずの丸めビットと粘着ビットだけを最終処理に渡します。"
 
 #: manual/architecture.md:99
 msgid "Algorithm selection"
@@ -9922,7 +9922,7 @@ msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行�
 #: manual/design/internal.md:211
 #: manual/design/internal/conformance.md:129
 #: manual/design/internal/runner_cli.md:83
-#: manual/design/interval.md:1205
+#: manual/design/interval.md:1198
 #: manual/design/interval_checked.md:171
 #: manual/design/numeric_expr.md:194
 #: manual/design/semantic.md:229
@@ -11170,7 +11170,7 @@ msgstr "`environment` は各実行についてターゲット、プロファイ�
 #: manual/design/internal/conformance.md:74
 #: manual/design/internal/decimal_kernel.md:301
 #: manual/design/internal/runner_cli.md:60
-#: manual/design/interval.md:1133
+#: manual/design/interval.md:1126
 #: manual/design/interval_checked.md:138
 #: manual/design/numeric_expr.md:129
 #: manual/design/semantic.md:196
@@ -11224,7 +11224,7 @@ msgstr "**スケール不変性。** すべてのサンプルに定数 $\\lambda
 #: manual/design/internal.md:199
 #: manual/design/internal/conformance.md:119
 #: manual/design/internal/runner_cli.md:74
-#: manual/design/interval.md:1186
+#: manual/design/interval.md:1179
 #: manual/design/interval_checked.md:158
 #: manual/design/numeric_expr.md:179
 #: manual/design/semantic.md:216
@@ -18833,98 +18833,82 @@ msgid "S. M. Rump, \"Fast and parallel interval arithmetic\", *BIT* 39(3), 1999.
 msgstr "S. M. Rump, \"Fast and parallel interval arithmetic\", *BIT* 39(3), 1999。"
 
 #: manual/design/interval.md:1009
-msgid "Exact candidates, one directed rounding"
-msgstr "厳密な候補と、一度だけの方向付き丸め"
+msgid "Endpoint operations: one directed rounding of the exact result"
+msgstr "端点演算：厳密な結果に対する 1 回の方向付き丸め"
 
 #: manual/design/interval.md:1011
-msgid "*Problem.* Endpoint candidates can be computed with directed rounding at each step, or exactly and rounded once."
-msgstr "*問題。* 端点の候補は、各ステップで方向付き丸めを行って計算することも、厳密に計算して一度だけ丸めることもできます。"
+msgid "*Problem.* Endpoint candidates can be computed with directed rounding at each step, or exactly and rounded once. Rounding at each step would not give the tightest enclosure; forming the exact value of a sum or a product by hand costs alignment and bookkeeping the binary layer already does."
+msgstr "*問題。* 端点の候補値は、各段階で方向付き丸めをして計算することも、厳密に計算して 1 回だけ丸めることもできます。各段階で丸めると最も狭い包含が得られません。和や積の厳密な値を手作業で作ると、二進層がすでに行っている整列と記帳の手間がかかります。"
 
-#: manual/design/interval.md:1014
-msgid "*Chosen.* Sums and products of `BinFloat` endpoints are formed exactly (the coefficient grows to hold them), and `quantize_interval` applies one $\\operatorname{RD}_p$/$\\operatorname{RU}_p$ at the end; by property (iii) the result is the tightest $p$-bit enclosure of the exact hull. Division and square root, whose exact results are not dyadic, are computed directly with directed rounding at precision $p$. The rule needs two safeguards, described next: bounded alignment of far-apart addends and outward clamping at the edge of the exponent range."
-msgstr "*採用。* `BinFloat` の端点の和と積は厳密に作られ（係数はそれを保持できるまで大きくなります）、`quantize_interval` が最後に $\\operatorname{RD}_p$/$\\operatorname{RU}_p$ を一度だけ適用します。性質 (iii) により、結果は厳密な包の最も緊密な $p$ ビット包含区間になります。厳密な結果が 2 進有理数にならない除算と平方根は、精度 $p$ の方向付き丸めで直接計算されます。この規則には、次に述べる 2 つの安全策が必要です。大きく離れた加数の桁合わせの制限と、指数範囲の端での外向きクランプです。"
+#: manual/design/interval.md:1016
+msgid "*Chosen.* Every endpoint sum, difference and product of two `BinFloat` endpoints is one directed contextual operation of `bin_float` (`add_ctx`, `sub_ctx`, `mul_ctx`, `fma_ctx`) in a context of the precision $p$ of the result and the direction of the endpoint: lower endpoints toward $-\\infty$, upper endpoints toward $+\\infty$, radii and widths upward. Each of them computes as if its exact operands were summed or multiplied exactly and rounds that value once, so by property (iii) the result is the tightest $p$-bit endpoint. The exponent range is the one of the library, so the three issues that an exact route had to handle itself belong to the binary layer:"
+msgstr "*選択。* 2 つの `BinFloat` 端点の和・差・積は、いずれも `bin_float` の方向付き文脈演算（`add_ctx`、`sub_ctx`、`mul_ctx`、`fma_ctx`）1 回で、文脈は結果の精度 $p$ と端点の方向です。下端点は $-\\infty$ 向き、上端点は $+\\infty$ 向き、半径と幅は上向きです。各演算は厳密なオペランドの和または積として計算し、その値を 1 回だけ丸めるので、性質 (iii) により、結果は最も狭い $p$ ビットの端点になります。指数範囲はライブラリのものなので、厳密な経路が自分で処理しなければならなかった 3 つの問題は二進層が担います。"
 
-#: manual/design/interval.md:1023
-msgid "Far addends: bound endpoint sums by precision"
-msgstr "離れた加数：端点の和を精度で抑える"
+#: manual/design/interval.md:1026
+msgid "*Far addends.* Adding $A = 2^{10^9}$ and $s = 2^{-10^9}$ exactly aligns two coefficients over two billion bits (about 750 MB for one interval addition, issue #24). `add_ctx` does not align them: a term whose leading bit lies beyond the rounding position only decides the side of the rounding, and it is a sticky bit there. Soundness and tightness do not depend on a bound for the distance, as the replacement of the small addend by a surrogate that earlier versions made here did, and no precision label of an operand enters."
+msgstr "*遠く離れた加数。* $A = 2^{10^9}$ と $s = 2^{-10^9}$ を厳密に足すと、2 つの係数が 20 億ビットにわたって整列され、20 億ビットの数が作られます（区間の加算 1 回で約 750 MB、issue #24）。`add_ctx` はこのような整列を行いません。先頭ビットが丸め位置より下にある項は丸めの向きを決めるだけで、そこでは粘着ビットになります。健全性と緊密さは距離の上限に依存せず、以前の版がここで小さい加数を代用値に置き換えていたような方法も、オペランドの精度ラベルも関与しません。"
 
-#: manual/design/interval.md:1025
-msgid "*Problem.* Adding $A = 2^{10^9}$ and $s = 2^{-10^9}$ exactly aligns the two coefficients and builds a two-billion-bit number (about 750 MB for one interval addition, issue #24)."
-msgstr "*問題。* $A = 2^{10^9}$ と $s = 2^{-10^9}$ を厳密に加算すると、2 つの係数の桁を合わせて 20 億ビットの数を作ることになります（区間の加算 1 回で約 750 MB、issue #24）。"
+#: manual/design/interval.md:1033
+msgid "*The edge of the exponent range.* A result beyond the range is clamped by the rounding mode of the operation: a lower endpoint to $-\\infty$ or the largest finite number, an upper endpoint to $+\\infty$ or the largest finite number, a tiny result to zero or the smallest positive number. This keeps, for example, $\\exp([10^9, 10^9])$ an enclosure $[\\text{largest finite}, +\\infty)$ instead of collapsing it."
+msgstr "*指数範囲の端。* 範囲を超える結果は、その演算の丸めモードで打ち切られます。下端点は $-\\infty$ または最大の有限数、上端点は $+\\infty$ または最大の有限数、きわめて小さい結果は 0 または最小の正数です。たとえば $\\exp([10^9, 10^9])$ は、潰れずに包含 $[\\text{largest finite}, +\\infty)$ のままになります。"
 
-#: manual/design/interval.md:1029
-msgid "*Chosen.* Let $t(v)$ be the exponent of the leading bit of $v$, $e(A)$ the exponent of the last bit of the larger addend $A$, $M = \\max(65536, \\operatorname{prec}(A), \\operatorname{prec}(s))$ and $c = \\min(e(A), t(A) - M)$. If $t(s) < c - 2$, the small addend is replaced by a sticky surrogate $s' = \\operatorname{sign}(s)\\,2^{c-2}$ when $s$ pushes the sum in the rounding direction of the endpoint being computed, and by $s' = 0$ otherwise. Then:"
-msgstr "*採用。* $t(v)$ を $v$ の先頭ビットの指数、$e(A)$ を大きい方の加数 $A$ の最終ビットの指数とし、$M = \\max(65536, \\operatorname{prec}(A), \\operatorname{prec}(s))$、$c = \\min(e(A), t(A) - M)$ とします。$t(s) < c - 2$ ならば、小さい方の加数を置き換えます。$s$ が計算中の端点の丸め方向に和を押す場合はスティッキーな代理値 $s' = \\operatorname{sign}(s)\\,2^{c-2}$ に、そうでない場合は $s' = 0$ にします。すると次が成り立ちます。"
+#: manual/design/interval.md:1039
+msgid "*Gradual underflow.* A result below the normal range lies on the grid of the format, and the directed rounding goes to that grid, not to the grid of the few bits the exact result happens to have."
+msgstr "*段階的アンダーフロー。* 正規範囲より下の結果は形式の格子上にあり、方向付き丸めはその格子へ行います。厳密な結果がたまたま持つ少数のビットの格子へではありません。"
 
-#: manual/design/interval.md:1037
-msgid "**Soundness, for every precision.** $|s| < 2^{t(s)+1} \\le 2^{c-2}$. An upper endpoint with $s > 0$ gets $A + 2^{c-2} > A + s$; with $s < 0$ it gets $A > A + s$. Lower endpoints are symmetric. So the directed sum stays on the required side of the exact sum, which is all the inclusion property needs."
-msgstr "**任意の精度での健全性。** $|s| < 2^{t(s)+1} \\le 2^{c-2}$ です。$s > 0$ の上端は $A + 2^{c-2} > A + s$ を得て、$s < 0$ の上端は $A > A + s$ を得ます。下端は対称です。したがって方向付きの和は厳密な和に対して必要な側にとどまり、包含性に必要なのはこれだけです。"
-
-#: manual/design/interval.md:1041
-msgid "**No loss of tightness when $p \\le M$.** The $p$-bit numbers near $A$ are multiples of $2^{t(A) - p}$, and $t(A) - p \\ge t(A) - M \\ge c$, so no $p$-bit number lies strictly between $A$ and $A \\pm 2^c$; both $A + s$ and $A + s'$ fall in the same gap and round to the same endpoint (Lemma 7 of the attachment)."
-msgstr "**$p \\le M$ のとき緊密さを失わないこと。** $A$ 付近の $p$ ビット数は $2^{t(A) - p}$ の倍数であり、$t(A) - p \\ge t(A) - M \\ge c$ なので、$A$ と $A \\pm 2^c$ の間に真に挟まる $p$ ビット数は存在しません。$A + s$ と $A + s'$ はどちらも同じ隙間に入り、同じ端点に丸められます（添付資料の補題 7）。"
-
-#: manual/design/interval.md:1047
-msgid "The alignment now costs at most about $M$ bits beyond the width of $A$, independent of the exponent gap. The surrogate is also used for the nearest-rounded sums inside the center, where it is not exact; this is the source of the limitation noted in [Correctness](#known-limitations)."
-msgstr "桁合わせのコストは、指数の差によらず、$A$ の幅を超えて高々約 $M$ ビットになります。この代理値は中心の内部の最近接丸めの和にも用いられますが、そこでは厳密ではありません。これが[正しさ](#known-limitations)で述べる制限の原因です。"
-
-#: manual/design/interval.md:1052
-msgid "Outward clamping at the exponent range"
-msgstr "指数範囲での外向きクランプ"
+#: manual/design/interval.md:1043
+msgid "The sign of a zero that is the result of an exact cancellation is the one of the direction ($-0$ toward $-\\infty$); it is not part of the interval (see the observers). Division and square root, whose exact results are not dyadic, are computed directly with directed rounding at precision $p$. The ball view (`center`, `half_width`, and so `midpoint`) needs the exact half-sum of the two bounds, not a rounded one: it adds the bounds rounded toward zero to $p + 65{,}538$ bits and makes the result odd when that rounding was inexact (round to odd), so that the one rounding that follows, to at most $p$ bits in any direction, is the rounding of the exact value; an exponent gap of less than 65,536 places gives the exact center."
+msgstr "厳密な相殺の結果である零の符号は方向で決まります（$-\\infty$ 向きでは $-0$）。それは区間の一部ではありません（観測量を参照）。厳密な結果が二進有理数でない除算と平方根は、精度 $p$ の方向付き丸めで直接計算します。球ビュー（`center`、`half_width`、したがって `midpoint`）は 2 つの端点の厳密な半和を必要とし、丸めた値では足りません。端点を 0 向きに $p + 65{,}538$ ビットへ丸めて足し、その丸めが不正確だった場合は結果を奇数にします（奇数への丸め）。こうすると、その後に任意の向きで高々 $p$ ビットへ行う 1 回の丸めが、厳密な値の丸めになります。指数の差が 65,536 桁未満なら中心は厳密です。"
 
 #: manual/design/interval.md:1054
-msgid "`BinFloat` has a finite (very wide) exponent range. An exact candidate beyond it cannot be stored, so the exact helpers take the direction of the endpoint being built: lower endpoints clamp toward $-\\infty$, upper endpoints toward $+\\infty$, radii round up, and exponent sums are computed in 64 bits and saturated. This keeps, for example, $\\exp([10^9, 10^9])$ an enclosure $[\\text{largest finite}, +\\infty)$ instead of collapsing it."
-msgstr "`BinFloat` は有限の（非常に広い）指数範囲を持ちます。それを超える厳密な候補は保存できないので、厳密計算のヘルパーは構築中の端点の方向をとります。下端は $-\\infty$ 方向へ、上端は $+\\infty$ 方向へクランプし、半径は切り上げ、指数の和は 64 ビットで計算して飽和させます。これにより、たとえば $\\exp([10^9, 10^9])$ は潰れることなく包含区間 $[\\text{largest finite}, +\\infty)$ に保たれます。"
-
-#: manual/design/interval.md:1061
 msgid "Contexts and double rounding"
 msgstr "コンテキストと二重丸め"
 
-#: manual/design/interval.md:1063
+#: manual/design/interval.md:1056
 msgid "`IntervalContext` carries a target precision $q$ and exponent range; `apply_ctx` rounds endpoints outward into it and the `*_ctx` operations compute at the operands' precision $p$ and then apply the context. Rounding twice is harmless for directed rounding when $q \\le p$:"
 msgstr "`IntervalContext` は対象の精度 $q$ と指数範囲を保持します。`apply_ctx` は端点をその中へ外向きに丸め、`*_ctx` 演算はオペランドの精度 $p$ で計算してからコンテキストを適用します。$q \\le p$ のとき、方向付き丸めでは 2 回丸めても害はありません。"
 
-#: manual/design/interval.md:1072
+#: manual/design/interval.md:1065
 msgid "because $F_q \\subseteq F_p$ (a $q$-bit significand is a $p$-bit one padded with zeros): every $f \\in F_q$ below $a$ is in $F_p$, hence below $\\operatorname{RD}_p(a)$, and conversely. So `(x + y).apply_ctx(ctx)` equals a single outward rounding of the exact sum into the context whenever the operands are at least as precise as the context. Overflow is resolved in the enclosing direction: an upper endpoint above the range becomes $+\\infty$, a positive lower endpoint becomes the largest finite number (still below the true value). Underflow rounds outward on the subnormal grid, so a tiny positive upper bound becomes the smallest subnormal and never 0. The flags are returned, never stored glointervaly."
 msgstr "なぜなら $F_q \\subseteq F_p$（$q$ ビットの仮数は $p$ ビットの仮数をゼロで埋めたもの）だからです。$a$ 以下のすべての $f \\in F_q$ は $F_p$ に属し、したがって $\\operatorname{RD}_p(a)$ 以下であり、逆も成り立ちます。よってオペランドがコンテキストと同等以上の精度を持つ限り、`(x + y).apply_ctx(ctx)` は厳密な和をコンテキストへ一度だけ外向きに丸めたものに等しくなります。オーバーフローは包含する方向に解決されます。範囲を超える上端は $+\\infty$ になり、正の下端は最大の有限数（依然として真の値以下）になります。アンダーフローでは非正規化数の格子上で外向きに丸めるため、極小の正の上界は最小の非正規化数になり、決して 0 にはなりません。フラグは返されるのであり、大域的に保存されることはありません。"
 
-#: manual/design/interval.md:1083
+#: manual/design/interval.md:1076
 msgid "Total and `try_` forms"
 msgstr "total 形式と `try_` 形式"
 
-#: manual/design/interval.md:1085
+#: manual/design/interval.md:1078
 msgid "*Problem.* Certified evaluation can fail: the refinement budget may run out, or an argument may be too large to reduce. Aborting would break long computations; returning a silent wide interval hides a lost guarantee of tightness."
 msgstr "*問題。* 認証付き評価は失敗することがあります。精緻化の予算が尽きることもあれば、引数が大きすぎて還元できないこともあります。中断すれば長い計算が台無しになり、黙って広い区間を返せば、緊密さの保証が失われたことが隠されてしまいます。"
 
-#: manual/design/interval.md:1090
+#: manual/design/interval.md:1083
 msgid "*Chosen.* Both, with one kernel. The `try_` forms return an `ArithmeticError` with a certification detail (operation, stage, reason, precision). The total form is the `try_` form with a fallback: when the `try_` form fails it returns the range of the function over its domain, which keeps the inclusion property: $[0, +\\infty)$ for `exp`, `exp2`, `exp10`, `pow` and `hypot`, $[-1, +\\infty)$ for `expm1`, Entire for the logarithms, `sinh`, `asinh`, `atanh`, `tan`, `tanpi` and `log1p`, $[-1, 1]$ for `sin`, `cos`, `sinpi`, `cospi` and `tanh`, $[1, +\\infty)$ for `cosh`, $[0, +\\infty)$ for `acosh`, $[-\\pi/2, \\pi/2]$ for `atan` and `asin`, $[0, \\pi]$ for `acos`, $[-\\pi, \\pi]$ for `atan2`. The $\\pi$ of a fallback is evaluated at no more than 64 bits and rounded outward, so a fallback cannot fail at any precision. The domain is decided before the kernel runs, so a failure is always a certification failure and never a domain error: an argument outside the domain gives Empty, a wide interval means the kernel gave up. Trigonometric reduction is capped: when the larger endpoint magnitude is at least $2^{\\max(65536, 4p)+1}$, reduction would need more than that many bits, so the `try_` forms report a resource limit and the total forms return the fallback."
 msgstr "*採用した方針。* 両方を、カーネルは 1 つで用意します。`try_` 形式は認証の詳細（演算、段階、理由、精度）を伴う `ArithmeticError` を返します。全域形式は、フォールバックを備えた `try_` 形式です。`try_` 形式が失敗したときは、その関数の定義域上の値域を返し、これによって包含性が保たれます。`exp`、`exp2`、`exp10`、`pow`、`hypot` では $[0, +\\infty)$、`expm1` では $[-1, +\\infty)$、対数関数、`sinh`、`asinh`、`atanh`、`tan`、`tanpi`、`log1p` では Entire、`sin`、`cos`、`sinpi`、`cospi`、`tanh` では $[-1, 1]$、`cosh` では $[1, +\\infty)$、`acosh` では $[0, +\\infty)$、`atan` と `asin` では $[-\\pi/2, \\pi/2]$、`acos` では $[0, \\pi]$、`atan2` では $[-\\pi, \\pi]$ です。フォールバックの $\\pi$ は高々 64 ビットで評価して外向きに丸めるため、フォールバックはどの精度でも失敗しません。定義域はカーネルの実行前に判定されるので、失敗は常に認証の失敗であり、定義域エラーではありません。定義域外の引数は Empty を返し、広い区間はカーネルが断念したことを意味します。三角関数の引数還元には上限があります。大きい方の端点の絶対値が $2^{\\max(65536, 4p)+1}$ 以上のとき、還元にはそれを超えるビット数が必要になるため、`try_` 形式はリソース制限を報告し、全域形式はフォールバックを返します。"
 
-#: manual/design/interval.md:1108
+#: manual/design/interval.md:1101
 msgid "*Why one kernel.* Until this was settled the total forms of fifteen functions had a kernel of their own (exact-rational series), which aborted at a high precision (about 32,000 bits for `ln`, issue 449) and lost all relative accuracy for a tiny argument in the hyperbolic functions, while the `try_` forms used the `bin_float` kernels and had neither limit. Keeping two kernels for the same function meant two sets of bugs, and results that depended on which form the caller chose."
 msgstr "*なぜカーネルを 1 つにするのか。* これが決まるまで、15 個の関数の全域形式は独自のカーネル（厳密な有理数級数）を持っていました。それは高い精度で中止し（`ln` では約 32,000 ビット、issue 449）、双曲線関数では非常に小さい引数に対して相対精度を完全に失いましたが、`try_` 形式は `bin_float` のカーネルを使い、どちらの制限もありませんでした。同じ関数にカーネルが 2 つあると、欠陥も 2 組になり、呼び出し側がどちらの形式を選ぶかで結果が変わります。"
 
-#: manual/design/interval.md:1116
+#: manual/design/interval.md:1109
 msgid "Decorations in a separate type"
 msgstr "装飾は別の型に"
 
-#: manual/design/interval.md:1118
+#: manual/design/interval.md:1111
 msgid "*Problem.* Decorations cost a field and a minimum per operation, and most users do not need them."
 msgstr "*問題。* 装飾には演算ごとにフィールド 1 つと最小値の計算 1 回のコストがかかり、ほとんどの利用者はそれを必要としません。"
 
-#: manual/design/interval.md:1121
+#: manual/design/interval.md:1114
 msgid "*Chosen.* `Interval` is the bare set; `DecoratedInterval` wraps it with a decoration and the NaI state. Bare operations stay cheap and simple, and the decorated type cannot be mixed with bare values by accident."
 msgstr "*採用。* `Interval` は装飾なしの集合であり、`DecoratedInterval` はそれを装飾と NaI 状態でラップします。装飾なしの演算は安価で単純なままであり、装飾付きの型が誤って装飾なしの値と混ざることはありません。"
 
-#: manual/design/interval.md:1125
+#: manual/design/interval.md:1118
 msgid "Precision as a tag"
 msgstr "タグとしての精度"
 
-#: manual/design/interval.md:1127
+#: manual/design/interval.md:1120
 msgid "Each interval carries a precision tag; binary operations use the larger tag. This keeps a sequence of operations at the precision of its most precise input without a context argument, which is what a set-valued type needs to compose with operators (`x + y`). An `IntervalContext` is used when a specific format must be imposed."
 msgstr "各区間は精度タグを持ち、二項演算は大きい方のタグを用います。これにより、一連の演算はコンテキスト引数なしで、最も精度の高い入力の精度に保たれます。これは集合値の型が演算子（`x + y`）と組み合わせて使えるために必要なことです。特定の形式を課す必要がある場合は `IntervalContext` を用います。"
 
-#: manual/design/interval.md:1135
+#: manual/design/interval.md:1128
 msgid ""
 "**Representation invariant.** A non-empty `Interval` has non-NaN endpoints, $\\underline{x} \\le \\overline{x}$, $\\underline{x} \\n"
 "e +\\infty$, $\\overline{x} \\n"
@@ -18934,83 +18918,83 @@ msgstr ""
 "e +\\infty$、$\\overline{x} \\n"
 "e -\\infty$、精度 $\\ge 1$ を満たします。すべての構築経路は `store_interval` で終わり、これがこの条件を検査し、満たさなければ中断します。空は端点 $(+\\infty, -\\infty)$ を持つフラグです。"
 
-#: manual/design/interval.md:1141
+#: manual/design/interval.md:1134
 msgid "**Inclusion.** Each public operation $F$ of `Interval` satisfies $f(\\boldsymbol{x}) \\subseteq F(\\boldsymbol{x})$, by the endpoint formulas and Corollary 2 for arithmetic, by the critical-point analysis and certified endpoint enclosures for elementary functions, and by the fallbacks for uncertified cases (the exceptions are listed under known limitations). By the fundamental theorem, so does every composition."
 msgstr "**包含性。** `Interval` の各公開演算 $F$ は $f(\\boldsymbol{x}) \\subseteq F(\\boldsymbol{x})$ を満たします。算術については端点の公式と系 2 により、初等関数については臨界点の解析と認証付きの端点の包含区間により、認証できない場合についてはフォールバックによります（例外は既知の制限に列挙しています）。基本定理により、すべての合成も同様です。"
 
-#: manual/design/interval.md:1148
+#: manual/design/interval.md:1141
 msgid "**Tightness.** Basic arithmetic, `sqr`, `pown`, `fma`, `abs`, `min`, `max`, `intersection`, `convex_hull` of non-empty operands and `sqrt` return the outward rounding of the exact hull, so each endpoint is within one ulp of optimal. Trigonometric and arctangent endpoints are correctly directed roundings when certified; the other elementary functions are usually within a few ulps. Not tight: fallbacks; `pown` with $n < -4096$ and 0 inside (Entire);  `with_precision` and `normalized` round the endpoints outward, which is the tightest enclosure and the identity on an interval already representable at the target precision, so `convex_hull` with an Empty operand and the checked capabilities do not widen either."
 msgstr "**緊密さ。** 基本演算、`sqr`、`pown`、`fma`、`abs`、`min`、`max`、空でないオペランドに対する `intersection` と `convex_hull`、および `sqrt` は厳密な包を外向きに丸めたものを返すので、各端点は最適値から 1 ulp 以内です。三角関数と逆正接の端点は、認証された場合には正しい方向付き丸めです。その他の初等関数は通常数 ulp 以内です。緊密でないものは、フォールバック、$n < -4096$ で 0 が内部にある場合の `pown`（Entire）です。`with_precision` と `normalized` は端点を外向きに丸めます。これは最も狭い包含であり、目標の精度ですでに表現可能な区間に対しては恒等なので、Empty のオペランドを伴う `convex_hull` や checked の機能も区間を広げません。"
 
-#: manual/design/interval.md:1160
+#: manual/design/interval.md:1153
 msgid "**Decorations.** The decoration of a result is a true statement about the function evaluated, by the induction argument above."
 msgstr "**装飾。** 上記の帰納法の議論により、結果の装飾は評価された関数についての真の命題です。"
 
-#: manual/design/interval.md:1163
+#: manual/design/interval.md:1156
 msgid "**Complexity.** Arithmetic performs at most four endpoint products or two sums, $O(M(p))$ for $p$-bit endpoints with multiplication cost $M(p)$, plus alignment of at most about $65536 + p$ bits for sums. Elementary functions cost one or two directed evaluations of the `bin_float` kernels at precision $p$ (see [`bin_float`](bin_float.md) for their cost), plus the index range for the trigonometric functions."
 msgstr "**計算量。** 算術は高々 4 つの端点の積または 2 つの和を計算し、乗算コストを $M(p)$ とすると $p$ ビットの端点に対して $O(M(p))$ であり、和の場合はさらに高々約 $65536 + p$ ビットの桁合わせが加わります。初等関数は、精度 $p$ で `bin_float` カーネルの方向付き評価を 1 回か 2 回行います（そのコストは [`bin_float`](bin_float.md) を参照）。三角関数ではこれに添字範囲の計算が加わります。"
 
-#: manual/design/interval.md:1170
+#: manual/design/interval.md:1163
 msgid "**Evidence.** Package tests check directed endpoints, the far-addend and exponent-range cases, decorations and relations; the pinned ITF1788 corpus runs 6,632 cases in strict mode (see [conformance](../conformance/interval.md))."
 msgstr "**根拠。** パッケージのテストは、方向付きの端点、離れた加数と指数範囲のケース、装飾、関係を検査します。固定された ITF1788 コーパスは strict モードで 6,632 ケースを実行します（[適合性](../conformance/interval.md)を参照）。"
 
-#: manual/design/interval.md:1174
+#: manual/design/interval.md:1167
 msgid "Known limitations"
 msgstr "既知の制限"
 
-#: manual/design/interval.md:1176
+#: manual/design/interval.md:1169
 msgid "The following inputs currently lose part of the input set, round or flag a result incorrectly, or return a set other than the specified one. Each is tracked in an issue with a proposed fix that is not merged yet; they are documented here so that callers can avoid them."
 msgstr "以下の入力は現在、入力集合の一部を失う、結果の丸めやフラグを誤る、または規定とは異なる集合を返すものです。それぞれ issue で追跡されており、まだマージされていない修正の提案があります。呼び出し側が回避できるようここに記載しています。"
 
-#: manual/design/interval.md:1181
+#: manual/design/interval.md:1174
 msgid "No limitation is open at present. Decorated `rootn` with a negative degree lowers the decoration to `trv` when 0 is in the argument, as the decoration rules of IEEE 1788-2015 §11 require; `library/src/interval/interval_decorated_wbtest.mbt` checks degrees `-1`, `-2` and `-3`."
 msgstr "現時点で未解決の制限はありません。負の次数の装飾付き `rootn` は、引数に 0 を含むとき装飾を `trv` に下げます。これは IEEE 1788-2015 §11 の装飾規則が求めるとおりで、`library/src/interval/interval_decorated_wbtest.mbt` が次数 `-1`、`-2`、`-3` を検査しています。"
 
-#: manual/design/interval.md:1188
+#: manual/design/interval.md:1181
 msgid "**Midpoint–radius storage** (Arb-style): cheaper radii, but overestimating products and no representation for half-unbounded sets; see [above](#endpoints-not-midpoint-and-radius)."
 msgstr "**中点・半径による保存**（Arb 方式）：半径は安価ですが、積を過大評価し、片側非有界な集合を表現できません。[上記](#endpoints-not-midpoint-and-radius)を参照してください。"
 
-#: manual/design/interval.md:1191
+#: manual/design/interval.md:1184
 msgid "**Hardware `Double` endpoints with switched rounding modes:** fixed precision, process-global state, and rounding-mode control is not available on every MoonBit target."
 msgstr "**丸めモードを切り替えたハードウェアの `Double` 端点：** 精度が固定され、プロセス全体の大域状態となり、しかも丸めモードの制御はすべての MoonBit ターゲットで利用できるわけではありません。"
 
-#: manual/design/interval.md:1194
+#: manual/design/interval.md:1187
 msgid "**Round to nearest and inflate by one ulp** (\"epsilon inflation\"): simpler, but about one ulp wider per endpoint than directed rounding, and only valid for operations whose nearest-rounded result is known to be within one ulp, which excludes most elementary function kernels."
 msgstr "**最近接に丸めて 1 ulp 膨らませる**（「イプシロン膨張」）：より単純ですが、方向付き丸めより端点ごとに約 1 ulp 広くなり、最近接丸めの結果が 1 ulp 以内であることがわかっている演算でしか有効でないため、初等関数のカーネルの大半が除外されます。"
 
-#: manual/design/interval.md:1198
+#: manual/design/interval.md:1191
 msgid "**Aborting on uncertified elementary functions:** a single hard argument would stop a whole computation; the `try_` forms cover callers who need the failure."
 msgstr "**認証できない初等関数で中断すること：** 難しい引数が 1 つあるだけで計算全体が止まってしまいます。失敗を知る必要がある呼び出し側には `try_` 形式があります。"
 
-#: manual/design/interval.md:1201
+#: manual/design/interval.md:1194
 msgid "**Treating division by zero-containing intervals as an error:** IEEE 1788 defines these results as sets (Entire, half-unbounded or empty), and extended division is what makes interval Newton methods work."
 msgstr "**ゼロを含む区間による除算をエラーとして扱うこと：** IEEE 1788 はこれらの結果を集合（Entire、片側非有界、または空）として定義しており、拡張された除算こそが区間ニュートン法を機能させるものです。"
 
-#: manual/design/interval.md:1207
+#: manual/design/interval.md:1200
 msgid "The package deliberately does not:"
 msgstr "このパッケージは意図的に以下を行いません。"
 
-#: manual/design/interval.md:1209
+#: manual/design/interval.md:1202
 msgid "provide reverse versions of division and reciprocal (Table 10.1 does not require them: change `z = x / y` to `x = y z` and use `mul_rev`);"
 msgstr "除算と逆数の逆演算を提供しません（表 10.1 はそれらを要求しません。`z = x / y` を `x = y z` に変えて `mul_rev` を使います）。"
 
-#: manual/design/interval.md:1211
+#: manual/design/interval.md:1204
 msgid "promise tight results: fallbacks and the dependency problem may widen enclosures arbitrarily;"
 msgstr "緊密な結果を約束すること。フォールバックと依存性問題によって包含区間は任意に広がりえます。"
 
-#: manual/design/interval.md:1213
+#: manual/design/interval.md:1206
 msgid "define a total order on intervals, or treat `Eq` as set equality;"
 msgstr "区間上の全順序を定義すること、あるいは `Eq` を集合の等価性として扱うこと。"
 
-#: manual/design/interval.md:1214
+#: manual/design/interval.md:1207
 msgid "convert decimal data outward on its own: `from_double` and `exact` enclose binary values, and enclosing a decimal literal is the caller's job (see the [tutorial](../tutorial/interval.md#enclose-a-decimal-constant));"
 msgstr "10 進データを独自に外向き変換すること。`from_double` と `exact` は 2 進の値を包含するものであり、10 進リテラルを包含するのは呼び出し側の役割です（[チュートリアル](../tutorial/interval.md#enclose-a-decimal-constant)を参照）。"
 
-#: manual/design/interval.md:1217
+#: manual/design/interval.md:1210
 msgid "implement intervals over decimal endpoints, complex intervals, interval vectors or matrices, or Taylor models;"
 msgstr "10 進の端点による区間、複素ボール、区間ベクトルや区間行列、テイラーモデルを実装すること。"
 
-#: manual/design/interval.md:1219
+#: manual/design/interval.md:1212
 msgid "report status through global flags: flags come back from `*_ctx` calls and decorations travel with values."
 msgstr "ステータスを大域フラグで報告すること。フラグは `*_ctx` 呼び出しから返され、装飾は値とともに受け渡されます。"
 
@@ -29271,6 +29255,39 @@ msgstr "公開 API を絞ると、条項から API への対応が変わるこ�
 #: manual/verification.md:847
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体のロードマップは [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "Exact candidates, one directed rounding"
+#~ msgstr "厳密な候補と、一度だけの方向付き丸め"
+
+#~ msgid "*Problem.* Endpoint candidates can be computed with directed rounding at each step, or exactly and rounded once."
+#~ msgstr "*問題。* 端点の候補は、各ステップで方向付き丸めを行って計算することも、厳密に計算して一度だけ丸めることもできます。"
+
+#~ msgid "*Chosen.* Sums and products of `BinFloat` endpoints are formed exactly (the coefficient grows to hold them), and `quantize_interval` applies one $\\operatorname{RD}_p$/$\\operatorname{RU}_p$ at the end; by property (iii) the result is the tightest $p$-bit enclosure of the exact hull. Division and square root, whose exact results are not dyadic, are computed directly with directed rounding at precision $p$. The rule needs two safeguards, described next: bounded alignment of far-apart addends and outward clamping at the edge of the exponent range."
+#~ msgstr "*採用。* `BinFloat` の端点の和と積は厳密に作られ（係数はそれを保持できるまで大きくなります）、`quantize_interval` が最後に $\\operatorname{RD}_p$/$\\operatorname{RU}_p$ を一度だけ適用します。性質 (iii) により、結果は厳密な包の最も緊密な $p$ ビット包含区間になります。厳密な結果が 2 進有理数にならない除算と平方根は、精度 $p$ の方向付き丸めで直接計算されます。この規則には、次に述べる 2 つの安全策が必要です。大きく離れた加数の桁合わせの制限と、指数範囲の端での外向きクランプです。"
+
+#~ msgid "Far addends: bound endpoint sums by precision"
+#~ msgstr "離れた加数：端点の和を精度で抑える"
+
+#~ msgid "*Problem.* Adding $A = 2^{10^9}$ and $s = 2^{-10^9}$ exactly aligns the two coefficients and builds a two-billion-bit number (about 750 MB for one interval addition, issue #24)."
+#~ msgstr "*問題。* $A = 2^{10^9}$ と $s = 2^{-10^9}$ を厳密に加算すると、2 つの係数の桁を合わせて 20 億ビットの数を作ることになります（区間の加算 1 回で約 750 MB、issue #24）。"
+
+#~ msgid "*Chosen.* Let $t(v)$ be the exponent of the leading bit of $v$, $e(A)$ the exponent of the last bit of the larger addend $A$, $M = \\max(65536, \\operatorname{prec}(A), \\operatorname{prec}(s))$ and $c = \\min(e(A), t(A) - M)$. If $t(s) < c - 2$, the small addend is replaced by a sticky surrogate $s' = \\operatorname{sign}(s)\\,2^{c-2}$ when $s$ pushes the sum in the rounding direction of the endpoint being computed, and by $s' = 0$ otherwise. Then:"
+#~ msgstr "*採用。* $t(v)$ を $v$ の先頭ビットの指数、$e(A)$ を大きい方の加数 $A$ の最終ビットの指数とし、$M = \\max(65536, \\operatorname{prec}(A), \\operatorname{prec}(s))$、$c = \\min(e(A), t(A) - M)$ とします。$t(s) < c - 2$ ならば、小さい方の加数を置き換えます。$s$ が計算中の端点の丸め方向に和を押す場合はスティッキーな代理値 $s' = \\operatorname{sign}(s)\\,2^{c-2}$ に、そうでない場合は $s' = 0$ にします。すると次が成り立ちます。"
+
+#~ msgid "**Soundness, for every precision.** $|s| < 2^{t(s)+1} \\le 2^{c-2}$. An upper endpoint with $s > 0$ gets $A + 2^{c-2} > A + s$; with $s < 0$ it gets $A > A + s$. Lower endpoints are symmetric. So the directed sum stays on the required side of the exact sum, which is all the inclusion property needs."
+#~ msgstr "**任意の精度での健全性。** $|s| < 2^{t(s)+1} \\le 2^{c-2}$ です。$s > 0$ の上端は $A + 2^{c-2} > A + s$ を得て、$s < 0$ の上端は $A > A + s$ を得ます。下端は対称です。したがって方向付きの和は厳密な和に対して必要な側にとどまり、包含性に必要なのはこれだけです。"
+
+#~ msgid "**No loss of tightness when $p \\le M$.** The $p$-bit numbers near $A$ are multiples of $2^{t(A) - p}$, and $t(A) - p \\ge t(A) - M \\ge c$, so no $p$-bit number lies strictly between $A$ and $A \\pm 2^c$; both $A + s$ and $A + s'$ fall in the same gap and round to the same endpoint (Lemma 7 of the attachment)."
+#~ msgstr "**$p \\le M$ のとき緊密さを失わないこと。** $A$ 付近の $p$ ビット数は $2^{t(A) - p}$ の倍数であり、$t(A) - p \\ge t(A) - M \\ge c$ なので、$A$ と $A \\pm 2^c$ の間に真に挟まる $p$ ビット数は存在しません。$A + s$ と $A + s'$ はどちらも同じ隙間に入り、同じ端点に丸められます（添付資料の補題 7）。"
+
+#~ msgid "The alignment now costs at most about $M$ bits beyond the width of $A$, independent of the exponent gap. The surrogate is also used for the nearest-rounded sums inside the center, where it is not exact; this is the source of the limitation noted in [Correctness](#known-limitations)."
+#~ msgstr "桁合わせのコストは、指数の差によらず、$A$ の幅を超えて高々約 $M$ ビットになります。この代理値は中心の内部の最近接丸めの和にも用いられますが、そこでは厳密ではありません。これが[正しさ](#known-limitations)で述べる制限の原因です。"
+
+#~ msgid "Outward clamping at the exponent range"
+#~ msgstr "指数範囲での外向きクランプ"
+
+#~ msgid "`BinFloat` has a finite (very wide) exponent range. An exact candidate beyond it cannot be stored, so the exact helpers take the direction of the endpoint being built: lower endpoints clamp toward $-\\infty$, upper endpoints toward $+\\infty$, radii round up, and exponent sums are computed in 64 bits and saturated. This keeps, for example, $\\exp([10^9, 10^9])$ an enclosure $[\\text{largest finite}, +\\infty)$ instead of collapsing it."
+#~ msgstr "`BinFloat` は有限の（非常に広い）指数範囲を持ちます。それを超える厳密な候補は保存できないので、厳密計算のヘルパーは構築中の端点の方向をとります。下端は $-\\infty$ 方向へ、上端は $+\\infty$ 方向へクランプし、半径は切り上げ、指数の和は 64 ビットで計算して飽和させます。これにより、たとえば $\\exp([10^9, 10^9])$ は潰れることなく包含区間 $[\\text{largest finite}, +\\infty)$ に保たれます。"
 
 #~ msgid "When $c$ already has at most $p$ bits and $r = 0$, the result is the singleton $\\{c\\}$. When $c$ needs more than $p$ bits, the rounding error of the center is added to the radius on *both* sides, so the interval is wider than $[\\operatorname{RD}_p(c - r), \\operatorname{RU}_p(c + r)]$; use `from_bounds` for the tightest enclosure of known bounds."
 #~ msgstr "$c$ がすでに高々 $p$ ビットで $r = 0$ のとき、結果は単集合 $\\{c\\}$ です。$c$ が $p$ ビットより多く必要なときは、中心の丸め誤差が*両側*で半径に加えられるため、区間は $[\\operatorname{RD}_p(c - r), \\operatorname{RU}_p(c + r)]$ より広くなります。既知の上下界の最も狭い包含区間を得るには `from_bounds` を使ってください。"

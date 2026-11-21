@@ -170,18 +170,8 @@ test "away from the bottom of the range the result is the same as before" {
     let x = cn_interval(a, a + d, exponent, 53)
     let y = cn_interval(b, b + d + delta, exponent, 53)
     // the old formula: exact ends made at their own bit length, decision, ends
-    let old_lo = exact_sub(
-      min_bits=1,
-      x.lower_bound(),
-      y.lower_bound(),
-      mode=BinaryRoundingMode::RoundTowardNegative,
-    )
-    let old_hi = exact_sub(
-      min_bits=1,
-      x.upper_bound(),
-      y.upper_bound(),
-      mode=BinaryRoundingMode::RoundTowardPositive,
-    )
+    let old_lo = exact_add_full(x.lower_bound(), y.lower_bound().neg())
+    let old_hi = exact_add_full(x.upper_bound(), y.upper_bound().neg())
     let old = if old_lo.compare(old_hi) > 0 {
       whole_real(53)
     } else {

@@ -132,8 +132,12 @@ test "the midpoint of a seeded class near the bottom of the range is the correct
 }
 
 ///|
-test "far from the edges the center is the same as before" {
-  // identical (structurally) to the exact center made at its own bit length
+// oracle: B
+// source: the sum of the bounds in a context of 600 bits (exact for these operands) times 1/2 (exact)
+// shares: `BinFloat::add_ctx` and `mul_ctx` at precision 600 (level A in the binary gate)
+// primitives: add_ctx, mul_ctx
+test "far from the edges the center is the exact center" {
+  // the value of the exact center equals the sum in 600 bits (exact) times 1/2
   let state = Ref(0x2545f4914f6cdd1dUL)
   for _ in 0..<3000 {
     let x = mid_next(state) % 1000000UL + 1UL
@@ -142,12 +146,12 @@ test "far from the edges the center is the same as before" {
     let b = mid_value(y, (mid_next(state) % 400UL).to_int() - 200, 53)
     let (lo, hi) = if a.compare(b) <= 0 { (a, b) } else { (b, a) }
     let interval = Interval::from_bounds(lo, hi, precision=53)
-    assert_identical(
-      interval_center(interval, interval.precision()),
-      exact_half(
-        exact_add(min_bits=1, interval.lower_bound(), interval.upper_bound()),
-      ),
-    )
+    let wide = @bin_float.BinaryContext::new(precision=600)
+    let half = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -1, 1)
+    let exact = interval.lower_bound().add_ctx(interval.upper_bound(), wide).0.mul_ctx(
+        half, wide,
+      ).0
+    assert_eq(interval_center(interval, interval.precision()).compare(exact), 0)
     assert_identical(
       interval.midpoint(),
       mid_oracle(interval.lower_bound(), interval.upper_bound(), 53),
@@ -196,10 +200,10 @@ test "the exact center datum equals lo + hi and its half" {
     let y = (mid_next(state) % (1UL << bits_y)) | 1UL
     let a = mid_value(x, e_min - 60 + (mid_next(state) % 70UL).to_int(), 200)
     let b = mid_value(y, e_min - 60 + (mid_next(state) % 70UL).to_int(), 200)
-    let sum = exact_add(min_bits=1, a, b, exact_range=true)
+    let sum = exact_add_full(a, b)
     let reference = a.add_ctx(b, wide).0
     assert_eq(sum.compare(reference), 0)
-    let halved = exact_half(sum, exact_range=true)
+    let halved = halve(sum)
     assert_eq(halved.compare(reference.mul_ctx(half, wide).0), 0)
     if sum.coefficient().bit_length() >= 3 {
       multi_bit += 1
@@ -212,7 +216,7 @@ test "the exact center datum equals lo + hi and its half" {
 /// An operand at `binary_precision_max` bits whose lowest bit is the lowest
 /// representable one (`2^(e_min - max + 1)`) and an operand with a higher lowest
 /// bit: the sum has the lowest bit of the first, its half needs `max + 1` bits
-/// and the datum is made at `max` bits (the clamp of `exact_make`): the half is
+/// and the datum is made at `max` bits (the clamp of `exact_value`): the half is
 /// rounded to nearest at `max` bits, which is the rounding `midpoint` makes at
 /// the same precision.
 test "the center at the precision limit is rounded once at the limit" {

@@ -19,7 +19,7 @@ fn bl_fits(x : @bin_float.BinFloat, p : Int32) -> Bool {
   if x.classify() == FpClass::Infinity || x.is_zero() {
     return true
   }
-  // written here, not `bound_fits`: the rule under test is not called by its test
+  // written here: the rule under test is not called by its test
   x.coefficient().bit_length() <= p &&
   x.exponent2() >= @bin_float.binary_implementation_e_min - p + 1
 }

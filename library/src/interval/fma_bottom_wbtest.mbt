@@ -171,16 +171,16 @@ test "away from the bottom of the range fma is unchanged" {
     let z = Interval::from_bounds(zl, zh, precision=53)
     // the old formula: exact products and sums made at their own bit length
     let cands_lo = [
-      exact_mul(xl, yl, mode=BinaryRoundingMode::RoundTowardNegative),
-      exact_mul(xl, yh, mode=BinaryRoundingMode::RoundTowardNegative),
-      exact_mul(xh, yl, mode=BinaryRoundingMode::RoundTowardNegative),
-      exact_mul(xh, yh, mode=BinaryRoundingMode::RoundTowardNegative),
+      exact_mul_full(xl, yl),
+      exact_mul_full(xl, yh),
+      exact_mul_full(xh, yl),
+      exact_mul_full(xh, yh),
     ]
     let cands_hi = [
-      exact_mul(xl, yl, mode=BinaryRoundingMode::RoundTowardPositive),
-      exact_mul(xl, yh, mode=BinaryRoundingMode::RoundTowardPositive),
-      exact_mul(xh, yl, mode=BinaryRoundingMode::RoundTowardPositive),
-      exact_mul(xh, yh, mode=BinaryRoundingMode::RoundTowardPositive),
+      exact_mul_full(xl, yl),
+      exact_mul_full(xl, yh),
+      exact_mul_full(xh, yl),
+      exact_mul_full(xh, yh),
     ]
     let mut low = cands_lo[0]
     let mut high = cands_hi[0]
@@ -191,18 +191,8 @@ test "away from the bottom of the range fma is unchanged" {
       high = bin_max(high, c)
     }
     let old = store_interval(
-      exact_add(
-        min_bits=1,
-        low,
-        zl,
-        mode=BinaryRoundingMode::RoundTowardNegative,
-      ),
-      exact_add(
-        min_bits=1,
-        high,
-        zh,
-        mode=BinaryRoundingMode::RoundTowardPositive,
-      ),
+      exact_add_full(low, zl),
+      exact_add_full(high, zh),
       53,
     )
     let result = x.fma(y, z)

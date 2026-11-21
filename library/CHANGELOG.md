@@ -567,7 +567,6 @@ notes live in this file.
   | `BallContext` | `IntervalContext` | |
   | `BallFlags` | `IntervalFlags` | |
   | `BallFloatResult` | `IntervalResult` | |
-  | `to_ball_string` | `to_ball_string` | not renamed: it names the midpoint-radius view, not the type |
   | `@ball_float.BallFloat::from_bounds(a, b)` | `@interval.Interval::from_bounds(a, b)` | the alias in a `moon.pkg` is the caller's choice; inside a package named `interval` an alias `@interval` is refused, give it another |
 
 - `interval`: the constructor from a midpoint and a radius is named for what it does ([#438](https://github.com/Luna-Flow/floating/issues/438)); decided by the maintainer on 2026-11-21. `new` is not kept as an alias; the name `new` of this type is free.
@@ -578,14 +577,13 @@ notes live in this file.
   | `Interval::try_new(center, radius, precision=p)` | `Interval::try_from_midpoint_radius(center, radius, precision=p)` | same error cases |
   | `Interval::to_ball_string()`, `DecoratedInterval::to_ball_string()` (the midpoint-radius view `m +/- r`, named `to_ball_string` since the rename of the type) | `to_midpoint_radius_string()` | decided by the maintainer on 2026-11-21: the name says which view it prints; not a literal |
 
-- `interval`: every stored bound is a number of the format of the interval ([#438](https://github.com/Luna-Flow/floating/issues/438), the inf-sup type of IEEE 1788-2015 12.5.2). Before, the ends of `new` (now `from_midpoint_radius`) and of `cancel_minus` and `cancel_plus` were kept exact with more bits than the precision, and `from_exact_string` accepted such bounds; the type holds at most `precision` bits per bound, on the grid of the precision, in the exponent range of the library, and the infinities. The constructor and the cancellative operations round outward (12.12.7, 12.12.5), and a bound is labelled with the precision of the interval.
+- `interval`: every stored bound is a number of the format of the interval ([#438](https://github.com/Luna-Flow/floating/issues/438), the inf-sup type of IEEE 1788-2015 12.5.2). Before, the ends of `new` (now `from_midpoint_radius`) were kept exact with more bits than the precision, and `from_exact_string` accepted such bounds; the type holds at most `precision` bits per bound, on the grid of the precision, in the exponent range of the library, and the infinities. The constructor rounds outward (12.12.7), and a bound is labelled with the precision of the interval. `cancel_minus` and `cancel_plus` already rounded their ends outward to the larger precision of the two operands (the exact end, then the rounding of the constructor): their results do not change, and so no row for them; they now use the directed `sub_ctx` and `add_ctx` directly.
 
   | before | after | note |
   | --- | --- | --- |
   | `from_midpoint_radius(c, r, precision=p)` is $[\tilde c - R,\ \tilde c + R]$ with $\tilde c = \operatorname{RN}_p(c)$, $R$ the radius plus the rounding error of the center, rounded up, the ends exact | $[\operatorname{RD}_p(c - r),\ \operatorname{RU}_p(c + r)]$, the exact ends rounded outward once | the hull of $[c - r, c + r]$ in the format (12.12.7). Against the old exact ends: at most one unit in the last place of the interval wider at each end (the old end rounded outward to $p$ bits is never inside the new one), and narrower where the old construction added the rounding error of a center of more than $p$ bits on both sides |
-  | `cancel_minus(x, y)`, `cancel_plus(x, y)` return the exact ends $x_1 - y_1$, $x_2 - y_2$ (or with $+$ for `cancel_plus`), `x.lower_bound().precision()` could be larger than `x.precision()` | the same ends rounded outward to the larger precision of the two operands | at most one unit in the last place wider at each end than the exact end; the decision "Entire when the width of `x` is below the width of `y`" is the exact sign test and is unchanged |
   | `Interval::from_exact_string("[0x1.00000000000001p0, 0x2p0]", precision=53)` is `Ok` (a bound of 57 bits, labelled 57) | `Err`, "more than 53 significant bits, so it is not a number of the format of the interval" | a bound with more than `precision` significant bits, or finer than the grid of `precision` bits below the range floor, is refused; read it at `precision=57`, or build the interval with `from_bounds`, which rounds outward |
-  | `x.lower_bound().precision()` is the bit count of an end wider than `x.precision()` | always `x.precision()` | the label of every bound is the precision of the interval |
+  | `x.lower_bound().precision()` is the bit count of an end wider than `x.precision()` (only for an interval read by `from_exact_string` or made by `new`) | always `x.precision()` | the label of every bound is the precision of the interval |
 
   `from_exact_string(x.to_exact_string(), precision=x.precision())` is `identical` to `x` for every interval, as before.
 
@@ -934,6 +932,30 @@ notes live in this file.
   | 1056 (1120) | 564,538 (552,957 to 574,132) | 536,864 (490,801 to 582,171) | 0.951 |
   | 1088 (1152) | 613,736 (611,284 to 617,186) | 613,350 (606,577 to 623,220) | 0.999 |
   | 1280 (1344) | 666,712 (645,752 to 684,013) | 667,173 (652,242 to 681,736) | 1.001 |
+
+- `interval`: the endpoint sums, differences and products of `add`, `sub`, `mul`, `sqr`, `radius` and `width` are the directed contextual operations `add_ctx`, `sub_ctx` and `mul_ctx` of `bin_float`, as `fma` already was ([#438](https://github.com/Luna-Flow/floating/issues/438)); the exact route of the package (an exact sum or product made at its own bit length, a surrogate for a far addend, rounded once afterwards) is removed. Results are equal for every operand of the format: 6,000 random endpoint cases and 672 cases at both ends of the exponent range against an exact reference rounded once, and 2,500 interval cases, show no difference except the sign of a zero from an exact cancellation (a directed `add_ctx` toward negative gives -0; the sign of a stored zero is not part of the interval). Instructions retired per call of the lower and upper endpoint operation with the construction of the result (one executable with both routes, native release, positive operands of the stated length with exponents within 40 places, difference of two repetition counts of 100,000 and 600,000 (53 bits), 60,000 and 360,000 (128), 20,000 and 120,000 (512), median of 5 runs, spread under 0.2 percent):
+
+  | operation | bits | before | after | change |
+  | --- | --- | --- | --- | --- |
+  | `add` | 53 | 4,356 | 1,609 | 2.7 times fewer |
+  | `sub` | 53 | 5,141 | 1,616 | 3.2 times fewer |
+  | `mul` | 53 | 3,837 | 1,597 | 2.4 times fewer |
+  | `add` | 128 | 6,033 | 5,753 | 4.6 percent fewer |
+  | `sub` | 128 | 6,677 | 6,253 | 6.4 percent fewer |
+  | `mul` | 128 | 5,400 | 5,350 | 0.9 percent fewer |
+  | `add` | 512 | 7,231 | 6,746 | 6.7 percent fewer |
+  | `sub` | 512 | 8,104 | 7,539 | 7.0 percent fewer |
+  | `mul` | 512 | 6,480 | 6,456 | 0.4 percent fewer |
+
+  The two directed products of one operand pair (the case of `mul` with an operand that contains 0, `extended_mul_both`) form the coefficient product once and round it twice with `BinFloat::make`; two `mul_ctx` of the same operands were slower at 128 and 512 bits (3,972 and 5,031 before, 4,692 and 5,744 with two `mul_ctx`), the shared product with `make` is faster at every length (same method, operands of the stated length, positive values):
+
+  | bits | before | after |
+  | --- | --- | --- |
+  | 53 | 3,010 | 1,948 |
+  | 128 | 3,972 | 3,003 |
+  | 512 | 5,031 | 4,067 |
+
+  One public result changes: `to_midpoint_radius_string` of an interval whose bounds are more than 65,536 binary places apart prints a different number for the center. The ball view adds the halves of the bounds with a round-to-odd sum at `p + 65,538` bits instead of the far-addend surrogate; the center is exact for a gap of less than 65,536 places, as before, and beyond it neither version prints the exact center (both print a number of about 65,000 bits that differs from the exact center). Example: `Interval::from_bounds(-2^70000, 1, precision=53).to_midpoint_radius_string()` is 39,474 characters, `-80141197216...2351583622876626945p4461`, before and 39,506 characters, `-72184773184...8097957848664244225p4409`, after. `midpoint()`, `radius()`, `width()` and every bound are unchanged for these intervals.
 
 ## 0.11.0 - 2026-11-20
 
