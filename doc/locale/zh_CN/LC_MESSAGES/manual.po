@@ -132,7 +132,7 @@ msgstr "参数"
 #: manual/api/differential.md:44
 #: manual/api/differential/interval_mpfr.md:24
 #: manual/api/interval.md:151
-#: manual/numeric_semantics.md:302
+#: manual/numeric_semantics.md:316
 #: manual/tutorial/internal/runner_cli.md:116
 msgid "Meaning"
 msgstr "含义"
@@ -1192,10 +1192,10 @@ msgstr "为真的关系"
 #: manual/api/bin_float.md:1239
 #: manual/api/decimal.md:1349
 #: manual/api/decimal.md:1359
-#: manual/numeric_semantics.md:586
-#: manual/numeric_semantics.md:587
-#: manual/numeric_semantics.md:588
-#: manual/numeric_semantics.md:589
+#: manual/numeric_semantics.md:600
+#: manual/numeric_semantics.md:601
+#: manual/numeric_semantics.md:602
+#: manual/numeric_semantics.md:603
 msgid "equal"
 msgstr "相等"
 
@@ -3659,7 +3659,7 @@ msgstr "这四组函数的定义域与特殊值："
 #: manual/api/interval.md:979
 #: manual/api/interval.md:1976
 #: manual/design/interval.md:549
-#: manual/numeric_semantics.md:136
+#: manual/numeric_semantics.md:150
 msgid "Function"
 msgstr "函数"
 
@@ -4342,7 +4342,7 @@ msgstr "陷阱"
 #: manual/design/interval.md:575
 #: manual/design/interval.md:576
 #: manual/design/interval.md:577
-#: manual/numeric_semantics.md:306
+#: manual/numeric_semantics.md:320
 msgid "no"
 msgstr "否"
 
@@ -5644,7 +5644,7 @@ msgid "Expected"
 msgstr "预期"
 
 #: manual/api/frontend/itl_expr.md:115
-#: manual/numeric_semantics.md:578
+#: manual/numeric_semantics.md:592
 msgid "Comparison"
 msgstr "比较"
 
@@ -8959,8 +8959,8 @@ msgid "bin_float conformance"
 msgstr "bin_float 符合性"
 
 #: manual/conformance/bin_float.md:3
-msgid "This page records the `0.11.0` binary floating-point semantic and test boundary. It is evidence for a stated, finite corpus; it is not a proof that any implementation can be correct for every real input."
-msgstr "本文记录 `0.11.0` 二进制浮点语义与验证边界。有限测试全部通过是声明范围内的证据，不是对所有实数输入的形式化证明。"
+msgid "This page records the binary floating-point semantic and test boundary of the current source (the `Unreleased` section of the changelog). It is evidence for a stated, finite corpus; it is not a proof that any implementation can be correct for every real input."
+msgstr "本文记录二进制浮点语义与验证边界，对应当前源码（更新日志的 `Unreleased` 一节）。有限测试全部通过是声明范围内的证据，不是对所有实数输入的形式化证明。"
 
 #: manual/conformance/bin_float.md:7
 msgid "Normative and research sources"
@@ -9069,7 +9069,7 @@ msgstr "级别"
 #: manual/index.md:98
 #: manual/index.md:112
 #: manual/index.md:120
-#: manual/numeric_semantics.md:584
+#: manual/numeric_semantics.md:598
 msgid "API"
 msgstr "API"
 
@@ -9814,6 +9814,10 @@ msgid "`library/src/decimal/class_of_wbtest.mbt` (all ten classes in decimal32, 
 msgstr "`library/src/decimal/class_of_wbtest.mbt`（decimal32、64、128 中的全部十个类别）；`library/src/decimal/contextual_traits_wbtest.mbt`；`tooling/src/consistency/core_wbtest.mbt`"
 
 #: manual/conformance/decimal.md:62
+msgid "`Decimal::total_order`, `Decimal::total_order_mag` (and `Decimal::total_order_compare`, the same order as a three-way `Int32`)"
+msgstr "`Decimal::total_order`、`Decimal::total_order_mag`（以及 `Decimal::total_order_compare`，同一序的三路 `Int32` 形式）"
+
+#: manual/conformance/decimal.md:62
 msgid "`testdata/decimal/ieee/total_order.json`: every ordered pair of cohorts, signed zeros, subnormals, infinities and quiet and signaling NaNs with payloads in decimal32/64/128 (18,816 pairs), expected values from a transcription of §5.10 cross-checked with libmpdec, run on four targets in the `DECIMAL: IEEE 754` gate; NaN payloads order by value, reversed for a negative sign (implementation-defined by §5.10 d) 5) iii)); `tooling/src/consistency/core_wbtest.mbt`"
 msgstr "`testdata/decimal/ieee/total_order.json`：decimal32/64/128 中 cohort、带符号零、次正规数、无穷以及带 payload 的 quiet 与 signaling NaN 的全部有序对（18,816 对），期望值来自对 §5.10 的逐条转写并与 libmpdec 交叉核对，在 `DECIMAL: IEEE 754` 门禁中于四个目标上运行；NaN 按 payload 数值排序，负号时反向（§5.10 d) 5) iii) 规定由实现定义）；`tooling/src/consistency/core_wbtest.mbt`"
 
@@ -9886,14 +9890,18 @@ msgid "`minimum_ctx`, `minimum_number_ctx`, `maximum_ctx`, `maximum_number_ctx` 
 msgstr "`minimum_ctx`, `minimum_number_ctx`, `maximum_ctx`, `maximum_number_ctx` 以及 `*_magnitude_ctx` 形式"
 
 #: manual/conformance/decimal.md:76
+msgid "`next_toward_ctx` is not part of IEEE 754-2019 (the word nextToward does not occur in the text of the standard); it is the `next-toward` operation of the General Decimal Arithmetic specification, offered in this package as an extension and not counted in any row above."
+msgstr "`next_toward_ctx` 不属于 IEEE 754-2019（标准正文中没有出现 nextToward 一词）；它是通用十进制算术规范中的 `next-toward` 运算，本包把它作为扩展提供，不计入上表任何一行。"
+
+#: manual/conformance/decimal.md:78
 msgid "Targets"
 msgstr "目标"
 
-#: manual/conformance/decimal.md:78
+#: manual/conformance/decimal.md:80
 msgid "`just gate decimal` runs native, Wasm, Wasm-GC, and JavaScript. LLVM is excluded because the required local artifacts are not part of the repository. Target-specific coefficient dispatch must not change value, encoding, or flags."
 msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM 因仓库不包含所需本地产物而排除。target-specific 系数调度不得改变值、编码或 flags。"
 
-#: manual/conformance/decimal.md:80
+#: manual/conformance/decimal.md:82
 #: manual/conformance/decimal_gda.md:61
 #: manual/design/bench.md:243
 #: manual/design/bench/bin_float.md:68
@@ -9933,19 +9941,19 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 msgid "Boundaries"
 msgstr "边界"
 
-#: manual/conformance/decimal.md:82
+#: manual/conformance/decimal.md:84
 msgid "The checked matrix is finite and does not claim every IEEE 754 operation, every payload propagation policy, or every possible decimal input. The supplementary `dd*`/`dq*` decTest rows are diagnostics, not an IEEE oracle."
 msgstr "固定矩阵是有限的，不声明覆盖 IEEE 754 全部操作、所有 payload 传播策略或所有可能十进制输入。补充的 `dd*`/`dq*` decTest 行只作诊断，不是 IEEE oracle。"
 
-#: manual/conformance/decimal.md:84
+#: manual/conformance/decimal.md:86
 msgid "`Decimal::parse_checked` routes through `from_string_ctx`; it applies the ArithmeticContext rounding direction and exponent bounds. This checked API returns only a value or syntax error, so its `Result` does not expose overflow or underflow flags."
 msgstr "`Decimal::parse_checked` 通过 `from_string_ctx` 应用 ArithmeticContext 的舍入方向与指数边界。此 checked API 仅返回值或语法错误，因此其 `Result` 不携带溢出或下溢标志。"
 
-#: manual/conformance/decimal.md:89
+#: manual/conformance/decimal.md:91
 msgid "The matrix passes on the current branch, which has no [known deviations](../design/decimal.md#known-deviations) left. Passing the gate is evidence for the covered rows only."
 msgstr "该矩阵在当前分支上通过，且该分支已不再有[已知偏差](../design/decimal.md#known-deviations)。门禁通过仅是所覆盖各行的证据。"
 
-#: manual/conformance/decimal.md:93
+#: manual/conformance/decimal.md:95
 #: manual/conformance/decimal_gda.md:125
 #: manual/conformance/interval.md:116
 #: manual/performance/decimal.md:35
@@ -9954,7 +9962,7 @@ msgstr "该矩阵在当前分支上通过，且该分支已不再有[已知偏�
 msgid "Reproduction"
 msgstr "复现"
 
-#: manual/conformance/decimal.md:101
+#: manual/conformance/decimal.md:103
 msgid "See [the decimal data guide](../../../testdata/decimal/README.md) for corpus provenance, vector families, and failure records."
 msgstr "语料来源、vector family 和失败记录见[十进制数据指南](../../../testdata/decimal/README.md)。"
 
@@ -11900,7 +11908,7 @@ msgid "the smallest positive subnormal. Missing bounds are replaced by the imple
 msgstr "即最小的正次正规数。缺失的界由实现范围 $\\pm(2^{30}-1)$ 代替，该范围足够大，使每一步指数运算都能放入 64 位中间量，每个存储的指数都能放入 `Int`；`binary_precision_max` $= 2^{28}$ 也使 $e_{\\min} - p + 1$ 保持在范围内。"
 
 #: manual/design/bin_float.md:135
-#: manual/numeric_semantics.md:107
+#: manual/numeric_semantics.md:121
 msgid "Rounding functions"
 msgstr "舍入函数"
 
@@ -17251,7 +17259,7 @@ msgid "For $n \\ge 0$ and $d > 0$ there are unique integers $q, r$ with $n = qd 
 msgstr "对于 $n \\ge 0$ 和 $d > 0$，存在唯一的整数 $q, r$ 使得 $n = qd + r$ 且 $0 \\le r < d$（欧几里得除法）。于是 $q = \\lfloor n/d \\rfloor$，并且 $n/d$ 是整数当且仅当 $r = 0$。小数部分为 $r/d \\in [0, 1)$，且"
 
 #: manual/design/internal.md:37
-#: manual/numeric_semantics.md:161
+#: manual/numeric_semantics.md:175
 msgid "Rounding to an integer"
 msgstr "舍入到整数"
 
@@ -19011,7 +19019,7 @@ msgid "`interval_checked` lets an interval computation be written as one chain o
 msgstr "`interval_checked` 使区间计算可以写成一条运算链，其中构造错误和无法认证的步骤都是显式错误，而每个成功的值仍是严格的包络。`IntervalResult` 使 `Result[Interval, ArithmeticError]` 在 [`interval`](interval.md) 的运算下封闭，且不添加任何区间算法。[API 页面](../api/interval_checked.md) 列出了这些运算，[教程](../tutorial/interval_checked.md) 展示了流水线的用法。"
 
 #: manual/design/interval_checked.md:15
-#: manual/numeric_semantics.md:414
+#: manual/numeric_semantics.md:428
 msgid "Enclosures"
 msgstr "包络"
 
@@ -19733,34 +19741,34 @@ msgid "`compare`, `<` and sorting use a total preorder in which every NaN is equ
 msgstr "`compare`、`<` 和排序使用一个全预序：其中所有 NaN 彼此相等且排在所有数之上，并且 $-0 = +0$。如需 IEEE 语义，请使用 `compare_checked`、`bin_float` 的静默与信号谓词，或 `total_order*` 系列函数。"
 
 #: manual/getting_started.md:192
-msgid "`==` on `BinFloat` and `Interval` compares representations (sign of zero and precision included); `==` on `Decimal` compares values. Use `compare(a, b) == 0` for numeric equality of binary values."
-msgstr "`BinFloat` 和 `Interval` 上的 `==` 比较的是表示（包括零的符号和精度）；`Decimal` 上的 `==` 比较的是值。对二进制值做数值相等比较时，请使用 `compare(a, b) == 0`。"
+msgid "`==` agrees with `compare` in the number types: on `BinFloat` it ignores the sign of a zero and the precision (`-0 == +0`) and treats two NaNs as equal, on `Decimal` it compares values, and on `Interval` it compares the bounds by value (two empty intervals are equal). `a.identical(b)` compares every field of a `BinFloat`. See [numeric semantics](./numeric_semantics.md)."
+msgstr "`==` 在各数值类型上与 `compare` 一致：`BinFloat` 的 `==` 忽略零的符号和精度（`-0 == +0`），并把两个 NaN 视为相等；`Decimal` 的 `==` 比较数值；`Interval` 的 `==` 按值比较端点（两个空区间相等）。`a.identical(b)` 比较 `BinFloat` 的每个字段。参见[数值语义](./numeric_semantics.md)。"
 
-#: manual/getting_started.md:195
+#: manual/getting_started.md:197
 msgid "An `Interval` has containment and set relations (`contains`, `subset`, `definitely_lt`, …), not a scalar order. A result is correct when it encloses the exact result; tightness is a separate quality."
 msgstr "`Interval` 具有包含关系与集合关系（`contains`、`subset`、`definitely_lt`、…），而没有标量序。只要结果包络了精确结果，它就是正确的；紧致程度是另一项独立的质量指标。"
 
-#: manual/getting_started.md:198
+#: manual/getting_started.md:200
 msgid "`SemanticScalar` compares mathematical values across packages and drops precision, quantum, signed zero, payloads, decorations and flags."
 msgstr "`SemanticScalar` 跨包比较数学值，并丢弃精度、量子、带符号零、payload、装饰和标志。"
 
-#: manual/getting_started.md:201
+#: manual/getting_started.md:203
 msgid "Continue reading"
 msgstr "继续阅读"
 
-#: manual/getting_started.md:203
+#: manual/getting_started.md:205
 msgid "[Numeric semantics](./numeric_semantics.md) defines rounding, ulp, flags, quantum, signed zero, NaN and enclosures with their derivations."
 msgstr "[数值语义](./numeric_semantics.md)定义了舍入、ulp、标志、量子、带符号零、NaN 和包络，并给出其推导。"
 
-#: manual/getting_started.md:205
+#: manual/getting_started.md:207
 msgid "[Architecture](./architecture.md) explains the package layers and the certified elementary functions."
 msgstr "[架构](./architecture.md)解释了包的分层以及经认证的初等函数。"
 
-#: manual/getting_started.md:207
+#: manual/getting_started.md:209
 msgid "[Verification](./verification.md) lists the gates and the exact scope of each conformance claim."
 msgstr "[验证](./verification.md)列出了各项检查关卡以及每项符合性声明的确切范围。"
 
-#: manual/getting_started.md:209
+#: manual/getting_started.md:211
 msgid "Each package has a tutorial, an API reference and a design page; start with the [`bin_float` tutorial](./tutorial/bin_float.md), the [`decimal` tutorial](./tutorial/decimal.md) or the [`interval` tutorial](./tutorial/interval.md)."
 msgstr "每个包都有教程、API 参考和设计页面；可以从 [`bin_float` 教程](./tutorial/bin_float.md)、[`decimal` 教程](./tutorial/decimal.md)或 [`interval` 教程](./tutorial/interval.md)开始。"
 
@@ -20720,419 +20728,419 @@ msgid "Every arithmetic operation $\\circ$ first defines an **exact value**: the
 msgstr "每个算术运算 $\\circ$ 首先定义一个**精确值**：无误差计算得到的实数 $x \\circ y$（或 $\\sqrt{x}$、$\\exp x$ 等）。格式很少能恰好容纳它，因此上下文将其映射为一个可表示的**舍入结果**"
 
 #: manual/numeric_semantics.md:77
-msgid "where $\\operatorname{rnd}$ is the rounding function of the context. An operation is **correctly rounded** when its result is exactly this: the exact value rounded once. Every arithmetic operation, square root, fused multiply-add, remainder, conversion and parse in `floating` is correctly rounded; the elementary functions are correctly rounded too, by certified refinement (see [architecture](./architecture.md))."
-msgstr "其中 $\\operatorname{rnd}$ 是上下文的舍入函数。若运算结果恰好如此——即精确值只舍入一次——则称该运算是**正确舍入**的。`floating` 中的每个算术运算、平方根、融合乘加、求余、转换与解析都是正确舍入的；初等函数借助认证细化同样是正确舍入的（参见[架构](./architecture.md)）。"
+msgid "where $\\operatorname{rnd}$ is the rounding function of the context. An operation is **correctly rounded** when its result is exactly this: the exact value rounded once. In `bin_float` and `decimal` every arithmetic operation, square root, fused multiply-add, remainder, conversion and parse is correctly rounded, and so are the elementary functions, by certified refinement (see [architecture](./architecture.md)); where the library cannot certify a result, the `try_*_ctx` forms report the failure instead of returning a value that is not correctly rounded. Two things are not correctly rounded values. The integer `power` of `decimal_gda` is within a tolerance the General Decimal Arithmetic specification allows (about 0.55 units in the last place of the exact result with rounding to nearest, one unit from the correctly rounded result with a directed rounding direction; see the [`decimal_gda` conformance page](./conformance/decimal_gda.md#known-deviations-outside-the-corpus)). And an `Interval` operation returns an enclosure, not a rounded value: the tightest enclosure in the type when its bounds are certified, a valid but wider one otherwise (see the [accuracy table](./conformance/interval.md#accuracy-of-operations)). The `decimal_gda` functions `exp`, `ln` and `log10` may, by the specification, be up to one unit in the last place in error; the library returns the correctly rounded value for them, so they are not an exception."
+msgstr "其中 $\\operatorname{rnd}$ 是上下文的舍入函数。一个运算是**正确舍入**的，当且仅当其结果恰好是这个值：精确值只舍入一次。在 `bin_float` 和 `decimal` 中，每个算术运算、平方根、融合乘加、余数、转换和解析都是正确舍入的，初等函数也是，靠的是经认证的细化（见[架构](./architecture.md)）；库无法认证某个结果时，`try_*_ctx` 形式会报告失败，而不是返回一个并非正确舍入的值。有两样东西不是正确舍入的值。`decimal_gda` 的整数 `power` 落在通用十进制算术规范允许的容差之内（就近舍入时离精确结果约 0.55 个末位单位，定向舍入方向下离正确舍入结果一个单位；见 [`decimal_gda` 一致性页](./conformance/decimal_gda.md#known-deviations-outside-the-corpus)）。而 `Interval` 的运算返回的是包含区间，而不是舍入后的值：端点经认证时是该类型中最紧的包含区间，否则是有效但更宽的包含区间（见[精度表](./conformance/interval.md#accuracy-of-operations)）。按规范，`decimal_gda` 的 `exp`、`ln` 和 `log10` 可以有最多一个末位单位的误差；库对它们返回正确舍入的值，所以它们不是例外。"
 
-#: manual/numeric_semantics.md:84
+#: manual/numeric_semantics.md:98
 msgid "Rounding once matters. The fused multiply-add `fma_ctx` rounds $xy + z$ once, while `mul_ctx` followed by `add_ctx` rounds twice. With $x = \\operatorname{fl}(0.1)$ in binary64, $10x$ is not exactly $1$, and only the fused form sees the difference:"
 msgstr "只舍入一次至关重要。融合乘加 `fma_ctx` 对 $xy + z$ 只舍入一次，而先 `mul_ctx` 再 `add_ctx` 则舍入两次。在 binary64 中取 $x = \\operatorname{fl}(0.1)$，$10x$ 并不恰好等于 $1$，只有融合形式能看出差别："
 
-#: manual/numeric_semantics.md:103
+#: manual/numeric_semantics.md:117
 msgid "The fused result $2^{-54}$ is the exact error of the rounded product: the product $10 \\cdot \\operatorname{fl}(0.1)$ exceeds $1$ by $2^{-54}$, and `mul_ctx` rounds that excess away."
 msgstr "融合结果 $2^{-54}$ 正是舍入后乘积的精确误差：乘积 $10 \\cdot \\operatorname{fl}(0.1)$ 比 $1$ 大 $2^{-54}$，而 `mul_ctx` 把这部分超出量舍掉了。"
 
-#: manual/numeric_semantics.md:109
+#: manual/numeric_semantics.md:123
 msgid "Let $\\mathbb{F}$ be the set of values a context can represent, extended with $\\pm\\infty$. For a real $x$ the **directed** roundings are"
 msgstr "设 $\\mathbb{F}$ 为上下文可表示的值集合，并添加 $\\pm\\infty$。对实数 $x$，**定向**舍入为"
 
-#: manual/numeric_semantics.md:121
+#: manual/numeric_semantics.md:135
 msgid "and the **nearest** roundings pick whichever of $\\operatorname{RD}(x)$ and $\\operatorname{RU}(x)$ is closer to $x$, breaking a tie (an $x$ exactly halfway) either toward the candidate with an even last digit ($\\operatorname{RN}_{\\text{even}}$) or toward the one of larger magnitude ($\\operatorname{RN}_{\\text{away}}$).[^ieee-rounding] Every rounding function is monotone ($x \\le y \\Rightarrow \\operatorname{rnd}(x) \\le \\operatorname{rnd}(y)$) and fixes $\\mathbb{F}$ ($\\operatorname{rnd}(y) = y$ for $y \\in \\mathbb{F}$); these two facts are what interval arithmetic and the certified elementary functions rely on."
 msgstr "而**就近**舍入在 $\\operatorname{RD}(x)$ 与 $\\operatorname{RU}(x)$ 中选取更接近 $x$ 的那个；出现平局（$x$ 恰在正中）时，要么取末位为偶数的候选（$\\operatorname{RN}_{\\text{even}}$），要么取绝对值较大的候选（$\\operatorname{RN}_{\\text{away}}$）。[^ieee-rounding] 每个舍入函数都是单调的（$x \\le y \\Rightarrow \\operatorname{rnd}(x) \\le \\operatorname{rnd}(y)$），且保持 $\\mathbb{F}$ 不变（对 $y \\in \\mathbb{F}$ 有 $\\operatorname{rnd}(y) = y$）；区间算术与经认证的初等函数所依赖的正是这两条性质。"
 
-#: manual/numeric_semantics.md:129
+#: manual/numeric_semantics.md:143
 msgid "IEEE 754-2019, clause 4.3, defines roundTiesToEven, roundTiesToAway, roundTowardPositive, roundTowardNegative and roundTowardZero. Round-away-from-zero and the decimal \"05up\" mode come from the General Decimal Arithmetic specification (Cowlishaw)."
 msgstr "IEEE 754-2019 第 4.3 条定义了 roundTiesToEven、roundTiesToAway、roundTowardPositive、roundTowardNegative 与 roundTowardZero。远离零舍入以及十进制的 \"05up\" 模式来自 General Decimal Arithmetic 规范（Cowlishaw）。"
 
-#: manual/numeric_semantics.md:134
+#: manual/numeric_semantics.md:148
 msgid "Each domain names these functions in its own enum:"
 msgstr "各个领域用各自的枚举来命名这些函数："
 
-#: manual/numeric_semantics.md:140
+#: manual/numeric_semantics.md:154
 msgid "nearest, ties toward zero"
 msgstr "就近舍入，平局时向零"
 
-#: manual/numeric_semantics.md:144
+#: manual/numeric_semantics.md:158
 msgid "none (not an IEEE 754-2019 4.3 attribute)"
 msgstr "无（不是 IEEE 754-2019 4.3 的属性）"
 
-#: manual/numeric_semantics.md:145
+#: manual/numeric_semantics.md:159
 msgid "toward zero, then away if the last kept digit is 0 or 5"
 msgstr "向零舍入，若保留的末位为 0 或 5 则改为远离零"
 
-#: manual/numeric_semantics.md:147
+#: manual/numeric_semantics.md:161
 msgid "`with_precision(p, mode)` applies one of these functions to a value at a new precision. Binary $0.1$ is $0.0001100110011\\ldots_2$; at five bits the truncated form is $11001_2 \\cdot 2^{-8}$ and the next bit is a one followed by non-zero bits, so nearest rounding goes up:"
 msgstr "`with_precision(p, mode)` 以新精度对值应用其中一个舍入函数。二进制的 $0.1$ 是 $0.0001100110011\\ldots_2$；取五位时截断形式为 $11001_2 \\cdot 2^{-8}$，下一位是 1 且其后还有非零位，因此就近舍入向上进位："
 
-#: manual/numeric_semantics.md:163
+#: manual/numeric_semantics.md:177
 msgid "Rounding to an integral value is the same construction with $\\mathbb{F} = \\mathbb{Z}$. `BinFloat` offers the fixed-direction forms `floor` ($\\operatorname{RD}$), `ceil` ($\\operatorname{RU}$), `trunc` ($\\operatorname{RZ}$), `round` (nearest, ties away) and `round_ties_even` (nearest, ties to even); `to_integral_value_ctx` uses the context's direction and is quiet, and `to_integral_exact_ctx` additionally raises *inexact* when the value changes. The integer conversions `to_int_ctx`, `to_int64_ctx`, `to_uint_ctx` and `to_uint64_ctx` round the same way and return `None` with *invalid* for NaN, infinities and out-of-range results. The result keeps the sign of zero: $\\lceil -0.3 \\rceil = -0$."
 msgstr "舍入到整数值是同一构造，只是取 $\\mathbb{F} = \\mathbb{Z}$。`BinFloat` 提供固定方向的形式 `floor`（$\\operatorname{RD}$）、`ceil`（$\\operatorname{RU}$）、`trunc`（$\\operatorname{RZ}$）、`round`（就近，平局远离零）和 `round_ties_even`（就近，平局取偶）；`to_integral_value_ctx` 使用上下文的方向且不引发标志，`to_integral_exact_ctx` 则在值发生变化时额外引发 *inexact*。整数转换 `to_int_ctx`、`to_int64_ctx`、`to_uint_ctx` 与 `to_uint64_ctx` 以相同方式舍入，对 NaN、无穷和超出范围的结果返回 `None` 并引发 *invalid*。结果保留零的符号：$\\lceil -0.3 \\rceil = -0$。"
 
-#: manual/numeric_semantics.md:191
+#: manual/numeric_semantics.md:205
 msgid "Ulp and unit roundoff"
 msgstr "ulp 与单位舍入误差"
 
-#: manual/numeric_semantics.md:193
+#: manual/numeric_semantics.md:207
 msgid "For a radix $\\beta$, a precision $p$ and a non-zero $x$ with $\\beta^{e} \\le |x| < \\beta^{e+1}$, the **unit in the last place** is the spacing of the $p$-digit values around $x$:"
 msgstr "对基数 $\\beta$、精度 $p$ 以及满足 $\\beta^{e} \\le |x| < \\beta^{e+1}$ 的非零 $x$，**末位单位**（unit in the last place）是 $x$ 附近 $p$ 位值之间的间距："
 
-#: manual/numeric_semantics.md:201
+#: manual/numeric_semantics.md:215
 msgid "`BinFloat::ulp` computes it for $\\beta = 2$ at the value's own precision with an unbounded exponent range; for zero it returns $2^{1-p}$, the ulp of $1$. In a bounded context the spacing stops shrinking at the subnormal threshold (next section), so there the ulp of a tiny value is $\\beta^{\\,e_{\\min} - p + 1}$."
 msgstr "`BinFloat::ulp` 在 $\\beta = 2$ 下、以值自身的精度和无界指数范围计算它；对零返回 $2^{1-p}$，即 $1$ 的 ulp。在有界上下文中，间距在次正规数阈值处（见下一节）不再缩小，因此那里极小值的 ulp 为 $\\beta^{\\,e_{\\min} - p + 1}$。"
 
-#: manual/numeric_semantics.md:206
+#: manual/numeric_semantics.md:220
 msgid "The **unit roundoff** $u$ bounds the relative error of one rounding. Take $x$ in range with $\\beta^{e} \\le |x| < \\beta^{e+1}$. Both neighbours $\\operatorname{RD}(x)$ and $\\operatorname{RU}(x)$ lie in the same binade (or one of them is $\\pm\\beta^{e+1}$), one ulp apart, so"
 msgstr "**单位舍入误差** $u$ 界定一次舍入的相对误差。取范围内满足 $\\beta^{e} \\le |x| < \\beta^{e+1}$ 的 $x$。两个相邻值 $\\operatorname{RD}(x)$ 与 $\\operatorname{RU}(x)$ 位于同一个 binade 中（或其中之一为 $\\pm\\beta^{e+1}$），相距一个 ulp，因此"
 
-#: manual/numeric_semantics.md:221
+#: manual/numeric_semantics.md:235
 msgid "Hence the **standard model** of floating-point arithmetic:[^higham]"
 msgstr "由此得到浮点算术的**标准模型**：[^higham]"
 
-#: manual/numeric_semantics.md:232
+#: manual/numeric_semantics.md:246
 msgid "valid whenever the exact value is neither in the overflow range nor below the normal range. Below the normal range the error is absolute instead: with subnormals, $\\operatorname{fl}(x \\circ y) = (x \\circ y)(1+\\delta) + \\eta$ with $\\delta\\eta = 0$, $|\\eta| \\le \\tfrac{1}{2}\\beta^{\\,e_{\\min}-p+1}$ for nearest rounding. For binary64 ($p = 53$) $u = 2^{-53}$; for decimal64 ($p = 16$) $u = \\tfrac{1}{2}\\cdot 10^{-15}$."
 msgstr "只要精确值既不在上溢范围内、也不低于正规范围，该模型就成立。低于正规范围时误差改为绝对误差：存在次正规数时，$\\operatorname{fl}(x \\circ y) = (x \\circ y)(1+\\delta) + \\eta$，其中 $\\delta\\eta = 0$，且就近舍入下 $|\\eta| \\le \\tfrac{1}{2}\\beta^{\\,e_{\\min}-p+1}$。对 binary64（$p = 53$）有 $u = 2^{-53}$；对 decimal64（$p = 16$）有 $u = \\tfrac{1}{2}\\cdot 10^{-15}$。"
 
-#: manual/numeric_semantics.md:239
+#: manual/numeric_semantics.md:253
 msgid "N. J. Higham, *Accuracy and Stability of Numerical Algorithms*, 2nd ed., SIAM 2002, §2.1–2.2, which also gives the form with $\\eta$ for gradual underflow; Goldberg, \"What every computer scientist should know about floating-point arithmetic\", ACM Computing Surveys 23(1), 1991, gives the same derivation for the binary case."
 msgstr "N. J. Higham，*Accuracy and Stability of Numerical Algorithms*，第 2 版，SIAM 2002，§2.1–2.2，书中也给出了适用于渐进下溢的含 $\\eta$ 的形式；Goldberg 的 \"What every computer scientist should know about floating-point arithmetic\"（ACM Computing Surveys 23(1)，1991）对二进制情形给出了相同的推导。"
 
-#: manual/numeric_semantics.md:264
+#: manual/numeric_semantics.md:278
 msgid "Contexts: precision, exponent range and tininess"
 msgstr "上下文：精度、指数范围与微小性（tininess）"
 
-#: manual/numeric_semantics.md:266
+#: manual/numeric_semantics.md:280
 msgid "A context fixes $\\mathbb{F}$ and the rounding function. No package reads an ambient rounding mode; the context is an ordinary immutable argument."
 msgstr "上下文确定 $\\mathbb{F}$ 和舍入函数。没有任何包读取环境中的舍入模式；上下文只是一个普通的不可变参数。"
 
-#: manual/numeric_semantics.md:269
+#: manual/numeric_semantics.md:283
 msgid "`BinaryContext` holds the precision $p$ (bits), a `BinaryRoundingMode`, optional exponent bounds $e_{\\min}, e_{\\max}$ for the **leading bit**, and a `TininessDetection`. Normal values satisfy $2^{e_{\\min}} \\le |x| \\le (2 - 2^{1-p})\\,2^{e_{\\max}}$; below $2^{e_{\\min}}$ the **subnormal** values keep the fixed spacing $2^{\\,e_{\\min}-p+1}$ (gradual underflow). `binary16`, `binary32`, `binary64` and `binary128` are the IEEE interchange presets. `BinaryContext::new(precision=p)` without `e_max` is the extendable precision format of IEEE 754-2019 3.7 and has the implementation range $[\\texttt{binary\\_implementation\\_e\\_min}, \\texttt{binary\\_implementation\\_e\\_max}] = [2 - 2^{30},\\ 2^{30} - 1]$, so $e_{\\min} = 1 - e_{\\max}$ as in every context (3.3), and every precision is capped at $\\texttt{binary\\_precision\\_max} = 2^{28}$ bits. A result beyond the implementation range is classified (overflow to infinity or the largest finite value, underflow to zero or the smallest subnormal, by rounding direction), never stored with a saturated exponent."
 msgstr "`BinaryContext` 包含精度 $p$（比特数）、一个 `BinaryRoundingMode`、针对**首位**的可选指数界 $e_{\\min}, e_{\\max}$，以及一个 `TininessDetection`。正规值满足 $2^{e_{\\min}} \\le |x| \\le (2 - 2^{1-p})\\,2^{e_{\\max}}$；低于 $2^{e_{\\min}}$ 时，**次正规数**保持固定间距 $2^{\\,e_{\\min}-p+1}$（渐进下溢）。`binary16`、`binary32`、`binary64` 与 `binary128` 是 IEEE 交换格式的预设。不带 `e_max` 的 `BinaryContext::new(precision=p)` 是 IEEE 754-2019 3.7 的可扩展精度格式，其实现范围为 $[\\texttt{binary\\_implementation\\_e\\_min}, \\texttt{binary\\_implementation\\_e\\_max}] = [2 - 2^{30},\\ 2^{30} - 1]$，所以与每个上下文一样 $e_{\\min} = 1 - e_{\\max}$（3.3），且所有精度都以 $\\texttt{binary\\_precision\\_max} = 2^{28}$ 比特为上限。超出实现范围的结果会被归类处理（按舍入方向上溢为无穷或最大有限值、下溢为零或最小次正规数），而绝不会以饱和的指数存储。"
 
-#: manual/numeric_semantics.md:282
+#: manual/numeric_semantics.md:296
 msgid "The plain binary operators (`add`, `sub`, `mul`, `div`, `+`, `-`, `*`, `/`) round to nearest-even at the larger operand precision in that unbounded context and discard the flags."
 msgstr "普通二进制运算符（`add`、`sub`、`mul`、`div`、`+`、`-`、`*`、`/`）在该无界上下文中以两个操作数中较大的精度进行就近舍入（偶数优先），并丢弃标志。"
 
-#: manual/numeric_semantics.md:285
+#: manual/numeric_semantics.md:299
 msgid "`DecimalContext` (IEEE) and `GdaContext` (GDA) hold the precision in digits, the rounding mode, $e_{\\min}$ and $e_{\\max}$ for the **adjusted exponent** $q + (\\text{digits of } c) - 1$, and a `clamp` switch. The smallest exponent a subnormal may use is $E_{\\text{tiny}} = e_{\\min} - p + 1$. With `clamp` set, a result whose exponent exceeds $e_{\\max} - p + 1$ is padded with zeros and raises *clamped*, as the interchange formats require. `decimal64`, for example, has $p = 16$, $e_{\\max} = 384$, $e_{\\min} = -383$."
 msgstr "`DecimalContext`（IEEE）与 `GdaContext`（GDA）包含以数位计的精度、舍入模式、针对**调整指数** $q + (\\text{digits of } c) - 1$ 的 $e_{\\min}$ 与 $e_{\\max}$，以及一个 `clamp` 开关。次正规数可使用的最小指数为 $E_{\\text{tiny}} = e_{\\min} - p + 1$。设置 `clamp` 后，指数超过 $e_{\\max} - p + 1$ 的结果会以零填充并引发 *clamped*，这正是交换格式的要求。例如 `decimal64` 的参数为 $p = 16$、$e_{\\max} = 384$、$e_{\\min} = -383$。"
 
-#: manual/numeric_semantics.md:292
+#: manual/numeric_semantics.md:306
 msgid "**Tininess** decides when a tiny result counts as an underflow: *before rounding* compares the exact value with $\\beta^{e_{\\min}}$, *after rounding* compares the value rounded as if the exponent range were unbounded. IEEE 754 allows either for binary formats; GDA always detects before rounding."
 msgstr "**微小性（tininess）**决定一个极小结果何时算作下溢：*舍入前*检测比较精确值与 $\\beta^{e_{\\min}}$，*舍入后*检测比较假定指数范围无界时的舍入值。IEEE 754 对二进制格式允许任一种方式；GDA 总是在舍入前检测。"
 
-#: manual/numeric_semantics.md:297
+#: manual/numeric_semantics.md:311
 msgid "Flags, errors and enclosures"
 msgstr "标志、错误与包络"
 
-#: manual/numeric_semantics.md:299
+#: manual/numeric_semantics.md:313
 msgid "`floating` reports trouble through four channels that are not interchangeable:"
 msgstr "`floating` 通过四个互不替代的通道报告问题："
 
-#: manual/numeric_semantics.md:302
+#: manual/numeric_semantics.md:316
 msgid "Channel"
 msgstr "通道"
 
-#: manual/numeric_semantics.md:302
+#: manual/numeric_semantics.md:316
 msgid "Carried by"
 msgstr "载体"
 
-#: manual/numeric_semantics.md:302
+#: manual/numeric_semantics.md:316
 msgid "A value is returned?"
 msgstr "是否返回值？"
 
-#: manual/numeric_semantics.md:304
+#: manual/numeric_semantics.md:318
 msgid "status flag"
 msgstr "状态标志"
 
-#: manual/numeric_semantics.md:304
+#: manual/numeric_semantics.md:318
 msgid "`BinaryFlags`, `DecimalFlags`, `IntervalFlags` beside the result"
 msgstr "与结果并列的 `BinaryFlags`、`DecimalFlags`、`IntervalFlags`"
 
-#: manual/numeric_semantics.md:304
+#: manual/numeric_semantics.md:318
 msgid "yes, the IEEE-defined one"
 msgstr "是，即 IEEE 所定义的值"
 
-#: manual/numeric_semantics.md:304
+#: manual/numeric_semantics.md:318
 msgid "a condition occurred while producing a defined result"
 msgstr "在产生已定义结果的过程中出现了某种情况"
 
-#: manual/numeric_semantics.md:305
+#: manual/numeric_semantics.md:319
 msgid "GDA status and trap"
 msgstr "GDA 状态与陷阱"
 
-#: manual/numeric_semantics.md:305
+#: manual/numeric_semantics.md:319
 msgid "yes, also when trapped"
 msgstr "是，触发陷阱时也返回"
 
-#: manual/numeric_semantics.md:305
+#: manual/numeric_semantics.md:319
 msgid "sticky conditions; an enabled trap marks the outcome `Trapped`"
 msgstr "粘滞的条件；已启用的陷阱会把结果标记为 `Trapped`"
 
-#: manual/numeric_semantics.md:306
+#: manual/numeric_semantics.md:320
 msgid "checked error"
 msgstr "checked 错误"
 
-#: manual/numeric_semantics.md:306
+#: manual/numeric_semantics.md:320
 msgid "`Result[_, ArithmeticError]`, `*Result` wrappers"
 msgstr "`Result[_, ArithmeticError]`、`*Result` 包装类型"
 
-#: manual/numeric_semantics.md:306
+#: manual/numeric_semantics.md:320
 msgid "the requested scalar cannot be produced under the checked contract"
 msgstr "在 checked 契约下无法产生所请求的标量"
 
-#: manual/numeric_semantics.md:307
+#: manual/numeric_semantics.md:321
 msgid "enclosure"
 msgstr "包络"
 
-#: manual/numeric_semantics.md:307
+#: manual/numeric_semantics.md:321
 msgid "yes, a set"
 msgstr "是，一个集合"
 
-#: manual/numeric_semantics.md:307
+#: manual/numeric_semantics.md:321
 msgid "every possible exact result lies in the returned interval"
 msgstr "所有可能的精确结果都落在返回的区间内"
 
-#: manual/numeric_semantics.md:309
+#: manual/numeric_semantics.md:323
 msgid "IEEE flags"
 msgstr "IEEE 标志"
 
-#: manual/numeric_semantics.md:311
+#: manual/numeric_semantics.md:325
 msgid "The five IEEE exceptions[^ieee-exceptions] are reported as booleans on `BinaryFlags` and `DecimalFlags`:"
 msgstr "五种 IEEE 异常[^ieee-exceptions] 在 `BinaryFlags` 和 `DecimalFlags` 中都以布尔值报告："
 
-#: manual/numeric_semantics.md:314
+#: manual/numeric_semantics.md:328
 msgid "*invalid operation*: no useful real result exists ($\\infty - \\infty$, $0 \\cdot \\infty$, $\\sqrt{-1}$, any operation on a signaling NaN); the result is a quiet NaN."
 msgstr "*invalid operation*（无效运算）：不存在有意义的实数结果（$\\infty - \\infty$、$0 \\cdot \\infty$、$\\sqrt{-1}$、对信号 NaN 的任何运算）；结果为静默 NaN。"
 
-#: manual/numeric_semantics.md:317
+#: manual/numeric_semantics.md:331
 msgid "*division by zero*: an exact infinite result from finite operands ($1/{-0} = -\\infty$, $\\log 0 = -\\infty$). `bin_float` and `decimal` raise it for every logarithm of zero and for $\\operatorname{log1p}(-1)$, $\\operatorname{log2p1}(-1)$ and $\\operatorname{log10p1}(-1)$ (and for $\\operatorname{rSqrt}(\\pm 0)$, $\\operatorname{compound}(-1, n < 0)$ and $\\operatorname{powr}(\\pm 0, y < 0)$); `decimal_gda` follows General Decimal Arithmetic, whose `ln` and `log10` of zero return $-\\infty$ without a condition."
 msgstr "*division by zero*（除以零）：由有限操作数得到精确的无穷结果（$1/{-0} = -\\infty$、$\\log 0 = -\\infty$）。`bin_float` 和 `decimal` 对零的每一种对数以及 $\\operatorname{log1p}(-1)$、$\\operatorname{log2p1}(-1)$ 与 $\\operatorname{log10p1}(-1)$（以及 $\\operatorname{rSqrt}(\\pm 0)$、$\\operatorname{compound}(-1, n < 0)$ 与 $\\operatorname{powr}(\\pm 0, y < 0)$）都触发它；`decimal_gda` 遵循 General Decimal Arithmetic，其对零求 `ln` 和 `log10` 时返回 $-\\infty$ 而不引发任何条件。"
 
-#: manual/numeric_semantics.md:325
+#: manual/numeric_semantics.md:339
 msgid "*overflow*: the rounded result with an unbounded exponent would exceed the largest finite value; the result is $\\pm\\infty$ or the largest finite value by direction, and *inexact* is raised too."
 msgstr "*overflow*（上溢）：在无界指数下的舍入结果将超过最大有限值；按舍入方向，结果为 $\\pm\\infty$ 或最大有限值，并同时引发 *inexact*。"
 
-#: manual/numeric_semantics.md:328
+#: manual/numeric_semantics.md:342
 msgid "*underflow*: the result is tiny (by the context's tininess rule) and inexact."
 msgstr "*underflow*（下溢）：结果是微小的（按上下文的微小性规则）且不精确。"
 
-#: manual/numeric_semantics.md:329
+#: manual/numeric_semantics.md:343
 msgid "*inexact*: the rounded result differs from the exact value."
 msgstr "*inexact*（不精确）：舍入结果与精确值不同。"
 
-#: manual/numeric_semantics.md:331
+#: manual/numeric_semantics.md:345
 msgid "`decimal_gda` adds the GDA conditions *rounded* (digits were discarded, even zeros), *clamped*, *subnormal*, *conversion syntax*, *division impossible*, *division undefined*, *invalid context* and *lost digits*; `DecimalFlags` has only the five IEEE flags and *not computed*. Flags never replace the value. To accumulate them over several steps, `combine` them yourself or use `decimal_checked`, which keeps the latest (`raised`) and the accumulated (`flags`) sets."
 msgstr "`decimal_gda` 另外增加了 GDA 条件 *rounded*（丢弃了数位，即使丢弃的是零）、*clamped*、*subnormal*、*conversion syntax*、*division impossible*、*division undefined*、*invalid context* 与 *lost digits*；`DecimalFlags` 只有五个 IEEE 标志和 *not computed*。标志从不取代值。若要在多个步骤中累积标志，可自行 `combine`，或使用 `decimal_checked`，它同时保留最近一次的（`raised`）与累积的（`flags`）标志集合。"
 
-#: manual/numeric_semantics.md:339
+#: manual/numeric_semantics.md:353
 msgid "IEEE 754-2019, clause 7. The default exception handling returns the values listed here and raises the status flag; `floating` implements exactly this default and never alters control flow."
 msgstr "IEEE 754-2019 第 7 条。默认异常处理返回此处列出的值并引发状态标志；`floating` 恰好实现这一默认行为，从不改变控制流。"
 
-#: manual/numeric_semantics.md:367
+#: manual/numeric_semantics.md:381
 msgid "GDA status and traps"
 msgstr "GDA 状态与陷阱"
 
-#: manual/numeric_semantics.md:369
+#: manual/numeric_semantics.md:383
 msgid "`decimal_gda` follows the General Decimal Arithmetic model. Each operation returns a `GdaOutcome` that holds the defined result, the **next context** and the **raised** flags of this operation. The next context's `status()` is the sticky union of everything raised so far. When a raised condition is enabled in the context's trap set the outcome is `Trapped(signal, value, context, raised)` instead of `Completed(value, context, raised)`; the defined result is still there. If several enabled conditions are raised at once the trapped signal is the first in this precedence: invalid operation, division by zero, division undefined, division impossible, invalid context, conversion syntax, overflow, underflow, subnormal, inexact, rounded, clamped, lost digits."
 msgstr "`decimal_gda` 遵循 General Decimal Arithmetic 模型。每个运算返回一个 `GdaOutcome`，其中包含已定义的结果、**下一个上下文**以及本次运算**引发**的标志。下一个上下文的 `status()` 是迄今为止所有引发条件的粘滞并集。当某个引发的条件在上下文的陷阱集合中已启用时，结果为 `Trapped(signal, value, context, raised)` 而非 `Completed(value, context, raised)`；已定义的结果依然保留。若同时引发多个已启用的条件，被捕获的信号按以下优先级取第一个：invalid operation、division by zero、division undefined、division impossible、invalid context、conversion syntax、overflow、underflow、subnormal、inexact、rounded、clamped、lost digits。"
 
-#: manual/numeric_semantics.md:399
+#: manual/numeric_semantics.md:413
 msgid "Checked errors"
 msgstr "checked 错误"
 
-#: manual/numeric_semantics.md:401
+#: manual/numeric_semantics.md:415
 msgid "An `ArithmeticError` (re-exported by `def`) has a kind: `DivisionByZero`, `ParseError`, `DomainError`, `FormatError`, `UnsupportedOperation`, `UnorderedComparison` or `CertificationFailure`. It is used where the checked contract has no value to return: `div_checked` by zero, `sqrt` of a negative number, `compare_checked` with a NaN, a malformed literal. `BinFloatResult` and `IntervalResult` keep the first error and skip the remaining steps."
 msgstr "`ArithmeticError`（由 `def` 重新导出）具有一个种类：`DivisionByZero`、`ParseError`、`DomainError`、`FormatError`、`UnsupportedOperation`、`UnorderedComparison` 或 `CertificationFailure`。它用于 checked 契约无值可返回的情形：`div_checked` 除以零、对负数求 `sqrt`、`compare_checked` 遇到 NaN、字面量格式错误。`BinFloatResult` 与 `IntervalResult` 保留第一个错误并跳过其余步骤。"
 
-#: manual/numeric_semantics.md:408
+#: manual/numeric_semantics.md:422
 msgid "The elementary functions have both forms. A `try_*_ctx` function returns `Err` with a `CertificationFailure` detail if the certified refinement cannot decide the rounding within its budget. The non-`try` forms never abort: the binary ones return a quiet NaN with *invalid operation*, and the decimal and GDA ones return their invalid result so that flags and traps apply as usual."
 msgstr "初等函数两种形式都有。若认证细化无法在预算内确定舍入，`try_*_ctx` 函数返回带有 `CertificationFailure` 详情的 `Err`。非 `try` 形式从不中止：二进制版本返回静默 NaN 并引发 *invalid operation*，十进制与 GDA 版本返回各自的无效结果，以便标志与陷阱照常生效。"
 
-#: manual/numeric_semantics.md:416
+#: manual/numeric_semantics.md:430
 msgid "An `Interval` denotes a closed set of reals $X = [\\underline{x}, \\overline{x}]$ with binary endpoints, or one of the special sets **Empty** ($\\varnothing$) and **Entire** ($\\mathbb{R}$). An interval extension $F$ of a function $f$ must satisfy the **inclusion property**"
 msgstr "`Interval` 表示一个以二进制数为端点的闭实数集 $X = [\\underline{x}, \\overline{x}]$，或特殊集合 **Empty**（$\\varnothing$）与 **Entire**（$\\mathbb{R}$）之一。函数 $f$ 的区间扩展 $F$ 必须满足**包含性质**"
 
-#: manual/numeric_semantics.md:425
+#: manual/numeric_semantics.md:439
 msgid "which outward rounding guarantees: the exact lower endpoint is rounded with $\\operatorname{RD}$ and the exact upper endpoint with $\\operatorname{RU}$, so by $\\operatorname{RD}(a) \\le a$ and $b \\le \\operatorname{RU}(b)$ the stored interval contains the exact one.[^interval] A wide enclosure is a correct result; tightness is a quality, not a contract. Division by an interval that contains zero can return Entire."
 msgstr "向外舍入保证了这一点：精确下端点用 $\\operatorname{RD}$ 舍入，精确上端点用 $\\operatorname{RU}$ 舍入，由 $\\operatorname{RD}(a) \\le a$ 与 $b \\le \\operatorname{RU}(b)$ 可知存储的区间包含精确区间。[^interval] 宽的包络也是正确结果；紧致性是质量指标，而非契约。除以包含零的区间可能返回 Entire。"
 
-#: manual/numeric_semantics.md:432
+#: manual/numeric_semantics.md:446
 msgid "`DecoratedInterval` adds an IEEE 1788 **decoration** describing what is known about $f$ on $X$: `Com` (defined, continuous and bounded on a bounded $X$), `Dac` (defined and continuous), `Def` (defined), `Trv` (nothing known) and `Ill` (the interval is NaI, \"not an interval\"). NaI is distinct from Empty. Decorations are not scalar flags; `IntervalFlags` reports precision and range events of an `IntervalContext`."
 msgstr "`DecoratedInterval` 增加了一个 IEEE 1788 **装饰（decoration）**，描述 $f$ 在 $X$ 上的已知性质：`Com`（在有界 $X$ 上有定义、连续且有界）、`Dac`（有定义且连续）、`Def`（有定义）、`Trv`（一无所知）以及 `Ill`（该区间为 NaI，即 \"not an interval\"）。NaI 不同于 Empty。装饰并非标量标志；`IntervalFlags` 报告的是 `IntervalContext` 的精度与范围事件。"
 
-#: manual/numeric_semantics.md:439
+#: manual/numeric_semantics.md:453
 msgid "R. E. Moore, R. B. Kearfott and M. J. Cloud, *Introduction to Interval Analysis*, SIAM 2009, ch. 3; IEEE 1788-2015, clauses 10–11 for the set and decoration model."
 msgstr "R. E. Moore、R. B. Kearfott 与 M. J. Cloud，*Introduction to Interval Analysis*，SIAM 2009，第 3 章；集合与装饰模型见 IEEE 1788-2015 第 10–11 条。"
 
-#: manual/numeric_semantics.md:466
+#: manual/numeric_semantics.md:480
 msgid "Quantum and cohorts"
 msgstr "量子与同值类"
 
-#: manual/numeric_semantics.md:468
+#: manual/numeric_semantics.md:482
 msgid "For decimal values the cohort member an operation returns is part of its contract. Each operation names an **ideal exponent**:[^ideal]"
 msgstr "对十进制值而言，运算返回同值类中的哪个成员是其契约的一部分。每个运算都指定一个**理想指数**：[^ideal]"
 
-#: manual/numeric_semantics.md:479
+#: manual/numeric_semantics.md:493
 msgid "When the exact result is representable, the operation returns the member of its cohort whose exponent is closest to the ideal one. For a sum or a product whose coefficient fits in $p$ digits that member has exactly the ideal exponent, since the exact coefficient is an integer at that exponent. A quotient may need a smaller exponent: $1/4$ has ideal exponent $0 - 0 = 0$, but $0.25$ needs exponent $-2$, so that is the result. When the result must be rounded, the operation returns the member with $p$ digits, the smallest exponent that holds the rounded value (fewer digits only for a subnormal result). Parsing preserves the quantum of the literal. `quantize_ctx(x, y)` rounds $x$ to the quantum of $y$; `normalized()` (and, in `decimal_gda`, `reduce`) strips trailing zeros. Numeric comparison sees only the value; `same_quantum` and the total orders `total_order_compare` (IEEE) and `compare_total` (GDA) also see the cohort."
 msgstr "当精确结果可表示时，运算返回其同值类中指数最接近理想指数的成员。对于系数能放入 $p$ 位数字的和或积，该成员的指数恰好就是理想指数，因为精确系数在该指数下是整数。商可能需要更小的指数：$1/4$ 的理想指数为 $0 - 0 = 0$，但 $0.25$ 需要指数 $-2$，因此结果就是它。当结果必须舍入时，运算返回具有 $p$ 位数字的成员，即能容纳舍入值的最小指数（仅当结果为次正规数时位数才更少）。解析会保留字面量的量子。`quantize_ctx(x, y)` 将 $x$ 舍入到 $y$ 的量子；`normalized()`（以及 `decimal_gda` 中的 `reduce`）去除尾随零。数值比较只看值；`same_quantum` 以及全序 `total_order_compare`（IEEE）和 `compare_total`（GDA）还会区分同值类中的成员。"
 
-#: manual/numeric_semantics.md:493
+#: manual/numeric_semantics.md:507
 msgid "IEEE 754-2019, clause 5.2 and table 5.1; Cowlishaw, *General Decimal Arithmetic Specification* 1.70, \"Arithmetic operations\"."
 msgstr "IEEE 754-2019 第 5.2 条及表 5.1；Cowlishaw，*General Decimal Arithmetic Specification* 1.70，\"Arithmetic operations\"。"
 
-#: manual/numeric_semantics.md:522
+#: manual/numeric_semantics.md:536
 msgid "Signed zero and NaN"
 msgstr "带符号零与 NaN"
 
-#: manual/numeric_semantics.md:524
+#: manual/numeric_semantics.md:538
 msgid "Zero"
 msgstr "零"
 
-#: manual/numeric_semantics.md:526
+#: manual/numeric_semantics.md:540
 msgid "Zero carries a sign so that $1/{+0} = +\\infty$ and $1/{-0} = -\\infty$ keep the direction of an underflow. The rules follow IEEE 754-2019 clause 6.3:"
 msgstr "零带有符号，从而 $1/{+0} = +\\infty$ 与 $1/{-0} = -\\infty$ 能够保留下溢的方向。规则遵循 IEEE 754-2019 第 6.3 条："
 
-#: manual/numeric_semantics.md:529
+#: manual/numeric_semantics.md:543
 msgid "a product or quotient has the exclusive-or of the operand signs;"
 msgstr "积或商的符号为操作数符号的异或；"
 
-#: manual/numeric_semantics.md:530
+#: manual/numeric_semantics.md:544
 msgid "an exact zero sum of operands with opposite signs, or $x - x$, is $+0$ under every rounding direction except $\\operatorname{RD}$, where it is $-0$;"
 msgstr "符号相反的操作数之和若精确为零，或 $x - x$，其结果均为 $+0$——除非舍入方向为 $\\operatorname{RD}$，此时结果为 $-0$；"
 
-#: manual/numeric_semantics.md:532
+#: manual/numeric_semantics.md:546
 msgid "$\\sqrt{-0} = -0$, and rounding to an integer keeps the sign ($\\lceil -0.3 \\rceil = -0$);"
 msgstr "$\\sqrt{-0} = -0$，且舍入到整数时保留符号（$\\lceil -0.3 \\rceil = -0$）；"
 
-#: manual/numeric_semantics.md:534
+#: manual/numeric_semantics.md:548
 msgid "numeric comparison treats $-0$ and $+0$ as equal."
 msgstr "数值比较将 $-0$ 与 $+0$ 视为相等。"
 
-#: manual/numeric_semantics.md:536
-#: manual/numeric_semantics.md:584
+#: manual/numeric_semantics.md:550
+#: manual/numeric_semantics.md:598
 msgid "NaN"
 msgstr "NaN"
 
-#: manual/numeric_semantics.md:538
+#: manual/numeric_semantics.md:552
 msgid "A **quiet NaN** propagates through arithmetic silently; a **signaling NaN** raises *invalid operation* when an operation consumes it and is quieted in the result. A NaN carries a sign and an integer payload (`nan_payload`). In `bin_float` and `decimal` an operation with NaN operands returns a quiet NaN with the sign and payload of the first NaN operand, signaling or not, which IEEE 754 allows.[^nan-payload] `decimal_gda` follows the General Decimal Arithmetic rule instead: a signaling NaN operand takes precedence over a quiet one, so `add(NaN3, sNaN7)` is `NaN7` there and `NaN3` in `decimal`."
 msgstr "**静默 NaN** 在算术中悄无声息地传播；**信号 NaN** 在被运算使用时引发 *invalid operation*，并在结果中变为静默 NaN。NaN 带有符号和一个整数载荷（`nan_payload`）。在 `bin_float` 和 `decimal` 中，含 NaN 操作数的运算返回一个静默 NaN，其符号和载荷取自第一个 NaN 操作数（无论它是否为信号 NaN），这是 IEEE 754 所允许的。[^nan-payload] `decimal_gda` 则遵循 General Decimal Arithmetic 的规则：信号 NaN 操作数优先于静默 NaN 操作数，因此 `add(NaN3, sNaN7)` 在 `decimal_gda` 中是 `NaN7`，而在 `decimal` 中是 `NaN3`。"
 
-#: manual/numeric_semantics.md:547
+#: manual/numeric_semantics.md:561
 msgid "IEEE 754-2019, clause 6.2.3, only recommends that the result carry the payload of one of the input NaNs."
 msgstr "IEEE 754-2019 第 6.2.3 条仅建议结果携带某一个输入 NaN 的载荷。"
 
-#: manual/numeric_semantics.md:580
+#: manual/numeric_semantics.md:594
 msgid "IEEE comparison has four outcomes: less, equal, greater and **unordered**, the last whenever an operand is NaN. Several APIs expose different orders, and choosing the right one matters:"
 msgstr "IEEE 比较有四种结果：小于、等于、大于以及**无序**，后者在任一操作数为 NaN 时出现。不同的 API 提供不同的序，选对序非常重要："
 
-#: manual/numeric_semantics.md:584
+#: manual/numeric_semantics.md:598
 msgid "Order"
 msgstr "序"
 
-#: manual/numeric_semantics.md:584
+#: manual/numeric_semantics.md:598
 msgid "$-0$ vs $+0$"
 msgstr "$-0$ 与 $+0$"
 
-#: manual/numeric_semantics.md:586
+#: manual/numeric_semantics.md:600
 msgid "IEEE partial order, `@def.PartialOrder`"
 msgstr "IEEE 偏序，`@def.PartialOrder`"
 
-#: manual/numeric_semantics.md:586
+#: manual/numeric_semantics.md:600
 msgid "`Unordered`; *invalid* only for a signaling NaN"
 msgstr "`Unordered`；仅对信号 NaN 引发 *invalid*"
 
-#: manual/numeric_semantics.md:587
+#: manual/numeric_semantics.md:601
 msgid "IEEE partial order"
 msgstr "IEEE 偏序"
 
-#: manual/numeric_semantics.md:587
+#: manual/numeric_semantics.md:601
 msgid "`Unordered`; *invalid* for any NaN"
 msgstr "`Unordered`；对任何 NaN 都引发 *invalid*"
 
-#: manual/numeric_semantics.md:588
+#: manual/numeric_semantics.md:602
 msgid "numeric order"
 msgstr "数值序"
 
-#: manual/numeric_semantics.md:588
+#: manual/numeric_semantics.md:602
 msgid "`Err` with `UnorderedComparison`"
 msgstr "带有 `UnorderedComparison` 的 `Err`"
 
-#: manual/numeric_semantics.md:589
+#: manual/numeric_semantics.md:603
 msgid "`compare`, `<`, `<=`, sorting (`Compare`)"
 msgstr "`compare`、`<`、`<=`、排序（`Compare`）"
 
-#: manual/numeric_semantics.md:589
+#: manual/numeric_semantics.md:603
 msgid "total preorder"
 msgstr "全预序"
 
-#: manual/numeric_semantics.md:589
+#: manual/numeric_semantics.md:603
 msgid "every NaN equals every NaN and is above every number"
 msgstr "所有 NaN 彼此相等，且大于所有数"
 
-#: manual/numeric_semantics.md:590
+#: manual/numeric_semantics.md:604
 msgid "`total_order`, `total_order_compare`, `total_order_mag` (`bin_float`), `total_order_compare` (decimal)"
 msgstr "`total_order`、`total_order_compare`、`total_order_mag`（`bin_float`）、`total_order_compare`（decimal）"
 
-#: manual/numeric_semantics.md:590
+#: manual/numeric_semantics.md:604
 msgid "IEEE `totalOrder` on representations"
 msgstr "作用于表示的 IEEE `totalOrder`"
 
-#: manual/numeric_semantics.md:590
+#: manual/numeric_semantics.md:604
 msgid "ordered by sign, kind and payload"
 msgstr "按符号、种类和载荷排序"
 
-#: manual/numeric_semantics.md:592
+#: manual/numeric_semantics.md:606
 msgid "`compare` orders NaN above every number so that `Compare` is a total preorder and sorting never fails; it never aborts. Use the quiet predicates or `compare_checked` when NaN must be treated as unordered."
 msgstr "`compare` 将 NaN 排在所有数之上，使 `Compare` 成为全预序、排序永不失败；它从不中止。当必须把 NaN 视为无序时，请使用静默谓词或 `compare_checked`。"
 
-#: manual/numeric_semantics.md:596
+#: manual/numeric_semantics.md:610
 msgid "`==` agrees with `compare` in the three number types: `a == b` exactly when `a.compare(b) == 0`. `Decimal`'s `==` is numeric for finite values (`-0 == 0.00`) and treats two NaNs as equal; `BinFloat`'s `==` ignores the sign of a zero and the precision (`-0 == +0`) and treats two NaNs as equal too. This is the total preorder of sorting, not IEEE equality: use `compare_quiet_equal` or `compare_quiet` when a NaN must be unordered, and `identical` (`BinFloat`) for the structural question (the sign of a zero, the precision, the NaN kind). `Interval`'s `==` compares the endpoints by value."
 msgstr "`==` 在三种数的类型中都与 `compare` 一致：`a == b` 恰好在 `a.compare(b) == 0` 时成立。`Decimal` 的 `==` 对有限值按数值比较（`-0 == 0.00`），并把两个 NaN 视为相等；`BinFloat` 的 `==` 忽略零的符号和精度（`-0 == +0`），也把两个 NaN 视为相等。这是排序所用的全预序，不是 IEEE 相等：当 NaN 必须无序时使用 `compare_quiet_equal` 或 `compare_quiet`，结构性的问题（零的符号、精度、NaN 的种类）用 `identical`（`BinFloat`）。`Interval` 的 `==` 按值比较端点。"
 
-#: manual/numeric_semantics.md:625
+#: manual/numeric_semantics.md:639
 msgid "Conversion between radices"
 msgstr "基数之间的转换"
 
-#: manual/numeric_semantics.md:627
+#: manual/numeric_semantics.md:641
 msgid "Every binary fraction has a finite decimal expansion, because $2^{-k} = 5^{k} \\cdot 10^{-k}$; most decimal fractions have no finite binary expansion, because $10^{-k} = 2^{-k}5^{-k}$ and $5^{-k}$ is not dyadic. So decimal-to-binary conversion is usually inexact and binary-to-decimal conversion is exact but may need many digits. `BinFloat::from_string_ctx` (IEEE convertFromDecimalCharacter) and `to_decimal_string_ctx` (convertToDecimalCharacter) are both correctly rounded for every precision and exponent; `to_shortest_string` prints the fewest digits that read back to the same value, which is how `0.1 + 0.2` shows its rounding error."
 msgstr "每个二进制小数都有有限的十进制展开，因为 $2^{-k} = 5^{k} \\cdot 10^{-k}$；而大多数十进制小数没有有限的二进制展开，因为 $10^{-k} = 2^{-k}5^{-k}$，而 $5^{-k}$ 不是二进有理数。因此十进制到二进制的转换通常不精确，二进制到十进制的转换则是精确的，但可能需要很多数位。`BinFloat::from_string_ctx`（IEEE convertFromDecimalCharacter）与 `to_decimal_string_ctx`（convertToDecimalCharacter）对任意精度和指数都是正确舍入的；`to_shortest_string` 打印能读回同一值的最少数位，`0.1 + 0.2` 正是借此显示出其舍入误差。"
 
-#: manual/numeric_semantics.md:637
+#: manual/numeric_semantics.md:651
 msgid "Interchange conversion is narrower: `BinaryInterchange` (binary16/32/64/128) and the decimal32/64/128 DPD and BID encodings fix field widths, exponent bounds and special encodings. `semantic` projects values of every package to exact rationals, so it can tell that decimal $0.1$ and binary $\\operatorname{fl}(0.1)$ are different numbers; the projection deliberately drops precision, quantum, signed zero, payloads, decorations and flags."
 msgstr "交换格式转换的范围更窄：`BinaryInterchange`（binary16/32/64/128）以及 decimal32/64/128 的 DPD 与 BID 编码固定了字段宽度、指数界和特殊值编码。`semantic` 将各个包的值投影为精确有理数，因此能分辨十进制 $0.1$ 与二进制 $\\operatorname{fl}(0.1)$ 是不同的数；该投影有意丢弃精度、量子、带符号零、载荷、装饰和标志。"
 
-#: manual/numeric_semantics.md:668
+#: manual/numeric_semantics.md:682
 msgid "Decision checklist"
 msgstr "决策清单"
 
-#: manual/numeric_semantics.md:670
+#: manual/numeric_semantics.md:684
 msgid "Before choosing an API, answer:"
 msgstr "选择 API 前应回答："
 
-#: manual/numeric_semantics.md:672
+#: manual/numeric_semantics.md:686
 msgid "Is the result a scalar value, a representation, or a set of reals?"
 msgstr "结果是标量值、表示，还是实数集合？"
 
-#: manual/numeric_semantics.md:673
+#: manual/numeric_semantics.md:687
 msgid "Must the radix, precision, exponent range or quantum stay observable?"
 msgstr "基数、精度、指数范围或量子是否必须保持可观察？"
 
-#: manual/numeric_semantics.md:674
+#: manual/numeric_semantics.md:688
 msgid "Does the caller need per-operation flags, sticky GDA status and traps, or a short-circuiting checked error?"
 msgstr "调用方需要逐运算的标志、GDA 的粘滞状态与陷阱，还是可短路的 checked 错误？"
 
-#: manual/numeric_semantics.md:676
+#: manual/numeric_semantics.md:690
 msgid "Can NaN, an infinity, a signed zero, Empty, Entire or NaI occur?"
 msgstr "是否可能出现 NaN、无穷、带符号零、Empty、Entire 或 NaI？"
 
-#: manual/numeric_semantics.md:677
+#: manual/numeric_semantics.md:691
 msgid "Is the numeric order enough, or is the IEEE partial order, a total order or a set relation required?"
 msgstr "数值序是否足够，还是需要 IEEE 偏序、全序或集合关系？"
 
-#: manual/numeric_semantics.md:679
+#: manual/numeric_semantics.md:693
 msgid "Is the conversion arbitrary-precision or a fixed interchange format?"
 msgstr "转换是任意精度的，还是固定的交换格式？"
 
-#: manual/numeric_semantics.md:680
+#: manual/numeric_semantics.md:694
 msgid "Which pinned conformance evidence supports the claim? See [verification](./verification.md)."
 msgstr "哪些固定版本的符合性证据支持该结论？参见[验证](./verification.md)。"
 
@@ -29271,6 +29279,12 @@ msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 #: manual/verification.md:875
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "`==` on `BinFloat` and `Interval` compares representations (sign of zero and precision included); `==` on `Decimal` compares values. Use `compare(a, b) == 0` for numeric equality of binary values."
+#~ msgstr "`BinFloat` 和 `Interval` 上的 `==` 比较的是表示（包括零的符号和精度）；`Decimal` 上的 `==` 比较的是值。对二进制值做数值相等比较时，请使用 `compare(a, b) == 0`。"
+
+#~ msgid "where $\\operatorname{rnd}$ is the rounding function of the context. An operation is **correctly rounded** when its result is exactly this: the exact value rounded once. Every arithmetic operation, square root, fused multiply-add, remainder, conversion and parse in `floating` is correctly rounded; the elementary functions are correctly rounded too, by certified refinement (see [architecture](./architecture.md))."
+#~ msgstr "其中 $\\operatorname{rnd}$ 是上下文的舍入函数。若运算结果恰好如此——即精确值只舍入一次——则称该运算是**正确舍入**的。`floating` 中的每个算术运算、平方根、融合乘加、求余、转换与解析都是正确舍入的；初等函数借助认证细化同样是正确舍入的（参见[架构](./architecture.md)）。"
 
 #~ msgid "`ci.yml` runs `just pr` on every pull request and every push to `main`."
 #~ msgstr "`ci.yml` 对每个拉取请求以及每次推送到 `main` 运行 `just pr`。"

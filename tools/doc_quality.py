@@ -353,6 +353,61 @@ def check_api_snapshots() -> list[str]:
     return errors
 
 
+CONFORMANCE_FUNCTION_COLUMNS = ("api", "function")
+IDENTIFIER_PATH_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*(?:::[A-Za-z_][A-Za-z0-9_]*)*")
+
+
+def conformance_interface_words(package: str) -> set[str]:
+    """Every identifier of the generated interfaces of a package and of its checked tier."""
+    words: set[str] = set()
+    for name in (package, f"{package}_checked"):
+        try:
+            words.update(re.findall(r"[A-Za-z_][A-Za-z0-9_]*", generated_interface(name)))
+        except FileNotFoundError:
+            continue
+    return words
+
+
+def check_conformance_functions() -> list[str]:
+    """Every function named in the API column of a conformance row must exist.
+
+    A cell of a column called `API` or `function` names the operations that
+    implement the clause. A span in backticks that is a plain identifier path
+    (`Type::name`, `name`) must end in a name found in the generated interface
+    of the package of the page or of its `_checked` tier; spans with spaces,
+    paths, wildcards or a bare prefix or suffix (`_ctx`) are prose and are not checked.
+    """
+    errors: list[str] = []
+    for path in sorted((MANUAL_ROOT / "conformance").glob("*.md")):
+        package = path.stem
+        words = conformance_interface_words(package)
+        if not words:
+            continue
+        columns: list[str] | None = None
+        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            if not line.startswith("|"):
+                columns = None
+                continue
+            cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
+            if columns is None:
+                columns = [cell.lower() for cell in cells]
+                continue
+            if set(line) <= set("|- "):
+                continue
+            for index, column in enumerate(columns):
+                if column not in CONFORMANCE_FUNCTION_COLUMNS or index >= len(cells):
+                    continue
+                for span in re.findall(r"`([^`]+)`", cells[index]):
+                    if IDENTIFIER_PATH_RE.fullmatch(span) is None or span.startswith("_") or span.endswith("_"):
+                        continue
+                    name = span.split("::")[-1]
+                    if name not in words:
+                        errors.append(
+                            f"{path.relative_to(REPO_ROOT)}:{number}: `{span}` is not in the interface of {package}"
+                        )
+    return errors
+
+
 EVIDENCE_PATH_RE = re.compile(r"`((?:library|tooling|testdata|tools)/[^`\s]+)`")
 
 
@@ -535,6 +590,7 @@ def run_checks() -> list[str]:
         *check_tooling_standard(),
         *check_gda_claims(),
         *check_evidence_paths(),
+        *check_conformance_functions(),
         *check_conformance_checklist(),
     ]
 

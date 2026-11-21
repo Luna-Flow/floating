@@ -76,10 +76,24 @@ $$
 
 where $\operatorname{rnd}$ is the rounding function of the context. An
 operation is **correctly rounded** when its result is exactly this: the exact
-value rounded once. Every arithmetic operation, square root, fused
-multiply-add, remainder, conversion and parse in `floating` is correctly
-rounded; the elementary functions are correctly rounded too, by certified
-refinement (see [architecture](./architecture.md)).
+value rounded once. In `bin_float` and `decimal` every arithmetic
+operation, square root, fused multiply-add, remainder, conversion and parse is
+correctly rounded, and so are the elementary functions, by certified
+refinement (see [architecture](./architecture.md)); where the library cannot
+certify a result, the `try_*_ctx` forms report the failure instead of returning
+a value that is not correctly rounded. Two things are not correctly rounded
+values. The integer `power` of `decimal_gda` is within a tolerance the General
+Decimal Arithmetic specification allows (about 0.55 units in the last place of
+the exact result with rounding to nearest, one unit from the correctly rounded
+result with a directed rounding direction; see the
+[`decimal_gda` conformance page](./conformance/decimal_gda.md#known-deviations-outside-the-corpus)).
+And an `Interval` operation returns an enclosure, not a rounded value: the
+tightest enclosure in the type when its bounds are certified, a valid but
+wider one otherwise (see the
+[accuracy table](./conformance/interval.md#accuracy-of-operations)). The
+`decimal_gda` functions `exp`, `ln` and `log10` may, by the specification, be
+up to one unit in the last place in error; the library returns the correctly
+rounded value for them, so they are not an exception.
 
 Rounding once matters. The fused multiply-add `fma_ctx` rounds $xy + z$ once,
 while `mul_ctx` followed by `add_ctx` rounds twice. With $x = \operatorname{fl}(0.1)$

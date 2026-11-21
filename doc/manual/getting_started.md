@@ -189,9 +189,11 @@ erases semantics the standards make observable.
   to every other NaN and above every number, and $-0 = +0$. For IEEE
   semantics use `compare_checked`, the quiet and signaling predicates of
   `bin_float`, or the `total_order*` functions.
-- `==` on `BinFloat` and `Interval` compares representations (sign of zero and
-  precision included); `==` on `Decimal` compares values. Use
-  `compare(a, b) == 0` for numeric equality of binary values.
+- `==` agrees with `compare` in the number types: on `BinFloat` it ignores the
+  sign of a zero and the precision (`-0 == +0`) and treats two NaNs as equal, on
+  `Decimal` it compares values, and on `Interval` it compares the bounds by
+  value (two empty intervals are equal). `a.identical(b)` compares every field
+  of a `BinFloat`. See [numeric semantics](./numeric_semantics.md).
 - An `Interval` has containment and set relations (`contains`, `subset`,
   `definitely_lt`, …), not a scalar order. A result is correct when it encloses
   the exact result; tightness is a separate quality.
