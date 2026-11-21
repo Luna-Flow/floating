@@ -14,6 +14,60 @@ test "shared conformance summary folds dispositions" {
   assert_eq(summary.skipped_cases(), 2)
   assert_eq(summary.unsupported_cases(), 1)
   assert_eq(summary.diagnostic_cases(), 1)
+  assert_false(summary.success())
+}
+
+///|
+// Oracle (level A): the counts are written out from the construction of the
+// summary below (one passing case, one unsupported, one diagnostic, one legacy
+// case): nothing is computed by a second implementation of the folding.
+test "success ignores skipped cases and success_with_counts does not" {
+  let summary = RunSummary::from_results(4, [
+    CaseResult::executable("pass", true),
+    CaseResult::new("skip", Unsupported("operation"), false),
+    CaseResult::new("bad", Diagnostic("syntax"), false),
+    CaseResult::new("old", Legacy("superseded"), false),
+  ])
+  assert_eq(summary.failed_cases(), 0)
+  assert_eq(summary.skipped_cases(), 3)
+  assert_true(summary.success())
+  // the stated numbers must be exact: one row more or less skipped is a failure
+  assert_true(
+    summary.success_with_counts(
+      skipped=3,
+      diagnostic=1,
+      legacy=1,
+      unsupported=1,
+    ),
+  )
+  assert_false(
+    summary.success_with_counts(
+      skipped=2,
+      diagnostic=1,
+      legacy=0,
+      unsupported=1,
+    ),
+  )
+  assert_false(
+    summary.success_with_counts(
+      skipped=3,
+      diagnostic=1,
+      legacy=1,
+      unsupported=0,
+    ),
+  )
+  let failing = RunSummary::from_results(2, [
+    CaseResult::executable("pass", true),
+    CaseResult::executable("fail", false, message="mismatch"),
+  ])
+  assert_false(
+    failing.success_with_counts(
+      skipped=0,
+      diagnostic=0,
+      legacy=0,
+      unsupported=0,
+    ),
+  )
 }
 
 ///|

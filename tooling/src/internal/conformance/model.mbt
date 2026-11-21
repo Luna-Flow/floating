@@ -283,8 +283,31 @@ pub fn RunSummary::results(self : RunSummary) -> Array[CaseResult] {
 }
 
 ///|
+/// True when no case failed. Skipped, diagnostic, legacy and unsupported cases
+/// do not make a run fail, so a run whose rows turn into skipped or
+/// unsupported cases still succeeds: a gate that must not lose a row uses
+/// `success_with_counts`, which also states how many such cases there are.
 pub fn RunSummary::success(self : RunSummary) -> Bool {
   self.failed_cases == 0
+}
+
+///|
+/// True when no case failed and the numbers of skipped, diagnostic, legacy and
+/// unsupported cases are exactly the stated ones (the corpus or phase has a
+/// known number of them; a change of that number is a change of the corpus and
+/// is stated where the number is written, not discovered by a row vanishing).
+pub fn RunSummary::success_with_counts(
+  self : RunSummary,
+  skipped~ : Int32,
+  diagnostic~ : Int32,
+  legacy~ : Int32,
+  unsupported~ : Int32,
+) -> Bool {
+  self.failed_cases == 0 &&
+  self.skipped_cases == skipped &&
+  self.diagnostic_cases == diagnostic &&
+  self.legacy_cases == legacy &&
+  self.unsupported_cases == unsupported
 }
 
 ///|

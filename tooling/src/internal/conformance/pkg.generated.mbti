@@ -52,6 +52,7 @@ pub fn RunSummary::results(Self) -> Array[CaseResult]
 pub fn RunSummary::selected_cases(Self) -> Int32
 pub fn RunSummary::skipped_cases(Self) -> Int32
 pub fn RunSummary::success(Self) -> Bool
+pub fn RunSummary::success_with_counts(Self, skipped~ : Int32, diagnostic~ : Int32, legacy~ : Int32, unsupported~ : Int32) -> Bool
 pub fn RunSummary::to_repr(Self) -> @debug.Repr
 pub fn RunSummary::total_cases(Self) -> Int32
 pub fn RunSummary::unsupported_cases(Self) -> Int32
