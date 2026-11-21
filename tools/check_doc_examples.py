@@ -35,8 +35,8 @@ GENERATED_NAME = LIBRARY_GENERATED_ROOT.name
 FENCE_RE = re.compile(r"^```moonbit(?P<attributes>[a-z ]*)$")
 
 FLOATING_PACKAGES = (
-    "ball_float",
-    "ball_float_checked",
+    "interval",
+    "interval_checked",
     "bin_float",
     "bin_float_checked",
     "decimal",

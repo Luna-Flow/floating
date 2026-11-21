@@ -109,7 +109,7 @@ unsupported reverse operations.
 | --- | --- | --- |
 | binary, decimal, GDA and interval kernels | `just bench all --target native` | all four Maremark suites produced valid artifacts |
 | IEEE and GDA fast paths | benchmark package tests plus the conformance gates | a fast route is admissible only while the semantic oracle stays green |
-| interval endpoint dispatch | `tooling/src/bench/ball_float` and strict ITF1788 | lower cost is acceptable only with ordered, outward-rounded enclosures |
+| interval endpoint dispatch | `tooling/src/bench/interval` and strict ITF1788 | lower cost is acceptable only with ordered, outward-rounded enclosures |
 | external comparison | `just bench external run` ([results](performance/bench/external.md)) | `floating` timed against MPFR and libmpdec on the same operands; slower in 56 of 59 measured cells, by 1.3 to 11.4 times, and faster in three `decimal_gda` cells |
 
 Generated artifacts live under `.tmp/bench/` and are not published as API data.
@@ -124,7 +124,7 @@ every release, equivalence across targets, or a latency bound.
 | `sh tools/run_moon_clean_exec.sh test library/src/decimal_gda --target native --deny-warn --frozen --no-parallelize` | 93/93 passed |
 | `sh tools/run_moon_clean_exec.sh test library/src/decimal --target native --deny-warn --frozen --no-parallelize` | 94/94 passed |
 | `sh tools/run_moon_clean_exec.sh test library/src/bin_float --target native --deny-warn --frozen --no-parallelize` | 68/68 passed |
-| `sh tools/run_moon_clean_exec.sh test library/src/ball_float --target native --deny-warn --frozen --no-parallelize` | 42/42 passed |
+| `sh tools/run_moon_clean_exec.sh test library/src/interval --target native --deny-warn --frozen --no-parallelize` | 42/42 passed |
 | `just gate binary 8` | 7,464,503/7,464,503 passed |
 | `just gate decimal 8` | 15,763/15,763 passed |
 | `just gate decimal_gda 8` | 64,986/64,986 and 16,124/16,124 passed |

@@ -164,7 +164,7 @@ test "certified floor of 1/3" {
 
 ## Going further
 
-- `bin_float`, `decimal`, `decimal_gda` and `ball_float` create their
+- `bin_float`, `decimal`, `decimal_gda` and `interval` create their
   refinement budgets at the target precision plus a guard margin and report
   `certified_failure` when the budget runs out; see the
   [bin_float design](../design/bin_float.md) for the certified elementary

@@ -21,12 +21,12 @@ import {
   "Luna-Flow/floating-tools/semantic",
   "Luna-Flow/floating/bin_float",
   "Luna-Flow/floating/decimal",
-  "Luna-Flow/floating/ball_float",
+  "Luna-Flow/floating/interval",
 }
 ```
 
 The examples call the package as `@semantic.`, the representations as
-`@bin_float.`, `@decimal.` and `@ball_float.`, and `Sign` as `@def.Sign`. They
+`@bin_float.`, `@decimal.` and `@interval.`, and `Sign` as `@def.Sign`. They
 assume this helper, which prints a semantic scalar as `numerator/denominator`:
 
 ```moonbit
@@ -212,12 +212,12 @@ The fields are public and read-only outside the package. The type does not
 check that `lower` does not exceed `upper`; the projection below uses the
 reversed pair $(+\infty, -\infty)$ for the empty set.
 
-### `SemanticInterval::from_ball_float`
+### `SemanticInterval::from_interval`
 
-`from_ball_float(x)` projects the two endpoints of a `BallFloat`.
+`from_interval(x)` projects the two endpoints of an `Interval`.
 
 ```mbti
-pub fn SemanticInterval::from_ball_float(@ball_float.BallFloat) -> Self
+pub fn SemanticInterval::from_interval(@interval.Interval) -> Self
 ```
 
 `lower` is `from_bin_float(x.lower_bound())` and `upper` is
@@ -225,25 +225,25 @@ pub fn SemanticInterval::from_ball_float(@ball_float.BallFloat) -> Self
 endpoints, an unbounded side gives `Infinity`, the entire line gives
 $(-\infty, +\infty)$, and the empty interval gives
 $(\texttt{Infinity(Positive)}, \texttt{Infinity(Negative)})$. Precision is
-dropped. The function takes an undecorated `BallFloat`; for a
-`BallFloatDecorated`, project its interval and keep the decoration yourself.
+dropped. The function takes an undecorated `Interval`; for a
+`DecoratedInterval`, project its interval and keep the decoration yourself.
 
 ```moonbit
 ///|
 test "project intervals" {
-  let x = @semantic.SemanticInterval::from_ball_float(
-    @ball_float.BallFloat::from_bounds(
+  let x = @semantic.SemanticInterval::from_interval(
+    @interval.Interval::from_bounds(
       @bin_float.BinFloat::from_int(1),
       @bin_float.BinFloat::from_double(2.5),
     ),
   )
   inspect(show(x.lower) + " .. " + show(x.upper), content="1/1 .. 5/2")
-  let whole = @semantic.SemanticInterval::from_ball_float(
-    @ball_float.BallFloat::entire(),
+  let whole = @semantic.SemanticInterval::from_interval(
+    @interval.Interval::entire(),
   )
   inspect(show(whole.lower) + " .. " + show(whole.upper), content="-inf .. +inf")
-  let empty = @semantic.SemanticInterval::from_ball_float(
-    @ball_float.BallFloat::empty(),
+  let empty = @semantic.SemanticInterval::from_interval(
+    @interval.Interval::empty(),
   )
   inspect(show(empty.lower) + " .. " + show(empty.upper), content="+inf .. -inf")
 }
@@ -381,10 +381,10 @@ package "Luna-Flow/floating-tools/semantic"
 
 import {
   "Luna-Flow/arithmetic",
-  "Luna-Flow/floating/ball_float",
   "Luna-Flow/floating/bin_float",
   "Luna-Flow/floating/decimal",
   "Luna-Flow/floating/def",
+  "Luna-Flow/floating/interval",
   "moonbitlang/core/bigint",
 }
 
@@ -427,7 +427,7 @@ pub struct SemanticInterval {
   upper : SemanticScalar
 }
 pub fn SemanticInterval::equal(Self, Self) -> Bool
-pub fn SemanticInterval::from_ball_float(@ball_float.BallFloat) -> Self
+pub fn SemanticInterval::from_interval(@interval.Interval) -> Self
 pub fn SemanticInterval::not_equal(Self, Self) -> Bool
 
 #derive(Eq)

@@ -16,7 +16,7 @@ keywords = [
   "ieee-754",
 ]
 
-description = "Arbitrary-precision binary, decimal, and ball arithmetic for MoonBit, with checked operations and explicit numeric semantics."
+description = "Arbitrary-precision binary, decimal, and interval arithmetic for MoonBit, with checked operations and explicit numeric semantics."
 
 import {
   "Luna-Flow/arithmetic@0.5.2",

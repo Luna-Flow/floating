@@ -3,245 +3,245 @@
 # E, S, B, A, none) or ? (not listed individually by the audits: A, B or S by the audits' totals, not known per block).
 # Taken from audit-oracles-bin.md, audit-oracles-decimal.md and audit-oracles-ball-tooling.md by matching file and
 # test name; a block with several grades has its weakest. The list can only shrink (tools/check_test_oracles.py).
-library/src/ball_float/algebraic_reverse_wbtest.mbt::abs_rev and cosh_rev	?
-library/src/ball_float/algebraic_reverse_wbtest.mbt::decorated reverse functions are trivially decorated (11.7.1)	?
-library/src/ball_float/algebraic_reverse_wbtest.mbt::pown_rev: negative powers exclude 0 and the unattained limit is open	?
-library/src/ball_float/algebraic_reverse_wbtest.mbt::pown_rev: p = 0, 1, even and odd positive powers	?
-library/src/ball_float/algebraic_reverse_wbtest.mbt::sqr_rev rounds the root outward	?
-library/src/ball_float/algebraic_reverse_wbtest.mbt::sqr_rev: the examples of IEEE 1788-2015 10.5.4	?
-library/src/ball_float/atan2_reverse_reference_wbtest.mbt::atan2 reverse reference fallback: the cap at 0 and at 1 never misses a point	?
-library/src/ball_float/atan2_reverse_reference_wbtest.mbt::atan2 reverse reference long: against the forward atan2 at 200 bits	?
-library/src/ball_float/atan2_reverse_reference_wbtest.mbt::atan2 reverse reference sample: against the forward atan2 at 200 bits	?
-library/src/ball_float/atan2_reverse_wbtest.mbt::atan2 zones: the position of an angle against the multiples of pi/2, exactly	?
-library/src/ball_float/atan2_reverse_wbtest.mbt::atan2: the branch cut and the half-open range	?
-library/src/ball_float/atan2_reverse_wbtest.mbt::atan2_rev1 and atan2_rev2: an angle one float from pi/2 or pi gives a huge result	?
-library/src/ball_float/atan2_reverse_wbtest.mbt::atan2_rev1 and atan2_rev2: c = Entire, and Entire operands with a thin c	?
-library/src/ball_float/atan2_reverse_wbtest.mbt::atan2_rev1 and atan2_rev2: decorated forms are trv and NaI propagates	?
-library/src/ball_float/atan2_reverse_wbtest.mbt::atan2_rev1 and atan2_rev2: extreme operands return at once	?
-library/src/ball_float/atan2_reverse_wbtest.mbt::atan2_rev1: the empty set	?
-library/src/ball_float/atan2_reverse_wbtest.mbt::atan2_rev2: the empty set	?
-library/src/ball_float/atan2_tiny_quotient_wbtest.mbt::try_atan2 of a quotient below the exponent range encloses zero tightly	?
-library/src/ball_float/atan2_wbtest.mbt::atan2 identifies signed zero endpoints with the real interval zero	?
-library/src/ball_float/atan2_wbtest.mbt::certified atan2 handles axes and branch cut	?
-library/src/ball_float/atan2_wbtest.mbt::decorated atan2 downgrades an upper-side branch-cut touch	?
-library/src/ball_float/ball_float_decorated_wbtest.mbt::ITF1788 minimal decorated set operations	?
-library/src/ball_float/ball_float_decorated_wbtest.mbt::decorated NaI propagates and empty canonicalizes	?
-library/src/ball_float/ball_float_decorated_wbtest.mbt::decorated NaI propagates through unary binary and ternary operations	?
-library/src/ball_float/ball_float_decorated_wbtest.mbt::decorated arithmetic applies operand and operation grades	?
-library/src/ball_float/ball_float_decorated_wbtest.mbt::decorated context rounding preserves grade and accumulates flags	?
-library/src/ball_float/ball_float_decorated_wbtest.mbt::decorated power and trigonometric functions preserve IEEE domain grades	?
-library/src/ball_float/ball_float_decorated_wbtest.mbt::decorated rootn with a negative degree over 0 is trv	?
-library/src/ball_float/ball_float_decorated_wbtest.mbt::decorated tanpi with a pole at an endpoint is trv	?
-library/src/ball_float/ball_float_decorated_wbtest.mbt::decorated unary domains downgrade without losing enclosures	?
-library/src/ball_float/ball_float_decorated_wbtest.mbt::decorations compare in the propagation order	?
-library/src/ball_float/bound_label_wbtest.mbt::labels of the bounds: every operation, long	?
-library/src/ball_float/bound_label_wbtest.mbt::labels of the bounds: every operation, sample	?
-library/src/ball_float/bound_label_wbtest.mbt::labels of the bounds: written-out cases	?
-library/src/ball_float/cancel_bottom_wbtest.mbt::away from the bottom of the range the result is the same as before	?
-library/src/ball_float/cancel_bottom_wbtest.mbt::cancel_plus and cancel_minus at the bottom of the range: the cases of the issue	?
-library/src/ball_float/cancel_bottom_wbtest.mbt::cancel_plus and cancel_minus decide on the exact values near the bottom of the range	?
-library/src/ball_float/cancel_bottom_wbtest.mbt::cancel_plus and cancel_minus: the special cases of IEEE 1788-2015 12.12.5	?
-library/src/ball_float/cancel_bottom_wbtest.mbt::equal widths give a point, with a canonical zero	?
-library/src/ball_float/cancel_far_width_wbtest.mbt::a point minus an interval of a tiny positive width is Entire	?
-library/src/ball_float/cancel_far_width_wbtest.mbt::the far addend does not decide the width of a wide interval	?
-library/src/ball_float/center_radius_containment_wbtest.mbt::balls built near the bottom of the range contain their centers	?
-library/src/ball_float/center_radius_containment_wbtest.mbt::the ball of a center near the bottom of the range contains the center	?
-library/src/ball_float/certified_rounding_wbtest.mbt::decorated log1p uses its shifted IEEE domain	?
-library/src/ball_float/certified_rounding_wbtest.mbt::expm1 and log1p preserve certified containment	?
-library/src/ball_float/constructor_inclusion_wbtest.mbt::BallFloat::from_coefficient contains coefficients wider than the precision	?
-library/src/ball_float/constructor_inclusion_wbtest.mbt::BallFloat::from_int contains integers wider than the precision	?
-library/src/ball_float/constructor_inclusion_wbtest.mbt::BallFloat::from_int stays exact when the precision is wide enough	?
-library/src/ball_float/context_format_wbtest.mbt::BallContext is a binary format of IEEE 754-2019 3.3 with e_min = 1 - e_max	?
-library/src/ball_float/context_format_wbtest.mbt::BallContext presets are the interchange formats	?
-library/src/ball_float/context_format_wbtest.mbt::BallContext::try_new rejects what no format has	?
-library/src/ball_float/context_format_wbtest.mbt::interval constructors report a precision outside 1..binary_precision_max	?
-library/src/ball_float/context_format_wbtest.mbt::panic BallContext::new aborts on a precision beyond the limit	?
-library/src/ball_float/context_format_wbtest.mbt::panic BallContext::with_precision aborts on an illegal precision	?
-library/src/ball_float/context_format_wbtest.mbt::panic BallFloat::empty aborts on a negative precision	?
-library/src/ball_float/context_format_wbtest.mbt::panic BallFloat::from_bounds aborts on precision 0	?
-library/src/ball_float/context_format_wbtest.mbt::panic BallFloat::with_precision aborts on precision 0	?
-library/src/ball_float/context_format_wbtest.mbt::try_new rejects a precision outside 1..=binary_precision_max	?
-library/src/ball_float/context_rounding_wbtest.mbt::apply_ctx does not raise underflow for exact tiny endpoints	?
-library/src/ball_float/context_rounding_wbtest.mbt::apply_ctx raises underflow for a tiny inexact endpoint	?
-library/src/ball_float/context_rounding_wbtest.mbt::midpoint_ctx applies e_max	?
-library/src/ball_float/context_rounding_wbtest.mbt::midpoint_ctx follows the IEEE 1788 mid cases	?
-library/src/ball_float/context_rounding_wbtest.mbt::midpoint_ctx keeps exact and normal centers	?
-library/src/ball_float/context_rounding_wbtest.mbt::midpoint_ctx rounds to nearest once	?
-library/src/ball_float/decorated_ill_issue443_wbtest.mbt::new with the decoration ill returns NaI (#443)	?
-library/src/ball_float/decorated_ill_issue443_wbtest.mbt::the other forbidden combinations of 11.5.2 are repaired (#443)	?
-library/src/ball_float/directed_bounds_wbtest.mbt::directed bounds at the two ends of the exponent range	?
-library/src/ball_float/directed_bounds_wbtest.mbt::directed endpoint sums, differences and products equal the exact route	?
-library/src/ball_float/directed_bounds_wbtest.mbt::gradual underflow of a short exact result keeps the correctly rounded bound	?
-library/src/ball_float/directed_bounds_wbtest.mbt::overflow of a short exact result keeps the correctly rounded bound	?
-library/src/ball_float/elementary_composed_wbtest.mbt::decorated composed functions lower partial domains	?
-library/src/ball_float/elementary_composed_wbtest.mbt::hyperbolic family preserves zero and domain hulls	?
-library/src/ball_float/elementary_composed_wbtest.mbt::pi-scaled extensions contain exact axis values	?
-library/src/ball_float/elementary_composed_wbtest.mbt::pi-scaled intervals classify endpoint and interior poles exactly	?
-library/src/ball_float/elementary_composed_wbtest.mbt::rootn and hypot preserve exact identities	?
-library/src/ball_float/elementary_composed_wbtest.mbt::stable expm1 and log1p intervals retain tiny singleton inputs	?
-library/src/ball_float/elementary_point_pair_wbtest.mbt::exp and ln of a point ball equal the two-call route	?
-library/src/ball_float/elementary_range_wbtest.mbt::asinh and atanh of a tiny argument terminate	?
-library/src/ball_float/elementary_range_wbtest.mbt::exp2 encloses integer endpoints beyond the exponent range	?
-library/src/ball_float/elementary_range_wbtest.mbt::ln of a value just above 1 at high precision terminates	?
-library/src/ball_float/endpoint_rounding_wbtest.mbt::convex_hull with Empty is the other operand	?
-library/src/ball_float/endpoint_rounding_wbtest.mbt::normalized keeps the interval	?
-library/src/ball_float/endpoint_rounding_wbtest.mbt::pow_int_checked by one keeps the interval	?
-library/src/ball_float/endpoint_rounding_wbtest.mbt::pow_nat_checked of Empty is Empty	?
-library/src/ball_float/endpoint_rounding_wbtest.mbt::with_precision at the same precision keeps the interval	?
-library/src/ball_float/endpoint_rounding_wbtest.mbt::with_precision rounds each endpoint outward	?
-library/src/ball_float/equality_wbtest.mbt::== is set equality and ignores the precision tag (IEEE 1788-2015 Table 10.3)	?
-library/src/ball_float/equality_wbtest.mbt::== on decorated intervals is the equal relation: NaI is never equal, decorations are ignored	A
-library/src/ball_float/equality_wbtest.mbt::from_int and from_coefficient default to 53 bits	A
-library/src/ball_float/exp_overflow_edge_wbtest.mbt::exp of an interval across the overflow threshold keeps the lower end	?
-library/src/ball_float/exponent_range_wbtest.mbt::interval exponentials enclose results beyond the binary exponent range	?
-library/src/ball_float/exponent_range_wbtest.mbt::interval products clamp outward at the binary exponent range	?
-library/src/ball_float/far_addend_bottom_wbtest.mbt::a far addend is aligned over a bounded number of bits, whatever its precision label	?
-library/src/ball_float/far_addend_bottom_wbtest.mbt::add of a value far below the range floor is rounded to the unit of the precision	?
-library/src/ball_float/far_addend_bottom_wbtest.mbt::add, sub and cancel with endpoints of an inflated precision stay cheap and tight	?
-library/src/ball_float/far_addend_bottom_wbtest.mbt::fma of a product above the range has the largest finite number of the precision as its lower bound	?
-library/src/ball_float/far_addend_bottom_wbtest.mbt::fma with a product far below the range floor adds one p-bit unit, not 2^e_min	?
-library/src/ball_float/far_addend_wbtest.mbt::far addends do not materialize the exponent gap	A
-library/src/ball_float/far_addend_wbtest.mbt::near addends stay exact	A
-library/src/ball_float/fma_bottom_wbtest.mbt::away from the bottom of the range fma is unchanged	?
-library/src/ball_float/fma_bottom_wbtest.mbt::fma near the bottom of the range is the tightest interval	?
-library/src/ball_float/fma_bottom_wbtest.mbt::the fma of the issue is the exact point	A
-library/src/ball_float/half_width_wbtest.mbt::away from the bottom of the range the half-width is unchanged	?
-library/src/ball_float/half_width_wbtest.mbt::the half-width is exact near the bottom of the range	?
-library/src/ball_float/half_width_wbtest.mbt::the half-width of the interval of the issue	?
-library/src/ball_float/huge_argument_trig_wbtest.mbt::sin, cos, tan of 2^70000 are tight beyond the old cutoff	?
-library/src/ball_float/ieee1788_arithmetic_wbtest.mbt::BallFlags getters and combine accumulate endpoint status	A
-library/src/ball_float/ieee1788_arithmetic_wbtest.mbt::IEEE 1788 cancellation contracts compatible widths	?
-library/src/ball_float/ieee1788_arithmetic_wbtest.mbt::IEEE 1788 division handles zero numerator and zero denominator	?
-library/src/ball_float/ieee1788_arithmetic_wbtest.mbt::IEEE 1788 division keeps one-sided zero bounds tight	?
-library/src/ball_float/ieee1788_arithmetic_wbtest.mbt::IEEE 1788 division reduces sign-definite quotients to two corners	?
-library/src/ball_float/ieee1788_arithmetic_wbtest.mbt::IEEE 1788 finite multiplication keeps sign-partition bounds	?
-library/src/ball_float/ieee1788_arithmetic_wbtest.mbt::IEEE 1788 fused multiply-add rounds only the final enclosure	?
-library/src/ball_float/ieee1788_arithmetic_wbtest.mbt::IEEE 1788 multiplication is tight for zero and unbounded intervals	?
-library/src/ball_float/ieee1788_arithmetic_wbtest.mbt::IEEE 1788 pown preserves infinity, signed zero, and Int min	?
-library/src/ball_float/ieee1788_arithmetic_wbtest.mbt::IEEE 1788 pown preserves negative-half-axis monotonicity	?
-library/src/ball_float/ieee1788_arithmetic_wbtest.mbt::IEEE 1788 pown uses directed endpoints across zero and poles	?
-library/src/ball_float/ieee1788_arithmetic_wbtest.mbt::binary context applies gradual directed underflow	?
-library/src/ball_float/ieee1788_arithmetic_wbtest.mbt::binary64 context applies directed overflow bounds	?
-library/src/ball_float/ieee1788_relations_wbtest.mbt::IEEE 1788 interior permits shared infinite endpoints	?
-library/src/ball_float/ieee1788_relations_wbtest.mbt::IEEE 1788 set relations follow endpoint definitions	?
-library/src/ball_float/integer_functions_wbtest.mbt::integer functions: bounds and decorations at each position of a jump	?
-library/src/ball_float/integer_functions_wbtest.mbt::integer functions: results are exact at a large precision and zero bounds are +0	?
-library/src/ball_float/integer_functions_wbtest.mbt::integer functions: the input decoration caps the result (min-rule), NaI and empty	?
-library/src/ball_float/integer_functions_wbtest.mbt::integer functions: unbounded boxes	?
-library/src/ball_float/interval_basics_wbtest.mbt::coeff_gcd: power-of-two shortcut equals the general gcd	?
-library/src/ball_float/interval_basics_wbtest.mbt::corner selection: atan2 matches the corner-and-axis hull	?
-library/src/ball_float/interval_basics_wbtest.mbt::corner selection: atan2 on every box of a sign-complete grid	?
-library/src/ball_float/interval_basics_wbtest.mbt::corner selection: sinpi and cospi match the four-call original	?
-library/src/ball_float/interval_basics_wbtest.mbt::interval basics: division matches the 4-division original	?
-library/src/ball_float/interval_basics_wbtest.mbt::interval basics: multiplication matches the 4/8-product original	?
-library/src/ball_float/interval_basics_wbtest.mbt::interval basics: pown matches the original powers	?
-library/src/ball_float/interval_basics_wbtest.mbt::is_common_interval terminates and classifies the shapes	none
-library/src/ball_float/interval_basics_wbtest.mbt::try_sin/cos/tan: huge arguments around the cutoff stay sound	?
-library/src/ball_float/interval_literal_wbtest.mbt::interval literals: exponents at and beyond the limits of the converters	?
-library/src/ball_float/interval_literal_wbtest.mbt::interval literals: huge exponents	?
-library/src/ball_float/interval_literal_wbtest.mbt::interval literals: rejections name the broken rule	?
-library/src/ball_float/interval_literal_wbtest.mbt::interval literals: the length limit gives Entire	?
-library/src/ball_float/interval_literal_wbtest.mbt::interval literals: the order of two bounds of different radices that is undecided	?
-library/src/ball_float/interval_literal_wbtest.mbt::interval literals: the table of the independent oracle	?
-library/src/ball_float/interval_literal_wbtest.mbt::interval literals: the vectors of Tables 9.4 and 12.1	?
-library/src/ball_float/inverse_trigonometric_wbtest.mbt::certified atan contains exact origin and odd symmetry	?
-library/src/ball_float/midpoint_margin_wbtest.mbt::midpoint_ctx of [1, 2^100000] at 200,000 bits is 2^99999 + 1/2	?
-library/src/ball_float/midpoint_margin_wbtest.mbt::midpoint_ctx sweep around the margin, long	?
-library/src/ball_float/midpoint_margin_wbtest.mbt::midpoint_ctx sweep around the margin, sample	?
-library/src/ball_float/midpoint_subnormal_wbtest.mbt::a zero endpoint with the smallest stored value	?
-library/src/ball_float/midpoint_subnormal_wbtest.mbt::far from the edges the center is the same as before	?
-library/src/ball_float/midpoint_subnormal_wbtest.mbt::the center at the precision limit is rounded once at the limit	?
-library/src/ball_float/midpoint_subnormal_wbtest.mbt::the exact center datum equals lo + hi and its half	?
-library/src/ball_float/midpoint_subnormal_wbtest.mbt::the midpoint of a ball made from a center is a member	?
-library/src/ball_float/midpoint_subnormal_wbtest.mbt::the midpoint of a seeded class near the bottom of the range is the correctly rounded midpoint	?
-library/src/ball_float/midpoint_subnormal_wbtest.mbt::the midpoint of intervals at the bottom of the range is not zero	?
-library/src/ball_float/mul_rev_wbtest.mbt::decorated mul_rev_to_pair follows 12.12.3 and mul_rev is trivially decorated (11.7.1)	?
-library/src/ball_float/mul_rev_wbtest.mbt::mul_rev: a component open at 0 is not met by a prior that only touches 0	?
-library/src/ball_float/mul_rev_wbtest.mbt::mul_rev: results enclose c /set b at a small precision	?
-library/src/ball_float/mul_rev_wbtest.mbt::mul_rev: the hull is taken of the set, which is not the intersection of the hull	?
-library/src/ball_float/mul_rev_wbtest.mbt::mul_rev_to_pair: the examples of 10.5.5	?
-library/src/ball_float/mul_rev_wbtest.mbt::mul_rev_to_pair: the two components are ordered, whichever side of zero c lies	?
-library/src/ball_float/new_endpoints_wbtest.mbt::away from the bottom of the range the endpoints are unchanged	?
-library/src/ball_float/new_endpoints_wbtest.mbt::the endpoints of BallFloat::new are the exact center minus and plus the radius	?
-library/src/ball_float/new_endpoints_wbtest.mbt::the first case of the issue	none
-library/src/ball_float/observers_wbtest.mbt::observers are total and follow 12.12.8 on Empty, Entire and half-bounded intervals	?
-library/src/ball_float/observers_wbtest.mbt::radius covers the interval around the midpoint (issue 477)	?
-library/src/ball_float/observers_wbtest.mbt::radius is the larger distance from the midpoint, rounded up, for many intervals	?
-library/src/ball_float/observers_wbtest.mbt::try_new reports an invalid center or radius	?
-library/src/ball_float/pow_reverse2_reference_wbtest.mbt::pow_rev2 reference fallback: the cap at 0 and at 1 never misses a point	?
-library/src/ball_float/pow_reverse2_reference_wbtest.mbt::pow_rev2 reference long: against the forward pow at 200 bits	?
-library/src/ball_float/pow_reverse2_reference_wbtest.mbt::pow_rev2 reference sample: against the forward pow at 200 bits	?
-library/src/ball_float/pow_reverse2_wbtest.mbt::pow_rev2 classes: a high power of a small base is decided exactly, a huge one is Unknown	?
-library/src/ball_float/pow_reverse2_wbtest.mbt::pow_rev2 classes: ln(c) / ln(a) by the multiplicative Euclidean algorithm	?
-library/src/ball_float/pow_reverse2_wbtest.mbt::pow_rev2 rational ends: comparison and directed rounding	?
-library/src/ball_float/pow_reverse2_wbtest.mbt::pow_rev2: a 63,400-bit odd part: 3^40000 against 3, and 3^50000 beyond the budget	?
-library/src/ball_float/pow_reverse2_wbtest.mbt::pow_rev2: a base one unit from 1 gives a huge quotient, enclosed and tight	?
-library/src/ball_float/pow_reverse2_wbtest.mbt::pow_rev2: bases and results at the edge of the stored range, at 53 and 113 bits	?
-library/src/ball_float/pow_reverse2_wbtest.mbt::pow_rev2: extreme bases, results and prior ends return at once	?
-library/src/ball_float/pow_reverse2_wbtest.mbt::pow_rev2: the examples of the corpus and open ends against a prior touching 0	?
-library/src/ball_float/pow_reverse2_wbtest.mbt::pow_rev2: the result keeps the precision of the operands and a decorated form is trv	?
-library/src/ball_float/pow_reverse_reference_wbtest.mbt::pow_rev1 reference fallback: the cap at 0 and at 1 never misses a point	?
-library/src/ball_float/pow_reverse_reference_wbtest.mbt::pow_rev1 reference long: against the forward pow at 200 bits	?
-library/src/ball_float/pow_reverse_reference_wbtest.mbt::pow_rev1 reference sample: against the forward pow at 200 bits	?
-library/src/ball_float/pow_reverse_wbtest.mbt::classes of c^(1/beta): dyadic, rational and not dyadic, irrational, over the budget	?
-library/src/ball_float/pow_reverse_wbtest.mbt::decorated and the unbounded forms	?
-library/src/ball_float/pow_reverse_wbtest.mbt::pow_rev1: an exact end in the subnormal range returns at once	?
-library/src/ball_float/pow_reverse_wbtest.mbt::pow_rev1: an exact subnormal end with a wide coefficient is exact	?
-library/src/ball_float/pow_reverse_wbtest.mbt::pow_rev1: ends beyond the exponent range for beta = 2^-31, 2^-35, 2^-40 return at once	?
-library/src/ball_float/pow_reverse_wbtest.mbt::pow_rev1: extreme exponents, operands and prior ends return at once	?
-library/src/ball_float/pow_reverse_wbtest.mbt::pow_rev1: the edge of the exponent range, at 53 and 113 bits	?
-library/src/ball_float/pow_reverse_wbtest.mbt::pow_rev1: the examples that fix the definition, with exact and rounded ends	?
-library/src/ball_float/pow_reverse_wbtest.mbt::pow_rev1: the open ends at 0 and at 1 against a prior that touches them	?
-library/src/ball_float/pow_reverse_wbtest.mbt::rational class: comparison and directed rounding of 2^E / D	?
-library/src/ball_float/power_trigonometric_wbtest.mbt::IEEE 1788 general power follows the nonnegative real domain	?
-library/src/ball_float/power_trigonometric_wbtest.mbt::certified sine and cosine match ITF1788 directed endpoints	?
-library/src/ball_float/power_trigonometric_wbtest.mbt::certified tangent detects poles and matches monotone branches	?
-library/src/ball_float/power_trigonometric_wbtest.mbt::general power treats negative zero as the real interval endpoint zero	?
-library/src/ball_float/power_trigonometric_wbtest.mbt::trigonometric unbounded and extreme arguments degrade conservatively	?
-library/src/ball_float/radius_width_smallest_wbtest.mbt::radius and width are the smallest numbers with their properties near the bottom of the range	?
-library/src/ball_float/radius_width_smallest_wbtest.mbt::radius and width are unchanged away from the bottom of the range	?
-library/src/ball_float/radius_width_smallest_wbtest.mbt::radius and width of the interval of the issue	?
-library/src/ball_float/total_forms_wbtest.mbt::atanh of an interval meeting the closure of the domain at one point	?
-library/src/ball_float/total_forms_wbtest.mbt::exp at 160,000 bits returns an enclosure (issue 449)	?
-library/src/ball_float/total_forms_wbtest.mbt::hyperbolic forms keep relative accuracy for a tiny argument	S
-library/src/ball_float/total_forms_wbtest.mbt::ln at 32,000 bits returns a tight enclosure (issue 449)	?
-library/src/ball_float/trig_reverse_reference_wbtest.mbt::reference fallback: with the cap at 0 and at 1 the result contains the hull	?
-library/src/ball_float/trig_reverse_reference_wbtest.mbt::reference long: cos_rev against the enumeration of every piece	?
-library/src/ball_float/trig_reverse_reference_wbtest.mbt::reference long: sin_rev against the enumeration of every piece	?
-library/src/ball_float/trig_reverse_reference_wbtest.mbt::reference long: tan_rev against the enumeration of every piece	?
-library/src/ball_float/trig_reverse_reference_wbtest.mbt::reference sample: sin_rev, cos_rev and tan_rev against the enumeration of every piece	?
-library/src/ball_float/trig_reverse_wbtest.mbt::cos_rev: the corner cases, the pieces and the shortcuts	?
-library/src/ball_float/trig_reverse_wbtest.mbt::decorated trigonometric reverse functions are trivially decorated (11.7.1)	?
-library/src/ball_float/trig_reverse_wbtest.mbt::regression: a prior end of 2^-1000000000 returns at once	?
-library/src/ball_float/trig_reverse_wbtest.mbt::regression: a prior end of 2^1000000000 returns at once	?
-library/src/ball_float/trig_reverse_wbtest.mbt::sin_rev, the corner cases of the comparison of a prior end with a piece end	?
-library/src/ball_float/trig_reverse_wbtest.mbt::sin_rev: a gap, merging pieces, the default prior and the shortcuts	?
-library/src/ball_float/trig_reverse_wbtest.mbt::sin_rev: a prior spanning very many periods needs only the pieces at its two ends	?
-library/src/ball_float/trig_reverse_wbtest.mbt::tan_rev: the corner cases, the poles and the default prior	?
-library/src/ball_float/with_precision_inclusion_wbtest.mbt::BallFloat::with_precision does not widen ordinary intervals	?
-library/src/ball_float/with_precision_inclusion_wbtest.mbt::BallFloat::with_precision encloses across the far addend margin	?
-library/src/ball_float/with_precision_inclusion_wbtest.mbt::BallFloat::with_precision keeps a far lower endpoint	?
-library/src/ball_float/with_precision_inclusion_wbtest.mbt::BallFloat::with_precision keeps degenerate intervals	?
-library/src/ball_float/with_precision_inclusion_wbtest.mbt::BallFloat::with_precision widening keeps a wide interval exact	?
-library/src/ball_float/zero_sign_wbtest.mbt::12.12.8: literals of a zero bound, the point 0, a bound rounded to zero, and decorated forms	?
-library/src/ball_float/zero_sign_wbtest.mbt::12.12.8: midpoint_ctx returns +0 for the midpoint 0 in every context	?
-library/src/ball_float/zero_sign_wbtest.mbt::12.12.8: the sign of a zero from inf, sup, mid, rad, wid, mag and mig	?
-library/src/ball_float_checked/ieee1788_bounds_wbtest.mbt::IEEE 1788 rejects infinity singleton bounds	?
-library/src/ball_float_checked/ieee1788_bounds_wbtest.mbt::checked elementary mirrors preserve domain errors	?
-library/src/ball_float_checked/ieee1788_bounds_wbtest.mbt::checked exact construction shares BallFloat validation	?
-library/src/ball_float_checked/ieee1788_bounds_wbtest.mbt::checked trigonometric mirrors preserve certification failures	?
-library/src/ball_float_checked/parity_wbtest.mbt::atan2_rev1 exists on the checked tier and agrees with the plain tier	?
-library/src/ball_float_checked/parity_wbtest.mbt::atan2_rev2 exists on the checked tier and agrees with the plain tier	?
-library/src/ball_float_checked/parity_wbtest.mbt::from_string exists on the checked tier and agrees with the plain tier	?
-library/src/ball_float_checked/parity_wbtest.mbt::mul_rev and mul_rev_to_pair exist on the checked tier and agree with the plain tier	?
-library/src/ball_float_checked/parity_wbtest.mbt::pow_rev1 exists on the checked tier and agrees with the plain tier	?
-library/src/ball_float_checked/parity_wbtest.mbt::pow_rev2 exists on the checked tier and agrees with the plain tier	?
-library/src/ball_float_checked/parity_wbtest.mbt::sin_rev, cos_rev and tan_rev exist on the checked tier and agree with the plain tier	?
-library/src/ball_float_checked/parity_wbtest.mbt::sqr_rev, abs_rev, cosh_rev and pown_rev exist on the checked tier and agree with the plain tier	?
-library/src/ball_float_checked/parity_wbtest.mbt::the integer functions of Table 9.1 exist on the checked tier and agree with the plain tier	?
-library/src/ball_float_checked/parity_wbtest.mbt::the interval operations of 1788 Table 9.1 and 10.5.6 to 10.5.7 exist on the checked tier and agree with the plain tier	?
-library/src/ball_float_checked/parity_wbtest.mbt::the new checked operations keep the first error	?
-library/src/ball_float_checked/precision_wbtest.mbt::the checked constructors return an error for a precision outside the limits	?
+library/src/interval/algebraic_reverse_wbtest.mbt::abs_rev and cosh_rev	?
+library/src/interval/algebraic_reverse_wbtest.mbt::decorated reverse functions are trivially decorated (11.7.1)	?
+library/src/interval/algebraic_reverse_wbtest.mbt::pown_rev: negative powers exclude 0 and the unattained limit is open	?
+library/src/interval/algebraic_reverse_wbtest.mbt::pown_rev: p = 0, 1, even and odd positive powers	?
+library/src/interval/algebraic_reverse_wbtest.mbt::sqr_rev rounds the root outward	?
+library/src/interval/algebraic_reverse_wbtest.mbt::sqr_rev: the examples of IEEE 1788-2015 10.5.4	?
+library/src/interval/atan2_reverse_reference_wbtest.mbt::atan2 reverse reference fallback: the cap at 0 and at 1 never misses a point	?
+library/src/interval/atan2_reverse_reference_wbtest.mbt::atan2 reverse reference long: against the forward atan2 at 200 bits	?
+library/src/interval/atan2_reverse_reference_wbtest.mbt::atan2 reverse reference sample: against the forward atan2 at 200 bits	?
+library/src/interval/atan2_reverse_wbtest.mbt::atan2 zones: the position of an angle against the multiples of pi/2, exactly	?
+library/src/interval/atan2_reverse_wbtest.mbt::atan2: the branch cut and the half-open range	?
+library/src/interval/atan2_reverse_wbtest.mbt::atan2_rev1 and atan2_rev2: an angle one float from pi/2 or pi gives a huge result	?
+library/src/interval/atan2_reverse_wbtest.mbt::atan2_rev1 and atan2_rev2: c = Entire, and Entire operands with a thin c	?
+library/src/interval/atan2_reverse_wbtest.mbt::atan2_rev1 and atan2_rev2: decorated forms are trv and NaI propagates	?
+library/src/interval/atan2_reverse_wbtest.mbt::atan2_rev1 and atan2_rev2: extreme operands return at once	?
+library/src/interval/atan2_reverse_wbtest.mbt::atan2_rev1: the empty set	?
+library/src/interval/atan2_reverse_wbtest.mbt::atan2_rev2: the empty set	?
+library/src/interval/atan2_tiny_quotient_wbtest.mbt::try_atan2 of a quotient below the exponent range encloses zero tightly	?
+library/src/interval/atan2_wbtest.mbt::atan2 identifies signed zero endpoints with the real interval zero	?
+library/src/interval/atan2_wbtest.mbt::certified atan2 handles axes and branch cut	?
+library/src/interval/atan2_wbtest.mbt::decorated atan2 downgrades an upper-side branch-cut touch	?
+library/src/interval/interval_decorated_wbtest.mbt::ITF1788 minimal decorated set operations	?
+library/src/interval/interval_decorated_wbtest.mbt::decorated NaI propagates and empty canonicalizes	?
+library/src/interval/interval_decorated_wbtest.mbt::decorated NaI propagates through unary binary and ternary operations	?
+library/src/interval/interval_decorated_wbtest.mbt::decorated arithmetic applies operand and operation grades	?
+library/src/interval/interval_decorated_wbtest.mbt::decorated context rounding preserves grade and accumulates flags	?
+library/src/interval/interval_decorated_wbtest.mbt::decorated power and trigonometric functions preserve IEEE domain grades	?
+library/src/interval/interval_decorated_wbtest.mbt::decorated rootn with a negative degree over 0 is trv	?
+library/src/interval/interval_decorated_wbtest.mbt::decorated tanpi with a pole at an endpoint is trv	?
+library/src/interval/interval_decorated_wbtest.mbt::decorated unary domains downgrade without losing enclosures	?
+library/src/interval/interval_decorated_wbtest.mbt::decorations compare in the propagation order	?
+library/src/interval/bound_label_wbtest.mbt::labels of the bounds: every operation, long	?
+library/src/interval/bound_label_wbtest.mbt::labels of the bounds: every operation, sample	?
+library/src/interval/bound_label_wbtest.mbt::labels of the bounds: written-out cases	?
+library/src/interval/cancel_bottom_wbtest.mbt::away from the bottom of the range the result is the same as before	?
+library/src/interval/cancel_bottom_wbtest.mbt::cancel_plus and cancel_minus at the bottom of the range: the cases of the issue	?
+library/src/interval/cancel_bottom_wbtest.mbt::cancel_plus and cancel_minus decide on the exact values near the bottom of the range	?
+library/src/interval/cancel_bottom_wbtest.mbt::cancel_plus and cancel_minus: the special cases of IEEE 1788-2015 12.12.5	?
+library/src/interval/cancel_bottom_wbtest.mbt::equal widths give a point, with a canonical zero	?
+library/src/interval/cancel_far_width_wbtest.mbt::a point minus an interval of a tiny positive width is Entire	?
+library/src/interval/cancel_far_width_wbtest.mbt::the far addend does not decide the width of a wide interval	?
+library/src/interval/center_radius_containment_wbtest.mbt::intervals built near the bottom of the range contain their centers	?
+library/src/interval/center_radius_containment_wbtest.mbt::the interval of a center near the bottom of the range contains the center	?
+library/src/interval/certified_rounding_wbtest.mbt::decorated log1p uses its shifted IEEE domain	?
+library/src/interval/certified_rounding_wbtest.mbt::expm1 and log1p preserve certified containment	?
+library/src/interval/constructor_inclusion_wbtest.mbt::Interval::from_coefficient contains coefficients wider than the precision	?
+library/src/interval/constructor_inclusion_wbtest.mbt::Interval::from_int contains integers wider than the precision	?
+library/src/interval/constructor_inclusion_wbtest.mbt::Interval::from_int stays exact when the precision is wide enough	?
+library/src/interval/context_format_wbtest.mbt::IntervalContext is a binary format of IEEE 754-2019 3.3 with e_min = 1 - e_max	?
+library/src/interval/context_format_wbtest.mbt::IntervalContext presets are the interchange formats	?
+library/src/interval/context_format_wbtest.mbt::IntervalContext::try_new rejects what no format has	?
+library/src/interval/context_format_wbtest.mbt::interval constructors report a precision outside 1..binary_precision_max	?
+library/src/interval/context_format_wbtest.mbt::panic IntervalContext::new aborts on a precision beyond the limit	?
+library/src/interval/context_format_wbtest.mbt::panic IntervalContext::with_precision aborts on an illegal precision	?
+library/src/interval/context_format_wbtest.mbt::panic Interval::empty aborts on a negative precision	?
+library/src/interval/context_format_wbtest.mbt::panic Interval::from_bounds aborts on precision 0	?
+library/src/interval/context_format_wbtest.mbt::panic Interval::with_precision aborts on precision 0	?
+library/src/interval/context_format_wbtest.mbt::try_new rejects a precision outside 1..=binary_precision_max	?
+library/src/interval/context_rounding_wbtest.mbt::apply_ctx does not raise underflow for exact tiny endpoints	?
+library/src/interval/context_rounding_wbtest.mbt::apply_ctx raises underflow for a tiny inexact endpoint	?
+library/src/interval/context_rounding_wbtest.mbt::midpoint_ctx applies e_max	?
+library/src/interval/context_rounding_wbtest.mbt::midpoint_ctx follows the IEEE 1788 mid cases	?
+library/src/interval/context_rounding_wbtest.mbt::midpoint_ctx keeps exact and normal centers	?
+library/src/interval/context_rounding_wbtest.mbt::midpoint_ctx rounds to nearest once	?
+library/src/interval/decorated_ill_issue443_wbtest.mbt::new with the decoration ill returns NaI (#443)	?
+library/src/interval/decorated_ill_issue443_wbtest.mbt::the other forbidden combinations of 11.5.2 are repaired (#443)	?
+library/src/interval/directed_bounds_wbtest.mbt::directed bounds at the two ends of the exponent range	?
+library/src/interval/directed_bounds_wbtest.mbt::directed endpoint sums, differences and products equal the exact route	?
+library/src/interval/directed_bounds_wbtest.mbt::gradual underflow of a short exact result keeps the correctly rounded bound	?
+library/src/interval/directed_bounds_wbtest.mbt::overflow of a short exact result keeps the correctly rounded bound	?
+library/src/interval/elementary_composed_wbtest.mbt::decorated composed functions lower partial domains	?
+library/src/interval/elementary_composed_wbtest.mbt::hyperbolic family preserves zero and domain hulls	?
+library/src/interval/elementary_composed_wbtest.mbt::pi-scaled extensions contain exact axis values	?
+library/src/interval/elementary_composed_wbtest.mbt::pi-scaled intervals classify endpoint and interior poles exactly	?
+library/src/interval/elementary_composed_wbtest.mbt::rootn and hypot preserve exact identities	?
+library/src/interval/elementary_composed_wbtest.mbt::stable expm1 and log1p intervals retain tiny singleton inputs	?
+library/src/interval/elementary_point_pair_wbtest.mbt::exp and ln of a point interval equal the two-call route	?
+library/src/interval/elementary_range_wbtest.mbt::asinh and atanh of a tiny argument terminate	?
+library/src/interval/elementary_range_wbtest.mbt::exp2 encloses integer endpoints beyond the exponent range	?
+library/src/interval/elementary_range_wbtest.mbt::ln of a value just above 1 at high precision terminates	?
+library/src/interval/endpoint_rounding_wbtest.mbt::convex_hull with Empty is the other operand	?
+library/src/interval/endpoint_rounding_wbtest.mbt::normalized keeps the interval	?
+library/src/interval/endpoint_rounding_wbtest.mbt::pow_int_checked by one keeps the interval	?
+library/src/interval/endpoint_rounding_wbtest.mbt::pow_nat_checked of Empty is Empty	?
+library/src/interval/endpoint_rounding_wbtest.mbt::with_precision at the same precision keeps the interval	?
+library/src/interval/endpoint_rounding_wbtest.mbt::with_precision rounds each endpoint outward	?
+library/src/interval/equality_wbtest.mbt::== is set equality and ignores the precision tag (IEEE 1788-2015 Table 10.3)	?
+library/src/interval/equality_wbtest.mbt::== on decorated intervals is the equal relation: NaI is never equal, decorations are ignored	A
+library/src/interval/equality_wbtest.mbt::from_int and from_coefficient default to 53 bits	A
+library/src/interval/exp_overflow_edge_wbtest.mbt::exp of an interval across the overflow threshold keeps the lower end	?
+library/src/interval/exponent_range_wbtest.mbt::interval exponentials enclose results beyond the binary exponent range	?
+library/src/interval/exponent_range_wbtest.mbt::interval products clamp outward at the binary exponent range	?
+library/src/interval/far_addend_bottom_wbtest.mbt::a far addend is aligned over a bounded number of bits, whatever its precision label	?
+library/src/interval/far_addend_bottom_wbtest.mbt::add of a value far below the range floor is rounded to the unit of the precision	?
+library/src/interval/far_addend_bottom_wbtest.mbt::add, sub and cancel with endpoints of an inflated precision stay cheap and tight	?
+library/src/interval/far_addend_bottom_wbtest.mbt::fma of a product above the range has the largest finite number of the precision as its lower bound	?
+library/src/interval/far_addend_bottom_wbtest.mbt::fma with a product far below the range floor adds one p-bit unit, not 2^e_min	?
+library/src/interval/far_addend_wbtest.mbt::far addends do not materialize the exponent gap	A
+library/src/interval/far_addend_wbtest.mbt::near addends stay exact	A
+library/src/interval/fma_bottom_wbtest.mbt::away from the bottom of the range fma is unchanged	?
+library/src/interval/fma_bottom_wbtest.mbt::fma near the bottom of the range is the tightest interval	?
+library/src/interval/fma_bottom_wbtest.mbt::the fma of the issue is the exact point	A
+library/src/interval/half_width_wbtest.mbt::away from the bottom of the range the half-width is unchanged	?
+library/src/interval/half_width_wbtest.mbt::the half-width is exact near the bottom of the range	?
+library/src/interval/half_width_wbtest.mbt::the half-width of the interval of the issue	?
+library/src/interval/huge_argument_trig_wbtest.mbt::sin, cos, tan of 2^70000 are tight beyond the old cutoff	?
+library/src/interval/ieee1788_arithmetic_wbtest.mbt::IntervalFlags getters and combine accumulate endpoint status	A
+library/src/interval/ieee1788_arithmetic_wbtest.mbt::IEEE 1788 cancellation contracts compatible widths	?
+library/src/interval/ieee1788_arithmetic_wbtest.mbt::IEEE 1788 division handles zero numerator and zero denominator	?
+library/src/interval/ieee1788_arithmetic_wbtest.mbt::IEEE 1788 division keeps one-sided zero bounds tight	?
+library/src/interval/ieee1788_arithmetic_wbtest.mbt::IEEE 1788 division reduces sign-definite quotients to two corners	?
+library/src/interval/ieee1788_arithmetic_wbtest.mbt::IEEE 1788 finite multiplication keeps sign-partition bounds	?
+library/src/interval/ieee1788_arithmetic_wbtest.mbt::IEEE 1788 fused multiply-add rounds only the final enclosure	?
+library/src/interval/ieee1788_arithmetic_wbtest.mbt::IEEE 1788 multiplication is tight for zero and unbounded intervals	?
+library/src/interval/ieee1788_arithmetic_wbtest.mbt::IEEE 1788 pown preserves infinity, signed zero, and Int min	?
+library/src/interval/ieee1788_arithmetic_wbtest.mbt::IEEE 1788 pown preserves negative-half-axis monotonicity	?
+library/src/interval/ieee1788_arithmetic_wbtest.mbt::IEEE 1788 pown uses directed endpoints across zero and poles	?
+library/src/interval/ieee1788_arithmetic_wbtest.mbt::binary context applies gradual directed underflow	?
+library/src/interval/ieee1788_arithmetic_wbtest.mbt::binary64 context applies directed overflow bounds	?
+library/src/interval/ieee1788_relations_wbtest.mbt::IEEE 1788 interior permits shared infinite endpoints	?
+library/src/interval/ieee1788_relations_wbtest.mbt::IEEE 1788 set relations follow endpoint definitions	?
+library/src/interval/integer_functions_wbtest.mbt::integer functions: bounds and decorations at each position of a jump	?
+library/src/interval/integer_functions_wbtest.mbt::integer functions: results are exact at a large precision and zero bounds are +0	?
+library/src/interval/integer_functions_wbtest.mbt::integer functions: the input decoration caps the result (min-rule), NaI and empty	?
+library/src/interval/integer_functions_wbtest.mbt::integer functions: unbounded boxes	?
+library/src/interval/interval_basics_wbtest.mbt::coeff_gcd: power-of-two shortcut equals the general gcd	?
+library/src/interval/interval_basics_wbtest.mbt::corner selection: atan2 matches the corner-and-axis hull	?
+library/src/interval/interval_basics_wbtest.mbt::corner selection: atan2 on every box of a sign-complete grid	?
+library/src/interval/interval_basics_wbtest.mbt::corner selection: sinpi and cospi match the four-call original	?
+library/src/interval/interval_basics_wbtest.mbt::interval basics: division matches the 4-division original	?
+library/src/interval/interval_basics_wbtest.mbt::interval basics: multiplication matches the 4/8-product original	?
+library/src/interval/interval_basics_wbtest.mbt::interval basics: pown matches the original powers	?
+library/src/interval/interval_basics_wbtest.mbt::is_common_interval terminates and classifies the shapes	none
+library/src/interval/interval_basics_wbtest.mbt::try_sin/cos/tan: huge arguments around the cutoff stay sound	?
+library/src/interval/interval_literal_wbtest.mbt::interval literals: exponents at and beyond the limits of the converters	?
+library/src/interval/interval_literal_wbtest.mbt::interval literals: huge exponents	?
+library/src/interval/interval_literal_wbtest.mbt::interval literals: rejections name the broken rule	?
+library/src/interval/interval_literal_wbtest.mbt::interval literals: the length limit gives Entire	?
+library/src/interval/interval_literal_wbtest.mbt::interval literals: the order of two bounds of different radices that is undecided	?
+library/src/interval/interval_literal_wbtest.mbt::interval literals: the table of the independent oracle	?
+library/src/interval/interval_literal_wbtest.mbt::interval literals: the vectors of Tables 9.4 and 12.1	?
+library/src/interval/inverse_trigonometric_wbtest.mbt::certified atan contains exact origin and odd symmetry	?
+library/src/interval/midpoint_margin_wbtest.mbt::midpoint_ctx of [1, 2^100000] at 200,000 bits is 2^99999 + 1/2	?
+library/src/interval/midpoint_margin_wbtest.mbt::midpoint_ctx sweep around the margin, long	?
+library/src/interval/midpoint_margin_wbtest.mbt::midpoint_ctx sweep around the margin, sample	?
+library/src/interval/midpoint_subnormal_wbtest.mbt::a zero endpoint with the smallest stored value	?
+library/src/interval/midpoint_subnormal_wbtest.mbt::far from the edges the center is the same as before	?
+library/src/interval/midpoint_subnormal_wbtest.mbt::the center at the precision limit is rounded once at the limit	?
+library/src/interval/midpoint_subnormal_wbtest.mbt::the exact center datum equals lo + hi and its half	?
+library/src/interval/midpoint_subnormal_wbtest.mbt::the midpoint of an interval made from a center is a member	?
+library/src/interval/midpoint_subnormal_wbtest.mbt::the midpoint of a seeded class near the bottom of the range is the correctly rounded midpoint	?
+library/src/interval/midpoint_subnormal_wbtest.mbt::the midpoint of intervals at the bottom of the range is not zero	?
+library/src/interval/mul_rev_wbtest.mbt::decorated mul_rev_to_pair follows 12.12.3 and mul_rev is trivially decorated (11.7.1)	?
+library/src/interval/mul_rev_wbtest.mbt::mul_rev: a component open at 0 is not met by a prior that only touches 0	?
+library/src/interval/mul_rev_wbtest.mbt::mul_rev: results enclose c /set b at a small precision	?
+library/src/interval/mul_rev_wbtest.mbt::mul_rev: the hull is taken of the set, which is not the intersection of the hull	?
+library/src/interval/mul_rev_wbtest.mbt::mul_rev_to_pair: the examples of 10.5.5	?
+library/src/interval/mul_rev_wbtest.mbt::mul_rev_to_pair: the two components are ordered, whichever side of zero c lies	?
+library/src/interval/new_endpoints_wbtest.mbt::away from the bottom of the range the endpoints are unchanged	?
+library/src/interval/new_endpoints_wbtest.mbt::the endpoints of Interval::new are the exact center minus and plus the radius	?
+library/src/interval/new_endpoints_wbtest.mbt::the first case of the issue	none
+library/src/interval/observers_wbtest.mbt::observers are total and follow 12.12.8 on Empty, Entire and half-bounded intervals	?
+library/src/interval/observers_wbtest.mbt::radius covers the interval around the midpoint (issue 477)	?
+library/src/interval/observers_wbtest.mbt::radius is the larger distance from the midpoint, rounded up, for many intervals	?
+library/src/interval/observers_wbtest.mbt::try_new reports an invalid center or radius	?
+library/src/interval/pow_reverse2_reference_wbtest.mbt::pow_rev2 reference fallback: the cap at 0 and at 1 never misses a point	?
+library/src/interval/pow_reverse2_reference_wbtest.mbt::pow_rev2 reference long: against the forward pow at 200 bits	?
+library/src/interval/pow_reverse2_reference_wbtest.mbt::pow_rev2 reference sample: against the forward pow at 200 bits	?
+library/src/interval/pow_reverse2_wbtest.mbt::pow_rev2 classes: a high power of a small base is decided exactly, a huge one is Unknown	?
+library/src/interval/pow_reverse2_wbtest.mbt::pow_rev2 classes: ln(c) / ln(a) by the multiplicative Euclidean algorithm	?
+library/src/interval/pow_reverse2_wbtest.mbt::pow_rev2 rational ends: comparison and directed rounding	?
+library/src/interval/pow_reverse2_wbtest.mbt::pow_rev2: a 63,400-bit odd part: 3^40000 against 3, and 3^50000 beyond the budget	?
+library/src/interval/pow_reverse2_wbtest.mbt::pow_rev2: a base one unit from 1 gives a huge quotient, enclosed and tight	?
+library/src/interval/pow_reverse2_wbtest.mbt::pow_rev2: bases and results at the edge of the stored range, at 53 and 113 bits	?
+library/src/interval/pow_reverse2_wbtest.mbt::pow_rev2: extreme bases, results and prior ends return at once	?
+library/src/interval/pow_reverse2_wbtest.mbt::pow_rev2: the examples of the corpus and open ends against a prior touching 0	?
+library/src/interval/pow_reverse2_wbtest.mbt::pow_rev2: the result keeps the precision of the operands and a decorated form is trv	?
+library/src/interval/pow_reverse_reference_wbtest.mbt::pow_rev1 reference fallback: the cap at 0 and at 1 never misses a point	?
+library/src/interval/pow_reverse_reference_wbtest.mbt::pow_rev1 reference long: against the forward pow at 200 bits	?
+library/src/interval/pow_reverse_reference_wbtest.mbt::pow_rev1 reference sample: against the forward pow at 200 bits	?
+library/src/interval/pow_reverse_wbtest.mbt::classes of c^(1/beta): dyadic, rational and not dyadic, irrational, over the budget	?
+library/src/interval/pow_reverse_wbtest.mbt::decorated and the unbounded forms	?
+library/src/interval/pow_reverse_wbtest.mbt::pow_rev1: an exact end in the subnormal range returns at once	?
+library/src/interval/pow_reverse_wbtest.mbt::pow_rev1: an exact subnormal end with a wide coefficient is exact	?
+library/src/interval/pow_reverse_wbtest.mbt::pow_rev1: ends beyond the exponent range for beta = 2^-31, 2^-35, 2^-40 return at once	?
+library/src/interval/pow_reverse_wbtest.mbt::pow_rev1: extreme exponents, operands and prior ends return at once	?
+library/src/interval/pow_reverse_wbtest.mbt::pow_rev1: the edge of the exponent range, at 53 and 113 bits	?
+library/src/interval/pow_reverse_wbtest.mbt::pow_rev1: the examples that fix the definition, with exact and rounded ends	?
+library/src/interval/pow_reverse_wbtest.mbt::pow_rev1: the open ends at 0 and at 1 against a prior that touches them	?
+library/src/interval/pow_reverse_wbtest.mbt::rational class: comparison and directed rounding of 2^E / D	?
+library/src/interval/power_trigonometric_wbtest.mbt::IEEE 1788 general power follows the nonnegative real domain	?
+library/src/interval/power_trigonometric_wbtest.mbt::certified sine and cosine match ITF1788 directed endpoints	?
+library/src/interval/power_trigonometric_wbtest.mbt::certified tangent detects poles and matches monotone branches	?
+library/src/interval/power_trigonometric_wbtest.mbt::general power treats negative zero as the real interval endpoint zero	?
+library/src/interval/power_trigonometric_wbtest.mbt::trigonometric unbounded and extreme arguments degrade conservatively	?
+library/src/interval/radius_width_smallest_wbtest.mbt::radius and width are the smallest numbers with their properties near the bottom of the range	?
+library/src/interval/radius_width_smallest_wbtest.mbt::radius and width are unchanged away from the bottom of the range	?
+library/src/interval/radius_width_smallest_wbtest.mbt::radius and width of the interval of the issue	?
+library/src/interval/total_forms_wbtest.mbt::atanh of an interval meeting the closure of the domain at one point	?
+library/src/interval/total_forms_wbtest.mbt::exp at 160,000 bits returns an enclosure (issue 449)	?
+library/src/interval/total_forms_wbtest.mbt::hyperbolic forms keep relative accuracy for a tiny argument	S
+library/src/interval/total_forms_wbtest.mbt::ln at 32,000 bits returns a tight enclosure (issue 449)	?
+library/src/interval/trig_reverse_reference_wbtest.mbt::reference fallback: with the cap at 0 and at 1 the result contains the hull	?
+library/src/interval/trig_reverse_reference_wbtest.mbt::reference long: cos_rev against the enumeration of every piece	?
+library/src/interval/trig_reverse_reference_wbtest.mbt::reference long: sin_rev against the enumeration of every piece	?
+library/src/interval/trig_reverse_reference_wbtest.mbt::reference long: tan_rev against the enumeration of every piece	?
+library/src/interval/trig_reverse_reference_wbtest.mbt::reference sample: sin_rev, cos_rev and tan_rev against the enumeration of every piece	?
+library/src/interval/trig_reverse_wbtest.mbt::cos_rev: the corner cases, the pieces and the shortcuts	?
+library/src/interval/trig_reverse_wbtest.mbt::decorated trigonometric reverse functions are trivially decorated (11.7.1)	?
+library/src/interval/trig_reverse_wbtest.mbt::regression: a prior end of 2^-1000000000 returns at once	?
+library/src/interval/trig_reverse_wbtest.mbt::regression: a prior end of 2^1000000000 returns at once	?
+library/src/interval/trig_reverse_wbtest.mbt::sin_rev, the corner cases of the comparison of a prior end with a piece end	?
+library/src/interval/trig_reverse_wbtest.mbt::sin_rev: a gap, merging pieces, the default prior and the shortcuts	?
+library/src/interval/trig_reverse_wbtest.mbt::sin_rev: a prior spanning very many periods needs only the pieces at its two ends	?
+library/src/interval/trig_reverse_wbtest.mbt::tan_rev: the corner cases, the poles and the default prior	?
+library/src/interval/with_precision_inclusion_wbtest.mbt::Interval::with_precision does not widen ordinary intervals	?
+library/src/interval/with_precision_inclusion_wbtest.mbt::Interval::with_precision encloses across the far addend margin	?
+library/src/interval/with_precision_inclusion_wbtest.mbt::Interval::with_precision keeps a far lower endpoint	?
+library/src/interval/with_precision_inclusion_wbtest.mbt::Interval::with_precision keeps degenerate intervals	?
+library/src/interval/with_precision_inclusion_wbtest.mbt::Interval::with_precision widening keeps a wide interval exact	?
+library/src/interval/zero_sign_wbtest.mbt::12.12.8: literals of a zero bound, the point 0, a bound rounded to zero, and decorated forms	?
+library/src/interval/zero_sign_wbtest.mbt::12.12.8: midpoint_ctx returns +0 for the midpoint 0 in every context	?
+library/src/interval/zero_sign_wbtest.mbt::12.12.8: the sign of a zero from inf, sup, mid, rad, wid, mag and mig	?
+library/src/interval_checked/ieee1788_bounds_wbtest.mbt::IEEE 1788 rejects infinity singleton bounds	?
+library/src/interval_checked/ieee1788_bounds_wbtest.mbt::checked elementary mirrors preserve domain errors	?
+library/src/interval_checked/ieee1788_bounds_wbtest.mbt::checked exact construction shares Interval validation	?
+library/src/interval_checked/ieee1788_bounds_wbtest.mbt::checked trigonometric mirrors preserve certification failures	?
+library/src/interval_checked/parity_wbtest.mbt::atan2_rev1 exists on the checked tier and agrees with the plain tier	?
+library/src/interval_checked/parity_wbtest.mbt::atan2_rev2 exists on the checked tier and agrees with the plain tier	?
+library/src/interval_checked/parity_wbtest.mbt::from_string exists on the checked tier and agrees with the plain tier	?
+library/src/interval_checked/parity_wbtest.mbt::mul_rev and mul_rev_to_pair exist on the checked tier and agree with the plain tier	?
+library/src/interval_checked/parity_wbtest.mbt::pow_rev1 exists on the checked tier and agrees with the plain tier	?
+library/src/interval_checked/parity_wbtest.mbt::pow_rev2 exists on the checked tier and agrees with the plain tier	?
+library/src/interval_checked/parity_wbtest.mbt::sin_rev, cos_rev and tan_rev exist on the checked tier and agree with the plain tier	?
+library/src/interval_checked/parity_wbtest.mbt::sqr_rev, abs_rev, cosh_rev and pown_rev exist on the checked tier and agree with the plain tier	?
+library/src/interval_checked/parity_wbtest.mbt::the integer functions of Table 9.1 exist on the checked tier and agree with the plain tier	?
+library/src/interval_checked/parity_wbtest.mbt::the interval operations of 1788 Table 9.1 and 10.5.6 to 10.5.7 exist on the checked tier and agree with the plain tier	?
+library/src/interval_checked/parity_wbtest.mbt::the new checked operations keep the first error	?
+library/src/interval_checked/precision_wbtest.mbt::the checked constructors return an error for a precision outside the limits	?
 library/src/bin_float/atan2_tiny_quotient_wbtest.mbt::atan2 across the shortcut boundary agrees with atan of the quotient	C
 library/src/bin_float/atan2_tiny_quotient_wbtest.mbt::atan2 of a quotient below the implementation range rounds like the quotient	B
 library/src/bin_float/atan_fixed_leaf_wbtest.mbt::fixed-point atan leaf at the tiny-argument threshold, both sides	E
@@ -1511,8 +1511,8 @@ tooling/src/bench/analysis_test.mbt::paired hotspot reports a 95 percent interva
 tooling/src/bench/analysis_test.mbt::tune decision counts only the samples behind the median	A
 tooling/src/bench/analysis_test.mbt::tune_dataset breaks practical ties by interquartile range	A
 tooling/src/bench/analysis_test.mbt::tune_dataset ties on median and spread resolve by candidate id	A
-tooling/src/bench/ball_float/arithmetic_async_test.mbt::ball kernel core and full paths	?
-tooling/src/bench/ball_float/arithmetic_test.mbt::ball benchmark plans compile	S
+tooling/src/bench/interval/arithmetic_async_test.mbt::interval kernel core and full paths	?
+tooling/src/bench/interval/arithmetic_test.mbt::interval benchmark plans compile	S
 tooling/src/bench/bin_float/arithmetic_async_test.mbt::binary kernel core and full paths	?
 tooling/src/bench/bin_float/arithmetic_test.mbt::binary benchmark plans compile	none
 tooling/src/bench/bin_float/elementary_async_test.mbt::binary elementary core and full paths	C
@@ -1553,23 +1553,23 @@ tooling/src/consistency/api_audit_wbtest.mbt::decimal interchange facade sign tr
 tooling/src/consistency/api_audit_wbtest.mbt::decimal interchange scalar encode preserves finite flags across formats	?
 tooling/src/consistency/api_audit_wbtest.mbt::decimal32 finite sign transforms stay aligned with direct interchange decode	?
 tooling/src/consistency/api_audit_wbtest.mbt::def predicates classify finite and nan consistently	?
-tooling/src/consistency/api_audit_wbtest.mbt::semantic interval interpretation preserves ball bounds	?
+tooling/src/consistency/api_audit_wbtest.mbt::semantic interval interpretation preserves interval bounds	?
 tooling/src/consistency/api_audit_wbtest.mbt::semantic result interpretation totalizes checked failures	?
 tooling/src/consistency/api_audit_wbtest.mbt::semantic scalar interpretation unifies binary and decimal rationals	?
 tooling/src/consistency/clamp_fold_agreement_wbtest.mbt::decimal and decimal_gda agree on a zero quantize	?
 tooling/src/consistency/context_vectors_wbtest.mbt::the library constructors agree with testdata/context_vectors.txt	?
-tooling/src/consistency/core_wbtest.mbt::BallFloat signed powers handle Int minimum	?
+tooling/src/consistency/core_wbtest.mbt::Interval signed powers handle Int minimum	?
 tooling/src/consistency/core_wbtest.mbt::IEEE decimal division preserves first nan payload and signals snans	?
 tooling/src/consistency/core_wbtest.mbt::IEEE decimal fma preserves first nan payload and signals snans	?
 tooling/src/consistency/core_wbtest.mbt::IEEE decimal scaleb preserves first nan payload	?
-tooling/src/consistency/core_wbtest.mbt::ball_float arithmetic keeps exact scalar results enclosed	?
-tooling/src/consistency/core_wbtest.mbt::ball_float constructors accept coefficient and float family inputs	?
-tooling/src/consistency/core_wbtest.mbt::ball_float division by a divisor containing zero returns whole real enclosure	?
-tooling/src/consistency/core_wbtest.mbt::ball_float enclosure relations stay partial-order based	?
-tooling/src/consistency/core_wbtest.mbt::ball_float exact containment works	?
-tooling/src/consistency/core_wbtest.mbt::ball_float implements checked enclosure-preserving power and division	?
-tooling/src/consistency/core_wbtest.mbt::ball_float radius rounds outward at lower precision	?
-tooling/src/consistency/core_wbtest.mbt::ball_float_checked keeps interval operations in one result category	?
+tooling/src/consistency/core_wbtest.mbt::interval arithmetic keeps exact scalar results enclosed	?
+tooling/src/consistency/core_wbtest.mbt::interval constructors accept coefficient and float family inputs	?
+tooling/src/consistency/core_wbtest.mbt::interval division by a divisor containing zero returns whole real enclosure	?
+tooling/src/consistency/core_wbtest.mbt::interval enclosure relations stay partial-order based	?
+tooling/src/consistency/core_wbtest.mbt::interval exact containment works	?
+tooling/src/consistency/core_wbtest.mbt::interval implements checked enclosure-preserving power and division	?
+tooling/src/consistency/core_wbtest.mbt::interval radius rounds outward at lower precision	?
+tooling/src/consistency/core_wbtest.mbt::interval_checked keeps interval operations in one result category	?
 tooling/src/consistency/core_wbtest.mbt::bin_float basic arithmetic stays exact on small dyadics	?
 tooling/src/consistency/core_wbtest.mbt::bin_float checked division reports division by zero	?
 tooling/src/consistency/core_wbtest.mbt::bin_float coefficient constructor normalizes canonical dyadics	?
@@ -1707,10 +1707,10 @@ tooling/src/consistency/core_wbtest.mbt::plain decimal arithmetic preserves nan 
 tooling/src/consistency/core_wbtest.mbt::plain decimal minmax follows IEEE operand-order nan propagation	?
 tooling/src/consistency/core_wbtest.mbt::scalar decimal canonical predicate ignores non-canonical interchange encodings	?
 tooling/src/consistency/to_bin_float_exponent_issue468_wbtest.mbt::issue 468: decimal_gda to_bin_float agrees with decimal at large exponents	?
-tooling/src/differential/ball_mpfr/ball_mpfr_async_test.mbt::ball_float against the MPFR oracle: tightest results, directed roundings	?
-tooling/src/differential/ball_mpfr/ball_mpfr_async_test.mbt::bound_verdict: enclosing, equal, a little wider, too wide, zero and infinite bounds	?
-tooling/src/differential/ball_mpfr/ball_mpfr_async_test.mbt::identify_zeros: -0 is 0 in the echo of the operands, nothing else changes	?
-tooling/src/differential/ball_mpfr/canonical_test.mbt::canonical_bound: the texts tools/mpfr_ours.h prints	?
+tooling/src/differential/interval_mpfr/interval_mpfr_async_test.mbt::interval against the MPFR oracle: tightest results, directed roundings	?
+tooling/src/differential/interval_mpfr/interval_mpfr_async_test.mbt::bound_verdict: enclosing, equal, a little wider, too wide, zero and infinite bounds	?
+tooling/src/differential/interval_mpfr/interval_mpfr_async_test.mbt::identify_zeros: -0 is 0 in the echo of the operands, nothing else changes	?
+tooling/src/differential/interval_mpfr/canonical_test.mbt::canonical_bound: the texts tools/mpfr_ours.h prints	?
 tooling/src/differential/harness/differential_wbtest.mbt::a binary corpus splits into batches and runs every case	?
 tooling/src/differential/harness/differential_wbtest.mbt::a decTest corpus keeps each row with its own context	?
 tooling/src/differential/harness/differential_wbtest.mbt::a non-corpus file and a bad batch size are rejected	?

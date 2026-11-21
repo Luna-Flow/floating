@@ -15,7 +15,7 @@ listed in the [API reference](../api/semantic.md).
 | see the exact rational behind a float | [`ExactRational::numerator`, `denominator`](#see-the-exact-value-of-a-float) |
 | ignore cohorts, precision and signed zeros | [the projection](#ignore-cohorts-precision-and-signed-zeros) |
 | order two values exactly | [cross-multiplication](#order-two-values-exactly) |
-| check that an interval encloses a decimal | [`SemanticInterval::from_ball_float`](#check-that-an-interval-encloses-a-decimal) |
+| check that an interval encloses a decimal | [`SemanticInterval::from_interval`](#check-that-an-interval-encloses-a-decimal) |
 | compare errors of different packages | [`semantic_scalar_result`](#compare-checked-results-across-packages) |
 | cross-check two implementations | [`SemanticResult`](#cross-check-two-implementations) |
 
@@ -131,7 +131,7 @@ test "binary 0.1 lies above one tenth" {
 
 ### Check that an interval encloses a decimal
 
-`SemanticInterval::from_ball_float` exposes the exact endpoints of a ball. With
+`SemanticInterval::from_interval` exposes the exact endpoints of an interval. With
 the comparison above you can check an enclosure against a decimal reference
 value without any rounding:
 
@@ -152,15 +152,15 @@ fn encloses(x : @semantic.SemanticInterval, q : @semantic.ExactRational) -> Bool
 }
 
 ///|
-test "a ball for one tenth" {
-  let ball = @ball_float.BallFloat::from_bounds(
+test "an interval for one tenth" {
+  let interval = @interval.Interval::from_bounds(
     @bin_float.BinFloat::from_double(0.09375),
     @bin_float.BinFloat::from_double(0.125),
   )
-  let projected = @semantic.SemanticInterval::from_ball_float(ball)
+  let projected = @semantic.SemanticInterval::from_interval(interval)
   inspect(encloses(projected, @semantic.ExactRational::new(1N, 10N)), content="true")
   inspect(encloses(projected, @semantic.ExactRational::new(1N, 5N)), content="false")
-  let empty = @semantic.SemanticInterval::from_ball_float(@ball_float.BallFloat::empty())
+  let empty = @semantic.SemanticInterval::from_interval(@interval.Interval::empty())
   inspect(encloses(empty, @semantic.ExactRational::new(0N, 1N)), content="false")
 }
 ```
@@ -245,5 +245,5 @@ test "binary and decimal agree on exact square roots" {
   canonical form and the interval model.
 - [`semantic` API](../api/semantic.md): every item with its signature.
 - [`def` tutorial](def.md) for the shared vocabulary (`Sign`, `Floating`).
-- [`ball_float` tutorial](ball_float.md) for computing the enclosures you
+- [`interval` tutorial](interval.md) for computing the enclosures you
   project.

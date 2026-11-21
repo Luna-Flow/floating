@@ -1,0 +1,108 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Luna-Flow/floating/interval_checked"
+
+import {
+  "Luna-Flow/arithmetic",
+  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/interval",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct IntervalResult {
+  // private fields
+}
+pub fn IntervalResult::abs(Self) -> Self
+pub fn IntervalResult::abs_rev(Self, x? : Self) -> Self
+pub fn IntervalResult::acos(Self) -> Self
+pub fn IntervalResult::acosh(Self) -> Self
+pub fn IntervalResult::add(Self, Self) -> Self
+pub fn IntervalResult::asin(Self) -> Self
+pub fn IntervalResult::asinh(Self) -> Self
+pub fn IntervalResult::atan(Self) -> Self
+pub fn IntervalResult::atan2(Self, Self) -> Self
+pub fn IntervalResult::atan2_rev1(Self, Self, x? : Self) -> Self
+pub fn IntervalResult::atan2_rev2(Self, Self, x? : Self) -> Self
+pub fn IntervalResult::atanh(Self) -> Self
+pub fn IntervalResult::bind(Self, (@interval.Interval) -> Self) -> Self
+pub fn IntervalResult::cancel_minus(Self, Self) -> Self
+pub fn IntervalResult::cancel_plus(Self, Self) -> Self
+pub fn IntervalResult::ceil(Self) -> Self
+pub fn IntervalResult::convex_hull(Self, Self) -> Self
+pub fn IntervalResult::cos(Self) -> Self
+pub fn IntervalResult::cos_rev(Self, x? : Self) -> Self
+pub fn IntervalResult::cosh(Self) -> Self
+pub fn IntervalResult::cosh_rev(Self, x? : Self) -> Self
+pub fn IntervalResult::cospi(Self) -> Self
+pub fn IntervalResult::div(Self, Self) -> Self
+pub fn IntervalResult::entire(precision? : Int32) -> Self
+pub fn IntervalResult::err(@arithmetic.ArithmeticError) -> Self
+pub fn IntervalResult::error(Self) -> @arithmetic.ArithmeticError?
+pub fn IntervalResult::exact(@bin_float.BinFloat, precision? : Int32) -> Self
+pub fn IntervalResult::exp(Self) -> Self
+pub fn IntervalResult::exp10(Self) -> Self
+pub fn IntervalResult::exp2(Self) -> Self
+pub fn IntervalResult::expm1(Self) -> Self
+pub fn IntervalResult::floor(Self) -> Self
+pub fn IntervalResult::fma(Self, Self, Self) -> Self
+pub fn IntervalResult::from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Self
+pub fn IntervalResult::from_coefficient(@bin_float.BinCoeff, precision? : Int32, negative? : Bool) -> Self
+pub fn IntervalResult::from_double(Double, precision? : Int32) -> Self
+pub fn IntervalResult::from_float(Float, precision? : Int32) -> Self
+pub fn IntervalResult::from_int(Int32, precision? : Int32) -> Self
+pub fn IntervalResult::from_result(Result[@interval.Interval, @arithmetic.ArithmeticError]) -> Self
+pub fn IntervalResult::from_string(String, precision? : Int32) -> Self
+pub fn IntervalResult::hypot(Self, Self) -> Self
+pub fn IntervalResult::intersection(Self, Self) -> Self
+pub fn IntervalResult::is_err(Self) -> Bool
+pub fn IntervalResult::is_ok(Self) -> Bool
+pub fn IntervalResult::ln(Self) -> Self
+pub fn IntervalResult::log10(Self) -> Self
+pub fn IntervalResult::log1p(Self) -> Self
+pub fn IntervalResult::log2(Self) -> Self
+pub fn IntervalResult::map(Self, (@interval.Interval) -> @interval.Interval) -> Self
+pub fn IntervalResult::max(Self, Self) -> Self
+pub fn IntervalResult::min(Self, Self) -> Self
+pub fn IntervalResult::mul(Self, Self) -> Self
+pub fn IntervalResult::mul_rev(Self, Self, x? : Self) -> Self
+pub fn IntervalResult::mul_rev_to_pair(Self, Self) -> (Self, Self)
+pub fn IntervalResult::neg(Self) -> Self
+pub fn IntervalResult::normalized(Self) -> Self
+pub fn IntervalResult::ok(@interval.Interval) -> Self
+pub fn IntervalResult::pow(Self, Self) -> Self
+pub fn IntervalResult::pow_rev1(Self, Self, x? : Self) -> Self
+pub fn IntervalResult::pow_rev2(Self, Self, x? : Self) -> Self
+pub fn IntervalResult::pown(Self, Int32) -> Self
+pub fn IntervalResult::pown_rev(Self, Int32, x? : Self) -> Self
+pub fn IntervalResult::recip(Self) -> Self
+pub fn IntervalResult::result(Self) -> Result[@interval.Interval, @arithmetic.ArithmeticError]
+pub fn IntervalResult::rootn(Self, Int32) -> Self
+pub fn IntervalResult::round_ties_to_away(Self) -> Self
+pub fn IntervalResult::round_ties_to_even(Self) -> Self
+pub fn IntervalResult::sign(Self) -> Self
+pub fn IntervalResult::sin(Self) -> Self
+pub fn IntervalResult::sin_rev(Self, x? : Self) -> Self
+pub fn IntervalResult::sinh(Self) -> Self
+pub fn IntervalResult::sinpi(Self) -> Self
+pub fn IntervalResult::sqr(Self) -> Self
+pub fn IntervalResult::sqr_rev(Self, x? : Self) -> Self
+pub fn IntervalResult::sqrt(Self) -> Self
+pub fn IntervalResult::sub(Self, Self) -> Self
+pub fn IntervalResult::tan(Self) -> Self
+pub fn IntervalResult::tan_rev(Self, x? : Self) -> Self
+pub fn IntervalResult::tanh(Self) -> Self
+pub fn IntervalResult::tanpi(Self) -> Self
+pub fn IntervalResult::trunc(Self) -> Self
+pub fn IntervalResult::with_precision(Self, Int32) -> Self
+pub impl Add for IntervalResult
+pub impl Div for IntervalResult
+pub impl Mul for IntervalResult
+pub impl Neg for IntervalResult
+pub impl Sub for IntervalResult
+
+// Type aliases
+
+// Traits

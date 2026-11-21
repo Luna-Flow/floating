@@ -204,7 +204,7 @@ as independent as the suite makes it: the arithmetic suites of `bin_float`
 and `decimal` compare with the exact coefficient result, while the
 elementary-function and `decimal_gda` suites use the core path itself as the
 reference (so they check that the checked path agrees with the core) and the
-`ball_float` suite uses the `BinFloat` kernel result.
+`interval` suite uses the `BinFloat` kernel result.
 
 ### Environment as data
 

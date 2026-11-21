@@ -1,7 +1,7 @@
 # frontend/itl_expr tutorial
 
 This tutorial shows how to run IEEE 1788 interval test cases written in the
-ITL format of the ITF1788 suite against `ball_float`. You parse ITL text into
+ITL format of the ITF1788 suite against `interval`. You parse ITL text into
 cases, execute each case, and summarize the results. The command-line runner
 for whole files is [`cli/itl_expr_cli`](../cli/itl_expr_cli.md).
 
@@ -183,5 +183,5 @@ test "dispositions" {
   rule.
 - [cli/itl_expr_cli tutorial](../cli/itl_expr_cli.md) for running files from
   the command line.
-- [ball_float tutorial](../ball_float.md) for the interval arithmetic being
+- [interval tutorial](../interval.md) for the interval arithmetic being
   tested.

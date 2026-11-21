@@ -1,7 +1,7 @@
 # `semantic`
 
 `semantic` is a provisional representation-independent boundary. It projects
-binary, decimal, and ball values into exact rationals, signed infinity, NaN,
+binary, decimal, and interval values into exact rationals, signed infinity, NaN,
 closed intervals, and semantic errors. This is useful for cross-representation
 tests, diagnostics, and protocol comparison.
 

@@ -2,16 +2,16 @@
 /// The previous construction of `pi` (finding 4 of #374): `4 atan(1)` through
 /// the ball interval `atan`. Kept here only to prove the cached source gives
 /// the same interval bit for bit.
-fn old_decimal_pi_ball(precision : Int32) -> @ball_float.BallFloat {
-  @ball_float.BallFloat::from_int(1, precision~)
+fn old_decimal_pi_ball(precision : Int32) -> @interval.Interval {
+  @interval.Interval::from_int(1, precision~)
   .try_atan()
   .unwrap()
-  .mul(@ball_float.BallFloat::from_int(4, precision~))
+  .mul(@interval.Interval::from_int(4, precision~))
 }
 
 ///|
-fn old_decimal_quarter_pi_ball(precision : Int32) -> @ball_float.BallFloat {
-  @ball_float.BallFloat::from_int(1, precision~).atan()
+fn old_decimal_quarter_pi_ball(precision : Int32) -> @interval.Interval {
+  @interval.Interval::from_int(1, precision~).atan()
 }
 
 ///|
@@ -45,7 +45,7 @@ test "decimal quarter pi multiples equal quarters of the atan(1) interval" {
     let pi = decimal_pi_enclosure(precision)
     let scale = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -2, 2)
     let exact = @bin_float.BinaryContext::new(precision~)
-    let quarter = @ball_float.BallFloat::from_bounds(
+    let quarter = @interval.Interval::from_bounds(
       pi.0.mul_ctx(scale, exact).0,
       pi.1.mul_ctx(scale, exact).0,
       precision~,

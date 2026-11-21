@@ -47,7 +47,7 @@ The repository is a `moon.work` workspace of two modules, each in its own direct
 
 | Module | Directory | Contents | Dependencies |
 | --- | --- | --- | --- |
-| `Luna-Flow/floating` (published) | `library/` (`library/moon.mod`, `library/src/`) | the numeric packages: `def`, `internal`, `bin_float`, `decimal`, `decimal_gda`, `ball_float`, the `*_checked` tiers | `Luna-Flow/arithmetic`, `Luna-Flow/luna-generic` only |
+| `Luna-Flow/floating` (published) | `library/` (`library/moon.mod`, `library/src/`) | the numeric packages: `def`, `internal`, `bin_float`, `decimal`, `decimal_gda`, `interval`, the `*_checked` tiers | `Luna-Flow/arithmetic`, `Luna-Flow/luna-generic` only |
 | `Luna-Flow/floating-tools` (same version as the library) | `tooling/` (`tooling/moon.mod`, `tooling/src/`) | benchmarks (`bench`), command-line programs (`cli`), the differential harness (`differential`), frontends (`frontend`, `numeric_expr`), `internal/conformance`, `internal/runner_cli`, `consistency` (the cross-package tests), `semantic` (the exact projection used by them), `doc_examples` | the library from this working tree, plus `mare_mark`, `async`, `x`, `type_theory` |
 
 A library package must never import the tools module or one of the tooling
@@ -90,7 +90,7 @@ relative links out of the package.
 ### 2.2 Functions
 
 - Use **lowercase letters with underscores** for package-level helper functions.
-- Keep public method names aligned across `bin_float`, `decimal`, and `ball_float` when the semantics are intended to match.
+- Keep public method names aligned across `bin_float`, `decimal`, and `interval` when the semantics are intended to match.
 
 ### 2.3 Structs and Traits
 
@@ -142,16 +142,16 @@ test "..." {
 Worked examples, from the repair of issue 624's audit (PR 642):
 
 - Level A: `interval basics: sqrt endpoints are the directed square roots`
-  (`library/src/ball_float/interval_basics_wbtest.mbt`). The old test compared `sqrt` with a copy that made the same
+  (`library/src/interval/interval_basics_wbtest.mbt`). The old test compared `sqrt` with a copy that made the same
   call (level C, it could not fail). The new one writes the exact roots out and takes the directed bounds of the
   irrational roots from Python `math.isqrt`: `oracle: A`, `source:` says so, `shares: nothing`.
 - Level B: `optimized decimal coefficient primitives match BigInt boundaries`
   (`library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt`): core `BigInt` arithmetic is the oracle, the
   conversion `dec_coeff_from_bigint_repr`/`to_bigint` is shared, so `oracle: B` with `primitives:` naming them.
-- Level S next to A: `ball_float coefficient constructor keeps exact bounded interval`
+- Level S next to A: `interval coefficient constructor keeps exact bounded interval`
   (`tooling/src/consistency/core_wbtest.mbt`) compares the bounds with the written value 12 (A) and checks
   `is_common_interval` (S): `oracle: A, S`.
-- Level E: the `*_old_*` equivalence tests of `ball_float` (`interval_basics_wbtest.mbt`) compare a rewrite with the
+- Level E: the `*_old_*` equivalence tests of `interval` (`interval_basics_wbtest.mbt`) compare a rewrite with the
   previous implementation. They may declare `oracle: E` only with `underneath:` saying which level A or B oracle
   the previous implementation has on that input class; until they do, they are in the debt list.
 

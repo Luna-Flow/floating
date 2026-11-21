@@ -15,7 +15,7 @@ definition of the operation.
 ## `atan2_rev.itl`
 
 The expected value of each statement is the exact hull in binary64, computed by the oracle
-with Python's `decimal` (260 digits) and no `ball_float` code. The oracle derives the hull
+with Python's `decimal` (260 digits) and no `interval` code. The oracle derives the hull
 by polar rectangles (monotone images over an angle interval and a factor interval, extremes
 at the corners) and then validates it by a second formulation that shares nothing with the
 case analysis: the forward definition (`atan2` of a point is monotone and continuous in the

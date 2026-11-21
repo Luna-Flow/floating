@@ -103,7 +103,7 @@ Error: [4145]
 ```
 
 The four implementations are in `bin_float`, `decimal`, `decimal_gda` and
-`ball_float`, which are other packages of the module, and `def` cannot import
+`interval`, which are other packages of the module, and `def` cannot import
 them (they import `def`).
 
 **Options.** (a) Keep `pub(open)` and state the contract in the documentation.
@@ -129,14 +129,14 @@ care test `is_nan` first.
 
 ### Intervals are not `Floating`
 
-Up to 0.11 `BallFloat` implemented `Floating`, and every observation had to be
+Up to 0.11 `Interval` implemented `Floating`, and every observation had to be
 read with an interval meaning: `sign` returned `Zero` for "contains 0" and
 aborted on the empty set, `is_zero` through it meant "contains 0", `is_nan`
 meant "empty", and `with_precision` ignored its rounding mode. A generic
 function written for scalars then gave answers that were true of no single
 number: `is_zero` of $[-1, 1]$ is true, but $[-1, 1] \ne \{0\}$. The names of
 those predicates are the scalar ones, so the interval meaning could not be
-told from the call site. `BallFloat` therefore does not implement `Floating`;
+told from the call site. `Interval` therefore does not implement `Floating`;
 its package spells the questions the way IEEE 1788-2015 does (`is_empty`,
 `is_entire`, `is_common_interval`, `is_singleton`, the comparisons of Table
 10.3, `contains` for a point) and re-rounds with `with_precision`, which always

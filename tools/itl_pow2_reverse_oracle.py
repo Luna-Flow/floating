@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""An oracle for powRev2 that shares no code with `ball_float`.
+"""An oracle for powRev2 that shares no code with `interval`.
 
 powRev2(a, c, x) is the hull of {beta in prior | exists a0 in a: a0^beta defined and in c},
 a0^beta being defined for a0 > 0 (any beta) and for a0 = 0 with beta > 0 (value 0).

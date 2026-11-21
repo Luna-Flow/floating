@@ -157,7 +157,7 @@ test "rsqrt by the scaled loop equals the plain certified loop" {
   // `decimal_certified_scaled_result` encloses 1/sqrt(x 10^-2k) and shifts
   // the endpoints by 10^-k; on operands the plain loop handles cheaply the
   // two must agree in value, cohort and flags.
-  let eval = fn(input : @ball_float.BallFloat) { Ok(input.sqrt().recip()) }
+  let eval = fn(input : @interval.Interval) { Ok(input.sqrt().recip()) }
   for mode in pm1_modes {
     for
       spec in [

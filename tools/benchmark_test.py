@@ -61,7 +61,7 @@ class BenchmarkDispatcherTests(unittest.TestCase):
             output = Path(directory) / "result.jsonl"
             with patch.object(benchmark, "run_benchmark_command", return_value=completed):
                 self.assertEqual(
-                    benchmark.main(["ball-float", "--output", str(output)]),
+                    benchmark.main(["interval", "--output", str(output)]),
                     0,
                 )
             self.assertEqual(json.loads(output.read_text(encoding="utf-8")), event)

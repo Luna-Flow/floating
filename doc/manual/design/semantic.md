@@ -118,12 +118,12 @@ test "a decimal has a binary equal iff its denominator has no factor 5" {
 
 ### Intervals as pairs of extended rationals
 
-A non-empty `BallFloat` denotes $X = \{\, t \in \mathbb{R} : \ell \le t \le u
+A non-empty `Interval` denotes $X = \{\, t \in \mathbb{R} : \ell \le t \le u
 \,\}$ for endpoints $\ell \le u$ in $\mathbb{Z}[1/2] \cup \{-\infty,
 +\infty\}$, with an infinite endpoint meaning an unbounded side, as in IEEE
-1788-2015 set-based intervals.[^ieee1788] `SemanticInterval::from_ball_float`
+1788-2015 set-based intervals.[^ieee1788] `SemanticInterval::from_interval`
 projects $\ell$ and $u$ independently with `from_bin_float`, so the pair
-determines $X$ exactly. The empty interval is stored by `ball_float` with
+determines $X$ exactly. The empty interval is stored by `interval` with
 $\ell = +\infty$ and $u = -\infty$, and the projection keeps that reversed pair;
 in the extended order, *lower > upper* holds exactly for the empty set. A
 membership test $t \in X$ for a rational $t$ is then two comparisons of the
@@ -154,7 +154,7 @@ size: $r^{|k|}$ has about $|k| \log_2 r$ bits.
 The projection keeps only the denoted value. It drops precision, decimal
 quantum (cohort), the sign of zero, NaN payload, sign and signalling state,
 and all flags and context state. Interval decorations never reach it:
-`from_ball_float` accepts only an undecorated `BallFloat`. These are properties of
+`from_interval` accepts only an undecorated `Interval`. These are properties of
 representations and of computations, and the concrete packages expose them.
 Keeping any of them would make two equal numbers from different packages
 compare unequal, which defeats the purpose of the package.
@@ -206,7 +206,7 @@ projection for every pipeline.
   $[\![x]\!] = [\![y]\!]$; this is the uniqueness of the reduced form.
 - **Class preservation.** Infinities project to `Infinity` with the same sign,
   every NaN projects to `NaN`, finite values to `Rational`.
-- **Intervals.** `from_ball_float` is the pair of endpoint projections; the
+- **Intervals.** `from_interval` is the pair of endpoint projections; the
   entire line gives $(-\infty, +\infty)$, the empty interval
   $(+\infty, -\infty)$.
 - **Cost.** `from_scaled_integer` performs one exact power and, for negative
@@ -234,7 +234,7 @@ projection for every pipeline.
 - Representation details (precision, quantum, signed zero, NaN payload and
   signalling, flags, context) are deliberately not preserved, and decorated
   intervals are not accepted.
-- Only `BinFloat`, `@decimal.Decimal` and `BallFloat` have projections.
+- Only `BinFloat`, `@decimal.Decimal` and `Interval` have projections.
 - Projections of values with very large exponents are exact and therefore
   large; the package does not guard against that cost. A `BinFloat` exponent
   near its implementation limit $\pm(2^{30} - 1)$ gives a `BigInt` of about

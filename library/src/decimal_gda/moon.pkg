@@ -7,7 +7,7 @@ import {
   "Luna-Flow/floating/internal",
   "Luna-Flow/floating/internal/decimal_kernel",
   "Luna-Flow/floating/bin_float",
-  "Luna-Flow/floating/ball_float",
+  "Luna-Flow/floating/interval",
   "moonbitlang/core/bigint",
   "moonbitlang/core/string",
 }

@@ -839,7 +839,7 @@ input $x$:
    \nabla_w(x)$ and $\overline{x} = \Delta_w(x)$, `to_bin_float` with
    `RoundTowardNegative` and `RoundTowardPositive` at $w$ bits, so $x \in
    [\underline{x}, \overline{x}]$.
-2. Evaluate $f$ on that interval with [`ball_float`](ball_float.md), which
+2. Evaluate $f$ on that interval with [`interval`](interval.md), which
    returns an interval $[L, U] \ni f(x)$ for every point of the input interval.
 3. Convert $L$ and $U$ (dyadic, hence exact decimals) to `Decimal` exactly and
    round both with the target context. If both give the same representation
@@ -891,7 +891,7 @@ Three kinds of inputs are decided outside the agreement test:
   by at most $p + 2$ (beyond that, $\sqrt{x^2+y^2} - |x| \approx y^2/(2|x|)$
   is below the last digit the result could have) and tests it with the exact
   square root, so $\operatorname{hypot}(0.3, 0.4) = 0.5$; a zero operand
-  gives the other operand's magnitude. `ball_float` returns point intervals
+  gives the other operand's magnitude. `interval` returns point intervals
   for exact binary results such as $\log_2 8 = 3$, $\log_2 0.125 = -3$ and
   $4^{1.5} = 8$. A power whose exact value is representable in decimal but not
   in binary is decided in decimal instead: the exponent is reduced to $p/q$ in
@@ -970,7 +970,7 @@ Three kinds of inputs are decided outside the agreement test:
   evaluates $x^y = \exp(y \ln x)$ in interval arithmetic: one `ln` enclosure,
   one interval product and one `exp` enclosure, instead of the four corners
   times two directions (eight correctly rounded binary powers) of
-  `ball_float`'s `try_pow`. The loop needs an enclosure, not tight
+  `interval`'s `try_pow`. The loop needs an enclosure, not tight
   endpoints, and correct rounding makes the delivered value independent of
   the enclosure's width, so the result, cohort and flags are those of the
   tighter evaluation. The composition loses about
@@ -1001,7 +1001,7 @@ under the before-rounding rule and the sign of a zero are those of the
 context.
 
 The four functions evaluate `expm1(x ln b)` and `log1p(x) / ln b` on the
-input interval ($\ln 2$ and $\ln 10$ as certified `ball_float` intervals).
+input interval ($\ln 2$ and $\ln 10$ as certified `interval` intervals).
 Both primitives are series in $x$, so the relative width of the enclosure is a
 few units of the working precision for every legal operand, down to
 $x = 10^{-1\,999\,996}$; no tiny-argument anchor is needed because the slopes

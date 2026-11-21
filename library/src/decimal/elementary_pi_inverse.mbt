@@ -19,7 +19,7 @@
 /// is a pure function of it, so a cached one is the interval the evaluation
 /// would compute again (the results do not change, only the cost of every Ziv
 /// step and every call).
-let decimal_pi_cache : Map[Int32, @ball_float.BallFloat] = Map([])
+let decimal_pi_cache : Map[Int32, @interval.Interval] = Map([])
 
 ///|
 /// The tightest `precision`-bit enclosure `[RD(pi), RU(pi)]`, taken from the
@@ -49,13 +49,13 @@ fn decimal_pi_enclosure(
 
 ///|
 /// `pi` enclosed at `precision` bits.
-fn decimal_pi_ball(precision : Int32) -> @ball_float.BallFloat {
+fn decimal_pi_ball(precision : Int32) -> @interval.Interval {
   match decimal_pi_cache.get(precision) {
     Some(value) => return value
     None => ()
   }
   let bounds = decimal_pi_enclosure(precision)
-  let value = @ball_float.BallFloat::from_bounds(bounds.0, bounds.1, precision~)
+  let value = @interval.Interval::from_bounds(bounds.0, bounds.1, precision~)
   // The Ziv schedule visits a few precisions per target precision; keep the
   // table small for long-running programs with many precisions.
   if decimal_pi_cache.length() >= 64 {
@@ -121,17 +121,17 @@ fn decimal_pi_tiny_factor(
   above : Bool,
   t : Int64,
   precision : Int32,
-) -> @ball_float.BallFloat {
+) -> @interval.Interval {
   // Any k up to 3.32 t is sound; more than the working precision only makes
   // the subtraction below align operands millions of bits apart.
   let k = Int64::min(t * 3321928L / 1000000L, (precision + 64).to_int64()).to_int()
   let bound = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -k, 32)
-  let epsilon = @ball_float.BallFloat::from_bounds(
+  let epsilon = @interval.Interval::from_bounds(
     @bin_float.BinFloat::zero(precision=32),
     bound,
     precision~,
   )
-  let one = @ball_float.BallFloat::from_int(1, precision~)
+  let one = @interval.Interval::from_int(1, precision~)
   if above {
     one.add(epsilon)
   } else {
@@ -506,7 +506,7 @@ pub fn Decimal::try_atan2pi_ctx(
     .map(fn(angle) {
       let fraction = angle.div(decimal_pi_ball(angle.precision()))
       let magnitude = if behind {
-        @ball_float.BallFloat::from_int(1, precision=angle.precision()).sub(
+        @interval.Interval::from_int(1, precision=angle.precision()).sub(
           fraction,
         )
       } else {

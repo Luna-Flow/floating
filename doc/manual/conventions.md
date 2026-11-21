@@ -27,7 +27,7 @@ Every package has one page per chapter, named after its package path:
    ends with `## Boundaries`.
 
 The four numerical cores, `bin_float`, `decimal`, `decimal_gda` and
-`ball_float`, have two more chapters, as the standard allows:
+`interval`, have two more chapters, as the standard allows:
 
 4. **Conformance (`conformance/<package>.md`)** states a pinned, finite
    evidence claim and its exclusions.

@@ -899,7 +899,7 @@ $\log_{1.5}(\text{cap}/w_0)$. A result that sits at distance
 $\delta$ from a breakpoint needs $w \approx \log_2(1/\delta)$, so the default
 $L = 12$ decides everything farther than about $2^{-10000}$ from a breakpoint
 at binary64 and `None` extends that to the cap. Functions without a context
-argument (the `BallFloat` enclosures) keep $12$. The exact fallback of the
+argument (the `Interval` enclosures) keep $12$. The exact fallback of the
 integer power `pown` (12 Ziv rounds, then an exact product) cannot fail and
 is not governed by the limit.
 
@@ -1137,7 +1137,7 @@ end; narrow pairs differ by a few units in the last place.
 
 **Where $\pi$ comes from.** The binary-splitting $\pi$ of this package is
 cached per working precision. `BinFloat` $+\infty$ `.try_atan_ctx` returns the
-correctly rounded $\pi/2$ from that cache, so `decimal` and `ball_float` obtain
+correctly rounded $\pi/2$ from that cache, so `decimal` and `interval` obtain
 $[\operatorname{RD}(\pi), \operatorname{RU}(\pi)]$ from two calls (rounding
 downward and upward) and a scaling by $2$, which is exact: the same interval,
 bit for bit, as $4\,[\operatorname{RD}(\operatorname{atan} 1),
@@ -1169,7 +1169,7 @@ precisions). The working precision of the reduction is limited to
 ($10^{999999} < 2^{3321929}$) is evaluated; a larger work size is a
 `ResourceLimit` certification failure. The `decimal` driver passes a huge
 integer operand to `BinFloat` exactly (an integer $c \cdot 10^e$ is a dyadic
-rational) at the result precision, and `ball_float` evaluates a point interval
+rational) at the result precision, and `interval` evaluates a point interval
 by two directed evaluations without the rational index computation.
 
 The cost grows faster than linearly in $k$ because $\pi$ at $k$ bits is
@@ -2129,7 +2129,7 @@ that `nan > 1` is true under `<`, so code that needs IEEE semantics must use
   $2^{e_{\min}}$, and subnormal sums and differences are exact.
 - **Monotonicity.** Each operation is monotone in each argument where the
   real function is, because it is $\circ \circ f$ with $\circ$ monotone; in
-  particular RD and RU results bracket the exact value, which `ball_float`
+  particular RD and RU results bracket the exact value, which `interval`
   and the directed square roots of `sqrt_ctx` rely on.
 - **Exactness theorems.** `remainder`, `scaleb` in the normal range,
   `copy_sign`, `neg`, `abs`, `logb` and decoding are exact; the integral
@@ -2180,7 +2180,7 @@ attachment.
 `bin_float` deliberately does not:
 
 - provide interval or ball arithmetic: enclosures are internal to the
-  certification loops; `ball_float` builds midpoint–radius arithmetic on top
+  certification loops; `interval` builds midpoint–radius arithmetic on top
   of `BinFloat`;
 - implement IEEE 754 alternate exception handling (traps, substitution) or
   sticky global flags: flags are returned values;

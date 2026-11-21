@@ -303,12 +303,12 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                     "sh",
                     "tools/run_moon_clean_exec.sh",
                     "test",
-                    "library/src/ball_float/trig_reverse_reference_wbtest.mbt",
-                    "library/src/ball_float/pow_reverse_reference_wbtest.mbt",
-                    "library/src/ball_float/pow_reverse2_reference_wbtest.mbt",
-                    "library/src/ball_float/atan2_reverse_reference_wbtest.mbt",
-                    "library/src/ball_float/midpoint_margin_wbtest.mbt",
-                    "library/src/ball_float/bound_label_wbtest.mbt",
+                    "library/src/interval/trig_reverse_reference_wbtest.mbt",
+                    "library/src/interval/pow_reverse_reference_wbtest.mbt",
+                    "library/src/interval/pow_reverse2_reference_wbtest.mbt",
+                    "library/src/interval/atan2_reverse_reference_wbtest.mbt",
+                    "library/src/interval/midpoint_margin_wbtest.mbt",
+                    "library/src/interval/bound_label_wbtest.mbt",
                     "--include-skipped",
                     "--target",
                     "native",
@@ -325,12 +325,12 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                 "INTERVAL: oracle checks",
                 (sys.executable, "tools/itl_oracle_checks.py", "--require-corpus"),
             ),
-            # The untimed differential stage of BallFloat against two oracles (tools/ball_diff.py): the integer oracle
+            # The untimed differential stage of Interval against two oracles (tools/interval_diff.py): the integer oracle
             # decides every arithmetic row with nothing but CPython; MPFR decides all rows (exp and ln too) when its
             # headers are found, and the report names the oracles that ran and the rows not checked without it.
             Stage(
-                "INTERVAL: ball_float against the oracles",
-                (sys.executable, "tools/ball_diff.py", "run"),
+                "INTERVAL: interval against the oracles",
+                (sys.executable, "tools/interval_diff.py", "run"),
             ),
         ],
         "elementary": [

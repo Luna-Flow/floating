@@ -4,8 +4,8 @@
 
 The ITF1788 project publishes interval test cases for IEEE 1788-2015[^ieee1788]
 in a small language, ITL. This package executes those cases against
-`ball_float`, so that the interval claims in the
-[ball_float conformance page](../../conformance/ball_float.md) rest on an
+`interval`, so that the interval claims in the
+[interval conformance page](../../conformance/interval.md) rest on an
 external, pinned corpus. Like the other frontends it is pure: text in,
 results out, no IO.
 
@@ -75,12 +75,12 @@ are equal; an overlap case when the state names are equal.
 
 ## Design decisions
 
-### Execute against the public `ball_float` API
+### Execute against the public `interval` API
 
 Each ITL operation maps to one public method of
-`@ball_float.BallFloatDecorated` (for example `add` to `+`, `sqrt` to
+`@interval.DecoratedInterval` (for example `add` to `+`, `sqrt` to
 `sqrt`, `pown` to `pown`, `overlap` to `overlap`), and
-results are rounded with `BallContext::new(precision=p, e_max=1023)`, the format
+results are rounded with `IntervalContext::new(precision=p, e_max=1023)`, the format
 the bounds were read in (binary64 for the default $p = 53$). Testing through the
 public API means the corpus checks exactly what users call, including the
 decoration logic.

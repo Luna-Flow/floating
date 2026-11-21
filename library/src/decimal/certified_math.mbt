@@ -22,9 +22,9 @@ fn decimal_certified_work_precision(
 fn decimal_to_certified_ball(
   value : Decimal,
   precision : Int32,
-) -> @ball_float.BallFloat {
+) -> @interval.Interval {
   let (lower, upper) = value.to_bin_float_bounds(precision)
-  @ball_float.BallFloat::from_bounds(lower, upper, precision~)
+  @interval.Interval::from_bounds(lower, upper, precision~)
 }
 
 ///|
@@ -259,7 +259,7 @@ fn decimal_outward_dyadic_endpoint(
 /// context, sound by monotonicity. `ctx` decides which endpoints are out of
 /// range and replaced by representatives.
 fn decimal_certified_endpoints(
-  interval : @ball_float.BallFloat,
+  interval : @interval.Interval,
   ctx : DecimalContext,
 ) -> (Decimal?, Decimal?) {
   let lower_bound = certified_bound(interval.lower_bound())
@@ -287,7 +287,7 @@ fn decimal_certified_endpoints(
 }
 
 ///|
-/// A bound of an interval without the sign of a zero. `BallFloat::lower_bound` returns -0 for
+/// A bound of an interval without the sign of a zero. `Interval::lower_bound` returns -0 for
 /// a zero lower bound (IEEE 1788-2015 12.12.8), while a decimal endpoint that is certified
 /// against another is compared in the total order, which tells -0 from +0: a zero bound is the
 /// zero of the result, whatever the sign the accessor gives it.
@@ -301,7 +301,7 @@ fn certified_bound(value : @bin_float.BinFloat) -> @bin_float.BinFloat {
 
 ///|
 fn decimal_certified_target(
-  interval : @ball_float.BallFloat,
+  interval : @interval.Interval,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
   guard !interval.is_empty() else { return None }
@@ -389,15 +389,12 @@ fn decimal_certified_unary_result(
   value : Decimal,
   ctx : DecimalContext,
   operation : String,
-  evaluate : (@ball_float.BallFloat) -> Result[
-    @ball_float.BallFloat,
+  evaluate : (@interval.Interval) -> Result[
+    @interval.Interval,
     @def.ArithmeticError,
   ],
   extra_bits~ : Int32 = 0,
-  exact_evaluate~ : ((Int32) -> Result[
-    @ball_float.BallFloat,
-    @def.ArithmeticError,
-  ])? = None,
+  exact_evaluate~ : ((Int32) -> Result[@interval.Interval, @def.ArithmeticError])? = None,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   let mut budget = CertifiedRefinementBudget::new(
     decimal_certified_work_precision(value, ctx) + extra_bits,
@@ -431,8 +428,8 @@ fn decimal_certified_binary_result(
   right : Decimal,
   ctx : DecimalContext,
   operation : String,
-  evaluate : (@ball_float.BallFloat, @ball_float.BallFloat) -> Result[
-    @ball_float.BallFloat,
+  evaluate : (@interval.Interval, @interval.Interval) -> Result[
+    @interval.Interval,
     @def.ArithmeticError,
   ],
   guard_bits~ : Int32 = 0,

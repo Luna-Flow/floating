@@ -541,7 +541,7 @@ fn certified_rounding_endpoint(coefficient : UInt64) -> BinFloat {
 //   1 and 1.25 and ties to even; 19/16 rounds to 1.25); the rule under test is that a witness is unique only
 //   if both endpoints round to the same value with the same flags
 // shares: nothing (only the call under test and BinFloat::make for the endpoints)
-// (These blocks replace tests of a local copy of the function in ball_float/certified_rounding_wbtest.mbt,
+// (These blocks replace tests of a local copy of the function in interval/certified_rounding_wbtest.mbt,
 // which ignored the flags.)
 test "certified target rounding accepts one rounded value with equal flags" {
   let context = BinaryContext::new(precision=3)

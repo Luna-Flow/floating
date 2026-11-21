@@ -261,5 +261,5 @@ test "carry flags next to the wrapper" {
   its laws and the first-error theorem.
 - [`bin_float_checked` API](../api/bin_float_checked.md): every method.
 - [`bin_float` tutorial](bin_float.md): contexts, flags and interchange formats.
-- [`ball_float_checked` tutorial](ball_float_checked.md): the same pipeline for
+- [`interval_checked` tutorial](interval_checked.md): the same pipeline for
   enclosures.

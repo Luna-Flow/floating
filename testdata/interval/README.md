@@ -1,7 +1,7 @@
 # IEEE 1788 test data
 
 The user-facing finite claim is summarized in
-[`doc/manual/conformance/ball_float.md`](../../doc/manual/conformance/ball_float.md);
+[`doc/manual/conformance/interval.md`](../../doc/manual/conformance/interval.md);
 this page owns the pinned corpus, phase planner, and operational workflow.
 
 `smoke.itl` is the committed minimal suite. The complete corpus is fetched from
@@ -58,7 +58,7 @@ it), runs a patched copy of the file in which the expected value of each refined
 statement is the refined value, and reports the refined cases on their own line
 (never folded into "passed"); every other case keeps exact equality with the corpus.
 `python3 tools/itl_trig_reverse_oracle.py --check` recomputes the entries with a
-pure-Python oracle that shares no code with `ball_float` (the file must list exactly
+pure-Python oracle that shares no code with `interval` (the file must list exactly
 the statements whose corpus value is wider than the oracle's hull); `--write`
 regenerates the file.
 

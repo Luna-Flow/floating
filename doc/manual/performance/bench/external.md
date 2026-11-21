@@ -399,7 +399,7 @@ names where the largest gaps are, not their cause.
   excluded.
 - **Other operations.** `fma`, `pow`, `hypot`, `cos`, `tan`, the hyperbolic and
   inverse functions, remainders, conversions, and parsing and printing are not
-  compared. Interval (`ball_float`) arithmetic has no counterpart in MPFR and
+  compared. Interval (`interval`) arithmetic has no counterpart in MPFR and
   is not compared (MPFI is not part of this baseline).
 - **Memory and threads.** Peak memory and multi-threaded behaviour are not
   measured.

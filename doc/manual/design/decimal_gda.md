@@ -801,7 +801,7 @@ refinement loop.[^ziv] For $f(x)$:
 2. **Enclose the input.** $x$ is converted to a binary ball $[x^-, x^+]$ at
    $w$ bits with directed rounding (`to_bin_float` towards $-\infty$ and
    $+\infty$), so $x \in [x^-, x^+]$ exactly.
-3. **Enclose the output.** `ball_float` evaluates $f$ on the ball and returns
+3. **Enclose the output.** `interval` evaluates $f$ on the ball and returns
    $[L, U] \ni f(x)$ (for `log10`, $\ln$ divided by a cached enclosure of
    $\ln 10$; for `power`, $\exp(y \ln x)$ through enclosures of $\ln x$).
 4. **Certify a candidate.** A decimal approximation $\tilde y$ (the ball

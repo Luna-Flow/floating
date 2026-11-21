@@ -26,7 +26,7 @@ import {
 
 The examples on this page are complete tests. They call the package as
 `@def.`, the representations as `@bin_float.`, `@decimal.`, `@decimal_gda.`
-and `@ball_float.`, and `Luna-Flow/arithmetic` as `@lf_arith.`.
+and `@interval.`, and `Luna-Flow/arithmetic` as `@lf_arith.`.
 
 ## Sign and comparison results
 
@@ -152,7 +152,7 @@ pub(open) trait Floating {
 
 `Floating` is implemented by the scalar types of this library only:
 `@bin_float.BinFloat`, `@decimal.Decimal` and `@decimal_gda.Decimal`.
-`@ball_float.BallFloat` does not implement it (see [Intervals are not
+`@interval.Interval` does not implement it (see [Intervals are not
 `Floating`](../design/def.md#intervals-are-not-floating)). It is not an extension point: implementing it for a
 type outside this module is not supported and is not covered by the
 compatibility promise, because methods may be added to the trait in a minor

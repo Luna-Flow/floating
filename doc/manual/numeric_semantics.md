@@ -301,10 +301,10 @@ interchangeable:
 
 | Channel | Carried by | A value is returned? | Meaning |
 | --- | --- | --- | --- |
-| status flag | `BinaryFlags`, `DecimalFlags`, `BallFlags` beside the result | yes, the IEEE-defined one | a condition occurred while producing a defined result |
+| status flag | `BinaryFlags`, `DecimalFlags`, `IntervalFlags` beside the result | yes, the IEEE-defined one | a condition occurred while producing a defined result |
 | GDA status and trap | `GdaOutcome`, `GdaContext::status` | yes, also when trapped | sticky conditions; an enabled trap marks the outcome `Trapped` |
 | checked error | `Result[_, ArithmeticError]`, `*Result` wrappers | no | the requested scalar cannot be produced under the checked contract |
-| enclosure | `BallFloat`, `BallFloatDecorated` | yes, a set | every possible exact result lies in the returned interval |
+| enclosure | `Interval`, `DecoratedInterval` | yes, a set | every possible exact result lies in the returned interval |
 
 ### IEEE flags
 
@@ -403,7 +403,7 @@ An `ArithmeticError` (re-exported by `def`) has a kind: `DivisionByZero`,
 `UnorderedComparison` or `CertificationFailure`. It is used where the checked
 contract has no value to return: `div_checked` by zero, `sqrt` of a negative
 number, `compare_checked` with a NaN, a malformed literal. `BinFloatResult` and
-`BallFloatResult` keep the first error and skip the remaining steps.
+`IntervalResult` keep the first error and skip the remaining steps.
 
 The elementary functions have both forms. A `try_*_ctx` function returns
 `Err` with a `CertificationFailure` detail if the certified refinement cannot
@@ -413,7 +413,7 @@ GDA ones return their invalid result so that flags and traps apply as usual.
 
 ### Enclosures
 
-A `BallFloat` denotes a closed set of reals $X = [\underline{x}, \overline{x}]$
+An `Interval` denotes a closed set of reals $X = [\underline{x}, \overline{x}]$
 with binary endpoints, or one of the special sets **Empty** ($\varnothing$) and
 **Entire** ($\mathbb{R}$). An interval extension $F$ of a function $f$ must
 satisfy the **inclusion property**
@@ -429,12 +429,12 @@ interval contains the exact one.[^interval] A wide enclosure is a correct
 result; tightness is a quality, not a contract. Division by an interval that
 contains zero can return Entire.
 
-`BallFloatDecorated` adds an IEEE 1788 **decoration** describing what is known
+`DecoratedInterval` adds an IEEE 1788 **decoration** describing what is known
 about $f$ on $X$: `Com` (defined, continuous and bounded on a bounded $X$),
 `Dac` (defined and continuous), `Def` (defined), `Trv` (nothing known) and
 `Ill` (the interval is NaI, "not an interval"). NaI is distinct from Empty.
-Decorations are not scalar flags; `BallFlags` reports precision and range
-events of a `BallContext`.
+Decorations are not scalar flags; `IntervalFlags` reports precision and range
+events of an `IntervalContext`.
 
 [^interval]: R. E. Moore, R. B. Kearfott and M. J. Cloud, *Introduction to
     Interval Analysis*, SIAM 2009, ch. 3; IEEE 1788-2015, clauses 10–11 for
@@ -443,17 +443,17 @@ events of a `BallContext`.
 ```moonbit
 ///|
 test "an enclosure contains every exact result" {
-  let one = @ball_float.BallFloat::from_int(1, precision=53)
-  let three = @ball_float.BallFloat::from_int(3, precision=53)
+  let one = @interval.Interval::from_int(1, precision=53)
+  let three = @interval.Interval::from_int(3, precision=53)
   let third = one.div(three)
   inspect(third.is_member(@bin_float.BinFloat::from_double(1.0 / 3.0)), content="true")
-  let around_zero = @ball_float.BallFloat::from_bounds(
+  let around_zero = @interval.Interval::from_bounds(
     @bin_float.BinFloat::from_int(-1),
     @bin_float.BinFloat::from_int(1),
   )
   inspect(one.div(around_zero).is_entire(), content="true")
-  let partly_defined = @ball_float.BallFloatDecorated::new(
-    @ball_float.BallFloat::from_bounds(
+  let partly_defined = @interval.DecoratedInterval::new(
+    @interval.Interval::from_bounds(
       @bin_float.BinFloat::from_int(-1),
       @bin_float.BinFloat::from_int(4),
     ),
@@ -599,7 +599,7 @@ equal; `BinFloat`'s `==` ignores the sign of a zero and the precision (`-0 == +0
 treats two NaNs as equal too. This is the total preorder of sorting, not IEEE equality:
 use `compare_quiet_equal` or `compare_quiet` when a NaN must be unordered, and `identical`
 (`BinFloat`) for the structural question (the sign of a zero, the precision, the NaN
-kind). `BallFloat`'s `==` compares the endpoints by value.
+kind). `Interval`'s `==` compares the endpoints by value.
 
 ```moonbit
 ///|

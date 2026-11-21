@@ -22,8 +22,8 @@ fn decimal_certified_scaled_result(
   shift : Int32,
   ctx : DecimalContext,
   operation : String,
-  evaluate : (@ball_float.BallFloat) -> Result[
-    @ball_float.BallFloat,
+  evaluate : (@interval.Interval) -> Result[
+    @interval.Interval,
     @def.ArithmeticError,
   ],
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
@@ -46,7 +46,7 @@ fn decimal_certified_scaled_loop(
   shift : Int32,
   ctx : DecimalContext,
   operation : String,
-  evaluate : (Int32) -> Result[@ball_float.BallFloat, @def.ArithmeticError],
+  evaluate : (Int32) -> Result[@interval.Interval, @def.ArithmeticError],
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   let wide = decimal_rcp_wide_ctx()
   let target_ctx = decimal_math_result_ctx(ctx)
@@ -468,13 +468,13 @@ fn decimal_compound_certified(
   if !in_range {
     match
       (
-        @ball_float.BallFloat::from_int(2, precision=bracket_precision).try_ln(),
+        @interval.Interval::from_int(2, precision=bracket_precision).try_ln(),
         decimal_to_certified_ball(value, bracket_precision).try_log1p(),
       ) {
       (Ok(ln2), Ok(log)) => {
         let log2 = log
           .div(ln2)
-          .mul(@ball_float.BallFloat::from_int(n, precision=bracket_precision))
+          .mul(@interval.Interval::from_int(n, precision=bracket_precision))
         if !log2.is_empty() {
           match
             decimal_range_from_log2_bracket(
@@ -493,8 +493,7 @@ fn decimal_compound_certified(
   decimal_certified_unary_result(value, ctx, "compound", fn(input) {
     let precision = input.precision()
     match input.try_log1p() {
-      Ok(log) =>
-        log.mul(@ball_float.BallFloat::from_int(n, precision~)).try_exp()
+      Ok(log) => log.mul(@interval.Interval::from_int(n, precision~)).try_exp()
       Err(error) => Err(error)
     }
   })
