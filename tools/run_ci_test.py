@@ -49,7 +49,7 @@ class RunCiTests(unittest.TestCase):
 
     def test_all_scope_covers_repository_and_three_suites(self) -> None:
         stages = run_ci.stages_for("all", 5)
-        self.assertEqual(len(stages), 27)
+        self.assertEqual(len(stages), 31)
         self.assertEqual(
             [stage.name.split(": ")[0] for stage in stages],
             [
@@ -72,6 +72,10 @@ class RunCiTests(unittest.TestCase):
                 "DECIMAL_GDA",
                 "DECIMAL_GDA",
                 "DECIMAL_GDA",
+                "BINARY",
+                "BINARY",
+                "BINARY",
+                "BINARY",
                 "BINARY",
                 "BINARY",
                 "BINARY",
