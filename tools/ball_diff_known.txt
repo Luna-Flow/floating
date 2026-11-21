@@ -1,0 +1,12 @@
+# Rows of `tools/ball_diff.py` whose result differs from MPFR today, each with the issue that tracks it.
+# A row that agrees again is an error (remove it here); a new difference is an error (file an issue).
+20261121.fma.OV.53.4 #657
+20261121.fma.OV.128.3 #657
+20261121.fma.OV.128.4 #657
+20261121.fma.OV.128.5 #657
+20261121.fma.OV.128.7 #657
+20261121.fma.OV.128.9 #657
+20261121.fma.OV.512.1 #657
+20261121.fma.OV.512.4 #657
+20261121.fma.OV.512.7 #657
+20261121.fma.OV.512.11 #657
