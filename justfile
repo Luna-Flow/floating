@@ -34,8 +34,8 @@ build:
 docs:
     @python3 tools/run_docs.py
 
-gate scope jobs='':
-    @python3 tools/run_ci.py {{ scope }} {{ jobs }}
+gate scope jobs='' *flags:
+    @python3 tools/run_ci.py {{ scope }} {{ jobs }} {{ flags }}
 
 # The gate of a scope with incremental verification (scope: binary): units whose code, input and
 # toolchain are unchanged since a recorded run are reused and reported as reused; 2 % are rerun.
