@@ -211,7 +211,7 @@ fn context_round_subnormal(
   if value.exponent2() >= e_tiny {
     return (value, false, false)
   }
-  let negative = value.sign() == Sign::Negative
+  let negative = value.signum() == Sign::Negative
   let shift = e_tiny - value.exponent2()
   let rounded_magnitude = interval_round_shift(
     value.coefficient(),
@@ -252,7 +252,7 @@ fn context_round_lower(
     @binary.BinaryRoundingMode::RoundTowardNegative,
   )
   if finite_adjusted_exponent(rounded) > ctx.e_max {
-    let overflowed = if rounded.sign() == Sign::Negative {
+    let overflowed = if rounded.signum() == Sign::Negative {
       neg_inf(ctx.precision)
     } else {
       context_max_finite(ctx)
@@ -281,7 +281,7 @@ fn context_round_upper(
     @binary.BinaryRoundingMode::RoundTowardPositive,
   )
   if finite_adjusted_exponent(rounded) > ctx.e_max {
-    let overflowed = if rounded.sign() == Sign::Positive {
+    let overflowed = if rounded.signum() == Sign::Positive {
       pos_inf(ctx.precision)
     } else {
       context_max_finite(ctx).neg()

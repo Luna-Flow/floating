@@ -518,7 +518,7 @@ fn Decimal::try_unary_elementary_ctx(
   }
   if operation == Atanh &&
     self.abs_ctx(decimal_exact_work_context()).0.compare(one) == 0 {
-    return Ok(decimal_elementary_division_by_zero(self.sign(), ctx))
+    return Ok(decimal_elementary_division_by_zero(self.signum(), ctx))
   }
   if (operation == Log2 && self.compare(one) == 0) ||
     (operation == Acos && self.compare(one) == 0) ||

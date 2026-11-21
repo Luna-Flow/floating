@@ -272,7 +272,7 @@ pub fn Interval::try_pow(
     return Ok(empty_interval(precision))
   }
   if nonnegative.hi_.is_zero() {
-    if exponent.hi_.sign() != Sign::Positive {
+    if exponent.hi_.signum() != Sign::Positive {
       return Ok(empty_interval(precision))
     }
     return Ok(zero_radius_interval(zero, precision))
@@ -298,10 +298,10 @@ pub fn Interval::try_pow(
             bin_max(upper_lower.1, upper_upper.1),
           )
           if nonnegative.contains_zero() {
-            if exponent.hi_.sign() == Sign::Positive {
+            if exponent.hi_.signum() == Sign::Positive {
               lower = bin_min(lower, zero)
             }
-            if exponent.lo_.sign() == Sign::Negative {
+            if exponent.lo_.signum() == Sign::Negative {
               upper = pos_inf(precision)
             }
           }
@@ -310,8 +310,8 @@ pub fn Interval::try_pow(
             lower = bin_min(lower, one)
             upper = bin_max(upper, one)
           }
-          if exponent.lo_.sign() != Sign::Positive &&
-            exponent.hi_.sign() != Sign::Negative {
+          if exponent.lo_.signum() != Sign::Positive &&
+            exponent.hi_.signum() != Sign::Negative {
             lower = bin_min(lower, one)
             upper = bin_max(upper, one)
           }

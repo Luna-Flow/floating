@@ -38,7 +38,7 @@ fn integer_apply(
     Sign =>
       if x.is_zero() {
         @binary.Binary::zero(precision~)
-      } else if x.sign() == Sign::Negative {
+      } else if x.signum() == Sign::Negative {
         @binary.Binary::from_int(-1, precision~)
       } else {
         @binary.Binary::from_int(1, precision~)
@@ -145,7 +145,7 @@ fn integer_local_decoration(
     Trunc =>
       if k.is_zero() {
         false
-      } else if k.sign() == Sign::Positive {
+      } else if k.signum() == Sign::Positive {
         integer_equal(a, k)
       } else {
         integer_equal(b, k)

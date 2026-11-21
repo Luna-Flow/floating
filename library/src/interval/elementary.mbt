@@ -90,7 +90,7 @@ fn rat_from_finite_bin(value : @binary.Binary) -> CertifiedRat {
   if value.exponent2() >= 0 {
     certified_rat_coeff(
       signed_coeff_from_parts(
-        value.sign() == Sign::Negative,
+        value.signum() == Sign::Negative,
         coeff_shift_left(value.coefficient(), value.exponent2()),
       ),
       coeff_one(),

@@ -102,13 +102,13 @@ pub fn Decimal::compare_checked(
           1
         }
       (FpClass::Infinity, _) =>
-        if self.sign() == Sign::Negative {
+        if self.signum() == Sign::Negative {
           -1
         } else {
           1
         }
       (_, FpClass::Infinity) =>
-        if other.sign() == Sign::Negative {
+        if other.signum() == Sign::Negative {
           1
         } else {
           -1
@@ -267,9 +267,14 @@ pub fn Decimal::compare(self : Decimal, other : Decimal) -> Int32 {
       } else {
         1
       }
-    (FpClass::Infinity, _) => if self.sign() == Sign::Negative { -1 } else { 1 }
+    (FpClass::Infinity, _) =>
+      if self.signum() == Sign::Negative {
+        -1
+      } else {
+        1
+      }
     (_, FpClass::Infinity) =>
-      if other.sign() == Sign::Negative {
+      if other.signum() == Sign::Negative {
         1
       } else {
         -1

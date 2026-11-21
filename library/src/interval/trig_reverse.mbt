@@ -198,7 +198,7 @@ fn rev_end_compare(
   if rev_end_is_zero(end) {
     return if d.is_zero() {
       Equal
-    } else if d.sign() == Sign::Positive {
+    } else if d.signum() == Sign::Positive {
       Below
     } else {
       Above
@@ -281,7 +281,7 @@ fn rev_quarter_window(
   }
   let adjusted = x.ilogb().unwrap().to_int64() + 1L
   if adjusted <= 0L {
-    return if x.sign() == Sign::Negative {
+    return if x.signum() == Sign::Negative {
       (signed_coeff_from_int(-1), signed_coeff_from_int(0))
     } else {
       (signed_coeff_from_int(0), signed_coeff_from_int(1))

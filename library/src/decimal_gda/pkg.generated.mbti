@@ -184,8 +184,8 @@ pub fn Decimal::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> 
 pub fn Decimal::precision(Self) -> Int32
 pub fn Decimal::quiet_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int32) -> Self
 pub fn Decimal::same_quantum(Self, Self) -> Bool
-pub fn Decimal::sign(Self) -> @def.Sign
 pub fn Decimal::signaling_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int32) -> Self
+pub fn Decimal::signum(Self) -> @def.Sign
 pub fn Decimal::sqrt(Self) -> Self
 pub fn Decimal::sqrt_checked(Self, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::sqrt_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]

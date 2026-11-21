@@ -797,10 +797,8 @@ msgid "Report the class and sign of a value."
 msgstr "报告值的类别和符号。"
 
 #: manual/api/binary.md:379
-#, fuzzy
-#| msgid "`classify` returns `Finite`, `Infinity` or `NaN` (zeros are `Finite`). `sign` is `Zero` for every zero and every NaN, and `Positive` or `Negative` otherwise. `is_negative` returns the sign bit itself, which is set for $-0$, $-\\infty$ and negative NaNs. `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and `@def.is_zero` work on `Binary` through the `Floating` trait; the methods of the next section give the same answers without the trait."
-msgid "`classify` returns `Finite`, `Infinity` or `NaN` (zeros are `Finite`). `sign` is `Zero` for every zero and every NaN, and `Positive` or `Negative` otherwise. `is_sign_minus` returns the sign bit itself, which is set for $-0$, $-\\infty$ and negative NaNs. `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and `@def.is_zero` work on `Binary` through the `Floating` trait; the methods of the next section give the same answers without the trait."
-msgstr "`classify` 返回 `Finite`、`Infinity` 或 `NaN`（零属于 `Finite`）。`sign` 对所有零和所有 NaN 为 `Zero`，否则为 `Positive` 或 `Negative`。`is_negative` 返回符号位本身，它对 $-0$、$-\\infty$ 和负 NaN 是置位的。`@def.is_finite`、`@def.is_nan`、`@def.is_infinite` 和 `@def.is_zero` 通过 `Floating` trait 作用于 `Binary`；下一节的方法不经过 trait 给出相同的答案。"
+msgid "`classify` returns `Finite`, `Infinity` or `NaN` (zeros are `Finite`). `signum` is `Zero` for every zero and every NaN, and `Positive` or `Negative` otherwise. `is_sign_minus` returns the sign bit itself, which is set for $-0$, $-\\infty$ and negative NaNs. `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and `@def.is_zero` work on `Binary` through the `Floating` trait; the methods of the next section give the same answers without the trait."
+msgstr "`classify` 返回 `Finite`、`Infinity` 或 `NaN`（零属于 `Finite`）。`signum` 对所有零和所有 NaN 为 `Zero`，否则为 `Positive` 或 `Negative`。`is_negative` 返回符号位本身，它对 $-0$、$-\\infty$ 和负 NaN 是置位的。`@def.is_finite`、`@def.is_nan`、`@def.is_infinite` 和 `@def.is_zero` 通过 `Floating` trait 作用于 `Binary`；下一节的方法不经过 trait 给出相同的答案。"
 
 #: manual/api/binary.md:388
 msgid "The ten-valued class of IEEE 754-2019 clause 5.7.2 and its predicates."
@@ -1987,8 +1985,8 @@ msgid "The shared floating-point vocabulary of `floating`."
 msgstr "`floating` 共享的浮点词汇。"
 
 #: manual/api/binary.md:2481
-msgid "`classify`, `sign`, `precision`, `with_precision` and `normalized` are the inherent methods above. Generic code uses `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and `@def.is_zero`."
-msgstr "`classify`、`sign`、`precision`、`with_precision` 和 `normalized` 即上文的固有方法。泛型代码使用 `@def.is_finite`、`@def.is_nan`、`@def.is_infinite` 和 `@def.is_zero`。"
+msgid "`classify`, `signum`, `precision`, `with_precision` and `normalized` are the inherent methods above. Generic code uses `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and `@def.is_zero`."
+msgstr "`classify`、`signum`、`precision`、`with_precision` 和 `normalized` 即上文的固有方法。泛型代码使用 `@def.is_finite`、`@def.is_nan`、`@def.is_infinite` 和 `@def.is_zero`。"
 
 #: manual/api/binary.md:2487
 msgid "`@lf_arith` traits whose methods return `Result`."
@@ -2955,8 +2953,6 @@ msgid "These observers return the stored representation of a value."
 msgstr "这些观察函数返回值的存储表示。"
 
 #: manual/api/decimal.md:88
-#, fuzzy
-#| msgid "`precision` is the working precision stored in the value: the precision of a format a context could have, `1..=999999999` (`decimal_precision_max`). Every constructor that returns a `Decimal` aborts on a precision outside that range, naming the function; the operations that return a `Result` return `Err`. `coefficient` returns the non-negative coefficient $c$; for a NaN they return the payload and for an infinity `0`. The sign is never part of the coefficient: use `is_negative`. `exponent10` returns the stored exponent $q$; for special values it is `0`. The IEEE 754-2019 operation `quantum` is `quantum_ctx` (below), not an accessor."
 msgid "`precision` is the working precision stored in the value: the precision of a format a context could have, `1..=999999999` (`decimal_precision_max`). Every constructor that returns a `Decimal` aborts on a precision outside that range, naming the function; the operations that return a `Result` return `Err`. `coefficient` returns the non-negative coefficient $c$; for a NaN they return the payload and for an infinity `0`. The sign is never part of the coefficient: use `is_sign_minus`. `exponent10` returns the stored exponent $q$; for special values it is `0`. The IEEE 754-2019 operation `quantum` is `quantum_ctx` (below), not an accessor."
 msgstr "`precision` 是值中存储的工作精度：即上下文可能具有的某个格式的精度，范围 `1..=999999999`（`decimal_precision_max`）。每个返回 `Decimal` 的构造函数在精度超出该范围时都会中止，并指出函数名；返回 `Result` 的运算则返回 `Err`。`coefficient` 返回非负系数 $c$；对 NaN 返回载荷，对无穷返回 `0`。符号从不属于系数：请使用 `is_negative`。`exponent10` 返回存储的指数 $q$；对特殊值为 `0`。IEEE 754-2019 的操作 `quantum` 是下面的 `quantum_ctx`，不是访问器。"
 
@@ -2965,10 +2961,8 @@ msgid "These observers report the sign of a value."
 msgstr "这些观察函数报告值的符号。"
 
 #: manual/api/decimal.md:115
-#, fuzzy
-#| msgid "`sign` returns `@def.Sign::Zero` for both zeros and for every NaN, and `Negative`/`Positive` otherwise. `is_negative` returns the stored sign bit, so it is `true` for $-0$, for $-\\infty$ and for a negative NaN."
-msgid "`sign` returns `@def.Sign::Zero` for both zeros and for every NaN, and `Negative`/`Positive` otherwise. `is_sign_minus` returns the stored sign bit, so it is `true` for $-0$, for $-\\infty$ and for a negative NaN."
-msgstr "`sign` 对两个零以及所有 NaN 返回 `@def.Sign::Zero`，其余情况返回 `Negative`/`Positive`。`is_negative` 返回存储的符号位，因此对 $-0$、$-\\infty$ 以及负 NaN 都为 `true`。"
+msgid "`signum` returns `@def.Sign::Zero` for both zeros and for every NaN, and `Negative`/`Positive` otherwise. `is_sign_minus` returns the stored sign bit, so it is `true` for $-0$, for $-\\infty$ and for a negative NaN."
+msgstr "`signum` 对两个零以及所有 NaN 返回 `@def.Sign::Zero`，其余情况返回 `Negative`/`Positive`。`is_negative` 返回存储的符号位，因此对 $-0$、$-\\infty$ 以及负 NaN 都为 `true`。"
 
 #: manual/api/decimal.md:121
 msgid "`classify` returns the coarse class of a value; `class_of` returns the ten-valued class of IEEE 754-2019 clause 5.7.2 under a context."
@@ -3875,8 +3869,8 @@ msgid "`Decimal` implements the `floating` scalar trait."
 msgstr "`Decimal` 实现了 `floating` 的标量 trait。"
 
 #: manual/api/decimal.md:2203
-msgid "The trait methods are `classify`, `sign`, `precision`, `with_precision` and `normalized`, all documented above; `@def.is_finite(x)` and the other generic predicates work through it."
-msgstr "trait 方法为 `classify`、`sign`、`precision`、`with_precision` 和 `normalized`，均已在上文说明；`@def.is_finite(x)` 及其他泛型谓词都通过它工作。"
+msgid "The trait methods are `classify`, `signum`, `precision`, `with_precision` and `normalized`, all documented above; `@def.is_finite(x)` and the other generic predicates work through it."
+msgstr "trait 方法为 `classify`、`signum`、`precision`、`with_precision` 和 `normalized`，均已在上文说明；`@def.is_finite(x)` 及其他泛型谓词都通过它工作。"
 
 #: manual/api/decimal.md:2209
 msgid "These functions implement the contextual traits of [`Luna-Flow/arithmetic`](https://lunaflow.cn/en/arithmetic/)."
@@ -4232,8 +4226,8 @@ msgid "These report the class, the numeric sign and the stored precision attribu
 msgstr "这些函数报告类别、数值符号以及所存储的精度属性。"
 
 #: manual/api/decimal_gda.md:263
-msgid "`classify` returns `Finite`, `Infinity` or `NaN`. `sign` returns `Zero` for zeros of either sign and for NaNs, and `Positive`/`Negative` otherwise; use `is_signed` to read the sign bit."
-msgstr "`classify` 返回 `Finite`、`Infinity` 或 `NaN`。`sign` 对任一符号的零以及 NaN 返回 `Zero`，否则返回 `Positive`/`Negative`；若要读取符号位，请使用 `is_signed`。"
+msgid "`classify` returns `Finite`, `Infinity` or `NaN`. `signum` returns `Zero` for zeros of either sign and for NaNs, and `Positive`/`Negative` otherwise; use `is_signed` to read the sign bit."
+msgstr "`classify` 返回 `Finite`、`Infinity` 或 `NaN`。`signum` 对任一符号的零以及 NaN 返回 `Zero`，否则返回 `Positive`/`Negative`；若要读取符号位，请使用 `is_signed`。"
 
 #: manual/api/decimal_gda.md:269
 msgid "These expose the stored representation $(c, e)$."
@@ -4849,8 +4843,8 @@ msgid "`Decimal` implements the floating vocabulary of the `def` package, `Show`
 msgstr "`Decimal` 实现了 `def` 包的浮点词汇、`Show`（参见 [`Decimal::to_string`](#decimalto_string-decimaloutput)）以及 `Debug`。"
 
 #: manual/api/decimal_gda.md:1631
-msgid "The `Floating` methods are `classify`, `sign`, `precision`, `with_precision` and `normalized`, documented above. `to_repr` is the structural `Debug` representation."
-msgstr "`Floating` 方法为 `classify`、`sign`、`precision`、`with_precision` 和 `normalized`，均已在上文说明。`to_repr` 是结构化的 `Debug` 表示。"
+msgid "The `Floating` methods are `classify`, `signum`, `precision`, `with_precision` and `normalized`, documented above. `to_repr` is the structural `Debug` representation."
+msgstr "`Floating` 方法为 `classify`、`signum`、`precision`、`with_precision` 和 `normalized`，均已在上文说明。`to_repr` 是结构化的 `Debug` 表示。"
 
 #: manual/api/decimal_gda_checked.md:1
 msgid "decimal_gda_checked API"
@@ -5003,12 +4997,12 @@ msgid "Sign and comparison results"
 msgstr "符号与比较结果"
 
 #: manual/api/def.md:35
-msgid "`Sign` is the three-way sign classification returned by `Floating::sign`."
-msgstr "`Sign` 是 `Floating::sign` 返回的三路符号分类。"
+msgid "`Sign` is the three-way sign classification returned by `Floating::signum`."
+msgstr "`Sign` 是 `Floating::signum` 返回的三路符号分类。"
 
 #: manual/api/def.md:45
-msgid "`Zero` is returned for both signed zeros, so `Sign` does not distinguish $-0$ from $+0$; use the concrete package (for example `Binary::is_negative_zero`) when the sign bit of a zero matters. The scalar implementations also return `Zero` for every NaN (see [`Floating::sign`](#floatingsign)). `Sign` is also the payload of `SemanticScalar::Infinity` in the [`semantic`](semantic.md) package and the argument of constructors such as `Binary::inf`."
-msgstr "两种带符号零都返回 `Zero`，因此 `Sign` 不区分 $-0$ 与 $+0$；当零的符号位很重要时，请使用具体的包（例如 `Binary::is_negative_zero`）。标量实现对每个 NaN 也返回 `Zero`（参见 [`Floating::sign`](#floatingsign)）。`Sign` 也是 [`semantic`](semantic.md) 包中 `SemanticScalar::Infinity` 的载荷，以及 `Binary::inf` 等构造函数的参数。"
+msgid "`Zero` is returned for both signed zeros, so `Sign` does not distinguish $-0$ from $+0$; use the concrete package (for example `Binary::is_negative_zero`) when the sign bit of a zero matters. The scalar implementations also return `Zero` for every NaN (see [`Floating::signum`](#floatingsignum)). `Sign` is also the payload of `SemanticScalar::Infinity` in the [`semantic`](semantic.md) package and the argument of constructors such as `Binary::inf`."
+msgstr "两种带符号零都返回 `Zero`，因此 `Sign` 不区分 $-0$ 与 $+0$；当零的符号位很重要时，请使用具体的包（例如 `Binary::is_negative_zero`）。标量实现对每个 NaN 也返回 `Zero`（参见 [`Floating::signum`](#floatingsignum)）。`Sign` 也是 [`semantic`](semantic.md) 包中 `SemanticScalar::Infinity` 的载荷，以及 `Binary::inf` 等构造函数的参数。"
 
 #: manual/api/def.md:64
 msgid "`IeeeClass` is the ten-valued `class` of IEEE 754-2019 clause 5.7.2. Unlike `FpClass` it separates the two NaNs, the sign of every class and the normal, subnormal and zero cases."
@@ -5047,8 +5041,8 @@ msgid "For the scalar types this is the IEEE class with signalling and quiet NaN
 msgstr "对标量类型，这是 IEEE 类别，其中信号 NaN 与安静 NaN 合并。它是全函数，从不中止。"
 
 #: manual/api/def.md:181
-msgid "`sign` returns the sign classification of a value."
-msgstr "`sign` 返回值的符号分类。"
+msgid "`signum` returns the sign classification of a value."
+msgstr "`signum` 返回值的符号分类。"
 
 #: manual/api/def.md:189
 msgid "`Binary`, both `Decimal`s"
@@ -10822,8 +10816,8 @@ msgid "Numeric documentation rules"
 msgstr "数值文档规则"
 
 #: manual/conventions.md:133
-msgid "Use `precision`, `rounding`, `classify`, `sign`, `normalized`, `exponent`, `context` and `flags` as defined in [numeric semantics](./numeric_semantics.md)."
-msgstr "按照[数值语义](./numeric_semantics.md)中的定义使用 `precision`、`rounding`、`classify`、`sign`、`normalized`、`exponent`、`context` 和 `flags`。"
+msgid "Use `precision`, `rounding`, `classify`, `signum`, `normalized`, `exponent`, `context` and `flags` as defined in [numeric semantics](./numeric_semantics.md)."
+msgstr "按照[数值语义](./numeric_semantics.md)中的定义使用 `precision`、`rounding`、`classify`、`signum`、`normalized`、`exponent`、`context` 和 `flags`。"
 
 #: manual/conventions.md:136
 msgid "Separate the stored representation, the exact value, the rounded result, status flags, checked errors and interval enclosures."
@@ -16093,8 +16087,8 @@ msgid "**Options.** (a) A broad \"real number\" trait with arithmetic, ordering 
 msgstr "**可选方案。** (a) 一个包含算术、序和解析的宽泛“实数” trait。(b) 一个只包含与表示无关的观测和重设精度的 trait。(c) 没有共享 trait。"
 
 #: manual/design/def.md:79
-msgid "**Choice: (b).** `Floating` has exactly `classify`, `sign`, `precision`, `with_precision` and `normalized`. Arithmetic is taken from MoonBit's operator traits and from the capability traits of Luna-Flow/arithmetic (`SqrtChecked`, `AddContextual`, …), which each type implements only where it can honour the law. A single broad trait would force one law on all domains; for example an interval cannot implement a scalar `compare` without lying about overlapping operands. This follows the Luna-Flow principle that code depends on the smallest trait composition stating its requirements."
-msgstr "**选择：(b)。** `Floating` 恰好只有 `classify`、`sign`、`precision`、`with_precision` 和 `normalized`。算术取自 MoonBit 的运算符 trait 以及 Luna-Flow/arithmetic 的能力 trait（`SqrtChecked`、`AddContextual`……），每种类型只在能遵守相应定律时才实现它们。单一的宽泛 trait 会把同一套定律强加于所有领域；例如，区间无法实现标量的 `compare`，除非对相互重叠的操作数撒谎。这遵循 Luna-Flow 的原则：代码只依赖于陈述其需求的最小 trait 组合。"
+msgid "**Choice: (b).** `Floating` has exactly `classify`, `signum`, `precision`, `with_precision` and `normalized`. Arithmetic is taken from MoonBit's operator traits and from the capability traits of Luna-Flow/arithmetic (`SqrtChecked`, `AddContextual`, …), which each type implements only where it can honour the law. A single broad trait would force one law on all domains; for example an interval cannot implement a scalar `compare` without lying about overlapping operands. This follows the Luna-Flow principle that code depends on the smallest trait composition stating its requirements."
+msgstr "**选择：(b)。** `Floating` 恰好只有 `classify`、`signum`、`precision`、`with_precision` 和 `normalized`。算术取自 MoonBit 的运算符 trait 以及 Luna-Flow/arithmetic 的能力 trait（`SqrtChecked`、`AddContextual`……），每种类型只在能遵守相应定律时才实现它们。单一的宽泛 trait 会把同一套定律强加于所有领域；例如，区间无法实现标量的 `compare`，除非对相互重叠的操作数撒谎。这遵循 Luna-Flow 的原则：代码只依赖于陈述其需求的最小 trait 组合。"
 
 #: manual/design/def.md:88
 msgid "Why `Floating` is declared open"
@@ -16125,8 +16119,8 @@ msgid "`Sign` merges the two zeros"
 msgstr "`Sign` 合并两个零"
 
 #: manual/design/def.md:122
-msgid "`sign` answers \"on which side of zero is the value\", not \"what is the sign bit\". Merging $-0$ and $+0$ into `Zero` makes `sign` a function of the denoted value, so it agrees across representations and with the [`semantic`](semantic.md) projection, which also forgets signed zeros. The sign bit stays observable through the concrete packages. The scalar implementations return `Zero` for NaN because NaN has no position on the line; callers that care test `is_nan` first."
-msgstr "`sign` 回答的是“值位于零的哪一侧”，而不是“符号位是什么”。把 $-0$ 和 $+0$ 合并为 `Zero`，使 `sign` 成为所表示值的函数，从而在各种表示之间保持一致，也与同样忽略带符号零的 [`semantic`](semantic.md) 投影一致。符号位仍可通过具体的包观测到。标量实现对 NaN 返回 `Zero`，因为 NaN 在数轴上没有位置；关心这一点的调用方应先检查 `is_nan`。"
+msgid "`signum` answers \"on which side of zero is the value\", not \"what is the sign bit\". Merging $-0$ and $+0$ into `Zero` makes `signum` a function of the denoted value, so it agrees across representations and with the [`semantic`](semantic.md) projection, which also forgets signed zeros. The sign bit stays observable through the concrete packages. The scalar implementations return `Zero` for NaN because NaN has no position on the line; callers that care test `is_nan` first."
+msgstr "`signum` 回答的是“值位于零的哪一侧”，而不是“符号位是什么”。把 $-0$ 和 $+0$ 合并为 `Zero`，使 `signum` 成为所表示值的函数，从而在各种表示之间保持一致，也与同样忽略带符号零的 [`semantic`](semantic.md) 投影一致。符号位仍可通过具体的包观测到。标量实现对 NaN 返回 `Zero`，因为 NaN 在数轴上没有位置；关心这一点的调用方应先检查 `is_nan`。"
 
 #: manual/design/def.md:130
 msgid "Intervals are not `Floating`"
@@ -16134,10 +16128,10 @@ msgstr "区间不是 `Floating`"
 
 #: manual/design/def.md:132
 msgid ""
-"Up to 0.11 `Interval` implemented `Floating`, and every observation had to be read with an interval meaning: `sign` returned `Zero` for \"contains 0\" and aborted on the empty set, `is_zero` through it meant \"contains 0\", `is_nan` meant \"empty\", and `with_precision` ignored its rounding mode. A generic function written for scalars then gave answers that were true of no single number: `is_zero` of $[-1, 1]$ is true, but $[-1, 1] \\n"
+"Up to 0.11 `Interval` implemented `Floating`, and every observation had to be read with an interval meaning: `signum` returned `Zero` for \"contains 0\" and aborted on the empty set, `is_zero` through it meant \"contains 0\", `is_nan` meant \"empty\", and `with_precision` ignored its rounding mode. A generic function written for scalars then gave answers that were true of no single number: `is_zero` of $[-1, 1]$ is true, but $[-1, 1] \\n"
 "e \\{0\\}$. The names of those predicates are the scalar ones, so the interval meaning could not be told from the call site. `Interval` therefore does not implement `Floating`; its package spells the questions the way IEEE 1788-2015 does (`is_empty`, `is_entire`, `is_common_interval`, `is_singleton`, the comparisons of Table 10.3, `contains` for a point) and re-rounds with `with_precision`, which always rounds outward."
 msgstr ""
-"直到 0.11，`Interval` 都实现了 `Floating`，而每个观测量都必须按区间的含义去读：`sign` 对“包含 0”返回 `Zero`，对空集则中止；通过它定义的 `is_zero` 表示“包含 0”，`is_nan` 表示“为空”，`with_precision` 则忽略它的舍入模式。于是，为标量写的泛型函数给出的答案对任何单个数都不成立：$[-1, 1]$ 的 `is_zero` 为真，但 $[-1, 1] \\n"
+"直到 0.11，`Interval` 都实现了 `Floating`，而每个观测量都必须按区间的含义去读：`signum` 对“包含 0”返回 `Zero`，对空集则中止；通过它定义的 `is_zero` 表示“包含 0”，`is_nan` 表示“为空”，`with_precision` 则忽略它的舍入模式。于是，为标量写的泛型函数给出的答案对任何单个数都不成立：$[-1, 1]$ 的 `is_zero` 为真，但 $[-1, 1] \\n"
 "e \\{0\\}$。这些谓词的名字就是标量的名字，所以从调用处看不出区间的含义。因此 `Interval` 不再实现 `Floating`；它所在的包按 IEEE 1788-2015 的方式拼写这些问题（`is_empty`、`is_entire`、`is_common_interval`、`is_singleton`、表 10.3 的各比较、对点使用 `contains`），并用总是向外舍入的 `with_precision` 重新舍入。"
 
 #: manual/design/def.md:145
@@ -16221,8 +16215,8 @@ msgid "The predicates"
 msgstr "谓词"
 
 #: manual/design/def.md:290
-msgid "The four predicates are projections of `classify` and `sign`, so their correctness reduces to (F1) and (F2). `is_zero` evaluates `classify` first and uses short-circuit `&&`; it therefore never calls `sign` on a NaN-class value, which keeps it total on NaN."
-msgstr "四个谓词都是 `classify` 和 `sign` 的投影，因此其正确性归结为 (F1) 和 (F2)。`is_zero` 先求值 `classify`，并使用短路的 `&&`；因此它从不对 NaN 类的值调用 `sign`，从而在 NaN 上仍是全函数。"
+msgid "The four predicates are projections of `classify` and `signum`, so their correctness reduces to (F1) and (F2). `is_zero` evaluates `classify` first and uses short-circuit `&&`; it therefore never calls `signum` on a NaN-class value, which keeps it total on NaN."
+msgstr "四个谓词都是 `classify` 和 `signum` 的投影，因此其正确性归结为 (F1) 和 (F2)。`is_zero` 先求值 `classify`，并使用短路的 `&&`；因此它从不对 NaN 类的值调用 `signum`，从而在 NaN 上仍是全函数。"
 
 #: manual/design/def.md:297
 msgid "Every item of `def` is constant time apart from the delegated implementation. `with_precision` and `normalized` cost what the concrete package's rounding or trailing-zero removal costs: linear in the coefficient length for decimals, and linear in the coefficient bit length for binary."
@@ -16237,8 +16231,8 @@ msgid "**`Compare` for IEEE comparison.** An `Int` result cannot express *unorde
 msgstr "**用 `Compare` 表示 IEEE 比较。** `Int` 结果无法表达*无序*；见上文的推导。"
 
 #: manual/design/def.md:309
-msgid "**Separate `NegativeZero` / `PositiveZero` signs.** They would make `sign` depend on the representation rather than the value."
-msgstr "**分别设立 `NegativeZero` / `PositiveZero` 符号。** 这会使 `sign` 依赖于表示而非值。"
+msgid "**Separate `NegativeZero` / `PositiveZero` signs.** They would make `signum` depend on the representation rather than the value."
+msgstr "**分别设立 `NegativeZero` / `PositiveZero` 符号。** 这会使 `signum` 依赖于表示而非值。"
 
 #: manual/design/def.md:311
 msgid "**Defining local copies of `RoundingMode` and `ArithmeticContext`.** They would need conversions at every boundary with Luna-Flow/arithmetic."

@@ -287,7 +287,7 @@ fn decimal_to_binary_directed(
   // The bounds must be tight enough that the roundings agree almost always:
   // relative error 2^(8 - bits) against a rounding unit of 2^-precision.
   let bits = precision + c_bits + 80
-  let negative = value.sign() == Sign::Negative
+  let negative = value.signum() == Sign::Negative
   let (lo_m, lo_k) = decimal_directed_binary_power5(magnitude, bits, false)
   let (hi_m, hi_k) = decimal_directed_binary_power5(magnitude, bits, true)
   if e >= 0 {
@@ -462,7 +462,7 @@ pub fn Decimal::to_binary(
         @binary.BinCoeff::from_bytes_be(magnitude.to_octets()),
         exponent,
         precision,
-        negative=self.sign() == Sign::Negative,
+        negative=self.signum() == Sign::Negative,
         mode~,
       )
     }
@@ -522,7 +522,7 @@ fn Decimal::to_binary_bounds(
   }
   let (magnitude, exponent) = decimal_to_binary_parts(self, precision)
   let coefficient = @binary.BinCoeff::from_bytes_be(magnitude.to_octets())
-  let negative = self.sign() == Sign::Negative
+  let negative = self.signum() == Sign::Negative
   (
     @binary.Binary::make(
       coefficient,

@@ -32,7 +32,7 @@ and `@interval.`, and `Luna-Flow/arithmetic` as `@lf_arith.`.
 
 ### `Sign`
 
-`Sign` is the three-way sign classification returned by `Floating::sign`.
+`Sign` is the three-way sign classification returned by `Floating::signum`.
 
 ```mbti
 pub(all) enum Sign {
@@ -45,16 +45,16 @@ pub(all) enum Sign {
 `Zero` is returned for both signed zeros, so `Sign` does not distinguish $-0$
 from $+0$; use the concrete package (for example `Binary::is_negative_zero`)
 when the sign bit of a zero matters. The scalar implementations also return
-`Zero` for every NaN (see [`Floating::sign`](#floatingsign)). `Sign` is also the payload of
+`Zero` for every NaN (see [`Floating::signum`](#floatingsignum)). `Sign` is also the payload of
 `SemanticScalar::Infinity` in the [`semantic`](semantic.md) package and the
 argument of constructors such as `Binary::inf`.
 
 ```moonbit
 ///|
 test "Sign values" {
-  let s = @def.Floating::sign(@binary.Binary::from_int(-3))
+  let s = @def.Floating::signum(@binary.Binary::from_int(-3))
   inspect(s == @def.Sign::Negative, content="true")
-  let z = @def.Floating::sign(@binary.Binary::from_double(-0.0))
+  let z = @def.Floating::signum(@binary.Binary::from_double(-0.0))
   inspect(z == @def.Sign::Zero, content="true")
 }
 ```
@@ -176,9 +176,9 @@ fn classify(Self) -> @arithmetic.FpClass
 For the scalar types this is the IEEE class with signalling and quiet NaNs
 merged. Total; never aborts.
 
-### `Floating::sign`
+### `Floating::signum`
 
-`sign` returns the sign classification of a value.
+`signum` returns the sign classification of a value.
 
 ```mbti
 fn sign(Self) -> Sign
@@ -244,7 +244,7 @@ fn[F : @def.Floating] describe(x : F) -> String {
     Infinity => "infinite"
     NaN => "nan"
   }
-  let sign = match @def.Floating::sign(x) {
+  let sign = match @def.Floating::signum(x) {
     Negative => "-"
     Zero => "0"
     Positive => "+"
@@ -506,7 +506,7 @@ pub using @arithmetic {type RoundingMode}
 // Traits
 pub(open) trait Floating {
   fn classify(Self) -> @arithmetic.FpClass
-  fn sign(Self) -> Sign
+  fn signum(Self) -> Sign
   fn precision(Self) -> Int32
   fn with_precision(Self, Int32) -> Self
   fn normalized(Self) -> Self

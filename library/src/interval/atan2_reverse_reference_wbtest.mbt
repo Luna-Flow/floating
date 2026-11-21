@@ -104,7 +104,7 @@ fn at2_sat1(y : @binary.Binary, b : Interval, c : Interval) -> Int32 {
     return at2_combine(decisions)
   }
   let exact_zero = Interval::exact(zero, precision=pwr_w)
-  if y.sign() == Sign::Positive {
+  if y.signum() == Sign::Positive {
     // decreasing in b0: from pi (b0 -> -inf, open) to 0 (b0 -> +inf, open)
     let low = if is_pos_inf(b.hi_) { exact_zero } else { at2_angle(y, b.hi_) }
     let high = if is_neg_inf(b.lo_) { pi } else { at2_angle(y, b.lo_) }
@@ -135,7 +135,7 @@ fn at2_sat2(x0 : @binary.Binary, a : Interval, c : Interval) -> Int32 {
     }
     return at2_combine(decisions)
   }
-  if x0.sign() == Sign::Positive {
+  if x0.signum() == Sign::Positive {
     // increasing in a0 over the whole line, from -pi/2 to pi/2 (both open)
     let low = if is_neg_inf(a.lo_) {
       at2_neg(half)

@@ -20,7 +20,7 @@ test "IEEE 1788 multiplication is tight for zero and unbounded intervals" {
   let negative = arithmetic_interval(-5, -1)
   let product = positive_half * negative
   assert_true(product.lower_bound().classify() == FpClass::Infinity)
-  assert_true(product.lower_bound().sign() == Sign::Negative)
+  assert_true(product.lower_bound().signum() == Sign::Negative)
   assert_eq(product.upper_bound().compare(negative.upper_bound()), 0)
 }
 
@@ -31,11 +31,11 @@ test "IEEE 1788 division keeps one-sided zero bounds tight" {
   let positive_result = one / nonnegative
   assert_eq(positive_result.lower_bound().compare(one.lower_bound()), 0)
   assert_true(positive_result.upper_bound().classify() == FpClass::Infinity)
-  assert_true(positive_result.upper_bound().sign() == Sign::Positive)
+  assert_true(positive_result.upper_bound().signum() == Sign::Positive)
   let nonpositive = arithmetic_interval(-1, 0)
   let negative_result = one / nonpositive
   assert_true(negative_result.lower_bound().classify() == FpClass::Infinity)
-  assert_true(negative_result.lower_bound().sign() == Sign::Negative)
+  assert_true(negative_result.lower_bound().signum() == Sign::Negative)
   assert_eq(negative_result.upper_bound().compare(one.lower_bound().neg()), 0)
 }
 
@@ -171,7 +171,7 @@ test "IEEE 1788 pown preserves negative-half-axis monotonicity" {
   assert_true(negative.pown(2).equal(arithmetic_interval(4, 9)))
   let reciprocal = negative.pown(-2)
   assert_true(reciprocal.lower_bound().compare(reciprocal.upper_bound()) <= 0)
-  assert_true(reciprocal.lower_bound().sign() == Sign::Positive)
+  assert_true(reciprocal.lower_bound().signum() == Sign::Positive)
   assert_true(
     reciprocal
     .upper_bound()

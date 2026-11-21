@@ -214,8 +214,8 @@ pub fn Binary::round_ties_to_even(Self) -> Self
 pub fn Binary::rsqrt(Self) -> Self
 pub fn Binary::rsqrt_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn Binary::scaleb_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
-pub fn Binary::sign(Self) -> @def.Sign
 pub fn Binary::signaling_nan(payload? : BinCoeff, negative? : Bool, precision? : Int32) -> Self
+pub fn Binary::signum(Self) -> @def.Sign
 pub fn Binary::sin(Self) -> Self
 pub fn Binary::sin_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn Binary::sinh(Self) -> Self

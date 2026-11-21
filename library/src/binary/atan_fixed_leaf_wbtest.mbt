@@ -31,7 +31,7 @@ fn old_atan_small_leaf(
     BinaryRoundingMode::RoundTowardPositive,
   )
   let half = Binary::make(BinCoeff::one(), -1, work_precision)
-  guard (lower_value.is_zero() || lower_value.sign() == Sign::Positive) &&
+  guard (lower_value.is_zero() || lower_value.signum() == Sign::Positive) &&
     upper_value.compare(half) <= 0 else {
     return None
   }

@@ -491,7 +491,7 @@ pub impl Show for Decimal with fn to_string(self) {
       }
     }
     FpClass::Infinity =>
-      if self.sign() == Sign::Negative {
+      if self.signum() == Sign::Negative {
         "-inf"
       } else {
         "inf"

@@ -156,7 +156,7 @@ pub fn SemanticScalar::from_binary(x : @binary.Binary) -> SemanticScalar {
       let signed = if x.is_sign_minus() { -magnitude } else { magnitude }
       Rational(ExactRational::from_scaled_integer(signed, 2, x.exponent2()))
     }
-    @lf_arith.FpClass::Infinity => Infinity(x.sign())
+    @lf_arith.FpClass::Infinity => Infinity(x.signum())
     @lf_arith.FpClass::NaN => NaN
   }
 }
@@ -168,7 +168,7 @@ pub fn SemanticScalar::from_decimal(x : @decimal.Decimal) -> SemanticScalar {
       Rational(
         ExactRational::from_scaled_integer(x.coefficient(), 10, x.exponent10()),
       )
-    @lf_arith.FpClass::Infinity => Infinity(x.sign())
+    @lf_arith.FpClass::Infinity => Infinity(x.signum())
     @lf_arith.FpClass::NaN => NaN
   }
 }

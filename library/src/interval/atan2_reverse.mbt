@@ -79,7 +79,7 @@ fn atan2_zone(e : @binary.Binary) -> Int32 {
   if e.is_zero() {
     return 3
   }
-  let negative = e.sign() == Sign::Negative
+  let negative = e.signum() == Sign::Negative
   let magnitude = if negative { e.neg() } else { e }
   let half = Interval::exact(@binary.Binary::from_double(0.5))
   let mut w = Int32::max(64, e.precision() + 16)
@@ -169,7 +169,7 @@ fn atan2_corner(
         FInf(s) => (inf_end(s * sign), false)
         FFin(value) =>
           (
-            inf_end(if value.sign() == Sign::Negative { -sign } else { sign }),
+            inf_end(if value.signum() == Sign::Negative { -sign } else { sign }),
             false,
           )
       }

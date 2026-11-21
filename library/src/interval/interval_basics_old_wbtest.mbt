@@ -31,7 +31,7 @@ fn old_extended_division_bounds(
     return (zero, zero)
   }
   if numerator.classify() == FpClass::Infinity {
-    let negative = numerator.sign() != denominator.sign()
+    let negative = numerator.signum() != denominator.signum()
     let infinity = @binary.Binary::inf(negative~, precision~)
     return (infinity, infinity)
   }
@@ -45,10 +45,10 @@ fn old_quotient_interval_nonzero_denominator(
   precision : Int32,
 ) -> Interval {
   let numerator_nonnegative = numerator.lo_.is_zero() ||
-    numerator.lo_.sign() == Sign::Positive
+    numerator.lo_.signum() == Sign::Positive
   let numerator_nonpositive = numerator.hi_.is_zero() ||
-    numerator.hi_.sign() == Sign::Negative
-  let denominator_positive = denominator.lo_.sign() == Sign::Positive
+    numerator.hi_.signum() == Sign::Negative
+  let denominator_positive = denominator.lo_.signum() == Sign::Positive
   let lower = if denominator_positive {
     if numerator_nonnegative || numerator_nonpositive {
       old_extended_division_bounds(
@@ -95,10 +95,10 @@ fn old_multiplication_bounds(
   precision : Int32,
 ) -> (@binary.Binary, @binary.Binary) {
   if a.is_common_interval() && b.is_common_interval() {
-    let a_nonnegative = a.lo_.is_zero() || a.lo_.sign() == Sign::Positive
-    let a_nonpositive = a.hi_.is_zero() || a.hi_.sign() == Sign::Negative
-    let b_nonnegative = b.lo_.is_zero() || b.lo_.sign() == Sign::Positive
-    let b_nonpositive = b.hi_.is_zero() || b.hi_.sign() == Sign::Negative
+    let a_nonnegative = a.lo_.is_zero() || a.lo_.signum() == Sign::Positive
+    let a_nonpositive = a.hi_.is_zero() || a.hi_.signum() == Sign::Negative
+    let b_nonnegative = b.lo_.is_zero() || b.lo_.signum() == Sign::Positive
+    let b_nonpositive = b.hi_.is_zero() || b.hi_.signum() == Sign::Negative
     if a_nonnegative && b_nonnegative {
       return (
         extended_mul(
@@ -239,7 +239,7 @@ fn old_pown_positive(
       precision,
     )
   }
-  if value.hi_.sign() == Sign::Negative {
+  if value.hi_.signum() == Sign::Negative {
     store_interval(
       pown_endpoint(
         value.hi_,

@@ -39,7 +39,7 @@ fn to_binary_reference(
     @binary.BinCoeff::from_bytes_be(q.to_octets()),
     -binary_shift,
     precision,
-    negative=x.sign() == Sign::Negative,
+    negative=x.signum() == Sign::Negative,
     mode~,
   )
 }

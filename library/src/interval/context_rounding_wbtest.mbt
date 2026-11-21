@@ -17,14 +17,14 @@ test "midpoint_ctx applies e_max" {
   let big = @binary.Binary::from_int(1 << 20, precision=53)
   let (m, flags) = Interval::from_bounds(big, big).midpoint_ctx(ctx)
   assert_eq(m.classify(), FpClass::Infinity)
-  assert_true(m.sign() == Sign::Positive)
+  assert_true(m.signum() == Sign::Positive)
   assert_true(flags.overflow())
   assert_true(flags.inexact())
   let (n, negative_flags) = Interval::from_bounds(big.neg(), big.neg()).midpoint_ctx(
     ctx,
   )
   assert_eq(n.classify(), FpClass::Infinity)
-  assert_true(n.sign() == Sign::Negative)
+  assert_true(n.signum() == Sign::Negative)
   assert_true(negative_flags.overflow())
   // The largest finite value of the context is not an overflow.
   let max = context_max_finite(ctx)

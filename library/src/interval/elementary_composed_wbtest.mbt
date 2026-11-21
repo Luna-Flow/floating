@@ -47,7 +47,7 @@ test "pi-scaled intervals classify endpoint and interior poles exactly" {
     .try_tanpi()
     .unwrap()
   assert_true(lower_pole.lower_bound().classify() == @def.FpClass::Infinity)
-  assert_true(lower_pole.lower_bound().sign() == @def.Sign::Negative)
+  assert_true(lower_pole.lower_bound().signum() == @def.Sign::Negative)
   assert_true(lower_pole.upper_bound().is_zero())
   assert_true(
     Interval::from_bounds(
@@ -70,8 +70,8 @@ test "stable expm1 and log1p intervals retain tiny singleton inputs" {
   let log1p = tiny.log1p()
   assert_false(expm1.contains_zero())
   assert_false(log1p.contains_zero())
-  assert_true(expm1.lower_bound().sign() == @def.Sign::Positive)
-  assert_true(log1p.lower_bound().sign() == @def.Sign::Positive)
+  assert_true(expm1.lower_bound().signum() == @def.Sign::Positive)
+  assert_true(log1p.lower_bound().signum() == @def.Sign::Positive)
 }
 
 ///|

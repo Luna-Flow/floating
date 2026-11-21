@@ -169,8 +169,8 @@ pub fn Interval::pown_rev(
     )
   } else if even {
     // negative even power: x^p > 0, decreasing in |x|, x != 0
-    if self.hi_.sign() == Sign::Positive {
-      let lo = if self.lo_.sign() == Sign::Negative || self.lo_.is_zero() {
+    if self.hi_.signum() == Sign::Positive {
+      let lo = if self.lo_.signum() == Sign::Negative || self.lo_.is_zero() {
         zero
       } else {
         self.lo_
@@ -185,8 +185,8 @@ pub fn Interval::pown_rev(
     }
   } else {
     // negative odd power: x^p has the sign of x and is decreasing on each side
-    if self.lo_.sign() == Sign::Negative {
-      let upper_c = if self.hi_.sign() == Sign::Positive {
+    if self.lo_.signum() == Sign::Negative {
+      let upper_c = if self.hi_.signum() == Sign::Positive {
         zero
       } else {
         self.hi_
@@ -197,8 +197,8 @@ pub fn Interval::pown_rev(
       let x_hi = rev_neg_bound_if_zero(x_hi)
       pieces.push(rev_piece(x_lo, false, x_hi, x_hi.is_zero()))
     }
-    if self.hi_.sign() == Sign::Positive {
-      let lower_c = if self.lo_.sign() == Sign::Negative || self.lo_.is_zero() {
+    if self.hi_.signum() == Sign::Positive {
+      let lower_c = if self.lo_.signum() == Sign::Negative || self.lo_.is_zero() {
         zero
       } else {
         self.lo_

@@ -87,11 +87,11 @@ fn mul_rev_pieces(b : Interval, c : Interval) -> Array[RevPiece] {
   if b.lo_.is_zero() && b.hi_.is_zero() {
     return pieces
   }
-  let c_positive = c.lo_.sign() == Sign::Positive
+  let c_positive = c.lo_.signum() == Sign::Positive
   // the end of c nearest to zero
   let near = if c_positive { c.lo_ } else { c.hi_ }
-  let has_negative_y = b.lo_.sign() == Sign::Negative
-  let has_positive_y = b.hi_.sign() == Sign::Positive
+  let has_negative_y = b.lo_.signum() == Sign::Negative
+  let has_positive_y = b.hi_.signum() == Sign::Positive
   // y < 0 side, y > 0 side of the divisor
   let from_negative = fn() {
     // x * y in c with y in [b.lo, 0): x <= near / b.lo when c > 0,

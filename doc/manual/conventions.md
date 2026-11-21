@@ -130,7 +130,7 @@ changes the interface.
 
 ## Numeric documentation rules
 
-- Use `precision`, `rounding`, `classify`, `sign`, `normalized`, `exponent`,
+- Use `precision`, `rounding`, `classify`, `signum`, `normalized`, `exponent`,
   `context` and `flags` as defined in
   [numeric semantics](./numeric_semantics.md).
 - Separate the stored representation, the exact value, the rounded result,

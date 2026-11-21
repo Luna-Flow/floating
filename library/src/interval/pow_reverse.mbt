@@ -298,7 +298,7 @@ fn pow_adjusted_exponent(x : @binary.Binary) -> Int64 {
 /// `+1` if `c^(1/beta) > 1`, `-1` if `< 1` (for `c != 1`).
 fn pow_side(c : @binary.Binary, beta : @binary.Binary) -> Int32 {
   let above = c.compare(@binary.Binary::one()) > 0
-  if above == (beta.sign() == Sign::Positive) {
+  if above == (beta.signum() == Sign::Positive) {
     1
   } else {
     -1
@@ -455,7 +455,7 @@ fn pow_rational_compare(
   exp2 : Int32,
   d : @binary.Binary,
 ) -> Int32 {
-  if d.sign() != Sign::Positive {
+  if d.signum() != Sign::Positive {
     return 1
   }
   let (dc, de) = (d.coefficient(), d.exponent2())
