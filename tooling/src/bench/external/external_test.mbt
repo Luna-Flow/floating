@@ -154,7 +154,7 @@ fn binary_function(
     "add" => Some((x, y) => x.add(y))
     "mul" => Some((x, y) => x.mul(y))
     "div" => Some((x, y) => x.div(y))
-    "sqrt" => Some((x, _) => x.sqrt().unwrap())
+    "sqrt" => Some((x, _) => x.sqrt())
     "exp" => Some((x, _) => x.exp())
     "ln" => Some((x, _) => x.ln())
     "sin" => Some((x, _) => x.sin())

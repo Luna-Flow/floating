@@ -477,9 +477,9 @@ signaling NaN operand is a `DomainError`; `hypot` raises no other exception
 test "powers and roots" {
   let r = fn(n : Int) { @bin_float_checked.BinFloatResult::from_int(n) }
   inspect(show(@bin_float_checked.BinFloatResult::from_int(81, precision=48).sqrt()), content="9p0")
-  inspect(show(r(-4).sqrt()), content="error: sqrt requires a non-negative value")
+  inspect(show(r(-4).sqrt()), content="error: invalid operation")
   inspect(show(r(3).pow_nat(10)), content="59049p0")
-  inspect(show(r(0).pown(-1)), content="error: negative exponent requires a non-zero base")
+  inspect(show(r(0).pown(-1)), content="error: division by zero")
   inspect(show(r(-8).rootn(3)), content="-1p1")
   inspect(show(r(8).rootn(0)), content="error: rootn: invalid operation")
   inspect(show(r(3).hypot(r(4))), content="5p0")

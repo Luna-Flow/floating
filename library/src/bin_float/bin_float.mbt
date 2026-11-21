@@ -390,14 +390,8 @@ fn div_bin_impl(a : BinFloat, b : BinFloat) -> BinFloat {
 }
 
 ///|
-fn sqrt_for_precision(
-  x : BinFloat,
-  precision : Int32,
-) -> Result[BinFloat, @def.ArithmeticError] {
-  binary_checked_result(
-    x.sqrt_ctx(binary_working_context(precision)),
-    "sqrt requires a non-negative value",
-  )
+fn sqrt_for_precision(x : BinFloat, precision : Int32) -> BinFloat {
+  x.sqrt_ctx(binary_working_context(precision)).0
 }
 
 ///|
@@ -1132,29 +1126,26 @@ pub fn BinFloat::div(self : BinFloat, other : BinFloat) -> BinFloat {
 }
 
 ///|
-pub fn BinFloat::sqrt(
-  self : BinFloat,
-) -> Result[BinFloat, @def.ArithmeticError] {
+/// IEEE 754-2019 squareRoot at the precision of `self`: `sqrt_ctx` under the
+/// working context, a NaN (7.2 invalid operation) for a negative operand, `-0` for
+/// `-0`. It never aborts and has no `Result`: the flag is read through `sqrt_ctx`.
+pub fn BinFloat::sqrt(self : BinFloat) -> BinFloat {
   match binary_fast_sqrt(self) {
-    Some(result) => Ok(result)
+    Some(result) => result
     None =>
       match binary_coeff_fast_sqrt(self) {
-        Some(result) => Ok(result)
+        Some(result) => result
         None => sqrt_for_precision(self, self.precision_())
       }
   }
 }
 
 ///|
-pub fn BinFloat::pown(
-  self : BinFloat,
-  exponent : Int32,
-) -> Result[BinFloat, @def.ArithmeticError] {
-  binary_checked_result(
-    self.pown_ctx(exponent, binary_working_context(self.precision_())),
-    "invalid power",
-    division_by_zero_message="negative exponent requires a non-zero base",
-  )
+/// `pown_ctx` under the working context at the precision of `self`: a NaN for an
+/// invalid case (7.2), an infinity for `0^negative` (7.3), never an abort; the
+/// flags are read through `pown_ctx`.
+pub fn BinFloat::pown(self : BinFloat, exponent : Int32) -> BinFloat {
+  self.pown_ctx(exponent, binary_working_context(self.precision_())).0
 }
 
 ///|

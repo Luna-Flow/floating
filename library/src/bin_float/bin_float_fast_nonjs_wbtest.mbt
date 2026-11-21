@@ -215,11 +215,11 @@ test "one-word sqrt equals the general path" {
     match binary_fast_sqrt(value) {
       Some(result) => {
         fast += 1
-        assert_true(fast_test_same(result, general.unwrap()))
+        assert_true(fast_test_same(result, general))
       }
       None => ()
     }
-    assert_true(fast_test_same(value.sqrt().unwrap(), general.unwrap()))
+    assert_true(fast_test_same(value.sqrt(), general))
   }
   assert_true(fast > 20000)
 }
@@ -237,11 +237,11 @@ test "one-word sqrt handles perfect squares, powers of two and odd exponents" {
           exponent,
           precision,
         )
-        let general = sqrt_for_precision(value, value.precision()).unwrap()
-        assert_true(fast_test_same(value.sqrt().unwrap(), general))
+        let general = sqrt_for_precision(value, value.precision())
+        assert_true(fast_test_same(value.sqrt(), general))
         let squared = value.mul_ctx(value, BinaryContext::new(precision~)).0
-        let general_root = sqrt_for_precision(squared, squared.precision()).unwrap()
-        assert_true(fast_test_same(squared.sqrt().unwrap(), general_root))
+        let general_root = sqrt_for_precision(squared, squared.precision())
+        assert_true(fast_test_same(squared.sqrt(), general_root))
       }
     }
   }
@@ -302,7 +302,7 @@ test "binary64 quotient and root equal the integer word path and the general pat
     }
     let value = left.abs()
     let root = binary_fast_sqrt(value).unwrap()
-    let general_root = sqrt_for_precision(value, left_precision).unwrap()
+    let general_root = sqrt_for_precision(value, left_precision)
     assert_true(fast_test_same(root, general_root))
     if left_precision == 53 {
       assert_true(fast_test_same(root, binary_fast_sqrt_words(value).unwrap()))
@@ -359,14 +359,14 @@ test "binary64 quotient and root at ties, exact results and powers of two" {
       assert_true(
         fast_test_same(
           binary_fast_sqrt(value).unwrap(),
-          sqrt_for_precision(value, 53).unwrap(),
+          sqrt_for_precision(value, 53),
         ),
       )
       let square = value.mul_ctx(value, BinaryContext::new(precision=53)).0
       assert_true(
         fast_test_same(
           binary_fast_sqrt(square).unwrap(),
-          sqrt_for_precision(square, 53).unwrap(),
+          sqrt_for_precision(square, 53),
         ),
       )
     }

@@ -145,7 +145,7 @@ fn elementary_core(
     Log2 => input.positive.log2()
     Log10 => input.positive.log10()
     Log1p => input.unit.log1p()
-    Sqrt => input.positive.sqrt().unwrap()
+    Sqrt => input.positive.sqrt()
     Rootn => input.positive.rootn(3)
     Pow => input.positive.pow(input.unit)
     Hypot => input.positive.hypot(input.unit)

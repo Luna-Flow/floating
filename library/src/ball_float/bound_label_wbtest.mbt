@@ -129,7 +129,7 @@ test "labels of the bounds: written-out cases" {
   // (1) the ends of BallFloat::new(sqrt 3, 1024 ulp, 53): numbers of 53 bits
   // whose coefficient has a trailing zero bit were labelled 52
   let three = @bin_float.BinFloat::from_int(3, precision=53)
-  let root = three.sqrt().unwrap()
+  let root = three.sqrt()
   let ulp = @bin_float.BinFloat::make(
     @bin_float.BinCoeff::from_uint64(1024UL),
     -51,

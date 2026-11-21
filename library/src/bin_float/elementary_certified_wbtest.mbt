@@ -96,7 +96,7 @@ test "BinFloat hypot rounds the exact sum of squares" {
 
 ///|
 test "BinFloat pown preserves the standard integer-power semantics" {
-  assert_eq(BinFloat::from_int(2).pown(10).unwrap(), BinFloat::from_int(1024))
+  assert_eq(BinFloat::from_int(2).pown(10), BinFloat::from_int(1024))
 }
 
 ///|

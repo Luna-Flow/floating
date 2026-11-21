@@ -512,6 +512,14 @@ notes live in this file.
 
   The extended arithmetic is unchanged (0.996 to 0.998 of before).
 
+- `bin_float`: `BinFloat::sqrt` and `BinFloat::pown` return a `BinFloat` ([#438](https://github.com/Luna-Flow/floating/issues/438), item S4, last step; S2 of the design: the plain form is the `_ctx` form's value and never fails). They returned `Result[BinFloat, ArithmeticError]` with the domain case, the pole and a certification failure as `Err`, which no other plain operation of the package does. An invalid operation is a quiet NaN (IEEE 754-2019 7.2: a negative nonzero argument, `-inf`, a signaling NaN; `sqrt(-0)` is `-0`), `pown(+-0, n < 0)` is an infinity (7.3), and the flag is read through `sqrt_ctx(ctx).1` and `pown_ctx(n, ctx).1`. `BinFloatResult::sqrt` and `pown` keep their checked behaviour (they map the flags of `sqrt_ctx` / `pown_ctx`).
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `x.sqrt()` -> `Result[BinFloat, ArithmeticError]`, `Err(domain_error)` for a negative value | `x.sqrt() -> BinFloat`, a quiet NaN | `x.sqrt_ctx(ctx).1.invalid_operation()` for the reason; `.unwrap()` goes |
+  | `x.pown(n)` -> `Result[BinFloat, ArithmeticError]`, `Err(division_by_zero)` for `0^negative`, `Err(domain_error)` for a signaling NaN | `x.pown(n) -> BinFloat`: `+-inf`, a quiet NaN | `pown_ctx(n, ctx).1` for the flags |
+  | the messages `sqrt requires a non-negative value`, `invalid power`, `negative exponent requires a non-zero base` of `BinFloatResult::sqrt` and `pown` | `invalid operation`, `division by zero` | the kinds of the errors are unchanged |
+
 
 ### Added
 
