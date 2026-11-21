@@ -1,3 +1,4 @@
+<!-- historical-performance-baseline: 0.11.0 -->
 # External baseline: floating against MPFR and libmpdec
 
 ## Contract

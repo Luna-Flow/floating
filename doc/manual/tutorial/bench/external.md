@@ -1,3 +1,4 @@
+<!-- historical-performance-baseline: 0.11.0 -->
 # bench/external tutorial
 
 This page shows how to run the external baseline, `floating` against MPFR and

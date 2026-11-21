@@ -1,3 +1,4 @@
+<!-- historical-performance-baseline: 0.11.0 -->
 # bench/external design
 
 ## Design goal

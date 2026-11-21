@@ -1,3 +1,4 @@
+<!-- historical-performance-baseline: 0.11.0 -->
 # binary design
 
 `binary` implements IEEE 754 binary floating-point arithmetic at any

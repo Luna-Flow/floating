@@ -1,6 +1,6 @@
 # `binary`
 
-`binary` is the stable scalar binary surface for `0.11.0`. Public types are
+`binary` is the stable scalar binary surface for `0.12.0-pre`. Public types are
 `Binary`, non-negative `BinCoeff`, `BinaryContext`/`BinaryFlags`, and
 `BinaryInterchange`. Use ordinary methods for arbitrary-precision values and
 `*_ctx` methods when IEEE rounding, exponent limits, tininess, or flags matter.

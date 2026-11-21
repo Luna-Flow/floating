@@ -1,7 +1,7 @@
 # floating
 
 This manual documents the `main` branch of `Luna-Flow/floating`, which builds
-on the `0.11.0` release; the changes since that release are listed in the
+on the latest published stable release, `0.11.0`; the changes since that release are listed in the
 changelog.
 
 ## Overview
