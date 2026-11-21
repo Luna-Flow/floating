@@ -17,17 +17,22 @@ import os
 import subprocess
 import sys
 import time
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 
 import gate_lock
 import incremental
 import kernel_units
+import native_units
 import run_ci
+import stage_units
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 # Scopes with a conformance stage that supports `--incremental`: scope -> backend of that stage.
 INCREMENTAL_BACKENDS: dict[str, str] = {"binary": "binary"}
+# Scopes whose stages include whole-stage units (`tools/stage_units.py`): the keys are in `SPECS`.
+UNIT_SCOPES = tuple(stage_units.SPECS)
+COVERED_SCOPES = tuple(sorted({*INCREMENTAL_BACKENDS, *UNIT_SCOPES}))
 
 
 def is_incremental_stage(command: Sequence[str], backend: str) -> bool:
@@ -45,10 +50,10 @@ def incremental_command(command: Sequence[str], backend: str) -> tuple[str, ...]
 
 def plan(scope: str, jobs: int) -> list[tuple[str, tuple[str, ...], bool]]:
     """(stage name, command, incremental) for every stage of the scope."""
-    backend = INCREMENTAL_BACKENDS[scope]
+    backend = INCREMENTAL_BACKENDS.get(scope, "")
     out = []
     for stage in run_ci.stages_for(scope, jobs):
-        command = incremental_command(stage.command, backend)
+        command = incremental_command(stage.command, backend) if backend else tuple(stage.command)
         out.append((stage.name, command, command != tuple(stage.command)))
     return out
 
@@ -58,6 +63,10 @@ def run_stages(
     kernel: kernel_units.Plan | None,
     execute: Callable[[tuple[str, ...]], int],
     out: Callable[[str], None] = print,
+    stage: stage_units.Plan | None = None,
+    stage_tally: stage_units.Tally | None = None,
+    stage_commits: dict[str, int] | None = None,
+    execute_tee: stage_units.Execute | None = None,
 ) -> tuple[int, kernel_units.KernelTally, dict[str, int]]:
     """Run the stages in order. A kernel stage whose key is in the ledger is reported as reused and
     not executed; one that is sampled is executed and must pass (a failure is a defect of the
@@ -66,7 +75,13 @@ def run_stages(
     tally = kernel_units.KernelTally(disabled=kernel.disabled if kernel else "")
     commits: dict[str, int] = {}
     units = {u.name: u for u in kernel.units} if kernel else {}
+    whole = {u.name: u for u in stage.units} if stage else {}
     for name, command, is_incremental in stages:
+        if stage and name in whole and execute_tee is not None and stage_tally is not None and stage_commits is not None:
+            status = stage_units.run_stage(stage, whole[name], execute_tee, stage_tally, stage_commits, out)
+            if status != 0:
+                return status, tally, commits
+            continue
         unit = units.get(name)
         action = kernel.actions[name] if (kernel and unit and not kernel.disabled) else "run"
         if unit and kernel and action == "reuse":
@@ -131,10 +146,10 @@ def run_unlocked(
     kernel_only: bool = False,
     plan_only: bool = False,
 ) -> int:
-    if scope not in INCREMENTAL_BACKENDS:
+    if scope not in COVERED_SCOPES:
         print(
             f"verify: scope '{scope}' has no incremental stage in this version "
-            f"(covered: {', '.join(sorted(INCREMENTAL_BACKENDS))}); run `just gate {scope}`",
+            f"(covered: {', '.join(COVERED_SCOPES)}); run `just gate {scope}`",
             file=sys.stderr,
         )
         return 2
@@ -143,14 +158,20 @@ def run_unlocked(
         stages = [st for st in stages if st[0].startswith(("DEPENDENCIES", kernel_units.KERNEL_STAGE_PREFIX))]
     started = time.monotonic()
     kernel_count = len(kernel_units.kernel_units([(n, c) for n, c, _ in stages])) if kernel_incremental else 0
+    whole_units = stage_units.units_for(scope, [(n, c) for n, c, _ in stages]) if kernel_incremental else []
+    whole_names = {u.name for u in whole_units}
     print(
         f"VERIFY scope={scope} workers={jobs} (incremental stages: {sum(1 for s in stages if s[2])} of {len(stages)}, "
-        f"kernel units: {kernel_count})"
+        f"kernel units: {kernel_count}, stage units: {len(whole_units)})"
     )
     if dry_run:
         for name, command, flag in stages:
-            print(f"{name} [{'incremental' if flag else 'kernel unit' if kernel_count and name.startswith(kernel_units.KERNEL_STAGE_PREFIX) else 'full'}]: " + " ".join(command))
+            kind = "incremental" if flag else "kernel unit" if kernel_count and name.startswith(kernel_units.KERNEL_STAGE_PREFIX) else "stage unit" if name in whole_names else "full"
+            print(f"{name} [{kind}]: " + " ".join(command))
         return 0
+    if whole_units:
+        full = [n for n, _, f in stages if n not in whole_names and not f and not n.startswith(("DEPENDENCIES", kernel_units.KERNEL_STAGE_PREFIX))]
+        print(f"stages of this scope that stay full: {', '.join(full) if full else 'none'}")
     chosen_seed = seed if seed is not None else int.from_bytes(os.urandom(4), "big")
     kernel = None
     if kernel_incremental:
@@ -164,18 +185,37 @@ def run_unlocked(
                 kernel = kernel_units.make_plan([(n, c) for n, c, _ in stages], REPO_ROOT, ledger, chosen_seed, rate)
         if kernel.disabled:
             print(f"kernel units disabled: {kernel.disabled}")
-        if plan_only:
-            import json
+    stage_plan = None
+    if kernel_incremental and whole_units:
+        ledger = incremental.Ledger(ledger_path or incremental.ledger_path(REPO_ROOT))
+        stage_plan = stage_units.make_plan(scope, [(n, c) for n, c, _ in stages], REPO_ROOT, ledger, chosen_seed, rate)
+        if stage_plan.disabled and "could not print" in stage_plan.disabled:
+            fetch = next((st for st in stages if st[0].startswith("DEPENDENCIES")), None)
+            if fetch is not None and subprocess.run(fetch[1], cwd=REPO_ROOT).returncode == 0:
+                stage_plan = stage_units.make_plan(scope, [(n, c) for n, c, _ in stages], REPO_ROOT, ledger, chosen_seed, rate)
+        if stage_plan.disabled:
+            print(f"stage units disabled: {stage_plan.disabled}")
+    if plan_only:
+        import json
 
-            print("KERNEL-PLAN " + json.dumps({"disabled": kernel.disabled, "actions": kernel.actions}, sort_keys=True))
-            return 0
+        print("KERNEL-PLAN " + json.dumps({"disabled": kernel.disabled if kernel else "", "actions": kernel.actions if kernel else {}}, sort_keys=True))
+        if stage_plan:
+            print("STAGE-PLAN " + json.dumps({"disabled": stage_plan.disabled, "actions": stage_plan.actions, "not keyed": stage_plan.unit_disabled}, sort_keys=True))
+        return 0
 
     def execute(command: tuple[str, ...]) -> int:
         return subprocess.run(command, cwd=REPO_ROOT).returncode
 
-    status, tally, commits = run_stages(stages, kernel, execute)
+    def execute_tee(command: tuple[str, ...], env: "Mapping[str, str] | None") -> tuple[int, str]:
+        return native_units.run_tee(command, REPO_ROOT, env)
+
+    stage_tally = stage_units.Tally(disabled=stage_plan.disabled if stage_plan else "")
+    stage_commits: dict[str, int] = {}
+    status, tally, commits = run_stages(stages, kernel, execute, stage=stage_plan, stage_tally=stage_tally, stage_commits=stage_commits, execute_tee=execute_tee)
     if kernel and kernel.units:
         print(kernel_units.summary_line(tally, chosen_seed, rate, commits))
+    if stage_plan and stage_plan.units:
+        print(stage_units.summary_line(stage_tally, chosen_seed, rate, stage_commits))
     if status != 0:
         return status
     print(f"PASS  verify {scope}, {time.monotonic() - started:.1f}s (reused units are listed above, never counted as run)")

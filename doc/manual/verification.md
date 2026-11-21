@@ -638,11 +638,30 @@ stage on every run with only seven units); the seed is printed, and a sampled st
 although its key is recorded as passing is a defect of the system (status 70). `just verify binary`
 runs the stages this way; `--full-kernel` runs them in full.
 
+### The stages of the interval and GDA gates
+
+`just verify interval` and `just verify decimal_gda` run three whole stages as units, with the same
+ledger, `REUSED` lines, 2 % sampling and exit status 70 as the kernel stages. Two are `moon test`
+stages (the reverse trigonometric reference tests of `interval`, and the package tests of
+`decimal_gda`): the key is the content of the packages and of everything they import inside the two
+modules, read from `moon.pkg`, with the module files, the command, the build commands of `moon test
+--dry-run`, the toolchain and the verifier. A package whose closure imports the file system, the
+environment or async is not keyed, because a test that cannot import them cannot read a data file at
+run time; and a `moon test` run that selects no test, or a package that is not found, fails instead
+of passing. The third is a Python stage (the oracle checks of the interval gate, about two minutes):
+its key is a declared set of files and directories written in `tools/stage_units.py`, chosen from an
+audit of one run and rounded up to whole directories. What a run happened to open is not a key, so
+every real run of the stage executes under an audit hook and a read of anything below the repository
+outside the declared set fails the stage with exit status 70 and the path: the declaration cannot go
+stale silently. The stages that stay full are listed by `verify`: the interval corpus (it needs the
+split of the interval frontend into arms), the differential stage of the interval gate, and the three
+short stages of the GDA gate (the frontend tests and the two decTest corpora, about seven seconds).
+
 ### What it does not cover
 
 The decimal gate (`just gate decimal` runs generated `moon test` fixtures on native, Wasm, Wasm-GC
-and JavaScript), the GDA, interval and elementary gates, the other `moon test` stages (units per test
-block), the other targets, and a cache shared with GitHub CI are outside this version.
+and JavaScript), the elementary gate, the other `moon test` stages (units per test block), the other
+targets, and the full stages listed above are outside this version.
 
 ## Reproducibility
 
