@@ -30,6 +30,7 @@ Run them from the repository root, normally through `just`.
 | `generated_paths.py` | the one list of the throwaway sources that gate stages write into the source trees (the manual examples, the IEEE smoke); shared by the package check and the Python test guard |
 | `check_imports.py` | package independence, the library's dependencies, equal versions and identical `LICENSE` files |
 | `check_package_contents.py` | the shape of the zip of each module (`just publish`) |
+| `code_fingerprint.py` | fingerprints of the compiled code reachable from an entry, taken from the generated C of the native backend (`python3 tools/code_fingerprint.py <cli.c> [entry ...]` prints the line accounting, the residue, the layout-index and shared-local counts and the fingerprints; `--cut` names the dispatchers); the basis of incremental verification, not yet used by a gate |
 | `doc_quality.py`, `check_doc_examples.py`, `conformance_checklist.py` | the manual: sections, links, versions, API snapshots, runnable examples, the generated checklist |
 | `native_test_timing.py` | which native test files are slowest |
 
