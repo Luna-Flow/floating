@@ -134,7 +134,7 @@ the operation runs (the value of the left pipeline is kept). The context
 changes only through `with_context`, which records the flags of rounding the
 current value into the new context. `DecimalChecked::from_decimal(x, ctx)`
 lifts a plain value; it applies the context, so a signaling NaN lifted that way
-is quieted with `invalid_operation`. The constructor that took a value, a
+is quieted with `invalid_operation`, and a value wider than the context is rounded by the lift, so an operand meant to enter the operation exactly is lifted in a wide context (the operation itself uses the right value as it is). The constructor that took a value, a
 context and flags is not public: a caller could state flags that no operation
 raised. For the same reason the type implements no operators.
 
