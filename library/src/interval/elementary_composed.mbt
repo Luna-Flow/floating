@@ -54,13 +54,13 @@ fn first_odd_index_at_or_above(index : SignedBinCoeff) -> SignedBinCoeff {
 
 ///|
 pub fn Interval::rootn(self : Interval, degree : Int32) -> Interval {
-  if self.is_empty() || degree == 0 {
-    return Interval::empty(precision=self.precision_)
-  }
   match self.try_rootn(degree) {
     Ok(result) => result
     Err(_) =>
-      if degree % 2 == 0 {
+      if degree == 0 {
+        // degree 0 is outside the domain of Table 10.5 (q is a nonzero integer): no point, so the empty set
+        Interval::empty(precision=self.precision_)
+      } else if degree % 2 == 0 {
         store_interval(
           @bin_float.BinFloat::zero(precision=self.precision_),
           pos_inf(self.precision_),
