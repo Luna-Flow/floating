@@ -243,16 +243,22 @@ fn decimal_elementary_integer_mod4(value : Decimal) -> Int32? {
 }
 
 ///|
+/// With `listed_only`, only the results IEEE 754-2019 9.2.1 lists: `sinPi` of an
+/// integer, `cosPi` of a half-integer, `tanPi` of an integer and of a
+/// half-integer. The others (`cosPi(n)` = +-1, `sinPi(n + 1/2)` = +-1) are exact
+/// results of ordinary operands.
 fn decimal_pi_scaled_exact(
   value : Decimal,
   operation : DecimalUnaryElementary,
   ctx : DecimalContext,
+  listed_only~ : Bool = false,
 ) -> (Decimal, DecimalFlags)? {
   guard operation == SinPi || operation == CosPi || operation == TanPi else {
     return None
   }
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   match decimal_elementary_integer_mod4(value) {
+    Some(_) if listed_only && operation == CosPi => return None
     Some(residue) => {
       let sine = decimal_elementary_zero(value.negative, ctx).0
       let cosine = Decimal::from_int(
@@ -291,6 +297,7 @@ fn decimal_pi_scaled_exact(
     Int32::max(value.precision_, value.coefficient.digits10() + 1),
   )
   match decimal_elementary_integer_mod4(doubled) {
+    Some(_) if listed_only && operation == SinPi => None
     Some(residue) if residue % 2 != 0 => {
       let sine_negative = residue == 3
       let sine = Decimal::from_int(
@@ -363,9 +370,11 @@ fn Decimal::try_unary_elementary_ctx(
   operation : DecimalUnaryElementary,
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
-  if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
-    return Err(decimal_context_limit(operation.name(), ctx))
-  }
+  // The special operands and the exact points (IEEE 754-2019 9.2.1) are
+  // answered in every context; the limit of the context is tested after them,
+  // before the first step that computes.
+  let limited = math_context_is_restricted(ctx) ||
+    decimal_math_operand_out_of_range(self)
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   if self.class == FpClass::NaN {
     return Ok(quiet_nan_operand(self, ctx))
@@ -488,10 +497,52 @@ fn Decimal::try_unary_elementary_ctx(
       None => ()
     }
   }
+  match decimal_pi_scaled_exact(self, operation, ctx, listed_only=true) {
+    Some(result) => return Ok(result)
+    None => ()
+  }
+  let invalid_domain = match operation {
+    Log2 => self.compare(zero) <= 0
+    Log1p => self.compare(minus_one) < 0
+    Asin | Acos => self.abs_ctx(decimal_exact_work_context()).0.compare(one) > 0
+    Acosh => self.compare(one) < 0
+    Atanh => self.abs_ctx(decimal_exact_work_context()).0.compare(one) > 0
+    Rootn(degree) => degree == 0 || (self.negative && degree % 2 == 0)
+    _ => false
+  }
+  if invalid_domain {
+    return Ok(decimal_elementary_invalid(ctx))
+  }
+  if operation == Log1p && self.compare(minus_one) == 0 {
+    return Ok(decimal_elementary_division_by_zero(Sign::Negative, ctx))
+  }
+  if operation == Atanh &&
+    self.abs_ctx(decimal_exact_work_context()).0.compare(one) == 0 {
+    return Ok(decimal_elementary_division_by_zero(self.sign(), ctx))
+  }
+  if (operation == Log2 && self.compare(one) == 0) ||
+    (operation == Acos && self.compare(one) == 0) ||
+    (operation == Acosh && self.compare(one) == 0) {
+    return Ok(decimal_elementary_zero(false, ctx))
+  }
+  if limited {
+    return Err(decimal_context_limit(operation.name(), ctx))
+  }
+  // exact results of ordinary operands, not listed in 9.2.1: after the limit
   match decimal_pi_scaled_exact(self, operation, ctx) {
     Some(result) => return Ok(result)
     None => ()
   }
+  match operation {
+    Rootn(degree) =>
+      match decimal_rootn_exact_result(self, degree, ctx) {
+        Some(result) => return Ok(result)
+        None => ()
+      }
+    _ => ()
+  }
+  // an integer operand goes through `pow_ctx` (an ordinary operand: after the
+  // limit of the context)
   if operation == Exp2 || operation == Exp10 {
     match decimal_power_integer_is_odd(self) {
       Some(_) => {
@@ -522,18 +573,6 @@ fn Decimal::try_unary_elementary_ctx(
       }
     _ => ()
   }
-  let invalid_domain = match operation {
-    Log2 => self.compare(zero) <= 0
-    Log1p => self.compare(minus_one) < 0
-    Asin | Acos => self.abs_ctx(decimal_exact_work_context()).0.compare(one) > 0
-    Acosh => self.compare(one) < 0
-    Atanh => self.abs_ctx(decimal_exact_work_context()).0.compare(one) > 0
-    Rootn(degree) => degree == 0 || (self.negative && degree % 2 == 0)
-    _ => false
-  }
-  if invalid_domain {
-    return Ok(decimal_elementary_invalid(ctx))
-  }
   match decimal_certified_saturated_unary_result(self, operation, ctx) {
     Some(result) => return Ok(result)
     None => ()
@@ -550,25 +589,6 @@ fn Decimal::try_unary_elementary_ctx(
       Some(result) => return Ok(result)
       None => ()
     }
-  }
-  if operation == Log1p && self.compare(minus_one) == 0 {
-    return Ok(decimal_elementary_division_by_zero(Sign::Negative, ctx))
-  }
-  if operation == Atanh &&
-    self.abs_ctx(decimal_exact_work_context()).0.compare(one) == 0 {
-    return Ok(decimal_elementary_division_by_zero(self.sign(), ctx))
-  }
-  if (operation == Log2 && self.compare(one) == 0) ||
-    (operation == Acosh && self.compare(one) == 0) {
-    return Ok(decimal_elementary_zero(false, ctx))
-  }
-  match operation {
-    Rootn(degree) =>
-      match decimal_rootn_exact_result(self, degree, ctx) {
-        Some(result) => return Ok(result)
-        None => ()
-      }
-    _ => ()
   }
   // sin, cos and tan of a huge integer operand: the operand is exactly a binary
   // rational (c * 5^e * 2^e), so it enters the ball as an exact point and the
@@ -1143,11 +1163,10 @@ pub fn Decimal::try_hypot_ctx(
   other : Decimal,
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
-  if math_context_is_restricted(ctx) ||
+  // Special operands are answered in every context (IEEE 754-2019 9.2.1).
+  let limited = math_context_is_restricted(ctx) ||
     decimal_math_operand_out_of_range(self) ||
-    decimal_math_operand_out_of_range(other) {
-    return Err(decimal_context_limit("hypot", ctx))
-  }
+    decimal_math_operand_out_of_range(other)
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   let nan_result = quiet_nan_pair(self, other, ctx)
   if self.class == FpClass::Infinity || other.class == FpClass::Infinity {
@@ -1172,6 +1191,9 @@ pub fn Decimal::try_hypot_ctx(
   }
   if self.coefficient.is_zero() && other.coefficient.is_zero() {
     return Ok((Decimal::zero(precision~), DecimalFlags::new()))
+  }
+  if limited {
+    return Err(decimal_context_limit("hypot", ctx))
   }
   match decimal_hypot_exact_result(self, other, ctx) {
     Some(result) => return Ok(result)
@@ -1216,11 +1238,11 @@ pub fn Decimal::try_atan2_ctx(
   abscissa : Decimal,
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
-  if math_context_is_restricted(ctx) ||
+  // NaN operands and the zero and infinite operands that select an exact zero
+  // or a multiple of pi/4 are answered in every context (IEEE 754-2019 9.2.1).
+  let limited = math_context_is_restricted(ctx) ||
     decimal_math_operand_out_of_range(self) ||
-    decimal_math_operand_out_of_range(abscissa) {
-    return Err(decimal_context_limit("atan2", ctx))
-  }
+    decimal_math_operand_out_of_range(abscissa)
   match quiet_nan_pair(self, abscissa, ctx) {
     Some(result) => return Ok(result)
     None => ()
@@ -1259,6 +1281,9 @@ pub fn Decimal::try_atan2_ctx(
         "atan2",
       )
     None => ()
+  }
+  if limited {
+    return Err(decimal_context_limit("atan2", ctx))
   }
   // The tiny-argument decision below needs `3 top < adjusted(ratio) - p - 3`,
   // with top = adjusted(ratio) + 1 and adjusted(ratio) >= D - 1 for

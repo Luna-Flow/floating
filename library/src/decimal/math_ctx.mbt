@@ -16,9 +16,10 @@ pub fn Decimal::try_log10_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
-  if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
-    return Err(decimal_context_limit("log10", ctx))
-  }
+  // The special operands and the exact points are defined by IEEE 754-2019
+  // 9.2.1 in every context; only the ordinary operands meet the limit.
+  let limited = math_context_is_restricted(ctx) ||
+    decimal_math_operand_out_of_range(self)
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   match self.class {
     FpClass::NaN => Ok(quiet_nan_operand(self, ctx))
@@ -35,12 +36,22 @@ pub fn Decimal::try_log10_ctx(
       Ok(decimal_elementary_division_by_zero(Sign::Negative, ctx))
     FpClass::Finite if self.negative =>
       Ok((Decimal::nan(precision~), invalid_flags()))
-    FpClass::Finite if dec_coeff_compare_repr(
-        remove_factor10_repr(self.coefficient, 0).0,
-        dec_coeff_from_int(1),
-      ) ==
-      0 => Ok(logb_finite_result_ctx(adjusted_exponent(self), ctx))
-    FpClass::Finite => decimal_certified_log10_result(self, ctx)
+    // 9.2.1: log10(1) is +0. The other exact powers of ten are exact results
+    // of ordinary operands and follow the limit.
+    FpClass::Finite if is_finite_decimal_one(self) =>
+      Ok(logb_finite_result_ctx(adjusted_exponent(self), ctx))
+    FpClass::Finite =>
+      if limited {
+        Err(decimal_context_limit("log10", ctx))
+      } else if dec_coeff_compare_repr(
+          remove_factor10_repr(self.coefficient, 0).0,
+          dec_coeff_from_int(1),
+        ) ==
+        0 {
+        Ok(logb_finite_result_ctx(adjusted_exponent(self), ctx))
+      } else {
+        decimal_certified_log10_result(self, ctx)
+      }
   }
 }
 
@@ -60,9 +71,10 @@ pub fn Decimal::try_exp_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
-  if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
-    return Err(decimal_context_limit("exp", ctx))
-  }
+  // The special operands and the exact points are defined by IEEE 754-2019
+  // 9.2.1 in every context; only the ordinary operands meet the limit.
+  let limited = math_context_is_restricted(ctx) ||
+    decimal_math_operand_out_of_range(self)
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   match self.class {
     FpClass::NaN => Ok(quiet_nan_operand(self, ctx))
@@ -76,7 +88,12 @@ pub fn Decimal::try_exp_ctx(
       )
     FpClass::Finite if self.coefficient.is_zero() =>
       Ok((Decimal::one(precision~), DecimalFlags::new()))
-    FpClass::Finite => decimal_certified_exp_result(self, ctx)
+    FpClass::Finite =>
+      if limited {
+        Err(decimal_context_limit("exp", ctx))
+      } else {
+        decimal_certified_exp_result(self, ctx)
+      }
   }
 }
 
@@ -96,9 +113,10 @@ pub fn Decimal::try_ln_ctx(
   self : Decimal,
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
-  if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
-    return Err(decimal_context_limit("ln", ctx))
-  }
+  // The special operands and the exact points are defined by IEEE 754-2019
+  // 9.2.1 in every context; only the ordinary operands meet the limit.
+  let limited = math_context_is_restricted(ctx) ||
+    decimal_math_operand_out_of_range(self)
   let precision = finite_precision_for_coeff(dec_coeff_zero(), ctx)
   match self.class {
     FpClass::NaN => Ok(quiet_nan_operand(self, ctx))
@@ -117,7 +135,12 @@ pub fn Decimal::try_ln_ctx(
       Ok((Decimal::nan(precision~), invalid_flags()))
     FpClass::Finite if is_finite_decimal_one(self) =>
       Ok((Decimal::zero(precision~), DecimalFlags::new()))
-    FpClass::Finite => decimal_certified_ln_result(self, ctx)
+    FpClass::Finite =>
+      if limited {
+        Err(decimal_context_limit("ln", ctx))
+      } else {
+        decimal_certified_ln_result(self, ctx)
+      }
   }
 }
 

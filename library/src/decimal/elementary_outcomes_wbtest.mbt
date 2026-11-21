@@ -102,7 +102,7 @@ fn elementary_outcome_table() -> Array[
       "cospi",
       fn(x, _y, ctx) { x.try_cospi_ctx(ctx) },
       fn(x, _y, ctx) { x.cospi_ctx(ctx) },
-      "0.5",
+      "0.3",
       "sNaN",
     ),
     (
@@ -214,7 +214,7 @@ fn elementary_outcome_table() -> Array[
       "sinpi",
       fn(x, _y, ctx) { x.try_sinpi_ctx(ctx) },
       fn(x, _y, ctx) { x.sinpi_ctx(ctx) },
-      "0.5",
+      "0.3",
       "sNaN",
     ),
     (
@@ -235,7 +235,7 @@ fn elementary_outcome_table() -> Array[
       "tanpi",
       fn(x, _y, ctx) { x.try_tanpi_ctx(ctx) },
       fn(x, _y, ctx) { x.tanpi_ctx(ctx) },
-      "0.5",
+      "0.3",
       "sNaN",
     ),
     (

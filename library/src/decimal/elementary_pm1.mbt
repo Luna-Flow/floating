@@ -447,9 +447,9 @@ fn Decimal::try_pm1_ctx(
   operation : DecimalPm1,
   ctx : DecimalContext,
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
-  if math_context_is_restricted(ctx) || decimal_math_operand_out_of_range(self) {
-    return Err(decimal_context_limit(operation.name(), ctx))
-  }
+  // Special operands are answered in every context (IEEE 754-2019 9.2.1).
+  let limited = math_context_is_restricted(ctx) ||
+    decimal_math_operand_out_of_range(self)
   // 9.2: a signaling NaN signals invalid and gives a quiet NaN; a quiet NaN
   // propagates (payload and sign kept) with no exception.
   if self.class == FpClass::NaN {
@@ -472,6 +472,9 @@ fn Decimal::try_pm1_ctx(
   // 9.2.1: f(+0) is +0 and f(-0) is -0 with no exception.
   if self.coefficient.is_zero() {
     return Ok(decimal_elementary_zero(self.negative, ctx))
+  }
+  if limited {
+    return Err(decimal_context_limit(operation.name(), ctx))
   }
   match decimal_pm1_below_subnormal_range(self, ctx) {
     Some(result) => return Ok(result)

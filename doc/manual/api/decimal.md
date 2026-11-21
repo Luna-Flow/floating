@@ -1465,13 +1465,29 @@ refined directed bounds.
 These operations return NaN with `not_computed` (and the `try_` forms `Err`, of the certification-failure kind) when $p > 999\,999$,
 $e_{\max} > 999\,999$ or $e_{\min} < -999\,999$, or when a finite operand has
 more than 999,999 digits or an adjusted exponent beyond about $\pm 10^6$.
-In such a context every operand is `not_computed`, the special ones (NaN,
-infinities, zero) included, although IEEE 754-2019 defines those results (the
-order of the checks is that of the implementation; lifting it is the subject of
-#478). Only `pow_ctx` and `pown_ctx` handle their IEEE power cases before this
-restricted-context check. For example, `pow_ctx(1, 1.1)` is exactly `1` even
-in a restricted context, while `ln_ctx(1)` and `exp_ctx(-inf)` still return
-`not_computed`. Integral powers in `decimal` support counts through
+In such a context the rule is one: a case that IEEE 754-2019 9.2.1 or Table 9.1
+lists is a value, and everything else is `not_computed`. The listed cases are a
+NaN operand; an infinite or zero operand; the listed exact points
+(`ln_ctx(1)`, `log2_ctx(1)`, `log10_ctx(1)`, `acos_ctx(1)`, `acospi_ctx(1)`,
+`acosh_ctx(1)` are `0`, `atanpi_ctx(+inf)` is `0.5`, `sinpi_ctx(n)` for an
+integer `n`, `cospi_ctx(n + 0.5)`, `tanpi_ctx` at integers and half-integers);
+the domain errors (`invalid_operation`) and the poles (`division_by_zero`);
+`compound`, `rootn` and `rsqrt` at the operands the clause lists; and the
+constants of `atan2`, `atan2pi` and `atan(+-inf)`. The limit of the context is
+tested after them and before the first step that computes. An exact result of
+an ordinary operand that the clause does not list stays `not_computed`:
+`hypot_ctx(3, 4)`, `rsqrt_ctx(4)`, `log10_ctx(1E+5)`, `atanpi_ctx(1)`,
+`acospi_ctx(0)`, `sinpi_ctx(0.5)`, `cospi_ctx(1)`, `exp2_ctx(3)`, `rootn_ctx(8, 3)`.
+Accepting every context for ordinary operands is the subject of
+[#478](https://github.com/Luna-Flow/floating/issues/478). `decimal_gda` keeps
+the other order, which the decTest corpus requires. Cost: the constants of
+`atan(+-inf)` and of the multiples of pi of `atan2` are computed at the
+precision of the context; at a precision of 1,000,000 digits that takes about
+100 seconds each, and from 80,807,094 digits on the result is `not_computed` at once:
+`decimal_certified_work_refusal` refuses a first working precision (3.321929
+bits per digit plus 31 guard bits) above `binary_precision_max`, 268,435,456
+bits (`bin_float/context.mbt:43`); 80,807,093 digits is the largest precision
+served. Integral powers in `decimal` support counts through
 999,999,999 for positive exponents and -1,999,999,997 for negative exponents;
 these are adopted decNumber implementation limits, not limits imposed by GDA
 1.70. Integer powers above those counts use bounded square-and-multiply when
