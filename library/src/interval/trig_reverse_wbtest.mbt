@@ -49,7 +49,7 @@ fn tr_pi_multiple(
   m2 : Int32,
   precision : Int32,
 ) -> (@binary.Binary, @binary.Binary) {
-  let pi = certified_pi_interval(400)
+  let pi = ref_pi_interval(400)
   let e = Interval::exact(@binary.Binary::from_int(m2)) *
     (pi * Interval::exact(@binary.Binary::from_double(0.5)))
   tr_round(e, precision)
@@ -153,7 +153,7 @@ test "sin_rev: a gap, merging pieces, the default prior and the shortcuts" {
     // c = [0, 1/2]: pieces [0, pi/6] and [5 pi/6, pi] (and the shifts by 2 pi)
     let c = tr_box(zero, half, p)
     let sixth = Interval::exact(half, precision=400).asin()
-    let pi = certified_pi_interval(400)
+    let pi = ref_pi_interval(400)
     let (t1_lo, t1_hi) = tr_round(sixth, p)
     let t2 = pi - sixth
     let (t2_lo, t2_hi) = tr_round(t2, p)
@@ -266,7 +266,7 @@ test "cos_rev: the corner cases, the pieces and the shortcuts" {
     // c = [0, 1/2]: cos x in [0, 1/2] for x in [pi/3, pi/2] (and its mirrors)
     let half = tr_num(0.5, p)
     let c2 = tr_box(zero, half, p)
-    let pi = certified_pi_interval(400)
+    let pi = ref_pi_interval(400)
     let third = Interval::exact(half, precision=400).acos()
     let (a_lo, a_hi) = tr_round(third, p)
     let (b_lo, b_hi) = tr_pi_multiple(1, p)

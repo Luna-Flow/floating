@@ -14,7 +14,7 @@
 
 ///|
 fn at2_pi() -> Interval {
-  certified_pi_interval(pwr_w)
+  ref_pi_interval(pwr_w)
 }
 
 ///|

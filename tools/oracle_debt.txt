@@ -12,14 +12,8 @@ library/src/interval/algebraic_reverse_wbtest.mbt::sqr_rev: the examples of IEEE
 library/src/interval/atan2_reverse_reference_wbtest.mbt::atan2 reverse reference fallback: the cap at 0 and at 1 never misses a point	?
 library/src/interval/atan2_reverse_reference_wbtest.mbt::atan2 reverse reference long: against the forward atan2 at 200 bits	?
 library/src/interval/atan2_reverse_reference_wbtest.mbt::atan2 reverse reference sample: against the forward atan2 at 200 bits	?
-library/src/interval/atan2_reverse_wbtest.mbt::atan2 zones: the position of an angle against the multiples of pi/2, exactly	?
-library/src/interval/atan2_reverse_wbtest.mbt::atan2: the branch cut and the half-open range	?
 library/src/interval/atan2_reverse_wbtest.mbt::atan2_rev1 and atan2_rev2: an angle one float from pi/2 or pi gives a huge result	?
-library/src/interval/atan2_reverse_wbtest.mbt::atan2_rev1 and atan2_rev2: c = Entire, and Entire operands with a thin c	?
-library/src/interval/atan2_reverse_wbtest.mbt::atan2_rev1 and atan2_rev2: decorated forms are trv and NaI propagates	?
 library/src/interval/atan2_reverse_wbtest.mbt::atan2_rev1 and atan2_rev2: extreme operands return at once	?
-library/src/interval/atan2_reverse_wbtest.mbt::atan2_rev1: the empty set	?
-library/src/interval/atan2_reverse_wbtest.mbt::atan2_rev2: the empty set	?
 library/src/interval/atan2_tiny_quotient_wbtest.mbt::try_atan2 of a quotient below the exponent range encloses zero tightly	?
 library/src/interval/atan2_wbtest.mbt::atan2 identifies signed zero endpoints with the real interval zero	?
 library/src/interval/atan2_wbtest.mbt::certified atan2 handles axes and branch cut	?
