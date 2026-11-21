@@ -61,7 +61,9 @@ pub struct Decimal {
 A finite number keeps its exponent, so `2.50` and `2.5` are distinct members of
 the same *cohort*: they compare equal numerically and differ in
 `compare_total`, `same_quantum` and printing. Zero is signed. A NaN carries a
-sign and a non-negative integer payload; GDA 1.70, page 11 (Special values) says a positive integer, and the library also accepts 0.
+sign and a non-negative integer payload. A payload of 0 stands for a NaN without diagnostic information
+and is printed as `NaN`; GDA 1.70, page 11 (Special values) describes the payload as a positive integer when a NaN
+has one, and pages 18 and 19 give the string form as `NaN` with optional digits that have no leading zeros.
 
 Every value stores a precision, the precision of the value (`precision()`).
 It is the precision of the context or constructor that produced it. GDA
@@ -102,7 +104,7 @@ pub fn Decimal::signaling_nan(payload? : @bigint.BigInt, negative? : Bool, preci
 | --- | --- |
 | `inf()` | $+\infty$ |
 | `inf(negative=true)` | $-\infty$ |
-| `nan()` | a positive quiet NaN with payload 0 |
+| `nan()` | a positive quiet NaN with payload 0, which stands for a NaN without diagnostic information |
 
 A payload has at most `precision - 1` digits, because GDA 1.70, page 11
 (Special values) says that a payload is no larger than the coefficient can
@@ -546,10 +548,21 @@ extensions that the library keeps, and the official decTest files use both.
 - `extended=false` selects the GDA subset arithmetic of Appendix A (GDA 1.70, page 55
   (Appendix A, The X3.274 subset); footnote 43: a parameter of the context "might" select it).
   In subset arithmetic, operands longer than $p$ digits are rounded first, which raises
-  `LostDigits` when it is inexact. Special values cannot be parsed, a zero is $+0$ with exponent 0 (`quantize`
-  aside), a result with a positive exponent gets exponent 0 when it then has at most $p$
-  digits (`apply` and `quantize` aside), `divide` and `power` remove fractional trailing zeros,
-  and `fma` is invalid.
+  `LostDigits` when it is inexact. Special values cannot be parsed, `divide` and `power` remove
+  fractional trailing zeros, and `fma` is invalid.
+  - After `plus`, `minus`, `abs`, `add`, `subtract`, `multiply`, `divide`, `divide_integer`, `max`,
+    `min`, `max_magnitude` and `min_magnitude`, a zero is $+0$ with exponent 0, and a result with a
+    positive exponent has exponent 0 when it then has at most $p$ digits (the rule of page 55).
+  - `apply`, `to_number`, `reduce`, `round_to_integral_exact`, `round_to_integral_value`, `sqrt`,
+    `remainder` and `remainder_near` give a zero as $+0$ with exponent 0 but keep a positive
+    exponent: `reduce` of `1200` is `1.2E+3`.
+  - `quantize`, `rescale`, `scaleb`, `shift`, `rotate` and `next_toward` keep the exponent of a zero
+    and a positive exponent: `rescale(12, 2)` is `0E+2` and `scaleb(12, 2)` is `1.2E+3`. `scaleb`,
+    `shift` and `rotate` also keep the sign of $-0$. `power` returns $-0$ for $-0$ to an odd integer
+    power.
+  - Appendix A does not name `reduce`, `rescale`, `scaleb`, `shift`, `rotate`, `remainder` or the
+    two round-to-integral operations. For these the library gives the results of decNumber 3.68
+    ([conformance](../conformance/decimal_gda.md#subset-arithmetic-and-operations-appendix-a-does-not-name)).
 
 > [!NOTE]
 > `exp`, `ln`, `log10` and `power` with a non-integer exponent accept only a context with
@@ -580,7 +593,7 @@ pub fn GdaContext::decimal128(rounding? : GdaRoundingMode) -> Self
 `basic_default` is the basic default context of the specification: precision 9, round-half-up,
 and every trap enabled except inexact, rounded and subnormal (GDA 1.70, page 16 (Default
 contexts)). The library also leaves the lost-digits trap off, because Appendix A says that the Lost digits condition should be set to 0 in
-default contexts (GDA 1.70, page 56 (Appendix A, Operation differences)). It sets `extended=false` for this context (the X3.274 subset of Appendix A),
+default contexts (GDA 1.70, page 56 (Appendix A, The X3.274 subset)). It sets `extended=false` for this context (the X3.274 subset of Appendix A),
 which the definition of the basic default context in GDA 1.70 does not set.
 
 `decimal32`, `decimal64` and `decimal128` are the extended default contexts for the IEEE 754
@@ -723,7 +736,7 @@ pub(all) enum GdaSignal {
 The specification has eight signals (GDA 1.70, page 15 (flags and
 trap-enablers)): `Clamped`, `DivisionByZero`, `Inexact`, `InvalidOperation`,
 `Overflow`, `Rounded`, `Subnormal` and `Underflow`. `LostDigits` is the ninth,
-raised only in subset arithmetic (GDA 1.70, page 56 (Appendix A, Operation differences)).
+raised only in subset arithmetic (GDA 1.70, page 56 (Appendix A, The X3.274 subset)).
 
 Four conditions that the specification says signal invalid-operation are not
 signals: conversion syntax, division impossible, division undefined and invalid
@@ -1107,7 +1120,7 @@ $p \le 999\,999$, $E_{\max} \le 999\,999$ and $E_{\min} \ge -999\,999$. Beyond a
 | --- | --- |
 | $p \le 999\,999$, $E_{\max} \le 999\,999$, $-E_{\min} \le 999\,999$ | `exp`, `ln`, `log10`, and `power` with a non-integer exponent |
 | a nonzero operand has at most 999,999 digits | `exp`, `ln`, `log10` |
-| the adjusted exponent of a nonzero operand is at most 999,999 and at least $-1\,999\,997$ | `exp`, `ln`, `log10` |
+| the adjusted exponent of a nonzero operand is at most 999,999 and at least $-1\,999\,997$ | `exp`, `ln`, `log10`, and `power` with a non-integer exponent (its base, and its exponent at the lower limit) |
 
 This is an implementation limit. The operation text of GDA 1.70 states no such bound, and the
 limit is permitted by its Invalid context condition, which applies when the precision "exceeds the
@@ -1176,8 +1189,9 @@ For a non-integer $y$, $x$ must be positive (a negative base is invalid), and th
 certified to be correctly rounded *with the rounding of the context*. The case $y = 0.5$ is
 computed as a square root under the rounding of the context. The
 [implementation limit](#implementation-limit-of-exp-ln-log10-and-power) applies to a non-integer
-exponent. For a finite base, a non-integer exponent with a base or an exponent beyond the operand limits of that
-section, and an integer exponent with an adjusted exponent above 999,999, give a NaN with
+exponent. For a finite base, a non-integer exponent with a base whose adjusted exponent is above 999,999 or below
+$-1\,999\,997$, or an exponent whose adjusted exponent is below $-1\,999\,997$, and an integer exponent with an
+adjusted exponent above 999,999, give a NaN with
 `InvalidOperation`, not `InvalidContext`.
 
 The special cases follow GDA:
@@ -1331,7 +1345,7 @@ extended context.
 
 A subset context (`extended=false`) first rounds the operands to the precision,
 as it does for every operand (see [`GdaContext::new`](#gdacontextnew-gdacontexttry_new); GDA 1.70,
-page 56 (Appendix A, Operation differences)), which raises `Rounded` and `LostDigits`. The [`Decimal` methods of the same
+page 56 (Appendix A, The X3.274 subset)), which raises `Rounded` and `LostDigits`. The [`Decimal` methods of the same
 names](#decimalcompare_total-decimalcompare_total_magnitude) compare the
 operands as they are.
 

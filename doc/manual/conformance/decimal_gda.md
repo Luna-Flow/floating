@@ -35,6 +35,10 @@ General Decimal Arithmetic Specification 1.70 for `decimal_gda`, one row per ope
 | status flags and traps (Appendix and Exceptional conditions) | `GdaOutcome`, `GdaContext::with_traps` | every decTest row checks the flag set; trap enablement is covered by the runner's directive handling | conforming |
 | subset arithmetic (Appendix A) | `extended = false` contexts | pinned subset corpus `dectest0.zip` (32 files, 31 with `extended: 0`) in the `DECIMAL_GDA: official0 decTest` gate stage; `library/src/decimal_gda/` white-box tests | conforming |
 
+## Subset arithmetic and operations Appendix A does not name
+
+For a result with a positive exponent, `add`, `subtract`, `divide`, `divide_integer`, `max` and `min`, which Appendix A of GDA 1.70 names, apply the rule of page 55. Appendix A does not name `reduce`, `rescale`, `scaleb`, `shift`, `rotate`, `remainder` or the two round-to-integral operations, and its text does not decide them. For these the library gives the results of decNumber 3.68: a measurement of 26 calls on 2026-11-22, in a subset and in an extended context, found no difference. This is a recorded decision; the API page lists the operations that keep a positive exponent in [subset arithmetic](../api/decimal_gda.md#gdacontextnew-gdacontexttry_new).
+
 ## decTest rows behind statements of the API page
 
 The [API page](../api/decimal_gda.md) states these rules without naming the rows of the corpus that check them.
