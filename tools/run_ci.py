@@ -67,6 +67,23 @@ KERNEL_PRODUCT_ROUTES_TEST = (
 )
 
 
+# The product oracle (tools/kernel_oracle.py, level A): the products and squares of the
+# kernel at the sizes where its routes switch, and the overlap-add rows, against
+# digests and residues computed by CPython. Its `#skip` tests run here in the three
+# states of the row implementation.
+KERNEL_PRODUCT_ORACLE_TEST = (
+    "sh",
+    "tools/run_moon_clean_exec.sh",
+    "test",
+    "library/src/internal/bin_kernel/coeff_product_oracle_wbtest.mbt",
+    "--include-skipped",
+    "--target",
+    "native",
+    "--deny-warn",
+    "--frozen",
+)
+
+
 def conformance_command(backend: BackendName, jobs: int) -> tuple[str, ...]:
     base = [
         sys.executable,
@@ -242,6 +259,19 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
             # states of the row implementation (assembly or C rows, C rows, portable loops).
             *(
                 Stage(f"BINARY: kernel product routes ({state})", (*prefix, *KERNEL_PRODUCT_ROUTES_TEST))
+                for state, prefix in (
+                    ("default", ()),
+                    ("C rows", ("env", "LUNA_FLOATING_LIMBS=c")),
+                    ("portable loops", ("env", "LUNA_FLOATING_PORTABLE=1")),
+                )
+            ),
+            # every row of the oracle tables, the slow ones included (about a minute)
+            Stage(
+                "BINARY: kernel oracle tables",
+                (sys.executable, "tools/kernel_oracle.py", "--check", "--all"),
+            ),
+            *(
+                Stage(f"BINARY: kernel product oracle ({state})", (*prefix, *KERNEL_PRODUCT_ORACLE_TEST))
                 for state, prefix in (
                     ("default", ()),
                     ("C rows", ("env", "LUNA_FLOATING_LIMBS=c")),
