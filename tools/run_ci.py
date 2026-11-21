@@ -277,6 +277,15 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                     "--frozen",
                 ),
             ),
+            # The check modes of the Python oracle programs (`tools/itl_oracle_checks.py`): the
+            # refinements and the generated atan2 reverse corpus against their exact recomputation.
+            # The atan2 check alone takes about 140 s of CPU, so the stage is here and not in `just pr`
+            # (the trig, pow and pow2 checks run in the Python tests there, skipped visibly when
+            # the corpus is missing). The corpus is required: this gate has fetched it.
+            Stage(
+                "INTERVAL: oracle checks",
+                (sys.executable, "tools/itl_oracle_checks.py", "--require-corpus"),
+            ),
         ],
         "elementary": [
             Stage(
