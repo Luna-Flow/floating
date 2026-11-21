@@ -247,10 +247,10 @@ test "every context-free function that returns a Decimal gives a non-finite or a
           x - y,
           x * y,
           x / y,
-          x.min(y),
-          x.max(y),
+          x.min_num(y),
+          x.max_num(y),
           x.copy_sign(y),
-          x.clamp(min=y.min(y.neg()), max=y.max(y.neg())),
+          x.clamp(min=y.min_num(y.neg()), max=y.max_num(y.neg())),
         ] {
         assert_true(
           stored_range_storable(result),

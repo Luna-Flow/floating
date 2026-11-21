@@ -286,22 +286,22 @@ pub fn BinaryChecked::div_ctx(
 }
 
 ///|
-pub fn BinaryChecked::min(
+pub fn BinaryChecked::min_num(
   self : BinaryChecked,
   other : BinaryChecked,
 ) -> BinaryChecked {
   BinaryChecked::from_result(
-    bin_result_lift2(self.inner, other.inner, fn(lhs, rhs) { lhs.min(rhs) }),
+    bin_result_lift2(self.inner, other.inner, fn(lhs, rhs) { lhs.min_num(rhs) }),
   )
 }
 
 ///|
-pub fn BinaryChecked::max(
+pub fn BinaryChecked::max_num(
   self : BinaryChecked,
   other : BinaryChecked,
 ) -> BinaryChecked {
   BinaryChecked::from_result(
-    bin_result_lift2(self.inner, other.inner, fn(lhs, rhs) { lhs.max(rhs) }),
+    bin_result_lift2(self.inner, other.inner, fn(lhs, rhs) { lhs.max_num(rhs) }),
   )
 }
 

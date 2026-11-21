@@ -344,7 +344,7 @@ pub fn Decimal::total_order_mag(self : Decimal, other : Decimal) -> Bool {
 }
 
 ///|
-pub fn Decimal::min(self : Decimal, other : Decimal) -> Decimal {
+pub fn Decimal::min_num(self : Decimal, other : Decimal) -> Decimal {
   match plain_minmax_nan_result(self, other) {
     Some(result) => result
     None => if self.compare(other) <= 0 { self } else { other }
@@ -352,7 +352,7 @@ pub fn Decimal::min(self : Decimal, other : Decimal) -> Decimal {
 }
 
 ///|
-pub fn Decimal::max(self : Decimal, other : Decimal) -> Decimal {
+pub fn Decimal::max_num(self : Decimal, other : Decimal) -> Decimal {
   match plain_minmax_nan_result(self, other) {
     Some(result) => result
     None => if self.compare(other) >= 0 { self } else { other }

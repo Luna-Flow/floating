@@ -1006,7 +1006,7 @@ pub fn Binary::compare(self : Binary, other : Binary) -> Int32 {
 }
 
 ///|
-pub fn Binary::min(self : Binary, other : Binary) -> Binary {
+pub fn Binary::min_num(self : Binary, other : Binary) -> Binary {
   if self.classify() == FpClass::NaN {
     other
   } else if other.classify() == FpClass::NaN {
@@ -1019,7 +1019,7 @@ pub fn Binary::min(self : Binary, other : Binary) -> Binary {
 }
 
 ///|
-pub fn Binary::max(self : Binary, other : Binary) -> Binary {
+pub fn Binary::max_num(self : Binary, other : Binary) -> Binary {
   if self.classify() == FpClass::NaN {
     other
   } else if other.classify() == FpClass::NaN {

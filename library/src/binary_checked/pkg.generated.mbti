@@ -87,8 +87,8 @@ pub fn BinaryChecked::log2_ctx(Self, @binary.BinaryContext) -> Self
 pub fn BinaryChecked::log2p1(Self) -> Self
 pub fn BinaryChecked::log2p1_ctx(Self, @binary.BinaryContext) -> Self
 pub fn BinaryChecked::map(Self, (@binary.Binary) -> @binary.Binary) -> Self
-pub fn BinaryChecked::max(Self, Self) -> Self
-pub fn BinaryChecked::min(Self, Self) -> Self
+pub fn BinaryChecked::max_num(Self, Self) -> Self
+pub fn BinaryChecked::min_num(Self, Self) -> Self
 pub fn BinaryChecked::mul(Self, Self) -> Self
 pub fn BinaryChecked::mul_ctx(Self, Self, @binary.BinaryContext) -> Self
 pub fn BinaryChecked::neg(Self) -> Self

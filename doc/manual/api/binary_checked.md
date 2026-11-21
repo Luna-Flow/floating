@@ -215,16 +215,16 @@ dividend over a zero divisor ($\pm 0$), and the IEEE 754-2019 result
 otherwise: a quiet NaN for a quiet NaN operand (NaN$/0$ included),
 $\pm\infty$ for $\infty/0$, and the rounded quotient.
 
-### `BinaryChecked::min`, `BinaryChecked::max`
+### `BinaryChecked::min_num`, `BinaryChecked::max_num`
 
-These methods take the smaller or larger operand with `Binary::min` /
-`Binary::max`, which ignore a NaN operand in favour of the other one and
+These methods take the smaller or larger operand with `Binary::min_num` /
+`Binary::max_num`, which ignore a NaN operand in favour of the other one and
 return the receiver when the operands compare equal (so `min(-0, +0)` is
 $-0$ and `min(+0, -0)` is $+0$).
 
 ```mbti
-pub fn BinaryChecked::min(Self, Self) -> Self
-pub fn BinaryChecked::max(Self, Self) -> Self
+pub fn BinaryChecked::min_num(Self, Self) -> Self
+pub fn BinaryChecked::max_num(Self, Self) -> Self
 ```
 
 ### `BinaryChecked::clamp`
@@ -933,8 +933,8 @@ pub fn BinaryChecked::log2_ctx(Self, @binary.BinaryContext) -> Self
 pub fn BinaryChecked::log2p1(Self) -> Self
 pub fn BinaryChecked::log2p1_ctx(Self, @binary.BinaryContext) -> Self
 pub fn BinaryChecked::map(Self, (@binary.Binary) -> @binary.Binary) -> Self
-pub fn BinaryChecked::max(Self, Self) -> Self
-pub fn BinaryChecked::min(Self, Self) -> Self
+pub fn BinaryChecked::max_num(Self, Self) -> Self
+pub fn BinaryChecked::min_num(Self, Self) -> Self
 pub fn BinaryChecked::mul(Self, Self) -> Self
 pub fn BinaryChecked::mul_ctx(Self, Self, @binary.BinaryContext) -> Self
 pub fn BinaryChecked::neg(Self) -> Self

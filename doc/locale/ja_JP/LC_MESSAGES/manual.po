@@ -2198,8 +2198,8 @@ msgid "After the operand errors (left first), the result is `DivChecked::div_che
 msgstr "オペランドのエラー（左が先）の後、結果は、オペランドの大きい方の精度での `Binary` の `DivChecked::div_checked` となります。$0/0$、$\\infty/\\infty$、または signaling NaN のオペランドに対しては `DomainError`、有限な非ゼロの被除数をゼロの除数（$\\pm 0$）で割る場合は `DivisionByZero` エラー、それ以外は IEEE 754-2019 の結果です。quiet NaN のオペランド（NaN$/0$ を含む）からは quiet NaN、$\\infty/0$ からは $\\pm\\infty$、それ以外は丸められた商が得られます。"
 
 #: manual/api/binary_checked.md:220
-msgid "These methods take the smaller or larger operand with `Binary::min` / `Binary::max`, which ignore a NaN operand in favour of the other one and return the receiver when the operands compare equal (so `min(-0, +0)` is $-0$ and `min(+0, -0)` is $+0$)."
-msgstr "これらのメソッドは `Binary::min` / `Binary::max` で小さいほう・大きいほうのオペランドを取ります。これらは NaN のオペランドを無視してもう一方を採用し、オペランドが等しいと比較される場合はレシーバを返します（したがって `min(-0, +0)` は $-0$、`min(+0, -0)` は $+0$ です）。"
+msgid "These methods take the smaller or larger operand with `Binary::min_num` / `Binary::max_num`, which ignore a NaN operand in favour of the other one and return the receiver when the operands compare equal (so `min(-0, +0)` is $-0$ and `min(+0, -0)` is $+0$)."
+msgstr "これらのメソッドは `Binary::min_num` / `Binary::max_num` で小さいほう・大きいほうのオペランドを取ります。これらは NaN のオペランドを無視してもう一方を採用し、オペランドが等しいと比較される場合はレシーバを返します（したがって `min(-0, +0)` は $-0$、`min(+0, -0)` は $+0$ です）。"
 
 #: manual/api/binary_checked.md:232
 msgid "`clamp(min~, max~)` restricts a value to an interval."
@@ -9508,8 +9508,8 @@ msgid "§9.6 minimum, maximum and magnitude variants"
 msgstr "§9.6 minimum、maximum と絶対値の変種"
 
 #: manual/conformance/binary.md:99
-msgid "none (`Binary::min` and `Binary::max` are plain helpers)"
-msgstr "なし（`Binary::min` と `Binary::max` は単なる補助関数）"
+msgid "none (`Binary::min_num` and `Binary::max_num` are plain helpers)"
+msgstr "なし（`Binary::min_num` と `Binary::max_num` は単なる補助関数）"
 
 #: manual/conformance/binary.md:100
 #: manual/conformance/decimal.md:76
