@@ -561,8 +561,12 @@ extensions that the library keeps, and the official decTest files use both.
     `shift` and `rotate` also keep the sign of $-0$. `power` returns $-0$ for $-0$ to an odd integer
     power.
   - Appendix A does not name `reduce`, `rescale`, `scaleb`, `shift`, `rotate`, `remainder` or the
-    two round-to-integral operations. For these the library gives the results of decNumber 3.68
+    two round-to-integral operations. For `reduce`, `rescale`, `scaleb`, `shift` and `rotate` the
+    library gives the results of decNumber 3.68
     ([conformance](../conformance/decimal_gda.md#subset-arithmetic-and-operations-appendix-a-does-not-name)).
+    `remainder` and `remainder_near` keep a positive exponent: `remainder(1.4E+3, 5E+2)` is `4E+2`.
+    `round_to_integral_value` and `round_to_integral_exact` give $+0$ with exponent 0 for a zero operand.
+    `next_toward` from a zero returns the smallest subnormal number, as in an extended context.
 
 > [!NOTE]
 > `exp`, `ln`, `log10` and `power` with a non-integer exponent accept only a context with

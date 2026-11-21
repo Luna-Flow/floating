@@ -33,11 +33,18 @@ General Decimal Arithmetic Specification 1.70 for `decimal_gda`, one row per ope
 | canonical | `canonical`, `is_canonical` | no decTest file; `tooling/src/consistency/api_audit_wbtest.mbt` | conforming |
 | context: precision, rounding, clamp, exponent limits | `GdaContext` | `clamp.decTest`, `rounding.decTest`, `inexact.decTest`, `randoms.decTest` | conforming |
 | status flags and traps (Appendix and Exceptional conditions) | `GdaOutcome`, `GdaContext::with_traps` | every decTest row checks the flag set; trap enablement is covered by the runner's directive handling | conforming |
-| subset arithmetic (Appendix A) | `extended = false` contexts | pinned subset corpus `dectest0.zip` (32 files, 31 with `extended: 0`) in the `DECIMAL_GDA: official0 decTest` gate stage; `library/src/decimal_gda/` white-box tests | conforming |
+| subset arithmetic (Appendix A) | `extended = false` contexts | pinned subset corpus `dectest0.zip` (32 files, 31 with `extended: 0`) in the `DECIMAL_GDA: official0 decTest` gate stage; `library/src/decimal_gda/` white-box tests | conforming for the operations of the corpus; see [subset arithmetic](#subset-arithmetic-and-operations-appendix-a-does-not-name) |
 
 ## Subset arithmetic and operations Appendix A does not name
 
-For a result with a positive exponent, `add`, `subtract`, `divide`, `divide_integer`, `max` and `min`, which Appendix A of GDA 1.70 names, apply the rule of page 55. Appendix A does not name `reduce`, `rescale`, `scaleb`, `shift`, `rotate`, `remainder` or the two round-to-integral operations, and its text does not decide them. For these the library gives the results of decNumber 3.68: a measurement of 26 calls on 2026-11-22, in a subset and in an extended context, found no difference. This is a recorded decision; the API page lists the operations that keep a positive exponent in [subset arithmetic](../api/decimal_gda.md#gdacontextnew-gdacontexttry_new).
+For a result with a positive exponent, `add`, `subtract`, `divide`, `divide_integer`, `max` and `min`, which Appendix A of GDA 1.70 names, apply the rule of page 55. Appendix A does not name `reduce`, `rescale`, `scaleb`, `shift`, `rotate`, `remainder`, `remainder_near`, the two round-to-integral operations or `next_toward`, and its text does not decide them. A comparison with decNumber 3.68 on 2026-11-22, with 2,268 calls per context in a subset and in an extended context, found:
+
+- equal results for `reduce`, `rescale`, `scaleb`, `shift` and `rotate`;
+- `remainder` and `remainder_near` keep a positive exponent (`remainder(1.4E+3, 5E+2)` is `4E+2`), where decNumber gives `400`; page 55 converts a positive exponent to an integer when the coefficient fits in the precision;
+- `round_to_integral_value` and `round_to_integral_exact` give `0` for the operands `-0`, `0E+2` and `-0E+2`, where decNumber returns the operand; page 55 sets the exponent of a zero result to 0;
+- `next_toward` from a zero returns the smallest subnormal number (`1E-1000000007` at precision 9), also in a subset context, where decNumber gives `0`; page 55 says "Subnormal numbers are not permitted".
+
+The comparison records what the library does; the API page lists the operations that keep a positive exponent in [subset arithmetic](../api/decimal_gda.md#gdacontextnew-gdacontexttry_new).
 
 ## decTest rows behind statements of the API page
 
