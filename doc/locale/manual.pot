@@ -132,7 +132,7 @@ msgstr ""
 #: manual/api/differential.md:44
 #: manual/api/differential/interval_mpfr.md:24
 #: manual/api/interval.md:151
-#: manual/numeric_semantics.md:302
+#: manual/numeric_semantics.md:316
 #: manual/tutorial/internal/runner_cli.md:116
 msgid "Meaning"
 msgstr ""
@@ -1190,10 +1190,10 @@ msgstr ""
 #: manual/api/bin_float.md:1239
 #: manual/api/decimal.md:1349
 #: manual/api/decimal.md:1359
-#: manual/numeric_semantics.md:586
-#: manual/numeric_semantics.md:587
-#: manual/numeric_semantics.md:588
-#: manual/numeric_semantics.md:589
+#: manual/numeric_semantics.md:600
+#: manual/numeric_semantics.md:601
+#: manual/numeric_semantics.md:602
+#: manual/numeric_semantics.md:603
 msgid "equal"
 msgstr ""
 
@@ -3648,7 +3648,7 @@ msgstr ""
 #: manual/api/interval.md:979
 #: manual/api/interval.md:1976
 #: manual/design/interval.md:549
-#: manual/numeric_semantics.md:136
+#: manual/numeric_semantics.md:150
 msgid "Function"
 msgstr ""
 
@@ -4331,7 +4331,7 @@ msgstr ""
 #: manual/design/interval.md:575
 #: manual/design/interval.md:576
 #: manual/design/interval.md:577
-#: manual/numeric_semantics.md:306
+#: manual/numeric_semantics.md:320
 msgid "no"
 msgstr ""
 
@@ -5631,7 +5631,7 @@ msgid "Expected"
 msgstr ""
 
 #: manual/api/frontend/itl_expr.md:115
-#: manual/numeric_semantics.md:578
+#: manual/numeric_semantics.md:592
 msgid "Comparison"
 msgstr ""
 
@@ -8929,7 +8929,7 @@ msgid "bin_float conformance"
 msgstr ""
 
 #: manual/conformance/bin_float.md:3
-msgid "This page records the `0.11.0` binary floating-point semantic and test boundary. It is evidence for a stated, finite corpus; it is not a proof that any implementation can be correct for every real input."
+msgid "This page records the binary floating-point semantic and test boundary of the current source (the `Unreleased` section of the changelog). It is evidence for a stated, finite corpus; it is not a proof that any implementation can be correct for every real input."
 msgstr ""
 
 #: manual/conformance/bin_float.md:7
@@ -9039,7 +9039,7 @@ msgstr ""
 #: manual/index.md:98
 #: manual/index.md:112
 #: manual/index.md:120
-#: manual/numeric_semantics.md:584
+#: manual/numeric_semantics.md:598
 msgid "API"
 msgstr ""
 
@@ -9784,6 +9784,10 @@ msgid "`library/src/decimal/class_of_wbtest.mbt` (all ten classes in decimal32, 
 msgstr ""
 
 #: manual/conformance/decimal.md:62
+msgid "`Decimal::total_order`, `Decimal::total_order_mag` (and `Decimal::total_order_compare`, the same order as a three-way `Int32`)"
+msgstr ""
+
+#: manual/conformance/decimal.md:62
 msgid "`testdata/decimal/ieee/total_order.json`: every ordered pair of cohorts, signed zeros, subnormals, infinities and quiet and signaling NaNs with payloads in decimal32/64/128 (18,816 pairs), expected values from a transcription of §5.10 cross-checked with libmpdec, run on four targets in the `DECIMAL: IEEE 754` gate; NaN payloads order by value, reversed for a negative sign (implementation-defined by §5.10 d) 5) iii)); `tooling/src/consistency/core_wbtest.mbt`"
 msgstr ""
 
@@ -9856,14 +9860,18 @@ msgid "`minimum_ctx`, `minimum_number_ctx`, `maximum_ctx`, `maximum_number_ctx` 
 msgstr ""
 
 #: manual/conformance/decimal.md:76
-msgid "Targets"
+msgid "`next_toward_ctx` is not part of IEEE 754-2019 (the word nextToward does not occur in the text of the standard); it is the `next-toward` operation of the General Decimal Arithmetic specification, offered in this package as an extension and not counted in any row above."
 msgstr ""
 
 #: manual/conformance/decimal.md:78
-msgid "`just gate decimal` runs native, Wasm, Wasm-GC, and JavaScript. LLVM is excluded because the required local artifacts are not part of the repository. Target-specific coefficient dispatch must not change value, encoding, or flags."
+msgid "Targets"
 msgstr ""
 
 #: manual/conformance/decimal.md:80
+msgid "`just gate decimal` runs native, Wasm, Wasm-GC, and JavaScript. LLVM is excluded because the required local artifacts are not part of the repository. Target-specific coefficient dispatch must not change value, encoding, or flags."
+msgstr ""
+
+#: manual/conformance/decimal.md:82
 #: manual/conformance/decimal_gda.md:61
 #: manual/design/bench.md:243
 #: manual/design/bench/bin_float.md:68
@@ -9903,19 +9911,19 @@ msgstr ""
 msgid "Boundaries"
 msgstr ""
 
-#: manual/conformance/decimal.md:82
+#: manual/conformance/decimal.md:84
 msgid "The checked matrix is finite and does not claim every IEEE 754 operation, every payload propagation policy, or every possible decimal input. The supplementary `dd*`/`dq*` decTest rows are diagnostics, not an IEEE oracle."
 msgstr ""
 
-#: manual/conformance/decimal.md:84
+#: manual/conformance/decimal.md:86
 msgid "`Decimal::parse_checked` routes through `from_string_ctx`; it applies the ArithmeticContext rounding direction and exponent bounds. This checked API returns only a value or syntax error, so its `Result` does not expose overflow or underflow flags."
 msgstr ""
 
-#: manual/conformance/decimal.md:89
+#: manual/conformance/decimal.md:91
 msgid "The matrix passes on the current branch, which has no [known deviations](../design/decimal.md#known-deviations) left. Passing the gate is evidence for the covered rows only."
 msgstr ""
 
-#: manual/conformance/decimal.md:93
+#: manual/conformance/decimal.md:95
 #: manual/conformance/decimal_gda.md:125
 #: manual/conformance/interval.md:116
 #: manual/performance/decimal.md:35
@@ -9924,7 +9932,7 @@ msgstr ""
 msgid "Reproduction"
 msgstr ""
 
-#: manual/conformance/decimal.md:101
+#: manual/conformance/decimal.md:103
 msgid "See [the decimal data guide](../../../testdata/decimal/README.md) for corpus provenance, vector families, and failure records."
 msgstr ""
 
@@ -11848,7 +11856,7 @@ msgid "the smallest positive subnormal. Missing bounds are replaced by the imple
 msgstr ""
 
 #: manual/design/bin_float.md:135
-#: manual/numeric_semantics.md:107
+#: manual/numeric_semantics.md:121
 msgid "Rounding functions"
 msgstr ""
 
@@ -17136,7 +17144,7 @@ msgid "For $n \\ge 0$ and $d > 0$ there are unique integers $q, r$ with $n = qd 
 msgstr ""
 
 #: manual/design/internal.md:37
-#: manual/numeric_semantics.md:161
+#: manual/numeric_semantics.md:175
 msgid "Rounding to an integer"
 msgstr ""
 
@@ -18858,7 +18866,7 @@ msgid "`interval_checked` lets an interval computation be written as one chain o
 msgstr ""
 
 #: manual/design/interval_checked.md:15
-#: manual/numeric_semantics.md:414
+#: manual/numeric_semantics.md:428
 msgid "Enclosures"
 msgstr ""
 
@@ -19578,34 +19586,34 @@ msgid "`compare`, `<` and sorting use a total preorder in which every NaN is equ
 msgstr ""
 
 #: manual/getting_started.md:192
-msgid "`==` on `BinFloat` and `Interval` compares representations (sign of zero and precision included); `==` on `Decimal` compares values. Use `compare(a, b) == 0` for numeric equality of binary values."
+msgid "`==` agrees with `compare` in the number types: on `BinFloat` it ignores the sign of a zero and the precision (`-0 == +0`) and treats two NaNs as equal, on `Decimal` it compares values, and on `Interval` it compares the bounds by value (two empty intervals are equal). `a.identical(b)` compares every field of a `BinFloat`. See [numeric semantics](./numeric_semantics.md)."
 msgstr ""
 
-#: manual/getting_started.md:195
+#: manual/getting_started.md:197
 msgid "An `Interval` has containment and set relations (`contains`, `subset`, `definitely_lt`, …), not a scalar order. A result is correct when it encloses the exact result; tightness is a separate quality."
 msgstr ""
 
-#: manual/getting_started.md:198
+#: manual/getting_started.md:200
 msgid "`SemanticScalar` compares mathematical values across packages and drops precision, quantum, signed zero, payloads, decorations and flags."
 msgstr ""
 
-#: manual/getting_started.md:201
+#: manual/getting_started.md:203
 msgid "Continue reading"
 msgstr ""
 
-#: manual/getting_started.md:203
+#: manual/getting_started.md:205
 msgid "[Numeric semantics](./numeric_semantics.md) defines rounding, ulp, flags, quantum, signed zero, NaN and enclosures with their derivations."
 msgstr ""
 
-#: manual/getting_started.md:205
+#: manual/getting_started.md:207
 msgid "[Architecture](./architecture.md) explains the package layers and the certified elementary functions."
 msgstr ""
 
-#: manual/getting_started.md:207
+#: manual/getting_started.md:209
 msgid "[Verification](./verification.md) lists the gates and the exact scope of each conformance claim."
 msgstr ""
 
-#: manual/getting_started.md:209
+#: manual/getting_started.md:211
 msgid "Each package has a tutorial, an API reference and a design page; start with the [`bin_float` tutorial](./tutorial/bin_float.md), the [`decimal` tutorial](./tutorial/decimal.md) or the [`interval` tutorial](./tutorial/interval.md)."
 msgstr ""
 
@@ -20565,419 +20573,419 @@ msgid "Every arithmetic operation $\\circ$ first defines an **exact value**: the
 msgstr ""
 
 #: manual/numeric_semantics.md:77
-msgid "where $\\operatorname{rnd}$ is the rounding function of the context. An operation is **correctly rounded** when its result is exactly this: the exact value rounded once. Every arithmetic operation, square root, fused multiply-add, remainder, conversion and parse in `floating` is correctly rounded; the elementary functions are correctly rounded too, by certified refinement (see [architecture](./architecture.md))."
+msgid "where $\\operatorname{rnd}$ is the rounding function of the context. An operation is **correctly rounded** when its result is exactly this: the exact value rounded once. In `bin_float` and `decimal` every arithmetic operation, square root, fused multiply-add, remainder, conversion and parse is correctly rounded, and so are the elementary functions, by certified refinement (see [architecture](./architecture.md)); where the library cannot certify a result, the `try_*_ctx` forms report the failure instead of returning a value that is not correctly rounded. Two things are not correctly rounded values. The integer `power` of `decimal_gda` is within a tolerance the General Decimal Arithmetic specification allows (about 0.55 units in the last place of the exact result with rounding to nearest, one unit from the correctly rounded result with a directed rounding direction; see the [`decimal_gda` conformance page](./conformance/decimal_gda.md#known-deviations-outside-the-corpus)). And an `Interval` operation returns an enclosure, not a rounded value: the tightest enclosure in the type when its bounds are certified, a valid but wider one otherwise (see the [accuracy table](./conformance/interval.md#accuracy-of-operations)). The `decimal_gda` functions `exp`, `ln` and `log10` may, by the specification, be up to one unit in the last place in error; the library returns the correctly rounded value for them, so they are not an exception."
 msgstr ""
 
-#: manual/numeric_semantics.md:84
+#: manual/numeric_semantics.md:98
 msgid "Rounding once matters. The fused multiply-add `fma_ctx` rounds $xy + z$ once, while `mul_ctx` followed by `add_ctx` rounds twice. With $x = \\operatorname{fl}(0.1)$ in binary64, $10x$ is not exactly $1$, and only the fused form sees the difference:"
 msgstr ""
 
-#: manual/numeric_semantics.md:103
+#: manual/numeric_semantics.md:117
 msgid "The fused result $2^{-54}$ is the exact error of the rounded product: the product $10 \\cdot \\operatorname{fl}(0.1)$ exceeds $1$ by $2^{-54}$, and `mul_ctx` rounds that excess away."
 msgstr ""
 
-#: manual/numeric_semantics.md:109
+#: manual/numeric_semantics.md:123
 msgid "Let $\\mathbb{F}$ be the set of values a context can represent, extended with $\\pm\\infty$. For a real $x$ the **directed** roundings are"
 msgstr ""
 
-#: manual/numeric_semantics.md:121
+#: manual/numeric_semantics.md:135
 msgid "and the **nearest** roundings pick whichever of $\\operatorname{RD}(x)$ and $\\operatorname{RU}(x)$ is closer to $x$, breaking a tie (an $x$ exactly halfway) either toward the candidate with an even last digit ($\\operatorname{RN}_{\\text{even}}$) or toward the one of larger magnitude ($\\operatorname{RN}_{\\text{away}}$).[^ieee-rounding] Every rounding function is monotone ($x \\le y \\Rightarrow \\operatorname{rnd}(x) \\le \\operatorname{rnd}(y)$) and fixes $\\mathbb{F}$ ($\\operatorname{rnd}(y) = y$ for $y \\in \\mathbb{F}$); these two facts are what interval arithmetic and the certified elementary functions rely on."
 msgstr ""
 
-#: manual/numeric_semantics.md:129
+#: manual/numeric_semantics.md:143
 msgid "IEEE 754-2019, clause 4.3, defines roundTiesToEven, roundTiesToAway, roundTowardPositive, roundTowardNegative and roundTowardZero. Round-away-from-zero and the decimal \"05up\" mode come from the General Decimal Arithmetic specification (Cowlishaw)."
 msgstr ""
 
-#: manual/numeric_semantics.md:134
+#: manual/numeric_semantics.md:148
 msgid "Each domain names these functions in its own enum:"
 msgstr ""
 
-#: manual/numeric_semantics.md:140
+#: manual/numeric_semantics.md:154
 msgid "nearest, ties toward zero"
 msgstr ""
 
-#: manual/numeric_semantics.md:144
+#: manual/numeric_semantics.md:158
 msgid "none (not an IEEE 754-2019 4.3 attribute)"
 msgstr ""
 
-#: manual/numeric_semantics.md:145
+#: manual/numeric_semantics.md:159
 msgid "toward zero, then away if the last kept digit is 0 or 5"
 msgstr ""
 
-#: manual/numeric_semantics.md:147
+#: manual/numeric_semantics.md:161
 msgid "`with_precision(p, mode)` applies one of these functions to a value at a new precision. Binary $0.1$ is $0.0001100110011\\ldots_2$; at five bits the truncated form is $11001_2 \\cdot 2^{-8}$ and the next bit is a one followed by non-zero bits, so nearest rounding goes up:"
 msgstr ""
 
-#: manual/numeric_semantics.md:163
+#: manual/numeric_semantics.md:177
 msgid "Rounding to an integral value is the same construction with $\\mathbb{F} = \\mathbb{Z}$. `BinFloat` offers the fixed-direction forms `floor` ($\\operatorname{RD}$), `ceil` ($\\operatorname{RU}$), `trunc` ($\\operatorname{RZ}$), `round` (nearest, ties away) and `round_ties_even` (nearest, ties to even); `to_integral_value_ctx` uses the context's direction and is quiet, and `to_integral_exact_ctx` additionally raises *inexact* when the value changes. The integer conversions `to_int_ctx`, `to_int64_ctx`, `to_uint_ctx` and `to_uint64_ctx` round the same way and return `None` with *invalid* for NaN, infinities and out-of-range results. The result keeps the sign of zero: $\\lceil -0.3 \\rceil = -0$."
 msgstr ""
 
-#: manual/numeric_semantics.md:191
+#: manual/numeric_semantics.md:205
 msgid "Ulp and unit roundoff"
 msgstr ""
 
-#: manual/numeric_semantics.md:193
+#: manual/numeric_semantics.md:207
 msgid "For a radix $\\beta$, a precision $p$ and a non-zero $x$ with $\\beta^{e} \\le |x| < \\beta^{e+1}$, the **unit in the last place** is the spacing of the $p$-digit values around $x$:"
 msgstr ""
 
-#: manual/numeric_semantics.md:201
+#: manual/numeric_semantics.md:215
 msgid "`BinFloat::ulp` computes it for $\\beta = 2$ at the value's own precision with an unbounded exponent range; for zero it returns $2^{1-p}$, the ulp of $1$. In a bounded context the spacing stops shrinking at the subnormal threshold (next section), so there the ulp of a tiny value is $\\beta^{\\,e_{\\min} - p + 1}$."
 msgstr ""
 
-#: manual/numeric_semantics.md:206
+#: manual/numeric_semantics.md:220
 msgid "The **unit roundoff** $u$ bounds the relative error of one rounding. Take $x$ in range with $\\beta^{e} \\le |x| < \\beta^{e+1}$. Both neighbours $\\operatorname{RD}(x)$ and $\\operatorname{RU}(x)$ lie in the same binade (or one of them is $\\pm\\beta^{e+1}$), one ulp apart, so"
 msgstr ""
 
-#: manual/numeric_semantics.md:221
+#: manual/numeric_semantics.md:235
 msgid "Hence the **standard model** of floating-point arithmetic:[^higham]"
 msgstr ""
 
-#: manual/numeric_semantics.md:232
+#: manual/numeric_semantics.md:246
 msgid "valid whenever the exact value is neither in the overflow range nor below the normal range. Below the normal range the error is absolute instead: with subnormals, $\\operatorname{fl}(x \\circ y) = (x \\circ y)(1+\\delta) + \\eta$ with $\\delta\\eta = 0$, $|\\eta| \\le \\tfrac{1}{2}\\beta^{\\,e_{\\min}-p+1}$ for nearest rounding. For binary64 ($p = 53$) $u = 2^{-53}$; for decimal64 ($p = 16$) $u = \\tfrac{1}{2}\\cdot 10^{-15}$."
 msgstr ""
 
-#: manual/numeric_semantics.md:239
+#: manual/numeric_semantics.md:253
 msgid "N. J. Higham, *Accuracy and Stability of Numerical Algorithms*, 2nd ed., SIAM 2002, §2.1–2.2, which also gives the form with $\\eta$ for gradual underflow; Goldberg, \"What every computer scientist should know about floating-point arithmetic\", ACM Computing Surveys 23(1), 1991, gives the same derivation for the binary case."
 msgstr ""
 
-#: manual/numeric_semantics.md:264
+#: manual/numeric_semantics.md:278
 msgid "Contexts: precision, exponent range and tininess"
 msgstr ""
 
-#: manual/numeric_semantics.md:266
+#: manual/numeric_semantics.md:280
 msgid "A context fixes $\\mathbb{F}$ and the rounding function. No package reads an ambient rounding mode; the context is an ordinary immutable argument."
 msgstr ""
 
-#: manual/numeric_semantics.md:269
+#: manual/numeric_semantics.md:283
 msgid "`BinaryContext` holds the precision $p$ (bits), a `BinaryRoundingMode`, optional exponent bounds $e_{\\min}, e_{\\max}$ for the **leading bit**, and a `TininessDetection`. Normal values satisfy $2^{e_{\\min}} \\le |x| \\le (2 - 2^{1-p})\\,2^{e_{\\max}}$; below $2^{e_{\\min}}$ the **subnormal** values keep the fixed spacing $2^{\\,e_{\\min}-p+1}$ (gradual underflow). `binary16`, `binary32`, `binary64` and `binary128` are the IEEE interchange presets. `BinaryContext::new(precision=p)` without `e_max` is the extendable precision format of IEEE 754-2019 3.7 and has the implementation range $[\\texttt{binary\\_implementation\\_e\\_min}, \\texttt{binary\\_implementation\\_e\\_max}] = [2 - 2^{30},\\ 2^{30} - 1]$, so $e_{\\min} = 1 - e_{\\max}$ as in every context (3.3), and every precision is capped at $\\texttt{binary\\_precision\\_max} = 2^{28}$ bits. A result beyond the implementation range is classified (overflow to infinity or the largest finite value, underflow to zero or the smallest subnormal, by rounding direction), never stored with a saturated exponent."
 msgstr ""
 
-#: manual/numeric_semantics.md:282
+#: manual/numeric_semantics.md:296
 msgid "The plain binary operators (`add`, `sub`, `mul`, `div`, `+`, `-`, `*`, `/`) round to nearest-even at the larger operand precision in that unbounded context and discard the flags."
 msgstr ""
 
-#: manual/numeric_semantics.md:285
+#: manual/numeric_semantics.md:299
 msgid "`DecimalContext` (IEEE) and `GdaContext` (GDA) hold the precision in digits, the rounding mode, $e_{\\min}$ and $e_{\\max}$ for the **adjusted exponent** $q + (\\text{digits of } c) - 1$, and a `clamp` switch. The smallest exponent a subnormal may use is $E_{\\text{tiny}} = e_{\\min} - p + 1$. With `clamp` set, a result whose exponent exceeds $e_{\\max} - p + 1$ is padded with zeros and raises *clamped*, as the interchange formats require. `decimal64`, for example, has $p = 16$, $e_{\\max} = 384$, $e_{\\min} = -383$."
 msgstr ""
 
-#: manual/numeric_semantics.md:292
+#: manual/numeric_semantics.md:306
 msgid "**Tininess** decides when a tiny result counts as an underflow: *before rounding* compares the exact value with $\\beta^{e_{\\min}}$, *after rounding* compares the value rounded as if the exponent range were unbounded. IEEE 754 allows either for binary formats; GDA always detects before rounding."
 msgstr ""
 
-#: manual/numeric_semantics.md:297
+#: manual/numeric_semantics.md:311
 msgid "Flags, errors and enclosures"
 msgstr ""
 
-#: manual/numeric_semantics.md:299
+#: manual/numeric_semantics.md:313
 msgid "`floating` reports trouble through four channels that are not interchangeable:"
 msgstr ""
 
-#: manual/numeric_semantics.md:302
+#: manual/numeric_semantics.md:316
 msgid "Channel"
 msgstr ""
 
-#: manual/numeric_semantics.md:302
+#: manual/numeric_semantics.md:316
 msgid "Carried by"
 msgstr ""
 
-#: manual/numeric_semantics.md:302
+#: manual/numeric_semantics.md:316
 msgid "A value is returned?"
 msgstr ""
 
-#: manual/numeric_semantics.md:304
+#: manual/numeric_semantics.md:318
 msgid "status flag"
 msgstr ""
 
-#: manual/numeric_semantics.md:304
+#: manual/numeric_semantics.md:318
 msgid "`BinaryFlags`, `DecimalFlags`, `IntervalFlags` beside the result"
 msgstr ""
 
-#: manual/numeric_semantics.md:304
+#: manual/numeric_semantics.md:318
 msgid "yes, the IEEE-defined one"
 msgstr ""
 
-#: manual/numeric_semantics.md:304
+#: manual/numeric_semantics.md:318
 msgid "a condition occurred while producing a defined result"
 msgstr ""
 
-#: manual/numeric_semantics.md:305
+#: manual/numeric_semantics.md:319
 msgid "GDA status and trap"
 msgstr ""
 
-#: manual/numeric_semantics.md:305
+#: manual/numeric_semantics.md:319
 msgid "yes, also when trapped"
 msgstr ""
 
-#: manual/numeric_semantics.md:305
+#: manual/numeric_semantics.md:319
 msgid "sticky conditions; an enabled trap marks the outcome `Trapped`"
 msgstr ""
 
-#: manual/numeric_semantics.md:306
+#: manual/numeric_semantics.md:320
 msgid "checked error"
 msgstr ""
 
-#: manual/numeric_semantics.md:306
+#: manual/numeric_semantics.md:320
 msgid "`Result[_, ArithmeticError]`, `*Result` wrappers"
 msgstr ""
 
-#: manual/numeric_semantics.md:306
+#: manual/numeric_semantics.md:320
 msgid "the requested scalar cannot be produced under the checked contract"
 msgstr ""
 
-#: manual/numeric_semantics.md:307
+#: manual/numeric_semantics.md:321
 msgid "enclosure"
 msgstr ""
 
-#: manual/numeric_semantics.md:307
+#: manual/numeric_semantics.md:321
 msgid "yes, a set"
 msgstr ""
 
-#: manual/numeric_semantics.md:307
+#: manual/numeric_semantics.md:321
 msgid "every possible exact result lies in the returned interval"
 msgstr ""
 
-#: manual/numeric_semantics.md:309
+#: manual/numeric_semantics.md:323
 msgid "IEEE flags"
 msgstr ""
 
-#: manual/numeric_semantics.md:311
+#: manual/numeric_semantics.md:325
 msgid "The five IEEE exceptions[^ieee-exceptions] are reported as booleans on `BinaryFlags` and `DecimalFlags`:"
 msgstr ""
 
-#: manual/numeric_semantics.md:314
+#: manual/numeric_semantics.md:328
 msgid "*invalid operation*: no useful real result exists ($\\infty - \\infty$, $0 \\cdot \\infty$, $\\sqrt{-1}$, any operation on a signaling NaN); the result is a quiet NaN."
 msgstr ""
 
-#: manual/numeric_semantics.md:317
+#: manual/numeric_semantics.md:331
 msgid "*division by zero*: an exact infinite result from finite operands ($1/{-0} = -\\infty$, $\\log 0 = -\\infty$). `bin_float` and `decimal` raise it for every logarithm of zero and for $\\operatorname{log1p}(-1)$, $\\operatorname{log2p1}(-1)$ and $\\operatorname{log10p1}(-1)$ (and for $\\operatorname{rSqrt}(\\pm 0)$, $\\operatorname{compound}(-1, n < 0)$ and $\\operatorname{powr}(\\pm 0, y < 0)$); `decimal_gda` follows General Decimal Arithmetic, whose `ln` and `log10` of zero return $-\\infty$ without a condition."
 msgstr ""
 
-#: manual/numeric_semantics.md:325
+#: manual/numeric_semantics.md:339
 msgid "*overflow*: the rounded result with an unbounded exponent would exceed the largest finite value; the result is $\\pm\\infty$ or the largest finite value by direction, and *inexact* is raised too."
 msgstr ""
 
-#: manual/numeric_semantics.md:328
+#: manual/numeric_semantics.md:342
 msgid "*underflow*: the result is tiny (by the context's tininess rule) and inexact."
 msgstr ""
 
-#: manual/numeric_semantics.md:329
+#: manual/numeric_semantics.md:343
 msgid "*inexact*: the rounded result differs from the exact value."
 msgstr ""
 
-#: manual/numeric_semantics.md:331
+#: manual/numeric_semantics.md:345
 msgid "`decimal_gda` adds the GDA conditions *rounded* (digits were discarded, even zeros), *clamped*, *subnormal*, *conversion syntax*, *division impossible*, *division undefined*, *invalid context* and *lost digits*; `DecimalFlags` has only the five IEEE flags and *not computed*. Flags never replace the value. To accumulate them over several steps, `combine` them yourself or use `decimal_checked`, which keeps the latest (`raised`) and the accumulated (`flags`) sets."
 msgstr ""
 
-#: manual/numeric_semantics.md:339
+#: manual/numeric_semantics.md:353
 msgid "IEEE 754-2019, clause 7. The default exception handling returns the values listed here and raises the status flag; `floating` implements exactly this default and never alters control flow."
 msgstr ""
 
-#: manual/numeric_semantics.md:367
+#: manual/numeric_semantics.md:381
 msgid "GDA status and traps"
 msgstr ""
 
-#: manual/numeric_semantics.md:369
+#: manual/numeric_semantics.md:383
 msgid "`decimal_gda` follows the General Decimal Arithmetic model. Each operation returns a `GdaOutcome` that holds the defined result, the **next context** and the **raised** flags of this operation. The next context's `status()` is the sticky union of everything raised so far. When a raised condition is enabled in the context's trap set the outcome is `Trapped(signal, value, context, raised)` instead of `Completed(value, context, raised)`; the defined result is still there. If several enabled conditions are raised at once the trapped signal is the first in this precedence: invalid operation, division by zero, division undefined, division impossible, invalid context, conversion syntax, overflow, underflow, subnormal, inexact, rounded, clamped, lost digits."
 msgstr ""
 
-#: manual/numeric_semantics.md:399
+#: manual/numeric_semantics.md:413
 msgid "Checked errors"
 msgstr ""
 
-#: manual/numeric_semantics.md:401
+#: manual/numeric_semantics.md:415
 msgid "An `ArithmeticError` (re-exported by `def`) has a kind: `DivisionByZero`, `ParseError`, `DomainError`, `FormatError`, `UnsupportedOperation`, `UnorderedComparison` or `CertificationFailure`. It is used where the checked contract has no value to return: `div_checked` by zero, `sqrt` of a negative number, `compare_checked` with a NaN, a malformed literal. `BinFloatResult` and `IntervalResult` keep the first error and skip the remaining steps."
 msgstr ""
 
-#: manual/numeric_semantics.md:408
+#: manual/numeric_semantics.md:422
 msgid "The elementary functions have both forms. A `try_*_ctx` function returns `Err` with a `CertificationFailure` detail if the certified refinement cannot decide the rounding within its budget. The non-`try` forms never abort: the binary ones return a quiet NaN with *invalid operation*, and the decimal and GDA ones return their invalid result so that flags and traps apply as usual."
 msgstr ""
 
-#: manual/numeric_semantics.md:416
+#: manual/numeric_semantics.md:430
 msgid "An `Interval` denotes a closed set of reals $X = [\\underline{x}, \\overline{x}]$ with binary endpoints, or one of the special sets **Empty** ($\\varnothing$) and **Entire** ($\\mathbb{R}$). An interval extension $F$ of a function $f$ must satisfy the **inclusion property**"
 msgstr ""
 
-#: manual/numeric_semantics.md:425
+#: manual/numeric_semantics.md:439
 msgid "which outward rounding guarantees: the exact lower endpoint is rounded with $\\operatorname{RD}$ and the exact upper endpoint with $\\operatorname{RU}$, so by $\\operatorname{RD}(a) \\le a$ and $b \\le \\operatorname{RU}(b)$ the stored interval contains the exact one.[^interval] A wide enclosure is a correct result; tightness is a quality, not a contract. Division by an interval that contains zero can return Entire."
 msgstr ""
 
-#: manual/numeric_semantics.md:432
+#: manual/numeric_semantics.md:446
 msgid "`DecoratedInterval` adds an IEEE 1788 **decoration** describing what is known about $f$ on $X$: `Com` (defined, continuous and bounded on a bounded $X$), `Dac` (defined and continuous), `Def` (defined), `Trv` (nothing known) and `Ill` (the interval is NaI, \"not an interval\"). NaI is distinct from Empty. Decorations are not scalar flags; `IntervalFlags` reports precision and range events of an `IntervalContext`."
 msgstr ""
 
-#: manual/numeric_semantics.md:439
+#: manual/numeric_semantics.md:453
 msgid "R. E. Moore, R. B. Kearfott and M. J. Cloud, *Introduction to Interval Analysis*, SIAM 2009, ch. 3; IEEE 1788-2015, clauses 10–11 for the set and decoration model."
 msgstr ""
 
-#: manual/numeric_semantics.md:466
+#: manual/numeric_semantics.md:480
 msgid "Quantum and cohorts"
 msgstr ""
 
-#: manual/numeric_semantics.md:468
+#: manual/numeric_semantics.md:482
 msgid "For decimal values the cohort member an operation returns is part of its contract. Each operation names an **ideal exponent**:[^ideal]"
 msgstr ""
 
-#: manual/numeric_semantics.md:479
+#: manual/numeric_semantics.md:493
 msgid "When the exact result is representable, the operation returns the member of its cohort whose exponent is closest to the ideal one. For a sum or a product whose coefficient fits in $p$ digits that member has exactly the ideal exponent, since the exact coefficient is an integer at that exponent. A quotient may need a smaller exponent: $1/4$ has ideal exponent $0 - 0 = 0$, but $0.25$ needs exponent $-2$, so that is the result. When the result must be rounded, the operation returns the member with $p$ digits, the smallest exponent that holds the rounded value (fewer digits only for a subnormal result). Parsing preserves the quantum of the literal. `quantize_ctx(x, y)` rounds $x$ to the quantum of $y$; `normalized()` (and, in `decimal_gda`, `reduce`) strips trailing zeros. Numeric comparison sees only the value; `same_quantum` and the total orders `total_order_compare` (IEEE) and `compare_total` (GDA) also see the cohort."
 msgstr ""
 
-#: manual/numeric_semantics.md:493
+#: manual/numeric_semantics.md:507
 msgid "IEEE 754-2019, clause 5.2 and table 5.1; Cowlishaw, *General Decimal Arithmetic Specification* 1.70, \"Arithmetic operations\"."
 msgstr ""
 
-#: manual/numeric_semantics.md:522
+#: manual/numeric_semantics.md:536
 msgid "Signed zero and NaN"
 msgstr ""
 
-#: manual/numeric_semantics.md:524
+#: manual/numeric_semantics.md:538
 msgid "Zero"
 msgstr ""
 
-#: manual/numeric_semantics.md:526
+#: manual/numeric_semantics.md:540
 msgid "Zero carries a sign so that $1/{+0} = +\\infty$ and $1/{-0} = -\\infty$ keep the direction of an underflow. The rules follow IEEE 754-2019 clause 6.3:"
 msgstr ""
 
-#: manual/numeric_semantics.md:529
+#: manual/numeric_semantics.md:543
 msgid "a product or quotient has the exclusive-or of the operand signs;"
 msgstr ""
 
-#: manual/numeric_semantics.md:530
+#: manual/numeric_semantics.md:544
 msgid "an exact zero sum of operands with opposite signs, or $x - x$, is $+0$ under every rounding direction except $\\operatorname{RD}$, where it is $-0$;"
 msgstr ""
 
-#: manual/numeric_semantics.md:532
+#: manual/numeric_semantics.md:546
 msgid "$\\sqrt{-0} = -0$, and rounding to an integer keeps the sign ($\\lceil -0.3 \\rceil = -0$);"
 msgstr ""
 
-#: manual/numeric_semantics.md:534
+#: manual/numeric_semantics.md:548
 msgid "numeric comparison treats $-0$ and $+0$ as equal."
 msgstr ""
 
-#: manual/numeric_semantics.md:536
-#: manual/numeric_semantics.md:584
+#: manual/numeric_semantics.md:550
+#: manual/numeric_semantics.md:598
 msgid "NaN"
 msgstr ""
 
-#: manual/numeric_semantics.md:538
+#: manual/numeric_semantics.md:552
 msgid "A **quiet NaN** propagates through arithmetic silently; a **signaling NaN** raises *invalid operation* when an operation consumes it and is quieted in the result. A NaN carries a sign and an integer payload (`nan_payload`). In `bin_float` and `decimal` an operation with NaN operands returns a quiet NaN with the sign and payload of the first NaN operand, signaling or not, which IEEE 754 allows.[^nan-payload] `decimal_gda` follows the General Decimal Arithmetic rule instead: a signaling NaN operand takes precedence over a quiet one, so `add(NaN3, sNaN7)` is `NaN7` there and `NaN3` in `decimal`."
 msgstr ""
 
-#: manual/numeric_semantics.md:547
+#: manual/numeric_semantics.md:561
 msgid "IEEE 754-2019, clause 6.2.3, only recommends that the result carry the payload of one of the input NaNs."
 msgstr ""
 
-#: manual/numeric_semantics.md:580
+#: manual/numeric_semantics.md:594
 msgid "IEEE comparison has four outcomes: less, equal, greater and **unordered**, the last whenever an operand is NaN. Several APIs expose different orders, and choosing the right one matters:"
 msgstr ""
 
-#: manual/numeric_semantics.md:584
+#: manual/numeric_semantics.md:598
 msgid "Order"
 msgstr ""
 
-#: manual/numeric_semantics.md:584
+#: manual/numeric_semantics.md:598
 msgid "$-0$ vs $+0$"
 msgstr ""
 
-#: manual/numeric_semantics.md:586
+#: manual/numeric_semantics.md:600
 msgid "IEEE partial order, `@def.PartialOrder`"
 msgstr ""
 
-#: manual/numeric_semantics.md:586
+#: manual/numeric_semantics.md:600
 msgid "`Unordered`; *invalid* only for a signaling NaN"
 msgstr ""
 
-#: manual/numeric_semantics.md:587
+#: manual/numeric_semantics.md:601
 msgid "IEEE partial order"
 msgstr ""
 
-#: manual/numeric_semantics.md:587
+#: manual/numeric_semantics.md:601
 msgid "`Unordered`; *invalid* for any NaN"
 msgstr ""
 
-#: manual/numeric_semantics.md:588
+#: manual/numeric_semantics.md:602
 msgid "numeric order"
 msgstr ""
 
-#: manual/numeric_semantics.md:588
+#: manual/numeric_semantics.md:602
 msgid "`Err` with `UnorderedComparison`"
 msgstr ""
 
-#: manual/numeric_semantics.md:589
+#: manual/numeric_semantics.md:603
 msgid "`compare`, `<`, `<=`, sorting (`Compare`)"
 msgstr ""
 
-#: manual/numeric_semantics.md:589
+#: manual/numeric_semantics.md:603
 msgid "total preorder"
 msgstr ""
 
-#: manual/numeric_semantics.md:589
+#: manual/numeric_semantics.md:603
 msgid "every NaN equals every NaN and is above every number"
 msgstr ""
 
-#: manual/numeric_semantics.md:590
+#: manual/numeric_semantics.md:604
 msgid "`total_order`, `total_order_compare`, `total_order_mag` (`bin_float`), `total_order_compare` (decimal)"
 msgstr ""
 
-#: manual/numeric_semantics.md:590
+#: manual/numeric_semantics.md:604
 msgid "IEEE `totalOrder` on representations"
 msgstr ""
 
-#: manual/numeric_semantics.md:590
+#: manual/numeric_semantics.md:604
 msgid "ordered by sign, kind and payload"
 msgstr ""
 
-#: manual/numeric_semantics.md:592
+#: manual/numeric_semantics.md:606
 msgid "`compare` orders NaN above every number so that `Compare` is a total preorder and sorting never fails; it never aborts. Use the quiet predicates or `compare_checked` when NaN must be treated as unordered."
 msgstr ""
 
-#: manual/numeric_semantics.md:596
+#: manual/numeric_semantics.md:610
 msgid "`==` agrees with `compare` in the three number types: `a == b` exactly when `a.compare(b) == 0`. `Decimal`'s `==` is numeric for finite values (`-0 == 0.00`) and treats two NaNs as equal; `BinFloat`'s `==` ignores the sign of a zero and the precision (`-0 == +0`) and treats two NaNs as equal too. This is the total preorder of sorting, not IEEE equality: use `compare_quiet_equal` or `compare_quiet` when a NaN must be unordered, and `identical` (`BinFloat`) for the structural question (the sign of a zero, the precision, the NaN kind). `Interval`'s `==` compares the endpoints by value."
 msgstr ""
 
-#: manual/numeric_semantics.md:625
+#: manual/numeric_semantics.md:639
 msgid "Conversion between radices"
 msgstr ""
 
-#: manual/numeric_semantics.md:627
+#: manual/numeric_semantics.md:641
 msgid "Every binary fraction has a finite decimal expansion, because $2^{-k} = 5^{k} \\cdot 10^{-k}$; most decimal fractions have no finite binary expansion, because $10^{-k} = 2^{-k}5^{-k}$ and $5^{-k}$ is not dyadic. So decimal-to-binary conversion is usually inexact and binary-to-decimal conversion is exact but may need many digits. `BinFloat::from_string_ctx` (IEEE convertFromDecimalCharacter) and `to_decimal_string_ctx` (convertToDecimalCharacter) are both correctly rounded for every precision and exponent; `to_shortest_string` prints the fewest digits that read back to the same value, which is how `0.1 + 0.2` shows its rounding error."
 msgstr ""
 
-#: manual/numeric_semantics.md:637
+#: manual/numeric_semantics.md:651
 msgid "Interchange conversion is narrower: `BinaryInterchange` (binary16/32/64/128) and the decimal32/64/128 DPD and BID encodings fix field widths, exponent bounds and special encodings. `semantic` projects values of every package to exact rationals, so it can tell that decimal $0.1$ and binary $\\operatorname{fl}(0.1)$ are different numbers; the projection deliberately drops precision, quantum, signed zero, payloads, decorations and flags."
 msgstr ""
 
-#: manual/numeric_semantics.md:668
+#: manual/numeric_semantics.md:682
 msgid "Decision checklist"
 msgstr ""
 
-#: manual/numeric_semantics.md:670
+#: manual/numeric_semantics.md:684
 msgid "Before choosing an API, answer:"
 msgstr ""
 
-#: manual/numeric_semantics.md:672
+#: manual/numeric_semantics.md:686
 msgid "Is the result a scalar value, a representation, or a set of reals?"
 msgstr ""
 
-#: manual/numeric_semantics.md:673
+#: manual/numeric_semantics.md:687
 msgid "Must the radix, precision, exponent range or quantum stay observable?"
 msgstr ""
 
-#: manual/numeric_semantics.md:674
+#: manual/numeric_semantics.md:688
 msgid "Does the caller need per-operation flags, sticky GDA status and traps, or a short-circuiting checked error?"
 msgstr ""
 
-#: manual/numeric_semantics.md:676
+#: manual/numeric_semantics.md:690
 msgid "Can NaN, an infinity, a signed zero, Empty, Entire or NaI occur?"
 msgstr ""
 
-#: manual/numeric_semantics.md:677
+#: manual/numeric_semantics.md:691
 msgid "Is the numeric order enough, or is the IEEE partial order, a total order or a set relation required?"
 msgstr ""
 
-#: manual/numeric_semantics.md:679
+#: manual/numeric_semantics.md:693
 msgid "Is the conversion arbitrary-precision or a fixed interchange format?"
 msgstr ""
 
-#: manual/numeric_semantics.md:680
+#: manual/numeric_semantics.md:694
 msgid "Which pinned conformance evidence supports the claim? See [verification](./verification.md)."
 msgstr ""
 

@@ -70,6 +70,30 @@ class DocumentationQualityTests(unittest.TestCase):
             self.assertEqual(len(errors), 1)
             self.assertIn("library/src/missing_wbtest.mbt", errors[0])
 
+    def test_conformance_functions_must_exist_in_the_interface(self) -> None:
+        with tempfile.TemporaryDirectory() as directory, ExitStack() as stack:
+            root = Path(directory)
+            page = root / "doc" / "manual" / "conformance" / "decimal.md"
+            page.parent.mkdir(parents=True)
+            package = root / "library" / "src" / "decimal"
+            package.mkdir(parents=True)
+            (package / "moon.pkg").write_text("", encoding="utf-8")
+            (package / "pkg.generated.mbti").write_text(
+                "pub fn Decimal::total_order(Self, Self) -> Bool\n", encoding="utf-8"
+            )
+            page.write_text(
+                "| Clause | Level | API | Evidence |\n"
+                "| --- | --- | --- | --- |\n"
+                "| totalOrder | required | `Decimal::total_order`, `compare_total_ctx`, `_ctx`, `a b` | `x.mbt` |\n"
+                "| not a function column | `missing_name` |\n",
+                encoding="utf-8",
+            )
+            use_repo(stack, root)
+            errors = doc_quality.check_conformance_functions()
+            self.assertEqual(len(errors), 1)
+            self.assertIn("`compare_total_ctx`", errors[0])
+            self.assertIn("decimal.md:3", errors[0])
+
     def test_conformance_checklist_counts_follow_the_tables(self) -> None:
         import conformance_checklist
 

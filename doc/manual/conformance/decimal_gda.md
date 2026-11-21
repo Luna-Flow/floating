@@ -28,7 +28,7 @@ General Decimal Arithmetic Specification 1.70 for `decimal_gda`, one row per ope
 | round-to-integral-exact, round-to-integral-value | `round_to_integral_exact`, `round_to_integral_value` | `tointegralx.decTest`, `tointegral.decTest` | conforming |
 | scaleb, logb, rotate, shift | `scaleb`, `logb`, `rotate`, `shift` | `scaleb.decTest`, `logb.decTest`, `rotate.decTest`, `shift.decTest` | conforming |
 | and, or, xor, invert | `logical_and`, `logical_or`, `logical_xor`, `logical_invert` | `and.decTest`, `or.decTest`, `xor.decTest`, `invert.decTest` | conforming |
-| class, copy, copy-abs, copy-negate, copy-sign | `classify`, `copy`, `copy_abs`, `copy_negate`, `copy_sign` | `class.decTest`, `copy.decTest`, `copyabs.decTest`, `copynegate.decTest`, `copysign.decTest` | conforming |
+| class, copy, copy-abs, copy-negate, copy-sign | `class_name`, `copy`, `copy_abs`, `copy_negate`, `copy_sign` | `class.decTest`, `copy.decTest`, `copyabs.decTest`, `copynegate.decTest`, `copysign.decTest` | conforming |
 | to-number, to-scientific-string, to-engineering-string | `to_number`, `Decimal::to_sci_string`, `Decimal::to_eng_string` | `base.decTest`; `library/src/decimal_gda/parse_format_issue180_wbtest.mbt` | conforming |
 | canonical | `canonical`, `is_canonical` | no decTest file; `tooling/src/consistency/api_audit_wbtest.mbt` | conforming |
 | context: precision, rounding, clamp, exponent limits | `GdaContext` | `clamp.decTest`, `rounding.decTest`, `inexact.decTest`, `randoms.decTest` | conforming |
