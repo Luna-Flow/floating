@@ -469,6 +469,13 @@ notes live in this file.
   | --- | --- | --- |
   | `x.try_ln_ctx(ctx)` (also `log2`, `log10`, `log1p`, `log2p1`, `log10p1`) for a value outside the domain: `Err(domain_error)` | `Ok((NaN, invalid_operation))` | the plain `ln_ctx` etc. returned this value already; `x = 0` stays `-inf` with `division_by_zero`; the other `try_` forms follow in the next steps of S4 |
 
+- `bin_float`: the domain case of the inverse and trigonometric functions is a value in the `try_` forms ([#438](https://github.com/Luna-Flow/floating/issues/438), item S4, `bin_float`, trigonometric family). `try_asin_ctx`, `try_acos_ctx`, `try_acosh_ctx`, `try_atanh_ctx`, `try_asinpi_ctx` and `try_acospi_ctx` returned `Err(domain_error)` outside the real domain, and `try_sin_ctx`, `try_cos_ctx`, `try_tan_ctx`, `try_sinpi_ctx`, `try_cospi_ctx` and `try_tanpi_ctx` for an infinite argument, although IEEE 754-2019 defines the result.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `x.try_asin_ctx(ctx)` (also `acos`, `acosh`, `atanh`, `asinpi`, `acospi`) for a value outside the domain: `Err(domain_error)` | `Ok((NaN, invalid_operation))` | the plain `asin_ctx` etc. returned this value already |
+  | `x.try_sin_ctx(ctx)` (also `cos`, `tan`, `sinpi`, `cospi`, `tanpi`) for an infinity: `Err(domain_error)` | `Ok((NaN, invalid_operation))` | the same value as the plain form; the checked mirror (`BinFloatResult`) is still a `domain_error`, with the message `invalid operation` |
+
 ### Added
 
 - `bin_float`, `decimal`: every comparison predicate of IEEE 754-2019 5.11 has a function ([#438](https://github.com/Luna-Flow/floating/issues/438), item N6). The clause lists 22 predicates, 10 in Table 5.1 and 12 in Table 5.2; `bin_float` had 7 and `decimal` none. Both now have the 15 others, with the names of the first seven (`compare_quiet_*`, `compare_signaling_*`): `not_equal`, `greater`, `greater_equal`, `not_greater`, `less_unordered`, `not_less` and `greater_unordered` for both kinds, and `compare_quiet_ordered`. Each returns `(Bool, flags)`, is defined from `compare_quiet` or `compare_signaling` and raises invalid where the table says (a signaling NaN for the quiet ones, any NaN for the signaling ones). Nothing existing changes in `bin_float`.

@@ -173,9 +173,14 @@ test "BinFloat inverse hyperbolic functions preserve domains and identities" {
   let one = BinFloat::one()
   assert_eq(one.asinh().neg(), one.neg().asinh())
   let invalid = BinFloat::zero().try_acosh_ctx(BinaryContext::binary64())
+  // S4: a domain case is a value in the try_ form
   match invalid {
-    Ok(_) => assert_true(false)
-    Err(error) => assert_true(error.is_domain_error())
+    Ok((value, flags)) => {
+      assert_true(value.is_nan())
+      assert_true(flags.invalid_operation())
+      assert_false(flags.not_computed())
+    }
+    Err(_) => assert_true(false)
   }
   let (pole, flags) = one.atanh_ctx(BinaryContext::binary64())
   assert_true(pole.classify() == FpClass::Infinity)
@@ -204,9 +209,14 @@ test "BinFloat inverse trigonometric functions preserve domains" {
   assert_true(negative_one_acos < BinFloat::from_int(4))
   assert_eq(one.asin().neg(), one.neg().asin())
   let invalid = BinFloat::from_int(2).try_asin_ctx(BinaryContext::binary64())
+  // S4: a domain case is a value in the try_ form
   match invalid {
-    Ok(_) => assert_true(false)
-    Err(error) => assert_true(error.is_domain_error())
+    Ok((value, flags)) => {
+      assert_true(value.is_nan())
+      assert_true(flags.invalid_operation())
+      assert_false(flags.not_computed())
+    }
+    Err(_) => assert_true(false)
   }
 }
 
@@ -223,8 +233,12 @@ test "BinFloat acos rejects inputs outside its domain instead of recursing" {
       BinFloat::inf(Sign::Negative),
     ] {
     match value.try_acos_ctx(context) {
-      Ok(_) => assert_true(false)
-      Err(error) => assert_true(error.is_domain_error())
+      Ok((nan, flags)) => {
+        assert_true(nan.is_nan())
+        assert_true(flags.invalid_operation())
+        assert_false(flags.not_computed())
+      }
+      Err(_) => assert_true(false)
     }
     assert_true(value.acos().classify() == FpClass::NaN)
   }
