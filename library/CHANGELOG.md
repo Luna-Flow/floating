@@ -1049,7 +1049,7 @@ notes live in this file.
   | `Decimal::magnitude` | `coefficient` | same value |
   | `Decimal::from_integer`, `from_natural` (inherent methods) | `Decimal::from_bigint(n).normalized()`, or `from_bigint(n)` | the `FromInteger` and `FromNat` trait implementations stay and return `from_bigint(n).normalized()`, so trailing zeros are removed (`100` is `1E+2`); plain `from_bigint(n)` keeps exponent 0 |
   | `Decimal::normalize_ctx` | `reduce_ctx` | same operation |
-  | `Decimal::copy_abs`, `copy_negate` | `abs`, `neg` | same operations (`DecimalInterchange::abs` and `copy_negate` are unchanged) |
+  | `Decimal::copy_abs`, `copy_negate` | `abs`, `neg` | same operations (`DecimalInterchange::copy_abs` and `copy_negate` are unchanged) |
   | `Decimal::minimum_mag_ctx`, `maximum_mag_ctx`, `minimum_number_mag_ctx`, `maximum_number_mag_ctx` | `minimum_magnitude_ctx`, `maximum_magnitude_ctx`, `minimum_number_magnitude_ctx`, `maximum_number_magnitude_ctx` | same operations |
   | `Decimal::min_ctx`, `max_ctx`, `min_mag_ctx`, `max_mag_ctx` | `decimal_gda` `Decimal::min_ctx` and its siblings for the GDA operation; `minimum_number_ctx`, `maximum_number_ctx`, `minimum_number_magnitude_ctx`, `maximum_number_magnitude_ctx` for the IEEE one | not the same: a signaling NaN with a number gives the number and `invalid_operation` (GDA: a quiet NaN and `invalid_operation`), and there is no subset-mode left-operand tie rule |
   | `DecimalChecked::min`, `max` | `minimum_number`, `maximum_number` | wrappers of `minimum_number_ctx` and `maximum_number_ctx`; a signaling NaN with a number gives the number and `invalid_operation`, equal operands give either member without a total-order choice; the GDA `min` and `max` are in `decimal_gda_checked` |
@@ -1060,7 +1060,7 @@ notes live in this file.
 
   | row | removed | use instead |
   | --- | --- | --- |
-  | G01 | `Decimal::is_sign_minus` | `Decimal::is_signed` |
+  | G01 | `Decimal::is_negative` | `Decimal::is_signed` |
   | G02 | `Decimal::is_quiet_nan`, `Decimal::is_signaling_nan` | `Decimal::is_qnan`, `Decimal::is_snan` |
   | G03 | `Decimal::magnitude` | `Decimal::coefficient` |
   | G04 | `Decimal::get_payload`, `Decimal::set_payload`, `Decimal::set_payload_signaling` | `Decimal::nan_payload` for reading; the IEEE 754-2019 §9.7 operations are in `decimal`; to build a NaN with a payload, `Decimal::quiet_nan(payload=)` and `Decimal::signaling_nan(payload=)` |
@@ -1379,7 +1379,7 @@ notes live in this file.
   - `remainder` and `remainder_ctx` (IEEE remainder, quotient rounded to
     nearest-even), without materializing huge scaled dividends.
   - `to_integral_value_ctx`, `to_integral_exact_ctx`, `floor`, `ceil`,
-    `trunc`, `round` (ties away) and `round_ties_to_even` (roundToIntegral).
+    `trunc`, `round` (ties away) and `round_ties_even` (roundToIntegral).
   - `to_int_ctx`, `to_int64_ctx`, `to_uint_ctx` and `to_uint64_ctx`
     (convertToInteger, with `exact=true` for convertToIntegerExact); invalid
     conversions return `None` with *invalid*.
