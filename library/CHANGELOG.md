@@ -543,7 +543,7 @@ notes live in this file.
 
   | before | after | note |
   | --- | --- | --- |
-  | `x.div_checked(y)` | `x.div_checked(y, ArithmeticContext::new(p))` | the trait method; `p` was `max(precision of x, precision of y)` |
+  | `x.div_checked(y)` | `DivChecked::div_checked(x, y, ArithmeticContext::new(p))` | the trait method, called as a function of the trait (`impl` methods cannot be called with `.` from another package); `p` was `max(precision of x, precision of y)` |
   | `x.div_checked(y)` | `x.div_ctx(y, ctx)` and test the flags | a `DecimalContext` and the flags instead of a `Result` |
   | `x.div_checked(y)` | `x / y` | an infinity or a NaN instead of `Err`, as the plain operators |
 
