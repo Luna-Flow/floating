@@ -291,6 +291,55 @@ static int generate_strtofr(long cases_per_cell, uint64_t seed) {
       }
     }
   }
+  // Exponent fields of 10 digits and more (issues 597 and 624): a field that
+  // wraps a 32- or 64-bit accumulator lands on the wrong side of the range.
+  // The fields are 2^31, 2^32, 2^63 - 1, 2^63, 2^64, 2^64 + 3, 10^19, 10^20 - 1,
+  // 10^20, 10^25 and 10^40 written out; MPFR saturates the exponent, so its
+  // answer is the same as for the first value beyond the range.
+  static const char *huge_fields[] = {
+      "2147483648",    "4294967296",     "4294967303",
+      "9223372036854775807", "9223372036854775808", "18446744073709551616",
+      "18446744073709551619", "10000000000000000000", "99999999999999999999",
+      "100000000000000000000", "10000000000000000000000000",
+      "10000000000000000000000000000000000000000"};
+  static const char *huge_mantissas[] = {"1", "7.5", "123456789.123456789"};
+  for (size_t p = 0; p < PRECISION_COUNT; ++p) {
+    if (precisions[p] != 24 && precisions[p] != 53 && precisions[p] != 113) continue;
+    for (size_t f = 0; f < sizeof(huge_fields) / sizeof(huge_fields[0]); ++f) {
+      for (size_t m = 0; m < sizeof(huge_mantissas) / sizeof(huge_mantissas[0]); ++m) {
+        char text[256];
+        // far above the range: only the directions that deliver infinity
+        for (int sign = 0; sign < 2; ++sign) {
+          for (int plus = 0; plus < 2; ++plus) {
+            snprintf(text, sizeof(text), "%s%se%s%s", sign ? "-" : "",
+                     huge_mantissas[m], plus ? "+" : "", huge_fields[f]);
+            const size_t *directions = sign ? to_infinity_negative : to_infinity_positive;
+            for (size_t k = 0; k < 3; ++k) emit_strtofr(output, p, directions[k], text);
+          }
+          // far below the range: only the directions towards zero
+          snprintf(text, sizeof(text), "%s%se-%s", sign ? "-" : "",
+                   huge_mantissas[m], huge_fields[f]);
+          static const size_t toward_zero_positive_h[] = {0, 1, 2, 4};
+          static const size_t toward_zero_negative_h[] = {0, 1, 2, 3};
+          const size_t *directions = sign ? toward_zero_negative_h : toward_zero_positive_h;
+          for (size_t k = 0; k < 4; ++k) emit_strtofr(output, p, directions[k], text);
+        }
+      }
+    }
+    // a long field of small value (leading zeros), and a fraction of zeros that
+    // moves the value back into range: every direction
+    static const char *in_range[] = {
+        "1.5e+0000000000000000000005",
+        "12345e-00000000000000000000003",
+        "-0.75e0000000000000000000000",
+        "7e+00000000000000000000000000000000000000000",
+        "9.99e-0000000000000000000000000000000000000012",
+        "1e00000000000000000000",
+        "0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001e+0000000000000000000401"};
+    for (size_t i = 0; i < sizeof(in_range) / sizeof(in_range[0]); ++i) {
+      for (size_t r = 0; r < ROUNDING_COUNT; ++r) emit_strtofr(output, p, r, in_range[i]);
+    }
+  }
   mpz_clear(num);
   mpfr_clear(output);
   return 0;

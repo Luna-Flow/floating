@@ -218,8 +218,8 @@
     {
       "name": "mpfr-strtofr",
       "path": "testdata/bin_float/mpfr-4.2.2-strtofr.txt",
-      "expectedCases": 1434,
-      "sha256": "2c29d63525a19b2412fab9ed604ce4dcc74273eef2f8b5a532f3ce714b07d55f"
+      "expectedCases": 3699,
+      "sha256": "b1a0f0866b380e326a9ae4e0cb6521a1eedb1c7299defbe4f6d991f320753ade"
     },
     {
       "name": "mpfr-decimal-output",

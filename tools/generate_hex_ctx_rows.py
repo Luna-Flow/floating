@@ -212,6 +212,7 @@ def build() -> list[tuple]:
                         value = Fraction(mantissa) * (Fraction(2) ** exponent2 if exponent2 >= 0 else Fraction(1, 2 ** (-exponent2)))
                         expected, flags = convert(value, negative, p, emin, emax, mode, tininess)
                     rows.append((text, name, p, emin, emax, mode, tininess, expected, flags))
+    rows += field_rows()
     # drop duplicates of rows that do not depend on the tininess rule
     seen = set()
     unique = []
@@ -222,6 +223,105 @@ def build() -> list[tuple]:
         seen.add(key)
         unique.append(row)
     return unique
+
+
+def padded(exponent: int, width: int) -> str:
+    """A signed exponent field of `width` digits or more: the value is `exponent`, leading zeros fill the field."""
+    digits = str(abs(exponent))
+    return ("-" if exponent < 0 else "+") + "0" * max(0, width - len(digits)) + digits
+
+
+def field_text(mantissa: int, exponent2: int, negative: bool, field_style: int, field: str) -> str:
+    """The hexSequence of mantissa * 2^exponent2 whose exponent field is the string `field`
+    (the caller states the value of the field, so the text and the value agree)."""
+    digits = format(mantissa, "x")
+    sign = "-" if negative else ""
+    if field_style == 0:  # integer significand: the field is exponent2
+        return f"{sign}0x{digits}p{field}"
+    if field_style == 1:  # a point after the first digit: the field is exponent2 + 4 * (len - 1)
+        return f"{sign}0X{digits[0]}.{(digits[1:] or '0').upper()}P{field}"
+    return f"{sign}0x.{digits}p{field}"  # a leading point: the field is exponent2 + 4 * len
+
+
+def field_value(exponent2: int, digits: int, field_style: int) -> int:
+    """The value the exponent field must have for the text style to mean mantissa * 2^exponent2."""
+    return (exponent2, exponent2 + 4 * (digits - 1), exponent2 + 4 * digits)[field_style]
+
+
+# Exponent fields of 19 digits and more (issues 597 and 624: a field that wraps a 64-bit
+# accumulator lands on the wrong side of the range). Every value is written out here.
+HUGE_FIELDS = [
+    2**31, 2**32, 2**32 + 7, 2**63 - 1, 2**63, 2**63 + 11, 2**64, 2**64 + 3, 2**64 + 2**63,
+    10**19, 10**20 - 1, 10**20, 10**25, 10**40,
+]
+
+
+def field_rows() -> list[tuple]:
+    rows = []
+    mantissas = [1, 0x1F, 0xDEADBEEF, (1 << 60) | 1]
+    for name, p, emin, emax in FORMATS:
+        index = 0
+        # far outside the range, both sides: the text carries the true value of the field
+        for huge in HUGE_FIELDS:
+            for sign in (1, -1):
+                mantissa = mantissas[index % len(mantissas)]
+                style = index % 3
+                digits = len(format(mantissa, "x"))
+                exponent2 = sign * huge
+                # the field of the text is the value the style needs; exponent2 is chosen so that
+                # the text field is +-huge
+                text_value = sign * huge
+                exponent2 = text_value - (0, 4 * (digits - 1), 4 * digits)[style]
+                negative = index % 2 == 0
+                text = field_text(mantissa, exponent2, negative, style, f"{text_value:+d}")
+                for mode in ("RNE", "RTZ", "RTP", "RTN"):
+                    expected, flags = convert_far(mantissa, exponent2, negative, p, emin, emax, mode)
+                    rows.append((text, name, p, emin, emax, mode, "before", expected, flags))
+                index += 1
+        # a long field of small value (leading zeros): the value is in range or near its edges
+        for value in (0, 5, -5, emax - p + 1, emin - p + 1, emin - p - 1):
+            if name == "unbounded53":
+                continue
+            for width in (20, 22, 40):
+                mantissa = mantissas[index % len(mantissas)]
+                style = index % 3
+                digits = len(format(mantissa, "x"))
+                exponent2 = value
+                text_value = field_value(exponent2, digits, style)
+                negative = index % 2 == 1
+                text = field_text(mantissa, exponent2, negative, style, padded(text_value, width))
+                big = Fraction(mantissa) * (Fraction(2) ** exponent2 if exponent2 >= 0 else Fraction(1, 2 ** (-exponent2)))
+                for mode in ("RNE", "RTZ", "RTP", "RTN"):
+                    expected, flags = convert(big, negative, p, emin, emax, mode, "before")
+                    rows.append((text, name, p, emin, emax, mode, "before", expected, flags))
+                index += 1
+    # the edge of the implementation range, with the point moving the value back into range:
+    # a long significand after the point, whose digits lower the exponent of the value by 4 each
+    for name, p, emin, emax in FORMATS:
+        if name != "unbounded53":
+            continue
+        index = 0
+        for top in (emax, emax - 3, emin, emin + 3, emax + 3, emax + 9, emin - p - 5):
+            for style in (0, 1, 2):
+                mantissa = (1 << 60) | 1  # a 61-bit integer, odd: p = 53 rounds it
+                digits = len(format(mantissa, "x"))
+                exponent2 = top - (mantissa.bit_length() - 1)
+                negative = index % 2 == 0
+                text_value = field_value(exponent2, digits, style)
+                text = field_text(mantissa, exponent2, negative, style, padded(text_value, 20))
+                if emin <= top <= emax:
+                    # the 61-bit significand 2^60 + 1 rounds to 2^60 at 53 bits below the tie: a rational
+                    # at this exponent is too large to build, so use the symbolic form of the rounded value
+                    for mode in ("RNE", "RTZ", "RTP", "RTN"):
+                        away = {"RNE": False, "RTZ": False, "RTP": not negative, "RTN": negative}[mode]
+                        count = (1 << 60) + ((1 << 8) if away else 0)
+                        rows.append((text, name, p, emin, emax, mode, "before", render(negative, count, exponent2), "I--"))
+                else:  # overflow (top > emax + 1) or far below the smallest subnormal
+                    for mode in ("RNE", "RTZ", "RTP", "RTN"):
+                        expected, flags = convert_far(mantissa, exponent2, negative, p, emin, emax, mode)
+                        rows.append((text, name, p, emin, emax, mode, "before", expected, flags))
+                index += 1
+    return rows
 
 
 def render_file(rows: list[tuple]) -> str:
