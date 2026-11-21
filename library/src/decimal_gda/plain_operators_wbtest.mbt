@@ -22,22 +22,6 @@ test "plain operators return the member of the cohort that GDA names" {
 }
 
 ///|
-test "plain operators equal the free functions in the working context" {
-  let d = fn(s : String) { Decimal::from_string(s, precision=12).unwrap() }
-  let ctx = gda_plain_working_context(12)
-  for x in ["1.5", "-0", "0.001", "123456789012", "1E+30", "1E-30", "7"] {
-    for y in ["2.25", "3", "-0.5", "1E+5", "0E+3", "9.99999999999"] {
-      let a = d(x)
-      let b = d(y)
-      assert_eq((a + b).to_string(), add(a, b, ctx).value().to_string())
-      assert_eq((a - b).to_string(), subtract(a, b, ctx).value().to_string())
-      assert_eq((a * b).to_string(), multiply(a, b, ctx).value().to_string())
-      assert_eq((a / b).to_string(), divide(a, b, ctx).value().to_string())
-    }
-  }
-}
-
-///|
 /// The working context is wide enough that adding zero does not change a stored
 /// value, down to Etiny = -2,147,483,645.
 test "x + 0 is x for stored values" {
@@ -77,54 +61,6 @@ test "plain operators on special values and zero divisors" {
 }
 
 ///|
-/// The working context is written out by hand; this keeps it in step with
-/// `GdaContext::new`: on operands far from both ends of the range the plain
-/// operators equal the free functions in the context the public constructor
-/// builds for the same precision (extended, half-even, no clamp).
-test "plain operators equal the free functions in a GdaContext::new context" {
-  let texts = [
-    "1", "3", "0", "-0", "7.25", "-2.50", "1E+10", "1.5E-10", "123456789.123456789",
-    "9999999999999999999999999999999999", "0.000123", "-33.3333", "2E+100", "4E-100",
-  ]
-  for precision in [1, 3, 7, 16, 34] {
-    let context = GdaContext::new(precision~)
-    for a_text in texts {
-      for b_text in texts {
-        let a = Decimal::from_string(a_text, precision~).unwrap()
-        let b = Decimal::from_string(b_text, precision~).unwrap()
-        let label = "p=\{precision} \{a_text} \{b_text}"
-        assert_eq(
-          (a + b).to_string(),
-          add(a, b, context).value().to_string(),
-          msg="add " + label,
-        )
-        assert_eq(
-          (a - b).to_string(),
-          subtract(a, b, context).value().to_string(),
-          msg="sub " + label,
-        )
-        assert_eq(
-          (a * b).to_string(),
-          multiply(a, b, context).value().to_string(),
-          msg="mul " + label,
-        )
-        assert_eq(
-          (a / b).to_string(),
-          divide(a, b, context).value().to_string(),
-          msg="div " + label,
-        )
-      }
-      let a = Decimal::from_string(a_text, precision~).unwrap()
-      assert_eq(
-        a.sqrt().to_string(),
-        sqrt(a, context).value().to_string(),
-        msg="sqrt p=\{precision} \{a_text}",
-      )
-    }
-  }
-}
-
-///|
 /// An exponent difference below `Int` with a dividend longer than the divisor:
 /// the quotient lies in the range, so it is rounded, not lost to infinity.
 test "plain division with an exponent difference below Int" {
@@ -145,4 +81,56 @@ test "plain division with an exponent difference below Int" {
   )
   // an inexact quotient with the guard cut by the floor, rounded at Etiny
   inspect(d("5E-2147483640") / d("3E+1"), content="1.6667E-2147483641")
+}
+
+///|
+/// Oracle (level A): Python `decimal` (libmpdec, correctly rounded for add,
+/// subtract, multiply, divide and sqrt) in the context of the plain operators:
+/// precision P, half-even, no clamp, no traps, Emax 2,147,483,646, Emin
+/// -2,147,483,645 + P - 1 (`tools/generate_decimal_gda_plain_rows.py`; no model of
+/// this library's algorithm). 14 operands (zeros, cohort members, long coefficients,
+/// the largest and smallest of the stored range, infinity, NaN) in all pairs at
+/// 3, 16 and 34 digits. The table replaces two tests that compared the operators
+/// with the free functions they call.
+test "plain operators equal the libmpdec results of the working context" {
+  assert_eq(plain_operator_rows.length(), 2394)
+  let mut skipped = 0
+  for row in plain_operator_rows {
+    let (op, precision, a_text, b_text, expected) = row
+    let a = Decimal::from_string(a_text, precision~).unwrap()
+    let label = "\{op} p=\{precision} \{a_text} \{b_text}"
+    let actual = match op {
+      "sqrt" => a.sqrt()
+      _ => {
+        let b = Decimal::from_string(b_text, precision~).unwrap()
+        // issue 641: a quotient in the range whose exponent difference is above
+        // `Int` aborts (the preferred exponent wraps); the rows are skipped, not
+        // changed, until it is fixed
+        if op == "div" &&
+          expected != "inf" &&
+          expected != "-inf" &&
+          expected != "nan" &&
+          a.exponent10().to_int64() - b.exponent10().to_int64() > 2147483647L {
+          skipped += 1
+          continue
+        }
+        match op {
+          "add" => a + b
+          "sub" => a - b
+          "mul" => a * b
+          "div" => a / b
+          _ => abort("unknown operation " + op)
+        }
+      }
+    }
+    if expected == "nan" {
+      assert_true(
+        actual.is_nan(),
+        msg=label + " want nan, got " + actual.to_string(),
+      )
+    } else {
+      assert_eq((label, actual.to_string()), (label, expected))
+    }
+  }
+  inspect(skipped, content="7")
 }

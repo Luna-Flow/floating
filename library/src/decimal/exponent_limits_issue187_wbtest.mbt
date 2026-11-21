@@ -21,12 +21,12 @@ fn issue187_context(
 /// `decimal_value_e_max`; the rows of #187 moved from the `Int` limits to the
 /// nearest storable value, with the same expected results: the exponent
 /// arithmetic of a product, a sum and a root is as exposed here as it was there)
-/// must neither abort nor wrap. Expected values: Python `decimal` with `Emin = -999999999`,
-/// `Emax = 999999999` and traps off, a faithful General Decimal Arithmetic
+/// must neither abort nor wrap. Expected values: Python `decimal` with `Emin = -999999998`
+/// (`1 - Emax`, the IEEE rule of this package), `Emax = 999999999`, `clamp=1` and
+/// traps off (all 21 rows recomputed there), a faithful General Decimal Arithmetic
 /// implementation (cross-check only; the specification is the authority).
 /// Rows: operation, operands, precision, clamp, rounding mode, result, flags
-/// (inexact, rounded, invalid, divide-by-zero, overflow, underflow, subnormal,
-/// clamped).
+/// (the five IEEE flags: inexact, invalid, divide-by-zero, overflow, underflow).
 test "operands with exponents near the stored limits give the specified results (#187)" {
   let rows : Array[
     (String, Array[String], Int32, Bool, DecimalRound, String, String),

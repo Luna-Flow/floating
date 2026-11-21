@@ -115,7 +115,8 @@ fn issue267_check(
 /// exponent was altered (a package condition, IEEE 754-2019 has no clause for it). Expected values:
 /// Python `decimal` (libmpdec 4.0.0) as oracle, checked against the package contract by hand; the
 /// oracle is not the standard.
-test "power signals Clamped only when the result exponent was altered (#267)" {
+/// The package has no Clamped flag (IEEE 754 has none): what these rows observe is the delivered value and cohort member (the fold-down itself); the Clamped flag is asserted by the same rows in `decimal_gda`'s test of the same name.
+test "power delivers a folded-down result only when the exponent had to be altered (#267)" {
   let rows : Array[
     (
       String,

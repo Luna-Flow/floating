@@ -113,7 +113,8 @@ fn issue287_check(
 /// `decimal_power_ten_cohort_result` returned the preferred cohort of a power of ten without the
 /// clamp fold-down. Expected values: Python `decimal` (libmpdec 4.0.0) as oracle, checked against the
 /// package contract by hand (IEEE 754 has no clamped condition); the oracle is not the specification.
-test "a power of ten above Etop is folded down and flagged Clamped (#287)" {
+/// The package has no Clamped flag (IEEE 754 has none): what these rows observe is the delivered value and cohort member (the fold-down itself); the Clamped flag is asserted by the same rows in `decimal_gda`'s test of the same name.
+test "a power of ten above Etop is delivered folded down (#287)" {
   let rows : Array[
     (
       String,

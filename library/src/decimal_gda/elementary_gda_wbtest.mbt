@@ -135,7 +135,23 @@ test "GDA square-root power preserves zero and tiny-result conditions" {
 }
 
 ///|
-test "GDA classic subset retains legacy math flags and adjacent ln" {
+/// `ln(0.99999991000000405)` at 17 digits, half-up: the subset corpus
+/// (`testdata/decimal_gda/official0/ln0.decTest`, `extended: 0`, row `ln116`,
+/// marked there "next is a > 0.5ulp case") expects `-8.9999999999999879E-8`, the
+/// 18-digit value ...785 rounded again; the extended corpus (`official/ln.decTest`,
+/// `extended: 1`, row `lnx116`) expects the correctly rounded `-8.9999999999999878E-8`
+/// (Python `decimal` agrees: -8.99999999999998784999918E-8). Both are upstream rows
+/// (level A); the subset result is a documented legacy behavior, not a defect.
+/// Half-even in the subset: no corpus row, so the oracle is decNumber 3.68
+/// itself (https://speleotrove.com/decimal/decNumber-icu-368.zip, sha256
+/// 14ec2cf3...fe25), built with DECSUBSET=1 and run on this operand at precision 17:
+/// -8.9999999999999879E-8 in half_up and in half_even, with extended 0 and 1. By
+/// reading: `decNumberLn` (decNumber.c:1256) only rounds an over-long operand and
+/// rejects a zero in the subset, then calls `decLnOp`, whose header says "rounding
+/// mode has no effect" and whose result is cut at line 5795 with the half-even
+/// context of the iteration (a double rounding, not tied to the subset). decNumber
+/// itself fails lnx116 (the extended row, correctly rounded `...878`).
+test "GDA classic subset retains legacy math flags and the legacy double-rounded ln" {
   let subset = GdaContext::new(
     precision=17,
     rounding=GdaRoundingMode::HalfUp,
@@ -143,11 +159,29 @@ test "GDA classic subset retains legacy math flags and adjacent ln" {
     e_max=999_999,
     extended=false,
   )
-  let logarithm = ln(
-    Decimal::from_string("0.99999991000000405").unwrap(),
-    subset,
+  let operand = Decimal::from_string("0.99999991000000405").unwrap()
+  // official0/ln0.decTest ln116
+  assert_eq(ln(operand, subset).value().to_string(), "-8.9999999999999879E-8")
+  // official/ln.decTest lnx116 (extended arithmetic, same operand and context)
+  let extended = GdaContext::new(
+    precision=17,
+    rounding=GdaRoundingMode::HalfUp,
+    e_min=-999_999,
+    e_max=999_999,
   )
-  assert_eq(logarithm.value().to_string(), "-8.9999999999999879E-8")
+  assert_eq(ln(operand, extended).value().to_string(), "-8.9999999999999878E-8")
+  // the subset in half-even: decNumber 3.68 (run, DECSUBSET=1) gives the same value
+  let subset_even = GdaContext::new(
+    precision=17,
+    rounding=GdaRoundingMode::HalfEven,
+    e_min=-999_999,
+    e_max=999_999,
+    extended=false,
+  )
+  assert_eq(
+    ln(operand, subset_even).value().to_string(),
+    "-8.9999999999999879E-8",
+  )
   let exp_subset = GdaContext::new(
     precision=7,
     rounding=GdaRoundingMode::HalfUp,

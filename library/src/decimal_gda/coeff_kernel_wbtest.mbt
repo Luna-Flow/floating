@@ -1832,7 +1832,23 @@ test "decimal scaleb repr construction matches bigint path" {
 }
 
 ///|
-test "decimal repr normalization matches bigint normalization on finite values" {
+fn normalization_flags_text(flags : DecimalFlags) -> String {
+  (if flags.inexact { "x" } else { "." }) +
+  (if flags.rounded { "r" } else { "." }) +
+  (if flags.invalid_operation { "i" } else { "." }) +
+  (if flags.division_by_zero { "z" } else { "." }) +
+  (if flags.overflow { "o" } else { "." }) +
+  (if flags.underflow { "u" } else { "." }) +
+  (if flags.subnormal { "s" } else { "." }) +
+  (if flags.clamped { "c" } else { "." })
+}
+
+///|
+/// Oracle (level A): Python `decimal` (libmpdec) `Context(prec=7,
+/// rounding=ROUND_HALF_UP, Emin=-20, Emax=20, clamp=1).plus(Decimal(text))`
+/// with its flags; written out. These rows replace a block whose expected value
+/// was `normalize_decimal_parts_ctx`, a wrapper of the function under test.
+test "repr normalization gives the libmpdec result and flags on finite values" {
   let ctx = DecimalContext::new(
     precision=7,
     decimal_rounding=DecimalRoundingMode::HalfUp,
@@ -1840,45 +1856,66 @@ test "decimal repr normalization matches bigint normalization on finite values" 
     e_max=20,
     clamp=true,
   )
-  let value = Decimal::from_string("1234500E-3", precision=16).unwrap()
-  let expected = normalize_decimal_parts_ctx(
-    value.negative,
-    coeff_bigint(value.coefficient),
-    value.exponent10,
-    ctx,
-  )
-  let actual = normalize_decimal_parts_ctx_repr(
-    value.negative,
-    value.coefficient,
-    value.exponent10,
-    ctx,
-  )
-  assert_eq(actual.0.compare_total(expected.0), 0)
-  assert_eq(actual.1.inexact, expected.1.inexact)
-  assert_eq(actual.1.rounded, expected.1.rounded)
-  assert_eq(actual.1.subnormal, expected.1.subnormal)
-  assert_eq(actual.1.underflow, expected.1.underflow)
-  assert_eq(actual.1.overflow, expected.1.overflow)
-  assert_eq(actual.1.clamped, expected.1.clamped)
-  assert_eq(actual.1.invalid_operation, expected.1.invalid_operation)
+  let rows = [
+    ("1234500E-3", "1234.500", "........"),
+    ("12345678E-3", "12345.68", "xr......"),
+    ("12345675E-3", "12345.68", "xr......"),
+    ("99999995E-3", "100000.0", "xr......"),
+    ("1E+25", "inf", "xr..o..."),
+    ("1E+20", "1.000000E+20", ".......c"),
+    ("1E+21", "inf", "xr..o..."),
+    ("1E-25", "1E-25", "......s."),
+    ("15E-26", "1.5E-25", "......s."),
+    ("5E-27", "1E-26", "xr...us."),
+    ("-5E-27", "-1E-26", "xr...us."),
+    ("123E-30", "0E-26", "xr...usc"),
+    ("0E+30", "0E+14", ".......c"),
+    ("1000000E+14", "1.000000E+20", "........"),
+    ("9999999E+14", "9.999999E+20", "........"),
+    ("99999995E+13", "inf", "xr..o..."),
+  ]
+  for row in rows {
+    let (text, result, flags) = row
+    let value = Decimal::from_string(text, precision=16).unwrap()
+    let actual = normalize_decimal_parts_ctx_repr(
+      value.negative,
+      value.coefficient,
+      value.exponent10,
+      ctx,
+    )
+    assert_eq(
+      (text, actual.0.to_string(), normalization_flags_text(actual.1)),
+      (text, result, flags),
+    )
+  }
 }
 
 ///|
-test "decimal repr gda normalization matches bigint normalization" {
-  let finite = Decimal::from_string("9999500E-4", precision=16).unwrap()
-  let expected = normalize_decimal_parts_gda(
-    finite.negative,
-    coeff_bigint(finite.coefficient),
-    finite.exponent10,
-    5,
-    DecimalRoundingMode::HalfEven,
-  )
-  let actual = normalize_decimal_parts_gda_repr(
-    finite.negative,
-    finite.coefficient,
-    finite.exponent10,
-    5,
-    DecimalRoundingMode::HalfEven,
-  )
-  assert_eq(actual.compare_total(expected), 0)
+/// Oracle (level A): Python `decimal` `Context(prec=5, rounding=ROUND_HALF_EVEN)`
+/// `.plus(Decimal(text)).normalize()` (round, then strip the trailing zeros); written
+/// out. Replaces a block whose expected value was a wrapper of the function under test.
+test "repr gda normalization rounds to the precision and reduces, as libmpdec" {
+  let rows = [
+    ("9999500E-4", "999.95"),
+    ("1234500E-3", "1234.5"),
+    ("12345E-3", "12.345"),
+    ("1250000E-4", "125"),
+    ("99999E+3", "9.9999E+7"),
+    ("123456E+2", "1.2346E+7"),
+    ("0.00E+5", "0"),
+    ("5E-2", "0.05"),
+    ("-5000E-3", "-5"),
+  ]
+  for row in rows {
+    let (text, result) = row
+    let value = Decimal::from_string(text, precision=16).unwrap()
+    let actual = normalize_decimal_parts_gda_repr(
+      value.negative,
+      value.coefficient,
+      value.exponent10,
+      5,
+      DecimalRoundingMode::HalfEven,
+    )
+    assert_eq((text, actual.to_string()), (text, result))
+  }
 }

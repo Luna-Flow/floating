@@ -38,24 +38,38 @@ test "refinement limit: default is Some(12) and matches the explicit value" {
   let a = x.try_exp_ctx(context).unwrap().0
   let b = x.try_exp_ctx(context.with_refinement_limit(Some(12))).unwrap().0
   inspect(a.to_string() == b.to_string(), content="true")
-  inspect(a.to_string().has_suffix("0001"), content="true")
+  inspect(a.to_string(), content="1.000000000000000000000000000000001")
 }
 
 ///|
-test "refinement limit: a hard-to-round exp fails at a small limit and succeeds at a larger one" {
+/// Oracle: the value is level A (Python `decimal`, 80 digits: exp(5E-34) =
+/// 1.00000000000000000000000000000000050000000000000000000000000000000125...,
+/// above the midpoint, so 1.000000000000000000000000000000001 at 34 digits). The
+/// number of refinements a hard input needs is the implementation's own choice, so
+/// it is not pinned: the test asserts the shape (a limit that is too small fails
+/// with a certification failure, every larger limit and `None` give the value, and
+/// the input is hard: one refinement does not certify it).
+test "refinement limit: a hard-to-round exp fails below a threshold and succeeds from it on" {
   let x = refinement_hard_input()
   let base = refinement_context(34)
-  let default = x.try_exp_ctx(base).unwrap().0
-  for limit in [1, 2] {
-    inspect(
-      refinement_failed(x.try_exp_ctx(base.with_refinement_limit(Some(limit)))),
-      content="true",
-    )
+  let expected = "1.000000000000000000000000000000001"
+  inspect(x.try_exp_ctx(base).unwrap().0.to_string(), content=expected)
+  let mut first_success = 0
+  for limit in 1..<=20 {
+    let result = x.try_exp_ctx(base.with_refinement_limit(Some(limit)))
+    if first_success == 0 {
+      if refinement_failed(result) {
+        continue
+      }
+      first_success = limit
+    }
+    inspect(result.unwrap().0.to_string(), content=expected)
   }
-  let enough = x.try_exp_ctx(base.with_refinement_limit(Some(2 + 1))).unwrap().0
+  // the loop failed at limit 1 (the input is hard) and succeeded before the
+  // default limit of 12
+  inspect(first_success > 1 && first_success <= 12, content="true")
   let none = x.try_exp_ctx(base.with_refinement_limit(None)).unwrap().0
-  inspect(enough.to_string() == default.to_string(), content="true")
-  inspect(none.to_string() == default.to_string(), content="true")
+  inspect(none.to_string(), content=expected)
 }
 
 ///|
