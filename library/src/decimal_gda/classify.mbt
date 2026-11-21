@@ -143,7 +143,7 @@ pub fn Decimal::precision(self : Decimal) -> Int32 {
 }
 
 ///|
-pub fn Decimal::sign(self : Decimal) -> Sign {
+pub fn Decimal::signum(self : Decimal) -> Sign {
   match self.class {
     FpClass::NaN => Sign::Zero
     _ =>

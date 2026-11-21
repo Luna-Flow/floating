@@ -179,8 +179,8 @@ pub fn Decimal::same_quantum(Self, Self) -> Bool
 pub fn Decimal::scaleb_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::set_payload(Self, @bigint.BigInt) -> Self
 pub fn Decimal::set_payload_signaling(Self, @bigint.BigInt) -> Self
-pub fn Decimal::sign(Self) -> @def.Sign
 pub fn Decimal::signaling_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int32) -> Self
+pub fn Decimal::signum(Self) -> @def.Sign
 pub fn Decimal::sin_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::sinh_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::sinpi_ctx(Self, DecimalContext) -> (Self, DecimalFlags)

@@ -366,17 +366,17 @@ encodings.
 
 ## Observing a value
 
-### `Binary::classify`, `Binary::sign`, `Binary::is_sign_minus`
+### `Binary::classify`, `Binary::signum`, `Binary::is_sign_minus`
 
 Report the class and sign of a value.
 
 ```mbti
 pub fn Binary::classify(Self) -> @arithmetic.FpClass
-pub fn Binary::sign(Self) -> @def.Sign
+pub fn Binary::signum(Self) -> @def.Sign
 pub fn Binary::is_sign_minus(Self) -> Bool
 ```
 
-`classify` returns `Finite`, `Infinity` or `NaN` (zeros are `Finite`). `sign`
+`classify` returns `Finite`, `Infinity` or `NaN` (zeros are `Finite`). `signum`
 is `Zero` for every zero and every NaN, and `Positive` or `Negative` otherwise.
 `is_sign_minus` returns the sign bit itself, which is set for $-0$, $-\infty$
 and negative NaNs. `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and
@@ -2478,7 +2478,7 @@ The shared floating-point vocabulary of `floating`.
 pub impl @def.Floating for Binary
 ```
 
-`classify`, `sign`, `precision`, `with_precision` and `normalized` are the
+`classify`, `signum`, `precision`, `with_precision` and `normalized` are the
 inherent methods above. Generic code uses `@def.is_finite`, `@def.is_nan`,
 `@def.is_infinite` and `@def.is_zero`.
 
@@ -2859,8 +2859,8 @@ pub fn Binary::round_ties_to_even(Self) -> Self
 pub fn Binary::rsqrt(Self) -> Self
 pub fn Binary::rsqrt_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn Binary::scaleb_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
-pub fn Binary::sign(Self) -> @def.Sign
 pub fn Binary::signaling_nan(payload? : BinCoeff, negative? : Bool, precision? : Int32) -> Self
+pub fn Binary::signum(Self) -> @def.Sign
 pub fn Binary::sin(Self) -> Self
 pub fn Binary::sin_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn Binary::sinh(Self) -> Self

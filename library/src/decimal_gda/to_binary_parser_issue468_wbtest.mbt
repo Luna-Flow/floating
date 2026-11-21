@@ -34,8 +34,8 @@ fn old_to_binary(
     @binary.BinCoeff::from_bytes_be(q.to_octets()),
     -binary_shift,
     precision,
-    negative=value.sign() == Sign::Negative,
-    mode=bin_mode(mode, value.sign() == Sign::Negative),
+    negative=value.signum() == Sign::Negative,
+    mode=bin_mode(mode, value.signum() == Sign::Negative),
   )
 }
 

@@ -459,8 +459,8 @@ pub impl @def.Floating for Decimal with fn classify(self) {
 }
 
 ///|
-pub impl @def.Floating for Decimal with fn sign(self) {
-  self.sign()
+pub impl @def.Floating for Decimal with fn signum(self) {
+  self.signum()
 }
 
 ///|

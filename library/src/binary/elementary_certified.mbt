@@ -291,7 +291,7 @@ fn binary_exp_small_bounds(
   guard lower.compare(eighth.neg()) >= 0 && upper.compare(eighth) <= 0 else {
     return None
   }
-  if upper.sign() == Sign::Negative {
+  if upper.signum() == Sign::Negative {
     match binary_exp_small_bounds(lower.neg(), work_precision) {
       Some(positive) =>
         Some(
@@ -799,7 +799,7 @@ fn binary_ln_bounds(
   work_precision : Int32,
   series_only~ : Bool = false,
 ) -> (Binary, Binary)? {
-  guard value.classify() == FpClass::Finite && value.sign() == Sign::Positive else {
+  guard value.classify() == FpClass::Finite && value.signum() == Sign::Positive else {
     return None
   }
   let coefficient_bits = value.coefficient_bits()
@@ -3189,7 +3189,7 @@ pub fn Binary::try_pow_ctx(
         (Binary::one_raw(precision=context.precision), BinaryFlags::new()),
       )
     }
-    let grows = (comparison > 0) == (exponent.sign() == Sign::Positive)
+    let grows = (comparison > 0) == (exponent.signum() == Sign::Positive)
     return Ok(
       (
         if grows {
@@ -3627,7 +3627,7 @@ fn Binary::try_hyperbolic_ctx(
         (
           match operation {
             BinaryHyperbolicOperation::Sinh =>
-              Binary::inf_raw(self.sign(), precision=context.precision)
+              Binary::inf_raw(self.signum(), precision=context.precision)
             BinaryHyperbolicOperation::Cosh =>
               Binary::inf_raw(Sign::Positive, precision=context.precision)
             BinaryHyperbolicOperation::Tanh =>
@@ -3991,7 +3991,7 @@ fn Binary::try_inverse_hyperbolic_ctx(
         BinaryInverseHyperbolicOperation::Asinh =>
           Ok(
             (
-              Binary::inf_raw(self.sign(), precision=context.precision),
+              Binary::inf_raw(self.signum(), precision=context.precision),
               BinaryFlags::new(),
             ),
           )
@@ -4031,7 +4031,7 @@ fn Binary::try_inverse_hyperbolic_ctx(
         BinaryInverseHyperbolicOperation::Atanh if self.abs().compare(one) == 0 =>
           return Ok(
             (
-              Binary::inf_raw(self.sign(), precision=context.precision),
+              Binary::inf_raw(self.signum(), precision=context.precision),
               binary_division_by_zero_flags(),
             ),
           )
@@ -4226,7 +4226,7 @@ fn binary_atan_small_positive_pair_bounds(
     BinaryRoundingMode::RoundTowardPositive,
   )
   let half = Binary::make_coeff(Coeff::one(), -1, work_precision)
-  guard (lower_value.is_zero() || lower_value.sign() == Sign::Positive) &&
+  guard (lower_value.is_zero() || lower_value.signum() == Sign::Positive) &&
     upper_value.compare(half) <= 0 else {
     return None
   }
@@ -5128,7 +5128,7 @@ fn binary_atan2_finite_bounds(
   //   x < 0: lower = y_hi >= 0 ? y_hi / x_hi : y_hi / x_lo
   //          upper = y_lo >= 0 ? y_lo / x_lo : y_lo / x_hi
   let zero = Binary::zero_raw()
-  let (ratio_lower, ratio_upper) = if abscissa.sign() == Sign::Positive {
+  let (ratio_lower, ratio_upper) = if abscissa.signum() == Sign::Positive {
     (
       if ordinate_lower.compare(zero) >= 0 {
         ordinate_lower.div_ctx(abscissa_upper, downward).0
@@ -5157,12 +5157,12 @@ fn binary_atan2_finite_bounds(
   }
   match binary_atan_pair_bounds(ratio_lower, ratio_upper, work_precision) {
     Some(angle) =>
-      if abscissa.sign() == Sign::Positive {
+      if abscissa.signum() == Sign::Positive {
         Some(angle)
       } else {
         match binary_pi_bounds(work_precision) {
           Some(pi) =>
-            if ordinate.sign() == Sign::Negative {
+            if ordinate.signum() == Sign::Negative {
               Some(
                 (
                   angle.0.sub_ctx(pi.1, downward).0,

@@ -120,7 +120,7 @@ test "atan2_rev1 and atan2_rev2: c = Entire, and Entire operands with a thin c" 
   let is_entire = fn(r : Interval) {
     r.lo_.classify() == FpClass::Infinity &&
     r.hi_.classify() == FpClass::Infinity &&
-    r.lo_.sign() == Sign::Negative
+    r.lo_.signum() == Sign::Negative
   }
   // c = Entire: every operand sign gives the whole line (b = {0}: every y != 0, hull Entire)
   for

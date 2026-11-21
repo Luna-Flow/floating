@@ -497,7 +497,7 @@ fn Decimal::from_double_raw(x : Double, precision~ : Int32 = 34) -> Decimal {
   let bin = @binary.Binary::from_double(x, precision=53)
   match bin.classify() {
     FpClass::NaN => Decimal::nan_raw(precision~)
-    FpClass::Infinity => Decimal::inf_with_sign(bin.sign(), precision~)
+    FpClass::Infinity => Decimal::inf_with_sign(bin.signum(), precision~)
     FpClass::Finite => Decimal::from_binary_raw(bin, precision~)
   }
 }
@@ -686,7 +686,7 @@ fn Decimal::to_binary_raw(
         @binary.BinCoeff::from_bytes_be(q.to_octets()),
         -binary_shift,
         precision,
-        negative=self.sign() == Sign::Negative,
+        negative=self.signum() == Sign::Negative,
         mode~,
       )
     }
@@ -804,7 +804,7 @@ fn Decimal::from_binary_raw(
 ) -> Decimal {
   match x.classify() {
     FpClass::NaN => Decimal::nan_raw(precision~)
-    FpClass::Infinity => Decimal::inf_with_sign(x.sign(), precision~)
+    FpClass::Infinity => Decimal::inf_with_sign(x.signum(), precision~)
     FpClass::Finite =>
       if x.is_zero() {
         Decimal::zero_raw(precision~)

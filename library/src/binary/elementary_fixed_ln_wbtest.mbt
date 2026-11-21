@@ -82,7 +82,7 @@ fn binary_ln_bounds_series_reference(
   value : Binary,
   work_precision : Int32,
 ) -> (Binary, Binary)? {
-  guard value.classify() == FpClass::Finite && value.sign() == Sign::Positive else {
+  guard value.classify() == FpClass::Finite && value.signum() == Sign::Positive else {
     return None
   }
   let coefficient_bits = value.coefficient_bits()

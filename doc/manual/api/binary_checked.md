@@ -149,7 +149,7 @@ the monad laws (left and right identity, associativity), derived in the
 test "map and bind" {
   let halve = fn(x : @binary.Binary) { x * @binary.Binary::from_double(0.5) }
   let positive = fn(x : @binary.Binary) {
-    if x.sign() == @def.Sign::Positive {
+    if x.signum() == @def.Sign::Positive {
       @binary_checked.BinaryChecked::ok(x)
     } else {
       @binary_checked.BinaryChecked::err(

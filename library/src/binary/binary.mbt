@@ -781,7 +781,7 @@ pub fn Binary::precision(self : Binary) -> Int32 {
 }
 
 ///|
-pub fn Binary::sign(self : Binary) -> Sign {
+pub fn Binary::signum(self : Binary) -> Sign {
   self.sign_()
 }
 
@@ -951,13 +951,13 @@ pub fn Binary::compare_checked(
           1
         }
       (FpClass::Infinity, _) =>
-        if self.sign() == Sign::Negative {
+        if self.signum() == Sign::Negative {
           -1
         } else {
           1
         }
       (_, FpClass::Infinity) =>
-        if other.sign() == Sign::Negative {
+        if other.signum() == Sign::Negative {
           1
         } else {
           -1
@@ -993,9 +993,14 @@ pub fn Binary::compare(self : Binary, other : Binary) -> Int32 {
       } else {
         1
       }
-    (FpClass::Infinity, _) => if self.sign() == Sign::Negative { -1 } else { 1 }
+    (FpClass::Infinity, _) =>
+      if self.signum() == Sign::Negative {
+        -1
+      } else {
+        1
+      }
     (_, FpClass::Infinity) =>
-      if other.sign() == Sign::Negative {
+      if other.signum() == Sign::Negative {
         1
       } else {
         -1
@@ -1252,8 +1257,8 @@ pub impl @def.Floating for Binary with fn classify(self) {
 }
 
 ///|
-pub impl @def.Floating for Binary with fn sign(self) {
-  self.sign()
+pub impl @def.Floating for Binary with fn signum(self) {
+  self.signum()
 }
 
 ///|
@@ -1276,7 +1281,7 @@ pub impl Show for Binary with fn to_string(self) {
   match self.class() {
     FpClass::NaN => "nan"
     FpClass::Infinity =>
-      if self.sign() == Sign::Negative {
+      if self.signum() == Sign::Negative {
         "-inf"
       } else {
         "inf"

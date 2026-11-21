@@ -37,7 +37,7 @@ fn to_binary_reference(
     @binary.BinCoeff::from_bytes_be(q.to_octets()),
     -binary_shift,
     precision,
-    negative=value.sign() == Sign::Negative,
+    negative=value.signum() == Sign::Negative,
     mode~,
   )
 }
@@ -169,7 +169,7 @@ test "to_binary at large exponents equals exact integer arithmetic (not the old 
     ).unwrap()
     let got = value.to_binary(
       precision~,
-      mode=to_binary_mode(mode, value.sign() == Sign::Negative),
+      mode=to_binary_mode(mode, value.signum() == Sign::Negative),
     )
     let expected_value = bigint_from_text(coefficient)
     let negative = expected_value < BigInt::from_int(0)

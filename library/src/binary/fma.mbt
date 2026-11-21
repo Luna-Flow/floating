@@ -75,7 +75,7 @@ pub fn Binary::fma_ctx(
   }
   if addend.class() == FpClass::Infinity {
     return (
-      Binary::inf_raw(addend.sign(), precision=context.precision),
+      Binary::inf_raw(addend.signum(), precision=context.precision),
       BinaryFlags::new(),
     )
   }

@@ -54,12 +54,12 @@ fn pos_inf(precision : Int32) -> @binary.Binary {
 
 ///|
 fn is_neg_inf(x : @binary.Binary) -> Bool {
-  x.classify() == FpClass::Infinity && x.sign() == Sign::Negative
+  x.classify() == FpClass::Infinity && x.signum() == Sign::Negative
 }
 
 ///|
 fn is_pos_inf(x : @binary.Binary) -> Bool {
-  x.classify() == FpClass::Infinity && x.sign() == Sign::Positive
+  x.classify() == FpClass::Infinity && x.signum() == Sign::Positive
 }
 
 ///|
@@ -282,7 +282,7 @@ fn midpoint_radius_interval(
   guard radius.classify() == FpClass::Finite else {
     abort("interval radius must be finite")
   }
-  guard radius.sign() != Sign::Negative else {
+  guard radius.signum() != Sign::Negative else {
     abort("interval radius must be non-negative")
   }
   let precision = checked_precision(precision)
@@ -451,7 +451,7 @@ fn extended_division_bound(
     return @binary.Binary::zero(precision~)
   }
   if numerator.classify() == FpClass::Infinity {
-    let negative = numerator.sign() != denominator.sign()
+    let negative = numerator.signum() != denominator.signum()
     return @binary.Binary::inf(negative~, precision~)
   }
   directed_division(numerator, denominator, precision, upper)
@@ -464,10 +464,10 @@ fn quotient_interval_nonzero_denominator(
   precision : Int32,
 ) -> Interval {
   let numerator_nonnegative = numerator.lo_.is_zero() ||
-    numerator.lo_.sign() == Sign::Positive
+    numerator.lo_.signum() == Sign::Positive
   let numerator_nonpositive = numerator.hi_.is_zero() ||
-    numerator.hi_.sign() == Sign::Negative
-  let denominator_positive = denominator.lo_.sign() == Sign::Positive
+    numerator.hi_.signum() == Sign::Negative
+  let denominator_positive = denominator.lo_.signum() == Sign::Positive
   let lower = if denominator_positive {
     if numerator_nonnegative || numerator_nonpositive {
       extended_division_bound(
@@ -652,7 +652,7 @@ fn extended_mul(
     return @binary.Binary::zero(precision~)
   }
   if a.classify() == FpClass::Infinity || b.classify() == FpClass::Infinity {
-    let negative = a.sign() != b.sign()
+    let negative = a.signum() != b.signum()
     return @binary.Binary::inf(negative~, precision~)
   }
   directed_mul(a, b, precision, mode)
@@ -751,10 +751,10 @@ fn multiplication_bounds(
   precision : Int32,
 ) -> (@binary.Binary, @binary.Binary) {
   if a.is_common_interval() && b.is_common_interval() {
-    let a_nonnegative = a.lo_.is_zero() || a.lo_.sign() == Sign::Positive
-    let a_nonpositive = a.hi_.is_zero() || a.hi_.sign() == Sign::Negative
-    let b_nonnegative = b.lo_.is_zero() || b.lo_.sign() == Sign::Positive
-    let b_nonpositive = b.hi_.is_zero() || b.hi_.sign() == Sign::Negative
+    let a_nonnegative = a.lo_.is_zero() || a.lo_.signum() == Sign::Positive
+    let a_nonpositive = a.hi_.is_zero() || a.hi_.signum() == Sign::Negative
+    let b_nonnegative = b.lo_.is_zero() || b.lo_.signum() == Sign::Positive
+    let b_nonpositive = b.hi_.is_zero() || b.hi_.signum() == Sign::Negative
     if a_nonnegative && b_nonnegative {
       return (
         extended_mul(
@@ -962,10 +962,10 @@ fn div_interval_impl(a : Interval, b : Interval) -> Interval {
   if !b.contains_zero() {
     return quotient_interval_nonzero_denominator(a, b, precision)
   }
-  if b.lo_.sign() == Sign::Negative && b.hi_.sign() == Sign::Positive {
+  if b.lo_.signum() == Sign::Negative && b.hi_.signum() == Sign::Positive {
     return whole_real(precision)
   }
-  if a.lo_.sign() == Sign::Negative && a.hi_.sign() == Sign::Positive {
+  if a.lo_.signum() == Sign::Negative && a.hi_.signum() == Sign::Positive {
     return whole_real(precision)
   }
   if b.lo_.is_zero() {
@@ -976,7 +976,7 @@ fn div_interval_impl(a : Interval, b : Interval) -> Interval {
       let one_sided = Interval::from_bounds(b.hi_, b.hi_, precision~)
       quotient_interval_nonzero_denominator(a, one_sided, precision)
     }
-    if a.hi_.sign() == Sign::Positive {
+    if a.hi_.signum() == Sign::Positive {
       return store_interval(finite.lo_, pos_inf(precision), precision)
     }
     return store_interval(neg_inf(precision), finite.hi_, precision)
@@ -989,7 +989,7 @@ fn div_interval_impl(a : Interval, b : Interval) -> Interval {
       let one_sided = Interval::from_bounds(b.lo_, b.lo_, precision~)
       quotient_interval_nonzero_denominator(a, one_sided, precision)
     }
-    if a.hi_.sign() == Sign::Positive {
+    if a.hi_.signum() == Sign::Positive {
       return store_interval(neg_inf(precision), finite.hi_, precision)
     }
     return store_interval(finite.lo_, pos_inf(precision), precision)
@@ -1024,7 +1024,7 @@ pub fn Interval::try_from_midpoint_radius(
       @def.ArithmeticError::domain_error("interval radius must be finite"),
     )
   }
-  guard radius.sign() != Sign::Negative else {
+  guard radius.signum() != Sign::Negative else {
     return Err(
       @def.ArithmeticError::domain_error("interval radius must be non-negative"),
     )
@@ -1363,9 +1363,9 @@ pub fn Interval::abs(self : Interval) -> Interval {
   if self.is_empty() {
     return self
   }
-  if self.lo_.sign() == Sign::Positive || self.lo_.is_zero() {
+  if self.lo_.signum() == Sign::Positive || self.lo_.is_zero() {
     self
-  } else if self.hi_.sign() == Sign::Negative || self.hi_.is_zero() {
+  } else if self.hi_.signum() == Sign::Negative || self.hi_.is_zero() {
     self.neg()
   } else {
     let upper = if is_pos_inf(self.hi_) || is_neg_inf(self.lo_) {
@@ -1465,7 +1465,7 @@ fn pown_positive(
       precision,
     )
   }
-  if value.hi_.sign() == Sign::Negative {
+  if value.hi_.signum() == Sign::Negative {
     store_interval(
       pown_endpoint(value.hi_, exponent, precision, down),
       pown_endpoint(value.lo_, exponent, precision, up),
@@ -1492,7 +1492,7 @@ fn pown_negative(
     return empty_interval(precision)
   }
   if !value.contains_zero() {
-    if value.hi_.sign() == Sign::Negative && !pown_exponent_is_odd(exponent) {
+    if value.hi_.signum() == Sign::Negative && !pown_exponent_is_odd(exponent) {
       return store_interval(
         pown_endpoint(
           value.lo_,
@@ -1660,10 +1660,10 @@ pub fn Interval::sqrt(self : Interval) -> Interval {
   if self.is_empty() {
     return self
   }
-  if self.hi_.sign() == Sign::Negative {
+  if self.hi_.signum() == Sign::Negative {
     return empty_interval(self.precision_)
   }
-  let lower = if self.lo_.sign() == Sign::Negative || self.lo_.is_zero() {
+  let lower = if self.lo_.signum() == Sign::Negative || self.lo_.is_zero() {
     @binary.Binary::zero(precision=self.precision_)
   } else {
     directed_sqrt(self.lo_, self.precision_, false)
@@ -2056,8 +2056,8 @@ pub fn Interval::div(self : Interval, other : Interval) -> Interval {
 /// below zero (`lo >= 0`, a zero of either sign counts), 1 when it is not above zero
 /// (`hi <= 0`, and not class 0), 2 when it contains both signs in its interior.
 fn product_class(x : Interval) -> Int32 {
-  let lo_nonnegative = x.lo_.is_zero() || x.lo_.sign() == Sign::Positive
-  let hi_nonpositive = x.hi_.is_zero() || x.hi_.sign() == Sign::Negative
+  let lo_nonnegative = x.lo_.is_zero() || x.lo_.signum() == Sign::Positive
+  let hi_nonpositive = x.hi_.is_zero() || x.hi_.signum() == Sign::Negative
   if lo_nonnegative {
     0
   } else if hi_nonpositive {
@@ -2122,7 +2122,7 @@ fn fma_corner(
     }
   }
   if x.classify() == FpClass::Infinity || y.classify() == FpClass::Infinity {
-    return @binary.Binary::inf(negative=x.sign() != y.sign(), precision~)
+    return @binary.Binary::inf(negative=x.signum() != y.signum(), precision~)
   }
   x.fma_ctx(y, z, @binary.BinaryContext::new(precision~, rounding=mode)).0
 }

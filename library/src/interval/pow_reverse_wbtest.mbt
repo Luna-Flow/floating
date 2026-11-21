@@ -255,7 +255,7 @@ test "pow_rev1: ends beyond the exponent range for beta = 2^-31, 2^-35, 2^-40 re
             if up {
               assert_true(!r.is_empty())
               assert_true(r.hi_.classify() == FpClass::Infinity)
-            } else if prior.lo_.sign() == Sign::Negative {
+            } else if prior.lo_.signum() == Sign::Negative {
               assert_true(!r.is_empty())
               assert_true(r.lo_.is_zero())
             } else {

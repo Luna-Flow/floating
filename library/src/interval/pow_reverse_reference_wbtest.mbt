@@ -180,10 +180,10 @@ fn pwr_check(
         xh = near(whole.hi_)
       }
     }
-    if xl.sign() == Sign::Negative {
+    if xl.signum() == Sign::Negative {
       xl = pw_num(0.0, precision)
     }
-    if xh.sign() == Sign::Negative || xh.is_zero() {
+    if xh.signum() == Sign::Negative || xh.is_zero() {
       xh = xl
     }
     let prior = pwr_ordered(xl, xh, precision)
@@ -210,7 +210,7 @@ fn pwr_check(
       }
     }
     for x in candidates {
-      if x.classify() != FpClass::Finite || x.sign() != Sign::Positive {
+      if x.classify() != FpClass::Finite || x.signum() != Sign::Positive {
         continue
       }
       if x.compare(prior.lo_) < 0 || x.compare(prior.hi_) > 0 {
@@ -245,7 +245,7 @@ fn pwr_check(
     // end is not certainly outside while the next one is certainly inside
     if cap is None && !got.is_empty() {
       let sat_of = fn(x : @binary.Binary) {
-        if x.sign() != Sign::Positive || x.classify() != FpClass::Finite {
+        if x.signum() != Sign::Positive || x.classify() != FpClass::Finite {
           2
         } else {
           pwr_sat(x, b, c)
@@ -253,7 +253,7 @@ fn pwr_check(
       }
       let lo = got.lo_
       if lo.classify() == FpClass::Finite &&
-        lo.sign() == Sign::Positive &&
+        lo.signum() == Sign::Positive &&
         lo.compare(prior.lo_) > 0 {
         let below = lo.next_down_ctx(ctx).0
         let above = lo.next_up_ctx(ctx).0
@@ -271,7 +271,7 @@ fn pwr_check(
       }
       let hi = got.hi_
       if hi.classify() == FpClass::Finite &&
-        hi.sign() == Sign::Positive &&
+        hi.signum() == Sign::Positive &&
         hi.compare(prior.hi_) < 0 {
         let above = hi.next_up_ctx(ctx).0
         let below = hi.next_down_ctx(ctx).0

@@ -76,7 +76,7 @@ context. Intervals are deliberately not among them (see [Intervals are not
 parsing. (b) A trait with only representation-independent observations and
 re-precision. (c) No shared trait.
 
-**Choice: (b).** `Floating` has exactly `classify`, `sign`, `precision`,
+**Choice: (b).** `Floating` has exactly `classify`, `signum`, `precision`,
 `with_precision` and `normalized`. Arithmetic is taken from MoonBit's operator
 traits and from the capability traits of Luna-Flow/arithmetic (`SqrtChecked`,
 `AddContextual`, …), which each type implements only where it can honour the
@@ -119,8 +119,8 @@ such implementation, and the generic predicates `is_finite`, `is_infinite`,
 
 ### `Sign` merges the two zeros
 
-`sign` answers "on which side of zero is the value", not "what is the sign
-bit". Merging $-0$ and $+0$ into `Zero` makes `sign` a function of the denoted
+`signum` answers "on which side of zero is the value", not "what is the sign
+bit". Merging $-0$ and $+0$ into `Zero` makes `signum` a function of the denoted
 value, so it agrees across representations and with the
 [`semantic`](semantic.md) projection, which also forgets signed zeros. The sign
 bit stays observable through the concrete packages. The scalar implementations
@@ -130,7 +130,7 @@ care test `is_nan` first.
 ### Intervals are not `Floating`
 
 Up to 0.11 `Interval` implemented `Floating`, and every observation had to be
-read with an interval meaning: `sign` returned `Zero` for "contains 0" and
+read with an interval meaning: `signum` returned `Zero` for "contains 0" and
 aborted on the empty set, `is_zero` through it meant "contains 0", `is_nan`
 meant "empty", and `with_precision` ignored its rounding mode. A generic
 function written for scalars then gave answers that were true of no single
@@ -287,9 +287,9 @@ test "double rounding to nearest differs from one rounding" {
 
 ### The predicates
 
-The four predicates are projections of `classify` and `sign`, so their
+The four predicates are projections of `classify` and `signum`, so their
 correctness reduces to (F1) and (F2). `is_zero` evaluates `classify` first and
-uses short-circuit `&&`; it therefore never calls `sign` on a NaN-class value,
+uses short-circuit `&&`; it therefore never calls `signum` on a NaN-class value,
 which keeps it total on NaN.
 
 ### Cost
@@ -306,7 +306,7 @@ length for decimals, and linear in the coefficient bit length for binary.
   hide the difference between exact, rounded and enclosing operations.
 - **`Compare` for IEEE comparison.** An `Int` result cannot express
   *unordered*; see the derivation above.
-- **Separate `NegativeZero` / `PositiveZero` signs.** They would make `sign`
+- **Separate `NegativeZero` / `PositiveZero` signs.** They would make `signum`
   depend on the representation rather than the value.
 - **Defining local copies of `RoundingMode` and `ArithmeticContext`.** They
   would need conversions at every boundary with Luna-Flow/arithmetic.

@@ -797,7 +797,7 @@ msgid "Report the class and sign of a value."
 msgstr ""
 
 #: manual/api/binary.md:379
-msgid "`classify` returns `Finite`, `Infinity` or `NaN` (zeros are `Finite`). `sign` is `Zero` for every zero and every NaN, and `Positive` or `Negative` otherwise. `is_sign_minus` returns the sign bit itself, which is set for $-0$, $-\\infty$ and negative NaNs. `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and `@def.is_zero` work on `Binary` through the `Floating` trait; the methods of the next section give the same answers without the trait."
+msgid "`classify` returns `Finite`, `Infinity` or `NaN` (zeros are `Finite`). `signum` is `Zero` for every zero and every NaN, and `Positive` or `Negative` otherwise. `is_sign_minus` returns the sign bit itself, which is set for $-0$, $-\\infty$ and negative NaNs. `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and `@def.is_zero` work on `Binary` through the `Floating` trait; the methods of the next section give the same answers without the trait."
 msgstr ""
 
 #: manual/api/binary.md:388
@@ -1976,7 +1976,7 @@ msgid "The shared floating-point vocabulary of `floating`."
 msgstr ""
 
 #: manual/api/binary.md:2481
-msgid "`classify`, `sign`, `precision`, `with_precision` and `normalized` are the inherent methods above. Generic code uses `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and `@def.is_zero`."
+msgid "`classify`, `signum`, `precision`, `with_precision` and `normalized` are the inherent methods above. Generic code uses `@def.is_finite`, `@def.is_nan`, `@def.is_infinite` and `@def.is_zero`."
 msgstr ""
 
 #: manual/api/binary.md:2487
@@ -2952,7 +2952,7 @@ msgid "These observers report the sign of a value."
 msgstr ""
 
 #: manual/api/decimal.md:115
-msgid "`sign` returns `@def.Sign::Zero` for both zeros and for every NaN, and `Negative`/`Positive` otherwise. `is_sign_minus` returns the stored sign bit, so it is `true` for $-0$, for $-\\infty$ and for a negative NaN."
+msgid "`signum` returns `@def.Sign::Zero` for both zeros and for every NaN, and `Negative`/`Positive` otherwise. `is_sign_minus` returns the stored sign bit, so it is `true` for $-0$, for $-\\infty$ and for a negative NaN."
 msgstr ""
 
 #: manual/api/decimal.md:121
@@ -3858,7 +3858,7 @@ msgid "`Decimal` implements the `floating` scalar trait."
 msgstr ""
 
 #: manual/api/decimal.md:2203
-msgid "The trait methods are `classify`, `sign`, `precision`, `with_precision` and `normalized`, all documented above; `@def.is_finite(x)` and the other generic predicates work through it."
+msgid "The trait methods are `classify`, `signum`, `precision`, `with_precision` and `normalized`, all documented above; `@def.is_finite(x)` and the other generic predicates work through it."
 msgstr ""
 
 #: manual/api/decimal.md:2209
@@ -4215,7 +4215,7 @@ msgid "These report the class, the numeric sign and the stored precision attribu
 msgstr ""
 
 #: manual/api/decimal_gda.md:263
-msgid "`classify` returns `Finite`, `Infinity` or `NaN`. `sign` returns `Zero` for zeros of either sign and for NaNs, and `Positive`/`Negative` otherwise; use `is_signed` to read the sign bit."
+msgid "`classify` returns `Finite`, `Infinity` or `NaN`. `signum` returns `Zero` for zeros of either sign and for NaNs, and `Positive`/`Negative` otherwise; use `is_signed` to read the sign bit."
 msgstr ""
 
 #: manual/api/decimal_gda.md:269
@@ -4832,7 +4832,7 @@ msgid "`Decimal` implements the floating vocabulary of the `def` package, `Show`
 msgstr ""
 
 #: manual/api/decimal_gda.md:1631
-msgid "The `Floating` methods are `classify`, `sign`, `precision`, `with_precision` and `normalized`, documented above. `to_repr` is the structural `Debug` representation."
+msgid "The `Floating` methods are `classify`, `signum`, `precision`, `with_precision` and `normalized`, documented above. `to_repr` is the structural `Debug` representation."
 msgstr ""
 
 #: manual/api/decimal_gda_checked.md:1
@@ -4986,11 +4986,11 @@ msgid "Sign and comparison results"
 msgstr ""
 
 #: manual/api/def.md:35
-msgid "`Sign` is the three-way sign classification returned by `Floating::sign`."
+msgid "`Sign` is the three-way sign classification returned by `Floating::signum`."
 msgstr ""
 
 #: manual/api/def.md:45
-msgid "`Zero` is returned for both signed zeros, so `Sign` does not distinguish $-0$ from $+0$; use the concrete package (for example `Binary::is_negative_zero`) when the sign bit of a zero matters. The scalar implementations also return `Zero` for every NaN (see [`Floating::sign`](#floatingsign)). `Sign` is also the payload of `SemanticScalar::Infinity` in the [`semantic`](semantic.md) package and the argument of constructors such as `Binary::inf`."
+msgid "`Zero` is returned for both signed zeros, so `Sign` does not distinguish $-0$ from $+0$; use the concrete package (for example `Binary::is_negative_zero`) when the sign bit of a zero matters. The scalar implementations also return `Zero` for every NaN (see [`Floating::signum`](#floatingsignum)). `Sign` is also the payload of `SemanticScalar::Infinity` in the [`semantic`](semantic.md) package and the argument of constructors such as `Binary::inf`."
 msgstr ""
 
 #: manual/api/def.md:64
@@ -5030,7 +5030,7 @@ msgid "For the scalar types this is the IEEE class with signalling and quiet NaN
 msgstr ""
 
 #: manual/api/def.md:181
-msgid "`sign` returns the sign classification of a value."
+msgid "`signum` returns the sign classification of a value."
 msgstr ""
 
 #: manual/api/def.md:189
@@ -10786,7 +10786,7 @@ msgid "Numeric documentation rules"
 msgstr ""
 
 #: manual/conventions.md:133
-msgid "Use `precision`, `rounding`, `classify`, `sign`, `normalized`, `exponent`, `context` and `flags` as defined in [numeric semantics](./numeric_semantics.md)."
+msgid "Use `precision`, `rounding`, `classify`, `signum`, `normalized`, `exponent`, `context` and `flags` as defined in [numeric semantics](./numeric_semantics.md)."
 msgstr ""
 
 #: manual/conventions.md:136
@@ -15978,7 +15978,7 @@ msgid "**Options.** (a) A broad \"real number\" trait with arithmetic, ordering 
 msgstr ""
 
 #: manual/design/def.md:79
-msgid "**Choice: (b).** `Floating` has exactly `classify`, `sign`, `precision`, `with_precision` and `normalized`. Arithmetic is taken from MoonBit's operator traits and from the capability traits of Luna-Flow/arithmetic (`SqrtChecked`, `AddContextual`, …), which each type implements only where it can honour the law. A single broad trait would force one law on all domains; for example an interval cannot implement a scalar `compare` without lying about overlapping operands. This follows the Luna-Flow principle that code depends on the smallest trait composition stating its requirements."
+msgid "**Choice: (b).** `Floating` has exactly `classify`, `signum`, `precision`, `with_precision` and `normalized`. Arithmetic is taken from MoonBit's operator traits and from the capability traits of Luna-Flow/arithmetic (`SqrtChecked`, `AddContextual`, …), which each type implements only where it can honour the law. A single broad trait would force one law on all domains; for example an interval cannot implement a scalar `compare` without lying about overlapping operands. This follows the Luna-Flow principle that code depends on the smallest trait composition stating its requirements."
 msgstr ""
 
 #: manual/design/def.md:88
@@ -16010,7 +16010,7 @@ msgid "`Sign` merges the two zeros"
 msgstr ""
 
 #: manual/design/def.md:122
-msgid "`sign` answers \"on which side of zero is the value\", not \"what is the sign bit\". Merging $-0$ and $+0$ into `Zero` makes `sign` a function of the denoted value, so it agrees across representations and with the [`semantic`](semantic.md) projection, which also forgets signed zeros. The sign bit stays observable through the concrete packages. The scalar implementations return `Zero` for NaN because NaN has no position on the line; callers that care test `is_nan` first."
+msgid "`signum` answers \"on which side of zero is the value\", not \"what is the sign bit\". Merging $-0$ and $+0$ into `Zero` makes `signum` a function of the denoted value, so it agrees across representations and with the [`semantic`](semantic.md) projection, which also forgets signed zeros. The sign bit stays observable through the concrete packages. The scalar implementations return `Zero` for NaN because NaN has no position on the line; callers that care test `is_nan` first."
 msgstr ""
 
 #: manual/design/def.md:130
@@ -16019,7 +16019,7 @@ msgstr ""
 
 #: manual/design/def.md:132
 msgid ""
-"Up to 0.11 `Interval` implemented `Floating`, and every observation had to be read with an interval meaning: `sign` returned `Zero` for \"contains 0\" and aborted on the empty set, `is_zero` through it meant \"contains 0\", `is_nan` meant \"empty\", and `with_precision` ignored its rounding mode. A generic function written for scalars then gave answers that were true of no single number: `is_zero` of $[-1, 1]$ is true, but $[-1, 1] \\n"
+"Up to 0.11 `Interval` implemented `Floating`, and every observation had to be read with an interval meaning: `signum` returned `Zero` for \"contains 0\" and aborted on the empty set, `is_zero` through it meant \"contains 0\", `is_nan` meant \"empty\", and `with_precision` ignored its rounding mode. A generic function written for scalars then gave answers that were true of no single number: `is_zero` of $[-1, 1]$ is true, but $[-1, 1] \\n"
 "e \\{0\\}$. The names of those predicates are the scalar ones, so the interval meaning could not be told from the call site. `Interval` therefore does not implement `Floating`; its package spells the questions the way IEEE 1788-2015 does (`is_empty`, `is_entire`, `is_common_interval`, `is_singleton`, the comparisons of Table 10.3, `contains` for a point) and re-rounds with `with_precision`, which always rounds outward."
 msgstr ""
 
@@ -16102,7 +16102,7 @@ msgid "The predicates"
 msgstr ""
 
 #: manual/design/def.md:290
-msgid "The four predicates are projections of `classify` and `sign`, so their correctness reduces to (F1) and (F2). `is_zero` evaluates `classify` first and uses short-circuit `&&`; it therefore never calls `sign` on a NaN-class value, which keeps it total on NaN."
+msgid "The four predicates are projections of `classify` and `signum`, so their correctness reduces to (F1) and (F2). `is_zero` evaluates `classify` first and uses short-circuit `&&`; it therefore never calls `signum` on a NaN-class value, which keeps it total on NaN."
 msgstr ""
 
 #: manual/design/def.md:297
@@ -16118,7 +16118,7 @@ msgid "**`Compare` for IEEE comparison.** An `Int` result cannot express *unorde
 msgstr ""
 
 #: manual/design/def.md:309
-msgid "**Separate `NegativeZero` / `PositiveZero` signs.** They would make `sign` depend on the representation rather than the value."
+msgid "**Separate `NegativeZero` / `PositiveZero` signs.** They would make `signum` depend on the representation rather than the value."
 msgstr ""
 
 #: manual/design/def.md:311

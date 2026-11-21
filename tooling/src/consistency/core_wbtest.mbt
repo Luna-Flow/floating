@@ -479,11 +479,11 @@ test "decimal observers distinguish sign from signedness on specials" {
     negative=true,
     precision=8,
   )
-  assert_true(neg_zero.sign() == @def.Sign::Zero)
-  assert_true(pos_inf.sign() == @def.Sign::Positive)
-  assert_true(neg_inf.sign() == @def.Sign::Negative)
-  assert_true(qnan.sign() == @def.Sign::Zero)
-  assert_true(snan.sign() == @def.Sign::Zero)
+  assert_true(neg_zero.signum() == @def.Sign::Zero)
+  assert_true(pos_inf.signum() == @def.Sign::Positive)
+  assert_true(neg_inf.signum() == @def.Sign::Negative)
+  assert_true(qnan.signum() == @def.Sign::Zero)
+  assert_true(snan.signum() == @def.Sign::Zero)
   assert_true(qnan.is_sign_minus())
   assert_true(snan.is_sign_minus())
   assert_true(qnan.class_of(ctx) == @def.IeeeClass::QuietNaN)

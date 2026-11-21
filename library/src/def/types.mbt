@@ -38,7 +38,7 @@ pub(all) enum PartialOrder {
 ///|
 pub(open) trait Floating {
   fn classify(Self) -> @arithmetic.FpClass
-  fn sign(Self) -> Sign
+  fn signum(Self) -> Sign
   fn precision(Self) -> Int32
   fn with_precision(Self, Int32) -> Self
   fn normalized(Self) -> Self
@@ -62,7 +62,7 @@ pub fn[F : Floating] is_infinite(x : F) -> Bool {
 ///|
 pub fn[F : Floating] is_zero(x : F) -> Bool {
   Floating::classify(x) == @arithmetic.FpClass::Finite &&
-  Floating::sign(x) == Zero
+  Floating::signum(x) == Zero
 }
 
 ///|

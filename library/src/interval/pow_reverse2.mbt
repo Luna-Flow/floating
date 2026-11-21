@@ -216,7 +216,7 @@ fn quot_rational_compare(
   if d.is_zero() {
     return if negative { -1 } else { 1 }
   }
-  let d_negative = d.sign() == Sign::Negative
+  let d_negative = d.signum() == Sign::Negative
   if negative && !d_negative {
     return -1
   }

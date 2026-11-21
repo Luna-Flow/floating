@@ -103,16 +103,16 @@ test "decimal representation observers" {
 }
 ```
 
-### `Decimal::sign`, `is_sign_minus`
+### `Decimal::signum`, `is_sign_minus`
 
 These observers report the sign of a value.
 
 ```mbti
-pub fn Decimal::sign(Self) -> @def.Sign
+pub fn Decimal::signum(Self) -> @def.Sign
 pub fn Decimal::is_sign_minus(Self) -> Bool
 ```
 
-`sign` returns `@def.Sign::Zero` for both zeros and for every NaN, and
+`signum` returns `@def.Sign::Zero` for both zeros and for every NaN, and
 `Negative`/`Positive` otherwise. `is_sign_minus` returns the stored sign bit, so it
 is `true` for $-0$, for $-\infty$ and for a negative NaN.
 
@@ -2200,7 +2200,7 @@ product, since `*` is exact); a rounded sum is only approximately associative.
 pub impl @def.Floating for Decimal
 ```
 
-The trait methods are `classify`, `sign`, `precision`, `with_precision` and
+The trait methods are `classify`, `signum`, `precision`, `with_precision` and
 `normalized`, all documented above; `@def.is_finite(x)` and the other generic
 predicates work through it.
 
@@ -2544,8 +2544,8 @@ pub fn Decimal::same_quantum(Self, Self) -> Bool
 pub fn Decimal::scaleb_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::set_payload(Self, @bigint.BigInt) -> Self
 pub fn Decimal::set_payload_signaling(Self, @bigint.BigInt) -> Self
-pub fn Decimal::sign(Self) -> @def.Sign
 pub fn Decimal::signaling_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int32) -> Self
+pub fn Decimal::signum(Self) -> @def.Sign
 pub fn Decimal::sin_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::sinh_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::sinpi_ctx(Self, DecimalContext) -> (Self, DecimalFlags)

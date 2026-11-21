@@ -362,7 +362,7 @@ pub fn DecoratedInterval::sqrt(self : DecoratedInterval) -> DecoratedInterval {
     self,
     self.interval_.sqrt(),
     if self.interval_.is_empty() ||
-      self.interval_.lo_.sign() == @def.Sign::Negative {
+      self.interval_.lo_.signum() == @def.Sign::Negative {
       Trv
     } else {
       Com
@@ -397,7 +397,7 @@ fn DecoratedInterval::logarithm_result(
 ) -> DecoratedInterval {
   let partial_domain = !self.interval_.is_empty() &&
     (
-      self.interval_.lo_.sign() == @def.Sign::Negative ||
+      self.interval_.lo_.signum() == @def.Sign::Negative ||
       self.interval_.lo_.is_zero()
     )
   unary_result(self, interval, if partial_domain { Trv } else { Com })
@@ -445,7 +445,7 @@ pub fn DecoratedInterval::rootn(
   // rootn(x, n) is undefined for n = 0, for x < 0 when n is even and at
   // x = 0 when n is negative (x^(-1/n) has a pole there).
   let partial_domain = degree == 0 ||
-    (degree % 2 == 0 && self.interval_.lo_.sign() == @def.Sign::Negative) ||
+    (degree % 2 == 0 && self.interval_.lo_.signum() == @def.Sign::Negative) ||
     (degree < 0 && self.interval_.contains_zero())
   unary_result(
     self,
@@ -586,8 +586,8 @@ pub fn DecoratedInterval::atan2(
   let interval = self.interval_.atan2(abscissa.interval_)
   let contains_origin = self.interval_.contains_zero() &&
     abscissa.interval_.contains_zero()
-  let crosses_cut = abscissa.interval_.lo_.sign() == @def.Sign::Negative &&
-    self.interval_.lo_.sign() == @def.Sign::Negative &&
+  let crosses_cut = abscissa.interval_.lo_.signum() == @def.Sign::Negative &&
+    self.interval_.lo_.signum() == @def.Sign::Negative &&
     self.interval_.contains_zero()
   let touches_cut_from_above = abscissa.interval_.hi_.compare(
       @binary.Binary::zero(precision=interval.precision()),
@@ -617,11 +617,11 @@ pub fn DecoratedInterval::pow(
 ) -> DecoratedInterval {
   let interval = self.interval_.pow(exponent.interval_)
   let partial_domain = self.interval_.is_empty() ||
-    self.interval_.lo_.sign() == @def.Sign::Negative ||
+    self.interval_.lo_.signum() == @def.Sign::Negative ||
     (
       self.interval_.contains_zero() &&
       (
-        exponent.interval_.lo_.sign() == @def.Sign::Negative ||
+        exponent.interval_.lo_.signum() == @def.Sign::Negative ||
         exponent.interval_.lo_.is_zero()
       )
     ) ||

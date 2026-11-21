@@ -26,7 +26,7 @@ fn old_atan_small_positive_bounds(
     BinaryRoundingMode::RoundTowardPositive,
   )
   let half = Binary::make(BinCoeff::one(), -1, work_precision)
-  guard lower_value.sign() == Sign::Positive && upper_value.compare(half) <= 0 else {
+  guard lower_value.signum() == Sign::Positive && upper_value.compare(half) <= 0 else {
     return None
   }
   old_series_count.val += 1
@@ -299,12 +299,12 @@ fn old_atan2_finite_bounds(
       old_atan_finite_bounds(ratio_upper, work_precision),
     ) {
     (Some(lower_atan), Some(upper_atan)) =>
-      if abscissa.sign() == Sign::Positive {
+      if abscissa.signum() == Sign::Positive {
         Some((lower_atan.0, upper_atan.1))
       } else {
         match binary_pi_bounds(work_precision) {
           Some(pi) =>
-            if ordinate.sign() == Sign::Negative {
+            if ordinate.signum() == Sign::Negative {
               Some(
                 (
                   lower_atan.0.sub_ctx(pi.1, downward).0,

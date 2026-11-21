@@ -250,17 +250,17 @@ prints as `12.3E+6`). Special values print as `Infinity`, `-Infinity`, `NaN`,
 
 ## Observing a value
 
-### `Decimal::classify`, `Decimal::sign`, `Decimal::precision`
+### `Decimal::classify`, `Decimal::signum`, `Decimal::precision`
 
 These report the class, the numeric sign and the stored precision attribute.
 
 ```mbti
 pub fn Decimal::classify(Self) -> @arithmetic.FpClass
-pub fn Decimal::sign(Self) -> @def.Sign
+pub fn Decimal::signum(Self) -> @def.Sign
 pub fn Decimal::precision(Self) -> Int
 ```
 
-`classify` returns `Finite`, `Infinity` or `NaN`. `sign` returns `Zero` for
+`classify` returns `Finite`, `Infinity` or `NaN`. `signum` returns `Zero` for
 zeros of either sign and for NaNs, and `Positive`/`Negative` otherwise; use
 `is_signed` to read the sign bit.
 
@@ -1628,7 +1628,7 @@ pub impl @def.Floating for Decimal
 pub fn Decimal::to_repr(Self) -> @debug.Repr
 ```
 
-The `Floating` methods are `classify`, `sign`, `precision`,
+The `Floating` methods are `classify`, `signum`, `precision`,
 `with_precision` and `normalized`, documented above. `to_repr` is the
 structural `Debug` representation.
 
@@ -1839,8 +1839,8 @@ pub fn Decimal::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> 
 pub fn Decimal::precision(Self) -> Int32
 pub fn Decimal::quiet_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int32) -> Self
 pub fn Decimal::same_quantum(Self, Self) -> Bool
-pub fn Decimal::sign(Self) -> @def.Sign
 pub fn Decimal::signaling_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int32) -> Self
+pub fn Decimal::signum(Self) -> @def.Sign
 pub fn Decimal::sqrt(Self) -> Self
 pub fn Decimal::sqrt_checked(Self, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::sqrt_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]

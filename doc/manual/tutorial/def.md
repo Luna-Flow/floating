@@ -40,7 +40,7 @@ The smallest useful program asks a value what it is:
 test "quick start: observe a value" {
   let x = @binary.Binary::from_double(-2.5)
   inspect(@def.is_finite(x), content="true")
-  inspect(@def.Floating::sign(x) == @def.Sign::Negative, content="true")
+  inspect(@def.Floating::signum(x) == @def.Sign::Negative, content="true")
   inspect(@def.Floating::precision(x), content="53")
 }
 ```
@@ -60,7 +60,7 @@ fn[F : @def.Floating] summary(x : F) -> String {
   if @def.is_nan(x) {
     return "nan"
   }
-  let sign = match @def.Floating::sign(x) {
+  let sign = match @def.Floating::signum(x) {
     Negative => "negative"
     Zero => "zero"
     Positive => "positive"
