@@ -16,6 +16,7 @@ result.
 | IEEE decimal | `just gate decimal [jobs]` | committed decimal32/64/128 DPD and BID vectors on native, Wasm, Wasm-GC and JavaScript, and the full 9,691-row π-inverse table, read at run time by the release-built conformance CLI on each target |
 | GDA decimal | `just gate decimal_gda [jobs]` | package and frontend tests, then the pinned `official` and `official0` `.decTest` corpora |
 | Binary | `just gate binary [jobs]` | the pinned TestFloat level-1 matrix and the MPFR witnesses |
+| Binary, incremental | `just verify binary [jobs]` | the same gate with the TestFloat tasks and MPFR files whose code, input and toolchain are unchanged reused from the ledger (see Incremental verification) |
 | Interval | `just gate interval [jobs]` | every strict ITF1788 phase |
 | Random differential | `just random-diff run …` | seeded random cases against MPFR (binary and IEEE `decimal`) and libmpdec (`decimal_gda`), recorded through mare_mark; `just random-diff smoke` runs the committed sample in `just pr` |
 | Complete | `just ci [jobs]` | format, docs, `--deny-warn` checks and tests on all four targets, generated interfaces, and every conformance gate |
@@ -526,6 +527,94 @@ decimal contexts with |Emax| or |Emin| of 10^6 or more for the elementary
 functions; precisions above 700 for the binary elementary functions; the LLVM
 backend; interval arithmetic. The campaign samples a finite space with fixed
 seeds: the counts are what was run, not a proof of absence.
+
+## Incremental verification
+
+A full `just gate binary` took about 19 minutes on 2026-11-21 on one development machine with 3 jobs, 17 of them the 534 TestFloat tasks. Incremental
+verification does not run a verification unit again when what it could depend on has not changed,
+and says so in the report. It is available for the binary gate (`just verify binary`, or
+`python3 tools/conformance.py run --backend binary --incremental`); the full gates stay, nightly
+and before a release, as the audit.
+
+### What a unit is, and what "reused" means
+
+A unit is one TestFloat task (operation, format, rounding, tininess) or one MPFR corpus file. A
+unit is **reused** when its key is in the ledger: the recorded result of the same unit, run on the
+commit the report names, is cited and the unit is not executed in this run. A reused unit is never
+counted as run: the report has separate lines for the units executed in this run, the sampled
+reruns and the reused units, and the `TOTAL` line says that it counts only what was executed.
+
+The key of a unit is the hash of:
+
+| part | what it is |
+| --- | --- |
+| frame | the fingerprint of the compiled code reachable from the entry of the frontend (`run` of the TestFloat or MPFR frontend), start-up code included, the dispatcher covered by its own text and the operation functions left out |
+| arms | the fingerprints of the operation functions (`arm_add`, ...) that the process recorded at run time (the summary prints them as `arms`) |
+| input | the sha256 of the data, or for TestFloat the sha256 of the generator binary with its arguments and seed |
+| arguments | the arguments of the interpreter |
+| toolchain | `moon`, `moonc`, the C compiler, the compile and link command lines that `moon` prints, the runtime sources, headers and objects, the native stub sources of the library and of the dependencies, and the environment variables the stubs read (`LUNA_FLOATING_PORTABLE`, `LUNA_FLOATING_LIMBS`) |
+| verifier | the `tools/` modules the runner has imported, so a change to a judging tool reruns everything |
+| normalisations | the set of normalisations of the fingerprint, and the version of the key |
+
+The fingerprint is taken from the C file that the native backend generates (about 18 MB, 6,300
+definitions). It splits the file into definitions and hashes each one after four normalisations and
+nothing else: `#line` directives are deleted; names that are local to one definition are renamed by
+kind and order of appearance; names that carry a compiler counter (closures, records, string
+literals, generic instances) are renamed by where they are first referenced; and object-header
+layout indices are replaced by the layout entry they select. The last is the only one that rests on a
+fact about the runtime (the index is read only as a table position) and it is a flag of the tool
+(`layout=True`, `--no-layout` to compare). Whatever it cannot
+attribute to a definition goes into a residue that is part of every key. When in doubt a unit runs.
+
+### The guards
+
+- Every run executes a random 2 % of the units it would reuse (at least one), prints the seed
+  (`--sample-seed` fixes it) and compares the result with the ledger. A difference is a defect of the
+  system, not a verification failure: the exit status is 70 and the line stops.
+- The key is bound to the executable that runs: `build_backend` writes `<exe>.build.json` with the
+  hashes of the executable and of the C file; any mismatch, or a key that cannot be formed (an
+  entry that is not in the build, a parse error), prints `incremental disabled: <reason>`, runs
+  every unit and records nothing.
+- A unit is recorded only when it passed. The process says which frontend ran, and a mismatch with
+  the unit is a defect.
+- The system has its own mutation test (`python3 tools/verify_mutation.py`): edits to the kernel, to
+  `bin_float` arithmetic and elementary functions, to `interval`, to both decimal packages, to the
+  TestFloat frontend and to an initialiser. For every edit that a vector or corpus can see, the whole
+  selection is also run on the mutated build, and a unit that fails there must not have been reused
+  (the check that shares no code with the keys); comment-only and formatting-only edits must change no
+  key.
+
+### The ledger
+
+`.tmp/verification-ledger/ledger.jsonl` of the main checkout, shared by all worktrees on the machine
+(`--ledger` or `LUNA_VERIFICATION_LEDGER` chooses another). It is append-only and not committed; a
+record holds the key, its components (frame, input, toolchain, verifier, arm fingerprints), the
+result, the commit, the date, the host and the path of the log. A result recorded from a dirty tree
+is as valid as any: the key is of the code that was built, the commit is information only (shown as
+`+dirty`), so the ledger is never cleaned by commit.
+
+### What a change costs
+
+Measured by replaying the keys over 30 consecutive commits of `main` (2026-11-21, 62ac93e0 to
+95fae256, one build per commit, `tools/verify_replay.py`), by the cause of the change:
+
+| kind of change | commits | units that would run (of 538) |
+| --- | --- | --- |
+| no key changes (documentation, tests, code no unit reaches) | 18 | 0 |
+| only the MPFR frontend changes | 9 | 4 (the MPFR files, under a second) |
+| code that every TestFloat task reaches changes | 2 | 538 (the whole stage) |
+| the start-up code changes (the initialisers of top-level values) | 1 | 538 (the whole stage) |
+
+The start-up code is part of every key, so one changed initialiser reruns every unit; in this window
+that happened once. Fewer commits than this rerun the whole stage than a count of changed packages
+suggests, because most changes are in code that no TestFloat task reaches.
+
+### What it does not cover
+
+The decimal gate (`just gate decimal` runs generated `moon test` fixtures on native, Wasm, Wasm-GC
+and JavaScript), the GDA, interval and elementary gates, the `moon test` stages (the kernel product
+routes and oracles still run in full inside `just verify binary`), the other targets, and a cache
+shared with GitHub CI are outside this version.
 
 ## Reproducibility
 
