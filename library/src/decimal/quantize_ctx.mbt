@@ -76,6 +76,40 @@ pub fn Decimal::remainder_ctx(
 }
 
 ///|
+/// The operation `quantum` of IEEE 754-2019 5.3.2: for a finite `x`, the number
+/// `(0, q, 1)`, that is `1E+q`, with `q` the exponent of `x` (zeros included);
+/// for an infinite `x`, `+inf` with no exception; a NaN operand follows 6.2
+/// (a signaling NaN signals invalid and gives a quiet NaN, a quiet NaN is
+/// propagated with its payload). The preferred exponent is `Q(x)`, which the
+/// exact result has. It is a general-computational operation that signals for a
+/// signaling NaN, so it takes the context and returns the flags, like `logb_ctx`
+/// and `next_up_ctx`; the accessor of the exponent is `exponent10`.
+pub fn Decimal::quantum_ctx(
+  self : Decimal,
+  ctx : DecimalContext,
+) -> (Decimal, DecimalFlags) {
+  match self.class {
+    FpClass::NaN => quiet_nan_operand(self, ctx)
+    FpClass::Infinity =>
+      (
+        Decimal::inf(precision=finite_precision_for(bigint_zero(), ctx)),
+        DecimalFlags::new(),
+      )
+    FpClass::Finite =>
+      finalize_finite_ctx(
+        finite_with_exponent_repr(
+          false,
+          dec_coeff_from_int(1),
+          self.exponent10,
+          finite_precision_for(bigint_one(), ctx),
+        ),
+        DecimalFlags::new(),
+        ctx,
+      )
+  }
+}
+
+///|
 pub fn Decimal::quantize_ctx(
   self : Decimal,
   quantum : Decimal,

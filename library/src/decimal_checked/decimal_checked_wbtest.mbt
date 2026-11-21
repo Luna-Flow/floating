@@ -308,3 +308,25 @@ test "decimal checked right operand: a wide lift is exact, a narrow lift rounds 
   assert_eq(twice.value().to_string(), "1.24")
   assert_true(twice.flags().inexact())
 }
+
+///|
+// oracle: A
+// source: by hand from IEEE 754-2019 5.3.2 and 6.2: quantum(1.2300) is 0.0001, a signaling NaN signals invalid and gives a quiet NaN, infinity gives +infinity with no exception
+// shares: nothing
+test "decimal checked quantum is the operation of 5.3.2" {
+  let context = @decimal.DecimalContext::decimal128()
+  let d = fn(s : String) { @decimal.Decimal::from_string(s).unwrap() }
+  let q = DecimalChecked::from_decimal(d("1.2300"), context).quantum()
+  assert_eq(q.value().to_string(), "0.0001")
+  assert_true(q.is_ok())
+  let inf = DecimalChecked::from_decimal(d("-Infinity"), context).quantum()
+  assert_eq(inf.value().to_string(), "inf")
+  assert_false(inf.raised().invalid_operation())
+  let snan = DecimalChecked::from_outcome(
+    d("sNaN"),
+    context,
+    @decimal.DecimalFlags::new(),
+  ).quantum()
+  assert_true(snan.value().is_quiet_nan())
+  assert_true(snan.raised().invalid_operation())
+}

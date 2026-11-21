@@ -130,12 +130,12 @@ changes the interface.
 
 ## Numeric documentation rules
 
-- Use `precision`, `rounding`, `classify`, `sign`, `normalized`, `quantum`,
+- Use `precision`, `rounding`, `classify`, `sign`, `normalized`, `exponent`,
   `context` and `flags` as defined in
   [numeric semantics](./numeric_semantics.md).
 - Separate the stored representation, the exact value, the rounded result,
   status flags, checked errors and interval enclosures.
-- State when parsing preserves the quantum and when normalization changes the
+- State when parsing preserves the exponent and when normalization changes the
   cohort without changing the value.
 - Name the order an API uses. `compare`, `<` and sorting are a total preorder
   that puts every NaN above every number; the IEEE partial order (with

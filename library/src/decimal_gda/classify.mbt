@@ -250,11 +250,6 @@ pub fn Decimal::nan_payload(self : Decimal) -> BigInt {
 }
 
 ///|
-pub fn Decimal::quantum(self : Decimal) -> Int32 {
-  self.exponent10
-}
-
-///|
 fn Decimal::is_subnormal(self : Decimal, ctx : DecimalContext) -> Bool {
   self.class == FpClass::Finite &&
   !self.coefficient.is_zero() &&

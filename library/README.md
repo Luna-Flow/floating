@@ -6,7 +6,7 @@
 
 `Luna-Flow/floating` provides arbitrary-precision binary, IEEE decimal, General
 Decimal Arithmetic, and certified interval arithmetic for MoonBit. Binary
-values follow IEEE 754 at any precision, decimals keep their quantum, and
+values follow IEEE 754 at any precision, decimals keep their exponent, and
 intervals are rounded outward so that they always contain the exact result.
 Precision, rounding, exponent range, special values, status flags, traps and
 enclosures are explicit values in every API rather than hidden global state.
@@ -42,12 +42,12 @@ test "floating quick start" {
   inspect(third.to_shortest_string(), content="0.3333333333333333")
   inspect(flags.inexact(), content="true")
 
-  // A decimal keeps the quantum of its literal.
+  // A decimal keeps the exponent of its literal.
   let (price, _) = @decimal.Decimal::from_string_ctx(
     "12.3400",
     @decimal.DecimalContext::decimal64(),
   )
-  inspect(price.quantum(), content="-4")
+  inspect(price.exponent10(), content="-4")
 
   // An interval contains every exact result.
   let one = @interval.Interval::from_int(1, precision=53)
@@ -57,7 +57,7 @@ test "floating quick start" {
 ```
 
 The three results have different contracts: `third` is one rounded point with
-the flags its rounding raised, `price` retains the quantum `-4` of `12.3400`,
+the flags its rounding raised, `price` retains the exponent `-4` of `12.3400`,
 and `enclosure` is a set of reals guaranteed to contain $1/3$.
 
 ## Packages
@@ -90,7 +90,7 @@ Chinese and Japanese; its English source is in
 - [Getting started](https://github.com/Luna-Flow/floating/blob/main/doc/manual/getting_started.md): choosing a package and
   first programs.
 - [Numeric semantics](https://github.com/Luna-Flow/floating/blob/main/doc/manual/numeric_semantics.md): rounding, ulp,
-  flags, quantum, signed zero, NaN and enclosures.
+  flags, exponent, signed zero, NaN and enclosures.
 - [Architecture](https://github.com/Luna-Flow/floating/blob/main/doc/manual/architecture.md): layers, the numeric core
   pipeline and certified elementary functions.
 - [Verification](https://github.com/Luna-Flow/floating/blob/main/doc/manual/verification.md): gates and the scope of every

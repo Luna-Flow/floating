@@ -184,7 +184,6 @@ pub fn Decimal::parse_checked(String, @arithmetic.ArithmeticContext) -> Result[S
 pub fn Decimal::pow_int_checked(Self, Int32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::precision(Self) -> Int32
-pub fn Decimal::quantum(Self) -> Int32
 pub fn Decimal::quiet_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int32) -> Self
 pub fn Decimal::same_quantum(Self, Self) -> Bool
 pub fn Decimal::sign(Self) -> @def.Sign

@@ -62,12 +62,12 @@ carry different information:
 
 ```moonbit
 ///|
-test "decimal parsing keeps the quantum" {
+test "decimal parsing keeps the exponent" {
   let price = @decimal.Decimal::from_string("12.30").unwrap()
   let same = @decimal.Decimal::from_string("12.3").unwrap()
   inspect(price == same, content="true")
-  inspect(price.quantum(), content="-2")
-  inspect(same.quantum(), content="-1")
+  inspect(price.exponent10(), content="-2")
+  inspect(same.exponent10(), content="-1")
   inspect(price.same_quantum(same), content="false")
   inspect(price.normalized(), content="12.3")
 }

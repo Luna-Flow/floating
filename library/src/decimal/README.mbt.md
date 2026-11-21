@@ -1,7 +1,7 @@
 # `decimal`
 
 `decimal` is the IEEE 754 arbitrary-precision decimal surface. `Decimal` keeps
-sign, coefficient, exponent, precision, special values, and quantum-sensitive
+sign, coefficient, exponent, precision, special values, and exponent-sensitive
 cohort information. `DecimalContext` and `DecimalFlags` make rounding,
 exponent bounds, and the five IEEE status flags explicit. Contexts
 created by `DecimalContext::new` use IEEE NaN propagation by default. The
@@ -14,7 +14,7 @@ formatting, decimal32/64/128 interchange, and elementary functions. Prefer
 `*_ctx` for status-sensitive code; operators intentionally omit flags.
 
 IEEE 754-2019 minimum/maximum and magnitude variants are distinct from the
-legacy GDA-compatible `min`/`max` methods. `quantum` and NaN payload accessors
+legacy GDA-compatible `min`/`max` methods. `exponent10` and NaN payload accessors
 keep cohort and diagnostic state observable without changing finite values.
 
 The pinned official and official0 GDA rows remain fully conformant through the

@@ -65,7 +65,7 @@ package, and its files share one namespace. By convention the manual imports
 ## Build values
 
 A `BinFloat` is an exact dyadic number $c \cdot 2^e$ with a precision; a
-`Decimal` is $c \cdot 10^q$ and remembers the quantum $q$ of its literal; an
+`Decimal` is $c \cdot 10^q$ and remembers the exponent $q$ of its literal; an
 `Interval` is an interval with binary endpoints.
 
 ```moonbit
@@ -82,7 +82,7 @@ test "first values" {
   // Parsing keeps significant trailing zeros.
   let price = @decimal.Decimal::from_string("12.3400").unwrap()
   inspect(price, content="12.3400")
-  inspect(price.quantum(), content="-4")
+  inspect(price.exponent10(), content="-4")
   // Every real number from 1 through 2.
   let interval = @interval.Interval::from_bounds(
     @bin_float.BinFloat::from_int(1),
@@ -198,12 +198,12 @@ erases semantics the standards make observable.
   `definitely_lt`, …), not a scalar order. A result is correct when it encloses
   the exact result; tightness is a separate quality.
 - `SemanticScalar` compares mathematical values across packages and drops
-  precision, quantum, signed zero, payloads, decorations and flags.
+  precision, exponent, signed zero, payloads, decorations and flags.
 
 ## Continue reading
 
 - [Numeric semantics](./numeric_semantics.md) defines rounding, ulp, flags,
-  quantum, signed zero, NaN and enclosures with their derivations.
+  exponent, signed zero, NaN and enclosures with their derivations.
 - [Architecture](./architecture.md) explains the package layers and the
   certified elementary functions.
 - [Verification](./verification.md) lists the gates and the exact scope of each
