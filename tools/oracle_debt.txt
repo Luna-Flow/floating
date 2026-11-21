@@ -1313,21 +1313,6 @@ library/src/internal/coeff_wbtest.mbt::fused coefficient round shift matches fix
 library/src/internal/coeff_wbtest.mbt::fused coefficient shift rounding carries across representations	?
 library/src/internal/coeff_wbtest.mbt::small coefficient addition matches boundary and random oracles	?
 library/src/internal/coeff_wbtest.mbt::small coefficient addition preserves the UInt64 carry	?
-library/src/internal/decimal_kernel/coeff_div_diff_wbtest.mbt::Knuth division equals the reference on powers of ten and nines	E
-library/src/internal/decimal_kernel/coeff_div_diff_wbtest.mbt::Knuth division equals the reference, 112 by 56 limbs	E
-library/src/internal/decimal_kernel/coeff_div_diff_wbtest.mbt::Knuth division equals the reference, 12 by 6 limbs	E
-library/src/internal/decimal_kernel/coeff_div_diff_wbtest.mbt::Knuth division equals the reference, 2 by 2 limbs	?
-library/src/internal/decimal_kernel/coeff_div_diff_wbtest.mbt::Knuth division equals the reference, 224 by 112 limbs	E
-library/src/internal/decimal_kernel/coeff_div_diff_wbtest.mbt::Knuth division equals the reference, 24 by 12 limbs	E
-library/src/internal/decimal_kernel/coeff_div_diff_wbtest.mbt::Knuth division equals the reference, 4 by 2 limbs	E
-library/src/internal/decimal_kernel/coeff_div_diff_wbtest.mbt::Knuth division equals the reference, 4 by 3 limbs	E
-library/src/internal/decimal_kernel/coeff_div_diff_wbtest.mbt::Knuth division equals the reference, 8 by 4 limbs	E
-library/src/internal/decimal_kernel/coeff_finite_diff_wbtest.mbt::finite expansion decision equals the references, 1 limb	E
-library/src/internal/decimal_kernel/coeff_finite_diff_wbtest.mbt::finite expansion decision equals the references, 2 to 4 limbs	E
-library/src/internal/decimal_kernel/coeff_finite_diff_wbtest.mbt::finite expansion decision equals the references, 24 and 56 limbs	E
-library/src/internal/decimal_kernel/coeff_finite_diff_wbtest.mbt::finite expansion decision equals the references, 6 to 12 limbs	E
-library/src/internal/decimal_kernel/coeff_finite_diff_wbtest.mbt::finite expansion decision, 120 limbs	E
-library/src/internal/decimal_kernel/coeff_finite_diff_wbtest.mbt::finite expansion decision, special denominators	E
 library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::Burnikel-Ziegler recursive block boundaries match exact quotients	A
 library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::Knuth quotient clamp preserves the full normalized remainder	A
 library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::NTT product of all-nines operands equals the BigInt product	A
@@ -1365,32 +1350,6 @@ library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::optimized decimal c
 library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::power-of-ten modular scaling handles huge exponent gaps	A
 library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::unit accumulator producers write limbs below the base	S
 library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt::word digit count matches the table scan at every power of ten boundary	E
-library/src/internal/decimal_kernel/coeff_mul_diff_wbtest.mbt::schoolbook product and square around each fold boundary	E
-library/src/internal/decimal_kernel/coeff_mul_diff_wbtest.mbt::schoolbook product and square of all 10^9 - 1 limbs at every length	E
-library/src/internal/decimal_kernel/coeff_mul_diff_wbtest.mbt::schoolbook product equals the reference around the column limit of 18 limbs	E
-library/src/internal/decimal_kernel/coeff_mul_diff_wbtest.mbt::schoolbook product equals the reference, 1 and 2 limbs	E
-library/src/internal/decimal_kernel/coeff_mul_diff_wbtest.mbt::schoolbook product equals the reference, 3 to 12 limbs	E
-library/src/internal/decimal_kernel/coeff_mul_diff_wbtest.mbt::schoolbook product equals the reference, 56 and 112 limbs	E
-library/src/internal/decimal_kernel/coeff_mul_unbalanced_wbtest.mbt::unbalanced product above the threshold (block products)	E
-library/src/internal/decimal_kernel/coeff_mul_unbalanced_wbtest.mbt::unbalanced product equals the reference on shapes around every boundary	E
-library/src/internal/decimal_kernel/coeff_mul_unbalanced_wbtest.mbt::unbalanced product of all-nines operands	E
-library/src/internal/decimal_kernel/coeff_round_diff_wbtest.mbt::round_div_pow10 equals the reference on powers of ten and nines	E
-library/src/internal/decimal_kernel/coeff_round_diff_wbtest.mbt::round_div_pow10 equals the reference, 1 limb	C
-library/src/internal/decimal_kernel/coeff_round_diff_wbtest.mbt::round_div_pow10 equals the reference, 112 limbs	E
-library/src/internal/decimal_kernel/coeff_round_diff_wbtest.mbt::round_div_pow10 equals the reference, 12 limbs	E
-library/src/internal/decimal_kernel/coeff_round_diff_wbtest.mbt::round_div_pow10 equals the reference, 2 limbs	C
-library/src/internal/decimal_kernel/coeff_round_diff_wbtest.mbt::round_div_pow10 equals the reference, 3 limbs	E
-library/src/internal/decimal_kernel/coeff_round_diff_wbtest.mbt::round_div_pow10 equals the reference, 56 limbs	E
-library/src/internal/decimal_kernel/coeff_round_diff_wbtest.mbt::round_div_pow10 equals the reference, 6 limbs	E
-library/src/internal/decimal_kernel/coeff_sqrt_diff_wbtest.mbt::integer square root equals the reference on powers of ten and nines	E
-library/src/internal/decimal_kernel/coeff_sqrt_diff_wbtest.mbt::integer square root equals the reference, 1 limb	E
-library/src/internal/decimal_kernel/coeff_sqrt_diff_wbtest.mbt::integer square root equals the reference, 112 limbs	E
-library/src/internal/decimal_kernel/coeff_sqrt_diff_wbtest.mbt::integer square root equals the reference, 12 limbs	E
-library/src/internal/decimal_kernel/coeff_sqrt_diff_wbtest.mbt::integer square root equals the reference, 2 limbs	E
-library/src/internal/decimal_kernel/coeff_sqrt_diff_wbtest.mbt::integer square root equals the reference, 3 limbs	E
-library/src/internal/decimal_kernel/coeff_sqrt_diff_wbtest.mbt::integer square root equals the reference, 56 limbs	E
-library/src/internal/decimal_kernel/coeff_sqrt_diff_wbtest.mbt::integer square root equals the reference, 6 limbs	E
-library/src/internal/decimal_kernel/coeff_sqrt_diff_wbtest.mbt::integer square root of the small range	E
 library/src/internal/decimal_kernel/coeff_sqrt_karatsuba_wbtest.mbt::Karatsuba caps a quotient of X and takes the correction step	E
 library/src/internal/decimal_kernel/coeff_sqrt_karatsuba_wbtest.mbt::Karatsuba recursion reaches every depth from 0 to 6	E
 library/src/internal/decimal_kernel/coeff_sqrt_karatsuba_wbtest.mbt::Karatsuba root above 65,538 limbs (the recursion is deeper than 15)	S

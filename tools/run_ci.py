@@ -213,10 +213,17 @@ def assign_lanes(stages: list[Stage]) -> list[Stage]:
 
 def stages_for(scope: str, jobs: int, reuse: bool = True) -> list[Stage]:
     suites = {
-        "decimal": Stage(
-            "DECIMAL: IEEE 754",
-            conformance_command(BackendName.DECIMAL, 1),
-        ),
+        "decimal": [
+            Stage(
+                "DECIMAL: IEEE 754",
+                conformance_command(BackendName.DECIMAL, 1),
+            ),
+            # the table of the decimal kernel oracle (CPython integers, about a minute)
+            Stage(
+                "DECIMAL: kernel oracle table",
+                (sys.executable, "tools/decimal_kernel_oracle.py", "--check"),
+            ),
+        ],
         "decimal_gda": [
             Stage(
                 "DECIMAL_GDA: package tests",
@@ -538,7 +545,7 @@ def stages_for(scope: str, jobs: int, reuse: bool = True) -> list[Stage]:
             )
             for target in SUPPORTED_TARGETS
         ],
-        suites["decimal"],
+        *suites["decimal"],
         *suites["decimal_gda"],
         *suites["binary"],
         *suites["interval"],
