@@ -736,7 +736,7 @@ def cmd_fixtures(args: argparse.Namespace) -> int:
                 continue
             for index in range(args.count):
                 decimal_lines.extend(
-                    decimal_oracle.format_row(decimal_oracle.evaluate(decimal_oracle.generate_case(family, FIXTURE_SEED, index)))
+                    decimal_oracle.format_case(decimal_oracle.generate_case(family, FIXTURE_SEED, index))
                 )
         FIXTURES["decimal_gda"].write_text("\n".join(decimal_lines) + "\n", encoding="utf-8")
         decm_oracle.build_enclosure(args.mpfr_prefix)

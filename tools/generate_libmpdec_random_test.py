@@ -80,8 +80,8 @@ class CaseTests(unittest.TestCase):
                 self.assertGreater(context.emin, -1_000_000)
                 if family == "power" and self.in_power_of_ten_class(generator.generate_case(family, 5, index)):
                     # The only rows in a mode other than nearest-even: the class
-                    # of issue 351, whose expected result is this library's own
-                    # (checked against libmpdec within one unit in the last place).
+                    # of issue 351, whose expected result is the exactly rounded
+                    # value (checked against libmpdec within one unit in the last place).
                     continue
                 self.assertEqual(context.rounding, "half_even")
 
@@ -199,7 +199,7 @@ class OracleTests(unittest.TestCase):
 class PowerOfTenDifferenceTests(unittest.TestCase):
     """Issue 351: `power(10^k, y)` with a non-integral `y` and an integral `k*y`
     is the exact value in every rounding mode; libmpdec differs by 1 ulp in some
-    modes. The class is checked, and the row expects this library's result."""
+    modes. The class is checked, and the row expects the exactly rounded value."""
 
     @staticmethod
     def case(rounding: str, base: str, exponent: str, precision: int = 16, emin: int = -383, emax: int = 384) -> object:
@@ -262,39 +262,43 @@ class PowerOfTenDifferenceTests(unittest.TestCase):
 
 class PowerExpectedDifferenceTests(unittest.TestCase):
     """The named expected differences of `power` besides the power of ten (issue
-    402): each row expects this library's result and a row outside the shapes
-    keeps libmpdec's result (so it fails when the libraries differ)."""
+    402): each row expects a value formed without this library and a row outside
+    the shapes keeps libmpdec's result (so it fails when the libraries differ)."""
 
     @staticmethod
     def case(operands: tuple[str, str], precision: int, emin: int, emax: int, clamp: int = 0) -> generator.Case:
         context = generator.Ctx(precision, "half_even", emin, emax, clamp)
         return generator.Case("d1.power.0", "power", context, operands)
 
-    def test_integer_power_accuracy_expects_the_decnumber_result(self) -> None:
+    def test_integer_power_accuracy_is_dropped(self) -> None:
+        # libmpdec 3.302379339563822E-45, the decNumber algorithm ...823E-45: the
+        # only value for the row would be that of a copy of the library's own
+        # algorithm, so the case has no row at all.
         case = self.case(("87569.437524405", "-9.000000000"), 16, -383, 384, 1)
-        row = generator.evaluate(case)
-        self.assertEqual(row.classes, (generator.INTEGER_POWER_CLASS,))
-        self.assertEqual(row.result, "3.302379339563823E-45")
-        self.assertEqual(row.libmpdec, "3.302379339563822E-45 Inexact Rounded")
-        self.assertIn(
-            "-- expected-difference integer-power-accuracy: libmpdec gives 3.302379339563822E-45 Inexact Rounded",
-            generator.format_row(row),
-        )
+        self.assertIsNone(generator.evaluate(case))
+        self.assertEqual(generator.format_case(case), [])
 
-    def test_integer_power_accuracy_needs_the_bounds(self) -> None:
+    def test_a_dropped_case_leaves_the_other_ids_unchanged(self) -> None:
+        lines = list(generator.generate("power", 20261118, 0, 50))
+        ids = [line.split()[0] for line in lines if line.startswith("d20261118.")]
+        self.assertEqual(len(ids), len(set(ids)))
+        for line in lines:
+            self.assertNotIn("integer-power-accuracy", line)
+
+    def test_integer_power_dropped_needs_the_bounds(self) -> None:
         case = self.case(("87569.437524405", "-9.000000000"), 16, -383, 384, 1)
-        near = Decimal("3.302379339563822E-45")
-        self.assertEqual(generator.integer_power_difference(case, near), "3.302379339563823E-45")
+        self.assertTrue(generator.integer_power_dropped(case, Decimal("3.302379339563822E-45")))
         # libmpdec's value two units away from the exact one is not within 1 ulp.
-        far = Decimal("3.302379339563820E-45")
-        self.assertIsNone(generator.integer_power_difference(case, far))
-        # Equal to the modelled value: not a difference at all.
-        self.assertIsNone(generator.integer_power_difference(case, Decimal("3.302379339563823E-45")))
+        self.assertFalse(generator.integer_power_dropped(case, Decimal("3.302379339563820E-45")))
+        # Equal to the modelled value: no difference at all, the row is kept.
+        self.assertFalse(generator.integer_power_dropped(case, Decimal("3.302379339563823E-45")))
 
-    def test_the_decnumber_model_reproduces_the_library_result(self) -> None:
-        case = self.case(("-82391.41599594693", "-342"), 24, -6143, 6144, 1)
-        modelled = generator.decnumber_integer_power(Decimal(case.operands[0]), -342, case.context)
-        self.assertEqual(str(modelled), "5.86634169367643020590569E-1682")
+    def test_the_class_source_is_never_this_library(self) -> None:
+        case = self.case(("+999999999999999999999999999999.E-30", "1.01"), 64, -1, 0)
+        text = "\n".join(generator.format_case(case))
+        self.assertIn("correctly rounded value recomputed at higher precision by libmpdec", text)
+        self.assertNotIn("this library returns", text)
+        self.assertNotIn(generator.INTEGER_POWER_CLASS, generator.CLASS_SOURCES)
 
     def test_noninteger_power_rounding_expects_the_correct_rounding(self) -> None:
         case = self.case(("+999999999999999999999999999999.E-30", "1.01"), 64, -1, 0)
@@ -334,7 +338,7 @@ class PowerExpectedDifferenceTests(unittest.TestCase):
     def test_every_class_of_the_difference_comment_is_named(self) -> None:
         case = self.case(("-0.009999999999999999999999", "5.0e+1"), 7, -95, 96)
         text = "\n".join(generator.format_row(generator.evaluate(case)))
-        self.assertIn("-- expected-difference underflow-with-inexact-subnormal: libmpdec gives", text)
+        self.assertIn("-- expected-difference underflow-with-inexact-subnormal: Underflow added as GDA 1.70 defines it; libmpdec gives", text)
 
 
 if __name__ == "__main__":

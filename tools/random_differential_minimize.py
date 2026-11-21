@@ -196,7 +196,7 @@ def shrink_decimal(text: str) -> list[str]:
 def decimal_text(cases: list[decimal_oracle.Case]) -> str:
     lines = decimal_oracle.header("candidates", 0, 0, len(cases))
     for case in cases:
-        lines.extend(decimal_oracle.format_row(decimal_oracle.evaluate(case)))
+        lines.extend(decimal_oracle.format_case(case))
     return "\n".join(lines) + "\n"
 
 
@@ -268,10 +268,10 @@ def main(args: argparse.Namespace) -> int:
                     print(f"{case.case_id}: passes, nothing to minimize")
                     continue
             minimal_case = minimize_decimal(case, args.target)
-            row = decimal_oracle.evaluate(minimal_case)
+            lines = decimal_oracle.format_case(minimal_case)
             decimal_out.append(f"-- minimized from {case.case_id}")
-            decimal_out.extend(decimal_oracle.format_row(row))
-            print("minimized:", " | ".join(decimal_oracle.format_row(row)))
+            decimal_out.extend(lines)
+            print("minimized:", " | ".join(lines))
     if args.output:
         output = Path(args.output)
         lines = binary_out or decimal_out
