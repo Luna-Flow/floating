@@ -323,7 +323,7 @@ test "bound_verdict: enclosing, equal, a little wider, too wide, zero and infini
   assert_eq(bound_verdict(zero, zero, true), (true, false))
   assert_eq(bound_verdict(zero, one_and_a_half.neg(), true), (true, true))
   // an infinite oracle upper bound is met by infinity only
-  let inf = @binary.BinFloat::inf(Positive, precision=p)
+  let inf = @binary.BinFloat::inf(precision=p)
   assert_eq(bound_verdict(inf, inf, false), (true, false))
   assert_eq(bound_verdict(inf, one_and_a_half, false).0, false)
 }

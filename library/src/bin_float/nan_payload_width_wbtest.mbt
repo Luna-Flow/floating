@@ -75,7 +75,7 @@ test "precision is checked where a value is made" {
   assert_eq(BinFloat::from_int(3, precision=max).precision(), max)
   assert_eq(BinFloat::zero(precision=max).precision(), max)
   assert_eq(BinFloat::nan(precision=max).precision(), max)
-  assert_eq(BinFloat::inf(Sign::Positive, precision=max).precision(), max)
+  assert_eq(BinFloat::inf(precision=max).precision(), max)
   // the Result constructors return Err
   assert_true(BinFloat::from_string("1.5", precision=0) is Err(_))
   assert_true(BinFloat::from_string("1.5", precision=-4) is Err(_))

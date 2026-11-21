@@ -130,8 +130,7 @@ test "class_of in an unbounded context treats ordinary values as normal" {
     content="true",
   )
   inspect(
-    BinFloat::inf(Sign::Negative, precision=53).class_of(ctx) ==
-    NegativeInfinity,
+    BinFloat::inf(negative=true, precision=53).class_of(ctx) == NegativeInfinity,
     content="true",
   )
 }

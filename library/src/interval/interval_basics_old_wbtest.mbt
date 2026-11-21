@@ -31,12 +31,8 @@ fn old_extended_division_bounds(
     return (zero, zero)
   }
   if numerator.classify() == FpClass::Infinity {
-    let sign = if numerator.sign() == denominator.sign() {
-      Sign::Positive
-    } else {
-      Sign::Negative
-    }
-    let infinity = @bin_float.BinFloat::inf(sign, precision~)
+    let negative = numerator.sign() != denominator.sign()
+    let infinity = @bin_float.BinFloat::inf(negative~, precision~)
     return (infinity, infinity)
   }
   old_division_bounds(numerator, denominator, precision)

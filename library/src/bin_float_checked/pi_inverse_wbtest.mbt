@@ -26,8 +26,8 @@ test "checked asinpi, acospi, atanpi and atan2pi map the exception flags" {
   let two = value(@bin_float.BinFloat::from_int(2))
   let snan = value(@bin_float.BinFloat::signaling_nan())
   let qnan = value(@bin_float.BinFloat::quiet_nan())
-  let inf = value(@bin_float.BinFloat::inf(@def.Sign::Positive))
-  let minus_inf = value(@bin_float.BinFloat::inf(@def.Sign::Negative))
+  let inf = value(@bin_float.BinFloat::inf())
+  let minus_inf = value(@bin_float.BinFloat::inf(negative=true))
   // exact values
   assert_eq(pi_render(one.asinpi()), "ok:1p-1")
   assert_eq(pi_render(minus_one.asinpi_ctx(context)), "ok:-1p-1")

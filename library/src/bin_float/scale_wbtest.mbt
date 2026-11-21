@@ -89,7 +89,7 @@ test "logB returns the leading-bit exponent" {
     ),
   )
   inspect(
-    scale_show(BinFloat::inf(Sign::Negative).logb_ctx(context)),
+    scale_show(BinFloat::inf(negative=true).logb_ctx(context)),
     content=(
       #|inf flags=0
     ),
@@ -122,12 +122,7 @@ test "scaleB takes its count as a floating-point integer" {
   assert_true(signaled.is_quiet_nan())
   assert_eq(signaled_flags.to_testfloat_bits(), 16)
   // an infinite or a non-integer count is invalid, for a zero receiver too
-  for
-    count in [
-      BinFloat::inf(Sign::Positive),
-      BinFloat::inf(Sign::Negative),
-      half,
-    ] {
+  for count in [BinFloat::inf(), BinFloat::inf(negative=true), half] {
     for receiver in [three, BinFloat::zero()] {
       let (nan, flags) = receiver.scaleb_ctx(count, context)
       assert_true(nan.is_nan())
@@ -145,9 +140,7 @@ test "scaleB takes its count as a floating-point integer" {
   )
   // an infinite receiver and a finite count: the infinity itself
   inspect(
-    scale_show(
-      BinFloat::inf(Sign::Positive).scaleb_ctx(BinFloat::from_int(7), context),
-    ),
+    scale_show(BinFloat::inf().scaleb_ctx(BinFloat::from_int(7), context)),
     content="inf flags=0",
   )
 }

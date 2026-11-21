@@ -536,9 +536,12 @@ fn BinFloat::one_raw(precision~ : Int32 = 53) -> BinFloat {
 }
 
 ///|
-pub fn BinFloat::inf(sign : Sign, precision~ : Int32 = 53) -> BinFloat {
+pub fn BinFloat::inf(
+  negative~ : Bool = false,
+  precision~ : Int32 = 53,
+) -> BinFloat {
   binary_check_precision("BinFloat::inf", precision)
-  BinFloat::inf_raw(sign, precision~)
+  bin_repr_inf(negative, precision)
 }
 
 ///|

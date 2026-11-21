@@ -38,7 +38,7 @@ fn rcp_contexts() -> Array[BinaryContext] {
 
 ///|
 fn rcp_inf(negative : Bool) -> BinFloat {
-  BinFloat::inf(if negative { Sign::Negative } else { Sign::Positive })
+  BinFloat::inf(negative~)
 }
 
 ///|

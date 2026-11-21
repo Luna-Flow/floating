@@ -339,10 +339,7 @@ test "coefficient paths decline what they do not cover" {
   )
   assert_true(binary_coeff_fast_add(one, BinFloat::zero(precision=100)) is None)
   assert_true(binary_coeff_fast_add(one, BinFloat::nan(precision=100)) is None)
-  assert_true(
-    binary_coeff_fast_mul(one, BinFloat::inf(Sign::Positive, precision=100))
-    is None,
-  )
+  assert_true(binary_coeff_fast_mul(one, BinFloat::inf(precision=100)) is None)
   assert_true(binary_coeff_fast_div(one, BinFloat::zero(precision=100)) is None)
   assert_true(binary_coeff_fast_div(BinFloat::zero(precision=100), one) is None)
   assert_true(binary_coeff_fast_sqrt(one.neg()) is None)

@@ -68,8 +68,8 @@ fn parse_random_value(
 ) -> Result[@bin_float.BinFloat, String] {
   match token {
     "nan" => Ok(@bin_float.BinFloat::nan())
-    "inf" => Ok(@bin_float.BinFloat::inf(@def.Sign::Positive))
-    "-inf" => Ok(@bin_float.BinFloat::inf(@def.Sign::Negative))
+    "inf" => Ok(@bin_float.BinFloat::inf())
+    "-inf" => Ok(@bin_float.BinFloat::inf(negative=true))
     _ => {
       // Reading below the smallest subnormal of the parse precision would
       // round the value onto that grid, so read at least at the precision of

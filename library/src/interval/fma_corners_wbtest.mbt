@@ -62,7 +62,7 @@ test "fma: zeros of either sign, 0 times infinity, infinite addends, unbounded a
   // [0, 5] * [0, +inf) + [1, 1]: the products fill [0, +inf)
   let non_negative = Interval::from_bounds(
     @bin_float.BinFloat::zero(precision=53),
-    @bin_float.BinFloat::inf(Sign::Positive, precision=53),
+    @bin_float.BinFloat::inf(precision=53),
     precision=53,
   )
   let r = fc_range(0, 5).fma(non_negative, fc_range(1, 1))
@@ -72,7 +72,7 @@ test "fma: zeros of either sign, 0 times infinity, infinite addends, unbounded a
   assert_true(r.upper_bound().classify() == FpClass::Infinity)
   // [-inf, -1] * [-3, -2] + [0, 0] = [2, +inf)
   let negative = Interval::from_bounds(
-    @bin_float.BinFloat::inf(Sign::Negative, precision=53),
+    @bin_float.BinFloat::inf(negative=true, precision=53),
     @bin_float.BinFloat::from_int(-1, precision=53),
     precision=53,
   )
@@ -83,7 +83,7 @@ test "fma: zeros of either sign, 0 times infinity, infinite addends, unbounded a
   assert_true(r.upper_bound().classify() == FpClass::Infinity)
   // an infinite addend: [1, 2] * [1, 2] + [-inf, 3] = [-inf, 7]; + [3, +inf) = [4, +inf)
   let below = Interval::from_bounds(
-    @bin_float.BinFloat::inf(Sign::Negative, precision=53),
+    @bin_float.BinFloat::inf(negative=true, precision=53),
     @bin_float.BinFloat::from_int(3, precision=53),
     precision=53,
   )

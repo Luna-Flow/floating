@@ -170,10 +170,7 @@ test "fixed-point exp path gives the same correctly rounded results" {
 test "fixed-point exp path declines arguments it does not cover" {
   assert_true(binary_exp_bounds_fixed(BinFloat::zero(), 100) is None)
   assert_true(binary_exp_bounds_fixed(BinFloat::nan(), 100) is None)
-  assert_true(
-    binary_exp_bounds_fixed(BinFloat::inf(Sign::Positive, precision=53), 100)
-    is None,
-  )
+  assert_true(binary_exp_bounds_fixed(BinFloat::inf(precision=53), 100) is None)
   // not exact at the working precision: the general path runs
   let wide = BinFloat::make_coeff(
     Coeff::one().shift_left(150).add(Coeff::one()),

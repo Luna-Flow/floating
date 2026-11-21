@@ -195,8 +195,8 @@ test "§5.12.3 round trip: from_hex(to_hex(x)) recovers x" {
   }
   for
     x in [
-      BinFloat::inf(Sign::Positive),
-      BinFloat::inf(Sign::Negative),
+      BinFloat::inf(),
+      BinFloat::inf(negative=true),
       BinFloat::negative_zero(),
     ] {
     let back = BinFloat::from_hex(x.to_hex(), 53).unwrap()

@@ -1,7 +1,7 @@
 ///|
 fn basics_corpus(precision : Int32) -> Array[Interval] {
-  let inf = @bin_float.BinFloat::inf(Sign::Positive, precision~)
-  let ninf = @bin_float.BinFloat::inf(Sign::Negative, precision~)
+  let inf = @bin_float.BinFloat::inf(precision~)
+  let ninf = @bin_float.BinFloat::inf(negative=true, precision~)
   let values : Array[@bin_float.BinFloat] = [ninf]
   for d in [-7.25, -3.0, -1.0, -0.1, -0.0, 0.0, 0.3, 1.0, 2.5, 3.0] {
     values.push(@bin_float.BinFloat::from_double(d, precision~))
@@ -318,7 +318,7 @@ fn coeff_gcd_kernel(
 /// which reached it through the decimal elementary functions).
 test "is_common_interval terminates and classifies the shapes" {
   let one = @bin_float.BinFloat::one(precision=53)
-  let inf = @bin_float.BinFloat::inf(Sign::Positive, precision=53)
+  let inf = @bin_float.BinFloat::inf(precision=53)
   assert_true(
     Interval::from_bounds(one.neg(), one, precision=53).is_common_interval(),
   )

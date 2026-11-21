@@ -760,7 +760,7 @@ msgid "Build the constants $+0$, $-0$, $1$ and $\\pm\\infty$."
 msgstr ""
 
 #: manual/api/bin_float.md:322
-msgid "The default precision is 53, and it must be within `1..=binary_precision_max` (see `binary_precision_max`). `inf(Sign::Negative)` is $-\\infty$; any other sign gives $+\\infty$."
+msgid "The default precision is 53, and it must be within `1..=binary_precision_max` (see `binary_precision_max`). `inf(negative=true)` is $-\\infty$; the default is $+\\infty$, as `Decimal::inf` has it."
 msgstr ""
 
 #: manual/api/bin_float.md:328

@@ -55,13 +55,13 @@ test "Show: the portable literal of the standard's cases" {
   inspect(
     Interval::from_bounds(
       @bin_float.BinFloat::zero(),
-      @bin_float.BinFloat::inf(@def.Sign::Positive),
+      @bin_float.BinFloat::inf(),
     ).to_string(),
     content="[0, inf]",
   )
   inspect(
     Interval::from_bounds(
-      @bin_float.BinFloat::inf(@def.Sign::Negative),
+      @bin_float.BinFloat::inf(negative=true),
       @bin_float.BinFloat::one(),
     ).to_string(),
     content="[-inf, 1]",
@@ -173,7 +173,7 @@ test "to_exact_string and from_exact_string recover the datum" {
       Interval::entire(),
       Interval::from_bounds(
         @bin_float.BinFloat::zero(),
-        @bin_float.BinFloat::inf(@def.Sign::Positive),
+        @bin_float.BinFloat::inf(),
       ),
     ] {
     let back = Interval::from_exact_string(x.to_exact_string()).unwrap()
@@ -291,10 +291,7 @@ test "the stored coefficient is odd, so the exact text is the value's" {
       value.coefficient().to_radix_string(2).has_suffix("1"),
       msg=expected,
     )
-    let x = Interval::from_bounds(
-      value,
-      @bin_float.BinFloat::inf(@def.Sign::Positive, precision=64),
-    )
+    let x = Interval::from_bounds(value, @bin_float.BinFloat::inf(precision=64))
     assert_eq(x.to_exact_string(), "[" + expected + ", inf]", msg=expected)
   }
 }

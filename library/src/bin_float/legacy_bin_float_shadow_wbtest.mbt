@@ -214,8 +214,8 @@ test "BinFloat long cancellation normalizes heap subtraction exactly" {
 test "LegacyBigIntBinFloat adapts signed zero and NaN metadata" {
   let positive_zero = BinFloat::zero(precision=17)
   let negative_zero = BinFloat::negative_zero(precision=17)
-  let positive_infinity = BinFloat::inf(Sign::Positive, precision=17)
-  let negative_infinity = BinFloat::inf(Sign::Negative, precision=17)
+  let positive_infinity = BinFloat::inf(precision=17)
+  let negative_infinity = BinFloat::inf(negative=true, precision=17)
   let quiet_nan = BinFloat::quiet_nan(
     payload=BinCoeff::from_uint64(37UL),
     negative=true,

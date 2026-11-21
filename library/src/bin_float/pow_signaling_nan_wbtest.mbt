@@ -60,8 +60,8 @@ test "pow signals a signaling NaN base or exponent in every shortcut" {
     ("2", BinFloat::from_int(2)),
     ("-3", BinFloat::from_int(-3)),
     ("1/2", BinFloat::make(BinCoeff::one(), -1, 53)),
-    ("+inf", BinFloat::inf(Sign::Positive)),
-    ("-inf", BinFloat::inf(Sign::Negative)),
+    ("+inf", BinFloat::inf()),
+    ("-inf", BinFloat::inf(negative=true)),
   ]
   let mut cases = 0
   for context in pow_contexts() {
@@ -132,7 +132,7 @@ test "pow keeps its quiet NaN shortcuts and propagation" {
       other in [
         BinFloat::from_int(2),
         BinFloat::from_int(-3),
-        BinFloat::inf(Sign::Negative),
+        BinFloat::inf(negative=true),
       ] {
       for swapped in [false, true] {
         let (result, flags) = if swapped {

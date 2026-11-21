@@ -343,7 +343,7 @@ test "convertFormat of infinities and zeros keeps the sign" {
   assert_false(flags.inexact())
   let d64 = DecimalContext::decimal64()
   let (decimal_inf, _) = Decimal::from_bin_float_ctx(
-    @bin_float.BinFloat::inf(Sign::Negative, precision=53),
+    @bin_float.BinFloat::inf(negative=true, precision=53),
     d64,
   )
   assert_true(decimal_inf.is_infinite() && decimal_inf.negative)

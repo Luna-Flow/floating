@@ -148,9 +148,7 @@ test "one-word paths decline what they do not cover" {
   )
   assert_true(binary_fast_add(one, BinFloat::zero(precision=53)) is None)
   assert_true(binary_fast_add(one, BinFloat::nan(precision=53)) is None)
-  assert_true(
-    binary_fast_mul(one, BinFloat::inf(Sign::Positive, precision=53)) is None,
-  )
+  assert_true(binary_fast_mul(one, BinFloat::inf(precision=53)) is None)
   assert_true(binary_fast_div(one, BinFloat::zero(precision=53)) is None)
   assert_true(binary_fast_add(one, big) is None)
   // an exact zero sum
@@ -247,9 +245,7 @@ test "one-word sqrt handles perfect squares, powers of two and odd exponents" {
   }
   assert_true(binary_fast_sqrt(BinFloat::from_int(-4, precision=53)) is None)
   assert_true(binary_fast_sqrt(BinFloat::zero(precision=53)) is None)
-  assert_true(
-    binary_fast_sqrt(BinFloat::inf(Sign::Positive, precision=53)) is None,
-  )
+  assert_true(binary_fast_sqrt(BinFloat::inf(precision=53)) is None)
 }
 
 ///|

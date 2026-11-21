@@ -6,9 +6,9 @@
 ///|
 fn oracle_bound(text : String, precision : Int32) -> @bin_float.BinFloat {
   if text == "inf" {
-    @bin_float.BinFloat::inf(@def.Sign::Positive, precision~)
+    @bin_float.BinFloat::inf(precision~)
   } else if text == "-inf" {
-    @bin_float.BinFloat::inf(@def.Sign::Negative, precision~)
+    @bin_float.BinFloat::inf(negative=true, precision~)
   } else {
     @bin_float.BinFloat::from_hex(text, precision).unwrap()
   }

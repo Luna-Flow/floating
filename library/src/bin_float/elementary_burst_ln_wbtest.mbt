@@ -90,9 +90,7 @@ test "ln Newton step declines outside its range" {
     )
     is None,
   )
-  assert_true(
-    binary_ln_unit_burst_bounds(BinFloat::inf(Sign::Positive), work) is None,
-  )
+  assert_true(binary_ln_unit_burst_bounds(BinFloat::inf(), work) is None)
 }
 
 ///|

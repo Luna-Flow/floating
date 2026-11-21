@@ -187,9 +187,7 @@ test "pair paths decline what they do not cover" {
   )
   assert_true(binary_pair_add(one, BinFloat::zero(precision=100)) is None)
   assert_true(binary_pair_add(one, BinFloat::nan(precision=100)) is None)
-  assert_true(
-    binary_pair_mul(one, BinFloat::inf(Sign::Positive, precision=100)) is None,
-  )
+  assert_true(binary_pair_mul(one, BinFloat::inf(precision=100)) is None)
   assert_true(binary_pair_add(wide, one) is None)
   assert_true(binary_pair_mul(wide, one) is None)
   assert_true(binary_pair_add(narrow, narrow.neg()) is None)

@@ -87,7 +87,7 @@ test "convertToInteger handles every width and special value" {
     ),
   )
   inspect(
-    to_integer_any(BinFloat::inf(Sign::Positive).to_uint64_ctx(context)),
+    to_integer_any(BinFloat::inf().to_uint64_ctx(context)),
     content=(
       #|none flags=16
     ),

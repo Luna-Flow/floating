@@ -595,6 +595,14 @@ notes live in this file.
   | `pown_ctx(x, n, ctx)`, `powr_ctx(x, y, ctx)` above 999,999 digits | the same refusal | `pown` is `pow` with an integral exponent; an exact integral power is refused too |
   | `pow_ctx(x, 0.5, ctx)` above 999,999 digits is `sqrt_ctx(x, ctx)` | `sqrt_ctx(x, ctx)` | `sqrt_ctx` has no context limit |
 
+- `bin_float`: `BinFloat::inf(negative? : Bool, precision? : Int32)` takes a flag like `Decimal::inf` instead of a `Sign` ([#438](https://github.com/Luna-Flow/floating/issues/438), row N4). The old argument gave `+inf` for every sign but `Sign::Negative`, `Sign::Zero` included; the flag has two values. There is no alias.
+
+  | before | after |
+  | --- | --- |
+  | `BinFloat::inf(Sign::Positive)`, `BinFloat::inf(@def.Sign::Positive, precision=p)` | `BinFloat::inf()`, `BinFloat::inf(precision=p)` |
+  | `BinFloat::inf(Sign::Negative)` | `BinFloat::inf(negative=true)` |
+  | `BinFloat::inf(x.sign(), precision=p)` | `BinFloat::inf(negative=x.is_negative(), precision=p)` |
+
 ### Added
 
 - `bin_float`, `decimal`: every comparison predicate of IEEE 754-2019 5.11 has a function ([#438](https://github.com/Luna-Flow/floating/issues/438), item N6). The clause lists 22 predicates, 10 in Table 5.1 and 12 in Table 5.2; `bin_float` had 7 and `decimal` none. Both now have the 15 others, with the names of the first seven (`compare_quiet_*`, `compare_signaling_*`): `not_equal`, `greater`, `greater_equal`, `not_greater`, `less_unordered`, `not_less` and `greater_unordered` for both kinds, and `compare_quiet_ordered`. Each returns `(Bool, flags)`, is defined from `compare_quiet` or `compare_signaling` and raises invalid where the table says (a signaling NaN for the quiet ones, any NaN for the signaling ones). Nothing existing changes in `bin_float`.

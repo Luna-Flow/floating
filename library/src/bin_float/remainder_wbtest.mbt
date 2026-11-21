@@ -54,7 +54,7 @@ test "remainder special cases" {
   let context = BinaryContext::binary64()
   let one = BinFloat::one()
   inspect(
-    remainder_show(BinFloat::inf(Sign::Positive).remainder_ctx(one, context)),
+    remainder_show(BinFloat::inf().remainder_ctx(one, context)),
     content=(
       #|nan flags=16
     ),
@@ -66,7 +66,7 @@ test "remainder special cases" {
     ),
   )
   inspect(
-    remainder_show(one.remainder_ctx(BinFloat::inf(Sign::Negative), context)),
+    remainder_show(one.remainder_ctx(BinFloat::inf(negative=true), context)),
     content=(
       #|1p0 flags=0
     ),

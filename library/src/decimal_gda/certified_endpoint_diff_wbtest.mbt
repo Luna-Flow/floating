@@ -209,6 +209,6 @@ test "exact dyadic endpoints equal the big integer route" {
   assert_true(taken > 3000)
   // zero, infinity, and the out-of-range representatives
   endpoint_check(@bin_float.BinFloat::zero(precision=53), wide)
-  endpoint_check(@bin_float.BinFloat::inf(Sign::Positive, precision=53), wide)
-  endpoint_check(@bin_float.BinFloat::inf(Sign::Negative, precision=53), narrow)
+  endpoint_check(@bin_float.BinFloat::inf(precision=53), wide)
+  endpoint_check(@bin_float.BinFloat::inf(negative=true, precision=53), narrow)
 }

@@ -626,7 +626,8 @@ fn Decimal::to_bin_float_raw(
 ) -> @bin_float.BinFloat {
   match self.class {
     FpClass::NaN => @bin_float.BinFloat::nan(precision~)
-    FpClass::Infinity => @bin_float.BinFloat::inf(self.sign(), precision~)
+    FpClass::Infinity =>
+      @bin_float.BinFloat::inf(negative=self.is_signed(), precision~)
     FpClass::Finite => {
       if self.coefficient.is_zero() {
         return @bin_float.BinFloat::zero(precision~)

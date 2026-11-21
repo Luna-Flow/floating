@@ -27,8 +27,8 @@ test "IEEE 1788 set relations follow endpoint definitions" {
 ///|
 test "IEEE 1788 interior permits shared infinite endpoints" {
   let precision = 32
-  let negative_infinity = @bin_float.BinFloat::inf(Sign::Negative, precision~)
-  let positive_infinity = @bin_float.BinFloat::inf(Sign::Positive, precision~)
+  let negative_infinity = @bin_float.BinFloat::inf(negative=true, precision~)
+  let positive_infinity = @bin_float.BinFloat::inf(precision~)
   let zero = @bin_float.BinFloat::zero(precision~)
   let one = @bin_float.BinFloat::one(precision~)
   let left_half = Interval::from_bounds(negative_infinity, zero, precision~)

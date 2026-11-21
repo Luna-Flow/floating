@@ -173,7 +173,7 @@ test "from_bin_float_raw of zero, infinity and nan" {
   }
   assert_true(
     Decimal::from_bin_float_raw(
-      @bin_float.BinFloat::inf(Sign::Negative, precision=53),
+      @bin_float.BinFloat::inf(negative=true, precision=53),
       precision=16,
     ).is_infinite(),
   )

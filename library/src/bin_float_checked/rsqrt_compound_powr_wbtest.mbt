@@ -28,8 +28,8 @@ test "checked rsqrt, compound and powr map the exception flags" {
   let minus_two = value(@bin_float.BinFloat::from_int(-2))
   let snan = value(@bin_float.BinFloat::signaling_nan())
   let qnan = value(@bin_float.BinFloat::quiet_nan())
-  let inf = value(@bin_float.BinFloat::inf(@def.Sign::Positive))
-  let minus_inf = value(@bin_float.BinFloat::inf(@def.Sign::Negative))
+  let inf = value(@bin_float.BinFloat::inf())
+  let minus_inf = value(@bin_float.BinFloat::inf(negative=true))
   // rSqrt: +0 -> +inf (divideByZero), +inf -> +0, 4 -> 1/2 exactly
   assert_eq(rcp_render(zero.rsqrt()), "err:div0")
   assert_eq(rcp_render(minus_zero.rsqrt_ctx(context)), "err:div0")

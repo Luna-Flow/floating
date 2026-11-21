@@ -34,7 +34,7 @@ test "fma rounds the exact sum once" {
 ///|
 test "fma special values follow IEEE 754 and SoftFloat" {
   let context = BinaryContext::binary64()
-  let inf = BinFloat::inf(Sign::Positive)
+  let inf = BinFloat::inf()
   let zero = BinFloat::zero()
   let one = fma_value(1, 0)
   let qnan = BinFloat::nan()

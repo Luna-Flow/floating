@@ -140,8 +140,8 @@ test "integer functions: the input decoration caps the result (min-rule), NaI an
 
 ///|
 test "integer functions: unbounded boxes" {
-  let inf = @bin_float.BinFloat::inf(Sign::Positive, precision=53)
-  let ninf = @bin_float.BinFloat::inf(Sign::Negative, precision=53)
+  let inf = @bin_float.BinFloat::inf(precision=53)
+  let ninf = @bin_float.BinFloat::inf(negative=true, precision=53)
   let one = @bin_float.BinFloat::from_int(1)
   let minus_one = @bin_float.BinFloat::from_int(-1)
   let up = Interval::from_bounds(one, inf)

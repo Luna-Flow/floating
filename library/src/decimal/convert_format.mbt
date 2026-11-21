@@ -287,7 +287,10 @@ pub fn Decimal::to_bin_float_ctx(
     }
     FpClass::Infinity =>
       (
-        @bin_float.BinFloat::inf(self.sign(), precision=context.precision()),
+        @bin_float.BinFloat::inf(
+          negative=self.is_negative(),
+          precision=context.precision(),
+        ),
         @bin_float.BinaryFlags::new(),
       )
     FpClass::Finite =>
