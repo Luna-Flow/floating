@@ -763,7 +763,12 @@ fn finish_context_result(
   trim_fractional : Bool,
 ) -> (Decimal, DecimalFlags) {
   let value = finish_subset_finite_result(value, ctx, trim_fractional)
-  let flags = if !ctx.extended && value.is_zero() && flags.underflow {
+  // a zero of the subset has exponent 0, nothing was altered to fit the range:
+  // not Clamped, when it underflowed (its exponent is 0, not Etiny) and when it
+  // is exact (an operand below Etiny that cancels)
+  let flags = if !ctx.extended &&
+    value.is_zero() &&
+    (flags.underflow || !flags.inexact) {
     { ..flags, clamped: false, }
   } else {
     flags
