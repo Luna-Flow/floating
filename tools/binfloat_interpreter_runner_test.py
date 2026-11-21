@@ -273,6 +273,16 @@ class BinFloatInterpreterRunnerTests(unittest.TestCase):
         self.assertIn("TOTAL executed (reused units not included)", text)
         self.assertNotIn("30/30", text)
 
+    def test_an_interpreter_crash_is_a_failure_of_its_unit_in_an_incremental_run(self):
+        error = RuntimeError("MPFR interpreter failed (-6)")
+        payload = RUNNER.crash_payload(error, "mpfr")
+        self.assertEqual(payload["failedCases"], 1)
+        self.assertEqual(payload["frontend"], "mpfr")
+        with mock.patch.object(RUNNER, "run_mpfr_path", side_effect=error):
+            self.assertEqual(RUNNER.guarded_mpfr_path(Path("x"), 1, Path("o"), "n.json")["failedCases"], 1)
+        with mock.patch.object(RUNNER, "run_testfloat_task", side_effect=error):
+            self.assertEqual(RUNNER.guarded_testfloat_task({"function": "f"}, Path("o"), 1)["failedCases"], 1)
+
     def test_a_commit_is_shortened_with_its_dirty_mark(self):
         self.assertEqual(RUNNER.short_commit("0123456789abcdef"), "0123456789")
         self.assertEqual(RUNNER.short_commit("0123456789abcdef+dirty"), "0123456789+dirty")

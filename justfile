@@ -37,6 +37,11 @@ docs:
 gate scope jobs='':
     @python3 tools/run_ci.py {{ scope }} {{ jobs }}
 
+# The gate of a scope with incremental verification (scope: binary): units whose code, input and
+# toolchain are unchanged since a recorded run are reused and reported as reused; 2 % are rerun.
+verify scope jobs='':
+    @python3 tools/verify.py {{ scope }} {{ jobs }}
+
 # Run the fast pull-request gate.
 pr jobs='':
     @just gate quick {{ jobs }}
