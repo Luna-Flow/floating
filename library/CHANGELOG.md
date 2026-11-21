@@ -1049,7 +1049,7 @@ notes live in this file.
   | `Decimal::magnitude` | `coefficient` | same value |
   | `Decimal::from_integer`, `from_natural` (inherent methods) | `Decimal::from_bigint(n).normalized()`, or `from_bigint(n)` | the `FromInteger` and `FromNat` trait implementations stay and return `from_bigint(n).normalized()`, so trailing zeros are removed (`100` is `1E+2`); plain `from_bigint(n)` keeps exponent 0 |
   | `Decimal::normalize_ctx` | `reduce_ctx` | same operation |
-  | `Decimal::copy_abs`, `copy_negate` | `abs`, `neg` | same operations (`DecimalInterchange::copy_abs` and `copy_negate` are unchanged) |
+  | `Decimal::copy_abs`, `copy_negate` | `abs`, `neg` | same operations (`DecimalInterchange::abs` and `copy_negate` are unchanged) |
   | `Decimal::minimum_mag_ctx`, `maximum_mag_ctx`, `minimum_number_mag_ctx`, `maximum_number_mag_ctx` | `minimum_magnitude_ctx`, `maximum_magnitude_ctx`, `minimum_number_magnitude_ctx`, `maximum_number_magnitude_ctx` | same operations |
   | `Decimal::min_ctx`, `max_ctx`, `min_mag_ctx`, `max_mag_ctx` | `decimal_gda` `Decimal::min_ctx` and its siblings for the GDA operation; `minimum_number_ctx`, `maximum_number_ctx`, `minimum_number_magnitude_ctx`, `maximum_number_magnitude_ctx` for the IEEE one | not the same: a signaling NaN with a number gives the number and `invalid_operation` (GDA: a quiet NaN and `invalid_operation`), and there is no subset-mode left-operand tie rule |
   | `DecimalChecked::min`, `max` | `minimum_number`, `maximum_number` | wrappers of `minimum_number_ctx` and `maximum_number_ctx`; a signaling NaN with a number gives the number and `invalid_operation`, equal operands give either member without a total-order choice; the GDA `min` and `max` are in `decimal_gda_checked` |

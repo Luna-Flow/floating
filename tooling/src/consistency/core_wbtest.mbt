@@ -2440,10 +2440,10 @@ test "decimal interchange wrapper sign-copy operations preserve representation b
     "#FC03FF3FCFF3FCFF",
     @decimal.DecimalInterchangeFormat::Decimal64,
   ).unwrap()
-  assert_eq(finite.copy_abs().to_hex(), "#77FFFF3FCFF3FCFF")
-  assert_eq(neg_finite.copy_abs().to_hex(), "#77FFFF3FCFF3FCFF")
-  assert_eq(finite.copy_negate().to_hex(), "#F7FFFF3FCFF3FCFF")
-  assert_eq(qnan.copy_negate().to_hex(), "#7C03FF3FCFF3FCFF")
+  assert_eq(finite.abs().to_hex(), "#77FFFF3FCFF3FCFF")
+  assert_eq(neg_finite.abs().to_hex(), "#77FFFF3FCFF3FCFF")
+  assert_eq(finite.neg().to_hex(), "#F7FFFF3FCFF3FCFF")
+  assert_eq(qnan.neg().to_hex(), "#7C03FF3FCFF3FCFF")
   assert_eq(finite.copy_sign(qnan).to_hex(), "#F7FFFF3FCFF3FCFF")
   assert_false(finite.is_canonical())
   assert_true(finite.canonical().is_canonical())
@@ -2459,15 +2459,15 @@ test "decimal interchange sign transforms preserve special payload bits" {
     "#7800000000000000",
     @decimal.DecimalInterchangeFormat::Decimal64,
   ).unwrap()
-  assert_eq(neg_qnan.copy_abs().to_hex(), "#7C03FF3FCFF3FCFF")
-  assert_eq(pos_inf.copy_negate().to_hex(), "#F800000000000000")
+  assert_eq(neg_qnan.abs().to_hex(), "#7C03FF3FCFF3FCFF")
+  assert_eq(pos_inf.neg().to_hex(), "#F800000000000000")
   assert_eq(neg_qnan.copy_sign(pos_inf).to_hex(), "#7C03FF3FCFF3FCFF")
 
   let neg_qnan32 = @decimal.DecimalInterchange::from_hex(
     "#FC0049C5",
     @decimal.DecimalInterchangeFormat::Decimal32,
   ).unwrap()
-  let qnan32_abs = neg_qnan32.copy_abs().to_decimal()
+  let qnan32_abs = neg_qnan32.abs().to_decimal()
   assert_true(qnan32_abs.is_quiet_nan())
   assert_false(qnan32_abs.is_sign_minus())
   assert_eq(qnan32_abs.nan_payload(), 12345N)
@@ -2504,18 +2504,18 @@ test "decimal interchange sign transforms preserve bits across decimal32 and dec
     "#F8000000",
     @decimal.DecimalInterchangeFormat::Decimal32,
   ).unwrap()
-  assert_eq(qnan32.copy_abs().to_hex(), "#7C0049C5")
-  assert_eq(pos_inf32.copy_negate().to_hex(), "#F8000000")
-  assert_eq(neg_inf32.copy_abs().to_hex(), "#78000000")
+  assert_eq(qnan32.abs().to_hex(), "#7C0049C5")
+  assert_eq(pos_inf32.neg().to_hex(), "#F8000000")
+  assert_eq(neg_inf32.abs().to_hex(), "#78000000")
   assert_eq(qnan32.copy_sign(pos_inf32).to_hex(), "#7C0049C5")
-  let finite32_negative = finite32.copy_negate().to_decimal()
-  let qnan32_positive = qnan32.copy_abs().to_decimal()
-  let inf32_negative = pos_inf32.copy_negate().to_decimal()
+  let finite32_negative = finite32.neg().to_decimal()
+  let qnan32_positive = qnan32.abs().to_decimal()
+  let inf32_negative = pos_inf32.neg().to_decimal()
   let expected32_negative = @decimal.Decimal::from_string(
     "-9.999999E+96",
     precision=64,
   ).unwrap()
-  assert_eq(finite32.copy_negate().to_hex(), "#F7F3FCFF")
+  assert_eq(finite32.neg().to_hex(), "#F7F3FCFF")
   assert_eq(
     finite32_negative.total_order_compare(expected32_negative).to_string(),
     "0",
@@ -2542,19 +2542,16 @@ test "decimal interchange sign transforms preserve bits across decimal32 and dec
     "#F8000000000000000000000000000000",
     @decimal.DecimalInterchangeFormat::Decimal128,
   ).unwrap()
-  assert_eq(qnan128.copy_abs().to_hex(), "#7C0000000000000000000000000049C5")
-  assert_eq(
-    pos_inf128.copy_negate().to_hex(),
-    "#F8000000000000000000000000000000",
-  )
-  assert_eq(neg_inf128.copy_abs().to_hex(), "#78000000000000000000000000000000")
+  assert_eq(qnan128.abs().to_hex(), "#7C0000000000000000000000000049C5")
+  assert_eq(pos_inf128.neg().to_hex(), "#F8000000000000000000000000000000")
+  assert_eq(neg_inf128.abs().to_hex(), "#78000000000000000000000000000000")
   assert_eq(
     qnan128.copy_sign(pos_inf128).to_hex(),
     "#7C0000000000000000000000000049C5",
   )
-  let finite128_negative = finite128.copy_negate().to_decimal()
-  let qnan128_positive = qnan128.copy_abs().to_decimal()
-  let inf128_negative = pos_inf128.copy_negate().to_decimal()
+  let finite128_negative = finite128.neg().to_decimal()
+  let qnan128_positive = qnan128.abs().to_decimal()
+  let inf128_negative = pos_inf128.neg().to_decimal()
   let expected128_negative = @decimal.Decimal::from_string(
     "-9.999999999999999999999999999999999E+6144",
     precision=64,
