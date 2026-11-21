@@ -17,7 +17,10 @@ priv enum ParsedDecimal {
 
 ///|
 /// Exponents beyond this magnitude are clamped; any nonzero value that far
-/// out overflows or underflows every context.
+/// out overflows or underflows every context. The accumulation saturates before the
+/// multiplication by ten can wrap: from a tenth of the clamp upward the value is the clamp
+/// (issue #624: the test was `exponent < clamp`, and a value between `Int64::MAX / 10`
+/// and the clamp wrapped on the next digit).
 let decimal_exponent_clamp : Int64 = 1L << 60
 
 ///|
@@ -89,7 +92,9 @@ fn parse_decimal_literal(
       guard c >= '0' && c <= '9' else {
         return error("unexpected character in '" + source + "'")
       }
-      if exponent < decimal_exponent_clamp {
+      if exponent >= decimal_exponent_clamp / 10L {
+        exponent = decimal_exponent_clamp
+      } else {
         exponent = exponent * 10L + (c.to_int() - '0'.to_int()).to_int64()
       }
       index += 1
