@@ -972,9 +972,11 @@ $e_{\max}$ and $-e_{\min}$ are at most 999,999, and also for a nonzero operand
 with more than 999,999 digits or an adjusted exponent above 999,999 or below
 $-1\,999\,997$. If the certified
 evaluation cannot decide the rounding within its refinement budget the result
-is NaN with `InvalidOperation`. In a subset context, `ln` reproduces the
-result of the classic reference algorithm, which can exceed the correctly
-rounded result by one unit in the last place.
+is NaN with `InvalidOperation`. GDA 1.70 allows `ln` an inexact result up to
+one unit in the last place from the correctly rounded one (page 30); the
+library returns the correctly rounded result, in a subset context as in the
+extended arithmetic (see the
+[conformance page](../conformance/decimal_gda.md#deviations-of-the-corpus)).
 
 ### `power`
 
