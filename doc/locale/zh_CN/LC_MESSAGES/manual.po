@@ -1270,7 +1270,7 @@ msgstr "NaI 仍为 NaI，并带上上下文精度。"
 #: manual/api/frontend/itl_expr.md:263
 #: manual/api/frontend/mpfr_expr.md:524
 #: manual/api/frontend/testfloat_expr.md:361
-#: manual/api/internal/conformance.md:290
+#: manual/api/internal/conformance.md:296
 #: manual/api/numeric_expr.md:298
 #: manual/api/semantic.md:336
 msgid "Trait implementations"
@@ -1356,7 +1356,7 @@ msgstr "只使用 `ctx.precision`：操作数先用 `with_precision` 重新舍�
 #: manual/api/frontend/testfloat_expr.md:407
 #: manual/api/internal.md:506
 #: manual/api/internal/bin_kernel.md:81
-#: manual/api/internal/conformance.md:353
+#: manual/api/internal/conformance.md:359
 #: manual/api/internal/decimal_kernel.md:92
 #: manual/api/internal/runner_cli.md:209
 #: manual/api/numeric_expr.md:339
@@ -1373,7 +1373,7 @@ msgstr "完整公共接口"
 #: manual/api/frontend/testfloat_expr.md:409
 #: manual/api/internal.md:508
 #: manual/api/internal/bin_kernel.md:83
-#: manual/api/internal/conformance.md:355
+#: manual/api/internal/conformance.md:361
 #: manual/api/internal/decimal_kernel.md:94
 #: manual/api/internal/runner_cli.md:211
 #: manual/api/numeric_expr.md:341
@@ -8004,26 +8004,26 @@ msgid "These accessors return the skip counters, in total and per disposition."
 msgstr "这些访问器返回跳过计数器，包括总数和按处置类别划分的数目。"
 
 #: manual/api/internal/conformance.md:252
-msgid "`results()` returns a copy of the results in counting order; `success()` is the verdict."
-msgstr "`results()` 按计数顺序返回结果的副本；`success()` 是判定。"
+msgid "`results()` returns a copy of the results in counting order; `success()` is the verdict, and `success_with_counts` is the verdict that also states how many skipped, diagnostic, legacy and unsupported cases there must be."
+msgstr "`results()` 返回按计数顺序排列的结果副本；`success()` 是裁决，而 `success_with_counts` 是还要求给出跳过、诊断、遗留和不支持的用例各有多少个的裁决。"
 
-#: manual/api/internal/conformance.md:260
+#: manual/api/internal/conformance.md:262
 msgid "The identities"
 msgstr "以下恒等式"
 
-#: manual/api/internal/conformance.md:270
-msgid "hold for every summary built by `from_results` or `merge`. `success()` is `failed_cases() == 0`; skipped cases never make it false, and a summary with no executable case (including `merge([])`) is a success. Frontends that need a stricter verdict (`itl_expr` also fails on diagnostics) add their own rule."
-msgstr "对每个由 `from_results` 或 `merge` 构造的汇总都成立。`success()` 即 `failed_cases() == 0`；跳过的用例永远不会使其为假，没有可执行用例的汇总（包括 `merge([])`）也算成功。需要更严格判定的前端（`itl_expr` 在出现诊断时也判为失败）会添加自己的规则。"
+#: manual/api/internal/conformance.md:272
+msgid "hold for every summary built by `from_results` or `merge`. `success()` is `failed_cases() == 0`; skipped cases never make it false, and a summary with no executable case (including `merge([])`) is a success. Frontends that need a stricter verdict (`itl_expr` also fails on diagnostics) add their own rule. `success_with_counts` is `success()` and exactly the four stated counts: a corpus or phase with a known number of skipped cases uses it, so that a row that silently turns into a skipped or unsupported case fails the run instead of passing."
+msgstr "对每个由 `from_results` 或 `merge` 构造的汇总都成立。`success()` 即 `failed_cases() == 0`；跳过的用例永远不会使其为假，没有可执行用例的汇总（包括 `merge([])`）也算成功。需要更严格判定的前端（`itl_expr` 在出现诊断时也判为失败）会添加自己的规则。 `success_with_counts` 是 `success()` 再加上恰好等于所给的四个数目：已知跳过用例数的语料或阶段使用它，这样悄悄变成跳过或不支持用例的行会使运行失败，而不是通过。"
 
-#: manual/api/internal/conformance.md:292
+#: manual/api/internal/conformance.md:298
 msgid "All five types derive `Eq` and `Debug`; the promoted methods below compare all fields and render values. Use `==`, `!=` and `debug_inspect` in new code."
 msgstr "这五个类型都派生了 `Eq` 和 `Debug`；下面这些提升的方法比较所有字段并渲染值。新代码请使用 `==`、`!=` 和 `debug_inspect`。"
 
-#: manual/api/internal/conformance.md:311
+#: manual/api/internal/conformance.md:317
 msgid "Two dispositions with the same constructor and different reasons are different."
 msgstr "构造器相同但原因不同的两个处置类别是不同的。"
 
-#: manual/api/internal/conformance.md:338
+#: manual/api/internal/conformance.md:344
 msgid "Summary equality includes the order of the result list, so a merged summary equals the serial summary only in its counters, not as a value (see the [design page](../../design/internal/conformance.md))."
 msgstr "汇总的相等性包括结果列表的顺序，因此合并得到的汇总只在计数器上等于串行汇总，作为值则不相等（参见[设计页](../../design/internal/conformance.md)）。"
 
@@ -28962,6 +28962,9 @@ msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 #: manual/verification.md:751
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "`results()` returns a copy of the results in counting order; `success()` is the verdict."
+#~ msgstr "`results()` 按计数顺序返回结果的副本；`success()` 是判定。"
 
 #~ msgid "The committed smoke fixtures that `just pr` runs are subsets of these: the binary smoke, for example, has 7,467 rows (240 TestFloat vectors, 3 square-root witnesses, 120 integer-power witnesses, 2,088 elementary witnesses, 1,716 `strtofr` witnesses and 3,300 decimal output witnesses)."
 #~ msgstr "`just pr` 运行的已提交冒烟 fixture 是上述语料的子集：例如二进制冒烟测试有 7,467 行（240 个 TestFloat 向量、3 个平方根见证、120 个整数幂见证、2,088 个初等函数见证、1,716 个 `strtofr` 见证以及 3,300 个十进制输出见证）。"

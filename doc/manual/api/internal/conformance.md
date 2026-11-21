@@ -247,14 +247,16 @@ pub fn RunSummary::legacy_cases(Self) -> Int
 pub fn RunSummary::unsupported_cases(Self) -> Int
 ```
 
-### `RunSummary::results`, `RunSummary::success`
+### `RunSummary::results`, `RunSummary::success`, `RunSummary::success_with_counts`
 
 `results()` returns a copy of the results in counting order; `success()` is the
-verdict.
+verdict, and `success_with_counts` is the verdict that also states how many
+skipped, diagnostic, legacy and unsupported cases there must be.
 
 ```mbti
 pub fn RunSummary::results(Self) -> Array[CaseResult]
 pub fn RunSummary::success(Self) -> Bool
+pub fn RunSummary::success_with_counts(Self, skipped~ : Int32, diagnostic~ : Int32, legacy~ : Int32, unsupported~ : Int32) -> Bool
 ```
 
 The identities
@@ -271,6 +273,10 @@ hold for every summary built by `from_results` or `merge`. `success()` is
 `failed_cases() == 0`; skipped cases never make it false, and a summary with
 no executable case (including `merge([])`) is a success. Frontends that need
 a stricter verdict (`itl_expr` also fails on diagnostics) add their own rule.
+`success_with_counts` is `success()` and exactly the four stated counts: a
+corpus or phase with a known number of skipped cases uses it, so that a row that
+silently turns into a skipped or unsupported case fails the run instead of
+passing.
 
 ```moonbit nocheck
 ///|
@@ -410,6 +416,7 @@ pub fn RunSummary::results(Self) -> Array[CaseResult]
 pub fn RunSummary::selected_cases(Self) -> Int32
 pub fn RunSummary::skipped_cases(Self) -> Int32
 pub fn RunSummary::success(Self) -> Bool
+pub fn RunSummary::success_with_counts(Self, skipped~ : Int32, diagnostic~ : Int32, legacy~ : Int32, unsupported~ : Int32) -> Bool
 pub fn RunSummary::to_repr(Self) -> @debug.Repr
 pub fn RunSummary::total_cases(Self) -> Int32
 pub fn RunSummary::unsupported_cases(Self) -> Int32
