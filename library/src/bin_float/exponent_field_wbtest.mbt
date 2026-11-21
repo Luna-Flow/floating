@@ -87,7 +87,7 @@ test "exponent fields of 2^63 - 1 and more: from_string and from_hex without a c
 /// do not count). The long-fraction rows have small fields; zero is decided by the caller.
 fn exponent_field_is_beyond_32_bits(text : String) -> Bool {
   let mut after_p = false
-  let digits = StringBuilder::new()
+  let digits = StringBuilder()
   for ch in text {
     if after_p {
       if ch != '+' && ch != '-' && !(digits.is_empty() && ch == '0') {
