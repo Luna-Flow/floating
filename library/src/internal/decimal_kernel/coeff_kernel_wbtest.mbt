@@ -638,10 +638,13 @@ fn bigint_unit_len_reference(value : BigInt) -> Int32 {
 }
 
 ///|
-// Oracle of this block: core `BigInt` arithmetic (level B, shared primitive:
-// the conversion `dec_coeff_from_bigint_repr` / `to_bigint`, which every
-// comparison here goes through). The unit lengths are compared with
-// `bigint_unit_len_reference`, not with the function's own result.
+// oracle: B
+// source: core BigInt arithmetic (a separate implementation) on the boundary values, and the unit length from
+//   the BigInt decimal text: ceil(digits / 9), one unit for zero
+// shares: dec_coeff_from_bigint_repr and to_bigint (every comparison goes through this conversion)
+// primitives: dec_coeff_from_bigint_repr and to_bigint; their level A oracle is the BigInt text and arithmetic
+//   on literals in the other tests of this file (stated by the x-gda audit of internal/decimal_kernel, not
+//   re-verified here)
 test "optimized decimal coefficient primitives match BigInt boundaries" {
   let boundaries : Array[BigInt] = [
     0N, 1N, 2N, 9N, 10N, 99N, 999N, 1000N, 1001N, 999999N, 1000000N, 1000001N, 999999999N,

@@ -1058,15 +1058,16 @@ test "decimal context clamps zero exponent at upper cohort bound" {
 }
 
 ///|
+// oracle: A
+// source: values written out: the fold-down pads the coefficient with zeros and loses no digit, so the result
+//   is exact and no exception is raised (IEEE 754-2019 7.4 to 7.6); the flags are asserted as written
+// shares: Decimal::from_string and total_order_compare read the written expected texts
 test "decimal apply_ctx clamps finite fold-down without rounded flag" {
   let ctx = @decimal.DecimalContext::new(precision=16, e_max=384)
   let pos = @decimal.Decimal::from_string("1.23E+384", precision=32).unwrap()
   let neg_zero = @decimal.Decimal::from_string("-0E+500", precision=32).unwrap()
   let (pos_value, pos_flags) = pos.apply_ctx(ctx)
   let (neg_zero_value, neg_zero_flags) = neg_zero.apply_ctx(ctx)
-  // The fold-down pads the coefficient with zeros and loses no digit: the
-  // result is exact, nothing is rounded, no exception is raised (IEEE 754-2019
-  // 7.4 to 7.6: no overflow, underflow or inexact). Expected flags written out.
   for flags in [pos_flags, neg_zero_flags] {
     assert_false(flags.inexact())
     assert_false(flags.overflow())
@@ -4780,12 +4781,14 @@ test "ball_float division by a divisor containing zero returns whole real enclos
 }
 
 ///|
+// oracle: A, S
+// source: the bounds are compared with the written value 12 (the coefficient constructor of an exact integer
+//   must give the point interval [12, 12]); is_common_interval is a consistency check
+// shares: nothing
 test "ball_float coefficient constructor keeps exact bounded interval" {
   let value = @ball_float.BallFloat::from_coefficient(
     @bin_float.BinCoeff::from_uint64(12UL),
   ).normalized()
-  // Oracle (level A): the exact bounds 12 and 12, written out (the coefficient
-  // constructor of an exact integer must give the point interval [12, 12]).
   let twelve = @bin_float.BinFloat::from_int(12)
   assert_eq(value.lower_bound().compare(twelve), 0)
   assert_eq(value.upper_bound().compare(twelve), 0)

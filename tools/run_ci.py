@@ -156,6 +156,9 @@ DOCS_STAGE_NAME = "DOCS: manual quality and examples"
 DOCS_EXAMPLES_STAGE_NAME = "DOCS: manual examples"
 # Every checked-in row file and generated table has only legal contexts (`tools/context_rules.py`).
 CONTEXTS_STAGE_NAME = "CONTEXTS: corpus"
+# Every test block declares its oracle, or is in the debt list that can only shrink
+# (`tools/check_test_oracles.py`); the stage prints the counts by level.
+ORACLES_STAGE_NAME = "ORACLES: test declarations"
 
 # The targets whose unit tests the quick gate runs besides native. Empty: the pull-request
 # job is at the maintainer's budget, and these targets are tested by the nightly workflow
@@ -183,6 +186,7 @@ QUICK_LANES: dict[str, tuple[str, str | None]] = {
     "SMOKE: IEEE 754": ("moon", None),
     "IMPORTS: package independence": ("python", None),
     CONTEXTS_STAGE_NAME: ("python", None),
+    ORACLES_STAGE_NAME: ("python", None),
     "DOCS: manual quality": ("python", None),
     "TEST: Python tooling": ("python", None),
     "SMOKE: DecimalGDA": ("conformance", DOCS_EXAMPLES_STAGE_NAME),
@@ -368,6 +372,10 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
         Stage(
             CONTEXTS_STAGE_NAME,
             (sys.executable, "tools/check_corpus_contexts.py"),
+        ),
+        Stage(
+            ORACLES_STAGE_NAME,
+            (sys.executable, "tools/check_test_oracles.py"),
         ),
         Stage(
             "FORMAT: MoonBit sources",

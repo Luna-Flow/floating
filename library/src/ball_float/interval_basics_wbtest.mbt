@@ -99,16 +99,12 @@ fn sqrt_check(
 }
 
 ///|
-// Oracle (level A): the endpoint values are written out. Exact roots
-// (1, 2, 3, 4, 1/2, 3/2) are integers or dyadic fractions. The directed
-// bounds of the irrational roots, RD(sqrt(2)), RU(sqrt(3)), RD/RU(sqrt(5/2)),
-// are integers (the p-bit coefficient c with value c * 2^-(p-1)) computed
-// outside this repository by Python 3 `math.isqrt` on exact integers, as the
-// floor of sqrt(v * 2^(2k)) and floor + 1 (the roots are irrational, so the
-// upward bound is floor + 1): c = isqrt(v << 2(p-1)) for v in {2, 3, 5/2}.
-// This library did not produce any of them. This test replaces a comparison of
-// `sqrt` with a copy that made the same call (`old_sqrt_interval`), which
-// could not fail.
+// oracle: A
+// source: endpoint values written out: exact roots (1, 2, 3, 4, 1/2, 3/2) and the directed bounds of the
+//   irrational roots of 2, 3 and 5/2 at 24 and 128 bits as p-bit integers computed outside this repository
+//   by Python 3 math.isqrt on exact integers (floor, and floor + 1 for an irrational root); this library
+//   produced none of them
+// shares: nothing
 test "interval basics: sqrt endpoints are the directed square roots" {
   for precision in [24, 128] {
     // exact squares, both ends

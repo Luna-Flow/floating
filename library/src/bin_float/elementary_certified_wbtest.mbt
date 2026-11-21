@@ -535,16 +535,14 @@ fn certified_rounding_endpoint(coefficient : UInt64) -> BinFloat {
 }
 
 ///|
-// Oracle (level A): expected values written out from arithmetic on the grid of
-// a 3-bit significand in [1, 2), whose spacing is 2^-2: the representable
-// numbers there are 1, 1.25, 1.5, 1.75. The endpoints are k/16:
-// 16/16 = 1, 17/16 = 1.0625, 18/16 = 1.125 (the midpoint of 1 and 1.25: ties
-// to even gives 1), 19/16 = 1.1875. The rule under test is that of
-// `binary_certified_target_rounding`: the witness is unique only if both
-// endpoints round to the same value with the same flags. Nothing is computed
-// by the library except the call under test and the endpoints' `make`.
-// (These blocks replace tests of a local copy of the function in
-// `ball_float/certified_rounding_wbtest.mbt`, which ignored the flags.)
+// oracle: A
+// source: expected values written out from arithmetic on the grid of a 3-bit significand in [1, 2), spacing
+//   2^-2 (1, 1.25, 1.5, 1.75); the endpoints are k/16 (17/16 and 18/16 round to 1, 18/16 is the midpoint of
+//   1 and 1.25 and ties to even; 19/16 rounds to 1.25); the rule under test is that a witness is unique only
+//   if both endpoints round to the same value with the same flags
+// shares: nothing (only the call under test and BinFloat::make for the endpoints)
+// (These blocks replace tests of a local copy of the function in ball_float/certified_rounding_wbtest.mbt,
+// which ignored the flags.)
 test "certified target rounding accepts one rounded value with equal flags" {
   let context = BinaryContext::new(precision=3)
   // 17/16 and 18/16 both round to 1, both inexact
@@ -574,6 +572,11 @@ test "certified target rounding accepts one rounded value with equal flags" {
 }
 
 ///|
+// oracle: A
+// source: values written out on the 3-bit grid of the block above: 17/16 and 19/16 lie strictly between 1 and
+//   1.25 and are inexact, so downward both give 1 and upward both give 1.25; 16/16 is exact and 17/16 is not, so
+//   the flags differ in either direction
+// shares: nothing (only the call under test and BinFloat::make for the endpoints)
 test "certified target rounding respects directed modes" {
   let downward = BinaryContext::new(
     precision=3,

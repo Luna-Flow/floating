@@ -133,15 +133,12 @@ fn point_pair_end(
 }
 
 ///|
-// Oracle (level A): the four endpoint values are written out. They are the
-// directed roundings to 53 bits of exp(3), exp(3 + 2^-40), ln(3) and
-// ln(3 + 2^-40), computed outside this repository with Python 3's `decimal`
-// module (libmpdec, correctly rounded) at 120 digits and then rounded down
-// (for the lower end) and up (for the upper end) to 53 bits on exact
-// fractions; the values are irrational, so the upward bound is the floor plus
-// one unit. This library did not produce them. This test replaces a
-// comparison of the two-end route with a copy of itself (`ball_exp_two_calls`
-// and `ball_ln_two_calls`), which could only detect a wrong branch.
+// oracle: A
+// source: the four endpoint values written out: the directed 53-bit roundings of exp(3), exp(3 + 2^-40),
+//   ln(3) and ln(3 + 2^-40), computed with Python 3 decimal (libmpdec, correctly rounded) at 120 digits and
+//   rounded down (lower end) and up (upper end) on exact fractions; the values are irrational, so the upward
+//   bound is the floor plus one unit; this library did not produce them
+// shares: nothing
 test "exp and ln of a ball with two ends are the directed bounds of the ends" {
   let a = @bin_float.BinFloat::from_int(3, precision=53)
   let b = a.add(@bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -40, 53))

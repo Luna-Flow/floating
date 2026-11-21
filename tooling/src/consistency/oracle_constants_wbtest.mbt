@@ -18,6 +18,11 @@
 //   the reference implementation's Context).
 
 ///|
+// oracle: A
+// source: the numbers are written out from the decisions that fix them (IEEE 754-2019 3.3 emin = 1 - emax and
+//   3.7; the library's implementation limits 2^30 - 1, 2^28 and 999,999,999 are decisions of the library),
+//   not read from the library; tools/oracle_constants_test.py ties the oracle programs to the same numbers
+// shares: nothing
 test "the library limits equal the numbers written in the oracle programs" {
   assert_eq(@bin_float.binary_implementation_e_max, 1073741823)
   assert_eq(@bin_float.binary_implementation_e_min, -1073741822)
