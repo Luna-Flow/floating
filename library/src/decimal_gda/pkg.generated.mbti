@@ -161,9 +161,7 @@ pub fn Decimal::is_signed(Self) -> Bool
 pub fn Decimal::is_snan(Self) -> Bool
 pub fn Decimal::is_zero(Self) -> Bool
 pub fn Decimal::make(@bigint.BigInt, Int32, Int32, mode? : GdaRoundingMode) -> Self
-pub fn Decimal::max(Self, Self) -> Self
 pub fn Decimal::max_finite_contextual(@arithmetic.ArithmeticContext) -> Self
-pub fn Decimal::min(Self, Self) -> Self
 pub fn Decimal::min_normal_contextual(@arithmetic.ArithmeticContext) -> Self
 pub fn Decimal::mul(Self, Self) -> Self
 pub fn Decimal::mul_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]

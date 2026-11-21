@@ -1245,20 +1245,18 @@ They agree with the package functions
 [`compare_total`, `compare_total_magnitude`](#compare-compare_signal-compare_total-compare_total_magnitude)
 (without subset operand rounding).
 
-### `Decimal::min`, `Decimal::max`, `Decimal::clamp`, `Decimal::clamp_checked`
+### `Decimal::clamp`, `Decimal::clamp_checked`
 
-These select between values without rounding.
+These select between values without rounding. The GDA operations `min` and
+`max` are the free functions `min` and `max` of the package, which take a
+`GdaContext` and return a `GdaOutcome`; there are no methods of those names.
 
 ```mbti
-pub fn Decimal::min(Self, Self) -> Self
-pub fn Decimal::max(Self, Self) -> Self
 pub fn Decimal::clamp(Self, min~ : Self, max~ : Self) -> Self
 pub fn Decimal::clamp_checked(Self, min~ : Self, max~ : Self) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
-`min` and `max` return the other operand when one is a quiet NaN, the first
-NaN (quieted) when a signaling NaN is involved or both are NaN, and the
-receiver when the two compare equal. `clamp` returns `min` or `max` when the
+`clamp` returns `min` or `max` when the
 value lies outside $[\min, \max]$ and the value otherwise (a NaN value is
 returned unchanged); it aborts when a bound is NaN or `min > max`, where
 `clamp_checked` returns `Err(domain_error)`.
@@ -1818,9 +1816,7 @@ pub fn Decimal::is_signed(Self) -> Bool
 pub fn Decimal::is_snan(Self) -> Bool
 pub fn Decimal::is_zero(Self) -> Bool
 pub fn Decimal::make(@bigint.BigInt, Int32, Int32, mode? : GdaRoundingMode) -> Self
-pub fn Decimal::max(Self, Self) -> Self
 pub fn Decimal::max_finite_contextual(@arithmetic.ArithmeticContext) -> Self
-pub fn Decimal::min(Self, Self) -> Self
 pub fn Decimal::min_normal_contextual(@arithmetic.ArithmeticContext) -> Self
 pub fn Decimal::mul(Self, Self) -> Self
 pub fn Decimal::mul_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]

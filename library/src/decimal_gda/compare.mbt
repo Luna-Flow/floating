@@ -1,22 +1,6 @@
 ///|
 // Public comparison and ordering APIs.
 
-fn plain_minmax_nan_result(lhs : Decimal, rhs : Decimal) -> Decimal? {
-  match quiet_nan_pair_plain(lhs, rhs) {
-    Some(value) =>
-      if lhs.is_snan() || rhs.is_snan() {
-        Some(value)
-      } else if lhs.is_nan() && rhs.is_nan() {
-        Some(value)
-      } else if lhs.is_nan() {
-        Some(rhs)
-      } else {
-        Some(lhs)
-      }
-    None => None
-  }
-}
-
 ///|
 fn compare_same_adjusted_magnitude(
   a : Decimal,
@@ -245,22 +229,6 @@ pub fn Decimal::compare_total_magnitude(
   other : Decimal,
 ) -> Int32 {
   { ..self, negative: false, }.compare_total({ ..other, negative: false, })
-}
-
-///|
-pub fn Decimal::min(self : Decimal, other : Decimal) -> Decimal {
-  match plain_minmax_nan_result(self, other) {
-    Some(result) => result
-    None => if self.compare(other) <= 0 { self } else { other }
-  }
-}
-
-///|
-pub fn Decimal::max(self : Decimal, other : Decimal) -> Decimal {
-  match plain_minmax_nan_result(self, other) {
-    Some(result) => result
-    None => if self.compare(other) >= 0 { self } else { other }
-  }
 }
 
 ///|
