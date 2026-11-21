@@ -648,6 +648,17 @@ notes live in this file.
   | `x.max(y)` | `max(x, y, ctx).value()` | likewise |
   | `x.min(y)` where no rounding is wanted | `min(x, y, ctx)` with a `GdaContext` wide enough for the operands | the methods did not round |
 
+- `decimal` and `decimal_checked`: `Decimal::next_toward_ctx` and `DecimalChecked::next_toward` are removed ([#438](https://github.com/Luna-Flow/floating/issues/438), item A7: `decimal` exports the IEEE 754-2019 operations only). It is the `next-toward` operation of GDA 1.70; the word nextToward does not occur in IEEE 754-2019, whose 5.3.1 defines nextUp and nextDown only. `decimal_gda` keeps `next_toward` and its decTest corpus. The replacement follows the definition of GDA 1.70 (next-toward, page 34): if the first operand is smaller than the second the result is next-plus of the first, if larger next-minus, and if the two are numerically equal a copy of the first operand with the sign of the second, with no flags.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `x.next_toward_ctx(y, ctx)` with `x < y` | `x.next_up_ctx(ctx)` | the neighbour above |
+  | `x.next_toward_ctx(y, ctx)` with `x > y` | `x.next_down_ctx(ctx)` | the neighbour below |
+  | `x.next_toward_ctx(y, ctx)` with `x == y` (the same value) | `x.copy_sign(y)` | GDA: a copy of `x` with the sign of `y`, no flags |
+  | `x.next_toward_ctx(y, ctx)` with a NaN operand | test `x.is_nan()` and `y.is_nan()` first | the quiet-NaN rule of the general operations; `next_up_ctx` and `next_down_ctx` propagate a NaN `x` |
+  | the flags `overflow`/`inexact` (result infinite) and `underflow`/`inexact` (result subnormal or zero) that `next_toward_ctx` raised by the nextafter rule of ISO C | none: `next_up_ctx` and `next_down_ctx` raise no flag for a finite result | or call `next_toward` of `decimal_gda` for the GDA operation |
+  | `p.next_toward(q)` on `DecimalChecked` | `p.next_up()` or `p.next_down()` chosen as above | |
+
 ### Fixed
 
 - `ball_float`: `BallFloat::from_string` orders two hexadecimal bounds exactly at any exponent ([#663](https://github.com/Luna-Flow/floating/issues/663)). A pair of hexadecimal bounds that differ by less than one unit of the smallest subnormal at 64 bits or more (`[0x1p-1073741885, 0x1p-1073741886]` at precision 64) was left undecided (12.12.7 case (b)) and accepted as an interval that contains both; the documented contract is that only two bounds of different radices stay undecided, and now the pair is the error `l <= u` requires. The literal oracle table has 9,919 rows now, with exponent fields of 19 to 40 digits at five precisions and the edges of the exponent range.

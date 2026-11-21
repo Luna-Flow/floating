@@ -63,7 +63,6 @@ pub fn DecimalChecked::maximum_number(Self, Self) -> Self
 pub fn DecimalChecked::minimum_number(Self, Self) -> Self
 pub fn DecimalChecked::mul(Self, Self) -> Self
 pub fn DecimalChecked::next_down(Self) -> Self
-pub fn DecimalChecked::next_toward(Self, Self) -> Self
 pub fn DecimalChecked::next_up(Self) -> Self
 pub fn DecimalChecked::parse(String, @decimal.DecimalContext) -> Self
 pub fn DecimalChecked::pow(Self, Self) -> Self

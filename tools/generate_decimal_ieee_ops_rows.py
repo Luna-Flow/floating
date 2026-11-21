@@ -44,7 +44,7 @@ ROUNDINGS = {
 # decimal32 and decimal64 the interchange formats.
 FORMATS = [(1, 3), (2, 3), (3, 2), (3, 5), (5, 9), (9, 10), (7, 96), (16, 384)]
 UNARY = ["next_up", "next_down", "logb", "sqrt", "to_integral_exact", "to_integral_value", "nan_payload"]
-BINARY = ["add", "subtract", "multiply", "divide", "next_toward", "remainder", "quantize", "scaleb"]
+BINARY = ["add", "subtract", "multiply", "divide", "remainder", "quantize", "scaleb"]
 TERNARY = ["fma"]
 # sqrt is not directed here: Python `decimal` always rounds sqrt half-even, while
 # IEEE 754-2019 5.4.1 rounds it with the attribute; the rounded half-even rows stay.
@@ -86,25 +86,6 @@ def flags_text(ctx: decimal.Context) -> str:
     return "".join(c if ctx.flags[s] else "." for s, c in names)
 
 
-def next_toward_flags(a: decimal.Decimal, b: decimal.Decimal, r: decimal.Decimal, emin: int) -> str | None:
-    """The flags of `next_toward` by the nextafter rule of IEEE 754-1985 and of ISO C
-    (`nextafter`, Annex F): overflow and inexact when `a` is finite and the result is
-    infinite; underflow and inexact when the result is subnormal or zero and `a` differs
-    from `b`; otherwise no exception. IEEE 754-2019 has no nextToward (5.3.1 defines
-    nextUp and nextDown only, both quiet). CPython raises its own set of flags here, so
-    its flags are not the oracle for this operation. `None` for a NaN operand: the flags
-    of Python (invalid for a signaling NaN) are kept."""
-    if a.is_nan() or b.is_nan():
-        return None
-    if a == b or a.is_infinite():
-        return "....."
-    if r.is_infinite():
-        return "x.o.."
-    if r.is_zero() or r.adjusted() < emin:
-        return "xu..."
-    return "....."
-
-
 def evaluate(op: str, p: int, emax: int, mode: str, args: list[str]) -> tuple[str, str] | None:
     ctx = decimal.Context(prec=p, rounding=ROUNDINGS[mode], Emin=1 - emax, Emax=emax, clamp=1, traps=[], flags=[])
     a = [decimal.Decimal(x) for x in args]
@@ -112,7 +93,6 @@ def evaluate(op: str, p: int, emax: int, mode: str, args: list[str]) -> tuple[st
     try:
         if op == "next_up": r = ctx.next_plus(a[0])
         elif op == "next_down": r = ctx.next_minus(a[0])
-        elif op == "next_toward": r = ctx.next_toward(a[0], a[1])
         elif op == "logb": r = ctx.logb(a[0])
         elif op == "scaleb": r = ctx.scaleb(a[0], a[1])
         elif op == "remainder": r = ctx.remainder_near(a[0], a[1])
@@ -129,10 +109,6 @@ def evaluate(op: str, p: int, emax: int, mode: str, args: list[str]) -> tuple[st
         else: return None
     except Exception:  # decimal raises for unsupported operands only
         return None
-    if op == "next_toward":
-        flags = next_toward_flags(a[0], a[1], r, 1 - emax)
-        if flags is not None:
-            return str(r), flags
     return str(r), flags_text(ctx)
 
 
@@ -180,19 +156,21 @@ def build() -> list[tuple]:
     return sample(rows)
 
 
-SAMPLE_TARGET = 8000
+# Rows kept per operation (the sampling stride of each operation follows from it,
+# so removing an operation from the table does not change the rows of the others).
+ROWS_PER_OPERATION = 500
 
 
 def sample(rows: list[tuple]) -> list[tuple]:
     """Keep every k-th row of each operation so the table fits the quick gate.
 
     The full table (about 42,000 rows) passes as well; run it by setting
-    `SAMPLE_TARGET` to a large number.
+    `ROWS_PER_OPERATION` to a large number.
     """
     by_op: dict[str, list[tuple]] = {}
     for row in rows:
         by_op.setdefault(row[0], []).append(row)
-    per_op = max(1, SAMPLE_TARGET // len(by_op))
+    per_op = ROWS_PER_OPERATION
     out: list[tuple] = []
     for op_rows in by_op.values():
         stride = max(1, len(op_rows) // per_op)

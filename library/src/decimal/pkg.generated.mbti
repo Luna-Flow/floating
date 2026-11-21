@@ -152,7 +152,6 @@ pub fn Decimal::nan_payload(Self) -> @bigint.BigInt
 pub fn Decimal::neg(Self) -> Self
 pub fn Decimal::negative_zero(precision? : Int32) -> Self
 pub fn Decimal::next_down_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::next_toward_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::next_up_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::normalized(Self) -> Self
 pub fn Decimal::not_equal(Self, Self) -> Bool

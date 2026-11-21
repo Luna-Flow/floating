@@ -1221,25 +1221,22 @@ integer `Decimal`; $\operatorname{logb}(\pm 0) = -\infty$ with
 
 ## Adjacent values
 
-### `Decimal::next_up_ctx`, `next_down_ctx`, `next_toward_ctx`
+### `Decimal::next_up_ctx`, `next_down_ctx`
 
 These functions return the neighbouring representable values.
 
 ```mbti
 pub fn Decimal::next_up_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::next_down_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::next_toward_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
 `next_up_ctx` is the smallest representable value greater than `x` in the
 context and `next_down_ctx` the largest smaller one, including subnormals down to
 $10^{E_{\text{tiny}}}$ and the largest finite value
 $(10^{p}-1)\,10^{e_{\max}-p+1}$; `next_up_ctx(-∞)` is the most negative finite
-value. They raise no flags for finite results. `next_toward_ctx(x, y)` moves `x`
-one step toward `y`; when $x = y$ it returns `x` with the sign of `y` for
-zeros. A step of `next_toward_ctx` that ends in an infinity raises `overflow`
-and `inexact`; one that ends subnormal or zero raises `underflow`
-and `inexact`.
+value. They raise no flags for finite results. IEEE 754-2019 5.3.1 defines nextUp
+and nextDown only: the `next-toward` operation of GDA 1.70 is `next_toward` of
+`decimal_gda`, and there is no `next_toward_ctx` in this package.
 
 ```moonbit
 ///|
@@ -2520,7 +2517,6 @@ pub fn Decimal::nan_payload(Self) -> @bigint.BigInt
 pub fn Decimal::neg(Self) -> Self
 pub fn Decimal::negative_zero(precision? : Int32) -> Self
 pub fn Decimal::next_down_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
-pub fn Decimal::next_toward_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::next_up_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::normalized(Self) -> Self
 pub fn Decimal::not_equal(Self, Self) -> Bool

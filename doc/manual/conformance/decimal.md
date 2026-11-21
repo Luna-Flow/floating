@@ -75,8 +75,6 @@ IEEE Std 754-2019 for `decimal` (decimal32/64/128 and arbitrary precision). Stat
 | §9.6 minimum and maximum, eight variants | recommended | `minimum_ctx`, `minimum_number_ctx`, `maximum_ctx`, `maximum_number_ctx` and the `*_magnitude_ctx` forms | `library/src/decimal/extrema_ieee_wbtest.mbt` | conforming |
 | §9.7 NaN payload operations | recommended | `get_payload`, `set_payload`, `set_payload_signaling` | `library/src/decimal/nan_payload_issue151_152_wbtest.mbt` | conforming |
 
-`next_toward_ctx` is not part of IEEE 754-2019 (the word nextToward does not occur in the text of the standard); it is the `next-toward` operation of the General Decimal Arithmetic specification, offered in this package as an extension and not counted in any row above.
-
 ## Targets
 
 `just gate decimal` runs native, Wasm, Wasm-GC, and JavaScript. LLVM is excluded because the required local artifacts are not part of the repository. Target-specific coefficient dispatch must not change value, encoding, or flags.
