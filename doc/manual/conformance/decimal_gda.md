@@ -92,8 +92,12 @@ not have.
 A passing corpus is a finite claim. Review of the implementation found these
 behaviours, none of which has a pinned row:
 
-- Integer `power` is accurate to about 0.55 units in the last place (0.6 for
-  negative exponents), not correctly rounded, as the specification allows.
+- Integer `power` is not correctly rounded, as the specification allows. In
+  the nearest rounding modes the result is within about 0.55 units in the last
+  place of the exact value (0.6 for negative exponents). In the directed modes
+  it is within one unit in the last place of the correctly rounded result, and
+  up to 1.03 units from the exact value (measured on 8,320 random cases in
+  both arithmetics against Python `decimal`; no case at two or more units).
 - An exponent of `power` with more than nine digits is not computed: the
   result is NaN with Invalid operation, the limit of the decNumber design (the
   specification states none). Python `decimal` (libmpdec) and the IEEE `decimal`
