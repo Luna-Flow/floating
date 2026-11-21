@@ -224,6 +224,59 @@ class BinFloatInterpreterRunnerTests(unittest.TestCase):
             spec = manifest["mpfrCorpora"][name]
             self.assertEqual(smoke_paths[spec["path"]], cases, name)
 
+    def test_chunk_merge_collects_the_arms_of_every_chunk_once(self):
+        task = {"function": "f16_mul"}
+        aggregate = {
+            "totalCases": 0, "selectedCases": 0, "passedCases": 0, "failedCases": 0,
+            "failedIds": [], "chunks": 0, "arms": [],
+        }
+        payload = {"totalCases": 1, "selectedCases": 1, "passedCases": 1, "failedCases": 0, "failedIds": [], "arms": ["mul"]}
+        RUNNER.merge_testfloat_chunk(aggregate, payload, task, 0, 1)
+        RUNNER.merge_testfloat_chunk(aggregate, payload, task, 1, 1)
+        self.assertEqual(aggregate["arms"], ["mul"])
+
+    def test_testfloat_unit_names_the_generator_and_the_interpreter_arguments(self):
+        task = {
+            "function": "f16_add", "operation": "add", "rounding": "rnear_even",
+            "tininess": "after", "exact": False, "level": 1, "seed": 1,
+        }
+        unit = RUNNER.testfloat_unit(task, "abc")
+        self.assertEqual(unit.frontend, "testfloat")
+        self.assertIn("testfloat_gen:abc:", unit.input_id)
+        self.assertIn("-level 1 -seed 1", unit.input_id)
+        self.assertIn("--function f16_add", unit.args)
+        self.assertNotIn(str(RUNNER.TESTFLOAT_INTERPRETER), unit.args)
+        other = RUNNER.testfloat_unit({**task, "rounding": "rmax"}, "abc")
+        self.assertNotEqual((unit.input_id, unit.args), (other.input_id, other.args))
+
+    def test_the_incremental_report_separates_executed_from_reused_units(self):
+        import contextlib
+        import io
+
+        passed = {"passedCases": 10, "totalCases": 10, "failedCases": 0}
+        outcomes = [
+            RUNNER.incremental.Outcome("a", "ran", dict(passed)),
+            RUNNER.incremental.Outcome("b", "reused", dict(passed), "c0ffee"),
+            RUNNER.incremental.Outcome("c", "sampled", dict(passed), "c0ffee"),
+        ]
+        report = {
+            "testfloat": {"tasks": [], "passedCases": 30, "totalCases": 30, "failedCases": 0},
+            "mpfr": [],
+            "summary": {"passedCases": 30, "totalCases": 30, "failedCases": 0, "failedIds": [], "elapsedSeconds": 1.0},
+        }
+        buffer = io.StringIO()
+        with contextlib.redirect_stdout(buffer):
+            RUNNER.print_text(report, outcomes)
+        text = buffer.getvalue()
+        self.assertIn("reused, not executed", text)
+        self.assertIn("20/20 passed", text)  # the total counts what was executed (ran + sampled)
+        self.assertIn("TOTAL executed (reused units not included)", text)
+        self.assertNotIn("30/30", text)
+
+    def test_a_commit_is_shortened_with_its_dirty_mark(self):
+        self.assertEqual(RUNNER.short_commit("0123456789abcdef"), "0123456789")
+        self.assertEqual(RUNNER.short_commit("0123456789abcdef+dirty"), "0123456789+dirty")
+
 
 if __name__ == "__main__":
     unittest.main()

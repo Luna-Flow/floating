@@ -8,10 +8,12 @@ import subprocess
 import sys
 import tempfile
 import time
+from collections.abc import Sequence
 from pathlib import Path
 
 import fetch_binfloat_corpora
-from conformance_cli import build_backend, executable_path
+import incremental
+from conformance_cli import CLI_C_FILE, build_backend, executable_path
 from conformance_runtime import ensure_available, ordered_parallel_map
 from conformance_ui import Console, Progress, SummaryRow, print_summary
 
@@ -292,6 +294,12 @@ def merge_testfloat_chunk(
         remap_failed_ids(task, payload["failedIds"], case_offset)
     )
     aggregate["chunks"] += 1
+    for arm in payload.get("arms", []):
+        if arm not in aggregate["arms"]:
+            aggregate["arms"].append(arm)
+    if aggregate.get("frontend") not in (None, payload.get("frontend")):
+        raise RuntimeError(f"chunks of {task_name(task)} ran in different frontends")
+    aggregate["frontend"] = payload.get("frontend", aggregate.get("frontend"))
 
 
 def run_testfloat_chunk(task: dict, vector_path: Path) -> dict:
@@ -330,6 +338,8 @@ def run_testfloat_task(task: dict, output: Path, chunk_cases: int) -> dict:
         "failedCases": 0,
         "failedIds": [],
         "chunks": 0,
+        "arms": [],
+        "frontend": None,
     }
     generator = subprocess.Popen(
         testfloat_generator_command(task),
@@ -498,6 +508,117 @@ def run_smoke(
     return tasks, mpfr_results
 
 
+def incremental_environment(args: argparse.Namespace, output: Path) -> incremental.Environment | None:
+    """The environment of an incremental run, or None (run everything, record nothing) with the
+    reason printed. No error while forming keys crashes the gate or leads to a reuse."""
+    executables = [TESTFLOAT_INTERPRETER] + ([] if args.skip_mpfr else [MPFR_INTERPRETER])
+    if not CLI_C_FILE.is_file():
+        print(f"incremental disabled: {CLI_C_FILE} does not exist (build first)")
+        return None
+    try:
+        with tempfile.TemporaryDirectory(prefix="incremental-dry-run-") as dry_run_dir:
+            # outside the checkout: the commands then name only sources of the repository as `./...`
+            context = incremental.load_context(REPO_ROOT, CLI_C_FILE, Path(dry_run_dir) / "t", executables)
+    except incremental.KeysUnavailable as error:
+        print(f"incremental disabled: {error}")
+        return None
+    if context.problems:
+        print("incremental disabled: " + "; ".join(context.problems))
+        return None
+    for warning in context.builder.warnings:
+        print(f"incremental: {warning}")
+    commit, dirty = incremental.git_head(REPO_ROOT)
+    seed = args.sample_seed if args.sample_seed is not None else int.from_bytes(os.urandom(4), "big")
+    ledger = incremental.Ledger(args.ledger or incremental.ledger_path(REPO_ROOT))
+    return incremental.Environment(ledger, context.builder, commit, dirty, str(output), seed, rate=args.sample_rate)
+
+
+def testfloat_unit(task: dict, generator_hash: str) -> incremental.UnitSpec:
+    generator = " ".join(testfloat_generator_command(task)[1:])
+    return incremental.UnitSpec(
+        task_name(task),
+        "testfloat",
+        f"testfloat_gen:{generator_hash}:{generator}",
+        " ".join(testfloat_interpreter_command(task, Path("VECTORS"))[1:]),
+    )
+
+
+def mpfr_corpora(manifest: dict) -> list[tuple[Path, int, str]]:
+    """The MPFR corpus files: (path, expected rows, output name), checked against the manifest."""
+    spec = manifest["artifacts"]["mpfr-4.2.2-sqrt"]
+    corpora = [(repo_path(spec["destination"]), spec["expectedExecutableRows"], "mpfr-4.2.2-sqrt.json")]
+    for name, local_spec in manifest.get("mpfrCorpora", {}).items():
+        path = repo_path(local_spec["path"])
+        if not path.is_file() or sha256(path) != local_spec["sha256"]:
+            raise RuntimeError(f"local MPFR corpus hash mismatch: {name}")
+        corpora.append((path, local_spec["expectedCases"], f"{name}.json"))
+    return corpora
+
+
+def run_incremental(
+    args: argparse.Namespace, manifest: dict, tasks: list[dict], output: Path, environment: incremental.Environment
+) -> tuple[list[dict], list[dict], list[incremental.Outcome], incremental.Tally]:
+    """TestFloat tasks and MPFR files as verification units; returns the payloads in plan order."""
+    generator_hash = incremental.file_digest(TESTFLOAT_EXECUTABLE)
+    by_name = {task_name(task): task for task in tasks}
+    units = [testfloat_unit(task, generator_hash) for task in tasks]
+
+    def run_tasks(selected: Sequence[incremental.UnitSpec]) -> list[dict]:
+        progress = Progress(f"binary/TestFloat level {args.level}", len(selected), Console())
+        results = ordered_parallel_map(
+            [by_name[unit.name] for unit in selected],
+            args.jobs,
+            lambda task: run_testfloat_task(task, output, args.chunk_cases),
+            progress,
+            lambda task: task["function"],
+        )
+        progress.finish(not any(task["failedCases"] != 0 for task in results))
+        return results
+
+    outcomes, tally = incremental.run_units(units, environment, run_tasks)
+    task_results = [{**by_name[o.unit], **o.payload} for o in outcomes]
+    mpfr_results: list[dict] = []
+    if not args.skip_mpfr:
+        corpora = {out_name: (path, rows) for path, rows, out_name in mpfr_corpora(manifest)}
+        mpfr_units = [
+            incremental.UnitSpec(name, "mpfr", f"sha256:{sha256(path)}:rows={rows}", "--backend mpfr --json")
+            for name, (path, rows) in corpora.items()
+        ]
+
+        def run_files(selected: Sequence[incremental.UnitSpec]) -> list[dict]:
+            return [run_mpfr_path(corpora[u.name][0], corpora[u.name][1], output, u.name) for u in selected]
+
+        try:
+            mpfr_outcomes, mpfr_tally = incremental.run_units(mpfr_units, environment, run_files)
+        except incremental.KeysUnavailable as error:
+            print(f"incremental disabled for the MPFR files: {error}")
+            mpfr_outcomes = [
+                incremental.Outcome(name, "ran", payload, note="keys unavailable")
+                for name, payload in zip(corpora, run_files(mpfr_units))
+            ]
+            mpfr_tally = incremental.Tally(ran=len(mpfr_outcomes))
+        mpfr_results = [o.payload for o in mpfr_outcomes]
+        outcomes += mpfr_outcomes
+        for field in ("ran", "reused", "sampled", "failed", "unrecorded", "sampled_differing"):
+            setattr(tally, field, getattr(tally, field) + getattr(mpfr_tally, field))
+    return task_results, mpfr_results, outcomes, tally
+
+
+def short_commit(commit: str) -> str:
+    """The first ten characters of the hash, with the `+dirty` mark kept."""
+    return commit[:10] + ("+dirty" if commit.endswith("+dirty") else "")
+
+
+def print_incremental(outcomes: Sequence[incremental.Outcome], tally: incremental.Tally, seed: int) -> None:
+    """The incremental report: every reused or sampled unit says so, with the commit it ran on."""
+    for outcome in outcomes:
+        if outcome.status != "ran":
+            print(f"{outcome.status:<18} {outcome.unit}  (recorded on {short_commit(str(outcome.commit))})")
+        elif outcome.note:
+            print(f"ran                {outcome.unit}  ({outcome.note})")
+    print(incremental.summary_line(tally, seed, incremental.reused_by_commit(outcomes)))
+
+
 def aggregate(tasks: list[dict], mpfr: list[dict], elapsed: float) -> dict:
     failed_ids = []
     for task in tasks:
@@ -530,36 +651,66 @@ def aggregate(tasks: list[dict], mpfr: list[dict], elapsed: float) -> dict:
     }
 
 
-def print_text(report: dict) -> None:
+def print_text(report: dict, outcomes: Sequence[incremental.Outcome] | None = None) -> None:
+    """The report. With `outcomes` (an incremental run) the rows are split by how a unit was
+    verified, and the TOTAL counts only what was executed in this run."""
     testfloat = report["testfloat"]
-    rows = [
-        SummaryRow(
-            "TestFloat 3e",
-            testfloat["passedCases"],
-            testfloat["totalCases"],
-            testfloat["failedCases"],
-            f"{len(testfloat['tasks'])} tasks",
-        )
-    ]
-    rows.extend(
-        SummaryRow(
-            mpfr["corpus"],
-            mpfr["passedCases"],
-            mpfr["totalCases"],
-            mpfr["failedCases"],
-        )
-        for mpfr in report["mpfr"]
-    )
     summary = report["summary"]
+    if outcomes is None:
+        rows = [
+            SummaryRow(
+                "TestFloat 3e",
+                testfloat["passedCases"],
+                testfloat["totalCases"],
+                testfloat["failedCases"],
+                f"{len(testfloat['tasks'])} tasks",
+            )
+        ]
+        rows.extend(
+            SummaryRow(
+                mpfr["corpus"],
+                mpfr["passedCases"],
+                mpfr["totalCases"],
+                mpfr["failedCases"],
+            )
+            for mpfr in report["mpfr"]
+        )
+        print_summary(
+            "BINARY: TestFloat + MPFR",
+            "Berkeley TestFloat 3e, GNU MPFR 4.2.2",
+            rows,
+            summary["passedCases"],
+            summary["totalCases"],
+            summary["failedCases"],
+            summary["elapsedSeconds"],
+            summary["failedIds"],
+        )
+        return
+    rows = []
+    executed = {"passed": 0, "total": 0, "failed": 0}
+    for status in ("ran", "sampled", "reused"):
+        chosen = [o for o in outcomes if o.status == status]
+        if not chosen:
+            continue
+        passed = sum(o.payload["passedCases"] for o in chosen)
+        total = sum(o.payload["totalCases"] for o in chosen)
+        failed = sum(o.payload["failedCases"] for o in chosen)
+        label = {"ran": "executed in this run", "sampled": "sampled reruns", "reused": "reused, not executed"}[status]
+        rows.append(SummaryRow(label, passed, total, failed, f"{len(chosen)} units"))
+        if status != "reused":
+            executed["passed"] += passed
+            executed["total"] += total
+            executed["failed"] += failed
     print_summary(
-        "BINARY: TestFloat + MPFR",
+        "BINARY: TestFloat + MPFR (incremental)",
         "Berkeley TestFloat 3e, GNU MPFR 4.2.2",
         rows,
-        summary["passedCases"],
-        summary["totalCases"],
-        summary["failedCases"],
+        executed["passed"],
+        executed["total"],
+        executed["failed"],
         summary["elapsedSeconds"],
         summary["failedIds"],
+        total_label="TOTAL executed (reused units not included)",
     )
 
 
@@ -587,6 +738,14 @@ def main(argv: list[str] | None = None) -> int:
         action="append",
         choices=TININESS_MODES,
     )
+    parser.add_argument(
+        "--incremental",
+        action="store_true",
+        help="reuse the recorded result of a unit whose code, input and toolchain are unchanged",
+    )
+    parser.add_argument("--sample-rate", type=float, default=incremental.DEFAULT_SAMPLE_RATE)
+    parser.add_argument("--sample-seed", type=int, default=None)
+    parser.add_argument("--ledger", type=Path, default=None)
     parser.add_argument("--skip-mpfr", action="store_true")
     parser.add_argument("--fetch", action="store_true")
     parser.add_argument("--no-build", action="store_true")
@@ -677,19 +836,40 @@ def main(argv: list[str] | None = None) -> int:
         output = args.output.resolve()
         output.mkdir(parents=True, exist_ok=True)
         started = time.monotonic()
-        task_progress = Progress(f"binary/TestFloat level {args.level}", len(tasks), Console())
-        task_results = ordered_parallel_map(
-            tasks,
-            args.jobs,
-            lambda task: run_testfloat_task(task, output, args.chunk_cases),
-            task_progress,
-            lambda task: task["function"],
-        )
-        task_progress.finish(
-            not any(task["failedCases"] != 0 for task in task_results),
-        )
-        mpfr_results = [] if args.skip_mpfr else run_mpfr(manifest, output)
+        environment = incremental_environment(args, output) if args.incremental else None
+        outcomes: list[incremental.Outcome] = []
+        tally = incremental.Tally()
+        if environment is not None:
+            try:
+                task_results, mpfr_results, outcomes, tally = run_incremental(
+                    args, manifest, tasks, output, environment
+                )
+            except incremental.KeysUnavailable as error:
+                print(f"incremental disabled: {error}")
+                environment = None
+        if environment is None:
+            task_progress = Progress(f"binary/TestFloat level {args.level}", len(tasks), Console())
+            task_results = ordered_parallel_map(
+                tasks,
+                args.jobs,
+                lambda task: run_testfloat_task(task, output, args.chunk_cases),
+                task_progress,
+                lambda task: task["function"],
+            )
+            task_progress.finish(
+                not any(task["failedCases"] != 0 for task in task_results),
+            )
+            mpfr_results = [] if args.skip_mpfr else run_mpfr(manifest, output)
         report = aggregate(task_results, mpfr_results, time.monotonic() - started)
+        if environment is not None:
+            report["incremental"] = {
+                "seed": environment.seed,
+                "ran": tally.ran,
+                "reused": tally.reused,
+                "sampled": tally.sampled,
+                "failed": tally.failed,
+                "reusedByCommit": incremental.reused_by_commit(outcomes),
+            }
         report_path = output / "summary.json"
         report_path.write_text(
             json.dumps(report, indent=2) + "\n", encoding="utf-8"
@@ -697,9 +877,14 @@ def main(argv: list[str] | None = None) -> int:
         if args.json:
             print(json.dumps(report, indent=2))
         else:
-            print_text(report)
+            if environment is not None:
+                print_incremental(outcomes, tally, environment.seed)
+            print_text(report, outcomes if environment is not None else None)
             print(f"summary: {report_path.relative_to(REPO_ROOT)}")
         return 0 if report["summary"]["failedCases"] == 0 else 1
+    except incremental.SystemDefect as error:
+        print(f"INCREMENTAL SYSTEM DEFECT (not a verification failure): {error}", file=sys.stderr)
+        return incremental.EXIT_DEFECT
     except (OSError, ValueError, RuntimeError, KeyError, json.JSONDecodeError) as error:
         print(f"binfloat interpreter runner failed: {error}", file=sys.stderr)
         return 2
