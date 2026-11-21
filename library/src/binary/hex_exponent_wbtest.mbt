@@ -19,7 +19,8 @@ let hex_exponent_modes : Array[BinaryRoundingMode] = [
 /// exponent, underflow for a negative one, by the rounding direction of 7.4 and 7.5:
 /// overflow gives the infinity except toward zero and away from the sign's direction (then the
 /// largest finite number), underflow gives zero except in the direction of the sign (then the
-/// smallest subnormal). Flags are I-O and IU-.
+/// smallest subnormal). The values are written out: 1p(e_min - p + 1) and (2^p - 1)p(e_max - p + 1).
+/// Flags are I-O and IU-.
 fn hex_exponent_check_far(
   text : String,
   negative_value : Bool,
@@ -32,6 +33,19 @@ fn hex_exponent_check_far(
   let context = BinaryContext::new(precision~, rounding=mode)
   let (value, flags) = Binary::from_hex_ctx(text, context).unwrap()
   let label = "\{label} \{text} mode#\{mode_index} p=\{precision}"
+  // the context: the implementation range e_max = 1073741823 and e_min = -1073741822,
+  // written out as numbers, with the precision
+  let e_max = 1073741823
+  let e_min = -1073741822
+  let largest_mantissa = match precision {
+    24 => "16777215"
+    53 => "9007199254740991"
+    _ => "10384593717069655257060992658440191" // 2^113 - 1
+  }
+  let sign = if negative_value { "-" } else { "" }
+  // the smallest positive number 2^(e_min - p + 1) and the largest finite (2^p - 1) 2^(e_max - p + 1)
+  let smallest = sign + "1p\{e_min - precision + 1}"
+  let largest = sign + largest_mantissa + "p\{e_max - precision + 1}"
   if negative_exponent {
     assert_eq(e2s_flags(flags), "IU-", msg=label)
     let away = match mode {
@@ -39,7 +53,8 @@ fn hex_exponent_check_far(
       RoundTowardNegative => negative_value
       _ => false
     }
-    assert_eq(value.is_zero(), !away, msg=label)
+    // underflow: the zero of the sign, or in the direction of the sign the smallest subnormal
+    assert_eq("\{value}", if away { smallest } else { sign + "0" }, msg=label)
   } else {
     assert_eq(e2s_flags(flags), "I-O", msg=label)
     let toward = match mode {
@@ -48,15 +63,23 @@ fn hex_exponent_check_far(
       RoundTowardNegative => !negative_value
       _ => false
     }
-    assert_eq(value.is_infinite(), !toward, msg=label)
+    // overflow: the infinity of the sign, or toward zero the largest finite number
+    assert_eq(
+      "\{value}",
+      if toward {
+        largest
+      } else {
+        sign + "inf"
+      },
+      msg=label,
+    )
   }
-  assert_eq(value.negative(), negative_value, msg=label)
 }
 
 ///|
 // oracle: A
 // source: rounding-direction table of 7.4 and 7.5 written in hex_exponent_check_far (overflow: infinity or largest finite by direction; underflow: zero or smallest subnormal), not read from another reader
-// shares: Binary::is_zero, is_infinite, negative (classification only)
+// shares: Binary Display (printing only)
 test "from_hex_ctx: an exponent beyond 10^12 overflows or underflows in every direction" {
   let exponents = [
     "1000000000000", // 10^12, the old limit
@@ -236,8 +259,8 @@ test "from_hex_ctx: what is still an error, and why" {
 /// `2^64`: the saturation must not wrap. The expected result is written out, not read from
 /// another reader (the decimal reader had the same wrap, issue #624).
 // oracle: A
-// source: rounding-direction table of 7.4 and 7.5 written in the test, not read from another reader (issue 624)
-// shares: Binary::is_zero, is_infinite, negative (classification only)
+// source: rounding-direction table of 7.4 and 7.5 written in hex_exponent_check_far, with the smallest subnormal and the largest finite number written out, not read from another reader (issue 624)
+// shares: Binary Display (printing only)
 test "from_hex_ctx: exponent fields of 19 to 21 digits saturate, they do not wrap" {
   let digits = [
     "922337203685477580", "922337203685477581", "1000000000000000000", "1100000000000000000",
@@ -253,41 +276,9 @@ test "from_hex_ctx: exponent fields of 19 to 21 digits saturate, they do not wra
           (if negative_exponent { "-" } else { "" }) +
           d
         for mode_index in 0..<hex_exponent_modes.length() {
-          let mode = hex_exponent_modes[mode_index]
-          let context = BinaryContext::new(precision=53, rounding=mode)
-          let (value, flags) = Binary::from_hex_ctx(text, context).unwrap()
-          let label = "\{text} mode \{mode_index}"
-          if negative_exponent {
-            // underflow: zero, or the smallest subnormal when the direction is away from zero
-            assert_eq(e2s_flags(flags), "IU-", msg=label)
-            let away = match mode {
-              RoundTowardPositive => !negative_value
-              RoundTowardNegative => negative_value
-              _ => false
-            }
-            if away {
-              assert_eq(value.is_zero(), false, msg=label)
-              assert_eq(value.negative(), negative_value, msg=label)
-            } else {
-              assert_eq(value.is_zero(), true, msg=label)
-              assert_eq(value.negative(), negative_value, msg=label)
-            }
-          } else {
-            // overflow: infinity, or the largest finite value when the direction is toward zero
-            assert_eq(e2s_flags(flags), "I-O", msg=label)
-            let toward = match mode {
-              RoundTowardZero => true
-              RoundTowardPositive => negative_value
-              RoundTowardNegative => !negative_value
-              _ => false
-            }
-            if toward {
-              assert_eq(value.is_infinite(), false, msg=label)
-            } else {
-              assert_eq(value.is_infinite(), true, msg=label)
-            }
-            assert_eq(value.negative(), negative_value, msg=label)
-          }
+          hex_exponent_check_far(
+            text, negative_value, negative_exponent, mode_index, 53, "19 to 21 digits",
+          )
         }
       }
     }
