@@ -343,6 +343,75 @@ fn decimal_power10_bounds(
 }
 
 ///|
+/// The binary coefficient of a non-zero decimal coefficient, without a host
+/// big integer: a coefficient in a machine word converts directly, a longer
+/// one by repeated division of its limbs by 2^32, which yields the 32-bit words
+/// from the least significant one (the quadratic mirror of
+/// `decimal_coeff_from_be_bytes`).
+fn decimal_coeff_to_bin_coeff(coeff : DecCoeff) -> @bin_float.BinCoeff {
+  match coeff {
+    Small(value) => @bin_float.BinCoeff::from_uint64(value)
+    Limbs(_, _) =>
+      @bin_float.BinCoeff::from_bytes_be(decimal_coeff_to_be_bytes(coeff))
+  }
+}
+
+///|
+/// The minimal big-endian bytes of a non-zero decimal coefficient.
+fn decimal_coeff_to_be_bytes(coeff : DecCoeff) -> Bytes {
+  let length = dec_coeff_unit_len(coeff)
+  // a limb is below 10^9 < 2^30, so `length` limbs fit in `30 * length` bits
+  let word_capacity = (length * 30 + 31) / 32 + 1
+  let limbs = FixedArray::make(length, 0UL)
+  for index in 0..<length {
+    limbs[index] = dec_coeff_limb_at(coeff, index).to_uint64()
+  }
+  let words = FixedArray::make(word_capacity, 0UL)
+  let mut live = length
+  let mut count = 0
+  while live > 0 {
+    // limbs = limbs / 2^32, with the remainder as the next word: the
+    // remainder is below 2^32, so `remainder * 10^9 + limb` is below 2^62
+    let mut remainder = 0UL
+    let mut index = live - 1
+    while index >= 0 {
+      let current = remainder * 1000000000UL + limbs[index]
+      limbs[index] = current >> 32
+      remainder = current & 0xFFFFFFFFUL
+      index -= 1
+    }
+    words[count] = remainder
+    count += 1
+    while live > 0 && limbs[live - 1] == 0UL {
+      live -= 1
+    }
+  }
+  let top = words[count - 1]
+  let top_bytes = if top >= 0x1000000UL {
+    4
+  } else if top >= 0x10000UL {
+    3
+  } else if top >= 0x100UL {
+    2
+  } else {
+    1
+  }
+  let bytes = FixedArray::make(top_bytes + (count - 1) * 4, b'\x00')
+  let mut position = 0
+  for word_index = count - 1; word_index >= 0; word_index = word_index - 1 {
+    let word = words[word_index]
+    let width = if word_index == count - 1 { top_bytes } else { 4 }
+    for shift in 0..<width {
+      bytes[position] = ((word >> ((width - 1 - shift) * 8)) & 0xFFUL)
+        .to_int()
+        .to_byte()
+      position += 1
+    }
+  }
+  Bytes::from_array(bytes)
+}
+
+///|
 fn decimal_bounded_binary_interval(
   value : Decimal,
   precision : Int32,
@@ -352,9 +421,7 @@ fn decimal_bounded_binary_interval(
     let zero = @bin_float.BinFloat::zero(precision~)
     return Some((zero, zero))
   }
-  let coefficient = @bin_float.BinCoeff::from_bytes_be(
-    value.coefficient.to_bigint().to_octets(),
-  )
+  let coefficient = decimal_coeff_to_bin_coeff(value.coefficient)
   let binary_precision = Int32::max(precision, coefficient.bit_length() + 8)
   let downward = @bin_float.BinaryContext::new(
     precision=binary_precision,
