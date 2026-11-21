@@ -570,6 +570,14 @@ notes live in this file.
   | `to_ball_string` | `to_ball_string` | not renamed: it names the midpoint-radius view, not the type |
   | `@ball_float.BallFloat::from_bounds(a, b)` | `@interval.Interval::from_bounds(a, b)` | the alias in a `moon.pkg` is the caller's choice; inside a package named `interval` an alias `@interval` is refused, give it another |
 
+- `interval`: the constructor from a midpoint and a radius is named for what it does ([#438](https://github.com/Luna-Flow/floating/issues/438)); decided by the maintainer on 2026-11-21. `new` is not kept as an alias; the name `new` of this type is free.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `Interval::new(center, radius, precision=p)` | `Interval::from_midpoint_radius(center, radius, precision=p)` | the hull of $[m - r, m + r]$; same arguments and result |
+  | `Interval::try_new(center, radius, precision=p)` | `Interval::try_from_midpoint_radius(center, radius, precision=p)` | same error cases |
+  | `Interval::to_ball_string()`, `DecoratedInterval::to_ball_string()` (the midpoint-radius view `m +/- r`, named `to_ball_string` since the rename of the type) | `to_midpoint_radius_string()` | decided by the maintainer on 2026-11-21: the name says which view it prints; not a literal |
+
 ### Added
 
 - `bin_float`, `decimal`: every comparison predicate of IEEE 754-2019 5.11 has a function ([#438](https://github.com/Luna-Flow/floating/issues/438), item N6). The clause lists 22 predicates, 10 in Table 5.1 and 12 in Table 5.2; `bin_float` had 7 and `decimal` none. Both now have the 15 others, with the names of the first seven (`compare_quiet_*`, `compare_signaling_*`): `not_equal`, `greater`, `greater_equal`, `not_greater`, `less_unordered`, `not_less` and `greater_unordered` for both kinds, and `compare_quiet_ordered`. Each returns `(Bool, flags)`, is defined from `compare_quiet` or `compare_signaling` and raises invalid where the table says (a signaling NaN for the quiet ones, any NaN for the signaling ones). Nothing existing changes in `bin_float`.

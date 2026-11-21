@@ -239,7 +239,7 @@ When $0 \in \boldsymbol{y}$:
 
 ### From midpoint–radius to endpoints
 
-Users often know a value as $c \pm r$. `Interval::new(c, r, precision=p)`
+Users often know a value as $c \pm r$. `Interval::from_midpoint_radius(c, r, precision=p)`
 rounds the center to nearest, $\tilde c = \operatorname{RN}_p(c)$, and stores
 
 $$
@@ -271,7 +271,7 @@ $(\underline{x} + \overline{x})/2$ and the half-width $(\overline{x} -
 \underline{x})/2$, which are dyadic and need no rounding (the half-width is
 rounded up only if it underflows the exponent range), so
 $[\text{center} - \text{half-width}, \text{center} + \text{half-width}]$ is
-exactly the stored interval. `to_ball_string` prints this pair (`Show` is the inf-sup literal of 13.3). The public observers are
+exactly the stored interval. `to_midpoint_radius_string` prints this pair (`Show` is the inf-sup literal of 13.3). The public observers are
 not this pair: IEEE 1788-2015 12.12.8 defines `mid` as the center rounded to
 the format and `rad` as the smallest number of the format with the interval
 inside $[m - r, m + r]$ for that rounded $m$. The half-width around the exact
@@ -1004,7 +1004,7 @@ sets have no midpoint–radius form, and the hulls in the
 [endpoint formulas](#endpoint-formulas) are exact before rounding, so
 inf–sup results are as tight as the precision allows. The cost is that both
 endpoints carry $p$ bits, so wide intervals at high precision store many
-useless bits. The midpoint–radius *view* (`new`, `midpoint`, `radius`) is kept for users
+useless bits. The midpoint–radius *view* (`from_midpoint_radius`, `midpoint`, `radius`) is kept for users
 who reason in $c \pm r$, with the conversions derived
 [above](#from-midpointradius-to-endpoints).
 

@@ -8,7 +8,7 @@
 /// the grid of `precision_` bits, the band below the range floor included),
 /// and so are the infinities and the zeros. The one exception is an exact end that
 /// is not such a number: an end with more than `precision_` bits (a `from_bounds`
-/// of wide ends, an end of `new` or of `cancel_minus` kept unrounded) or finer than
+/// of wide ends, an end of `from_midpoint_radius` or of `cancel_minus` kept unrounded) or finer than
 /// the grid of `precision_` bits below the range floor keeps the label of its own
 /// bit count. `BinFloat`'s `==` agrees with `compare` and ignores a label (`identical`
 /// compares it), so `x.lower_bound() == y` is `true` for a bound and a value of the same
@@ -1310,7 +1310,7 @@ fn div_interval_impl(a : Interval, b : Interval) -> Interval {
 }
 
 ///|
-pub fn Interval::new(
+pub fn Interval::from_midpoint_radius(
   center : @bin_float.BinFloat,
   radius : @bin_float.BinFloat,
   precision~ : Int32 = Int32::max(center.precision(), radius.precision()),
@@ -1324,9 +1324,9 @@ pub fn Interval::new(
 }
 
 ///|
-/// `new` that reports an invalid center or radius as an error: a center that
+/// `from_midpoint_radius` that reports an invalid center or radius as an error: a center that
 /// is not finite, a radius that is not finite or is negative.
-pub fn Interval::try_new(
+pub fn Interval::try_from_midpoint_radius(
   center : @bin_float.BinFloat,
   radius : @bin_float.BinFloat,
   precision~ : Int32 = Int32::max(center.precision(), radius.precision()),
@@ -1534,14 +1534,14 @@ fn Interval::contains_zero(self : Interval) -> Bool {
 }
 
 ///|
-/// The exact midpoint, the center of the ball view; aborts on an empty or
+/// The exact midpoint, the center of the midpoint-radius view; aborts on an empty or
 /// unbounded interval. Public observers use `midpoint` and `radius`.
 fn Interval::center(self : Interval) -> @bin_float.BinFloat {
   interval_center(self, self.precision_)
 }
 
 ///|
-/// The half-width around the exact `center` (the radius of the ball view).
+/// The half-width around the exact `center` (the radius of the midpoint-radius view).
 fn Interval::half_width(self : Interval) -> @bin_float.BinFloat {
   interval_radius(self)
 }

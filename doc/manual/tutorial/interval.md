@@ -10,7 +10,7 @@ output. The mathematics behind the guarantees is in the
 
 | I want to | Use |
 | --- | --- |
-| enclose a known point, known bounds or a measurement $c \pm r$ | `exact`, `from_bounds`, `new` ([Build intervals](#build-intervals)) |
+| enclose a known point, known bounds or a measurement $c \pm r$ | `exact`, `from_bounds`, `from_midpoint_radius` ([Build intervals](#build-intervals)) |
 | enclose a decimal constant such as 0.1 | directed `from_string_ctx` + `from_bounds` ([Enclose a decimal constant](#enclose-a-decimal-constant)) |
 | compute with `+ - * /` and read the bounds | operators, `lower_bound`, `upper_bound`, `width` ([Compute and read the result](#compute-and-read-the-result)) |
 | ask whether one uncertain value is certainly below another | `DefinitelyLt`, `MaybeEq`, `subset` ([Compare intervals](#compare-intervals)) |
@@ -102,7 +102,7 @@ test "constructors" {
   let range = @interval.Interval::from_bounds(two, five)
   inspect(show(range, 3), content="[2.00e+0, 5.00e+0]")
   // A measurement: 5 +/- 2, stored as the endpoints [3, 7].
-  let measured = @interval.Interval::new(five, two)
+  let measured = @interval.Interval::from_midpoint_radius(five, two)
   inspect(show(measured, 3), content="[3.00e+0, 7.00e+0]")
   inspect(measured.midpoint().to_string(), content="5p0")
   inspect(measured.radius().to_string(), content="1p1")
@@ -114,8 +114,8 @@ test "constructors" {
 
 `from_bounds` and `exact` abort on invalid input (a NaN endpoint, reversed
 bounds, a non-finite point); their `try_` forms return the same condition as an
-`ArithmeticError`, and so does `try_new(center, radius)` for a non-finite center
-or a negative or non-finite radius. `new(center, radius)` is a constructor view:
+`ArithmeticError`, and so does `try_from_midpoint_radius(center, radius)` for a non-finite center
+or a negative or non-finite radius. `from_midpoint_radius(center, radius)` is a constructor view:
 the stored value is always the endpoint pair, and `midpoint()` / `radius()` read
 the midpoint–radius form back as IEEE 1788-2015 12.12.8 defines it. The whole real line and the empty set are
 `Interval::entire()` and `Interval::empty()`.

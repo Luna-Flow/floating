@@ -10,7 +10,7 @@ results of the operation on points of its operands (the *inclusion property*).
 rounds results into a target binary format and reports `IntervalFlags`.
 
 Despite the name, the stored representation is the endpoint pair, not a
-midpoint and a radius: `Interval::new(center, radius)` builds an interval from
+midpoint and a radius: `Interval::from_midpoint_radius(center, radius)` builds an interval from
 the midpoint–radius view, and `midpoint()` and `radius()` read it back as
 IEEE 1788-2015 12.12.8 defines them. The
 [tutorial](../tutorial/interval.md) shows typical use; the
@@ -230,16 +230,16 @@ and inexact, as IEEE 754 defines it (see
 
 ## Construction
 
-### `Interval::new`
+### `Interval::from_midpoint_radius`
 
-`Interval::new` builds the interval $[c - r, c + r]$ from a center and a
+`Interval::from_midpoint_radius` builds the interval $[c - r, c + r]$ from a center and a
 radius, enlarged so that it is exact at the requested precision.
-`Interval::try_new` returns the same interval, or an `ArithmeticError` where
-`new` aborts.
+`Interval::try_from_midpoint_radius` returns the same interval, or an `ArithmeticError` where
+`from_midpoint_radius` aborts.
 
 ```mbti
-pub fn Interval::new(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int) -> Self
-pub fn Interval::try_new(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::from_midpoint_radius(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int) -> Self
+pub fn Interval::try_from_midpoint_radius(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 The default precision is the larger of the precisions of `center` and
@@ -254,7 +254,7 @@ $$
 which contains $[c - r, c + r]$ (proof in the
 [design page](../design/interval.md#from-midpointradius-to-endpoints)). The
 endpoints $\tilde c \pm R$ are formed exactly, so they may carry more than
-$p$ bits. `new` aborts, and `try_new` returns a domain error, when `center` or
+$p$ bits. `from_midpoint_radius` aborts, and `try_from_midpoint_radius` returns a domain error, when `center` or
 `radius` is not finite or when `radius` is negative, and when `precision` is
 outside `1..=binary_precision_max`.
 
@@ -440,7 +440,7 @@ The label of an endpoint, `endpoint.precision()`, is the precision $p$ of the
 interval exactly when the endpoint is a number of the format of $p$ bits (at most
 $p$ significant bits and on the grid of $p$ bits, the band below the range floor
 included); the infinities and the zeros carry $p$ too. The one exception is an
-exact endpoint that is not such a number (an end of `new` or of `cancel_minus`
+exact endpoint that is not such a number (an end of `from_midpoint_radius` or of `cancel_minus`
 kept unrounded with more than $p$ bits, or finer than the grid of $p$ bits below
 the range floor): it keeps the label of its own bit count. `BinFloat`'s `==`
 agrees with `compare` and ignores the label (`BinFloat::identical` compares it), so
@@ -2115,7 +2115,7 @@ precision=x.precision())` is `identical` to `x` (no signed zero is written, 13.4
 `from_exact_string` reads the text exactly, at whatever bit count its bounds have, and never
 widens it: `precision` is the precision of the interval, not a limit on the bounds. A bound with
 more bits than `precision` is kept as it is, with the label of its own bit count (`lower_bound().precision()`
-is 57 for `0x1.00000000000001p0`, whatever zero digits the text has), as the type keeps such ends (an end of `new` or of
+is 57 for `0x1.00000000000001p0`, whatever zero digits the text has), as the type keeps such ends (an end of `from_midpoint_radius` or of
 `cancel_minus` that is not rounded), so the round trip above holds for every interval of the type, and
 `[0x1.00000000000001p0, 0x2p0]` at precision 53 is the interval with that exact lower end and precision
 53, neither `[1, 2]` nor an error. The call is refused (a parse error naming the reason) only for
@@ -2136,7 +2136,7 @@ test "exact text" {
 }
 ```
 
-### `Interval::to_ball_string`, `DecoratedInterval::to_ball_string`
+### `Interval::to_midpoint_radius_string`, `DecoratedInterval::to_midpoint_radius_string`
 
 The midpoint-radius view, `center +/- half-width`, with both numbers in the
 `BinFloat` notation (`3p-1` is $3 \cdot 2^{-1}$). It was the output of `Show`
@@ -2147,8 +2147,8 @@ an infinite bound prints as `[l, u]` of binary numbers, Empty as `[empty]`;
 a decorated interval appends `_` and the decoration.
 
 ```mbti
-pub fn Interval::to_ball_string(Self) -> String
-pub fn DecoratedInterval::to_ball_string(Self) -> String
+pub fn Interval::to_midpoint_radius_string(Self) -> String
+pub fn DecoratedInterval::to_midpoint_radius_string(Self) -> String
 ```
 
 ### `Interval::equal`, `Interval::not_equal`, `Interval::to_repr`, `DecoratedInterval::equal`, `DecoratedInterval::not_equal`, `IntervalFlags::equal`, `IntervalFlags::not_equal`
@@ -2365,8 +2365,8 @@ pub fn DecoratedInterval::tan(Self) -> Self
 pub fn DecoratedInterval::tan_rev(Self, x? : Self) -> Self
 pub fn DecoratedInterval::tanh(Self) -> Self
 pub fn DecoratedInterval::tanpi(Self) -> Self
-pub fn DecoratedInterval::to_ball_string(Self) -> String
 pub fn DecoratedInterval::to_exact_string(Self) -> String
+pub fn DecoratedInterval::to_midpoint_radius_string(Self) -> String
 pub fn DecoratedInterval::to_string(Self) -> String
 pub fn DecoratedInterval::trunc(Self) -> Self
 pub impl Add for DecoratedInterval
@@ -2436,6 +2436,7 @@ pub fn Interval::from_double(Double, precision? : Int32) -> Self
 pub fn Interval::from_exact_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::from_float(Float, precision? : Int32) -> Self
 pub fn Interval::from_int(Int32, precision~ : Int32) -> Self
+pub fn Interval::from_midpoint_radius(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Self
 pub fn Interval::from_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::hypot(Self, Self) -> Self
 pub fn Interval::identical(Self, Self) -> Bool
@@ -2462,7 +2463,6 @@ pub fn Interval::mul(Self, Self) -> Self
 pub fn Interval::mul_rev(Self, Self, x? : Self) -> Self
 pub fn Interval::mul_rev_to_pair(Self, Self) -> (Self, Self)
 pub fn Interval::neg(Self) -> Self
-pub fn Interval::new(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Self
 pub fn Interval::normalized(Self) -> Self
 pub fn Interval::not_equal(Self, Self) -> Bool
 pub fn Interval::output(Self, &Logger) -> Unit
@@ -2497,8 +2497,8 @@ pub fn Interval::tan(Self) -> Self
 pub fn Interval::tan_rev(Self, x? : Self) -> Self
 pub fn Interval::tanh(Self) -> Self
 pub fn Interval::tanpi(Self) -> Self
-pub fn Interval::to_ball_string(Self) -> String
 pub fn Interval::to_exact_string(Self) -> String
+pub fn Interval::to_midpoint_radius_string(Self) -> String
 pub fn Interval::to_repr(Self) -> @debug.Repr
 pub fn Interval::to_string(Self) -> String
 pub fn Interval::trunc(Self) -> Self
@@ -2520,12 +2520,12 @@ pub fn Interval::try_expm1(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_from_double(Double, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_from_float(Float, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_from_midpoint_radius(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_hypot(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_ln(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_log10(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_log1p(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_log2(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Interval::try_new(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_pow(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_rootn(Self, Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_sin(Self) -> Result[Self, @arithmetic.ArithmeticError]

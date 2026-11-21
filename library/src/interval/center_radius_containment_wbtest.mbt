@@ -1,4 +1,4 @@
-// `Interval::new` (and `try_new`) must return an interval that contains the center it
+// `Interval::from_midpoint_radius` (and `try_from_midpoint_radius`) must return an interval that contains the center it
 // was given. The error of rounding the center to the precision is taken as an
 // upper bound; it was computed from an exact difference made at its own bit
 // length in the nearest mode, so below the normal range a difference of a few
@@ -20,7 +20,7 @@ fn ccr_interval(
   radius : @bin_float.BinFloat,
   precision : Int32,
 ) -> Interval {
-  Interval::new(center, radius, precision~)
+  Interval::from_midpoint_radius(center, radius, precision~)
 }
 
 ///|

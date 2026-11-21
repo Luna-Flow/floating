@@ -1,4 +1,4 @@
-// `half_width` (the radius of the ball view, shown as `center +/- half-width`) is
+// `half_width` (the radius of the midpoint-radius view, shown as `center +/- half-width`) is
 // the exact `(upper - lower) / 2` also below the normal range (issue #583). It
 // was made at its own bit length and rounded upward there, to the quantum of a
 // few bits.
@@ -39,7 +39,10 @@ test "the half-width of the interval of the issue" {
   )
   inspect(interval.half_width().to_string(), content="1p-1073741882")
   inspect(interval.center().to_string(), content="1p-1073741881")
-  inspect(interval.to_ball_string(), content="1p-1073741881 +/- 1p-1073741882")
+  inspect(
+    interval.to_midpoint_radius_string(),
+    content="1p-1073741881 +/- 1p-1073741882",
+  )
   // Show is the portable literal: bounds this far down the exponent range are written in
   // hexadecimal (a decimal expansion would need a power of ten of that size)
   inspect(interval.to_string(), content="[0x1p-1073741882, 0x3p-1073741882]")

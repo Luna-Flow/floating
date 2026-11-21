@@ -10,7 +10,7 @@
 // `directed_bounds_wbtest.mbt`: random precisions 24 to 200, endpoints of 1 to 40
 // random bytes anywhere in the exponent range, zero and infinite ends), and by the
 // written-out cases at the end of the file (a wide end, an end below the range
-// floor, the ends of `Interval::new(sqrt 3, 1024 ulp, 53)`). The corpus is
+// floor, the ends of `Interval::from_midpoint_radius(sqrt 3, 1024 ulp, 53)`). The corpus is
 // the same for every operation: the test does not say what the value is, only what
 // it is labelled.
 
@@ -89,7 +89,7 @@ fn bl_corpus(divisor : Int32) -> Unit raise {
     let x = db_operand(state)
     let y = db_operand(state).abs()
     bl_run("exact", Interval::exact(x, precision=p2), count)
-    bl_run("new", Interval::new(x, y, precision=p2), count)
+    bl_run("new", Interval::from_midpoint_radius(x, y, precision=p2), count)
     bl_run(
       "from_int",
       Interval::from_int(db_below(state, 100000) - 50000, precision=p2),
@@ -126,7 +126,7 @@ test "labels of the bounds: every operation, long" {
 
 ///|
 test "labels of the bounds: written-out cases" {
-  // (1) the ends of Interval::new(sqrt 3, 1024 ulp, 53): numbers of 53 bits
+  // (1) the ends of Interval::from_midpoint_radius(sqrt 3, 1024 ulp, 53): numbers of 53 bits
   // whose coefficient has a trailing zero bit were labelled 52
   let three = @bin_float.BinFloat::from_int(3, precision=53)
   let root = three.sqrt()
@@ -135,7 +135,7 @@ test "labels of the bounds: written-out cases" {
     -51,
     53,
   )
-  let interval = Interval::new(root, ulp, precision=53)
+  let interval = Interval::from_midpoint_radius(root, ulp, precision=53)
   assert_true(interval.lower_bound().precision() == 53)
   assert_true(interval.upper_bound().precision() == 53)
   // a bound is identical (the structural equality, which reads the label) to the
@@ -154,7 +154,7 @@ test "labels of the bounds: written-out cases" {
   // a number of 24 bits and the radius 2^-100 a number of the grid: labelled 24
   let one = @bin_float.BinFloat::one(precision=53)
   let tiny = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -100, 24)
-  let w = Interval::new(one, tiny, precision=24)
+  let w = Interval::from_midpoint_radius(one, tiny, precision=24)
   assert_true(w.lower_bound().precision() >= 100)
   assert_true(w.upper_bound().precision() >= 100)
   assert_true(w.lower_bound().coefficient().bit_length() == 100)

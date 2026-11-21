@@ -229,7 +229,7 @@ test "the center at the precision limit is rounded once at the limit" {
 }
 
 ///|
-/// `Interval::new`: the endpoints `c - R` and `c + R` are made by directed sums
+/// `Interval::from_midpoint_radius`: the endpoints `c - R` and `c + R` are made by directed sums
 /// that are not rounded to the precision. Away from the bottom of the range they
 /// are exact, so the midpoint is the center the interval was made from; at the
 /// bottom they are directed-rounded at their own bit length (looser than
@@ -243,7 +243,11 @@ test "the midpoint of an interval made from a center is a member" {
     let r = mid_next(state) % 1000UL + 1UL
     // away from the bottom: the center itself
     let c = mid_value(x, (mid_next(state) % 200UL).to_int() - 100, 53)
-    let interval = Interval::new(c, mid_value(r, -150, 53), precision=53)
+    let interval = Interval::from_midpoint_radius(
+      c,
+      mid_value(r, -150, 53),
+      precision=53,
+    )
     assert_eq(
       interval
       .midpoint()
@@ -256,7 +260,7 @@ test "the midpoint of an interval made from a center is a member" {
     // at the bottom: a member
     let c = mid_value(x, e_min - 40 + (mid_next(state) % 80UL).to_int(), 53)
     let low = mid_value(r, e_min - 70 + (mid_next(state) % 80UL).to_int(), 53)
-    let interval = Interval::new(c, low, precision=53)
+    let interval = Interval::from_midpoint_radius(c, low, precision=53)
     assert_true(interval.is_member(interval.midpoint()))
   }
 }

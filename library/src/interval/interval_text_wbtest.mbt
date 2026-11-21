@@ -225,18 +225,18 @@ test "exact text: hexadecimal bounds, refused when reading would round" {
 }
 
 ///|
-test "to_ball_string keeps the midpoint-radius view and is not a literal" {
+test "to_midpoint_radius_string keeps the midpoint-radius view and is not a literal" {
   let x = Interval::from_bounds(
     text_bound(1UL, 0, 53, false),
     text_bound(3UL, 0, 53, false),
   )
-  inspect(x.to_ball_string(), content="1p1 +/- 1p0")
-  inspect(Interval::empty().to_ball_string(), content="[empty]")
+  inspect(x.to_midpoint_radius_string(), content="1p1 +/- 1p0")
+  inspect(Interval::empty().to_midpoint_radius_string(), content="[empty]")
   inspect(
-    DecoratedInterval::new(x, decoration=Com).to_ball_string(),
+    DecoratedInterval::new(x, decoration=Com).to_midpoint_radius_string(),
     content="1p1 +/- 1p0_com",
   )
-  assert_true(Interval::from_string(x.to_ball_string()) is Err(_))
+  assert_true(Interval::from_string(x.to_midpoint_radius_string()) is Err(_))
 }
 
 ///|
@@ -360,13 +360,13 @@ test "from_exact_string: read exactly at the bit count of the text, never widene
 
 ///|
 /// The round trip of the exact text for the intervals of the type with ends wider than the
-/// precision (13.4: every interval of the type): an end of `new` kept unrounded, its mirror from
+/// precision (13.4: every interval of the type): an end of `from_midpoint_radius` kept unrounded, its mirror from
 /// `cancel_minus`, an end finer than the grid below the range floor. The texts are written out
 /// (level A); the identical round trip uses the reader that the oracle table checks.
 test "the exact text of an interval with an end wider than the precision reads back identical" {
   let wide = @bin_float.BinFloat::from_hex("0x1.00000000000001p0", 60).unwrap()
   let zero = @bin_float.BinFloat::zero(precision=53)
-  let x = Interval::new(wide, zero, precision=53)
+  let x = Interval::from_midpoint_radius(wide, zero, precision=53)
   assert_eq(x.precision(), 53)
   inspect(
     x.to_exact_string(),
@@ -450,7 +450,7 @@ test "a zero bound has no sign in the texts" {
 }
 
 ///|
-/// Level S (consistency, the reader and the printer are ours): intervals made by `new` with a
+/// Level S (consistency, the reader and the printer are ours): intervals made by `from_midpoint_radius` with a
 /// center wider than the precision, and by `cancel_minus`, whose ends are kept unrounded, give
 /// back an identical interval from their exact text, and their `Show` literal contains them and
 /// reads back containing them. The evidence for the texts themselves is the oracle table of wide
@@ -484,7 +484,7 @@ test "ends wider than the precision: exact text identical, Show contains (consis
         p,
       )
     }
-    let x = Interval::new(center, radius, precision=p)
+    let x = Interval::from_midpoint_radius(center, radius, precision=p)
     if x.lower_bound().precision() > p || x.upper_bound().precision() > p {
       wide_ends += 1
     }
@@ -515,8 +515,8 @@ test "from_exact_string: the label of a wide bound is its own bit count" {
     assert_eq(x.lower_bound().precision(), 57, msg=text)
     assert_eq(x.upper_bound().precision(), 53, msg=text)
   }
-  // the same number made by `new` carries the same label
-  let made = Interval::new(
+  // the same number made by `from_midpoint_radius` carries the same label
+  let made = Interval::from_midpoint_radius(
     @bin_float.BinFloat::from_hex("0x1.00000000000001p0", 60).unwrap(),
     @bin_float.BinFloat::zero(precision=53),
     precision=53,
