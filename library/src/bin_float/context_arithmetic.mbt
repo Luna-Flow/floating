@@ -716,7 +716,7 @@ fn binary_add_far_exponents(
 }
 
 ///|
-pub fn BinFloat::round_ctx(
+pub fn BinFloat::apply_ctx(
   self : BinFloat,
   context : BinaryContext,
 ) -> (BinFloat, BinaryFlags) {
@@ -1299,8 +1299,8 @@ fn binary_pow_can_round_interval(
   if lower_top != upper_top {
     return None
   }
-  let lower_rounded = lower.round_ctx(context)
-  let upper_rounded = upper.round_ctx(context)
+  let lower_rounded = lower.apply_ctx(context)
+  let upper_rounded = upper.apply_ctx(context)
   if !lower_rounded.0.identical(upper_rounded.0) {
     return None
   }
@@ -1509,7 +1509,7 @@ fn binary_pow_finite(
 ) -> ((BinFloat, BinaryFlags), BinaryPowStats) {
   let stats = binary_pow_stats_new()
   if !reciprocal && exponent == 1U {
-    return (base.round_ctx(context), stats)
+    return (base.apply_ctx(context), stats)
   }
   if !reciprocal && exponent == 2U {
     stats.squarings = 1
@@ -1681,7 +1681,7 @@ pub fn BinFloat::pown_ctx(
       }
     FpClass::Finite => {
       if exponent == 1 {
-        return self.round_ctx(context)
+        return self.apply_ctx(context)
       }
       if exponent == 2 {
         return self.mul_ctx(self, context)

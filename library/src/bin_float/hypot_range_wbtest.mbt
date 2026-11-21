@@ -17,7 +17,7 @@
 // exact power of two scales the correctly rounded result by the same power as
 // long as no range limit is involved. The reference scales the operands to the
 // middle of the range, takes the hypot there with 200 extra bits, scales the
-// value back exactly and rounds it with `round_ctx`, which owns the range
+// value back exactly and rounds it with `apply_ctx`, which owns the range
 // rules (subnormal, overflow, both tininess modes).
 
 ///|
@@ -46,7 +46,7 @@ fn hypot_reference(
     middle.exponent2() + shift,
     middle.coefficient().bit_length(),
   )
-  let (value, flags) = scaled.round_ctx(context)
+  let (value, flags) = scaled.apply_ctx(context)
   // The result of these operands is never exact: inexact for every row.
   (value, flags.combine(BinaryFlags::from_bits(binary_flag_inexact)))
 }

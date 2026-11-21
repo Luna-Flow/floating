@@ -44,7 +44,7 @@ pub fn BinFloat::remainder_ctx(
     )
   }
   if divisor.class() == FpClass::Infinity || self.coefficient_is_zero() {
-    return self.round_ctx(context)
+    return self.apply_ctx(context)
   }
   let top = self.exact_top()
   let divisor_top = binary_exact_top(
@@ -53,7 +53,7 @@ pub fn BinFloat::remainder_ctx(
   )
   // |self| < 2^(top + 1) <= |divisor| / 2: the nearest multiple is zero.
   if top.to_int64() + 1L < divisor_top.to_int64() {
-    return self.round_ctx(context)
+    return self.apply_ctx(context)
   }
   // Scale both magnitudes by 2^-e, e = min exponent: X = dividend, Y = divisor.
   let (dividend_mod_twice, modulus, exponent) = if self.exponent2_() >=

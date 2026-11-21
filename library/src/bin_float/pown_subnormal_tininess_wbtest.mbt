@@ -20,7 +20,7 @@ test "pown tininess after rounding at the implementation subnormal limit" {
   let base = BinFloat::make(BinCoeff::from_uint64(3UL), -1, 53)
   let mut cases = 0
   for n in [-1835573772, -1835573771] {
-    // The reference: a 200-bit value rounded by `round_ctx`, which decides
+    // The reference: a 200-bit value rounded by `apply_ctx`, which decides
     // tininess from the p-bit rounding of the exact value.
     let reference = base.pown_ctx(n, BinaryContext::new(precision=200)).0
     for mode in e2s_modes() {
@@ -31,7 +31,7 @@ test "pown tininess after rounding at the implementation subnormal limit" {
         ] {
         let ctx = BinaryContext::new(precision=2, rounding=mode, tininess~)
         let (value, flags) = base.pown_ctx(n, ctx)
-        let (expected, expected_flags) = reference.round_ctx(ctx)
+        let (expected, expected_flags) = reference.apply_ctx(ctx)
         let label = "pown(1.5, \{n}) \{e2s_mode_name(mode)} \{e2s_tininess_name(tininess)}"
         assert_eq(
           "\{label} => \{value} \{e2s_flags(flags)}",
@@ -50,7 +50,7 @@ test "pown tininess after rounding at the implementation subnormal limit" {
 /// p) at p = 40 to 43) was flushed to zero or to the smallest value of its
 /// width, and directed rounding of a value between half and the whole smallest
 /// subnormal came out on the wrong side. Rows from the range-boundary sweep,
-/// with the reference rounded by `round_ctx` from a 300-bit `pown`.
+/// with the reference rounded by `apply_ctx` from a 300-bit `pown`.
 test "pown directed rounding between half and the smallest subnormal" {
   // precision, base coefficient, base exponent, n
   let rows : Array[(Int32, Int64, Int32, Int32)] = [
@@ -72,7 +72,7 @@ test "pown directed rounding between half and the smallest subnormal" {
     for mode in e2s_modes() {
       let ctx = BinaryContext::new(precision=p, rounding=mode)
       let (value, flags) = base.pown_ctx(n, ctx)
-      let (expected, expected_flags) = reference.round_ctx(ctx)
+      let (expected, expected_flags) = reference.apply_ctx(ctx)
       let label = "pown(\{base}, \{n}) p=\{p} \{e2s_mode_name(mode)}"
       assert_eq(
         "\{label} => \{value} \{e2s_flags(flags)}",

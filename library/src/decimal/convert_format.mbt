@@ -283,7 +283,7 @@ pub fn Decimal::to_bin_float_ctx(
           precision=context.precision(),
         )
       }
-      value.round_ctx(context)
+      value.apply_ctx(context)
     }
     FpClass::Infinity =>
       (
@@ -313,7 +313,7 @@ pub fn Decimal::to_bin_float_ctx(
           Err(_) =>
             (
               @bin_float.BinFloat::nan(precision=context.precision()),
-              @bin_float.BinFloat::signaling_nan(precision=context.precision()).round_ctx(
+              @bin_float.BinFloat::signaling_nan(precision=context.precision()).apply_ctx(
                 context,
               ).1,
             )

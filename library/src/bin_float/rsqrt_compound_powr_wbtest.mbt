@@ -121,7 +121,7 @@ test "rsqrt of a power of four is exact, other values are correctly rounded" {
           )
           let reference = x.rsqrt_ctx(BinaryContext::new(precision=p + 150)).0
           let (value, flags) = x.rsqrt_ctx(ctx)
-          let (expected, expected_flags) = reference.round_ctx(ctx)
+          let (expected, expected_flags) = reference.apply_ctx(ctx)
           let exact = numerator == 9 && exponent % 2 == 0
           if !exact {
             assert_eq(

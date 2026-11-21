@@ -187,7 +187,7 @@ fn binary_positive_exp_minus_one_overflow(
 /// The Ziv driver: certified enclosures `[lower, upper]` of a result known to
 /// be inexact at increasing working precisions until the context rounds both
 /// ends alike (IEEE 754-2019 9.2: correctly rounded; 7.6: inexact; 7.5: both
-/// tininess rules through `round_ctx`). `bounds_at(work)` returns `None` when it
+/// tininess rules through `apply_ctx`). `bounds_at(work)` returns `None` when it
 /// cannot enclose at that precision.
 fn binary_ziv_round(
   operation : String,
