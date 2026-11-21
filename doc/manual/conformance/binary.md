@@ -76,7 +76,7 @@ IEEE Std 754-2019 for `binary`. Status is `conforming` when the operation exists
 | §5.3.1 addition, subtraction, multiplication, division, squareRoot | required | `add_ctx`, `sub_ctx`, `mul_ctx`, `div_ctx`, `sqrt_ctx` | TestFloat gate (7,461,360 vectors); `library/src/binary/ieee754_wbtest.mbt` | conforming |
 | §5.3.1 fusedMultiplyAdd | required | `fma_ctx` | TestFloat gate (245,329,920 mulAdd vectors); `library/src/binary/fma_wbtest.mbt` | conforming |
 | §5.3.1 remainder | required | `remainder_ctx` | TestFloat gate (rem); `library/src/binary/remainder_wbtest.mbt` | conforming |
-| §5.3.1, §5.9 roundToIntegral (five directions, exact) | required | `to_integral_value_ctx`, `to_integral_exact_ctx`, `floor`, `ceil`, `trunc`, `round`, `round_ties_even` | TestFloat gate (roundToInt, exact and inexact); `library/src/binary/integral_wbtest.mbt` | conforming |
+| §5.3.1, §5.9 roundToIntegral (five directions, exact) | required | `to_integral_value_ctx`, `to_integral_exact_ctx`, `floor`, `ceil`, `trunc`, `round`, `round_ties_to_even` | TestFloat gate (roundToInt, exact and inexact); `library/src/binary/integral_wbtest.mbt` | conforming |
 | §5.3.1 nextUp, nextDown | required | `next_up_ctx`, `next_down_ctx` | `library/src/binary/next_wbtest.mbt` (no external corpus) | conforming |
 | §5.3.1 scaleB, logB | required | `scaleb_ctx`, `logb_ctx` | `library/src/binary/scale_wbtest.mbt` (no external corpus) | conforming |
 | §5.4.1 convertFromInt | required | `Binary::from_int`, `Binary::from_uint64` | `library/src/binary/order_wbtest.mbt` (no external corpus) | conforming |

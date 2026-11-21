@@ -46,7 +46,7 @@ fn integer_apply(
     Ceil => x.ceil()
     Floor => x.floor()
     Trunc => x.trunc()
-    RoundTiesToEven => x.round_ties_even()
+    RoundTiesToEven => x.round_ties_to_even()
     RoundTiesToAway => x.round()
   }
   integer_zero_positive(value, precision)

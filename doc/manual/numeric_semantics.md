@@ -178,7 +178,7 @@ test "rounding 0.1 to five bits" {
 Rounding to an integral value is the same construction with
 $\mathbb{F} = \mathbb{Z}$. `Binary` offers the fixed-direction forms `floor`
 ($\operatorname{RD}$), `ceil` ($\operatorname{RU}$), `trunc`
-($\operatorname{RZ}$), `round` (nearest, ties away) and `round_ties_even`
+($\operatorname{RZ}$), `round` (nearest, ties away) and `round_ties_to_even`
 (nearest, ties to even); `to_integral_value_ctx` uses the context's direction
 and is quiet, and `to_integral_exact_ctx` additionally raises *inexact* when the
 value changes. The integer conversions `to_int_ctx`, `to_int64_ctx`,
@@ -191,7 +191,7 @@ sign of zero: $\lceil -0.3 \rceil = -0$.
 test "rounding to integers" {
   let x = @binary.Binary::from_double(2.5)
   inspect(x.round(), content="3p0")
-  inspect(x.round_ties_even(), content="1p1")
+  inspect(x.round_ties_to_even(), content="1p1")
   inspect(x.floor(), content="1p1")
   inspect(@binary.Binary::from_double(-0.3).ceil(), content="-0")
   let (n, flags) = x.to_int_ctx(

@@ -118,6 +118,6 @@ pub fn Binary::round(self : Binary) -> Binary {
 
 ///|
 /// Nearest integer, halfway cases to even (roundToIntegralTiesToEven).
-pub fn Binary::round_ties_even(self : Binary) -> Binary {
+pub fn Binary::round_ties_to_even(self : Binary) -> Binary {
   self.integral_with(RoundTiesToEven)
 }
