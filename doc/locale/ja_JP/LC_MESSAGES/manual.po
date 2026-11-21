@@ -540,7 +540,7 @@ msgstr "24 ビットと 113 ビットの同じ区間は `==` ですが `identica
 
 #: manual/api/ball_float.md:724
 msgid "The same holds for any other part of the format of an interval that a later release adds (the optional exponent range of the 754-conforming types, issue 232): the format is not part of `==` or of `compare`; only `identical` may look at it."
-msgstr ""
+msgstr "後のリリースで区間の形式に加えられる他の部分（754 適合型の任意の指数範囲、issue 232）についても同じである。形式は `==` や `compare` に含まれず、`identical` だけがそれを参照してよい。"
 
 #: manual/api/ball_float.md:730
 msgid "These are the order relations of IEEE 1788."
@@ -9265,10 +9265,8 @@ msgid "§9.7, §12.11, §12.12.7, §13.2 interval and number literals, text inpu
 msgstr "§9.7、§12.11、§12.12.7、§13.2 区間と数のリテラル、テキスト入力"
 
 #: manual/conformance/ball_float.md:26
-#, fuzzy
-#| msgid "`library/src/ball_float/interval_literal_wbtest.mbt`: the vectors of Tables 9.4 and 12.1, the rejected strings of 9.7.4 and 12.11.4 with the rule named, and a table of 9,242 literals (every form, three precisions) whose expected bounds and rejection reasons are written by the independent oracle `tools/interval_literal_oracle.py`"
 msgid "`library/src/ball_float/interval_literal_wbtest.mbt`: the vectors of Tables 9.4 and 12.1, the rejected strings of 9.7.4 and 12.11.4 with the rule named, and a table of 9,919 literals (every form, up to five precisions, exponent fields of 19 to 40 digits, the largest finite number, the first value above it, `EMAX + 1`, the smallest subnormal and the first underflow, `_ill` and NaI literals) whose expected bounds and rejection reasons are written by the independent oracle `tools/interval_literal_oracle.py`"
-msgstr "`library/src/ball_float/interval_literal_wbtest.mbt`：表 9.4 と 12.1 のベクトル、9.7.4 と 12.11.4 の拒否される文字列（規則を示す）、9,242 のリテラルの表（すべての形式、3 つの精度）。期待される端と拒否理由は独立したオラクル `tools/interval_literal_oracle.py` が書き出します"
+msgstr "`library/src/ball_float/interval_literal_wbtest.mbt`：表 9.4 と 12.1 のベクトル、9.7.4 と 12.11.4 の拒否される文字列（規則を明示）、および 9,919 個のリテラルの表（すべての形式、最大 5 つの精度、19 から 40 桁の指数部、最大有限数、その次の値、`EMAX + 1`、最小の非正規数と最初のアンダーフロー、`_ill` と NaI のリテラル）。期待される端点と拒否理由は独立なオラクル `tools/interval_literal_oracle.py` が書き出す"
 
 #: manual/conformance/ball_float.md:26
 msgid "conforming for input; the output (13.3) and the exact text (13.4) are not implemented yet (issue [#21](https://github.com/Luna-Flow/floating/issues/21))"
@@ -9304,7 +9302,7 @@ msgstr "`bin_float` の条項表を参照"
 
 #: manual/conformance/ball_float.md:28
 msgid "not implemented (not claimed in 0.12; additive, see [issue 232](https://github.com/Luna-Flow/floating/issues/232): the format of an interval will be an optional `e_max?` with the implementation range as default, and it is not part of `==` or `compare` (only `identical` may look at it))"
-msgstr ""
+msgstr "未実装（0.12 では適合を主張しない。後から追加可能、[issue 232](https://github.com/Luna-Flow/floating/issues/232) を参照：区間の形式は任意の `e_max?` で、既定は実装範囲であり、`==` や `compare` には含まれない（`identical` だけが参照してよい））"
 
 #: manual/conformance/ball_float.md:30
 msgid "Accuracy of operations"
@@ -11649,10 +11647,8 @@ msgid "*Rejections.* Every failed call is an `Err` of the parse kind whose messa
 msgstr "*拒否。* 失敗した呼び出しはすべて解析種別の `Err` で、メッセージは破られた文法または 12.11 の規則を示します（桁がない、16 進リテラルの指数フィールド、有理数の分母、端の順序、誤った側の無限大の端、リテラルの後の文字、装飾リテラル、11.4 で値に許されない装飾、裸のリテラルの装飾）。テスト表はすべての拒否される文字列の理由を検証します。`interval_literal_max_length` より長いリテラルは解析されず、Entire になります（12.11.5）。"
 
 #: manual/design/ball_float.md:922
-#, fuzzy
-#| msgid "*Evidence.* The independent oracle `tools/interval_literal_oracle.py` (pure Python, no `ball_float` code) evaluates a literal from whole-string patterns (a special form, the two bound strings of an inf-sup form cut at the comma, the groups of an uncertain pattern) to an exact `Fraction`, derives the uncertain form from the definition of the ulp, and rounds each bound with integer arithmetic against the stored range (gradual underflow to the quantum $2^{e_{\\min}-p+1}$, the largest finite float $(2^p - 1) 2^{e_{\\max}-p+1}$); it also checks every one of 20,000 rational literals against the rounded ends by cross-multiplication (the rounded lower end is not above the value and the float below it is below, and likewise for the upper end). The generated table (9,242 literals: the vectors of Tables 9.4 and 12.1, the negative examples, and random decimal, hexadecimal, rational, uncertain, decorated and special literals at precisions 24, 53 and 113, bare and decorated) is compared with the parser in `interval_literal_wbtest.mbt`."
 msgid "*Evidence.* The independent oracle `tools/interval_literal_oracle.py` (pure Python, no `ball_float` code) evaluates a literal from whole-string patterns (a special form, the two bound strings of an inf-sup form cut at the comma, the groups of an uncertain pattern) to an exact `Fraction`, derives the uncertain form from the definition of the ulp, and rounds each bound with integer arithmetic against the stored range (gradual underflow to the quantum $2^{e_{\\min}-p+1}$, the largest finite float $(2^p - 1) 2^{e_{\\max}-p+1}$); it also checks every one of 20,000 rational literals against the rounded ends by cross-multiplication (the rounded lower end is not above the value and the float below it is below, and likewise for the upper end). The generated table (9,919 literals: the vectors of Tables 9.4 and 12.1, the negative examples, and random decimal, hexadecimal, rational, uncertain, decorated and special literals at precisions 24, 53 and 113, bare and decorated) is compared with the parser in `interval_literal_wbtest.mbt`."
-msgstr "*根拠。* 独立したオラクル `tools/interval_literal_oracle.py`（純粋な Python、`ball_float` のコードなし）は、文字列全体のパターン（特殊形式、inf-sup 形式でカンマで切った 2 つの端の文字列、不確定形式のパターンの各グループ）からリテラルを厳密な `Fraction` に評価し、不確定形式を ulp の定義から導き、整数演算で格納範囲に対して各端を丸めます（量子 $2^{e_{\\min}-p+1}$ までの漸次アンダーフロー、最大の有限浮動小数点数 $(2^p - 1) 2^{e_{\\max}-p+1}$）。さらに 20,000 個の有理数リテラルのすべてについて、丸めた端を交差乗算で検査します（丸めた下端は値以下でその下の浮動小数点数は値より小さく、上端も同様）。生成された表（9,242 リテラル：表 9.4 と 12.1 のベクトル、否定例、精度 24、53、113 でのランダムな 10 進、16 進、有理数、不確定、装飾付き、特殊なリテラル。裸と装飾付き）は `interval_literal_wbtest.mbt` でパーサと比較されます。"
+msgstr "*根拠。* 独立したオラクル `tools/interval_literal_oracle.py`（純粋な Python、`ball_float` のコードなし）は、文字列全体のパターン（特殊形式、inf-sup 形式でカンマで切った 2 つの端の文字列、不確定形式のパターンの各グループ）からリテラルを厳密な `Fraction` に評価し、不確定形式を ulp の定義から導き、整数演算で格納範囲に対して各端を丸めます（量子 $2^{e_{\\min}-p+1}$ までの漸次アンダーフロー、最大の有限浮動小数点数 $(2^p - 1) 2^{e_{\\max}-p+1}$）。さらに 20,000 個の有理数リテラルのすべてについて、丸めた端を交差乗算で検査します（丸めた下端は値以下でその下の浮動小数点数は値より小さく、上端も同様）。生成された表（9,919 リテラル：表 9.4 と 12.1 のベクトル、否定例、精度 24、53、113 でのランダムな 10 進、16 進、有理数、不確定、装飾付き、特殊なリテラル。裸と装飾付き）は `interval_literal_wbtest.mbt` でパーサと比較されます。"
 
 #: manual/design/ball_float.md:930
 msgid "Relations: certainly and possibly"

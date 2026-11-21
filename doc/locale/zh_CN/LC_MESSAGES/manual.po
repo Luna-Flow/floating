@@ -540,7 +540,7 @@ msgstr "24 位和 113 位下的同一个区间是 `==` 的，但不是 `identica
 
 #: manual/api/ball_float.md:724
 msgid "The same holds for any other part of the format of an interval that a later release adds (the optional exponent range of the 754-conforming types, issue 232): the format is not part of `==` or of `compare`; only `identical` may look at it."
-msgstr ""
+msgstr "区间格式的其他任何部分，若以后的版本加入（754 兼容类型的可选指数范围，issue 232），同理：格式不属于 `==` 或 `compare`；只有 `identical` 可以查看它。"
 
 #: manual/api/ball_float.md:730
 msgid "These are the order relations of IEEE 1788."
@@ -9265,10 +9265,8 @@ msgid "§9.7, §12.11, §12.12.7, §13.2 interval and number literals, text inpu
 msgstr "§9.7、§12.11、§12.12.7、§13.2 区间与数字面量、文本输入"
 
 #: manual/conformance/ball_float.md:26
-#, fuzzy
-#| msgid "`library/src/ball_float/interval_literal_wbtest.mbt`: the vectors of Tables 9.4 and 12.1, the rejected strings of 9.7.4 and 12.11.4 with the rule named, and a table of 9,242 literals (every form, three precisions) whose expected bounds and rejection reasons are written by the independent oracle `tools/interval_literal_oracle.py`"
 msgid "`library/src/ball_float/interval_literal_wbtest.mbt`: the vectors of Tables 9.4 and 12.1, the rejected strings of 9.7.4 and 12.11.4 with the rule named, and a table of 9,919 literals (every form, up to five precisions, exponent fields of 19 to 40 digits, the largest finite number, the first value above it, `EMAX + 1`, the smallest subnormal and the first underflow, `_ill` and NaI literals) whose expected bounds and rejection reasons are written by the independent oracle `tools/interval_literal_oracle.py`"
-msgstr "`library/src/ball_float/interval_literal_wbtest.mbt`：表 9.4 与 12.1 的向量，9.7.4 与 12.11.4 中被拒绝字符串（并指明规则），以及一个含 9,242 个字面量的表（每种形式、三种精度），其期望端点与拒绝原因由独立预言机 `tools/interval_literal_oracle.py` 写出"
+msgstr "`library/src/ball_float/interval_literal_wbtest.mbt`：表 9.4 与 12.1 的向量，9.7.4 与 12.11.4 中被拒绝字符串（并指明规则），以及一个含 9,919 个字面量的表（每种形式，最多五种精度，19 到 40 位的指数字段，最大有限数，其上的第一个值，`EMAX + 1`，最小次正规数与第一个下溢，`_ill` 与 NaI 字面量），其期望端点与拒绝原因由独立预言机 `tools/interval_literal_oracle.py` 写出"
 
 #: manual/conformance/ball_float.md:26
 msgid "conforming for input; the output (13.3) and the exact text (13.4) are not implemented yet (issue [#21](https://github.com/Luna-Flow/floating/issues/21))"
@@ -9304,7 +9302,7 @@ msgstr "见 `bin_float` 条款表"
 
 #: manual/conformance/ball_float.md:28
 msgid "not implemented (not claimed in 0.12; additive, see [issue 232](https://github.com/Luna-Flow/floating/issues/232): the format of an interval will be an optional `e_max?` with the implementation range as default, and it is not part of `==` or `compare` (only `identical` may look at it))"
-msgstr ""
+msgstr "未实现（0.12 不声明兼容；可增量加入，见 [issue 232](https://github.com/Luna-Flow/floating/issues/232)：区间的格式将是可选的 `e_max?`，默认为实现范围，且它不属于 `==` 或 `compare`（只有 `identical` 可以查看它））"
 
 #: manual/conformance/ball_float.md:30
 msgid "Accuracy of operations"
@@ -11649,10 +11647,8 @@ msgid "*Rejections.* Every failed call is an `Err` of the parse kind whose messa
 msgstr "*拒绝。* 每个失败的调用都是解析类的 `Err`，其消息指明被违反的文法或 12.11 的规则（缺少数字、十六进制字面量的指数字段、有理数的分母、端点的顺序、错误一侧的无穷端点、字面量之后的字符、装饰字面量、11.4 不允许该值使用的装饰、裸字面量上的装饰）。测试表对每个被拒绝的字符串都断言其原因。长于 `interval_literal_max_length` 的字面量不被解析，结果为 Entire（12.11.5）。"
 
 #: manual/design/ball_float.md:922
-#, fuzzy
-#| msgid "*Evidence.* The independent oracle `tools/interval_literal_oracle.py` (pure Python, no `ball_float` code) evaluates a literal from whole-string patterns (a special form, the two bound strings of an inf-sup form cut at the comma, the groups of an uncertain pattern) to an exact `Fraction`, derives the uncertain form from the definition of the ulp, and rounds each bound with integer arithmetic against the stored range (gradual underflow to the quantum $2^{e_{\\min}-p+1}$, the largest finite float $(2^p - 1) 2^{e_{\\max}-p+1}$); it also checks every one of 20,000 rational literals against the rounded ends by cross-multiplication (the rounded lower end is not above the value and the float below it is below, and likewise for the upper end). The generated table (9,242 literals: the vectors of Tables 9.4 and 12.1, the negative examples, and random decimal, hexadecimal, rational, uncertain, decorated and special literals at precisions 24, 53 and 113, bare and decorated) is compared with the parser in `interval_literal_wbtest.mbt`."
 msgid "*Evidence.* The independent oracle `tools/interval_literal_oracle.py` (pure Python, no `ball_float` code) evaluates a literal from whole-string patterns (a special form, the two bound strings of an inf-sup form cut at the comma, the groups of an uncertain pattern) to an exact `Fraction`, derives the uncertain form from the definition of the ulp, and rounds each bound with integer arithmetic against the stored range (gradual underflow to the quantum $2^{e_{\\min}-p+1}$, the largest finite float $(2^p - 1) 2^{e_{\\max}-p+1}$); it also checks every one of 20,000 rational literals against the rounded ends by cross-multiplication (the rounded lower end is not above the value and the float below it is below, and likewise for the upper end). The generated table (9,919 literals: the vectors of Tables 9.4 and 12.1, the negative examples, and random decimal, hexadecimal, rational, uncertain, decorated and special literals at precisions 24, 53 and 113, bare and decorated) is compared with the parser in `interval_literal_wbtest.mbt`."
-msgstr "*证据。* 独立预言机 `tools/interval_literal_oracle.py`（纯 Python，不含 `ball_float` 代码）用整串模式（特殊形式、inf-sup 形式中在逗号处切开的两个端点串、不确定形式模式的各个分组）把字面量求值为精确的 `Fraction`，由 ulp 的定义推导不确定形式，并用整数运算按存储范围舍入每个端点（逐渐下溢到量子 $2^{e_{\\min}-p+1}$，最大有限浮点数 $(2^p - 1) 2^{e_{\\max}-p+1}$）；它还对 20,000 个有理数字面量逐一用交叉相乘检查舍入后的端点（舍入后的下端点不高于该值且其下的浮点数低于它，上端点同理）。生成的表（9,242 个字面量：表 9.4 与 12.1 的向量、反例，以及精度 24、53、113 下随机的十进制、十六进制、有理数、不确定、带装饰和特殊字面量，裸版与装饰版）在 `interval_literal_wbtest.mbt` 中与解析器比较。"
+msgstr "*证据。* 独立预言机 `tools/interval_literal_oracle.py`（纯 Python，不含 `ball_float` 代码）用整串模式（特殊形式、inf-sup 形式中在逗号处切开的两个端点串、不确定形式模式的各个分组）把字面量求值为精确的 `Fraction`，由 ulp 的定义推导不确定形式，并用整数运算按存储范围舍入每个端点（逐渐下溢到量子 $2^{e_{\\min}-p+1}$，最大有限浮点数 $(2^p - 1) 2^{e_{\\max}-p+1}$）；它还对 20,000 个有理数字面量逐一用交叉相乘检查舍入后的端点（舍入后的下端点不高于该值且其下的浮点数低于它，上端点同理）。生成的表（9,919 个字面量：表 9.4 与 12.1 的向量、反例，以及精度 24、53、113 下随机的十进制、十六进制、有理数、不确定、带装饰和特殊字面量，裸版与装饰版）在 `interval_literal_wbtest.mbt` 中与解析器比较。"
 
 #: manual/design/ball_float.md:930
 msgid "Relations: certainly and possibly"
