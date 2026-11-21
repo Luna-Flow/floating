@@ -1,11 +1,30 @@
 ///|
 /// A non-negative arbitrary-precision integer, used as the coefficient of a
 /// `BinFloat` and as the bit pattern of an interchange encoding. The type is
-/// opaque to its users: the inner type is internal and carries no compatibility
-/// promise, and the arithmetic lives in the internal kernel package
-/// `Luna-Flow/floating/internal/bin_kernel`, and each method here forwards to
-/// it (a newtype costs nothing: no extra allocation and no extra call).
-pub(all) struct BinCoeff(@bin_kernel.Coeff)
+/// abstract: neither the constructor nor the field is visible outside `bin_float`, and the
+/// inner type belongs to the internal kernel package
+/// `Luna-Flow/floating/internal/bin_kernel`, which carries no compatibility
+/// promise. Code outside the package works through the methods below; the
+/// packages of this module that need the kernel type use `to_kernel` and
+/// `from_kernel`. The wrapper is a newtype (no extra allocation and no extra
+/// call).
+struct BinCoeff(@bin_kernel.Coeff)
+
+///|
+/// Bridge to the kernel type, for the packages of this module only. The type it
+/// returns is internal and may change in any release; reading the field of the
+/// wrapper directly is not supported either.
+#internal(internal, "bridge to the internal kernel type, for the packages of this module")
+pub fn BinCoeff::to_kernel(self : BinCoeff) -> @bin_kernel.Coeff {
+  self.0
+}
+
+///|
+/// Bridge from the kernel type, for the packages of this module only.
+#internal(internal, "bridge from the internal kernel type, for the packages of this module")
+pub fn BinCoeff::from_kernel(value : @bin_kernel.Coeff) -> BinCoeff {
+  BinCoeff(value)
+}
 
 ///|
 pub fn BinCoeff::zero() -> BinCoeff {

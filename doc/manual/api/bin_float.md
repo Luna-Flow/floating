@@ -101,20 +101,36 @@ A non-negative arbitrary-precision integer, used as the coefficient of a
 `BinFloat` and as the bit pattern of an interchange encoding.
 
 ```mbti
-pub(all) struct BinCoeff(@bin_kernel.Coeff)
+type BinCoeff
 ```
 
 The inner type `@bin_kernel.Coeff` belongs to the internal package
 `internal/bin_kernel`, which only code inside `Luna-Flow/floating` can import.
 It carries no compatibility promise and a user cannot call a method on it, read
-it, compare it or build one: from outside the module a `BinCoeff` is opaque,
-and the field is public only so that the other packages of the library can
-unwrap it. The value is exact: on the native, LLVM and Wasm targets an inline
+it, compare it or build one: from outside the module a `BinCoeff` is abstract.
+Neither its constructor nor its field is visible outside `bin_float`; the other
+packages of the library reach the kernel type through the bridge `to_kernel` and
+`from_kernel` (below).
+The value is exact: on the native, LLVM and Wasm targets an inline
 64- or 128-bit word or an array of 64-bit limbs, on JavaScript a host
 `bigint`; the representation is not observable, and the algorithm selection
 (schoolbook, Karatsuba, Toom-3, number-theoretic transform, staged division) is
 described in the [design page](../design/bin_float.md#the-coefficient-kernel).
 `Debug` prints the integer value.
+
+### `BinCoeff::to_kernel`, `BinCoeff::from_kernel` (internal bridge)
+
+The bridge between `BinCoeff` and the kernel type, for the packages of this
+module only. Code outside `Luna-Flow/floating` cannot name the kernel type and
+has no use for them; they carry no compatibility promise, and the kernel type
+they exchange may change in any release.
+
+```mbti
+pub fn BinCoeff::to_kernel(Self) -> @bin_kernel.Coeff
+pub fn BinCoeff::from_kernel(@bin_kernel.Coeff) -> Self
+```
+
+Both carry `#internal`, which changes neither the generated interface nor the documentation tool, so this heading and the doc comments are what mark them as internal. Both are free: `BinCoeff` is a one-field tuple structure over the kernel type, and the bridge reads and wraps that field.
 
 ### `BinCoeff::zero`, `BinCoeff::one`, `BinCoeff::from_uint64`
 
@@ -2647,11 +2663,12 @@ pub let binary_precision_max : Int32
 // Errors
 
 // Types and methods
-pub(all) struct BinCoeff(@bin_kernel.Coeff)
+type BinCoeff
 pub fn BinCoeff::bit_length(Self) -> Int32
 pub fn BinCoeff::compare(Self, Self) -> Int32
 pub fn BinCoeff::equal(Self, Self) -> Bool
 pub fn BinCoeff::from_bytes_be(BytesView) -> Self
+pub fn BinCoeff::from_kernel(@bin_kernel.Coeff) -> Self
 pub fn BinCoeff::from_uint64(UInt64) -> Self
 pub fn BinCoeff::is_zero(Self) -> Bool
 pub fn BinCoeff::not_equal(Self, Self) -> Bool
@@ -2663,6 +2680,7 @@ pub fn BinCoeff::op_lt(Self, Self) -> Bool
 pub fn BinCoeff::output(Self, &Logger) -> Unit
 pub fn BinCoeff::parse(String, radix? : Int32) -> Result[Self, String]
 pub fn BinCoeff::to_bytes_be(Self) -> Bytes
+pub fn BinCoeff::to_kernel(Self) -> @bin_kernel.Coeff
 pub fn BinCoeff::to_radix_string(Self, Int32) -> String
 pub fn BinCoeff::to_repr(Self) -> @debug.Repr
 pub fn BinCoeff::to_string(Self) -> String

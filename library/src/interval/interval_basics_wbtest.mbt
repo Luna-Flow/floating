@@ -309,7 +309,7 @@ fn coeff_gcd_kernel(
   left : @bin_float.BinCoeff,
   right : @bin_float.BinCoeff,
 ) -> @bin_float.BinCoeff {
-  @bin_float.BinCoeff(left.0.gcd(right.0))
+  @bin_float.BinCoeff::from_kernel(left.to_kernel().gcd(right.to_kernel()))
 }
 
 ///|

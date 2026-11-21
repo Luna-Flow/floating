@@ -18,11 +18,12 @@ pub let binary_precision_max : Int32
 // Errors
 
 // Types and methods
-pub(all) struct BinCoeff(@bin_kernel.Coeff)
+type BinCoeff
 pub fn BinCoeff::bit_length(Self) -> Int32
 pub fn BinCoeff::compare(Self, Self) -> Int32
 pub fn BinCoeff::equal(Self, Self) -> Bool
 pub fn BinCoeff::from_bytes_be(BytesView) -> Self
+pub fn BinCoeff::from_kernel(@bin_kernel.Coeff) -> Self
 pub fn BinCoeff::from_uint64(UInt64) -> Self
 pub fn BinCoeff::is_zero(Self) -> Bool
 pub fn BinCoeff::not_equal(Self, Self) -> Bool
@@ -34,6 +35,7 @@ pub fn BinCoeff::op_lt(Self, Self) -> Bool
 pub fn BinCoeff::output(Self, &Logger) -> Unit
 pub fn BinCoeff::parse(String, radix? : Int32) -> Result[Self, String]
 pub fn BinCoeff::to_bytes_be(Self) -> Bytes
+pub fn BinCoeff::to_kernel(Self) -> @bin_kernel.Coeff
 pub fn BinCoeff::to_radix_string(Self, Int32) -> String
 pub fn BinCoeff::to_repr(Self) -> @debug.Repr
 pub fn BinCoeff::to_string(Self) -> String
