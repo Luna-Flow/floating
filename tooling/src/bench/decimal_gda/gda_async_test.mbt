@@ -1,5 +1,10 @@
 ///|
 #skip("performance benchmark")
+// oracle: S
+// source: the reference of the benchmark is the library function that the first implementation times (see the comment
+//   in the spec): the block shows that the timed paths agree with each other, it makes no claim of correctness; the
+//   correctness oracles are the corpora of the gates and bench/external (MPFR, libmpdec)
+// shares: gda_core is both the reference and the first implementation
 async test "GDA core and full paths" {
   for operation in [GdaOperation::Add, Sub, Mul, Div, Fma, Parse] {
     let name = operation.name()

@@ -77,6 +77,10 @@ test "immutable baseline comparison rejects a significant regression" {
 }
 
 ///|
+// oracle: A
+// source: bounds from hand arithmetic on the ten paired differences (-18 to -3, median -8); the bootstrap itself is
+//   not recomputed
+// shares: nothing
 test "paired hotspot reports a 95 percent interval" {
   let baseline = [
     100.0, 104.0, 98.0, 110.0, 101.0, 97.0, 105.0, 99.0, 103.0, 100.0,
@@ -90,19 +94,14 @@ test "paired hotspot reports a 95 percent interval" {
   let hotspot = @bench.paired_hotspot(
     observations, "mul", 0, "base", "cand", 3.0, 1UL,
   ).unwrap()
-  let expected = @stats.compare_paired_with_bootstrap(
-    "base",
-    "cand",
-    baseline,
-    candidate,
-    3.0,
-    @model.confirmatory_interval(),
-    1UL,
-    2000,
-    95.0,
-  ).unwrap()
-  assert_eq(hotspot.interval.low, expected.interval.low)
-  assert_eq(hotspot.interval.high, expected.interval.high)
+  // The paired differences candidate - baseline are -10, -5, -7, -18, -3, -9, -10,
+  // -6, -13, -4: their median is -8 and they lie in [-18, -3]. A bootstrap interval
+  // of the median is inside the range of the data and, for these ten values, holds
+  // the sample median (hand arithmetic; the bootstrap itself is not recomputed).
+  assert_true(hotspot.interval.low >= -18.0)
+  assert_true(hotspot.interval.high <= -3.0)
+  assert_true(hotspot.interval.low <= -8.0)
+  assert_true(hotspot.interval.high >= -8.0)
   assert_true(hotspot.interval.low < hotspot.interval.high)
 }
 

@@ -1486,7 +1486,6 @@ library/src/internal/split_decimal_wbtest.mbt::split_decimal_string_wide keeps e
 tooling/src/bench/analysis_test.mbt::auto tune selects the fastest valid candidate	A
 tooling/src/bench/analysis_test.mbt::immutable baseline comparison rejects a significant regression	A
 tooling/src/bench/analysis_test.mbt::paired hotspot analysis preserves balanced block pairing	A
-tooling/src/bench/analysis_test.mbt::paired hotspot reports a 95 percent interval	C
 tooling/src/bench/analysis_test.mbt::tune decision counts only the samples behind the median	A
 tooling/src/bench/analysis_test.mbt::tune_dataset breaks practical ties by interquartile range	A
 tooling/src/bench/analysis_test.mbt::tune_dataset ties on median and spread resolve by candidate id	A
@@ -1494,11 +1493,9 @@ tooling/src/bench/interval/arithmetic_async_test.mbt::interval kernel core and f
 tooling/src/bench/interval/arithmetic_test.mbt::interval benchmark plans compile	S
 tooling/src/bench/binary/arithmetic_async_test.mbt::binary kernel core and full paths	?
 tooling/src/bench/binary/arithmetic_test.mbt::binary benchmark plans compile	none
-tooling/src/bench/binary/elementary_async_test.mbt::binary elementary core and full paths	C
 tooling/src/bench/binary/elementary_test.mbt::elementary benchmark plans compile	none
 tooling/src/bench/decimal/arithmetic_async_test.mbt::decimal kernel core and full paths	B
 tooling/src/bench/decimal/arithmetic_test.mbt::decimal benchmark plans compile	none
-tooling/src/bench/decimal_gda/gda_async_test.mbt::GDA core and full paths	C
 tooling/src/bench/decimal_gda/gda_test.mbt::GDA benchmark plans compile	none
 tooling/src/bench/external/canonical_test.mbt::canonical binary text: the formats of MPFR and of to_hex agree on one value	?
 tooling/src/bench/external/canonical_test.mbt::canonical decimal text: one value, the cohort and the sign of zero are kept	?
@@ -1521,10 +1518,7 @@ tooling/src/consistency/api_audit_wbtest.mbt::decimal interchange facade copy pr
 tooling/src/consistency/api_audit_wbtest.mbt::decimal interchange facade copy preserves special raw bits and format	?
 tooling/src/consistency/api_audit_wbtest.mbt::decimal interchange facade decodes specials through to_decimal	?
 tooling/src/consistency/api_audit_wbtest.mbt::decimal interchange facade exposes decimal32 non-canonical qnan witness	?
-tooling/src/consistency/api_audit_wbtest.mbt::decimal interchange facade from_decimal preserves finite bits flags and format	?
-tooling/src/consistency/api_audit_wbtest.mbt::decimal interchange facade from_decimal preserves special bits flags and format	?
 tooling/src/consistency/api_audit_wbtest.mbt::decimal interchange facade keeps wrapper canonical predicate distinct from scalar decimal	?
-tooling/src/consistency/api_audit_wbtest.mbt::decimal interchange facade preserves format and fixed-width hex output	?
 tooling/src/consistency/api_audit_wbtest.mbt::decimal interchange facade sign transforms preserve canonical decimal32 finite raw bits and meaning	?
 tooling/src/consistency/api_audit_wbtest.mbt::decimal interchange facade sign transforms preserve finite raw bits and meaning	?
 tooling/src/consistency/api_audit_wbtest.mbt::decimal interchange facade sign transforms preserve observable special meaning	?
@@ -1535,7 +1529,6 @@ tooling/src/consistency/api_audit_wbtest.mbt::def predicates classify finite and
 tooling/src/consistency/api_audit_wbtest.mbt::semantic interval interpretation preserves interval bounds	?
 tooling/src/consistency/api_audit_wbtest.mbt::semantic result interpretation totalizes checked failures	?
 tooling/src/consistency/api_audit_wbtest.mbt::semantic scalar interpretation unifies binary and decimal rationals	?
-tooling/src/consistency/clamp_fold_agreement_wbtest.mbt::decimal and decimal_gda agree on a zero quantize	?
 tooling/src/consistency/context_vectors_wbtest.mbt::the library constructors agree with testdata/context_vectors.txt	?
 tooling/src/consistency/core_wbtest.mbt::Interval signed powers handle Int minimum	?
 tooling/src/consistency/core_wbtest.mbt::IEEE decimal division preserves first nan payload and signals snans	?
@@ -1551,7 +1544,6 @@ tooling/src/consistency/core_wbtest.mbt::interval radius rounds outward at lower
 tooling/src/consistency/core_wbtest.mbt::interval_checked keeps interval operations in one result category	?
 tooling/src/consistency/core_wbtest.mbt::binary basic arithmetic stays exact on small dyadics	?
 tooling/src/consistency/core_wbtest.mbt::binary checked division reports division by zero	?
-tooling/src/consistency/core_wbtest.mbt::binary coefficient constructor normalizes canonical dyadics	?
 tooling/src/consistency/core_wbtest.mbt::binary implements generic checked arithmetic traits	?
 tooling/src/consistency/core_wbtest.mbt::binary normalizes powers of two	?
 tooling/src/consistency/core_wbtest.mbt::binary sqrt and pown expose core arithmetic extensions	?
@@ -1567,10 +1559,6 @@ tooling/src/consistency/core_wbtest.mbt::decimal addition propagates nan payload
 tooling/src/consistency/core_wbtest.mbt::decimal apply_ctx handles underflow shifts far beyond coefficient digits	?
 tooling/src/consistency/core_wbtest.mbt::decimal arithmetic and display stay aligned	?
 tooling/src/consistency/core_wbtest.mbt::decimal canonical multiply quiets interchange nan operands with canonical payloads	?
-tooling/src/consistency/core_wbtest.mbt::decimal canonical tiny-nonzero add rows preserve canonical finite result and inexact rounded flags	?
-tooling/src/consistency/core_wbtest.mbt::decimal canonical tiny-nonzero subtract rows preserve canonical finite result and inexact rounded flags	?
-tooling/src/consistency/core_wbtest.mbt::decimal canonical tiny-zero add rows preserve canonical finite result and rounded flag	?
-tooling/src/consistency/core_wbtest.mbt::decimal canonical tiny-zero subtract rows preserve canonical finite result and rounded flag	?
 tooling/src/consistency/core_wbtest.mbt::decimal checked division maps zero-zero and signaling nan to domain errors	?
 tooling/src/consistency/core_wbtest.mbt::decimal checked division reports division by zero	?
 tooling/src/consistency/core_wbtest.mbt::decimal context addition absorbs far smaller operand as sticky	?
@@ -1612,15 +1600,11 @@ tooling/src/consistency/core_wbtest.mbt::decimal generic checked division projec
 tooling/src/consistency/core_wbtest.mbt::decimal implements generic checked arithmetic traits	?
 tooling/src/consistency/core_wbtest.mbt::decimal inexact division matches official rounded quotients	?
 tooling/src/consistency/core_wbtest.mbt::decimal integer power keeps large exact powers exact when precision allows	?
-tooling/src/consistency/core_wbtest.mbt::decimal integral homomorphism preserves canonical decimal form	?
 tooling/src/consistency/core_wbtest.mbt::decimal integral rounding distinguishes exact and value flags	?
 tooling/src/consistency/core_wbtest.mbt::decimal interchange canonicalizes specials and preserves payloads	?
 tooling/src/consistency/core_wbtest.mbt::decimal interchange decodes multi-format special encodings directly	?
 tooling/src/consistency/core_wbtest.mbt::decimal interchange decodes official finite encodings	?
 tooling/src/consistency/core_wbtest.mbt::decimal interchange encodes official clamped finite values	?
-tooling/src/consistency/core_wbtest.mbt::decimal interchange formats expose the expected preset contexts	?
-tooling/src/consistency/core_wbtest.mbt::decimal interchange from_decimal matches encode result and flags	?
-tooling/src/consistency/core_wbtest.mbt::decimal interchange from_decimal matches special encode results and flags	?
 tooling/src/consistency/core_wbtest.mbt::decimal interchange input accepts trim optional hash and lowercase	?
 tooling/src/consistency/core_wbtest.mbt::decimal interchange sign transforms preserve bits across decimal32 and decimal128	?
 tooling/src/consistency/core_wbtest.mbt::decimal interchange sign transforms preserve special payload bits	?
@@ -1674,14 +1658,12 @@ tooling/src/consistency/core_wbtest.mbt::decimal total comparison orders represe
 tooling/src/consistency/core_wbtest.mbt::decimal transcendental constant reuse stays scale-correct across interleaved contexts	?
 tooling/src/consistency/core_wbtest.mbt::decimal zero arithmetic preserves meaningful result signs	?
 tooling/src/consistency/core_wbtest.mbt::decimal32 extra-declet non-canonical witnesses collapse to official canonical finite representative	?
-tooling/src/consistency/core_wbtest.mbt::decimal32 non-canonical finite witness reencodes through current canonical path	?
 tooling/src/consistency/core_wbtest.mbt::decimal32 raw witness #77FFFF3F decodes to its own canonical finite value	?
 tooling/src/consistency/core_wbtest.mbt::decimal_checked preserves IEEE values and accumulated flags	?
 tooling/src/consistency/core_wbtest.mbt::decimal_gda_checked threads context and short-circuits traps	?
 tooling/src/consistency/core_wbtest.mbt::plain decimal arithmetic preserves nan payloads and quiets snans	?
 tooling/src/consistency/core_wbtest.mbt::plain decimal minmax follows IEEE operand-order nan propagation	?
 tooling/src/consistency/core_wbtest.mbt::scalar decimal canonical predicate ignores non-canonical interchange encodings	?
-tooling/src/consistency/to_binary_exponent_issue468_wbtest.mbt::issue 468: decimal_gda to_binary agrees with decimal at large exponents	?
 tooling/src/differential/interval_mpfr/interval_mpfr_async_test.mbt::interval against the MPFR oracle: tightest results, directed roundings	?
 tooling/src/differential/interval_mpfr/interval_mpfr_async_test.mbt::bound_verdict: enclosing, equal, a little wider, too wide, zero and infinite bounds	?
 tooling/src/differential/interval_mpfr/interval_mpfr_async_test.mbt::identify_zeros: -0 is 0 in the echo of the operands, nothing else changes	?
