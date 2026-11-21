@@ -93,3 +93,22 @@ test "TestFloat execution shards select a deterministic partition" {
   assert_eq(summary.passed_cases(), 2)
   assert_eq(summary.failed_cases(), 0)
 }
+
+///|
+// oracle: S
+// source: the arm names `mul`, `add` and `eq` are written out in the test from the operation named in the TestFloat function (`f16_mul`, `f16_add`, `f16_eq`); the check is that the summary agrees with that name, a consistency check of the recorded set against the specification, not an independent value
+// shares: TestFloatSpec::parse and execute_document (the code under test)
+test "the summary names the operation arms that ran" {
+  // The set is per process (tests share it), so only membership is asserted here; the
+  // command-line summary of a fresh process holds exactly the arm of its function.
+  let run = fn(name : String, row : String) {
+    let spec = @testfloat_expr.TestFloatSpec::parse(name, "rnear_even").unwrap()
+    let document = @testfloat_expr.parse_testfloat(
+      "inline.testfloat", row, spec,
+    ).unwrap()
+    @testfloat_expr.execute_document(document).arms()
+  }
+  assert_true(run("f16_mul", "3C00 3C00 3C00 00\n").contains("mul"))
+  assert_true(run("f16_add", "3C00 3C00 4000 00\n").contains("add"))
+  assert_true(run("f16_eq", "3C00 3C00 1 00\n").contains("eq"))
+}

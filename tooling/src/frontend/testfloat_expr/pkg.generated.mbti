@@ -42,6 +42,7 @@ pub fn RunOptions::shard_index(Self) -> Int32
 pub struct RunSummary {
   // private fields
 }
+pub fn RunSummary::arms(Self) -> Array[String]
 pub fn RunSummary::failed_cases(Self) -> Int32
 pub fn RunSummary::passed_cases(Self) -> Int32
 pub fn RunSummary::results(Self) -> Array[CaseResult]

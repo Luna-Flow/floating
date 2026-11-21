@@ -1262,7 +1262,7 @@ msgstr ""
 #: manual/api/frontend/gda_expr.md:464
 #: manual/api/frontend/itl_expr.md:263
 #: manual/api/frontend/mpfr_expr.md:524
-#: manual/api/frontend/testfloat_expr.md:361
+#: manual/api/frontend/testfloat_expr.md:372
 #: manual/api/internal/conformance.md:296
 #: manual/api/numeric_expr.md:298
 #: manual/api/semantic.md:336
@@ -1356,7 +1356,7 @@ msgstr ""
 #: manual/api/frontend/gda_expr.md:515
 #: manual/api/frontend/itl_expr.md:276
 #: manual/api/frontend/mpfr_expr.md:537
-#: manual/api/frontend/testfloat_expr.md:407
+#: manual/api/frontend/testfloat_expr.md:418
 #: manual/api/internal.md:506
 #: manual/api/internal/bin_kernel.md:81
 #: manual/api/internal/conformance.md:359
@@ -1373,7 +1373,7 @@ msgstr ""
 #: manual/api/frontend/gda_expr.md:517
 #: manual/api/frontend/itl_expr.md:278
 #: manual/api/frontend/mpfr_expr.md:539
-#: manual/api/frontend/testfloat_expr.md:409
+#: manual/api/frontend/testfloat_expr.md:420
 #: manual/api/internal.md:508
 #: manual/api/internal/bin_kernel.md:83
 #: manual/api/internal/conformance.md:361
@@ -6873,7 +6873,7 @@ msgid "All counters except `total_cases` are added; `total_cases` is the maximum
 msgstr ""
 
 #: manual/api/frontend/gda_expr.md:466
-#: manual/api/frontend/testfloat_expr.md:363
+#: manual/api/frontend/testfloat_expr.md:374
 msgid "These methods come from `derive(Eq, @debug.Debug)`. Use `==`, `!=` and `debug_inspect` in new code."
 msgstr ""
 
@@ -7509,15 +7509,19 @@ msgstr ""
 msgid "`total_cases` is the number of vectors in the document, `selected_cases = passed_cases + failed_cases` the number executed by this shard, and `success` is true when none failed."
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:368
+#: manual/api/frontend/testfloat_expr.md:363
+msgid "`arms` returns the names of the operations that ran, in the order they first ran. Each operation of the TestFloat frontend is a function that records its own name when it executes; the command-line summary prints the set as `arms`. The verification tools key a task by the code those operations reach."
+msgstr ""
+
+#: manual/api/frontend/testfloat_expr.md:379
 msgid "`equal` compares constructors; `to_repr` renders the constructor name."
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:378
+#: manual/api/frontend/testfloat_expr.md:389
 msgid "`equal` compares all six fields, including `function_name` as written, so `f64_mul` and `F64_MUL` give unequal specifications with the same behaviour."
 msgstr ""
 
-#: manual/api/frontend/testfloat_expr.md:389
+#: manual/api/frontend/testfloat_expr.md:400
 msgid "`equal` compares location and message; `to_repr` renders both."
 msgstr ""
 

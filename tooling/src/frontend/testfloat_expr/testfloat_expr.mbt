@@ -93,6 +93,7 @@ pub struct RunOptions {
 ///|
 pub struct RunSummary {
   priv inner : @conformance.RunSummary
+  priv arms : Array[String]
 }
 
 ///|
@@ -480,6 +481,216 @@ fn executable_result(
 }
 
 ///|
+/// Names of the operations executed so far in this process: each `arm_*` function below
+/// records its own name when it runs, and the command-line summary prints the set (`arms`).
+/// Incremental verification reads it: the key of a unit is the frame (parser, judge,
+/// dispatchers) plus the code reachable from exactly the arms recorded here. An arm is a
+/// function named `arm_<name>` that calls `note_arm("<name>")` first.
+let executed_arms : Array[String] = []
+
+///|
+fn note_arm(name : String) -> Unit {
+  if !executed_arms.contains(name) {
+    executed_arms.push(name)
+  }
+}
+
+///|
+fn arm_add(
+  left : @bin_float.BinFloat,
+  right : @bin_float.BinFloat,
+  context : @bin_float.BinaryContext,
+) -> (@bin_float.BinFloat, @bin_float.BinaryFlags) {
+  note_arm("add")
+  left.add_ctx(right, context)
+}
+
+///|
+fn arm_sub(
+  left : @bin_float.BinFloat,
+  right : @bin_float.BinFloat,
+  context : @bin_float.BinaryContext,
+) -> (@bin_float.BinFloat, @bin_float.BinaryFlags) {
+  note_arm("sub")
+  left.sub_ctx(right, context)
+}
+
+///|
+fn arm_mul(
+  left : @bin_float.BinFloat,
+  right : @bin_float.BinFloat,
+  context : @bin_float.BinaryContext,
+) -> (@bin_float.BinFloat, @bin_float.BinaryFlags) {
+  note_arm("mul")
+  left.mul_ctx(right, context)
+}
+
+///|
+fn arm_div(
+  left : @bin_float.BinFloat,
+  right : @bin_float.BinFloat,
+  context : @bin_float.BinaryContext,
+) -> (@bin_float.BinFloat, @bin_float.BinaryFlags) {
+  note_arm("div")
+  left.div_ctx(right, context)
+}
+
+///|
+fn arm_sqrt(
+  operand : @bin_float.BinFloat,
+  context : @bin_float.BinaryContext,
+) -> (@bin_float.BinFloat, @bin_float.BinaryFlags) {
+  note_arm("sqrt")
+  operand.sqrt_ctx(context)
+}
+
+///|
+fn arm_fma(
+  left : @bin_float.BinFloat,
+  right : @bin_float.BinFloat,
+  addend : @bin_float.BinFloat,
+  context : @bin_float.BinaryContext,
+) -> (@bin_float.BinFloat, @bin_float.BinaryFlags) {
+  note_arm("fma")
+  left.fma_ctx(right, addend, context)
+}
+
+///|
+fn arm_remainder(
+  left : @bin_float.BinFloat,
+  right : @bin_float.BinFloat,
+  context : @bin_float.BinaryContext,
+) -> (@bin_float.BinFloat, @bin_float.BinaryFlags) {
+  note_arm("remainder")
+  left.remainder_ctx(right, context)
+}
+
+///|
+fn arm_to_integral_exact(
+  operand : @bin_float.BinFloat,
+  context : @bin_float.BinaryContext,
+) -> (@bin_float.BinFloat, @bin_float.BinaryFlags) {
+  note_arm("to_integral_exact")
+  operand.to_integral_exact_ctx(context)
+}
+
+///|
+fn arm_to_integral_value(
+  operand : @bin_float.BinFloat,
+  context : @bin_float.BinaryContext,
+) -> (@bin_float.BinFloat, @bin_float.BinaryFlags) {
+  note_arm("to_integral_value")
+  operand.to_integral_value_ctx(context)
+}
+
+///|
+fn arm_convert_format(
+  operand : @bin_float.BinFloat,
+  target : @bin_float.BinaryInterchangeFormat,
+  spec : TestFloatSpec,
+) -> (@bin_float.BinFloat, @bin_float.BinaryFlags) {
+  note_arm("convert_format")
+  operand.convert_format(target, rounding=spec.rounding, tininess=spec.tininess)
+}
+
+///|
+fn arm_to_int(
+  operand : @bin_float.BinFloat,
+  context : @bin_float.BinaryContext,
+  exact : Bool,
+) -> (UInt64?, @bin_float.BinaryFlags) {
+  note_arm("to_int")
+  let (value, flags) = operand.to_int_ctx(context, exact~)
+  (value.map(fn(value) { value.reinterpret_as_uint().to_uint64() }), flags)
+}
+
+///|
+fn arm_to_int64(
+  operand : @bin_float.BinFloat,
+  context : @bin_float.BinaryContext,
+  exact : Bool,
+) -> (UInt64?, @bin_float.BinaryFlags) {
+  note_arm("to_int64")
+  let (value, flags) = operand.to_int64_ctx(context, exact~)
+  (value.map(fn(value) { value.reinterpret_as_uint64() }), flags)
+}
+
+///|
+fn arm_to_uint(
+  operand : @bin_float.BinFloat,
+  context : @bin_float.BinaryContext,
+  exact : Bool,
+) -> (UInt64?, @bin_float.BinaryFlags) {
+  note_arm("to_uint")
+  let (value, flags) = operand.to_uint_ctx(context, exact~)
+  (value.map(fn(value) { value.to_uint64() }), flags)
+}
+
+///|
+fn arm_to_uint64(
+  operand : @bin_float.BinFloat,
+  context : @bin_float.BinaryContext,
+  exact : Bool,
+) -> (UInt64?, @bin_float.BinaryFlags) {
+  note_arm("to_uint64")
+  operand.to_uint64_ctx(context, exact~)
+}
+
+///|
+fn arm_eq(
+  left : @bin_float.BinFloat,
+  right : @bin_float.BinFloat,
+) -> (Bool, @bin_float.BinaryFlags) {
+  note_arm("eq")
+  left.compare_quiet_equal(right)
+}
+
+///|
+fn arm_le(
+  left : @bin_float.BinFloat,
+  right : @bin_float.BinFloat,
+) -> (Bool, @bin_float.BinaryFlags) {
+  note_arm("le")
+  left.compare_signaling_less_equal(right)
+}
+
+///|
+fn arm_lt(
+  left : @bin_float.BinFloat,
+  right : @bin_float.BinFloat,
+) -> (Bool, @bin_float.BinaryFlags) {
+  note_arm("lt")
+  left.compare_signaling_less(right)
+}
+
+///|
+fn arm_eq_signaling(
+  left : @bin_float.BinFloat,
+  right : @bin_float.BinFloat,
+) -> (Bool, @bin_float.BinaryFlags) {
+  note_arm("eq_signaling")
+  left.compare_signaling_equal(right)
+}
+
+///|
+fn arm_le_quiet(
+  left : @bin_float.BinFloat,
+  right : @bin_float.BinFloat,
+) -> (Bool, @bin_float.BinaryFlags) {
+  note_arm("le_quiet")
+  left.compare_quiet_less_equal(right)
+}
+
+///|
+fn arm_lt_quiet(
+  left : @bin_float.BinFloat,
+  right : @bin_float.BinFloat,
+) -> (Bool, @bin_float.BinaryFlags) {
+  note_arm("lt_quiet")
+  left.compare_quiet_less(right)
+}
+
+///|
 fn execute_case(case : TestFloatCase, spec : TestFloatSpec) -> CaseResult {
   let context = spec.format.context(
     rounding=spec.rounding,
@@ -524,23 +735,19 @@ fn execute_float_case(
   }
   let (actual, flags) = match (spec.operation, operands) {
     (ConvertFormat(target), [operand]) =>
-      operand.convert_format(
-        target,
-        rounding=spec.rounding,
-        tininess=spec.tininess,
-      )
-    (Add, [left, right]) => left.add_ctx(right, context)
-    (Subtract, [left, right]) => left.sub_ctx(right, context)
-    (Multiply, [left, right]) => left.mul_ctx(right, context)
-    (Divide, [left, right]) => left.div_ctx(right, context)
-    (SquareRoot, [operand]) => operand.sqrt_ctx(context)
-    (MulAdd, [left, right, addend]) => left.fma_ctx(right, addend, context)
-    (Remainder, [left, right]) => left.remainder_ctx(right, context)
+      arm_convert_format(operand, target, spec)
+    (Add, [left, right]) => arm_add(left, right, context)
+    (Subtract, [left, right]) => arm_sub(left, right, context)
+    (Multiply, [left, right]) => arm_mul(left, right, context)
+    (Divide, [left, right]) => arm_div(left, right, context)
+    (SquareRoot, [operand]) => arm_sqrt(operand, context)
+    (MulAdd, [left, right, addend]) => arm_fma(left, right, addend, context)
+    (Remainder, [left, right]) => arm_remainder(left, right, context)
     (RoundToInt, [operand]) =>
       if spec.exact {
-        operand.to_integral_exact_ctx(context)
+        arm_to_integral_exact(operand, context)
       } else {
-        operand.to_integral_value_ctx(context)
+        arm_to_integral_value(operand, context)
       }
     _ => abort("invalid parsed TestFloat operand arity")
   }
@@ -729,19 +936,10 @@ fn execute_integer_case(
 ) -> CaseResult {
   let exact = spec.exact
   let (actual, flags) = match spec.operation {
-    ToInt32 => {
-      let (value, flags) = operand.to_int_ctx(context, exact~)
-      (value.map(fn(value) { value.reinterpret_as_uint().to_uint64() }), flags)
-    }
-    ToInt64 => {
-      let (value, flags) = operand.to_int64_ctx(context, exact~)
-      (value.map(fn(value) { value.reinterpret_as_uint64() }), flags)
-    }
-    ToUInt32 => {
-      let (value, flags) = operand.to_uint_ctx(context, exact~)
-      (value.map(fn(value) { value.to_uint64() }), flags)
-    }
-    ToUInt64 => operand.to_uint64_ctx(context, exact~)
+    ToInt32 => arm_to_int(operand, context, exact)
+    ToInt64 => arm_to_int64(operand, context, exact)
+    ToUInt32 => arm_to_uint(operand, context, exact)
+    ToUInt64 => arm_to_uint64(operand, context, exact)
     _ => abort("invalid parsed TestFloat conversion")
   }
   let invalid_expected = (case.expected_flags & 0x10) != 0
@@ -776,12 +974,12 @@ fn execute_boolean_case(
   let left = operands[0]
   let right = operands[1]
   let (actual, flags) = match spec.operation {
-    Equal => left.compare_quiet_equal(right)
-    LessEqual => left.compare_signaling_less_equal(right)
-    Less => left.compare_signaling_less(right)
-    EqualSignaling => left.compare_signaling_equal(right)
-    LessEqualQuiet => left.compare_quiet_less_equal(right)
-    LessQuiet => left.compare_quiet_less(right)
+    Equal => arm_eq(left, right)
+    LessEqual => arm_le(left, right)
+    Less => arm_lt(left, right)
+    EqualSignaling => arm_eq_signaling(left, right)
+    LessEqualQuiet => arm_le_quiet(left, right)
+    LessQuiet => arm_lt_quiet(left, right)
     _ => abort("invalid parsed TestFloat comparison")
   }
   if actual != expected {
@@ -815,7 +1013,14 @@ pub fn execute_document(
       document.cases.length(),
       results.map(fn(result) { result.inner }),
     ),
+    arms: executed_arms.copy(),
   }
+}
+
+///|
+/// The operations (`arm_*` functions) that ran, by name, in the order they first ran.
+pub fn RunSummary::arms(self : RunSummary) -> Array[String] {
+  self.arms
 }
 
 ///|

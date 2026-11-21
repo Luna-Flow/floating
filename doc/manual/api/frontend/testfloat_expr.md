@@ -358,6 +358,17 @@ pub fn RunSummary::success(Self) -> Bool
 `selected_cases = passed_cases + failed_cases` the number executed by this
 shard, and `success` is true when none failed.
 
+### `RunSummary::arms`
+
+`arms` returns the names of the operations that ran, in the order they first
+ran. Each operation of the TestFloat frontend is a function that records its
+own name when it executes; the command-line summary prints the set as `arms`.
+The verification tools key a task by the code those operations reach.
+
+```mbti
+pub fn RunSummary::arms(Self) -> Array[String]
+```
+
 ## Trait implementations
 
 These methods come from `derive(Eq, @debug.Debug)`. Use `==`, `!=` and
@@ -454,6 +465,7 @@ pub fn RunOptions::shard_index(Self) -> Int32
 pub struct RunSummary {
   // private fields
 }
+pub fn RunSummary::arms(Self) -> Array[String]
 pub fn RunSummary::failed_cases(Self) -> Int32
 pub fn RunSummary::passed_cases(Self) -> Int32
 pub fn RunSummary::results(Self) -> Array[CaseResult]
