@@ -45,7 +45,7 @@ fn ref_pieces(
   kmin : Int32,
   kmax : Int32,
 ) -> Array[(Interval, Interval)] {
-  let pi = certified_pi_interval(ref_w)
+  let pi = ref_pi_interval(ref_w)
   let two_pi = pi * Interval::exact(@binary.Binary::from_int(2))
   let at = fn(s : @binary.Binary) { Interval::exact(s, precision=ref_w) }
   let out : Array[(Interval, Interval)] = []

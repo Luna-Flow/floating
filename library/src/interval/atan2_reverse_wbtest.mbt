@@ -1,7 +1,7 @@
 ///|
 /// A float next to a multiple of pi/2: `RD` of `k pi / 2` at `p` bits, `up` for the next float.
 fn a2_near(k : Int32, p : Int32, up~ : Bool = false) -> @binary.Binary {
-  let pi = certified_pi_interval(p + 64)
+  let pi = ref_pi_interval(p + 64)
   let magnitude = if k == 1 || k == -1 {
     (pi * Interval::exact(@binary.Binary::from_double(0.5))).lo_
   } else {
@@ -26,6 +26,9 @@ fn a2_iv(lo : Double, hi : Double) -> Interval {
 }
 
 ///|
+// oracle: A
+// source: zone indices written out by hand from the position of each angle against -pi, -pi/2, 0, pi/2, pi; the floats next to pi and pi/2 come from ref_pi_interval (bounds of pi from tools/interval_pi_oracle.py, Python integers)
+// shares: a2_near, with_precision, next_up_ctx of binary (only to step one float; exact operations)
 test "atan2 zones: the position of an angle against the multiples of pi/2, exactly" {
   for p in [53, 113] {
     assert_true(atan2_zone(a2_near(2, p)) == 5)
@@ -51,6 +54,9 @@ test "atan2 zones: the position of an angle against the multiples of pi/2, exact
 ///|
 /// The inputs that make the set empty, each named: c without a point in (-pi, pi], an empty
 /// operand, the abscissa 0 with an angle that misses both axis directions, and the origin.
+// oracle: A
+// source: each empty or non-empty verdict written out from 1788-2015 atan2_rev1 (set of ordinates whose angle lies in c, open at the origin, c within (-pi, pi]); the floats next to -pi come from ref_pi_interval (Python integers)
+// shares: a2_near, with_precision, next_up_ctx of binary
 test "atan2_rev1: the empty set" {
   let ctx = @binary.BinaryContext::new(precision=53)
   let entire = Interval::entire(precision=53)
@@ -88,6 +94,9 @@ test "atan2_rev1: the empty set" {
 }
 
 ///|
+// oracle: A
+// source: each empty or non-empty verdict written out from 1788-2015 atan2_rev2; the float next to -pi comes from ref_pi_interval (Python integers)
+// shares: a2_near, with_precision, next_up_ctx of binary
 test "atan2_rev2: the empty set" {
   let entire = Interval::entire(precision=53)
   assert_true(entire.atan2_rev2(a2_iv(4.0, 5.0)).is_empty())
@@ -115,6 +124,9 @@ test "atan2_rev2: the empty set" {
 
 ///|
 /// c wider than the range, and unbounded operands.
+// oracle: A
+// source: the hull and the sign of each result written out by hand from the sign of sin(c) and cos(c) in each quadrant (validity of the hull: the hull is the exact set here, since each set is a half-line or a point); the floats next to pi/2 and pi come from ref_pi_interval (Python integers)
+// shares: a2_near, with_precision, next_up_ctx of binary
 test "atan2_rev1 and atan2_rev2: c = Entire, and Entire operands with a thin c" {
   let entire = Interval::entire(precision=53)
   let is_entire = fn(r : Interval) {
@@ -171,6 +183,9 @@ test "atan2_rev1 and atan2_rev2: c = Entire, and Entire operands with a thin c" 
 
 ///|
 /// The branch cut: the angle pi is attained on y = 0, x < 0, and -pi never.
+// oracle: A
+// source: empty or non-empty verdicts and the bounds 0 written out by hand from the range (-pi, pi] of atan2 (1788-2015) and y = -tan(theta) at the cut
+// shares: nothing
 test "atan2: the branch cut and the half-open range" {
   // Rev1, b = {-1}: c = [3.1, 4] has Theta = [3.1, pi], and y = -tan(theta) runs from
   // about 0.0416 down to 0, attained at pi
@@ -248,6 +263,9 @@ test "atan2_rev1 and atan2_rev2: extreme operands return at once" {
 }
 
 ///|
+// oracle: A
+// source: decorations written out from 1788-2015 11.7.1 (reverse functions give trv) and NaI propagation
+// shares: nothing
 test "atan2_rev1 and atan2_rev2: decorated forms are trv and NaI propagates" {
   let p = 53
   let b = DecoratedInterval::new(pw_ival(1.0, 2.0, p), decoration=Com)
