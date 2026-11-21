@@ -165,6 +165,14 @@ pub fn Decimal::try_pow_ctx(
   if gda_context_is_restricted(ctx) {
     return Err(decimal_context_limit("pow", ctx))
   }
+  // Engineering limit (issue 700, `DecimalContext::elementary_precision_limit`): above it only the special cases of IEEE 754-2019 9.2.1 are values;
+  // nothing else is computed, the exponent 0.5 (a square root) included.
+  if decimal_precision_over_limit(ctx) {
+    return match decimal_power_ieee_special_result(self, exponent, ctx) {
+      Some(result) => Ok(result)
+      None => Err(decimal_context_limit("pow", ctx))
+    }
+  }
   let half = finite_with_exponent_repr(false, dec_coeff_from_int(5), -1, 1)
   if self.class == FpClass::Finite &&
     !self.negative &&

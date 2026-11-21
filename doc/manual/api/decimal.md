@@ -617,6 +617,46 @@ test "a refinement limit makes a hard-to-round result fail" {
 }
 ```
 
+### `DecimalContext::elementary_precision_limit`, `DecimalContext::with_elementary_precision_limit`
+
+Read and set the precision limit of the elementary functions and of the `pow`
+family: the escape entry from an engineering limit.
+
+```mbti
+pub fn DecimalContext::elementary_precision_limit(Self) -> Int32?
+pub fn DecimalContext::with_elementary_precision_limit(Self, Int32?) -> Self
+```
+
+`Some(n)` refuses an ordinary operand in a context whose precision is above
+`n` digits, at once (`not_computed`, `Err` in the `try_` forms); the default is
+`Some(999_999)`, and `None` removes the limit. The default is a cap that the
+library chose, not a property of the operations: above it the library does not
+bound the running time or the memory, and that range is not covered by the
+conformance gates, with no guarantee. The results come from the same certified
+kernels, so a value that is returned is still correctly rounded. For example
+`pow(2, 0.5)`, a square root, took 0.6 s at 100,000 digits, 14.7 s at 1,000,000
+and more than 300 s at 10,000,000 (release build, loaded machine). Where the
+certified kernel cannot represent the working precision (above 80,807,093
+digits) the functions that go through it return the context-limit error
+whatever the limit; the square-root route of `pow` (exponent 0.5, `sqrt_ctx`)
+and the exact routes are not refused there and run on. The cases that IEEE
+754-2019 9.2.1 lists are values whatever the limit. The field takes part in
+`==`, like the refinement limit, and `with_precision`, `with_e_max` and
+`with_rounding` keep it.
+
+```moonbit
+///|
+test "the precision limit of the elementary functions" {
+  let context = @decimal.DecimalContext::new(precision=101)
+  inspect(context.elementary_precision_limit() == Some(999_999), content="true")
+  let low = context.with_elementary_precision_limit(Some(100))
+  let two = @decimal.Decimal::from_int(2)
+  inspect(two.try_pow_ctx(@decimal.Decimal::from_int(3), low) is Err(_), content="true")
+  let open = low.with_elementary_precision_limit(None)
+  inspect(two.pow_ctx(@decimal.Decimal::from_int(3), open).0.to_string(), content="8")
+}
+```
+
 ### `DecimalContext::with_precision`, `with_e_max`, `with_rounding`
 
 These functions derive a context.
@@ -1527,6 +1567,21 @@ overflows or underflows are decided without evaluation.
 ### `Decimal::pow_ctx`, `pown_ctx`, `rootn_ctx`, `hypot_ctx`, `try_pow_ctx`, `try_pown_ctx`, `try_rootn_ctx`, `try_hypot_ctx`
 
 These functions compute powers, roots and the Euclidean norm.
+
+The `pow` family (`pow_ctx`, `pown_ctx`, `powr_ctx` and their `try_` forms)
+has an engineering limit on the precision of the context: above 999,999
+decimal digits by default (the precision part of the limit of the elementary
+functions, `DecimalContext::elementary_precision_limit`; `None` or a larger
+value is the escape entry, with no guarantee) it computes nothing for an ordinary
+operand, not even the exponent `0.5`, which would otherwise be a square root at
+that precision, and returns the context-limit error (`not_computed` in the
+plain form) at once. The cost is the reason: `pow(2, 0.5)` takes about 0.6 s at
+100,000 digits, 14.7 s at 1,000,000 and more than 300 s at 10,000,000. The
+special cases that IEEE 754-2019 9.2.1 lists for `pow` stay values in every
+context. `pown_ctx` is `pow_ctx` with an integral exponent and is under the
+same limit, an exact integral power included; `rootn_ctx` and `compound_ctx`
+were already under it. `sqrt_ctx` has no such limit: it is a basic operation
+(5.4.1).
 
 ```mbti
 pub fn Decimal::pow_ctx(Self, Self, DecimalContext) -> (Self, DecimalFlags)
@@ -2591,6 +2646,7 @@ pub fn DecimalContext::decimal32(rounding? : DecimalRoundingMode) -> Self
 pub fn DecimalContext::decimal64(rounding? : DecimalRoundingMode) -> Self
 pub fn DecimalContext::e_max(Self) -> Int32
 pub fn DecimalContext::e_min(Self) -> Int32
+pub fn DecimalContext::elementary_precision_limit(Self) -> Int32?
 pub fn DecimalContext::equal(Self, Self) -> Bool
 pub fn DecimalContext::from_arithmetic_context(@arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn DecimalContext::new(precision? : Int32, e_max? : Int32, rounding? : DecimalRoundingMode) -> Self
@@ -2600,6 +2656,7 @@ pub fn DecimalContext::refinement_limit(Self) -> Int32?
 pub fn DecimalContext::rounding(Self) -> DecimalRoundingMode
 pub fn DecimalContext::try_new(precision? : Int32, e_max? : Int32, rounding? : DecimalRoundingMode) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn DecimalContext::with_e_max(Self, Int32) -> Self
+pub fn DecimalContext::with_elementary_precision_limit(Self, Int32?) -> Self
 pub fn DecimalContext::with_precision(Self, Int32) -> Self
 pub fn DecimalContext::with_refinement_limit(Self, Int32?) -> Self
 pub fn DecimalContext::with_rounding(Self, DecimalRoundingMode) -> Self
