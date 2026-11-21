@@ -877,7 +877,7 @@ $k = \operatorname{round}(x / (\pi/2))$ is the same integer at both ends of
 the enclosure; otherwise the attempt is repeated at a higher precision. This
 is the Payne–Hanek idea realised by brute precision instead of a stored table
 of $2/\pi$; its cost grows with $\log_2|x|$, so inputs needing more than
-$10^6$ bits are refused with `ResourceLimit` rather than run for minutes.
+8,000,000 bits are refused with `ResourceLimit` rather than run for minutes.
 
 **Budget.** The loop starts at $w_0 = p + 64$ (for some functions at the
 operand precision plus 16 when that is larger) and steps
@@ -1206,9 +1206,9 @@ class.
 
 *Status: design and results for [#18](https://github.com/Luna-Flow/floating/issues/18).
 The constants (`pi`, `ln 2`, `ln 10` by binary splitting), the `exp`
-enclosure, the `ln` enclosure and the `sin` and `cos` enclosures are
-implemented and merged; `tan`, and the further
-reductions listed at the end of the section are design only. The measured
+enclosure (bit-burst, and by tables at medium precision), the `ln` enclosure
+(Newton step and arithmetic-geometric mean) and the `sin` and `cos` enclosures
+are implemented and merged; `tan` keeps the series. The measured
 figures are baselines or results of the implemented part; the figures marked
 "projection" come from a cost model fitted to them and are replaced by
 measurements as each step lands. The final measurement of the merged kernels is
@@ -1408,7 +1408,8 @@ the invariant. Each stage adds at most $e_y + 2$ units of relative width, so
 with at most $J$ stages the final width is below
 $J (2^{8} + 3 n_{\max} + 5) + 6$ units, about $2^{15}$ units for
 $w = 8192$; $g = 48$ guard bits therefore keep the enclosure within
-$2^{-(w+7)}$ relative width, which is the width of the current series. The
+$2^{-(w+6)}$ relative width, which is the bound the kernel checks (the
+current series gives about $2^{-(w+7)}$). The
 kernel computes the true width and returns `None` when it exceeds that bound.
 
 *One full product per chunk.* The pair $(\ell, u)$ and the stage $[l, s]$ ($l \le e^{y} \cdot 2^F \le s$, both in units of $2^{-F}$) are folded as $(\lfloor \ell\, l / 2^F \rfloor,\; \lfloor u\, s / 2^F \rfloor + 1)$. Put $w = u - \ell$ and $r = s - l$. Both are short, and the kernel guarantees it: $r$ is below $2^{8} + 3 n + 5$ (the stage bound above), and $w$ never decreases from one fold to the next (each factor $l / 2^F \ge 1$ since $e^{y} \ge 1$), so $w$ is at most the final width, which the final check limits to $2^{g - 6} = 2^{42}$ units, one limb. Observed in 150 folds of the kernel at working precisions 2112 and 8256 bits (36 pseudo-random arguments with magnitudes from $2^{-20}$ to $2^{12}$): $w$ at most 9 bits and $r$ at most 8 bits. Then $u\, s = \ell\, l + \ell\, r + w\, s$ exactly, so the upper end is formed from the product $\ell\, l$ that the lower end already needs, plus two products by short numbers: one full product and two unbalanced ones instead of two full products. The integers are the same as before, so no error term arises and the width argument above is unchanged. The first chunk starts from $\ell = u = 2^F$ and is the stage itself, $(l, s + 1)$, without a product.
@@ -1445,7 +1446,7 @@ $|x| < 2^{-65}$ or $|x| \ge 2^{30}$, when $|n| \ge 2^{29}$ (the result
 exponent would approach the limit of the exponent range), when $x$ has bits
 below $2^{-G}$, and when the computed width exceeds $2^{-(w+6)}$ of the value.
 (Below the table kernel's ceiling, next section, the table kernel is tried first.) It is used from a per-target working precision, kept with the coefficient
-thresholds: 1024 bits on Native and LLVM, 640 on Wasm and Wasm-GC, 256 on
+thresholds: 1024 bits on Native and LLVM, 1088 on Wasm, 640 on Wasm-GC, 256 on
 JavaScript (the kernel is slower than the series below roughly 1000 bits on
 Native, 600 on Wasm-GC; on JavaScript it wins already at 256). The three
 chunk constants were swept on Native; in a repeat on a quiet machine the chosen
@@ -1688,7 +1689,7 @@ load), so the drift-corrected ratios are about 10.7 to 11.4 at 8192 bits and
 about 12 to 15 at 2048 bits; an earlier run on a quiet machine gave
 11.5 to 13.6 at 8192 bits (on the previous division kernel).
 
-**`ln`, by the arithmetic-geometric mean.** For the outermost `ln` call (never for the constants, which the mean needs) and for $1 + 2^{-16} < v \le 2$ the enclosure of $\ln v$ is built from $\ln s = \pi / (2\, \mathrm{AG}(1, 4/s))$ up to a model term, with $s = v\, 2^{m}$, $m = \lceil p/2 \rceil + 2$ (so $s > 2^{p/2 + 2}$ and $4/s^2 < 2^{-(p+2)}$), $\ln v = \ln s - m \ln 2$. Every step below has a stated bound; none uses MPFR's constants.
+**`ln`, by the arithmetic-geometric mean.** For the outermost `ln` call (never for the constants, which the mean needs) and for $1 + 2^{-16} < v \le 2$ the enclosure of $\ln v$ is built from $\ln s = \pi / (2\, \mathrm{AG}(1, 4/s))$ up to a model term, with $s = v\, 2^{m}$, $m = \lceil p/2 \rceil + 2$ (so $s > 2^{p/2 + 2}$ and $4/s^2 < 2^{-(p+2)}$), $\ln v = \ln s - m \ln 2$.[^brent-agm] Every step below has a stated bound; none uses MPFR's constants.
 
 1. *The argument.* $x = 4/s = (4/v)\, 2^{-m}$: one division rounded to nearest at $p$ bits, relative error at most $2^{-p}$, then an exact shift. $\mathrm{AG}$ is increasing in each argument and homogeneous of degree one (both maps $(a, b) \mapsto ((a+b)/2, \sqrt{ab})$ are), so for $\theta \ge 0$: $\mathrm{AG}(1, x) \le \mathrm{AG}(1, x(1+\theta)) \le \mathrm{AG}(1+\theta, x(1+\theta)) = (1+\theta)\, \mathrm{AG}(1, x)$, and symmetrically for $\theta < 0$: the relative error of $x$ moves $\mathrm{AG}$ by at most as much.
 2. *The iteration.* $u' = \sqrt{u v}$, $v' = (u+v)/2$ from $(x, 1)$, every product, square root and sum rounded to nearest at $p$ bits (relative error $\delta = 2^{-p}$ each). The halving of the sum is exact and is made by changing the exponent of the already normalized coefficient, and the root is the correctly rounded one, taken from the limb-array kernel of the public square root (the context form gives the same value and costs 39 percent more at 2140 bits); neither changes a value, so the induction below is that of the plain iteration. With the exact sequence $(U_k, V_k)$ and $u_k = U_k (1 + a_k)$, $v_k = V_k (1 + b_k)$, $|a_k|, |b_k| \le \varepsilon_k$: the product has $(1+a)(1+b)(1+\eta_1)$, the root halves the exponent of that factor and adds one rounding, the sum is bounded by $(1 + \varepsilon)(1 + \eta_3)$ and halving is exact, so $\varepsilon_{k+1} \le \varepsilon_k + 2\delta + O(\delta\, \varepsilon_k)$, and $\varepsilon_n \le (3 n + 4)\delta$ for $n < 64$ (MPFR's analysis of the same iteration, with the Higham calculus, gives $3n/2$; ours is looser by 2).
@@ -1925,9 +1926,12 @@ of the loop and does not interact with the kernels.
 a fixed-point stage allocates four arrays of up to $w/32$ limbs (product,
 shift, quotient, sum); on native these are included in the measured unit costs
 above (shift 0.2 µs, one-limb division 1.5 µs, addition 0.3 µs at 8192 bits).
-A fused in-place multiply-shift-divide loop on a mutable limb array would
-remove most of that for the non-JavaScript targets, and is a later optimization
-behind the same function, not part of the design. On JavaScript `BinCoeff` is a
+The `ln` series loop already runs on limb arrays on the non-JavaScript targets
+(see "The `ln` series loop on limb arrays"). A fused in-place
+multiply-shift-divide loop on a mutable limb array for the other stages, which
+still allocate per term, would remove most of that for the non-JavaScript
+targets, and is a later optimization behind the same function, not part of the
+design. On JavaScript `BinCoeff` is a
 `bigint`: products, shifts and divisions are the engine's, with a larger
 constant per operation and an asymptotically faster product, so the stage
 boundaries and every threshold are measured separately on native, LLVM, Wasm,
@@ -1960,9 +1964,9 @@ native, release, load average 1.3 to 3, three runs of
 stored MPFR median is 6.0 to 6.6 (`exp`), 12.5 (`ln`) and 12.2 (`sin`) at 2048
 bits, and 3.2 (`exp`), 10.6 (`ln`) and 5.8 (`sin`) at 8192 bits. The MPFR time
 measured on the same machine at the same moment was within 6 % of the stored
-one, so raw and drift-corrected ratios differ by at most 6 %. Two cells are
-below 10 times MPFR; `ln` at 2048 and 8192 bits and `sin` at 2048 bits are above
-it. This is one machine and the native target only: the Wasm, Wasm-GC and
+one, so raw and drift-corrected ratios differ by at most 6 %. Three cells are
+below 10 times MPFR (`exp` at 2048 and 8192 bits, `sin` at 8192 bits); `ln` at
+2048 and 8192 bits and `sin` at 2048 bits are above it. This is one machine and the native target only: the Wasm, Wasm-GC and
 JavaScript targets were not compared with MPFR. The projections above are
 superseded by these numbers; the remaining gap is the multiplication and
 division kernel and allocation, not the algorithm.
@@ -2017,7 +2021,11 @@ limbs:
 | two-prime NTT product from | 4096 | 2048 |
 | NTT square from | 3584 | 1536 |
 
-LLVM takes the Native values, which are unmeasured there. A product with
+The Native, LLVM column lists the values of the portable loops, which LLVM
+uses (unmeasured there). Native with the C rows has the Karatsuba square from
+64 limbs, and with the assembly rows (arm64 Apple, where they are the default)
+the schoolbook product below and the Karatsuba product from 48 limbs and the
+Karatsuba square from 96. A product with
 $m > 2n$ limbs is cut inside the Karatsuba into $n$-limb blocks; a short
 operand against a long one beyond the NTT cutoff uses the NTT overlap-add.
 Squaring is a word-range Karatsuba square (three half-size squares $a_0^2$,
@@ -2180,8 +2188,8 @@ attachment.
 `binary` deliberately does not:
 
 - provide interval or ball arithmetic: enclosures are internal to the
-  certification loops; `interval` builds midpoint–radius arithmetic on top
-  of `Binary`;
+  certification loops; `interval` builds inf-sup interval arithmetic (a lower
+  bound and an upper bound) on top of `Binary`;
 - implement IEEE 754 alternate exception handling (traps, substitution) or
   sticky global flags: flags are returned values;
 - implement decimal floating-point (`decimal`, `decimal_gda`) or the

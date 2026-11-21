@@ -17,8 +17,8 @@ precision, with three properties:
    mathematical result rounded once, in the selected direction, to the
    context's precision and exponent range — for the basic operations and for
    the elementary functions alike. The current implementation misses this goal
-   in a few places (exact decimal results of non-integral powers, integral
-   rounding of operands longer than $p$ digits, huge exponents in text); they
+   in two places (integral rounding of operands longer than $p$ digits, huge
+   exponents in text); they
    are listed in [known deviations](#known-deviations).
 2. **Nothing is lost silently.** The exponent of a result (its *quantum*), the
    sign of zero, NaN payloads and every exceptional condition are part of the
@@ -80,8 +80,10 @@ $$
 N_{\max} = (10^{p} - 1)\cdot 10^{E_{\text{top}}} = 10^{e_{\max}+1} - 10^{e_{\max}-p+1}.
 $$
 
-`DecimalContext` stores exactly $p$, $e_{\max}$ (and $e_{\min} = 1 - e_{\max}$,
-IEEE 754-2019 §3.3) and the rounding mode. Every context is an IEEE format: its
+`DecimalContext` stores the precision $p$, $e_{\max}$ (and $e_{\min} = 1 - e_{\max}$,
+IEEE 754-2019 3.3), the rounding direction and two limits
+(`refinement_limit`, `elementary_precision_limit`) that bound the elementary
+functions. Every context is an IEEE format: its
 exponents above $E_{\text{top}}$ are not allowed (see [clamping](#clamping)) and
 tininess is detected before rounding. The library's own working contexts, which
 are not formats, are private. The interchange formats are:
@@ -862,10 +864,11 @@ endpoint differs from the common result, so both are inexact, and
 interval that does not contain zero. Representable results are therefore
 handled before the loop (below).
 
-The initial working precision is $w_0 = \max(128,\ 4\max(D, p) + 64)$ bits,
-where $D$ is the number of input digits: one decimal digit needs $\log_2 10
-\approx 3.32 < 4$ bits, so $4\max(D,p)$ bits represent the input and the
-target with margin, and 64 bits more cover the loss of the enclosure. The
+The initial working precision is $w_0 = \max(64,\ \lfloor 3.321929\,\max(D, p)
+\rfloor + 31)$ bits, where $D$ is the number of input digits: one decimal digit
+needs $\log_2 10 = 3.3219280\ldots < 3.321929$ bits, so $\lfloor 3.321929\,
+\max(D,p) \rfloor$ bits represent the input and the target, and 31 guard bits
+more cover the loss of the enclosure. The
 schedule grows by a factor of about $3/2$ per step (exactly $w + \lfloor w/2
 \rfloor$ once $w \ge 64$); the 12 evaluations use $w_0, w_1, \ldots, w_{11}$,
 and the last one works with about $w_0 \cdot (3/2)^{11} \approx 86\,w_0$
@@ -1050,8 +1053,8 @@ $\ln b$ and $1/\ln b$ are irrational. Before the loop:
   level of `exp` (13) and `log1p` (18).
 - *Poles and domain.* $x = -1$ is $-\infty$ with `division_by_zero` and
   $x < -1$ is invalid for `log2p1` and `log10p1` (Table 9.1). Near $-1$ an
-  operand of $D$ digits keeps $1 + x \ge 10^{-D}$, which $w_0 = 4\max(D,p)+64$
-  bits resolve, as for `log1p`.
+  operand of $D$ digits keeps $1 + x \ge 10^{-D}$, which $w_0$ resolves,
+  as for `log1p`.
 
 **`rSqrt`, `compound` and `powr`.** The three take their exact results from
 `decimal_exact_constant` and none of them expands a binary endpoint near an
@@ -1090,12 +1093,13 @@ extreme power of ten.
   keep the result inside the range. `Int32`'s minimum $-2^{31}$ is taken as an
   `Int64`. `pown(1 + x, n)` is not used: when this function was written, its
   exponents beyond the machine count gave wrong values and some negative ones
-  a spurious `Clamped` for a base near 1 (issues 348 and 350, since fixed),
+  a spurious `Clamped` for a base near 1 (issues [#348](https://github.com/Luna-Flow/floating/issues/348) and
+  [#350](https://github.com/Luna-Flow/floating/issues/350), since fixed),
   and the Ziv loop never forms $1 + x$.
 - *`powr`.* §9.2.1 lists the invalid pairs $(\pm 0, \pm 0)$,
   $(+\infty, \pm 0)$, $(1, \pm\infty)$ and $x < 0$, and a NaN result for a NaN
   operand even when $y = \pm 0$. Two cases are not stated and are read as
-  follows [ambiguous]: $x < 0$ with $y$ a quiet NaN is invalid (the NaN rule is
+  follows: $x < 0$ with $y$ a quiet NaN is invalid (the NaN rule is
   stated "for $x \ge 0$"), and $+\infty^{y}$ for $y \ne 0$ and $x^{\pm\infty}$
   for $x \notin \{0, 1\}$ follow $e^{y \ln x}$ by continuity. Every remaining
   pair has $x \ge 0$, where $x^y$ is the same function as `pow`, and the
@@ -1126,7 +1130,7 @@ enclosure divided by it (error: the angle, $\pi$ and the division, about
   representable value.
 - *Clusters next to $\pm\tfrac12$ and $\pm 1$.* These are the only inexact
   results that approach a representable value, and the distance does not
-  depend on the digits of the operand, so $w_0 = 4D + 64$ cannot cover it.
+  depend on the digits of the operand, so a $w_0$ that grows with $D$ cannot cover it.
   Each is decided by `decimal_tiny_argument_result` from a bound on the
   distance, one-sided: $\operatorname{atanPi}(x) = \pm(\tfrac12 - \delta)$ with
   $0 < \delta < 1/(\pi|x|) < 10^{-\operatorname{adj}(x)}$ for a large $|x|$;
@@ -1199,7 +1203,7 @@ while the results stay those of correct rounding.
   conversion bit for bit. For a negative exponent the quotient of the bounds is
   used only when $2 s > 4\,\text{bits}(c)$, where $5^s > c$ guarantees that the
   division is inexact (the sticky bit is set).
-- *First working precision.* $\max(64, \lceil 3.3219281\,\max(D, p) \rceil +
+- *First working precision.* $\max(64, \lfloor 3.321929\,\max(D, p) \rfloor +
   31)$ bits instead of $\max(128, 4 \max(D, p) + 64)$: the schedule grows by a
   factor of 1.5 when an enclosure does not decide, so a low start costs an
   attempt and never a result. On 16,536 rows (exp, exp2, exp10, expm1, the
@@ -1227,7 +1231,7 @@ while the results stay those of correct rounding.
   integer multiple of 10 with $\operatorname{adj}(x) \ge p + 2$ (the sum ends in 1:
   no power of 2, 5 or 10) or for $n > 0$ when $\operatorname{adj}(x) < -(p + 2)$
   (more than $p + 2$ digits); `sqrt` reuses the remainder of the integer root.
-- *Negative integer power (#375).* For $n = |{\rm count}|$, $|b|^n \in [10^{n\,lb},
+- *Negative integer power ([#375](https://github.com/Luna-Flow/floating/issues/375)).* For $n = |{\rm count}|$, $|b|^n \in [10^{n\,lb},
   10^{n\,ub})$ with $lb = \operatorname{adj}(b)$, $ub = lb + 1$, hence
   $1/|b|^n \in (10^{-n\,ub}, 10^{-n\,lb}]$: it overflows when $-n\,ub > e_{\max}$ and
   lies below half of the smallest subnormal when $-n\,lb \le E_{\text{tiny}} - 2$;
@@ -1407,8 +1411,6 @@ measurements do not show a crossover.
   the half modes and $|\delta| < 10^{1-p}$ in the directed modes.
 - **Exactness is visible.** `inexact` is raised if and only if the returned
   value differs from the exact result; `rounded` whenever digits were dropped.
-  Exact decimal results of non-integral powers violate the "only if"
-  direction.
 - **Cohort preservation.** An exact result that fits is returned at the
   preferred exponent; `quantize_ctx` either returns exponent $q_y$ or fails.
 - **Flags.** `combine` is associative, commutative and idempotent with
@@ -1467,14 +1469,13 @@ four targets).
 - keep sticky status or traps (use `decimal_checked` or `decimal_gda`);
 - round the context-free operators to a context: `*` is exact, `+` and `/`
   round to the operand precision only, and none applies an exponent range;
-- guarantee the exact flags of exact decimal results
-  of non-integral powers (see [known deviations](#known-deviations));
 - guarantee that elementary-function certification succeeds: after the
   refinement limit of the context (twelve by default, `with_refinement_limit`;
   the last steps work with very wide numbers and can take a long time) it reports `CertificationFailure` (`try_*_ctx`) or NaN
   with `invalid_operation` (`*_ctx`);
-- evaluate elementary functions in contexts with precision or exponents above
-  999,999;
+- evaluate elementary functions of an ordinary operand in contexts with
+  precision or exponents above 999,999 (special operands and the exact points
+  of IEEE 754-2019 9.2.1 are answered first, in every context);
 - preserve NaN payloads through binary conversions;
 - expose its coefficient representation, kernel selection or thresholds;
 - claim conformance beyond the finite evidence on the
