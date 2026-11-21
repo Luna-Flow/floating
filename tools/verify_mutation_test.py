@@ -30,6 +30,8 @@ class MutationFileTests(unittest.TestCase):
         mutation = vm.Mutation("m", "p", "f", "s", "x", "y", "behavioural")
         with self.assertRaises(ValueError):
             vm.apply_mutation("nothing", mutation)
+        appended = vm.Mutation("m", "p", "f", "s", "", "\n// c\n", "comment")
+        self.assertEqual(vm.apply_mutation("code", appended), "code\n// c\n")
         with self.assertRaises(ValueError):
             vm.apply_mutation("x x", mutation)
         self.assertEqual(vm.apply_mutation("a x b", mutation), "a y b")
@@ -104,6 +106,30 @@ class BindingJudgeTests(unittest.TestCase):
                 self.assertNotEqual(before, (sidecar.read_text(), c_file.read_text()))
                 restore()
                 self.assertEqual(before, (sidecar.read_text(), c_file.read_text()))
+
+
+class KernelMutationTests(unittest.TestCase):
+    def test_the_kernel_rows_apply_to_the_current_sources(self) -> None:
+        for mutation, _, _ in vm._kernel_mutations():
+            text = (REPO_ROOT / mutation.path).read_text(encoding="utf-8")
+            self.assertNotEqual(vm.apply_mutation(text, mutation), text, mutation.name)
+
+    def test_the_kernel_rows_cover_the_edits_the_note_lists(self) -> None:
+        rows = {m.name: (run, fail) for m, run, fail in vm._kernel_mutations()}
+        self.assertEqual(rows["kernel-source"], (7, True))
+        self.assertEqual(rows["kernel-test-file"], (7, False))
+        self.assertEqual(rows["kernel-comment-only"], (7, False))  # the key is of file content: coarser than code, allowed
+        self.assertEqual(rows["bin-float-edit"], (0, False))
+
+    def test_the_judge_checks_the_plan_and_the_failure(self) -> None:
+        plan = {"disabled": "", "actions": {f"u{i}": "run" for i in range(7)}}
+        self.assertEqual(vm.judge_kernel(7, plan, True, 1), [])
+        self.assertTrue(vm.judge_kernel(7, plan, True, 0))  # the oracles must see the edit
+        self.assertTrue(vm.judge_kernel(0, plan, False, None))  # seven ran, none expected
+        reused = {"disabled": "", "actions": {f"u{i}": "reuse" for i in range(7)}}
+        self.assertEqual(vm.judge_kernel(0, reused, False, None), [])
+        self.assertTrue(vm.judge_kernel(0, {"disabled": "not a leaf", "actions": reused["actions"]}, False, None))
+        self.assertTrue(vm.judge_kernel(0, {"disabled": "", "actions": {"u0": "reuse"}}, False, None))
 
 
 class ScratchTests(unittest.TestCase):

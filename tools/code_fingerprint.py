@@ -487,7 +487,7 @@ def rewrite_layout_indices(text: str, entries: dict[int, str]) -> tuple[str, int
 # `<parent>N<len>constrS<n>`, closures `C<n>l<line>`, anonymous records `u<n>__l<line>__`
 # and string literals `moonbit_string_literal_<n>`. A generic instance carries a type suffix after the
 # counter (`...nextN6constrS1771GcE`), so the nested forms are matched by what precedes the counter.
-_COUNTER = re.compile(r"(?<=constr)S\d+|(?<=record)S\d+|(?<=tuple)S\d+|S\d+(?=(?:\$\w+)?$)|S\d+(?=G\w*E(?:\$\w+)?$)|(?<=_7c)\d+|C\d+l\d+|u\d+__l\d+__|(?<=literal_)\d+")
+_COUNTER = re.compile(r"(?<=constr)S\d+|(?<=record)S\d+|(?<=tuple)S\d+|S\d+(?=(?:\$\w+)?$)|S\d+(?=G\w*E(?:\$\w+)?$)|(?<=_7c)\d+(?=(?:\$\w+)?$)|C\d+l\d+|u\d+__l\d+__|(?<=literal_)\d+")
 
 
 def counter_stem(name: str) -> str:
