@@ -79,12 +79,20 @@ async test "external baseline floating" {
     concurrency=1,
   )
   let mut failures = 0
+  let unvalidated : Array[String] = []
   for id in case_ids {
     guard parse_case_id(id) is Some((kind, op, size)) else {
       abort("malformed case " + id)
     }
     guard inputs.get(id) is Some(rows) else { abort("no input rows for " + id) }
     let reference_rows = references.get(id).unwrap_or([])
+    if reference_rows.is_empty() {
+      unvalidated.push(id)
+    }
+    let distinct : Map[String, Bool] = Map([])
+    for row in rows {
+      distinct[row.a + " " + row.b] = true
+    }
     let stream = @event.streaming_jsonl(
       line => println("MAREMARK_JSONL=" + line),
       "stdout://external/" + id + "/round-" + round.to_string(),
@@ -113,10 +121,21 @@ async test "external baseline floating" {
       " passed=" +
       summary.passed_count.to_string() +
       " failed=" +
-      summary.failed_count.to_string(),
+      summary.failed_count.to_string() +
+      " validated=" +
+      (if reference_rows.is_empty() { "no" } else { "yes" }) +
+      " operands=" +
+      rows.length().to_string() +
+      " distinct=" +
+      distinct.length().to_string(),
     )
   }
-  println("EXTBENCH_FAILED=" + failures.to_string())
+  if unvalidated.is_empty() {
+    println("EXTBENCH_FAILED=" + failures.to_string())
+  } else {
+    // No `EXTBENCH_FAILED=0`: a count of failures against nothing is not a result.
+    println("EXTBENCH_NOT_VALIDATED=" + unvalidated.join(","))
+  }
 }
 
 ///|

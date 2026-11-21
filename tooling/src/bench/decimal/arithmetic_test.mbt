@@ -68,6 +68,10 @@ fn decimal_input(operation : DecimalOperation, digits : Int32) -> DecimalInput {
 }
 
 ///|
+/// Timing harness check. The expected value is computed with core `BigInt`
+/// (another implementation, level A for integer arithmetic on these operands),
+/// but this benchmark makes no claim about `decimal` results: it checks that the
+/// timed paths agree.
 fn decimal_expected(
   operation : DecimalOperation,
   input : DecimalInput,

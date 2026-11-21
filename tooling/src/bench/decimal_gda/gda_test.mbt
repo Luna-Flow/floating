@@ -152,6 +152,11 @@ fn gda_spec(
         )
       }),
     ],
+    // Timing harness check, no validation claim (level S): the reference of this
+    // comparison is the library function that the first implementation times, so
+    // it can only show that the two timed paths agree with each other, not that
+    // either is right. The correctness oracles are the corpora and the
+    // external baseline (`bench/external`, MPFR and libmpdec).
     input => gda_core(operation, input),
     gda_matches,
     input => input.source,

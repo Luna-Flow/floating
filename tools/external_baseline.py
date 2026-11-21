@@ -407,6 +407,10 @@ class Collected:
     reference_pairs: dict[str, stats.Pairs] = field(default_factory=dict)
     floating_pairs: dict[str, stats.Pairs] = field(default_factory=dict)
     operands: int = OPERANDS_PER_CASE
+    # What the floating side said about its validation, per round ((state, detail)), and the
+    # number of distinct operand sets per case; both empty when not known (a report from old samples).
+    validation_status: dict[int, tuple[str, str]] = field(default_factory=dict)
+    distinct_operands: dict[str, int] = field(default_factory=dict)
 
 
 def parse_jsonl(text: str, marker: str = "") -> list[dict[str, object]]:
@@ -422,6 +426,70 @@ def parse_jsonl(text: str, marker: str = "") -> list[dict[str, object]]:
             continue
         events.append(json.loads(line))
     return events
+
+
+VALIDATED = "validated"
+VALIDATION_FAILED = "failed"
+NOT_VALIDATED = "not_validated"
+VALIDATION_UNKNOWN = "unknown"
+
+
+def floating_validation_status(log: str) -> tuple[str, str]:
+    """What the floating side's own output says about its validation: `(state, detail)`.
+
+    The benchmark prints `EXTBENCH_FAILED=<n>` only when every case was compared
+    with a reference result, and `EXTBENCH_NOT_VALIDATED=<cases>` when some case
+    had no reference (the library's own result stood in). A run without a
+    reference is therefore never `validated`; a log with neither line (the run
+    stopped early or the line was lost) is `unknown`, not `validated`.
+    """
+    lines = log.splitlines()
+    not_validated = [line for line in lines if line.startswith("EXTBENCH_NOT_VALIDATED=")]
+    if not_validated:
+        return NOT_VALIDATED, not_validated[-1].split("=", 1)[1]
+    failed = [line for line in lines if line.startswith("EXTBENCH_FAILED=")]
+    if not failed:
+        return VALIDATION_UNKNOWN, "no EXTBENCH_FAILED line"
+    count = failed[-1].split("=", 1)[1]
+    return (VALIDATED, "0") if count == "0" else (VALIDATION_FAILED, count)
+
+
+def distinct_operand_counts(rows: Iterable[Row]) -> dict[str, int]:
+    """Distinct operand sets per case id. The operand set of a case is the same in
+    every round and every block, so the number of checks a case makes is this
+    number, not the number of rounds or blocks."""
+    seen: dict[str, set[tuple[str, str | None]]] = {}
+    for row in rows:
+        seen.setdefault(f"{row.kind}/{row.op}/{row.size}", set()).add((row.a, row.b))
+    return {case: len(operands) for case, operands in seen.items()}
+
+
+def validation_paragraph(validation: dict[str, object]) -> list[str]:
+    """The sentences of the rendered page about what was checked and against what."""
+    status = str(validation.get("status", VALIDATION_UNKNOWN))
+    out: list[str] = []
+    if status == VALIDATED:
+        out.append(
+            "Validation: every result of the floating side was compared, as canonical text (sign, "
+            "significand and exponent; for decimal the coefficient with its trailing zeros), with the MPFR or "
+            "libmpdec result for the same operands; the sign of zero, the decimal cohort, infinities and NaN are "
+            "compared, and no reader of the library stands between the reference and the comparison."
+        )
+    elif status == NOT_VALIDATED:
+        out.append("**NOT VALIDATED: no reference result was given for some cases (" + str(validation.get("detail", "")) + "); the results are the library compared with itself.**")
+    elif status == VALIDATION_FAILED:
+        out.append(f"**VALIDATION FAILED: {validation.get('detail', '?')} results differ from the reference.**")
+    else:
+        out.append(f"**Validation unknown: {validation.get('detail', 'the output carries no verdict')}.**")
+    distinct = validation.get("distinct_operands_per_case")
+    if isinstance(distinct, dict) and distinct:
+        low, high = min(distinct.values()), max(distinct.values())
+        span = f"{low}" if low == high else f"{low} to {high}"
+        out.append(
+            f"Each case checks {span} distinct operand sets. The same operands are timed in every round and block, "
+            "so the rounds are repeats of one check, not further checks."
+        )
+    return out
 
 
 def add_reference_events(collected: Collected, round_index: int, events: Iterable[dict[str, object]]) -> None:
@@ -903,7 +971,7 @@ def raw_cell(result: CaseResult) -> str:
     return _interval(result.ratio_raw) + ("\\*" if result.noisy else "")
 
 
-def render_markdown(results: Sequence[CaseResult], protocol: dict[str, object] | None = None) -> str:
+def render_markdown(results: Sequence[CaseResult], protocol: dict[str, object] | None = None, validation: dict[str, object] | None = None) -> str:
     """Net ratio, raw ratio, net times and null times, one set of tables per domain."""
     target = float(protocol["target_ratio"]) if protocol else stats.TARGET_RATIO  # type: ignore[arg-type]
     limit = float(protocol.get("limit_ratio", target)) if protocol else target  # type: ignore[arg-type]
@@ -933,6 +1001,8 @@ def render_markdown(results: Sequence[CaseResult], protocol: dict[str, object] |
             "report ratios and set no target: there is no verdict, no count of cases within a target.",
             "",
         ]
+    if validation is not None:
+        out += validation_paragraph(validation) + [""]
     for kind, (title, library) in titles.items():
         if not any(r.kind == kind for r in results):
             continue
@@ -1648,6 +1718,7 @@ def command_run(args: argparse.Namespace) -> int:
     })  # fmt: skip
     (out_dir / "machine.json").write_text(json.dumps(meta, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     collected = Collected()
+    collected.distinct_operands = distinct_operand_counts(generate_rows(args.input_seed, OPERANDS_PER_CASE, cases))
     plans = plan_rounds(args.seed, protocol.rounds, case_ids)
     contention: list[dict[str, object]] = []
     for plan in plans:
@@ -1677,9 +1748,10 @@ def command_run(args: argparse.Namespace) -> int:
                     events = parse_jsonl(output, EVENT_MARKER)
                     jsonl.write_text("".join(json.dumps(e, sort_keys=True) + "\n" for e in events), encoding="utf-8")
                 add_floating_events(collected, plan.index, parse_jsonl(jsonl.read_text(encoding="utf-8")))
-                failed = [line for line in log.read_text(encoding="utf-8").splitlines() if line.startswith("EXTBENCH_FAILED=")]
-                if failed and failed[-1] != "EXTBENCH_FAILED=0":
-                    print(f"WARNING: floating output differs from the reference in round {plan.index}: see {log}")
+                state, detail = floating_validation_status(log.read_text(encoding="utf-8"))
+                collected.validation_status[plan.index] = (state, detail)
+                if state != VALIDATED:
+                    print(f"WARNING: floating output of round {plan.index} is {state.upper()} ({detail}): see {log}")
             contention.append({"round": plan.index, "side": side, "other_cpu_pct_before": before, "other_cpu_pct_after": sample_foreign_cpu(),
                                "thermal_before": therm_before, "thermal_after": thermal_state()})  # fmt: skip
             print(f"round {plan.index} {side}: {time.monotonic() - started:.0f} s, other CPU {contention[-1]['other_cpu_pct_after']:.0f}%", flush=True)
@@ -1761,13 +1833,33 @@ def command_quick(args: argparse.Namespace) -> int:
     for round_index in range(protocol.rounds):
         output = run_floating(inputs, None, case_ids, protocol, args.seed, round_index, parse_environment(args.moon_env), valid_target(args.target))
         (out_dir / f"quick-round-{round_index}.log").write_text(output, encoding="utf-8")
+        state, detail = floating_validation_status(output)
+        if state != NOT_VALIDATED:
+            print(f"WARNING: a quick run passes no reference file, yet the output says {state} ({detail})")
         add_floating_events(collected, round_index, parse_jsonl(output, EVENT_MARKER))
         print(f"round {round_index} done", flush=True)
     rows = quick_rows(floating_medians(collected), stored, args.flag_above)
     print(render_quick(rows))
+    print("NOT VALIDATED: a quick run has no reference results; the floating results are compared with themselves.")
     if args.json is not None:
         args.json.write_text(json.dumps({row[0]: row[1:] for row in rows}, indent=1) + "\n", encoding="utf-8")
     return 0
+
+
+def validation_document(collected: Collected) -> dict[str, object]:
+    """The validation facts of a run: the worst state over the rounds and the distinct operand counts."""
+    order = [VALIDATION_FAILED, NOT_VALIDATED, VALIDATION_UNKNOWN, VALIDATED]
+    states = {round_index: pair for round_index, pair in collected.validation_status.items()}
+    if not states:
+        status, detail = VALIDATION_UNKNOWN, "no floating output was read (a report from stored samples)"
+    else:
+        status, detail = min(states.values(), key=lambda pair: order.index(pair[0]))
+    return {
+        "status": status,
+        "detail": detail,
+        "rounds": {str(k): list(v) for k, v in sorted(states.items())},
+        "distinct_operands_per_case": dict(sorted(collected.distinct_operands.items())),
+    }
 
 
 def finish(collected: Collected, protocol: Protocol, seed: int, meta: dict[str, object], out_dir: Path) -> int:
@@ -1781,11 +1873,13 @@ def finish(collected: Collected, protocol: Protocol, seed: int, meta: dict[str, 
     document["validation_valid_total_per_case_all_rounds"] = validation
     invalid = [case for case, (valid, total) in collected.floating_validation.items() if valid != total]
     document["validation_failed_cases"] = sorted(invalid)
+    validation = validation_document(collected)
+    document["validation"] = validation
     if invalid:
         print("WARNING: floating differs from the MPFR/libmpdec reference in: " + ", ".join(sorted(invalid)))
     (out_dir / "results.json").write_text(json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     (out_dir / "samples.json").write_text(json.dumps(samples_document(collected), sort_keys=True) + "\n", encoding="utf-8")
-    markdown = render_markdown(results, document["protocol"])  # type: ignore[arg-type]
+    markdown = render_markdown(results, document["protocol"], validation)  # type: ignore[arg-type]
     (out_dir / "results.md").write_text(markdown, encoding="utf-8")
     print(markdown)
     print(f"summary: {out_dir / 'results.json'}")

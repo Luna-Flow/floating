@@ -76,6 +76,11 @@ fn ball_input(operation : BallOperation, bits : Int32) -> BallInput {
 }
 
 ///|
+/// Timing harness check, no validation claim (level C): the expected value is
+/// computed with `BinFloat`, the code that the ball route is built on, so the
+/// comparison shows that the timed paths agree with each other and nothing more.
+/// The oracles for `ball_float` results are the interval corpora and the
+/// external baseline's differential stage, not this benchmark.
 fn ball_expected(
   operation : BallOperation,
   input : BallInput,

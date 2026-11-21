@@ -863,5 +863,50 @@ class TableTests(unittest.TestCase):
             self.assertEqual(len((root / "t.csv").read_text(encoding="utf-8").splitlines()), 9)
 
 
+class ValidationTests(unittest.TestCase):
+    """Oracle: level A (the output lines and the expected verdicts are written out here)."""
+
+    def test_a_run_without_a_reference_is_never_validated(self) -> None:
+        log = "EXTBENCH_CASE=binary/add/53 round=0 passed=3 failed=0 validated=no operands=8 distinct=8\nEXTBENCH_NOT_VALIDATED=binary/add/53\n"
+        self.assertEqual(eb.floating_validation_status(log), (eb.NOT_VALIDATED, "binary/add/53"))
+
+    def test_zero_failures_only_with_the_line_of_a_validated_run(self) -> None:
+        self.assertEqual(eb.floating_validation_status("EXTBENCH_FAILED=0\n"), (eb.VALIDATED, "0"))
+        self.assertEqual(eb.floating_validation_status("EXTBENCH_FAILED=3\n"), (eb.VALIDATION_FAILED, "3"))
+        # a log that lost the line (a crash, a truncated read) says nothing: not "validated"
+        self.assertEqual(eb.floating_validation_status("MAREMARK_JSONL={}\n")[0], eb.VALIDATION_UNKNOWN)
+        self.assertEqual(eb.floating_validation_status("")[0], eb.VALIDATION_UNKNOWN)
+        # not validated wins over a failure count printed by an older runner
+        self.assertEqual(eb.floating_validation_status("EXTBENCH_FAILED=0\nEXTBENCH_NOT_VALIDATED=x\n")[0], eb.NOT_VALIDATED)
+
+    def test_distinct_operands_are_counted_per_case(self) -> None:
+        rows = [
+            eb.Row("binary", "add", 53, 0, "0x1p0", "0x1p1"),
+            eb.Row("binary", "add", 53, 1, "0x1p0", "0x1p1"),  # a repeat of row 0
+            eb.Row("binary", "add", 53, 2, "0x1p0", "0x3p0"),
+            eb.Row("binary", "sqrt", 53, 0, "0x5p0", None),
+        ]
+        self.assertEqual(eb.distinct_operand_counts(rows), {"binary/add/53": 2, "binary/sqrt/53": 1})
+
+    def test_the_document_takes_the_worst_state_of_the_rounds(self) -> None:
+        collected = eb.Collected()
+        collected.validation_status = {0: (eb.VALIDATED, "0"), 1: (eb.VALIDATION_FAILED, "2")}
+        collected.distinct_operands = {"binary/add/53": 8}
+        document = eb.validation_document(collected)
+        self.assertEqual(document["status"], eb.VALIDATION_FAILED)
+        self.assertEqual(document["distinct_operands_per_case"], {"binary/add/53": 8})
+        self.assertEqual(eb.validation_document(eb.Collected())["status"], eb.VALIDATION_UNKNOWN)
+
+    def test_the_page_states_what_was_and_was_not_validated(self) -> None:
+        ok = " ".join(eb.validation_paragraph({"status": eb.VALIDATED, "distinct_operands_per_case": {"a/b/1": 8, "a/c/2": 5}}))
+        self.assertIn("canonical text", ok)
+        self.assertIn("5 to 8 distinct operand sets", ok)
+        self.assertIn("repeats of one check", ok)
+        no = " ".join(eb.validation_paragraph({"status": eb.NOT_VALIDATED, "detail": "binary/add/53"}))
+        self.assertIn("NOT VALIDATED", no)
+        self.assertNotIn("canonical text", no)
+        self.assertIn("VALIDATION FAILED", " ".join(eb.validation_paragraph({"status": eb.VALIDATION_FAILED, "detail": "4"})))
+
+
 if __name__ == "__main__":
     unittest.main()

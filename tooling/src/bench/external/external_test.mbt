@@ -91,12 +91,21 @@ fn all_equal(count : Int32, same : (Int32) -> Bool) -> Bool {
 ///|
 /// A binary case: parsed operands, the MPFR reference results and a result
 /// buffer the timed pass fills (so the timed region allocates no result array).
+///
+/// `expected` is the canonical text (`canonical_binary`) of the MPFR result of
+/// every operand, read from the reference file by the parser of `canonical.mbt`
+/// and not by the library; it is what the results are validated against.
+/// `expected_values` are the same results as values: only the `null`
+/// implementation returns them (so that its output validates). Without a
+/// reference file `expected` is the library's own result of an untimed pass:
+/// the run is then NOT validated (the runner says so).
 struct BinaryCase {
   size : Int32
   count : Int32
   a : Array[@binary.BinFloat]
   b : Array[@binary.BinFloat]
-  expected : Array[@binary.BinFloat]
+  expected : Array[String]
+  expected_values : Array[@binary.BinFloat]
   out : Array[@binary.BinFloat]
 }
 
@@ -120,11 +129,21 @@ fn binary_case(
     binary_value(if row.b.is_empty() { row.a } else { row.b }, size)
   })
   let expected = if references.is_empty() {
+    inputs.map(_ => "")
+  } else {
+    references.map(row => {
+      match canonical_binary(row.a) {
+        Some(text) => text
+        None => abort("cannot read the binary reference result " + row.a)
+      }
+    })
+  }
+  let expected_values = if references.is_empty() {
     a.copy()
   } else {
     references.map(row => binary_value(row.a, size))
   }
-  { size, count, a, b, expected, out: a.copy(), }
+  { size, count, a, b, expected, expected_values, out: a.copy(), }
 }
 
 ///|
@@ -154,12 +173,18 @@ let binary_null : Ref[(@binary.BinFloat, @binary.BinFloat) -> @binary.BinFloat] 
 }
 
 ///|
+/// Compares the canonical text of the reference result with the canonical text
+/// of the library's result (`to_hex`): the sign of zero, infinities and NaN are
+/// compared, and no reader and no comparison of the library stands between the
+/// reference and the verdict.
 fn binary_matches(
-  expected : Array[@binary.BinFloat],
+  expected : Array[String],
   actual : Array[@binary.BinFloat],
 ) -> Bool {
   expected.length() == actual.length() &&
-  all_equal(expected.length(), i => expected[i].compare(actual[i]) == 0)
+  all_equal(expected.length(), i => {
+    canonical_binary(actual[i].to_hex()) == Some(expected[i])
+  })
 }
 
 ///|
@@ -177,7 +202,7 @@ fn binary_spec(
   Int32,
   BinaryCase,
   BinaryCase,
-  Array[@binary.BinFloat],
+  Array[String],
   Array[@binary.BinFloat],
   Unit,
   Array[@binary.BinFloat]?,
@@ -197,7 +222,12 @@ fn binary_spec(
           // No reference file (the quick check): the validation compares the
           // timed pass with this untimed pass of the same function.
           for i in 0..<prepared.count {
-            prepared.expected[i] = f(prepared.a[i], prepared.b[i])
+            let value = f(prepared.a[i], prepared.b[i])
+            prepared.expected_values[i] = value
+            prepared.expected[i] = match canonical_binary(value.to_hex()) {
+              Some(text) => text
+              None => abort("cannot read the printed result " + value.to_hex())
+            }
           }
         }
         prepared
@@ -215,7 +245,10 @@ fn binary_spec(
         // (so that its output validates) and stores an existing value.
         @runner.Implementation::stateless("null", "0.11.0", input => {
           for i in 0..<input.count {
-            input.out[i] = (binary_null.val)(input.expected[i], input.b[i])
+            input.out[i] = (binary_null.val)(
+              input.expected_values[i],
+              input.b[i],
+            )
           }
           @model.OperationResult::completed(input.out, ())
         }),
@@ -233,13 +266,17 @@ fn binary_spec(
 // ---------------------------------------------------------------------------
 
 ///|
+/// `expected` is the canonical text (`canonical_decimal`) of the libmpdec result
+/// of every operand (sign, coefficient and exponent: the cohort is compared);
+/// `expected_values` serve the `null` implementation only. See `BinaryCase`.
 struct DecimalCase {
   size : Int32
   count : Int32
   context : @gda.GdaContext
   a : Array[@gda.Decimal]
   b : Array[@gda.Decimal]
-  expected : Array[@gda.Decimal]
+  expected : Array[String]
+  expected_values : Array[@gda.Decimal]
   out : Array[@gda.Decimal]
 }
 
@@ -270,11 +307,30 @@ fn decimal_case(
     decimal_value(if row.b.is_empty() { row.a } else { row.b }, context)
   })
   let expected = if references.is_empty() {
+    inputs.map(_ => "")
+  } else {
+    references.map(row => {
+      match canonical_decimal(row.a) {
+        Some(text) => text
+        None => abort("cannot read the decimal reference result " + row.a)
+      }
+    })
+  }
+  let expected_values = if references.is_empty() {
     a.copy()
   } else {
     references.map(row => decimal_value(row.a, context))
   }
-  { size, count: inputs.length(), context, a, b, expected, out: a.copy(), }
+  {
+    size,
+    count: inputs.length(),
+    context,
+    a,
+    b,
+    expected,
+    expected_values,
+    out: a.copy(),
+  }
 }
 
 ///|
@@ -299,12 +355,17 @@ let decimal_null : Ref[
 ] = { val: (x, _, _) => x, }
 
 ///|
+/// See `binary_matches`: canonical text of the libmpdec result against the
+/// canonical text of the library's result, so that the cohort (trailing zeros),
+/// the sign of zero and NaN are compared.
 fn decimal_matches(
-  expected : Array[@gda.Decimal],
+  expected : Array[String],
   actual : Array[@gda.Decimal],
 ) -> Bool {
   expected.length() == actual.length() &&
-  all_equal(expected.length(), i => expected[i].compare(actual[i]) == 0)
+  all_equal(expected.length(), i => {
+    canonical_decimal(actual[i].to_string()) == Some(expected[i])
+  })
 }
 
 ///|
@@ -322,7 +383,7 @@ fn decimal_spec(
   Int32,
   DecimalCase,
   DecimalCase,
-  Array[@gda.Decimal],
+  Array[String],
   Array[@gda.Decimal],
   Unit,
   Array[@gda.Decimal]?,
@@ -340,11 +401,13 @@ fn decimal_spec(
         let prepared = decimal_case(size, inputs, references)
         if references.is_empty() {
           for i in 0..<prepared.count {
-            prepared.expected[i] = f(
-              prepared.a[i],
-              prepared.b[i],
-              prepared.context,
-            )
+            let value = f(prepared.a[i], prepared.b[i], prepared.context)
+            prepared.expected_values[i] = value
+            prepared.expected[i] = match canonical_decimal(value.to_string()) {
+              Some(text) => text
+              None =>
+                abort("cannot read the printed result " + value.to_string())
+            }
           }
         }
         prepared
@@ -360,7 +423,7 @@ fn decimal_spec(
         @runner.Implementation::stateless("null", "0.11.0", input => {
           for i in 0..<input.count {
             input.out[i] = (decimal_null.val)(
-              input.expected[i],
+              input.expected_values[i],
               input.b[i],
               input.context,
             )
@@ -420,4 +483,29 @@ test "external operand parsing is exact" {
   assert_eq(value.compare(expected), 0)
   let context = decimal_context(4)
   assert_eq(decimal_value("1234E-3", context).to_string(), "1.234")
+}
+
+///|
+// Oracle: level A (expected texts written out by hand, not produced by the
+// library).
+test "external validation compares text: the sign of zero, the cohort and a wrong value fail" {
+  let one_and_a_half = @binary.BinFloat::from_double(1.5, precision=8)
+  assert_true(binary_matches(["0b11p-1"], [one_and_a_half]))
+  assert_false(binary_matches(["0b11p-2"], [one_and_a_half]))
+  assert_false(binary_matches(["-0b11p-1"], [one_and_a_half]))
+  assert_false(binary_matches([], [one_and_a_half]))
+  let zero = @binary.BinFloat::zero(precision=8)
+  assert_true(binary_matches(["0"], [zero]))
+  assert_false(binary_matches(["-0"], [zero]))
+  assert_true(binary_matches(["-0"], [zero.neg()]))
+  assert_false(binary_matches(["0"], [zero.neg()]))
+  let context = decimal_context(4)
+  let twelve_tenths = decimal_value("12E-1", context)
+  let one_point_twenty = decimal_value("120E-2", context)
+  assert_true(decimal_matches(["12E-1"], [twelve_tenths]))
+  assert_true(decimal_matches(["120E-2"], [one_point_twenty]))
+  // equal as numbers, different cohort: not a match
+  assert_false(decimal_matches(["12E-1"], [one_point_twenty]))
+  assert_false(decimal_matches(["120E-2"], [twelve_tenths]))
+  assert_false(decimal_matches(["13E-1"], [twelve_tenths]))
 }
