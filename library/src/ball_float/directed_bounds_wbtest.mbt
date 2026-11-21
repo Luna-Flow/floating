@@ -466,8 +466,8 @@ fn db_old_add(a : BallFloat, b : BallFloat) -> BallFloat {
     )
   }
   quantize_interval(
-    extended_add(a.lo_, b.lo_, BinaryRoundingMode::RoundTowardNegative),
-    extended_add(a.hi_, b.hi_, BinaryRoundingMode::RoundTowardPositive),
+    extended_add(a.lo_, b.lo_, 1, BinaryRoundingMode::RoundTowardNegative),
+    extended_add(a.hi_, b.hi_, 1, BinaryRoundingMode::RoundTowardPositive),
     precision,
   )
 }
@@ -483,8 +483,8 @@ fn db_old_sub(a : BallFloat, b : BallFloat) -> BallFloat {
     )
   }
   quantize_interval(
-    extended_add(a.lo_, b.hi_.neg(), BinaryRoundingMode::RoundTowardNegative),
-    extended_add(a.hi_, b.lo_.neg(), BinaryRoundingMode::RoundTowardPositive),
+    extended_add(a.lo_, b.hi_.neg(), 1, BinaryRoundingMode::RoundTowardNegative),
+    extended_add(a.hi_, b.lo_.neg(), 1, BinaryRoundingMode::RoundTowardPositive),
     precision,
   )
 }

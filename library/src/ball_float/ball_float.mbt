@@ -184,13 +184,15 @@ fn far_addend_surrogate(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
   mode : BinaryRoundingMode,
+  min_bits : Int32,
 ) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
   let a_is_large = exponent_top(a) >= exponent_top(b)
   let (large, small) = if a_is_large { (a, b) } else { (b, a) }
-  let margin = Int32::max(
-    far_addend_margin,
-    Int32::max(large.precision(), small.precision()),
-  ).to_int64()
+  // The margin is the precision the sum is rounded to (`min_bits`), not the
+  // precision of an operand: a value made with `exact_range` below the normal range
+  // carries a precision of up to 2^28, and the stand-in would then lie 2^28 places
+  // under the large addend (the sum is aligned over that many bits).
+  let margin = Int32::max(far_addend_margin, min_bits).to_int64()
   let cut = Int64::min(
     large.exponent2().to_int64(),
     exponent_top(large) - margin,
@@ -209,7 +211,9 @@ fn far_addend_surrogate(
       true
   }
   let surrogate = if keep {
-    // Rounding away keeps the surrogate nonzero even at the range floor.
+    // Exact even below the normal range: made at one bit it was rounded away to
+    // the quantum of one bit (2^e_min), much larger than the true addend, and a
+    // sum rounded to `precision` bits was then looser than the tightest one.
     exact_make(
       @bin_float.BinCoeff::one(),
       (cut - 2L).to_int(),
@@ -219,6 +223,7 @@ fn far_addend_surrogate(
       } else {
         BinaryRoundingMode::RoundTowardPositive
       },
+      exact_range=true,
     )
   } else {
     @bin_float.BinFloat::zero(precision=1)
@@ -244,7 +249,7 @@ fn exact_add(
   if b.is_zero() {
     return a
   }
-  let (a, b) = far_addend_surrogate(a, b, mode)
+  let (a, b) = far_addend_surrogate(a, b, mode, min_bits)
   if a.is_zero() {
     return b
   }
@@ -488,12 +493,14 @@ fn quantize_center_radius(
     rounded_center,
     total_radius,
     mode=BinaryRoundingMode::RoundTowardNegative,
+    min_bits=precision,
     exact_range=true,
   )
   let hi = exact_add(
     rounded_center,
     total_radius,
     mode=BinaryRoundingMode::RoundTowardPositive,
+    min_bits=precision,
     exact_range=true,
   )
   store_interval(lo, hi, precision)
@@ -596,7 +603,10 @@ fn interval_center(x : BallFloat) -> @bin_float.BinFloat {
   }
   // exact: the sum and its half are made wide enough that nothing is rounded
   // below the normal range; `midpoint_ctx` rounds the result once
-  exact_half(exact_add(x.lo_, x.hi_, exact_range=true), exact_range=true)
+  exact_half(
+    exact_add(x.lo_, x.hi_, min_bits=x.precision_, exact_range=true),
+    exact_range=true,
+  )
 }
 
 ///|
@@ -615,6 +625,7 @@ fn interval_radius(x : BallFloat) -> @bin_float.BinFloat {
       x.hi_,
       x.lo_,
       mode=BinaryRoundingMode::RoundTowardPositive,
+      min_bits=x.precision_,
       exact_range=true,
     ),
     mode=BinaryRoundingMode::RoundTowardPositive,
@@ -891,8 +902,10 @@ fn extended_mul(
     directed_mul(a, b, precision, mode)
   } else {
     // exact (the product of `fma` is not rounded before the sum): nothing is
-    // rounded below the normal range
-    exact_mul(a, b, mode~, exact_range=true)
+    // rounded below the normal range, and a product above the range is clamped
+    // at no fewer than `precision` bits (a lower bound of the largest finite
+    // number of the precision, not of a shorter one)
+    exact_mul(a, b, mode~, min_bits=precision, exact_range=true)
   }
 }
 
@@ -931,7 +944,7 @@ fn extended_mul_both(
   // once to `precision` in its direction (`directed_mul`'s value); the one
   // coefficient product is shared (measured cheaper than two `mul_ctx` at every
   // width from 53 to 2,048 bits, by 20 to 40 percent)
-  let min_bits = if rounded { precision } else { 1 }
+  let min_bits = precision
   let down = exact_make(
     coefficient,
     exponent,
@@ -962,6 +975,7 @@ fn extended_mul_both(
 fn extended_add(
   a : @bin_float.BinFloat,
   b : @bin_float.BinFloat,
+  precision : Int32,
   mode : BinaryRoundingMode,
 ) -> @bin_float.BinFloat {
   if a.classify() == FpClass::Infinity {
@@ -970,8 +984,9 @@ fn extended_add(
   if b.classify() == FpClass::Infinity {
     return b
   }
-  // exact (the sum of `fma` is rounded once, at the end)
-  exact_add(a, b, mode~, exact_range=true)
+  // exact (the sum of `fma` is rounded once, at the end); a sum above the range
+  // is clamped at no fewer than `precision` bits
+  exact_add(a, b, mode~, min_bits=precision, exact_range=true)
 }
 
 ///|
@@ -2236,12 +2251,14 @@ pub fn BallFloat::cancel_plus(self : BallFloat, other : BallFloat) -> BallFloat 
     self.lo_,
     other.hi_,
     mode=BinaryRoundingMode::RoundTowardNegative,
+    min_bits=precision,
     exact_range=true,
   )
   let hi = exact_add(
     self.hi_,
     other.lo_,
     mode=BinaryRoundingMode::RoundTowardPositive,
+    min_bits=precision,
     exact_range=true,
   )
   cancel_result(self, other, lo, hi, precision)
@@ -2269,12 +2286,14 @@ pub fn BallFloat::cancel_minus(
     self.lo_,
     other.lo_.neg(),
     mode=BinaryRoundingMode::RoundTowardNegative,
+    min_bits=precision,
     exact_range=true,
   )
   let hi = exact_add(
     self.hi_,
     other.hi_.neg(),
     mode=BinaryRoundingMode::RoundTowardPositive,
+    min_bits=precision,
     exact_range=true,
   )
   cancel_result(self, other, lo, hi, precision)
@@ -2365,11 +2384,13 @@ pub fn BallFloat::fma(
     extended_add(
       product_lo,
       addend.lo_,
+      precision,
       BinaryRoundingMode::RoundTowardNegative,
     ),
     extended_add(
       product_hi,
       addend.hi_,
+      precision,
       BinaryRoundingMode::RoundTowardPositive,
     ),
     precision,
