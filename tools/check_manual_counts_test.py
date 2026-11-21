@@ -36,11 +36,11 @@ class ManualCountsTest(unittest.TestCase):
     def test_a_stale_count_is_reported(self) -> None:
         root = self.copy_repository()
         page = root / "doc/manual/verification.md"
-        page.write_text(page.read_text().replace("1,434 `mpfr_strtofr`", "1,716 `mpfr_strtofr`"))
+        page.write_text(page.read_text().replace("3,699 `mpfr_strtofr`", "1,716 `mpfr_strtofr`"))
         problems = check.check(root)
         self.assertEqual(len(problems), 1)
         self.assertIn("1,716", problems[0])
-        self.assertIn("1,434", problems[0])
+        self.assertIn("3,699", problems[0])
 
     def test_a_page_that_changed_shape_is_reported(self) -> None:
         root = self.copy_repository()
