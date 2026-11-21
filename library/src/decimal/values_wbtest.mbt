@@ -59,7 +59,16 @@ test "a conversion to a narrower format keeps the low digits of a payload" {
     DecimalContext::decimal32(),
   )
   assert_true(value.is_nan())
-  assert_true(coeff_digits(value.coefficient) <= 6)
+  // the payload 123456789012345678 modulo 10^6 (the 6 digits decimal32 holds):
+  // IEEE 754-2019 3.5.2 / 6.2.3, the low-order digits are kept (value written out)
+  assert_eq(value.nan_payload(), 345678N)
+  // a payload that fits is kept whole
+  let fits = @bin_float.BinFloat::quiet_nan(
+    payload=@bin_float.BinCoeff::from_uint64(999999UL),
+    precision=64,
+  )
+  let (kept, _) = Decimal::from_bin_float_ctx(fits, DecimalContext::decimal32())
+  assert_eq(kept.nan_payload(), 999999N)
 }
 
 ///|

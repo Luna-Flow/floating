@@ -19,7 +19,7 @@
 //
 // The generated table `exp_range_rows_wbtest.mbt` holds the rows for the
 // narrow context of the issue, decimal32, decimal64, decimal128 and a wide
-// context (e_max = 999999), in all eight rounding directions, at results
+// context (e_max = 999999), in all five IEEE rounding directions (the rounding modes of GDA that IEEE 754 does not define, half-down, up and 05up, are not rows), at results
 // just inside and outside the range, at the thresholds `x = +-k (1 - etiny)`,
 // `+-k (e_max + 1)` of the coarse decision `+-1`, `+-0.5` and for the
 // arguments of the issue. Python decimal (libmpdec) computed them; it only

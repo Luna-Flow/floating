@@ -86,6 +86,25 @@ def flags_text(ctx: decimal.Context) -> str:
     return "".join(c if ctx.flags[s] else "." for s, c in names)
 
 
+def next_toward_flags(a: decimal.Decimal, b: decimal.Decimal, r: decimal.Decimal, emin: int) -> str | None:
+    """The flags of `next_toward` by the nextafter rule of IEEE 754-1985 and of ISO C
+    (`nextafter`, Annex F): overflow and inexact when `a` is finite and the result is
+    infinite; underflow and inexact when the result is subnormal or zero and `a` differs
+    from `b`; otherwise no exception. IEEE 754-2019 has no nextToward (5.3.1 defines
+    nextUp and nextDown only, both quiet). CPython raises its own set of flags here, so
+    its flags are not the oracle for this operation. `None` for a NaN operand: the flags
+    of Python (invalid for a signaling NaN) are kept."""
+    if a.is_nan() or b.is_nan():
+        return None
+    if a == b or a.is_infinite():
+        return "....."
+    if r.is_infinite():
+        return "x.o.."
+    if r.is_zero() or r.adjusted() < emin:
+        return "xu..."
+    return "....."
+
+
 def evaluate(op: str, p: int, emax: int, mode: str, args: list[str]) -> tuple[str, str] | None:
     ctx = decimal.Context(prec=p, rounding=ROUNDINGS[mode], Emin=1 - emax, Emax=emax, clamp=1, traps=[], flags=[])
     a = [decimal.Decimal(x) for x in args]
@@ -110,6 +129,10 @@ def evaluate(op: str, p: int, emax: int, mode: str, args: list[str]) -> tuple[st
         else: return None
     except Exception:  # decimal raises for unsupported operands only
         return None
+    if op == "next_toward":
+        flags = next_toward_flags(a[0], a[1], r, 1 - emax)
+        if flags is not None:
+            return str(r), flags
     return str(r), flags_text(ctx)
 
 

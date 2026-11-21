@@ -3,12 +3,12 @@
 /// decimal32, decimal64 and decimal128) (issue 234). Every finite result of an
 /// IEEE format has `q <= e_max - p + 1` (IEEE 754-2019 3.3), so the delivered
 /// zero is a member of the format: its exponent is folded down to
-/// `e_max - precision + 1` and `clamped` is raised, which is what decNumber
-/// does: `decQuantizeOp` sets the exponent of a zero operand and calls
-/// `decFinalize`, whose clamp branch lowers the exponent to `emax - digits + 1`
-/// and raises `DEC_Clamped`. The expected rows are the rule applied by hand: a
-/// target above the top folds, a target at or below it and a target above
-/// `e_max` (invalid) do not.
+/// `e_max - precision + 1`. This package has no Clamped condition (IEEE 754 has
+/// none), so the `clamped` column of the rows is NOT asserted here: it is the
+/// GDA expectation, asserted by the same rows in
+/// `decimal_gda/zero_fold_issue234_wbtest.mbt`. The expected rows are the rule
+/// applied by hand: a target above the top folds, a target at or below it and a
+/// target above `e_max` (invalid) do not.
 
 ///|
 let issue234_contexts : Array[(String, Int32, Int32)] = [
