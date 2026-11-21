@@ -203,8 +203,18 @@ of zero and of infinity) and flags; a NaN result must be a quiet NaN.
   filtered.
 - **Subnormals.** MPFR has no subnormal numbers. Results in the subnormal range
   go through `mpfr_subnormalize` with the ternary value of the first rounding.
-  Round-to-nearest-away has no such mode, so a nearest-away row whose result
-  would be tiny is generated in round-to-nearest-even instead.
+  `mpfr_subnormalize` has no nearest-away mode (nearest-away is itself an
+  emulation by MPFR's wrapper), so a nearest-away row whose result is below the
+  smallest normal number is rounded once, on the grid of the subnormals: the
+  generator finds the binade of the exact result with a truncated evaluation,
+  takes the number of bits the grid has there, and evaluates the operation at
+  that precision with the wrapper (below the smallest subnormal the result is
+  zero, or the smallest subnormal from half of it up, a tie going away from
+  zero). Until 0.12 such rows were generated in round-to-nearest-even instead
+  and carried the label `n`, so the class had no nearest-away row.
+  `tools/check_random_rna_rows.py` checks every nearest-away `add`, `sub`,
+  `mul`, `div` and `fma` row with exact integer and `Fraction` arithmetic (a
+  second oracle, no MPFR) and runs in the Python tests on the committed files.
 - **Underflow flag.** Derived from IEEE 754-2019 §7.5 (tiny and inexact), for
   both tininess rules (before rounding: the truncated exact result is below
   2^emin; after: the result rounded to the precision with an unbounded exponent

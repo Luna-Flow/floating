@@ -57,6 +57,7 @@ SHA-256.
 | `external_baseline.py`, `external_baseline.c` | floating against MPFR and libmpdec on the same operands (`just bench external ...`) |
 | `ball_diff.py`, `ball_mpfr_oracle.c`, `mpfr_ours.h`, `ball_diff_known.txt` | the untimed differential stage of `BallFloat` against MPFR (`python3 tools/ball_diff.py run`): seeded interval rows, the MPFR oracle in the range of `bin_float`, a second oracle in Python integers, the rows known to differ with their issues |
 | `check_corpus_contexts.py` | the quick-gate stage `CONTEXTS: corpus`: every checked-in row file, decTest file and generated table has only legal contexts under `context_rules.py` |
+| `check_random_rna_rows.py` | checks the nearest-away rows of a `mpfr-random-v1` file (value, inexact and underflow flags) with exact `Fraction` arithmetic: the second oracle of the nearest-away subnormal class |
 | `check_limbs_tier.py` | the nightly arm64 job: checks the log of the native tests of `internal/bin_kernel` for the runner architecture, the tier of the row primitives and whether the `LUNA_FLOATING_PORTABLE` switch took (`enabled=`) |
 | `context_rules.py` | the one definition of a legal context (`bin_float`, IEEE `decimal`, `decimal_gda`): checks, one frozen dataclass per standard, and the parser of `testdata/context_vectors.txt`; `corpus_common` and `generate_libmpdec_random` use it |
 | `external_stats.py` | pure statistics of the external baseline: paired net times, bootstrap intervals, the verdict on the net ratio |
