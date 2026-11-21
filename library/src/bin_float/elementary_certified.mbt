@@ -1338,6 +1338,38 @@ fn binary_log2_bounds(
 }
 
 ///|
+/// Which side of the overflow threshold `(e_max + 1) ln 2` of `exp` (at the
+/// implementation `e_max`) the finite argument lies: `Some(true)` when it is at
+/// or above it (the result is at least `2^(e_max + 1)`), `Some(false)` when it is
+/// below it (the result is below `2^(e_max + 1)`), `None` when `ln 2` at
+/// `work_precision` does not decide it. The argument is never equal to the
+/// threshold, which is irrational.
+fn binary_exp_overflow_side(value : BinFloat, work_precision : Int32) -> Bool? {
+  guard binary_ln2_bounds(work_precision) is Some((low, high)) else {
+    return None
+  }
+  let scale = BinFloat::from_int_raw(
+    binary_implementation_e_max + 1,
+    precision=work_precision,
+  )
+  let threshold_low = low.mul_ctx(
+      scale,
+      binary_working_context(work_precision, rounding=RoundTowardNegative),
+    ).0
+  let threshold_high = high.mul_ctx(
+      scale,
+      binary_working_context(work_precision, rounding=RoundTowardPositive),
+    ).0
+  if value.compare(threshold_high) >= 0 {
+    Some(true)
+  } else if value.compare(threshold_low) <= 0 {
+    Some(false)
+  } else {
+    None
+  }
+}
+
+///|
 pub fn BinFloat::try_exp_ctx(
   self : BinFloat,
   context : BinaryContext,
@@ -1384,13 +1416,31 @@ pub fn BinFloat::try_exp_ctx(
             ) {
         match binary_exp_bounds(self, work) {
           Some(bounds) => {
-            let (result, unique, flags) = binary_certified_inexact_target_rounding(
-              bounds.0,
-              bounds.1,
-              context,
-            )
-            if unique {
-              return Ok((result, flags))
+            let mut upper = bounds.1
+            let mut usable = true
+            // The enclosure overflows the implementation range: its upper end is
+            // `+inf` and its lower end saturates at the largest finite value of the
+            // working precision, so it can never separate a result at or just
+            // above `2^(e_max + 1)` from one just below. The side of the argument
+            // against the threshold `(e_max + 1) ln 2` decides it.
+            if upper.classify() == FpClass::Infinity &&
+              bounds.0.classify() == FpClass::Finite {
+              match binary_exp_overflow_side(self, work) {
+                Some(true) => return Ok(binary_overflow_result(false, context))
+                Some(false) =>
+                  upper = binary_max_finite(false, binary_working_context(work))
+                None => usable = false
+              }
+            }
+            if usable {
+              let (result, unique, flags) = binary_certified_inexact_target_rounding(
+                bounds.0,
+                upper,
+                context,
+              )
+              if unique {
+                return Ok((result, flags))
+              }
             }
           }
           None =>
