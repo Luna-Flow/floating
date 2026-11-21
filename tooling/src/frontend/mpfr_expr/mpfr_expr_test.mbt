@@ -161,3 +161,24 @@ test "MPFR decimal output parser rejects malformed rows" {
     }
   }
 }
+
+///|
+test "MPFR elementary rows read an operand longer than the result precision exactly" {
+  // ln(1 + 2^-1199) at 24 bits, to nearest: 2^-1199 (inexact). The operand has
+  // 1200 bits; read at 512 bits it would be 1 and ln 1 = 0.
+  let operand = StringBuilder()
+  operand.write_string("0x8")
+  for _ in 0..<298 {
+    operand.write_char('0')
+  }
+  operand.write_string("1p-1199")
+  let source = "# mpfr-elementary-v1\nln 24 n " +
+    operand.to_string() +
+    " - 0 0x1p-1199 1 0 0\n"
+  let document = @mpfr_expr.parse_elementary_data("long-operand", source).unwrap()
+  let summary = @mpfr_expr.execute_elementary_data(document)
+  for result in summary.results() {
+    assert_true(result.passed(), msg=result.message())
+  }
+  assert_eq(summary.passed_cases(), 1)
+}
