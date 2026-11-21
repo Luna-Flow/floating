@@ -202,14 +202,14 @@ fn db_endpoint_case(
       fn() { "add(\{a}, \{b}, \{precision})" },
       directed_add(a, b, precision, mode),
       db_bound(exact_add(a, b, mode~, min_bits=precision), precision, mode),
-      db_bound(exact_add(a, b, mode~), precision, mode),
+      db_bound(exact_add(min_bits=1, a, b, mode~), precision, mode),
       mode,
     )
     tighter += db_check(
       fn() { "sub(\{a}, \{b}, \{precision})" },
       directed_sub(a, b, precision, mode),
       db_bound(exact_sub(a, b, mode~, min_bits=precision), precision, mode),
-      db_bound(exact_sub(a, b, mode~), precision, mode),
+      db_bound(exact_sub(min_bits=1, a, b, mode~), precision, mode),
       mode,
     )
     if directed_add(a, b, precision, mode) !=
@@ -383,11 +383,21 @@ test "gradual underflow of a short exact result keeps the correctly rounded boun
     BinaryRoundingMode::RoundTowardPositive,
   )
   let old_down = lower_round_bound(
-    exact_add(part, part, mode=BinaryRoundingMode::RoundTowardNegative),
+    exact_add(
+      min_bits=1,
+      part,
+      part,
+      mode=BinaryRoundingMode::RoundTowardNegative,
+    ),
     53,
   )
   let old_up = upper_round_bound(
-    exact_add(part, part, mode=BinaryRoundingMode::RoundTowardPositive),
+    exact_add(
+      min_bits=1,
+      part,
+      part,
+      mode=BinaryRoundingMode::RoundTowardPositive,
+    ),
     53,
   )
   assert_eq(sum_down.ilogb(), Some(e_min - 2))
@@ -419,14 +429,24 @@ test "overflow of a short exact result keeps the correctly rounded bound" {
     BinaryRoundingMode::RoundTowardPositive,
   )
   let old_down = lower_round_bound(
-    exact_add(part, part, mode=BinaryRoundingMode::RoundTowardNegative),
+    exact_add(
+      min_bits=1,
+      part,
+      part,
+      mode=BinaryRoundingMode::RoundTowardNegative,
+    ),
     53,
   )
   // the upper bound of a positive overflow is infinity in both
   inspect(sum_up.classify() == FpClass::Infinity, content="true")
   inspect(
     upper_round_bound(
-      exact_add(part, part, mode=BinaryRoundingMode::RoundTowardPositive),
+      exact_add(
+        min_bits=1,
+        part,
+        part,
+        mode=BinaryRoundingMode::RoundTowardPositive,
+      ),
       53,
     ).classify() ==
     FpClass::Infinity,
@@ -460,8 +480,18 @@ fn db_old_add(a : BallFloat, b : BallFloat) -> BallFloat {
   let precision = Int32::max(a.precision_, b.precision_)
   if a.is_common_interval() && b.is_common_interval() {
     return quantize_interval(
-      exact_add(a.lo_, b.lo_, mode=BinaryRoundingMode::RoundTowardNegative),
-      exact_add(a.hi_, b.hi_, mode=BinaryRoundingMode::RoundTowardPositive),
+      exact_add(
+        min_bits=1,
+        a.lo_,
+        b.lo_,
+        mode=BinaryRoundingMode::RoundTowardNegative,
+      ),
+      exact_add(
+        min_bits=1,
+        a.hi_,
+        b.hi_,
+        mode=BinaryRoundingMode::RoundTowardPositive,
+      ),
       precision,
     )
   }
@@ -477,8 +507,18 @@ fn db_old_sub(a : BallFloat, b : BallFloat) -> BallFloat {
   let precision = Int32::max(a.precision_, b.precision_)
   if a.is_common_interval() && b.is_common_interval() {
     return quantize_interval(
-      exact_sub(a.lo_, b.hi_, mode=BinaryRoundingMode::RoundTowardNegative),
-      exact_sub(a.hi_, b.lo_, mode=BinaryRoundingMode::RoundTowardPositive),
+      exact_sub(
+        min_bits=1,
+        a.lo_,
+        b.hi_,
+        mode=BinaryRoundingMode::RoundTowardNegative,
+      ),
+      exact_sub(
+        min_bits=1,
+        a.hi_,
+        b.lo_,
+        mode=BinaryRoundingMode::RoundTowardPositive,
+      ),
       precision,
     )
   }
@@ -526,7 +566,12 @@ fn db_old_sqr(x : BallFloat) -> BallFloat {
 ///|
 fn db_old_width(x : BallFloat) -> @bin_float.BinFloat {
   upper_round_bound(
-    exact_sub(x.hi_, x.lo_, mode=BinaryRoundingMode::RoundTowardPositive),
+    exact_sub(
+      min_bits=1,
+      x.hi_,
+      x.lo_,
+      mode=BinaryRoundingMode::RoundTowardPositive,
+    ),
     x.precision_,
   )
 }
@@ -535,11 +580,21 @@ fn db_old_width(x : BallFloat) -> @bin_float.BinFloat {
 fn db_old_radius(x : BallFloat) -> @bin_float.BinFloat {
   let m = x.midpoint()
   let below = upper_round_bound(
-    exact_sub(m, x.lo_, mode=BinaryRoundingMode::RoundTowardPositive),
+    exact_sub(
+      min_bits=1,
+      m,
+      x.lo_,
+      mode=BinaryRoundingMode::RoundTowardPositive,
+    ),
     x.precision_,
   )
   let above = upper_round_bound(
-    exact_sub(x.hi_, m, mode=BinaryRoundingMode::RoundTowardPositive),
+    exact_sub(
+      min_bits=1,
+      x.hi_,
+      m,
+      mode=BinaryRoundingMode::RoundTowardPositive,
+    ),
     x.precision_,
   )
   bin_max(below, above)

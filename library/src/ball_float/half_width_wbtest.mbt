@@ -82,6 +82,7 @@ test "away from the bottom of the range the half-width is unchanged" {
     let ball = BallFloat::from_bounds(lo, hi, precision=53)
     let old = exact_half(
       exact_sub(
+        min_bits=1,
         ball.upper_bound(),
         ball.lower_bound(),
         mode=BinaryRoundingMode::RoundTowardPositive,

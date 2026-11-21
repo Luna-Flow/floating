@@ -348,7 +348,9 @@ pub fn BallFloat::midpoint_ctx(
       BallFlags::new(),
     )
   }
-  let exact = interval_center(self)
+  // the centre is rounded once to the precision of the context: the sum of the
+  // bounds keeps every bit down to it (and to the precision of the ball)
+  let exact = interval_center(self, Int32::max(ctx.precision, self.precision_))
   if exact.is_zero() {
     return (
       @bin_float.BinFloat::zero(precision=ctx.precision),

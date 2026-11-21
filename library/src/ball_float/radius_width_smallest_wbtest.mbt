@@ -101,6 +101,7 @@ test "radius and width are unchanged away from the bottom of the range" {
     let m = ball.midpoint()
     let old_width = upper_round_bound(
       exact_sub(
+        min_bits=1,
         ball.upper_bound(),
         ball.lower_bound(),
         mode=BinaryRoundingMode::RoundTowardPositive,
@@ -110,6 +111,7 @@ test "radius and width are unchanged away from the bottom of the range" {
     let old_radius = bin_max(
       upper_round_bound(
         exact_sub(
+          min_bits=1,
           m,
           ball.lower_bound(),
           mode=BinaryRoundingMode::RoundTowardPositive,
@@ -118,6 +120,7 @@ test "radius and width are unchanged away from the bottom of the range" {
       ),
       upper_round_bound(
         exact_sub(
+          min_bits=1,
           ball.upper_bound(),
           m,
           mode=BinaryRoundingMode::RoundTowardPositive,
