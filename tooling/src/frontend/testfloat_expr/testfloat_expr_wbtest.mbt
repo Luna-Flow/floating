@@ -42,7 +42,7 @@ fn harness_judge(
     ConvertFormat(target) => target
     _ => spec.format
   }
-  judge_float_result(case, format, spec, actual, flags).passed()
+  judge_float_result(case, format, actual, flags).passed()
 }
 
 ///|
@@ -119,4 +119,109 @@ test "the harness compares the flags of the operation and nothing else" {
   )
   // wrong value, right flags
   assert_false(harness_judge("f32_sqrt", "3F800000 3F800001 00", one, none))
+}
+
+///|
+fn harness_pack(
+  text : String,
+  format : @bin_float.BinaryInterchangeFormat,
+) -> String? {
+  pack_exact(harness_value(text), format)
+}
+
+///|
+test "pack_exact writes the bit fields of each format (literals, level A)" {
+  let b16 = @bin_float.BinaryInterchangeFormat::Binary16
+  let b32 = @bin_float.BinaryInterchangeFormat::Binary32
+  let b64 = @bin_float.BinaryInterchangeFormat::Binary64
+  let b128 = @bin_float.BinaryInterchangeFormat::Binary128
+  // binary16: 1, -2, the largest finite 65504, the smallest normal 2^-14, the
+  // largest subnormal, the smallest subnormal 2^-24, zeros
+  assert_eq(harness_pack("0x1p0", b16), Some("3c00"))
+  assert_eq(harness_pack("-0x1p1", b16), Some("c000"))
+  assert_eq(harness_pack("0x7ffp5", b16), Some("7bff"))
+  assert_eq(harness_pack("0x1p-14", b16), Some("0400"))
+  assert_eq(harness_pack("0x3ffp-24", b16), Some("03ff"))
+  assert_eq(harness_pack("0x1p-24", b16), Some("0001"))
+  assert_eq(harness_pack("0x0p0", b16), Some("0000"))
+  assert_eq(harness_pack("-0x0p0", b16), Some("8000"))
+  // binary32
+  assert_eq(harness_pack("0x1p0", b32), Some("3f800000"))
+  assert_eq(harness_pack("0xffffffp104", b32), Some("7f7fffff"))
+  assert_eq(harness_pack("0x1p-126", b32), Some("00800000"))
+  assert_eq(harness_pack("0x7fffffp-149", b32), Some("007fffff"))
+  assert_eq(harness_pack("0x1p-149", b32), Some("00000001"))
+  assert_eq(harness_pack("-0x1p-149", b32), Some("80000001"))
+  // binary64
+  assert_eq(harness_pack("0x1p0", b64), Some("3ff0000000000000"))
+  assert_eq(harness_pack("0x1fffffffffffffp971", b64), Some("7fefffffffffffff"))
+  assert_eq(harness_pack("0x1p-1074", b64), Some("0000000000000001"))
+  // binary128
+  assert_eq(
+    harness_pack("0x1p0", b128),
+    Some("3fff0000000000000000000000000000"),
+  )
+  assert_eq(
+    harness_pack("0x1ffffffffffffffffffffffffffffp16271", b128),
+    Some("7ffeffffffffffffffffffffffffffff"),
+  )
+  assert_eq(
+    harness_pack("0x1p-16494", b128),
+    Some("00000000000000000000000000000001"),
+  )
+  // infinities
+  let context = @bin_float.BinaryContext::new(precision=24)
+  let (infinity, _) = @bin_float.BinFloat::from_int(1).div_ctx(
+    @bin_float.BinFloat::from_int(0),
+    context,
+  )
+  assert_eq(pack_exact(infinity, b32), Some("7f800000"))
+  assert_eq(pack_exact(infinity.neg(), b16), Some("fc00"))
+}
+
+///|
+test "pack_exact refuses what is not a number of the format" {
+  let b16 = @bin_float.BinaryInterchangeFormat::Binary16
+  let b32 = @bin_float.BinaryInterchangeFormat::Binary32
+  // 12 significant bits in binary16 (11)
+  assert_eq(harness_pack("0xfffp0", b16), None)
+  // above the largest exponent: 2^16 in binary16, 2^128 in binary32
+  assert_eq(harness_pack("0x1p16", b16), None)
+  assert_eq(harness_pack("0x1p128", b32), None)
+  // below the last place of the smallest subnormal: 2^-25 in binary16, 2^-150 in binary32
+  assert_eq(harness_pack("0x1p-25", b16), None)
+  assert_eq(harness_pack("0x1p-150", b32), None)
+  // a subnormal needing one bit more than the last place: 3 * 2^-25
+  assert_eq(harness_pack("0x3p-25", b16), None)
+  // NaN has no bit fields here
+  let context = @bin_float.BinaryContext::new(precision=24)
+  let (nan, _) = @bin_float.BinFloat::from_int(0).div_ctx(
+    @bin_float.BinFloat::from_int(0),
+    context,
+  )
+  assert_eq(pack_exact(nan, b32), None)
+}
+
+///|
+test "the harness compares a NaN column with a quiet NaN and nothing more" {
+  let context = @bin_float.BinaryContext::new(precision=24)
+  let (nan, _) = @bin_float.BinFloat::from_int(0).div_ctx(
+    @bin_float.BinFloat::from_int(0),
+    context,
+  )
+  let invalid = @bin_float.BinaryFlags::new()
+  // expected NaN (any payload in the column), a quiet NaN result
+  assert_true(harness_judge("f32_sqrt", "FF800000 7FC00000 00", nan, invalid))
+  assert_true(harness_judge("f32_sqrt", "FF800000 7F800001 00", nan, invalid))
+  // expected NaN, a number result
+  assert_false(
+    harness_judge(
+      "f32_sqrt",
+      "FF800000 7FC00000 00",
+      harness_value("0x1p0"),
+      invalid,
+    ),
+  )
+  // expected number, a NaN result
+  assert_false(harness_judge("f32_sqrt", "3F800000 3F800000 00", nan, invalid))
 }

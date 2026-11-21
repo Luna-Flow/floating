@@ -50,7 +50,9 @@ pub struct TestFloatSpec {
 /// Result column of a TestFloat vector: an interchange encoding, an integer
 /// in hexadecimal, or a 0/1 comparison result.
 priv enum TestFloatExpected {
-  Encoded(@bin_float.BinaryInterchange)
+  /// The text of the column as written in the vector (the number of digits is
+  /// checked when the vector is read).
+  Encoded(String)
   Integer(UInt64)
   Boolean(Bool)
 }
@@ -369,14 +371,12 @@ fn parse_expected(source : String, spec : TestFloatSpec) -> TestFloatExpected? {
         _ => None
       }
     ConvertFormat(target) =>
-      @bin_float.BinaryInterchange::from_hex(source, target).map(fn(value) {
-        Encoded(value)
+      @bin_float.BinaryInterchange::from_hex(source, target).map(fn(_) {
+        Encoded(source)
       })
     _ =>
-      @bin_float.BinaryInterchange::from_hex(source, spec.format).map(fn(
-        value,
-      ) {
-        Encoded(value)
+      @bin_float.BinaryInterchange::from_hex(source, spec.format).map(fn(_) {
+        Encoded(source)
       })
   }
 }
@@ -544,48 +544,177 @@ fn execute_float_case(
       }
     _ => abort("invalid parsed TestFloat operand arity")
   }
-  judge_float_result(case, result_format, spec, actual, flags)
+  judge_float_result(case, result_format, actual, flags)
 }
 
 ///|
-/// Judges the result of a contextual operation against the vector.
+/// Judges the result of a contextual operation against the vector. The result
+/// is taken as the operation returns it: it must already be a number of the
+/// result format, and it is packed into the bit fields of the format by the code
+/// of this file (`pack_exact`), without a rounding. The flags compared are the
+/// operation's own.
+///
+/// Shared with the code under test: the decoding of the operands
+/// (`BinaryInterchange::from_hex` and `to_bin_float`; a wrong decoding changes the
+/// result and is seen as a mismatch with the vector, it cannot be compensated by
+/// the packing) and `BinFloat::to_hex` in the failure message only. The expected
+/// column is compared as the text of the vector. NaN: a NaN result is compared
+/// as a quiet NaN against a NaN column; the payload and the sign of a NaN are not
+/// compared.
 fn judge_float_result(
   case : TestFloatCase,
   result_format : @bin_float.BinaryInterchangeFormat,
-  spec : TestFloatSpec,
   actual : @bin_float.BinFloat,
   flags : @bin_float.BinaryFlags,
 ) -> CaseResult {
-  let expected = match case.expected {
-    Encoded(value) => value
+  let expected_text = match case.expected {
+    Encoded(text) => normalized_bits_text(text, result_format)
     _ => abort("a float case has an encoded expected value")
   }
-  let (encoded, encoding_flags) = @bin_float.BinaryInterchange::from_bin_float(
-    actual,
-    result_format,
-    rounding=spec.rounding,
-    tininess=spec.tininess,
-  )
-  let actual_flags = testfloat_flag_bits(flags.combine(encoding_flags))
-  let expected_value = expected.to_bin_float()
-  let expected_is_nan = expected_value.is_quiet_nan() ||
-    expected_value.is_signaling_nan()
-  let value_matches = if expected_is_nan {
-    actual.is_quiet_nan()
+  if bits_text_is_nan(expected_text, result_format) {
+    if !actual.is_quiet_nan() {
+      return executable_result(
+        case.id,
+        false,
+        message="value mismatch: expected a NaN, actual " + actual.to_hex(),
+      )
+    }
   } else {
-    encoded.to_hex() == expected.to_hex()
+    match pack_exact(actual, result_format) {
+      None =>
+        return executable_result(
+          case.id,
+          false,
+          message="result not in the format: expected " +
+            expected_text +
+            ", actual " +
+            actual.to_hex() +
+            " (a NaN, or a value that is not a number of the format)",
+        )
+      Some(packed) =>
+        if packed != expected_text {
+          return executable_result(
+            case.id,
+            false,
+            message="value mismatch: expected " +
+              expected_text +
+              ", actual " +
+              packed,
+          )
+        }
+    }
   }
-  if !value_matches {
-    return executable_result(
-      case.id,
-      false,
-      message="value mismatch: expected " +
-        expected.to_hex() +
-        ", actual " +
-        encoded.to_hex(),
+  flags_result(case, testfloat_flag_bits(flags))
+}
+
+///|
+/// The layout of an interchange format, written out here and not read from the
+/// library: precision, width in bits, largest exponent (the bias).
+fn format_layout(
+  format : @bin_float.BinaryInterchangeFormat,
+) -> (Int32, Int32, Int32) {
+  match format {
+    Binary16 => (11, 16, 15)
+    Binary32 => (24, 32, 127)
+    Binary64 => (53, 64, 1023)
+    Binary128 => (113, 128, 16383)
+  }
+}
+
+///|
+fn bits_text_digits(text : String, digits : Int32) -> String {
+  let builder = StringBuilder()
+  for _ in text.length()..<digits {
+    builder.write_char('0')
+  }
+  builder.write_string(text)
+  builder.to_string()
+}
+
+///|
+/// The hexadecimal text of a vector column in one form: no prefix, lower case,
+/// as many digits as the format has.
+fn normalized_bits_text(
+  text : String,
+  format : @bin_float.BinaryInterchangeFormat,
+) -> String {
+  let (_, width, _) = format_layout(format)
+  let lower = normalized_word(text)
+  let digits = if lower.has_prefix("0x") { lower[2:].to_owned() } else { lower }
+  bits_text_digits(digits, width / 4)
+}
+
+///|
+fn bits_text_is_nan(
+  normalized : String,
+  format : @bin_float.BinaryInterchangeFormat,
+) -> Bool {
+  let (precision, width, _) = format_layout(format)
+  let fraction_bits = precision - 1
+  let bits = bigint_from_text(normalized, radix=16)
+  let ones = (@bigint.BigInt::from_int(1) << (width - precision)) -
+    @bigint.BigInt::from_int(1)
+  let exponent = (bits >> fraction_bits) & ones
+  let fraction = bits &
+    (
+      (@bigint.BigInt::from_int(1) << fraction_bits) -
+      @bigint.BigInt::from_int(1)
     )
+  exponent == ones && !fraction.is_zero()
+}
+
+///|
+/// The bit fields of `value` in `format`, as lower-case hexadecimal of the full
+/// width, packed from the sign, the coefficient and the exponent with the layout
+/// of `format_layout`: no rounding, no flag. `None` for a NaN and for a finite
+/// value that is not a number of the format (more significant bits than the
+/// precision, a bit below the last place of the smallest subnormal, or a leading
+/// bit above the largest exponent).
+fn pack_exact(
+  value : @bin_float.BinFloat,
+  format : @bin_float.BinaryInterchangeFormat,
+) -> String? {
+  if value.is_nan() {
+    return None
   }
-  flags_result(case, actual_flags)
+  let (precision, width, emax) = format_layout(format)
+  let fraction_bits = precision - 1
+  let one = @bigint.BigInt::from_int(1)
+  let sign = if value.is_negative() || value.is_negative_zero() {
+    one << (width - 1)
+  } else {
+    @bigint.BigInt::from_int(0)
+  }
+  let bits = if value.is_infinite() {
+    sign | (((one << (width - precision)) - one) << fraction_bits)
+  } else if value.is_zero() {
+    sign
+  } else {
+    let coefficient = @bigint.BigInt::from_octets(
+      value.coefficient().to_bytes_be()[:],
+    )
+    let exponent = value.exponent2()
+    let length = coefficient.bit_length()
+    guard length <= precision else { return None }
+    let emin = 1 - emax
+    // the exponent of the leading bit
+    let leading = exponent + length - 1
+    guard leading <= emax else { return None }
+    if leading >= emin {
+      let fraction = (coefficient << (precision - length)) -
+        (one << fraction_bits)
+      sign |
+      (@bigint.BigInt::from_int(leading + emax) << fraction_bits) |
+      fraction
+    } else {
+      // subnormal: the coefficient counts units of the last place of the
+      // smallest subnormal
+      let lowest = emin - fraction_bits
+      guard exponent >= lowest else { return None }
+      sign | (coefficient << (exponent - lowest))
+    }
+  }
+  Some(bits_text_digits(bits.to_string(radix=16), width / 4))
 }
 
 ///|
