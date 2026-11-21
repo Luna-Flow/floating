@@ -1110,16 +1110,18 @@ DIV_SIZES = [3, 33, 63, 64, 65, 96, 97, 129, 130, 192, 193, 207, 208, 209, 256, 
 def div_row_list() -> list[tuple]:
     """(id, route, divisor spec, dividend spec, scale, precision, where)."""
     rows: list[tuple] = []
+    scaled_rows: list[tuple] = []  # rows with a dividend written out as limbs (computed from the divisor)
 
     def add(name: str, routes: str, d_spec: str, n_spec: str, where: str = "pr", scale: int = 0, precision: int = 0) -> None:
         for route in routes.split(","):
             rows.append((f"{name}-{route}", route, d_spec, n_spec, scale, precision, where))
 
     # 1. one-limb divisors: below 2^32 (the half-limb loop), above it (one 128 by 64 bit division per limb)
-    for label, divisor in (("1", 1), ("3", 3), ("m32", (1 << 32) - 1), ("p32", 1 << 32), ("p32p1", (1 << 32) + 1), ("h63", 1 << 63), ("h63p1", (1 << 63) + 1), ("ones", MASK64)):
+    for label, divisor in (("1", 1), ("2", 2), ("3", 3), ("10", 10), ("1e9p7", 1000000007), ("m32", (1 << 32) - 1), ("p32", 1 << 32), ("p32p1", (1 << 32) + 1), ("h63", 1 << 63), ("h63p1", (1 << 63) + 1), ("ones", MASK64)):
         d_spec = f"0:+{divisor:016X}@0"
-        for k, n_name in ((0, "rand1"), (1, "rand2"), (2, "rand3"), (9, "rand10"), (99, "rand100")):
-            add(f"div-w{label}-{n_name}", "div,knuth", d_spec, f"{64 * (k + 1)}.0")
+        for n in (1, 2, 3, 4, 7, 16, 65, 100):
+            for shape in (0, 1, 6):
+                add(f"div-w{label}-n{n}s{shape}", "div,knuth", d_spec, f"{64 * n}.{shape}")
         for k in (1, 3, 40):
             add(f"div-w{label}-pow{k}", "div,knuth", d_spec, f"0:+1@{k}")
             add(f"div-w{label}-pow{k}m1", "div,knuth", d_spec, f"0:+1@{k},-1@0")
@@ -1156,6 +1158,29 @@ def div_row_list() -> list[tuple]:
                             add(f"div-top{n}-{top_rows}", "div,knuth,bz", d_spec, n_spec)
                             top_rows += 1
     assert top_rows >= 20, top_rows
+    # the padding boundaries `j 2^k` of the recursive division (`bin_coeff_bz_padded_words`), one limb either side;
+    # quotients of 1 limb (dividend one limb longer) and 2n limbs
+    leaf = 64
+    pairs = ((0, 0), (1, 6))
+    for k in range(1, 5):
+        for j in (leaf // 2 + 1, leaf // 2 + 2, 47, 48, 49, leaf - 1, leaf):
+            for off in (-1, 0, 1):
+                dl = j * (1 << k) + off
+                for nl in (dl + 1, 2 * dl):
+                    for ds, ns in pairs:
+                        add(f"div-bzp{dl}-{nl}-{ds}{ns}", "bz,div", f"{64 * dl}.{ds}", f"{64 * nl}.{ns}", "pr" if dl <= DIV_PR_LIMBS else "gate")
+    # unbalanced shapes: quotients of 1 limb, 7 and 63 times the divisor
+    for dl in (65, 97, 130, 193, 257):
+        for nl in (dl + 1, dl * 8, dl * 64 + 3):
+            for ds, ns in pairs:
+                add(f"div-bzu{dl}-{nl}-{ds}{ns}", "bz,div", f"{64 * dl}.{ds}", f"{64 * nl}.{ns}", "pr" if dl * 64 <= 130 * 8 and nl <= 1200 else "gate")
+    # around the leaf, the multiples of the leaf and the cutoffs of the three tiers, with quotients of 0, 1,
+    # d / 2, d and 2 d + 3 limbs
+    for dl in (64, 65, 127, 128, 129, 197, 207, 208, 209, 351, 352, 353, 751, 752, 753):
+        for extra in (0, 1, dl // 2, dl, 2 * dl + 3):
+            nl = dl + extra
+            for ds, ns in pairs:
+                add(f"div-bzc{dl}-{nl}-{ds}{ns}", "bz,div,knuth", f"{64 * dl}.{ds}", f"{64 * nl}.{ns}", "pr" if dl <= DIV_PR_LIMBS else "gate")
     # 3. the sizes where the routes switch, in every state of the limb tier: Burnikel-Ziegler
     # from 752 (assembly rows), 352 (C rows) and 208 limbs (portable loops)
     # (`bin_coeff_bz_division_min_words`), the leaf of 64 limbs and the padding
@@ -1174,6 +1199,34 @@ def div_row_list() -> list[tuple]:
             ):
                 add(f"div-n{n}-{dk}-{nk}", "div,knuth,bz", d_spec, n_spec, where)
     # 4. the packed scaled quotient (divisors of 2 to 95 limbs) and the short quotient (2 to 256)
+    # the shapes of the old differential block: divisors trimmed by 0, 21 and 42 bits, dividends of the
+    # divisor's length, one bit less, half plus 3, 64, 65 and 129 bits, shifts from 0 to 200 bits
+    scales = (0, 1, 2, 63, 64, 65, 130, 131, 200)
+    index = 0
+    for n in (2, 3, 4, 5, 6, 8, 9, 15, 16, 17, 31, 32, 33, 47, 64, 65, 95):
+        for trim in (0, 21, 42):
+            dbits = 64 * n - trim
+            for nbits in (dbits, dbits - 1, dbits // 2 + 3, 64, 65, 129):
+                add(f"div-scg{n}-{trim}-{nbits}", "scaled", f"{dbits}.0", f"{nbits}.0", "pr", scales[index % len(scales)])
+                index += 1
+    # boundary values: all ones, `2^k + 1` and the neighbours, with shifts 0, 1, 64, 129, 130
+    for n in (2, 5, 17, 33, 65, 95):
+        dividends = {"ones": f"{64 * n}.1", "pow": f"{64 * n}.3", "onesm2": f"0:+1@{n},-3@0", "wide": f"{64 * n + 7}.1"}
+        divisors = {"ones": f"{64 * n}.1", "pow": f"{64 * n}.3", "pow3": f"0:+8000000000000000@{n - 1},+3@0"}
+        for dn, dspec in dividends.items():
+            for vn, vspec in divisors.items():
+                for scale in (0, 1, 64, 129, 130):
+                    add(f"div-scb{n}-{dn}-{vn}-{scale}", "scaled", vspec, dspec, "pr", scale)
+    # dividend = k D + small, so that the estimates equal the top digit
+    for n in (2, 5, 33, 95):
+        name_base = f"div-scm{n}"
+        for mi, multiplier in enumerate((1, 2, MASK64, (1 << 64) + 1, (1 << 127) - 1)):
+            for oi, offset in enumerate((-1, 0, 1)):
+                name = f"{name_base}-{mi}{oi}-scaled"
+                d_spec = f"{64 * n}.0"
+                d = eval_spec(d_spec, 0, Random(row_seed(name)))
+                number = multiplier * d + offset
+                scaled_rows.append((name, "scaled", d_spec, "0:" + ",".join(limb_terms(number, 0, "+")), 0, 0, "pr"))
     for n in (2, 3, 4, 8, 16, 33, 64, 65, 94, 95):
         kinds = dspec_kinds(n)
         for dk in ("rand", "ones", "min", "minmid", "unnorm63"):
@@ -1220,6 +1273,7 @@ def div_row_list() -> list[tuple]:
         for gap in (0, 1, 2, 15, 16, 17, 18, 40, 64, 200):
             for shape in (0, 1, 6):
                 add(f"div-sh{dbits}-{gap}-{shape}", "short", f"{dbits}.{shape}", f"{dbits + gap}.{(shape + 3) % 7}", "pr")
+    rows.extend(scaled_rows)
     # direct routes need a dividend of at least the divisor's width
     kept = []
     for row in rows:
@@ -1239,7 +1293,13 @@ def div_row_list() -> list[tuple]:
             if not (2 <= limbs <= top) or n == 0 or n.bit_length() + scale < d.bit_length():
                 continue
         kept.append(row)
-    return kept
+    seen = set()
+    unique = []
+    for row in kept:  # the padding boundaries of different `j` and `k` repeat a length
+        if row[0] not in seen:
+            seen.add(row[0])
+            unique.append(row)
+    return unique
 
 
 def div_names() -> list[str]:
@@ -1280,6 +1340,8 @@ def sqrt_bits_list() -> list[int]:
     for n in SQRT_SIZES_LIMBS:
         sizes.update((64 * n - 1, 64 * n, 64 * n + 1))
     sizes.update((4097, 4098, 33000))
+    # the sizes of the older differential blocks of the recursion (odd limb counts are padded to even)
+    sizes.update((258, 319, 320, 321, 447, 448, 449, 575, 576, 577, 639, 640, 641, 1500, 2300, 1537, 1600, 3000, 5000, 12289, 16385))
     return sorted(sizes)
 
 
@@ -1387,7 +1449,7 @@ RADIX_DIGITS = "0123456789abcdefghijklmnopqrstuvwxyz"
 RADIX_PR_LIMBS = [1, 2, 3, 4, 31, 32, 33, 63, 64, 65, 200]
 RADIX_PR_RADICES = [3, 7, 10, 36]
 RADIX_POW2 = [2, 16]
-RADIX_PARSE_PR_CHUNKS = [1, 2, 3, 31, 32, 33, 34, 64, 65, 200]
+RADIX_PARSE_PR_CHUNKS = [1, 2, 3, 31, 32, 33, 34, 64, 65, 200, 400, 1100]
 RADIX_PARSE_GATE_CHUNKS = [4607, 4608, 4609]
 
 
@@ -1478,6 +1540,13 @@ def radix_row_list() -> list[tuple]:
                 for route in ("fmt", "fmt_ip", "fmt_dc"):
                     k = width * 2**j
                     rows.append((f"radix-{route}-r{radix}-q{k}-{delta + 1}", route, radix, "pw", str(k), delta, "pr"))
+    # the sizes of the older in-place reference test (one limb either side of the cutoffs of the wasm and
+    # native tiers), radices 3, 5, 7, 10, 12, 36, shapes random, all ones, zero limbs inside
+    for limbs in (5, 8, 9, 10, 17, 127, 128, 129, 190, 191, 192, 193, 255, 256, 257, 511, 512, 513):
+        for radix in (3, 5, 7, 10, 12, 36):
+            for shape in (0, 1, 6):
+                for route in ("fmt", "fmt_ip", "fmt_dc"):
+                    rows.append((f"radix-{route}-r{radix}-l{limbs}-v{shape}", route, radix, "v", f"{64 * limbs}.{shape}", 0, "pr" if limbs <= 200 else "gate"))
     # the divide-and-conquer format from 3,072 limbs (`bin_coeff_radix_format_dc_words`)
     for radix in (10, 3, 36):
         for limbs, routes in ((3071, ["fmt", "fmt_dc"]), (3072, ["fmt"]), (3073, ["fmt"])):
