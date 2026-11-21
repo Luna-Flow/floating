@@ -171,3 +171,22 @@ reg.atan2pi.boundary.6 atan2pi u 108 -126 127 b 0x1p-114 -0x2ffffffffffffdp-53 -
 reg.atan2pi.boundary.7 atan2pi n 59 -6 7 b 0x3243f67644638804d7010b71ae9e5d1fc9p-197 0x1p0 - 0 0x0p0 xu
 reg.atan2pi.boundary.8 atan2pi na 14 -6 7 a -0x1p-18 -0x2ffffffffffffdp-53 - 0 -0x1p0 x
 reg.atan2pi.boundary.9 atan2pi n 155 -16382 16383 b 0x3243f6a8885a308cfeeda1fa57dccf72cece675d1fc9p-16708 0x1p0 - 0 0x1p-16536 xu
+# nearest-away with a result below the smallest normal number: the generator rewrote these rows to
+# ties-to-even (a different value or flags) because mpfr_subnormalize has no nearest-away mode;
+# now rounded on the subnormal grid and checked with exact arithmetic (tools/check_random_rna_rows.py).
+reg.rna.subnormal.add.1 add na 11 -14 15 a 0x5p-25 -0x1p-23 - 0 0x1p-24 xu
+reg.rna.subnormal.add.2 add na 11 -14 15 a 0xfp-24 0x83p-25 - 0 0x51p-24 xu
+reg.rna.subnormal.add.3 add na 2 -38 39 a 0x3p-40 -0x1p-39 - 0 0x1p-39 xu
+reg.rna.subnormal.add.4 add na 2 -29 30 a -0x1p-30 0x3p-31 - 0 0x1p-30 xu
+reg.rna.subnormal.mul.1 mul na 113 -16382 16383 b -0x7p-6 0x3p-16489 - 0 -0xbp-16494 xu
+reg.rna.subnormal.mul.2 mul na 53 -1022 1023 a -0xc9p-33 0x201p-1042 - 0 -0xc965p-1074 xu
+reg.rna.subnormal.mul.3 mul na 3 -4194303 4194304 a 0x1p-47 -0x5p-4194259 - 0 -0x3p-4194305 xu
+reg.rna.subnormal.mul.4 mul na 3 -246 247 b -0x1p-34 0x5p-215 - 0 -0x3p-248 xu
+reg.rna.subnormal.div.1 div na 24 -126 127 a -0x4ee05398b1edp-166 0x9d71edp-16 - 0 -0x402001p-149 xu
+reg.rna.subnormal.div.2 div na 113 -16382 16383 b 0x2f4185bf259c206e1e5p-16464 0x1p31 - 0 0x17a0c2df92ce10370f3p-16494 xu
+reg.rna.subnormal.div.3 div na 2 -92 93 a -0x3p-79 0x3p15 - 0 -0x1p-93 xu
+reg.rna.subnormal.div.4 div na 2 -104 105 a -0xc1p-97 0xc1p9 - 0 -0x1p-105 xu
+reg.rna.subnormal.fma.1 fma na 113 -16382 16383 a 0xf63p-46 -0xc99c000000000001p-16449 -0x32de4b43917c15p-16494 0 -0x60f0ddcde4b439183c7p-16494 xu
+reg.rna.subnormal.fma.2 fma na 53 -1022 1023 a 0x1p20 0x7p-1076 0x5p-1075 0 0x1c0003p-1074 xu
+reg.rna.subnormal.fma.3 fma na 2 -32307 32308 a 0x3p-50 -0x1p-32259 0x1p-32308 0 -0x1p-32308 xu
+reg.rna.subnormal.fma.4 fma na 2 -21 22 a 0x3p-15 -0x1p-8 0x1p-22 0 -0x1p-22 xu

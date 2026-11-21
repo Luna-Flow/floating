@@ -432,9 +432,8 @@ static int any_input_nan(const row_t *row) {
 }
 
 // Computes row->y and row->flags for K_ARITH, K_ELEM and K_STRTOFR rows.
-// Returns 0 on success and 1 when the row must be recomputed in round to
-// nearest even (nearest-away result in the subnormal range, which
-// mpfr_subnormalize cannot reproduce).
+// Returns 0 (a nearest-away result in the subnormal range is rounded on the
+// subnormal grid by round_nearest_away_subnormal; no row changes its rounding).
 static void clip_operand(mpfr_t x, long low, long high) {
   if (!mpfr_regular_p(x)) return;
   long leading = (long)mpfr_get_exp(x) - 1;
@@ -452,6 +451,59 @@ static void clip_operands(row_t *row, long emin, long emax) {
   if (row->has_a && row->op->kind != K_STRTOFR) clip_operand(row->a, low, emax);
   if (row->has_b) clip_operand(row->b, low, emax);
   if (row->has_c) clip_operand(row->c, low, emax);
+}
+
+// Nearest-away rounding of a result whose binade lies below the smallest normal
+// one. mpfr_subnormalize does not support round-to-nearest-away (the mode is an
+// emulation by mpfr_round_nearest_away_begin/end, not a rounding mode of MPFR),
+// so the value is rounded once, at the number of bits the subnormal grid has in
+// the binade of the exact result: with leading exponent E below emin the grid of
+// the format has the weight 2^(emin - p + 1) of its last place, so the result has
+// q = E - (emin - p + 1) + 1 significant bits. E is that of the exact result,
+// found by the truncated (round toward zero) result at precision p, which keeps
+// the binade of the exact value; the MPFR exponent range is lowered by one more
+// binade so that the truncation still sees the binade just below the smallest
+// subnormal. Below the smallest subnormal the result is zero, or the smallest
+// subnormal when the exact result is at least half of it (a tie rounds away from
+// zero). Returns the ternary value and leaves the result in row->y.
+static int round_nearest_away_subnormal(row_t *row, long emin) {
+  long grid = emin - row->precision + 1; // exponent of the last place of a subnormal
+  mpfr_exp_t range_min = mpfr_get_emin();
+  if (mpfr_set_emin(grid)) {
+    fprintf(stderr, "exponent range out of MPFR bounds: %ld\n", grid);
+    exit(2);
+  }
+  mpfr_t truncated;
+  mpfr_init2(truncated, row->precision);
+  apply_op(row, truncated, MPFR_RNDZ);
+  int negative = mpfr_signbit(truncated) != 0;
+  int ternary;
+  if (mpfr_zero_p(truncated)) {
+    // below 2^(grid - 1): rounds to zero
+    mpfr_set_zero(row->y, negative ? -1 : 1);
+    ternary = negative ? 1 : -1;
+  } else {
+    long leading = (long)mpfr_get_exp(truncated) - 1;
+    if (leading < grid) {
+      // in [2^(grid - 1), 2^grid): rounds up in magnitude to the smallest subnormal
+      mpfr_set_ui_2exp(row->y, 1, (mpfr_exp_t)grid, MPFR_RNDN);
+      if (negative) mpfr_neg(row->y, row->y, MPFR_RNDN);
+      ternary = negative ? -1 : 1;
+    } else {
+      long bits = leading - grid + 1; // 1 .. p - 1
+      mpfr_t grid_value;
+      mpfr_init2(grid_value, bits);
+      ternary = apply_rounded(row, grid_value, R_NA);
+      if (mpfr_set(row->y, grid_value, MPFR_RNDN) != 0) {
+        fprintf(stderr, "a subnormal result does not fit the precision\n");
+        exit(2);
+      }
+      mpfr_clear(grid_value);
+    }
+  }
+  mpfr_clear(truncated);
+  mpfr_set_emin(range_min);
+  return ternary;
 }
 
 static int compute_real(row_t *row) {
@@ -496,12 +548,12 @@ static int compute_real(row_t *row) {
   }
   int regular = mpfr_regular_p(row->y);
   int tiny_after = flushed || (regular && mpfr_get_exp(row->y) <= emin);
+  int subnormal_done = 0;
   if (row->rounding == R_NA && tiny_after) {
-    mpfr_set_emin(saved_min);
-    mpfr_set_emax(saved_max);
-    return 1;
+    ternary = round_nearest_away_subnormal(row, emin);
+    subnormal_done = 1;
   }
-  if (regular && mpfr_get_exp(row->y) <= emin) {
+  if (!subnormal_done && regular && mpfr_get_exp(row->y) <= emin) {
     mpfr_rnd_t rnd = rounding_modes[row->rounding];
     ternary = mpfr_subnormalize(row->y, ternary, rnd);
   }
@@ -575,10 +627,7 @@ static void compute_row_real(row_t *row) {
     row->flags = 0;
     return;
   }
-  if (compute_real(row)) {
-    row->rounding = 0;
-    compute_real(row);
-  }
+  compute_real(row);
   check_sqrt(row);
   // IEEE 754-2019 9.2.1: "rSqrt(±0) is ±∞ and signals the divideByZero
   // exception"; mpfr_rec_sqrt(-0) is +inf, so the expected value follows the
