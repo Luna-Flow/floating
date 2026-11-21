@@ -13,18 +13,23 @@ fn contextual_diagnostics(
 
 ///|
 fn contextual_outcome(
+  operation : String,
   value : Decimal,
   flags : DecimalFlags,
 ) -> Result[@lf_arith.ArithmeticOutcome[Decimal], @lf_arith.ArithmeticError] {
   if flags.division_by_zero {
-    Err(@lf_arith.ArithmeticError::division_by_zero("division by zero"))
+    Err(
+      @lf_arith.ArithmeticError::division_by_zero(
+        operation + ": division by zero",
+      ),
+    )
   } else if flags.not_computed {
     // could not be computed within a limit of the implementation (S4): the
     // certification-failure kind, apart from the domain error of an invalid result
     Err(
       @lf_arith.ArithmeticError::certification_failure(
         @lf_arith.CertificationFailureDetail::new(
-          "decimal operation",
+          operation,
           @lf_arith.CertificationStage::RangeReduction,
           @lf_arith.CertificationFailureReason::ResourceLimit,
           0,
@@ -34,7 +39,9 @@ fn contextual_outcome(
       ),
     )
   } else if flags.has_error() {
-    Err(@lf_arith.ArithmeticError::domain_error("invalid decimal operation"))
+    Err(
+      @lf_arith.ArithmeticError::domain_error(operation + ": invalid operation"),
+    )
   } else {
     Ok(
       @lf_arith.ArithmeticOutcome::with_diagnostics(
@@ -56,7 +63,7 @@ pub impl @lf_arith.AddContextual for Decimal with fn add_contextual(
     Ok(dctx) => dctx
   }
   let (value, flags) = self.add_ctx(other, dctx)
-  contextual_outcome(value, flags)
+  contextual_outcome("add", value, flags)
 }
 
 ///|
@@ -70,7 +77,7 @@ pub impl @lf_arith.SubContextual for Decimal with fn sub_contextual(
     Ok(dctx) => dctx
   }
   let (value, flags) = self.sub_ctx(other, dctx)
-  contextual_outcome(value, flags)
+  contextual_outcome("sub", value, flags)
 }
 
 ///|
@@ -84,7 +91,7 @@ pub impl @lf_arith.MulContextual for Decimal with fn mul_contextual(
     Ok(dctx) => dctx
   }
   let (value, flags) = self.mul_ctx(other, dctx)
-  contextual_outcome(value, flags)
+  contextual_outcome("mul", value, flags)
 }
 
 ///|
@@ -98,7 +105,7 @@ pub impl @lf_arith.DivContextual for Decimal with fn div_contextual(
     Ok(dctx) => dctx
   }
   let (value, flags) = self.div_ctx(other, dctx)
-  contextual_outcome(value, flags)
+  contextual_outcome("div", value, flags)
 }
 
 ///|
@@ -111,7 +118,7 @@ pub impl @lf_arith.AbsContextual for Decimal with fn abs_contextual(
     Ok(dctx) => dctx
   }
   let (value, flags) = self.abs_ctx(dctx)
-  contextual_outcome(value, flags)
+  contextual_outcome("abs", value, flags)
 }
 
 ///|
@@ -124,7 +131,7 @@ pub impl @lf_arith.SqrtContextual for Decimal with fn sqrt_contextual(
     Ok(dctx) => dctx
   }
   let (value, flags) = self.sqrt_ctx(dctx)
-  contextual_outcome(value, flags)
+  contextual_outcome("sqrt", value, flags)
 }
 
 ///|
@@ -137,7 +144,7 @@ pub impl @lf_arith.ExpContextual for Decimal with fn exp_contextual(
     Ok(dctx) => dctx
   }
   let (value, flags) = self.exp_ctx(dctx)
-  contextual_outcome(value, flags)
+  contextual_outcome("exp", value, flags)
 }
 
 ///|

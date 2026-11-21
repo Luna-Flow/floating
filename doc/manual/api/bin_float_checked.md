@@ -293,9 +293,9 @@ test "context arithmetic rounds to the context and maps the flags" {
   let zero = @bin_float_checked.BinFloatResult::from_int(0)
   inspect(show(tenth.add_ctx(zero, binary32)), content="13421773p-27")
   let one = @bin_float_checked.BinFloatResult::from_int(1)
-  inspect(show(one.div_ctx(zero, binary32)), content="error: division by zero")
+  inspect(show(one.div_ctx(zero, binary32)), content="error: div: division by zero")
   inspect(show(one.div(zero)), content="error: division by zero")
-  inspect(show(zero.div_ctx(zero, binary32)), content="error: invalid operation")
+  inspect(show(zero.div_ctx(zero, binary32)), content="error: div: invalid operation")
 }
 ```
 
@@ -481,7 +481,7 @@ test "powers and roots" {
   inspect(show(r(3).pow_nat(10)), content="59049p0")
   inspect(show(r(0).pown(-1)), content="error: negative exponent requires a non-zero base")
   inspect(show(r(-8).rootn(3)), content="-1p1")
-  inspect(show(r(8).rootn(0)), content="error: invalid operation")
+  inspect(show(r(8).rootn(0)), content="error: rootn: invalid operation")
   inspect(show(r(3).hypot(r(4))), content="5p0")
 }
 ```
@@ -500,7 +500,10 @@ underflow and inexact are dropped. Besides the errors listed below, every
 function can report a
 `CertificationFailure` when `bin_float` cannot certify the rounding within its
 refinement budget (see
-[`bin_float` elementary functions](bin_float.md#elementary-functions)). A
+[`bin_float` elementary functions](bin_float.md#elementary-functions)); the
+`CertificationFailureDetail` names the function. The messages of the other
+errors name it too: `name: invalid operation` and `name: division by zero`, so
+that in a chain of steps the message says which one failed. A
 quiet NaN operand gives a successful NaN.
 
 ### `BinFloatResult::exp`, `BinFloatResult::exp_ctx`
@@ -807,9 +810,9 @@ test "elementary functions" {
     show(r(2).ln_ctx(@bin_float.BinaryContext::new(precision=24))),
     content="1453635p-21",
   )
-  inspect(show(r(0).ln()), content="error: division by zero")
-  inspect(show(r(-4).ln()), content="error: invalid operation")
-  inspect(show(r(2).asin()), content="error: invalid operation")
+  inspect(show(r(0).ln()), content="error: ln: division by zero")
+  inspect(show(r(-4).ln()), content="error: ln: invalid operation")
+  inspect(show(r(2).asin()), content="error: asin: invalid operation")
   inspect(show(r(0).exp().ln()), content="0")
 }
 ```

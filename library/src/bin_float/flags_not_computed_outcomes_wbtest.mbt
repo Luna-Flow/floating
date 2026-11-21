@@ -74,25 +74,27 @@ test "plain elementary forms: a domain case is invalid_operation, not not_comput
 ///|
 test "checked tier: not_computed is the certification failure, invalid_operation the domain error" {
   let nan = BinFloat::nan()
-  match binary_contextual_outcome(nan, binary_not_computed_flags()) {
+  match binary_contextual_outcome("exp", nan, binary_not_computed_flags()) {
     Err(error) => {
       assert_true(error.is_certification_failure())
       match error.certification_failure_detail() {
-        Some(detail) => assert_eq(detail.operation(), "binary operation")
+        Some(detail) => assert_eq(detail.operation(), "exp")
         None => abort("a certification failure has a detail")
       }
       assert_false(error.is_domain_error())
     }
     Ok(_) => abort("not_computed must be an Err")
   }
-  match binary_contextual_outcome(nan, binary_invalid_flags()) {
+  match binary_contextual_outcome("exp", nan, binary_invalid_flags()) {
     Err(error) => {
       assert_true(error.is_domain_error())
       assert_false(error.is_certification_failure())
     }
     Ok(_) => abort("invalid_operation must be an Err")
   }
-  assert_true(binary_contextual_outcome(nan, BinaryFlags::new()) is Ok(_))
+  assert_true(
+    binary_contextual_outcome("exp", nan, BinaryFlags::new()) is Ok(_),
+  )
   match binary_checked_result((nan, binary_not_computed_flags()), "invalid") {
     Err(error) => {
       assert_true(error.is_certification_failure())

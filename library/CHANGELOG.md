@@ -492,6 +492,15 @@ notes live in this file.
   | --- | --- | --- |
   | `x.try_rootn_ctx(n, ctx)` (also `pow`, `powr`, `rsqrt`, `compound`) for a domain case: `Err(domain_error)` | `Ok((NaN, invalid_operation))` | the plain `rootn_ctx` etc. returned this value already |
 
+- `bin_float`, `bin_float_checked`, `decimal`: the errors of the checked tier name the operation ([#438](https://github.com/Luna-Flow/floating/issues/438), follow-up of S4). With the domain cases of the `try_` forms being values, the checked tier's `domain_error` lost the sentence the kernel put in it (`ln requires a positive value`) and said only `invalid operation`: in a chain of `BinFloatResult` steps nothing said which step failed. The wrappers know the operation and pass it to the mapping.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `BinFloatResult::ln()` of -4: `domain_error("invalid operation")` | `domain_error("ln: invalid operation")` | every `BinFloatResult` operation (82 wrappers: `add`, `sub`, `mul`, `div`, `sqrt` and the elementary functions, plain and `_ctx`) |
+  | `BinFloatResult::ln()` of 0: `division_by_zero("division by zero")` | `division_by_zero("ln: division by zero")` | |
+  | a certification failure of a `BinFloatResult` step: `CertificationFailureDetail.operation` is `"binary operation"` | the name of the function (`"exp"`) | |
+  | `*_contextual` of `BinFloat` and `Decimal` (`add`, `sub`, `mul`, `div`, `abs`, `sqrt`, `exp`): `domain_error("invalid binary operation")` / `("invalid decimal operation")`, `division_by_zero("division by zero")`, a detail named `"binary operation"` / `"decimal operation"` | `"<op>: invalid operation"`, `"<op>: division by zero"`, the detail named after `<op>` | the kinds of the errors are unchanged |
+
 ### Added
 
 - `bin_float`, `decimal`: every comparison predicate of IEEE 754-2019 5.11 has a function ([#438](https://github.com/Luna-Flow/floating/issues/438), item N6). The clause lists 22 predicates, 10 in Table 5.1 and 12 in Table 5.2; `bin_float` had 7 and `decimal` none. Both now have the 15 others, with the names of the first seven (`compare_quiet_*`, `compare_signaling_*`): `not_equal`, `greater`, `greater_equal`, `not_greater`, `less_unordered`, `not_less` and `greater_unordered` for both kinds, and `compare_quiet_ordered`. Each returns `(Bool, flags)`, is defined from `compare_quiet` or `compare_signaling` and raises invalid where the table says (a signaling NaN for the quiet ones, any NaN for the signaling ones). Nothing existing changes in `bin_float`.

@@ -1266,7 +1266,7 @@ msgstr "NaI はコンテキストの精度を持つ NaI のままです。"
 #: manual/api/ball_float.md:2040
 #: manual/api/ball_float_checked.md:513
 #: manual/api/bin_float.md:2409
-#: manual/api/bin_float_checked.md:817
+#: manual/api/bin_float_checked.md:820
 #: manual/api/decimal.md:2076
 #: manual/api/decimal_gda.md:1458
 #: manual/api/def.md:414
@@ -1337,7 +1337,7 @@ msgstr "使われるのは `ctx.precision` だけです。オペランドは `wi
 #: manual/api/bench/decimal_gda.md:42
 #: manual/api/bench/external.md:80
 #: manual/api/bin_float.md:2619
-#: manual/api/bin_float_checked.md:837
+#: manual/api/bin_float_checked.md:840
 #: manual/api/cli.md:80
 #: manual/api/cli/dispatch.md:38
 #: manual/api/cli/gda_expr_cli.md:83
@@ -1603,12 +1603,12 @@ msgid "`Add`, `Sub`, `Mul`, `Div`, `Neg` for `BallFloatResult`"
 msgstr "`BallFloatResult` の `Add`、`Sub`、`Mul`、`Div`、`Neg`"
 
 #: manual/api/ball_float_checked.md:517
-#: manual/api/bin_float_checked.md:821
+#: manual/api/bin_float_checked.md:824
 msgid "The operators `+`, `-`, `*`, `/` and unary `-` call `add`, `sub`, `mul`, `div` and `neg`."
 msgstr "演算子 `+`、`-`、`*`、`/` と単項 `-` は、`add`、`sub`、`mul`、`div`、`neg` を呼び出します。"
 
 #: manual/api/ball_float_checked.md:530
-#: manual/api/bin_float_checked.md:839
+#: manual/api/bin_float_checked.md:842
 #: manual/api/decimal_checked.md:403
 #: manual/api/decimal_gda_checked.md:320
 #: manual/api/def.md:430
@@ -3693,191 +3693,191 @@ msgid "`hypot` uses an unbounded context at the larger operand precision. A sign
 msgstr "`hypot` は大きいほうのオペランド精度で無制限コンテキストを使用します。signaling NaN のオペランドは `DomainError` です。`hypot` はそれ以外の例外を発生させません（オーバーフローとアンダーフローは値です）。"
 
 #: manual/api/bin_float_checked.md:491
-msgid "Each unary elementary function `name` has two wrapper methods. `name()` is `bind` of `BinFloat::try_name_ctx` under `BinaryContext::new(precision=x.precision())`, that is nearest-even rounding to the operand's precision with no exponent limit; `name_ctx(ctx)` uses the given context instead. A success is the correctly rounded value of `bin_float`. The flags of the step are mapped as for `div`: the invalid operation exception (a signaling NaN operand, or an argument outside the domain of IEEE 754-2019 Table 9.1) is a `DomainError`, divideByZero (a pole, §9.2) is a `DivisionByZero` error, and overflow, underflow and inexact are dropped. Besides the errors listed below, every function can report a `CertificationFailure` when `bin_float` cannot certify the rounding within its refinement budget (see [`bin_float` elementary functions](bin_float.md#elementary-functions)). A quiet NaN operand gives a successful NaN."
-msgstr "各単項初等関数 `name` には 2 つのラッパーメソッドがあります。`name()` は `BinaryContext::new(precision=x.precision())`、すなわち指数制限なしでオペランドの精度への最近接偶数丸めのもとでの `BinFloat::try_name_ctx` の `bind` です。`name_ctx(ctx)` は代わりに与えられたコンテキストを使用します。成功値は `bin_float` の正しく丸められた値です。そのステップのフラグは `div` と同様に対応付けられます。無効演算の例外（signaling NaN のオペランド、または IEEE 754-2019 表 9.1 の定義域外の引数）は `DomainError`、ゼロ除算（極、§9.2）は `DivisionByZero` エラーとなり、オーバーフロー、アンダーフロー、不正確は捨てられます。以下に挙げるエラーに加え、`bin_float` が精密化の予算内で丸めを認証できない場合、どの関数も `CertificationFailure` を報告することがあります（[`bin_float` の初等関数](bin_float.md#elementary-functions)を参照）。quiet NaN のオペランドからは成功した NaN が得られます。"
+msgid "Each unary elementary function `name` has two wrapper methods. `name()` is `bind` of `BinFloat::try_name_ctx` under `BinaryContext::new(precision=x.precision())`, that is nearest-even rounding to the operand's precision with no exponent limit; `name_ctx(ctx)` uses the given context instead. A success is the correctly rounded value of `bin_float`. The flags of the step are mapped as for `div`: the invalid operation exception (a signaling NaN operand, or an argument outside the domain of IEEE 754-2019 Table 9.1) is a `DomainError`, divideByZero (a pole, §9.2) is a `DivisionByZero` error, and overflow, underflow and inexact are dropped. Besides the errors listed below, every function can report a `CertificationFailure` when `bin_float` cannot certify the rounding within its refinement budget (see [`bin_float` elementary functions](bin_float.md#elementary-functions)); the `CertificationFailureDetail` names the function. The messages of the other errors name it too: `name: invalid operation` and `name: division by zero`, so that in a chain of steps the message says which one failed. A quiet NaN operand gives a successful NaN."
+msgstr "各単項初等関数 `name` には 2 つのラッパーメソッドがあります。`name()` は `BinaryContext::new(precision=x.precision())`、すなわち指数制限なしでオペランドの精度への最近接偶数丸めのもとでの `BinFloat::try_name_ctx` の `bind` です。`name_ctx(ctx)` は代わりに与えられたコンテキストを使用します。成功値は `bin_float` の正しく丸められた値です。そのステップのフラグは `div` と同様に対応付けられます。無効演算の例外（signaling NaN のオペランド、または IEEE 754-2019 表 9.1 の定義域外の引数）は `DomainError`、ゼロ除算（極、§9.2）は `DivisionByZero` エラーとなり、オーバーフロー、アンダーフロー、不正確は捨てられます。以下に挙げるエラーに加え、`bin_float` が精密化の予算内で丸めを認証できない場合、どの関数も `CertificationFailure` を報告することがあります（[`bin_float` の初等関数](bin_float.md#elementary-functions)を参照）。その `CertificationFailureDetail` は関数名を示します。他のエラーのメッセージにも関数名が入ります（`name: invalid operation` と `name: division by zero`）。そのため、一連のステップの中で、メッセージからどのステップが失敗したかが分かります。quiet NaN のオペランドからは成功した NaN が得られます。"
 
-#: manual/api/bin_float_checked.md:508
+#: manual/api/bin_float_checked.md:511
 msgid "$e^x$, delegated to [`BinFloat::try_exp_ctx`](bin_float.md#binfloatexp-binfloatexp_ctx-binfloattry_exp_ctx)."
 msgstr "$e^x$。[`BinFloat::try_exp_ctx`](bin_float.md#binfloatexp-binfloatexp_ctx-binfloattry_exp_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:517
+#: manual/api/bin_float_checked.md:520
 msgid "$e^x - 1$, delegated to [`BinFloat::try_expm1_ctx`](bin_float.md#binfloatexpm1-binfloatexpm1_ctx-binfloattry_expm1_ctx)."
 msgstr "$e^x - 1$。[`BinFloat::try_expm1_ctx`](bin_float.md#binfloatexpm1-binfloatexpm1_ctx-binfloattry_expm1_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:526
+#: manual/api/bin_float_checked.md:529
 msgid "$2^x - 1$, delegated to [`BinFloat::try_exp2m1_ctx`](bin_float.md#binfloatexp2m1-binfloatexp2m1_ctx-binfloattry_exp2m1_ctx)."
 msgstr "$2^x - 1$。[`BinFloat::try_exp2m1_ctx`](bin_float.md#binfloatexp2m1-binfloatexp2m1_ctx-binfloattry_exp2m1_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:533
+#: manual/api/bin_float_checked.md:536
 msgid "Errors: a signaling NaN is a `DomainError`; $-\\infty$ gives $-1$."
 msgstr "エラー: signaling NaN は `DomainError` です。$-\\infty$ は $-1$ を与えます。"
 
-#: manual/api/bin_float_checked.md:537
+#: manual/api/bin_float_checked.md:540
 msgid "$10^x - 1$, delegated to [`BinFloat::try_exp10m1_ctx`](bin_float.md#binfloatexp10m1-binfloatexp10m1_ctx-binfloattry_exp10m1_ctx)."
 msgstr "$10^x - 1$。[`BinFloat::try_exp10m1_ctx`](bin_float.md#binfloatexp10m1-binfloatexp10m1_ctx-binfloattry_exp10m1_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:544
+#: manual/api/bin_float_checked.md:547
 msgid "Errors: as `exp2m1`."
 msgstr "エラー: `exp2m1` と同じです。"
 
-#: manual/api/bin_float_checked.md:548
+#: manual/api/bin_float_checked.md:551
 msgid "$2^x$, delegated to [`BinFloat::try_exp2_ctx`](bin_float.md#binfloatexp2-binfloatexp2_ctx-binfloattry_exp2_ctx)."
 msgstr "$2^x$。[`BinFloat::try_exp2_ctx`](bin_float.md#binfloatexp2-binfloatexp2_ctx-binfloattry_exp2_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:557
+#: manual/api/bin_float_checked.md:560
 msgid "$10^x$, delegated to [`BinFloat::try_exp10_ctx`](bin_float.md#binfloatexp10-binfloatexp10_ctx-binfloattry_exp10_ctx)."
 msgstr "$10^x$。[`BinFloat::try_exp10_ctx`](bin_float.md#binfloatexp10-binfloatexp10_ctx-binfloattry_exp10_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:566
+#: manual/api/bin_float_checked.md:569
 msgid "$\\ln x$, delegated to [`BinFloat::try_ln_ctx`](bin_float.md#binfloatln-binfloatln_ctx-binfloattry_ln_ctx)."
 msgstr "$\\ln x$。[`BinFloat::try_ln_ctx`](bin_float.md#binfloatln-binfloatln_ctx-binfloattry_ln_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:573
+#: manual/api/bin_float_checked.md:576
 msgid "Errors: a `DomainError` for a negative argument, $-\\infty$ included; a `DivisionByZero` error for $\\ln(\\pm 0)$."
 msgstr "エラー：$-\\infty$ を含む負の引数に対して `DomainError`、$\\ln(\\pm 0)$ に対して `DivisionByZero` エラーです。"
 
-#: manual/api/bin_float_checked.md:577
+#: manual/api/bin_float_checked.md:580
 msgid "$\\ln(1 + x)$, delegated to [`BinFloat::try_log1p_ctx`](bin_float.md#binfloatlog1p-binfloatlog1p_ctx-binfloattry_log1p_ctx)."
 msgstr "$\\ln(1 + x)$。[`BinFloat::try_log1p_ctx`](bin_float.md#binfloatlog1p-binfloatlog1p_ctx-binfloattry_log1p_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:584
+#: manual/api/bin_float_checked.md:587
 msgid "Errors: a `DomainError` below $-1$, $-\\infty$ included; a `DivisionByZero` error for $\\operatorname{log1p}(-1)$."
 msgstr "エラー：$-\\infty$ を含む $-1$ 未満で `DomainError`、$\\operatorname{log1p}(-1)$ に対して `DivisionByZero` エラーです。"
 
-#: manual/api/bin_float_checked.md:588
+#: manual/api/bin_float_checked.md:591
 msgid "$\\log_2(1 + x)$, delegated to [`BinFloat::try_log2p1_ctx`](bin_float.md#binfloatlog2p1-binfloatlog2p1_ctx-binfloattry_log2p1_ctx)."
 msgstr "$\\log_2(1 + x)$。[`BinFloat::try_log2p1_ctx`](bin_float.md#binfloatlog2p1-binfloatlog2p1_ctx-binfloattry_log2p1_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:595
+#: manual/api/bin_float_checked.md:598
 msgid "Errors: a `DomainError` below $-1$, $-\\infty$ included, and for a signaling NaN; a `DivisionByZero` error for $\\operatorname{log2p1}(-1)$."
 msgstr "エラー: $-1$ 未満（$-\\infty$ を含む）と signaling NaN は `DomainError`、$\\operatorname{log2p1}(-1)$ は `DivisionByZero` エラーです。"
 
-#: manual/api/bin_float_checked.md:599
+#: manual/api/bin_float_checked.md:602
 msgid "$\\log_{10}(1 + x)$, delegated to [`BinFloat::try_log10p1_ctx`](bin_float.md#binfloatlog10p1-binfloatlog10p1_ctx-binfloattry_log10p1_ctx)."
 msgstr "$\\log_{10}(1 + x)$。[`BinFloat::try_log10p1_ctx`](bin_float.md#binfloatlog10p1-binfloatlog10p1_ctx-binfloattry_log10p1_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:606
+#: manual/api/bin_float_checked.md:609
 msgid "Errors: as `log2p1`."
 msgstr "エラー: `log2p1` と同じです。"
 
-#: manual/api/bin_float_checked.md:610
+#: manual/api/bin_float_checked.md:613
 msgid "$\\log_2 x$, delegated to [`BinFloat::try_log2_ctx`](bin_float.md#binfloatlog2-binfloatlog2_ctx-binfloattry_log2_ctx)."
 msgstr "$\\log_2 x$。[`BinFloat::try_log2_ctx`](bin_float.md#binfloatlog2-binfloatlog2_ctx-binfloattry_log2_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:617
+#: manual/api/bin_float_checked.md:620
 msgid "Errors: a `DomainError` for a negative argument, $-\\infty$ included; a `DivisionByZero` error for $\\log_2(\\pm 0)$."
 msgstr "エラー：$-\\infty$ を含む負の引数に対して `DomainError`、$\\log_2(\\pm 0)$ に対して `DivisionByZero` エラーです。"
 
-#: manual/api/bin_float_checked.md:621
+#: manual/api/bin_float_checked.md:624
 msgid "$\\log_{10} x$, delegated to [`BinFloat::try_log10_ctx`](bin_float.md#binfloatlog10-binfloatlog10_ctx-binfloattry_log10_ctx)."
 msgstr "$\\log_{10} x$。[`BinFloat::try_log10_ctx`](bin_float.md#binfloatlog10-binfloatlog10_ctx-binfloattry_log10_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:628
+#: manual/api/bin_float_checked.md:631
 msgid "Errors: a `DomainError` for a negative argument, $-\\infty$ included; a `DivisionByZero` error for $\\log_{10}(\\pm 0)$."
 msgstr "エラー：$-\\infty$ を含む負の引数に対して `DomainError`、$\\log_{10}(\\pm 0)$ に対して `DivisionByZero` エラーです。"
 
-#: manual/api/bin_float_checked.md:632
+#: manual/api/bin_float_checked.md:635
 msgid "$\\sin x$, delegated to [`BinFloat::try_sin_ctx`](bin_float.md#binfloatsin-binfloatsin_ctx-binfloattry_sin_ctx)."
 msgstr "$\\sin x$。[`BinFloat::try_sin_ctx`](bin_float.md#binfloatsin-binfloatsin_ctx-binfloattry_sin_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:639
-#: manual/api/bin_float_checked.md:650
-#: manual/api/bin_float_checked.md:661
-#: manual/api/bin_float_checked.md:672
-#: manual/api/bin_float_checked.md:683
+#: manual/api/bin_float_checked.md:642
+#: manual/api/bin_float_checked.md:653
+#: manual/api/bin_float_checked.md:664
+#: manual/api/bin_float_checked.md:675
+#: manual/api/bin_float_checked.md:686
 msgid "Errors: a `DomainError` for an infinite argument."
 msgstr "エラー：無限大の引数に対して `DomainError`。"
 
-#: manual/api/bin_float_checked.md:643
+#: manual/api/bin_float_checked.md:646
 msgid "$\\cos x$, delegated to [`BinFloat::try_cos_ctx`](bin_float.md#binfloatcos-binfloatcos_ctx-binfloattry_cos_ctx)."
 msgstr "$\\cos x$。[`BinFloat::try_cos_ctx`](bin_float.md#binfloatcos-binfloatcos_ctx-binfloattry_cos_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:654
+#: manual/api/bin_float_checked.md:657
 msgid "$\\tan x$, delegated to [`BinFloat::try_tan_ctx`](bin_float.md#binfloattan-binfloattan_ctx-binfloattry_tan_ctx)."
 msgstr "$\\tan x$。[`BinFloat::try_tan_ctx`](bin_float.md#binfloattan-binfloattan_ctx-binfloattry_tan_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:665
+#: manual/api/bin_float_checked.md:668
 msgid "$\\sin(\\pi x)$, delegated to [`BinFloat::try_sinpi_ctx`](bin_float.md#binfloatsinpi-binfloatsinpi_ctx-binfloattry_sinpi_ctx)."
 msgstr "$\\sin(\\pi x)$。[`BinFloat::try_sinpi_ctx`](bin_float.md#binfloatsinpi-binfloatsinpi_ctx-binfloattry_sinpi_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:676
+#: manual/api/bin_float_checked.md:679
 msgid "$\\cos(\\pi x)$, delegated to [`BinFloat::try_cospi_ctx`](bin_float.md#binfloatcospi-binfloatcospi_ctx-binfloattry_cospi_ctx)."
 msgstr "$\\cos(\\pi x)$。[`BinFloat::try_cospi_ctx`](bin_float.md#binfloatcospi-binfloatcospi_ctx-binfloattry_cospi_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:687
+#: manual/api/bin_float_checked.md:690
 msgid "$\\tan(\\pi x)$, delegated to [`BinFloat::try_tanpi_ctx`](bin_float.md#binfloattanpi-binfloattanpi_ctx-binfloattry_tanpi_ctx)."
 msgstr "$\\tan(\\pi x)$。[`BinFloat::try_tanpi_ctx`](bin_float.md#binfloattanpi-binfloattanpi_ctx-binfloattry_tanpi_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:694
+#: manual/api/bin_float_checked.md:697
 msgid "Errors: a `DomainError` for an infinite argument; a `DivisionByZero` error at half-integers, the poles of §9.2.1."
 msgstr "エラー：無限大の引数に対して `DomainError`、半整数（§9.2.1 の極）で `DivisionByZero` エラーです。"
 
-#: manual/api/bin_float_checked.md:698
+#: manual/api/bin_float_checked.md:701
 msgid "$\\arcsin x$, delegated to [`BinFloat::try_asin_ctx`](bin_float.md#binfloatasin-binfloatasin_ctx-binfloattry_asin_ctx)."
 msgstr "$\\arcsin x$。[`BinFloat::try_asin_ctx`](bin_float.md#binfloatasin-binfloatasin_ctx-binfloattry_asin_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:705
-#: manual/api/bin_float_checked.md:716
+#: manual/api/bin_float_checked.md:708
+#: manual/api/bin_float_checked.md:719
 msgid "Errors: a `DomainError` outside $[-1, 1]$, infinities included."
 msgstr "エラー：$[-1, 1]$ の外（無限大を含む）で `DomainError`。"
 
-#: manual/api/bin_float_checked.md:709
+#: manual/api/bin_float_checked.md:712
 msgid "$\\arccos x$, delegated to [`BinFloat::try_acos_ctx`](bin_float.md#binfloatacos-binfloatacos_ctx-binfloattry_acos_ctx)."
 msgstr "$\\arccos x$。[`BinFloat::try_acos_ctx`](bin_float.md#binfloatacos-binfloatacos_ctx-binfloattry_acos_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:720
+#: manual/api/bin_float_checked.md:723
 msgid "$\\arctan x$, delegated to [`BinFloat::try_atan_ctx`](bin_float.md#binfloatatan-binfloatatan_ctx-binfloattry_atan_ctx)."
 msgstr "$\\arctan x$。[`BinFloat::try_atan_ctx`](bin_float.md#binfloatatan-binfloatatan_ctx-binfloattry_atan_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:729
+#: manual/api/bin_float_checked.md:732
 msgid "$\\sinh x$, delegated to [`BinFloat::try_sinh_ctx`](bin_float.md#binfloatsinh-binfloatsinh_ctx-binfloattry_sinh_ctx)."
 msgstr "$\\sinh x$。[`BinFloat::try_sinh_ctx`](bin_float.md#binfloatsinh-binfloatsinh_ctx-binfloattry_sinh_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:738
+#: manual/api/bin_float_checked.md:741
 msgid "$\\cosh x$, delegated to [`BinFloat::try_cosh_ctx`](bin_float.md#binfloatcosh-binfloatcosh_ctx-binfloattry_cosh_ctx)."
 msgstr "$\\cosh x$。[`BinFloat::try_cosh_ctx`](bin_float.md#binfloatcosh-binfloatcosh_ctx-binfloattry_cosh_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:747
+#: manual/api/bin_float_checked.md:750
 msgid "$\\tanh x$, delegated to [`BinFloat::try_tanh_ctx`](bin_float.md#binfloattanh-binfloattanh_ctx-binfloattry_tanh_ctx)."
 msgstr "$\\tanh x$。[`BinFloat::try_tanh_ctx`](bin_float.md#binfloattanh-binfloattanh_ctx-binfloattry_tanh_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:756
+#: manual/api/bin_float_checked.md:759
 msgid "$\\operatorname{asinh} x$, delegated to [`BinFloat::try_asinh_ctx`](bin_float.md#binfloatasinh-binfloatasinh_ctx-binfloattry_asinh_ctx)."
 msgstr "$\\operatorname{asinh} x$。[`BinFloat::try_asinh_ctx`](bin_float.md#binfloatasinh-binfloatasinh_ctx-binfloattry_asinh_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:765
+#: manual/api/bin_float_checked.md:768
 msgid "$\\operatorname{acosh} x$, delegated to [`BinFloat::try_acosh_ctx`](bin_float.md#binfloatacosh-binfloatacosh_ctx-binfloattry_acosh_ctx)."
 msgstr "$\\operatorname{acosh} x$。[`BinFloat::try_acosh_ctx`](bin_float.md#binfloatacosh-binfloatacosh_ctx-binfloattry_acosh_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:772
+#: manual/api/bin_float_checked.md:775
 msgid "Errors: a `DomainError` below $1$."
 msgstr "エラー：$1$ 未満で `DomainError`。"
 
-#: manual/api/bin_float_checked.md:776
+#: manual/api/bin_float_checked.md:779
 msgid "$\\operatorname{atanh} x$, delegated to [`BinFloat::try_atanh_ctx`](bin_float.md#binfloatatanh-binfloatatanh_ctx-binfloattry_atanh_ctx)."
 msgstr "$\\operatorname{atanh} x$。[`BinFloat::try_atanh_ctx`](bin_float.md#binfloatatanh-binfloatatanh_ctx-binfloattry_atanh_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:783
+#: manual/api/bin_float_checked.md:786
 msgid "Errors: a `DomainError` for $|x| > 1$; a `DivisionByZero` error for $\\operatorname{atanh}(\\pm 1)$."
 msgstr "エラー：$|x| > 1$ で `DomainError`、$\\operatorname{atanh}(\\pm 1)$ に対して `DivisionByZero` エラーです。"
 
-#: manual/api/bin_float_checked.md:787
+#: manual/api/bin_float_checked.md:790
 msgid "The angle of the point $(\\text{abscissa}, \\text{self})$, delegated to [`BinFloat::try_atan2_ctx`](bin_float.md#binfloatatan2-binfloatatan2_ctx-binfloattry_atan2_ctx)."
 msgstr "点 $(\\text{abscissa}, \\text{self})$ の角度。[`BinFloat::try_atan2_ctx`](bin_float.md#binfloatatan2-binfloatatan2_ctx-binfloattry_atan2_ctx) に委譲します。"
 
-#: manual/api/bin_float_checked.md:795
+#: manual/api/bin_float_checked.md:798
 msgid "Errors are taken in the order ordinate, abscissa, operation. `atan2` uses `BinaryContext::new(precision=p)` at the larger operand precision. Signed zeros follow IEEE 754: `atan2` of $(-0, -0)$ is $-\\pi$ and of $(-0, +0)$ is $-0$. A signaling NaN operand is a `DomainError`; `atan2` raises no other exception."
 msgstr "エラーは縦座標、横座標、演算の順に取られます。`atan2` は大きいほうのオペランド精度で `BinaryContext::new(precision=p)` を使用します。符号付きゼロは IEEE 754 に従います。$(-0, -0)$ の `atan2` は $-\\pi$、$(-0, +0)$ では $-0$ です。signaling NaN のオペランドは `DomainError` です。`atan2` はそれ以外の例外を発生させません。"
 
-#: manual/api/bin_float_checked.md:819
+#: manual/api/bin_float_checked.md:822
 msgid "`Add`, `Sub`, `Mul`, `Div` and `Neg` for `BinFloatResult`"
 msgstr "`BinFloatResult` の `Add`、`Sub`、`Mul`、`Div`、`Neg`"
 
-#: manual/api/bin_float_checked.md:832
+#: manual/api/bin_float_checked.md:835
 msgid "So `/` on wrappers reports division by zero, while `/` on plain `BinFloat` values returns an infinity."
 msgstr "したがって、ラッパーに対する `/` はゼロ除算を報告しますが、素の `BinFloat` 値に対する `/` は無限大を返します。"
 
-#: manual/api/bin_float_checked.md:835
+#: manual/api/bin_float_checked.md:838
 msgid "Deprecated"
 msgstr "非推奨"
 
