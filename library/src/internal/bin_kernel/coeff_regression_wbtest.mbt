@@ -1,15 +1,30 @@
 ///|
 /// Regression digests of `Coeff` arithmetic (issue #19).
 ///
-/// The digests below were recorded with the 32-bit-limb implementation, the
-/// one before the 64-bit-limb work. A `Coeff` result is a unique integer,
-/// so every later implementation (64-bit limbs, new thresholds, new kernels)
-/// must reproduce them exactly. The corpus crosses every algorithm threshold
-/// (schoolbook, Karatsuba, Toom-3, NTT, Knuth, Burnikel-Ziegler, the square
-/// root kernels) from below, at and above, with random and adversarial values:
-/// all ones, single bits, `2^k` and `2^k +- 1`, zero limbs inside a value,
-/// one operand much longer than the other. Only the public `Coeff` API is
-/// used, so the same digests also hold for the JavaScript `bigint` backend.
+/// Oracle: level A. The 12 digests below are reproduced from the definition of
+/// each operation by `tools/kernel_oracle.py` (table `regression`: CPython
+/// integers, no library of this repository), which regenerates the operands
+/// from the same seed with the same generator and shapes as this file.
+/// `python3 tools/kernel_oracle.py --check` fails when a digest here differs;
+/// `tools/kernel_oracle_test.py` runs it in the quick gate. The digests were
+/// first recorded with the 32-bit-limb implementation, the one before the
+/// 64-bit-limb work; since the generator reproduces them they do not rest on
+/// any implementation in this repository.
+///
+/// A `Coeff` result is a unique integer, so every implementation (64-bit
+/// limbs, new thresholds, new kernels) must reproduce them exactly. The corpus
+/// uses random and adversarial values: all ones, single bits, `2^k` and
+/// `2^k +- 1`, zero limbs inside a value, one operand much longer than the
+/// other. Only the public `Coeff` API is used, so the same digests also hold
+/// for the JavaScript `bigint` backend.
+///
+/// Reach: the largest operand has 131,073 bits (2,049 limbs of 64 bits). This
+/// file therefore crosses the thresholds that lie below that size (schoolbook,
+/// Karatsuba, Knuth, Burnikel-Ziegler, the integer square root up to 2,049
+/// limbs, radix text up to 3,100 bits) and does not reach what lies above it
+/// on native: the NTT and Toom-3 products from 4,096 limbs, the NTT square,
+/// the divide-and-conquer radix parse, the short product and the word
+/// recursion of the square root above 33,000 bits. Those need other tables.
 struct RegressionRandom {
   mut regression_state : UInt64
 }
