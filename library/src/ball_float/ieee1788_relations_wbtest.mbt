@@ -49,11 +49,10 @@ test "IEEE 1788 interior permits shared infinite endpoints" {
 }
 
 ///|
-// Oracle (level A): the sixteen overlapping states of IEEE 1788-2015 (10.5.14,
-// Table 10.2: the thirteen Allen relations of two nonempty intervals and the
-// three empty cases), each with one pair of integer intervals written out
-// against the reference interval [4, 8]. Nothing is computed by the library
-// except the call under test (`overlap`); the endpoints are exact integers.
+// oracle: A
+// source: the sixteen overlapping states of IEEE 1788-2015 (10.5.14, Table 10.2), each with one pair of
+//   integer intervals written out against the reference interval [4, 8]
+// shares: nothing (only the call under test, overlap)
 test "IEEE 1788 overlap classification covers all sixteen states" {
   let empty = BallFloat::empty(precision=32)
   let reference = relation_interval(4, 8)

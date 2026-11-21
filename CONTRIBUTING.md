@@ -111,6 +111,63 @@ relative links out of the package.
 - Explain non-obvious numeric invariants, normalization rules, or enclosure behavior.
 - Avoid redundant comments that restate obvious syntax.
 
+### 3.1 Tests state their oracle
+
+An oracle that is not independent of the code under test is a serious problem (issue 624: a copy of a
+reader was tested against its original, both were wrong, the tests passed). Every `test "..."` block of
+`library/src` and `tooling/src` therefore carries a declaration in the comment block directly above it, and
+`tools/check_test_oracles.py` (stage `ORACLES: test declarations` of `just pr`) refuses a block without one.
+The levels are those of `RULES.md`; the form is:
+
+```moonbit
+///|
+// oracle: A
+// source: what produces the expected value
+// shares: the functions the oracle and the code under test both use, or "nothing"
+test "..." {
+```
+
+- `A` external: values written out from a standard or arithmetic, a corpus or program of another implementation
+  (MPFR, libmpdec, TestFloat, ITF1788, Python `decimal`, `math.isqrt`). Say which, and that this library did not
+  produce them.
+- `B` independent inside the repository: another algorithm that shares only primitives which themselves have a
+  level A oracle on the inputs used. Name them in `// primitives:`.
+- `E` equivalence with the previous implementation. It counts only where that implementation has an A or B oracle
+  on the same input class: name it in `// underneath:` with its level.
+- `S` self-consistency (round trips, identities, `is_ok`): allowed, counted, never the only check of a value
+  that has a specified result.
+- `C` (the oracle is the code under test, a sibling written from the same source, a copy of its logic, a helper the
+  code under test also calls, or a wrapper compared with what it wraps) is refused. Repair the test.
+
+Worked examples, from the repair of issue 624's audit (PR 642):
+
+- Level A: `interval basics: sqrt endpoints are the directed square roots`
+  (`library/src/ball_float/interval_basics_wbtest.mbt`). The old test compared `sqrt` with a copy that made the same
+  call (level C, it could not fail). The new one writes the exact roots out and takes the directed bounds of the
+  irrational roots from Python `math.isqrt`: `oracle: A`, `source:` says so, `shares: nothing`.
+- Level B: `optimized decimal coefficient primitives match BigInt boundaries`
+  (`library/src/internal/decimal_kernel/coeff_kernel_wbtest.mbt`): core `BigInt` arithmetic is the oracle, the
+  conversion `dec_coeff_from_bigint_repr`/`to_bigint` is shared, so `oracle: B` with `primitives:` naming them.
+- Level S next to A: `ball_float coefficient constructor keeps exact bounded interval`
+  (`tooling/src/consistency/core_wbtest.mbt`) compares the bounds with the written value 12 (A) and checks
+  `is_common_interval` (S): `oracle: A, S`.
+- Level E: the `*_old_*` equivalence tests of `ball_float` (`interval_basics_wbtest.mbt`) compare a rewrite with the
+  previous implementation. They may declare `oracle: E` only with `underneath:` saying which level A or B oracle
+  the previous implementation has on that input class; until they do, they are in the debt list.
+
+A block, or the first 60 lines of its file, that states its level in plain words (`Oracle (level A): ...`, `ORACLE level A`,
+`Oracle, level A`) is accepted and counted as `prose` by the tool (the form several authors used before the key form
+existed); a statement whose first level is C is refused. Convert such a block to the key form when you touch it.
+
+A file made of generated tables takes one `// oracle-file:` block in its first 60 lines instead (`producer:` a
+program that exists in `tools/`, `input:`, `library-ran: no`).
+
+The blocks that existed when the rule started are in `tools/oracle_debt.txt` with the grade the audit of 2026-11-21
+gave them. The list can only shrink: a block leaves it with a valid declaration (remove its line and lower
+`DEBT_LIMIT` in `tools/check_test_oracles.py`), or when it is deleted (say in the PR body what replaces it). A new
+block is not in the list and must declare. A renamed block is a new block and must declare. The tool checks the
+form; the reviewer checks that the level is true, that the source is independent, and that `shares` is complete.
+
 ## 4. File Standards
 
 ### 4.0 Documentation Matrix

@@ -18,9 +18,10 @@ test "shared conformance summary folds dispositions" {
 }
 
 ///|
-// Oracle (level A): the counts are written out from the construction of the
-// summary below (one passing case, one unsupported, one diagnostic, one legacy
-// case): nothing is computed by a second implementation of the folding.
+// oracle: A
+// source: the counts are written out from the construction of the summary below (one passing case, one
+//   unsupported, one diagnostic, one legacy case); nothing is computed by a second implementation of the folding
+// shares: nothing
 test "success ignores skipped cases and success_with_counts does not" {
   let summary = RunSummary::from_results(4, [
     CaseResult::executable("pass", true),

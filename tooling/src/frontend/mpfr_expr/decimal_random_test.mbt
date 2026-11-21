@@ -36,13 +36,11 @@ test "decimal random executor reports a value, cohort or flag difference" {
 }
 
 ///|
-// Oracle (level A): the expected 50-digit logarithm was computed by Python's
-// `decimal` module (libmpdec, a separate implementation), with
-// `getcontext().prec = 50`, round-half-even, from the 40-digit operand:
-// `Decimal("1.234567890123456789012345678901234567891").ln()`. This library
-// did not produce it. The row passes only if the parser kept all 40 digits of
-// the operand: an operand rounded to 7 or 16 digits gives a different
-// 50-digit result (`0.2107210` at 7 digits).
+// oracle: A
+// source: the expected 50-digit logarithm of the 40-digit operand was computed by Python 3 decimal (libmpdec,
+//   prec 50, round-half-even): Decimal("1.234567890123456789012345678901234567891").ln(); this library did not
+//   produce it; the row passes only if the parser kept all 40 digits (7 digits give 0.2107210)
+// shares: nothing
 test "decimal random parser keeps every digit of an operand" {
   let digits = "1.234567890123456789012345678901234567891"
   let expected = "0.21072102231565256105500171048862388223893826533084"
