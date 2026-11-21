@@ -43,7 +43,7 @@ SHA-256.
 
 | Script | Produces |
 | --- | --- |
-| `generate_mpfr_random_oracle.c`, `generate_mpfr_elementary_oracle.c`, `generate_mpfr_pow_oracle.c`, `generate_mpfr_decimal_string_oracle.c`, `generate_mpfr_decimal_interval_oracle.c`, `mpfr_decimal_enclosure.c` | MPFR 4.2.2 oracle rows (C programs) |
+| `generate_mpfr_random_oracle.c`, `generate_mpfr_elementary_oracle.c`, `generate_mpfr_ln_wide_oracle.c`, `generate_mpfr_pow_oracle.c`, `generate_mpfr_decimal_string_oracle.c`, `generate_mpfr_decimal_interval_oracle.c`, `mpfr_decimal_enclosure.c` | MPFR 4.2.2 oracle rows (C programs) |
 | `generate_mpfr_decimal_random.py`, `generate_libmpdec_random.py`, `generate_decimal_elementary_oracle.py`, `range_boundary_rows.py`, `decimal_oracles.py` | seeded and range-boundary rows for the decimal and binary cores |
 | `generate_ieee_decimal_vectors.py`, `generate_decimal_total_order.py` | IEEE decimal vectors and the totalOrder corpus |
 | `generate_decimal_atan2pi_scaled_rows.py`, `generate_decimal_exp_range_rows.py`, `generate_decimal_pi_inverse_rows.py`, `generate_decimal_pm1_rows.py`, `generate_decimal_rcp_rows.py`, `generate_decimal_to_bin_rows.py`, `decimal_row_table.py` | the MoonBit tables compiled into the white-box tests of `library/src/decimal` |
