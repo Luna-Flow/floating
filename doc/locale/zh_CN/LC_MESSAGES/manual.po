@@ -5385,8 +5385,8 @@ msgid "Operations that cannot fail"
 msgstr "不会失败的运算"
 
 #: manual/api/decimal_checked.md:239
-msgid "These methods apply the IEEE decimal operation of the same meaning to the current value and a pipeline operand under the stored context of the left pipeline. The right operand is a `DecimalChecked`: an error of the left pipeline stays, an error of the right one is taken before the operation runs (the value of the left pipeline is kept), and the conditions of the right pipeline join `raised` and `flags`. `DecimalChecked::from_decimal(x, ctx)` lifts a plain value; it applies the context, so a signaling NaN is quieted and raises `invalid_operation` there."
-msgstr "这些方法在左侧流水线所存的上下文下，对当前值和一个流水线操作数应用含义相同的 IEEE 十进制运算。右操作数是 `DecimalChecked`：左侧流水线的错误保持不变；右侧的错误在运算执行之前就被采用（左侧流水线的值保留）；右侧流水线的条件并入 `raised` 和 `flags`。`DecimalChecked::from_decimal(x, ctx)` 提升一个普通值；它会应用上下文，因此信号 NaN 在那里被静默并引发 `invalid_operation`。"
+msgid "These methods apply the IEEE decimal operation of the same meaning to the current value and a pipeline operand under the stored context of the left pipeline. The right operand is a `DecimalChecked`: an error of the left pipeline stays, an error of the right one is taken before the operation runs (the value of the left pipeline is kept), and the conditions of the right pipeline join `raised` and `flags`. `DecimalChecked::from_decimal(x, ctx)` lifts a plain value; it applies the context, so a signaling NaN is quieted and raises `invalid_operation` there. To use the operand exactly, as IEEE 754-2019 5.1 does (operands exact, one rounding of the result), lift it in a context wide enough to hold it, for example `decimal128`; lifting it in the context of the left pipeline rounds it first and then the result, two roundings. At three digits, half-even, `1.00 + 0.24500001` is `1.25` with the operand lifted in a wide context, and `1.24` with the operand lifted at three digits (it becomes `0.245` with `inexact`, and `1.00 + 0.245` is a tie that rounds to even); each is right for what was asked."
+msgstr "这些方法在左侧流水线所存的上下文下，对当前值和一个流水线操作数应用含义相同的 IEEE 十进制运算。右操作数是 `DecimalChecked`：左侧流水线的错误保持不变；右侧的错误在运算执行之前就被采用（左侧流水线的值保留）；右侧流水线的条件并入 `raised` 和 `flags`。`DecimalChecked::from_decimal(x, ctx)` 提升一个普通值；它会应用上下文，因此信号 NaN 在那里被静默并引发 `invalid_operation`。要像 IEEE 754-2019 §5.1 那样精确地使用该操作数（操作数精确，结果只舍入一次），应在足以容纳它的上下文（例如 `decimal128`）中提升它；在左侧流水线的上下文中提升会先舍入操作数、再舍入结果，即舍入两次。在三位数字、半值取偶下，`1.00 + 0.24500001` 在宽上下文提升时为 `1.25`，在三位数字下提升时为 `1.24`（操作数变为 `0.245` 并带 `inexact`，而 `1.00 + 0.245` 是舍入到偶数的平局）；两者对各自所问都是正确的。"
 
 #: manual/api/decimal_checked.md:259
 msgid "Method"
@@ -16266,8 +16266,8 @@ msgid "**Problem.** A binary operation took a plain `Decimal` as its right opera
 msgstr "**问题。** 二元运算曾以普通 `Decimal` 作右操作数，因此产生该操作数的计算所留下的标志和错误无法到达结果。"
 
 #: manual/design/decimal_checked.md:128
-msgid "**Choice.** The right operand of a binary operation is a `DecimalChecked`, as for `GdaDecimalChecked`. Two pipelines carry two contexts and two flag histories; the rule is that the context of the left pipeline wins, the conditions of the right pipeline join `raised` and `flags` of the result, an error of the left pipeline stays and an error of the right one is taken before the operation runs (the value of the left pipeline is kept). The context changes only through `with_context`, which records the flags of rounding the current value into the new context. `DecimalChecked::from_decimal(x, ctx)` lifts a plain value; it applies the context, so a signaling NaN lifted that way is quieted with `invalid_operation`. The constructor that took a value, a context and flags is not public: a caller could state flags that no operation raised. For the same reason the type implements no operators."
-msgstr "**选择。** 二元运算的右操作数是 `DecimalChecked`，与 `GdaDecimalChecked` 相同。两条流水线带有两个上下文和两份标志历史；规则是左侧流水线的上下文优先，右侧流水线的条件并入结果的 `raised` 和 `flags`，左侧流水线的错误保持不变，右侧的错误在运算执行之前就被采用（左侧流水线的值保留）。上下文只通过 `with_context` 改变，它会记录把当前值舍入到新上下文时的标志。`DecimalChecked::from_decimal(x, ctx)` 提升一个普通值；它会应用上下文，因此这样提升的信号 NaN 会被静默并带 `invalid_operation`。接受值、上下文和标志的构造函数不是公开的：调用者可能声明并没有任何运算引发过的标志。出于同样的原因，该类型不实现运算符。"
+msgid "**Choice.** The right operand of a binary operation is a `DecimalChecked`, as for `GdaDecimalChecked`. Two pipelines carry two contexts and two flag histories; the rule is that the context of the left pipeline wins, the conditions of the right pipeline join `raised` and `flags` of the result, an error of the left pipeline stays and an error of the right one is taken before the operation runs (the value of the left pipeline is kept). The context changes only through `with_context`, which records the flags of rounding the current value into the new context. `DecimalChecked::from_decimal(x, ctx)` lifts a plain value; it applies the context, so a signaling NaN lifted that way is quieted with `invalid_operation`, and a value wider than the context is rounded by the lift, so an operand meant to enter the operation exactly is lifted in a wide context (the operation itself uses the right value as it is). The constructor that took a value, a context and flags is not public: a caller could state flags that no operation raised. For the same reason the type implements no operators."
+msgstr "**选择。** 二元运算的右操作数是 `DecimalChecked`，与 `GdaDecimalChecked` 相同。两条流水线带有两个上下文和两份标志历史；规则是左侧流水线的上下文优先，右侧流水线的条件并入结果的 `raised` 和 `flags`，左侧流水线的错误保持不变，右侧的错误在运算执行之前就被采用（左侧流水线的值保留）。上下文只通过 `with_context` 改变，它会记录把当前值舍入到新上下文时的标志。`DecimalChecked::from_decimal(x, ctx)` 提升一个普通值；它会应用上下文，因此这样提升的信号 NaN 会被静默并带 `invalid_operation`，且比上下文更宽的值会在提升时被舍入，因此要让操作数精确进入运算，应在宽上下文中提升它（运算本身按原样使用右侧的值）。接受值、上下文和标志的构造函数不是公开的：调用者可能声明并没有任何运算引发过的标志。出于同样的原因，该类型不实现运算符。"
 
 #: manual/design/decimal_checked.md:141
 msgid "Mapping a Luna-Flow/arithmetic context"
@@ -23306,7 +23306,7 @@ msgstr "**来自 `Double` 的输入。** `from_double(x)` 精确包络 `x` 的�
 #: manual/tutorial/cli/testfloat_expr_cli.md:104
 #: manual/tutorial/consistency.md:78
 #: manual/tutorial/decimal.md:430
-#: manual/tutorial/decimal_checked.md:265
+#: manual/tutorial/decimal_checked.md:269
 #: manual/tutorial/decimal_gda.md:393
 #: manual/tutorial/decimal_gda_checked.md:268
 #: manual/tutorial/def.md:212
@@ -25681,26 +25681,26 @@ msgid "**`remainder` is the IEEE remainder.** It rounds the quotient to the near
 msgstr "**`remainder` 是 IEEE 余数。** 它把商舍入到最近的整数，因此 `1` 对 `0.6` 取余的结果是 `-0.2`，而不是 `0.4`。"
 
 #: manual/tutorial/decimal_checked.md:257
-msgid "**The right operand is a pipeline.** Lift a plain value with `DecimalChecked::from_decimal(x, ctx)`, which rounds it into `ctx` first (a signaling NaN is quieted and raises `invalid_operation`); the operation then runs in the context of the left pipeline and rounds the result. The conditions of the right pipeline join the result, and its error stops the operation."
-msgstr "**右操作数是流水线。** 用 `DecimalChecked::from_decimal(x, ctx)` 提升普通值，它会先把值舍入到 `ctx`（信号 NaN 被静默并引发 `invalid_operation`）；运算随后在左侧流水线的上下文中运行并舍入结果。右侧流水线的条件并入结果，它的错误会终止运算。"
+msgid "**The right operand is a pipeline.** Lift a plain value with `DecimalChecked::from_decimal(x, ctx)`, which rounds it into `ctx` first (a signaling NaN is quieted and raises `invalid_operation`); the operation then runs in the context of the left pipeline and rounds the result. The conditions of the right pipeline join the result, and its error stops the operation. To use the operand exactly (IEEE 754-2019 5.1: operands exact, one rounding), lift it in a context wide enough to hold it, such as `decimal128`; lifting at the precision of the left pipeline rounds twice. At three digits, `1.00 + 0.24500001` is `1.25` with a wide lift and `1.24` with a lift at three digits (the operand becomes `0.245` with `inexact`)."
+msgstr "**右操作数是流水线。** 用 `DecimalChecked::from_decimal(x, ctx)` 提升普通值，它会先把值舍入到 `ctx`（信号 NaN 被静默并引发 `invalid_operation`）；运算随后在左侧流水线的上下文中运行并舍入结果。右侧流水线的条件并入结果，它的错误会终止运算。要精确使用该操作数（IEEE 754-2019 §5.1：操作数精确，只舍入一次），应在足以容纳它的上下文（如 `decimal128`）中提升它；按左侧流水线的精度提升会舍入两次。在三位数字下，`1.00 + 0.24500001` 宽提升为 `1.25`，三位提升为 `1.24`（操作数变为 `0.245` 并带 `inexact`）。"
 
-#: manual/tutorial/decimal_checked.md:263
+#: manual/tutorial/decimal_checked.md:267
 msgid "**`clear_flags` also works after an error,** but the error stays."
 msgstr "**`clear_flags` 在出错之后也能使用，** 但错误仍然保留。"
 
-#: manual/tutorial/decimal_checked.md:267
+#: manual/tutorial/decimal_checked.md:271
 msgid "[`decimal_checked` design](../design/decimal_checked.md): the state model, the flag monoid and the short-circuit rule."
 msgstr "[`decimal_checked` 设计](../design/decimal_checked.md)：状态模型、标志幺半群与短路规则。"
 
-#: manual/tutorial/decimal_checked.md:269
+#: manual/tutorial/decimal_checked.md:273
 msgid "[`decimal_checked` API](../api/decimal_checked.md): every method."
 msgstr "[`decimal_checked` API](../api/decimal_checked.md)：所有方法。"
 
-#: manual/tutorial/decimal_checked.md:270
+#: manual/tutorial/decimal_checked.md:274
 msgid "[`decimal` tutorial](decimal.md): contexts, rounding modes and interchange formats."
 msgstr "[`decimal` 教程](decimal.md)：上下文、舍入模式与交换格式。"
 
-#: manual/tutorial/decimal_checked.md:272
+#: manual/tutorial/decimal_checked.md:276
 msgid "[`decimal_gda_checked` tutorial](decimal_gda_checked.md): the same idea for General Decimal Arithmetic with sticky status and traps."
 msgstr "[`decimal_gda_checked` 教程](decimal_gda_checked.md)：同一思路在带粘滞状态和陷阱的通用十进制算术上的应用。"
 

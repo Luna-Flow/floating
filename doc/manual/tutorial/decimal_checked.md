@@ -259,7 +259,11 @@ combining the per-step diagnostics.
   (a signaling NaN is quieted and raises `invalid_operation`); the operation
   then runs in the context of the left pipeline and rounds the result. The
   conditions of the right pipeline join the result, and its error stops the
-  operation.
+  operation. To use the operand exactly (IEEE 754-2019 5.1: operands exact,
+  one rounding), lift it in a context wide enough to hold it, such as
+  `decimal128`; lifting at the precision of the left pipeline rounds twice.
+  At three digits, `1.00 + 0.24500001` is `1.25` with a wide lift and `1.24`
+  with a lift at three digits (the operand becomes `0.245` with `inexact`).
 - **`clear_flags` also works after an error,** but the error stays.
 
 ## Next steps

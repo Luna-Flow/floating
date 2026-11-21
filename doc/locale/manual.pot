@@ -5361,7 +5361,7 @@ msgid "Operations that cannot fail"
 msgstr ""
 
 #: manual/api/decimal_checked.md:239
-msgid "These methods apply the IEEE decimal operation of the same meaning to the current value and a pipeline operand under the stored context of the left pipeline. The right operand is a `DecimalChecked`: an error of the left pipeline stays, an error of the right one is taken before the operation runs (the value of the left pipeline is kept), and the conditions of the right pipeline join `raised` and `flags`. `DecimalChecked::from_decimal(x, ctx)` lifts a plain value; it applies the context, so a signaling NaN is quieted and raises `invalid_operation` there."
+msgid "These methods apply the IEEE decimal operation of the same meaning to the current value and a pipeline operand under the stored context of the left pipeline. The right operand is a `DecimalChecked`: an error of the left pipeline stays, an error of the right one is taken before the operation runs (the value of the left pipeline is kept), and the conditions of the right pipeline join `raised` and `flags`. `DecimalChecked::from_decimal(x, ctx)` lifts a plain value; it applies the context, so a signaling NaN is quieted and raises `invalid_operation` there. To use the operand exactly, as IEEE 754-2019 5.1 does (operands exact, one rounding of the result), lift it in a context wide enough to hold it, for example `decimal128`; lifting it in the context of the left pipeline rounds it first and then the result, two roundings. At three digits, half-even, `1.00 + 0.24500001` is `1.25` with the operand lifted in a wide context, and `1.24` with the operand lifted at three digits (it becomes `0.245` with `inexact`, and `1.00 + 0.245` is a tie that rounds to even); each is right for what was asked."
 msgstr ""
 
 #: manual/api/decimal_checked.md:259
@@ -16133,7 +16133,7 @@ msgid "**Problem.** A binary operation took a plain `Decimal` as its right opera
 msgstr ""
 
 #: manual/design/decimal_checked.md:128
-msgid "**Choice.** The right operand of a binary operation is a `DecimalChecked`, as for `GdaDecimalChecked`. Two pipelines carry two contexts and two flag histories; the rule is that the context of the left pipeline wins, the conditions of the right pipeline join `raised` and `flags` of the result, an error of the left pipeline stays and an error of the right one is taken before the operation runs (the value of the left pipeline is kept). The context changes only through `with_context`, which records the flags of rounding the current value into the new context. `DecimalChecked::from_decimal(x, ctx)` lifts a plain value; it applies the context, so a signaling NaN lifted that way is quieted with `invalid_operation`. The constructor that took a value, a context and flags is not public: a caller could state flags that no operation raised. For the same reason the type implements no operators."
+msgid "**Choice.** The right operand of a binary operation is a `DecimalChecked`, as for `GdaDecimalChecked`. Two pipelines carry two contexts and two flag histories; the rule is that the context of the left pipeline wins, the conditions of the right pipeline join `raised` and `flags` of the result, an error of the left pipeline stays and an error of the right one is taken before the operation runs (the value of the left pipeline is kept). The context changes only through `with_context`, which records the flags of rounding the current value into the new context. `DecimalChecked::from_decimal(x, ctx)` lifts a plain value; it applies the context, so a signaling NaN lifted that way is quieted with `invalid_operation`, and a value wider than the context is rounded by the lift, so an operand meant to enter the operation exactly is lifted in a wide context (the operation itself uses the right value as it is). The constructor that took a value, a context and flags is not public: a caller could state flags that no operation raised. For the same reason the type implements no operators."
 msgstr ""
 
 #: manual/design/decimal_checked.md:141
@@ -23149,7 +23149,7 @@ msgstr ""
 #: manual/tutorial/cli/testfloat_expr_cli.md:104
 #: manual/tutorial/consistency.md:78
 #: manual/tutorial/decimal.md:430
-#: manual/tutorial/decimal_checked.md:265
+#: manual/tutorial/decimal_checked.md:269
 #: manual/tutorial/decimal_gda.md:393
 #: manual/tutorial/decimal_gda_checked.md:268
 #: manual/tutorial/def.md:212
@@ -25522,26 +25522,26 @@ msgid "**`remainder` is the IEEE remainder.** It rounds the quotient to the near
 msgstr ""
 
 #: manual/tutorial/decimal_checked.md:257
-msgid "**The right operand is a pipeline.** Lift a plain value with `DecimalChecked::from_decimal(x, ctx)`, which rounds it into `ctx` first (a signaling NaN is quieted and raises `invalid_operation`); the operation then runs in the context of the left pipeline and rounds the result. The conditions of the right pipeline join the result, and its error stops the operation."
-msgstr ""
-
-#: manual/tutorial/decimal_checked.md:263
-msgid "**`clear_flags` also works after an error,** but the error stays."
+msgid "**The right operand is a pipeline.** Lift a plain value with `DecimalChecked::from_decimal(x, ctx)`, which rounds it into `ctx` first (a signaling NaN is quieted and raises `invalid_operation`); the operation then runs in the context of the left pipeline and rounds the result. The conditions of the right pipeline join the result, and its error stops the operation. To use the operand exactly (IEEE 754-2019 5.1: operands exact, one rounding), lift it in a context wide enough to hold it, such as `decimal128`; lifting at the precision of the left pipeline rounds twice. At three digits, `1.00 + 0.24500001` is `1.25` with a wide lift and `1.24` with a lift at three digits (the operand becomes `0.245` with `inexact`)."
 msgstr ""
 
 #: manual/tutorial/decimal_checked.md:267
+msgid "**`clear_flags` also works after an error,** but the error stays."
+msgstr ""
+
+#: manual/tutorial/decimal_checked.md:271
 msgid "[`decimal_checked` design](../design/decimal_checked.md): the state model, the flag monoid and the short-circuit rule."
 msgstr ""
 
-#: manual/tutorial/decimal_checked.md:269
+#: manual/tutorial/decimal_checked.md:273
 msgid "[`decimal_checked` API](../api/decimal_checked.md): every method."
 msgstr ""
 
-#: manual/tutorial/decimal_checked.md:270
+#: manual/tutorial/decimal_checked.md:274
 msgid "[`decimal` tutorial](decimal.md): contexts, rounding modes and interchange formats."
 msgstr ""
 
-#: manual/tutorial/decimal_checked.md:272
+#: manual/tutorial/decimal_checked.md:276
 msgid "[`decimal_gda_checked` tutorial](decimal_gda_checked.md): the same idea for General Decimal Arithmetic with sticky status and traps."
 msgstr ""
 

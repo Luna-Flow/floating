@@ -551,7 +551,7 @@ notes live in this file.
 
   | before | after | note |
   | --- | --- | --- |
-  | `p.add(x)` with `x : Decimal` (also `sub`, `mul`, `div`, `pow`, `powr`, `hypot`, `atan2`, `atan2pi`, `quantize`, `remainder`, `minimum_number`, `maximum_number`, `next_toward`) | `p.add(q)` with `q : DecimalChecked` | `DecimalChecked::from_decimal(x, ctx)` lifts a value; it applies `ctx`, so a signaling NaN is quieted and raises `invalid_operation` there |
+  | `p.add(x)` with `x : Decimal` (also `sub`, `mul`, `div`, `pow`, `powr`, `hypot`, `atan2`, `atan2pi`, `quantize`, `remainder`, `minimum_number`, `maximum_number`, `next_toward`) | `p.add(q)` with `q : DecimalChecked` | `DecimalChecked::from_decimal(x, ctx)` lifts a value; it applies `ctx`, so a signaling NaN is quieted and raises `invalid_operation` there, and a value wider than `ctx` is rounded; for an exact operand (IEEE 754-2019 5.1) lift it in a wide context such as `decimal128` |
   | `p.fma(b, c)` with two `Decimal` | `p.fma(b, c)` with two pipelines | the first error among `p`, `b`, `c` is the error of the result |
   | `DecimalChecked::from_outcome(v, ctx, flags)` | `DecimalChecked::from_decimal(v, ctx)` | rounds `v` into `ctx` and records the flags of that rounding; a flag set that no operation raised cannot be stated |
   | `p.outcome()` | `p.value()` and `p.flags()`, or `p.result()` | `result()` is `Err(error)` or `Ok((value, flags))` |

@@ -286,3 +286,25 @@ test "decimal checked right operand: an error of either pipeline stops the opera
   )
   assert_eq(good.value().to_string(), "5")
 }
+
+///|
+// oracle: A
+// source: written out by hand at three digits, half-even: the exact sum 1.00 + 0.24500001 = 1.24500001 is above the tie 1.245, so it rounds to 1.25; the operand lifted at three digits becomes 0.245 (inexact), and 1.00 + 0.245 = 1.245 is a tie that rounds to the even digit, 1.24
+// shares: nothing
+test "decimal checked right operand: a wide lift is exact, a narrow lift rounds twice (S9)" {
+  let narrow = @decimal.DecimalContext::new(precision=3)
+  let wide = @decimal.DecimalContext::decimal128()
+  let operand = @decimal.Decimal::from_string("0.24500001").unwrap()
+  let left = DecimalChecked::from_decimal(
+    @decimal.Decimal::from_string("1.00").unwrap(),
+    narrow,
+  )
+  let exact = left.add(DecimalChecked::from_decimal(operand, wide))
+  assert_eq(exact.value().to_string(), "1.25")
+  let lifted = DecimalChecked::from_decimal(operand, narrow)
+  assert_eq(lifted.value().to_string(), "0.245")
+  assert_true(lifted.raised().inexact())
+  let twice = left.add(lifted)
+  assert_eq(twice.value().to_string(), "1.24")
+  assert_true(twice.flags().inexact())
+}
