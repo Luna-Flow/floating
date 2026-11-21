@@ -181,6 +181,13 @@ fn context_vector_accepted(vector : ContextVector) -> Bool? {
 }
 
 ///|
+// oracle: A, S
+// source: testdata/context_vectors.txt, written by hand from IEEE 754-2019 3.3, 3.7, 4.3, 7.5 and GDA 1.70 page 10 (A
+//   for the shape rules: e_min = 1 - e_max, the rounding attributes, clamp and tininess); the limit rows (268435456,
+//   1073741823, 999999999) are the library own limits typed into the table (S); 57 rows are checked, 12 are skipped
+//   for columns the constructors do not have
+// shares: binary_precision_max, binary_value_e_max, decimal_precision_max, decimal_context_e_max_limit (the limits),
+//   tools/context_rules.py is a second reader of the same table
 test "the library constructors agree with testdata/context_vectors.txt" {
   let vectors = parse_context_vectors(
     @fs.read_file_to_string("../testdata/context_vectors.txt") catch {
