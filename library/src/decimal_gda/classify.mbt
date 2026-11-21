@@ -133,34 +133,6 @@ fn quiet_nan_triplet(
 }
 
 ///|
-fn quiet_nan_pair_plain(lhs : Decimal, rhs : Decimal) -> Decimal? {
-  let precision = max_precision(lhs, rhs)
-  if lhs.is_nan() {
-    return Some(
-      make_special_repr(
-        FpClass::NaN,
-        lhs.negative,
-        lhs.coefficient,
-        precision,
-        false,
-      ),
-    )
-  }
-  if rhs.is_nan() {
-    return Some(
-      make_special_repr(
-        FpClass::NaN,
-        rhs.negative,
-        rhs.coefficient,
-        precision,
-        false,
-      ),
-    )
-  }
-  None
-}
-
-///|
 pub fn Decimal::classify(self : Decimal) -> FpClass {
   self.class
 }

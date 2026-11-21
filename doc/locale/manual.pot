@@ -254,7 +254,7 @@ msgstr ""
 #: manual/api/consistency.md:50
 #: manual/api/decimal.md:2363
 #: manual/api/decimal_checked.md:389
-#: manual/api/decimal_gda.md:1652
+#: manual/api/decimal_gda.md:1650
 #: manual/api/decimal_gda_checked.md:318
 #: manual/api/def.md:428
 #: manual/api/differential.md:97
@@ -1343,7 +1343,7 @@ msgid "The syntax is the IEEE 754-2019 §5.12.3 hexSequence: an optional sign, `
 msgstr ""
 
 #: manual/api/binary.md:1453
-#: manual/api/decimal_gda.md:1339
+#: manual/api/decimal_gda.md:1337
 #: manual/design/decimal.md:750
 #: manual/tutorial/decimal_gda.md:344
 msgid "Interchange encodings"
@@ -1933,7 +1933,7 @@ msgstr ""
 #: manual/api/binary.md:2432
 #: manual/api/binary_checked.md:821
 #: manual/api/decimal.md:2165
-#: manual/api/decimal_gda.md:1458
+#: manual/api/decimal_gda.md:1456
 #: manual/api/def.md:414
 #: manual/api/frontend/gda_expr.md:464
 #: manual/api/frontend/itl_expr.md:263
@@ -3918,7 +3918,7 @@ msgid "`to_string` formats a value in scientific notation without a context. Fin
 msgstr ""
 
 #: manual/api/decimal.md:2365
-#: manual/api/decimal_gda.md:1654
+#: manual/api/decimal_gda.md:1652
 #: manual/api/frontend/gda_expr.md:517
 #: manual/api/frontend/itl_expr.md:278
 #: manual/api/frontend/mpfr_expr.md:539
@@ -4692,146 +4692,146 @@ msgid "They agree with the package functions [`compare_total`, `compare_total_ma
 msgstr ""
 
 #: manual/api/decimal_gda.md:1250
-msgid "These select between values without rounding."
+msgid "These select between values without rounding. The GDA operations `min` and `max` are the free functions `min` and `max` of the package, which take a `GdaContext` and return a `GdaOutcome`; there are no methods of those names."
 msgstr ""
 
 #: manual/api/decimal_gda.md:1259
-msgid "`min` and `max` return the other operand when one is a quiet NaN, the first NaN (quieted) when a signaling NaN is involved or both are NaN, and the receiver when the two compare equal. `clamp` returns `min` or `max` when the value lies outside $[\\min, \\max]$ and the value otherwise (a NaN value is returned unchanged); it aborts when a bound is NaN or `min > max`, where `clamp_checked` returns `Err(domain_error)`."
+msgid "`clamp` returns `min` or `max` when the value lies outside $[\\min, \\max]$ and the value otherwise (a NaN value is returned unchanged); it aborts when a bound is NaN or `min > max`, where `clamp_checked` returns `Err(domain_error)`."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1268
+#: manual/api/decimal_gda.md:1266
 msgid "These implement `+`, `-`, `*`, `/` and unary `-` without a context."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1282
+#: manual/api/decimal_gda.md:1280
 msgid "Each operator runs the free function of the same name in a private working context and returns its value: precision $P$, the larger precision attribute of the operands, half-even rounding, the extended rules, no clamp and no traps. The result is therefore a member of the cohort GDA prescribes: `+` and `-` keep the smaller exponent (`1.10 + 3.50` is `4.60`), `*` adds the exponents, `/` starts from the difference of the exponents and removes only the trailing zeros that exact quotients allow (`1.5 / 0.5` is `3`, `1.50 / 0.5` is `3.0`), and a product or a quotient with more than $P$ digits is rounded to $P$ digits (`*` is no longer exact). `x + 0 == x` and `x * 1 == x` hold because equality compares values, not members of the cohort, and for every stored finite value, because the working range below is the [stored range](#gda_value_e_max-gda_value_e_tiny)."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1294
+#: manual/api/decimal_gda.md:1292
 msgid "The working exponent range cannot be built with [`GdaContext::new`](#gdacontextnew-gdacontexttry_new), because GDA limits the exponent range of a context to $\\pm 999{,}999{,}999$ and this one fills the `Int` range: the largest adjusted exponent is $2^{31}-2 = 2{,}147{,}483{,}646$ and the smallest exponent is $\\text{Etiny} = -2^{31}+3 = -2{,}147{,}483{,}645$ for every $P$ (so `Etiny` is always a valid `Int` exponent). A result above the range is a signed infinity (`1E+1500000000 * 1E+1500000000` is `inf`); one below it is rounded half to even to `Etiny`, possibly to a signed zero. Special values follow IEEE rules without signals: NaN operands give a quiet NaN, $\\infty - \\infty$, $0 \\times \\infty$, $0/0$ and $\\infty/\\infty$ give NaN, $x/0$ gives a signed infinity and $x/\\infty$ gives a signed zero. Use the free functions with a `GdaContext` when you need another precision, rounding, range or the signals. `neg` is [`Decimal::neg`](#decimalneg-decimalabs-decimalcopy-decimalcopy_abs-decimalcopy_negate-decimalcopy_sign)."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1311
+#: manual/api/decimal_gda.md:1309
 msgid "`sqrt` is the square root in the same working context as the operators, with the value's own precision attribute."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1318
+#: manual/api/decimal_gda.md:1316
 msgid "A negative operand gives NaN, as the free function [`sqrt`](#sqrt-exp-ln-log10) does. The checked forms are `sqrt_checked` and `DivChecked::div_checked`; the `Decimal::div_checked` method is removed (use `1 / 0` for the infinity, or `divide` with a trapping `GdaContext` for an error)."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1343
+#: manual/api/decimal_gda.md:1341
 msgid "`GdaInterchangeFormat` names the three IEEE 754 decimal interchange formats."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1355
+#: manual/api/decimal_gda.md:1353
 msgid "`context` returns the extended default `GdaContext` of the format."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1361
+#: manual/api/decimal_gda.md:1359
 msgid "The presets are `GdaContext::decimal32()`, `decimal64()` and `decimal128()`: precision 7, 16 or 34, half-even, clamped."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1366
+#: manual/api/decimal_gda.md:1364
 msgid "`GdaInterchange` is a decimal32, decimal64 or decimal128 bit pattern in the densely packed decimal (DPD) encoding."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1377
+#: manual/api/decimal_gda.md:1375
 msgid "`format` returns the format of the pattern."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1385
+#: manual/api/decimal_gda.md:1383
 msgid "These encode and decode values."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1392
+#: manual/api/decimal_gda.md:1390
 msgid "`from_decimal` rounds the value to the format (reporting the rounding, overflow, underflow and clamping flags) and encodes it. `to_decimal` decodes exactly, keeping the exponent and raising nothing; test the result with [`is_subnormal`](#class_name-is_normal-is_subnormal) when the flag is needed."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1397
+#: manual/api/decimal_gda.md:1395
 msgid "A NaN is encoded with its sign, its signaling bit and its payload. The payload of a decimal32, decimal64 or decimal128 pattern has 6, 15 or 33 digits (the trailing significand field, IEEE 754-2019 3.5.2). A payload that is wider keeps its low digits and no flag is raised: IEEE 754-2019 6.2.3 asks that a conversion that cannot preserve the payload return a quiet NaN carrying some language-defined diagnostic information, and names no signal. The decTest interchange rows have no payload wider than their format."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1407
+#: manual/api/decimal_gda.md:1405
 msgid "These convert between a bit pattern and its hexadecimal text."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1414
+#: manual/api/decimal_gda.md:1412
 msgid "The text is `#` (optional on input) followed by exactly 8, 16 or 32 hexadecimal digits; surrounding spaces are ignored and any other input gives `Err(parse_error)`. `to_hex` prints `#` and uppercase digits."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1420
+#: manual/api/decimal_gda.md:1418
 msgid "These canonicalize an encoding."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1427
+#: manual/api/decimal_gda.md:1425
 msgid "`canonical` decodes and re-encodes the pattern, which replaces non-canonical declets and payloads with their canonical form; `is_canonical` tests whether that changes the pattern."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1433
+#: manual/api/decimal_gda.md:1431
 msgid "These operate on the sign bit of the encoding without decoding it."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1442
+#: manual/api/decimal_gda.md:1440
 msgid "`copy_sign` aborts when the two patterns have different formats."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1462
+#: manual/api/decimal_gda.md:1460
 msgid "These are the derived `Eq` methods of the enums and flag sets."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1477
+#: manual/api/decimal_gda.md:1475
 msgid "They compare field by field (or variant by variant); `GdaContext` has no `Eq`. `Decimal` has its own numeric `Eq`, documented under [`Decimal::equal`](#decimalequal-decimalnot_equal-decimalop_lt-decimalop_le-decimalop_gt-decimalop_ge)."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1483
+#: manual/api/decimal_gda.md:1481
 msgid "These implement the `Luna-Flow/arithmetic` contextual traits on top of the package's private engine."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1503
+#: manual/api/decimal_gda.md:1501
 msgid "Each converts the arithmetic context to an engine context, runs the operation, and returns `Err(unsupported)` when the operation raises `invalid_context`, `Err(division_by_zero)` when `division_by_zero` is raised, `Err(domain_error)` for any other error flag, and otherwise `Ok` with the value and diagnostics `inexact`, `rounded`, `overflow`, `underflow`, `subnormal` and `clamped`. The rounding is one of the five `ArithmeticContext` modes, and `sqrt_contextual` and `exp_contextual` round with it (not half-even as the GDA functions do)."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1512
+#: manual/api/decimal_gda.md:1510
 msgid "`exp_contextual` requires the caller to set the exponent bounds. Like the GDA `exp`, it is defined only for precision, $e_{\\max}$ and $-e_{\\min}$ of at most $999\\,999$, and an `ArithmeticContext` without `e_min` or `e_max` is not given bounds by default: it translates to the full range $\\pm 999\\,999\\,999$, which is an invalid context for `exp`. The result is `Err(unsupported)` whose message starts with `invalid context:`, states the limit and names the bounds the `ArithmeticContext` does not set, whatever the operand (as `exp(-Infinity)` is `Invalid_context` in the decTest row `expx901`). `ArithmeticContext::new(16)` therefore fails, while `ArithmeticContext::new(16, e_min=-999_999, e_max=999_999)` and `ArithmeticContext::decimal64()` work."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1545
+#: manual/api/decimal_gda.md:1543
 msgid "These implement `NumericFormatContextual`: they describe the number format of an `ArithmeticContext`."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1558
+#: manual/api/decimal_gda.md:1556
 msgid "`epsilon_contextual` is $\\operatorname{next\\_plus}(1) - 1 = 10^{1-p}$, `min_normal_contextual` is $10^{e_{\\min}}$ and `max_finite_contextual` is $(10^p - 1) \\cdot 10^{e_{\\max} - p + 1}$."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1564
+#: manual/api/decimal_gda.md:1562
 msgid "These implement the checked traits of `Luna-Flow/arithmetic`: they return `Result` instead of flags."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1579
+#: manual/api/decimal_gda.md:1577
 msgid "`parse_checked` converts the arithmetic context to an engine context and converts the string under it; the context's precision, rounding direction, exponent bounds and clamp setting apply. It returns the converted value; conditions such as overflow are available from [`to_number`](#to_number). Invalid syntax returns `Err(parse_error)`. `sqrt_checked` returns `Err(domain_error)` for negative operands. `pow_int_checked` and `pow_nat_checked` call the power operation with the integer exponent converted exactly (with at least ten digits, which hold every accepted exponent), so at precision 7 `(-1).pow_int_checked(12345679, ctx)` is `-1`; they return `Err(division_by_zero)` for a zero base with a negative exponent, `Err(unsupported)` with an `invalid context:` message when `power` raises `invalid_context` (a positive exponent above 999,999,999 under a context without exponent bounds within $\\pm 999\\,999$, as in the decTest rows `powx1183` and `powx1184`), `Err(domain_error)` for other invalid results, and `pow_nat_checked` returns `Err(unsupported)` for exponents above 999,999,999. `DivChecked::div_checked` divides under the given context and returns `Err(division_by_zero)` for a zero divisor and `Err(domain_error)` for an invalid division."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1598
+#: manual/api/decimal_gda.md:1596
 msgid "`FromNat`, `FromInteger` and the `luna-generic` algebra traits"
 msgstr ""
 
-#: manual/api/decimal_gda.md:1600
+#: manual/api/decimal_gda.md:1598
 msgid "These let generic algebra code use `Decimal`."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1614
+#: manual/api/decimal_gda.md:1612
 msgid "`FromNat::from_natural` and `FromInteger::from_integer` are the canonical maps out of the naturals and the integers; `Decimal` has no inherent method of those names, call the trait method, or `Decimal::from_bigint(n).normalized()`, which is what they compute. They convert with `Decimal::from_bigint` (34 digits, trailing zeros removed), so they are exact only for integers of at most 34 significant digits. To convert another Luna-Flow integer type, pick its representative with `Integral::normalize` first, or use `lift_to`. `Zero::zero` and `One::one` are `Decimal::zero()` and `Decimal::one()`. The ring structure uses the context-free operators; because `+` rounds to the operand precision, the ring laws hold exactly only while sums stay within that precision."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1623
+#: manual/api/decimal_gda.md:1621
 msgid "`Decimal::to_repr` and the `@def.Floating`, `Show` and `Debug` implementations"
 msgstr ""
 
-#: manual/api/decimal_gda.md:1625
+#: manual/api/decimal_gda.md:1623
 msgid "`Decimal` implements the floating vocabulary of the `def` package, `Show` (see [`Decimal::to_string`](#decimalto_string-decimaloutput)) and `Debug`."
 msgstr ""
 
-#: manual/api/decimal_gda.md:1633
+#: manual/api/decimal_gda.md:1631
 msgid "The `Floating` methods are `classify`, `sign`, `precision`, `with_precision` and `normalized`, documented above. `to_repr` is the structural `Debug` representation."
 msgstr ""
 

@@ -179,8 +179,6 @@ test "no function without a context leaves the stored range" {
     check("Decimal::mul", x * y)
     check("Decimal::div", x / y)
     check("Decimal::copy_sign", x.copy_sign(y))
-    check("Decimal::max", x.max(y))
-    check("Decimal::min", x.min(y))
     let low = if x < y { x } else { y }
     let high = if x < y { y } else { x }
     check("Decimal::clamp", x.clamp(min=low, max=high))

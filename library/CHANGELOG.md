@@ -640,6 +640,14 @@ notes live in this file.
 
 - `bin_float_checked`: `BinFloatResult::error(self) -> ArithmeticError?` ([#438](https://github.com/Luna-Flow/floating/issues/438), item S9). The pipeline types of the checked tiers have one set of exits, `result`, `is_ok`, `is_err` and `error`; `BinFloatResult` lacked the last. The right operand of a binary operation was already a `BinFloatResult`, so the conditions of both operands reach the result (the first error wins), as in `DecimalChecked` and `GdaDecimalChecked`.
 
+- `decimal_gda`: the methods `Decimal::min` and `Decimal::max` leave the interface ([#438](https://github.com/Luna-Flow/floating/issues/438), item of the name review). They shared their names with the free functions `min` and `max` of GDA 1.70 (with a context, returning a `GdaOutcome`) and had another contract: no context, no rounding of the operands, a signaling NaN quieted without a flag. Two contracts under one name. The free functions are the GDA operations. The one call site in the repository was a test of the stored range of functions without a context, where the two methods are no longer listed.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `x.min(y)` | `min(x, y, ctx).value()` | the free function; the operands are rounded to `ctx` (GDA 1.70 `min`) and the status is in the outcome |
+  | `x.max(y)` | `max(x, y, ctx).value()` | likewise |
+  | `x.min(y)` where no rounding is wanted | `min(x, y, ctx)` with a `GdaContext` wide enough for the operands | the methods did not round |
+
 ### Fixed
 
 - `ball_float`: `BallFloat::from_string` orders two hexadecimal bounds exactly at any exponent ([#663](https://github.com/Luna-Flow/floating/issues/663)). A pair of hexadecimal bounds that differ by less than one unit of the smallest subnormal at 64 bits or more (`[0x1p-1073741885, 0x1p-1073741886]` at precision 64) was left undecided (12.12.7 case (b)) and accepted as an interval that contains both; the documented contract is that only two bounds of different radices stay undecided, and now the pair is the error `l <= u` requires. The literal oracle table has 9,919 rows now, with exponent fields of 19 to 40 digits at five precisions and the edges of the exponent range.
