@@ -5,6 +5,9 @@ let audit_ctx : @lf_arith.ArithmeticContext = @lf_arith.ArithmeticContext::new(
 )
 
 ///|
+// oracle: S
+// source: booleans of values built by the constructor of the class asked about (the constructor defines the class)
+// shares: nothing
 test "def predicates classify finite and nan consistently" {
   let finite = @binary.Binary::from_int(3, precision=8)
   let nan = @binary.Binary::nan(precision=8)
@@ -16,6 +19,10 @@ test "def predicates classify finite and nan consistently" {
 }
 
 ///|
+// oracle: A, S
+// source: the error kinds written; the word #A2300000000003D0 is -7.50 (testdata/decimal/ieee/decimal64_dpd.json, id
+//   negative-7-50, and tools/decimal_interchange_oracle.py); the fields of the context are read back (S)
+// shares: Decimal::from_string, total_order_compare for the value
 test "context and parse error types are exposed" {
   let ctx = @lf_arith.ArithmeticContext::new(
     7,
@@ -185,6 +192,10 @@ test "decimal interchange facade from_decimal preserves finite bits flags and fo
 }
 
 ///|
+// oracle: A
+// source: #47F4C000, #47FD300000000000 and #47FFD300000000000000000000000000 for 1.23E+96, 1.23E+384, 1.23E+6144
+//   reproduced by tools/decimal_interchange_oracle.py
+// shares: Decimal::from_string (input)
 test "decimal interchange scalar encode preserves finite flags across formats" {
   let value32 = @decimal.Decimal::from_string("1.23E+96", precision=64).unwrap()
   let value64 = @decimal.Decimal::from_string("1.23E+384", precision=64).unwrap()
@@ -269,6 +280,10 @@ test "decimal interchange facade from_decimal preserves special bits flags and f
 }
 
 ///|
+// oracle: A
+// source: class and payload 12345 written for the words of decimal64, decimal32, decimal128 (0x49C5 = declets 012 and
+//   345, 3.5.2)
+// shares: from_hex
 test "decimal interchange facade decodes specials through to_decimal" {
   let pos_inf = @decimal.DecimalInterchange::from_hex(
     "#7800000000000000",
@@ -298,6 +313,10 @@ test "decimal interchange facade decodes specials through to_decimal" {
 }
 
 ///|
+// oracle: A
+// source: #7C00016E and its canonical word #7C00006E: the declet 0x16E and 0x06E differ in a bit that the canonical
+//   form clears (3.5.2); written
+// shares: nothing
 test "decimal interchange facade exposes decimal32 non-canonical qnan witness" {
   let raw = @decimal.DecimalInterchange::from_hex(
     "#7C00016E",
@@ -315,6 +334,10 @@ test "decimal interchange facade exposes decimal32 non-canonical qnan witness" {
 }
 
 ///|
+// oracle: A
+// source: the non-canonical word #77FFFF3FCFF3FCFF: is_canonical false for the wrapper, the decoded scalar is
+//   canonical and is 9.999999999999999E+384, read by Decimal::from_string
+// shares: Decimal::from_string, total_order_compare
 test "decimal interchange facade keeps wrapper canonical predicate distinct from scalar decimal" {
   let raw = @decimal.DecimalInterchange::from_hex(
     "#77FFFF3FCFF3FCFF",
@@ -332,6 +355,9 @@ test "decimal interchange facade keeps wrapper canonical predicate distinct from
 }
 
 ///|
+// oracle: A
+// source: payload 12345 and the class written for abs and negate of the words
+// shares: from_hex
 test "decimal interchange facade sign transforms preserve observable special meaning" {
   let neg_qnan32 = @decimal.DecimalInterchange::from_hex(
     "#FC0049C5",
@@ -353,6 +379,10 @@ test "decimal interchange facade sign transforms preserve observable special mea
 }
 
 ///|
+// oracle: A
+// source: the result words (#7C0049C5, #F8000000, #7E00...49C5) are the input words with the sign bit changed:
+//   written
+// shares: nothing
 test "decimal interchange facade sign transforms preserve special raw bits" {
   let neg_qnan32 = @decimal.DecimalInterchange::from_hex(
     "#FC0049C5",
@@ -380,6 +410,10 @@ test "decimal interchange facade sign transforms preserve special raw bits" {
 }
 
 ///|
+// oracle: A
+// source: the result words are the input words with the sign bit changed (written); the meaning of the word is read
+//   by Decimal::from_string (9.999999999999999E+384, 9.999999E+96)
+// shares: Decimal::from_string, total_order_compare
 test "decimal interchange facade sign transforms preserve finite raw bits and meaning" {
   let finite64 = @decimal.DecimalInterchange::from_hex(
     "#77FFFF3FCFF3FCFF",
@@ -425,6 +459,10 @@ test "decimal interchange facade sign transforms preserve finite raw bits and me
 }
 
 ///|
+// oracle: A
+// source: the result words are the input words with the sign bit changed (written); the meaning of the word is read
+//   by Decimal::from_string (9.999999999999999E+384, 9.999999E+96)
+// shares: Decimal::from_string, total_order_compare
 test "decimal interchange facade sign transforms preserve canonical decimal32 finite raw bits and meaning" {
   let finite32 = @decimal.DecimalInterchange::from_hex(
     "#77F3FCFF",
@@ -470,6 +508,9 @@ test "decimal interchange facade sign transforms preserve canonical decimal32 fi
 }
 
 ///|
+// oracle: S
+// source: copy then to_hex returns the input word (identity); the class asserts are written
+// shares: the codec
 test "decimal interchange facade copy preserves special raw bits and format" {
   let raw32 = @decimal.DecimalInterchange::from_hex(
     "#7C00016E",
@@ -494,6 +535,9 @@ test "decimal interchange facade copy preserves special raw bits and format" {
 }
 
 ///|
+// oracle: S
+// source: copy then to_hex returns the input word (identity); the class asserts are written
+// shares: the codec
 test "decimal interchange facade copy preserves finite raw bits and format" {
   let raw32 = @decimal.DecimalInterchange::from_hex(
     "#77F3FFFF",
@@ -523,6 +567,10 @@ test "decimal interchange facade copy preserves finite raw bits and format" {
 }
 
 ///|
+// oracle: A
+// source: canonical and non-canonical words written for NaN and finite maxima in the three formats (the unused bits
+//   of IEEE 754-2019 3.5.2 zero); the maxima words are reproduced by tools/decimal_interchange_oracle.py
+// shares: nothing
 test "decimal interchange facade canonical predicate covers decimal64 special raw bits" {
   let raw_qnan64 = @decimal.DecimalInterchange::from_hex(
     "#7C03FF3FCFF3FCFF",
@@ -539,6 +587,10 @@ test "decimal interchange facade canonical predicate covers decimal64 special ra
 }
 
 ///|
+// oracle: A
+// source: canonical and non-canonical words written for NaN and finite maxima in the three formats (the unused bits
+//   of IEEE 754-2019 3.5.2 zero); the maxima words are reproduced by tools/decimal_interchange_oracle.py
+// shares: nothing
 test "decimal interchange facade canonical predicate covers decimal32 special raw bits" {
   let raw_qnan32 = @decimal.DecimalInterchange::from_hex(
     "#7C00016E",
@@ -554,6 +606,10 @@ test "decimal interchange facade canonical predicate covers decimal32 special ra
 }
 
 ///|
+// oracle: A
+// source: canonical and non-canonical words written for NaN and finite maxima in the three formats (the unused bits
+//   of IEEE 754-2019 3.5.2 zero); the maxima words are reproduced by tools/decimal_interchange_oracle.py
+// shares: nothing
 test "decimal interchange facade canonical predicate covers decimal128 special raw bits" {
   let raw_snan128 = @decimal.DecimalInterchange::from_hex(
     "#FE020000000000000000000000003039",
@@ -573,6 +629,10 @@ test "decimal interchange facade canonical predicate covers decimal128 special r
 }
 
 ///|
+// oracle: A
+// source: canonical and non-canonical words written for NaN and finite maxima in the three formats (the unused bits
+//   of IEEE 754-2019 3.5.2 zero); the maxima words are reproduced by tools/decimal_interchange_oracle.py
+// shares: nothing
 test "decimal interchange facade canonical predicate covers finite raw bits across formats" {
   let raw32 = @decimal.DecimalInterchange::from_hex(
     "#77F3FFFF",
@@ -611,6 +671,9 @@ test "decimal interchange facade canonical predicate covers finite raw bits acro
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 5.11: a comparison with a NaN is unordered; the error kind is written
+// shares: nothing
 test "binary checked compare rejects nan" {
   let result = @binary.Binary::nan(precision=8).compare_checked(
     @binary.Binary::zero(precision=8),
@@ -622,6 +685,11 @@ test "binary checked compare rejects nan" {
 }
 
 ///|
+// oracle: A
+// source: 13 * 2^-3 = 1.625 rounded to 2 bits, ties to even, is 1.5 (3p-1) and its ulp is 0.5 (1p-1): hand
+//   arithmetic. The last assert, ulp of zero at 4 bits = 1p-3, pins a library convention (IEEE 754-2019 defines no
+//   ulp of zero) and is not claimed as an oracle
+// shares: binary_test_make (BinCoeff text round trip)
 test "binary low precision rounding and ulp stay explicit" {
   let x = binary_test_make(13N, -3, 8)
   let rounded = x.with_precision(2, @binary.BinaryRoundingMode::RoundTiesToEven)
@@ -631,6 +699,9 @@ test "binary low precision rounding and ulp stay explicit" {
 }
 
 ///|
+// oracle: A
+// source: 12.5 parses and prints as 12.5; 7/2 = 3.5, written
+// shares: nothing
 test "checked trait helpers are usable through arithmetic boundary" {
   let parsed : Result[@decimal.Decimal, @lf_arith.ArithmeticError] = @lf_arith.ParseChecked::parse_checked(
     "12.5", audit_ctx,
@@ -645,12 +716,15 @@ test "checked trait helpers are usable through arithmetic boundary" {
       @decimal.Decimal::from_int(2, precision=6),
       audit_ctx,
     ) {
-    Ok(value) => assert_true(value.to_string().has_prefix("3.5"))
+    Ok(value) => assert_eq(value.to_string(), "3.5")
     Err(_) => fail("expected checked decimal division to succeed")
   }
 }
 
 ///|
+// oracle: A
+// source: 3/2 written by hand for 3 * 2^-1 and for 1.50
+// shares: ExactRat::new, exact_rat_gcd, ExactRational::from_scaled_integer (normalization on both sides)
 test "semantic scalar interpretation unifies binary and decimal rationals" {
   let expected = @semantic.SemanticScalar::Rational(
     @semantic.ExactRational::new(3N, 2N),
@@ -666,6 +740,9 @@ test "semantic scalar interpretation unifies binary and decimal rationals" {
 }
 
 ///|
+// oracle: A
+// source: IEEE 754-2019 7.3: 1/0 is divisionByZero; the variant is written
+// shares: SemanticError::from_arithmetic is the code under test
 test "semantic result interpretation totalizes checked failures" {
   let checked = @lf_arith.DivChecked::div_checked(
     @binary.Binary::from_int(1, precision=16),
@@ -682,6 +759,9 @@ test "semantic result interpretation totalizes checked failures" {
 }
 
 ///|
+// oracle: A
+// source: the bounds 1/2 and 3/2 of the interval [0.5, 1.5] written by hand; both sides normalize with ExactRat::new
+// shares: ExactRat::new, exact_rat_gcd, ExactRational::from_scaled_integer
 test "semantic interval interpretation preserves interval bounds" {
   let interval = @interval.Interval::from_bounds(
     binary_test_make(1N, -1, 16),
@@ -700,6 +780,10 @@ test "semantic interval interpretation preserves interval bounds" {
 }
 
 ///|
+// oracle: A, S
+// source: the hex outputs of the sign transforms of #77FFFF3F and #F7FFFF3F written; the decimal side compares two
+//   outputs of the same decoder (S)
+// shares: to_decimal, total_order_compare
 test "decimal32 finite sign transforms stay aligned with direct interchange decode" {
   let pos32 = @decimal.DecimalInterchange::from_hex(
     "#77FFFF3F",
