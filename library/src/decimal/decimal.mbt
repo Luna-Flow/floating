@@ -288,11 +288,15 @@ fn exact_decimal_division_result(
     magnitude,
     dec_coeff_pow_unit_repr(5, scale - fives),
   )
+  // 64-bit exponent: the difference of two stored exponents can leave `Int`
+  // (issue 676).
   Some(
-    normalize_decimal_parts_ctx_repr(
+    normalize_decimal_parts_ctx_wide_repr(
       dividend.negative != divisor.negative,
       magnitude,
-      dividend.exponent10 - divisor.exponent10 - scale,
+      dividend.exponent10.to_int64() -
+      divisor.exponent10.to_int64() -
+      scale.to_int64(),
       ctx,
     ),
   )
@@ -333,23 +337,25 @@ fn bounded_inexact_decimal_division_result(
     dividend.coefficient,
     divisor.coefficient,
   )
-  let adjusted = dividend.exponent10 - divisor.exponent10 + adjusted_coefficient
+  let exponent_difference = dividend.exponent10.to_int64() -
+    divisor.exponent10.to_int64()
+  let adjusted = exponent_difference + adjusted_coefficient.to_int64()
   // Keep the existing path for subnormal results: it carries enough extra
   // quotient digits for the configured before/after tininess policy.
-  guard adjusted >= ctx.e_min else { return None }
+  guard adjusted >= ctx.e_min.to_int64() else { return None }
   let precision = finite_precision_for(bigint_one(), ctx)
   let scale = precision - 1 - adjusted_coefficient
   let (numerator, denominator, result_exponent) = if scale >= 0 {
     (
       dec_coeff_shift_power10_repr(dividend.coefficient, scale),
       divisor.coefficient,
-      dividend.exponent10 - divisor.exponent10 - scale,
+      exponent_difference - scale.to_int64(),
     )
   } else {
     (
       dividend.coefficient,
       dec_coeff_shift_power10_repr(divisor.coefficient, -scale),
-      dividend.exponent10 - divisor.exponent10 - scale,
+      exponent_difference - scale.to_int64(),
     )
   }
   let (quotient, remainder) = dec_coeff_div_rem_repr(numerator, denominator)
@@ -364,7 +370,7 @@ fn bounded_inexact_decimal_division_result(
   } else {
     quotient
   }
-  let (value, normalize_flags) = normalize_decimal_parts_ctx_repr(
+  let (value, normalize_flags) = normalize_decimal_parts_ctx_wide_repr(
     dividend.negative != divisor.negative,
     quotient,
     result_exponent,
@@ -401,6 +407,17 @@ fn exact_division_by_power_of_ten_result(
     adjusted_exponent64(divisor)
   if lower_adjusted > ctx.e_max.to_int64() {
     return Some(decimal_overflow_result(negative, ctx))
+  }
+  // The exponent arithmetic below is in `Int`; operands whose exponents leave
+  // it are left to the general route, which forms its exponents in 64 bits.
+  let preferred64 = dividend.exponent10.to_int64() -
+    divisor.exponent10.to_int64()
+  let shifted64 = dividend.exponent10.to_int64() - power.to_int64()
+  if preferred64 < -2147483648L ||
+    preferred64 > 2147483647L ||
+    shifted64 < -2147483648L ||
+    shifted64 > 2147483647L {
+    return None
   }
   let preferred_exponent = dividend.exponent10 - divisor.exponent10
   let exact_unrounded = normalize_decimal_parts_gda_repr(
