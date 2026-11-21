@@ -54,6 +54,19 @@ class Stage:
     after: str | None = None
 
 
+KERNEL_PRODUCT_ROUTES_TEST = (
+    "sh",
+    "tools/run_moon_clean_exec.sh",
+    "test",
+    "library/src/internal/bin_kernel/coeff_ntt_route_native_wbtest.mbt",
+    "--include-skipped",
+    "--target",
+    "native",
+    "--deny-warn",
+    "--frozen",
+)
+
+
 def conformance_command(backend: BackendName, jobs: int) -> tuple[str, ...]:
     base = [
         sys.executable,
@@ -218,10 +231,24 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
                 (*conformance_command(BackendName.DECIMAL_GDA, jobs), "--corpus", "official0"),
             ),
         ],
-        "binary": Stage(
-            "BINARY: TestFloat + MPFR",
-            conformance_command(BackendName.BINARY, jobs),
-        ),
+        "binary": [
+            Stage(
+                "BINARY: TestFloat + MPFR",
+                conformance_command(BackendName.BINARY, jobs),
+            ),
+            # The full list of the product routes of the native kernel (136 products at
+            # 4,096 to 15,360 limbs, about 15 s): marked `#skip` so a plain `moon test`
+            # runs only its subset, and run here with `--include-skipped` in the three
+            # states of the row implementation (assembly or C rows, C rows, portable loops).
+            *(
+                Stage(f"BINARY: kernel product routes ({state})", (*prefix, *KERNEL_PRODUCT_ROUTES_TEST))
+                for state, prefix in (
+                    ("default", ()),
+                    ("C rows", ("env", "LUNA_FLOATING_LIMBS=c")),
+                    ("portable loops", ("env", "LUNA_FLOATING_PORTABLE=1")),
+                )
+            ),
+        ],
         "interval": [
             Stage(
                 "INTERVAL: IEEE 1788",
@@ -459,7 +486,7 @@ def stages_for(scope: str, jobs: int) -> list[Stage]:
         ],
         suites["decimal"],
         *suites["decimal_gda"],
-        suites["binary"],
+        *suites["binary"],
         *suites["interval"],
     ]
 
