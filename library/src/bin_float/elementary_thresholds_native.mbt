@@ -21,13 +21,17 @@ let binary_trig_burst_min_precision = 1536
 ///|
 /// Working precision from which the outermost `ln` call starts with a Newton
 /// step on the table kernel (measured crossover on this target; the nested
-/// steps keep `binary_ln_burst_min_precision`).
-let binary_ln_entry_min_precision = 384
+/// steps keep `binary_ln_burst_min_precision`). Re-measured after the fixed-point
+/// series moved to limb arrays: the series is cheaper than the step below 768 and
+/// equal to it there, on the assembly rows and on the C rows alike.
+let binary_ln_entry_min_precision = 768
 
 ///|
 /// Working precision from which the outermost `ln` call uses the arithmetic-geometric
-/// mean (measured crossover on this target).
-let binary_ln_agm_min_precision : Int32 = 640
+/// mean (measured crossover on this target, re-measured after the series moved to
+/// limb arrays: the Newton step is cheaper up to 1088 working bits on the assembly
+/// and the C rows, the mean from 1152).
+let binary_ln_agm_min_precision : Int32 = 1152
 
 ///|
 /// Chunk constants of the bit-burst kernels (`exp`, `sin`, `cos`) as functions of
