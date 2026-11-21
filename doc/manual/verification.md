@@ -606,15 +606,37 @@ Measured by replaying the keys over 30 consecutive commits of `main` (2026-11-21
 | the start-up code changes (the initialisers of top-level values) | 1 | 538 (the whole stage) |
 
 The start-up code is part of every key, so one changed initialiser reruns every unit; in this window
-that happened once. Fewer commits than this rerun the whole stage than a count of changed packages
-suggests, because most changes are in code that no TestFloat task reaches.
+that happened once. Few commits rerun the whole stage, because most changes are in code that no
+TestFloat task reaches.
+
+### The kernel stages
+
+The seven kernel stages of the binary gate (the product routes and the oracles under three states of
+the limb tier, and the oracle tables) took about 220 s and always ran in full. The package under test,
+`library/src/internal/bin_kernel`, is a leaf of the module: it imports only `moonbitlang/core/...`,
+so nothing else of the repository is compiled into its test executable. Each stage under each state
+is therefore a unit of its own, keyed by the content of the package's files (sources, tests, row
+tables, the native stub, `moon.pkg`) and of the module files, the command line (which holds the
+state), the `moon test` wrapper, the build commands that `moon test --dry-run` prints, the toolchain,
+the variables of the environment that `moon` and the stubs read, the verifier and, for the oracle
+tables, `tools/kernel_oracle.py` and the Python version. The key is of file content, which is coarser
+than code: a comment-only edit of the package reruns all seven. The program checks the two
+assumptions behind it: the package imports only `moonbitlang/core/...` (otherwise no kernel unit is
+reused) and `tools/kernel_oracle.py` imports only the standard library (otherwise that unit runs).
+
+A reused kernel stage is printed as `REUSED` with the commit it ran on and is not executed. A stage
+that ran is recorded when it passes and when its files are still those of the key (a stage runs for
+minutes: an edit meanwhile is reported as "passed but not recorded"). Each reusable stage is rerun
+with probability 2 %, drawn per stage (the "at least one" rule of the TestFloat units would rerun a
+stage on every run with only seven units); the seed is printed, and a sampled stage that fails
+although its key is recorded as passing is a defect of the system (status 70). `just verify binary`
+runs the stages this way; `--full-kernel` runs them in full.
 
 ### What it does not cover
 
 The decimal gate (`just gate decimal` runs generated `moon test` fixtures on native, Wasm, Wasm-GC
-and JavaScript), the GDA, interval and elementary gates, the `moon test` stages (the kernel product
-routes and oracles still run in full inside `just verify binary`), the other targets, and a cache
-shared with GitHub CI are outside this version.
+and JavaScript), the GDA, interval and elementary gates, the other `moon test` stages (units per test
+block), the other targets, and a cache shared with GitHub CI are outside this version.
 
 ## Reproducibility
 
