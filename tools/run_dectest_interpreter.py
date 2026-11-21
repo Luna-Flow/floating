@@ -18,6 +18,8 @@ from conformance_ui import Console, Progress, SummaryRow, print_summary
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_CONFIG = REPO_ROOT / "testdata/decimal_gda/interpreter_stages.json"
 DEFAULT_MANIFEST = REPO_ROOT / "testdata/decimal_gda/corpora.json"
+# The recorded differences between the corpus and the library (see its header).
+DEVIATIONS_PATH = REPO_ROOT / "testdata/decimal_gda/deviations.tsv"
 DEFAULT_OUTPUT = REPO_ROOT / ".tmp/dectest-interpreter"
 DEFAULT_EXECUTABLE = executable_path("gda")
 
@@ -114,6 +116,8 @@ def worker_command(
         command.extend(["--cases", cases])
     if strict_supported:
         command.append("--strict-supported")
+    if DEVIATIONS_PATH.is_file():
+        command.extend(["--deviations", str(DEVIATIONS_PATH)])
     command.extend(str(path) for path in files)
     return command
 
@@ -154,6 +158,30 @@ def run_worker(
     }
     shard_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     return payload
+
+
+def read_deviations() -> list[dict[str, str]]:
+    """The rows of `deviations.tsv`: corpus, file, id, corpus value, held value,
+    decNumber value, what the held value rests on."""
+    if not DEVIATIONS_PATH.is_file():
+        return []
+    rows = []
+    for line in DEVIATIONS_PATH.read_text(encoding="utf-8").splitlines():
+        if not line or line.startswith("#"):
+            continue
+        fields = line.split("\t")
+        rows.append(
+            {
+                "corpus": fields[0],
+                "file": fields[1],
+                "id": fields[2],
+                "corpus_value": fields[3],
+                "held_value": fields[4],
+                "decnumber_value": fields[5] if len(fields) > 5 else "",
+                "rests_on": fields[6] if len(fields) > 6 else "",
+            }
+        )
+    return rows
 
 
 def sum_verdict_kinds(kinds) -> dict:
@@ -254,6 +282,13 @@ def print_text(report: dict) -> None:
     )
     # how the value of each passing row was judged (the stage's report of the kinds)
     kinds = summary.get("verdictKinds", {})
+    for deviation in read_deviations():
+        print(
+            "deviation: "
+            f"{deviation['corpus']} {deviation['file']} {deviation['id']}: corpus value "
+            f"{deviation['corpus_value']}, held value {deviation['held_value']}, "
+            f"decNumber {deviation['decnumber_value']}"
+        )
     print(
         "verdicts: "
         + ", ".join(f"{name} {count}" for name, count in kinds.items())

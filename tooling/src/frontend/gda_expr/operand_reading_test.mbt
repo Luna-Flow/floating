@@ -45,3 +45,30 @@ test "gda interpreter reports the rows whose value is not checked" {
   let kinds = summary.results().map(fn(result) { result.message() })
   assert_eq(kinds, ["value-not-checked", "text"])
 }
+
+///|
+test "gda interpreter judges a recorded deviation against the held value" {
+  let source =
+    #|precision: 9
+    #|rounding: half_up
+    #|d1 add 1 1 -> 3
+    #|d2 add 2 2 -> 5
+    #|d3 add 3 3 -> 6
+    #|
+  let document = @gda_expr.parse_dectest("deviation.decTest", source).unwrap()
+  let summary = @gda_expr.execute_documents(
+    [document],
+    options=@gda_expr.RunOptions::new(deviations=[
+      // the corpus value 3 is recorded and the held value is the correct 2
+      ("deviation.decTest:d1", "3", "2"),
+      // the record does not match the row: the row fails and says why
+      ("deviation.decTest:d2", "4", "4"),
+    ]),
+  )
+  let kinds = summary.results().map(fn(result) { result.message() })
+  assert_eq(summary.passed_cases(), 2)
+  assert_eq(summary.failed_cases(), 1)
+  assert_eq(kinds[0], "deviation")
+  assert_true(kinds[1].contains("records the corpus value 4"))
+  assert_eq(kinds[2], "text")
+}

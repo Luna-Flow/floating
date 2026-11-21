@@ -1,0 +1,18 @@
+# Recorded deviations of the pinned decTest corpora: rows whose result token differs
+# from the value this library returns, where both values are inside the tolerance of
+# the specification (GDA 1.70 allows the mathematical functions a result up to one
+# unit in the last place from the correctly rounded one).
+#
+# The corpus value is decNumber's and is not wrong; the held value is the correctly
+# rounded one, which the library returns. The row is recorded only because the two
+# texts differ. The stage judges such a row against the held value, reports it as the
+# verdict kind `deviation`, and fails it if the result token of the row no longer is
+# the corpus value recorded here. Nothing is reported upstream.
+#
+# Columns (tab-separated): corpus, file, row id, corpus value, held value,
+# decNumber 3.68 value, what the held value rests on.
+#
+# decNumber 3.68 (https://speleotrove.com/decimal/decNumber-icu-368.zip, sha256
+# 14ec2cf30b58758493a7661b78b80abfb281652b61a425b85cda83173518fe25, ICU licence) was
+# built with DECSUBSET=1 and run on the row; it is the source of the decNumber value.
+official0	ln0.decTest	ln116	-8.9999999999999879E-8	-8.9999999999999878E-8	-8.9999999999999879E-8	GDA 1.70 page 30 (ln): "rounded using the round-half-even algorithm" and "should be correctly rounded, but may be up to 1 ulp ... in error"; the exact value is -8.99999999999998784999918E-8 (CPython decimal, 50 digits), so the correctly rounded 17-digit result is ...878; the corpus value is decNumber's, one unit in the last place above and inside the tolerance (decNumber also returns it in the extended arithmetic, where the extended row lnx116 lists the correctly rounded value)

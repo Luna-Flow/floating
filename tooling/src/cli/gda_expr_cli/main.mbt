@@ -4,6 +4,7 @@ priv struct CliOptions {
   json : Bool
   strict_supported : Bool
   case_filter : String
+  deviations : String
   shard_count : Int32
   shard_index : Int32
 }
@@ -18,6 +19,7 @@ fn parse_cli(args : Array[String]) -> Result[CliOptions, String] {
   let paths : Array[String] = []
   let mut strict_supported = false
   let mut case_filter = ""
+  let mut deviations = ""
   let mut index = 0
   while index < args.length() {
     let argument = args[index]
@@ -29,11 +31,17 @@ fn parse_cli(args : Array[String]) -> Result[CliOptions, String] {
       }
       index += 1
       case_filter = args[index]
+    } else if argument == "--deviations" {
+      guard index + 1 < args.length() else {
+        return Err(argument + " requires a value")
+      }
+      index += 1
+      deviations = args[index]
     } else if argument.has_prefix("--cases=") {
       case_filter = argument[8:].to_owned()
     } else if argument == "--help" || argument == "-h" {
       return Err(
-        "usage: gda-expr [--json] [--strict-supported] [--cases SPEC] [--shard-count N --shard-index I] [path ...]",
+        "usage: gda-expr [--json] [--strict-supported] [--cases SPEC] [--deviations FILE] [--shard-count N --shard-index I] [path ...]",
       )
     } else if argument.has_prefix("-") {
       return Err("unknown option: " + argument)
@@ -50,9 +58,39 @@ fn parse_cli(args : Array[String]) -> Result[CliOptions, String] {
     json: common.json(),
     strict_supported,
     case_filter,
+    deviations,
     shard_count: common.shard_count(),
     shard_index: common.shard_index(),
   })
+}
+
+///|
+/// The recorded deviations of the corpus (`testdata/decimal_gda/deviations.tsv`):
+/// tab-separated `corpus, file, id, corpus value, held value, decNumber value, rests
+/// on`; lines starting with `#` and blank lines are comments. Each row becomes
+/// `("file:id", corpus value, held value)`.
+fn load_deviations(
+  path : String,
+) -> Result[Array[(String, String, String)], String] {
+  let text = match @runner_cli.read_source(path) {
+    Ok(value) => value
+    Err(message) => return Err(message)
+  }
+  let rows : Array[(String, String, String)] = []
+  for line_view in text.split("\n") {
+    let line = line_view.to_owned()
+    if line.length() == 0 || line.has_prefix("#") {
+      continue
+    }
+    let fields = line.split("\t").map(fn(field) { field.to_owned() }).to_array()
+    if fields.length() < 5 {
+      return Err(
+        "deviations: a row needs at least 5 tab-separated fields: " + line,
+      )
+    }
+    rows.push((fields[1] + ":" + fields[2], fields[3], fields[4]))
+  }
+  Ok(rows)
 }
 
 ///|
@@ -88,10 +126,13 @@ fn load_documents(
 /// `hex` (an interchange pattern against the hexadecimal text of the encoding),
 /// `format-prefixed` (a result token that is a number in a named format, read by the
 /// library: the only kind that passes through its reader), `value-not-checked`
-/// (the corpus gives `?`: flags only).
+/// (the corpus gives `?`: flags only), `deviation` (a recorded deviation of the
+/// corpus: judged against the held value).
 fn verdict_kinds(summary : @gda_expr.RunSummary) -> Array[(String, Int32)] {
-  let names = ["text", "hex", "format-prefixed", "value-not-checked"]
-  let counts : Array[Int32] = [0, 0, 0, 0]
+  let names = [
+    "text", "hex", "format-prefixed", "value-not-checked", "deviation",
+  ]
+  let counts : Array[Int32] = [0, 0, 0, 0, 0]
   for result in summary.results() {
     if result.disposition() is @gda_expr.Executable && result.passed() {
       for index in 0..<names.length() {
@@ -195,7 +236,19 @@ pub fn run(arguments : Array[String]) -> Int32 {
       return 2
     }
   }
+  let deviations = if cli.deviations.length() > 0 {
+    match load_deviations(cli.deviations) {
+      Ok(value) => value
+      Err(message) => {
+        println(message)
+        return 2
+      }
+    }
+  } else {
+    []
+  }
   let options = @gda_expr.RunOptions::new(
+    deviations~,
     shard_count=cli.shard_count,
     shard_index=cli.shard_index,
     strict_supported=cli.strict_supported,
