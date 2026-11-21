@@ -426,8 +426,9 @@ test "status is the union of the raised sets" {
 
 ### Thread status through `GdaOutcome`, not global state
 
-**Problem.** GDA 1.70 describes the flags of the context as set by operations and
-reset only by explicit user action (GDA 1.70, page 15 (flags and trap-enablers)). Most
+**Problem.** The GDA specification describes the context as a mutable object
+whose flags operations set. GDA 1.70 says that the flags are reset only by
+explicit user action (page 15 (flags and trap-enablers)). Most
 implementations (decNumber, Python's `decimal`) keep a current context per thread.
 
 **Options.** (a) A mutable context passed by reference; (b) a thread-local or
@@ -526,9 +527,9 @@ algorithm, a context nor a flag. A change there cannot change which condition
 an operation raises, only how fast the exact integer is found, and the kernel
 imports neither decimal package (`tools/check_imports.py` checks that too).
 
-A copy of this code in each package is rejected, because the copies diverge: a
-fix in one does not reach the other, and `decimal` lacked the small-value fast
-paths of `decimal_gda`. The thresholds are therefore one set, measured on the
+A copy of this code in each package is rejected, because the two copies had
+diverged: a fix in one did not reach the other, and `decimal` lacked the
+small-value fast paths of `decimal_gda`. The thresholds are therefore one set, measured on the
 shared kernel.
 
 The increment decision of each rounding algorithm is shared too, because it is
@@ -600,7 +601,7 @@ overflows as well, because overflow is judged on the rounded sum (see
 - $p \ge 2$ and $\hat q_1 \ge E_{\max} + 2$, so the sum is more than
   $0.9 \cdot 10^{\hat q_1}$.
 
-Otherwise an opposite sign can pull the sum back into range, and the case
+Otherwise an opposite sign can pull the sum back into range, so the case
 takes the general path: `add(9.5, -0.5)` at precision 1 and $E_{\max} = 0$ is
 `9`, not an overflow. A non-extended context rounds the operands first, so the
 shortcut is unchanged there.
@@ -853,15 +854,15 @@ $(-0.5)^{-2} = 4$ at precision 1 and $E_{\max} = 0$ raises neither.
 roundoff of precision $w$ for the half-way algorithms
 ([Rounding to precision](#rounding-to-precision)), and let $\delta$, with
 $|\delta| \le \mathbf u_w$, be the relative error of one rounding. Let the
-accumulator hold $x^k(1 + \theta_k)$, where $k$ is the power of $x$ it has
-reached and $\theta_k$ its relative error. A squaring gives
-$x^{2k}(1+\theta_k)^2(1+\delta)$ and a multiplication by $x$ gives
-$x^{k+1}(1+\theta_k)(1+\delta)$, so
-$1 + |\theta_{2k}| \le (1+|\theta_k|)^2(1+\mathbf u_w)$ and
-$1 + |\theta_{k+1}| \le (1+|\theta_k|)(1+\mathbf u_w)$. By induction on
-the binary expansion, $1 + |\theta_k| \le (1+\mathbf u_w)^{k-1}$ for every
-$k \ge 1$: the error of binary powering is that of $k - 1$ successive
-roundings, although only about $2\log_2 k$ products are formed.[^higham]
+accumulator hold $x^\ell(1 + \theta_\ell)$, where $\ell$ is the power of $x$ it has
+reached and $\theta_\ell$ its relative error. A squaring gives
+$x^{2\ell}(1+\theta_\ell)^2(1+\delta)$ and a multiplication by $x$ gives
+$x^{\ell+1}(1+\theta_\ell)(1+\delta)$, so
+$1 + |\theta_{2\ell}| \le (1+|\theta_\ell|)^2(1+\mathbf u_w)$ and
+$1 + |\theta_{\ell+1}| \le (1+|\theta_\ell|)(1+\mathbf u_w)$. By induction on
+the binary expansion, $1 + |\theta_\ell| \le (1+\mathbf u_w)^{\ell-1}$ for every
+$\ell \ge 1$: the error of binary powering is that of $\ell - 1$ successive
+roundings, although only about $2\log_2 \ell$ products are formed.[^higham]
 Starting from a rounded reciprocal adds the factor
 $(1+\mathbf u_w)^{|n|}$, because its error is raised to the power $|n|$.
 Let $m$ be the exponent of the factor $1 + \mathbf u_w$ in the whole bound:
@@ -890,9 +891,8 @@ other two columns.
 In subset contexts $w$ is one digit smaller, so the working error grows tenfold
 and the bound for the half-way algorithms becomes about $1$ unit. None of this
 is correct rounding: a power whose exact result lies within $0.1$ units of a
-rounding boundary can round the wrong way. GDA 1.70, page 35 (power), says only
-that inexact finite results should be correctly rounded and may be up to 1 ulp
-(unit in the last place) in error, so it does not require more for integer powers.
+rounding boundary can round the wrong way. The specification does not require more
+for integer powers (GDA 1.70, page 35 (power)).
 
 *Exponents that overflow or underflow.* Exponents so large that the result must
 overflow or underflow are detected beforehand from the bounds
@@ -913,7 +913,7 @@ IEEE 754-2019 5.2 selects the cohort member of least possible exponent for an in
 result. A non-integer exponent gives the same
 ([non-integer power](#correctly-rounded-exp-ln-log10-and-non-integer-power)).
 `power(99999E-1, -1)` at precision 2 is `0.00010`. Only a subset context strips
-the zeros, as GDA 1.70, page 56 (Appendix A – The X3.274 subset), prescribes, and
+the zeros, as GDA 1.70, page 56 (Appendix A, The X3.274 subset), prescribes, and
 a subnormal result has fewer digits because its exponent is
 $E_{\mathrm{tiny}}$.
 
@@ -1050,11 +1050,9 @@ An unproven result is never returned.
 The GDA functions `exp`, `ln`, `log10` and `sqrt` pass a copy of the context
 with `HalfEven` rounding, because the specification defines these functions as
 correctly rounded with round-half-even regardless of the rounding of the
-context (GDA 1.70, page 30 (exp); page 31 (ln); page 32 (log10); page 40
+context (GDA 1.70, page 30 (exp); page 31 (ln and log10); page 39
 (square-root)). `power` uses the rounding of the context, as the specification
-and its test vectors require. GDA 1.70 allows an inexact result of `exp`, `ln`,
-`log10` and `power` to be up to one unit in the last place in error (GDA 1.70, page 30 (exp); page 31 (ln, log10); page 35 (power)); the library returns the correctly rounded result, except for `ln`
-in subset arithmetic, below.
+and its test vectors require.
 
 `power` reports a non-integer power as `Inexact` with $p$ digits even when the
 power happens to be exact (in the source: `decimal_power_noninteger_gda_result`;
@@ -1144,7 +1142,8 @@ a flag. See [performance](../performance/decimal_gda.md) for the measurements.
   class, then value, then exponent, then payload), and `Decimal::compare` is
   a total preorder in which NaNs form one class above all other values.
 - **Checked results.** The pinned `official` test suite and the legacy `official0`
-  suite pass in full ([conformance](../conformance/decimal_gda.md)). These are
+  suite pass all their legal executable rows
+  ([conformance](../conformance/decimal_gda.md)). These are
   finite sets of rows: no pinned row covers the tie in division in the
   half-way algorithms ([Division](#division)) or a to-integral operand longer
   than the precision.
