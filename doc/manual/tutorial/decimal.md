@@ -83,7 +83,7 @@ Integers are built reduced: `Decimal::from_int(1000)` is stored as $1 \times
 
 ### Compute under a context and keep the flags
 
-A `DecimalContext` fixes the precision, rounding mode and exponent range.
+A `DecimalContext` fixes the precision, rounding direction and exponent range.
 Each `*_ctx` operation returns the result and the flags it raised. Combine the
 flags as you go:
 
@@ -235,10 +235,15 @@ places. Bits you did not produce yourself may be non-canonical; keep them in a
 
 ### Call an elementary function
 
-Logarithms, exponentials, powers and trigonometric functions are certified:
-the result is the correctly rounded value in every rounding mode, or an
-explicit failure. They need a context with a bounded exponent range, such as a
-format preset:
+Logarithms, exponentials, powers with a non-integer exponent and trigonometric
+functions are certified: the result is the correctly rounded value in every
+rounding direction, or an explicit failure (a power with an integer exponent is
+rounded once from the exact power, or from refined directed bounds, and is not
+certified). For an ordinary operand they need a context with `e_max` at most
+999,999, `e_min` at least -999,999 and a precision within the elementary
+precision limit (999,999 digits by default), such as a format preset; a NaN, an
+infinity, a zero and the exact points of IEEE 754-2019 9.2.1 are values in every
+context:
 
 ```moonbit
 ///|
@@ -256,12 +261,15 @@ test "decimal certified logarithm" {
 }
 ```
 
-`try_ln_ctx` returns `Err` only if the result could not be certified within
-the refinement limit of the context (twelve steps by default;
-`ctx.with_refinement_limit(Some(24))` allows more and
+`try_ln_ctx` returns `Err` (a certification failure) at once, before any
+evaluation, when the context or an ordinary operand is beyond the limit of the
+elementary functions (see the first pitfall below), and otherwise only if the
+result could not be certified within the refinement limit of the context (twelve
+steps by default; `ctx.with_refinement_limit(Some(24))` allows more and
 `ctx.with_refinement_limit(None)` removes the count limit, at the cost of a
-longer evaluation for a hard-to-round input); `ln_ctx` turns that case into NaN with
-`invalid_operation`. Exact results such as $\log_{10} 1000 = 3$ come back
+longer evaluation for a hard-to-round input; raising the limit does not help in
+the first case); `ln_ctx` turns both cases into NaN with `not_computed`, not
+`invalid_operation`, which is for results IEEE 754 defines as invalid. Exact results such as $\log_{10} 1000 = 3$ come back
 without `inexact`.
 
 For a small rate or a small exponent, use the functions that keep the part

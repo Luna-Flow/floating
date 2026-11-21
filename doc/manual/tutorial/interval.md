@@ -14,7 +14,7 @@ output. The mathematics behind the guarantees is in the
 | enclose a decimal constant such as 0.1 | directed `from_string_ctx` + `from_bounds` ([Enclose a decimal constant](#enclose-a-decimal-constant)) |
 | compute with `+ - * /` and read the bounds | operators, `lower_bound`, `upper_bound`, `width` ([Compute and read the result](#compute-and-read-the-result)) |
 | ask whether one uncertain value is certainly below another | `DefinitelyLt`, `MaybeEq`, `subset` ([Compare intervals](#compare-intervals)) |
-| evaluate `sin`, `exp`, `ln`, … rigorously | `*_interval` and `try_*_interval` ([Evaluate elementary functions](#evaluate-elementary-functions)) |
+| evaluate `sin`, `exp`, `ln`, … rigorously | `sin`, `exp`, `ln`, … and `try_sin`, `try_exp`, `try_ln`, … ([Evaluate elementary functions](#evaluate-elementary-functions)) |
 | round a result into binary32 or binary64 | `IntervalContext`, `apply_ctx` ([Round to a target format](#round-to-a-target-format)) |
 | know whether a function was defined and continuous on the input | `DecoratedInterval` ([Decorations](#decorations)) |
 | write code for any enclosure type | `@lf_arith.DefinitelyLt` and friends ([Generic code](#generic-code-over-the-enclosure-traits)) |
@@ -251,8 +251,8 @@ test "elementary functions" {
 }
 ```
 
-Every `*_interval` function has a total form, which always returns a valid
-enclosure at any precision, and most also have a `try_*_interval` form. They
+Every elementary function of `Interval` (`sin`, `exp`, `ln`, …) has a total form, which always returns a valid
+enclosure at any precision, and most also have a `try_` form (`try_sin`, …). They
 use the same kernel and give the same interval whenever the certified
 evaluation succeeds. When it runs out of its work budget the total form widens
 to the range of the function (for example $[-1, 1]$ for `sin`), and

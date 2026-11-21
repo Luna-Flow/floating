@@ -81,7 +81,7 @@ IEEE Std 754-2019 for `binary`. Status is `conforming` when the operation exists
 | §5.3.1 scaleB, logB | required | `scaleb_ctx`, `logb_ctx` | `library/src/binary/scale_wbtest.mbt` (no external corpus) | conforming |
 | §5.4.1 convertFromInt | required | `Binary::from_int`, `Binary::from_uint64` | `library/src/binary/order_wbtest.mbt` (no external corpus) | conforming |
 | §5.4.1, §5.8 convertToInteger (exact and inexact) | required | `to_int_ctx`, `to_int64_ctx`, `to_uint_ctx`, `to_uint64_ctx` | TestFloat gate (32- and 64-bit conversions); `library/src/binary/to_integer_wbtest.mbt` | conforming |
-| §5.4.2 convertFormat | required | `convert_format`, `apply_ctx`, `with_precision`, `to_interchange` | TestFloat gate (`f16`, `f32`, `f64`, `f128` to every other format, 52,632 vectors at level 1: five rounding modes and both tininess rules for the narrowing pairs); `library/src/binary/convert_format_wbtest.mbt`; `library/src/binary/ieee754_wbtest.mbt` | conforming |
+| §5.4.2 convertFormat | required | `convert_format`, `apply_ctx`, `with_precision`, `to_interchange` | TestFloat gate (`f16`, `f32`, `f64`, `f128` to every other format, 52,632 vectors at level 1: five rounding directions and both tininess rules for the narrowing pairs); `library/src/binary/convert_format_wbtest.mbt`; `library/src/binary/ieee754_wbtest.mbt` | conforming |
 | §5.5 copy, negate, abs, copySign | required | `neg`, `abs`, `copy_sign` | `library/src/binary/order_wbtest.mbt` | conforming |
 | §5.6, §5.11 comparison predicates, quiet and signaling | required | `compare_quiet`, `compare_signaling`, `compare_quiet_equal`, `compare_signaling_equal`, `compare_quiet_less`, `compare_signaling_less`, `compare_quiet_less_equal`, `compare_signaling_less_equal`, `compare_quiet_unordered` and the fifteen of `order_predicates.mbt` (22 in all, Tables 5.1 and 5.2) | `library/src/binary/order_predicates_wbtest.mbt` (every predicate against every relation, value and flags); TestFloat gate (eq, le, lt, eq_signaling, le_quiet, lt_quiet); `library/src/binary/order_wbtest.mbt` | conforming |
 | §5.7 class and sign predicates | required | `class_of`, `is_normal`, `is_subnormal`, `is_finite`, `is_infinite`, `is_nan`, `classify`, `is_sign_minus`, `is_zero`, `is_signaling_nan` | `library/src/binary/class_of_wbtest.mbt` (all ten classes in binary16, 32, 64 and 128, with the smallest and largest subnormal and normal, both signs); `library/src/binary/contextual_traits_wbtest.mbt` | conforming |
@@ -138,31 +138,38 @@ The 966,744-row MPFR run is likewise optional generated stress evidence; the
 
 The results cover contextual add, subtract, multiply, divide, square root,
 fused multiply-add, remainder, roundToIntegral (plain and exact),
-convertToInteger to signed/unsigned 32/64-bit integers (plain and exact), and
+convertToInteger to signed/unsigned 32/64-bit integers (plain and exact),
+convertFormat among the four interchange formats (IEEE 754-2019 5.4.2), and
 the quiet/signaling equal, less, and less-or-equal predicates for the four IEEE
-interchange formats and stated rounding/tininess modes, plus the declared
-29-function elementary surface at 24, 53, and 113 bits under all five project
-rounding modes. Invalid integer conversions are compared by flags only:
+interchange formats and stated rounding directions and tininess rules, plus the
+29 operations of the MPFR elementary fixture (28 of the functions of IEEE 754-2019 9.2 and
+`sqrt`) at 24, 53, and 113 bits under all five rounding directions; the other
+11 functions of the 9.2 row are covered by the seeded random and range-boundary
+rows of the table above. Invalid integer conversions are compared by flags only:
 SoftFloat returns platform-specific sentinels where the API returns `None`.
-They do not claim TestFloat conformance for format-to-format conversions,
-min/max, total ordering, nextUp/nextDown, scaleB/logB, or decimal character
-conversion (covered by package tests), nor for every IEEE 754 operation or
-every real input. The elementary generator implements
+They do not claim TestFloat conformance for min/max (not implemented as the
+operations of IEEE 754-2019 9.6), total ordering, nextUp/nextDown or scaleB/logB
+(covered by package tests), nor for decimal character conversion (TestFloat has
+none: `convertFromDecimalCharacter` and `convertToDecimalCharacter` are checked
+against the MPFR `mpfr_strtofr` and `mpfr_get_str` fixtures, 3,699 and 2,688
+rows, and by package tests), nor for every IEEE 754 operation or every real
+input. The elementary generator implements
 nearest-away through MPFR's required `mpfr_round_nearest_away_begin/end`
 protocol; it never passes the explicitly forbidden `MPFR_RNDNA` value to a
 general elementary function.
 
 The fixed-seed elementary inputs are dyadic multiples of $2^{-8}$ of
 magnitude at most 16, inside each function's domain: `pow` takes a positive
-base and an exponent in $[-3, 3]$, `rootn` a degree from 2 to 7, `atan2`
+base and an exponent in $[-3, 3]$, `rootn` an odd degree from 3 to 7, `atan2`
 never two zeros, and `tanpi` no integral or half-integral argument. A zero
-input is $+0$. The matrix therefore does not exercise tiny or huge
+input is $+0$. The 1,740-row fixture therefore does not exercise tiny or huge
 arguments, $-0$, infinities, NaNs, negative bases of `pow`, negative degrees
 of `rootn`, or the poles and signed zeros of the IEEE special-case tables;
-exact results such as $16^{3/4}$ occur only by chance. Those cases are
+exact results such as $4^{3/2}$ occur only by chance. Those cases are
 covered by the package's unit tests against the special-value tables in the
 [API reference](../api/binary.md#elementary-functions), not by this
-claim.
+claim; the seeded random and range-boundary rows of the table above do exercise
+tiny and huge arguments and the overflow and underflow thresholds.
 
 ## Stability of the evidence
 
