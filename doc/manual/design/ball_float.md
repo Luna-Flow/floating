@@ -271,7 +271,7 @@ $(\underline{x} + \overline{x})/2$ and the half-width $(\overline{x} -
 \underline{x})/2$, which are dyadic and need no rounding (the half-width is
 rounded up only if it underflows the exponent range), so
 $[\text{center} - \text{half-width}, \text{center} + \text{half-width}]$ is
-exactly the stored interval. `Show` prints this pair. The public observers are
+exactly the stored interval. `to_ball_string` prints this pair (`Show` is the inf-sup literal of 13.3). The public observers are
 not this pair: IEEE 1788-2015 12.12.8 defines `mid` as the center rounded to
 the format and `rad` as the smallest number of the format with the interval
 inside $[m - r, m + r]$ for that rounded $m$. The half-width around the exact

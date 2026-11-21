@@ -1278,44 +1278,56 @@ msgid "`BallFloat` implements `Add`, `Sub`, `Mul`, `Div` and `Neg`; `BallFloatDe
 msgstr ""
 
 #: manual/api/ball_float.md:2062
-msgid "`Show` writes an interval in an exact text form."
+msgid "`Show` writes an interval as the portable inf-sup literal of IEEE 1788-2015 13.3 (`intervalToText`): the text `from_string` reads."
 msgstr ""
 
-#: manual/api/ball_float.md:2076
-msgid "A bounded `BallFloat` prints as `center +/- radius` with both numbers in the exact `BinFloat` notation (`3p-1` is $3 \\cdot 2^{-1}$), so the text denotes exactly the stored set (up to the far-endpoint case: endpoints more than about $2^{16}$ binary orders of magnitude apart print with a sticky surrogate for the smaller one); an unbounded one prints as `[lo, hi]`, Empty as `[empty]`. A decorated interval appends `_` and the decoration; NaI prints as `[nai]`."
+#: manual/api/ball_float.md:2077
+msgid "A nonempty bounded or half-bounded interval prints as `[l, u]`, Empty as `[empty]`, Entire as `[entire]`; a decorated interval appends `_` and the decoration, and NaI prints as `[nai]`. Each bound is a decimal number rounded outward (the lower bound down, the upper bound up), so the text is a literal of an interval that contains the value (13.3). The digits are the fewest that keep the bound within one unit in the last place of the stored bound at the precision of the interval, so `from_string(text, precision=x.precision())` contains `x` and is wider by at most one unit in the last place at each end. A bound with a binary exponent beyond 4096 in magnitude is written in hexadecimal (`0x3p1073741000`) because its decimal expansion needs a power of ten of that size; a hexadecimal bound is exact and is a valid literal. A zero bound is written `0`, without a sign, whatever sign it has: the literal of $[0, 0]$ does not carry the signs that `lower_bound` and `upper_bound` return ($-0$ and $+0$, 12.12.8), and 13.3 does not ask for them."
 msgstr ""
 
-#: manual/api/ball_float.md:2095
+#: manual/api/ball_float.md:2100
+msgid "IEEE 1788-2015 13.4 `intervalToExact` and `exactToInterval`: a text that names the interval itself."
+msgstr ""
+
+#: manual/api/ball_float.md:2110
+msgid "The text is `[empty]`, `[entire]` or `[l, u]` with the bounds written as hexadecimal numbers (`0x1fffffp-3`; `inf` and `-inf` for an infinite bound), and for a decorated interval `_` and the decoration (`[nai]` for NaI). The bounds are the stored bounds, so `from_exact_string(x.to_exact_string(), precision=x.precision())` is `identical` to `x` (no signed zero is written, 13.4). `from_exact_string` reads the text exactly, at whatever bit count its bounds have, and never widens it: `precision` is the precision of the interval, not a limit on the bounds. A bound with more bits than `precision` is kept as it is, with the label of its own bit count (`lower_bound().precision()` is 57 for `0x1.00000000000001p0`, whatever zero digits the text has), as the type keeps such ends (an end of `new` or of `cancel_minus` that is not rounded), so the round trip above holds for every interval of the type, and `[0x1.00000000000001p0, 0x2p0]` at precision 53 is the interval with that exact lower end and precision 53, neither `[1, 2]` nor an error. The call is refused (a parse error naming the reason) only for what cannot be an interval of the library: a decimal or malformed bound, a bound beyond the exponent range of the library (or finer than the grid of the larger of its own bit count and `precision` below the range floor), a lower bound above the upper bound. Which bounds are representable at all is decided by the converter of IEEE 754-2019 5.12.3 (`BinFloat::from_hex_ctx` reports `inexact`), not by counting digits of the text, so a fractional mantissa (`0x1.8p0`, `0x.8p1`), leading and trailing zero digits and upper case are read."
+msgstr ""
+
+#: manual/api/ball_float.md:2141
+msgid "The midpoint-radius view, `center +/- half-width`, with both numbers in the `BinFloat` notation (`3p-1` is $3 \\cdot 2^{-1}$). It was the output of `Show` before 0.12; it is for reading, not a literal (`from_string` does not read it), and its cost does not depend on the exponent range: an interval whose bounds have exponents a billion apart is written in a few characters. An interval with an infinite bound prints as `[l, u]` of binary numbers, Empty as `[empty]`; a decorated interval appends `_` and the decoration."
+msgstr ""
+
+#: manual/api/ball_float.md:2156
 msgid "These are the derived `Eq` and `Debug` methods of the structures."
 msgstr ""
 
-#: manual/api/ball_float.md:2109
+#: manual/api/ball_float.md:2170
 msgid "These are the derived `Eq` and `Debug` methods of the enums."
 msgstr ""
 
-#: manual/api/ball_float.md:2120
+#: manual/api/ball_float.md:2181
 msgid "The `Eq` implementations of `BallFloat` and `BallFloatDecorated` are the `equal` relation of IEEE 1788-2015 (12.12.9), not equality of representation: `==` compares sets, ignoring precision tags, and on decorated intervals it is false whenever one operand is NaI, so NaI is not equal to itself (as NaN is not), and decorations are ignored. `identical` is the equality of the datum. `to_repr` gives the structural `Debug` form. The `Eq` of `Decoration` and `OverlapState` is the equality of the variants."
 msgstr ""
 
-#: manual/api/ball_float.md:2130
+#: manual/api/ball_float.md:2191
 msgid "`BallFloat` implements the enclosure relation traits of `Luna-Flow/arithmetic`."
 msgstr ""
 
-#: manual/api/ball_float.md:2140
+#: manual/api/ball_float.md:2201
 msgid ""
 "`Contains::contains(x, y)` is `y.subset(x)` (set inclusion, not the point-taking method). `Overlaps::overlaps(x, y)` is $\\underline{x} \\le \\overline{y} \\wedge \\underline{y} \\le \\overline{x}$, that is $\\boldsymbol{x} \\cap \\boldsymbol{y} \\n"
 "e \\emptyset$, and `MaybeEq::maybe_eq` is the same relation read as \"the two unknown points may be equal\". `DefinitelyLt::definitely_lt(x, y)` is $\\overline{x} < \\underline{y}$ and `DefinitelyLe::definitely_le(x, y)` is $\\overline{x} \\le \\underline{y}$: they hold when the order holds for every pair of points. All four are false when an operand is Empty. This differs from `disjoint`, `precedes` and `strict_precedes`, which are true for an Empty operand (IEEE 1788-2015 Table 10.4): `overlaps` is false where `disjoint` is true, and `definitely_lt` is false where `strict_precedes` is true, so a `true` answer of the traits is always backed by at least one pair of points. These are the generic interface of `Luna-Flow/arithmetic`; the interval package spells the standard relations `disjoint`, `precedes` and `strict_precedes`."
 msgstr ""
 
-#: manual/api/ball_float.md:2158
+#: manual/api/ball_float.md:2219
 msgid "`BallFloat` implements `DivChecked`, `PowNatChecked` and `PowIntChecked`; their methods are promoted."
 msgstr ""
 
-#: manual/api/ball_float.md:2170
+#: manual/api/ball_float.md:2231
 msgid "Only `ctx.precision` is used: the operands are re-rounded to it with `with_precision`, the operation is applied, and the result is re-rounded outward (see [`BallFloat::with_precision`](#ballfloatwith_precision)). At the operands' own precision the result is that of the plain operation; at a lower precision it can be wider. They always return `Ok`. `div_checked` follows the division rules above (a divisor containing 0 gives an unbounded result, not an error). `pow_int_checked` uses `pown`. `pow_nat_checked` uses binary powering by repeated interval multiplication, which treats the factors as independent: for an argument containing 0 its result is wider than `pown`. An Empty base gives Empty for every exponent, including 0, as `pown` does."
 msgstr ""
 
-#: manual/api/ball_float.md:2194
+#: manual/api/ball_float.md:2255
 #: manual/api/ball_float_checked.md:528
 #: manual/api/bench.md:216
 #: manual/api/bench/ball_float.md:43
@@ -1355,7 +1367,7 @@ msgstr ""
 msgid "Complete public interface"
 msgstr ""
 
-#: manual/api/ball_float.md:2196
+#: manual/api/ball_float.md:2257
 #: manual/api/decimal.md:2276
 #: manual/api/decimal_gda.md:1654
 #: manual/api/frontend/gda_expr.md:517
@@ -1384,7 +1396,7 @@ msgid "Add the wrapper and the endpoint package to your `moon.pkg`:"
 msgstr ""
 
 #: manual/api/ball_float_checked.md:28
-msgid "The examples refer to the packages as `@ball_float_checked.`, `@ball_float.`, `@bin_float.`, `@def.` (for the `Sign` of an infinity) and `@lf_arith.` (for `Luna-Flow/arithmetic`). They print a result with this helper (`to_string` of a bounded ball is `center +/- radius` in exact binary notation, `mpe` meaning $m \\cdot 2^{e}$):"
+msgid "The examples refer to the packages as `@ball_float_checked.`, `@ball_float.`, `@bin_float.`, `@def.` (for the `Sign` of an infinity) and `@lf_arith.` (for `Luna-Flow/arithmetic`). They print a result with this helper (`to_ball_string` of a bounded ball is `center +/- radius` in exact binary notation, `mpe` meaning $m \\cdot 2^{e}$):"
 msgstr ""
 
 #: manual/api/ball_float_checked.md:44
@@ -5016,6 +5028,7 @@ msgstr ""
 #: manual/api/decimal_gda.md:490
 #: manual/conformance/ball_float.md:14
 #: manual/conformance/ball_float.md:23
+#: manual/conformance/ball_float.md:41
 #: manual/conformance/bin_float.md:94
 #: manual/conformance/bin_float.md:96
 #: manual/conformance/bin_float.md:97
@@ -6226,7 +6239,7 @@ msgstr ""
 
 #: manual/api/decimal_gda_checked.md:193
 #: manual/api/frontend/itl_expr.md:115
-#: manual/conformance/ball_float.md:42
+#: manual/conformance/ball_float.md:61
 msgid "Operations"
 msgstr ""
 
@@ -8578,7 +8591,7 @@ msgstr ""
 
 #: manual/architecture.md:22
 #: manual/conformance/ball_float.md:11
-#: manual/conformance/ball_float.md:42
+#: manual/conformance/ball_float.md:61
 #: manual/conformance/bin_float.md:71
 #: manual/conformance/decimal.md:43
 #: manual/conformance/decimal_gda.md:15
@@ -8927,7 +8940,7 @@ msgstr ""
 #: manual/conformance/bin_float.md:71
 #: manual/conformance/decimal.md:43
 #: manual/design/bin_float_checked.md:176
-#: manual/verification.md:721
+#: manual/verification.md:723
 msgid "Clause"
 msgstr ""
 
@@ -8976,6 +8989,8 @@ msgstr ""
 #: manual/conformance/ball_float.md:26
 #: manual/conformance/ball_float.md:27
 #: manual/conformance/ball_float.md:28
+#: manual/conformance/ball_float.md:29
+#: manual/conformance/ball_float.md:30
 #: manual/conformance/bin_float.md:73
 #: manual/conformance/bin_float.md:75
 #: manual/conformance/bin_float.md:76
@@ -9083,6 +9098,7 @@ msgstr ""
 #: manual/conformance/ball_float.md:19
 #: manual/conformance/ball_float.md:21
 #: manual/conformance/ball_float.md:22
+#: manual/conformance/ball_float.md:28
 #: manual/conformance/bin_float.md:73
 #: manual/conformance/bin_float.md:74
 #: manual/conformance/bin_float.md:76
@@ -9251,226 +9267,310 @@ msgid "conforming for input; the output (13.3) and the exact text (13.4) are not
 msgstr ""
 
 #: manual/conformance/ball_float.md:27
+msgid "§13.3 interval text output (`intervalToText`)"
+msgstr ""
+
+#: manual/conformance/ball_float.md:27
+msgid "`Show` (`to_string`, `output`) for `BallFloat` and `BallFloatDecorated`; `to_ball_string` is the midpoint-radius view"
+msgstr ""
+
+#: manual/conformance/ball_float.md:27
+msgid "`library/src/ball_float/interval_text_oracle_wbtest.mbt`: 2,570 intervals (precisions 2 to 1,024, both ends of the exponent range, zero bounds of either sign) whose expected `Show` text and exact text are written by the independent oracle `tools/interval_text_oracle.py` (exact fractions, containment checked there); `interval_text_wbtest.mbt`: written-out texts and 1,500 random intervals read back by `from_string` (consistency only)"
+msgstr ""
+
+#: manual/conformance/ball_float.md:27
+msgid "conforming for the inf-sup representation; see [Text output](#text-output-and-the-cs-table) for the representations (`cs`)"
+msgstr ""
+
+#: manual/conformance/ball_float.md:28
+msgid "§13.4 exact text (`intervalToExact`, `exactToInterval`)"
+msgstr ""
+
+#: manual/conformance/ball_float.md:28
+msgid "`to_exact_string`, `from_exact_string` for `BallFloat` and `BallFloatDecorated`; the text is read exactly at the bit count of its bounds and never widened (an interval with an end wider than its precision, such as an end of `new` or `cancel_minus`, comes back identical)"
+msgstr ""
+
+#: manual/conformance/ball_float.md:28
+msgid "`interval_text_oracle_wbtest.mbt`: the exact text of the 2,570 rows, 400 intervals with ends of 1 to 8 bits more than the precision, and 1,620 exact texts (fractional mantissas, leading and trailing zeros, upper case, `0x.8p1`, bounds wider than the precision, both ends of the exponent range and one step beyond, reversed and decimal bounds) read by `from_exact_string` with the verdict and the result written by the oracle (1,406 accepted, 214 refused); `interval_text_wbtest.mbt`: written-out cases"
+msgstr ""
+
+#: manual/conformance/ball_float.md:29
 msgid "§12.10 accuracy of operations"
 msgstr ""
 
-#: manual/conformance/ball_float.md:27
+#: manual/conformance/ball_float.md:29
 msgid "every interval operation"
 msgstr ""
 
-#: manual/conformance/ball_float.md:27
+#: manual/conformance/ball_float.md:29
 msgid "[Accuracy of operations](#accuracy-of-operations): tightness and range per operation; the ITF1788 strict gate compares both endpoints with the corpus's tightest binary64 result"
 msgstr ""
 
-#: manual/conformance/ball_float.md:27
+#: manual/conformance/ball_float.md:29
 msgid "conforming for the provided operations"
 msgstr ""
 
-#: manual/conformance/ball_float.md:28
+#: manual/conformance/ball_float.md:30
 msgid "§12.6 754-conformance of the interval types"
 msgstr ""
 
-#: manual/conformance/ball_float.md:28
+#: manual/conformance/ball_float.md:30
 msgid "endpoints are `BinFloat`"
 msgstr ""
 
-#: manual/conformance/ball_float.md:28
+#: manual/conformance/ball_float.md:30
 msgid "see the `bin_float` clause table"
 msgstr ""
 
-#: manual/conformance/ball_float.md:28
+#: manual/conformance/ball_float.md:30
 msgid "not implemented (not claimed in 0.12; additive, see [issue 232](https://github.com/Luna-Flow/floating/issues/232): the format of an interval will be an optional `e_max?` with the implementation range as default, and it is not part of `==` or `compare` (only `identical` may look at it))"
 msgstr ""
 
-#: manual/conformance/ball_float.md:30
+#: manual/conformance/ball_float.md:32
+msgid "Text output and the cs table"
+msgstr ""
+
+#: manual/conformance/ball_float.md:34
+msgid "Clause 13.3 gives `intervalToText` a representation parameter `cs`. What `ball_float` offers for each:"
+msgstr ""
+
+#: manual/conformance/ball_float.md:37
+msgid "representation"
+msgstr ""
+
+#: manual/conformance/ball_float.md:37
+msgid "function"
+msgstr ""
+
+#: manual/conformance/ball_float.md:37
+msgid "status"
+msgstr ""
+
+#: manual/conformance/ball_float.md:39
+msgid "inf-sup `[l, u]`, bounds as decimal numbers rounded outward"
+msgstr ""
+
+#: manual/conformance/ball_float.md:39
+msgid "implemented; `[empty]` and `[entire]` for the special values, a decoration after `_`"
+msgstr ""
+
+#: manual/conformance/ball_float.md:40
+msgid "exact text, bounds as hexadecimal numbers (13.4)"
+msgstr ""
+
+#: manual/conformance/ball_float.md:40
+msgid "implemented; `from_exact_string` recovers the datum"
+msgstr ""
+
+#: manual/conformance/ball_float.md:41
+msgid "uncertain form `m?r` (midpoint and radius in units of the last digit)"
+msgstr ""
+
+#: manual/conformance/ball_float.md:41
+msgid "not planned: the inf-sup form carries the same interval and `from_string` reads both"
+msgstr ""
+
+#: manual/conformance/ball_float.md:42
+msgid "midpoint-radius view `m +/- r`"
+msgstr ""
+
+#: manual/conformance/ball_float.md:42
+msgid "not a literal of the standard: the binary midpoint and half-width, for reading"
+msgstr ""
+
+#: manual/conformance/ball_float.md:44
+msgid "A bound whose binary exponent is beyond 4096 in magnitude is written in hexadecimal by `to_string`: a decimal expansion would need a power of ten of that size. The hexadecimal bound is exact and is a valid literal, so the text still contains the value."
+msgstr ""
+
+#: manual/conformance/ball_float.md:49
 msgid "Accuracy of operations"
 msgstr ""
 
-#: manual/conformance/ball_float.md:32
+#: manual/conformance/ball_float.md:51
 msgid "This is the tightness documentation that §12.10.3 requires, for the inf-sup type with `p`-bit `BinFloat` endpoints and the binary64 exponent range (`BallContext::new(precision=p, e_max=1023)`; `p = 53` is the binary64 inf-sup type of the ITF1788 corpus). *Tightest* means the result is the hull of the exact range in that type (§12.10.1, (27)); *valid* means it contains the exact range ((26)). No operation claims the intermediate *accurate* mode. Every operation returns Empty for an Empty input. The ITF1788 phases cited below compare both endpoints for equality with the corpus's tightest binary64 result, so a passing phase is tightness evidence for every case it runs, not only containment."
 msgstr ""
 
-#: manual/conformance/ball_float.md:42
+#: manual/conformance/ball_float.md:61
 msgid "Tightness"
 msgstr ""
 
-#: manual/conformance/ball_float.md:42
+#: manual/conformance/ball_float.md:61
 msgid "Range"
 msgstr ""
 
-#: manual/conformance/ball_float.md:44
-#: manual/conformance/ball_float.md:45
-#: manual/conformance/ball_float.md:46
-#: manual/conformance/ball_float.md:47
+#: manual/conformance/ball_float.md:63
+#: manual/conformance/ball_float.md:64
+#: manual/conformance/ball_float.md:65
+#: manual/conformance/ball_float.md:66
 msgid "tightest"
 msgstr ""
 
-#: manual/conformance/ball_float.md:44
-#: manual/conformance/ball_float.md:45
-#: manual/conformance/ball_float.md:47
-#: manual/conformance/ball_float.md:48
+#: manual/conformance/ball_float.md:63
+#: manual/conformance/ball_float.md:64
+#: manual/conformance/ball_float.md:66
+#: manual/conformance/ball_float.md:67
 msgid "all inputs"
 msgstr ""
 
-#: manual/conformance/ball_float.md:44
+#: manual/conformance/ball_float.md:63
 msgid "outward rounding of the exact hull ([design](../design/ball_float.md#correctness-and-invariants)); ITF1788 add/sub/mul/div (539), elementary core (107), FMA (567)"
 msgstr ""
 
-#: manual/conformance/ball_float.md:45
+#: manual/conformance/ball_float.md:64
 msgid "design; ITF1788 elementary core and extrema"
 msgstr ""
 
-#: manual/conformance/ball_float.md:46
+#: manual/conformance/ball_float.md:65
 msgid "all inputs except a degree below −4096 with 0 inside the input, which gives Entire (valid)"
 msgstr ""
 
-#: manual/conformance/ball_float.md:46
+#: manual/conformance/ball_float.md:65
 msgid "design; ITF1788 integer power (174)"
 msgstr ""
 
-#: manual/conformance/ball_float.md:47
+#: manual/conformance/ball_float.md:66
 msgid "ITF1788 sets"
 msgstr ""
 
-#: manual/conformance/ball_float.md:48
+#: manual/conformance/ball_float.md:67
 msgid "as §12.12.5 requires"
 msgstr ""
 
-#: manual/conformance/ball_float.md:48
+#: manual/conformance/ball_float.md:67
 msgid "ITF1788 cancellation (242)"
 msgstr ""
 
-#: manual/conformance/ball_float.md:49
-#: manual/conformance/ball_float.md:50
-#: manual/conformance/ball_float.md:51
+#: manual/conformance/ball_float.md:68
+#: manual/conformance/ball_float.md:69
+#: manual/conformance/ball_float.md:70
 msgid "tightest when the endpoint evaluation is certified; valid otherwise"
 msgstr ""
 
-#: manual/conformance/ball_float.md:49
+#: manual/conformance/ball_float.md:68
 msgid "certified unless an endpoint magnitude reaches 2^(max(65536, 4p)+1) (trigonometric reduction) or the refinement budget of 12 work precisions runs out; then `sin`/`cos` give [−1, 1], `tan` Entire, `atan` [−π/2, π/2], `atan2` [−π, π], `pow` [0, +∞), and the `try_*` forms report the failure"
 msgstr ""
 
-#: manual/conformance/ball_float.md:49
+#: manual/conformance/ball_float.md:68
 msgid "design; ITF1788 trigonometric (176), `atan2` (375), general power (1,428), inverse trigonometric (61)"
 msgstr ""
 
-#: manual/conformance/ball_float.md:50
+#: manual/conformance/ball_float.md:69
 msgid "certified unless the work budget of the `bin_float` kernel runs out; then `exp`, `exp2`, `exp10` give [0, +∞), the logarithms Entire, `asin` [−π/2, π/2], `acos` [0, π], and the `try_*` forms report the failure"
 msgstr ""
 
-#: manual/conformance/ball_float.md:50
+#: manual/conformance/ball_float.md:69
 msgid "design; ITF1788 exponential/logarithmic (131), inverse trigonometric (61)"
 msgstr ""
 
-#: manual/conformance/ball_float.md:51
+#: manual/conformance/ball_float.md:70
 msgid "certified unless the work budget of the `bin_float` kernel runs out; then `sinh`, `asinh`, `atanh` give Entire, `tanh` [−1, 1], `cosh` [1, +∞), `acosh` [0, +∞), and the `try_*` forms report the failure"
 msgstr ""
 
-#: manual/conformance/ball_float.md:51
+#: manual/conformance/ball_float.md:70
 msgid "design; ITF1788 hyperbolic (107)"
 msgstr ""
 
-#: manual/conformance/ball_float.md:52
-#: manual/conformance/ball_float.md:53
+#: manual/conformance/ball_float.md:71
+#: manual/conformance/ball_float.md:72
 msgid "tightest when certified; valid otherwise"
 msgstr ""
 
-#: manual/conformance/ball_float.md:52
+#: manual/conformance/ball_float.md:71
 msgid "as for the certified functions above; `expm1` falls back to [−1, +∞), `log1p` to Entire"
 msgstr ""
 
-#: manual/conformance/ball_float.md:52
+#: manual/conformance/ball_float.md:71
 msgid "design; package tests only, no ITF1788 cases"
 msgstr ""
 
-#: manual/conformance/ball_float.md:53
+#: manual/conformance/ball_float.md:72
 msgid "as for the certified functions above; the fallback is [0, +∞) for an even degree and Entire for an odd one"
 msgstr ""
 
-#: manual/conformance/ball_float.md:53
+#: manual/conformance/ball_float.md:72
 msgid "design; package tests only"
 msgstr ""
 
-#: manual/conformance/ball_float.md:55
+#: manual/conformance/ball_float.md:74
 msgid "Corpus values wider than the exact result"
 msgstr ""
 
-#: manual/conformance/ball_float.md:57
+#: manual/conformance/ball_float.md:76
 msgid "IEEE 1788-2015 12.12.4 asks the reverse-mode operations for an enclosure of the Level 1 value, not for the tightest one (the tightest-or-accurate requirement of 12.10 is stated for the forward operations). Six statements of `libieeep1788_tests_rev.itl`, and their six decorated copies in the `_dec_` test cases, expect a value that is valid but one or two units wider than the exact hull in binary64. `ball_float` returns the exact hull, so the gate does not hold those cases to the corpus value: `testdata/interval/interpreter_refinements.json` records, for each, the corpus value and the exact value, and the gate requires the result to equal the exact value, which must lie inside the corpus value. The gate summary reports these cases on a line of their own. Every other case keeps exact equality with the corpus. The exact values are computed by `tools/itl_trig_reverse_oracle.py`, which evaluates `asin`, `acos`, `atan` and $\\pi$ with Python's `decimal` and shares no code with `ball_float`; it also confirms that the other 124 trigonometric reverse statements equal the exact hull."
 msgstr ""
 
-#: manual/conformance/ball_float.md:70
+#: manual/conformance/ball_float.md:89
 msgid "Statement"
 msgstr ""
 
-#: manual/conformance/ball_float.md:70
+#: manual/conformance/ball_float.md:89
 msgid "Corpus value"
 msgstr ""
 
-#: manual/conformance/ball_float.md:70
+#: manual/conformance/ball_float.md:89
 msgid "Exact hull"
 msgstr ""
 
-#: manual/conformance/ball_float.md:70
+#: manual/conformance/ball_float.md:89
 msgid "Corpus excess"
 msgstr ""
 
-#: manual/conformance/ball_float.md:72
-#: manual/conformance/ball_float.md:73
-#: manual/conformance/ball_float.md:74
+#: manual/conformance/ball_float.md:91
+#: manual/conformance/ball_float.md:92
+#: manual/conformance/ball_float.md:93
 msgid "upper end, 1 unit"
 msgstr ""
 
-#: manual/conformance/ball_float.md:73
+#: manual/conformance/ball_float.md:92
 msgid "`cosRevBin [-1, -1] [3.14, 3.15]` (the point $\\pi$)"
 msgstr ""
 
-#: manual/conformance/ball_float.md:75
-#: manual/conformance/ball_float.md:77
+#: manual/conformance/ball_float.md:94
+#: manual/conformance/ball_float.md:96
 msgid "lower end, 1 unit"
 msgstr ""
 
-#: manual/conformance/ball_float.md:76
+#: manual/conformance/ball_float.md:95
 msgid "lower end, 2 units"
 msgstr ""
 
-#: manual/conformance/ball_float.md:79
+#: manual/conformance/ball_float.md:98
 msgid "Whether to report the six values to the corpus's authors is left to the maintainer."
 msgstr ""
 
-#: manual/conformance/ball_float.md:81
+#: manual/conformance/ball_float.md:100
 msgid "Semantic oracle"
 msgstr ""
 
-#: manual/conformance/ball_float.md:83
+#: manual/conformance/ball_float.md:102
 msgid "Expected results are compared by set meaning: endpoint containment, set relations, boolean relations, overlap states, numeric observations, and decorations use operation-specific comparators. A conservative interval may be valid when the contract permits widening; an enclosure that excludes an exact result is never valid."
 msgstr ""
 
-#: manual/conformance/ball_float.md:85
+#: manual/conformance/ball_float.md:104
 msgid "Supported phases"
 msgstr ""
 
-#: manual/conformance/ball_float.md:87
+#: manual/conformance/ball_float.md:106
 msgid "The strict matrix covers sets, relations, observations, cancellation, add/subtract/multiply/divide, elementary core, exponential/logarithmic functions, general power, trigonometric functions, `atan2`, hyperbolic functions, inverse trigonometric functions, FMA, integer power, extrema, the integer functions, reverse multiplication (`mulRev`, `mulRevTen`, `mulRevToPair`), the algebraic reverse functions (`sqrRev`, `absRev`, `pownRev`, `coshRev`), the trigonometric reverse functions (`sinRev`, `cosRev`, `tanRev`), `powRev1` and `powRev2` (the generated `atan2Rev1` and `atan2Rev2` cases are a phase of their own and are not part of the ITF1788 count). Phase operation sets are disjoint so a row is never counted twice."
 msgstr ""
 
-#: manual/conformance/ball_float.md:89
+#: manual/conformance/ball_float.md:108
 msgid "Decorations and fallbacks"
 msgstr ""
 
-#: manual/conformance/ball_float.md:91
+#: manual/conformance/ball_float.md:110
 msgid "Empty, Entire, and decorated NaI are separate states. Elementary kernels use directed dyadic certificates. When range reduction cannot be certified, `sin`/`cos` return `[-1,1]` and `tan` returns Entire; that preserves inclusion but does not promise tightness. A passing gate does not cover inputs outside the corpus: the remaining defects listed under [Known limitations](../design/ball_float.md#known-limitations) (the decoration of `rootn` with a negative degree) are not exercised by the selected cases."
 msgstr ""
 
-#: manual/conformance/ball_float.md:93
+#: manual/conformance/ball_float.md:112
 msgid "Exclusions"
 msgstr ""
 
-#: manual/conformance/ball_float.md:95
+#: manual/conformance/ball_float.md:114
 msgid "Reverse interval operations other than `mulRev`, `mulRevToPair`, `sqrRev`, `absRev`, `pownRev`, `coshRev`, `sinRev`, `cosRev`, `tanRev`, `powRev1`, `powRev2`, `atan2Rev1` and `atan2Rev2`, every decoration rule outside the selected phases, arbitrary endpoint formats, and unpinned upstream revisions remain outside the claim."
 msgstr ""
 
-#: manual/conformance/ball_float.md:97
+#: manual/conformance/ball_float.md:116
 #: manual/conformance/decimal.md:93
 #: manual/conformance/decimal_gda.md:121
 #: manual/performance/ball_float.md:26
@@ -9479,7 +9579,7 @@ msgstr ""
 msgid "Reproduction"
 msgstr ""
 
-#: manual/conformance/ball_float.md:105
+#: manual/conformance/ball_float.md:124
 msgid "See [the interval data guide](../../../testdata/interval/README.md) for provenance, phase counts, strict-mode behavior, and failure triage."
 msgstr ""
 
@@ -10985,7 +11085,7 @@ msgstr ""
 #: manual/design/ball_float.md:261
 msgid ""
 "The endpoints $\\tilde c \\pm R$ are then formed exactly (they may have more than $p$ bits). The construction is sound but not idempotent: whenever $\\tilde c \\n"
-"e c$, the displacement $|c - \\tilde c|$ is added on both sides, so rebuilding an interval whose center needs more than $p$ bits widens it (see [Tightness](#correctness-and-invariants)). `normalized` accepts that; `with_precision` does not use the construction at all. It rounds the endpoints outward directly, which encloses the input at every precision and is the tightest representable enclosure, so it has no rounding-mode argument. The converse view inside the package is exact: the center is $(\\underline{x} + \\overline{x})/2$ and the half-width $(\\overline{x} - \\underline{x})/2$, which are dyadic and need no rounding (the half-width is rounded up only if it underflows the exponent range), so $[\\text{center} - \\text{half-width}, \\text{center} + \\text{half-width}]$ is exactly the stored interval. `Show` prints this pair. The public observers are not this pair: IEEE 1788-2015 12.12.8 defines `mid` as the center rounded to the format and `rad` as the smallest number of the format with the interval inside $[m - r, m + r]$ for that rounded $m$. The half-width around the exact center is too small when the center is not representable (it was returned as `radius` before 0.12, [issue 477](https://github.com/Luna-Flow/floating/issues/477)), so `radius` measures from `midpoint`: it is the larger of $m - \\underline{x}$ and $\\overline{x} - m$, rounded up."
+"e c$, the displacement $|c - \\tilde c|$ is added on both sides, so rebuilding an interval whose center needs more than $p$ bits widens it (see [Tightness](#correctness-and-invariants)). `normalized` accepts that; `with_precision` does not use the construction at all. It rounds the endpoints outward directly, which encloses the input at every precision and is the tightest representable enclosure, so it has no rounding-mode argument. The converse view inside the package is exact: the center is $(\\underline{x} + \\overline{x})/2$ and the half-width $(\\overline{x} - \\underline{x})/2$, which are dyadic and need no rounding (the half-width is rounded up only if it underflows the exponent range), so $[\\text{center} - \\text{half-width}, \\text{center} + \\text{half-width}]$ is exactly the stored interval. `to_ball_string` prints this pair (`Show` is the inf-sup literal of 13.3). The public observers are not this pair: IEEE 1788-2015 12.12.8 defines `mid` as the center rounded to the format and `rad` as the smallest number of the format with the interval inside $[m - r, m + r]$ for that rounded $m$. The half-width around the exact center is too small when the center is not representable (it was returned as `radius` before 0.12, [issue 477](https://github.com/Luna-Flow/floating/issues/477)), so `radius` measures from `midpoint`: it is the larger of $m - \\underline{x}$ and $\\overline{x} - m$, rounded up."
 msgstr ""
 
 #: manual/design/ball_float.md:283
@@ -22892,7 +22992,7 @@ msgid "`BallContext` describes a binary format (precision and exponent range). `
 msgstr ""
 
 #: manual/tutorial/ball_float.md:287
-#: manual/tutorial/ball_float_checked.md:168
+#: manual/tutorial/ball_float_checked.md:169
 #: manual/tutorial/bench.md:173
 #: manual/tutorial/bench/ball_float.md:48
 #: manual/tutorial/bench/bin_float.md:50
@@ -22966,7 +23066,7 @@ msgid "Each interval carries a working `precision` in bits; results of binary op
 msgstr ""
 
 #: manual/tutorial/ball_float.md:379
-#: manual/tutorial/ball_float_checked.md:233
+#: manual/tutorial/ball_float_checked.md:234
 #: manual/tutorial/bench.md:185
 #: manual/tutorial/bench/ball_float.md:56
 #: manual/tutorial/bench/bin_float.md:58
@@ -23036,7 +23136,7 @@ msgid "**Inputs from `Double`.** `from_double(x)` encloses the binary value of `
 msgstr ""
 
 #: manual/tutorial/ball_float.md:435
-#: manual/tutorial/ball_float_checked.md:249
+#: manual/tutorial/ball_float_checked.md:250
 #: manual/tutorial/bench.md:201
 #: manual/tutorial/bench/ball_float.md:62
 #: manual/tutorial/bench/bin_float.md:64
@@ -23158,106 +23258,106 @@ msgid "The upper bound printed in lowest terms is $6243314768165360 \\cdot 2^{-5
 msgstr ""
 
 #: manual/tutorial/ball_float_checked.md:62
-msgid "The remaining examples print results with this helper; a bounded interval prints as `centre +/- radius` in exact binary notation:"
+msgid "The remaining examples print results with this helper; a bounded interval prints as `centre +/- radius` in exact binary notation (`to_ball_string`; `to_string` is the portable literal `[l, u]`):"
 msgstr ""
 
-#: manual/tutorial/ball_float_checked.md:75
+#: manual/tutorial/ball_float_checked.md:76
 msgid "Validate measurements at the boundary"
 msgstr ""
 
-#: manual/tutorial/ball_float_checked.md:77
+#: manual/tutorial/ball_float_checked.md:78
 msgid "Input data enters through `from_bounds`, `from_double` or `exact`. Reversed bounds and non-finite sources become errors before any computation runs:"
 msgstr ""
 
-#: manual/tutorial/ball_float_checked.md:100
+#: manual/tutorial/ball_float_checked.md:101
 msgid "Propagate uncertainty through a formula"
 msgstr ""
 
-#: manual/tutorial/ball_float_checked.md:102
+#: manual/tutorial/ball_float_checked.md:103
 msgid "Operators work on wrappers. The result encloses every value the formula can take for inputs in the intervals:"
 msgstr ""
 
-#: manual/tutorial/ball_float_checked.md:121
+#: manual/tutorial/ball_float_checked.md:122
 msgid "The area lies in $[2, 7.5]$, the product of the two ranges."
 msgstr ""
 
-#: manual/tutorial/ball_float_checked.md:123
+#: manual/tutorial/ball_float_checked.md:124
 msgid "Know that \"no information\" is not an error"
 msgstr ""
 
-#: manual/tutorial/ball_float_checked.md:125
+#: manual/tutorial/ball_float_checked.md:126
 msgid "Interval operations follow set semantics: points outside a function's domain are dropped, and an operation that can say nothing returns the whole line. These are successes, because they are correct enclosures:"
 msgstr ""
 
-#: manual/tutorial/ball_float_checked.md:140
+#: manual/tutorial/ball_float_checked.md:141
 msgid "When an empty or unbounded result means failure in *your* application, say so with `bind`."
 msgstr ""
 
-#: manual/tutorial/ball_float_checked.md:143
+#: manual/tutorial/ball_float_checked.md:144
 msgid "Turn an application rule into an error"
 msgstr ""
 
-#: manual/tutorial/ball_float_checked.md:170
+#: manual/tutorial/ball_float_checked.md:171
 msgid "Certification failures"
 msgstr ""
 
-#: manual/tutorial/ball_float_checked.md:172
+#: manual/tutorial/ball_float_checked.md:173
 msgid "Elementary functions are evaluated with certified error bounds. When the library cannot certify an enclosure within its budget it reports a `CertificationFailure` with a detail record instead of returning a wrong or needlessly wide interval:"
 msgstr ""
 
-#: manual/tutorial/ball_float_checked.md:193
+#: manual/tutorial/ball_float_checked.md:194
 msgid "Powers through the arithmetic traits"
 msgstr ""
 
-#: manual/tutorial/ball_float_checked.md:195
+#: manual/tutorial/ball_float_checked.md:196
 msgid "`pown` goes through the `PowIntChecked` trait of Luna-Flow/arithmetic. It computes the power of one point of the interval (`BallFloat::pown`); for an interval containing zero this is tighter than repeated multiplication, which treats the two factors as independent:"
 msgstr ""
 
-#: manual/tutorial/ball_float_checked.md:214
+#: manual/tutorial/ball_float_checked.md:215
 msgid "Generic code with the enclosure relations"
 msgstr ""
 
-#: manual/tutorial/ball_float_checked.md:216
+#: manual/tutorial/ball_float_checked.md:217
 msgid "`BallFloat` implements the enclosure relations of Luna-Flow/arithmetic (`Contains`, `DefinitelyLt`, …). Extract the interval at the end of a pipeline and test it:"
 msgstr ""
 
-#: manual/tutorial/ball_float_checked.md:235
+#: manual/tutorial/ball_float_checked.md:236
 msgid "**Default precision.** `from_int` and `from_coefficient` default to 53 bits. A coefficient that needs more bits is still enclosed, but by a two-point interval rather than a point; pass a larger precision for such values."
 msgstr ""
 
-#: manual/tutorial/ball_float_checked.md:238
+#: manual/tutorial/ball_float_checked.md:239
 msgid "**A product is not a power.** Use `pown` for even powers of an interval that contains 0; `x * x` treats the two factors as independent."
 msgstr ""
 
-#: manual/tutorial/ball_float_checked.md:240
+#: manual/tutorial/ball_float_checked.md:241
 msgid "**Empty and whole are successes.** Test `is_empty` / `is_entire` on the final interval, or add a `bind` check."
 msgstr ""
 
-#: manual/tutorial/ball_float_checked.md:242
+#: manual/tutorial/ball_float_checked.md:243
 msgid "**No decorations or flags.** The wrapper keeps neither IEEE 1788 decorations nor `BallFlags`; use the decorated and contextual APIs of `ball_float` when you need them."
 msgstr ""
 
-#: manual/tutorial/ball_float_checked.md:245
+#: manual/tutorial/ball_float_checked.md:246
 msgid "**Only the first error survives**, as in every checked wrapper."
 msgstr ""
 
-#: manual/tutorial/ball_float_checked.md:246
+#: manual/tutorial/ball_float_checked.md:247
 msgid "**`[+inf, +inf]` is rejected.** IEEE 1788 intervals are subsets of the real line; use `entire()` or a half-infinite interval instead."
 msgstr ""
 
-#: manual/tutorial/ball_float_checked.md:251
+#: manual/tutorial/ball_float_checked.md:252
 msgid "[`ball_float_checked` design](../design/ball_float_checked.md): errors versus enclosures, and the composition laws."
 msgstr ""
 
-#: manual/tutorial/ball_float_checked.md:253
+#: manual/tutorial/ball_float_checked.md:254
 msgid "[`ball_float_checked` API](../api/ball_float_checked.md): every method."
 msgstr ""
 
-#: manual/tutorial/ball_float_checked.md:254
+#: manual/tutorial/ball_float_checked.md:255
 msgid "[`ball_float` tutorial](ball_float.md): decorations, contexts and the interval operations themselves."
 msgstr ""
 
-#: manual/tutorial/ball_float_checked.md:256
+#: manual/tutorial/ball_float_checked.md:257
 msgid "[`semantic` tutorial](semantic.md): check an enclosure against an exact reference value."
 msgstr ""
 
@@ -28115,7 +28215,7 @@ msgid "One line per row of the clause traceability tables of the conformance pag
 msgstr ""
 
 #: manual/verification.md:596
-#: manual/verification.md:745
+#: manual/verification.md:747
 msgid "Standard"
 msgstr ""
 
@@ -28497,325 +28597,333 @@ msgid "§9.7, §12.11, §12.12.7, §13.2 interval and number literals, text inpu
 msgstr ""
 
 #: manual/verification.md:706
-msgid "§12.10 accuracy of operations [required]"
+msgid "§13.3 interval text output (`intervalToText`) [required]"
 msgstr ""
 
 #: manual/verification.md:707
+msgid "§13.4 exact text (`intervalToExact`, `exactToInterval`) [required]"
+msgstr ""
+
+#: manual/verification.md:708
+msgid "§12.10 accuracy of operations [required]"
+msgstr ""
+
+#: manual/verification.md:709
 msgid "§12.6 754-conformance of the interval types [required] (not implemented)"
 msgstr ""
 
-#: manual/verification.md:710
+#: manual/verification.md:712
 msgid "Implementation-defined choices"
 msgstr ""
 
-#: manual/verification.md:712
+#: manual/verification.md:714
 msgid "IEEE 754-2019 and IEEE 1788-2015 leave these points to the implementation, and IEEE 754 asks for them to be documented. Each entry names the clause that leaves it open and the choice made. The clause tables of the [binary](./conformance/bin_float.md#clause-traceability), [IEEE decimal](./conformance/decimal.md#clause-traceability), [GDA](./conformance/decimal_gda.md#clause-traceability) and [interval](./conformance/ball_float.md#clause-traceability) conformance pages cite them."
 msgstr ""
 
-#: manual/verification.md:721
+#: manual/verification.md:723
 msgid "Choice left open"
 msgstr ""
 
-#: manual/verification.md:721
+#: manual/verification.md:723
 msgid "Choice made"
 msgstr ""
 
-#: manual/verification.md:723
+#: manual/verification.md:725
 msgid "IEEE 754 §7.5"
 msgstr ""
 
-#: manual/verification.md:723
+#: manual/verification.md:725
 msgid "Tininess detection for binary formats"
 msgstr ""
 
-#: manual/verification.md:723
+#: manual/verification.md:725
 msgid "`BinaryContext` defaults to after rounding; before rounding is selectable and the TestFloat gate runs both. For decimal the standard requires before rounding and `DecimalContext` defaults to it; after rounding is an explicit non-standard option."
 msgstr ""
 
-#: manual/verification.md:724
+#: manual/verification.md:726
 msgid "IEEE 754 §6.2"
 msgstr ""
 
-#: manual/verification.md:724
+#: manual/verification.md:726
 msgid "Which NaN payload a NaN result carries"
 msgstr ""
 
-#: manual/verification.md:724
+#: manual/verification.md:726
 msgid "`bin_float`: the payload and sign of the selected NaN operand are kept and a signaling NaN is quieted. `decimal`: the first NaN operand's sign and payload, cut to its low `p` digits (`p - 1` with `clamp`, the width of the interchange payload field)."
 msgstr ""
 
-#: manual/verification.md:725
+#: manual/verification.md:727
 msgid "IEEE 754 §9.7"
 msgstr ""
 
-#: manual/verification.md:725
+#: manual/verification.md:727
 msgid "Admissible payloads of `setPayload`"
 msgstr ""
 
-#: manual/verification.md:725
+#: manual/verification.md:727
 msgid "`decimal`: non-negative integers of at most `precision - 1` digits of the receiver; anything else gives `+0`. `bin_float` has no setPayload."
 msgstr ""
 
-#: manual/verification.md:726
+#: manual/verification.md:728
 msgid "IEEE 754 §3.7"
 msgstr ""
 
-#: manual/verification.md:726
+#: manual/verification.md:728
 msgid "Exponent range and precision of an extendable format"
 msgstr ""
 
-#: manual/verification.md:726
+#: manual/verification.md:728
 msgid "`bin_float`: leading-bit exponents in `[2 - 2^30, 2^30 - 1]` (`e_min = 1 - e_max`), precision at most `2^28` bits. `decimal`: `e_min` and `e_max` within ±999,999,999, precision within `1..999,999,999`."
 msgstr ""
 
-#: manual/verification.md:727
+#: manual/verification.md:729
 msgid "IEEE 754 §4.3"
 msgstr ""
 
-#: manual/verification.md:727
+#: manual/verification.md:729
 msgid "Rounding directions beyond the five required"
 msgstr ""
 
-#: manual/verification.md:727
+#: manual/verification.md:729
 msgid "none in `bin_float` and `decimal` (the GDA modes `HalfDown`, `Up`, `ZeroFiveUp` are in `decimal_gda`)."
 msgstr ""
 
-#: manual/verification.md:728
+#: manual/verification.md:730
 msgid "IEEE 754 §4.1, §9.3"
 msgstr ""
 
-#: manual/verification.md:728
+#: manual/verification.md:730
 msgid "How attributes are specified"
 msgstr ""
 
-#: manual/verification.md:728
+#: manual/verification.md:730
 msgid "Static: a context value passed to each operation; there are no dynamic modes and no global state."
 msgstr ""
 
-#: manual/verification.md:729
+#: manual/verification.md:731
 msgid "IEEE 754 §7"
 msgstr ""
 
-#: manual/verification.md:729
+#: manual/verification.md:731
 msgid "How flags are exposed"
 msgstr ""
 
-#: manual/verification.md:729
+#: manual/verification.md:731
 msgid "Returned per operation (`BinaryFlags`, `DecimalFlags`) and combined by the caller; no sticky ambient flags in the IEEE packages."
 msgstr ""
 
-#: manual/verification.md:730
+#: manual/verification.md:732
 msgid "IEEE 754 §9.2"
 msgstr ""
 
-#: manual/verification.md:730
+#: manual/verification.md:732
 msgid "Accuracy of recommended functions"
 msgstr ""
 
-#: manual/verification.md:730
+#: manual/verification.md:732
 msgid "Correctly rounded in every rounding direction (certified enclosures refined until the rounding is unique). When the refinement budget is exhausted `try_*_ctx` returns `Err` and the plain form returns NaN; decimal contexts with a precision or an exponent bound beyond 999,999 in magnitude return `invalid_context`."
 msgstr ""
 
-#: manual/verification.md:731
+#: manual/verification.md:733
 msgid "IEEE 754 §9.2.2"
 msgstr ""
 
-#: manual/verification.md:731
+#: manual/verification.md:733
 msgid "Preferred exponent when undefined (infinite or NaN `y` in `pow`)"
 msgstr ""
 
-#: manual/verification.md:731
+#: manual/verification.md:733
 msgid "`decimal`: `pow(+1, y)` is the plain `1`."
 msgstr ""
 
-#: manual/verification.md:732
+#: manual/verification.md:734
 msgid "IEEE 754 §5.12"
 msgstr ""
 
-#: manual/verification.md:732
+#: manual/verification.md:734
 msgid "Character sequences accepted and produced (`bin_float`)"
 msgstr ""
 
-#: manual/verification.md:732
+#: manual/verification.md:734
 msgid "Decimal: `[+-]digits[.digits][e[+-]digits]`, `inf`, `infinity`, `nan`, `snan` (case-insensitive); output `d.ddde±x`, shortest form formatted like ECMAScript `Number#toString` with `-0` kept. Hexadecimal: `0x<hex>p<exp>`."
 msgstr ""
 
-#: manual/verification.md:733
+#: manual/verification.md:735
 msgid "IEEE 754 §6.3"
 msgstr ""
 
-#: manual/verification.md:733
+#: manual/verification.md:735
 msgid "Sign of a zero `remainder` result (`decimal`)"
 msgstr ""
 
-#: manual/verification.md:733
+#: manual/verification.md:735
 msgid "The sign of the dividend, kept in extended contexts."
 msgstr ""
 
-#: manual/verification.md:734
+#: manual/verification.md:736
 msgid "IEEE 1788 §7, §4.2"
 msgstr ""
 
-#: manual/verification.md:734
+#: manual/verification.md:736
 msgid "Flavor"
 msgstr ""
 
-#: manual/verification.md:734
+#: manual/verification.md:736
 msgid "Set-based."
 msgstr ""
 
-#: manual/verification.md:735
+#: manual/verification.md:737
 msgid "IEEE 1788 §12.10"
 msgstr ""
 
-#: manual/verification.md:735
+#: manual/verification.md:737
 msgid "Accuracy of the elementary functions"
 msgstr ""
 
-#: manual/verification.md:735
+#: manual/verification.md:737
 msgid "Documented per operation in the [interval accuracy table](./conformance/ball_float.md#accuracy-of-operations): basic arithmetic, `abs`, `minimum`, `maximum` and `pown` are tightest; certified trigonometric, arctangent and power endpoints are tightest; the other elementary functions are valid and were tightest on every ITF1788 case. When range reduction cannot be certified, `sin` and `cos` return `[-1, 1]` and `tan` returns Entire."
 msgstr ""
 
-#: manual/verification.md:736
+#: manual/verification.md:738
 msgid "IEEE 1788 §12.5"
 msgstr ""
 
-#: manual/verification.md:736
+#: manual/verification.md:738
 msgid "Interval types"
 msgstr ""
 
-#: manual/verification.md:736
+#: manual/verification.md:738
 msgid "Inf-sup intervals with `BinFloat` endpoints of any precision (binary32 and binary64 named formats); no mid-rad type."
 msgstr ""
 
-#: manual/verification.md:737
+#: manual/verification.md:739
 msgid "General Decimal Arithmetic"
 msgstr ""
 
-#: manual/verification.md:737
+#: manual/verification.md:739
 msgid "Exponent limit"
 msgstr ""
 
-#: manual/verification.md:737
+#: manual/verification.md:739
 msgid "±999,999,999 and precision up to 999,999,999, the limits of decNumber; the specification itself only requires a limit above `5 × mlength`."
 msgstr ""
 
-#: manual/verification.md:739
+#: manual/verification.md:741
 msgid "Known gaps and deviations"
 msgstr ""
 
-#: manual/verification.md:741
+#: manual/verification.md:743
 msgid "A gap is listed here when the standard asks for something the package does not provide or provides differently. Each item links the issue that tracks it or the page that documents the decision."
 msgstr ""
 
-#: manual/verification.md:745
+#: manual/verification.md:747
 msgid "Gap"
 msgstr ""
 
-#: manual/verification.md:745
+#: manual/verification.md:747
 msgid "Tracking"
 msgstr ""
 
-#: manual/verification.md:747
+#: manual/verification.md:749
 msgid "IEEE 754-2019 §7.5"
 msgstr ""
 
-#: manual/verification.md:747
+#: manual/verification.md:749
 msgid "`decimal` offers after-rounding tininess as a non-standard option (the default is before rounding, as §7.5 requires)"
 msgstr ""
 
-#: manual/verification.md:747
+#: manual/verification.md:749
 msgid "none; closed by issue [#217](https://github.com/Luna-Flow/floating/issues/217)"
 msgstr ""
 
-#: manual/verification.md:748
+#: manual/verification.md:750
 msgid "IEEE 754-2019 §8"
 msgstr ""
 
-#: manual/verification.md:748
+#: manual/verification.md:750
 msgid "No alternate exception handling"
 msgstr ""
 
-#: manual/verification.md:748
+#: manual/verification.md:750
 msgid "by design (flags are values)"
 msgstr ""
 
-#: manual/verification.md:749
+#: manual/verification.md:751
 msgid "IEEE 754-2019 §9.3"
 msgstr ""
 
-#: manual/verification.md:749
+#: manual/verification.md:751
 msgid "No dynamic mode operations in the core packages (contexts are explicit values)"
 msgstr ""
 
-#: manual/verification.md:749
+#: manual/verification.md:751
 msgid "by design; optional wrapper package: [#247](https://github.com/Luna-Flow/floating/issues/247)"
 msgstr ""
 
-#: manual/verification.md:750
+#: manual/verification.md:752
 msgid "IEEE 754-2019 §9.4, §9.6"
 msgstr ""
 
-#: manual/verification.md:750
+#: manual/verification.md:752
 msgid "No reduction operations; `bin_float` has no minimum/maximum family"
 msgstr ""
 
-#: manual/verification.md:751
+#: manual/verification.md:753
 msgid "IEEE 754-2019 §9.5"
 msgstr ""
 
-#: manual/verification.md:751
+#: manual/verification.md:753
 msgid "No augmented arithmetic for `bin_float`"
 msgstr ""
 
-#: manual/verification.md:752
+#: manual/verification.md:754
 msgid "IEEE 754-2019 §5.3.2"
 msgstr ""
 
-#: manual/verification.md:752
+#: manual/verification.md:754
 msgid "decNumber folds a zero `quantize` result above `e_max - p + 1` down; `decimal` does too (every result is a member of the format)"
 msgstr ""
 
-#: manual/verification.md:753
+#: manual/verification.md:755
 msgid "IEEE 754-2019 §3.7"
 msgstr ""
 
-#: manual/verification.md:753
+#: manual/verification.md:755
 msgid "The implementation exponent range is one binade above MPFR's at both ends"
 msgstr ""
 
-#: manual/verification.md:753
+#: manual/verification.md:755
 msgid "documented in `testdata/bin_float/README.md`"
 msgstr ""
 
-#: manual/verification.md:754
+#: manual/verification.md:756
 msgid "IEEE 1788-2015 §10.5.4, §9.7, §12.11"
 msgstr ""
 
-#: manual/verification.md:754
+#: manual/verification.md:756
 msgid "No reverse-mode operations and no interval literals (text input and output)"
 msgstr ""
 
-#: manual/verification.md:754
+#: manual/verification.md:756
 msgid "[#230](https://github.com/Luna-Flow/floating/issues/230) (reverse mode), [#21](https://github.com/Luna-Flow/floating/issues/21) (text)"
 msgstr ""
 
-#: manual/verification.md:755
+#: manual/verification.md:757
 msgid "IEEE 1788-2015 §10.5.5, §10.6.2"
 msgstr ""
 
-#: manual/verification.md:755
+#: manual/verification.md:757
 msgid "No two-output division, no slope functions"
 msgstr ""
 
-#: manual/verification.md:756
+#: manual/verification.md:758
 msgid "Public API"
 msgstr ""
 
-#: manual/verification.md:756
+#: manual/verification.md:758
 msgid "The clause to API mapping may change when the public API is narrowed"
 msgstr ""
 
-#: manual/verification.md:756
+#: manual/verification.md:758
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr ""

@@ -2653,13 +2653,7 @@ pub impl Neg for BallFloat with fn neg(self) {
 
 ///|
 pub impl Show for BallFloat with fn to_string(self) {
-  if self.is_empty() {
-    "[empty]"
-  } else if self.is_common_interval() {
-    self.center().to_string() + " +/- " + self.half_width().to_string()
-  } else {
-    "[" + self.lo_.to_string() + ", " + self.hi_.to_string() + "]"
-  }
+  interval_portable_text(self)
 }
 
 ///|

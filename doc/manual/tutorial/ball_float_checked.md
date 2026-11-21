@@ -60,13 +60,14 @@ are adjacent 53-bit numbers, and $\ln 2$ lies between them.
 ## Everyday tasks
 
 The remaining examples print results with this helper; a bounded interval
-prints as `centre +/- radius` in exact binary notation:
+prints as `centre +/- radius` in exact binary notation (`to_ball_string`; `to_string` is the
+portable literal `[l, u]`):
 
 ```moonbit
 ///|
 fn show(r : @ball_float_checked.BallFloatResult) -> String {
   match r.result() {
-    Ok(v) => v.to_string()
+    Ok(v) => v.to_ball_string()
     Err(e) => "error: " + e.message
   }
 }

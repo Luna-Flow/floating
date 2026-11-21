@@ -28,14 +28,14 @@ import {
 The examples refer to the packages as `@ball_float_checked.`,
 `@ball_float.`, `@bin_float.`, `@def.` (for the `Sign` of an infinity) and
 `@lf_arith.` (for `Luna-Flow/arithmetic`). They print a result with this
-helper (`to_string` of a bounded ball is `center +/- radius` in exact binary
+helper (`to_ball_string` of a bounded ball is `center +/- radius` in exact binary
 notation, `mpe` meaning $m \cdot 2^{e}$):
 
 ```moonbit
 ///|
 fn show(r : @ball_float_checked.BallFloatResult) -> String {
   match r.result() {
-    Ok(v) => v.to_string()
+    Ok(v) => v.to_ball_string()
     Err(e) => "error: " + e.message
   }
 }

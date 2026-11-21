@@ -4685,7 +4685,8 @@ test "ball_float exact containment works" {
   let x = binary_test_make(3N, -1, 16)
   let ball = @ball_float.BallFloat::exact(x)
   assert_true(ball.is_member(x))
-  assert_eq(ball.to_string(), "3p-1 +/- 0")
+  assert_eq(ball.to_string(), "[1.5, 1.5]")
+  assert_eq(ball.to_ball_string(), "3p-1 +/- 0")
 }
 
 ///|

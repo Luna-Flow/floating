@@ -82,6 +82,7 @@ pub fn BallFloat::fma(Self, Self, Self) -> Self
 pub fn BallFloat::from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Self
 pub fn BallFloat::from_coefficient(@bin_float.BinCoeff, precision? : Int32, negative? : Bool) -> Self
 pub fn BallFloat::from_double(Double, precision? : Int32) -> Self
+pub fn BallFloat::from_exact_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloat::from_float(Float, precision? : Int32) -> Self
 pub fn BallFloat::from_int(Int32, precision~ : Int32) -> Self
 pub fn BallFloat::from_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
@@ -145,6 +146,8 @@ pub fn BallFloat::tan(Self) -> Self
 pub fn BallFloat::tan_rev(Self, x? : Self) -> Self
 pub fn BallFloat::tanh(Self) -> Self
 pub fn BallFloat::tanpi(Self) -> Self
+pub fn BallFloat::to_ball_string(Self) -> String
+pub fn BallFloat::to_exact_string(Self) -> String
 pub fn BallFloat::to_repr(Self) -> @debug.Repr
 pub fn BallFloat::to_string(Self) -> String
 pub fn BallFloat::trunc(Self) -> Self
@@ -234,6 +237,7 @@ pub fn BallFloatDecorated::exp2(Self) -> Self
 pub fn BallFloatDecorated::expm1(Self) -> Self
 pub fn BallFloatDecorated::floor(Self) -> Self
 pub fn BallFloatDecorated::fma(Self, Self, Self) -> Self
+pub fn BallFloatDecorated::from_exact_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloatDecorated::from_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BallFloatDecorated::hypot(Self, Self) -> Self
 pub fn BallFloatDecorated::identical(Self, Self) -> Bool
@@ -289,6 +293,8 @@ pub fn BallFloatDecorated::tan(Self) -> Self
 pub fn BallFloatDecorated::tan_rev(Self, x? : Self) -> Self
 pub fn BallFloatDecorated::tanh(Self) -> Self
 pub fn BallFloatDecorated::tanpi(Self) -> Self
+pub fn BallFloatDecorated::to_ball_string(Self) -> String
+pub fn BallFloatDecorated::to_exact_string(Self) -> String
 pub fn BallFloatDecorated::to_string(Self) -> String
 pub fn BallFloatDecorated::trunc(Self) -> Self
 pub impl Add for BallFloatDecorated

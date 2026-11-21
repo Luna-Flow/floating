@@ -808,6 +808,17 @@ pub impl Show for BallFloatDecorated with fn to_string(self) {
 }
 
 ///|
+/// The midpoint-radius view of the interval followed by `_` and the decoration; see
+/// `BallFloat::to_ball_string` (not a literal).
+pub fn BallFloatDecorated::to_ball_string(self : BallFloatDecorated) -> String {
+  if self.is_nai() {
+    "[nai]"
+  } else {
+    self.interval_.to_ball_string() + "_" + self.decoration_.to_string()
+  }
+}
+
+///|
 pub extend Decoration with Show::{to_string}
 
 ///|

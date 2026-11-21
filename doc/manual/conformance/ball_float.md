@@ -24,8 +24,27 @@ IEEE Std 1788-2015 (set-based flavor) for `ball_float`. Status is `conforming` w
 | §10.6.4 extended interval comparisons | recommended | the `DefinitelyLt`, `DefinitelyLe`, `MaybeEq` and `Overlaps` trait implementations | `library/src/ball_float/ieee1788_relations_wbtest.mbt` | partial |
 | §9.6, §11 decoration system | required | `Decoration`, `BallFloatDecorated`, `decoration`, `is_nai` | ITF1788 phases above (every selected case checks the decoration) | conforming for the selected phases; decorated `rootn` with a negative degree can keep a decoration above `trv` (see the [design page](../design/ball_float.md#known-limitations)) |
 | §9.7, §12.11, §12.12.7, §13.2 interval and number literals, text input | required | `BallFloat::from_string`, `BallFloatDecorated::from_string`, `BallFloatResult::from_string` | `library/src/ball_float/interval_literal_wbtest.mbt`: the vectors of Tables 9.4 and 12.1, the rejected strings of 9.7.4 and 12.11.4 with the rule named, and a table of 9,919 literals (every form, up to five precisions, exponent fields of 19 to 40 digits, the largest finite number, the first value above it, `EMAX + 1`, the smallest subnormal and the first underflow, `_ill` and NaI literals) whose expected bounds and rejection reasons are written by the independent oracle `tools/interval_literal_oracle.py` | conforming for input; the output (13.3) and the exact text (13.4) are not implemented yet (issue [#21](https://github.com/Luna-Flow/floating/issues/21)) |
+| §13.3 interval text output (`intervalToText`) | required | `Show` (`to_string`, `output`) for `BallFloat` and `BallFloatDecorated`; `to_ball_string` is the midpoint-radius view | `library/src/ball_float/interval_text_oracle_wbtest.mbt`: 2,570 intervals (precisions 2 to 1,024, both ends of the exponent range, zero bounds of either sign) whose expected `Show` text and exact text are written by the independent oracle `tools/interval_text_oracle.py` (exact fractions, containment checked there); `interval_text_wbtest.mbt`: written-out texts and 1,500 random intervals read back by `from_string` (consistency only) | conforming for the inf-sup representation; see [Text output](#text-output-and-the-cs-table) for the representations (`cs`) |
+| §13.4 exact text (`intervalToExact`, `exactToInterval`) | required | `to_exact_string`, `from_exact_string` for `BallFloat` and `BallFloatDecorated`; the text is read exactly at the bit count of its bounds and never widened (an interval with an end wider than its precision, such as an end of `new` or `cancel_minus`, comes back identical) | `interval_text_oracle_wbtest.mbt`: the exact text of the 2,570 rows, 400 intervals with ends of 1 to 8 bits more than the precision, and 1,620 exact texts (fractional mantissas, leading and trailing zeros, upper case, `0x.8p1`, bounds wider than the precision, both ends of the exponent range and one step beyond, reversed and decimal bounds) read by `from_exact_string` with the verdict and the result written by the oracle (1,406 accepted, 214 refused); `interval_text_wbtest.mbt`: written-out cases | conforming |
 | §12.10 accuracy of operations | required | every interval operation | [Accuracy of operations](#accuracy-of-operations): tightness and range per operation; the ITF1788 strict gate compares both endpoints with the corpus's tightest binary64 result | conforming for the provided operations |
 | §12.6 754-conformance of the interval types | required | endpoints are `BinFloat` | see the `bin_float` clause table | not implemented (not claimed in 0.12; additive, see [issue 232](https://github.com/Luna-Flow/floating/issues/232): the format of an interval will be an optional `e_max?` with the implementation range as default, and it is not part of `==` or `compare` (only `identical` may look at it)) |
+
+## Text output and the cs table
+
+Clause 13.3 gives `intervalToText` a representation parameter `cs`. What
+`ball_float` offers for each:
+
+| representation | function | status |
+| --- | --- | --- |
+| inf-sup `[l, u]`, bounds as decimal numbers rounded outward | `to_string` (`Show`) | implemented; `[empty]` and `[entire]` for the special values, a decoration after `_` |
+| exact text, bounds as hexadecimal numbers (13.4) | `to_exact_string` | implemented; `from_exact_string` recovers the datum |
+| uncertain form `m?r` (midpoint and radius in units of the last digit) | none | not planned: the inf-sup form carries the same interval and `from_string` reads both |
+| midpoint-radius view `m +/- r` | `to_ball_string` | not a literal of the standard: the binary midpoint and half-width, for reading |
+
+A bound whose binary exponent is beyond 4096 in magnitude is written in
+hexadecimal by `to_string`: a decimal expansion would need a power of ten of
+that size. The hexadecimal bound is exact and is a valid literal, so the text
+still contains the value.
 
 ## Accuracy of operations
 

@@ -37,7 +37,10 @@ test "the half-width of the interval of the issue" {
   )
   inspect(ball.half_width().to_string(), content="1p-1073741882")
   inspect(ball.center().to_string(), content="1p-1073741881")
-  inspect(ball.to_string(), content="1p-1073741881 +/- 1p-1073741882")
+  inspect(ball.to_ball_string(), content="1p-1073741881 +/- 1p-1073741882")
+  // Show is the portable literal: bounds this far down the exponent range are written in
+  // hexadecimal (a decimal expansion would need a power of ten of that size)
+  inspect(ball.to_string(), content="[0x1p-1073741882, 0x3p-1073741882]")
 }
 
 ///|
