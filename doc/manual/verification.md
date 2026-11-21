@@ -169,6 +169,27 @@ the result of the reference library for the same operand. The method, machine
 and results are on the [external baseline page](./performance/bench/external.md).
 It is evidence about speed, not a conformance gate, and is not part of `just pr`.
 
+## Interval differential stage against MPFR
+
+`python3 tools/ball_diff.py run` checks `BallFloat` against MPFR with no timing.
+A seeded generator writes rows of operand intervals for `add`, `sub`, `mul`,
+`div`, `sqr`, `sqrt` and `fma`; `tools/ball_mpfr_oracle.c` computes the tightest
+result of every row with MPFR directly (one directed rounding per bound, in the
+exponent range and with the gradual underflow of `bin_float`, defined once in
+`tools/mpfr_ours.h`); the test of `tooling/src/differential/ball_mpfr` runs the
+rows on `BallFloat` and compares both bounds as canonical text. IEEE 1788-2015
+12.10.2 makes these operations tightest, so the bounds must be equal. The
+classes of operands are ordinary values, results one unit from the overflow
+threshold on both sides, results and operands in the subnormal band, operands
+whose exponents differ by far more than the precision, operands with fewer bits
+than the precision, bounds with more bits than the precision (the ball rounds
+them outward), and intervals with a zero bound. A class that does not reach its
+band is an error of the generator, decided from the oracle's own flags. A second
+oracle in Python integers, which shares nothing with MPFR, must agree with the
+MPFR one on every row it computes. A row that differs from MPFR today is listed
+with its issue in `tools/ball_diff_known.txt`; a new difference, or a listed row
+that agrees again, fails the run.
+
 ## Randomized differential testing
 
 The fixed corpora above check rows someone chose. The randomized campaign

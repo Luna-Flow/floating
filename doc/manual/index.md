@@ -104,6 +104,7 @@ verified, and how) and a performance page (measurements and their method).
 | `cli/mpfr_expr_cli`: command adapter for MPFR witness runs | [tutorial](tutorial/cli/mpfr_expr_cli.md) | [API](api/cli/mpfr_expr_cli.md) | [design](design/cli/mpfr_expr_cli.md) |
 | `differential`: seeded random differential harness against MPFR and libmpdec | [tutorial](tutorial/differential.md) | [API](api/differential.md) | [design](design/differential.md) |
 | `differential/harness`: the batches, specification and `run` of `differential`, as a library | [tutorial](tutorial/differential/harness.md) | [API](api/differential/harness.md) | [design](design/differential/harness.md) |
+| `differential/ball_mpfr`: the untimed differential stage of `BallFloat` against MPFR | [tutorial](tutorial/differential/ball_mpfr.md) | [API](api/differential/ball_mpfr.md) | [design](design/differential/ball_mpfr.md) |
 | `cli/testfloat_expr_cli`: command adapter for TestFloat runs | [tutorial](tutorial/cli/testfloat_expr_cli.md) | [API](api/cli/testfloat_expr_cli.md) | [design](design/cli/testfloat_expr_cli.md) |
 
 ### Library infrastructure
