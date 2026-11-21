@@ -231,7 +231,7 @@ pub fn Decimal::to_binary(Self, precision~ : Int, mode? : @binary.BinaryRounding
 `@binary.binary_precision_max` (outside that range the call aborts). `mode` is
 a rounding-direction attribute of the radix of the result
 (IEEE 754-2019 4.3.1) and defaults to `RoundTiesToEven`. Ties-to-away also
-rounds the value once.
+rounds the exact result once.
 
 With `RoundTowardNegative` and `RoundTowardPositive` the two results enclose
 the decimal value; the elementary functions build their certified input
@@ -338,8 +338,8 @@ pub fn Decimal::exponent10(Self) -> Int
 
 `coefficient` returns $c \ge 0$: the payload for a NaN and 0 for an
 infinity. `exponent10` returns $q$, and 0 for a special value. GDA 1.70 has
-no operation named `quantum`: its operations are `quantize` (GDA 1.70, page 36)
-and `same-quantum` (GDA 1.70, page 48).
+no operation named `quantum`: its operations are `quantize` (GDA 1.70, page 36 (quantize))
+and `same-quantum` (GDA 1.70, page 48 (same-quantum)).
 
 ### Class and sign predicates
 
@@ -438,7 +438,7 @@ None of the three reports flags.
 
 A carry of the rounding at the top of the
 [implementation limit on the exponents of a stored value](#gda_value_e_max-gda_value_e_tiny)
-follows the Overflow rule of the working range (GDA 1.70, page 53), so the result is never a finite
+follows the Overflow rule of the working range (GDA 1.70, page 53 (Overflow)), so the result is never a finite
 value above the limit. For example, `9999E+2147483643` rounded to 2 digits is `inf` in the rounding
 algorithms that round away from zero or to nearest. In the algorithms that round toward zero it is
 `9.9E+2147483646`, the largest finite value of that width.
@@ -540,10 +540,10 @@ invalid parameter, and `new` aborts with the same message.
 `clamp` and `extended` are not parameters of the context in the GDA text. They are decNumber
 extensions that the library keeps, and the official decTest files use both.
 
-- `clamp=true` is the fold-down of the Clamped condition (GDA 1.70, page 51, Exceptional
-  conditions). It limits exponents to $E_{\max} - p + 1$, as the interchange formats do.
-- `extended=false` selects the GDA subset arithmetic of Appendix A (GDA 1.70, page 55,
-  Appendix A, The X3.274 subset; footnote 43: a parameter of the context "might" select it).
+- `clamp=true` is the fold-down of the Clamped condition (GDA 1.70, page 51 (Exceptional
+  conditions)). It limits exponents to $E_{\max} - p + 1$, as the interchange formats do.
+- `extended=false` selects the GDA subset arithmetic of Appendix A (GDA 1.70, page 55
+  (Appendix A, The X3.274 subset); footnote 43: a parameter of the context "might" select it).
   In subset arithmetic, operands longer than $p$ digits are rounded first, which raises
   `LostDigits` when it is inexact. Special values cannot be parsed, zeros and some results are
   reduced, and `fma` is invalid.
@@ -557,7 +557,7 @@ extensions that the library keeps, and the official decTest files use both.
 
 ### Default contexts
 
-Return the default contexts of GDA 1.70 (page 16, Default contexts): `basic_default`, and the
+Return the default contexts (GDA 1.70, page 16 (Default contexts)): `basic_default`, and the
 extended default contexts `decimal32`, `decimal64` and `decimal128`.
 
 ```mbti
@@ -575,8 +575,8 @@ pub fn GdaContext::decimal128(mode? : GdaRoundingMode) -> Self
 | `decimal128` | 34 | `HalfEven` | $-6143$ | $6144$ | yes | yes | none |
 
 `basic_default` is the basic default context of the specification: precision 9, round-half-up,
-and every trap enabled except inexact, rounded and subnormal (GDA 1.70, page 16, Default
-contexts). The library also leaves the lost-digits trap off, because Appendix A sets it to 0 in
+and every trap enabled except inexact, rounded and subnormal (GDA 1.70, page 16 (Default
+contexts)). The library also leaves the lost-digits trap off, because Appendix A sets it to 0 in
 default contexts. It sets `extended=false` for this context (the X3.274 subset of Appendix A),
 which the definition of the basic default context in GDA 1.70 does not set.
 
@@ -664,7 +664,7 @@ pub fn GdaContext::reset(Self) -> Self
 ### `GdaRoundingMode`
 
 `GdaRoundingMode` is the type of the rounding of a context. Its eight values are the rounding
-algorithms of GDA 1.70 (pages 13 and 14, Abstract representation of context).
+algorithms (GDA 1.70, pages 13 and 14 (Abstract representation of context)).
 
 ```mbti
 pub(all) enum GdaRoundingMode {
@@ -717,14 +717,14 @@ pub(all) enum GdaSignal {
 }
 ```
 
-The specification has eight signals (GDA 1.70, page 15, flags and
-trap-enablers): `Clamped`, `DivisionByZero`, `Inexact`, `InvalidOperation`,
+The specification has eight signals (GDA 1.70, page 15 (flags and
+trap-enablers)): `Clamped`, `DivisionByZero`, `Inexact`, `InvalidOperation`,
 `Overflow`, `Rounded`, `Subnormal` and `Underflow`. `LostDigits` is the ninth,
-raised only in subset arithmetic (GDA 1.70, Appendix A, The X3.274 subset).
+raised only in subset arithmetic (GDA 1.70, page 55 (Appendix A, The X3.274 subset)).
 
 Four conditions that the specification says signal invalid-operation are not
 signals: conversion syntax, division impossible, division undefined and invalid
-context (GDA 1.70, pages 51 and 52, exceptional conditions). They are
+context (GDA 1.70, pages 51 and 52 (Exceptional conditions)). They are
 conditions of `GdaFlags`, and raising any of them raises the signal
 `InvalidOperation`; [`GdaFlags::contains`](#gdaflagsnew-gdaflagscontains-gdaflagscombine)
 states how.
@@ -1108,7 +1108,7 @@ $p \le 999\,999$, $E_{\max} \le 999\,999$ and $E_{\min} \ge -999\,999$. Beyond a
 
 This is an implementation limit. The operation text of GDA 1.70 states no such bound, and the
 limit is permitted by its Invalid context condition, which applies when the precision "exceeds the
-capability of the underlying concrete representation" (GDA 1.70, page 51, Exceptional conditions).
+capability of the underlying concrete representation" (GDA 1.70, page 52 (Exceptional conditions)).
 The value 999,999 is the `DEC_MAX_MATH` of decNumber. The [design
 page](../design/decimal_gda.md#correctly-rounded-exp-ln-log10-and-non-integer-power) gives the
 reason.
@@ -1151,8 +1151,8 @@ decide the rounding within the
 [refinement limit](#gdacontextrefinement_limit-gdacontextwith_refinement_limit), the result is
 NaN with `InvalidOperation`.
 
-GDA 1.70 allows an inexact result of `exp` (page 29, `exp`), `ln` and `log10` (page 30, `ln`
-and `log10`) to be up to one unit in the last place from the correctly rounded one. The library
+GDA 1.70 allows an inexact result of `exp`, `ln` and `log10` to be up to one unit in the last
+place from the correctly rounded one (GDA 1.70, page 30 (exp); page 31 (ln, log10)). The library
 returns the correctly rounded result, in a subset context as in the extended arithmetic (see the
 [conformance page](../conformance/decimal_gda.md#deviations-of-the-corpus)).
 
@@ -1191,8 +1191,8 @@ algorithm. Such cases, an exponent $a/b$ in lowest terms with $x$ a perfect $b$-
 decided before the refinement loop, because they lie on the boundary of a directed rounding cell
 or on a midpoint, which the loop cannot certify.
 
-GDA 1.70 allows an inexact `power` result to be up to one unit in the last place in error (page 34,
-`power`). The library always returns the correctly rounded result, so `Down`, `Floor` and
+GDA 1.70 allows an inexact `power` result to be up to one unit in the last place in error (GDA 1.70, page 35
+(power)). The library always returns the correctly rounded result, so `Down`, `Floor` and
 `ZeroFiveUp` give `8.0000` where libmpdec gives `7.9999`.
 
 ### `try_exp`, `try_ln`, `try_log10`, `try_power`
@@ -1269,7 +1269,7 @@ they compare equal. When the step leaves the normal range, it raises `Overflow`,
 ### `logical_and`, `logical_or`, `logical_xor`, `logical_invert`
 
 Compute the digit-wise and, or, exclusive or and inversion of logical operands
-(GDA 1.70, page 41, Miscellaneous operations). A logical operand is a non-negative integer with exponent 0 whose digits are all 0 or 1.
+(GDA 1.70, page 41 (Miscellaneous operations)). A logical operand is a non-negative integer with exponent 0 whose digits are all 0 or 1.
 
 ```mbti
 pub fn logical_and(Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
@@ -1287,7 +1287,7 @@ condition).
 ### `shift`, `rotate`
 
 Move the coefficient digits of $x$ by $n$ places within a window of $p$ digits
-(GDA 1.70, page 49, shift; page 47, rotate).
+(GDA 1.70, page 49 (shift); page 47 (rotate)).
 
 ```mbti
 pub fn shift(Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
@@ -1302,7 +1302,7 @@ unchanged.
 
 ### `compare`, `compare_signal`, `compare_total`, `compare_total_magnitude`
 
-Compare two values by value or in the GDA total order (GDA 1.70, page 42, compare-total).
+Compare two values by value or in the GDA total order (GDA 1.70, page 42 (compare-total)).
 
 ```mbti
 pub fn compare(Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
@@ -1326,14 +1326,14 @@ extended context.
 
 A subset context (`extended=false`) first rounds the operands to the precision,
 as it does for every operand (see [`GdaContext::new`](#gdacontextnew-gdacontexttry_new); GDA 1.70,
-page 55, Appendix A, The X3.274 subset), which raises `Rounded` and `LostDigits`. The [`Decimal` methods of the same
+page 55 (Appendix A, The X3.274 subset)), which raises `Rounded` and `LostDigits`. The [`Decimal` methods of the same
 names](#decimalcompare_total-decimalcompare_total_magnitude) compare the
 operands as they are.
 
 ### `max`, `min`, `max_magnitude`, `min_magnitude`
 
 Return the larger or smaller of two operands, by value or by magnitude (GDA 1.70,
-page 32, max).
+page 32 (max)).
 
 ```mbti
 pub fn max(Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
@@ -1356,8 +1356,8 @@ rounding algorithm, while `plus(-0)` is `0` unless the rounding is `Floor`.
 
 ### `class_name`, `is_normal`, `is_subnormal`
 
-Classify a value under a context (GDA 1.70, page 42, class; page 45, is-normal;
-page 46, is-subnormal). They never raise conditions, so they always return
+Classify a value under a context (GDA 1.70, page 42 (class); page 45 (is-normal);
+page 46 (is-subnormal)). They never raise conditions, so they always return
 `Completed` with the input context.
 
 ```mbti
@@ -1513,13 +1513,13 @@ The result is therefore a member of the cohort with the ideal exponent that GDA 
 A result of any of the four operations with more than $P$ digits is rounded to $P$ digits
 (the product of `*` is then rounded, not exact).
 
-`x + 0 == x` and `x * 1 == x` hold for every stored finite value. Equality compares
-values, not members of the cohort, and the working exponent range below is the
+`x + 0 == x` and `x * 1 == x` hold because equality compares values, not members of the
+cohort, and, for every stored finite value, because the working exponent range below is the
 [implementation limit on the exponents of a stored value](#gda_value_e_max-gda_value_e_tiny).
 
 [`GdaContext::new`](#gdacontextnew-gdacontexttry_new) cannot build the working exponent
-range. It limits the exponent range of a context to $\pm 999{,}999{,}999$ (GDA 1.70 page 9
-(The Arithmetic Model) allows a limit Elimit without giving a value), and the working range
+range. It limits the exponent range of a context to $\pm 999{,}999{,}999$ (GDA 1.70, page 10
+(Abstract representation of numbers) allows a limit Elimit without giving a value), and the working range
 fills the `Int` range: the largest adjusted exponent is $2^{31}-2 = 2{,}147{,}483{,}646$
 and the smallest exponent is $E_{\mathrm{tiny}} = -2^{31}+3 = -2{,}147{,}483{,}645$
 for every $P$, so $E_{\mathrm{tiny}}$ is always a valid `Int` exponent. A result above the range is a signed infinity
