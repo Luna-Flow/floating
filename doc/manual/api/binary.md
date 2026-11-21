@@ -1465,7 +1465,7 @@ pub(all) enum BinaryInterchangeFormat {
 } derive(Eq, @debug.Debug)
 ```
 
-### `BinaryInterchangeFormat::precision`, `BinaryInterchangeFormat::e_min`, `BinaryInterchangeFormat::e_max`, `BinaryInterchangeFormat::bias`, `BinaryInterchangeFormat::exponent_bits`, `BinaryInterchangeFormat::fraction_bits`, `BinaryInterchangeFormat::total_bits`
+### `BinaryInterchangeFormat::precision`, `BinaryInterchangeFormat::e_min`, `BinaryInterchangeFormat::e_max`, `BinaryInterchangeFormat::bias`, `BinaryInterchangeFormat::exponent_field_width`, `BinaryInterchangeFormat::trailing_significand_field_width`, `BinaryInterchangeFormat::storage_width`
 
 The parameters of a format.
 
@@ -1474,9 +1474,9 @@ pub fn BinaryInterchangeFormat::precision(Self) -> Int
 pub fn BinaryInterchangeFormat::e_min(Self) -> Int
 pub fn BinaryInterchangeFormat::e_max(Self) -> Int
 pub fn BinaryInterchangeFormat::bias(Self) -> Int
-pub fn BinaryInterchangeFormat::exponent_bits(Self) -> Int
-pub fn BinaryInterchangeFormat::fraction_bits(Self) -> Int
-pub fn BinaryInterchangeFormat::total_bits(Self) -> Int
+pub fn BinaryInterchangeFormat::exponent_field_width(Self) -> Int
+pub fn BinaryInterchangeFormat::trailing_significand_field_width(Self) -> Int
+pub fn BinaryInterchangeFormat::storage_width(Self) -> Int
 ```
 
 | Format | `total_bits` $k$ | `exponent_bits` $w$ | `fraction_bits` $p-1$ | `precision` $p$ | `bias` $= e_{\max}$ | `e_min` $= 1 - e_{\max}$ |
@@ -3029,12 +3029,12 @@ pub fn BinaryInterchangeFormat::context(Self, rounding? : BinaryRoundingMode, ti
 pub fn BinaryInterchangeFormat::e_max(Self) -> Int32
 pub fn BinaryInterchangeFormat::e_min(Self) -> Int32
 pub fn BinaryInterchangeFormat::equal(Self, Self) -> Bool
-pub fn BinaryInterchangeFormat::exponent_bits(Self) -> Int32
-pub fn BinaryInterchangeFormat::fraction_bits(Self) -> Int32
+pub fn BinaryInterchangeFormat::exponent_field_width(Self) -> Int32
 pub fn BinaryInterchangeFormat::not_equal(Self, Self) -> Bool
 pub fn BinaryInterchangeFormat::precision(Self) -> Int32
+pub fn BinaryInterchangeFormat::storage_width(Self) -> Int32
 pub fn BinaryInterchangeFormat::to_repr(Self) -> @debug.Repr
-pub fn BinaryInterchangeFormat::total_bits(Self) -> Int32
+pub fn BinaryInterchangeFormat::trailing_significand_field_width(Self) -> Int32
 
 #derive(Eq, @debug.Debug)
 pub(all) enum BinaryRoundingMode {
