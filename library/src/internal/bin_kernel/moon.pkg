@@ -32,6 +32,8 @@ options(
     "coeff_sqrt_oracle_rows_wbtest.mbt": [ "not", "js" ],
     "coeff_radix_oracle_wbtest.mbt": [ "not", "js" ],
     "coeff_radix_oracle_rows_wbtest.mbt": [ "not", "js" ],
+    "coeff_ntt_oracle_wbtest.mbt": [ "not", "js" ],
+    "coeff_ntt_oracle_rows_wbtest.mbt": [ "not", "js" ],
     "coeff_knuth_words_nonjs.mbt": [ "not", "js" ],
     "coeff_knuth_words_nonjs_wbtest.mbt": [ "not", "js" ],
     "coeff_knuth_reciprocal_nonjs_wbtest.mbt": [ "not", "js" ],

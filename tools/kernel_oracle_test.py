@@ -262,8 +262,26 @@ class RowSemanticsTests(unittest.TestCase):
         self.assertTrue(all(c in "0123456" for c in text))
         self.assertEqual(text[50:], "66600"[:5])
 
+    def test_ntt_constants_follow_their_definitions(self) -> None:
+        c = oracle.ntt_constants()
+        p1, p2 = oracle.NTT_PRIMES
+        self.assertEqual((p1 - 1) % (119 << 23), 0)
+        self.assertEqual((p2 - 1) % (45 << 24), 0)
+        self.assertEqual((p1 * c["nprime1"]) % (1 << 32), (1 << 32) - 1)  # p n' = -1 modulo R
+        self.assertEqual(c["r2_prime2"], pow(1 << 32, 2, p2))
+        self.assertEqual(c["max_length"], 1 << 23)
+        self.assertEqual(c["crt_inverse"] * p1 % p2, 1)
+        # convolution of the digit lists is the digit list of the product up to carries
+        a, b = 0x123456789ABCDEF0, 0xFEDCBA9876543210
+        digits_a, digits_b = oracle.ntt_digits(a), oracle.ntt_digits(b)
+        total = 0
+        for i, x in enumerate(digits_a):
+            for j, y in enumerate(digits_b):
+                total += (x * y) << (16 * (i + j))
+        self.assertEqual(total, a * b)
+
     def test_every_table_is_registered_and_named(self) -> None:
-        self.assertEqual([table.name for table in oracle.TABLES], ["product", "short", "limbs", "window", "div", "sqrt", "radix"])
+        self.assertEqual([table.name for table in oracle.TABLES], ["product", "short", "limbs", "window", "div", "sqrt", "radix", "ntt"])
         for table in oracle.TABLES:
             names = table.names()
             self.assertEqual(len(names), len(set(names)), table.name)
