@@ -55,9 +55,8 @@ $D_f$ are ignored rather than reported as errors: $\sqrt{[-1, 4]} = [0, 2]$
 and $\sqrt{[-2, -1]} = \emptyset$. Whether a domain violation occurred is
 reported separately, by decorations.
 
-Every public operation of `Interval` is meant to be an interval extension;
-the few inputs where the current code is not are listed under
-[Known limitations](#known-limitations). Composition then gives the result
+Every public operation of `Interval` is an interval extension; no exception
+is listed at present (see [Known limitations](#known-limitations)). Composition then gives the result
 that justifies the package:
 
 > **Fundamental theorem of interval arithmetic.**[^moore] If an expression is
@@ -140,7 +139,7 @@ using $S_u - S_\ell = w(\boldsymbol{x}) + w(\boldsymbol{y})$. Widths
 therefore grow additively through a computation, plus a relative $2^{1-p}$
 per rounding. The relative bound needs $a$ inside the normal range of
 `Binary`, $2^{e_{\min}} \le |a| < 2^{e_{\max}+1}$ with
-$e_{\min} = -(2^{30} - 1)$ and $e_{\max} = 2^{30} - 1$. Below $2^{e_{\min}}$
+$e_{\min} = 1 - e_{\max} = -(2^{30} - 2)$ and $e_{\max} = 2^{30} - 1$. Below $2^{e_{\min}}$
 the directed kernels round on a subnormal grid, and the error is only bounded
 absolutely, by $2^{e_{\min} - p + 1}$; above the range an upper endpoint
 becomes $+\infty$. Both happen only for magnitudes near $2^{\pm 2^{30}}$.
@@ -660,8 +659,8 @@ of the reference test, that the result contains the hull and stays inside the pr
 step: its 136 cases need $w = p + b + 96$ at most.
 
 *Pieces and indices.* A piece $[\mathrm{lo}(k), \mathrm{hi}(k)]$ belongs to a family
-with $m = \text{offset} + \text{period} \cdot k$ (period 4 for $\sin$ and $\cos$, in units of
-$\pi/2$ twice, and 2 for $\tan$). The first piece that reaches the lower prior end $x_l$ has
+with $m = \text{offset} + \text{period} \cdot k$ (in units of
+$\pi/2$, the period is 4 for $\sin$ and $\cos$ and 2 for $\tan$). The first piece that reaches the lower prior end $x_l$ has
 its upper end in a window of a dozen consecutive values of $m$ around $2 x_l/\pi$, which is
 computed exactly in rational arithmetic from the lower and upper bound of the enclosure of
 $\pi$, widened by a stated margin: an end lies in $[(m-2)\pi/2, (m+2)\pi/2]$ since
@@ -861,7 +860,7 @@ generated file `testdata/interval/generated/atan2_rev.itl` (see its README) has 
 200 bits (the same monotone image, with the cut treated explicitly) and checks, at precisions 24, 53 and 113, that
 every float certainly in the set is in the result, that a point a quarter of a float outside an end that comes from a
 piece is not in the set, and that the float one step inside is not certainly outside while the next one is certainly
-inside. The maximum working precision on the generated corpus is 149 bits (the first working precision, $p + 96$ at $p = 53$; none of the 6,813 evaluations of the loop doubled it) bits.
+inside. The maximum working precision on the generated corpus is 149 bits (the first working precision, $p + 96$ at $p = 53$; none of the 6,813 evaluations of the loop doubled it).
 
 ### Interval literals and text input
 
@@ -1122,7 +1121,7 @@ flag with endpoints $(+\infty, -\infty)$.
 $f(\boldsymbol{x}) \subseteq F(\boldsymbol{x})$, by the endpoint formulas and
 Corollary 2 for arithmetic, by the critical-point analysis and certified
 endpoint enclosures for elementary functions, and by the fallbacks for
-uncertified cases (the exceptions are listed under known limitations). By the
+uncertified cases. By the
 fundamental theorem, so does every composition.
 
 **Tightness.** Basic arithmetic, `sqr`, `pown`, `fma`, `abs`, `min`,
@@ -1153,14 +1152,9 @@ runs 6,632 cases in strict mode (see [conformance](../conformance/interval.md)).
 
 ### Known limitations
 
-The following inputs currently lose part of the input set, round or flag a
-result incorrectly, or return a set other than the specified one. Each is
-tracked in an issue with a proposed fix that is not merged yet; they are
-documented here so that callers can avoid them.
-
 No limitation is open at present. Decorated `rootn` with a negative degree
 lowers the decoration to `trv` when 0 is in the argument, as the decoration
-rules of IEEE 1788-2015 §11 require; `library/src/interval/interval_decorated_wbtest.mbt`
+rules of IEEE 1788-2015 11.6 require; `library/src/interval/interval_decorated_wbtest.mbt`
 checks degrees `-1`, `-2` and `-3`.
 
 ## Alternatives rejected

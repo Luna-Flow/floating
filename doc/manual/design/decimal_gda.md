@@ -26,11 +26,11 @@ goal is to model all of that exactly and observably, so that
     1.70 (2009), <https://speleotrove.com/decimal/decarith.html>. The test suite
     is the same author's `dectest` collection, version 2.62.
 
-The ParseChecked adapter is a value-only adapter over the GDA to-number
-conversion. It maps ArithmeticContext to the engine context, so precision,
-rounding direction, exponent bounds and clamp apply. The returned Result
+The `ParseChecked` adapter is a value-only adapter over the GDA to-number
+conversion. It maps `ArithmeticContext` to the engine context, so precision,
+rounding direction, exponent bounds and clamp apply. The returned `Result`
 cannot carry GDA status or traps; callers that need those effects should use
-the decimal_gda::to_number API with GdaContext.
+`@decimal_gda.to_number` with `GdaContext`.
 
 `divide_integer` constructs its preferred zero at exponent 0 before applying
 the context finalizer. This preserves the quotient sign and lets clamp fold
@@ -447,7 +447,7 @@ finite results, but their contracts differ:
 | Rounding modes | eight, including `HalfUp`, `HalfDown`, `ZeroFiveUp` | the IEEE attributes |
 | Conditions | sticky status in the context, traps with defined results | per-operation flags returned with the value |
 | Detailed invalid conditions, `LostDigits`, subset arithmetic | yes | no |
-| Tininess | before rounding | selectable |
+| Tininess | before rounding | before rounding |
 | Elementary functions | `sqrt`, `exp`, `ln`, `log10`, `power` | the IEEE recommended set |
 | Interchange | DPD | DPD and BID |
 
