@@ -418,7 +418,7 @@ An `ArithmeticError` (re-exported by `def`) has a kind: `DivisionByZero`,
 `UnorderedComparison` or `CertificationFailure`. It is used where the checked
 contract has no value to return: `div_checked` by zero, `sqrt` of a negative
 number, `compare_checked` with a NaN, a malformed literal. `BinaryChecked` and
-`IntervalResult` keep the first error and skip the remaining steps.
+`IntervalChecked` keep the first error and skip the remaining steps.
 
 The elementary functions have both forms. A `try_*_ctx` function returns
 `Err` with a `CertificationFailure` detail if the certified refinement cannot

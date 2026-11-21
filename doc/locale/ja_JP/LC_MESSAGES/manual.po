@@ -8057,8 +8057,8 @@ msgid "interval_checked API"
 msgstr "interval_checked API"
 
 #: manual/api/interval_checked.md:5
-msgid "`interval_checked` provides `IntervalResult`, a closed wrapper around `Result[Interval, ArithmeticError]` for interval computations. Construction validates its inputs, every operation passes on the first error, and the interval operations of [`interval`](interval.md) are applied when all operands are successes. A valid but uninformative enclosure (the empty set, the whole line) is a success, not an error. The wrapper stores no decorations and no `IntervalFlags`. The [tutorial](../tutorial/interval_checked.md) builds pipelines; the [design page](../design/interval_checked.md) explains which outcomes are errors and why."
-msgstr "`interval_checked` は、区間計算のための `Result[Interval, ArithmeticError]` を包む閉じたラッパー `IntervalResult` を提供します。構築時に入力を検証し、すべての演算は最初のエラーをそのまま伝播し、すべてのオペランドが成功値のときに [`interval`](interval.md) の区間演算が適用されます。有効だが情報の乏しい包含区間（空集合や実数直線全体）は成功であり、エラーではありません。ラッパーは装飾も `IntervalFlags` も保持しません。[チュートリアル](../tutorial/interval_checked.md)ではパイプラインを構築し、[設計ページ](../design/interval_checked.md)ではどの結果がエラーとなるのか、その理由を説明しています。"
+msgid "`interval_checked` provides `IntervalChecked`, a closed wrapper around `Result[Interval, ArithmeticError]` for interval computations. Construction validates its inputs, every operation passes on the first error, and the interval operations of [`interval`](interval.md) are applied when all operands are successes. A valid but uninformative enclosure (the empty set, the whole line) is a success, not an error. The wrapper stores no decorations and no `IntervalFlags`. The [tutorial](../tutorial/interval_checked.md) builds pipelines; the [design page](../design/interval_checked.md) explains which outcomes are errors and why."
+msgstr "`interval_checked` は、区間計算のための `Result[Interval, ArithmeticError]` を包む閉じたラッパー `IntervalChecked` を提供します。構築時に入力を検証し、すべての演算は最初のエラーをそのまま伝播し、すべてのオペランドが成功値のときに [`interval`](interval.md) の区間演算が適用されます。有効だが情報の乏しい包含区間（空集合や実数直線全体）は成功であり、エラーではありません。ラッパーは装飾も `IntervalFlags` も保持しません。[チュートリアル](../tutorial/interval_checked.md)ではパイプラインを構築し、[設計ページ](../design/interval_checked.md)ではどの結果がエラーとなるのか、その理由を説明しています。"
 
 #: manual/api/interval_checked.md:17
 msgid "Add the wrapper and the endpoint package to your `moon.pkg`:"
@@ -8069,8 +8069,8 @@ msgid "The examples refer to the packages as `@interval_checked.`, `@interval.`,
 msgstr "例ではパッケージを `@interval_checked.`、`@interval.`、`@binary.`、`@def.`（無限大の `Sign` 用）、`@lf_arith.`（`Luna-Flow/arithmetic`）として参照します。例では次の補助関数で結果を出力します（有界な区間の `to_midpoint_radius_string` は二進記法による `midpoint +/- radius` であり、`mpe` は $m \\cdot 2^{e}$ を意味します）:"
 
 #: manual/api/interval_checked.md:48
-msgid "`IntervalResult` is either a successful `Interval` or an `ArithmeticError`."
-msgstr "`IntervalResult` は、成功した `Interval` または `ArithmeticError` のいずれかです。"
+msgid "`IntervalChecked` is either a successful `Interval` or an `ArithmeticError`."
+msgstr "`IntervalChecked` は、成功した `Interval` または `ArithmeticError` のいずれかです。"
 
 #: manual/api/interval_checked.md:56
 msgid "The single private field holds a `Result[@interval.Interval, @arithmetic.ArithmeticError]`. The type has no `Eq` or `Show`; use `result()`."
@@ -8157,16 +8157,16 @@ msgid "These methods are `map` of the `Interval` integer functions of Table 9.1 
 msgstr "これらのメソッドは、表 9.1 の `Interval` の整数関数の `map` です（[`interval` ページ](interval.md#intervalsign-intervalceil-intervalfloor-intervaltrunc-intervalround_ties_to_even-intervalround_ties_to_away)を参照）。厳密で、失敗しません。"
 
 #: manual/api/interval_checked.md:264
-msgid "`IntervalResult::sqr_rev`, `IntervalResult::abs_rev`, `IntervalResult::pown_rev` and `IntervalResult::cosh_rev`"
-msgstr "`IntervalResult::sqr_rev`、`IntervalResult::abs_rev`、`IntervalResult::pown_rev`、`IntervalResult::cosh_rev`"
+msgid "`IntervalChecked::sqr_rev`, `IntervalChecked::abs_rev`, `IntervalChecked::pown_rev` and `IntervalChecked::cosh_rev`"
+msgstr "`IntervalChecked::sqr_rev`、`IntervalChecked::abs_rev`、`IntervalChecked::pown_rev`、`IntervalChecked::cosh_rev`"
 
 #: manual/api/interval_checked.md:266
 msgid "These methods apply the `Interval` method of the same name to the interval part (see the [`interval` page](interval.md#intervalsqr_rev-intervalabs_rev-intervalpown_rev-and-intervalcosh_rev)). They cannot fail themselves; an earlier failure in the receiver or in the optional prior is passed on."
 msgstr "これらのメソッドは区間部分に同名の `Interval` のメソッドを適用します（[`interval` ページ](interval.md#intervalsqr_rev-intervalabs_rev-intervalpown_rev-and-intervalcosh_rev)を参照）。自身は失敗せず、レシーバーまたは省略可能な事前区間にある先行する失敗は引き継がれます。"
 
 #: manual/api/interval_checked.md:278
-msgid "`IntervalResult::sin_rev`, `IntervalResult::cos_rev` and `IntervalResult::tan_rev`"
-msgstr "`IntervalResult::sin_rev`、`IntervalResult::cos_rev`、`IntervalResult::tan_rev`"
+msgid "`IntervalChecked::sin_rev`, `IntervalChecked::cos_rev` and `IntervalChecked::tan_rev`"
+msgstr "`IntervalChecked::sin_rev`、`IntervalChecked::cos_rev`、`IntervalChecked::tan_rev`"
 
 #: manual/api/interval_checked.md:280
 msgid "These methods apply the `Interval` method of the same name to the interval part (see the [`interval` page](interval.md#intervalsin_rev-intervalcos_rev-and-intervaltan_rev)). They cannot fail themselves; an earlier failure in the receiver or in the optional prior is passed on."
@@ -8181,8 +8181,8 @@ msgid "`Interval::pow_rev2` on the interval parts (see the [`interval` page](int
 msgstr "区間部分に対する `Interval::pow_rev2`（[`interval` ページ](interval.md#intervalpow_rev2)を参照）。それ自体は失敗しません。レシーバ、`c`、任意の事前区間での先行する失敗はそのまま引き継がれます。"
 
 #: manual/api/interval_checked.md:309
-msgid "`IntervalResult::atan2_rev1` and `IntervalResult::atan2_rev2`"
-msgstr "`IntervalResult::atan2_rev1` と `IntervalResult::atan2_rev2`"
+msgid "`IntervalChecked::atan2_rev1` and `IntervalChecked::atan2_rev2`"
+msgstr "`IntervalChecked::atan2_rev1` と `IntervalChecked::atan2_rev2`"
 
 #: manual/api/interval_checked.md:311
 msgid "`Interval::atan2_rev1` and `Interval::atan2_rev2` on the interval parts (see the [`interval` page](interval.md#intervalatan2_rev1-and-intervalatan2_rev2)). They cannot fail themselves; an earlier failure in the receiver, in `c` or in the optional prior is passed on."
@@ -8193,8 +8193,8 @@ msgid "`Interval::from_string` (see the [`interval` page](interval.md#intervalfr
 msgstr "`Interval::from_string`（[`interval` ページ](interval.md#intervalfrom_string-and-decoratedintervalfrom_string)を参照）を結果として扱います。失敗した呼び出しはその結果の失敗です。"
 
 #: manual/api/interval_checked.md:327
-msgid "`IntervalResult::mul_rev` and `IntervalResult::mul_rev_to_pair`"
-msgstr "`IntervalResult::mul_rev` と `IntervalResult::mul_rev_to_pair`"
+msgid "`IntervalChecked::mul_rev` and `IntervalChecked::mul_rev_to_pair`"
+msgstr "`IntervalChecked::mul_rev` と `IntervalChecked::mul_rev_to_pair`"
 
 #: manual/api/interval_checked.md:329
 msgid "These methods apply `Interval::mul_rev` and `Interval::mul_rev_to_pair` to the interval parts (see the [`interval` page](interval.md#intervalmul_rev_to_pair-and-intervalmul_rev)). They cannot fail themselves; an earlier failure in an input is passed on, and for `mul_rev_to_pair` both outputs carry it. `x` is optional."
@@ -8245,8 +8245,8 @@ msgid "Each method is `bind` of `Interval::try_<name>_interval` at the interval'
 msgstr "各メソッドは、区間の精度での `Interval::try_<name>_interval` の `bind` です。結果 $Y$ は $f(X \\cap \\operatorname{dom} f) \\subseteq Y$ を満たします。$X$ のうち定義域外の部分は無視されるため、$\\ln([-1, 1]) = [-\\infty, 0]$ であり、$\\ln([-2, -2])$ は空です。唯一のエラーは、包含区間を認証できない場合の `CertificationFailure` であり、たとえば $2^{8000000}$ の余弦がそうです（理由は `ResourceLimit`）。コンテキスト付きの変種はなく、精度は `with_precision` で設定します。"
 
 #: manual/api/interval_checked.md:515
-msgid "`Add`, `Sub`, `Mul`, `Div`, `Neg` for `IntervalResult`"
-msgstr "`IntervalResult` の `Add`、`Sub`、`Mul`、`Div`、`Neg`"
+msgid "`Add`, `Sub`, `Mul`, `Div`, `Neg` for `IntervalChecked`"
+msgstr "`IntervalChecked` の `Add`、`Sub`、`Mul`、`Div`、`Neg`"
 
 #: manual/api/numeric_expr.md:1
 msgid "numeric_expr API"
@@ -8842,8 +8842,8 @@ msgid "`Binary`, `Decimal` and GDA `Decimal` implement the contextual traits of 
 msgstr "`Binary`、`Decimal`、GDA の `Decimal` は `Luna-Flow/arithmetic` のコンテキスト付きトレイト（`AddContextual`、…、`ExpContextual`）を実装しているため、汎用コードは三つすべてを一つの `ArithmeticContext` のもとで実行できます。`BinaryContext::from_arithmetic_context` と十進の対応する関数は、その精度、丸め、指数の上下限、クランプを引き継ぎます。"
 
 #: manual/architecture.md:219
-msgid "`BinaryChecked` and `IntervalResult` keep the first `ArithmeticError`."
-msgstr "`BinaryChecked` と `IntervalResult` は最初の `ArithmeticError` を保持します。"
+msgid "`BinaryChecked` and `IntervalChecked` keep the first `ArithmeticError`."
+msgstr "`BinaryChecked` と `IntervalChecked` は最初の `ArithmeticError` を保持します。"
 
 #: manual/architecture.md:220
 msgid "`DecimalChecked` keeps defined IEEE results, accumulates flags, and keeps certification errors separately."
@@ -19047,8 +19047,8 @@ msgid "interval_checked design"
 msgstr "interval_checked 設計"
 
 #: manual/design/interval_checked.md:5
-msgid "`interval_checked` lets an interval computation be written as one chain of operations in which construction mistakes and uncertifiable steps are explicit errors, while every successful value remains a rigorous enclosure. `IntervalResult` closes `Result[Interval, ArithmeticError]` under the operations of [`interval`](interval.md) and adds no interval algorithm. The [API page](../api/interval_checked.md) lists the operations and the [tutorial](../tutorial/interval_checked.md) shows pipelines in use."
-msgstr "`interval_checked` を使うと、区間計算を一連の演算の連鎖として記述でき、構築の誤りや認証できないステップは明示的なエラーとなり、成功した値はすべて厳密な包含区間であり続けます。`IntervalResult` は `Result[Interval, ArithmeticError]` を [`interval`](interval.md) の演算について閉じたものにし、区間アルゴリズムを何も追加しません。[API ページ](../api/interval_checked.md)には演算が列挙されており、[チュートリアル](../tutorial/interval_checked.md)ではパイプラインの使い方を示しています。"
+msgid "`interval_checked` lets an interval computation be written as one chain of operations in which construction mistakes and uncertifiable steps are explicit errors, while every successful value remains a rigorous enclosure. `IntervalChecked` closes `Result[Interval, ArithmeticError]` under the operations of [`interval`](interval.md) and adds no interval algorithm. The [API page](../api/interval_checked.md) lists the operations and the [tutorial](../tutorial/interval_checked.md) shows pipelines in use."
+msgstr "`interval_checked` を使うと、区間計算を一連の演算の連鎖として記述でき、構築の誤りや認証できないステップは明示的なエラーとなり、成功した値はすべて厳密な包含区間であり続けます。`IntervalChecked` は `Result[Interval, ArithmeticError]` を [`interval`](interval.md) の演算について閉じたものにし、区間アルゴリズムを何も追加しません。[API ページ](../api/interval_checked.md)には演算が列挙されており、[チュートリアル](../tutorial/interval_checked.md)ではパイプラインの使い方を示しています。"
 
 #: manual/design/interval_checked.md:15
 #: manual/numeric_semantics.md:429
@@ -19080,8 +19080,8 @@ msgid "The wrapper as an error monad"
 msgstr "エラーモナドとしてのラッパー"
 
 #: manual/design/interval_checked.md:48
-msgid "`IntervalResult` is the exception monad $M V = V + E$ with $V$ the set of `Interval` values and $E$ the set of `ArithmeticError` values, with $\\eta = $ `ok` and $\\mathbin{>\\!\\!>\\!\\!=} = $ `bind`. The laws (left and right identity, associativity) and the functor laws of `map` are proved in the [`binary_checked` design](binary_checked.md#the-monad-laws); the proof is a case analysis on $\\mathrm{Ok}/\\mathrm{Err}$ that does not use any property of $V$. The operators are lifted by the same left-biased scheme (`interval_result_lift2`), so the [first-error theorem](binary_checked.md#the-first-error-theorem) applies unchanged: an expression reports the error of the first originating node in post-order."
-msgstr "`IntervalResult` は例外モナド $M V = V + E$ です。ここで $V$ は `Interval` の値の集合、$E$ は `ArithmeticError` の値の集合であり、$\\eta = $ `ok`、$\\mathbin{>\\!\\!>\\!\\!=} = $ `bind` です。モナド則（左単位元則、右単位元則、結合則）と `map` の関手則は [`binary_checked` の設計](binary_checked.md#the-monad-laws)で証明されています。その証明は $V$ のいかなる性質も用いない $\\mathrm{Ok}/\\mathrm{Err}$ の場合分けです。演算子は同じ左優先の方式（`ball_result_lift2`）で持ち上げられるので、[最初のエラーの定理](binary_checked.md#the-first-error-theorem)がそのまま適用されます。式は、後行順で最初にエラーを生じたノードのエラーを報告します。"
+msgid "`IntervalChecked` is the exception monad $M V = V + E$ with $V$ the set of `Interval` values and $E$ the set of `ArithmeticError` values, with $\\eta = $ `ok` and $\\mathbin{>\\!\\!>\\!\\!=} = $ `bind`. The laws (left and right identity, associativity) and the functor laws of `map` are proved in the [`binary_checked` design](binary_checked.md#the-monad-laws); the proof is a case analysis on $\\mathrm{Ok}/\\mathrm{Err}$ that does not use any property of $V$. The operators are lifted by the same left-biased scheme (`interval_result_lift2`), so the [first-error theorem](binary_checked.md#the-first-error-theorem) applies unchanged: an expression reports the error of the first originating node in post-order."
+msgstr "`IntervalChecked` は例外モナド $M V = V + E$ です。ここで $V$ は `Interval` の値の集合、$E$ は `ArithmeticError` の値の集合であり、$\\eta = $ `ok`、$\\mathbin{>\\!\\!>\\!\\!=} = $ `bind` です。モナド則（左単位元則、右単位元則、結合則）と `map` の関手則は [`binary_checked` の設計](binary_checked.md#the-monad-laws)で証明されています。その証明は $V$ のいかなる性質も用いない $\\mathrm{Ok}/\\mathrm{Err}$ の場合分けです。演算子は同じ左優先の方式（`ball_result_lift2`）で持ち上げられるので、[最初のエラーの定理](binary_checked.md#the-first-error-theorem)がそのまま適用されます。式は、後行順で最初にエラーを生じたノードのエラーを報告します。"
 
 #: manual/design/interval_checked.md:62
 msgid "What is an error and what is a value"
@@ -19157,8 +19157,8 @@ msgid "Powers go through the arithmetic traits"
 msgstr "冪は算術トレイトを経由する"
 
 #: manual/design/interval_checked.md:100
-msgid "`pown` calls `PowIntChecked::pow_int_checked` of Luna-Flow/arithmetic with `ArithmeticContext::new(x.precision())`. `Interval` reads only the precision from the context (rounding direction and exponent bounds have no meaning for an outward-rounded enclosure) and re-rounds the base and the result with `with_precision`, which is sound but can add one ulp per side. The two traits `Interval` implements, `PowIntChecked` and `PowNatChecked`, are implemented differently, and only one of them avoids the *dependency problem* (`IntervalResult` offers only `pown`; `PowNatChecked` is reached through `Interval::pow_nat_checked`). $X \\cdot X$ treats the two factors as independent, so for $X = [-1, 1]$ it gives $[-1, 1]$, whereas $\\{t^2 : t \\in X\\} = [0, 1]$. `pown` uses `Interval::pown`, which evaluates $t \\mapsto t^n$ on the monotone pieces of one variable $t$ and returns $[0, 1]$. `pow_nat_checked` uses binary powering, $X^{n} = X^{\\lfloor n/2 \\rfloor} \\cdot X^{\\lfloor n/2 \\rfloor} \\cdot X^{n \\bmod 2}$ evaluated with interval products, so it encloses the larger set $\\{t_1 t_2 \\cdots t_n : t_i \\in X\\}$ and returns $[-1, 1]$; both are enclosures of $\\{t^n\\}$, but only `pown` is tight. `pow_nat_checked(0)` starts from $\\{1\\}$ without inspecting the base, so it maps an empty interval to $\\{1\\}$."
-msgstr "`pown` は、`ArithmeticContext::new(x.precision())` を用いて Luna-Flow/arithmetic の `PowIntChecked::pow_int_checked` を呼び出します。`Interval` はコンテキストから精度だけを読み取り（丸め方向と指数の上下限は外向きに丸めた包含区間には意味を持ちません）、底と結果を `with_precision` で丸め直します。これは健全ですが、片側あたり 1 ulp 広がることがあります。`Interval` が実装する 2 つのトレイト `PowIntChecked` と `PowNatChecked` は実装が異なり、*依存性問題*を回避するのはそのうち一方だけです（`IntervalResult` が持つのは `pown` だけで、`PowNatChecked` は `Interval::pow_nat_checked` から使います）。$X \\cdot X$ は 2 つの因子を独立なものとして扱うので、$X = [-1, 1]$ に対して $[-1, 1]$ を与えますが、$\\{t^2 : t \\in X\\} = [0, 1]$ です。`pown` は `Interval::pown` を用い、これは 1 つの変数 $t$ の単調な各部分で $t \\mapsto t^n$ を評価して $[0, 1]$ を返します。`pow_nat_checked` は二進べき乗法 $X^{n} = X^{\\lfloor n/2 \\rfloor} \\cdot X^{\\lfloor n/2 \\rfloor} \\cdot X^{n \\bmod 2}$ を区間の積で評価するので、より大きな集合 $\\{t_1 t_2 \\cdots t_n : t_i \\in X\\}$ を包含し、$[-1, 1]$ を返します。どちらも $\\{t^n\\}$ の包含区間ですが、緊密なのは `pown` だけです。`pow_nat_checked(0)` は底を検査せずに $\\{1\\}$ から始めるので、空の区間を $\\{1\\}$ に写します。"
+msgid "`pown` calls `PowIntChecked::pow_int_checked` of Luna-Flow/arithmetic with `ArithmeticContext::new(x.precision())`. `Interval` reads only the precision from the context (rounding direction and exponent bounds have no meaning for an outward-rounded enclosure) and re-rounds the base and the result with `with_precision`, which is sound but can add one ulp per side. The two traits `Interval` implements, `PowIntChecked` and `PowNatChecked`, are implemented differently, and only one of them avoids the *dependency problem* (`IntervalChecked` offers only `pown`; `PowNatChecked` is reached through `Interval::pow_nat_checked`). $X \\cdot X$ treats the two factors as independent, so for $X = [-1, 1]$ it gives $[-1, 1]$, whereas $\\{t^2 : t \\in X\\} = [0, 1]$. `pown` uses `Interval::pown`, which evaluates $t \\mapsto t^n$ on the monotone pieces of one variable $t$ and returns $[0, 1]$. `pow_nat_checked` uses binary powering, $X^{n} = X^{\\lfloor n/2 \\rfloor} \\cdot X^{\\lfloor n/2 \\rfloor} \\cdot X^{n \\bmod 2}$ evaluated with interval products, so it encloses the larger set $\\{t_1 t_2 \\cdots t_n : t_i \\in X\\}$ and returns $[-1, 1]$; both are enclosures of $\\{t^n\\}$, but only `pown` is tight. `pow_nat_checked(0)` starts from $\\{1\\}$ without inspecting the base, so it maps an empty interval to $\\{1\\}$."
+msgstr "`pown` は、`ArithmeticContext::new(x.precision())` を用いて Luna-Flow/arithmetic の `PowIntChecked::pow_int_checked` を呼び出します。`Interval` はコンテキストから精度だけを読み取り（丸め方向と指数の上下限は外向きに丸めた包含区間には意味を持ちません）、底と結果を `with_precision` で丸め直します。これは健全ですが、片側あたり 1 ulp 広がることがあります。`Interval` が実装する 2 つのトレイト `PowIntChecked` と `PowNatChecked` は実装が異なり、*依存性問題*を回避するのはそのうち一方だけです（`IntervalChecked` が持つのは `pown` だけで、`PowNatChecked` は `Interval::pow_nat_checked` から使います）。$X \\cdot X$ は 2 つの因子を独立なものとして扱うので、$X = [-1, 1]$ に対して $[-1, 1]$ を与えますが、$\\{t^2 : t \\in X\\} = [0, 1]$ です。`pown` は `Interval::pown` を用い、これは 1 つの変数 $t$ の単調な各部分で $t \\mapsto t^n$ を評価して $[0, 1]$ を返します。`pow_nat_checked` は二進べき乗法 $X^{n} = X^{\\lfloor n/2 \\rfloor} \\cdot X^{\\lfloor n/2 \\rfloor} \\cdot X^{n \\bmod 2}$ を区間の積で評価するので、より大きな集合 $\\{t_1 t_2 \\cdots t_n : t_i \\in X\\}$ を包含し、$[-1, 1]$ を返します。どちらも $\\{t^n\\}$ の包含区間ですが、緊密なのは `pown` だけです。`pow_nat_checked(0)` は底を検査せずに $\\{1\\}$ から始めるので、空の区間を $\\{1\\}$ に写します。"
 
 #: manual/design/interval_checked.md:119
 msgid "No decorations and no flags"
@@ -19749,8 +19749,8 @@ msgid "`GdaOutcome[T]`, which keeps the GDA-defined result even when a trap fire
 msgstr "トラップが発火しても GDA で定義された結果を保持する `GdaOutcome[T]`。"
 
 #: manual/getting_started.md:158
-msgid "The pipeline wrappers: `BinaryChecked` and `IntervalResult` stop at the first error; `DecimalChecked` keeps defined NaN and infinity results and accumulates flags; `GdaDecimalChecked` stops at a trap and keeps its outcome."
-msgstr "パイプラインのラッパー: `BinaryChecked` と `IntervalResult` は最初のエラーで停止します。`DecimalChecked` は定義済みの NaN と無限大の結果を保持し、フラグを蓄積します。`GdaDecimalChecked` はトラップで停止し、その結果を保持します。"
+msgid "The pipeline wrappers: `BinaryChecked` and `IntervalChecked` stop at the first error; `DecimalChecked` keeps defined NaN and infinity results and accumulates flags; `GdaDecimalChecked` stops at a trap and keeps its outcome."
+msgstr "パイプラインのラッパー: `BinaryChecked` と `IntervalChecked` は最初のエラーで停止します。`DecimalChecked` は定義済みの NaN と無限大の結果を保持し、フラグを蓄積します。`GdaDecimalChecked` はトラップで停止し、その結果を保持します。"
 
 #: manual/getting_started.md:162
 msgid "Empty, Entire and NaI, which are interval values, not errors."
@@ -20648,8 +20648,8 @@ msgid "Pipelines and shared vocabulary"
 msgstr "パイプラインと共通語彙"
 
 #: manual/index.md:183
-msgid "Checked wrappers: `BinaryChecked`, `DecimalChecked`, `GdaDecimalChecked`, `IntervalResult`"
-msgstr "checked ラッパー：`BinaryChecked`、`DecimalChecked`、`GdaDecimalChecked`、`IntervalResult`"
+msgid "Checked wrappers: `BinaryChecked`, `DecimalChecked`, `GdaDecimalChecked`, `IntervalChecked`"
+msgstr "checked ラッパー：`BinaryChecked`、`DecimalChecked`、`GdaDecimalChecked`、`IntervalChecked`"
 
 #: manual/index.md:185
 msgid "`def`: `Sign`, `PartialOrder`, the `Floating` trait, `is_finite`, `is_infinite`, `is_nan`, `is_zero`, and the re-exported `RoundingMode`, `ArithmeticContext` and `ArithmeticError` of `Luna-Flow/arithmetic`"
@@ -20980,8 +20980,8 @@ msgid "Checked errors"
 msgstr "checked エラー"
 
 #: manual/numeric_semantics.md:416
-msgid "An `ArithmeticError` (re-exported by `def`) has a kind: `DivisionByZero`, `ParseError`, `DomainError`, `FormatError`, `UnsupportedOperation`, `UnorderedComparison` or `CertificationFailure`. It is used where the checked contract has no value to return: `div_checked` by zero, `sqrt` of a negative number, `compare_checked` with a NaN, a malformed literal. `BinaryChecked` and `IntervalResult` keep the first error and skip the remaining steps."
-msgstr "`ArithmeticError`（`def` から再エクスポート）は種別を持ちます：`DivisionByZero`、`ParseError`、`DomainError`、`FormatError`、`UnsupportedOperation`、`UnorderedComparison`、`CertificationFailure`。これは checked の契約に返すべき値がない場合に使われます。ゼロによる `div_checked`、負数の `sqrt`、NaN を含む `compare_checked`、不正なリテラルなどです。`BinaryChecked` と `IntervalResult` は最初のエラーを保持し、残りのステップをスキップします。"
+msgid "An `ArithmeticError` (re-exported by `def`) has a kind: `DivisionByZero`, `ParseError`, `DomainError`, `FormatError`, `UnsupportedOperation`, `UnorderedComparison` or `CertificationFailure`. It is used where the checked contract has no value to return: `div_checked` by zero, `sqrt` of a negative number, `compare_checked` with a NaN, a malformed literal. `BinaryChecked` and `IntervalChecked` keep the first error and skip the remaining steps."
+msgstr "`ArithmeticError`（`def` から再エクスポート）は種別を持ちます：`DivisionByZero`、`ParseError`、`DomainError`、`FormatError`、`UnsupportedOperation`、`UnorderedComparison`、`CertificationFailure`。これは checked の契約に返すべき値がない場合に使われます。ゼロによる `div_checked`、負数の `sqrt`、NaN を含む `compare_checked`、不正なリテラルなどです。`BinaryChecked` と `IntervalChecked` は最初のエラーを保持し、残りのステップをスキップします。"
 
 #: manual/numeric_semantics.md:423
 msgid "The elementary functions have both forms. A `try_*_ctx` function returns `Err` with a `CertificationFailure` detail if the certified refinement cannot decide the rounding within its budget. The non-`try` forms never abort: the binary ones return a quiet NaN with *invalid operation*, and the decimal and GDA ones return their invalid result so that flags and traps apply as usual."
@@ -27542,8 +27542,8 @@ msgid "interval_checked tutorial"
 msgstr "interval_checked チュートリアル"
 
 #: manual/tutorial/interval_checked.md:3
-msgid "This tutorial shows how to run an interval computation in which invalid input and uncertifiable steps are reported as errors while every valid result stays a guaranteed enclosure: you build intervals with validating constructors, chain interval arithmetic and elementary functions in an `IntervalResult`, add your own checks with `bind`, and read the outcome once. The arithmetic comes from [`interval`](interval.md); the [design page](../design/interval_checked.md) explains which outcomes are errors; the [API reference](../api/interval_checked.md) lists every method."
-msgstr "このチュートリアルでは、不正な入力や認証できないステップをエラーとして報告しつつ、すべての有効な結果を保証付きの包含区間のまま保つ区間計算の実行方法を示します。検証付きのコンストラクタで区間を構築し、区間算術と初等関数を `IntervalResult` の中で連鎖させ、`bind` で独自のチェックを加え、結果を一度だけ読み取ります。算術は [`interval`](interval.md) に由来します。どの結果がエラーになるかは[設計ページ](../design/interval_checked.md)で説明し、すべてのメソッドは [API リファレンス](../api/interval_checked.md)に一覧があります。"
+msgid "This tutorial shows how to run an interval computation in which invalid input and uncertifiable steps are reported as errors while every valid result stays a guaranteed enclosure: you build intervals with validating constructors, chain interval arithmetic and elementary functions in an `IntervalChecked`, add your own checks with `bind`, and read the outcome once. The arithmetic comes from [`interval`](interval.md); the [design page](../design/interval_checked.md) explains which outcomes are errors; the [API reference](../api/interval_checked.md) lists every method."
+msgstr "このチュートリアルでは、不正な入力や認証できないステップをエラーとして報告しつつ、すべての有効な結果を保証付きの包含区間のまま保つ区間計算の実行方法を示します。検証付きのコンストラクタで区間を構築し、区間算術と初等関数を `IntervalChecked` の中で連鎖させ、`bind` で独自のチェックを加え、結果を一度だけ読み取ります。算術は [`interval`](interval.md) に由来します。どの結果がエラーになるかは[設計ページ](../design/interval_checked.md)で説明し、すべてのメソッドは [API リファレンス](../api/interval_checked.md)に一覧があります。"
 
 #: manual/tutorial/interval_checked.md:14
 msgid "build an enclosure from untrusted bounds or a `Double`"
@@ -27558,8 +27558,8 @@ msgid "push uncertain inputs through a formula"
 msgstr "不確かな入力を式に通す"
 
 #: manual/tutorial/interval_checked.md:15
-msgid "`+ - * /` on `IntervalResult` ([Propagate uncertainty](#propagate-uncertainty-through-a-formula))"
-msgstr "`IntervalResult` に対する `+ - * /`（[不確かさを伝播する](#propagate-uncertainty-through-a-formula)）"
+msgid "`+ - * /` on `IntervalChecked` ([Propagate uncertainty](#propagate-uncertainty-through-a-formula))"
+msgstr "`IntervalChecked` に対する `+ - * /`（[不確かさを伝播する](#propagate-uncertainty-through-a-formula)）"
 
 #: manual/tutorial/interval_checked.md:16
 msgid "treat an empty or unbounded result as a success or as a failure"
@@ -32713,8 +32713,8 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体の
 #~ msgid "`Interval` currently implements:"
 #~ msgstr "`Interval` は現在次を実装します。"
 
-#~ msgid "`IntervalResult` wraps `Result[Interval, ArithmeticError]` while preserving interval semantics."
-#~ msgstr "`IntervalResult` は区間意味論を保ちながら `Result[Interval, ArithmeticError]` を包みます。"
+#~ msgid "`IntervalChecked` wraps `Result[Interval, ArithmeticError]` while preserving interval semantics."
+#~ msgstr "`IntervalChecked` は区間意味論を保ちながら `Result[Interval, ArithmeticError]` を包みます。"
 
 #~ msgid "`ok`, `err`, `from_result`, and `result` bridge raw results. `exact`, `from_bounds`, `whole`, `from_int`, `from_coefficient`, `from_float`, and `from_double` construct wrapped intervals. Invalid bounds become `Err`."
 #~ msgstr "`ok`、`err`、`from_result`、`result` が生の結果を接続します。`exact`、`from_bounds`、`whole` と各 `from_*` が区間を構築し、不正な境界は `Err` になります。"
@@ -32722,7 +32722,7 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体の
 #~ msgid "Composition And Arithmetic"
 #~ msgstr "合成と算術"
 
-#~ msgid "`map`, `bind`, and `flat_map` short-circuit existing errors. `abs`, `neg`, `add`, `sub`, `mul`, `div`, `pow_nat`, `pow_int`, `normalized`, and `with_precision` return `IntervalResult`; standard arithmetic operators are implemented."
+#~ msgid "`map`, `bind`, and `flat_map` short-circuit existing errors. `abs`, `neg`, `add`, `sub`, `mul`, `div`, `pow_nat`, `pow_int`, `normalized`, and `with_precision` return `IntervalChecked`; standard arithmetic operators are implemented."
 #~ msgstr "`map`、`bind`、`flat_map` は既存エラーを短絡します。絶対値、符号反転、四則演算、整数べき、正規化、精度変更は `Self` を返し、標準演算子も実装されています。"
 
 #~ msgid "Division by an interval containing zero follows `Interval` semantics and returns the whole-real enclosure. It is not converted into `Err`."
@@ -33295,8 +33295,8 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体の
 #~ msgid "[`binary` design](binary.md) owns endpoint kernels and coefficient dispatch; [`binary` performance](../performance/binary.md) owns their crossover evidence."
 #~ msgstr "[API](../api/interval.md)、[Tutorial](../tutorial/interval.md)、[Conformance](../conformance/interval.md)、endpoint kernel/crossover の [`binary` Design](binary.md) / [Performance](../performance/binary.md) を参照してください。"
 
-#~ msgid "`IntervalResult` closes checked interval construction and arithmetic over `Result[Interval, ArithmeticError]`. Invalid bounds, non-finite exact sources, and checked arithmetic failures enter the error branch; later methods short-circuit. `bind` may introduce a failure and `map` cannot."
-#~ msgstr "`IntervalResult` は checked interval 構築と算術を閉じます。不正端点、非有限 exact source、checked failure は error になり後続を短絡します。"
+#~ msgid "`IntervalChecked` closes checked interval construction and arithmetic over `Result[Interval, ArithmeticError]`. Invalid bounds, non-finite exact sources, and checked arithmetic failures enter the error branch; later methods short-circuit. `bind` may introduce a failure and `map` cannot."
+#~ msgstr "`IntervalChecked` は checked interval 構築と算術を閉じます。不正端点、非有限 exact source、checked failure は error になり後続を短絡します。"
 
 #~ msgid "The wrapper neither stores decorations nor `IntervalFlags`, and it does not add an interval algorithm. Bare set arithmetic is delegated to `interval`; decorated operations and context status remain explicit APIs there. Conservative interval results such as Entire are valid successes, not wrapper errors."
 #~ msgstr "decoration や `IntervalFlags` を保存せず、interval algorithm も追加しません。bare/decorated/context は `interval` の責務であり、Entire のような保守的包絡は正常な成功値です。"
@@ -33859,8 +33859,8 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体の
 #~ msgid "Containment, subset, overlap, disjointness, and definite comparison replace scalar total ordering. Division by an interval containing zero can validly produce Entire. A conservative enclosure is a successful value even when it is not tight."
 #~ msgstr "Containment、subset、overlap、disjointness、definite comparison が scalar total order を置き換えます。Zero を含む interval による division は Entire を返しても正しく、conservative enclosure は tight でなくても successful value です。"
 
-#~ msgid "Decorations record how strongly the result satisfies continuity/domain conditions. They are not scalar flags and are not stored by `IntervalResult`."
-#~ msgstr "Decoration は continuity/domain condition の強さを記録し、scalar flag でも `IntervalResult` の保存値でもありません。"
+#~ msgid "Decorations record how strongly the result satisfies continuity/domain conditions. They are not scalar flags and are not stored by `IntervalChecked`."
+#~ msgstr "Decoration は continuity/domain condition の強さを記録し、scalar flag でも `IntervalChecked` の保存値でもありません。"
 
 #~ msgid "Conversion And Projection"
 #~ msgstr "Conversion と projection"
@@ -33988,8 +33988,8 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体の
 #~ msgid "[`interval_checked` tutorial](interval_checked.md) shows first-error construction and composition."
 #~ msgstr "[Design](../design/interval.md)、[Conformance](../conformance/interval.md)、 [`interval_checked`](interval_checked.md) を参照してください。"
 
-#~ msgid "`IntervalResult` keeps `Result[Interval, ArithmeticError]` inside a fluent pipeline. Use it when invalid bounds, non-finite exact construction, or a checked elementary proof failure should stop later interval operations."
-#~ msgstr "`IntervalResult` は `Result[Interval,ArithmeticError]` を fluent pipeline に保持します。Invalid bounds、 non-finite exact source、checked elementary proof failure が後続 operation を止めます。"
+#~ msgid "`IntervalChecked` keeps `Result[Interval, ArithmeticError]` inside a fluent pipeline. Use it when invalid bounds, non-finite exact construction, or a checked elementary proof failure should stop later interval operations."
+#~ msgstr "`IntervalChecked` は `Result[Interval,ArithmeticError]` を fluent pipeline に保持します。Invalid bounds、 non-finite exact source、checked elementary proof failure が後続 operation を止めます。"
 
 #~ msgid "Validate Construction Once"
 #~ msgstr "Construction を一度 Validate"
@@ -34006,7 +34006,7 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体の
 #~ msgid "Decorations And Flags Stay Explicit"
 #~ msgstr "Decoration / Flags は Explicit"
 
-#~ msgid "`IntervalResult` stores bare intervals only. It does not retain `DecoratedInterval` state or `IntervalFlags`. Use raw `interval` APIs when decoration, NaI, inexact, overflow, or underflow is part of the result contract."
+#~ msgid "`IntervalChecked` stores bare intervals only. It does not retain `DecoratedInterval` state or `IntervalFlags`. Use raw `interval` APIs when decoration, NaI, inexact, overflow, or underflow is part of the result contract."
 #~ msgstr "Wrapper は bare interval のみで `DecoratedInterval`/`IntervalFlags` を保持しません。Decoration、NaI、 inexact/overflow/underflow が contract の場合は raw API を使います。"
 
 #~ msgid "Use the wrapper to validate untrusted construction and retain first failure."

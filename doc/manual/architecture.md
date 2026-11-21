@@ -216,7 +216,7 @@ No numerical package relies on an ambient rounding mode.
   can run all three under one `ArithmeticContext`;
   `BinaryContext::from_arithmetic_context` and the decimal equivalents carry
   its precision, rounding, exponent bounds and clamp.
-- `BinaryChecked` and `IntervalResult` keep the first `ArithmeticError`.
+- `BinaryChecked` and `IntervalChecked` keep the first `ArithmeticError`.
 - `DecimalChecked` keeps defined IEEE results, accumulates flags, and keeps
   certification errors separately.
 - `GdaDecimalChecked` threads one outcome, stops on `Trapped`, and resumes only

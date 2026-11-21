@@ -3,7 +3,7 @@
 This tutorial shows how to run an interval computation in which invalid input
 and uncertifiable steps are reported as errors while every valid result stays a
 guaranteed enclosure: you build intervals with validating constructors, chain
-interval arithmetic and elementary functions in an `IntervalResult`, add your
+interval arithmetic and elementary functions in an `IntervalChecked`, add your
 own checks with `bind`, and read the outcome once. The arithmetic comes from
 [`interval`](interval.md); the [design page](../design/interval_checked.md)
 explains which outcomes are errors; the [API reference](../api/interval_checked.md)
@@ -12,7 +12,7 @@ lists every method.
 | I want to | Use |
 | --- | --- |
 | build an enclosure from untrusted bounds or a `Double` | `from_bounds`, `from_double`, `exact` ([Validate measurements](#validate-measurements-at-the-boundary)) |
-| push uncertain inputs through a formula | `+ - * /` on `IntervalResult` ([Propagate uncertainty](#propagate-uncertainty-through-a-formula)) |
+| push uncertain inputs through a formula | `+ - * /` on `IntervalChecked` ([Propagate uncertainty](#propagate-uncertainty-through-a-formula)) |
 | treat an empty or unbounded result as a success or as a failure | `is_ok`, `bind` ([No information is not an error](#know-that-no-information-is-not-an-error), [Application rules](#turn-an-application-rule-into-an-error)) |
 | find out why an elementary function failed | `error()`, `certification_failure_detail()` ([Certification failures](#certification-failures)) |
 | square an interval that contains 0 tightly | `pown`, not `x * x` ([Powers](#powers-through-the-arithmetic-traits)) |
@@ -43,7 +43,7 @@ Enclose $\ln 2$ at 53 bits:
 ```moonbit
 ///|
 test "quick start: an enclosure of ln 2" {
-  let r = @interval_checked.IntervalResult::from_int(2, precision=53).ln()
+  let r = @interval_checked.IntervalChecked::from_int(2, precision=53).ln()
   match r.result() {
     Ok(x) => {
       inspect(x.lower_bound().to_string(), content="6243314768165359p-53")
@@ -65,7 +65,7 @@ portable literal `[l, u]`):
 
 ```moonbit
 ///|
-fn show(r : @interval_checked.IntervalResult) -> String {
+fn show(r : @interval_checked.IntervalChecked) -> String {
   match r.result() {
     Ok(v) => v.to_midpoint_radius_string()
     Err(e) => "error: " + e.message
@@ -80,8 +80,8 @@ bounds and non-finite sources become errors before any computation runs:
 
 ```moonbit
 ///|
-fn reading(lo : Double, hi : Double) -> @interval_checked.IntervalResult {
-  @interval_checked.IntervalResult::from_bounds(
+fn reading(lo : Double, hi : Double) -> @interval_checked.IntervalChecked {
+  @interval_checked.IntervalChecked::from_bounds(
     @binary.Binary::from_double(lo),
     @binary.Binary::from_double(hi),
   )
@@ -130,10 +130,10 @@ These are successes, because they are correct enclosures:
 ```moonbit
 ///|
 test "empty and whole results are successes" {
-  let negative = @interval_checked.IntervalResult::from_int(-2)
+  let negative = @interval_checked.IntervalChecked::from_int(-2)
   inspect(show(negative.ln()), content="[empty]")
   inspect(negative.ln().is_ok(), content="true")
-  let one = @interval_checked.IntervalResult::from_int(1)
+  let one = @interval_checked.IntervalChecked::from_int(1)
   inspect(show(one / reading(-1.0, 1.0)), content="[-inf, inf]")
 }
 ```
@@ -147,19 +147,19 @@ with `bind`.
 ///|
 fn require_nonempty(
   x : @interval.Interval,
-) -> @interval_checked.IntervalResult {
+) -> @interval_checked.IntervalChecked {
   if x.is_empty() {
-    @interval_checked.IntervalResult::err(
+    @interval_checked.IntervalChecked::err(
       @lf_arith.ArithmeticError::domain_error("no admissible value"),
     )
   } else {
-    @interval_checked.IntervalResult::ok(x)
+    @interval_checked.IntervalChecked::ok(x)
   }
 }
 
 ///|
 test "reject empty enclosures" {
-  let r = @interval_checked.IntervalResult::from_int(-2).ln().bind(require_nonempty)
+  let r = @interval_checked.IntervalChecked::from_int(-2).ln().bind(require_nonempty)
   inspect(show(r), content="error: no admissible value")
   let ok = reading(1.0, 3.0).ln().bind(require_nonempty)
   inspect(ok.is_ok(), content="true")
@@ -178,7 +178,7 @@ needlessly wide interval:
 ```moonbit
 ///|
 test "certification failure carries a detail record" {
-  let huge = @interval_checked.IntervalResult::exact(
+  let huge = @interval_checked.IntervalChecked::exact(
     @binary.Binary::make(@binary.BinCoeff::one(), 8000000, 53),
   )
   match huge.sin().error() {

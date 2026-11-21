@@ -2,7 +2,7 @@
 
 Maremark benchmarks for interval arithmetic. Exact singleton inputs isolate
 the cost of the `Binary` kernel, `Interval` interval core, and
-`IntervalResult` checked full path for add, multiply, and divide.
+`IntervalChecked` checked full path for add, multiply, and divide.
 
 ```sh
 just bench interval

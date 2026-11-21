@@ -8,109 +8,110 @@ fn[A, B, E, C] interval_result_lift2(
 }
 
 ///|
-pub struct IntervalResult {
+pub struct IntervalChecked {
   priv inner : Result[@interval.Interval, @def.ArithmeticError]
 }
 
 ///|
-pub fn IntervalResult::from_result(
+pub fn IntervalChecked::from_result(
   inner : Result[@interval.Interval, @def.ArithmeticError],
-) -> IntervalResult {
+) -> IntervalChecked {
   { inner, }
 }
 
 ///|
-pub fn IntervalResult::ok(value : @interval.Interval) -> IntervalResult {
+pub fn IntervalChecked::ok(value : @interval.Interval) -> IntervalChecked {
   { inner: Ok(value), }
 }
 
 ///|
-pub fn IntervalResult::err(err : @def.ArithmeticError) -> IntervalResult {
+pub fn IntervalChecked::err(err : @def.ArithmeticError) -> IntervalChecked {
   { inner: Err(err), }
 }
 
 ///|
-pub fn IntervalResult::from_int(
+pub fn IntervalChecked::from_int(
   value : Int32,
   precision~ : Int32 = 53,
-) -> IntervalResult {
+) -> IntervalChecked {
   match @interval.IntervalContext::try_new(precision~) {
-    Ok(_) => IntervalResult::ok(@interval.Interval::from_int(value, precision~))
-    Err(error) => IntervalResult::err(error)
+    Ok(_) =>
+      IntervalChecked::ok(@interval.Interval::from_int(value, precision~))
+    Err(error) => IntervalChecked::err(error)
   }
 }
 
 ///|
-pub fn IntervalResult::from_coefficient(
+pub fn IntervalChecked::from_coefficient(
   value : @binary.BinCoeff,
   precision~ : Int32 = 53,
   negative~ : Bool = false,
-) -> IntervalResult {
+) -> IntervalChecked {
   match @interval.IntervalContext::try_new(precision~) {
     Ok(_) =>
-      IntervalResult::ok(
+      IntervalChecked::ok(
         @interval.Interval::from_coefficient(value, precision~, negative~),
       )
-    Err(error) => IntervalResult::err(error)
+    Err(error) => IntervalChecked::err(error)
   }
 }
 
 ///|
-pub fn IntervalResult::from_double(
+pub fn IntervalChecked::from_double(
   value : Double,
   precision~ : Int32 = 53,
-) -> IntervalResult {
-  IntervalResult::from_result(
+) -> IntervalChecked {
+  IntervalChecked::from_result(
     @interval.Interval::try_from_double(value, precision~),
   )
 }
 
 ///|
-pub fn IntervalResult::from_float(
+pub fn IntervalChecked::from_float(
   value : Float,
   precision~ : Int32 = 24,
-) -> IntervalResult {
-  IntervalResult::from_result(
+) -> IntervalChecked {
+  IntervalChecked::from_result(
     @interval.Interval::try_from_float(value, precision~),
   )
 }
 
 ///|
-pub fn IntervalResult::exact(
+pub fn IntervalChecked::exact(
   value : @binary.Binary,
   precision~ : Int32 = value.precision(),
-) -> IntervalResult {
-  IntervalResult::from_result(@interval.Interval::try_exact(value, precision~))
+) -> IntervalChecked {
+  IntervalChecked::from_result(@interval.Interval::try_exact(value, precision~))
 }
 
 ///|
-pub fn IntervalResult::from_bounds(
+pub fn IntervalChecked::from_bounds(
   lo : @binary.Binary,
   hi : @binary.Binary,
   precision~ : Int32 = Int32::max(lo.precision(), hi.precision()),
-) -> IntervalResult {
-  IntervalResult::from_result(
+) -> IntervalChecked {
+  IntervalChecked::from_result(
     @interval.Interval::try_from_bounds(lo, hi, precision~),
   )
 }
 
 ///|
-pub fn IntervalResult::entire(precision~ : Int32 = 53) -> IntervalResult {
+pub fn IntervalChecked::entire(precision~ : Int32 = 53) -> IntervalChecked {
   match @interval.IntervalContext::try_new(precision~) {
-    Ok(_) => IntervalResult::ok(@interval.Interval::entire(precision~))
-    Err(error) => IntervalResult::err(error)
+    Ok(_) => IntervalChecked::ok(@interval.Interval::entire(precision~))
+    Err(error) => IntervalChecked::err(error)
   }
 }
 
 ///|
-pub fn IntervalResult::result(
-  self : IntervalResult,
+pub fn IntervalChecked::result(
+  self : IntervalChecked,
 ) -> Result[@interval.Interval, @def.ArithmeticError] {
   self.inner
 }
 
 ///|
-pub fn IntervalResult::is_ok(self : IntervalResult) -> Bool {
+pub fn IntervalChecked::is_ok(self : IntervalChecked) -> Bool {
   match self.inner {
     Ok(_) => true
     Err(_) => false
@@ -118,12 +119,12 @@ pub fn IntervalResult::is_ok(self : IntervalResult) -> Bool {
 }
 
 ///|
-pub fn IntervalResult::is_err(self : IntervalResult) -> Bool {
+pub fn IntervalChecked::is_err(self : IntervalChecked) -> Bool {
   !self.is_ok()
 }
 
 ///|
-pub fn IntervalResult::error(self : IntervalResult) -> @def.ArithmeticError? {
+pub fn IntervalChecked::error(self : IntervalChecked) -> @def.ArithmeticError? {
   match self.inner {
     Ok(_) => None
     Err(error) => Some(error)
@@ -131,82 +132,82 @@ pub fn IntervalResult::error(self : IntervalResult) -> @def.ArithmeticError? {
 }
 
 ///|
-pub fn IntervalResult::map(
-  self : IntervalResult,
+pub fn IntervalChecked::map(
+  self : IntervalChecked,
   f : (@interval.Interval) -> @interval.Interval,
-) -> IntervalResult {
-  IntervalResult::from_result(self.inner.map(f))
+) -> IntervalChecked {
+  IntervalChecked::from_result(self.inner.map(f))
 }
 
 ///|
-pub fn IntervalResult::bind(
-  self : IntervalResult,
-  f : (@interval.Interval) -> IntervalResult,
-) -> IntervalResult {
-  IntervalResult::from_result(self.inner.bind(fn(value) { f(value).inner }))
+pub fn IntervalChecked::bind(
+  self : IntervalChecked,
+  f : (@interval.Interval) -> IntervalChecked,
+) -> IntervalChecked {
+  IntervalChecked::from_result(self.inner.bind(fn(value) { f(value).inner }))
 }
 
 ///|
-pub fn IntervalResult::normalized(self : IntervalResult) -> IntervalResult {
+pub fn IntervalChecked::normalized(self : IntervalChecked) -> IntervalChecked {
   self.map(fn(value) { value.normalized() })
 }
 
 ///|
-pub fn IntervalResult::with_precision(
-  self : IntervalResult,
+pub fn IntervalChecked::with_precision(
+  self : IntervalChecked,
   precision : Int32,
-) -> IntervalResult {
+) -> IntervalChecked {
   self.map(fn(value) { value.with_precision(precision) })
 }
 
 ///|
 /// `sqrt` of the interval part; a directed square root cannot fail.
-pub fn IntervalResult::sqrt(self : IntervalResult) -> IntervalResult {
+pub fn IntervalChecked::sqrt(self : IntervalChecked) -> IntervalChecked {
   self.map(fn(value) { value.sqrt() })
 }
 
 ///|
-pub fn IntervalResult::sqr(self : IntervalResult) -> IntervalResult {
+pub fn IntervalChecked::sqr(self : IntervalChecked) -> IntervalChecked {
   self.map(fn(value) { value.sqr() })
 }
 
 ///|
 /// `sign` of Table 9.1: a subset of [-1, 1]. Exact, it cannot fail.
-pub fn IntervalResult::sign(self : IntervalResult) -> IntervalResult {
+pub fn IntervalChecked::sign(self : IntervalChecked) -> IntervalChecked {
   self.map(fn(value) { value.sign() })
 }
 
 ///|
 /// `ceil` of Table 9.1. Exact, it cannot fail.
-pub fn IntervalResult::ceil(self : IntervalResult) -> IntervalResult {
+pub fn IntervalChecked::ceil(self : IntervalChecked) -> IntervalChecked {
   self.map(fn(value) { value.ceil() })
 }
 
 ///|
 /// `floor` of Table 9.1. Exact, it cannot fail.
-pub fn IntervalResult::floor(self : IntervalResult) -> IntervalResult {
+pub fn IntervalChecked::floor(self : IntervalChecked) -> IntervalChecked {
   self.map(fn(value) { value.floor() })
 }
 
 ///|
 /// `trunc` of Table 9.1. Exact, it cannot fail.
-pub fn IntervalResult::trunc(self : IntervalResult) -> IntervalResult {
+pub fn IntervalChecked::trunc(self : IntervalChecked) -> IntervalChecked {
   self.map(fn(value) { value.trunc() })
 }
 
 ///|
 /// `roundTiesToEven` of Table 9.1. Exact, it cannot fail.
-pub fn IntervalResult::round_ties_to_even(
-  self : IntervalResult,
-) -> IntervalResult {
+pub fn IntervalChecked::round_ties_to_even(
+  self : IntervalChecked,
+) -> IntervalChecked {
   self.map(fn(value) { value.round_ties_to_even() })
 }
 
 ///|
 /// `roundTiesToAway` of Table 9.1. Exact, it cannot fail.
-pub fn IntervalResult::round_ties_to_away(
-  self : IntervalResult,
-) -> IntervalResult {
+pub fn IntervalChecked::round_ties_to_away(
+  self : IntervalChecked,
+) -> IntervalChecked {
   self.map(fn(value) { value.round_ties_to_away() })
 }
 
@@ -214,11 +215,11 @@ pub fn IntervalResult::round_ties_to_away(
 /// `mulRev(b, c, x)` of Table 10.1 on the interval parts; an interval
 /// operation never fails, so only an earlier failure is passed on. The prior
 /// `x` is optional (default Entire).
-pub fn IntervalResult::mul_rev(
-  self : IntervalResult,
-  c : IntervalResult,
-  x? : IntervalResult,
-) -> IntervalResult {
+pub fn IntervalChecked::mul_rev(
+  self : IntervalChecked,
+  c : IntervalChecked,
+  x? : IntervalChecked,
+) -> IntervalChecked {
   match x {
     Some(prior) =>
       self.bind(fn(b) {
@@ -231,10 +232,10 @@ pub fn IntervalResult::mul_rev(
 ///|
 /// `mulRevToPair(b, c)` of 10.5.5: the two components, each an `Err` when
 /// either input is.
-pub fn IntervalResult::mul_rev_to_pair(
-  self : IntervalResult,
-  c : IntervalResult,
-) -> (IntervalResult, IntervalResult) {
+pub fn IntervalChecked::mul_rev_to_pair(
+  self : IntervalChecked,
+  c : IntervalChecked,
+) -> (IntervalChecked, IntervalChecked) {
   (
     self.bind(fn(b) { c.map(fn(cc) { b.mul_rev_to_pair(cc).0 }) }),
     self.bind(fn(b) { c.map(fn(cc) { b.mul_rev_to_pair(cc).1 }) }),
@@ -244,10 +245,10 @@ pub fn IntervalResult::mul_rev_to_pair(
 ///|
 /// `sqrRev(c, x)` of Table 10.1 on the interval part; only an earlier failure
 /// is passed on. The prior `x` is optional (default Entire).
-pub fn IntervalResult::sqr_rev(
-  self : IntervalResult,
-  x? : IntervalResult,
-) -> IntervalResult {
+pub fn IntervalChecked::sqr_rev(
+  self : IntervalChecked,
+  x? : IntervalChecked,
+) -> IntervalChecked {
   match x {
     Some(prior) => self.bind(fn(c) { prior.map(fn(p) { c.sqr_rev(x=p) }) })
     None => self.map(fn(c) { c.sqr_rev() })
@@ -256,10 +257,10 @@ pub fn IntervalResult::sqr_rev(
 
 ///|
 /// `absRev(c, x)` of Table 10.1; see `sqr_rev`.
-pub fn IntervalResult::abs_rev(
-  self : IntervalResult,
-  x? : IntervalResult,
-) -> IntervalResult {
+pub fn IntervalChecked::abs_rev(
+  self : IntervalChecked,
+  x? : IntervalChecked,
+) -> IntervalChecked {
   match x {
     Some(prior) => self.bind(fn(c) { prior.map(fn(p) { c.abs_rev(x=p) }) })
     None => self.map(fn(c) { c.abs_rev() })
@@ -268,10 +269,10 @@ pub fn IntervalResult::abs_rev(
 
 ///|
 /// `coshRev(c, x)` of Table 10.1; see `sqr_rev`.
-pub fn IntervalResult::cosh_rev(
-  self : IntervalResult,
-  x? : IntervalResult,
-) -> IntervalResult {
+pub fn IntervalChecked::cosh_rev(
+  self : IntervalChecked,
+  x? : IntervalChecked,
+) -> IntervalChecked {
   match x {
     Some(prior) => self.bind(fn(c) { prior.map(fn(p) { c.cosh_rev(x=p) }) })
     None => self.map(fn(c) { c.cosh_rev() })
@@ -281,11 +282,11 @@ pub fn IntervalResult::cosh_rev(
 ///|
 /// `pownRev(c, x, p)` of Table 10.1; see `sqr_rev`. The prior is the optional
 /// last argument.
-pub fn IntervalResult::pown_rev(
-  self : IntervalResult,
+pub fn IntervalChecked::pown_rev(
+  self : IntervalChecked,
   p : Int32,
-  x? : IntervalResult,
-) -> IntervalResult {
+  x? : IntervalChecked,
+) -> IntervalChecked {
   match x {
     Some(prior) => self.bind(fn(c) { prior.map(fn(q) { c.pown_rev(p, x=q) }) })
     None => self.map(fn(c) { c.pown_rev(p) })
@@ -294,10 +295,10 @@ pub fn IntervalResult::pown_rev(
 
 ///|
 /// `sinRev(c, x)` of Table 10.1; see `sqr_rev`.
-pub fn IntervalResult::sin_rev(
-  self : IntervalResult,
-  x? : IntervalResult,
-) -> IntervalResult {
+pub fn IntervalChecked::sin_rev(
+  self : IntervalChecked,
+  x? : IntervalChecked,
+) -> IntervalChecked {
   match x {
     Some(prior) => self.bind(fn(c) { prior.map(fn(p) { c.sin_rev(x=p) }) })
     None => self.map(fn(c) { c.sin_rev() })
@@ -306,10 +307,10 @@ pub fn IntervalResult::sin_rev(
 
 ///|
 /// `cosRev(c, x)` of Table 10.1; see `sqr_rev`.
-pub fn IntervalResult::cos_rev(
-  self : IntervalResult,
-  x? : IntervalResult,
-) -> IntervalResult {
+pub fn IntervalChecked::cos_rev(
+  self : IntervalChecked,
+  x? : IntervalChecked,
+) -> IntervalChecked {
   match x {
     Some(prior) => self.bind(fn(c) { prior.map(fn(p) { c.cos_rev(x=p) }) })
     None => self.map(fn(c) { c.cos_rev() })
@@ -318,10 +319,10 @@ pub fn IntervalResult::cos_rev(
 
 ///|
 /// `tanRev(c, x)` of Table 10.1; see `sqr_rev`.
-pub fn IntervalResult::tan_rev(
-  self : IntervalResult,
-  x? : IntervalResult,
-) -> IntervalResult {
+pub fn IntervalChecked::tan_rev(
+  self : IntervalChecked,
+  x? : IntervalChecked,
+) -> IntervalChecked {
   match x {
     Some(prior) => self.bind(fn(c) { prior.map(fn(p) { c.tan_rev(x=p) }) })
     None => self.map(fn(c) { c.tan_rev() })
@@ -331,11 +332,11 @@ pub fn IntervalResult::tan_rev(
 ///|
 /// `powRev1(b, c, x)` of Table 10.1 on the interval parts; only an earlier failure is
 /// passed on. The prior `x` is optional (default Entire).
-pub fn IntervalResult::pow_rev1(
-  self : IntervalResult,
-  c : IntervalResult,
-  x? : IntervalResult,
-) -> IntervalResult {
+pub fn IntervalChecked::pow_rev1(
+  self : IntervalChecked,
+  c : IntervalChecked,
+  x? : IntervalChecked,
+) -> IntervalChecked {
   match x {
     Some(prior) =>
       self.bind(fn(b) {
@@ -348,11 +349,11 @@ pub fn IntervalResult::pow_rev1(
 ///|
 /// `powRev2(a, c, x)` of Table 10.1 on the interval parts; only an earlier failure is
 /// passed on. The prior `x` is optional (default Entire).
-pub fn IntervalResult::pow_rev2(
-  self : IntervalResult,
-  c : IntervalResult,
-  x? : IntervalResult,
-) -> IntervalResult {
+pub fn IntervalChecked::pow_rev2(
+  self : IntervalChecked,
+  c : IntervalChecked,
+  x? : IntervalChecked,
+) -> IntervalChecked {
   match x {
     Some(prior) =>
       self.bind(fn(a) {
@@ -365,11 +366,11 @@ pub fn IntervalResult::pow_rev2(
 ///|
 /// `atan2Rev1(b, c, x)` of Table 10.1 on the interval parts; only an earlier failure is
 /// passed on. The prior `x` is optional (default Entire).
-pub fn IntervalResult::atan2_rev1(
-  self : IntervalResult,
-  c : IntervalResult,
-  x? : IntervalResult,
-) -> IntervalResult {
+pub fn IntervalChecked::atan2_rev1(
+  self : IntervalChecked,
+  c : IntervalChecked,
+  x? : IntervalChecked,
+) -> IntervalChecked {
   match x {
     Some(prior) =>
       self.bind(fn(b) {
@@ -382,11 +383,11 @@ pub fn IntervalResult::atan2_rev1(
 ///|
 /// `atan2Rev2(a, c, x)` of Table 10.1 on the interval parts; only an earlier failure is
 /// passed on. The prior `x` is optional (default Entire).
-pub fn IntervalResult::atan2_rev2(
-  self : IntervalResult,
-  c : IntervalResult,
-  x? : IntervalResult,
-) -> IntervalResult {
+pub fn IntervalChecked::atan2_rev2(
+  self : IntervalChecked,
+  c : IntervalChecked,
+  x? : IntervalChecked,
+) -> IntervalChecked {
   match x {
     Some(prior) =>
       self.bind(fn(a) {
@@ -399,54 +400,54 @@ pub fn IntervalResult::atan2_rev2(
 ///|
 /// `Interval::from_string` (IEEE 1788-2015 `textToInterval`): the failed call is the
 /// failure of the result.
-pub fn IntervalResult::from_string(
+pub fn IntervalChecked::from_string(
   s : String,
   precision~ : Int32 = 53,
-) -> IntervalResult {
-  IntervalResult::from_result(@interval.Interval::from_string(s, precision~))
+) -> IntervalChecked {
+  IntervalChecked::from_result(@interval.Interval::from_string(s, precision~))
 }
 
 ///|
-pub fn IntervalResult::recip(self : IntervalResult) -> IntervalResult {
+pub fn IntervalChecked::recip(self : IntervalChecked) -> IntervalChecked {
   self.map(fn(value) { value.recip() })
 }
 
 ///|
-pub fn IntervalResult::min(
-  self : IntervalResult,
-  other : IntervalResult,
-) -> IntervalResult {
-  IntervalResult::from_result(
+pub fn IntervalChecked::min(
+  self : IntervalChecked,
+  other : IntervalChecked,
+) -> IntervalChecked {
+  IntervalChecked::from_result(
     interval_result_lift2(self.inner, other.inner, fn(lhs, rhs) { lhs.min(rhs) }),
   )
 }
 
 ///|
-pub fn IntervalResult::max(
-  self : IntervalResult,
-  other : IntervalResult,
-) -> IntervalResult {
-  IntervalResult::from_result(
+pub fn IntervalChecked::max(
+  self : IntervalChecked,
+  other : IntervalChecked,
+) -> IntervalChecked {
+  IntervalChecked::from_result(
     interval_result_lift2(self.inner, other.inner, fn(lhs, rhs) { lhs.max(rhs) }),
   )
 }
 
 ///|
 /// `x * y + z` with one rounding of the interval operation.
-pub fn IntervalResult::fma(
-  self : IntervalResult,
-  factor : IntervalResult,
-  addend : IntervalResult,
-) -> IntervalResult {
+pub fn IntervalChecked::fma(
+  self : IntervalChecked,
+  factor : IntervalChecked,
+  addend : IntervalChecked,
+) -> IntervalChecked {
   self.bind(fn(x) { factor.bind(fn(y) { addend.map(fn(z) { x.fma(y, z) }) }) })
 }
 
 ///|
-pub fn IntervalResult::intersection(
-  self : IntervalResult,
-  other : IntervalResult,
-) -> IntervalResult {
-  IntervalResult::from_result(
+pub fn IntervalChecked::intersection(
+  self : IntervalChecked,
+  other : IntervalChecked,
+) -> IntervalChecked {
+  IntervalChecked::from_result(
     interval_result_lift2(self.inner, other.inner, fn(lhs, rhs) {
       lhs.intersection(rhs)
     }),
@@ -454,11 +455,11 @@ pub fn IntervalResult::intersection(
 }
 
 ///|
-pub fn IntervalResult::convex_hull(
-  self : IntervalResult,
-  other : IntervalResult,
-) -> IntervalResult {
-  IntervalResult::from_result(
+pub fn IntervalChecked::convex_hull(
+  self : IntervalChecked,
+  other : IntervalChecked,
+) -> IntervalChecked {
+  IntervalChecked::from_result(
     interval_result_lift2(self.inner, other.inner, fn(lhs, rhs) {
       lhs.convex_hull(rhs)
     }),
@@ -466,11 +467,11 @@ pub fn IntervalResult::convex_hull(
 }
 
 ///|
-pub fn IntervalResult::cancel_plus(
-  self : IntervalResult,
-  other : IntervalResult,
-) -> IntervalResult {
-  IntervalResult::from_result(
+pub fn IntervalChecked::cancel_plus(
+  self : IntervalChecked,
+  other : IntervalChecked,
+) -> IntervalChecked {
+  IntervalChecked::from_result(
     interval_result_lift2(self.inner, other.inner, fn(lhs, rhs) {
       lhs.cancel_plus(rhs)
     }),
@@ -478,11 +479,11 @@ pub fn IntervalResult::cancel_plus(
 }
 
 ///|
-pub fn IntervalResult::cancel_minus(
-  self : IntervalResult,
-  other : IntervalResult,
-) -> IntervalResult {
-  IntervalResult::from_result(
+pub fn IntervalChecked::cancel_minus(
+  self : IntervalChecked,
+  other : IntervalChecked,
+) -> IntervalChecked {
+  IntervalChecked::from_result(
     interval_result_lift2(self.inner, other.inner, fn(lhs, rhs) {
       lhs.cancel_minus(rhs)
     }),
@@ -490,197 +491,197 @@ pub fn IntervalResult::cancel_minus(
 }
 
 ///|
-pub fn IntervalResult::neg(self : IntervalResult) -> IntervalResult {
+pub fn IntervalChecked::neg(self : IntervalChecked) -> IntervalChecked {
   self.map(fn(value) { value.neg() })
 }
 
 ///|
-pub fn IntervalResult::abs(self : IntervalResult) -> IntervalResult {
+pub fn IntervalChecked::abs(self : IntervalChecked) -> IntervalChecked {
   self.map(fn(value) { value.abs() })
 }
 
 ///|
-pub fn IntervalResult::add(
-  self : IntervalResult,
-  other : IntervalResult,
-) -> IntervalResult {
-  IntervalResult::from_result(
+pub fn IntervalChecked::add(
+  self : IntervalChecked,
+  other : IntervalChecked,
+) -> IntervalChecked {
+  IntervalChecked::from_result(
     interval_result_lift2(self.inner, other.inner, fn(lhs, rhs) { lhs + rhs }),
   )
 }
 
 ///|
-pub fn IntervalResult::sub(
-  self : IntervalResult,
-  other : IntervalResult,
-) -> IntervalResult {
-  IntervalResult::from_result(
+pub fn IntervalChecked::sub(
+  self : IntervalChecked,
+  other : IntervalChecked,
+) -> IntervalChecked {
+  IntervalChecked::from_result(
     interval_result_lift2(self.inner, other.inner, fn(lhs, rhs) { lhs - rhs }),
   )
 }
 
 ///|
-pub fn IntervalResult::mul(
-  self : IntervalResult,
-  other : IntervalResult,
-) -> IntervalResult {
-  IntervalResult::from_result(
+pub fn IntervalChecked::mul(
+  self : IntervalChecked,
+  other : IntervalChecked,
+) -> IntervalChecked {
+  IntervalChecked::from_result(
     interval_result_lift2(self.inner, other.inner, fn(lhs, rhs) { lhs * rhs }),
   )
 }
 
 ///|
-pub fn IntervalResult::div(
-  self : IntervalResult,
-  other : IntervalResult,
-) -> IntervalResult {
-  IntervalResult::from_result(
+pub fn IntervalChecked::div(
+  self : IntervalChecked,
+  other : IntervalChecked,
+) -> IntervalChecked {
+  IntervalChecked::from_result(
     interval_result_lift2(self.inner, other.inner, fn(lhs, rhs) { lhs / rhs }),
   )
 }
 
 ///|
-pub fn IntervalResult::pown(
-  self : IntervalResult,
+pub fn IntervalChecked::pown(
+  self : IntervalChecked,
   exponent : Int32,
-) -> IntervalResult {
+) -> IntervalChecked {
   self.bind(fn(value) {
     let ctx = @lf_arith.ArithmeticContext::new(value.precision())
-    IntervalResult::from_result(
+    IntervalChecked::from_result(
       @lf_arith.PowIntChecked::pow_int_checked(value, exponent, ctx),
     )
   })
 }
 
 ///|
-pub fn IntervalResult::rootn(
-  self : IntervalResult,
+pub fn IntervalChecked::rootn(
+  self : IntervalChecked,
   degree : Int32,
-) -> IntervalResult {
-  self.bind(fn(value) { IntervalResult::from_result(value.try_rootn(degree)) })
+) -> IntervalChecked {
+  self.bind(fn(value) { IntervalChecked::from_result(value.try_rootn(degree)) })
 }
 
 ///|
-pub fn IntervalResult::exp(self : IntervalResult) -> IntervalResult {
-  self.bind(fn(value) { IntervalResult::from_result(value.try_exp()) })
+pub fn IntervalChecked::exp(self : IntervalChecked) -> IntervalChecked {
+  self.bind(fn(value) { IntervalChecked::from_result(value.try_exp()) })
 }
 
 ///|
-pub fn IntervalResult::exp2(self : IntervalResult) -> IntervalResult {
-  self.bind(fn(value) { IntervalResult::from_result(value.try_exp2()) })
+pub fn IntervalChecked::exp2(self : IntervalChecked) -> IntervalChecked {
+  self.bind(fn(value) { IntervalChecked::from_result(value.try_exp2()) })
 }
 
 ///|
-pub fn IntervalResult::exp10(self : IntervalResult) -> IntervalResult {
-  self.bind(fn(value) { IntervalResult::from_result(value.try_exp10()) })
+pub fn IntervalChecked::exp10(self : IntervalChecked) -> IntervalChecked {
+  self.bind(fn(value) { IntervalChecked::from_result(value.try_exp10()) })
 }
 
 ///|
-pub fn IntervalResult::expm1(self : IntervalResult) -> IntervalResult {
-  self.bind(fn(value) { IntervalResult::from_result(value.try_expm1()) })
+pub fn IntervalChecked::expm1(self : IntervalChecked) -> IntervalChecked {
+  self.bind(fn(value) { IntervalChecked::from_result(value.try_expm1()) })
 }
 
 ///|
-pub fn IntervalResult::ln(self : IntervalResult) -> IntervalResult {
-  self.bind(fn(value) { IntervalResult::from_result(value.try_ln()) })
+pub fn IntervalChecked::ln(self : IntervalChecked) -> IntervalChecked {
+  self.bind(fn(value) { IntervalChecked::from_result(value.try_ln()) })
 }
 
 ///|
-pub fn IntervalResult::log2(self : IntervalResult) -> IntervalResult {
-  self.bind(fn(value) { IntervalResult::from_result(value.try_log2()) })
+pub fn IntervalChecked::log2(self : IntervalChecked) -> IntervalChecked {
+  self.bind(fn(value) { IntervalChecked::from_result(value.try_log2()) })
 }
 
 ///|
-pub fn IntervalResult::log10(self : IntervalResult) -> IntervalResult {
-  self.bind(fn(value) { IntervalResult::from_result(value.try_log10()) })
+pub fn IntervalChecked::log10(self : IntervalChecked) -> IntervalChecked {
+  self.bind(fn(value) { IntervalChecked::from_result(value.try_log10()) })
 }
 
 ///|
-pub fn IntervalResult::log1p(self : IntervalResult) -> IntervalResult {
-  self.bind(fn(value) { IntervalResult::from_result(value.try_log1p()) })
+pub fn IntervalChecked::log1p(self : IntervalChecked) -> IntervalChecked {
+  self.bind(fn(value) { IntervalChecked::from_result(value.try_log1p()) })
 }
 
 ///|
-pub fn IntervalResult::sin(self : IntervalResult) -> IntervalResult {
-  self.bind(fn(value) { IntervalResult::from_result(value.try_sin()) })
+pub fn IntervalChecked::sin(self : IntervalChecked) -> IntervalChecked {
+  self.bind(fn(value) { IntervalChecked::from_result(value.try_sin()) })
 }
 
 ///|
-pub fn IntervalResult::cos(self : IntervalResult) -> IntervalResult {
-  self.bind(fn(value) { IntervalResult::from_result(value.try_cos()) })
+pub fn IntervalChecked::cos(self : IntervalChecked) -> IntervalChecked {
+  self.bind(fn(value) { IntervalChecked::from_result(value.try_cos()) })
 }
 
 ///|
-pub fn IntervalResult::tan(self : IntervalResult) -> IntervalResult {
-  self.bind(fn(value) { IntervalResult::from_result(value.try_tan()) })
+pub fn IntervalChecked::tan(self : IntervalChecked) -> IntervalChecked {
+  self.bind(fn(value) { IntervalChecked::from_result(value.try_tan()) })
 }
 
 ///|
-pub fn IntervalResult::sinpi(self : IntervalResult) -> IntervalResult {
-  self.bind(fn(value) { IntervalResult::from_result(value.try_sinpi()) })
+pub fn IntervalChecked::sinpi(self : IntervalChecked) -> IntervalChecked {
+  self.bind(fn(value) { IntervalChecked::from_result(value.try_sinpi()) })
 }
 
 ///|
-pub fn IntervalResult::cospi(self : IntervalResult) -> IntervalResult {
-  self.bind(fn(value) { IntervalResult::from_result(value.try_cospi()) })
+pub fn IntervalChecked::cospi(self : IntervalChecked) -> IntervalChecked {
+  self.bind(fn(value) { IntervalChecked::from_result(value.try_cospi()) })
 }
 
 ///|
-pub fn IntervalResult::tanpi(self : IntervalResult) -> IntervalResult {
-  self.bind(fn(value) { IntervalResult::from_result(value.try_tanpi()) })
+pub fn IntervalChecked::tanpi(self : IntervalChecked) -> IntervalChecked {
+  self.bind(fn(value) { IntervalChecked::from_result(value.try_tanpi()) })
 }
 
 ///|
-pub fn IntervalResult::asin(self : IntervalResult) -> IntervalResult {
-  self.bind(fn(value) { IntervalResult::from_result(value.try_asin()) })
+pub fn IntervalChecked::asin(self : IntervalChecked) -> IntervalChecked {
+  self.bind(fn(value) { IntervalChecked::from_result(value.try_asin()) })
 }
 
 ///|
-pub fn IntervalResult::acos(self : IntervalResult) -> IntervalResult {
-  self.bind(fn(value) { IntervalResult::from_result(value.try_acos()) })
+pub fn IntervalChecked::acos(self : IntervalChecked) -> IntervalChecked {
+  self.bind(fn(value) { IntervalChecked::from_result(value.try_acos()) })
 }
 
 ///|
-pub fn IntervalResult::atan(self : IntervalResult) -> IntervalResult {
-  self.bind(fn(value) { IntervalResult::from_result(value.try_atan()) })
+pub fn IntervalChecked::atan(self : IntervalChecked) -> IntervalChecked {
+  self.bind(fn(value) { IntervalChecked::from_result(value.try_atan()) })
 }
 
 ///|
-pub fn IntervalResult::sinh(self : IntervalResult) -> IntervalResult {
-  self.bind(fn(value) { IntervalResult::from_result(value.try_sinh()) })
+pub fn IntervalChecked::sinh(self : IntervalChecked) -> IntervalChecked {
+  self.bind(fn(value) { IntervalChecked::from_result(value.try_sinh()) })
 }
 
 ///|
-pub fn IntervalResult::cosh(self : IntervalResult) -> IntervalResult {
-  self.bind(fn(value) { IntervalResult::from_result(value.try_cosh()) })
+pub fn IntervalChecked::cosh(self : IntervalChecked) -> IntervalChecked {
+  self.bind(fn(value) { IntervalChecked::from_result(value.try_cosh()) })
 }
 
 ///|
-pub fn IntervalResult::tanh(self : IntervalResult) -> IntervalResult {
-  self.bind(fn(value) { IntervalResult::from_result(value.try_tanh()) })
+pub fn IntervalChecked::tanh(self : IntervalChecked) -> IntervalChecked {
+  self.bind(fn(value) { IntervalChecked::from_result(value.try_tanh()) })
 }
 
 ///|
-pub fn IntervalResult::asinh(self : IntervalResult) -> IntervalResult {
-  self.bind(fn(value) { IntervalResult::from_result(value.try_asinh()) })
+pub fn IntervalChecked::asinh(self : IntervalChecked) -> IntervalChecked {
+  self.bind(fn(value) { IntervalChecked::from_result(value.try_asinh()) })
 }
 
 ///|
-pub fn IntervalResult::acosh(self : IntervalResult) -> IntervalResult {
-  self.bind(fn(value) { IntervalResult::from_result(value.try_acosh()) })
+pub fn IntervalChecked::acosh(self : IntervalChecked) -> IntervalChecked {
+  self.bind(fn(value) { IntervalChecked::from_result(value.try_acosh()) })
 }
 
 ///|
-pub fn IntervalResult::atanh(self : IntervalResult) -> IntervalResult {
-  self.bind(fn(value) { IntervalResult::from_result(value.try_atanh()) })
+pub fn IntervalChecked::atanh(self : IntervalChecked) -> IntervalChecked {
+  self.bind(fn(value) { IntervalChecked::from_result(value.try_atanh()) })
 }
 
 ///|
-pub fn IntervalResult::hypot(
-  self : IntervalResult,
-  other : IntervalResult,
-) -> IntervalResult {
-  IntervalResult::from_result(
+pub fn IntervalChecked::hypot(
+  self : IntervalChecked,
+  other : IntervalChecked,
+) -> IntervalChecked {
+  IntervalChecked::from_result(
     self.inner.bind(fn(left) {
       other.inner.bind(fn(right) { left.try_hypot(right) })
     }),
@@ -688,21 +689,23 @@ pub fn IntervalResult::hypot(
 }
 
 ///|
-pub fn IntervalResult::pow(
-  self : IntervalResult,
-  exponent : IntervalResult,
-) -> IntervalResult {
+pub fn IntervalChecked::pow(
+  self : IntervalChecked,
+  exponent : IntervalChecked,
+) -> IntervalChecked {
   self.bind(fn(base) {
-    exponent.bind(fn(power) { IntervalResult::from_result(base.try_pow(power)) })
+    exponent.bind(fn(power) {
+      IntervalChecked::from_result(base.try_pow(power))
+    })
   })
 }
 
 ///|
-pub fn IntervalResult::atan2(
-  self : IntervalResult,
-  abscissa : IntervalResult,
-) -> IntervalResult {
-  IntervalResult::from_result(
+pub fn IntervalChecked::atan2(
+  self : IntervalChecked,
+  abscissa : IntervalChecked,
+) -> IntervalChecked {
+  IntervalChecked::from_result(
     self.inner.bind(fn(ordinate) {
       abscissa.inner.bind(fn(horizontal) { ordinate.try_atan2(horizontal) })
     }),
@@ -710,26 +713,26 @@ pub fn IntervalResult::atan2(
 }
 
 ///|
-pub impl Add for IntervalResult with fn add(self, other) {
+pub impl Add for IntervalChecked with fn add(self, other) {
   self.add(other)
 }
 
 ///|
-pub impl Sub for IntervalResult with fn sub(self, other) {
+pub impl Sub for IntervalChecked with fn sub(self, other) {
   self.sub(other)
 }
 
 ///|
-pub impl Mul for IntervalResult with fn mul(self, other) {
+pub impl Mul for IntervalChecked with fn mul(self, other) {
   self.mul(other)
 }
 
 ///|
-pub impl Div for IntervalResult with fn div(self, other) {
+pub impl Div for IntervalChecked with fn div(self, other) {
   self.div(other)
 }
 
 ///|
-pub impl Neg for IntervalResult with fn neg(self) {
+pub impl Neg for IntervalChecked with fn neg(self) {
   self.neg()
 }

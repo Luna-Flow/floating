@@ -8,12 +8,12 @@ fn parity_interval(lo : Int32, hi : Int32) -> @interval.Interval {
 }
 
 ///|
-fn parity_result(lo : Int32, hi : Int32) -> IntervalResult {
-  IntervalResult::ok(parity_interval(lo, hi))
+fn parity_result(lo : Int32, hi : Int32) -> IntervalChecked {
+  IntervalChecked::ok(parity_interval(lo, hi))
 }
 
 ///|
-fn parity_value(r : IntervalResult) -> @interval.Interval {
+fn parity_value(r : IntervalChecked) -> @interval.Interval {
   r.result().unwrap()
 }
 
@@ -39,7 +39,7 @@ test "the interval operations of 1788 Table 9.1 and 10.5.6 to 10.5.7 exist on th
 
 ///|
 test "the new checked operations keep the first error" {
-  let failed = IntervalResult::err(
+  let failed = IntervalChecked::err(
     @lf_arith.ArithmeticError::domain_error("first"),
   )
   let ok = parity_result(1, 2)
@@ -62,14 +62,14 @@ test "the integer functions of Table 9.1 exist on the checked tier and agree wit
     @binary.Binary::from_double(-1.5),
     @binary.Binary::from_double(2.5),
   )
-  let r = IntervalResult::ok(x)
+  let r = IntervalChecked::ok(x)
   assert_true(parity_value(r.sign()) == x.sign())
   assert_true(parity_value(r.ceil()) == x.ceil())
   assert_true(parity_value(r.floor()) == x.floor())
   assert_true(parity_value(r.trunc()) == x.trunc())
   assert_true(parity_value(r.round_ties_to_even()) == x.round_ties_to_even())
   assert_true(parity_value(r.round_ties_to_away()) == x.round_ties_to_away())
-  let failed = IntervalResult::from_result(
+  let failed = IntervalChecked::from_result(
     Err(@def.ArithmeticError::domain_error("earlier failure")),
   )
   assert_true(failed.ceil().result() is Err(_))
@@ -89,7 +89,7 @@ test "mul_rev and mul_rev_to_pair exist on the checked tier and agree with the p
   let (pu, pv) = b.mul_rev_to_pair(c)
   assert_true(parity_value(u) == pu)
   assert_true(parity_value(v) == pv)
-  let failed = IntervalResult::from_result(
+  let failed = IntervalChecked::from_result(
     Err(@def.ArithmeticError::domain_error("earlier failure")),
   )
   assert_true(failed.mul_rev(rc).result() is Err(_))
@@ -112,7 +112,7 @@ test "sqr_rev, abs_rev, cosh_rev and pown_rev exist on the checked tier and agre
   assert_true(parity_value(rc.cosh_rev(x=rx)) == c.cosh_rev(x~))
   assert_true(parity_value(rc.pown_rev(3)) == c.pown_rev(3))
   assert_true(parity_value(rc.pown_rev(-2, x=rx)) == c.pown_rev(-2, x~))
-  let failed = IntervalResult::from_result(
+  let failed = IntervalChecked::from_result(
     Err(@def.ArithmeticError::domain_error("earlier failure")),
   )
   assert_true(failed.sqr_rev().result() is Err(_))
@@ -134,7 +134,7 @@ test "sin_rev, cos_rev and tan_rev exist on the checked tier and agree with the 
   assert_true(parity_value(rc.cos_rev(x=rx)) == c.cos_rev(x~))
   assert_true(parity_value(rc.tan_rev(x=rx)) == c.tan_rev(x~))
   assert_true(parity_value(rc.tan_rev()) == c.tan_rev())
-  let failed = IntervalResult::from_result(
+  let failed = IntervalChecked::from_result(
     Err(@def.ArithmeticError::domain_error("earlier failure")),
   )
   assert_true(failed.sin_rev().result() is Err(_))
@@ -155,7 +155,7 @@ test "pow_rev1 exists on the checked tier and agrees with the plain tier" {
   let rx = parity_result(0, 9)
   assert_true(parity_value(rb.pow_rev1(rc)) == b.pow_rev1(c))
   assert_true(parity_value(rb.pow_rev1(rc, x=rx)) == b.pow_rev1(c, x~))
-  let failed = IntervalResult::from_result(
+  let failed = IntervalChecked::from_result(
     Err(@def.ArithmeticError::domain_error("earlier failure")),
   )
   assert_true(failed.pow_rev1(rc).result() is Err(_))
@@ -173,7 +173,7 @@ test "pow_rev2 exists on the checked tier and agrees with the plain tier" {
   let rx = parity_result(0, 9)
   assert_true(parity_value(rb.pow_rev2(rc)) == b.pow_rev2(c))
   assert_true(parity_value(rb.pow_rev2(rc, x=rx)) == b.pow_rev2(c, x~))
-  let failed = IntervalResult::from_result(
+  let failed = IntervalChecked::from_result(
     Err(@def.ArithmeticError::domain_error("earlier failure")),
   )
   assert_true(failed.pow_rev2(rc).result() is Err(_))
@@ -191,7 +191,7 @@ test "atan2_rev1 exists on the checked tier and agrees with the plain tier" {
   let rx = parity_result(0, 9)
   assert_true(parity_value(rb.atan2_rev1(rc)) == b.atan2_rev1(c))
   assert_true(parity_value(rb.atan2_rev1(rc, x=rx)) == b.atan2_rev1(c, x~))
-  let failed = IntervalResult::from_result(
+  let failed = IntervalChecked::from_result(
     Err(@def.ArithmeticError::domain_error("earlier failure")),
   )
   assert_true(failed.atan2_rev1(rc).result() is Err(_))
@@ -209,7 +209,7 @@ test "atan2_rev2 exists on the checked tier and agrees with the plain tier" {
   let rx = parity_result(0, 9)
   assert_true(parity_value(rb.atan2_rev2(rc)) == b.atan2_rev2(c))
   assert_true(parity_value(rb.atan2_rev2(rc, x=rx)) == b.atan2_rev2(c, x~))
-  let failed = IntervalResult::from_result(
+  let failed = IntervalChecked::from_result(
     Err(@def.ArithmeticError::domain_error("earlier failure")),
   )
   assert_true(failed.atan2_rev2(rc).result() is Err(_))
@@ -219,13 +219,13 @@ test "atan2_rev2 exists on the checked tier and agrees with the plain tier" {
 
 ///|
 test "from_string exists on the checked tier and agrees with the plain tier" {
-  let ok = IntervalResult::from_string("[1.5, 2.5]")
+  let ok = IntervalChecked::from_string("[1.5, 2.5]")
   assert_true(ok.result() is Ok(_))
   assert_true(
     parity_value(ok) == @interval.Interval::from_string("[1.5, 2.5]").unwrap(),
   )
-  assert_true(IntervalResult::from_string("[2,1]").result() is Err(_))
+  assert_true(IntervalChecked::from_string("[2,1]").result() is Err(_))
   assert_true(
-    IntervalResult::from_string("[1]", precision=0).result() is Err(_),
+    IntervalChecked::from_string("[1]", precision=0).result() is Err(_),
   )
 }

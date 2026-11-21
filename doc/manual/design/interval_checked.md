@@ -5,7 +5,7 @@
 `interval_checked` lets an interval computation be written as one chain of
 operations in which construction mistakes and uncertifiable steps are explicit
 errors, while every successful value remains a rigorous enclosure.
-`IntervalResult` closes `Result[Interval, ArithmeticError]` under the
+`IntervalChecked` closes `Result[Interval, ArithmeticError]` under the
 operations of [`interval`](interval.md) and adds no interval algorithm.
 The [API page](../api/interval_checked.md) lists the operations and the
 [tutorial](../tutorial/interval_checked.md) shows pipelines in use.
@@ -45,7 +45,7 @@ enclosure property of $G$ for the second.[^moore]
 
 ### The wrapper as an error monad
 
-`IntervalResult` is the exception monad $M V = V + E$ with $V$ the set of
+`IntervalChecked` is the exception monad $M V = V + E$ with $V$ the set of
 `Interval` values and $E$ the set of `ArithmeticError` values, with
 $\eta = $ `ok` and $\mathbin{>\!\!>\!\!=} = $ `bind`. The laws (left and right
 identity, associativity) and the functor laws of `map` are proved in the
@@ -104,7 +104,7 @@ outward-rounded enclosure) and re-rounds the base and the result with
 `with_precision`, which is sound but can add one ulp per side. The two traits
 `Interval` implements, `PowIntChecked` and `PowNatChecked`, are implemented
 differently, and only one of them avoids the *dependency problem*
-(`IntervalResult` offers only `pown`; `PowNatChecked` is reached through
+(`IntervalChecked` offers only `pown`; `PowNatChecked` is reached through
 `Interval::pow_nat_checked`). $X \cdot X$ treats the two factors as independent, so for
 $X = [-1, 1]$ it gives $[-1, 1]$, whereas $\{t^2 : t \in X\} = [0, 1]$.
 `pown` uses `Interval::pown`, which evaluates $t \mapsto t^n$ on the
