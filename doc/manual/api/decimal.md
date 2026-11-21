@@ -2151,8 +2151,8 @@ These functions change only the sign bit of the stored bits.
 
 ```mbti
 pub fn DecimalInterchange::copy(Self) -> Self
-pub fn DecimalInterchange::copy_abs(Self) -> Self
-pub fn DecimalInterchange::copy_negate(Self) -> Self
+pub fn DecimalInterchange::abs(Self) -> Self
+pub fn DecimalInterchange::neg(Self) -> Self
 pub fn DecimalInterchange::copy_sign(Self, Self) -> Self
 ```
 
@@ -2695,10 +2695,9 @@ pub fn DecimalFlags::underflow(Self) -> Bool
 pub struct DecimalInterchange {
   // private fields
 }
+pub fn DecimalInterchange::abs(Self) -> Self
 pub fn DecimalInterchange::canonical(Self) -> Self
 pub fn DecimalInterchange::copy(Self) -> Self
-pub fn DecimalInterchange::copy_abs(Self) -> Self
-pub fn DecimalInterchange::copy_negate(Self) -> Self
 pub fn DecimalInterchange::copy_sign(Self, Self) -> Self
 pub fn DecimalInterchange::encoding(Self) -> DecimalInterchangeEncoding
 pub fn DecimalInterchange::format(Self) -> DecimalInterchangeFormat
@@ -2707,6 +2706,7 @@ pub fn DecimalInterchange::from_decimal_with_encoding(Decimal, DecimalInterchang
 pub fn DecimalInterchange::from_hex(String, DecimalInterchangeFormat) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn DecimalInterchange::from_hex_with_encoding(String, DecimalInterchangeFormat, DecimalInterchangeEncoding) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn DecimalInterchange::is_canonical(Self) -> Bool
+pub fn DecimalInterchange::neg(Self) -> Self
 pub fn DecimalInterchange::to_decimal(Self) -> Decimal
 pub fn DecimalInterchange::to_decimal_ctx(Self) -> (Decimal, DecimalFlags)
 pub fn DecimalInterchange::to_hex(Self) -> String

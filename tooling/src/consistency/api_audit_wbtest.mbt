@@ -309,8 +309,8 @@ test "decimal interchange facade sign transforms preserve observable special mea
     @decimal.DecimalInterchangeFormat::Decimal32,
   ).unwrap()
 
-  let qnan32_positive = neg_qnan32.copy_abs().to_decimal()
-  let inf32_negative = pos_inf32.copy_negate().to_decimal()
+  let qnan32_positive = neg_qnan32.abs().to_decimal()
+  let inf32_negative = pos_inf32.neg().to_decimal()
 
   assert_true(qnan32_positive.is_quiet_nan())
   assert_false(qnan32_positive.is_sign_minus())
@@ -338,8 +338,8 @@ test "decimal interchange facade sign transforms preserve special raw bits" {
     @decimal.DecimalInterchangeFormat::Decimal128,
   ).unwrap()
 
-  assert_eq(neg_qnan32.copy_abs().to_hex(), "#7C0049C5")
-  assert_eq(pos_inf32.copy_negate().to_hex(), "#F8000000")
+  assert_eq(neg_qnan32.abs().to_hex(), "#7C0049C5")
+  assert_eq(pos_inf32.neg().to_hex(), "#F8000000")
   assert_eq(
     neg_snan128.copy_sign(pos_inf128).to_hex(),
     "#7E0000000000000000000000000049C5",
@@ -357,8 +357,8 @@ test "decimal interchange facade sign transforms preserve finite raw bits and me
     @decimal.DecimalInterchangeFormat::Decimal64,
   ).unwrap()
 
-  let abs64 = neg_finite64.copy_abs()
-  let negated64 = finite64.copy_negate()
+  let abs64 = neg_finite64.abs()
+  let negated64 = finite64.neg()
   let signed64 = finite64.copy_sign(neg_finite64)
   let expected_positive64 = @decimal.Decimal::from_string(
     "9.999999999999999E+384",
@@ -402,8 +402,8 @@ test "decimal interchange facade sign transforms preserve canonical decimal32 fi
     @decimal.DecimalInterchangeFormat::Decimal32,
   ).unwrap()
 
-  let abs32 = neg_finite32.copy_abs()
-  let negated32 = finite32.copy_negate()
+  let abs32 = neg_finite32.abs()
+  let negated32 = finite32.neg()
   let signed32 = finite32.copy_sign(neg_finite32)
   let expected_positive32 = @decimal.Decimal::from_string(
     "9.999999E+96",
@@ -679,8 +679,8 @@ test "decimal32 finite sign transforms stay aligned with direct interchange deco
 
   let direct_pos = pos32.to_decimal()
   let direct_neg = neg32.to_decimal()
-  let abs_from_neg = neg32.copy_abs()
-  let negated_from_pos = pos32.copy_negate()
+  let abs_from_neg = neg32.abs()
+  let negated_from_pos = pos32.neg()
   let signed_from_pos = pos32.copy_sign(neg32)
 
   assert_eq(abs_from_neg.to_hex(), "#77FFFF3F")

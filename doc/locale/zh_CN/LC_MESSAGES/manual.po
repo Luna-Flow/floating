@@ -32950,8 +32950,8 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路
 #~ msgid "`DecimalInterchange::copy_sign` requires both operands to use the same interchange format; mixed-format sign-copy is rejected instead of silently reinterpreting bits across decimal32/64/128 layouts."
 #~ msgstr "`DecimalInterchange::copy_sign` 要求两个操作数使用同一种 interchange format；跨 decimal32/64/128 的 mixed-format sign-copy 会被直接拒绝，而不会静默重解释 bit layout。"
 
-#~ msgid "`DecimalInterchange::copy_abs`, `copy_negate`, and `copy_sign` operate on the raw sign bit only; they preserve payload/coefficient continuation bits for NaNs, infinities, and finite encodings."
-#~ msgstr "`DecimalInterchange::copy_abs`、`copy_negate`、`copy_sign` 只会改动 raw sign bit；对 NaN、Infinity 和有限编码的 payload/coefficient continuation bits 都应保持不变。"
+#~ msgid "`DecimalInterchange::abs`, `copy_negate`, and `copy_sign` operate on the raw sign bit only; they preserve payload/coefficient continuation bits for NaNs, infinities, and finite encodings."
+#~ msgstr "`DecimalInterchange::abs`、`copy_negate`、`copy_sign` 只会改动 raw sign bit；对 NaN、Infinity 和有限编码的 payload/coefficient continuation bits 都应保持不变。"
 
 #~ msgid "`*_ctx` methods return `(Decimal, DecimalFlags)`. The current context layer reports `lost_digits` when non-extended GDA arithmetic reduces an oversized operand inexactly before applying the operation. tracks rounded and inexact finite results, signaling-NaN invalid operations, division by zero, undefined division, finite-result exponent bounds, clamp padding, overflow, subnormal, and underflow status. The decimal32/64/128 constructors store the expected precision and exponent bounds, and finite context-aware results are finalized against those bounds."
 #~ msgstr "`*_ctx` 方法返回 `(Decimal, DecimalFlags)`。当前 context 层会跟踪有限结果的 `lost_digits`；当非 extended 的 GDA 运算在执行前对超精度 operand 做非精确缩减时，该标志会与 `rounded`、`inexact` 一起设置。 `rounded` 与 `inexact`、signaling-NaN 的 `invalid_operation`、除零、未定义除法、有限结果的 exponent 边界、clamp 补零、overflow、subnormal 与 underflow 状态。`decimal32` / `decimal64` / `decimal128` 构造器会保存预期精度与 exponent 边界，而 context-aware 的有限结果会按这些边界完成 finalization。"

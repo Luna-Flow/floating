@@ -275,9 +275,7 @@ pub fn DecimalInterchange::copy(
 }
 
 ///|
-pub fn DecimalInterchange::copy_abs(
-  self : DecimalInterchange,
-) -> DecimalInterchange {
+pub fn DecimalInterchange::abs(self : DecimalInterchange) -> DecimalInterchange {
   {
     format: self.format,
     encoding: self.encoding,
@@ -290,9 +288,7 @@ pub fn DecimalInterchange::copy_abs(
 }
 
 ///|
-pub fn DecimalInterchange::copy_negate(
-  self : DecimalInterchange,
-) -> DecimalInterchange {
+pub fn DecimalInterchange::neg(self : DecimalInterchange) -> DecimalInterchange {
   {
     format: self.format,
     encoding: self.encoding,
