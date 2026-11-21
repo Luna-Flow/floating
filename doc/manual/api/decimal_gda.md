@@ -61,7 +61,7 @@ pub struct Decimal {
 A finite number keeps its exponent, so `2.50` and `2.5` are distinct members of
 the same *cohort*: they compare equal numerically and differ in
 `compare_total`, `same_quantum` and printing. Zero is signed. A NaN carries a
-sign and a non-negative integer payload.
+sign and a non-negative integer payload; GDA 1.70, page 11 (Special values) says a positive integer, and the library also accepts 0.
 
 Every value stores a precision, the precision of the value (`precision()`).
 It is the precision of the context or constructor that produced it. GDA
@@ -76,9 +76,9 @@ be shared freely.
 Return $+0$, $-0$ and $1$, each with exponent 0.
 
 ```mbti
-pub fn Decimal::zero(precision? : Int) -> Self
-pub fn Decimal::negative_zero(precision? : Int) -> Self
-pub fn Decimal::one(precision? : Int) -> Self
+pub fn Decimal::zero(precision? : Int32) -> Self
+pub fn Decimal::negative_zero(precision? : Int32) -> Self
+pub fn Decimal::one(precision? : Int32) -> Self
 ```
 
 `precision` (default 34) is the precision of the value: the number of digits
@@ -92,10 +92,10 @@ The same check applies to every constructor that takes a `precision`.
 Build the special values.
 
 ```mbti
-pub fn Decimal::inf(negative? : Bool, precision? : Int) -> Self
-pub fn Decimal::nan(precision? : Int) -> Self
-pub fn Decimal::quiet_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int) -> Self
-pub fn Decimal::signaling_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int) -> Self
+pub fn Decimal::inf(negative? : Bool, precision? : Int32) -> Self
+pub fn Decimal::nan(precision? : Int32) -> Self
+pub fn Decimal::quiet_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int32) -> Self
+pub fn Decimal::signaling_nan(payload? : @bigint.BigInt, negative? : Bool, precision? : Int32) -> Self
 ```
 
 | Call | Result |
@@ -118,8 +118,8 @@ and replaces it by the quiet NaN with the same sign and payload.
 `Decimal` can hold.
 
 ```mbti
-pub let gda_value_e_max : Int
-pub let gda_value_e_tiny : Int
+pub let gda_value_e_max : Int32
+pub let gda_value_e_tiny : Int32
 ```
 
 | Constant | Value | Limit on |
@@ -150,8 +150,8 @@ digits of coefficient, the way the to-number conversion of GDA 1.70, page 21
 (to-number) does.
 
 ```mbti
-pub fn Decimal::make(@bigint.BigInt, Int, Int, mode? : GdaRoundingMode) -> Self
-pub fn Decimal::try_make(@bigint.BigInt, Int, Int, mode? : GdaRoundingMode) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Decimal::make(@bigint.BigInt, Int32, Int32, mode? : GdaRoundingMode) -> Self
+pub fn Decimal::try_make(@bigint.BigInt, Int32, Int32, mode? : GdaRoundingMode) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 The sign comes from the sign of `c`. The exponent is kept when `c` has at most
@@ -186,11 +186,11 @@ included), is never replaced by a zero or an infinity.
 Convert integers and binary values to decimal.
 
 ```mbti
-pub fn Decimal::from_int(Int, precision? : Int) -> Self
-pub fn Decimal::from_bigint(@bigint.BigInt, precision? : Int) -> Self
-pub fn Decimal::from_double(Double, precision? : Int) -> Self
-pub fn Decimal::from_float(Float, precision? : Int) -> Self
-pub fn Decimal::from_binary(@binary.Binary, precision~ : Int, mode? : GdaRoundingMode) -> Self
+pub fn Decimal::from_int(Int32, precision? : Int32) -> Self
+pub fn Decimal::from_bigint(@bigint.BigInt, precision? : Int32) -> Self
+pub fn Decimal::from_double(Double, precision? : Int32) -> Self
+pub fn Decimal::from_float(Float, precision? : Int32) -> Self
+pub fn Decimal::from_binary(@binary.Binary, precision~ : Int32, mode? : GdaRoundingMode) -> Self
 ```
 
 | Argument | Result |
@@ -224,14 +224,15 @@ exact binary64 value nearest to $0.1$, rounded half to even to 34 digits.
 `to_binary` rounds the value to a `Binary` with `precision` significant bits.
 
 ```mbti
-pub fn Decimal::to_binary(Self, precision~ : Int, mode? : @binary.BinaryRoundingMode) -> @binary.Binary
+pub fn Decimal::to_binary(Self, precision~ : Int32, mode? : @binary.BinaryRoundingMode) -> @binary.Binary
 ```
 
 `precision` is required and counts bits, from 1 to
 `@binary.binary_precision_max` (outside that range the call aborts). `mode` is
 a rounding-direction attribute of the radix of the result
-(IEEE 754-2019 4.3.1) and defaults to `RoundTiesToEven`. Ties-to-away also
-rounds the exact result once.
+(IEEE 754-2019 4.3.1 and 4.3.2) and defaults to `RoundTiesToEven`. Every rounding, ties-to-away
+included, rounds the decimal once, from its value as an exact number, to `precision` bits, with no
+intermediate rounding.
 
 With `RoundTowardNegative` and `RoundTowardPositive` the two results enclose
 the decimal value; the elementary functions build their certified input
@@ -242,7 +243,7 @@ intervals this way. Zeros map to $+0$, NaNs to the binary NaN.
 `from_string` reads a GDA numeric string without a GDA context.
 
 ```mbti
-pub fn Decimal::from_string(String, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Decimal::from_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 The accepted syntax is the GDA numeric-string grammar: an optional sign,
@@ -258,7 +259,7 @@ half to even and its trailing zeros are removed.
 | --- | --- |
 | a malformed literal | `Err(parse_error)` |
 | a precision outside `1..=999999999` | `Err` of the domain-error kind |
-| a NaN whose payload is wider than `precision - 1` digits (GDA 1.70, page 11 (Special values)) | `Err` |
+| a NaN whose payload is wider than `precision - 1` digits (GDA 1.70, page 11 (Special values)) | `Err(parse_error)` |
 | a literal whose value (zero included) has an exponent below `gda_value_e_tiny` after the rounding, or an adjusted exponent above `gda_value_e_max` | `Err` of the domain-error kind that names both limits and the exponent |
 
 No context exponent range applies, only the implementation limit on the
@@ -313,7 +314,7 @@ Report the class, the numeric sign and the precision of a value.
 ```mbti
 pub fn Decimal::classify(Self) -> @arithmetic.FpClass
 pub fn Decimal::signum(Self) -> @def.Sign
-pub fn Decimal::precision(Self) -> Int
+pub fn Decimal::precision(Self) -> Int32
 ```
 
 `classify` returns `Finite`, `Infinity` or `NaN`. `precision` returns the
@@ -333,7 +334,7 @@ Return the stored representation $(c, q)$ of a value.
 
 ```mbti
 pub fn Decimal::coefficient(Self) -> @bigint.BigInt
-pub fn Decimal::exponent10(Self) -> Int
+pub fn Decimal::exponent10(Self) -> Int32
 ```
 
 `coefficient` returns $c \ge 0$: the payload for a NaN and 0 for an
@@ -411,7 +412,7 @@ pub fn Decimal::copy_sign(Self, Self) -> Self
 | `copy` | the value |
 | `copy_sign(x, y)` | `x` with the sign bit of `y` |
 
-These are GDA *copy* operations. The versions that round are the package functions
+`copy`, `copy_abs`, `copy_negate` and `copy_sign` are the GDA copy operations (GDA 1.70, pages 43 and 44 (Miscellaneous operations)); `neg` and `abs` act as `copy_negate` and `copy_abs`. The versions that round are the package functions
 [`minus`, `plus`, `abs`](#apply-plus-minus-abs).
 
 ### `Decimal::normalized`, `Decimal::trim`, `Decimal::with_precision`
@@ -422,7 +423,7 @@ precision.
 ```mbti
 pub fn Decimal::normalized(Self) -> Self
 pub fn Decimal::trim(Self) -> Self
-pub fn Decimal::with_precision(Self, Int, @arithmetic.RoundingMode) -> Self
+pub fn Decimal::with_precision(Self, Int32, GdaRoundingMode) -> Self
 ```
 
 `normalized` rounds half to even to the precision of the value (see [`Decimal`](#decimal)) and
@@ -438,7 +439,7 @@ None of the three reports flags.
 
 A carry of the rounding at the top of the
 [implementation limit on the exponents of a stored value](#gda_value_e_max-gda_value_e_tiny)
-follows the Overflow rule of the working range (GDA 1.70, page 53 (Overflow)), so the result is never a finite
+follows the Overflow rule (GDA 1.70, page 53 (Overflow)) with that limit as the largest adjusted exponent, so the result is never a finite
 value above the limit. For example, `9999E+2147483643` rounded to 2 digits is `inf` in the rounding
 algorithms that round away from zero or to nearest. In the algorithms that round toward zero it is
 `9.9E+2147483646`, the largest finite value of that width.
@@ -506,8 +507,8 @@ Build a context with an empty set of flags. `new` aborts on an invalid parameter
 takes the same parameters and returns a `Result`.
 
 ```mbti
-pub fn GdaContext::new(precision? : Int, rounding? : GdaRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, traps? : GdaTrapSet) -> Self
-pub fn GdaContext::try_new(precision? : Int, rounding? : GdaRoundingMode, e_min? : Int, e_max? : Int, clamp? : Bool, extended? : Bool, traps? : GdaTrapSet) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn GdaContext::new(precision? : Int32, rounding? : GdaRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, traps? : GdaTrapSet) -> Self
+pub fn GdaContext::try_new(precision? : Int32, rounding? : GdaRoundingMode, e_min? : Int32, e_max? : Int32, clamp? : Bool, extended? : Bool, traps? : GdaTrapSet) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 The defaults are:
@@ -545,8 +546,10 @@ extensions that the library keeps, and the official decTest files use both.
 - `extended=false` selects the GDA subset arithmetic of Appendix A (GDA 1.70, page 55
   (Appendix A, The X3.274 subset); footnote 43: a parameter of the context "might" select it).
   In subset arithmetic, operands longer than $p$ digits are rounded first, which raises
-  `LostDigits` when it is inexact. Special values cannot be parsed, zeros and some results are
-  reduced, and `fma` is invalid.
+  `LostDigits` when it is inexact. Special values cannot be parsed, a zero is $+0$ with exponent 0 (`quantize`
+  aside), a result with a positive exponent gets exponent 0 when it then has at most $p$
+  digits (`apply` and `quantize` aside), `divide` and `power` remove fractional trailing zeros,
+  and `fma` is invalid.
 
 > [!NOTE]
 > `exp`, `ln`, `log10` and `power` with a non-integer exponent accept only a context with
@@ -562,9 +565,9 @@ extended default contexts `decimal32`, `decimal64` and `decimal128`.
 
 ```mbti
 pub fn GdaContext::basic_default() -> Self
-pub fn GdaContext::decimal32(mode? : GdaRoundingMode) -> Self
-pub fn GdaContext::decimal64(mode? : GdaRoundingMode) -> Self
-pub fn GdaContext::decimal128(mode? : GdaRoundingMode) -> Self
+pub fn GdaContext::decimal32(rounding? : GdaRoundingMode) -> Self
+pub fn GdaContext::decimal64(rounding? : GdaRoundingMode) -> Self
+pub fn GdaContext::decimal128(rounding? : GdaRoundingMode) -> Self
 ```
 
 | Context | $p$ | rounding | $E_{\min}$ | $E_{\max}$ | clamp | extended | traps |
@@ -576,8 +579,8 @@ pub fn GdaContext::decimal128(mode? : GdaRoundingMode) -> Self
 
 `basic_default` is the basic default context of the specification: precision 9, round-half-up,
 and every trap enabled except inexact, rounded and subnormal (GDA 1.70, page 16 (Default
-contexts)). The library also leaves the lost-digits trap off, because Appendix A sets it to 0 in
-default contexts. It sets `extended=false` for this context (the X3.274 subset of Appendix A),
+contexts)). The library also leaves the lost-digits trap off, because Appendix A says that the Lost digits condition should be set to 0 in
+default contexts (GDA 1.70, page 56 (Appendix A, Operation differences)). It sets `extended=false` for this context (the X3.274 subset of Appendix A),
 which the definition of the basic default context in GDA 1.70 does not set.
 
 `decimal32`, `decimal64` and `decimal128` are the extended default contexts for the IEEE 754
@@ -591,9 +594,9 @@ values are created once and shared.
 Return a copy of the context with one setting changed.
 
 ```mbti
-pub fn GdaContext::with_precision(Self, Int) -> Self
+pub fn GdaContext::with_precision(Self, Int32) -> Self
 pub fn GdaContext::with_rounding(Self, GdaRoundingMode) -> Self
-pub fn GdaContext::with_exponent_range(Self, e_min~ : Int, e_max~ : Int) -> Self
+pub fn GdaContext::with_exponent_range(Self, e_min~ : Int32, e_max~ : Int32) -> Self
 ```
 
 The result is checked like `new`: a precision or exponent range outside
@@ -605,13 +608,13 @@ The result is checked like `new`: a precision or exponent range outside
 Read the arithmetic policy of a context.
 
 ```mbti
-pub fn GdaContext::precision(Self) -> Int
+pub fn GdaContext::precision(Self) -> Int32
 pub fn GdaContext::rounding(Self) -> GdaRoundingMode
-pub fn GdaContext::e_min(Self) -> Int
-pub fn GdaContext::e_max(Self) -> Int
+pub fn GdaContext::e_min(Self) -> Int32
+pub fn GdaContext::e_max(Self) -> Int32
 pub fn GdaContext::clamp(Self) -> Bool
 pub fn GdaContext::extended(Self) -> Bool
-pub fn GdaContext::radix(Self) -> Int
+pub fn GdaContext::radix(Self) -> Int32
 ```
 
 `radix` always returns 10.
@@ -631,8 +634,8 @@ Read and set the number of refinement steps of the certified elementary function
 `log10` and `power`.
 
 ```mbti
-pub fn GdaContext::refinement_limit(Self) -> Int?
-pub fn GdaContext::with_refinement_limit(Self, Int?) -> Self
+pub fn GdaContext::refinement_limit(Self) -> Int32?
+pub fn GdaContext::with_refinement_limit(Self, Int32?) -> Self
 ```
 
 `exp`, `ln`, `log10` and `power` refine an enclosure of the result at most `Some(12)` times by
@@ -700,7 +703,7 @@ formula.
 
 ### `GdaSignal`
 
-`GdaSignal` names the nine signals of GDA 1.70. Each has a flag in the flags of
+`GdaSignal` names the eight signals of GDA 1.70 and the Lost digits signal of its Appendix A. Each has a flag in the flags of
 a context and a trap-enabler.
 
 ```mbti
@@ -720,7 +723,7 @@ pub(all) enum GdaSignal {
 The specification has eight signals (GDA 1.70, page 15 (flags and
 trap-enablers)): `Clamped`, `DivisionByZero`, `Inexact`, `InvalidOperation`,
 `Overflow`, `Rounded`, `Subnormal` and `Underflow`. `LostDigits` is the ninth,
-raised only in subset arithmetic (GDA 1.70, page 55 (Appendix A, The X3.274 subset)).
+raised only in subset arithmetic (GDA 1.70, page 56 (Appendix A, Operation differences)).
 
 Four conditions that the specification says signal invalid-operation are not
 signals: conversion syntax, division impossible, division undefined and invalid
@@ -733,8 +736,7 @@ states how.
 
 `GdaFlags` is a set of conditions. It records both the conditions raised by one
 operation and the flags of a context. It holds the thirteen conditions the
-library raises, which are the fourteen of the specification without
-Insufficient storage. Keeping the conditions apart is explained on the
+library raises, which are the twelve conditions of the Exceptional conditions section (GDA 1.70, pages 51 to 53) other than Insufficient storage, and Lost digits of Appendix A. Keeping the conditions apart is explained on the
 [design page](../design/decimal_gda.md#keep-the-detailed-invalid-conditions).
 
 ```mbti
@@ -744,7 +746,7 @@ pub struct GdaFlags {
 ```
 
 The fields are private. Each of the 13 conditions is read with a method of the
-same name, such as `raised().inexact()` or `status().division_by_zero()`. The
+same name, such as `raised().inexact()` or `flags().division_by_zero()`. The
 only public constructor is `new`, so sets are built only with `new` and
 `combine`. `GdaTrapSet` reads the same way, with one method for each of the
 nine signals.
@@ -863,7 +865,8 @@ pub fn[T] GdaOutcome::resume_defined(Self[T]) -> Self[T]
 ```
 
 `Completed` is returned unchanged. `Trapped(s, v, C, R)` becomes
-`Completed(v, C, none)`, the GDA rule for continuing after a trap with the
+`Completed(v, C, none)`, where `C` is the next context that the outcome carries (not the input
+context of [Trap selection](#trap-selection)) and `none` is an empty `raised`; this is the GDA rule for continuing after a trap with the
 defined result. `GdaDecimalChecked::resume_defined` calls it.
 
 ### Trap selection
@@ -873,7 +876,7 @@ operation raised and $C$ the input context.
 
 1. If $R$ is empty the outcome is `Completed(v, C, none)`: the same context
    comes back.
-2. Otherwise the next context is $C$ with flags
+2. Otherwise the next context $C'$ is $C$ with flags
    $C.\mathrm{flags} \cup R$, where the `invalid_operation` flag is also set
    whenever $R$ contains one of the four detailed invalid conditions.
 3. The trapped signal is the first $s$ in the order below with
@@ -908,9 +911,9 @@ test "GDA context, flags and traps" {
 
 ## GDA operations
 
-Every function in this section takes its operands and a `GdaContext`, rounds
-to that context, and returns a `GdaOutcome` built by the
-[trap selection](#trap-selection) rule. A signaling-NaN operand raises
+Every function in this section takes its operands (a string for `to_number`) and a
+`GdaContext` and returns a `GdaOutcome` built by the [trap selection](#trap-selection) rule,
+except the four `try_` functions, which return it in a `Result`. A signaling-NaN operand raises
 `InvalidOperation` and yields the corresponding quiet NaN; a quiet NaN operand
 propagates without raising anything (the first NaN operand wins). In subset
 contexts (`extended=false`) finite operands longer than the precision are
@@ -1173,7 +1176,9 @@ For a non-integer $y$, $x$ must be positive (a negative base is invalid), and th
 certified to be correctly rounded *with the rounding of the context*. The case $y = 0.5$ is
 computed as a square root under the rounding of the context. The
 [implementation limit](#implementation-limit-of-exp-ln-log10-and-power) applies to a non-integer
-exponent.
+exponent. For a finite base, a non-integer exponent with a base or an exponent beyond the operand limits of that
+section, and an integer exponent with an adjusted exponent above 999,999, give a NaN with
+`InvalidOperation`, not `InvalidContext`.
 
 The special cases follow GDA:
 
@@ -1181,7 +1186,7 @@ The special cases follow GDA:
 | --- | --- |
 | $x^0$ | $1$; $0^0$ is invalid |
 | a power of $\pm\infty$ or $\pm 0$ | takes its sign from the parity of an integer exponent |
-| $1^y$ | $1$ |
+| $1^y$, $y$ not an integer, or infinite | $1$ with `Inexact` and `Rounded` |
 | subset context, $0^0$ | `1` |
 | subset context, $0^{-n}$ | invalid, instead of $\infty$ |
 
@@ -1307,8 +1312,8 @@ Compare two values by value or in the GDA total order (GDA 1.70, page 42 (compar
 ```mbti
 pub fn compare(Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
 pub fn compare_signal(Decimal, Decimal, GdaContext) -> GdaOutcome[Decimal]
-pub fn compare_total(Decimal, Decimal, GdaContext) -> GdaOutcome[Int]
-pub fn compare_total_magnitude(Decimal, Decimal, GdaContext) -> GdaOutcome[Int]
+pub fn compare_total(Decimal, Decimal, GdaContext) -> GdaOutcome[Int32]
+pub fn compare_total_magnitude(Decimal, Decimal, GdaContext) -> GdaOutcome[Int32]
 ```
 
 | Function | Result | An operand is a NaN |
@@ -1326,7 +1331,7 @@ extended context.
 
 A subset context (`extended=false`) first rounds the operands to the precision,
 as it does for every operand (see [`GdaContext::new`](#gdacontextnew-gdacontexttry_new); GDA 1.70,
-page 55 (Appendix A, The X3.274 subset)), which raises `Rounded` and `LostDigits`. The [`Decimal` methods of the same
+page 56 (Appendix A, Operation differences)), which raises `Rounded` and `LostDigits`. The [`Decimal` methods of the same
 names](#decimalcompare_total-decimalcompare_total_magnitude) compare the
 operands as they are.
 
@@ -1407,8 +1412,8 @@ trap; use the GDA functions when flags matter.
 `compare_checked` refuses NaNs.
 
 ```mbti
-pub fn Decimal::compare(Self, Self) -> Int
-pub fn Decimal::compare_checked(Self, Self) -> Result[Int, @arithmetic.ArithmeticError]
+pub fn Decimal::compare(Self, Self) -> Int32
+pub fn Decimal::compare_checked(Self, Self) -> Result[Int32, @arithmetic.ArithmeticError]
 pub impl Compare for Decimal
 pub impl @arithmetic.CompareChecked for Decimal
 ```
@@ -1447,8 +1452,8 @@ pub impl Eq for Decimal
 Return $-1$, $0$ or $1$ by the GDA total orders.
 
 ```mbti
-pub fn Decimal::compare_total(Self, Self) -> Int
-pub fn Decimal::compare_total_magnitude(Self, Self) -> Int
+pub fn Decimal::compare_total(Self, Self) -> Int32
+pub fn Decimal::compare_total_magnitude(Self, Self) -> Int32
 ```
 
 Each agrees with the package function of the same name,
@@ -1518,7 +1523,7 @@ cohort, and, for every stored finite value, because the working exponent range b
 [implementation limit on the exponents of a stored value](#gda_value_e_max-gda_value_e_tiny).
 
 [`GdaContext::new`](#gdacontextnew-gdacontexttry_new) cannot build the working exponent
-range. It limits the exponent range of a context to $\pm 999{,}999{,}999$ (GDA 1.70, page 10
+range. It limits $E_{\max}$ of a context to at most $999{,}999{,}999$ and $E_{\min}$ to at least $-999{,}999{,}999$ (GDA 1.70, page 10
 (Abstract representation of numbers) allows a limit Elimit without giving a value), and the working range
 fills the `Int` range: the largest adjusted exponent is $2^{31}-2 = 2{,}147{,}483{,}646$
 and the smallest exponent is $E_{\mathrm{tiny}} = -2^{31}+3 = -2{,}147{,}483{,}645$
@@ -1533,7 +1538,7 @@ Special values follow the default results of IEEE 754-2019 6.2 (operations with 
 | --- | --- |
 | a NaN operand | a quiet NaN |
 | $\infty - \infty$, $0 \times \infty$, $0/0$, $\infty/\infty$ | NaN |
-| $x/0$ | a signed infinity |
+| $x/0$, $x$ non-zero and not a NaN | a signed infinity |
 | $x/\infty$ | a signed zero |
 
 Use the free functions with a `GdaContext` when you need another precision, rounding, range
@@ -1752,8 +1757,7 @@ the conditions the operation raises to the result:
 The rounding is one of the five rounding algorithms of `ArithmeticContext`.
 `sqrt_contextual` and `exp_contextual` round with it, not half-even as the GDA functions do.
 
-`exp_contextual` needs an `ArithmeticContext` that sets the exponent bounds. Like the GDA
-`exp`, it is subject to the [implementation limit](#implementation-limit-of-exp-ln-log10-and-power):
+`exp_contextual` needs an `ArithmeticContext` that sets the exponent bounds. Like the package function `exp`, it is subject to the [implementation limit](#implementation-limit-of-exp-ln-log10-and-power):
 precision, $E_{\max}$ and $-E_{\min}$ of at most $999\,999$. An `ArithmeticContext` without
 `e_min` or `e_max` is not given bounds by default. It translates to the full range
 $\pm 999\,999\,999$, which is an invalid context for `exp`.
@@ -1786,7 +1790,8 @@ test "exp_contextual needs exponent bounds" {
 ### `NumericFormatContextual`
 
 `Decimal` implements `NumericFormatContextual`, which describes the number format of
-an `ArithmeticContext`.
+an `ArithmeticContext`. `zero_contextual` and `one_contextual` return `0` and `1`, each with the precision of the
+context, and do not check the context.
 
 ```mbti
 pub fn Decimal::zero_contextual(@arithmetic.ArithmeticContext) -> Self
@@ -1806,6 +1811,10 @@ With $p$ the precision of the context and $E_{\min}$, $E_{\max}$ its exponent li
 | `min_normal_contextual` | $10^{E_{\min}}$ |
 | `max_finite_contextual` | $(10^p - 1) \cdot 10^{E_{\max} - p + 1}$ |
 
+If the `ArithmeticContext` is invalid, that is, if it cannot be converted to an engine context (for
+example a precision above 999,999,999), these three methods return a zero with the precision of the
+context limited to the range 1 through 999,999,999.
+
 ### Checked traits of `Luna-Flow/arithmetic`
 
 `Decimal` implements the checked traits of `Luna-Flow/arithmetic`, which return
@@ -1814,8 +1823,8 @@ With $p$ the precision of the context and $E_{\min}$, $E_{\max}$ its exponent li
 ```mbti
 pub fn Decimal::parse_checked(String, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Decimal::sqrt_checked(Self, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Decimal::pow_int_checked(Self, Int, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Decimal::pow_nat_checked(Self, UInt, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Decimal::pow_int_checked(Self, Int32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Decimal::pow_nat_checked(Self, UInt32, @arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub impl @arithmetic.ParseChecked for Decimal
 pub impl @arithmetic.SqrtChecked for Decimal
 pub impl @arithmetic.PowIntChecked for Decimal
@@ -1825,7 +1834,8 @@ pub impl @arithmetic.DivChecked for Decimal
 
 `parse_checked` converts the arithmetic context to an engine context and converts the
 string under it: the precision, rounding, exponent bounds and clamp setting of the context
-apply. It returns the converted value; conditions such as overflow are available from
+apply. If the context cannot be converted (a precision above 999,999,999, for example), it returns
+`Err(domain_error)` for that conversion before it reads the string. It returns the converted value; conditions such as overflow are available from
 [`to_number`](#to_number). Invalid syntax returns `Err(parse_error)`.
 
 `sqrt_checked` returns `Err(domain_error)` for negative operands.
