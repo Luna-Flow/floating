@@ -1093,8 +1093,8 @@ msgid "Round to an integral value in a fixed direction."
 msgstr "固定の方向で整数値に丸めます。"
 
 #: manual/api/binary.md:1021
-msgid "They are `roundToIntegralTowardNegative`, `…TowardPositive`, `…TowardZero`, `…TiesToAway` and `…TiesToEven`. `round` rounds halfway cases away from zero: `round(-2.5) = -3`, while `round_ties_even(-2.5) = -2`."
-msgstr "これらは `roundToIntegralTowardNegative`、`…TowardPositive`、`…TowardZero`、`…TiesToAway`、`…TiesToEven` です。`round` はちょうど中間の場合をゼロから遠ざかる方向に丸めます。`round(-2.5) = -3` ですが、`round_ties_even(-2.5) = -2` です。"
+msgid "They are `roundToIntegralTowardNegative`, `…TowardPositive`, `…TowardZero`, `…TiesToAway` and `…TiesToEven`. `round` rounds halfway cases away from zero: `round(-2.5) = -3`, while `round_ties_to_even(-2.5) = -2`."
+msgstr "これらは `roundToIntegralTowardNegative`、`…TowardPositive`、`…TowardZero`、`…TiesToAway`、`…TiesToEven` です。`round` はちょうど中間の場合をゼロから遠ざかる方向に丸めます。`round(-2.5) = -3` ですが、`round_ties_to_even(-2.5) = -2` です。"
 
 #: manual/api/binary.md:1027
 msgid "IEEE `convertToInteger` to a machine integer, rounding in the context's direction."
@@ -20810,8 +20810,8 @@ msgid "`with_precision(p, mode)` applies one of these functions to a value at a 
 msgstr "`with_precision(p, mode)` はこれらの関数のいずれかを値に適用し、新しい精度にします。二進の $0.1$ は $0.0001100110011\\ldots_2$ です。5 ビットでの切り捨て形は $11001_2 \\cdot 2^{-8}$ で、次のビットは 1 に続いて非零のビットが続くため、最近接丸めは切り上げになります："
 
 #: manual/numeric_semantics.md:178
-msgid "Rounding to an integral value is the same construction with $\\mathbb{F} = \\mathbb{Z}$. `Binary` offers the fixed-direction forms `floor` ($\\operatorname{RD}$), `ceil` ($\\operatorname{RU}$), `trunc` ($\\operatorname{RZ}$), `round` (nearest, ties away) and `round_ties_even` (nearest, ties to even); `to_integral_value_ctx` uses the context's direction and is quiet, and `to_integral_exact_ctx` additionally raises *inexact* when the value changes. The integer conversions `to_int_ctx`, `to_int64_ctx`, `to_uint_ctx` and `to_uint64_ctx` round the same way and return `None` with *invalid* for NaN, infinities and out-of-range results. The result keeps the sign of zero: $\\lceil -0.3 \\rceil = -0$."
-msgstr "整数値への丸めは $\\mathbb{F} = \\mathbb{Z}$ とした同じ構成です。`Binary` は方向固定の形式として `floor`（$\\operatorname{RD}$）、`ceil`（$\\operatorname{RU}$）、`trunc`（$\\operatorname{RZ}$）、`round`（最近接、タイはゼロから遠ざかる方向）、`round_ties_even`（最近接偶数丸め）を提供します。`to_integral_value_ctx` はコンテキストの方向を用い、フラグを立てません。`to_integral_exact_ctx` はさらに、値が変わったときに *inexact* を発生させます。整数変換 `to_int_ctx`、`to_int64_ctx`、`to_uint_ctx`、`to_uint64_ctx` も同じように丸め、NaN、無限大、範囲外の結果に対しては *invalid* とともに `None` を返します。結果はゼロの符号を保ちます：$\\lceil -0.3 \\rceil = -0$。"
+msgid "Rounding to an integral value is the same construction with $\\mathbb{F} = \\mathbb{Z}$. `Binary` offers the fixed-direction forms `floor` ($\\operatorname{RD}$), `ceil` ($\\operatorname{RU}$), `trunc` ($\\operatorname{RZ}$), `round` (nearest, ties away) and `round_ties_to_even` (nearest, ties to even); `to_integral_value_ctx` uses the context's direction and is quiet, and `to_integral_exact_ctx` additionally raises *inexact* when the value changes. The integer conversions `to_int_ctx`, `to_int64_ctx`, `to_uint_ctx` and `to_uint64_ctx` round the same way and return `None` with *invalid* for NaN, infinities and out-of-range results. The result keeps the sign of zero: $\\lceil -0.3 \\rceil = -0$."
+msgstr "整数値への丸めは $\\mathbb{F} = \\mathbb{Z}$ とした同じ構成です。`Binary` は方向固定の形式として `floor`（$\\operatorname{RD}$）、`ceil`（$\\operatorname{RU}$）、`trunc`（$\\operatorname{RZ}$）、`round`（最近接、タイはゼロから遠ざかる方向）、`round_ties_to_even`（最近接偶数丸め）を提供します。`to_integral_value_ctx` はコンテキストの方向を用い、フラグを立てません。`to_integral_exact_ctx` はさらに、値が変わったときに *inexact* を発生させます。整数変換 `to_int_ctx`、`to_int64_ctx`、`to_uint_ctx`、`to_uint64_ctx` も同じように丸め、NaN、無限大、範囲外の結果に対しては *invalid* とともに `None` を返します。結果はゼロの符号を保ちます：$\\lceil -0.3 \\rceil = -0$。"
 
 #: manual/numeric_semantics.md:206
 msgid "Ulp and unit roundoff"

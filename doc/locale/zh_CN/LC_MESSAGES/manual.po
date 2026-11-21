@@ -1093,8 +1093,8 @@ msgid "Round to an integral value in a fixed direction."
 msgstr "按固定方向舍入为整数值。"
 
 #: manual/api/binary.md:1021
-msgid "They are `roundToIntegralTowardNegative`, `…TowardPositive`, `…TowardZero`, `…TiesToAway` and `…TiesToEven`. `round` rounds halfway cases away from zero: `round(-2.5) = -3`, while `round_ties_even(-2.5) = -2`."
-msgstr "它们是 `roundToIntegralTowardNegative`、`…TowardPositive`、`…TowardZero`、`…TiesToAway` 和 `…TiesToEven`。`round` 将正好居中的情形向远离零的方向舍入：`round(-2.5) = -3`，而 `round_ties_even(-2.5) = -2`。"
+msgid "They are `roundToIntegralTowardNegative`, `…TowardPositive`, `…TowardZero`, `…TiesToAway` and `…TiesToEven`. `round` rounds halfway cases away from zero: `round(-2.5) = -3`, while `round_ties_to_even(-2.5) = -2`."
+msgstr "它们是 `roundToIntegralTowardNegative`、`…TowardPositive`、`…TowardZero`、`…TiesToAway` 和 `…TiesToEven`。`round` 将正好居中的情形向远离零的方向舍入：`round(-2.5) = -3`，而 `round_ties_to_even(-2.5) = -2`。"
 
 #: manual/api/binary.md:1027
 msgid "IEEE `convertToInteger` to a machine integer, rounding in the context's direction."
@@ -20810,8 +20810,8 @@ msgid "`with_precision(p, mode)` applies one of these functions to a value at a 
 msgstr "`with_precision(p, mode)` 以新精度对值应用其中一个舍入函数。二进制的 $0.1$ 是 $0.0001100110011\\ldots_2$；取五位时截断形式为 $11001_2 \\cdot 2^{-8}$，下一位是 1 且其后还有非零位，因此就近舍入向上进位："
 
 #: manual/numeric_semantics.md:178
-msgid "Rounding to an integral value is the same construction with $\\mathbb{F} = \\mathbb{Z}$. `Binary` offers the fixed-direction forms `floor` ($\\operatorname{RD}$), `ceil` ($\\operatorname{RU}$), `trunc` ($\\operatorname{RZ}$), `round` (nearest, ties away) and `round_ties_even` (nearest, ties to even); `to_integral_value_ctx` uses the context's direction and is quiet, and `to_integral_exact_ctx` additionally raises *inexact* when the value changes. The integer conversions `to_int_ctx`, `to_int64_ctx`, `to_uint_ctx` and `to_uint64_ctx` round the same way and return `None` with *invalid* for NaN, infinities and out-of-range results. The result keeps the sign of zero: $\\lceil -0.3 \\rceil = -0$."
-msgstr "舍入到整数值是同一构造，只是取 $\\mathbb{F} = \\mathbb{Z}$。`Binary` 提供固定方向的形式 `floor`（$\\operatorname{RD}$）、`ceil`（$\\operatorname{RU}$）、`trunc`（$\\operatorname{RZ}$）、`round`（就近，平局远离零）和 `round_ties_even`（就近，平局取偶）；`to_integral_value_ctx` 使用上下文的方向且不引发标志，`to_integral_exact_ctx` 则在值发生变化时额外引发 *inexact*。整数转换 `to_int_ctx`、`to_int64_ctx`、`to_uint_ctx` 与 `to_uint64_ctx` 以相同方式舍入，对 NaN、无穷和超出范围的结果返回 `None` 并引发 *invalid*。结果保留零的符号：$\\lceil -0.3 \\rceil = -0$。"
+msgid "Rounding to an integral value is the same construction with $\\mathbb{F} = \\mathbb{Z}$. `Binary` offers the fixed-direction forms `floor` ($\\operatorname{RD}$), `ceil` ($\\operatorname{RU}$), `trunc` ($\\operatorname{RZ}$), `round` (nearest, ties away) and `round_ties_to_even` (nearest, ties to even); `to_integral_value_ctx` uses the context's direction and is quiet, and `to_integral_exact_ctx` additionally raises *inexact* when the value changes. The integer conversions `to_int_ctx`, `to_int64_ctx`, `to_uint_ctx` and `to_uint64_ctx` round the same way and return `None` with *invalid* for NaN, infinities and out-of-range results. The result keeps the sign of zero: $\\lceil -0.3 \\rceil = -0$."
+msgstr "舍入到整数值是同一构造，只是取 $\\mathbb{F} = \\mathbb{Z}$。`Binary` 提供固定方向的形式 `floor`（$\\operatorname{RD}$）、`ceil`（$\\operatorname{RU}$）、`trunc`（$\\operatorname{RZ}$）、`round`（就近，平局远离零）和 `round_ties_to_even`（就近，平局取偶）；`to_integral_value_ctx` 使用上下文的方向且不引发标志，`to_integral_exact_ctx` 则在值发生变化时额外引发 *inexact*。整数转换 `to_int_ctx`、`to_int64_ctx`、`to_uint_ctx` 与 `to_uint64_ctx` 以相同方式舍入，对 NaN、无穷和超出范围的结果返回 `None` 并引发 *invalid*。结果保留零的符号：$\\lceil -0.3 \\rceil = -0$。"
 
 #: manual/numeric_semantics.md:206
 msgid "Ulp and unit roundoff"

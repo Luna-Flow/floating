@@ -79,7 +79,7 @@ test "roundToIntegralExact raises inexact only when the value changes" {
 test "convenience rounding functions" {
   let value = Binary::from_double(-1.5)
   inspect(
-    "\{value.floor()} \{value.ceil()} \{value.trunc()} \{value.round()} \{value.round_ties_even()}",
+    "\{value.floor()} \{value.ceil()} \{value.trunc()} \{value.round()} \{value.round_ties_to_even()}",
     content=(
       #|-1p1 -1p0 -1p0 -1p1 -1p1
     ),

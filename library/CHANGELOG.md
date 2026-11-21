@@ -1361,7 +1361,7 @@ notes live in this file.
   - `remainder` and `remainder_ctx` (IEEE remainder, quotient rounded to
     nearest-even), without materializing huge scaled dividends.
   - `to_integral_value_ctx`, `to_integral_exact_ctx`, `floor`, `ceil`,
-    `trunc`, `round` (ties away) and `round_ties_even` (roundToIntegral).
+    `trunc`, `round` (ties away) and `round_ties_to_even` (roundToIntegral).
   - `to_int_ctx`, `to_int64_ctx`, `to_uint_ctx` and `to_uint64_ctx`
     (convertToInteger, with `exact=true` for convertToIntegerExact); invalid
     conversions return `None` with *invalid*.

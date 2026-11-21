@@ -1089,7 +1089,7 @@ msgid "Round to an integral value in a fixed direction."
 msgstr ""
 
 #: manual/api/binary.md:1021
-msgid "They are `roundToIntegralTowardNegative`, `…TowardPositive`, `…TowardZero`, `…TiesToAway` and `…TiesToEven`. `round` rounds halfway cases away from zero: `round(-2.5) = -3`, while `round_ties_even(-2.5) = -2`."
+msgid "They are `roundToIntegralTowardNegative`, `…TowardPositive`, `…TowardZero`, `…TiesToAway` and `…TiesToEven`. `round` rounds halfway cases away from zero: `round(-2.5) = -3`, while `round_ties_to_even(-2.5) = -2`."
 msgstr ""
 
 #: manual/api/binary.md:1027
@@ -20649,7 +20649,7 @@ msgid "`with_precision(p, mode)` applies one of these functions to a value at a 
 msgstr ""
 
 #: manual/numeric_semantics.md:178
-msgid "Rounding to an integral value is the same construction with $\\mathbb{F} = \\mathbb{Z}$. `Binary` offers the fixed-direction forms `floor` ($\\operatorname{RD}$), `ceil` ($\\operatorname{RU}$), `trunc` ($\\operatorname{RZ}$), `round` (nearest, ties away) and `round_ties_even` (nearest, ties to even); `to_integral_value_ctx` uses the context's direction and is quiet, and `to_integral_exact_ctx` additionally raises *inexact* when the value changes. The integer conversions `to_int_ctx`, `to_int64_ctx`, `to_uint_ctx` and `to_uint64_ctx` round the same way and return `None` with *invalid* for NaN, infinities and out-of-range results. The result keeps the sign of zero: $\\lceil -0.3 \\rceil = -0$."
+msgid "Rounding to an integral value is the same construction with $\\mathbb{F} = \\mathbb{Z}$. `Binary` offers the fixed-direction forms `floor` ($\\operatorname{RD}$), `ceil` ($\\operatorname{RU}$), `trunc` ($\\operatorname{RZ}$), `round` (nearest, ties away) and `round_ties_to_even` (nearest, ties to even); `to_integral_value_ctx` uses the context's direction and is quiet, and `to_integral_exact_ctx` additionally raises *inexact* when the value changes. The integer conversions `to_int_ctx`, `to_int64_ctx`, `to_uint_ctx` and `to_uint64_ctx` round the same way and return `None` with *invalid* for NaN, infinities and out-of-range results. The result keeps the sign of zero: $\\lceil -0.3 \\rceil = -0$."
 msgstr ""
 
 #: manual/numeric_semantics.md:206

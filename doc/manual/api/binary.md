@@ -1006,7 +1006,7 @@ the result keeps the operand's precision and the sign of a zero result.
 `to_integral_value_ctx` never raises it. Infinities are returned unchanged and
 a signaling NaN is quieted with `invalid_operation`.
 
-### `Binary::floor`, `Binary::ceil`, `Binary::trunc`, `Binary::round`, `Binary::round_ties_even`
+### `Binary::floor`, `Binary::ceil`, `Binary::trunc`, `Binary::round`, `Binary::round_ties_to_even`
 
 Round to an integral value in a fixed direction.
 
@@ -1015,12 +1015,12 @@ pub fn Binary::floor(Self) -> Self
 pub fn Binary::ceil(Self) -> Self
 pub fn Binary::trunc(Self) -> Self
 pub fn Binary::round(Self) -> Self
-pub fn Binary::round_ties_even(Self) -> Self
+pub fn Binary::round_ties_to_even(Self) -> Self
 ```
 
 They are `roundToIntegralTowardNegative`, `…TowardPositive`, `…TowardZero`,
 `…TiesToAway` and `…TiesToEven`. `round` rounds halfway cases away from zero:
-`round(-2.5) = -3`, while `round_ties_even(-2.5) = -2`.
+`round(-2.5) = -3`, while `round_ties_to_even(-2.5) = -2`.
 
 ### `Binary::to_int_ctx`, `Binary::to_int64_ctx`, `Binary::to_uint_ctx`, `Binary::to_uint64_ctx`
 
@@ -1113,7 +1113,7 @@ test "IEEE integral, integer and neighbour operations" {
   let ctx = @binary.BinaryContext::binary64()
   let x = @binary.Binary::from_string("-2.5").unwrap()
   inspect(
-    "\{x.floor()} \{x.ceil()} \{x.trunc()} \{x.round()} \{x.round_ties_even()}",
+    "\{x.floor()} \{x.ceil()} \{x.trunc()} \{x.round()} \{x.round_ties_to_even()}",
     content="-3p0 -1p1 -1p1 -3p0 -1p1",
   )
   let (n, flags) = x.to_int_ctx(ctx, exact=true)
@@ -2855,7 +2855,7 @@ pub fn Binary::remainder_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn Binary::rootn(Self, Int32) -> Self
 pub fn Binary::rootn_ctx(Self, Int32, BinaryContext) -> (Self, BinaryFlags)
 pub fn Binary::round(Self) -> Self
-pub fn Binary::round_ties_even(Self) -> Self
+pub fn Binary::round_ties_to_even(Self) -> Self
 pub fn Binary::rsqrt(Self) -> Self
 pub fn Binary::rsqrt_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn Binary::scaleb_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)

@@ -210,7 +210,7 @@ pub fn Binary::remainder_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn Binary::rootn(Self, Int32) -> Self
 pub fn Binary::rootn_ctx(Self, Int32, BinaryContext) -> (Self, BinaryFlags)
 pub fn Binary::round(Self) -> Self
-pub fn Binary::round_ties_even(Self) -> Self
+pub fn Binary::round_ties_to_even(Self) -> Self
 pub fn Binary::rsqrt(Self) -> Self
 pub fn Binary::rsqrt_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn Binary::scaleb_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
