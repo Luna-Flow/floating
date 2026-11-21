@@ -62,20 +62,6 @@ state; nothing is mutated.
 
 ## Construction
 
-### `DecimalChecked::from_outcome`
-
-`from_outcome(value, context, flags)` starts a pipeline from a value and the
-flags that produced it.
-
-```mbti
-pub fn DecimalChecked::from_outcome(@decimal.Decimal, @decimal.DecimalContext, @decimal.DecimalFlags) -> Self
-```
-
-The result is $(\textit{value}, c', \textit{flags}, \textit{flags},
-\text{none})$ with $c' = \textit{context}$. The value is *not*
-re-rounded; use it with the `(value, flags)` pair returned by a
-`Decimal::*_ctx` call.
-
 ### `DecimalChecked::from_decimal`
 
 `from_decimal(value, context)` rounds a value into the context.
@@ -168,18 +154,18 @@ $F$, the bitwise OR of the flags of every successful step since construction
 or the last `clear_flags`. After an error, `value`, `raised` and `flags` keep
 the state reached before the failing step.
 
-### `DecimalChecked::outcome`, `result`
+### `DecimalChecked::result`
 
-These methods return the value with the accumulated flags.
+`result` returns the value with the accumulated flags, or the error.
 
 ```mbti
-pub fn DecimalChecked::outcome(Self) -> (@decimal.Decimal, @decimal.DecimalFlags)
 pub fn DecimalChecked::result(Self) -> Result[(@decimal.Decimal, @decimal.DecimalFlags), @arithmetic.ArithmeticError]
 ```
 
-`outcome()` is $(v, F)$ regardless of the error; `result()` is
-$\mathrm{Err}(\varepsilon)$ when an error is recorded and
-$\mathrm{Ok}((v, F))$ otherwise.
+`result()` is $\mathrm{Err}(\varepsilon)$ when an error is recorded and
+$\mathrm{Ok}((v, F))$ otherwise. It is the one exit that returns the value
+with the flags: `value()` and `flags()` return the components of the state
+whatever the error, and there is no separate `outcome()`.
 
 ### `DecimalChecked::is_ok`, `is_err`, `error`
 
@@ -230,10 +216,10 @@ pub fn DecimalChecked::apply(Self) -> Self
 test "raised versus accumulated flags" {
   let ctx = @decimal.DecimalContext::new(precision=5)
   let start = @decimal_checked.DecimalChecked::parse("1.234567", ctx)
-  let step = start.add(@decimal.Decimal::from_int(1))
+  let step = start.add(@decimal_checked.DecimalChecked::from_decimal(@decimal.Decimal::from_int(1), ctx))
   inspect(flags(step.raised()), content="")
   inspect(flags(step.flags()), content="inexact")
-  let infinite = step.div(@decimal.Decimal::zero())
+  let infinite = step.div(@decimal_checked.DecimalChecked::from_decimal(@decimal.Decimal::zero(), ctx))
   inspect(infinite.value().to_string(), content="inf")
   inspect(flags(infinite.raised()), content="division_by_zero")
   inspect(flags(infinite.flags()), content="inexact,division_by_zero")
@@ -251,23 +237,23 @@ test "raised versus accumulated flags" {
 ### `DecimalChecked::abs`, `add`, `sub`, `mul`, `div`, `fma`, `sqrt`, `quantize`, `remainder`, `minimum_number`, `maximum_number`, `next_down`, `next_up`, `next_toward`
 
 These methods apply the IEEE decimal operation of the same meaning to the
-current value and a plain `Decimal` operand under the stored context.
+current value and a pipeline operand under the stored context of the left pipeline. The right operand is a `DecimalChecked`: an error of the left pipeline stays, an error of the right one is taken before the operation runs (the value of the left pipeline is kept), and the conditions of the right pipeline join `raised` and `flags`. `DecimalChecked::from_decimal(x, ctx)` lifts a plain value; it applies the context, so a signaling NaN is quieted and raises `invalid_operation` there.
 
 ```mbti
 pub fn DecimalChecked::abs(Self) -> Self
-pub fn DecimalChecked::add(Self, @decimal.Decimal) -> Self
-pub fn DecimalChecked::sub(Self, @decimal.Decimal) -> Self
-pub fn DecimalChecked::mul(Self, @decimal.Decimal) -> Self
-pub fn DecimalChecked::div(Self, @decimal.Decimal) -> Self
-pub fn DecimalChecked::fma(Self, @decimal.Decimal, @decimal.Decimal) -> Self
+pub fn DecimalChecked::add(Self, Self) -> Self
+pub fn DecimalChecked::sub(Self, Self) -> Self
+pub fn DecimalChecked::mul(Self, Self) -> Self
+pub fn DecimalChecked::div(Self, Self) -> Self
+pub fn DecimalChecked::fma(Self, Self, Self) -> Self
 pub fn DecimalChecked::sqrt(Self) -> Self
-pub fn DecimalChecked::quantize(Self, @decimal.Decimal) -> Self
-pub fn DecimalChecked::remainder(Self, @decimal.Decimal) -> Self
-pub fn DecimalChecked::minimum_number(Self, @decimal.Decimal) -> Self
-pub fn DecimalChecked::maximum_number(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::quantize(Self, Self) -> Self
+pub fn DecimalChecked::remainder(Self, Self) -> Self
+pub fn DecimalChecked::minimum_number(Self, Self) -> Self
+pub fn DecimalChecked::maximum_number(Self, Self) -> Self
 pub fn DecimalChecked::next_down(Self) -> Self
 pub fn DecimalChecked::next_up(Self) -> Self
-pub fn DecimalChecked::next_toward(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::next_toward(Self, Self) -> Self
 ```
 
 | Method | Delegates to | Result |
@@ -297,12 +283,12 @@ test "exceptional results are values" {
   inspect(flags(negative.raised()), content="invalid_operation")
   inspect(negative.is_ok(), content="true")
   let big = @decimal_checked.DecimalChecked::parse("9e384", ctx).mul(
-    @decimal.Decimal::from_int(10),
+    @decimal_checked.DecimalChecked::from_decimal(@decimal.Decimal::from_int(10), ctx),
   )
   inspect(big.value().to_string(), content="inf")
   inspect(flags(big.raised()), content="inexact,overflow")
   let cents = @decimal_checked.DecimalChecked::parse("2.675", ctx).quantize(
-    @decimal.Decimal::from_string("0.01").unwrap(),
+    @decimal_checked.DecimalChecked::from_decimal(@decimal.Decimal::from_string("0.01").unwrap(), ctx),
   )
   inspect(cents.value().to_string(), content="2.68")
 }
@@ -330,11 +316,11 @@ pub fn DecimalChecked::log2p1(Self) -> Self
 pub fn DecimalChecked::log10p1(Self) -> Self
 pub fn DecimalChecked::rsqrt(Self) -> Self
 pub fn DecimalChecked::compound(Self, Int32) -> Self
-pub fn DecimalChecked::powr(Self, @decimal.Decimal) -> Self
-pub fn DecimalChecked::pow(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::powr(Self, Self) -> Self
+pub fn DecimalChecked::pow(Self, Self) -> Self
 pub fn DecimalChecked::pown(Self, Int) -> Self
 pub fn DecimalChecked::rootn(Self, Int) -> Self
-pub fn DecimalChecked::hypot(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::hypot(Self, Self) -> Self
 pub fn DecimalChecked::sin(Self) -> Self
 pub fn DecimalChecked::cos(Self) -> Self
 pub fn DecimalChecked::tan(Self) -> Self
@@ -344,11 +330,11 @@ pub fn DecimalChecked::tanpi(Self) -> Self
 pub fn DecimalChecked::asin(Self) -> Self
 pub fn DecimalChecked::acos(Self) -> Self
 pub fn DecimalChecked::atan(Self) -> Self
-pub fn DecimalChecked::atan2(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::atan2(Self, Self) -> Self
 pub fn DecimalChecked::asinpi(Self) -> Self
 pub fn DecimalChecked::acospi(Self) -> Self
 pub fn DecimalChecked::atanpi(Self) -> Self
-pub fn DecimalChecked::atan2pi(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::atan2pi(Self, Self) -> Self
 pub fn DecimalChecked::sinh(Self) -> Self
 pub fn DecimalChecked::cosh(Self) -> Self
 pub fn DecimalChecked::tanh(Self) -> Self
@@ -425,14 +411,14 @@ pub fn DecimalChecked::abs(Self) -> Self
 pub fn DecimalChecked::acos(Self) -> Self
 pub fn DecimalChecked::acosh(Self) -> Self
 pub fn DecimalChecked::acospi(Self) -> Self
-pub fn DecimalChecked::add(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::add(Self, Self) -> Self
 pub fn DecimalChecked::apply(Self) -> Self
 pub fn DecimalChecked::asin(Self) -> Self
 pub fn DecimalChecked::asinh(Self) -> Self
 pub fn DecimalChecked::asinpi(Self) -> Self
 pub fn DecimalChecked::atan(Self) -> Self
-pub fn DecimalChecked::atan2(Self, @decimal.Decimal) -> Self
-pub fn DecimalChecked::atan2pi(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::atan2(Self, Self) -> Self
+pub fn DecimalChecked::atan2pi(Self, Self) -> Self
 pub fn DecimalChecked::atanh(Self) -> Self
 pub fn DecimalChecked::atanpi(Self) -> Self
 pub fn DecimalChecked::clear_flags(Self) -> Self
@@ -441,7 +427,7 @@ pub fn DecimalChecked::context(Self) -> @decimal.DecimalContext
 pub fn DecimalChecked::cos(Self) -> Self
 pub fn DecimalChecked::cosh(Self) -> Self
 pub fn DecimalChecked::cospi(Self) -> Self
-pub fn DecimalChecked::div(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::div(Self, Self) -> Self
 pub fn DecimalChecked::error(Self) -> @arithmetic.ArithmeticError?
 pub fn DecimalChecked::exp(Self) -> Self
 pub fn DecimalChecked::exp10(Self) -> Self
@@ -450,14 +436,13 @@ pub fn DecimalChecked::exp2(Self) -> Self
 pub fn DecimalChecked::exp2m1(Self) -> Self
 pub fn DecimalChecked::expm1(Self) -> Self
 pub fn DecimalChecked::flags(Self) -> @decimal.DecimalFlags
-pub fn DecimalChecked::fma(Self, @decimal.Decimal, @decimal.Decimal) -> Self
+pub fn DecimalChecked::fma(Self, Self, Self) -> Self
 pub fn DecimalChecked::from_bigint(@bigint.BigInt, @decimal.DecimalContext) -> Self
 pub fn DecimalChecked::from_decimal(@decimal.Decimal, @decimal.DecimalContext) -> Self
 pub fn DecimalChecked::from_double(Double, @decimal.DecimalContext) -> Self
 pub fn DecimalChecked::from_float(Float, @decimal.DecimalContext) -> Self
 pub fn DecimalChecked::from_int(Int32, @decimal.DecimalContext) -> Self
-pub fn DecimalChecked::from_outcome(@decimal.Decimal, @decimal.DecimalContext, @decimal.DecimalFlags) -> Self
-pub fn DecimalChecked::hypot(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::hypot(Self, Self) -> Self
 pub fn DecimalChecked::is_err(Self) -> Bool
 pub fn DecimalChecked::is_ok(Self) -> Bool
 pub fn DecimalChecked::ln(Self) -> Self
@@ -466,20 +451,19 @@ pub fn DecimalChecked::log10p1(Self) -> Self
 pub fn DecimalChecked::log1p(Self) -> Self
 pub fn DecimalChecked::log2(Self) -> Self
 pub fn DecimalChecked::log2p1(Self) -> Self
-pub fn DecimalChecked::maximum_number(Self, @decimal.Decimal) -> Self
-pub fn DecimalChecked::minimum_number(Self, @decimal.Decimal) -> Self
-pub fn DecimalChecked::mul(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::maximum_number(Self, Self) -> Self
+pub fn DecimalChecked::minimum_number(Self, Self) -> Self
+pub fn DecimalChecked::mul(Self, Self) -> Self
 pub fn DecimalChecked::next_down(Self) -> Self
-pub fn DecimalChecked::next_toward(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::next_toward(Self, Self) -> Self
 pub fn DecimalChecked::next_up(Self) -> Self
-pub fn DecimalChecked::outcome(Self) -> (@decimal.Decimal, @decimal.DecimalFlags)
 pub fn DecimalChecked::parse(String, @decimal.DecimalContext) -> Self
-pub fn DecimalChecked::pow(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::pow(Self, Self) -> Self
 pub fn DecimalChecked::pown(Self, Int32) -> Self
-pub fn DecimalChecked::powr(Self, @decimal.Decimal) -> Self
-pub fn DecimalChecked::quantize(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::powr(Self, Self) -> Self
+pub fn DecimalChecked::quantize(Self, Self) -> Self
 pub fn DecimalChecked::raised(Self) -> @decimal.DecimalFlags
-pub fn DecimalChecked::remainder(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::remainder(Self, Self) -> Self
 pub fn DecimalChecked::result(Self) -> Result[(@decimal.Decimal, @decimal.DecimalFlags), @arithmetic.ArithmeticError]
 pub fn DecimalChecked::rootn(Self, Int32) -> Self
 pub fn DecimalChecked::rsqrt(Self) -> Self
@@ -487,7 +471,7 @@ pub fn DecimalChecked::sin(Self) -> Self
 pub fn DecimalChecked::sinh(Self) -> Self
 pub fn DecimalChecked::sinpi(Self) -> Self
 pub fn DecimalChecked::sqrt(Self) -> Self
-pub fn DecimalChecked::sub(Self, @decimal.Decimal) -> Self
+pub fn DecimalChecked::sub(Self, Self) -> Self
 pub fn DecimalChecked::tan(Self) -> Self
 pub fn DecimalChecked::tanh(Self) -> Self
 pub fn DecimalChecked::tanpi(Self) -> Self

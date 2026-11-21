@@ -39,7 +39,40 @@ fn DecimalChecked::record_result(
 }
 
 ///|
-pub fn DecimalChecked::from_outcome(
+/// The operation with a pipeline as its right operand. An error of the left
+/// pipeline stays; an error of the right one is taken before the operation
+/// runs, and the value of the left pipeline is kept. The operation runs in the
+/// context of the left pipeline, and the conditions of the right pipeline join
+/// `raised` and `flags` (the pattern of `GdaDecimalChecked`).
+fn DecimalChecked::join(
+  self : DecimalChecked,
+  other : DecimalChecked,
+  operation : (@decimal.Decimal, @decimal.Decimal, @decimal.DecimalContext) -> Result[
+    (@decimal.Decimal, @decimal.DecimalFlags),
+    @def.ArithmeticError,
+  ],
+) -> DecimalChecked {
+  guard self.error_ is None else { return self }
+  if other.error_ is Some(_) {
+    return {
+      ..self,
+      raised_: other.raised_,
+      flags_: self.flags_.combine(other.flags_),
+      error_: other.error_,
+    }
+  }
+  let result = self.record_result(
+    operation(self.value_, other.value_, self.context_),
+  )
+  {
+    ..result,
+    raised_: result.raised_.combine(other.raised_),
+    flags_: result.flags_.combine(other.flags_),
+  }
+}
+
+///|
+fn DecimalChecked::from_outcome(
   value : @decimal.Decimal,
   context : @decimal.DecimalContext,
   flags : @decimal.DecimalFlags,
@@ -134,13 +167,6 @@ pub fn DecimalChecked::flags(self : DecimalChecked) -> @decimal.DecimalFlags {
 }
 
 ///|
-pub fn DecimalChecked::outcome(
-  self : DecimalChecked,
-) -> (@decimal.Decimal, @decimal.DecimalFlags) {
-  (self.value_, self.flags_)
-}
-
-///|
 pub fn DecimalChecked::is_ok(self : DecimalChecked) -> Bool {
   self.error_ is None
 }
@@ -201,42 +227,64 @@ pub fn DecimalChecked::abs(self : DecimalChecked) -> DecimalChecked {
 ///|
 pub fn DecimalChecked::add(
   self : DecimalChecked,
-  other : @decimal.Decimal,
+  other : DecimalChecked,
 ) -> DecimalChecked {
-  self.record(self.value_.add_ctx(other, self.context_))
+  self.join(other, fn(a, b, ctx) { Ok(a.add_ctx(b, ctx)) })
 }
 
 ///|
 pub fn DecimalChecked::sub(
   self : DecimalChecked,
-  other : @decimal.Decimal,
+  other : DecimalChecked,
 ) -> DecimalChecked {
-  self.record(self.value_.sub_ctx(other, self.context_))
+  self.join(other, fn(a, b, ctx) { Ok(a.sub_ctx(b, ctx)) })
 }
 
 ///|
 pub fn DecimalChecked::mul(
   self : DecimalChecked,
-  other : @decimal.Decimal,
+  other : DecimalChecked,
 ) -> DecimalChecked {
-  self.record(self.value_.mul_ctx(other, self.context_))
+  self.join(other, fn(a, b, ctx) { Ok(a.mul_ctx(b, ctx)) })
 }
 
 ///|
 pub fn DecimalChecked::div(
   self : DecimalChecked,
-  other : @decimal.Decimal,
+  other : DecimalChecked,
 ) -> DecimalChecked {
-  self.record(self.value_.div_ctx(other, self.context_))
+  self.join(other, fn(a, b, ctx) { Ok(a.div_ctx(b, ctx)) })
 }
 
 ///|
 pub fn DecimalChecked::fma(
   self : DecimalChecked,
-  multiplier : @decimal.Decimal,
-  addend : @decimal.Decimal,
+  multiplier : DecimalChecked,
+  addend : DecimalChecked,
 ) -> DecimalChecked {
-  self.record(self.value_.fma_ctx(multiplier, addend, self.context_))
+  guard self.error_ is None else { return self }
+  let raised = multiplier.raised_.combine(addend.raised_)
+  let flags = multiplier.flags_.combine(addend.flags_)
+  let error = match multiplier.error_ {
+    Some(_) => multiplier.error_
+    None => addend.error_
+  }
+  if error is Some(_) {
+    return {
+      ..self,
+      raised_: raised,
+      flags_: self.flags_.combine(flags),
+      error_: error,
+    }
+  }
+  let result = self.record(
+    self.value_.fma_ctx(multiplier.value_, addend.value_, self.context_),
+  )
+  {
+    ..result,
+    raised_: result.raised_.combine(raised),
+    flags_: result.flags_.combine(flags),
+  }
 }
 
 ///|
@@ -262,9 +310,9 @@ pub fn DecimalChecked::log10(self : DecimalChecked) -> DecimalChecked {
 ///|
 pub fn DecimalChecked::pow(
   self : DecimalChecked,
-  exponent : @decimal.Decimal,
+  exponent : DecimalChecked,
 ) -> DecimalChecked {
-  self.record_result(self.value_.try_pow_ctx(exponent, self.context_))
+  self.join(exponent, fn(a, b, ctx) { a.try_pow_ctx(b, ctx) })
 }
 
 ///|
@@ -328,9 +376,9 @@ pub fn DecimalChecked::compound(
 ///|
 pub fn DecimalChecked::powr(
   self : DecimalChecked,
-  exponent : @decimal.Decimal,
+  exponent : DecimalChecked,
 ) -> DecimalChecked {
-  self.record_result(self.value_.try_powr_ctx(exponent, self.context_))
+  self.join(exponent, fn(a, b, ctx) { a.try_powr_ctx(b, ctx) })
 }
 
 ///|
@@ -352,9 +400,9 @@ pub fn DecimalChecked::pown(
 ///|
 pub fn DecimalChecked::hypot(
   self : DecimalChecked,
-  other : @decimal.Decimal,
+  other : DecimalChecked,
 ) -> DecimalChecked {
-  self.record_result(self.value_.try_hypot_ctx(other, self.context_))
+  self.join(other, fn(a, b, ctx) { a.try_hypot_ctx(b, ctx) })
 }
 
 ///|
@@ -420,17 +468,17 @@ pub fn DecimalChecked::atanpi(self : DecimalChecked) -> DecimalChecked {
 ///|
 pub fn DecimalChecked::atan2pi(
   self : DecimalChecked,
-  abscissa : @decimal.Decimal,
+  abscissa : DecimalChecked,
 ) -> DecimalChecked {
-  self.record_result(self.value_.try_atan2pi_ctx(abscissa, self.context_))
+  self.join(abscissa, fn(a, b, ctx) { a.try_atan2pi_ctx(b, ctx) })
 }
 
 ///|
 pub fn DecimalChecked::atan2(
   self : DecimalChecked,
-  abscissa : @decimal.Decimal,
+  abscissa : DecimalChecked,
 ) -> DecimalChecked {
-  self.record_result(self.value_.try_atan2_ctx(abscissa, self.context_))
+  self.join(abscissa, fn(a, b, ctx) { a.try_atan2_ctx(b, ctx) })
 }
 
 ///|
@@ -466,33 +514,33 @@ pub fn DecimalChecked::atanh(self : DecimalChecked) -> DecimalChecked {
 ///|
 pub fn DecimalChecked::quantize(
   self : DecimalChecked,
-  quantum : @decimal.Decimal,
+  quantum : DecimalChecked,
 ) -> DecimalChecked {
-  self.record(self.value_.quantize_ctx(quantum, self.context_))
+  self.join(quantum, fn(a, b, ctx) { Ok(a.quantize_ctx(b, ctx)) })
 }
 
 ///|
 pub fn DecimalChecked::remainder(
   self : DecimalChecked,
-  divisor : @decimal.Decimal,
+  divisor : DecimalChecked,
 ) -> DecimalChecked {
-  self.record(self.value_.remainder_ctx(divisor, self.context_))
+  self.join(divisor, fn(a, b, ctx) { Ok(a.remainder_ctx(b, ctx)) })
 }
 
 ///|
 pub fn DecimalChecked::minimum_number(
   self : DecimalChecked,
-  other : @decimal.Decimal,
+  other : DecimalChecked,
 ) -> DecimalChecked {
-  self.record(self.value_.minimum_number_ctx(other, self.context_))
+  self.join(other, fn(a, b, ctx) { Ok(a.minimum_number_ctx(b, ctx)) })
 }
 
 ///|
 pub fn DecimalChecked::maximum_number(
   self : DecimalChecked,
-  other : @decimal.Decimal,
+  other : DecimalChecked,
 ) -> DecimalChecked {
-  self.record(self.value_.maximum_number_ctx(other, self.context_))
+  self.join(other, fn(a, b, ctx) { Ok(a.maximum_number_ctx(b, ctx)) })
 }
 
 ///|
@@ -508,7 +556,7 @@ pub fn DecimalChecked::next_up(self : DecimalChecked) -> DecimalChecked {
 ///|
 pub fn DecimalChecked::next_toward(
   self : DecimalChecked,
-  target : @decimal.Decimal,
+  target : DecimalChecked,
 ) -> DecimalChecked {
-  self.record(self.value_.next_toward_ctx(target, self.context_))
+  self.join(target, fn(a, b, ctx) { Ok(a.next_toward_ctx(b, ctx)) })
 }

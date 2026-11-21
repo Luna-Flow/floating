@@ -622,7 +622,7 @@ msgstr "除数 $\\boldsymbol{y}$"
 
 #: manual/api/ball_float.md:819
 #: manual/api/bin_float.md:46
-#: manual/api/decimal_checked.md:273
+#: manual/api/decimal_checked.md:259
 #: manual/conformance/bin_float.md:107
 #: manual/design/bin_float_checked.md:176
 #: manual/performance_audit.md:122
@@ -1358,7 +1358,7 @@ msgstr "使われるのは `ctx.precision` だけです。オペランドは `wi
 #: manual/api/cli/testfloat_expr_cli.md:76
 #: manual/api/consistency.md:50
 #: manual/api/decimal.md:2273
-#: manual/api/decimal_checked.md:401
+#: manual/api/decimal_checked.md:387
 #: manual/api/decimal_gda.md:1652
 #: manual/api/decimal_gda_checked.md:318
 #: manual/api/def.md:428
@@ -1467,7 +1467,7 @@ msgstr "`entire(precision~)` は実数直線全体 $[-\\infty, +\\infty]$（既�
 
 #: manual/api/ball_float_checked.md:166
 #: manual/api/bin_float_checked.md:103
-#: manual/api/decimal_checked.md:153
+#: manual/api/decimal_checked.md:139
 #: manual/api/decimal_gda_checked.md:104
 msgid "Observation"
 msgstr "観測"
@@ -1621,7 +1621,7 @@ msgstr "演算子 `+`、`-`、`*`、`/` と単項 `-` は、`add`、`sub`、`mul
 
 #: manual/api/ball_float_checked.md:530
 #: manual/api/bin_float_checked.md:842
-#: manual/api/decimal_checked.md:403
+#: manual/api/decimal_checked.md:389
 #: manual/api/decimal_gda_checked.md:320
 #: manual/api/def.md:430
 #: manual/api/semantic.md:375
@@ -3528,7 +3528,7 @@ msgid "Default `precision`"
 msgstr "既定の `precision`"
 
 #: manual/api/bin_float_checked.md:90
-#: manual/api/decimal_checked.md:273
+#: manual/api/decimal_checked.md:259
 msgid "Delegates to"
 msgstr "委譲先"
 
@@ -5309,146 +5309,138 @@ msgid "Write a state as $\\sigma = (v, c, r, F, \\varepsilon)$: value $v$, conte
 msgstr "状態を $\\sigma = (v, c, r, F, \\varepsilon)$ と書きます。値 $v$、コンテキスト $c$、直近のステップで立ったフラグ $r$、蓄積されたフラグ $F$、エラー $\\varepsilon$（なし、または 1 つの `ArithmeticError`）です。すべての演算は新しい状態を返し、何も変更されません。"
 
 #: manual/api/decimal_checked.md:67
-msgid "`from_outcome(value, context, flags)` starts a pipeline from a value and the flags that produced it."
-msgstr "`from_outcome(value, context, flags)` は、値とそれを生じたフラグからパイプラインを開始します。"
-
-#: manual/api/decimal_checked.md:74
-msgid "The result is $(\\textit{value}, c', \\textit{flags}, \\textit{flags}, \\text{none})$ with $c' = \\textit{context}$. The value is *not* re-rounded; use it with the `(value, flags)` pair returned by a `Decimal::*_ctx` call."
-msgstr "結果は $(\\textit{value}, c', \\textit{flags}, \\textit{flags}, \\text{none})$ で、$c' = \\textit{context}$ です。値は再度丸められることは*ありません*。`Decimal::*_ctx` の呼び出しが返す `(value, flags)` の組と一緒に使用してください。"
-
-#: manual/api/decimal_checked.md:81
 msgid "`from_decimal(value, context)` rounds a value into the context."
 msgstr "`from_decimal(value, context)` は値をコンテキストに合わせて丸めます。"
 
-#: manual/api/decimal_checked.md:87
+#: manual/api/decimal_checked.md:73
 msgid "It applies `Decimal::apply_ctx`, which rounds the value to the context's precision and exponent range, and records the resulting flags as both raised and accumulated."
 msgstr "`Decimal::apply_ctx` を適用して値をコンテキストの精度と指数範囲に丸め、結果のフラグを直近のフラグと蓄積フラグの両方として記録します。"
 
-#: manual/api/decimal_checked.md:93
+#: manual/api/decimal_checked.md:79
 msgid "`parse(source, context)` converts a decimal string under the context."
 msgstr "`parse(source, context)` はコンテキストのもとで十進文字列を変換します。"
 
-#: manual/api/decimal_checked.md:99
+#: manual/api/decimal_checked.md:85
 msgid "It uses `Decimal::from_string_ctx`. Extra digits are rounded (`inexact`); an invalid string gives a NaN value with `invalid_operation` raised, not an error."
 msgstr "これは `Decimal::from_string_ctx` を使います。余分な桁は丸められます（`inexact`）。無効な文字列はエラーではなく、`invalid_operation` が立った NaN 値になります。"
 
-#: manual/api/decimal_checked.md:105
+#: manual/api/decimal_checked.md:91
 msgid "These constructors convert a MoonBit number."
 msgstr "これらのコンストラクタは MoonBit の数値を変換します。"
 
-#: manual/api/decimal_checked.md:114
+#: manual/api/decimal_checked.md:100
 msgid "`from_int` and `from_bigint` parse the integer's decimal string, so integers longer than the precision are rounded with flags. `from_double` first converts the binary value to a decimal of 17 significant digits and `from_float` to 9 digits (enough to identify the binary value), then rounds into the context with `from_decimal`. So `from_double(0.1, decimal64)` is `0.1000000000000000` with `inexact` raised."
 msgstr "`from_int` と `from_bigint` は整数の十進文字列を解析するので、精度より長い整数はフラグ付きで丸められます。`from_double` はまず二進値を有効数字 17 桁の十進数に、`from_float` は 9 桁（その二進値を識別するのに十分）に変換し、その後 `from_decimal` でコンテキストへ丸めます。したがって `from_double(0.1, decimal64)` は `0.1000000000000000` で、`inexact` が立ちます。"
 
-#: manual/api/decimal_checked.md:121
+#: manual/api/decimal_checked.md:107
 msgid "This is a conversion in two roundings, not the correctly rounded value of the binary number. With a context precision above 17 (decimal128) the result keeps only 17 digits: `from_double(0.1, decimal128)` is `0.10000000000000001`, not the exact `0.1000000000000000055511151231257827`, and its flags describe only the second rounding. With a precision below 17 the half modes can round twice (a 17-digit midpoint created by the first rounding). For the exact binary value use `from_decimal(Decimal::from_double(x, precision=p), context)` with `p` at least the context precision plus one, or with `p = 767`, which holds every `Double` exactly."
 msgstr "これは 2 回の丸めによる変換であり、二進数の正しく丸めた値ではありません。コンテキストの精度が 17 を超える場合（decimal128）、結果は 17 桁しか保持しません。`from_double(0.1, decimal128)` は正確な `0.1000000000000000055511151231257827` ではなく `0.10000000000000001` であり、そのフラグは 2 回目の丸めだけを表します。精度が 17 未満の場合、half 系のモードでは二重丸めが起こりえます（1 回目の丸めで 17 桁の中点が生じる場合）。正確な二進値が必要なら、`p` をコンテキストの精度に 1 を加えた値以上にするか、すべての `Double` を正確に保持できる `p = 767` にして、`from_decimal(Decimal::from_double(x, precision=p), context)` を使用してください。"
 
-#: manual/api/decimal_checked.md:157
+#: manual/api/decimal_checked.md:143
 msgid "These accessors return the components of the state."
 msgstr "これらのアクセサは状態の構成要素を返します。"
 
-#: manual/api/decimal_checked.md:166
+#: manual/api/decimal_checked.md:152
 msgid "`raised()` is $r$, the flags of the latest successful step only. `flags()` is $F$, the bitwise OR of the flags of every successful step since construction or the last `clear_flags`. After an error, `value`, `raised` and `flags` keep the state reached before the failing step."
 msgstr "`raised()` は $r$、すなわち直近の成功したステップのフラグだけです。`flags()` は $F$、すなわち構築時または最後の `clear_flags` 以降の成功したすべてのステップのフラグのビットごとの OR です。エラーの後も、`value`、`raised`、`flags` は失敗したステップの前に到達した状態を保持します。"
 
-#: manual/api/decimal_checked.md:173
-msgid "These methods return the value with the accumulated flags."
-msgstr "これらのメソッドは値を蓄積されたフラグとともに返します。"
+#: manual/api/decimal_checked.md:159
+msgid "`result` returns the value with the accumulated flags, or the error."
+msgstr "`result` は累積したフラグ付きの値、またはエラーを返します。"
 
-#: manual/api/decimal_checked.md:180
-msgid "`outcome()` is $(v, F)$ regardless of the error; `result()` is $\\mathrm{Err}(\\varepsilon)$ when an error is recorded and $\\mathrm{Ok}((v, F))$ otherwise."
-msgstr "`outcome()` はエラーの有無にかかわらず $(v, F)$ です。`result()` はエラーが記録されていれば $\\mathrm{Err}(\\varepsilon)$、そうでなければ $\\mathrm{Ok}((v, F))$ です。"
+#: manual/api/decimal_checked.md:165
+msgid "`result()` is $\\mathrm{Err}(\\varepsilon)$ when an error is recorded and $\\mathrm{Ok}((v, F))$ otherwise. It is the one exit that returns the value with the flags: `value()` and `flags()` return the components of the state whatever the error, and there is no separate `outcome()`."
+msgstr "記録されたエラーがあるとき `result()` は $\\mathrm{Err}(\\varepsilon)$、なければ $\\mathrm{Ok}((v, F))$ です。値とフラグを一緒に返す出口はこれだけです。`value()` と `flags()` はエラーの有無にかかわらず状態の各成分を返し、独立した `outcome()` はありません。"
 
-#: manual/api/decimal_checked.md:186
+#: manual/api/decimal_checked.md:172
 msgid "These methods test for and return the recorded error."
 msgstr "これらのメソッドは記録されたエラーを判定し、返します。"
 
-#: manual/api/decimal_checked.md:194
+#: manual/api/decimal_checked.md:180
 msgid "Controlling the state"
 msgstr "状態の制御"
 
-#: manual/api/decimal_checked.md:198
+#: manual/api/decimal_checked.md:184
 msgid "`clear_flags()` resets both $r$ and $F$ to the empty flag set."
 msgstr "`clear_flags()` は $r$ と $F$ の両方を空のフラグ集合にリセットします。"
 
-#: manual/api/decimal_checked.md:204
+#: manual/api/decimal_checked.md:190
 msgid "Value, context and error are kept. It also applies to a state with an error."
 msgstr "値、コンテキスト、エラーは保持されます。エラーを持つ状態にも適用されます。"
 
-#: manual/api/decimal_checked.md:208
+#: manual/api/decimal_checked.md:194
 msgid "`with_context(context)` switches to a new context and rounds the current value into it."
 msgstr "`with_context(context)` は新しいコンテキストに切り替え、現在の値をそれに合わせて丸めます。"
 
-#: manual/api/decimal_checked.md:215
+#: manual/api/decimal_checked.md:201
 msgid "The value is re-applied with `apply_ctx` under the new context; the new flags become $r$ and are ORed into $F$. On a state with an error it returns the state unchanged."
 msgstr "値は新しいコンテキストのもとで `apply_ctx` により再適用されます。新しいフラグが $r$ となり、$F$ に OR されます。エラーを持つ状態では、状態をそのまま返します。"
 
-#: manual/api/decimal_checked.md:221
+#: manual/api/decimal_checked.md:207
 msgid "`apply()` rounds the current value into the stored context and records the flags."
 msgstr "`apply()` は現在の値を格納されたコンテキストに合わせて丸め、フラグを記録します。"
 
-#: manual/api/decimal_checked.md:249
+#: manual/api/decimal_checked.md:235
 msgid "Operations that cannot fail"
 msgstr "失敗しない演算"
 
-#: manual/api/decimal_checked.md:253
-msgid "These methods apply the IEEE decimal operation of the same meaning to the current value and a plain `Decimal` operand under the stored context."
-msgstr "これらのメソッドは、格納されたコンテキストのもとで、現在の値と素の `Decimal` オペランドに同じ意味の IEEE 十進演算を適用します。"
+#: manual/api/decimal_checked.md:239
+msgid "These methods apply the IEEE decimal operation of the same meaning to the current value and a pipeline operand under the stored context of the left pipeline. The right operand is a `DecimalChecked`: an error of the left pipeline stays, an error of the right one is taken before the operation runs (the value of the left pipeline is kept), and the conditions of the right pipeline join `raised` and `flags`. `DecimalChecked::from_decimal(x, ctx)` lifts a plain value; it applies the context, so a signaling NaN is quieted and raises `invalid_operation` there."
+msgstr "これらのメソッドは、左側のパイプラインが保持するコンテキストの下で、現在の値とパイプラインのオペランドに、同じ意味の IEEE 十進演算を適用します。右オペランドは `DecimalChecked` です。左側のパイプラインのエラーはそのまま残り、右側のエラーは演算が実行される前に採用され（左側のパイプラインの値は保たれ）、右側のパイプラインの条件は `raised` と `flags` に合流します。`DecimalChecked::from_decimal(x, ctx)` は普通の値を持ち上げます。これはコンテキストを適用するので、シグナリング NaN はそこで静かな NaN になり `invalid_operation` を上げます。"
 
-#: manual/api/decimal_checked.md:273
+#: manual/api/decimal_checked.md:259
 msgid "Method"
 msgstr "メソッド"
 
-#: manual/api/decimal_checked.md:275
+#: manual/api/decimal_checked.md:261
 msgid "$\\lvert v\\rvert$ rounded into the context"
 msgstr "コンテキストへ丸めた $\\lvert v\\rvert$"
 
-#: manual/api/decimal_checked.md:276
+#: manual/api/decimal_checked.md:262
 msgid "$v \\circ y$ correctly rounded"
 msgstr "正しく丸められた $v \\circ y$"
 
-#: manual/api/decimal_checked.md:277
+#: manual/api/decimal_checked.md:263
 msgid "$v \\cdot m + a$ with one rounding"
 msgstr "1 回の丸めによる $v \\cdot m + a$"
 
-#: manual/api/decimal_checked.md:278
+#: manual/api/decimal_checked.md:264
 msgid "$\\sqrt{v}$ correctly rounded"
 msgstr "正しく丸められた $\\sqrt{v}$"
 
-#: manual/api/decimal_checked.md:279
+#: manual/api/decimal_checked.md:265
 msgid "$v$ rounded to the exponent of `q`"
 msgstr "`q` の指数に合わせて丸めた $v$"
 
-#: manual/api/decimal_checked.md:280
+#: manual/api/decimal_checked.md:266
 msgid "IEEE remainder $v - d \\cdot n$, $n$ = $v/d$ rounded to nearest, ties to even"
 msgstr "IEEE の剰余 $v - d \\cdot n$、$n$ = $v/d$ を最近接に丸めた値（同点は偶数）"
 
-#: manual/api/decimal_checked.md:281
+#: manual/api/decimal_checked.md:267
 msgid "IEEE 754-2019 §9.6 `minimumNumber`/`maximumNumber`: a quiet NaN loses to a number, a signaling NaN gives the number and `invalid_operation` (the General Decimal Arithmetic `min`/`max` are in `decimal_gda`)"
 msgstr "IEEE 754-2019 §9.6 の `minimumNumber`/`maximumNumber`。静かな NaN は数に負け、シグナリング NaN は数と `invalid_operation` を返します（General Decimal Arithmetic の `min`/`max` は `decimal_gda` にあります）"
 
-#: manual/api/decimal_checked.md:282
+#: manual/api/decimal_checked.md:268
 msgid "adjacent representable value"
 msgstr "隣接する表現可能な値"
 
-#: manual/api/decimal_checked.md:284
+#: manual/api/decimal_checked.md:270
 msgid "If an error is recorded, each method returns the state unchanged. Otherwise the step $(v', r') = \\mathrm{op}(v, c)$ gives the new state $(v', c, r', F \\lor r', \\text{none})$. Invalid operations produce NaN with `invalid_operation`, division by zero produces an infinity with `division_by_zero`, overflow produces an infinity or the largest finite number with `overflow` and `inexact`, as in IEEE 754 decimal arithmetic."
 msgstr "エラーが記録されている場合、各メソッドは状態をそのまま返します。そうでなければ、ステップ $(v', r') = \\mathrm{op}(v, c)$ が新しい状態 $(v', c, r', F \\lor r', \\text{none})$ を与えます。IEEE 754 の十進算術と同様に、無効な演算は `invalid_operation` 付きの NaN、ゼロ除算は `division_by_zero` 付きの無限大、オーバーフローは無限大または最大の有限数を `overflow` と `inexact` 付きで返します。"
 
-#: manual/api/decimal_checked.md:311
+#: manual/api/decimal_checked.md:297
 msgid "Operations that can record an error"
 msgstr "エラーを記録しうる演算"
 
-#: manual/api/decimal_checked.md:315
+#: manual/api/decimal_checked.md:301
 msgid "These methods apply the certified `Decimal::try_*_ctx` functions of the same name."
 msgstr "これらのメソッドは、同名の認証付き `Decimal::try_*_ctx` 関数を適用します。"
 
-#: manual/api/decimal_checked.md:360
+#: manual/api/decimal_checked.md:346
 msgid "The results are those of `decimal`, including its documented exception to correct rounding (exact decimal results of non-integral powers, such as $0.0016^{0.25} = 0.2$; see the [decimal API](decimal.md#elementary-functions)). Zero and infinite operands of `atan2` give the IEEE 754 values (`atan2` of $+\\infty$ and 1 is $\\pi/2$, inexact). Domain violations are IEEE values with flags (`ln` of a negative number is NaN with `invalid_operation`, `tanpi(0.5)` is an infinity with `division_by_zero`). An error is recorded only when `try_*_ctx` returns `Err`, which these functions do for a `CertificationFailure` (the correctly rounded result could not be certified within the refinement budget). On error the new state is $(v, c, r, F, \\mathrm{Some}(e))$: the value and flags before the step are kept."
 msgstr "結果は `decimal` のものと同じで、文書化された正しい丸めの例外（$0.0016^{0.25} = 0.2$ のような非整数乗の正確な十進の結果。[decimal API](decimal.md#elementary-functions) を参照）も含みます。`atan2` のゼロと無限大のオペランドは IEEE 754 の値を与えます（$+\\infty$ と 1 の `atan2` は $\\pi/2$ で、inexact）。定義域の違反はフラグ付きの IEEE の値です（負数の `ln` は `invalid_operation` 付きの NaN、`tanpi(0.5)` は `division_by_zero` 付きの無限大）。エラーが記録されるのは `try_*_ctx` が `Err` を返したときだけで、これらの関数がそうするのは `CertificationFailure`（正しく丸められた結果を精緻化の予算内で認証できなかった）の場合です。エラー時の新しい状態は $(v, c, r, F, \\mathrm{Some}(e))$ で、ステップ前の値とフラグが保持されます。"
 
-#: manual/api/decimal_checked.md:372
+#: manual/api/decimal_checked.md:358
 msgid "[!IMPORTANT] As an implementation limit (decNumber's `DEC_MAX_MATH`, required by the decTest suite and permitted by the GDA Invalid context condition), these operations require a context with precision and exponent limits within 999,999. A context with a larger `e_max`, or with a precision of 1000 digits or more and no explicit `e_max`, makes them return NaN with `not_computed`; the `try_` mirrors return `Err` (certification failure). Use `decimal32()`, `decimal64()`, `decimal128()` or an explicit `e_max` up to 999,999. `pow` and `pown` with an integral exponent, and `pow` with the exponent `0.5`, are not restricted."
 msgstr "[!IMPORTANT] 実装上の限界（decNumber の `DEC_MAX_MATH`。decTest スイートが要求し、GDA の Invalid context 条件が許容します）として、これらの演算は精度と指数の限界が 999,999 以内のコンテキストを要求します。`e_max` がより大きいコンテキスト、または精度が 1000 桁以上で明示的な `e_max` がないコンテキストでは、`not_computed` 付きの NaN を返し、`try_` のミラーは `Err`（認証失敗）を返します。`decimal32()`、`decimal64()`、`decimal128()`、または 999,999 以下の明示的な `e_max` を使ってください。整数の指数を持つ `pow` と `pown`、および指数が `0.5` の `pow` は制限されません。"
 
@@ -10371,7 +10363,7 @@ msgstr "`just gate decimal` は native、Wasm、Wasm-GC、JavaScript で実行�
 #: manual/design/cli/testfloat_expr_cli.md:55
 #: manual/design/consistency.md:70
 #: manual/design/decimal.md:1463
-#: manual/design/decimal_checked.md:277
+#: manual/design/decimal_checked.md:287
 #: manual/design/decimal_gda.md:958
 #: manual/design/decimal_gda_checked.md:262
 #: manual/design/def.md:314
@@ -11971,7 +11963,7 @@ msgstr "各区間は精度タグを持ち、二項演算は大きい方のタグ
 #: manual/design/cli/testfloat_expr_cli.md:41
 #: manual/design/consistency.md:56
 #: manual/design/decimal.md:1393
-#: manual/design/decimal_checked.md:194
+#: manual/design/decimal_checked.md:201
 #: manual/design/decimal_gda.md:913
 #: manual/design/decimal_gda_checked.md:205
 #: manual/design/def.md:187
@@ -12052,7 +12044,7 @@ msgstr "現時点で未解決の制限はありません。負の次数の装飾
 #: manual/design/cli/testfloat_expr_cli.md:48
 #: manual/design/consistency.md:63
 #: manual/design/decimal.md:1442
-#: manual/design/decimal_checked.md:266
+#: manual/design/decimal_checked.md:276
 #: manual/design/decimal_gda.md:942
 #: manual/design/decimal_gda_checked.md:253
 #: manual/design/def.md:302
@@ -15932,7 +15924,7 @@ msgid "Algorithm"
 msgstr "アルゴリズム"
 
 #: manual/design/decimal.md:1290
-#: manual/design/decimal_checked.md:261
+#: manual/design/decimal_checked.md:271
 #: manual/design/decimal_gda_checked.md:248
 #: manual/design/def.md:295
 msgid "Cost"
@@ -16266,146 +16258,146 @@ msgid "IEEE 754-2019, clause 7 (default exception handling) and clause 8 (altern
 msgstr "IEEE 754-2019、7 節（デフォルトの例外処理）と 8 節（代替の例外処理）：ステータスフラグは立てられると、明示的に下ろされるまで立ったままになります。"
 
 #: manual/design/decimal_checked.md:122
-msgid "One context per pipeline, plain operands"
-msgstr "パイプラインごとに 1 つのコンテキスト、素のオペランド"
+msgid "One context per pipeline, pipeline operands"
+msgstr "パイプラインごとに 1 つのコンテキスト、オペランドもパイプライン"
 
 #: manual/design/decimal_checked.md:124
-msgid "**Problem.** A binary operation could take another pipeline as its operand."
-msgstr "**問題。** 二項演算が別のパイプラインをオペランドとして受け取ることも考えられます。"
+msgid "**Problem.** A binary operation took a plain `Decimal` as its right operand, so the flags and the error of the computation that produced that operand could not reach the result."
+msgstr "**問題。** 二項演算は右オペランドに普通の `Decimal` を取っていたため、そのオペランドを作った計算のフラグとエラーが結果に届きませんでした。"
 
-#: manual/design/decimal_checked.md:126
-msgid "**Choice.** Operands are plain `Decimal` values. Two pipelines carry two contexts and two flag histories; merging them would need a rule for which context wins, and the union of histories would hide which side raised a flag. With plain operands the pipeline is a single linear history under one context, and the context changes only through `with_context`, which records the flags of rounding the current value into the new context. For the same reason the type implements no operators."
-msgstr "**選択。** オペランドは素の `Decimal` 値です。2 つのパイプラインは 2 つのコンテキストと 2 つのフラグ履歴を持っています。それらを統合するにはどちらのコンテキストを優先するかの規則が必要で、履歴の和集合ではどちら側がフラグを立てたかが隠れてしまいます。素のオペランドなら、パイプラインは 1 つのコンテキストのもとでの単一の線形な履歴になり、コンテキストは `with_context` によってのみ変わります。このメソッドは現在の値を新しいコンテキストへ丸めたときのフラグを記録します。同じ理由で、この型は演算子を実装していません。"
+#: manual/design/decimal_checked.md:128
+msgid "**Choice.** The right operand of a binary operation is a `DecimalChecked`, as for `GdaDecimalChecked`. Two pipelines carry two contexts and two flag histories; the rule is that the context of the left pipeline wins, the conditions of the right pipeline join `raised` and `flags` of the result, an error of the left pipeline stays and an error of the right one is taken before the operation runs (the value of the left pipeline is kept). The context changes only through `with_context`, which records the flags of rounding the current value into the new context. `DecimalChecked::from_decimal(x, ctx)` lifts a plain value; it applies the context, so a signaling NaN lifted that way is quieted with `invalid_operation`. The constructor that took a value, a context and flags is not public: a caller could state flags that no operation raised. For the same reason the type implements no operators."
+msgstr "**選択。** 二項演算の右オペランドは `DecimalChecked` で、`GdaDecimalChecked` と同じです。2 つのパイプラインは 2 つのコンテキストと 2 つのフラグ履歴を持ちます。規則は、左側のパイプラインのコンテキストが優先され、右側のパイプラインの条件は結果の `raised` と `flags` に合流し、左側のパイプラインのエラーはそのまま残り、右側のエラーは演算が実行される前に採用される（左側のパイプラインの値は保たれる）、というものです。コンテキストは `with_context` でのみ変わり、これは現在の値を新しいコンテキストに丸めたときのフラグを記録します。`DecimalChecked::from_decimal(x, ctx)` は普通の値を持ち上げます。これはコンテキストを適用するので、そのように持ち上げたシグナリング NaN は静かな NaN になり `invalid_operation` を伴います。値、コンテキスト、フラグを受け取るコンストラクタは公開されていません。どの演算も上げていないフラグを呼び出し側が指定できてしまうからです。同じ理由で、この型は演算子を実装しません。"
 
-#: manual/design/decimal_checked.md:134
+#: manual/design/decimal_checked.md:141
 msgid "Mapping a Luna-Flow/arithmetic context"
 msgstr "Luna-Flow/arithmetic のコンテキストの対応付け"
 
-#: manual/design/decimal_checked.md:136
+#: manual/design/decimal_checked.md:143
 msgid "The pipeline takes a `DecimalContext`. A caller holding an `ArithmeticContext` converts it with `DecimalContext::from_arithmetic_context`, which maps"
 msgstr "パイプラインは `DecimalContext` を受け取ります。`ArithmeticContext` を持っている呼び出し側は `DecimalContext::from_arithmetic_context` でそれを変換します。この関数は次のように対応付けます。"
 
-#: manual/design/decimal_checked.md:142
+#: manual/design/decimal_checked.md:149
 msgid "`rounding` (`DecimalRoundingMode::from_arithmetic`; `AwayFromZero` is an `Err`)"
 msgstr "`rounding`（`DecimalRoundingMode::from_arithmetic`。`AwayFromZero` は `Err`）"
 
-#: manual/design/decimal_checked.md:143
+#: manual/design/decimal_checked.md:150
 msgid "`e_max` as given, `e_min` must be `1 - e_max` (alone: `e_max = 1 - e_min`), the default range of `DecimalContext::new` when absent"
 msgstr "`e_max` は指定どおり、`e_min` は `1 - e_max` でなければならず（単独の場合は `e_max = 1 - e_min`）、省略時は `DecimalContext::new` の既定の範囲です"
 
-#: manual/design/decimal_checked.md:144
+#: manual/design/decimal_checked.md:151
 msgid "ignored (every IEEE format clamps)"
 msgstr "無視されます（すべての IEEE 形式はクランプします）"
 
-#: manual/design/decimal_checked.md:146
+#: manual/design/decimal_checked.md:153
 msgid "Before-rounding tininess detection (IEEE 754-2019 §7.5) is the only rule. So the predefined `ArithmeticContext::decimal64()` maps exactly to `DecimalContext::decimal64()`."
 msgstr "丸めの前の極小性検出（IEEE 754-2019 §7.5）が唯一の規則です。したがって、定義済みの `ArithmeticContext::decimal64()` は `DecimalContext::decimal64()` に正確に対応します。"
 
-#: manual/design/decimal_checked.md:150
+#: manual/design/decimal_checked.md:157
 msgid "The mathematical functions `exp`, `ln`, `log10` and `power` restrict their context to decNumber's range: precision and both exponent limits must lie within $999\\,999$ in magnitude, otherwise the result is NaN with `invalid_operation` (private check `math_context_is_restricted` in `library/src/decimal`). This is a deliberate implementation limit (`DEC_MAX_MATH`), not a rule of the GDA operation text: decTest requires it (`power.decTest` powx4001 to powx4005 and the matching rows of `exp`, `ln`, `log10`) and GDA's Invalid context condition permits it.[^gda] The default unbounded exponent range therefore disables them, which the API page and tutorial point out. `power` and `pown` with an integral exponent, and `power` with the exponent $0.5$ (a square root), are the exceptions: like the arithmetic operations they accept contexts up to $\\pm 999\\,999\\,999$."
 msgstr "数学関数 `exp`、`ln`、`log10`、`power` は、コンテキストを decNumber の範囲に制限します。精度と二つの指数の限界は、絶対値が $999\\,999$ 以内でなければならず、そうでなければ結果は `invalid_operation` 付きの NaN です（`library/src/decimal` の非公開の検査 `math_context_is_restricted`）。これは意図的な実装上の限界（`DEC_MAX_MATH`）であり、GDA の演算本文の規則ではありません。decTest がそれを要求し（`power.decTest` の powx4001 から powx4005、および `exp`、`ln`、`log10` の対応する行）、GDA の Invalid context 条件がそれを許容します。[^gda] したがって既定の無制限の指数範囲ではこれらは使えなくなり、API ページとチュートリアルがそのことを指摘しています。整数の指数を持つ `power` と `pown`、および指数が $0.5$（平方根）の `power` は例外です。算術演算と同様に、上限 $\\pm 999\\,999\\,999$ までのコンテキストを受け付けます。"
 
-#: manual/design/decimal_checked.md:163
+#: manual/design/decimal_checked.md:170
 msgid "M. Cowlishaw, *General Decimal Arithmetic Specification*, version 1.70, \"Context\" (the Invalid context condition under \"Exceptional conditions\") and the decTest rows named above."
 msgstr "M. Cowlishaw, *General Decimal Arithmetic Specification*, バージョン 1.70, 「Context」（「Exceptional conditions」の Invalid context 条件）および上に挙げた decTest の行。"
 
-#: manual/design/decimal_checked.md:167
+#: manual/design/decimal_checked.md:174
 msgid "From flags to arithmetic diagnostics"
 msgstr "フラグから算術の診断情報へ"
 
-#: manual/design/decimal_checked.md:169
+#: manual/design/decimal_checked.md:176
 msgid "The contextual trait implementations of `Decimal` in Luna-Flow/arithmetic report `ArithmeticDiagnostics`, six Booleans combined by `ArithmeticDiagnostics::combine`, again field-wise OR. The private helper `contextual_diagnostics` in `library/src/decimal/traits.mbt` maps flags to diagnostics by keeping the six shared coordinates; call this projection $\\pi : \\mathbb{F} \\to \\{0,1\\}^{6}$. A coordinate projection commutes with a field-wise OR:"
 msgstr "Luna-Flow/arithmetic における `Decimal` のコンテキスト付きトレイト実装は `ArithmeticDiagnostics` を報告します。これは 6 個のブール値で、`ArithmeticDiagnostics::combine`（やはりフィールドごとの OR）で組み合わされます。`library/src/decimal/traits.mbt` のプライベートなヘルパー `contextual_diagnostics` は、共通する 6 つの座標を残すことでフラグを診断情報に対応付けます。この射影を $\\pi : \\mathbb{F} \\to \\{0,1\\}^{6}$ と呼びます。座標射影はフィールドごとの OR と可換です。"
 
-#: manual/design/decimal_checked.md:182
+#: manual/design/decimal_checked.md:189
 msgid "so $\\pi$ is a monoid homomorphism, and by induction"
 msgstr "したがって $\\pi$ はモノイド準同型であり、帰納法により"
 
-#: manual/design/decimal_checked.md:188
+#: manual/design/decimal_checked.md:195
 msgid "Converting the accumulated flags of a pipeline once at the end gives the same diagnostics as converting each step and combining. The conditions that the trait implementation turns into an `ArithmeticError` (division by zero and the invalid-operation family tested by `DecimalFlags::has_error`) are not among the coordinates kept by $\\pi$; the pipeline keeps them as flags instead."
 msgstr "パイプラインの蓄積されたフラグを最後に 1 回変換しても、各ステップを変換して組み合わせても、同じ診断情報が得られます。トレイト実装が `ArithmeticError` に変える条件（ゼロ除算と、`DecimalFlags::has_error` で判定される無効演算の系統）は $\\pi$ が残す座標には含まれません。パイプラインはそれらを代わりにフラグとして保持します。"
 
-#: manual/design/decimal_checked.md:196
+#: manual/design/decimal_checked.md:203
 msgid "Accumulated flags are the union of per-step flags"
 msgstr "蓄積されたフラグはステップごとのフラグの和集合である"
 
-#: manual/design/decimal_checked.md:198
-msgid "**Theorem.** Let a pipeline be constructed with flags $r_0$ (from `from_outcome`, `from_decimal`, `parse` or a numeric constructor) and then undergo successful steps $1, \\dots, n$ with raised flags $r_1, \\dots, r_n$ (including `with_context` and `apply`), with no `clear_flags` in between. Then"
-msgstr "**定理。** パイプラインがフラグ $r_0$ で構築され（`from_outcome`、`from_decimal`、`parse`、または数値コンストラクタによって）、その後、立てられたフラグ $r_1, \\dots, r_n$ を伴う成功したステップ $1, \\dots, n$（`with_context` と `apply` を含む）を、途中で `clear_flags` を挟まずに経たとします。このとき"
+#: manual/design/decimal_checked.md:205
+msgid "**Theorem.** Let a pipeline be constructed with flags $r_0$ (from `from_decimal`, `parse` or a numeric constructor) and then undergo successful steps $1, \\dots, n$ with raised flags $r_1, \\dots, r_n$ (including `with_context` and `apply`), with no `clear_flags` in between and with plain steps only (a step with a pipeline as its right operand also joins the flags of that pipeline, `raised` with its `raised` and `flags` with its `flags`, so the equation below holds with those added to $r_k$ and $F_k$). Then"
+msgstr "**定理。** パイプラインがフラグ $r_0$ で構築され（`from_decimal`、`parse`、または数値コンストラクタ由来）、その後に成功するステップ $1, \\dots, n$ を経て、上がったフラグが $r_1, \\dots, r_n$ であるとします（`with_context` と `apply` を含み、途中に `clear_flags` はなく、普通のステップのみとします。右オペランドがパイプラインであるステップはそのパイプラインのフラグも合流させ、`raised` はその `raised` を、`flags` はその `flags` を取り込むので、以下の等式はそれらを $r_k$ と $F_k$ に加えても成り立ちます）。このとき"
 
-#: manual/design/decimal_checked.md:207
+#: manual/design/decimal_checked.md:217
 msgid "*Proof.* Every constructor sets $r = F = r_0$, which is the case $n = 0$. If $F_{k} = \\bigvee_{i \\le k} r_i$, a successful step $k+1$ goes through `record` (or the identical update in `with_context`) and sets $F_{k+1} = F_k \\lor r_{k+1} = \\bigvee_{i \\le k+1} r_i$ by associativity, and $r = r_{k+1}$. $\\square$"
 msgstr "*証明。* すべてのコンストラクタは $r = F = r_0$ と設定し、これが $n = 0$ の場合です。$F_{k} = \\bigvee_{i \\le k} r_i$ ならば、成功したステップ $k+1$ は `record`（または `with_context` 内の同一の更新）を通り、結合則により $F_{k+1} = F_k \\lor r_{k+1} = \\bigvee_{i \\le k+1} r_i$ と $r = r_{k+1}$ を設定します。$\\square$"
 
-#: manual/design/decimal_checked.md:213
+#: manual/design/decimal_checked.md:223
 msgid "By commutativity and idempotence of $\\lor$, $F_n$ does not depend on the order of the steps or on how often a signal was raised, and by the homomorphism property of `contains`,"
 msgstr "$\\lor$ の可換性と冪等性により、$F_n$ はステップの順序やシグナルが何回立てられたかに依存しません。また `contains` の準同型性により、"
 
-#: manual/design/decimal_checked.md:221
+#: manual/design/decimal_checked.md:231
 msgid "The following test checks the theorem on a three-step pipeline: the accumulated flags equal the OR of the raised flags of the steps, in either order of combination."
 msgstr "次のテストは 3 ステップのパイプラインでこの定理を確かめます。蓄積されたフラグは、各ステップで立てられたフラグの OR に、組み合わせの順序によらず等しくなります。"
 
-#: manual/design/decimal_checked.md:242
+#: manual/design/decimal_checked.md:252
 msgid "After `clear_flags`, the theorem holds again with $r_0 = \\mathbf{0}$ from that point. $F$ is monotone along a pipeline: $F_k \\subseteq F_{k+1}$."
 msgstr "`clear_flags` の後は、その時点から $r_0 = \\mathbf{0}$ として定理が再び成り立ちます。$F$ はパイプラインに沿って単調です：$F_k \\subseteq F_{k+1}$。"
 
-#: manual/design/decimal_checked.md:245
+#: manual/design/decimal_checked.md:255
 msgid "Errors are absorbing"
 msgstr "エラーは吸収的である"
 
-#: manual/design/decimal_checked.md:247
+#: manual/design/decimal_checked.md:257
 msgid "**Theorem.** If a state has $\\varepsilon = \\mathrm{Some}(e)$, every operation except `clear_flags` returns it unchanged, and `clear_flags` changes only $r$ and $F$."
 msgstr "**定理。** 状態が $\\varepsilon = \\mathrm{Some}(e)$ を持つとき、`clear_flags` 以外のすべての演算はその状態をそのまま返し、`clear_flags` は $r$ と $F$ だけを変更します。"
 
-#: manual/design/decimal_checked.md:251
+#: manual/design/decimal_checked.md:261
 msgid "*Proof.* `record`, `record_result` and `with_context` start with the guard `self.error_ is None` and return `self` otherwise; every arithmetic method goes through `record` or `record_result`. `clear_flags` updates only the two flag fields. $\\square$"
 msgstr "*証明。* `record`、`record_result`、`with_context` はガード `self.error_ is None` で始まり、そうでなければ `self` を返します。すべての算術メソッドは `record` または `record_result` を通ります。`clear_flags` は 2 つのフラグフィールドだけを更新します。$\\square$"
 
-#: manual/design/decimal_checked.md:256
+#: manual/design/decimal_checked.md:266
 msgid "Hence the first error is the one reported, the value and flags remain those before the failing step, and `result()` returns $\\mathrm{Err}(e)$. On a pipeline without error, `result()` is $\\mathrm{Ok}((v, F))$, the writer monad's output."
 msgstr "したがって報告されるのは最初のエラーであり、値とフラグは失敗したステップの前のまま残り、`result()` は $\\mathrm{Err}(e)$ を返します。エラーのないパイプラインでは、`result()` は writer モナドの出力 $\\mathrm{Ok}((v, F))$ です。"
 
-#: manual/design/decimal_checked.md:263
+#: manual/design/decimal_checked.md:273
 msgid "A step costs the delegated decimal operation plus one 6-field OR and a constant-size state copy."
 msgstr "各ステップのコストは、委譲される十進演算に、6 フィールドの OR 一回と定数サイズの状態コピーを加えたものです。"
 
-#: manual/design/decimal_checked.md:268
+#: manual/design/decimal_checked.md:278
 msgid "**Errors for IEEE exceptions.** Contradicts IEEE default exception handling and the purpose of the package; the contextual traits already offer that model for single operations."
 msgstr "**IEEE の例外をエラーにすること。** IEEE のデフォルトの例外処理とこのパッケージの目的に反します。コンテキスト付きトレイトが、単一の演算についてはすでにそのモデルを提供しています。"
 
-#: manual/design/decimal_checked.md:271
+#: manual/design/decimal_checked.md:281
 msgid "**Merging pipelines.** No canonical rule for two contexts; see above."
 msgstr "**パイプラインの統合。** 2 つのコンテキストに対する標準的な規則がありません。上記を参照してください。"
 
-#: manual/design/decimal_checked.md:272
+#: manual/design/decimal_checked.md:282
 msgid "**Mutable flags.** Luna-Flow keeps context and status as values; an immutable state can be forked and compared."
 msgstr "**可変なフラグ。** Luna-Flow はコンテキストとステータスを値として保持します。不変な状態は分岐させたり比較したりできます。"
 
-#: manual/design/decimal_checked.md:274
+#: manual/design/decimal_checked.md:284
 msgid "**Storing the per-step history.** The union answers the audit question at constant size; callers who need a history keep the states they care about."
 msgstr "**ステップごとの履歴の保存。** 和集合は監査の問いに定数サイズで答えます。履歴が必要な呼び出し側は、関心のある状態を自分で保持します。"
 
-#: manual/design/decimal_checked.md:279
+#: manual/design/decimal_checked.md:289
 msgid "No arithmetic of its own; every result comes from `decimal`."
 msgstr "独自の算術はありません。すべての結果は `decimal` から得られます。"
 
-#: manual/design/decimal_checked.md:280
+#: manual/design/decimal_checked.md:290
 msgid "No traps or alternate exception handling: IEEE flags never stop the pipeline. Trap-driven control flow is the [`decimal_gda_checked`](decimal_gda_checked.md) contract."
 msgstr "トラップや代替の例外処理はありません。IEEE のフラグがパイプラインを停止させることはありません。トラップ駆動の制御フローは [`decimal_gda_checked`](decimal_gda_checked.md) の契約です。"
 
-#: manual/design/decimal_checked.md:283
+#: manual/design/decimal_checked.md:293
 msgid "No operators, no pipeline-to-pipeline operations, no implicit context changes."
 msgstr "演算子、パイプライン同士の演算、暗黙のコンテキスト変更はありません。"
 
-#: manual/design/decimal_checked.md:285
+#: manual/design/decimal_checked.md:295
 msgid "Only certification failures of elementary functions become errors. A delegated operation that aborted would abort the pipeline too; the state model cannot turn an abort into an error."
 msgstr "エラーになるのは初等関数の認証失敗だけです。委譲先の演算が中断した場合は、パイプラインも中断します。状態モデルは中断をエラーに変えることができません。"
 
-#: manual/design/decimal_checked.md:288
+#: manual/design/decimal_checked.md:298
 msgid "No accuracy of its own: the flags describe exactly what `decimal` reported, including its documented deviations (for example `inexact` on the exact power $0.0016^{0.25} = 0.2$)."
 msgstr "独自の精度はありません。フラグは、文書化された逸脱（たとえば厳密なべき乗 $0.0016^{0.25} = 0.2$ に対する `inexact`）も含め、`decimal` が報告した内容をそのまま表します。"
 
-#: manual/design/decimal_checked.md:291
+#: manual/design/decimal_checked.md:301
 msgid "The context is the IEEE decimal context of `decimal`; GDA contexts with sticky status belong to `decimal_gda`."
 msgstr "コンテキストは `decimal` の IEEE 10 進コンテキストです。スティッキーなステータスを持つ GDA コンテキストは `decimal_gda` に属します。"
 
@@ -19728,51 +19720,51 @@ msgstr "パイプラインのラッパー: `BinFloatResult` と `BallFloatResult
 msgid "Empty, Entire and NaI, which are interval values, not errors."
 msgstr "Empty、Entire、NaI。これらはエラーではなく区間の値です。"
 
-#: manual/getting_started.md:182
+#: manual/getting_started.md:181
 msgid "Do not fold these channels into one exception type or one `Result`: that erases semantics the standards make observable."
 msgstr "これらのチャネルを一つの例外型や一つの `Result` にまとめないでください。標準が観測可能にしている意味論が失われます。"
 
-#: manual/getting_started.md:185
+#: manual/getting_started.md:184
 msgid "Read results correctly"
 msgstr "結果を正しく読む"
 
-#: manual/getting_started.md:187
+#: manual/getting_started.md:186
 msgid "Signed zero, infinities, quiet and signaling NaN, and NaN payloads are observable on scalars."
 msgstr "符号付きゼロ、無限大、quiet NaN と signaling NaN、NaN のペイロードはスカラーで観測可能です。"
 
-#: manual/getting_started.md:189
+#: manual/getting_started.md:188
 msgid "`compare`, `<` and sorting use a total preorder in which every NaN is equal to every other NaN and above every number, and $-0 = +0$. For IEEE semantics use `compare_checked`, the quiet and signaling predicates of `bin_float`, or the `total_order*` functions."
 msgstr "`compare`、`<`、ソートは全前順序を用います。そこではすべての NaN が互いに等しく、すべての数より上にあり、$-0 = +0$ です。IEEE の意味論が必要な場合は、`compare_checked`、`bin_float` の quiet / signaling 述語、または `total_order*` 関数を使用してください。"
 
-#: manual/getting_started.md:193
+#: manual/getting_started.md:192
 msgid "`==` on `BinFloat` and `BallFloat` compares representations (sign of zero and precision included); `==` on `Decimal` compares values. Use `compare(a, b) == 0` for numeric equality of binary values."
 msgstr "`BinFloat` と `BallFloat` の `==` は表現を比較します（ゼロの符号と精度を含む）。`Decimal` の `==` は値を比較します。二進値の数値的な等価性には `compare(a, b) == 0` を使用してください。"
 
-#: manual/getting_started.md:196
+#: manual/getting_started.md:195
 msgid "A `BallFloat` has containment and set relations (`contains`, `subset`, `definitely_lt`, …), not a scalar order. A result is correct when it encloses the exact result; tightness is a separate quality."
 msgstr "`BallFloat` にはスカラーの順序ではなく、包含関係と集合の関係（`contains`、`subset`、`definitely_lt`、…）があります。結果が正しいとは、それが厳密な結果を包含することです。区間の狭さは別の品質です。"
 
-#: manual/getting_started.md:199
+#: manual/getting_started.md:198
 msgid "`SemanticScalar` compares mathematical values across packages and drops precision, quantum, signed zero, payloads, decorations and flags."
 msgstr "`SemanticScalar` はパッケージをまたいで数学的な値を比較し、精度、量子、符号付きゼロ、ペイロード、装飾、フラグを捨てます。"
 
-#: manual/getting_started.md:202
+#: manual/getting_started.md:201
 msgid "Continue reading"
 msgstr "次に読むもの"
 
-#: manual/getting_started.md:204
+#: manual/getting_started.md:203
 msgid "[Numeric semantics](./numeric_semantics.md) defines rounding, ulp, flags, quantum, signed zero, NaN and enclosures with their derivations."
 msgstr "[数値意味論](./numeric_semantics.md)では、丸め、ulp、フラグ、量子、符号付きゼロ、NaN、包含区間を、その導出とともに定義しています。"
 
-#: manual/getting_started.md:206
+#: manual/getting_started.md:205
 msgid "[Architecture](./architecture.md) explains the package layers and the certified elementary functions."
 msgstr "[アーキテクチャ](./architecture.md)では、パッケージのレイヤーと認証付き初等関数を説明しています。"
 
-#: manual/getting_started.md:208
+#: manual/getting_started.md:207
 msgid "[Verification](./verification.md) lists the gates and the exact scope of each conformance claim."
 msgstr "[検証](./verification.md)では、ゲートと各適合性の主張の正確な範囲を示しています。"
 
-#: manual/getting_started.md:210
+#: manual/getting_started.md:209
 msgid "Each package has a tutorial, an API reference and a design page; start with the [`bin_float` tutorial](./tutorial/bin_float.md), the [`decimal` tutorial](./tutorial/decimal.md) or the [`ball_float` tutorial](./tutorial/ball_float.md)."
 msgstr "各パッケージにはチュートリアル、API リファレンス、設計ページがあります。まずは [`bin_float` チュートリアル](./tutorial/bin_float.md)、[`decimal` チュートリアル](./tutorial/decimal.md)、または [`ball_float` チュートリアル](./tutorial/ball_float.md)から始めてください。"
 
@@ -23314,7 +23306,7 @@ msgstr "**`Double` からの入力。** `from_double(x)` は `x` の二進値を
 #: manual/tutorial/cli/testfloat_expr_cli.md:104
 #: manual/tutorial/consistency.md:78
 #: manual/tutorial/decimal.md:430
-#: manual/tutorial/decimal_checked.md:261
+#: manual/tutorial/decimal_checked.md:265
 #: manual/tutorial/decimal_gda.md:393
 #: manual/tutorial/decimal_gda_checked.md:268
 #: manual/tutorial/def.md:212
@@ -25689,26 +25681,26 @@ msgid "**`remainder` is the IEEE remainder.** It rounds the quotient to the near
 msgstr "**`remainder` は IEEE の剰余です。** 商を最も近い整数に丸めるため、`1` を `0.6` で割った剰余は `0.4` ではなく `-0.2` です。"
 
 #: manual/tutorial/decimal_checked.md:257
-msgid "**Operands are plain `Decimal` values.** They are not rounded to the context before the operation; the operation rounds the result."
-msgstr "**オペランドは素の `Decimal` 値である。** 演算の前にコンテキストへ丸められることはなく、演算が結果を丸めます。"
+msgid "**The right operand is a pipeline.** Lift a plain value with `DecimalChecked::from_decimal(x, ctx)`, which rounds it into `ctx` first (a signaling NaN is quieted and raises `invalid_operation`); the operation then runs in the context of the left pipeline and rounds the result. The conditions of the right pipeline join the result, and its error stops the operation."
+msgstr "**右オペランドはパイプラインです。** 普通の値は `DecimalChecked::from_decimal(x, ctx)` で持ち上げます。これはまず値を `ctx` に丸めます（シグナリング NaN は静かな NaN になり `invalid_operation` を上げます）。演算はその後、左側のパイプラインのコンテキストで実行され、結果を丸めます。右側のパイプラインの条件は結果に合流し、そのエラーは演算を止めます。"
 
-#: manual/tutorial/decimal_checked.md:259
+#: manual/tutorial/decimal_checked.md:263
 msgid "**`clear_flags` also works after an error,** but the error stays."
 msgstr "**`clear_flags` はエラーの後でも動作する**が、エラーは残ります。"
 
-#: manual/tutorial/decimal_checked.md:263
+#: manual/tutorial/decimal_checked.md:267
 msgid "[`decimal_checked` design](../design/decimal_checked.md): the state model, the flag monoid and the short-circuit rule."
 msgstr "[`decimal_checked` の設計](../design/decimal_checked.md): 状態モデル、フラグのモノイド、短絡規則。"
 
-#: manual/tutorial/decimal_checked.md:265
+#: manual/tutorial/decimal_checked.md:269
 msgid "[`decimal_checked` API](../api/decimal_checked.md): every method."
 msgstr "[`decimal_checked` API](../api/decimal_checked.md): すべてのメソッド。"
 
-#: manual/tutorial/decimal_checked.md:266
+#: manual/tutorial/decimal_checked.md:270
 msgid "[`decimal` tutorial](decimal.md): contexts, rounding modes and interchange formats."
 msgstr "[`decimal` チュートリアル](decimal.md): コンテキスト、丸めモード、交換形式。"
 
-#: manual/tutorial/decimal_checked.md:268
+#: manual/tutorial/decimal_checked.md:272
 msgid "[`decimal_gda_checked` tutorial](decimal_gda_checked.md): the same idea for General Decimal Arithmetic with sticky status and traps."
 msgstr "[`decimal_gda_checked` チュートリアル](decimal_gda_checked.md): スティッキーなステータスとトラップを備えた General Decimal Arithmetic における同じ考え方。"
 
@@ -29090,6 +29082,30 @@ msgstr "公開 API を絞ると、条項から API への対応が変わるこ�
 #: manual/verification.md:758
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)。全体のロードマップは [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "`from_outcome(value, context, flags)` starts a pipeline from a value and the flags that produced it."
+#~ msgstr "`from_outcome(value, context, flags)` は、値とそれを生じたフラグからパイプラインを開始します。"
+
+#~ msgid "The result is $(\\textit{value}, c', \\textit{flags}, \\textit{flags}, \\text{none})$ with $c' = \\textit{context}$. The value is *not* re-rounded; use it with the `(value, flags)` pair returned by a `Decimal::*_ctx` call."
+#~ msgstr "結果は $(\\textit{value}, c', \\textit{flags}, \\textit{flags}, \\text{none})$ で、$c' = \\textit{context}$ です。値は再度丸められることは*ありません*。`Decimal::*_ctx` の呼び出しが返す `(value, flags)` の組と一緒に使用してください。"
+
+#~ msgid "These methods return the value with the accumulated flags."
+#~ msgstr "これらのメソッドは値を蓄積されたフラグとともに返します。"
+
+#~ msgid "`outcome()` is $(v, F)$ regardless of the error; `result()` is $\\mathrm{Err}(\\varepsilon)$ when an error is recorded and $\\mathrm{Ok}((v, F))$ otherwise."
+#~ msgstr "`outcome()` はエラーの有無にかかわらず $(v, F)$ です。`result()` はエラーが記録されていれば $\\mathrm{Err}(\\varepsilon)$、そうでなければ $\\mathrm{Ok}((v, F))$ です。"
+
+#~ msgid "These methods apply the IEEE decimal operation of the same meaning to the current value and a plain `Decimal` operand under the stored context."
+#~ msgstr "これらのメソッドは、格納されたコンテキストのもとで、現在の値と素の `Decimal` オペランドに同じ意味の IEEE 十進演算を適用します。"
+
+#~ msgid "**Problem.** A binary operation could take another pipeline as its operand."
+#~ msgstr "**問題。** 二項演算が別のパイプラインをオペランドとして受け取ることも考えられます。"
+
+#~ msgid "**Choice.** Operands are plain `Decimal` values. Two pipelines carry two contexts and two flag histories; merging them would need a rule for which context wins, and the union of histories would hide which side raised a flag. With plain operands the pipeline is a single linear history under one context, and the context changes only through `with_context`, which records the flags of rounding the current value into the new context. For the same reason the type implements no operators."
+#~ msgstr "**選択。** オペランドは素の `Decimal` 値です。2 つのパイプラインは 2 つのコンテキストと 2 つのフラグ履歴を持っています。それらを統合するにはどちらのコンテキストを優先するかの規則が必要で、履歴の和集合ではどちら側がフラグを立てたかが隠れてしまいます。素のオペランドなら、パイプラインは 1 つのコンテキストのもとでの単一の線形な履歴になり、コンテキストは `with_context` によってのみ変わります。このメソッドは現在の値を新しいコンテキストへ丸めたときのフラグを記録します。同じ理由で、この型は演算子を実装していません。"
+
+#~ msgid "**Operands are plain `Decimal` values.** They are not rounded to the context before the operation; the operation rounds the result."
+#~ msgstr "**オペランドは素の `Decimal` 値である。** 演算の前にコンテキストへ丸められることはなく、演算が結果を丸めます。"
 
 #~ msgid "`div_checked` divides, reporting domain errors as `Result`; `sqrt` takes the square root of the value under its own format."
 #~ msgstr "`div_checked` は除算を行い、定義域エラーを `Result` で報告する。`sqrt` は値自身の形式で平方根を取る。"

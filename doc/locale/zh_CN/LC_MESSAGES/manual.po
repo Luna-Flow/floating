@@ -622,7 +622,7 @@ msgstr "除数 $\\boldsymbol{y}$"
 
 #: manual/api/ball_float.md:819
 #: manual/api/bin_float.md:46
-#: manual/api/decimal_checked.md:273
+#: manual/api/decimal_checked.md:259
 #: manual/conformance/bin_float.md:107
 #: manual/design/bin_float_checked.md:176
 #: manual/performance_audit.md:122
@@ -1358,7 +1358,7 @@ msgstr "只使用 `ctx.precision`：操作数先用 `with_precision` 重新舍�
 #: manual/api/cli/testfloat_expr_cli.md:76
 #: manual/api/consistency.md:50
 #: manual/api/decimal.md:2273
-#: manual/api/decimal_checked.md:401
+#: manual/api/decimal_checked.md:387
 #: manual/api/decimal_gda.md:1652
 #: manual/api/decimal_gda_checked.md:318
 #: manual/api/def.md:428
@@ -1467,7 +1467,7 @@ msgstr "`entire(precision~)` 是整条实轴 $[-\\infty, +\\infty]$（默认精�
 
 #: manual/api/ball_float_checked.md:166
 #: manual/api/bin_float_checked.md:103
-#: manual/api/decimal_checked.md:153
+#: manual/api/decimal_checked.md:139
 #: manual/api/decimal_gda_checked.md:104
 msgid "Observation"
 msgstr "观察"
@@ -1621,7 +1621,7 @@ msgstr "运算符 `+`、`-`、`*`、`/` 和一元 `-` 调用 `add`、`sub`、`mu
 
 #: manual/api/ball_float_checked.md:530
 #: manual/api/bin_float_checked.md:842
-#: manual/api/decimal_checked.md:403
+#: manual/api/decimal_checked.md:389
 #: manual/api/decimal_gda_checked.md:320
 #: manual/api/def.md:430
 #: manual/api/semantic.md:375
@@ -3528,7 +3528,7 @@ msgid "Default `precision`"
 msgstr "默认 `precision`"
 
 #: manual/api/bin_float_checked.md:90
-#: manual/api/decimal_checked.md:273
+#: manual/api/decimal_checked.md:259
 msgid "Delegates to"
 msgstr "委托给"
 
@@ -5309,146 +5309,138 @@ msgid "Write a state as $\\sigma = (v, c, r, F, \\varepsilon)$: value $v$, conte
 msgstr "将状态记为 $\\sigma = (v, c, r, F, \\varepsilon)$：值 $v$、上下文 $c$、最近一步引发的标志 $r$、累积标志 $F$，以及错误 $\\varepsilon$（不存在或为一个 `ArithmeticError`）。每个运算都返回新的状态；不修改任何东西。"
 
 #: manual/api/decimal_checked.md:67
-msgid "`from_outcome(value, context, flags)` starts a pipeline from a value and the flags that produced it."
-msgstr "`from_outcome(value, context, flags)` 由一个值及产生它的标志开始一条流水线。"
-
-#: manual/api/decimal_checked.md:74
-msgid "The result is $(\\textit{value}, c', \\textit{flags}, \\textit{flags}, \\text{none})$ with $c' = \\textit{context}$. The value is *not* re-rounded; use it with the `(value, flags)` pair returned by a `Decimal::*_ctx` call."
-msgstr "结果为 $(\\textit{value}, c', \\textit{flags}, \\textit{flags}, \\text{none})$，其中 $c' = \\textit{context}$。值*不会*被重新舍入；请将它与 `Decimal::*_ctx` 调用返回的 `(value, flags)` 二元组配合使用。"
-
-#: manual/api/decimal_checked.md:81
 msgid "`from_decimal(value, context)` rounds a value into the context."
 msgstr "`from_decimal(value, context)` 将值舍入到上下文中。"
 
-#: manual/api/decimal_checked.md:87
+#: manual/api/decimal_checked.md:73
 msgid "It applies `Decimal::apply_ctx`, which rounds the value to the context's precision and exponent range, and records the resulting flags as both raised and accumulated."
 msgstr "它执行 `Decimal::apply_ctx`，将值舍入到上下文的精度和指数范围，并把所得标志同时记录为引发标志和累积标志。"
 
-#: manual/api/decimal_checked.md:93
+#: manual/api/decimal_checked.md:79
 msgid "`parse(source, context)` converts a decimal string under the context."
 msgstr "`parse(source, context)` 在上下文下转换十进制字符串。"
 
-#: manual/api/decimal_checked.md:99
+#: manual/api/decimal_checked.md:85
 msgid "It uses `Decimal::from_string_ctx`. Extra digits are rounded (`inexact`); an invalid string gives a NaN value with `invalid_operation` raised, not an error."
 msgstr "它使用 `Decimal::from_string_ctx`。多余的数字会被舍入（`inexact`）；无效字符串得到一个 NaN 值并引发 `invalid_operation`，而不是错误。"
 
-#: manual/api/decimal_checked.md:105
+#: manual/api/decimal_checked.md:91
 msgid "These constructors convert a MoonBit number."
 msgstr "这些构造函数转换 MoonBit 数值。"
 
-#: manual/api/decimal_checked.md:114
+#: manual/api/decimal_checked.md:100
 msgid "`from_int` and `from_bigint` parse the integer's decimal string, so integers longer than the precision are rounded with flags. `from_double` first converts the binary value to a decimal of 17 significant digits and `from_float` to 9 digits (enough to identify the binary value), then rounds into the context with `from_decimal`. So `from_double(0.1, decimal64)` is `0.1000000000000000` with `inexact` raised."
 msgstr "`from_int` 和 `from_bigint` 解析整数的十进制字符串，因此长于精度的整数会被舍入并带有标志。`from_double` 先将二进制值转换为 17 位有效数字的十进制数，`from_float` 则转换为 9 位（足以唯一确定该二进制值），然后用 `from_decimal` 舍入到上下文中。因此 `from_double(0.1, decimal64)` 为 `0.1000000000000000`，并引发 `inexact`。"
 
-#: manual/api/decimal_checked.md:121
+#: manual/api/decimal_checked.md:107
 msgid "This is a conversion in two roundings, not the correctly rounded value of the binary number. With a context precision above 17 (decimal128) the result keeps only 17 digits: `from_double(0.1, decimal128)` is `0.10000000000000001`, not the exact `0.1000000000000000055511151231257827`, and its flags describe only the second rounding. With a precision below 17 the half modes can round twice (a 17-digit midpoint created by the first rounding). For the exact binary value use `from_decimal(Decimal::from_double(x, precision=p), context)` with `p` at least the context precision plus one, or with `p = 767`, which holds every `Double` exactly."
 msgstr "这是经过两次舍入的转换，而不是该二进制数的正确舍入值。当上下文精度高于 17（decimal128）时，结果只保留 17 位数字：`from_double(0.1, decimal128)` 为 `0.10000000000000001`，而不是精确的 `0.1000000000000000055511151231257827`，并且其标志只描述第二次舍入。当精度低于 17 时，half 模式可能舍入两次（第一次舍入产生了一个 17 位的中点）。如需精确的二进制值，请使用 `from_decimal(Decimal::from_double(x, precision=p), context)`，其中 `p` 至少为上下文精度加一，或取 `p = 767`，它能精确容纳每个 `Double`。"
 
-#: manual/api/decimal_checked.md:157
+#: manual/api/decimal_checked.md:143
 msgid "These accessors return the components of the state."
 msgstr "这些访问函数返回状态的各个分量。"
 
-#: manual/api/decimal_checked.md:166
+#: manual/api/decimal_checked.md:152
 msgid "`raised()` is $r$, the flags of the latest successful step only. `flags()` is $F$, the bitwise OR of the flags of every successful step since construction or the last `clear_flags`. After an error, `value`, `raised` and `flags` keep the state reached before the failing step."
 msgstr "`raised()` 即 $r$，仅为最近一次成功步骤的标志。`flags()` 即 $F$，是自构造或上次 `clear_flags` 以来所有成功步骤标志的按位 OR。出错之后，`value`、`raised` 和 `flags` 保持失败步骤之前所达到的状态。"
 
-#: manual/api/decimal_checked.md:173
-msgid "These methods return the value with the accumulated flags."
-msgstr "这些方法返回值及累积标志。"
+#: manual/api/decimal_checked.md:159
+msgid "`result` returns the value with the accumulated flags, or the error."
+msgstr "`result` 返回带累积标志的值，或者返回错误。"
 
-#: manual/api/decimal_checked.md:180
-msgid "`outcome()` is $(v, F)$ regardless of the error; `result()` is $\\mathrm{Err}(\\varepsilon)$ when an error is recorded and $\\mathrm{Ok}((v, F))$ otherwise."
-msgstr "`outcome()` 无论是否有错误都为 $(v, F)$；`result()` 在记录了错误时为 $\\mathrm{Err}(\\varepsilon)$，否则为 $\\mathrm{Ok}((v, F))$。"
+#: manual/api/decimal_checked.md:165
+msgid "`result()` is $\\mathrm{Err}(\\varepsilon)$ when an error is recorded and $\\mathrm{Ok}((v, F))$ otherwise. It is the one exit that returns the value with the flags: `value()` and `flags()` return the components of the state whatever the error, and there is no separate `outcome()`."
+msgstr "出现已记录的错误时，`result()` 为 $\\mathrm{Err}(\\varepsilon)$，否则为 $\\mathrm{Ok}((v, F))$。它是唯一同时返回值和标志的出口：`value()` 和 `flags()` 无论是否有错误都返回状态的各个分量，不再有单独的 `outcome()`。"
 
-#: manual/api/decimal_checked.md:186
+#: manual/api/decimal_checked.md:172
 msgid "These methods test for and return the recorded error."
 msgstr "这些方法检测并返回所记录的错误。"
 
-#: manual/api/decimal_checked.md:194
+#: manual/api/decimal_checked.md:180
 msgid "Controlling the state"
 msgstr "控制状态"
 
-#: manual/api/decimal_checked.md:198
+#: manual/api/decimal_checked.md:184
 msgid "`clear_flags()` resets both $r$ and $F$ to the empty flag set."
 msgstr "`clear_flags()` 将 $r$ 和 $F$ 都重置为空标志集。"
 
-#: manual/api/decimal_checked.md:204
+#: manual/api/decimal_checked.md:190
 msgid "Value, context and error are kept. It also applies to a state with an error."
 msgstr "值、上下文与错误保持不变。它同样适用于带有错误的状态。"
 
-#: manual/api/decimal_checked.md:208
+#: manual/api/decimal_checked.md:194
 msgid "`with_context(context)` switches to a new context and rounds the current value into it."
 msgstr "`with_context(context)` 切换到新的上下文，并将当前值舍入到其中。"
 
-#: manual/api/decimal_checked.md:215
+#: manual/api/decimal_checked.md:201
 msgid "The value is re-applied with `apply_ctx` under the new context; the new flags become $r$ and are ORed into $F$. On a state with an error it returns the state unchanged."
 msgstr "值在新上下文下用 `apply_ctx` 重新应用；新的标志成为 $r$，并 OR 到 $F$ 中。对带有错误的状态，它原样返回该状态。"
 
-#: manual/api/decimal_checked.md:221
+#: manual/api/decimal_checked.md:207
 msgid "`apply()` rounds the current value into the stored context and records the flags."
 msgstr "`apply()` 将当前值舍入到所存储的上下文中，并记录标志。"
 
-#: manual/api/decimal_checked.md:249
+#: manual/api/decimal_checked.md:235
 msgid "Operations that cannot fail"
 msgstr "不会失败的运算"
 
-#: manual/api/decimal_checked.md:253
-msgid "These methods apply the IEEE decimal operation of the same meaning to the current value and a plain `Decimal` operand under the stored context."
-msgstr "这些方法在所存储的上下文下，对当前值和一个普通 `Decimal` 操作数执行含义相同的 IEEE 十进制运算。"
+#: manual/api/decimal_checked.md:239
+msgid "These methods apply the IEEE decimal operation of the same meaning to the current value and a pipeline operand under the stored context of the left pipeline. The right operand is a `DecimalChecked`: an error of the left pipeline stays, an error of the right one is taken before the operation runs (the value of the left pipeline is kept), and the conditions of the right pipeline join `raised` and `flags`. `DecimalChecked::from_decimal(x, ctx)` lifts a plain value; it applies the context, so a signaling NaN is quieted and raises `invalid_operation` there."
+msgstr "这些方法在左侧流水线所存的上下文下，对当前值和一个流水线操作数应用含义相同的 IEEE 十进制运算。右操作数是 `DecimalChecked`：左侧流水线的错误保持不变；右侧的错误在运算执行之前就被采用（左侧流水线的值保留）；右侧流水线的条件并入 `raised` 和 `flags`。`DecimalChecked::from_decimal(x, ctx)` 提升一个普通值；它会应用上下文，因此信号 NaN 在那里被静默并引发 `invalid_operation`。"
 
-#: manual/api/decimal_checked.md:273
+#: manual/api/decimal_checked.md:259
 msgid "Method"
 msgstr "方法"
 
-#: manual/api/decimal_checked.md:275
+#: manual/api/decimal_checked.md:261
 msgid "$\\lvert v\\rvert$ rounded into the context"
 msgstr "舍入到上下文的 $\\lvert v\\rvert$"
 
-#: manual/api/decimal_checked.md:276
+#: manual/api/decimal_checked.md:262
 msgid "$v \\circ y$ correctly rounded"
 msgstr "正确舍入的 $v \\circ y$"
 
-#: manual/api/decimal_checked.md:277
+#: manual/api/decimal_checked.md:263
 msgid "$v \\cdot m + a$ with one rounding"
 msgstr "只舍入一次的 $v \\cdot m + a$"
 
-#: manual/api/decimal_checked.md:278
+#: manual/api/decimal_checked.md:264
 msgid "$\\sqrt{v}$ correctly rounded"
 msgstr "正确舍入的 $\\sqrt{v}$"
 
-#: manual/api/decimal_checked.md:279
+#: manual/api/decimal_checked.md:265
 msgid "$v$ rounded to the exponent of `q`"
 msgstr "舍入到 `q` 的指数的 $v$"
 
-#: manual/api/decimal_checked.md:280
+#: manual/api/decimal_checked.md:266
 msgid "IEEE remainder $v - d \\cdot n$, $n$ = $v/d$ rounded to nearest, ties to even"
 msgstr "IEEE 余数 $v - d \\cdot n$，$n$ = $v/d$ 舍入到最近（平局取偶）"
 
-#: manual/api/decimal_checked.md:281
+#: manual/api/decimal_checked.md:267
 msgid "IEEE 754-2019 §9.6 `minimumNumber`/`maximumNumber`: a quiet NaN loses to a number, a signaling NaN gives the number and `invalid_operation` (the General Decimal Arithmetic `min`/`max` are in `decimal_gda`)"
 msgstr "IEEE 754-2019 §9.6 的 `minimumNumber`/`maximumNumber`：静默 NaN 输给数值，信号 NaN 给出数值并引发 `invalid_operation`（General Decimal Arithmetic 的 `min`/`max` 在 `decimal_gda` 中）"
 
-#: manual/api/decimal_checked.md:282
+#: manual/api/decimal_checked.md:268
 msgid "adjacent representable value"
 msgstr "相邻的可表示值"
 
-#: manual/api/decimal_checked.md:284
+#: manual/api/decimal_checked.md:270
 msgid "If an error is recorded, each method returns the state unchanged. Otherwise the step $(v', r') = \\mathrm{op}(v, c)$ gives the new state $(v', c, r', F \\lor r', \\text{none})$. Invalid operations produce NaN with `invalid_operation`, division by zero produces an infinity with `division_by_zero`, overflow produces an infinity or the largest finite number with `overflow` and `inexact`, as in IEEE 754 decimal arithmetic."
 msgstr "若已记录错误，每个方法都原样返回状态。否则，步骤 $(v', r') = \\mathrm{op}(v, c)$ 给出新状态 $(v', c, r', F \\lor r', \\text{none})$。与 IEEE 754 十进制算术一致：无效运算产生带 `invalid_operation` 的 NaN，除以零产生带 `division_by_zero` 的无穷，上溢产生无穷或最大有限数，并带 `overflow` 和 `inexact`。"
 
-#: manual/api/decimal_checked.md:311
+#: manual/api/decimal_checked.md:297
 msgid "Operations that can record an error"
 msgstr "可能记录错误的运算"
 
-#: manual/api/decimal_checked.md:315
+#: manual/api/decimal_checked.md:301
 msgid "These methods apply the certified `Decimal::try_*_ctx` functions of the same name."
 msgstr "这些方法应用同名的经认证的 `Decimal::try_*_ctx` 函数。"
 
-#: manual/api/decimal_checked.md:360
+#: manual/api/decimal_checked.md:346
 msgid "The results are those of `decimal`, including its documented exception to correct rounding (exact decimal results of non-integral powers, such as $0.0016^{0.25} = 0.2$; see the [decimal API](decimal.md#elementary-functions)). Zero and infinite operands of `atan2` give the IEEE 754 values (`atan2` of $+\\infty$ and 1 is $\\pi/2$, inexact). Domain violations are IEEE values with flags (`ln` of a negative number is NaN with `invalid_operation`, `tanpi(0.5)` is an infinity with `division_by_zero`). An error is recorded only when `try_*_ctx` returns `Err`, which these functions do for a `CertificationFailure` (the correctly rounded result could not be certified within the refinement budget). On error the new state is $(v, c, r, F, \\mathrm{Some}(e))$: the value and flags before the step are kept."
 msgstr "结果即 `decimal` 的结果，包括其文档所述的正确舍入例外（非整数次幂的精确十进制结果，例如 $0.0016^{0.25} = 0.2$；参见 [decimal API](decimal.md#elementary-functions)）。`atan2` 的零与无穷操作数得到 IEEE 754 值（$+\\infty$ 和 1 的 `atan2` 为 $\\pi/2$，不精确）。定义域违例是带标志的 IEEE 值（负数的 `ln` 是带 `invalid_operation` 的 NaN，`tanpi(0.5)` 是带 `division_by_zero` 的无穷）。只有当 `try_*_ctx` 返回 `Err` 时才记录错误，这些函数在发生 `CertificationFailure`（无法在细化预算内认证正确舍入的结果）时会如此。出错时新状态为 $(v, c, r, F, \\mathrm{Some}(e))$：保留该步骤之前的值和标志。"
 
-#: manual/api/decimal_checked.md:372
+#: manual/api/decimal_checked.md:358
 msgid "[!IMPORTANT] As an implementation limit (decNumber's `DEC_MAX_MATH`, required by the decTest suite and permitted by the GDA Invalid context condition), these operations require a context with precision and exponent limits within 999,999. A context with a larger `e_max`, or with a precision of 1000 digits or more and no explicit `e_max`, makes them return NaN with `not_computed`; the `try_` mirrors return `Err` (certification failure). Use `decimal32()`, `decimal64()`, `decimal128()` or an explicit `e_max` up to 999,999. `pow` and `pown` with an integral exponent, and `pow` with the exponent `0.5`, are not restricted."
 msgstr "[!IMPORTANT] 作为一项实现限制（decNumber 的 `DEC_MAX_MATH`，decTest 套件要求它，GDA 的 Invalid context 条件允许它），这些运算要求上下文的精度和指数限制在 999,999 以内。`e_max` 更大的上下文，或精度为 1000 位及以上且没有显式 `e_max` 的上下文，会使它们返回带 `not_computed` 的 NaN；`try_` 镜像返回 `Err`（认证失败）。请使用 `decimal32()`、`decimal64()`、`decimal128()` 或不超过 999,999 的显式 `e_max`。带整数指数的 `pow` 和 `pown`，以及指数为 `0.5` 的 `pow`，不受此限制。"
 
@@ -10371,7 +10363,7 @@ msgstr "`just gate decimal` 运行 native、Wasm、Wasm-GC 与 JavaScript。LLVM
 #: manual/design/cli/testfloat_expr_cli.md:55
 #: manual/design/consistency.md:70
 #: manual/design/decimal.md:1463
-#: manual/design/decimal_checked.md:277
+#: manual/design/decimal_checked.md:287
 #: manual/design/decimal_gda.md:958
 #: manual/design/decimal_gda_checked.md:262
 #: manual/design/def.md:314
@@ -11971,7 +11963,7 @@ msgstr "每个区间都携带一个精度标签；二元运算使用较大的标
 #: manual/design/cli/testfloat_expr_cli.md:41
 #: manual/design/consistency.md:56
 #: manual/design/decimal.md:1393
-#: manual/design/decimal_checked.md:194
+#: manual/design/decimal_checked.md:201
 #: manual/design/decimal_gda.md:913
 #: manual/design/decimal_gda_checked.md:205
 #: manual/design/def.md:187
@@ -12052,7 +12044,7 @@ msgstr "目前没有未解决的限制。负次数的装饰 `rootn` 在参数含
 #: manual/design/cli/testfloat_expr_cli.md:48
 #: manual/design/consistency.md:63
 #: manual/design/decimal.md:1442
-#: manual/design/decimal_checked.md:266
+#: manual/design/decimal_checked.md:276
 #: manual/design/decimal_gda.md:942
 #: manual/design/decimal_gda_checked.md:253
 #: manual/design/def.md:302
@@ -15932,7 +15924,7 @@ msgid "Algorithm"
 msgstr "算法"
 
 #: manual/design/decimal.md:1290
-#: manual/design/decimal_checked.md:261
+#: manual/design/decimal_checked.md:271
 #: manual/design/decimal_gda_checked.md:248
 #: manual/design/def.md:295
 msgid "Cost"
@@ -16266,146 +16258,146 @@ msgid "IEEE 754-2019, clause 7 (default exception handling) and clause 8 (altern
 msgstr "IEEE 754-2019，第 7 条（默认异常处理）和第 8 条（替代异常处理）：状态标志一经引发便保持引发状态，直到被显式清除。"
 
 #: manual/design/decimal_checked.md:122
-msgid "One context per pipeline, plain operands"
-msgstr "每条流水线一个上下文，操作数为普通值"
+msgid "One context per pipeline, pipeline operands"
+msgstr "每条流水线一个上下文，操作数为流水线"
 
 #: manual/design/decimal_checked.md:124
-msgid "**Problem.** A binary operation could take another pipeline as its operand."
-msgstr "**问题。** 二元运算本可以把另一条流水线作为操作数。"
+msgid "**Problem.** A binary operation took a plain `Decimal` as its right operand, so the flags and the error of the computation that produced that operand could not reach the result."
+msgstr "**问题。** 二元运算曾以普通 `Decimal` 作右操作数，因此产生该操作数的计算所留下的标志和错误无法到达结果。"
 
-#: manual/design/decimal_checked.md:126
-msgid "**Choice.** Operands are plain `Decimal` values. Two pipelines carry two contexts and two flag histories; merging them would need a rule for which context wins, and the union of histories would hide which side raised a flag. With plain operands the pipeline is a single linear history under one context, and the context changes only through `with_context`, which records the flags of rounding the current value into the new context. For the same reason the type implements no operators."
-msgstr "**选择。** 操作数是普通的 `Decimal` 值。两条流水线携带两个上下文和两段标志历史；合并它们需要规定哪个上下文胜出，而历史的并集会掩盖是哪一方引发了标志。使用普通操作数时，流水线是同一上下文下的单一线性历史，上下文只能通过 `with_context` 改变，它会记录把当前值舍入到新上下文时的标志。出于同样的原因，该类型不实现任何运算符。"
+#: manual/design/decimal_checked.md:128
+msgid "**Choice.** The right operand of a binary operation is a `DecimalChecked`, as for `GdaDecimalChecked`. Two pipelines carry two contexts and two flag histories; the rule is that the context of the left pipeline wins, the conditions of the right pipeline join `raised` and `flags` of the result, an error of the left pipeline stays and an error of the right one is taken before the operation runs (the value of the left pipeline is kept). The context changes only through `with_context`, which records the flags of rounding the current value into the new context. `DecimalChecked::from_decimal(x, ctx)` lifts a plain value; it applies the context, so a signaling NaN lifted that way is quieted with `invalid_operation`. The constructor that took a value, a context and flags is not public: a caller could state flags that no operation raised. For the same reason the type implements no operators."
+msgstr "**选择。** 二元运算的右操作数是 `DecimalChecked`，与 `GdaDecimalChecked` 相同。两条流水线带有两个上下文和两份标志历史；规则是左侧流水线的上下文优先，右侧流水线的条件并入结果的 `raised` 和 `flags`，左侧流水线的错误保持不变，右侧的错误在运算执行之前就被采用（左侧流水线的值保留）。上下文只通过 `with_context` 改变，它会记录把当前值舍入到新上下文时的标志。`DecimalChecked::from_decimal(x, ctx)` 提升一个普通值；它会应用上下文，因此这样提升的信号 NaN 会被静默并带 `invalid_operation`。接受值、上下文和标志的构造函数不是公开的：调用者可能声明并没有任何运算引发过的标志。出于同样的原因，该类型不实现运算符。"
 
-#: manual/design/decimal_checked.md:134
+#: manual/design/decimal_checked.md:141
 msgid "Mapping a Luna-Flow/arithmetic context"
 msgstr "映射 Luna-Flow/arithmetic 上下文"
 
-#: manual/design/decimal_checked.md:136
+#: manual/design/decimal_checked.md:143
 msgid "The pipeline takes a `DecimalContext`. A caller holding an `ArithmeticContext` converts it with `DecimalContext::from_arithmetic_context`, which maps"
 msgstr "流水线接受一个 `DecimalContext`。持有 `ArithmeticContext` 的调用者用 `DecimalContext::from_arithmetic_context` 将其转换，映射如下"
 
-#: manual/design/decimal_checked.md:142
+#: manual/design/decimal_checked.md:149
 msgid "`rounding` (`DecimalRoundingMode::from_arithmetic`; `AwayFromZero` is an `Err`)"
 msgstr "`rounding`（`DecimalRoundingMode::from_arithmetic`；`AwayFromZero` 为 `Err`）"
 
-#: manual/design/decimal_checked.md:143
+#: manual/design/decimal_checked.md:150
 msgid "`e_max` as given, `e_min` must be `1 - e_max` (alone: `e_max = 1 - e_min`), the default range of `DecimalContext::new` when absent"
 msgstr "按给定的 `e_max`，`e_min` 必须为 `1 - e_max`（单独给出时：`e_max = 1 - e_min`），缺省时为 `DecimalContext::new` 的默认范围"
 
-#: manual/design/decimal_checked.md:144
+#: manual/design/decimal_checked.md:151
 msgid "ignored (every IEEE format clamps)"
 msgstr "忽略（每个 IEEE 格式都钳制）"
 
-#: manual/design/decimal_checked.md:146
+#: manual/design/decimal_checked.md:153
 msgid "Before-rounding tininess detection (IEEE 754-2019 §7.5) is the only rule. So the predefined `ArithmeticContext::decimal64()` maps exactly to `DecimalContext::decimal64()`."
 msgstr "舍入前的微小性检测（IEEE 754-2019 §7.5）是唯一的规则。因此预定义的 `ArithmeticContext::decimal64()` 精确映射到 `DecimalContext::decimal64()`。"
 
-#: manual/design/decimal_checked.md:150
+#: manual/design/decimal_checked.md:157
 msgid "The mathematical functions `exp`, `ln`, `log10` and `power` restrict their context to decNumber's range: precision and both exponent limits must lie within $999\\,999$ in magnitude, otherwise the result is NaN with `invalid_operation` (private check `math_context_is_restricted` in `library/src/decimal`). This is a deliberate implementation limit (`DEC_MAX_MATH`), not a rule of the GDA operation text: decTest requires it (`power.decTest` powx4001 to powx4005 and the matching rows of `exp`, `ln`, `log10`) and GDA's Invalid context condition permits it.[^gda] The default unbounded exponent range therefore disables them, which the API page and tutorial point out. `power` and `pown` with an integral exponent, and `power` with the exponent $0.5$ (a square root), are the exceptions: like the arithmetic operations they accept contexts up to $\\pm 999\\,999\\,999$."
 msgstr "数学函数 `exp`、`ln`、`log10` 和 `power` 把上下文限制在 decNumber 的范围内：精度和两个指数界的绝对值都必须在 $999\\,999$ 以内，否则结果为带 `invalid_operation` 的 NaN（`library/src/decimal` 中的私有检查 `math_context_is_restricted`）。这是一项有意的实现限制（`DEC_MAX_MATH`），不是 GDA 运算正文的规则：decTest 要求它（`power.decTest` 的 powx4001 至 powx4005 以及 `exp`、`ln`、`log10` 中对应的行），GDA 的 Invalid context 条件允许它。[^gda] 因此默认的无界指数范围会禁用它们，API 页面和教程都指出了这一点。 带整数指数的 `power` 和 `pown`，以及指数为 $0.5$（即平方根）的 `power` 是例外：它们与算术运算一样，接受上限为 $\\pm 999\\,999\\,999$ 的上下文。"
 
-#: manual/design/decimal_checked.md:163
+#: manual/design/decimal_checked.md:170
 msgid "M. Cowlishaw, *General Decimal Arithmetic Specification*, version 1.70, \"Context\" (the Invalid context condition under \"Exceptional conditions\") and the decTest rows named above."
 msgstr "M. Cowlishaw，*General Decimal Arithmetic Specification*，1.70 版，“Context”（“Exceptional conditions”下的 Invalid context 条件）以及上文列出的 decTest 行。"
 
-#: manual/design/decimal_checked.md:167
+#: manual/design/decimal_checked.md:174
 msgid "From flags to arithmetic diagnostics"
 msgstr "从标志到算术诊断"
 
-#: manual/design/decimal_checked.md:169
+#: manual/design/decimal_checked.md:176
 msgid "The contextual trait implementations of `Decimal` in Luna-Flow/arithmetic report `ArithmeticDiagnostics`, six Booleans combined by `ArithmeticDiagnostics::combine`, again field-wise OR. The private helper `contextual_diagnostics` in `library/src/decimal/traits.mbt` maps flags to diagnostics by keeping the six shared coordinates; call this projection $\\pi : \\mathbb{F} \\to \\{0,1\\}^{6}$. A coordinate projection commutes with a field-wise OR:"
 msgstr "Luna-Flow/arithmetic 中 `Decimal` 的上下文 trait 实现报告 `ArithmeticDiagnostics`，即由 `ArithmeticDiagnostics::combine` 合并的六个布尔值，同样是逐字段 OR。`library/src/decimal/traits.mbt` 中的私有辅助函数 `contextual_diagnostics` 通过保留六个共有坐标把标志映射为诊断；记此投影为 $\\pi : \\mathbb{F} \\to \\{0,1\\}^{6}$。坐标投影与逐字段 OR 可交换："
 
-#: manual/design/decimal_checked.md:182
+#: manual/design/decimal_checked.md:189
 msgid "so $\\pi$ is a monoid homomorphism, and by induction"
 msgstr "因此 $\\pi$ 是幺半群同态，由归纳可得"
 
-#: manual/design/decimal_checked.md:188
+#: manual/design/decimal_checked.md:195
 msgid "Converting the accumulated flags of a pipeline once at the end gives the same diagnostics as converting each step and combining. The conditions that the trait implementation turns into an `ArithmeticError` (division by zero and the invalid-operation family tested by `DecimalFlags::has_error`) are not among the coordinates kept by $\\pi$; the pipeline keeps them as flags instead."
 msgstr "在最后对流水线的累积标志转换一次，与逐步转换再合并得到的诊断相同。trait 实现转换为 `ArithmeticError` 的那些条件（除以零以及由 `DecimalFlags::has_error` 检测的无效运算族）不在 $\\pi$ 保留的坐标之中；流水线改为把它们作为标志保留。"
 
-#: manual/design/decimal_checked.md:196
+#: manual/design/decimal_checked.md:203
 msgid "Accumulated flags are the union of per-step flags"
 msgstr "累积标志是各步标志的并"
 
-#: manual/design/decimal_checked.md:198
-msgid "**Theorem.** Let a pipeline be constructed with flags $r_0$ (from `from_outcome`, `from_decimal`, `parse` or a numeric constructor) and then undergo successful steps $1, \\dots, n$ with raised flags $r_1, \\dots, r_n$ (including `with_context` and `apply`), with no `clear_flags` in between. Then"
-msgstr "**定理。** 设一条流水线以标志 $r_0$ 构造（来自 `from_outcome`、`from_decimal`、`parse` 或数值构造函数），随后经历成功的步骤 $1, \\dots, n$，其引发的标志为 $r_1, \\dots, r_n$（包括 `with_context` 和 `apply`），其间没有 `clear_flags`。则"
+#: manual/design/decimal_checked.md:205
+msgid "**Theorem.** Let a pipeline be constructed with flags $r_0$ (from `from_decimal`, `parse` or a numeric constructor) and then undergo successful steps $1, \\dots, n$ with raised flags $r_1, \\dots, r_n$ (including `with_context` and `apply`), with no `clear_flags` in between and with plain steps only (a step with a pipeline as its right operand also joins the flags of that pipeline, `raised` with its `raised` and `flags` with its `flags`, so the equation below holds with those added to $r_k$ and $F_k$). Then"
+msgstr "**定理。** 设一条流水线以标志 $r_0$ 构造（来自 `from_decimal`、`parse` 或数值构造函数），随后经历成功的步骤 $1, \\dots, n$，其引发的标志为 $r_1, \\dots, r_n$（包括 `with_context` 和 `apply`），其间没有 `clear_flags`，且只含普通步骤（以流水线作右操作数的步骤还会并入该流水线的标志，`raised` 并入其 `raised`，`flags` 并入其 `flags`，下面的等式在把它们加到 $r_k$ 和 $F_k$ 之后仍成立）。则"
 
-#: manual/design/decimal_checked.md:207
+#: manual/design/decimal_checked.md:217
 msgid "*Proof.* Every constructor sets $r = F = r_0$, which is the case $n = 0$. If $F_{k} = \\bigvee_{i \\le k} r_i$, a successful step $k+1$ goes through `record` (or the identical update in `with_context`) and sets $F_{k+1} = F_k \\lor r_{k+1} = \\bigvee_{i \\le k+1} r_i$ by associativity, and $r = r_{k+1}$. $\\square$"
 msgstr "*证明。* 每个构造函数都设置 $r = F = r_0$，这就是 $n = 0$ 的情形。若 $F_{k} = \\bigvee_{i \\le k} r_i$，成功的步骤 $k+1$ 经过 `record`（或 `with_context` 中完全相同的更新），由结合律设置 $F_{k+1} = F_k \\lor r_{k+1} = \\bigvee_{i \\le k+1} r_i$，并且 $r = r_{k+1}$。$\\square$"
 
-#: manual/design/decimal_checked.md:213
+#: manual/design/decimal_checked.md:223
 msgid "By commutativity and idempotence of $\\lor$, $F_n$ does not depend on the order of the steps or on how often a signal was raised, and by the homomorphism property of `contains`,"
 msgstr "由 $\\lor$ 的交换律和幂等律，$F_n$ 与步骤的顺序以及某信号被引发的次数无关；再由 `contains` 的同态性质，"
 
-#: manual/design/decimal_checked.md:221
+#: manual/design/decimal_checked.md:231
 msgid "The following test checks the theorem on a three-step pipeline: the accumulated flags equal the OR of the raised flags of the steps, in either order of combination."
 msgstr "下面的测试在一条三步流水线上检验该定理：累积标志等于各步引发标志的 OR，无论以何种顺序合并。"
 
-#: manual/design/decimal_checked.md:242
+#: manual/design/decimal_checked.md:252
 msgid "After `clear_flags`, the theorem holds again with $r_0 = \\mathbf{0}$ from that point. $F$ is monotone along a pipeline: $F_k \\subseteq F_{k+1}$."
 msgstr "在 `clear_flags` 之后，定理从该点起以 $r_0 = \\mathbf{0}$ 重新成立。$F$ 沿流水线单调：$F_k \\subseteq F_{k+1}$。"
 
-#: manual/design/decimal_checked.md:245
+#: manual/design/decimal_checked.md:255
 msgid "Errors are absorbing"
 msgstr "错误具有吸收性"
 
-#: manual/design/decimal_checked.md:247
+#: manual/design/decimal_checked.md:257
 msgid "**Theorem.** If a state has $\\varepsilon = \\mathrm{Some}(e)$, every operation except `clear_flags` returns it unchanged, and `clear_flags` changes only $r$ and $F$."
 msgstr "**定理。** 若一个状态有 $\\varepsilon = \\mathrm{Some}(e)$，则除 `clear_flags` 外的每个运算都原样返回它，而 `clear_flags` 只改变 $r$ 和 $F$。"
 
-#: manual/design/decimal_checked.md:251
+#: manual/design/decimal_checked.md:261
 msgid "*Proof.* `record`, `record_result` and `with_context` start with the guard `self.error_ is None` and return `self` otherwise; every arithmetic method goes through `record` or `record_result`. `clear_flags` updates only the two flag fields. $\\square$"
 msgstr "*证明。* `record`、`record_result` 和 `with_context` 都以守卫 `self.error_ is None` 开头，否则返回 `self`；每个算术方法都经过 `record` 或 `record_result`。`clear_flags` 只更新两个标志字段。$\\square$"
 
-#: manual/design/decimal_checked.md:256
+#: manual/design/decimal_checked.md:266
 msgid "Hence the first error is the one reported, the value and flags remain those before the failing step, and `result()` returns $\\mathrm{Err}(e)$. On a pipeline without error, `result()` is $\\mathrm{Ok}((v, F))$, the writer monad's output."
 msgstr "因此被报告的是第一个错误，值和标志保持为失败步骤之前的状态，且 `result()` 返回 $\\mathrm{Err}(e)$。在没有错误的流水线上，`result()` 就是 $\\mathrm{Ok}((v, F))$，即 writer 单子的输出。"
 
-#: manual/design/decimal_checked.md:263
+#: manual/design/decimal_checked.md:273
 msgid "A step costs the delegated decimal operation plus one 6-field OR and a constant-size state copy."
 msgstr "每一步的开销是被委托的十进制运算，加上一次 6 字段的 OR 和一次常数大小的状态复制。"
 
-#: manual/design/decimal_checked.md:268
+#: manual/design/decimal_checked.md:278
 msgid "**Errors for IEEE exceptions.** Contradicts IEEE default exception handling and the purpose of the package; the contextual traits already offer that model for single operations."
 msgstr "**把 IEEE 异常变为错误。** 这与 IEEE 默认异常处理以及本包的目的相矛盾；上下文 trait 已经为单个运算提供了那种模型。"
 
-#: manual/design/decimal_checked.md:271
+#: manual/design/decimal_checked.md:281
 msgid "**Merging pipelines.** No canonical rule for two contexts; see above."
 msgstr "**合并流水线。** 对两个上下文没有规范的合并规则；见上文。"
 
-#: manual/design/decimal_checked.md:272
+#: manual/design/decimal_checked.md:282
 msgid "**Mutable flags.** Luna-Flow keeps context and status as values; an immutable state can be forked and compared."
 msgstr "**可变标志。** Luna-Flow 把上下文和状态都保持为值；不可变状态可以分叉和比较。"
 
-#: manual/design/decimal_checked.md:274
+#: manual/design/decimal_checked.md:284
 msgid "**Storing the per-step history.** The union answers the audit question at constant size; callers who need a history keep the states they care about."
 msgstr "**存储逐步历史。** 并集以常数大小回答了审计问题；需要历史的调用者可以自行保留关心的状态。"
 
-#: manual/design/decimal_checked.md:279
+#: manual/design/decimal_checked.md:289
 msgid "No arithmetic of its own; every result comes from `decimal`."
 msgstr "自身不含算术；每个结果都来自 `decimal`。"
 
-#: manual/design/decimal_checked.md:280
+#: manual/design/decimal_checked.md:290
 msgid "No traps or alternate exception handling: IEEE flags never stop the pipeline. Trap-driven control flow is the [`decimal_gda_checked`](decimal_gda_checked.md) contract."
 msgstr "没有陷阱或替代异常处理：IEEE 标志从不中止流水线。由陷阱驱动的控制流属于 [`decimal_gda_checked`](decimal_gda_checked.md) 的契约。"
 
-#: manual/design/decimal_checked.md:283
+#: manual/design/decimal_checked.md:293
 msgid "No operators, no pipeline-to-pipeline operations, no implicit context changes."
 msgstr "没有运算符，没有流水线与流水线之间的运算，也没有隐式的上下文改变。"
 
-#: manual/design/decimal_checked.md:285
+#: manual/design/decimal_checked.md:295
 msgid "Only certification failures of elementary functions become errors. A delegated operation that aborted would abort the pipeline too; the state model cannot turn an abort into an error."
 msgstr "只有初等函数的认证失败会成为错误。若某个委托运算中止，流水线也会随之中止；状态模型无法把中止变为错误。"
 
-#: manual/design/decimal_checked.md:288
+#: manual/design/decimal_checked.md:298
 msgid "No accuracy of its own: the flags describe exactly what `decimal` reported, including its documented deviations (for example `inexact` on the exact power $0.0016^{0.25} = 0.2$)."
 msgstr "没有自身的精度保证：标志如实描述 `decimal` 所报告的内容，包括其已记录的偏差（例如对精确的幂 $0.0016^{0.25} = 0.2$ 给出 `inexact`）。"
 
-#: manual/design/decimal_checked.md:291
+#: manual/design/decimal_checked.md:301
 msgid "The context is the IEEE decimal context of `decimal`; GDA contexts with sticky status belong to `decimal_gda`."
 msgstr "上下文是 `decimal` 的 IEEE 十进制上下文；带粘滞状态的 GDA 上下文属于 `decimal_gda`。"
 
@@ -19728,51 +19720,51 @@ msgstr "流水线包装器：`BinFloatResult` 和 `BallFloatResult` 在首个错
 msgid "Empty, Entire and NaI, which are interval values, not errors."
 msgstr "Empty、Entire 和 NaI，它们是区间值，而不是错误。"
 
-#: manual/getting_started.md:182
+#: manual/getting_started.md:181
 msgid "Do not fold these channels into one exception type or one `Result`: that erases semantics the standards make observable."
 msgstr "不要把这些通道合并成一种异常类型或一个 `Result`：那样会抹去标准规定为可观察的语义。"
 
-#: manual/getting_started.md:185
+#: manual/getting_started.md:184
 msgid "Read results correctly"
 msgstr "正确解读结果"
 
-#: manual/getting_started.md:187
+#: manual/getting_started.md:186
 msgid "Signed zero, infinities, quiet and signaling NaN, and NaN payloads are observable on scalars."
 msgstr "在标量上，带符号零、无穷大、静默 NaN 与信号 NaN 以及 NaN 的 payload 都是可观察的。"
 
-#: manual/getting_started.md:189
+#: manual/getting_started.md:188
 msgid "`compare`, `<` and sorting use a total preorder in which every NaN is equal to every other NaN and above every number, and $-0 = +0$. For IEEE semantics use `compare_checked`, the quiet and signaling predicates of `bin_float`, or the `total_order*` functions."
 msgstr "`compare`、`<` 和排序使用一个全预序：其中所有 NaN 彼此相等且排在所有数之上，并且 $-0 = +0$。如需 IEEE 语义，请使用 `compare_checked`、`bin_float` 的静默与信号谓词，或 `total_order*` 系列函数。"
 
-#: manual/getting_started.md:193
+#: manual/getting_started.md:192
 msgid "`==` on `BinFloat` and `BallFloat` compares representations (sign of zero and precision included); `==` on `Decimal` compares values. Use `compare(a, b) == 0` for numeric equality of binary values."
 msgstr "`BinFloat` 和 `BallFloat` 上的 `==` 比较的是表示（包括零的符号和精度）；`Decimal` 上的 `==` 比较的是值。对二进制值做数值相等比较时，请使用 `compare(a, b) == 0`。"
 
-#: manual/getting_started.md:196
+#: manual/getting_started.md:195
 msgid "A `BallFloat` has containment and set relations (`contains`, `subset`, `definitely_lt`, …), not a scalar order. A result is correct when it encloses the exact result; tightness is a separate quality."
 msgstr "`BallFloat` 具有包含关系与集合关系（`contains`、`subset`、`definitely_lt`、…），而没有标量序。只要结果包络了精确结果，它就是正确的；紧致程度是另一项独立的质量指标。"
 
-#: manual/getting_started.md:199
+#: manual/getting_started.md:198
 msgid "`SemanticScalar` compares mathematical values across packages and drops precision, quantum, signed zero, payloads, decorations and flags."
 msgstr "`SemanticScalar` 跨包比较数学值，并丢弃精度、量子、带符号零、payload、装饰和标志。"
 
-#: manual/getting_started.md:202
+#: manual/getting_started.md:201
 msgid "Continue reading"
 msgstr "继续阅读"
 
-#: manual/getting_started.md:204
+#: manual/getting_started.md:203
 msgid "[Numeric semantics](./numeric_semantics.md) defines rounding, ulp, flags, quantum, signed zero, NaN and enclosures with their derivations."
 msgstr "[数值语义](./numeric_semantics.md)定义了舍入、ulp、标志、量子、带符号零、NaN 和包络，并给出其推导。"
 
-#: manual/getting_started.md:206
+#: manual/getting_started.md:205
 msgid "[Architecture](./architecture.md) explains the package layers and the certified elementary functions."
 msgstr "[架构](./architecture.md)解释了包的分层以及经认证的初等函数。"
 
-#: manual/getting_started.md:208
+#: manual/getting_started.md:207
 msgid "[Verification](./verification.md) lists the gates and the exact scope of each conformance claim."
 msgstr "[验证](./verification.md)列出了各项检查关卡以及每项符合性声明的确切范围。"
 
-#: manual/getting_started.md:210
+#: manual/getting_started.md:209
 msgid "Each package has a tutorial, an API reference and a design page; start with the [`bin_float` tutorial](./tutorial/bin_float.md), the [`decimal` tutorial](./tutorial/decimal.md) or the [`ball_float` tutorial](./tutorial/ball_float.md)."
 msgstr "每个包都有教程、API 参考和设计页面；可以从 [`bin_float` 教程](./tutorial/bin_float.md)、[`decimal` 教程](./tutorial/decimal.md)或 [`ball_float` 教程](./tutorial/ball_float.md)开始。"
 
@@ -23314,7 +23306,7 @@ msgstr "**来自 `Double` 的输入。** `from_double(x)` 精确包络 `x` 的�
 #: manual/tutorial/cli/testfloat_expr_cli.md:104
 #: manual/tutorial/consistency.md:78
 #: manual/tutorial/decimal.md:430
-#: manual/tutorial/decimal_checked.md:261
+#: manual/tutorial/decimal_checked.md:265
 #: manual/tutorial/decimal_gda.md:393
 #: manual/tutorial/decimal_gda_checked.md:268
 #: manual/tutorial/def.md:212
@@ -25689,26 +25681,26 @@ msgid "**`remainder` is the IEEE remainder.** It rounds the quotient to the near
 msgstr "**`remainder` 是 IEEE 余数。** 它把商舍入到最近的整数，因此 `1` 对 `0.6` 取余的结果是 `-0.2`，而不是 `0.4`。"
 
 #: manual/tutorial/decimal_checked.md:257
-msgid "**Operands are plain `Decimal` values.** They are not rounded to the context before the operation; the operation rounds the result."
-msgstr "**操作数是普通的 `Decimal` 值。** 它们在运算之前不会按上下文舍入；运算会对结果舍入。"
+msgid "**The right operand is a pipeline.** Lift a plain value with `DecimalChecked::from_decimal(x, ctx)`, which rounds it into `ctx` first (a signaling NaN is quieted and raises `invalid_operation`); the operation then runs in the context of the left pipeline and rounds the result. The conditions of the right pipeline join the result, and its error stops the operation."
+msgstr "**右操作数是流水线。** 用 `DecimalChecked::from_decimal(x, ctx)` 提升普通值，它会先把值舍入到 `ctx`（信号 NaN 被静默并引发 `invalid_operation`）；运算随后在左侧流水线的上下文中运行并舍入结果。右侧流水线的条件并入结果，它的错误会终止运算。"
 
-#: manual/tutorial/decimal_checked.md:259
+#: manual/tutorial/decimal_checked.md:263
 msgid "**`clear_flags` also works after an error,** but the error stays."
 msgstr "**`clear_flags` 在出错之后也能使用，** 但错误仍然保留。"
 
-#: manual/tutorial/decimal_checked.md:263
+#: manual/tutorial/decimal_checked.md:267
 msgid "[`decimal_checked` design](../design/decimal_checked.md): the state model, the flag monoid and the short-circuit rule."
 msgstr "[`decimal_checked` 设计](../design/decimal_checked.md)：状态模型、标志幺半群与短路规则。"
 
-#: manual/tutorial/decimal_checked.md:265
+#: manual/tutorial/decimal_checked.md:269
 msgid "[`decimal_checked` API](../api/decimal_checked.md): every method."
 msgstr "[`decimal_checked` API](../api/decimal_checked.md)：所有方法。"
 
-#: manual/tutorial/decimal_checked.md:266
+#: manual/tutorial/decimal_checked.md:270
 msgid "[`decimal` tutorial](decimal.md): contexts, rounding modes and interchange formats."
 msgstr "[`decimal` 教程](decimal.md)：上下文、舍入模式与交换格式。"
 
-#: manual/tutorial/decimal_checked.md:268
+#: manual/tutorial/decimal_checked.md:272
 msgid "[`decimal_gda_checked` tutorial](decimal_gda_checked.md): the same idea for General Decimal Arithmetic with sticky status and traps."
 msgstr "[`decimal_gda_checked` 教程](decimal_gda_checked.md)：同一思路在带粘滞状态和陷阱的通用十进制算术上的应用。"
 
@@ -29090,6 +29082,30 @@ msgstr "公开 API 收窄时，条款到 API 的映射可能变化"
 #: manual/verification.md:758
 msgid "issue [#22](https://github.com/Luna-Flow/floating/issues/22); the whole roadmap is [#245](https://github.com/Luna-Flow/floating/issues/245)"
 msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路线图见 [#245](https://github.com/Luna-Flow/floating/issues/245)"
+
+#~ msgid "`from_outcome(value, context, flags)` starts a pipeline from a value and the flags that produced it."
+#~ msgstr "`from_outcome(value, context, flags)` 由一个值及产生它的标志开始一条流水线。"
+
+#~ msgid "The result is $(\\textit{value}, c', \\textit{flags}, \\textit{flags}, \\text{none})$ with $c' = \\textit{context}$. The value is *not* re-rounded; use it with the `(value, flags)` pair returned by a `Decimal::*_ctx` call."
+#~ msgstr "结果为 $(\\textit{value}, c', \\textit{flags}, \\textit{flags}, \\text{none})$，其中 $c' = \\textit{context}$。值*不会*被重新舍入；请将它与 `Decimal::*_ctx` 调用返回的 `(value, flags)` 二元组配合使用。"
+
+#~ msgid "These methods return the value with the accumulated flags."
+#~ msgstr "这些方法返回值及累积标志。"
+
+#~ msgid "`outcome()` is $(v, F)$ regardless of the error; `result()` is $\\mathrm{Err}(\\varepsilon)$ when an error is recorded and $\\mathrm{Ok}((v, F))$ otherwise."
+#~ msgstr "`outcome()` 无论是否有错误都为 $(v, F)$；`result()` 在记录了错误时为 $\\mathrm{Err}(\\varepsilon)$，否则为 $\\mathrm{Ok}((v, F))$。"
+
+#~ msgid "These methods apply the IEEE decimal operation of the same meaning to the current value and a plain `Decimal` operand under the stored context."
+#~ msgstr "这些方法在所存储的上下文下，对当前值和一个普通 `Decimal` 操作数执行含义相同的 IEEE 十进制运算。"
+
+#~ msgid "**Problem.** A binary operation could take another pipeline as its operand."
+#~ msgstr "**问题。** 二元运算本可以把另一条流水线作为操作数。"
+
+#~ msgid "**Choice.** Operands are plain `Decimal` values. Two pipelines carry two contexts and two flag histories; merging them would need a rule for which context wins, and the union of histories would hide which side raised a flag. With plain operands the pipeline is a single linear history under one context, and the context changes only through `with_context`, which records the flags of rounding the current value into the new context. For the same reason the type implements no operators."
+#~ msgstr "**选择。** 操作数是普通的 `Decimal` 值。两条流水线携带两个上下文和两段标志历史；合并它们需要规定哪个上下文胜出，而历史的并集会掩盖是哪一方引发了标志。使用普通操作数时，流水线是同一上下文下的单一线性历史，上下文只能通过 `with_context` 改变，它会记录把当前值舍入到新上下文时的标志。出于同样的原因，该类型不实现任何运算符。"
+
+#~ msgid "**Operands are plain `Decimal` values.** They are not rounded to the context before the operation; the operation rounds the result."
+#~ msgstr "**操作数是普通的 `Decimal` 值。** 它们在运算之前不会按上下文舍入；运算会对结果舍入。"
 
 #~ msgid "`div_checked` divides, reporting domain errors as `Result`; `sqrt` takes the square root of the value under its own format."
 #~ msgstr "`div_checked` 做除法并以 `Result` 报告域错误；`sqrt` 按值自身的格式取平方根。"
