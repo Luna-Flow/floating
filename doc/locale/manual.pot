@@ -8027,7 +8027,7 @@ msgid "interval_checked API"
 msgstr ""
 
 #: manual/api/interval_checked.md:5
-msgid "`interval_checked` provides `IntervalResult`, a closed wrapper around `Result[Interval, ArithmeticError]` for interval computations. Construction validates its inputs, every operation passes on the first error, and the interval operations of [`interval`](interval.md) are applied when all operands are successes. A valid but uninformative enclosure (the empty set, the whole line) is a success, not an error. The wrapper stores no decorations and no `IntervalFlags`. The [tutorial](../tutorial/interval_checked.md) builds pipelines; the [design page](../design/interval_checked.md) explains which outcomes are errors and why."
+msgid "`interval_checked` provides `IntervalChecked`, a closed wrapper around `Result[Interval, ArithmeticError]` for interval computations. Construction validates its inputs, every operation passes on the first error, and the interval operations of [`interval`](interval.md) are applied when all operands are successes. A valid but uninformative enclosure (the empty set, the whole line) is a success, not an error. The wrapper stores no decorations and no `IntervalFlags`. The [tutorial](../tutorial/interval_checked.md) builds pipelines; the [design page](../design/interval_checked.md) explains which outcomes are errors and why."
 msgstr ""
 
 #: manual/api/interval_checked.md:17
@@ -8039,7 +8039,7 @@ msgid "The examples refer to the packages as `@interval_checked.`, `@interval.`,
 msgstr ""
 
 #: manual/api/interval_checked.md:48
-msgid "`IntervalResult` is either a successful `Interval` or an `ArithmeticError`."
+msgid "`IntervalChecked` is either a successful `Interval` or an `ArithmeticError`."
 msgstr ""
 
 #: manual/api/interval_checked.md:56
@@ -8127,7 +8127,7 @@ msgid "These methods are `map` of the `Interval` integer functions of Table 9.1 
 msgstr ""
 
 #: manual/api/interval_checked.md:264
-msgid "`IntervalResult::sqr_rev`, `IntervalResult::abs_rev`, `IntervalResult::pown_rev` and `IntervalResult::cosh_rev`"
+msgid "`IntervalChecked::sqr_rev`, `IntervalChecked::abs_rev`, `IntervalChecked::pown_rev` and `IntervalChecked::cosh_rev`"
 msgstr ""
 
 #: manual/api/interval_checked.md:266
@@ -8135,7 +8135,7 @@ msgid "These methods apply the `Interval` method of the same name to the interva
 msgstr ""
 
 #: manual/api/interval_checked.md:278
-msgid "`IntervalResult::sin_rev`, `IntervalResult::cos_rev` and `IntervalResult::tan_rev`"
+msgid "`IntervalChecked::sin_rev`, `IntervalChecked::cos_rev` and `IntervalChecked::tan_rev`"
 msgstr ""
 
 #: manual/api/interval_checked.md:280
@@ -8151,7 +8151,7 @@ msgid "`Interval::pow_rev2` on the interval parts (see the [`interval` page](int
 msgstr ""
 
 #: manual/api/interval_checked.md:309
-msgid "`IntervalResult::atan2_rev1` and `IntervalResult::atan2_rev2`"
+msgid "`IntervalChecked::atan2_rev1` and `IntervalChecked::atan2_rev2`"
 msgstr ""
 
 #: manual/api/interval_checked.md:311
@@ -8163,7 +8163,7 @@ msgid "`Interval::from_string` (see the [`interval` page](interval.md#intervalfr
 msgstr ""
 
 #: manual/api/interval_checked.md:327
-msgid "`IntervalResult::mul_rev` and `IntervalResult::mul_rev_to_pair`"
+msgid "`IntervalChecked::mul_rev` and `IntervalChecked::mul_rev_to_pair`"
 msgstr ""
 
 #: manual/api/interval_checked.md:329
@@ -8215,7 +8215,7 @@ msgid "Each method is `bind` of `Interval::try_<name>_interval` at the interval'
 msgstr ""
 
 #: manual/api/interval_checked.md:515
-msgid "`Add`, `Sub`, `Mul`, `Div`, `Neg` for `IntervalResult`"
+msgid "`Add`, `Sub`, `Mul`, `Div`, `Neg` for `IntervalChecked`"
 msgstr ""
 
 #: manual/api/numeric_expr.md:1
@@ -8812,7 +8812,7 @@ msgid "`Binary`, `Decimal` and GDA `Decimal` implement the contextual traits of 
 msgstr ""
 
 #: manual/architecture.md:219
-msgid "`BinaryChecked` and `IntervalResult` keep the first `ArithmeticError`."
+msgid "`BinaryChecked` and `IntervalChecked` keep the first `ArithmeticError`."
 msgstr ""
 
 #: manual/architecture.md:220
@@ -18894,7 +18894,7 @@ msgid "interval_checked design"
 msgstr ""
 
 #: manual/design/interval_checked.md:5
-msgid "`interval_checked` lets an interval computation be written as one chain of operations in which construction mistakes and uncertifiable steps are explicit errors, while every successful value remains a rigorous enclosure. `IntervalResult` closes `Result[Interval, ArithmeticError]` under the operations of [`interval`](interval.md) and adds no interval algorithm. The [API page](../api/interval_checked.md) lists the operations and the [tutorial](../tutorial/interval_checked.md) shows pipelines in use."
+msgid "`interval_checked` lets an interval computation be written as one chain of operations in which construction mistakes and uncertifiable steps are explicit errors, while every successful value remains a rigorous enclosure. `IntervalChecked` closes `Result[Interval, ArithmeticError]` under the operations of [`interval`](interval.md) and adds no interval algorithm. The [API page](../api/interval_checked.md) lists the operations and the [tutorial](../tutorial/interval_checked.md) shows pipelines in use."
 msgstr ""
 
 #: manual/design/interval_checked.md:15
@@ -18927,7 +18927,7 @@ msgid "The wrapper as an error monad"
 msgstr ""
 
 #: manual/design/interval_checked.md:48
-msgid "`IntervalResult` is the exception monad $M V = V + E$ with $V$ the set of `Interval` values and $E$ the set of `ArithmeticError` values, with $\\eta = $ `ok` and $\\mathbin{>\\!\\!>\\!\\!=} = $ `bind`. The laws (left and right identity, associativity) and the functor laws of `map` are proved in the [`binary_checked` design](binary_checked.md#the-monad-laws); the proof is a case analysis on $\\mathrm{Ok}/\\mathrm{Err}$ that does not use any property of $V$. The operators are lifted by the same left-biased scheme (`interval_result_lift2`), so the [first-error theorem](binary_checked.md#the-first-error-theorem) applies unchanged: an expression reports the error of the first originating node in post-order."
+msgid "`IntervalChecked` is the exception monad $M V = V + E$ with $V$ the set of `Interval` values and $E$ the set of `ArithmeticError` values, with $\\eta = $ `ok` and $\\mathbin{>\\!\\!>\\!\\!=} = $ `bind`. The laws (left and right identity, associativity) and the functor laws of `map` are proved in the [`binary_checked` design](binary_checked.md#the-monad-laws); the proof is a case analysis on $\\mathrm{Ok}/\\mathrm{Err}$ that does not use any property of $V$. The operators are lifted by the same left-biased scheme (`interval_result_lift2`), so the [first-error theorem](binary_checked.md#the-first-error-theorem) applies unchanged: an expression reports the error of the first originating node in post-order."
 msgstr ""
 
 #: manual/design/interval_checked.md:62
@@ -19004,7 +19004,7 @@ msgid "Powers go through the arithmetic traits"
 msgstr ""
 
 #: manual/design/interval_checked.md:100
-msgid "`pown` calls `PowIntChecked::pow_int_checked` of Luna-Flow/arithmetic with `ArithmeticContext::new(x.precision())`. `Interval` reads only the precision from the context (rounding direction and exponent bounds have no meaning for an outward-rounded enclosure) and re-rounds the base and the result with `with_precision`, which is sound but can add one ulp per side. The two traits `Interval` implements, `PowIntChecked` and `PowNatChecked`, are implemented differently, and only one of them avoids the *dependency problem* (`IntervalResult` offers only `pown`; `PowNatChecked` is reached through `Interval::pow_nat_checked`). $X \\cdot X$ treats the two factors as independent, so for $X = [-1, 1]$ it gives $[-1, 1]$, whereas $\\{t^2 : t \\in X\\} = [0, 1]$. `pown` uses `Interval::pown`, which evaluates $t \\mapsto t^n$ on the monotone pieces of one variable $t$ and returns $[0, 1]$. `pow_nat_checked` uses binary powering, $X^{n} = X^{\\lfloor n/2 \\rfloor} \\cdot X^{\\lfloor n/2 \\rfloor} \\cdot X^{n \\bmod 2}$ evaluated with interval products, so it encloses the larger set $\\{t_1 t_2 \\cdots t_n : t_i \\in X\\}$ and returns $[-1, 1]$; both are enclosures of $\\{t^n\\}$, but only `pown` is tight. `pow_nat_checked(0)` starts from $\\{1\\}$ without inspecting the base, so it maps an empty interval to $\\{1\\}$."
+msgid "`pown` calls `PowIntChecked::pow_int_checked` of Luna-Flow/arithmetic with `ArithmeticContext::new(x.precision())`. `Interval` reads only the precision from the context (rounding direction and exponent bounds have no meaning for an outward-rounded enclosure) and re-rounds the base and the result with `with_precision`, which is sound but can add one ulp per side. The two traits `Interval` implements, `PowIntChecked` and `PowNatChecked`, are implemented differently, and only one of them avoids the *dependency problem* (`IntervalChecked` offers only `pown`; `PowNatChecked` is reached through `Interval::pow_nat_checked`). $X \\cdot X$ treats the two factors as independent, so for $X = [-1, 1]$ it gives $[-1, 1]$, whereas $\\{t^2 : t \\in X\\} = [0, 1]$. `pown` uses `Interval::pown`, which evaluates $t \\mapsto t^n$ on the monotone pieces of one variable $t$ and returns $[0, 1]$. `pow_nat_checked` uses binary powering, $X^{n} = X^{\\lfloor n/2 \\rfloor} \\cdot X^{\\lfloor n/2 \\rfloor} \\cdot X^{n \\bmod 2}$ evaluated with interval products, so it encloses the larger set $\\{t_1 t_2 \\cdots t_n : t_i \\in X\\}$ and returns $[-1, 1]$; both are enclosures of $\\{t^n\\}$, but only `pown` is tight. `pow_nat_checked(0)` starts from $\\{1\\}$ without inspecting the base, so it maps an empty interval to $\\{1\\}$."
 msgstr ""
 
 #: manual/design/interval_checked.md:119
@@ -19594,7 +19594,7 @@ msgid "`GdaOutcome[T]`, which keeps the GDA-defined result even when a trap fire
 msgstr ""
 
 #: manual/getting_started.md:158
-msgid "The pipeline wrappers: `BinaryChecked` and `IntervalResult` stop at the first error; `DecimalChecked` keeps defined NaN and infinity results and accumulates flags; `GdaDecimalChecked` stops at a trap and keeps its outcome."
+msgid "The pipeline wrappers: `BinaryChecked` and `IntervalChecked` stop at the first error; `DecimalChecked` keeps defined NaN and infinity results and accumulates flags; `GdaDecimalChecked` stops at a trap and keeps its outcome."
 msgstr ""
 
 #: manual/getting_started.md:162
@@ -20493,7 +20493,7 @@ msgid "Pipelines and shared vocabulary"
 msgstr ""
 
 #: manual/index.md:183
-msgid "Checked wrappers: `BinaryChecked`, `DecimalChecked`, `GdaDecimalChecked`, `IntervalResult`"
+msgid "Checked wrappers: `BinaryChecked`, `DecimalChecked`, `GdaDecimalChecked`, `IntervalChecked`"
 msgstr ""
 
 #: manual/index.md:185
@@ -20825,7 +20825,7 @@ msgid "Checked errors"
 msgstr ""
 
 #: manual/numeric_semantics.md:416
-msgid "An `ArithmeticError` (re-exported by `def`) has a kind: `DivisionByZero`, `ParseError`, `DomainError`, `FormatError`, `UnsupportedOperation`, `UnorderedComparison` or `CertificationFailure`. It is used where the checked contract has no value to return: `div_checked` by zero, `sqrt` of a negative number, `compare_checked` with a NaN, a malformed literal. `BinaryChecked` and `IntervalResult` keep the first error and skip the remaining steps."
+msgid "An `ArithmeticError` (re-exported by `def`) has a kind: `DivisionByZero`, `ParseError`, `DomainError`, `FormatError`, `UnsupportedOperation`, `UnorderedComparison` or `CertificationFailure`. It is used where the checked contract has no value to return: `div_checked` by zero, `sqrt` of a negative number, `compare_checked` with a NaN, a malformed literal. `BinaryChecked` and `IntervalChecked` keep the first error and skip the remaining steps."
 msgstr ""
 
 #: manual/numeric_semantics.md:423
@@ -27385,7 +27385,7 @@ msgid "interval_checked tutorial"
 msgstr ""
 
 #: manual/tutorial/interval_checked.md:3
-msgid "This tutorial shows how to run an interval computation in which invalid input and uncertifiable steps are reported as errors while every valid result stays a guaranteed enclosure: you build intervals with validating constructors, chain interval arithmetic and elementary functions in an `IntervalResult`, add your own checks with `bind`, and read the outcome once. The arithmetic comes from [`interval`](interval.md); the [design page](../design/interval_checked.md) explains which outcomes are errors; the [API reference](../api/interval_checked.md) lists every method."
+msgid "This tutorial shows how to run an interval computation in which invalid input and uncertifiable steps are reported as errors while every valid result stays a guaranteed enclosure: you build intervals with validating constructors, chain interval arithmetic and elementary functions in an `IntervalChecked`, add your own checks with `bind`, and read the outcome once. The arithmetic comes from [`interval`](interval.md); the [design page](../design/interval_checked.md) explains which outcomes are errors; the [API reference](../api/interval_checked.md) lists every method."
 msgstr ""
 
 #: manual/tutorial/interval_checked.md:14
@@ -27401,7 +27401,7 @@ msgid "push uncertain inputs through a formula"
 msgstr ""
 
 #: manual/tutorial/interval_checked.md:15
-msgid "`+ - * /` on `IntervalResult` ([Propagate uncertainty](#propagate-uncertainty-through-a-formula))"
+msgid "`+ - * /` on `IntervalChecked` ([Propagate uncertainty](#propagate-uncertainty-through-a-formula))"
 msgstr ""
 
 #: manual/tutorial/interval_checked.md:16

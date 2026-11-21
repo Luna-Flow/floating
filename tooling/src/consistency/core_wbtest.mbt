@@ -4655,8 +4655,8 @@ test "decimal_gda_checked threads context and short-circuits traps" {
 
 ///|
 test "interval_checked keeps interval operations in one result category" {
-  let one = @interval_checked.IntervalResult::from_int(1, precision=12)
-  let zero_crossing = @interval_checked.IntervalResult::from_bounds(
+  let one = @interval_checked.IntervalChecked::from_int(1, precision=12)
+  let zero_crossing = @interval_checked.IntervalChecked::from_bounds(
     binary_test_make(-1N, 0, 16),
     @binary.Binary::one(precision=16),
     precision=12,
@@ -4665,7 +4665,7 @@ test "interval_checked keeps interval operations in one result category" {
     Ok(value) => assert_true(value.is_entire())
     Err(_) => fail("expected interval result whole-real fallback to succeed")
   }
-  let invalid = @interval_checked.IntervalResult::from_double(
+  let invalid = @interval_checked.IntervalChecked::from_double(
     0.0 / 0.0,
     precision=12,
   )

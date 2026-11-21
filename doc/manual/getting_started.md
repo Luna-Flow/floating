@@ -19,7 +19,7 @@ is spelled.
 | a binary pipeline that stops at the first error | `binary_checked` | `BinaryChecked` | `Result[Binary, ArithmeticError]` inside a wrapper |
 | an IEEE decimal pipeline that accumulates flags | `decimal_checked` | `DecimalChecked` | defined value plus latest and accumulated `DecimalFlags` |
 | a GDA pipeline that stops at a trap | `decimal_gda_checked` | `GdaDecimalChecked` | one threaded `GdaOutcome[Decimal]` |
-| an interval pipeline that stops at the first error | `interval_checked` | `IntervalResult` | `Result[Interval, ArithmeticError]` inside a wrapper |
+| an interval pipeline that stops at the first error | `interval_checked` | `IntervalChecked` | `Result[Interval, ArithmeticError]` inside a wrapper |
 | comparing values across packages | `semantic` | `SemanticScalar`, `SemanticInterval` | exact rationals, deliberately dropping metadata |
 
 `def` holds the small vocabulary all of them share (`Sign`, `PartialOrder`,
@@ -155,7 +155,7 @@ matches what your caller must observe:
   functions).
 - `BinaryFlags`, `DecimalFlags` and `IntervalFlags` beside a defined result.
 - `GdaOutcome[T]`, which keeps the GDA-defined result even when a trap fires.
-- The pipeline wrappers: `BinaryChecked` and `IntervalResult` stop at the
+- The pipeline wrappers: `BinaryChecked` and `IntervalChecked` stop at the
   first error; `DecimalChecked` keeps defined NaN and infinity results and
   accumulates flags; `GdaDecimalChecked` stops at a trap and keeps its
   outcome.

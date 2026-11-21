@@ -8057,8 +8057,8 @@ msgid "interval_checked API"
 msgstr "interval_checked API"
 
 #: manual/api/interval_checked.md:5
-msgid "`interval_checked` provides `IntervalResult`, a closed wrapper around `Result[Interval, ArithmeticError]` for interval computations. Construction validates its inputs, every operation passes on the first error, and the interval operations of [`interval`](interval.md) are applied when all operands are successes. A valid but uninformative enclosure (the empty set, the whole line) is a success, not an error. The wrapper stores no decorations and no `IntervalFlags`. The [tutorial](../tutorial/interval_checked.md) builds pipelines; the [design page](../design/interval_checked.md) explains which outcomes are errors and why."
-msgstr "`interval_checked` 提供 `IntervalResult`，它是用于区间计算的、对 `Result[Interval, ArithmeticError]` 的封闭包装。构造时会校验输入，每个运算都会传递遇到的第一个错误，当所有操作数都成功时则应用 [`interval`](interval.md) 的区间运算。一个有效但不含信息的包络（空集、整条实轴）属于成功，而不是错误。该包装不存储装饰，也不存储 `IntervalFlags`。[教程](../tutorial/interval_checked.md)介绍如何构建计算管线；[设计文档](../design/interval_checked.md)解释哪些结果属于错误及其原因。"
+msgid "`interval_checked` provides `IntervalChecked`, a closed wrapper around `Result[Interval, ArithmeticError]` for interval computations. Construction validates its inputs, every operation passes on the first error, and the interval operations of [`interval`](interval.md) are applied when all operands are successes. A valid but uninformative enclosure (the empty set, the whole line) is a success, not an error. The wrapper stores no decorations and no `IntervalFlags`. The [tutorial](../tutorial/interval_checked.md) builds pipelines; the [design page](../design/interval_checked.md) explains which outcomes are errors and why."
+msgstr "`interval_checked` 提供 `IntervalChecked`，它是用于区间计算的、对 `Result[Interval, ArithmeticError]` 的封闭包装。构造时会校验输入，每个运算都会传递遇到的第一个错误，当所有操作数都成功时则应用 [`interval`](interval.md) 的区间运算。一个有效但不含信息的包络（空集、整条实轴）属于成功，而不是错误。该包装不存储装饰，也不存储 `IntervalFlags`。[教程](../tutorial/interval_checked.md)介绍如何构建计算管线；[设计文档](../design/interval_checked.md)解释哪些结果属于错误及其原因。"
 
 #: manual/api/interval_checked.md:17
 msgid "Add the wrapper and the endpoint package to your `moon.pkg`:"
@@ -8069,8 +8069,8 @@ msgid "The examples refer to the packages as `@interval_checked.`, `@interval.`,
 msgstr "示例中将这些包称为 `@interval_checked.`、`@interval.`、`@binary.`、`@def.`（用于无穷的 `Sign`）和 `@lf_arith.`（对应 `Luna-Flow/arithmetic`）。示例使用以下辅助函数输出结果（有界区间的 `to_midpoint_radius_string` 为二进制记法下的 `midpoint +/- radius`，`mpe` 表示 $m \\cdot 2^{e}$）："
 
 #: manual/api/interval_checked.md:48
-msgid "`IntervalResult` is either a successful `Interval` or an `ArithmeticError`."
-msgstr "`IntervalResult` 要么是成功的 `Interval`，要么是 `ArithmeticError`。"
+msgid "`IntervalChecked` is either a successful `Interval` or an `ArithmeticError`."
+msgstr "`IntervalChecked` 要么是成功的 `Interval`，要么是 `ArithmeticError`。"
 
 #: manual/api/interval_checked.md:56
 msgid "The single private field holds a `Result[@interval.Interval, @arithmetic.ArithmeticError]`. The type has no `Eq` or `Show`; use `result()`."
@@ -8157,16 +8157,16 @@ msgid "These methods are `map` of the `Interval` integer functions of Table 9.1 
 msgstr "这些方法是表 9.1 中 `Interval` 整数函数的 `map`（见 [`interval` 页面](interval.md#intervalsign-intervalceil-intervalfloor-intervaltrunc-intervalround_ties_to_even-intervalround_ties_to_away)）。它们是精确的，不会失败。"
 
 #: manual/api/interval_checked.md:264
-msgid "`IntervalResult::sqr_rev`, `IntervalResult::abs_rev`, `IntervalResult::pown_rev` and `IntervalResult::cosh_rev`"
-msgstr "`IntervalResult::sqr_rev`、`IntervalResult::abs_rev`、`IntervalResult::pown_rev` 与 `IntervalResult::cosh_rev`"
+msgid "`IntervalChecked::sqr_rev`, `IntervalChecked::abs_rev`, `IntervalChecked::pown_rev` and `IntervalChecked::cosh_rev`"
+msgstr "`IntervalChecked::sqr_rev`、`IntervalChecked::abs_rev`、`IntervalChecked::pown_rev` 与 `IntervalChecked::cosh_rev`"
 
 #: manual/api/interval_checked.md:266
 msgid "These methods apply the `Interval` method of the same name to the interval part (see the [`interval` page](interval.md#intervalsqr_rev-intervalabs_rev-intervalpown_rev-and-intervalcosh_rev)). They cannot fail themselves; an earlier failure in the receiver or in the optional prior is passed on."
 msgstr "这些方法对区间部分应用同名的 `Interval` 方法（见 [`interval` 页面](interval.md#intervalsqr_rev-intervalabs_rev-intervalpown_rev-and-intervalcosh_rev)）。它们自身不会失败；接收者或可选先验中先前的失败会被传递。"
 
 #: manual/api/interval_checked.md:278
-msgid "`IntervalResult::sin_rev`, `IntervalResult::cos_rev` and `IntervalResult::tan_rev`"
-msgstr "`IntervalResult::sin_rev`、`IntervalResult::cos_rev` 与 `IntervalResult::tan_rev`"
+msgid "`IntervalChecked::sin_rev`, `IntervalChecked::cos_rev` and `IntervalChecked::tan_rev`"
+msgstr "`IntervalChecked::sin_rev`、`IntervalChecked::cos_rev` 与 `IntervalChecked::tan_rev`"
 
 #: manual/api/interval_checked.md:280
 msgid "These methods apply the `Interval` method of the same name to the interval part (see the [`interval` page](interval.md#intervalsin_rev-intervalcos_rev-and-intervaltan_rev)). They cannot fail themselves; an earlier failure in the receiver or in the optional prior is passed on."
@@ -8181,8 +8181,8 @@ msgid "`Interval::pow_rev2` on the interval parts (see the [`interval` page](int
 msgstr "区间部分上的 `Interval::pow_rev2`（参见 [`interval` 页面](interval.md#intervalpow_rev2)）。它本身不会失败；接收者、`c` 或可选先验区间中先前的失败会被传递下去。"
 
 #: manual/api/interval_checked.md:309
-msgid "`IntervalResult::atan2_rev1` and `IntervalResult::atan2_rev2`"
-msgstr "`IntervalResult::atan2_rev1` 与 `IntervalResult::atan2_rev2`"
+msgid "`IntervalChecked::atan2_rev1` and `IntervalChecked::atan2_rev2`"
+msgstr "`IntervalChecked::atan2_rev1` 与 `IntervalChecked::atan2_rev2`"
 
 #: manual/api/interval_checked.md:311
 msgid "`Interval::atan2_rev1` and `Interval::atan2_rev2` on the interval parts (see the [`interval` page](interval.md#intervalatan2_rev1-and-intervalatan2_rev2)). They cannot fail themselves; an earlier failure in the receiver, in `c` or in the optional prior is passed on."
@@ -8193,8 +8193,8 @@ msgid "`Interval::from_string` (see the [`interval` page](interval.md#intervalfr
 msgstr "区间部分上的 `Interval::from_string`（参见 [`interval` 页面](interval.md#intervalfrom_string-and-decoratedintervalfrom_string)），写成结果：失败的调用就是该结果的失败。"
 
 #: manual/api/interval_checked.md:327
-msgid "`IntervalResult::mul_rev` and `IntervalResult::mul_rev_to_pair`"
-msgstr "`IntervalResult::mul_rev` 与 `IntervalResult::mul_rev_to_pair`"
+msgid "`IntervalChecked::mul_rev` and `IntervalChecked::mul_rev_to_pair`"
+msgstr "`IntervalChecked::mul_rev` 与 `IntervalChecked::mul_rev_to_pair`"
 
 #: manual/api/interval_checked.md:329
 msgid "These methods apply `Interval::mul_rev` and `Interval::mul_rev_to_pair` to the interval parts (see the [`interval` page](interval.md#intervalmul_rev_to_pair-and-intervalmul_rev)). They cannot fail themselves; an earlier failure in an input is passed on, and for `mul_rev_to_pair` both outputs carry it. `x` is optional."
@@ -8245,8 +8245,8 @@ msgid "Each method is `bind` of `Interval::try_<name>_interval` at the interval'
 msgstr "每个方法都是以区间精度对 `Interval::try_<name>_interval` 进行 `bind`。结果 $Y$ 满足 $f(X \\cap \\operatorname{dom} f) \\subseteq Y$；$X$ 中位于定义域之外的部分被忽略，因此 $\\ln([-1, 1]) = [-\\infty, 0]$，而 $\\ln([-2, -2])$ 为空。唯一的错误是无法认证包络时的 `CertificationFailure`，例如 $2^{8000000}$ 的余弦（原因为 `ResourceLimit`）。没有上下文变体；精度通过 `with_precision` 设置。"
 
 #: manual/api/interval_checked.md:515
-msgid "`Add`, `Sub`, `Mul`, `Div`, `Neg` for `IntervalResult`"
-msgstr "`IntervalResult` 的 `Add`、`Sub`、`Mul`、`Div`、`Neg`"
+msgid "`Add`, `Sub`, `Mul`, `Div`, `Neg` for `IntervalChecked`"
+msgstr "`IntervalChecked` 的 `Add`、`Sub`、`Mul`、`Div`、`Neg`"
 
 #: manual/api/numeric_expr.md:1
 msgid "numeric_expr API"
@@ -8842,8 +8842,8 @@ msgid "`Binary`, `Decimal` and GDA `Decimal` implement the contextual traits of 
 msgstr "`Binary`、`Decimal` 和 GDA `Decimal` 实现了 `Luna-Flow/arithmetic` 的 contextual trait（`AddContextual`、…、`ExpContextual`），因此泛型代码可以在同一个 `ArithmeticContext` 下运行这三者；`BinaryContext::from_arithmetic_context` 及其十进制对应函数会携带该上下文的精度、舍入方式、指数界和 clamp。"
 
 #: manual/architecture.md:219
-msgid "`BinaryChecked` and `IntervalResult` keep the first `ArithmeticError`."
-msgstr "`BinaryChecked` 和 `IntervalResult` 保留第一个 `ArithmeticError`。"
+msgid "`BinaryChecked` and `IntervalChecked` keep the first `ArithmeticError`."
+msgstr "`BinaryChecked` 和 `IntervalChecked` 保留第一个 `ArithmeticError`。"
 
 #: manual/architecture.md:220
 msgid "`DecimalChecked` keeps defined IEEE results, accumulates flags, and keeps certification errors separately."
@@ -19047,8 +19047,8 @@ msgid "interval_checked design"
 msgstr "interval_checked 设计"
 
 #: manual/design/interval_checked.md:5
-msgid "`interval_checked` lets an interval computation be written as one chain of operations in which construction mistakes and uncertifiable steps are explicit errors, while every successful value remains a rigorous enclosure. `IntervalResult` closes `Result[Interval, ArithmeticError]` under the operations of [`interval`](interval.md) and adds no interval algorithm. The [API page](../api/interval_checked.md) lists the operations and the [tutorial](../tutorial/interval_checked.md) shows pipelines in use."
-msgstr "`interval_checked` 使区间计算可以写成一条运算链，其中构造错误和无法认证的步骤都是显式错误，而每个成功的值仍是严格的包络。`IntervalResult` 使 `Result[Interval, ArithmeticError]` 在 [`interval`](interval.md) 的运算下封闭，且不添加任何区间算法。[API 页面](../api/interval_checked.md) 列出了这些运算，[教程](../tutorial/interval_checked.md) 展示了流水线的用法。"
+msgid "`interval_checked` lets an interval computation be written as one chain of operations in which construction mistakes and uncertifiable steps are explicit errors, while every successful value remains a rigorous enclosure. `IntervalChecked` closes `Result[Interval, ArithmeticError]` under the operations of [`interval`](interval.md) and adds no interval algorithm. The [API page](../api/interval_checked.md) lists the operations and the [tutorial](../tutorial/interval_checked.md) shows pipelines in use."
+msgstr "`interval_checked` 使区间计算可以写成一条运算链，其中构造错误和无法认证的步骤都是显式错误，而每个成功的值仍是严格的包络。`IntervalChecked` 使 `Result[Interval, ArithmeticError]` 在 [`interval`](interval.md) 的运算下封闭，且不添加任何区间算法。[API 页面](../api/interval_checked.md) 列出了这些运算，[教程](../tutorial/interval_checked.md) 展示了流水线的用法。"
 
 #: manual/design/interval_checked.md:15
 #: manual/numeric_semantics.md:429
@@ -19080,8 +19080,8 @@ msgid "The wrapper as an error monad"
 msgstr "作为错误单子的包装器"
 
 #: manual/design/interval_checked.md:48
-msgid "`IntervalResult` is the exception monad $M V = V + E$ with $V$ the set of `Interval` values and $E$ the set of `ArithmeticError` values, with $\\eta = $ `ok` and $\\mathbin{>\\!\\!>\\!\\!=} = $ `bind`. The laws (left and right identity, associativity) and the functor laws of `map` are proved in the [`binary_checked` design](binary_checked.md#the-monad-laws); the proof is a case analysis on $\\mathrm{Ok}/\\mathrm{Err}$ that does not use any property of $V$. The operators are lifted by the same left-biased scheme (`interval_result_lift2`), so the [first-error theorem](binary_checked.md#the-first-error-theorem) applies unchanged: an expression reports the error of the first originating node in post-order."
-msgstr "`IntervalResult` 是异常单子 $M V = V + E$，其中 $V$ 为 `Interval` 值的集合，$E$ 为 `ArithmeticError` 值的集合，$\\eta = $ `ok` 且 $\\mathbin{>\\!\\!>\\!\\!=} = $ `bind`。单子定律（左、右单位律与结合律）以及 `map` 的函子定律在 [`binary_checked` 设计](binary_checked.md#the-monad-laws) 中证明；该证明是对 $\\mathrm{Ok}/\\mathrm{Err}$ 的情形分析，不依赖 $V$ 的任何性质。运算符按相同的左偏方案提升（`ball_result_lift2`），因此[首错误定理](binary_checked.md#the-first-error-theorem)原样适用：表达式报告的是后序遍历中第一个产生错误的节点的错误。"
+msgid "`IntervalChecked` is the exception monad $M V = V + E$ with $V$ the set of `Interval` values and $E$ the set of `ArithmeticError` values, with $\\eta = $ `ok` and $\\mathbin{>\\!\\!>\\!\\!=} = $ `bind`. The laws (left and right identity, associativity) and the functor laws of `map` are proved in the [`binary_checked` design](binary_checked.md#the-monad-laws); the proof is a case analysis on $\\mathrm{Ok}/\\mathrm{Err}$ that does not use any property of $V$. The operators are lifted by the same left-biased scheme (`interval_result_lift2`), so the [first-error theorem](binary_checked.md#the-first-error-theorem) applies unchanged: an expression reports the error of the first originating node in post-order."
+msgstr "`IntervalChecked` 是异常单子 $M V = V + E$，其中 $V$ 为 `Interval` 值的集合，$E$ 为 `ArithmeticError` 值的集合，$\\eta = $ `ok` 且 $\\mathbin{>\\!\\!>\\!\\!=} = $ `bind`。单子定律（左、右单位律与结合律）以及 `map` 的函子定律在 [`binary_checked` 设计](binary_checked.md#the-monad-laws) 中证明；该证明是对 $\\mathrm{Ok}/\\mathrm{Err}$ 的情形分析，不依赖 $V$ 的任何性质。运算符按相同的左偏方案提升（`ball_result_lift2`），因此[首错误定理](binary_checked.md#the-first-error-theorem)原样适用：表达式报告的是后序遍历中第一个产生错误的节点的错误。"
 
 #: manual/design/interval_checked.md:62
 msgid "What is an error and what is a value"
@@ -19157,8 +19157,8 @@ msgid "Powers go through the arithmetic traits"
 msgstr "幂通过 arithmetic trait 计算"
 
 #: manual/design/interval_checked.md:100
-msgid "`pown` calls `PowIntChecked::pow_int_checked` of Luna-Flow/arithmetic with `ArithmeticContext::new(x.precision())`. `Interval` reads only the precision from the context (rounding direction and exponent bounds have no meaning for an outward-rounded enclosure) and re-rounds the base and the result with `with_precision`, which is sound but can add one ulp per side. The two traits `Interval` implements, `PowIntChecked` and `PowNatChecked`, are implemented differently, and only one of them avoids the *dependency problem* (`IntervalResult` offers only `pown`; `PowNatChecked` is reached through `Interval::pow_nat_checked`). $X \\cdot X$ treats the two factors as independent, so for $X = [-1, 1]$ it gives $[-1, 1]$, whereas $\\{t^2 : t \\in X\\} = [0, 1]$. `pown` uses `Interval::pown`, which evaluates $t \\mapsto t^n$ on the monotone pieces of one variable $t$ and returns $[0, 1]$. `pow_nat_checked` uses binary powering, $X^{n} = X^{\\lfloor n/2 \\rfloor} \\cdot X^{\\lfloor n/2 \\rfloor} \\cdot X^{n \\bmod 2}$ evaluated with interval products, so it encloses the larger set $\\{t_1 t_2 \\cdots t_n : t_i \\in X\\}$ and returns $[-1, 1]$; both are enclosures of $\\{t^n\\}$, but only `pown` is tight. `pow_nat_checked(0)` starts from $\\{1\\}$ without inspecting the base, so it maps an empty interval to $\\{1\\}$."
-msgstr "`pown` 以 `ArithmeticContext::new(x.precision())` 调用 Luna-Flow/arithmetic 的 `PowIntChecked::pow_int_checked`。`Interval` 只从上下文中读取精度（舍入方向和指数界对向外舍入的包络没有意义），并用 `with_precision` 对底数和结果重新舍入，这是可靠的，但可能使每侧多出一个 ulp。`Interval` 实现的两个 trait `PowIntChecked` 和 `PowNatChecked` 的实现方式不同，只有其中一个避免了*依赖问题*（`IntervalResult` 只提供 `pown`；`PowNatChecked` 通过 `Interval::pow_nat_checked` 使用）。$X \\cdot X$ 把两个因子视为独立的，因此对 $X = [-1, 1]$ 给出 $[-1, 1]$，而 $\\{t^2 : t \\in X\\} = [0, 1]$。`pown` 使用 `Interval::pown`，它在单个变量 $t$ 的各单调分段上计算 $t \\mapsto t^n$，返回 $[0, 1]$。`pow_nat_checked` 使用二进制求幂 $X^{n} = X^{\\lfloor n/2 \\rfloor} \\cdot X^{\\lfloor n/2 \\rfloor} \\cdot X^{n \\bmod 2}$，以区间乘积求值，因此它包络的是更大的集合 $\\{t_1 t_2 \\cdots t_n : t_i \\in X\\}$，返回 $[-1, 1]$；两者都是 $\\{t^n\\}$ 的包络，但只有 `pown` 是紧致的。`pow_nat_checked(0)` 从 $\\{1\\}$ 开始而不检查底数，因此它把空区间映射为 $\\{1\\}$。"
+msgid "`pown` calls `PowIntChecked::pow_int_checked` of Luna-Flow/arithmetic with `ArithmeticContext::new(x.precision())`. `Interval` reads only the precision from the context (rounding direction and exponent bounds have no meaning for an outward-rounded enclosure) and re-rounds the base and the result with `with_precision`, which is sound but can add one ulp per side. The two traits `Interval` implements, `PowIntChecked` and `PowNatChecked`, are implemented differently, and only one of them avoids the *dependency problem* (`IntervalChecked` offers only `pown`; `PowNatChecked` is reached through `Interval::pow_nat_checked`). $X \\cdot X$ treats the two factors as independent, so for $X = [-1, 1]$ it gives $[-1, 1]$, whereas $\\{t^2 : t \\in X\\} = [0, 1]$. `pown` uses `Interval::pown`, which evaluates $t \\mapsto t^n$ on the monotone pieces of one variable $t$ and returns $[0, 1]$. `pow_nat_checked` uses binary powering, $X^{n} = X^{\\lfloor n/2 \\rfloor} \\cdot X^{\\lfloor n/2 \\rfloor} \\cdot X^{n \\bmod 2}$ evaluated with interval products, so it encloses the larger set $\\{t_1 t_2 \\cdots t_n : t_i \\in X\\}$ and returns $[-1, 1]$; both are enclosures of $\\{t^n\\}$, but only `pown` is tight. `pow_nat_checked(0)` starts from $\\{1\\}$ without inspecting the base, so it maps an empty interval to $\\{1\\}$."
+msgstr "`pown` 以 `ArithmeticContext::new(x.precision())` 调用 Luna-Flow/arithmetic 的 `PowIntChecked::pow_int_checked`。`Interval` 只从上下文中读取精度（舍入方向和指数界对向外舍入的包络没有意义），并用 `with_precision` 对底数和结果重新舍入，这是可靠的，但可能使每侧多出一个 ulp。`Interval` 实现的两个 trait `PowIntChecked` 和 `PowNatChecked` 的实现方式不同，只有其中一个避免了*依赖问题*（`IntervalChecked` 只提供 `pown`；`PowNatChecked` 通过 `Interval::pow_nat_checked` 使用）。$X \\cdot X$ 把两个因子视为独立的，因此对 $X = [-1, 1]$ 给出 $[-1, 1]$，而 $\\{t^2 : t \\in X\\} = [0, 1]$。`pown` 使用 `Interval::pown`，它在单个变量 $t$ 的各单调分段上计算 $t \\mapsto t^n$，返回 $[0, 1]$。`pow_nat_checked` 使用二进制求幂 $X^{n} = X^{\\lfloor n/2 \\rfloor} \\cdot X^{\\lfloor n/2 \\rfloor} \\cdot X^{n \\bmod 2}$，以区间乘积求值，因此它包络的是更大的集合 $\\{t_1 t_2 \\cdots t_n : t_i \\in X\\}$，返回 $[-1, 1]$；两者都是 $\\{t^n\\}$ 的包络，但只有 `pown` 是紧致的。`pow_nat_checked(0)` 从 $\\{1\\}$ 开始而不检查底数，因此它把空区间映射为 $\\{1\\}$。"
 
 #: manual/design/interval_checked.md:119
 msgid "No decorations and no flags"
@@ -19749,8 +19749,8 @@ msgid "`GdaOutcome[T]`, which keeps the GDA-defined result even when a trap fire
 msgstr "`GdaOutcome[T]`，即使触发陷阱也保留 GDA 定义的结果。"
 
 #: manual/getting_started.md:158
-msgid "The pipeline wrappers: `BinaryChecked` and `IntervalResult` stop at the first error; `DecimalChecked` keeps defined NaN and infinity results and accumulates flags; `GdaDecimalChecked` stops at a trap and keeps its outcome."
-msgstr "流水线包装器：`BinaryChecked` 和 `IntervalResult` 在首个错误处停止；`DecimalChecked` 保留有定义的 NaN 与无穷大结果并累积标志；`GdaDecimalChecked` 在陷阱处停止并保留其结果。"
+msgid "The pipeline wrappers: `BinaryChecked` and `IntervalChecked` stop at the first error; `DecimalChecked` keeps defined NaN and infinity results and accumulates flags; `GdaDecimalChecked` stops at a trap and keeps its outcome."
+msgstr "流水线包装器：`BinaryChecked` 和 `IntervalChecked` 在首个错误处停止；`DecimalChecked` 保留有定义的 NaN 与无穷大结果并累积标志；`GdaDecimalChecked` 在陷阱处停止并保留其结果。"
 
 #: manual/getting_started.md:162
 msgid "Empty, Entire and NaI, which are interval values, not errors."
@@ -20648,8 +20648,8 @@ msgid "Pipelines and shared vocabulary"
 msgstr "流水线与共享词汇"
 
 #: manual/index.md:183
-msgid "Checked wrappers: `BinaryChecked`, `DecimalChecked`, `GdaDecimalChecked`, `IntervalResult`"
-msgstr "checked 包装器：`BinaryChecked`、`DecimalChecked`、`GdaDecimalChecked`、`IntervalResult`"
+msgid "Checked wrappers: `BinaryChecked`, `DecimalChecked`, `GdaDecimalChecked`, `IntervalChecked`"
+msgstr "checked 包装器：`BinaryChecked`、`DecimalChecked`、`GdaDecimalChecked`、`IntervalChecked`"
 
 #: manual/index.md:185
 msgid "`def`: `Sign`, `PartialOrder`, the `Floating` trait, `is_finite`, `is_infinite`, `is_nan`, `is_zero`, and the re-exported `RoundingMode`, `ArithmeticContext` and `ArithmeticError` of `Luna-Flow/arithmetic`"
@@ -20980,8 +20980,8 @@ msgid "Checked errors"
 msgstr "checked 错误"
 
 #: manual/numeric_semantics.md:416
-msgid "An `ArithmeticError` (re-exported by `def`) has a kind: `DivisionByZero`, `ParseError`, `DomainError`, `FormatError`, `UnsupportedOperation`, `UnorderedComparison` or `CertificationFailure`. It is used where the checked contract has no value to return: `div_checked` by zero, `sqrt` of a negative number, `compare_checked` with a NaN, a malformed literal. `BinaryChecked` and `IntervalResult` keep the first error and skip the remaining steps."
-msgstr "`ArithmeticError`（由 `def` 重新导出）具有一个种类：`DivisionByZero`、`ParseError`、`DomainError`、`FormatError`、`UnsupportedOperation`、`UnorderedComparison` 或 `CertificationFailure`。它用于 checked 契约无值可返回的情形：`div_checked` 除以零、对负数求 `sqrt`、`compare_checked` 遇到 NaN、字面量格式错误。`BinaryChecked` 与 `IntervalResult` 保留第一个错误并跳过其余步骤。"
+msgid "An `ArithmeticError` (re-exported by `def`) has a kind: `DivisionByZero`, `ParseError`, `DomainError`, `FormatError`, `UnsupportedOperation`, `UnorderedComparison` or `CertificationFailure`. It is used where the checked contract has no value to return: `div_checked` by zero, `sqrt` of a negative number, `compare_checked` with a NaN, a malformed literal. `BinaryChecked` and `IntervalChecked` keep the first error and skip the remaining steps."
+msgstr "`ArithmeticError`（由 `def` 重新导出）具有一个种类：`DivisionByZero`、`ParseError`、`DomainError`、`FormatError`、`UnsupportedOperation`、`UnorderedComparison` 或 `CertificationFailure`。它用于 checked 契约无值可返回的情形：`div_checked` 除以零、对负数求 `sqrt`、`compare_checked` 遇到 NaN、字面量格式错误。`BinaryChecked` 与 `IntervalChecked` 保留第一个错误并跳过其余步骤。"
 
 #: manual/numeric_semantics.md:423
 msgid "The elementary functions have both forms. A `try_*_ctx` function returns `Err` with a `CertificationFailure` detail if the certified refinement cannot decide the rounding within its budget. The non-`try` forms never abort: the binary ones return a quiet NaN with *invalid operation*, and the decimal and GDA ones return their invalid result so that flags and traps apply as usual."
@@ -27542,8 +27542,8 @@ msgid "interval_checked tutorial"
 msgstr "interval_checked 教程"
 
 #: manual/tutorial/interval_checked.md:3
-msgid "This tutorial shows how to run an interval computation in which invalid input and uncertifiable steps are reported as errors while every valid result stays a guaranteed enclosure: you build intervals with validating constructors, chain interval arithmetic and elementary functions in an `IntervalResult`, add your own checks with `bind`, and read the outcome once. The arithmetic comes from [`interval`](interval.md); the [design page](../design/interval_checked.md) explains which outcomes are errors; the [API reference](../api/interval_checked.md) lists every method."
-msgstr "本教程展示如何运行这样一种区间计算：无效输入和无法认证的步骤会作为错误报告，而每个有效结果仍是有保证的包络。你将用带验证的构造器构造区间，在 `IntervalResult` 中串联区间算术和初等函数，用 `bind` 加入自己的检查，并在最后一次性读取结果。算术来自 [`interval`](interval.md)；[设计页面](../design/interval_checked.md)解释了哪些结果属于错误；[API 参考](../api/interval_checked.md)列出了所有方法。"
+msgid "This tutorial shows how to run an interval computation in which invalid input and uncertifiable steps are reported as errors while every valid result stays a guaranteed enclosure: you build intervals with validating constructors, chain interval arithmetic and elementary functions in an `IntervalChecked`, add your own checks with `bind`, and read the outcome once. The arithmetic comes from [`interval`](interval.md); the [design page](../design/interval_checked.md) explains which outcomes are errors; the [API reference](../api/interval_checked.md) lists every method."
+msgstr "本教程展示如何运行这样一种区间计算：无效输入和无法认证的步骤会作为错误报告，而每个有效结果仍是有保证的包络。你将用带验证的构造器构造区间，在 `IntervalChecked` 中串联区间算术和初等函数，用 `bind` 加入自己的检查，并在最后一次性读取结果。算术来自 [`interval`](interval.md)；[设计页面](../design/interval_checked.md)解释了哪些结果属于错误；[API 参考](../api/interval_checked.md)列出了所有方法。"
 
 #: manual/tutorial/interval_checked.md:14
 msgid "build an enclosure from untrusted bounds or a `Double`"
@@ -27558,8 +27558,8 @@ msgid "push uncertain inputs through a formula"
 msgstr "让不确定的输入流经一个公式"
 
 #: manual/tutorial/interval_checked.md:15
-msgid "`+ - * /` on `IntervalResult` ([Propagate uncertainty](#propagate-uncertainty-through-a-formula))"
-msgstr "`IntervalResult` 上的 `+ - * /`（[传播不确定性](#propagate-uncertainty-through-a-formula)）"
+msgid "`+ - * /` on `IntervalChecked` ([Propagate uncertainty](#propagate-uncertainty-through-a-formula))"
+msgstr "`IntervalChecked` 上的 `+ - * /`（[传播不确定性](#propagate-uncertainty-through-a-formula)）"
 
 #: manual/tutorial/interval_checked.md:16
 msgid "treat an empty or unbounded result as a success or as a failure"
@@ -32728,8 +32728,8 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路
 #~ msgid "`Interval` currently implements:"
 #~ msgstr "`Interval` 当前实现了："
 
-#~ msgid "`IntervalResult` wraps `Result[Interval, ArithmeticError]` while preserving interval semantics."
-#~ msgstr "`IntervalResult` 包装 `Result[Interval, ArithmeticError]`，同时保留区间语义。"
+#~ msgid "`IntervalChecked` wraps `Result[Interval, ArithmeticError]` while preserving interval semantics."
+#~ msgstr "`IntervalChecked` 包装 `Result[Interval, ArithmeticError]`，同时保留区间语义。"
 
 #~ msgid "`ok`, `err`, `from_result`, and `result` bridge raw results. `exact`, `from_bounds`, `whole`, `from_int`, `from_coefficient`, `from_float`, and `from_double` construct wrapped intervals. Invalid bounds become `Err`."
 #~ msgstr "`ok`、`err`、`from_result`、`result` 连接原始结果；`exact`、`from_bounds`、`whole` 及各类 `from_*` 构造包装区间。非法边界返回 `Err`。"
@@ -32737,7 +32737,7 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路
 #~ msgid "Composition And Arithmetic"
 #~ msgstr "组合与算术"
 
-#~ msgid "`map`, `bind`, and `flat_map` short-circuit existing errors. `abs`, `neg`, `add`, `sub`, `mul`, `div`, `pow_nat`, `pow_int`, `normalized`, and `with_precision` return `IntervalResult`; standard arithmetic operators are implemented."
+#~ msgid "`map`, `bind`, and `flat_map` short-circuit existing errors. `abs`, `neg`, `add`, `sub`, `mul`, `div`, `pow_nat`, `pow_int`, `normalized`, and `with_precision` return `IntervalChecked`; standard arithmetic operators are implemented."
 #~ msgstr "`map`、`bind`、`flat_map` 会短路已有错误。绝对值、取负、四则运算、整数幂、规范化与精度调整均返回 `Self`，并实现标准运算符。"
 
 #~ msgid "Division by an interval containing zero follows `Interval` semantics and returns the whole-real enclosure. It is not converted into `Err`."
@@ -33433,8 +33433,8 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路
 #~ msgid "[`binary` design](binary.md) owns endpoint kernels and coefficient dispatch; [`binary` performance](../performance/binary.md) owns their crossover evidence."
 #~ msgstr "[`binary` Design](binary.md) 与 [Performance](../performance/binary.md) 拥有 endpoint kernel 与 crossover 证据。"
 
-#~ msgid "`IntervalResult` closes checked interval construction and arithmetic over `Result[Interval, ArithmeticError]`. Invalid bounds, non-finite exact sources, and checked arithmetic failures enter the error branch; later methods short-circuit. `bind` may introduce a failure and `map` cannot."
-#~ msgstr "`IntervalResult` 封闭 checked 区间构造与算术。非法端点、非有限 exact 来源和 checked 运算失败进入错误分支并短路。"
+#~ msgid "`IntervalChecked` closes checked interval construction and arithmetic over `Result[Interval, ArithmeticError]`. Invalid bounds, non-finite exact sources, and checked arithmetic failures enter the error branch; later methods short-circuit. `bind` may introduce a failure and `map` cannot."
+#~ msgstr "`IntervalChecked` 封闭 checked 区间构造与算术。非法端点、非有限 exact 来源和 checked 运算失败进入错误分支并短路。"
 
 #~ msgid "The wrapper neither stores decorations nor `IntervalFlags`, and it does not add an interval algorithm. Bare set arithmetic is delegated to `interval`; decorated operations and context status remain explicit APIs there. Conservative interval results such as Entire are valid successes, not wrapper errors."
 #~ msgstr "它不存 decoration 或 `IntervalFlags`，也不新增区间算法；bare set、decorated operation 与 context status 均由 `interval` 负责。Entire 等保守包络是合法成功值，不是 wrapper error。"
@@ -34039,8 +34039,8 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路
 #~ msgid "Containment, subset, overlap, disjointness, and definite comparison replace scalar total ordering. Division by an interval containing zero can validly produce Entire. A conservative enclosure is a successful value even when it is not tight."
 #~ msgstr "包含、subset、overlap、disjointness 与 definite comparison 取代标量全序。除以含零区间可以合法地产生 Entire。保守包络即使不 tight，也仍是成功值。"
 
-#~ msgid "Decorations record how strongly the result satisfies continuity/domain conditions. They are not scalar flags and are not stored by `IntervalResult`."
-#~ msgstr "Decoration 记录结果满足连续性/定义域条件的强度，不是标量 flags，也不由 `IntervalResult` 保存。"
+#~ msgid "Decorations record how strongly the result satisfies continuity/domain conditions. They are not scalar flags and are not stored by `IntervalChecked`."
+#~ msgstr "Decoration 记录结果满足连续性/定义域条件的强度，不是标量 flags，也不由 `IntervalChecked` 保存。"
 
 #~ msgid "Conversion And Projection"
 #~ msgstr "转换与投影"
@@ -34198,8 +34198,8 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路
 #~ msgid "[`interval_checked` tutorial](interval_checked.md) shows first-error construction and composition."
 #~ msgstr "[Design](../design/interval.md)、[Conformance](../conformance/interval.md) 与 [`interval_checked`](interval_checked.md)。"
 
-#~ msgid "`IntervalResult` keeps `Result[Interval, ArithmeticError]` inside a fluent pipeline. Use it when invalid bounds, non-finite exact construction, or a checked elementary proof failure should stop later interval operations."
-#~ msgstr "`IntervalResult` 将 `Result[Interval, ArithmeticError]` 保留在 fluent pipeline 中。非法 bounds、非有限 exact source 或 checked elementary proof failure 会停止后续操作。"
+#~ msgid "`IntervalChecked` keeps `Result[Interval, ArithmeticError]` inside a fluent pipeline. Use it when invalid bounds, non-finite exact construction, or a checked elementary proof failure should stop later interval operations."
+#~ msgstr "`IntervalChecked` 将 `Result[Interval, ArithmeticError]` 保留在 fluent pipeline 中。非法 bounds、非有限 exact source 或 checked elementary proof failure 会停止后续操作。"
 
 #~ msgid "Validate Construction Once"
 #~ msgstr "一次验证构造"
@@ -34216,7 +34216,7 @@ msgstr "issue [#22](https://github.com/Luna-Flow/floating/issues/22)；整体路
 #~ msgid "Decorations And Flags Stay Explicit"
 #~ msgstr "Decoration 与 Flags 保持显式"
 
-#~ msgid "`IntervalResult` stores bare intervals only. It does not retain `DecoratedInterval` state or `IntervalFlags`. Use raw `interval` APIs when decoration, NaI, inexact, overflow, or underflow is part of the result contract."
+#~ msgid "`IntervalChecked` stores bare intervals only. It does not retain `DecoratedInterval` state or `IntervalFlags`. Use raw `interval` APIs when decoration, NaI, inexact, overflow, or underflow is part of the result contract."
 #~ msgstr "Wrapper 只存 bare interval，不保留 `DecoratedInterval` 或 `IntervalFlags`。契约包含 decoration、NaI、inexact、overflow、underflow 时使用 raw `interval` API。"
 
 #~ msgid "Use the wrapper to validate untrusted construction and retain first failure."

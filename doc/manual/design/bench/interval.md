@@ -32,7 +32,7 @@ estimators, the pairing and the bootstrap interval are derived in the
 
 | Case | Datasets | Implementations | Protocol |
 | --- | --- | --- | --- |
-| `interval/add`, `interval/mul`, `interval/div` | 53, 128, 512, 2048 bits | `kernel/binary` (`Binary`), `core/interval` (`Interval`), `full/checked` (`IntervalResult`) | `Development` |
+| `interval/add`, `interval/mul`, `interval/div` | 53, 128, 512, 2048 bits | `kernel/binary` (`Binary`), `core/interval` (`Interval`), `full/checked` (`IntervalChecked`) | `Development` |
 
 Inputs are exact singleton intervals built from fixed bit patterns; the precision is the sum of the operand bit lengths plus 4 and the `div` dividend is the product of the patterns, so every result is exact and every interval result must stay a singleton.
 

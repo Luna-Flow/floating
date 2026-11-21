@@ -181,7 +181,7 @@ and their design pages state narrower stability promises.
 ### Pipelines and shared vocabulary
 
 - Checked wrappers: `BinaryChecked`, `DecimalChecked`, `GdaDecimalChecked`,
-  `IntervalResult`
+  `IntervalChecked`
 - `def`: `Sign`, `PartialOrder`, the `Floating` trait, `is_finite`,
   `is_infinite`, `is_nan`, `is_zero`, and the re-exported `RoundingMode`,
   `ArithmeticContext` and `ArithmeticError` of `Luna-Flow/arithmetic`

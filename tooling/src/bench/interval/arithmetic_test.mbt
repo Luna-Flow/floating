@@ -21,15 +21,15 @@ struct IntervalInput {
   right_binary : @binary.Binary
   left : @ivl.Interval
   right : @ivl.Interval
-  left_checked : @checked.IntervalResult
-  right_checked : @checked.IntervalResult
+  left_checked : @checked.IntervalChecked
+  right_checked : @checked.IntervalChecked
 }
 
 ///|
 enum IntervalOutput {
   BinaryKernel(@binary.Binary)
   Core(@ivl.Interval)
-  Checked(@checked.IntervalResult)
+  Checked(@checked.IntervalChecked)
 }
 
 ///|
@@ -70,8 +70,8 @@ fn interval_input(operation : IntervalOperation, bits : Int32) -> IntervalInput 
     right_binary,
     left: @ivl.Interval::exact(left_binary, precision~),
     right: @ivl.Interval::exact(right_binary, precision~),
-    left_checked: @checked.IntervalResult::exact(left_binary, precision~),
-    right_checked: @checked.IntervalResult::exact(right_binary, precision~),
+    left_checked: @checked.IntervalChecked::exact(left_binary, precision~),
+    right_checked: @checked.IntervalChecked::exact(right_binary, precision~),
   }
 }
 

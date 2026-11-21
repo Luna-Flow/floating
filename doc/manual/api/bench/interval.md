@@ -31,7 +31,7 @@ import {
 
 | Case | Datasets | Implementations | Protocol |
 | --- | --- | --- | --- |
-| `interval/add`, `interval/mul`, `interval/div` | 53, 128, 512, 2048 bits | `kernel/binary` (`Binary`), `core/interval` (`Interval`), `full/checked` (`IntervalResult`) | `Development` |
+| `interval/add`, `interval/mul`, `interval/div` | 53, 128, 512, 2048 bits | `kernel/binary` (`Binary`), `core/interval` (`Interval`), `full/checked` (`IntervalChecked`) | `Development` |
 
 Every specification has a plan test that runs in normal test runs and checks
 that it compiles (`interval benchmark plans compile`), and a performance test marked
