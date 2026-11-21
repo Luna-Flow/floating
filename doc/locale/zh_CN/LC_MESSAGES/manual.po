@@ -4634,7 +4634,7 @@ msgstr "这三者都不报告标志。"
 
 #: manual/api/decimal_gda.md:442
 msgid "A carry of the rounding at the top of the [implementation limit on the exponents of a stored value](#gda_value_e_max-gda_value_e_tiny) follows the Overflow rule (GDA 1.70, page 53 (Overflow)) with that limit as the largest adjusted exponent, so the result is never a finite value above the limit. For example, `9999E+2147483643` rounded to 2 digits is `inf` in the rounding algorithms that round away from zero or to nearest. In the algorithms that round toward zero it is `9.9E+2147483646`, the largest finite value of that width."
-msgstr "舍入产生的进位若越过[所存储值的指数的实现限制](#gda_value_e_max-gda_value_e_tiny)的上端，则遵循 Overflow 规则（GDA 1.70，第 53 页（Overflow）），并以该限制作为最大调整指数，因此结果绝不会是超过该限制的有限值。例如，`9999E+2147483643` 舍入到 2 位时，在远离零舍入和就近舍入的舍入算法下是 `inf`；在向零舍入的舍入算法下是 `9.9E+2147483646`，即该宽度下最大的有限值。"
+msgstr "舍入产生的进位若越过[所存储值的指数的实现限制](#gda_value_e_max-gda_value_e_tiny)的上端，则遵循 Overflow 规则（GDA 1.70，第 53 页（Overflow）），并以该限制作为最大调整后指数，因此结果绝不会是超过该限制的有限值。例如，`9999E+2147483643` 舍入到 2 位时，在远离零舍入和就近舍入的舍入算法下是 `inf`；在向零舍入的舍入算法下是 `9.9E+2147483646`，即该宽度下最大的有限值。"
 
 #: manual/api/decimal_gda.md:451
 msgid "`identical` tests whether two values are the same datum."
@@ -5667,7 +5667,7 @@ msgstr "`x + 0 == x` 和 `x * 1 == x` 成立，是因为相等比较的是值，
 
 #: manual/api/decimal_gda.md:1543
 msgid "[`GdaContext::new`](#gdacontextnew-gdacontexttry_new) cannot build the working exponent range. It limits $E_{\\max}$ of a context to at most $999{,}999{,}999$ and $E_{\\min}$ to at least $-999{,}999{,}999$ (GDA 1.70, page 10 (Abstract representation of numbers) allows a limit Elimit without giving a value), and the working range fills the `Int` range: the largest adjusted exponent is $2^{31}-2 = 2{,}147{,}483{,}646$ and the smallest exponent is $E_{\\mathrm{tiny}} = -2^{31}+3 = -2{,}147{,}483{,}645$ for every $P$, so $E_{\\mathrm{tiny}}$ is always a valid `Int` exponent. A result above the range is a signed infinity (`1E+1500000000 * 1E+1500000000` is `inf`); one below it is rounded with the half-even rounding algorithm to $E_{\\mathrm{tiny}}$, possibly to a signed zero."
-msgstr "[`GdaContext::new`](#gdacontextnew-gdacontexttry_new) 无法构造该工作指数范围。它把上下文的 $E_{\\max}$ 限制为至多 $999{,}999{,}999$，把 $E_{\\min}$ 限制为至少 $-999{,}999{,}999$（GDA 1.70，第 10 页（Abstract representation of numbers）允许设置上限 Elimit，但没有给出数值），而工作范围占满整个 `Int` 范围：对每个 $P$，最大调整指数为 $2^{31}-2 = 2{,}147{,}483{,}646$，最小指数为 $E_{\\mathrm{tiny}} = -2^{31}+3 = -2{,}147{,}483{,}645$，因此 $E_{\\mathrm{tiny}}$ 总是合法的 `Int` 指数。高于该范围的结果为带符号的无穷（`1E+1500000000 * 1E+1500000000` 为 `inf`）；低于该范围的结果按半值取偶舍入算法舍入到 $E_{\\mathrm{tiny}}$，可能得到带符号的零。"
+msgstr "[`GdaContext::new`](#gdacontextnew-gdacontexttry_new) 无法构造该工作指数范围。它把上下文的 $E_{\\max}$ 限制为至多 $999{,}999{,}999$，把 $E_{\\min}$ 限制为至少 $-999{,}999{,}999$（GDA 1.70，第 10 页（Abstract representation of numbers）允许设置上限 Elimit，但没有给出数值），而工作范围占满整个 `Int` 范围：对每个 $P$，最大调整后指数为 $2^{31}-2 = 2{,}147{,}483{,}646$，最小指数为 $E_{\\mathrm{tiny}} = -2^{31}+3 = -2{,}147{,}483{,}645$，因此 $E_{\\mathrm{tiny}}$ 总是合法的 `Int` 指数。高于该范围的结果为带符号的无穷（`1E+1500000000 * 1E+1500000000` 为 `inf`）；低于该范围的结果按半值取偶舍入算法舍入到 $E_{\\mathrm{tiny}}$，可能得到带符号的零。"
 
 #: manual/api/decimal_gda.md:1552
 msgid "Special values follow the default results of IEEE 754-2019 6.2 (operations with NaNs), 7.2 (invalid operation) and 7.3 (division by zero), without signals:"
