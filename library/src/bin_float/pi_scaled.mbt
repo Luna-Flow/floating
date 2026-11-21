@@ -308,12 +308,7 @@ fn BinFloat::try_pi_scaled_ctx(
           },
         ),
       )
-    FpClass::Infinity =>
-      Err(
-        @def.ArithmeticError::domain_error(
-          "pi-scaled trigonometric input is not finite",
-        ),
-      )
+    FpClass::Infinity => Ok(binary_invalid_value(context))
     FpClass::Finite => {
       match binary_pi_scaled_exact(self, operation, context) {
         Some(result) => return Ok(result)

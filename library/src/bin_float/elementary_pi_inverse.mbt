@@ -122,13 +122,13 @@ pub fn BinFloat::try_asinpi_ctx(
     None => ()
   }
   if self.classify() == FpClass::Infinity {
-    return binary_invalid_domain("asinpi requires an input in [-1, 1]")
+    return Ok(binary_invalid_value(context))
   }
   let comparison = self
     .abs()
     .compare(BinFloat::one_raw(precision=self.precision()))
   if comparison > 0 {
-    return binary_invalid_domain("asinpi requires an input in [-1, 1]")
+    return Ok(binary_invalid_value(context))
   }
   // f(±0) = ±0 with no exception.
   if self.is_zero() {
@@ -171,13 +171,13 @@ pub fn BinFloat::try_acospi_ctx(
     None => ()
   }
   if self.classify() == FpClass::Infinity {
-    return binary_invalid_domain("acospi requires an input in [-1, 1]")
+    return Ok(binary_invalid_value(context))
   }
   let comparison = self
     .abs()
     .compare(BinFloat::one_raw(precision=self.precision()))
   if comparison > 0 {
-    return binary_invalid_domain("acospi requires an input in [-1, 1]")
+    return Ok(binary_invalid_value(context))
   }
   // acosPi(1) = +0, acosPi(-1) = 1, acosPi(±0) = 1/2: exact constants.
   if comparison == 0 {

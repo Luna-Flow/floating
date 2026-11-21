@@ -1617,10 +1617,12 @@ argument for the value and the flags.
 When the attempts run out, `try_f_ctx` returns a `certification_failure`
 error whose `CertificationFailureDetail` names the operation, the stage
 (`RangeReduction` or `TargetRounding`), the reason and the last working
-precision. An argument outside the real domain of `ln`, `log2`, `log10`, `log1p`, `log2p1`
-and `log10p1` is a value of `try_f_ctx`, a NaN with `invalid_operation`, as it is
-for the plain form; the other functions still give a `domain_error` from
-`try_f_ctx` (S4 is making each family a value). The non-`try` forms turn a certification failure into a quiet NaN
+precision. An argument outside the real domain of `ln`, `log2`, `log10`, `log1p`, `log2p1`,
+`log10p1`, `asin`, `acos`, `acosh`, `atanh`, `asinpi` and `acospi`, and an infinite
+argument of the trigonometric functions (`sin`, `cos`, `tan`, `sinpi`, `cospi`,
+`tanpi`), is a value of `try_f_ctx`, a NaN with `invalid_operation`, as it is for the
+plain form; `rootn`, `pow`, `powr`, `rsqrt` and `compound` still give a
+`domain_error` from `try_f_ctx` (S4 is making each family a value). The non-`try` forms turn a certification failure into a quiet NaN
 with `not_computed` and a domain error into a quiet NaN with
 `invalid_operation`. NaN operands propagate quietly (a signaling NaN
 raises `invalid_operation`), and poles return a signed infinity with

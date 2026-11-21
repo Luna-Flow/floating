@@ -156,8 +156,9 @@ test "asinpi, acospi and atanpi special values" {
         pi_inf(false),
         pi_inf(true),
       ] {
-      assert_eq(asinpi(bad), "err")
-      assert_eq(acospi(bad), "err")
+      // S4: a domain case is a value in the try_ form (the NaN with invalid_operation)
+      assert_eq(asinpi(bad), "nan ---")
+      assert_eq(acospi(bad), "nan ---")
       let (value, flags) = bad.asinpi_ctx(ctx)
       assert_true(value.is_quiet_nan() && flags.invalid_operation())
       let (value, flags) = bad.acospi_ctx(ctx)

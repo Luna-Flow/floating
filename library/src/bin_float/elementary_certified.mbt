@@ -3758,12 +3758,7 @@ fn BinFloat::try_inverse_hyperbolic_ctx(
               BinaryFlags::new(),
             ),
           )
-        _ =>
-          Err(
-            @def.ArithmeticError::domain_error(
-              "inverse hyperbolic input is outside the real domain",
-            ),
-          )
+        _ => Ok(binary_invalid_value(context))
       }
     FpClass::Finite if self.is_zero() =>
       match operation {
@@ -3780,27 +3775,15 @@ fn BinFloat::try_inverse_hyperbolic_ctx(
             ),
           )
         BinaryInverseHyperbolicOperation::Acosh =>
-          Err(
-            @def.ArithmeticError::domain_error(
-              "acosh requires a value greater than or equal to one",
-            ),
-          )
+          Ok(binary_invalid_value(context))
       }
     FpClass::Finite => {
       let one = BinFloat::one_raw(precision=self.precision())
       match operation {
         BinaryInverseHyperbolicOperation::Acosh if self.compare(one) < 0 =>
-          return Err(
-            @def.ArithmeticError::domain_error(
-              "acosh requires a value greater than or equal to one",
-            ),
-          )
+          return Ok(binary_invalid_value(context))
         BinaryInverseHyperbolicOperation::Atanh if self.abs().compare(one) > 0 =>
-          return Err(
-            @def.ArithmeticError::domain_error(
-              "atanh requires an absolute value no greater than one",
-            ),
-          )
+          return Ok(binary_invalid_value(context))
         BinaryInverseHyperbolicOperation::Atanh if self.abs().compare(one) == 0 =>
           return Ok(
             (
@@ -4587,18 +4570,11 @@ pub fn BinFloat::try_asin_ctx(
           },
         ),
       )
-    FpClass::Infinity =>
-      Err(
-        @def.ArithmeticError::domain_error("asin requires an input in [-1, 1]"),
-      )
+    FpClass::Infinity => Ok(binary_invalid_value(context))
     FpClass::Finite => {
       let one = BinFloat::one_raw(precision=self.precision())
       if self.abs().compare(one) > 0 {
-        return Err(
-          @def.ArithmeticError::domain_error(
-            "asin requires an input in [-1, 1]",
-          ),
-        )
+        return Ok(binary_invalid_value(context))
       }
       if self.is_zero() {
         return Ok(self.round_ctx(context))
@@ -4726,17 +4702,10 @@ pub fn BinFloat::try_acos_ctx(
           },
         ),
       )
-    FpClass::Infinity =>
-      return Err(
-        @def.ArithmeticError::domain_error("acos requires an input in [-1, 1]"),
-      )
+    FpClass::Infinity => return Ok(binary_invalid_value(context))
     FpClass::Finite =>
       if self.abs().compare(BinFloat::one_raw(precision=self.precision())) > 0 {
-        return Err(
-          @def.ArithmeticError::domain_error(
-            "acos requires an input in [-1, 1]",
-          ),
-        )
+        return Ok(binary_invalid_value(context))
       }
   }
   if self.classify() == FpClass::Finite {
@@ -5710,10 +5679,7 @@ fn BinFloat::try_trigonometric_ctx(
           },
         ),
       )
-    FpClass::Infinity =>
-      Err(
-        @def.ArithmeticError::domain_error("trigonometric input is not finite"),
-      )
+    FpClass::Infinity => Ok(binary_invalid_value(context))
     FpClass::Finite if self.is_zero() =>
       Ok(
         (
