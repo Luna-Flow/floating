@@ -47,7 +47,7 @@ them.
 | --- | --- | --- | --- |
 | plain | `x + y`, `x.exp()` | `BinaryContext::new(precision=p)`, nearest-even, `p` the precision of the operands | the value only |
 | contextual | `x.add_ctx(y, ctx)`, `x.exp_ctx(ctx)` | the given `BinaryContext` | `(value, flags)` |
-| checked | `x.try_exp_ctx(ctx)`, `x.div_checked(y)` | the given context, or the plain one | `Result` with an `@lf_arith.ArithmeticError` |
+| checked | `x.try_exp_ctx(ctx)`, `DivChecked::div_checked(x, y, ctx)` | the given context | `Result` with an `@lf_arith.ArithmeticError` |
 
 The plain form of a binary operation works at the larger precision of the two
 operands (the largest of three for `fma`). Its context is the extendable
@@ -532,21 +532,6 @@ pub fn BinFloat::copy_sign(Self, Self) -> Self
 Both are quiet IEEE sign-bit operations: they never round, never raise a flag
 and keep NaN payloads. `x.copy_sign(y)` has the magnitude of `x` and the sign
 bit of `y`.
-
-### `BinFloat::div_checked`
-
-Divides, returning an error for an invalid operation or a division by zero.
-
-```mbti
-pub fn BinFloat::div_checked(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
-```
-
-The result is that of `div`, except for the two IEEE 754-2019 exceptions
-without a usable value: an invalid operation (§7.2: $0/0$, $\infty/\infty$
-or a signaling NaN operand) is a `domain_error`, and a finite non-zero
-dividend over a signed zero (§7.3) is a `division_by_zero` error. A quiet NaN
-operand gives `Ok` of a quiet NaN (§6.2), and $\pm\infty/0$ gives `Ok` of the
-signed infinity.
 
 ### `BinFloat::sqrt`
 
@@ -2510,9 +2495,9 @@ for $0/0$, $\infty/\infty$ and a signaling NaN operand, and a
 `division_by_zero` error for a finite non-zero dividend over a signed zero;
 NaN$/0$ and $\infty/0$ are `Ok`. `pow_int_checked` is a `division_by_zero`
 error for a zero base with a negative exponent, and both powers are a
-`domain_error` for a signaling NaN base, zero exponent included. The trait's
-`div_checked(x, y, ctx)` takes a context; the inherent
-[`BinFloat::div_checked`](#binfloatdiv_checked) does not.
+`domain_error` for a signaling NaN base, zero exponent included. There is no
+inherent `div_checked`: the trait form takes the context, and `BinFloatResult::div`
+is the chained form at the larger precision of the operands.
 `CompareChecked::compare_checked` is the inherent
 [`compare_checked`](#binfloatcompare_checked).
 
@@ -2761,7 +2746,6 @@ pub fn BinFloat::cosh_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::cospi(Self) -> Self
 pub fn BinFloat::cospi_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::div(Self, Self) -> Self
-pub fn BinFloat::div_checked(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn BinFloat::div_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn BinFloat::div_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::equal(Self, Self) -> Bool

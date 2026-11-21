@@ -180,7 +180,11 @@ compare equal although their messages differ:
 ///|
 test "errors compare by kind" {
   let binary = @semantic.semantic_scalar_result(
-    @bin_float.BinFloat::from_int(1).div_checked(@bin_float.BinFloat::zero()),
+    @lf_arith.DivChecked::div_checked(
+      @bin_float.BinFloat::from_int(1),
+      @bin_float.BinFloat::zero(),
+      @lf_arith.ArithmeticContext::new(53),
+    ),
     @semantic.SemanticScalar::from_bin_float,
   )
   let decimal = @semantic.semantic_scalar_result(

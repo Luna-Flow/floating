@@ -319,8 +319,10 @@ test "bin_float basic arithmetic stays exact on small dyadics" {
 
 ///|
 test "bin_float checked division reports division by zero" {
-  let result = @bin_float.BinFloat::from_int(1, precision=16).div_checked(
+  let result = @lf_arith.DivChecked::div_checked(
+    @bin_float.BinFloat::from_int(1, precision=16),
     @bin_float.BinFloat::zero(precision=16),
+    @lf_arith.ArithmeticContext::new(16),
   )
   match result {
     Ok(_) => fail("expected division by zero")

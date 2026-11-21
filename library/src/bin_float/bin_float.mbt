@@ -1113,17 +1113,6 @@ pub fn BinFloat::mul(self : BinFloat, other : BinFloat) -> BinFloat {
 }
 
 ///|
-pub fn BinFloat::div_checked(
-  self : BinFloat,
-  other : BinFloat,
-) -> Result[BinFloat, @def.ArithmeticError] {
-  binary_checked_result(
-    self.div_ctx(other, binary_working_context(max_precision(self, other))),
-    "invalid division",
-  )
-}
-
-///|
 pub fn BinFloat::div(self : BinFloat, other : BinFloat) -> BinFloat {
   div_bin_impl(self, other)
 }
