@@ -198,6 +198,10 @@ fn sqctx_contexts(precision : Int32) -> Array[BinaryContext] {
 }
 
 ///|
+// oracle: E
+// source: the previous split of the root (sqctx_split_reference: the radicand shifted and rooted by the kernel, the midpoint decided by comparing N with (2 root + 1)^2 / 4), kept in the test, edges and random radicands, every direction and range
+// shares: both splits call bin_coeff_sqrt_rem_kernel (the integer root) and binary_sqrt_round_bits, binary_target_exponent, binary_overflow_result and binary_inexact_flags, so the equality says nothing about those; the rows check the whole function (the three mutations of the midpoint decision and of the round bits are killed by the rows and by this block)
+// underneath: level A, round_rows_wbtest.mbt (tools/generate_round_rows.py: Python integers, math.isqrt, the range rule of 7.4 and 7.5; 3,849 rows; library-ran: no), checked by the test "binary_round_dyadic and binary_round_sqrt against integer arithmetic at the range limits, five directions, both tininess rules" of round_rows_check_wbtest.mbt (operation sqrt: perfect squares and neighbours, r^2 + r and r^2 + r + 1, (2r + 1)^2, all ones, at exponents that put the root in the normal, subnormal and overflowing ranges of the formats and of the implementation range); the radicands, directions and ranges are the same classes, precisions 2 to 513 in the rows against 2 to 8192 here (above 513 the arith_rows sqrt rows apply without a range)
 test "sqrt_ctx with the remainder midpoint equals the reference split: edges and random, every direction and range" {
   let random = { sqctx_state: 0x5DEE_CE66_D1CE_4E5BUL, }
   let precisions = [
@@ -264,6 +268,10 @@ test "sqrt_ctx with the remainder midpoint equals the reference split: edges and
 }
 
 ///|
+// oracle: E
+// source: the previous split of the root (sqctx_split_reference: the radicand shifted and rooted by the kernel, the midpoint decided by comparing N with (2 root + 1)^2 / 4), kept in the test, exponents a Binary can hold near the limits of the implementation range (the exponents below that were removed from this block: the function saturates a scale there and no value has them)
+// shares: both splits call bin_coeff_sqrt_rem_kernel (the integer root) and binary_sqrt_round_bits, binary_target_exponent, binary_overflow_result and binary_inexact_flags, so the equality says nothing about those; the rows check the whole function (the three mutations of the midpoint decision and of the round bits are killed by the rows and by this block)
+// underneath: level A, round_rows_wbtest.mbt (tools/generate_round_rows.py: Python integers, math.isqrt, the range rule of 7.4 and 7.5; 3,849 rows; library-ran: no), checked by the test "binary_round_dyadic and binary_round_sqrt against integer arithmetic at the range limits, five directions, both tininess rules" of round_rows_check_wbtest.mbt (operation sqrt: perfect squares and neighbours, r^2 + r and r^2 + r + 1, (2r + 1)^2, all ones, at exponents that put the root in the normal, subnormal and overflowing ranges of the formats and of the implementation range)
 test "sqrt_ctx with the remainder midpoint equals the reference split at the exponent limits" {
   let random = { sqctx_state: 0x1234_5678_9ABC_DEF1UL, }
   for precision in [2, 53, 64, 128, 513] {
@@ -274,7 +282,13 @@ test "sqrt_ctx with the remainder midpoint equals the reference split at the exp
           2147483000, 2147483647,
         ] {
         for bits in [1, precision, 2 * precision + 1] {
-          sqctx_check(sqctx_coeff(random, bits), exponent, context)
+          // Only exponents a Binary can hold: the leading bit at most 2^30 - 1 and the exponent
+          // not far below e_min. Below that `binary_round_sqrt` saturates a scale (2 * target does
+          // not fit an Int32): the reference saturates the same way, and no independent oracle
+          // exists for a value that cannot occur, so the equality there proved nothing.
+          if exponent + bits - 1 <= 1073741823 && exponent >= -1075838976 {
+            sqctx_check(sqctx_coeff(random, bits), exponent, context)
+          }
         }
       }
     }
@@ -282,6 +296,10 @@ test "sqrt_ctx with the remainder midpoint equals the reference split at the exp
 }
 
 ///|
+// oracle: E
+// source: the previous split of the root (sqctx_split_reference: the radicand shifted and rooted by the kernel, the midpoint decided by comparing N with (2 root + 1)^2 / 4), kept in the test, through Binary::sqrt_ctx on finite values
+// shares: both splits call bin_coeff_sqrt_rem_kernel (the integer root) and binary_sqrt_round_bits, binary_target_exponent, binary_overflow_result and binary_inexact_flags, so the equality says nothing about those; the rows check the whole function (the three mutations of the midpoint decision and of the round bits are killed by the rows and by this block)
+// underneath: level A, round_rows_wbtest.mbt (tools/generate_round_rows.py: Python integers, math.isqrt, the range rule of 7.4 and 7.5; 3,849 rows; library-ran: no), checked by the test "binary_round_dyadic and binary_round_sqrt against integer arithmetic at the range limits, five directions, both tininess rules" of round_rows_check_wbtest.mbt (operation sqrt: perfect squares and neighbours, r^2 + r and r^2 + r + 1, (2r + 1)^2, all ones, at exponents that put the root in the normal, subnormal and overflowing ranges of the formats and of the implementation range); the rows call binary_round_sqrt, the function Binary::sqrt_ctx calls after its dispatch
 test "sqrt_ctx on finite values equals the reference through Binary" {
   let random = { sqctx_state: 0xC0FF_EE00_DEAD_BEEFUL, }
   for precision in [2, 24, 53, 64, 128, 300, 2048] {

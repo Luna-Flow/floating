@@ -561,7 +561,6 @@ library/src/binary/pow_signaling_nan_wbtest.mbt::pow_ctx and pow agree with try_
 library/src/binary/pown_subnormal_tininess_wbtest.mbt::pown directed rounding between half and the smallest subnormal	C
 library/src/binary/pown_subnormal_tininess_wbtest.mbt::pown tininess after rounding at the implementation subnormal limit	C
 library/src/binary/range_extremes_wbtest.mbt::hyperbolic bounds agree with the old kernel where exp leaves the range	C
-library/src/binary/range_extremes_wbtest.mbt::round core agrees with the old one at the exponent limits and carries	C
 library/src/binary/range_extremes_wbtest.mbt::sign-aware corners agree with the old ones when products overflow and quotients underflow	E
 library/src/binary/range_extremes_wbtest.mbt::trigonometric bounds agree with the old path around pi/4 and at extreme exponents	C
 library/src/binary/refinement_limit_wbtest.mbt::refinement limit: 0, 1 and negative limits are one step	S
@@ -584,8 +583,6 @@ library/src/binary/rootn_integer_wbtest.mbt::rootn gate: both sides of every pre
 library/src/binary/rootn_integer_wbtest.mbt::rootn of large degrees keeps the certified loop	C
 library/src/binary/rootn_zero_degree_wbtest.mbt::rootn of zero with a negative degree is the divideByZero case	A
 library/src/binary/rootn_zero_degree_wbtest.mbt::rootn with degree zero is invalid for every operand and never divideByZero	A
-library/src/binary/round_core_wbtest.mbt::binary_round_dyadic agrees with the pre-#378 rounding core	C
-library/src/binary/round_core_wbtest.mbt::binary_round_dyadic boundaries on both sides of the exact early exit	C
 library/src/binary/rsqrt_compound_powr_wbtest.mbt::compound is the correctly rounded (1 + x)^n	C
 library/src/binary/rsqrt_compound_powr_wbtest.mbt::compound of a tiny x is the neighbour of 1 chosen by the direction	A
 library/src/binary/rsqrt_compound_powr_wbtest.mbt::compound special values	A
@@ -600,9 +597,6 @@ library/src/binary/shortest_string_unrepresentable_issue448_wbtest.mbt::represen
 library/src/binary/shortest_string_unrepresentable_issue448_wbtest.mbt::shortest string of an operand not representable in the context (#448)	B
 library/src/binary/shortest_string_unrepresentable_issue448_wbtest.mbt::shortest string rounds overflow and underflow into the context (#448)	A
 library/src/binary/shortest_string_unrepresentable_issue448_wbtest.mbt::the operand is rounded in the rounding direction of the context (#448)	A
-library/src/binary/sqrt_ctx_split_wbtest.mbt::sqrt_ctx on finite values equals the reference through Binary	C
-library/src/binary/sqrt_ctx_split_wbtest.mbt::sqrt_ctx with the remainder midpoint equals the reference split at the exponent limits	C
-library/src/binary/sqrt_ctx_split_wbtest.mbt::sqrt_ctx with the remainder midpoint equals the reference split: edges and random, every direction and range	C
 library/src/binary/tanh_saturation_issue185_wbtest.mbt::tanh saturates to the correctly rounded value for large arguments (#185)	A
 library/src/binary/tiny_argument_subnormal_wbtest.mbt::tiny arguments near the implementation subnormal limit round with their flags	C
 library/src/binary/tiny_argument_wbtest.mbt::Binary elementary functions certify tiny arguments	B
