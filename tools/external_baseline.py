@@ -979,7 +979,7 @@ def render_markdown(results: Sequence[CaseResult], protocol: dict[str, object] |
     runtime = str(protocol["target"]) if protocol else "native"
     out: list[str] = []
     titles = {
-        "binary": ("Binary: floating `bin_float` against MPFR", "MPFR"),
+        "binary": ("Binary: floating `binary` against MPFR", "MPFR"),
         "decimal_gda": ("Decimal GDA: floating `decimal_gda` against libmpdec", "libmpdec"),
     }
     met = sum(1 for r in results if r.status == stats.MET)
@@ -1152,7 +1152,7 @@ TABLE_COLUMNS: tuple[str, ...] = (
     "configuration", "case", "package", "size", "op", "reference_ns", "floating_ns", "old_ratio", "old_basis",
     "new_ratio", "new_ci_low", "new_ci_high", "new_basis", "verdict", "quotient", "new_raw_ratio", "old_raw_ratio", "quotient_raw",
 )  # fmt: skip
-PACKAGES = {"binary": "bin_float", "decimal_gda": "decimal_gda"}
+PACKAGES = {"binary": "binary", "decimal_gda": "decimal_gda"}
 TABLE_TOLERATED = "tolerated"  # the status of a case above the target and within the limit (a summary of the two-bound criterion)
 TABLE_STATUSES: tuple[str, ...] = (stats.MET, TABLE_TOLERATED, stats.NOT_MET, stats.UNRESOLVED, stats.NOT_APPLICABLE)
 

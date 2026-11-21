@@ -29,7 +29,7 @@ let pwr_w : Int32 = 200
 
 ///|
 /// 0: certainly not in the set, 1: certainly in, 2: not decided at this precision.
-fn pwr_sat(x : @bin_float.BinFloat, b : Interval, c : Interval) -> Int32 {
+fn pwr_sat(x : @binary.Binary, b : Interval, c : Interval) -> Int32 {
   let e = Interval::exact(x, precision=pwr_w).pow(b.with_precision(pwr_w))
   if e.is_empty() {
     return 0
@@ -39,12 +39,12 @@ fn pwr_sat(x : @bin_float.BinFloat, b : Interval, c : Interval) -> Int32 {
   }
   // E contains the range R of x^beta over b within delta << tol: if c reaches more
   // than tol beyond both ends of E, then c meets R
-  let tol = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(1UL),
+  let tol = @binary.Binary::make(
+    @binary.BinCoeff::from_uint64(1UL),
     -(pwr_w / 2),
     1,
   )
-  let one_side = fn(hi : @bin_float.BinFloat, lo : @bin_float.BinFloat) {
+  let one_side = fn(hi : @binary.Binary, lo : @binary.Binary) {
     // hi - lo > tol, with infinities
     if hi.classify() == FpClass::Infinity || lo.classify() == FpClass::Infinity {
       true
@@ -64,14 +64,14 @@ fn pwr_sat(x : @bin_float.BinFloat, b : Interval, c : Interval) -> Int32 {
 ///|
 /// `e + (f - e) * num / 4` computed exactly (all operands have far fewer than 200 bits).
 fn pwr_between(
-  e : @bin_float.BinFloat,
-  f : @bin_float.BinFloat,
+  e : @binary.Binary,
+  f : @binary.Binary,
   num : Int32,
-) -> @bin_float.BinFloat {
+) -> @binary.Binary {
   let diff = Interval::exact(f, precision=pwr_w) -
     Interval::exact(e, precision=pwr_w)
   let scaled = diff *
-    Interval::exact(@bin_float.BinFloat::from_double(num.to_double() * 0.25))
+    Interval::exact(@binary.Binary::from_double(num.to_double() * 0.25))
   (Interval::exact(e, precision=pwr_w) + scaled).lo_
 }
 
@@ -80,7 +80,7 @@ fn pwr_pick(
   rng : PowRng,
   values : Array[Double],
   precision : Int32,
-) -> @bin_float.BinFloat {
+) -> @binary.Binary {
   let x = values[rng.below(values.length())]
   if x == 1.0 / 0.0 {
     pos_inf(precision)
@@ -93,8 +93,8 @@ fn pwr_pick(
 
 ///|
 fn pwr_ordered(
-  a : @bin_float.BinFloat,
-  b : @bin_float.BinFloat,
+  a : @binary.Binary,
+  b : @binary.Binary,
   precision : Int32,
 ) -> Interval {
   let (lo, hi) = if a.compare(b) <= 0 { (a, b) } else { (b, a) }
@@ -146,7 +146,7 @@ fn pwr_check(
   let x_values = [
     0.0, 0.1, 0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 10.0, 30.0,
   ]
-  let ctx = @bin_float.BinaryContext::new(precision~)
+  let ctx = @binary.BinaryContext::new(precision~)
   let mut nonempty = 0
   for _ in 0..<cases {
     let b = pwr_ordered(
@@ -164,7 +164,7 @@ fn pwr_check(
     let mut xl = pw_num(x_values[rng.below(x_values.length())], precision)
     let mut xh = pw_num(x_values[rng.below(x_values.length())], precision)
     if !whole.is_empty() && rng.below(2) == 0 {
-      let near = fn(e : @bin_float.BinFloat) {
+      let near = fn(e : @binary.Binary) {
         if e.classify() != FpClass::Finite {
           return e
         }
@@ -194,7 +194,7 @@ fn pwr_check(
       None => b.pow_rev1(c, x=prior)
       Some(limit) => b.pow_rev1_capped(c, Some(prior), limit)
     }
-    let candidates : Array[@bin_float.BinFloat] = []
+    let candidates : Array[@binary.Binary] = []
     candidates.push(prior.lo_)
     candidates.push(prior.hi_)
     // fixed interior points
@@ -244,7 +244,7 @@ fn pwr_check(
     // float below the lower end is not in the set, and the float one step above the lower
     // end is not certainly outside while the next one is certainly inside
     if cap is None && !got.is_empty() {
-      let sat_of = fn(x : @bin_float.BinFloat) {
+      let sat_of = fn(x : @binary.Binary) {
         if x.sign() != Sign::Positive || x.classify() != FpClass::Finite {
           2
         } else {

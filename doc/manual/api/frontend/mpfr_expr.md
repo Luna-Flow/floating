@@ -3,7 +3,7 @@
 ## Purpose
 
 `frontend/mpfr_expr` parses reference data produced with GNU MPFR and executes
-it against `bin_float`. Six formats are supported: MPFR's square-root
+it against `binary`. Six formats are supported: MPFR's square-root
 `data_check` files, integer-power rows, an elementary-function matrix with
 exception flags, two corpora for decimal character conversion
 (`mpfr_strtofr` and `mpfr_get_str`), and the seeded random differential rows
@@ -23,7 +23,7 @@ import {
 ```
 
 The examples call it through the alias `@mpfr_expr`; rows are written as
-text, so `bin_float` does not need to be imported.
+text, so `binary` does not need to be imported.
 
 ## Common row syntax
 
@@ -40,7 +40,7 @@ returns. Line numbers start at 1. A rounding field is one of
 | `d` | `RoundTowardNegative` |
 | `a` | `RoundAwayFromZero` |
 
-and a number is read by `@bin_float.BinFloat::from_hex` (`0x…p…` with an
+and a number is read by `@binary.Binary::from_hex` (`0x…p…` with an
 integer hexadecimal significand and no point, `inf`, `-inf`, `nan`) at the
 precision named for that field; a significand with more bits than that
 precision is rounded to nearest-even. Each parser returns `Ok(document)` when every line is valid and
@@ -69,7 +69,7 @@ where `ctx` is `BinaryContext::new(precision=output_precision, rounding~)`.
 pub fn execute_sqrt_data(MpfrDocument) -> RunSummary
 ```
 
-A row passes when the result is equal (`==`) to the expected `BinFloat`.
+A row passes when the result is equal (`==`) to the expected `Binary`.
 Flags are not compared.
 
 ### `MpfrDocument`, `MpfrCase`
@@ -182,7 +182,7 @@ A row of the two-operand functions `pow`, `powr`, `hypot`, `atan2` and `atan2pi`
 ### `execute_elementary_data`
 
 `execute_elementary_data(document)` evaluates every row with the checked
-`try_*_ctx` method of `BinFloat` for its operation (`sqrt_ctx` and `pown_ctx`
+`try_*_ctx` method of `Binary` for its operation (`sqrt_ctx` and `pown_ctx`
 for `sqrt` and `pown`) in `BinaryContext::new(precision=precision, rounding~)`.
 
 ```mbti
@@ -235,7 +235,7 @@ Row ids are `strtofr:LINE`.
 
 ### `execute_strtofr_data`
 
-`execute_strtofr_data(document)` evaluates `BinFloat::from_string_ctx(input,
+`execute_strtofr_data(document)` evaluates `Binary::from_string_ctx(input,
 ctx)` with `ctx = BinaryContext::new(precision=precision, rounding~)`.
 
 ```mbti
@@ -279,8 +279,8 @@ form. Values are read at `precision` bits. Row ids are `fixed:LINE` and
 
 ### `execute_decimal_output_data`
 
-`execute_decimal_output_data(document)` runs `BinFloat::to_decimal_string_ctx`
-for a `fixed` row and `BinFloat::to_shortest_string` for a `shortest` row.
+`execute_decimal_output_data(document)` runs `Binary::to_decimal_string_ctx`
+for a `fixed` row and `Binary::to_shortest_string` for a `shortest` row.
 
 ```mbti
 pub fn execute_decimal_output_data(MpfrDecimalOutputDocument) -> RunSummary
@@ -290,7 +290,7 @@ A `fixed` row passes when the printed digits, the exponent and the sign match
 and the inexact flag equals the row's flag (no overflow or underflow). A
 `shortest` row passes when the text has exactly `expected_digit_count`
 significant digits (leading zeros and the trailing zeros of positional notation
-are not counted) and `BinFloat::from_string(text, precision~)` returns the same
+are not counted) and `Binary::from_string(text, precision~)` returns the same
 value.
 
 ### `MpfrDecimalOutputDocument`, `MpfrDecimalOutputDocument::source`, `MpfrDecimalOutputDocument::case_count`
@@ -310,7 +310,7 @@ pub fn MpfrDecimalOutputDocument::case_count(Self) -> Int
 per case, with precisions up to 10,000, six rounding directions, an optional
 exponent range with its tininess rule, up to three exact operands and the MPFR
 result with its flags. The full field list is in
-[`testdata/bin_float/README.md`](../../../../testdata/bin_float/README.md).
+[`testdata/binary/README.md`](../../../../testdata/binary/README.md).
 
 ```text
 id op rounding precision emin emax tininess a b c n expected flags

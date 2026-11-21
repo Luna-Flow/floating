@@ -3,7 +3,7 @@ package "Luna-Flow/floating/interval_checked"
 
 import {
   "Luna-Flow/arithmetic",
-  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/binary",
   "Luna-Flow/floating/interval",
 }
 
@@ -41,15 +41,15 @@ pub fn IntervalResult::div(Self, Self) -> Self
 pub fn IntervalResult::entire(precision? : Int32) -> Self
 pub fn IntervalResult::err(@arithmetic.ArithmeticError) -> Self
 pub fn IntervalResult::error(Self) -> @arithmetic.ArithmeticError?
-pub fn IntervalResult::exact(@bin_float.BinFloat, precision? : Int32) -> Self
+pub fn IntervalResult::exact(@binary.Binary, precision? : Int32) -> Self
 pub fn IntervalResult::exp(Self) -> Self
 pub fn IntervalResult::exp10(Self) -> Self
 pub fn IntervalResult::exp2(Self) -> Self
 pub fn IntervalResult::expm1(Self) -> Self
 pub fn IntervalResult::floor(Self) -> Self
 pub fn IntervalResult::fma(Self, Self, Self) -> Self
-pub fn IntervalResult::from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Self
-pub fn IntervalResult::from_coefficient(@bin_float.BinCoeff, precision? : Int32, negative? : Bool) -> Self
+pub fn IntervalResult::from_bounds(@binary.Binary, @binary.Binary, precision? : Int32) -> Self
+pub fn IntervalResult::from_coefficient(@binary.BinCoeff, precision? : Int32, negative? : Bool) -> Self
 pub fn IntervalResult::from_double(Double, precision? : Int32) -> Self
 pub fn IntervalResult::from_float(Float, precision? : Int32) -> Self
 pub fn IntervalResult::from_int(Int32, precision? : Int32) -> Self

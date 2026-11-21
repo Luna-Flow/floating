@@ -99,62 +99,56 @@ test "GdaInterchange::from_hex returns Err for text that is not a pattern" {
 }
 
 ///|
-test "from_bin_float takes a required precision in digits and a rounding mode" {
-  let tenth = @bin_float.BinFloat::from_double(0.1, precision=53)
-  let down = Decimal::from_bin_float(
+test "from_binary takes a required precision in digits and a rounding mode" {
+  let tenth = @binary.Binary::from_double(0.1, precision=53)
+  let down = Decimal::from_binary(
     tenth,
     precision=5,
     mode=GdaRoundingMode::Down,
   )
-  let up = Decimal::from_bin_float(tenth, precision=5, mode=GdaRoundingMode::Up)
+  let up = Decimal::from_binary(tenth, precision=5, mode=GdaRoundingMode::Up)
   assert_eq(down.to_string(), "0.10000")
   assert_eq(up.to_string(), "0.10001")
-  assert_eq(Decimal::from_bin_float(tenth, precision=5).to_string(), "0.10000")
+  assert_eq(Decimal::from_binary(tenth, precision=5).to_string(), "0.10000")
   // the precision of the binary value is no longer the default: it counts bits
-  assert_eq(Decimal::from_bin_float(tenth, precision=20).precision(), 20)
+  assert_eq(Decimal::from_binary(tenth, precision=20).precision(), 20)
 }
 
 ///|
-test "to_bin_float takes the rounding modes of the radix of the result" {
+test "to_binary takes the rounding modes of the radix of the result" {
   // 1.125 is exactly between 1.0 and 1.25 at three bits
   let tie = Decimal::from_string("1.125").unwrap()
   assert_eq(
-    tie.to_bin_float(precision=3).to_string(),
-    @bin_float.BinFloat::from_double(1.0, precision=3).to_string(),
+    tie.to_binary(precision=3).to_string(),
+    @binary.Binary::from_double(1.0, precision=3).to_string(),
   )
   assert_eq(
     tie
-    .to_bin_float(
-      precision=3,
-      mode=@bin_float.BinaryRoundingMode::RoundTiesToAway,
-    )
+    .to_binary(precision=3, mode=@binary.BinaryRoundingMode::RoundTiesToAway)
     .to_string(),
-    @bin_float.BinFloat::from_double(1.25, precision=3).to_string(),
+    @binary.Binary::from_double(1.25, precision=3).to_string(),
   )
   assert_eq(
     tie
-    .to_bin_float(
+    .to_binary(
       precision=3,
-      mode=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+      mode=@binary.BinaryRoundingMode::RoundTowardPositive,
     )
     .to_string(),
-    @bin_float.BinFloat::from_double(1.25, precision=3).to_string(),
+    @binary.Binary::from_double(1.25, precision=3).to_string(),
   )
   let negative_tie = Decimal::from_string("-1.125").unwrap()
   assert_eq(
     negative_tie
-    .to_bin_float(
-      precision=3,
-      mode=@bin_float.BinaryRoundingMode::RoundTiesToAway,
-    )
+    .to_binary(precision=3, mode=@binary.BinaryRoundingMode::RoundTiesToAway)
     .to_string(),
-    @bin_float.BinFloat::from_double(-1.25, precision=3).to_string(),
+    @binary.Binary::from_double(-1.25, precision=3).to_string(),
   )
 }
 
 ///|
-test "panic to_bin_float aborts on precision 0" {
-  ignore(Decimal::from_int(3).to_bin_float(precision=0))
+test "panic to_binary aborts on precision 0" {
+  ignore(Decimal::from_int(3).to_binary(precision=0))
 }
 
 ///|

@@ -2,13 +2,13 @@
 // Exact rational arithmetic used only by certified elementary-function kernels.
 priv struct CertifiedRat {
   num : SignedBinCoeff
-  den : @bin_float.BinCoeff
+  den : @binary.BinCoeff
 }
 
 ///|
 fn certified_rat_coeff(
   num : SignedBinCoeff,
-  den : @bin_float.BinCoeff,
+  den : @binary.BinCoeff,
 ) -> CertifiedRat {
   guard !coeff_is_zero(den) else {
     abort("certified rational denominator must be non-zero")
@@ -83,7 +83,7 @@ fn rat_div(left : CertifiedRat, right : CertifiedRat) -> CertifiedRat {
 }
 
 ///|
-fn rat_from_finite_bin(value : @bin_float.BinFloat) -> CertifiedRat {
+fn rat_from_finite_bin(value : @binary.Binary) -> CertifiedRat {
   guard value.classify() == FpClass::Finite else {
     abort("certified rational conversion requires a finite value")
   }
@@ -111,7 +111,7 @@ pub fn Interval::exp(self : Interval) -> Interval {
     Ok(result) => result
     Err(_) =>
       store_interval(
-        @bin_float.BinFloat::zero(precision=self.precision_),
+        @binary.Binary::zero(precision=self.precision_),
         pos_inf(self.precision_),
         self.precision_,
       )
@@ -126,7 +126,7 @@ pub fn Interval::exp2(self : Interval) -> Interval {
     Ok(result) => result
     Err(_) =>
       store_interval(
-        @bin_float.BinFloat::zero(precision=self.precision_),
+        @binary.Binary::zero(precision=self.precision_),
         pos_inf(self.precision_),
         self.precision_,
       )
@@ -141,7 +141,7 @@ pub fn Interval::exp10(self : Interval) -> Interval {
     Ok(result) => result
     Err(_) =>
       store_interval(
-        @bin_float.BinFloat::zero(precision=self.precision_),
+        @binary.Binary::zero(precision=self.precision_),
         pos_inf(self.precision_),
         self.precision_,
       )
@@ -155,7 +155,7 @@ pub fn Interval::expm1(self : Interval) -> Interval {
     Ok(result) => result
     Err(_) =>
       store_interval(
-        @bin_float.BinFloat::from_int(-1, precision=self.precision_),
+        @binary.Binary::from_int(-1, precision=self.precision_),
         pos_inf(self.precision_),
         self.precision_,
       )
@@ -241,16 +241,16 @@ pub fn Interval::try_expm1(
   if self.is_empty() {
     return Ok(self)
   }
-  let downward = @bin_float.BinaryContext::new(
+  let downward = @binary.BinaryContext::new(
     precision=self.precision_,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+    rounding=@binary.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::new(
+  let upward = @binary.BinaryContext::new(
     precision=self.precision_,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+    rounding=@binary.BinaryRoundingMode::RoundTowardPositive,
   )
   let lower = if is_neg_inf(self.lo_) {
-    Ok(@bin_float.BinFloat::from_int(-1, precision=self.precision_))
+    Ok(@binary.Binary::from_int(-1, precision=self.precision_))
   } else {
     self.lo_.try_expm1_ctx(downward).map(fn(result) { result.0 })
   }
@@ -273,7 +273,7 @@ pub fn Interval::try_ln(
   if self.is_empty() {
     return Ok(self)
   }
-  let zero = @bin_float.BinFloat::zero(precision=self.precision_)
+  let zero = @binary.Binary::zero(precision=self.precision_)
   if self.hi_.compare(zero) <= 0 {
     return Ok(empty_interval(self.precision_))
   }
@@ -283,9 +283,9 @@ pub fn Interval::try_ln(
       .try_ln_directed_pair(self.precision_)
       .map(fn(pair) { store_interval(pair.0, pair.1, self.precision_) })
   }
-  let upward = @bin_float.BinaryContext::new(
+  let upward = @binary.BinaryContext::new(
     precision=self.precision_,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+    rounding=@binary.BinaryRoundingMode::RoundTowardPositive,
   )
   let upper = self.hi_.try_ln_ctx(upward)
   if self.lo_.compare(zero) <= 0 {
@@ -293,9 +293,9 @@ pub fn Interval::try_ln(
       store_interval(neg_inf(self.precision_), result.0, self.precision_)
     })
   }
-  let downward = @bin_float.BinaryContext::new(
+  let downward = @binary.BinaryContext::new(
     precision=self.precision_,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+    rounding=@binary.BinaryRoundingMode::RoundTowardNegative,
   )
   self.lo_
   .try_ln_ctx(downward)
@@ -313,17 +313,17 @@ pub fn Interval::try_log1p(
   if self.is_empty() {
     return Ok(self)
   }
-  let minus_one = @bin_float.BinFloat::from_int(-1, precision=self.precision_)
+  let minus_one = @binary.Binary::from_int(-1, precision=self.precision_)
   if self.hi_.compare(minus_one) < 0 {
     return Ok(empty_interval(self.precision_))
   }
-  let downward = @bin_float.BinaryContext::new(
+  let downward = @binary.BinaryContext::new(
     precision=self.precision_,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+    rounding=@binary.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::new(
+  let upward = @binary.BinaryContext::new(
     precision=self.precision_,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+    rounding=@binary.BinaryRoundingMode::RoundTowardPositive,
   )
   let lower = if self.lo_.compare(minus_one) <= 0 {
     Ok(neg_inf(self.precision_))
@@ -350,21 +350,21 @@ pub fn Interval::try_log1p(
 /// the evaluation itself for an argument of millions of bits.
 fn Interval::try_trig_point_interval(
   self : Interval,
-  evaluate : (@bin_float.BinFloat, @bin_float.BinaryContext) -> Result[
-    (@bin_float.BinFloat, @bin_float.BinaryFlags),
+  evaluate : (@binary.Binary, @binary.BinaryContext) -> Result[
+    (@binary.Binary, @binary.BinaryFlags),
     @def.ArithmeticError,
   ],
 ) -> Result[Interval, @def.ArithmeticError]? {
   if self.lo_.is_zero() || self.lo_.compare(self.hi_) != 0 {
     return None
   }
-  let downward = @bin_float.BinaryContext::new(
+  let downward = @binary.BinaryContext::new(
     precision=self.precision_,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+    rounding=@binary.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::new(
+  let upward = @binary.BinaryContext::new(
     precision=self.precision_,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+    rounding=@binary.BinaryRoundingMode::RoundTowardPositive,
   )
   Some(
     evaluate(self.lo_, downward).bind(fn(lower) {
@@ -470,13 +470,13 @@ pub fn Interval::try_tan(
       return Ok(whole_real(self.precision_))
     }
   }
-  let downward = @bin_float.BinaryContext::new(
+  let downward = @binary.BinaryContext::new(
     precision=self.precision_,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+    rounding=@binary.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::new(
+  let upward = @binary.BinaryContext::new(
     precision=self.precision_,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+    rounding=@binary.BinaryRoundingMode::RoundTowardPositive,
   )
   self.lo_
   .try_tan_ctx(downward)

@@ -23,18 +23,18 @@ def pkg(pid: str, *imports: str) -> nu.Package:
 def graph() -> dict[str, nu.Package]:
     items = [
         pkg(f"{L}/def"),
-        pkg(f"{L}/bin_float", f"{L}/def", "moonbitlang/core/bigint"),
-        pkg(f"{L}/interval", f"{L}/bin_float", "moonbitlang/core/debug"),
+        pkg(f"{L}/binary", f"{L}/def", "moonbitlang/core/bigint"),
+        pkg(f"{L}/interval", f"{L}/binary", "moonbitlang/core/debug"),
         pkg(f"{L}/small", f"{L}/def"),
         pkg(f"{T}/bench", f"{L}/interval", "moonbitlang/x/fs"),
-        pkg(f"{T}/frontend", f"{L}/bin_float"),
+        pkg(f"{T}/frontend", f"{L}/binary"),
     ]
     return {p.id: p for p in items}
 
 
 class GraphTest(unittest.TestCase):
     def test_closure_follows_internal_imports_only(self) -> None:
-        self.assertEqual(nu.closure(f"{L}/interval", graph()), {f"{L}/interval", f"{L}/bin_float", f"{L}/def"})
+        self.assertEqual(nu.closure(f"{L}/interval", graph()), {f"{L}/interval", f"{L}/binary", f"{L}/def"})
 
     def test_a_missing_package_is_an_error_not_a_smaller_closure(self) -> None:
         g = graph()
@@ -52,9 +52,9 @@ class GraphTest(unittest.TestCase):
         self.assertEqual(nu.impure_imports([f"{L}/interval"], graph()), [])
 
     def test_units_split_heavy_keyed_rest_and_not_keyed(self) -> None:
-        units = nu.make_units(graph(), heavy=(f"{L}/interval", f"{L}/bin_float"))
+        units = nu.make_units(graph(), heavy=(f"{L}/interval", f"{L}/binary"))
         names = [u.name for u in units]
-        self.assertEqual(names, [f"{L}/interval", f"{L}/bin_float", "rest", "rest (not keyed)"])
+        self.assertEqual(names, [f"{L}/interval", f"{L}/binary", "rest", "rest (not keyed)"])
         rest = {u.name: u for u in units}
         self.assertEqual(rest["rest"].members, (f"{T}/frontend", f"{L}/def", f"{L}/small"))
         self.assertEqual(rest["rest (not keyed)"].members, (f"{T}/bench",))
@@ -69,7 +69,7 @@ class GraphTest(unittest.TestCase):
 
     def test_files_of_a_unit_cover_its_closure(self) -> None:
         unit = nu.Unit("u", (f"{L}/interval",), True)
-        self.assertEqual(nu.unit_files(unit, graph()), ["library/src/bin_float", "library/src/def", "library/src/interval"])
+        self.assertEqual(nu.unit_files(unit, graph()), ["library/src/binary", "library/src/def", "library/src/interval"])
 
 
 class KeyTest(unittest.TestCase):
@@ -100,7 +100,7 @@ class RunTest(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.ledger = inc.Ledger(Path(self.tmp.name) / "l.jsonl")
-        self.units = nu.make_units(graph(), heavy=(f"{L}/interval", f"{L}/bin_float"))
+        self.units = nu.make_units(graph(), heavy=(f"{L}/interval", f"{L}/binary"))
         self.original_unchanged = nu.unchanged
         nu.unchanged = lambda plan, unit: True  # type: ignore[assignment]  # the files are not on disk here
         self.addCleanup(setattr, nu, "unchanged", self.original_unchanged)
@@ -113,10 +113,10 @@ class RunTest(unittest.TestCase):
         return plan
 
     def test_to_run_splits_run_and_sampled_and_never_repeats_a_package(self) -> None:
-        first, second = nu.to_run(self.units, {f"{L}/interval": "run", f"{L}/bin_float": "sample", "rest": "reuse", "rest (not keyed)": "reuse"})
+        first, second = nu.to_run(self.units, {f"{L}/interval": "run", f"{L}/binary": "sample", "rest": "reuse", "rest (not keyed)": "reuse"})
         self.assertEqual(first, [f"{L}/interval"])
-        self.assertEqual(second, [f"{L}/bin_float"])
-        first, second = nu.to_run(self.units, {f"{L}/interval": "run", f"{L}/bin_float": "sample", "rest": "run", "rest (not keyed)": "run"})
+        self.assertEqual(second, [f"{L}/binary"])
+        first, second = nu.to_run(self.units, {f"{L}/interval": "run", f"{L}/binary": "sample", "rest": "run", "rest (not keyed)": "run"})
         self.assertFalse(set(first) & set(second))
 
     def test_all_reused_runs_nothing_and_says_reused(self) -> None:
@@ -164,7 +164,7 @@ class RunTest(unittest.TestCase):
     def test_the_run_invocation_comes_before_the_sampled_one(self) -> None:
         actions = {u.name: "reuse" for u in self.units}
         actions[f"{L}/interval"] = "sample"
-        actions[f"{L}/bin_float"] = "run"
+        actions[f"{L}/binary"] = "run"
         actions["rest (not keyed)"] = "run"
         plan = self.plan(actions)
         for key in plan.keys.values():
@@ -172,7 +172,7 @@ class RunTest(unittest.TestCase):
         calls: list[tuple[str, ...]] = []
         nu.run_plan(plan, 3, lambda c: calls.append(c) or OK, lambda line: None)
         packages = [c[c.index("-p") + 1:c.index("--target")] for c in calls]
-        self.assertEqual(packages, [(f"{T}/bench", f"{L}/bin_float"), (f"{L}/interval",)])
+        self.assertEqual(packages, [(f"{T}/bench", f"{L}/binary"), (f"{L}/interval",)])
 
     def test_a_disabled_plan_runs_the_whole_stage(self) -> None:
         plan = self.plan({})

@@ -68,7 +68,7 @@ $$
 
 where $\operatorname{sets}(A, E)$ holds when both are empty or both are
 nonempty with $\inf A = \inf E$ and $\sup A = \sup E$, comparing bounds
-numerically (`BinFloat::compare == 0`, so $-0 = +0$, as in IEEE 1788 where
+numerically (`Binary::compare == 0`, so $-0 = +0$, as in IEEE 1788 where
 intervals are sets of reals). A number-valued case passes when the actual
 number compares equal to the expected bound; a boolean case when the booleans
 are equal; an overlap case when the state names are equal.

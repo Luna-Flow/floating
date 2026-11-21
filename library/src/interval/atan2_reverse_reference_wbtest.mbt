@@ -19,7 +19,7 @@ fn at2_pi() -> Interval {
 
 ///|
 fn at2_half_pi() -> Interval {
-  at2_pi() * Interval::exact(@bin_float.BinFloat::from_double(0.5))
+  at2_pi() * Interval::exact(@binary.Binary::from_double(0.5))
 }
 
 ///|
@@ -28,13 +28,13 @@ fn at2_neg(x : Interval) -> Interval {
 }
 
 ///|
-fn at2_angle(y : @bin_float.BinFloat, x : @bin_float.BinFloat) -> Interval {
+fn at2_angle(y : @binary.Binary, x : @binary.Binary) -> Interval {
   Interval::exact(y, precision=pwr_w).atan2(Interval::exact(x, precision=pwr_w))
 }
 
 ///|
-let at2_tol : @bin_float.BinFloat = @bin_float.BinFloat::make(
-  @bin_float.BinCoeff::from_uint64(1UL),
+let at2_tol : @binary.Binary = @binary.Binary::make(
+  @binary.BinCoeff::from_uint64(1UL),
   -100,
   1,
 )
@@ -47,7 +47,7 @@ fn at2_meets(lo : Interval, hi : Interval, c : Interval) -> Int32 {
   if hi.hi_.compare(c.lo_) < 0 || lo.lo_.compare(c.hi_) > 0 {
     return 0
   }
-  let above = fn(x : @bin_float.BinFloat, y : @bin_float.BinFloat) {
+  let above = fn(x : @binary.Binary, y : @binary.Binary) {
     // x - y > tol, with infinities
     if x.classify() == FpClass::Infinity || y.classify() == FpClass::Infinity {
       true
@@ -89,8 +89,8 @@ fn at2_combine(decisions : Array[Int32]) -> Int32 {
 
 ///|
 /// Membership of the ordinate `y` in the set of `atan2_rev1(b, c)`.
-fn at2_sat1(y : @bin_float.BinFloat, b : Interval, c : Interval) -> Int32 {
-  let zero = @bin_float.BinFloat::zero(precision=pwr_w)
+fn at2_sat1(y : @binary.Binary, b : Interval, c : Interval) -> Int32 {
+  let zero = @binary.Binary::zero(precision=pwr_w)
   let pi = at2_pi()
   let decisions : Array[Int32] = []
   if y.is_zero() {
@@ -120,8 +120,8 @@ fn at2_sat1(y : @bin_float.BinFloat, b : Interval, c : Interval) -> Int32 {
 
 ///|
 /// Membership of the abscissa `x0` in the set of `atan2_rev2(a, c)`.
-fn at2_sat2(x0 : @bin_float.BinFloat, a : Interval, c : Interval) -> Int32 {
-  let zero = @bin_float.BinFloat::zero(precision=pwr_w)
+fn at2_sat2(x0 : @binary.Binary, a : Interval, c : Interval) -> Int32 {
+  let zero = @binary.Binary::zero(precision=pwr_w)
   let pi = at2_pi()
   let half = at2_half_pi()
   let decisions : Array[Int32] = []
@@ -176,7 +176,7 @@ fn at2_sat2(x0 : @bin_float.BinFloat, a : Interval, c : Interval) -> Int32 {
 ///|
 fn at2_sat(
   rev : Int32,
-  point : @bin_float.BinFloat,
+  point : @binary.Binary,
   factor : Interval,
   c : Interval,
 ) -> Int32 {
@@ -281,7 +281,7 @@ fn at2_check(
     1.0 / 0.0,
     -1.0 / 0.0,
   ]
-  let ctx = @bin_float.BinaryContext::new(precision~)
+  let ctx = @binary.BinaryContext::new(precision~)
   let mut nonempty = 0
   for _ in 0..<cases {
     let factor = pwr_ordered(
@@ -298,7 +298,7 @@ fn at2_check(
     let mut xl = pwr_pick(rng, x_values, precision)
     let mut xh = pwr_pick(rng, x_values, precision)
     if !whole.is_empty() && rng.below(2) == 0 {
-      let near = fn(e : @bin_float.BinFloat) {
+      let near = fn(e : @binary.Binary) {
         if e.classify() != FpClass::Finite {
           return e
         }
@@ -319,7 +319,7 @@ fn at2_check(
       "CASE rev=\{rev} f=\{factor.to_string()} c=\{c.to_string()} prior=\{prior.to_string()}",
     )
     let got = at2_run(rev, factor, c, Some(prior), cap)
-    let candidates : Array[@bin_float.BinFloat] = []
+    let candidates : Array[@binary.Binary] = []
     candidates.push(prior.lo_)
     candidates.push(prior.hi_)
     for value in x_values {
@@ -356,7 +356,7 @@ fn at2_check(
     }
     // tightness of an end that comes from a piece (not from the prior, not infinite)
     if cap is None && !got.is_empty() {
-      let sat_of = fn(x : @bin_float.BinFloat) {
+      let sat_of = fn(x : @binary.Binary) {
         if x.classify() != FpClass::Finite {
           2
         } else {

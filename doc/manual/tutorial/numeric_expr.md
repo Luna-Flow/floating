@@ -3,7 +3,7 @@
 The goal of this tutorial is to describe a computation once as a
 `numeric_expr` tree and run it against any number type by supplying two
 callbacks: one that reads a literal and one that executes an operation. By the
-end you can evaluate expressions over `Int`, over `BinFloat` with IEEE flags,
+end you can evaluate expressions over `Int`, over `Binary` with IEEE flags,
 and report failures at their source line. This is the mechanism the GDA
 conformance frontend `frontend/gda_expr` uses to run `.decTest` corpora.
 
@@ -11,7 +11,7 @@ conformance frontend `frontend/gda_expr` uses to run `.decTest` corpora.
 | --- | --- |
 | build an expression tree | [`Expr::literal`, `Expr::invoke`](#quick-start) |
 | give operations a meaning | [the `invoke` callback](#write-a-small-interpreter) |
-| evaluate over a floating-point type with flags | [a pair value type](#evaluate-over-binfloat-and-collect-ieee-flags) |
+| evaluate over a floating-point type with flags | [a pair value type](#evaluate-over-binary-and-collect-ieee-flags) |
 | report a failure at its source line | [`SourceSpan`, `EvalError`](#report-errors-at-their-source) |
 | know which callbacks run, and in which order | [post-order evaluation](#see-the-evaluation-order) |
 | keep domain errors as values | [checked value types](#going-further) |
@@ -112,21 +112,21 @@ test "small interpreter" {
 `sum` shows that an operation may take any number of arguments; the callback
 decides.
 
-### Evaluate over `BinFloat` and collect IEEE flags
+### Evaluate over `Binary` and collect IEEE flags
 
 The value type `V` can carry more than a number. Here every value is a
-`BinFloat` together with the IEEE flags raised so far, and each operation merges
+`Binary` together with the IEEE flags raised so far, and each operation merges
 the flags of its arguments with its own:
 
 ```moonbit
 ///|
 fn binary_literal(
   literal : @numeric_expr.Literal,
-) -> Result[(@bin_float.BinFloat, @bin_float.BinaryFlags), String] {
+) -> Result[(@binary.Binary, @binary.BinaryFlags), String] {
   match
-    @bin_float.BinFloat::from_string_ctx(
+    @binary.Binary::from_string_ctx(
       literal.raw(),
-      @bin_float.BinaryContext::binary64(),
+      @binary.BinaryContext::binary64(),
     ) {
     Ok(pair) => Ok(pair)
     Err(_) => Err("not a number: " + literal.raw())
@@ -136,9 +136,9 @@ fn binary_literal(
 ///|
 fn binary_operation(
   operation : @numeric_expr.Operation,
-  arguments : Array[(@bin_float.BinFloat, @bin_float.BinaryFlags)],
-) -> Result[(@bin_float.BinFloat, @bin_float.BinaryFlags), String] {
-  let context = @bin_float.BinaryContext::binary64()
+  arguments : Array[(@binary.Binary, @binary.BinaryFlags)],
+) -> Result[(@binary.Binary, @binary.BinaryFlags), String] {
+  let context = @binary.BinaryContext::binary64()
   match (operation.name(), arguments) {
     ("add", [(a, fa), (b, fb)]) => {
       let (value, flags) = a.add_ctx(b, context)
@@ -252,7 +252,7 @@ first.
   keeps it unchanged.
 - **Checked pipelines.** If you want domain errors to stay values instead of
   stopping the evaluation, make `V` a checked type such as
-  `@bin_float_checked.BinFloatResult` and let the callbacks always return `Ok`.
+  `@binary_checked.BinaryChecked` and let the callbacks always return `Ok`.
 
 ## Common pitfalls
 

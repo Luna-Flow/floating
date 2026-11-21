@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Rows for `Decimal::to_bin_float` at large exponents (#378).
+"""Rows for `Decimal::to_binary` at large exponents (#378).
 
-Writes `library/src/decimal/to_bin_float_rows_wbtest.mbt`, a table of
+Writes `library/src/decimal/to_binary_rows_wbtest.mbt`, a table of
 `(decimal, precision, mode, expected coefficient, expected exponent2)` executed by
-`to_bin_float_parts_wbtest.mbt`. The expected binary value is computed by exact
+`to_binary_parts_wbtest.mbt`. The expected binary value is computed by exact
 integer arithmetic in Python (`c * 10^e` rounded to `precision` bits in the named
 direction: round to nearest with ties to even, toward zero, away from zero,
 toward negative, toward positive), independent of the library and of the
@@ -26,7 +26,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "library/src/decimal/to_bin_float_rows_wbtest.mbt"
+OUTPUT = ROOT / "library/src/decimal/to_binary_rows_wbtest.mbt"
 MODES = ["ToNearestEven", "TowardZero", "AwayFromZero", "TowardNegative", "TowardPositive"]
 CHUNK_ROWS = 100
 ROW_TYPE = "(String, Int32, String, String, Int32)"
@@ -136,16 +136,16 @@ def render(rows: list[tuple]) -> str:
     chunks = [rows[i : i + CHUNK_ROWS] for i in range(0, len(rows), CHUNK_ROWS)]
     for index, chunk in enumerate(chunks):
         out.append("///|")
-        out.append(f"fn to_bin_float_rows_{index}() -> Array[{ROW_TYPE}] {{")
+        out.append(f"fn to_binary_rows_{index}() -> Array[{ROW_TYPE}] {{")
         out.append("  [")
         for text, precision, mode, coefficient, exponent in chunk:
             out.append(f"    ({quote(text)}, {precision}, {quote(mode)}, {quote(coefficient)}, {exponent}),")
         out += ["  ]", "}", ""]
     out.append("///|")
-    out.append(f"fn to_bin_float_rows() -> Array[{ROW_TYPE}] {{")
+    out.append(f"fn to_binary_rows() -> Array[{ROW_TYPE}] {{")
     out.append(f"  let rows : Array[{ROW_TYPE}] = []")
     for index in range(len(chunks)):
-        out.append(f"  for row in to_bin_float_rows_{index}() {{ rows.push(row) }}")
+        out.append(f"  for row in to_binary_rows_{index}() {{ rows.push(row) }}")
     out += ["  rows", "}", ""]
     return "\n".join(out)
 

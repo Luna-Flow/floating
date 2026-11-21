@@ -5,31 +5,23 @@
 
 ///|
 test "try_atan2 of a quotient below the exponent range encloses zero tightly" {
-  let tiny_unit = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::one(),
-    -1073741874,
-    64,
-  )
+  let tiny_unit = @binary.Binary::make(@binary.BinCoeff::one(), -1073741874, 64)
   for e in [1073741000, 540000000] {
     for negative in [false, true] {
-      let y = @bin_float.BinFloat::make(
-        @bin_float.BinCoeff::from_uint64(5UL),
+      let y = @binary.Binary::make(
+        @binary.BinCoeff::from_uint64(5UL),
         -e,
         64,
         negative~,
       )
-      let x = @bin_float.BinFloat::make(
-        @bin_float.BinCoeff::from_uint64(7UL),
-        e,
-        64,
-      )
+      let x = @binary.Binary::make(@binary.BinCoeff::from_uint64(7UL), e, 64)
       let r = Interval::exact(y, precision=53)
         .try_atan2(Interval::exact(x, precision=53))
         .unwrap()
       let (low, high) = if negative {
-        (tiny_unit.neg(), @bin_float.BinFloat::zero())
+        (tiny_unit.neg(), @binary.Binary::zero())
       } else {
-        (@bin_float.BinFloat::zero(), tiny_unit)
+        (@binary.Binary::zero(), tiny_unit)
       }
       assert_eq(r.lower_bound().compare(low), 0)
       assert_eq(r.upper_bound().compare(high), 0)

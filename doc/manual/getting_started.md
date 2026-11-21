@@ -12,11 +12,11 @@ is spelled.
 
 | You need | Package | Main type | Results |
 | --- | --- | --- | --- |
-| arbitrary-precision binary values, IEEE 754 binary formats | `bin_float` | `BinFloat` | value, or `(value, BinaryFlags)` under a `BinaryContext` |
+| arbitrary-precision binary values, IEEE 754 binary formats | `binary` | `Binary` | value, or `(value, BinaryFlags)` under a `BinaryContext` |
 | IEEE 754 decimal arithmetic and decimal32/64/128 interchange | `decimal` | `Decimal` | value, or `(value, DecimalFlags)` under a `DecimalContext` |
 | General Decimal Arithmetic with sticky status and traps | `decimal_gda` | `Decimal` | `GdaOutcome[Decimal]` with the next `GdaContext` |
 | certified enclosures of real results (IEEE 1788) | `interval` | `Interval`, `DecoratedInterval` | an interval, or `(interval, IntervalFlags)` under an `IntervalContext` |
-| a binary pipeline that stops at the first error | `bin_float_checked` | `BinFloatResult` | `Result[BinFloat, ArithmeticError]` inside a wrapper |
+| a binary pipeline that stops at the first error | `binary_checked` | `BinaryChecked` | `Result[Binary, ArithmeticError]` inside a wrapper |
 | an IEEE decimal pipeline that accumulates flags | `decimal_checked` | `DecimalChecked` | defined value plus latest and accumulated `DecimalFlags` |
 | a GDA pipeline that stops at a trap | `decimal_gda_checked` | `GdaDecimalChecked` | one threaded `GdaOutcome[Decimal]` |
 | an interval pipeline that stops at the first error | `interval_checked` | `IntervalResult` | `Result[Interval, ArithmeticError]` inside a wrapper |
@@ -42,7 +42,7 @@ moon add Luna-Flow/arithmetic
 
 > [!NOTE]
 > The manual describes the current branch. Operations listed under
-> "Unreleased" in the changelog (for example `BinFloat::fma_ctx`,
+> "Unreleased" in the changelog (for example `Binary::fma_ctx`,
 > `remainder_ctx`, `next_up_ctx` and decimal string formatting) are not in a
 > published release yet.
 
@@ -51,7 +51,7 @@ Import only the packages you use in your `moon.pkg`:
 ```moonbit nocheck
 import {
   "Luna-Flow/arithmetic" @lf_arith,
-  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/binary",
   "Luna-Flow/floating/decimal",
   "Luna-Flow/floating/interval",
 }
@@ -64,7 +64,7 @@ package, and its files share one namespace. By convention the manual imports
 
 ## Build values
 
-A `BinFloat` is an exact dyadic number $c \cdot 2^e$ with a precision; a
+A `Binary` is an exact dyadic number $c \cdot 2^e$ with a precision; a
 `Decimal` is $c \cdot 10^q$ and remembers the exponent $q$ of its literal; an
 `Interval` is an interval with binary endpoints.
 
@@ -72,8 +72,8 @@ A `BinFloat` is an exact dyadic number $c \cdot 2^e$ with a precision; a
 ///|
 test "first values" {
   // 3 * 2^-1 at 53 bits of precision.
-  let binary = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(3UL),
+  let binary = @binary.Binary::make(
+    @binary.BinCoeff::from_uint64(3UL),
     -1,
     53,
   )
@@ -85,18 +85,18 @@ test "first values" {
   inspect(price.exponent10(), content="-4")
   // Every real number from 1 through 2.
   let interval = @interval.Interval::from_bounds(
-    @bin_float.BinFloat::from_int(1),
-    @bin_float.BinFloat::from_int(2),
+    @binary.Binary::from_int(1),
+    @binary.Binary::from_int(2),
   )
   inspect(interval.is_member(binary), content="true")
 }
 ```
 
-`BinFloat` prints in the exact form `<coefficient>p<exponent>`; use
+`Binary` prints in the exact form `<coefficient>p<exponent>`; use
 `to_shortest_string` or `to_decimal_string_ctx` for decimal text. Call
 `normalized()` on a decimal only when you want to drop its cohort.
 
-Other constructors: `BinFloat::from_int`, `from_double`, `from_string` and
+Other constructors: `Binary::from_int`, `from_double`, `from_string` and
 `from_string_ctx` (correctly rounded decimal parsing), `from_hex`;
 `Decimal::from_int`, `from_string` and `from_string_ctx`; `Interval::from_int`,
 `from_double`, `exact` and `from_bounds`. Constructors take an optional
@@ -114,17 +114,17 @@ the `*_ctx` form with an explicit context:
 ```moonbit
 ///|
 test "contextual arithmetic" {
-  let ctx = @bin_float.BinaryContext::binary64()
-  let (third, flags) = @bin_float.BinFloat::from_int(1).div_ctx(
-    @bin_float.BinFloat::from_int(3),
+  let ctx = @binary.BinaryContext::binary64()
+  let (third, flags) = @binary.Binary::from_int(1).div_ctx(
+    @binary.Binary::from_int(3),
     ctx,
   )
   inspect(third.to_shortest_string(), content="0.3333333333333333")
   inspect(flags.inexact(), content="true")
   // The same quotient rounded upward lands one ulp higher.
-  let up = @bin_float.BinaryContext::binary64(rounding=RoundTowardPositive)
-  let (high, _) = @bin_float.BinFloat::from_int(1).div_ctx(
-    @bin_float.BinFloat::from_int(3),
+  let up = @binary.BinaryContext::binary64(rounding=RoundTowardPositive)
+  let (high, _) = @binary.Binary::from_int(1).div_ctx(
+    @binary.Binary::from_int(3),
     up,
   )
   inspect(high.sub(third) == third.ulp(), content="true")
@@ -155,7 +155,7 @@ matches what your caller must observe:
   functions).
 - `BinaryFlags`, `DecimalFlags` and `IntervalFlags` beside a defined result.
 - `GdaOutcome[T]`, which keeps the GDA-defined result even when a trap fires.
-- The pipeline wrappers: `BinFloatResult` and `IntervalResult` stop at the
+- The pipeline wrappers: `BinaryChecked` and `IntervalResult` stop at the
   first error; `DecimalChecked` keeps defined NaN and infinity results and
   accumulates flags; `GdaDecimalChecked` stops at a trap and keeps its
   outcome.
@@ -164,7 +164,7 @@ matches what your caller must observe:
 ```moonbit
 ///|
 test "pipelines" {
-  let failed = @bin_float_checked.BinFloatResult::from_int(-4).sqrt()
+  let failed = @binary_checked.BinaryChecked::from_int(-4).sqrt()
   inspect(failed.is_err(), content="true")
   let ctx = @decimal.DecimalContext::decimal64()
   let three = @decimal_checked.DecimalChecked::from_int(3, ctx)
@@ -188,12 +188,12 @@ erases semantics the standards make observable.
 - `compare`, `<` and sorting use a total preorder in which every NaN is equal
   to every other NaN and above every number, and $-0 = +0$. For IEEE
   semantics use `compare_checked`, the quiet and signaling predicates of
-  `bin_float`, or the `total_order*` functions.
-- `==` agrees with `compare` in the number types: on `BinFloat` it ignores the
+  `binary`, or the `total_order*` functions.
+- `==` agrees with `compare` in the number types: on `Binary` it ignores the
   sign of a zero and the precision (`-0 == +0`) and treats two NaNs as equal, on
   `Decimal` it compares values, and on `Interval` it compares the bounds by
   value (two empty intervals are equal). `a.identical(b)` compares every field
-  of a `BinFloat`. See [numeric semantics](./numeric_semantics.md).
+  of a `Binary`. See [numeric semantics](./numeric_semantics.md).
 - An `Interval` has containment and set relations (`contains`, `subset`,
   `definitely_lt`, …), not a scalar order. A result is correct when it encloses
   the exact result; tightness is a separate quality.
@@ -209,6 +209,6 @@ erases semantics the standards make observable.
 - [Verification](./verification.md) lists the gates and the exact scope of each
   conformance claim.
 - Each package has a tutorial, an API reference and a design page; start with
-  the [`bin_float` tutorial](./tutorial/bin_float.md), the
+  the [`binary` tutorial](./tutorial/binary.md), the
   [`decimal` tutorial](./tutorial/decimal.md) or the
   [`interval` tutorial](./tutorial/interval.md).

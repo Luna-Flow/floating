@@ -16,7 +16,7 @@ fn decimal_certified_work_bits(value : Decimal, ctx : DecimalContext) -> Int64 {
 ///|
 /// The one place that refuses a certified evaluation whose first working
 /// precision exceeds what a binary format holds (`binary_precision_max`
-/// bits, bin_float/context.mbt:43; about 80.8 million decimal digits): the
+/// bits, binary/context.mbt:43; about 80.8 million decimal digits): the
 /// context-limit error, at once and before any refinement. Every certified
 /// loop calls it with its first working precision.
 fn decimal_certified_work_refusal(
@@ -24,7 +24,7 @@ fn decimal_certified_work_refusal(
   operation : String,
   ctx : DecimalContext,
 ) -> @def.ArithmeticError? {
-  if initial_bits > @bin_float.binary_precision_max.to_int64() {
+  if initial_bits > @binary.binary_precision_max.to_int64() {
     Some(decimal_context_limit(operation, ctx))
   } else {
     None
@@ -46,7 +46,7 @@ fn decimal_to_certified_ball(
   value : Decimal,
   precision : Int32,
 ) -> @interval.Interval {
-  let (lower, upper) = value.to_bin_float_bounds(precision)
+  let (lower, upper) = value.to_binary_bounds(precision)
   @interval.Interval::from_bounds(lower, upper, precision~)
 }
 
@@ -76,7 +76,7 @@ let decimal_log2_10_upper_ppm : Int64 = 3322000L
 /// is under half the smallest subnormal, so such endpoints are replaced by a
 /// representative of the same sign that rounds to the same result and flags.
 fn decimal_out_of_range_endpoint(
-  value : @bin_float.BinFloat,
+  value : @binary.Binary,
   ctx : DecimalContext,
 ) -> Decimal? {
   if value.is_zero() {
@@ -112,7 +112,7 @@ fn decimal_out_of_range_endpoint(
 
 ///|
 fn decimal_exact_dyadic_endpoint(
-  value : @bin_float.BinFloat,
+  value : @binary.Binary,
   ctx : DecimalContext,
 ) -> Decimal? {
   // Rounding is monotone, so an infinite endpoint can stand for any value
@@ -224,7 +224,7 @@ fn decimal_directed_power(
 /// the cost does not depend on the size of its binary exponent. Special,
 /// zero and out-of-range endpoints are converted as before.
 fn decimal_outward_dyadic_endpoint(
-  value : @bin_float.BinFloat,
+  value : @binary.Binary,
   ctx : DecimalContext,
   digits : Int32,
   upper : Bool,
@@ -314,9 +314,9 @@ fn decimal_certified_endpoints(
 /// a zero lower bound (IEEE 1788-2015 12.12.8), while a decimal endpoint that is certified
 /// against another is compared in the total order, which tells -0 from +0: a zero bound is the
 /// zero of the result, whatever the sign the accessor gives it.
-fn certified_bound(value : @bin_float.BinFloat) -> @bin_float.BinFloat {
+fn certified_bound(value : @binary.Binary) -> @binary.Binary {
   if value.is_zero() {
-    @bin_float.BinFloat::zero(precision=value.precision())
+    @binary.Binary::zero(precision=value.precision())
   } else {
     value
   }
@@ -708,34 +708,34 @@ fn decimal_power_out_of_range(
     }
   }
   let work = 128
-  let down = @bin_float.BinaryContext::new(
+  let down = @binary.BinaryContext::new(
     precision=work,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+    rounding=@binary.BinaryRoundingMode::RoundTowardNegative,
   )
-  let up = @bin_float.BinaryContext::new(
+  let up = @binary.BinaryContext::new(
     precision=work,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+    rounding=@binary.BinaryRoundingMode::RoundTowardPositive,
   )
-  let base_low = base.to_bin_float(
+  let base_low = base.to_binary(
     precision=work,
-    mode=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+    mode=@binary.BinaryRoundingMode::RoundTowardNegative,
   )
-  let base_high = base.to_bin_float(
+  let base_high = base.to_binary(
     precision=work,
-    mode=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+    mode=@binary.BinaryRoundingMode::RoundTowardPositive,
   )
   guard !base_low.is_zero() &&
     base_low.try_log2_ctx(down) is Ok((log_low, _)) &&
     base_high.try_log2_ctx(up) is Ok((log_high, _)) else {
     return None
   }
-  let exponent_low = exponent.to_bin_float(
+  let exponent_low = exponent.to_binary(
     precision=work,
-    mode=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+    mode=@binary.BinaryRoundingMode::RoundTowardNegative,
   )
-  let exponent_high = exponent.to_bin_float(
+  let exponent_high = exponent.to_binary(
     precision=work,
-    mode=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+    mode=@binary.BinaryRoundingMode::RoundTowardPositive,
   )
   let lows = [
     log_low.mul_ctx(exponent_low, down).0,

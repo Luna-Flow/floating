@@ -147,42 +147,42 @@ aborts with a message that names both limits and the exponent, and `try_make`
 returns `Err` of the domain-error kind with the same message. `try_make` also
 returns that error for a precision outside `1..=999999999`, where `make` aborts.
 
-### `Decimal::from_int`, `Decimal::from_bigint`, `Decimal::from_double`, `Decimal::from_float`, `Decimal::from_bin_float`
+### `Decimal::from_int`, `Decimal::from_bigint`, `Decimal::from_double`, `Decimal::from_float`, `Decimal::from_binary`
 
 These convert binary values to decimal. An integer of at most `precision`
 digits keeps exponent 0 and an exact binary fraction takes the exponent closest
 to 0 (trailing zeros are removed only down to exponent 0); a longer or inexact
 value is rounded to exactly `precision` digits, half to even unless `mode`
-(for `from_bin_float`) says otherwise.
+(for `from_binary`) says otherwise.
 
 ```mbti
 pub fn Decimal::from_int(Int, precision? : Int) -> Self
 pub fn Decimal::from_bigint(@bigint.BigInt, precision? : Int) -> Self
 pub fn Decimal::from_double(Double, precision? : Int) -> Self
 pub fn Decimal::from_float(Float, precision? : Int) -> Self
-pub fn Decimal::from_bin_float(@bin_float.BinFloat, precision~ : Int, mode? : GdaRoundingMode) -> Self
+pub fn Decimal::from_binary(@binary.Binary, precision~ : Int, mode? : GdaRoundingMode) -> Self
 ```
 
-`precision` defaults to 34 digits; for `from_bin_float` it is required and
+`precision` defaults to 34 digits; for `from_binary` it is required and
 counts decimal digits, not the bits of the argument. A binary float $m \cdot 2^{k}$ with $k < 0$ is first written exactly
 as $m 5^{-k} \cdot 10^{k}$, so the conversion is exact whenever the result fits
 in `precision` digits; for example `from_double(0.1)` is the exact binary64 value nearest to $0.1$
 rounded half to even to 34 digits. NaNs become the quiet NaN
 (sign kept by `from_double`), infinities keep their sign, zeros keep their
-sign (`from_bin_float` returns $+0$). `from_int(100)` is `100` (exponent 0),
+sign (`from_binary` returns $+0$). `from_int(100)` is `100` (exponent 0),
 `from_int(99999, precision=3)` is `1.00E+5` and `from_double(0.5)` is `0.5`.
 
-### `Decimal::to_bin_float`
+### `Decimal::to_binary`
 
-`to_bin_float` rounds the value to a binary `BinFloat` with `precision`
+`to_binary` rounds the value to a binary `Binary` with `precision`
 significant bits.
 
 ```mbti
-pub fn Decimal::to_bin_float(Self, precision~ : Int, mode? : @bin_float.BinaryRoundingMode) -> @bin_float.BinFloat
+pub fn Decimal::to_binary(Self, precision~ : Int, mode? : @binary.BinaryRoundingMode) -> @binary.Binary
 ```
 
 `precision` is required and counts bits, from 1 to
-`@bin_float.binary_precision_max` (outside that range the call aborts). `mode` is a
+`@binary.binary_precision_max` (outside that range the call aborts). `mode` is a
 rounding attribute of the radix of the result (IEEE 754-2019 4.3.1) and
 defaults to `RoundTiesToEven`; ties-to-away rounds the exact value once, too. With
 `RoundTowardNegative` and `RoundTowardPositive` the two results
@@ -1660,7 +1660,7 @@ package "Luna-Flow/floating/decimal_gda"
 
 import {
   "Luna-Flow/arithmetic",
-  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/binary",
   "Luna-Flow/floating/def",
   "Luna-Flow/luna-generic",
   "moonbitlang/core/bigint",
@@ -1801,7 +1801,7 @@ pub fn Decimal::equal(Self, Self) -> Bool
 pub fn Decimal::exp_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Decimal::exponent10(Self) -> Int32
 pub fn Decimal::from_bigint(@bigint.BigInt, precision? : Int32) -> Self
-pub fn Decimal::from_bin_float(@bin_float.BinFloat, precision~ : Int32, mode? : GdaRoundingMode) -> Self
+pub fn Decimal::from_binary(@binary.Binary, precision~ : Int32, mode? : GdaRoundingMode) -> Self
 pub fn Decimal::from_double(Double, precision? : Int32) -> Self
 pub fn Decimal::from_float(Float, precision? : Int32) -> Self
 pub fn Decimal::from_int(Int32, precision? : Int32) -> Self
@@ -1850,7 +1850,7 @@ pub fn Decimal::sqrt_checked(Self, @arithmetic.ArithmeticContext) -> Result[Self
 pub fn Decimal::sqrt_contextual(Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Decimal::sub(Self, Self) -> Self
 pub fn Decimal::sub_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
-pub fn Decimal::to_bin_float(Self, precision~ : Int32, mode? : @bin_float.BinaryRoundingMode) -> @bin_float.BinFloat
+pub fn Decimal::to_binary(Self, precision~ : Int32, mode? : @binary.BinaryRoundingMode) -> @binary.Binary
 pub fn Decimal::to_eng_string(Self) -> String
 pub fn Decimal::to_repr(Self) -> @debug.Repr
 pub fn Decimal::to_sci_string(Self) -> String

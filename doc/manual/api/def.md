@@ -20,12 +20,12 @@ Add the package to your `moon.pkg`, next to the representation you use:
 ```moonbit nocheck
 import {
   "Luna-Flow/floating/def",
-  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/binary",
 }
 ```
 
 The examples on this page are complete tests. They call the package as
-`@def.`, the representations as `@bin_float.`, `@decimal.`, `@decimal_gda.`
+`@def.`, the representations as `@binary.`, `@decimal.`, `@decimal_gda.`
 and `@interval.`, and `Luna-Flow/arithmetic` as `@lf_arith.`.
 
 ## Sign and comparison results
@@ -43,18 +43,18 @@ pub(all) enum Sign {
 ```
 
 `Zero` is returned for both signed zeros, so `Sign` does not distinguish $-0$
-from $+0$; use the concrete package (for example `BinFloat::is_negative_zero`)
+from $+0$; use the concrete package (for example `Binary::is_negative_zero`)
 when the sign bit of a zero matters. The scalar implementations also return
 `Zero` for every NaN (see [`Floating::sign`](#floatingsign)). `Sign` is also the payload of
 `SemanticScalar::Infinity` in the [`semantic`](semantic.md) package and the
-argument of constructors such as `BinFloat::inf`.
+argument of constructors such as `Binary::inf`.
 
 ```moonbit
 ///|
 test "Sign values" {
-  let s = @def.Floating::sign(@bin_float.BinFloat::from_int(-3))
+  let s = @def.Floating::sign(@binary.Binary::from_int(-3))
   inspect(s == @def.Sign::Negative, content="true")
-  let z = @def.Floating::sign(@bin_float.BinFloat::from_double(-0.0))
+  let z = @def.Floating::sign(@binary.Binary::from_double(-0.0))
   inspect(z == @def.Sign::Zero, content="true")
 }
 ```
@@ -80,14 +80,14 @@ pub(all) enum IeeeClass {
 } derive(Eq)
 ```
 
-`BinFloat::class_of` and `Decimal::class_of` return it. Normal and subnormal
+`Binary::class_of` and `Decimal::class_of` return it. Normal and subnormal
 depend on the format's $e_{\min}$, so both take the context that fixes it.
 
 ```moonbit
 ///|
 test "IeeeClass of a binary32 value" {
-  let ctx = @bin_float.BinaryInterchangeFormat::Binary32.context()
-  let tiny = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -127, 24)
+  let ctx = @binary.BinaryInterchangeFormat::Binary32.context()
+  let tiny = @binary.Binary::make(@binary.BinCoeff::one(), -127, 24)
   inspect(tiny.class_of(ctx) == @def.IeeeClass::PositiveSubnormal, content="true")
   inspect(tiny.neg().class_of(ctx) == @def.IeeeClass::NegativeSubnormal, content="true")
 }
@@ -109,8 +109,8 @@ pub(all) enum PartialOrder {
 ```
 
 `Unordered` holds exactly when at least one operand is NaN; $-0$ and $+0$
-compare `Equal`. The type is returned by `BinFloat::compare_quiet` and
-`BinFloat::compare_signaling` in [`bin_float`](bin_float.md) (each paired with
+compare `Equal`. The type is returned by `Binary::compare_quiet` and
+`Binary::compare_signaling` in [`binary`](binary.md) (each paired with
 the flags of the comparison). It is a value type only; `def` performs no
 comparison itself. Why four results and not a `Compare` instance is derived in
 the [design page](../design/def.md#partialorder-is-the-ieee-four-way-relation).
@@ -118,16 +118,16 @@ the [design page](../design/def.md#partialorder-is-the-ieee-four-way-relation).
 ```moonbit
 ///|
 test "PartialOrder from an IEEE comparison" {
-  let one = @bin_float.BinFloat::from_int(1)
-  let nan = @bin_float.BinFloat::nan()
+  let one = @binary.Binary::from_int(1)
+  let nan = @binary.Binary::nan()
   let (relation, flags) = one.compare_quiet(nan)
   inspect(relation == @def.PartialOrder::Unordered, content="true")
   inspect(flags.invalid_operation(), content="false")
   let (signaling, signaling_flags) = one.compare_signaling(nan)
   inspect(signaling == @def.PartialOrder::Unordered, content="true")
   inspect(signaling_flags.invalid_operation(), content="true")
-  let zeros = @bin_float.BinFloat::from_double(-0.0).compare_quiet(
-    @bin_float.BinFloat::zero(),
+  let zeros = @binary.Binary::from_double(-0.0).compare_quiet(
+    @binary.Binary::zero(),
   )
   inspect(zeros.0 == @def.PartialOrder::Equal, content="true")
 }
@@ -151,7 +151,7 @@ pub(open) trait Floating {
 ```
 
 `Floating` is implemented by the scalar types of this library only:
-`@bin_float.BinFloat`, `@decimal.Decimal` and `@decimal_gda.Decimal`.
+`@binary.Binary`, `@decimal.Decimal` and `@decimal_gda.Decimal`.
 `@interval.Interval` does not implement it (see [Intervals are not
 `Floating`](../design/def.md#intervals-are-not-floating)). It is not an extension point: implementing it for a
 type outside this module is not supported and is not covered by the
@@ -186,7 +186,7 @@ fn sign(Self) -> Sign
 
 | Implementation | `Negative` | `Zero` | `Positive` |
 | --- | --- | --- | --- |
-| `BinFloat`, both `Decimal`s | value $< 0$, including $-\infty$ | $\pm 0$ and every NaN | value $> 0$, including $+\infty$ |
+| `Binary`, both `Decimal`s | value $< 0$, including $-\infty$ | $\pm 0$ and every NaN | value $> 0$, including $+\infty$ |
 
 ### `Floating::precision`
 
@@ -196,7 +196,7 @@ fn sign(Self) -> Sign
 fn precision(Self) -> Int
 ```
 
-It counts significant bits for `BinFloat` and significant decimal digits for both `Decimal` types. Every
+It counts significant bits for `Binary` and significant decimal digits for both `Decimal` types. Every
 constructor clamps the stored precision to at least $1$, so the result is
 always at least $1$.
 
@@ -214,7 +214,7 @@ radix, to nearest with ties to even (IEEE 754-2019 4.3.1). The trait method has
 no rounding parameter, because it cannot return an error; the inherent
 `with_precision` of each scalar type takes a rounding mode. No context exponent bounds apply and no flags
 are reported (use the `*_ctx` APIs of the concrete package for both). The
-decimal types have no other exponent limit. `BinFloat` keeps its
+decimal types have no other exponent limit. `Binary` keeps its
 implementation range: a result whose exponent leaves
 $\pm(2^{30} - 1)$ (`binary_implementation_e_max`,
 `binary_implementation_e_min`) overflows to an infinity or to the largest
@@ -230,7 +230,7 @@ stored precision.
 fn normalized(Self) -> Self
 ```
 
-For `BinFloat` this is the representation with an odd coefficient (or zero);
+For `Binary` this is the representation with an odd coefficient (or zero);
 for both `Decimal` types it removes trailing zeros of the coefficient, so
 `1.500` becomes `1.5` (the cohort changes, the value does not) and `-0.000`
 becomes `-0`. Non-finite scalars are returned unchanged. On the scalar types
@@ -255,7 +255,7 @@ fn[F : @def.Floating] describe(x : F) -> String {
 ///|
 test "Floating observations" {
   inspect(
-    describe(@bin_float.BinFloat::from_double(-0.0)),
+    describe(@binary.Binary::from_double(-0.0)),
     content="finite 0 precision=53",
   )
   inspect(
@@ -274,7 +274,7 @@ test "Floating re-precision and normalization" {
   let cut = @def.Floating::with_precision(d, 3)
   inspect(cut.to_string(), content="2.72")
   let ten = @def.Floating::with_precision(
-    @bin_float.BinFloat::from_int(10),
+    @binary.Binary::from_int(10),
     2,
   )
   inspect(ten.to_string(), content="1p3")
@@ -313,7 +313,7 @@ both signed zeros and false for NaN.
 ```moonbit
 ///|
 test "generic predicates" {
-  inspect(@def.is_zero(@bin_float.BinFloat::from_double(-0.0)), content="true")
+  inspect(@def.is_zero(@binary.Binary::from_double(-0.0)), content="true")
   inspect(
     @def.is_finite(@decimal.Decimal::from_string("NaN").unwrap()),
     content="false",

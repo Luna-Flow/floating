@@ -41,12 +41,12 @@ exact oracle whenever possible:
 
 ```moonbit
 ///|
-test "bin_float addition of small dyadics is exact" {
-  let a = @bin_float.BinFloat::from_int(3)
-  let b = @bin_float.BinFloat::from_int(5)
-  let sum = @semantic.SemanticScalar::from_bin_float(a + b)
-  let exact = @semantic.SemanticScalar::from_bin_float(
-    @bin_float.BinFloat::from_int(8),
+test "binary addition of small dyadics is exact" {
+  let a = @binary.Binary::from_int(3)
+  let b = @binary.Binary::from_int(5)
+  let sum = @semantic.SemanticScalar::from_binary(a + b)
+  let exact = @semantic.SemanticScalar::from_binary(
+    @binary.Binary::from_int(8),
   )
   assert_true(sum == exact)
 }

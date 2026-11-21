@@ -34,7 +34,7 @@ Then import the packages you need in your `moon.pkg`:
 
 ```moonbit nocheck
 import {
-  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/binary",
 }
 ```
 
@@ -53,8 +53,8 @@ and the `internal` helpers. `Luna-Flow/floating-tools`
 expressions and corpus frontends, the conformance command line, the
 differential harness, the benchmarks and the documentation examples. The
 sections below say which module a package belongs to; their package names are
-import paths below the module name, so `bin_float` is
-`Luna-Flow/floating/bin_float` and `frontend/gda_expr` is
+import paths below the module name, so `binary` is
+`Luna-Flow/floating/binary` and `frontend/gda_expr` is
 `Luna-Flow/floating-tools/frontend/gda_expr`.
 
 ## Pages
@@ -68,7 +68,7 @@ verified, and how) and a performance page (measurements and their method).
 
 | Part | Tutorial | API | Design | Evidence |
 | --- | --- | --- | --- | --- |
-| `bin_float`: binary floating point, IEEE 754 binary operations, binary16/32/64/128 interchange | [tutorial](tutorial/bin_float.md) | [API](api/bin_float.md) | [design](design/bin_float.md) | [conformance](conformance/bin_float.md), [performance](performance/bin_float.md) |
+| `binary`: binary floating point, IEEE 754 binary operations, binary16/32/64/128 interchange | [tutorial](tutorial/binary.md) | [API](api/binary.md) | [design](design/binary.md) | [conformance](conformance/binary.md), [performance](performance/binary.md) |
 | `decimal`: IEEE 754 decimal with per-operation flags and DPD/BID interchange | [tutorial](tutorial/decimal.md) | [API](api/decimal.md) | [design](design/decimal.md) | [conformance](conformance/decimal.md), [performance](performance/decimal.md) |
 | `decimal_gda`: General Decimal Arithmetic with sticky status and traps | [tutorial](tutorial/decimal_gda.md) | [API](api/decimal_gda.md) | [design](design/decimal_gda.md) | [conformance](conformance/decimal_gda.md), [performance](performance/decimal_gda.md) |
 | `interval`: outward-rounded bare and decorated intervals (IEEE 1788) | [tutorial](tutorial/interval.md) | [API](api/interval.md) | [design](design/interval.md) | [conformance](conformance/interval.md), [performance](performance/interval.md) |
@@ -78,7 +78,7 @@ verified, and how) and a performance page (measurements and their method).
 | Part | Tutorial | API | Design |
 | --- | --- | --- | --- |
 | `def`: `Sign`, `PartialOrder`, the `Floating` trait, re-exported `arithmetic` types | [tutorial](tutorial/def.md) | [API](api/def.md) | [design](design/def.md) |
-| `bin_float_checked`: binary pipelines that stop at the first error | [tutorial](tutorial/bin_float_checked.md) | [API](api/bin_float_checked.md) | [design](design/bin_float_checked.md) |
+| `binary_checked`: binary pipelines that stop at the first error | [tutorial](tutorial/binary_checked.md) | [API](api/binary_checked.md) | [design](design/binary_checked.md) |
 | `decimal_checked`: IEEE decimal pipelines that accumulate flags | [tutorial](tutorial/decimal_checked.md) | [API](api/decimal_checked.md) | [design](design/decimal_checked.md) |
 | `decimal_gda_checked`: GDA pipelines that thread status and stop at traps | [tutorial](tutorial/decimal_gda_checked.md) | [API](api/decimal_gda_checked.md) | [design](design/decimal_gda_checked.md) |
 | `interval_checked`: interval pipelines that stop at the first error | [tutorial](tutorial/interval_checked.md) | [API](api/interval_checked.md) | [design](design/interval_checked.md) |
@@ -113,7 +113,7 @@ verified, and how) and a performance page (measurements and their method).
 | --- | --- | --- | --- |
 | `internal`: exact rationals, big-integer, parsing, normalization and rounding helpers | [tutorial](tutorial/internal.md) | [API](api/internal.md) | [design](design/internal.md) |
 | `internal/decimal_kernel`: exact integer arithmetic on decimal coefficients, shared by `decimal` and `decimal_gda` | [tutorial](tutorial/internal/decimal_kernel.md) | [API](api/internal/decimal_kernel.md) | [design](design/internal/decimal_kernel.md) |
-| `internal/bin_kernel`: exact integer arithmetic on the coefficients of `bin_float` | [tutorial](tutorial/internal/bin_kernel.md) | [API](api/internal/bin_kernel.md) | [design](design/internal/bin_kernel.md) |
+| `internal/bin_kernel`: exact integer arithmetic on the coefficients of `binary` | [tutorial](tutorial/internal/bin_kernel.md) | [API](api/internal/bin_kernel.md) | [design](design/internal/bin_kernel.md) |
 
 ### Tools module: infrastructure and evidence
 
@@ -125,7 +125,7 @@ verified, and how) and a performance page (measurements and their method).
 | `consistency`: white-box cross-package laws and API audits | [tutorial](tutorial/consistency.md) | [API](api/consistency.md) | [design](design/consistency.md) |
 | `doc_examples`: executable documentation examples run by `just docs` | [tutorial](tutorial/doc_examples.md) | [API](api/doc_examples.md) | [design](design/doc_examples.md) |
 | `bench`: shared Maremark benchmark infrastructure | [tutorial](tutorial/bench.md) | [API](api/bench.md) | [design](design/bench.md) |
-| `bench/bin_float`: binary arithmetic and elementary-function benchmarks | [tutorial](tutorial/bench/bin_float.md) | [API](api/bench/bin_float.md) | [design](design/bench/bin_float.md) |
+| `bench/binary`: binary arithmetic and elementary-function benchmarks | [tutorial](tutorial/bench/binary.md) | [API](api/bench/binary.md) | [design](design/bench/binary.md) |
 | `bench/decimal`: IEEE decimal benchmarks | [tutorial](tutorial/bench/decimal.md) | [API](api/bench/decimal.md) | [design](design/bench/decimal.md) |
 | `bench/decimal_gda`: GDA decimal benchmarks | [tutorial](tutorial/bench/decimal_gda.md) | [API](api/bench/decimal_gda.md) | [design](design/bench/decimal_gda.md) |
 | `bench/interval`: interval arithmetic benchmarks | [tutorial](tutorial/bench/interval.md) | [API](api/bench/interval.md) | [design](design/bench/interval.md) |
@@ -150,9 +150,9 @@ and their design pages state narrower stability promises.
 
 ## Exported types
 
-### Binary floating point (`bin_float`)
+### Binary floating point (`binary`)
 
-- Values: `BinFloat` (signed dyadic number with a precision, signed zeros,
+- Values: `Binary` (signed dyadic number with a precision, signed zeros,
   infinities and NaNs with payloads) and its exact coefficient `BinCoeff`
 - Contexts and status: `BinaryContext`, `BinaryRoundingMode`,
   `TininessDetection`, `BinaryFlags`
@@ -180,7 +180,7 @@ and their design pages state narrower stability promises.
 
 ### Pipelines and shared vocabulary
 
-- Checked wrappers: `BinFloatResult`, `DecimalChecked`, `GdaDecimalChecked`,
+- Checked wrappers: `BinaryChecked`, `DecimalChecked`, `GdaDecimalChecked`,
   `IntervalResult`
 - `def`: `Sign`, `PartialOrder`, the `Floating` trait, `is_finite`,
   `is_infinite`, `is_nan`, `is_zero`, and the re-exported `RoundingMode`,
@@ -194,7 +194,7 @@ and their design pages state narrower stability promises.
 
 - **New to the library.** Read [getting started](getting_started.md), then
   the tutorial of the package you chose, for example the
-  [`bin_float` tutorial](tutorial/bin_float.md) or the
+  [`binary` tutorial](tutorial/binary.md) or the
   [`decimal` tutorial](tutorial/decimal.md). Keep
   [numeric semantics](numeric_semantics.md) open for the vocabulary.
 - **Using it in an application or library.** Read

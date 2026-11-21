@@ -109,7 +109,7 @@ test "Coeff 64-bit limbs: carries across word boundaries" {
 
 ///|
 /// The previous loop of `binary_coeff_fast_add_parts` (`bin_window_combine` and
-/// `bin_window_word` of `bin_float_fast_coeff_nonjs.mbt` before the row
+/// `bin_window_word` of `binary_fast_coeff_nonjs.mbt` before the row
 /// primitive), kept verbatim as the reference of the window row.
 fn window_word_reference(
   words : FixedArray[UInt64],

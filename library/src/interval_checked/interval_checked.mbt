@@ -42,7 +42,7 @@ pub fn IntervalResult::from_int(
 
 ///|
 pub fn IntervalResult::from_coefficient(
-  value : @bin_float.BinCoeff,
+  value : @binary.BinCoeff,
   precision~ : Int32 = 53,
   negative~ : Bool = false,
 ) -> IntervalResult {
@@ -77,7 +77,7 @@ pub fn IntervalResult::from_float(
 
 ///|
 pub fn IntervalResult::exact(
-  value : @bin_float.BinFloat,
+  value : @binary.Binary,
   precision~ : Int32 = value.precision(),
 ) -> IntervalResult {
   IntervalResult::from_result(@interval.Interval::try_exact(value, precision~))
@@ -85,8 +85,8 @@ pub fn IntervalResult::exact(
 
 ///|
 pub fn IntervalResult::from_bounds(
-  lo : @bin_float.BinFloat,
-  hi : @bin_float.BinFloat,
+  lo : @binary.Binary,
+  hi : @binary.Binary,
   precision~ : Int32 = Int32::max(lo.precision(), hi.precision()),
 ) -> IntervalResult {
   IntervalResult::from_result(

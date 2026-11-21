@@ -2,7 +2,7 @@
 """Fail when a manual page or README states a corpus count that the manifests do not.
 
 The pinned binary corpora and the committed smoke fixtures have their row counts
-in `testdata/bin_float/corpora.json` and `testdata/bin_float/smoke/manifest.json`
+in `testdata/binary/corpora.json` and `testdata/binary/smoke/manifest.json`
 (`expectedCases`). The pages that quote those counts (the verification page, the
 binary conformance page, the testdata README) repeat them in prose; this check
 reads the manifests and compares every quoted number, so a count cannot go stale
@@ -27,8 +27,8 @@ def fmt(number: int) -> str:
 
 
 def manifest_counts(root: Path = REPO) -> dict[str, int]:
-    corpora = json.loads((root / "testdata/bin_float/corpora.json").read_text())
-    smoke = json.loads((root / "testdata/bin_float/smoke/manifest.json").read_text())
+    corpora = json.loads((root / "testdata/binary/corpora.json").read_text())
+    smoke = json.loads((root / "testdata/binary/smoke/manifest.json").read_text())
     mpfr = {Path(entry["path"]).name: entry["expectedCases"] for entry in smoke["mpfr"]}
     counts = {
         "elementary": corpora["mpfrCorpora"]["mpfr-4.2.2-elementary"]["expectedCases"],
@@ -55,7 +55,7 @@ def manifest_counts(root: Path = REPO) -> dict[str, int]:
     ):
         rows = [
             line
-            for line in (root / "testdata/bin_float" / name).read_text().splitlines()
+            for line in (root / "testdata/binary" / name).read_text().splitlines()
             if line and not line.startswith("#")
         ]
         if len(rows) != counts[key]:
@@ -77,21 +77,21 @@ CLAIMS: list[tuple[str, str, str]] = [
     ("doc/manual/verification.md", r"integer-power witnesses, ([\d,]+) elementary witnesses,", "elementary"),
     ("doc/manual/verification.md", r"elementary witnesses, ([\d,]+) `strtofr` witnesses", "strtofr"),
     ("doc/manual/verification.md", r"`strtofr` witnesses and ([\d,]+) decimal output witnesses", "decimal-output"),
-    ("doc/manual/conformance/bin_float.md", r"`mpfr_strtofr` corpus \(([\d,]+) rows\)", "strtofr"),
-    ("doc/manual/conformance/bin_float.md", r"`mpfr_get_str` corpus \(([\d,]+) rows\)", "decimal-output"),
-    ("doc/manual/conformance/bin_float.md", r"MPFR elementary fixture \(([\d,]+) rows\)", "elementary"),
-    ("doc/manual/conformance/bin_float.md", r"all executable hexadecimal sqrt rows \| ([\d,]+) / ([\d,]+) \|", "sqrt-data"),
-    ("doc/manual/conformance/bin_float.md", r"`pow_si` fixture \| [^|]*\| ([\d,]+) / ([\d,]+) \|", "pow-si"),
-    ("doc/manual/conformance/bin_float.md", r"elementary fixture \| 29 operations[^|]*\| ([\d,]+) / ([\d,]+) \|", "elementary"),
-    ("doc/manual/conformance/bin_float.md", r"`mpfr_strtofr` fixture \|[^|]*\| ([\d,]+) / ([\d,]+) \|", "strtofr"),
-    ("doc/manual/conformance/bin_float.md", r"`mpfr_get_str` fixture \|[^|]*\| ([\d,]+) / ([\d,]+) \|", "decimal-output"),
-    ("doc/manual/conformance/bin_float.md", r"Committed smoke \|[^|]*\| ([\d,]+) / ([\d,]+) \|", "smoke-total"),
-    ("doc/manual/conformance/bin_float.md", r"the ([\d,]+)-row hash-pinned fixture remains", "elementary"),
-    ("testdata/bin_float/README.md", r"runs the committed ([\d,]+)-row TestFloat subset", "testfloat-smoke"),
-    ("testdata/bin_float/README.md", r"([\d,]+) MPFR-generated integer-power witnesses", "pow-si"),
-    ("testdata/bin_float/README.md", r"([\d,]+) full-family elementary witnesses", "elementary"),
-    ("testdata/bin_float/README.md", r"([\d,]+) `mpfr_strtofr` witnesses", "strtofr"),
-    ("testdata/bin_float/README.md", r"([\d,]+) `mpfr_get_str` witnesses", "decimal-output"),
+    ("doc/manual/conformance/binary.md", r"`mpfr_strtofr` corpus \(([\d,]+) rows\)", "strtofr"),
+    ("doc/manual/conformance/binary.md", r"`mpfr_get_str` corpus \(([\d,]+) rows\)", "decimal-output"),
+    ("doc/manual/conformance/binary.md", r"MPFR elementary fixture \(([\d,]+) rows\)", "elementary"),
+    ("doc/manual/conformance/binary.md", r"all executable hexadecimal sqrt rows \| ([\d,]+) / ([\d,]+) \|", "sqrt-data"),
+    ("doc/manual/conformance/binary.md", r"`pow_si` fixture \| [^|]*\| ([\d,]+) / ([\d,]+) \|", "pow-si"),
+    ("doc/manual/conformance/binary.md", r"elementary fixture \| 29 operations[^|]*\| ([\d,]+) / ([\d,]+) \|", "elementary"),
+    ("doc/manual/conformance/binary.md", r"`mpfr_strtofr` fixture \|[^|]*\| ([\d,]+) / ([\d,]+) \|", "strtofr"),
+    ("doc/manual/conformance/binary.md", r"`mpfr_get_str` fixture \|[^|]*\| ([\d,]+) / ([\d,]+) \|", "decimal-output"),
+    ("doc/manual/conformance/binary.md", r"Committed smoke \|[^|]*\| ([\d,]+) / ([\d,]+) \|", "smoke-total"),
+    ("doc/manual/conformance/binary.md", r"the ([\d,]+)-row hash-pinned fixture remains", "elementary"),
+    ("testdata/binary/README.md", r"runs the committed ([\d,]+)-row TestFloat subset", "testfloat-smoke"),
+    ("testdata/binary/README.md", r"([\d,]+) MPFR-generated integer-power witnesses", "pow-si"),
+    ("testdata/binary/README.md", r"([\d,]+) full-family elementary witnesses", "elementary"),
+    ("testdata/binary/README.md", r"([\d,]+) `mpfr_strtofr` witnesses", "strtofr"),
+    ("testdata/binary/README.md", r"([\d,]+) `mpfr_get_str` witnesses", "decimal-output"),
 ]
 
 

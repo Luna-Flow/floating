@@ -5,9 +5,9 @@
 Berkeley TestFloat[^testfloat] generates test vectors for IEEE 754 binary
 arithmetic from the SoftFloat reference implementation, for every format,
 rounding direction and tininess mode. This package executes such vectors
-against `bin_float` with bit-exact comparison of results and exception flags.
+against `binary` with bit-exact comparison of results and exception flags.
 It is the evidence behind the IEEE 754 claims in
-[bin_float conformance](../../conformance/bin_float.md). The package is pure;
+[binary conformance](../../conformance/binary.md). The package is pure;
 vector generation and process orchestration live in `tools/`.
 
 [^testfloat]: J. R. Hauser, *Berkeley TestFloat* and *Berkeley SoftFloat*,
@@ -53,7 +53,7 @@ digits. The front end builds the same mask from the five flag accessors of `Bina
 
 ### The pass rule
 
-Let $\hat r$ be the `bin_float` result computed in
+Let $\hat r$ be the `binary` result computed in
 `format.context(rounding~, tininess~)` (for a format conversion, the result of
 `convert_format` into the destination format), $\hat F$ its flags, and $(e, M)$
 the expected encoding and mask. For arithmetic operations the executor packs
@@ -86,7 +86,7 @@ NaN. A signaling NaN as a result would fail, which is the IEEE requirement.
 
 ### The operation is judged, not the operation followed by a rounding
 
-An earlier version encoded the result with `BinaryInterchange::from_bin_float`,
+An earlier version encoded the result with `BinaryInterchange::from_binary`,
 which first rounds to the format and adds the flags of that rounding. Every
 vector then tested "the operation, then a rounding": an operation that returned
 a value with more bits than the format, or below its smallest subnormal, or that
@@ -101,9 +101,9 @@ under test is `convert_format` and nothing rounds behind it. No flag is added by
 the harness.
 
 What stays shared with the code under test: the decoding of the operands
-(`BinaryInterchange::from_hex` and `to_bin_float`; a wrong decoding changes the
+(`BinaryInterchange::from_hex` and `to_binary`; a wrong decoding changes the
 result and shows as a mismatch with the vector, it cannot be compensated by the
-packing, which is independent) and `BinFloat::to_hex` in the failure message. The
+packing, which is independent) and `Binary::to_hex` in the failure message. The
 expected column is compared as the text of the vector, not decoded. A NaN column
 is compared as a quiet NaN result; the payload and the sign of a NaN are not
 compared.
@@ -117,7 +117,7 @@ alone.
 ### Invalid conversions by flags only
 
 On invalid integer conversions SoftFloat returns platform-specific sentinel
-integers, while `bin_float` returns `None` to say there is no integer result.
+integers, while `binary` returns `None` to say there is no integer result.
 The executor therefore requires `None` exactly when the expected mask has the
 invalid bit, and ignores the sentinel. Every other conversion is compared as
 an integer bit pattern.
@@ -138,7 +138,7 @@ independent of the others, so merged shard counts equal the serial counts.
 ## Correctness and invariants
 
 **Soundness of a pass.** If the expected vector is correct, a passing arithmetic vector shows that
-`bin_float` returned the correctly rounded, correctly encoded result and
+`binary` returned the correctly rounded, correctly encoded result and
 raised exactly the IEEE exceptions, except for the NaN payload; a result that
 is not a number of the format fails.
 
@@ -150,7 +150,7 @@ $\text{total} = N$, the number of vectors in the document.
 is checked against the operation, so execution never meets a vector with the
 wrong number of operands.
 
-**Complexity.** One `bin_float` operation and one packing per vector, linear
+**Complexity.** One `binary` operation and one packing per vector, linear
 in the number of vectors.
 
 ## Alternatives rejected
@@ -174,4 +174,4 @@ in the number of vectors.
 - NaN payloads and signs are not compared.
 - File reading, vector generation and the declared matrix are handled by
   [`cli/testfloat_expr_cli`](../cli/testfloat_expr_cli.md) and
-  `tools/run_binfloat_interpreter.py`.
+  `tools/run_binary_interpreter.py`.

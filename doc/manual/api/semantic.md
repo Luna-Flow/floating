@@ -6,7 +6,7 @@
 representation-independent model: an exact reduced rational, a signed
 infinity, NaN, a closed interval of such scalars, and a short error
 vocabulary. Two values of different representations (for example a binary64
-`BinFloat` and an IEEE `Decimal`) project to equal semantic values exactly when
+`Binary` and an IEEE `Decimal`) project to equal semantic values exactly when
 they denote the same number. The package performs no arithmetic and no
 rounding. The [tutorial](../tutorial/semantic.md) shows typical comparisons;
 the [design page](../design/semantic.md) derives why the projection is exact
@@ -19,14 +19,14 @@ Add the package (it belongs to the tools module `Luna-Flow/floating-tools`) and 
 ```moonbit nocheck
 import {
   "Luna-Flow/floating-tools/semantic",
-  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/binary",
   "Luna-Flow/floating/decimal",
   "Luna-Flow/floating/interval",
 }
 ```
 
 The examples call the package as `@semantic.`, the representations as
-`@bin_float.`, `@decimal.` and `@interval.`, and `Sign` as `@def.Sign`. They
+`@binary.`, `@decimal.` and `@interval.`, and `Sign` as `@def.Sign`. They
 assume this helper, which prints a semantic scalar as `numerator/denominator`:
 
 ```moonbit
@@ -136,18 +136,18 @@ pub(all) enum SemanticScalar {
 or signalling, any payload, any sign. Equality is structural, so
 `NaN == NaN` is `true` here, unlike IEEE comparison.
 
-### `SemanticScalar::from_bin_float`
+### `SemanticScalar::from_binary`
 
-`from_bin_float(x)` returns the exact meaning of a `BinFloat`.
+`from_binary(x)` returns the exact meaning of a `Binary`.
 
 ```mbti
-pub fn SemanticScalar::from_bin_float(@bin_float.BinFloat) -> Self
+pub fn SemanticScalar::from_binary(@binary.Binary) -> Self
 ```
 
 A finite $x = (-1)^{s} c\, 2^{e}$ maps to `Rational` of
 `from_scaled_integer(±c, 2, e)`; an infinity maps to `Infinity(x.sign())`; a
 NaN maps to `NaN`. Precision is dropped. Never aborts, but the result is exact:
-a `BinFloat` exponent can reach about $\pm 2^{30}$, and the projection then
+a `Binary` exponent can reach about $\pm 2^{30}$, and the projection then
 builds a numerator or denominator of about $|e|$ bits (over 100 MB at the
 extremes).
 
@@ -167,8 +167,8 @@ The GDA type `@decimal_gda.Decimal` has no projection in this package.
 ```moonbit
 ///|
 test "project binary and decimal values" {
-  let binary = @semantic.SemanticScalar::from_bin_float(
-    @bin_float.BinFloat::from_double(0.1),
+  let binary = @semantic.SemanticScalar::from_binary(
+    @binary.Binary::from_double(0.1),
   )
   inspect(show(binary), content="3602879701896397/36028797018963968")
   let decimal = @semantic.SemanticScalar::from_decimal(
@@ -176,19 +176,19 @@ test "project binary and decimal values" {
   )
   inspect(show(decimal), content="1/10")
   inspect(binary == decimal, content="false")
-  let half = @semantic.SemanticScalar::from_bin_float(
-    @bin_float.BinFloat::from_double(0.5),
+  let half = @semantic.SemanticScalar::from_binary(
+    @binary.Binary::from_double(0.5),
   )
   let half_decimal = @semantic.SemanticScalar::from_decimal(
     @decimal.Decimal::from_string("0.500").unwrap(),
   )
   inspect(half == half_decimal, content="true")
   inspect(
-    show(@semantic.SemanticScalar::from_bin_float(@bin_float.BinFloat::from_double(-0.0))),
+    show(@semantic.SemanticScalar::from_binary(@binary.Binary::from_double(-0.0))),
     content="0/1",
   )
   inspect(
-    @semantic.SemanticScalar::from_bin_float(@bin_float.BinFloat::nan()) ==
+    @semantic.SemanticScalar::from_binary(@binary.Binary::nan()) ==
     @semantic.SemanticScalar::NaN,
     content="true",
   )
@@ -220,8 +220,8 @@ reversed pair $(+\infty, -\infty)$ for the empty set.
 pub fn SemanticInterval::from_interval(@interval.Interval) -> Self
 ```
 
-`lower` is `from_bin_float(x.lower_bound())` and `upper` is
-`from_bin_float(x.upper_bound())`. A bounded interval gives two `Rational`
+`lower` is `from_binary(x.lower_bound())` and `upper` is
+`from_binary(x.upper_bound())`. A bounded interval gives two `Rational`
 endpoints, an unbounded side gives `Infinity`, the entire line gives
 $(-\infty, +\infty)$, and the empty interval gives
 $(\texttt{Infinity(Positive)}, \texttt{Infinity(Negative)})$. Precision is
@@ -233,8 +233,8 @@ dropped. The function takes an undecorated `Interval`; for a
 test "project intervals" {
   let x = @semantic.SemanticInterval::from_interval(
     @interval.Interval::from_bounds(
-      @bin_float.BinFloat::from_int(1),
-      @bin_float.BinFloat::from_double(2.5),
+      @binary.Binary::from_int(1),
+      @binary.Binary::from_double(2.5),
     ),
   )
   inspect(show(x.lower) + " .. " + show(x.upper), content="1/1 .. 5/2")
@@ -318,19 +318,19 @@ and likewise for intervals. `f` is called at most once.
 test "checked results become semantic results" {
   let failed = @semantic.semantic_scalar_result(
     @lf_arith.DivChecked::div_checked(
-      @bin_float.BinFloat::from_int(1),
-      @bin_float.BinFloat::zero(),
+      @binary.Binary::from_int(1),
+      @binary.Binary::zero(),
       @lf_arith.ArithmeticContext::new(53),
     ),
-    @semantic.SemanticScalar::from_bin_float,
+    @semantic.SemanticScalar::from_binary,
   )
   inspect(
     failed == @semantic.SemanticResult::Error(@semantic.SemanticError::DivisionByZero),
     content="true",
   )
   let root = @semantic.semantic_scalar_result(
-    Ok(@bin_float.BinFloat::from_int(4).sqrt()),
-    @semantic.SemanticScalar::from_bin_float,
+    Ok(@binary.Binary::from_int(4).sqrt()),
+    @semantic.SemanticScalar::from_binary,
   )
   let two = @semantic.SemanticScalar::from_decimal(@decimal.Decimal::from_int(2))
   inspect(root == @semantic.SemanticResult::Value(two), content="true")
@@ -385,7 +385,7 @@ package "Luna-Flow/floating-tools/semantic"
 
 import {
   "Luna-Flow/arithmetic",
-  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/binary",
   "Luna-Flow/floating/decimal",
   "Luna-Flow/floating/def",
   "Luna-Flow/floating/interval",
@@ -449,7 +449,7 @@ pub(all) enum SemanticScalar {
   NaN
 }
 pub fn SemanticScalar::equal(Self, Self) -> Bool
-pub fn SemanticScalar::from_bin_float(@bin_float.BinFloat) -> Self
+pub fn SemanticScalar::from_binary(@binary.Binary) -> Self
 pub fn SemanticScalar::from_decimal(@decimal.Decimal) -> Self
 pub fn SemanticScalar::not_equal(Self, Self) -> Bool
 

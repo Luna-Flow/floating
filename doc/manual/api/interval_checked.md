@@ -18,7 +18,7 @@ Add the wrapper and the endpoint package to your `moon.pkg`:
 
 ```moonbit nocheck
 import {
-  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/binary",
   "Luna-Flow/floating/interval",
   "Luna-Flow/floating/interval_checked",
   "Luna-Flow/arithmetic" @lf_arith,
@@ -26,7 +26,7 @@ import {
 ```
 
 The examples refer to the packages as `@interval_checked.`,
-`@interval.`, `@bin_float.`, `@def.` (for the `Sign` of an infinity) and
+`@interval.`, `@binary.`, `@def.` (for the `Sign` of an infinity) and
 `@lf_arith.` (for `Luna-Flow/arithmetic`). They print a result with this
 helper (`to_midpoint_radius_string` of a bounded interval is `midpoint +/- radius` in binary
 notation, `mpe` meaning $m \cdot 2^{e}$):
@@ -75,7 +75,7 @@ These constructors enclose an integer through `Interval::from_int` /
 
 ```mbti
 pub fn IntervalResult::from_int(Int, precision? : Int) -> Self
-pub fn IntervalResult::from_coefficient(@bin_float.BinCoeff, precision? : Int, negative? : Bool) -> Self
+pub fn IntervalResult::from_coefficient(@binary.BinCoeff, precision? : Int, negative? : Bool) -> Self
 ```
 
 The default precision is **53 bits**. The integer is converted exactly and
@@ -101,10 +101,10 @@ source value. A NaN or infinite source gives a `DomainError`
 
 ### `IntervalResult::exact`
 
-`exact(x, precision~)` encloses a finite `BinFloat`.
+`exact(x, precision~)` encloses a finite `Binary`.
 
 ```mbti
-pub fn IntervalResult::exact(@bin_float.BinFloat, precision? : Int) -> Self
+pub fn IntervalResult::exact(@binary.Binary, precision? : Int) -> Self
 ```
 
 `precision` defaults to `x.precision()`. The bounds are `x` rounded down and up
@@ -117,7 +117,7 @@ to that precision, so the result contains `x`. A non-finite `x` gives a
 \textit{hi}]$.
 
 ```mbti
-pub fn IntervalResult::from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int) -> Self
+pub fn IntervalResult::from_bounds(@binary.Binary, @binary.Binary, precision? : Int) -> Self
 ```
 
 `precision` defaults to the larger bound precision; `lo` is rounded down and
@@ -139,8 +139,8 @@ pub fn IntervalResult::entire(precision? : Int) -> Self
 ```moonbit
 ///|
 test "construction validates its inputs" {
-  let one = @bin_float.BinFloat::from_int(1)
-  let three = @bin_float.BinFloat::from_int(3)
+  let one = @binary.Binary::from_int(1)
+  let three = @binary.Binary::from_int(3)
   inspect(show(@interval_checked.IntervalResult::from_bounds(one, three)), content="1p1 +/- 1p0")
   inspect(
     show(@interval_checked.IntervalResult::from_bounds(three, one)),
@@ -154,7 +154,7 @@ test "construction validates its inputs" {
     show(@interval_checked.IntervalResult::from_double(0.0 / 0.0)),
     content="error: interval double source must be finite",
   )
-  let infinity = @bin_float.BinFloat::inf()
+  let infinity = @binary.Binary::inf()
   inspect(
     show(@interval_checked.IntervalResult::from_bounds(infinity, infinity)),
     content="error: interval lower bound must not be positive infinity",
@@ -192,7 +192,7 @@ pub fn IntervalResult::bind(Self, (@interval.Interval) -> Self) -> Self
 ```
 
 They satisfy the monad and functor laws proved in the
-[`bin_float_checked` design](../design/bin_float_checked.md#the-monad-laws);
+[`binary_checked` design](../design/binary_checked.md#the-monad-laws);
 the proof does not depend on the value type.
 
 ## Unary value maps
@@ -402,22 +402,22 @@ result set, so $(-2)^{0.5}$ is the empty interval.
 ///|
 test "interval arithmetic in the wrapper" {
   let x = @interval_checked.IntervalResult::from_bounds(
-    @bin_float.BinFloat::from_int(1),
-    @bin_float.BinFloat::from_int(3),
+    @binary.Binary::from_int(1),
+    @binary.Binary::from_int(3),
   )
   inspect(show(x * x - x), content="3p0 +/- 5p0")
   inspect(show(x.pown(2)), content="5p0 +/- 1p2")
   let unit = @interval_checked.IntervalResult::from_bounds(
-    @bin_float.BinFloat::from_int(-1),
-    @bin_float.BinFloat::from_int(1),
+    @binary.Binary::from_int(-1),
+    @binary.Binary::from_int(1),
   )
   inspect(show(unit.pown(2)), content="1p-1 +/- 1p-1")
   let one = @interval_checked.IntervalResult::from_int(1)
   let zero = @interval_checked.IntervalResult::from_int(0)
   inspect(show(one / zero), content="[empty]")
   let around_zero = @interval_checked.IntervalResult::from_bounds(
-    @bin_float.BinFloat::from_int(-1),
-    @bin_float.BinFloat::from_int(1),
+    @binary.Binary::from_int(-1),
+    @binary.Binary::from_int(1),
   )
   inspect(show(one / around_zero), content="[-inf, inf]")
   inspect(show(around_zero.rootn(2)), content="1p-1 +/- 1p-1")
@@ -489,12 +489,12 @@ test "elementary enclosures" {
   inspect(show(two.ln()), content="390207173010335p-49 +/- 1p-53")
   inspect(show(two.ln().exp()), content="1p1 +/- 1p-51")
   let around_zero = @interval_checked.IntervalResult::from_bounds(
-    @bin_float.BinFloat::from_int(-1),
-    @bin_float.BinFloat::from_int(1),
+    @binary.Binary::from_int(-1),
+    @binary.Binary::from_int(1),
   )
   inspect(show(around_zero.ln()), content="[-inf, 0]")
   let huge = @interval_checked.IntervalResult::exact(
-    @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), 8000000, 53),
+    @binary.Binary::make(@binary.BinCoeff::one(), 8000000, 53),
   )
   match huge.cos().error() {
     Some(e) => {
@@ -536,7 +536,7 @@ package "Luna-Flow/floating/interval_checked"
 
 import {
   "Luna-Flow/arithmetic",
-  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/binary",
   "Luna-Flow/floating/interval",
 }
 
@@ -574,15 +574,15 @@ pub fn IntervalResult::div(Self, Self) -> Self
 pub fn IntervalResult::entire(precision? : Int32) -> Self
 pub fn IntervalResult::err(@arithmetic.ArithmeticError) -> Self
 pub fn IntervalResult::error(Self) -> @arithmetic.ArithmeticError?
-pub fn IntervalResult::exact(@bin_float.BinFloat, precision? : Int32) -> Self
+pub fn IntervalResult::exact(@binary.Binary, precision? : Int32) -> Self
 pub fn IntervalResult::exp(Self) -> Self
 pub fn IntervalResult::exp10(Self) -> Self
 pub fn IntervalResult::exp2(Self) -> Self
 pub fn IntervalResult::expm1(Self) -> Self
 pub fn IntervalResult::floor(Self) -> Self
 pub fn IntervalResult::fma(Self, Self, Self) -> Self
-pub fn IntervalResult::from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Self
-pub fn IntervalResult::from_coefficient(@bin_float.BinCoeff, precision? : Int32, negative? : Bool) -> Self
+pub fn IntervalResult::from_bounds(@binary.Binary, @binary.Binary, precision? : Int32) -> Self
+pub fn IntervalResult::from_coefficient(@binary.BinCoeff, precision? : Int32, negative? : Bool) -> Self
 pub fn IntervalResult::from_double(Double, precision? : Int32) -> Self
 pub fn IntervalResult::from_float(Float, precision? : Int32) -> Self
 pub fn IntervalResult::from_int(Int32, precision? : Int32) -> Self

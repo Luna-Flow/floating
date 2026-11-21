@@ -15,13 +15,9 @@ fn fm_next(state : Ref[UInt64]) -> UInt64 {
 }
 
 ///|
-fn fm_value(
-  c : UInt64,
-  exponent : Int32,
-  negative : Bool,
-) -> @bin_float.BinFloat {
-  @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(c),
+fn fm_value(c : UInt64, exponent : Int32, negative : Bool) -> @binary.Binary {
+  @binary.Binary::make(
+    @binary.BinCoeff::from_uint64(c),
     exponent,
     200,
     negative~,
@@ -29,13 +25,13 @@ fn fm_value(
 }
 
 ///|
-fn fm_point(v : @bin_float.BinFloat, precision : Int32) -> Interval {
+fn fm_point(v : @binary.Binary, precision : Int32) -> Interval {
   Interval::from_bounds(v, v, precision~)
 }
 
 ///|
 test "the fma of the issue is the exact point" {
-  let e_min = @bin_float.binary_implementation_e_min
+  let e_min = @binary.binary_implementation_e_min
   let t = fm_value(1UL, e_min - 3, false)
   let one = fm_value(1UL, 0, false)
   let z = fm_point(t, 53).fma(fm_point(one, 53), fm_point(t, 53))
@@ -51,8 +47,8 @@ fn fm_expected(
   x : Interval,
   y : Interval,
   z : Interval,
-) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
-  let wide = @bin_float.BinaryContext::new(precision=600)
+) -> (@binary.Binary, @binary.Binary) {
+  let wide = @binary.BinaryContext::new(precision=600)
   let corners = [
     x.lower_bound().mul_ctx(y.lower_bound(), wide).0,
     x.lower_bound().mul_ctx(y.upper_bound(), wide).0,
@@ -73,11 +69,11 @@ fn fm_expected(
   (
     low.add_ctx(z.lower_bound(), wide).0.with_precision(
       p,
-      @bin_float.BinaryRoundingMode::RoundTowardNegative,
+      @binary.BinaryRoundingMode::RoundTowardNegative,
     ),
     high.add_ctx(z.upper_bound(), wide).0.with_precision(
       p,
-      @bin_float.BinaryRoundingMode::RoundTowardPositive,
+      @binary.BinaryRoundingMode::RoundTowardPositive,
     ),
   )
 }
@@ -85,7 +81,7 @@ fn fm_expected(
 ///|
 test "fma near the bottom of the range is the tightest interval" {
   let state = Ref(0x9e3779b97f4a7c15UL)
-  let e_min = @bin_float.binary_implementation_e_min
+  let e_min = @binary.binary_implementation_e_min
   let precisions = [53, 113, 128]
   for _ in 0..<2500 {
     let p = precisions[(fm_next(state) % 3UL).to_int()]
@@ -121,7 +117,7 @@ test "fma near the bottom of the range is the tightest interval" {
       e_min - 60 + (fm_next(state) % 60UL).to_int(),
       fm_next(state) % 2UL == 0UL,
     )
-    let order = fn(a : @bin_float.BinFloat, b : @bin_float.BinFloat) {
+    let order = fn(a : @binary.Binary, b : @binary.Binary) {
       if a.compare(b) <= 0 {
         (a, b)
       } else {
@@ -156,7 +152,7 @@ test "away from the bottom of the range fma is unchanged" {
         negative,
       )
     }
-    let order = fn(a : @bin_float.BinFloat, b : @bin_float.BinFloat) {
+    let order = fn(a : @binary.Binary, b : @binary.Binary) {
       if a.compare(b) <= 0 {
         (a, b)
       } else {

@@ -273,11 +273,9 @@ test "every context-free function that returns a Decimal gives a non-finite or a
   }
   assert_true(stored_range_storable(Decimal::from_float(3.4028235e38)))
   for k in [1073741000, -1073741000, 0, 100000, -100000] {
-    let x = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), k, 2)
+    let x = @binary.Binary::make(@binary.BinCoeff::one(), k, 2)
     for p in [1, 34, 100] {
-      assert_true(
-        stored_range_storable(Decimal::from_bin_float(x, precision=p)),
-      )
+      assert_true(stored_range_storable(Decimal::from_binary(x, precision=p)))
     }
   }
   assert_true(stored_range_storable(Decimal::inf()))

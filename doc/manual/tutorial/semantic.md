@@ -11,7 +11,7 @@ listed in the [API reference](../api/semantic.md).
 
 | I want to | Use |
 | --- | --- |
-| test whether a binary and a decimal value are the same number | [`SemanticScalar::from_bin_float`, `from_decimal`](#quick-start) |
+| test whether a binary and a decimal value are the same number | [`SemanticScalar::from_binary`, `from_decimal`](#quick-start) |
 | see the exact rational behind a float | [`ExactRational::numerator`, `denominator`](#see-the-exact-value-of-a-float) |
 | ignore cohorts, precision and signed zeros | [the projection](#ignore-cohorts-precision-and-signed-zeros) |
 | order two values exactly | [cross-multiplication](#order-two-values-exactly) |
@@ -26,7 +26,7 @@ The package belongs to the tools module `Luna-Flow/floating-tools` (directory `t
 ```moonbit nocheck
 import {
   "Luna-Flow/floating-tools/semantic",
-  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/binary",
   "Luna-Flow/floating/decimal",
 }
 ```
@@ -36,10 +36,10 @@ Three represented as a 32-bit binary float and as a decimal is the same number:
 ```moonbit
 ///|
 test "quick start: same value, different representations" {
-  let binary = @bin_float.BinFloat::from_int(3, precision=32)
+  let binary = @binary.Binary::from_int(3, precision=32)
   let decimal = @decimal.Decimal::from_int(3, precision=32)
   inspect(
-    @semantic.SemanticScalar::from_bin_float(binary) ==
+    @semantic.SemanticScalar::from_binary(binary) ==
     @semantic.SemanticScalar::from_decimal(decimal),
     content="true",
   )
@@ -65,9 +65,9 @@ fn exact(s : @semantic.SemanticScalar) -> String {
 
 ///|
 test "the double nearest to one tenth" {
-  let tenth = @bin_float.BinFloat::from_double(0.1)
+  let tenth = @binary.Binary::from_double(0.1)
   inspect(
-    exact(@semantic.SemanticScalar::from_bin_float(tenth)),
+    exact(@semantic.SemanticScalar::from_binary(tenth)),
     content="3602879701896397/36028797018963968",
   )
   let decimal = @decimal.Decimal::from_string("0.1").unwrap()
@@ -88,16 +88,16 @@ projection forgets all of this:
 ///|
 test "the projection keeps only the value" {
   let a = @decimal.Decimal::from_string("1.500").unwrap()
-  let b = @bin_float.BinFloat::from_double(1.5)
+  let b = @binary.Binary::from_double(1.5)
   inspect(
     @semantic.SemanticScalar::from_decimal(a) ==
-    @semantic.SemanticScalar::from_bin_float(b),
+    @semantic.SemanticScalar::from_binary(b),
     content="true",
   )
-  let negative_zero = @bin_float.BinFloat::from_double(-0.0)
+  let negative_zero = @binary.Binary::from_double(-0.0)
   let zero = @decimal.Decimal::zero()
   inspect(
-    @semantic.SemanticScalar::from_bin_float(negative_zero) ==
+    @semantic.SemanticScalar::from_binary(negative_zero) ==
     @semantic.SemanticScalar::from_decimal(zero),
     content="true",
   )
@@ -120,7 +120,7 @@ fn rational_less(a : @semantic.ExactRational, b : @semantic.ExactRational) -> Bo
 ///|
 test "binary 0.1 lies above one tenth" {
   let binary = match
-    @semantic.SemanticScalar::from_bin_float(@bin_float.BinFloat::from_double(0.1)) {
+    @semantic.SemanticScalar::from_binary(@binary.Binary::from_double(0.1)) {
     Rational(q) => q
     _ => fail("finite")
   }
@@ -154,8 +154,8 @@ fn encloses(x : @semantic.SemanticInterval, q : @semantic.ExactRational) -> Bool
 ///|
 test "an interval for one tenth" {
   let interval = @interval.Interval::from_bounds(
-    @bin_float.BinFloat::from_double(0.09375),
-    @bin_float.BinFloat::from_double(0.125),
+    @binary.Binary::from_double(0.09375),
+    @binary.Binary::from_double(0.125),
   )
   let projected = @semantic.SemanticInterval::from_interval(interval)
   inspect(encloses(projected, @semantic.ExactRational::new(1N, 10N)), content="true")
@@ -181,11 +181,11 @@ compare equal although their messages differ:
 test "errors compare by kind" {
   let binary = @semantic.semantic_scalar_result(
     @lf_arith.DivChecked::div_checked(
-      @bin_float.BinFloat::from_int(1),
-      @bin_float.BinFloat::zero(),
+      @binary.Binary::from_int(1),
+      @binary.Binary::zero(),
       @lf_arith.ArithmeticContext::new(53),
     ),
-    @semantic.SemanticScalar::from_bin_float,
+    @semantic.SemanticScalar::from_binary,
   )
   let decimal = @semantic.semantic_scalar_result(
     @lf_arith.DivChecked::div_checked(
@@ -214,8 +214,8 @@ projections. Square roots of perfect squares are exact in both radices:
 test "binary and decimal agree on exact square roots" {
   for n in [1, 4, 9, 144, 1024] {
     let b = @semantic.semantic_scalar_result(
-      Ok(@bin_float.BinFloat::from_int(n).sqrt()),
-      @semantic.SemanticScalar::from_bin_float,
+      Ok(@binary.Binary::from_int(n).sqrt()),
+      @semantic.SemanticScalar::from_binary,
     )
     let d = @semantic.semantic_scalar_result(
       Ok(@decimal.Decimal::from_int(n).sqrt()),
@@ -236,7 +236,7 @@ test "binary and decimal agree on exact square roots" {
 - There is no ordering in the package. Write the cross-multiplication yourself
   as above; never convert to `Double` to compare.
 - Projecting a value with a huge exponent (for example decimal `1E+999999`, or
-  a `BinFloat` near its exponent limit $2^{30}$) builds a `BigInt` with as many
+  a `Binary` near its exponent limit $2^{30}$) builds a `BigInt` with as many
   digits or bits as the exponent. Keep projections to values of moderate
   exponent.
 - Only `@decimal.Decimal` has a projection; convert a `@decimal_gda.Decimal`

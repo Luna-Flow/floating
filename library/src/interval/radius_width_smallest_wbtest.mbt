@@ -7,22 +7,22 @@
 // `midpoint_subnormal_wbtest.mbt`)
 
 ///|
-fn rw_wide() -> @bin_float.BinaryContext {
-  @bin_float.BinaryContext::new(precision=600)
+fn rw_wide() -> @binary.BinaryContext {
+  @binary.BinaryContext::new(precision=600)
 }
 
 ///|
 /// The number of the precision just below `x` (x > 0).
-fn rw_below(x : @bin_float.BinFloat, precision : Int32) -> @bin_float.BinFloat {
-  x.next_down_ctx(@bin_float.BinaryContext::new(precision~)).0
+fn rw_below(x : @binary.Binary, precision : Int32) -> @binary.Binary {
+  x.next_down_ctx(@binary.BinaryContext::new(precision~)).0
 }
 
 ///|
 /// `[lo, hi]` inside `[m - r, m + r]`, exactly.
 fn rw_covers(
   interval : Interval,
-  m : @bin_float.BinFloat,
-  r : @bin_float.BinFloat,
+  m : @binary.Binary,
+  r : @binary.Binary,
 ) -> Bool {
   let wide = rw_wide()
   m.sub_ctx(r, wide).0.compare(interval.lower_bound()) <= 0 &&
@@ -31,7 +31,7 @@ fn rw_covers(
 
 ///|
 fn rw_interval(state : Ref[UInt64]) -> Interval {
-  let e_min = @bin_float.binary_implementation_e_min
+  let e_min = @binary.binary_implementation_e_min
   let bits_x = 1 + (mid_next(state) % 60UL).to_int()
   let bits_y = 1 + (mid_next(state) % 60UL).to_int()
   let x = (mid_next(state) % (1UL << bits_x)) | 1UL
@@ -49,7 +49,7 @@ fn rw_interval(state : Ref[UInt64]) -> Interval {
 
 ///|
 test "radius and width of the interval of the issue" {
-  let e_min = @bin_float.binary_implementation_e_min
+  let e_min = @binary.binary_implementation_e_min
   let interval = Interval::from_bounds(
     mid_value(1UL, e_min - 60, 200),
     mid_value(3UL, e_min - 60, 200),

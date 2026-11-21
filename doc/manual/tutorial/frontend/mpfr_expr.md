@@ -1,6 +1,6 @@
 # frontend/mpfr_expr tutorial
 
-This tutorial shows how to check `bin_float` against reference results
+This tutorial shows how to check `binary` against reference results
 computed with GNU MPFR. Three line-oriented formats are supported: MPFR's own
 square-root test data, integer powers, and an elementary-function matrix. You
 parse a file into a document, execute it, and read the summary. The
@@ -146,7 +146,7 @@ test "parse errors" {
 
 - **Corpora.** `just conformance run binary` executes the pinned MPFR
   `tests/data/sqrt` file and the committed elementary matrix
-  `testdata/bin_float/mpfr-4.2.2-elementary.txt` together with TestFloat; see
+  `testdata/binary/mpfr-4.2.2-elementary.txt` together with TestFloat; see
   [verification](../../verification.md). The generators for the elementary
   and power data are `tools/generate_mpfr_elementary_oracle.c` and
   `tools/generate_mpfr_pow_oracle.c`.
@@ -159,7 +159,7 @@ test "parse errors" {
 
 - **Elementary rows compare numbers, not encodings.** Any NaN matches an
   expected `nan`, and a zero must have the expected sign. Square-root and
-  power rows compare the whole `BinFloat`.
+  power rows compare the whole `Binary`.
 - **Square-root flags are not checked.** `sqrt` data rows compare only the
   value.
 - **No exponent range.** Rows are executed in an unbounded context: there is
@@ -179,4 +179,4 @@ test "parse errors" {
   pass rules.
 - [cli/mpfr_expr_cli tutorial](../cli/mpfr_expr_cli.md) for running a file
   from the command line.
-- [bin_float tutorial](../bin_float.md) for the functions being tested.
+- [binary tutorial](../binary.md) for the functions being tested.

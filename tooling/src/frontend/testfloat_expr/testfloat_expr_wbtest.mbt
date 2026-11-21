@@ -15,16 +15,16 @@ fn harness_case(
 }
 
 ///|
-fn harness_value(text : String) -> @bin_float.BinFloat {
-  @bin_float.BinFloat::from_hex(text, 200).unwrap()
+fn harness_value(text : String) -> @binary.Binary {
+  @binary.Binary::from_hex(text, 200).unwrap()
 }
 
 ///|
-fn harness_inexact() -> @bin_float.BinaryFlags {
+fn harness_inexact() -> @binary.BinaryFlags {
   // 1 / 3 at 24 bits: inexact only
-  let context = @bin_float.BinaryContext::new(precision=24)
-  let (_, flags) = @bin_float.BinFloat::from_int(1).div_ctx(
-    @bin_float.BinFloat::from_int(3),
+  let context = @binary.BinaryContext::new(precision=24)
+  let (_, flags) = @binary.Binary::from_int(1).div_ctx(
+    @binary.Binary::from_int(3),
     context,
   )
   flags
@@ -34,8 +34,8 @@ fn harness_inexact() -> @bin_float.BinaryFlags {
 fn harness_judge(
   function : String,
   row : String,
-  actual : @bin_float.BinFloat,
-  flags : @bin_float.BinaryFlags,
+  actual : @binary.Binary,
+  flags : @binary.BinaryFlags,
 ) -> Bool {
   let (spec, case) = harness_case(function, row)
   let format = match spec.operation {
@@ -55,7 +55,7 @@ test "the harness fails a result that is not a number of the format" {
       "f32_sqrt",
       "3F800000 3F800000 01",
       wide,
-      @bin_float.BinaryFlags::new(),
+      @binary.BinaryFlags::new(),
     ),
   )
   // an unrounded result that carries the inexact flag
@@ -74,7 +74,7 @@ test "the harness fails a conversion that is not rounded to the destination form
       "f64_to_f32",
       "3FF0000000000001 3F800000 01",
       wide,
-      @bin_float.BinaryFlags::new(),
+      @binary.BinaryFlags::new(),
     ),
   )
   assert_false(
@@ -93,19 +93,14 @@ test "the harness fails a result below the smallest subnormal of the format" {
   // vector (invented for the test) says zero, underflow and inexact
   let tiny = harness_value("0x1p-30")
   assert_false(
-    harness_judge(
-      "f16_sqrt",
-      "0000 0000 03",
-      tiny,
-      @bin_float.BinaryFlags::new(),
-    ),
+    harness_judge("f16_sqrt", "0000 0000 03", tiny, @binary.BinaryFlags::new()),
   )
 }
 
 ///|
 test "the harness compares the flags of the operation and nothing else" {
   let one = harness_value("0x1p0")
-  let none = @bin_float.BinaryFlags::new()
+  let none = @binary.BinaryFlags::new()
   // right value, right flags
   assert_true(
     harness_judge("f32_sqrt", "3F800000 3F800000 01", one, harness_inexact()),
@@ -124,17 +119,17 @@ test "the harness compares the flags of the operation and nothing else" {
 ///|
 fn harness_pack(
   text : String,
-  format : @bin_float.BinaryInterchangeFormat,
+  format : @binary.BinaryInterchangeFormat,
 ) -> String? {
   pack_exact(harness_value(text), format)
 }
 
 ///|
 test "pack_exact writes the bit fields of each format (literals, level A)" {
-  let b16 = @bin_float.BinaryInterchangeFormat::Binary16
-  let b32 = @bin_float.BinaryInterchangeFormat::Binary32
-  let b64 = @bin_float.BinaryInterchangeFormat::Binary64
-  let b128 = @bin_float.BinaryInterchangeFormat::Binary128
+  let b16 = @binary.BinaryInterchangeFormat::Binary16
+  let b32 = @binary.BinaryInterchangeFormat::Binary32
+  let b64 = @binary.BinaryInterchangeFormat::Binary64
+  let b128 = @binary.BinaryInterchangeFormat::Binary128
   // binary16: 1, -2, the largest finite 65504, the smallest normal 2^-14, the
   // largest subnormal, the smallest subnormal 2^-24, zeros
   assert_eq(harness_pack("0x1p0", b16), Some("3c00"))
@@ -170,9 +165,9 @@ test "pack_exact writes the bit fields of each format (literals, level A)" {
     Some("00000000000000000000000000000001"),
   )
   // infinities
-  let context = @bin_float.BinaryContext::new(precision=24)
-  let (infinity, _) = @bin_float.BinFloat::from_int(1).div_ctx(
-    @bin_float.BinFloat::from_int(0),
+  let context = @binary.BinaryContext::new(precision=24)
+  let (infinity, _) = @binary.Binary::from_int(1).div_ctx(
+    @binary.Binary::from_int(0),
     context,
   )
   assert_eq(pack_exact(infinity, b32), Some("7f800000"))
@@ -181,8 +176,8 @@ test "pack_exact writes the bit fields of each format (literals, level A)" {
 
 ///|
 test "pack_exact refuses what is not a number of the format" {
-  let b16 = @bin_float.BinaryInterchangeFormat::Binary16
-  let b32 = @bin_float.BinaryInterchangeFormat::Binary32
+  let b16 = @binary.BinaryInterchangeFormat::Binary16
+  let b32 = @binary.BinaryInterchangeFormat::Binary32
   // 12 significant bits in binary16 (11)
   assert_eq(harness_pack("0xfffp0", b16), None)
   // above the largest exponent: 2^16 in binary16, 2^128 in binary32
@@ -194,9 +189,9 @@ test "pack_exact refuses what is not a number of the format" {
   // a subnormal needing one bit more than the last place: 3 * 2^-25
   assert_eq(harness_pack("0x3p-25", b16), None)
   // NaN has no bit fields here
-  let context = @bin_float.BinaryContext::new(precision=24)
-  let (nan, _) = @bin_float.BinFloat::from_int(0).div_ctx(
-    @bin_float.BinFloat::from_int(0),
+  let context = @binary.BinaryContext::new(precision=24)
+  let (nan, _) = @binary.Binary::from_int(0).div_ctx(
+    @binary.Binary::from_int(0),
     context,
   )
   assert_eq(pack_exact(nan, b32), None)
@@ -204,12 +199,12 @@ test "pack_exact refuses what is not a number of the format" {
 
 ///|
 test "the harness compares a NaN column with a quiet NaN and nothing more" {
-  let context = @bin_float.BinaryContext::new(precision=24)
-  let (nan, _) = @bin_float.BinFloat::from_int(0).div_ctx(
-    @bin_float.BinFloat::from_int(0),
+  let context = @binary.BinaryContext::new(precision=24)
+  let (nan, _) = @binary.Binary::from_int(0).div_ctx(
+    @binary.Binary::from_int(0),
     context,
   )
-  let invalid = @bin_float.BinaryFlags::new()
+  let invalid = @binary.BinaryFlags::new()
   // expected NaN (any payload in the column), a quiet NaN result
   assert_true(harness_judge("f32_sqrt", "FF800000 7FC00000 00", nan, invalid))
   assert_true(harness_judge("f32_sqrt", "FF800000 7F800001 00", nan, invalid))

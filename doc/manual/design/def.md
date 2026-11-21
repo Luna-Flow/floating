@@ -2,7 +2,7 @@
 
 ## Design goal
 
-`def` gives the three scalar representations of `floating` (binary `BinFloat`,
+`def` gives the three scalar representations of `floating` (binary `Binary`,
 IEEE decimal `@decimal.Decimal` and GDA decimal `@decimal_gda.Decimal`) one
 vocabulary for the things they have in common: what class a
 value belongs to, what its sign is, at what precision it is stored, how to move
@@ -17,7 +17,7 @@ algorithm. The [API page](../api/def.md) lists the items; the
 
 ### Values and their meaning
 
-A finite scalar of radix $\beta$ ($\beta = 2$ for `BinFloat`, $\beta = 10$ for
+A finite scalar of radix $\beta$ ($\beta = 2$ for `Binary`, $\beta = 10$ for
 both decimals) is a triple of a sign bit $s$, a coefficient $c \in \mathbb{N}$
 and an exponent $e \in \mathbb{Z}$, and denotes the real number
 
@@ -59,7 +59,7 @@ are the same NaN. `PartialOrder` is this four-valued relation as a datatype.
 
 [^ieee-compare]: IEEE 754-2019, clause 5.11 (details of comparison predicates)
     and Table 5.1. The quiet and signaling predicates differ only in whether a
-    quiet-NaN operand signals invalid operation, which is why `bin_float`
+    quiet-NaN operand signals invalid operation, which is why `binary`
     returns the relation together with `BinaryFlags`.
 
 ## Design decisions
@@ -97,12 +97,12 @@ implementation outside `def` fail to compile:
 
 ```text
 Error: [4145]
- 1047 │ pub impl @def.Floating for BinFloat with fn classify(self) {
+ 1047 │ pub impl @def.Floating for Binary with fn classify(self) {
       │          ──────┬──────
       │                ╰──────── Cannot implement trait '@Luna-Flow/floating/def.Floating' because it is readonly.
 ```
 
-The four implementations are in `bin_float`, `decimal`, `decimal_gda` and
+The four implementations are in `binary`, `decimal`, `decimal_gda` and
 `interval`, which are other packages of the module, and `def` cannot import
 them (they import `def`).
 
@@ -170,8 +170,8 @@ it in a `match`. `Option[Int]` would carry the same information but give "no
 answer" the generic meaning of absence, and would lose the name.
 
 The concrete packages additionally provide relations that *are* total, for
-tasks that need one: `BinFloat::total_order` implements the IEEE `totalOrder`
-predicate (clause 5.10), and `BinFloat::compare` (the `Compare` instance) is a
+tasks that need one: `Binary::total_order` implements the IEEE `totalOrder`
+predicate (clause 5.10), and `Binary::compare` (the `Compare` instance) is a
 total preorder that places every NaN above every number. These are different
 relations from `PartialOrder`, chosen per call site.
 
@@ -191,7 +191,7 @@ layer exists between the two repositories.
 The laws below are the contract of the trait. They are stated for a value $x$,
 a precision $p$ and a direction $m$; $q = \max(1, p)$. The three scalar
 implementations satisfy (F1)–(F5) and (F6), with the exponent-range exception
-of `BinFloat` stated below (F5). The laws are the contract between the three implementations and the generic
+of `Binary` stated below (F5). The laws are the contract between the three implementations and the generic
 code of this library; they are not an invitation to implement the trait
 elsewhere (see [Why `Floating` is declared open](#why-floating-is-declared-open)).
 
@@ -206,17 +206,17 @@ $$
 \end{aligned}
 $$
 
-**The exponent range of `BinFloat`.** (F5) is stated over
+**The exponent range of `Binary`.** (F5) is stated over
 $\mathbb{F}_{\beta,q}$, whose exponent is unbounded. The decimal types store the
 exponent as an `Int` and add no other limit, so for them (F5) holds as stated.
-`BinFloat` keeps its implementation range even in `with_precision`: let
+`Binary` keeps its implementation range even in `with_precision`: let
 $E = 2^{30} - 1$ (`binary_implementation_e_max`, and $-E$ is
 `binary_implementation_e_min`). A rounded result whose leading bit would lie
 above $2^{E}$ overflows: to an infinity for `ToNearestEven`, `AwayFromZero`
 and the directed mode that points away from zero on that side, otherwise to
 the largest finite value with $q$ bits. A value whose leading bit lies below
 $2^{-E-(q-1)}$, the smallest positive value stored at $q$ bits, is rounded to
-$0$ or to that value. So for `BinFloat` (F5) holds whenever
+$0$ or to that value. So for `Binary` (F5) holds whenever
 $\circ_{m,q}([\![x]\!])$ lies in that range. For example
 $3 \cdot 2^{E-1}$ re-expressed with one bit and `AwayFromZero` becomes
 $+\infty$ instead of $2^{E+1}$.
@@ -258,7 +258,7 @@ The same argument with "largest element $\le t$" works for $\nabla$, with
 $\ge |t|$" for `AwayFromZero`: every directed rounding to $\mathbb{F}_{\beta,q}$
 factors through any finer set $\mathbb{F}_{\beta,p}$ that contains
 $\mathbb{F}_{\beta,q}$. For
-`ToNearestEven` the identity fails (double rounding).[^double-rounding] (The trait method `Floating::with_precision` has no mode and rounds to nearest even; the example calls the inherent `BinFloat::with_precision`, which takes one.) Take
+`ToNearestEven` the identity fails (double rounding).[^double-rounding] (The trait method `Floating::with_precision` has no mode and rounds to nearest even; the example calls the inherent `Binary::with_precision`, which takes one.) Take
 $t = 1.0100001_2 = 161/128$ in binary. With $p = 3$ the neighbours are $1.25$
 and $1.5$, and $t$ rounds to $1.25$, which is exactly halfway between the
 $q = 2$ neighbours $1$ and $1.5$; the tie goes to the even coefficient, $1$.
@@ -267,14 +267,14 @@ Rounding $t$ directly to two bits gives $1.5$ because $t > 1.25$:
 ```moonbit
 ///|
 test "double rounding to nearest differs from one rounding" {
-  let t = @bin_float.BinFloat::from_double(1.2578125)
-  let nearest = @bin_float.BinaryRoundingMode::RoundTiesToEven
+  let t = @binary.Binary::from_double(1.2578125)
+  let nearest = @binary.BinaryRoundingMode::RoundTiesToEven
   let twice = t.with_precision(3, nearest).with_precision(2, nearest)
   let once = t.with_precision(2, nearest)
   inspect(twice.to_string(), content="1p0")
   inspect(once.to_string(), content="3p-1")
   inspect(@def.Floating::with_precision(t, 2).to_string(), content="3p-1")
-  let toward_zero = @bin_float.BinaryRoundingMode::RoundTowardZero
+  let toward_zero = @binary.BinaryRoundingMode::RoundTowardZero
   let twice_rz = t.with_precision(3, toward_zero).with_precision(2, toward_zero)
   let once_rz = t.with_precision(2, toward_zero)
   inspect(twice_rz.to_string() == once_rz.to_string(), content="true")
@@ -319,7 +319,7 @@ length for decimals, and linear in the coefficient bit length for binary.
   arithmetic or any error behaviour. Generic code must request the additional
   capability traits it uses.
 - `with_precision` neither honours context exponent bounds nor reports flags
-  (only the `BinFloat` implementation range applies); contexts and flags belong
+  (only the `Binary` implementation range applies); contexts and flags belong
   to the `*_ctx` APIs of the concrete packages and to the contextual traits of
   Luna-Flow/arithmetic.
 - `normalized` keeps the representation-independent value (F6).

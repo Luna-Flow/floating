@@ -32,20 +32,20 @@ class BenchmarkCommand:
 
 
 BENCHMARKS: dict[str, tuple[BenchmarkCommand, ...]] = {
-    "bin-float": (BenchmarkCommand("tooling/src/bench/bin_float"),),
+    "binary": (BenchmarkCommand("tooling/src/bench/binary"),),
     "decimal": (BenchmarkCommand("tooling/src/bench/decimal"),),
     "decimal-gda": (BenchmarkCommand("tooling/src/bench/decimal_gda"),),
     "interval": (BenchmarkCommand("tooling/src/bench/interval"),),
     "elementary": (
         BenchmarkCommand(
-            "tooling/src/bench/bin_float",
+            "tooling/src/bench/binary",
             "binary elementary core and full paths",
         ),
     ),
 }
 BENCHMARKS["all"] = tuple(
     command
-    for suite in ("bin-float", "decimal", "decimal-gda", "interval")
+    for suite in ("binary", "decimal", "decimal-gda", "interval")
     for command in BENCHMARKS[suite]
 )
 

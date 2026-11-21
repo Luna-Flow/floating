@@ -57,7 +57,7 @@ class DocumentationQualityTests(unittest.TestCase):
     def test_cited_evidence_paths_must_exist(self) -> None:
         with tempfile.TemporaryDirectory() as directory, ExitStack() as stack:
             root = Path(directory)
-            page = root / "doc" / "manual" / "conformance" / "bin_float.md"
+            page = root / "doc" / "manual" / "conformance" / "binary.md"
             page.parent.mkdir(parents=True)
             (root / "library" / "src").mkdir(parents=True)
             (root / "library" / "src" / "present_wbtest.mbt").write_text("", encoding="utf-8")

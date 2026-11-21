@@ -2,21 +2,21 @@
 fn Interval::try_certified_monotone(
   self : Interval,
   increasing : Bool,
-  evaluate : (@bin_float.BinFloat, @bin_float.BinaryContext) -> Result[
-    (@bin_float.BinFloat, @bin_float.BinaryFlags),
+  evaluate : (@binary.Binary, @binary.BinaryContext) -> Result[
+    (@binary.Binary, @binary.BinaryFlags),
     @def.ArithmeticError,
   ],
 ) -> Result[Interval, @def.ArithmeticError] {
   if self.is_empty() {
     return Ok(self)
   }
-  let downward = @bin_float.BinaryContext::new(
+  let downward = @binary.BinaryContext::new(
     precision=self.precision_,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+    rounding=@binary.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::new(
+  let upward = @binary.BinaryContext::new(
     precision=self.precision_,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+    rounding=@binary.BinaryRoundingMode::RoundTowardPositive,
   )
   let lower_source = if increasing { self.lo_ } else { self.hi_ }
   let upper_source = if increasing { self.hi_ } else { self.lo_ }
@@ -29,7 +29,7 @@ fn Interval::try_certified_monotone(
 
 ///|
 fn Interval::unit_domain(self : Interval) -> Interval {
-  let one = @bin_float.BinFloat::one(precision=self.precision_)
+  let one = @binary.Binary::one(precision=self.precision_)
   self.intersection(store_interval(one.neg(), one, self.precision_))
 }
 
@@ -66,8 +66,8 @@ pub fn Interval::try_atan(
 
 ///|
 fn try_certified_atan2_point(
-  ordinate : @bin_float.BinFloat,
-  abscissa : @bin_float.BinFloat,
+  ordinate : @binary.Binary,
+  abscissa : @binary.Binary,
   precision : Int32,
 ) -> Result[Interval, @def.ArithmeticError] {
   let ordinate = canonical_interval_endpoint(ordinate, precision)
@@ -75,13 +75,13 @@ fn try_certified_atan2_point(
   if ordinate.is_zero() && abscissa.is_zero() {
     return Ok(empty_interval(precision))
   }
-  let downward = @bin_float.BinaryContext::new(
+  let downward = @binary.BinaryContext::new(
     precision~,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+    rounding=@binary.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::new(
+  let upward = @binary.BinaryContext::new(
     precision~,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+    rounding=@binary.BinaryRoundingMode::RoundTowardPositive,
   )
   ordinate
   .try_atan2_ctx(abscissa, downward)
@@ -122,8 +122,8 @@ fn atan2_extreme_corner(
   ordinate : Interval,
   abscissa : Interval,
   upper : Bool,
-) -> (@bin_float.BinFloat, @bin_float.BinFloat)? {
-  let zero = @bin_float.BinFloat::zero(precision=ordinate.precision_)
+) -> (@binary.Binary, @binary.Binary)? {
+  let zero = @binary.Binary::zero(precision=ordinate.precision_)
   let yl = ordinate.lo_
   let yh = ordinate.hi_
   let xl = abscissa.lo_
@@ -169,7 +169,7 @@ pub fn Interval::try_atan2(
     canonical_interval_endpoint(abscissa.hi_, precision),
     precision,
   )
-  let zero = @bin_float.BinFloat::zero(precision~)
+  let zero = @binary.Binary::zero(precision~)
   let crossing = abscissa_box.lo_.compare(zero) < 0 &&
     ordinate.lo_.compare(zero) < 0 &&
     ordinate.hi_.compare(zero) >= 0
@@ -180,13 +180,13 @@ pub fn Interval::try_atan2(
         atan2_extreme_corner(ordinate, abscissa_box, true),
       ) {
       (Some((ly, lx)), Some((uy, ux))) => {
-        let downward = @bin_float.BinaryContext::new(
+        let downward = @binary.BinaryContext::new(
           precision~,
-          rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+          rounding=@binary.BinaryRoundingMode::RoundTowardNegative,
         )
-        let upward = @bin_float.BinaryContext::new(
+        let upward = @binary.BinaryContext::new(
           precision~,
-          rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+          rounding=@binary.BinaryRoundingMode::RoundTowardPositive,
         )
         return ly
           .try_atan2_ctx(lx, downward)
@@ -228,7 +228,7 @@ fn Interval::try_atan2_interval_corners(
     abscissa.contains_zero() {
     return Ok(empty_interval(precision))
   }
-  let zero = @bin_float.BinFloat::zero(precision~)
+  let zero = @binary.Binary::zero(precision~)
   if abscissa.lo_.compare(zero) < 0 &&
     ordinate.lo_.compare(zero) < 0 &&
     ordinate.hi_.compare(zero) >= 0 {
@@ -337,7 +337,7 @@ pub fn Interval::try_acosh(
   if self.is_empty() {
     return Ok(self)
   }
-  let one = @bin_float.BinFloat::one(precision=self.precision_)
+  let one = @binary.Binary::one(precision=self.precision_)
   if self.hi_.compare(one) < 0 {
     return Ok(empty_interval(self.precision_))
   }
@@ -356,7 +356,7 @@ pub fn Interval::try_atanh(
   if self.is_empty() {
     return Ok(self)
   }
-  let one = @bin_float.BinFloat::one(precision=self.precision_)
+  let one = @binary.Binary::one(precision=self.precision_)
   let minus_one = one.neg()
   if self.hi_.compare(minus_one) < 0 || self.lo_.compare(one) > 0 {
     return Ok(empty_interval(self.precision_))
@@ -417,21 +417,21 @@ fn Interval::try_sine_like_hull(
   self : Interval,
   indices : (SignedBinCoeff, SignedBinCoeff),
   shift : Int32,
-  evaluate : (@bin_float.BinFloat, @bin_float.BinaryContext) -> Result[
-    (@bin_float.BinFloat, @bin_float.BinaryFlags),
+  evaluate : (@binary.Binary, @binary.BinaryContext) -> Result[
+    (@binary.Binary, @binary.BinaryFlags),
     @def.ArithmeticError,
   ],
 ) -> Result[Interval, @def.ArithmeticError] {
   let precision = self.precision_
   let has_min = index_range_contains_residue(indices.0, indices.1, 3 - shift)
   let has_max = index_range_contains_residue(indices.0, indices.1, 1 - shift)
-  let downward = @bin_float.BinaryContext::new(
+  let downward = @binary.BinaryContext::new(
     precision~,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+    rounding=@binary.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::new(
+  let upward = @binary.BinaryContext::new(
     precision~,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+    rounding=@binary.BinaryRoundingMode::RoundTowardPositive,
   )
   let increasing = has_min ||
     has_max ||
@@ -443,7 +443,7 @@ fn Interval::try_sine_like_hull(
   let lower_source = if both_zero || increasing { self.lo_ } else { self.hi_ }
   let upper_source = if both_zero || !increasing { self.lo_ } else { self.hi_ }
   let lower = if has_min {
-    @bin_float.BinFloat::from_int(-1, precision~)
+    @binary.Binary::from_int(-1, precision~)
   } else if has_max {
     match evaluate(self.lo_, downward) {
       Ok(a) =>
@@ -460,7 +460,7 @@ fn Interval::try_sine_like_hull(
     }
   }
   let upper = if has_max {
-    @bin_float.BinFloat::one(precision~)
+    @binary.Binary::one(precision~)
   } else if has_min {
     match evaluate(self.lo_, upward) {
       Ok(a) =>

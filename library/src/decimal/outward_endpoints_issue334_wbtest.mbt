@@ -7,13 +7,13 @@ test "outward endpoints enclose the exact expansion" {
   ]
   for text in texts {
     let x = Decimal::from_string_ctx(text, ctx).0
-    let lower = x.to_bin_float(
+    let lower = x.to_binary(
       precision=200,
-      mode=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+      mode=@binary.BinaryRoundingMode::RoundTowardNegative,
     )
-    let upper = x.to_bin_float(
+    let upper = x.to_binary(
       precision=200,
-      mode=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+      mode=@binary.BinaryRoundingMode::RoundTowardPositive,
     )
     for digits in [8, 32, 60] {
       let lo = decimal_outward_dyadic_endpoint(lower, ctx, digits, false).unwrap()

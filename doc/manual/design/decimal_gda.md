@@ -799,7 +799,7 @@ refinement loop.[^ziv] For $f(x)$:
    directed modes (and an exact midpoint is one in the half modes), which the
    loop could never certify.
 2. **Enclose the input.** $x$ is converted to a binary ball $[x^-, x^+]$ at
-   $w$ bits with directed rounding (`to_bin_float` towards $-\infty$ and
+   $w$ bits with directed rounding (`to_binary` towards $-\infty$ and
    $+\infty$), so $x \in [x^-, x^+]$ exactly.
 3. **Enclose the output.** `interval` evaluates $f$ on the ball and returns
    $[L, U] \ni f(x)$ (for `log10`, $\ln$ divided by a cached enclosure of

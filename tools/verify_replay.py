@@ -9,7 +9,7 @@ full TestFloat and MPFR stage.
 
 What it assumes, stated in the table caption by `format_table`:
 * the arms of a unit (which operation it executes) and the time of a unit come from one
-  measured full run (`--baseline summary.json`, written by `run_binfloat_interpreter.py
+  measured full run (`--baseline summary.json`, written by `run_binary_interpreter.py
   --incremental`); the arms are checked present in every replayed build;
 * toolchain and verifier digests are held constant (only the code part of the key is replayed);
 * the frontend split of PR 685 is applied to a commit that predates it (`--patch`); a commit on
@@ -196,7 +196,7 @@ def load_units(baseline: dict[str, Any]) -> tuple[dict[str, tuple[inc.UnitSpec, 
     """The units of the gate with the arms and the time measured in the baseline run."""
     import importlib.util
 
-    spec = importlib.util.spec_from_file_location("binfloat_runner", REPO_ROOT / "tools" / "run_binfloat_interpreter.py")
+    spec = importlib.util.spec_from_file_location("binary_runner", REPO_ROOT / "tools" / "run_binary_interpreter.py")
     assert spec is not None and spec.loader is not None
     runner = importlib.util.module_from_spec(spec)
     sys.path.insert(0, str(REPO_ROOT / "tools"))

@@ -341,7 +341,7 @@ def stages_for(scope: str, jobs: int, reuse: bool = True) -> list[Stage]:
                     "tools/run_moon_clean_exec.sh",
                     "test",
                     "-p",
-                    "Luna-Flow/floating-tools/bench/bin_float",
+                    "Luna-Flow/floating-tools/bench/binary",
                     "--target",
                     "native",
                     "--deny-warn",

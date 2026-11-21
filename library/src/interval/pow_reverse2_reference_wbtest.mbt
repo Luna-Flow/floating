@@ -11,7 +11,7 @@
 
 ///|
 /// 0: certainly not in the set, 1: certainly in, 2: not decided at this precision.
-fn pw2_sat(beta : @bin_float.BinFloat, a : Interval, c : Interval) -> Int32 {
+fn pw2_sat(beta : @binary.Binary, a : Interval, c : Interval) -> Int32 {
   let e = a.with_precision(pwr_w).pow(Interval::exact(beta, precision=pwr_w))
   if e.is_empty() {
     return 0
@@ -19,12 +19,12 @@ fn pw2_sat(beta : @bin_float.BinFloat, a : Interval, c : Interval) -> Int32 {
   if e.hi_.compare(c.lo_) < 0 || e.lo_.compare(c.hi_) > 0 {
     return 0
   }
-  let tol = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(1UL),
+  let tol = @binary.Binary::make(
+    @binary.BinCoeff::from_uint64(1UL),
     -(pwr_w / 2),
     1,
   )
-  let one_side = fn(hi : @bin_float.BinFloat, lo : @bin_float.BinFloat) {
+  let one_side = fn(hi : @binary.Binary, lo : @binary.Binary) {
     if hi.classify() == FpClass::Infinity || lo.classify() == FpClass::Infinity {
       true
     } else {
@@ -104,7 +104,7 @@ fn pw2_check(
     1.0 / 0.0,
     -1.0 / 0.0,
   ]
-  let ctx = @bin_float.BinaryContext::new(precision~)
+  let ctx = @binary.BinaryContext::new(precision~)
   let mut nonempty = 0
   for _ in 0..<cases {
     let a = pwr_ordered(
@@ -122,7 +122,7 @@ fn pw2_check(
     let mut xl = pwr_pick(rng, x_values, precision)
     let mut xh = pwr_pick(rng, x_values, precision)
     if !whole.is_empty() && rng.below(2) == 0 {
-      let near = fn(e : @bin_float.BinFloat) {
+      let near = fn(e : @binary.Binary) {
         if e.classify() != FpClass::Finite {
           return e
         }
@@ -146,7 +146,7 @@ fn pw2_check(
       None => a.pow_rev2(c, x=prior)
       Some(limit) => a.pow_rev2_capped(c, Some(prior), limit)
     }
-    let candidates : Array[@bin_float.BinFloat] = []
+    let candidates : Array[@binary.Binary] = []
     candidates.push(prior.lo_)
     candidates.push(prior.hi_)
     for value in x_values {
@@ -186,7 +186,7 @@ fn pw2_check(
     // float below the lower end is not in the set, and the float one step above the
     // lower end is not certainly outside while the next one is certainly inside
     if cap is None && !got.is_empty() {
-      let sat_of = fn(x : @bin_float.BinFloat) {
+      let sat_of = fn(x : @binary.Binary) {
         if x.classify() != FpClass::Finite {
           2
         } else {

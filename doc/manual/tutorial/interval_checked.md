@@ -31,7 +31,7 @@ Import the wrapper and the endpoint package (the later examples also use
 
 ```moonbit nocheck
 import {
-  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/binary",
   "Luna-Flow/floating/interval",
   "Luna-Flow/floating/interval_checked",
   "Luna-Flow/arithmetic" @lf_arith,
@@ -82,8 +82,8 @@ bounds and non-finite sources become errors before any computation runs:
 ///|
 fn reading(lo : Double, hi : Double) -> @interval_checked.IntervalResult {
   @interval_checked.IntervalResult::from_bounds(
-    @bin_float.BinFloat::from_double(lo),
-    @bin_float.BinFloat::from_double(hi),
+    @binary.Binary::from_double(lo),
+    @binary.Binary::from_double(hi),
   )
 }
 
@@ -179,7 +179,7 @@ needlessly wide interval:
 ///|
 test "certification failure carries a detail record" {
   let huge = @interval_checked.IntervalResult::exact(
-    @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), 8000000, 53),
+    @binary.Binary::make(@binary.BinCoeff::one(), 8000000, 53),
   )
   match huge.sin().error() {
     Some(e) => {

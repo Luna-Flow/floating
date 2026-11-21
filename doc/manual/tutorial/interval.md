@@ -28,19 +28,19 @@ Add the module:
 moon add Luna-Flow/floating@0.11.0
 ```
 
-Import the package, plus `bin_float`, which supplies the endpoint type (the
+Import the package, plus `binary`, which supplies the endpoint type (the
 generic example below also uses `Luna-Flow/arithmetic` as `@lf_arith`):
 
 ```moonbit nocheck
 import {
-  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/binary",
   "Luna-Flow/floating/interval",
   "Luna-Flow/arithmetic" @lf_arith,
 }
 ```
 
 An `Interval` is a closed interval $[\underline{x}, \overline{x}]$ whose two
-endpoints are `BinFloat` values. The examples on this page print an interval
+endpoints are `Binary` values. The examples on this page print an interval
 with this helper: it writes the lower endpoint rounded down and the upper
 endpoint rounded up, so the printed decimal interval still contains the stored
 one.
@@ -51,13 +51,13 @@ fn show(x : @interval.Interval, digits : Int) -> String {
   if x.is_empty() {
     return "[empty]"
   }
-  let down = @bin_float.BinaryContext::new(
+  let down = @binary.BinaryContext::new(
     precision=x.precision(),
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+    rounding=@binary.BinaryRoundingMode::RoundTowardNegative,
   )
-  let up = @bin_float.BinaryContext::new(
+  let up = @binary.BinaryContext::new(
     precision=x.precision(),
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+    rounding=@binary.BinaryRoundingMode::RoundTowardPositive,
   )
   let lo = x.lower_bound().to_decimal_string_ctx(digits, down).0
   let hi = x.upper_bound().to_decimal_string_ctx(digits, up).0
@@ -80,7 +80,7 @@ test "quick start: enclose one third" {
 }
 ```
 
-No `BinFloat` with 53 bits equals $1/3$, so the result is the smallest
+No `Binary` with 53 bits equals $1/3$, so the result is the smallest
 53-bit interval around it: the lower endpoint is $1/3$ rounded down, the upper
 endpoint $1/3$ rounded up.
 
@@ -93,8 +93,8 @@ Choose the constructor by what you know about the value.
 ```moonbit
 ///|
 test "constructors" {
-  let two = @bin_float.BinFloat::from_int(2, precision=53)
-  let five = @bin_float.BinFloat::from_int(5, precision=53)
+  let two = @binary.Binary::from_int(2, precision=53)
+  let five = @binary.Binary::from_int(5, precision=53)
   // A known point: the singleton {2}.
   let point = @interval.Interval::exact(two)
   inspect(point.is_singleton(), content="true")
@@ -129,16 +129,16 @@ string once down and once up, and use the two results as bounds.
 ```moonbit
 ///|
 test "enclose decimal 0.1" {
-  let down = @bin_float.BinaryContext::new(
+  let down = @binary.BinaryContext::new(
     precision=53,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+    rounding=@binary.BinaryRoundingMode::RoundTowardNegative,
   )
-  let up = @bin_float.BinaryContext::new(
+  let up = @binary.BinaryContext::new(
     precision=53,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+    rounding=@binary.BinaryRoundingMode::RoundTowardPositive,
   )
-  let lo = @bin_float.BinFloat::from_string_ctx("0.1", down).unwrap().0
-  let hi = @bin_float.BinFloat::from_string_ctx("0.1", up).unwrap().0
+  let lo = @binary.Binary::from_string_ctx("0.1", down).unwrap().0
+  let hi = @binary.Binary::from_string_ctx("0.1", up).unwrap().0
   let tenth = @interval.Interval::from_bounds(lo, hi)
   inspect(show(tenth, 20), content="[9.9999999999999991673e-2, 1.0000000000000000556e-1]")
   // The binary64 double 0.1 is one of the two endpoints, so the singleton
@@ -162,12 +162,12 @@ operation applied to points of the operands.
 ///|
 test "arithmetic on intervals" {
   let x = @interval.Interval::from_bounds(
-    @bin_float.BinFloat::from_int(1, precision=53),
-    @bin_float.BinFloat::from_int(2, precision=53),
+    @binary.Binary::from_int(1, precision=53),
+    @binary.Binary::from_int(2, precision=53),
   )
   let y = @interval.Interval::from_bounds(
-    @bin_float.BinFloat::from_int(-3, precision=53),
-    @bin_float.BinFloat::from_int(5, precision=53),
+    @binary.Binary::from_int(-3, precision=53),
+    @binary.Binary::from_int(5, precision=53),
   )
   inspect(show(x + y, 3), content="[-2.00e+0, 7.00e+0]")
   inspect(show(x - y, 3), content="[-4.00e+0, 5.00e+0]")
@@ -193,22 +193,22 @@ answers: certainly, possibly, or certainly not. The relations say which.
 ///|
 test "relations" {
   let a = @interval.Interval::from_bounds(
-    @bin_float.BinFloat::from_int(9, precision=53),
-    @bin_float.BinFloat::from_int(11, precision=53),
+    @binary.Binary::from_int(9, precision=53),
+    @binary.Binary::from_int(11, precision=53),
   )
   let b = @interval.Interval::from_bounds(
-    @bin_float.BinFloat::from_int(10, precision=53),
-    @bin_float.BinFloat::from_int(16, precision=53),
+    @binary.Binary::from_int(10, precision=53),
+    @binary.Binary::from_int(16, precision=53),
   )
   let c = @interval.Interval::from_bounds(
-    @bin_float.BinFloat::from_int(12, precision=53),
-    @bin_float.BinFloat::from_int(13, precision=53),
+    @binary.Binary::from_int(12, precision=53),
+    @binary.Binary::from_int(13, precision=53),
   )
   inspect(@lf_arith.DefinitelyLt::definitely_lt(a, c), content="true") // every point of a < every point of c
   inspect(@lf_arith.DefinitelyLt::definitely_lt(a, b), content="false") // not certain ...
   inspect(@lf_arith.MaybeEq::maybe_eq(a, b), content="true") // ... because they share points
   inspect(c.subset(b), content="true")
-  inspect(a.is_member(@bin_float.BinFloat::from_int(10, precision=53)), content="true")
+  inspect(a.is_member(@binary.Binary::from_int(10, precision=53)), content="true")
   debug_inspect(a.overlap(b), content="Overlaps")
 }
 ```
@@ -231,8 +231,8 @@ taken into account.
 ///|
 test "elementary functions" {
   let zero_to_four = @interval.Interval::from_bounds(
-    @bin_float.BinFloat::from_int(0, precision=53),
-    @bin_float.BinFloat::from_int(4, precision=53),
+    @binary.Binary::from_int(0, precision=53),
+    @binary.Binary::from_int(4, precision=53),
   )
   // sin reaches its maximum 1 at pi/2, which lies inside [0, 4].
   inspect(show(zero_to_four.sin(), 6), content="[-7.56803e-1, 1.00000e+0]")
@@ -241,8 +241,8 @@ test "elementary functions" {
   inspect(show(zero_to_four.ln(), 6), content="[-inf, 1.38630e+0]")
   // [1, 2] contains the pole pi/2 of tan.
   let one_to_two = @interval.Interval::from_bounds(
-    @bin_float.BinFloat::from_int(1, precision=53),
-    @bin_float.BinFloat::from_int(2, precision=53),
+    @binary.Binary::from_int(1, precision=53),
+    @binary.Binary::from_int(2, precision=53),
   )
   inspect(one_to_two.tan().is_entire(), content="true")
   // Outside the domain the result is the empty set.
@@ -299,8 +299,8 @@ interval").
 test "decorated evaluation" {
   let x = @interval.DecoratedInterval::new(
     @interval.Interval::from_bounds(
-      @bin_float.BinFloat::from_int(-1, precision=53),
-      @bin_float.BinFloat::from_int(4, precision=53),
+      @binary.Binary::from_int(-1, precision=53),
+      @binary.Binary::from_int(4, precision=53),
     ),
   )
   inspect(x.decoration(), content="com")
@@ -370,7 +370,7 @@ chain of operations so that you test for failure once at the end.
 
 Each interval carries a working `precision` in bits; results of binary
 operations use the larger precision of the two operands. Arithmetic costs a
-few endpoint operations at that precision. Elementary functions evaluate the certified `bin_float` kernels at the
+few endpoint operations at that precision. Elementary functions evaluate the certified `binary` kernels at the
 interval's precision (with their own guard bits, up to 12 work precisions on
 hard inputs), so they cost several times more than one multiplication.
 Raising the precision narrows the rounding part of the width, but not the part
@@ -386,8 +386,8 @@ independent unknowns, so $[1, 2] - [1, 2] = [-1, 1]$. The same holds for
 ///|
 test "dependency" {
   let x = @interval.Interval::from_bounds(
-    @bin_float.BinFloat::from_int(-1, precision=53),
-    @bin_float.BinFloat::from_int(2, precision=53),
+    @binary.Binary::from_int(-1, precision=53),
+    @binary.Binary::from_int(2, precision=53),
   )
   inspect(show(x - x, 3), content="[-3.00e+0, 3.00e+0]")
   inspect(show(x * x, 3), content="[-2.00e+0, 4.00e+0]")
@@ -405,7 +405,7 @@ intervals are the same set, whatever their precision tags (IEEE 1788-2015
 intervals `==` is false for NaI, even against itself.
 
 **`is_member` takes a point.** The method `Interval::is_member` tests a
-`BinFloat` point. Set inclusion is `subset` (or the trait method
+`Binary` point. Set inclusion is `subset` (or the trait method
 `@lf_arith.Contains::contains`, which means "contains as a subset").
 
 **Intervals are not ordered.** There is no total order on intervals; never sort
@@ -440,6 +440,6 @@ data as in [Enclose a decimal constant](#enclose-a-decimal-constant).
 - The [API reference](../api/interval.md) documents every item with its
   special cases.
 - [`interval_checked`](interval_checked.md) composes fallible interval
-  operations; [`bin_float`](bin_float.md) is the endpoint arithmetic.
+  operations; [`binary`](binary.md) is the endpoint arithmetic.
 - [Conformance](../conformance/interval.md) states what the IEEE 1788 test
   corpus covers.

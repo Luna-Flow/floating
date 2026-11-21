@@ -75,7 +75,7 @@ async test "external baseline floating" {
   let round = env_int("EXTBENCH_ROUND", 0)
   let detected = @env_detect.detect(
     compiler_flags="moon --release",
-    dtype_abi="bin_float+decimal_gda",
+    dtype_abi="binary+decimal_gda",
     concurrency=1,
   )
   let mut failures = 0

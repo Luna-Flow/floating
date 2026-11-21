@@ -23,7 +23,7 @@ class MutationFileTests(unittest.TestCase):
 
     def test_the_required_places_are_covered(self) -> None:
         paths = " ".join(m.path for m in vm.MUTATIONS)
-        for part in ("internal/bin_kernel", "bin_float/", "interval/", "src/decimal/", "decimal_gda/", "tooling/src/frontend"):
+        for part in ("internal/bin_kernel", "binary/", "interval/", "src/decimal/", "decimal_gda/", "tooling/src/frontend"):
             self.assertIn(part, paths)
 
     def test_a_missing_or_repeated_old_text_is_refused(self) -> None:
@@ -119,7 +119,7 @@ class KernelMutationTests(unittest.TestCase):
         self.assertEqual(rows["kernel-source"], (7, True))
         self.assertEqual(rows["kernel-test-file"], (7, False))
         self.assertEqual(rows["kernel-comment-only"], (7, False))  # the key is of file content: coarser than code, allowed
-        self.assertEqual(rows["bin-float-edit"], (0, False))
+        self.assertEqual(rows["binary-edit"], (0, False))
 
     def test_the_judge_checks_the_plan_and_the_failure(self) -> None:
         plan = {"disabled": "", "actions": {f"u{i}": "run" for i in range(7)}}

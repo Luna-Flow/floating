@@ -1,6 +1,6 @@
 # frontend/testfloat_expr tutorial
 
-This tutorial shows how to run Berkeley TestFloat vectors against `bin_float`.
+This tutorial shows how to run Berkeley TestFloat vectors against `binary`.
 A TestFloat vector file is produced by `testfloat_gen` for one function, such
 as `f64_mulAdd`, under one rounding mode; every line holds the operands, the
 expected result and the expected exception flags in hexadecimal. You describe
@@ -223,5 +223,5 @@ test "shards" {
   for the exact pass rule.
 - [cli/testfloat_expr_cli tutorial](../cli/testfloat_expr_cli.md) for
   running vector files from the command line.
-- [bin_float conformance](../../conformance/bin_float.md) for the published
+- [binary conformance](../../conformance/binary.md) for the published
   TestFloat claim.

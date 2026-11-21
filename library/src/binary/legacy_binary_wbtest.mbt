@@ -1,0 +1,616 @@
+///|
+struct LegacyBigIntBinary {
+  class_ : FpClass
+  significand_ : BigInt
+  exponent2_ : Int32
+  precision_ : Int32
+  negative_zero_ : Bool
+  nan_negative_ : Bool
+  signaling_nan_ : Bool
+  nan_payload_ : BigInt
+}
+
+///|
+fn legacy_bin_zero() -> BigInt {
+  BigInt::from_int(0)
+}
+
+///|
+fn legacy_bin_one() -> BigInt {
+  BigInt::from_int(1)
+}
+
+///|
+fn legacy_bin_abs(value : BigInt) -> BigInt {
+  if value < legacy_bin_zero() {
+    -value
+  } else {
+    value
+  }
+}
+
+///|
+fn legacy_bin_remove_factor2(
+  significand : BigInt,
+  exponent2 : Int32,
+) -> (BigInt, Int32) {
+  if significand.is_zero() {
+    (legacy_bin_zero(), 0)
+  } else {
+    let shift = legacy_bin_abs(significand).ctz()
+    (significand >> shift, exponent2 + shift)
+  }
+}
+
+///|
+fn legacy_bin_should_increment(
+  quotient : BigInt,
+  remainder : BigInt,
+  divisor : BigInt,
+  negative : Bool,
+  mode : BinaryRoundingMode,
+) -> Bool {
+  if remainder.is_zero() {
+    return false
+  }
+  match mode {
+    BinaryRoundingMode::RoundTowardZero => false
+    BinaryRoundingMode::RoundTowardPositive => !negative
+    BinaryRoundingMode::RoundTowardNegative => negative
+    BinaryRoundingMode::RoundTiesToAway =>
+      (remainder << 1).compare(divisor) >= 0
+    BinaryRoundingMode::RoundTiesToEven => {
+      let comparison = (remainder << 1).compare(divisor)
+      comparison > 0 ||
+      (comparison == 0 && !(quotient % BigInt::from_int(2)).is_zero())
+    }
+  }
+}
+
+///|
+fn legacy_bin_round_shift(
+  magnitude : BigInt,
+  shift : Int32,
+  negative : Bool,
+  mode : BinaryRoundingMode,
+) -> BigInt {
+  if shift <= 0 {
+    return magnitude
+  }
+  let quotient = magnitude >> shift
+  let remainder = magnitude - (quotient << shift)
+  let divisor = legacy_bin_one() << shift
+  if legacy_bin_should_increment(quotient, remainder, divisor, negative, mode) {
+    quotient + legacy_bin_one()
+  } else {
+    quotient
+  }
+}
+
+///|
+fn legacy_bin_round_positive_div(
+  numerator : BigInt,
+  denominator : BigInt,
+  negative : Bool,
+  mode : BinaryRoundingMode,
+) -> BigInt {
+  let quotient = numerator / denominator
+  let remainder = numerator % denominator
+  if legacy_bin_should_increment(
+      quotient, remainder, denominator, negative, mode,
+    ) {
+    quotient + legacy_bin_one()
+  } else {
+    quotient
+  }
+}
+
+///|
+fn legacy_bin_ratio_floor_log2(
+  numerator : BigInt,
+  denominator : BigInt,
+) -> Int32 {
+  let bit_difference = numerator.bit_length() - denominator.bit_length()
+  let below_candidate = if bit_difference >= 0 {
+    numerator < denominator << bit_difference
+  } else {
+    numerator << -bit_difference < denominator
+  }
+  if below_candidate {
+    bit_difference - 1
+  } else {
+    bit_difference
+  }
+}
+
+///|
+fn LegacyBigIntBinary::make(
+  significand : BigInt,
+  exponent2 : Int32,
+  precision : Int32,
+  negative_zero~ : Bool = false,
+  mode~ : BinaryRoundingMode = BinaryRoundingMode::RoundTiesToEven,
+) -> LegacyBigIntBinary {
+  let precision = Int32::max(1, precision)
+  if significand.is_zero() {
+    return {
+      class_: FpClass::Finite,
+      significand_: legacy_bin_zero(),
+      exponent2_: 0,
+      precision_: precision,
+      negative_zero_: negative_zero,
+      nan_negative_: false,
+      signaling_nan_: false,
+      nan_payload_: legacy_bin_zero(),
+    }
+  }
+  let (significand0, exponent0) = legacy_bin_remove_factor2(
+    significand, exponent2,
+  )
+  let negative = significand0 < legacy_bin_zero()
+  let magnitude0 = legacy_bin_abs(significand0)
+  let bits = magnitude0.bit_length()
+  let (magnitude1, exponent1) = if bits > precision {
+    let shift = bits - precision
+    (
+      legacy_bin_round_shift(magnitude0, shift, negative, mode),
+      exponent0 + shift,
+    )
+  } else {
+    (magnitude0, exponent0)
+  }
+  let significand1 = if negative { -magnitude1 } else { magnitude1 }
+  let (significand2, exponent2) = legacy_bin_remove_factor2(
+    significand1, exponent1,
+  )
+  {
+    class_: FpClass::Finite,
+    significand_: significand2,
+    exponent2_: exponent2,
+    precision_: precision,
+    negative_zero_: false,
+    nan_negative_: false,
+    signaling_nan_: false,
+    nan_payload_: legacy_bin_zero(),
+  }
+}
+
+///|
+fn LegacyBigIntBinary::zero(
+  precision~ : Int32 = 53,
+  negative~ : Bool = false,
+) -> LegacyBigIntBinary {
+  LegacyBigIntBinary::make(
+    legacy_bin_zero(),
+    0,
+    precision,
+    negative_zero=negative,
+  )
+}
+
+///|
+fn LegacyBigIntBinary::inf(
+  negative : Bool,
+  precision~ : Int32 = 53,
+) -> LegacyBigIntBinary {
+  {
+    class_: FpClass::Infinity,
+    significand_: if negative {
+      -legacy_bin_one()
+    } else {
+      legacy_bin_one()
+    },
+    exponent2_: 0,
+    precision_: Int32::max(1, precision),
+    negative_zero_: false,
+    nan_negative_: false,
+    signaling_nan_: false,
+    nan_payload_: legacy_bin_zero(),
+  }
+}
+
+///|
+fn LegacyBigIntBinary::nan(
+  precision~ : Int32 = 53,
+  negative~ : Bool = false,
+  signaling~ : Bool = false,
+  payload~ : BigInt = legacy_bin_zero(),
+) -> LegacyBigIntBinary {
+  let payload = legacy_bin_abs(payload)
+  {
+    class_: FpClass::NaN,
+    significand_: legacy_bin_zero(),
+    exponent2_: 0,
+    precision_: Int32::max(1, precision),
+    negative_zero_: false,
+    nan_negative_: negative,
+    signaling_nan_: signaling,
+    nan_payload_: if signaling && payload.is_zero() {
+      legacy_bin_one()
+    } else {
+      payload
+    },
+  }
+}
+
+///|
+fn LegacyBigIntBinary::classify(self : LegacyBigIntBinary) -> FpClass {
+  self.class_
+}
+
+///|
+fn LegacyBigIntBinary::precision(self : LegacyBigIntBinary) -> Int32 {
+  self.precision_
+}
+
+///|
+fn LegacyBigIntBinary::sign(self : LegacyBigIntBinary) -> Sign {
+  match self.class_ {
+    FpClass::NaN => Sign::Zero
+    FpClass::Finite if self.significand_.is_zero() => Sign::Zero
+    _ =>
+      if self.significand_ < legacy_bin_zero() {
+        Sign::Negative
+      } else {
+        Sign::Positive
+      }
+  }
+}
+
+///|
+fn LegacyBigIntBinary::is_negative(self : LegacyBigIntBinary) -> Bool {
+  match self.class_ {
+    FpClass::NaN => self.nan_negative_
+    FpClass::Finite if self.significand_.is_zero() => self.negative_zero_
+    _ => self.significand_ < legacy_bin_zero()
+  }
+}
+
+///|
+fn LegacyBigIntBinary::is_zero(self : LegacyBigIntBinary) -> Bool {
+  self.class_ == FpClass::Finite && self.significand_.is_zero()
+}
+
+///|
+fn LegacyBigIntBinary::coefficient(self : LegacyBigIntBinary) -> BigInt {
+  legacy_bin_abs(self.significand_)
+}
+
+///|
+fn LegacyBigIntBinary::exponent2(self : LegacyBigIntBinary) -> Int32 {
+  self.exponent2_
+}
+
+///|
+fn LegacyBigIntBinary::is_signaling_nan(self : LegacyBigIntBinary) -> Bool {
+  self.class_ == FpClass::NaN && self.signaling_nan_
+}
+
+///|
+fn LegacyBigIntBinary::nan_payload(self : LegacyBigIntBinary) -> BigInt {
+  if self.class_ == FpClass::NaN {
+    self.nan_payload_
+  } else {
+    legacy_bin_zero()
+  }
+}
+
+///|
+fn LegacyBigIntBinary::with_precision(
+  self : LegacyBigIntBinary,
+  precision : Int32,
+  mode : BinaryRoundingMode,
+) -> LegacyBigIntBinary {
+  match self.class_ {
+    FpClass::Finite =>
+      LegacyBigIntBinary::make(
+        self.significand_,
+        self.exponent2_,
+        precision,
+        negative_zero=self.negative_zero_,
+        mode~,
+      )
+    FpClass::Infinity => { ..self, precision_: Int32::max(1, precision), }
+    FpClass::NaN => { ..self, precision_: Int32::max(1, precision), }
+  }
+}
+
+///|
+fn LegacyBigIntBinary::neg(self : LegacyBigIntBinary) -> LegacyBigIntBinary {
+  match self.class_ {
+    FpClass::NaN => { ..self, nan_negative_: !self.nan_negative_, }
+    FpClass::Finite if self.significand_.is_zero() =>
+      { ..self, negative_zero_: !self.negative_zero_, }
+    _ => { ..self, significand_: -self.significand_, }
+  }
+}
+
+///|
+fn legacy_bin_quiet_nan(
+  value : LegacyBigIntBinary,
+  precision : Int32,
+) -> LegacyBigIntBinary {
+  LegacyBigIntBinary::nan(
+    precision~,
+    negative=value.nan_negative_,
+    signaling=false,
+    payload=value.nan_payload_,
+  )
+}
+
+///|
+fn legacy_bin_nan_pair(
+  left : LegacyBigIntBinary,
+  right : LegacyBigIntBinary,
+  precision : Int32,
+) -> LegacyBigIntBinary? {
+  if left.class_ == FpClass::NaN {
+    Some(legacy_bin_quiet_nan(left, precision))
+  } else if right.class_ == FpClass::NaN {
+    Some(legacy_bin_quiet_nan(right, precision))
+  } else {
+    None
+  }
+}
+
+///|
+fn LegacyBigIntBinary::add(
+  self : LegacyBigIntBinary,
+  other : LegacyBigIntBinary,
+) -> LegacyBigIntBinary {
+  let precision = Int32::max(self.precision_, other.precision_)
+  match legacy_bin_nan_pair(self, other, precision) {
+    Some(value) => return value
+    None => ()
+  }
+  match (self.class_, other.class_) {
+    (FpClass::Infinity, FpClass::Infinity) =>
+      if self.is_negative() == other.is_negative() {
+        self.with_precision(precision, BinaryRoundingMode::RoundTiesToEven)
+      } else {
+        LegacyBigIntBinary::nan(precision~)
+      }
+    (FpClass::Infinity, _) =>
+      self.with_precision(precision, BinaryRoundingMode::RoundTiesToEven)
+    (_, FpClass::Infinity) =>
+      other.with_precision(precision, BinaryRoundingMode::RoundTiesToEven)
+    (FpClass::Finite, FpClass::Finite) => {
+      let target = Int32::min(self.exponent2_, other.exponent2_)
+      let left = self.significand_ << (self.exponent2_ - target)
+      let right = other.significand_ << (other.exponent2_ - target)
+      let sum = left + right
+      LegacyBigIntBinary::make(
+        sum,
+        target,
+        precision,
+        negative_zero=sum.is_zero() && self.is_negative() && other.is_negative(),
+      )
+    }
+    _ => abort("unreachable LegacyBigIntBinary::add class pair")
+  }
+}
+
+///|
+fn LegacyBigIntBinary::sub(
+  self : LegacyBigIntBinary,
+  other : LegacyBigIntBinary,
+) -> LegacyBigIntBinary {
+  self.add(other.neg())
+}
+
+///|
+fn LegacyBigIntBinary::mul(
+  self : LegacyBigIntBinary,
+  other : LegacyBigIntBinary,
+) -> LegacyBigIntBinary {
+  let precision = Int32::max(self.precision_, other.precision_)
+  match legacy_bin_nan_pair(self, other, precision) {
+    Some(value) => return value
+    None => ()
+  }
+  let negative = self.is_negative() != other.is_negative()
+  match (self.class_, other.class_) {
+    (FpClass::Infinity, FpClass::Finite)
+    | (FpClass::Finite, FpClass::Infinity) if self.is_zero() || other.is_zero() =>
+      LegacyBigIntBinary::nan(precision~)
+    (FpClass::Infinity, _) | (_, FpClass::Infinity) =>
+      LegacyBigIntBinary::inf(negative, precision~)
+    (FpClass::Finite, FpClass::Finite) => {
+      let product = self.significand_ * other.significand_
+      LegacyBigIntBinary::make(
+        product,
+        self.exponent2_ + other.exponent2_,
+        precision,
+        negative_zero=product.is_zero() && negative,
+      )
+    }
+    _ => abort("unreachable LegacyBigIntBinary::mul class pair")
+  }
+}
+
+///|
+fn LegacyBigIntBinary::pow_positive(
+  self : LegacyBigIntBinary,
+  exponent : Int32,
+) -> LegacyBigIntBinary {
+  guard exponent > 0 else { abort("legacy positive exponent must be positive") }
+  let precision = self.precision_
+  match self.class_ {
+    FpClass::Finite => {
+      let powered = self.significand_.pow(BigInt::from_int(exponent))
+      LegacyBigIntBinary::make(
+        powered,
+        self.exponent2_ * exponent,
+        precision,
+        negative_zero=powered.is_zero() &&
+          self.is_negative() &&
+          exponent % 2 != 0,
+      )
+    }
+    FpClass::Infinity =>
+      LegacyBigIntBinary::inf(
+        self.is_negative() && exponent % 2 != 0,
+        precision~,
+      )
+    FpClass::NaN => LegacyBigIntBinary::nan(precision~)
+  }
+}
+
+///|
+fn LegacyBigIntBinary::div(
+  self : LegacyBigIntBinary,
+  other : LegacyBigIntBinary,
+) -> LegacyBigIntBinary {
+  let precision = Int32::max(self.precision_, other.precision_)
+  match legacy_bin_nan_pair(self, other, precision) {
+    Some(value) => return value
+    None => ()
+  }
+  let negative = self.is_negative() != other.is_negative()
+  match (self.class_, other.class_) {
+    (FpClass::Infinity, FpClass::Infinity) =>
+      LegacyBigIntBinary::nan(precision~)
+    (FpClass::Finite, FpClass::Finite) if self.is_zero() && other.is_zero() =>
+      LegacyBigIntBinary::nan(precision~)
+    (FpClass::Infinity, _) => LegacyBigIntBinary::inf(negative, precision~)
+    (FpClass::Finite, FpClass::Finite) if other.is_zero() =>
+      LegacyBigIntBinary::inf(negative, precision~)
+    (_, FpClass::Infinity) => LegacyBigIntBinary::zero(precision~, negative~)
+    (FpClass::Finite, FpClass::Finite) if self.is_zero() =>
+      LegacyBigIntBinary::zero(precision~, negative~)
+    (FpClass::Finite, FpClass::Finite) => {
+      let numerator = legacy_bin_abs(self.significand_)
+      let denominator = legacy_bin_abs(other.significand_)
+      let ratio_top = legacy_bin_ratio_floor_log2(numerator, denominator)
+      let scale = precision - 1 - ratio_top
+      let (scaled_numerator, scaled_denominator) = if scale >= 0 {
+        (numerator << scale, denominator)
+      } else {
+        (numerator, denominator << -scale)
+      }
+      let quotient = legacy_bin_round_positive_div(
+        scaled_numerator,
+        scaled_denominator,
+        negative,
+        BinaryRoundingMode::RoundTiesToEven,
+      )
+      LegacyBigIntBinary::make(
+        if negative {
+          -quotient
+        } else {
+          quotient
+        },
+        self.exponent2_ - other.exponent2_ - scale,
+        precision,
+        negative_zero=quotient.is_zero() && negative,
+      )
+    }
+    _ => abort("unreachable LegacyBigIntBinary::div class pair")
+  }
+}
+
+///|
+fn legacy_bin_integer_sqrt_floor(value : BigInt) -> BigInt {
+  if value <= legacy_bin_one() {
+    return value
+  }
+  let mut root = legacy_bin_one() << ((value.bit_length() + 1) / 2)
+  let mut next = (root + value / root) / BigInt::from_int(2)
+  while next < root {
+    root = next
+    next = (root + value / root) / BigInt::from_int(2)
+  }
+  root
+}
+
+///|
+fn legacy_bin_round_sqrt(
+  value : LegacyBigIntBinary,
+  precision : Int32,
+) -> LegacyBigIntBinary {
+  let odd_exponent = value.exponent2_ % 2 != 0
+  let radicand = if odd_exponent {
+    value.significand_ << 1
+  } else {
+    value.significand_
+  }
+  let even_exponent = if odd_exponent {
+    value.exponent2_ - 1
+  } else {
+    value.exponent2_
+  }
+  let root_top = (radicand.bit_length() - 1) / 2
+  let scale = precision - 1 - root_top
+  let scaled_radicand = radicand << (2 * scale)
+  let floor_root = legacy_bin_integer_sqrt_floor(scaled_radicand)
+  let remainder = scaled_radicand - floor_root * floor_root
+  let increment = !remainder.is_zero() &&
+    remainder << 2 > (floor_root << 2) + legacy_bin_one()
+  let rounded_root = if increment {
+    floor_root + legacy_bin_one()
+  } else {
+    floor_root
+  }
+  LegacyBigIntBinary::make(rounded_root, even_exponent / 2 - scale, precision)
+}
+
+///|
+fn LegacyBigIntBinary::sqrt(
+  self : LegacyBigIntBinary,
+) -> Result[LegacyBigIntBinary, String] {
+  match self.class_ {
+    FpClass::NaN => Ok(legacy_bin_quiet_nan(self, self.precision_))
+    FpClass::Infinity =>
+      if self.is_negative() {
+        Err("sqrt requires a non-negative value")
+      } else {
+        Ok(LegacyBigIntBinary::inf(false, precision=self.precision_))
+      }
+    FpClass::Finite if self.is_zero() =>
+      Ok(
+        LegacyBigIntBinary::zero(
+          precision=self.precision_,
+          negative=self.is_negative(),
+        ),
+      )
+    FpClass::Finite if self.is_negative() =>
+      Err("sqrt requires a non-negative value")
+    FpClass::Finite => Ok(legacy_bin_round_sqrt(self, self.precision_))
+  }
+}
+
+///|
+fn legacy_binary_from_candidate(value : Binary) -> LegacyBigIntBinary {
+  let magnitude = bigint_from_text(value.coefficient().to_string())
+  match value.classify() {
+    FpClass::Finite =>
+      LegacyBigIntBinary::make(
+        if value.is_negative() && !magnitude.is_zero() {
+          -magnitude
+        } else {
+          magnitude
+        },
+        value.exponent2(),
+        value.precision(),
+        negative_zero=value.is_negative(),
+      )
+    FpClass::Infinity =>
+      LegacyBigIntBinary::inf(value.is_negative(), precision=value.precision())
+    FpClass::NaN =>
+      LegacyBigIntBinary::nan(
+        precision=value.precision(),
+        negative=value.is_negative(),
+        signaling=value.is_signaling_nan(),
+        payload=bigint_from_text(value.nan_payload().to_string()),
+      )
+  }
+}
+
+///|
+/// Parses `text` as a BigInt; malformed text aborts, as the deprecated
+/// `BigInt::from_string` did.
+fn bigint_from_text(text : StringView, radix~ : Int32 = 10) -> BigInt {
+  @string.parse_bigint(text, radix~) catch {
+    _ => abort("invalid BigInt text")
+  }
+}

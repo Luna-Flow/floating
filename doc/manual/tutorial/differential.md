@@ -23,8 +23,8 @@ just random-diff smoke
 ```
 
 ```text
-binary: 650/650 passed (testdata/bin_float/mpfr-4.2.2-random.txt)
-binary-regression: 163/163 passed (testdata/bin_float/random-regressions.txt)
+binary: 650/650 passed (testdata/binary/mpfr-4.2.2-random.txt)
+binary-regression: 163/163 passed (testdata/binary/random-regressions.txt)
 decimal_gda: 650/650 passed (testdata/decimal_gda/random/libmpdec-random.decTest)
 decimal_gda-regression: 0/10 passed, 10 known failures (xfail) (testdata/decimal_gda/random/random-regressions.decTest)
 decimal: 468/468 passed (testdata/decimal/random/mpfr-decimal-random.txt)
@@ -175,7 +175,7 @@ just random-diff replay 20261118.add.1234 --target wasm-gc
 - [API](../api/differential.md): the command line and the record.
 - [Design](../design/differential.md): the oracle reductions and the batch
   validation.
-- [Binary test data](../../../testdata/bin_float/README.md) and
+- [Binary test data](../../../testdata/binary/README.md) and
   [decimal (IEEE) test data](../../../testdata/decimal/README.md) and
   [decimal_gda test data](../../../testdata/decimal_gda/README.md): row formats,
   coverage, the intentional differences and the regression fixtures.

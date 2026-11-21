@@ -1,5 +1,5 @@
 /*
- * MPFR in the exponent range and with the number format of `bin_float`.
+ * MPFR in the exponent range and with the number format of `binary`.
  *
  * Header-only (static functions, no state of its own) so that the C programs
  * that produce oracle values for the library (the differential stage of
@@ -14,8 +14,8 @@
  *   - containment of one interval in another.
  *
  * The range mapping is the one of `tools/generate_mpfr_random_oracle.c`
- * (`compute_real`), which the binary gate has checked against `BinFloat`:
- * `bin_float` has `e_max = 2^30 - 1` for the leading bit (a value below
+ * (`compute_real`), which the binary gate has checked against `Binary`:
+ * `binary` has `e_max = 2^30 - 1` for the leading bit (a value below
  * 2^(e_max+1)) and `e_min = 1 - e_max` (the smallest normal number is 2^e_min),
  * with subnormal numbers down to 2^(e_min - precision + 1); MPFR writes a value
  * as 0.1xxx * 2^e, one binade higher at both ends, and has no subnormal numbers.
@@ -127,7 +127,7 @@ OURS_UNUSED static void ours_print(FILE *out, const mpfr_t x) {
   }
 }
 
-/* The same value as `[-]0x<hex>p<exponent>`, `inf`, `-inf`, `nan`, `0x0p0`, `-0x0p0`: the text the library reads (BinFloat::from_hex). */
+/* The same value as `[-]0x<hex>p<exponent>`, `inf`, `-inf`, `nan`, `0x0p0`, `-0x0p0`: the text the library reads (Binary::from_hex). */
 OURS_UNUSED static void ours_print_hex(FILE *out, const mpfr_t x) {
   if (mpfr_nan_p(x)) {
     fputs("nan", out);

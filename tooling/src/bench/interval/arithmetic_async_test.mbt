@@ -25,7 +25,7 @@ async test "interval kernel core and full paths" {
         memory.observations,
         "interval/" + name,
         dataset_id,
-        "kernel/bin-float",
+        "kernel/binary",
         "core/interval",
         3.0,
         20260715UL,

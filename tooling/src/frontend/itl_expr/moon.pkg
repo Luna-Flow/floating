@@ -1,7 +1,7 @@
 import {
   "moonbitlang/core/debug",
   "Luna-Flow/floating/interval",
-  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/binary",
   "Luna-Flow/floating-tools/internal/conformance",
   "moonbitlang/core/string",
 }

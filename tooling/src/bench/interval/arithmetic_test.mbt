@@ -17,8 +17,8 @@ fn IntervalOperation::name(self : IntervalOperation) -> String {
 ///|
 struct IntervalInput {
   bits : Int32
-  left_binary : @binary.BinFloat
-  right_binary : @binary.BinFloat
+  left_binary : @binary.Binary
+  right_binary : @binary.Binary
   left : @ivl.Interval
   right : @ivl.Interval
   left_checked : @checked.IntervalResult
@@ -27,7 +27,7 @@ struct IntervalInput {
 
 ///|
 enum IntervalOutput {
-  BinaryKernel(@binary.BinFloat)
+  BinaryKernel(@binary.Binary)
   Core(@ivl.Interval)
   Checked(@checked.IntervalResult)
 }
@@ -62,8 +62,8 @@ fn interval_input(operation : IntervalOperation, bits : Int32) -> IntervalInput 
   let left_coeff = interval_coeff(left_big)
   let right_coeff = interval_coeff(right_big)
   let precision = left_coeff.bit_length() + right_coeff.bit_length() + 4
-  let left_binary = @binary.BinFloat::from_coefficient(left_coeff, precision~)
-  let right_binary = @binary.BinFloat::from_coefficient(right_coeff, precision~)
+  let left_binary = @binary.Binary::from_coefficient(left_coeff, precision~)
+  let right_binary = @binary.Binary::from_coefficient(right_coeff, precision~)
   {
     bits,
     left_binary,
@@ -77,14 +77,14 @@ fn interval_input(operation : IntervalOperation, bits : Int32) -> IntervalInput 
 
 ///|
 /// Timing harness check, no validation claim (level C): the expected value is
-/// computed with `BinFloat`, the code that the interval route is built on, so the
+/// computed with `Binary`, the code that the interval route is built on, so the
 /// comparison shows that the timed paths agree with each other and nothing more.
 /// The oracles for `interval` results are the interval corpora and the
 /// external baseline's differential stage, not this benchmark.
 fn interval_expected(
   operation : IntervalOperation,
   input : IntervalInput,
-) -> @binary.BinFloat {
+) -> @binary.Binary {
   match operation {
     Add => input.left_binary.add(input.right_binary)
     Mul => input.left_binary.mul(input.right_binary)
@@ -93,10 +93,7 @@ fn interval_expected(
 }
 
 ///|
-fn interval_matches(
-  expected : @binary.BinFloat,
-  output : IntervalOutput,
-) -> Bool {
+fn interval_matches(expected : @binary.Binary, output : IntervalOutput) -> Bool {
   match output {
     BinaryKernel(actual) => actual.compare(expected) == 0
     Core(actual) =>
@@ -129,7 +126,7 @@ fn interval_implementations(
   operation : IntervalOperation,
 ) -> Array[@runner.Implementation[IntervalInput, IntervalOutput, Unit]] {
   [
-    @runner.Implementation::stateless("kernel/bin-float", "0.8.0", input => {
+    @runner.Implementation::stateless("kernel/binary", "0.8.0", input => {
       let output = match operation {
         Add => input.left_binary.add(input.right_binary)
         Mul => input.left_binary.mul(input.right_binary)
@@ -166,7 +163,7 @@ fn interval_spec(
   Int32,
   IntervalInput,
   IntervalInput,
-  @binary.BinFloat,
+  @binary.Binary,
   IntervalOutput,
   Unit,
   IntervalOutput?,

@@ -171,7 +171,7 @@ let bin_coeff_short_product_max_limbs : Int32 = if bin_limbs_mode == 2 {
 /// 0.98 at 320, 1.04 at 328, 1.02 at 352, 0.94 at 360, 0.90 at 392, 0.71 at
 /// 704; portable loops 1.03 at 184, 1.01 at 192, 0.93 at 208, 0.90 at 232, 0.60
 /// at 704. Each value keeps every measured n within 3 percent of the better
-/// algorithm of its tier (the limbs of the dividend of a `BinFloat` division
+/// algorithm of its tier (the limbs of the dividend of a `Binary` division
 /// are `2n + 1`, one more than the measured shape, which costs the recursion a
 /// second block when the divisor needs no padding: the assembly and C values
 /// are therefore taken a step above their crossovers). BZ's cost is products

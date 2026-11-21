@@ -45,11 +45,11 @@ priv enum PowEnd {
   POne
   PInf
   PNegInf
-  PPow(@bin_float.BinFloat, @bin_float.BinFloat, PowClass)
+  PPow(@binary.Binary, @binary.Binary, PowClass)
   // `pow_rev2`: the quotient `ln(c) / ln(a)` of two float ends
-  PQuot(@bin_float.BinFloat, @bin_float.BinFloat, QuotClass)
+  PQuot(@binary.Binary, @binary.Binary, QuotClass)
   // `atan2_rev1/2`: `b * tan(c)` or `a * cot(c)` of two nonzero float ends
-  PProd(@bin_float.BinFloat, @bin_float.BinFloat, ProdKind)
+  PProd(@binary.Binary, @binary.Binary, ProdKind)
 }
 
 ///|
@@ -62,16 +62,16 @@ priv struct PowPiece {
 
 ///|
 priv enum PowClass {
-  Dyadic(@bin_float.BinFloat)
+  Dyadic(@binary.Binary)
   // value = 2^exp2 / den, den odd and greater than 1: (den, exp2)
-  Rational(@bin_float.BinCoeff, Int32)
+  Rational(@binary.BinCoeff, Int32)
   Irrational
   // outside the budgets: decided by the loop, with the documented fallback
   Unknown
 }
 
 ///|
-fn pow_trailing_zeros(value : @bin_float.BinCoeff) -> Int32 {
+fn pow_trailing_zeros(value : @binary.BinCoeff) -> Int32 {
   let mut zeros = 0
   let bits = value.bit_length()
   while zeros < bits && !coeff_test_bit(value, zeros) {
@@ -82,7 +82,7 @@ fn pow_trailing_zeros(value : @bin_float.BinCoeff) -> Int32 {
 
 ///|
 /// `x` as `odd * 2^exp` with `odd` odd: returns `(odd, exp)`.
-fn pow_split(x : @bin_float.BinFloat) -> (@bin_float.BinCoeff, Int64) {
+fn pow_split(x : @binary.Binary) -> (@binary.BinCoeff, Int64) {
   let coefficient = x.coefficient()
   let zeros = pow_trailing_zeros(coefficient)
   (
@@ -96,18 +96,18 @@ fn pow_split(x : @bin_float.BinFloat) -> (@bin_float.BinCoeff, Int64) {
 /// its exponent are not normalised the same way everywhere, so the exactness check compares
 /// this form).
 fn pow_split_coeff(
-  value : @bin_float.BinCoeff,
+  value : @binary.BinCoeff,
   exponent : Int64,
-) -> (@bin_float.BinCoeff, Int64) {
+) -> (@binary.BinCoeff, Int64) {
   let zeros = pow_trailing_zeros(value)
   (coeff_shift_right(value, zeros), exponent + zeros.to_int64())
 }
 
 ///|
 fn coeff_pow_two_power(
-  base : @bin_float.BinCoeff,
+  base : @binary.BinCoeff,
   squarings : Int32,
-) -> @bin_float.BinCoeff {
+) -> @binary.BinCoeff {
   let mut result = base
   for _ in 0..<squarings {
     result = coeff_mul(result, result)
@@ -117,9 +117,9 @@ fn coeff_pow_two_power(
 
 ///|
 fn coeff_pow_small(
-  base : @bin_float.BinCoeff,
+  base : @binary.BinCoeff,
   exponent : Int32,
-) -> @bin_float.BinCoeff {
+) -> @binary.BinCoeff {
   let mut result = coeff_one()
   let mut factor = base
   let mut remaining = exponent
@@ -139,15 +139,12 @@ fn coeff_pow_small(
 /// `m` with `m^q = value`, if there is one: integer Newton iteration from a power of
 /// two above the root, `x <- ((q - 1) x + value / x^(q-1)) / q` while it decreases,
 /// then an exact check `m^q = value`.
-fn coeff_exact_root(
-  value : @bin_float.BinCoeff,
-  q : Int32,
-) -> @bin_float.BinCoeff? {
+fn coeff_exact_root(value : @binary.BinCoeff, q : Int32) -> @binary.BinCoeff? {
   if q == 1 {
     return Some(value)
   }
-  let q_coeff = @bin_float.BinCoeff::from_uint64(q.to_uint64())
-  let q_minus_one = @bin_float.BinCoeff::from_uint64((q - 1).to_uint64())
+  let q_coeff = @binary.BinCoeff::from_uint64(q.to_uint64())
+  let q_minus_one = @binary.BinCoeff::from_uint64((q - 1).to_uint64())
   let mut x = coeff_shift_left(coeff_one(), (value.bit_length() + q - 1) / q)
   while true {
     let power = coeff_pow_small(x, q - 1)
@@ -171,11 +168,11 @@ fn coeff_exact_root(
 ///|
 /// The class of `c^(1/beta)`; `c > 0` and `beta != 0` finite.
 fn pow_end_class(
-  c : @bin_float.BinFloat,
-  beta : @bin_float.BinFloat,
+  c : @binary.Binary,
+  beta : @binary.Binary,
   precision : Int32,
 ) -> PowClass {
-  let one = @bin_float.BinFloat::one(precision~)
+  let one = @binary.Binary::one(precision~)
   if c.compare(one) == 0 {
     return Dyadic(one)
   }
@@ -195,7 +192,7 @@ fn pow_end_class(
   }
   let q = q64.to_int()
   let c_is_one = big_c.bit_length() == 1
-  let m : @bin_float.BinCoeff = if c_is_one {
+  let m : @binary.BinCoeff = if c_is_one {
     big_c
   } else {
     if big_c.bit_length() > pow_int_budget {
@@ -233,8 +230,8 @@ fn pow_end_class(
   let power = coeff_pow_two_power(m, squarings)
   // a value outside the normal range [2^e_min, 2^(e_max + 1)) cannot be stored exactly:
   // its end is decided by the loop, which stops at the limits of the range
-  let e_max = @bin_float.binary_implementation_e_max.to_int64()
-  let e_min = @bin_float.binary_implementation_e_min.to_int64()
+  let e_max = @binary.binary_implementation_e_max.to_int64()
+  let e_min = @binary.binary_implementation_e_min.to_int64()
   if !negative || m_is_one {
     let exponent = if negative { -scaled } else { scaled }
     let top = exponent + power.bit_length().to_int64() - 1L
@@ -254,7 +251,7 @@ fn pow_end_class(
       if needed > pow_value_budget.to_int64() {
         return Unknown
       }
-      let datum = @bin_float.BinFloat::make(
+      let datum = @binary.Binary::make(
         power,
         exponent.to_int(),
         needed.to_int(),
@@ -281,16 +278,16 @@ fn pow_end_class(
 ///|
 /// An enclosure of a value with the information whether each end is excluded.
 priv struct PowEnc {
-  lo : @bin_float.BinFloat
+  lo : @binary.Binary
   lo_open : Bool
-  hi : @bin_float.BinFloat
+  hi : @binary.Binary
   hi_open : Bool
   // the value is outside the exponent range: the enclosure is final, no precision helps
   clamped : Bool
 }
 
 ///|
-fn pow_adjusted_exponent(x : @bin_float.BinFloat) -> Int64 {
+fn pow_adjusted_exponent(x : @binary.Binary) -> Int64 {
   if x.is_zero() {
     return -1000000000000L
   }
@@ -299,8 +296,8 @@ fn pow_adjusted_exponent(x : @bin_float.BinFloat) -> Int64 {
 
 ///|
 /// `+1` if `c^(1/beta) > 1`, `-1` if `< 1` (for `c != 1`).
-fn pow_side(c : @bin_float.BinFloat, beta : @bin_float.BinFloat) -> Int32 {
-  let above = c.compare(@bin_float.BinFloat::one()) > 0
+fn pow_side(c : @binary.Binary, beta : @binary.Binary) -> Int32 {
+  let above = c.compare(@binary.Binary::one()) > 0
   if above == (beta.sign() == Sign::Positive) {
     1
   } else {
@@ -313,8 +310,8 @@ fn pow_side(c : @bin_float.BinFloat, beta : @bin_float.BinFloat) -> Int32 {
 /// the absolute error of `t = ln(c) / beta` below `2^-precision`, so the bits of
 /// the integer part of `t` are added to the precision.
 fn pow_start_work(
-  c : @bin_float.BinFloat,
-  beta : @bin_float.BinFloat,
+  c : @binary.Binary,
+  beta : @binary.Binary,
   precision : Int32,
 ) -> Int32 {
   let coarse = Interval::exact(c, precision=Int32::max(64, c.precision())).ln() /
@@ -333,11 +330,11 @@ fn pow_start_work(
 /// known to be on (`exp(t) > 1` iff `t > 0`, decided exactly by the sign). A value
 /// whose exponent leaves the exponent range clamps outward.
 fn pow_enclosure(
-  c : @bin_float.BinFloat,
-  beta : @bin_float.BinFloat,
+  c : @binary.Binary,
+  beta : @binary.Binary,
   w : Int32,
 ) -> PowEnc {
-  let one = @bin_float.BinFloat::one(precision=w)
+  let one = @binary.Binary::one(precision=w)
   let side = pow_side(c, beta)
   let t = Interval::exact(c, precision=Int32::max(w, c.precision())).ln() /
     Interval::exact(beta, precision=Int32::max(w, beta.precision()))
@@ -352,23 +349,21 @@ fn pow_enclosure(
   // `t <= (e_min - w) ln 2` puts the value below the smallest positive stored value
   // `2^(e_min - w + 1)`, and the enclosure is [0, that value]: an upper end then rounds up
   // to the smallest positive stored value of the result precision.
-  let ln2_up = Interval::exact(@bin_float.BinFloat::from_int(2), precision=64).ln().hi_
+  let ln2_up = Interval::exact(@binary.Binary::from_int(2), precision=64).ln().hi_
   let times_ln2 = fn(n : Int32) {
-    Interval::exact(@bin_float.BinFloat::from_int(n), precision=64) *
+    Interval::exact(@binary.Binary::from_int(n), precision=64) *
     Interval::exact(ln2_up, precision=64)
   }
   let beyond = if side > 0 {
-    t.lo_.compare(times_ln2(@bin_float.binary_implementation_e_max + 1).hi_) >=
-    0
+    t.lo_.compare(times_ln2(@binary.binary_implementation_e_max + 1).hi_) >= 0
   } else {
-    t.hi_.compare(times_ln2(@bin_float.binary_implementation_e_min - w).lo_) <=
-    0
+    t.hi_.compare(times_ln2(@binary.binary_implementation_e_min - w).lo_) <= 0
   }
   if beyond {
     return if side > 0 {
-      let largest = @bin_float.BinFloat::make(
+      let largest = @binary.Binary::make(
         coeff_sub(coeff_shift_left(coeff_one(), w), coeff_one()),
-        @bin_float.binary_implementation_e_max - w + 1,
+        @binary.binary_implementation_e_max - w + 1,
         w,
       )
       {
@@ -379,13 +374,13 @@ fn pow_enclosure(
         clamped: true,
       }
     } else {
-      let smallest = @bin_float.BinFloat::make(
+      let smallest = @binary.Binary::make(
         coeff_one(),
-        @bin_float.binary_implementation_e_min - w + 1,
+        @binary.binary_implementation_e_min - w + 1,
         w,
       )
       {
-        lo: @bin_float.BinFloat::zero(precision=w),
+        lo: @binary.Binary::zero(precision=w),
         lo_open: false,
         hi: smallest,
         hi_open: false,
@@ -416,9 +411,9 @@ fn pow_enclosure(
   // Below, a straddling enclosure is the subnormal enclosure of `exp` (at most one
   // quantum `2^(e_min - w + 1)` wide, lower end 0): the loops go on, and terminate, since
   // the quantum shrinks with `w` while the value is fixed.
-  let certified_floor = @bin_float.BinFloat::make(
+  let certified_floor = @binary.Binary::make(
     coeff_sub(coeff_shift_left(coeff_one(), w - 64), coeff_one()),
-    @bin_float.binary_implementation_e_max - (w - 64) + 1,
+    @binary.binary_implementation_e_max - (w - 64) + 1,
     w,
   )
   let straddles = side > 0 &&
@@ -456,9 +451,9 @@ fn pow_enclosure(
 ///|
 /// Compares an exact value `2^exp2 / den` (den odd, > 1) with the finite float `d`.
 fn pow_rational_compare(
-  den : @bin_float.BinCoeff,
+  den : @binary.BinCoeff,
   exp2 : Int32,
-  d : @bin_float.BinFloat,
+  d : @binary.Binary,
 ) -> Int32 {
   if d.sign() != Sign::Positive {
     return 1
@@ -487,11 +482,11 @@ fn pow_rational_compare(
 ///|
 /// `RD` or `RU` to `precision` bits of `2^exp2 / den`.
 fn pow_rational_round(
-  den : @bin_float.BinCoeff,
+  den : @binary.BinCoeff,
   exp2 : Int32,
   upper : Bool,
   precision : Int32,
-) -> @bin_float.BinFloat {
+) -> @binary.Binary {
   let scale = precision + 2 + den.bit_length()
   let (quotient, remainder) = coeff_div_rem(
     coeff_shift_left(coeff_one(), scale),
@@ -519,7 +514,7 @@ fn pow_rational_round(
 ///|
 fn pow_end_compare(
   end : PowEnd,
-  d : @bin_float.BinFloat,
+  d : @binary.Binary,
   precision : Int32,
   cap : Int32,
 ) -> RevOrder {
@@ -534,8 +529,8 @@ fn pow_end_compare(
   }
 
   match end {
-    PZero => order_of(@bin_float.BinFloat::zero(precision~).compare(d))
-    POne => order_of(@bin_float.BinFloat::one(precision~).compare(d))
+    PZero => order_of(@binary.Binary::zero(precision~).compare(d))
+    POne => order_of(@binary.Binary::one(precision~).compare(d))
     PInf => Above
     PNegInf => Below
     PQuot(c, a, cls) => quot_end_compare(c, a, cls, d, precision, cap)
@@ -563,10 +558,10 @@ fn pow_end_rounded(
   upper : Bool,
   precision : Int32,
   cap : Int32,
-) -> @bin_float.BinFloat {
+) -> @binary.Binary {
   match end {
-    PZero => @bin_float.BinFloat::zero(precision~)
-    POne => @bin_float.BinFloat::one(precision~)
+    PZero => @binary.Binary::zero(precision~)
+    POne => @binary.Binary::one(precision~)
     PInf => pos_inf(precision)
     PNegInf => neg_inf(precision)
     PQuot(c, a, cls) => quot_end_rounded(c, a, cls, upper, precision, cap)
@@ -603,7 +598,7 @@ fn pow_end_rounded(
 fn pow_loop_compare(
   start : Int32,
   enclosure : (Int32) -> PowEnc,
-  d : @bin_float.BinFloat,
+  d : @binary.Binary,
   cap : Int32,
 ) -> RevOrder {
   let mut w = start
@@ -635,10 +630,10 @@ fn pow_loop_round(
   upper : Bool,
   precision : Int32,
   cap : Int32,
-) -> @bin_float.BinFloat {
+) -> @binary.Binary {
   let down = BinaryRoundingMode::RoundTowardNegative
   let up = BinaryRoundingMode::RoundTowardPositive
-  let context = @bin_float.BinaryContext::new(precision~)
+  let context = @binary.BinaryContext::new(precision~)
   let mut w = start
   let mut enc = enclosure(w)
   for _ in 0..<cap {
@@ -679,13 +674,13 @@ fn pow_piece(
 /// quotient by an unbounded `b`).
 fn pow_pieces(b : Interval, c : Interval, precision : Int32) -> Array[PowPiece] {
   let pieces : Array[PowPiece] = []
-  let zero = @bin_float.BinFloat::zero(precision~)
-  let one = @bin_float.BinFloat::one(precision~)
+  let zero = @binary.Binary::zero(precision~)
+  let one = @binary.Binary::one(precision~)
   let c1 = c.lo_
   let c2 = c.hi_
   let b1 = b.lo_
   let b2 = b.hi_
-  let pow_end = fn(ce : @bin_float.BinFloat, be : @bin_float.BinFloat) {
+  let pow_end = fn(ce : @binary.Binary, be : @binary.Binary) {
     PPow(ce, be, pow_end_class(ce, be, precision))
   }
   if c2.compare(zero) > 0 {
@@ -835,8 +830,8 @@ fn pow_reverse_hull(
   let xh = prior.hi_
   let lower_infinite = is_neg_inf(xl)
   let upper_infinite = is_pos_inf(xh)
-  let mut lower : @bin_float.BinFloat? = None
-  let mut upper : @bin_float.BinFloat? = None
+  let mut lower : @binary.Binary? = None
+  let mut upper : @binary.Binary? = None
   for piece in pieces {
     // the piece meets the prior iff lo <= xh and xl <= hi; an open end equal to a
     // prior end does not meet it

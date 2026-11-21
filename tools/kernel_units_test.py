@@ -23,8 +23,8 @@ def make_repo(root: Path, imports: str = '"moonbitlang/core/debug"') -> None:
     (pkg / "a.mbt").write_text("fn f() -> Int { 1 }\n")
     (pkg / "a_wbtest.mbt").write_text('test "a" { assert_eq(1, 1) }\n')
     (pkg / "luna_limbs.c").write_text("int x;\n")
-    (root / "library" / "src" / "bin_float").mkdir(parents=True)
-    (root / "library" / "src" / "bin_float" / "b.mbt").write_text("fn g() -> Int { 2 }\n")
+    (root / "library" / "src" / "binary").mkdir(parents=True)
+    (root / "library" / "src" / "binary" / "b.mbt").write_text("fn g() -> Int { 2 }\n")
     (root / "library" / "moon.mod").write_text('name = "x"\n')
     (root / "tools").mkdir()
     (root / "tools" / "kernel_oracle.py").write_text("import math\nprint(math.gcd(4, 6))\n")
@@ -57,7 +57,7 @@ class KeyTests(unittest.TestCase):
 
     def test_a_package_file_changes_every_key_a_file_outside_changes_none(self) -> None:
         before = {n: self.key(n) for n in self.units}
-        (self.root / "library/src/bin_float/b.mbt").write_text("fn g() -> Int { 3 }\n")
+        (self.root / "library/src/binary/b.mbt").write_text("fn g() -> Int { 3 }\n")
         self.assertEqual(before, {n: self.key(n) for n in self.units})
         (self.root / ku.KERNEL_PACKAGE / "a.mbt").write_text("fn f() -> Int { 2 }\n")
         after = {n: self.key(n) for n in self.units}
@@ -170,7 +170,7 @@ class PlanTests(unittest.TestCase):
     def test_an_edit_outside_the_package_leaves_every_unit_reusable(self) -> None:
         for unit in (plan := self.plan()).units:
             ku.record_pass(plan, unit, 1.0)
-        (self.root / "library/src/bin_float/b.mbt").write_text("fn g() -> Int { 7 }\n")
+        (self.root / "library/src/binary/b.mbt").write_text("fn g() -> Int { 7 }\n")
         self.assertEqual(set(self.plan().actions.values()), {"reuse"})
 
     def test_a_python_unit_with_an_outside_import_always_runs_and_is_never_recorded(self) -> None:

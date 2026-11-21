@@ -69,7 +69,7 @@ decimal-kernel-ci:
     @sh tools/run_moon_clean_exec.sh test library/src/internal/decimal_kernel --no-parallelize
 
 bin-kernel-ci:
-    @sh tools/run_moon_clean_exec.sh test library/src/bin_float --target all --no-parallelize
+    @sh tools/run_moon_clean_exec.sh test library/src/binary --target all --no-parallelize
 
 # Run a Maremark suite, or `just bench external run` for floating against MPFR and libmpdec.
 bench suite *args:

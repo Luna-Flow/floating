@@ -14,7 +14,7 @@ ATTACHMENT_ROOT = DOC_ROOT / "attachments"
 RETIRED_LOCALE_DIRS = ("en_US", "zh_CN", "ja_JP")
 PACKAGE_CHAPTERS = ("api", "tutorial", "design")
 EVIDENCE_CHAPTERS = ("conformance", "performance")
-NUMERICAL_CORES = ("bin_float", "decimal", "decimal_gda", "interval")
+NUMERICAL_CORES = ("binary", "decimal", "decimal_gda", "interval")
 GUIDES = (
     "index.md",
     "conventions.md",

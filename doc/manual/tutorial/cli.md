@@ -44,7 +44,7 @@ Everything after the dispatcher's own options goes to the runner:
 ```bash
 floating-conformance --backend gda --json testdata/decimal_gda/smoke.decTest
 floating-conformance --backend itl testdata/interval/smoke.itl
-floating-conformance --backend mpfr --json testdata/bin_float/mpfr-4.2.2-elementary.txt
+floating-conformance --backend mpfr --json testdata/binary/mpfr-4.2.2-elementary.txt
 floating-conformance --backend testfloat --function f64_mul --rounding rnear_even vectors.tv
 ```
 

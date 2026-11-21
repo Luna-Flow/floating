@@ -32,13 +32,13 @@ estimators, the pairing and the bootstrap interval are derived in the
 
 | Case | Datasets | Implementations | Protocol |
 | --- | --- | --- | --- |
-| `interval/add`, `interval/mul`, `interval/div` | 53, 128, 512, 2048 bits | `kernel/bin-float` (`BinFloat`), `core/interval` (`Interval`), `full/checked` (`IntervalResult`) | `Development` |
+| `interval/add`, `interval/mul`, `interval/div` | 53, 128, 512, 2048 bits | `kernel/binary` (`Binary`), `core/interval` (`Interval`), `full/checked` (`IntervalResult`) | `Development` |
 
 Inputs are exact singleton intervals built from fixed bit patterns; the precision is the sum of the operand bit lengths plus 4 and the `div` dividend is the product of the patterns, so every result is exact and every interval result must stay a singleton.
 
 ### Correctness oracle
 
-The reference is the `BinFloat` kernel result itself, which is exact for these inputs; kernel outputs must equal it, and interval outputs must be singletons whose center equals it. An output that disagrees with the oracle is counted as a
+The reference is the `Binary` kernel result itself, which is exact for these inputs; kernel outputs must equal it, and interval outputs must be singletons whose center equals it. An output that disagrees with the oracle is counted as a
 failure and the performance test asserts that there is none, so a comparison
 is never between paths that compute different things.
 

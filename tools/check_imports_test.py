@@ -33,7 +33,7 @@ def write_library(root: Path, manifest_imports: tuple[str, ...], package_imports
     (root / "library").mkdir(exist_ok=True)
     (root / "library" / "moon.mod").write_text(f'name = "{MODULE}"\n\nimport {{\n{body}}}\n', encoding="utf-8")
     body = "".join(f'  "{name}",\n' for name in package_imports)
-    write_pkg(root / "library" / "src", "bin_float", f"import {{\n{body}}}\n")
+    write_pkg(root / "library" / "src", "binary", f"import {{\n{body}}}\n")
 
 
 def write_mbti(src: Path, directory: str, text: str) -> None:
@@ -48,17 +48,17 @@ class InterfaceViolationsTests(unittest.TestCase):
     def test_the_binary_coefficient_bridge_is_an_allowed_mention(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             src = Path(tmp)
-            write_mbti(src, "bin_float", "package \"x\"\n\n" + self.NEWTYPE + "pub fn BinCoeff::one() -> Self\n")
+            write_mbti(src, "binary", "package \"x\"\n\n" + self.NEWTYPE + "pub fn BinCoeff::one() -> Self\n")
             write_mbti(src, "internal/bin_kernel", "pub fn f(Coeff) -> Coeff\n")
             self.assertEqual(check_imports.interface_violations(src), [])
 
     def test_a_public_function_taking_the_kernel_type_fails(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             src = Path(tmp)
-            write_mbti(src, "bin_float", self.NEWTYPE + "pub fn take(@bin_kernel.Coeff) -> Int32\n")
+            write_mbti(src, "binary", self.NEWTYPE + "pub fn take(@bin_kernel.Coeff) -> Int32\n")
             self.assertEqual(
                 check_imports.interface_violations(src),
-                ["library/src/bin_float/pkg.generated.mbti:2 names an internal type: pub fn take(@bin_kernel.Coeff) -> Int32"],
+                ["library/src/binary/pkg.generated.mbti:2 names an internal type: pub fn take(@bin_kernel.Coeff) -> Int32"],
             )
 
     def test_the_definition_in_another_package_or_another_internal_type_fails(self) -> None:
@@ -100,8 +100,8 @@ class ModuleViolationsTests(unittest.TestCase):
             self.assertEqual(
                 check_imports.module_violations(root),
                 [
-                    "library/src/bin_float/moon.pkg must not import Luna-Flow/floating-tools/bench",
-                    "library/src/bin_float/moon.pkg must not import moonbitlang/async",
+                    "library/src/binary/moon.pkg must not import Luna-Flow/floating-tools/bench",
+                    "library/src/binary/moon.pkg must not import moonbitlang/async",
                 ],
             )
 

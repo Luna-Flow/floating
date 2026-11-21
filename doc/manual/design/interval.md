@@ -88,7 +88,7 @@ $\square$ The full argument, with the lemmas below, is in the attachment:
 
 ### Outward rounding
 
-Endpoints are `BinFloat` numbers with $p$ significant bits, so exact endpoint
+Endpoints are `Binary` numbers with $p$ significant bits, so exact endpoint
 values must be rounded. Write $F_p$ for the $p$-bit binary numbers and
 
 $$
@@ -139,7 +139,7 @@ $$
 using $S_u - S_\ell = w(\boldsymbol{x}) + w(\boldsymbol{y})$. Widths
 therefore grow additively through a computation, plus a relative $2^{1-p}$
 per rounding. The relative bound needs $a$ inside the normal range of
-`BinFloat`, $2^{e_{\min}} \le |a| < 2^{e_{\max}+1}$ with
+`Binary`, $2^{e_{\min}} \le |a| < 2^{e_{\max}+1}$ with
 $e_{\min} = -(2^{30} - 1)$ and $e_{\max} = 2^{30} - 1$. Below $2^{e_{\min}}$
 the directed kernels round on a subnormal grid, and the error is only bounded
 absolutely, by $2^{e_{\min} - p + 1}$; above the range an upper endpoint
@@ -248,7 +248,7 @@ $$
 $$
 
 each end the exact sum rounded once in its direction (`sub_ctx` toward negative and
-`add_ctx` toward positive of `bin_float`, whose operands are exact whatever their
+`add_ctx` toward positive of `binary`, whose operands are exact whatever their
 precision). The interval contains $[c - r, c + r]$ because a directed rounding never
 crosses the value, and it is the tightest interval of the format that does. When
 $c - r$ and $c + r$ are numbers of the format nothing is rounded. Before 0.12 the center was
@@ -451,7 +451,7 @@ rounding of the exact value: $\operatorname{RD}_p(f(a))$ is a valid lower
 endpoint and $\operatorname{RU}_p(f(b))$ a valid upper endpoint by property
 (i). This package does not implement the series itself. Each endpoint is
 evaluated by the certified `try_*_ctx` function of
-[`bin_float`](bin_float.md) in an unbounded context of the interval's
+[`binary`](binary.md) in an unbounded context of the interval's
 precision, rounded toward $-\infty$ for a lower bound and toward $+\infty$ for
 an upper bound; those functions refine a working precision until the two
 directed roundings agree (a Ziv-style acceptance test[^ziv]) and report a
@@ -466,7 +466,7 @@ previous section (which endpoint gives which bound, where an extremum of
 fallback range. An enclosure of $\pi$ is needed only to locate critical points
 and poles of the trigonometric functions, and for the fallbacks of the inverse
 trigonometric functions; it comes from the cached binary-splitting constant of
-`bin_float` (`atan(+inf)` is $\pi/2$ correctly rounded in each direction,
+`binary` (`atan(+inf)` is $\pi/2$ correctly rounded in each direction,
 and the scaling by 2 is exact).
 
 [^ziv]: A. Ziv, "Fast evaluation of elementary mathematical functions with
@@ -877,7 +877,7 @@ $k$ the number of digits after the point of $m$, the bounds are $(M \mp r) 10^{e
 one side, and the radius $?$ is unbounded; the arithmetic is on big integers, so no rounding precedes the final one.
 
 *Rounding.* Each bound is rounded once, outward and exactly: a decimal and a hexadecimal description go through
-the correctly rounded directed conversions of `BinFloat` (`from_string_ctx`, `from_hex_ctx`, which accept any exponent),
+the correctly rounded directed conversions of `Binary` (`from_string_ctx`, `from_hex_ctx`, which accept any exponent),
 and a rational is divided by integer division to a quotient of at least $p + 3$ bits with the sticky remainder (the same
 rule as the exact rational ends of `pow_rev1`). A literal whose exact value is beyond the stored range is therefore decided
 by those conversions from the exponent without forming the value, and `1e400000000` has the lower end the largest finite
@@ -1001,8 +1001,8 @@ step, or exactly and rounded once. Rounding at each step would not give the
 tightest enclosure; forming the exact value of a sum or a product by hand costs
 alignment and bookkeeping the binary layer already does.
 
-*Chosen.* Every endpoint sum, difference and product of two `BinFloat`
-endpoints is one directed contextual operation of `bin_float` (`add_ctx`,
+*Chosen.* Every endpoint sum, difference and product of two `Binary`
+endpoints is one directed contextual operation of `binary` (`add_ctx`,
 `sub_ctx`, `mul_ctx`, `fma_ctx`) in a context of the precision $p$ of the
 result and the direction of the endpoint: lower endpoints toward $-\infty$,
 upper endpoints toward $+\infty$, radii and widths upward. Each of them
@@ -1089,7 +1089,7 @@ $2^{\max(65536, 4p)+1}$, reduction would need more than that many bits, so the
 had a kernel of their own (exact-rational series), which aborted at a high
 precision (about 32,000 bits for `ln`, issue 449) and lost all relative
 accuracy for a tiny argument in the hyperbolic functions, while the `try_`
-forms used the `bin_float` kernels and had neither limit. Keeping two kernels
+forms used the `binary` kernels and had neither limit. Keeping two kernels
 for the same function meant two sets of bugs, and results that depended on
 which form the caller chose.
 
@@ -1143,8 +1143,8 @@ function evaluated, by the induction argument above.
 **Complexity.** Arithmetic performs at most four endpoint products or two
 sums, $O(M(p))$ for $p$-bit endpoints with multiplication cost $M(p)$, plus
 alignment of at most about $65536 + p$ bits for sums. Elementary functions cost one
-or two directed evaluations of the `bin_float` kernels at precision $p$ (see
-[`bin_float`](bin_float.md) for their cost), plus the index range for the
+or two directed evaluations of the `binary` kernels at precision $p$ (see
+[`binary`](binary.md) for their cost), plus the index range for the
 trigonometric functions.
 
 **Evidence.** Package tests check directed endpoints, the far-addend and

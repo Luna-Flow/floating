@@ -32,7 +32,7 @@ Append a block to `tooling/src/doc_examples/README.mbt.md`:
 ```moonbit check
 ///|
 test "a unique, descriptive name" {
-  let x = @bin_float.BinFloat::from_int(3)
+  let x = @binary.Binary::from_int(3)
   inspect(x.to_string(), content="3p0")
 }
 ```

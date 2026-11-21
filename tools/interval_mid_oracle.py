@@ -16,7 +16,7 @@ For every row the oracle asserts the two inequalities exactly (`m - r <= lower`,
 `m + r >= upper`) and that the next smaller number of the format would not do (r is smallest).
 
 Each table line is tab separated: lower and upper bound as hexadecimal numbers, precision,
-mid, rad (as `BinFloat::to_string` writes them: odd coefficient, `p`, exponent; `0` for zero).
+mid, rad (as `Binary::to_string` writes them: odd coefficient, `p`, exponent; `0` for zero).
 
 `--write` writes `library/src/interval/midpoint_radius_table_wbtest.mbt` (byte-stable);
 `--check` recomputes it and compares.

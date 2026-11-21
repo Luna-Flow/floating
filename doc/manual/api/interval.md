@@ -2,7 +2,7 @@
 
 ## Purpose
 
-`interval` is interval arithmetic over `BinFloat` endpoints. An `Interval`
+`interval` is interval arithmetic over `Binary` endpoints. An `Interval`
 is a closed real interval $[\underline{x}, \overline{x}]$, possibly unbounded,
 or the empty set; every operation returns an interval that contains all exact
 results of the operation on points of its operands (the *inclusion property*).
@@ -27,8 +27,8 @@ Conventions used on this page:
 - The *precision* of an interval is a tag in bits. Operations round their
   result outward to the larger precision of their operands; elementary
   functions use the precision of their argument.
-- The exponent range of `BinFloat` endpoints is the implementation range of
-  `bin_float`: leading-bit exponents up to $e_{\max} = 2^{30} - 1$, and
+- The exponent range of `Binary` endpoints is the implementation range of
+  `binary`: leading-bit exponents up to $e_{\max} = 2^{30} - 1$, and
   nonzero magnitudes down to $2^{e_{\min} - p + 1}$ with
   $e_{\min} = -(2^{30} - 1)$. Use an `IntervalContext` to impose a narrower range.
 - The *precision* of an interval is between 1 and `binary_precision_max`
@@ -51,13 +51,13 @@ Add the package and the endpoint package to your `moon.pkg`:
 
 ```moonbit nocheck
 import {
-  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/binary",
   "Luna-Flow/floating/interval",
   "Luna-Flow/arithmetic" @lf_arith,
 }
 ```
 
-The examples refer to the packages as `@interval.`, `@bin_float.` and
+The examples refer to the packages as `@interval.`, `@binary.` and
 `@lf_arith.` (for `Luna-Flow/arithmetic`, which defines `ArithmeticError`,
 `RoundingMode` and the enclosure traits). They use two helpers: `iv(lo, hi)`
 builds the 53-bit interval with integer endpoints, and `fmt(x)` prints the
@@ -68,8 +68,8 @@ rounded up, so the text still encloses the stored set.
 ///|
 fn iv(lo : Int, hi : Int) -> @interval.Interval {
   @interval.Interval::from_bounds(
-    @bin_float.BinFloat::from_int(lo, precision=53),
-    @bin_float.BinFloat::from_int(hi, precision=53),
+    @binary.Binary::from_int(lo, precision=53),
+    @binary.Binary::from_int(hi, precision=53),
   )
 }
 
@@ -78,13 +78,13 @@ fn fmt(x : @interval.Interval) -> String {
   if x.is_empty() {
     return "[empty]"
   }
-  let down = @bin_float.BinaryContext::new(
+  let down = @binary.BinaryContext::new(
     precision=53,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+    rounding=@binary.BinaryRoundingMode::RoundTowardNegative,
   )
-  let up = @bin_float.BinaryContext::new(
+  let up = @binary.BinaryContext::new(
     precision=53,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+    rounding=@binary.BinaryRoundingMode::RoundTowardPositive,
   )
   "[" +
   x.lower_bound().to_decimal_string_ctx(6, down).0 +
@@ -98,7 +98,7 @@ fn fmt(x : @interval.Interval) -> String {
 
 ### `Interval`
 
-`Interval` is a closed interval with `BinFloat` endpoints and a precision tag.
+`Interval` is a closed interval with `Binary` endpoints and a precision tag.
 
 ```mbti
 pub struct Interval {
@@ -237,8 +237,8 @@ $[c - r, c + r]$ from a center and a radius (IEEE 1788-2015 12.12.7). `Interval:
 same interval, or an `ArithmeticError` where `from_midpoint_radius` aborts.
 
 ```mbti
-pub fn Interval::from_midpoint_radius(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int) -> Self
-pub fn Interval::try_from_midpoint_radius(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::from_midpoint_radius(@binary.Binary, @binary.Binary, precision? : Int) -> Self
+pub fn Interval::try_from_midpoint_radius(@binary.Binary, @binary.Binary, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 The default precision is the larger of the precisions of `center` and
@@ -307,10 +307,10 @@ so the result is Entire (decorated: `dac`, or the `trv` or `def` the string ends
 test "from_string" {
   // 3.56?1 is [3.55, 3.57]: each bound is rounded outward
   let u = @interval.Interval::from_string("3.56?1").unwrap()
-  assert_true(u.lower_bound().compare(@bin_float.BinFloat::from_double(3.55)) <= 0)
+  assert_true(u.lower_bound().compare(@binary.Binary::from_double(3.55)) <= 0)
   // [0x1.3p-1,] is [19/32, +inf), exact
   let r = @interval.Interval::from_string("[0x1.3p-1,]").unwrap()
-  assert_true(r.lower_bound().compare(@bin_float.BinFloat::from_double(19.0 / 32.0)) == 0)
+  assert_true(r.lower_bound().compare(@binary.Binary::from_double(19.0 / 32.0)) == 0)
   // the failed call is an Err that names the rule
   assert_true(@interval.Interval::from_string("[2,1]") is Err(_))
   // [nai] is NaI for the decorated form
@@ -324,8 +324,8 @@ test "from_string" {
 from its endpoints, rounded outward to the requested precision.
 
 ```mbti
-pub fn Interval::from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int) -> Self
-pub fn Interval::try_from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::from_bounds(@binary.Binary, @binary.Binary, precision? : Int) -> Self
+pub fn Interval::try_from_bounds(@binary.Binary, @binary.Binary, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 The default precision is the larger of the endpoint precisions. Infinite
@@ -338,8 +338,8 @@ way to build Empty from bounds; use `Interval::empty`.
 ```moonbit
 ///|
 test "from_bounds" {
-  let two = @bin_float.BinFloat::from_int(2, precision=53)
-  let three = @bin_float.BinFloat::from_int(3, precision=53)
+  let two = @binary.Binary::from_int(2, precision=53)
+  let three = @binary.Binary::from_int(3, precision=53)
   inspect(fmt(@interval.Interval::from_bounds(two, three)), content="[2.00000e+0, 3.00000e+0]")
   inspect(@interval.Interval::try_from_bounds(three, two) is Err(_), content="true")
 }
@@ -347,11 +347,11 @@ test "from_bounds" {
 
 ### `Interval::exact` and `Interval::try_exact`
 
-`Interval::exact` builds the singleton $\{x\}$ of a finite `BinFloat`.
+`Interval::exact` builds the singleton $\{x\}$ of a finite `Binary`.
 
 ```mbti
-pub fn Interval::exact(@bin_float.BinFloat, precision? : Int) -> Self
-pub fn Interval::try_exact(@bin_float.BinFloat, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::exact(@binary.Binary, precision? : Int) -> Self
+pub fn Interval::try_exact(@binary.Binary, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
 The default precision is that of `x`. When `x` has more significant bits than
@@ -366,12 +366,12 @@ an integer.
 
 ```mbti
 pub fn Interval::from_int(Int, precision~ : Int) -> Self
-pub fn Interval::from_coefficient(@bin_float.BinCoeff, precision? : Int, negative? : Bool) -> Self
+pub fn Interval::from_coefficient(@binary.BinCoeff, precision? : Int, negative? : Bool) -> Self
 ```
 
 The precision of `from_int` is required and counts bits (it was 53 by default). `from_coefficient` takes a non-negative
 `BinCoeff` magnitude and a separate sign. The integer is converted to a
-`BinFloat` exactly and then passed to `exact`, so the result is the singleton
+`Binary` exactly and then passed to `exact`, so the result is the singleton
 $\{n\}$ when $n$ fits in $p$ bits and the two-point interval
 $[\operatorname{RD}_p(n), \operatorname{RU}_p(n)]$ otherwise. Either way it
 contains $n$. Pass a precision at least as large as the bit length of the
@@ -389,7 +389,7 @@ pub fn Interval::from_float(Float, precision? : Int) -> Self
 pub fn Interval::try_from_float(Float, precision? : Int) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
-Default precisions are 53 and 24. The conversion to `BinFloat` is exact; a
+Default precisions are 53 and 24. The conversion to `Binary` is exact; a
 smaller requested precision rounds the singleton outward. NaN and infinities
 abort the plain forms and are domain errors for the `try_` forms. The result
 encloses the binary value, not the decimal literal it was written as:
@@ -414,8 +414,8 @@ The default precision is 53.
 the endpoints.
 
 ```mbti
-pub fn Interval::lower_bound(Self) -> @bin_float.BinFloat
-pub fn Interval::upper_bound(Self) -> @bin_float.BinFloat
+pub fn Interval::lower_bound(Self) -> @binary.Binary
+pub fn Interval::upper_bound(Self) -> @binary.Binary
 ```
 
 For an unbounded side the endpoint is an infinity. For Empty they return
@@ -426,13 +426,13 @@ is returned as $-0$ by `lower_bound` and as $+0$ by every other function of the 
 (`upper_bound`, `midpoint`, `radius`, `width`, `magnitude`, `mignitude` and their contextual
 forms). So the lower bound of `[0, 1]` is $-0$ and the upper bound of `[-1, 0]` is $+0$,
 whatever sign of zero the interval was built from; `[0, 0]` has the representative
-$(-0, +0)$. An interval is a set: the sign of a stored zero is not part of it. `BinFloat`'s `==`
+$(-0, +0)$. An interval is a set: the sign of a stored zero is not part of it. `Binary`'s `==`
 agrees with `compare` (`-0 == +0`); `identical` tells the two zeros apart.
 
 Every endpoint is a number of the format of $p$ bits (at most $p$ significant bits, on the grid of
 $p$ bits, the band below the range floor included) or an infinity, and its label,
-`endpoint.precision()`, is the precision $p$ of the interval. `BinFloat`'s `==`
-agrees with `compare` and ignores the label (`BinFloat::identical` compares it), so
+`endpoint.precision()`, is the precision $p$ of the interval. `Binary`'s `==`
+agrees with `compare` and ignores the label (`Binary::identical` compares it), so
 `x.lower_bound() == y` holds for a value `y` of the same number; `Interval`'s own
 `==` and `identical` compare the endpoints by value and never read a label.
 The sign of a stored zero is not part of the interval: the accessors decide it, as the paragraph above says.
@@ -441,17 +441,17 @@ The sign of a stored zero is not part of the interval: the accessors decide it, 
 
 `midpoint` is `mid` and `radius` is `rad` of IEEE 1788-2015 12.12.8 (the names
 `mid`, `rad`, `wid`, `inf`, `sup`, `mag` and `mig` are spelled out here; the
-standard's short names would sit next to `BinFloat::inf`, so the long names are
+standard's short names would sit next to `Binary::inf`, so the long names are
 a documented exception).
 
 ```mbti
-pub fn Interval::midpoint(Self) -> @bin_float.BinFloat
-pub fn Interval::radius(Self) -> @bin_float.BinFloat
+pub fn Interval::midpoint(Self) -> @binary.Binary
+pub fn Interval::radius(Self) -> @binary.Binary
 ```
 
 Both are total; none aborts. `midpoint` returns NaN for Empty, 0 for Entire,
 the largest finite number of the format (the interval's precision, the widest
-exponent range of `BinFloat`) with the sign of the unbounded side for a
+exponent range of `Binary`) with the sign of the unbounded side for a
 half-bounded interval, and otherwise the exact midpoint rounded to nearest
 (ties to even) at the interval's precision. `midpoint_ctx` is the same
 observer for a given `IntervalContext` as the result format. `radius` returns NaN
@@ -476,8 +476,8 @@ intervals.
 returns $\inf\{|\xi| : \xi \in \boldsymbol{x}\}$.
 
 ```mbti
-pub fn Interval::magnitude(Self) -> @bin_float.BinFloat
-pub fn Interval::mignitude(Self) -> @bin_float.BinFloat
+pub fn Interval::magnitude(Self) -> @binary.Binary
+pub fn Interval::mignitude(Self) -> @binary.Binary
 ```
 
 For a non-empty interval,
@@ -564,9 +564,9 @@ stays Empty with the new precision.
 ```moonbit
 ///|
 test "with_precision keeps the endpoints" {
-  let one = @bin_float.BinFloat::one(precision=53)
-  let next = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64((1UL << 52) + 1UL),
+  let one = @binary.Binary::one(precision=53)
+  let next = @binary.Binary::make(
+    @binary.BinCoeff::from_uint64((1UL << 52) + 1UL),
     -52,
     53,
   )
@@ -582,7 +582,7 @@ test "with_precision keeps the endpoints" {
 
 ### `Interval::normalized`
 
-`normalized` normalizes the two endpoints (`BinFloat::normalized` removes
+`normalized` normalizes the two endpoints (`Binary::normalized` removes
 trailing zero bits) and stores them at the interval's precision.
 
 ```mbti
@@ -664,7 +664,7 @@ They never abort.
 `is_member` tests whether a point belongs to the interval.
 
 ```mbti
-pub fn Interval::is_member(Self, @bin_float.BinFloat) -> Bool
+pub fn Interval::is_member(Self, @binary.Binary) -> Bool
 ```
 
 It returns false for Empty and for a non-finite point (an unbounded interval
@@ -945,8 +945,8 @@ $\pm\infty$ (for `sign`, $\pm 1$). An Empty operand gives Empty. There is no
 ///|
 test "integer functions" {
   let x = @interval.Interval::from_bounds(
-    @bin_float.BinFloat::from_double(1.1),
-    @bin_float.BinFloat::from_double(2.0),
+    @binary.Binary::from_double(1.1),
+    @binary.Binary::from_double(2.0),
   )
   assert_true(x.ceil() == iv(2, 2))
   assert_true(x.floor() == iv(1, 2))
@@ -1049,15 +1049,15 @@ the working precision following $e$.
 ```moonbit
 ///|
 test "sin_rev with a prior" {
-  let rd_pi = @bin_float.BinFloat::from_double(3.141592653589793)
-  let ru_pi = @bin_float.BinFloat::from_double(3.1415926535897936)
+  let rd_pi = @binary.Binary::from_double(3.141592653589793)
+  let ru_pi = @binary.Binary::from_double(3.1415926535897936)
   let c = iv(0, 0)
   // the multiples of pi in [3, 4]: only pi, which is not a float
   let r = c.sin_rev(x=iv(3, 4))
   assert_true(r.lower_bound().compare(rd_pi) == 0)
   assert_true(r.upper_bound().compare(ru_pi) == 0)
   // the prior starts above pi and ends before 2 pi: nothing
-  let six = @bin_float.BinFloat::from_int(6)
+  let six = @binary.Binary::from_int(6)
   let beyond = @interval.Interval::from_bounds(ru_pi, six)
   assert_true(c.sin_rev(x=beyond).is_empty())
   // the default prior
@@ -1250,8 +1250,8 @@ of the operands'.
 ///|
 test "mul_rev_to_pair and mul_rev" {
   let b = @interval.Interval::from_bounds(
-    @bin_float.BinFloat::from_int(-1),
-    @bin_float.BinFloat::from_int(1),
+    @binary.Binary::from_int(-1),
+    @binary.Binary::from_int(1),
   )
   let (u, v) = b.mul_rev_to_pair(iv(1, 1))
   // (-inf, -1] and [1, +inf)
@@ -1270,7 +1270,7 @@ precision.
 
 Functions come in two forms, and there is one kernel. The `try_` form
 (`try_exp`, …) evaluates each endpoint with the corresponding
-`bin_float` `try_*_ctx` function rounded toward $-\infty$ or $+\infty$, and
+`binary` `try_*_ctx` function rounded toward $-\infty$ or $+\infty$, and
 returns `Err(ArithmeticError)` with a certification-failure detail naming the
 operation, stage and reason when that evaluation runs out of its work budget.
 The total form (`exp`, `sin`, …) is the `try_` form with a
@@ -1314,7 +1314,7 @@ All four are increasing, so the result is
 $[\operatorname{RD} f(\underline{x}), \operatorname{RU} f(\overline{x})]$.
 For $|\xi| \ge 2^{30}$ the enclosure is $[\text{largest finite}, +\infty)$ or
 $[0, \text{smallest positive}]$, which is valid because $e^{2^{30}}$ exceeds
-$2^{e_{\max}+1}$ and $e^{-2^{30}}$ is below the smallest positive `BinFloat`
+$2^{e_{\max}+1}$ and $e^{-2^{30}}$ is below the smallest positive `Binary`
 at every precision. `exp2` and `exp10` return exact powers
 for integer endpoints whose power is representable at the interval's precision
 (`exp2` of $\{10\}$ is $\{1024\}$, `exp10` of $\{3\}$ is
@@ -1414,7 +1414,7 @@ root's argument contains 0. Exact roots are returned exactly for every degree, s
 ///|
 test "exact powers and roots" {
   let three_quarters = @interval.Interval::exact(
-    @bin_float.BinFloat::make(@bin_float.BinCoeff::from_uint64(3UL), -2, 53),
+    @binary.Binary::make(@binary.BinCoeff::from_uint64(3UL), -2, 53),
   )
   let p = iv(16, 16).pow(three_quarters)
   inspect(p.lower_bound().to_string() + " " + p.upper_bound().to_string(), content="1p3 1p3")
@@ -1452,7 +1452,7 @@ pub fn Interval::try_cos(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_tan(Self) -> Result[Self, @arithmetic.ArithmeticError]
 ```
 
-Both forms evaluate the `bin_float` functions at the endpoints (a point
+Both forms evaluate the `binary` functions at the endpoints (a point
 interval) or at the endpoints and the critical points. A critical point $k\pi/2$ inside the
 interval contributes the extremum $\pm 1$ of `sin`/`cos` (`sin` reaches $+1$
 at $k \equiv 1$ and $-1$ at $k \equiv 3 \pmod 4$, `cos` reaches $+1$ at
@@ -1493,8 +1493,8 @@ test "trigonometric functions" {
   inspect(fmt(iv(0, 4).sin()), content="[-7.56803e-1, 1.00000e+0]")
   inspect(fmt(iv(0, 4).cos()), content="[-1.00000e+0, 1.00000e+0]")
   inspect(iv(1, 2).tan().is_entire(), content="true")
-  let half = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -1, 53)
-  let x = @interval.Interval::from_bounds(half, @bin_float.BinFloat::one(precision=53))
+  let half = @binary.Binary::make(@binary.BinCoeff::one(), -1, 53)
+  let x = @interval.Interval::from_bounds(half, @binary.Binary::one(precision=53))
   inspect(fmt(x.sinpi()), content="[-0.00000e+0, 1.00000e+0]")
   inspect(fmt(x.tanpi()), content="[-inf, 0.00000e+0]")
 }
@@ -1564,7 +1564,7 @@ the total forms is Entire for `sinh`, `asinh` and `atanh`, $[-1, 1]$ for
 `tanh`, $[1, +\infty)$ for `cosh` and $[0, +\infty)$ for `acosh`.
 
 The total forms keep their relative accuracy for a tiny argument, since they
-are the `bin_float` kernels: at 53 bits `sinh` of $\{2^{-300}\}$ is
+are the `binary` kernels: at 53 bits `sinh` of $\{2^{-300}\}$ is
 the two-ulp interval $[2^{-300}, (1 + 2^{-52})\,2^{-300}]$.
 
 ```moonbit
@@ -1592,10 +1592,10 @@ pub fn IntervalContext::try_new(precision? : Int, e_max? : Int) -> Result[Self, 
 ```
 
 The defaults are precision 53 and, for `e_max`, the implementation limit
-`binary_implementation_e_max` of `bin_float`, the same as
+`binary_implementation_e_max` of `binary`, the same as
 `BinaryContext::new` given a precision alone (so `IntervalContext::new()` is not
 binary64: use `binary64()` for that). The legality of the pair is decided by
-`BinaryContext::try_new`, so `bin_float` and `interval` have one definition
+`BinaryContext::try_new`, so `binary` and `interval` have one definition
 of a format: the precision is between 1 and `binary_precision_max` and
 `e_max` is at least 1. An illegal pair aborts `new`, naming the parameter, and
 is a domain error for `try_new`. Before 0.12 `e_min` was a parameter, any pair
@@ -1687,7 +1687,7 @@ rounding into the context (see the
 format.
 
 ```mbti
-pub fn Interval::midpoint_ctx(Self, IntervalContext) -> (@bin_float.BinFloat, IntervalFlags)
+pub fn Interval::midpoint_ctx(Self, IntervalContext) -> (@binary.Binary, IntervalFlags)
 ```
 
 Following IEEE 1788-2015 §12.12.8, Empty gives NaN, Entire gives $+0$, an
@@ -1775,7 +1775,7 @@ pub fn DecoratedInterval::is_empty(Self) -> Bool
 pub fn DecoratedInterval::is_entire(Self) -> Bool
 pub fn DecoratedInterval::is_common_interval(Self) -> Bool
 pub fn DecoratedInterval::is_singleton(Self) -> Bool
-pub fn DecoratedInterval::is_member(Self, @bin_float.BinFloat) -> Bool
+pub fn DecoratedInterval::is_member(Self, @binary.Binary) -> Bool
 ```
 
 ### `DecoratedInterval::equal`, `DecoratedInterval::identical`, `DecoratedInterval::subset`, `DecoratedInterval::interior`, `DecoratedInterval::disjoint`, `DecoratedInterval::less`, `DecoratedInterval::strict_less`, `DecoratedInterval::precedes`, `DecoratedInterval::strict_precedes`, `DecoratedInterval::overlap`
@@ -2013,9 +2013,9 @@ test "decorated intervals" {
   inspect(x.exp().decoration(), content="com")
   inspect((x / x).decoration(), content="trv")
   inspect(@interval.DecoratedInterval::new(iv(0, 4)).rootn(-2).decoration(), content="trv")
-  let half = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -1, 53)
+  let half = @binary.Binary::make(@binary.BinCoeff::one(), -1, 53)
   let pole = @interval.DecoratedInterval::new(
-    @interval.Interval::from_bounds(half, @bin_float.BinFloat::one(precision=53)),
+    @interval.Interval::from_bounds(half, @binary.Binary::one(precision=53)),
   )
   inspect(pole.tanpi().decoration(), content="trv")
   let unbounded = @interval.DecoratedInterval::new(@interval.Interval::entire())
@@ -2107,7 +2107,7 @@ significant bits (`0x1.00000000000001p0` has 57 bits, with any number of trailin
 `precision=57` and refused at 53), a bound beyond the exponent range of the library, or finer than the grid
 of `precision` bits below the range floor is refused with a parse error that names the reason, and so is
 a decimal or malformed bound and a lower bound above the upper bound. Which bounds are representable at
-all is decided by the converter of IEEE 754-2019 5.12.3 (`BinFloat::from_hex_ctx` reports `inexact`),
+all is decided by the converter of IEEE 754-2019 5.12.3 (`Binary::from_hex_ctx` reports `inexact`),
 not by counting digits of the text, so a fractional mantissa (`0x1.8p0`, `0x.8p1`), leading and trailing
 zero digits and upper case are read. Before 0.12 a wider bound was accepted and kept with the label of its
 own bit count, because the type could hold such ends; it cannot any more.
@@ -2126,7 +2126,7 @@ test "exact text" {
 
 The midpoint-radius view, `midpoint +/- radius`: the two functions of IEEE 1788-2015
 12.12.8 ([`Interval::midpoint` and `Interval::radius`](#intervalmidpoint-and-intervalradius)),
-numbers of the format of the interval, written in the `BinFloat` notation (`3p-1` is
+numbers of the format of the interval, written in the `Binary` notation (`3p-1` is
 $3 \cdot 2^{-1}$). The radius is taken about the midpoint and covers both bounds, so the
 printed pair encloses the interval. Before 0.12 `Show` printed the view; since then it is for
 reading, not a literal (`from_string` does not read it), and its cost does not depend on the
@@ -2254,7 +2254,7 @@ package "Luna-Flow/floating/interval"
 
 import {
   "Luna-Flow/arithmetic",
-  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/binary",
   "moonbitlang/core/debug",
 }
 
@@ -2309,7 +2309,7 @@ pub fn DecoratedInterval::interval(Self) -> Interval
 pub fn DecoratedInterval::is_common_interval(Self) -> Bool
 pub fn DecoratedInterval::is_empty(Self) -> Bool
 pub fn DecoratedInterval::is_entire(Self) -> Bool
-pub fn DecoratedInterval::is_member(Self, @bin_float.BinFloat) -> Bool
+pub fn DecoratedInterval::is_member(Self, @binary.Binary) -> Bool
 pub fn DecoratedInterval::is_nai(Self) -> Bool
 pub fn DecoratedInterval::is_singleton(Self) -> Bool
 pub fn DecoratedInterval::less(Self, Self) -> Bool
@@ -2413,20 +2413,20 @@ pub fn Interval::div_checked(Self, Self, @arithmetic.ArithmeticContext) -> Resul
 pub fn Interval::empty(precision? : Int32) -> Self
 pub fn Interval::entire(precision? : Int32) -> Self
 pub fn Interval::equal(Self, Self) -> Bool
-pub fn Interval::exact(@bin_float.BinFloat, precision? : Int32) -> Self
+pub fn Interval::exact(@binary.Binary, precision? : Int32) -> Self
 pub fn Interval::exp(Self) -> Self
 pub fn Interval::exp10(Self) -> Self
 pub fn Interval::exp2(Self) -> Self
 pub fn Interval::expm1(Self) -> Self
 pub fn Interval::floor(Self) -> Self
 pub fn Interval::fma(Self, Self, Self) -> Self
-pub fn Interval::from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Self
-pub fn Interval::from_coefficient(@bin_float.BinCoeff, precision? : Int32, negative? : Bool) -> Self
+pub fn Interval::from_bounds(@binary.Binary, @binary.Binary, precision? : Int32) -> Self
+pub fn Interval::from_coefficient(@binary.BinCoeff, precision? : Int32, negative? : Bool) -> Self
 pub fn Interval::from_double(Double, precision? : Int32) -> Self
 pub fn Interval::from_exact_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::from_float(Float, precision? : Int32) -> Self
 pub fn Interval::from_int(Int32, precision~ : Int32) -> Self
-pub fn Interval::from_midpoint_radius(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Self
+pub fn Interval::from_midpoint_radius(@binary.Binary, @binary.Binary, precision? : Int32) -> Self
 pub fn Interval::from_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::hypot(Self, Self) -> Self
 pub fn Interval::identical(Self, Self) -> Bool
@@ -2435,19 +2435,19 @@ pub fn Interval::intersection(Self, Self) -> Self
 pub fn Interval::is_common_interval(Self) -> Bool
 pub fn Interval::is_empty(Self) -> Bool
 pub fn Interval::is_entire(Self) -> Bool
-pub fn Interval::is_member(Self, @bin_float.BinFloat) -> Bool
+pub fn Interval::is_member(Self, @binary.Binary) -> Bool
 pub fn Interval::is_singleton(Self) -> Bool
 pub fn Interval::less(Self, Self) -> Bool
 pub fn Interval::ln(Self) -> Self
 pub fn Interval::log10(Self) -> Self
 pub fn Interval::log1p(Self) -> Self
 pub fn Interval::log2(Self) -> Self
-pub fn Interval::lower_bound(Self) -> @bin_float.BinFloat
-pub fn Interval::magnitude(Self) -> @bin_float.BinFloat
+pub fn Interval::lower_bound(Self) -> @binary.Binary
+pub fn Interval::magnitude(Self) -> @binary.Binary
 pub fn Interval::max(Self, Self) -> Self
-pub fn Interval::midpoint(Self) -> @bin_float.BinFloat
-pub fn Interval::midpoint_ctx(Self, IntervalContext) -> (@bin_float.BinFloat, IntervalFlags)
-pub fn Interval::mignitude(Self) -> @bin_float.BinFloat
+pub fn Interval::midpoint(Self) -> @binary.Binary
+pub fn Interval::midpoint_ctx(Self, IntervalContext) -> (@binary.Binary, IntervalFlags)
+pub fn Interval::mignitude(Self) -> @binary.Binary
 pub fn Interval::min(Self, Self) -> Self
 pub fn Interval::mul(Self, Self) -> Self
 pub fn Interval::mul_rev(Self, Self, x? : Self) -> Self
@@ -2466,7 +2466,7 @@ pub fn Interval::pown(Self, Int32) -> Self
 pub fn Interval::pown_rev(Self, Int32, x? : Self) -> Self
 pub fn Interval::precedes(Self, Self) -> Bool
 pub fn Interval::precision(Self) -> Int32
-pub fn Interval::radius(Self) -> @bin_float.BinFloat
+pub fn Interval::radius(Self) -> @binary.Binary
 pub fn Interval::recip(Self) -> Self
 pub fn Interval::rootn(Self, Int32) -> Self
 pub fn Interval::round_ties_to_away(Self) -> Self
@@ -2502,15 +2502,15 @@ pub fn Interval::try_atanh(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_cos(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_cosh(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_cospi(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Interval::try_exact(@bin_float.BinFloat, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_exact(@binary.Binary, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_exp(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_exp10(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_exp2(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_expm1(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Interval::try_from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_from_bounds(@binary.Binary, @binary.Binary, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_from_double(Double, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_from_float(Float, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Interval::try_from_midpoint_radius(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_from_midpoint_radius(@binary.Binary, @binary.Binary, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_hypot(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_ln(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_log10(Self) -> Result[Self, @arithmetic.ArithmeticError]
@@ -2524,8 +2524,8 @@ pub fn Interval::try_sinpi(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_tan(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_tanh(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_tanpi(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Interval::upper_bound(Self) -> @bin_float.BinFloat
-pub fn Interval::width(Self) -> @bin_float.BinFloat
+pub fn Interval::upper_bound(Self) -> @binary.Binary
+pub fn Interval::width(Self) -> @binary.Binary
 pub fn Interval::with_precision(Self, Int32) -> Self
 pub impl @arithmetic.Contains for Interval
 pub impl @arithmetic.DefinitelyLe for Interval

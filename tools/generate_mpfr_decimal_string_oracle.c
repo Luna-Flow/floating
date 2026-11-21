@@ -1,4 +1,4 @@
-// Generates the MPFR 4.2.2 oracle corpora for BinFloat decimal character
+// Generates the MPFR 4.2.2 oracle corpora for Binary decimal character
 // conversion (IEEE 754-2019 5.12):
 //
 //   generate_mpfr_decimal_string_oracle strtofr [cases-per-cell] [seed]
@@ -11,7 +11,7 @@
 //     digits, and the shortest digit count that reads back exactly.
 //
 // Both write space separated rows to standard output; see
-// testdata/bin_float/README.md for the formats. Build with
+// testdata/binary/README.md for the formats. Build with
 // `cc -O1 -o generator tools/generate_mpfr_decimal_string_oracle.c -lmpfr -lgmp`.
 #include <errno.h>
 #include <stdint.h>
@@ -92,7 +92,7 @@ static void emit_strtofr(mpfr_t output, size_t precision_index,
 
 // A decimal literal with sign, digits, optional fraction and optional exponent
 // whose value stays well inside the binary exponent range, so that MPFR (no
-// subnormals: results below 2^(emin-1) flush) and BinFloat (IEEE subnormals)
+// subnormals: results below 2^(emin-1) flush) and Binary (IEEE subnormals)
 // agree on every rounding direction.
 static void random_literal(uint64_t *state, char *buffer, size_t size,
                            long mantissa_digits) {
@@ -234,7 +234,7 @@ static int generate_strtofr(long cases_per_cell, uint64_t seed) {
   }
   // Specials and range limits. MPFR writes a value as 0.1xxx * 2^e with
   // emax = 2^30 - 1, so its largest finite value has the leading bit 2^30 - 2,
-  // one binade below BinFloat's implementation limit (leading bit 2^30 - 1,
+  // one binade below Binary's implementation limit (leading bit 2^30 - 1,
   // see binary_implementation_e_max). The two agree on every input that
   // overflows to infinity, so the rows above the limit are only emitted for
   // the directions that deliver infinity, and the finite rows stay well below
@@ -273,7 +273,7 @@ static int generate_strtofr(long cases_per_cell, uint64_t seed) {
     }
   }
   // Far below the smallest positive value MPFR flushes to zero (no
-  // subnormals) in the rounding directions that go towards zero; BinFloat
+  // subnormals) in the rounding directions that go towards zero; Binary
   // rounds to zero as well. Away-from-zero directions are left out because
   // MPFR returns its smallest value and IEEE formats a subnormal.
   static const char *deep[] = {"1e-400000000", "3.7e-500000000",

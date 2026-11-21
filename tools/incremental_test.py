@@ -12,7 +12,7 @@ import incremental as inc
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 TOOLS = "_M0FP411Luna_2dFlow16floating_2dtools"
-LIB = "_M0MP311Luna_2dFlow8floating10bin__float8BinFloat"
+LIB = "_M0MP311Luna_2dFlow8floating6binary6Binary"
 
 
 def program_text(

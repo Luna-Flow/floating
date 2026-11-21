@@ -93,7 +93,7 @@ class RepositoryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             reports, missing = cc.scan_repository(Path(directory))
             self.assertEqual(reports, [])
-            self.assertIn("testdata/bin_float/random-regressions.txt", missing)
+            self.assertIn("testdata/binary/random-regressions.txt", missing)
             self.assertEqual(cc.main(["--root", directory]), 1)
 
     def test_an_illegal_row_fails_the_check(self) -> None:

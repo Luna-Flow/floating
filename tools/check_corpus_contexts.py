@@ -27,7 +27,7 @@ import context_rules as cr
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 DECIMAL_TEXT_GLOBS = ("testdata/decimal/ieee/rows/*.txt", "testdata/decimal/random/*.txt")
-BINARY_TEXT_GLOBS = ("testdata/bin_float/mpfr-4.2.2-random.txt", "testdata/bin_float/random-regressions.txt")
+BINARY_TEXT_GLOBS = ("testdata/binary/mpfr-4.2.2-random.txt", "testdata/binary/random-regressions.txt")
 DECTEST_GLOBS = ("testdata/decimal_gda/*.decTest", "testdata/decimal_gda/random/*.decTest")
 FETCHED_DECTEST_GLOBS = ("testdata/decimal_gda/official/**/*.decTest", "testdata/decimal_gda/official0/**/*.decTest")  # git-ignored
 TABLE_GLOBS = ("library/src/decimal/*_rows_wbtest.mbt",)
@@ -93,7 +93,7 @@ def scan_decimal_text(text: str, path: str = "") -> Report:
 
 
 def scan_binary_text(text: str, path: str = "") -> Report:
-    """`bin_float` rows: `rounding`, `precision`, `emin`, `emax` (`-` for the implementation range) and `tininess`."""
+    """`binary` rows: `rounding`, `precision`, `emin`, `emax` (`-` for the implementation range) and `tininess`."""
     report = Report(path)
     names = _columns(text)
     column = {name: names.index(name) for name in names}

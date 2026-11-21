@@ -1,7 +1,7 @@
 ///|
 /// The five flags as the TestFloat bit mask: inexact 0x01, underflow 0x02,
 /// overflow 0x04, divideByZero 0x08, invalid 0x10.
-fn testfloat_flag_bits(flags : @bin_float.BinaryFlags) -> Int32 {
+fn testfloat_flag_bits(flags : @binary.BinaryFlags) -> Int32 {
   (if flags.inexact() { 0x01 } else { 0 }) |
   (if flags.underflow() { 0x02 } else { 0 }) |
   (if flags.overflow() { 0x04 } else { 0 }) |
@@ -26,7 +26,7 @@ pub(all) enum TestFloatOperation {
   ToUInt64
   /// `f64_to_f32` and the other format conversions: the operand is in the format of
   /// the function name's prefix, the result in this format.
-  ConvertFormat(@bin_float.BinaryInterchangeFormat)
+  ConvertFormat(@binary.BinaryInterchangeFormat)
   Equal
   LessEqual
   Less
@@ -39,10 +39,10 @@ pub(all) enum TestFloatOperation {
 #derive(Eq, Debug)
 pub struct TestFloatSpec {
   priv function_name : String
-  priv format : @bin_float.BinaryInterchangeFormat
+  priv format : @binary.BinaryInterchangeFormat
   priv operation : TestFloatOperation
-  priv rounding : @bin_float.BinaryRoundingMode
-  priv tininess : @bin_float.TininessDetection
+  priv rounding : @binary.BinaryRoundingMode
+  priv tininess : @binary.TininessDetection
   priv exact : Bool
 }
 
@@ -61,7 +61,7 @@ priv enum TestFloatExpected {
 pub struct TestFloatCase {
   priv id : String
   priv line : Int32
-  priv operands : Array[@bin_float.BinaryInterchange]
+  priv operands : Array[@binary.BinaryInterchange]
   priv expected : TestFloatExpected
   priv expected_flags : Int32
 }
@@ -140,12 +140,12 @@ fn tokenize_line(source : String) -> Array[String] {
 }
 
 ///|
-fn parse_format(source : String) -> @bin_float.BinaryInterchangeFormat? {
+fn parse_format(source : String) -> @binary.BinaryInterchangeFormat? {
   match normalized_word(source) {
-    "f16" => Some(@bin_float.BinaryInterchangeFormat::Binary16)
-    "f32" => Some(@bin_float.BinaryInterchangeFormat::Binary32)
-    "f64" => Some(@bin_float.BinaryInterchangeFormat::Binary64)
-    "f128" => Some(@bin_float.BinaryInterchangeFormat::Binary128)
+    "f16" => Some(@binary.BinaryInterchangeFormat::Binary16)
+    "f32" => Some(@binary.BinaryInterchangeFormat::Binary32)
+    "f64" => Some(@binary.BinaryInterchangeFormat::Binary64)
+    "f128" => Some(@binary.BinaryInterchangeFormat::Binary128)
     _ => None
   }
 }
@@ -165,11 +165,10 @@ fn parse_operation(source : String) -> TestFloatOperation? {
     "toi64" => Some(ToInt64)
     "toui32" => Some(ToUInt32)
     "toui64" => Some(ToUInt64)
-    "tof16" => Some(ConvertFormat(@bin_float.BinaryInterchangeFormat::Binary16))
-    "tof32" => Some(ConvertFormat(@bin_float.BinaryInterchangeFormat::Binary32))
-    "tof64" => Some(ConvertFormat(@bin_float.BinaryInterchangeFormat::Binary64))
-    "tof128" =>
-      Some(ConvertFormat(@bin_float.BinaryInterchangeFormat::Binary128))
+    "tof16" => Some(ConvertFormat(@binary.BinaryInterchangeFormat::Binary16))
+    "tof32" => Some(ConvertFormat(@binary.BinaryInterchangeFormat::Binary32))
+    "tof64" => Some(ConvertFormat(@binary.BinaryInterchangeFormat::Binary64))
+    "tof128" => Some(ConvertFormat(@binary.BinaryInterchangeFormat::Binary128))
     "eq" => Some(Equal)
     "le" => Some(LessEqual)
     "lt" => Some(Less)
@@ -196,29 +195,28 @@ fn operand_count(operation : TestFloatOperation) -> Int32 {
 }
 
 ///|
-fn parse_rounding(source : String) -> @bin_float.BinaryRoundingMode? {
+fn parse_rounding(source : String) -> @binary.BinaryRoundingMode? {
   match normalized_word(source) {
     "rneareven" | "neareven" | "roundtiestoeven" =>
-      Some(@bin_float.BinaryRoundingMode::RoundTiesToEven)
+      Some(@binary.BinaryRoundingMode::RoundTiesToEven)
     "rnearmaxmag" | "nearmaxmag" | "roundtiestoaway" =>
-      Some(@bin_float.BinaryRoundingMode::RoundTiesToAway)
+      Some(@binary.BinaryRoundingMode::RoundTiesToAway)
     "rminmag" | "minmag" | "roundtowardzero" =>
-      Some(@bin_float.BinaryRoundingMode::RoundTowardZero)
+      Some(@binary.BinaryRoundingMode::RoundTowardZero)
     "rmin" | "min" | "roundtowardnegative" =>
-      Some(@bin_float.BinaryRoundingMode::RoundTowardNegative)
+      Some(@binary.BinaryRoundingMode::RoundTowardNegative)
     "rmax" | "max" | "roundtowardpositive" =>
-      Some(@bin_float.BinaryRoundingMode::RoundTowardPositive)
+      Some(@binary.BinaryRoundingMode::RoundTowardPositive)
     _ => None
   }
 }
 
 ///|
-fn parse_tininess(source : String) -> @bin_float.TininessDetection? {
+fn parse_tininess(source : String) -> @binary.TininessDetection? {
   match normalized_word(source) {
     "before" | "tininessbefore" =>
-      Some(@bin_float.TininessDetection::BeforeRounding)
-    "after" | "tininessafter" =>
-      Some(@bin_float.TininessDetection::AfterRounding)
+      Some(@binary.TininessDetection::BeforeRounding)
+    "after" | "tininessafter" => Some(@binary.TininessDetection::AfterRounding)
     _ => None
   }
 }
@@ -261,7 +259,7 @@ pub fn TestFloatSpec::function_name(self : TestFloatSpec) -> String {
 ///|
 pub fn TestFloatSpec::format(
   self : TestFloatSpec,
-) -> @bin_float.BinaryInterchangeFormat {
+) -> @binary.BinaryInterchangeFormat {
   self.format
 }
 
@@ -273,14 +271,14 @@ pub fn TestFloatSpec::operation(self : TestFloatSpec) -> TestFloatOperation {
 ///|
 pub fn TestFloatSpec::rounding(
   self : TestFloatSpec,
-) -> @bin_float.BinaryRoundingMode {
+) -> @binary.BinaryRoundingMode {
   self.rounding
 }
 
 ///|
 pub fn TestFloatSpec::tininess(
   self : TestFloatSpec,
-) -> @bin_float.TininessDetection {
+) -> @binary.TininessDetection {
   self.tininess
 }
 
@@ -372,11 +370,11 @@ fn parse_expected(source : String, spec : TestFloatSpec) -> TestFloatExpected? {
         _ => None
       }
     ConvertFormat(target) =>
-      @bin_float.BinaryInterchange::from_hex(source, target).map(fn(_) {
+      @binary.BinaryInterchange::from_hex(source, target).map(fn(_) {
         Encoded(source)
       })
     _ =>
-      @bin_float.BinaryInterchange::from_hex(source, spec.format).map(fn(_) {
+      @binary.BinaryInterchange::from_hex(source, spec.format).map(fn(_) {
         Encoded(source)
       })
   }
@@ -405,10 +403,10 @@ pub fn parse_testfloat(
       })
       continue
     }
-    let operands : Array[@bin_float.BinaryInterchange] = []
+    let operands : Array[@binary.BinaryInterchange] = []
     let mut valid = true
     for index in 0..<expected_operands {
-      match @bin_float.BinaryInterchange::from_hex(tokens[index], spec.format) {
+      match @binary.BinaryInterchange::from_hex(tokens[index], spec.format) {
         Some(value) => operands.push(value)
         None => valid = false
       }
@@ -497,108 +495,108 @@ fn note_arm(name : String) -> Unit {
 
 ///|
 fn arm_add(
-  left : @bin_float.BinFloat,
-  right : @bin_float.BinFloat,
-  context : @bin_float.BinaryContext,
-) -> (@bin_float.BinFloat, @bin_float.BinaryFlags) {
+  left : @binary.Binary,
+  right : @binary.Binary,
+  context : @binary.BinaryContext,
+) -> (@binary.Binary, @binary.BinaryFlags) {
   note_arm("add")
   left.add_ctx(right, context)
 }
 
 ///|
 fn arm_sub(
-  left : @bin_float.BinFloat,
-  right : @bin_float.BinFloat,
-  context : @bin_float.BinaryContext,
-) -> (@bin_float.BinFloat, @bin_float.BinaryFlags) {
+  left : @binary.Binary,
+  right : @binary.Binary,
+  context : @binary.BinaryContext,
+) -> (@binary.Binary, @binary.BinaryFlags) {
   note_arm("sub")
   left.sub_ctx(right, context)
 }
 
 ///|
 fn arm_mul(
-  left : @bin_float.BinFloat,
-  right : @bin_float.BinFloat,
-  context : @bin_float.BinaryContext,
-) -> (@bin_float.BinFloat, @bin_float.BinaryFlags) {
+  left : @binary.Binary,
+  right : @binary.Binary,
+  context : @binary.BinaryContext,
+) -> (@binary.Binary, @binary.BinaryFlags) {
   note_arm("mul")
   left.mul_ctx(right, context)
 }
 
 ///|
 fn arm_div(
-  left : @bin_float.BinFloat,
-  right : @bin_float.BinFloat,
-  context : @bin_float.BinaryContext,
-) -> (@bin_float.BinFloat, @bin_float.BinaryFlags) {
+  left : @binary.Binary,
+  right : @binary.Binary,
+  context : @binary.BinaryContext,
+) -> (@binary.Binary, @binary.BinaryFlags) {
   note_arm("div")
   left.div_ctx(right, context)
 }
 
 ///|
 fn arm_sqrt(
-  operand : @bin_float.BinFloat,
-  context : @bin_float.BinaryContext,
-) -> (@bin_float.BinFloat, @bin_float.BinaryFlags) {
+  operand : @binary.Binary,
+  context : @binary.BinaryContext,
+) -> (@binary.Binary, @binary.BinaryFlags) {
   note_arm("sqrt")
   operand.sqrt_ctx(context)
 }
 
 ///|
 fn arm_fma(
-  left : @bin_float.BinFloat,
-  right : @bin_float.BinFloat,
-  addend : @bin_float.BinFloat,
-  context : @bin_float.BinaryContext,
-) -> (@bin_float.BinFloat, @bin_float.BinaryFlags) {
+  left : @binary.Binary,
+  right : @binary.Binary,
+  addend : @binary.Binary,
+  context : @binary.BinaryContext,
+) -> (@binary.Binary, @binary.BinaryFlags) {
   note_arm("fma")
   left.fma_ctx(right, addend, context)
 }
 
 ///|
 fn arm_remainder(
-  left : @bin_float.BinFloat,
-  right : @bin_float.BinFloat,
-  context : @bin_float.BinaryContext,
-) -> (@bin_float.BinFloat, @bin_float.BinaryFlags) {
+  left : @binary.Binary,
+  right : @binary.Binary,
+  context : @binary.BinaryContext,
+) -> (@binary.Binary, @binary.BinaryFlags) {
   note_arm("remainder")
   left.remainder_ctx(right, context)
 }
 
 ///|
 fn arm_to_integral_exact(
-  operand : @bin_float.BinFloat,
-  context : @bin_float.BinaryContext,
-) -> (@bin_float.BinFloat, @bin_float.BinaryFlags) {
+  operand : @binary.Binary,
+  context : @binary.BinaryContext,
+) -> (@binary.Binary, @binary.BinaryFlags) {
   note_arm("to_integral_exact")
   operand.to_integral_exact_ctx(context)
 }
 
 ///|
 fn arm_to_integral_value(
-  operand : @bin_float.BinFloat,
-  context : @bin_float.BinaryContext,
-) -> (@bin_float.BinFloat, @bin_float.BinaryFlags) {
+  operand : @binary.Binary,
+  context : @binary.BinaryContext,
+) -> (@binary.Binary, @binary.BinaryFlags) {
   note_arm("to_integral_value")
   operand.to_integral_value_ctx(context)
 }
 
 ///|
 fn arm_convert_format(
-  operand : @bin_float.BinFloat,
-  target : @bin_float.BinaryInterchangeFormat,
+  operand : @binary.Binary,
+  target : @binary.BinaryInterchangeFormat,
   spec : TestFloatSpec,
-) -> (@bin_float.BinFloat, @bin_float.BinaryFlags) {
+) -> (@binary.Binary, @binary.BinaryFlags) {
   note_arm("convert_format")
   operand.convert_format(target, rounding=spec.rounding, tininess=spec.tininess)
 }
 
 ///|
 fn arm_to_int(
-  operand : @bin_float.BinFloat,
-  context : @bin_float.BinaryContext,
+  operand : @binary.Binary,
+  context : @binary.BinaryContext,
   exact : Bool,
-) -> (UInt64?, @bin_float.BinaryFlags) {
+) -> (UInt64?, @binary.BinaryFlags) {
   note_arm("to_int")
   let (value, flags) = operand.to_int_ctx(context, exact~)
   (value.map(fn(value) { value.reinterpret_as_uint().to_uint64() }), flags)
@@ -606,10 +604,10 @@ fn arm_to_int(
 
 ///|
 fn arm_to_int64(
-  operand : @bin_float.BinFloat,
-  context : @bin_float.BinaryContext,
+  operand : @binary.Binary,
+  context : @binary.BinaryContext,
   exact : Bool,
-) -> (UInt64?, @bin_float.BinaryFlags) {
+) -> (UInt64?, @binary.BinaryFlags) {
   note_arm("to_int64")
   let (value, flags) = operand.to_int64_ctx(context, exact~)
   (value.map(fn(value) { value.reinterpret_as_uint64() }), flags)
@@ -617,10 +615,10 @@ fn arm_to_int64(
 
 ///|
 fn arm_to_uint(
-  operand : @bin_float.BinFloat,
-  context : @bin_float.BinaryContext,
+  operand : @binary.Binary,
+  context : @binary.BinaryContext,
   exact : Bool,
-) -> (UInt64?, @bin_float.BinaryFlags) {
+) -> (UInt64?, @binary.BinaryFlags) {
   note_arm("to_uint")
   let (value, flags) = operand.to_uint_ctx(context, exact~)
   (value.map(fn(value) { value.to_uint64() }), flags)
@@ -628,64 +626,64 @@ fn arm_to_uint(
 
 ///|
 fn arm_to_uint64(
-  operand : @bin_float.BinFloat,
-  context : @bin_float.BinaryContext,
+  operand : @binary.Binary,
+  context : @binary.BinaryContext,
   exact : Bool,
-) -> (UInt64?, @bin_float.BinaryFlags) {
+) -> (UInt64?, @binary.BinaryFlags) {
   note_arm("to_uint64")
   operand.to_uint64_ctx(context, exact~)
 }
 
 ///|
 fn arm_eq(
-  left : @bin_float.BinFloat,
-  right : @bin_float.BinFloat,
-) -> (Bool, @bin_float.BinaryFlags) {
+  left : @binary.Binary,
+  right : @binary.Binary,
+) -> (Bool, @binary.BinaryFlags) {
   note_arm("eq")
   left.compare_quiet_equal(right)
 }
 
 ///|
 fn arm_le(
-  left : @bin_float.BinFloat,
-  right : @bin_float.BinFloat,
-) -> (Bool, @bin_float.BinaryFlags) {
+  left : @binary.Binary,
+  right : @binary.Binary,
+) -> (Bool, @binary.BinaryFlags) {
   note_arm("le")
   left.compare_signaling_less_equal(right)
 }
 
 ///|
 fn arm_lt(
-  left : @bin_float.BinFloat,
-  right : @bin_float.BinFloat,
-) -> (Bool, @bin_float.BinaryFlags) {
+  left : @binary.Binary,
+  right : @binary.Binary,
+) -> (Bool, @binary.BinaryFlags) {
   note_arm("lt")
   left.compare_signaling_less(right)
 }
 
 ///|
 fn arm_eq_signaling(
-  left : @bin_float.BinFloat,
-  right : @bin_float.BinFloat,
-) -> (Bool, @bin_float.BinaryFlags) {
+  left : @binary.Binary,
+  right : @binary.Binary,
+) -> (Bool, @binary.BinaryFlags) {
   note_arm("eq_signaling")
   left.compare_signaling_equal(right)
 }
 
 ///|
 fn arm_le_quiet(
-  left : @bin_float.BinFloat,
-  right : @bin_float.BinFloat,
-) -> (Bool, @bin_float.BinaryFlags) {
+  left : @binary.Binary,
+  right : @binary.Binary,
+) -> (Bool, @binary.BinaryFlags) {
   note_arm("le_quiet")
   left.compare_quiet_less_equal(right)
 }
 
 ///|
 fn arm_lt_quiet(
-  left : @bin_float.BinFloat,
-  right : @bin_float.BinFloat,
-) -> (Bool, @bin_float.BinaryFlags) {
+  left : @binary.Binary,
+  right : @binary.Binary,
+) -> (Bool, @binary.BinaryFlags) {
   note_arm("lt_quiet")
   left.compare_quiet_less(right)
 }
@@ -696,7 +694,7 @@ fn execute_case(case : TestFloatCase, spec : TestFloatSpec) -> CaseResult {
     rounding=spec.rounding,
     tininess=spec.tininess,
   )
-  let operands = case.operands.map(fn(value) { value.to_bin_float() })
+  let operands = case.operands.map(fn(value) { value.to_binary() })
   match case.expected {
     Encoded(_) => execute_float_case(case, spec, context, operands)
     Integer(expected) =>
@@ -724,8 +722,8 @@ fn flags_result(case : TestFloatCase, actual_flags : Int32) -> CaseResult {
 fn execute_float_case(
   case : TestFloatCase,
   spec : TestFloatSpec,
-  context : @bin_float.BinaryContext,
-  operands : Array[@bin_float.BinFloat],
+  context : @binary.BinaryContext,
+  operands : Array[@binary.Binary],
 ) -> CaseResult {
   // The result format: the destination of a format conversion, else the format
   // of the operands.
@@ -762,17 +760,17 @@ fn execute_float_case(
 /// operation's own.
 ///
 /// Shared with the code under test: the decoding of the operands
-/// (`BinaryInterchange::from_hex` and `to_bin_float`; a wrong decoding changes the
+/// (`BinaryInterchange::from_hex` and `to_binary`; a wrong decoding changes the
 /// result and is seen as a mismatch with the vector, it cannot be compensated by
-/// the packing) and `BinFloat::to_hex` in the failure message only. The expected
+/// the packing) and `Binary::to_hex` in the failure message only. The expected
 /// column is compared as the text of the vector. NaN: a NaN result is compared
 /// as a quiet NaN against a NaN column; the payload and the sign of a NaN are not
 /// compared.
 fn judge_float_result(
   case : TestFloatCase,
-  result_format : @bin_float.BinaryInterchangeFormat,
-  actual : @bin_float.BinFloat,
-  flags : @bin_float.BinaryFlags,
+  result_format : @binary.BinaryInterchangeFormat,
+  actual : @binary.Binary,
+  flags : @binary.BinaryFlags,
 ) -> CaseResult {
   let expected_text = match case.expected {
     Encoded(text) => normalized_bits_text(text, result_format)
@@ -818,7 +816,7 @@ fn judge_float_result(
 /// The layout of an interchange format, written out here and not read from the
 /// library: precision, width in bits, largest exponent (the bias).
 fn format_layout(
-  format : @bin_float.BinaryInterchangeFormat,
+  format : @binary.BinaryInterchangeFormat,
 ) -> (Int32, Int32, Int32) {
   match format {
     Binary16 => (11, 16, 15)
@@ -843,7 +841,7 @@ fn bits_text_digits(text : String, digits : Int32) -> String {
 /// as many digits as the format has.
 fn normalized_bits_text(
   text : String,
-  format : @bin_float.BinaryInterchangeFormat,
+  format : @binary.BinaryInterchangeFormat,
 ) -> String {
   let (_, width, _) = format_layout(format)
   let lower = normalized_word(text)
@@ -854,7 +852,7 @@ fn normalized_bits_text(
 ///|
 fn bits_text_is_nan(
   normalized : String,
-  format : @bin_float.BinaryInterchangeFormat,
+  format : @binary.BinaryInterchangeFormat,
 ) -> Bool {
   let (precision, width, _) = format_layout(format)
   let fraction_bits = precision - 1
@@ -878,8 +876,8 @@ fn bits_text_is_nan(
 /// precision, a bit below the last place of the smallest subnormal, or a leading
 /// bit above the largest exponent).
 fn pack_exact(
-  value : @bin_float.BinFloat,
-  format : @bin_float.BinaryInterchangeFormat,
+  value : @binary.Binary,
+  format : @binary.BinaryInterchangeFormat,
 ) -> String? {
   if value.is_nan() {
     return None
@@ -930,8 +928,8 @@ fn pack_exact(
 fn execute_integer_case(
   case : TestFloatCase,
   spec : TestFloatSpec,
-  context : @bin_float.BinaryContext,
-  operand : @bin_float.BinFloat,
+  context : @binary.BinaryContext,
+  operand : @binary.Binary,
   expected : UInt64,
 ) -> CaseResult {
   let exact = spec.exact
@@ -968,7 +966,7 @@ fn execute_integer_case(
 fn execute_boolean_case(
   case : TestFloatCase,
   spec : TestFloatSpec,
-  operands : Array[@bin_float.BinFloat],
+  operands : Array[@binary.Binary],
   expected : Bool,
 ) -> CaseResult {
   let left = operands[0]

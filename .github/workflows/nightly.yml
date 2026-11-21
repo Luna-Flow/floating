@@ -59,8 +59,8 @@ jobs:
         uses: actions/cache@v6
         with:
           path: |
-            .tmp/binfloat-conformance/downloads
-            .tmp/binfloat-conformance/vendor
+            .tmp/binary-conformance/downloads
+            .tmp/binary-conformance/vendor
             testdata/decimal_gda/dectest.zip
             testdata/decimal_gda/dectest0.zip
             testdata/decimal_gda/official
@@ -146,7 +146,7 @@ jobs:
   # The native row primitives of `internal/bin_kernel` have per-architecture code (Apple
   # arm64 inline assembly in `luna_limbs.c` once it is in). The Linux runner of the other
   # jobs is gcc on x86-64 (`cc_id=2 arch_id=1`), so nothing there executes it: this job
-  # runs the tests of `internal/bin_kernel` and `bin_float` on an arm64 macOS runner in
+  # runs the tests of `internal/bin_kernel` and `binary` on an arm64 macOS runner in
   # the three states of the primitives, and `tools/check_limbs_tier.py` fails when the
   # runner is not arm64 or when a state reports another tier than it should (the expected
   # tier of the default state is `EXPECTED_DEFAULT_TIER` at the top of this file).
@@ -187,7 +187,7 @@ jobs:
       - name: fetch dependencies
         run: sh tools/run_moon_clean_exec.sh check --target native --deny-warn
 
-      - name: test internal/bin_kernel and bin_float (${{ matrix.state }})
+      - name: test internal/bin_kernel and binary (${{ matrix.state }})
         run: |
           set -o pipefail
           case "${{ matrix.state }}" in
@@ -196,7 +196,7 @@ jobs:
             default) ;;
           esac
           sh tools/run_moon_clean_exec.sh test --target native --deny-warn --frozen --no-parallelize \
-            -p Luna-Flow/floating/internal/bin_kernel -p Luna-Flow/floating/bin_float 2>&1 | tee tier.log
+            -p Luna-Flow/floating/internal/bin_kernel -p Luna-Flow/floating/binary 2>&1 | tee tier.log
 
       - name: tier of the row primitives
         run: python3 tools/check_limbs_tier.py --log tier.log --state ${{ matrix.state }} --expected "$EXPECTED_DEFAULT_TIER"

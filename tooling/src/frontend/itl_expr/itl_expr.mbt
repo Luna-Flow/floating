@@ -305,18 +305,18 @@ fn split_literal_decoration(src : String) -> (String, String?) {
 /// (IEEE 754-2019 convertFromDecimalCharacter and convertFromHexCharacter).
 /// The exponent range is the binary64 one. A literal the library rejects is
 /// `None`; callers print it.
-fn parse_bound(src : String, precision : Int32) -> @bin_float.BinFloat? {
+fn parse_bound(src : String, precision : Int32) -> @binary.Binary? {
   let normalized = src.trim().to_owned()
-  let context = @bin_float.BinaryContext::new(precision~, e_max=1023)
+  let context = @binary.BinaryContext::new(precision~, e_max=1023)
   let unsigned = if normalized.has_prefix("-") || normalized.has_prefix("+") {
     normalized[1:].to_owned()
   } else {
     normalized
   }
   let result = if unsigned.has_prefix("0x") || unsigned.has_prefix("0X") {
-    @bin_float.BinFloat::from_hex_ctx(normalized, context)
+    @binary.Binary::from_hex_ctx(normalized, context)
   } else {
-    @bin_float.BinFloat::from_string_ctx(normalized, context)
+    @binary.Binary::from_string_ctx(normalized, context)
   }
   match result {
     Ok((value, _)) => Some(value)
@@ -440,7 +440,7 @@ fn bound_labels_hold(x : @interval.Interval) -> Bool {
       b.is_zero() ||
       (
         b.coefficient().bit_length() <= p &&
-        b.exponent2() >= @bin_float.binary_implementation_e_min - p + 1
+        b.exponent2() >= @binary.binary_implementation_e_min - p + 1
       )
     if fits != (b.precision() == p) {
       return false

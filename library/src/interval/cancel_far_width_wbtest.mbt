@@ -9,13 +9,10 @@ fn cfw_value(
   coefficient : UInt64,
   exponent : Int32,
   negative : Bool,
-) -> @bin_float.BinFloat {
-  let bits = Int32::max(
-    64,
-    @bin_float.binary_implementation_e_min - exponent + 1,
-  )
-  @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(coefficient),
+) -> @binary.Binary {
+  let bits = Int32::max(64, @binary.binary_implementation_e_min - exponent + 1)
+  @binary.Binary::make(
+    @binary.BinCoeff::from_uint64(coefficient),
     exponent,
     bits,
     negative~,

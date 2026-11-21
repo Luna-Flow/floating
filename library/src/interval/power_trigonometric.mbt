@@ -56,7 +56,7 @@ fn trig_quotient_bounds(
 }
 
 ///|
-fn trig_initial_work(value : @bin_float.BinFloat, precision : Int32) -> Int32 {
+fn trig_initial_work(value : @binary.Binary, precision : Int32) -> Int32 {
   let magnitude_bits = match value.ilogb() {
     Some(top) => Int32::max(0, top + 1)
     None => 0
@@ -136,7 +136,7 @@ fn index_range_contains_residue(
 
 ///|
 /// Largest working precision (bits) of the argument reduction of the point
-/// evaluations (`BinFloat::try_sin_ctx` and its siblings, which report a
+/// evaluations (`Binary::try_sin_ctx` and its siblings, which report a
 /// resource limit beyond it).
 let trig_work_limit : Int64 = 8_000_000L
 
@@ -158,8 +158,8 @@ fn trig_work_limit_exceeded(value : Interval) -> Bool {
 ///|
 fn unit_interval(precision : Int32) -> Interval {
   store_interval(
-    @bin_float.BinFloat::from_int(-1, precision~),
-    @bin_float.BinFloat::one(precision~),
+    @binary.Binary::from_int(-1, precision~),
+    @binary.Binary::one(precision~),
     precision,
   )
 }
@@ -201,7 +201,7 @@ pub fn Interval::pow(self : Interval, exponent : Interval) -> Interval {
     Ok(result) => result
     Err(_) =>
       store_interval(
-        @bin_float.BinFloat::zero(precision~),
+        @binary.Binary::zero(precision~),
         pos_inf(precision),
         precision,
       )

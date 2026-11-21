@@ -302,14 +302,14 @@ fn run_decimal_unary_conformance_case(
 }
 
 ///|
-test "bin_float normalizes powers of two" {
+test "binary normalizes powers of two" {
   let x = binary_test_make(12N, 0, 16)
   assert_eq(binary_test_signed_bigint(x), 3N)
   assert_eq(x.exponent2(), 2)
 }
 
 ///|
-test "bin_float basic arithmetic stays exact on small dyadics" {
+test "binary basic arithmetic stays exact on small dyadics" {
   let a = binary_test_make(3N, -1, 16)
   let b = binary_test_make(5N, -1, 16)
   assert_eq((a + b).to_string(), "1p2")
@@ -318,10 +318,10 @@ test "bin_float basic arithmetic stays exact on small dyadics" {
 }
 
 ///|
-test "bin_float checked division reports division by zero" {
+test "binary checked division reports division by zero" {
   let result = @lf_arith.DivChecked::div_checked(
-    @bin_float.BinFloat::from_int(1, precision=16),
-    @bin_float.BinFloat::zero(precision=16),
+    @binary.Binary::from_int(1, precision=16),
+    @binary.Binary::zero(precision=16),
     @lf_arith.ArithmeticContext::new(16),
   )
   match result {
@@ -331,27 +331,24 @@ test "bin_float checked division reports division by zero" {
 }
 
 ///|
-test "bin_float sqrt and pown expose core arithmetic extensions" {
-  let root = @bin_float.BinFloat::from_int(4, precision=24).sqrt()
+test "binary sqrt and pown expose core arithmetic extensions" {
+  let root = @binary.Binary::from_int(4, precision=24).sqrt()
   let power = binary_test_make(3N, -1, 24).pown(3)
   assert_eq(root.to_string(), "1p1")
   assert_eq(power.to_string(), "27p-3")
 }
 
 ///|
-test "bin_float implements generic checked arithmetic traits" {
+test "binary implements generic checked arithmetic traits" {
   match
-    sqrt_checked_generic(
-      @bin_float.BinFloat::from_int(9, precision=24),
-      checked_ctx,
-    ) {
+    sqrt_checked_generic(@binary.Binary::from_int(9, precision=24), checked_ctx) {
     Ok(value) => assert_eq(value.to_string(), "3p0")
     Err(_) => fail("expected generic checked sqrt to succeed")
   }
   match
     div_checked_generic(
-      @bin_float.BinFloat::from_int(9, precision=24),
-      @bin_float.BinFloat::from_int(2, precision=24),
+      @binary.Binary::from_int(9, precision=24),
+      @binary.Binary::from_int(2, precision=24),
       checked_ctx,
     ) {
     Ok(value) => assert_true(value.to_string() != "0")
@@ -359,8 +356,8 @@ test "bin_float implements generic checked arithmetic traits" {
   }
   match
     compare_checked_generic(
-      @bin_float.BinFloat::from_int(1, precision=24),
-      @bin_float.BinFloat::from_int(2, precision=24),
+      @binary.Binary::from_int(1, precision=24),
+      @binary.Binary::from_int(2, precision=24),
     ) {
     Ok(value) => assert_eq(value, -1)
     Err(_) => fail("expected generic checked compare to succeed")
@@ -371,7 +368,7 @@ test "bin_float implements generic checked arithmetic traits" {
   }
   match
     reciprocal_power_checked(
-      @bin_float.BinFloat::zero(precision=24),
+      @binary.Binary::zero(precision=24),
       -1,
       checked_ctx,
     ) {
@@ -381,9 +378,9 @@ test "bin_float implements generic checked arithmetic traits" {
 }
 
 ///|
-test "bin_float coefficient constructor normalizes canonical dyadics" {
-  let value = @bin_float.BinFloat::from_coefficient(
-    @bin_float.BinCoeff::from_uint64(12UL),
+test "binary coefficient constructor normalizes canonical dyadics" {
+  let value = @binary.Binary::from_coefficient(
+    @binary.BinCoeff::from_uint64(12UL),
   )
   assert_true(value.identical(binary_test_make(12N, 0, 53).normalized()))
   assert_eq(binary_test_signed_bigint(value), 3N)
@@ -1463,16 +1460,16 @@ fn checked_special_division_rows() -> Array[(String, String, String)] {
 }
 
 ///|
-fn checked_special_bin(text : String) -> @bin_float.BinFloat {
+fn checked_special_bin(text : String) -> @binary.Binary {
   match text {
-    "NaN" => @bin_float.BinFloat::nan(precision=24)
-    "-NaN" => @bin_float.BinFloat::quiet_nan(negative=true, precision=24)
-    "sNaN" => @bin_float.BinFloat::signaling_nan(precision=24)
-    "Infinity" => @bin_float.BinFloat::inf(precision=24)
-    "-0" => @bin_float.BinFloat::negative_zero(precision=24)
-    "0" => @bin_float.BinFloat::zero(precision=24)
-    "1" => @bin_float.BinFloat::from_int(1, precision=24)
-    "-1" => @bin_float.BinFloat::from_int(-1, precision=24)
+    "NaN" => @binary.Binary::nan(precision=24)
+    "-NaN" => @binary.Binary::quiet_nan(negative=true, precision=24)
+    "sNaN" => @binary.Binary::signaling_nan(precision=24)
+    "Infinity" => @binary.Binary::inf(precision=24)
+    "-0" => @binary.Binary::negative_zero(precision=24)
+    "0" => @binary.Binary::zero(precision=24)
+    "1" => @binary.Binary::from_int(1, precision=24)
+    "-1" => @binary.Binary::from_int(-1, precision=24)
     _ => abort("unknown operand " + text)
   }
 }
@@ -1482,7 +1479,7 @@ test "binary and decimal checked instances agree on special values (#262)" {
   let bin_render = fn(result) {
     checked_special_render(
       result,
-      fn(x : @bin_float.BinFloat) { x.classify() == @def.FpClass::NaN },
+      fn(x : @binary.Binary) { x.classify() == @def.FpClass::NaN },
       fn(x) { x.classify() == @def.FpClass::Infinity },
       fn(x) { x.classify() == @def.FpClass::Finite && x.is_zero() },
       fn(x) { x.is_negative() },
@@ -1554,12 +1551,9 @@ test "binary and decimal checked instances agree on special values (#262)" {
 ///|
 test "decimal conversion preserves dyadics exactly" {
   let d = @decimal.Decimal::from_string("0.375", precision=20).unwrap()
-  let x = d.to_bin_float(precision=20)
+  let x = d.to_binary(precision=20)
   assert_eq(x.to_string(), "3p-3")
-  assert_eq(
-    @decimal.Decimal::from_bin_float(x, precision=20).to_string(),
-    "0.375",
-  )
+  assert_eq(@decimal.Decimal::from_binary(x, precision=20).to_string(), "0.375")
 }
 
 ///|
@@ -4702,7 +4696,7 @@ test "interval exact containment works" {
 ///|
 test "interval constructors accept coefficient and float family inputs" {
   let from_big = @interval.Interval::from_coefficient(
-    @bin_float.BinCoeff::from_uint64(42UL),
+    @binary.BinCoeff::from_uint64(42UL),
     precision=20,
   )
   let from_double = @interval.Interval::from_double(0.375, precision=20)
@@ -4710,21 +4704,19 @@ test "interval constructors accept coefficient and float family inputs" {
     Float::from_double(0.375),
     precision=20,
   )
+  assert_true(from_big.is_member(@binary.Binary::from_int(42, precision=64)))
   assert_true(
-    from_big.is_member(@bin_float.BinFloat::from_int(42, precision=64)),
+    from_double.is_member(@binary.Binary::from_double(0.375, precision=64)),
   )
   assert_true(
-    from_double.is_member(@bin_float.BinFloat::from_double(0.375, precision=64)),
-  )
-  assert_true(
-    from_float.is_member(@bin_float.BinFloat::from_double(0.375, precision=64)),
+    from_float.is_member(@binary.Binary::from_double(0.375, precision=64)),
   )
 }
 
 ///|
 test "interval radius rounds outward at lower precision" {
   let interval = @interval.Interval::from_midpoint_radius(
-    @bin_float.BinFloat::zero(precision=8),
+    @binary.Binary::zero(precision=8),
     binary_test_make(9N, -4, 8),
     precision=2,
   )
@@ -4742,7 +4734,7 @@ test "interval arithmetic keeps exact scalar results enclosed" {
   let exact_product = binary_test_make(15N, -3, 32)
   let exact_quotient = @decimal.Decimal::from_string("1.2", precision=40)
     .unwrap()
-    .to_bin_float(precision=80)
+    .to_binary(precision=80)
   assert_true(sum.is_member(exact_sum))
   assert_true(product.is_member(exact_product))
   assert_true(quotient.is_member(exact_quotient))
@@ -4756,7 +4748,7 @@ test "interval enclosure relations stay partial-order based" {
     precision=4,
   )
   let right = @interval.Interval::from_midpoint_radius(
-    @bin_float.BinFloat::from_int(2, precision=8),
+    @binary.Binary::from_int(2, precision=8),
     binary_test_make(1N, -2, 8),
     precision=4,
   )
@@ -4777,12 +4769,12 @@ test "interval enclosure relations stay partial-order based" {
 ///|
 test "interval division by a divisor containing zero returns whole real enclosure" {
   let numerator = @interval.Interval::exact(
-    @bin_float.BinFloat::from_int(1, precision=16),
+    @binary.Binary::from_int(1, precision=16),
     precision=8,
   )
   let divisor = @interval.Interval::from_midpoint_radius(
-    @bin_float.BinFloat::zero(precision=16),
-    @bin_float.BinFloat::one(precision=16),
+    @binary.Binary::zero(precision=16),
+    @binary.Binary::one(precision=16),
     precision=8,
   )
   let quotient = numerator / divisor
@@ -4796,9 +4788,9 @@ test "interval division by a divisor containing zero returns whole real enclosur
 // shares: nothing
 test "interval coefficient constructor keeps exact bounded interval" {
   let value = @interval.Interval::from_coefficient(
-    @bin_float.BinCoeff::from_uint64(12UL),
+    @binary.BinCoeff::from_uint64(12UL),
   ).normalized()
-  let twelve = @bin_float.BinFloat::from_int(12)
+  let twelve = @binary.Binary::from_int(12)
   assert_eq(value.lower_bound().compare(twelve), 0)
   assert_eq(value.upper_bound().compare(twelve), 0)
   assert_true(value.is_common_interval())
@@ -4816,8 +4808,8 @@ test "interval implements checked enclosure-preserving power and division" {
     Err(_) => fail("expected interval checked nat power to succeed")
   }
   let zero_crossing = @interval.Interval::from_midpoint_radius(
-    @bin_float.BinFloat::zero(precision=24),
-    @bin_float.BinFloat::one(precision=24),
+    @binary.Binary::zero(precision=24),
+    @binary.Binary::one(precision=24),
     precision=12,
   )
   match reciprocal_power_checked(zero_crossing, -1, checked_ctx) {
@@ -4831,15 +4823,15 @@ test "interval implements checked enclosure-preserving power and division" {
 }
 
 ///|
-test "bin_float_checked keeps arithmetic closed and propagates errors" {
-  let one = @bin_float_checked.BinFloatResult::from_int(1, precision=16)
-  let two = @bin_float_checked.BinFloatResult::from_int(2, precision=16)
+test "binary_checked keeps arithmetic closed and propagates errors" {
+  let one = @binary_checked.BinaryChecked::from_int(1, precision=16)
+  let two = @binary_checked.BinaryChecked::from_int(2, precision=16)
   match ((one + two).pow_nat(2U) * two).sqrt().result() {
     Ok(value) =>
-      assert_true(value.compare(@bin_float.BinFloat::zero(precision=16)) > 0)
+      assert_true(value.compare(@binary.Binary::zero(precision=16)) > 0)
     Err(_) => fail("expected closed bin float result pipeline to succeed")
   }
-  let zero = @bin_float_checked.BinFloatResult::from_int(0, precision=16)
+  let zero = @binary_checked.BinaryChecked::from_int(0, precision=16)
   match (one / zero).abs().result() {
     Ok(_) => fail("expected division by zero to remain an error")
     Err(err) => assert_true(err.is_division_by_zero())
@@ -4892,7 +4884,7 @@ test "interval_checked keeps interval operations in one result category" {
   let one = @interval_checked.IntervalResult::from_int(1, precision=12)
   let zero_crossing = @interval_checked.IntervalResult::from_bounds(
     binary_test_make(-1N, 0, 16),
-    @bin_float.BinFloat::one(precision=16),
+    @binary.Binary::one(precision=16),
     precision=12,
   )
   match (one.pown(2) / zero_crossing).pown(-1).result() {
@@ -5055,18 +5047,18 @@ test "checked natural powers preserve unsigned exponent boundaries" {
   let maximum = 0xffff_ffffU
   let binary_context = @lf_arith.ArithmeticContext::new(53)
   let binary_one = @lf_arith.PowNatChecked::pow_nat_checked(
-    @bin_float.BinFloat::one(precision=53),
+    @binary.Binary::one(precision=53),
     maximum,
     binary_context,
   ).unwrap()
-  assert_eq(binary_one.compare(@bin_float.BinFloat::one(precision=53)), 0)
+  assert_eq(binary_one.compare(@binary.Binary::one(precision=53)), 0)
   let binary_minus_one = @lf_arith.PowNatChecked::pow_nat_checked(
-    @bin_float.BinFloat::from_int(-1, precision=53),
+    @binary.Binary::from_int(-1, precision=53),
     maximum,
     binary_context,
   ).unwrap()
   assert_eq(
-    binary_minus_one.compare(@bin_float.BinFloat::from_int(-1, precision=53)),
+    binary_minus_one.compare(@binary.Binary::from_int(-1, precision=53)),
     0,
   )
   let interval_one = @lf_arith.PowNatChecked::pow_nat_checked(
@@ -5075,7 +5067,7 @@ test "checked natural powers preserve unsigned exponent boundaries" {
     binary_context,
   ).unwrap()
   assert_true(interval_one.is_singleton())
-  assert_true(interval_one.is_member(@bin_float.BinFloat::one(precision=53)))
+  assert_true(interval_one.is_member(@binary.Binary::one(precision=53)))
   let decimal_result = @lf_arith.PowNatChecked::pow_nat_checked(
     @decimal.Decimal::from_int(1),
     maximum,
@@ -5089,20 +5081,18 @@ test "checked natural powers preserve unsigned exponent boundaries" {
 
 ///|
 test "binary checked clamps reject external invalid bounds without aborting" {
-  let binary_value = @bin_float_checked.BinFloatResult::from_int(2)
+  let binary_value = @binary_checked.BinaryChecked::from_int(2)
   let binary_reversed = binary_value
     .clamp(
-      min=@bin_float_checked.BinFloatResult::from_int(3),
-      max=@bin_float_checked.BinFloatResult::from_int(1),
+      min=@binary_checked.BinaryChecked::from_int(3),
+      max=@binary_checked.BinaryChecked::from_int(1),
     )
     .result()
   assert_true(binary_reversed is Err(_))
-  let binary_nan = @bin_float_checked.BinFloatResult::ok(
-    @bin_float.BinFloat::nan(),
-  )
+  let binary_nan = @binary_checked.BinaryChecked::ok(@binary.Binary::nan())
   assert_true(
     binary_value
-    .clamp(min=binary_nan, max=@bin_float_checked.BinFloatResult::from_int(3))
+    .clamp(min=binary_nan, max=@binary_checked.BinaryChecked::from_int(3))
     .result()
     is Err(_),
   )
@@ -5112,16 +5102,10 @@ test "binary checked clamps reject external invalid bounds without aborting" {
 test "context try constructors totalize invalid and optional parameters" {
   assert_true(@interval.IntervalContext::try_new(precision=0) is Err(_))
   assert_true(@interval.IntervalContext::try_new(e_max=0) is Err(_))
-  assert_true(@bin_float.BinaryContext::try_new(precision=0) is Err(_))
-  assert_true(
-    @bin_float.BinaryContext::try_new(precision=53, e_max=11) is Ok(_),
-  )
-  assert_true(
-    @bin_float.BinaryContext::try_new(precision=53, e_max=10) is Ok(_),
-  )
-  assert_true(
-    @bin_float.BinaryContext::try_new(precision=53, e_max=0) is Err(_),
-  )
+  assert_true(@binary.BinaryContext::try_new(precision=0) is Err(_))
+  assert_true(@binary.BinaryContext::try_new(precision=53, e_max=11) is Ok(_))
+  assert_true(@binary.BinaryContext::try_new(precision=53, e_max=10) is Ok(_))
+  assert_true(@binary.BinaryContext::try_new(precision=53, e_max=0) is Err(_))
   assert_true(@decimal.DecimalContext::try_new(precision=-1) is Err(_))
   assert_true(@decimal.DecimalContext::try_new(e_max=0) is Err(_))
 }
@@ -5131,10 +5115,10 @@ test "Interval signed powers handle Int minimum" {
   let minimum = -2147483647 - 1
   let one = @interval.Interval::from_int(1, precision=53).pown(minimum)
   assert_true(one.is_singleton())
-  assert_true(one.is_member(@bin_float.BinFloat::one(precision=53)))
+  assert_true(one.is_member(@binary.Binary::one(precision=53)))
   let crossing = @interval.Interval::from_bounds(
-    @bin_float.BinFloat::from_int(-1, precision=53),
-    @bin_float.BinFloat::from_int(1, precision=53),
+    @binary.Binary::from_int(-1, precision=53),
+    @binary.Binary::from_int(1, precision=53),
   ).pown(minimum)
   assert_true(crossing.is_entire())
 }

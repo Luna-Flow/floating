@@ -80,7 +80,7 @@ fn parse_context_vectors(text : String) -> Array[ContextVector] {
 fn context_vector_accepted(vector : ContextVector) -> Bool? {
   match vector.standard {
     "binary" => {
-      let rounding : @bin_float.BinaryRoundingMode = match vector.rounding {
+      let rounding : @binary.BinaryRoundingMode = match vector.rounding {
         "n" => RoundTiesToEven
         "na" => RoundTiesToAway
         "z" => RoundTowardZero
@@ -88,7 +88,7 @@ fn context_vector_accepted(vector : ContextVector) -> Bool? {
         "d" => RoundTowardNegative
         _ => return None
       }
-      let tininess : @bin_float.TininessDetection = match vector.tininess {
+      let tininess : @binary.TininessDetection = match vector.tininess {
         "a" => AfterRounding
         "b" => BeforeRounding
         _ => return None
@@ -96,7 +96,7 @@ fn context_vector_accepted(vector : ContextVector) -> Bool? {
       match (vector.e_min, vector.e_max) {
         (None, None) =>
           Some(
-            @bin_float.BinaryContext::try_new(
+            @binary.BinaryContext::try_new(
               precision=vector.precision,
               rounding~,
               tininess~,
@@ -105,7 +105,7 @@ fn context_vector_accepted(vector : ContextVector) -> Bool? {
           )
         (None, Some(e_max)) =>
           Some(
-            @bin_float.BinaryContext::try_new(
+            @binary.BinaryContext::try_new(
               precision=vector.precision,
               e_max~,
               rounding~,
@@ -115,7 +115,7 @@ fn context_vector_accepted(vector : ContextVector) -> Bool? {
           )
         (Some(e_min), Some(e_max)) if e_min == 1 - e_max =>
           Some(
-            @bin_float.BinaryContext::try_new(
+            @binary.BinaryContext::try_new(
               precision=vector.precision,
               e_max~,
               rounding~,

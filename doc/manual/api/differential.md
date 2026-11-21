@@ -12,7 +12,7 @@ public MoonBit items; this page documents its command line and its record. The
 [design page](../design/differential.md) explains why the harness validates
 batches and how a failing batch is minimized. The row formats and the oracle
 programs are described in
-[`testdata/bin_float/README.md`](../../../testdata/bin_float/README.md) and
+[`testdata/binary/README.md`](../../../testdata/binary/README.md) and
 [`testdata/decimal/README.md`](../../../testdata/decimal/README.md) (IEEE `decimal`) and
 [`testdata/decimal_gda/README.md`](../../../testdata/decimal_gda/README.md) (`decimal_gda`).
 

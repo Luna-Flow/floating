@@ -10,8 +10,8 @@ program produces are regenerated into a temporary directory and compared byte fo
 generators call no code of this library).
 
 Manifests, one per family (the convention of `corpus_common.load_manifest`):
-- `testdata/bin_float/corpora.json`: `mpfrCorpora` (run by the binary gate) and `seededFixtures`;
-- `testdata/bin_float/smoke/manifest.json`: `sha256` of every TestFloat and MPFR smoke file;
+- `testdata/binary/corpora.json`: `mpfrCorpora` (run by the binary gate) and `seededFixtures`;
+- `testdata/binary/smoke/manifest.json`: `sha256` of every TestFloat and MPFR smoke file;
 - `testdata/decimal_gda/corpora.json`: `seededFixtures`;
 - `testdata/decimal/fixtures.json`: every generated or hand-selected decimal row file.
 
@@ -36,7 +36,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 TESTDATA = REPO_ROOT / "testdata"
 # Directories whose row files are fixtures. `testdata/decimal_gda/official*` and
 # `testdata/interval/itf1788` are fetched, git-ignored and pinned by the zip archive.
-FIXTURE_DIRECTORIES = ("bin_float", "decimal", "decimal_gda")
+FIXTURE_DIRECTORIES = ("binary", "decimal", "decimal_gda")
 FIXTURE_SUFFIXES = (".txt", ".testfloat", ".decTest")
 FETCHED_PREFIXES = ("decimal_gda/official",)
 
@@ -48,12 +48,12 @@ def load(path: str) -> dict:
 def pinned_entries() -> list[tuple[str, dict]]:
     """Every manifest entry that pins a committed file, as (label, entry)."""
     entries: list[tuple[str, dict]] = []
-    binary = load("testdata/bin_float/corpora.json")
+    binary = load("testdata/binary/corpora.json")
     for section in ("mpfrCorpora", "seededFixtures"):
-        entries += [(f"bin_float/corpora.json {section} {name}", spec) for name, spec in binary[section].items()]
-    smoke = load("testdata/bin_float/smoke/manifest.json")
+        entries += [(f"binary/corpora.json {section} {name}", spec) for name, spec in binary[section].items()]
+    smoke = load("testdata/binary/smoke/manifest.json")
     for section in ("testfloat", "mpfr"):
-        entries += [(f"bin_float/smoke/manifest.json {section} {spec['path']}", spec) for spec in smoke[section]]
+        entries += [(f"binary/smoke/manifest.json {section} {spec['path']}", spec) for spec in smoke[section]]
     gda = load("testdata/decimal_gda/corpora.json")
     entries += [(f"decimal_gda/corpora.json seededFixtures {name}", spec) for name, spec in gda["seededFixtures"].items()]
     decimal = load("testdata/decimal/fixtures.json")
@@ -117,7 +117,7 @@ class RegenerationTest(unittest.TestCase):
         import random_differential as rd
 
         specs = {
-            "binary": load("testdata/bin_float/corpora.json")["seededFixtures"]["mpfr-4.2.2-random"],
+            "binary": load("testdata/binary/corpora.json")["seededFixtures"]["mpfr-4.2.2-random"],
             "decimal_gda": load("testdata/decimal_gda/corpora.json")["seededFixtures"]["libmpdec-random"],
             "decimal": load("testdata/decimal/fixtures.json")["fixtures"]["mpfr-decimal-random"],
         }

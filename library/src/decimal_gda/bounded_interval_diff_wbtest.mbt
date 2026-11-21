@@ -6,27 +6,25 @@
 fn interval_reference(
   value : Decimal,
   precision : Int32,
-) -> (@bin_float.BinFloat, @bin_float.BinFloat)? {
+) -> (@binary.Binary, @binary.Binary)? {
   guard value.class == FpClass::Finite else { return None }
   if value.coefficient.is_zero() {
-    let zero = @bin_float.BinFloat::zero(precision~)
+    let zero = @binary.Binary::zero(precision~)
     return Some((zero, zero))
   }
-  let coefficient = @bin_float.BinCoeff::from_bytes_be(
+  let coefficient = @binary.BinCoeff::from_bytes_be(
     value.coefficient.to_bigint().to_octets(),
   )
   let binary_precision = Int32::max(precision, coefficient.bit_length() + 8)
-  let downward = @bin_float.BinaryContext::new(
+  let downward = @binary.BinaryContext::new(
     precision=binary_precision,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+    rounding=@binary.BinaryRoundingMode::RoundTowardNegative,
   )
-  let upward = @bin_float.BinaryContext::new(
+  let upward = @binary.BinaryContext::new(
     precision=binary_precision,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+    rounding=@binary.BinaryRoundingMode::RoundTowardPositive,
   )
-  let coefficient_value = @bin_float.BinFloat::make(
-    coefficient, 0, binary_precision,
-  )
+  let coefficient_value = @binary.Binary::make(coefficient, 0, binary_precision)
   let (power_lower, power_upper) = decimal_power10_bounds(
     binary_precision,
     value.exponent10,
@@ -41,7 +39,7 @@ fn interval_reference(
 }
 
 ///|
-fn interval_same_bin(a : @bin_float.BinFloat, b : @bin_float.BinFloat) -> Bool {
+fn interval_same_bin(a : @binary.Binary, b : @binary.Binary) -> Bool {
   a.compare(b) == 0 &&
   a.precision() == b.precision() &&
   a.is_negative() == b.is_negative() &&

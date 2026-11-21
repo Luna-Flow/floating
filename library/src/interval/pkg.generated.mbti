@@ -3,7 +3,7 @@ package "Luna-Flow/floating/interval"
 
 import {
   "Luna-Flow/arithmetic",
-  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/binary",
   "moonbitlang/core/debug",
 }
 
@@ -58,7 +58,7 @@ pub fn DecoratedInterval::interval(Self) -> Interval
 pub fn DecoratedInterval::is_common_interval(Self) -> Bool
 pub fn DecoratedInterval::is_empty(Self) -> Bool
 pub fn DecoratedInterval::is_entire(Self) -> Bool
-pub fn DecoratedInterval::is_member(Self, @bin_float.BinFloat) -> Bool
+pub fn DecoratedInterval::is_member(Self, @binary.Binary) -> Bool
 pub fn DecoratedInterval::is_nai(Self) -> Bool
 pub fn DecoratedInterval::is_singleton(Self) -> Bool
 pub fn DecoratedInterval::less(Self, Self) -> Bool
@@ -162,20 +162,20 @@ pub fn Interval::div_checked(Self, Self, @arithmetic.ArithmeticContext) -> Resul
 pub fn Interval::empty(precision? : Int32) -> Self
 pub fn Interval::entire(precision? : Int32) -> Self
 pub fn Interval::equal(Self, Self) -> Bool
-pub fn Interval::exact(@bin_float.BinFloat, precision? : Int32) -> Self
+pub fn Interval::exact(@binary.Binary, precision? : Int32) -> Self
 pub fn Interval::exp(Self) -> Self
 pub fn Interval::exp10(Self) -> Self
 pub fn Interval::exp2(Self) -> Self
 pub fn Interval::expm1(Self) -> Self
 pub fn Interval::floor(Self) -> Self
 pub fn Interval::fma(Self, Self, Self) -> Self
-pub fn Interval::from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Self
-pub fn Interval::from_coefficient(@bin_float.BinCoeff, precision? : Int32, negative? : Bool) -> Self
+pub fn Interval::from_bounds(@binary.Binary, @binary.Binary, precision? : Int32) -> Self
+pub fn Interval::from_coefficient(@binary.BinCoeff, precision? : Int32, negative? : Bool) -> Self
 pub fn Interval::from_double(Double, precision? : Int32) -> Self
 pub fn Interval::from_exact_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::from_float(Float, precision? : Int32) -> Self
 pub fn Interval::from_int(Int32, precision~ : Int32) -> Self
-pub fn Interval::from_midpoint_radius(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Self
+pub fn Interval::from_midpoint_radius(@binary.Binary, @binary.Binary, precision? : Int32) -> Self
 pub fn Interval::from_string(String, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::hypot(Self, Self) -> Self
 pub fn Interval::identical(Self, Self) -> Bool
@@ -184,19 +184,19 @@ pub fn Interval::intersection(Self, Self) -> Self
 pub fn Interval::is_common_interval(Self) -> Bool
 pub fn Interval::is_empty(Self) -> Bool
 pub fn Interval::is_entire(Self) -> Bool
-pub fn Interval::is_member(Self, @bin_float.BinFloat) -> Bool
+pub fn Interval::is_member(Self, @binary.Binary) -> Bool
 pub fn Interval::is_singleton(Self) -> Bool
 pub fn Interval::less(Self, Self) -> Bool
 pub fn Interval::ln(Self) -> Self
 pub fn Interval::log10(Self) -> Self
 pub fn Interval::log1p(Self) -> Self
 pub fn Interval::log2(Self) -> Self
-pub fn Interval::lower_bound(Self) -> @bin_float.BinFloat
-pub fn Interval::magnitude(Self) -> @bin_float.BinFloat
+pub fn Interval::lower_bound(Self) -> @binary.Binary
+pub fn Interval::magnitude(Self) -> @binary.Binary
 pub fn Interval::max(Self, Self) -> Self
-pub fn Interval::midpoint(Self) -> @bin_float.BinFloat
-pub fn Interval::midpoint_ctx(Self, IntervalContext) -> (@bin_float.BinFloat, IntervalFlags)
-pub fn Interval::mignitude(Self) -> @bin_float.BinFloat
+pub fn Interval::midpoint(Self) -> @binary.Binary
+pub fn Interval::midpoint_ctx(Self, IntervalContext) -> (@binary.Binary, IntervalFlags)
+pub fn Interval::mignitude(Self) -> @binary.Binary
 pub fn Interval::min(Self, Self) -> Self
 pub fn Interval::mul(Self, Self) -> Self
 pub fn Interval::mul_rev(Self, Self, x? : Self) -> Self
@@ -215,7 +215,7 @@ pub fn Interval::pown(Self, Int32) -> Self
 pub fn Interval::pown_rev(Self, Int32, x? : Self) -> Self
 pub fn Interval::precedes(Self, Self) -> Bool
 pub fn Interval::precision(Self) -> Int32
-pub fn Interval::radius(Self) -> @bin_float.BinFloat
+pub fn Interval::radius(Self) -> @binary.Binary
 pub fn Interval::recip(Self) -> Self
 pub fn Interval::rootn(Self, Int32) -> Self
 pub fn Interval::round_ties_to_away(Self) -> Self
@@ -251,15 +251,15 @@ pub fn Interval::try_atanh(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_cos(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_cosh(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_cospi(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Interval::try_exact(@bin_float.BinFloat, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_exact(@binary.Binary, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_exp(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_exp10(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_exp2(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_expm1(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Interval::try_from_bounds(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_from_bounds(@binary.Binary, @binary.Binary, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_from_double(Double, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_from_float(Float, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Interval::try_from_midpoint_radius(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
+pub fn Interval::try_from_midpoint_radius(@binary.Binary, @binary.Binary, precision? : Int32) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_hypot(Self, Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_ln(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_log10(Self) -> Result[Self, @arithmetic.ArithmeticError]
@@ -273,8 +273,8 @@ pub fn Interval::try_sinpi(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_tan(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_tanh(Self) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn Interval::try_tanpi(Self) -> Result[Self, @arithmetic.ArithmeticError]
-pub fn Interval::upper_bound(Self) -> @bin_float.BinFloat
-pub fn Interval::width(Self) -> @bin_float.BinFloat
+pub fn Interval::upper_bound(Self) -> @binary.Binary
+pub fn Interval::width(Self) -> @binary.Binary
 pub fn Interval::with_precision(Self, Int32) -> Self
 pub impl @arithmetic.Contains for Interval
 pub impl @arithmetic.DefinitelyLe for Interval

@@ -164,7 +164,7 @@ test "decimal convert to integer" {
 ### Convert between formats
 
 `convert_format` moves a value to another decimal interchange format and
-`to_bin_float_ctx` and `from_bin_float_ctx` cross to and from the binary
+`to_binary_ctx` and `from_binary_ctx` cross to and from the binary
 formats, all with the flags of the rounding:
 
 ```moonbit
@@ -174,11 +174,11 @@ test "decimal convert between formats" {
   let (narrow, flags) = d("1.2345678901234567").convert_format(Decimal32)
   inspect(narrow, content="1.234568")
   assert_true(flags.inexact())
-  let (bits, flags) = d("0.1").to_bin_float_ctx(@bin_float.BinaryContext::binary32())
+  let (bits, flags) = d("0.1").to_binary_ctx(@binary.BinaryContext::binary32())
   assert_true(flags.inexact())
   inspect(bits.to_hex(), content="0xcccccdp-27")
-  let (back, _) = @decimal.Decimal::from_bin_float_ctx(
-    @bin_float.BinFloat::from_double(0.5),
+  let (back, _) = @decimal.Decimal::from_binary_ctx(
+    @binary.Binary::from_double(0.5),
     @decimal.DecimalContext::decimal64(),
   )
   inspect(back, content="0.5")
@@ -378,7 +378,7 @@ and range events become diagnostics.
   model with sticky status and traps. Its values are a separate type; use it
   when you need `.decTest` behaviour, not IEEE per-operation flags.
 - To enclose a decimal value in a binary interval, convert it twice with
-  `to_bin_float(precision=p, mode=RoundTowardNegative)` and `to_bin_float(precision=p, mode=RoundTowardPositive)`
+  `to_binary(precision=p, mode=RoundTowardNegative)` and `to_binary(precision=p, mode=RoundTowardPositive)`
   and build an [`interval`](interval.md) from both bounds.
 
 ### A deterministic order for storage

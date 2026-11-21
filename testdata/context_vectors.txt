@@ -1,7 +1,7 @@
 # Boundary contexts with their verdict: the one list that the Python rules (tools/context_rules.py) and the library
 # constructors (tooling/src/consistency/context_vectors_wbtest.mbt) are both tested against.
 # Columns: standard precision e_min e_max rounding clamp tininess verdict      (`-`: the field is absent or not applicable)
-#   binary   bin_float, IEEE 754-2019 3.3: e_min = 1 - e_max; no range (`- -`) is the extendable format of 3.7;
+#   binary   binary, IEEE 754-2019 3.3: e_min = 1 - e_max; no range (`- -`) is the extendable format of 3.7;
 #            rounding n na z u d; tininess a (after rounding) or b (before)
 #   decimal  decimal, IEEE 754-2019: e_min = 1 - e_max, clamp 1, tininess b, rounding half_even half_up down ceiling floor
 #   gda      decimal_gda, GDA 1.70 page 10: e_min is -e_max, 1 - e_max or -e_max - 1; rounding of the eight GDA modes; clamp 0 or 1

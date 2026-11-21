@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "release": "0.8.0",
   "standards": {
-    "bin_float": "IEEE 754-2019",
+    "binary": "IEEE 754-2019",
     "decimal": "IEEE 754-2019",
     "decimal_gda": "General Decimal Arithmetic",
     "interval": "IEEE 1788-2015"
@@ -10,7 +10,7 @@
   "families": [
     {
       "family": "exponential-logarithmic",
-      "bin_float": "required-0.8.0",
+      "binary": "required-0.8.0",
       "decimal": "required-0.8.0",
       "decimal_gda": "exp-ln-log10-only",
       "interval": "standard",
@@ -19,7 +19,7 @@
     },
     {
       "family": "power-root-hypot",
-      "bin_float": "required-0.8.0",
+      "binary": "required-0.8.0",
       "decimal": "required-0.8.0",
       "decimal_gda": "power-sqrt-only",
       "interval": "rootn-standard-hypot-extension",
@@ -28,7 +28,7 @@
     },
     {
       "family": "trigonometric-inverse-atan2",
-      "bin_float": "required-0.8.0",
+      "binary": "required-0.8.0",
       "decimal": "required-0.8.0",
       "decimal_gda": "unavailable",
       "interval": "standard",
@@ -37,7 +37,7 @@
     },
     {
       "family": "hyperbolic-inverse",
-      "bin_float": "required-0.8.0",
+      "binary": "required-0.8.0",
       "decimal": "required-0.8.0",
       "decimal_gda": "unavailable",
       "interval": "standard",
@@ -46,7 +46,7 @@
     },
     {
       "family": "expm1-log1p-pi-scaled",
-      "bin_float": "required-0.8.0",
+      "binary": "required-0.8.0",
       "decimal": "required-0.8.0",
       "decimal_gda": "unavailable",
       "interval": "extension",
@@ -77,7 +77,7 @@
       "evidence": "certified scalar endpoint witnesses plus exact x-space critical-point and pole tests; excluded from IEEE 1788 totals"
     },
     {
-      "surface": "bin_float",
+      "surface": "binary",
       "standard": "IEEE 754-2019 recommended operations",
       "operations": ["exp", "exp2", "exp10", "expm1", "ln", "log2", "log10", "log1p", "rootn", "pow", "hypot", "sin", "cos", "tan", "sinpi", "cospi", "tanpi", "asin", "acos", "atan", "atan2", "sinh", "cosh", "tanh", "asinh", "acosh", "atanh"],
       "status": "verified-certified-kernel-mpfr-4.2.2",
@@ -126,6 +126,6 @@
     "practicalRegressionPct": 3.0,
     "confidencePct": 95.0,
     "analysis": "Maremark paired bootstrap; significant only when decision is Slower and the interval lower bound is positive",
-    "newOperations": "candidate workload only because 0.6.1 has no BinFloat elementary API; 0.8.0 establishes their first immutable baseline"
+    "newOperations": "candidate workload only because 0.6.1 has no Binary elementary API; 0.8.0 establishes their first immutable baseline"
   }
 }

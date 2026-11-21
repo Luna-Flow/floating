@@ -40,7 +40,7 @@ File an issue, then add `<row id> #<issue>` to `tools/interval_diff_known.txt`. 
 ## Going further
 
 - Add a class in `tools/interval_diff.py` (`CLASSES`, a generator in `GENERATORS`); give it the oracle flag it must reach, so that a class that misses its band fails the run.
-- The header `tools/mpfr_ours.h` is shared by every C program that needs MPFR in the range of `bin_float`.
+- The header `tools/mpfr_ours.h` is shared by every C program that needs MPFR in the range of `binary`.
 
 ## Common pitfalls
 

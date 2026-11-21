@@ -1,10 +1,10 @@
 ///|
 fn basics_corpus(precision : Int32) -> Array[Interval] {
-  let inf = @bin_float.BinFloat::inf(precision~)
-  let ninf = @bin_float.BinFloat::inf(negative=true, precision~)
-  let values : Array[@bin_float.BinFloat] = [ninf]
+  let inf = @binary.Binary::inf(precision~)
+  let ninf = @binary.Binary::inf(negative=true, precision~)
+  let values : Array[@binary.Binary] = [ninf]
   for d in [-7.25, -3.0, -1.0, -0.1, -0.0, 0.0, 0.3, 1.0, 2.5, 3.0] {
-    values.push(@bin_float.BinFloat::from_double(d, precision~))
+    values.push(@binary.Binary::from_double(d, precision~))
   }
   values.push(inf)
   let out : Array[Interval] = [empty_interval(precision)]
@@ -65,9 +65,9 @@ fn sqrt_expected_end(
   coefficient : String,
   exponent : Int32,
   precision : Int32,
-) -> @bin_float.BinFloat {
-  @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::parse(coefficient).unwrap(),
+) -> @binary.Binary {
+  @binary.Binary::make(
+    @binary.BinCoeff::parse(coefficient).unwrap(),
     exponent,
     precision,
   )
@@ -76,8 +76,8 @@ fn sqrt_expected_end(
 ///|
 fn sqrt_point_interval(lo : Double, hi : Double, precision : Int32) -> Interval {
   Interval::from_bounds(
-    @bin_float.BinFloat::from_double(lo, precision~),
-    @bin_float.BinFloat::from_double(hi, precision~),
+    @binary.Binary::from_double(lo, precision~),
+    @binary.Binary::from_double(hi, precision~),
     precision~,
   )
 }
@@ -85,8 +85,8 @@ fn sqrt_point_interval(lo : Double, hi : Double, precision : Int32) -> Interval 
 ///|
 fn sqrt_check(
   a : Interval,
-  lo : @bin_float.BinFloat,
-  hi : @bin_float.BinFloat,
+  lo : @binary.Binary,
+  hi : @binary.Binary,
 ) -> Unit raise {
   let r = a.sqrt()
   assert_false(r.is_empty())
@@ -106,29 +106,29 @@ test "interval basics: sqrt endpoints are the directed square roots" {
     // exact squares, both ends
     sqrt_check(
       sqrt_point_interval(1.0, 1.0, precision),
-      @bin_float.BinFloat::from_int(1, precision~),
-      @bin_float.BinFloat::from_int(1, precision~),
+      @binary.Binary::from_int(1, precision~),
+      @binary.Binary::from_int(1, precision~),
     )
     sqrt_check(
       sqrt_point_interval(4.0, 9.0, precision),
-      @bin_float.BinFloat::from_int(2, precision~),
-      @bin_float.BinFloat::from_int(3, precision~),
+      @binary.Binary::from_int(2, precision~),
+      @binary.Binary::from_int(3, precision~),
     )
     sqrt_check(
       sqrt_point_interval(0.25, 2.25, precision),
-      @bin_float.BinFloat::from_double(0.5, precision~),
-      @bin_float.BinFloat::from_double(1.5, precision~),
+      @binary.Binary::from_double(0.5, precision~),
+      @binary.Binary::from_double(1.5, precision~),
     )
     // a lower end at or below zero gives zero; a negative interval is empty
     sqrt_check(
       sqrt_point_interval(0.0, 16.0, precision),
-      @bin_float.BinFloat::zero(precision~),
-      @bin_float.BinFloat::from_int(4, precision~),
+      @binary.Binary::zero(precision~),
+      @binary.Binary::from_int(4, precision~),
     )
     sqrt_check(
       sqrt_point_interval(-1.0, 4.0, precision),
-      @bin_float.BinFloat::zero(precision~),
-      @bin_float.BinFloat::from_int(2, precision~),
+      @binary.Binary::zero(precision~),
+      @binary.Binary::from_int(2, precision~),
     )
     assert_true(sqrt_point_interval(-3.0, -1.0, precision).sqrt().is_empty())
     assert_true(Interval::empty(precision~).sqrt().is_empty())
@@ -177,13 +177,13 @@ test "interval basics: pown matches the original powers" {
 
 ///|
 fn trig_corpus(precision : Int32) -> Array[Interval] {
-  let values : Array[@bin_float.BinFloat] = []
+  let values : Array[@binary.Binary] = []
   for
     d in [
       -5.3, -3.0, -2.5, -1.5, -1.0, -0.75, -0.5, -0.1, -0.0, 0.0, 0.2, 0.5, 0.6,
       1.0, 1.25, 1.5, 1.75, 2.0, 2.4, 3.0, 3.5, 4.5, 7.0,
     ] {
-    values.push(@bin_float.BinFloat::from_double(d, precision~))
+    values.push(@binary.Binary::from_double(d, precision~))
   }
   let out : Array[Interval] = [empty_interval(precision)]
   for i in 0..<values.length() {
@@ -254,12 +254,12 @@ test "coeff_gcd: power-of-two shortcut equals the general gcd" {
   let nums = [1, 2, 3, 4, 6, 8, 12, 40, 96, 1024, 1536, 65536, 1000003]
   for a in nums {
     for b in nums {
-      let x = @bin_float.BinCoeff::from_uint64(a.to_uint64())
-      let y = @bin_float.BinCoeff::from_uint64(b.to_uint64())
+      let x = @binary.BinCoeff::from_uint64(a.to_uint64())
+      let y = @binary.BinCoeff::from_uint64(b.to_uint64())
       assert_eq(coeff_gcd(x, y).compare(coeff_gcd_kernel(x, y)), 0)
     }
   }
-  let big = coeff_shift_left(@bin_float.BinCoeff::from_uint64(3UL), 200)
+  let big = coeff_shift_left(@binary.BinCoeff::from_uint64(3UL), 200)
   let pow = coeff_shift_left(coeff_one(), 150)
   assert_eq(coeff_gcd(big, pow).compare(coeff_gcd_kernel(big, pow)), 0)
   assert_eq(coeff_gcd(pow, big).compare(coeff_gcd_kernel(pow, big)), 0)
@@ -269,7 +269,7 @@ test "coeff_gcd: power-of-two shortcut equals the general gcd" {
 test "corner selection: atan2 on every box of a sign-complete grid" {
   let precision = 24
   let grid = [-2.0, -1.0, 0.0, 1.0, 2.0].map(fn(d) {
-    @bin_float.BinFloat::from_double(d, precision~)
+    @binary.Binary::from_double(d, precision~)
   })
   let boxes : Array[Interval] = []
   for i in 0..<grid.length() {
@@ -288,7 +288,7 @@ test "corner selection: atan2 on every box of a sign-complete grid" {
 test "try_sin/cos/tan: huge arguments around the cutoff stay sound" {
   let precision = 24
   let power = fn(e : Int32) {
-    let x = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), e, precision)
+    let x = @binary.Binary::make(@binary.BinCoeff::one(), e, precision)
     Interval::from_bounds(x, x, precision~)
   }
   let unit = unit_interval(precision)
@@ -306,10 +306,10 @@ test "try_sin/cos/tan: huge arguments around the cutoff stay sound" {
 /// The general kernel GCD, without the power-of-two shortcut of `coeff_gcd`
 /// (the reference of its test).
 fn coeff_gcd_kernel(
-  left : @bin_float.BinCoeff,
-  right : @bin_float.BinCoeff,
-) -> @bin_float.BinCoeff {
-  @bin_float.BinCoeff::from_kernel(left.to_kernel().gcd(right.to_kernel()))
+  left : @binary.BinCoeff,
+  right : @binary.BinCoeff,
+) -> @binary.BinCoeff {
+  @binary.BinCoeff::from_kernel(left.to_kernel().gcd(right.to_kernel()))
 }
 
 ///|
@@ -317,8 +317,8 @@ fn coeff_gcd_kernel(
 /// it, so every caller looped forever (found by the documentation examples,
 /// which reached it through the decimal elementary functions).
 test "is_common_interval terminates and classifies the shapes" {
-  let one = @bin_float.BinFloat::one(precision=53)
-  let inf = @bin_float.BinFloat::inf(precision=53)
+  let one = @binary.Binary::one(precision=53)
+  let inf = @binary.Binary::inf(precision=53)
   assert_true(
     Interval::from_bounds(one.neg(), one, precision=53).is_common_interval(),
   )

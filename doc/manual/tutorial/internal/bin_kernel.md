@@ -8,15 +8,15 @@ checker.
 
 | I want to | Use |
 | --- | --- |
-| compute with exact coefficients in `bin_float` | [the `Coeff` methods](#use-the-kernel-from-bin_float) |
+| compute with exact coefficients in `binary` | [the `Coeff` methods](#use-the-kernel-from-the-binary-package) |
 | add an algorithm or a fast path | [change the kernel](#change-the-kernel) |
 | tune a threshold | [per-target thresholds](#tune-a-threshold) |
-| decide where new code belongs | [kernel or bin_float](#decide-where-new-code-belongs) |
+| decide where new code belongs | [kernel or `binary`](#decide-where-new-code-belongs) |
 | run the kernel tests | [`just bin-kernel-ci`](#run-the-tests) |
 
-## Use the kernel from bin_float
+## Use the kernel from the `binary` package
 
-`bin_float` imports the kernel and brings the names it uses into scope with
+`binary` imports the kernel and brings the names it uses into scope with
 `using` (in `kernel_imports.mbt`, and `kernel_imports_nonjs.mbt` for the names
 that exist only where a coefficient has 64-bit limbs):
 
@@ -25,13 +25,13 @@ that exist only where a coefficient has 64-bit limbs):
 using @bin_kernel { type Coeff, bin_coeff_short_div_rem }
 ```
 
-A `BinFloat` stores its coefficient as a private `Coeff` field. The public type
+A `Binary` stores its coefficient as a private `Coeff` field. The public type
 `BinCoeff` is a newtype over it (`value.0` unwraps it and `BinCoeff(c)` wraps a
 result), so the kernel type shows in a public interface only as the field of
 `BinCoeff`, which is opaque outside the module, and the wrapping costs neither
 an allocation nor a call. A typical
 use computes the exact quotient and remainder and leaves rounding to
-`bin_float`:
+`binary`:
 
 ```moonbit nocheck
 ///|
@@ -44,8 +44,8 @@ fn exact_quotient(numerator : Coeff, denominator : Coeff) -> (Coeff, Coeff) {
 ## Decide where new code belongs
 
 Put code in the kernel when it is a function from coefficients (and plain
-integers) to coefficients or integers. Keep it in `bin_float` when it mentions a
-rounding mode, a precision, an exponent, a class, a flag or a `BinFloat`. The
+integers) to coefficients or integers. Keep it in `binary` when it mentions a
+rounding mode, a precision, an exponent, a class, a flag or a `Binary`. The
 test is simple: the function must give the same answer for the same integers
 whoever calls it. `tools/check_imports.py` enforces the dependency half of the
 rule: the kernel imports nothing of this module.
@@ -71,7 +71,7 @@ kernel: its `Coeff` is a host `bigint`. A threshold only changes which exact
 algorithm runs. Change it with paired old and new builds on the target, and keep
 the dispatch tests that cross every threshold exactly. The cutoffs of the
 elementary functions (`binary_exp_burst_min_precision` and its siblings) are
-thresholds of `bin_float`, in `elementary_thresholds_<target>.mbt`.
+thresholds of `binary`, in `elementary_thresholds_<target>.mbt`.
 
 ## Run the tests
 
@@ -81,5 +81,5 @@ sh tools/run_moon_clean_exec.sh test library/src/internal/bin_kernel --target na
 ```
 
 The `internal/bin_kernel` tests carry the algorithm cross-checks, the
-dispatch tests and the regression digests that used to live in `bin_float`.
-`bin_float` keeps the tests that need a `BinFloat`.
+dispatch tests and the regression digests that used to live in `binary`.
+`binary` keeps the tests that need a `Binary`.

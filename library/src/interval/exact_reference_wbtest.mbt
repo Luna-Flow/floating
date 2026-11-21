@@ -1,18 +1,18 @@
 ///|
 /// The exact sum `a + b` of two finite values by integer arithmetic (aligned `BinCoeff` sums, no
 /// rounding, no surrogate for a far addend) rounded once to `precision` bits in the direction
-/// `mode` by `BinFloat::make`, the rounding of the binary layer (overflow and the grid below
+/// `mode` by `Binary::make`, the rounding of the binary layer (overflow and the grid below
 /// the range floor included). The reference of the tests of the endpoint operations; it shares
 /// with the code under test only `BinCoeff` arithmetic and `make`.
 fn exact_sum_rounded(
-  a : @bin_float.BinFloat,
-  b : @bin_float.BinFloat,
+  a : @binary.Binary,
+  b : @binary.Binary,
   precision : Int32,
   mode : BinaryRoundingMode,
-) -> @bin_float.BinFloat {
+) -> @binary.Binary {
   if a.is_zero() || b.is_zero() {
     let x = if a.is_zero() { b } else { a }
-    return @bin_float.BinFloat::make(
+    return @binary.Binary::make(
       x.coefficient(),
       x.exponent2(),
       precision,
@@ -28,26 +28,26 @@ fn exact_sum_rounded(
   } else {
     let order = left.compare(right)
     if order == 0 {
-      (@bin_float.BinCoeff::zero(), false)
+      (@binary.BinCoeff::zero(), false)
     } else if order > 0 {
       (coeff_sub(left, right), a.is_negative())
     } else {
       (coeff_sub(right, left), b.is_negative())
     }
   }
-  @bin_float.BinFloat::make(coefficient, target, precision, negative~, mode~)
+  @binary.Binary::make(coefficient, target, precision, negative~, mode~)
 }
 
 ///|
 /// The exact product `a * b` of two finite values rounded once to `precision` bits in the
-/// direction `mode` by `BinFloat::make` (the exponent sum saturates, so that an exponent beyond 32
+/// direction `mode` by `Binary::make` (the exponent sum saturates, so that an exponent beyond 32
 /// bits keeps its direction).
 fn exact_product_rounded(
-  a : @bin_float.BinFloat,
-  b : @bin_float.BinFloat,
+  a : @binary.Binary,
+  b : @binary.Binary,
   precision : Int32,
   mode : BinaryRoundingMode,
-) -> @bin_float.BinFloat {
+) -> @binary.Binary {
   let exponent = a.exponent2().to_int64() + b.exponent2().to_int64()
   let exponent = if exponent > 2147483647L {
     2147483647
@@ -56,7 +56,7 @@ fn exact_product_rounded(
   } else {
     exponent.to_int()
   }
-  @bin_float.BinFloat::make(
+  @binary.Binary::make(
     coeff_mul(a.coefficient(), b.coefficient()),
     exponent,
     precision,
@@ -68,10 +68,7 @@ fn exact_product_rounded(
 ///|
 /// `a * b` of two finite values, exactly (`exact_value` with `exact_range`), for the tests whose
 /// operands are far from the ends of the exponent range.
-fn exact_mul_full(
-  a : @bin_float.BinFloat,
-  b : @bin_float.BinFloat,
-) -> @bin_float.BinFloat {
+fn exact_mul_full(a : @binary.Binary, b : @binary.Binary) -> @binary.Binary {
   exact_value(
     coeff_mul(a.coefficient(), b.coefficient()),
     a.exponent2() + b.exponent2(),

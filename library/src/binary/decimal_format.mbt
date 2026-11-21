@@ -1,0 +1,426 @@
+///|
+/// Exact rationals at most this many bits wide are rounded directly; wider
+/// ones cannot be exact or decimal ties, and use directed enclosures.
+let decimal_format_exact_bits : Int64 = 1L << 20
+
+///|
+fn bin_coeff_pow10(exponent : Int32) -> Coeff {
+  Coeff::from_uint64(10UL).pow_nat(exponent.reinterpret_as_uint())
+}
+
+///|
+/// Decimal exponent of the leading digit, `floor(log10 |value|)`, for a finite
+/// nonzero value. Starts from a binary estimate and corrects it exactly or with
+/// directed bounds.
+fn binary_decimal_exponent(value : Binary) -> Int32 {
+  let top = value.exact_top()
+  // log10(2) = 0.30102999566...; the estimate is within one of the answer.
+  let estimate = (top.to_double() * 0.30102999566398120).floor().to_int()
+  let magnitude = value.abs()
+  let ten = Binary::from_int_raw(10, precision=64)
+  let mut exponent = estimate - 1
+  for _ in 0..<4 {
+    // Is |value| >= 10^(exponent + 1)? Decide with directed bounds of the power.
+    let next = exponent + 1
+    let work = 64
+    let down = binary_working_context(work, rounding=RoundTowardNegative)
+    let up = binary_working_context(work, rounding=RoundTowardPositive)
+    let power_low = ten.pown_ctx(next, down).0
+    let power_high = ten.pown_ctx(next, up).0
+    if magnitude.compare(power_low) < 0 {
+      return exponent
+    }
+    if magnitude.compare(power_high) >= 0 {
+      exponent = next
+      continue
+    }
+    // |value| lies within one rounding of 10^next: compare exactly. Here
+    // |value| is close to 10^next, so both sides stay small.
+    let scale = if next >= 0 { next } else { -next }
+    let power = bin_coeff_pow10(scale)
+    let (left, right) = if next >= 0 {
+      if magnitude.exponent2_() >= 0 {
+        (magnitude.coefficient_().shift_left(magnitude.exponent2_()), power)
+      } else {
+        (magnitude.coefficient_(), power.shift_left(-magnitude.exponent2_()))
+      }
+    } else {
+      let scaled = magnitude.coefficient_().mul(power)
+      if magnitude.exponent2_() >= 0 {
+        (scaled.shift_left(magnitude.exponent2_()), Coeff::one())
+      } else {
+        (scaled, Coeff::one().shift_left(-magnitude.exponent2_()))
+      }
+    }
+    if left.compare(right) < 0 {
+      return exponent
+    }
+    exponent = next
+  }
+  exponent
+}
+
+///|
+/// Above this power of ten a single `10^count` can leave the exponent range
+/// (10^(2^28) is about 2^(8.9e8), the range ends at 2^(2^30)), so the power is
+/// applied in two halves; below it one power is both exact enough and cheaper.
+let decimal_format_split_power : Int32 = 1 << 28
+
+///|
+/// `value / 10^count` (`divide`) or `value * 10^count`, with the power in
+/// `power_context` and the operation in `operation_context`, each a directed
+/// rounding, so the result is a bound on the exact quotient or product. A count
+/// above `decimal_format_split_power` is applied in two halves: `10^count` alone
+/// could overflow when the value is near the opposite end of the range (#677).
+fn binary_ten_power_applied(
+  value : Binary,
+  ten : Binary,
+  count : Int32,
+  divide : Bool,
+  power_context : BinaryContext,
+  operation_context : BinaryContext,
+) -> Binary {
+  let first = if count > decimal_format_split_power { count / 2 } else { count }
+  let step = fn(operand : Binary, power : Int32) {
+    let factor = ten.pown_ctx(power, power_context).0
+    if divide {
+      operand.div_ctx(factor, operation_context).0
+    } else {
+      operand.mul_ctx(factor, operation_context).0
+    }
+  }
+  let partial = step(value, first)
+  if first < count {
+    step(partial, count - first)
+  } else {
+    partial
+  }
+}
+
+///|
+/// `round(value / 10^scale)` as a signed integer magnitude under `mode`, and
+/// whether it is inexact.
+fn binary_scaled_decimal_integer(
+  value : Binary,
+  scale : Int32,
+  mode : BinaryRoundingMode,
+  digits : Int32,
+) -> (Coeff, Bool) {
+  // value / 10^scale = c * 2^(e - scale) * 5^(-scale).
+  let coefficient = value.coefficient_()
+  let exponent = value.exponent2_().to_int64() - scale.to_int64()
+  let five_bits = (if scale < 0 { -scale } else { scale }).to_int64() * 7L / 3L
+  let width = coefficient.bit_length().to_int64() +
+    (if exponent < 0L { -exponent } else { exponent }) +
+    five_bits
+  if width <= decimal_format_exact_bits {
+    let five = Coeff::from_uint64(5UL).pow_nat(
+      (if scale < 0 { -scale } else { scale }).reinterpret_as_uint(),
+    )
+    let (numerator, denominator) = if scale >= 0 {
+      (coefficient, five)
+    } else {
+      (coefficient.mul(five), Coeff::one())
+    }
+    let (numerator, denominator) = if exponent >= 0L {
+      (numerator.shift_left(exponent.to_int()), denominator)
+    } else {
+      (numerator, denominator.shift_left((-exponent).to_int()))
+    }
+    let (quotient, remainder) = numerator.div_rem_checked(denominator).unwrap()
+    let half = remainder.shift_left(1).compare(denominator)
+    let rounded = binary_apply_round_bits(
+      quotient,
+      half >= 0,
+      !remainder.is_zero() && half != 0,
+      value.negative(),
+      mode,
+    )
+    return (rounded, !remainder.is_zero())
+  }
+  // No tie and no exact result at this width: enclose and widen until both
+  // ends round to one integer.
+  let mut work = digits * 4 + 64
+  let ten = Binary::from_int_raw(10, precision=work)
+  while true {
+    let down = binary_working_context(work, rounding=RoundTowardNegative)
+    let up = binary_working_context(work, rounding=RoundTowardPositive)
+    let magnitude = value.abs()
+    let low_value = magnitude.with_precision_raw(
+      work,
+      BinaryRoundingMode::RoundTowardNegative,
+    )
+    let high_value = magnitude.with_precision_raw(
+      work,
+      BinaryRoundingMode::RoundTowardPositive,
+    )
+    let (low, high) = if scale >= 0 {
+      (
+        binary_ten_power_applied(low_value, ten, scale, true, up, down),
+        binary_ten_power_applied(high_value, ten, scale, true, down, up),
+      )
+    } else {
+      (
+        binary_ten_power_applied(low_value, ten, -scale, false, down, down),
+        binary_ten_power_applied(high_value, ten, -scale, false, up, up),
+      )
+    }
+    let (signed_low, signed_high) = if value.negative() {
+      (high.neg(), low.neg())
+    } else {
+      (low, high)
+    }
+    let rounded_low = binary_round_to_integral(signed_low, mode).0
+    let rounded_high = binary_round_to_integral(signed_high, mode).0
+    if rounded_low.compare(rounded_high) == 0 {
+      let integral = rounded_low.abs()
+      let magnitude = if integral.coefficient_is_zero() {
+        Coeff::zero()
+      } else {
+        integral.coefficient_().shift_left(integral.exponent2_())
+      }
+      return (magnitude, true)
+    }
+    work = work * 2
+  }
+  panic()
+}
+
+///|
+/// Significant decimal digits of a finite nonzero value rounded to `digits`
+/// digits: the digit string, the decimal exponent of its first digit, and
+/// whether rounding was inexact.
+fn binary_decimal_digits(
+  value : Binary,
+  digits : Int32,
+  mode : BinaryRoundingMode,
+) -> (String, Int32, Bool) {
+  let mut exponent = binary_decimal_exponent(value)
+  while true {
+    let (integer, inexact) = binary_scaled_decimal_integer(
+      value,
+      exponent - digits + 1,
+      mode,
+      digits,
+    )
+    let text = integer.to_string()
+    if text.length() <= digits {
+      // Rounding may carry into a new leading digit (9.99 -> 10.0).
+      return (text, exponent, inexact)
+    }
+    exponent += 1
+  }
+  panic()
+}
+
+///|
+fn binary_special_string(value : Binary) -> String? {
+  let sign = if value.negative() { "-" } else { "" }
+  match value.class() {
+    FpClass::Infinity => Some(sign + "inf")
+    FpClass::NaN =>
+      Some(sign + (if value.signaling() { "snan" } else { "nan" }))
+    FpClass::Finite => None
+  }
+}
+
+///|
+/// IEEE 754 convertToDecimalCharacter with a fixed number of significant
+/// digits: `d.ddd...e±x`, correctly rounded in the context's direction, with
+/// inexact raised when digits were dropped. `inf`, `nan`, and `snan` keep
+/// their sign; zero prints as `0.000...e+0` with its sign. The output parses
+/// back with `from_string_ctx`.
+pub fn Binary::to_decimal_string_ctx(
+  self : Binary,
+  digits : Int32,
+  context : BinaryContext,
+) -> (String, BinaryFlags) {
+  match binary_special_string(self) {
+    Some(text) => return (text, BinaryFlags::new())
+    None => ()
+  }
+  let digits = Int32::max(1, digits)
+  let sign = if self.negative() { "-" } else { "" }
+  let (text, exponent, inexact) = if self.coefficient_is_zero() {
+    ("0".repeat(digits), 0, false)
+  } else {
+    binary_decimal_digits(self, digits, context.rounding)
+  }
+  let padded = text + "0".repeat(digits - text.length())
+  let mantissa = if digits == 1 {
+    padded
+  } else {
+    padded.exact_view(end=1).to_owned() +
+    "." +
+    padded.exact_view(start=1).to_owned()
+  }
+  let exponent_text = (if exponent < 0 { "-" } else { "+" }) +
+    exponent.abs().to_string()
+  (
+    sign + mantissa + "e" + exponent_text,
+    if inexact {
+      binary_inexact_flags(false)
+    } else {
+      BinaryFlags::new()
+    },
+  )
+}
+
+///|
+/// Whether `text` parses back to exactly `value` under `context`.
+fn binary_round_trips(
+  text : String,
+  value : Binary,
+  context : BinaryContext,
+) -> Bool {
+  match Binary::from_string_ctx(text, context) {
+    Ok((parsed, _)) => parsed.compare(value) == 0
+    Err(_) => false
+  }
+}
+
+///|
+/// The fewest significant digits that read back as exactly this value when
+/// parsed under `context`. Ties between the two
+/// adjacent candidates go to the nearer, then to an even last digit.
+fn binary_shortest_digits(
+  value : Binary,
+  context : BinaryContext,
+) -> (String, Int32) {
+  let candidates = fn(digits : Int32) -> (String, Int32)? {
+    let (down, down_exponent, _) = binary_decimal_digits(
+      value,
+      digits,
+      RoundTowardZero,
+    )
+    let (up, up_exponent, _) = binary_decimal_digits(
+      value,
+      digits,
+      if value.negative() {
+        RoundTowardNegative
+      } else {
+        RoundTowardPositive
+      },
+    )
+    let render = fn(text : String, exponent : Int32) {
+      (if value.negative() { "-" } else { "" }) +
+      text +
+      "e" +
+      (exponent - text.length() + 1).to_string()
+    }
+    let down_ok = binary_round_trips(
+      render(down, down_exponent),
+      value,
+      context,
+    )
+    let up_ok = binary_round_trips(render(up, up_exponent), value, context)
+    match (down_ok, up_ok) {
+      (false, false) => None
+      (true, false) => Some((down, down_exponent))
+      (false, true) => Some((up, up_exponent))
+      (true, true) => {
+        // Both read back: take the nearer (round-to-nearest), ties to even.
+        let (nearest, nearest_exponent, _) = binary_decimal_digits(
+          value,
+          digits,
+          RoundTiesToEven,
+        )
+        Some((nearest, nearest_exponent))
+      }
+    }
+  }
+  // p bits always round-trip within ceil(p log10 2) + 1 digits, and
+  // round-tripping is monotone in the digit count, so bisect.
+  let mut low = 1
+  let mut high = (context.precision.to_double() * 0.30102999566398120)
+    .ceil()
+    .to_int() +
+    2
+  let mut best = candidates(high).unwrap()
+  while low < high {
+    let middle = (low + high) / 2
+    match candidates(middle) {
+      Some(found) => {
+        best = found
+        high = middle
+      }
+      None => low = middle + 1
+    }
+  }
+  match candidates(low) {
+    Some(found) => best = found
+    None => ()
+  }
+  // Drop trailing zeros produced by a shorter exact digit string.
+  let (text, exponent) = best
+  let mut end = text.length()
+  while end > 1 && text.unsafe_get(end - 1) == '0' {
+    end -= 1
+  }
+  (text.exact_view(end~).to_owned(), exponent)
+}
+
+///|
+/// Shortest round-trip decimal form under `context`, formatted like
+/// ECMAScript `Number#toString`: positional notation for decimal exponents in
+/// `[-6, 21)`, otherwise `d.ddde±x`. Parsing the result with
+/// `from_string_ctx(text, context)` under round-to-nearest-even returns this
+/// value, and unlike ECMAScript, negative zero prints as `-0` so its sign
+/// round-trips. An operand that is not representable in the context is first
+/// rounded into it in the rounding direction of the context (with the overflow
+/// and underflow of the context), and the result is the shortest string of that
+/// rounded value: `inf` on overflow, `0` or `-0` on underflow. A double in `BinaryContext::binary64()`
+/// prints as itself (5e-324 for the smallest subnormal).
+pub fn Binary::to_shortest_string_ctx(
+  self : Binary,
+  context : BinaryContext,
+) -> (String, BinaryFlags) {
+  // The operand is first rounded into the context, in the rounding direction
+  // of the context (a value of the format prints as itself), so the search
+  // below always has a representable value.
+  let (self, flags) = self.apply_ctx(context)
+  // The digits read back under round-to-nearest-even, whatever the direction.
+  let context = { ..context, rounding: RoundTiesToEven, }
+  match binary_special_string(self) {
+    Some(text) => return (text, flags)
+    None => ()
+  }
+  let sign = if self.negative() { "-" } else { "" }
+  if self.coefficient_is_zero() {
+    return (sign + "0", flags)
+  }
+  let (digits, exponent) = binary_shortest_digits(self, context)
+  let count = digits.length()
+  let body = if exponent >= -6 && exponent < 21 {
+    if exponent >= count - 1 {
+      digits + "0".repeat(exponent - count + 1)
+    } else if exponent >= 0 {
+      digits.exact_view(end=exponent + 1).to_owned() +
+      "." +
+      digits.exact_view(start=exponent + 1).to_owned()
+    } else {
+      "0." + "0".repeat(-exponent - 1) + digits
+    }
+  } else {
+    let mantissa = if count == 1 {
+      digits
+    } else {
+      digits.exact_view(end=1).to_owned() +
+      "." +
+      digits.exact_view(start=1).to_owned()
+    }
+    mantissa +
+    "e" +
+    (if exponent < 0 { "-" } else { "+" }) +
+    exponent.abs().to_string()
+  }
+  (sign + body, flags)
+}
+
+///|
+/// Shortest round-trip form at the value's own precision with an unbounded
+/// exponent range: `from_string(text, precision=self.precision())` returns
+/// this value. See `to_shortest_string_ctx` for IEEE formats with subnormals.
+pub fn Binary::to_shortest_string(self : Binary) -> String {
+  self.to_shortest_string_ctx(binary_working_context(self.precision_())).0
+}

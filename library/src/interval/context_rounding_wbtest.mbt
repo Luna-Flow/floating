@@ -14,7 +14,7 @@ test "midpoint_ctx rounds to nearest once" {
 ///|
 test "midpoint_ctx applies e_max" {
   let ctx = IntervalContext::new(precision=53, e_max=10)
-  let big = @bin_float.BinFloat::from_int(1 << 20, precision=53)
+  let big = @binary.Binary::from_int(1 << 20, precision=53)
   let (m, flags) = Interval::from_bounds(big, big).midpoint_ctx(ctx)
   assert_eq(m.classify(), FpClass::Infinity)
   assert_true(m.sign() == Sign::Positive)
@@ -53,7 +53,7 @@ test "midpoint_ctx applies e_max" {
 test "midpoint_ctx keeps exact and normal centers" {
   let ctx = IntervalContext::new(precision=4, e_max=3)
   let (m, flags) = Interval::from_int(-3, precision=53).midpoint_ctx(ctx)
-  assert_eq(m.compare(@bin_float.BinFloat::from_int(-3)), 0)
+  assert_eq(m.compare(@binary.Binary::from_int(-3)), 0)
   assert_true(flags == IntervalFlags::new())
   let tiny = endpoint_rounding_value(1UL, -5, 53)
   let (t, tiny_flags) = Interval::from_bounds(tiny, tiny).midpoint_ctx(ctx)
@@ -85,7 +85,7 @@ test "apply_ctx does not raise underflow for exact tiny endpoints" {
   assert_true(flags == IntervalFlags::new())
   // An inexact endpoint in the normal range is not an underflow.
   let (_, normal_flags) = Interval::from_bounds(
-    @bin_float.BinFloat::one(precision=53),
+    @binary.Binary::one(precision=53),
     endpoint_rounding_value(17UL, -4, 53),
   ).apply_ctx(ctx)
   assert_true(normal_flags.inexact())
@@ -101,7 +101,7 @@ test "midpoint_ctx follows the IEEE 1788 mid cases" {
   let (e, empty_flags) = Interval::empty(precision=53).midpoint_ctx(ctx)
   assert_eq(e.classify(), FpClass::NaN)
   assert_true(empty_flags == IntervalFlags::new())
-  let one = @bin_float.BinFloat::one(precision=53)
+  let one = @binary.Binary::one(precision=53)
   let (up, up_flags) = Interval::from_bounds(one, pos_inf(53)).midpoint_ctx(ctx)
   assert_eq(up.compare(max), 0)
   assert_true(up_flags == IntervalFlags::new())
@@ -111,8 +111,8 @@ test "midpoint_ctx follows the IEEE 1788 mid cases" {
   assert_eq(down.compare(max.neg()), 0)
   assert_true(down_flags == IntervalFlags::new())
   let (z, zero_flags) = Interval::from_bounds(
-    @bin_float.BinFloat::zero(precision=53).neg(),
-    @bin_float.BinFloat::zero(precision=53).neg(),
+    @binary.Binary::zero(precision=53).neg(),
+    @binary.Binary::zero(precision=53).neg(),
   ).midpoint_ctx(ctx)
   assert_true(z.is_zero())
   assert_false(z.is_negative_zero())

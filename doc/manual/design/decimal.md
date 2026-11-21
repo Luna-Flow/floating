@@ -714,14 +714,14 @@ result is not a decimal), and a negative value that rounds to zero converts to
 
 ### Conversions between formats
 
-`convert_format`, `from_bin_float_ctx` and `to_bin_float_ctx` (IEEE 754-2019
+`convert_format`, `from_binary_ctx` and `to_binary_ctx` (IEEE 754-2019
 §5.4.2) are thin on purpose: each rounds the exact source value once, in the
 destination's context, and returns the flags of that rounding.
 Decimal to decimal is `apply_ctx` of the format's context, so the preferred
 exponent $Q(\text{source})$ is the one the normalization keeps when the value
 fits. Binary to decimal does not form the expansion $c\,2^e$, whose cost grows
 with $|e|$: it takes the first $p + 1$ significant digits of $|x|$, truncated, from
-the correctly rounded digit string of `BinFloat::to_decimal_string_ctx`, appends a
+the correctly rounded digit string of `Binary::to_decimal_string_ctx`, appends a
 sticky digit $1$ when digits were dropped, and rounds that decimal once with
 `apply_ctx`. A rounding of a decimal depends on the digits beyond the kept ones
 only as zero, below half, a tie or above half, and the surrogate (the digits and
@@ -740,7 +740,7 @@ $\lfloor 0.30103\,(\operatorname{bits} + e)\rfloor$ lies more than two beyond
 $e_{\max}$ or three below $E_{\text{tiny}}$, which stands for every such value in
 the rounding (overflow, or a result of zero or the least subnormal). A binary exponent
 beyond $2^{22}$ is refused. Decimal to binary is the exact decimal text rounded by
-`BinFloat::from_string_ctx`, which is correctly rounded for any exponent and is
+`Binary::from_string_ctx`, which is correctly rounded for any exponent and is
 checked against MPFR; the corpus runs both directions through the MPFR rows of
 `mpfr_strtofr` and `mpfr_get_str` and through exact rows for every pair of
 decimal32/64/128 and binary16/32/64/128 (`tools/generate_decimal_conversion_rows.py`).
@@ -836,7 +836,7 @@ bounds.
 input $x$:
 
 1. Convert $x$ exactly into a binary interval: $\underline{x} =
-   \nabla_w(x)$ and $\overline{x} = \Delta_w(x)$, `to_bin_float` with
+   \nabla_w(x)$ and $\overline{x} = \Delta_w(x)$, `to_binary` with
    `RoundTowardNegative` and `RoundTowardPositive` at $w$ bits, so $x \in
    [\underline{x}, \overline{x}]$.
 2. Evaluate $f$ on that interval with [`interval`](interval.md), which
@@ -1107,7 +1107,7 @@ extreme power of ten.
 $\operatorname{asin}(x)/\pi$, $\operatorname{acos}(x)/\pi$,
 $\operatorname{atan}(x)/\pi$ and $\operatorname{atan2}(y, x)/\pi$ in the
 existing Ziv driver, with $\pi$ enclosed as $[\operatorname{RD}(\pi), \operatorname{RU}(\pi)]$
-taken from the cached binary-splitting constant of `bin_float` (twice the
+taken from the cached binary-splitting constant of `binary` (twice the
 correctly rounded $\pi/2$ of `atan(+inf)`, the same interval as
 $4\operatorname{atan}(1)$ bit for bit) and the angle
 enclosure divided by it (error: the angle, $\pi$ and the division, about

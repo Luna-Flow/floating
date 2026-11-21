@@ -1,6 +1,6 @@
 ///|
-fn q_num(x : Double) -> @bin_float.BinFloat {
-  @bin_float.BinFloat::from_double(x)
+fn q_num(x : Double) -> @binary.Binary {
+  @binary.Binary::from_double(x)
 }
 
 ///|
@@ -21,16 +21,16 @@ fn q_rational_is(
   match cls {
     QRational(n, a, b) =>
       n == negative &&
-      coeff_compare(a, @bin_float.BinCoeff::from_uint64(num)) == 0 &&
-      coeff_compare(b, @bin_float.BinCoeff::from_uint64(den)) == 0
+      coeff_compare(a, @binary.BinCoeff::from_uint64(num)) == 0 &&
+      coeff_compare(b, @binary.BinCoeff::from_uint64(den)) == 0
     _ => false
   }
 }
 
 ///|
-fn q_pow3(exponent : Int32) -> @bin_float.BinFloat {
-  let power = coeff_pow_small(@bin_float.BinCoeff::from_uint64(3UL), exponent)
-  @bin_float.BinFloat::make(power, 0, power.bit_length())
+fn q_pow3(exponent : Int32) -> @binary.Binary {
+  let power = coeff_pow_small(@binary.BinCoeff::from_uint64(3UL), exponent)
+  @binary.Binary::make(power, 0, power.bit_length())
 }
 
 ///|
@@ -104,7 +104,7 @@ test "pow_rev2 rational ends: comparison and directed rounding" {
   let down = quot_end_rounded(q_num(0.5), q_num(8.0), cls, false, 53, 12)
   let up = quot_end_rounded(q_num(0.5), q_num(8.0), cls, true, 53, 12)
   // RD < -1/3 < RU, adjacent floats
-  let ctx = @bin_float.BinaryContext::new(precision=53)
+  let ctx = @binary.BinaryContext::new(precision=53)
   assert_true(down.compare(up) < 0)
   assert_true(down.next_up_ctx(ctx).0.compare(up) == 0)
   assert_true(
@@ -176,8 +176,8 @@ test "pow_rev2: the examples of the corpus and open ends against a prior touchin
 /// first working precision follows the magnitude of the quotient.
 test "pow_rev2: a base one unit from 1 gives a huge quotient, enclosed and tight" {
   let p = 53
-  let ctx = @bin_float.BinaryContext::new(precision=p)
-  let one = @bin_float.BinFloat::one(precision=p)
+  let ctx = @binary.BinaryContext::new(precision=p)
+  let one = @binary.Binary::one(precision=p)
   for a in [one.next_up_ctx(ctx).0, one.next_down_ctx(ctx).0] {
     for cv in [2.0, 0.5, 10.0] {
       let c = q_num(cv)
@@ -197,13 +197,13 @@ test "pow_rev2: a base one unit from 1 gives a huge quotient, enclosed and tight
 ///|
 test "pow_rev2: extreme bases, results and prior ends return at once" {
   let p = 53
-  let huge = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(1UL),
+  let huge = @binary.Binary::make(
+    @binary.BinCoeff::from_uint64(1UL),
     1000000000,
     p,
   )
-  let tiny = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(1UL),
+  let tiny = @binary.Binary::make(
+    @binary.BinCoeff::from_uint64(1UL),
     -1000000000,
     p,
   )
@@ -211,7 +211,7 @@ test "pow_rev2: extreme bases, results and prior ends return at once" {
   let three = q_num(3.0)
   // a = 2^1e9, c = 2: beta = 1 / 10^9 (rational, not a float): two adjacent floats around
   // the double 1e-9; c = 3: ln 3 / (1e9 ln 2), about 1.6e-9
-  let ctx = @bin_float.BinaryContext::new(precision=p)
+  let ctx = @binary.BinaryContext::new(precision=p)
   let a_huge = pw_box(huge, huge, p)
   let r = a_huge.pow_rev2(pw_box(two, two, p))
   assert_true(r.lo_.next_up_ctx(ctx).0.compare(r.hi_) == 0)
@@ -275,17 +275,17 @@ test "pow_rev2: the result keeps the precision of the operands and a decorated f
 /// reference quotient at 200 bits.
 test "pow_rev2: bases and results at the edge of the stored range, at 53 and 113 bits" {
   for p in [53, 113] {
-    let ctx = @bin_float.BinaryContext::new(precision=p)
+    let ctx = @binary.BinaryContext::new(precision=p)
     let largest = pw_largest(p)
     let smallest = pw_smallest(p)
-    let top = @bin_float.BinFloat::make(
-      @bin_float.BinCoeff::from_uint64(1UL),
-      @bin_float.binary_implementation_e_max,
+    let top = @binary.Binary::make(
+      @binary.BinCoeff::from_uint64(1UL),
+      @binary.binary_implementation_e_max,
       p,
     )
     let two = pw_num(2.0, p)
-    let point = fn(x : @bin_float.BinFloat) { pw_box(x, x, p) }
-    let reference = fn(c : @bin_float.BinFloat, a : @bin_float.BinFloat) {
+    let point = fn(x : @binary.Binary) { pw_box(x, x, p) }
+    let reference = fn(c : @binary.Binary, a : @binary.Binary) {
       Interval::exact(c, precision=200).ln() /
       Interval::exact(a, precision=200).ln()
     }
@@ -308,7 +308,7 @@ test "pow_rev2: bases and results at the edge of the stored range, at 53 and 113
     // (4) a = 2, c = smallest stored value: beta = e_min - p + 1, exact
     let r4 = point(two).pow_rev2(point(smallest))
     let exact_beta = q_num(
-      (@bin_float.binary_implementation_e_min - p + 1).to_double(),
+      (@binary.binary_implementation_e_min - p + 1).to_double(),
     )
     assert_true(
       r4.lo_.compare(exact_beta) == 0 && r4.hi_.compare(exact_beta) == 0,

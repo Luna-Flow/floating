@@ -34,7 +34,7 @@ Usage: python3 tools/verify_mutation.py [--worktree DIR] [--only NAME ...] [--ke
 `--kernel` checks the kernel units (`kernel_units.py`) instead: a baseline that records the seven
 kernel stages, then an edit of a package source (all seven must run and a stage must fail), of a
 package test file and a comment-only edit (all seven run: the key is of file content, coarser than
-code, allowed) and an edit of `bin_float` (none runs).
+code, allowed) and an edit of `binary` (none runs).
 Heavy: one build per mutation (about 30 s each) and two runs of the selection.
 The scratch worktree defaults to `verify-mutation` beside the other worktrees; an existing one
 must be clean and on the HEAD of this checkout.
@@ -90,16 +90,16 @@ MUTATIONS: list[Mutation] = [
         "      return if left < right { 1 } else { -1 }", "behavioural",
     ),
     Mutation(
-        "bin-float-add", "library/src/bin_float/context_arithmetic.mbt",
-        "BinFloat::add_ctx (the infinity branch)", r"bin__float\d+BinFloat\d+add__ctx$",
-        "    (FpClass::Infinity, FpClass::Infinity) =>\n      if self.negative() == other.negative() {\n        (\n          BinFloat::inf_raw(\n            if self.negative() {\n              Sign::Negative\n            } else {\n              Sign::Positive\n            },\n            precision=context.precision,\n          ),\n          BinaryFlags::new(),\n        )\n      } else {\n        (BinFloat::nan_raw(precision=context.precision), binary_invalid_flags())\n      }\n    (FpClass::Infinity, _) =>\n      (\n        BinFloat::inf_raw(\n          if self.negative() {",
-        "    (FpClass::Infinity, FpClass::Infinity) =>\n      if self.negative() != other.negative() {\n        (\n          BinFloat::inf_raw(\n            if self.negative() {\n              Sign::Negative\n            } else {\n              Sign::Positive\n            },\n            precision=context.precision,\n          ),\n          BinaryFlags::new(),\n        )\n      } else {\n        (BinFloat::nan_raw(precision=context.precision), binary_invalid_flags())\n      }\n    (FpClass::Infinity, _) =>\n      (\n        BinFloat::inf_raw(\n          if self.negative() {", "behavioural",
+        "binary-add", "library/src/binary/context_arithmetic.mbt",
+        "Binary::add_ctx (the infinity branch)", r"binary\d+Binary\d+add__ctx$",
+        "    (FpClass::Infinity, FpClass::Infinity) =>\n      if self.negative() == other.negative() {\n        (\n          Binary::inf_raw(\n            if self.negative() {\n              Sign::Negative\n            } else {\n              Sign::Positive\n            },\n            precision=context.precision,\n          ),\n          BinaryFlags::new(),\n        )\n      } else {\n        (Binary::nan_raw(precision=context.precision), binary_invalid_flags())\n      }\n    (FpClass::Infinity, _) =>\n      (\n        Binary::inf_raw(\n          if self.negative() {",
+        "    (FpClass::Infinity, FpClass::Infinity) =>\n      if self.negative() != other.negative() {\n        (\n          Binary::inf_raw(\n            if self.negative() {\n              Sign::Negative\n            } else {\n              Sign::Positive\n            },\n            precision=context.precision,\n          ),\n          BinaryFlags::new(),\n        )\n      } else {\n        (Binary::nan_raw(precision=context.precision), binary_invalid_flags())\n      }\n    (FpClass::Infinity, _) =>\n      (\n        Binary::inf_raw(\n          if self.negative() {", "behavioural",
     ),
     Mutation(
-        "bin-float-elementary", "library/src/bin_float/context_arithmetic.mbt",
-        "BinFloat::pown_ctx (pown(x, 0), a row class of the MPFR elementary corpus)", r"bin__float\d+BinFloat\d+pown__ctx$",
-        "  if exponent == 0 && !self.signaling() {\n    return (BinFloat::one_raw(precision=context.precision), BinaryFlags::new())",
-        "  if exponent == 0 && !self.signaling() {\n    return (BinFloat::zero_raw(precision=context.precision), BinaryFlags::new())", "behavioural",
+        "binary-elementary", "library/src/binary/context_arithmetic.mbt",
+        "Binary::pown_ctx (pown(x, 0), a row class of the MPFR elementary corpus)", r"binary\d+Binary\d+pown__ctx$",
+        "  if exponent == 0 && !self.signaling() {\n    return (Binary::one_raw(precision=context.precision), BinaryFlags::new())",
+        "  if exponent == 0 && !self.signaling() {\n    return (Binary::zero_raw(precision=context.precision), BinaryFlags::new())", "behavioural",
     ),
     Mutation(
         "frontend-arm", "tooling/src/frontend/testfloat_expr/testfloat_expr.mbt",
@@ -138,14 +138,14 @@ MUTATIONS: list[Mutation] = [
         "pub fn Decimal::is_finite(self : Decimal) -> Bool {\n  self.class != FpClass::Finite\n}", "key-only",
     ),
     Mutation(
-        "comment-only", "library/src/bin_float/bin_float_finish_nonjs.mbt",
-        "bin_finish_round_up", r"bin__float\d+bin__finish__round__up$",
+        "comment-only", "library/src/binary/binary_finish_nonjs.mbt",
+        "bin_finish_round_up", r"binary\d+bin__finish__round__up$",
         "    RoundTowardZero => false",
         "    // a comment that changes no code\n    RoundTowardZero => false", "comment",
     ),
     Mutation(
-        "format-only", "library/src/bin_float/bin_float_finish_nonjs.mbt",
-        "bin_finish_round_up", r"bin__float\d+bin__finish__round__up$",
+        "format-only", "library/src/binary/binary_finish_nonjs.mbt",
+        "bin_finish_round_up", r"binary\d+bin__finish__round__up$",
         "    RoundTiesToAway => round_bit",
         "\n\n    RoundTiesToAway   =>   round_bit", "format",
     ),
@@ -267,7 +267,7 @@ def tamper(scratch: Path, kind: str) -> Any:
 # with the number of units that must run and whether a stage must fail.
 def _kernel_mutations() -> list[tuple[Mutation, int, bool]]:
     source = next(m for m in MUTATIONS if m.name == "kernel-compare")
-    add = next(m for m in MUTATIONS if m.name == "bin-float-add")
+    add = next(m for m in MUTATIONS if m.name == "binary-add")
     return [
         (dataclasses.replace(source, name="kernel-source"), 7, True),
         (
@@ -285,7 +285,7 @@ def _kernel_mutations() -> list[tuple[Mutation, int, bool]]:
             ),
             7, False,
         ),
-        (dataclasses.replace(add, name="bin-float-edit"), 0, False),
+        (dataclasses.replace(add, name="binary-edit"), 0, False),
     ]
 
 
@@ -396,8 +396,8 @@ def scratch_problem(scratch: Path) -> str | None:
         return f"{scratch} is on {there[:10] or 'no commit'}, this checkout on {head[:10]}: remove it or check it out"
     if inc.git_output(scratch, "status", "--porcelain", "--untracked-files=no"):
         return f"{scratch} has uncommitted changes: clean it"
-    if not (scratch / ".tmp" / "binfloat-conformance").is_dir():
-        return f"{scratch} has no .tmp/binfloat-conformance"
+    if not (scratch / ".tmp" / "binary-conformance").is_dir():
+        return f"{scratch} has no .tmp/binary-conformance"
     return None
 
 
@@ -411,14 +411,14 @@ def main(argv: list[str] | None = None) -> int:
     mutations = [m for m in MUTATIONS if not args.only or m.name in args.only]
     scratch = args.worktree or inc.main_checkout(REPO_ROOT) / ".claude" / "worktrees" / "verify-mutation"
     created = False
-    data = REPO_ROOT / ".tmp" / "binfloat-conformance"
+    data = REPO_ROOT / ".tmp" / "binary-conformance"
     if not data.is_dir():
         print(f"verify_mutation: {data} is missing: fetch the corpora first (`just conformance fetch binary`)", file=sys.stderr)
         return 2
     if not scratch.exists():
         subprocess.run(["git", "worktree", "add", "--detach", str(scratch), "HEAD"], cwd=REPO_ROOT, check=True)
         created = True
-        shutil.copytree(data, scratch / ".tmp" / "binfloat-conformance")
+        shutil.copytree(data, scratch / ".tmp" / "binary-conformance")
     else:
         problem = scratch_problem(scratch)
         if problem:

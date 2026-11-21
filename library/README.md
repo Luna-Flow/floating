@@ -22,7 +22,7 @@ only the packages you use in your `moon.pkg`:
 
 ```moonbit nocheck
 import {
-  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/binary",
   "Luna-Flow/floating/decimal",
   "Luna-Flow/floating/interval",
 }
@@ -34,9 +34,9 @@ import {
 ///|
 test "floating quick start" {
   // One third, correctly rounded to binary64, with its IEEE status.
-  let ctx = @bin_float.BinaryContext::binary64()
-  let (third, flags) = @bin_float.BinFloat::from_int(1).div_ctx(
-    @bin_float.BinFloat::from_int(3),
+  let ctx = @binary.BinaryContext::binary64()
+  let (third, flags) = @binary.Binary::from_int(1).div_ctx(
+    @binary.Binary::from_int(3),
     ctx,
   )
   inspect(third.to_shortest_string(), content="0.3333333333333333")
@@ -64,11 +64,11 @@ and `enclosure` is a set of reals guaranteed to contain $1/3$.
 
 | Package | Purpose | Result model |
 | --- | --- | --- |
-| [`bin_float`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/bin_float.md) | arbitrary-precision binary floating point, IEEE 754 binary operations, binary16/32/64/128 interchange | value, or `(value, BinaryFlags)` under a `BinaryContext` |
+| [`binary`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/binary.md) | arbitrary-precision binary floating point, IEEE 754 binary operations, binary16/32/64/128 interchange | value, or `(value, BinaryFlags)` under a `BinaryContext` |
 | [`decimal`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/decimal.md) | IEEE 754 decimal arithmetic, decimal32/64/128 DPD and BID interchange | value, or `(value, DecimalFlags)` under a `DecimalContext` |
 | [`decimal_gda`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/decimal_gda.md) | General Decimal Arithmetic with sticky status and traps | `GdaOutcome` with the defined result and the next context |
 | [`interval`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/interval.md) | outward-rounded bare and decorated intervals (IEEE 1788) | interval, or `(interval, IntervalFlags)` under an `IntervalContext` |
-| [`bin_float_checked`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/bin_float_checked.md) | binary pipeline that stops at the first error | `Result[BinFloat, ArithmeticError]` in a wrapper |
+| [`binary_checked`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/binary_checked.md) | binary pipeline that stops at the first error | `Result[Binary, ArithmeticError]` in a wrapper |
 | [`decimal_checked`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/decimal_checked.md) | IEEE decimal pipeline that accumulates flags | value with latest and accumulated flags |
 | [`decimal_gda_checked`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/decimal_gda_checked.md) | GDA pipeline that stops at a trap | one threaded `GdaOutcome` |
 | [`interval_checked`](https://github.com/Luna-Flow/floating/blob/main/doc/manual/api/interval_checked.md) | interval pipeline that stops at the first error | `Result[Interval, ArithmeticError]` in a wrapper |

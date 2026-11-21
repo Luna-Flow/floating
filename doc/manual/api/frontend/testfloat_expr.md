@@ -3,7 +3,7 @@
 ## Purpose
 
 `frontend/testfloat_expr` parses Berkeley TestFloat test vectors and executes
-them against `bin_float` in the binary16, binary32, binary64 and binary128
+them against `binary` in the binary16, binary32, binary64 and binary128
 interchange formats. A `TestFloatSpec` describes the function, rounding mode,
 tininess rule and exactness that produced a vector file; `parse_testfloat`
 reads the vectors and `execute_document` runs them. The package does no IO;
@@ -14,17 +14,17 @@ rule.
 
 ## Importing
 
-Add the package to the `import` block of your `moon.pkg`; import `bin_float`
+Add the package to the `import` block of your `moon.pkg`; import `binary`
 as well when you compare the format or rounding mode of a specification:
 
 ```moonbit nocheck
 import {
   "Luna-Flow/floating-tools/frontend/testfloat_expr",
-  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/binary",
 }
 ```
 
-The examples use the aliases `@testfloat_expr` and `@bin_float`.
+The examples use the aliases `@testfloat_expr` and `@binary`.
 
 ## Function specification
 
@@ -55,7 +55,7 @@ pub(all) enum TestFloatOperation {
 } derive(Eq, @debug.Debug)
 ```
 
-| Constructor | TestFloat name | Operands | `bin_float` method |
+| Constructor | TestFloat name | Operands | `binary` method |
 | --- | --- | --- | --- |
 | `Add`, `Subtract`, `Multiply`, `Divide` | `add`, `sub`, `mul`, `div` | 2 | `add_ctx`, `sub_ctx`, `mul_ctx`, `div_ctx` |
 | `SquareRoot` | `sqrt` | 1 | `sqrt_ctx` |
@@ -112,8 +112,8 @@ test "spec parse" {
     tininess="before",
   ).unwrap()
   inspect(spec.operation() == @testfloat_expr.MulAdd, content="true")
-  inspect(spec.format() == @bin_float.Binary128, content="true")
-  inspect(spec.rounding() == @bin_float.RoundTowardZero, content="true")
+  inspect(spec.format() == @binary.Binary128, content="true")
+  inspect(spec.rounding() == @binary.RoundTowardZero, content="true")
   inspect(
     @testfloat_expr.TestFloatSpec::parse("f64_mul", "rodd") is Err(_),
     content="true",
@@ -127,10 +127,10 @@ These accessors return the parsed configuration.
 
 ```mbti
 pub fn TestFloatSpec::function_name(Self) -> String
-pub fn TestFloatSpec::format(Self) -> @bin_float.BinaryInterchangeFormat
+pub fn TestFloatSpec::format(Self) -> @binary.BinaryInterchangeFormat
 pub fn TestFloatSpec::operation(Self) -> TestFloatOperation
-pub fn TestFloatSpec::rounding(Self) -> @bin_float.BinaryRoundingMode
-pub fn TestFloatSpec::tininess(Self) -> @bin_float.TininessDetection
+pub fn TestFloatSpec::rounding(Self) -> @binary.BinaryRoundingMode
+pub fn TestFloatSpec::tininess(Self) -> @binary.TininessDetection
 pub fn TestFloatSpec::exact(Self) -> Bool
 ```
 
@@ -249,7 +249,7 @@ pub fn execute_document(TestFloatDocument, options? : RunOptions) -> RunSummary
 
 Vector $k$ (counting from 0 in file order) is executed when
 $k \bmod n = i$ for shard count $n$ and index $i$. Operands are decoded to
-`BinFloat` and the operation runs in `spec.format().context(rounding~,
+`Binary` and the operation runs in `spec.format().context(rounding~,
 tininess~)`. The vector passes when:
 
 - **arithmetic:** the result, re-encoded in the format with the same rounding
@@ -425,7 +425,7 @@ This snapshot is the generated `pkg.generated.mbti` of the package. It is the au
 package "Luna-Flow/floating-tools/frontend/testfloat_expr"
 
 import {
-  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/binary",
   "moonbitlang/core/debug",
 }
 
@@ -501,7 +501,7 @@ pub(all) enum TestFloatOperation {
   ToInt64
   ToUInt32
   ToUInt64
-  ConvertFormat(@bin_float.BinaryInterchangeFormat)
+  ConvertFormat(@binary.BinaryInterchangeFormat)
   Equal
   LessEqual
   Less
@@ -519,13 +519,13 @@ pub struct TestFloatSpec {
 }
 pub fn TestFloatSpec::equal(Self, Self) -> Bool
 pub fn TestFloatSpec::exact(Self) -> Bool
-pub fn TestFloatSpec::format(Self) -> @bin_float.BinaryInterchangeFormat
+pub fn TestFloatSpec::format(Self) -> @binary.BinaryInterchangeFormat
 pub fn TestFloatSpec::function_name(Self) -> String
 pub fn TestFloatSpec::not_equal(Self, Self) -> Bool
 pub fn TestFloatSpec::operation(Self) -> TestFloatOperation
 pub fn TestFloatSpec::parse(String, String, tininess? : String, exact? : Bool) -> Result[Self, String]
-pub fn TestFloatSpec::rounding(Self) -> @bin_float.BinaryRoundingMode
-pub fn TestFloatSpec::tininess(Self) -> @bin_float.TininessDetection
+pub fn TestFloatSpec::rounding(Self) -> @binary.BinaryRoundingMode
+pub fn TestFloatSpec::tininess(Self) -> @binary.TininessDetection
 pub fn TestFloatSpec::to_repr(Self) -> @debug.Repr
 
 // Type aliases

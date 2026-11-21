@@ -62,8 +62,8 @@ fn decimal_exact_constant(
 /// and its flags are those of rounding the representative with the context.
 /// Returns `None` when the bracket does not decide.
 fn decimal_range_from_log2_bracket(
-  low : @bin_float.BinFloat,
-  high : @bin_float.BinFloat,
+  low : @binary.Binary,
+  high : @binary.Binary,
   ctx : DecimalContext,
 ) -> (Decimal, DecimalFlags)? {
   let work = 128
@@ -75,14 +75,11 @@ fn decimal_range_from_log2_bracket(
   let one = BigInt::from_int(1)
   // |overflow_log2| and |tiny_log2| are below 2^23 for the contexts the math
   // functions accept, so they are exact Int values (no decimal text round trip).
-  let overflow_bound = @bin_float.BinFloat::from_int(
+  let overflow_bound = @binary.Binary::from_int(
     overflow_log2.to_int(),
     precision=work,
   )
-  let tiny_bound = @bin_float.BinFloat::from_int(
-    tiny_log2.to_int(),
-    precision=work,
-  )
+  let tiny_bound = @binary.Binary::from_int(tiny_log2.to_int(), precision=work)
   if low.compare(overflow_bound) >= 0 {
     return Some(
       decimal_apply_finite_ctx(

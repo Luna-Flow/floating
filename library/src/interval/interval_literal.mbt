@@ -336,8 +336,8 @@ fn lit_negative(n : NumLit) -> Bool {
 }
 
 ///|
-fn lit_coeff(digits : String, radix : Int32) -> @bin_float.BinCoeff {
-  match @bin_float.BinCoeff::parse(digits, radix~) {
+fn lit_coeff(digits : String, radix : Int32) -> @binary.BinCoeff {
+  match @binary.BinCoeff::parse(digits, radix~) {
     Ok(value) => value
     // the digits were validated by the cursor: a failure is a broken invariant
     Err(message) =>
@@ -348,7 +348,7 @@ fn lit_coeff(digits : String, radix : Int32) -> @bin_float.BinCoeff {
 }
 
 ///|
-fn lit_inf(negative : Bool, precision : Int32) -> @bin_float.BinFloat {
+fn lit_inf(negative : Bool, precision : Int32) -> @binary.Binary {
   if negative {
     neg_inf(precision)
   } else {
@@ -358,24 +358,24 @@ fn lit_inf(negative : Bool, precision : Int32) -> @bin_float.BinFloat {
 
 ///|
 /// `RD` (`up = false`) or `RU` to `precision` bits of the exact value of `n`.
-fn lit_round(n : NumLit, up : Bool, precision : Int32) -> @bin_float.BinFloat {
+fn lit_round(n : NumLit, up : Bool, precision : Int32) -> @binary.Binary {
   let mode = if up {
-    @bin_float.BinaryRoundingMode::RoundTowardPositive
+    @binary.BinaryRoundingMode::RoundTowardPositive
   } else {
-    @bin_float.BinaryRoundingMode::RoundTowardNegative
+    @binary.BinaryRoundingMode::RoundTowardNegative
   }
-  let context = @bin_float.BinaryContext::new(precision~, rounding=mode)
+  let context = @binary.BinaryContext::new(precision~, rounding=mode)
   match n {
     LInf(negative) => lit_inf(negative, precision)
     LDec(negative, digits, exponent) =>
       if digits == "0" {
-        @bin_float.BinFloat::zero(precision~)
+        @binary.Binary::zero(precision~)
       } else {
         let text = (if negative { "-" } else { "" }) +
           digits +
           "e" +
           exponent.to_string()
-        match @bin_float.BinFloat::from_string_ctx(text, context) {
+        match @binary.Binary::from_string_ctx(text, context) {
           Ok((value, _)) => value
           // the text was built from validated digits and a saturated exponent: `from_string_ctx`
           // accepts every exponent (tested up to 10^15 and beyond), so a failure is a broken
@@ -388,7 +388,7 @@ fn lit_round(n : NumLit, up : Bool, precision : Int32) -> @bin_float.BinFloat {
       }
     LHex(negative, digits, exponent) =>
       if digits == "0" {
-        @bin_float.BinFloat::zero(precision~)
+        @binary.Binary::zero(precision~)
       } else {
         // `from_hex_ctx` reads an exponent field of any length (it saturates, issue 597), so the
         // saturated exponent of the literal goes through as it is
@@ -397,7 +397,7 @@ fn lit_round(n : NumLit, up : Bool, precision : Int32) -> @bin_float.BinFloat {
           digits +
           "p" +
           exponent.to_string()
-        match @bin_float.BinFloat::from_hex_ctx(text, context) {
+        match @binary.Binary::from_hex_ctx(text, context) {
           Ok((value, _)) => value
           Err(error) =>
             abort(
@@ -408,7 +408,7 @@ fn lit_round(n : NumLit, up : Bool, precision : Int32) -> @bin_float.BinFloat {
     LRat(negative, numerator, denominator) => {
       let num = lit_coeff(numerator, 10)
       if num.is_zero() {
-        return @bin_float.BinFloat::zero(precision~)
+        return @binary.Binary::zero(precision~)
       }
       let den = lit_coeff(denominator, 10)
       // the magnitude is rounded in the direction that gives the wanted side
@@ -429,9 +429,9 @@ fn lit_round(n : NumLit, up : Bool, precision : Int32) -> @bin_float.BinFloat {
       let rounded = exact_value(top, -scale).with_precision(
         precision,
         if magnitude_up {
-          @bin_float.BinaryRoundingMode::RoundTowardPositive
+          @binary.BinaryRoundingMode::RoundTowardPositive
         } else {
-          @bin_float.BinaryRoundingMode::RoundTowardNegative
+          @binary.BinaryRoundingMode::RoundTowardNegative
         },
       )
       if negative {
@@ -446,7 +446,7 @@ fn lit_round(n : NumLit, up : Bool, precision : Int32) -> @bin_float.BinFloat {
 ///|
 /// `value * radix^exponent` of a finite literal as a numerator and a denominator, if the
 /// exponent is within the exact limit.
-fn lit_exact(n : NumLit) -> (@bin_float.BinCoeff, @bin_float.BinCoeff)? {
+fn lit_exact(n : NumLit) -> (@binary.BinCoeff, @binary.BinCoeff)? {
   match n {
     LInf(_) => None
     LDec(_, digits, exponent) => {
@@ -460,7 +460,7 @@ fn lit_exact(n : NumLit) -> (@bin_float.BinCoeff, @bin_float.BinCoeff)? {
             coeff_mul(
               mantissa,
               coeff_pow_small(
-                @bin_float.BinCoeff::from_uint64(10UL),
+                @binary.BinCoeff::from_uint64(10UL),
                 exponent.to_int(),
               ),
             ),
@@ -472,7 +472,7 @@ fn lit_exact(n : NumLit) -> (@bin_float.BinCoeff, @bin_float.BinCoeff)? {
           (
             mantissa,
             coeff_pow_small(
-              @bin_float.BinCoeff::from_uint64(10UL),
+              @binary.BinCoeff::from_uint64(10UL),
               (-exponent).to_int(),
             ),
           ),
@@ -678,8 +678,8 @@ fn Cursor::parse_uncertain(
     // half an ulp: 10 m +- 5 at one more digit
     scale = scale - 1L
     (
-      coeff_mul(m, @bin_float.BinCoeff::from_uint64(10UL)),
-      @bin_float.BinCoeff::from_uint64(5UL),
+      coeff_mul(m, @binary.BinCoeff::from_uint64(10UL)),
+      @binary.BinCoeff::from_uint64(5UL),
     )
   } else {
     (m, lit_coeff(radius, 10))

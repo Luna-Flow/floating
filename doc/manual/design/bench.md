@@ -200,11 +200,11 @@ changes.
 `immutable_bench` generates each input once per scale and checks every
 output against a reference. A faster implementation that computes the wrong
 result fails the run instead of winning a comparison. The reference is only
-as independent as the suite makes it: the arithmetic suites of `bin_float`
+as independent as the suite makes it: the arithmetic suites of `binary`
 and `decimal` compare with the exact coefficient result, while the
 elementary-function and `decimal_gda` suites use the core path itself as the
 reference (so they check that the checked path agrees with the core) and the
-`interval` suite uses the `BinFloat` kernel result.
+`interval` suite uses the `Binary` kernel result.
 
 ### Environment as data
 

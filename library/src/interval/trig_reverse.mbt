@@ -33,7 +33,7 @@ priv struct RevEnd {
   m2 : SignedBinCoeff
   sigma : Int32
   alpha : RevAlpha
-  s : @bin_float.BinFloat
+  s : @binary.Binary
   // the enclosure of `alpha(s)` at the first working precision, shared by all
   // the ends of one template, and the enclosure of the end itself, found on
   // first use
@@ -71,12 +71,12 @@ priv struct RevTemplate {
   lo_off : Int32
   lo_sigma : Int32
   lo_alpha : RevAlpha
-  lo_s : @bin_float.BinFloat
+  lo_s : @binary.Binary
   mut lo_enc : Interval?
   hi_off : Int32
   hi_sigma : Int32
   hi_alpha : RevAlpha
-  hi_s : @bin_float.BinFloat
+  hi_s : @binary.Binary
   mut hi_enc : Interval?
   period : Int32
 }
@@ -85,9 +85,9 @@ priv struct RevTemplate {
 let rev_refinements : Int32 = 12
 
 ///|
-fn rev_signed_to_bin(value : SignedBinCoeff) -> @bin_float.BinFloat {
+fn rev_signed_to_bin(value : SignedBinCoeff) -> @binary.Binary {
   if signed_coeff_is_zero(value) {
-    @bin_float.BinFloat::zero(precision=1)
+    @binary.Binary::zero(precision=1)
   } else {
     exact_value(signed_coeff_magnitude(value), 0, negative=value.negative)
   }
@@ -132,8 +132,7 @@ fn rev_end_is_zero(end : RevEnd) -> Bool {
   match end.alpha {
     AlphaZero => true
     AlphaAsin | AlphaAtan => end.s.is_zero()
-    AlphaAcos =>
-      end.s.compare(@bin_float.BinFloat::from_int(1, precision=1)) == 0
+    AlphaAcos => end.s.compare(@binary.Binary::from_int(1, precision=1)) == 0
   }
 }
 
@@ -141,12 +140,12 @@ fn rev_end_is_zero(end : RevEnd) -> Bool {
 /// An enclosure of `alpha(s)` at `w` bits.
 fn rev_alpha_enclosure(
   alpha : RevAlpha,
-  s : @bin_float.BinFloat,
+  s : @binary.Binary,
   w : Int32,
 ) -> Interval {
   let point = Interval::exact(s, precision=Int32::max(w, s.precision()))
   match alpha {
-    AlphaZero => Interval::exact(@bin_float.BinFloat::zero(precision=1))
+    AlphaZero => Interval::exact(@binary.Binary::zero(precision=1))
     AlphaAsin => point.asin()
     AlphaAcos => point.acos()
     AlphaAtan => point.atan()
@@ -156,7 +155,7 @@ fn rev_alpha_enclosure(
 ///|
 fn rev_combine(end : RevEnd, half_pi : Interval, alpha : Interval) -> Interval {
   let term = if signed_coeff_is_zero(end.m2) {
-    Interval::exact(@bin_float.BinFloat::zero(precision=1))
+    Interval::exact(@binary.Binary::zero(precision=1))
   } else {
     Interval::exact(rev_signed_to_bin(end.m2)) * half_pi
   }
@@ -182,7 +181,7 @@ fn rev_end_enclosure(end : RevEnd, w : Int32, rc : RevContext) -> Interval {
     }
   } else {
     let pi = certified_pi_interval(w)
-    let half_pi = pi * Interval::exact(@bin_float.BinFloat::from_double(0.5))
+    let half_pi = pi * Interval::exact(@binary.Binary::from_double(0.5))
     rev_combine(end, half_pi, rev_alpha_enclosure(end.alpha, end.s, w))
   }
 }
@@ -193,7 +192,7 @@ fn rev_end_enclosure(end : RevEnd, w : Int32, rc : RevContext) -> Interval {
 /// enclosure still contains `d` after `rc.cap` doublings (the documented fallback).
 fn rev_end_compare(
   end : RevEnd,
-  d : @bin_float.BinFloat,
+  d : @binary.Binary,
   rc : RevContext,
 ) -> RevOrder {
   if rev_end_is_zero(end) {
@@ -246,12 +245,12 @@ fn rev_end_rounded(
   upper : Bool,
   precision : Int32,
   rc : RevContext,
-) -> @bin_float.BinFloat {
+) -> @binary.Binary {
   if rev_end_is_zero(end) {
-    return @bin_float.BinFloat::zero(precision~)
+    return @binary.Binary::zero(precision~)
   }
-  let down = @bin_float.BinaryRoundingMode::RoundTowardNegative
-  let up = @bin_float.BinaryRoundingMode::RoundTowardPositive
+  let down = @binary.BinaryRoundingMode::RoundTowardNegative
+  let up = @binary.BinaryRoundingMode::RoundTowardPositive
   let mut w = rc.w0
   let mut enclosure = rev_end_enclosure(end, w, rc)
   for _ in 0..<rc.cap {
@@ -271,7 +270,7 @@ fn rev_end_rounded(
 ///|
 /// Bounds of `floor(2 x / pi)` and `ceil(2 x / pi)` from the enclosure of pi.
 fn rev_quarter_window(
-  x : @bin_float.BinFloat,
+  x : @binary.Binary,
   pi_lower : CertifiedRat,
   pi_upper : CertifiedRat,
 ) -> (SignedBinCoeff, SignedBinCoeff) {
@@ -304,7 +303,7 @@ fn rev_index_range(
   off : Int32,
   period : Int32,
 ) -> (SignedBinCoeff, SignedBinCoeff) {
-  let den = @bin_float.BinCoeff::from_uint64(period.to_uint64())
+  let den = @binary.BinCoeff::from_uint64(period.to_uint64())
   let first = rat_ceil(
     certified_rat_coeff(signed_coeff_sub(low, signed_coeff_from_int(off)), den),
   )
@@ -321,16 +320,16 @@ fn rev_index_range(
 /// piece meets the prior.
 fn rev_lower_end(
   templates : Array[RevTemplate],
-  xl : @bin_float.BinFloat,
-  xh : @bin_float.BinFloat,
+  xl : @binary.Binary,
+  xh : @binary.Binary,
   precision : Int32,
   rc : RevContext,
   pi_lower : CertifiedRat,
   pi_upper : CertifiedRat,
-) -> @bin_float.BinFloat? {
+) -> @binary.Binary? {
   let (floor_u, ceil_u) = rev_quarter_window(xl, pi_lower, pi_upper)
   let xh_infinite = xh.classify() == FpClass::Infinity
-  let mut best : @bin_float.BinFloat? = None
+  let mut best : @binary.Binary? = None
   for template in templates {
     // the first piece reaching xl has its upper end in this window
     let low = signed_coeff_sub(floor_u, signed_coeff_from_int(3))
@@ -373,16 +372,16 @@ fn rev_lower_end(
 /// The upper end, symmetric to `rev_lower_end` (`xh` finite).
 fn rev_upper_end(
   templates : Array[RevTemplate],
-  xl : @bin_float.BinFloat,
-  xh : @bin_float.BinFloat,
+  xl : @binary.Binary,
+  xh : @binary.Binary,
   precision : Int32,
   rc : RevContext,
   pi_lower : CertifiedRat,
   pi_upper : CertifiedRat,
-) -> @bin_float.BinFloat? {
+) -> @binary.Binary? {
   let (floor_v, ceil_v) = rev_quarter_window(xh, pi_lower, pi_upper)
   let xl_infinite = xl.classify() == FpClass::Infinity
-  let mut best : @bin_float.BinFloat? = None
+  let mut best : @binary.Binary? = None
   for template in templates {
     // the last piece starting at or below xh has its lower end in this window
     let low = signed_coeff_sub(
@@ -423,7 +422,7 @@ fn rev_upper_end(
 ///|
 /// `true` when the argument reduction at this end would need more working bits
 /// than the forward trigonometric functions allow.
-fn rev_end_beyond_limit(x : @bin_float.BinFloat, precision : Int32) -> Bool {
+fn rev_end_beyond_limit(x : @binary.Binary, precision : Int32) -> Bool {
   if x.is_zero() {
     return false
   }
@@ -477,7 +476,7 @@ fn trig_reverse_hull_capped(
   let rc : RevContext = {
     w0,
     half_pi0: certified_pi_interval(w0) *
-    Interval::exact(@bin_float.BinFloat::from_double(0.5)),
+    Interval::exact(@binary.Binary::from_double(0.5)),
     cap,
   }
   for template in templates {
@@ -517,8 +516,8 @@ fn trig_reverse_hull_capped(
 
 ///|
 fn rev_template(
-  lo : (Int32, Int32, RevAlpha, @bin_float.BinFloat),
-  hi : (Int32, Int32, RevAlpha, @bin_float.BinFloat),
+  lo : (Int32, Int32, RevAlpha, @binary.Binary),
+  hi : (Int32, Int32, RevAlpha, @binary.Binary),
   period : Int32,
 ) -> RevTemplate {
   {
@@ -542,12 +541,12 @@ fn rev_template(
 fn rev_unit_part(
   c : Interval,
   precision : Int32,
-) -> (@bin_float.BinFloat, @bin_float.BinFloat, Bool)? {
+) -> (@binary.Binary, @binary.Binary, Bool)? {
   if c.is_empty() {
     return None
   }
-  let one = @bin_float.BinFloat::from_int(1, precision~)
-  let minus_one = @bin_float.BinFloat::from_int(-1, precision~)
+  let one = @binary.Binary::from_int(1, precision~)
+  let minus_one = @binary.Binary::from_int(-1, precision~)
   if c.hi_.compare(minus_one) < 0 || c.lo_.compare(one) > 0 {
     return None
   }
@@ -657,7 +656,7 @@ fn Interval::tan_rev_capped(
     return Interval::from_bounds(prior.lo_, prior.hi_, precision~)
   }
   // (atan lo + pi k, atan hi + pi k), the end of an unbounded c being a pole
-  let zero = @bin_float.BinFloat::zero(precision~)
+  let zero = @binary.Binary::zero(precision~)
   let lo = if is_neg_inf(self.lo_) {
     (-1, 1, AlphaZero, zero)
   } else {

@@ -8,7 +8,7 @@ specifications, describes the measurement environment, runs a specification
 under a validated protocol, and reduces the recorded observations: paired
 comparisons with bootstrap confidence intervals, a regression verdict, and
 per-dataset auto-tuning decisions. The per-core suites
-[bench/bin_float](bench/bin_float.md), [bench/decimal](bench/decimal.md),
+[bench/binary](bench/binary.md), [bench/decimal](bench/decimal.md),
 [bench/decimal_gda](bench/decimal_gda.md) and
 [bench/interval](bench/interval.md) use it. The
 [tutorial](../tutorial/bench.md) shows how to run the suites and the

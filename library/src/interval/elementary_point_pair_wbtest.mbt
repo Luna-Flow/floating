@@ -16,13 +16,13 @@ fn Interval::interval_ln_two_calls(
   if self.is_empty() {
     return Ok(self)
   }
-  let zero = @bin_float.BinFloat::zero(precision=self.precision_)
+  let zero = @binary.Binary::zero(precision=self.precision_)
   if self.hi_.compare(zero) <= 0 {
     return Ok(empty_interval(self.precision_))
   }
-  let upward = @bin_float.BinaryContext::new(
+  let upward = @binary.BinaryContext::new(
     precision=self.precision_,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardPositive,
+    rounding=@binary.BinaryRoundingMode::RoundTowardPositive,
   )
   let upper = self.hi_.try_ln_ctx(upward)
   if self.lo_.compare(zero) <= 0 {
@@ -30,9 +30,9 @@ fn Interval::interval_ln_two_calls(
       store_interval(neg_inf(self.precision_), result.0, self.precision_)
     })
   }
-  let downward = @bin_float.BinaryContext::new(
+  let downward = @binary.BinaryContext::new(
     precision=self.precision_,
-    rounding=@bin_float.BinaryRoundingMode::RoundTowardNegative,
+    rounding=@binary.BinaryRoundingMode::RoundTowardNegative,
   )
   self.lo_
   .try_ln_ctx(downward)
@@ -74,7 +74,7 @@ fn point_pair_same(
 // code under test also calls them for a point) and shares `binary_exp_bounds`
 // and `binary_ln_bounds`. It proves that the point shortcut agrees with the
 // general route, not that either is right. Independent values: the test below
-// (level A, p = 53), and the MPFR rows of `testdata/bin_float/mpfr-4.2.2-
+// (level A, p = 53), and the MPFR rows of `testdata/binary/mpfr-4.2.2-
 // elementary.txt` for p = 24, 53, 113 and |x| up to about 2^5; nothing at
 // level A covers p = 64, 128, 200, |x| up to 2^40, or the exponent-range ends
 // used here.
@@ -82,34 +82,26 @@ test "exp and ln of a point interval equal the two-call route" {
   let mut seed = 5UL
   let mut checked = 0
   for p in [24, 53, 64, 128, 200] {
-    let values : Array[@bin_float.BinFloat] = []
+    let values : Array[@binary.Binary] = []
     for top in [-30, -8, -3, -1, 0, 1, 2, 3, 5, 8, 12, 20, 30] {
       for _ in 0..<4 {
         seed += 1UL
-        let coefficient = @bin_float.BinFloat::from_int(
+        let coefficient = @binary.Binary::from_int(
           (seed * 2654435761UL % 4294967291UL).to_int() + 3,
           precision=p,
         )
-        let scale = @bin_float.BinFloat::make(
-          @bin_float.BinCoeff::one(),
-          top - 31,
-          p,
-        )
+        let scale = @binary.Binary::make(@binary.BinCoeff::one(), top - 31, p)
         let value = coefficient.mul(scale)
         values.push(if seed % 2UL == 0UL { value } else { value.neg() })
       }
     }
     for k in [-5, -2, 0, 1, 3] {
-      values.push(@bin_float.BinFloat::from_int(k, precision=p))
+      values.push(@binary.Binary::from_int(k, precision=p))
     }
-    values.push(@bin_float.BinFloat::make(@bin_float.BinCoeff::one(), 40, p))
-    values.push(
-      @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), 1073741000, p),
-    )
-    values.push(
-      @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -1073741000, p),
-    )
-    values.push(@bin_float.BinFloat::zero(precision=p))
+    values.push(@binary.Binary::make(@binary.BinCoeff::one(), 40, p))
+    values.push(@binary.Binary::make(@binary.BinCoeff::one(), 1073741000, p))
+    values.push(@binary.Binary::make(@binary.BinCoeff::one(), -1073741000, p))
+    values.push(@binary.Binary::zero(precision=p))
     for value in values {
       let interval = Interval::from_bounds(value, value, precision=p)
       assert_true(
@@ -125,15 +117,8 @@ test "exp and ln of a point interval equal the two-call route" {
 }
 
 ///|
-fn point_pair_end(
-  coefficient : UInt64,
-  exponent : Int32,
-) -> @bin_float.BinFloat {
-  @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::from_uint64(coefficient),
-    exponent,
-    53,
-  )
+fn point_pair_end(coefficient : UInt64, exponent : Int32) -> @binary.Binary {
+  @binary.Binary::make(@binary.BinCoeff::from_uint64(coefficient), exponent, 53)
 }
 
 ///|
@@ -144,8 +129,8 @@ fn point_pair_end(
 //   bound is the floor plus one unit; this library did not produce them
 // shares: nothing
 test "exp and ln of an interval with two ends are the directed bounds of the ends" {
-  let a = @bin_float.BinFloat::from_int(3, precision=53)
-  let b = a.add(@bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -40, 53))
+  let a = @binary.Binary::from_int(3, precision=53)
+  let b = a.add(@binary.Binary::make(@binary.BinCoeff::one(), -40, 53))
   let interval = Interval::from_bounds(a, b, precision=53)
   let exp_interval = interval.try_exp().unwrap()
   assert_eq(

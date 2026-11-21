@@ -1,6 +1,6 @@
 ///|
-fn total_forms_pow2(exponent : Int32, precision : Int32) -> @bin_float.BinFloat {
-  @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), exponent, precision)
+fn total_forms_pow2(exponent : Int32, precision : Int32) -> @binary.Binary {
+  @binary.Binary::make(@binary.BinCoeff::one(), exponent, precision)
 }
 
 ///|
@@ -15,9 +15,7 @@ test "ln at 32,000 bits returns a tight enclosure (issue 449)" {
   assert_true(y.width().compare(total_forms_pow2(-31_990, 32_000)) <= 0)
   // exp(ln 3) must contain 3.
   let back = y.exp()
-  assert_true(
-    back.is_member(@bin_float.BinFloat::from_int(3, precision=32_000)),
-  )
+  assert_true(back.is_member(@binary.Binary::from_int(3, precision=32_000)))
   match x.try_ln() {
     Ok(t) => assert_true(y.equal(t))
     Err(_) => ()
@@ -38,7 +36,7 @@ test "hyperbolic forms keep relative accuracy for a tiny argument" {
   let x = Interval::exact(total_forms_pow2(-300, 53), precision=53)
   let tiny = total_forms_pow2(-340, 53)
   for y in [x.sinh(), x.tanh(), x.asinh(), x.atanh()] {
-    assert_true(y.lower_bound().compare(@bin_float.BinFloat::zero()) > 0)
+    assert_true(y.lower_bound().compare(@binary.Binary::zero()) > 0)
     assert_true(y.width().compare(tiny) <= 0)
   }
 }
@@ -48,8 +46,8 @@ test "hyperbolic forms keep relative accuracy for a tiny argument" {
 /// is 1 or -1 evaluated the pole and aborted ("interval lower bound must not be
 /// positive infinity"); the open domain leaves nothing, so the result is Empty.
 test "atanh of an interval meeting the closure of the domain at one point" {
-  let inf = @bin_float.BinFloat::inf(precision=53)
-  let one = @bin_float.BinFloat::one(precision=53)
+  let inf = @binary.Binary::inf(precision=53)
+  let one = @binary.Binary::one(precision=53)
   for
     b in [
       (one, one),

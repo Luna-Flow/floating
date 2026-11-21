@@ -6,8 +6,8 @@ test "IntervalContext is a binary format of IEEE 754-2019 3.3 with e_min = 1 - e
   assert_eq(c.e_min(), -126)
   let d = IntervalContext::new()
   assert_eq(d.precision(), 53)
-  assert_eq(d.e_max(), @bin_float.binary_implementation_e_max)
-  assert_eq(d.e_min(), @bin_float.BinaryContext::new().e_min())
+  assert_eq(d.e_max(), @binary.binary_implementation_e_max)
+  assert_eq(d.e_min(), @binary.BinaryContext::new().e_min())
   assert_eq(c.with_precision(11).precision(), 11)
   assert_eq(c.with_precision(11).e_max(), 127)
   assert_eq(c.with_e_max(15).e_min(), -14)
@@ -35,11 +35,11 @@ test "IntervalContext::try_new rejects what no format has" {
   assert_true(IntervalContext::try_new(precision=0) is Err(_))
   assert_true(IntervalContext::try_new(precision=-3) is Err(_))
   assert_true(
-    IntervalContext::try_new(precision=@bin_float.binary_precision_max + 1)
+    IntervalContext::try_new(precision=@binary.binary_precision_max + 1)
     is Err(_),
   )
   assert_true(
-    IntervalContext::try_new(precision=@bin_float.binary_precision_max) is Ok(_),
+    IntervalContext::try_new(precision=@binary.binary_precision_max) is Ok(_),
   )
   assert_true(IntervalContext::try_new(e_max=0) is Err(_))
   assert_true(IntervalContext::try_new(e_max=-5) is Err(_))
@@ -48,7 +48,7 @@ test "IntervalContext::try_new rejects what no format has" {
 
 ///|
 test "panic IntervalContext::new aborts on a precision beyond the limit" {
-  ignore(IntervalContext::new(precision=@bin_float.binary_precision_max + 1))
+  ignore(IntervalContext::new(precision=@binary.binary_precision_max + 1))
 }
 
 ///|
@@ -60,8 +60,8 @@ test "panic IntervalContext::with_precision aborts on an illegal precision" {
 /// A precision is checked where a value is made (issue 442): the `try_`
 /// constructors return an error instead of replacing it by 1.
 test "interval constructors report a precision outside 1..binary_precision_max" {
-  let one = @bin_float.BinFloat::one(precision=53)
-  for p in [0, -1, @bin_float.binary_precision_max + 1] {
+  let one = @binary.Binary::one(precision=53)
+  for p in [0, -1, @binary.binary_precision_max + 1] {
     assert_true(Interval::try_from_bounds(one, one, precision=p) is Err(_))
     assert_true(Interval::try_exact(one, precision=p) is Err(_))
     assert_true(Interval::try_from_double(1.5, precision=p) is Err(_))
@@ -72,7 +72,7 @@ test "interval constructors report a precision outside 1..binary_precision_max" 
 
 ///|
 test "panic Interval::from_bounds aborts on precision 0" {
-  let one = @bin_float.BinFloat::one(precision=53)
+  let one = @binary.Binary::one(precision=53)
   ignore(Interval::from_bounds(one, one, precision=0))
 }
 
@@ -88,8 +88,8 @@ test "panic Interval::with_precision aborts on precision 0" {
 
 ///|
 test "try_new rejects a precision outside 1..=binary_precision_max" {
-  let one = @bin_float.BinFloat::from_int(1)
-  let zero = @bin_float.BinFloat::from_int(0)
+  let one = @binary.Binary::from_int(1)
+  let zero = @binary.Binary::from_int(0)
   assert_true(
     Interval::try_from_midpoint_radius(one, zero, precision=0) is Err(_),
   )
@@ -97,7 +97,7 @@ test "try_new rejects a precision outside 1..=binary_precision_max" {
     Interval::try_from_midpoint_radius(
       one,
       zero,
-      precision=@bin_float.binary_precision_max + 1,
+      precision=@binary.binary_precision_max + 1,
     )
     is Err(_),
   )

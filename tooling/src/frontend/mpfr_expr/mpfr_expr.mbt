@@ -1,10 +1,10 @@
 ///|
 pub struct MpfrCase {
   priv id : String
-  priv input : @bin_float.BinFloat
-  priv expected : @bin_float.BinFloat
+  priv input : @binary.Binary
+  priv expected : @binary.Binary
   priv output_precision : Int32
-  priv rounding : @bin_float.BinaryRoundingMode
+  priv rounding : @binary.BinaryRoundingMode
 }
 
 ///|
@@ -16,11 +16,11 @@ pub struct MpfrDocument {
 ///|
 pub struct MpfrPowCase {
   priv id : String
-  priv input : @bin_float.BinFloat
+  priv input : @binary.Binary
   priv exponent : Int32
-  priv expected : @bin_float.BinFloat
+  priv expected : @binary.Binary
   priv output_precision : Int32
-  priv rounding : @bin_float.BinaryRoundingMode
+  priv rounding : @binary.BinaryRoundingMode
   priv inexact : Bool
 }
 
@@ -80,13 +80,13 @@ fn parse_int(source : String) -> Int32? {
 }
 
 ///|
-fn parse_rounding(source : String) -> @bin_float.BinaryRoundingMode? {
+fn parse_rounding(source : String) -> @binary.BinaryRoundingMode? {
   match source {
-    "n" => Some(@bin_float.BinaryRoundingMode::RoundTiesToEven)
-    "na" => Some(@bin_float.BinaryRoundingMode::RoundTiesToAway)
-    "z" => Some(@bin_float.BinaryRoundingMode::RoundTowardZero)
-    "u" => Some(@bin_float.BinaryRoundingMode::RoundTowardPositive)
-    "d" => Some(@bin_float.BinaryRoundingMode::RoundTowardNegative)
+    "n" => Some(@binary.BinaryRoundingMode::RoundTiesToEven)
+    "na" => Some(@binary.BinaryRoundingMode::RoundTiesToAway)
+    "z" => Some(@binary.BinaryRoundingMode::RoundTowardZero)
+    "u" => Some(@binary.BinaryRoundingMode::RoundTowardPositive)
+    "d" => Some(@binary.BinaryRoundingMode::RoundTowardNegative)
     _ => None
   }
 }
@@ -151,8 +151,8 @@ pub fn parse_pow_data(
       ) => {
         let input_text = mpfr_pow_hex(tokens[2], input_exponent.to_string())
         let output_text = mpfr_pow_hex(tokens[6], output_exponent.to_string())
-        let input = @bin_float.BinFloat::from_hex(input_text, 512)
-        let expected = @bin_float.BinFloat::from_hex(output_text, precision)
+        let input = @binary.Binary::from_hex(input_text, 512)
+        let expected = @binary.Binary::from_hex(output_text, precision)
         match (input, expected) {
           (Ok(input), Ok(expected)) =>
             cases.push({
@@ -219,11 +219,8 @@ pub fn parse_sqrt_data(
     let rounding = parse_rounding(tokens[2])
     match (input_precision, output_precision, rounding) {
       (Some(input_precision), Some(output_precision), Some(rounding)) => {
-        let input = @bin_float.BinFloat::from_hex(tokens[3], input_precision)
-        let expected = @bin_float.BinFloat::from_hex(
-          tokens[4],
-          output_precision,
-        )
+        let input = @binary.Binary::from_hex(tokens[3], input_precision)
+        let expected = @binary.Binary::from_hex(tokens[4], output_precision)
         match (input, expected) {
           (Ok(input), Ok(expected)) =>
             cases.push({
@@ -309,7 +306,7 @@ pub fn execute_sqrt_data(document : MpfrDocument) -> RunSummary {
   let results : Array[CaseResult] = []
   for case in document.cases {
     let actual = case.input.sqrt_ctx(
-        @bin_float.BinaryContext::new(
+        @binary.BinaryContext::new(
           precision=case.output_precision,
           rounding=case.rounding,
         ),
@@ -345,7 +342,7 @@ pub fn execute_pow_data(document : MpfrPowDocument) -> RunSummary {
   for case in document.cases {
     let actual = case.input.pown_ctx(
       case.exponent,
-      @bin_float.BinaryContext::new(
+      @binary.BinaryContext::new(
         precision=case.output_precision,
         rounding=case.rounding,
       ),

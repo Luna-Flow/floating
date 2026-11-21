@@ -1,8 +1,8 @@
 ///|
 fn arithmetic_interval(lo : Int32, hi : Int32) -> Interval {
   Interval::from_bounds(
-    @bin_float.BinFloat::from_int(lo, precision=53),
-    @bin_float.BinFloat::from_int(hi, precision=53),
+    @binary.Binary::from_int(lo, precision=53),
+    @binary.Binary::from_int(hi, precision=53),
     precision=53,
   )
 }
@@ -13,8 +13,8 @@ test "IEEE 1788 multiplication is tight for zero and unbounded intervals" {
   let entire = Interval::entire(precision=53)
   assert_true((zero * entire).equal(zero))
   let positive_half = Interval::from_bounds(
-    @bin_float.BinFloat::one(precision=53),
-    @bin_float.BinFloat::inf(precision=53),
+    @binary.Binary::one(precision=53),
+    @binary.Binary::inf(precision=53),
     precision=53,
   )
   let negative = arithmetic_interval(-5, -1)
@@ -49,8 +49,8 @@ test "IEEE 1788 division handles zero numerator and zero denominator" {
 
 ///|
 test "IEEE 1788 division reduces sign-definite quotients to two corners" {
-  let quarter = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -2, 53)
-  let half = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -1, 53)
+  let quarter = @binary.Binary::make(@binary.BinCoeff::one(), -2, 53)
+  let half = @binary.Binary::make(@binary.BinCoeff::one(), -1, 53)
   let positive = arithmetic_interval(1, 1) / arithmetic_interval(2, 4)
   assert_eq(positive.lower_bound().compare(quarter), 0)
   assert_eq(positive.upper_bound().compare(half), 0)
@@ -60,14 +60,14 @@ test "IEEE 1788 division reduces sign-definite quotients to two corners" {
   let crossing = arithmetic_interval(-2, 4) / arithmetic_interval(2, 4)
   assert_true(crossing.equal(arithmetic_interval(-1, 2)))
   let one_sided = Interval::from_bounds(
-    @bin_float.BinFloat::one(precision=53),
-    @bin_float.BinFloat::inf(precision=53),
+    @binary.Binary::one(precision=53),
+    @binary.Binary::inf(precision=53),
     precision=53,
   )
   let unbounded = arithmetic_interval(1, 1) / one_sided
   assert_true(unbounded.lower_bound().is_zero())
   assert_eq(
-    unbounded.upper_bound().compare(@bin_float.BinFloat::one(precision=53)),
+    unbounded.upper_bound().compare(@binary.Binary::one(precision=53)),
     0,
   )
 }
@@ -75,7 +75,7 @@ test "IEEE 1788 division reduces sign-definite quotients to two corners" {
 ///|
 test "binary64 context applies directed overflow bounds" {
   let ctx = IntervalContext::binary64()
-  let max_finite = @bin_float.BinFloat::make(
+  let max_finite = @binary.Binary::make(
     coeff_sub(coeff_shift_left(coeff_one(), 53), coeff_one()),
     971,
     53,
@@ -92,23 +92,15 @@ test "binary64 context applies directed overflow bounds" {
 ///|
 test "binary context applies gradual directed underflow" {
   let ctx = IntervalContext::new(precision=4, e_max=3)
-  let below_subnormal = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::one(),
-    -7,
-    4,
-  )
+  let below_subnormal = @binary.Binary::make(@binary.BinCoeff::one(), -7, 4)
   let source = Interval::from_bounds(
     below_subnormal,
     below_subnormal,
     precision=8,
   )
   let (result, flags) = source.apply_ctx(ctx)
-  let zero = @bin_float.BinFloat::zero(precision=4)
-  let min_subnormal = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::one(),
-    -5,
-    4,
-  )
+  let zero = @binary.Binary::zero(precision=4)
+  let min_subnormal = @binary.Binary::make(@binary.BinCoeff::one(), -5, 4)
   assert_eq(result.lower_bound().compare(zero), 0)
   assert_eq(result.upper_bound().compare(min_subnormal), 0)
   assert_true(flags.underflow)
@@ -164,11 +156,7 @@ test "IEEE 1788 pown uses directed endpoints across zero and poles" {
   let zero = arithmetic_interval(0, 0)
   assert_true(zero.pown(-2).is_empty())
   let nonnegative = arithmetic_interval(0, 4).pown(-2)
-  let one_sixteenth = @bin_float.BinFloat::make(
-    @bin_float.BinCoeff::one(),
-    -4,
-    53,
-  )
+  let one_sixteenth = @binary.Binary::make(@binary.BinCoeff::one(), -4, 53)
   assert_eq(nonnegative.lower_bound().compare(one_sixteenth), 0)
   assert_true(nonnegative.upper_bound().classify() == FpClass::Infinity)
   let crossing = arithmetic_interval(-4, 4).pown(-2)
@@ -187,14 +175,14 @@ test "IEEE 1788 pown preserves negative-half-axis monotonicity" {
   assert_true(
     reciprocal
     .upper_bound()
-    .compare(@bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -2, 53)) >=
+    .compare(@binary.Binary::make(@binary.BinCoeff::one(), -2, 53)) >=
     0,
   )
 }
 
 ///|
 test "IEEE 1788 pown preserves infinity, signed zero, and Int min" {
-  let negative_zero = @bin_float.BinFloat::negative_zero(precision=53)
+  let negative_zero = @binary.Binary::negative_zero(precision=53)
   let signed_zero = Interval::from_bounds(
     negative_zero,
     negative_zero,
@@ -202,14 +190,14 @@ test "IEEE 1788 pown preserves infinity, signed zero, and Int min" {
   )
   assert_true(signed_zero.pown(3).lower_bound().is_negative_zero())
   let negative_unbounded = Interval::from_bounds(
-    @bin_float.BinFloat::inf(negative=true, precision=53),
-    @bin_float.BinFloat::from_int(-1, precision=53),
+    @binary.Binary::inf(negative=true, precision=53),
+    @binary.Binary::from_int(-1, precision=53),
     precision=53,
   ).pown(-1)
   assert_true(
     negative_unbounded
     .lower_bound()
-    .compare(@bin_float.BinFloat::from_int(-1, precision=53)) ==
+    .compare(@binary.Binary::from_int(-1, precision=53)) ==
     0,
   )
   // The old assertion claimed that `upper_bound` returns -0 here (the zero kept the sign of the
@@ -239,10 +227,10 @@ test "IEEE 1788 pown preserves infinity, signed zero, and Int min" {
   // assertion claimed +0)
   assert_true(tiny.lower_bound().is_zero())
   assert_true(tiny.lower_bound().is_negative())
-  assert_eq(tiny.upper_bound().coefficient(), @bin_float.BinCoeff::one())
+  assert_eq(tiny.upper_bound().coefficient(), @binary.BinCoeff::one())
   assert_eq(
     tiny.upper_bound().exponent2(),
-    @bin_float.binary_implementation_e_min - 52,
+    @binary.binary_implementation_e_min - 52,
   )
 }
 

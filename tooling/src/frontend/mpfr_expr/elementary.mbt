@@ -46,12 +46,12 @@ priv enum MpfrElementaryOperation {
 priv struct MpfrElementaryCase {
   id : String
   operation : MpfrElementaryOperation
-  left : @bin_float.BinFloat
-  right : @bin_float.BinFloat?
+  left : @binary.Binary
+  right : @binary.Binary?
   integer : Int32
-  expected : @bin_float.BinFloat
+  expected : @binary.Binary
   output_precision : Int32
-  rounding : @bin_float.BinaryRoundingMode
+  rounding : @binary.BinaryRoundingMode
   inexact : Bool
   invalid : Bool
   division_by_zero : Bool
@@ -150,17 +150,13 @@ pub fn parse_elementary_data(
     let rounding = parse_rounding(tokens[2])
     // An operand is read at a precision that cannot round it: four bits per
     // character of its token (at least 512), more than its hexadecimal digits hold.
-    let left = @bin_float.BinFloat::from_hex(
-      tokens[3],
-      operand_precision(tokens[3]),
-    )
+    let left = @binary.Binary::from_hex(tokens[3], operand_precision(tokens[3]))
     let right = if tokens[4] == "-" {
       Ok(None)
     } else {
-      @bin_float.BinFloat::from_hex(tokens[4], operand_precision(tokens[4])).map(value => {
-          Some(value)
-        },
-      )
+      @binary.Binary::from_hex(tokens[4], operand_precision(tokens[4])).map(value => {
+        Some(value)
+      })
     }
     let integer = parse_int(tokens[5])
     let inexact = parse_bool_digit(tokens[7])
@@ -182,7 +178,7 @@ pub fn parse_elementary_data(
         Some(invalid),
         Some(division_by_zero),
       ) if right is Some(_) || !elementary_operation_is_binary(operation) =>
-        match @bin_float.BinFloat::from_hex(tokens[6], output_precision) {
+        match @binary.Binary::from_hex(tokens[6], output_precision) {
           Ok(expected) =>
             cases.push({
               id: tokens[0] + ":" + line_number.to_string(),
@@ -232,14 +228,11 @@ pub fn MpfrElementaryDocument::case_count(
 ///|
 fn evaluate_elementary(
   operation : MpfrElementaryOperation,
-  left : @bin_float.BinFloat,
-  right : @bin_float.BinFloat?,
+  left : @binary.Binary,
+  right : @binary.Binary?,
   integer : Int32,
-  context : @bin_float.BinaryContext,
-) -> Result[
-  (@bin_float.BinFloat, @bin_float.BinaryFlags),
-  @lf_arith.ArithmeticError,
-] {
+  context : @binary.BinaryContext,
+) -> Result[(@binary.Binary, @binary.BinaryFlags), @lf_arith.ArithmeticError] {
   match operation {
     Exp => left.try_exp_ctx(context)
     Exp2 => left.try_exp2_ctx(context)
@@ -287,11 +280,8 @@ fn evaluate_elementary(
 ///|
 fn evaluate_elementary_case(
   case : MpfrElementaryCase,
-) -> Result[
-  (@bin_float.BinFloat, @bin_float.BinaryFlags),
-  @lf_arith.ArithmeticError,
-] {
-  let context = @bin_float.BinaryContext::new(
+) -> Result[(@binary.Binary, @binary.BinaryFlags), @lf_arith.ArithmeticError] {
+  let context = @binary.BinaryContext::new(
     precision=case.output_precision,
     rounding=case.rounding,
   )

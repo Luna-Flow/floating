@@ -110,7 +110,7 @@ pub fn DecoratedInterval::is_singleton(self : DecoratedInterval) -> Bool {
 ///|
 pub fn DecoratedInterval::is_member(
   self : DecoratedInterval,
-  value : @bin_float.BinFloat,
+  value : @binary.Binary,
 ) -> Bool {
   !self.is_nai() && self.interval_.is_member(value)
 }
@@ -420,7 +420,7 @@ pub fn DecoratedInterval::log10(self : DecoratedInterval) -> DecoratedInterval {
 
 ///|
 pub fn DecoratedInterval::log1p(self : DecoratedInterval) -> DecoratedInterval {
-  let minus_one = @bin_float.BinFloat::from_int(
+  let minus_one = @binary.Binary::from_int(
     -1,
     precision=self.interval_.precision(),
   )
@@ -515,7 +515,7 @@ pub fn DecoratedInterval::asinh(self : DecoratedInterval) -> DecoratedInterval {
 
 ///|
 pub fn DecoratedInterval::acosh(self : DecoratedInterval) -> DecoratedInterval {
-  let one = @bin_float.BinFloat::one(precision=self.interval_.precision())
+  let one = @binary.Binary::one(precision=self.interval_.precision())
   let partial_domain = !self.interval_.is_empty() &&
     self.interval_.lo_.compare(one) < 0
   unary_result(
@@ -531,7 +531,7 @@ pub fn DecoratedInterval::acosh(self : DecoratedInterval) -> DecoratedInterval {
 
 ///|
 pub fn DecoratedInterval::atanh(self : DecoratedInterval) -> DecoratedInterval {
-  let one = @bin_float.BinFloat::one(precision=self.interval_.precision())
+  let one = @binary.Binary::one(precision=self.interval_.precision())
   let minus_one = one.neg()
   let partial_domain = !self.interval_.is_empty() &&
     (
@@ -559,7 +559,7 @@ fn DecoratedInterval::inverse_unit_result(
   self : DecoratedInterval,
   interval : Interval,
 ) -> DecoratedInterval {
-  let one = @bin_float.BinFloat::one(precision=self.interval_.precision())
+  let one = @binary.Binary::one(precision=self.interval_.precision())
   let partial_domain = !self.interval_.is_empty() &&
     (
       self.interval_.lo_.compare(one.neg()) < 0 ||
@@ -590,7 +590,7 @@ pub fn DecoratedInterval::atan2(
     self.interval_.lo_.sign() == @def.Sign::Negative &&
     self.interval_.contains_zero()
   let touches_cut_from_above = abscissa.interval_.hi_.compare(
-      @bin_float.BinFloat::zero(precision=interval.precision()),
+      @binary.Binary::zero(precision=interval.precision()),
     ) <
     0 &&
     self.interval_.lo_.is_zero()

@@ -3,7 +3,7 @@ package "Luna-Flow/floating-tools/semantic"
 
 import {
   "Luna-Flow/arithmetic",
-  "Luna-Flow/floating/bin_float",
+  "Luna-Flow/floating/binary",
   "Luna-Flow/floating/decimal",
   "Luna-Flow/floating/def",
   "Luna-Flow/floating/interval",
@@ -67,7 +67,7 @@ pub(all) enum SemanticScalar {
   NaN
 }
 pub fn SemanticScalar::equal(Self, Self) -> Bool
-pub fn SemanticScalar::from_bin_float(@bin_float.BinFloat) -> Self
+pub fn SemanticScalar::from_binary(@binary.Binary) -> Self
 pub fn SemanticScalar::from_decimal(@decimal.Decimal) -> Self
 pub fn SemanticScalar::not_equal(Self, Self) -> Bool
 

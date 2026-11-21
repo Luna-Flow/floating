@@ -24,16 +24,16 @@ priv struct MpfrRandomCase {
   id : String
   op : String
   kind : RandomKind
-  rounding : @bin_float.BinaryRoundingMode
+  rounding : @binary.BinaryRoundingMode
   precision : Int32
-  range : (Int32, Int32, @bin_float.TininessDetection)?
-  a : @bin_float.BinFloat?
+  range : (Int32, Int32, @binary.TininessDetection)?
+  a : @binary.Binary?
   literal : String
-  b : @bin_float.BinFloat?
-  c : @bin_float.BinFloat?
+  b : @binary.Binary?
+  c : @binary.Binary?
   n : Int32
   expected : String
-  expected_value : @bin_float.BinFloat?
+  expected_value : @binary.Binary?
   flags : String
 }
 
@@ -65,11 +65,11 @@ pub fn MpfrRandomDocument::case_ids(self : MpfrRandomDocument) -> Array[String] 
 fn parse_random_value(
   token : String,
   precision : Int32,
-) -> Result[@bin_float.BinFloat, String] {
+) -> Result[@binary.Binary, String] {
   match token {
-    "nan" => Ok(@bin_float.BinFloat::nan())
-    "inf" => Ok(@bin_float.BinFloat::inf())
-    "-inf" => Ok(@bin_float.BinFloat::inf(negative=true))
+    "nan" => Ok(@binary.Binary::nan())
+    "inf" => Ok(@binary.Binary::inf())
+    "-inf" => Ok(@binary.Binary::inf(negative=true))
     _ => {
       // Reading below the smallest subnormal of the parse precision would
       // round the value onto that grid, so read at least at the precision of
@@ -83,15 +83,15 @@ fn parse_random_value(
               Int32::max(
                 precision,
                 Int32::min(
-                  @bin_float.binary_precision_max,
-                  @bin_float.binary_implementation_e_min - exponent + 1,
+                  @binary.binary_precision_max,
+                  @binary.binary_implementation_e_min - exponent + 1,
                 ),
               )
             None => precision
           }
         None => precision
       }
-      match @bin_float.BinFloat::from_hex(token, precision) {
+      match @binary.Binary::from_hex(token, precision) {
         Ok(value) => Ok(value)
         Err(_) => Err("invalid exact value " + token)
       }
@@ -103,7 +103,7 @@ fn parse_random_value(
 fn parse_random_operand(
   token : String,
   precision : Int32,
-) -> Result[@bin_float.BinFloat?, String] {
+) -> Result[@binary.Binary?, String] {
   if token == "-" {
     Ok(None)
   } else {
@@ -195,9 +195,9 @@ fn parse_random_row(tokens : Array[String]) -> Result[MpfrRandomCase, String] {
         not_legal_range(precision, high) =>
         return Err("MPFR random exponent range is not an IEEE 754-2019 format")
       (Some(low), Some(high), "a") =>
-        Some((low, high, @bin_float.TininessDetection::AfterRounding))
+        Some((low, high, @binary.TininessDetection::AfterRounding))
       (Some(low), Some(high), "b") =>
-        Some((low, high, @bin_float.TininessDetection::BeforeRounding))
+        Some((low, high, @binary.TininessDetection::BeforeRounding))
       _ => return Err("invalid MPFR random exponent range")
     }
   }
@@ -252,21 +252,21 @@ fn parse_random_row(tokens : Array[String]) -> Result[MpfrRandomCase, String] {
 
 ///|
 fn not_legal_range(precision : Int32, e_max : Int32) -> Bool {
-  @bin_float.BinaryContext::try_new(precision~, e_max~) is Err(_)
+  @binary.BinaryContext::try_new(precision~, e_max~) is Err(_)
 }
 
 ///|
-fn random_context(case : MpfrRandomCase) -> @bin_float.BinaryContext {
+fn random_context(case : MpfrRandomCase) -> @binary.BinaryContext {
   match case.range {
     Some((_, e_max, tininess)) =>
-      @bin_float.BinaryContext::new(
+      @binary.BinaryContext::new(
         precision=case.precision,
         rounding=case.rounding,
         e_max~,
         tininess~,
       )
     None =>
-      @bin_float.BinaryContext::new(
+      @binary.BinaryContext::new(
         precision=case.precision,
         rounding=case.rounding,
       )
@@ -274,7 +274,7 @@ fn random_context(case : MpfrRandomCase) -> @bin_float.BinaryContext {
 }
 
 ///|
-fn random_flags_text(flags : @bin_float.BinaryFlags) -> String {
+fn random_flags_text(flags : @binary.BinaryFlags) -> String {
   let builder = StringBuilder()
   if flags.inexact() {
     builder.write_char('x')
@@ -303,8 +303,8 @@ fn random_flags_text(flags : @bin_float.BinaryFlags) -> String {
 /// Same value, same class and, for zeros and infinities, the same sign. A NaN
 /// result only has to be a quiet NaN: IEEE 754 leaves the payload open.
 fn same_random_value(
-  actual : @bin_float.BinFloat,
-  expected : @bin_float.BinFloat,
+  actual : @binary.Binary,
+  expected : @binary.Binary,
 ) -> Bool {
   if expected.is_quiet_nan() {
     return actual.is_quiet_nan()
@@ -319,10 +319,7 @@ fn same_random_value(
 }
 
 ///|
-fn require_operand(
-  value : @bin_float.BinFloat?,
-  name : String,
-) -> @bin_float.BinFloat {
+fn require_operand(value : @binary.Binary?, name : String) -> @binary.Binary {
   match value {
     Some(value) => value
     None => abort("MPFR random row misses operand " + name)
@@ -333,7 +330,7 @@ fn require_operand(
 fn random_digits_message(
   case : MpfrRandomCase,
   actual : String,
-  flags : @bin_float.BinaryFlags,
+  flags : @binary.BinaryFlags,
 ) -> String {
   case.op +
   " mismatch: expected " +
@@ -359,7 +356,7 @@ fn run_random_case(case : MpfrRandomCase) -> (Bool, String) {
 fn run_random_real(case : MpfrRandomCase) -> (Bool, String) {
   let context = random_context(case)
   let evaluated : Result[
-    (@bin_float.BinFloat, @bin_float.BinaryFlags),
+    (@binary.Binary, @binary.BinaryFlags),
     @lf_arith.ArithmeticError,
   ] = match case.kind {
     Arithmetic =>
@@ -411,7 +408,7 @@ fn run_random_real(case : MpfrRandomCase) -> (Bool, String) {
         context,
       )
     _ =>
-      match @bin_float.BinFloat::from_string_ctx(case.literal, context) {
+      match @binary.Binary::from_string_ctx(case.literal, context) {
         Ok(outcome) => Ok(outcome)
         Err(error) => Err(error)
       }
@@ -462,12 +459,11 @@ fn run_random_getstr(case : MpfrRandomCase) -> (Bool, String) {
   let value = case.a.unwrap()
   // The operand is read at the precision of the row, as the context of a
   // conversion is that of the value written.
-  let value = match
-    @bin_float.BinFloat::from_hex(value.to_hex(), case.precision) {
+  let value = match @binary.Binary::from_hex(value.to_hex(), case.precision) {
     Ok(value) => value
     Err(_) => value
   }
-  let context = @bin_float.BinaryContext::new(
+  let context = @binary.BinaryContext::new(
     precision=value.precision(),
     rounding=case.rounding,
   )
@@ -506,15 +502,14 @@ fn run_random_getstr(case : MpfrRandomCase) -> (Bool, String) {
 ///|
 fn run_random_shortest(case : MpfrRandomCase) -> (Bool, String) {
   let value = case.a.unwrap()
-  let value = match
-    @bin_float.BinFloat::from_hex(value.to_hex(), case.precision) {
+  let value = match @binary.Binary::from_hex(value.to_hex(), case.precision) {
     Ok(value) => value
     Err(_) => value
   }
   let text = value.to_shortest_string()
   let count = significant_digit_count(text)
   let reads_back = match
-    @bin_float.BinFloat::from_string(text, precision=value.precision()) {
+    @binary.Binary::from_string(text, precision=value.precision()) {
     Ok(parsed) =>
       parsed.compare(value) == 0 && parsed.is_negative() == value.is_negative()
     Err(_) => false
