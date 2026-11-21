@@ -1466,7 +1466,7 @@ fn checked_special_bin(text : String) -> @bin_float.BinFloat {
     "NaN" => @bin_float.BinFloat::nan(precision=24)
     "-NaN" => @bin_float.BinFloat::quiet_nan(negative=true, precision=24)
     "sNaN" => @bin_float.BinFloat::signaling_nan(precision=24)
-    "Infinity" => @bin_float.BinFloat::inf(@def.Sign::Positive, precision=24)
+    "Infinity" => @bin_float.BinFloat::inf(precision=24)
     "-0" => @bin_float.BinFloat::negative_zero(precision=24)
     "0" => @bin_float.BinFloat::zero(precision=24)
     "1" => @bin_float.BinFloat::from_int(1, precision=24)

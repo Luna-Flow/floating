@@ -61,12 +61,9 @@ test "canonical_bound: the texts tools/mpfr_ours.h prints" {
     canonical_bound(@binary.BinFloat::from_hex("-0x0p0", p).unwrap()),
     "-0",
   )
+  assert_eq(canonical_bound(@binary.BinFloat::inf(precision=p)), "inf")
   assert_eq(
-    canonical_bound(@binary.BinFloat::inf(Positive, precision=p)),
-    "inf",
-  )
-  assert_eq(
-    canonical_bound(@binary.BinFloat::inf(Negative, precision=p)),
+    canonical_bound(@binary.BinFloat::inf(negative=true, precision=p)),
     "-inf",
   )
   assert_eq(canonical_bound(@binary.BinFloat::nan(precision=p)), "nan")

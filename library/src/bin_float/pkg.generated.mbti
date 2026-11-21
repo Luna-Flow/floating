@@ -149,7 +149,7 @@ pub fn BinFloat::hypot(Self, Self) -> Self
 pub fn BinFloat::hypot_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::identical(Self, Self) -> Bool
 pub fn BinFloat::ilogb(Self) -> Int32?
-pub fn BinFloat::inf(@def.Sign, precision? : Int32) -> Self
+pub fn BinFloat::inf(negative? : Bool, precision? : Int32) -> Self
 pub fn BinFloat::is_finite(Self) -> Bool
 pub fn BinFloat::is_infinite(Self) -> Bool
 pub fn BinFloat::is_nan(Self) -> Bool

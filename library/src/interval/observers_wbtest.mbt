@@ -77,7 +77,7 @@ test "radius is the larger distance from the midpoint, rounded up, for many inte
 ///|
 test "observers are total and follow 12.12.8 on Empty, Entire and half-bounded intervals" {
   let one = @bin_float.BinFloat::one(precision=53)
-  let inf = @bin_float.BinFloat::inf(Sign::Positive, precision=53)
+  let inf = @bin_float.BinFloat::inf(precision=53)
   let empty = Interval::empty(precision=53)
   for
     v in [
@@ -109,7 +109,7 @@ test "observers are total and follow 12.12.8 on Empty, Entire and half-bounded i
 ///|
 test "try_new reports an invalid center or radius" {
   let one = @bin_float.BinFloat::one(precision=53)
-  let inf = @bin_float.BinFloat::inf(Sign::Positive, precision=53)
+  let inf = @bin_float.BinFloat::inf(precision=53)
   let nan = @bin_float.BinFloat::nan(precision=53)
   assert_true(
     Interval::try_from_midpoint_radius(one, one, precision=53)

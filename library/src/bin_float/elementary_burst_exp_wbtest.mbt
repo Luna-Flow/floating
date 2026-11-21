@@ -184,9 +184,7 @@ test "bit-burst exp declines outside its range" {
     binary_exp_bounds_burst(BinFloat::make_coeff(Coeff::one(), -200, 1), work)
     is None,
   )
-  assert_true(
-    binary_exp_bounds_burst(BinFloat::inf(Sign::Positive), work) is None,
-  )
+  assert_true(binary_exp_bounds_burst(BinFloat::inf(), work) is None)
   assert_true(binary_exp_bounds_burst(BinFloat::nan(), work) is None)
 }
 

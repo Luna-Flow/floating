@@ -760,8 +760,8 @@ msgid "Build the constants $+0$, $-0$, $1$ and $\\pm\\infty$."
 msgstr "构建常量 $+0$、$-0$、$1$ 和 $\\pm\\infty$。"
 
 #: manual/api/bin_float.md:322
-msgid "The default precision is 53, and it must be within `1..=binary_precision_max` (see `binary_precision_max`). `inf(Sign::Negative)` is $-\\infty$; any other sign gives $+\\infty$."
-msgstr "默认精度为 53，并且必须在 `1..=binary_precision_max` 之内（见 `binary_precision_max`）。`inf(Sign::Negative)` 为 $-\\infty$；任何其他符号都给出 $+\\infty$。"
+msgid "The default precision is 53, and it must be within `1..=binary_precision_max` (see `binary_precision_max`). `inf(negative=true)` is $-\\infty$; the default is $+\\infty$, as `Decimal::inf` has it."
+msgstr "默认精度为 53，并且必须在 `1..=binary_precision_max` 之内（见 `binary_precision_max`）。`inf(negative=true)` 为 $-\\infty$；默认值为 $+\\infty$，与 `Decimal::inf` 相同。"
 
 #: manual/api/bin_float.md:328
 msgid "Build NaNs."

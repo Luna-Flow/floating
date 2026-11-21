@@ -24,8 +24,8 @@ test "rootn with degree zero is invalid for every operand and never divideByZero
     ("1", BinFloat::one()),
     ("-8", BinFloat::from_int(-8)),
     ("2", BinFloat::from_int(2)),
-    ("+inf", BinFloat::inf(Sign::Positive)),
-    ("-inf", BinFloat::inf(Sign::Negative)),
+    ("+inf", BinFloat::inf()),
+    ("-inf", BinFloat::inf(negative=true)),
   ]
   let contexts = [
     BinaryContext::new(precision=53),

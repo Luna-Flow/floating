@@ -49,7 +49,7 @@ fn pi_x(
 
 ///|
 fn pi_inf(negative : Bool) -> BinFloat {
-  BinFloat::inf(if negative { Sign::Negative } else { Sign::Positive })
+  BinFloat::inf(negative~)
 }
 
 ///|

@@ -44,12 +44,12 @@ pub(all) enum OverlapState {
 
 ///|
 fn neg_inf(precision : Int32) -> @bin_float.BinFloat {
-  @bin_float.BinFloat::inf(Sign::Negative, precision~)
+  @bin_float.BinFloat::inf(negative=true, precision~)
 }
 
 ///|
 fn pos_inf(precision : Int32) -> @bin_float.BinFloat {
-  @bin_float.BinFloat::inf(Sign::Positive, precision~)
+  @bin_float.BinFloat::inf(precision~)
 }
 
 ///|
@@ -326,7 +326,7 @@ fn lower_round_bound(
       if x.precision() == precision {
         x
       } else {
-        @bin_float.BinFloat::inf(x.sign(), precision~)
+        @bin_float.BinFloat::inf(negative=x.is_negative(), precision~)
       }
     FpClass::NaN => abort("interval bounds must not be NaN")
   }
@@ -352,7 +352,7 @@ fn upper_round_bound(
       if x.precision() == precision {
         x
       } else {
-        @bin_float.BinFloat::inf(x.sign(), precision~)
+        @bin_float.BinFloat::inf(negative=x.is_negative(), precision~)
       }
     FpClass::NaN => abort("interval bounds must not be NaN")
   }
@@ -479,12 +479,8 @@ fn extended_division_bound(
     return @bin_float.BinFloat::zero(precision~)
   }
   if numerator.classify() == FpClass::Infinity {
-    let sign = if numerator.sign() == denominator.sign() {
-      Sign::Positive
-    } else {
-      Sign::Negative
-    }
-    return @bin_float.BinFloat::inf(sign, precision~)
+    let negative = numerator.sign() != denominator.sign()
+    return @bin_float.BinFloat::inf(negative~, precision~)
   }
   directed_division(numerator, denominator, precision, upper)
 }
@@ -690,12 +686,8 @@ fn extended_mul(
     return @bin_float.BinFloat::zero(precision~)
   }
   if a.classify() == FpClass::Infinity || b.classify() == FpClass::Infinity {
-    let sign = if a.sign() == b.sign() {
-      Sign::Positive
-    } else {
-      Sign::Negative
-    }
-    return @bin_float.BinFloat::inf(sign, precision~)
+    let negative = a.sign() != b.sign()
+    return @bin_float.BinFloat::inf(negative~, precision~)
   }
   directed_mul(a, b, precision, mode)
 }
@@ -2180,14 +2172,7 @@ fn fma_corner(
     }
   }
   if x.classify() == FpClass::Infinity || y.classify() == FpClass::Infinity {
-    return @bin_float.BinFloat::inf(
-      if x.sign() == y.sign() {
-        Sign::Positive
-      } else {
-        Sign::Negative
-      },
-      precision~,
-    )
+    return @bin_float.BinFloat::inf(negative=x.sign() != y.sign(), precision~)
   }
   x.fma_ctx(y, z, @bin_float.BinaryContext::new(precision~, rounding=mode)).0
 }

@@ -69,7 +69,7 @@ test "BinFloat rootn handles Int.min magnitude exactly" {
 ///|
 test "BinFloat rootn of negative infinity follows the degree parity" {
   let context = BinaryContext::binary64()
-  let negative_infinity = BinFloat::inf(Sign::Negative)
+  let negative_infinity = BinFloat::inf(negative=true)
   for degree in [2, -2, 4, -4] {
     guard negative_infinity.try_rootn_ctx(degree, context)
       is Ok((nan, nan_flags)) else {
@@ -144,8 +144,8 @@ test "BinFloat pow returns exact dyadic results without inexact" {
 ///|
 test "BinFloat pow follows the IEEE special cases for infinite exponents" {
   let context = BinaryContext::binary64()
-  let positive_infinity = BinFloat::inf(Sign::Positive)
-  let negative_infinity = BinFloat::inf(Sign::Negative)
+  let positive_infinity = BinFloat::inf()
+  let negative_infinity = BinFloat::inf(negative=true)
   let half = pow_rootn_dyadic(1UL, -1)
   let cases : Array[(BinFloat, BinFloat, BinFloat)] = [
     (BinFloat::from_int(-1), positive_infinity, BinFloat::one()),
@@ -176,8 +176,8 @@ test "BinFloat pow decides parity of large integer exponents" {
   let context = BinaryContext::binary64()
   let odd = BinFloat::make(BinCoeff::from_uint64((1UL << 31) + 1UL), 0, 53)
   let even = BinFloat::make(BinCoeff::one(), 32, 53)
-  let positive_infinity = BinFloat::inf(Sign::Positive)
-  let negative_infinity = BinFloat::inf(Sign::Negative)
+  let positive_infinity = BinFloat::inf()
+  let negative_infinity = BinFloat::inf(negative=true)
   let cases : Array[(BinFloat, BinFloat, BinFloat)] = [
     (negative_infinity, odd, negative_infinity),
     (negative_infinity, odd.neg(), BinFloat::negative_zero()),
@@ -201,7 +201,7 @@ test "BinFloat pow decides parity of large integer exponents" {
   }
   for
     case in [
-      (odd.neg(), BinFloat::inf(Sign::Negative)),
+      (odd.neg(), BinFloat::inf(negative=true)),
       (pow_rootn_dyadic(3UL, -2).neg(), positive_infinity),
     ] {
     let (exponent, expected) = case

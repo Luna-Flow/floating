@@ -21,8 +21,8 @@ test "nextUp and nextDown walk the binary64 grid" {
       BinFloat::negative_zero(),
       max,
       min_subnormal.neg(),
-      BinFloat::inf(Sign::Positive),
-      BinFloat::inf(Sign::Negative),
+      BinFloat::inf(),
+      BinFloat::inf(negative=true),
     ] {
     lines.write_string(
       "\{value}: up \{next_show(value.next_up_ctx(context))} down \{next_show(value.next_down_ctx(context))}\n",

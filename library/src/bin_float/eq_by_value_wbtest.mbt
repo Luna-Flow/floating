@@ -36,9 +36,9 @@ test "== agrees with compare: zeros, NaNs, precisions" {
     BinFloat::from_int(3, precision=53) ==
     BinFloat::make(BinCoeff::from_uint64(12UL), -2, 7),
   )
-  let positive_infinity = BinFloat::inf(Sign::Positive, precision=53)
-  assert_true(positive_infinity == BinFloat::inf(Sign::Positive, precision=24))
-  assert_false(positive_infinity == BinFloat::inf(Sign::Negative, precision=53))
+  let positive_infinity = BinFloat::inf(precision=53)
+  assert_true(positive_infinity == BinFloat::inf(precision=24))
+  assert_false(positive_infinity == BinFloat::inf(negative=true, precision=53))
   assert_false(positive_infinity == BinFloat::from_int(1, precision=53))
   assert_false(BinFloat::from_int(2, precision=53) == one_53)
 }
@@ -50,13 +50,13 @@ test "identical distinguishes the sign of zero, the precision and the NaN kind" 
   assert_false(a.identical(BinFloat::from_int(5, precision=24)))
   assert_false(a.identical(BinFloat::from_int(6, precision=53)))
   assert_true(
-    BinFloat::inf(Sign::Negative, precision=53).identical(
-      BinFloat::inf(Sign::Negative, precision=53),
+    BinFloat::inf(negative=true, precision=53).identical(
+      BinFloat::inf(negative=true, precision=53),
     ),
   )
   assert_false(
-    BinFloat::inf(Sign::Negative, precision=53).identical(
-      BinFloat::inf(Sign::Positive, precision=53),
+    BinFloat::inf(negative=true, precision=53).identical(
+      BinFloat::inf(precision=53),
     ),
   )
 }
@@ -66,8 +66,8 @@ test "== is compare == 0 for a grid of values, NaNs included" {
   let values = [
     BinFloat::nan(precision=53),
     BinFloat::nan(precision=24),
-    BinFloat::inf(Sign::Positive, precision=53),
-    BinFloat::inf(Sign::Negative, precision=24),
+    BinFloat::inf(precision=53),
+    BinFloat::inf(negative=true, precision=24),
     BinFloat::zero(precision=53),
     BinFloat::negative_zero(precision=24),
     BinFloat::one(precision=53),

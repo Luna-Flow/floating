@@ -68,7 +68,7 @@ test "roundToIntegralExact raises inexact only when the value changes" {
     ),
   )
   inspect(
-    integral_show(BinFloat::inf(Sign::Negative).to_integral_exact_ctx(context)),
+    integral_show(BinFloat::inf(negative=true).to_integral_exact_ctx(context)),
     content=(
       #|-inf flags=0
     ),

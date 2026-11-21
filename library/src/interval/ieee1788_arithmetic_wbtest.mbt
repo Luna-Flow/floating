@@ -14,7 +14,7 @@ test "IEEE 1788 multiplication is tight for zero and unbounded intervals" {
   assert_true((zero * entire).equal(zero))
   let positive_half = Interval::from_bounds(
     @bin_float.BinFloat::one(precision=53),
-    @bin_float.BinFloat::inf(Sign::Positive, precision=53),
+    @bin_float.BinFloat::inf(precision=53),
     precision=53,
   )
   let negative = arithmetic_interval(-5, -1)
@@ -61,7 +61,7 @@ test "IEEE 1788 division reduces sign-definite quotients to two corners" {
   assert_true(crossing.equal(arithmetic_interval(-1, 2)))
   let one_sided = Interval::from_bounds(
     @bin_float.BinFloat::one(precision=53),
-    @bin_float.BinFloat::inf(Sign::Positive, precision=53),
+    @bin_float.BinFloat::inf(precision=53),
     precision=53,
   )
   let unbounded = arithmetic_interval(1, 1) / one_sided
@@ -202,7 +202,7 @@ test "IEEE 1788 pown preserves infinity, signed zero, and Int min" {
   )
   assert_true(signed_zero.pown(3).lower_bound().is_negative_zero())
   let negative_unbounded = Interval::from_bounds(
-    @bin_float.BinFloat::inf(Sign::Negative, precision=53),
+    @bin_float.BinFloat::inf(negative=true, precision=53),
     @bin_float.BinFloat::from_int(-1, precision=53),
     precision=53,
   ).pown(-1)

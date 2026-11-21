@@ -438,7 +438,8 @@ pub fn Decimal::to_bin_float(
   }
   match self.class {
     FpClass::NaN => @bin_float.BinFloat::nan(precision~)
-    FpClass::Infinity => @bin_float.BinFloat::inf(self.sign(), precision~)
+    FpClass::Infinity =>
+      @bin_float.BinFloat::inf(negative=self.is_negative(), precision~)
     FpClass::Finite => {
       // IEEE 754-2019 §5.4.2 and §6.3: conversions keep the sign of zero.
       if self.coefficient.is_zero() {

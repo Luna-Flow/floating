@@ -24,8 +24,8 @@ fn checked_operand(name : String, precision : Int32) -> BinFloat {
     "-snan" => BinFloat::signaling_nan(negative=true, precision~)
     "+0" => BinFloat::zero(precision~)
     "-0" => BinFloat::negative_zero(precision~)
-    "+inf" => BinFloat::inf(Sign::Positive, precision~)
-    "-inf" => BinFloat::inf(Sign::Negative, precision~)
+    "+inf" => BinFloat::inf(precision~)
+    "-inf" => BinFloat::inf(negative=true, precision~)
     "+2" => BinFloat::from_int(2, precision~)
     "-2" => BinFloat::from_int(-2, precision~)
     _ => abort("unknown checked operand " + name)
@@ -223,7 +223,7 @@ test "issue 262 rows through the checked traits" {
   let ctx = @lf_arith.ArithmeticContext::new(53, e_min=-1022, e_max=1023)
   let nan = BinFloat::nan()
   let zero = BinFloat::zero()
-  let inf = BinFloat::inf(Sign::Positive)
+  let inf = BinFloat::inf()
   let div = fn(a, b) {
     checked_render(@lf_arith.DivChecked::div_checked(a, b, ctx))
   }

@@ -31,7 +31,7 @@ let decimal_pi_cache : Map[Int32, @interval.Interval] = Map([])
 fn decimal_pi_enclosure(
   precision : Int32,
 ) -> (@bin_float.BinFloat, @bin_float.BinFloat) {
-  let infinity = @bin_float.BinFloat::inf(Sign::Positive, precision~)
+  let infinity = @bin_float.BinFloat::inf(precision~)
   let exact = @bin_float.BinaryContext::new(precision~)
   let two = @bin_float.BinFloat::from_int(2, precision=2)
   let bound = fn(rounding) {

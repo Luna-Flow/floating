@@ -48,7 +48,7 @@ test "hyperbolic forms keep relative accuracy for a tiny argument" {
 /// is 1 or -1 evaluated the pole and aborted ("interval lower bound must not be
 /// positive infinity"); the open domain leaves nothing, so the result is Empty.
 test "atanh of an interval meeting the closure of the domain at one point" {
-  let inf = @bin_float.BinFloat::inf(Sign::Positive, precision=53)
+  let inf = @bin_float.BinFloat::inf(precision=53)
   let one = @bin_float.BinFloat::one(precision=53)
   for
     b in [

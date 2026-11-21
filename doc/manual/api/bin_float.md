@@ -316,12 +316,12 @@ Build the constants $+0$, $-0$, $1$ and $\pm\infty$.
 pub fn BinFloat::zero(precision? : Int) -> Self
 pub fn BinFloat::negative_zero(precision? : Int) -> Self
 pub fn BinFloat::one(precision? : Int) -> Self
-pub fn BinFloat::inf(@def.Sign, precision? : Int) -> Self
+pub fn BinFloat::inf(negative? : Bool, precision? : Int) -> Self
 ```
 
 The default precision is 53, and it must be within
-`1..=binary_precision_max` (see `binary_precision_max`). `inf(Sign::Negative)` is
-$-\infty$; any other sign gives $+\infty$.
+`1..=binary_precision_max` (see `binary_precision_max`). `inf(negative=true)` is
+$-\infty$; the default is $+\infty$, as `Decimal::inf` has it.
 
 ### `BinFloat::nan`, `BinFloat::quiet_nan`, `BinFloat::signaling_nan`
 
@@ -1312,7 +1312,7 @@ test "three different orders on BinFloat" {
   inspect(neg_zero == zero, content="true")
   inspect(neg_zero.identical(zero), content="false")
   inspect(nan == nan, content="true")
-  let values = [nan, @bin_float.BinFloat::inf(@def.Sign::Positive), zero, @bin_float.BinFloat::from_int(-3)]
+  let values = [nan, @bin_float.BinFloat::inf(), zero, @bin_float.BinFloat::from_int(-3)]
   values.sort()
   inspect(values.map(fn(v) { v.to_string() }).join(" "), content="-3p0 0 inf nan")
 }
@@ -2791,7 +2791,7 @@ pub fn BinFloat::hypot(Self, Self) -> Self
 pub fn BinFloat::hypot_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn BinFloat::identical(Self, Self) -> Bool
 pub fn BinFloat::ilogb(Self) -> Int32?
-pub fn BinFloat::inf(@def.Sign, precision? : Int32) -> Self
+pub fn BinFloat::inf(negative? : Bool, precision? : Int32) -> Self
 pub fn BinFloat::is_finite(Self) -> Bool
 pub fn BinFloat::is_infinite(Self) -> Bool
 pub fn BinFloat::is_nan(Self) -> Bool

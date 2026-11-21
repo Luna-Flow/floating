@@ -81,7 +81,7 @@ fn trig_table() -> Array[
       fn(x, c) { x.try_sin_ctx(c) },
       fn(x, c) { x.sin_ctx(c) },
       "h",
-      BinFloat::inf(Sign::Positive),
+      BinFloat::inf(),
     ),
     (
       "cos",
@@ -89,7 +89,7 @@ fn trig_table() -> Array[
       fn(x, c) { x.try_cos_ctx(c) },
       fn(x, c) { x.cos_ctx(c) },
       "h",
-      BinFloat::inf(Sign::Positive),
+      BinFloat::inf(),
     ),
     (
       "tan",
@@ -97,7 +97,7 @@ fn trig_table() -> Array[
       fn(x, c) { x.try_tan_ctx(c) },
       fn(x, c) { x.tan_ctx(c) },
       "1",
-      BinFloat::inf(Sign::Positive),
+      BinFloat::inf(),
     ),
     (
       "sinpi",
@@ -105,7 +105,7 @@ fn trig_table() -> Array[
       fn(x, c) { x.try_sinpi_ctx(c) },
       fn(x, c) { x.sinpi_ctx(c) },
       "q",
-      BinFloat::inf(Sign::Positive),
+      BinFloat::inf(),
     ),
     (
       "cospi",
@@ -113,7 +113,7 @@ fn trig_table() -> Array[
       fn(x, c) { x.try_cospi_ctx(c) },
       fn(x, c) { x.cospi_ctx(c) },
       "q",
-      BinFloat::inf(Sign::Positive),
+      BinFloat::inf(),
     ),
     (
       "tanpi",
@@ -121,7 +121,7 @@ fn trig_table() -> Array[
       fn(x, c) { x.try_tanpi_ctx(c) },
       fn(x, c) { x.tanpi_ctx(c) },
       "q",
-      BinFloat::inf(Sign::Positive),
+      BinFloat::inf(),
     ),
   ]
 }

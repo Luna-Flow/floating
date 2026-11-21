@@ -97,9 +97,7 @@ test "ln AGM declines outside its range" {
     is None,
   )
   assert_true(binary_ln_unit_agm_bounds(BinFloat::nan(), work) is None)
-  assert_true(
-    binary_ln_unit_agm_bounds(BinFloat::inf(Sign::Positive), work) is None,
-  )
+  assert_true(binary_ln_unit_agm_bounds(BinFloat::inf(), work) is None)
   assert_true(
     binary_ln_unit_agm_bounds(BinFloat::from_int(-3, precision=64), work)
     is None,

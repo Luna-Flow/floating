@@ -575,7 +575,7 @@ test "atan and asin Ziv attempts and series counts, new versus old" {
 /// `RD`, `RU` or nearest-even of pi/2 and pi, from the cached constant through
 /// `atan(+inf)`, independent of the reduction under test.
 fn atan_half_pi(context : BinaryContext) -> BinFloat {
-  BinFloat::inf(Sign::Positive, precision=64).try_atan_ctx(context).unwrap().0
+  BinFloat::inf(precision=64).try_atan_ctx(context).unwrap().0
 }
 
 ///|

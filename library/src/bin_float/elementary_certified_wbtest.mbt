@@ -95,8 +95,8 @@ test "BinFloat hypot rounds the exact sum of squares" {
   let result = BinFloat::from_int(3).hypot(BinFloat::from_int(4))
   assert_identical(result, BinFloat::from_int(5))
   assert_identical(
-    BinFloat::inf(Sign::Negative).hypot(BinFloat::zero()),
-    BinFloat::inf(Sign::Positive),
+    BinFloat::inf(negative=true).hypot(BinFloat::zero()),
+    BinFloat::inf(),
   )
 }
 
@@ -243,8 +243,8 @@ test "BinFloat acos rejects inputs outside its domain instead of recursing" {
     value in [
       BinFloat::from_int(2),
       BinFloat::from_int(2).neg(),
-      BinFloat::inf(Sign::Positive),
-      BinFloat::inf(Sign::Negative),
+      BinFloat::inf(),
+      BinFloat::inf(negative=true),
     ] {
     match value.try_acos_ctx(context) {
       Ok((nan, flags)) => {
@@ -300,8 +300,8 @@ test "BinFloat atan2 follows the IEEE signed-zero special cases" {
   let pz = BinFloat::zero()
   let nz = BinFloat::negative_zero()
   let m1 = BinFloat::from_int(-1)
-  let pinf = BinFloat::inf(Sign::Positive)
-  let ninf = BinFloat::inf(Sign::Negative)
+  let pinf = BinFloat::inf()
+  let ninf = BinFloat::inf(negative=true)
   let (pi, _) = m1.acos_ctx(context)
   // atan2(±0, +0) and atan2(±0, x > 0) are ±0, exact.
   for abscissa in [pz, BinFloat::one(), pinf] {
@@ -351,7 +351,7 @@ test "BinFloat pi-scaled functions preserve exact integer and half-integer ident
   assert_identical(half.cospi(), BinFloat::zero())
   let negative_half = half.neg()
   assert_identical(negative_half.sinpi(), one.neg())
-  assert_identical(negative_half.tanpi(), BinFloat::inf(Sign::Negative))
+  assert_identical(negative_half.tanpi(), BinFloat::inf(negative=true))
   assert_true(BinFloat::from_int(-1).sinpi().is_negative_zero())
   let huge_integer = BinFloat::make(BinCoeff::one(), 40, 53)
   assert_true(huge_integer.sinpi().is_zero())
@@ -386,10 +386,10 @@ test "BinFloat tanpi at integers takes the sign of sinpi over cospi" {
   assert_true(huge.neg().tanpi().is_negative_zero())
   // tanPi(n + 1/2) alternates: +inf for even n, -inf for odd n.
   let half = BinFloat::make(BinCoeff::one(), -1, 53)
-  assert_identical(half.tanpi(), BinFloat::inf(Sign::Positive))
+  assert_identical(half.tanpi(), BinFloat::inf())
   assert_identical(
     half.add(BinFloat::one()).tanpi(),
-    BinFloat::inf(Sign::Negative),
+    BinFloat::inf(negative=true),
   )
 }
 

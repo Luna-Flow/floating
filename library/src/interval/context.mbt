@@ -392,7 +392,10 @@ pub fn Interval::midpoint_ctx(
   if !rounded.is_zero() && finite_adjusted_exponent(rounded) > ctx.e_max {
     // Round to nearest overflows to an infinity of the center's sign.
     return (
-      @bin_float.BinFloat::inf(exact.sign(), precision=ctx.precision),
+      @bin_float.BinFloat::inf(
+        negative=exact.is_negative(),
+        precision=ctx.precision,
+      ),
       { inexact: true, overflow: true, underflow: false, },
     )
   }

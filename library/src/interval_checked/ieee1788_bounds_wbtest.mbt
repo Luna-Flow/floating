@@ -1,14 +1,8 @@
 ///|
 test "IEEE 1788 rejects infinity singleton bounds" {
   let precision = 32
-  let positive_infinity = @bin_float.BinFloat::inf(
-    @def.Sign::Positive,
-    precision~,
-  )
-  let negative_infinity = @bin_float.BinFloat::inf(
-    @def.Sign::Negative,
-    precision~,
-  )
+  let positive_infinity = @bin_float.BinFloat::inf(precision~)
+  let negative_infinity = @bin_float.BinFloat::inf(negative=true, precision~)
   let positive_result = IntervalResult::from_bounds(
     positive_infinity,
     positive_infinity,

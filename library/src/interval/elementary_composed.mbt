@@ -3,7 +3,7 @@
 /// constant of `bin_float`: `atan(+inf)` is `pi/2` served from that cache, and
 /// scaling by 2 is exact (unbounded exponent range).
 fn certified_pi_interval(precision : Int32) -> Interval {
-  let infinity = @bin_float.BinFloat::inf(Sign::Positive, precision~)
+  let infinity = @bin_float.BinFloat::inf(precision~)
   let exact = @bin_float.BinaryContext::new(precision~)
   let two = @bin_float.BinFloat::from_int(2, precision=2)
   let bound = fn(rounding) {

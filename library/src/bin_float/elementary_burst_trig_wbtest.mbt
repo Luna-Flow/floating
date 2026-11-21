@@ -123,10 +123,7 @@ test "bit-burst sin and cos decline outside their range" {
       )
       is None,
     )
-    assert_true(
-      binary_trig_bounds_burst(BinFloat::inf(Sign::Positive), cosine, work)
-      is None,
-    )
+    assert_true(binary_trig_bounds_burst(BinFloat::inf(), cosine, work) is None)
     assert_true(binary_trig_bounds_burst(BinFloat::nan(), cosine, work) is None)
     // 2^5000 is beyond the range of the kernel.
     assert_true(

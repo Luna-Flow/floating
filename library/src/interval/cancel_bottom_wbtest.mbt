@@ -190,7 +190,7 @@ test "cancel_plus and cancel_minus: the special cases of IEEE 1788-2015 12.12.5"
   let unbounded = Interval::entire(precision=53)
   let half_bounded = Interval::from_bounds(
     cn_value(1UL, 0, false),
-    @bin_float.BinFloat::inf(Sign::Positive, precision=53),
+    @bin_float.BinFloat::inf(precision=53),
     precision=53,
   )
   for plus in [false, true] {

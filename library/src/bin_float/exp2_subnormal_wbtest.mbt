@@ -104,7 +104,7 @@ fn e2s_model(
       _ => true
     }
     let value = if to_infinity {
-      BinFloat::inf(Sign::Positive, precision=p)
+      BinFloat::inf(precision=p)
     } else {
       BinFloat::make_coeff(
         Coeff::one().shift_left(p).sub_checked(Coeff::one()).unwrap(),

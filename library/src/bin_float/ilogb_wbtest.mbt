@@ -65,8 +65,8 @@ test "ilogb of the special values and of the stored range" {
   assert_eq(BinFloat::from_int(-5).ilogb(), Some(2))
   assert_eq(BinFloat::zero().ilogb(), None)
   assert_eq(BinFloat::negative_zero().ilogb(), None)
-  assert_eq(BinFloat::inf(Sign::Positive).ilogb(), None)
-  assert_eq(BinFloat::inf(Sign::Negative).ilogb(), None)
+  assert_eq(BinFloat::inf().ilogb(), None)
+  assert_eq(BinFloat::inf(negative=true).ilogb(), None)
   assert_eq(BinFloat::nan().ilogb(), None)
   // the largest and the smallest stored magnitudes of a 53-bit format
   let largest = BinFloat::make(BinCoeff::one(), binary_implementation_e_max, 53)

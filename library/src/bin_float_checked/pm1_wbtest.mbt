@@ -25,8 +25,8 @@ test "checked exp2m1, exp10m1, log2p1 and log10p1 map the exception flags" {
   let minus_two = value(@bin_float.BinFloat::from_int(-2))
   let snan = value(@bin_float.BinFloat::signaling_nan())
   let qnan = value(@bin_float.BinFloat::quiet_nan())
-  let inf = value(@bin_float.BinFloat::inf(@def.Sign::Positive))
-  let minus_inf = value(@bin_float.BinFloat::inf(@def.Sign::Negative))
+  let inf = value(@bin_float.BinFloat::inf())
+  let minus_inf = value(@bin_float.BinFloat::inf(negative=true))
   // f(+0) = +0, f(+inf) = +inf, f(-inf) = -1: values, no error
   assert_eq(pm1_render(zero.exp2m1()), "ok:0")
   assert_eq(pm1_render(inf.exp2m1()), "ok:inf")

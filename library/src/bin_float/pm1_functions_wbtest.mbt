@@ -74,10 +74,10 @@ test "exp2m1 and exp10m1 special values" {
         assert_eq(flags, BinaryFlags::new())
       }
       // f(+inf) = +inf and f(-inf) = -1 with no exception
-      let (value, flags) = pm1_run(name, BinFloat::inf(Sign::Positive), ctx)
+      let (value, flags) = pm1_run(name, BinFloat::inf(), ctx)
       assert_eq(value.to_string(), "inf")
       assert_eq(flags, BinaryFlags::new())
-      let (value, flags) = pm1_run(name, BinFloat::inf(Sign::Negative), ctx)
+      let (value, flags) = pm1_run(name, BinFloat::inf(negative=true), ctx)
       assert_eq(value.to_string(), "-1p0")
       assert_eq(flags, BinaryFlags::new())
       // a quiet NaN propagates with its payload, a signaling NaN is invalid
@@ -113,7 +113,7 @@ test "log2p1 and log10p1 special values and domain" {
         assert_eq(value.to_string(), zero.to_string())
         assert_eq(flags, BinaryFlags::new())
       }
-      let (value, flags) = pm1_run(name, BinFloat::inf(Sign::Positive), ctx)
+      let (value, flags) = pm1_run(name, BinFloat::inf(), ctx)
       assert_eq(value.to_string(), "inf")
       assert_eq(flags, BinaryFlags::new())
       // f(-1) = -inf with divideByZero; the try_ form keeps the pole as a value
@@ -128,7 +128,7 @@ test "log2p1 and log10p1 special values and domain" {
         below in [
           BinFloat::from_int(-2),
           BinFloat::make_coeff(Coeff::from_uint64(9UL), -3, 53, negative=true),
-          BinFloat::inf(Sign::Negative),
+          BinFloat::inf(negative=true),
         ] {
         let (value, flags) = pm1_run(name, below, ctx)
         assert_true(value.is_quiet_nan())

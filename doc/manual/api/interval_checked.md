@@ -154,7 +154,7 @@ test "construction validates its inputs" {
     show(@interval_checked.IntervalResult::from_double(0.0 / 0.0)),
     content="error: interval double source must be finite",
   )
-  let infinity = @bin_float.BinFloat::inf(@def.Sign::Positive)
+  let infinity = @bin_float.BinFloat::inf()
   inspect(
     show(@interval_checked.IntervalResult::from_bounds(infinity, infinity)),
     content="error: interval lower bound must not be positive infinity",

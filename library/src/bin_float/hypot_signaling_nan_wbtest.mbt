@@ -24,8 +24,7 @@ test "hypot of an infinity and a signaling NaN is a quiet NaN with invalid" {
   ]
   let mut cases = 0
   for context in contexts {
-    for
-      infinity in [BinFloat::inf(Sign::Positive), BinFloat::inf(Sign::Negative)] {
+    for infinity in [BinFloat::inf(), BinFloat::inf(negative=true)] {
       for negative in [false, true] {
         let snan = BinFloat::signaling_nan(
           payload=BinCoeff::from_uint64(0x2bUL),
@@ -50,8 +49,7 @@ test "hypot of an infinity and a signaling NaN is a quiet NaN with invalid" {
       }
     }
     // A quiet NaN beside an infinity is still +inf with no flag.
-    for
-      infinity in [BinFloat::inf(Sign::Positive), BinFloat::inf(Sign::Negative)] {
+    for infinity in [BinFloat::inf(), BinFloat::inf(negative=true)] {
       let qnan = BinFloat::quiet_nan(negative=true)
       for swapped in [false, true] {
         let (value, flags) = if swapped {
@@ -65,8 +63,8 @@ test "hypot of an infinity and a signaling NaN is a quiet NaN with invalid" {
       }
     }
     // Two infinities are +inf with no flag.
-    let (value, flags) = BinFloat::inf(Sign::Negative)
-      .try_hypot_ctx(BinFloat::inf(Sign::Negative), context)
+    let (value, flags) = BinFloat::inf(negative=true)
+      .try_hypot_ctx(BinFloat::inf(negative=true), context)
       .unwrap()
     assert_eq(value.to_string(), "inf")
     assert_eq(flags, BinaryFlags::new())
