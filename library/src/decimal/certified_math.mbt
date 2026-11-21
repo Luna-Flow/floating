@@ -262,8 +262,8 @@ fn decimal_certified_endpoints(
   interval : @ball_float.BallFloat,
   ctx : DecimalContext,
 ) -> (Decimal?, Decimal?) {
-  let lower_bound = interval.lower_bound()
-  let upper_bound = interval.upper_bound()
+  let lower_bound = certified_bound(interval.lower_bound())
+  let upper_bound = certified_bound(interval.upper_bound())
   if lower_bound.compare(upper_bound) == 0 {
     // A degenerate (binary-exact) interval stays exact: rounding it outward
     // could only lose a certification.
@@ -284,6 +284,19 @@ fn decimal_certified_endpoints(
     decimal_outward_dyadic_endpoint(lower_bound, ctx, digits, false),
     decimal_outward_dyadic_endpoint(upper_bound, ctx, digits, true),
   )
+}
+
+///|
+/// A bound of an interval without the sign of a zero. `BallFloat::lower_bound` returns -0 for
+/// a zero lower bound (IEEE 1788-2015 12.12.8), while a decimal endpoint that is certified
+/// against another is compared in the total order, which tells -0 from +0: a zero bound is the
+/// zero of the result, whatever the sign the accessor gives it.
+fn certified_bound(value : @bin_float.BinFloat) -> @bin_float.BinFloat {
+  if value.is_zero() {
+    @bin_float.BinFloat::zero(precision=value.precision())
+  } else {
+    value
+  }
 }
 
 ///|
