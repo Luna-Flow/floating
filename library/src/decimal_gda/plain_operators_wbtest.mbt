@@ -94,7 +94,6 @@ test "plain division with an exponent difference below Int" {
 /// with the free functions they call.
 test "plain operators equal the libmpdec results of the working context" {
   assert_eq(plain_operator_rows.length(), 2394)
-  let mut skipped = 0
   for row in plain_operator_rows {
     let (op, precision, a_text, b_text, expected) = row
     let a = Decimal::from_string(a_text, precision~).unwrap()
@@ -103,17 +102,6 @@ test "plain operators equal the libmpdec results of the working context" {
       "sqrt" => a.sqrt()
       _ => {
         let b = Decimal::from_string(b_text, precision~).unwrap()
-        // issue 641: a quotient in the range whose exponent difference is above
-        // `Int` aborts (the preferred exponent wraps); the rows are skipped, not
-        // changed, until it is fixed
-        if op == "div" &&
-          expected != "inf" &&
-          expected != "-inf" &&
-          expected != "nan" &&
-          a.exponent10().to_int64() - b.exponent10().to_int64() > 2147483647L {
-          skipped += 1
-          continue
-        }
         match op {
           "add" => a + b
           "sub" => a - b
@@ -132,5 +120,4 @@ test "plain operators equal the libmpdec results of the working context" {
       assert_eq((label, actual.to_string()), (label, expected))
     }
   }
-  inspect(skipped, content="7")
 }

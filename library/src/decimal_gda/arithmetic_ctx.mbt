@@ -540,23 +540,45 @@ fn division_beyond_exponent_range(
       ),
     )
   }
-  // The exponent difference is below `Int` although the quotient is not below
-  // the range: the dividend has more digits than the divisor (`adjusted` is
-  // above `tiny - 2` only then). Even a guard of zero digits would put the
-  // quotient exponent outside `Int`, so the quotient is formed with the usual
-  // guard (the sticky rounding does not depend on the exponent) and its
-  // exponent, an `Int64`, goes to the wide normalization, which folds it into
-  // the context range.
-  guard difference < -2147483648L else { return None }
+  // The exponent difference is outside `Int` although the quotient is inside the
+  // range. Below: the dividend has more digits than the divisor (`adjusted` is
+  // above `tiny - 2` only then). Above: the divisor has more digits (the
+  // quotient is `adjusted - 1 <= e_max`), so the ideal exponent of the quotient
+  // is unreachable and the exact quotient keeps the exponent it has once its
+  // trailing zeros are removed. Even a guard of zero digits would put the
+  // quotient exponent outside `Int` below, and the preferred exponent above, so
+  // the quotient is formed with the usual guard (the sticky rounding does not
+  // depend on the exponent) and its exponent, an `Int64`, goes to the wide
+  // normalization, which folds it into the context range.
+  guard difference < -2147483648L || difference > 2147483647L else {
+    return None
+  }
   let extra = finite_precision_for_default(ctx) +
     divisor.coefficient.digits10() +
     2
-  let (q, _) = dec_coeff_round_div_expansion(
+  let (q, exact) = dec_coeff_round_div_expansion(
     dec_coeff_shift_power10_repr(dividend.coefficient, extra),
     divisor.coefficient,
     negative,
     DecimalRoundingMode::ZeroFiveUp.kernel(),
   )
+  if exact && difference > 2147483647L {
+    // The ideal exponent is above `Int`, unreachable: the exact quotient is
+    // delivered with all its trailing zeros removed (the exponent closest to the
+    // ideal one), not padded to the precision with the guard zeros.
+    let (reduced, exponent) = remove_factor10_repr(
+      q,
+      (difference - extra.to_int64()).to_int(),
+    )
+    return Some(
+      normalize_decimal_parts_ctx_wide_repr(
+        negative,
+        reduced,
+        exponent.to_int64(),
+        ctx,
+      ),
+    )
+  }
   // A nonzero remainder leaves the low digit of `q` off 0 and 5, so the
   // wide rounding reports `inexact` exactly when the quotient is inexact.
   Some(
