@@ -210,8 +210,8 @@ $$
 $\mathbb{F}_{\beta,q}$, whose exponent is unbounded. The decimal types store the
 exponent as an `Int` and add no other limit, so for them (F5) holds as stated.
 `Binary` keeps its implementation range even in `with_precision`: let
-$E = 2^{30} - 1$ (`binary_implementation_e_max`, and $-E$ is
-`binary_implementation_e_min`). A rounded result whose leading bit would lie
+$E = 2^{30} - 1$ (`binary_value_e_max`, and $-E$ is
+`binary_value_e_min`). A rounded result whose leading bit would lie
 above $2^{E}$ overflows: to an infinity for `ToNearestEven`, `AwayFromZero`
 and the directed mode that points away from zero on that side, otherwise to
 the largest finite value with $q$ bits. A value whose leading bit lies below

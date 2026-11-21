@@ -361,7 +361,7 @@ test "coefficient paths decline what they do not cover" {
   // exponents near the implementation limits
   let huge = Binary::make_coeff(
     Coeff::one().shift_left(120).add(Coeff::one()),
-    binary_implementation_e_max - 200,
+    binary_value_e_max - 200,
     128,
   )
   assert_true(binary_coeff_fast_mul(huge, huge) is None)

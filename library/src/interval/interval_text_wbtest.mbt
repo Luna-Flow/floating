@@ -121,7 +121,7 @@ test "Show reads back, at its precision, to an interval that contains it with th
 
 ///|
 test "Show: a bound far down the exponent range is written in hexadecimal, not expanded" {
-  let e_max = @binary.binary_implementation_e_max
+  let e_max = @binary.binary_value_e_max
   let x = Interval::from_bounds(
     text_bound(3UL, e_max - 10, 53, false),
     text_bound(5UL, e_max - 5, 53, false),

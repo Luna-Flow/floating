@@ -29,8 +29,8 @@ fn rootn_random_value(rng : RootnRng, allow_negative : Bool) -> Binary {
     0 => (rng.next() % 40UL).to_int() - 20
     1 => (rng.next() % 4000UL).to_int() - 2000
     2 => (rng.next() % 2000000UL).to_int() - 1000000
-    3 => binary_implementation_e_max - 130 - (rng.next() % 60UL).to_int()
-    4 => binary_implementation_e_min + 5 + (rng.next() % 60UL).to_int()
+    3 => binary_value_e_max - 130 - (rng.next() % 60UL).to_int()
+    4 => binary_value_e_min + 5 + (rng.next() % 60UL).to_int()
     _ => (rng.next() % 300UL).to_int() - 150
   }
   let negative = allow_negative && rng.next() % 2UL == 0UL
@@ -250,10 +250,10 @@ test "rootn by an integer root: perfect powers plus or minus one, both sides of 
 test "rootn by an integer root at the exponent limits and the subnormal boundary" {
   let contexts = rootn_small_contexts()
   let top_limits = [
-    binary_implementation_e_max,
-    binary_implementation_e_max - 1,
-    binary_implementation_e_min + 1,
-    binary_implementation_e_min + 2,
+    binary_value_e_max,
+    binary_value_e_max - 1,
+    binary_value_e_min + 1,
+    binary_value_e_min + 2,
     0,
     -1,
     1,

@@ -3,8 +3,8 @@
 /// cannot reach these exponents). Expected values come from the test-only
 /// copies of the code before #378, never from the new code alone.
 test "round core agrees with the old one at the exponent limits and carries" {
-  let lowest = binary_implementation_e_min
-  let highest = binary_implementation_e_max
+  let lowest = binary_value_e_min
+  let highest = binary_value_e_max
   let contexts : Array[BinaryContext] = []
   for
     mode in [

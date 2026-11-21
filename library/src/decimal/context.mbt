@@ -233,19 +233,19 @@ pub fn DecimalFlags::has_error(self : DecimalFlags) -> Bool {
 /// `p <= 999999`); outside it they return NaN with `not_computed`. See
 /// "DecimalContext::new, try_new" in the `decimal` API manual
 /// (doc/manual/api/decimal.md).
-pub let decimal_implementation_e_max : Int32 = @internal.decimal_exponent_limit
+pub let decimal_context_e_max_limit : Int32 = @internal.decimal_exponent_limit
 
 ///|
-/// Smallest `e_min` of a context, `1 - decimal_implementation_e_max`
+/// Smallest `e_min` of a context, `1 - decimal_context_e_max_limit`
 /// (IEEE 754-2019 3.3: `e_min = 1 - e_max`). The certified elementary
-/// functions have their own, narrower limit (see `decimal_implementation_e_max`).
-pub let decimal_implementation_e_min : Int32 = 1 -
+/// functions have their own, narrower limit (see `decimal_context_e_max_limit`).
+pub let decimal_context_e_min_limit : Int32 = 1 -
   @internal.decimal_exponent_limit
 
 ///|
 /// Largest precision that `DecimalContext::try_new` accepts. The certified
 /// elementary functions have their own, lower limit (see
-/// `decimal_implementation_e_max`).
+/// `decimal_context_e_max_limit`).
 pub let decimal_precision_max : Int32 = @internal.decimal_exponent_limit
 
 ///|
@@ -253,10 +253,10 @@ pub let decimal_precision_max : Int32 = @internal.decimal_exponent_limit
 /// 999,999 (the widest range in which every operation of the package runs) and
 /// `1000 p`, which IEEE 754-2019 3.7 requires of an extendable format given by
 /// `p` alone (`p` of at least 51 digits). `None` when that exceeds
-/// `decimal_implementation_e_max`.
+/// `decimal_context_e_max_limit`.
 fn decimal_default_e_max(precision : Int32) -> Int32? {
   let wanted = Int64::max(999_999L, precision.to_int64() * 1000L)
-  if wanted > decimal_implementation_e_max.to_int64() {
+  if wanted > decimal_context_e_max_limit.to_int64() {
     None
   } else {
     Some(wanted.to_int())
@@ -299,12 +299,12 @@ fn DecimalContext::build(
         Some(value) => value
         None =>
           return Err(
-            "e_max must be given for precision \{precision}: 1000 * precision exceeds \{decimal_implementation_e_max}",
+            "e_max must be given for precision \{precision}: 1000 * precision exceeds \{decimal_context_e_max_limit}",
           )
       }
   }
-  guard e_max >= 1 && e_max <= decimal_implementation_e_max else {
-    return Err("e_max must be within 1..=\{decimal_implementation_e_max}")
+  guard e_max >= 1 && e_max <= decimal_context_e_max_limit else {
+    return Err("e_max must be within 1..=\{decimal_context_e_max_limit}")
   }
   Ok(
     DecimalContext::raw(
@@ -384,14 +384,14 @@ pub fn DecimalContext::with_precision(
 
 ///|
 /// The same context with the exponent range `[1 - e_max, e_max]`. Aborts when
-/// `e_max` is outside `1..=decimal_implementation_e_max`, like `new`.
+/// `e_max` is outside `1..=decimal_context_e_max_limit`, like `new`.
 pub fn DecimalContext::with_e_max(
   self : DecimalContext,
   e_max : Int32,
 ) -> DecimalContext {
-  guard e_max >= 1 && e_max <= decimal_implementation_e_max else {
+  guard e_max >= 1 && e_max <= decimal_context_e_max_limit else {
     abort(
-      "DecimalContext::with_e_max: e_max must be within 1..=\{decimal_implementation_e_max}",
+      "DecimalContext::with_e_max: e_max must be within 1..=\{decimal_context_e_max_limit}",
     )
   }
   { ..self, e_min: 1 - e_max, e_max, }
@@ -466,7 +466,7 @@ pub fn DecimalContext::with_elementary_precision_limit(
 /// "every digit". Not a context of any IEEE format and not public.
 fn decimal_exact_work_context() -> DecimalContext {
   DecimalContext::raw(
-    0, decimal_implementation_e_min, decimal_implementation_e_max,
+    0, decimal_context_e_min_limit, decimal_context_e_max_limit,
   )
 }
 

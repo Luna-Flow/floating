@@ -1,12 +1,12 @@
 // #441: `Binary::make` rounds to the precision and to the implementation
-// range in one step. Below 2^binary_implementation_e_min the grid is the
-// smallest quantum q = 2^(binary_implementation_e_min - (p - 1)) whatever the
+// range in one step. Below 2^binary_value_e_min the grid is the
+// smallest quantum q = 2^(binary_value_e_min - (p - 1)) whatever the
 // leading bit, so a value whose leading bit is in range but whose lowest bit is
 // below q has to be rounded to a multiple of q, like every other path does.
 
 ///|
 fn q441_quantum_exponent(precision : Int32) -> Int32 {
-  binary_implementation_e_min - (precision - 1)
+  binary_value_e_min - (precision - 1)
 }
 
 ///|
@@ -109,15 +109,11 @@ test "make rounds a value whose lowest bit is below the smallest quantum (#441)"
 
 ///|
 test "the example of #441" {
-  let x = Binary::make(
-    BinCoeff::from_uint64(3UL),
-    binary_implementation_e_min - 53,
-    53,
-  )
+  let x = Binary::make(BinCoeff::from_uint64(3UL), binary_value_e_min - 53, 53)
   let y = x.add(Binary::zero())
   assert_true(x.coefficient() == y.coefficient())
   assert_eq(x.exponent2(), y.exponent2())
-  assert_eq(x.exponent2(), binary_implementation_e_min - 52 + 1)
+  assert_eq(x.exponent2(), binary_value_e_min - 52 + 1)
 }
 
 ///|

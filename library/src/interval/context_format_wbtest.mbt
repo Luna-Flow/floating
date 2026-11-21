@@ -6,7 +6,7 @@ test "IntervalContext is a binary format of IEEE 754-2019 3.3 with e_min = 1 - e
   assert_eq(c.e_min(), -126)
   let d = IntervalContext::new()
   assert_eq(d.precision(), 53)
-  assert_eq(d.e_max(), @binary.binary_implementation_e_max)
+  assert_eq(d.e_max(), @binary.binary_value_e_max)
   assert_eq(d.e_min(), @binary.BinaryContext::new().e_min())
   assert_eq(c.with_precision(11).precision(), 11)
   assert_eq(c.with_precision(11).e_max(), 127)

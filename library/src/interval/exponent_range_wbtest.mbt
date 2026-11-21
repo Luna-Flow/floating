@@ -1,18 +1,12 @@
 ///|
 test "interval exponentials enclose results beyond the binary exponent range" {
   let huge = Interval::from_int(1000000000, precision=53).exp()
-  assert_eq(
-    huge.lower_bound().exponent2(),
-    @binary.binary_implementation_e_max - 52,
-  )
+  assert_eq(huge.lower_bound().exponent2(), @binary.binary_value_e_max - 52)
   assert_eq(huge.upper_bound().classify(), FpClass::Infinity)
   let tiny = Interval::from_int(-1000000000, precision=53).exp()
   assert_true(tiny.lower_bound().is_zero())
   assert_false(tiny.upper_bound().is_zero())
-  assert_eq(
-    tiny.upper_bound().exponent2(),
-    @binary.binary_implementation_e_min - 52,
-  )
+  assert_eq(tiny.upper_bound().exponent2(), @binary.binary_value_e_min - 52)
   assert_false(tiny.radius().is_zero())
 }
 

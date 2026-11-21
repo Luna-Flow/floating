@@ -304,8 +304,7 @@ fn exact_bound(
             "` has more than \{precision} significant bits, so it is not a number of the format of the interval",
           ),
         )
-      } else if value.exponent2() <
-        @binary.binary_implementation_e_min - precision + 1 {
+      } else if value.exponent2() < @binary.binary_value_e_min - precision + 1 {
         Err(
           lit_error(
             "the bound `" +

@@ -21,7 +21,7 @@
 test "pow of a power of two with a half-integer exponent rounds the exact result" {
   let mut cases = 0
   for p in [1, 2, 3, 53, 300] {
-    let q = binary_implementation_e_min - (p - 1)
+    let q = binary_value_e_min - (p - 1)
     for mode in e2s_modes() {
       for
         n in [
@@ -29,8 +29,8 @@ test "pow of a power of two with a half-integer exponent rounds the exact result
           q - 1,
           q,
           q + 1,
-          binary_implementation_e_min - 1,
-          binary_implementation_e_min,
+          binary_value_e_min - 1,
+          binary_value_e_min,
           -1073741825,
           -1073741827,
           -2147483647,
@@ -52,7 +52,7 @@ test "pow of a power of two with a half-integer exponent rounds the exact result
           let ctx = BinaryContext::new(precision=p, rounding=mode)
           let (value, flags) = base.pow_ctx(exponent, ctx)
           let (expected, expected_flags) = e2s_model(
-            n, p, mode, binary_implementation_e_min, binary_implementation_e_max,
+            n, p, mode, binary_value_e_min, binary_value_e_max,
           )
           let label = "pow(2^\{-2 * j}, \{m}/2) p=\{p} \{e2s_mode_name(mode)}"
           assert_eq("\{label} => \{value}", "\{label} => \{expected}")

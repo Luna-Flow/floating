@@ -127,8 +127,8 @@ fn binary_ctx_add_words(
 ) -> (Binary, BinaryFlags)? {
   let precision = context.precision
   guard precision <= 62 &&
-    context.range_e_max() == binary_implementation_e_max &&
-    context.range_e_min() == binary_implementation_e_min else {
+    context.range_e_max() == binary_value_e_max &&
+    context.range_e_min() == binary_value_e_min else {
     return None
   }
   guard binary_fast_is_word(left) && binary_fast_is_word(right) else {
@@ -212,8 +212,8 @@ fn binary_ctx_mul_words(
 ) -> (Binary, BinaryFlags)? {
   let precision = context.precision
   guard precision <= 62 &&
-    context.range_e_max() == binary_implementation_e_max &&
-    context.range_e_min() == binary_implementation_e_min else {
+    context.range_e_max() == binary_value_e_max &&
+    context.range_e_min() == binary_value_e_min else {
     return None
   }
   guard binary_fast_is_word(left) && binary_fast_is_word(right) else {
@@ -266,8 +266,8 @@ fn binary_ctx_div_words(
 ) -> (Binary, BinaryFlags)? {
   let precision = context.precision
   guard precision <= 60 &&
-    context.range_e_max() == binary_implementation_e_max &&
-    context.range_e_min() == binary_implementation_e_min else {
+    context.range_e_max() == binary_value_e_max &&
+    context.range_e_min() == binary_value_e_min else {
     return None
   }
   guard binary_fast_is_word(left) && binary_fast_is_word(right) else {

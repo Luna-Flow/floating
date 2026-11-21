@@ -169,11 +169,11 @@ test "exp2 of an integer matches the model at every range boundary" {
           }
           let e_min = match range.0 {
             Some(lo) => lo
-            None => binary_implementation_e_min
+            None => binary_value_e_min
           }
           let e_max = match range.1 {
             Some(hi) => hi
-            None => binary_implementation_e_max
+            None => binary_value_e_max
           }
           let q = e_min - (p - 1)
           let args = [
@@ -260,7 +260,7 @@ test "exp2 of non-integers around the smallest subnormal" {
   ]
   let precisions = [3, 4, 24, 53, 113]
   for p in precisions {
-    let q = binary_implementation_e_min - (p - 1)
+    let q = binary_value_e_min - (p - 1)
     for row in rows {
       let (numerator, expected) = row
       let x = e2s_shifted(q, numerator)
@@ -299,7 +299,7 @@ test "exp2 true underflow to zero threshold carries inexact and underflow" {
   // [9.2]/[7.5.f]: far below the smallest subnormal the result is the
   // rounding of a positive value smaller than any midpoint.
   for p in [2, 53, 300] {
-    let q = binary_implementation_e_min - (p - 1)
+    let q = binary_value_e_min - (p - 1)
     for far in [q - 2, q - 1000, -2147483640] {
       for mode in e2s_modes() {
         let ctx = BinaryContext::new(precision=p, rounding=mode)

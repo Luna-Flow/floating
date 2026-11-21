@@ -24,14 +24,11 @@
 //   not read from the library; tools/oracle_constants_test.py ties the oracle programs to the same numbers
 // shares: nothing
 test "the library limits equal the numbers written in the oracle programs" {
-  assert_eq(@binary.binary_implementation_e_max, 1073741823)
-  assert_eq(@binary.binary_implementation_e_min, -1073741822)
+  assert_eq(@binary.binary_value_e_max, 1073741823)
+  assert_eq(@binary.binary_value_e_min, -1073741822)
   assert_eq(@binary.binary_precision_max, 268435456)
-  assert_eq(
-    @binary.binary_implementation_e_min,
-    1 - @binary.binary_implementation_e_max,
-  )
-  assert_eq(@decimal.decimal_implementation_e_max, 999999999)
-  assert_eq(@decimal.decimal_implementation_e_min, -999999998)
+  assert_eq(@binary.binary_value_e_min, 1 - @binary.binary_value_e_max)
+  assert_eq(@decimal.decimal_context_e_max_limit, 999999999)
+  assert_eq(@decimal.decimal_context_e_min_limit, -999999998)
   assert_eq(@decimal.decimal_precision_max, 999999999)
 }

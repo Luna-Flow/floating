@@ -7,7 +7,7 @@
 /// working context of the plain operators (S1), the largest the 32-bit exponent
 /// field allows once `e_max`, `e_min` and `etiny = e_min - p + 1` have to be
 /// representable in it. A context is narrower than what can be stored (see
-/// `decimal_implementation_e_max`): a value outside every context range can
+/// `decimal_context_e_max_limit`): a value outside every context range can
 /// still be stored and is rounded when a context operation reads it.
 pub let decimal_value_e_max : Int32 = 2147483646
 

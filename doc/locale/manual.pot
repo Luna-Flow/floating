@@ -805,7 +805,7 @@ msgid "The ten-valued class of IEEE 754-2019 clause 5.7.2 and its predicates."
 msgstr ""
 
 #: manual/api/binary.md:399
-msgid "`class_of` returns one of the ten values of [`IeeeClass`](def.md#ieeeclass): `SignalingNaN`, `QuietNaN`, `NegativeInfinity`, `NegativeNormal`, `NegativeSubnormal`, `NegativeZero`, `PositiveZero`, `PositiveSubnormal`, `PositiveNormal` and `PositiveInfinity`. A nonzero finite value is normal when the exponent of its leading bit is at least the context's $e_{\\min}$ and subnormal when it is below; a `Binary` carries no format, so the context decides, and `BinaryInterchangeFormat::context` gives the one of a binary interchange format. A context given by its precision alone has the implementation limit `binary_implementation_e_min` as `e_min`. `is_normal` and `is_subnormal` are true exactly for the normal and subnormal classes; `is_finite` is true for zeros, subnormals and normals, `is_infinite` for the two infinities and `is_nan` for both NaNs. None of them rounds or raises a flag, and `classify` keeps its three-valued meaning."
+msgid "`class_of` returns one of the ten values of [`IeeeClass`](def.md#ieeeclass): `SignalingNaN`, `QuietNaN`, `NegativeInfinity`, `NegativeNormal`, `NegativeSubnormal`, `NegativeZero`, `PositiveZero`, `PositiveSubnormal`, `PositiveNormal` and `PositiveInfinity`. A nonzero finite value is normal when the exponent of its leading bit is at least the context's $e_{\\min}$ and subnormal when it is below; a `Binary` carries no format, so the context decides, and `BinaryInterchangeFormat::context` gives the one of a binary interchange format. A context given by its precision alone has the implementation limit `binary_value_e_min` as `e_min`. `is_normal` and `is_subnormal` are true exactly for the normal and subnormal classes; `is_finite` is true for zeros, subnormals and normals, `is_infinite` for the two infinities and `is_nan` for both NaNs. None of them rounds or raises a flag, and `classify` keeps its three-valued meaning."
 msgstr ""
 
 #: manual/api/binary.md:415
@@ -939,7 +939,7 @@ msgid "The format and the attributes of one operation: the precision $p$, the ex
 msgstr ""
 
 #: manual/api/binary.md:690
-msgid "A context is an immutable value; there is no global or thread state. $e_{\\min}$ and $e_{\\max}$ are exponents of the leading bit, as in IEEE 754: a normal number satisfies $2^{e_{\\min}} \\le |x| < 2^{e_{\\max}+1}$, the largest finite value is $(2 - 2^{1-p})\\,2^{e_{\\max}}$ and the smallest positive subnormal is $2^{e_{\\min}-p+1}$. A context has no separate $e_{\\min}$: it is $1 - e_{\\max}$. Without an `e_max` the context is the extendable precision format of IEEE 754-2019 3.7 specified by $p$ alone, and $e_{\\max}$ is `binary_implementation_e_max`."
+msgid "A context is an immutable value; there is no global or thread state. $e_{\\min}$ and $e_{\\max}$ are exponents of the leading bit, as in IEEE 754: a normal number satisfies $2^{e_{\\min}} \\le |x| < 2^{e_{\\max}+1}$, the largest finite value is $(2 - 2^{1-p})\\,2^{e_{\\max}}$ and the smallest positive subnormal is $2^{e_{\\min}-p+1}$. A context has no separate $e_{\\min}$: it is $1 - e_{\\max}$. Without an `e_max` the context is the extendable precision format of IEEE 754-2019 3.7 specified by $p$ alone, and $e_{\\max}$ is `binary_value_e_max`."
 msgstr ""
 
 #: manual/api/binary.md:701
@@ -947,7 +947,7 @@ msgid "Build a context."
 msgstr ""
 
 #: manual/api/binary.md:708
-msgid "Defaults: $p = 53$, `e_max = binary_implementation_e_max`, `RoundTiesToEven`, `AfterRounding`; `new()` is therefore the extendable format of 53 bits, and every operation of the package runs in it. `new` aborts when $p$ is outside $[1, 2^{28}]$ or $e_{\\max}$ is outside $[1, 2^{30}-1]$, naming the parameter; `try_new` returns a `domain_error` in those cases. $e_{\\max} \\ge 1$ is what makes $e_{\\min} = 1 - e_{\\max} \\le e_{\\max}$; IEEE 754-2019 3.7 NOTE 3 recommends $p \\ge 3$ and $e_{\\max} \\ge 2$, which are not enforced. There is no one-sided or asymmetric range: `unbounded(p)` and the `e_min` argument no longer exist."
+msgid "Defaults: $p = 53$, `e_max = binary_value_e_max`, `RoundTiesToEven`, `AfterRounding`; `new()` is therefore the extendable format of 53 bits, and every operation of the package runs in it. `new` aborts when $p$ is outside $[1, 2^{28}]$ or $e_{\\max}$ is outside $[1, 2^{30}-1]$, naming the parameter; `try_new` returns a `domain_error` in those cases. $e_{\\max} \\ge 1$ is what makes $e_{\\min} = 1 - e_{\\max} \\le e_{\\max}$; IEEE 754-2019 3.7 NOTE 3 recommends $p \\ge 3$ and $e_{\\max} \\ge 2$, which are not enforced. There is no one-sided or asymmetric range: `unbounded(p)` and the `e_min` argument no longer exist."
 msgstr ""
 
 #: manual/api/binary.md:719
@@ -2024,7 +2024,7 @@ msgid "The derived `Eq` and `Debug` methods of `BinaryContext`."
 msgstr ""
 
 #: manual/api/binary.md:2609
-msgid "Equality compares the fields, so `BinaryContext::new(precision=53)` equals `BinaryContext::new(precision=53, e_max=binary_implementation_e_max)`: there is one representation of every context."
+msgid "Equality compares the fields, so `BinaryContext::new(precision=53)` equals `BinaryContext::new(precision=53, e_max=binary_value_e_max)`: there is one representation of every context."
 msgstr ""
 
 #: manual/api/binary.md:2615
@@ -2988,7 +2988,7 @@ msgid "The limits of a stored finite value."
 msgstr ""
 
 #: manual/api/decimal.md:190
-msgid "A finite `Decimal` holds only a value with `exponent + digits - 1 <= decimal_value_e_max` (the largest adjusted exponent, $2\\,147\\,483\\,646$; a zero has one digit) and `exponent >= decimal_value_e_tiny` (the smallest exponent, $-2\\,147\\,483\\,645$). They are the `e_max` and the `etiny` of the private working context of the plain operators, the largest and smallest the 32-bit exponent field allows once `e_max`, `e_min` and `etiny = e_min - p + 1` have to be representable in it, so that `x + 0 == x`, `x - 0 == x` and `x * 1 == x` hold for every stored value. The exact constructors (`make`, `try_make`, `parse`, `from_string`) refuse a value outside the range; the constructors from integers, floats and binary floats cannot produce one; an operation that rounds (the plain operators, `with_precision`) overflows to an infinity or the largest finite value of the rounding direction, or underflows to the smallest exponent, like a context result. These are not the limits of a context (`decimal_implementation_e_max`, below): a context is narrower than what can be stored, and a value outside every context range can still be stored and is rounded when a context operation reads it."
+msgid "A finite `Decimal` holds only a value with `exponent + digits - 1 <= decimal_value_e_max` (the largest adjusted exponent, $2\\,147\\,483\\,646$; a zero has one digit) and `exponent >= decimal_value_e_tiny` (the smallest exponent, $-2\\,147\\,483\\,645$). They are the `e_max` and the `etiny` of the private working context of the plain operators, the largest and smallest the 32-bit exponent field allows once `e_max`, `e_min` and `etiny = e_min - p + 1` have to be representable in it, so that `x + 0 == x`, `x - 0 == x` and `x * 1 == x` hold for every stored value. The exact constructors (`make`, `try_make`, `parse`, `from_string`) refuse a value outside the range; the constructors from integers, floats and binary floats cannot produce one; an operation that rounds (the plain operators, `with_precision`) overflows to an infinity or the largest finite value of the rounding direction, or underflows to the smallest exponent, like a context result. These are not the limits of a context (`decimal_context_e_max_limit`, below): a context is narrower than what can be stored, and a value outside every context range can still be stored and is rounded when a context operation reads it."
 msgstr ""
 
 #: manual/api/decimal.md:209
@@ -3104,7 +3104,7 @@ msgid "The limits of the context parameters that `DecimalContext::try_new` accep
 msgstr ""
 
 #: manual/api/decimal.md:478
-msgid "They are $999\\,999\\,999$, $-999\\,999\\,998$ ($1 - e_{\\max}$, the smallest $e_{\\min}$ of a context) and $999\\,999\\,999$, the decNumber `decContext.h` limits (`decimal_implementation_e_min` was $-999\\,999\\,999$ before 0.12). `try_new` and `new` check `precision` and `e_max` against these constants (`precision` in `1..=decimal_precision_max`, `e_max` in `1..=decimal_implementation_e_max`), so the values cannot drift from the validation. They bound the context only: the certified elementary functions have their own, lower limit ($e_{\\max} \\le 999\\,999$ and $p \\le 999\\,999$), which is documented in [Elementary functions](#elementary-functions)."
+msgid "They are $999\\,999\\,999$, $-999\\,999\\,998$ ($1 - e_{\\max}$, the smallest $e_{\\min}$ of a context) and $999\\,999\\,999$, the decNumber `decContext.h` limits (`decimal_context_e_min_limit` was $-999\\,999\\,999$ before 0.12). `try_new` and `new` check `precision` and `e_max` against these constants (`precision` in `1..=decimal_precision_max`, `e_max` in `1..=decimal_context_e_max_limit`), so the values cannot drift from the validation. They bound the context only: the certified elementary functions have their own, lower limit ($e_{\\max} \\le 999\\,999$ and $p \\le 999\\,999$), which is documented in [Elementary functions](#elementary-functions)."
 msgstr ""
 
 #: manual/api/decimal.md:490
@@ -5062,7 +5062,7 @@ msgid "`with_precision(x, p)` returns `x` re-expressed at precision $q = \\max(1
 msgstr ""
 
 #: manual/api/def.md:212
-msgid "For a finite scalar the value is rounded to $q$ significant digits of its radix, to nearest with ties to even (IEEE 754-2019 4.3.1). The trait method has no rounding parameter, because it cannot return an error; the inherent `with_precision` of each scalar type takes a rounding mode. No context exponent bounds apply and no flags are reported (use the `*_ctx` APIs of the concrete package for both). The decimal types have no other exponent limit. `Binary` keeps its implementation range: a result whose exponent leaves $\\pm(2^{30} - 1)$ (`binary_implementation_e_max`, `binary_implementation_e_min`) overflows to an infinity or to the largest finite value, or underflows, as in IEEE 754. Zeros keep their sign. Infinities and NaNs keep their class, sign and payload and only change the stored precision."
+msgid "For a finite scalar the value is rounded to $q$ significant digits of its radix, to nearest with ties to even (IEEE 754-2019 4.3.1). The trait method has no rounding parameter, because it cannot return an error; the inherent `with_precision` of each scalar type takes a rounding mode. No context exponent bounds apply and no flags are reported (use the `*_ctx` APIs of the concrete package for both). The decimal types have no other exponent limit. `Binary` keeps its implementation range: a result whose exponent leaves $\\pm(2^{30} - 1)$ (`binary_value_e_max`, `binary_value_e_min`) overflows to an infinity or to the largest finite value, or underflows, as in IEEE 754. Zeros keep their sign. Infinities and NaNs keep their class, sign and payload and only change the stored precision."
 msgstr ""
 
 #: manual/api/def.md:227
@@ -7710,7 +7710,7 @@ msgid "`IntervalContext::new` builds a context from a precision and the largest 
 msgstr ""
 
 #: manual/api/interval.md:1594
-msgid "The defaults are precision 53 and, for `e_max`, the implementation limit `binary_implementation_e_max` of `binary`, the same as `BinaryContext::new` given a precision alone (so `IntervalContext::new()` is not binary64: use `binary64()` for that). The legality of the pair is decided by `BinaryContext::try_new`, so `binary` and `interval` have one definition of a format: the precision is between 1 and `binary_precision_max` and `e_max` is at least 1. An illegal pair aborts `new`, naming the parameter, and is a domain error for `try_new`. Before 0.12 `e_min` was a parameter, any pair with `e_min <= e_max` was accepted, and the precision had no upper limit."
+msgid "The defaults are precision 53 and, for `e_max`, the implementation limit `binary_value_e_max` of `binary`, the same as `BinaryContext::new` given a precision alone (so `IntervalContext::new()` is not binary64: use `binary64()` for that). The legality of the pair is decided by `BinaryContext::try_new`, so `binary` and `interval` have one definition of a format: the precision is between 1 and `binary_precision_max` and `e_max` is at least 1. An illegal pair aborts `new`, naming the parameter, and is a domain error for `try_new`. Before 0.12 `e_min` was a parameter, any pair with `e_min <= e_max` was accepted, and the precision had no upper limit."
 msgstr ""
 
 #: manual/api/interval.md:1604
@@ -16064,7 +16064,7 @@ msgid "The laws below are the contract of the trait. They are stated for a value
 msgstr ""
 
 #: manual/design/def.md:209
-msgid "**The exponent range of `Binary`.** (F5) is stated over $\\mathbb{F}_{\\beta,q}$, whose exponent is unbounded. The decimal types store the exponent as an `Int` and add no other limit, so for them (F5) holds as stated. `Binary` keeps its implementation range even in `with_precision`: let $E = 2^{30} - 1$ (`binary_implementation_e_max`, and $-E$ is `binary_implementation_e_min`). A rounded result whose leading bit would lie above $2^{E}$ overflows: to an infinity for `ToNearestEven`, `AwayFromZero` and the directed mode that points away from zero on that side, otherwise to the largest finite value with $q$ bits. A value whose leading bit lies below $2^{-E-(q-1)}$, the smallest positive value stored at $q$ bits, is rounded to $0$ or to that value. So for `Binary` (F5) holds whenever $\\circ_{m,q}([\\![x]\\!])$ lies in that range. For example $3 \\cdot 2^{E-1}$ re-expressed with one bit and `AwayFromZero` becomes $+\\infty$ instead of $2^{E+1}$."
+msgid "**The exponent range of `Binary`.** (F5) is stated over $\\mathbb{F}_{\\beta,q}$, whose exponent is unbounded. The decimal types store the exponent as an `Int` and add no other limit, so for them (F5) holds as stated. `Binary` keeps its implementation range even in `with_precision`: let $E = 2^{30} - 1$ (`binary_value_e_max`, and $-E$ is `binary_value_e_min`). A rounded result whose leading bit would lie above $2^{E}$ overflows: to an infinity for `ToNearestEven`, `AwayFromZero` and the directed mode that points away from zero on that side, otherwise to the largest finite value with $q$ bits. A value whose leading bit lies below $2^{-E-(q-1)}$, the smallest positive value stored at $q$ bits, is rounded to $0$ or to that value. So for `Binary` (F5) holds whenever $\\circ_{m,q}([\\![x]\\!])$ lies in that range. For example $3 \\cdot 2^{E-1}$ re-expressed with one bit and `AwayFromZero` becomes $+\\infty$ instead of $2^{E+1}$."
 msgstr ""
 
 #: manual/design/def.md:224
@@ -20461,7 +20461,7 @@ msgid "Interchange: `BinaryInterchange`, `BinaryInterchangeFormat` (binary16, 32
 msgstr ""
 
 #: manual/index.md:161
-msgid "Limits: `binary_implementation_e_min`, `binary_implementation_e_max`, `binary_precision_max`"
+msgid "Limits: `binary_value_e_min`, `binary_value_e_max`, `binary_precision_max`"
 msgstr ""
 
 #: manual/index.md:164

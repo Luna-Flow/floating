@@ -23,10 +23,7 @@ fn fab_value(
   exponent : Int32,
   precision : Int32,
 ) -> @binary.Binary {
-  let bits = Int32::max(
-    precision,
-    @binary.binary_implementation_e_min - exponent + 1,
-  )
+  let bits = Int32::max(precision, @binary.binary_value_e_min - exponent + 1)
   @binary.Binary::make(
     @binary.BinCoeff::from_uint64(coefficient),
     exponent,
@@ -102,7 +99,7 @@ test "fma of a product above the range has the largest finite number of the prec
   // 3 * 2^(e_max - 1) times 3 is above the range: its lower bound was the largest
   // finite number of the 4 bits of the exact product, not of the precision
   let precision = 200
-  let e_max = @binary.binary_implementation_e_max
+  let e_max = @binary.binary_value_e_max
   let a = @binary.Binary::make(
     @binary.BinCoeff::from_uint64(3UL),
     e_max - 1,

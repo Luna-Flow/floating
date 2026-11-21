@@ -84,7 +84,7 @@ fn parse_random_value(
                 precision,
                 Int32::min(
                   @binary.binary_precision_max,
-                  @binary.binary_implementation_e_min - exponent + 1,
+                  @binary.binary_value_e_min - exponent + 1,
                 ),
               )
             None => precision

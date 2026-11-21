@@ -64,7 +64,7 @@ test "the interval of a center near the bottom of the range contains the center"
 /// intervals of 24 to 128 bits (a seeded generator, 4,000 cases).
 test "intervals built near the bottom of the range contain their centers" {
   let state = Ref(0x5851f42d4c957f2dUL)
-  let e_min = @binary.binary_implementation_e_min
+  let e_min = @binary.binary_value_e_min
   let precisions = [24, 53, 64, 113, 128]
   let mut escaped = 0
   for _ in 0..<4000 {

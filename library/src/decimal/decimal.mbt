@@ -958,8 +958,8 @@ fn math_context_is_restricted(ctx : DecimalContext) -> Bool {
 ///|
 fn gda_context_is_restricted(ctx : DecimalContext) -> Bool {
   ctx.precision > decimal_precision_max ||
-  ctx.e_max > decimal_implementation_e_max ||
-  ctx.e_min < decimal_implementation_e_min
+  ctx.e_max > decimal_context_e_max_limit ||
+  ctx.e_min < decimal_context_e_min_limit
 }
 
 ///|

@@ -21,7 +21,7 @@ fn bl_fits(x : @binary.Binary, p : Int32) -> Bool {
   }
   // written here: the rule under test is not called by its test
   x.coefficient().bit_length() <= p &&
-  x.exponent2() >= @binary.binary_implementation_e_min - p + 1
+  x.exponent2() >= @binary.binary_value_e_min - p + 1
 }
 
 ///|
@@ -161,7 +161,7 @@ test "labels of the bounds: written-out cases" {
   assert_true(rounded.upper_bound().precision() == 24)
   // (3) a number finer than the grid of 24 bits below the range floor (2^(e_min - 30)) is
   // rounded outward to the grid (2^(e_min - 23) is the smallest positive number of 24 bits)
-  let e_min = @binary.binary_implementation_e_min
+  let e_min = @binary.binary_value_e_min
   let fine = @binary.Binary::make(@binary.BinCoeff::one(), e_min - 30, 31)
   let floor = Interval::from_bounds(fine, fine, precision=24)
   assert_true(floor.lower_bound().is_zero())

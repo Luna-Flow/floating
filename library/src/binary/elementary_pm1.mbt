@@ -149,7 +149,7 @@ fn binary_try_exp_base_minus_one(
         // above 2^30 by less than 2^-(2^30).
         Some(
           value.compare(
-            Binary::from_int_raw(binary_implementation_e_max + 1, precision=32),
+            Binary::from_int_raw(binary_value_e_max + 1, precision=32),
           ) >
           0,
         )

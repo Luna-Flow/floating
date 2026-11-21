@@ -37,7 +37,7 @@ fn exp_edge_x_below() -> Binary {
 fn exp_edge_omax(precision : Int32) -> Binary {
   Binary::make_coeff(
     Coeff::one().shift_left(precision).sub_checked(Coeff::one()).unwrap(),
-    binary_implementation_e_max + 1 - precision,
+    binary_value_e_max + 1 - precision,
     precision,
   )
 }

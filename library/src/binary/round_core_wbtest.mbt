@@ -82,9 +82,9 @@ fn old_round_dyadic(
   let bits = magnitude.bit_length()
   let exact_top = binary_exact_top(magnitude, exponent2)
   if bits <= context.precision &&
-    context.e_max == binary_implementation_e_max &&
-    exact_top >= binary_implementation_e_min &&
-    exact_top <= binary_implementation_e_max {
+    context.e_max == binary_value_e_max &&
+    exact_top >= binary_value_e_min &&
+    exact_top <= binary_value_e_max {
     return (
       finite_from_parts(negative, magnitude, exponent2, context.precision),
       BinaryFlags::new(),
@@ -225,7 +225,7 @@ test "binary_round_dyadic agrees with the pre-#378 rounding core" {
 test "binary_round_dyadic boundaries on both sides of the exact early exit" {
   // Exactly representable values at, just inside and just beyond the range.
   for context in round_test_contexts() {
-    if context.e_max() < binary_implementation_e_max {
+    if context.e_max() < binary_value_e_max {
       let e_min = context.e_min()
       let e_max = context.e_max()
       let p = context.precision()

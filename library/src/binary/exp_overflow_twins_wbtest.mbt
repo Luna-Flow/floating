@@ -131,7 +131,7 @@ test "functions of an exponential near the overflow threshold decide by the side
           }
           let omax = Binary::make_coeff(
             Coeff::one().shift_left(p).sub_checked(Coeff::one()).unwrap(),
-            binary_implementation_e_max + 1 - p,
+            binary_value_e_max + 1 - p,
             p,
             negative~,
           )

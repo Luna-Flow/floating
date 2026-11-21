@@ -159,7 +159,7 @@ fn exact_value(
   let bits = if exact_range && !coefficient.is_zero() {
     Int32::min(
       @binary.binary_precision_max,
-      Int32::max(bits, @binary.binary_implementation_e_min - exponent2 + 1),
+      Int32::max(bits, @binary.binary_value_e_min - exponent2 + 1),
     )
   } else {
     bits
@@ -383,8 +383,7 @@ fn empty_interval(precision : Int32) -> Interval {
 /// Whether a bound is so large that the sum or difference of two such bounds can leave the
 /// exponent range (the halves are then formed first: they are exact there).
 fn near_range_top(x : @binary.Binary) -> Bool {
-  !x.is_zero() &&
-  exponent_top(x) >= @binary.binary_implementation_e_max.to_int64() - 1L
+  !x.is_zero() && exponent_top(x) >= @binary.binary_value_e_max.to_int64() - 1L
 }
 
 ///|
@@ -1213,7 +1212,7 @@ fn Interval::contains_zero(self : Interval) -> Bool {
 /// The context in which the observers of IEEE 1788-2015 12.12.8 return their
 /// result: the precision of the interval and the widest exponent range.
 fn observer_context(precision : Int32) -> IntervalContext {
-  IntervalContext::new(precision~, e_max=@binary.binary_implementation_e_max)
+  IntervalContext::new(precision~, e_max=@binary.binary_value_e_max)
 }
 
 ///|

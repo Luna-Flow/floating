@@ -46,7 +46,7 @@ fn cn_interval(
 
 ///|
 test "cancel_plus and cancel_minus at the bottom of the range: the cases of the issue" {
-  let e_min = @binary.binary_implementation_e_min
+  let e_min = @binary.binary_value_e_min
   let u = e_min - 60
   // lo = x.lo + y.hi = 4u > hi = x.hi + y.lo = 3u: width(x) = u < width(y) = 2u
   let x = cn_interval(1L, 2L, u, 113)
@@ -60,7 +60,7 @@ test "cancel_plus and cancel_minus at the bottom of the range: the cases of the 
 
 ///|
 test "equal widths give a point, with a canonical zero" {
-  let e_min = @binary.binary_implementation_e_min
+  let e_min = @binary.binary_value_e_min
   let u = e_min - 60
   // cancel_minus([1u, 3u], [0, 2u]) = [1u, 1u]
   let z = cn_interval(1L, 3L, u, 113).cancel_minus(cn_interval(0L, 2L, u, 113))
@@ -126,7 +126,7 @@ fn cn_check(x : Interval, y : Interval, plus : Bool) -> Unit {
 ///|
 test "cancel_plus and cancel_minus decide on the exact values near the bottom of the range" {
   let state = Ref(0x9e3779b97f4a7c15UL)
-  let e_min = @binary.binary_implementation_e_min
+  let e_min = @binary.binary_value_e_min
   let precisions = [53, 113, 128]
   let mut entire = 0
   let mut points = 0

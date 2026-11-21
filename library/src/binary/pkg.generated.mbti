@@ -9,11 +9,11 @@ import {
 }
 
 // Values
-pub let binary_implementation_e_max : Int32
-
-pub let binary_implementation_e_min : Int32
-
 pub let binary_precision_max : Int32
+
+pub let binary_value_e_max : Int32
+
+pub let binary_value_e_min : Int32
 
 // Errors
 

@@ -399,7 +399,7 @@ test "sqrt_ctx on words equals the general path: edges and random, every directi
   ]
   for precision in [2, 3, 5, 8, 24, 31, 32, 33, 53, 58, 59, 60, 61] {
     for mode in modes {
-      for e_max in [1, 3, 20, 1000, binary_implementation_e_max] {
+      for e_max in [1, 3, 20, 1000, binary_value_e_max] {
         let context = BinaryContext::new(precision~, e_max~, rounding=mode)
         let span = 4 * e_max.to_int64().to_int() + 2 * precision + 10
         for round in 0..<40 {
@@ -410,7 +410,7 @@ test "sqrt_ctx on words equals the general path: edges and random, every directi
           } else {
             (raw & ((1UL << width) - 1UL)) | (1UL << (width - 1))
           }
-          let top = if e_max == binary_implementation_e_max {
+          let top = if e_max == binary_value_e_max {
             random.below(2000) - 1000
           } else {
             -2 * (e_max + precision + 3) + random.below(span)

@@ -10,7 +10,7 @@ fn cfw_value(
   exponent : Int32,
   negative : Bool,
 ) -> @binary.Binary {
-  let bits = Int32::max(64, @binary.binary_implementation_e_min - exponent + 1)
+  let bits = Int32::max(64, @binary.binary_value_e_min - exponent + 1)
   @binary.Binary::make(
     @binary.BinCoeff::from_uint64(coefficient),
     exponent,

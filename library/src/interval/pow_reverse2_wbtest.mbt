@@ -280,7 +280,7 @@ test "pow_rev2: bases and results at the edge of the stored range, at 53 and 113
     let smallest = pw_smallest(p)
     let top = @binary.Binary::make(
       @binary.BinCoeff::from_uint64(1UL),
-      @binary.binary_implementation_e_max,
+      @binary.binary_value_e_max,
       p,
     )
     let two = pw_num(2.0, p)
@@ -307,9 +307,7 @@ test "pow_rev2: bases and results at the edge of the stored range, at 53 and 113
     assert_true(r3.lo_.next_up_ctx(ctx).0.compare(r3.hi_) == 0)
     // (4) a = 2, c = smallest stored value: beta = e_min - p + 1, exact
     let r4 = point(two).pow_rev2(point(smallest))
-    let exact_beta = q_num(
-      (@binary.binary_implementation_e_min - p + 1).to_double(),
-    )
+    let exact_beta = q_num((@binary.binary_value_e_min - p + 1).to_double())
     assert_true(
       r4.lo_.compare(exact_beta) == 0 && r4.hi_.compare(exact_beta) == 0,
     )

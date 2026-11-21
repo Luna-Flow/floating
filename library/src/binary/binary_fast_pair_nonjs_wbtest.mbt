@@ -195,7 +195,7 @@ test "pair paths decline what they do not cover" {
   assert_true(binary_pair_add(narrow, far) is None)
   let huge = Binary::make_coeff(
     Coeff::one().shift_left(120).add(Coeff::one()),
-    binary_implementation_e_max - 200,
+    binary_value_e_max - 200,
     128,
   )
   assert_true(binary_pair_mul(huge, huge) is None)

@@ -64,8 +64,7 @@ fn normalize_finite_odd(
   // Underflow is decided on the exact value so that precision rounding cannot
   // move a magnitude onto the halfway point of the smallest subnormal.
   let exact_top = exponent2.to_int64() + (bits - 1).to_int64()
-  let tiny_top = binary_implementation_e_min.to_int64() -
-    (precision - 1).to_int64()
+  let tiny_top = binary_value_e_min.to_int64() - (precision - 1).to_int64()
   if exact_top < tiny_top {
     return implementation_underflow(
       negative,
@@ -100,7 +99,7 @@ fn normalize_finite_odd(
   // range, so it is classified here instead of being stored as a wrong finite.
   // Overflow is decided after rounding, as in IEEE 754.
   let top = exponent3.to_int64() + (coefficient2.bit_length() - 1).to_int64()
-  if top > binary_implementation_e_max.to_int64() {
+  if top > binary_value_e_max.to_int64() {
     return implementation_overflow(negative, precision, mode)
   }
   finite_normalized(negative, coefficient2, exponent3, precision)
@@ -132,7 +131,7 @@ fn implementation_overflow(
     finite_normalized(
       negative,
       Coeff::one().shift_left(precision).sub_checked(Coeff::one()).unwrap(),
-      binary_implementation_e_max - (precision - 1),
+      binary_value_e_max - (precision - 1),
       precision,
     )
   }
@@ -160,7 +159,7 @@ fn implementation_underflow(
     finite_normalized(
       negative,
       Coeff::one(),
-      binary_implementation_e_min - (precision - 1),
+      binary_value_e_min - (precision - 1),
       precision,
     )
   } else {

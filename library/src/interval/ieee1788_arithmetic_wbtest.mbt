@@ -228,10 +228,7 @@ test "IEEE 1788 pown preserves infinity, signed zero, and Int min" {
   assert_true(tiny.lower_bound().is_zero())
   assert_true(tiny.lower_bound().is_sign_minus())
   assert_eq(tiny.upper_bound().coefficient(), @binary.BinCoeff::one())
-  assert_eq(
-    tiny.upper_bound().exponent2(),
-    @binary.binary_implementation_e_min - 52,
-  )
+  assert_eq(tiny.upper_bound().exponent2(), @binary.binary_value_e_min - 52)
 }
 
 ///|
