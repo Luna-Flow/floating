@@ -65,13 +65,13 @@ exponent and the `Clamped` condition.
 
 ## White-box tests of the fast paths
 
-Each fast path of the [design page](../design/decimal_gda.md#fast-paths-that-are-proven-equivalent) is compared with the general route by a white-box test in `library/src/decimal_gda/`. The comparison covers the value, every condition and the flags of the context.
+Each of the three plain-operation fast paths of the [design page](../design/decimal_gda.md#fast-paths-that-are-proven-equivalent) is compared with the general route by a white-box test in `library/src/decimal_gda/`.
 
 | Fast path | Operands | Parameters |
 | --- | --- | --- |
 | plain sums (`add`, `subtract`) | random, 1 to 120 digits, mixed signs, cancellations and exponent gaps | nine precisions, all eight rounding algorithms, tight and wide exponent ranges, clamping, trapped signals |
 | plain products and quotients (`multiply`, `divide`) | random, 1 to 120 digits; exact quotients (a product divided by one of its factors, divisors $2^a 5^b$), short divisors with repeating expansions, carries into $10^p$ | chained contexts, all eight rounding algorithms |
-| plain square roots (`sqrt`) | random, 1 to 130 digits; squares; near squares ($s^2 \pm 1$, $s^2 \pm s$) | all eight rounding algorithms, tight and wide exponent ranges, clamping, trapped signals |
+| plain square roots (`sqrt`) | random, 1 to 130 digits; squares; near squares ($s^2 \pm 1$, $s^2 \pm s$); the comparison is at the public level: value, every condition and the flags of the context | all eight rounding algorithms, tight and wide exponent ranges, clamping, trapped signals |
 
 ## Runner model
 
