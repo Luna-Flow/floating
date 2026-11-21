@@ -5305,7 +5305,7 @@ msgstr ""
 
 #: manual/api/doc_examples.md:38
 #: manual/api/interval.md:274
-#: manual/conventions.md:154
+#: manual/conventions.md:179
 msgid "Examples"
 msgstr ""
 
@@ -10742,7 +10742,7 @@ msgid "**Suffixes.** `_ctx` marks a method that takes a context and returns the 
 msgstr ""
 
 #: manual/conventions.md:90
-msgid "**No standard name.** Where the standard has no name for something, such as an accessor (`coefficient`), a constructor (`from_bigint`) or an encoding helper, the spelling with the most uses stays, and the API page documents it."
+msgid "**No standard name.** Where the standard has no name for something, such as a constructor (`from_bigint`) or an encoding helper, the spelling with the most uses stays, and the API page documents it."
 msgstr ""
 
 #: manual/conventions.md:93
@@ -10770,106 +10770,138 @@ msgid "**Context in `decimal_gda`.** An operation that takes the context is a fr
 msgstr ""
 
 #: manual/conventions.md:116
-msgid "**Old names.** A renamed or removed operation keeps no alias. A name that had one meaning is not reused with another meaning in the same release. The release that renames or removes an operation lists the old name and its replacement under **Breaking** in `library/CHANGELOG.md`."
+msgid "**Kept names with the standard's term.** These names differ from the word of the standard and are kept on purpose; the API page of each says so:"
 msgstr ""
 
-#: manual/conventions.md:121
-msgid "API snapshots"
+#: manual/conventions.md:118
+msgid "`coefficient` and `BinCoeff`: IEEE 754-2019 2.1 and 3.3 call the component the significand (an integer when the exponent is $q$), and the standard does not use the word coefficient. The General Decimal Arithmetic Specification does (\"coefficient – an integer which is zero or positive\"), and one word for the integer view is used in all four packages;"
 msgstr ""
 
 #: manual/conventions.md:123
-msgid "Every API page ends with `## Complete public interface`, whose body is an exact copy of the package's `pkg.generated.mbti` between the markers `<!-- generated-api-start -->` and `<!-- generated-api-end -->`, fenced as `mbti`. Individual signatures in the page body are `mbti` blocks too. `tools/doc_quality.py` compares the snapshot with the generated file (it also accepts the older `moonbit` fence), so regenerate it whenever `moon info` changes the interface."
+msgid "the `*RoundingMode` types: 754-2019 4.3 says rounding-direction attribute;"
 msgstr ""
 
-#: manual/conventions.md:131
-msgid "Numeric documentation rules"
+#: manual/conventions.md:124
+msgid "`is_signaling_nan`, `is_quiet_nan` and `class_of`: 754-2019 5.7.2 has isSignaling and `class(x)`;"
 msgstr ""
 
-#: manual/conventions.md:133
-msgid "Use `precision`, `rounding`, `classify`, `signum`, `normalized`, `exponent`, `context` and `flags` as defined in [numeric semantics](./numeric_semantics.md)."
+#: manual/conventions.md:126
+msgid "`DPD` and `BID`: 754-2019 3.5.2 speaks of the decimal encoding and the binary encoding of the significand (a declet is three decimal digits in ten bits, 2.1); the abbreviations are the usual names of the two encodings;"
 msgstr ""
 
-#: manual/conventions.md:136
-msgid "Separate the stored representation, the exact value, the rounded result, status flags, checked errors and interval enclosures."
+#: manual/conventions.md:129
+msgid "`normalized`: it returns the canonical representation of a value, not the normal number of 754-2019 2.1 (a finite non-zero number of at least the smallest normal magnitude);"
 msgstr ""
 
-#: manual/conventions.md:138
-msgid "State when parsing preserves the exponent and when normalization changes the cohort without changing the value."
+#: manual/conventions.md:132
+msgid "`exponent2` and `exponent10`: the exponent of 754-2019 2.1 is $e$ or $q$ according to the view of the significand, so the suffix says the radix of the integer power."
 msgstr ""
 
-#: manual/conventions.md:140
-msgid "Name the order an API uses. `compare`, `<` and sorting are a total preorder that puts every NaN above every number; the IEEE partial order (with *unordered*) and `totalOrder` are separate APIs. Never imply a scalar order for interval values."
+#: manual/conventions.md:135
+msgid "**Names of this release that are not the standard's.** `min_num` and `max_num` (binary, `decimal`) are the minNum and maxNum of IEEE 754-2008, which 754-2019 replaced by the operations of 9.6 (see the NOTE of 5.3.1); the name says which operation it is. `signum` is the three-valued classification of the sign of a scalar (`Negative`, `Zero`, `Positive`; `Zero` for both zeros and for NaN); the sign of 754-2019 is a bit, `is_sign_minus` (5.7.2)."
 msgstr ""
 
-#: manual/conventions.md:144
-msgid "For `*_ctx` APIs, document both the returned value and the flags."
+#: manual/conventions.md:141
+msgid "**Old names.** A renamed or removed operation keeps no alias. A name that had one meaning is not reused with another meaning in the same release. The release that renames or removes an operation lists the old name and its replacement under **Breaking** in `library/CHANGELOG.md`."
 msgstr ""
 
-#: manual/conventions.md:145
-msgid "For checked APIs and wrappers, document the domain-specific transition: a result error, IEEE flag accumulation, or a GDA trap short-circuit and its recovery."
+#: manual/conventions.md:146
+msgid "API snapshots"
 msgstr ""
 
 #: manual/conventions.md:148
-msgid "Document `decimal` and `decimal_gda` as separate contracts: IEEE operations return per-operation flags, while GDA operations thread sticky status and traps through `GdaOutcome`."
-msgstr ""
-
-#: manual/conventions.md:151
-msgid "Write mathematics in TeX (`$…$`, `$$…$$`) and cite the standard clause or classical result a derivation relies on."
+msgid "Every API page ends with `## Complete public interface`, whose body is an exact copy of the package's `pkg.generated.mbti` between the markers `<!-- generated-api-start -->` and `<!-- generated-api-end -->`, fenced as `mbti`. Individual signatures in the page body are `mbti` blocks too. `tools/doc_quality.py` compares the snapshot with the generated file (it also accepts the older `moonbit` fence), so regenerate it whenever `moon info` changes the interface."
 msgstr ""
 
 #: manual/conventions.md:156
-msgid "Runnable examples are complete top-level items, normally a `test` block, fenced `moonbit`, and they show their output with `inspect`. They must compile and pass against the current branch."
+msgid "Numeric documentation rules"
 msgstr ""
 
-#: manual/conventions.md:159
-msgid "Partial snippets, signatures in prose, executable-package code and `internal/*` code that cannot be imported from outside the module, and `moon.pkg` snippets are fenced `moonbit nocheck`; shell commands are fenced `bash`. `tools/check_doc_examples.py`, run by `just docs`, compiles and runs every other `moonbit` block of the manual."
+#: manual/conventions.md:158
+msgid "Use `precision`, `rounding`, `classify`, `signum`, `normalized`, `exponent`, `context` and `flags` as defined in [numeric semantics](./numeric_semantics.md)."
 msgstr ""
 
-#: manual/conventions.md:164
-msgid "Import aliases: `@lf_alg` for `Luna-Flow/luna-generic` and `@lf_arith` for `Luna-Flow/arithmetic`; floating packages use their default aliases (`@binary`, `@decimal`, …)."
+#: manual/conventions.md:161
+msgid "Separate the stored representation, the exact value, the rounded result, status flags, checked errors and interval enclosures."
 msgstr ""
 
-#: manual/conventions.md:167
-msgid "Call only what the `.mbti` lists. For example, `Binary` has no `to_double` or `is_finite` method; use `to_shortest_string` and `@def.is_finite(x)`."
+#: manual/conventions.md:163
+msgid "State when parsing preserves the exponent and when normalization changes the cohort without changing the value."
 msgstr ""
 
-#: manual/conventions.md:171
-msgid "Translations"
+#: manual/conventions.md:165
+msgid "Name the order an API uses. `compare`, `<` and sorting are a total preorder that puts every NaN above every number; the IEEE partial order (with *unordered*) and `totalOrder` are separate APIs. Never imply a scalar order for interval values."
+msgstr ""
+
+#: manual/conventions.md:169
+msgid "For `*_ctx` APIs, document both the returned value and the flags."
+msgstr ""
+
+#: manual/conventions.md:170
+msgid "For checked APIs and wrappers, document the domain-specific transition: a result error, IEEE flag accumulation, or a GDA trap short-circuit and its recovery."
 msgstr ""
 
 #: manual/conventions.md:173
-msgid "English pages in `doc/manual` are the only source. Translations live in the gettext catalogs `doc/locale/<locale>/LC_MESSAGES/manual.po` for the locales in `doc/conf.json` and are never edited as page copies. Do not translate identifiers, package names, paths, commands, version strings or mathematics. Typst attachments live in `doc/attachments/` and are shared by all locales."
+msgid "Document `decimal` and `decimal_gda` as separate contracts: IEEE operations return per-operation flags, while GDA operations thread sticky status and traps through `GdaOutcome`."
 msgstr ""
 
-#: manual/conventions.md:179
-msgid "Review checklist"
+#: manual/conventions.md:176
+msgid "Write mathematics in TeX (`$…$`, `$$…$$`) and cite the standard clause or classical result a derivation relies on."
 msgstr ""
 
 #: manual/conventions.md:181
-msgid "Run `moon info` and compare each changed `pkg.generated.mbti` with its API page; refresh the `## Complete public interface` snapshot."
+msgid "Runnable examples are complete top-level items, normally a `test` block, fenced `moonbit`, and they show their output with `inspect`. They must compile and pass against the current branch."
 msgstr ""
 
-#: manual/conventions.md:183
-msgid "Check that every `moon.pkg` still has its `api/`, `tutorial/` and `design/` pages (and the evidence pages of the four cores)."
-msgstr ""
-
-#: manual/conventions.md:185
-msgid "Compile and run every changed example (`moonbit` blocks) against the current branch."
-msgstr ""
-
-#: manual/conventions.md:187
-msgid "Run `just docs`: `tools/doc_quality.py`, the manual examples and the `tooling/src/doc_examples` tests."
+#: manual/conventions.md:184
+msgid "Partial snippets, signatures in prose, executable-package code and `internal/*` code that cannot be imported from outside the module, and `moon.pkg` snippets are fenced `moonbit nocheck`; shell commands are fenced `bash`. `tools/check_doc_examples.py`, run by `just docs`, compiles and runs every other `moonbit` block of the manual."
 msgstr ""
 
 #: manual/conventions.md:189
+msgid "Import aliases: `@lf_alg` for `Luna-Flow/luna-generic` and `@lf_arith` for `Luna-Flow/arithmetic`; floating packages use their default aliases (`@binary`, `@decimal`, …)."
+msgstr ""
+
+#: manual/conventions.md:192
+msgid "Call only what the `.mbti` lists. For example, `Binary` has no `to_double` or `is_finite` method; use `to_shortest_string` and `@def.is_finite(x)`."
+msgstr ""
+
+#: manual/conventions.md:196
+msgid "Translations"
+msgstr ""
+
+#: manual/conventions.md:198
+msgid "English pages in `doc/manual` are the only source. Translations live in the gettext catalogs `doc/locale/<locale>/LC_MESSAGES/manual.po` for the locales in `doc/conf.json` and are never edited as page copies. Do not translate identifiers, package names, paths, commands, version strings or mathematics. Typst attachments live in `doc/attachments/` and are shared by all locales."
+msgstr ""
+
+#: manual/conventions.md:204
+msgid "Review checklist"
+msgstr ""
+
+#: manual/conventions.md:206
+msgid "Run `moon info` and compare each changed `pkg.generated.mbti` with its API page; refresh the `## Complete public interface` snapshot."
+msgstr ""
+
+#: manual/conventions.md:208
+msgid "Check that every `moon.pkg` still has its `api/`, `tutorial/` and `design/` pages (and the evidence pages of the four cores)."
+msgstr ""
+
+#: manual/conventions.md:210
+msgid "Compile and run every changed example (`moonbit` blocks) against the current branch."
+msgstr ""
+
+#: manual/conventions.md:212
+msgid "Run `just docs`: `tools/doc_quality.py`, the manual examples and the `tooling/src/doc_examples` tests."
+msgstr ""
+
+#: manual/conventions.md:214
 msgid "Run `lunadoc update` to refresh `doc/locale/manual.pot` and merge the catalogs, translate new and fuzzy entries, then check `lunadoc status` (coverage per locale) and `lunadoc check --compile` (layout, catalogs, links and Typst attachments)."
 msgstr ""
 
-#: manual/conventions.md:193
+#: manual/conventions.md:218
 msgid "Run `moon fmt`, `moon check --target all --deny-warn`, the relevant tests, and `just pr` before submitting."
 msgstr ""
 
-#: manual/conventions.md:195
+#: manual/conventions.md:220
 msgid "On a release bump, update `library/moon.mod`, the version in `library/README.md`, this page and `library/CHANGELOG.md` together."
 msgstr ""
 

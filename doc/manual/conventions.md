@@ -87,9 +87,9 @@ the GDA `remainder-near` as `remainder_near`.
   certification failure. `_checked` and `_contextual` are the forms of the
   `Luna-Flow/arithmetic` traits. The checked tiers (`binary_checked`,
   `decimal_checked`, `decimal_gda_checked`) keep the bare names.
-- **No standard name.** Where the standard has no name for something, such as an
-  accessor (`coefficient`), a constructor (`from_bigint`) or an encoding helper,
-  the spelling with the most uses stays, and the API page documents it.
+- **No standard name.** Where the standard has no name for something, such as a
+  constructor (`from_bigint`) or an encoding helper, the spelling with the most
+  uses stays, and the API page documents it.
 - **Documented exceptions.** These names are kept as they are, although the
   rule would spell them otherwise:
   - `add`, `sub`, `mul`, `div`, `neg`, `abs`, `sqrt`, `fma`;
@@ -113,6 +113,31 @@ the GDA `remainder-near` as `remainder_near`.
   do. The design of 0.12 first took them to be context-free and quiet; the 32
   `comparetotal` rows of the subset corpus `dectest0` showed that this holds
   only in extended contexts.
+- **Kept names with the standard's term.** These names differ from the word of the
+  standard and are kept on purpose; the API page of each says so:
+  - `coefficient` and `BinCoeff`: IEEE 754-2019 2.1 and 3.3 call the component
+    the significand (an integer when the exponent is $q$), and the standard does
+    not use the word coefficient. The General Decimal Arithmetic Specification
+    does ("coefficient – an integer which is zero or positive"), and one word for
+    the integer view is used in all four packages;
+  - the `*RoundingMode` types: 754-2019 4.3 says rounding-direction attribute;
+  - `is_signaling_nan`, `is_quiet_nan` and `class_of`: 754-2019 5.7.2 has
+    isSignaling and `class(x)`;
+  - `DPD` and `BID`: 754-2019 3.5.2 speaks of the decimal encoding and the
+    binary encoding of the significand (a declet is three decimal digits in ten
+    bits, 2.1); the abbreviations are the usual names of the two encodings;
+  - `normalized`: it returns the canonical representation of a value, not the
+    normal number of 754-2019 2.1 (a finite non-zero number of at least the
+    smallest normal magnitude);
+  - `exponent2` and `exponent10`: the exponent of 754-2019 2.1 is $e$ or $q$
+    according to the view of the significand, so the suffix says the radix of the
+    integer power.
+- **Names of this release that are not the standard's.** `min_num` and `max_num`
+  (binary, `decimal`) are the minNum and maxNum of IEEE 754-2008, which
+  754-2019 replaced by the operations of 9.6 (see the NOTE of 5.3.1); the name
+  says which operation it is. `signum` is the three-valued classification of the
+  sign of a scalar (`Negative`, `Zero`, `Positive`; `Zero` for both zeros and for
+  NaN); the sign of 754-2019 is a bit, `is_sign_minus` (5.7.2).
 - **Old names.** A renamed or removed operation keeps no alias. A name that had
   one meaning is not reused with another meaning in the same release. The
   release that renames or removes an operation lists the old name and its
