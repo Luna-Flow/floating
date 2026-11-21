@@ -74,9 +74,13 @@ test "equal widths give a point, with a canonical zero" {
   let z = cn_ball(1L, 3L, u, 113).cancel_plus(cn_ball(-2L, 0L, u, 113))
   assert_eq(z.lower_bound().compare(cn_value(1UL, u, false)), 0)
   assert_eq(z.upper_bound().compare(cn_value(1UL, u, false)), 0)
-  // the point 0: [3u, 5u] - [3u, 5u] = [0, 0], both ends +0
+  // the point 0: [3u, 5u] - [3u, 5u] = [0, 0]. The old assertion claimed both ends are +0
+  // ("a canonical zero"); that was wrong for the lower end: 12.12.8 requires `inf` to return -0
+  // for a Level 1 value of 0 and `sup` +0, so the observers return (-0, +0), the Level 2
+  // representative of [0, 0]. The canonical zero is a property of storage, which the
+  // observers do not expose.
   let z = cn_ball(3L, 5L, u, 113).cancel_minus(cn_ball(3L, 5L, u, 113))
-  assert_true(z.lower_bound().is_zero() && !z.lower_bound().is_negative())
+  assert_true(z.lower_bound().is_zero() && z.lower_bound().is_negative())
   assert_true(z.upper_bound().is_zero() && !z.upper_bound().is_negative())
   assert_true(!z.is_entire())
 }

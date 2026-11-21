@@ -264,7 +264,7 @@ fn decimal_certified_endpoints(
 ) -> (Decimal?, Decimal?) {
   let lower_bound = interval.lower_bound()
   let upper_bound = interval.upper_bound()
-  if lower_bound == upper_bound {
+  if lower_bound.compare(upper_bound) == 0 {
     // A degenerate (binary-exact) interval stays exact: rounding it outward
     // could only lose a certification.
     return (

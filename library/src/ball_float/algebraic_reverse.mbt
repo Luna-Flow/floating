@@ -45,7 +45,7 @@ fn rev_root_bound(
   }
   let point = BallFloat::exact(value, precision=value.precision())
   let root = if degree == 2 { point.sqrt() } else { point.rootn(degree) }
-  let bound = if upper { root.upper_bound() } else { root.lower_bound() }
+  let bound = if upper { root.hi_ } else { root.lo_ }
   if bound.is_zero() {
     @bin_float.BinFloat::zero(precision~)
   } else {
@@ -118,7 +118,7 @@ pub fn BallFloat::cosh_rev(self : BallFloat, x? : BallFloat) -> BallFloat {
       return value
     }
     let r = BallFloat::exact(value, precision=value.precision()).acosh()
-    let bound = if upper { r.upper_bound() } else { r.lower_bound() }
+    let bound = if upper { r.hi_ } else { r.lo_ }
     if bound.is_zero() {
       @bin_float.BinFloat::zero(precision~)
     } else {

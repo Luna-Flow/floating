@@ -203,7 +203,7 @@ test "a power is tighter than a product" {
   let x = reading(-1.0, 1.0)
   match (x.pown(2).result(), (x * x).result()) {
     (Ok(square), Ok(product)) => {
-      inspect(square.lower_bound().to_string(), content="0")
+      inspect(square.lower_bound().to_string(), content="-0")
       inspect(product.lower_bound().to_string(), content="-1p0")
     }
     _ => fail("unexpected error")

@@ -27,13 +27,18 @@ test "try_atan2 of a quotient below the exponent range encloses zero tightly" {
         .try_atan2(BallFloat::exact(x, precision=53))
         .unwrap()
       let (low, high) = if negative {
-        (tiny_unit.neg(), @bin_float.BinFloat::negative_zero())
+        (tiny_unit.neg(), @bin_float.BinFloat::zero())
       } else {
         (@bin_float.BinFloat::zero(), tiny_unit)
       }
       assert_eq(r.lower_bound().compare(low), 0)
       assert_eq(r.upper_bound().compare(high), 0)
-      assert_eq(r.lower_bound().is_negative(), negative)
+      // The old assertion was `lower_bound().is_negative() == negative` and, for a negative
+      // quotient, a -0 upper bound. 12.12.8 requires `inf` to return -0 for a Level 1 value of 0
+      // and `sup` +0: a zero lower bound is -0 (negative) for either sign of the quotient, and
+      // a zero upper bound is +0.
+      assert_true(r.lower_bound().is_negative())
+      assert_true(!r.upper_bound().is_negative())
     }
   }
 }

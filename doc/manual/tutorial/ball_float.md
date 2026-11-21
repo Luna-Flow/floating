@@ -307,7 +307,7 @@ test "decorated evaluation" {
   // sqrt is only defined on part of [-1, 4]: the bare result [0, 2] is
   // correct, but the decoration drops to trv.
   let root = x.sqrt()
-  inspect(show(root.interval(), 3), content="[0.00e+0, 2.00e+0]")
+  inspect(show(root.interval(), 3), content="[-0.00e+0, 2.00e+0]")
   inspect(root.decoration(), content="trv")
   // Decorations only go down: later operations cannot restore com.
   inspect((root + x).decoration(), content="trv")
@@ -391,8 +391,8 @@ test "dependency" {
   )
   inspect(show(x - x, 3), content="[-3.00e+0, 3.00e+0]")
   inspect(show(x * x, 3), content="[-2.00e+0, 4.00e+0]")
-  inspect(show(x.sqr(), 3), content="[0.00e+0, 4.00e+0]")
-  inspect(show(x.pown(2), 3), content="[0.00e+0, 4.00e+0]")
+  inspect(show(x.sqr(), 3), content="[-0.00e+0, 4.00e+0]")
+  inspect(show(x.pown(2), 3), content="[-0.00e+0, 4.00e+0]")
 }
 ```
 

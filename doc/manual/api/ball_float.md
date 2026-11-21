@@ -417,7 +417,8 @@ The default precision is 53.
 
 ### `BallFloat::lower_bound` and `BallFloat::upper_bound`
 
-`lower_bound` and `upper_bound` return the stored endpoints.
+`lower_bound` and `upper_bound` are `inf` and `sup` of IEEE 1788-2015 12.12.8: they return
+the endpoints.
 
 ```mbti
 pub fn BallFloat::lower_bound(Self) -> @bin_float.BinFloat
@@ -426,6 +427,14 @@ pub fn BallFloat::upper_bound(Self) -> @bin_float.BinFloat
 
 For an unbounded side the endpoint is an infinity. For Empty they return
 $+\infty$ and $-\infty$ respectively, so test `is_empty` first.
+
+The sign of a zero follows 12.12.8: in a format with a signed zero a Level 1 value of 0
+is returned as $-0$ by `lower_bound` and as $+0$ by every other function of the subclause
+(`upper_bound`, `midpoint`, `radius`, `width`, `magnitude`, `mignitude` and their contextual
+forms). So the lower bound of `[0, 1]` is $-0$ and the upper bound of `[-1, 0]` is $+0$,
+whatever sign of zero the interval was built from; `[0, 0]` has the representative
+$(-0, +0)$. An interval is a set: the sign of a stored zero is not part of it. The derived
+`Eq` of `BinFloat` distinguishes $-0$ from $+0$, so compare bounds with `compare`, not `==`.
 
 ### `BallFloat::midpoint` and `BallFloat::radius`
 
@@ -635,7 +644,7 @@ with bounded or empty $\boldsymbol{y}$ gives Empty.
 test "set operations" {
   inspect(fmt(iv(0, 4).intersection(iv(2, 9))), content="[2.00000e+0, 4.00000e+0]")
   inspect(iv(0, 1).intersection(iv(2, 3)).is_empty(), content="true")
-  inspect(fmt(iv(0, 1).convex_hull(iv(5, 6))), content="[0.00000e+0, 6.00000e+0]")
+  inspect(fmt(iv(0, 1).convex_hull(iv(5, 6))), content="[-0.00000e+0, 6.00000e+0]")
   // (x + y) - y widens, cancel_minus recovers x.
   let x = iv(1, 2)
   let y = iv(10, 20)
@@ -867,7 +876,7 @@ for even $n$; this is a valid but not tight enclosure.
 ///|
 test "powers" {
   let x = iv(-1, 2)
-  inspect(fmt(x.sqr()), content="[0.00000e+0, 4.00000e+0]")
+  inspect(fmt(x.sqr()), content="[-0.00000e+0, 4.00000e+0]")
   inspect(fmt(x.pown(3)), content="[-1.00000e+0, 8.00000e+0]")
   inspect(fmt(x.pown(-2)), content="[2.50000e-1, inf]")
   inspect(x.pown(-1).is_entire(), content="true")
@@ -1341,11 +1350,11 @@ test "exponentials and logarithms" {
   inspect(fmt(iv(0, 1).exp()), content="[1.00000e+0, 2.71829e+0]")
   inspect(fmt(iv(-1, 10).exp2()), content="[5.00000e-1, 1.02400e+3]")
   inspect(fmt(iv(0, 4).ln()), content="[-inf, 1.38630e+0]")
-  inspect(fmt(iv(1, 1000).log10()), content="[0.00000e+0, 3.00000e+0]")
+  inspect(fmt(iv(1, 1000).log10()), content="[-0.00000e+0, 3.00000e+0]")
   inspect(iv(-2, -1).ln().is_empty(), content="true")
   // Integer endpoints outside the exponent range keep the outward-rounded enclosure.
   let below = @ball_float.BallFloat::from_int(-1073742000, precision=53).exp2()
-  inspect(below.lower_bound().to_string(), content="0")
+  inspect(below.lower_bound().to_string(), content="-0")
   inspect(below.upper_bound().to_string(), content="1p-1073741874")
   let above = @ball_float.BallFloat::from_int(1 << 30, precision=53).exp2()
   inspect(above.lower_bound().to_string(), content="9007199254740991p1073741771")
@@ -1481,8 +1490,8 @@ test "trigonometric functions" {
   inspect(iv(1, 2).tan().is_entire(), content="true")
   let half = @bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -1, 53)
   let x = @ball_float.BallFloat::from_bounds(half, @bin_float.BinFloat::one(precision=53))
-  inspect(fmt(x.sinpi()), content="[0.00000e+0, 1.00000e+0]")
-  inspect(fmt(x.tanpi()), content="[-inf, -0.00000e+0]")
+  inspect(fmt(x.sinpi()), content="[-0.00000e+0, 1.00000e+0]")
+  inspect(fmt(x.tanpi()), content="[-inf, 0.00000e+0]")
 }
 ```
 
@@ -1558,7 +1567,7 @@ the two-ulp interval $[2^{-300}, (1 + 2^{-52})\,2^{-300}]$.
 test "inverse and hyperbolic functions" {
   let unit = iv(-1, 1)
   inspect(fmt(unit.asin()), content="[-1.57080e+0, 1.57080e+0]")
-  inspect(fmt(iv(-2, 2).acos()), content="[0.00000e+0, 3.14160e+0]")
+  inspect(fmt(iv(-2, 2).acos()), content="[-0.00000e+0, 3.14160e+0]")
   inspect(fmt(iv(1, 1).atan2(iv(1, 1))), content="[7.85398e-1, 7.85399e-1]")
   inspect(fmt(unit.cosh()), content="[1.00000e+0, 1.54309e+0]")
   inspect(fmt(unit.atanh()), content="[-inf, inf]")
@@ -2159,7 +2168,7 @@ every exponent, including 0, as `pown` does.
 test "checked capabilities" {
   let ctx = @lf_arith.ArithmeticContext::new(53)
   let x = iv(-1, 2)
-  inspect(fmt(x.pow_int_checked(2, ctx).unwrap()), content="[0.00000e+0, 4.00000e+0]")
+  inspect(fmt(x.pow_int_checked(2, ctx).unwrap()), content="[-0.00000e+0, 4.00000e+0]")
   inspect(fmt(x.pow_nat_checked(2U, ctx).unwrap()), content="[-2.00000e+0, 4.00000e+0]")
   inspect(x.div_checked(iv(-1, 1), ctx).unwrap().is_entire(), content="true")
   inspect(@lf_arith.Contains::contains(iv(0, 9), iv(1, 2)), content="true")
