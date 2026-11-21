@@ -563,6 +563,61 @@ class CompileCommandTests(unittest.TestCase):
         self.assertEqual(len(cf.toolchain_problems({"compile-commands": "x", "token-pasting-headers": "2"})), 1)
 
 
+class CounterFamilyTests(unittest.TestCase):
+    """Compiler counters inside names: generic instances, loop labels, `|` closures."""
+
+    def test_the_stem_of_each_family_drops_its_counter(self) -> None:
+        self.assertEqual(cf.counter_stem("_M0MPB4Iter4nextN6constrS1771GcE"), "_M0MPB4Iter4nextN6constrNGcE")
+        self.assertEqual(cf.counter_stem("_M0FPB20fixed__choose__pivotN7sort__3S4066GsE"), "_M0FPB20fixed__choose__pivotN7sort__3NGsE")
+        self.assertEqual(cf.counter_stem("fdecimal_2eDecimal_3a_3atry__ctx_2efinalize_7c25726"), "fdecimal_2eDecimal_3a_3atry__ctx_2efinalize_7cN")
+        self.assertEqual(cf.counter_stem("pN6constrS12"), "pN6constrN")
+        self.assertEqual(cf.counter_stem("plain__name"), "plain__name")
+
+    def test_two_builds_that_differ_only_in_such_counters_are_equal(self) -> None:
+        def text(a: int, b: int, c: int) -> str:
+            return "\n".join(
+                [
+                    f"static int32_t Iter4nextN6constrS{a}GcE = 1;",
+                    f"static int32_t f_2efinalize_7c{b}(void) {{ return 2; }}",
+                    f"static int32_t sortN7sort__3S{c}GsE = 3;",
+                    f"static int32_t user(void) {{ return Iter4nextN6constrS{a}GcE + f_2efinalize_7c{b}() + sortN7sort__3S{c}GsE; }}",
+                    "",
+                ]
+            )
+
+        one, two = parse(text(10, 20, 30)), parse(text(7, 99, 4))
+        self.assertEqual(one.definitions["user"].digest, two.definitions["user"].digest)
+        self.assertEqual(set(one.definitions), set(two.definitions))
+        self.assertEqual(cf.fingerprint(one, "user", startup=False), cf.fingerprint(two, "user", startup=False))
+
+    def test_a_real_difference_in_such_a_definition_is_still_seen(self) -> None:
+        a = "static int32_t gN6constrS5GcE = 1;\nstatic int32_t user(void) { return gN6constrS5GcE; }\n"
+        b = a.replace("= 1;", "= 2;")
+        self.assertNotEqual(cf.fingerprint(parse(a), "user", startup=False), cf.fingerprint(parse(b), "user", startup=False))
+
+    def test_two_names_of_one_stem_in_one_build_stay_distinct(self) -> None:
+        text = "\n".join(
+            [
+                "static int32_t gN6constrS5GcE = 1;",
+                "static int32_t gN6constrS6GcE = 2;",
+                "static int32_t user(void) { return gN6constrS5GcE + gN6constrS6GcE; }",
+                "",
+            ]
+        )
+        program = parse(text)
+        self.assertEqual(len([n for n in program.definitions if "__canon__" in n]), 2)
+        swapped = parse(text.replace("= 1;", "= TMP;").replace("= 2;", "= 1;").replace("= TMP;", "= 2;"))
+        self.assertNotEqual(cf.fingerprint(program, "user", startup=False), cf.fingerprint(swapped, "user", startup=False))
+
+    def test_loop_labels_are_locals_renamed_by_position(self) -> None:
+        a = "static int f(void) {\n  _2awhile_3024:;\n  goto _2awhile_3024;\n  _2afor_5:;\n  goto _2afor_5;\n}\n"
+        b = a.replace("_2awhile_3024", "_2awhile_3022").replace("_2afor_5", "_2afor_9")
+        self.assertEqual(parse(a).definitions["f"].digest, parse(b).definitions["f"].digest)
+        c = a.replace("goto _2afor_5;", "goto _2awhile_3024;")
+        self.assertNotEqual(parse(a).definitions["f"].digest, parse(c).definitions["f"].digest)
+        self.assertEqual(cf.local_kind("_2awhile_3024"), "loop-label")
+
+
 class ForbiddenPathTests(unittest.TestCase):
     def test_a_path_in_line_directives_is_fine_elsewhere_it_is_counted(self) -> None:
         clean = parse(program_text(), forbidden_paths=("/Users/someone/checkout",))

@@ -279,7 +279,7 @@ _KEYWORDS = frozenset(
 
 # Identifiers that are local to one item and carry a compiler-wide counter.
 _LOCAL = re.compile(
-    r"\b(_M0L[A-Za-z0-9_]*?S\d+|_[a-z][a-z_]*_\d+|join_\d+|joinlet_\d+|_L\d+|loop_\d+)\b"
+    r"\b(_M0L[A-Za-z0-9_]*?S\d+|_[a-z][a-z_]*_\d+|_2a[a-z][a-z_]*_\d+|join_\d+|joinlet_\d+|_L\d+|loop_\d+)\b"
 )
 
 
@@ -288,6 +288,8 @@ def local_kind(name: str) -> str:
     for prefix, kind in (("_M0L", "var"), ("joinlet_", "joinlet"), ("join_", "join"), ("loop_", "loop")):
         if name.startswith(prefix):
             return kind
+    if name.startswith("_2a"):
+        return "loop-label"  # `_2awhile_3024`, `_2afor_4513`: labels of source loops
     return "label" if re.fullmatch(r"_L\d+", name) else "tmp"
 
 
@@ -483,8 +485,9 @@ def rewrite_layout_indices(text: str, entries: dict[int, str]) -> tuple[str, int
 
 # Compiler-wide counters inside the name of a top-level definition: the nested entities
 # `<parent>N<len>constrS<n>`, closures `C<n>l<line>`, anonymous records `u<n>__l<line>__`
-# and string literals `moonbit_string_literal_<n>`.
-_COUNTER = re.compile(r"S\d+(?=(?:\$\w+)?$)|C\d+l\d+|u\d+__l\d+__|(?<=literal_)\d+")
+# and string literals `moonbit_string_literal_<n>`. A generic instance carries a type suffix after the
+# counter (`...nextN6constrS1771GcE`), so the nested forms are matched by what precedes the counter.
+_COUNTER = re.compile(r"(?<=constr)S\d+|(?<=record)S\d+|(?<=tuple)S\d+|S\d+(?=(?:\$\w+)?$)|S\d+(?=G\w*E(?:\$\w+)?$)|(?<=_7c)\d+|C\d+l\d+|u\d+__l\d+__|(?<=literal_)\d+")
 
 
 def counter_stem(name: str) -> str:
