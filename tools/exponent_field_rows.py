@@ -126,12 +126,86 @@ def exponent_field_rows(radix: int, rule) -> list[tuple]:
     return rows
 
 
+def edge_expected(rule, cls: str, negative: bool, mode: str):
+    """The result for a value that is just inside one of four classes around the top of the range
+    (written from IEEE 754-2019 4.3 and 7.4, with M the largest finite number, T = M + half an ulp
+    and U = 2^(emax + 1)):
+        below_max      M - tiny    (between the predecessor of M and M)
+        above_max      M + tiny    (above M, below T)
+        above_mid      T + tiny    (above T, below U; also T itself)
+        above_top      U and above
+    `away` is the direction that increases the magnitude (RTP for positive, RTN for negative)."""
+    away = {"RNE": False, "RNA": False, "RTZ": False, "RTP": not negative, "RTN": negative}[mode]
+    toward = mode == "RTZ" or (mode == "RTN" and not negative) or (mode == "RTP" and negative)
+    nearest = mode in ("RNE", "RNA")
+    top = rule.emax - rule.p + 1
+    maximum = binary.render(negative, 2**rule.p - 1, top)
+    previous = binary.render(negative, 2**rule.p - 2, top)
+    if cls == "below_max":
+        return (previous if toward else maximum), "I--"
+    if cls == "above_max":
+        if away:
+            return rule.far(negative, True, mode)
+        return maximum, "I--"
+    if cls == "above_mid":
+        if nearest or away:
+            return rule.far(negative, True, mode)
+        return maximum, "I--"
+    assert cls == "above_top"
+    return rule.far(negative, True, mode)
+
+
+def edge_rows(rule, radix: int) -> list[tuple]:
+    """The first literals above the largest finite number and their neighbours: 2^(emax + 1) and the
+    midpoint above M in hexadecimal (exact) and in decimal (within a relative 1e-25 of each)."""
+    from decimal import Decimal, getcontext
+
+    e = rule.emax
+    rows = []
+    texts = []  # (text without sign, class)
+    if radix == 16:
+        ones = "f" * 13
+        texts = [
+            (f"0x1.{ones}p{e:+d}", "exact_max"),
+            (f"0x1.{ones}7ffffffp{e:+d}", "above_max"),
+            (f"0x1.{ones}8p{e:+d}", "above_mid"),
+            (f"0x1.{ones}8000001p{e:+d}", "above_mid"),
+            (f"0x1p{e + 1:+d}", "above_top"),
+            (f"0x1.0000001p{e + 1:+d}", "above_top"),
+            (f"0x1p{e + 2:+d}", "above_top"),
+        ]
+    else:
+        import decimal
+
+        getcontext().prec = 120
+        getcontext().Emax = decimal.MAX_EMAX
+        getcontext().Emin = decimal.MIN_EMIN
+        two = Decimal(2)
+        up = two ** (e + 1)
+        maximum = up * (1 - two ** -rule.p)
+        mid = up * (1 - two ** -(rule.p + 1))
+        delta = Decimal("1e-25")
+        for value, cls_below, cls_above in ((maximum, "below_max", "above_max"), (mid, "above_max", "above_mid"), (up, "above_mid", "above_top")):
+            texts.append((format(value * (1 - delta), ".35e").replace("e+", "e+"), cls_below))
+            texts.append((format(value * (1 + delta), ".35e"), cls_above))
+    for text, cls in texts:
+        for negative in (False, True):
+            for mode in MODES:
+                if cls == "exact_max":
+                    expected = (binary.render(negative, 2**rule.p - 1, rule.emax - rule.p + 1), "---")
+                else:
+                    expected = edge_expected(rule, cls, negative, mode)
+                rows.append(_row(radix, ("-" if negative else "") + text, rule, mode, expected))
+    return rows
+
+
 def all_rows() -> list[tuple]:
     rows = []
     for name, p, emin, emax in [("binary64", 53, -1022, 1023), ("unbounded53", 53, -1073741822, 1073741823)]:
         rule = BinaryRule(name, p, emin, emax)
         for radix in (10, 16):
             rows.extend(exponent_field_rows(radix, rule))
+            rows.extend(edge_rows(rule, radix))
     seen, unique = set(), []
     for row in rows:
         key = row[:7]

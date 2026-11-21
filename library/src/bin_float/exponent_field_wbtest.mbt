@@ -48,26 +48,74 @@ test "exponent fields of 2^63 - 1 and more: from_string_ctx and from_hex_ctx" {
 test "exponent fields of 2^63 - 1 and more: from_string and from_hex without a context" {
   let mut checked = 0
   for row in exponent_field_rows() {
-    let (radix, text, name, _, _, _, mode, _, expected, flags) = row
+    let (radix, text, name, _, _, _, mode, _, expected, _) = row
     if name != "unbounded53" || mode != "RNE" {
       continue
     }
     let label = "\{radix} \{text}"
     if radix == 16 {
       // from_hex: a nonzero value with a binary exponent outside the 32-bit range is a parse
-      // error (documented); in this table that is exactly the rows that overflow or underflow
+      // error (documented); in this table that is exactly the rows with a field of 2^31 or more.
+      // The edge rows (2^(e_max + 1) and the midpoint) have a field inside it: from_hex then
+      // overflows like the context reader, to the infinity
       let result = BinFloat::from_hex(text, 53)
-      if flags.contains("O") || flags.contains("U") {
+      if !exponent_significand_is_zero(text) &&
+        exponent_field_is_beyond_32_bits(text) {
         assert_true(result is Err(_), msg=label + " must be a parse error")
       } else {
-        assert_eq("\{label} => \{result.unwrap()}", "\{label} => \{expected}")
+        match result {
+          Ok(value) =>
+            assert_eq("\{label} => \{value}", "\{label} => \{expected}")
+          Err(error) => fail(label + " => Err " + error.message)
+        }
       }
     } else {
       // from_string reads in the unbounded context: the same value as from_string_ctx
-      let value = BinFloat::from_string(text, precision=53).unwrap()
-      assert_eq("\{label} => \{value}", "\{label} => \{expected}")
+      match BinFloat::from_string(text, precision=53) {
+        Ok(value) =>
+          assert_eq("\{label} => \{value}", "\{label} => \{expected}")
+        Err(error) => fail(label + " => Err " + error.message)
+      }
     }
     checked += 1
   }
   assert_true(checked > 100)
+}
+
+///|
+/// Whether the exponent field of a hexadecimal text is 2^31 or more in magnitude (leading zeros
+/// do not count). The long-fraction rows have small fields; zero is decided by the caller.
+fn exponent_field_is_beyond_32_bits(text : String) -> Bool {
+  let mut after_p = false
+  let digits = StringBuilder::new()
+  for ch in text {
+    if after_p {
+      if ch != '+' && ch != '-' && !(digits.is_empty() && ch == '0') {
+        digits.write_char(ch)
+      }
+    } else if ch == 'p' || ch == 'P' {
+      after_p = true
+    }
+  }
+  let field = digits.to_string()
+  field.length() > 10 || (field.length() == 10 && field > "2147483647")
+}
+
+///|
+/// Whether the significand of a hexadecimal text (the digits between `0x` and `p`) is zero.
+fn exponent_significand_is_zero(text : String) -> Bool {
+  let mut seen_x = false
+  for ch in text {
+    if ch == 'p' || ch == 'P' {
+      break
+    }
+    if seen_x {
+      if ch != '0' && ch != '.' {
+        return false
+      }
+    } else if ch == 'x' || ch == 'X' {
+      seen_x = true
+    }
+  }
+  true
 }
