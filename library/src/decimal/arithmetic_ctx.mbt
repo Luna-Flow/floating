@@ -153,8 +153,18 @@ fn add_finite_values_ctx(
     }
     return (base, base_flags)
   }
-  // The shortcut forms exponents of the order `high_adjusted - 2 * precision`
-  // in `Int`; it is left to the exact path when those would wrap (issue 676).
+  // The shortcut forms these exponents in `Int`, with `p` the precision and
+  // `A` the larger adjusted exponent of the operands: `target_exponent =
+  // A - p + 1`, `target_exponent - 1` (`compare_magnitude_to_half_ulp`,
+  // decimal.mbt:776), `target_exponent - 2` and `sticky_limit - 1`
+  // (`sticky_limit` is at most `target_exponent - 2`, and at least the stored
+  // exponent of `high`, which does not wrap), and the lowest, `target_exponent
+  // - p = A - 2p + 1` (`can_absorb`). `exact_base_small_addend_result`
+  // (decimal.mbt:818) forms only `target_exponent` and `target_exponent - 1`
+  // from its argument, and `exact_units_at_quantum_repr` the shift
+  // `exponent10 - target_exponent`, which is a stored exponent minus a value
+  // not below `A - 2p + 1`. So `A - 2p - 4 >= -2^31` keeps every one of them
+  // inside `Int` with a margin of 5; otherwise the exact path runs (issue 676).
   let shortcut_exponents_fit = ctx.precision > 0 &&
     Int64::max(
       adjusted_exponent(lhs_value).to_int64(),
