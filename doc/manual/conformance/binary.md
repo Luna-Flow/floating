@@ -96,7 +96,7 @@ IEEE Std 754-2019 for `binary`. Status is `conforming` when the operation exists
 | §9.3 dynamic mode operations | recommended (required only where a language defines dynamic modes) | none (contexts are explicit values) | none | not implemented by design |
 | §9.4 reduction operations | recommended | none | none | not implemented |
 | §9.5 augmented arithmetic | recommended | none | none | not implemented |
-| §9.6 minimum, maximum and magnitude variants | recommended | none (`Binary::min` and `Binary::max` are plain helpers) | none | not implemented |
+| §9.6 minimum, maximum and magnitude variants | recommended | none (`Binary::min_num` and `Binary::max_num` are plain helpers) | none | not implemented |
 | §9.7 NaN payload operations | recommended | `nan_payload`, `quiet_nan(payload~)`, `signaling_nan(payload~)` | `library/src/binary/order_wbtest.mbt`; no getPayload/setPayload pair | partial |
 
 ## Declared corpus and results

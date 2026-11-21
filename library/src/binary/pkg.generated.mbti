@@ -176,8 +176,8 @@ pub fn Binary::log2p1(Self) -> Self
 pub fn Binary::log2p1_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn Binary::logb_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn Binary::make(BinCoeff, Int32, Int32, negative? : Bool, mode? : BinaryRoundingMode) -> Self
-pub fn Binary::max(Self, Self) -> Self
-pub fn Binary::min(Self, Self) -> Self
+pub fn Binary::max_num(Self, Self) -> Self
+pub fn Binary::min_num(Self, Self) -> Self
 pub fn Binary::mul(Self, Self) -> Self
 pub fn Binary::mul_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Binary::mul_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)

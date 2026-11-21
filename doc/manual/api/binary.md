@@ -1271,13 +1271,13 @@ side). `x.total_order(y)` is `total_order_compare(x, y) <= 0` and
 `total_order_mag` compares absolute values. Values that are numerically equal
 but differ in precision compare equal. The operations are quiet.
 
-### `Binary::min`, `Binary::max`
+### `Binary::min_num`, `Binary::max_num`
 
 The smaller or larger of two values, ignoring a NaN operand.
 
 ```mbti
-pub fn Binary::min(Self, Self) -> Self
-pub fn Binary::max(Self, Self) -> Self
+pub fn Binary::min_num(Self, Self) -> Self
+pub fn Binary::max_num(Self, Self) -> Self
 ```
 
 When exactly one operand is a NaN the other is returned (the IEEE 754-2008
@@ -2821,8 +2821,8 @@ pub fn Binary::log2p1(Self) -> Self
 pub fn Binary::log2p1_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn Binary::logb_ctx(Self, BinaryContext) -> (Self, BinaryFlags)
 pub fn Binary::make(BinCoeff, Int32, Int32, negative? : Bool, mode? : BinaryRoundingMode) -> Self
-pub fn Binary::max(Self, Self) -> Self
-pub fn Binary::min(Self, Self) -> Self
+pub fn Binary::max_num(Self, Self) -> Self
+pub fn Binary::min_num(Self, Self) -> Self
 pub fn Binary::mul(Self, Self) -> Self
 pub fn Binary::mul_contextual(Self, Self, @arithmetic.ArithmeticContext) -> Result[@arithmetic.ArithmeticOutcome[Self], @arithmetic.ArithmeticError]
 pub fn Binary::mul_ctx(Self, Self, BinaryContext) -> (Self, BinaryFlags)

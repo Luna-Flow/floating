@@ -2187,7 +2187,7 @@ msgid "After the operand errors (left first), the result is `DivChecked::div_che
 msgstr ""
 
 #: manual/api/binary_checked.md:220
-msgid "These methods take the smaller or larger operand with `Binary::min` / `Binary::max`, which ignore a NaN operand in favour of the other one and return the receiver when the operands compare equal (so `min(-0, +0)` is $-0$ and `min(+0, -0)` is $+0$)."
+msgid "These methods take the smaller or larger operand with `Binary::min_num` / `Binary::max_num`, which ignore a NaN operand in favour of the other one and return the receiver when the operands compare equal (so `min(-0, +0)` is $-0$ and `min(+0, -0)` is $+0$)."
 msgstr ""
 
 #: manual/api/binary_checked.md:232
@@ -9472,7 +9472,7 @@ msgid "§9.6 minimum, maximum and magnitude variants"
 msgstr ""
 
 #: manual/conformance/binary.md:99
-msgid "none (`Binary::min` and `Binary::max` are plain helpers)"
+msgid "none (`Binary::min_num` and `Binary::max_num` are plain helpers)"
 msgstr ""
 
 #: manual/conformance/binary.md:100

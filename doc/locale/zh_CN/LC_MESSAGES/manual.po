@@ -2198,8 +2198,8 @@ msgid "After the operand errors (left first), the result is `DivChecked::div_che
 msgstr "在处理完操作数错误（先左后右）之后，结果为 `Binary` 的 `DivChecked::div_checked` 在操作数较大精度下的结果：对 $0/0$、$\\infty/\\infty$ 或信号 NaN 操作数返回 `DomainError`，对有限非零被除数除以零除数（$\\pm 0$）返回 `DivisionByZero` 错误，其余情况返回 IEEE 754-2019 结果：静默 NaN 操作数（包括 NaN$/0$）得到静默 NaN，$\\infty/0$ 得到 $\\pm\\infty$，否则得到舍入后的商。"
 
 #: manual/api/binary_checked.md:220
-msgid "These methods take the smaller or larger operand with `Binary::min` / `Binary::max`, which ignore a NaN operand in favour of the other one and return the receiver when the operands compare equal (so `min(-0, +0)` is $-0$ and `min(+0, -0)` is $+0$)."
-msgstr "这些方法用 `Binary::min` / `Binary::max` 取较小或较大的操作数，二者会忽略 NaN 操作数而取另一个，并在两个操作数比较相等时返回接收者（因此 `min(-0, +0)` 为 $-0$，`min(+0, -0)` 为 $+0$）。"
+msgid "These methods take the smaller or larger operand with `Binary::min_num` / `Binary::max_num`, which ignore a NaN operand in favour of the other one and return the receiver when the operands compare equal (so `min(-0, +0)` is $-0$ and `min(+0, -0)` is $+0$)."
+msgstr "这些方法用 `Binary::min_num` / `Binary::max_num` 取较小或较大的操作数，二者会忽略 NaN 操作数而取另一个，并在两个操作数比较相等时返回接收者（因此 `min(-0, +0)` 为 $-0$，`min(+0, -0)` 为 $+0$）。"
 
 #: manual/api/binary_checked.md:232
 msgid "`clamp(min~, max~)` restricts a value to an interval."
@@ -9508,8 +9508,8 @@ msgid "§9.6 minimum, maximum and magnitude variants"
 msgstr "§9.6 minimum、maximum 及其按绝对值变体"
 
 #: manual/conformance/binary.md:99
-msgid "none (`Binary::min` and `Binary::max` are plain helpers)"
-msgstr "无（`Binary::min` 与 `Binary::max` 只是普通辅助函数）"
+msgid "none (`Binary::min_num` and `Binary::max_num` are plain helpers)"
+msgstr "无（`Binary::min_num` 与 `Binary::max_num` 只是普通辅助函数）"
 
 #: manual/conformance/binary.md:100
 #: manual/conformance/decimal.md:76
