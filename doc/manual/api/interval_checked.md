@@ -28,7 +28,7 @@ import {
 The examples refer to the packages as `@interval_checked.`,
 `@interval.`, `@bin_float.`, `@def.` (for the `Sign` of an infinity) and
 `@lf_arith.` (for `Luna-Flow/arithmetic`). They print a result with this
-helper (`to_midpoint_radius_string` of a bounded interval is `center +/- radius` in exact binary
+helper (`to_midpoint_radius_string` of a bounded interval is `midpoint +/- radius` in binary
 notation, `mpe` meaning $m \cdot 2^{e}$):
 
 ```moonbit
@@ -148,7 +148,7 @@ test "construction validates its inputs" {
   )
   inspect(
     show(@interval_checked.IntervalResult::from_double(0.1, precision=8)),
-    content="409p-12 +/- 1p-12",
+    content="51p-9 +/- 1p-11",
   )
   inspect(
     show(@interval_checked.IntervalResult::from_double(0.0 / 0.0)),
@@ -486,8 +486,8 @@ precision is set with `with_precision`.
 ///|
 test "elementary enclosures" {
   let two = @interval_checked.IntervalResult::from_int(2, precision=53)
-  inspect(show(two.ln()), content="12486629536330719p-54 +/- 1p-54")
-  inspect(show(two.ln().exp()), content="18014398509481985p-53 +/- 3p-53")
+  inspect(show(two.ln()), content="390207173010335p-49 +/- 1p-53")
+  inspect(show(two.ln().exp()), content="1p1 +/- 1p-51")
   let around_zero = @interval_checked.IntervalResult::from_bounds(
     @bin_float.BinFloat::from_int(-1),
     @bin_float.BinFloat::from_int(1),

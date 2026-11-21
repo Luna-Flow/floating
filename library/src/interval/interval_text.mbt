@@ -186,7 +186,7 @@ pub fn Interval::to_midpoint_radius_string(self : Interval) -> String {
   if self.is_empty() {
     "[empty]"
   } else if self.is_common_interval() {
-    self.center().to_string() + " +/- " + self.half_width().to_string()
+    self.midpoint().to_string() + " +/- " + self.radius().to_string()
   } else {
     "[" + self.lo_.to_string() + ", " + self.hi_.to_string() + "]"
   }

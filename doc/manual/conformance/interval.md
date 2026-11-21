@@ -39,7 +39,7 @@ Clause 13.3 gives `intervalToText` a representation parameter `cs`. What
 | inf-sup `[l, u]`, bounds as decimal numbers rounded outward | `to_string` (`Show`) | implemented; `[empty]` and `[entire]` for the special values, a decoration after `_` |
 | exact text, bounds as hexadecimal numbers (13.4) | `to_exact_string` | implemented; `from_exact_string` recovers the datum |
 | uncertain form `m?r` (midpoint and radius in units of the last digit) | none | not planned: the inf-sup form carries the same interval and `from_string` reads both |
-| midpoint-radius view `m +/- r` | `to_midpoint_radius_string` | not a literal of the standard: the binary midpoint and half-width, for reading |
+| midpoint-radius view `m +/- r` | `to_midpoint_radius_string` | not a literal of the standard: `midpoint` and `radius` of 12.12.8 in binary notation, for reading |
 
 A bound whose binary exponent is beyond 4096 in magnitude is written in
 hexadecimal by `to_string`: a decimal expansion would need a power of ten of

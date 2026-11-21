@@ -36,6 +36,6 @@ test "Interval::from_coefficient contains coefficients wider than the precision"
 ///|
 test "Interval::from_int stays exact when the precision is wide enough" {
   let interval = Interval::from_int(100001, precision=53)
-  assert_eq(interval.half_width().classify(), FpClass::Finite)
-  assert_true(interval.half_width().is_zero())
+  assert_eq(interval.radius().classify(), FpClass::Finite)
+  assert_true(interval.radius().is_zero())
 }

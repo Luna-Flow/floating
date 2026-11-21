@@ -13,7 +13,7 @@ test "interval exponentials enclose results beyond the binary exponent range" {
     tiny.upper_bound().exponent2(),
     @bin_float.binary_implementation_e_min - 52,
   )
-  assert_false(tiny.half_width().is_zero())
+  assert_false(tiny.radius().is_zero())
 }
 
 ///|

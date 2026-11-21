@@ -103,9 +103,6 @@ library/src/interval/far_addend_wbtest.mbt::near addends stay exact	A
 library/src/interval/fma_bottom_wbtest.mbt::away from the bottom of the range fma is unchanged	?
 library/src/interval/fma_bottom_wbtest.mbt::fma near the bottom of the range is the tightest interval	?
 library/src/interval/fma_bottom_wbtest.mbt::the fma of the issue is the exact point	A
-library/src/interval/half_width_wbtest.mbt::away from the bottom of the range the half-width is unchanged	?
-library/src/interval/half_width_wbtest.mbt::the half-width is exact near the bottom of the range	?
-library/src/interval/half_width_wbtest.mbt::the half-width of the interval of the issue	?
 library/src/interval/huge_argument_trig_wbtest.mbt::sin, cos, tan of 2^70000 are tight beyond the old cutoff	?
 library/src/interval/ieee1788_arithmetic_wbtest.mbt::IntervalFlags getters and combine accumulate endpoint status	A
 library/src/interval/ieee1788_arithmetic_wbtest.mbt::IEEE 1788 cancellation contracts compatible widths	?
