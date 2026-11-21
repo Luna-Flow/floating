@@ -15,12 +15,14 @@ fn cls_bits(
   fraction : Coeff,
 ) -> Binary {
   let sign = if negative {
-    Coeff::one().shift_left(format.total_bits() - 1)
+    Coeff::one().shift_left(format.storage_width() - 1)
   } else {
     Coeff::zero()
   }
   let bits = sign
-    .bit_or(exponent_field.shift_left(format.fraction_bits()))
+    .bit_or(
+      exponent_field.shift_left(format.trailing_significand_field_width()),
+    )
     .bit_or(fraction)
   BinaryInterchange::from_bits(bits, format).to_binary()
 }
@@ -44,11 +46,11 @@ fn cls_formats() -> Array[BinaryInterchangeFormat] {
 test "class_of reaches all ten classes in every interchange format" {
   for format in cls_formats() {
     let ctx = format.context()
-    let fb = format.fraction_bits()
+    let fb = format.trailing_significand_field_width()
     let zero = Coeff::zero()
     let one = Coeff::one()
     let frac_max = cls_all_ones(fb)
-    let exp_max = cls_all_ones(format.exponent_bits())
+    let exp_max = cls_all_ones(format.exponent_field_width())
     let exp_top_finite = exp_max.sub_checked(one).unwrap()
     let quiet_bit = one.shift_left(fb - 1)
     // (negative, exponent field, fraction, class)
