@@ -12,6 +12,7 @@ from io import StringIO
 from unittest.mock import patch
 
 import run_ieee_decimal
+import run_python_tests
 
 
 class IeeeDecimalCorpusTests(unittest.TestCase):
@@ -169,18 +170,43 @@ class IeeeDecimalCorpusTests(unittest.TestCase):
         (root / "library/src/decimal").mkdir(parents=True)
         return directory, root
 
-    def assert_real_tree_untouched(self) -> None:
-        # While the generated files exist, a `moon` command that scans the real tree
-        # plans them and fails when they are deleted (#417): a test never writes there.
-        real = run_ieee_decimal.ROOT / "library/src/decimal"
-        self.assertEqual(list(real.glob(run_ieee_decimal.GENERATED_FIXTURE_GLOB)), [])
+    @contextlib.contextmanager
+    def no_write_to_the_real_tree(self) -> "contextlib.AbstractContextManager[None]":  # type: ignore[type-arg]
+        # A test never writes into the real tree (#417). This is checked on what this process
+        # does (the recorder of `run_python_tests`), not by looking at the tree: another stage of
+        # the quick gate writes the same generated files there while these tests run (the IEEE
+        # smoke, in the moon lane), so a file in the tree says nothing about this test.
+        with run_python_tests.record_protected_writes() as hits:
+            yield
+        self.assertEqual(hits, [])
+
+    def test_generated_files_written_into_the_real_tree_by_another_stage_do_not_fail_these_tests(self) -> None:
+        # The IEEE smoke of the quick gate writes `ieee_corpus_generated_*` into the real tree
+        # for the length of its run, concurrently with the Python tests: simulate that writer
+        # with a stand-in real tree that holds such files, and run the tests that used to look.
+        with tempfile.TemporaryDirectory() as directory:
+            decimal = Path(directory) / "library/src/decimal"
+            decimal.mkdir(parents=True)
+            (decimal / "ieee_corpus_generated_00_wbtest.mbt").write_text("x", encoding="utf-8")
+            suite = unittest.TestSuite(
+                IeeeDecimalCorpusTests(name)
+                for name in (
+                    "test_run_targets_runs_only_generated_files",
+                    "test_full_run_keeps_whole_package_on_every_target",
+                )
+            )
+            result = unittest.TestResult()
+            with patch.object(run_ieee_decimal, "ROOT", Path(directory)):
+                suite.run(result)
+            self.assertEqual((result.errors, result.failures), ([], []))
+            self.assertEqual(result.testsRun, 2)
 
     def test_run_targets_runs_only_generated_files(self) -> None:
         calls: list[list[str]] = []
 
-        def fake_run(command: list[str], **_: object) -> subprocess.CompletedProcess[str]:
+        def fake_run(command: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
             calls.append(command)
-            self.assert_real_tree_untouched()
+            self.assertEqual(kwargs.get("cwd"), root)  # moon scans the temporary root, not the real tree
             total = run_ieee_decimal.count_generated_tests(
                 run_ieee_decimal.split_fixture_test(run_ieee_decimal.render_moon_fixture_test())
             )
@@ -189,7 +215,7 @@ class IeeeDecimalCorpusTests(unittest.TestCase):
             )
 
         directory, root = self.temporary_root()
-        with directory, patch.object(run_ieee_decimal.subprocess, "run", fake_run):
+        with directory, patch.object(run_ieee_decimal.subprocess, "run", fake_run), self.no_write_to_the_real_tree():
             results = run_ieee_decimal.run_targets(["native"], generated_only=True, root=root)
             self.assertEqual(list((root / "library/src/decimal").iterdir()), [])
         self.assertEqual(results[0]["failedCases"], 0)
@@ -197,24 +223,22 @@ class IeeeDecimalCorpusTests(unittest.TestCase):
         self.assertTrue(paths)
         self.assertTrue(all("ieee_corpus_generated_" in item for item in paths))
         self.assertNotIn("library/src/decimal", calls[0])
-        self.assert_real_tree_untouched()
 
     def test_full_run_keeps_whole_package_on_every_target(self) -> None:
         calls: list[list[str]] = []
 
-        def fake_run(command: list[str], **_: object) -> subprocess.CompletedProcess[str]:
+        def fake_run(command: list[str], **kwargs: object) -> subprocess.CompletedProcess[str]:
             calls.append(command)
-            self.assert_real_tree_untouched()
+            self.assertEqual(kwargs.get("cwd"), root)  # moon scans the temporary root, not the real tree
             return subprocess.CompletedProcess(
                 command, 0, stdout="Total tests: 518, passed: 518, failed: 0.\n", stderr=""
             )
 
         directory, root = self.temporary_root()
-        with directory, patch.object(run_ieee_decimal.subprocess, "run", fake_run):
+        with directory, patch.object(run_ieee_decimal.subprocess, "run", fake_run), self.no_write_to_the_real_tree():
             results = run_ieee_decimal.run_targets(["native", "js"], root=root)
         self.assertEqual([r["totalCases"] for r in results], [518, 518])
         self.assertTrue(all("library/src/decimal" in call for call in calls))
-        self.assert_real_tree_untouched()
 
     def test_files_left_by_an_interrupted_run_are_removed_not_fatal(self) -> None:
         directory, root = self.temporary_root()
