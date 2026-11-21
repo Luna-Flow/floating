@@ -88,7 +88,7 @@ fn harmonic_mean(
 test "harmonic mean with a checked division" {
   let r = fn(n : Int) { @bin_float_checked.BinFloatResult::from_int(n) }
   inspect(show(harmonic_mean(r(2), r(6))), content="3p0")
-  inspect(show(harmonic_mean(r(2), r(0))), content="error: division by zero")
+  inspect(show(harmonic_mean(r(2), r(0))), content="error: div: division by zero")
 }
 ```
 

@@ -244,12 +244,12 @@ test "arithmetic keeps the first error" {
   let one = @bin_float_checked.BinFloatResult::from_int(1)
   let zero = @bin_float_checked.BinFloatResult::from_int(0)
   inspect(show(one + one * one), content="1p1")
-  inspect(show(one / zero), content="error: division by zero")
+  inspect(show(one / zero), content="error: div: division by zero")
   let left = @bin_float_checked.BinFloatResult::err(
     @lf_arith.ArithmeticError::unsupported("left"),
   )
   inspect(show(left + one / zero), content="error: left")
-  inspect(show(one / zero + left), content="error: division by zero")
+  inspect(show(one / zero + left), content="error: div: division by zero")
   let clamped = @bin_float_checked.BinFloatResult::from_int(5).clamp(
     min=zero,
     max=@bin_float_checked.BinFloatResult::from_int(3),
@@ -294,7 +294,7 @@ test "context arithmetic rounds to the context and maps the flags" {
   inspect(show(tenth.add_ctx(zero, binary32)), content="13421773p-27")
   let one = @bin_float_checked.BinFloatResult::from_int(1)
   inspect(show(one.div_ctx(zero, binary32)), content="error: div: division by zero")
-  inspect(show(one.div(zero)), content="error: division by zero")
+  inspect(show(one.div(zero)), content="error: div: division by zero")
   inspect(show(zero.div_ctx(zero, binary32)), content="error: div: invalid operation")
 }
 ```
@@ -477,9 +477,9 @@ signaling NaN operand is a `DomainError`; `hypot` raises no other exception
 test "powers and roots" {
   let r = fn(n : Int) { @bin_float_checked.BinFloatResult::from_int(n) }
   inspect(show(@bin_float_checked.BinFloatResult::from_int(81, precision=48).sqrt()), content="9p0")
-  inspect(show(r(-4).sqrt()), content="error: invalid operation")
+  inspect(show(r(-4).sqrt()), content="error: sqrt: invalid operation")
   inspect(show(r(3).pow_nat(10)), content="59049p0")
-  inspect(show(r(0).pown(-1)), content="error: division by zero")
+  inspect(show(r(0).pown(-1)), content="error: pown: division by zero")
   inspect(show(r(-8).rootn(3)), content="-1p1")
   inspect(show(r(8).rootn(0)), content="error: rootn: invalid operation")
   inspect(show(r(3).hypot(r(4))), content="5p0")

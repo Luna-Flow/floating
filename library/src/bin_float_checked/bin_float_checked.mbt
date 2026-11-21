@@ -248,7 +248,15 @@ pub fn BinFloatResult::div(
 ) -> BinFloatResult {
   BinFloatResult::from_result(
     bin_result_lift2_checked(self.inner, other.inner, fn(lhs, rhs) {
-      lhs.div_checked(rhs)
+      bin_result_checked_flags(
+        "div",
+        lhs.div_ctx(
+          rhs,
+          @bin_float.BinaryContext::new(
+            precision=Int32::max(lhs.precision(), rhs.precision()),
+          ),
+        ),
+      )
     }),
   )
 }
