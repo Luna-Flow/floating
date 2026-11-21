@@ -33,11 +33,14 @@ Both oracles are implementations, not specifications.
   GDA `tosci` and `toeng` rows apply the context precision to their operand
   (dtfile.html, "Processing of a test case line"). Further differences of the
   `power` operation are registered as named expected differences of the
-  `decimal_gda-power` family. Such a row is never skipped: the generator derives
-  what this library returns from the rule of the class, checks the facts the
-  class stands on, writes the row with that result and a comment line
-  `expected-difference <class>: libmpdec gives ...`, and a row outside every
-  shape keeps libmpdec's result and fails when the two differ.
+  `decimal_gda-power` family. A row of such a class is never skipped, and its
+  expected value is never what this library returns: the generator takes the
+  value from an independent source (exact arithmetic, or libmpdec at a higher
+  precision), checks the facts the class stands on, writes the row with that
+  value and a comment line `expected-difference <class>: libmpdec gives ...`,
+  and a row outside every shape keeps libmpdec's result and fails when the two
+  differ. The one class whose value could only be a copy of the library's own
+  algorithm is dropped (`integer-power-accuracy`, below).
   - `power-of-ten #351`: `power(10^k, y)` with a non-integral `y` and an
     integral `k*y`. GDA 1.70 allows an inexact result to be up to one unit in
     the last place in error; the library returns the exact value $10^{ky}$ in
@@ -52,12 +55,15 @@ Both oracles are implementations, not specifications.
     half-even, the base inverted first for a negative exponent), whose error is
     below 0.55 units in the last place (0.6 for a negative exponent), and
     `power.decTest` pins a result that is not within 0.5 units (powx1215, "A
-    (rare) case where the last digit is not within 0.5 ULP"). The generator
-    reproduces that algorithm in Python and checks that its value is within 0.6
-    units of the exact power, formed exactly, and libmpdec's within one.
+    (rare) case where the last digit is not within 0.5 ULP"). The only value
+    the generator could write for such a case is the result of a Python copy
+    of that algorithm, which the library also implements, so the case gets no
+    row: the generator recognises the class only to drop it (the ids of the
+    other cases do not change), and the decTest corpus, whose rows come from
+    decNumber itself, is the oracle for these results.
   - `noninteger-power-rounding`: a non-integral exponent where libmpdec is not
     the correctly rounded value and the library is. The expected value is the
-    correct rounding recomputed at `precision + 60` digits, used only when the
+    correct rounding recomputed at `precision + 60` digits by libmpdec, used only when the
     bounds of that value round alike; libmpdec's must be within one unit of it.
   - `underflow-with-inexact-subnormal`: libmpdec reports Inexact and Subnormal
     without Underflow. GDA 1.70, Underflow: "the result is both inexact and
