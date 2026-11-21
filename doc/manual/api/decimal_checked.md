@@ -344,9 +344,9 @@ pub fn DecimalChecked::acosh(Self) -> Self
 pub fn DecimalChecked::atanh(Self) -> Self
 ```
 
-The results are those of `decimal`, including its documented exception to
-correct rounding (exact decimal results of non-integral powers, such as
-$0.0016^{0.25} = 0.2$; see the [decimal API](decimal.md#elementary-functions)).
+The results are those of `decimal`, which decides the exact decimal results of
+non-integral powers, such as $0.0016^{0.25} = 0.2$, before the refinement loop (see the
+[decimal API](decimal.md#elementary-functions)).
 Zero and infinite operands of `atan2` give the IEEE 754 values (`atan2` of
 $+\infty$ and 1 is $\pi/2$, inexact). Domain violations are IEEE values with
 flags (`ln` of a negative number is NaN with `invalid_operation`, `tanpi(0.5)`

@@ -19,12 +19,6 @@ Decimal Arithmetic status and traps live in the separate
 [`decimal_gda`](decimal_gda.md) package; [`decimal_checked`](decimal_checked.md)
 accumulates the flags of a pipeline of `Decimal` operations.
 
-> [!WARNING]
-> Exact results of non-integral powers among the
-> [elementary functions](#elementary-functions) do not yet meet the contracts
-> described below. The note there links the GitHub issue that tracks them and
-> the proposed fix.
-
 ## Importing
 
 Add the package to your `moon.pkg`:
@@ -80,14 +74,14 @@ The derived `Debug` implementation is promoted as `Decimal::to_repr`; see
 These observers return the stored representation of a value.
 
 ```mbti
-pub fn Decimal::precision(Self) -> Int
+pub fn Decimal::precision(Self) -> Int32
 pub fn Decimal::coefficient(Self) -> @bigint.BigInt
-pub fn Decimal::exponent10(Self) -> Int
+pub fn Decimal::exponent10(Self) -> Int32
 ```
 
 `precision` is the working precision stored in the value: the precision of a format a context could have, `1..=999999999` (`decimal_precision_max`). Every constructor that returns a `Decimal` aborts on a precision outside that range, naming the function; the operations that return a `Result` return `Err`.
 `coefficient` returns the non-negative coefficient $c$;
-for a NaN they return the payload and for an infinity `0`. The sign is never
+for a NaN it returns the payload and for an infinity `0`. The sign is never
 part of the coefficient: use `is_sign_minus`. `exponent10` returns the stored
 exponent $q$; for special values it is `0`. The IEEE 754-2019 operation
 `quantum` is `quantum_ctx` (below), not an accessor.
@@ -809,12 +803,14 @@ pub fn Decimal::neg(Self) -> Self
 ```
 
 Each operator is the matching [context operation](#context-arithmetic) (`add_ctx`,
-`sub_ctx`, `mul_ctx`, `div_ctx`, `sqrt_ctx`) in a private working context with the
+`sub_ctx`, `mul_ctx`, `div_ctx`) in a private working context with the
 flags dropped: the format of the larger precision $\max(p_a, p_b)$ of the
 operand precision fields, round half even, the storage range of a value
 (`decimal_value_e_max`, $2\,147\,483\,646$, and `decimal_value_e_tiny`,
 $-2\,147\,483\,645$) and no fold-down. The result precision field is
-$\max(p_a, p_b)$.
+$\max(p_a, p_b)$. The checked
+division is the trait method `DivChecked::div_checked(a, b, ctx)` (see
+[`parse_checked` and the checked traits](#decimalparse_checked-sqrt_checked-pow_nat_checked-pow_int_checked)); there is no inherent `Decimal::div_checked`.
 
 - An exact result takes the cohort member closest to the preferred exponent
   (IEEE 754-2019 5.4.1: $\min(q_a, q_b)$ for `add` and `sub`, $q_a+q_b$ for
@@ -885,9 +881,7 @@ new precision field. All of them are flag-free.
 
 ### `Decimal::sqrt`
 
-`sqrt` takes the square root of the value under its own format. The checked
-division is the trait method `DivChecked::div_checked(a, b, ctx)` (see
-[`parse_checked` and the checked traits](#decimalparse_checked-sqrt_checked-pow_nat_checked-pow_int_checked)); there is no inherent `Decimal::div_checked`.
+`sqrt` takes the square root of the value under its own format.
 
 ```mbti
 pub fn Decimal::sqrt(Self) -> Self
@@ -1021,8 +1015,9 @@ pub fn Decimal::abs_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 pub fn Decimal::apply_ctx(Self, DecimalContext) -> (Self, DecimalFlags)
 ```
 
-`apply_ctx` rounds a value to the context (precision, exponent range,
-clamping) and quiets a NaN, keeping the sign of zero. It replaces the former
+`apply_ctx` rounds a value to the precision and the exponent range of the
+context (an exponent above $e_{\max} - p + 1$ is folded down) and quiets a NaN,
+keeping the sign of zero. It replaces the former
 `plus_ctx` (and `minus_ctx` is `neg` followed by `apply_ctx`). `abs_ctx` is $|x|$ rounded to the context; signaling NaNs raise
 `invalid_operation`.
 
@@ -1486,7 +1481,7 @@ Every elementary function exists in two forms. `f_ctx(x, ctx)` returns
 `Err` with an `ArithmeticError` whose `certification_failure_detail()` names
 the operation, the target precision and the exhausted refinement budget when
 the result could not be certified. When certification fails, `f_ctx` returns
-NaN with `invalid_operation`.
+NaN with `not_computed`, and `try_f_ctx` returns `Err` of the certification-failure kind.
 
 Transcendental results are **certified**: the implementation evaluates a
 guaranteed enclosure of $f(x)$ in [`interval`](interval.md) and accepts it
@@ -1911,7 +1906,7 @@ pub fn Decimal::try_acosh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlag
 pub fn Decimal::try_atanh_ctx(Self, DecimalContext) -> Result[(Self, DecimalFlags), @arithmetic.ArithmeticError]
 ```
 
-Domain and special values of the functions in these four groups:
+Domain and special values of the functions in the seven groups above, from `exp2` to `atanh`:
 
 | Function | Invalid (`invalid_operation`) | Pole (`division_by_zero`) | Exact cases |
 | --- | --- | --- | --- |
@@ -2186,9 +2181,9 @@ pub impl Compare for Decimal
 ```
 
 `Zero::zero()` and `One::one()` are `Decimal::zero()` and `Decimal::one()`.
-The ring laws hold exactly for `+`, `-` and `*` as long as no sum is rounded
-(sums whose exact coefficient fits the operand precision, and every
-product, since `*` is exact); a rounded sum is only approximately associative.
+The ring laws hold exactly for `+`, `-` and `*` as long as no result is rounded
+(a sum or a product whose exact coefficient fits the larger operand precision);
+a rounded result is only approximately associative.
 `FromNat` and `FromInteger` are documented under
 [construction](#the-fromnat-and-frominteger-implementations).
 
@@ -2245,7 +2240,7 @@ explicit `e_max` above 999,999 fails with `certification_failure` (`not_computed
 
 `zero_contextual` and `one_contextual` have the context precision.
 `epsilon_contextual` is $10^{1-p}$ (`next_up_ctx(1) - 1`).
-`min_normal_contextual` is $10^{e_{\min}}$ (default $e_{\min} = -999\,999\,999$).
+`min_normal_contextual` is $10^{e_{\min}}$ of the converted context; its default $e_{\min}$ is $1 - e_{\max}$, that is $-999\,998$ for the default range of `new` (precision 34).
 `max_finite_contextual` is $(10^{p}-1)\,10^{e_{\max}-p+1}$.
 `classify_contextual` is `classify`.
 
@@ -2323,7 +2318,7 @@ pub fn DecimalInterchangeEncoding::not_equal(Self, Self) -> Bool
 ```
 
 Contexts compare field by field (precision, rounding, exponent
-limits, refinement limit); flag sets compare all thirteen fields.
+limits, refinement limit); flag sets compare all six fields.
 `DecimalContext::from_arithmetic_context(ArithmeticContext::decimal64())` is
 equal to `DecimalContext::decimal64()`.
 
