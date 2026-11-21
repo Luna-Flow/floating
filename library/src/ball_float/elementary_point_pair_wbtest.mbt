@@ -69,6 +69,15 @@ fn point_pair_same(
 }
 
 ///|
+// Oracle (level C, stated by the audit of 2026-11-21): the expected value is
+// the two-call route, which goes through `try_exp_ctx` and `try_ln_ctx` (the
+// code under test also calls them for a point) and shares `binary_exp_bounds`
+// and `binary_ln_bounds`. It proves that the point shortcut agrees with the
+// general route, not that either is right. Independent values: the test below
+// (level A, p = 53), and the MPFR rows of `testdata/bin_float/mpfr-4.2.2-
+// elementary.txt` for p = 24, 53, 113 and |x| up to about 2^5; nothing at
+// level A covers p = 64, 128, 200, |x| up to 2^40, or the exponent-range ends
+// used here.
 test "exp and ln of a point ball equal the two-call route" {
   let mut seed = 5UL
   let mut checked = 0
@@ -112,10 +121,35 @@ test "exp and ln of a point ball equal the two-call route" {
 }
 
 ///|
-test "exp and ln of a ball with two ends are unchanged" {
+fn point_pair_end(
+  coefficient : UInt64,
+  exponent : Int32,
+) -> @bin_float.BinFloat {
+  @bin_float.BinFloat::make(
+    @bin_float.BinCoeff::from_uint64(coefficient),
+    exponent,
+    53,
+  )
+}
+
+///|
+// Oracle (level A): the four endpoint values are written out. They are the
+// directed roundings to 53 bits of exp(3), exp(3 + 2^-40), ln(3) and
+// ln(3 + 2^-40), computed outside this repository with Python 3's `decimal`
+// module (libmpdec, correctly rounded) at 120 digits and then rounded down
+// (for the lower end) and up (for the upper end) to 53 bits on exact
+// fractions; the values are irrational, so the upward bound is the floor plus
+// one unit. This library did not produce them. This test replaces a
+// comparison of the two-end route with a copy of itself (`ball_exp_two_calls`
+// and `ball_ln_two_calls`), which could only detect a wrong branch.
+test "exp and ln of a ball with two ends are the directed bounds of the ends" {
   let a = @bin_float.BinFloat::from_int(3, precision=53)
   let b = a.add(@bin_float.BinFloat::make(@bin_float.BinCoeff::one(), -40, 53))
   let ball = BallFloat::from_bounds(a, b, precision=53)
-  assert_true(point_pair_same(ball.try_exp(), ball.ball_exp_two_calls()))
-  assert_true(point_pair_same(ball.try_ln(), ball.ball_ln_two_calls()))
+  let exp_ball = ball.try_exp().unwrap()
+  assert_eq(exp_ball.lo_.compare(point_pair_end(5653576037675269UL, -48)), 0)
+  assert_eq(exp_ball.hi_.compare(point_pair_end(5653576037680412UL, -48)), 0)
+  let ln_ball = ball.try_ln().unwrap()
+  assert_eq(ln_ball.lo_.compare(point_pair_end(4947709893870346UL, -52)), 0)
+  assert_eq(ln_ball.hi_.compare(point_pair_end(4947709893871712UL, -52)), 0)
 }

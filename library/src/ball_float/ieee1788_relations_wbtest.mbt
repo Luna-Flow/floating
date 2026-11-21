@@ -49,16 +49,30 @@ test "IEEE 1788 interior permits shared infinite endpoints" {
 }
 
 ///|
-test "IEEE 1788 overlap classification is exhaustive on representative pairs" {
+// Oracle (level A): the sixteen overlapping states of IEEE 1788-2015 (10.5.14,
+// Table 10.2: the thirteen Allen relations of two nonempty intervals and the
+// three empty cases), each with one pair of integer intervals written out
+// against the reference interval [4, 8]. Nothing is computed by the library
+// except the call under test (`overlap`); the endpoints are exact integers.
+test "IEEE 1788 overlap classification covers all sixteen states" {
   let empty = BallFloat::empty(precision=32)
-  let a = relation_interval(1, 2)
-  let b = relation_interval(3, 4)
-  let meeting = relation_interval(2, 3)
-  let containing = relation_interval(0, 3)
+  let reference = relation_interval(4, 8)
+  // the three cases with an empty operand
   assert_true(empty.overlap(empty) == BothEmpty)
-  assert_true(a.overlap(b) == Before)
-  assert_true(a.overlap(meeting) == Meets)
-  assert_true(a.overlap(containing) == ContainedBy)
-  assert_true(containing.overlap(a) == Contains)
-  assert_true(a.overlap(a) == Equals)
+  assert_true(empty.overlap(reference) == FirstEmpty)
+  assert_true(reference.overlap(empty) == SecondEmpty)
+  // the thirteen relations of two nonempty intervals: x.overlap([4, 8])
+  assert_true(relation_interval(1, 2).overlap(reference) == Before)
+  assert_true(relation_interval(1, 4).overlap(reference) == Meets)
+  assert_true(relation_interval(1, 5).overlap(reference) == Overlaps)
+  assert_true(relation_interval(4, 6).overlap(reference) == Starts)
+  assert_true(relation_interval(5, 7).overlap(reference) == ContainedBy)
+  assert_true(relation_interval(6, 8).overlap(reference) == Finishes)
+  assert_true(relation_interval(4, 8).overlap(reference) == Equals)
+  assert_true(relation_interval(10, 12).overlap(reference) == After)
+  assert_true(relation_interval(8, 12).overlap(reference) == MetBy)
+  assert_true(relation_interval(6, 12).overlap(reference) == OverlappedBy)
+  assert_true(relation_interval(4, 12).overlap(reference) == StartedBy)
+  assert_true(relation_interval(3, 9).overlap(reference) == Contains)
+  assert_true(relation_interval(2, 8).overlap(reference) == FinishedBy)
 }

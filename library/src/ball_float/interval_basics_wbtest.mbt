@@ -61,12 +61,109 @@ test "interval basics: division matches the 4-division original" {
 }
 
 ///|
-test "interval basics: sqrt matches the 4-root original" {
+fn sqrt_expected_end(
+  coefficient : String,
+  exponent : Int32,
+  precision : Int32,
+) -> @bin_float.BinFloat {
+  @bin_float.BinFloat::make(
+    @bin_float.BinCoeff::parse(coefficient).unwrap(),
+    exponent,
+    precision,
+  )
+}
+
+///|
+fn sqrt_point_interval(
+  lo : Double,
+  hi : Double,
+  precision : Int32,
+) -> BallFloat {
+  BallFloat::from_bounds(
+    @bin_float.BinFloat::from_double(lo, precision~),
+    @bin_float.BinFloat::from_double(hi, precision~),
+    precision~,
+  )
+}
+
+///|
+fn sqrt_check(
+  a : BallFloat,
+  lo : @bin_float.BinFloat,
+  hi : @bin_float.BinFloat,
+) -> Unit raise {
+  let r = a.sqrt()
+  assert_false(r.is_empty())
+  assert_eq(r.lo_.compare(lo), 0)
+  assert_eq(r.hi_.compare(hi), 0)
+}
+
+///|
+// Oracle (level A): the endpoint values are written out. Exact roots
+// (1, 2, 3, 4, 1/2, 3/2) are integers or dyadic fractions. The directed
+// bounds of the irrational roots, RD(sqrt(2)), RU(sqrt(3)), RD/RU(sqrt(5/2)),
+// are integers (the p-bit coefficient c with value c * 2^-(p-1)) computed
+// outside this repository by Python 3 `math.isqrt` on exact integers, as the
+// floor of sqrt(v * 2^(2k)) and floor + 1 (the roots are irrational, so the
+// upward bound is floor + 1): c = isqrt(v << 2(p-1)) for v in {2, 3, 5/2}.
+// This library did not produce any of them. This test replaces a comparison of
+// `sqrt` with a copy that made the same call (`old_sqrt_interval`), which
+// could not fail.
+test "interval basics: sqrt endpoints are the directed square roots" {
   for precision in [24, 128] {
-    for a in basics_corpus(precision) {
-      assert_eq(a.sqrt(), a.old_sqrt_interval())
-    }
+    // exact squares, both ends
+    sqrt_check(
+      sqrt_point_interval(1.0, 1.0, precision),
+      @bin_float.BinFloat::from_int(1, precision~),
+      @bin_float.BinFloat::from_int(1, precision~),
+    )
+    sqrt_check(
+      sqrt_point_interval(4.0, 9.0, precision),
+      @bin_float.BinFloat::from_int(2, precision~),
+      @bin_float.BinFloat::from_int(3, precision~),
+    )
+    sqrt_check(
+      sqrt_point_interval(0.25, 2.25, precision),
+      @bin_float.BinFloat::from_double(0.5, precision~),
+      @bin_float.BinFloat::from_double(1.5, precision~),
+    )
+    // a lower end at or below zero gives zero; a negative interval is empty
+    sqrt_check(
+      sqrt_point_interval(0.0, 16.0, precision),
+      @bin_float.BinFloat::zero(precision~),
+      @bin_float.BinFloat::from_int(4, precision~),
+    )
+    sqrt_check(
+      sqrt_point_interval(-1.0, 4.0, precision),
+      @bin_float.BinFloat::zero(precision~),
+      @bin_float.BinFloat::from_int(2, precision~),
+    )
+    assert_true(sqrt_point_interval(-3.0, -1.0, precision).sqrt().is_empty())
+    assert_true(BallFloat::empty(precision~).sqrt().is_empty())
   }
+  // the irrational roots, directed outward
+  let p24 = 24
+  sqrt_check(
+    sqrt_point_interval(2.0, 3.0, p24),
+    sqrt_expected_end("11863283", -23, p24),
+    sqrt_expected_end("14529496", -23, p24),
+  )
+  sqrt_check(
+    sqrt_point_interval(2.5, 2.5, p24),
+    sqrt_expected_end("13263553", -23, p24),
+    sqrt_expected_end("13263554", -23, p24),
+  )
+  let p128 = 128
+  sqrt_check(
+    sqrt_point_interval(2.0, 3.0, p128),
+    sqrt_expected_end("240615969168004511545033772477625056927", -127, p128),
+    sqrt_expected_end("294693174213430241384087455685767077317", -127, p128),
+  )
+  sqrt_check(
+    sqrt_point_interval(2.5, 2.5, p128),
+    sqrt_expected_end("269016831765825801719526439316123156306", -127, p128),
+    sqrt_expected_end("269016831765825801719526439316123156307", -127, p128),
+  )
 }
 
 ///|

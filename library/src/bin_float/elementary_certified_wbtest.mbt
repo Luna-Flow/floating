@@ -509,6 +509,86 @@ test "certified target witness rejects equal values with unequal flags" {
 }
 
 ///|
+fn certified_rounding_endpoint(coefficient : UInt64) -> BinFloat {
+  // coefficient * 2^-4 at precision 8
+  BinFloat::make(BinCoeff::from_uint64(coefficient), -4, 8)
+}
+
+///|
+// Oracle (level A): expected values written out from arithmetic on the grid of
+// a 3-bit significand in [1, 2), whose spacing is 2^-2: the representable
+// numbers there are 1, 1.25, 1.5, 1.75. The endpoints are k/16:
+// 16/16 = 1, 17/16 = 1.0625, 18/16 = 1.125 (the midpoint of 1 and 1.25: ties
+// to even gives 1), 19/16 = 1.1875. The rule under test is that of
+// `binary_certified_target_rounding`: the witness is unique only if both
+// endpoints round to the same value with the same flags. Nothing is computed
+// by the library except the call under test and the endpoints' `make`.
+// (These blocks replace tests of a local copy of the function in
+// `ball_float/certified_rounding_wbtest.mbt`, which ignored the flags.)
+test "certified target rounding accepts one rounded value with equal flags" {
+  let context = BinaryContext::new(precision=3)
+  // 17/16 and 18/16 both round to 1, both inexact
+  let (value, unique, flags) = binary_certified_target_rounding(
+    certified_rounding_endpoint(17UL),
+    certified_rounding_endpoint(18UL),
+    context,
+  )
+  assert_true(unique)
+  assert_eq(value, BinFloat::one(precision=3))
+  assert_true(flags.inexact())
+  // 16/16 is exact (value 1, no flags) and 17/16 is inexact (value 1): equal
+  // values with unequal flags are not a witness
+  let (_, mixed_unique, _) = binary_certified_target_rounding(
+    certified_rounding_endpoint(16UL),
+    certified_rounding_endpoint(17UL),
+    context,
+  )
+  assert_false(mixed_unique)
+  // 16/16 and 19/16 round to 1 and 1.25
+  let (_, split_unique, _) = binary_certified_target_rounding(
+    certified_rounding_endpoint(16UL),
+    certified_rounding_endpoint(19UL),
+    context,
+  )
+  assert_false(split_unique)
+}
+
+///|
+test "certified target rounding respects directed modes" {
+  let downward = BinaryContext::new(
+    precision=3,
+    rounding=BinaryRoundingMode::RoundTowardNegative,
+  )
+  let upward = BinaryContext::new(
+    precision=3,
+    rounding=BinaryRoundingMode::RoundTowardPositive,
+  )
+  let low = certified_rounding_endpoint(17UL)
+  let high = certified_rounding_endpoint(19UL)
+  // 17/16 and 19/16 are both strictly between 1 and 1.25, both inexact:
+  // downward both give 1, upward both give 1.25
+  let (down_value, down_unique, _) = binary_certified_target_rounding(
+    low, high, downward,
+  )
+  assert_true(down_unique)
+  assert_eq(down_value, BinFloat::one(precision=3))
+  let (up_value, up_unique, _) = binary_certified_target_rounding(
+    low, high, upward,
+  )
+  assert_true(up_unique)
+  assert_eq(up_value, BinFloat::make(BinCoeff::from_uint64(5UL), -2, 3))
+  // 16/16 is exact and 17/16 is not: the flags differ in either direction,
+  // and upward the values (1 and 1.25) differ as well
+  let exact = certified_rounding_endpoint(16UL)
+  let (_, down_mixed, _) = binary_certified_target_rounding(
+    exact, low, downward,
+  )
+  let (_, up_mixed, _) = binary_certified_target_rounding(exact, low, upward)
+  assert_false(down_mixed)
+  assert_false(up_mixed)
+}
+
+///|
 test "BinFloat elementary functions honor every directed rounding mode" {
   let value = BinFloat::one(precision=53)
   let downward = value.exp_ctx(
