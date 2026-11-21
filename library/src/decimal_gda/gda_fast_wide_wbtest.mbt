@@ -91,8 +91,8 @@ fn gda_wide_context(random : GdaFastRandom) -> GdaContext {
   }
   let trapped = context.with_traps(traps)
   match random.below(4) {
-    0 => gda_context_with_status(trapped, gda_flags_rounded_only)
-    1 => gda_context_with_status(trapped, gda_flags_rounded_inexact)
+    0 => gda_context_with_flags(trapped, gda_flags_rounded_only)
+    1 => gda_context_with_flags(trapped, gda_flags_rounded_inexact)
     _ => trapped
   }
 }
@@ -104,7 +104,7 @@ fn gda_wide_same(
 ) -> Bool {
   add_plain_same_decimal(actual.value(), expected.value()) &&
   actual.raised() == expected.raised() &&
-  actual.next_context().status() == expected.next_context().status() &&
+  actual.next_context().flags() == expected.next_context().flags() &&
   (match (actual, expected) {
     (Completed(_, _, _), Completed(_, _, _)) => true
     (Trapped(a, _, _, _), Trapped(b, _, _, _)) => a == b

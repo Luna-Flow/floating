@@ -4107,7 +4107,7 @@ msgid "decimal_gda API"
 msgstr ""
 
 #: manual/api/decimal_gda.md:5
-msgid "`decimal_gda` implements the General Decimal Arithmetic Specification (GDA, version 1.70) by M. F. Cowlishaw. Its `Decimal` is a sign, an arbitrary-length decimal coefficient and a decimal exponent; its `GdaContext` carries the precision, rounding mode, exponent limits, clamping, the extended/subset switch, the sticky status and the enabled traps; and every GDA operation is a pure function that returns a `GdaOutcome` holding the defined result, the next context and the conditions it raised. The [tutorial](../tutorial/decimal_gda.md) shows the package in use; the [design page](../design/decimal_gda.md) derives the rules stated here."
+msgid "`decimal_gda` implements the General Decimal Arithmetic Specification (GDA, version 1.70) by M. F. Cowlishaw. Its `Decimal` is a sign, an arbitrary-length decimal coefficient and a decimal exponent; its `GdaContext` carries the precision, rounding mode, exponent limits, clamping, the extended/subset switch, the sticky flags and the enabled traps; and every GDA operation is a pure function that returns a `GdaOutcome` holding the defined result, the next context and the conditions it raised. The [tutorial](../tutorial/decimal_gda.md) shows the package in use; the [design page](../design/decimal_gda.md) derives the rules stated here."
 msgstr ""
 
 #: manual/api/decimal_gda.md:15
@@ -4191,7 +4191,7 @@ msgid "This reads a GDA numeric string without a GDA context."
 msgstr ""
 
 #: manual/api/decimal_gda.md:200
-msgid "Accepted syntax is the GDA numeric-string grammar: an optional sign, digits with an optional decimal point, an optional exponent `E±n`, or `Infinity`/`Inf`/`NaN`/`sNaN` (case-insensitive) with an optional decimal NaN payload. The exponent is kept exactly, so `from_string(\"2.50\")` has exponent $-2$. A literal with more than `precision` (default 34) significant digits is rounded half to even and its trailing zeros are removed. A malformed literal gives `Err(parse_error)`; so does a precision outside `1..=999999999` (`Err` of the domain-error kind) and a NaN whose payload is wider than `precision - 1` digits (page 11). No context exponent range applies, only the [stored range](#gda_value_e_max-gda_value_e_tiny): a literal whose value (zero included) has an exponent below `gda_value_e_tiny` after the rounding, or an adjusted exponent above `gda_value_e_max`, gives `Err` of the domain-error kind that names both limits and the exponent. It is not a malformed literal, and it is no longer folded into an infinity or a zero (`\"1e3000000000\"` and `\"1e-3000000000\"` are errors). Use the package function [`to_number`](#to_number) when a rounded value is wanted or when the exponent limits, flags, status or traps of a context must apply."
+msgid "Accepted syntax is the GDA numeric-string grammar: an optional sign, digits with an optional decimal point, an optional exponent `E±n`, or `Infinity`/`Inf`/`NaN`/`sNaN` (case-insensitive) with an optional decimal NaN payload. The exponent is kept exactly, so `from_string(\"2.50\")` has exponent $-2$. A literal with more than `precision` (default 34) significant digits is rounded half to even and its trailing zeros are removed. A malformed literal gives `Err(parse_error)`; so does a precision outside `1..=999999999` (`Err` of the domain-error kind) and a NaN whose payload is wider than `precision - 1` digits (page 11). No context exponent range applies, only the [stored range](#gda_value_e_max-gda_value_e_tiny): a literal whose value (zero included) has an exponent below `gda_value_e_tiny` after the rounding, or an adjusted exponent above `gda_value_e_max`, gives `Err` of the domain-error kind that names both limits and the exponent. It is not a malformed literal, and it is no longer folded into an infinity or a zero (`\"1e3000000000\"` and `\"1e-3000000000\"` are errors). Use the package function [`to_number`](#to_number) when a rounded value is wanted or when the exponent limits, flags or traps of a context must apply."
 msgstr ""
 
 #: manual/api/decimal_gda.md:220
@@ -4287,15 +4287,15 @@ msgid "The GDA context"
 msgstr ""
 
 #: manual/api/decimal_gda.md:408
-msgid "`GdaContext` is the immutable GDA context: arithmetic policy plus sticky status plus enabled traps."
+msgid "`GdaContext` is the immutable GDA context: arithmetic policy plus sticky flags plus enabled traps."
 msgstr ""
 
 #: manual/api/decimal_gda.md:417
-msgid "The policy is precision $p \\ge 1$, a `GdaRoundingMode`, $e_{\\min} \\le e_{\\max}$, `clamp` and `extended`. The status is a `GdaFlags` value that operations only ever enlarge; the traps are a `GdaTrapSet`. Neither status nor traps influence the numerical result of an operation: they only decide the next context and whether the outcome is `Completed` or `Trapped`."
+msgid "The policy is precision $p \\ge 1$, a `GdaRoundingMode`, $e_{\\min} \\le e_{\\max}$, `clamp` and `extended`. The flags are a `GdaFlags` value that operations only ever enlarge; the traps are a `GdaTrapSet`. Neither flags nor traps influence the numerical result of an operation: they only decide the next context and whether the outcome is `Completed` or `Trapped`."
 msgstr ""
 
 #: manual/api/decimal_gda.md:425
-msgid "`new` builds a context with an empty status and aborts on an invalid parameter; `try_new` takes the same parameters and returns a `Result`."
+msgid "`new` builds a context with an empty set of flags and aborts on an invalid parameter; `try_new` takes the same parameters and returns a `Result`."
 msgstr ""
 
 #: manual/api/decimal_gda.md:433
@@ -4368,7 +4368,7 @@ msgid "These return a copy with one setting changed."
 msgstr ""
 
 #: manual/api/decimal_gda.md:511
-msgid "The result is checked like `new`: a precision or exponent range outside the rules above aborts. The sticky status, the traps, `clamp`, `extended` and the refinement limit are kept."
+msgid "The result is checked like `new`: a precision or exponent range outside the rules above aborts. The sticky flags, the traps, `clamp`, `extended` and the refinement limit are kept."
 msgstr ""
 
 #: manual/api/decimal_gda.md:517
@@ -4380,7 +4380,7 @@ msgid "`radix` always returns 10."
 msgstr ""
 
 #: manual/api/decimal_gda.md:533
-msgid "These read the sticky status and the enabled traps."
+msgid "These read the sticky flags and the enabled traps."
 msgstr ""
 
 #: manual/api/decimal_gda.md:542
@@ -4392,11 +4392,11 @@ msgid "`exp`, `ln`, `log10` and `power` refine an enclosure of the result at mos
 msgstr ""
 
 #: manual/api/decimal_gda.md:560
-msgid "These return a new context with changed traps or status; the receiver is not modified."
+msgid "These return a new context with changed traps or flags; the receiver is not modified."
 msgstr ""
 
 #: manual/api/decimal_gda.md:570
-msgid "`trap(s)` enables (or with `enabled=false` disables) one trap; `with_traps` replaces the whole set. `clear_status` empties the status and keeps the traps; `reset` empties both."
+msgid "`trap(s)` enables (or with `enabled=false` disables) one trap; `with_traps` replaces the whole set. `clear_flags` empties the flags and keeps the traps; `reset` empties both."
 msgstr ""
 
 #: manual/api/decimal_gda.md:576
@@ -4412,7 +4412,7 @@ msgid "Signals, flags and traps"
 msgstr ""
 
 #: manual/api/decimal_gda.md:604
-msgid "`GdaSignal` names the nine signals of GDA 1.70. Each has a flag in the context status and a trap-enabler."
+msgid "`GdaSignal` names the nine signals of GDA 1.70. Each has a flag in the context flags and a trap-enabler."
 msgstr ""
 
 #: manual/api/decimal_gda.md:621
@@ -4420,7 +4420,7 @@ msgid "The eight signals of the specification (page 15) are `Clamped`, `Division
 msgstr ""
 
 #: manual/api/decimal_gda.md:631
-msgid "`GdaFlags` is a set of conditions (the thirteen conditions the library raises, the fourteen of the specification without Insufficient storage), used both for the conditions raised by one operation and for the sticky status of a context. The decTest files name conditions, so the status keeps them apart."
+msgid "`GdaFlags` is a set of conditions (the thirteen conditions the library raises, the fourteen of the specification without Insufficient storage), used both for the conditions raised by one operation and for the sticky flags of a context. The decTest files name conditions, so the flags keep them apart."
 msgstr ""
 
 #: manual/api/decimal_gda.md:642
@@ -4464,7 +4464,7 @@ msgid "These read the fields that both variants share, without a `match`."
 msgstr ""
 
 #: manual/api/decimal_gda.md:724
-msgid "`value` is the defined result also for `Trapped`, `next_context` the context with the updated status, and `raised` the conditions of this operation only."
+msgid "`value` is the defined result also for `Trapped`, `next_context` the context with the updated flags, and `raised` the conditions of this operation only."
 msgstr ""
 
 #: manual/api/decimal_gda.md:729
@@ -4472,7 +4472,7 @@ msgid "These build the outcomes a pipeline needs."
 msgstr ""
 
 #: manual/api/decimal_gda.md:736
-msgid "`completed(v, c)` is the outcome of an operation that raised nothing: `v` and `c` unchanged, empty `raised`. `a.absorb(b)` keeps the value, the context (traps included) and the trap of `a`; the conditions that `b` raised join `raised` and the sticky status of the next context (with `invalid_operation` set when one of the four detailed invalid conditions is among them); when `a` completed and `b` trapped, the result is `Trapped` with the signal of `b`. The traps of `a` are not tested against the conditions of `b`. [`GdaDecimalChecked`](decimal_gda_checked.md) uses it for the right operand of a binary operation."
+msgid "`completed(v, c)` is the outcome of an operation that raised nothing: `v` and `c` unchanged, empty `raised`. `a.absorb(b)` keeps the value, the context (traps included) and the trap of `a`; the conditions that `b` raised join `raised` and the sticky flags of the next context (with `invalid_operation` set when one of the four detailed invalid conditions is among them); when `a` completed and `b` trapped, the result is `Trapped` with the signal of `b`. The traps of `a` are not tested against the conditions of `b`. [`GdaDecimalChecked`](decimal_gda_checked.md) uses it for the right operand of a binary operation."
 msgstr ""
 
 #: manual/api/decimal_gda.md:747
@@ -4496,7 +4496,7 @@ msgid "If $R$ is empty the outcome is `Completed(v, C, none)`: the very same con
 msgstr ""
 
 #: manual/api/decimal_gda.md:764
-msgid "Otherwise the next context is $C$ with status $C.\\mathrm{status} \\cup R$, where the `invalid_operation` flag is also set whenever $R$ contains one of the four detailed invalid conditions."
+msgid "Otherwise the next context is $C$ with flags $C.\\mathrm{flags} \\cup R$, where the `invalid_operation` flag is also set whenever $R$ contains one of the four detailed invalid conditions."
 msgstr ""
 
 #: manual/api/decimal_gda.md:767
@@ -4840,7 +4840,7 @@ msgid "decimal_gda_checked API"
 msgstr ""
 
 #: manual/api/decimal_gda_checked.md:5
-msgid "`decimal_gda_checked` provides `GdaDecimalChecked`, a pipeline over the General Decimal Arithmetic (GDA) operations of [`decimal_gda`](decimal_gda.md). It holds exactly one `GdaOutcome[Decimal]`: the current defined value, the next context (whose sticky `status` accumulates every signal raised so far), the signals raised by the latest operation, and, if a trap fired, the trapped signal. An operation on a completed state runs the GDA operation with the stored context; an operation on a trapped state does nothing. `resume_defined()` is the only way to continue after a trap. The right operand of a binary operation is a pipeline too: its conditions join the result and its trap short-circuits (see [Operations](#operations)). The package never produces an `ArithmeticError`. The [tutorial](../tutorial/decimal_gda_checked.md) walks through traps and recovery; the [design page](../design/decimal_gda_checked.md) models the pipeline as a state monad with an absorbing trap and proves the sticky-status laws."
+msgid "`decimal_gda_checked` provides `GdaDecimalChecked`, a pipeline over the General Decimal Arithmetic (GDA) operations of [`decimal_gda`](decimal_gda.md). It holds exactly one `GdaOutcome[Decimal]`: the current defined value, the next context (whose sticky `flags` accumulates every signal raised so far), the signals raised by the latest operation, and, if a trap fired, the trapped signal. An operation on a completed state runs the GDA operation with the stored context; an operation on a trapped state does nothing. `resume_defined()` is the only way to continue after a trap. The right operand of a binary operation is a pipeline too: its conditions join the result and its trap short-circuits (see [Operations](#operations)). The package never produces an `ArithmeticError`. The [tutorial](../tutorial/decimal_gda_checked.md) walks through traps and recovery; the [design page](../design/decimal_gda_checked.md) models the pipeline as a state monad with an absorbing trap and proves the sticky-flags laws."
 msgstr ""
 
 #: manual/api/decimal_gda_checked.md:22
@@ -4872,7 +4872,7 @@ msgid "`from_decimal(value, context)` rounds a value into the context with the G
 msgstr ""
 
 #: manual/api/decimal_gda_checked.md:89
-msgid "The signals of the rounding are raised, merged into the status and checked against the traps, so construction itself can trap."
+msgid "The signals of the rounding are raised, merged into the flags and checked against the traps, so construction itself can trap."
 msgstr ""
 
 #: manual/api/decimal_gda_checked.md:94
@@ -4888,7 +4888,7 @@ msgid "These methods return the wrapped outcome and its components."
 msgstr ""
 
 #: manual/api/decimal_gda_checked.md:118
-msgid "`value()` is the defined result, also when trapped. `context()` is the next context, including its updated status and its traps. `raised()` holds the signals of the latest operation only. `status()` is `context().status()`, the sticky union of everything raised since the context's status was last cleared; whenever any invalid-operation condition (`conversion_syntax`, `division_impossible`, `division_undefined`, `invalid_context`) is raised, the status also gets `invalid_operation`."
+msgid "`value()` is the defined result, also when trapped. `context()` is the next context, including its updated flags and its traps. `raised()` holds the signals of the latest operation only. `status()` is `context().flags()`, the sticky union of everything raised since the context's flags was last cleared; whenever any invalid-operation condition (`conversion_syntax`, `division_impossible`, `division_undefined`, `invalid_context`) is raised, the flags also gets `invalid_operation`."
 msgstr ""
 
 #: manual/api/decimal_gda_checked.md:128
@@ -4908,7 +4908,7 @@ msgid "`resume_defined()` continues a trapped pipeline with its defined result."
 msgstr ""
 
 #: manual/api/decimal_gda_checked.md:156
-msgid "On `Trapped(signal, value, context, raised)` it returns `Completed(value, context, GdaFlags::new())`: the value and the context (with its status, which already contains the trapped signal) are kept, the trap marker and the latest-step flags are dropped. On a completed pipeline it does nothing. Traps stay enabled in the context, so the same condition traps again if it recurs."
+msgid "On `Trapped(signal, value, context, raised)` it returns `Completed(value, context, GdaFlags::new())`: the value and the context (with its flags, which already contains the trapped signal) are kept, the trap marker and the latest-step flags are dropped. On a completed pipeline it does nothing. Traps stay enabled in the context, so the same condition traps again if it recurs."
 msgstr ""
 
 #: manual/api/decimal_gda_checked.md:193
@@ -4930,15 +4930,15 @@ msgid "If `a` is trapped, the result is `a`."
 msgstr ""
 
 #: manual/api/decimal_gda_checked.md:205
-msgid "Otherwise, if `b` is trapped, no operation runs: the result keeps the value and the context of `a`, the conditions of `b` join `raised` and the status, and the trap of `b` is the trap of the result."
+msgid "Otherwise, if `b` is trapped, no operation runs: the result keeps the value and the context of `a`, the conditions of `b` join `raised` and the flags, and the trap of `b` is the trap of the result."
 msgstr ""
 
 #: manual/api/decimal_gda_checked.md:208
-msgid "Otherwise the operation runs under the context of `a`, and the conditions that `b` raised join `raised` of the result and the status of its context. The traps of `a` are not tested against the conditions of `b`: `b` decided its own."
+msgid "Otherwise the operation runs under the context of `a`, and the conditions that `b` raised join `raised` of the result and the flags of its context. The traps of `a` are not tested against the conditions of `b`: `b` decided its own."
 msgstr ""
 
 #: manual/api/decimal_gda_checked.md:212
-msgid "`fma` applies the same rules to its two operands. The GDA operation computes the result under `c`'s precision, rounding, exponent limits, clamping and extended mode; if it raises no signal the context is passed on unchanged with empty `raised`; otherwise the raised signals are merged into the status of the next context and, if one of them is enabled in `c.traps()`, the outcome is `Trapped`. The mathematical functions `exp`, `ln`, `log10` and `power` with a non-integer exponent need precision and exponent limits within $\\pm 999\\,999$; otherwise they return NaN with `invalid_context`, which an `InvalidOperation` trap catches."
+msgid "`fma` applies the same rules to its two operands. The GDA operation computes the result under `c`'s precision, rounding, exponent limits, clamping and extended mode; if it raises no signal the context is passed on unchanged with empty `raised`; otherwise the raised signals are merged into the flags of the next context and, if one of them is enabled in `c.traps()`, the outcome is `Trapped`. The mathematical functions `exp`, `ln`, `log10` and `power` with a non-integer exponent need precision and exponent limits within $\\pm 999\\,999$; otherwise they return NaN with `invalid_context`, which an `InvalidOperation` trap catches."
 msgstr ""
 
 #: manual/api/decimal_gda_checked.md:222
@@ -15342,7 +15342,7 @@ msgid "**The value does not depend on status or traps.** $v$ and $R$ are functio
 msgstr ""
 
 #: manual/design/decimal_gda.md:357
-msgid "**Status is monotone and idempotent.** $C.\\mathrm{status} \\subseteq C'.\\mathrm{status}$, and since $\\cup$ is associative, commutative and idempotent, the status after a threaded sequence is the union of all raised sets, independent of how the sequence is grouped."
+msgid "**Status is monotone and idempotent.** $C.\\mathrm{flags} \\subseteq C'.\\mathrm{flags}$, and since $\\cup$ is associative, commutative and idempotent, the status after a threaded sequence is the union of all raised sets, independent of how the sequence is grouped."
 msgstr ""
 
 #: manual/design/decimal_gda.md:361
@@ -25172,7 +25172,7 @@ msgid "decimal_gda tutorial"
 msgstr ""
 
 #: manual/tutorial/decimal_gda.md:3
-msgid "This tutorial teaches you to compute with `decimal_gda`, the package that implements Cowlishaw's General Decimal Arithmetic (GDA): decimal numbers that keep their trailing zeros, a context that fixes precision, rounding and exponent limits, sticky status that records what happened, and traps that stop a calculation while still handing you the defined result. By the end you can thread a context through a calculation, round money, handle traps, overflow and underflow, call the elementary functions and pick the right comparison. The mathematics behind each rule is on the [design page](../design/decimal_gda.md); every public name is on the [API page](../api/decimal_gda.md)."
+msgid "This tutorial teaches you to compute with `decimal_gda`, the package that implements Cowlishaw's General Decimal Arithmetic (GDA): decimal numbers that keep their trailing zeros, a context that fixes precision, rounding and exponent limits, sticky flags that records what happened, and traps that stop a calculation while still handing you the defined result. By the end you can thread a context through a calculation, round money, handle traps, overflow and underflow, call the elementary functions and pick the right comparison. The mathematics behind each rule is on the [design page](../design/decimal_gda.md); every public name is on the [API page](../api/decimal_gda.md)."
 msgstr ""
 
 #: manual/tutorial/decimal_gda.md:15
@@ -25180,7 +25180,7 @@ msgid "Read a number under a context"
 msgstr ""
 
 #: manual/tutorial/decimal_gda.md:16
-msgid "Carry status from one operation to the next"
+msgid "Carry flags from one operation to the next"
 msgstr ""
 
 #: manual/tutorial/decimal_gda.md:17
@@ -25228,7 +25228,7 @@ msgid "Every GDA operation takes its operands and a `GdaContext` and returns a `
 msgstr ""
 
 #: manual/tutorial/decimal_gda.md:58
-msgid "`raised()` describes this one operation. `next_context().status()` is sticky: it collects every condition since the context was created or cleared."
+msgid "`raised()` describes this one operation. `next_context().flags()` is sticky: it collects every condition since the context was created or cleared."
 msgstr ""
 
 #: manual/tutorial/decimal_gda.md:63
@@ -25256,7 +25256,7 @@ msgid "Handle a trap without losing the result"
 msgstr ""
 
 #: manual/tutorial/decimal_gda.md:123
-msgid "Enable a trap by deriving a new context with `trap`. A trapped operation returns `Trapped(signal, value, next_context, raised)`: the GDA-defined result is still there, and the sticky status is still updated."
+msgid "Enable a trap by deriving a new context with `trap`. A trapped operation returns `Trapped(signal, value, next_context, raised)`: the GDA-defined result is still there, and the sticky flags is still updated."
 msgstr ""
 
 #: manual/tutorial/decimal_gda.md:145
@@ -25324,7 +25324,7 @@ msgid "`GdaInterchange` holds a decimal32, decimal64 or decimal128 bit pattern i
 msgstr ""
 
 #: manual/tutorial/decimal_gda.md:361
-msgid "**Reusing the original context.** Status only accumulates if you pass `next_context()` on. A trap set or status you put on a context also travels with every context derived from it."
+msgid "**Reusing the original context.** Status only accumulates if you pass `next_context()` on. A trap set or flags you put on a context also travels with every context derived from it."
 msgstr ""
 
 #: manual/tutorial/decimal_gda.md:364
@@ -25380,7 +25380,7 @@ msgid "decimal_gda_checked tutorial"
 msgstr ""
 
 #: manual/tutorial/decimal_gda_checked.md:3
-msgid "This tutorial shows how to run a General Decimal Arithmetic (GDA) calculation as a pipeline that honours GDA traps: you choose a `GdaContext` with the traps your application needs, start a `GdaDecimalChecked`, chain operations, detect the step that trapped, inspect the sticky status, and decide explicitly whether to continue. This is the model of Python's `decimal` module and of the GDA test suites: status flags are sticky, and an enabled trap stops the computation. The operations come from [`decimal_gda`](decimal_gda.md); the [design page](../design/decimal_gda_checked.md) proves the status and trap laws; the [API reference](../api/decimal_gda_checked.md) lists every method."
+msgid "This tutorial shows how to run a General Decimal Arithmetic (GDA) calculation as a pipeline that honours GDA traps: you choose a `GdaContext` with the traps your application needs, start a `GdaDecimalChecked`, chain operations, detect the step that trapped, inspect the sticky flags, and decide explicitly whether to continue. This is the model of Python's `decimal` module and of the GDA test suites: flags flags are sticky, and an enabled trap stops the computation. The operations come from [`decimal_gda`](decimal_gda.md); the [design page](../design/decimal_gda_checked.md) proves the flags and trap laws; the [API reference](../api/decimal_gda_checked.md) lists every method."
 msgstr ""
 
 #: manual/tutorial/decimal_gda_checked.md:15
@@ -25428,11 +25428,11 @@ msgid "A `GdaContext` carries a trap set. The predefined contexts differ: `GdaCo
 msgstr ""
 
 #: manual/tutorial/decimal_gda_checked.md:109
-msgid "Read the sticky status"
+msgid "Read the sticky flags"
 msgstr ""
 
 #: manual/tutorial/decimal_gda_checked.md:111
-msgid "`raised()` holds the signals of the latest operation, `status()` every signal since the context was created or its status was last cleared:"
+msgid "`raised()` holds the signals of the latest operation, `status()` every signal since the context was created or its flags was last cleared:"
 msgstr ""
 
 #: manual/tutorial/decimal_gda_checked.md:130
@@ -25448,7 +25448,7 @@ msgid "Resume deliberately"
 msgstr ""
 
 #: manual/tutorial/decimal_gda_checked.md:153
-msgid "`resume_defined()` accepts the defined result and continues. The status still records the trapped signal, so the decision is visible afterwards:"
+msgid "`resume_defined()` accepts the defined result and continues. The flags still records the trapped signal, so the decision is visible afterwards:"
 msgstr ""
 
 #: manual/tutorial/decimal_gda_checked.md:173
@@ -25460,7 +25460,7 @@ msgid "Syntax errors are invalid operations"
 msgstr ""
 
 #: manual/tutorial/decimal_gda_checked.md:180
-msgid "GDA classifies conversion syntax, impossible and undefined divisions and invalid contexts as *invalid-operation conditions*. A context that traps `InvalidOperation` therefore stops on a malformed string, and the status gains `invalid_operation` next to the specific condition:"
+msgid "GDA classifies conversion syntax, impossible and undefined divisions and invalid contexts as *invalid-operation conditions*. A context that traps `InvalidOperation` therefore stops on a malformed string, and the flags gains `invalid_operation` next to the specific condition:"
 msgstr ""
 
 #: manual/tutorial/decimal_gda_checked.md:201
@@ -25492,7 +25492,7 @@ msgid "**`raised()` versus `status()`.** The first is the latest step, the secon
 msgstr ""
 
 #: manual/tutorial/decimal_gda_checked.md:259
-msgid "**`resume_defined` keeps the status and the traps.** It clears only the trap marker and `raised()`. Clear the status with `GdaContext::clear_status` on a context and start a new pipeline if needed."
+msgid "**`resume_defined` keeps the flags and the traps.** It clears only the trap marker and `raised()`. Clear the flags with `GdaContext::clear_flags` on a context and start a new pipeline if needed."
 msgstr ""
 
 #: manual/tutorial/decimal_gda_checked.md:262
@@ -25504,7 +25504,7 @@ msgid "**Two decimal packages.** `decimal_gda.Decimal` is not `decimal.Decimal`;
 msgstr ""
 
 #: manual/tutorial/decimal_gda_checked.md:270
-msgid "[`decimal_gda_checked` design](../design/decimal_gda_checked.md): sticky status as a monoid, the trap predicate and the short-circuit proof."
+msgid "[`decimal_gda_checked` design](../design/decimal_gda_checked.md): sticky flags as a monoid, the trap predicate and the short-circuit proof."
 msgstr ""
 
 #: manual/tutorial/decimal_gda_checked.md:272

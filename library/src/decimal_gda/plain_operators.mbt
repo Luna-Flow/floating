@@ -31,7 +31,7 @@ fn gda_plain_working_context_build(precision : Int32) -> GdaContext {
     e_max_: e_max,
     clamp_: false,
     extended_: true,
-    status_: GdaFlags::new(),
+    flags_: GdaFlags::new(),
     traps_: GdaTrapSet::new(),
     decimal_,
     mathematical_: decimal_,

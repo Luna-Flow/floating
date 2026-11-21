@@ -61,7 +61,7 @@ fn gda_context_unchecked(
     e_max_: e_max,
     clamp_: clamp,
     extended_: extended,
-    status_: GdaFlags::new(),
+    flags_: GdaFlags::new(),
     traps_: GdaTrapSet::new(),
     decimal_,
     mathematical_: {

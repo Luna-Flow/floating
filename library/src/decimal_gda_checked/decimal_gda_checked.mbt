@@ -68,10 +68,10 @@ pub fn GdaDecimalChecked::raised(
 
 ///|
 /// The sticky status of the context.
-pub fn GdaDecimalChecked::status(
+pub fn GdaDecimalChecked::flags(
   self : GdaDecimalChecked,
 ) -> @decimal_gda.GdaFlags {
-  self.outcome_.next_context().status()
+  self.outcome_.next_context().flags()
 }
 
 ///|

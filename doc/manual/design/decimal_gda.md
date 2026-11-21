@@ -336,7 +336,7 @@ the operands and the *policy* $\pi(C)$ (precision, rounding, exponent range,
 clamp, extended) alone,
 
 $$
-C'.\mathrm{status} = C.\mathrm{status} \cup R \cup
+C'.\mathrm{flags} = C.\mathrm{flags} \cup R \cup
 \bigl\{\mathrm{InvalidOperation} \mid R \cap \iota \neq \emptyset\bigr\},
 \qquad C'.\pi = C.\pi,\quad C'.\mathrm{traps} = C.\mathrm{traps},
 $$
@@ -354,8 +354,8 @@ on:
    functions of $(\vec x, \pi(C))$; status and traps only enter $C'$ and
    $\tau$. Enabling a trap therefore never changes a result, and
    `Trapped` can carry the defined result.
-2. **Status is monotone and idempotent.** $C.\mathrm{status} \subseteq
-   C'.\mathrm{status}$, and since $\cup$ is associative, commutative and
+2. **Status is monotone and idempotent.** $C.\mathrm{flags} \subseteq
+   C'.\mathrm{flags}$, and since $\cup$ is associative, commutative and
    idempotent, the status after a threaded sequence is the union of all raised
    sets, independent of how the sequence is grouped.
 3. **The trap choice is deterministic.** The precedence list is a total order
@@ -370,7 +370,7 @@ test "status is the union of the raised sets" {
   let a = @decimal_gda.divide(d("1"), d("3"), ctx) // Inexact, Rounded
   let b = @decimal_gda.divide(d("1"), d("0"), a.next_context()) // DivisionByZero
   let expected = a.raised().combine(b.raised())
-  inspect(b.next_context().status() == expected, content="true")
+  inspect(b.next_context().flags() == expected, content="true")
   // Trapping changes the variant, never the value.
   let trapping = ctx.trap(Inexact)
   let t = @decimal_gda.divide(d("1"), d("3"), trapping)

@@ -317,7 +317,7 @@ interchangeable:
 | Channel | Carried by | A value is returned? | Meaning |
 | --- | --- | --- | --- |
 | status flag | `BinaryFlags`, `DecimalFlags`, `IntervalFlags` beside the result | yes, the IEEE-defined one | a condition occurred while producing a defined result |
-| GDA status and trap | `GdaOutcome`, `GdaContext::status` | yes, also when trapped | sticky conditions; an enabled trap marks the outcome `Trapped` |
+| GDA status and trap | `GdaOutcome`, `GdaContext::flags` | yes, also when trapped | sticky conditions; an enabled trap marks the outcome `Trapped` |
 | checked error | `Result[_, ArithmeticError]`, `*Result` wrappers | no | the requested scalar cannot be produced under the checked contract |
 | enclosure | `Interval`, `DecoratedInterval` | yes, a set | every possible exact result lies in the returned interval |
 
@@ -404,7 +404,7 @@ test "a GDA trap keeps the defined result" {
     Trapped(signal, value, next, _) => {
       inspect(signal == @decimal_gda.DivisionByZero, content="true")
       inspect(value, content="inf")
-      inspect(next.status().division_by_zero(), content="true")
+      inspect(next.flags().division_by_zero(), content="true")
     }
     Completed(_, _, _) => fail("an enabled trap must fire")
   }

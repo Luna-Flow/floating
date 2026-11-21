@@ -94,7 +94,7 @@ fn gda_fast_same(
   actual.value().to_string() == expected.value().to_string() &&
   actual.value().precision() == expected.value().precision() &&
   actual.raised() == expected.raised() &&
-  actual.next_context().status() == expected.next_context().status() &&
+  actual.next_context().flags() == expected.next_context().flags() &&
   (match (actual, expected) {
     (Completed(_, _, _), Completed(_, _, _)) => true
     (Trapped(a, _, _, _), Trapped(b, _, _, _)) => a == b

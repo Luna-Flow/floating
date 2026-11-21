@@ -3,7 +3,7 @@
 This tutorial teaches you to compute with `decimal_gda`, the package that
 implements Cowlishaw's General Decimal Arithmetic (GDA): decimal numbers that
 keep their trailing zeros, a context that fixes precision, rounding and
-exponent limits, sticky status that records what happened, and traps that stop
+exponent limits, sticky flags that records what happened, and traps that stop
 a calculation while still handing you the defined result. By the end you can
 thread a context through a calculation, round money, handle traps, overflow and
 underflow, call the elementary functions and pick the right comparison. The
@@ -13,7 +13,7 @@ every public name is on the [API page](../api/decimal_gda.md).
 | I want to | Use |
 | --- | --- |
 | Read a number under a context | [`parse`](#quick-start) |
-| Carry status from one operation to the next | [`next_context()`](#thread-the-context-through-a-calculation) |
+| Carry flags from one operation to the next | [`next_context()`](#thread-the-context-through-a-calculation) |
 | Round an amount to cents | [`quantize`](#keep-and-set-the-quantum) |
 | Stop on a condition but keep the result | [`GdaContext::trap`](#handle-a-trap-without-losing-the-result) |
 | Control overflow and underflow | [exponent limits and rounding modes](#respect-the-exponent-range) |
@@ -51,11 +51,11 @@ test "quick start: one third in nine digits" {
   let third = @decimal_gda.divide(one.value(), three, one.next_context())
   inspect(third.value(), content="0.333333333")
   inspect(third.raised().contains(Inexact), content="true")
-  inspect(third.next_context().status().contains(Rounded), content="true")
+  inspect(third.next_context().flags().contains(Rounded), content="true")
 }
 ```
 
-`raised()` describes this one operation. `next_context().status()` is sticky:
+`raised()` describes this one operation. `next_context().flags()` is sticky:
 it collects every condition since the context was created or cleared.
 
 ## Everyday tasks
@@ -68,7 +68,7 @@ is a value, not a mutable object.
 
 ```moonbit
 ///|
-test "sticky status follows the threaded context" {
+test "sticky flags follows the threaded context" {
   let start = @decimal_gda.GdaContext::new(precision=5)
   let two = @decimal_gda.Decimal::from_string("2").unwrap()
   let three = @decimal_gda.Decimal::from_string("3").unwrap()
@@ -77,11 +77,11 @@ test "sticky status follows the threaded context" {
   let s = @decimal_gda.add(q.value(), tiny, q.next_context()) // exact
   inspect(s.value(), content="0.66668")
   inspect(s.raised().contains(Inexact), content="false")
-  inspect(s.next_context().status().contains(Inexact), content="true")
-  inspect(start.status().contains(Inexact), content="false")
+  inspect(s.next_context().flags().contains(Inexact), content="true")
+  inspect(start.flags().contains(Inexact), content="false")
   // Start a new observation window and keep the trap settings.
-  let fresh = s.next_context().clear_status()
-  inspect(fresh.status() == @decimal_gda.GdaFlags::new(), content="true")
+  let fresh = s.next_context().clear_flags()
+  inspect(fresh.flags() == @decimal_gda.GdaFlags::new(), content="true")
 }
 ```
 
@@ -122,7 +122,7 @@ test "round to cents with quantize" {
 
 Enable a trap by deriving a new context with `trap`. A trapped operation
 returns `Trapped(signal, value, next_context, raised)`: the GDA-defined result
-is still there, and the sticky status is still updated.
+is still there, and the sticky flags is still updated.
 
 ```moonbit
 ///|
@@ -135,7 +135,7 @@ test "a trapped division keeps its defined result" {
       inspect(signal == DivisionByZero, content="true")
       inspect(value, content="inf")
       inspect(raised.contains(DivisionByZero), content="true")
-      inspect(next.status().contains(DivisionByZero), content="true")
+      inspect(next.flags().contains(DivisionByZero), content="true")
     }
     @decimal_gda.GdaOutcome::Completed(_, _, _) => fail("expected a trap")
   }
@@ -286,7 +286,7 @@ test "a checked GDA pipeline" {
     .multiply(ten)
   inspect(checked.value(), content="14.14213562373095")
   inspect(checked.is_err(), content="false")
-  inspect(checked.status().contains(Inexact), content="true")
+  inspect(checked.flags().contains(Inexact), content="true")
 }
 ```
 
@@ -359,7 +359,7 @@ test "decimal64 interchange round trip" {
 ## Common pitfalls
 
 - **Reusing the original context.** Status only accumulates if you pass
-  `next_context()` on. A trap set or status you put on a context also travels
+  `next_context()` on. A trap set or flags you put on a context also travels
   with every context derived from it.
 - **Treating `Trapped` as "no value".** A trap changes the variant, not the
   result; read the value with `value()` before you decide to stop.

@@ -7,7 +7,7 @@ test "gda checked threads sticky status" {
     GdaDecimalChecked::from_decimal(@decimal_gda.Decimal::zero(), context),
   )
   assert_false(result.raised().contains(@decimal_gda.GdaSignal::Rounded))
-  assert_true(result.status().contains(@decimal_gda.GdaSignal::Rounded))
+  assert_true(result.flags().contains(@decimal_gda.GdaSignal::Rounded))
 }
 
 ///|
@@ -35,7 +35,7 @@ test "gda checked traps short circuit and preserve defined results" {
   let resumed = trapped.resume_defined().add(pipe(one))
   assert_true(resumed.is_ok())
   assert_true(resumed.result() is Ok(_))
-  assert_true(resumed.status().contains(@decimal_gda.GdaSignal::DivisionByZero))
+  assert_true(resumed.flags().contains(@decimal_gda.GdaSignal::DivisionByZero))
 }
 
 ///|
@@ -129,7 +129,7 @@ test "gda checked merges the conditions and the trap of the right operand" {
   // computed at the precision of the left context
   assert_eq(sum.value().to_string(), "2.23")
   assert_true(sum.raised().contains(@decimal_gda.GdaSignal::Inexact))
-  assert_true(sum.status().contains(@decimal_gda.GdaSignal::Inexact))
+  assert_true(sum.flags().contains(@decimal_gda.GdaSignal::Inexact))
   assert_true(sum.context().precision() == 5)
   assert_true(sum.is_ok())
   // a trap of the right pipeline stops the operation and keeps the left value

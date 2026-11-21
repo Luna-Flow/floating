@@ -166,8 +166,8 @@ test "resume keeps status and traps and is idempotent" {
   let trapped = @decimal_gda_checked.GdaDecimalChecked::to_number("1", ctx).divide(d(zero))
   let once = trapped.resume_defined()
   let twice = once.resume_defined()
-  inspect(once.status() == trapped.status(), content="true")
-  inspect(twice.status() == once.status(), content="true")
+  inspect(once.flags() == trapped.flags(), content="true")
+  inspect(twice.flags() == once.flags(), content="true")
   inspect(twice.value().to_string() == once.value().to_string(), content="true")
   // the context after resuming still traps division by zero
   let again = @decimal_gda_checked.GdaDecimalChecked::to_number("2", once.context()).divide(d(zero))
