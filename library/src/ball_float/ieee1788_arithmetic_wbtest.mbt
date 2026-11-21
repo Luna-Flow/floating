@@ -212,7 +212,15 @@ test "IEEE 1788 pown preserves infinity, signed zero, and Int min" {
     .compare(@bin_float.BinFloat::from_int(-1, precision=53)) ==
     0,
   )
-  assert_true(negative_unbounded.upper_bound().is_negative_zero())
+  // The old assertion claimed that `upper_bound` returns -0 here (the zero kept the sign of the
+  // reciprocal of a negative number). That was wrong: 12.12.8 says that in a format with a
+  // signed zero a Level 1 value of 0 is returned as -0 by `inf` and +0 by all other functions
+  // of the subclause, `sup` included; the interval is a set, and the sign of a stored zero is
+  // not part of it.
+  assert_true(
+    negative_unbounded.upper_bound().is_zero() &&
+    !negative_unbounded.upper_bound().is_negative(),
+  )
   let minimum_exponent = -2147483647 - 1
   assert_true(
     BallFloat::from_int(1, precision=53)
@@ -227,8 +235,10 @@ test "IEEE 1788 pown preserves infinity, signed zero, and Int min" {
   // 2^(Int min) is below the binary implementation range, so the enclosure
   // widens outward to [0, smallest positive] instead of wrapping the exponent.
   let tiny = BallFloat::from_int(2, precision=53).pown(minimum_exponent)
+  // the lower bound is the Level 1 value 0, which `inf` returns as -0 (12.12.8; the old
+  // assertion claimed +0)
   assert_true(tiny.lower_bound().is_zero())
-  assert_false(tiny.lower_bound().is_negative())
+  assert_true(tiny.lower_bound().is_negative())
   assert_eq(tiny.upper_bound().coefficient(), @bin_float.BinCoeff::one())
   assert_eq(
     tiny.upper_bound().exponent2(),

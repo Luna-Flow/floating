@@ -1478,13 +1478,28 @@ pub fn BallFloat::empty(precision~ : Int32 = 53) -> BallFloat {
 }
 
 ///|
+/// `inf` of IEEE 1788-2015 12.12.8: the lower bound. In a format with a signed zero (`BinFloat`
+/// has one) "a Level 1 value of 0 shall be returned as -0 by inf, and +0 by all other functions
+/// in this subclause", so a zero lower bound is returned as -0 whatever sign the stored bound
+/// has. Library code that needs the stored bound reads `lo_`: it does not depend on the sign of a
+/// stored zero.
 pub fn BallFloat::lower_bound(self : BallFloat) -> @bin_float.BinFloat {
-  self.lo_
+  if self.lo_.is_zero() {
+    @bin_float.BinFloat::negative_zero(precision=self.lo_.precision())
+  } else {
+    self.lo_
+  }
 }
 
 ///|
+/// `sup` of IEEE 1788-2015 12.12.8: the upper bound; a zero upper bound is returned as +0
+/// (see `lower_bound`).
 pub fn BallFloat::upper_bound(self : BallFloat) -> @bin_float.BinFloat {
-  self.hi_
+  if self.hi_.is_zero() {
+    @bin_float.BinFloat::zero(precision=self.hi_.precision())
+  } else {
+    self.hi_
+  }
 }
 
 ///|
@@ -1523,6 +1538,17 @@ fn BallFloat::half_width(self : BallFloat) -> @bin_float.BinFloat {
 /// result: the precision of the interval and the widest exponent range.
 fn observer_context(precision : Int32) -> BallContext {
   BallContext::new(precision~, e_max=@bin_float.binary_implementation_e_max)
+}
+
+///|
+/// 12.12.8: a Level 1 value of 0 is returned as +0 by every function of the subclause but
+/// `inf`, whatever sign the intermediate result has.
+fn observer_zero(x : @bin_float.BinFloat) -> @bin_float.BinFloat {
+  if x.is_zero() {
+    @bin_float.BinFloat::zero(precision=x.precision())
+  } else {
+    x
+  }
 }
 
 ///|
@@ -1566,7 +1592,7 @@ pub fn BallFloat::radius(self : BallFloat) -> @bin_float.BinFloat {
     self.precision_,
     BinaryRoundingMode::RoundTowardPositive,
   )
-  bin_max(below, above)
+  observer_zero(bin_max(below, above))
 }
 
 ///|
@@ -1581,11 +1607,13 @@ pub fn BallFloat::width(self : BallFloat) -> @bin_float.BinFloat {
   if !self.is_common_interval() {
     return pos_inf(self.precision_)
   }
-  directed_sub(
-    self.hi_,
-    self.lo_,
-    self.precision_,
-    BinaryRoundingMode::RoundTowardPositive,
+  observer_zero(
+    directed_sub(
+      self.hi_,
+      self.lo_,
+      self.precision_,
+      BinaryRoundingMode::RoundTowardPositive,
+    ),
   )
 }
 
@@ -1594,7 +1622,7 @@ pub fn BallFloat::magnitude(self : BallFloat) -> @bin_float.BinFloat {
   if self.is_empty() {
     return @bin_float.BinFloat::nan(precision=self.precision_)
   }
-  bin_max(self.lo_.abs(), self.hi_.abs())
+  observer_zero(bin_max(self.lo_.abs(), self.hi_.abs()))
 }
 
 ///|
@@ -1605,7 +1633,7 @@ pub fn BallFloat::mignitude(self : BallFloat) -> @bin_float.BinFloat {
   if self.contains_zero() {
     return @bin_float.BinFloat::zero(precision=self.precision_)
   }
-  bin_min(self.lo_.abs(), self.hi_.abs())
+  observer_zero(bin_min(self.lo_.abs(), self.hi_.abs()))
 }
 
 ///|

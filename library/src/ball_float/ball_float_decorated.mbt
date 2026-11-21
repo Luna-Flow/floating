@@ -368,7 +368,7 @@ pub fn BallFloatDecorated::sqrt(
     self,
     self.interval_.sqrt(),
     if self.interval_.is_empty() ||
-      self.interval_.lower_bound().sign() == @def.Sign::Negative {
+      self.interval_.lo_.sign() == @def.Sign::Negative {
       Trv
     } else {
       Com
@@ -409,8 +409,8 @@ fn BallFloatDecorated::logarithm_result(
 ) -> BallFloatDecorated {
   let partial_domain = !self.interval_.is_empty() &&
     (
-      self.interval_.lower_bound().sign() == @def.Sign::Negative ||
-      self.interval_.lower_bound().is_zero()
+      self.interval_.lo_.sign() == @def.Sign::Negative ||
+      self.interval_.lo_.is_zero()
     )
   unary_result(self, interval, if partial_domain { Trv } else { Com })
 }
@@ -443,7 +443,7 @@ pub fn BallFloatDecorated::log1p(
     precision=self.interval_.precision(),
   )
   let partial_domain = !self.interval_.is_empty() &&
-    self.interval_.lower_bound().compare(minus_one) <= 0
+    self.interval_.lo_.compare(minus_one) <= 0
   unary_result(
     self,
     self.interval_.log1p(),
@@ -463,10 +463,7 @@ pub fn BallFloatDecorated::rootn(
   // rootn(x, n) is undefined for n = 0, for x < 0 when n is even and at
   // x = 0 when n is negative (x^(-1/n) has a pole there).
   let partial_domain = degree == 0 ||
-    (
-      degree % 2 == 0 &&
-      self.interval_.lower_bound().sign() == @def.Sign::Negative
-    ) ||
+    (degree % 2 == 0 && self.interval_.lo_.sign() == @def.Sign::Negative) ||
     (degree < 0 && self.interval_.contains_zero())
   unary_result(
     self,
@@ -554,7 +551,7 @@ pub fn BallFloatDecorated::acosh(
 ) -> BallFloatDecorated {
   let one = @bin_float.BinFloat::one(precision=self.interval_.precision())
   let partial_domain = !self.interval_.is_empty() &&
-    self.interval_.lower_bound().compare(one) < 0
+    self.interval_.lo_.compare(one) < 0
   unary_result(
     self,
     self.interval_.acosh(),
@@ -574,8 +571,8 @@ pub fn BallFloatDecorated::atanh(
   let minus_one = one.neg()
   let partial_domain = !self.interval_.is_empty() &&
     (
-      self.interval_.lower_bound().compare(minus_one) <= 0 ||
-      self.interval_.upper_bound().compare(one) >= 0
+      self.interval_.lo_.compare(minus_one) <= 0 ||
+      self.interval_.hi_.compare(one) >= 0
     )
   unary_result(
     self,
@@ -603,8 +600,8 @@ fn BallFloatDecorated::inverse_unit_result(
   let one = @bin_float.BinFloat::one(precision=self.interval_.precision())
   let partial_domain = !self.interval_.is_empty() &&
     (
-      self.interval_.lower_bound().compare(one.neg()) < 0 ||
-      self.interval_.upper_bound().compare(one) > 0
+      self.interval_.lo_.compare(one.neg()) < 0 ||
+      self.interval_.hi_.compare(one) > 0
     )
   unary_result(self, interval, if partial_domain { Trv } else { Com })
 }
@@ -631,15 +628,14 @@ pub fn BallFloatDecorated::atan2(
   let interval = self.interval_.atan2(abscissa.interval_)
   let contains_origin = self.interval_.contains_zero() &&
     abscissa.interval_.contains_zero()
-  let crosses_cut = abscissa.interval_.lower_bound().sign() ==
-    @def.Sign::Negative &&
-    self.interval_.lower_bound().sign() == @def.Sign::Negative &&
+  let crosses_cut = abscissa.interval_.lo_.sign() == @def.Sign::Negative &&
+    self.interval_.lo_.sign() == @def.Sign::Negative &&
     self.interval_.contains_zero()
-  let touches_cut_from_above = abscissa.interval_
-    .upper_bound()
-    .compare(@bin_float.BinFloat::zero(precision=interval.precision())) <
+  let touches_cut_from_above = abscissa.interval_.hi_.compare(
+      @bin_float.BinFloat::zero(precision=interval.precision()),
+    ) <
     0 &&
-    self.interval_.lower_bound().is_zero()
+    self.interval_.lo_.is_zero()
   binary_result(
     self,
     abscissa,
@@ -663,12 +659,12 @@ pub fn BallFloatDecorated::pow(
 ) -> BallFloatDecorated {
   let interval = self.interval_.pow(exponent.interval_)
   let partial_domain = self.interval_.is_empty() ||
-    self.interval_.lower_bound().sign() == @def.Sign::Negative ||
+    self.interval_.lo_.sign() == @def.Sign::Negative ||
     (
       self.interval_.contains_zero() &&
       (
-        exponent.interval_.lower_bound().sign() == @def.Sign::Negative ||
-        exponent.interval_.lower_bound().is_zero()
+        exponent.interval_.lo_.sign() == @def.Sign::Negative ||
+        exponent.interval_.lo_.is_zero()
       )
     ) ||
     interval.is_empty()

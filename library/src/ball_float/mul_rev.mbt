@@ -41,7 +41,7 @@ fn rev_quotient_bound(
   }
   let q = BallFloat::exact(num, precision=num.precision()) /
     BallFloat::exact(den, precision=den.precision())
-  let bound = if upper { q.upper_bound() } else { q.lower_bound() }
+  let bound = if upper { q.hi_ } else { q.lo_ }
   // a zero bound is stored as +0
   if bound.is_zero() {
     @bin_float.BinFloat::zero(precision~)
@@ -74,8 +74,8 @@ fn mul_rev_pieces(b : BallFloat, c : BallFloat) -> Array[RevPiece] {
   if !zero_in_b {
     // y never vanishes: the set is the interval quotient c / b
     let q = c / b
-    let lo = q.lower_bound()
-    let hi = q.upper_bound()
+    let lo = q.lo_
+    let hi = q.hi_
     // 0 not in c: a bound 0 is the unattained limit of a quotient by an
     // unbounded b (when 0 is in c, x = 0 is attained)
     let lo_open = !zero_in_c && rev_is_zero_bound(lo)
