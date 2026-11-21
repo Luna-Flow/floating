@@ -515,7 +515,7 @@ fn db_interval(state : Ref[UInt64]) -> Interval {
 fn db_old_add(a : Interval, b : Interval) -> Interval {
   let precision = Int32::max(a.precision_, b.precision_)
   if a.is_common_interval() && b.is_common_interval() {
-    return quantize_interval(
+    return store_interval(
       exact_add(
         min_bits=1,
         a.lo_,
@@ -531,7 +531,7 @@ fn db_old_add(a : Interval, b : Interval) -> Interval {
       precision,
     )
   }
-  quantize_interval(
+  store_interval(
     db_extended_add(a.lo_, b.lo_, 1, BinaryRoundingMode::RoundTowardNegative),
     db_extended_add(a.hi_, b.hi_, 1, BinaryRoundingMode::RoundTowardPositive),
     precision,
@@ -542,7 +542,7 @@ fn db_old_add(a : Interval, b : Interval) -> Interval {
 fn db_old_sub(a : Interval, b : Interval) -> Interval {
   let precision = Int32::max(a.precision_, b.precision_)
   if a.is_common_interval() && b.is_common_interval() {
-    return quantize_interval(
+    return store_interval(
       exact_sub(
         min_bits=1,
         a.lo_,
@@ -558,7 +558,7 @@ fn db_old_sub(a : Interval, b : Interval) -> Interval {
       precision,
     )
   }
-  quantize_interval(
+  store_interval(
     db_extended_add(
       a.lo_,
       b.hi_.neg(),

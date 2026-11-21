@@ -89,7 +89,7 @@ fn old_quotient_interval_nonzero_denominator(
   } else {
     old_extended_division_bounds(numerator.lo_, denominator.hi_, precision).1
   }
-  quantize_interval(lower, upper, precision)
+  store_interval(lower, upper, precision)
 }
 
 ///|
@@ -228,7 +228,7 @@ fn old_pown_positive(
     @bin_float.BinaryRoundingMode::RoundTowardPositive,
   )
   if pown_exponent_is_odd(exponent) {
-    return quantize_interval(lo_power, hi_power, precision)
+    return store_interval(lo_power, hi_power, precision)
   }
   if value.contains_zero() {
     let lo_power_upper = pown_endpoint(
@@ -237,14 +237,14 @@ fn old_pown_positive(
       precision,
       @bin_float.BinaryRoundingMode::RoundTowardPositive,
     )
-    return quantize_interval(
+    return store_interval(
       @bin_float.BinFloat::zero(precision~),
       bin_max(lo_power_upper, hi_power),
       precision,
     )
   }
   if value.hi_.sign() == Sign::Negative {
-    quantize_interval(
+    store_interval(
       pown_endpoint(
         value.hi_,
         exponent,
@@ -260,6 +260,6 @@ fn old_pown_positive(
       precision,
     )
   } else {
-    quantize_interval(lo_power, hi_power, precision)
+    store_interval(lo_power, hi_power, precision)
   }
 }

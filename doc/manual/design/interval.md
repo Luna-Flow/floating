@@ -240,33 +240,24 @@ When $0 \in \boldsymbol{y}$:
 ### From midpoint–radius to endpoints
 
 Users often know a value as $c \pm r$. `Interval::from_midpoint_radius(c, r, precision=p)`
-rounds the center to nearest, $\tilde c = \operatorname{RN}_p(c)$, and stores
+is the hull in the format of $p$ bits of the interval $[c - r, c + r]$ (IEEE
+1788-2015 12.12.7, `midRadToInterval`): it stores
 
 $$
-[\tilde c - R,\ \tilde c + R], \qquad
-R = \operatorname{RU}_p\bigl(\operatorname{RU}_p(r) + \operatorname{RU}_p(|c - \tilde c|)\bigr).
+[\operatorname{RD}_p(c - r),\ \operatorname{RU}_p(c + r)],
 $$
 
-*Claim:* $[c - r, c + r] \subseteq [\tilde c - R, \tilde c + R]$. For
-$|\xi - c| \le r$,
-
-$$
-\begin{aligned}
-|\xi - \tilde c| &\le |\xi - c| + |c - \tilde c| && \text{triangle inequality} \\
-&\le \operatorname{RU}_p(r) + \operatorname{RU}_p(|c - \tilde c|) && \text{property (i)} \\
-&\le R && \text{property (i) again.}
-\end{aligned}
-$$
-
-The endpoints $\tilde c \pm R$ are then formed exactly (they may have more
-than $p$ bits). The construction is sound but not idempotent: whenever
-$\tilde c \ne c$, the displacement $|c - \tilde c|$ is added on both sides, so
-rebuilding an interval whose center needs more than $p$ bits widens it (see
-[Tightness](#correctness-and-invariants)). `normalized` accepts that;
-`with_precision` does not use the construction at all. It rounds the endpoints
-outward directly, which encloses the input at every precision and is the
-tightest representable enclosure, so it has no rounding-mode argument. The
-converse view inside the package is exact: the center is
+each end the exact sum rounded once in its direction (`sub_ctx` toward negative and
+`add_ctx` toward positive of `bin_float`, whose operands are exact whatever their
+precision). The interval contains $[c - r, c + r]$ because a directed rounding never
+crosses the value, and it is the tightest interval of the format that does. When
+$c - r$ and $c + r$ are numbers of the format nothing is rounded. Before 0.12 the center was
+rounded to nearest, its rounding error was added to the radius on both sides and the
+ends $\tilde c \pm R$ were kept exact with more than $p$ bits, which made the type
+hold bounds that were not numbers of its format; the hull above replaced it (the
+changelog states the largest difference). `with_precision` rounds the endpoints
+outward directly, which encloses the input at every precision and is the tightest
+representable enclosure, so it has no rounding-mode argument. The converse view inside the package is exact: the center is
 $(\underline{x} + \overline{x})/2$ and the half-width $(\overline{x} -
 \underline{x})/2$, which are dyadic and need no rounding (the half-width is
 rounded up only if it underflows the exponent range), so

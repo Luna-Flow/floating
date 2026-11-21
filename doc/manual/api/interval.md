@@ -232,10 +232,9 @@ and inexact, as IEEE 754 defines it (see
 
 ### `Interval::from_midpoint_radius`
 
-`Interval::from_midpoint_radius` builds the interval $[c - r, c + r]$ from a center and a
-radius, enlarged so that it is exact at the requested precision.
-`Interval::try_from_midpoint_radius` returns the same interval, or an `ArithmeticError` where
-`from_midpoint_radius` aborts.
+`Interval::from_midpoint_radius` builds the hull in the format of $p$ bits of the interval
+$[c - r, c + r]$ from a center and a radius (IEEE 1788-2015 12.12.7). `Interval::try_from_midpoint_radius` returns the
+same interval, or an `ArithmeticError` where `from_midpoint_radius` aborts.
 
 ```mbti
 pub fn Interval::from_midpoint_radius(@bin_float.BinFloat, @bin_float.BinFloat, precision? : Int) -> Self
@@ -246,23 +245,17 @@ The default precision is the larger of the precisions of `center` and
 `radius`. With $p$ that precision, the stored interval is
 
 $$
-[\tilde c - R,\; \tilde c + R], \qquad
-\tilde c = \operatorname{RN}_p(c),\quad
-R = \operatorname{RU}_p\bigl(\operatorname{RU}_p(r) + \operatorname{RU}_p(|c - \tilde c|)\bigr),
+[\operatorname{RD}_p(c - r),\; \operatorname{RU}_p(c + r)],
 $$
 
-which contains $[c - r, c + r]$ (proof in the
-[design page](../design/interval.md#from-midpointradius-to-endpoints)). The
-endpoints $\tilde c \pm R$ are formed exactly, so they may carry more than
-$p$ bits. `from_midpoint_radius` aborts, and `try_from_midpoint_radius` returns a domain error, when `center` or
-`radius` is not finite or when `radius` is negative, and when `precision` is
-outside `1..=binary_precision_max`.
+the exact $c - r$ rounded down and the exact $c + r$ rounded up, once each, in the exponent
+range of the library: both ends are numbers of the format and the interval is the tightest one of
+the format that contains $[c - r, c + r]$ (see the
+[design page](../design/interval.md#from-midpointradius-to-endpoints)). `from_midpoint_radius`
+aborts, and `try_from_midpoint_radius` returns a domain error, when `center` or `radius` is not
+finite or when `radius` is negative, and when `precision` is outside `1..=binary_precision_max`.
 
-When $c$ already has at most $p$ bits and $r = 0$, the result is the
-singleton $\{c\}$. When $c$ needs more than $p$ bits, the rounding error of
-the center is added to the radius on *both* sides, so the interval is wider
-than $[\operatorname{RD}_p(c - r), \operatorname{RU}_p(c + r)]$; use
-`from_bounds` for the tightest enclosure of known bounds.
+When $c$ already has at most $p$ bits and $r = 0$, the result is the singleton $\{c\}$.
 
 ### `Interval::from_string` and `DecoratedInterval::from_string`
 
@@ -436,13 +429,9 @@ whatever sign of zero the interval was built from; `[0, 0]` has the representati
 $(-0, +0)$. An interval is a set: the sign of a stored zero is not part of it. `BinFloat`'s `==`
 agrees with `compare` (`-0 == +0`); `identical` tells the two zeros apart.
 
-The label of an endpoint, `endpoint.precision()`, is the precision $p$ of the
-interval exactly when the endpoint is a number of the format of $p$ bits (at most
-$p$ significant bits and on the grid of $p$ bits, the band below the range floor
-included); the infinities and the zeros carry $p$ too. The one exception is an
-exact endpoint that is not such a number (an end of `from_midpoint_radius` or of `cancel_minus`
-kept unrounded with more than $p$ bits, or finer than the grid of $p$ bits below
-the range floor): it keeps the label of its own bit count. `BinFloat`'s `==`
+Every endpoint is a number of the format of $p$ bits (at most $p$ significant bits, on the grid of
+$p$ bits, the band below the range floor included) or an infinity, and its label,
+`endpoint.precision()`, is the precision $p$ of the interval. `BinFloat`'s `==`
 agrees with `compare` and ignores the label (`BinFloat::identical` compares it), so
 `x.lower_bound() == y` holds for a value `y` of the same number; `Interval`'s own
 `==` and `identical` compare the endpoints by value and never read a label.
@@ -2112,19 +2101,16 @@ hexadecimal numbers (`0x1fffffp-3`; `inf` and `-inf` for an infinite bound), and
 for a decorated interval `_` and the decoration (`[nai]` for NaI). The bounds
 are the stored bounds, so `from_exact_string(x.to_exact_string(),
 precision=x.precision())` is `identical` to `x` (no signed zero is written, 13.4).
-`from_exact_string` reads the text exactly, at whatever bit count its bounds have, and never
-widens it: `precision` is the precision of the interval, not a limit on the bounds. A bound with
-more bits than `precision` is kept as it is, with the label of its own bit count (`lower_bound().precision()`
-is 57 for `0x1.00000000000001p0`, whatever zero digits the text has), as the type keeps such ends (an end of `from_midpoint_radius` or of
-`cancel_minus` that is not rounded), so the round trip above holds for every interval of the type, and
-`[0x1.00000000000001p0, 0x2p0]` at precision 53 is the interval with that exact lower end and precision
-53, neither `[1, 2]` nor an error. The call is refused (a parse error naming the reason) only for
-what cannot be an interval of the library: a decimal or malformed bound, a bound beyond the exponent
-range of the library (or finer than the grid of the larger of its own bit count and `precision` below the
-range floor), a lower bound above the upper bound. Which bounds are representable at all is decided by the
-converter of IEEE 754-2019 5.12.3 (`BinFloat::from_hex_ctx` reports `inexact`), not by counting digits
-of the text, so a fractional mantissa (`0x1.8p0`, `0x.8p1`), leading and trailing zero digits and
-upper case are read.
+`from_exact_string` reads the text exactly and never widens it. The bounds of the text must be
+numbers of the format of `precision` bits, as every stored bound is: a bound with more than `precision`
+significant bits (`0x1.00000000000001p0` has 57 bits, with any number of trailing zero digits, and is read at
+`precision=57` and refused at 53), a bound beyond the exponent range of the library, or finer than the grid
+of `precision` bits below the range floor is refused with a parse error that names the reason, and so is
+a decimal or malformed bound and a lower bound above the upper bound. Which bounds are representable at
+all is decided by the converter of IEEE 754-2019 5.12.3 (`BinFloat::from_hex_ctx` reports `inexact`),
+not by counting digits of the text, so a fractional mantissa (`0x1.8p0`, `0x.8p1`), leading and trailing
+zero digits and upper case are read. Before 0.12 a wider bound was accepted and kept with the label of its
+own bit count, because the type could hold such ends; it cannot any more.
 
 ```moonbit
 ///|

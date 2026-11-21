@@ -205,12 +205,10 @@ test "exact text: hexadecimal bounds, refused when reading would round" {
   assert_true(Interval::from_exact_string("[0.1, 0.2]") is Err(_))
   assert_true(Interval::from_exact_string("0x1p0") is Err(_))
   assert_true(Interval::from_exact_string("[0x1p0]") is Err(_))
-  // the bounds have more bits than the precision gives: read exactly, with the precision 8
-  inspect(
-    Interval::from_exact_string("[0x2p0, 0x1fffffp0]", precision=8)
-    .map(fn(v) { v.to_exact_string() })
-    .unwrap_or("err"),
-    content="[0x1p1, 0x1fffffp0]",
+  // a bound with more bits than the precision is not a number of the format: refused (precision 8
+  // has no number of 21 bits); with the precision 21 it is read exactly
+  assert_true(
+    Interval::from_exact_string("[0x2p0, 0x1fffffp0]", precision=8) is Err(_),
   )
   assert_eq(
     Interval::from_exact_string("[0x2p0, 0x1fffffp0]", precision=21)
@@ -310,23 +308,20 @@ test "from_exact_string: read exactly at the bit count of the text, never widene
     .map(fn(v) { v.to_exact_string() })
     .unwrap_or("err")
   }
-  // 0x1.8 is 1.5 (two bits); a bound with more bits than the precision is kept as it is, with the
-  // precision of the interval (13.4: the datum comes back): neither `[1, 2]` nor an error
+  // 0x1.8 is 1.5 (two bits): read at the precision 2, refused at the precision 1 (a number of two bits is
+  // not a number of the format of one bit); a bound of 57 bits is refused at 53 and read at 57
   assert_eq(read("[0x1.8p0, 0x2p0]", 2), "[0x3p-1, 0x1p1]")
-  assert_eq(read("[0x1.8p0, 0x2p0]", 1), "[0x3p-1, 0x1p1]")
-  assert_eq(
-    read("[0x1.00000000000001p0, 0x2p0]", 53),
-    "[0x100000000000001p-56, 0x1p1]",
-  )
+  assert_eq(read("[0x1.8p0, 0x2p0]", 1), "err")
+  assert_eq(read("[0x1.00000000000001p0, 0x2p0]", 53), "err")
   assert_eq(
     read("[0x1.00000000000001p0, 0x2p0]", 57),
     "[0x100000000000001p-56, 0x1p1]",
   )
   assert_eq(
-    Interval::from_exact_string("[0x1.00000000000001p0, 0x2p0]", precision=53)
+    Interval::from_exact_string("[0x1.00000000000001p0, 0x2p0]", precision=57)
     .unwrap()
     .precision(),
-    53,
+    57,
   )
   // leading zeros, upper case, a bare point and a leading point
   assert_eq(read("[0X00A.80P0, 0X00B.0P0]", 5), "[0x15p-1, 0xbp0]")
@@ -336,6 +331,7 @@ test "from_exact_string: read exactly at the bit count of the text, never widene
   // a mantissa longer than the precision whose low digits are zero
   assert_eq(read("[0x1.800000000000000000p0, 0x2p0]", 2), "[0x3p-1, 0x1p1]")
   assert_eq(read("[0x100000000000000000000p-80, 0x2p0]", 1), "[0x1p0, 0x1p1]")
+  assert_eq(read("[0x1.800000000000000000p0, 0x2p0]", 1), "err")
   // refused: not an exact text, a decimal bound, a reversed pair, malformed
   assert_eq(read("[0.1, 0.2]", 53), "err")
   assert_eq(read("[0x1p0, 0x2p0, 0x3p0]", 53), "err")
@@ -349,32 +345,32 @@ test "from_exact_string: read exactly at the bit count of the text, never widene
   assert_eq(read("[-inf, 0x1p1073741824]", 53), "err")
   assert_eq(read("[0x1p-1073741874, inf]", 53), "[0x1p-1073741874, inf]")
   assert_eq(read("[0x1p-1073741875, inf]", 53), "err")
-  // finer than the grid of 53 bits below the floor, with 60 bits of its own: stored with its own
-  // label (0x800000000000001 has 60 bits; the grid of 60 bits ends at e_min - 59)
+  // finer than the grid of 53 bits below the floor: refused (the number 0x800000000000001 has 60 bits,
+  // so it is refused at 53 for its length; at 60 bits the grid ends at e_min - 59)
+  assert_eq(read("[0x800000000000001p-1073741881, inf]", 53), "err")
   assert_eq(
-    read("[0x800000000000001p-1073741881, inf]", 53),
+    read("[0x800000000000001p-1073741881, inf]", 60),
     "[0x800000000000001p-1073741881, inf]",
   )
-  assert_eq(read("[0x800000000000001p-1073741882, inf]", 53), "err")
+  assert_eq(read("[0x800000000000001p-1073741882, inf]", 60), "err")
 }
 
 ///|
-/// The round trip of the exact text for the intervals of the type with ends wider than the
-/// precision (13.4: every interval of the type): an end of `from_midpoint_radius` kept unrounded, its mirror from
-/// `cancel_minus`, an end finer than the grid below the range floor. The texts are written out
-/// (level A); the identical round trip uses the reader that the oracle table checks.
-test "the exact text of an interval with an end wider than the precision reads back identical" {
+/// The round trip of the exact text (13.4: every interval of the type), for intervals made from
+/// a value with more bits than the precision: the ends are numbers of the format. The texts are
+/// written out (level A, worked out from the definition of the outward rounding: the hull of the
+/// point `1 + 2^-56` in 53 bits is `[1, 1 + 2^-52]`); the identical round trip uses the reader
+/// that the oracle table checks.
+test "the exact text of an interval made from a wide value reads back identical" {
   let wide = @bin_float.BinFloat::from_hex("0x1.00000000000001p0", 60).unwrap()
   let zero = @bin_float.BinFloat::zero(precision=53)
   let x = Interval::from_midpoint_radius(wide, zero, precision=53)
   assert_eq(x.precision(), 53)
-  inspect(
-    x.to_exact_string(),
-    content="[0xffffffffffffffp-56, 0x100000000000001p-56]",
-  )
+  inspect(x.to_exact_string(), content="[0x1p0, 0x10000000000001p-52]")
   let back = Interval::from_exact_string(x.to_exact_string(), precision=53).unwrap()
   assert_true(x.identical(back))
-  // the mirror: the end of a cancellation, kept unrounded (written out from the exact values)
+  // a cancellation: [1, 2] cancel_minus [2^-60, 2^-59] is [1 - 2^-60, 2 - 2^-59] and both ends are
+  // numbers of 60 bits (the precision of the result is the larger one), so nothing is rounded
   let u = @bin_float.BinFloat::from_hex("0x1p-60", 60).unwrap()
   let big = Interval::from_bounds(
     @bin_float.BinFloat::from_hex("0x1p0", 53).unwrap(),
@@ -390,40 +386,44 @@ test "the exact text of an interval with an end wider than the precision reads b
     precision=60,
   )
   let c = big.cancel_minus(small)
+  assert_eq(c.precision(), 60)
+  inspect(
+    c.to_exact_string(),
+    content="[0xfffffffffffffffp-60, 0xfffffffffffffffp-59]",
+  )
   let c_back = Interval::from_exact_string(
     c.to_exact_string(),
     precision=c.precision(),
   ).unwrap()
   assert_true(c.identical(c_back), msg=c.to_exact_string())
-  // an end finer than the grid of 53 bits below the range floor
-  let fine = Interval::from_exact_string(
-    "[0x800000000000001p-1073741881, 0x1p0]",
-    precision=53,
-  ).unwrap()
-  assert_eq(fine.precision(), 53)
-  let fine_back = Interval::from_exact_string(
-    fine.to_exact_string(),
-    precision=53,
-  ).unwrap()
-  assert_true(fine.identical(fine_back))
+  // a bound finer than the grid of 53 bits below the range floor is refused
+  assert_true(
+    Interval::from_exact_string(
+      "[0x800000000000001p-1073741881, 0x1p0]",
+      precision=53,
+    )
+    is Err(_),
+  )
 }
 
 ///|
 /// `Show` of such intervals: the literal contains the interval and reads back containing it
 /// (written-out texts; the generated rows are in the oracle table above).
-test "Show of an interval with an end wider than the precision contains it" {
-  let x = Interval::from_exact_string(
-    "[0x1.00000000000001p0, 0x2p0]",
+test "Show of an interval made from a wide end contains it" {
+  let x = Interval::from_bounds(
+    @bin_float.BinFloat::from_hex("0x1.00000000000001p0", 57).unwrap(),
+    @bin_float.BinFloat::from_hex("0x2p0", 53).unwrap(),
     precision=53,
-  ).unwrap()
-  // the lower end is rounded down to 1 and the upper end 2 is exact: the literal contains x
+  )
+  // the lower end 1 + 2^-56 is rounded outward to 1 and the upper end 2 is exact
   inspect(x.to_string(), content="[1, 2]")
   let back = Interval::from_string(x.to_string(), precision=53).unwrap()
   assert_true(x.subset(back))
-  let mirror = Interval::from_exact_string(
-    "[-0x2p0, -0x1.00000000000001p0]",
+  let mirror = Interval::from_bounds(
+    @bin_float.BinFloat::from_hex("-0x2p0", 53).unwrap(),
+    @bin_float.BinFloat::from_hex("-0x1.00000000000001p0", 57).unwrap(),
     precision=53,
-  ).unwrap()
+  )
   let mirror_back = Interval::from_string(mirror.to_string(), precision=53).unwrap()
   assert_true(mirror.subset(mirror_back))
 }
@@ -451,14 +451,13 @@ test "a zero bound has no sign in the texts" {
 
 ///|
 /// Level S (consistency, the reader and the printer are ours): intervals made by `from_midpoint_radius` with a
-/// center wider than the precision, and by `cancel_minus`, whose ends are kept unrounded, give
-/// back an identical interval from their exact text, and their `Show` literal contains them and
-/// reads back containing them. The evidence for the texts themselves is the oracle table of wide
-/// ends (level A); this adds reach over other precisions and exponents.
-test "ends wider than the precision: exact text identical, Show contains (consistency)" {
+/// center wider than the precision give back an identical interval from their exact text, every
+/// bound is a number of the format (labelled with the precision), and their `Show` literal contains
+/// them and reads back containing them. The evidence for the texts themselves is the oracle table
+/// (level A); this adds reach over other precisions and exponents.
+test "a center wider than the precision: exact text identical, Show contains (consistency)" {
   let precisions = [2, 8, 11, 24, 53, 64, 113]
   let mut state = 0x2545f4914f6cdd1dUL
-  let mut wide_ends = 0
   for i in 0..<1500 {
     state = state * 6364136223846793005UL + 1442695040888963407UL
     let p = precisions[i % precisions.length()]
@@ -485,9 +484,8 @@ test "ends wider than the precision: exact text identical, Show contains (consis
       )
     }
     let x = Interval::from_midpoint_radius(center, radius, precision=p)
-    if x.lower_bound().precision() > p || x.upper_bound().precision() > p {
-      wide_ends += 1
-    }
+    assert_eq(x.lower_bound().precision(), p)
+    assert_eq(x.upper_bound().precision(), p)
     let text = x.to_exact_string()
     let back = Interval::from_exact_string(text, precision=p).unwrap()
     assert_true(x.identical(back), msg=text)
@@ -495,34 +493,26 @@ test "ends wider than the precision: exact text identical, Show contains (consis
     let reread = Interval::from_string(shown, precision=p).unwrap()
     assert_true(x.subset(reread), msg=shown)
   }
-  // the draw reaches intervals whose ends really are wider than the precision
-  assert_true(wide_ends > 100)
 }
 
 ///|
-/// The label of a bound read from an exact text: a bound with more bits than the precision
-/// carries the label of its own bit count (the type comment of `Interval`), not a label that
-/// depends on the digits of the text; a bound of the format carries the precision. Written out:
-/// `0x1.00000000000001p0` has 57 bits, with any number of trailing zero digits.
-test "from_exact_string: the label of a wide bound is its own bit count" {
+/// The label of a bound read from an exact text is the precision of the interval (a bound with more
+/// bits is refused, so no bound has the label of its own bit count). Written out: `0x1.00000000000001p0`
+/// has 57 bits, with any number of trailing zero digits, and is refused at 53 bits.
+test "from_exact_string: a wide bound is refused and a bound of the format carries the precision" {
   for
     text in [
       "[0x1.00000000000001p0, 0x2p0]", "[0x1.000000000000010000p0, 0x2p0]", "[0x1.00000000000001000000000000000000000000000000p0, 0x2p0]",
       "[0X100000000000001P-56, 0X2P0]",
     ] {
-    let x = Interval::from_exact_string(text, precision=53).unwrap()
-    assert_eq(x.precision(), 53, msg=text)
+    assert_true(
+      Interval::from_exact_string(text, precision=53) is Err(_),
+      msg=text,
+    )
+    let x = Interval::from_exact_string(text, precision=57).unwrap()
     assert_eq(x.lower_bound().precision(), 57, msg=text)
-    assert_eq(x.upper_bound().precision(), 53, msg=text)
+    assert_eq(x.upper_bound().precision(), 57, msg=text)
   }
-  // the same number made by `from_midpoint_radius` carries the same label
-  let made = Interval::from_midpoint_radius(
-    @bin_float.BinFloat::from_hex("0x1.00000000000001p0", 60).unwrap(),
-    @bin_float.BinFloat::zero(precision=53),
-    precision=53,
-  )
-  assert_eq(made.upper_bound().precision(), 57)
-  // a bound of the format carries the precision, and so do zeros and infinities
   let y = Interval::from_exact_string("[-inf, 0x3p0]", precision=53).unwrap()
   assert_eq(y.upper_bound().precision(), 53)
   let z = Interval::from_exact_string("[0x0p0, 0x1.8p0]", precision=24).unwrap()
