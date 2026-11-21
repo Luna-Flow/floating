@@ -501,6 +501,18 @@ notes live in this file.
   | a certification failure of a `BinFloatResult` step: `CertificationFailureDetail.operation` is `"binary operation"` | the name of the function (`"exp"`) | |
   | `*_contextual` of `BinFloat` and `Decimal` (`add`, `sub`, `mul`, `div`, `abs`, `sqrt`, `exp`): `domain_error("invalid binary operation")` / `("invalid decimal operation")`, `division_by_zero("division by zero")`, a detail named `"binary operation"` / `"decimal operation"` | `"<op>: invalid operation"`, `"<op>: division by zero"`, the detail named after `<op>` | the kinds of the errors are unchanged |
 
+- `decimal_gda`: the subset `ln` (`extended=false`) takes the route of the extended arithmetic: the subset's operand rules (operand rounding, zero is invalid), then the certified, correctly rounded `ln` ([#649](https://github.com/Luna-Flow/floating/issues/649)). Before, the subset recomputed the logarithm with a few more digits and rounded it a second time, to reproduce the last digit of decNumber 3.68; on rare operands that value is one unit in the last place above the correctly rounded one (`ln(0.99999991000000405)` at 17 digits: `-8.9999999999999879E-8` before, `-8.9999999999999878E-8` now). Both values are inside the tolerance of GDA 1.70 (pages 29 and 30: "rounded using the round-half-even algorithm ... should be correctly rounded, but may be up to 1 ulp ... in error"), so this is a change of behaviour and cost, not a repair: the reasons are one route instead of two and the cost of the second one. Instructions per call of the subset `ln` before and after (measured as 2,000 calls per case, instructions retired by the process minus an empty run, median of 5 runs; base `cbd01d61` against this change):
+
+  | operand, digits | before | after | after / before |
+  | --- | --- | --- | --- |
+  | 0.99999991000000405, 17 | 582,623 | 146,601 | 0.252 |
+  | 123456.789, 17 | 493,824 | 146,245 | 0.296 |
+  | 123456.789, 34 | 696,422 | 184,216 | 0.265 |
+  | 1.000001, 34 | 271,398 | 113,377 | 0.418 |
+
+  The extended arithmetic is unchanged (0.996 to 0.998 of before).
+
+
 ### Added
 
 - `bin_float`, `decimal`: every comparison predicate of IEEE 754-2019 5.11 has a function ([#438](https://github.com/Luna-Flow/floating/issues/438), item N6). The clause lists 22 predicates, 10 in Table 5.1 and 12 in Table 5.2; `bin_float` had 7 and `decimal` none. Both now have the 15 others, with the names of the first seven (`compare_quiet_*`, `compare_signaling_*`): `not_equal`, `greater`, `greater_equal`, `not_greater`, `less_unordered`, `not_less` and `greater_unordered` for both kinds, and `compare_quiet_ordered`. Each returns `(Bool, flags)`, is defined from `compare_quiet` or `compare_signaling` and raises invalid where the table says (a signaling NaN for the quiet ones, any NaN for the signaling ones). Nothing existing changes in `bin_float`.

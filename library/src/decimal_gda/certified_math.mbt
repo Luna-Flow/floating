@@ -561,16 +561,6 @@ fn decimal_certified_half_even_candidate(
 }
 
 ///|
-fn decimal_ln_candidate(value : Decimal, work_precision : Int32) -> Decimal {
-  let work_ctx = decimal_math_work_ctx(work_precision)
-  let constant_scale = work_ctx.precision + 12
-  let (_, _, ln10_scaled) = decimal_transcendental_ln_constants(constant_scale)
-  _decimal_ln_positive_finite_work_result_with_ln10(
-    value, work_ctx, ln10_scaled,
-  ).0
-}
-
-///|
 fn decimal_ball_candidate(
   interval : @ball_float.BallFloat,
   ctx : DecimalContext,
@@ -711,62 +701,6 @@ fn decimal_certified_finite_candidate(
       },
     ),
   )
-}
-
-///|
-fn decimal_same_quantum_adjacent(left : Decimal, right : Decimal) -> Bool {
-  guard left.class == FpClass::Finite &&
-    right.class == FpClass::Finite &&
-    left.negative == right.negative &&
-    left.exponent10 == right.exponent10 else {
-    return false
-  }
-  let comparison = dec_coeff_compare_repr(left.coefficient, right.coefficient)
-  if comparison > 0 {
-    dec_coeff_compare_repr(
-      dec_coeff_magnitude_sub_unit(left.coefficient, 1),
-      right.coefficient,
-    ) ==
-    0
-  } else if comparison < 0 {
-    dec_coeff_compare_repr(
-      dec_coeff_magnitude_sub_unit(right.coefficient, 1),
-      left.coefficient,
-    ) ==
-    0
-  } else {
-    false
-  }
-}
-
-///|
-fn decimal_ln_subset_result(
-  value : Decimal,
-  ctx : DecimalContext,
-  certified : (Decimal, DecimalFlags),
-) -> (Decimal, DecimalFlags) {
-  guard !ctx.extended && certified.0.class == FpClass::Finite else {
-    return certified
-  }
-  let target_precision = decimal_math_target_precision(ctx)
-  let classic_precision = Int32::max(
-      value.coefficient.digits10(),
-      Int32::max(target_precision, 7),
-    ) +
-    8
-  let candidate = decimal_ln_candidate(value, classic_precision)
-  let check = decimal_ln_candidate(value, classic_precision + 2)
-  guard candidate.class == FpClass::Finite && check.class == FpClass::Finite else {
-    return certified
-  }
-  let classic = decimal_apply_finite_ctx(candidate, ctx).0
-  let checked = decimal_apply_finite_ctx(check, ctx).0
-  guard classic.compare_total(checked) == 0 &&
-    decimal_same_quantum_adjacent(classic, certified.0) &&
-    dec_coeff_compare_repr(classic.coefficient, certified.0.coefficient) > 0 else {
-    return certified
-  }
-  (classic, certified.1)
 }
 
 ///|
@@ -1193,7 +1127,7 @@ fn decimal_certified_ln_result(
 ) -> Result[(Decimal, DecimalFlags), @def.ArithmeticError] {
   decimal_certified_unary_candidate_result(value, ctx, "ln", fn(input) {
     input.try_ln()
-  }).map(fn(result) { decimal_ln_subset_result(value, ctx, result) })
+  })
 }
 
 ///|
