@@ -514,6 +514,24 @@ fn lit_compare_magnitude(a : NumLit, b : NumLit) -> Int32? {
       let right = nb + String::make(width - nb.length(), '0')
       return Some(if left == right { 0 } else if left < right { -1 } else { 1 })
     }
+    (LHex(_, da, ea), LHex(_, db, eb)) => {
+      // two hexadecimal literals: compare the positions of the leading bits, then the
+      // aligned coefficients (the shift is below the bit lengths, so it is small)
+      let ma = lit_coeff(da, 16)
+      let mb = lit_coeff(db, 16)
+      let top_a = ea + ma.bit_length().to_int64()
+      let top_b = eb + mb.bit_length().to_int64()
+      if top_a != top_b {
+        return Some(if top_a < top_b { -1 } else { 1 })
+      }
+      return Some(
+        if ea >= eb {
+          coeff_compare(coeff_shift_left(ma, (ea - eb).to_int()), mb)
+        } else {
+          coeff_compare(ma, coeff_shift_left(mb, (eb - ea).to_int()))
+        },
+      )
+    }
     _ => ()
   }
   // a quick decision from roundings at 64 bits
