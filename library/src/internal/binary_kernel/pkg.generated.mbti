@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "Luna-Flow/floating/internal/bin_kernel"
+package "Luna-Flow/floating/internal/binary_kernel"
 
 import {
   "moonbitlang/core/debug",

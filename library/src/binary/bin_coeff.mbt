@@ -3,47 +3,47 @@
 /// `Binary` and as the bit pattern of an interchange encoding. The type is
 /// abstract: neither the constructor nor the field is visible outside `binary`, and the
 /// inner type belongs to the internal kernel package
-/// `Luna-Flow/floating/internal/bin_kernel`, which carries no compatibility
+/// `Luna-Flow/floating/internal/binary_kernel`, which carries no compatibility
 /// promise. Code outside the package works through the methods below; the
 /// packages of this module that need the kernel type use `to_kernel` and
 /// `from_kernel`. The wrapper is a newtype (no extra allocation and no extra
 /// call).
-struct BinCoeff(@bin_kernel.Coeff)
+struct BinCoeff(@binary_kernel.Coeff)
 
 ///|
 /// Bridge to the kernel type, for the packages of this module only. The type it
 /// returns is internal and may change in any release; reading the field of the
 /// wrapper directly is not supported either.
 #internal(internal, "bridge to the internal kernel type, for the packages of this module")
-pub fn BinCoeff::to_kernel(self : BinCoeff) -> @bin_kernel.Coeff {
+pub fn BinCoeff::to_kernel(self : BinCoeff) -> @binary_kernel.Coeff {
   self.0
 }
 
 ///|
 /// Bridge from the kernel type, for the packages of this module only.
 #internal(internal, "bridge from the internal kernel type, for the packages of this module")
-pub fn BinCoeff::from_kernel(value : @bin_kernel.Coeff) -> BinCoeff {
+pub fn BinCoeff::from_kernel(value : @binary_kernel.Coeff) -> BinCoeff {
   BinCoeff(value)
 }
 
 ///|
 pub fn BinCoeff::zero() -> BinCoeff {
-  BinCoeff(@bin_kernel.Coeff::zero())
+  BinCoeff(@binary_kernel.Coeff::zero())
 }
 
 ///|
 pub fn BinCoeff::one() -> BinCoeff {
-  BinCoeff(@bin_kernel.Coeff::one())
+  BinCoeff(@binary_kernel.Coeff::one())
 }
 
 ///|
 pub fn BinCoeff::from_uint64(value : UInt64) -> BinCoeff {
-  BinCoeff(@bin_kernel.Coeff::from_uint64(value))
+  BinCoeff(@binary_kernel.Coeff::from_uint64(value))
 }
 
 ///|
 pub fn BinCoeff::from_bytes_be(source : BytesView) -> BinCoeff {
-  BinCoeff(@bin_kernel.Coeff::from_bytes_be(source))
+  BinCoeff(@binary_kernel.Coeff::from_bytes_be(source))
 }
 
 ///|
@@ -81,7 +81,7 @@ pub fn BinCoeff::parse(
   text : String,
   radix~ : Int32 = 10,
 ) -> Result[BinCoeff, String] {
-  @bin_kernel.Coeff::parse(text, radix~).map(fn(value) { BinCoeff(value) })
+  @binary_kernel.Coeff::parse(text, radix~).map(fn(value) { BinCoeff(value) })
 }
 
 ///|

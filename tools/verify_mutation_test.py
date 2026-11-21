@@ -23,7 +23,7 @@ class MutationFileTests(unittest.TestCase):
 
     def test_the_required_places_are_covered(self) -> None:
         paths = " ".join(m.path for m in vm.MUTATIONS)
-        for part in ("internal/bin_kernel", "binary/", "interval/", "src/decimal/", "decimal_gda/", "tooling/src/frontend"):
+        for part in ("internal/binary_kernel", "binary/", "interval/", "src/decimal/", "decimal_gda/", "tooling/src/frontend"):
             self.assertIn(part, paths)
 
     def test_a_missing_or_repeated_old_text_is_refused(self) -> None:

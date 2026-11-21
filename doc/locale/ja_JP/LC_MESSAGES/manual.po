@@ -44,7 +44,7 @@ msgstr "bench API"
 #: manual/api/frontend/mpfr_expr.md:3
 #: manual/api/frontend/testfloat_expr.md:3
 #: manual/api/internal.md:3
-#: manual/api/internal/bin_kernel.md:3
+#: manual/api/internal/binary_kernel.md:3
 #: manual/api/internal/conformance.md:3
 #: manual/api/internal/decimal_kernel.md:3
 #: manual/api/internal/runner_cli.md:3
@@ -89,7 +89,7 @@ msgstr "`bench` は `floating` の共通ベンチマークツールキットで�
 #: manual/api/frontend/mpfr_expr.md:15
 #: manual/api/frontend/testfloat_expr.md:15
 #: manual/api/internal.md:56
-#: manual/api/internal/bin_kernel.md:23
+#: manual/api/internal/binary_kernel.md:23
 #: manual/api/internal/conformance.md:15
 #: manual/api/internal/decimal_kernel.md:18
 #: manual/api/internal/runner_cli.md:14
@@ -266,7 +266,7 @@ msgstr "各候補について、当該ケースとデータセットの有効な
 #: manual/api/frontend/mpfr_expr.md:537
 #: manual/api/frontend/testfloat_expr.md:418
 #: manual/api/internal.md:506
-#: manual/api/internal/bin_kernel.md:81
+#: manual/api/internal/binary_kernel.md:81
 #: manual/api/internal/conformance.md:359
 #: manual/api/internal/decimal_kernel.md:92
 #: manual/api/internal/runner_cli.md:209
@@ -664,8 +664,8 @@ msgid "A non-negative arbitrary-precision integer, used as the coefficient of a 
 msgstr "非負の任意精度整数であり、`Binary` の係数として、また交換形式のエンコーディングのビットパターンとして使われます。"
 
 #: manual/api/binary.md:107
-msgid "The inner type `@bin_kernel.Coeff` belongs to the internal package `internal/bin_kernel`, which only code inside `Luna-Flow/floating` can import. It carries no compatibility promise and a user cannot call a method on it, read it, compare it or build one: from outside the module a `BinCoeff` is abstract. Neither its constructor nor its field is visible outside `binary`; the other packages of the library reach the kernel type through the bridge `to_kernel` and `from_kernel` (below). The value is exact: on the native, LLVM and Wasm targets an inline 64- or 128-bit word or an array of 64-bit limbs, on JavaScript a host `bigint`; the representation is not observable, and the algorithm selection (schoolbook, Karatsuba, Toom-3, number-theoretic transform, staged division) is described in the [design page](../design/binary.md#the-coefficient-kernel). `Debug` prints the integer value."
-msgstr "内部型 `@bin_kernel.Coeff` は内部パッケージ `internal/bin_kernel` に属し、`Luna-Flow/floating` の内部のコードだけがインポートできます。互換性の約束はなく、ユーザーはそれに対してメソッドを呼ぶことも、読み取ることも、比較することも、構築することもできません。モジュールの外から見ると `BinCoeff` は抽象型です。そのコンストラクタとフィールドは `binary` の外からは見えず、ライブラリの他のパッケージは橋渡しの `to_kernel` と `from_kernel`（下を参照）でカーネル型に触れます。値は厳密で、Native、LLVM、Wasm ターゲットではインラインの 64 または 128 ビットワードか 64 ビットリムの配列、JavaScript ではホストの `bigint` です。表現は観測できず、アルゴリズムの選択（教科書的乗算、Karatsuba、Toom-3、数論変換、段階的な除算）は[設計ページ](../design/binary.md#the-coefficient-kernel)に書かれています。`Debug` は整数値を出力します。"
+msgid "The inner type `@binary_kernel.Coeff` belongs to the internal package `internal/binary_kernel`, which only code inside `Luna-Flow/floating` can import. It carries no compatibility promise and a user cannot call a method on it, read it, compare it or build one: from outside the module a `BinCoeff` is abstract. Neither its constructor nor its field is visible outside `binary`; the other packages of the library reach the kernel type through the bridge `to_kernel` and `from_kernel` (below). The value is exact: on the native, LLVM and Wasm targets an inline 64- or 128-bit word or an array of 64-bit limbs, on JavaScript a host `bigint`; the representation is not observable, and the algorithm selection (schoolbook, Karatsuba, Toom-3, number-theoretic transform, staged division) is described in the [design page](../design/binary.md#the-coefficient-kernel). `Debug` prints the integer value."
+msgstr "内部型 `@binary_kernel.Coeff` は内部パッケージ `internal/binary_kernel` に属し、`Luna-Flow/floating` の内部のコードだけがインポートできます。互換性の約束はなく、ユーザーはそれに対してメソッドを呼ぶことも、読み取ることも、比較することも、構築することもできません。モジュールの外から見ると `BinCoeff` は抽象型です。そのコンストラクタとフィールドは `binary` の外からは見えず、ライブラリの他のパッケージは橋渡しの `to_kernel` と `from_kernel`（下を参照）でカーネル型に触れます。値は厳密で、Native、LLVM、Wasm ターゲットではインラインの 64 または 128 ビットワードか 64 ビットリムの配列、JavaScript ではホストの `bigint` です。表現は観測できず、アルゴリズムの選択（教科書的乗算、Karatsuba、Toom-3、数論変換、段階的な除算）は[設計ページ](../design/binary.md#the-coefficient-kernel)に書かれています。`Debug` は整数値を出力します。"
 
 #: manual/api/binary.md:121
 msgid "`BinCoeff::to_kernel`, `BinCoeff::from_kernel` (internal bridge)"
@@ -720,16 +720,16 @@ msgid "`compare` returns $-1$, $0$ or $1$; `equal` is numerical equality, which 
 msgstr "`compare` は $-1$、$0$、$1$ のいずれかを返します。`equal` は数値としての等しさであり、自然数では表現の等しさと同じです。演算子 `<`、`<=`、`>`、`>=`、`==`、`!=` はこれらを使います（[トレイト実装](#trait-implementations)を参照）。"
 
 #: manual/api/binary.md:206
-msgid "`BinCoeff` also implements `Eq`, `Compare`, `Show` and `Debug`; the promoted trait methods are listed under [Trait implementations](#trait-implementations). It has no arithmetic, shifts, bit operations or GCD: they are internal to the library (the package `internal/bin_kernel`), and arithmetic on values is done with `Binary` or, on a coefficient read with `coefficient()`, after converting it with `to_string` or `to_bytes_be`."
-msgstr "`BinCoeff` は `Eq`、`Compare`、`Show`、`Debug` も実装します。昇格したトレイトメソッドは [トレイト実装](#trait-implementations)に挙げられています。算術、シフト、ビット演算、GCD はありません。これらはライブラリの内部（パッケージ `internal/bin_kernel`）にあり、値の算術には `Binary` を使うか、`coefficient()` で読み出した係数なら `to_string` または `to_bytes_be` で変換してから行います。"
+msgid "`BinCoeff` also implements `Eq`, `Compare`, `Show` and `Debug`; the promoted trait methods are listed under [Trait implementations](#trait-implementations). It has no arithmetic, shifts, bit operations or GCD: they are internal to the library (the package `internal/binary_kernel`), and arithmetic on values is done with `Binary` or, on a coefficient read with `coefficient()`, after converting it with `to_string` or `to_bytes_be`."
+msgstr "`BinCoeff` は `Eq`、`Compare`、`Show`、`Debug` も実装します。昇格したトレイトメソッドは [トレイト実装](#trait-implementations)に挙げられています。算術、シフト、ビット演算、GCD はありません。これらはライブラリの内部（パッケージ `internal/binary_kernel`）にあり、値の算術には `Binary` を使うか、`coefficient()` で読み出した係数なら `to_string` または `to_bytes_be` で変換してから行います。"
 
 #: manual/api/binary.md:225
 msgid "The value type"
 msgstr "値の型"
 
 #: manual/api/binary.md:229
-msgid "A binary floating-point value: a finite dyadic number, a signed infinity or a NaN, with a working precision. Its representation is an internal type (`@bin_kernel.BinRepr`, like the coefficient of `BinCoeff`) that carries no compatibility promise and is read only inside the package; a value is one heap object."
-msgstr "二進浮動小数点値です。有限の二進有理数、符号付きの無限大、または NaN で、作業精度を伴います。その表現は内部型（`@bin_kernel.BinRepr`。`BinCoeff` の係数と同様）で、互換性は約束されず、パッケージ内でのみ読み取られます。値は 1 つのヒープオブジェクトです。"
+msgid "A binary floating-point value: a finite dyadic number, a signed infinity or a NaN, with a working precision. Its representation is an internal type (`@binary_kernel.BinRepr`, like the coefficient of `BinCoeff`) that carries no compatibility promise and is read only inside the package; a value is one heap object."
+msgstr "二進浮動小数点値です。有限の二進有理数、符号付きの無限大、または NaN で、作業精度を伴います。その表現は内部型（`@binary_kernel.BinRepr`。`BinCoeff` の係数と同様）で、互換性は約束されず、パッケージ内でのみ読み取られます。値は 1 つのヒープオブジェクトです。"
 
 #: manual/api/binary.md:239
 msgid "A finite value is $(-1)^s \\cdot c \\cdot 2^{e}$ with $s$ the sign bit, $c$ a `BinCoeff` and $e$ = `exponent2()`. Every value built through this API is normalized: a nonzero $c$ is odd (factors of two are moved into $e$), a zero has $c = 0$ and $e = 0$ and keeps its sign, and $c$ has at most `precision()` bits. The precision is an attribute of the value: plain operations work at the larger precision of their operands, and contextual operations stamp the context precision on their result."
@@ -3935,7 +3935,7 @@ msgstr "`to_string` はコンテキストなしで値を科学表記で書式化
 #: manual/api/frontend/mpfr_expr.md:539
 #: manual/api/frontend/testfloat_expr.md:420
 #: manual/api/internal.md:508
-#: manual/api/internal/bin_kernel.md:83
+#: manual/api/internal/binary_kernel.md:83
 #: manual/api/internal/conformance.md:361
 #: manual/api/internal/decimal_kernel.md:94
 #: manual/api/internal/runner_cli.md:211
@@ -6258,7 +6258,7 @@ msgid "For valid inputs, `etiny` is $e_{\\min} - p + 1$ and `etop` is $e_{\\max}
 msgstr "有効な入力では、`etiny` は $e_{\\min} - p + 1$、`etop` は $e_{\\max} - p + 1$ です。無効な入力では `is_valid()` は `false` になります。この内部値をすべての入力に対して定義できるよう、返される端点は必要な場合にのみクランプされます。呼び出し側は端点を使用する前にコンテキストを拒否しなければなりません。"
 
 #: manual/api/internal.md:58
-#: manual/api/internal/bin_kernel.md:25
+#: manual/api/internal/binary_kernel.md:25
 #: manual/api/internal/conformance.md:17
 #: manual/api/internal/decimal_kernel.md:20
 #: manual/api/internal/runner_cli.md:16
@@ -6474,91 +6474,91 @@ msgstr "`certified_failure(operation, stage, reason, target_precision, budget)` 
 msgid "The error's detail records the operation name, stage, reason, target precision, and the budget's current working precision and refinement count."
 msgstr "エラーの詳細には、演算名、段階、理由、目標精度、および予算の現在の作業精度と精緻化回数が記録されます。"
 
-#: manual/api/internal/bin_kernel.md:1
-msgid "internal/bin_kernel API"
-msgstr "internal/bin_kernel API"
+#: manual/api/internal/binary_kernel.md:1
+msgid "internal/binary_kernel API"
+msgstr "internal/binary_kernel API"
 
-#: manual/api/internal/bin_kernel.md:5
-msgid "`internal/bin_kernel` holds the integer arithmetic on the coefficients of `Binary`: a non-negative arbitrary-precision integer `Coeff`, its comparison, addition, subtraction, shifts and bit operations, the multiplication algorithms (schoolbook, Karatsuba, Toom-3 and the two-prime NTT), division (Knuth's algorithm D and Burnikel-Ziegler), the integer square root, the GCD, and the conversions to and from bytes and text in any radix, with the per-target thresholds that choose between the algorithms. Every function is an exact function of its arguments. The package raises no condition and has no notion of a rounding mode, a context or a flag; those belong to `binary`. `internal/bin_kernel` also declares the internal enum `BinRepr`, the representation of `Binary` (one file per target: `repr_nonjs.mbt` and `repr_js.mbt`); see the design page of `binary`, section \"Representation of a value\". It is an internal package: code outside `Luna-Flow/floating` cannot import it. The public coefficient type `BinCoeff` of `binary` is a newtype over `Coeff` whose methods (construction, conversion, comparison and queries) forward to this package; the arithmetic exists only here. The name `Coeff` appears in the interface of `BinCoeff`, but a user outside the module cannot import this package and so cannot call or compare anything on it. See the [tutorial](../../tutorial/internal/bin_kernel.md) and the [design page](../../design/internal/bin_kernel.md)."
-msgstr "`internal/bin_kernel` は `Binary` の係数に必要な整数演算を提供します。非負の任意精度整数 `Coeff`、その比較、加算、減算、シフト、ビット演算、乗算アルゴリズム（教科書的乗算、Karatsuba、Toom-3、2 素数 NTT）、除算（Knuth のアルゴリズム D と Burnikel-Ziegler）、整数平方根、GCD、バイト列および任意の基数の文字列との相互変換であり、アルゴリズムを選ぶターゲット別のしきい値も含みます。すべての関数は引数の厳密な関数です。このパッケージは状態を送出せず、丸めモード、コンテキスト、フラグの概念も持ちません。それらは `binary` に属します。`internal/bin_kernel` は内部列挙型 `BinRepr`、すなわち `Binary` の表現も宣言します（ターゲットごとに 1 ファイル：`repr_nonjs.mbt` と `repr_js.mbt`）。`binary` の設計ページの「値の表現」の節を参照してください。内部パッケージであり、`Luna-Flow/floating` の外のコードからはインポートできません。`binary` の公開係数型 `BinCoeff` は `Coeff` 上の newtype で、そのメソッド（構築、変換、比較、問い合わせ）はこのパッケージに転送されます。算術はここにしかありません。`Coeff` という名前は `BinCoeff` のインターフェースに現れますが、モジュール外のユーザーはこのパッケージをインポートできないため、それに対して何も呼び出せず、比較もできません。[チュートリアル](../../tutorial/internal/bin_kernel.md)と[設計ページ](../../design/internal/bin_kernel.md)を参照してください。"
+#: manual/api/internal/binary_kernel.md:5
+msgid "`internal/binary_kernel` holds the integer arithmetic on the coefficients of `Binary`: a non-negative arbitrary-precision integer `Coeff`, its comparison, addition, subtraction, shifts and bit operations, the multiplication algorithms (schoolbook, Karatsuba, Toom-3 and the two-prime NTT), division (Knuth's algorithm D and Burnikel-Ziegler), the integer square root, the GCD, and the conversions to and from bytes and text in any radix, with the per-target thresholds that choose between the algorithms. Every function is an exact function of its arguments. The package raises no condition and has no notion of a rounding mode, a context or a flag; those belong to `binary`. `internal/binary_kernel` also declares the internal enum `BinRepr`, the representation of `Binary` (one file per target: `repr_nonjs.mbt` and `repr_js.mbt`); see the design page of `binary`, section \"Representation of a value\". It is an internal package: code outside `Luna-Flow/floating` cannot import it. The public coefficient type `BinCoeff` of `binary` is a newtype over `Coeff` whose methods (construction, conversion, comparison and queries) forward to this package; the arithmetic exists only here. The name `Coeff` appears in the interface of `BinCoeff`, but a user outside the module cannot import this package and so cannot call or compare anything on it. See the [tutorial](../../tutorial/internal/binary_kernel.md) and the [design page](../../design/internal/binary_kernel.md)."
+msgstr "`internal/binary_kernel` は `Binary` の係数に必要な整数演算を提供します。非負の任意精度整数 `Coeff`、その比較、加算、減算、シフト、ビット演算、乗算アルゴリズム（教科書的乗算、Karatsuba、Toom-3、2 素数 NTT）、除算（Knuth のアルゴリズム D と Burnikel-Ziegler）、整数平方根、GCD、バイト列および任意の基数の文字列との相互変換であり、アルゴリズムを選ぶターゲット別のしきい値も含みます。すべての関数は引数の厳密な関数です。このパッケージは状態を送出せず、丸めモード、コンテキスト、フラグの概念も持ちません。それらは `binary` に属します。`internal/binary_kernel` は内部列挙型 `BinRepr`、すなわち `Binary` の表現も宣言します（ターゲットごとに 1 ファイル：`repr_nonjs.mbt` と `repr_js.mbt`）。`binary` の設計ページの「値の表現」の節を参照してください。内部パッケージであり、`Luna-Flow/floating` の外のコードからはインポートできません。`binary` の公開係数型 `BinCoeff` は `Coeff` 上の newtype で、そのメソッド（構築、変換、比較、問い合わせ）はこのパッケージに転送されます。算術はここにしかありません。`Coeff` という名前は `BinCoeff` のインターフェースに現れますが、モジュール外のユーザーはこのパッケージをインポートできないため、それに対して何も呼び出せず、比較もできません。[チュートリアル](../../tutorial/internal/binary_kernel.md)と[設計ページ](../../design/internal/binary_kernel.md)を参照してください。"
 
-#: manual/api/internal/bin_kernel.md:33
+#: manual/api/internal/binary_kernel.md:33
 #: manual/api/internal/decimal_kernel.md:28
 msgid "and bring the names a package uses into scope once, for example in a file of its own:"
 msgstr "そのうえで、パッケージが使う名前を、たとえば専用のファイルで一度だけスコープに入れます。"
 
-#: manual/api/internal/bin_kernel.md:41
+#: manual/api/internal/binary_kernel.md:41
 #: manual/api/internal/decimal_kernel.md:40
 msgid "The manual's example checker has no alias for internal subpackages, so the examples are marked `nocheck`."
 msgstr "本マニュアルのサンプル検査器には内部サブパッケージのエイリアスがないため、これらのサンプルは `nocheck` としています。"
 
-#: manual/api/internal/bin_kernel.md:44
+#: manual/api/internal/binary_kernel.md:44
 #: manual/api/internal/decimal_kernel.md:43
 msgid "The coefficient type"
 msgstr "係数の型"
 
-#: manual/api/internal/bin_kernel.md:48
+#: manual/api/internal/binary_kernel.md:48
 msgid "A non-negative integer. On Native, LLVM, Wasm and Wasm-GC it is a newtype over `CoeffRepr`; on JavaScript it is a host `bigint`. The value is persistent: no function mutates an operand."
 msgstr "非負整数です。Native、LLVM、Wasm、Wasm-GC では `CoeffRepr` 上の newtype、JavaScript ではホストの `bigint` です。値は永続的で、どの関数もオペランドを変更しません。"
 
-#: manual/api/internal/bin_kernel.md:54
+#: manual/api/internal/binary_kernel.md:54
 msgid "The storage on the targets that are not JavaScript: `Inline64(low)` and `Inline128(high, low)` for values below $2^{64}$ and $2^{128}$, and `Heap(words, len)` for larger ones, with `len` little-endian 64-bit limbs of which the top one is nonzero. The constructors are readable because the word-sized fast paths of `binary` pattern-match on them; build values with the functions below."
 msgstr "JavaScript 以外のターゲットでの格納形式です。$2^{64}$ 未満と $2^{128}$ 未満の値には `Inline64(low)` と `Inline128(high, low)`、それより大きい値には `Heap(words, len)` を使い、`len` 個のリトルエンディアン 64 ビットリムを持ち、最上位リムは 0 ではありません。`binary` の 1 ワード用高速パスがこれらにパターンマッチするため、コンストラクタは読み取り可能です。値の構築には下の関数を使ってください。"
 
-#: manual/api/internal/bin_kernel.md:61
+#: manual/api/internal/binary_kernel.md:61
 #: manual/api/internal/decimal_kernel.md:67
 msgid "Function families"
 msgstr "関数のグループ"
 
-#: manual/api/internal/bin_kernel.md:63
+#: manual/api/internal/binary_kernel.md:63
 #: manual/api/internal/decimal_kernel.md:73
 msgid "Family"
 msgstr "グループ"
 
-#: manual/api/internal/bin_kernel.md:63
+#: manual/api/internal/binary_kernel.md:63
 #: manual/api/internal/decimal_kernel.md:73
 msgid "Functions"
 msgstr "関数"
 
-#: manual/api/internal/bin_kernel.md:65
+#: manual/api/internal/binary_kernel.md:65
 #: manual/api/internal/decimal_kernel.md:75
 msgid "build and convert"
 msgstr "構築と変換"
 
-#: manual/api/internal/bin_kernel.md:66
+#: manual/api/internal/binary_kernel.md:66
 #: manual/api/internal/decimal_kernel.md:76
 msgid "shape"
 msgstr "形状の問い合わせ"
 
-#: manual/api/internal/bin_kernel.md:67
+#: manual/api/internal/binary_kernel.md:67
 msgid "compare"
 msgstr "比較"
 
-#: manual/api/internal/bin_kernel.md:68
+#: manual/api/internal/binary_kernel.md:68
 msgid "add, subtract, shift"
 msgstr "加算、減算、シフト"
 
-#: manual/api/internal/bin_kernel.md:69
+#: manual/api/internal/binary_kernel.md:69
 msgid "bit operations"
 msgstr "ビット演算"
 
-#: manual/api/internal/bin_kernel.md:70
+#: manual/api/internal/binary_kernel.md:70
 msgid "multiply and divide"
 msgstr "乗算と除算"
 
-#: manual/api/internal/bin_kernel.md:71
+#: manual/api/internal/binary_kernel.md:71
 msgid "number theory and roots"
 msgstr "整数論と根"
 
-#: manual/api/internal/bin_kernel.md:72
+#: manual/api/internal/binary_kernel.md:72
 msgid "limb rows (C on native, portable elsewhere)"
 msgstr "リム行（nativeではC、他のターゲットでは移植可能な実装）"
 
-#: manual/api/internal/bin_kernel.md:73
+#: manual/api/internal/binary_kernel.md:73
 msgid "machine words"
 msgstr "マシンワード"
 
-#: manual/api/internal/bin_kernel.md:75
+#: manual/api/internal/binary_kernel.md:75
 msgid "The per-target thresholds (`bin_coeff_*_min_words`, `*_words`, `*_cutoff`) are private: they live in `coeff_thresholds_<target>.mbt` and are selected by `moon.pkg`. Preconditions are checked with `abort` (a negative shift count, a zero divisor): they are programmer errors of the caller, never conditions of an operation."
 msgstr "ターゲット別のしきい値（`bin_coeff_*_min_words`、`*_words`、`*_cutoff`）は非公開です。`coeff_thresholds_<target>.mbt` にあり、`moon.pkg` が選びます。前提条件は `abort` で検査されます（負のシフト量、ゼロ除数）。これらは呼び出し側のプログラミング誤りであり、演算の状態ではありません。"
 
@@ -8910,7 +8910,7 @@ msgid "`internal` and `internal/*`, `cli` and `cli/*`, `bench` and `bench/*`, `c
 msgstr "`internal` と `internal/*`、`cli` と `cli/*`、`bench` と `bench/*`、`consistency`、`doc_examples` は実装および検証のための基盤です。シンボルが `pkg.generated.mbti` に現れていても、長期的なアプリケーション契約になるとは限りません。依存する前にそのパッケージの設計ページを読んでください。"
 
 #: manual/architecture.md:274
-#: manual/design/internal/bin_kernel.md:102
+#: manual/design/internal/binary_kernel.md:102
 msgid "Invariants"
 msgstr "Invariant"
 
@@ -10940,7 +10940,7 @@ msgstr "bench の設計"
 #: manual/design/frontend/mpfr_expr.md:3
 #: manual/design/frontend/testfloat_expr.md:3
 #: manual/design/internal.md:3
-#: manual/design/internal/bin_kernel.md:3
+#: manual/design/internal/binary_kernel.md:3
 #: manual/design/internal/conformance.md:3
 #: manual/design/internal/decimal_kernel.md:3
 #: manual/design/internal/runner_cli.md:3
@@ -10984,7 +10984,7 @@ msgstr "`floating` における性能に関する主張は再現可能でなけ�
 #: manual/design/frontend/mpfr_expr.md:17
 #: manual/design/frontend/testfloat_expr.md:16
 #: manual/design/internal.md:24
-#: manual/design/internal/bin_kernel.md:11
+#: manual/design/internal/binary_kernel.md:11
 #: manual/design/internal/conformance.md:12
 #: manual/design/internal/decimal_kernel.md:11
 #: manual/design/internal/runner_cli.md:13
@@ -13066,8 +13066,8 @@ msgid "**Problem.** Precision costs integer multiplication and division of $p$-b
 msgstr "**問題。** 精度のコストは $p$ ビットの数の整数乗算と整数除算であり、$p$ は 1 から $2^{28}$ までの範囲をとります。"
 
 #: manual/design/binary.md:2004
-msgid "**Choice.** The kernel is the internal package [`internal/bin_kernel`](internal/bin_kernel.md); `BinCoeff` is a newtype over its `Coeff`. `Coeff` stores up to 128 bits inline and larger values as little-endian 64-bit limbs (a host `bigint` on JavaScript), and dispatches on the operand length $n$ in 64-bit limbs. Every threshold below is in 64-bit limbs:"
-msgstr "**選択。** カーネルは内部パッケージ [`internal/bin_kernel`](internal/bin_kernel.md) で、`BinCoeff` はその `Coeff` 上の newtype です。`Coeff` は 128 ビットまでをインラインで、それより大きい値をリトルエンディアン 64 ビットリム（JavaScript ではホストの `bigint`）として格納し、オペランド長 $n$（64 ビットリム単位）で振り分けます。以下のしきい値はすべて 64 ビットリム単位です。"
+msgid "**Choice.** The kernel is the internal package [`internal/binary_kernel`](internal/binary_kernel.md); `BinCoeff` is a newtype over its `Coeff`. `Coeff` stores up to 128 bits inline and larger values as little-endian 64-bit limbs (a host `bigint` on JavaScript), and dispatches on the operand length $n$ in 64-bit limbs. Every threshold below is in 64-bit limbs:"
+msgstr "**選択。** カーネルは内部パッケージ [`internal/binary_kernel`](internal/binary_kernel.md) で、`BinCoeff` はその `Coeff` 上の newtype です。`Coeff` は 128 ビットまでをインラインで、それより大きい値をリトルエンディアン 64 ビットリム（JavaScript ではホストの `bigint`）として格納し、オペランド長 $n$（64 ビットリム単位）で振り分けます。以下のしきい値はすべて 64 ビットリム単位です。"
 
 #: manual/design/binary.md:2009
 msgid "Product or square"
@@ -17427,15 +17427,15 @@ msgstr "公開の安定性はありません。このパッケージは `Luna-Fl
 msgid "The power caches are process-wide mutable state, the only state in the package; they never change a result."
 msgstr "べき乗キャッシュはプロセス全体の可変状態であり、パッケージ内の唯一の状態です。これが結果を変えることはありません。"
 
-#: manual/design/internal/bin_kernel.md:1
-msgid "internal/bin_kernel design"
-msgstr "internal/bin_kernel 設計"
+#: manual/design/internal/binary_kernel.md:1
+msgid "internal/binary_kernel design"
+msgstr "internal/binary_kernel 設計"
 
-#: manual/design/internal/bin_kernel.md:5
+#: manual/design/internal/binary_kernel.md:5
 msgid "`Binary` is a rounding layer on top of one arithmetic: non-negative integers of up to $2^{28}$ bits. The integer part should be one package with one contract, so that an algorithm can be measured, replaced and tested without the floating-point layer, and so that the rounding layer cannot reach into it. The package therefore contains only functions from integers to integers."
 msgstr "`Binary` は 1 つの算術の上に載った丸め層です。その算術とは最大 $2^{28}$ ビットの非負整数です。整数部分は単一の契約を持つ 1 つのパッケージであるべきで、そうすれば浮動小数点層なしでアルゴリズムを測定、置換、テストでき、丸め層がその内部に踏み込むこともできません。したがってこのパッケージには整数から整数への関数だけが含まれます。"
 
-#: manual/design/internal/bin_kernel.md:13
+#: manual/design/internal/binary_kernel.md:13
 msgid ""
 "A coefficient $c \\ge 0$ is stored as $c = \\sum_{i<n} w_i 2^{64 i}$ with $0 \\le w_i < 2^{64}$ and $w_{n-1} \\n"
 "e 0$; values below $2^{128}$ are kept in one or two machine words without an array. Every operation computes an exact result:"
@@ -17443,176 +17443,176 @@ msgstr ""
 "係数 $c \\ge 0$ は $c = \\sum_{i<n} w_i 2^{64 i}$（$0 \\le w_i < 2^{64}$、$w_{n-1} \\n"
 "e 0$）として格納されます。$2^{128}$ 未満の値は配列なしで 1 つまたは 2 つのマシンワードに保持されます。すべての演算は厳密な結果を計算します。"
 
-#: manual/design/internal/bin_kernel.md:18
+#: manual/design/internal/binary_kernel.md:18
 #: manual/design/internal/decimal_kernel.md:22
 msgid "$\\operatorname{add}(a,b) = a + b$, $\\operatorname{sub}(a,b) = a - b$ for $a \\ge b$, $\\operatorname{mul}(a,b) = ab$;"
 msgstr "$\\operatorname{add}(a,b) = a + b$、$a \\ge b$ のとき $\\operatorname{sub}(a,b) = a - b$、$\\operatorname{mul}(a,b) = ab$。"
 
-#: manual/design/internal/bin_kernel.md:20
+#: manual/design/internal/binary_kernel.md:20
 #: manual/design/internal/decimal_kernel.md:24
 msgid "$\\operatorname{divrem}(a,b) = (q,r)$ with $a = qb + r$ and $0 \\le r < b$;"
 msgstr "$\\operatorname{divrem}(a,b) = (q,r)$。ただし $a = qb + r$ かつ $0 \\le r < b$。"
 
-#: manual/design/internal/bin_kernel.md:21
+#: manual/design/internal/binary_kernel.md:21
 msgid "$\\operatorname{shift}(a,k) = a \\cdot 2^{k}$ and $\\lfloor a / 2^{k} \\rfloor$;"
 msgstr "$\\operatorname{shift}(a,k) = a \\cdot 2^{k}$ と $\\lfloor a / 2^{k} \\rfloor$。"
 
-#: manual/design/internal/bin_kernel.md:22
+#: manual/design/internal/binary_kernel.md:22
 msgid "the integer square root $s = \\lfloor \\sqrt{a} \\rfloor$ with remainder $a - s^2$, the GCD, and the digits of $a$ in any radix."
 msgstr "整数平方根 $s = \\lfloor \\sqrt{a} \\rfloor$ と剰余 $a - s^2$、GCD、および $a$ の任意の基数での桁。"
 
-#: manual/design/internal/bin_kernel.md:25
+#: manual/design/internal/binary_kernel.md:25
 msgid "The algorithms behind them (schoolbook, Karatsuba, Toom-3, the two-prime NTT, Knuth's algorithm D, Burnikel-Ziegler, the Zimmermann square root, Lehmer GCD and the in-place radix conversion), their cutoffs and the argument that they all compute the same integers are in the section [The coefficient kernel](../binary.md#the-coefficient-kernel) of the `binary` design page. Because every path computes the same integers, the choice of algorithm cannot change a rounded result, a flag or an encoding."
 msgstr "これらを支えるアルゴリズム（教科書的乗算、Karatsuba、Toom-3、2 素数 NTT、Knuth のアルゴリズム D、Burnikel-Ziegler、Zimmermann の平方根、Lehmer GCD、インプレースの基数変換）、その切り替え点、およびすべての経路が同じ整数を計算するという論証は、`binary` 設計ページの[係数カーネル](../binary.md#the-coefficient-kernel)の節にあります。どの経路も同じ整数を計算するため、アルゴリズムの選択が丸め結果、フラグ、エンコーディングを変えることはありません。"
 
-#: manual/design/internal/bin_kernel.md:33
+#: manual/design/internal/binary_kernel.md:33
 msgid "Package boundary"
 msgstr "パッケージ境界"
 
-#: manual/design/internal/bin_kernel.md:35
+#: manual/design/internal/binary_kernel.md:35
 msgid "Decision"
 msgstr "決定"
 
-#: manual/design/internal/bin_kernel.md:35
+#: manual/design/internal/binary_kernel.md:35
 msgid "Choice"
 msgstr "選択"
 
-#: manual/design/internal/bin_kernel.md:35
+#: manual/design/internal/binary_kernel.md:35
 msgid "Reason"
 msgstr "理由"
 
-#: manual/design/internal/bin_kernel.md:37
+#: manual/design/internal/binary_kernel.md:37
 msgid "Where the type lives"
 msgstr "型の置き場所"
 
-#: manual/design/internal/bin_kernel.md:37
-msgid "`Coeff` is defined here; `BinCoeff` in `binary` is a newtype `struct BinCoeff(@bin_kernel.Coeff)`"
-msgstr "`Coeff` はここで定義され、`binary` の `BinCoeff` は newtype `struct BinCoeff(@bin_kernel.Coeff)` です"
+#: manual/design/internal/binary_kernel.md:37
+msgid "`Coeff` is defined here; `BinCoeff` in `binary` is a newtype `struct BinCoeff(@binary_kernel.Coeff)`"
+msgstr "`Coeff` はここで定義され、`binary` の `BinCoeff` は newtype `struct BinCoeff(@binary_kernel.Coeff)` です"
 
-#: manual/design/internal/bin_kernel.md:37
+#: manual/design/internal/binary_kernel.md:37
 msgid "A re-export of an internal type (`pub using`) does not give another module (the tools module) the methods of the type; a newtype does, and it is erased."
 msgstr "内部型の再エクスポート（`pub using`）では、別のモジュール（ツールモジュール）がその型のメソッドを使えるようになりません。newtype なら使え、しかも消去されます。"
 
-#: manual/design/internal/bin_kernel.md:38
+#: manual/design/internal/binary_kernel.md:38
 msgid "Unwrapping"
 msgstr "取り出し"
 
-#: manual/design/internal/bin_kernel.md:38
-msgid "`struct BinCoeff(@bin_kernel.Coeff)` (abstract, printed as `type BinCoeff` in the interface); `BinCoeff` has no arithmetic"
-msgstr "`struct BinCoeff(@bin_kernel.Coeff)`（抽象型で、インターフェースでは `type BinCoeff` と表示されます）。`BinCoeff` には算術がありません"
+#: manual/design/internal/binary_kernel.md:38
+msgid "`struct BinCoeff(@binary_kernel.Coeff)` (abstract, printed as `type BinCoeff` in the interface); `BinCoeff` has no arithmetic"
+msgstr "`struct BinCoeff(@binary_kernel.Coeff)`（抽象型で、インターフェースでは `type BinCoeff` と表示されます）。`BinCoeff` には算術がありません"
 
-#: manual/design/internal/bin_kernel.md:38
+#: manual/design/internal/binary_kernel.md:38
 msgid "The other library packages (`interval`) do arithmetic on coefficients: `value.to_kernel()` gives them the kernel type and `BinCoeff::from_kernel(c)` wraps a result. Neither the constructor nor the field is visible outside `binary`, so no other package builds or reads a `BinCoeff` by hand, and both bridge functions are marked in the API page as internal (`#internal` has no effect on the generated interface or on the documentation tool). Outside the module the inner type is inert: a method call, `==` and a qualified call on it are compile errors, and the import is refused by the solver, so the field exposes no operation and no compatibility promise."
 msgstr "ライブラリの他のパッケージ（`interval`）は係数に対して算術を行います。`value.to_kernel()` がカーネル型を与え、`BinCoeff::from_kernel(c)` が結果を包みます。コンストラクタとフィールドは `binary` の外からは見えないので、他のパッケージが `BinCoeff` を手で構築したり読んだりすることはなく、二つの橋渡し関数は API ページで内部と明記されています（`#internal` は生成されるインターフェースにもドキュメントツールにも効果がありません）。モジュールの外では内部型は不活性です。メソッド呼び出し、`==`、修飾付きの呼び出しはコンパイルエラーで、インポートはソルバーに拒否されるため、このフィールドは操作を何も公開せず、互換性の約束もありません。"
 
-#: manual/design/internal/bin_kernel.md:39
+#: manual/design/internal/binary_kernel.md:39
 msgid "Why not a record wrapper"
 msgstr "なぜレコードのラッパーにしないか"
 
-#: manual/design/internal/bin_kernel.md:39
+#: manual/design/internal/binary_kernel.md:39
 msgid "A newtype, never `struct BinCoeff { kernel : Coeff }`"
 msgstr "newtype であり、`struct BinCoeff { kernel : Coeff }` ではありません"
 
-#: manual/design/internal/bin_kernel.md:39
+#: manual/design/internal/binary_kernel.md:39
 msgid "A record wrapper allocates a second object per value: +49% retired instructions on a small `add` in the throwaway measurement. A newtype and a call across the package boundary cost nothing measurable."
 msgstr "レコードのラッパーは値ごとに 2 つ目のオブジェクトを確保します。使い捨ての測定では、小さな `add` で退役命令数が 49% 増えました。newtype とパッケージ境界を越える呼び出しには測定できるコストがありません。"
 
-#: manual/design/internal/bin_kernel.md:40
+#: manual/design/internal/binary_kernel.md:40
 #: manual/performance/binary.md:10
 msgid "Representation"
 msgstr "Context、flag、interchange"
 
-#: manual/design/internal/bin_kernel.md:40
+#: manual/design/internal/binary_kernel.md:40
 msgid "`Coeff` is a newtype over a three-case enum (`Inline64`, `Inline128`, `Heap`); `Binary` stores it directly"
 msgstr "`Coeff` は 3 ケースの列挙（`Inline64`、`Inline128`、`Heap`）上の newtype で、`Binary` はそれを直接保持します"
 
-#: manual/design/internal/bin_kernel.md:40
+#: manual/design/internal/binary_kernel.md:40
 msgid "One allocation per coefficient instead of two (10 to 15% fewer instructions per `Binary` operation at 53 to 512 bits, [#427](https://github.com/Luna-Flow/floating/pull/427))."
 msgstr "係数ごとの確保が 2 回から 1 回になります（53 から 512 ビットで `Binary` 演算あたりの命令数が 10 から 15% 減、[#427](https://github.com/Luna-Flow/floating/pull/427)）。"
 
-#: manual/design/internal/bin_kernel.md:41
+#: manual/design/internal/binary_kernel.md:41
 #: manual/verification.md:260
 #: manual/verification.md:303
 msgid "JavaScript"
 msgstr "JavaScript"
 
-#: manual/design/internal/bin_kernel.md:41
+#: manual/design/internal/binary_kernel.md:41
 msgid "`Coeff` is a host `bigint` (`coeff_js.mbt`); no kernel algorithms"
 msgstr "`Coeff` はホストの `bigint` です（`coeff_js.mbt`）。カーネルのアルゴリズムはありません"
 
-#: manual/design/internal/bin_kernel.md:41
+#: manual/design/internal/binary_kernel.md:41
 msgid "The host's arbitrary-precision integers are the kernel there."
 msgstr "そこではホストの任意精度整数がカーネルです。"
 
-#: manual/design/internal/bin_kernel.md:42
+#: manual/design/internal/binary_kernel.md:42
 msgid "Machine words"
 msgstr "マシンワード"
 
-#: manual/design/internal/bin_kernel.md:42
+#: manual/design/internal/binary_kernel.md:42
 msgid "`binary_fast_*` live here"
 msgstr "`binary_fast_*` はここにあります"
 
-#: manual/design/internal/bin_kernel.md:42
+#: manual/design/internal/binary_kernel.md:42
 msgid "The word-wide `mul_high` and `div_wide` are used by the kernel and by the single-word paths of `binary`."
 msgstr "ワード幅の `mul_high` と `div_wide` は、カーネルと `binary` の 1 ワード用パスの両方が使います。"
 
-#: manual/design/internal/bin_kernel.md:44
+#: manual/design/internal/binary_kernel.md:44
 msgid "Limb rows and the native C stub"
 msgstr "リム行とnativeのCスタブ"
 
-#: manual/design/internal/bin_kernel.md:46
+#: manual/design/internal/binary_kernel.md:46
 msgid "The inner loops of the schoolbook product and square are row primitives on 64-bit limbs: `mul_1`, `addmul_1`, `submul_1` (each takes arrays and offsets in limbs and returns a carry limb), the whole-call `school` and `sqr_school`. Each has a portable MoonBit function (`coeff_limbs_portable_nonjs.mbt`, `coeff_words_nonjs.mbt`), which is the reference, and a C function of the same name in `luna_limbs.c`. On the native target the wrappers of `coeff_limbs_native.mbt` check every range once per call, then call the C function; on wasm, wasm-gc and llvm the wrappers of `coeff_limbs_other_nonjs.mbt` call the portable one; JavaScript has no limb loops. The results are the same bit for bit; a differential test per primitive (`coeff_limbs_native_wbtest.mbt`) compares the two on lengths 1 to 200, edge limbs, carries through every position and the aliasing the callers use."
 msgstr "教科書的な乗算と二乗の内側ループは、64ビットリム上の行プリミティブです。`mul_1`、`addmul_1`、`submul_1`（配列とリム単位のオフセットを受け取り、キャリーのリムを返す）と、呼び出し全体を行う `school` と `sqr_school` です。それぞれに移植可能なMoonBit関数（`coeff_limbs_portable_nonjs.mbt`、`coeff_words_nonjs.mbt`）があり、これが基準実装です。`luna_limbs.c` には同名のC関数があります。nativeターゲットでは `coeff_limbs_native.mbt` のラッパーが呼び出しごとに範囲を一度検査してからC関数を呼び、wasm、wasm-gc、llvm では `coeff_limbs_other_nonjs.mbt` のラッパーが移植可能版を呼びます。JavaScriptにはリムのループがありません。結果はビット単位で一致します。プリミティブごとの差分テスト（`coeff_limbs_native_wbtest.mbt`）が、長さ1から200、境界のリム、すべての位置のキャリー、呼び出し側が使うエイリアスで両者を比較します。"
 
-#: manual/design/internal/bin_kernel.md:59
+#: manual/design/internal/binary_kernel.md:59
 msgid "The C file uses `unsigned __int128` where the compiler defines `__SIZEOF_INT128__` (gcc, clang) and four 32-bit products elsewhere. The intrinsics of MSVC (`_umul128`, `__umulh`) are not used: they have not been compiled and run, so `cl` takes the 32-bit branch (known follow-up)."
 msgstr "Cファイルは、コンパイラが `__SIZEOF_INT128__` を定義している場合（gcc、clang）は `unsigned __int128` を使い、それ以外では32ビット積4つを使います。MSVCの組み込み関数（`_umul128`、`__umulh`）は、コンパイルも実行もされていないため使いません。したがって `cl` は32ビットの分岐を使います（既知のフォローアップ）。"
 
-#: manual/design/internal/bin_kernel.md:63
+#: manual/design/internal/binary_kernel.md:63
 msgid "Test and benchmark knob: the environment variable `LUNA_FLOATING_PORTABLE`, read once at start, set to anything but empty or `0`, makes the native build run the portable loops. It changes speed only. `getenv` may warn on MSVC; that platform is untested."
 msgstr "テストとベンチマーク用のスイッチ：環境変数 `LUNA_FLOATING_PORTABLE` は起動時に一度だけ読まれ、空でも `0` でもない値に設定するとnativeビルドは移植可能なループを実行します。変わるのは速度だけです。MSVCでは `getenv` が警告を出すことがあります。このプラットフォームは未テストです。"
 
-#: manual/design/internal/bin_kernel.md:67
+#: manual/design/internal/binary_kernel.md:67
 msgid "Measured on arm64 (Apple clang, release): about 21 to 23 instructions per limb pair in the portable loop, 11 to 12 in C. x86-64: the stub compiles and its tests run in CI, no instruction table (not measured)."
 msgstr "arm64（Apple clang、release）での測定：移植可能なループはリム対あたり約21〜23命令、Cは11〜12命令です。x86-64：スタブはCIでコンパイルされテストも実行されますが、命令数の表はありません（未測定）。"
 
-#: manual/design/internal/bin_kernel.md:70
+#: manual/design/internal/binary_kernel.md:70
 msgid "Rows are not worth a C version for add, subtract and shifts: the portable loop is as short."
 msgstr "加算、減算、シフトにはC版の価値がありません。移植可能なループがすでに同じ短さです。"
 
-#: manual/design/internal/bin_kernel.md:72
+#: manual/design/internal/binary_kernel.md:72
 msgid "Assembly tier: on Apple arm64 (clang or gcc) the three rows, and through them `school` and `sqr_school`, have a third implementation in inline assembly in `luna_limbs.c`, written from the AArch64 instruction definitions. Four limbs per iteration, two carry chains in sequence: chain A adds the low words of the products and the high words of the previous limbs (`adds`, `adcs`, `adc`), chain B adds or subtracts the destination limbs, and the carry of chain B enters the next block as the initial flag (`cmp x, #1`). The lengths below a multiple of four are done first by the C row. Measured instructions per limb (arm64, row of 128 limbs): `mul_1` 4.9, `addmul_1` 6.9, `submul_1` 7.0 in assembly, 9.2, 12.1 and 13.1 in C. The floor of the loop: each limb needs a `mul`, a `umulh`, two carry additions and about 1.5 memory operations, 5.5 for `addmul_1`; the block adds 1.25 (finishing the chain A carry, the flag rebuild, the chain B carry, the loop). AArch64 has one carry flag and no multiply-accumulate with carry, so the two chains cannot be interleaved. Anywhere else the assembly entry points are the C rows."
 msgstr "アセンブリ層：Apple arm64（clang または gcc）では、3つの行プリミティブと、それらの上に構築された `school` と `sqr_school` に、`luna_limbs.c` のインラインアセンブリによる第3の実装があります。AArch64の命令定義に基づいて書かれています。1回の反復で4リムを処理し、2本のキャリーチェーンを順に実行します。チェーンAは積の下位ワードと前のリムの上位ワードを加算し（`adds`、`adcs`、`adc`）、チェーンBは出力先のリムを加算または減算し、チェーンBのキャリーは次のブロックの初期フラグになります（`cmp x, #1`）。4の倍数に満たない長さは先にC行が処理します。測定した1リムあたりの命令数（arm64、128リムの行）：アセンブリでは `mul_1` が4.9、`addmul_1` が6.9、`submul_1` が7.0、Cではそれぞれ9.2、12.1、13.1です。ループの下限：1リムごとに `mul`、`umulh`、2回のキャリー加算、約1.5回のメモリ操作が必要で、`addmul_1` では5.5です。ブロックごとにさらに1.25が加わります（チェーンAのキャリーの確定、フラグの再構築、チェーンBのキャリー、ループ）。AArch64にはキャリーフラグが1つしかなく、キャリー付きの積和命令もないため、2本のチェーンは交互に実行できません。他のプラットフォームでは、アセンブリのエントリポイントはC行です。"
 
-#: manual/design/internal/bin_kernel.md:87
+#: manual/design/internal/binary_kernel.md:87
 msgid "`bin_limbs_product` (public, for the limb-array loops of `binary`): `r[ro ..< ro + an + bn] = a * b` in one call, rows over the limbs of `a` (pass the shorter operand or the multiplier as `a`), both lengths at least 1, `r` not overlapping the operands, every result limb written. On the native tiers with the C or assembly rows it is the schoolbook entry behind one set of range checks; on the portable tier and the other targets it is the loop of portable `mul_1` and `addmul_1` rows, so no target pays more. At 10 by 9 limbs it costs 868 instructions on the assembly tier and 1,145 on the C tier against 1,028 and 1,292 for `mul_1` and eight `addmul_1` through their wrappers (the wrappers and their checks are 134 of the C figure)."
 msgstr "`bin_limbs_product`（公開、`binary` のリム配列ループ用）：1回の呼び出しで `r[ro ..< ro + an + bn] = a * b` を計算します。行は `a` のリムにわたり（短い方のオペランドか乗数を `a` に渡す）、両方の長さは1以上、`r` はオペランドと重ならず、すべての結果リムが書き込まれます。Cまたはアセンブリの行をもつnativeティアでは範囲検査を1組通すだけの教科書的乗算エントリであり、移植可能ティアとその他のターゲットでは移植可能な `mul_1` と `addmul_1` の行のループなので、どのターゲットも遅くなりません。10×9リムではアセンブリティアで868命令、Cティアで1,145命令であり、ラッパー経由の `mul_1` と8回の `addmul_1` では1,028と1,292命令です（ラッパーと検査はCの数値のうち134命令）。"
 
-#: manual/design/internal/bin_kernel.md:88
+#: manual/design/internal/binary_kernel.md:88
 msgid "Selection: `LUNA_FLOATING_PORTABLE` (portable loops) and `LUNA_FLOATING_LIMBS=c` (C rows) are read once at start; the default is assembly where the tier exists, else C. The differential test compares all three on the same arrays and logs the tier that ran. Linux arm64 has not been run; the tier is enabled for Apple arm64 only."
 msgstr "選択方法：`LUNA_FLOATING_PORTABLE`（移植可能なループ）と `LUNA_FLOATING_LIMBS=c`（C行）は起動時に一度だけ読まれます。アセンブリ層がある場合の既定はアセンブリ、なければCです。差分テストは同じ配列で3つを比較し、実行された層を記録します。Linux arm64は未実行で、この層はApple arm64でのみ有効です。"
 
-#: manual/design/internal/bin_kernel.md:94
+#: manual/design/internal/binary_kernel.md:94
 msgid "Thresholds"
 msgstr "しきい値"
 
-#: manual/design/internal/bin_kernel.md:96
+#: manual/design/internal/binary_kernel.md:96
 msgid "The cutoffs are named `*_min_words` or `*_words` (64-bit limbs) and chosen per target in `coeff_thresholds_<target>.mbt`. They are policy, not semantics: the dispatch tests cross every one of them and compare with the schoolbook result. The cutoffs of the elementary functions are not kernel policy and stay in `binary`."
 msgstr "切り替え点は `*_min_words` または `*_words`（64 ビットリム）と名付けられ、ターゲットごとに `coeff_thresholds_<target>.mbt` で選ばれます。これらは意味論ではなく方針です。振り分けテストはすべての切り替え点をちょうど跨ぎ、教科書的乗算の結果と比較します。初等関数の切り替え点はカーネルの方針ではなく、`binary` に残ります。"
 
-#: manual/design/internal/bin_kernel.md:104
+#: manual/design/internal/binary_kernel.md:104
 msgid "A `Heap` coefficient has `len >= 3` limbs, the top limb is nonzero, and no function mutates the array of an operand."
 msgstr "`Heap` の係数は `len >= 3` 個のリムを持ち、最上位リムは 0 ではなく、どの関数もオペランドの配列を変更しません。"
 
-#: manual/design/internal/bin_kernel.md:106
+#: manual/design/internal/binary_kernel.md:106
 msgid "The producers of fresh values (`Coeff::mul` for nonzero operands, `bin_coeff_div_scaled_quotient`, `bin_coeff_div_short_quotient`, `bin_coeff_mul_short`, `bin_coeff_sqrt_scaled_rounded`) return a `Heap` coefficient whose array no operand and no other value refers to; inline results and the shared `Coeff::zero()` carry no array, and a shift by zero returns its receiver. A caller may keep or modify such an array."
 msgstr "新しい値を作る関数（非零のオペランドに対する `Coeff::mul`、`bin_coeff_div_scaled_quotient`、`bin_coeff_div_short_quotient`、`bin_coeff_mul_short`、`bin_coeff_sqrt_scaled_rounded`）は、どのオペランドも他の値も参照しない配列を持つ `Heap` 係数を返す。インライン結果と共有の `Coeff::zero()` は配列を持たず、シフト量が 0 のときはレシーバ自身を返す。呼び出し側はそのような配列を保持または変更してよい。"
 
-#: manual/design/internal/bin_kernel.md:107
+#: manual/design/internal/binary_kernel.md:107
 msgid "`Inline64` and `Inline128` are the only representations of values below $2^{128}$; `bin_coeff_from_words` normalizes."
 msgstr "`Inline64` と `Inline128` は $2^{128}$ 未満の値の唯一の表現であり、`bin_coeff_from_words` が正規化します。"
 
-#: manual/design/internal/bin_kernel.md:109
+#: manual/design/internal/binary_kernel.md:109
 msgid "No function aborts except on a violated precondition (a zero divisor, a negative shift)."
 msgstr "前提条件の違反（ゼロ除数、負のシフト）を除き、abort する関数はありません。"
 
@@ -20332,20 +20332,20 @@ msgid "[design](design/internal/decimal_kernel.md)"
 msgstr "[設計](design/internal/decimal_kernel.md)"
 
 #: manual/index.md:116
-msgid "`internal/bin_kernel`: exact integer arithmetic on the coefficients of `binary`"
-msgstr "`internal/bin_kernel`：`binary` の係数に対する厳密な整数演算"
+msgid "`internal/binary_kernel`: exact integer arithmetic on the coefficients of `binary`"
+msgstr "`internal/binary_kernel`：`binary` の係数に対する厳密な整数演算"
 
 #: manual/index.md:116
-msgid "[tutorial](tutorial/internal/bin_kernel.md)"
-msgstr "[チュートリアル](tutorial/internal/bin_kernel.md)"
+msgid "[tutorial](tutorial/internal/binary_kernel.md)"
+msgstr "[チュートリアル](tutorial/internal/binary_kernel.md)"
 
 #: manual/index.md:116
-msgid "[API](api/internal/bin_kernel.md)"
-msgstr "[API](api/internal/bin_kernel.md)"
+msgid "[API](api/internal/binary_kernel.md)"
+msgstr "[API](api/internal/binary_kernel.md)"
 
 #: manual/index.md:116
-msgid "[design](design/internal/bin_kernel.md)"
-msgstr "[設計](design/internal/bin_kernel.md)"
+msgid "[design](design/internal/binary_kernel.md)"
+msgstr "[設計](design/internal/binary_kernel.md)"
 
 #: manual/index.md:118
 msgid "Tools module: infrastructure and evidence"
@@ -22896,7 +22896,7 @@ msgstr "このチュートリアルでは、`floating` のベンチマークス�
 #: manual/tutorial/frontend/mpfr_expr.md:9
 #: manual/tutorial/frontend/testfloat_expr.md:11
 #: manual/tutorial/internal.md:10
-#: manual/tutorial/internal/bin_kernel.md:9
+#: manual/tutorial/internal/binary_kernel.md:9
 #: manual/tutorial/internal/conformance.md:10
 #: manual/tutorial/internal/decimal_kernel.md:9
 #: manual/tutorial/internal/runner_cli.md:10
@@ -22936,7 +22936,7 @@ msgstr "やりたいこと"
 #: manual/tutorial/frontend/mpfr_expr.md:9
 #: manual/tutorial/frontend/testfloat_expr.md:11
 #: manual/tutorial/internal.md:10
-#: manual/tutorial/internal/bin_kernel.md:9
+#: manual/tutorial/internal/binary_kernel.md:9
 #: manual/tutorial/internal/conformance.md:10
 #: manual/tutorial/internal/decimal_kernel.md:9
 #: manual/tutorial/internal/runner_cli.md:10
@@ -26862,115 +26862,115 @@ msgstr "[internal 設計](../design/internal.md)"
 msgid "[consistency tutorial](consistency.md) for the tests that cross-check these helpers."
 msgstr "これらのヘルパーを照合するテストについては [consistency チュートリアル](consistency.md)。"
 
-#: manual/tutorial/internal/bin_kernel.md:1
-msgid "internal/bin_kernel tutorial"
-msgstr "internal/bin_kernel チュートリアル"
+#: manual/tutorial/internal/binary_kernel.md:1
+msgid "internal/binary_kernel tutorial"
+msgstr "internal/binary_kernel チュートリアル"
 
-#: manual/tutorial/internal/bin_kernel.md:3
+#: manual/tutorial/internal/binary_kernel.md:3
 msgid "The goal of this page is to show maintainers how to use the coefficient kernel when they add or change a binary operation, and how to keep a change to it safe for every target. The package is internal to `Luna-Flow/floating`; the examples are written for code inside the module and are not compiled by the manual checker."
 msgstr "このページは、保守担当者が二進演算を追加または変更するときに係数カーネルをどう使うか、またその変更をすべてのターゲットで安全に保つ方法を示します。このパッケージは `Luna-Flow/floating` の内部パッケージです。例はモジュール内のコード向けに書かれており、マニュアルのチェッカーではコンパイルされません。"
 
-#: manual/tutorial/internal/bin_kernel.md:11
+#: manual/tutorial/internal/binary_kernel.md:11
 msgid "compute with exact coefficients in `binary`"
 msgstr "`binary` で厳密な係数を使って計算する"
 
-#: manual/tutorial/internal/bin_kernel.md:11
+#: manual/tutorial/internal/binary_kernel.md:11
 msgid "[the `Coeff` methods](#use-the-kernel-from-the-binary-package)"
 msgstr "[`Coeff` のメソッド](#use-the-kernel-from-the-binary-package)"
 
-#: manual/tutorial/internal/bin_kernel.md:12
+#: manual/tutorial/internal/binary_kernel.md:12
 #: manual/tutorial/internal/decimal_kernel.md:12
 msgid "add an algorithm or a fast path"
 msgstr "アルゴリズムや高速経路を追加する"
 
-#: manual/tutorial/internal/bin_kernel.md:12
+#: manual/tutorial/internal/binary_kernel.md:12
 #: manual/tutorial/internal/decimal_kernel.md:12
 msgid "[change the kernel](#change-the-kernel)"
 msgstr "[カーネルを変更する](#change-the-kernel)"
 
-#: manual/tutorial/internal/bin_kernel.md:13
+#: manual/tutorial/internal/binary_kernel.md:13
 #: manual/tutorial/internal/decimal_kernel.md:13
 msgid "tune a threshold"
 msgstr "閾値を調整する"
 
-#: manual/tutorial/internal/bin_kernel.md:13
+#: manual/tutorial/internal/binary_kernel.md:13
 #: manual/tutorial/internal/decimal_kernel.md:13
 msgid "[per-target thresholds](#tune-a-threshold)"
 msgstr "[ターゲットごとの閾値](#tune-a-threshold)"
 
-#: manual/tutorial/internal/bin_kernel.md:14
+#: manual/tutorial/internal/binary_kernel.md:14
 #: manual/tutorial/internal/decimal_kernel.md:14
 msgid "decide where new code belongs"
 msgstr "新しいコードの置き場所を決める"
 
-#: manual/tutorial/internal/bin_kernel.md:14
+#: manual/tutorial/internal/binary_kernel.md:14
 msgid "[kernel or `binary`](#decide-where-new-code-belongs)"
 msgstr "[カーネルか binary か](#decide-where-new-code-belongs)"
 
-#: manual/tutorial/internal/bin_kernel.md:15
+#: manual/tutorial/internal/binary_kernel.md:15
 #: manual/tutorial/internal/decimal_kernel.md:15
 msgid "run the kernel tests"
 msgstr "カーネルのテストを実行する"
 
-#: manual/tutorial/internal/bin_kernel.md:17
+#: manual/tutorial/internal/binary_kernel.md:17
 msgid "Use the kernel from the `binary` package"
 msgstr "binary からカーネルを使う"
 
-#: manual/tutorial/internal/bin_kernel.md:19
+#: manual/tutorial/internal/binary_kernel.md:19
 msgid "`binary` imports the kernel and brings the names it uses into scope with `using` (in `kernel_imports.mbt`, and `kernel_imports_nonjs.mbt` for the names that exist only where a coefficient has 64-bit limbs):"
 msgstr "`binary` はカーネルをインポートし、使う名前を `using` でスコープに入れます（`kernel_imports.mbt` にあり、係数が 64 ビットリムを持つ場合にだけ存在する名前は `kernel_imports_nonjs.mbt` にあります）。"
 
-#: manual/tutorial/internal/bin_kernel.md:28
+#: manual/tutorial/internal/binary_kernel.md:28
 msgid "A `Binary` stores its coefficient as a private `Coeff` field. The public type `BinCoeff` is a newtype over it (`value.0` unwraps it and `BinCoeff(c)` wraps a result), so the kernel type shows in a public interface only as the field of `BinCoeff`, which is opaque outside the module, and the wrapping costs neither an allocation nor a call. A typical use computes the exact quotient and remainder and leaves rounding to `binary`:"
 msgstr "`Binary` は係数を非公開の `Coeff` フィールドとして保持します。公開型 `BinCoeff` はその上の newtype（`value.0` で取り出し、`BinCoeff(c)` で結果を包む）なので、カーネル型が公開インターフェースに現れるのは `BinCoeff` のフィールドとしてだけで、それはモジュールの外では不透明であり、ラップは確保も呼び出しも増やしません。典型的な使い方は、厳密な商と剰余を計算し、丸めは `binary` に任せるものです。"
 
-#: manual/tutorial/internal/bin_kernel.md:44
+#: manual/tutorial/internal/binary_kernel.md:44
 #: manual/tutorial/internal/decimal_kernel.md:43
 msgid "Decide where new code belongs"
 msgstr "新しいコードの置き場所を決める"
 
-#: manual/tutorial/internal/bin_kernel.md:46
+#: manual/tutorial/internal/binary_kernel.md:46
 msgid "Put code in the kernel when it is a function from coefficients (and plain integers) to coefficients or integers. Keep it in `binary` when it mentions a rounding mode, a precision, an exponent, a class, a flag or a `Binary`. The test is simple: the function must give the same answer for the same integers whoever calls it. `tools/check_imports.py` enforces the dependency half of the rule: the kernel imports nothing of this module."
 msgstr "コードが係数（と通常の整数）から係数または整数への関数であるなら、カーネルに置きます。丸めモード、精度、指数、クラス、フラグ、`Binary` に触れるなら `binary` に置きます。判定は簡単です。誰が呼んでも、同じ整数に対して同じ答えを返さなければなりません。`tools/check_imports.py` が規則の依存関係の側面を強制します。カーネルはこのモジュールの何もインポートしません。"
 
-#: manual/tutorial/internal/bin_kernel.md:53
+#: manual/tutorial/internal/binary_kernel.md:53
 #: manual/tutorial/internal/decimal_kernel.md:54
 msgid "Change the kernel"
 msgstr "カーネルを変更する"
 
-#: manual/tutorial/internal/bin_kernel.md:55
+#: manual/tutorial/internal/binary_kernel.md:55
 msgid "Write the change as an exact integer function."
 msgstr "変更を厳密な整数関数として書きます。"
 
-#: manual/tutorial/internal/bin_kernel.md:56
+#: manual/tutorial/internal/binary_kernel.md:56
 msgid "Add or extend a white-box test next to the others in the package that compares the result with `BigInt` at the limb boundaries (64, 128 and 192 bits), at the threshold lengths of every target, and on operands of ones, powers of two and sparse limbs."
 msgstr "パッケージ内の他のテストと並べてホワイトボックステストを追加または拡張します。リムの境界（64、128、192 ビット）、各ターゲットのしきい値の長さ、1 だけのオペランド、2 のべき乗、疎なリムのオペランドで、結果を `BigInt` と比較します。"
 
-#: manual/tutorial/internal/bin_kernel.md:60
+#: manual/tutorial/internal/binary_kernel.md:60
 msgid "Run `just bin-kernel-ci`, then `just gate binary 3` and `just gate interval 3`."
 msgstr "`just bin-kernel-ci` を実行し、続いて `just gate binary 3` と `just gate interval 3` を実行します。"
 
-#: manual/tutorial/internal/bin_kernel.md:61
+#: manual/tutorial/internal/binary_kernel.md:61
 msgid "Measure retired instructions with the benchmark rows of the pull request against the previous build; a change that helps one operation and slows another needs a reason in the pull request."
 msgstr "プルリクエストのベンチマーク行で、退役命令数を以前のビルドと比較します。ある演算を速くして別の演算を遅くする変更には、プルリクエストで理由が必要です。"
 
-#: manual/tutorial/internal/bin_kernel.md:65
+#: manual/tutorial/internal/binary_kernel.md:65
 #: manual/tutorial/internal/decimal_kernel.md:67
 msgid "Tune a threshold"
 msgstr "閾値を調整する"
 
-#: manual/tutorial/internal/bin_kernel.md:67
+#: manual/tutorial/internal/binary_kernel.md:67
 msgid "The crossovers between schoolbook, Karatsuba, Toom-3, the NTT, Knuth's division and Burnikel-Ziegler live in `coeff_thresholds_native.mbt`, `_llvm`, `_wasm` and `_wasm_gc`; `moon.pkg` selects the file by target. JavaScript has no kernel: its `Coeff` is a host `bigint`. A threshold only changes which exact algorithm runs. Change it with paired old and new builds on the target, and keep the dispatch tests that cross every threshold exactly. The cutoffs of the elementary functions (`binary_exp_burst_min_precision` and its siblings) are thresholds of `binary`, in `elementary_thresholds_<target>.mbt`."
 msgstr "教科書的乗算、Karatsuba、Toom-3、NTT、Knuth の除算、Burnikel-Ziegler の切り替え点は `coeff_thresholds_native.mbt`、`_llvm`、`_wasm`、`_wasm_gc` にあり、`moon.pkg` がターゲットでファイルを選びます。JavaScript にはカーネルがなく、その `Coeff` はホストの `bigint` です。しきい値が変えるのはどの厳密アルゴリズムが動くかだけです。ターゲット上で新旧ビルドを対にして変更し、すべてのしきい値をちょうど跨ぐ振り分けテストを維持してください。初等関数の切り替え点（`binary_exp_burst_min_precision` とその仲間）は `binary` のしきい値で、`elementary_thresholds_<target>.mbt` にあります。"
 
-#: manual/tutorial/internal/bin_kernel.md:76
+#: manual/tutorial/internal/binary_kernel.md:76
 #: manual/tutorial/internal/decimal_kernel.md:76
 msgid "Run the tests"
 msgstr "テストを実行する"
 
-#: manual/tutorial/internal/bin_kernel.md:83
-msgid "The `internal/bin_kernel` tests carry the algorithm cross-checks, the dispatch tests and the regression digests that used to live in `binary`. `binary` keeps the tests that need a `Binary`."
-msgstr "`internal/bin_kernel` のテストには、以前 `binary` にあったアルゴリズムの相互検証、振り分けテスト、回帰ダイジェストが含まれます。`binary` には `Binary` を必要とするテストが残ります。"
+#: manual/tutorial/internal/binary_kernel.md:83
+msgid "The `internal/binary_kernel` tests carry the algorithm cross-checks, the dispatch tests and the regression digests that used to live in `binary`. `binary` keeps the tests that need a `Binary`."
+msgstr "`internal/binary_kernel` のテストには、以前 `binary` にあったアルゴリズムの相互検証、振り分けテスト、回帰ダイジェストが含まれます。`binary` には `Binary` を必要とするテストが残ります。"
 
 #: manual/tutorial/internal/conformance.md:1
 msgid "internal/conformance tutorial"
@@ -28118,8 +28118,8 @@ msgid "`ci.yml` runs `just pr` on every pull request and every push to `main`. I
 msgstr "`ci.yml` は、すべてのプルリクエストと `main` へのすべてのプッシュで `just pr` を実行します。最初に最新の検証台帳を復元し、台帳を保存するのは `main` へのプッシュだけです。GitHub はキャッシュを作成した ref に限定するため、プルリクエストの実行が保存しうる内容は `main` も他のプルリクエストも復元できません。プルリクエストのゲートの native テストは増分ユニットとして実行されます（`tools/native_units.py`）。"
 
 #: manual/verification.md:35
-msgid "`nightly.yml` runs `just gate` for `quick`, `decimal`, `decimal_gda`, `binary` and `interval` as parallel jobs every night and on demand. It caches the SHA-256-pinned upstream corpora by manifest hash (the hashes are still verified after download) and uploads each `summary.json` as an artifact, so the published results are reproduced outside maintainers' machines. It runs the gates with `--no-reuse` and restores no ledger. It also runs the unit tests of the whole workspace on `native`, without reuse (the audit of the native units of the pull-request gate), `js`, `wasm` and `wasm-gc` (the pull-request gate tests native and only type-checks these; `QUICK_TEST_TARGETS` in `tools/run_ci.py` is the one line that adds a target to it), and, on an arm64 macOS runner, the tests of `internal/bin_kernel` and `binary` on native with the row primitives portable (`LUNA_FLOATING_PORTABLE=1`), forced to the C tier (`LUNA_FLOATING_LIMBS=c`) and in the default state; `tools/check_limbs_tier.py` fails the job when the runner is not arm64, a state reports another tier than expected, or the switch did not take (`enabled=false` in the portable state, `enabled=true` in the others). The Linux runner is x86-64, so nothing else executes the arm64 code. `wasm-gc` runs the whole workspace except what needs `moonbitlang/async`, which has no wasm-gc runtime (its module initialiser is rejected by the runtime at validation); the workflow states the reason next to the job."
-msgstr "`nightly.yml` は、毎晩およびオンデマンドで、`quick`、`decimal`、`decimal_gda`、`binary`、`interval` について `just gate` を並列ジョブとして実行します。SHA-256 で固定された上流コーパスをマニフェストのハッシュでキャッシュし（ダウンロード後もハッシュは検証されます）、各 `summary.json` をアーティファクトとしてアップロードするので、公開された結果はメンテナのマシンの外でも再現できます。ゲートは `--no-reuse` で実行し、台帳は復元しません。さらに、`native`（再利用なし。プルリクエストのゲートの native ユニットの監査です）、`js`、`wasm`、`wasm-gc` でワークスペース全体のユニットテストを実行し（プルリクエストのゲートはこれらのターゲットを型検査するだけで、テストは native だけです。`tools/run_ci.py` の `QUICK_TEST_TARGETS` が、ゲートにターゲットを 1 つ加えるための 1 行です）、arm64 の macOS ランナーでは、行プリミティブを移植可能にした状態（`LUNA_FLOATING_PORTABLE=1`）、C の階層に強制した状態（`LUNA_FLOATING_LIMBS=c`）、既定の状態の 3 通りで、native 上の `internal/bin_kernel` と `binary` のテストを実行します。ランナーが arm64 でない場合、ある状態が期待と異なる階層を報告した場合、またはスイッチが効いていない場合（portable の状態で `enabled=false` でない、他の状態で `enabled=true` でない）、`tools/check_limbs_tier.py` がジョブを失敗させます。Linux のランナーは x86-64 なので、他に arm64 のコードを実行するものはありません。`wasm-gc` はワークスペース全体を実行しますが、`moonbitlang/async` を必要とするものは除きます。このパッケージには wasm-gc ランタイムがありません（そのモジュール初期化関数はランタイムに検証時に拒否されます）。理由はワークフローのジョブの横に書かれています。"
+msgid "`nightly.yml` runs `just gate` for `quick`, `decimal`, `decimal_gda`, `binary` and `interval` as parallel jobs every night and on demand. It caches the SHA-256-pinned upstream corpora by manifest hash (the hashes are still verified after download) and uploads each `summary.json` as an artifact, so the published results are reproduced outside maintainers' machines. It runs the gates with `--no-reuse` and restores no ledger. It also runs the unit tests of the whole workspace on `native`, without reuse (the audit of the native units of the pull-request gate), `js`, `wasm` and `wasm-gc` (the pull-request gate tests native and only type-checks these; `QUICK_TEST_TARGETS` in `tools/run_ci.py` is the one line that adds a target to it), and, on an arm64 macOS runner, the tests of `internal/binary_kernel` and `binary` on native with the row primitives portable (`LUNA_FLOATING_PORTABLE=1`), forced to the C tier (`LUNA_FLOATING_LIMBS=c`) and in the default state; `tools/check_limbs_tier.py` fails the job when the runner is not arm64, a state reports another tier than expected, or the switch did not take (`enabled=false` in the portable state, `enabled=true` in the others). The Linux runner is x86-64, so nothing else executes the arm64 code. `wasm-gc` runs the whole workspace except what needs `moonbitlang/async`, which has no wasm-gc runtime (its module initialiser is rejected by the runtime at validation); the workflow states the reason next to the job."
+msgstr "`nightly.yml` は、毎晩およびオンデマンドで、`quick`、`decimal`、`decimal_gda`、`binary`、`interval` について `just gate` を並列ジョブとして実行します。SHA-256 で固定された上流コーパスをマニフェストのハッシュでキャッシュし（ダウンロード後もハッシュは検証されます）、各 `summary.json` をアーティファクトとしてアップロードするので、公開された結果はメンテナのマシンの外でも再現できます。ゲートは `--no-reuse` で実行し、台帳は復元しません。さらに、`native`（再利用なし。プルリクエストのゲートの native ユニットの監査です）、`js`、`wasm`、`wasm-gc` でワークスペース全体のユニットテストを実行し（プルリクエストのゲートはこれらのターゲットを型検査するだけで、テストは native だけです。`tools/run_ci.py` の `QUICK_TEST_TARGETS` が、ゲートにターゲットを 1 つ加えるための 1 行です）、arm64 の macOS ランナーでは、行プリミティブを移植可能にした状態（`LUNA_FLOATING_PORTABLE=1`）、C の階層に強制した状態（`LUNA_FLOATING_LIMBS=c`）、既定の状態の 3 通りで、native 上の `internal/binary_kernel` と `binary` のテストを実行します。ランナーが arm64 でない場合、ある状態が期待と異なる階層を報告した場合、またはスイッチが効いていない場合（portable の状態で `enabled=false` でない、他の状態で `enabled=true` でない）、`tools/check_limbs_tier.py` がジョブを失敗させます。Linux のランナーは x86-64 なので、他に arm64 のコードを実行するものはありません。`wasm-gc` はワークスペース全体を実行しますが、`moonbitlang/async` を必要とするものは除きます。このパッケージには wasm-gc ランタイムがありません（そのモジュール初期化関数はランタイムに検証時に拒否されます）。理由はワークフローのジョブの横に書かれています。"
 
 #: manual/verification.md:56
 msgid "`docs.yml` runs the organization's `lunadoc check` workflow."
@@ -28503,8 +28503,8 @@ msgid "The kernel stages"
 msgstr "カーネルのステージ"
 
 #: manual/verification.md:620
-msgid "The seven kernel stages of the binary gate (the product routes and the oracles under three states of the limb tier, and the oracle tables) took about 220 s and always ran in full. The package under test, `library/src/internal/bin_kernel`, is a leaf of the module: it imports only `moonbitlang/core/...`, so nothing else of the repository is compiled into its test executable. Each stage under each state is therefore a unit of its own, keyed by the content of the package's files (sources, tests, row tables, the native stub, `moon.pkg`) and of the module files, the command line (which holds the state), the `moon test` wrapper, the build commands that `moon test --dry-run` prints, the toolchain, the variables of the environment that `moon` and the stubs read, the verifier and, for the oracle tables, `tools/kernel_oracle.py` and the Python version. The key is of file content, which is coarser than code: a comment-only edit of the package reruns all seven. The program checks the two assumptions behind it: the package imports only `moonbitlang/core/...` (otherwise no kernel unit is reused) and `tools/kernel_oracle.py` imports only the standard library (otherwise that unit runs)."
-msgstr "バイナリゲートの 7 つのカーネルステージ（リムティアの 3 つの状態での積ルートとオラクル、およびオラクル表）には約 220 秒かかり、常に完全に実行されていました。テスト対象のパッケージ `library/src/internal/bin_kernel` はモジュールの葉で、`moonbitlang/core/...` だけをインポートするため、リポジトリの他の部分はそのテスト実行ファイルにコンパイルされません。したがって、各状態の各ステージが独立した単位になり、そのキーは次のもので作られます。パッケージのファイル（ソース、テスト、行表、ネイティブスタブ、`moon.pkg`）とモジュールファイルの内容、コマンドライン（状態を含みます）、`moon test` のラッパー、`moon test --dry-run` が出力するビルドコマンド、ツールチェーン、`moon` とスタブが読む環境変数、検証器、そしてオラクル表では `tools/kernel_oracle.py` と Python のバージョンです。キーはファイル内容に基づくので、コードに基づくより粗くなります。コメントだけの編集でも 7 つすべてが再実行されます。この背後にある 2 つの前提はプログラムが確認します。パッケージは `moonbitlang/core/...` だけをインポートすること（そうでなければカーネルの単位は再利用されません）、`tools/kernel_oracle.py` は標準ライブラリだけをインポートすること（そうでなければその単位は実行されます）。"
+msgid "The seven kernel stages of the binary gate (the product routes and the oracles under three states of the limb tier, and the oracle tables) took about 220 s and always ran in full. The package under test, `library/src/internal/binary_kernel`, is a leaf of the module: it imports only `moonbitlang/core/...`, so nothing else of the repository is compiled into its test executable. Each stage under each state is therefore a unit of its own, keyed by the content of the package's files (sources, tests, row tables, the native stub, `moon.pkg`) and of the module files, the command line (which holds the state), the `moon test` wrapper, the build commands that `moon test --dry-run` prints, the toolchain, the variables of the environment that `moon` and the stubs read, the verifier and, for the oracle tables, `tools/kernel_oracle.py` and the Python version. The key is of file content, which is coarser than code: a comment-only edit of the package reruns all seven. The program checks the two assumptions behind it: the package imports only `moonbitlang/core/...` (otherwise no kernel unit is reused) and `tools/kernel_oracle.py` imports only the standard library (otherwise that unit runs)."
+msgstr "バイナリゲートの 7 つのカーネルステージ（リムティアの 3 つの状態での積ルートとオラクル、およびオラクル表）には約 220 秒かかり、常に完全に実行されていました。テスト対象のパッケージ `library/src/internal/binary_kernel` はモジュールの葉で、`moonbitlang/core/...` だけをインポートするため、リポジトリの他の部分はそのテスト実行ファイルにコンパイルされません。したがって、各状態の各ステージが独立した単位になり、そのキーは次のもので作られます。パッケージのファイル（ソース、テスト、行表、ネイティブスタブ、`moon.pkg`）とモジュールファイルの内容、コマンドライン（状態を含みます）、`moon test` のラッパー、`moon test --dry-run` が出力するビルドコマンド、ツールチェーン、`moon` とスタブが読む環境変数、検証器、そしてオラクル表では `tools/kernel_oracle.py` と Python のバージョンです。キーはファイル内容に基づくので、コードに基づくより粗くなります。コメントだけの編集でも 7 つすべてが再実行されます。この背後にある 2 つの前提はプログラムが確認します。パッケージは `moonbitlang/core/...` だけをインポートすること（そうでなければカーネルの単位は再利用されません）、`tools/kernel_oracle.py` は標準ライブラリだけをインポートすること（そうでなければその単位は実行されます）。"
 
 #: manual/verification.md:633
 msgid "A reused kernel stage is printed as `REUSED` with the commit it ran on and is not executed. A stage that ran is recorded when it passes and when its files are still those of the key (a stage runs for minutes: an edit meanwhile is reported as \"passed but not recorded\"). Each reusable stage is rerun with probability 2 %, drawn per stage (the \"at least one\" rule of the TestFloat units would rerun a stage on every run with only seven units); the seed is printed, and a sampled stage that fails although its key is recorded as passing is a defect of the system (status 70). `just verify binary` runs the stages this way; `--full-kernel` runs them in full."

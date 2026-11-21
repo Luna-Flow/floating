@@ -1294,94 +1294,94 @@ library/src/decimal_gda_checked/decimal_gda_checked_wbtest.mbt::gda checked powe
 library/src/decimal_gda_checked/decimal_gda_checked_wbtest.mbt::gda checked power to one half is the padded inexact result without Clamped (issue 397)	A
 library/src/decimal_gda_checked/decimal_gda_checked_wbtest.mbt::gda checked threads sticky status	A
 library/src/decimal_gda_checked/decimal_gda_checked_wbtest.mbt::gda checked traps short circuit and preserve defined results	A
-library/src/internal/bin_kernel/coeff_basecase_loop_nonjs_wbtest.mbt::high word of a word product equals the previous form and the exact product	E
-library/src/internal/bin_kernel/coeff_basecase_loop_nonjs_wbtest.mbt::schoolbook and word products and squares of edge limbs match BigInt	A
-library/src/internal/bin_kernel/coeff_dispatch_nonjs_wbtest.mbt::NTT conversions on 64-bit limbs and on the 32-bit view agree	C
-library/src/internal/bin_kernel/coeff_dispatch_nonjs_wbtest.mbt::NTT overlap-add and the NTT product equal the word Karatsuba product	B
-library/src/internal/bin_kernel/coeff_dispatch_nonjs_wbtest.mbt::bit operations on limbs equal the 32-bit limb loops	B
-library/src/internal/bin_kernel/coeff_dispatch_nonjs_wbtest.mbt::bits, bytes and power-of-two radixes on 64-bit limbs	B
-library/src/internal/bin_kernel/coeff_dispatch_nonjs_wbtest.mbt::sparse products equal the schoolbook product	B
-library/src/internal/bin_kernel/coeff_dispatch_nonjs_wbtest.mbt::unbalanced products through the limb array blocks equal the schoolbook product	B
-library/src/internal/bin_kernel/coeff_div_short_nonjs_wbtest.mbt::short quotient on exact quotients and their neighbours	A
-library/src/internal/bin_kernel/coeff_div_short_nonjs_wbtest.mbt::short quotient rounds like the exact quotient on random operands	A
-library/src/internal/bin_kernel/coeff_division_nonjs_wbtest.mbt::Coeff reciprocal Newton division is exact	A
-library/src/internal/bin_kernel/coeff_division_nonjs_wbtest.mbt::Coeff reciprocal Newton production threshold	A
-library/src/internal/bin_kernel/coeff_division_nonjs_wbtest.mbt::the padded length of Burnikel-Ziegler is j * 2^k with j <= leaf, never more than 2^k - 1 above the divisor	S
-library/src/internal/bin_kernel/coeff_fresh_array_nonjs_wbtest.mbt::mul returns an array that no operand refers to	S
-library/src/internal/bin_kernel/coeff_fresh_array_nonjs_wbtest.mbt::scaled and short quotients return arrays that no operand refers to	S
-library/src/internal/bin_kernel/coeff_fresh_array_nonjs_wbtest.mbt::scaled root returns an array that the radicand does not refer to	S
-library/src/internal/bin_kernel/coeff_fresh_array_nonjs_wbtest.mbt::shifts by zero return the receiver, other shifts a new array	S
-library/src/internal/bin_kernel/coeff_fresh_array_nonjs_wbtest.mbt::short product returns an array that no operand refers to	S
-library/src/internal/bin_kernel/coeff_knuth_reciprocal_nonjs_wbtest.mbt::Algorithm 6 on 8-bit words is exact for every divisor, and reaches its equality cases	A
-library/src/internal/bin_kernel/coeff_knuth_reciprocal_nonjs_wbtest.mbt::the 3 by 2 digit of Algorithm 5 equals the old estimate and the exact quotient at the edges and at random	E
-library/src/internal/bin_kernel/coeff_knuth_reciprocal_nonjs_wbtest.mbt::the 3 by 2 reciprocal handles the carry with p equal to d1 on 64-bit words	A
-library/src/internal/bin_kernel/coeff_knuth_reciprocal_nonjs_wbtest.mbt::the 3 by 2 reciprocal of Algorithm 6 is floor((B^3 - 1) / D) - B at the edges and at random	A
-library/src/internal/bin_kernel/coeff_knuth_words_nonjs_wbtest.mbt::64-bit-digit Knuth division equals the 32-bit one on random and adversarial operands	E
-library/src/internal/bin_kernel/coeff_knuth_words_nonjs_wbtest.mbt::division of large operands inverts multiplication (Burnikel-Ziegler range)	B
-library/src/internal/bin_kernel/coeff_limbs_native_wbtest.mbt::assembly rows equal the portable rows for every offset and length	C
-library/src/internal/bin_kernel/coeff_limbs_native_wbtest.mbt::assembly rows with all-ones operands and a carry rippling the whole row	C
-library/src/internal/bin_kernel/coeff_limbs_native_wbtest.mbt::mul_1, addmul_1 and submul_1 in C equal the portable rows	C
-library/src/internal/bin_kernel/coeff_limbs_native_wbtest.mbt::mul_1, addmul_1 and submul_1 in assembly equal the portable rows (assembly entry)	C
-library/src/internal/bin_kernel/coeff_limbs_native_wbtest.mbt::rows with r and a the same range of one array	C
-library/src/internal/bin_kernel/coeff_limbs_native_wbtest.mbt::rows with r and a the same range of one array (assembly entry)	C
-library/src/internal/bin_kernel/coeff_limbs_native_wbtest.mbt::rows with the maximum carry at every position	C
-library/src/internal/bin_kernel/coeff_limbs_native_wbtest.mbt::rows with the maximum carry at every position (assembly entry)	C
-library/src/internal/bin_kernel/coeff_limbs_native_wbtest.mbt::school and square in C equal the portable products	C
-library/src/internal/bin_kernel/coeff_limbs_native_wbtest.mbt::school and square in assembly equal the portable products (assembly entry)	C
-library/src/internal/bin_kernel/coeff_limbs_native_wbtest.mbt::the assembly tier is active on Apple arm64 unless an override is set	A
-library/src/internal/bin_kernel/coeff_limbs_native_wbtest.mbt::the log names the compiler and the product branch of the stub	none
-library/src/internal/bin_kernel/coeff_limbs_native_wbtest.mbt::the wrappers equal the portable rows on random lengths and offsets	C
-library/src/internal/bin_kernel/coeff_ntt_nonjs_wbtest.mbt::Coeff NTT constants and exact reconstruction	C
-library/src/internal/bin_kernel/coeff_ntt_nonjs_wbtest.mbt::Coeff NTT production crossover is exact	A
-library/src/internal/bin_kernel/coeff_ntt_route_native_wbtest.mbt::Toom-3 and the Karatsuba blocks, called directly, equal the NTT product	B
-library/src/internal/bin_kernel/coeff_ntt_route_native_wbtest.mbt::the default product equals the NTT product on every shape and pattern	C
-library/src/internal/bin_kernel/coeff_ntt_route_native_wbtest.mbt::the default product equals the NTT product: balanced above 4,096, below, with ratio above 2 and at the product limit	C
-library/src/internal/bin_kernel/coeff_radix_nonjs_wbtest.mbt::in-place and divide-and-conquer radix conversion agree on both sides of every cutoff	B
-library/src/internal/bin_kernel/coeff_radix_nonjs_wbtest.mbt::radix conversion of powers of the radix and their neighbours at chunk edges	S
-library/src/internal/bin_kernel/coeff_radix_nonjs_wbtest.mbt::radix parsing rejects a bad digit in any chunk	A
-library/src/internal/bin_kernel/coeff_regression_wbtest.mbt::Coeff regression digests (recorded with the 32-bit-limb implementation)	E
-library/src/internal/bin_kernel/coeff_short_mul_nonjs_wbtest.mbt::short product on products next to rounding boundaries	A
-library/src/internal/bin_kernel/coeff_short_mul_nonjs_wbtest.mbt::short product rounds like the exact product on random operands	A
-library/src/internal/bin_kernel/coeff_sqrt_nonjs_wbtest.mbt::Coeff sqrt divide-and-conquer around the base-case and kernel cutoffs	A
-library/src/internal/bin_kernel/coeff_sqrt_nonjs_wbtest.mbt::Coeff sqrt divide-and-conquer random data	A
-library/src/internal/bin_kernel/coeff_sqrt_words_nonjs_wbtest.mbt::fixed-width restoring square roots return zero for zero at once	A
-library/src/internal/bin_kernel/coeff_sqrt_words_nonjs_wbtest.mbt::word square root of a word	A
-library/src/internal/bin_kernel/coeff_sqrt_words_nonjs_wbtest.mbt::word square roots at every width up to 256 bits	A
-library/src/internal/bin_kernel/coeff_sqrt_words_nonjs_wbtest.mbt::word square roots of random data and long runs of bits	A
-library/src/internal/bin_kernel/coeff_wbtest.mbt::Coeff canonical boundaries and serialization	A
-library/src/internal/bin_kernel/coeff_wbtest.mbt::Coeff checked failures	A
-library/src/internal/bin_kernel/coeff_wbtest.mbt::Coeff divide-and-conquer radix conversion	S
-library/src/internal/bin_kernel/coeff_wbtest.mbt::Coeff division algorithm thresholds	A
-library/src/internal/bin_kernel/coeff_wbtest.mbt::Coeff exhaustive small arithmetic	A
-library/src/internal/bin_kernel/coeff_wbtest.mbt::Coeff gcd of operands with different lengths	A
-library/src/internal/bin_kernel/coeff_wbtest.mbt::Coeff inline Comba multiplication boundaries	A
-library/src/internal/bin_kernel/coeff_wbtest.mbt::Coeff inline binary gcd boundaries	A
-library/src/internal/bin_kernel/coeff_wbtest.mbt::Coeff large arithmetic differential	A
-library/src/internal/bin_kernel/coeff_wbtest.mbt::Coeff multiplication algorithm thresholds	A
-library/src/internal/bin_kernel/coeff_wbtest.mbt::Coeff shifts bits gcd powers and radices	A
-library/src/internal/bin_kernel/coeff_wbtest.mbt::Coeff sqrtrem identity and thresholds	B
-library/src/internal/bin_kernel/coeff_wbtest.mbt::Coeff unbalanced multiplication accumulates exact limbs	A
-library/src/internal/bin_kernel/coeff_wbtest.mbt::add_shifted_left equals shift_left then add	B
-library/src/internal/bin_kernel/coeff_words_mul_nonjs_wbtest.mbt::32-bit-limb Karatsuba (the Wasm route) equals the schoolbook product	B
-library/src/internal/bin_kernel/coeff_words_mul_nonjs_wbtest.mbt::32-bit-limb squaring (the Wasm route) equals the schoolbook square	B
-library/src/internal/bin_kernel/coeff_words_mul_nonjs_wbtest.mbt::Coeff product through the word-range Karatsuba equals BigInt	C
-library/src/internal/bin_kernel/coeff_words_mul_nonjs_wbtest.mbt::Coeff square around the schoolbook, Karatsuba and NTT square cutoffs	B
-library/src/internal/bin_kernel/coeff_words_mul_nonjs_wbtest.mbt::Coeff square at the NTT square cutoff equals the Karatsuba square and product	C
-library/src/internal/bin_kernel/coeff_words_mul_nonjs_wbtest.mbt::scratch-buffer Karatsuba equals the allocating Karatsuba of #326 and the schoolbook	E
-library/src/internal/bin_kernel/coeff_words_mul_nonjs_wbtest.mbt::word slices of 64-bit storage equal the limb-by-limb view	B
-library/src/internal/bin_kernel/coeff_words_mul_nonjs_wbtest.mbt::word-range Karatsuba equals the schoolbook product around and above the cutoff	C
-library/src/internal/bin_kernel/coeff_words_mul_nonjs_wbtest.mbt::word-range Karatsuba square equals the schoolbook square and product	B
-library/src/internal/bin_kernel/coeff_words_nonjs_wbtest.mbt::Coeff 64-bit limbs: carries across word boundaries	B
-library/src/internal/bin_kernel/coeff_words_nonjs_wbtest.mbt::Coeff 64-bit limbs: sizes, words and the 32-bit view agree	B
-library/src/internal/bin_kernel/coeff_words_nonjs_wbtest.mbt::bin_coeff_owned_words clears the limbs above a heap value: the array form never exposes scratch	?
-library/src/internal/bin_kernel/coeff_words_nonjs_wbtest.mbt::bin_words_mul equals Coeff::mul: every route, sparse and dense operands, any lengths	?
-library/src/internal/bin_kernel/coeff_words_nonjs_wbtest.mbt::panic the window row rejects a word shift beyond its contract	A
-library/src/internal/bin_kernel/coeff_words_nonjs_wbtest.mbt::the array forms of the short product, the short and the exact scaled division and the root equal their coefficient forms	?
-library/src/internal/bin_kernel/coeff_words_nonjs_wbtest.mbt::the limb product equals the schoolbook product and the loop of rows it replaces	C
-library/src/internal/bin_kernel/coeff_words_nonjs_wbtest.mbt::the limb product writes every result limb: dirty result, one-limb operands, all-ones	C
-library/src/internal/bin_kernel/coeff_words_nonjs_wbtest.mbt::the portable window row equals the previous loop: every bit shift, word shifts, subtraction with and without borrow, short and empty second operand, lengths 1 to 40, special limbs	E
-library/src/internal/bin_kernel/coeff_words_nonjs_wbtest.mbt::the window row at the limits of its contract: word shifts of magnitude 2^28, both bodies	E
-library/src/internal/bin_kernel/coeff_words_nonjs_wbtest.mbt::the window row of the active tier (C rows, assembly tier or portable) equals the previous loop	E
+library/src/internal/binary_kernel/coeff_basecase_loop_nonjs_wbtest.mbt::high word of a word product equals the previous form and the exact product	E
+library/src/internal/binary_kernel/coeff_basecase_loop_nonjs_wbtest.mbt::schoolbook and word products and squares of edge limbs match BigInt	A
+library/src/internal/binary_kernel/coeff_dispatch_nonjs_wbtest.mbt::NTT conversions on 64-bit limbs and on the 32-bit view agree	C
+library/src/internal/binary_kernel/coeff_dispatch_nonjs_wbtest.mbt::NTT overlap-add and the NTT product equal the word Karatsuba product	B
+library/src/internal/binary_kernel/coeff_dispatch_nonjs_wbtest.mbt::bit operations on limbs equal the 32-bit limb loops	B
+library/src/internal/binary_kernel/coeff_dispatch_nonjs_wbtest.mbt::bits, bytes and power-of-two radixes on 64-bit limbs	B
+library/src/internal/binary_kernel/coeff_dispatch_nonjs_wbtest.mbt::sparse products equal the schoolbook product	B
+library/src/internal/binary_kernel/coeff_dispatch_nonjs_wbtest.mbt::unbalanced products through the limb array blocks equal the schoolbook product	B
+library/src/internal/binary_kernel/coeff_div_short_nonjs_wbtest.mbt::short quotient on exact quotients and their neighbours	A
+library/src/internal/binary_kernel/coeff_div_short_nonjs_wbtest.mbt::short quotient rounds like the exact quotient on random operands	A
+library/src/internal/binary_kernel/coeff_division_nonjs_wbtest.mbt::Coeff reciprocal Newton division is exact	A
+library/src/internal/binary_kernel/coeff_division_nonjs_wbtest.mbt::Coeff reciprocal Newton production threshold	A
+library/src/internal/binary_kernel/coeff_division_nonjs_wbtest.mbt::the padded length of Burnikel-Ziegler is j * 2^k with j <= leaf, never more than 2^k - 1 above the divisor	S
+library/src/internal/binary_kernel/coeff_fresh_array_nonjs_wbtest.mbt::mul returns an array that no operand refers to	S
+library/src/internal/binary_kernel/coeff_fresh_array_nonjs_wbtest.mbt::scaled and short quotients return arrays that no operand refers to	S
+library/src/internal/binary_kernel/coeff_fresh_array_nonjs_wbtest.mbt::scaled root returns an array that the radicand does not refer to	S
+library/src/internal/binary_kernel/coeff_fresh_array_nonjs_wbtest.mbt::shifts by zero return the receiver, other shifts a new array	S
+library/src/internal/binary_kernel/coeff_fresh_array_nonjs_wbtest.mbt::short product returns an array that no operand refers to	S
+library/src/internal/binary_kernel/coeff_knuth_reciprocal_nonjs_wbtest.mbt::Algorithm 6 on 8-bit words is exact for every divisor, and reaches its equality cases	A
+library/src/internal/binary_kernel/coeff_knuth_reciprocal_nonjs_wbtest.mbt::the 3 by 2 digit of Algorithm 5 equals the old estimate and the exact quotient at the edges and at random	E
+library/src/internal/binary_kernel/coeff_knuth_reciprocal_nonjs_wbtest.mbt::the 3 by 2 reciprocal handles the carry with p equal to d1 on 64-bit words	A
+library/src/internal/binary_kernel/coeff_knuth_reciprocal_nonjs_wbtest.mbt::the 3 by 2 reciprocal of Algorithm 6 is floor((B^3 - 1) / D) - B at the edges and at random	A
+library/src/internal/binary_kernel/coeff_knuth_words_nonjs_wbtest.mbt::64-bit-digit Knuth division equals the 32-bit one on random and adversarial operands	E
+library/src/internal/binary_kernel/coeff_knuth_words_nonjs_wbtest.mbt::division of large operands inverts multiplication (Burnikel-Ziegler range)	B
+library/src/internal/binary_kernel/coeff_limbs_native_wbtest.mbt::assembly rows equal the portable rows for every offset and length	C
+library/src/internal/binary_kernel/coeff_limbs_native_wbtest.mbt::assembly rows with all-ones operands and a carry rippling the whole row	C
+library/src/internal/binary_kernel/coeff_limbs_native_wbtest.mbt::mul_1, addmul_1 and submul_1 in C equal the portable rows	C
+library/src/internal/binary_kernel/coeff_limbs_native_wbtest.mbt::mul_1, addmul_1 and submul_1 in assembly equal the portable rows (assembly entry)	C
+library/src/internal/binary_kernel/coeff_limbs_native_wbtest.mbt::rows with r and a the same range of one array	C
+library/src/internal/binary_kernel/coeff_limbs_native_wbtest.mbt::rows with r and a the same range of one array (assembly entry)	C
+library/src/internal/binary_kernel/coeff_limbs_native_wbtest.mbt::rows with the maximum carry at every position	C
+library/src/internal/binary_kernel/coeff_limbs_native_wbtest.mbt::rows with the maximum carry at every position (assembly entry)	C
+library/src/internal/binary_kernel/coeff_limbs_native_wbtest.mbt::school and square in C equal the portable products	C
+library/src/internal/binary_kernel/coeff_limbs_native_wbtest.mbt::school and square in assembly equal the portable products (assembly entry)	C
+library/src/internal/binary_kernel/coeff_limbs_native_wbtest.mbt::the assembly tier is active on Apple arm64 unless an override is set	A
+library/src/internal/binary_kernel/coeff_limbs_native_wbtest.mbt::the log names the compiler and the product branch of the stub	none
+library/src/internal/binary_kernel/coeff_limbs_native_wbtest.mbt::the wrappers equal the portable rows on random lengths and offsets	C
+library/src/internal/binary_kernel/coeff_ntt_nonjs_wbtest.mbt::Coeff NTT constants and exact reconstruction	C
+library/src/internal/binary_kernel/coeff_ntt_nonjs_wbtest.mbt::Coeff NTT production crossover is exact	A
+library/src/internal/binary_kernel/coeff_ntt_route_native_wbtest.mbt::Toom-3 and the Karatsuba blocks, called directly, equal the NTT product	B
+library/src/internal/binary_kernel/coeff_ntt_route_native_wbtest.mbt::the default product equals the NTT product on every shape and pattern	C
+library/src/internal/binary_kernel/coeff_ntt_route_native_wbtest.mbt::the default product equals the NTT product: balanced above 4,096, below, with ratio above 2 and at the product limit	C
+library/src/internal/binary_kernel/coeff_radix_nonjs_wbtest.mbt::in-place and divide-and-conquer radix conversion agree on both sides of every cutoff	B
+library/src/internal/binary_kernel/coeff_radix_nonjs_wbtest.mbt::radix conversion of powers of the radix and their neighbours at chunk edges	S
+library/src/internal/binary_kernel/coeff_radix_nonjs_wbtest.mbt::radix parsing rejects a bad digit in any chunk	A
+library/src/internal/binary_kernel/coeff_regression_wbtest.mbt::Coeff regression digests (recorded with the 32-bit-limb implementation)	E
+library/src/internal/binary_kernel/coeff_short_mul_nonjs_wbtest.mbt::short product on products next to rounding boundaries	A
+library/src/internal/binary_kernel/coeff_short_mul_nonjs_wbtest.mbt::short product rounds like the exact product on random operands	A
+library/src/internal/binary_kernel/coeff_sqrt_nonjs_wbtest.mbt::Coeff sqrt divide-and-conquer around the base-case and kernel cutoffs	A
+library/src/internal/binary_kernel/coeff_sqrt_nonjs_wbtest.mbt::Coeff sqrt divide-and-conquer random data	A
+library/src/internal/binary_kernel/coeff_sqrt_words_nonjs_wbtest.mbt::fixed-width restoring square roots return zero for zero at once	A
+library/src/internal/binary_kernel/coeff_sqrt_words_nonjs_wbtest.mbt::word square root of a word	A
+library/src/internal/binary_kernel/coeff_sqrt_words_nonjs_wbtest.mbt::word square roots at every width up to 256 bits	A
+library/src/internal/binary_kernel/coeff_sqrt_words_nonjs_wbtest.mbt::word square roots of random data and long runs of bits	A
+library/src/internal/binary_kernel/coeff_wbtest.mbt::Coeff canonical boundaries and serialization	A
+library/src/internal/binary_kernel/coeff_wbtest.mbt::Coeff checked failures	A
+library/src/internal/binary_kernel/coeff_wbtest.mbt::Coeff divide-and-conquer radix conversion	S
+library/src/internal/binary_kernel/coeff_wbtest.mbt::Coeff division algorithm thresholds	A
+library/src/internal/binary_kernel/coeff_wbtest.mbt::Coeff exhaustive small arithmetic	A
+library/src/internal/binary_kernel/coeff_wbtest.mbt::Coeff gcd of operands with different lengths	A
+library/src/internal/binary_kernel/coeff_wbtest.mbt::Coeff inline Comba multiplication boundaries	A
+library/src/internal/binary_kernel/coeff_wbtest.mbt::Coeff inline binary gcd boundaries	A
+library/src/internal/binary_kernel/coeff_wbtest.mbt::Coeff large arithmetic differential	A
+library/src/internal/binary_kernel/coeff_wbtest.mbt::Coeff multiplication algorithm thresholds	A
+library/src/internal/binary_kernel/coeff_wbtest.mbt::Coeff shifts bits gcd powers and radices	A
+library/src/internal/binary_kernel/coeff_wbtest.mbt::Coeff sqrtrem identity and thresholds	B
+library/src/internal/binary_kernel/coeff_wbtest.mbt::Coeff unbalanced multiplication accumulates exact limbs	A
+library/src/internal/binary_kernel/coeff_wbtest.mbt::add_shifted_left equals shift_left then add	B
+library/src/internal/binary_kernel/coeff_words_mul_nonjs_wbtest.mbt::32-bit-limb Karatsuba (the Wasm route) equals the schoolbook product	B
+library/src/internal/binary_kernel/coeff_words_mul_nonjs_wbtest.mbt::32-bit-limb squaring (the Wasm route) equals the schoolbook square	B
+library/src/internal/binary_kernel/coeff_words_mul_nonjs_wbtest.mbt::Coeff product through the word-range Karatsuba equals BigInt	C
+library/src/internal/binary_kernel/coeff_words_mul_nonjs_wbtest.mbt::Coeff square around the schoolbook, Karatsuba and NTT square cutoffs	B
+library/src/internal/binary_kernel/coeff_words_mul_nonjs_wbtest.mbt::Coeff square at the NTT square cutoff equals the Karatsuba square and product	C
+library/src/internal/binary_kernel/coeff_words_mul_nonjs_wbtest.mbt::scratch-buffer Karatsuba equals the allocating Karatsuba of #326 and the schoolbook	E
+library/src/internal/binary_kernel/coeff_words_mul_nonjs_wbtest.mbt::word slices of 64-bit storage equal the limb-by-limb view	B
+library/src/internal/binary_kernel/coeff_words_mul_nonjs_wbtest.mbt::word-range Karatsuba equals the schoolbook product around and above the cutoff	C
+library/src/internal/binary_kernel/coeff_words_mul_nonjs_wbtest.mbt::word-range Karatsuba square equals the schoolbook square and product	B
+library/src/internal/binary_kernel/coeff_words_nonjs_wbtest.mbt::Coeff 64-bit limbs: carries across word boundaries	B
+library/src/internal/binary_kernel/coeff_words_nonjs_wbtest.mbt::Coeff 64-bit limbs: sizes, words and the 32-bit view agree	B
+library/src/internal/binary_kernel/coeff_words_nonjs_wbtest.mbt::bin_coeff_owned_words clears the limbs above a heap value: the array form never exposes scratch	?
+library/src/internal/binary_kernel/coeff_words_nonjs_wbtest.mbt::bin_words_mul equals Coeff::mul: every route, sparse and dense operands, any lengths	?
+library/src/internal/binary_kernel/coeff_words_nonjs_wbtest.mbt::panic the window row rejects a word shift beyond its contract	A
+library/src/internal/binary_kernel/coeff_words_nonjs_wbtest.mbt::the array forms of the short product, the short and the exact scaled division and the root equal their coefficient forms	?
+library/src/internal/binary_kernel/coeff_words_nonjs_wbtest.mbt::the limb product equals the schoolbook product and the loop of rows it replaces	C
+library/src/internal/binary_kernel/coeff_words_nonjs_wbtest.mbt::the limb product writes every result limb: dirty result, one-limb operands, all-ones	C
+library/src/internal/binary_kernel/coeff_words_nonjs_wbtest.mbt::the portable window row equals the previous loop: every bit shift, word shifts, subtraction with and without borrow, short and empty second operand, lengths 1 to 40, special limbs	E
+library/src/internal/binary_kernel/coeff_words_nonjs_wbtest.mbt::the window row at the limits of its contract: word shifts of magnitude 2^28, both bodies	E
+library/src/internal/binary_kernel/coeff_words_nonjs_wbtest.mbt::the window row of the active tier (C rows, assembly tier or portable) equals the previous loop	E
 library/src/internal/certified_wbtest.mbt::certified dyadic division encloses positive and negative ratios	?
 library/src/internal/certified_wbtest.mbt::certified interval rejects reversed bounds	?
 library/src/internal/certified_wbtest.mbt::certified refinement budget grows and retains failure details	?

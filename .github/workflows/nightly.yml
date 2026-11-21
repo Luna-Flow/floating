@@ -14,7 +14,7 @@ concurrency:
 
 env:
   # The tier the default state of the arm64 job must report from the row primitives of
-  # `internal/bin_kernel`: the assembly tier (`asm`) is in, so the default state of an
+  # `internal/binary_kernel`: the assembly tier (`asm`) is in, so the default state of an
   # Apple arm64 runner reports `asm`. A build that falls back to the C rows reports `c` and
   # fails this check.
   EXPECTED_DEFAULT_TIER: asm
@@ -143,10 +143,10 @@ jobs:
       - name: test ${{ matrix.target }}
         run: sh tools/run_moon_clean_exec.sh test --target ${{ matrix.target }} --deny-warn --frozen --jobs 4
 
-  # The native row primitives of `internal/bin_kernel` have per-architecture code (Apple
+  # The native row primitives of `internal/binary_kernel` have per-architecture code (Apple
   # arm64 inline assembly in `luna_limbs.c` once it is in). The Linux runner of the other
   # jobs is gcc on x86-64 (`cc_id=2 arch_id=1`), so nothing there executes it: this job
-  # runs the tests of `internal/bin_kernel` and `binary` on an arm64 macOS runner in
+  # runs the tests of `internal/binary_kernel` and `binary` on an arm64 macOS runner in
   # the three states of the primitives, and `tools/check_limbs_tier.py` fails when the
   # runner is not arm64 or when a state reports another tier than it should (the expected
   # tier of the default state is `EXPECTED_DEFAULT_TIER` at the top of this file).
@@ -187,7 +187,7 @@ jobs:
       - name: fetch dependencies
         run: sh tools/run_moon_clean_exec.sh check --target native --deny-warn
 
-      - name: test internal/bin_kernel and binary (${{ matrix.state }})
+      - name: test internal/binary_kernel and binary (${{ matrix.state }})
         run: |
           set -o pipefail
           case "${{ matrix.state }}" in
@@ -196,7 +196,7 @@ jobs:
             default) ;;
           esac
           sh tools/run_moon_clean_exec.sh test --target native --deny-warn --frozen --no-parallelize \
-            -p Luna-Flow/floating/internal/bin_kernel -p Luna-Flow/floating/binary 2>&1 | tee tier.log
+            -p Luna-Flow/floating/internal/binary_kernel -p Luna-Flow/floating/binary 2>&1 | tee tier.log
 
       - name: tier of the row primitives
         run: python3 tools/check_limbs_tier.py --log tier.log --state ${{ matrix.state }} --expected "$EXPECTED_DEFAULT_TIER"

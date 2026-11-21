@@ -1,4 +1,4 @@
-# `internal/bin_kernel`
+# `internal/binary_kernel`
 
 Exact integer arithmetic on the coefficients of `Binary`: one non-negative integer type, `Coeff`, with its multiplication, division, square root, GCD and radix-conversion algorithms and their per-target thresholds.
 
@@ -15,5 +15,5 @@ just bin-kernel-ci
 ## Detailed Documentation
 
 The synchronized English, Simplified Chinese, and Japanese references live under
-`doc/*/internal/bin_kernel`. Read `api.md` for the generated surface, `tutorial.md` for the
+`doc/*/internal/binary_kernel`. Read `api.md` for the generated surface, `tutorial.md` for the
 shortest workflow, and `design.md` for invariants and trade-offs.

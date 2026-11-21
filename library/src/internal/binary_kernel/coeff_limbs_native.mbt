@@ -162,7 +162,7 @@ fn bin_limbs_check_range(
   len : Int32,
 ) -> Unit {
   if offset < 0 || len < 0 || offset > array.length() - len {
-    abort("bin_kernel limb row out of range")
+    abort("binary_kernel limb row out of range")
   }
 }
 
@@ -179,7 +179,7 @@ fn bin_limbs_check_disjoint(
   if physical_equal(first, second) &&
     first_offset < second_offset + second_len &&
     second_offset < first_offset + first_len {
-    abort("bin_kernel limb row ranges overlap")
+    abort("binary_kernel limb row ranges overlap")
   }
 }
 
@@ -302,7 +302,7 @@ pub fn bin_limbs_product(
   bn : Int32,
 ) -> Unit {
   if an < 1 || bn < 1 {
-    abort("bin_kernel limb product needs both lengths at least 1")
+    abort("binary_kernel limb product needs both lengths at least 1")
   }
   if bin_limbs_mode != 0 {
     bin_limbs_check_range(r, ro, an + bn)

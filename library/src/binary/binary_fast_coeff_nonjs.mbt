@@ -15,7 +15,7 @@
 /// results are bit for bit those of the general path.
 
 ///|
-using @bin_kernel {
+using @binary_kernel {
   bin_coeff_sqrt_rem_scaled,
   bin_words_sqrt_scaled_rounded,
   bin_coeff_div_scaled_ok,

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check the log of the native tests of `internal/bin_kernel` for the tier of the row primitives.
+"""Check the log of the native tests of `internal/binary_kernel` for the tier of the row primitives.
 
 The nightly job on an arm64 macOS runner runs the tests in three states
 (`LUNA_FLOATING_PORTABLE=1`, `LUNA_FLOATING_LIMBS=c`, default) and passes each

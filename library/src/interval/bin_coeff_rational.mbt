@@ -34,14 +34,14 @@ fn coeff_gcd(
   }
   if right.to_kernel().ctz() == right.bit_length() - 1 {
     return @binary.BinCoeff::from_kernel(
-      @bin_kernel.Coeff::one().shift_left(
+      @binary_kernel.Coeff::one().shift_left(
         Int32::min(left.to_kernel().ctz(), right.to_kernel().ctz()),
       ),
     )
   }
   if left.to_kernel().ctz() == left.bit_length() - 1 {
     return @binary.BinCoeff::from_kernel(
-      @bin_kernel.Coeff::one().shift_left(
+      @binary_kernel.Coeff::one().shift_left(
         Int32::min(left.to_kernel().ctz(), right.to_kernel().ctz()),
       ),
     )
@@ -99,7 +99,9 @@ fn coeff_test_bit(value : @binary.BinCoeff, index : Int32) -> Bool {
 
 ///|
 fn coeff_increment(value : @binary.BinCoeff) -> @binary.BinCoeff {
-  @binary.BinCoeff::from_kernel(value.to_kernel().add(@bin_kernel.Coeff::one()))
+  @binary.BinCoeff::from_kernel(
+    value.to_kernel().add(@binary_kernel.Coeff::one()),
+  )
 }
 
 ///|
@@ -132,7 +134,7 @@ fn coeff_mod_int(value : @binary.BinCoeff, divisor : Int32) -> Int32 {
   guard divisor > 0 else { abort("coefficient modulus must be positive") }
   value
   .to_kernel()
-  .div_rem_checked(@bin_kernel.Coeff::from_uint64(divisor.to_uint64()))
+  .div_rem_checked(@binary_kernel.Coeff::from_uint64(divisor.to_uint64()))
   .unwrap().1
   .to_uint64()
   .unwrap()

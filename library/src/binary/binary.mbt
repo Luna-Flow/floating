@@ -1,9 +1,9 @@
 ///|
-/// A binary floating-point datum. The representation (`@bin_kernel.BinRepr`) is
+/// A binary floating-point datum. The representation (`@binary_kernel.BinRepr`) is
 /// internal and read only through the accessors of `bin_repr_nonjs.mbt` and
 /// `bin_repr_js.mbt`; the newtype costs nothing: a value is one heap object.
 #derive(Debug)
-pub struct Binary(@bin_kernel.BinRepr)
+pub struct Binary(@binary_kernel.BinRepr)
 
 ///|
 fn finite_zero(negative : Bool, precision : Int32) -> Binary {

@@ -5,7 +5,7 @@ The IEEE 754 package `decimal` and the GDA package `decimal_gda` must stay
 independent of each other (doc/manual/design/decimal_gda.md, section "A GDA
 package independent of `decimal`"), and the status-free coefficient kernel
 `internal/decimal_kernel` that both build on must not know either of them;
-the binary coefficient kernel `internal/bin_kernel` imports nothing of this module.
+the binary coefficient kernel `internal/binary_kernel` imports nothing of this module.
 The library module (`library/moon.mod`) may depend on `Luna-Flow/arithmetic` and
 `Luna-Flow/luna-generic` only, and none of its packages may import the tools
 module `Luna-Flow/floating-tools` (`tooling/`): benchmarks, command-line
@@ -47,7 +47,7 @@ ALLOWED_MODULE_IMPORTS: dict[str, tuple[str, ...]] = {
     # `internal` holds BigInt helpers that the white-box tests use as oracles.
     "internal/decimal_kernel": (f"{MODULE}/internal",),
     # the binary coefficient kernel imports no package of this module at all.
-    "internal/bin_kernel": (),
+    "internal/binary_kernel": (),
 }
 
 # The only external modules the library module may import (names without version).
@@ -100,12 +100,12 @@ def violations(src: Path) -> list[str]:
 # took or returned the kernel type would be callable from outside the module (an
 # internal type can be passed around, not used), so the rest of every public `.mbti`
 # must not mention an internal package (#22).
-INTERNAL_TYPE_LINE = re.compile(r"@(?:bin_kernel|decimal_kernel|internal)\b")
+INTERNAL_TYPE_LINE = re.compile(r"@(?:binary_kernel|decimal_kernel|internal)\b")
 ALLOWED_INTERNAL_TYPE_LINES = {
     "binary": (
-        "pub fn BinCoeff::from_kernel(@bin_kernel.Coeff) -> Self",
-        "pub fn BinCoeff::to_kernel(Self) -> @bin_kernel.Coeff",
-        "pub struct Binary(@bin_kernel.BinRepr)",
+        "pub fn BinCoeff::from_kernel(@binary_kernel.Coeff) -> Self",
+        "pub fn BinCoeff::to_kernel(Self) -> @binary_kernel.Coeff",
+        "pub struct Binary(@binary_kernel.BinRepr)",
     ),
 }
 

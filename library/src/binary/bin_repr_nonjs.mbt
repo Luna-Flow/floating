@@ -1,6 +1,6 @@
 ///|
 /// The representation of `Binary` on the native, wasm and llvm targets: the
-/// constructors and the accessors. Nothing else matches on `@bin_kernel.BinRepr`
+/// constructors and the accessors. Nothing else matches on `@binary_kernel.BinRepr`
 /// except the `_nonjs` fast paths, which read words through `is_word`,
 /// `word_`, `is_pair`, `pair_high` and `pair_low` (scalars, no option and no
 /// tuple: either would allocate).
@@ -14,7 +14,7 @@
 #inline
 fn bin_repr_zero(negative : Bool, precision : Int32) -> Binary {
   Binary(
-    @bin_kernel.BinRepr::Fin64(negative~, word=0UL, exponent2=0, precision~),
+    @binary_kernel.BinRepr::Fin64(negative~, word=0UL, exponent2=0, precision~),
   )
 }
 
@@ -30,12 +30,12 @@ fn bin_repr_finite(
   match coefficient.0 {
     Inline64(word) =>
       Binary(
-        @bin_kernel.BinRepr::Fin64(negative~, word~, exponent2~, precision~),
+        @binary_kernel.BinRepr::Fin64(negative~, word~, exponent2~, precision~),
       )
     Inline128(high, low) =>
       if high == 0UL {
         Binary(
-          @bin_kernel.BinRepr::Fin64(
+          @binary_kernel.BinRepr::Fin64(
             negative~,
             word=low,
             exponent2~,
@@ -44,7 +44,7 @@ fn bin_repr_finite(
         )
       } else {
         Binary(
-          @bin_kernel.BinRepr::Fin128(
+          @binary_kernel.BinRepr::Fin128(
             negative~,
             high~,
             low~,
@@ -55,7 +55,7 @@ fn bin_repr_finite(
       }
     Heap(_, _) =>
       Binary(
-        @bin_kernel.BinRepr::FinBig(
+        @binary_kernel.BinRepr::FinBig(
           negative~,
           coefficient~,
           exponent2~,
@@ -74,7 +74,9 @@ fn bin_repr_word(
   exponent2 : Int32,
   precision : Int32,
 ) -> Binary {
-  Binary(@bin_kernel.BinRepr::Fin64(negative~, word~, exponent2~, precision~))
+  Binary(
+    @binary_kernel.BinRepr::Fin64(negative~, word~, exponent2~, precision~),
+  )
 }
 
 ///|
@@ -89,11 +91,11 @@ fn bin_repr_pair(
 ) -> Binary {
   if high == 0UL {
     Binary(
-      @bin_kernel.BinRepr::Fin64(negative~, word=low, exponent2~, precision~),
+      @binary_kernel.BinRepr::Fin64(negative~, word=low, exponent2~, precision~),
     )
   } else {
     Binary(
-      @bin_kernel.BinRepr::Fin128(
+      @binary_kernel.BinRepr::Fin128(
         negative~,
         high~,
         low~,
@@ -107,7 +109,7 @@ fn bin_repr_pair(
 ///|
 #inline
 fn bin_repr_inf(negative : Bool, precision : Int32) -> Binary {
-  Binary(@bin_kernel.BinRepr::Inf(negative~, precision~))
+  Binary(@binary_kernel.BinRepr::Inf(negative~, precision~))
 }
 
 ///|
@@ -118,7 +120,9 @@ fn bin_repr_nan(
   payload : Coeff,
   precision : Int32,
 ) -> Binary {
-  Binary(@bin_kernel.BinRepr::NaN(negative~, signaling~, payload~, precision~))
+  Binary(
+    @binary_kernel.BinRepr::NaN(negative~, signaling~, payload~, precision~),
+  )
 }
 
 ///|
@@ -253,11 +257,11 @@ fn Binary::with_exponent2_(self : Binary, exponent2 : Int32) -> Binary {
   match self.0 {
     Fin64(negative~, word~, precision~, ..) =>
       Binary(
-        @bin_kernel.BinRepr::Fin64(negative~, word~, exponent2~, precision~),
+        @binary_kernel.BinRepr::Fin64(negative~, word~, exponent2~, precision~),
       )
     Fin128(negative~, high~, low~, precision~, ..) =>
       Binary(
-        @bin_kernel.BinRepr::Fin128(
+        @binary_kernel.BinRepr::Fin128(
           negative~,
           high~,
           low~,
@@ -267,7 +271,7 @@ fn Binary::with_exponent2_(self : Binary, exponent2 : Int32) -> Binary {
       )
     FinBig(negative~, coefficient~, precision~, ..) =>
       Binary(
-        @bin_kernel.BinRepr::FinBig(
+        @binary_kernel.BinRepr::FinBig(
           negative~,
           coefficient~,
           exponent2~,
@@ -285,11 +289,11 @@ fn Binary::with_negative(self : Binary, negative : Bool) -> Binary {
   match self.0 {
     Fin64(word~, exponent2~, precision~, ..) =>
       Binary(
-        @bin_kernel.BinRepr::Fin64(negative~, word~, exponent2~, precision~),
+        @binary_kernel.BinRepr::Fin64(negative~, word~, exponent2~, precision~),
       )
     Fin128(high~, low~, exponent2~, precision~, ..) =>
       Binary(
-        @bin_kernel.BinRepr::Fin128(
+        @binary_kernel.BinRepr::Fin128(
           negative~,
           high~,
           low~,
@@ -299,7 +303,7 @@ fn Binary::with_negative(self : Binary, negative : Bool) -> Binary {
       )
     FinBig(coefficient~, exponent2~, precision~, ..) =>
       Binary(
-        @bin_kernel.BinRepr::FinBig(
+        @binary_kernel.BinRepr::FinBig(
           negative~,
           coefficient~,
           exponent2~,

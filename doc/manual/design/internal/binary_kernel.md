@@ -1,4 +1,4 @@
-# internal/bin_kernel design
+# internal/binary_kernel design
 
 ## Design goal
 
@@ -34,8 +34,8 @@ choice of algorithm cannot change a rounded result, a flag or an encoding.
 
 | Decision | Choice | Reason |
 | --- | --- | --- |
-| Where the type lives | `Coeff` is defined here; `BinCoeff` in `binary` is a newtype `struct BinCoeff(@bin_kernel.Coeff)` | A re-export of an internal type (`pub using`) does not give another module (the tools module) the methods of the type; a newtype does, and it is erased. |
-| Unwrapping | `struct BinCoeff(@bin_kernel.Coeff)` (abstract, printed as `type BinCoeff` in the interface); `BinCoeff` has no arithmetic | The other library packages (`interval`) do arithmetic on coefficients: `value.to_kernel()` gives them the kernel type and `BinCoeff::from_kernel(c)` wraps a result. Neither the constructor nor the field is visible outside `binary`, so no other package builds or reads a `BinCoeff` by hand, and both bridge functions are marked in the API page as internal (`#internal` has no effect on the generated interface or on the documentation tool). Outside the module the inner type is inert: a method call, `==` and a qualified call on it are compile errors, and the import is refused by the solver, so the field exposes no operation and no compatibility promise. |
+| Where the type lives | `Coeff` is defined here; `BinCoeff` in `binary` is a newtype `struct BinCoeff(@binary_kernel.Coeff)` | A re-export of an internal type (`pub using`) does not give another module (the tools module) the methods of the type; a newtype does, and it is erased. |
+| Unwrapping | `struct BinCoeff(@binary_kernel.Coeff)` (abstract, printed as `type BinCoeff` in the interface); `BinCoeff` has no arithmetic | The other library packages (`interval`) do arithmetic on coefficients: `value.to_kernel()` gives them the kernel type and `BinCoeff::from_kernel(c)` wraps a result. Neither the constructor nor the field is visible outside `binary`, so no other package builds or reads a `BinCoeff` by hand, and both bridge functions are marked in the API page as internal (`#internal` has no effect on the generated interface or on the documentation tool). Outside the module the inner type is inert: a method call, `==` and a qualified call on it are compile errors, and the import is refused by the solver, so the field exposes no operation and no compatibility promise. |
 | Why not a record wrapper | A newtype, never `struct BinCoeff { kernel : Coeff }` | A record wrapper allocates a second object per value: +49% retired instructions on a small `add` in the throwaway measurement. A newtype and a call across the package boundary cost nothing measurable. |
 | Representation | `Coeff` is a newtype over a three-case enum (`Inline64`, `Inline128`, `Heap`); `Binary` stores it directly | One allocation per coefficient instead of two (10 to 15% fewer instructions per `Binary` operation at 53 to 512 bits, [#427](https://github.com/Luna-Flow/floating/pull/427)). |
 | JavaScript | `Coeff` is a host `bigint` (`coeff_js.mbt`); no kernel algorithms | The host's arbitrary-precision integers are the kernel there. |

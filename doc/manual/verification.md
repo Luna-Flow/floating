@@ -43,7 +43,7 @@ Translation catalogs are checked separately by `lunadoc check`, which the
   and `wasm-gc` (the pull-request gate tests native and only type-checks these;
   `QUICK_TEST_TARGETS` in `tools/run_ci.py` is the one line that adds a target to
   it),
-  and, on an arm64 macOS runner, the tests of `internal/bin_kernel` and
+  and, on an arm64 macOS runner, the tests of `internal/binary_kernel` and
   `binary` on native with the row primitives portable
   (`LUNA_FLOATING_PORTABLE=1`), forced to the C tier (`LUNA_FLOATING_LIMBS=c`) and
   in the default state; `tools/check_limbs_tier.py` fails the job when the runner
@@ -619,7 +619,7 @@ TestFloat task reaches.
 
 The seven kernel stages of the binary gate (the product routes and the oracles under three states of
 the limb tier, and the oracle tables) took about 220 s and always ran in full. The package under test,
-`library/src/internal/bin_kernel`, is a leaf of the module: it imports only `moonbitlang/core/...`,
+`library/src/internal/binary_kernel`, is a leaf of the module: it imports only `moonbitlang/core/...`,
 so nothing else of the repository is compiled into its test executable. Each stage under each state
 is therefore a unit of its own, keyed by the content of the package's files (sources, tests, row
 tables, the native stub, `moon.pkg`) and of the module files, the command line (which holds the

@@ -153,7 +153,7 @@ fn bin_limbs_window_check(
     y_bit_shift > 63 ||
     physical_equal(words, x) ||
     physical_equal(words, y) {
-    abort("bin_kernel window row contract violated")
+    abort("binary_kernel window row contract violated")
   }
 }
 

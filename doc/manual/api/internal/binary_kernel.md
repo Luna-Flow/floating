@@ -1,8 +1,8 @@
-# internal/bin_kernel API
+# internal/binary_kernel API
 
 ## Purpose
 
-`internal/bin_kernel` holds the integer arithmetic on the coefficients of
+`internal/binary_kernel` holds the integer arithmetic on the coefficients of
 `Binary`: a non-negative arbitrary-precision integer `Coeff`, its comparison,
 addition, subtraction, shifts and bit operations, the multiplication
 algorithms (schoolbook, Karatsuba, Toom-3 and the two-prime NTT), division
@@ -11,14 +11,14 @@ and the conversions to and from bytes and text in any radix, with the per-target
 thresholds that choose between the algorithms. Every function is an exact
 function of its arguments. The package raises no condition and has no notion of
 a rounding mode, a context or a flag; those belong to `binary`.
-`internal/bin_kernel` also declares the internal enum `BinRepr`, the representation of `Binary` (one file per target: `repr_nonjs.mbt` and `repr_js.mbt`); see the design page of `binary`, section "Representation of a value".
+`internal/binary_kernel` also declares the internal enum `BinRepr`, the representation of `Binary` (one file per target: `repr_nonjs.mbt` and `repr_js.mbt`); see the design page of `binary`, section "Representation of a value".
 It is an internal package: code outside `Luna-Flow/floating` cannot import it.
 The public coefficient type `BinCoeff` of `binary` is a newtype over `Coeff`
 whose methods (construction, conversion, comparison and queries) forward to
 this package; the arithmetic exists only here. The name `Coeff` appears in the
 interface of `BinCoeff`, but a user outside the module cannot import this
-package and so cannot call or compare anything on it. See the [tutorial](../../tutorial/internal/bin_kernel.md) and the
-[design page](../../design/internal/bin_kernel.md).
+package and so cannot call or compare anything on it. See the [tutorial](../../tutorial/internal/binary_kernel.md) and the
+[design page](../../design/internal/binary_kernel.md).
 
 ## Importing
 
@@ -26,7 +26,7 @@ Inside the module, add the package to `moon.pkg`:
 
 ```moonbit nocheck
 import {
-  "Luna-Flow/floating/internal/bin_kernel" @bin_kernel,
+  "Luna-Flow/floating/internal/binary_kernel" @binary_kernel,
 }
 ```
 
@@ -35,7 +35,7 @@ its own:
 
 ```moonbit nocheck
 ///|
-using @bin_kernel { type Coeff, bin_coeff_word }
+using @binary_kernel { type Coeff, bin_coeff_word }
 ```
 
 The manual's example checker has no alias for internal subpackages, so the
@@ -85,7 +85,7 @@ This snapshot is the generated `pkg.generated.mbti` of the package. It is the au
 <!-- generated-api-start -->
 ```mbti
 // Generated using `moon info`, DON'T EDIT IT
-package "Luna-Flow/floating/internal/bin_kernel"
+package "Luna-Flow/floating/internal/binary_kernel"
 
 import {
   "moonbitlang/core/debug",

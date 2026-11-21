@@ -1,5 +1,5 @@
 ///|
-using @bin_kernel {
+using @binary_kernel {
   bin_coeff_from_words,
   bin_coeff_inline,
   bin_coeff_word,
