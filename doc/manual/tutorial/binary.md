@@ -226,9 +226,10 @@ binary64 value of `0.1` exactly.
 ### Call elementary functions
 
 Each elementary function has a plain form, a `*_ctx` form and a `try_*_ctx`
-form. All three return the correctly rounded result. They differ only in how
-a domain error or an exhausted refinement budget is reported: the plain and
-`*_ctx` forms return a quiet NaN with `invalid_operation`, while `try_*_ctx`
+form. All three return the correctly rounded result, and all three return a
+quiet NaN with `invalid_operation` for a domain error (in `Ok` for `try_*_ctx`).
+They differ only in how an exhausted refinement budget is reported: the plain and
+`*_ctx` forms return a quiet NaN with `not_computed`, while `try_*_ctx`
 returns an `@lf_arith.ArithmeticError` that says what went wrong. The budget is
 twelve refinement steps by default; `context.with_refinement_limit(Some(n))`
 changes the count and `with_refinement_limit(None)` removes it (the working
@@ -287,8 +288,9 @@ test "an enclosure of the square root of two" {
 }
 ```
 
-`interval` packages this idea as midpoint–radius arithmetic; see the
-[interval tutorial](interval.md).
+`interval` computes with inf-sup intervals (a lower bound and an upper bound);
+the midpoint–radius form is a view of them (`from_midpoint_radius`, `midpoint`,
+`radius`); see the [interval tutorial](interval.md).
 
 ### Use fused and exact IEEE operations
 
@@ -394,10 +396,10 @@ precision for an algorithm instead of widening and narrowing repeatedly. The
 
 ## Common pitfalls
 
-- **`==` compares representations.** `Binary` derives `Eq`, so `1` at 53
-  bits is not `==` to `1` at 24 bits, $-0 \ne +0$, and a NaN equals an
-  identical NaN. Use `compare(x, y) == 0` for numerical equality, or
-  `compare_quiet_equal` for the IEEE predicate.
+- **`==` is the numerical comparison of `compare`.** `1` at 53 bits is `==`
+  to `1` at 24 bits, $-0 = +0$, and every NaN equals every NaN. It is not IEEE
+  equality: use `compare_quiet_equal` for the IEEE predicate, and `identical`
+  for the structural question (sign of zero, precision, kind of NaN).
 - **`compare` puts NaN last.** It never aborts: every NaN compares equal to
   every NaN and greater than every number, so `nan > x` is true. Use
   `compare_checked`, `compare_quiet` or `compare_quiet_less` when NaN must be
