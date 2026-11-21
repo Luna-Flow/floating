@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import patch
 
 import ci_schedule
+import native_units
 import run_ci
 
 
@@ -103,8 +104,19 @@ class RunCiTests(unittest.TestCase):
             ]
             self.assertEqual(native_checks, ["DEPENDENCIES: fetch"], scope)
             test = next(stage for stage in stages if stage.name == "TEST: native")
-            self.assertIn("--frozen", test.command)
-            self.assertIn("--deny-warn", test.command)
+            if scope == "quick":
+                # the quick gate runs the native tests as units of tools/native_units.py, which
+                # builds the same moon command (the flags are checked there)
+                self.assertIn("tools/native_units.py", test.command)
+                self.assertEqual(native_units.NATIVE_ARGUMENTS, ("--target", "native", "--deny-warn", "--frozen"))
+            else:
+                self.assertIn("--frozen", test.command)
+                self.assertIn("--deny-warn", test.command)
+
+    def test_no_reuse_passes_through_to_the_native_units(self) -> None:
+        stages = run_ci.stages_for("quick", 4, reuse=False)
+        test = next(stage for stage in stages if stage.name == "TEST: native")
+        self.assertIn("--no-reuse", test.command)
 
     def test_quick_scope_runs_native_tools_and_four_smokes(self) -> None:
         stages = run_ci.stages_for("quick", 4)
@@ -143,8 +155,8 @@ class RunCiTests(unittest.TestCase):
         self.assertIn("--quality-only", by_name["DOCS: manual quality"])
         self.assertIn("--examples-only", by_name["DOCS: manual examples"])
         self.assertIn("--skip-package-tests", by_name["DOCS: manual examples"])
-        self.assertIn("native", by_name["TEST: native"])
-        self.assertIn("--deny-warn", by_name["TEST: native"])
+        self.assertIn("tools/native_units.py", by_name["TEST: native"])
+        self.assertNotIn("--no-reuse", by_name["TEST: native"])
         self.assertEqual(by_name["TEST: Python tooling"][1], "tools/run_python_tests.py")
         self.assertEqual(by_name["SMOKE: DecimalGDA"][-1], "decimal_gda")
         self.assertEqual(by_name["SMOKE: Binary"][-1], "binary")
@@ -311,7 +323,7 @@ class RunCiTests(unittest.TestCase):
     def test_elementary_scope_is_accepted_by_cli(self) -> None:
         with patch.object(run_ci, "run", return_value=0) as run:
             self.assertEqual(run_ci.main(["elementary", "2"]), 0)
-        run.assert_called_once_with("elementary", 2, False)
+        run.assert_called_once_with("elementary", 2, False, True)
 
 
 if __name__ == "__main__":
