@@ -356,6 +356,22 @@ fn decimal_extreme_tiny_conversion_result(
   let shift = tiny.to_int64() - exponent10
   guard shift > (original_digits + 2).to_int64() else { return None }
   let precision = finite_precision_for_default(ctx)
+  if !ctx.extended {
+    // the subset has no subnormal number: a literal this far below the range
+    // underflows to the zero of the subset, whatever the rounding mode
+    return Some(
+      (
+        finite_with_exponent_repr(false, dec_coeff_zero(), 0, precision),
+        {
+          ..DecimalFlags::new(),
+          rounded: true,
+          inexact: true,
+          subnormal: true,
+          underflow: true,
+        },
+      ),
+    )
+  }
   let rounded_magnitude = huge_shift_rounded_unit_repr(
     dec_coeff_from_int(1),
     negative,
@@ -491,7 +507,9 @@ fn parse_decimal_string_ctx(
             decimal_extreme_tiny_conversion_result(
               negative, original_digits, exponent10, ctx,
             ) {
-            Some(result) => return result
+            Some(result) =>
+              // the subset rules of a zero (sign and exponent 0, no Clamped)
+              return finish_context_result(result.0, result.1, ctx, false)
             None => ()
           }
           let magnitude = match
@@ -502,10 +520,17 @@ fn parse_decimal_string_ctx(
           let (value, flags) = normalize_decimal_parts_ctx_wide_repr(
             negative, magnitude, exponent10, ctx,
           )
-          if ctx.precision > 0 &&
+          // the subset rules of a zero (sign and exponent 0, no Clamped) apply
+          // to a literal that underflowed to zero, wherever the exponent was
+          let (value, flags) = if ctx.precision > 0 &&
             !magnitude.is_zero() &&
             original_digits > finite_precision_for_coeff(magnitude, ctx) {
             (value, { ..flags, rounded: true, })
+          } else {
+            (value, flags)
+          }
+          if !ctx.extended && value.class == FpClass::Finite && value.is_zero() {
+            finish_context_result(value, flags, ctx, false)
           } else {
             (value, flags)
           }
