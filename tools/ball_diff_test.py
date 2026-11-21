@@ -164,10 +164,82 @@ class IntegerOracleTests(unittest.TestCase):
         # fma [1, 1] * [2, 2] + [-3, -3] = -1
         self.assertEqual(bd.py_oracle(row("fma", 8, (v(1, 0), v(1, 0)), (v(2, 0), v(2, 0)), (v(3, 0, True), v(3, 0, True)))), ("-0b1p0", "-0b1p0"))
 
-    def test_an_exponent_gap_is_skipped(self) -> None:
-        row = bd.Row("t", "add", 8, "R", ((bd.value(1, 0), bd.value(1, 0)), (bd.value(1, -bd.MAX_GAP - 50), bd.value(1, -bd.MAX_GAP - 50))))
+    def test_the_elementary_functions_have_no_integer_oracle(self) -> None:
+        row = bd.Row("t", "exp", 8, "R", ((bd.value(1, 0), bd.value(1, 0)),))
         with self.assertRaises(bd.Skipped):
             bd.py_oracle(row)
+
+
+class FarAddendTests(unittest.TestCase):
+    """Oracle: level A (worked out by hand: 9 at 8 bits has the next number above it 9 + 2^-4 and the one below 9 - 2^-4)."""
+
+    def row(self, op: str, a: bd.Value, b: bd.Value) -> bd.Row:
+        return bd.Row("t", op, 8, "FAR", ((a, a), (b, b)))
+
+    def test_a_tiny_addend_decides_only_the_side(self) -> None:
+        nine = bd.value(9, 0)
+        tiny = bd.value(1, -100000)
+        # 9 + tiny: down 9, up 9 + 2^-4 = 0b10010001 * 2^-4
+        self.assertEqual(bd.py_oracle(self.row("add", nine, tiny)), ("0b1001p0", "0b10010001p-4"))
+        # 9 - tiny: down 9 - 2^-4 = 0b10001111 * 2^-4, up 9
+        self.assertEqual(bd.py_oracle(self.row("sub", nine, tiny)), ("0b10001111p-4", "0b1001p0"))
+        # the tiny addend first, and the negative ones
+        self.assertEqual(bd.py_oracle(self.row("add", tiny, nine)), ("0b1001p0", "0b10010001p-4"))
+        # -9 + tiny is a little above -9: down -9, up -(9 - 2^-4)
+        self.assertEqual(bd.py_oracle(self.row("add", nine.neg(), tiny)), ("-0b1001p0", "-0b10001111p-4"))
+        # at the other end of the range, with the smallest subnormal as the far addend
+        small = bd.value(1, bd.quantum(8))
+        self.assertEqual(bd.py_oracle(self.row("add", nine, small)), ("0b1001p0", "0b10010001p-4"))
+
+    def test_a_gap_below_the_margin_is_still_exact(self) -> None:
+        # 9 + 2^-6: the gap is small, the sum is formed exactly: down 9, up 9 + 2^-4
+        self.assertEqual(bd.py_oracle(self.row("add", bd.value(9, 0), bd.value(1, -6))), ("0b1001p0", "0b10010001p-4"))
+
+    def test_flags_and_echo_of_a_row_line(self) -> None:
+        # the product of two values near 2^(EMAX/2 + 1) overflows: flag o; the echo is the operand after rounding outward
+        a = bd.value(0xFF, bd.EMAX // 2 - 4)
+        line = bd.py_oracle_line(bd.Row("r", "mul", 8, "OV", ((a, a), (a, a))))
+        fields = line.split(" ")
+        self.assertEqual(fields[0], "r")
+        self.assertEqual(fields[2], "inf")
+        self.assertIn("o", fields[3])
+        self.assertEqual(fields[4], "0b11111111p%d:0b11111111p%d,0b11111111p%d:0b11111111p%d" % ((bd.EMAX // 2 - 4,) * 4))
+        self.assertEqual(fields[6], "inf")
+        # a point at the smallest subnormal squared underflows to zero down and to the smallest subnormal up
+        tiny = bd.value(1, bd.quantum(8))
+        line = bd.py_oracle_line(bd.Row("r", "mul", 8, "SUB", ((tiny, tiny), (tiny, tiny))))
+        self.assertEqual(line.split(" ")[1:4], ["0", "0b1p%d" % bd.quantum(8), "siz"])
+
+
+class ExcessTests(unittest.TestCase):
+    """Oracle: level A (units of the last place of 1.5 at 8 bits are 2^-7)."""
+
+    def test_excess_in_units_of_the_last_place(self) -> None:
+        one_and_a_half = bd.value(3, -1)
+        self.assertEqual(bd.excess_ulps(one_and_a_half, one_and_a_half, 8), 0.0)
+        self.assertEqual(bd.excess_ulps(one_and_a_half, bd.value(3 * 64 - 3, -7), 8), 3.0)  # 3 units below
+        self.assertEqual(bd.excess_ulps(one_and_a_half, bd.value(3 * 64 + 5, -7), 8), 5.0)  # 5 units above
+        self.assertEqual(bd.excess_ulps(one_and_a_half, bd.INF, 8), float("inf"))
+        self.assertEqual(bd.excess_ulps(bd.ZERO, bd.value(1, -5), 8), float("inf"))  # a zero bound must be met exactly
+
+    def test_the_table(self) -> None:
+        row = bd.Row("r1", "exp", 8, "R", ((bd.value(1, 0), bd.value(1, 0)),))
+        oracle = {"r1": ("0b11p-1", "0b11p-1", "-", "x")}
+        table = bd.excess_table([row], oracle, ["BALLDIFF_ELEM r1 exp 8 R 0b10111101p-7 0b11p-1"])
+        self.assertEqual(table[2], "| R | exp | 8 | 1 | 0 | 3 | 0 |")
+
+    def test_mpfr_is_found_by_its_headers(self) -> None:
+        import tempfile
+        from pathlib import Path
+
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertFalse(bd.mpfr_available(Path(tmp), "cc"))
+            (Path(tmp) / "include").mkdir()
+            (Path(tmp) / "include" / "mpfr.h").write_text("")
+            self.assertFalse(bd.mpfr_available(Path(tmp), "cc"))  # gmp.h missing
+            (Path(tmp) / "include" / "gmp.h").write_text("")
+            self.assertEqual(bd.mpfr_available(Path(tmp), "cc"), bd.shutil.which("cc") is not None)
+            self.assertFalse(bd.mpfr_available(Path(tmp), "no-such-compiler-xyz"))
 
 
 class RowTests(unittest.TestCase):

@@ -49,7 +49,7 @@ class RunCiTests(unittest.TestCase):
 
     def test_all_scope_covers_repository_and_three_suites(self) -> None:
         stages = run_ci.stages_for("all", 5)
-        self.assertEqual(len(stages), 26)
+        self.assertEqual(len(stages), 27)
         self.assertEqual(
             [stage.name.split(": ")[0] for stage in stages],
             [
@@ -76,6 +76,7 @@ class RunCiTests(unittest.TestCase):
                 "BINARY",
                 "BINARY",
                 "BINARY",
+                "INTERVAL",
                 "INTERVAL",
                 "INTERVAL",
                 "INTERVAL",
@@ -282,8 +283,13 @@ class RunCiTests(unittest.TestCase):
 
     def test_interval_gate_runs_the_oracle_checks_with_the_corpus_required(self) -> None:
         stages = run_ci.stages_for("interval", 2)
-        self.assertEqual(stages[-1].name, "INTERVAL: oracle checks")
-        self.assertEqual(stages[-1].command[1:], ("tools/itl_oracle_checks.py", "--require-corpus"))
+        self.assertEqual(stages[-2].name, "INTERVAL: oracle checks")
+        self.assertEqual(stages[-2].command[1:], ("tools/itl_oracle_checks.py", "--require-corpus"))
+
+    def test_interval_gate_ends_with_the_differential_stage(self) -> None:
+        stage = run_ci.stages_for("interval", 2)[-1]
+        self.assertEqual(stage.name, "INTERVAL: ball_float against the oracles")
+        self.assertEqual(stage.command[1:], ("tools/ball_diff.py", "run"))
 
     def test_elementary_gate_pairs_correctness_and_performance(self) -> None:
         stages = run_ci.stages_for("elementary", 2)

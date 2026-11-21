@@ -17,7 +17,7 @@ From the repository root, with MPFR and GMP installed under `/opt/homebrew` (`--
 python3 tools/ball_diff.py run
 ```
 
-The script writes the rows, builds `tools/ball_mpfr_oracle.c`, computes the oracle, cross-checks it with a second oracle in Python integers, runs the test of this package on native in release mode and prints the verdict. The exit status is 0 when no row differs from MPFR except the rows listed in `tools/ball_diff_known.txt`, and 1 otherwise.
+The script writes the rows, computes the oracle in Python integers (every arithmetic row, nothing but CPython), builds `tools/ball_mpfr_oracle.c` and computes the MPFR oracle when the MPFR and GMP headers are found, checks that the two agree, runs the test of this package on native in release mode against each, and prints which oracles ran with their row counts, the rows not checked, and the verdict. The exit status is 0 when no row differs except the rows listed in `tools/ball_diff_known.txt`, and 1 otherwise. `--no-mpfr` runs the integer oracle only (the rows that only MPFR decides, `exp` and `ln`, are reported as not checked); `--require-mpfr` makes a missing MPFR an error.
 
 ## Everyday tasks
 
@@ -46,7 +46,7 @@ File an issue, then add `<row id> #<issue>` to `tools/ball_diff_known.txt`. The 
 
 - The test needs the two environment variables; started by plain `moon test` it does nothing.
 - A row marked undecided is one where MPFR's `mpfr_sqrt` failed an exact check; it is not compared.
-- The stage needs the MPFR headers, so it is not part of `just pr`.
+- Without the MPFR headers the stage runs with the integer oracle only and says so; it is part of `just gate interval`, not of `just pr`.
 
 ## Next steps
 
