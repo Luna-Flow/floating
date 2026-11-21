@@ -616,7 +616,7 @@ notes live in this file.
   | `BinFloat::inf(Sign::Negative)` | `Binary::inf(negative=true)` |
   | `BinFloat::inf(x.sign(), precision=p)` | `Binary::inf(negative=x.is_sign_minus(), precision=p)` |
 
-- `binary`: `Binary::round_ctx` is `apply_ctx`, and `to_shortest_string_ctx` returns `(String, BinaryFlags)` ([#438](https://github.com/Luna-Flow/floating/issues/438), row N3). `apply_ctx` is the name `Decimal` and `Interval` use for "round into the context's format", so the one operation has one name in the three number types. `to_shortest_string_ctx` follows the `_ctx` convention of returning the value with its flags: the flags are those of the rounding of the operand into the context that the function already performed (`inexact`, `overflow`, `underflow`), no flag for a value of the format, a NaN or an infinity. There is no alias.
+- `binary`: `BinFloat::round_ctx` is `Binary::apply_ctx`, and `to_shortest_string_ctx` returns `(String, BinaryFlags)` ([#438](https://github.com/Luna-Flow/floating/issues/438), row N3). `apply_ctx` is the name `Decimal` and `Interval` use for "round into the context's format", so the one operation has one name in the three number types. `to_shortest_string_ctx` follows the `_ctx` convention of returning the value with its flags: the flags are those of the rounding of the operand into the context that the function already performed (`inexact`, `overflow`, `underflow`), no flag for a value of the format, a NaN or an infinity. There is no alias.
 
   | before | after |
   | --- | --- |
