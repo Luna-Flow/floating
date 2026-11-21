@@ -181,6 +181,25 @@ class BinFloatInterpreterRunnerTests(unittest.TestCase):
         self.assertEqual(digest, spec["sha256"])
         self.assertEqual(spec["expectedCases"], 1740)
 
+    def test_wide_logarithm_mpfr_corpus_is_hash_pinned(self):
+        manifest = RUNNER.load_json(RUNNER.DEFAULT_MANIFEST)
+        spec = manifest["mpfrCorpora"]["mpfr-4.2.2-ln-wide"]
+        path = RUNNER.repo_path(spec["path"])
+        self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), spec["sha256"])
+        self.assertEqual(spec["expectedCases"], 3040)
+        rows = [
+            line.split()
+            for line in path.read_text(encoding="utf-8").splitlines()
+            if line and not line.startswith("#")
+        ]
+        self.assertEqual(len(rows), 3040)
+        precisions = {int(row[1]) for row in rows}
+        # both sides of the ln kernel thresholds at 768 and 1152 working bits
+        # (result precision + 64): 704 and 1088
+        for precision in (320, 640, 688, 700, 704, 720, 768, 1072, 1088, 1104, 1152):
+            self.assertIn(precision, precisions)
+        self.assertEqual({row[0] for row in rows}, {"ln", "log2", "log10", "log1p"})
+
     def test_decimal_string_mpfr_corpora_are_hash_pinned(self):
         manifest = RUNNER.load_json(RUNNER.DEFAULT_MANIFEST)
         expected = {

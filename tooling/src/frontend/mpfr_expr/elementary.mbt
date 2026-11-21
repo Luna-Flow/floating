@@ -140,11 +140,16 @@ pub fn parse_elementary_data(
     let operation = parse_elementary_operation(tokens[0])
     let output_precision = parse_int(tokens[1])
     let rounding = parse_rounding(tokens[2])
-    let left = @bin_float.BinFloat::from_hex(tokens[3], 512)
+    // The operands of a row have at most as many bits as its result precision
+    // (the wide logarithm rows reach 1152 bits), so they are read exactly.
+    let operand_precision = Int32::max(512, output_precision.unwrap_or(512))
+    let left = @bin_float.BinFloat::from_hex(tokens[3], operand_precision)
     let right = if tokens[4] == "-" {
       Ok(None)
     } else {
-      @bin_float.BinFloat::from_hex(tokens[4], 512).map(value => Some(value))
+      @bin_float.BinFloat::from_hex(tokens[4], operand_precision).map(value => {
+        Some(value)
+      })
     }
     let integer = parse_int(tokens[5])
     let inexact = parse_bool_digit(tokens[7])

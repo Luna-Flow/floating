@@ -34,6 +34,14 @@
       "seed": 20260715,
       "casesPerCell": 4
     },
+    "mpfr-4.2.2-ln-wide": {
+      "path": "testdata/bin_float/mpfr-4.2.2-ln-wide.txt",
+      "sha256": "b2ef19d27c79d1a5bd9af940063a40c63e892d91c9dbeb19cd5bdca665dc2e93",
+      "expectedCases": 3040,
+      "generator": "tools/generate_mpfr_ln_wide_oracle.c 2 20261121",
+      "seed": 20261121,
+      "casesPerCell": 2
+    },
     "mpfr-4.2.2-strtofr": {
       "path": "testdata/bin_float/mpfr-4.2.2-strtofr.txt",
       "sha256": "b1a0f0866b380e326a9ae4e0cb6521a1eedb1c7299defbe4f6d991f320753ade",
