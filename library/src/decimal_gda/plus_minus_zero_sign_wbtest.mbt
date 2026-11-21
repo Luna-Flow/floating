@@ -3,6 +3,9 @@
 /// zero taking the operand's exponent. A zero sum of operands with opposite
 /// signs is -0 only under round-floor, so the sign of a zero result depends on
 /// the rounding mode.
+// oracle: A
+// source: spec: plus is add(0,x), minus is subtract(0,x); sign of zero by mode
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "plus and minus of a zero follow the add and subtract sign rule" {
   let modes = [
     GdaRoundingMode::HalfEven,

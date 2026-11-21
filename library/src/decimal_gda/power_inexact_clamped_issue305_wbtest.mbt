@@ -175,6 +175,10 @@ fn issue305_check(
 /// An inexact result is delivered with `precision` digits, whose exponent is at most Etop, so it is
 /// never folded down: `Clamped` is not signaled. Expected values: Python `decimal` (libmpdec 4.0.0)
 /// as oracle, checked against the clause by hand; the oracle is not the specification.
+// oracle: A
+// source: CPython decimal (libmpdec 4.0.0) power rows; all 32 rows and both paths agree, Clamped asserted
+//   through the flag text
+// shares: nothing
 test "an inexact integer power that rounds to a power of ten is not Clamped (#305)" {
   let rows : Array[
     (

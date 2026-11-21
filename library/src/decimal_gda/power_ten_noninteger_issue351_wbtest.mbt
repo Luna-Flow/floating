@@ -14,7 +14,7 @@
 /// exponent range overflows or underflows through the ordinary rounding of the
 /// exact value. The expected rows were derived from these rules and rounded
 /// with Python `decimal` (libmpdec 4.0.0) only as an arithmetic helper;
-/// libmpdec itself differs by 1 ulp in the upward modes for this input class.
+/// libmpdec itself differs by 1 ulp in the directed modes (up, ceiling, down, floor, 05up) for this input class.
 /// The neighbour rows (`k*y` not an integer) stay on the certified path; their
 /// expected values are libmpdec results, a cross-check only.
 
@@ -129,6 +129,12 @@ fn issue351_run(
 }
 
 ///|
+// oracle: A
+// source: 912 rows of the exact 10^(k*y) padded to the precision (GDA 1.70 power rule: an exact non-integral power
+//   has precision digits, Inexact and Rounded); re-run with CPython decimal (libmpdec 4.0.0) per row context: every
+//   half-even, half-up and half-down row agrees, 242 directed-mode rows (down 45, floor 45, up 36, ceiling 36,
+//   05up 80) differ by one unit in the last place (known libmpdec tolerance: see conformance/decimal_gda.md)
+// shares: nothing
 test "power of a power of ten with an integral k*y is exact in every mode (issue 351)" {
   for row in issue351_exact_rows {
     let (context_name, base, exponent, mode, value, flags) = row
@@ -140,6 +146,10 @@ test "power of a power of ten with an integral k*y is exact in every mode (issue
 }
 
 ///|
+// oracle: A
+// source: libmpdec results (CPython 3.13, cross-check only), 105 literal neighbour rows with k*y not an integer;
+//   all 105 re-run, 0 disagree
+// shares: nothing
 test "power of a power of ten with a non-integral k*y keeps the certified path (issue 351)" {
   for row in issue351_neighbour_rows {
     let (context_name, base, exponent, mode, value, flags) = row
@@ -151,6 +161,9 @@ test "power of a power of ten with a non-integral k*y keeps the certified path (
 }
 
 ///|
+// oracle: A
+// source: exact 10^(k*y) padded to precision, derived from GDA power rule and decTest powx2039 shape
+// shares: nothing
 test "power of 1E-5 to 1.2 in decimal64 is 1E-6 padded in every mode (issue 351)" {
   // Reported case: Floor, Ceiling, Down and Up returned NaN with Invalid
   // operation; libmpdec gives 0.000001000000000000001 in ceiling and up.
@@ -165,6 +178,11 @@ test "power of 1E-5 to 1.2 in decimal64 is 1E-6 padded in every mode (issue 351)
 }
 
 ///|
+// oracle: A
+// source: decNumber 3.68 (tools/decnumber_probe.c, power 1E-5 ^ 1.2 at precision 16 in the default exponent range
+//   of +-999999999) gives NaN with Invalid context: exp, ln, log10 and non-integral power refuse an Emax above
+//   999,999 (the same rule as decTest lnx903 to lnx905); one row
+// shares: Decimal::from_string
 test "power of a power of ten does not take the exact path in a restricted context (issue 351)" {
   // The context check of exp, ln, log10 and non-integral power comes first.
   let wide = GdaContext::new(precision=16)

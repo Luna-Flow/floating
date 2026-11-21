@@ -181,6 +181,9 @@ fn issue342_check(
 /// Expected values and flags: Python `decimal` (libmpdec 4.0.0); the oracle is not the
 /// specification, and rows where it decides tininess after rounding, or rounds a directed mode one unit
 /// away from the exact power, are left out.
+// oracle: A
+// source: Python decimal (libmpdec 4.0.0) row table
+// shares: nothing
 test "an inexact subnormal integer power raises Underflow (#342)" {
   let rows : Array[
     (

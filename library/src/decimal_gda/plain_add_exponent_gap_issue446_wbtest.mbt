@@ -13,6 +13,11 @@ fn gap_value(
 }
 
 ///|
+// oracle: A
+// source: expected values derived by hand from the definition of addition at 34 digits (GDA 1.70, Arithmetic
+//   operations, add): an operand 2.2E+9 orders of magnitude smaller only decides the sticky digit, so the
+//   sum is the larger operand, and the negated cases follow by sign.
+// shares: nothing
 test "issue 446: plain add and sub with an exponent gap above 2^31 - 1 do not panic" {
   let a = gap_value(1N, 1_100_000_000, 34)
   let b = gap_value(1N, -1_100_000_000, 34)
@@ -32,29 +37,49 @@ test "issue 446: plain add and sub with an exponent gap above 2^31 - 1 do not pa
 }
 
 ///|
+// oracle: A
+// source: expected sums and differences computed with CPython decimal (libmpdec 4.0.0), context prec=34,
+//   Emin=-999999, Emax=999999, rounding ROUND_HALF_EVEN, no traps; compared as values (the cohort member
+//   the plain operators return is not the subject)
+// shares: Decimal::from_string (reads the operands and the expected sums) and Decimal == (compares values, so the cohort is not pinned)
 test "issue 446: a gap below 2^31 - 1 costs nothing and rounds like add_ctx" {
-  let ctx = DecimalContext::new(precision=34, e_min=-999_999, e_max=999_999)
-  // The same shape within the exponent range of a context: compare with add_ctx.
-  let cases : Array[(BigInt, Int32, BigInt, Int32)] = [
-    (1N, 900_000, 1N, -900_000),
-    (1N, 900_000, -1N, -900_000),
-    (-1N, 900_000, 1N, -900_000),
-    (9999999999999999999999999999999999N, 500_000, 1N, -400_000),
-    (9999999999999999999999999999999999N, 500_000, -1N, -400_000),
-    (5N, 0, 3N, -700_000),
-    (5N, 0, -3N, -700_000),
-    (12345N, -10, 6N, 400_000),
+  // (a, b, a + b, a - b), each operand with its own 34-digit working precision
+  let rows : Array[(String, String, String, String)] = [
+    (
+      "1E900000", "1E-900000", "1.000000000000000000000000000000000E+900000", "1.000000000000000000000000000000000E+900000",
+    ),
+    (
+      "1E900000", "-1E-900000", "1.000000000000000000000000000000000E+900000", "1.000000000000000000000000000000000E+900000",
+    ),
+    (
+      "-1E900000", "1E-900000", "-1.000000000000000000000000000000000E+900000", "-1.000000000000000000000000000000000E+900000",
+    ),
+    (
+      "9999999999999999999999999999999999E500000", "1E-400000", "9.999999999999999999999999999999999E+500033",
+      "9.999999999999999999999999999999999E+500033",
+    ),
+    (
+      "9999999999999999999999999999999999E500000", "-1E-400000", "9.999999999999999999999999999999999E+500033",
+      "9.999999999999999999999999999999999E+500033",
+    ),
+    (
+      "5E0", "3E-700000", "5.000000000000000000000000000000000", "5.000000000000000000000000000000000",
+    ),
+    (
+      "5E0", "-3E-700000", "5.000000000000000000000000000000000", "5.000000000000000000000000000000000",
+    ),
+    (
+      "12345E-10", "6E400000", "6.000000000000000000000000000000000E+400000", "-6.000000000000000000000000000000000E+400000",
+    ),
   ]
-  for c in cases {
-    let (ac, ae, bc, be) = c
-    let a = gap_value(ac, ae, 34)
-    let b = gap_value(bc, be, 34)
-    let plain = a + b
-    let (expected, _) = a.add_ctx(b, ctx)
-    inspect(plain == expected, content="true")
-    let plain_diff = a - b
-    let (expected_diff, _) = a.sub_ctx(b, ctx)
-    inspect(plain_diff == expected_diff, content="true")
+  for row in rows {
+    let (a_text, b_text, sum_text, difference_text) = row
+    let a = Decimal::from_string(a_text, precision=34).unwrap()
+    let b = Decimal::from_string(b_text, precision=34).unwrap()
+    let sum = Decimal::from_string(sum_text, precision=34).unwrap()
+    let difference = Decimal::from_string(difference_text, precision=34).unwrap()
+    inspect(a + b == sum, content="true")
+    inspect(a - b == difference, content="true")
   }
 }
 
@@ -72,6 +97,13 @@ fn exact_plain_sum(a : Decimal, b : Decimal, precision : Int32) -> Decimal {
 }
 
 ///|
+// oracle: B
+// source: the exact aligned sum (decimal_exact_aligned_sum_result), rounded once half-even by
+//   normalize_decimal_parts_gda_repr, the computation the plain operators made before the absorption
+// shares: normalize_decimal_parts_gda_repr, decimal_exact_aligned_sum_result
+// primitives: normalize_decimal_parts_gda_repr (level A: the decTest add rows and libmpdec random rows of the
+//   gate; direct tests in coeff_kernel_wbtest) and the exact aligned sum, both outside the absorption
+//   path under test
 test "issue 446: the sticky absorption gives the result of the exact aligned sum" {
   // Oracle: the exact aligned sum rounded once half-even to the larger operand
   // precision, the computation the plain operators made before the absorption
@@ -127,6 +159,10 @@ test "issue 446: the sticky absorption gives the result of the exact aligned sum
 }
 
 ///|
+// oracle: A
+// source: hand: at 34 digits the operand 5E-2000000000 only sets a sticky digit, so 3E+2000000000 plus or minus it
+//   is 3E+2000000000 (CPython 3.13 agrees on the three comparisons)
+// shares: Decimal::make (builds the inputs and the expected value) and the library Eq for Decimal
 test "issue 446: a gap above 2^31 - 1 between a small and a large exponent" {
   let small = gap_value(5N, -2_000_000_000, 34)
   let big = gap_value(3N, 2_000_000_000, 34)
@@ -137,6 +173,10 @@ test "issue 446: a gap above 2^31 - 1 between a small and a large exponent" {
 }
 
 ///|
+// oracle: S
+// source: design rule of the library, not a clause of GDA 1.70: the exact context refuses a sum whose alignment
+//   exceeds the stored exponent range with a NaN and invalid_context (written out, no computed value)
+// shares: nothing
 test "issue 446: the exact context cannot panic through the exponent gap" {
   let a = gap_value(1N, 1_100_000_000, 34)
   let b = gap_value(1N, -1_100_000_000, 34)

@@ -176,6 +176,9 @@ fn issue264_check(
 /// (GDA 1.70, *Exceptional conditions*, Overflow), not on an operand that would
 /// round past Emax on its own. Expected values: Python `decimal` (libmpdec 4.0.0) as
 /// oracle, checked against the clause by hand; the oracle is not the specification.
+// oracle: A
+// source: Python decimal (libmpdec 4.0.0) row table; all 172 rows re-run by me
+// shares: nothing
 test "add, subtract and fma judge overflow on the rounded result (#264)" {
   let rows : Array[
     (

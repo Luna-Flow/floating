@@ -1,4 +1,9 @@
 ///|
+// oracle: A
+// source: identical booleans written out from the definition (same sign, coefficient, exponent, payload); the ==
+//   checks (2.5 == 2.50, NaN == NaN7, narrow == wide) state the library's numeric equality contract, not
+//   GDA; compare_total 0 per GDA
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "identical is the same datum, precision attribute included" {
   let d = fn(text : String) { Decimal::from_string(text).unwrap() }
   assert_true(d("2.5").identical(d("2.5")))
@@ -26,15 +31,14 @@ test "identical is the same datum, precision attribute included" {
   let three = Decimal::from_int(3, precision=3)
   assert_eq((narrow / three).to_string(), "0.333")
   assert_eq((wide / three).to_string(), "0.3333333333333333333333333333333333")
-  // identical is compare_total being 0 with equal precision attributes (every
-  // value of the table has the default attribute)
+  // every pair of these ten texts is a different datum (another coefficient, exponent, sign, payload or class),
+  // so the table of identical is the identity matrix, written out
   let texts = [
     "1", "1.0", "-1", "0", "-0", "inf", "NaN", "NaN3", "sNaN", "7E+5",
   ]
-  for a in texts {
-    for b in texts {
-      let total = compare_total(d(a), d(b), GdaContext::decimal128()).value()
-      assert_eq(d(a).identical(d(b)), total == 0, msg=a + " " + b)
+  for i, a in texts {
+    for j, b in texts {
+      assert_eq(d(a).identical(d(b)), i == j, msg=a + " " + b)
     }
   }
 }

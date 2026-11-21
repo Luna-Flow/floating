@@ -1,6 +1,9 @@
 ///|
 /// GDA context exponent bounds use widened arithmetic. Exact parsing and
 /// addition retain their values and raise no conditions.
+// oracle: A
+// source: hand: 1 and 1+1 = 2 with no flags (CPython agrees)
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "extreme e_min preserves exact parse and addition" {
   let ctx = DecimalContext::new(
     precision=34,
@@ -17,6 +20,10 @@ test "extreme e_min preserves exact parse and addition" {
 
 ///|
 /// GDA context bounds and IEEE 754-2019 §7.4 require exact overflow flags.
+// oracle: A
+// source: CPython prec 3 Emax 999999999 clamp 1: 999E+999999997 doubled -> Infinity xr..o...; next_plus ->
+//   Infinity no flags; /1E-1 -> Infinity xr..o
+// shares: nothing
 test "extreme e_max reports overflow without adjusted exponent wrap" {
   let ctx = DecimalContext::new(
     precision=3,
@@ -50,6 +57,9 @@ test "extreme e_max reports overflow without adjusted exponent wrap" {
 ///|
 /// IEEE 754-2019 §5.3.2: an unrepresentable quantize result is NaN with
 /// InvalidOperation, without wrapping the exponent distance or aborting.
+// oracle: A
+// source: CPython quantize prec 5: NaN with InvalidOperation only
+// shares: nothing
 test "quantize with extreme exponent distance returns invalid operation" {
   let ctx = DecimalContext::new(
     precision=5,
@@ -65,6 +75,9 @@ test "quantize with extreme exponent distance returns invalid operation" {
 }
 
 ///|
+// oracle: A
+// source: hand: GDA limits 1..999,999,999 and +-999,999,999, both sides of each bound
+// shares: nothing
 test "GDA decimal context rejects out of range fields without aborting" {
   assert_true(DecimalContext::try_new(precision=999_999_999) is Ok(_))
   assert_true(DecimalContext::try_new(e_min=-999_999_999) is Ok(_))
@@ -79,6 +92,9 @@ test "GDA decimal context rejects out of range fields without aborting" {
 
 ///|
 /// GDA division must not wrap the distance from a p=1 quotient to Etiny.
+// oracle: A
+// source: CPython divide prec 1: 9E+999999999 / 5E-999999999 = Infinity xr..o
+// shares: nothing
 test "p=1 extreme division overflows without aborting" {
   let ctx = DecimalContext::new(
     precision=1,
@@ -96,6 +112,10 @@ test "p=1 extreme division overflows without aborting" {
 ///|
 /// GDA integral and quantize conversions with an unrepresentable shift use a
 /// sticky zero result at the requested quantum, with the specified flags.
+// oracle: A
+// source: CPython prec 1 Emin/Emax +-999,999,999 with operand 1E-2147483648: quantize to 1E+999999999 =
+//   0E+999999999 xr; to_integral_exact 0 xr; to_integral_value 0 no flags
+// shares: nothing
 test "huge quantize and to-integral shifts round to zero" {
   let ctx = DecimalContext::new(
     precision=1,
@@ -123,6 +143,12 @@ test "huge quantize and to-integral shifts round to zero" {
 
 ///|
 /// Adjacent-value operations handle Int::min when the context Etiny is zero.
+// oracle: A
+// source: decNumber 3.68 (tools/decnumber_probe.c, extended=1, precision 1, Emin 0, Emax 999999999) on the operand
+//   1E-9, the nearest operand decNumber can read (its exponent limit is -999999999): next_plus gives 1 and next_minus
+//   0 with no flag, next_toward 0 gives 0 with Inexact, Rounded, Underflow (and Subnormal, Clamped, which the test
+//   does not assert); CPython agrees on next_plus and next_minus and differs on the next_toward flags (none)
+// shares: nothing
 test "next operations handle Int minimum with zero etiny" {
   let ctx = DecimalContext::new(precision=1, e_min=0, e_max=999_999_999)
   let tiny = decimal_unchecked(false, 1N, -2_147_483_648, 34)
@@ -140,6 +166,9 @@ test "next operations handle Int minimum with zero etiny" {
 }
 
 ///|
+// oracle: A
+// source: CPython fma prec 34 Emin/Emax +-999,999,999: 1.000000000000000000000000000000000E+999999999 xr
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "GDA fma far gap uses sticky addend without aborting" {
   let ctx = DecimalContext::new(
     precision=34,
@@ -161,6 +190,9 @@ test "GDA fma far gap uses sticky addend without aborting" {
 }
 
 ///|
+// oracle: A
+// source: CPython fma prec 2 Emax 0 ROUND_DOWN: 9.9 xr
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "GDA fma exact product boundary honors negative addend" {
   let ctx = DecimalContext::new(
     precision=2,
@@ -181,6 +213,9 @@ test "GDA fma exact product boundary honors negative addend" {
 }
 
 ///|
+// oracle: A
+// source: CPython fma prec 2 Emax 0 ROUND_FLOOR: 9.9 xr
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "GDA fma exact product boundary follows floor without overflow" {
   let ctx = DecimalContext::new(
     precision=2,
@@ -200,6 +235,9 @@ test "GDA fma exact product boundary follows floor without overflow" {
 }
 
 ///|
+// oracle: A
+// source: CPython fma with 1E-2147483648 operands (64-bit libmpdec): same value, xr
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "GDA fma product below Int range uses a bounded sticky alignment" {
   let ctx = DecimalContext::new(
     precision=34,
@@ -223,6 +261,10 @@ test "GDA fma product below Int range uses a bounded sticky alignment" {
 ///|
 /// GdaContext validates through the same adopted context bounds before constructing
 /// a DecimalContext for stateful operations.
+// oracle: A
+// source: hand: adopted limits (precision 1..999,999,999, e_min and e_max within +-999,999,999; decNumber limits,
+//   not GDA 1.70 text) and the Emin = -Emax +- 1 balance rule (GDA 1.70 page 10), both sides of each bound
+// shares: nothing
 test "GdaContext rejects precision and exponent bounds outside adopted limits" {
   assert_true(GdaContext::try_new(precision=999_999_999) is Ok(_))
   assert_true(GdaContext::try_new(e_min=-999_999_999) is Ok(_))
@@ -252,6 +294,9 @@ test "GdaContext rejects precision and exponent bounds outside adopted limits" {
 /// GDA 1.70, Finite numbers; decNumber `decContext.h`: the adopted
 /// implementation bounds require `e_min <= 0 <= e_max` without enforcing the
 /// separate balanced-range rule.
+// oracle: A
+// source: hand: e_min <= 0 <= e_max of the adopted bounds; message strings are the library own text
+// shares: nothing
 test "GdaContext rejects exponent bounds with invalid signs" {
   assert_true(GdaContext::try_new(e_min=0, e_max=0) is Ok(_))
   assert_true(

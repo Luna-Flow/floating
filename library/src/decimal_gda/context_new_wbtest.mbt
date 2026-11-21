@@ -1,4 +1,8 @@
 ///|
+// oracle: A
+// source: the literal accessors after construction (precision 7, Emin -50, as passed); the assertion that new
+//   agrees with try_new compares two constructors of the library and is incidental
+// shares: DecimalContext::try_new (the incidental assertion only)
 test "DecimalContext::new accepts the valid range and agrees with try_new" {
   let ctx = DecimalContext::new(precision=7, e_min=-50, e_max=60)
   match DecimalContext::try_new(precision=7, e_min=-50, e_max=60) {
@@ -10,31 +14,55 @@ test "DecimalContext::new accepts the valid range and agrees with try_new" {
 }
 
 ///|
+// oracle: A
+// source: expected abort for precision 0, rule written out from the context definition (GDA precision and
+//   exponent limits)
+// shares: nothing
 test "panic DecimalContext::new aborts on precision 0" {
   ignore(DecimalContext::new(precision=0))
 }
 
 ///|
+// oracle: A
+// source: expected abort for precision 1_000_000_000 above the limit, rule written out from the context
+//   definition (GDA precision and exponent limits)
+// shares: nothing
 test "panic DecimalContext::new aborts on precision above the limit" {
   ignore(DecimalContext::new(precision=1_000_000_000))
 }
 
 ///|
+// oracle: A
+// source: expected abort for e_min above zero (1), rule written out from the context definition (GDA precision
+//   and exponent limits)
+// shares: nothing
 test "panic DecimalContext::new aborts on e_min above zero" {
   ignore(DecimalContext::new(e_min=1))
 }
 
 ///|
+// oracle: A
+// source: expected abort for e_max below zero (-1), rule written out from the context definition (GDA precision
+//   and exponent limits)
+// shares: nothing
 test "panic DecimalContext::new aborts on e_max below zero" {
   ignore(DecimalContext::new(e_max=-1))
 }
 
 ///|
+// oracle: A
+// source: GDA 1.70 and decNumber bound Emax to 0..999999999 and Emin to -999999999..0; e_max -1 violates the lower
+//   bound of Emax, so the constructor must abort (the separate rule e_min <= e_max does not fire first)
+// shares: nothing
 test "panic DecimalContext::new aborts when e_min exceeds e_max" {
   ignore(DecimalContext::new(e_min=0, e_max=-1))
 }
 
 ///|
+// oracle: S
+// source: precision 0 is rejected (GDA 1.70: the precision is at least 1); the only checked property is that the
+//   error message contains the word precision, which is the library's own wording and an API choice
+// shares: nothing
 test "DecimalContext::try_new names the invalid parameter" {
   match DecimalContext::try_new(precision=0) {
     Err(error) => assert_true(error.message.contains("precision"))
@@ -43,6 +71,10 @@ test "DecimalContext::try_new names the invalid parameter" {
 }
 
 ///|
+// oracle: A
+// source: the literal accessors after construction (precision 7, Emin -60, as passed); the assertion that new
+//   agrees with try_new compares two constructors of the library and is incidental
+// shares: GdaContext::try_new (the incidental assertion only)
 test "GdaContext::new accepts the valid range and agrees with try_new" {
   let ctx = GdaContext::new(precision=7, e_min=-60, e_max=60)
   match GdaContext::try_new(precision=7, e_min=-60, e_max=60) {
@@ -54,31 +86,50 @@ test "GdaContext::new accepts the valid range and agrees with try_new" {
 }
 
 ///|
+// oracle: A
+// source: expected abort for precision 0, rule written out from the context definition
+// shares: nothing
 test "panic GdaContext::new aborts on precision 0" {
   ignore(GdaContext::new(precision=0))
 }
 
 ///|
+// oracle: A
+// source: library contract: precision above 999,999,999 aborts (decNumber DEC_MAX_DIGITS limit adopted by the
+//   library, not a GDA 1.70 clause); no computed value
+// shares: nothing
 test "panic GdaContext::new aborts on precision above the limit" {
   ignore(GdaContext::new(precision=1_000_000_000))
 }
 
 ///|
+// oracle: A
+// source: expected abort for e_min above zero (1), rule written out from the context definition
+// shares: nothing
 test "panic GdaContext::new aborts on e_min above zero" {
   ignore(GdaContext::new(e_min=1))
 }
 
 ///|
+// oracle: A
+// source: expected abort for e_max below zero (-1), rule written out from the context definition
+// shares: nothing
 test "panic GdaContext::new aborts on e_max below zero" {
   ignore(GdaContext::new(e_max=-1))
 }
 
 ///|
+// oracle: A
+// source: expected abort for e_min 0 above e_max -1, rule written out from the context definition
+// shares: nothing
 test "panic GdaContext::new aborts when e_min exceeds e_max" {
   ignore(GdaContext::new(e_min=0, e_max=-1))
 }
 
 ///|
+// oracle: A
+// source: error message contains precision (written word)
+// shares: nothing
 test "GdaContext::try_new names the invalid parameter" {
   match GdaContext::try_new(precision=0) {
     Err(error) => assert_true(error.message.contains("precision"))
@@ -88,6 +139,10 @@ test "GdaContext::try_new names the invalid parameter" {
 
 ///|
 /// GDA 1.70, page 10: the magnitudes of Emin and Emax differ by at most one.
+// oracle: A
+// source: rule transcribed from GDA 1.70 page 10 (e_min in {-e_max, 1-e_max, -e_max-1}) over 9 e_max values,
+//   written-out accept/reject cases; the rejection message text is the library own wording (API pin)
+// shares: nothing
 test "GdaContext accepts only the exponent ranges of GDA 1.70 page 10" {
   for emax in [0, 1, 2, 96, 384, 999, 6144, 999_999, 999_999_999] {
     for emin in [-emax, 1 - emax, -emax - 1] {
@@ -118,11 +173,18 @@ test "GdaContext accepts only the exponent ranges of GDA 1.70 page 10" {
 }
 
 ///|
+// oracle: A
+// source: expected abort for e_min -50 with e_max 60 (outside GDA 1.70 page 10 rule)
+// shares: nothing
 test "panic GdaContext::new aborts on an exponent range outside GDA 1.70 page 10" {
   ignore(GdaContext::new(e_min=-50, e_max=60))
 }
 
 ///|
+// oracle: A
+// source: literal accessors after the setters (20, Floor, -98, 99, status/traps/refinement limit kept); -98/99
+//   is e_min = 1 - e_max, inside the rule
+// shares: nothing
 test "GdaContext setters rebuild a valid context and keep status, traps and the refinement limit" {
   let traps = GdaTrapSet::new().with_signal(GdaSignal::Overflow)
   let base = GdaContext::new(precision=9, traps~).with_refinement_limit(Some(7))
@@ -140,11 +202,18 @@ test "GdaContext setters rebuild a valid context and keep status, traps and the 
 }
 
 ///|
+// oracle: A
+// source: expected abort for with_exponent_range(-5, 50) outside the GDA rule
+// shares: nothing
 test "panic GdaContext::with_exponent_range aborts outside the GDA 1.70 rule" {
   ignore(GdaContext::new().with_exponent_range(e_min=-5, e_max=50))
 }
 
 ///|
+// oracle: A
+// source: literals: decimal32/64/128 formats of IEEE 754-2019 (p7 emin -95, p16 emax 384, p34) and the GDA
+//   default context (p9 HalfUp, non-extended); the rounding argument checked
+// shares: nothing
 test "the presets take a rounding mode and keep the extended default otherwise" {
   assert_true(GdaContext::decimal64().rounding() == GdaRoundingMode::HalfEven)
   let up = GdaContext::decimal64(rounding=GdaRoundingMode::Up)

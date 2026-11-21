@@ -1,4 +1,7 @@
 ///|
+// oracle: A
+// source: spec: sNaN payload wins; payload truncated to precision digits (nan23456 at p5); Python agrees
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "GDA binary and ternary operations prioritize signaling nan payloads" {
   let context = DecimalContext::new(precision=9)
   let left = Decimal::quiet_nan(payload=95N, precision=12)
@@ -23,6 +26,11 @@ test "GDA binary and ternary operations prioritize signaling nan payloads" {
 }
 
 ///|
+// oracle: A
+// source: GDA 1.70 Subnormal (tininess is judged before rounding): 0.999E-999 plus at precision 3, Emin -999,
+//   half-up gives 1.00E-999 with Subnormal, Underflow, Inexact and Rounded; re-run with decNumber 3.68
+//   (tools/decnumber_probe.c, plus): same value and flags
+// shares: nothing
 test "GDA unary operations use before-rounding tininess" {
   let context = DecimalContext::new(
     precision=3,
@@ -41,6 +49,9 @@ test "GDA unary operations use before-rounding tininess" {
 }
 
 ///|
+// oracle: A
+// source: spec: remainder when integer quotient exceeds precision is DivisionImpossible/Invalid; Python agrees
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "GDA huge remainders report DivisionImpossible" {
   let context = DecimalContext::new(
     precision=9,
@@ -62,6 +73,10 @@ test "GDA huge remainders report DivisionImpossible" {
 }
 
 ///|
+// oracle: S
+// source: bookkeeping of an internal cache of exp rounding boundaries (bounded length, first entry evicted); no
+//   numeric value is computed
+// shares: nothing
 test "GDA exp boundary cache stays bounded and preserves hits" {
   let saved_cache = decimal_exp_boundary_cache.copy()
   let saved_next = decimal_exp_boundary_cache_next.val
@@ -104,6 +119,10 @@ test "GDA exp boundary cache stays bounded and preserves hits" {
 }
 
 ///|
+// oracle: A
+// source: library contract, emax above 999999999 is rejected (decNumber decContext.h limit, not a GDA 1.70
+//   clause); no computed value
+// shares: nothing
 test "GDA decimal context translation rejects out of range bounds" {
   let invalid = @lf_arith.ArithmeticContext::new(7, e_max=1_000_000_000)
   assert_true(DecimalContext::from_arithmetic_context(invalid) is Err(_))

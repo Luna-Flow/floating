@@ -53,6 +53,10 @@ fn assert_outside_stored_range(
 }
 
 ///|
+// oracle: A
+// source: hand derivation from the stored range [-2147483645, 2147483646] plus CPython Context(Emax=2147483646,
+//   Emin=Etiny+p-1); 6/6 agree
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "literal exponents up to the stored range are kept" {
   inspect(
     Decimal::from_string("1e1600000000").unwrap().to_string(),
@@ -82,6 +86,10 @@ test "literal exponents up to the stored range are kept" {
 }
 
 ///|
+// oracle: A
+// source: hand derivation from the stored range limits; the accepted case 1249e-2147483646 p=3 gives
+//   1.25E-2147483643 in CPython
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "literals outside the stored range are rejected, not folded" {
   // formerly a signed infinity, a zero of exponent -2^31, or a kept value
   for
@@ -106,6 +114,10 @@ test "literals outside the stored range are rejected, not folded" {
 }
 
 ///|
+// oracle: A
+// source: literal -1E-1000000032 [Underflow,Subnormal,Inexact,Rounded] from CPython/GDA Floor rule; try_new Err
+//   is the library's own limit
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "context conversion of huge exponents overflows or underflows" {
   assert_true(
     GdaContext::try_new(e_min=-2_000_000_000, e_max=2_000_000_000) is Err(_),
@@ -118,6 +130,11 @@ test "context conversion of huge exponents overflows or underflows" {
 }
 
 ///|
+// oracle: A
+// source: CPython 3.13 (libmpdec 4.0.0): the 8 GdaContext rows at p34 Emax 999999999 agree incl. flags; the 17
+//   plain-operator rows and 6 with_precision rows agree with CPython run at p34 Emax 2147483646 Emin
+//   -2147483612, the stored range of this library (an implementation limit, not in the standard)
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "products and quotients of extreme exponents do not wrap" {
   let big = Decimal::from_string("1E+1500000000").unwrap()
   let small = Decimal::from_string("1E-1500000000").unwrap()

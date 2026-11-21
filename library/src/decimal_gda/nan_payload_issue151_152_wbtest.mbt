@@ -2,6 +2,10 @@
 /// IEEE 754-2019 §3.5.2 and §6.2.3: a propagated NaN payload is one the
 /// destination format can hold, and an interchange-shaped (clamped) context has
 /// p - 1 payload digits; `from_string_ctx` enforces the same limit.
+// oracle: A
+// source: IEEE 754-2019 payload digits p-1 for a clamped context; the 7 payload cases re-run with CPython 3.13
+//   decimal (clamp 1 and 0, NaN and sNaN, 10^15 payload becomes 0), all agree
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "NaN propagation keeps a payload the clamped format can hold (#152)" {
   let one = Decimal::from_string("1").unwrap()
   let d64 = DecimalContext::decimal64()

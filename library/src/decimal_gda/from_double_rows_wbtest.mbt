@@ -139,6 +139,11 @@ let from_double_rows : Array[(UInt64, String)] = [
 ]
 
 ///|
+// oracle: A
+// source: 134 rows (binary64 bit pattern, expected 34-digit string) from CPython decimal/libmpdec half-even;
+//   re-run here: 134 of 134 agree (context p34 half-even); no generator script in tools/ keeps the
+//   provenance
+// shares: nothing
 test "from_double at the default precision is the half-even 34-digit rounding of the exact value" {
   for row in from_double_rows {
     let (bits, expected) = row
