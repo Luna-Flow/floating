@@ -9709,7 +9709,7 @@ msgid "§5.12 decimal character conversion, both directions"
 msgstr ""
 
 #: manual/conformance/bin_float.md:89
-msgid "MPFR `mpfr_strtofr` corpus (1,434 rows) and `mpfr_get_str` corpus (2,688 rows); `library/src/bin_float/decimal_string_wbtest.mbt`"
+msgid "MPFR `mpfr_strtofr` corpus (3,699 rows) and `mpfr_get_str` corpus (2,688 rows); `library/src/bin_float/decimal_string_wbtest.mbt`"
 msgstr ""
 
 #: manual/conformance/bin_float.md:90
@@ -27864,7 +27864,7 @@ msgid "**GDA.** All 64,986 legal executable scalar rows of the 144-file `officia
 msgstr ""
 
 #: manual/verification.md:118
-msgid "**Binary.** The TestFloat level-1 matrix (seed 1) has 254,280,504 vectors in 534 tasks over binary16/32/64/128: 7,461,360 for add, subtract, multiply, divide and square root, 52,632 for the format conversions (each of the four formats to each of the other three, 66 tasks), and 246,766,512 for the IEEE operations mulAdd (245,329,920 of them), rem, roundToInt, the conversions to 32- and 64-bit signed and unsigned integers, and the comparisons eq, le, lt, eq_signaling, le_quiet and lt_quiet. It runs five rounding directions where the operation uses one, both tininess modes for the arithmetic operations, mulAdd and the narrowing format conversions, and both exact and inexact variants for roundToInt and the conversions. Invalid integer conversions are compared by flags only, because SoftFloat returns platform-specific sentinel values where the API returns `None`. The gate judges the operation, not the operation followed by a rounding of the harness: the result is packed into the bit fields of its format by the front end itself and a result that is not a number of the format fails the vector; the flags compared are the operation's own. The MPFR part adds the 1,055 executable rows of the pinned square-root data, 1,740 hash-pinned witnesses covering 29 elementary operations at binary32/64/128 precision under the five `BinaryRoundingMode` values, and the decimal character conversions of IEEE 754-2019 §5.12: 1,434 `mpfr_strtofr` witnesses (decimal text to binary at 11 to 200 bits, including exact halfway points and the exponent limits) and 2,688 `mpfr_get_str` witnesses (fixed digit counts, exact ties and the shortest round-trip digit count)."
+msgid "**Binary.** The TestFloat level-1 matrix (seed 1) has 254,280,504 vectors in 534 tasks over binary16/32/64/128: 7,461,360 for add, subtract, multiply, divide and square root, 52,632 for the format conversions (each of the four formats to each of the other three, 66 tasks), and 246,766,512 for the IEEE operations mulAdd (245,329,920 of them), rem, roundToInt, the conversions to 32- and 64-bit signed and unsigned integers, and the comparisons eq, le, lt, eq_signaling, le_quiet and lt_quiet. It runs five rounding directions where the operation uses one, both tininess modes for the arithmetic operations, mulAdd and the narrowing format conversions, and both exact and inexact variants for roundToInt and the conversions. Invalid integer conversions are compared by flags only, because SoftFloat returns platform-specific sentinel values where the API returns `None`. The gate judges the operation, not the operation followed by a rounding of the harness: the result is packed into the bit fields of its format by the front end itself and a result that is not a number of the format fails the vector; the flags compared are the operation's own. The MPFR part adds the 1,055 executable rows of the pinned square-root data, 1,740 hash-pinned witnesses covering 29 elementary operations at binary32/64/128 precision under the five `BinaryRoundingMode` values, and the decimal character conversions of IEEE 754-2019 §5.12: 3,699 `mpfr_strtofr` witnesses (decimal text to binary at 11 to 200 bits, including exact halfway points and the exponent limits) and 2,688 `mpfr_get_str` witnesses (fixed digit counts, exact ties and the shortest round-trip digit count)."
 msgstr ""
 
 #: manual/verification.md:140
@@ -27876,7 +27876,7 @@ msgid "**Interval.** The strict ITF1788 phases pass 6,632/6,632 selected cases: 
 msgstr ""
 
 #: manual/verification.md:152
-msgid "The committed smoke fixtures that `just pr` runs are subsets of these: the binary smoke, for example, has 6,249 rows (288 TestFloat vectors, 3 square-root witnesses, 96 integer-power witnesses, 1,740 elementary witnesses, 1,434 `strtofr` witnesses and 2,688 decimal output witnesses). These counts are read from the manifests (`testdata/bin_float/corpora.json` and `testdata/bin_float/smoke/manifest.json`) by `tools/check_manual_counts.py`, which runs with the unit tests of `just pr` and fails when a page and a manifest disagree."
+msgid "The committed smoke fixtures that `just pr` runs are subsets of these: the binary smoke, for example, has 8,514 rows (288 TestFloat vectors, 3 square-root witnesses, 96 integer-power witnesses, 1,740 elementary witnesses, 3,699 `strtofr` witnesses and 2,688 decimal output witnesses). These counts are read from the manifests (`testdata/bin_float/corpora.json` and `testdata/bin_float/smoke/manifest.json`) by `tools/check_manual_counts.py`, which runs with the unit tests of `just pr` and fails when a page and a manifest disagree."
 msgstr ""
 
 #: manual/verification.md:161

@@ -133,7 +133,7 @@ are documented in `testdata/bin_float/README.md`, `testdata/decimal/README.md` (
   square-root data, 1,740 hash-pinned witnesses covering 29 elementary
   operations at binary32/64/128 precision under the five `BinaryRoundingMode`
   values, and the decimal character conversions of IEEE 754-2019 §5.12:
-  1,434 `mpfr_strtofr` witnesses (decimal text to binary at 11 to 200 bits,
+  3,699 `mpfr_strtofr` witnesses (decimal text to binary at 11 to 200 bits,
   including exact halfway points and the exponent limits) and 2,688
   `mpfr_get_str` witnesses (fixed digit counts, exact ties and the shortest
   round-trip digit count).
@@ -150,9 +150,9 @@ are documented in `testdata/bin_float/README.md`, `testdata/decimal/README.md` (
   trigonometric reverse functions, `powRev1` and `powRev2`. `atan2Rev1` and `atan2Rev2` have no ITF1788 cases; the gate runs 16,260 generated cases of ours (`testdata/interval/generated`, written and validated by `tools/itl_atan2_reverse_oracle.py`) as the separate `atan2-reverse` phase.
 
 The committed smoke fixtures that `just pr` runs are subsets of these: the
-binary smoke, for example, has 6,249 rows (288 TestFloat vectors, 3
+binary smoke, for example, has 8,514 rows (288 TestFloat vectors, 3
 square-root witnesses, 96 integer-power witnesses, 1,740 elementary witnesses,
-1,434 `strtofr` witnesses and 2,688 decimal output witnesses). These counts
+3,699 `strtofr` witnesses and 2,688 decimal output witnesses). These counts
 are read from the manifests (`testdata/bin_float/corpora.json` and
 `testdata/bin_float/smoke/manifest.json`) by `tools/check_manual_counts.py`,
 which runs with the unit tests of `just pr` and fails when a page and a
