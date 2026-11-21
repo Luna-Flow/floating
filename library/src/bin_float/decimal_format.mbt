@@ -61,6 +61,43 @@ fn binary_decimal_exponent(value : BinFloat) -> Int32 {
 }
 
 ///|
+/// Above this power of ten a single `10^count` can leave the exponent range
+/// (10^(2^28) is about 2^(8.9e8), the range ends at 2^(2^30)), so the power is
+/// applied in two halves; below it one power is both exact enough and cheaper.
+let decimal_format_split_power : Int32 = 1 << 28
+
+///|
+/// `value / 10^count` (`divide`) or `value * 10^count`, with the power in
+/// `power_context` and the operation in `operation_context`, each a directed
+/// rounding, so the result is a bound on the exact quotient or product. A count
+/// above `decimal_format_split_power` is applied in two halves: `10^count` alone
+/// could overflow when the value is near the opposite end of the range (#677).
+fn binary_ten_power_applied(
+  value : BinFloat,
+  ten : BinFloat,
+  count : Int32,
+  divide : Bool,
+  power_context : BinaryContext,
+  operation_context : BinaryContext,
+) -> BinFloat {
+  let first = if count > decimal_format_split_power { count / 2 } else { count }
+  let step = fn(operand : BinFloat, power : Int32) {
+    let factor = ten.pown_ctx(power, power_context).0
+    if divide {
+      operand.div_ctx(factor, operation_context).0
+    } else {
+      operand.mul_ctx(factor, operation_context).0
+    }
+  }
+  let partial = step(value, first)
+  if first < count {
+    step(partial, count - first)
+  } else {
+    partial
+  }
+}
+
+///|
 /// `round(value / 10^scale)` as a signed integer magnitude under `mode`, and
 /// whether it is inexact.
 fn binary_scaled_decimal_integer(
@@ -117,31 +154,15 @@ fn binary_scaled_decimal_integer(
       work,
       BinaryRoundingMode::RoundTowardPositive,
     )
-    // 10^|scale| alone can leave the exponent range (the value is then near
-    // the opposite end of it), so the power is applied in two directed halves.
-    let first = scale / 2
-    let second = scale - first
     let (low, high) = if scale >= 0 {
       (
-        low_value.div_ctx(ten.pown_ctx(first, up).0, down).0.div_ctx(
-          ten.pown_ctx(second, up).0,
-          down,
-        ).0,
-        high_value.div_ctx(ten.pown_ctx(first, down).0, up).0.div_ctx(
-          ten.pown_ctx(second, down).0,
-          up,
-        ).0,
+        binary_ten_power_applied(low_value, ten, scale, true, up, down),
+        binary_ten_power_applied(high_value, ten, scale, true, down, up),
       )
     } else {
       (
-        low_value.mul_ctx(ten.pown_ctx(-first, down).0, down).0.mul_ctx(
-          ten.pown_ctx(-second, down).0,
-          down,
-        ).0,
-        high_value.mul_ctx(ten.pown_ctx(-first, up).0, up).0.mul_ctx(
-          ten.pown_ctx(-second, up).0,
-          up,
-        ).0,
+        binary_ten_power_applied(low_value, ten, -scale, false, down, down),
+        binary_ten_power_applied(high_value, ten, -scale, false, up, up),
       )
     }
     let (signed_low, signed_high) = if value.negative() {
