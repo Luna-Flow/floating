@@ -54,18 +54,38 @@ fn stored_range_values() -> Array[Decimal] {
 }
 
 ///|
+// oracle: A
+// source: e_min = Etiny + precision - 1 with Etiny = Emin - precision + 1 (GDA 1.70, Context), the six rows
+//   written out as integers computed with Python; the stored limits -2147483645 and 2147483646 are the
+//   documented design range of the library (Int32 minimum + 3, Int32 maximum - 1), not a clause of GDA
+// shares: nothing
 test "the limits are the range of the working context of the plain operators" {
-  for precision in [1, 2, 7, 34, 100, 999_999_999] {
+  // (precision, e_min) written out: e_min = Etiny + precision - 1 with Etiny = -2147483645 (GDA 1.70, Etiny =
+  // Emin - precision + 1), computed with Python integers
+  let rows : Array[(Int32, Int32)] = [
+    (1, -2_147_483_645),
+    (2, -2_147_483_644),
+    (7, -2_147_483_639),
+    (34, -2_147_483_612),
+    (100, -2_147_483_546),
+    (999_999_999, -1_147_483_647),
+  ]
+  for row in rows {
+    let (precision, e_min) = row
     let context = gda_plain_working_context(precision)
-    assert_eq(context.e_max_, gda_value_e_max)
-    assert_eq(etiny(context.decimal_), gda_value_e_tiny)
-    assert_eq(context.e_min_, gda_value_e_tiny + precision - 1)
+    assert_eq(context.e_max_, 2147483646)
+    assert_eq(etiny(context.decimal_), -2147483645)
+    assert_eq(context.e_min_, e_min)
   }
   assert_eq(gda_value_e_max, 2147483646)
   assert_eq(gda_value_e_tiny, -2147483645)
 }
 
 ///|
+// oracle: A
+// source: expected strings and error substrings written out at the two limits of the stored range (-2147483645
+//   and 2147483646, the documented design range); the carry case follows from 35 nines rounding to 10^34
+// shares: nothing
 test "make and try_make accept the limits and reject one past each" {
   let e_max = gda_value_e_max
   let e_tiny = gda_value_e_tiny
@@ -116,11 +136,31 @@ test "make and try_make accept the limits and reject one past each" {
 }
 
 ///|
+// oracle: A, S
+// source: the edge rows are expected strings written out at the two limits of the stored range (x + 0, x - 0
+//   and x * 1 keep the operand, GDA 1.70 add and multiply); the loop over stored_range_values is an
+//   identity (S) whose expected value is the operand itself
+// shares: stored_in_range (the range predicate, checked by the make and try_make block)
 test "x + 0, x * 1 and x - 0 equal x for every stored finite value" {
   let zero = Decimal::zero()
   let one = Decimal::one()
   let values = stored_range_values()
   assert_true(values.length() > 150)
+  let lowest = Decimal::make(1N, gda_value_e_tiny, 34)
+  inspect(lowest + zero, content="1E-2147483645")
+  inspect(lowest - zero, content="1E-2147483645")
+  inspect(lowest * one, content="1E-2147483645")
+  let highest = Decimal::make(1N, gda_value_e_max, 34)
+  // the zero has exponent 0, so the exact sum has 2147483647 digits and rounds to 34 (GDA 1.70, add)
+  inspect(
+    highest + zero,
+    content="1.000000000000000000000000000000000E+2147483646",
+  )
+  inspect(
+    highest - zero,
+    content="1.000000000000000000000000000000000E+2147483646",
+  )
+  inspect(highest * one, content="1E+2147483646")
   for x in values {
     assert_true(stored_in_range(x))
     assert_true(x + zero == x, msg="x + 0 for \{x}")
@@ -135,6 +175,10 @@ test "x + 0, x * 1 and x - 0 equal x for every stored finite value" {
 /// the stored range. The functions are listed by name: a new one has to be added
 /// here. (`Decimal::from_*`, `make`, `zero`, `one` and the other constructors
 /// take no `Decimal`; the last test of this file covers them.)
+// oracle: S
+// source: the invariant that a result is not finite or inside the stored range, checked by stored_in_range; no
+//   expected value is computed
+// shares: stored_in_range
 test "no function without a context leaves the stored range" {
   let values = stored_range_values()
   let modes = [
@@ -190,6 +234,9 @@ test "no function without a context leaves the stored range" {
 /// The constructors that take no `Decimal` and could, in principle, leave the
 /// range: only `make`, `try_make` and `from_string` take an exponent, the others
 /// build exponent 0 or are bounded by their argument type.
+// oracle: S
+// source: the invariant that a constructed value is inside the stored range, checked by stored_in_range
+// shares: stored_in_range
 test "constructors without an exponent stay inside the stored range" {
   for n in [0, 1, -1, 2147483647, -2147483647 - 1] {
     assert_true(stored_in_range(Decimal::from_int(n)))

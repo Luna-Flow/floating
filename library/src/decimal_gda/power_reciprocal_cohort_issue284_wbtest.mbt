@@ -175,6 +175,9 @@ fn issue284_check(
 /// GDA 1.70, *power*: the exponent of an unrounded result is the one repeated multiplication gives.
 /// Expected values: Python `decimal` (libmpdec 4.0.0) as oracle, checked against the clause by hand;
 /// the oracle is not the specification.
+// oracle: A
+// source: CPython decimal rows checked against GDA power clause; 50/50 re-run, 0 disagree
+// shares: nothing
 test "an exact negative integer power keeps the cohort of its reciprocal (#284)" {
   let rows : Array[
     (

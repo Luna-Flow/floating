@@ -177,6 +177,9 @@ fn issue267_check(
 /// power runs internally must not leak a fold-down of its own. Expected values: Python
 /// `decimal` (libmpdec 4.0.0) as oracle, checked against the clause by hand; the oracle
 /// is not the specification.
+// oracle: A
+// source: CPython decimal rows checked against Clamped clause; 54/54 re-run, 0 disagree
+// shares: nothing
 test "power signals Clamped only when the result exponent was altered (#267)" {
   let rows : Array[
     (

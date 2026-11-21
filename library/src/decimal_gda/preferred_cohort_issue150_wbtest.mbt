@@ -1,6 +1,10 @@
 ///|
 /// General Decimal Arithmetic 1.70 to-number keeps the cohort of an integer of at most p digits; same expectations as `decimal` (IEEE 754-2019 §5.4.1, §5.4.2,
 /// §5.2).
+// oracle: A
+// source: hand and CPython: cohort of integers (1000, 1.00E+3, 1.00E+5), Decimal(0.1) at 16 and 17 digits,
+//   -1.0000E+22, 1.50E+300; all agree
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "integer and binary constructors return the preferred cohort (#150)" {
   let s = fn(x : Decimal) { x.to_string() }
   inspect(s(Decimal::from_int(1000)), content="1000")

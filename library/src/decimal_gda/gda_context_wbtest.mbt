@@ -1,4 +1,7 @@
 ///|
+// oracle: A
+// source: GDA 1.70: 1/0 is Infinity with Division_by_zero; trap enabled leads to Trapped
+// shares: nothing
 test "GDA outcomes retain sticky status and defined trap results" {
   let operand = Decimal::one(precision=9)
   let divisor = Decimal::zero(precision=9)
@@ -37,11 +40,17 @@ test "GDA outcomes retain sticky status and defined trap results" {
 }
 
 ///|
+// oracle: A
+// source: GDA 1.70 radix operation: result 10
+// shares: nothing
 test "GDA context exposes radix ten" {
   assert_eq(GdaContext::basic_default().radix(), 10)
 }
 
 ///|
+// oracle: S
+// source: field pass-through of try_new; the expected values are those passed in
+// shares: nothing
 test "GDA try_new preserves validated context fields" {
   let traps = GdaTrapSet::new().with_signal(GdaSignal::Inexact)
   let context = GdaContext::try_new(
@@ -64,6 +73,9 @@ test "GDA try_new preserves validated context fields" {
 }
 
 ///|
+// oracle: S
+// source: field pass-through of the conversion; the expected values are those put into the context
+// shares: nothing
 test "GDA Decimal contextual conversion preserves exponent bounds and clamp" {
   let arithmetic = @lf_arith.ArithmeticContext::new(
     16,
@@ -79,6 +91,9 @@ test "GDA Decimal contextual conversion preserves exponent bounds and clamp" {
 }
 
 ///|
+// oracle: A
+// source: hand: 2^10 = 1.024E+3 has adjusted exponent 3 > Emax 2
+// shares: nothing
 test "GDA Decimal checked powers preserve arithmetic exponent bounds" {
   let context = @lf_arith.ArithmeticContext::new(7, e_min=-95, e_max=2)
   let result = @lf_arith.PowNatChecked::pow_nat_checked(
@@ -90,6 +105,9 @@ test "GDA Decimal checked powers preserve arithmetic exponent bounds" {
 }
 
 ///|
+// oracle: A
+// source: hand: 1/0 flags DivisionByZero; 1+1 = 2; flags are sticky per spec
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "GDA exact outcomes preserve sticky status without raising flags" {
   let sticky = divide(
     Decimal::one(precision=9),
@@ -112,6 +130,10 @@ test "GDA exact outcomes preserve sticky status without raising flags" {
 }
 
 ///|
+// oracle: A, S
+// source: GDA 1.70 (Conditions, precedence): Subnormal, Inexact, Rounded and Clamped traps come after every other
+//   condition; the order Invalid operation before Division by zero asserted here is the library's choice (S)
+// shares: nothing
 test "GDA trap selection preserves signal precedence" {
   let raised = {
     ..GdaFlags::new(),
@@ -133,6 +155,9 @@ test "GDA trap selection preserves signal precedence" {
 }
 
 ///|
+// oracle: A
+// source: GDA 1.70 default contexts: decimal32/64/128 precisions 7, 16, 34; hand: 1/0 raises DivisionByZero
+// shares: nothing
 test "GDA cached presets do not share sticky status or traps" {
   let configured = GdaContext::basic_default().trap(GdaSignal::DivisionByZero)
   let outcome = divide(
@@ -152,6 +177,10 @@ test "GDA cached presets do not share sticky status or traps" {
 }
 
 ///|
+// oracle: A
+// source: GDA 1.70 Basic default context (precision 9, half-up, traps all but inexact/rounded/subnormal, lost
+//   digits 0), checked in the spec text
+// shares: nothing
 test "GDA basic context matches the 1.70 defaults" {
   let ctx = GdaContext::basic_default()
   assert_eq(ctx.precision(), 9)
@@ -171,6 +200,9 @@ test "GDA basic context matches the 1.70 defaults" {
 }
 
 ///|
+// oracle: A
+// source: GDA 1.70: a syntax error in a conversion is Invalid_operation
+// shares: nothing
 test "GDA invalid conditions signal InvalidOperation" {
   let outcome = to_number(
     "not-a-number",
@@ -191,6 +223,9 @@ test "GDA invalid conditions signal InvalidOperation" {
 }
 
 ///|
+// oracle: A
+// source: hand: (-1)^odd and (-1)^even; exponent not rounded to precision 7
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "GDA Decimal checked integer powers use the exact exponent" {
   // An exponent longer than the context precision must not be rounded
   // before use: rounding 12345679 to seven digits makes it even (#51).
@@ -223,6 +258,10 @@ test "GDA Decimal checked integer powers use the exact exponent" {
 /// `Conversion_syntax` and `Invalid_context` come without the plain
 /// `Invalid_operation`); the signal is read with `contains` and trapped with the
 /// one trap-enabler of the signal.
+// oracle: A
+// source: GDA 1.70: Conversion syntax, Division undefined, Division impossible, Invalid context are Invalid
+//   operation; inputs 0/0, 1E+10 // 1 at p5, precision 5,000,000 beyond the 999,999 limit
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "the four conditions that signal invalid-operation are raised, read and trapped as InvalidOperation" {
   let plain = GdaContext::new(precision=5)
   let trapping = plain.trap(GdaSignal::InvalidOperation)
@@ -284,6 +323,11 @@ test "the four conditions that signal invalid-operation are raised, read and tra
 }
 
 ///|
+// oracle: A, S
+// source: the nine signals of GDA 1.70 (Clamped, Division by zero, Inexact, Invalid operation, Lost digits,
+//   Overflow, Rounded, Subnormal, Underflow) and the 9 x 9 truth table written out; the enable and disable round
+//   trip is an identity (S)
+// shares: nothing
 test "a trap-enabler exists for each of the nine signals and nothing else traps" {
   let all : Array[GdaSignal] = [
     Clamped,
@@ -306,6 +350,10 @@ test "a trap-enabler exists for each of the nine signals and nothing else traps"
 }
 
 ///|
+// oracle: A
+// source: GDA 1.70 Precedence of exceptions: any other trap before Subnormal/Inexact/Rounded; 9.99E+9*10
+//   overflows at Emax 9
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "the first trapped signal follows the handler order" {
   let traps = GdaTrapSet::new()
     .with_signal(GdaSignal::Inexact)

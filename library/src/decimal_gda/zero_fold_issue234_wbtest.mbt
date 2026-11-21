@@ -41,6 +41,9 @@ fn issue234_gda_context(name : String) -> GdaContext {
 }
 
 ///|
+// oracle: A
+// source: spec and decNumber decQuantizeOp/decFinalize fold rule; 19 literal rows
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "a zero quantize result above the top exponent folds down and raises Clamped (issue 234)" {
   for row in issue234_gda_rows {
     let (name, zero, quantum, result, clamped) = row

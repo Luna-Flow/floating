@@ -42,6 +42,11 @@ fn issue168_context(
 /// Expected values: Python `fractions` (exact power) rounded by
 /// `decimal.Context.divide` with the format's parameters; the oracle only
 /// cross-checks the standard.
+// oracle: A
+// source: exact power rounded per direction (Python fractions, as in the doc comment); 54 of 56 rows agree with
+//   CPython 3.13, the two decimal32 rows -0.3^7001 Floor and Up differ (CPython gives -0E-101 with Clamped,
+//   a libmpdec directed-mode deviation)
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "decimal integer powers below Etiny round in the rounding direction (#168)" {
   let rows : Array[
     (String, String, String, DecimalRoundingMode, String, String, String),

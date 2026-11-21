@@ -2,6 +2,9 @@
 /// 1/2222 = 0.00045004..., so one digit rounds to 0.0005. Rounding the guarded
 /// quotient with the target mode made the discarded tail look like an exact
 /// 50...0 tie, and the final HalfEven then rounded down to 0.0004.
+// oracle: A
+// source: Python decimal: 1/2222 at p1 is 0.0005 in HalfEven, HalfUp, HalfDown
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "gda divide rounds once near a manufactured midpoint" {
   let one = Decimal::from_string("1").unwrap()
   let divisor = Decimal::from_string("2222").unwrap()
@@ -18,6 +21,9 @@ test "gda divide rounds once near a manufactured midpoint" {
 }
 
 ///|
+// oracle: A
+// source: hand and Python decimal: 1/2=0.5, 1/4=0.25, 6/3=2, 1/8=0.125
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "gda divide stays exact when the quotient terminates" {
   let none = GdaTrapSet::new()
   let ctx = GdaContext::new(

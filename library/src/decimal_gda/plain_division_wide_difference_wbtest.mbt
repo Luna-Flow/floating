@@ -6,6 +6,9 @@
 /// Emax=2147483646, Emin=-2147483645 + P - 1, clamp=0)`, operands read with
 /// `create_decimal` (rounded to P digits as `from_string(text, precision=P)`);
 /// written out.
+// oracle: A
+// source: CPython Context(prec=P, Emax=2147483646, Emin=-2147483645+P-1) as stated; 13/13 re-run, 0 disagree
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "plain division with an exponent difference above Int" {
   let rows = [
     (3, "1E+2147483646", "-2.50", "-4E+2147483645"),

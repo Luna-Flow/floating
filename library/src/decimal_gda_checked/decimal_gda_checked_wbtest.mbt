@@ -1,4 +1,7 @@
 ///|
+// oracle: A
+// source: spec: result inexact unless exact within precision; 0.01**0.5 = 0.1 padded to 0.1000
+// shares: nothing
 test "gda checked threads sticky status" {
   let context = @decimal_gda.GdaContext::new(precision=3)
   let parsed = GdaDecimalChecked::to_number("1.2345", context)
@@ -11,6 +14,9 @@ test "gda checked threads sticky status" {
 }
 
 ///|
+// oracle: A
+// source: literal operations; exponent gap over 2^31-1; operands equal to the large one after rounding
+// shares: nothing
 test "gda checked traps short circuit and preserve defined results" {
   let context = @decimal_gda.GdaContext::decimal64().trap(
     @decimal_gda.GdaSignal::DivisionByZero,
@@ -39,6 +45,10 @@ test "gda checked traps short circuit and preserve defined results" {
 }
 
 ///|
+// oracle: A
+// source: hand derivation: to_number rounds 1.2345 at p3 to 1.23; 1 + 1.23 = 2.23; Python agrees (2.23); trap
+//   short circuit rules of the pipeline
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "gda checked power of a power of ten with an integral k*y is exact in the directed modes (issue 351)" {
   for
     mode in [
@@ -70,6 +80,9 @@ test "gda checked power of a power of ten with an integral k*y is exact in the d
 }
 
 ///|
+// oracle: A
+// source: 10^-6 padded in 4 directed modes; value from spec; same row as the core test
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "gda checked power to a zero exponent is exactly 1 in a clamped context (issue 405)" {
   let context = @decimal_gda.GdaContext::new(
     precision=5,
@@ -90,6 +103,9 @@ test "gda checked power to a zero exponent is exactly 1 in a clamped context (is
 }
 
 ///|
+// oracle: A
+// source: spec: x**0 is exactly 1; literal 1 and no Clamped
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "gda checked power to one half is the padded inexact result without Clamped (issue 397)" {
   let context = @decimal_gda.GdaContext::new(
     precision=4,
@@ -115,6 +131,9 @@ test "gda checked power to one half is the padded inexact result without Clamped
 ///|
 /// S9: the right operand is a pipeline; its conditions join the result and its
 /// trap short-circuits, the context of the left pipeline decides the operation.
+// oracle: A
+// source: literal strings for 17 checked operations (decTest-like values), hand derived
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "gda checked merges the conditions and the trap of the right operand" {
   let left_context = @decimal_gda.GdaContext::new(precision=5)
   let right_context = @decimal_gda.GdaContext::new(precision=3)

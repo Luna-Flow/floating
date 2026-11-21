@@ -1,4 +1,8 @@
 ///|
+// oracle: A
+// source: floor(987654321 * 10^(scale - 20)) for eight scales, written out with Python integers; the tiny value
+//   123456789E-2000000 scaled by 10 is zero (its quotient by 10^1999990 is below one)
+// shares: nothing
 test "scaled representation of a tiny value is zero without a power of ten" {
   // exponent -2_000_000: the divisor 10^1_999_990 would have two million digits
   let tiny = finite_with_exponent_repr(
@@ -22,15 +26,21 @@ test "scaled representation of a tiny value is zero without a power of ten" {
     -20,
     9,
   )
-  for scale in [8, 11, 12, 13, 15, 19, 20, 25] {
+  // (scale, magnitude): floor(987654321 * 10^(scale - 20)), written out with Python integers
+  let rows : Array[(Int32, String)] = [
+    (8, "0"),
+    (11, "0"),
+    (12, "9"),
+    (13, "98"),
+    (15, "9876"),
+    (19, "98765432"),
+    (20, "987654321"),
+    (25, "98765432100000"),
+  ]
+  for row in rows {
+    let (scale, expected) = row
     let (negative, magnitude) = decimal_finite_to_scaled_repr(value, scale)
-    let shift = -20 + scale
-    let expected = if shift >= 0 {
-      dec_coeff_shift_power10_repr(value.coefficient, shift)
-    } else {
-      dec_coeff_div_rem_repr(value.coefficient, dec_coeff_power10_repr(-shift)).0
-    }
-    assert_eq(magnitude.to_string(), expected.to_string())
-    assert_eq(negative, !expected.is_zero())
+    assert_eq(magnitude.to_string(), expected)
+    assert_eq(negative, expected != "0")
   }
 }

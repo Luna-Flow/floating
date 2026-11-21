@@ -14,6 +14,10 @@ fn issue211_flags(flags : DecimalFlags) -> String {
 /// reciprocal). Expected values: Python `decimal` with the same parameters
 /// (cross-check only; the specification is the authority). Context: precision
 /// 16, `e_min = -383`, `e_max = 384`, `clamp`.
+// oracle: A
+// source: 18 literal rows (cohort exponent of integer powers) with flags; CPython agrees 18 of 18 at p16 emin
+//   -383 emax 384 clamp 1; specification is the authority
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "decimal_gda integer powers keep the repeated-multiplication exponent (#211)" {
   let ctx = DecimalContext::new(precision=16, e_min=-383, e_max=384, clamp=true)
   let rows : Array[(String, String, String, String)] = [

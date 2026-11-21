@@ -124,6 +124,11 @@ fn issue405_rows(
 }
 
 ///|
+// oracle: A
+// source: GDA power clause (right-hand zero gives 1 and exact); CPython 3.13 decimal gives 1 with no flags for the
+//   2400 combinations of the 6 extended contexts x 8 modes x 10 bases x 5 zero exponents; the 7th context
+//   (subset, 400 combinations) is hand-derived from the same clause
+// shares: nothing
 test "power of a finite nonzero base to a zero exponent is exactly 1 in every context (issue 405)" {
   for base in issue405_bases {
     for exponent in issue405_exponents {
@@ -135,6 +140,10 @@ test "power of a finite nonzero base to a zero exponent is exactly 1 in every co
 }
 
 ///|
+// oracle: A
+// source: CPython: Inf**0 is 1 no flags, 0**0 is NaN in extended; subset 0**0 = 1 from GDA Appendix A (not run
+//   in Python)
+// shares: nothing
 test "power of infinity to a zero exponent is 1 and 0 to 0 keeps its rule (issue 405)" {
   // Inf ** 0 is the integer 1 as well (decNumberPower, "[-]Inf**0 => 1").
   for base in ["Infinity", "-Infinity"] {
@@ -165,6 +174,9 @@ test "power of infinity to a zero exponent is 1 and 0 to 0 keeps its rule (issue
 }
 
 ///|
+// oracle: A
+// source: CPython: 2**1 is 2.0000 Clamped, 1**1 is 1 not Clamped in Context(prec=5,Emin=-10,Emax=0,clamp=1)
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "power to a non-zero exponent in a clamped context still folds down (issue 405)" {
   // The neighbour: 2 ** 1 is 2.0000 with Clamped, 1 ** 1 stays 1 (known open point).
   let ctx = DecimalContext::new(precision=5, e_min=-10, e_max=0, clamp=true)

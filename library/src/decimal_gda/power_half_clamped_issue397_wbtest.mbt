@@ -142,6 +142,10 @@ test "power with exponent one half or minus one half is the padded inexact resul
 }
 
 ///|
+// oracle: A
+// source: two hand-derived rows (0.01**0.5 at p4 e_max 0 padded 0.1000; 1E+6**0.5 at p56 padded 1000.000...);
+//   CPython half_down row agrees, the p4 'down' row differs from CPython
+// shares: nothing
 test "the rows of issue 397 (clamped, e_max below precision - 1)" {
   // 0.01 ** 0.5: the square root 0.1 is short; padded it is 0.1000, exponent -4
   // = e_max - precision + 1 - 1, nothing is folded.
@@ -157,6 +161,10 @@ test "the rows of issue 397 (clamped, e_max below precision - 1)" {
 }
 
 ///|
+// oracle: A
+// source: spelling variants of the exponent: literals 0.10000 and 0.50000 from hand derivation; CPython agrees
+//   on all 10 spellings
+// shares: nothing
 test "the spellings of the exponent one half agree (issue 397)" {
   for spelling in ["0.5", "0.50", "5E-1", ".5", "+0.5", "50E-2"] {
     for got in issue397_run(5, -10, 0, true, "half_even", "0.01", spelling) {
@@ -171,6 +179,10 @@ test "the spellings of the exponent one half agree (issue 397)" {
 }
 
 ///|
+// oracle: A
+// source: 1E-30**0.5 hand-derived (1E-15 below Etiny -14 gives 0E-14, GDA Clamped rule: subnormal rounds to
+//   zero) ; CPython gives 0E-14 xr...usc
+// shares: nothing
 test "a result that rounds to zero keeps Clamped (issue 397)" {
   // 1E-9 ** 0.5 = 3.16E-5 is fine; 1E-30 ** 0.5 = 1E-15 is below Etiny = -14.
   for got in issue397_run(5, -10, 0, true, "half_even", "1E-30", "0.5") {

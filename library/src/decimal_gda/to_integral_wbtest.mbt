@@ -18,6 +18,10 @@ fn to_integral_show(outcome : GdaOutcome[Decimal]) -> String {
 }
 
 ///|
+// oracle: A
+// source: CPython to_integral_exact/value at prec 3 and 2: 12346 xr, 12346, 12345 .r, -100 xr, 12345 and
+//   1.2345E+7 unchanged; all agree
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "to_integral keeps integral parts longer than the precision" {
   let d = (s : String) => Decimal::from_string(s).unwrap()
   let p3 = GdaContext::new(precision=3, e_min=-999_999, e_max=999_999)

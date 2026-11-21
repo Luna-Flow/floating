@@ -5,6 +5,9 @@
 /// rounded coefficient stay (`1.0001` at 3 digits is `1.00`, not `1`). A carry
 /// into 10^p moves the exponent up by one and leaves p digits (`99999` is
 /// `1.00E+5`, `9.9999` is `10.0`). Same behaviour as `decimal` (#178).
+// oracle: A
+// source: spec: parse rounds to precision, cohort kept; 16 literal rows; Python agrees
+// shares: Decimal::from_string and to_string (reading the inputs, printing the result)
 test "decimal_gda parse keeps the rounded cohort for literals longer than the precision (#180)" {
   let p = fn(text : String, precision : Int32) {
     Decimal::from_string(text, precision~).unwrap().to_string()

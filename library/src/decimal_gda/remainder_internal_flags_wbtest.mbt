@@ -57,6 +57,11 @@ fn check_remainder_row(
 /// flag letters are inexact, rounded, invalid, divide-by-zero, overflow,
 /// underflow, subnormal, clamped, division-impossible, division-undefined and
 /// invalid-context.
+// oracle: A
+// source: values and flags of the 37 rows computed with CPython decimal (libmpdec 4.0.0), remainder and
+//   remainder_near in an extended context with the precision, Emin, Emax and clamp of the row, traps off
+//   (the flag letters d, U and C map to InvalidOperation in CPython); re-run for this inventory, 37 of 37 agree
+// shares: nothing
 test "remainder and remainder_near follow the exact quotient (extended contexts)" {
   let rows : Array[
     (String, String, Int32, Int32, Int32, Bool, Bool, String, String, String),
@@ -136,6 +141,13 @@ test "remainder and remainder_near follow the exact quotient (extended contexts)
 /// A subset context (extended = false) takes the remainder the same way; these rows
 /// agree with the `decimal` package, whose identical fix was checked against
 /// Python `decimal` (the integer quotient is internal in both).
+// oracle: A
+// source: the 8 rows re-run with decNumber 3.68 built with DECSUBSET=1 (the reference implementation of GDA 1.70,
+//   zip sha256 14ec2cf30b58758493a7661b78b80abfb281652b61a425b85cda83173518fe25), through
+//   tools/decnumber_probe.c with remainder and remainderNear, extended=0, operands read exactly: value and
+//   all 11 flag letters of every row agree (the earlier claim of agreement with the decimal package was a
+//   comparison with this library's own sibling and is not the oracle)
+// shares: nothing
 test "remainder and remainder_near in subset contexts do not use the clamped quotient" {
   let rows : Array[
     (String, String, Int32, Int32, Int32, Bool, Bool, String, String, String),
@@ -161,6 +173,10 @@ test "remainder and remainder_near in subset contexts do not use the clamped quo
 /// matters. Its overflow or clamping must not reach the remainder's flags,
 /// and the remainder must be taken with the exact quotient, not with one that
 /// has overflowed to infinity. Expected values from Python `decimal`.
+// oracle: A
+// source: 6.00000000E-15 and 1 with no flag, the remainder of exact operands at precision 9 (remainder of
+//   6E-6 by -9.99999999E-15 and of 123456789 by 7, verified with CPython decimal, libmpdec 4.0.0)
+// shares: nothing
 test "remainder keeps only the flags of the delivered remainder (issue 183)" {
   let x = Decimal::from_string("6E-6").unwrap()
   let y = Decimal::from_string("-9.99999999E-15").unwrap()
@@ -195,6 +211,10 @@ test "remainder keeps only the flags of the delivered remainder (issue 183)" {
 ///|
 /// With a zero quotient the remainder is the dividend at the smaller exponent;
 /// only that result may be clamped, not the dividend at its own exponent.
+// oracle: A
+// source: -0.0800, 4.7360000 and -0.730000 (the dividend when the quotient is zero, GDA 1.70 remainder,
+//   remainder-near), with no flag, verified with CPython decimal (libmpdec 4.0.0)
+// shares: nothing
 test "a zero-quotient remainder is clamped only at its result" {
   let ctx = DecimalContext::new(precision=9, e_min=-24, e_max=4, clamp=true)
   let d = fn(s : String) { Decimal::from_string(s).unwrap() }
@@ -212,6 +232,11 @@ test "a zero-quotient remainder is clamped only at its result" {
 ///|
 /// The reproduction of floating#183: the integer quotient `3` is clamped to
 /// `30000000E-7` when Emax - p + 1 = -7, and that must not alter the remainder.
+// oracle: A
+// source: CPython decimal (libmpdec 4.0.0) prec 9 Emin 0 Emax 1 clamp 1: remainder 1E-8, remainder_near -1E-8
+//   (quotient 3.5 to even 4), remainder of 0 is 0E-8; Subnormal flag only on the first two
+//   (remainder_flags_text letters); 3 of 3 agree
+// shares: nothing
 test "remainder keeps the exact quotient when the quotient would be clamped" {
   let ctx = DecimalContext::new(precision=9, e_min=0, e_max=1, clamp=true)
   let d = fn(s : String) { Decimal::from_string(s).unwrap() }
