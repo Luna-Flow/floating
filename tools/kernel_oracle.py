@@ -1091,6 +1091,16 @@ def addback_rows() -> list[tuple]:
     return rows
 
 
+SHORTQ_WITNESSES = [
+    ("ones", "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "0x345bae8bb99f98d093d70fdffc2f1d8616ea84f1742af29d529abb5cb0c8750327a451744660672f6c28f02003d0e279e9157b0e8bd50d62ad6544a34f378afca4000000000", 261),
+    ("rand", "0xbfb74bb8608cde0ea9be2d8be1b5184beb5d40b02c62a082bdbb98f371b4f60d", "0x52ed983c9ceadb4c36e4a741363a570483c8309b7cb550ddd33c9d58140bd306a5ebdaf7cf588531349df17a0c6ded2904e6aa898e4a8ced5ffffffff", 193),
+    ("minmid", "0x8000000000000000ad6c2c57b16c97b521d6a35753e0dde1ec906089456cfb3a", "0xd8c9c35a2b3fb61708c46820f0bbaedf4ce98eabf0d66c378db25ee172624b8b779c527f1d1288cd15e40cc708d8086d87d3c9a533d33929e5d6dfc3c17f9fd95000000000", 261),
+    ("onesmid", "0xffffffffffffffffc222361b641f3a19f21075c873366037f09aa0c9ff1e2738", "0xcccd4822f122a60c8aa5cf8e049738f1752d1f34479af64af739747fb016a95caa5280e7d3922826e5b9f7f4c76281b401678cc994bce8d593dfcc8b86ed0cac000000000", 257),
+    ("minmid", "0x10000000000000001c122f7eb1d289787fd4e3fa9", "0x34aea5ce7db6c38f6b9ff0bb8ab0236e6ca44c08a7181a18e7bc405446888e3a929093647ffffffff", 129),
+    ("rand", "0x88a2e59534b660d49f73f61e80a6342ae4ef201cced71c6b", "0xb644aad0a1415ae96b2a529792547a42b196c40e14bf0ddd1ddcd8761930beb5d3dfe188b4852273eec8f65cc886979f76cd803cc", 193),
+]
+
+
 DIV_PR_LIMBS = 130  # divisors up to this size run in the default test
 # the thresholds of the three tiers (752, 352, 208), the leaf (64), the padding boundaries
 DIV_SIZES = [3, 33, 63, 64, 65, 96, 97, 129, 130, 192, 193, 207, 208, 209, 256, 257, 351, 352, 353,
@@ -1196,6 +1206,14 @@ def div_row_list() -> list[tuple]:
             for nk in ("s1", "s2", "s3", "s4", "s5", "s6"):
                 for pi, precision in enumerate((64 * n, 64 * n + 30)):
                     add(f"div-sb{n}-{dk}-{nk}-{pi}", "shortq", kinds[dk], nspec_kinds(n + 1, n)[nk], "pr", 0, precision)
+    # the short quotient where the lower bound of the decline test is needed: found by
+    # `tools/short_quotient_bound_search.py` (a search over divisors of 3 and 4 limbs and quotients next
+    # to a rounding boundary); the kernel declines these, a kernel without the bound `2 n` returns a
+    # value that rounds differently from the exact quotient
+    for index, (kind, divisor_hex, dividend_hex, precision) in enumerate(SHORTQ_WITNESSES):
+        d_spec = "0:" + ",".join(limb_terms(int(divisor_hex, 16), 0, "+"))
+        n_spec = "0:" + ",".join(limb_terms(int(dividend_hex, 16), 0, "+"))
+        add(f"div-sw{index}-{kind}", "shortq", d_spec, n_spec, "pr", 0, precision)
     # 5. the short exact division: a quotient of at most 17 bits above 96 bits of divisor
     # is found by bisection on the high product, else the long division
     for dbits in (65, 95, 96, 97, 128, 129, 192, 193, 320, 1000):
