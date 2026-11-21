@@ -297,6 +297,7 @@ pub fn DecimalContext::decimal32(rounding? : DecimalRoundingMode) -> Self
 pub fn DecimalContext::decimal64(rounding? : DecimalRoundingMode) -> Self
 pub fn DecimalContext::e_max(Self) -> Int32
 pub fn DecimalContext::e_min(Self) -> Int32
+pub fn DecimalContext::elementary_precision_limit(Self) -> Int32?
 pub fn DecimalContext::equal(Self, Self) -> Bool
 pub fn DecimalContext::from_arithmetic_context(@arithmetic.ArithmeticContext) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn DecimalContext::new(precision? : Int32, e_max? : Int32, rounding? : DecimalRoundingMode) -> Self
@@ -306,6 +307,7 @@ pub fn DecimalContext::refinement_limit(Self) -> Int32?
 pub fn DecimalContext::rounding(Self) -> DecimalRoundingMode
 pub fn DecimalContext::try_new(precision? : Int32, e_max? : Int32, rounding? : DecimalRoundingMode) -> Result[Self, @arithmetic.ArithmeticError]
 pub fn DecimalContext::with_e_max(Self, Int32) -> Self
+pub fn DecimalContext::with_elementary_precision_limit(Self, Int32?) -> Self
 pub fn DecimalContext::with_precision(Self, Int32) -> Self
 pub fn DecimalContext::with_refinement_limit(Self, Int32?) -> Self
 pub fn DecimalContext::with_rounding(Self, DecimalRoundingMode) -> Self

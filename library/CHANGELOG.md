@@ -589,6 +589,14 @@ notes live in this file.
 
   `from_exact_string(x.to_exact_string(), precision=x.precision())` is `identical` to `x` for every interval, as before.
 
+- `decimal`: `pow`, `pown` and `powr` (and their `try_` forms) refuse a context whose precision is above 999,999 decimal digits, for an ordinary operand, with the context-limit error at once ([#700](https://github.com/Luna-Flow/floating/issues/700)). They had no limit and computed (slowly) at any precision: `pow(2, 0.5)`, a square root, takes 0.6 s at 100,000 digits, 14.7 s at 1,000,000 and more than 300 s at 10,000,000 (release build, loaded machine). The limit is the precision part of the one the elementary functions already apply (`decimal_elementary_precision_limit`). The special cases of IEEE 754-2019 9.2.1 stay values at any precision; `sqrt_ctx` is unchanged.
+
+  | before | after | note |
+  | --- | --- | --- |
+  | `pow_ctx(x, y, ctx)` with a precision above 999,999 computes the result | `not_computed` (`Err` in `try_pow_ctx`), at once; `pow_ctx(x, y, ctx.with_elementary_precision_limit(None))` computes it as before | ordinary operands; the cases of 9.2.1 (`pow(x, 0)`, `pow(1, y)`, `pow(+-0, y)`, infinite exponents, `pow(-1, n)`, NaNs) are values |
+  | `pown_ctx(x, n, ctx)`, `powr_ctx(x, y, ctx)` above 999,999 digits | the same refusal | `pown` is `pow` with an integral exponent; an exact integral power is refused too |
+  | `pow_ctx(x, 0.5, ctx)` above 999,999 digits is `sqrt_ctx(x, ctx)` | `sqrt_ctx(x, ctx)` | `sqrt_ctx` has no context limit |
+
 ### Added
 
 - `bin_float`, `decimal`: every comparison predicate of IEEE 754-2019 5.11 has a function ([#438](https://github.com/Luna-Flow/floating/issues/438), item N6). The clause lists 22 predicates, 10 in Table 5.1 and 12 in Table 5.2; `bin_float` had 7 and `decimal` none. Both now have the 15 others, with the names of the first seven (`compare_quiet_*`, `compare_signaling_*`): `not_equal`, `greater`, `greater_equal`, `not_greater`, `less_unordered`, `not_less` and `greater_unordered` for both kinds, and `compare_quiet_ordered`. Each returns `(Bool, flags)`, is defined from `compare_quiet` or `compare_signaling` and raises invalid where the table says (a signaling NaN for the quiet ones, any NaN for the signaling ones). Nothing existing changes in `bin_float`.
@@ -602,6 +610,8 @@ notes live in this file.
 - `bin_float`: `BinaryFlags` has the flag `not_computed`, as `DecimalFlags` does ([#438](https://github.com/Luna-Flow/floating/issues/438), item S4, first step): `BinaryFlags::not_computed()` reports an operation that could not be carried out within a limit of the implementation, with a NaN value; it is not an IEEE 754-2019 flag and is distinct from `invalid_operation`. `new()` clears it, `combine` accumulates it and `==` compares it. No operation raises it yet; the next steps make the elementary functions raise it where they now raise `invalid_operation` for a failure to compute.
 
 - `bin_float`: `BinFloat::ilogb(self) -> Int32?`, the exponent of the leading bit of a finite non-zero value (`floor(log2 |x|)`, `exponent2() + coefficient().bit_length() - 1`), read without building the coefficient ([#438](https://github.com/Luna-Flow/floating/issues/438)). It is `logB` of IEEE 754-2019 5.3.3 with an integral `logBFormat`: a subnormal gives the exponent of its leading bit; `logB(0)`, `logB(infinity)` and `logB(NaN)`, which the standard sends to language-defined values outside the range of the exponents and signals the invalid operation for, are `None` here and raise no flag. `logb_ctx` is the operation with a floating-point `logBFormat`.
+
+- `decimal`: `DecimalContext::elementary_precision_limit` and `DecimalContext::with_elementary_precision_limit`, the precision limit of the elementary functions and of the `pow` family as a field of the context ([#700](https://github.com/Luna-Flow/floating/issues/700)): `Some(999_999)` by default, `Some(n)` refuses an ordinary operand above `n` digits, `None` removes the limit, an escape entry with no guarantee of running time or memory (the results are still correctly rounded; where the certified kernel cannot represent the working precision, above 80,807,093 digits, the functions that go through it return the context-limit error; the square-root route of `pow` and the exact routes run on). The field takes part in `==` of contexts.
 
 ### Fixed
 

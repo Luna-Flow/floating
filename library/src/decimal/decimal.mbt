@@ -932,8 +932,27 @@ fn decimal_failure_of(
 }
 
 ///|
+/// The default of the precision limit of the elementary functions and of the
+/// `pow` family, in decimal digits (decNumber's restricted context, 999,999):
+/// the one number, the default of `DecimalContext::elementary_precision_limit`
+/// (issue 700). Above the limit of the context only the cases IEEE 754-2019
+/// 9.2.1 lists are values.
+let decimal_elementary_precision_limit : Int32 = 999_999
+
+///|
+/// True when the precision of `ctx` is above its own precision limit.
+fn decimal_precision_over_limit(ctx : DecimalContext) -> Bool {
+  match ctx.elementary_precision_limit {
+    Some(limit) => ctx.precision > limit
+    None => false
+  }
+}
+
+///|
 fn math_context_is_restricted(ctx : DecimalContext) -> Bool {
-  ctx.precision > 999_999 || ctx.e_max > 999_999 || ctx.e_min < -999_999
+  decimal_precision_over_limit(ctx) ||
+  ctx.e_max > 999_999 ||
+  ctx.e_min < -999_999
 }
 
 ///|

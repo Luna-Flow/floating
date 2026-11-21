@@ -1259,7 +1259,7 @@ result is unchanged; only an enclosure that straddles a rounding boundary at a
 distance below $10^{-D}$ relative is refused one step earlier, and the next
 refinement widens $D$ with the binary precision.
 
-The elementary functions refuse contexts with $p$ or $|e|$ above 999,999 for an ordinary operand; the special operands and the exact points of IEEE 754-2019 9.2.1 are answered first, in every context, and the limit is tested before the first step that computes
+The elementary functions and the `pow` family refuse contexts with $p$ or $|e|$ above 999,999 for an ordinary operand (the precision part is the field `elementary_precision_limit` of the context, `Some(999_999)` by default and `None` for no limit, an escape entry with no guarantee of time or memory); the special operands and the exact points of IEEE 754-2019 9.2.1 are answered first, in every context, and the limit is tested before the first step that computes
 (`not_computed`, and `Err` of the certification-failure kind in the `try_` forms; the decNumber limit, see the `decimal_gda` design page),
 which bounds the size of the exact endpoint conversions.
 

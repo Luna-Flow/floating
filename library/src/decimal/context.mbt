@@ -79,6 +79,10 @@ pub struct DecimalContext {
   // library clear it where the digits of a result must not be folded down.
   priv clamp : Bool
   priv refinement_limit : Int32?
+  // The largest precision for which the elementary functions and the `pow`
+  // family compute an ordinary operand (`None`: no limit). It takes part in
+  // `==` of contexts, like `refinement_limit`.
+  priv elementary_precision_limit : Int32?
 }
 
 ///|
@@ -275,6 +279,7 @@ fn DecimalContext::raw(
     e_max,
     clamp,
     refinement_limit: Some(12),
+    elementary_precision_limit: Some(decimal_elementary_precision_limit),
   }
 }
 
@@ -421,6 +426,39 @@ pub fn DecimalContext::with_refinement_limit(
   limit : Int32?,
 ) -> DecimalContext {
   { ..self, refinement_limit: limit, }
+}
+
+///|
+/// The largest context precision, in decimal digits, for which the elementary
+/// functions and the `pow` family compute an ordinary operand: `Some(999_999)`
+/// by default. `None` means no limit (see `with_elementary_precision_limit`).
+pub fn DecimalContext::elementary_precision_limit(
+  self : DecimalContext,
+) -> Int32? {
+  self.elementary_precision_limit
+}
+
+///|
+/// Returns a copy of the context with the precision limit of the elementary
+/// functions and of the `pow` family set to `limit`. `Some(n)` refuses an
+/// ordinary operand in a context whose precision is above `n` (`not_computed`,
+/// `Err` in the `try_` forms), at once; `None` removes the limit.
+///
+/// The default is an engineering limit, not a property of the operations: above
+/// it the library does not bound the running time or the memory, and that range
+/// is not covered by the conformance gates, with no guarantee. The results come
+/// from the same certified kernels, so a returned value is still correctly
+/// rounded. Where the certified kernel cannot represent the working precision
+/// (above 80,807,093 digits) the functions that go through it return the
+/// context-limit error whatever the limit (`decimal_certified_work_refusal`);
+/// the square-root route of `pow` (exponent 0.5, `sqrt_ctx`) and the exact
+/// routes are not refused there and run on. The cases that IEEE 754-2019 9.2.1
+/// lists are values whatever the limit.
+pub fn DecimalContext::with_elementary_precision_limit(
+  self : DecimalContext,
+  limit : Int32?,
+) -> DecimalContext {
+  { ..self, elementary_precision_limit: limit, }
 }
 
 ///|
